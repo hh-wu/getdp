@@ -31,6 +31,7 @@
 #include "List.h"
 #include "Data_Element.h"
 
+
 #define _0D      0
 #define _1D      1
 #define _2D      2
@@ -848,7 +849,12 @@ struct Operation {
       char    * Format ;
       int     ExprIndex ;
     } SaveMesh ;
-
+    struct {
+      char    * Quantity ;
+      char    * Name_MshFile ;
+      int     GeoDataIndex ;
+      double  Factor ;
+    } DeformeMesh ;
 
   } Case ;
 
@@ -891,6 +897,7 @@ struct ChangeOfState {
 
 
 #define OPERATION_SAVEMESH                333
+#define OPERATION_DEFORMEMESH             334
 #define OPERATION_READSOLUTION             12
 #define OPERATION_TRANSFERSOLUTION         13
 #define OPERATION_TRANSFERINITSOLUTION     14
@@ -1092,6 +1099,7 @@ struct CurrentData {
     double *Phi, *Theta, *Weight, **Kdir, Xgc, Ygc, Zgc ;
     double Rsrc, Robs, Precision, far ;
   } FMM ;
+
 
   int     SourceIntegrationSupportIndex ;
 
