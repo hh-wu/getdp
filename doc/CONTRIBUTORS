@@ -1,4 +1,4 @@
-$Id: CONTRIBUTORS,v 1.11 2002-01-21 18:48:42 geuzaine Exp $
+$Id: CONTRIBUTORS,v 1.12 2002-01-21 19:23:26 geuzaine Exp $
 
 GetDP is copyright (c) 1997-2002 by
 
@@ -25,6 +25,7 @@ it is inevitable that some contributors have been omitted. If you are
 in this situation, just send an e-mail to one of the authors, and you
 will be added to the list!
 
+    Olivier Adam <o.adam@@ulg.ac.be>
     Alejandro Angulo <aacusm@@yahoo.com>
     Geoffrey Deli`ege <deliege@@mailserv.esat.kuleuven.ac.be>
     Mark Evans <evans@@gte.net> 
