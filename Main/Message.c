@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.25 2000-11-19 20:21:24 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.26 2000-11-26 15:47:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -133,7 +133,7 @@ void Signal (int sig_num){
     Msg(BIGERROR, "Segmentation Violation (Invalid Memory Reference)");
     break;
   case SIGFPE : 
-    Msg(ERROR, "Floating Point Exception (Division by Zero?)");
+    Msg(BIGERROR, "Floating Point Exception (Division by Zero?)");
     break;
   default :
     Msg(ERROR, "Unknown Signal");
@@ -184,16 +184,16 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
     fprintf(stream, ERROR_STR); 
     vfprintf(stream, fmt, args); 
     fprintf(stream, "\n");
-#ifdef USE_DEBUG
-    Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
-		     &Line, FunctionName);
-    fprintf(stream, WHITE_STR); 
-    fprintf(stream, "File '%s' (V%s by %s on %s)\n", 
-	    FileName, FileVersion, FileAuthor, FileDate);
-    fprintf(stream, WHITE_STR); 
-    fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
-#endif
     if(level == BIGERROR){
+#ifdef USE_DEBUG
+      Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
+		       &Line, FunctionName);
+      fprintf(stream, WHITE_STR); 
+      fprintf(stream, "File '%s' (V%s by %s on %s)\n", 
+	      FileName, FileVersion, FileAuthor, FileDate);
+      fprintf(stream, WHITE_STR); 
+      fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
+#endif
       fprintf(stream, WHITE_STR "------------------------------------------------------\n");
       fprintf(stream, WHITE_STR "You have discovered a bug in GetDP. You may e-mail the\n");
       fprintf(stream, WHITE_STR "context in which it occurred to one of the authors:\n");
