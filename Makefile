@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.126 2003-02-12 22:05:24 geuzaine Exp $
+# $Id: Makefile,v 1.127 2003-02-13 06:52:38 geuzaine Exp $
 
 include variables
 
@@ -152,6 +152,8 @@ source:
 	mkdir getdp-${GETDP_RELEASE}
 	cd getdp-${GETDP_RELEASE} && tar zxvf ../getdp.tgz
 	rm -f getdp.tgz
+	cd getdp-${GETDP_RELEASE}/demos && ${MAKE} clean
+	cd getdp-${GETDP_RELEASE}/doc && ${MAKE} clean
 	cd getdp-${GETDP_RELEASE} && rm -rf Scattering trash utils doc/slides\
                                             ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
 	tar zcvf getdp-${GETDP_RELEASE}-source.tgz getdp-${GETDP_RELEASE}
