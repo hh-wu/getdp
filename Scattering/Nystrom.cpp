@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.5 2002-02-11 22:50:02 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.6 2002-02-11 23:08:49 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,8 +16,8 @@
 
 #define EPSILON 1.e-14
 
+int Verbose = 2;
 using namespace std;
-
 typedef enum Analysis {FULL, CRIT};
 
 // Function to integrate
@@ -175,26 +175,29 @@ complex<double> Nystrom(int singular, double t, Function *func, double kvec[3],
   for(j=0 ; j<=2*n-1 ; j++){
     tau_orig = TWO_PI*j/(2.*n);
     tau = (tau_orig-PI)*part->epsilon/PI+part->center;
-    scat->val(tau,xtau);
-    scat->der(tau,dxtau);
     pou = part->val(tau);
-    f = func->val(kvec,tau,xtau);
-    kern.init(t,xt,dxt,tau,xtau,dxtau,k);
-    if(singular){ // combine special quadrature with trapezoidal
-      w = SpecialQuadratureWeightForLog(PI,tau_orig,n);
-      m1 = kern.M1();
-      m2 = kern.M2(tau_orig,part->epsilon);
-      res += (w * m1 + PI/(double)n * m2) * f * pou;
-    }
-    else{ // simple trapezoidal
-      if(part->subparts){
-	Partition *part2 = (Partition*)List_Pointer(part->subparts,0);
-	double pou2 = part2->val(tau);
-	//printf("%g %g %g\n", pou, pou2, pou-pou2);
-	pou -= pou2;
+    if(pou){
+      scat->val(tau,xtau);
+      scat->der(tau,dxtau);
+      f = func->val(kvec,tau,xtau);
+      kern.init(t,xt,dxt,tau,xtau,dxtau,k);
+      if(singular){ // combine special quadrature with trapezoidal
+	w = SpecialQuadratureWeightForLog(PI,tau_orig,n);
+	m1 = kern.M1();
+	m2 = kern.M2(tau_orig,part->epsilon);
+	res += (w * m1 + PI/(double)n * m2) * f * pou;
       }
-      m = kern.M();
-      res += (PI/(double)n * m) * f * pou;
+      else{ // simple trapezoidal
+	if(List_Nbr(part->subparts)){
+	  Partition *part2 = (Partition*)List_Pointer(part->subparts,0);
+	  double pou2 = part2->val(tau);
+	  pou -= pou2;
+	}
+	if(pou){
+	  m = kern.M();
+	  res += (PI/(double)n * m) * f * pou;
+	}
+      }
     }
   }
     
@@ -266,12 +269,12 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	if(j == sindex){
 	  I.min = d-eps;
 	  I.max = d+eps;
-	  Msg(INFO, "  - target     = %.15e -> [%g,%g]", d, I.min, I.max);
+	  Msg(DEBUG, "  - target     = %.15e -> [%g,%g]", d, I.min, I.max);
 	}
 	else{
 	  I.min = d-sqrt(eps);
 	  I.max = d+sqrt(eps);
-	  Msg(INFO, "  - crit. pt %d = %.15e -> [%g,%g]", j, d, I.min, I.max);
+	  Msg(DEBUG, "  - crit. pt %d = %.15e -> [%g,%g]", j, d, I.min, I.max);
 	}
 	if((pI = (Interval*)List_PQuery(Intervals, &I, fcmp_Interval))){
 	  if(j == sindex) pI->num = sindex;
@@ -284,10 +287,11 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
       }
       for(j=0 ; j<List_Nbr(Intervals) ; j++) {
 	List_Read(Intervals, j, &I);
-	Msg(INFO, "  * [%g , %g]", I.min, I.max);
+	Msg(DEBUG, "  * [%g , %g]", I.min, I.max);
       }
 
       // insure periodicity
+      /*
       List_Read(Intervals, 0, &I);
       pI = (Interval*)List_Pointer(Intervals, List_Nbr(Intervals)-1);
       if(I.min < 0 && pI->max > TWO_PI){
@@ -297,10 +301,11 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	pI->min = MIN(pI->min,I.min+TWO_PI);
 	pI->max = MAX(pI->max,I.max+TWO_PI);
       }
+      */
 
       for(j=0 ; j<List_Nbr(Intervals) ; j++) {
 	List_Read(Intervals, j, &I);
-	Msg(INFO, "  ** [%g , %g]", I.min, I.max);
+	Msg(DEBUG, "  ** [%g , %g]", I.min, I.max);
       }
 
       // integrate
@@ -312,9 +317,9 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	  part.init(t,eps,rise);
 	  // change this
 	  nb = (int)(2*eps/TWO_PI*nbpts);
-	  Msg(INFO, "  - singular int. : %d pts in [%g , %g]", nb, t-eps, t+eps);
+	  Msg(DEBUG, "  - singular int. : %d pts in [%g , %g]", nb, t-eps, t+eps);
 	  tmp = Nystrom(1,t,f,kv,nb,scat,&part);
-	  Msg(INFO, "    IS = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
+	  Msg(DEBUG, "    IS = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
 	  
 	  // if the singular integration is embedded in a larger one
 	  if((I.max-I.min) > 2.*eps) {
@@ -324,9 +329,9 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	    List_Add(part.subparts, &part2);
 	    // change this
 	    nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts);
-	    Msg(INFO, "  - critical int. SPECIAL");
+	    Msg(DEBUG, "  - critical int. in [%g,%g] \\ [%g,%g]",I.min,I.max,t-eps, t+eps);
 	    tmp2 = Nystrom(0,t,f,kv,nb,scat,&part);
-	    Msg(INFO, "    IC* = %' '.15e %+.15e * i", tmp2.real(), tmp2.imag());
+	    Msg(DEBUG, "    IC* = %' '.15e %+.15e * i", tmp2.real(), tmp2.imag());
 	    List_Delete(part.subparts);
 	    part.subparts = NULL;
 	    tmp += tmp2;
@@ -337,15 +342,17 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	  part.init((I.min+I.max)/2.,(I.max-I.min)/2.,rise);
 	  // change this
 	  nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts);
-	  Msg(INFO, "  - critical int.: %d pts in [%g , %g]", nb, I.min, I.max);
+	  Msg(DEBUG, "  - critical int.: %d pts in [%g , %g]", nb, I.min, I.max);
 	  tmp = Nystrom(0,t,f,kv,nb,scat,&part);
-	  Msg(INFO, "    IC = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
+	  Msg(DEBUG, "    IC = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
 	}
+
 	res += tmp;
       }
-      
-      Msg(INFO, "===>I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
-      Msg(INFO, "-----------------------------------------------------------------");
+
+      Msg(DEBUG, "------------------------------------------------------------------------");      
+      Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
+      Msg(DEBUG, "------------------------------------------------------------------------");
 
     }
 
@@ -397,7 +404,10 @@ int main(int argc, char *argv[]){
 	i++; Epsilon = GetNum(argc,argv,&i); 
       }
       else if(Cmp(argv[i]+1, "rise", 1)){
-	i++; Rise = GetNum(argc,argv,&i); 
+	i++; Rise = GetNum(argc,argv,&i);
+      }
+      else if(Cmp(argv[i]+1, "verbose", 1)){ 
+	i++; Verbose = (int)GetNum(argc,argv,&i);
       }
       else{
 	Msg(ERROR, "Unknown option"); 

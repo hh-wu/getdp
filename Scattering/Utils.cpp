@@ -1,4 +1,4 @@
-// $Id: Utils.cpp,v 1.2 2002-02-11 22:50:02 geuzaine Exp $
+// $Id: Utils.cpp,v 1.3 2002-02-11 23:08:49 geuzaine Exp $
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,9 +16,12 @@
 
 void Msg(int level, char *fmt, ...){
   va_list  args;
+  extern int Verbose;
   switch(level){
   case ERROR: fprintf(stderr, "Error: "); break;
   case WARNING: fprintf(stderr, "Warning: "); break;
+  case DEBUG: if(Verbose<2) return;
+  case INFO: if(Verbose<1) return;
   }
   va_start (args, fmt);
   vfprintf(stderr, fmt, args); 
