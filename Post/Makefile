@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.27 2003-03-22 03:30:18 geuzaine Exp $
+# $Id: Makefile,v 1.28 2003-09-01 09:36:55 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -28,7 +28,6 @@ CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
 SRC = Pos_FemInterpolation.c \
       Pos_Interactive.c \
-        Pos_ReadLine.c \
       Pos_Formulation.c \
         Pos_Print.c \
         Pos_Quantity.c \
@@ -79,7 +78,6 @@ Pos_Interactive.o: Pos_Interactive.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Print_ProblemStructure.h ../Main/CurrentData.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
   ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h
-Pos_ReadLine.o: Pos_ReadLine.c
 Pos_Formulation.o: Pos_Formulation.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \

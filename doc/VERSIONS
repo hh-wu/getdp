@@ -1,4 +1,6 @@
-$Date: 2003-03-23 05:54:21 $
+$Date: 2003-09-01 09:36:56 $
+
+0.90: Use GNU readline if available; 
 
 0.89: Code cleanup;
 

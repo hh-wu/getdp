@@ -1,4 +1,4 @@
-$Id: CREDITS,v 1.4 2003-08-22 05:35:09 geuzaine Exp $
+$Id: CREDITS,v 1.5 2003-09-01 09:36:56 geuzaine Exp $
 
              GetDP is copyright (c) 1997-2003 
 
@@ -44,13 +44,6 @@ without specific, written prior permission.  The University of
 California makes no representations about the suitability of this
 software for any purpose.  It is provided "as is" without express or
 implied warranty.
-
-The readine utility (Post/Post_ReadLine.c) is copyright (C) 1986 -
-1993 Thomas Williams, Colin Kelley. Permission to use, copy, and
-distribute this software and its documentation for any purpose with or
-without fee is hereby granted, provided that the above copyright
-notice appear in all copies and that both that copyright notice and
-this permission notice appear in supporting documentation.
 
 This version of GetDP may also contain code (in the Sparskit
 subdirectory) copyright (c) 1990 Yousef Saad: check the configuration
