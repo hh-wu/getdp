@@ -1,28 +1,26 @@
 #ifndef _NYSTROM_H_
 #define _NYSTROM_H_
 
-#include "Complex.h"
-#include "Scatterer.h"
-#include "Function.h"
+#include "Main.h"
 
-#define FULL_INTEGRATION     (1<<0)
-#define INTERACT1            (1<<2)
-#define INTERACT2            (1<<3)
-#define BUILD_MATRIX         (1<<4)
-#define ITER_SOLVE           (1<<5)
+class GFHelmholtzParametric2D{
+private:
+  double t,tau,xt[3],dxt[3],xtau[3],dxtau[3],dist[3];
+  double k,r,kr,d;
 
-// General context
-
-typedef struct {
-  double WaveNum[3], Epsilon, Rise, InitialTarget;
-  int NbIntPts, NbTargetPts, Type;
-  Scatterer scat;
-  Function f;
-} Ctx;
-
+public:
+  void init(double _t, double _xt[3], double _dxt[3], 
+	    double _tau, double _xtau[3], double _dxtau[3],
+	    double _k);
+  Complex M();
+  Complex M1();
+  Complex M2(double tau_orig, double jac);
+  double singLogQuadWeight(double t, double tau, int n);
+}; 
 
 // prototypes
 
 Complex Integrate(Ctx *ctx, double t);
+Complex Evaluate(Ctx *ctx, double x[3]);
 
 #endif

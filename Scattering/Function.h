@@ -2,21 +2,23 @@
 #define _FUNCTION_H_
 
 #include "Complex.h"
-#include "LinAlg.h"
+#include "List.h"
 
 class Function{
 public:
-  typedef enum {Test,Single,Vector} FunctionType;
-  FunctionType Type;
-  int NumBF, ChgOfVar;
+  typedef enum {ANALYTIC,INTERPOLATED} FunctionType;
+  FunctionType type;
+  int applyChgVar;
   double a, b;
-  gVector *Sol;
+  List_T *patches;
 
-  Complex val(double k[3], double tau, double xtau[3]);
-  Complex bf(double tau);
-  double chgvar(double u, double *t);
-  double invchgvar(double t, double *u);
+  Complex ansatz(double k[3], double xt[3], double xtau[3]);
+  Complex density(double tau);
+  double chgVar(double u, double *t);
+  double invChgVar(double t, double *u);
 };
 
+double GetInInterval(double t, double t1, double t2);
+int IsInInterval(double t, double t1, double t2);
 
 #endif

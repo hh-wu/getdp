@@ -1,11 +1,11 @@
-// $Id: Function.cpp,v 1.5 2002-03-20 23:06:38 geuzaine Exp $
+// $Id: Function.cpp,v 1.6 2002-04-12 17:11:02 geuzaine Exp $
 
-#include "GetDP.h"
-#include "Data_Numeric.h"
+#include "Utils.h"
 #include "Function.h"
+#include "Patch.h"
 
-double get_in_pou(double t, double t1, double t2){
-  while(t > t1 || t < t2){
+double GetInInterval(double t, double t1, double t2){
+  while(t > t2 || t < t1){
     if (t > t2) 
       t -= TWO_PI;
     else 
@@ -14,7 +14,7 @@ double get_in_pou(double t, double t1, double t2){
   return t;
 }
 
-int is_in_interval(double t, double t1, double t2){
+int IsInInterval(double t, double t1, double t2){
   int i;
   double p1, p2;
   for(i=-1;i<=1;i++){
@@ -25,10 +25,69 @@ int is_in_interval(double t, double t1, double t2){
   return 0;
 }
 
-double Function::chgvar(double u, double *t){
+Complex Function::ansatz(double k[3], double xt[3], double xtau[3]){
+  double kr;
+  switch(type){
+
+  case ANALYTIC : // Alain
+    kr = k[0]*xtau[0]+k[1]*xtau[1]+k[2]*xtau[2];
+    return (cos(kr)+I*sin(kr));
+
+  case INTERPOLATED : // iterative solver
+    kr = k[0]*(xtau[0]-xt[0]) + k[1]*(xtau[1]-xt[1]) + k[2]*(xtau[2]-xt[2]) ;
+    return (cos(kr)+I*sin(kr));
+
+  default :
+    return 1.;
+  }
+}
+
+Complex Function::density(double tau){
+  int k;
+  Complex val;
+  Patch *p;
+
+  switch(type){
+    
+  case ANALYTIC : // comparison with Alain/Oscar
+
+    return cos(tau);
+    //return 1.;
+
+  case INTERPOLATED : // cubic splines or Fourier (off-grid!)
+
+    val = 0.;
+    for(k=0 ; k<List_Nbr(patches); k++){
+      p = (Patch*)List_Pointer(patches,k);
+      double ap = p->part->center - p->part->epsilon;
+      double bp = p->part->center + p->part->epsilon;
+      double tau2 = GetInInterval(tau,ap,ap+TWO_PI);
+      if(tau2 >= ap && tau2 <= bp){
+	if(p->type == Patch::SPLINE){
+	  val += p->spline->eval(tau2);
+	}
+	else{
+	  tau2 -= ap;
+	  val += p->fft->eval(tau2*TWO_PI/(bp-ap), p->fourierCoefs);
+	}
+      }
+    }
+
+    //printf("%g %g %g\n", tau, val.real(), val.imag());
+
+    return val;
+
+  default :
+    return 1.;
+  }
+}
+
+// the following is not used at the moment
+
+double Function::chgVar(double u, double *t){
   double jac;
 
-  switch(ChgOfVar){
+  switch(applyChgVar){
 
   case 1 : // test
     if(u>=-PI && u<PI){
@@ -62,7 +121,7 @@ double Function::chgvar(double u, double *t){
     break;
 
   case -1 : // boyd
-    jac = 1;
+    jac = 1; // todo
     *t = 2.*atan(0.5*tan(u/2.)) ;
     break;
 
@@ -78,62 +137,11 @@ double Function::chgvar(double u, double *t){
 
 }
 
-double Function::invchgvar(double u, double *t){
+double Function::invChgVar(double u, double *t){
   double jac;
 
   *t = u;
   jac = 1.;
 
   return jac;
-}
-
-Complex Function::val(double k[3], double tau, double xtau[3]){
-  double kr;
-  switch(Type){
-  case Test : // Alain
-  case Single : // build matrix
-  case Vector : // iterative solver
-    kr = k[0]*xtau[0]+k[1]*xtau[1]+k[2]*xtau[2];
-    return (cos(kr)+I*sin(kr));
-  default :
-    return 1.;
-  }
-}
-
-Complex Function::bf(double tau){
-  int i, j, beg, end;
-  Complex res, lsum, sum;
-
-  switch(Type){
-    
-  case Test : 
-    // comparision with Alain/Oscar
-
-    return cos(tau);
-    //return 1.;
-    
-  case Single : 
-    // build matrix, global Fourier basis functions (NumBF=-N/2,...,N/2)
-
-    return (cos(NumBF*tau)+I*sin(NumBF*tau));
-    
-  case Vector : 
-    // eval series using the vector Sol (should be done with FFT)
-
-    LinAlg_GetLocalVectorRange(Sol,&beg,&end);
-    beg /= gCOMPLEX_INCREMENT;
-    end /= gCOMPLEX_INCREMENT;
-    lsum = 0.;
-    for(i=beg ; i<end ; i++){
-      LinAlg_GetComplexInVector(&res, Sol, i-beg);
-      j = -NumBF/2+i;
-      lsum += (cos(j*tau)+I*sin(j*tau)) * res;
-    }
-    // sum results from all processors
-    LinAlg_ReduceSum(&lsum,&sum);
-    return sum;
-    
-  default :
-    return 1.;
-  }
 }

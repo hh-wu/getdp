@@ -1,105 +1,69 @@
-// $Id: Nystrom.cpp,v 1.25 2002-03-20 23:07:42 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.26 2002-04-12 17:11:02 geuzaine Exp $
 
-#include "GetDP.h"
+#include "Utils.h"
+#include "Nystrom.h"
 #include "Complex.h"
-#include "LinAlg.h"
-#include "Data_Numeric.h"
 #include "Tools.h"
 #include "Bessel.h"
-#include "Nystrom.h"
+#include "Patch.h"
 
 #define EPSILON 1.e-14
 
-// Partition of unity stuff
+// Helmholtz kernels (cf. Colton and Kress)
 
-class Partition{
-private:
-  // pou(x,c) = 1 , - 1 < -c < x < c < 1 
-  //          = smooth((|x|-c)/(1-c)) , otherwise
-  // with smooth(x) = exp(2*exp(-1/x)/(x-1) 
-  double smooth(double x){
-    if(x == 0.) return 1.;
-    else if(x == 1.) return 0.;
-    else return exp(2.*exp(-1./x)/(x-1));
+void GFHelmholtzParametric2D::init(double _t, double _xt[3], double _dxt[3], 
+				   double _tau, double _xtau[3], double _dxtau[3],
+				   double _k){
+  double dist[3];
+  t = _t;
+  tau = _tau;
+  for(int i=0;i<3;i++){
+    xt[i] = _xt[i];
+    dxt[i] = _dxt[i];
+    xtau[i] = _xtau[i];
+    dxtau[i] = _dxtau[i];
+    dist[i] = _xt[i] - _xtau[i];
   }
-  double pou(double x, double c){
-    if(fabs(x) > 1.) return 0.;
-    else if(fabs(x) <= c) return 1.;
-    else return smooth((fabs(x)-c)/(1.-c));
-  }
-public:
-  double center, epsilon, crest;
-  List_T *subparts;
-  void init(double _center, double _epsilon, double _rise){
-    center = _center;
-    epsilon = _epsilon;
-    if(epsilon>PI) Msg(ERROR, "Epsilon is too large (%g > PI)", _epsilon);
-    crest = _epsilon-fabs(_rise);
-    if(crest<0.) Msg(ERROR, "Invalid rise (%g > epsilon)", _rise);
-    subparts = NULL;
-  }
-  double val(double t){
-    return pou((t-center)/epsilon,crest/epsilon);
-  }
-};
+  r = NORM3(dist);
+  k = _k;
+  kr = k*r;
+  d = sqrt(SQU(dxtau[0])+SQU(dxtau[1])) ;
+}
 
-
-// Helmholtz kernels
-
-class GFHelmholtzParametric2D{
-  double t,tau,xt[3],dxt[3],xtau[3],dxtau[3],dist[3];
-  double k,r,kr,d;
-public:
-  void init(double _t, double _xt[3], double _dxt[3], 
-	    double _tau, double _xtau[3], double _dxtau[3],
-	    double _k){
-    double dist[3];
-    t = _t;
-    tau = _tau;
-    for(int i=0;i<3;i++){
-      xt[i] = _xt[i];
-      dxt[i] = _dxt[i];
-      xtau[i] = _xtau[i];
-      dxtau[i] = _dxtau[i];
-      dist[i] = _xt[i] - _xtau[i];
-    }
-    r = NORM3(dist);
-    k = _k;
-    kr = k*r;
-    d = sqrt(SQU(dxtau[0])+SQU(dxtau[1])) ;
+Complex GFHelmholtzParametric2D::M(){
+  if(!kr){
+    Msg(WARNING, "kr=0 in M");
+    return 0.;
   }
-  Complex M(){
-    if(!kr){
-      Msg(WARNING, "kr=0 in M");
-      return 0.;
-    }
-    return Bessel_h(1,0,kr) * d;
-  }
-  Complex M1(){
-    return -2./(I*TWO_PI) * Bessel_j(0,kr) * d;
-  }
-  Complex M2(double tau_orig, double jac){
-    if(fabs(tau_orig-PI)>EPSILON){
-    //if(fabs(t-tau)>EPSILON){
-      //return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
-      return M()-M1()*log(4.*SQU(sin((tau_orig-PI)/2.)));
-    }
-    else{
-      //return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*d))) * d;
-      return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d;
-      //return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d
-      //       + 2. * log(jac) * M1() ;
-    }
-  }
-}; 
+  return Bessel_h(1,0,kr) * d;
+}
 
+Complex GFHelmholtzParametric2D::M1(){
+  return -2./(I*TWO_PI) * Bessel_j(0,kr) * d;
+}
 
-// Special quadrature weights for Nystrom integrator
+Complex GFHelmholtzParametric2D::M2(double tau_orig, double jac){
+  //  if(fabs(t-tau)>EPSILON)
+  //    return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
+  //  else
+  //    return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*d))) * d;
 
-double SpecialQuadratureWeightForLog(double t, double tau, int n){
+  // Colton and Kress chg of vars for corner:
+  // return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d
+  //       + 2. * log(jac) * M1() ;
+    
+  if(fabs(tau_orig-PI) > EPSILON)
+    return M()-M1()*log(4.*SQU(sin((tau_orig-PI)/2.)));
+  else
+    return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d;
+}
+
+// Special quadrature weights
+
+double GFHelmholtzParametric2D::singLogQuadWeight(double t, double tau, int n){
   int m;
   double w=0., tmp;
-  // we should store these weights (is hash on n and tau enough?)
+
   for(m=1 ; m<=n-1 ; m++){
     w += cos(m*(t-tau))/m;
   }
@@ -141,18 +105,23 @@ double SpecialQuadratureWeightForLog(double t, double tau, int n){
 // decomposition of the kernel.
 //
 
-Complex Nystrom(int singular, double t, Function *func, double kvec[3], 
-		int nbpts, Scatterer *scat, Partition *part){
+Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
+
   Complex res=0., f, m, m1, m2;
   double xt[3], dxt[3], xtau[3], dxtau[3], tau, tau_p, tau_pp, pou, w;
   int j, n = nbpts/2;
-  double k = NORM3(kvec), jac=1.;
+  double k = NORM3(ctx->waveNum), jac=1.;
   GFHelmholtzParametric2D kern;
+  static int first = 1;
+  static double *Weights;
 
   if(!nbpts) return 0.;
 
-  scat->Val(t,xt);
-  scat->Der(t,dxt);
+  ctx->scat.coord(t,xt);
+  ctx->scat.deriv(t,dxt);
+
+  if(singular && first) 
+    Weights = new double[nbpts];
 
   for(j=0 ; j<=2*n-1 ; j++){
     tau_pp = TWO_PI*j/(2.*n);
@@ -161,27 +130,33 @@ Complex Nystrom(int singular, double t, Function *func, double kvec[3],
     tau_p = (tau_pp-PI)*part->epsilon/PI+part->center;
     jac *= part->epsilon/PI ;
 
-    pou = part->val(tau_p);
+    pou = part->eval(tau_p);
 
-    func->a = part->center-part->epsilon;
-    func->b = part->center+part->epsilon;
-    jac *= func->chgvar(tau_p, &tau);
+    ctx->f.a = part->center - part->epsilon;
+    ctx->f.b = part->center + part->epsilon;
+    jac *= ctx->f.chgVar(tau_p, &tau);
 
+    if(singular && first)
+      Weights[j] = kern.singLogQuadWeight(PI,tau_pp,n);
+   
     if(pou){
-      scat->Val(tau,xtau);
-      scat->Der(tau,dxtau);
-      f = func->val(kvec,tau,xtau) * func->bf(tau_p); //tau
+      ctx->scat.coord(tau,xtau);
+      ctx->scat.deriv(tau,dxtau);
+
+      f = ctx->f.ansatz(ctx->waveNum,xt,xtau) * ctx->f.density(tau_p); //tau
+
       kern.init(t,xt,dxt,tau,xtau,dxtau,k);
       if(singular){ // combine special quadrature with trapezoidal
-	w = SpecialQuadratureWeightForLog(PI,tau_pp,n);
+	//w = kern.singLogQuadWeight(PI,tau_pp,n);
+	w = Weights[j];
 	m1 = kern.M1();
 	m2 = kern.M2(tau_pp,jac);
 	res += (w * m1 + PI/(double)n * m2) * f * pou * jac;
       }
       else{ // simple trapezoidal
-	if(List_Nbr(part->subparts)){
-	  Partition *part2 = (Partition*)List_Pointer(part->subparts,0);
-	  double pou2 = part2->val(tau);
+	if(List_Nbr(part->subParts)){
+	  Partition *part2 = (Partition*)List_Pointer(part->subParts,0);
+	  double pou2 = part2->eval(tau);
 	  pou -= pou2;
 	}
 	if(pou){
@@ -191,7 +166,9 @@ Complex Nystrom(int singular, double t, Function *func, double kvec[3],
       }
     }
   }
-    
+
+  if(singular && first) first = 0;
+  
   return res;
 }
 
@@ -220,19 +197,19 @@ Complex Integrate(Ctx *ctx, double t){
   double d, eps, s_eps=0.;
   int j, nb, s_index, i_index;
 
-  if(ctx->Type & FULL_INTEGRATION){ // full Nystrom integrator
+  if(ctx->type & FULL_INTEGRATION){ // full Nystrom integrator
 
     // stupid pou around t, equal to 1 everywhere in [t-PI,t+PI]
     part.init(t,PI,0.);
-    return Nystrom(1,t,&ctx->f,ctx->WaveNum,ctx->NbIntPts,&ctx->scat,&part);
+    return Nystrom(1,ctx,t,ctx->nbIntPts,&part);
 
   }
 
-  if(ctx->Type & INTERACT1){ // interactive integration around one critical point
+  if(ctx->type & INTERACT1){ // interactive integration around one critical point
 
     // compute critical points
     List_Reset(CritPts);
-    ctx->scat.CriticalPoints(t,CritPts);
+    ctx->scat.criticalPoints(t,CritPts);
 
     // add target in crit pts list
     List_Insert(CritPts, &t, fcmp_double);
@@ -246,38 +223,41 @@ Complex Integrate(Ctx *ctx, double t){
     }
     printf("Pt num to integrate around? "); scanf("%d", &i_index);
     printf("Epsilon? "); scanf("%lf", &eps);
-    printf("Rise? "); scanf("%lf", &ctx->Rise);
+    printf("Rise? "); scanf("%lf", &ctx->rise);
     printf("Number of integration points? "); scanf("%d", &nb);
     List_Read(CritPts, i_index, &d);
     j = (s_index==i_index);
     Msg(DEBUG, "%s int. : %d pts in [%g , %g]", j ? "Sing." : "Crit.", nb, d-eps, d+eps);
 
-    part.init(d,eps,ctx->Rise);
-    return Nystrom(j,t,&ctx->f,ctx->WaveNum,nb,&ctx->scat,&part);
+    part.init(d,eps,ctx->rise);
+    return Nystrom(j,ctx,t,nb,&part);
 
   }
 
   // compute critical points
   List_Reset(CritPts);
-  ctx->scat.CriticalPoints(t,CritPts);
-  
+  ctx->scat.criticalPoints(t,CritPts);
+
+  // add shadowing points in crit pts list
+  //ctx->scat.shadowingPoints(ctx->waveNum,CritPts);
+
   // add target in crit pts list
   List_Insert(CritPts, &t, fcmp_double);
   s_index = List_ISearch(CritPts, &t, fcmp_double);
-  
+
   // merge all overlapping pous in an interval list
   List_Reset(Intervals);
   for(j=0 ; j<List_Nbr(CritPts) ; j++) {
     List_Read(CritPts,j,&d);
     I.num = j;
-    if(ctx->Type == INTERACT2){
+    if(ctx->type == INTERACT2){
       printf("Epsilon for t=%g?\n", d); 
       scanf("%lf", &eps);
       if(j == s_index) s_eps = eps;
     }
     else{
-      if(j == s_index) eps = s_eps = ctx->Epsilon;
-      else eps = sqrt(ctx->Epsilon);
+      if(j == s_index) eps = s_eps = ctx->epsilon;
+      else eps = sqrt(ctx->epsilon);
     }
     I.min = d-eps;
     I.max = d+eps;
@@ -330,51 +310,51 @@ Complex Integrate(Ctx *ctx, double t){
     List_Read(Intervals, j, &I);
     
     if(I.num==s_index){
-      part.init(t,s_eps,ctx->Rise);
-      if(ctx->Type & INTERACT2){
+      part.init(t,s_eps,ctx->rise);
+      if(ctx->type & INTERACT2){
 	printf("Nb int. pts for singular part.? "); 
 	scanf("%d", &nb);
       }
       else{
-	nb = (int)(2*s_eps/TWO_PI*ctx->NbIntPts); // change this
+	nb = (int)(2*s_eps/TWO_PI*ctx->nbIntPts); // change this
       }
       Msg(DEBUG, "  - singular int. : %d pts in [%g , %g]", nb, t-s_eps, t+s_eps);
-      tmp = Nystrom(1,t,&ctx->f,ctx->WaveNum,nb,&ctx->scat,&part);
+      tmp = Nystrom(1,ctx,t,nb,&part);
       Msg(DEBUG, "    IS = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
       
       // if the singular integration is embedded in a larger one
       if((I.max-I.min) > 2.*s_eps) {
-	part.init((I.min+I.max)/2,(I.max-I.min)/2.,ctx->Rise);
-	part.subparts = List_Create(1,1,sizeof(Partition));
-	part2.init(t,s_eps,ctx->Rise);
-	List_Add(part.subparts, &part2);
-	if(ctx->Type & INTERACT2){
+	part.init((I.min+I.max)/2,(I.max-I.min)/2.,ctx->rise);
+	part.subParts = List_Create(1,1,sizeof(Partition));
+	part2.init(t,s_eps,ctx->rise);
+	List_Add(part.subParts, &part2);
+	if(ctx->type & INTERACT2){
 	  printf("Nb int. pts for special critical part.? "); 
 	  scanf("%d", &nb);
 	}
 	else{
-	  nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->NbIntPts); // change this
+	  nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->nbIntPts); // change this
 	}
 	Msg(DEBUG, "  - critical int. in [%g,%g] \\ [%g,%g]",I.min,I.max,t-s_eps, t+s_eps);
-	tmp2 = Nystrom(0,t,&ctx->f,ctx->WaveNum,nb,&ctx->scat,&part);
+	tmp2 = Nystrom(0,ctx,t,nb,&part);
 	Msg(DEBUG, "    IC* = %' '.15e %+.15e * i", tmp2.real(), tmp2.imag());
-	List_Delete(part.subparts);
-	part.subparts = NULL;
+	List_Delete(part.subParts);
+	part.subParts = NULL;
 	tmp += tmp2;
       }
       
     }
     else{
-      part.init((I.min+I.max)/2.,(I.max-I.min)/2.,ctx->Rise);
-      if(ctx->Type & INTERACT2){
+      part.init((I.min+I.max)/2.,(I.max-I.min)/2.,ctx->rise);
+      if(ctx->type & INTERACT2){
 	printf("Nb int. pts for critical part.? "); 
 	scanf("%d", &nb);
       }
       else{
-	nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->NbIntPts);//change this
+	nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->nbIntPts);//change this
       }
       Msg(DEBUG, "  - critical int.: %d pts in [%g , %g]", nb, I.min, I.max);
-      tmp = Nystrom(0,t,&ctx->f,ctx->WaveNum,nb,&ctx->scat,&part);
+      tmp = Nystrom(0,ctx,t,nb,&part);
       Msg(DEBUG, "    IC = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
     }
     
@@ -383,5 +363,31 @@ Complex Integrate(Ctx *ctx, double t){
   
   return res;
 
+}
+
+// Post-process solution
+
+Complex Evaluate(Ctx *ctx, double x[3]){
+  int j, n = ctx->nbIntPts/2;
+  double tau, xtau[3], dxtau[3], dummy[3]={0,0,0}, k = NORM3(ctx->waveNum);
+  Complex res=0., f, tmp;
+  GFHelmholtzParametric2D kern;
+
+  for(j=0 ; j<=2*n-1 ; j++){
+    tau = TWO_PI*j/(2.*n);
+    ctx->scat.coord(tau,xtau);
+    ctx->scat.deriv(tau,dxtau);
+
+    ctx->f.type = Function::ANALYTIC; 
+    f = ctx->f.ansatz(ctx->waveNum,NULL,xtau);
+
+    ctx->f.type = Function::INTERPOLATED; 
+    tmp = ctx->f.density(tau);
+
+    kern.init(0,x,dummy,tau,xtau,dxtau,k);
+    res += PI/(double)n * kern.M() * f * tmp;
+  }
+
+  return res;
 }
 

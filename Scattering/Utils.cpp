@@ -1,6 +1,6 @@
-// $Id: Utils.cpp,v 1.7 2002-03-04 17:11:20 geuzaine Exp $
+// $Id: Utils.cpp,v 1.8 2002-04-12 17:11:02 geuzaine Exp $
 
-#include "GetDP.h"
+#include "Utils.h"
 
 // define some global variables (move this to trash after merge with
 // getdp)
@@ -48,3 +48,12 @@ double GetNum(int argc, char *argv[], int *i){
   }
 }
 
+char *GetString(int argc, char *argv[], int *i){
+  if (*i<argc && argv[*i][0]!='-') {
+    return argv[(*i)++]; 
+  }
+  else{ 
+    Msg(ERROR, "Missing string"); 
+    return NULL;
+  }
+}
