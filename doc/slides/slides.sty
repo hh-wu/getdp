@@ -1,7 +1,7 @@
 %
 % LaTeX2e/seminar style sheet for the layout of GetDP-related slides
 %
-% $Id: slides.sty,v 1.4 2001-06-13 11:16:34 geuzaine Exp $
+% $Id: slides.sty,v 1.5 2001-06-13 11:56:58 geuzaine Exp $
 %
 
 % -------------------------------------------------------------------
@@ -15,6 +15,10 @@
 \RequirePackage[latin1]{inputenc}
 \RequirePackage{alltt,wasysym}
 \RequirePackage[all]{xy}
+\RequirePackage{ifthen}
+
+\newboolean{fulltitle}
+\setboolean{fulltitle}{true}
 
 \ifx\pdfoutput\undefined
   \RequirePackage{graphicx}
