@@ -89,17 +89,6 @@ eps = 1.e-5 ;
 
 PostOperation {
 
-  { Name a ; NameOfPostProcessing MagSta_a;
-    Operation {
-      Print[ a, OnElementsOf Domain, File "a.pos"] ;
-      Print[ b, OnElementsOf Domain, File "b_a.pos", Depth 0 ] ;
-      Print[ h, OnElementsOf Domain, File "h_a.pos", Depth 0 ] ;
-      Print[ b, OnPlane {{-0.1,0,0}{0.1, 0, 0}{-0.1,0.1,0}} {60,30}, File "b_a_grid.pos" ] ;
-      Print[ b, OnLine {{-0.07,eps,0}{0.09, eps, 0}} {500}, File "b_a.cut" , Format Table ] ;
-      Print[ h, OnLine {{-0.06,eps,0}{-0.06,0.05,0}} {500}, File "h_a.cut" , Format Table ] ;
-    }
-  }
-
   { Name phi ; NameOfPostProcessing MagSta_phi;
     Operation {
       Print[ phi, OnElementsOf Domain, File "phi.pos"] ;
@@ -108,6 +97,17 @@ PostOperation {
       Print[ b,   OnPlane {{-0.1,0,0}{0.1, 0, 0}{-0.1,0.1,0}} {60,30}, File "b_phi_grid.pos" ] ;
       Print[ b,   OnLine {{-0.07,eps,0}{0.09, eps, 0}} {500}, File "b_phi.cut" , Format Table ] ;
       Print[ h,   OnLine {{-0.06,eps,0}{-0.06,0.05,0}} {500}, File "h_phi.cut" , Format Table ] ;
+    }
+  }
+
+  { Name a ; NameOfPostProcessing MagSta_a;
+    Operation {
+      Print[ a, OnElementsOf Domain, File "a.pos"] ;
+      Print[ b, OnElementsOf Domain, File "b_a.pos", Depth 0 ] ;
+      Print[ h, OnElementsOf Domain, File "h_a.pos", Depth 0 ] ;
+      Print[ b, OnPlane {{-0.1,0,0}{0.1, 0, 0}{-0.1,0.1,0}} {60,30}, File "b_a_grid.pos" ] ;
+      Print[ b, OnLine {{-0.07,eps,0}{0.09, eps, 0}} {500}, File "b_a.cut" , Format Table ] ;
+      Print[ h, OnLine {{-0.06,eps,0}{-0.06,0.05,0}} {500}, File "h_a.cut" , Format Table ] ;
     }
   }
 
