@@ -1,4 +1,4 @@
-/* $Id: Get_Geometry.c,v 1.2 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Get_Geometry.c,v 1.3 2000-10-27 22:06:52 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -664,35 +664,47 @@ double  JacobianLin3D (struct Element * Element, MATRIX3x3 * Jac) {
 /* ------------------------------------------------------------------------ */
 
 void  Get_InverseSingularMatrix(MATRIX3x3 * Mat, MATRIX3x3 * InvMat) {
-  double **m, **i;
+  double **M, **V, *W;
+  double T[4][4] = {{0.,0.,0.,0.},{0.,0.,0.,0.},{0.,0.,0.,0.},{0.,0.,0.,0.}};
+  int    i, j, k; 
 
-  m = dmatrix(1,3,1,3);
-  i = dmatrix(1,3,1,3);
+  M = dmatrix(1,3,1,3);
+  V = dmatrix(1,3,1,3);
+  W = dvector(1,3);
 
-  m[1][1] = Mat->c11 ; m[1][2] = Mat->c12 ; m[1][3] = Mat->c13 ;
-  m[2][1] = Mat->c21 ; m[2][2] = Mat->c22 ; m[2][3] = Mat->c23 ;
-  m[3][1] = Mat->c31 ; m[3][2] = Mat->c32 ; m[3][3] = Mat->c33 ;
+  M[1][1] = Mat->c11 ; M[1][2] = Mat->c12 ; M[1][3] = Mat->c13 ;
+  M[2][1] = Mat->c21 ; M[2][2] = Mat->c22 ; M[2][3] = Mat->c23 ;
+  M[3][1] = Mat->c31 ; M[3][2] = Mat->c32 ; M[3][3] = Mat->c33 ;
 
-  invert_singular_matrix(m,3,i);
+  dsvdcmp(M, 3, 3, W, V);
 
-  InvMat->c11 = i[1][1] ; InvMat->c12 = i[1][2] ; InvMat->c13 = i[1][3] ;
-  InvMat->c21 = i[2][1] ; InvMat->c22 = i[2][2] ; InvMat->c23 = i[2][3] ;
-  InvMat->c31 = i[3][1] ; InvMat->c32 = i[3][2] ; InvMat->c33 = i[3][3] ;  
+  /* cf. Numerical Recipes in C, p. 62 */
 
-  free_dmatrix(m,1,3,1,3);
-  free_dmatrix(i,1,3,1,3);
+  for(i=1 ; i<=3 ; i++)
+    for(j=1 ; j<=3 ; j++)
+      if(fabs(W[i]) > 1.e-16) /* precision */
+	T[i][j] += M[j][i] / W[i] ;
+  
+  InvMat->c11 = InvMat->c12 = InvMat->c13 = 
+    InvMat->c21 = InvMat->c22 = InvMat->c23 = 
+    InvMat->c31 = InvMat->c32 = InvMat->c33 = 0.0 ;  
 
-  /*
-    Info();
-  */
+  for(k=1 ; k<=3 ; k++){
+    InvMat->c11 += V[1][k] * T[k][1] ;
+    InvMat->c12 += V[1][k] * T[k][2] ;
+    InvMat->c13 += V[1][k] * T[k][3] ;
+    InvMat->c21 += V[2][k] * T[k][1] ;
+    InvMat->c22 += V[2][k] * T[k][2] ;
+    InvMat->c23 += V[2][k] * T[k][3] ;
+    InvMat->c31 += V[3][k] * T[k][1] ;
+    InvMat->c32 += V[3][k] * T[k][2] ;
+    InvMat->c33 += V[3][k] * T[k][3] ;
+  }
+
+  free_dmatrix(M,1,3,1,3);
+  free_dmatrix(V,1,3,1,3);
+  free_dvector(W,1,3);
 }
-
-void PrintMATRIX3x3(char *name, MATRIX3x3 Mat){
-  printf("%s = \n", name);
-  printf("[ %.8g %.8g %.8g   \n", Mat.c11, Mat.c12, Mat.c13);
-  printf("  %.8g %.8g %.8g   \n", Mat.c21, Mat.c22, Mat.c23);
-  printf("  %.8g %.8g %.8g ] \n\n", Mat.c31, Mat.c32, Mat.c33);
-}  
 
 void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
 			MATRIX3x3 * Mat, MATRIX3x3 * InvMat) {
@@ -700,7 +712,6 @@ void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
   switch (Type_Dimension) {
 
   case _0D :
-
     InvMat->c11 = InvMat->c22 = InvMat->c33 = 1. ;
     InvMat->c12 = InvMat->c21 = 0. ;
     InvMat->c13 = InvMat->c31 = 0. ;
@@ -731,37 +742,8 @@ void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
       InvMat->c33 =   1. / Mat->c33 ;
       break ;
 
-    case LINE :
-      Get_InverseSingularMatrix(Mat, InvMat);
-
-      /*
-      double BB, CC, DD, BC;
-      MATRIX3x3  tmp ;
-
-      PrintMATRIX3x3("SVD: InvMat",*InvMat);
-      Get_ProductMatrix(_3D, Mat, InvMat, &tmp);
-      PrintMATRIX3x3("SVD: Mat*InvMat",tmp);
-      Get_ProductMatrix(_3D, InvMat, Mat, &tmp);
-      PrintMATRIX3x3("SVD: InvMat*Mat",tmp);
-
-      DD = DSQU(DetMat) ;
-      InvMat->c11 = Mat->c11 / DD ;
-      InvMat->c21 = Mat->c12 / DD ;
-      InvMat->c31 = InvMat->c12 = InvMat->c22 = 0. ;
-      InvMat->c32 = InvMat->c13 = InvMat->c23 = 0. ;
-      InvMat->c33 = 1. / Mat->c33 ;
-
-      PrintMATRIX3x3("FRANCOIS: InvMat",*InvMat);
-      Get_ProductMatrix(_3D, Mat, InvMat, &tmp);
-      PrintMATRIX3x3("FRANCOIS: Mat*InvMat",tmp);
-      Get_ProductMatrix(_3D, InvMat, Mat, &tmp);
-      PrintMATRIX3x3("FRANCOIS: InvMat*Mat",tmp);
-      */
-      break;
-
     default : 
       Get_InverseSingularMatrix(Mat, InvMat);
-      Msg(WARNING, "Anormal Singular Matrix Inversion... Sure?");
       break;
 
     }
@@ -787,60 +769,16 @@ void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
       InvMat->c33 =  ( Mat->c11 * Mat->c22 - Mat->c12 * Mat->c21 ) / DetMat ;
       break;
 
-    case TRIANGLE : 
-
-      Get_InverseSingularMatrix(Mat, InvMat);
-
-      /*
-      PrintMATRIX3x3("SVD: InvMat",*InvMat);
-      Get_ProductMatrix(_3D, Mat, InvMat, &tmp);
-      PrintMATRIX3x3("SVD: Mat*InvMat",tmp);
-      Get_ProductMatrix(_3D, InvMat, Mat, &tmp);
-      PrintMATRIX3x3("SVD: InvMat*Mat",tmp);
-
-      InvMat->c11 = ( -Mat->c12*Mat->c21*Mat->c22 - Mat->c13*Mat->c21*Mat->c23 + 
-		       Mat->c11*Mat->c22*Mat->c22 + Mat->c11*Mat->c23*Mat->c23 ) / DSQU(DetMat) ;
-      InvMat->c21 = ( -Mat->c22*Mat->c11*Mat->c21 - Mat->c22*Mat->c13*Mat->c23 + 
-		       Mat->c12*Mat->c21*Mat->c21 + Mat->c12*Mat->c23*Mat->c23 ) / DSQU(DetMat) ;
-      InvMat->c31 = ( -Mat->c23*Mat->c11*Mat->c21 - Mat->c23*Mat->c12*Mat->c22 + 
-		       Mat->c13*Mat->c21*Mat->c21 + Mat->c13*Mat->c22*Mat->c22 ) / DSQU(DetMat) ;
-
-      InvMat->c12 = ( Mat->c21*Mat->c12*Mat->c12 + Mat->c21*Mat->c13*Mat->c13 - 
-		      Mat->c11*Mat->c12*Mat->c22 - Mat->c11*Mat->c13*Mat->c23 ) / DSQU(DetMat) ;
-      InvMat->c22 = ( Mat->c22*Mat->c11*Mat->c11 + Mat->c22*Mat->c13*Mat->c13 - 
-		      Mat->c12*Mat->c11*Mat->c21 - Mat->c12*Mat->c13*Mat->c23 ) / DSQU(DetMat) ;
-      InvMat->c32 = ( Mat->c23*Mat->c11*Mat->c11 + Mat->c23*Mat->c12*Mat->c12 - 
-		      Mat->c13*Mat->c11*Mat->c21 - Mat->c13*Mat->c12*Mat->c22 ) / DSQU(DetMat) ;
-
-      InvMat->c13 = InvMat->c23 = InvMat->c33 = 0.;
-      
-      PrintMATRIX3x3("FRANCOIS: InvMat",*InvMat);
-      Get_ProductMatrix(_3D, Mat, InvMat, &tmp);
-      PrintMATRIX3x3("FRANCOIS: Mat*InvMat",tmp);
-      Get_ProductMatrix(_3D, InvMat, Mat, &tmp);
-      PrintMATRIX3x3("FRANCOIS: InvMat*Mat",tmp);
-      */
-      break ;
-
-    case LINE :
-      Get_InverseSingularMatrix(Mat, InvMat);
-
-      /* 
-      DD = DSQU(DetMat) ;
-      InvMat->c11 = Mat->c11 / DD ;
-      InvMat->c21 = Mat->c12 / DD ;
-      InvMat->c31 = Mat->c13 / DD ;
-      InvMat->c12 = InvMat->c22 = InvMat->c32 = 0. ;
-      InvMat->c13 = InvMat->c23 = InvMat->c33 = 0. ;
-      */
-      break;
-
     default :
       Get_InverseSingularMatrix(Mat, InvMat);
       break;
 
     }
     break;
+
+  default :
+    Msg(ERROR, "Wrong Dimension in 'Get_InverseMatrix'");
+    break ;
 
   }
 
@@ -857,16 +795,13 @@ void  Get_ProductMatrix(int Type_Dimension,
   switch (Type_Dimension) {
 
   case _2D :
-
     AB->c11 = A->c11 * B->c11 + A->c12 * B->c21 ;
     AB->c12 = A->c11 * B->c12 + A->c12 * B->c22 ;
     AB->c21 = A->c21 * B->c11 + A->c22 * B->c21 ;
     AB->c22 = A->c21 * B->c12 + A->c22 * B->c22 ;
-
     break ;
 
   case _3D :
-
     AB->c11 = A->c11 * B->c11 + A->c12 * B->c21 + A->c13 * B->c31 ;
     AB->c12 = A->c11 * B->c12 + A->c12 * B->c22 + A->c13 * B->c32 ;
     AB->c13 = A->c11 * B->c13 + A->c12 * B->c23 + A->c13 * B->c33 ;
@@ -876,7 +811,6 @@ void  Get_ProductMatrix(int Type_Dimension,
     AB->c31 = A->c31 * B->c11 + A->c32 * B->c21 + A->c33 * B->c31 ;
     AB->c32 = A->c31 * B->c12 + A->c32 * B->c22 + A->c33 * B->c32 ;
     AB->c33 = A->c31 * B->c13 + A->c32 * B->c23 + A->c33 * B->c33 ;
-
     break ;
 
   }

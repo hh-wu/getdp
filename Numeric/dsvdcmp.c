@@ -1,4 +1,4 @@
-/* $Id: dsvdcmp.c,v 1.2 2000-09-07 18:47:27 geuzaine Exp $ */
+/* $Id: dsvdcmp.c,v 1.3 2000-10-27 22:06:52 geuzaine Exp $ */
 #include <math.h>
 
 #include "nrutil.h"
@@ -191,51 +191,3 @@ void dsvdcmp(double **a, int m, int n, double w[], double **v)
   free_dvector(rv1,1,n);
 }
 
-
-/* cf. Numerical Recipes in C, p. 62 */
-
-#define PREC   1.e-16
-
-void invert_singular_matrix(double **M, int n, double **I){
-  double  **V, **T, *W;
-  int     i, j, k; 
-
-  V = dmatrix(1,n,1,n);
-  T = dmatrix(1,n,1,n);
-  W = dvector(1,n);
-
-  dsvdcmp(M, n, n, W, V);
-
-  for(i=1 ; i<=n ; i++){
-    for(j=1 ; j<=n ; j++){
-      I[i][j] = 0.0 ;
-      T[i][j] = 0.0 ;
-    }
-  }
-
-  for(i=1 ; i<=n ; i++){
-    for(j=1 ; j<=n ; j++){
-      if(fabs(W[i]) > PREC){
-	T[i][j] += M[j][i] / W[i] ;
-      }
-      /*
-      else{
-	T[i][j] += 0.0 ;
-      }
-      */
-    }
-  }
-  for(i=1 ; i<=n ; i++){
-    for(j=1 ; j<=n ; j++){
-      for(k=1 ; k<=n ; k++){
-	I[i][j] += V[i][k] * T[k][j] ;
-      }
-    }
-  }
-
-  free_dmatrix(V,1,n,1,n);
-  free_dmatrix(T,1,n,1,n);
-  free_dvector(W,1,n);
-}
-
-#undef PREC 
