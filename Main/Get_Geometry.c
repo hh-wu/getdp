@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.5 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.6 2000-12-22 11:21:13 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -298,7 +298,7 @@ double  SphShell3D (struct Element * Element, MATRIX3x3 * Jac) {
   R = sqrt( DSQU(CoorX) + DSQU(CoorY) + DSQU(CoorZ) ) ;
 
   if ( (R > B) || (R < A) )
-    Msg(ERROR, "Bad parameters for JacobianVolSphShell"
+    Msg(ERROR, "Bad parameters for JacobianVolSphShell: "
 	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
 
   f  = (A*(B-A)) / (R*(B-R)) ;
