@@ -1,4 +1,4 @@
-#define RCSID "$Id: SphBessel.c,v 1.3 2001-11-21 17:10:11 sabarieg Exp $"
+#define RCSID "$Id: SphBessel.c,v 1.4 2002-01-19 01:07:21 geuzaine Exp $"
 
 #include <stdio.h>
 #include <math.h>
@@ -57,7 +57,7 @@ void Spherical_j_nArray(int n, double x, int NB, double jsph[]){
     jsph[0] = 1. ;
   }
   else{
-    fnu = n + 0.5 ; // From order n to (n+NB-1)
+    fnu = n + 0.5 ; /* From order n to (n+NB-1) */
     zbesj_( &x, &xi, &fnu, &kode, &NB, jsph, jsphi, &nz, &ierr) ;
     cte = sqrt(0.5*PI/x);    
     for(i = 0 ; i < NB ; i++ ) jsph[i] *= cte ;
@@ -132,7 +132,7 @@ void Spherical_y_nArray(int n, double x, int NB, double ysph[]){
     ysph[0] = 1. ;
   }
   else{
-    fnu = n + 0.5 ; // From order n to (n+NB-1)
+    fnu = n + 0.5 ; /* From order n to (n+NB-1) */
     zbesy_( &x, &xi, &fnu, &kode, &NB, ysph, ysphi, &nz, auxbyr, auxbyi,
 	    &ierr);
     cte = sqrt(0.5*PI/x);    
