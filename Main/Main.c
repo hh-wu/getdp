@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.33 2001-05-03 00:17:18 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.34 2001-05-04 11:52:02 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -164,7 +164,7 @@ int  main(int argc, char *argv[]) {
   /* close socket */
 
   if(Flag_SOCKET>0){
-    Socket_SendInt(Flag_SOCKET, -1);
+    Socket_SendInt(Flag_SOCKET, GETDP_END);
     Socket_Close(Flag_SOCKET);
   }
 
@@ -499,7 +499,7 @@ void FinalizeAndExit(void){
   LinAlg_Finalize();
 
   if(Flag_SOCKET>0){ 
-    Socket_SendInt(Flag_SOCKET, -1);
+    Socket_SendInt(Flag_SOCKET, GETDP_END);
     Socket_Close(Flag_SOCKET);
   }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.19 2001-05-03 00:17:18 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.20 2001-05-04 11:52:02 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -1232,7 +1232,7 @@ void  Print_ListResolution(int choose, struct Problem  * Problem) {
 	RE = (struct Resolution*)List_Pointer(Problem->Resolution, i) ;
 	Msg(CHECK, "(%d) %s\n", i+1, RE->Name) ;
 	if(Flag_SOCKET > 0){
-	  Socket_SendInt(Flag_SOCKET, 101);
+	  Socket_SendInt(Flag_SOCKET, GETDP_RESOLUTION_NAME);
 	  Socket_SendString(Flag_SOCKET, RE->Name);
 	}
       }
@@ -1308,7 +1308,7 @@ void  Print_ListPostOperation(int choose, struct Problem  * Problem) {
 	PO = (struct PostOperation*)List_Pointer(Problem->PostOperation, i) ;
 	Msg(CHECK, "(%d) %s\n", i+1, PO->Name) ;
 	if(Flag_SOCKET > 0){
-	  Socket_SendInt(Flag_SOCKET, 102);
+	  Socket_SendInt(Flag_SOCKET, GETDP_POSTOPERATION_NAME);
 	  Socket_SendString(Flag_SOCKET, PO->Name);
 	}
       }

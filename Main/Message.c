@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.40 2001-05-03 08:41:43 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.41 2001-05-04 11:52:02 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -213,7 +213,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       break;
     }
     strcat(prefix, sockmsg);
-    Socket_SendInt(Flag_SOCKET, 1);
+    Socket_SendInt(Flag_SOCKET, GETDP_INFO);
     Socket_SendString(Flag_SOCKET, prefix);
     return;
   }
@@ -400,7 +400,7 @@ void Progress(int current, int final, char *label){
   if(100*current/(double)final >= ProgressIndex){
     if(Flag_SOCKET > 0){
       sprintf(sockmsg, "(%s%d %%)", label, ProgressIndex) ;
-      Socket_SendInt(Flag_SOCKET, 10);
+      Socket_SendInt(Flag_SOCKET, GETDP_PROGRESS);
       Socket_SendString(Flag_SOCKET, sockmsg);
     }
     else

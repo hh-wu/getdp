@@ -1,12 +1,13 @@
-/* $Id: Message.h,v 1.9 2001-05-03 00:17:18 geuzaine Exp $ */
+/* $Id: Message.h,v 1.10 2001-05-04 11:52:02 geuzaine Exp $ */
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
 #include <stdarg.h>
 
-/*      Message level            displayed if '-v' */ 
+/* Message         level      displayed if '-v'    */ 
 #define DIRECT       0      /*   >= 2              */
 #define ERROR        1      /*   >= 0 (always)     */
+#define GERROR       ERROR  /*   Gmsh compat.      */
 #define BIGERROR     2      /*   >= 0 (always)     */
 #define WARNING      3      /*   >= 0 (always)     */
 #define OPERATION    4      /*   >= 2              */
@@ -43,7 +44,13 @@ void Msg(int level, char *fmt, ...);
 void Progress(int current, int final, char *label);
 void Debug(void);
 
+/* Socket message protocol */
 
-#define GERROR ERROR /* for Gmsh compatibility */
+#define GETDP_END                 -1
+#define GETDP_INFO                 1
+#define GETDP_PROGRESS             2
+#define GETDP_RESOLUTION_NAME      3
+#define GETDP_POSTOPERATION_NAME   4
+#define GETDP_LOAD_VIEW            5
 
 #endif

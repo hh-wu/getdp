@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.25 2001-05-03 00:17:18 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.26 2001-05-04 11:52:02 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -103,7 +103,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     fclose(PostStream) ;
     if (Flag_SOCKET && (PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
 			PostSubOperation_P->Format == FORMAT_GMSH)){
-      Socket_SendInt(Flag_SOCKET, 200);
+      Socket_SendInt(Flag_SOCKET, GETDP_LOAD_VIEW);
       Socket_SendString(Flag_SOCKET, PostSubOperation_P->FileOut);
     }
   }
