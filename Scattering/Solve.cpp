@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.10 2002-04-12 17:55:33 geuzaine Exp $
+// $Id: Solve.cpp,v 1.11 2002-04-12 18:12:09 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -7,6 +7,31 @@
 #include "Solve.h"
 #include "Patch.h"
 #include "Nystrom.h"
+
+
+// Forward map computation only
+
+void ForwardMap(Ctx *ctx){
+  List_T *reslist=List_Create(ctx->nbTargetPts,20,sizeof(Complex));
+  Complex res;
+  double t;
+  int i;
+
+  ctx->f.type = Function::ANALYTIC; 
+
+  for(i=0 ; i<ctx->nbTargetPts ; i++){
+    //t = GetTarget(i,ctx);
+    t = 2*PI*i/(double)ctx->nbTargetPts + ctx->initialTarget;
+    res = Integrate(ctx, t); 
+    Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
+    List_Add(reslist, &res);
+  }
+
+  List_PrintMatlabComplex(reslist);
+  List_Delete(reslist);
+}
+
+// Iterative solver
 
 double GetTarget(int index, Ctx *ctx){
   if(index<0 || index>ctx->nbdof-1) 
@@ -102,31 +127,6 @@ void SaveSolution(Ctx *ctx, gVector *x){
   LinAlg_PrintVector(stdout,x);
   LinAlg_SequentialEnd() ;
 }
-
-
-// Forward map computation only
-
-void ForwardMap(Ctx *ctx){
-  List_T *reslist=List_Create(ctx->nbTargetPts,20,sizeof(Complex));
-  Complex res;
-  double t;
-  int i;
-
-  ctx->f.type = Function::ANALYTIC; 
-
-  for(i=0 ; i<ctx->nbTargetPts ; i++){
-    //t = GetTarget(i,ctx);
-    t = 2*PI*i/(double)ctx->nbTargetPts + ctx->initialTarget;
-    res = Integrate(ctx, t); 
-    Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
-    List_Add(reslist, &res);
-  }
-
-  List_PrintMatlabComplex(reslist);
-  List_Delete(reslist);
-}
-
-// Iterative solver
 
 void InitializeInterpolation(Ctx *ctx, gVector *x){
   int i, j;

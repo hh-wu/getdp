@@ -1,4 +1,4 @@
-// $Id: Spline.cpp,v 1.1 2002-04-12 17:11:02 geuzaine Exp $
+// $Id: Spline.cpp,v 1.2 2002-04-12 18:10:51 geuzaine Exp $
 
 #include "Utils.h"
 #include "Spline.h"
@@ -18,6 +18,7 @@ Spline::Spline(int n, double *nodes){
 }
   
 Spline::~Spline(){ 
+  delete[] xx;
   delete[] yr;
   delete[] yi;
   delete[] dyr;
@@ -26,9 +27,11 @@ Spline::~Spline(){
 
 void Spline::init(Complex *vals){
   // slope forced to be 0: OK for circle scat from 0->2PI, or with POUs
-  //double yp1 = 0., ypn = 0.;
-  // natural slopes
+  // double yp1 = 0., ypn = 0.;
+
+  // natural splines
   double yp1 = 1.e100, ypn = 1.e100;
+
   for(int i=0; i<N; i++){
     yr[i+1] = vals[i].real();
     yi[i+1] = vals[i].imag();
