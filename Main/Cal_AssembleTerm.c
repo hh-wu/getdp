@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.10 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.11 2002-01-18 18:11:06 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -22,7 +22,7 @@ void  Cal_AssembleTerm_MH_Moving(struct Dof * Equ, struct Dof * Dof, double Val[
   for (k = 0 ; k < Current.NbrHar ; k++)
     for (l = 0 ; l < Current.NbrHar ; l++) {
       tmp = Val[0] * MH_Moving_Matrix[k][l] ;
-      // if (k==l)
+      /* if (k==l) */
       Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp, 
 			&Current.DofData->A, &Current.DofData->b) ;
     }

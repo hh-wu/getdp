@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.13 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.14 2002-01-18 18:05:33 geuzaine Exp $"
 
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
@@ -20,7 +20,7 @@
 
 struct MH_InitData{
   int Case ;
-  int NbrPoints, NbrPointsX;  // number of samples per smallest and fundamental period resp.
+  int NbrPoints, NbrPointsX;  /* number of samples per smallest and fundamental period resp. */
   struct DofData *DofData ;
   double **H, ***HH ;
   double *t, *w;
@@ -152,9 +152,11 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
   for (iTime = 0 ; iTime < NbrPointsX ; iTime++) 
     t[iTime] = (double)iTime/(double)NbrPointsX/(MinPuls/TWO_PI) ;
 
- /*   w = (double *)Malloc(sizeof(double)*NbrPointsX) ; */
-/*    for (iTime = 0 ; iTime < NbrPointsX ; iTime++)  */
-/*      w[iTime] = 2. / (double)NbrPointsX ; */
+  /*   
+     w = (double *)Malloc(sizeof(double)*NbrPointsX) ;
+       for (iTime = 0 ; iTime < NbrPointsX ; iTime++)
+         w[iTime] = 2. / (double)NbrPointsX ;
+  */
 
   w = (double *)Malloc(sizeof(double)*NbrHar) ;
   for (iPul = 0 ; iPul < NbrHar/2 ; iPul++)
@@ -170,24 +172,29 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
   for (iTime = 0 ; iTime < NbrPointsX ; iTime++){
     H[iTime] = (double *)Malloc(sizeof(double)*NbrHar) ;
     for (iPul = 0 ; iPul < NbrHar/2 ; iPul++) {
-      //  if (Val_Pulsation [iPul]){
+      /* if (Val_Pulsation [iPul]){ */
 	H[iTime][2*iPul  ] =   cos(Val_Pulsation[iPul] * t[iTime]) ;
 	H[iTime][2*iPul+1] = - sin(Val_Pulsation[iPul] * t[iTime]) ;
     }
-	//  } else {
-	//	H[iTime][2*iPul    ] = 0.5 ;
-	//H[iTime][2*iPul + 1] = 0 ;
-	// }
+    /*
+      } 
+      else {
+        H[iTime][2*iPul    ] = 0.5 ;
+        H[iTime][2*iPul + 1] = 0 ;
+      }
+    */
   }
 
- /*   for (iHar = 0 ; iHar < NbrHar ; iHar++) */
-/*      for (jHar = iHar ; jHar < NbrHar ; jHar++){ */
-/*        sum = 0.; */
-/*        for (iTime = 0 ; iTime < NbrPointsX ; iTime++)  */
-/*  	sum += w[iTime] * H[iTime][iHar] * H[iTime][jHar] ; */
-/*        sum -= (iHar==jHar)? 1. : 0. ; */
-/*        printf("iHar %d jHar %d sum %e\n", iHar, jHar, sum); */
-/*      } */
+ /*
+   for (iHar = 0 ; iHar < NbrHar ; iHar++)
+     for (jHar = iHar ; jHar < NbrHar ; jHar++){
+       sum = 0.;
+       for (iTime = 0 ; iTime < NbrPointsX ; iTime++)
+  	 sum += w[iTime] * H[iTime][iHar] * H[iTime][jHar] ;
+         sum -= (iHar==jHar)? 1. : 0. ;
+         printf("iHar %d jHar %d sum %e\n", iHar, jHar, sum);
+     } 
+ */
   
 
   if (Case == 2) {
@@ -267,14 +274,16 @@ void  F_MHToTime (struct Function * Fct, struct Value * A, struct Value * V) {
   time = (A+1)->Val[0] ;
 
   for (iHar = 0 ; iHar < Current.NbrHar/2 ; iHar++) {
-//  if (Current.DofData->Val_Pulsation [iHar]){
+    /* if (Current.DofData->Val_Pulsation [iHar]){ */
       H[2*iHar  ] =   cos(Current.DofData->Val_Pulsation[iHar] * time) ;
       H[2*iHar+1] = - sin(Current.DofData->Val_Pulsation[iHar] * time) ;
-//  }
-//  else {
-//    H[2*iHar  ] = 0.5 ;
-//    H[2*iHar+1] = 0 ;
-//  }
+    /*
+    }
+    else {
+      H[2*iHar  ] = 0.5 ;
+      H[2*iHar+1] = 0 ;
+    }
+    */
   }
 
   nVal = NbrValues_Type (A->Type) ;
@@ -316,15 +325,15 @@ void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStor
   nVal1 = NbrValues_Type (MH_Value->Type) ;
   t_Value.Type = MH_Value_Tr.Type = MH_Value->Type;
 
-  NbrHar = Current.NbrHar;   // save NbrHar
-  Current.NbrHar = 1;        // evaluation in time domain ! 
+  NbrHar = Current.NbrHar;   /* save NbrHar */
+  Current.NbrHar = 1;        /* evaluation in time domain ! */
 
   for (iVal = 0 ; iVal < MAX_DIM ; iVal++)  for (iHar = 0 ; iHar < NbrHar ; iHar++)
     MH_Value_Tr.Val[iHar*MAX_DIM+iVal] = 0. ; 
     
   for (iTime = 0 ; iTime < NbrPointsX ; iTime++) {
 
-    for (iVal = 0 ; iVal < nVal1 ; iVal++){   // evaluation of MH_Value at iTime-th time point
+    for (iVal = 0 ; iVal < nVal1 ; iVal++){ /* evaluation of MH_Value at iTime-th time point */
       t_Value.Val[iVal] = 0; 
       for (iHar = 0 ; iHar < NbrHar ; iHar++)
 	t_Value.Val[iVal] += H[iTime][iHar] * MH_Value->Val[iHar*MAX_DIM+iVal] ;
@@ -338,7 +347,7 @@ void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStor
     for (iVal = 0 ; iVal < nVal2 ; iVal++)  for (iHar = 0 ; iHar < NbrHar ; iHar++)
       MH_Value_Tr.Val[iHar*MAX_DIM+iVal] += 
 	weight[iHar] * H[iTime][iHar] * t_Value.Val[iVal] ;
-//	weight[iTime] * H[iTime][iHar] * t_Value.Val[iVal] ;
+    /* weight[iTime] * H[iTime][iHar] * t_Value.Val[iVal] ; */
 
   } /*  for iTime  */
 
@@ -400,9 +409,10 @@ void  Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationT
 	(WholeQuantity_P0 + 4)->Case.Operator.TypeOperator != OP_TIME)
       Msg(ERROR, "Not allowed expression in Galerkin term with MHJacNL");
     FI->MHJacNL_Factor = WholeQuantity_P0->Case.Constant ;
-    //printf(" Factor = %e \n" , FI->MHJacNL_Factor);
+    /* printf(" Factor = %e \n" , FI->MHJacNL_Factor); */
   } else {
-    Msg(ERROR, "Not allowed expression in Galerkin term with MHJacNL (%d terms) ", List_Nbr(WholeQuantity_L));
+    Msg(ERROR, "Not allowed expression in Galerkin term with MHJacNL (%d terms) ", 
+	List_Nbr(WholeQuantity_L));
   }
 
   if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE) 
@@ -496,7 +506,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 	 QuantityStorage_P->BasisFunction[j].Dof + k/2*gCOMPLEX_INCREMENT,
 	 &Val_Dof[j][k], &Val_Dof[j][k+1]) ;
   
-  // printf("Type1 = %d\n",  FI->Type_FormDof);
+  /* printf("Type1 = %d\n",  FI->Type_FormDof); */
   nVal1 = NbrValues_Type (Type1 = Get_ValueFromForm(FI->Type_FormDof)) ;
 
 
@@ -677,8 +687,8 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 	    E_MH[iDof][jDof][iHar][jHar] += weightIntPoint * 
 	      Get_Product(vBFxDof[iDof], E_D[iHar][jHar], vBFxDof[jDof]) ;
 
-	    //  printf("%d %d %d %d  %e\n", iDof, jDof, iHar, jHar,
-	    //    E_MH[iDof][jDof][iHar][jHar]) ;
+	    /*  printf("%d %d %d %d  %e\n", iDof, jDof, iHar, jHar,
+	        E_MH[iDof][jDof][iHar][jHar]) ; */
 	  }
 
     Current.NbrHar = NbrHar ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.16 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.17 2002-01-18 18:16:36 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -522,7 +522,7 @@ void Cal_WholeQuantity(struct Element * Element,
     case WQ_SAVEVALUE :
       if(WholeQuantity_P->Case.SaveValue.Index > MAX_REGISTER_SIZE-1)
 	Msg(ERROR, "Register Size Exceeded (%d)", MAX_REGISTER_SIZE);
-      //     if (WholeQuantity_P->Case.SaveValue.Index >= 0)
+      /* if (WholeQuantity_P->Case.SaveValue.Index >= 0) */
       Cal_CopyValue(&Stack[0][Index-1], 
 		    ValueSaved + WholeQuantity_P->Case.SaveValue.Index) ;
       break ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Laplace.c,v 1.6 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: GF_Laplace.c,v 1.7 2002-01-18 18:07:53 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -28,7 +28,7 @@ void  GF_Laplace (F_ARG) {
 
   GetDP_Begin("GF_Laplace");
 
-  // if (Current.NbrHar != 1) Msg(ERROR, "Wrong Number of Harmonics in 'GF_Laplace'");
+  /* if (Current.NbrHar != 1) Msg(ERROR, "Wrong Number of Harmonics in 'GF_Laplace'"); */
 
   switch((int)Fct->Para[0]){
 
@@ -60,7 +60,7 @@ void  GF_Laplace (F_ARG) {
   }
 
   V->Type = SCALAR ;
-  //for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ;
+  /* for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ; */
 
   GetDP_End ;
 }
@@ -164,7 +164,7 @@ void GF_NPxGradLaplace (F_ARG) {
     break;
   }
 
-  //for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ;
+  /* for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ; */
 
   GetDP_End ;
 }
@@ -220,7 +220,7 @@ void GF_NSxGradLaplace (F_ARG) {
     break;
   }
 
-  // for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ;
+  /* for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ; */
 
   GetDP_End ;
 }

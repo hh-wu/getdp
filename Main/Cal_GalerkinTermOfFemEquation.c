@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.11 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.12 2002-01-18 18:14:50 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -208,7 +208,7 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
 
 
   if (MH_Moving_Matrix) {
-    //Msg (INFO, "AssembleTerm_MH_Moving") ;
+    /* Msg (INFO, "AssembleTerm_MH_Moving") ; */
     FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving ; 
   }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Value.c,v 1.16 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: Cal_Value.c,v 1.17 2002-01-18 18:18:31 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
@@ -1252,11 +1252,10 @@ void  Cal_DivideValue (struct Value * V1, struct Value * V2, struct Value * R) {
       R->Val[0] = V1->Val[0]/V2->Val[0];
     }
     else {
-            for (k = 0 ; k < Current.NbrHar ; k += 2) {  /* meaning in multi-harmonics ??? */
-	      //k = 0 ;
+      for (k = 0 ; k < Current.NbrHar ; k += 2) {  /* meaning in multi-harmonics ??? */
 	CDIVI(0,0,0);
 	CPUT(0);
-	     }
+      }
     }
     R->Type = SCALAR ;
   }
