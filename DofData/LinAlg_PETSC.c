@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.24 2003-01-23 01:28:12 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.25 2003-02-07 10:18:54 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -184,14 +184,15 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
   */
   
   /* "dense sparse" */
-  ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m, 
-                         n, PETSC_NULL, m, PETSC_NULL, &M->M); MYCHECK(ierr); 
-
-  /* normal sparse */
   /*
   ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m, 
-                         50, PETSC_NULL, 50, PETSC_NULL, &M->M); MYCHECK(ierr); 
+                         n, PETSC_NULL, m, PETSC_NULL, &M->M); MYCHECK(ierr); 
   */
+  /* normal sparse */
+
+  ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m, 
+                         50, PETSC_NULL, 50, PETSC_NULL, &M->M); MYCHECK(ierr); 
+  
 
   /* sequential sparse */
   /*
