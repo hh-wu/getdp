@@ -224,7 +224,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.55 2003-05-22 15:09:58 dular Exp $ */
+/* $Id: GetDP.tab.c,v 1.56 2003-06-04 22:05:12 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -417,7 +417,7 @@ struct PostOperation          PostOperation_S ;
 struct PostSubOperation         PostSubOperation_S ;
 
 
-static ImbricatedLoop = 0;
+static int ImbricatedLoop = 0;
 static fpos_t yyposImbricatedLoopsTab[10];
 static int yylinenoImbricatedLoopsTab[10];
 static double LoopControlVariablesTab[10][3];
