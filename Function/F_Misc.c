@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.9 2001-11-22 15:38:36 ledinh Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.10 2001-11-22 15:47:24 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -131,7 +131,7 @@ void  F_Tangent(F_ARG) {
     break ;
 
   default :
-    Msg(ERROR, "Tangent only for Line Elements");
+    Msg(ERROR, "Function 'Tangent' only valid for Line Elements");
   }
 
   if (Current.NbrHar != 1) {
@@ -230,7 +230,7 @@ void  F_SurfaceArea (F_ARG) {
 
 	}
 	else {
-	  Msg(ERROR, "Only Triangle or Quandrangle  element for SurfaceArea");
+	  Msg(ERROR, "Function 'SurfaceArea' only valid for Triangle or Quandrangle Elements");
 	}
       }
     }
@@ -263,7 +263,7 @@ void  F_InterpolationLinear (F_ARG) {
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg(ERROR,"Bad Argument for Linear Interpolation (less than x0)") ;
+    Msg(ERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     a = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -302,7 +302,7 @@ void  F_dInterpolationLinear (F_ARG) {
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg(ERROR,"Bad Argument for Linear Interpolation (less than x0)") ;
+    Msg(ERROR,"Bad argument for linear Interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     dyp = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -342,7 +342,7 @@ void  F_dInterpolationLinear2 (F_ARG) {
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg(ERROR,"Bad Argument for Linear Interpolation (less than x0)") ;
+    Msg(ERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     a = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -385,7 +385,7 @@ void  F_InterpolationAkima (F_ARG) {
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg(ERROR,"Bad Argument for Linear Interpolation (less than x0)") ;
+    Msg(ERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     a = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -430,7 +430,7 @@ void  F_dInterpolationAkima (F_ARG) {
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg(ERROR,"Bad Argument for Linear Interpolation (less than x0)") ;
+    Msg(ERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     dyp = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
