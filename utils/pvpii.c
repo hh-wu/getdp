@@ -1,4 +1,4 @@
-#define RCSID "$Id: pvpii.c,v 1.4 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: pvpii.c,v 1.1 2002-11-01 19:25:08 geuzaine Exp $"
 
 /usr/users52/meys/asmodee/...
 
