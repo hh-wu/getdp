@@ -305,7 +305,7 @@ int fcmp_PostElement(const void *a, const void *b){
   double s1, s2 ;
   int i;
 
-  PE1 = (struct PostElement*)a; PE2 = (struct PostElement*)b;
+  PE1 = *(struct PostElement**)a; PE2 = *(struct PostElement**)b;
 
   s1 = s2 = 0.0 ;  
   for(i=0;i<PE1->NbrNodes;i++){ s1 += PE1->x[i]; s2 += PE2->x[i]; }
