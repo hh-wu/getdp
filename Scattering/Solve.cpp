@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.4 2002-03-04 17:37:02 geuzaine Exp $
+// $Id: Solve.cpp,v 1.5 2002-03-04 17:43:49 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Complex.h"
@@ -24,7 +24,7 @@ void ComputeRHS(Ctx *ctx, gVector *b){
   LinAlg_GetLocalVectorRange(b,&beg,&end);
   beg /= gCOMPLEX_INCREMENT;
   end /= gCOMPLEX_INCREMENT;
-  Msg(DEBUG, "RHS %d->%d", beg, end-1);
+  Msg(INFO, "RHS %d->%d", beg, end-1);
 
   for(i=beg ; i<end ; i++){
     t = GetTarget(i,ctx->NbTargetPts,ctx->InitialTarget);
@@ -107,11 +107,11 @@ void BuildSolve(Ctx *ctx){
   LinAlg_GetLocalMatrixRange(&A,&beg,&end);
   beg /= gCOMPLEX_INCREMENT;
   end /= gCOMPLEX_INCREMENT;
-  Msg(DEBUG, "MAT %d->%d", beg, end-1);
+  Msg(INFO, "MAT %d->%d", beg, end-1);
   
   for(i=beg ; i<end ; i++){
     t = GetTarget(i,ctx->NbTargetPts,ctx->InitialTarget);
-    Msg(DEBUG, "Assembling line %d", i);
+    Msg(INFO, "Assembling line %d", i);
     for(j=0 ; j<ctx->NbTargetPts ; j++){
       ctx->f.NumBF = -ctx->NbTargetPts/2+j;
       res = (-I/2.) * Integrate(ctx, t); 
@@ -145,7 +145,7 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   LinAlg_GetLocalVectorRange(x,&beg,&end);
   beg /= gCOMPLEX_INCREMENT;
   end /= gCOMPLEX_INCREMENT;
-  Msg(DEBUG, "A*x %d->%d", beg, end-1);
+  Msg(INFO, "A*x %d->%d", beg, end-1);
   
   for(i=beg ; i<end ; i++){
     t = GetTarget(i,ctx->NbTargetPts,ctx->InitialTarget);
