@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.7 2001-07-30 09:42:54 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.8 2001-11-19 17:37:29 sabarieg Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -211,7 +211,7 @@ void  F_SurfaceArea (F_ARG) {
 	if (Element.Type == TRIANGLE || Element.Type == QUADRANGLE) {
 
 	  Get_NodesCoordinatesOfElement(&Element) ;
-	  Get_GeoElement(&Element, 0., 0., 0.) ;
+	  Get_BFGeoElement(&Element, 0., 0., 0.) ;
 
 	  c11 = c21 = c12 = c22 = 0. ;
 	  for ( i = 0 ; i < Element.GeoElement->NbrNodes ; i++ ) {
