@@ -1,4 +1,4 @@
-// $Id: Spline.cpp,v 1.3 2002-04-12 23:07:35 geuzaine Exp $
+// $Id: Spline.cpp,v 1.4 2002-06-19 00:37:30 geuzaine Exp $
 
 #include "Utils.h"
 #include "Spline.h"
@@ -108,9 +108,14 @@ void Spline::splint(double xa[], double ya[], double y2a[], int n, double x, dou
 #endif
 
   h=xa[khi]-xa[klo];
-  if (h == 0.0) Msg(ERROR, "Bad xa input to routine splint");
-  a=(xa[khi]-x)/h;
-  b=(x-xa[klo])/h;
-  *y=a*ya[klo]+b*ya[khi]+((a*a*a-a)*y2a[klo]+(b*b*b-b)*y2a[khi])*(h*h)/6.0;
+  if (h == 0.0){
+    Msg(WARNING, "Identical interpolation points (xa=%.16g)!",xa[klo]);
+    *y=ya[klo];
+  }
+  else{
+    a=(xa[khi]-x)/h;
+    b=(x-xa[klo])/h;
+    *y=a*ya[klo]+b*ya[khi]+((a*a*a-a)*y2a[klo]+(b*b*b-b)*y2a[khi])*(h*h)/6.0;
+  }
 }
 

@@ -1,4 +1,4 @@
-// $Id: FFT.cpp,v 1.10 2002-06-17 08:11:11 geuzaine Exp $
+// $Id: FFT.cpp,v 1.11 2002-06-19 00:37:30 geuzaine Exp $
 
 #include "Utils.h"
 #include "FFT.h"
@@ -124,6 +124,7 @@ FFT::~FFT(){
 
 void FFT::forward(Complex *f, Complex *F){
   int i;
+
   for(i=0; i<N; i++){
     tmp1[i].re = f[i].real();
     tmp1[i].im = f[i].imag();
@@ -196,6 +197,8 @@ void FFT::init(Complex *f){
 
 Complex FFT::eval(double t){
   Complex sum;
+
+#define DIRECT_EVAL 0
 
 #if DIRECT_EVAL // just for testing...
   int i, j;
