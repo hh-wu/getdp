@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.24 2001-07-26 10:03:05 geuzaine Exp $
+@c $Id: getdp.texi,v 1.25 2001-07-26 14:49:01 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -292,7 +292,7 @@ Short examples
 * Frequency domain resolution::  
 * Time domain resolution::      
 * Nonlinear resolution::        
-* Nonlinear formulations::      
+* Coupled formulations::        
 
 Complete examples
 
@@ -4955,7 +4955,7 @@ mixed formulations can be defined.
 * Frequency domain resolution::  
 * Time domain resolution::      
 * Nonlinear resolution::        
-* Nonlinear formulations::      
+* Coupled formulations::        
 @end menu
 
 @c .........................................................................
@@ -5066,7 +5066,7 @@ time step 1 ms.
 @c Nonlinear Time Domain Resolution (Magnetodynamic Problem)
 @c .........................................................................
 
-@node Nonlinear resolution, Nonlinear formulations, Time domain resolution, Resolution examples
+@node Nonlinear resolution, Coupled formulations, Time domain resolution, Resolution examples
 @subsection Nonlinear time domain resolution (magnetodynamic problem)
 
 In case a nonlinear problem is solved, an iterative loop has to be defined
