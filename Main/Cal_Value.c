@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Value.c,v 1.14 2001-08-08 14:52:44 sabarieg Exp $"
+#define RCSID "$Id: Cal_Value.c,v 1.15 2001-08-10 10:00:41 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
@@ -754,7 +754,6 @@ void  Cal_AddMultValueArray (struct Value * V1, struct Value * V2, double d, str
 
 
 /* ------------------------------------------------------------------------ 
-=======
    V1 <- V1 * d1 + V2 * d2 ,   where d1, d2 are doubles
    ------------------------------------------------------------------------ */
 
