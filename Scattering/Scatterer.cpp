@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.18 2002-06-07 23:45:26 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.19 2002-06-11 00:04:21 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -40,6 +40,7 @@ int Scatterer::dim(){
 }
 
 void Scatterer::x(double u, double v, double *x){
+  u = GetInInterval(u, 0., TWO_PI);
   switch(type){
   case CIRCLE :
     x[0] = cos(u); 
@@ -65,6 +66,7 @@ void Scatterer::x(double u, double v, double *x){
 }
 
 void Scatterer::dx(double u, double v, double *x){ 
+  u = GetInInterval(u, 0., TWO_PI);
   switch(type){
   case CIRCLE :
     x[0] = -sin(u); 
@@ -90,6 +92,7 @@ void Scatterer::dx(double u, double v, double *x){
 }
 
 void Scatterer::ddx(double u, double v, double *x){ 
+  u = GetInInterval(u, 0., TWO_PI);
   switch(type){
   case CIRCLE :
     x[0] = -cos(u); 
