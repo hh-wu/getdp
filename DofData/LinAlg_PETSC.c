@@ -1,4 +1,4 @@
-/* $Id: LinAlg_PETSC.c,v 1.12 2000-10-06 14:25:22 geuzaine Exp $ */
+/* $Id: LinAlg_PETSC.c,v 1.13 2000-10-23 16:17:21 colignon Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -611,43 +611,41 @@ void gAssembleVector(gVector *V){
 /* Solve */
 
 void gSolve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
-  Vec diag, newb, newx ;
+  Vec diag ;
   int its, RankCpu ;
 
   /* Should be done only if the structure and/or the value of the elements change */
-  /* scale
-  VecDuplicate(X->V, &diag);
-  VecDuplicate(X->V, &newx);
-  VecDuplicate(X->V, &newb);
 
+  /* scale */
+  
+  VecDuplicate(X->V, &diag);
   MatGetDiagonal(A->M, diag);
-  VecReciprocal(diag);
+  VecReciprocal(diag); 
   MatDiagonalScale(A->M, diag, PETSC_NULL);
-  VecPointwiseMult(B->V, diag, newb);
-  */
+  VecPointwiseMult(B->V, diag, B->V);
 
   /* Should be done only once */
+
   ierr = SLESCreate(PETSC_COMM_WORLD, &Solver->sles); CHKERRA(ierr);
 
   /* Should be done only if the structure and/or the value of the elements change */
   /* if (!ReUse_ILU) */
+
   ierr = SLESSetOperators(Solver->sles, A->M, A->M, DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
   ierr = SLESSetFromOptions(Solver->sles); CHKERRA(ierr);
 
   /* Todo everytime */
-  /*
-  ierr = SLESSolve(Solver->sles, newb, newx, &its); CHKERRA(ierr); 
-  */
+  
   ierr = SLESSolve(Solver->sles, B->V, X->V, &its); CHKERRA(ierr); 
+
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
+
   if (!RankCpu) Msg(PETSC, "%d Iterations", its) ;
 
-  /* unscale 
-  VecReciprocal(diag);
+  /* unscale */
+  /*  VecReciprocal(diag); 
   MatDiagonalScale(A->M, diag, PETSC_NULL);
-  VecPointwiseMult(newb, diag, B->V);
-  VecPointwiseMult(newx, diag, X->V);
-  */
+  VecPointwiseMult(newb, diag, B->V); */
 }
 
 #endif
