@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.29 2001-07-30 09:56:25 geuzaine Exp $
+@c $Id: getdp.texi,v 1.30 2001-07-30 10:23:02 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -28,7 +28,7 @@
 @c For commercial releases, set the COMMERCIAL flag (uncomment the following
 @c line). This will prevent all references to "free software" and the like...
 @c
-@c      @set COMMERCIAL
+      @set COMMERCIAL
 @c
 @c =========================================================================
 @c %**start of header
