@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.18 2001-03-13 12:48:26 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.19 2001-03-13 15:04:26 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -82,12 +82,8 @@ struct StringXDefine1Nbr  Jacobian_Type[] = {
   {"SurRectShell"      , JACOBIAN_SUR_RECT_SHELL        , -1} ,
 
   {"SurAxi"            , JACOBIAN_SUR_AXI               , 0} ,
-  {"SurAxiSphShell"    , JACOBIAN_SUR_AXI_SPH_SHELL     , -1} ,
-  {"SurAxiRectShell"   , JACOBIAN_SUR_AXI_RECT_SHELL    , -1} ,
 
   {"SurAxiSqu"         , JACOBIAN_SUR_AXI_SQU           , 0} ,
-  {"SurAxiSquSphShell" , JACOBIAN_SUR_AXI_SQU_SPH_SHELL , -1} ,
-  {"SurAxiSquRectShell", JACOBIAN_SUR_AXI_SQU_RECT_SHELL, -1} ,
 
   {"Lin"               , JACOBIAN_LIN                   , 0} ,
   {NULL                , JACOBIAN_VOL                   , 0} 

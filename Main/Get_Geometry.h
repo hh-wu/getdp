@@ -1,4 +1,4 @@
-/* $Id: Get_Geometry.h,v 1.5 2001-03-13 08:47:18 geuzaine Exp $ */
+/* $Id: Get_Geometry.h,v 1.6 2001-03-13 15:04:26 geuzaine Exp $ */
 #ifndef _GET_GEOMETRY_H_
 #define _GET_GEOMETRY_H_
 
@@ -18,38 +18,46 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 /* Jacobian */
 /* -------- */
 
-#define Jacobian_ARG  struct Element * Element, MATRIX3x3 * Jac
+#define JACOBIAN_ARG  struct Element * Element, MATRIX3x3 * Jac
 
-double  JacobianVol0D               (Jacobian_ARG) ;
-double  JacobianVol1D               (Jacobian_ARG) ;
-double  JacobianVol2D               (Jacobian_ARG) ;
-double  JacobianVol3D               (Jacobian_ARG) ;
+/* Vol */
 
-double  JacobianVolSphShell2D       (Jacobian_ARG) ;
-double  JacobianVolSphShell3D       (Jacobian_ARG) ;
+double  JacobianVol0D (JACOBIAN_ARG);
 
-double  JacobianVolRectShell2D      (Jacobian_ARG) ;
-double  JacobianVolRectShell3D      (Jacobian_ARG) ;
+double  JacobianVol1D (JACOBIAN_ARG);
 
-double  JacobianVolSphFiniteShell2D (Jacobian_ARG) ;
+double  JacobianVol2D (JACOBIAN_ARG);
+double  JacobianVolSphShell2D (JACOBIAN_ARG);
+double  JacobianVolRectShell2D (JACOBIAN_ARG);
+double  JacobianVolPlpdX2D (JACOBIAN_ARG);
 
-double  JacobianVolAxi2D            (Jacobian_ARG) ;
-double  JacobianVolAxiSphShell2D    (Jacobian_ARG) ;
-double  JacobianVolAxiPlpdX2D       (Jacobian_ARG) ;
+double  JacobianVolAxi2D (JACOBIAN_ARG);
+double  JacobianVolAxiSphShell2D (JACOBIAN_ARG);
+double  JacobianVolAxiRectShell2D (JACOBIAN_ARG);
+double  JacobianVolAxiPlpdX2D (JACOBIAN_ARG);
 
-double  JacobianVolAxiSqu2D         (Jacobian_ARG) ;
-double  JacobianVolAxiSquSphShell2D (Jacobian_ARG) ;
+double  JacobianVolAxiSqu2D (JACOBIAN_ARG);
+double  JacobianVolAxiSquSphShell2D (JACOBIAN_ARG);
+double  JacobianVolAxiSquRectShell2D (JACOBIAN_ARG);
 
-double  JacobianSur2D               (Jacobian_ARG) ;
-double  JacobianSur3D               (Jacobian_ARG) ;
-double  JacobianSurAxi2D            (Jacobian_ARG) ;
+double  JacobianVol3D (JACOBIAN_ARG);
+double  JacobianVolSphShell3D (JACOBIAN_ARG);
+double  JacobianVolRectShell3D (JACOBIAN_ARG);
 
-double  JacobianSurSphShell2D       (Jacobian_ARG) ;
+/* Sur */
 
-double  JacobianLin3D               (Jacobian_ARG) ;
+double  JacobianSur2D (JACOBIAN_ARG);
+double  JacobianSurSphShell2D (JACOBIAN_ARG);
+double  JacobianSurRectShell2D (JACOBIAN_ARG);
+double  JacobianSurAxi2D (JACOBIAN_ARG);
+double  JacobianSur3D (JACOBIAN_ARG);
+
+/* Lin */
+
+double  JacobianLin3D (JACOBIAN_ARG);
 
 
-#undef Jacobian_ARG
+#undef JACOBIAN_ARG
 
 /* -------- */
 

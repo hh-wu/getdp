@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.14 2001-03-13 14:17:58 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.15 2001-03-13 15:04:26 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -343,6 +343,9 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
       p = Element->JacobianCase->Para[6] ;
     if(Element->JacobianCase->NbrParameters >= 8)
       L = Element->JacobianCase->Para[7] ;
+    if(Element->JacobianCase->NbrParameters >= 9)
+      Msg(ERROR, "Too many parameters for rectangular transformation Jacobian\n"
+	  "Valid parameters: Radius1 Radius2 Axis CenterX CenterY CenterZ Power 1/Infinity");
   }
   else if(Type == JACOBIAN_SPH){
     if(Element->JacobianCase->NbrParameters >= 5){
@@ -354,9 +357,12 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
       p = Element->JacobianCase->Para[5] ;
     if(Element->JacobianCase->NbrParameters >= 7)
       L = Element->JacobianCase->Para[6] ;
+    if(Element->JacobianCase->NbrParameters >= 8)
+      Msg(ERROR, "Too many parameters for spherical transformation Jacobian\n"
+	  "Valid parameters: Radius1 Radius2 CenterX CenterY CenterZ Power 1/Infinity");
   }
   else
-    Msg(ERROR, "Unknown type of transformation");
+    Msg(ERROR, "Unknown type of transformation Jacobian");
 
   if(L) B = (B*B-A*A*L)/(B-A*L);
 
@@ -371,6 +377,7 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
     case 1: R = fabs(X-Cx) ; dRdx =1.0 ; dRdy =0.0 ; dRdz =0.0 ; break;
     case 2: R = fabs(Y-Cy) ; dRdx =0.0 ; dRdy =1.0 ; dRdz =0.0 ; break;
     case 3: R = fabs(Z-Cz) ; dRdx =0.0 ; dRdy =0.0 ; dRdz =1.0 ; break;
+    default: Msg(ERROR, "Bad axis specification: 1 for X, 2 for Y and 3 for Z");
     }
   }
 
@@ -403,6 +410,8 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
 /*  J a c o b i a n V o l                                                   */
 /* ------------------------------------------------------------------------ */
 
+/* 0D */
+
 double  JacobianVol0D (struct Element * Element, MATRIX3x3 * Jac) {
   
   GetDP_Begin("JacobianVol0D");
@@ -413,6 +422,8 @@ double  JacobianVol0D (struct Element * Element, MATRIX3x3 * Jac) {
 
   GetDP_Return(1.) ;
 }
+
+/* 1D */
 
 double  JacobianVol1D (struct Element * Element, MATRIX3x3 * Jac) {
   int  i ;
@@ -433,6 +444,8 @@ double  JacobianVol1D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Return(DetJac) ;
 }
 
+/* 2D */
+
 double  JacobianVol2D (struct Element * Element, MATRIX3x3 * Jac) {
   int  i ;
   double DetJac ;
@@ -451,70 +464,6 @@ double  JacobianVol2D (struct Element * Element, MATRIX3x3 * Jac) {
   }
 
   DetJac = Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21 ;
-
-  GetDP_Return(DetJac) ;
-}
-
-/* L'axe doit etre x=z=0 */
-
-double  JacobianVolAxi2D (struct Element * Element, MATRIX3x3 * Jac) {
-  int  i ;
-  double s = 0., DetJac ;
-
-  GetDP_Begin("JacobianVolAxi2D");
-
-  DetJac = JacobianVol2D(Element, Jac) ;
-
-  for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
-    s += Element->x[i] * Element->n[i] ;
-
-  /* Warning! For evaluations on the symmetry axis */
-  if (s==0.0) {
-    for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) 
-      s += Element->x[i] ;
-    s /= (double)Element->GeoElement->NbrNodes  ;
-  }
-
-  Jac->c33 = s ;
-
-  GetDP_Return(DetJac * Jac->c33) ;
-}
-
-
-/* L'axe doit etre x=z=0 */
-
-double  JacobianVolAxiSqu2D (struct Element * Element, MATRIX3x3 * Jac) {
-  int    i ;
-  double s = 0., r, DetJac ;
-
-  GetDP_Begin("JacobianVolAxiSqu2D");
-
-  Jac->c11 = 0. ;  Jac->c12 = 0. ;  Jac->c13 = 0. ;
-  Jac->c21 = 0. ;  Jac->c22 = 0. ;  Jac->c23 = 0. ;
-  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
-
-  for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
-    s += DSQU(Element->x[i]) * Element->n[i] ;
-
-
-  /* Warning! For evaluations on the symmetry axis */
-  if (s==0.0) {
-    for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) 
-      s += Element->x[i] * Element->x[i] ;
-    s /= (double)Element->GeoElement->NbrNodes  ;
-  }
-
-  r = sqrt(s);
-
-  for ( i = 0 ; i < Element->GeoElement->NbrNodes ; i++ ) {
-    Jac->c11 += 0.5/r * DSQU(Element->x[i]) * Element->dndu[i][0] ;
-    Jac->c21 += 0.5/r * DSQU(Element->x[i]) * Element->dndu[i][1] ;
-    Jac->c12 += Element->y[i] * Element->dndu[i][0] ;
-    Jac->c22 += Element->y[i] * Element->dndu[i][1] ;
-  }
-  Jac->c33 = r ;
-
-  DetJac = (Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21) * Jac->c33 ;
 
   GetDP_Return(DetJac) ;
 }
@@ -555,6 +504,49 @@ double  JacobianVolRectShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Return(DetJac1 * DetJac2) ;
 }
 
+double  JacobianVolPlpdX2D (struct Element * Element, MATRIX3x3 * Jac) {
+  MATRIX3x3  Jac1, Jac2 ;
+  double     DetJac1, DetJac2 ;
+
+  GetDP_Begin("JacobianVolPlpdX2D");
+
+  DetJac1 = JacobianVol2D (Element, &Jac1) ;
+  DetJac2 = PlpdX2D       (Element, &Jac2) ;
+
+  Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
+
+                                    Jac->c13 = 0. ;
+                                    Jac->c23 = 0. ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
+
+  GetDP_Return(DetJac1 * DetJac2) ;
+}
+
+/* 2D Axi (Attention, l'axe doit etre x=z=0) */
+
+double  JacobianVolAxi2D (struct Element * Element, MATRIX3x3 * Jac) {
+  int  i ;
+  double s = 0., DetJac ;
+
+  GetDP_Begin("JacobianVolAxi2D");
+
+  DetJac = JacobianVol2D(Element, Jac) ;
+
+  for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
+    s += Element->x[i] * Element->n[i] ;
+
+  /* Warning! For evaluations on the symmetry axis */
+  if (s==0.0) {
+    for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) 
+      s += Element->x[i] ;
+    s /= (double)Element->GeoElement->NbrNodes  ;
+  }
+
+  Jac->c33 = s ;
+
+  GetDP_Return(DetJac * Jac->c33) ;
+}
+
 double  JacobianVolAxiSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   MATRIX3x3  Jac1, Jac2 ;
   double     DetJac1, DetJac2 ;
@@ -573,38 +565,20 @@ double  JacobianVolAxiSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Return(DetJac1 * DetJac2) ;
 }
 
-double  JacobianVolAxiSquSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
+double  JacobianVolAxiRectShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   MATRIX3x3  Jac1, Jac2 ;
   double     DetJac1, DetJac2 ;
 
-  GetDP_Begin("JacobianVolAxiSquSphShell2D");
+  GetDP_Begin("JacobianVolAxiRectShell2D");
 
-  DetJac1 = JacobianVolAxiSqu2D(Element, &Jac1) ;
-  DetJac2 = Transformation     (_2D, JACOBIAN_SPH, Element, &Jac2) ;
+  DetJac1 = JacobianVolAxi2D  (Element, &Jac1) ;
+  DetJac2 = Transformation    (_2D, JACOBIAN_RECT, Element, &Jac2) ;
 
   Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
 
                                     Jac->c13 = 0. ;
                                     Jac->c23 = 0. ;
   Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = Jac1.c33 ;
-
-  GetDP_Return(DetJac1 * DetJac2) ;
-}
-
-double  JacobianVolPlpdX2D (struct Element * Element, MATRIX3x3 * Jac) {
-  MATRIX3x3  Jac1, Jac2 ;
-  double     DetJac1, DetJac2 ;
-
-  GetDP_Begin("JacobianVolPlpdX2D");
-
-  DetJac1 = JacobianVol2D (Element, &Jac1) ;
-  DetJac2 = PlpdX2D       (Element, &Jac2) ;
-
-  Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
-
-                                    Jac->c13 = 0. ;
-                                    Jac->c23 = 0. ;
-  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
 
   GetDP_Return(DetJac1 * DetJac2) ;
 }
@@ -626,6 +600,82 @@ double  JacobianVolAxiPlpdX2D (struct Element * Element, MATRIX3x3 * Jac) {
 
   GetDP_Return(DetJac1 * DetJac2) ;
 }
+
+/* 2D Axi avec transformation quadratique (Attention, l'axe doit etre x=z=0) */
+
+double  JacobianVolAxiSqu2D (struct Element * Element, MATRIX3x3 * Jac) {
+  int    i ;
+  double s = 0., r, DetJac ;
+
+  GetDP_Begin("JacobianVolAxiSqu2D");
+
+  Jac->c11 = 0. ;  Jac->c12 = 0. ;  Jac->c13 = 0. ;
+  Jac->c21 = 0. ;  Jac->c22 = 0. ;  Jac->c23 = 0. ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
+
+  for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
+    s += DSQU(Element->x[i]) * Element->n[i] ;
+
+
+  /* Warning! For evaluations on the symmetry axis */
+  if (s==0.0) {
+    for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) 
+      s += Element->x[i] * Element->x[i] ;
+    s /= (double)Element->GeoElement->NbrNodes  ;
+  }
+
+  r = sqrt(s);
+
+  for ( i = 0 ; i < Element->GeoElement->NbrNodes ; i++ ) {
+    Jac->c11 += 0.5/r * DSQU(Element->x[i]) * Element->dndu[i][0] ;
+    Jac->c21 += 0.5/r * DSQU(Element->x[i]) * Element->dndu[i][1] ;
+    Jac->c12 += Element->y[i] * Element->dndu[i][0] ;
+    Jac->c22 += Element->y[i] * Element->dndu[i][1] ;
+  }
+  Jac->c33 = r ;
+
+  DetJac = (Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21) * Jac->c33 ;
+
+  GetDP_Return(DetJac) ;
+}
+
+double  JacobianVolAxiSquSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
+  MATRIX3x3  Jac1, Jac2 ;
+  double     DetJac1, DetJac2 ;
+
+  GetDP_Begin("JacobianVolAxiSquSphShell2D");
+
+  DetJac1 = JacobianVolAxiSqu2D(Element, &Jac1) ;
+  DetJac2 = Transformation     (_2D, JACOBIAN_SPH, Element, &Jac2) ;
+
+  Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
+
+                                    Jac->c13 = 0. ;
+                                    Jac->c23 = 0. ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = Jac1.c33 ;
+
+  GetDP_Return(DetJac1 * DetJac2) ;
+}
+
+double  JacobianVolAxiSquRectShell2D (struct Element * Element, MATRIX3x3 * Jac) {
+  MATRIX3x3  Jac1, Jac2 ;
+  double     DetJac1, DetJac2 ;
+
+  GetDP_Begin("JacobianVolAxiSquRectShell2D");
+
+  DetJac1 = JacobianVolAxiSqu2D(Element, &Jac1) ;
+  DetJac2 = Transformation     (_2D, JACOBIAN_RECT, Element, &Jac2) ;
+
+  Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
+
+                                    Jac->c13 = 0. ;
+                                    Jac->c23 = 0. ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = Jac1.c33 ;
+
+  GetDP_Return(DetJac1 * DetJac2) ;
+}
+
+/* 3D */
 
 double  JacobianVol3D (struct Element * Element, MATRIX3x3 * Jac) {
   int  i ;
@@ -710,6 +760,34 @@ double  JacobianSur2D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Return(DetJac) ;
 }
 
+double  JacobianSurSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
+  MATRIX3x3  Jac1, Jac2 ;
+  double     DetJac1, DetJac2 ;
+
+  GetDP_Begin("JacobianSurSphShell2D");
+
+  DetJac1 = JacobianSur2D (Element, &Jac1) ;
+  DetJac2 = Transformation(_2D, JACOBIAN_SPH, Element, &Jac2) ;
+
+  Get_ProductMatrix( _3D, &Jac1, &Jac2, Jac) ;
+
+  GetDP_Return(DetJac1 * DetJac2) ;
+}
+
+double  JacobianSurRectShell2D (struct Element * Element, MATRIX3x3 * Jac) {
+  MATRIX3x3  Jac1, Jac2 ;
+  double     DetJac1, DetJac2 ;
+
+  GetDP_Begin("JacobianSurRectShell2D");
+
+  DetJac1 = JacobianSur2D (Element, &Jac1) ;
+  DetJac2 = Transformation(_2D, JACOBIAN_RECT, Element, &Jac2) ;
+
+  Get_ProductMatrix( _3D, &Jac1, &Jac2, Jac) ;
+
+  GetDP_Return(DetJac1 * DetJac2) ;
+}
+
 double  JacobianSurAxi2D (struct Element * Element, MATRIX3x3 * Jac) {
   int  i ;
   double DetJac ;
@@ -723,20 +801,6 @@ double  JacobianSurAxi2D (struct Element * Element, MATRIX3x3 * Jac) {
     Jac->c33 += Element->x[i] * Element->n[i] ;
 
   GetDP_Return(DetJac * Jac->c33) ;
-}
-
-double  JacobianSurSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
-  MATRIX3x3  Jac1, Jac2 ;
-  double     DetJac1, DetJac2 ;
-
-  GetDP_Begin("JacobianSurSphShell2D");
-
-  DetJac1 = JacobianSur2D (Element, &Jac1) ;
-  DetJac2 = Transformation(_2D, JACOBIAN_SPH, Element, &Jac2) ;
-
-  Get_ProductMatrix( _3D, &Jac1, &Jac2, Jac) ;
-
-  GetDP_Return(DetJac1 * DetJac2) ;
 }
 
 double  JacobianSur3D (struct Element * Element, MATRIX3x3 * Jac) {
