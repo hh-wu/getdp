@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.2 2003-02-07 10:52:14 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.3 2003-02-07 11:18:14 geuzaine Exp $"
 dnl
 dnl Machine independent configuration script for GetDP.
 dnl
@@ -80,12 +80,16 @@ else
     IRIX*)
       CC="cc"
       F77="f77"
-      C_FLAGS="-O3 -n32 -mips3"
-      C_PARSER_FLAGS="-g -n32 -mips3"
-      F77_FLAGS="-O3 -n32 -mips3"
-      SOLVER="-D_SPARSKIT"
-      LINKER="f77 -n32 -mips3"
       ;;
+#    IRIX*)
+#      CC="cc"
+#      F77="f77"
+#      C_FLAGS="-O3 -n32 -mips3"
+#      C_PARSER_FLAGS="-g -n32 -mips3"
+#      F77_FLAGS="-O3 -n32 -mips3"
+#      SOLVER="-D_SPARSKIT"
+#      LINKER="f77 -n32 -mips3"
+#      ;;
 #    IRIX64*)
 #      CC="cc"
 #      F77="f77"

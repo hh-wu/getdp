@@ -2241,12 +2241,16 @@ else
     IRIX*)
       CC="cc"
       F77="f77"
-      C_FLAGS="-O3 -n32 -mips3"
-      C_PARSER_FLAGS="-g -n32 -mips3"
-      F77_FLAGS="-O3 -n32 -mips3"
-      SOLVER="-D_SPARSKIT"
-      LINKER="f77 -n32 -mips3"
       ;;
+#    IRIX*)
+#      CC="cc"
+#      F77="f77"
+#      C_FLAGS="-O3 -n32 -mips3"
+#      C_PARSER_FLAGS="-g -n32 -mips3"
+#      F77_FLAGS="-O3 -n32 -mips3"
+#      SOLVER="-D_SPARSKIT"
+#      LINKER="f77 -n32 -mips3"
+#      ;;
 #    IRIX64*)
 #      CC="cc"
 #      F77="f77"
