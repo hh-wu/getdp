@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Coord.c,v 1.6 2001-03-05 08:50:41 sabarieg Exp $"
+#define RCSID "$Id: F_Coord.c,v 1.7 2001-03-05 11:01:43 sabarieg Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -31,15 +31,22 @@ void  F_CoordXYZ (F_ARG) {
 
   GetDP_Begin("F_CoordXYZ");
 
-  Get_NodesCoordinatesOfElement(Current.Element) ;
-  Get_GeoElement(Current.Element, Current.u, Current.v, Current.w) ;
-
-  X = Y = Z = 0. ;
-  for (i = 0 ; i < Current.Element->GeoElement->NbrNodes ; i++) {
-    X += Current.Element->x[i] * Current.Element->n[i] ;
-    Y += Current.Element->y[i] * Current.Element->n[i] ;
-    Z += Current.Element->z[i] * Current.Element->n[i] ;
+  if(Current.Element == NO_ELEMENT){
+     X = Current.x ;
+     Y = Current.y ;
+     Z = Current.z ;
   }
+  else{
+    Get_NodesCoordinatesOfElement(Current.Element) ;
+    Get_GeoElement(Current.Element, Current.u, Current.v, Current.w) ;
+    X = Y = Z = 0. ;
+    for (i = 0 ; i < Current.Element->GeoElement->NbrNodes ; i++) {
+      X += Current.Element->x[i] * Current.Element->n[i] ;
+      Y += Current.Element->y[i] * Current.Element->n[i] ;
+      Z += Current.Element->z[i] * Current.Element->n[i] ;
+    }
+  }
+
   if (Current.NbrHar == 1){ 
     V->Val[0] = X ; 
     V->Val[1] = Y ; 
@@ -65,30 +72,36 @@ void  F_CoordXYZ (F_ARG) {
 /*  Get the X, Y or Z coordinate                                            */
 /* ------------------------------------------------------------------------ */
 
-#define get_1_coord(name,coord)						\
-  int     i, k;								\
-  double  tmp;								\
-									\
-  GetDP_Begin(name);							\
-									\
-  Get_NodesCoordinatesOfElement(Current.Element) ;			\
-  Get_GeoElement(Current.Element, Current.u, Current.v, Current.w) ;	\
-									\
-  tmp = 0. ;								\
-  for (i = 0 ; i < Current.Element->GeoElement->NbrNodes ; i++) {	\
-    tmp += Current.Element->coord[i] * Current.Element->n[i] ;		\
-  }									\
-  if (Current.NbrHar == 1){						\
-    V->Val[0] = tmp ;							\
-  }									\
-  else {								\
-    for (k = 0 ; k < Current.NbrHar ; k+=2) {				\
-      V->Val[MAX_DIM* k     ] = tmp ;					\
-      V->Val[MAX_DIM*(k+1)  ] = 0. ;					\
-    }									\
-  }									\
-  V->Type = SCALAR ;							\
-									\
+#define get_1_coord(name,coord)							\
+  int     i, k;									\
+  double  tmp;									\
+										\
+  GetDP_Begin(name);								\
+										\
+  if(Current.Element == NO_ELEMENT){						\
+     X = Current.x ;								\
+     Y = Current.y ;								\
+     Z = Current.z ;								\
+  }										\
+  else{										\
+    Get_NodesCoordinatesOfElement(Current.Element) ;				\
+    Get_GeoElement(Current.Element, Current.u, Current.v, Current.w) ;	\	\
+    tmp = 0. ;									\
+    for (i = 0 ; i < Current.Element->GeoElement->NbrNodes ; i++) {		\
+      tmp += Current.Element->coord[i] * Current.Element->n[i] ;		\
+    }										\
+  }										\
+  if (Current.NbrHar == 1){							\
+    V->Val[0] = tmp ;								\
+  }										\
+  else {									\
+    for (k = 0 ; k < Current.NbrHar ; k+=2) {					\
+      V->Val[MAX_DIM* k     ] = tmp ;						\
+      V->Val[MAX_DIM*(k+1)  ] = 0. ;						\
+    }										\
+  }										\
+  V->Type = SCALAR ;								\
+										\
   GetDP_End ;
 
 void  F_CoordX (F_ARG) { get_1_coord("F_CoordX",x) }
