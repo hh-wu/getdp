@@ -1,0 +1,22 @@
+
+Andre Nicolet <andre.nicolet@fresnel.fr>
+
+* generaliser localterm (partie equation doit appeler Cal_vBFxDof)
+
+* ajouter un champ dans Data_Function pour les fcts de forme a
+valeurs vectorielles: gradient generalise
+
+* definir les derivees selont x, y et z des fcts de forme a valeurs
+vectorielles
+
+* definir une fct de forme 'gradient generalise' se basant sur ces
+derivees partielles (attention au chgt de coord!)
+
+* generliser Cal_Galerkin, Get_FunctionValue, etc. pour accepter les
+valeurs tensorielles retournees par le gradient generalise
+
+=================================================================================
+
+cf. doc/BUGS
+
+
