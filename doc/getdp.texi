@@ -130,12 +130,16 @@ html) are available at @value{WEB-GETDP}.
 @ifinfo
 @node Top, Copying, (dir), (dir)
 @top GetDP
+
+@heading The documentation for GetDP, version  @value{VERSION}
+@heading A General environment for the treatment of Discrete Problems
+
+Patrick Dular and Christophe Geuzaine
+
 GetDP is a scientific computation software for the numerical solution of
 integro-differential equations, using finite element and integral type
-methods.
-
-This is Edition @value{EDITION} of the @cite{GetDP Manual}, last updated
-@value{DAY} @value{MONTH} for GetDP Version @value{VERSION}.
+methods. This is Edition @value{EDITION} of the @cite{GetDP Manual}, last
+updated @value{DAY} @value{MONTH} for GetDP Version @value{VERSION}.
 @end ifinfo
 
 @c =========================================================================

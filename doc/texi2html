@@ -36,7 +36,7 @@ require 5.0;
 #--##############################################################################
 
 # CVS version:
-# $Id: texi2html,v 1.2 2000-07-24 15:33:00 geuzaine Exp $
+# $Id: texi2html,v 1.3 2000-09-07 13:07:11 geuzaine Exp $
 
 # Homepage:
 $T2H_HOMEPAGE = <<EOT;
@@ -54,7 +54,7 @@ Send bugs and suggestions to <texi2html\@mathematik.uni-kl.de>
 EOT
 
 # Version: set in configure.in
-$THISVERSION = '1.64';
+$THISVERSION = '1.65';
 $THISPROG = "texi2html $THISVERSION";	# program name and version
   
 # The man page for this program is included at the end of this file and can be
@@ -92,7 +92,7 @@ eval { ($T2H_USER = (getpwuid ($<))[6]) =~ s/,.*//;}; # Who am i
 # Copy this file and make changes to it, if you like.
 # Afterwards, either, load it with command-line option -init_file <your_init_file>
 #
-# $Id: texi2html,v 1.2 2000-07-24 15:33:00 geuzaine Exp $
+# $Id: texi2html,v 1.3 2000-09-07 13:07:11 geuzaine Exp $
 
 ######################################################################
 # stuff which can also be set by command-line options
@@ -151,7 +151,7 @@ $T2H_OPTIONS -> {expand} =
 # - glossary
 #if set, uses section named `Footnotes' for glossary
 $T2H_USE_GLOSSARY = 0;
-$T2H_OPTIONS -> {glossary} =
+T2H_OPTIONS -> {glossary} =
 {
  type => '!',
  linkage => \$T2H_USE_GLOSSARY,
@@ -178,13 +178,13 @@ $T2H_OPTIONS -> {invisible} =
 };
 
 # -iso
-# if set, ISO8879 characters are used for special symbols (like copyright, etc)
+# if set, ISO8859 characters are used for special symbols (like copyright, etc)
 $T2H_USE_ISO = 0;
 $T2H_OPTIONS -> {iso} =
 {
  type => 'iso',
  linkage => \$T2H_USE_ISO,
- verbose => 'if set, ISO8879 characters are used for special symbols (like copyright, etc)',
+ verbose => 'if set, ISO8859 characters are used for special symbols (like copyright, etc)',
  noHelp => 1,
 };
 
@@ -313,7 +313,7 @@ $T2H_SHORTEXTN = 0;
 $T2H_OPTIONS -> {short_ext} =
 {
  type => '!',
- linkage => \$T2H_SHORT_EXT,
+ linkage => \$T2H_SHORTEXTN,
  verbose => 'use "htm" extension for output HTML files',
 };
 
@@ -362,6 +362,18 @@ $T2H_OPTIONS -> {idx_sum} =
  noHelp  => 1,
 };
 
+# -def_table
+# Use a table construction for @def .... stuff instead
+# New Option: 27.07.2000 Karl Heinz Marbaise
+$T2H_DEF_TABLE = 0;
+$T2H_OPTIONS -> {def_table} =
+{
+ type => '!',
+ linkage => \$T2H_DEF_TABLE,
+ verbose => 'if set, \@def.. are converted using tables.',
+ noHelp  => 1,
+};
+
 # -verbose
 # if set, chatter about what we are doing
 $T2H_VERBOSE = '';
@@ -377,11 +389,12 @@ $T2H_OPTIONS -> {Verbose} =
 # To add a new language, supply list of titles (see $T2H_WORDS below).
 # and use ISO 639 language codes (see e.g. perl module Locale-Codes-1.02 
 # for  definitions)
-$T2H_LANG = 'en';
+# Default's to 'en' if not set or no @documentlanguage is specified
+$T2H_LANG = '';
 $T2H_OPTIONS -> {lang} =
 {
  type => '=s',
- linkage => \$T2H_LANG,
+ linkage => sub {SetDocumentLanguage($_[1])},
  verbose => 'use $s as document language (ISO 639 encoding)',
 };
 
@@ -502,7 +515,7 @@ $T2H_HREF_DIR_INSTEAD_FILE = '';
 # To redefine one word, simply do:
 # $T2H_WORDS->{<language>}->{<word>} = 'whatever' in your personal init file.
 #
-$T2H_ENGLISH_WORDS =
+$T2H_WORDS_EN =
 {
  # titles  of pages
  'ToC_Title' => 'Table of Contents',
@@ -531,7 +544,7 @@ $T2H_ENGLISH_WORDS =
 #  'About_Button' => 'About'
 };
 
-$T2H_GERMAN_WORDS =
+$T2H_WORD_DE =
 {
  'ToC_Title' => 'Inhaltsverzeichniss',
  'Overview_Title' => 'Kurzes Inhaltsverzeichniss',
@@ -543,12 +556,117 @@ $T2H_GERMAN_WORDS =
  'section' => 'Abschnitt',
 };
 
-$T2H_WORDS =
+$T2H_WORD_NL =
 {
- 'en' => $T2H_ENGLISH_WORDS,
- 'de' => $T2H_GERMAN_WORDS
+ 'ToC_Title' => 'Inhoudsopgave',
+ 'Overview_Title' => 'Korte inhoudsopgave',
+ 'Index_Title' => 'Index', #Not sure ;-)
+ 'About_Title' => 'No translation available!', #No translation available!
+ 'Footnotes_Title' => 'No translation available!', #No translation available!
+ 'See' => 'Zie',
+ 'see' => 'zie',
+ 'section' => 'sectie',
 };
 
+$T2H_WORD_ES =
+{
+ 'ToC_Title' => '&iacute;ndice General',
+ 'Overview_Title' => 'Resumen del Contenido',
+ 'Index_Title' => 'Index', #Not sure ;-)
+ 'About_Title' => 'No translation available!', #No translation available!
+ 'Footnotes_Title' => 'Fu&szlig;noten',
+ 'See' => 'V&eacute;ase',
+ 'see' => 'v&eacute;ase',
+ 'section' => 'secci&oacute;n',
+};
+
+$T2H_WORD_NO =
+{
+ 'ToC_Title' => 'Innholdsfortegnelse',
+ 'Overview_Title' => 'Kort innholdsfortegnelse',
+ 'Index_Title' => 'Indeks', #Not sure ;-)
+ 'About_Title' => 'No translation available!', #No translation available!
+ 'Footnotes_Title' => 'No translation available!',
+ 'See' => 'Se',
+ 'see' => 'se',
+ 'section' => 'avsnitt',
+};
+
+$T2H_WORD_PT =
+{
+ 'ToC_Title' => 'Sum&aacute;rio',
+ 'Overview_Title' => 'Breve Sum&aacute;rio',
+ 'Index_Title' => '&Iacute;ndice', #Not sure ;-)
+ 'About_Title' => 'No translation available!', #No translation available!
+ 'Footnotes_Title' => 'No translation available!',
+ 'See' => 'Veja',
+ 'see' => 'veja',
+ 'section' => 'Se&ccedil;&atilde;o',
+};
+
+$T2H_WORDS =
+{
+ 'en' => $T2H_WORDS_EN,
+ 'de' => $T2H_WORDS_DE,
+ 'nl' => $T2H_WORDS_NL,
+ 'es' => $T2H_WORDS_ES,
+ 'no' => $T2H_WORDS_NO,
+ 'pt' => $T2H_WORDS_PT
+};
+
+@MONTH_NAMES_EN =
+(
+ 'January', 'February', 'March', 'April', 'May',
+ 'June', 'July', 'August', 'September', 'October',
+ 'November', 'December'
+);
+
+@MONTH_NAMES_DE =
+(
+ 'Januar', 'Februar', 'M&auml;rz', 'April', 'Mai',
+ 'Juni', 'Juli', 'August', 'September', 'Oktober',
+ 'November', 'Dezember'
+);
+
+@MONTH_NAMES_NL =
+(
+ 'Januari', 'Februari', 'Maart', 'April', 'Mei',
+ 'Juni', 'Juli', 'Augustus', 'September', 'Oktober',
+ 'November', 'December'
+);
+
+@MONTH_NAMES_ES =
+(
+ 'enero', 'febrero', 'marzo', 'abril', 'mayo',
+ 'junio', 'julio', 'agosto', 'septiembre', 'octubre',
+ 'noviembre', 'diciembre'
+);
+
+@MONTH_NAMES_NO =
+(
+
+ 'januar', 'februar', 'mars', 'april', 'mai',
+ 'juni', 'juli', 'august', 'september', 'oktober',
+ 'november', 'desember'
+);
+
+@MONTH_NAMES_PT =
+(
+ 'Janeiro', 'Fevereiro', 'Mar&ccedil;o', 'Abril', 'Maio',
+ 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro',
+ 'Novembro', 'Dezembro'
+);
+
+
+$MONTH_NAMES =
+{
+    'en' => \@MONTH_NAMES_EN,
+    'de' => \@MONTH_NAMES_DE,
+    'es' => \@MONTH_NAMES_ES,
+    'nl' => \@MONTH_NAMES_NL,
+    'no' => \@MONTH_NAMES_NO,
+    'pt' => \@MONTH_NAMES_PT
+};
 ########################################################################
 # Control of Page layout:
 # You can make changes of the Page layout at two levels:
@@ -665,7 +783,7 @@ sub T2H_DEFAULT_print_Top
   # as it is, 'Top', 'Contents', 'Index', 'About' are printed
   local $T2H_BUTTONS = \@T2H_MISC_BUTTONS;
   &$T2H_print_Top_header($fh);
-  if (0) #GEUZ $T2H_THIS_SECTION)
+  if ($T2H_THIS_SECTION)
   {
     # if top-level node has content, then print it with extra header
     print $fh "<H1>$T2H_NAME{Top}</H1>"
@@ -773,11 +891,24 @@ sub T2H_DEFAULT_print_chapter_footer
   &$T2H_print_navigation(@_);
 }
 ###################################################################
+$T2H_TODAY = &pretty_date;		# like "20 September 1993"
+
+sub pretty_date {
+    local($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst);
+
+    ($sec, $min, $hour, $mday, $mon, $year, $wday, $yday, $isdst) = localtime(time);
+    $year += ($year < 70) ? 2000 : 1900;
+    # obachman: Let's do it as the Americans do
+    return($MONTH_NAMES->{$T2H_LANG}[$mon] . ", " . $mday . " " . $year);
+}
+
+
+###################################################################
 # Layout of standard header and footer
 #
 
 # Set the default body text, inserted between <BODY ... > 
-$T2H_BODYTEXT = 'LANG="EN" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000"';
+$T2H_BODYTEXT = 'LANG="' . $T2H_LANG . '" BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#0000FF" VLINK="#800080" ALINK="#FF0000"';
 # text inserted after <BODY ...>
 $T2H_AFTER_BODY_OPEN = '';
 #text inserted before </BODY>
@@ -1271,7 +1402,7 @@ $INFO = 0;              # 0 = do not make a "About this document..." section
 #
 #Switches for Linking to other documents 
 #
-# actuall -- we don't care
+# currently -- we don't care
 
 $MAX_SPLIT_DEPTH = 0;	# Stop making separate files at this depth
 
@@ -1299,7 +1430,7 @@ $LINE_WIDTH = 500;
 $WORDS_IN_PAGE = 300;	
 
 # Affects ONLY the way accents are processed 
-$default_language = 'english';	
+$default_language = 'english';
 
 # The value of this variable determines how many words to use in each 
 # title that is added to the navigation panel (see below)
@@ -1390,7 +1521,7 @@ package Getopt::MySimple;
 
 # --------------------------------------------------------------------------
 # Locally modified by obachman (Display type instead of env, order by cmp)
-# $Id: texi2html,v 1.2 2000-07-24 15:33:00 geuzaine Exp $
+# $Id: texi2html,v 1.3 2000-09-07 13:07:11 geuzaine Exp $
 
 # use strict;
 # no strict 'refs';
@@ -1525,8 +1656,10 @@ sub helpOptions
 	  my($line, $help, $option, $val);
 	  $option = $_;
 	  next if ${$self->{'default'} }{$_}{'noHelp'} && ${$self->{'default'} }{$_}{'noHelp'} > $noHelp;
-		$line = " -$_ " . ' ' x ($optwidth - (2 + length) ) .
-			"${$self->{'default'} }{$_}{'type'} ".
+          #$line = " -$_" . ' ' x ($optwidth - (2 + length) ) .
+          #      	"${$self->{'default'} }{$_}{'type'} ".
+          #      	' ' x ($typewidth - (1+length(${$self -> {'default'} }{$_}{'type'}) ));
+		$line = " -$_" . "${$self->{'default'} }{$_}{'type'}".
 			' ' x ($typewidth - (1+length(${$self -> {'default'} }{$_}{'type'}) ));
 
                  $val = ${$self->{'default'} }{$_}{'linkage'};
@@ -1568,7 +1701,7 @@ sub helpOptions
 	      for $val (sort byOrder keys(%{${$self->{'default'}}{$option}{'values'}}))
 	      {
 	        print ' ' x ($valind + 2);
-	        print $val, '  ', ' ' x ($valwidth - length($val) - 2);
+                print $val, '  ', ' ' x ($valwidth - length($val) - 2);
 	        print ${$self->{'default'}}{$option}{'values'}{$val}, "\n";
 	      }
 	}
@@ -1605,7 +1738,7 @@ sub new
 
 require "$ENV{T2H_HOME}/MySimple.pm" 
   if ($0 =~ /\.pl$/ &&
-      -e "$ENV{T2H_HOME}/texi2html.init" && -r "$ENV{T2H_HOME}/texi2html.init");
+      -e "$ENV{T2H_HOME}/MySimple.pm" && -r "$ENV{T2H_HOME}/MySimple.pm");
 
 package main;
 
@@ -1741,7 +1874,8 @@ $index_properties =
 	       'TeX', 'TeX',
 	       'br', '<P>',		# paragraph break
 	       'bullet', '*',
-	       'copyright', '(C)',
+               #'copyright', '(C)',
+	       'copyright', '&copy;',
 	       'dots', '<small>...<\/small>',
 	       'enddots', '<small>....<\/small>',
 	       'equiv', '==',
@@ -1865,6 +1999,7 @@ $complex_format_map->{smallformat} = $complex_format_map->{smalldisplay};
 	    'deffn', 0,
 	    'defvr', 0,
 	    'deftypefn', 0,
+	    'deftypeop', 0,
 	    'deftypevr', 0,
 	    'defcv', 0,
 	    'defop', 0,
@@ -1873,6 +2008,7 @@ $complex_format_map->{smallformat} = $complex_format_map->{smalldisplay};
 	    'deffnx', 0,
 	    'defvrx', 0,
 	    'deftypefnx', 0,
+	    'deftypeopx', 0,
 	    'deftypevrx', 0,
 	    'defcvx', 0,
 	    'defopx', 0,
@@ -1970,6 +2106,7 @@ $| = 1;
 $use_bibliography = 1;
 $use_acc = 1;
 
+#
 # called on -init-file
 sub LoadInitFile
 {
@@ -1989,68 +2126,83 @@ sub LoadInitFile
   }
 }
 
+#
+# called on -lang
+sub SetDocumentLanguage
+{
+  my $lang = shift;
+  if (! exists($T2H_WORDS->{$lang}))
+  {
+    warn "$ERROR: Language specs for '$lang' do not exists. Reverting to '" . 
+      ($T2H_LANG ? T2H_LANG : "en") . "'\n";
+  }
+  else
+  {
+    print "# using '$lang' as document language\n" if ($T2H_VERBOSE);
+    $T2H_LANG = $lang;
+  }
+}
+
 ##
 ## obsolete cmd line options
 ##
-$T2H_OPTIONS -> {'no-section_navigation'} =
+$T2H_OBSOLETE_OPTIONS -> {'no-section_navigation'} =
 {
  type => '!',
  linkage => sub {$main::T2H_SECTION_NAVIGATION = 0;},
  verbose => 'obsolete, use -nosec_nav',
  noHelp => 2,
 };
-$T2H_OPTIONS -> {use_acc} =
+$T2H_OBSOLETE_OPTIONS -> {use_acc} =
 {
  type => '!',
  linkage => \$use_acc,
  verbose => 'obsolete',
  noHelp => 2
 };
-$T2H_OPTIONS -> {expandinfo} =
+$T2H_OBSOLETE_OPTIONS -> {expandinfo} =
 {
  type => '!',
  linkage => sub {$main::T2H_EXPAND = 'info';},
  verbose => 'obsolete, use "-expand info" instead',
  noHelp => 2,
 };
-$T2H_OPTIONS -> {expandtex} =
+$T2H_OBSOLETE_OPTIONS -> {expandtex} =
 {
  type => '!',
  linkage => sub {$main::T2H_EXPAND = 'tex';},
  verbose => 'obsolete, use "-expand tex" instead',
  noHelp => 2,
 };
-$T2H_OPTIONS -> {monolithic} =
+$T2H_OBSOLETE_OPTIONS -> {monolithic} =
 {
  type => '!',
  linkage => sub {$main::T2H_SPLIT = '';},
  verbose => 'obsolete, use "-split no" instead',
  noHelp => 2
 };
-$T2H_OPTIONS -> {split_node} =
+$T2H_OBSOLETE_OPTIONS -> {split_node} =
 {
  type => '!',
  linkage => sub{$main::T2H_SPLIT = 'section';},
  verbose => 'obsolete, use "-split section" instead',
  noHelp => 2,
 };
-$T2H_OPTIONS -> {split_chapter} =
+$T2H_OBSOLETE_OPTIONS -> {split_chapter} =
 {
  type => '!',
  linkage => sub{$main::T2H_SPLIT = 'chapter';},
  verbose => 'obsolete, use "-split chapter" instead',
  noHelp => 2,
 };
-$T2H_OPTIONS -> {no_verbose} =
+$T2H_OBSOLETE_OPTIONS -> {no_verbose} =
 {
  type => '!',
  linkage => sub {$main::T2H_VERBOSE = 0;},
  verbose => 'obsolete, use -noverbose instead',
  noHelp => 2,
 };
-
-$T2H_OUT = '';
-$T2H_OPTIONS -> {output_file} =
+$T2H_OBSOLETE_OPTIONS -> {output_file} =
 {
  type => '=s',
  linkage => sub {$main::T2H_OUT = @_[1]; $T2H_SPLIT = '';},
@@ -2058,7 +2210,7 @@ $T2H_OPTIONS -> {output_file} =
  noHelp => 2
 };
 
-$T2H_OPTIONS -> {section_navigation} =
+$T2H_OBSOLETE_OPTIONS -> {section_navigation} =
 {
  type => '!',
  linkage => \$T2H_SECTION_NAVIGATION,
@@ -2066,7 +2218,7 @@ $T2H_OPTIONS -> {section_navigation} =
  noHelp => 2,
 };
 
-$T2H_OPTIONS -> {verbose} =
+$T2H_OBSOLETE_OPTIONS -> {verbose} =
 {
  type => '!',
  linkage => \$T2H_VERBOSE,
@@ -2095,16 +2247,39 @@ $T2H_USAGE_TEXT = <<EOT;
 Usage: texi2html  [OPTIONS] TEXINFO-FILE
 Translates Texinfo source documentation to HTML.
 EOT
+$T2H_FAILURE_TEXT = <<EOT;
+Try 'texi2html -help' for usage instructions.
+EOT
 $options = new Getopt::MySimple;
+
+# some older version of GetOpt::Long don't have 
+# Getopt::Long::Configure("pass_through")
+eval {Getopt::Long::Configure("pass_through");};
+$Configure_failed = $@ && <<EOT;
+**WARNING: Parsing of obsolete command-line options could have failed. 
+           Consider to use only documented command-line options (run
+           'texi2html -help 2' for a complete list) or upgrade to perl 
+           version 5.005 or higher.
+EOT
 
 if (! $options->getOptions($T2H_OPTIONS, $T2H_USAGE_TEXT, "$THISVERSION\n"))
 {
-  $options->helpOptions(0);
-  exit(1);
+  print $Configure_failed if $Configure_failed;
+  die $T2H_FAILURE_TEXT;
+}
+
+if (@ARGV > 1)
+{
+  eval {Getopt::Long::Configure("no_pass_through");};
+  if (! $options->getOptions($T2H_OBSOLETE_OPTIONS, $T2H_USAGE_TEXT, "$THISVERSION\n"))
+  {
+    print $Configure_failed if $Configure_failed;
+    die $T2H_FAILURE_TEXT;
+  }
 }
 
 if ($T2H_CHECK) {
-    die "Need file to check\n$usage" unless @ARGV > 0;
+    die "Need file to check\n$T2H_FAILURE_TEXT" unless @ARGV > 0;
     &check;
     exit;
 }
@@ -2132,7 +2307,7 @@ $T2H_INVISIBLE_MARK = '<IMG SRC="invisible.xbm">' if $T2H_INVISIBLE_MARK eq 'xbm
 #
 # file name buisness
 #
-die "Need exactly one file to translate\n$usage" unless @ARGV == 1;
+die "Need exactly one file to translate\n$T2H_FAILURE_TEXT" unless @ARGV == 1;
 $docu = shift(@ARGV);
 if ($docu =~ /.*\//) {
     chop($docu_dir = $&);
@@ -2275,7 +2450,7 @@ $doc_num = 0;
 $html_num = 0;
 
 #
-# can I use ISO8879 characters? (HTML+)
+# can I use ISO8859 characters? (HTML+)
 #
 if ($T2H_USE_ISO) {
     $things_map{'bullet'} = "&bull;";
@@ -2305,14 +2480,6 @@ if ($progdir && ($progdir ne './')) {
 }
 
 
-#
-# Check Language
-#
-if (! exists $T2H_WORDS->{$T2H_LANG})
-{
-  warn "$ERROR: Language specs for '$T2H_LANG' do not exists. Reverting to 'english'\n";
-  $T2H_LANG = 'en'
-}
 print "# reading from $docu\n" if $T2H_VERBOSE;
 
 #########################################################################
@@ -2897,9 +3064,9 @@ INPUT_LINE: while ($_ = &next_line) {
 
     #############################################################
     # value substitution before macro expansion, so that
-    # it works in macro arguments			    
+    # it works in macro arguments
     s/\@value{($VARRE)}/$value{$1}/eg;
-			    
+
     #############################################################
     # macro substitution
     while (/\@(\w+)/g)
@@ -3230,6 +3397,10 @@ INPUT_LINE: while ($_ = &next_line) {
 	  delete $macros->{$1} if (/^\@unmacro\s*(\w+)/);
 	  next;
 	}
+	elsif ($tag eq 'documentlanguage')
+	{
+	  SetDocumentLanguage($1) if (!$T2H_LANG && /documentlanguage\s*(\w+)/);
+	}
 	elsif (defined($def_map{$tag})) {
 	    if ($def_map{$tag}) {
 		s/^\@$tag\s+//;
@@ -3248,7 +3419,7 @@ INPUT_LINE: while ($_ = &next_line) {
 		warn "$ERROR Bad user sub for $tag: $sub\n";
 	    }
 	    next;
-	  } 
+          }
 	if (defined($def_map{$tag})) {
 	    s/^\@$tag\s+//;
 	    if ($tag =~ /x$/) {
@@ -3276,30 +3447,57 @@ INPUT_LINE: while ($_ = &next_line) {
 	    $type =~ s/^\{(.*)\}$/$1/;
 	    print "# def ($tag): {$type} ", join(', ', @args), "\n"
 		if $T2H_DEBUG & $DEBUG_DEF;
-	    $type .= ':'; # it's nicer like this
+	    $type .= ':' if (!$T2H_DEF_TABLE); # it's nicer like this
 	    my $name = shift(@args);
 	    $name =~ s/^\{(.*)\}$/$1/;
-	    if ($is_extra) {
-		$_ = &debug("<DT>", __LINE__);
+            if ($is_extra) {
+                $_ = &debug("<DT>", __LINE__) if (!$T2H_DEF_TABLE);
+                $_ = &debug("", __LINE__) if ($T2H_DEF_TABLE);
+                #$_ = &debug("<TR TEST1>\n", __LINE__) if ($T2H_DEF_TABLE);
 	    } else {
-		$_ = &debug("<DL>\n<DT>", __LINE__);
+		$_ = &debug("<DL>\n<DT>", __LINE__) if (!$T2H_DEF_TABLE);
+		$_ = &debug("<TABLE WIDTH=\"100%\">\n", __LINE__) if ($T2H_DEF_TABLE);
 	    }
 	    if ($tag eq 'deffn' || $tag eq 'defvr' || $tag eq 'deftp') {
-		$_ .= "<U>$type</U> <B>$name</B>";
-		$_ .= " <I>@args</I>" if @args;
-	    } elsif ($tag eq 'deftypefn' || $tag eq 'deftypevr'
-		     || $tag eq 'defcv' || $tag eq 'defop') {
+                if ($T2H_DEF_TABLE)
+                {
+                    $_ .= "<TR>\n<TD ALIGN=\"LEFT\"><B>$name</B>\n";
+                    $_ .= " <I>@args</I>" if @args;
+                    $_ .= "</TD>\n";
+                    $_ .= "<TD ALIGN=\"RIGHT\">";
+                    $_ .= "$type</TD>\n</TR>\n";
+                }
+                else
+                {
+                    $_ .= "<U>$type</U> <B>$name</B>";
+                    $_ .= " <I>@args</I>" if @args;
+                }
+            } elsif ($tag eq 'deftypefn' || $tag eq 'deftypevr'
+                      || $tag eq 'deftypeop' || $tag eq 'defcv'
+                      || $tag eq 'defop') {
 		$ftype = $name;
 		$name = shift(@args);
-		$name =~ s/^\{(.*)\}$/$1/;
-		$_ .= "<U>$type</U> $ftype <B>$name</B>";
-		$_ .= " <I>@args</I>" if @args;
+                $name =~ s/^\{(.*)\}$/$1/;
+                if ($T2H_DEF_TABLE)
+                {
+                    $_ .= "<TR>\n<TD ALIGN=\"LEFT\"><B>$name</B>";
+                    $_ .= " <I>@args</I>" if @args;
+                    $_ .= "</TD>\n";
+                    $_ .= "<TD ALIGN=\"RIGHT\">";
+                    $_ .= "$type of $ftype</TD>\n</TR>\n";
+                }
+                else
+                {
+                    $_ .= "<U>$type</U> $ftype <B>$name</B>";
+                    $_ .= " <I>@args</I>" if @args;
+                }
 	    } else {
 		warn "$ERROR Unknown definition type: $tag\n";
 		$_ .= "<U>$type</U> <B>$name</B>";
 		$_ .= " <I>@args</I>" if @args;
 	    }
- 	    $_ .= &debug("\n<DD>", __LINE__);
+ 	    $_ .= &debug("\n<DD>", __LINE__) if (!$T2H_DEF_TABLE);
+            ########$_ .= &debug("\n</TABLE TEST3>\n<TABLE WIDTH=\"95%\">\n", __LINE__) if ($T2H_DEF_TABLE);
 	    $name = &unprotect_html($name);
 	    if ($tag eq 'deffn' || $tag eq 'deftypefn') {
 	      EnterIndexEntry('f', $name, $docu_doc, $section, \@lines);
@@ -3314,7 +3512,7 @@ INPUT_LINE: while ($_ = &next_line) {
 	      EnterIndexEntry('t', $name, $docu_doc, $section, \@lines);
 #		unshift(@input_spool, "\@tindex $name\n");
 	    }
-	    $dont_html = 1;
+            $dont_html = 1;
 	}
     } elsif ($end_tag) {
 	if ($format_map{$end_tag}) {
@@ -3361,7 +3559,8 @@ INPUT_LINE: while ($_ = &next_line) {
 		$in_table = 0;
 	    }
 	} elsif (defined($def_map{$end_tag})) {
- 	    push(@lines, &debug("</DL>\n", __LINE__));
+ 	    push(@lines, &debug("</DL>\n", __LINE__)) if (!$T2H_DEF_TABLE);
+ 	    push(@lines, &debug("</TABLE>\n", __LINE__)) if ($T2H_DEF_TABLE);
 	} elsif ($end_tag eq 'menu') {
 	    &html_pop_if();
 	    push(@lines, $_); # must keep it for pass 2
@@ -3625,6 +3824,7 @@ while ($level < $curlevel) {
 
 print "# end of pass 1\n" if $T2H_VERBOSE;
 
+SetDocumentLanguage('en') unless ($T2H_LANG);
 #+++############################################################################
 #                                                                              #
 # Stuff related to Index generation                                            #
