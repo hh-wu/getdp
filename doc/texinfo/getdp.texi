@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.38 2003-02-15 23:44:18 geuzaine Exp $
+@c $Id: getdp.texi,v 1.39 2003-02-18 06:38:24 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -122,9 +122,9 @@ B-4000 Li@`ege @*
 BELGIUM
 @ifclear COMMERCIAL
 @sp 1
-This manual was prepared with Texinfo (@uref{http://texinfo.org}). The source
-of the document as well as several formatted versions (info, postscript, pdf,
-html) are available at @value{GETDP-WEB}.
+Permission is granted to make and distribute verbatim copies of this manual
+provided the copyright notice and this permission notice are preserved on
+all copies.
 @end ifclear
 
 @end titlepage
@@ -173,6 +173,7 @@ Manual}, for GetDP Version @value{GETDP-VERSION}.
 * Bugs and versions::           Contact information, version history and list of contributors.
 * Tips and tricks::             Some tips to make your life easier with GetDP.
 * Gmsh examples::               Sample Gmsh input files.
+* GNU General Public License::  
 * Concept index::               Index of concepts.
 * Metasyntactic variable index::  Index of metasyntactic variables used in this manual.
 * Syntax index::                Index of reserved keywords in the GetDP language.
@@ -332,45 +333,44 @@ Bugs, versions and contributors
 @cindex Web site
 @cindex Internet address
 @cindex Download
-@cindex Platforms
 
-Executable versions of GetDP can be downloaded for most of the classical
-UNIX platforms (SUN, DEC, IBM, HP, SGI and Linux) and for Windows 95/98/NT
-from the web site @value{GETDP-WEB} (no source distribution is available at
-the moment). The executable versions of GetDP are free; the only thing
-required, if you use GetDP, is to mention it in your work. Published
-references, as well as the latest news about GetDP developments and
-download information, are always available on the web site.
+GetDP is ``free software''; this means that everyone is free to use it and
+to redistribute it on a free basis. GetDP is not in the public domain; it is
+copyrighted and there are restrictions on its distribution, but these
+restrictions are designed to permit everything that a good cooperating
+citizen would want to do.  What is not allowed is to try to prevent others
+from further sharing any version of GetDP that they might get from you.
 
-@c GetDP is ``free'' software; this means that everyone is free to use it and
-@c free to redistribute it on a free basis.  GetDP is not in the public domain;
-@c it is copyrighted and there are restrictions on its distribution, but these
-@c restrictions are designed to permit everything that a good cooperating
-@c citizen would want to do.  What is not allowed is to try to prevent others
-@c from further sharing any version of GetDP that they might get from you.
+Specifically, we want to make sure that you have the right to give away
+copies of GetDP, that you receive source code or else can get it if you want
+it, that you can change GetDP or use pieces of GetDP in new free programs,
+and that you know you can do these things.
 
-@c Specifically, we want to make sure that you have the right to give away
-@c copies of programs that relate to GetDP, that you receive source code or
-@c else can get it if you want it, that you can change these programs or use
-@c pieces of them in new free programs, and that you know you can do these
-@c things.
+To make sure that everyone has such rights, we have to forbid you to deprive
+anyone else of these rights.  For example, if you distribute copies of
+GetDP, you must give the recipients all the rights that you have.  You must
+make sure that they, too, receive or can get the source code.  And you must
+tell them their rights.
 
-@c To make sure that everyone has such rights, we have to forbid you to deprive
-@c anyone else of these rights.  For example, if you distribute copies of
-@c GetDP, you must give the recipients all the rights that you have.  You must
-@c make sure that they, too, receive or can get the source code.  And you must
-@c tell them their rights.
+Also, for our own protection, we must make certain that everyone finds out
+that there is no warranty for GetDP.  If GetDP is modified by someone else
+and passed on, we want their recipients to know that what they have is not
+what we distributed, so that any problems introduced by others will not
+reflect on our reputation.
 
-@c Also, for our own protection, we must make certain that everyone finds out
-@c that there is no warranty for the programs that relate to GetDP.  If these
-@c programs are modified by someone else and passed on, we want their
-@c recipients to know that what they have is not what we distributed, so that
-@c any problems introduced by others will not reflect on our reputation.
+The precise conditions of the license for GetDP are found in the General
+Public License that accompanies the source code (@pxref{GNU General Public
+License}). Further information about this license is available from the GNU
+Project webpage @uref{http://www.gnu.org/copyleft/gpl-faq.html}.
 
-@c The precise conditions of the license for GetDP are found in the General
-@c Public Licenses that accompany the source code.
+The source code and various pre-compiled versions of GetDP (for most of the
+classical UNIX platforms, for Windows and for Mac OS) can be downloaded from
+the web site @value{GETDP-WEB}.
 
-@c see appendix blabla. give address of gnu web site
+If you use GetDP, we would appreciate that you mention it in your
+work. Published references, as well as the latest news about GetDP
+developments and download information, are always available on
+@value{GETDP-WEB}.
 
 @end ifclear
 
@@ -383,13 +383,13 @@ download information, are always available on the web site.
 
 @cindex Introduction
 
-GetDP (a General environment for the treatment of Discrete Problems) is
-a scientific software environment for the numerical solution of
-integro-differential equations, open to the coupling of physical
-problems (electromagnetic, thermal, mechanical, etc.) as well as of
-numerical methods (finite element method, integral methods, etc.). It can
-deal with such problems of various dimensions (1D, 2D or 3D) and time
-states (static, transient or harmonic).
+GetDP (a General environment for the treatment of Discrete Problems) is a
+scientific software environment for the numerical solution of
+integro-differential equations, open to the coupling of physical problems
+(electromagnetic, thermal, mechanical, etc.) as well as of numerical methods
+(finite element method, integral methods, etc.). It can deal with such
+problems of various dimensions (1D, 2D or 3D) and time states (static,
+transient or harmonic).
 
 The main feature of GetDP is the closeness between its internal
 structure (written in C), the organization of data defining discrete
@@ -2274,7 +2274,7 @@ construction of the system of equations.
 @code{Solver} permits to explicitely specify the name of the solver
 parameter file to use for the solving of the system of equations. This is
 ony valid if GetDP was compiled against the default solver library (it is
-the case if you downloaded your copy of GetDP from the internet).
+the case if you downloaded a pre-compiled copy of GetDP from the internet).
 @item
 @code{DestinationSystem} permits to specify the destination system of a
 @code{TransferSolution} operation (@pxref{Types for Resolution}).
@@ -5982,7 +5982,7 @@ available PostOperations.
 @c Gmsh Examples
 @c =========================================================================
 
-@node Gmsh examples, Concept index, Tips and tricks, Top
+@node Gmsh examples, GNU General Public License, Tips and tricks, Top
 @appendix Gmsh examples
 
 @cindex Gmsh, examples
@@ -6000,12 +6000,19 @@ examples of @ref{Complete examples}.
 @include mStrip.geo
 @include Core.geo
 
+@c =========================================================================
+@c GNU GPL
+@c =========================================================================
+
+@node  GNU General Public License, Concept index, Gmsh examples, Top
+@appendix GNU General Public License
+@include gpl.texi
 
 @c =========================================================================
 @c Concept Index (cindex)
 @c =========================================================================
 
-@node Concept index, Metasyntactic variable index, Gmsh examples, Top
+@node Concept index, Metasyntactic variable index, GNU General Public License, Top
 @unnumbered Concept index
 
 @cindex Index, concepts
