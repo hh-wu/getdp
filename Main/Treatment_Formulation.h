@@ -140,6 +140,7 @@ void  Get_FunctionValue(int Nbr_Function,
 
 double Cal_InterpolationDegree(struct Element * Element,
 			       struct QuantityStorage * QuantityStorage);
+double Cal_MaxEdgeLength(struct Element * Element);
 
 void  Get_InitElementSource (struct Element * Element, int InIndex) ;
 int   Get_NextElementSource (struct Element * ElementSource) ;
