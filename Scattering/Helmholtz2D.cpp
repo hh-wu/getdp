@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.16 2002-09-11 00:55:37 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.17 2002-09-13 01:39:13 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -46,11 +46,12 @@ Complex GFHelmholtzParametric2D::L(){
 }
 
 Complex GFHelmholtzParametric2D::L1(){
-  if(!kr){
+  if(fabs(r)<EPSILON){
     return 0.;
   }
-  return k/TWO_PI * (dxtau[1]*(xtau[0]-xt[0]) -
-  		     dxtau[0]*(xtau[1]-xt[1])) * Bessel_j(1,kr) / r;
+  // WHY IS THERE A MINUS SIGN HERE???
+  return - k/TWO_PI * (dxtau[1]*(xtau[0]-xt[0]) -
+		       dxtau[0]*(xtau[1]-xt[1])) * Bessel_j(1,kr) / r;
   //return k/TWO_PI * fabs(sin((t-tau)/2.)) * Bessel_j(1,kr);
 }
 
@@ -297,8 +298,8 @@ Complex NystromSimple(Ctx *ctx, int index, double t){
   static int first = 1;
 
   double STEP=TWO_PI/(2.*n);
-  s = index*STEP+STEP/2.;
-  //s = index*STEP;
+  //s = index*STEP+STEP/2.;
+  s = index*STEP;
 
   ctx->scat.x(t,-1,xt);
   ctx->scat.dx(t,-1,dxt);
@@ -307,8 +308,8 @@ Complex NystromSimple(Ctx *ctx, int index, double t){
     ctx->discreteMap = List_Create(2*n, 2*n, sizeof(Complex));
 
   for(j=0 ; j<=2*n-1 ; j++){
-    sigma = j*STEP+STEP/2.;
-    //sigma = j*STEP;
+    //sigma = j*STEP+STEP/2.;
+    sigma = j*STEP;
 
     tau = p->nodes[j];
     jac = p->jacs[j];
@@ -348,7 +349,7 @@ Complex NystromSimple(Ctx *ctx, int index, double t){
       }
 
       fact = (w * k1 + PI/(double)n * k2) * ansatz * jac;
-      
+
       if(ctx->type & STORE_OPERATOR)
 	List_Add(ctx->discreteMap, &fact);
 
