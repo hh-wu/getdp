@@ -1,4 +1,4 @@
-/* $Id: SolvingAnalyse.c,v 1.12 2000-09-07 18:47:27 geuzaine Exp $ */
+/* $Id: SolvingAnalyse.c,v 1.13 2000-09-26 09:47:33 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -709,9 +709,9 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   Geo_SetCurrentGeoData(Current.GeoData = 
 			GeoData_P0 + Current.DofData->GeoDataIndex) ;
 
-  Msg(INFO, "Selected PostProcessing '%s' (System '%s', Mesh '%s')",
-      PostProcessing_P->Name, DefineSystem_P->Name, 
-      Current.GeoData->Name);
+  Msg(INFO, "Selected PostProcessing '%s'", PostProcessing_P->Name);
+  Msg(INFO, "Selected System '%s'", DefineSystem_P->Name) ;
+  Msg(INFO, "Selected Mesh '%s'", Current.GeoData->Name);
 
   Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);
   
