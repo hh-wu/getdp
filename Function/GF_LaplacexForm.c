@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_LaplacexForm.c,v 1.6 2001-03-05 09:02:18 geuzaine Exp $"
+#define RCSID "$Id: GF_LaplacexForm.c,v 1.7 2001-03-05 12:41:23 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -281,7 +281,7 @@ void GF_LaplacexForm (F_ARG2) {
 	    B0 = fabs(t00) <= EPSILON ? 0 : atan(t00*s0p/(SQU(r00)+fabs(zl)*r0p))-atan(t00*s0m/(SQU(r00)+fabs(zl)*r0m));
 	    B1 = fabs(t10) <= EPSILON ? 0 : atan(t10*s1p/(SQU(r10)+fabs(zl)*r1p))-atan(t10*s1m/(SQU(r10)+fabs(zl)*r0p));
 	    B2 = fabs(t20) <= EPSILON ? 0 : atan(t20*s2p/(SQU(r20)+fabs(zl)*r0m))-atan(t20*s2m/(SQU(r20)+fabs(zl)*r1p));
-	    d = a * l2[1];//Double aire a cause de normalization
+	    d = a * l2[1];/* Double aire a cause de normalization */
 	   
 	    Val->Val[0] +=  ONE_OVER_TWO_PI * (-fabs(zl)*(B0+B1+B2) + t00*f0+t10*f1+t20*f2)/d; /* 1/r integral solution*/
 	
