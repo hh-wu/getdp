@@ -1,7 +1,7 @@
-#ifndef _NYSTROM_H_
-#define _NYSTROM_H_
+#ifndef _HELMHOLTZ_2D_H_
+#define _HELMHOLTZ_2D_H_
 
-#include "Main.h"
+#include "Context.h"
 
 class GFHelmholtzParametric2D{
 private:
@@ -20,7 +20,7 @@ public:
 
 // prototypes
 
-Complex Integrate(Ctx *ctx, int index, double t);
-Complex Evaluate(Ctx *ctx, int farfield, double x[3]);
+Complex Integrate2D(Ctx *ctx, int index, double t);
+Complex Evaluate2D(Ctx *ctx, int farfield, double x[3]);
 
 #endif

@@ -1,10 +1,12 @@
-#ifndef _MAIN_H_
-#define _MAIN_H_
+#ifndef _CONTEXT_H_
+#define _CONTEXT_H_
 
 #include "Scatterer.h"
 #include "Function.h"
+#include "Patch.h"
 #include "LinAlg.h"
 #include "List.h"
+#include "Complex.h"
 
 #define FULL_INTEGRATION     (1<<0)
 #define STORE_OPERATOR       (1<<1)
@@ -16,7 +18,8 @@
 
 // General context
 
-typedef struct {
+class Ctx {
+public:
   // global mode and options (forward map, iterative solver, etc.)
   int type;
 
@@ -45,6 +48,18 @@ typedef struct {
   // storage for operator at all integration points
   List_T *discreteMap;
 
-} Ctx;
+
+  // global functions
+  void forwardMap(); // compute forward map for given discratization
+  Complex integrate(int i); // compute forward map for target i
+  double getTarget(int index); // get parametric location of target in 2D // FIXME
+  void computeRHS(gVector *b);
+  void readSolution(gVector *x);
+  void saveSolution(gVector *x);
+  void initializeInterpolation(gVector *x);
+  void iterSolve();
+  void postProcess();
+  void createMesh(Patch::PatchType type);
+};
 
 #endif

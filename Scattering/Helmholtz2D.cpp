@@ -1,7 +1,7 @@
-// $Id: Nystrom.cpp,v 1.35 2002-05-21 23:13:15 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.1 2002-05-24 20:38:19 geuzaine Exp $
 
 #include "Utils.h"
-#include "Nystrom.h"
+#include "Helmholtz2D.h"
 #include "Complex.h"
 #include "Bessel.h"
 #include "Scatterer.h"
@@ -124,8 +124,8 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
   if(!nbpts) return 0.;
 
-  ctx->scat.x(t,xt);
-  ctx->scat.dx(t,dxt);
+  ctx->scat.x(t,-1,xt);
+  ctx->scat.dx(t,-1,dxt);
 
   if(singular && first) 
     Weights = new double[nbpts];
@@ -160,8 +160,8 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
       }
       else{
 
-	ctx->scat.x(tau,xtau);
-	ctx->scat.dx(tau,dxtau);
+	ctx->scat.x(tau,-1,xtau);
+	ctx->scat.dx(tau,-1,dxtau);
 
 	ansatz = ctx->f.ansatz(ctx->waveNum,xt,xtau);
 
@@ -229,7 +229,7 @@ int fcmp_Interval(const void * a, const void * b) {
 
 // Integrate, given the target point 't'
 
-Complex Integrate(Ctx *ctx, int index, double t){
+Complex Integrate2D(Ctx *ctx, int index, double t){
   Partition part, part2;
   CPoint pt;
   Interval I, *pI;
@@ -285,7 +285,7 @@ Complex Integrate(Ctx *ctx, int index, double t){
   // add target, critical and shadowing points in list
   ctx->scat.singularPoint(t,CritPts);
   ctx->scat.criticalPoints(index,CritPts);
-  ctx->scat.shadowingPoints(t,eps_shad/2.,ctx->waveNum,CritPts);
+  //ctx->scat.shadowingPoints(t,eps_shad/2.,ctx->waveNum,CritPts);
   // ctx->scat.shadowingPoints(t,0.,ctx->waveNum,CritPts);
 
   List_Sort(CritPts, fcmp_CPoint);
@@ -426,7 +426,7 @@ Complex Integrate(Ctx *ctx, int index, double t){
 
 // Post-process solution
 
-Complex Evaluate(Ctx *ctx, int farfield, double x[3]){
+Complex Evaluate2D(Ctx *ctx, int farfield, double x[3]){
   int j, n = ctx->nbIntPts/2;
   double tau, xtau[3], dxtau[3], dummy[3]={0,0,0}, k = NORM3(ctx->waveNum);
   Complex res=0., f, tmp;
@@ -434,8 +434,8 @@ Complex Evaluate(Ctx *ctx, int farfield, double x[3]){
 
   for(j=0 ; j<=2*n-1 ; j++){
     tau = TWO_PI*j/(2.*n);
-    ctx->scat.x(tau,xtau);
-    ctx->scat.dx(tau,dxtau);
+    ctx->scat.x(tau,-1,xtau);
+    ctx->scat.dx(tau,-1,dxtau);
 
     ctx->f.type = Function::ANALYTIC; 
     f = ctx->f.ansatz(ctx->waveNum,NULL,xtau);
