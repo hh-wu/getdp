@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.17 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.18 2002-02-25 17:44:43 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -162,7 +162,15 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
   ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m, 
                          50, PETSC_NULL, 50, PETSC_NULL, &M->M); CHKERRA(ierr); 
   ierr = MatGetOwnershipRange(M->M, &i_Start, &i_End) ; CHKERRA(ierr);
+
+  /* return automatic partition given by petsc */
+  if(NbrPart==0 && Part){
+    Part[0] = i_Start;
+    Part[1] = i_End;
+  }
+
   Msg(PETSC, "Matrix creation: %d->%d", i_Start, i_End);
+
 
   /* ierr = MatCreateMPIRowbs(PETSC_COMM_WORLD, PETSC_DECIDE, n, 50, PETSC_NULL, &M->M);
   ierr = MatGetOwnershipRange(M->M, &i_Start, &i_End) ; CHKERRA(ierr);
