@@ -1,4 +1,4 @@
-% $Id: examples.tex,v 1.8 2001-06-16 05:50:41 geuzaine Exp $
+% $Id: examples.tex,v 1.9 2001-06-16 09:30:14 geuzaine Exp $
 
 %
 % WARNING:
@@ -75,7 +75,7 @@
 \begin{slideitemize}
 \item Weak form of Gauss law: 
 \begin{equation*}
-%\ivol{\Div{\vec{b}}}{\phi'} = 0 \Rightarrow
+% \ivol{\Div{\vec{b}}}{\phi'} = 0 \Rightarrow
 \ivol{\vec{b}}{\Grad{\phi'}} + \isur{\psca{\vec{n}}{\vec{b}}}{\phi'} 
 = 0
 \quad \forall\phi'\in\Hone[_0]{\Omega}
@@ -83,7 +83,7 @@
 
 \item Weak form of Ampere's law:
 \begin{equation*}
-%\ivol{\Curl{\vec{h}}}{\vec{a}'} = \ivol{\vec{j}}{\vec{a}'} \Rightarrow
+% \ivol{\Curl{\vec{h}}}{\vec{a}'} = \ivol{\vec{j}}{\vec{a}'} \Rightarrow
 \ivol{\vec{h}}{\Curl{\vec{a}'}} + \isur{\pvec{\vec{n}}{\vec{h}}}{\vec{a}'}
 = \ivol{\vec{j}}{\vec{a}'} 
 \quad \forall\vec{a}'\in\Hcurl[_0]{\Omega}
@@ -345,6 +345,40 @@ FunctionSpace \{
 
 \end{slide}
 
+\begin{slide}
+
+\begin{smallsyntax}
+Formulation \{
+  \{ Name MagSta_hs ; Type FemEquation;
+    Quantity \{
+      \{ Name hs; Type Local; NameOfSpace Hcurl_hs; \}
+    \}
+    Equation \{
+      Galerkin \{ [ Dof\{Curl hs\} , \{Curl hs\} ];
+                 In Omega; Integration I1; Jacobian JVol; \}
+      Galerkin \{ [ -j[] , \{d hs\} ];
+                 In Omega; Integration I1; Jacobian JVol; \}
+    \}
+  \}
+\}
+\end{smallsyntax}
+
+% Resolution \{ \CC{link pre-computation of source field}
+%   \{ Name MagSta_h;
+%     System \{
+%       \{ Name Hs; NameOfFormulation MagSta_hs; \}
+%       \{ Name Phi; NameOfFormulation MagSta_phi; \}
+%     \}
+%     Operation \{ 
+%       Generate[Hs]; Solve[Hs]; SaveSolution[Hs];
+%       Generate[Phi]; Solve[Phi]; SaveSolution[Phi];
+%     \}
+%   \}
+% \}
+
+\end{slide}
+
+
 % ---------------------------------------------------------------------------
 
 \chapter{Magneto-thermal coupling: step by step}
@@ -479,24 +513,22 @@ Resolutions
 \end{slideitemize}
 }
 
-
 \begin{smallsyntax}
-Resolution \{ \CC{Mag freq + The time}
+Resolution \{ \CC{magnetodynamic freq + thermal static}
   \{ Name Magnetothermal_h_T;
     System \{
       \{ Name Mag; NameOfFormulation MagDyn_h; Frequency 50; \}
       \{ Name The; NameOfFormulation The_T \}
     \}
     Operation \{
-      InitSolution The;
       IterativeLoop \{
         NbrMaxIteration 16; RelaxationFactor 1; Criterion 1.e-4;
         Operation \{ GenerateJac Mag; SolveJac Mag; 
                     GenerateJac The; SolveJac The; \} \}
       SaveSolution Mag; SaveSolution The; \}
-\} \}
+  \}
+\}
 \end{smallsyntax}
-
 
 \end{slide}
 
