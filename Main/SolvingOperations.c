@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.25 2001-05-18 12:26:27 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.26 2001-05-23 10:23:23 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -142,6 +142,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   int     Save_TypeTime ;
   double  Save_DTime ;
   char    ResName[MAX_FILE_NAME_LENGTH], ResNum[MAX_STRING_LENGTH] ;
+  char    FileName[MAX_FILE_NAME_LENGTH];
   gScalar tmp ;
 
   struct Operation     * Operation_P ;
@@ -718,9 +719,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_WRITE : Flag_Binary = 1 ;  
     case OPERATION_PRINT : 
       if(Operation_P->Case.Print.FileOut){
-	if(!(PrintStream = fopen(Operation_P->Case.Print.FileOut, "a")))
-	  Msg(ERROR, "Unable to open file '%s'", Operation_P->Case.Print.FileOut) ;
-	Msg(OPERATION, "Print -> '%s'", Operation_P->Case.Print.FileOut) ;
+	strcpy(FileName, Name_Path);
+	strcat(FileName, Operation_P->Case.Print.FileOut);
+	if(!(PrintStream = fopen(FileName, "a")))
+	  Msg(ERROR, "Unable to open file '%s'", FileName) ;
+	Msg(OPERATION, "Print -> '%s'", FileName) ;
       }
       else{
 	PrintStream = stdout ;

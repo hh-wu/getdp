@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.37 2001-05-18 12:26:27 dular Exp $"
+#define RCSID "$Id: Main.c,v 1.38 2001-05-23 10:23:23 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -42,7 +42,7 @@ int     Flag_CHECK, Flag_LRES, Flag_LPOS, Flag_LIPOS;
 int     Flag_RESTART, Flag_LOG, Flag_VERBOSE, Flag_BIN, Flag_PROGRESS ;
 int     Flag_SPLIT, Flag_SOCKET ;
 double  Flag_ORDER ;
-char    Name_Generic[MAX_FILE_NAME_LENGTH] ;
+char    Name_Generic[MAX_FILE_NAME_LENGTH], Name_Path[MAX_FILE_NAME_LENGTH] ;
 char   *Name_Resolution ;
 char   *Name_PostProcessing[NBR_MAX_POS], *Name_PostOperation[NBR_MAX_POS] ;
 char   *Name_MshFile, *Name_ResFile[NBR_MAX_RES], *Name_AdaptFile ;
@@ -83,7 +83,7 @@ int  main(int argc, char *argv[]) {
   sargv = (char**)Malloc(256*sizeof(char**));
 
   Init_GlobalVariables() ;
-  Get_Options(argc, argv, &sargc, sargv, Name_ProFile, Name_Generic) ;
+  Get_Options(argc, argv, &sargc, sargv, Name_ProFile, Name_Generic, Name_Path) ;
 
   /* log file */
 
@@ -226,7 +226,7 @@ void Init_ProblemStructure(void){
 /* ------------------------------------------------------------------------ */
 
 int Get_Options(int argc, char *argv[], int *sargc, char **sargv, 
-		char *Name_ProFile, char *Name_Generic) {
+		char *Name_ProFile, char *Name_Generic, char *Name_Path) {
   
   int  i, j, Flag_TmpLOG = 0, Flag_NameProblem = 0 ;
 
@@ -480,6 +480,11 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
     else if(strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".pro") &&
 	    strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".PRO"))
       strcat(Name_ProFile,".pro") ;
+
+    strcpy(Name_Path, Name_Generic);
+    i = strlen(Name_Path)-1 ;
+    while(i >= 0 && Name_Path[i] != '/' && Name_Path[i] != '\\') i-- ;
+    Name_Path[i+1] = '\0';
   }
 
   Flag_LOG = Flag_TmpLOG ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.28 2001-05-06 12:37:55 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.29 2001-05-23 10:23:23 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -28,21 +28,24 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   struct PostQuantity   *NCPQ_P, *CPQ_P ;
   double                 Pulsation ;
   int                    i, Order ;
+  char                   FileName[MAX_FILE_NAME_LENGTH];
 
   GetDP_Begin("Pos_Formulation");
 
   if (PostSubOperation_P->FileOut){
+    strcpy(FileName, Name_Path);
+    strcat(FileName, PostSubOperation_P->FileOut);
     if (!PostSubOperation_P->CatFile) {
-      if((PostStream = fopen(PostSubOperation_P->FileOut, "w")))
-	Msg(DIRECT, "          > '%s'", PostSubOperation_P->FileOut) ;
+      if((PostStream = fopen(FileName, "w")))
+	Msg(DIRECT, "          > '%s'", FileName) ;
       else
-	Msg(ERROR, "Unable to open file '%s'", PostSubOperation_P->FileOut) ;
+	Msg(ERROR, "Unable to open file '%s'", FileName) ;
     }
     else {
-      if((PostStream = fopen(PostSubOperation_P->FileOut, "a")))
-	Msg(DIRECT, "         >> '%s'", PostSubOperation_P->FileOut) ;
+      if((PostStream = fopen(FileName, "a")))
+	Msg(DIRECT, "         >> '%s'", FileName) ;
       else
-	Msg(ERROR, "Unable to open file '%s'", PostSubOperation_P->FileOut) ;
+	Msg(ERROR, "Unable to open file '%s'", FileName) ;
     }
   }
   else{
@@ -106,7 +109,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 	(PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
 	 PostSubOperation_P->Format == FORMAT_GMSH)){
       Socket_SendInt(Flag_SOCKET, GETDP_LOAD_VIEW);
-      Socket_SendString(Flag_SOCKET, PostSubOperation_P->FileOut);
+      Socket_SendString(Flag_SOCKET, FileName);
     }
   }
 

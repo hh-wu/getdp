@@ -1,4 +1,4 @@
-/* $Id: Init_Problem.h,v 1.9 2001-05-18 12:26:27 dular Exp $ */
+/* $Id: Init_Problem.h,v 1.10 2001-05-23 10:23:23 geuzaine Exp $ */
 #ifndef _INIT_PROBLEM_H_
 #define _INIT_PROBLEM_H_
 
@@ -9,7 +9,7 @@
 /* ------------ */
 
 int   Get_Options(int argc, char *argv[], int *supargc, char **supargv, 
-		  char *Name_ProFile, char *Name_Generic) ;
+		  char *Name_ProFile, char *Name_Generic, char *Name_Path) ;
 
 void  Init_ProblemStructure (void) ;
 void  Init_GlobalVariables (void) ;
