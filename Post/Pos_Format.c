@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.26 2001-10-25 07:06:37 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.27 2001-11-01 09:54:20 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -204,7 +204,7 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
       List_WriteToFile(ST, PostStream, f); List_WriteToFile(VT, PostStream, f);
       List_WriteToFile(TT, PostStream, f); List_WriteToFile(SS, PostStream, f);
       List_WriteToFile(VS, PostStream, f); List_WriteToFile(TS, PostStream, f);
-      if(Flag_BIN) fprintf(PostStream, "\n");
+      fprintf(PostStream, "\n");
       fprintf(PostStream, "$EndView\n");
     }
     else{
