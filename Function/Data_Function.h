@@ -305,6 +305,9 @@ struct StringX3Function2Nbr  BF_Function[] = {
 
   {"BF_DivFacet", (CAST)BF_DivFacet, (CAST)BF_Zero, (CAST)BF_Facet, 0., ALL },
 
+  /* Current along wire */
+  {"BF_Wire",    (CAST)BF_Wire, (CAST)BF_DivWire, (CAST)BF_Zero, 1., LIN },   
+  {"BF_DivWire", (CAST)BF_DivWire, (CAST)BF_Zero, (CAST)BF_Wire, 0., LIN },        
 
   /* H(div, perp) basis Functions and their divergences */
 
@@ -659,13 +662,15 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"ApproximateLaplace", (CAST)GF_ApproximateLaplace,  2,   0 },
 
   {"Helmholtz"         , (CAST)GF_Helmholtz        ,   2,   0 },
+  {"HelmholtzThinWire" , (CAST)GF_HelmholtzThinWire,   3,   0 },
   {"GradHelmholtz"     , (CAST)GF_GradHelmholtz    ,   2,   0 },
   {"NPxGradHelmholtz"  , (CAST)GF_NPxGradHelmholtz ,   2,   0 },
   {"NSxGradHelmholtz"  , (CAST)GF_NSxGradHelmholtz ,   2,   0 },
 
   /* Biot Savart law */
   {"BiotSavart"        , (CAST)F_BiotSavart        ,   1,   0 },
-
+  /* Pocklintong's integral equation */
+  {"Pocklington"       , (CAST)F_Pocklington       ,   2,   0 },
 
   {NULL                , NULL                      ,   0,   0 } 
 
@@ -716,6 +721,7 @@ struct FunctionXFunction FMMProd_Function3D[] = {
   {(CAST)GF_GradLaplace     , (CAST)FMMProd_AllLaplace3D   } ,
   {(CAST)GF_NPxGradLaplace  , (CAST)FMMProd_AllLaplace3D  } ,
   {(CAST)GF_Helmholtz       , (CAST)FMMProd_AllHelmholtz   } ,
+  {(CAST)GF_HelmholtzThinWire, (CAST)FMMProd_AllHelmholtz   } ,
   {(CAST)GF_GradHelmholtz   , (CAST)FMMProd_AllHelmholtz   } ,
   {(CAST)GF_NSxGradHelmholtz, (CAST)FMMProd_AllHelmholtz   } ,
   {NULL                     , NULL }  
