@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.14 2000-09-07 18:47:21 geuzaine Exp $
+# $Id: Makefile,v 1.15 2000-09-23 18:16:27 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -47,6 +47,7 @@ GETDP_ARCHIVE_DIR     = archives
 GETDP_MAIN_DIR        = Main
 GETDP_PARSER_DIR      = Parser
 GETDP_ARCHIVE         = $(GETDP_ARCHIVE_DIR)/getdp-`date "+%Y.%m.%d"`
+#GETDP_ARCHIVE        = $(GETDP_ARCHIVE_DIR)/getdp-$(GETDP_RELEASE)
 GETDP_SOURCES         = `find . \( ! -name "*.tar*" -a ! -name "*.tgz" \
                          -a ! -name "*.o"    -a ! -name "*.a"   -a ! -name "*.cut"   \
                          -a ! -name "*.pos"  -a ! -name "*.pre" -a ! -name "*.res" \
@@ -237,8 +238,11 @@ clean:
 cleandoc:
 	cd $(GETDP_DOC_DIR) && $(MAKE) clean "RM=rm" "RMFLAGS=-f"
 
-doc:
-	cd $(GETDP_DOC_DIR) && $(MAKE) doc
+doc-info:
+	cd $(GETDP_DOC_DIR) && $(MAKE) info
+
+doc-ps:
+	cd $(GETDP_DOC_DIR) && $(MAKE) ps
 
 purge:
 	for i in $(GETDP_DIR) $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) \
