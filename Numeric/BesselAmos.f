@@ -1272,6 +1272,9 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zasyi(zr, zi, fnu, kode, n, yr, yi, nz, rl, tol, elim,
      * alim)
+c     geuz for g77
+      EXTERNAL zsqrt
+      EXTERNAL zexp
 c     Refer to  zbesi,zbesk
 c
 c     zasyi computes the i bessel function for real(z).ge.0.0 by
@@ -1549,6 +1552,10 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zbknu(zr, zi, fnu, kode, n, yr, yi, nz, tol, elim,
      * alim)
+c     geuz for g77
+      EXTERNAL zsqrt
+      EXTERNAL zexp
+      EXTERNAL zlog
 c     Refer to  zbesi,zbesk,zairy,zbesh
 c
 c     zbknu computes the k bessel function in the right half z plane.
@@ -2327,6 +2334,9 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zmlri(zr, zi, fnu, kode, n, yr, yi, nz, tol)
+c     geuz for g77
+      EXTERNAL zexp
+      EXTERNAL zlog
 c     Refer to  zbesi,zbesk
 c
 c     zmlri computes the i bessel function for re(z).ge.0.0 by the
@@ -2533,6 +2543,8 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zseri(zr, zi, fnu, kode, n, yr, yi, nz, tol, elim,
      * alim)
+c     geuz for g77
+      EXTERNAL zlog
 c     Refer to  zbesi,zbesk
 c
 c     zseri computes the i bessel function for real(z).ge.0.0 by
