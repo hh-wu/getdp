@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.108 2003-01-25 02:35:08 geuzaine Exp $
+# $Id: Makefile,v 1.109 2003-01-25 03:06:08 geuzaine Exp $
 
 # ----------------------------------------------------------------------
 #  Optional packages: 
@@ -400,7 +400,7 @@ distrib-hpux: clean tag hpux distrib
 compile-sunos: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
-           "FC=f77" \
+           "FC=g77" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
            "C_PARSER_FLAGS=-O3" \
@@ -409,7 +409,7 @@ compile-sunos: initialtag
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
 link-sunos:
-	$(FC) -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lsocket -lm
+	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lsocket -lm
 sunos: compile-sunos link-sunos
 distrib-sunos: clean tag sunos distrib
 
