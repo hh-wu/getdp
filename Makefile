@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.25 2000-10-20 08:43:44 dular Exp $
+# $Id: Makefile,v 1.26 2000-10-20 08:49:21 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -236,6 +236,9 @@ clean:
            "RMFLAGS=-f" \
         ); \
         done
+
+cleanlib:
+	cd $(GETDP_LIB_DIR) && $(MAKE) clean "RM=rm" "RMFLAGS=-f"
 
 cleandoc:
 	cd $(GETDP_DOC_DIR) && $(MAKE) clean "RM=rm" "RMFLAGS=-f"
