@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.13 2001-05-03 08:41:43 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.14 2001-05-16 09:21:16 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -5501,7 +5501,7 @@ PrintOption :
     }
   | ',' tTarget FExpr
     { 
-      if($3 >= 0. && $3 < 3.)
+      if($3 >= 0.)
 	PostSubOperation_S.Target = $3 ;
       else
 	vyyerror("Bad Target value") ;
