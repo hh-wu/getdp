@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.33 2001-03-08 14:50:49 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.34 2001-03-08 14:52:55 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -101,8 +101,8 @@ void Info (int level, char *arg0){
     fprintf(stderr, host, GETDP_HOST);
     fprintf(stderr, packager, GETDP_PACKAGER);
     fprintf(stderr, solver);
-    fprintf(stderr, email);
     fprintf(stderr, url);
+    fprintf(stderr, email);
     break;
   }
 
