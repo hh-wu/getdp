@@ -13,6 +13,10 @@
 #   (ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/)
 #   and compile with 'make no-cygwin' .
 #   To check the final dependendies: objdump -p getdp-win | grep DLL#
+#
+#  Acces CVS avec mot de passe:
+#  cvs -d :pserver:user@elap57.montefiore.ulg.ac.be:/usr/users57/cvs-master login 
+#  cvs -d :pserver:user@elap57.montefiore.ulg.ac.be:/usr/users57/cvs-master checkout getdp 
 # ----------------------------------------------------------------------
 
 GETDP_RELEASE         = 0.76
@@ -74,7 +78,7 @@ GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
+# include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
 
 # ----------------------------------------------------------------------
 # Rules for developpers

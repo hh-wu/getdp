@@ -232,6 +232,8 @@ void gPrintVector(FILE *file, gVector *V){
 #endif
   }
   fflush(file) ;
+
+  ierr = VecRestoreArray(V->V, &tmp); CHKERRA(ierr);
 } 
 void gPrintMatrix(FILE *file, gMatrix *M){
   Msg(ERROR, "'gPrintMatrix' not Implemented (yet)");  
