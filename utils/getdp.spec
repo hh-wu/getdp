@@ -1,7 +1,7 @@
 Summary: A General environment for the treatment of Discrete Problems
 Name: getdp
-Version: 0.76
-Source: getdp-0.76.tar.gz
+Version: 0.77
+Source: getdp-0.77.tar.gz
 Release: 1
 Copyright: distributable
 Group: Applications/Engineering

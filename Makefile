@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.20 2000-09-25 20:25:42 geuzaine Exp $
+# $Id: Makefile,v 1.21 2000-09-26 09:38:53 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -22,7 +22,7 @@
 #        * 'cmd' is first 'login', then 'checkout getdp', and finally 'logout'
 # ----------------------------------------------------------------------
 
-GETDP_RELEASE         = 0.76
+GETDP_RELEASE         = 0.77
 
 # ----------------------------------------------------------------------
 # General definitions 

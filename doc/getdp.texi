@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.18 2000-09-24 07:51:56 geuzaine Exp $
+@c $Id: getdp.texi,v 1.19 2000-09-26 09:38:53 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -32,9 +32,9 @@
 @c %**start of header
 @setfilename   getdp.info
 @c variables
-@set EDITION   1.7
-@set VERSION   0.76
-@set DAY       14 
+@set EDITION   1.8
+@set VERSION   0.77
+@set DAY       26
 @set MONTH     September 2000
 @set COPYRIGHT @copyright{} 1997-2000 Patrick Dular, Christophe Geuzaine
 @set WEB-GETDP @uref{http://www.geuz.org/getdp/}
