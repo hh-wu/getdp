@@ -1,11 +1,12 @@
-# $Id: Makefile,v 1.8 2001-07-29 12:34:44 geuzaine Exp $
+# $Id: Makefile,v 1.9 2001-11-20 12:21:08 geuzaine Exp $
 #
 # Makefile for "libDofData.a"
 #
 
 .IGNORE:
 
-RANLIB  = /usr/bin/ranlib
+RANLIB  = ranlib
+AR      = ar ruvs
 
 SOLVER = -D_SPARSKIT
 
@@ -23,7 +24,7 @@ SRC = DofData.c \
 OBJ  = $(SRC:.c=.o)
 
 $(LIB): $(OBJ)
-	ar ruvs $(LIB) $(OBJ)
+	$(AR) $(LIB) $(OBJ)
 	$(RANLIB) $(LIB)
 
 clean:

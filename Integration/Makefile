@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2001-07-29 12:34:44 geuzaine Exp $
+# $Id: Makefile,v 1.13 2001-11-20 12:21:08 geuzaine Exp $
 #
 # Makefile for "libIntegration.a"
 #
@@ -6,7 +6,8 @@
 .IGNORE:
 
 C_FLAGS = -g
-RANLIB  = /usr/bin/ranlib
+RANLIB  = ranlib
+AR      = ar ruvs
 
 LIB     = ../lib/libIntegration.a
 INCLUDE = -I. -I../include -I../DataStr -I../Main
@@ -27,7 +28,7 @@ SRC = Gauss_Point.c \
 OBJ = $(SRC:.c=.o)
 
 $(LIB): $(OBJ)
-	ar ruvs $(LIB) $(OBJ)
+	$(AR) $(LIB) $(OBJ)
 	$(RANLIB) $(LIB)
 
 clean:

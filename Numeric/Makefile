@@ -1,11 +1,12 @@
-# $Id: Makefile,v 1.12 2001-08-09 11:49:04 sabarieg Exp $
+# $Id: Makefile,v 1.13 2001-11-20 12:21:08 geuzaine Exp $
 #
 # Makefile for 'libSolverMisc.a'
 #
 
 .IGNORE:
 
-RANLIB  = /usr/bin/ranlib
+RANLIB  = ranlib
+AR      = ar ruvs
 
 C_FLAGS = -g
 F77_FLAGS = -g
@@ -43,7 +44,7 @@ COBJ  = $(CSRC:.c=.o)
 FOBJ  = $(FSRC:.f=.o)
 
 $(LIB): $(COBJ) $(FOBJ)
-	ar ruvs $(LIB) $(COBJ) $(FOBJ)
+	$(AR) $(LIB) $(COBJ) $(FOBJ)
 	$(RANLIB) $(LIB)
 
 clean:

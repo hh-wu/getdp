@@ -1,11 +1,12 @@
-# $Id: Makefile,v 1.11 2001-07-29 12:34:44 geuzaine Exp $
+# $Id: Makefile,v 1.12 2001-11-20 12:21:08 geuzaine Exp $
 #
 # Makefile for 'libParser.a'
 # 
 
 .IGNORE:
 
-RANLIB  = /usr/bin/ranlib
+RANLIB  = ranlib
+AR      = ar ruvs
 YACC    = bison
 LEX     = flex
 
@@ -22,7 +23,7 @@ SRC = GetDP.yy.c GetDP.tab.c
 OBJ = $(SRC:.c=.o)
 
 $(LIB): $(OBJ)
-	ar ruvs $(LIB) $(OBJ)
+	$(AR) $(LIB) $(OBJ)
 	$(RANLIB) $(LIB)
 
 parser: GetDP.y GetDP.l

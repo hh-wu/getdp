@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2001-07-29 12:34:44 geuzaine Exp $
+# $Id: Makefile,v 1.9 2001-11-20 12:21:08 geuzaine Exp $
 #
 # Makefile for 'libSparskit.a'
 #
@@ -7,7 +7,8 @@
 
 C_FLAGS   = -O3
 F77_FLAGS = -O3
-RANLIB    = /usr/bin/ranlib
+RANLIB    = ranlib
+AR        = ar ruvs
 
 SOLVER_FLAGS = -D_SPARSKIT
 
@@ -42,7 +43,7 @@ COBJ  = $(CSRC:.c=.o)
 .SUFFIXES: .o .c .f .F
 
 $(LIB): $(COBJ) $(FOBJ1) $(FOBJ2)
-	ar ruvs $(LIB) $(COBJ) $(FOBJ1) $(FOBJ2)
+	$(AR) $(LIB) $(COBJ) $(FOBJ1) $(FOBJ2)
 	$(RANLIB) $(LIB)
 
 .F.o:

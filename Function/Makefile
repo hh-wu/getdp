@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.13 2001-08-09 12:45:09 sabarieg Exp $
+# $Id: Makefile,v 1.14 2001-11-20 12:21:08 geuzaine Exp $
 #
 # Makefile for "libFunction.a"
 #
@@ -6,7 +6,8 @@
 .IGNORE:
 
 C_FLAGS = -g
-RANLIB  = /usr/bin/ranlib
+RANLIB  = ranlib
+AR      = ar ruvs
 
 LIB     = ../lib/libFunction.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData -I../Main\
@@ -44,7 +45,7 @@ SRC = F_Analytic.c \
 OBJ = $(SRC:.c=.o)
 
 $(LIB): $(OBJ)
-	ar ruvs $(LIB) $(OBJ)
+	$(AR) $(LIB) $(OBJ)
 	$(RANLIB) $(LIB)
 
 clean:

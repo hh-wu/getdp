@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2000-10-30 01:00:34 geuzaine Exp $
+# $Id: Makefile,v 1.5 2001-11-20 12:21:08 geuzaine Exp $
 #
 # Makefile for "libDataStr.a"
 #
@@ -6,7 +6,8 @@
 .IGNORE:
 
 C_FLAGS  = -O3
-RANLIB   = /usr/bin/ranlib
+RANLIB   = ranlib
+AR       = ar ruvs
 
 LIB      = ../lib/libDataStr.a
 INCLUDE  = -I. -I../include -I../Main
@@ -22,7 +23,7 @@ SRC = List.c \
 OBJ = $(SRC:.c=.o)
 
 $(LIB): $(OBJ)
-	ar ruvs $(LIB) $(OBJ)
+	$(AR) $(LIB) $(OBJ)
 	$(RANLIB) $(LIB)
 
 clean:

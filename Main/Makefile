@@ -1,11 +1,12 @@
-# $Id: Makefile,v 1.14 2001-07-29 12:34:44 geuzaine Exp $
+# $Id: Makefile,v 1.15 2001-11-20 12:21:08 geuzaine Exp $
 #
 # Makefile for 'libMain.a'
 # 
 
 .IGNORE:
 
-RANLIB  = /usr/bin/ranlib
+RANLIB  = ranlib
+AR      = ar ruvs
 
 C_FLAGS = -g
 SOLVER  = -D_SPARSKIT
@@ -48,7 +49,7 @@ SRC = Main.c Message.c \
 OBJ = $(SRC:.c=.o)
 
 $(LIB): $(OBJ)
-	ar ruvs $(LIB) $(OBJ)
+	$(AR) $(LIB) $(OBJ)
 	$(RANLIB) $(LIB)
 
 clean:
