@@ -1,4 +1,4 @@
-/* $Id: LinAlg.h,v 1.8 2002-11-01 19:20:07 geuzaine Exp $ */
+/* $Id: LinAlg.h,v 1.9 2003-01-28 06:25:11 geuzaine Exp $ */
 #ifndef _LINALG_H_
 #define _LINALG_H_
 
@@ -46,9 +46,9 @@ typedef struct { Mat M ; }                       gMatrix ;
 typedef struct { Vec V ; }                       gVector ;
 typedef struct { SLES sles ; PC pc ; KSP ksp ; } gSolver ;
 
-#elif _AZTEC
+#else
 
-#error "GetDP is NOT ready for AZTEC solvers"
+#error "You have to define either _SPARSKIT or _PETSC"
 
 #endif
 
