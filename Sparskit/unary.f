@@ -1,4 +1,4 @@
-c $Id: unary.f,v 1.2 2000-09-07 18:56:37 geuzaine Exp $
+c $Id: unary.f,v 1.3 2001-06-26 11:44:29 gyselinc Exp $
 c----------------------------------------------------------------------c
 c                          S P A R S K I T                             c
 c----------------------------------------------------------------------c
@@ -2550,7 +2550,7 @@ c
          k2 = ia(ii+1)-1
          if (nrm .eq. 0) then
             do 2 k=k1, k2
-               scal = max(scal,abs(a(k) ) ) 
+               scal = max(scal,abs(a(k) ) )
  2          continue
          elseif (nrm .eq. 1) then
             do 3 k=k1, k2

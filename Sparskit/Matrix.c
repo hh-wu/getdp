@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.10 2001-03-03 19:21:22 geuzaine Exp $"
+#define RCSID "$Id: Matrix.c,v 1.11 2001-06-26 11:44:28 gyselinc Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -76,6 +76,30 @@ void zero_matrix (Matrix *M){
   }
 }
 
+void zero_matrix2 (Matrix *M){
+  int i,j=0, iptr;
+  int     *jptr, *ptr;
+  double  *a;
+
+  M->changed = 1 ;
+  switch (M->T) {
+  case SPARSE :
+    jptr  = (int*) M->S.jptr->array;
+    ptr = (int*) M->S.ptr->array;
+    a   = (double*) M->S.a->array;
+    for (i=0; i<M->N; i++) {
+      iptr = jptr[i];
+      while (iptr>0) {
+	a[iptr-1]= 0. ; 
+	iptr = ptr[iptr-1];
+      }
+    }
+    break;
+  case DENSE :
+    for(i=0; i<(M->N)*(M->N); i++) M->F.a[i] = 0.0;
+    break;    
+  }
+}
 
 void zero_vector (int Nb, double *V){
   int i;
@@ -258,6 +282,126 @@ void prodsc_vector_vector (int Nb, double *U, double *V, double *prosca){
   *prosca = 0.0 ;
   for (i=0; i<Nb; i++) *prosca += U[i] * V[i];
 }
+
+
+
+void scaling_matrix (int scaling, Matrix *M){
+  int     k, i, j, *ai, *jptr ;
+  double  *a, *rowscal, *colscal;
+  int job0=0, job1=1,  ioff=0, len, *idiag, norm ;
+
+
+  switch (M->T) {
+
+  case SPARSE :
+
+    jptr = (int*) M->S.jptr->array;
+    a    = (double*) M->S.a->array;
+    ai   = (int*) M->S.ai->array;
+
+    switch (scaling) {
+
+    case DIAG_SCALING :
+
+      rowscal = colscal = (double*)Malloc(M->N * sizeof(double));
+
+      /* extract diagonal */
+      idiag = (int*)Malloc(M->N * sizeof(int));
+      getdia_ (&M->N, &M->N, &job0, a, ai, jptr, &len, rowscal, idiag, &ioff) ;
+      Free (idiag);
+
+      for (i = 0 ; i < M->N ; i++){
+
+	if (rowscal[i]){
+	  rowscal[i] = 1./sqrt(abs(rowscal[i])) ;
+	  // printf("  %d %e \n", i, rowscal[i] );
+	} else {
+	  Msg(WARNING, "Diagonal scaling aborted because of zero diagonal element (%d)",i+1) ;
+	  Free (rowscal) ;
+	  return ;
+	}
+      }
+      diamua_ (&M->N, &job1, a, ai, jptr, rowscal, a, ai, jptr) ;
+      amudia_ (&M->N, &job1, a, ai, jptr, colscal, a, ai, jptr) ;
+      break ;
+      
+    case MAX_SCALING   :  case NORM1_SCALING :  case NORM2_SCALING :
+
+      switch (scaling) {
+      case MAX_SCALING   : norm = 0 ; break ;
+      case NORM1_SCALING : norm = 1 ; break ;
+      case NORM2_SCALING : norm = 2 ; break ;
+      }
+
+      rowscal = (double*)Malloc(M->N * sizeof(double));
+      rnrms_ (&M->N, &norm, a, ai, jptr, rowscal); 
+      for (i = 0 ; i < M->N ; i++){
+	//printf("  %d %e \n", i, rowscal[i] );
+	if (rowscal[i])
+	  rowscal[i] = 1./rowscal[i] ;
+	else {
+	  Msg(WARNING, "Scaling aborted because of zero row (%d)", i+1) ;
+	  Free (rowscal) ;
+	  return ;
+	}
+      }
+      diamua_ (&M->N, &job1, a, ai, jptr, rowscal, a, ai, jptr) ;
+
+      colscal = (double*)Malloc(M->N * sizeof(double));
+      cnrms_ (&M->N, &norm, a, ai, jptr, colscal); 
+      for (i = 0 ; i < M->N ; i++){
+
+	if (colscal[i]){
+	  colscal[i] = 1./colscal[i] ;
+	  //printf("  %d %e %e \n", i, 1./rowscal[i], 1./colscal[i] );
+	} else {
+	  Msg(WARNING, "Scaling aborted because of zero column (%d)", i+1) ;
+	  Free (colscal) ;
+	  return ;
+	}
+      }
+      amudia_ (&M->N, &job1, a, ai, jptr, colscal, a, ai, jptr) ;
+      break;
+
+    default : 
+
+      Msg(ERROR, "Unknown type of matrix scaling: %d", scaling);
+      break;
+
+    }
+
+
+
+
+    M->scaled = 1 ; 
+    M->rowscal = rowscal ;
+    M->colscal = colscal ;
+
+
+    break;
+  case DENSE :
+
+    break;
+  }
+}
+
+
+void scale_vector (int ROW_or_COLUMN, Matrix *M, double *V){
+  double *scal;
+  int i;
+
+  if (!M->scaled) return ;
+  
+  switch (ROW_or_COLUMN) {
+  case 0  : scal =  M->rowscal ; break ;
+  case 1  : scal =  M->colscal ; break ;
+  }
+
+  if (scal == NULL) Msg(ERROR, "scale_vector : no scaling factors available !") ;
+
+  for (i = 0 ; i < M->N ; i++) V[i] *= scal[i] ; 
+}
+
 
 
 void prod_matrix_vector (Matrix *M, double *V , double *res ){

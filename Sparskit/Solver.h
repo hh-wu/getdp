@@ -1,4 +1,4 @@
-/* $Id: Solver.h,v 1.6 2000-10-30 01:05:48 geuzaine Exp $ */
+/* $Id: Solver.h,v 1.7 2001-06-26 11:44:29 gyselinc Exp $ */
 #ifndef _SOLVER_H_
 #define _SOLVER_H_
 
@@ -41,6 +41,12 @@
 
 #define RCMK      1
 
+#define DIAG_SCALING    1
+#define MAX_SCALING     2
+#define NORM1_SCALING   3
+#define NORM2_SCALING   4
+
+
 #ifdef _ILU_FLOAT
 #define scalar float
 #else
@@ -70,7 +76,8 @@ typedef struct {
 }Dense_Matrix;
 
 typedef struct{
-  int T, N, changed, ILU_Exists, notranspose;
+  int T, N, changed, ILU_Exists, notranspose, scaled;
+  double  *rowscal, *colscal;
   Sparse_Matrix   S; 
   Dense_Matrix    F;
 }Matrix;
@@ -108,6 +115,7 @@ void init_matrix (int Nb, Matrix *M, Solver_Params *p);
 void init_vector (int Nb, double **V);
 
 void zero_matrix (Matrix *M);
+void zero_matrix2 (Matrix *M);
 void zero_vector (int Nb, double *V);
 
 void copy_vector (int Nb, double *U , double *V );

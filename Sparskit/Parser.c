@@ -1,4 +1,4 @@
-#define RCSID "$Id: Parser.c,v 1.10 2001-05-03 00:17:18 geuzaine Exp $"
+#define RCSID "$Id: Parser.c,v 1.11 2001-06-26 11:44:28 gyselinc Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -158,9 +158,12 @@ static char comDIAGONAL_COMPENSATION[] =
     - default : %12.5E\n";
 
 static char comSCALING[] = 
-"\n%s : Scale the system by the reciprocal of the diagonal before resolution \n\
+"\n%s : Scale system \n\
     - 0  no \n\
-    - 1  yes \n\
+    - 1  on basis of diagonal elements  (no loss of possible symmetry) \n\
+    - 2  on basis of inf. norm  of first rows and then columns  (asymmetric) \n\
+    - 3  on basis of norm 1     of first rows and then columns  (asymmetric) \n\
+    - 4  on basis of norm 2     of first rows and then columns  (asymmetric) \n\
     - default : %d\n";
 
 /* ------------------------------------------------------------------------ */
@@ -200,7 +203,7 @@ static InfoSolver Tab_Params[] =
   {"Matrix_Format",           ENTIER, 1,     0.,    comMATRIX_FORMAT,           actMATRIX_FORMAT},
   {"Matrix_Printing",         ENTIER, 0,     0.,    comMATRIX_PRINTING,         actMATRIX_PRINTING},
   {"Matrix_Storage",          ENTIER, 0,     0.,    comMATRIX_STORAGE,          actMATRIX_STORAGE},
-  {"Scaling",                 ENTIER, 1,     0.,    comSCALING,                 actSCALING},
+  {"Scaling",                 ENTIER, 0,     0.,    comSCALING,                 actSCALING},
   {"Renumbering_Technique",   ENTIER, 1,     0.,    comRENUMBERING_TECHNIQUE,   actRENUMBERING_TECHNIQUE},
   {"Preconditioner",          ENTIER, 2,     0.,    comPRECONDITIONER,          actPRECONDITIONER},
   {"Preconditioner_Position", ENTIER, 2,     0.,    comPRECONDITIONER_POSITION, actPRECONDITIONER_POSITION},

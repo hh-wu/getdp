@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.10 2001-04-05 06:30:01 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.11 2001-06-26 11:44:28 gyselinc Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -24,6 +24,8 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   int     *ja, *ia, *jw, *mask, *levels;
   int      its, end, do_permute=0;
   int      zero=0, un=1, deux=2, six=6, douze=12, trente=30, trente_et_un=31;
+  int      ROW=0, COLUMN=1;
+  double     res1=1.;
 
   if (!M->N) {
     Msg(WARNING, "No equations in linear system");
@@ -111,6 +113,15 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   ia = (int*) M->S.jptr->array;
   ja = (int*) M->S.ai->array; 
 
+  if(p->Scaling != NONE){
+    Msg(SPARSKIT, "Scaling system of equations\n") ;
+
+    scaling_matrix (p->Scaling, M) ;
+    scale_vector (ROW, M, b) ;    
+  } else 
+    Msg(SPARSKIT, "No scaling of system of equations\n") ;
+
+
 #ifdef  _GETDP_FOR_BEGINNERS_
   for (i=1; i<M->N; i++) {
     if(ia[i]-ia[i-1] <= 0)
@@ -157,7 +168,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       Msg(ERROR, "Unknown renumbering technique");
       break;
     }
-    print_matrix_info_CSR(M->N, ia, ja);    
+    print_matrix_info_CSR(M->N, ia, ja);
     Msg(RESOURCES, "");
   }
   
@@ -432,11 +443,12 @@ reallocate :
     if(!end){
       
       if(ipar[7] != its){
-	if(its) Msg(ITER, "%4d  %.7e\n", its, res);
-	its = ipar[7];
+	if(its) Msg(ITER, "%4d  %.7e %.7e %.7e \n", its, res, res1, res/res1);
+	its = ipar[7] ;
       }
       
       res = fpar[5];
+      if(its==1) res1 = fpar[5] ;
       
       switch(ipar[1]){
       case 1 : 
@@ -519,6 +531,10 @@ reallocate :
     Free(ia) ;
     Free(ja) ;
   }
+
+  if(p->Scaling)
+    scale_vector (COLUMN, M, x) ;
+
 
 }
 

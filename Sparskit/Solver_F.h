@@ -1,4 +1,4 @@
-/* $Id: Solver_F.h,v 1.2 2000-09-07 18:47:29 geuzaine Exp $ */
+/* $Id: Solver_F.h,v 1.3 2001-06-26 11:44:29 gyselinc Exp $ */
 #ifndef _SOLVER_F_H_
 #define _SOLVER_F_H_
 
@@ -38,6 +38,13 @@
 #define dnrm2_      dnrm2
 #define flu_        flu
 #define pgmres_     pgmres
+#define getdia_     getdia
+#define amudia_     amudia
+#define diamua_     diamua
+#define rnrms_      rnrms
+#define cnrms_      cnrms
+
+
 #endif
 
 
@@ -108,6 +115,14 @@ void  flu_      (int*,double*,double*,double*,int*,int*,double*,double*,double*,
 void  pgmres_   (int*,int*,double*,double*,double*,double*,
 		 int*,int*,double*,int*,int*,
 		 scalar*,int*,int*,int*);
+
+void getdia_    (int*,int*,int*,double*,int*,int*,int*,double*,int*,int*);
+
+void diamua_    (int*,int*,double*,int*,int*,double*,double*,int*,int*);
+void amudia_    (int*,int*,double*,int*,int*,double*,double*,int*,int*);
+void rnrms_     (int*,int*,double*,int*,int*,double*);
+void cnrms_     (int*,int*,double*,int*,int*,double*);
+
 
 EXTERN_C_END
 
