@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.12 2001-03-05 12:16:37 geuzaine Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.13 2001-06-15 09:51:08 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -54,7 +54,7 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 				    PostQuantityTerm.InIndex))->InitialList ;
 
     if (!Support_L)  Type_Quantity = PostQuantityTerm.Type ;
-    else             Type_Quantity = GLOBALQUANTITY ;
+    else             Type_Quantity = GLOBALQUANTITY ; /* Always if Support */
 
     if (InRegion_L) {
       if (Element->Num != NO_ELEMENT) {
@@ -70,12 +70,15 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 	    Type_Quantity = -1 ;
 	  }
 	  */
+	  /* Il faut plutot voir si il existe au moins une region de InRegion_L
+	     qui soit dans Support_L ... cela est fait apres, pour chaque element */
 	}
 	else if (Type_Quantity != INTEGRALQUANTITY) {
 	  Type_Quantity = -1 ;
 	}
       }
     }
+    /* else if !InRegion_L -> No filter, i.e. globally defined quantity */
 
     /* ---------------------------- */
     /* Local or Integral quantities */
@@ -182,6 +185,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
       Element.Type   = Element.GeoElement->Type ;
       Current.Region = Element.Region = Element.GeoElement->Region ;
 
+      /* Filter: only elements in both InRegion_L and Support_L are considered */
       if ((!InRegion_L || List_Search(InRegion_L, &Element.Region, fcmp_int)) &&
 	  (!Support_L || List_Search(Support_L, &Element.Region, fcmp_int))) {
 	Get_NodesCoordinatesOfElement(&Element) ;

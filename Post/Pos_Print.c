@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.40 2001-03-16 18:05:46 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.41 2001-06-15 09:51:08 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1207,7 +1207,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
   if (CPQ_P) {
     PQ_P = CPQ_P ;
-    Support_L =
+    Support_L = /* for e.g. PQ[ Support ] ... */
       ((struct Group *)
        List_Pointer(Problem_S.Group, 
 		    PostSubOperation_P->PostQuantitySupport[Order]))->InitialList ;
