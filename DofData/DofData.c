@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.23 2002-01-18 11:10:26 gyselinc Exp $"
+#define RCSID "$Id: DofData.c,v 1.24 2002-01-18 17:43:04 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -435,7 +435,7 @@ void  Dof_WriteFileRES0(char * Name_File, int Format) {
 
 
 /* ------------------------------------------------------------------------ */
-/*  D o f _ W r i t e F i l e R E S                                         */
+/*  D o f _ W r i t e F i l e R E S _ E x t e n d M H                       */
 /* ------------------------------------------------------------------------ */
 
 
@@ -568,10 +568,8 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
       if(Read){
 	Solution_S.Time = Val_Time ;
 	Solution_S.TimeStep = Val_TimeStep ;
-
 	Solution_S.SolutionExist = 1 ;
 	Solution_S.TimeFunctionValues = NULL ;
-	
 
 	LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
 			    DofData_P->NbrPart, DofData_P->Part) ;
@@ -592,7 +590,7 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 
     do {
       fgets(String, MAX_STRING_LENGTH, File_RES) ;
-      if (feof(File_RES)) Msg(ERROR,"Prematured end of file %d",Val_TimeStep  );
+      if (feof(File_RES)) Msg(ERROR,"Prematured end of file (Time Step %d)", Val_TimeStep);
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -978,28 +976,20 @@ void  Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar) {
 }
 
 
-
 void Dof_GetDof_Four(struct DofData * DofData_P, struct DofData * DofData2_P) {
-
   int NbrHar2, NbrDof2, i ;
   struct Dof * Dof_P ;
 
   NbrHar2 = DofData2_P->NbrHar ;
   NbrDof2 = List_Nbr(DofData2_P->DofList) ;
 
-  
   for (i=0 ; i<NbrDof2 ; i+=NbrHar2) {
 
     Dof_P = (struct Dof *) List_Pointer(DofData2_P->DofList, i) ;
 
     printf("i %d, dof %d \n", i/NbrHar2, List_ISearch(DofData_P->DofList, Dof_P, fcmp_Dof)) ; 
 	  
-
   }
-
-
-
-
 }
 
 
