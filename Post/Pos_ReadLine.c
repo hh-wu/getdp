@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_ReadLine.c,v 1.10 2003-02-04 18:15:57 geuzaine Exp $"
+#define RCSID "$Id: Pos_ReadLine.c,v 1.11 2003-02-06 18:55:12 geuzaine Exp $"
 /*
  * Copyright (C) 1986 - 1993   Thomas Williams, Colin Kelley
  *
@@ -24,7 +24,7 @@
  */
 
 /*
- * This is a modified version for getdp
+ * This is a stripped-down version for getdp
  */
 
 /* a small portable version of GNU's readline */
