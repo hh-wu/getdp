@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.70 2002-01-03 14:21:31 geuzaine Exp $
+# $Id: Makefile,v 1.71 2002-01-19 00:33:42 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
 #  Optional packages: 
 #    * flex and bison to rebuild the parser
-#    * cygwin to build on Windows 9x/NT (http://sources.redhat.com/cygwin/) 
+#    * cygwin to build on Windows 9x/NT (http://www.cygwin.com) 
 #    * PETSc 2.0.29 (you have to define the PETSC_DIR and PETSC_ARCH variables)
 #    * METIS 4.0 (you have to define the METIS_DIR variable)
 #
@@ -115,40 +115,6 @@ debug:
         ); done
 
 
-## with PETSc and Metis
-
-petsc:
-	@for i in $(GETDP_STUFF_DIR); do (cd $$i && $(MAKE) \
-           "CC=$(CC)" \
-           "FC=$(FC)" \
-           "F77=$(FC)" \
-           "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS)" \
-           "F77_FLAGS=$(FOPTFLAGS)" \
-           "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE) -D_METIS $(METIS_INCLUDE)" \
-        ); done
-
-getdp-petsc:
-	$(CLINKER) -o $(GETDP_BIN_DIR)/getdp-petsc-$(PETSC_ARCH)-$(BOPT)\
-                      $(GETDP_PETSC_LIBS) $(METIS_LIB) $(PETSC_SLES_LIB)
-
-## with PETSc alone
-
-petsc-simple:
-	@for i in $(GETDP_STUFF_DIR); do (cd $$i && $(MAKE) \
-           "CC=$(CC)" \
-           "FC=$(FC)" \
-           "F77=$(FC)" \
-           "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS)" \
-           "F77_FLAGS=$(FOPTFLAGS)" \
-           "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
-        ); done
-
-getdp-petsc-simple:
-	$(CLINKER) -o $(GETDP_BIN_DIR)/getdp-petsc-$(PETSC_ARCH)-$(BOPT)\
-                      $(GETDP_PETSC_LIBS) $(PETSC_SLES_LIB)
-
 ## Patrick
 
 linux2: initialtag
@@ -175,14 +141,6 @@ linux2W: initialtag
 
 
 ## Christophe
-
-dll:
-	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
-        do (cd $$i && $(MAKE) \
-           "C_FLAGS=-g -Wall -D_DLL" \
-           "F77_FLAGS=-g -Wall -D_DLL" \
-        ); done
-	ar ruvs getdp.a */*.o
 
 gnu:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
@@ -293,7 +251,7 @@ tgz:
 	gzip $(GETDP_ARCHIVE).tar
 	chmod 640 $(GETDP_ARCHIVE).tar.gz
 
-src:
+fulltgz:
 	tar cvf $(GETDP_SRCRPM).tar $(GETDP_SOURCES)
 	gzip $(GETDP_SRCRPM).tar
 
@@ -357,21 +315,10 @@ bb:
 # "Ready to compile" rules for somes platforms
 # ----------------------------------------------------------------------
 
-PETSc: tag
-	@for i in $(GETDP_STUFF_DIR); do (cd $$i && $(MAKE) \
-           "CC=$(CC)" \
-           "FC=$(FC)" \
-           "F77=$(FC)" \
-           "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS)" \
-           "C_PARSER_FLAGS=$(COPTFLAGS)" \
-           "F77_FLAGS=$(FOPTFLAGS)" \
-           "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE) -D_METIS $(METIS_INCLUDE)" \
-        ); done
-	$(CLINKER) -o $(GETDP_BIN_DIR)/getdp-petsc-$(PETSC_ARCH)-$(BOPT)\
-                      $(GETDP_PETSC_LIBS) $(METIS_LIB) $(PETSC_SLES_LIB)
-
-dec: tag
+#
+# Digital (Compaq) Tru64
+#
+compile-dec: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
@@ -381,9 +328,15 @@ dec: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
+link-dec:
 	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+dec: compile-dec link-dec
+distrib-dec: tag clean dec distrib
 
-linux: tag
+#
+# Linux
+#
+compile-linux: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=g77" \
@@ -393,15 +346,20 @@ linux: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
+link-linux:
 	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
-
-rpm: src
+linux: compile-linux link-linux
+distrib-linux : tag clean linux distrib
+rpm: fulltgz
 	mv $(GETDP_SRCRPM).tar.gz /usr/src/redhat/SOURCES
 	rpm -bb utils/getdp.spec
 	cp /usr/src/redhat/RPMS/i386/$(GETDP_SRCRPM)-1.i386.rpm .
 	cp /usr/src/redhat/BUILD/$(GETDP_SRCRPM)/getdp-$(GETDP_RELEASE)-$(GETDP_UNAME).tgz .
 
-hp: tag
+#
+# HP-UX
+#
+compile-hp: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
@@ -413,10 +371,16 @@ hp: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT -D_UNDERSCORE" \
         ); done
+link-hp:
 	fort77 +DAportable -o $(GETDP_BIN_DIR)/getdp $(GETDP_MAIN_DIR)/Main.o \
                $(GETDP_SPARSKIT_LIBS) -lm
+hp: compile-hp link-hp
+distrib-hp: tag clean hp distrib
 
-sun: tag
+#
+# Sun SunOS
+#
+compile-sun: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=f77" \
@@ -427,9 +391,15 @@ sun: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
+link-sun:
 	$(FC) -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lsocket -lm
+sun: compile-sun link-sun
+distrib-sun: tag clean sun distrib
 
-ibm: tag
+#
+# IBM AIX
+#
+compile-ibm: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
@@ -440,9 +410,15 @@ ibm: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_UNDERSCORE" \
         ); done
+link-ibm:
 	$(FC) -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+ibm: compile-ibm link-ibm
+distrib-ibm: tag clean ibm distrib
 
-cygwin: tag
+#
+# Cygwin
+#
+compile-cygwin: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=g77" \
@@ -453,9 +429,15 @@ cygwin: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
+link-cygwin:
 	g77 -o $(GETDP_BIN_DIR)/getdp.exe $(GETDP_SPARSKIT_LIBS) -lm
+cygwin: compile-cygwin link-cygwin
+distrib-cygwin: tag clean cygwin distrib-win
 
-mingw: tag
+#
+# Mingw
+#
+compile-mingw: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc -mno-cygwin -I/mingw/include" \
            "FC=g77 -mno-cygwin -I/mingw/include" \
@@ -466,11 +448,15 @@ mingw: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
+link-mingw:
 	g77 -o $(GETDP_BIN_DIR)/getdp.exe\
             -mno-cygwin -L/mingw/lib $(GETDP_SPARSKIT_LIBS) -lm
+mingw: compile-mingw link-mingw
 
-# Warning: ILU_FLOAT does NOT work with -mips3. Why ?
-sgi: tag
+#
+# SGI Irix (32 bits, portable) - ILU_FLOAT does NOT work with -mips3. Why ?
+#
+compile-sgi: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
@@ -481,9 +467,15 @@ sgi: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=" \
         ); done
+link-sgi:
 	f77 -n32 -mips3 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+sgi: compile-sgi link-sgi
+distrib-sgi: tag clean sgi distrib
 
-sgi64: tag
+#
+# SGI Irix (64 bits)
+#
+compile-sgi64: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
@@ -494,6 +486,44 @@ sgi64: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
+link-sgi64:
 	f77 -64 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+sgi64: compile-sgi64 link-sgi64
 
+#
+# PETSc with Metis
+#
+compile-petsc: initialtag
+	@for i in $(GETDP_STUFF_DIR); do (cd $$i && $(MAKE) \
+           "CC=$(CC)" \
+           "FC=$(FC)" \
+           "F77=$(FC)" \
+           "RANLIB=$(RANLIB)" \
+           "C_FLAGS=$(COPTFLAGS)" \
+           "C_PARSER_FLAGS=$(COPTFLAGS)" \
+           "F77_FLAGS=$(FOPTFLAGS)" \
+           "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE) -D_METIS $(METIS_INCLUDE)" \
+        ); done
+link-petsc:
+	$(CLINKER) -o $(GETDP_BIN_DIR)/getdp-petsc-$(PETSC_ARCH)-$(BOPT)\
+                      $(GETDP_PETSC_LIBS) $(METIS_LIB) $(PETSC_SLES_LIB)
+petsc: compile-petsc link-petsc
+
+#
+# PETSc without Metis
+#
+compile-petsc-simple:
+	@for i in $(GETDP_STUFF_DIR); do (cd $$i && $(MAKE) \
+           "CC=$(CC)" \
+           "FC=$(FC)" \
+           "F77=$(FC)" \
+           "RANLIB=$(RANLIB)" \
+           "C_FLAGS=$(COPTFLAGS)" \
+           "F77_FLAGS=$(FOPTFLAGS)" \
+           "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
+        ); done
+link-petsc-simple:
+	$(CLINKER) -o $(GETDP_BIN_DIR)/getdp-petsc-$(PETSC_ARCH)-$(BOPT)\
+                      $(GETDP_PETSC_LIBS) $(PETSC_SLES_LIB)
+petsc-simple: compile-petsc-simple link-petsc-simple
 

@@ -30,8 +30,7 @@ problems.
 %setup -c -q
 
 %build
-make linux
-make distrib
+make distrib-linux
 make doc-pdf
 make doc-info
 rm -rf CVS */CVS */*/CVS
