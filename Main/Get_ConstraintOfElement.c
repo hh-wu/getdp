@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.7 2000-11-13 09:37:08 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.8 2000-11-16 17:27:38 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -253,7 +253,7 @@ void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
       GlobalQuantity_Pr = (struct GlobalQuantity*)
 	List_Pointer(FunctionSpace_P->GlobalQuantity,
 		     Constraint_P->ReferenceIndex) ;
-	
+
       if (GlobalQuantity_Pr == GlobalQuantity_P) {
 	  
 	GroupEntity_Pr = (struct Group*)

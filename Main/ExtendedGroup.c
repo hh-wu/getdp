@@ -1,4 +1,4 @@
-#define RCSID "$Id: ExtendedGroup.c,v 1.4 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: ExtendedGroup.c,v 1.5 2000-11-16 17:27:38 dular Exp $"
 #include <stdlib.h> /* pour int abs(int) */
 #include <stdio.h>
 
@@ -297,13 +297,12 @@ void  Generate_GroupsOfEdges(List_T * InitialList,
   }
 
   *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
-
+  /*
   for (i_Entity = 0 ; i_Entity < List_Nbr(*ExtendedList) ; i_Entity++) {
     List_Read(*ExtendedList, i_Entity, &Num_GroupOfEdges) ;
-
-    /* Msg(INFO, " (%d, %d)", Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2) ; */
+    Msg(INFO, " (%d, %d)", Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2) ;
   }
-
+  */
   GetDP_End ;
 }
 
