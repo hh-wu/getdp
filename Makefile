@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.104 2002-11-20 02:18:37 geuzaine Exp $
+# $Id: Makefile,v 1.105 2002-12-03 02:03:32 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -605,12 +605,12 @@ compile-petsc-scat: initialtag
            "FC=$(FC)" \
            "F77=$(FC)" \
            "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS) -I$(FFTW_DIR)/include -Wall -Wno-uninitialized" \
+           "C_FLAGS=$(COPTFLAGS) -I$(FFTW_PREFIX)/include -Wall -Wno-uninitialized" \
            "F77_FLAGS=$(FOPTFLAGS)" \
            "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
         ); done
 link-petsc-scat:
 	$(CLINKER) -o bin/hf lib/libScattering.a lib/libDofData.a\
                lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)\
-               -L$(FFTW_DIR)/lib -lfftw -lm
+               -L$(FFTW_PREFIX)/lib -lfftw -lm
 petsc-scat: compile-petsc-scat link-petsc-scat

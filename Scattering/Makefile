@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.25 2002-10-03 18:08:39 geuzaine Exp $
+# $Id: Makefile,v 1.26 2002-12-03 02:03:32 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -28,7 +28,7 @@ RANLIB  = ranlib
 LIB     = ../lib/libScattering.a
 INCLUDE = -I. -I../include -I../Main -I../DataStr -I../DofData -I../Function\
           -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit\
-          -I$(FFTW_DIR)/include
+          -I$(FFTW_PREFIX)/include
 
 CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER) $(INCLUDE)
 
@@ -62,11 +62,11 @@ exe:
 
 3d:
 	$(CXX) $(C_FLAGS) $(INCLUDE) -o hf3d \
-           -I$(FASSTER_DIR)/lib \
-           -I$(MATH_TOOLKIT_DIR)/lib \
+           -I$(FASSTER_PREFIX)/lib \
+           -I$(MATHTOOLKIT_PREFIX)/lib \
            Main3D.cpp Utils.cpp \
-           $(FASSTER_DIR)/lib/libfasster.a \
-           $(MATH_TOOLKIT_DIR)/lib/libmathtoolkit.a \
+           $(FASSTER_PREFIX)/lib/libfasster.a \
+           $(MATHTOOLKIT_PREFIX)/lib/libmathtoolkit.a \
            -lgsl -lgslcblas -lm
 
 clean:
