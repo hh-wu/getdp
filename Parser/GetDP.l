@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.25 2004-01-19 16:51:19 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.26 2004-01-19 18:16:44 gyselinc Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -417,10 +417,6 @@ char *strsave(char *string) {
   return ((char *)strcpy((char *)Malloc(strlen(string)+1), string));
 }
 
-void skipline(void){
-   while (input() != '\n') ;
-}
-
 void skip_until(char *skip, char *until){
   int i, nb_skip;
   int l, l_skip, l_until;
@@ -438,6 +434,7 @@ void skip_until(char *skip, char *until){
   while(1){
     while (1){
       chars[0] = input();
+      if(chars[0] == '\n') yylinenum++ ; 
       if(chars[0] == (char)EOF){
         Msg(GERROR, "Unexpected end of file") ;
 	return;
@@ -450,6 +447,7 @@ void skip_until(char *skip, char *until){
 
     for(i=1 ; i<l ; i++){
       chars[i] = input();
+      if(chars[i] == '\n') yylinenum++ ; 
       if(chars[i] == (char)EOF){
 	l = i;
 	break;
@@ -470,6 +468,7 @@ void skip_until(char *skip, char *until){
     else{
       for(i=1;i<l-1;i++){
 	unput(chars[l-i]);
+        if(chars[l-i] == '\n') yylinenum-- ;
       }
     }
 
