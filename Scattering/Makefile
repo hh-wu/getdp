@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.16 2002-05-29 23:33:25 geuzaine Exp $
+# $Id: Makefile,v 1.17 2002-05-30 17:08:23 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -98,7 +98,7 @@ Function.o: Function.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
 Scatterer.o: Scatterer.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h ../DataStr/Tools.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Scatterer.h \
-  Function.h Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h Newton.h
+  Function.h Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h 
 Patch.o: Patch.cpp Context.h Scatterer.h ../DataStr/List.h Function.h \
   Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h Patch.h FFT.h \
   Spline.h Utils.h ../include/GetDP.h ../Main/Message.h \
@@ -116,7 +116,5 @@ FFT.o: FFT.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
 Spline.o: Spline.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h Spline.h Complex.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h
-Newton.o: Newton.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Main/Data_Numeric.h ../Numeric/nrutil.h
 Utils.o: Utils.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h

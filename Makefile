@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.92 2002-05-23 00:50:32 geuzaine Exp $
+# $Id: Makefile,v 1.93 2002-05-30 17:08:23 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -590,7 +590,7 @@ link-p4:
                lib/libNumeric.a lib/libSparskit.a lib/libDataStr.a\
                -lCEPCF90 -lF90 -lsvml
 link-p4-scat:
-	icc -Kc++ -o Scattering/hf lib/libScattering.a lib/libDofData.a\
+	icc -Kc++ -o bin/hf lib/libScattering.a lib/libDofData.a\
                lib/libSparskit.a lib/libNumeric.a lib/libDataStr.a\
                -lCEPCF90 -lF90 -lsvml
 p4: compile-p4 link-p4 link-p4-scat
@@ -610,7 +610,7 @@ compile-scat: initialtag
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
 link-scat:
-	g++ -o Scattering/hf lib/libScattering.a lib/libDofData.a\
+	g++ -o bin/hf lib/libScattering.a lib/libDofData.a\
                lib/libSparskit.a lib/libNumeric.a lib/libDataStr.a -lg2c -lm
 scat: compile-scat link-scat
 
@@ -629,7 +629,7 @@ compile-petsc-scat: initialtag
            "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
         ); done
 link-petsc-scat:
-	$(CLINKER) -o Scattering/hf lib/libScattering.a lib/libDofData.a\
+	$(CLINKER) -o bin/hf lib/libScattering.a lib/libDofData.a\
                lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)\
                -L$(FFTW_DIR)/lib -lfftw -lm\
                      $(HOME)/SOURCES/mathToolkit/lib/_interpolation.so\
@@ -652,7 +652,7 @@ compile-petsc-scat2: initialtag
            "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
         ); done
 link-petsc-scat2:
-	$(CLINKER) -o Scattering/hf lib/libScattering.a lib/libDofData.a\
+	$(CLINKER) -o bin/hf lib/libScattering.a lib/libDofData.a\
                lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)\
                -L$(FFTW_DIR)/lib -lfftw -lm
 petsc-scat2: compile-petsc-scat2 link-petsc-scat2
@@ -672,7 +672,7 @@ compile-petsc-scat-profile: initialtag
            "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
         ); done
 link-petsc-scat-profile:
-	$(CLINKER) -pg -o Scattering/hf lib/libScattering.a lib/libDofData.a\
+	$(CLINKER) -pg -o bin/hf lib/libScattering.a lib/libDofData.a\
                lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)\
                -L$(FFTW_DIR)/lib -lfftw -lm
 petsc-scat-profile: compile-petsc-scat-profile link-petsc-scat-profile
@@ -690,6 +690,6 @@ compile-acm-scat: initialtag
            "SOLVER=-D_ACM" \
         ); done
 link-acm-scat:
-	${CLINKER} -o Scattering/hf2 lib/libScattering.a lib/libDofData.a\
+	${CLINKER} -o bin/hf2 lib/libScattering.a lib/libDofData.a\
                lib/libNumeric.a lib/libDataStr.a lib/libAcmSolver.a
 acm-scat: compile-acm-scat link-acm-scat

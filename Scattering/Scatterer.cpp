@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.15 2002-05-29 23:33:25 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.16 2002-05-30 17:08:23 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -6,7 +6,7 @@
 #include "Function.h"
 #include "nrutil.h"
 
-#define TOL_LOOSE  1.e-6
+#define TOL_LOOSE  1.e-3
 
 int fcmp_CPoint(const void * a, const void * b) {
   double cmp ;
@@ -270,7 +270,7 @@ int Scatterer::mnewt(int ntrial, double x[], int n, double tolx, double tolf){
     errx=0.0;
     for (i=1;i<=n;i++) {
       errx += fabs(p[i]);
-      x[i] += p[i];
+      x[i] += p[i]; // should we relax?
     }
     if (errx <= tolx){
       FREERETURN;
@@ -345,7 +345,7 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
     case ELLIPSE:
     case DROP:
     case KITE:
-      // solve the nonlinear system in the general case
+      // solve the nonlinear system, using the exact jacobian
 
       currentTargetU = theta0;
       theta = 0.;
@@ -370,7 +370,8 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
       break;
       
     default :
-      // solve the nonlinear system in the general case
+      // solve the nonlinear system in the general case, using a
+      // finite difference approximation for the jacobian
 
       Msg(ERROR, "General newton with finite difference jac not done");
       break;
@@ -412,7 +413,7 @@ void Scatterer::shadowingPoints(double t, double shift, double k[3], List_T *pts
 
 void Scatterer::printPoints(double t, List_T *pts){
   static int first=1;
-  static FILE *fp;
+  static FILE *fp, *fp2;
   double coord[3];
   CPoint pt;
   int i;
@@ -421,6 +422,7 @@ void Scatterer::printPoints(double t, List_T *pts){
     first = 0;
     fp = fopen("points.pos", "w");
     fprintf(fp, "View.PointSize = 10;\n");
+    fp2 = fopen("func.dat", "w");
   }
 
   fprintf(fp, "View \"target=%g\" {\n", t);
@@ -431,5 +433,22 @@ void Scatterer::printPoints(double t, List_T *pts){
 	    pt.degree);
   }
   fprintf(fp, "};\n");
+
+  int n = 1;
+  double *xvec = dvector(1,n);
+  double *fvec = dvector(1,n);
+  double **fjac = dmatrix(1,n,1,n);
+  for(i=0; i<100; i++){
+    currentTargetU = t;
+    xvec[1] = TWO_PI*i/100.;
+    if(fabs(xvec[1]-t)>TOL_LOOSE){
+      phase2D(xvec,n,fvec,fjac);
+      fprintf(fp2,"%g %g\n", xvec[1],fvec[1]);
+    }
+  }
+  fprintf(fp2,"\n\n");
+  free_dvector(xvec,1,n);
+  free_dvector(fvec,1,n);
+  free_dmatrix(fjac,1,n,1,n);
 
 }

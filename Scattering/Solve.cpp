@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.25 2002-05-29 23:33:25 geuzaine Exp $
+// $Id: Solve.cpp,v 1.26 2002-05-30 17:08:23 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -289,7 +289,9 @@ void Ctx::postProcess(){
   int nbx = (int)((xmax-xmin)/TWO_PI*10*k);
   int nby = (int)((ymax-ymin)/TWO_PI*10*k);
 
-  sprintf(fn, "hf_k%g.pos", k);
+  if(nbx<100) nbx = nby = 100;
+
+  sprintf(fn, "hf.pos");
   if(!(fp = fopen(fn, "w")))
     Msg(ERROR, "Could not open pos file");
 
