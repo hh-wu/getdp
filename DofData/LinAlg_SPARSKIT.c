@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.18 2002-03-01 19:41:13 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.19 2002-03-04 17:11:39 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -144,13 +144,18 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
   GetDP_Begin("LinAlg_CreateMatrix");
 
   init_matrix(n, &M->M, &Solver->Params) ;
-  if(Part){
-    Part[0] = 0;
-    Part[1] = n;
-  }
 
   GetDP_End ;
 }
+void LinAlg_CreateMatrixShell(gMatrix *A, gSolver *Solver, int n, int m, void *ctx, 
+			      void (*myMult)(gMatrix *A, gVector *x, gVector *y)){
+  GetDP_Begin("LinAlg_CreateMatrixShell");
+
+  Msg(ERROR, "Matrix-free operations not implemented with Sparskit");
+
+  GetDP_End;
+}
+
 
 /* Destroy */
 
@@ -357,11 +362,29 @@ void LinAlg_GetVectorSize(gVector *V, int *i){
 
   GetDP_End ;
 }
+void LinAlg_GetLocalVectorRange(gVector *V, int *low, int *high){
+
+  GetDP_Begin("LinAlg_GetLocalVectorRange");
+
+  *low = 0 ;
+  *high = V->N ;
+
+  GetDP_End ;
+}
 void LinAlg_GetMatrixSize(gMatrix *M, int *i, int *j){
 
   GetDP_Begin("LinAlg_GetMatrixSize");
 
   *i = *j = M->M.N ;
+
+  GetDP_End ;
+}
+void LinAlg_GetLocalMatrixRange(gMatrix *M, int *low, int *high){
+
+  GetDP_Begin("LinAlg_GetLocalVectorRange");
+
+  *low = 0 ;
+  *high = M->M.N ;
 
   GetDP_End ;
 }
@@ -437,6 +460,22 @@ void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j,
   Msg(ERROR, "'LinAlg_GetScalarInMatrix' not yet implemented");  
 
   GetDP_End ;
+}
+void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1){
+
+  GetDP_Begin("LinAlg_GetColumnInMatrix");
+
+  get_column_in_matrix(&M->M, col, V1->V);
+
+  GetDP_End ;
+}
+void LinAlg_GetMatrixContext(gMatrix *A, void **ctx){
+
+  GetDP_Begin("LinAlg_GetMatrixContext");
+
+  Msg(ERROR, "Matrix-free operations not implemented with Sparskit");
+
+  GetDP_End;
 }
 
 /* Set */
@@ -782,18 +821,5 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
 
   GetDP_End ;
 }
-
-
-/* Get */
-
-void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1){
-
-  GetDP_Begin("LinAlg_GetColumnInMatrix");
-
-  get_column_in_matrix(&M->M, col, V1->V);
-
-  GetDP_End ;
-}
-
 
 #endif

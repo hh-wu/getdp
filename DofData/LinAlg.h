@@ -1,4 +1,4 @@
-/* $Id: LinAlg.h,v 1.5 2002-02-27 16:37:28 geuzaine Exp $ */
+/* $Id: LinAlg.h,v 1.6 2002-03-04 17:11:39 geuzaine Exp $ */
 #ifndef _LINALG_H_
 #define _LINALG_H_
 
@@ -74,7 +74,9 @@ void LinAlg_SequentialEnd(void);
 void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName);
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *Part);
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
-		   int NbrPart, int *Part, int *Nnz);
+			 int NbrPart, int *Part, int *Nnz);
+void LinAlg_CreateMatrixShell(gMatrix *A, gSolver *Solver, int n, int m, void *myCtx, 
+			      void (*myMult)(gMatrix *A, gVector *x, gVector *y));
 
 /* Destroy */
 
@@ -121,7 +123,9 @@ void LinAlg_WriteMatrix(FILE *file, gMatrix *M);
 /* Get */
 
 void LinAlg_GetVectorSize(gVector *V, int *i);
+void LinAlg_GetLocalVectorRange(gVector *V, int *low, int *high);
 void LinAlg_GetMatrixSize(gMatrix *M, int *i, int *j);
+void LinAlg_GetLocalMatrixRange(gMatrix *M, int *low, int *high);
 void LinAlg_GetDoubleInScalar(double *d, gScalar *S);
 void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S);
 void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i);
@@ -131,6 +135,8 @@ void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j)
 void LinAlg_GetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j);
 void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j);
 void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j, int k, int l);
+void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1);
+void LinAlg_GetMatrixContext(gMatrix *A, void **myCtx);
 
 /* Set */
 
@@ -189,7 +195,6 @@ void LinAlg_AssembleVector(gVector *V);
 /* Solve */
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X);
-
 
 #endif
 
