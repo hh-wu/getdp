@@ -1,6 +1,6 @@
-#define RCSID "$Id: F_ExtMath.c,v 1.8 2003-03-22 03:30:10 geuzaine Exp $"
+#define RCSID "$Id: F_ExtMath.c,v 1.9 2004-01-19 16:51:14 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #include "GetDP.h"
@@ -370,19 +370,64 @@ void  F_Sin_wt_p (F_ARG) {
 
 
 void  F_Complex_MH (F_ARG) {
-  int NbrFreq, NbrComp, i ;
+  int NbrFreq, NbrComp, i, j, k, l ;
   struct Value R;
+  double * Val_Pulsation ;
 
   GetDP_Begin("F_Complex_MH");
 
-  if (Current.NbrHar != 1)      /* parameters are not used */
-    F_Complex (Fct,A,V) ;
-  else {
-    NbrFreq = Fct->NbrParameters ;
-    NbrComp = Fct->NbrArguments ;
-    R.Type = A->Type ;
-    Cal_ZeroValue(&R);
-    for (i=0 ; i<MIN(NbrFreq,NbrComp/2) ; i++) {
+  NbrFreq = Fct->NbrParameters ;
+  NbrComp = Fct->NbrArguments ;
+  if (NbrComp != 2*NbrFreq) 
+    Msg(ERROR, "Number of components does not equal twice the number of frequencies in Complex_MH") ;
+
+  R.Type = A->Type ;
+  Cal_ZeroValue(&R);
+
+  if (Current.NbrHar != 1) {
+    Val_Pulsation = Current.DofData->Val_Pulsation ;   
+    for (i=0 ; i<NbrFreq ; i++) {
+      for (j = 0 ; j < Current.NbrHar/2 ; j++)      
+	if (fabs (Val_Pulsation[j]-TWO_PI*Fct->Para[i]) <= 1e-10 * Val_Pulsation[j]) {
+	  for (k=2*j,l=2*i ; k<2*j+2 ; k++,l++) {
+	    switch(A->Type){  
+	    case SCALAR :	 
+	      R.Val[MAX_DIM*k  ] += (A+l)->Val[0] ; 
+	      break;
+	    case VECTOR :
+	    case TENSOR_DIAG :
+	      R.Val[MAX_DIM*k  ] += (A+l)->Val[0] ; 
+	      R.Val[MAX_DIM*k+1] += (A+l)->Val[1] ;
+	      R.Val[MAX_DIM*k+2] += (A+l)->Val[2] ;
+	      break;
+	    case TENSOR_SYM :
+	      R.Val[MAX_DIM*k  ] += (A+l)->Val[0] ; 
+	      R.Val[MAX_DIM*k+1] += (A+l)->Val[1] ;
+	      R.Val[MAX_DIM*k+2] += (A+l)->Val[2] ;
+	      R.Val[MAX_DIM*k+3] += (A+l)->Val[3] ; 
+	      R.Val[MAX_DIM*k+4] += (A+l)->Val[4] ;
+	      R.Val[MAX_DIM*k+5] += (A+l)->Val[5] ;
+	      break;
+	    case TENSOR :
+	      R.Val[MAX_DIM*k  ] += (A+l)->Val[0] ; 
+	      R.Val[MAX_DIM*k+1] += (A+l)->Val[1] ;
+	      R.Val[MAX_DIM*k+2] += (A+l)->Val[2] ;
+	      R.Val[MAX_DIM*k+3] += (A+l)->Val[3] ; 
+	      R.Val[MAX_DIM*k+4] += (A+l)->Val[4] ;
+	      R.Val[MAX_DIM*k+5] += (A+l)->Val[5] ;
+	      R.Val[MAX_DIM*k+6] += (A+l)->Val[6] ;
+	      R.Val[MAX_DIM*k+7] += (A+l)->Val[7] ;
+	      R.Val[MAX_DIM*k+8] += (A+l)->Val[8] ;
+	      break;
+	    default :
+	      Msg(ERROR, "Unknown type of arguments in function 'Complex_MH'");
+	      break;
+	    }
+	  }
+	}
+    }
+  } else { /* time domain */
+    for (i=0 ; i<NbrFreq ; i++) {
       Cal_AddMultValue (&R, A+2*i,    cos(TWO_PI*Fct->Para[i]*Current.Time), &R) ;
       Cal_AddMultValue (&R, A+2*i+1, -sin(TWO_PI*Fct->Para[i]*Current.Time), &R) ;
     }

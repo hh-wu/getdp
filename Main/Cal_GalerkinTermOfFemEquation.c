@@ -1,6 +1,6 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.21 2003-11-20 09:29:36 dular Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.22 2004-01-19 16:51:16 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Johan Gyselinck
@@ -51,8 +51,7 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
 					struct QuantityStorage  * QuantityStorageNoDof,
 					struct Dof              * DofForNoDof_P) {
   struct FemLocalTermActive  * FI ;
-
-  extern double ** MH_Moving_Matrix ;
+  extern int MH_Moving_Matrix_simple, MH_Moving_Matrix_probe, MH_Moving_Matrix_separate; 
 
   GetDP_Begin("Cal_InitGalerkinTermOfFemEquation");
 
@@ -238,14 +237,30 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
   }
 
 
-  if (MH_Moving_Matrix) {
+  if (MH_Moving_Matrix_simple) {
     /* Msg (INFO, "AssembleTerm_MH_Moving") ; */
-    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving ; 
+    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_simple ; 
+  }
+  if (MH_Moving_Matrix_probe) {
+    /* Msg (INFO, "AssembleTerm_MH_Moving") ; */
+    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_probe ; 
+  }
+  if (MH_Moving_Matrix_separate) {
+    /* Msg (INFO, "AssembleTerm_MH_Moving") ; */
+    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_separate ; 
   }
 
 
   /*  initialisation of MHJacNL-term (nonlinear multi-harmonics) if necessary */
   Cal_InitGalerkinTermOfFemEquation_MHJacNL(EquationTerm_P);
+
+
+  /* Full_Matrix */
+
+  if (EquationTerm_P->Case.LocalTerm.Full_Matrix) {
+    FI->Full_Matrix = 1;
+    FI->FirstElements = List_Create(20, 10, sizeof(struct FirstElement)) ;    
+  }
 
   GetDP_End ;
 }
@@ -414,7 +429,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       }
       else { 
 	break ;	  
-      }/* if Get_NextElementSource (Neighbour) */
+      } /* if NextElement */
     } /* if INTEGRALQUANTITY */
       
    
@@ -588,7 +603,6 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       
     }
 
-    
     /* Complete elementary matrix if symmetrical */
     /* ----------------------------------------- */
     

@@ -1,6 +1,6 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.29 2003-03-22 03:30:12 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.30 2004-01-19 16:51:16 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Johan Gyselinck
@@ -156,16 +156,18 @@ void Cal_WholeQuantity(struct Element * Element,
 		       int DofIndexInWholeQuantity, 
 		       int Nbr_Dof, struct Value DofValue[]) {
 
-  static int          Flag_WarningMissSolForDt = 0 ;
+  static int Flag_WarningMissSolForDt = 0 ;
+  static int Flag_WarningMissSolForTime_ntime = 0 ;
   static struct Value ValueSaved[MAX_REGISTER_SIZE] ;  
 
   int     i_WQ, j, k, Flag_True, Index, DofIndex, Multi[MAX_STACK_SIZE] ;
-  int     Save_NbrHar, Save_Region, Type_Dimension ;
+  int     Save_NbrHar, Save_Region, Type_Dimension, ntime ;
   double  Save_Time, X, Y, Z, Order ;
 
   struct WholeQuantity   *WholeQuantity_P0, *WholeQuantity_P ;
   struct DofData         *Save_DofData ;
   struct Solution        *Solution_P0 ;
+
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
 
 #define USE_STATIC_STACK
@@ -269,21 +271,71 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_OPERATORANDQUANTITYEVAL : /* {op qty}[x,y,z] {op qty}[x,y,z,t]*/
       if (i_WQ != DofIndexInWholeQuantity || TreatmentStatus == _POS){
+	/*
 	if ((k = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments) != 3) 
 	  Msg(ERROR, "Explicit time evaluation not done (yet)");
-	Index -= k ;
-	X = Stack[0][Index  ].Val[0] ;
-	Y = Stack[0][Index+1].Val[0] ;
-	Z = Stack[0][Index+2].Val[0] ;
-	Pos_FemInterpolation
-	  (Element,
-	   QuantityStorage_P0,
-	   QuantityStorage_P0 + WholeQuantity_P->Case.OperatorAndQuantity.Index,
-	   WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity,
-	   WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, 1,
-	   u, v, w, X, Y, Z, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
-	Multi[Index] = 0 ;
-	Index++ ;
+	*/
+
+	if ((k = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments) == 3) { 
+	  Index -= k ;
+	  X = Stack[0][Index  ].Val[0] ;
+	  Y = Stack[0][Index+1].Val[0] ;
+	  Z = Stack[0][Index+2].Val[0] ;
+	  Pos_FemInterpolation
+	    (Element,
+	     QuantityStorage_P0,
+	     QuantityStorage_P0 + WholeQuantity_P->Case.OperatorAndQuantity.Index,
+	     WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity,
+	     WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, 1,
+	     u, v, w, X, Y, Z, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
+	  Multi[Index] = 0 ;
+	  Index++ ;
+	} 
+	else if ((k = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments) == 1) { 
+	  Index -= k ;
+	  ntime = (int)Stack[0][Index].Val[0] ;
+	  
+	  for (k = 0 ; k < Current.NbrSystem ; k++){
+	    if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){
+	      ((Current.DofData_P0+k)->CurrentSolution) -= ntime ;
+	    }
+	    else {
+	      if (!Flag_WarningMissSolForTime_ntime) {
+		Msg(WARNING,
+		    "Missing solution for time -%d  computation (Sys#%d/%d)",
+		    ntime, k, Current.NbrSystem);
+		Flag_WarningMissSolForTime_ntime = 1 ;
+	      }
+	    }
+	  }
+
+	  Pos_FemInterpolation
+	    (Element,
+	     QuantityStorage_P0,
+	     QuantityStorage_P0 + WholeQuantity_P->Case.OperatorAndQuantity.Index,
+	     WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity,
+	     WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, 0,
+	     u, v, w, 0, 0, 0, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
+	  
+	  Multi[Index] = 0 ;
+	  Index++ ;
+
+	  for (k = 0 ; k < Current.NbrSystem ; k++){
+	    if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){
+	      ((Current.DofData_P0+k)->CurrentSolution) += ntime ;
+	    }
+	    else {
+	      if (!Flag_WarningMissSolForTime_ntime) {
+		Msg(WARNING,
+		    "Missing solution for time -%d  computation (Sys#%d/%d)",
+		    ntime, k, Current.NbrSystem);
+		Flag_WarningMissSolForTime_ntime = 1 ;
+	      }
+	    }
+	  }
+
+	} else
+	  Msg(ERROR, "Explicit time evaluation not done (yet)");
       }
       else{
 	Msg(ERROR, "Explicit Dof{} evaluation out of context");
@@ -597,6 +649,12 @@ void Cal_WholeQuantity(struct Element * Element,
 	Msg(ERROR, "Register size exceeded (%d)", MAX_REGISTER_SIZE);
       Cal_CopyValue(ValueSaved + WholeQuantity_P->Case.ValueSaved.Index, 
 		    &Stack[0][Index]) ;
+      Multi[Index] = 0 ;
+      Index++ ;  
+      break ;
+
+    case WQ_POSTSAVE :
+      Cal_CopyValue(WholeQuantity_P->Case.PostSave.Value, &Stack[0][Index]) ;
       Multi[Index] = 0 ;
       Index++ ;  
       break ;

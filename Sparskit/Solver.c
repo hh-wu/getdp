@@ -1,6 +1,6 @@
-#define RCSID "$Id: Solver.c,v 1.23 2003-03-22 03:30:19 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.24 2004-01-19 16:51:28 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Jean-Francois Remacle
@@ -56,7 +56,8 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   int      zero=0, un=1, deux=2, six=6, douze=12, trente=30, trente_et_un=31;
   int      ROW=0, COLUMN=1;
   double   res1=1.;
- 
+  int      TrueNnz=0;
+
   if (!M->N) {
     Msg(WARNING, "No equations in linear system");
     return;
@@ -124,6 +125,9 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       do_permute = 1 ;
       M->changed = 0 ;
     }
+
+    for (i=0 ; i<nnz ; i++) if (M->F.a[i]) TrueNnz++ ;
+    Msg (INFO, "Number of nonzeros %d/%d (%.4f)",TrueNnz, nnz, (double)TrueNnz/(double)nnz);
 
     Msg(RESOURCES, "");
 

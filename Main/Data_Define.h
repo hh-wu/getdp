@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   David Colignon
@@ -229,6 +229,7 @@ struct StringXDefine  Operation_Type[] = {
   {"TransferInitSolution"   , OPERATION_TRANSFERINITSOLUTION},
   {"SolveJac_AdaptRelax"    , OPERATION_SOLVEJACADAPTRELAX}, 
   {"SaveSolutionExtendedMH" , OPERATION_SAVESOLUTIONEXTENDEDMH},
+  {"DummyDofs"              , OPERATION_DUMMYDOFS},
   {NULL                     , OPERATION_NONE}
 } ;
 

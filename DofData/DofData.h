@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #ifndef _DOFDATA_H_
@@ -54,6 +54,8 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 		      int Read_DofData, double *Time, double *TimeStep) ;
 void  Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P, int Format,
 				int NbrH);
+void  Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P, 
+				int Format, List_T * Time_L);
 
 void  Dof_TransferDofTreeToList(struct DofData * DofData_P) ;
 void  Dof_InitDofType(struct DofData * DofData_P) ;
@@ -89,9 +91,11 @@ struct  Dof * Dof_GetDofStruct(struct DofData * DofData_P, int D1, int D2, int D
 gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P) ;
 gScalar Dof_GetDofValueDt(struct DofData * DofData_P, struct Dof * Dof_P) ;
 void    Dof_GetRealDofValue(struct DofData * DofData_P, struct Dof * Dof_P, double *d) ;
-void    Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P, double *d1, double *d2) ;
+void    Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P, 
+			       double *d1, double *d2) ;
 
 void Dof_InitDofForNoDof(struct Dof * DofForNoDof, int NbrHar) ;
 
 void Print_DofNumber(struct Dof *Dof_P) ;
+
 #endif

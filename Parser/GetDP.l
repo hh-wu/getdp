@@ -1,7 +1,7 @@
 %{
-/* $Id: GetDP.l,v 1.24 2003-11-20 09:29:36 dular Exp $ */
+/* $Id: GetDP.l,v 1.25 2004-01-19 16:51:19 geuzaine Exp $ */
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Ruth Sabariego
@@ -98,11 +98,10 @@ string     {alpha}({alpha}|{digit})*
 ":"                          return tDOTS ;
 "##"                         return tSHOW ;
 
-StrCat                       return tStrCat ; 
+StrCat                       return tStrCat ;
+Sprintf                      return tSprintf ;
 Printf                       return tPrintf ;
-
-For                          return tFor ;
-EndFor                       return tEndFor ;
+Read                         return tRead ;
 
 Pi                           return tPi ;
 0D                           return t0D ;
@@ -156,6 +155,7 @@ CrossProduct                 return tCrossProduct ;
 SolidAngle                   return tSolidAngle ;
 Order                        return tOrder ;
 Trace                        return tTrace ;
+DofValue                     return tDofValue ;
 LinSpace                     return tLinSpace ;
 LogSpace                     return tLogSpace ;
 
@@ -227,6 +227,7 @@ NeverDt                      return tNeverDt ;
 DtNL                         return tDtNL ;
 
 In                           return tIn ;
+Full_Matrix                  return tFull_Matrix ;
 GlobalTerm                   return tGlobalTerm ;
 GlobalEquation               return tGlobalEquation ;
 
@@ -235,6 +236,7 @@ System                       return tDefineSystem ;
 NameOfFormulation            return tNameOfFormulation ;
 NameOfMesh                   return tNameOfMesh ;
 Frequency                    return tFrequency ;
+DummyFrequency               return tDummyFrequency ;
 Solver                       return tSolver ;
 OriginSystem                 return tOriginSystem ;
 DestinationSystem            return tDestinationSystem ;
@@ -251,8 +253,6 @@ GenerateOnlyJac              return tGenerateOnlyJac ;
 FourierTransform             return tFourierTransform ;
 FourierTransformJ            return tFourierTransformJ ;
 Lanczos                      return tLanczos ;
-If                           return tIf ;
-Else                         return tElse ;
 Test                         return tIf ;
 TimeLoopTheta                return tTimeLoopTheta ;
 TimeLoopNewmark              return tTimeLoopNewmark ;
@@ -269,14 +269,18 @@ IterativeTimeReduction       return tIterativeTimeReduction ;
 DivisionCoefficient          return tDivisionCoefficient ;
 ChangeOfState                return tChangeOfState ;
 ChangeOfCoordinates          return tChangeOfCoordinates ;
+ChangeOfCoordinates2         return tChangeOfCoordinates2 ;
 ChangeOfValues               return tChangeOfValues ;
 SystemCommand                return tSystemCommand ;
 Break                        return tBreak ;
 SolveJac_AdaptRelax          return tSolveJac_AdaptRelax ;
 SaveSolutionExtendedMH       return tSaveSolutionExtendedMH ;
+SaveSolutionMHtoTime         return tSaveSolutionMHtoTime ;
 Init_MovingBand2D            return tInit_MovingBand2D ;
 Mesh_MovingBand2D            return tMesh_MovingBand2D ;
 Generate_MH_Moving           return tGenerate_MH_Moving ;
+Generate_MH_Moving_Separate  return tGenerate_MH_Moving_Separate ;
+Add_MH_Moving                return tAdd_MH_Moving ;
 GenerateGroup                return tGenerateGroup ;
 GenerateJacGroup             return tGenerateJacGroup ;
 
@@ -318,8 +322,15 @@ File                         return tFile ;
 Sort                         return tSort ;
 Iso                          return tIso ;
 NoNewLine                    return tNoNewLine ;
-DecomposeInSimplex           return tDecomposeInSimplex ;
+FrequencyLegend              return tFrequencyLegend ;
 
+If                           return tIf ;
+Else                         return tElse ;
+EndIf                        return tEndIf ;
+For                          return tFor ;
+EndFor                       return tEndFor ;
+
+DecomposeInSimplex           return tDecomposeInSimplex ;
 Str                          return tStr ;
 Date                         return tDate ;
 
@@ -402,10 +413,67 @@ void  parsestring(char endchar) {
   yylval.c = strsave(tmpstring);
 }
 
-#ifdef __cplusplus
-#undef input 
-#endif
-
 char *strsave(char *string) {
   return ((char *)strcpy((char *)Malloc(strlen(string)+1), string));
 }
+
+void skipline(void){
+   while (input() != '\n') ;
+}
+
+void skip_until(char *skip, char *until){
+  int i, nb_skip;
+  int l, l_skip, l_until;
+  char chars[256];
+
+  nb_skip = 0 ;
+
+  if(skip)
+    l_skip = strlen(skip);
+  else
+    l_skip = 0 ;
+
+  l_until = strlen(until);
+
+  while(1){
+    while (1){
+      chars[0] = input();
+      if(chars[0] == (char)EOF){
+        Msg(GERROR, "Unexpected end of file") ;
+	return;
+      }
+      if(chars[0] == until[0]) break;
+      if(skip && chars[0] == skip[0]) break;
+    }
+
+    l = (l_skip > l_until) ? l_skip : l_until ;
+
+    for(i=1 ; i<l ; i++){
+      chars[i] = input();
+      if(chars[i] == (char)EOF){
+	l = i;
+	break;
+      }
+    }
+
+    if(!strncmp(chars,until,l_until)){
+      if(!nb_skip){
+	return;
+      }
+      else{
+	nb_skip--;
+      }
+    }
+    else if(skip && !strncmp(chars,skip,l_skip)){
+      nb_skip++;
+    }
+    else{
+      for(i=1;i<l-1;i++){
+	unput(chars[l-i]);
+      }
+    }
+
+  }
+}
+
+

@@ -1,6 +1,9 @@
-$Date: 2003-09-01 09:36:56 $
+$Date: 2004-01-19 16:51:28 $
 
-0.90: Use GNU readline if available; 
+0.91: Merged Johan's branch;
+
+0.90: Use GNU readline if available; upgraded to latest Gmsh
+post-processing format;
 
 0.89: Code cleanup;
 

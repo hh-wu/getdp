@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.30 2003-04-28 17:44:56 geuzaine Exp $
+# $Id: Makefile,v 1.31 2004-01-19 16:51:17 geuzaine Exp $
 #
-# Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+# Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 # 
-# Please report all bugs and problems to "getdp@geuz.org".
+# Please report all bugs and problems to <getdp@geuz.org>.
 
 include ../variables
 
@@ -109,8 +109,9 @@ SolvingOperations.o: SolvingOperations.c ../include/GetDP.h Message.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
   ../DofData/Data_DofData.h Init_Problem.h Cal_Quantity.h Cal_Value.h \
   ../DataStr/Tools.h Data_DefineE.h ../Numeric/Numeric.h \
-  Get_DofOfElement.h CurrentData.h ../include/Magic.h ../FMM/F_FMM.h \
-  ../FMM/Data_FMM.h ../FMM/F_FMMOperations.h ../FMM/F_FMM_DTA.h
+  Get_DofOfElement.h CurrentData.h ../include/Magic.h ExtendedGroup.h \
+  MovingBand2D.h ../FMM/F_FMM.h ../FMM/Data_FMM.h \
+  ../FMM/F_FMMOperations.h ../FMM/F_FMM_DTA.h ../Function/BF_Function.h
 Treatment_Formulation.o: Treatment_Formulation.c ../include/GetDP.h \
   Message.h ../DataStr/Malloc.h Treatment_Formulation.h Data_Active.h \
   Data_Passive.h ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \

@@ -1,6 +1,6 @@
-#define RCSID "$Id: Matrix.c,v 1.19 2003-03-22 03:30:19 geuzaine Exp $"
+#define RCSID "$Id: Matrix.c,v 1.20 2004-01-19 16:51:28 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Jean-Francois Remacle
@@ -959,3 +959,51 @@ void get_column_in_matrix (Matrix *M, int col, double *V){
   }
 }
 
+
+
+void get_element_in_matrix (Matrix *M, int row, int col, double *V){
+
+  int     k, i, *ai, *jptr ;
+  double  *a;
+  int found;
+
+  switch (M->T) {
+  case SPARSE :
+    /* csr_format transpose! 
+       donc la matrice arrivant dans cette routine doit
+       bel et bien etre la transposee !!! */
+    if(M->changed){
+      csr_format (&M->S, M->N);
+      restore_format (&M->S);
+      M->changed = 0 ;
+    }
+    jptr = (int*) M->S.jptr->array;
+    a    = (double*) M->S.a->array;
+    ai   = (int*) M->S.ai->array;
+
+    for(i=0; i<M->N; i++){  /* lignes */
+      found=0;
+      for(k=jptr[i]-1;k<jptr[i+1]-1;k++){ /*colonne */
+         if(ai[k]-1==col) { 
+	   V[i]=a[k]; found=1; break; 
+	 }
+	 else if (ai[k]-1 > col) { 
+	   break; 
+	 }
+       }
+      if (!found) V[i]=0; 
+    printf(" V[%d] = %g \n",i, V[i]); 
+    } 
+    break;
+  case DENSE :
+    if(M->notranspose){
+	*V = M->F.a[(M->N)*col+row];
+    }
+    else{
+      for(i=0; i<M->N; i++){
+	*V = M->F.a[(M->N)*row+col];
+      }
+    }
+    break;
+  }
+}

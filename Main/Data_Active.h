@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #ifndef _DATA_ACTIVE_H_
@@ -58,6 +58,12 @@ struct IntegralQuantityActive {
 } ;
 
 
+struct FirstElement { 
+  struct Dof * Equ ;
+  struct Dof * Dof ;
+  double Value ;
+} ;
+
 
 /* ------------------------------------------------------------------------ */
 /* F e m L o c a l T e r m A c t i v e                                      */
@@ -89,6 +95,11 @@ struct FemLocalTermActive {
   double MHJacNL_Factor;
   double **MHJacNL_H, ***MHJacNL_HH, *MHJacNL_t, *MHJacNL_w;
 
+  int Full_Matrix;
+  int NbrEqu, NbrHar, *NumEqu, *NumDof;
+  struct Dof *Equ, *Dof; 
+  List_T *FirstElements;
+  double **Matrix;
 } ;
 
 

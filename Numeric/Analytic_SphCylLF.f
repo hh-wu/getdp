@@ -1,6 +1,6 @@
-c $Id: Analytic_SphCylLF.f,v 1.2 2003-03-22 03:30:15 geuzaine Exp $
+c $Id: Analytic_SphCylLF.f,v 1.3 2004-01-19 16:51:19 geuzaine Exp $
 c
-c Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 c
 c This program is free software; you can redistribute it and/or modify
 c it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ c along with this program; if not, write to the Free Software
 c Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 c USA.
 c
-c Please report all bugs and problems to "getdp@geuz.org".
+c Please report all bugs and problems to <getdp@geuz.org>.
 c
 c -- cbessjo (bessel spherique d'ordre 0)
 

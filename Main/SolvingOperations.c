@@ -1,6 +1,6 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.57 2004-01-13 15:04:39 sabarieg Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.58 2004-01-19 16:51:18 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   David Colignon
@@ -36,46 +36,46 @@
 #include "Numeric.h"
 #include "Get_DofOfElement.h"
 #include "CurrentData.h"
+#include "ExtendedGroup.h"
+#include "MovingBand2D.h"
 #include "Magic.h"
 #include "F_FMM.h"
 #include "F_FMMOperations.h"
 #include "F_FMM_DTA.h"
 #include "BF_Function.h"
 
-/*
-  All this stuff should really go into appropriate header files...
-*/
-
 int  fcmp_DefineSystem_Name(const void * a, const void * b) ;
 int  fcmp_PostOperation_Name(const void * a, const void * b) ;
 int  fcmp_DefineQuantity_Name(const void * a, const void * b) ;
 int  fcmp_GeoData_Name(const void * a, const void * b) ;
+void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofData_P) ;
 
 void  Cal_SolutionError(gVector * dx, gVector * x, int diff, double * MeanError) ;
 void  Cal_SolutionErrorX(int Nbr, double * dx, double * x, double * MeanError) ;
-
-static int  Flag_IterativeLoop = 0 ;  /* Attention: phase de test */
-static int  Flag_NextThetaFixed = 0 ;  /* Attention: phase de test */
-
-static int  Init_Update = 0 ; /* provisoire */
-
-
-void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double shift) ;
-
-int Flag_RHS = 0;
-
-struct Group * Generate_Group = NULL;
-
-int Flag_Pos_TimeLoop = 0;
-
-double **MH_Moving_Matrix = NULL ; 
-
-void  Init_MovingBand2D (struct Group * Group_P);
-void  Mesh_MovingBand2D (struct Group * Group_P);
 void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
 			struct DofData * DofData_P, 
 			struct DofData * DofData_P0, 
 			int Flag_Jac, int Flag_Separate);
+
+void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double shift) ;
+
+static int  Flag_IterativeLoop = 0 ;  /* Attention: phase de test */
+static int  Flag_NextThetaFixed = 0 ;  /* Attention: phase de test */
+static int  Init_Update = 0 ; /* provisoire */
+
+/* Johan: it would be nice to get rid of these globals... */
+struct Group * Generate_Group = NULL;
+int Flag_RHS = 0;
+int Flag_Pos_TimeLoop = 0;
+double **MH_Moving_Matrix = NULL ; 
+int MH_Moving_Matrix_simple=0, MH_Moving_Matrix_probe=0, MH_Moving_Matrix_separate=0  ; 
+int NbrAnyDof_MH_moving, NbrDof_MH_moving ;
+Tree_T  * DofTree_MH_moving ;
+List_T  * DofList_MH_moving ;
+gSolver Solver_MH_moving;
+struct Dof ** Dof_MH_moving ; 
+int * NumDof_MH_moving ; 
+int * DummyDof;
 
 /*
 static FILE * FilePWM ;
@@ -228,13 +228,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   char    ResName[MAX_FILE_NAME_LENGTH], ResNum[MAX_STRING_LENGTH] ;
   char    FileName[MAX_FILE_NAME_LENGTH];
   char    FileFMM[MAX_FILE_NAME_LENGTH];
-  char    NameApp[MAX_FILE_NAME_LENGTH];
-
+  char    FileName_exMH[MAX_FILE_NAME_LENGTH];
   gScalar tmp ;
   double * Scales, d1 ;
   int NbrSol ;
   double SaveTime;
-
 
   struct Operation     * Operation_P ;
   struct DefineSystem  * DefineSystem_P ;
@@ -264,14 +262,19 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
   int iTime ;
   double *Val_Pulsation ; 
-  double hop[20][20] ;
+  double hop[NBR_MAX_HARMONIC][NBR_MAX_HARMONIC] ;
   double DCfactor ;
 
   int NbrHar1, NbrHar2, NbrDof1, NbrDof2 ;
   double dd ;
-  int NumDof,iMat ;
+  int NumDof, iMat ;
   int NbrFMMEqu;
   struct FMMmat *FMMmat_P0 ;
+
+  int row_old, row_new, col_old, col_new;
+
+  double aii, ajj;
+  int nnz__;
 
   GetDP_Begin("Treatment_Operation");
 
@@ -281,8 +284,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     Operation_P = (struct Operation*)List_Pointer(Operation_L, i_Operation) ;
 
     Flag_CPU = 0 ;  
-
- 
     Flag_Jac = 0 ;
 
     switch (Operation_P->Type) {
@@ -296,9 +297,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       /*  -->  G e n e r a t e                        */
       /*  ------------------------------------------  */
-   
+
     case OPERATION_GENERATEFMMGROUPS : Flag_FMM  = 1 ;       
-      
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
@@ -337,9 +337,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       strcpy(FileFMM, Name_Generic);strcat(FileFMM, "Gr.pos") ;
       Geo_WriteFileFMMGroups( GeoData_P0+DofData_P->GeoDataIndex , FileFMM ) ;
-
-      //strcpy(FileFMM, Name_Generic) ; strcat(FileFMM, "FMMGr.msh") ;
-      //Geo_WriteFileMshFMMGroups( GeoData_P0+DofData_P->GeoDataIndex, FileFMM ) ;     
       break;
 
     case OPERATION_GENERATEONLYJAC :  Flag_Jac  = 1 ;
@@ -447,7 +444,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
 
       ReSet_FMMGroupCenters();      
-      ReGenerate_FMMGroupNeighbours(Flag_FMMDA);
+      /* Ruth: prototype mismatch...
+	 ReGenerate_FMMGroupNeighbours(Flag_FMMDA); */
+      ReGenerate_FMMGroupNeighbours();
 
       NbrFMMEqu = List_Nbr(Current.DofData->FMM_Matrix) ;
       FMMmat_P0 = (struct FMMmat*)List_Pointer(Current.DofData->FMM_Matrix, 0 ) ;
@@ -462,10 +461,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       GF_FMMTranslationValueAdaptive();
       /* GF_FMMTranslationValue(); */
-
       break;
-
-
 
       /*  -->  U p d a t e C o n s t r a i n t        */
       /*  ------------------------------------------  */
@@ -504,7 +500,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	for(iDof = 0 ; iDof < N ; iDof+=Current.NbrHar)
 	  for(iEqu = 0; iEqu < N ; iEqu+=Current.NbrHar)
 	    if (Current.NbrHar == 2)
-	      LinAlg_AddComplexInMatrix(DTA[iDof][iEqu],DTA[iDof+1][iEqu+1],&DofData_P->A, iDof, iEqu, iDof+1, iEqu+1);
+	      LinAlg_AddComplexInMatrix(DTA[iDof][iEqu],DTA[iDof+1][iEqu+1],
+					&DofData_P->A, iDof, iEqu, iDof+1, iEqu+1);
 	    else   
 	      LinAlg_AddDoubleInMatrix(DTA[iEqu][iDof], &DofData_P->A, iDof, iEqu );
 
@@ -615,10 +612,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_FMMMatVectorProd(&DofData_P->CurrentSolution->x, &DofData_P->res) ;
       
       LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
-    
+      LinAlg_DummyVector(&DofData_P->res) ;
       LinAlg_Solve(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
-
-
 
       Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
       Msg(BIGINFO, "Mean error: %.3e  (after %d iteration%s)", 
@@ -652,7 +647,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_SOLVEJACADAPTRELAX :
-
       /*  get increment dx by solving : J(xn) dx = b(xn) - A(xn) xn */
       Flag_Jac = 1 ;
       Init_OperationOnSystem("SolveJacAdaptRelax",
@@ -665,6 +659,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_AddMatrixMatrix(&DofData_P->Jac, &DofData_P->A, &DofData_P->Jac) ;
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
       LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
+
+      LinAlg_DummyVector(&DofData_P->res) ;
+
       LinAlg_Solve(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
       Msg(RESOURCES, "");
@@ -723,15 +720,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_CPU = 1 ;
       Flag_RHS = 0 ;
       LinAlg_DestroyVector(&x_Save);
-
       break ;
-
 
       /*  -->  I n i t S o l u t i o n                */
       /*  ------------------------------------------  */
 
     case OPERATION_INITSOLUTION :
-
       Init_OperationOnSystem("InitSolution",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
@@ -841,6 +835,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break ;
 
+      /*  -->  M o v i n g   B a n d                  */
+      /*  ------------------------------------------  */
+
     case OPERATION_INIT_MOVINGBAND2D :
       Init_MovingBand2D( (struct Group *)
 			 List_Pointer(Problem_S.Group, 
@@ -855,15 +852,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 
     case OPERATION_GENERATE_MH_MOVING :
-
       Init_OperationOnSystem("Generate_MH_Moving",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
 
       Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
-      Generate_Group = (struct Group *) List_Pointer(Problem_S.Group, 
-						     Operation_P->Case.Generate_MH_Moving.GroupIndex) ;
+      Generate_Group = (struct Group *) 
+	List_Pointer(Problem_S.Group, Operation_P->Case.Generate_MH_Moving.GroupIndex) ;
 
       MH_Moving_Matrix = (double **) Malloc(Current.NbrHar*sizeof(double *)) ;
       for (k = 0 ; k < Current.NbrHar ; k++)
@@ -875,8 +871,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       for (k = 0 ; k < Current.NbrHar ; k++)
 	for (l = 0 ; l < Current.NbrHar ; l++) 
 	  hop[k][l] = 0.;
-      
 
+      MH_Moving_Matrix_simple = 1;
+      
       for (iTime = 0 ; iTime < Operation_P->Case.Generate_MH_Moving.NbrStep ; iTime++) {
       
 	Current.Time = (double)iTime/(double)Operation_P->Case.Generate_MH_Moving.NbrStep * 
@@ -885,8 +882,55 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Operation_P->Case.Generate_MH_Moving.Period ;
 	Current.TimeStep = iTime;
 
-	Msg(INFO, "Generate_MH_Moving : Step %d/%d (Time = %e  DTime %e)", (int)(Current.TimeStep+1), 
-	    Operation_P->Case.Generate_MH_Moving.NbrStep, Current.Time, Current.DTime) ;
+	/*
+	if (!iTime) {
+	  Msg(INFO, "Generate_MH_Moving : probing for any degrees of freedom"); 
+	  DofTree_MH_moving = Tree_Create(sizeof(struct Dof), fcmp_Dof) ;	
+
+	  MH_Moving_Matrix_probe = 1;
+	  for (i = 0 ; i < Nbr_Formulation ; i++) {
+	    List_Read(DefineSystem_P->FormulationIndex, i, &Index_Formulation) ;
+	    Formulation_P = (struct Formulation*)
+	      List_Pointer(Problem_S.Formulation, Index_Formulation) ;
+	    Treatment_Formulation(Formulation_P) ;
+	  }
+	  MH_Moving_Matrix_probe = 0;
+
+	  DofList_MH_moving = Tree2List(DofTree_MH_moving) ;	
+	  Tree_Delete(DofTree_MH_moving) ;	
+
+	  for (i = 0 ; i < Current.DofData->NbrAnyDof ; i++) {
+	    Dof_P = List_Pointer(Current.DofData->DofList,i) ;
+	    Dof_P->MH_moving = List_PQuery(DofList_MH_moving,Dof_P,fcmp_Dof) ;
+	  }
+	  
+	  NbrAnyDof_MH_moving = List_Nbr(DofList_MH_moving) ;
+	  NbrDof_MH_moving = 0 ;
+	  for (i = 0 ; i <  NbrAnyDof_MH_moving ; i++) {	  
+	    Dof_P = List_Pointer(DofList_MH_moving,i) ;
+	    if(Dof_P->Type == DOF_UNKNOWN){
+	        printf("any %d entity %d dof before %d  after %d\n", i, Dof_P->Entity,
+	          Dof_P->Case.Unknown.NumDof,NbrDof_MH_moving);
+	      Dof_P->Case.Unknown.NumDof = ++NbrDof_MH_moving; 
+	    }
+	  }
+	  for (i = 0 ; i <  NbrAnyDof_MH_moving ; i++) {	  
+	    Dof_P = List_Pointer(DofList_MH_moving,i) ;
+	    if (Dof_P->Type == DOF_LINK) {
+	      if (Dof_P->Case.Link.Dof->MH_moving)
+		Dof_P->Case.Link.Dof =  Dof_P->Case.Link.Dof->MH_moving ;
+	      else 
+		Dof_P->Case.Unknown.NumDof = ++NbrDof_MH_moving; 
+	      printf("LINK any %d entity %d Type %d\n", i, Dof_P->Entity, 
+	             Dof_P->Case.Link.Dof->Type);
+	    }
+	  }	  
+	}
+	*/
+
+	Msg(INFO, "Generate_MH_Moving : Step %d/%d (Time = %e  DTime %e)", 
+	    (int)(Current.TimeStep+1), Operation_P->Case.Generate_MH_Moving.NbrStep, 
+	    Current.Time, Current.DTime) ;
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.Generate_MH_Moving.Operation, 
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
@@ -894,10 +938,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	for (k = 0 ; k < Current.NbrHar ; k++)
 	  for (l = 0 ; l < Current.NbrHar ; l++) {
 	    if (Val_Pulsation[k/2]) DCfactor = 2. ; else DCfactor = 1. ; 
-	    MH_Moving_Matrix[k][l] = DCfactor / (double)Operation_P->Case.Generate_MH_Moving.NbrStep *
-	      ( fmod(k,2) ? -sin(Val_Pulsation[k/2]*Current.Time) : cos(Val_Pulsation[k/2]*Current.Time) ) *
-	      ( fmod(l,2) ? -sin(Val_Pulsation[l/2]*Current.Time) : cos(Val_Pulsation[l/2]*Current.Time) ) ;
-	    /* printf(" k %d l %d %e \n", k, l,
+	    MH_Moving_Matrix[k][l] = DCfactor / 
+	      (double)Operation_P->Case.Generate_MH_Moving.NbrStep *
+	      ( fmod(k,2) ? -sin(Val_Pulsation[k/2]*Current.Time) :
+		cos(Val_Pulsation[k/2]*Current.Time) ) *
+	      ( fmod(l,2) ? -sin(Val_Pulsation[l/2]*Current.Time) : 
+		cos(Val_Pulsation[l/2]*Current.Time) ) ;
+	    /* 
+	       printf(" k %d l %d %e \n", k, l,
 	       MH_Moving_Matrix[k][l] /2. * 
 	       (double)Operation_P->Case.Generate_MH_Moving.NbrStep);
 	    */
@@ -915,7 +963,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Treatment_Formulation(Formulation_P) ;
 	}
 	
-
       }
 
       /*
@@ -924,43 +971,301 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  printf("+++ k %d l %d hop %e \n", k, l, hop[k][l]) ;
       */
 
-
       Current.TimeStep = 0;
       Current.Time = 0.;
 
       for (k = 0 ; k < Current.NbrHar ; k++) Free (MH_Moving_Matrix[k]) ;
       Free (MH_Moving_Matrix) ;
       MH_Moving_Matrix = NULL ; 
+      MH_Moving_Matrix_simple = 0 ;
 
       Generate_Group = NULL;
 
+      Msg(RESOURCES, "");
+      break ;
+
+    case OPERATION_GENERATE_MH_MOVING_S :
+      Init_OperationOnSystem("Generate_MH_Moving_Separate",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+
+      Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
+
+      Generate_Group = (struct Group *)
+	List_Pointer(Problem_S.Group, Operation_P->Case.Generate_MH_Moving_S.GroupIndex) ;
+
+      MH_Moving_Matrix = (double **) Malloc(Current.NbrHar*sizeof(double *)) ;
+      for (k = 0 ; k < Current.NbrHar ; k++)
+	MH_Moving_Matrix[k] = (double *) Malloc(Current.NbrHar*sizeof(double)) ;
+
+      if (! (Val_Pulsation = Current.DofData->Val_Pulsation))
+	Msg(ERROR, "Generate_MH_moving can only be used for harmonic problems");
+
+      for (k = 0 ; k < Current.NbrHar ; k++)
+	for (l = 0 ; l < Current.NbrHar ; l++) 
+	  hop[k][l] = 0.;
+
+      DummyDof = DofData_P->DummyDof ;
+      DofData_P->DummyDof = NULL ;
+      
+      for (iTime = 0 ; iTime < Operation_P->Case.Generate_MH_Moving_S.NbrStep ; iTime++) {
+      
+	Current.Time = (double)iTime/(double)Operation_P->Case.Generate_MH_Moving_S.NbrStep * 
+	  Operation_P->Case.Generate_MH_Moving_S.Period ;
+	Current.DTime = 1./(double)Operation_P->Case.Generate_MH_Moving_S.NbrStep * 
+	  Operation_P->Case.Generate_MH_Moving_S.Period ;
+	Current.TimeStep = iTime;
+
+	if (!iTime) {
+	  Msg(INFO, "Generate_MH_Moving_Separate : probing for any degrees of freedom"); 
+	  DofTree_MH_moving = Tree_Create(sizeof(struct Dof), fcmp_Dof) ;	
+
+	  /* probing assembly */
+	  MH_Moving_Matrix_probe = 1;
+	  for (i = 0 ; i < Nbr_Formulation ; i++) {
+	    List_Read(DefineSystem_P->FormulationIndex, i, &Index_Formulation) ;
+	    Formulation_P = (struct Formulation*)
+	      List_Pointer(Problem_S.Formulation, Index_Formulation) ;
+	    Treatment_Formulation(Formulation_P) ;
+	  }
+	  MH_Moving_Matrix_probe = 0;
+
+	  DofList_MH_moving = Tree2List(DofTree_MH_moving) ;	
+	  Tree_Delete(DofTree_MH_moving) ;	
+
+	  NbrDof_MH_moving = List_Nbr(DofList_MH_moving) ;
+	  Msg(INFO,"Generate_MH_Moving :  NbrDof = %d", NbrDof_MH_moving);
+
+	  /*
+	  for (i = 0 ; i < NbrDof_MH_moving ; i++) {	
+	    Dof_P = (struct Dof*)List_Pointer(DofList_MH_moving,i) ;  
+	    printf(":::: Dof entity %d type %d  numdof %d \n", 
+	    Dof_P->Entity,Dof_P->Type,Dof_P->Case.Unknown.NumDof);
+	  }
+	  */
+
+	  Dof_MH_moving = (struct Dof **)Malloc(NbrDof_MH_moving * sizeof(struct Dof *)) ;
+	  NumDof_MH_moving = (int *)Malloc(NbrDof_MH_moving * sizeof(int)) ;
+
+	  for (i = 0 ; i < NbrDof_MH_moving ; i++) {	  
+	    Dof_P = (struct Dof*)List_Pointer(DofList_MH_moving,i) ;
+	    if (Dof_P->Type != DOF_UNKNOWN) Msg(ERROR,"Dof_MH_moving not of type unknown !?");
+	    NumDof_MH_moving[i] =  Dof_P->Case.Unknown.NumDof; 
+
+	    /* Msg(INFO, "Dof_MH  %d %d", Dof_P->Case.Unknown.NumDof, i+1); */
+	    if(!(Dof_MH_moving[i] = (struct Dof *)List_PQuery(Current.DofData->DofList, 
+							      Dof_P, fcmp_Dof)))
+	      Msg(ERROR, "Troubles") ;
+	    for (k = 0 ; k < Current.NbrHar ; k++) { 
+	      /*
+		printf(":::: Dof_old %d new %d\n", 
+		       (Dof_MH_moving[i]+k)->Case.Unknown.NumDof,i*Current.NbrHar+k+1 );
+	      */
+	      (Dof_MH_moving[i]+k)->Case.Unknown.NumDof = i*Current.NbrHar+k+1 ;
+	    }	  
+	  } /* if (!iTime) */
+
+	  printf("**** %d %d\n", Current.DofData->NbrAnyDof, List_Nbr(Current.DofData->DofList) );
+
+	  /*
+	  for (i = 0 ; i < Current.DofData->NbrAnyDof ; i++) {
+	    Dof_P = List_Pointer(Current.DofData->DofList,i) ;
+	    if (Dof_P->Type == DOF_UNKNOWN) {
+	      if (Dof_All2MH_moving[Dof_P->Case.Unknown.NumDof-1] >= 0) {
+		Msg(INFO, "Dof_MH  %d %d", Dof_P->Case.Unknown.NumDof, 
+		    Dof_All2MH_moving[Dof_P->Case.Unknown.NumDof-1]+1);
+		Dof_P->Case.Unknown.NumDof = Dof_All2MH_moving[Dof_P->Case.Unknown.NumDof-1]+1 ;
+	      }
+	    }
+	  }
+	  */
+
+	  Msg(RESOURCES, "");
+	  LinAlg_CreateSolver(& DofData_P->Solver_MH_moving, "MH_moving.par") ;
+	  LinAlg_CreateMatrix(&DofData_P->A_MH_moving, &DofData_P->Solver_MH_moving,
+			      NbrDof_MH_moving*Current.NbrHar, NbrDof_MH_moving*Current.NbrHar,
+			      DofData_P->NbrPart, DofData_P->Part, DofData_P->Nnz) ;
+	  LinAlg_CreateVector(&DofData_P->b_MH_moving, &DofData_P->Solver_MH_moving, 
+			      NbrDof_MH_moving*Current.NbrHar,
+			      DofData_P->NbrPart, DofData_P->Part) ;
+	  LinAlg_ZeroMatrix(&DofData_P->A_MH_moving) ;
+	  LinAlg_ZeroVector(&DofData_P->b_MH_moving) ;      
+	}
+
+	Msg(INFO, "Generate_MH_Moving_Separate : Step %d/%d (Time = %e  DTime %e)", 
+	    (int)(Current.TimeStep+1), Operation_P->Case.Generate_MH_Moving_S.NbrStep,
+	    Current.Time, Current.DTime) ;
+	
+	Treatment_Operation(Resolution_P, Operation_P->Case.Generate_MH_Moving.Operation, 
+			    DofData_P0, GeoData_P0, NULL, NULL) ;
+	
+	for (k = 0 ; k < Current.NbrHar ; k++)
+	  for (l = 0 ; l < Current.NbrHar ; l++) {
+	    if (Val_Pulsation[k/2]) DCfactor = 2. ; else DCfactor = 1. ; 
+	    MH_Moving_Matrix[k][l] = DCfactor / 
+	      (double)Operation_P->Case.Generate_MH_Moving.NbrStep *
+	      ( fmod(k,2) ? -sin(Val_Pulsation[k/2]*Current.Time) : 
+		cos(Val_Pulsation[k/2]*Current.Time) ) *
+	      ( fmod(l,2) ? -sin(Val_Pulsation[l/2]*Current.Time) : 
+		cos(Val_Pulsation[l/2]*Current.Time) ) ;
+	    /* 
+	       printf(" k %d l %d %e \n", k, l,
+	              MH_Moving_Matrix[k][l] /2. * 
+		      (double)Operation_P->Case.Generate_MH_Moving.NbrStep);
+	    */
+	    hop[k][l] += MH_Moving_Matrix[k][l] ;
+	  }
+	
+	for (k = 0 ; k < Current.NbrHar/2 ; k++)
+	  if (!Val_Pulsation[k]) MH_Moving_Matrix[2*k+1][2*k+1] = 1. ;
+	
+	/* separate assembly */
+	MH_Moving_Matrix_separate = 1 ;	
+	for (i = 0 ; i < Nbr_Formulation ; i++) {
+	  List_Read(DefineSystem_P->FormulationIndex, i, &Index_Formulation) ;
+	  Formulation_P = (struct Formulation*)
+	    List_Pointer(Problem_S.Formulation, Index_Formulation) ;
+	  Treatment_Formulation(Formulation_P) ;
+	}
+	MH_Moving_Matrix_separate = 0 ;
+	
+	
+      } /*  for iTime */
+
+      Msg(RESOURCES, "Full matrix assembly done");
+
+      /*
+	Dof_OpenFile(DOF_PRE, "hallooo", "w") ; 
+	Dof_WriteFilePRE(DofData_P) ;
+	Dof_CloseFile(DOF_PRE) ; 
+      */
+
+      /*
+      for (k = 0 ; k < Current.NbrHar ; k++)
+	for (l = 0 ; l < Current.NbrHar ; l++) 
+	  printf("+++ k %d l %d hop %e \n", k, l, hop[k][l]) ;
+      */
+
+      /*
+        Current.TimeStep = 0;
+        Current.Time = 0.;
+      */
+
+      for (k = 0 ; k < Current.NbrHar ; k++) Free (MH_Moving_Matrix[k]) ;
+      Free (MH_Moving_Matrix) ;
+      MH_Moving_Matrix = NULL ; 
+      
+      Generate_Group = NULL;
+      
+      for (i = 0 ; i < NbrDof_MH_moving ; i++) {	  
+	/*
+	  Dof_P = List_Pointer(DofList_MH_moving,i) ;
+	  Msg(INFO, "++++ Dof_MH  %d %d", Dof_P->Case.Unknown.NumDof, Dof_MH_moving2All[i] + 1);
+	*/
+	for (k = 0 ; k < Current.NbrHar ; k++)	
+	  (Dof_MH_moving[i]+k)->Case.Unknown.NumDof = NumDof_MH_moving[i] + k ;
+      }
+      
+      LinAlg_CreateMatrix(&DofData_P->A_MH_moving2, &DofData_P->Solver,
+			  DofData_P->NbrDof, DofData_P->NbrDof,
+			  DofData_P->NbrPart, DofData_P->Part, DofData_P->Nnz) ;
+      LinAlg_CreateVector(&DofData_P->b_MH_moving2, &DofData_P->Solver, Current.DofData->NbrDof,
+			  DofData_P->NbrPart, DofData_P->Part) ;
+      LinAlg_ZeroMatrix(&DofData_P->A_MH_moving2) ;
+      LinAlg_ZeroVector(&DofData_P->b_MH_moving2) ;      
+
+      Msg(RESOURCES, "");
+      
+      nnz__=0;
+      for (i = 0 ; i < NbrDof_MH_moving ; i++) {
+	for (k = 0 ; k < Current.NbrHar ; k++) {	  
+	  row_old = Current.NbrHar*i+k ;
+	  row_new = NumDof_MH_moving[i]+k-1 ;
+	  LinAlg_GetDoubleInVector(&d, &DofData_P->b_MH_moving,  row_old) ;
+	  LinAlg_SetDoubleInVector( d, &DofData_P->b_MH_moving2, row_new) ;
+	  /* printf("i %d k %d   row_old %d row_new %d  d %e\n", i, k, row_old, row_new, d); */
+	  for (j = 0 ; j < NbrDof_MH_moving ; j++) {
+	    for (l = 0 ; l < Current.NbrHar ; l++) {	  
+	      col_old = Current.NbrHar*j+l ;
+	      col_new = NumDof_MH_moving[j]+l-1 ;
+	      
+	      /* LinAlg_GetDoubleInMatrix(&d, &DofData_P->A_MH_moving, i, j) ; */
+	      
+	      d = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+row_old]; 
+	      aii = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*row_old+row_old]; 
+	      ajj = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+col_old]; 
+
+	      /*  
+	      printf ("i %d  Entity %d Har %d  ||  i %d  Entity %d Har %d  ||  aij %e \n",
+		      i, Dof_MH_moving[i]->Entity, k, 
+		      j, Dof_MH_moving[j]->Entity, l, 
+		      fabs(d/sqrt(aii*ajj)) ) ;
+	      */
+	      
+	      /* if(d*d > 1e-12 * aii*ajj){ */
+	      if(d*d > 1e-12 * aii*ajj  && 
+		 ( (DummyDof[row_new]==0 && DummyDof[col_new] == 0) || (row_new == col_new) ) ){ 
+		/* printf("row_old %d dummy %d   col_old %d dummy %d   .. %d\n",
+		           row_old, DummyDof[row_old], col_old, DummyDof[col_old], 
+			   DummyDof[row_old] +  DummyDof[col_old]); */
+		LinAlg_AddDoubleInMatrix(d, &DofData_P->A_MH_moving2, col_new, row_new) ;
+		nnz__++;
+	      }
+	    }
+	  }
+	}
+      }
+      printf("Matrix converted : nnz in MH_moving %d \n", nnz__);
+      Free(DofData_P->A_MH_moving.M.F.a);
+      Current.DTime = 0.;
+      Msg(RESOURCES, "");
+      DofData_P->DummyDof = DummyDof ;
+      break;
+      
+    case OPERATION_DUMMYDOFS :    
+      Init_OperationOnSystem("DummyDofs",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+      Msg(RESOURCES, "");
+      Dof_GetDummies(DefineSystem_P, DofData_P);
+      Msg(RESOURCES, "");
+      break ;
+
+    case OPERATION_ADD_MH_MOVING :
+      LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving2,&DofData_P->A) ;
+      /* LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b_MH_moving2,&DofData_P->b) ; */
+      Msg(RESOURCES, "");
       break ;
 
 
-      /*  -->  S a v e S o l u t i o n E x t e n d e d MH              */
+      /*  -->  S a v e S o l u t i o n E x t e n d e d M H             */
       /*  -----------------------------------------------------------  */
 
     case OPERATION_SAVESOLUTIONEXTENDEDMH :
-
       if (Current.NbrHar == 1) { 
 	Msg(WARNING, "ExtendSolutionMH can only to be used with multi-harmonics") ;
 	break ;
-      } else if (!List_Nbr(DofData_P->Solutions)) { 
+      }
+      else if (!List_Nbr(DofData_P->Solutions)) { 
 	Msg(WARNING, "No solution available for ExtendSolutionMH");
 	break ;
-      } else if (List_Nbr(DofData_P->Solutions) > 1) {
+      }
+      else if (List_Nbr(DofData_P->Solutions) > 1) {
 	Msg(WARNING, "Only last solution will be extended mult-harmonically and saved");
       }
 
       Init_OperationOnSystem("SaveSolutionExtendedMH",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
-      Dof_WriteFileRES0(Operation_P->Case.SaveSolutionExtendedMH.ResFile, Flag_BIN) ;      
-      Dof_WriteFileRES_ExtendMH(Operation_P->Case.SaveSolutionExtendedMH.ResFile, DofData_P, Flag_BIN,  
-				Current.NbrHar + 2*Operation_P->Case.SaveSolutionExtendedMH.NbrFreq);
+      strcpy(FileName_exMH, Name_Generic) ;
+      strcat(FileName_exMH, Operation_P->Case.SaveSolutionExtendedMH.ResFile) ;
+      strcat(FileName_exMH, ".res") ;
+      Dof_WriteFileRES0(FileName_exMH, Flag_BIN) ;      
+      Dof_WriteFileRES_ExtendMH(FileName_exMH, DofData_P, Flag_BIN,  
+				Current.NbrHar + 
+				2*Operation_P->Case.SaveSolutionExtendedMH.NbrFreq);
 
-      Msg(DIRECT, "          > '%s'  (%d to %d frequencies)", 
-	  Operation_P->Case.SaveSolutionExtendedMH.ResFile,
+      Msg(DIRECT, "          > '%s'  (%d to %d frequencies)", FileName_exMH, 
 	  Current.NbrHar/2, Current.NbrHar/2 + Operation_P->Case.SaveSolutionExtendedMH.NbrFreq) ;
 
       DofData_P->CurrentSolution = (struct Solution*) 
@@ -968,6 +1273,35 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       break ;
 
+    case OPERATION_SAVESOLUTIONMHTOTIME :
+      if (Current.NbrHar == 1) { 
+	Msg(WARNING, "SaveSolutionMHtoTime can only to be used with multi-harmonics") ;
+	break ;
+      } 
+      else if (!List_Nbr(DofData_P->Solutions)) { 
+	Msg(WARNING, "No solution available for SaveSolutionMHtoTime");
+	break ;
+      }
+      else if (List_Nbr(DofData_P->Solutions) > 1) {
+	Msg(WARNING, "Only last mult-harmonic solution will be saved for time X");
+      }
+
+      Init_OperationOnSystem("SaveSolutionMHtoTime",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+      strcpy(FileName_exMH, Name_Generic) ;
+      strcat(FileName_exMH, Operation_P->Case.SaveSolutionMHtoTime.ResFile) ;
+      strcat(FileName_exMH, ".res") ;
+      Dof_WriteFileRES0(FileName_exMH, Flag_BIN) ;      
+      Dof_WriteFileRES_MHtoTime(FileName_exMH, DofData_P, Flag_BIN, 
+				Operation_P->Case.SaveSolutionMHtoTime.Time) ;
+
+      Msg(DIRECT, "      > '%s'  (time = %e)", FileName_exMH, 
+	  Operation_P->Case.SaveSolutionMHtoTime.Time) ;
+
+      DofData_P->CurrentSolution = (struct Solution*) 
+	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
+      break ;
 
       /*  -->  R e a d S o l u t i o n                */
       /*  ------------------------------------------  */
@@ -992,28 +1326,37 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       DofData_P->CurrentSolution->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
       break ;
 
-      /*  -->  T r a n s f e r S o l u t i o n        */
+      /*  -->  S a v e M e s h                        */
       /*  ------------------------------------------  */
-
-
 
     case OPERATION_SAVEMESH :
       Init_OperationOnSystem("SaveMesh",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
-      strcpy(FileName,Operation_P->Case.SaveMesh.MeshFileBase);
 
-      if (Operation_P->Case.SaveMesh.Format) {
+      if(Operation_P->Case.SaveMesh.FileName[0] == '/' || 
+	 Operation_P->Case.SaveMesh.FileName[0] == '\\'){
+	strcpy(FileName,Operation_P->Case.SaveMesh.FileName);
+      } else {
+	strcpy(FileName, Name_Path);
+	strcat(FileName, Operation_P->Case.SaveMesh.FileName);
+      }
+
+      if (Operation_P->Case.SaveMesh.ExprIndex >= 0) {
 	Get_ValueOfExpressionByIndex(Operation_P->Case.SaveMesh.ExprIndex,
 				     NULL, 0., 0., 0., &Value) ;
-	sprintf(NameApp,Operation_P->Case.SaveMesh.Format,Value.Val[0]);
-	strcat(FileName,NameApp);
+	sprintf(FileName, FileName, Value.Val[0]);
       } 
-      Geo_SaveMesh(Current.GeoData, 
-		   ((struct Group*)List_Pointer(Problem_S.Group, Operation_P->Case.SaveMesh.GroupIndex))->InitialList,
-		   FileName) ;
 
+      Geo_SaveMesh(Current.GeoData, 
+		   ((struct Group*)
+		    List_Pointer(Problem_S.Group, 
+				 Operation_P->Case.SaveMesh.GroupIndex))->InitialList,
+		   FileName) ;
       break ;
+
+      /*  -->  T r a n s f e r S o l u t i o n        */
+      /*  ------------------------------------------  */
 
     case OPERATION_TRANSFERSOLUTION :
       Init_OperationOnSystem("TransferSolution",
@@ -1291,8 +1634,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       NbrDof2 = List_Nbr(DofData2_P->DofList) ;
 
       if (NbrHar1 != 1 || NbrHar2 < 2 || NbrDof2 != (NbrDof1*NbrHar2))
-	Msg(ERROR,"Uncompatible System definitions for FourierTransform (NbrHar = %d|%d   NbrDof = %d|%d)", 
-	    NbrHar1, NbrHar2, NbrDof1, NbrDof2) ;
+	Msg(ERROR,"Uncompatible System definitions for FourierTransform"
+	    " (NbrHar = %d|%d   NbrDof = %d|%d)", NbrHar1, NbrHar2, NbrDof1, NbrDof2) ;
 
       if(!DofData2_P->Solutions){
 	DofData2_P->Solutions = List_Create(1, 1, sizeof(struct Solution)) ;	
@@ -1305,7 +1648,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if ( (Operation_P->Case.FourierTransform2.Period_sofar + Current.DTime > 
 	    Operation_P->Case.FourierTransform2.Period) && NbrSol ) {
-	Msg (INFO, "Normalizing and finalizing Fourier Analysis (solution  %d) (Period: %e out of %e)",
+	Msg (INFO, "Normalizing and finalizing Fourier Analysis"
+	     " (solution  %d) (Period: %e out of %e)",
 	     NbrSol, Operation_P->Case.FourierTransform2.Period_sofar,
 	     Operation_P->Case.FourierTransform2.Period);
 	for (i=0 ; i<NbrHar2 ; i++) Msg(INFO, "Har  %d : Scales %e ", i, Scales[i]) ;
@@ -1350,7 +1694,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       for(j=0 ; j<NbrDof1 ; j++){
 	Dof_GetRealDofValue(DofData_P, (struct Dof *)List_Pointer(DofData_P->DofList,j), &dd) ;
-	NumDof = ((struct Dof *)List_Pointer(DofData2_P->DofList,j*NbrHar2))->Case.Unknown.NumDof - 1 ;
+	NumDof = ((struct Dof *)List_Pointer(DofData2_P->DofList,
+					     j*NbrHar2))->Case.Unknown.NumDof - 1 ;
 
 	if (((struct Dof *)List_Pointer(DofData2_P->DofList,j*NbrHar2))->Type != DOF_UNKNOWN)
 	  Msg (INFO, "Dof not unknown %d", j) ;
@@ -1405,7 +1750,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	}
       }
       break;
-
 
 
       /*  -->  P r i n t / W r i t e                  */
@@ -1544,6 +1888,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break ;
 
+    case OPERATION_CHANGEOFCOORDINATES2 :
+      Msg(OPERATION, "ChangeOfCoordinates2") ;
+      Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0) ;
+      Operation_ChangeOfCoordinates2
+	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
+      break ;
+
     case OPERATION_DEFORMEMESH :
       if (Operation_P->Case.DeformeMesh.Name_MshFile == NULL)
 	Operation_P->Case.DeformeMesh.Name_MshFile = Name_MshFile ;
@@ -1552,8 +1903,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	   List_Pointer(Resolution_P->DefineSystem, Operation_P->DefineSystemIndex))->Name, 
 	  Operation_P->Case.DeformeMesh.Quantity, Operation_P->Case.DeformeMesh.Name_MshFile) ;
 
-      if ((i = List_ISearchSeq(GeoData_L, Operation_P->Case.DeformeMesh.Name_MshFile, fcmp_GeoData_Name)) < 0)
-	Msg(ERROR,"DeformeMesh: Wrong NameOfMeshFile %s", Operation_P->Case.DeformeMesh.Name_MshFile );
+      if ((i = List_ISearchSeq(GeoData_L, Operation_P->Case.DeformeMesh.Name_MshFile,
+			       fcmp_GeoData_Name)) < 0)
+	Msg(ERROR,"DeformeMesh: Wrong NameOfMeshFile %s", 
+	    Operation_P->Case.DeformeMesh.Name_MshFile );
       Operation_P->Case.DeformeMesh.GeoDataIndex = i ;
       
       Operation_DeformeMesh
@@ -1612,7 +1965,7 @@ void Free_UnusedSolutions(struct DofData * DofData_P){
 
   if(!Flag_POS){
     if(Current.TypeTime == TIME_THETA)
-      index = List_Nbr(DofData_P->Solutions)-3 ;
+      index = List_Nbr(DofData_P->Solutions)-4 ; /* johan */
     else if(Current.TypeTime == TIME_NEWMARK){
       index = List_Nbr(DofData_P->Solutions)-4 ;
     }
@@ -2066,7 +2419,8 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
       LinAlg_AssembleMatrix(&DofData_P->A) ;
     }
 
-    if(Save_Num != DofData_P->Num || Current.DTime != Save_DTime || Current.Theta != Save_Theta){
+    if(Save_Num != DofData_P->Num || Current.DTime != Save_DTime ||
+       Current.Theta != Save_Theta){
       Save_Num   = DofData_P->Num ;
       Save_DTime = Current.DTime ;
       Save_Theta = Current.Theta ; 
@@ -2832,24 +3186,18 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 }
 
 
-
-
-
-
 /* ------------------------------------------------------------------------ */
 /*  Operation_ChangeOfCoordinates                                           */
 /* ------------------------------------------------------------------------ */
-
-void  Generate_ExtendedGroup(struct Group * Group_P) ;
 
 void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 				    struct Operation   * Operation_P, 
 				    struct DofData     * DofData_P0,
 				    struct GeoData     * GeoData_P0) {
 
-  int  i, Nbr_Node, Num_Node ;
-
-  struct Value  Value ;
+  int  i, Nbr_Node, Num_Node, ThisIsTheNode ;
+  double x=0., y=0., z=0.;
+  struct Value  Value, Value1, Value2 ;
   struct Group  * Group_P ;
 
   GetDP_Begin("Operation_ChangeOfCoordinates");
@@ -2859,7 +3207,7 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 		 Operation_P->Case.ChangeOfCoordinates.GroupIndex) ;
   if (!Group_P->ExtendedList)  Generate_ExtendedGroup(Group_P) ;
   if (Group_P->FunctionType != NODESOF)
-    Msg(ERROR, "ChangeOfCoordinates: Group must be of NodesOf function type") ;
+    Msg(ERROR, "ChangeOfCoordinates: Group must be of NodesOf function type") ; 
 
   Nbr_Node = List_Nbr(Group_P->ExtendedList) ;
 
@@ -2868,9 +3216,32 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 
     Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
 
+    if (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex >= 0 &&
+	Num_Node == Operation_P->Case.ChangeOfCoordinates.NumNode) { 
+      x = Current.x ;
+      y = Current.y ;
+      z = Current.z ;
+      Get_ValueOfExpressionByIndex
+	(Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2,
+	 NULL, 0., 0., 0., &Value1) ;
+      ThisIsTheNode = 1 ;
+    } else ThisIsTheNode = 0 ;
+
     Get_ValueOfExpressionByIndex
       (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex,
        NULL, 0., 0., 0., &Value) ;
+
+    if (ThisIsTheNode) {
+      Current.x = Value.Val[0] ;
+      Current.y = Value.Val[1] ;
+      Current.z = Value.Val[2] ;
+      Get_ValueOfExpressionByIndex
+	(Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2,
+	 NULL, 0., 0., 0., &Value2) ;
+      printf("before x %e  y %e  z %e  ||| after x %e  y %e  z %e\n",
+	     x, y, z, Value.Val[0], Value.Val[1], Value.Val[2]);
+      Msg(INFO, "  before %e  after %e", Value1.Val[0], Value2.Val[0]) ;
+    }
 
     Geo_SetNodesCoordinates(1, &Num_Node,
 			    &Value.Val[0], &Value.Val[1], &Value.Val[2]) ;
@@ -2879,6 +3250,88 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
   GetDP_End ;
 }
 
+/*
+  Johan : please fix this
+  - ValueOld should probably be ValueNew (this routine should crash the way it 
+    is written right now)
+  - the list is never deleted
+*/
+
+void  Operation_ChangeOfCoordinates2(struct Resolution  * Resolution_P,
+				     struct Operation   * Operation_P, 
+				     struct DofData     * DofData_P0,
+				     struct GeoData     * GeoData_P0) {
+
+  int  i, Num_Node, Nbr_Argument, ExpressionIndex ;
+  List_T * ArgumentValue = NULL ;
+  struct Value * ArgumentOld=0, * ValueOld=0, * ValueNew ;
+  int NbrArgument=0 ;
+
+  double x=0., y=0.;
+  
+  struct Value  Value ;
+  struct Group  * Group_P ;
+
+  GetDP_Begin("Operation_ChangeOfCoordinates2");
+
+  Group_P = (struct Group *)
+    List_Pointer(Problem_S.Group, 
+		 Operation_P->Case.ChangeOfCoordinates2.GroupIndex) ;
+  if (!Group_P->ExtendedList)  Generate_ExtendedGroup(Group_P) ;
+  if (Group_P->FunctionType != NODESOF)
+    Msg(ERROR, "ChangeOfCoordinates2: Group must be of NodesOf function type") ;
+
+  /* new argument values */
+  Nbr_Argument = List_Nbr(Operation_P->Case.ChangeOfCoordinates2.ArgumentExpression) ;
+
+  if (!ArgumentValue)
+    ArgumentValue = List_Create(Nbr_Argument, 1, sizeof(struct Value)) ;
+
+  ValueNew = (struct Value*)Malloc(NbrArgument * sizeof(struct Value)) ;
+
+  for (i=0 ; i<Nbr_Argument ; i++) {
+    List_Read(Operation_P->Case.ChangeOfCoordinates2.ArgumentExpression, i, &ExpressionIndex) ;
+    Get_ValueOfExpressionByIndex(ExpressionIndex, NULL, 0., 0., 0., &Value) ;
+    List_Add (ArgumentValue, &Value) ;
+    List_Read(ArgumentValue, i, ValueOld+i) ;
+    Msg(INFO, " oooooo %d %e", i, Value.Val[0]);
+  }
+  
+  /* resetting coordinates by means of inverse function */
+  
+  if (ArgumentOld) {
+    Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
+    Get_ValueOfExpressionByIndex
+      (Operation_P->Case.ChangeOfCoordinates2.ExpressionIndex2,
+       NULL, 0., 0., 0., ValueOld) ;
+    Geo_SetNodesCoordinates(1, &Num_Node,
+			    &(ValueOld->Val[0]), &(ValueOld->Val[1]), &(ValueOld->Val[2])) ;
+    List_Read(ArgumentValue, 0, ValueOld+i) ;
+  }
+  
+  if (Num_Node == 3) {
+    x = Current.x ;
+    y = Current.y ;
+  }
+  
+  Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
+  
+  Get_ValueOfExpressionByIndex
+    (Operation_P->Case.ChangeOfCoordinates2.ExpressionIndex1,
+     NULL, 0., 0., 0., &Value) ;
+  
+  if (Num_Node == 13) {
+    printf("before x %e y %e %e  ||| after x %e y %e %e\n",x,y, atan2(y,x)/PI*180.,
+	   Value.Val[0], Value.Val[1], atan2(Value.Val[1],Value.Val[0])/PI*180. );
+    
+  }
+  
+  Geo_SetNodesCoordinates(1, &Num_Node,
+			  &Value.Val[0], &Value.Val[1], &Value.Val[2]) ;
+  
+
+  GetDP_End ;
+}
 
 void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
                             struct Operation   * Operation_P, 
@@ -2886,7 +3339,7 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
                             struct GeoData     * GeoData_P0) {
 
   int  i, Num_Node, NumBF_X=-1, NumBF_Y=-1, NumBF_Z=-1 ;
-  double Value, un_x, un_y, un_z ;
+  double Value ;
 
   struct DefineSystem * DS ;
   struct Formulation  * FO ;
@@ -2897,14 +3350,18 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
 
   GetDP_Begin("Operation_DeformeMesh");
 
-  DS = (struct DefineSystem*)List_Pointer(Resolution_P->DefineSystem, Operation_P->DefineSystemIndex) ;
+  DS = (struct DefineSystem*)List_Pointer(Resolution_P->DefineSystem, 
+					  Operation_P->DefineSystemIndex) ;
 
   if( List_Nbr(DS->FormulationIndex) > 1 )
-    Msg(ERROR, "DeformeMesh: Only one formulation must be associated to the system %s", DS->Name) ;
+    Msg(ERROR, "DeformeMesh: Only one formulation must be associated to the system %s", 
+	DS->Name) ;
   
-  FO = (struct Formulation *) List_Pointer(Problem_S.Formulation,*((int *)List_Pointer(DS->FormulationIndex, 0))) ;
+  FO = (struct Formulation *) List_Pointer(Problem_S.Formulation,
+					   *((int *)List_Pointer(DS->FormulationIndex, 0))) ;
   
-  if((i = List_ISearchSeq(FO->DefineQuantity, Operation_P->Case.DeformeMesh.Quantity, fcmp_DefineQuantity_Name)) < 0)
+  if((i = List_ISearchSeq(FO->DefineQuantity, Operation_P->Case.DeformeMesh.Quantity,
+			  fcmp_DefineQuantity_Name)) < 0)
     Msg(ERROR, "Unknown Quantity '%s' in Formulation %s",
               Operation_P->Case.DeformeMesh.Quantity, FO->Name ) ;
   DQ_P = (struct DefineQuantity *) List_Pointer(FO->DefineQuantity, i) ;
@@ -2916,54 +3373,54 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
                                                         DQ_P->FunctionSpaceIndex) ;
  
   for(i = 0 ; i < List_Nbr(FunctionSpace_P->BasisFunction); i++){
-    if( (void(*)())((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Function == (void(*)())BF_NodeX )
-      NumBF_X = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Num;
+    if( (void(*)())((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,
+							i))->Function == (void(*)())BF_NodeX )
+      NumBF_X = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,
+						     i))->Num;
     
-    if( (void(*)())((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Function == (void(*)())BF_NodeY )
-      NumBF_Y = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Num;
+    if( (void(*)())((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,
+							i))->Function == (void(*)())BF_NodeY )
+      NumBF_Y = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,
+						     i))->Num;
 
-    if( (void(*)())((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Function == (void(*)())BF_NodeZ )
-      NumBF_Z = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Num;
+    if( (void(*)())((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,
+							i))->Function == (void(*)())BF_NodeZ )
+      NumBF_Z = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,
+						     i))->Num;
   }
   
   for(i = 0 ; i < List_Nbr(FunctionSpace_P->DofData->DofList) ; i++){
-    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_X ||
-        ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Y ||
-        ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Z ){
-      
+    Dof_GetRealDofValue
+      (FunctionSpace_P->DofData,
+       ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i )) , &Value) ;
+    
+    Num_Node = ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->Entity ;
 
-      Dof_GetRealDofValue
-	(FunctionSpace_P->DofData,
-	 ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i )) , &Value) ;
-      
-      Num_Node = ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->Entity ;
-      
-      /* Reference mesh */
-      Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex) ;
-      Geo_GetNodesCoordinates(1, &Num_Node, &un_x, &un_y, &un_z) ;
-      
-      /* The mesh associated to the electromechanical system */
-      if (GeoData_P0 + DofData_P->GeoDataIndex != GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex)
-	Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + DofData_P->GeoDataIndex) ;
+    /* The mesh associated to the mechanical system is the reference, it does not change */
+    Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + DofData_P->GeoDataIndex) ;
+    Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
 
-    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_X){
-       un_x += Operation_P->Case.DeformeMesh.Factor * Value ; 
-       Geo_SetNodesCoordinatesX(1, &Num_Node, &un_x) ;       
-    }
-           
-    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Y){
-      un_y += Operation_P->Case.DeformeMesh.Factor * Value ;
-      Geo_SetNodesCoordinatesY(1, &Num_Node, &un_y) ;
-    }
 
-    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Z){
-      un_z +=  Operation_P->Case.DeformeMesh.Factor * Value ;
-      Geo_SetNodesCoordinatesZ(1, &Num_Node, &un_z) ;
-    }
-       
-    }
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType != NumBF_X &&
+        ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType != NumBF_Y &&
+        ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType != NumBF_Z )
+      Msg(ERROR,"Bad BasisFunction for DeformeMesh");
+
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_X)
+      Current.x +=  Operation_P->Case.DeformeMesh.Factor * Value ; 
+     
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Y)
+      Current.y +=  Operation_P->Case.DeformeMesh.Factor * Value ;
+    
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Z)
+      Current.z +=  Operation_P->Case.DeformeMesh.Factor * Value ;
+
+    /* The mesh associated to the electrostatic system varies */
+    Geo_SetCurrentGeoData(Current.GeoData = 
+			  GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex) ;    
+    Geo_SetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
   }
-  
+
   GetDP_End ;
 }
 

@@ -1,6 +1,6 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.22 2004-01-08 20:02:29 geuzaine Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.23 2004-01-19 16:51:15 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Johan Gyselinck
@@ -168,8 +168,12 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
       NbrHar, NbrPoints, NbrPointsX, Case);
 
   t = (double *)Malloc(sizeof(double)*NbrPointsX) ;
-  for (iTime = 0 ; iTime < NbrPointsX ; iTime++) 
-    t[iTime] = (double)iTime/(double)NbrPointsX/(MinPuls/TWO_PI) ;
+  if (Case != 3) 
+    for (iTime = 0 ; iTime < NbrPointsX ; iTime++) 
+      t[iTime] = (double)iTime/(double)NbrPointsX/(MinPuls/TWO_PI) ;
+  else
+    for (iTime = 0 ; iTime < NbrPointsX ; iTime++) 
+      t[iTime] = (double)iTime/((double)NbrPointsX-1.)/(MinPuls/TWO_PI) ;
 
   /*   
      w = (double *)Malloc(sizeof(double)*NbrPointsX) ;
@@ -490,8 +494,8 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   double one=1.0 ;
   int iPul, ZeroHarmonic, DcHarmonic;
 
-  double  E_MH [NBR_MAX_BASISFUNCTIONS][NBR_MAX_BASISFUNCTIONS] [NBR_MAX_HARMONIC][NBR_MAX_HARMONIC] ;
-  double  E_D [NBR_MAX_HARMONIC][NBR_MAX_HARMONIC] [MAX_DIM];
+  double E_MH[NBR_MAX_BASISFUNCTIONS][NBR_MAX_BASISFUNCTIONS][NBR_MAX_HARMONIC][NBR_MAX_HARMONIC];
+  double E_D[NBR_MAX_HARMONIC][NBR_MAX_HARMONIC][MAX_DIM];
 
   void (*xFunctionBFDof[NBR_MAX_BASISFUNCTIONS])
     (struct Element * Element, int NumEntity, 
@@ -500,6 +504,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   void (*Get_IntPoint)(int,int,double*,double*,double*,double*);
   double (*Get_Product)(double*,double*,double*) = 0;
 
+  /* static double eps; */
  
   GetDP_Begin("Cal_GalerkinTermOfFemEquation_MHJacNL");
 
@@ -696,6 +701,23 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
     } /* for iTime ... */
 
+    /*
+    if (!eps) {
+      printf("enter value for eps\n");
+      scanf("%lf",&eps);
+      printf("eps = %f\n",eps);
+    }
+
+
+    for (iHar = 0 ; iHar < NbrHar ; iHar++)
+      for (jHar = OFFSET  ; jHar <= iHar ; jHar++){
+	for (iVal2 = 0 ; iVal2 < nVal2 ; iVal2++)
+	  if ( E_D[iHar][jHar][iVal2] * E_D[iHar][jHar][iVal2] < 
+	      eps * eps * fabs(E_D[iHar][iHar][iVal2] * E_D[jHar][jHar][iVal2]) )
+	    E_D[iHar][jHar][iVal2]=0 ;
+      }
+
+    */
 
     for (iDof = 0 ; iDof < Nbr_Dof ; iDof++)
       for (jDof = 0 ; jDof <= iDof ; jDof++)

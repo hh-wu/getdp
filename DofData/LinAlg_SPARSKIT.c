@@ -1,6 +1,6 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.24 2003-03-22 03:30:08 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.25 2004-01-19 16:51:12 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Ruth Sabariego
@@ -33,9 +33,14 @@
 #include "SafeIO.h"
 #include "F_FMMOperations.h"
 
+#include "Data_Passive.h"
+#include "CurrentData.h"
+
 extern char  Name_Path[MAX_FILE_NAME_LENGTH] ;
 static char *Name_SolverFile=NULL, *Name_DefaultSolverFile="solver.par" ;
 static char *SolverOptions[100];
+
+
 
 /* Init */
 
@@ -470,7 +475,7 @@ void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j){
 
   GetDP_Begin("LinAlg_GetDoubleInMatrix");
 
-  Msg(ERROR, "'LinAlg_GetScalarInMatrix' not yet implemented");  
+  get_element_in_matrix(&M->M, i, j, d);
 
   GetDP_End ;
 }
@@ -569,9 +574,24 @@ void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
 
   GetDP_End ;
 }
-void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i){
 
+void LinAlg_DummyVector(gVector *V){
+  int * DummyDof, i;
+  GetDP_Begin("LinAlg_DummyVector");
+
+  DummyDof = Current.DofData->DummyDof;
+  if (DummyDof == NULL) GetDP_End ;
+
+  for (i=0 ; i<V->N ; i++) if (DummyDof[i] == 1) V->V[i] = 0 ;
+  GetDP_End ;
+}
+
+void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i){
+  int * DummyDof;
   GetDP_Begin("LinAlg_AddScalarInVector");
+
+  if ((DummyDof = Current.DofData->DummyDof)) 
+    if (DummyDof[i] == 1) GetDP_End ;
 
   V->V[i] += S->d ;
 
@@ -579,18 +599,33 @@ void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i){
 }
 void LinAlg_AddDoubleInVector(double d, gVector *V, int i){
 
+  int * DummyDof;
   GetDP_Begin("LinAlg_AddDoubleInVector");
+
+  if ((DummyDof = Current.DofData->DummyDof))
+    if (DummyDof[i] == 1)
+      GetDP_End ;
 
   V->V[i] += d ;
 
   GetDP_End ;
 }
 void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j){
-
+  int * DummyDof, iok,jok;
   GetDP_Begin("LinAlg_AddComplexInVector");
 
-  V->V[i] += d1 ;
-  V->V[j] += d2 ;
+  iok=jok=1;
+
+  if ((DummyDof = Current.DofData->DummyDof)) { 
+    if (DummyDof[i] == 1) iok=0;
+    if (DummyDof[j] == 1) jok=0;
+  }
+
+  if (iok)
+    V->V[i] += d1 ;
+
+  if (jok)
+    V->V[j] += d2 ;
 
   GetDP_End ;
 }
@@ -604,7 +639,13 @@ void LinAlg_AddScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
 }
 void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j){
 
+  int * DummyDof;
+
   GetDP_Begin("LinAlg_AddDoubleInMatrix");
+
+  if ((DummyDof = Current.DofData->DummyDof))
+    if ( (DummyDof[i]==1 || DummyDof[j] == 1) && (i != j) ) 
+    GetDP_End ;
 
   add_matrix_double(&M->M, i+1, j+1, d) ;
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,11 +16,13 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #ifndef _NUMERIC_H_
 #define _NUMERIC_H_
+
+#include "List.h"
 
 #define THESIGN(a) ((a)>=0 ? 1 : -1)
 #define THEABS(a)  ((a)>=0 ? a : -a)

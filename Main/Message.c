@@ -1,6 +1,6 @@
-#define RCSID "$Id: Message.c,v 1.66 2003-03-23 18:28:29 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.67 2004-01-19 16:51:17 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #include <signal.h>
@@ -55,7 +55,7 @@ void FinalizeAndExit(void);
 /* ------------------------------------------------------------------------ */
 
 char acronym[]   = "GetDP %d.%d.%d, a General environment for the treatment of Discrete Problems\n";
-char copyright[] = "Copyright (c) 1997-2003 Patrick Dular and Christophe Geuzaine\n";
+char copyright[] = "Copyright (C) 1997-2004 Patrick Dular and Christophe Geuzaine\n";
 
 char version[]   = "Version      : %d.%d.%d\n";
 char os[]        = "Build OS     : %s\n";
@@ -166,7 +166,6 @@ void Signal (int sig_num){
       InteractiveInterrupt = 1;
     return;
   }
-
   switch (sig_num){
   case SIGSEGV : 
     Msg(BIGERROR, "Segmentation violation (invalid memory reference)");

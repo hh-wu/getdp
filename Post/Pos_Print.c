@@ -1,6 +1,6 @@
-#define RCSID "$Id: Pos_Print.c,v 1.61 2003-11-22 09:38:56 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.62 2004-01-19 16:51:25 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #include "GetDP.h"
@@ -190,7 +190,8 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 		    PostSubOperation_P->HarmonicToTime, 
 		    PostSubOperation_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
-		    CPQ_P?CPQ_P->Name:NULL);
+		    CPQ_P?CPQ_P->Name:NULL,
+		    PostSubOperation_P->FrequencyLegend);
   
   /* Get the region */
   
@@ -737,7 +738,8 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 		    PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
-		    CPQ_P?CPQ_P->Name:NULL);
+		    CPQ_P?CPQ_P->Name:NULL,
+		    PostSubOperation_P->FrequencyLegend);
 
   if(CPQ_P){
     Cal_PostCumulativeQuantity(NULL,
@@ -1026,7 +1028,8 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 		    NbTimeStep, PSO_P->HarmonicToTime,
 		    PSO_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
-		    CPQ_P?CPQ_P->Name:NULL);
+		    CPQ_P?CPQ_P->Name:NULL,
+		    PSO_P->FrequencyLegend);
 
   PE = Create_PostElement(0, POINT, 1, 0) ;
 
@@ -1350,6 +1353,10 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
   }
 
+  if(PostSubOperation_P->Save){
+    Cal_CopyValue(&Value,PostSubOperation_P->Save) ;
+  }
+
   GetDP_End ;
 }
 
@@ -1443,7 +1450,8 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P) {
 		    PostSubOperation_P->Iso, 1,
 		    PostSubOperation_P->HarmonicToTime, 
 		    PostSubOperation_P->CombinationType, 0,
-		    NULL, NULL);
+		    NULL, NULL,
+		    PostSubOperation_P->FrequencyLegend);
   
   Region_L = ((struct Group *)
 	      List_Pointer(Problem_S.Group, 

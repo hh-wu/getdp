@@ -1,6 +1,6 @@
-#define RCSID "$Id: Pos_Format.c,v 1.34 2003-09-01 09:10:53 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.35 2004-01-19 16:51:25 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #include "GetDP.h"
@@ -87,9 +87,12 @@ void  Format_PostFormat(int Format){
 void  Format_PostHeader(int Format, int Contour, 
 			int NbTimeStep, int HarmonicToTime,
 			int Type, int Order,
-			char *Name1, char *Name2){
+			char *Name1, char *Name2,
+			double FrequencyLegend[3]){
 
   char name[MAX_STRING_LENGTH] ;
+  int i ;
+  double * Val_Pulsation ;
 
   GetDP_Begin("Format_PostHeader");
 
@@ -133,6 +136,19 @@ void  Format_PostHeader(int Format, int Contour,
   case FORMAT_ADAPT :
     fprintf(PostStream, "$Adapt /* %s */\n", name) ;
     break ;
+  }
+
+  if ( (Format == FORMAT_GMSH || Format == FORMAT_GMSH_PARSED) &&
+       Current.NbrHar > 1 && FrequencyLegend[0] >= 0) {
+    fprintf(PostStream,"T2(%d,%d,%d){", 
+	    (int)FrequencyLegend[0], (int)FrequencyLegend[1], (int)FrequencyLegend[2]);
+    Val_Pulsation = Current.DofData->Val_Pulsation ;
+    for (i=0 ; i<Current.NbrHar ; i+=2) { 
+      fprintf(PostStream,"\"%f Hz  (COSINUS)\", ",(double)(Val_Pulsation[i/2]/2./PI)) ;
+      fprintf(PostStream,"\"%f Hz  (-SINUS)\"",(double)(Val_Pulsation[i/2]/2./PI)) ;
+      if (i<Current.NbrHar-2) fprintf(PostStream,", ") ;
+    } 
+    fprintf(PostStream,"};\n") ;
   }
 
   GetDP_End ;

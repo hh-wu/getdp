@@ -1,6 +1,6 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.15 2004-01-08 20:02:30 geuzaine Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.16 2004-01-19 16:51:16 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Johan Gyselinck
@@ -31,25 +31,6 @@
 
 static int Warning_DtStatic = 0 ;
 static int Warning_DtDtStatic = 0, Warning_DtDtFirstOrder = 0 ;
-
-
-void  Cal_AssembleTerm_MH_Moving(struct Dof * Equ, struct Dof * Dof, double Val[]) {
-  int     k, l ;
-  double  tmp ;
-  extern double ** MH_Moving_Matrix ; 
-
-  GetDP_Begin("Cal_AssembleTerm_MH_Moving");
-
-  for (k = 0 ; k < Current.NbrHar ; k++)
-    for (l = 0 ; l < Current.NbrHar ; l++) {
-      tmp = Val[0] * MH_Moving_Matrix[k][l] ;
-      /* if (k==l) */
-      Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp, 
-			&Current.DofData->A, &Current.DofData->b) ;
-    }
-
-  GetDP_End ;
-}
 
 /* ------------------------------------------------------------------------ */
 /*  No Time Derivative                                                      */
@@ -408,6 +389,111 @@ void  Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
       }
     }
   }
+
+  GetDP_End ;
+}
+
+/* ------------------------------------------------------------------------ */
+/*  Multi-Harmonic                                                          */
+/* ------------------------------------------------------------------------ */
+
+void  Cal_AssembleTerm_MH_Moving_simple(struct Dof * Equ, struct Dof * Dof, double Val[]) {
+  int     k, l ;
+  double  tmp ;
+  extern double ** MH_Moving_Matrix ; 
+
+  GetDP_Begin("Cal_AssembleTerm_MH_Moving_simple");
+
+  for (k = 0 ; k < Current.NbrHar ; k++)
+    for (l = 0 ; l < Current.NbrHar ; l++) {
+      tmp = Val[0] * MH_Moving_Matrix[k][l] ;
+      /* if (k==l) */
+      Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp, 
+			&Current.DofData->A, &Current.DofData->b) ;
+    }
+
+  GetDP_End ;
+}
+
+void  Cal_AssembleTerm_MH_Moving_separate(struct Dof * Equ, struct Dof * Dof, double Val[]) {
+  int     k, l ;
+  double  tmp ;
+  extern double ** MH_Moving_Matrix ; 
+
+  GetDP_Begin("Cal_AssembleTerm_MH_Moving_separate");
+
+  for (k = 0 ; k < Current.NbrHar ; k++)
+    for (l = 0 ; l < Current.NbrHar ; l++) {
+      tmp = Val[0] * MH_Moving_Matrix[k][l] ;
+      /* if (k==l) */
+      Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp, 
+			&Current.DofData->A_MH_moving, &Current.DofData->b_MH_moving) ;
+    }
+
+  GetDP_End ;
+}
+
+void  Cal_AssembleTerm_MH_Moving_probe(struct Dof * Equ, struct Dof * Dof, double Val[]) {
+  extern Tree_T * DofTree_MH_moving ;
+  /*
+  int     k, l ;
+  double  tmp ;
+  extern double ** MH_Moving_Matrix ; 
+  extern struct Dof **Dof_MH_moving ;
+  extern int * DummyDof;
+  */
+  GetDP_Begin("Cal_AssembleTerm_MH_probe");
+
+  if (Dof->Type == DOF_UNKNOWN && !Tree_PQuery(DofTree_MH_moving, Dof)) 
+      Tree_Add(DofTree_MH_moving,Dof) ;
+  else if (Dof->Type == DOF_LINK && !Tree_PQuery(DofTree_MH_moving, Dof->Case.Link.Dof))
+      Tree_Add(DofTree_MH_moving,Dof->Case.Link.Dof) ;
+
+  if (Equ->Type == DOF_UNKNOWN && !Tree_PQuery(DofTree_MH_moving, Equ))
+      Tree_Add(DofTree_MH_moving,Equ) ; 
+  else if (Equ->Type == DOF_LINK && !Tree_PQuery(DofTree_MH_moving, Equ->Case.Link.Dof))
+      Tree_Add(DofTree_MH_moving,Equ->Case.Link.Dof) ;
+
+  /*
+
+  if (Dof->Type == DOF_UNKNOWN && !Tree_PQuery(DofTree_MH_moving, Dof)) 
+    if(!DummyDof[Dof->Case.Unknown.NumDof-1])
+      Tree_Add(DofTree_MH_moving,Dof) ;
+  for (k = 0 ; k < Current.NbrHar ; k++) Tree_Add(DofTree_MH_moving,Dof+k) ;
+  else if (Dof->Type == DOF_LINK && !Tree_PQuery(DofTree_MH_moving, Dof->Case.Link.Dof))
+    if(!DummyDof[(Dof->Case.Link.Dof)->Case.Unknown.NumDof-1])
+      Tree_Add(DofTree_MH_moving,Dof->Case.Link.Dof) ;
+  for (k = 0 ; k < Current.NbrHar ; k++) Tree_Add(DofTree_MH_moving,(Dof+k)->Case.Link.Dof) ;
+
+  if (Equ->Type == DOF_UNKNOWN && !Tree_PQuery(DofTree_MH_moving, Equ))
+    if(!DummyDof[Equ->Case.Unknown.NumDof-1])
+      Tree_Add(DofTree_MH_moving,Equ) ; 
+  for (k = 0 ; k < Current.NbrHar ; k++) Tree_Add(DofTree_MH_moving,Equ+k) ;
+  else if (Equ->Type == DOF_LINK && !Tree_PQuery(DofTree_MH_moving, Equ->Case.Link.Dof))
+    if(!DummyDof[(Equ->Case.Link.Dof)->Case.Unknown.NumDof-1])
+      Tree_Add(DofTree_MH_moving,Equ->Case.Link.Dof) ;
+  for (k = 0 ; k < Current.NbrHar ; k++) Tree_Add(DofTree_MH_moving,(Equ+k)->Case.Link.Dof) ;
+  */
+
+  /*
+  for (k = 0 ; k < Current.NbrHar ; k++) {
+    if ((Dof+k)->Type == DOF_UNKNOWN) {
+      if (!Tree_PQuery(DofTree_MH_moving, Dof+k)) Tree_Add(DofTree_MH_moving,Dof+k) ;
+    } else if ((Dof+k)->Type == DOF_LINK) {
+      if (!Tree_PQuery(DofTree_MH_moving, (Dof+k)->Case.Link.Dof)) 
+	Tree_Add(DofTree_MH_moving,(Dof+k)->Case.Link.Dof) ;
+    }
+  }
+  
+  for (k = 0 ; k < Current.NbrHar ; k++) {
+    if ((Equ+k)->Type == DOF_UNKNOWN) {
+      if (!Tree_PQuery(DofTree_MH_moving, Equ+k)) Tree_Add(DofTree_MH_moving,Equ+k) ;
+    } else if ((Equ+k)->Type == DOF_LINK) {
+      if (!Tree_PQuery(DofTree_MH_moving, (Equ+k)->Case.Link.Dof)) 
+	Tree_Add(DofTree_MH_moving,(Equ+k)->Case.Link.Dof) ;
+    }
+  }
+  */
 
   GetDP_End ;
 }

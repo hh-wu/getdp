@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #ifndef _MISCELLANEOUS_H_
@@ -83,6 +83,7 @@ void  F_Complex_MH      (F_ARG) ;
 void  F_Re              (F_ARG) ;
 void  F_Im              (F_ARG) ;
 void  F_Conj            (F_ARG) ;
+void  F_Cart2Pol        (F_ARG) ;
 void  F_Vector          (F_ARG) ;
 void  F_Tensor          (F_ARG) ;
 void  F_TensorV         (F_ARG) ;
@@ -142,6 +143,12 @@ void  F_TransformTensor (F_ARG) ;  /* pour Tuan */
 void  F_TransformPerm   (F_ARG) ;  /* pour Tuan */
 void  F_TransformPiezo  (F_ARG) ;  /* pour Tuan */
 void  F_TransformPiezoT (F_ARG) ;  /* pour Tuan */
+
+void  F_dhdb_Jiles      (F_ARG) ;  /* pour Johan */
+void  F_dbdh_Jiles      (F_ARG) ;  /* pour Johan */
+void  F_h_Jiles         (F_ARG) ;  /* pour Johan */
+void  F_b_Jiles         (F_ARG) ;  /* pour Johan */
+
 
 /* F_MultiHar */
 

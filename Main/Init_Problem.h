@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #ifndef _INIT_PROBLEM_H_
@@ -117,6 +117,11 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 				    struct Operation   * Operation_P, 
 				    struct DofData     * DofData_P0,
 				    struct GeoData     * GeoData_P0) ;
+
+void  Operation_ChangeOfCoordinates2(struct Resolution  * Resolution_P,
+				     struct Operation   * Operation_P, 
+				     struct DofData     * DofData_P0,
+				     struct GeoData     * GeoData_P0) ;
 
 void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
 			    struct Operation   * Operation_P, 

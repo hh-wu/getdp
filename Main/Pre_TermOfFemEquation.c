@@ -1,6 +1,6 @@
-#define RCSID "$Id: Pre_TermOfFemEquation.c,v 1.13 2003-03-22 03:30:14 geuzaine Exp $"
+#define RCSID "$Id: Pre_TermOfFemEquation.c,v 1.14 2004-01-19 16:51:18 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #include "GetDP.h"
@@ -435,11 +435,13 @@ void  Pre_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
       }
     }
   }
-  if (Nbr_GlobalEqu != Nbr_EquAndDof)
-    Msg(ERROR, "Incompatible number of equations with Contraint '%s'\n"
-	"(%d equations obtained while %d branches are defined)",
-	Constraint_P->Name, Nbr_GlobalEqu, Nbr_EquAndDof);
-
+  if (Nbr_GlobalEqu != Nbr_EquAndDof){
+    Msg(DIRECT, ERROR_STR "Incompatible number of equations with Contraint '%s'",
+	Constraint_P->Name);
+    Msg(ERROR, "(%d equations obtained while %d branches are defined)",
+	Nbr_GlobalEqu, Nbr_EquAndDof);
+  }
+  
   List_Delete(RegionIndex_L) ;
 
   GetDP_End ;

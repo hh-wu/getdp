@@ -1,6 +1,6 @@
-#define RCSID "$Id: F_BiotSavart.c,v 1.4 2003-06-19 08:38:20 sabarieg Exp $"
+#define RCSID "$Id: F_BiotSavart.c,v 1.5 2004-01-19 16:51:14 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Ruth Sabariego

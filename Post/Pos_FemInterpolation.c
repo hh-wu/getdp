@@ -1,6 +1,6 @@
-#define RCSID "$Id: Pos_FemInterpolation.c,v 1.16 2004-01-08 20:02:35 geuzaine Exp $"
+#define RCSID "$Id: Pos_FemInterpolation.c,v 1.17 2004-01-19 16:51:25 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #include "GetDP.h"
@@ -297,6 +297,13 @@ void  Pos_FemInterpolation(struct Element * Element,
 	     u, v, w, vBFu[j]) ;
 	  ((void (*)(struct Element*, double*, double*))
 	   xChangeOfCoordinates) (TheElement_P, vBFu[j], vBFxDof[j].Val) ;
+	  /*
+	  	  printf("j %d , Num %d, Type_Form %d  change %d vBFu[j] %e %e %e  vBFx[j]  %e %e %e\n", j,  QuantityStorage_P->BasisFunction[j].NumEntityInElement+1,
+		 Type_Form,(Flag_ChangeOfCoordinates && TheElement_P->Num != NO_ELEMENT),
+		 vBFu[j][0],vBFu[j][1],vBFu[j][2],
+		 vBFxDof[j].Val[0],vBFxDof[j].Val[1],vBFxDof[j].Val[2]);
+	  */
+
 	}
       }
       

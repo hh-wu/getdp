@@ -1,6 +1,6 @@
-#define RCSID "$Id: Main.c,v 1.49 2003-09-01 18:36:08 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.50 2004-01-19 16:51:17 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #include <sys/types.h>
@@ -317,7 +317,8 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       }
 
       else if (!strcmp(argv[i]+1, "restart")){ 
-	Flag_PRE = Flag_PAR = 0 ; Flag_CAL = Flag_RESTART = 1 ; i++ ;
+	/* Flag_PRE johan */
+	Flag_PAR = 0 ; Flag_CAL = Flag_RESTART = 1 ; i++ ;
       } 
 
       else if (!strcmp(argv[i]+1, "verbose") ||

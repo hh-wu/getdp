@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   David Colignon
@@ -73,6 +73,7 @@ struct Problem {
   List_T  * FunctionSpace , * Constraint        , * Formulation   ;
   List_T  * JacobianMethod, * IntegrationMethod ;
   List_T  * Resolution    , * PostProcessing    , * PostOperation ;
+  List_T  * PostSave ;
   List_T  * FMMGroup ;
 } ;
 
@@ -88,6 +89,11 @@ struct Group {
   struct  MovingBand2D * MovingBand2D ; 
 } ;
 
+
+struct PostSave {
+  char    * Name ;
+  struct Value * Value ;
+} ;
 
 struct MovingBand2D {
   List_T  * InitialList1, * ExtendedList1, * InitialList2, * ExtendedList2;
@@ -470,6 +476,9 @@ struct DefineQuantity {
   /* for subspaces */
   List_T  *IndexInFunctionSpace ;
 
+  /* for MH calculation */
+  List_T  *DummyFrequency ;
+
   /* for multiple DofData vs. one FunctionSpace */
   int      DofDataIndex ; 
   struct   DofData  * DofData ;
@@ -508,6 +517,7 @@ struct EquationTerm {
       } Term ;
 
       int  InIndex ; 
+      int  Full_Matrix ;
       int  IntegrationMethodIndex, FMMIntegrationMethodIndex, JacobianMethodIndex ;
     
       int  FMMObservation, FMMSource, iFMMEqu ;
@@ -639,7 +649,7 @@ struct WholeQuantity {
     double Constant ;
     struct Function Function ;
     struct { int  TypeOperator, Index, NbrArguments ;
-             int  TypeQuantity ; }                               OperatorAndQuantity ;
+             int  TypeQuantity ; }                                OperatorAndQuantity ;
     struct { int  Index, NbrArguments ; }                         Expression ;
     struct { List_T *WholeQuantity ; }                            TimeDerivative ;
     struct { double *Value ; }                                    CurrentValue ;
@@ -648,11 +658,14 @@ struct WholeQuantity {
     struct { int  Index ; }                                       SaveValue ;
     struct { int  Index ; }                                       ShowValue ;
     struct { int  Index ; }                                       ValueSaved ;
+    struct { struct Value * Value ; }                             PostSave ;
     struct { int  TypeOperator ; void  (*Function)() ; }          Operator ; /* binary or unary */
     struct { List_T *WholeQuantity ; 
              int FunctionSpaceIndexForType, NbrHar ; }            Cast ;
     struct { List_T *WholeQuantity ; 
              int InIndex, DofIndexInWholeQuantity ; }             Trace ;
+    struct { char * SystemName ; int DefineSystemIndex ; 
+             int DofNumber ; }                                    DofValue ; 
     struct { List_T *WholeQuantity ; 
              int Index, NbrPoints ; }                             MHTransform ;
     struct { int Index, NbrPoints, FreqOffSet ; }                 MHJacNL ;
@@ -685,6 +698,8 @@ struct WholeQuantity {
 #define WQ_SHOWVALUE               20
 #define WQ_MHTIMEEVAL              211
 #define WQ_MHJACNL                 212
+#define WQ_DOFVALUE                213
+#define WQ_POSTSAVE                214
 
 /* TypeOperator */
 #define OP_PLUS           1
@@ -813,15 +828,24 @@ struct Operation {
     } Print ;
     struct {
       int     GroupIndex, ExpressionIndex ;
+      int     NumNode, ExpressionIndex2 ;
     } ChangeOfCoordinates ;
+    struct {
+      int     GroupIndex, ExpressionIndex1, ExpressionIndex2, Num_Node ;
+      List_T * ArgumentExpression, * ArgumentValue;
+    } ChangeOfCoordinates2 ;
     struct {
       int    CheckAll ;
       List_T * Factor_L ;
-    }SolveJac_AdaptRelax ;
+    } SolveJac_AdaptRelax ;
     struct {
       int NbrFreq;
       char    * ResFile ;
-    }SaveSolutionExtendedMH ;
+    } SaveSolutionExtendedMH ;
+    struct {
+      List_T  * Time;
+      char    * ResFile ;
+    } SaveSolutionMHtoTime ;
     struct {
       List_T *PostOperations ;
     } PostOperation ;
@@ -839,11 +863,19 @@ struct Operation {
     } Generate_MH_Moving ;
     struct {
       int     GroupIndex ;
+      double  Period ;
+      int     NbrStep ;
+      List_T  * Operation ;
+    } Generate_MH_Moving_S ;
+    struct {
+      double  dummy ; 
+    } Add_MH_Moving ;
+    struct {
+      int     GroupIndex ;
     } Generate ;
     struct {
       int     GroupIndex ;
-      char    * MeshFileBase ;
-      char    * Format ;
+      char    * FileName ;
       int     ExprIndex ;
     } SaveMesh ;
     struct {
@@ -889,9 +921,13 @@ struct ChangeOfState {
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11
 #define OPERATION_SAVESOLUTIONEXTENDEDMH  111
+#define OPERATION_SAVESOLUTIONMHTOTIME    131
 #define OPERATION_INIT_MOVINGBAND2D       444
 #define OPERATION_MESH_MOVINGBAND2D       222
 #define OPERATION_GENERATE_MH_MOVING      999
+#define OPERATION_GENERATE_MH_MOVING_S    9991
+#define OPERATION_ADD_MH_MOVING           9992
+#define OPERATION_DUMMYDOFS               9993
 
 
 #define OPERATION_SAVEMESH                333
@@ -918,6 +954,7 @@ struct ChangeOfState {
 #define OPERATION_ITERATIVETIMEREDUCTION   33
 
 #define OPERATION_CHANGEOFCOORDINATES      40
+#define OPERATION_CHANGEOFCOORDINATES2     400
 
 #define OPERATION_SYSTEMCOMMAND            50
 
@@ -983,6 +1020,7 @@ struct PostSubOperation {
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
   int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex ;
   int    ChangeOfCoordinates[3] ; 
+  double FrequencyLegend[3] ;
   char   * String, * String2 ;
   double Target, Val ;
   List_T * HeaderChar_L, * HeaderTag_L ;
@@ -990,7 +1028,8 @@ struct PostSubOperation {
   List_T * FooterChar_L, * FooterTag_L ;
   char   * FileOut ;
   List_T * TimeStep_L, * Value_L, * Iso_L, * Frequency_L ;
-  List_T * ChangeOfValues ; 
+  List_T * ChangeOfValues ;
+  struct Value * Save ;
   union {
     struct { int RegionIndex ; } OnRegion ;
     struct { double x[4], y[4], z[4] ; int n[3] ; } OnGrid ;
@@ -1003,6 +1042,7 @@ struct PostSubOperation {
 } ;
 
 /* PostOperation.Type */
+#define POP_NONE          0
 #define POP_PRINT         1
 #define POP_GROUP         2
 #define POP_ECHO          3

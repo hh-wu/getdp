@@ -4,5 +4,5 @@ for A in $*
 do
 echo modifying $A
 mv $A $A.old
-sed "s/Exp \$\";/Exp \$\"/g" $A.old  > $A
+sed "s/problems to \"getdp@geuz.org\"/problems to \<getdp@geuz.org\>/g" $A.old  > $A
 done

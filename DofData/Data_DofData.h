@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Ruth Sabariego
@@ -47,6 +47,8 @@ struct DofData {
   Tree_T  * DofTree ;
   List_T  * DofList ;
   
+  int     * DummyDof ;
+
   char    * SolverDataFileName ;
   List_T  * Solutions ;
   struct Solution  * CurrentSolution ;
@@ -57,9 +59,9 @@ struct DofData {
   List_T   *OnlyTheseMatrices ; /* For recalculating only the matrices that are required */
 
   /* Flag_Init[0] == 1 || 2 */
-  gMatrix   A ;
-  gVector   b ;
-  gSolver   Solver ;
+  gMatrix   A, A_MH_moving, A_MH_moving2 ;
+  gVector   b, b_MH_moving, b_MH_moving2 ;
+  gSolver   Solver, Solver_MH_moving ;
   gGraph    Graph ;
 
   /* Flag_Init[0] == 2 */
@@ -116,6 +118,8 @@ struct Dof {
   int       Harmonic ;  /* Key 3 */
 
   int       Type ;
+
+  struct Dof * MH_moving ;
 
   /* Sorry : j'ai du ressortir Val de l'union : un membre avec constructeur
      (gScalar avec PETSc) est interdit dans une union */

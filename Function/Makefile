@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.25 2003-04-28 03:54:32 geuzaine Exp $
+# $Id: Makefile,v 1.26 2004-01-19 16:51:15 geuzaine Exp $
 #
-# Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+# Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 # 
-# Please report all bugs and problems to "getdp@geuz.org".
+# Please report all bugs and problems to <getdp@geuz.org>.
 
 include ../variables
 
@@ -35,6 +35,7 @@ SRC = F_Analytic.c \
       F_Misc.c \
       F_Type.c \
       F_MultiHar.c \
+      F_Jiles.c \
       BF_Node.c \
       BF_Node_2.c \
       BF_Node_3.c \
@@ -139,6 +140,15 @@ F_MultiHar.o: F_MultiHar.c ../include/GetDP.h ../Main/Message.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
   ../DataStr/Tools.h
+F_Jiles.o: F_Jiles.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
+  ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Get_Geometry.h \
+  ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
+  ../DataStr/Tools.h ../NR/nrutil.h
 BF_Node.o: BF_Node.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h BF_Function.h ../Main/Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/List.h \

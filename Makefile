@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.149 2004-01-08 20:02:29 geuzaine Exp $
+# $Id: Makefile,v 1.150 2004-01-19 16:51:12 geuzaine Exp $
 #
-# Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+# Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,12 +17,12 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 # 
-# Please report all bugs and problems to "getdp@geuz.org".
+# Please report all bugs and problems to <getdp@geuz.org>.
 
 include variables
 
 GETDP_MAJOR_VERSION = 0
-GETDP_MINOR_VERSION = 90
+GETDP_MINOR_VERSION = 91
 GETDP_PATCH_VERSION = 0
 
 GETDP_VERSION_FILE = include/GetDPVersion.h
@@ -199,10 +199,10 @@ source: source-common
                                             ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
 	tar zcvf getdp-${GETDP_RELEASE}-source.tgz getdp-${GETDP_RELEASE}
 
-source-nonfree: source-common
+source-commercial: source-common
 	cd getdp-${GETDP_RELEASE} && rm -rf Scattering utils doc/slides\
                                             ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
-	tar zcvf getdp-${GETDP_RELEASE}-source-nonfree.tgz getdp-${GETDP_RELEASE}
+	tar zcvf getdp-${GETDP_RELEASE}-source-commercial.tgz getdp-${GETDP_RELEASE}
 
 rpm:
 	tar zcvf /usr/src/redhat/SOURCES/${GETDP_SRCRPM}.tar.gz ${GETDP_SOURCES}

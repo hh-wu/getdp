@@ -1,6 +1,6 @@
-#define RCSID "$Id: F_Type.c,v 1.13 2003-03-22 03:30:10 geuzaine Exp $"
+#define RCSID "$Id: F_Type.c,v 1.14 2004-01-19 16:51:15 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Johan Gyselinck
@@ -349,6 +349,87 @@ void  F_Conj (F_ARG) {
 
   default :
     Msg(ERROR, "Unknown type of arguments in function 'Conj'");
+    break;
+  }
+  
+  V->Type = A->Type ;
+
+  GetDP_End ;
+}
+
+
+/* -------------------------------------------------------------------------------- */
+/*  Cartesian coordinates (Re,Im) to polar coordinates (Amplitude,phase[Radians])   */
+/* -------------------------------------------------------------------------------- */
+
+void  F_Cart2Pol (F_ARG) {
+  int k ;
+  double Re, Im;
+
+  GetDP_Begin("F_Cart2Pol");
+
+  switch (A->Type) {
+  case SCALAR :
+    for (k = 0 ; k < Current.NbrHar ; k+=2) {
+      Re = A->Val[MAX_DIM*k] ; Im = A->Val[MAX_DIM*(k+1)] ;
+      V->Val[MAX_DIM*k] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)] = atan2(Im,Re);   
+    }
+    break;
+
+  case VECTOR :
+  case TENSOR_DIAG :
+    for (k = 0 ; k < Current.NbrHar ; k+=2) {
+      Re = A->Val[MAX_DIM*k  ] ; Im = A->Val[MAX_DIM*(k+1)  ] ;
+      V->Val[MAX_DIM*k  ] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)  ] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+1] ; Im = A->Val[MAX_DIM*(k+1)+1] ;
+      V->Val[MAX_DIM*k+1] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+1] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+2] ; Im = A->Val[MAX_DIM*(k+1)+2] ;
+      V->Val[MAX_DIM*k+2] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+2] = atan2(Im,Re);   
+    }
+    break;
+
+  case TENSOR_SYM :
+    for (k = 0 ; k < Current.NbrHar ; k+=2) {
+      Re = A->Val[MAX_DIM*k  ] ; Im = A->Val[MAX_DIM*(k+1)  ] ;
+      V->Val[MAX_DIM*k  ] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)  ] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+1] ; Im = A->Val[MAX_DIM*(k+1)+1] ;
+      V->Val[MAX_DIM*k+1] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+1] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+2] ; Im = A->Val[MAX_DIM*(k+1)+2] ;
+      V->Val[MAX_DIM*k+2] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+2] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+3] ; Im = A->Val[MAX_DIM*(k+1)+3] ;
+      V->Val[MAX_DIM*k+3] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+3] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+4] ; Im = A->Val[MAX_DIM*(k+1)+4] ;
+      V->Val[MAX_DIM*k+4] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+4] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+5] ; Im = A->Val[MAX_DIM*(k+1)+5] ;
+      V->Val[MAX_DIM*k+5] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+5] = atan2(Im,Re);   
+    }
+    break;
+
+  case TENSOR :
+    for (k = 0 ; k < Current.NbrHar ; k+=2) {
+      Re = A->Val[MAX_DIM*k  ] ; Im = A->Val[MAX_DIM*(k+1)  ] ;
+      V->Val[MAX_DIM*k  ] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)  ] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+1] ; Im = A->Val[MAX_DIM*(k+1)+1] ;
+      V->Val[MAX_DIM*k+1] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+1] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+2] ; Im = A->Val[MAX_DIM*(k+1)+2] ;
+      V->Val[MAX_DIM*k+2] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+2] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+3] ; Im = A->Val[MAX_DIM*(k+1)+3] ;
+      V->Val[MAX_DIM*k+3] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+3] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+4] ; Im = A->Val[MAX_DIM*(k+1)+4] ;
+      V->Val[MAX_DIM*k+4] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+4] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+5] ; Im = A->Val[MAX_DIM*(k+1)+5] ;
+      V->Val[MAX_DIM*k+5] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+5] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+6] ; Im = A->Val[MAX_DIM*(k+1)+6] ;
+      V->Val[MAX_DIM*k+6] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+6] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+7] ; Im = A->Val[MAX_DIM*(k+1)+7] ;
+      V->Val[MAX_DIM*k+7] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+7] = atan2(Im,Re);   
+      Re = A->Val[MAX_DIM*k+8] ; Im = A->Val[MAX_DIM*(k+1)+8] ;
+      V->Val[MAX_DIM*k+8] = sqrt(SQU(Re)+SQU(Im)) ; V->Val[MAX_DIM*(k+1)+8] = atan2(Im,Re);   
+    }
+    break;
+
+  default :
+    Msg(ERROR, "Unknown type of arguments in function 'Cart2Pol'");
     break;
   }
   

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #ifndef _DADA_FUNCTION_H_
@@ -567,6 +567,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Re"                , (CAST)F_Re               ,   0,   1 },
   {"Im"                , (CAST)F_Im               ,   0,   1 },
   {"Conj"              , (CAST)F_Conj             ,   0,   1 },
+  {"Cart2Pol"          , (CAST)F_Cart2Pol         ,   0,   1 },
   {"Vector"            , (CAST)F_Vector           ,   0,   3 },
   {"Tensor"            , (CAST)F_Tensor           ,   0,   9 },
   {"TensorV"           , (CAST)F_TensorV          ,   0,   3 },
@@ -623,6 +624,11 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"TransformPerm"         , (CAST)F_TransformPerm         ,   3,   1 }, /* pour Tuan */
   {"TransformPiezo"        , (CAST)F_TransformPiezo        ,   4,   2 }, /* pour Tuan */
   {"TransformPiezoT"       , (CAST)F_TransformPiezoT       ,   4,   2 }, /* pour Tuan */
+
+  {"dhdb_Jiles"            , (CAST)F_dhdb_Jiles            ,   1,   3 }, /* pour Johan */
+  {"dbdh_Jiles"            , (CAST)F_dbdh_Jiles            ,   1,   3 }, /* pour Johan */
+  {"h_Jiles"               , (CAST)F_h_Jiles               ,   1,   3 }, /* pour Johan */
+  {"b_Jiles"               , (CAST)F_b_Jiles               ,   1,   3 }, /* pour Johan */
 
 
   /* F_MultiHar */

@@ -1,6 +1,6 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.31 2003-05-05 23:02:52 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.32 2004-01-19 16:51:12 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   David Colignon
@@ -1203,8 +1203,8 @@ int LinAlg_ApplyFMM(void *ptr, Vec xin, Vec xout){
   ierr = VecCopy(xin, xout) ; MYCHECK(ierr) ;
   ierr = VecDuplicate(xin, &DTAxi); MYCHECK(ierr) ;
 
-  ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d xin vector:\n",ii);CHKERRQ(ierr);
-  ierr = VecView(xin,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
+  ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d xin vector:\n",ii); MYCHECK(ierr);
+  ierr = VecView(xin,PETSC_VIEWER_STDOUT_WORLD); MYCHECK(ierr);
 
   ierr = VecGetLocalSize(xin, &n);  MYCHECK(ierr) ;
   ierr = VecGetArray(xin, &tmpV);  MYCHECK(ierr) ;
@@ -1239,11 +1239,12 @@ int LinAlg_ApplyFMM(void *ptr, Vec xin, Vec xout){
      ierr = VecAXPY(&mone,DTAxi, xout);  MYCHECK(ierr) ;    
  }
 
-/*    ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d DTAxi vector:\n",ii);CHKERRQ(ierr); */
-/*    ierr = VecView(DTAxi,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr); */
-
-/*    ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d xout vector:\n",ii);CHKERRQ(ierr); */
-/*    ierr = VecView(xout,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr); */
+  /*
+    ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d DTAxi vector:\n",ii); MYCHECK(ierr);
+    ierr = VecView(DTAxi,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr);
+    ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d xout vector:\n",ii);MYCHECK(ierr);
+    ierr = VecView(xout,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
+  */
 
   ierr = VecRestoreArray(xin, &tmpV); MYCHECK(ierr);
   ierr = VecAssemblyEnd(xin); MYCHECK(ierr);
@@ -1319,7 +1320,7 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
 
  /* Build the solution vector */
 
- ierr = KSPBuildSolution(ksp,PETSC_NULL, &x); CHKERRQ(ierr) ;
+ ierr = KSPBuildSolution(ksp,PETSC_NULL, &x); MYCHECK(ierr) ;
 
  ierr = VecDuplicate(x, &DTAxi); MYCHECK(ierr);
  ierr = VecSet(&zero,DTAxi) ; MYCHECK(ierr);
@@ -1360,17 +1361,20 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
   ierr = VecDestroy(DTAxi); MYCHECK(ierr);
 
   /*
-  ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d rhs vector:\n",it);CHKERRQ(ierr);
-  ierr = VecView(rhs,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
+  ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d rhs vector:\n",it); MYCHECK(ierr);
+  ierr = VecView(rhs,PETSC_VIEWER_STDOUT_WORLD); MYCHECK(ierr);
 
-  ierr = VecDuplicate(x, &t) ;MYCHECK(ierr);ierr = VecSet(&zero,t);MYCHECK(ierr); 
-  ierr = VecDuplicate(x, &v) ;MYCHECK(ierr);ierr = VecSet(&zero,v);MYCHECK(ierr);  
+  ierr = VecDuplicate(x, &t); MYCHECK(ierr);
+  ierr = VecSet(&zero,t); MYCHECK(ierr); 
+  ierr = VecDuplicate(x, &v); MYCHECK(ierr); 
+  ierr = VecSet(&zero,v); MYCHECK(ierr);  
   ierr = KSPBuildResidual(ksp, t, v, &Residual);
   */
 
-  ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d KSP Residual norm %14.12e \n",it,rnorm);CHKERRQ(ierr);
+  ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d KSP Residual norm %14.12e \n",
+		     it, rnorm); MYCHECK(ierr);
 
- GetDP_Return(0);
+  GetDP_Return(0);
 }
 
 

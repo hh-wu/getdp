@@ -1,7 +1,7 @@
 %{
-/* $Id: GetDP.y,v 1.56 2004-01-15 10:03:07 sabarieg Exp $ */
+/* $Id: GetDP.y,v 1.57 2004-01-19 16:51:20 geuzaine Exp $ */
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Ruth Sabariego
@@ -56,6 +56,8 @@
 #include "Message.h"
 #include "Magic.h"
 
+#define MAX_OPEN_FILES  256 
+
 char  tmp[MAX_STRING_LENGTH] ;
 
 
@@ -80,8 +82,13 @@ int  fcmp_Resolution_Name          (const void *a, const void *b) ;
 int  fcmp_PostProcessing_Name      (const void *a, const void *b) ;
 int  fcmp_PostQuantity_Name        (const void *a, const void *b) ;
 int  fcmp_PostOperation_Name       (const void *a, const void *b) ;
+int  fcmp_PostSave_Name            (const void *a, const void *b) ;
+
+struct Value *  Add_PostSave(char * Name) ;
 
 int  Add_Group(struct Group * Group_P, char * Name, int Flag_Plus, int Num_Index) ;
+int  Add_Group_2(struct Group * Group_P, char * Name, int Flag_Add, 
+		 int Flag_Plus, int Num_Index1, int Num_Index2) ;
 int  Num_Group(struct Group * Group_P, char * Name, int Num_Group) ;
 int  Add_Group_Index(struct Group * Group_P, char * Name, int Flag_Plus) ;
 int  Add_Expression(struct Expression * Expression_P, char * Name, int Flag_Plus) ;
@@ -96,6 +103,7 @@ char  *strsave(char *string) ;
 void  yyerror(char *s) ;
 void  vyyerror(char *fmt, ...) ;
 int   yylex();
+void  skip_until (char *skip, char *until);
 
 extern FILE            *yyin ;
 extern long int         yylinenum ;
@@ -144,7 +152,6 @@ int      Current_System ;
 int      Nbr_Arguments ;
 int      Constraint_Index ;
 int      TypeOperatorDofInTrace, DefineQuantityIndexDofInTrace ;
-
 double   d, Value ;
 
 
@@ -235,20 +242,21 @@ time_t date_info;
 %type <l>  ListOfFormulation, RecursiveListOfFormulation
 %type <l>  ListOfSystem, RecursiveListOfSystem
 %type <l>  PostQuantities, SubPostQuantities, PostSubOperations
-%type <c>  NameForFunction, CharExpr, StrCat
+%type <c>  NameForFunction, CharExpr, StrCat, StringIndex, String__Index
 %type <t>  Quantity_Def
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
-%token  tStrCat tPrintf
-%token  tFor tEndFor
+%token  tStrCat tSprintf tPrintf tRead
+%token  tFor tEndFor tIf tElse tEndIf
+%token  tFlag tHelp tCpu tCheck
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace
 %token  tDefineConstant  tPi  t0D  t1D  t2D  t3D 
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil
 %token    tFmod tModulo tHypot 
-%token    tSolidAngle tTrace tOrder tCrossProduct
+%token    tSolidAngle tTrace tOrder tCrossProduct tDofValue
 %token    tMHTransform tMHJacNL
 
 %token  tGroup tDefineGroup tAll tInSupport tMovingBand2D
@@ -287,13 +295,14 @@ time_t date_info;
 %token        tGalerkin tdeRham tGlobalTerm tGlobalEquation
 %token          tDt tDtDof tDtDt tDtDtDof  tJacNL  tNeverDt  tDtNL
 %token          tIn
+%token          tFull_Matrix
 
 %token  tResolution
 %token    tDefineSystem
 %token      tNameOfFormulation  tNameOfMesh  tFrequency  tSolver
 %token      tOriginSystem  tDestinationSystem 
 %token    tOperation  tOperationEnd
-%token      tSetTime tDTime tSetFrequency tFourierTransform tFourierTransformJ tIf tElse
+%token      tSetTime tDTime tSetFrequency tFourierTransform tFourierTransformJ
 %token      tLanczos tPerturbation tUpdate tUpdateConstraint tBreak 
 
 %token      tTimeLoopTheta
@@ -304,17 +313,18 @@ time_t date_info;
 %token        tNbrMaxIteration  tRelaxationFactor
 %token      tIterativeTimeReduction
 %token        tDivisionCoefficient tChangeOfState
-%token      tChangeOfCoordinates tSystemCommand
+%token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand
 %token      tGenerateFMMGroups
 %token      tGenerateOnly
 %token      tGenerateOnlyJac
 %token      tSolveJac_AdaptRelax 
-%token      tSaveSolutionExtendedMH
-%token      tInit_MovingBand2D tMesh_MovingBand2D tGenerate_MH_Moving 
+%token      tSaveSolutionExtendedMH tSaveSolutionMHtoTime
+%token      tInit_MovingBand2D tMesh_MovingBand2D 
+%token      tGenerate_MH_Moving tGenerate_MH_Moving_Separate tAdd_MH_Moving 
 %token      tGenerateGroup tGenerateJacGroup
 %token      tSaveMesh
 %token      tDeformeMesh
-
+%token      tDummyFrequency
 %token  tPostProcessing
 %token      tNameOfSystem
 
@@ -327,11 +337,8 @@ time_t date_info;
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
+%token        tFrequencyLegend 
 %token        tStr, tDate
-
-%token  tFlag
-
-%token  tHelp tCpu tCheck
 
 /* ------------------------------------------------------------------ */
 /* Operators (with ascending priority): cf. C language                */
@@ -545,12 +552,13 @@ Groups :
 
 Group :
 
-    tSTRING tDEF ReducedGroupRHS tEND
+   String__Index tDEF ReducedGroupRHS tEND
     { Add_Group(&Group_S, $1, 0, 0) ; }
-
   | tSTRING Index tDEF ReducedGroupRHS tEND
     { Add_Group(&Group_S, $1, 2, $2) ; }
-
+/* Patrick, temporary for compatibility with 'String__Index' syntax (19/01/2004)
+  | String__Index DefineDimension tDEF
+*/
   | tSTRING DefineDimension tDEF
     { Nbr_Index = $2 ; }
     ReducedGroupRHS tEND
@@ -560,67 +568,21 @@ Group :
 
   | MovingBand2DGroup 
 
-  | Affectation
-
-  | ForLoop
+  | String__Index '+' tDEF ReducedGroupRHS tEND
+    { Add_Group_2(&Group_S, $1, 1, 0, 0, 0) ; }
   
+  | Affectation
+  
+  | Loop
   ;
-
-
-ForLoop :
-
-    tFor '(' FExpr tDOTS FExpr ')'
-    {
-      LoopControlVariablesTab[ImbricatedLoop][0] = $3 ;
-      LoopControlVariablesTab[ImbricatedLoop][1] = $5 ;
-      LoopControlVariablesTab[ImbricatedLoop][2] = 1.0 ;
-      LoopControlVariablesNameTab[ImbricatedLoop] = "" ;
-      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
-      yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum; /* !!! Pq? -1 ?? */
-      ImbricatedLoop++;
-    }
-  | tFor '(' FExpr tDOTS FExpr tDOTS FExpr ')'
-    {
-      LoopControlVariablesTab[ImbricatedLoop][0] = $3 ;
-      LoopControlVariablesTab[ImbricatedLoop][1] = $5 ;
-      LoopControlVariablesTab[ImbricatedLoop][2] = $7 ;
-      LoopControlVariablesNameTab[ImbricatedLoop] = "" ;
-      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
-      yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum;
-      ImbricatedLoop++;
-    }
-  | tEndFor
-    {
-      /*      fprintf(stderr, "numline = %d\n", yylinenum) ; */
-      /* !!! Probleme avec num ligne decale -> necessaire mettre un espace apres EndFor ???*/
-      if(LoopControlVariablesTab[ImbricatedLoop-1][1] >  
-	 LoopControlVariablesTab[ImbricatedLoop-1][0]){
-	LoopControlVariablesTab[ImbricatedLoop-1][0] +=
-	  LoopControlVariablesTab[ImbricatedLoop-1][2];
-	/*	
-	if(strlen(LoopControlVariablesNameTab[ImbricatedLoop-1])){
-	  TheSymbol.Name = LoopControlVariablesNameTab[ImbricatedLoop-1];
-	  pSymbol = (Symbol*)List_PQuery(Symbol_L, &TheSymbol, CompareSymbols);
-	  *(double*)List_Pointer_Fast(pSymbol->val, 0) += 
-	    LoopControlVariablesTab[ImbricatedLoop-1][2] ;
-	}
-	*/	
-	fsetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
-	yylinenum = yylinenoImbricatedLoopsTab[ImbricatedLoop-1];
-      }
-      else{
-	ImbricatedLoop--;
-      }
-    }
-;
-
 
 MovingBand2DGroup :
 
-  tSTRING '[' tINT ']' tDEF tMovingBand2D
+  String__Index '[' FExpr ']' tDEF tMovingBand2D
     { 
       Group_S.InitialList = List_Create( 1, 1, sizeof(int)) ;
-      List_Add(Group_S.InitialList, &($3)) ;
+      i = (int)$3 ;
+      List_Add(Group_S.InitialList, &i) ;
       Group_S.Type         = MOVINGBAND2D ;  
       Group_S.FunctionType = REGION ;
       Group_S.InitialSuppList = NULL ;
@@ -631,12 +593,12 @@ MovingBand2DGroup :
       Group_S.MovingBand2D = (struct MovingBand2D *)Malloc(sizeof(struct MovingBand2D)) ;
       Group_S.MovingBand2D->InitialList1 = $10 ; 
       Group_S.MovingBand2D->ExtendedList1 = NULL ; 
-      Group_S.MovingBand2D->PhysNum = $3 ; 
+      Group_S.MovingBand2D->PhysNum = (int)$3 ; 
     }
     ',' '#' ListOfRegion ',' FExpr ']' tEND
     {
       Group_S.MovingBand2D->InitialList2 = $14 ; 
-      Add_Group(&Group_S, $1, 0, 0) ;
+      Add_Group(&Group_S, $1, 0, 0) ; 
       Group_S.MovingBand2D->Period2 = (int)$16 ; 
     } 
   ;
@@ -685,7 +647,7 @@ GroupRHS :
       $$ = $1 ;
     }
 
-  | tSTRING MultipleIndex
+  | String__Index MultipleIndex
     {
       if (!Flag_MultipleIndex) {
 	if ( !strcmp($1, "All") ) {
@@ -761,7 +723,7 @@ SuppListOfRegion :
   | Comma SuppListTypeForGroup ListOfRegion
     { Type_SuppList = $2 ; $$ = $3 ; }
 
-  | Comma tInSupport tSTRING MultipleIndex
+  | Comma tInSupport String__Index MultipleIndex
     {
       Type_SuppList = SUPPLIST_INSUPPORT ;
       if (!Flag_MultipleIndex) {
@@ -914,6 +876,18 @@ IRegion :
     { Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; List_Add($$ = ListOfInt_L, &($1)) ; }
 
+  | '@' RecursiveListOfFExpr '@'
+    { 
+      Flag_MultipleIndex = 0 ;
+      List_Reset(ListOfInt_L) ;  
+      
+      for(i=0 ; i<List_Nbr($2) ; i++) {
+	List_Read($2, i, &d) ; j = (int)d ;
+	List_Add(ListOfInt_L, &j) ;
+      }
+      $$ = ListOfInt_L;
+    }
+
   | tINT tDOTS FExpr
     { 
       Flag_MultipleIndex = 0 ;
@@ -937,7 +911,7 @@ IRegion :
       $$ = ListOfInt_L ;
     }
 
-  | tSTRING
+  | String__Index
     {
       Flag_MultipleIndex = 0 ;
       if ( (i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) < 0 ) {
@@ -967,19 +941,6 @@ IRegion :
 	  }
       }
       else   /* Si c'est un nom de groupe : */
-	$$ = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList ;
-      Free($1) ;
-    }
-
-  | tSTRING '{' FExpr '}'
-    {
-      Flag_MultipleIndex = 0 ;
-      sprintf(StringAux1, "%s_%d_", $1, (int)$3) ;
-      if ( (i = List_ISearchSeq(Problem_S.Group, StringAux1, fcmp_Group_Name)) < 0 ) {
-	vyyerror("Unknown Group: %s {%d}", $1, (int)$3) ;
-	List_Reset(ListOfInt_L) ; $$ = ListOfInt_L ;
-      }
-      else
 	$$ = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList ;
       Free($1) ;
     }
@@ -1051,9 +1012,12 @@ MultipleIndex :
   ;
 
 Index :
-
+/*
     '{' FExpr '}'    { $$ = (int)$2 ; }
+*/
+    '{' tINT '}'    { $$ = (int)$2 ; }
   ;
+
 
 
 /* ------------------------------------------------------------------------ */
@@ -1135,6 +1099,8 @@ Function :
     }
 
   | Affectation
+
+  | Loop
   ;
 
 
@@ -1510,7 +1476,7 @@ WholeQuantity_Single :
 
   | Quantity_Def ArgumentsForFunction
     { 
-      if($2!=3 && $2!=4 && $2!=1) /* Modification for using the previous result of a Quantity */
+      if($2!=1 && $2!=3 && $2!=4) /* Modification for using the previous result of a Quantity */
 	vyyerror("Wrong number of arguments for discrete quantity evaluation (%d)", $2) ;
       WholeQuantity_S.Type = WQ_OPERATORANDQUANTITYEVAL ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = $2 ;
@@ -1674,10 +1640,31 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
-  | WholeQuantity_Single tSHOW tINT
+  | '$''$' String__Index
+    {
+      WholeQuantity_S.Type = WQ_POSTSAVE ;
+      WholeQuantity_S.Case.PostSave.Value = (struct Value *)Add_PostSave($3) ;
+      printf("PostSave %p\n", (struct Value *)Add_PostSave($3)) ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+    }
+
+  | WholeQuantity_Single tSHOW FExpr
     {
       WholeQuantity_S.Type = WQ_SHOWVALUE ;
-      WholeQuantity_S.Case.ShowValue.Index = $3 ;
+      WholeQuantity_S.Case.ShowValue.Index = (int)$3 ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+    }
+
+  | tDofValue '[' tSTRING ',' tINT ']' 
+    {
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("DofValue : Unknown System: %s", $3) ;
+      //Free($3) ;
+      WholeQuantity_S.Case.DofValue.DefineSystemIndex = i ;
+      WholeQuantity_S.Type = WQ_DOFVALUE ;
+      WholeQuantity_S.Case.DofValue.SystemName = $3 ;
+      WholeQuantity_S.Case.DofValue.DofNumber = $5 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
@@ -2012,6 +1999,7 @@ Constraints :
 	Problem_S.Constraint = List_Create(20, 20, sizeof (struct Constraint) ) ;
     }
 
+  | Loop
   | Constraints BracedConstraint 
   ;
 
@@ -2056,13 +2044,13 @@ Constraint :
 
 ConstraintTerm :
 
-    tName tSTRING tEND
+    tName String__Index tEND
     { Nbr_Index = 0 ;
       Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, $2,
 				 fcmp_Constraint_Name) ;
       Constraint_S.Name = $2 ; }
 
-  | tName tSTRING DefineDimension tEND
+  | tName String__Index DefineDimension tEND
     { Nbr_Index = $3 ;
       sprintf(StringAux1, "%s_%d_", $2, 1) ;
       Check_NameOfStructNotExist("Constraint", Problem_S.Constraint,
@@ -2098,6 +2086,8 @@ ConstraintTerm :
       else
 	vyyerror("Multiple Constraint not allowed for Case Constraint") ;
     }
+
+
   ;
 
 
@@ -2137,6 +2127,11 @@ ConstraintCases :
 	$$ = Constraint_S.ConstraintPerRegion ;
       }
     }
+
+  | ConstraintCases Loop
+    { 
+      $$ = $1 ;
+    }
   ;
 
 
@@ -2169,7 +2164,10 @@ ConstraintCaseTerm :
   | tRegion GroupRHS tEND
     { 
       if (!Nbr_Index)
+	{
 	ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, "CO_Region", $2) ;
+	//printf("index  %d \n", ConstraintPerRegion_S.RegionIndex );
+	}
       else {
 	List_Reset(ListOfRegionIndex) ;
 	if ($2 >= 0) {
@@ -2236,11 +2234,11 @@ ConstraintCaseTerm :
       else  vyyerror("NameOfResolution incompatible with Type") ;
     }
 
-  | tBranch '{' tINT Comma tINT '}' tEND
+  | tBranch '{' OneFExpr Comma OneFExpr '}' tEND
     {
       if (ConstraintPerRegion_S.Type == NETWORK) {
-	ConstraintPerRegion_S.Case.Network.Node1 = $3 ;
-	ConstraintPerRegion_S.Case.Network.Node2 = $5 ;
+	ConstraintPerRegion_S.Case.Network.Node1 = (int)$3 ;
+	ConstraintPerRegion_S.Case.Network.Node2 = (int)$5 ;
       }
       else  vyyerror("Branch incompatible with Type") ;
     }
@@ -2366,6 +2364,8 @@ BracedFunctionSpace :
     }
 
   | Affectation
+
+  | Loop  
   ;
 
 
@@ -2384,7 +2384,7 @@ FunctionSpace :
 
 FunctionSpaceTerm :
 
-    tName tSTRING tEND
+    tName String__Index tEND
     { Nbr_Index = 0 ;
       Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
 				 $2, fcmp_FunctionSpace_Name) ;
@@ -2866,7 +2866,7 @@ GlobalQuantity :
 
 GlobalQuantityTerm :
 
-    tName tSTRING tEND
+    tName String__Index tEND
     { Check_NameOfStructNotExist("GlobalQuantity", Current_GlobalQuantity_L,
 				 $2, fcmp_GlobalQuantity_Name) ;
       GlobalQuantity_S.Name = $2 ; }
@@ -3016,6 +3016,7 @@ ConstraintInFSTerm :
       }
       Free($2) ;
     }
+
 /* Attention: doit disparaitre
   | tEntity FunctionForGroup tNameOfConstraint tSTRING tEND
     {
@@ -3037,7 +3038,7 @@ ConstraintInFSTerm :
   | tEntitySubType SuppListTypeForGroup tEND
     { Type_SuppList = $2 ; }
 
-  | tNameOfConstraint tSTRING MultipleIndex tEND
+  | tNameOfConstraint String__Index MultipleIndex tEND
     {
       if (!Nbr_Index) {
 	if (!Flag_MultipleIndex) {
@@ -3114,6 +3115,8 @@ BracedFormulation :
     }
 
   | Affectation
+
+  | Loop
   ;
 
 
@@ -3131,7 +3134,7 @@ Formulation :
 
 FormulationTerm :
 
-    tName tSTRING tEND
+    tName String__Index tEND
     { Nbr_Index = 0 ;
       Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
 				 $2, fcmp_Formulation_Name) ;
@@ -3189,6 +3192,8 @@ DefineQuantities :
 	  }
       }
     }
+
+  | DefineQuantities Loop
   ;
 
 
@@ -3201,6 +3206,7 @@ DefineQuantity :
       DefineQuantity_S.FunctionSpaceIndex = -1 ;
       DefineQuantity_S.DofDataIndex = -1 ;
       DefineQuantity_S.DofData = NULL ;
+      DefineQuantity_S.DummyFrequency = NULL ;
 
       DefineQuantity_S.IntegralQuantity.InIndex = -1 ;
       DefineQuantity_S.IntegralQuantity.IntegrationMethodIndex = -1 ;
@@ -3216,7 +3222,7 @@ DefineQuantity :
 
 DefineQuantityTerm :
 
-    tName tSTRING tEND
+    tName String__Index tEND
     { DefineQuantity_S.Name = $2 ; }
 
   | tType tGlobalQuantity tEND
@@ -3236,8 +3242,57 @@ DefineQuantityTerm :
       Free($2) ;
     }
 
-  | tNameOfSpace tSTRING MultipleIndex
+
+  | tDummyFrequency ListOfFExpr tEND
+    { DefineQuantity_S.DummyFrequency = $2;
+    }
+
+
+
+  | tNameOfSpace String__Index 
     {
+      if (!Nbr_Index) {
+	if ((i = List_ISearchSeq(Problem_S.FunctionSpace, $2,
+				 fcmp_FunctionSpace_Name)) < 0)
+	  vyyerror("Unknown FunctionSpace: %s", $2) ;
+	else
+	  DefineQuantity_S.FunctionSpaceIndex = i ;
+      }
+      else{ 
+	vyyerror("Multiple Formulation out of context: %s {}", $2) ;
+      }
+    }
+    IndexInFunctionSpace tEND
+    { 
+      if (DefineQuantity_S.FunctionSpaceIndex >= 0) {
+	if (DefineQuantity_S.Type == GLOBALQUANTITY &&
+	    !DefineQuantity_S.IndexInFunctionSpace) {
+	  if (DefineQuantity_S.Name) {
+	    List_Read(Problem_S.FunctionSpace,
+		      DefineQuantity_S.FunctionSpaceIndex, &FunctionSpace_S) ;
+	    if ((i = List_ISearchSeq(FunctionSpace_S.GlobalQuantity, 
+				     DefineQuantity_S.Name,
+				     fcmp_GlobalQuantity_Name)) < 0) {
+	      vyyerror("Unknown GlobalQuantity: %s", DefineQuantity_S.Name) ;
+	    }
+	    else {
+	      DefineQuantity_S.IndexInFunctionSpace = List_Create(1, 1, sizeof(int));
+	      List_Add(DefineQuantity_S.IndexInFunctionSpace, &i) ;
+	    }
+	  }
+	  else  vyyerror("No Name pre-defined for GlobalQuantity") ;
+	}
+      }
+     
+    }
+
+/* Patrick, temporary for compatibility with 'String__Index' syntax (19/01/2004)
+  | tNameOfSpace tSTRING MultipleIndex
+*/
+  | tNameOfSpace tSTRING '{' '}'
+    {
+      Flag_MultipleIndex = 1 ;
+
       if (!Nbr_Index) {
 	if (!Flag_MultipleIndex){
 	  if ((i = List_ISearchSeq(Problem_S.FunctionSpace, $2,
@@ -3276,7 +3331,7 @@ DefineQuantityTerm :
       }
     }
     IndexInFunctionSpace tEND
-    { /* attention : doit disparaitre.  */
+    { // attention : doit disparaitre.  
       if (DefineQuantity_S.FunctionSpaceIndex >= 0) {
 	if (DefineQuantity_S.Type == GLOBALQUANTITY &&
 	    !DefineQuantity_S.IndexInFunctionSpace) {
@@ -3298,6 +3353,8 @@ DefineQuantityTerm :
       }
       Free($2) ;
     }
+
+
 
   | tIndexOfSystem tINT tEND
     { 
@@ -3661,7 +3718,7 @@ DefineQuantityTerm :
 IndexInFunctionSpace :
 
     /* none */
-  | '[' tSTRING ']'
+  | '[' String__Index ']'
     {
       if (DefineQuantity_S.FunctionSpaceIndex >= 0) {
 	if (DefineQuantity_S.Type == LOCALQUANTITY) {
@@ -3738,6 +3795,16 @@ Equations :
 	  }
 	$$ = Formulation_S.Equation ;
       }
+    }
+
+  | Equations  Affectation
+    {
+      $$ = $1 ;
+    }
+
+  | Equations  Loop
+    {
+      $$ = $1 ;
     }
   ;
 
@@ -3847,6 +3914,7 @@ LocalTerm :
       EquationTerm_S.Case.LocalTerm.MatrixIndex = -1 ;
       EquationTerm_S.Case.LocalTerm.JacobianMethodIndex = -1 ;
       EquationTerm_S.Case.LocalTerm.Active = NULL ;
+      EquationTerm_S.Case.LocalTerm.Full_Matrix = 0 ;
     }
 
   | LocalTerm LocalTermTerm
@@ -4030,6 +4098,11 @@ LocalTermTerm  :
       Free($2) ;
     }
 
+  | tFull_Matrix tEND
+    {
+      EquationTerm_S.Case.LocalTerm.Full_Matrix = 1; 
+    }
+
   | tFMMIntegration tSTRING tEND
     { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, $2,
 			       fcmp_IntegrationMethod_Name)) < 0)
@@ -4045,7 +4118,6 @@ LocalTermTerm  :
       else
 	vyyerror("Unknown Matrix123: %d", $3) ;
     }
-
   ;
 
 
@@ -4198,7 +4270,7 @@ TermOperator :
 
 Quantity_Def :
 
-    '{' tSTRING tSTRING '}'
+    '{' tSTRING String__Index '}'
     { $$.Int1 = Get_DefineForString(Operator_Type, $2, &FlagError) ;
       if (FlagError){
 	vyyerror("Unknown Operator for discrete Quantity: %s", $2);
@@ -4219,7 +4291,7 @@ Quantity_Def :
       Free($3) ;
     }
 
-  | '{' tSTRING '}'
+  | '{' String__Index '}'
     { $$.Int1 = NOOP ;
 
       if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, $2,
@@ -4273,6 +4345,8 @@ BracedResolution :
     }
 
   | Affectation
+
+  | Loop
   ;
 
 
@@ -4290,7 +4364,7 @@ Resolution :
 
 ResolutionTerm :
 
-    tName tSTRING tEND
+    tName String__Index tEND
     { Nbr_Index = 0 ;
       Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
 				 $2, fcmp_Resolution_Name) ;
@@ -4311,6 +4385,8 @@ ResolutionTerm :
     { Operation_L = List_Create( 5, 5, sizeof(struct Operation)) ; }
     '{' Operation '}'
     { Resolution_S.Operation = $4 ;  List_Delete(Operation_L) ; }
+
+  | Loop
   ;
 
 
@@ -4344,6 +4420,12 @@ DefineSystems :
 	$$ = Current_System_L = Resolution_S.DefineSystem ;
       }
     }
+
+  |  DefineSystems Loop
+     {
+       $$ = $1 ;
+     }
+
   ;
 
 
@@ -4369,7 +4451,7 @@ DefineSystem :
 
 DefineSystemTerm :
 
-    tName tSTRING tEND
+    tName String__Index tEND
     { DefineSystem_S.Name = $2 ; }
 
   | tType tSTRING tEND
@@ -4408,12 +4490,13 @@ DefineSystemTerm :
     {
       DefineSystem_S.SolverDataFileName = $2 ;
     }
+  | Loop
   ;
 
 
 ListOfFormulation :
 
-    tSTRING MultipleIndex
+    String__Index MultipleIndex
     {
       if (!Nbr_Index) {
 	$$ = List_Create(1, 1, sizeof(int)) ;
@@ -4460,7 +4543,7 @@ RecursiveListOfFormulation :
     /* none */    
     { $$ = List_Create(2, 2, sizeof(int)) ; }
 
-  | RecursiveListOfFormulation Comma tSTRING
+  | RecursiveListOfFormulation Comma String__Index
     {
       if ((i = List_ISearchSeq(Problem_S.Formulation, $3, fcmp_Formulation_Name)) < 0)
 	vyyerror("Unknown Formulation: %s", $3) ;
@@ -4472,7 +4555,7 @@ RecursiveListOfFormulation :
 
 ListOfSystem :
 
-    tSTRING
+    String__Index
     {
       $$ = List_Create(1, 1, sizeof(int)) ;
       if ((i = List_ISearchSeq(Current_System_L, $1, fcmp_DefineSystem_Name)) < 0)
@@ -4491,7 +4574,7 @@ RecursiveListOfSystem :
     /* none */    
     { $$ = List_Create(2, 2, sizeof(int)) ; }
 
-  | RecursiveListOfSystem Comma tSTRING
+  | RecursiveListOfSystem Comma String__Index
     {
       if ((i = List_ISearchSeq(Current_System_L, $3, fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $3) ;
@@ -4513,8 +4596,10 @@ Operation :
 
   | Operation OperationTerm
     { 
-      List_Add($$ = $1, (struct Operation*)
-	       List_Pointer(Operation_L, List_Nbr(Operation_L)-1)) ; 
+      if (((struct Operation*)
+	  List_Pointer(Operation_L, List_Nbr(Operation_L)-1))->Type !=  OPERATION_NONE)
+	List_Add($$ = $1, (struct Operation*)
+		 List_Pointer(Operation_L, List_Nbr(Operation_L)-1)) ; 
     }
   ;
 
@@ -4522,7 +4607,7 @@ OperationTerm :
 
   /* OLD syntax */
 
-    tSTRING tSTRING tEND
+    tSTRING String__Index tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = Get_DefineForString(Operation_Type, $1, &FlagError) ;
@@ -4577,7 +4662,7 @@ OperationTerm :
 
   /* NEW syntax (function style): Only missing is IterativeTimeReduction */
 
-  | tSTRING '[' tSTRING ']' tEND
+  | tSTRING '[' String__Index ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = Get_DefineForString(Operation_Type, $1, &FlagError) ;
@@ -4920,9 +5005,49 @@ OperationTerm :
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
 	Num_Group(&Group_S, "OP_ChgCoord", $3) ;
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = $5 ; 
+      Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = -1 ; 
     }
 
-  | tPostOperation '[' tSTRING ']' tEND
+  | tChangeOfCoordinates '[' GroupRHS ',' Expression ',' FExpr ',' Expression ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_CHANGEOFCOORDINATES ;
+      Operation_P->Case.ChangeOfCoordinates.GroupIndex =
+	Num_Group(&Group_S, "OP_ChgCoord", $3) ;
+      Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = $5 ;
+      Operation_P->Case.ChangeOfCoordinates.NumNode = (int)$7 ;
+      Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = $9 ; 
+    }
+
+  | tChangeOfCoordinates2 '[' GroupRHS ',' ListOfExpression 
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_CHANGEOFCOORDINATES2 ;
+      Operation_P->Case.ChangeOfCoordinates2.GroupIndex =
+	Num_Group(&Group_S, "OP_ChgCoord2", $3) ;
+
+      Operation_P->Case.ChangeOfCoordinates2.ArgumentExpression = List_Copy(ListOfInt_L); 
+      Operation_P->Case.ChangeOfCoordinates2.ArgumentValue = NULL; 
+
+    }
+    ',' tSTRING ',' tSTRING ',' FExpr ']' tEND
+    {
+      if ((i = List_ISearchSeq(Problem_S.Expression, $8,fcmp_Expression_Name)) < 0) 
+	vyyerror("Undefined function '%s' used in ChangeOfCoordinates2 ", $8) ;
+      Operation_P->Case.ChangeOfCoordinates2.ExpressionIndex1 = i ;
+
+      if ((i = List_ISearchSeq(Problem_S.Expression, $10,fcmp_Expression_Name)) < 0) 
+	vyyerror("Undefined function '%s' used in ChangeOfCoordinates2 ", $10) ;
+      Operation_P->Case.ChangeOfCoordinates2.ExpressionIndex2 = i ;
+
+      Operation_P->Case.ChangeOfCoordinates2.Num_Node = (int)$12 ;
+ 
+    }
+
+
+  | tPostOperation '[' String__Index ']' tEND
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -4966,25 +5091,41 @@ OperationTerm :
       Operation_P->Case.SaveSolutionExtendedMH.ResFile = $7 ;
     }
 
-  | tInit_MovingBand2D  '{' tSTRING '}' tEND
+  | tSaveSolutionMHtoTime '[' tSTRING ',' ListOfFExpr ',' CharExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_SAVESOLUTIONMHTOTIME ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.SaveSolutionMHtoTime.Time = $5 ;
+      Operation_P->Case.SaveSolutionMHtoTime.ResFile = $7 ;
+    }
+
+
+  | tInit_MovingBand2D  '{' String__Index '}' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
       if (( i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0) 
-	vyyerror("Unknown Group: %s", $3) ;
+   	vyyerror("Unknown Group: %s", $3) ;
       Operation_P->Type = OPERATION_INIT_MOVINGBAND2D ;
-      Operation_P->Case.Init_MovingBand2D.GroupIndex = i ;
+            Operation_P->Case.Init_MovingBand2D.GroupIndex = i ;
       Free($3) ;
     }
-  | tMesh_MovingBand2D  '{' tSTRING '}' tEND
+
+  | tMesh_MovingBand2D  '{' String__Index '}' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
       if (( i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0) 
-	vyyerror("Unknown Group: %s", $3) ;
+    	vyyerror("Unknown Group: %s", $3) ;
       Operation_P->Type = OPERATION_MESH_MOVINGBAND2D ;
       Operation_P->Case.Mesh_MovingBand2D.GroupIndex = i ;
       Free($3) ;
     }
-  | tSaveMesh  '{' tSTRING ',' GroupRHS ',' CharExpr ',' CharExpr ',' Expression '}' tEND
+
+  | tSaveMesh  '{' String__Index ',' GroupRHS ',' CharExpr ',' Expression '}' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
@@ -4993,12 +5134,12 @@ OperationTerm :
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", $5) ;
-      Operation_P->Case.SaveMesh.MeshFileBase = $7 ;
-      Operation_P->Case.SaveMesh.Format = $9 ;
-      Operation_P->Case.SaveMesh.ExprIndex = $11 ;
+      Operation_P->Case.SaveMesh.FileName = $7 ;
+      Operation_P->Case.SaveMesh.ExprIndex = $9 ;
       Operation_P->Type = OPERATION_SAVEMESH ;
     }
-  | tSaveMesh  '{' tSTRING ',' GroupRHS ',' CharExpr '}' tEND
+
+  | tSaveMesh  '{' String__Index ',' GroupRHS ',' CharExpr '}' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
@@ -5007,9 +5148,57 @@ OperationTerm :
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", $5) ;
-      Operation_P->Case.SaveMesh.MeshFileBase = $7 ;
-      Operation_P->Case.SaveMesh.Format = NULL ;
+      Operation_P->Case.SaveMesh.FileName = $7 ;
+      Operation_P->Case.SaveMesh.ExprIndex = -1 ;
       Operation_P->Type = OPERATION_SAVEMESH ;
+    }
+
+  | tGenerate_MH_Moving  '[' tSTRING ',' tSTRING ',' FExpr ',' FExpr ']' '{' Operation '}'  tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      if (( i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0) 
+	vyyerror("Unknown Group: %s", $5) ;
+      Free($5) ;
+      Operation_P->Type = OPERATION_GENERATE_MH_MOVING ;
+      Operation_P->Case.Generate_MH_Moving.GroupIndex = i ;
+      Operation_P->Case.Generate_MH_Moving.Period  = $7 ;
+      Operation_P->Case.Generate_MH_Moving.NbrStep = (int)$9 ;
+      Operation_P->Case.Generate_MH_Moving.Operation = $12 ;
+    }
+
+  | tGenerate_MH_Moving_Separate  '[' tSTRING ',' tSTRING ',' FExpr ',' FExpr ']' 
+                                  '{' Operation '}'  tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      if (( i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0) 
+	vyyerror("Unknown Group: %s", $5) ;
+      Free($5) ;
+      Operation_P->Type = OPERATION_GENERATE_MH_MOVING_S ;
+      Operation_P->Case.Generate_MH_Moving_S.GroupIndex = i ;
+      Operation_P->Case.Generate_MH_Moving_S.Period  = $7 ;
+      Operation_P->Case.Generate_MH_Moving_S.NbrStep = (int)$9 ;
+      Operation_P->Case.Generate_MH_Moving_S.Operation = $12 ;
+    }
+
+  | tAdd_MH_Moving  '[' tSTRING ',' FExpr ']'  tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->Type = OPERATION_ADD_MH_MOVING ;
+      Operation_P->Case.Add_MH_Moving.dummy = $5 ;
     }
 
   | tDeformeMesh  '{' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr ',' tFLOAT '}' tEND
@@ -5026,6 +5215,7 @@ OperationTerm :
       Operation_P->Case.DeformeMesh.Factor = $10 ;
       Operation_P->Type = OPERATION_DEFORMEMESH ;
     }
+
   | tDeformeMesh  '{' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr '}' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -5056,24 +5246,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_DEFORMEMESH ;
     }
 
-  | tGenerate_MH_Moving  '[' tSTRING ',' tSTRING ',' FExpr ',' FExpr ']' '{' Operation '}'  tEND
-    { Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
-			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", $3) ;
-      Free($3) ;
-      Operation_P->DefineSystemIndex = i ;
-      if (( i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0) 
-	vyyerror("Unknown Group: %s", $5) ;
-      Free($5) ;
-      Operation_P->Type = OPERATION_GENERATE_MH_MOVING ;
-      Operation_P->Case.Generate_MH_Moving.GroupIndex = i ;
-      Operation_P->Case.Generate_MH_Moving.Period  = $7 ;
-      Operation_P->Case.Generate_MH_Moving.NbrStep = (int)$9 ;
-      Operation_P->Case.Generate_MH_Moving.Operation = $12 ;
-    }
- | tGenerateGroup  '[' tSTRING ',' tSTRING ']'  tEND
+  | tGenerateGroup  '[' tSTRING ',' tSTRING ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
@@ -5087,7 +5260,8 @@ OperationTerm :
       Operation_P->Type = OPERATION_GENERATE ;
       Operation_P->Case.Generate.GroupIndex = i ;
     }
- | tGenerateJacGroup  '[' tSTRING ',' tSTRING ']'  tEND
+
+  | tGenerateJacGroup  '[' tSTRING ',' tSTRING ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
@@ -5101,6 +5275,13 @@ OperationTerm :
       Operation_P->Type = OPERATION_GENERATEJAC ;
       Operation_P->Case.Generate.GroupIndex = i ;
     }
+
+  | Loop
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = NONE ;
+    } 
   ;
 
 
@@ -5507,7 +5688,7 @@ PostProcessing :
   ;
 
 PostProcessingTerm :
-    tName tSTRING tEND
+    tName String__Index tEND
     { Nbr_Index = 0 ;
       Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
 				 $2, fcmp_PostProcessing_Name) ;
@@ -5522,7 +5703,7 @@ PostProcessingTerm :
       PostProcessing_S.Name = $2 ; 
     }
 
-  | tNameOfFormulation tSTRING MultipleIndex tEND
+  | tNameOfFormulation String__Index MultipleIndex tEND
     { 
       if (!Nbr_Index) {
 	if (!Flag_MultipleIndex){
@@ -5584,6 +5765,12 @@ PostQuantities :
 
   | PostQuantities '{' PostQuantity '}'
     { List_Add($$ = $1, &PostQuantity_S) ; }
+
+  | PostQuantities  Affectation 
+    { $$ = $1 ; }
+  | PostQuantities  Loop 
+    { $$ = $1 ; }
+
   ;
 
 PostQuantity :
@@ -5598,7 +5785,7 @@ PostQuantity :
 
 
 PostQuantityTerm :
-    tName tSTRING tEND
+    tName String__Index tEND
     { PostQuantity_S.Name = $2 ; }
 
   | tValue '{' SubPostQuantities '}'
@@ -5739,7 +5926,9 @@ BracedPostOperation :
     '{' PostOperation '}'
     { List_Add(Problem_S.PostOperation, &PostOperation_S) ; }
 
-  | Affectation  
+  | Affectation
+  
+  | Loop
   ;
 
 PostOperation :
@@ -5755,7 +5944,7 @@ PostOperation :
   ;
 
 PostOperationTerm :
-    tName tSTRING tEND
+    tName String__Index tEND
     { 
       Check_NameOfStructNotExist("PostOperation", Problem_S.PostOperation,
 				 $2, fcmp_PostOperation_Name) ;
@@ -5796,7 +5985,7 @@ PostOperationTerm :
 
 
 SeparatePostOperation :
-    tPostOperation tSTRING tUsingPost tSTRING
+    tPostOperation String__Index tUsingPost String__Index
     {
       PostOperation_S.PostProcessingIndex = -1 ;
       PostOperation_S.AppendString = NULL ;  
@@ -5832,9 +6021,11 @@ PostSubOperations :
     }
     PostSubOperation
     { 
-      if(PostSubOperation_S.Format<0)
-	PostSubOperation_S.Format = PostOperation_S.Format ;
-      List_Add($$ = $1, &PostSubOperation_S) ; 
+      if (PostSubOperation_S.Type != POP_NONE) {
+	if(PostSubOperation_S.Format<0)
+	  PostSubOperation_S.Format = PostOperation_S.Format ;
+	List_Add($$ = $1, &PostSubOperation_S) ; 
+      }
     }
   ;
 
@@ -5848,7 +6039,15 @@ PostSubOperation :
   | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_PRINT ;
+      PostSubOperation_S.Save = NULL ;
     }
+
+  | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' '-' '>' '$' '$' String__Index tEND
+    {
+      PostSubOperation_S.Type = POP_PRINT ;
+      PostSubOperation_S.Save = ((struct Value *)Add_PostSave($11)) ;
+    }
+
   | tPrint '[' tBIGSTR ',' FExpr PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_PRINTVAL ;
@@ -5861,6 +6060,7 @@ PostSubOperation :
       PostSubOperation_S.String = $3 ;
       PostSubOperation_S.String2 = $7 ;
     }
+
   | tPrintGroup '[' GroupRHS 
     {
       PostSubOperation_S.Type = POP_GROUP ;
@@ -5870,6 +6070,12 @@ PostSubOperation :
     {
       PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, "PO_Group", $7) ;
     }
+
+  | Loop
+    {
+      PostSubOperation_S.Type = POP_NONE ;
+    }
+
   | tEcho '[' tBIGSTR PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_ECHO ;
@@ -5879,7 +6085,7 @@ PostSubOperation :
 
 PostQuantitiesToPrint :
 
-    tSTRING PostQuantitySupport ','
+    String__Index PostQuantitySupport ','
     {
       if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1, 
 			       fcmp_PostQuantity_Name)) < 0)
@@ -5891,7 +6097,7 @@ PostQuantitiesToPrint :
       Free($1) ;
     }
 
- |  tSTRING  PostQuantitySupport Combination tSTRING  PostQuantitySupport ','
+ |  String__Index  PostQuantitySupport Combination tSTRING  PostQuantitySupport ','
     {
       if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1, 
 			       fcmp_PostQuantity_Name)) < 0)
@@ -6129,6 +6335,7 @@ PrintOptions :
       PostSubOperation_S.ChangeOfCoordinates[1] = -1 ;
       PostSubOperation_S.ChangeOfCoordinates[2] = -1 ;
       PostSubOperation_S.ChangeOfValues = NULL ;
+      PostSubOperation_S.FrequencyLegend[0] = -1 ;
     }
   | PrintOptions PrintOption 
   ;
@@ -6299,6 +6506,15 @@ PrintOption :
     { 
       PostSubOperation_S.ChangeOfValues = List_Copy(ListOfInt_L) ;
     }
+
+  | ',' tFrequencyLegend '{' FExpr ',' FExpr ',' FExpr '}'
+    { 
+      PostSubOperation_S.FrequencyLegend[0] = $4 ;
+      PostSubOperation_S.FrequencyLegend[1] = $6 ;
+      PostSubOperation_S.FrequencyLegend[2] = $8 ;
+    }
+
+
   ;
 
 
@@ -6352,13 +6568,109 @@ ParsedStrings :
 ;
 
 
+
+
+/* ------------------------------------------------------------------------ */
+/*  L o o p                                                                 */
+/* ------------------------------------------------------------------------ */
+
+Loop :
+  
+    tFor '(' FExpr tDOTS FExpr ')'
+    {
+      LoopControlVariablesTab[ImbricatedLoop][0] = $3 ;
+      LoopControlVariablesTab[ImbricatedLoop][1] = $5 ;
+      LoopControlVariablesTab[ImbricatedLoop][2] = 1.0 ;
+      LoopControlVariablesNameTab[ImbricatedLoop] = "" ;
+      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
+      yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
+      ImbricatedLoop++;
+    }
+  | tFor '(' FExpr tDOTS FExpr tDOTS FExpr ')'
+    {
+      LoopControlVariablesTab[ImbricatedLoop][0] = $3 ;
+      LoopControlVariablesTab[ImbricatedLoop][1] = $5 ;
+      LoopControlVariablesTab[ImbricatedLoop][2] = $7 ;
+      LoopControlVariablesNameTab[ImbricatedLoop] = "" ;
+      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
+      yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
+      ImbricatedLoop++;
+    }
+  | tFor tSTRING tIn '{' FExpr tDOTS FExpr '}' 
+    {
+      LoopControlVariablesTab[ImbricatedLoop][0] = $5 ;
+      LoopControlVariablesTab[ImbricatedLoop][1] = $7 ;
+      LoopControlVariablesTab[ImbricatedLoop][2] = 1.0 ;
+      LoopControlVariablesNameTab[ImbricatedLoop] = $2 ;      
+      Constant_S.Name = $2 ; 
+      Constant_S.Type = VAR_FLOAT ;
+      Constant_S.Value.Float = $5 ;
+      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
+      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
+      yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
+      ImbricatedLoop++;
+    }
+  | tFor tSTRING tIn '{' FExpr tDOTS FExpr tDOTS FExpr '}' 
+    {
+      LoopControlVariablesTab[ImbricatedLoop][0] = $5 ;
+      LoopControlVariablesTab[ImbricatedLoop][1] = $7 ;
+      LoopControlVariablesTab[ImbricatedLoop][2] = $9 ;
+      LoopControlVariablesNameTab[ImbricatedLoop] = $2 ;      
+      Constant_S.Name = $2 ; 
+      Constant_S.Type = VAR_FLOAT ;
+      Constant_S.Value.Float = $5 ;
+      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
+      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
+      yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
+      ImbricatedLoop++;
+    }
+  | tEndFor 
+    {
+      if(LoopControlVariablesTab[ImbricatedLoop-1][1] >  
+	 LoopControlVariablesTab[ImbricatedLoop-1][0]){
+	LoopControlVariablesTab[ImbricatedLoop-1][0] +=
+	  LoopControlVariablesTab[ImbricatedLoop-1][2];
+		
+	if(strlen(LoopControlVariablesNameTab[ImbricatedLoop-1])){
+	  Constant_S.Name = LoopControlVariablesNameTab[ImbricatedLoop-1] ; 
+	  Constant_S.Type = VAR_FLOAT ;
+	  Constant_S.Value.Float = LoopControlVariablesTab[ImbricatedLoop-1][0] ;
+
+	  if ((i=List_ISearchSeq(ConstantTable_L, &Constant_S, fcmp_Constant))<0) 
+	    vyyerror("Something wrong with For loop starting ") ;
+
+	  List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;      
+	}
+
+	fsetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
+	yylinenum = yylinenoImbricatedLoopsTab[ImbricatedLoop-1]-1;
+      }
+      else{
+	ImbricatedLoop--;
+      }
+    }
+
+  | tIf '(' FExpr ')'
+    {
+      if(!$3) skip_until("If", "EndIf");
+    }
+  | tEndIf
+    {
+    }
+
+;
+
+
+
 /* ------------------------------------------------------------------------ */
 /*  C o n s t a n t   E x p r e s s i o n s  (FExpr)                        */
 /* ------------------------------------------------------------------------ */
 
 Affectation :
 
-    tSTRING tDEF ListOfFExpr tEND
+   tDefineConstant '[' DefineConstants ']' tEND
+
+  | String__Index  tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1 ; 
       if(List_Nbr($3) == 1){
@@ -6373,25 +6685,23 @@ Affectation :
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
 
-  | tSTRING tDEF tBIGSTR tEND
+  | String__Index tDEF tBIGSTR tEND
     { Constant_S.Name = $1 ; Constant_S.Type = VAR_CHAR ;
       Constant_S.Value.Char = $3 ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
 
-  | tSTRING tDEF tStr '[' CharExpr ']' tEND
+  | String__Index tDEF tStr '[' CharExpr ']' tEND
     { Constant_S.Name = $1 ; Constant_S.Type = VAR_CHAR ;
       Constant_S.Value.Char = $5 ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
 
-  | tSTRING tDEF StrCat tEND
+  | String__Index tDEF StrCat tEND
     { Constant_S.Name = $1 ; Constant_S.Type = VAR_CHAR ;
       Constant_S.Value.Char = $3 ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
-
-  | tDefineConstant '[' DefineConstants ']' tEND
 
   | tPrintf '(' tBIGSTR ')' tEND
     {
@@ -6409,6 +6719,16 @@ Affectation :
 	Msg(INFO, tmpstring);
       List_Delete($5);
     }
+
+  | tRead '(' String__Index ')' tEND
+    {
+      Msg(INFO, "Enter %s",$3);
+      scanf("%lf",&Constant_S.Value.Float) ;
+      Constant_S.Name = $3 ; 
+      Constant_S.Type = VAR_FLOAT ;
+      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
+    }
+
   ;
 
 DefineConstants :
@@ -6458,7 +6778,7 @@ NameForFunction :
   | tFmod    { $$ = "Fmod";   }
   | tModulo  { $$ = "Modulo"; }
   | tHypot   { $$ = "Hypot";  }
-  | tSTRING  { $$ = $1;       }
+  | String__Index  { $$ = $1;       }
   ;
 
 FExpr :
@@ -6513,7 +6833,24 @@ OneFExpr :
   | t1D                        { $$ = (double)_1D ; }
   | t2D                        { $$ = (double)_2D ; }
   | t3D                        { $$ = (double)_3D ; }
+
+/*
   | tSTRING 
+    { Constant_S.Name = $1 ;
+      if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
+	vyyerror("Unknown Constant: %s", $1) ;  $$ = 0. ;
+      }
+      else  {
+	if (Constant_S.Type == VAR_FLOAT)
+	  $$ = Constant_S.Value.Float ;
+	else {
+	  vyyerror("Single value Constant needed: %s", $1) ;  $$ = 0. ;
+	}
+      }
+      Free($1) ;
+    }
+*/
+  | String__Index
     { Constant_S.Name = $1 ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	vyyerror("Unknown Constant: %s", $1) ;  $$ = 0. ;
@@ -6700,6 +7037,35 @@ MultiFExpr :
 
   ;
 
+StringIndex :
+  
+    tSTRING  '~' '{' FExpr '}'  
+    { 
+      sprintf(StringAux1, "_%d", (int)$4) ;
+      $$ = (char *)Malloc((strlen($1)+strlen(StringAux1)+1)*sizeof(char)) ;
+      strcpy($$, $1) ; strcat($$, StringAux1) ;
+      Free($1) ;
+    }
+
+  | StringIndex '~'  '{' FExpr '}' 
+    {
+      sprintf(StringAux1, "_%d", (int)$4) ;
+      $$ = (char *)Realloc($1,(strlen($1)+strlen(StringAux1)+1)*sizeof(char)) ;
+      strcpy($$, $1) ; strcat($$, StringAux1) ;
+    }
+
+  ;
+
+
+String__Index :
+
+    tSTRING 
+    { $$ = $1 ; }
+  | StringIndex
+    { $$ = $1 ; }
+
+  ;
+
 CharExpr :
 
     tBIGSTR
@@ -6719,10 +7085,36 @@ CharExpr :
       }
       Free($1) ;
     }
+
   | StrCat
     {
       $$ = $1 ;
     }
+
+  | tSprintf '(' CharExpr ')'
+    {
+      $$ = $3;
+    }
+
+  | tSprintf '(' CharExpr ',' RecursiveListOfFExpr ')'
+    {
+      i = Print_ListOfDouble($3,$5,tmpstring);
+      if(i<0){
+	vyyerror("Too few arguments in Sprintf");
+	$$ = $3;
+      }
+      else if(i>0){
+	vyyerror("Too many arguments (%d) in Sprintf", i);
+	$$ = $3;
+      }
+      else{
+	$$ = (char*)Malloc((strlen(tmpstring)+1)*sizeof(char));
+	strcpy($$, tmpstring);
+	Free($3);
+      }
+      List_Delete($5);
+    }
+
   | tDate
     {
       time(&date_info);
@@ -6730,6 +7122,7 @@ CharExpr :
       strcpy($$, ctime(&date_info));
       $$[strlen($$)-1] = 0;
     }
+
 /*
   | CharExpr '+' CharExpr
     {
@@ -6796,6 +7189,39 @@ int  Add_Group(struct Group * Group_P, char * Name, int Flag_Plus, int Num_Index
 }
 
 
+int  Add_Group_2(struct Group * Group_P, char * Name, int Flag_Add, 
+		 int Flag_Plus, int Num_Index1, int Num_Index2) {
+  int  i, j ;
+  List_T *InitialList;
+
+  if (!Problem_S.Group)
+    Problem_S.Group = List_Create(50, 50, sizeof (struct Group) ) ;
+
+  if (Flag_Plus == 0)
+    sprintf(StringAux1, "%s", Name) ;
+  else if (Flag_Plus == 1)
+    sprintf(StringAux1, "%s_%d_", Name, Num_Index1) ;
+  else if (Flag_Plus == 2)
+    sprintf(StringAux1, "%s_%d_%d_", Name, Num_Index1,Num_Index2) ;
+
+  Group_P->Name = strsave(StringAux1) ;
+  
+  if ((i = List_ISearchSeq(Problem_S.Group, Group_P->Name, fcmp_Group_Name)) < 0) {
+    i = Group_P->Num = List_Nbr(Problem_S.Group) ;
+    Group_P->ExtendedList = NULL ;  Group_P->ExtendedSuppList = NULL ;
+    List_Add(Problem_S.Group, Group_P) ;
+  } else if (Flag_Add) {
+    InitialList = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList ;
+    for (j = 0 ; j < List_Nbr(Group_P->InitialList) ; j++) {
+      List_Add(InitialList, (int *)List_Pointer(Group_P->InitialList, j)) ;
+    } 
+  } else List_Write(Problem_S.Group, i, Group_P) ;
+
+  return i ;
+}
+
+
+
 int  Num_Group(struct Group * Group_P, char * Name, int Num_Group) {
 
   if      (Num_Group >= 0)   /* OK */ ;
@@ -6821,6 +7247,30 @@ int  Add_Group_Index(struct Group * Group_P, char * Name, int Flag_Plus) {
   return (Num-Nbr_Index+1) ;
 }
 
+
+/*  A d d _ P o s t S a v e  */
+
+struct Value *  Add_PostSave(char * Name) {
+  struct PostSave PostSave_S;
+
+  if (!Problem_S.PostSave)
+    Problem_S.PostSave = List_Create(10, 10, sizeof (struct PostSave) ) ;
+
+  if ((i = List_ISearchSeq(Problem_S.PostSave, Name, fcmp_PostSave_Name)) < 0) {
+    PostSave_S.Name = Name ;
+    PostSave_S.Value = (struct Value *)Calloc(1,sizeof(struct Value)) ;
+    List_Add(Problem_S.PostSave, &PostSave_S) ;
+    printf("PostSave 11 %p\n",  PostSave_S.Value) ;
+  }
+  else {
+    PostSave_S.Value = (struct Value *)(((struct PostSave *)
+					 List_Pointer(Problem_S.PostSave,i))->Value) ;
+    //List_Write(Problem_S.PostSave, i, &PostSave_S) ;
+    printf("PostSave 22 %p\n",  PostSave_S.Value) ;
+  }
+
+  return  PostSave_S.Value ;
+}
 
 /*  A d d _ E x p r e s s i o n   */
 
@@ -7008,6 +7458,45 @@ int  fcmp_PostQuantity_Name(const void * a, const void * b) {
 int  fcmp_PostOperation_Name(const void * a, const void * b) {
   return ( strcmp((char *)a, ((struct PostOperation *)b)->Name ) ) ;
 }
+int  fcmp_PostSave_Name(const void * a, const void * b) {
+  return ( strcmp((char *)a, ((struct PostSave *)b)->Name ) ) ;
+}
+
+
+int Print_ListOfDouble(char *format, List_T *list, char *buffer){
+  int i, j, k;
+  char tmp1[256], tmp2[256];
+
+  j=0;
+  while(format[j]!='%') j++;
+  strncpy(buffer, format, j); 
+  buffer[j]='\0'; 
+  for(i = 0 ; i<List_Nbr(list) ; i++){
+    k = j;
+    j++;
+    if(j<(int)strlen(format)){
+      if(format[j]=='%'){
+	strcat(buffer, "%");
+	j++;
+      }
+      while(format[j]!='%' && j<(int)strlen(format)) j++;
+      if(k != j){
+	strncpy(tmp1, &(format[k]),j-k);
+	tmp1[j-k]='\0';
+	sprintf(tmp2, tmp1, *(double*)List_Pointer(list,i)); 
+	strcat(buffer, tmp2);
+      }
+    }
+    else{
+      return List_Nbr(list)-i;
+      break ;
+    }
+  }
+  if(j != (int)strlen(format))
+    return -1;
+  return 0;
+}
+  
 
 
 /*  E r r o r   h a n d l i n g  */
@@ -7065,41 +7554,4 @@ void  vyyerror (char *fmt, ...){
 
   ErrorLevel=1 ;
 }
-
-
-int Print_ListOfDouble(char *format, List_T *list, char *buffer){
-  int i, j, k;
-  char tmp1[256], tmp2[256];
-
-  j=0;
-  while(format[j]!='%') j++;
-  strncpy(buffer, format, j); 
-  buffer[j]='\0'; 
-  for(i = 0 ; i<List_Nbr(list) ; i++){
-    k = j;
-    j++;
-    if(j<(int)strlen(format)){
-      if(format[j]=='%'){
-	strcat(buffer, "%");
-	j++;
-      }
-      while(format[j]!='%' && j<(int)strlen(format)) j++;
-      if(k != j){
-	strncpy(tmp1, &(format[k]),j-k);
-	tmp1[j-k]='\0';
-	sprintf(tmp2, tmp1, *(double*)List_Pointer(list,i)); 
-	strcat(buffer, tmp2);
-      }
-    }
-    else{
-      return List_Nbr(list)-i;
-      break ;
-    }
-  }
-  if(j != (int)strlen(format))
-    return -1;
-  return 0;
-}
-  
-
 

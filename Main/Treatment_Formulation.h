@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #ifndef _TREATMENT_FORMULATION_H_
@@ -145,7 +145,9 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 
 /*---------------------------------------------------------------------*/
 
-void  Cal_AssembleTerm_MH_Moving(struct Dof * Equ, struct Dof * Dof, double Val[]) ;
+void  Cal_AssembleTerm_MH_Moving_simple(struct Dof * Equ, struct Dof * Dof, double Val[]) ;
+void  Cal_AssembleTerm_MH_Moving_probe(struct Dof * Equ, struct Dof * Dof, double Val[]) ;
+void  Cal_AssembleTerm_MH_Moving_separate(struct Dof * Equ, struct Dof * Dof, double Val[]) ;
 
 void  Cal_AssembleTerm_NoDt   (struct Dof * Equ, struct Dof * Dof, double Val[]) ;
 void  Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[]) ;

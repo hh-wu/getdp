@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #ifndef _POS_FORMAT_H_
@@ -28,7 +28,8 @@ void  Format_PostFormat(int Format) ;
 
 void  Format_PostHeader(int Format, int Contour, 
 			int NbTimeStep, int HarmonicToTime,
-			int Type, int Order, char *Name1, char *Name2) ;
+			int Type, int Order, char *Name1, char *Name2,
+			double FrequencyLegend[3]) ;
 
 void  Format_PostFooter(struct PostSubOperation * PSO_P, int Store) ;
 

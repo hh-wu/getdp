@@ -1,6 +1,6 @@
-#define RCSID "$Id: gsl_newt.c,v 1.5 2003-10-02 17:31:09 geuzaine Exp $"
+#define RCSID "$Id: gsl_newt.c,v 1.6 2004-01-19 16:51:19 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Nicolas Tardieu
@@ -65,7 +65,7 @@ int gslfunc(const gsl_vector * xx, void *params, gsl_vector * f)
 {
   convert_vector_from_gsl(xx, nru);
   (*nrfunc) (nrdim, nru, nrv);
-  /* Msg(INFO, "f(%lf,%lf) = %lf %lf\n",nru[1],nru[2],nrv[1],nrv[2]); */
+  /* Msg(INFO, "f(%lf,%lf) = %lf %lf", nru[1],nru[2],nrv[1],nrv[2]); */
   convert_vector_to_gsl(nrv, nrdim, f);
   return GSL_SUCCESS;
 }
@@ -93,7 +93,7 @@ void newt(double x[], int n, int *check,
 
 
   if(n > MAX_DIM_NEWT - 1)
-    Msg(ERROR, "Maximum Newton dimension exceeded\n");
+    Msg(ERROR, "Maximum Newton dimension exceeded");
   nrdim = n;
 
   nrfunc = func;
@@ -106,7 +106,7 @@ void newt(double x[], int n, int *check,
   do {
     iter++;
     status = gsl_multiroot_fsolver_iterate(s);
-    /* Msg(INFO, "status %d %d %d %lf %lf\n",
+    /* Msg(INFO, "status %d %d %d %lf %lf",
        status,n,iter,gsl_vector_get(s->x,0),gsl_vector_get(s->x,1)); */
     if(status)
       break;    /* solver problem */
@@ -118,7 +118,7 @@ void newt(double x[], int n, int *check,
     *check = 1; /* problem !!! */
   }
   else {
-    /* Msg(INFO, "status %d %d %d %lf %lf\n",
+    /* Msg(INFO, "status %d %d %d %lf %lf",
        status,n,iter,gsl_vector_get(s->x,0),gsl_vector_get(s->x,1)); */
     convert_vector_from_gsl(s->x, x);
     *check = 0; /* converged */

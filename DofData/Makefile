@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.22 2003-03-22 03:30:08 geuzaine Exp $
+# $Id: Makefile,v 1.23 2004-01-19 16:51:12 geuzaine Exp $
 #
-# Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+# Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -17,12 +17,13 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
 # USA.
 # 
-# Please report all bugs and problems to "getdp@geuz.org".
+# Please report all bugs and problems to <getdp@geuz.org>.
 
 include ../variables
 
 LIB     = ../lib/libDofData.a
-INCLUDE = -I. -I../include -I../DataStr -I../GeoData -I../Main -I../Sparskit -I../FMM
+INCLUDE = -I. -I../include -I../DataStr -I../GeoData -I../Main\
+          -I../Sparskit -I../FMM -I../Numeric
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
 
@@ -60,8 +61,12 @@ DofData.o: DofData.c ../include/GetDP.h ../Main/Message.h \
   ../Sparskit/Solver.h ../Main/Graph.h Data_DofData.h ../DataStr/Tools.h \
   ../include/Magic.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h
+  ../GeoData/Data_GeoData.h ../Numeric/Numeric.h
 LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../include/Magic.h LinAlg.h ../Sparskit/Solver.h \
-  ../DataStr/List.h ../DataStr/SafeIO.h ../FMM/F_FMMOperations.h
+  ../DataStr/List.h ../DataStr/SafeIO.h ../FMM/F_FMMOperations.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+  ../Main/CurrentData.h ../Main/Data_Active.h DofData.h ../Main/Graph.h \
+  Data_DofData.h
 LinAlg_PETSC.o: LinAlg_PETSC.c

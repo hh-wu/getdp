@@ -1,6 +1,6 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.34 2003-11-20 09:29:36 dular Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.35 2004-01-19 16:51:18 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   David Colignon
@@ -32,6 +32,8 @@
 #include "Treatment_Formulation.h"
 #include "CurrentData.h"
 #include "GmshClient.h"
+
+static int NbrBlk=-1;
 
 char  * Get_ExpressionName(struct Problem * Problem, int Index) {
 
@@ -892,9 +894,11 @@ void  Print_Formulation(struct Problem  * Problem) {
 void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 		      struct Problem * Problem) {
   struct Operation *OPE ;
-  int    j, Nbrj ;
+  int    i, j, Nbrj ;
 
   GetDP_Begin("Print_Operation");
+
+  NbrBlk++;
 
   Nbrj = List_Nbr(Operation_L) ;
 
@@ -918,6 +922,7 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
     case OPERATION_READSOLUTION :
     case OPERATION_TRANSFERSOLUTION :
     case OPERATION_TRANSFERINITSOLUTION :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      %s[%s] ;\n",
 	  Get_StringForDefine(Operation_Type, OPE->Type),
 	  ((struct DefineSystem *)
@@ -925,6 +930,7 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
       break ;
 
    case OPERATION_UPDATE :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      Update [ %s, Exp[%s] ] ;\n",
 	  ((struct DefineSystem *)
 	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
@@ -933,6 +939,7 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
       break ;
 
    case OPERATION_FOURIERTRANSFORM :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      FourierTransform [ %s, %s, {...} ] ;\n",
 	  ((struct DefineSystem *)
 	   List_Pointer(RE->DefineSystem, OPE->Case.FourierTransform.DefineSystemIndex[0]))->Name,
@@ -941,6 +948,7 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
       break ;
 
     case OPERATION_TIMELOOPTHETA :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      TimeLoopTheta[ %.10g, %.10g, Exp[%s], Exp[%s] ] {\n",
 	  OPE->Case.TimeLoopTheta.Time0, OPE->Case.TimeLoopTheta.TimeMax,
 	  Get_ExpressionName(Problem,
@@ -948,30 +956,36 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 	  Get_ExpressionName(Problem,
 			     OPE->Case.TimeLoopTheta.ThetaIndex)) ;
       Print_Operation(RE, OPE->Case.TimeLoopTheta.Operation, Problem) ;
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      }\n") ;
       break ;
 
     case OPERATION_TIMELOOPNEWMARK :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      TimeLoopNewmark[ %.10g, %.10g, Exp[%s], %.10g, %.10g ] {\n",
 	  OPE->Case.TimeLoopNewmark.Time0, OPE->Case.TimeLoopNewmark.TimeMax,
 	  Get_ExpressionName(Problem,
 			     OPE->Case.TimeLoopNewmark.DTimeIndex),
 	  OPE->Case.TimeLoopNewmark.Beta, OPE->Case.TimeLoopNewmark.Gamma);
       Print_Operation(RE, OPE->Case.TimeLoopNewmark.Operation, Problem) ;
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      }\n") ;
       break ;
 
     case OPERATION_ITERATIVELOOP :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      IterativeLoop [ %d, Exp[%s], %.10g ] {\n",
 	  OPE->Case.IterativeLoop.NbrMaxIteration,
 	  Get_ExpressionName(Problem,
 			     OPE->Case.IterativeLoop.RelaxationFactorIndex),
 	  OPE->Case.IterativeLoop.Criterion) ;
       Print_Operation(RE, OPE->Case.IterativeLoop.Operation, Problem) ;
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      }\n") ;
       break ;
 
     case OPERATION_LANCZOS :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      Lanczos [ %s, %d, { ... } , %.10g ] ;\n",
 	  ((struct DefineSystem *)
 	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
@@ -980,12 +994,14 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
       break ;
 
     case OPERATION_SETTIME :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      SetTime [ Exp[%s] ] ;\n",
 	  Get_ExpressionName(Problem,
 			     OPE->Case.SetTimeIndex)) ;
       break ;
 
     case OPERATION_SETFREQUENCY :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      SetFrequency [ %s, Exp[%s] ] ;\n",
 	  ((struct DefineSystem *)
 	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
@@ -994,20 +1010,25 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
       break ;
 
     case OPERATION_BREAK :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      Break ;\n");
       break ;
 
     case OPERATION_SYSTEMCOMMAND :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      SystemCommand \" %s \" ;\n",
 	  OPE->Case.SystemCommand);
       break ;
 
     case OPERATION_TEST :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      If [ Exp[%s] ] {\n",
 	  Get_ExpressionName(Problem,
 			     OPE->Case.Test.ExpressionIndex)) ;
       Print_Operation(RE, OPE->Case.Test.Operation_True, Problem) ;
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      }\n") ;
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       if(OPE->Case.Test.Operation_False){
 	Msg(CHECK, "      Else {\n");
 	Print_Operation(RE, OPE->Case.Test.Operation_False, Problem) ;
@@ -1016,12 +1037,29 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
       break ;
 
     case OPERATION_CHANGEOFCOORDINATES :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      ChangeOfCoordinates [ %s, Exp[%s] ] ;\n",
 	  ((struct Group *)
 	   List_Pointer(Problem->Group,
 			OPE->Case.ChangeOfCoordinates.GroupIndex))->Name,
 	  Get_ExpressionName(Problem,
 			     OPE->Case.ChangeOfCoordinates.ExpressionIndex)) ;
+      break ;
+
+    case OPERATION_INIT_MOVINGBAND2D :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
+      Msg(CHECK, "      Init_MovingBand2D [ %s ] ;\n",
+	  ((struct Group *)
+	   List_Pointer(Problem->Group,
+			OPE->Case.Init_MovingBand2D.GroupIndex))->Name) ;
+      break ;
+
+    case OPERATION_MESH_MOVINGBAND2D :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
+      Msg(CHECK, "      Mesh_MovingBand2D [ %s ] ;\n",
+	  ((struct Group *)
+	   List_Pointer(Problem->Group,
+			OPE->Case.Mesh_MovingBand2D.GroupIndex))->Name) ;
       break ;
 
     case OPERATION_DEFORMEMESH :
@@ -1037,6 +1075,7 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
     }
   }
 
+  NbrBlk--;
   GetDP_End ;
 }
 

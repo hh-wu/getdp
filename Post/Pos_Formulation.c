@@ -1,6 +1,6 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.41 2003-11-08 05:56:54 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.42 2004-01-19 16:51:25 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
 #include "GetDP.h"
@@ -48,8 +48,13 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   char  NameApp[100] ;
   extern int Flag_Pos_TimeLoop ;
+  int save_Flag_Pos_TimeLoop;
 
   GetDP_Begin("Pos_Formulation");
+
+  save_Flag_Pos_TimeLoop = Flag_Pos_TimeLoop; 
+
+  if (PostSubOperation_P->Format == FORMAT_TIME_TABLE) Flag_Pos_TimeLoop = 0;
 
   if (Flag_Pos_TimeLoop) sprintf(NameApp, "_%.0f.pos", (double)Current.TimeStep) ;
  
@@ -141,6 +146,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_VIEW, FileName);
     }
   }
+
+  Flag_Pos_TimeLoop = save_Flag_Pos_TimeLoop; 
 
   GetDP_End ;
 }

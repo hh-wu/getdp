@@ -1,6 +1,6 @@
-#define RCSID "$Id: GF_Laplace.c,v 1.13 2003-03-23 05:54:17 geuzaine Exp $"
+#define RCSID "$Id: GF_Laplace.c,v 1.14 2004-01-19 16:51:15 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Ruth Sabariego
@@ -252,7 +252,8 @@ void  GF_Laplace (F_ARG) {
   }
 
   V->Type = SCALAR ;
-  
+  V->Val[MAX_DIM] = 0. ;  
+
   GetDP_End ;
 }
 
@@ -264,12 +265,10 @@ void  GF_Laplace (F_ARG) {
 /* the gradient is taken relative to the destination point (x,y,z) */
 
 void GF_GradLaplace (F_ARG) {
-
   double xxs, yys, zzs, Theta, Phi, sTheta, cTheta, sPhi, cPhi, Plm, dPlm;
   double cte, r, phi_r, cphi_r, sphi_r, cr, r_l_2, a, b ;
   double r_l, r_l_1, r_2, rxy, rxy_2, srxy, c1, tx1, ty1, tx2, ty2 ;
   int i, Nd, k, l, m ;   
-
 
   GetDP_Begin("GF_GradLaplace");
 
@@ -485,6 +484,12 @@ void GF_GradLaplace (F_ARG) {
     break;
   }
 
+  V->Type = VECTOR ;
+  
+  V->Val[MAX_DIM+0] = 0. ;  
+  V->Val[MAX_DIM+1] = 0. ;  
+  V->Val[MAX_DIM+2] = 0. ;  
+
   GetDP_End ;
 }
 
@@ -502,10 +507,10 @@ void GF_NPxGradLaplace (F_ARG) {
   double Theta, Phi, sTheta, cTheta, Plm, dPlm, sPhi, cPhi ;
   double r_2, rxy, rxy_2, srxy, c1, tx1, ty1, tx2, ty2 ;
 
-
   GetDP_Begin("GF_NPxGradLaplace") ; /* It computes the Scalar product Normal[] * GradLaplace */ 
 
   V->Type = SCALAR ;
+  V->Val[MAX_DIM] = 0. ;  
 
   if ((Current.Element->Num == Current.ElementSource->Num) && !Flag_FMM) {
     V->Val[0      ] = 0. ;
@@ -768,6 +773,7 @@ void GF_NSxGradLaplace (F_ARG) {
   GetDP_Begin("GF_NSxGradLaplace");
 
   V->Type = SCALAR ;
+  V->Val[MAX_DIM] = 0. ;  
 
   if (Current.Element->Num == Current.ElementSource->Num) {
     V->Val[0] = 0. ;

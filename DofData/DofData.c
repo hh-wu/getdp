@@ -1,6 +1,6 @@
-#define RCSID "$Id: DofData.c,v 1.36 2004-01-08 20:02:29 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.37 2004-01-19 16:51:12 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Johan Gyselinck
@@ -30,6 +30,8 @@
 #include "Tools.h"
 #include "Magic.h"
 #include "CurrentData.h"
+#include "Numeric.h"
+
 
 /* Il reste qques cas a terminer dans les routines d'assemblage en complexe
    -> cf. "not finished" 
@@ -94,6 +96,8 @@ void  Dof_InitDofData(struct DofData * DofData_P, int Num,
 
   DofData_P->Solutions = NULL ;
   DofData_P->CurrentSolution = NULL ;
+
+  DofData_P->DummyDof = NULL ;
 
   GetDP_End ;
 }
@@ -515,6 +519,67 @@ void  Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P, in
   GetDP_End ;
 }
 
+
+void  Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P, 
+				int Format, List_T * Time_L) {
+  gVector x;
+  double Time, d1, d2, d, *Pulsation, f1,f2;
+  int iT, i, j, k;
+
+  GetDP_Begin("Dof_WriteFileRES_MHtoTime");
+
+  LinAlg_SequentialBegin() ;
+
+  Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "ab" : "a")) ;
+
+
+  for(iT=0 ; iT<List_Nbr(Time_L) ; iT++){
+
+    List_Read(Time_L, iT, &Time);
+
+    if(Current.RankCpu == 0){
+      fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num) ;
+      fprintf(File_RES, "%d %e %d \n", DofData_P->Num,Time,iT) ;
+    }
+
+    Pulsation = DofData_P->Val_Pulsation ; 
+    
+    LinAlg_CreateVector(&x, &DofData_P->Solver, DofData_P->NbrDof/Current.NbrHar,
+			DofData_P->NbrPart, DofData_P->Part) ;
+    
+    LinAlg_ZeroVector(&x) ;
+    
+    for (i=0 ; i<DofData_P->NbrDof/Current.NbrHar ; i++) {
+      d = 0;
+      for (k=0 ; k<Current.NbrHar/2 ; k++) {
+	j = i * Current.NbrHar + 2*k ; 
+	LinAlg_GetDoubleInVector(&d1, &DofData_P->CurrentSolution->x, j) ;
+	LinAlg_GetDoubleInVector(&d2, &DofData_P->CurrentSolution->x, j+1) ;
+	f1 = cos(Pulsation[k]*Time);
+	f2 = sin(Pulsation[k]*Time);
+	d += d1 * cos(Pulsation[k]*Time) - d2 * sin(Pulsation[k]*Time) ; 
+      }
+      LinAlg_SetDoubleInVector(d, &x, i) ;
+    }
+    
+    Format ? 
+      LinAlg_WriteVector(File_RES,&x) :
+      LinAlg_PrintVector(File_RES,&x) ;
+    
+    if(Current.RankCpu == Current.NbrCpu-1)
+      fprintf(File_RES, "$EndSolution\n") ;
+  }
+
+
+  Dof_CloseFile(DOF_RES) ;
+
+  LinAlg_DestroyVector(&x) ;
+
+  LinAlg_SequentialEnd() ;
+  
+  GetDP_End ;
+}
+
 /* ------------------------------------------------------------------------ */
 /*  D o f _ W r i t e F i l e R E S                                         */
 /* ------------------------------------------------------------------------ */
@@ -622,7 +687,7 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 
     do {
       fgets(String, MAX_STRING_LENGTH, File_RES) ;
-      if (feof(File_RES)) Msg(ERROR,"Prematured end of file (Time Step %d)", Val_TimeStep);
+      if (feof(File_RES)) Msg(WARNING,"Prematured end of file (Time Step %d)", Val_TimeStep);
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -1042,9 +1107,6 @@ void Dof_GetDof_Four(struct DofData * DofData_P, struct DofData * DofData2_P) {
 	  
   }
 }
-
-
-
 
 
 
@@ -1730,6 +1792,117 @@ void Print_DofNumber(struct Dof *Dof_P){
     printf(" ? ") ; 
     break ;
   }
+
+  GetDP_End ;
+}
+
+/* ------------------------------------------------------- */
+/*  D u m m y  D o f s                                     */
+/* ------------------------------------------------------- */
+
+void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofData_P){
+
+  struct Formulation      * Formulation_P ; 
+  struct DefineQuantity   * DefineQuantity_P ;
+  struct FunctionSpace    * FunctionSpace_P ;
+  struct BasisFunction    * BasisFunction_P ;
+  struct GlobalQuantity   * GlobalQuantity_P ;
+  struct Dof              * Dof_P ;
+
+  int i, j, k, l, iDof, ii,iit, iNum, iHar;
+  int Nbr_Formulation, Index_Formulation ;
+  int * DummyDof;
+  double DummyFrequency, * Val_Pulsation;
+
+  GetDP_Begin("Dof_GetDummies");
+
+  if (!(Val_Pulsation = Current.DofData->Val_Pulsation))
+    Msg(ERROR, "Dof_GetDummies can only be used for harmonic problems");
+
+  DummyDof = DofData_P->DummyDof = (int *)Malloc(DofData_P->NbrDof*sizeof(int)); 
+  for (iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) DummyDof[iDof]=0;
+
+  Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
+
+  for (i = 0 ; i < Nbr_Formulation ; i++) {
+    List_Read(DefineSystem_P->FormulationIndex, i, &Index_Formulation) ;
+    Formulation_P = (struct Formulation*)
+      List_Pointer(Problem_S.Formulation, Index_Formulation) ;
+    for (j = 0 ; j < List_Nbr(Formulation_P->DefineQuantity) ; j++) {
+      DefineQuantity_P = (struct DefineQuantity*)
+	List_Pointer(Formulation_P->DefineQuantity, j) ;
+      for (l = 0 ; l < List_Nbr(DefineQuantity_P->DummyFrequency) ; l++) {
+	DummyFrequency = *(double *)List_Pointer(DefineQuantity_P->DummyFrequency, l) ;
+
+	iHar=-1;
+	for (k = 0 ; k < Current.NbrHar/2 ; k++)      
+	  if (fabs (Val_Pulsation[k]-TWO_PI*DummyFrequency) <= 1e-10 * Val_Pulsation[k]) {
+	    iHar = 2*k; break;
+	  }
+	if(iHar>=0) {
+	  FunctionSpace_P = (struct FunctionSpace*)
+	    List_Pointer(Problem_S.FunctionSpace, DefineQuantity_P->FunctionSpaceIndex) ;
+	  
+	  for (k = 0 ; k < List_Nbr(FunctionSpace_P->BasisFunction) ; k++) {
+	    BasisFunction_P = (struct BasisFunction *)
+	      List_Pointer(FunctionSpace_P->BasisFunction, k) ;
+	    iNum = ((struct BasisFunction *)BasisFunction_P)->Num;
+	    ii=iit=0;
+	    for (iDof = 0 ; iDof < List_Nbr(DofData_P->DofList) ; iDof++) { 
+	      Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, iDof) ;
+	      if (Dof_P->Type == DOF_UNKNOWN && Dof_P->NumType == iNum) {
+		iit++;
+		if (Dof_P->Harmonic == iHar || Dof_P->Harmonic == iHar+1) { 
+		  DummyDof[Dof_P->Case.Unknown.NumDof-1]=1; ii++;
+		}
+	      }
+	    }
+	    Msg(INFO, "Freq %e (%d/%d) Form %d  Quant %d  Basis %d  #dummies %d/%d", 
+		Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2, 
+		i, j, ((struct BasisFunction *)BasisFunction_P)->Num, ii, iit) ;
+	  }
+	  
+	  for (k = 0 ; k < List_Nbr(FunctionSpace_P->GlobalQuantity) ; k++) {
+	    GlobalQuantity_P = (struct GlobalQuantity *)
+	      List_Pointer(FunctionSpace_P->GlobalQuantity, k) ;
+	    iNum = ((struct GlobalQuantity *)GlobalQuantity_P)->Num;
+	    ii=iit=0;    
+	    for (iDof = 0 ; iDof < List_Nbr(DofData_P->DofList) ; iDof++) { 
+	      Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, iDof) ;
+	      if (Dof_P->Type == DOF_UNKNOWN && Dof_P->NumType == iNum) {
+		iit++;
+		if (Dof_P->Harmonic == iHar || Dof_P->Harmonic == iHar+1) {  
+		  DummyDof[Dof_P->Case.Unknown.NumDof-1]=1; ii++;
+		}
+	      }
+	    }
+	    Msg(INFO, "Freq %e (%d/%d) Form %d  Quant %d  Global %d  #dummies %d/%d", 
+		Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2, 
+		i, j, ((struct GlobalQuantity *)GlobalQuantity_P)->Num, ii, iit) ;
+	  }
+	    
+	}   /*  end DummyFrequency in DofData */ 
+      }   /* end DummyFrequency in Quantity */
+    }   /* end Quantity */
+  }   /* end Formulation */
+
+  i=0;
+  for (iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) {
+    if(DummyDof[iDof]) i++;
+    /*    
+    Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, iDof) ;
+    Msg(INFO, "Dof Num iHar, Entity %d %d %d",
+	iDof, Dof_P->NumType, Dof_P->Harmonic, Dof_P->Entity);
+    */
+  }
+
+  Msg(INFO, "Total %d Dummies %d", DofData_P->NbrDof,i) ;
+  
+  /*  
+  Dof_OpenFile(DOF_PRE, "hallopp", "w+") ; 
+  Dof_WriteFilePRE(DofData_P) ;
+  Dof_CloseFile(DOF_PRE) ; 
+  */
 
   GetDP_End ;
 }

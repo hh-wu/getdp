@@ -1,6 +1,6 @@
-/* $Id: GmshClient.c,v 1.6 2003-10-29 20:45:46 geuzaine Exp $ */
+/* $Id: GmshClient.c,v 1.7 2004-01-19 16:51:17 geuzaine Exp $ */
 /*
- * Copyright (C) 1997-2003 C. Geuzaine, J.-F. Remacle
+ * Copyright (C) 1997-2004 C. Geuzaine, J.-F. Remacle
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation

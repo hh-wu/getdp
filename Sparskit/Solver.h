@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
  * USA.
  *
- * Please report all bugs and problems to "getdp@geuz.org".
+ * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
  *   Jean-Francois Remacle
@@ -173,6 +173,7 @@ void scale_matrix (int scaling, Matrix *M);
 void scale_vector (int ROW_or_COLUMN, Matrix *M, double *V);
 
 void get_column_in_matrix (Matrix *M, int col, double *V);
+void get_element_in_matrix (Matrix *M, int row, int col, double *V);
 
 void formatted_write_matrix (FILE *pfile, Matrix *M, int style);
 void formatted_write_vector (FILE *pfile, int Nb, double *V, int style);
