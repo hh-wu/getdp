@@ -132,8 +132,8 @@ void normation_vector(int Nb, double *U);
 
 void identity_matrix (Matrix *M);
 
-void formatted_write_matrix (Matrix *M, char *name, char *ext, int style);
-void formatted_write_vector (int Nb, double *V, char *name, char *ext, int style);
+void formatted_write_matrix (FILE *pfile, Matrix *M, int style);
+void formatted_write_vector (FILE *pfile, int Nb, double *V, int style);
 void formatted_read_matrix (Matrix *M, char *name, char *ext, int style);
 void formatted_read_vector (int Nb, double *V, char *name, char *ext, int style);
 

@@ -466,99 +466,72 @@ void binary_write_vector (int Nb, double *V, char *name, char *ext){
 }
 
 
-void formatted_write_matrix (Matrix *M, char *name, char *ext, int style){  
-  int *ptr,*ai,i,*jptr, *ia, *ja, *ir, nnz, ierr;
+void formatted_write_matrix (FILE *pfile, Matrix *M, int style){  
+  int *ptr,*ai,i,j,*jptr, *ia, *ja, *ir, nnz, ierr;
   int  un=1;
   double *a;
-  FILE *pfile;
-  char filename[256];
-
 
   if(!M->N){
-    printf("No elements in matrix\n");
+    Msg(WARNING, "No element in matrix");
     return;
   }
 
-  strcpy(filename, name);
-  strcat(filename, ext);
-  pfile = fopen(filename, "w+") ;
+  switch (M->T) {
 
-  switch(style){
+  case DENSE :
+    for(i=0 ; i<M->N ; i++)
+      for(j=0 ; j<M->N ; j++)
+	fprintf(pfile,"%d %d %.16g\n", i+1, j+1, M->F.a[i*(M->N)+j]);
+    break;
 
-  case ELAP : 
-    fprintf(pfile,"%d\n",M->T); 
-
-    switch (M->T) {
-    case SPARSE :
+  case SPARSE :
+    
+    switch(style){
+      
+    case ELAP : 
+      fprintf(pfile,"%d\n",M->T); 
       a = (double*)M->S.a->array;
       ai = (int*)M->S.ai->array;
       ptr = (int*)M->S.ptr->array;
       jptr = (int*)M->S.jptr->array;
-      
       fprintf(pfile,"%d\n",M->N);
       fprintf(pfile,"%d\n",List_Nbr(M->S.a));
-      for(i=0;i<M->N;i++){
+      for(i=0;i<M->N;i++)
 	fprintf(pfile," %d",jptr[i]);
-      }
       fprintf(pfile,"\n");
-      for(i=0;i<List_Nbr(M->S.a);i++){
+      for(i=0;i<List_Nbr(M->S.a);i++)
 	fprintf(pfile,"%d %d %.16g \n",ai[i],ptr[i],a[i]);
-      }
       break;
-      
-    case DENSE :
-      fprintf(pfile,"%d\n",M->N);
-      for(i=0;i<(M->N)*(M->N);i++){
-	fprintf(pfile,"%d %.16g \n", i, M->F.a[i]);
-      }
-      break;
-    }
     
-    break;
-    
-  case KUL :
-    switch (M->T) {
-    case SPARSE :
+    case KUL :
       csr_format(&M->S, M->N);
-     
       a  = (double*) M->S.a->array;
       ia = (int*) M->S.jptr->array;
       ja = (int*) M->S.ptr->array; 
       nnz = List_Nbr(M->S.a);
-
       ir = (int*) Malloc(nnz * sizeof(int));
       csrcoo_(&M->N, &un, &nnz, a, ja, ia, &nnz, a, ir, ja, &ierr);      
-
-      for(i=0 ; i<nnz ; i++){
+      for(i=0 ; i<nnz ; i++)
 	fprintf(pfile,"%d  %d  %.16g\n", ir[i], ja[i], a[i]);
-      }
-    
       restore_format(&M->S);
       break;
     
     default : 
-      Msg(ERROR, "Wrong writing style '%d' for matrix format '%d'",
-	  style, M->T); 
-      break;
+      Msg(ERROR, "Unknown Printing Style for Formatted Matrix Output");
     }
+    break ;
+    
+  default :
+    Msg(ERROR, "Unknown Matrix Format for Formatted Matrix Output");
 
   }
-  fclose(pfile) ;
 }
 
 
-void formatted_write_vector (int Nb, double *V, char *name, char *ext, int style){
+void formatted_write_vector (FILE *pfile, int Nb, double *V, int style){
   int  i;
-  char filename[256];
-  FILE *pfile;
 
-  strcpy(filename, name);
-  strcat(filename, ext);
-  pfile = fopen(filename, "w+") ;
-
-  for(i=0 ; i<Nb ; i++) fprintf(pfile,"%.16g\n", V[i]);
-
-  fclose(pfile) ;
+  for(i=0 ; i<Nb ; i++) fprintf(pfile,"%d %.16g\n", i+1, V[i]);
 }
 
 
