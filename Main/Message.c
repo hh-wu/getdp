@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.59 2003-01-29 20:05:04 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.60 2003-02-09 05:37:51 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -37,9 +37,6 @@ void FinalizeAndExit(void);
 /*  I n f o                                                                 */
 /* ------------------------------------------------------------------------ */
 
-/* The Sparskit is under GNU license. If we mention it, we have to 
-   make GetDP free sofware... */
-
 char acronym[]   = "GetDP %d.%d.%d, a General environment for the treatment of Discrete Problems\n";
 char copyright[] = "Copyright (c) 1997-2003 Patrick Dular and Christophe Geuzaine\n";
 
@@ -53,9 +50,9 @@ char email[]     = "Mailing list : getdp@geuz.org\n";
 
 #ifdef _SPARSKIT
 #ifdef _ILU_FLOAT
-char solver[]    = "Solver       : Default (real arithmetic, single precision preconditioning)\n";
+char solver[]    = "Solver       : Sparskit (real arithmetic, single precision preconditioning)\n";
 #else
-char solver[]    = "Solver       : Default (real arithmetic)\n";
+char solver[]    = "Solver       : Sparskit (real arithmetic)\n";
 #endif
 #else
 #ifdef PETSC_USE_COMPLEX

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.120 2003-02-07 19:45:49 geuzaine Exp $
+# $Id: Makefile,v 1.121 2003-02-09 05:37:51 geuzaine Exp $
 
 include variables
 
@@ -26,10 +26,10 @@ link: variables
 	${LINKER} -o bin/getdp ${GETDP_LIBS}
 
 variables: configure
-	@echo "=================================================================="
-	@echo "Please configure getdp by running ./configure"
+	@echo "*******************************************************************"
+	@echo "Please configure GetDP by running ./configure"
 	@echo "For help, type ./configure --help"
-	@echo "=================================================================="
+	@echo "*******************************************************************"
 	@exit 1
 
 tag:

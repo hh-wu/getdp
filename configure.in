@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.4 2003-02-07 19:16:24 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.5 2003-02-09 05:37:51 geuzaine Exp $"
 dnl
 dnl Machine independent configuration script for GetDP.
 dnl
@@ -28,24 +28,24 @@ AC_INIT(Parser/GetDP.y)
 
 dnl Parse --with command-line options
 AC_ARG_WITH(gsl-prefix,
-  [  --with-gsl-prefix=PFX   prefix where GSL is installed (optional)],
+  [  --with-gsl-prefix=PFX   prefix where GSL is installed],
   [GSL_PREFIX=$withval],)
 AC_ARG_WITH(petsc-prefix,
-  [  --with-petsc-prefix=PFX prefix where PETSc is installed (optional)],
+  [  --with-petsc-prefix=PFX prefix where PETSc is installed],
   [PETSC_PREFIX=$withval],[PETSC_PREFIX="no"])
 AC_ARG_WITH(metis-prefix,
-  [  --with-metis-prefix=PFX prefix where METIS is installed (optional)],
+  [  --with-metis-prefix=PFX prefix where METIS is installed],
   [METIS_PREFIX=$withval],[METIS_PREFIX="no"])
 AC_ARG_WITH(bopt,
-  [  --with-bopt=PFX         BOPT option to use with PETSC (optional)],
+  [  --with-bopt=PFX         BOPT option to use with PETSC],
   [BOPT=$withval],)
 AC_ARG_WITH(fftw-prefix,
-  [  --with-fftw-prefix=PFX  prefix where fftw is installed (optional)],
+  [  --with-fftw-prefix=PFX  prefix where FFTW is installed],
   [FFTW_PREFIX=$withval],[FFTW_PREFIX="no"])
 
 dnl Parse --enable command line options
 AC_ARG_ENABLE(petsc,
-  [  --enable-petsc          use PETSc as linear solver [default=no]])
+  [  --enable-petsc          use PETSc linear solvers])
 
 dnl Get the operating system and version number
 UNAME=`uname`
@@ -74,6 +74,13 @@ if test x$enable_petsc = xyes; then
   SOLVER='-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
+  if test x${PETSC_PREFIX} != "xno"; then
+    PETSC_DIR=${PETSC_PREFIX}	
+  fi
+  PETSC_ARCH=`${PETSC_DIR}/bin/petscarch`
+  if test x${BOPT} = "x"; then
+     BOPT=g_complex
+  fi
 else
   GETDP_DIRS="${GETDP_DIRS} Sparskit"
   GETDP_LIBS="${GETDP_LIBS} -lm"
@@ -153,15 +160,6 @@ AC_SUBST(GETDP_LIBS)
 AC_SUBST(GETDP_DIRS)
 AC_SUBST(SOLVER)
 AC_SUBST(PETSC_INCLUDE_MAKEFILE)
-
-dnl Check for remaining PETSc variables
-if test x${PETSC_PREFIX} != "xno"; then
-  PETSC_DIR=${PETSC_PREFIX}	
-fi
-PETSC_ARCH=`${PETSC_DIR}/bin/petscarch`
-if test x${BOPT} = "x"; then
-   BOPT=g_complex
-fi
 AC_SUBST(PETSC_DIR)
 AC_SUBST(PETSC_ARCH)
 AC_SUBST(BOPT)
@@ -187,7 +185,7 @@ if test x${GSL_PREFIX} = "x"; then
 else
   LDFLAGS="-L${GSL_PREFIX}/lib -lgslcblas"
 fi
-AC_CHECK_LIB(gsl,gsl_linalg_SV_decomp,GSL="yes",GSL="no")
+AC_CHECK_LIB(gsl,gsl_vector_alloc,GSL="yes",GSL="no")
 if test x${GSL_PREFIX} = "x"; then
   GSL_LIBS="-lgsl -lgslcblas"
 else
@@ -218,19 +216,22 @@ AC_OUTPUT(variables)
 
 dnl Print some information
 echo "*******************************************************************"
+echo "GetDP is configured for"
+echo "- Operating system: $UNAME"
 if test x$enable_petsc = xyes; then
-  echo "GetDP is configured with PETSc as linear solver"
+echo "- Solver: PETSc (BOPT=$BOPT, PETSC_DIR=$PETSC_DIR)"
 else
-  echo "GetDP is configured with Sparskit as linear solver"
+echo "- Solver: Sparskit ($SOLVER)"
 fi
 echo "*******************************************************************"
 
 if test x${GSL} = "xno"; then
   echo "*******************************************************************"
-  echo "The GNU Scientific Libray (GSL) is required to compile the"
-  echo "free version of getdp. You can specify a particular location"
-  echo "for configure to look for the GSL with the --with-gsl-prefix"
-  echo "option. The GSL can be downloaded at http://sources.redhat.com/gsl/"
+  echo "Configure could not find the GNU Scientific Libray (GSL):"
+  echo "- if it is installed in a non-standard location, please run"
+  echo "  ./configure again with the --with-gsl-prefix option"
+  echo "- if it is not installed on your system, you can download it from"
+  echo "  http://sources.redhat.com/gsl/"
   echo "*******************************************************************"
 fi
 
