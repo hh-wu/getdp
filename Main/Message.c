@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.23 2000-11-17 19:41:01 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.24 2000-11-18 12:46:11 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -78,8 +78,8 @@ char help[] =
   "  -check                    interactive check of problem structure\n"
   "  -v int                    set verbosity level (default: 4)\n"
   "  -p int                    set progress indicator update (default: 10)\n"
-  "  -info                     show version information\n"
   "  -version                  show version number\n"
+  "  -info                     show detailed version information\n"
   "  -help                     show this message\n"
   ;
 
