@@ -82,7 +82,7 @@ include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
 
 # with default solver
 
-default:
+default: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE)); \
         done
@@ -202,12 +202,14 @@ parser:
 
 tag:
 	$(RM) $(RMFLAGS) $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_VERSION $(GETDP_RELEASE)" \
-             > $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_BUILD \"`date` on `hostname` (`logname`)\"" \
-             >> $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_OS \"`uname -sr`\"" \
-             >> $(GETDP_INCLUDE_DIR)/Version.h
+	echo "#define GETDP_VERSION $(GETDP_RELEASE)" > $(GETDP_INCLUDE_DIR)/Version.h
+	echo "#define GETDP_BUILD \"`date` on `hostname` (`logname`)\"" >> $(GETDP_INCLUDE_DIR)/Version.h
+	echo "#define GETDP_OS \"`uname -sr`\"" >> $(GETDP_INCLUDE_DIR)/Version.h
+
+initialtag:
+	@if [ ! -r $(GETDP_INCLUDE_DIR)/Version.h ]; then \
+        $(MAKE) tag ; \
+        fi
 
 depend:
 	for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do \
