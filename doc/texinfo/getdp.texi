@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.20 2001-07-22 22:23:27 geuzaine Exp $
+@c $Id: getdp.texi,v 1.21 2001-07-23 13:58:12 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -79,11 +79,12 @@ BELGIUM @*
 @c =========================================================================
 
 @iftex
-@c @global@let@bullet=-
 @global@let@sl=@it
 @global@setfont@indit@itshape{9}{1000}
+@c @global@let@bullet=-
 @c @global@let@linkcolor=@Orange
 @c @parskip=5pt
+@c @parindent=1cm
 @end iftex
 
 @c =========================================================================
@@ -160,7 +161,7 @@ Manual}, for GetDP Version @value{GETDP-VERSION}.
 
 @menu
 * Copying conditions::          Terms and conditions of use.
-* Introduction::                What is GetDP? (And what is it not?)
+* Introduction::                What is GetDP?
 * Overview::                    Quick overview of the general philosophy of GetDP.
 * Expressions::                 Definition of basic expressions in GetDP.
 * Objects::                     Definition of the 10 GetDP objects.
@@ -169,7 +170,7 @@ Manual}, for GetDP Version @value{GETDP-VERSION}.
 * Complete examples::           Some simple complete examples.
 * Running GetDP::               How to run GetDP on your operating system.
 * File formats::                Input and output file formats.
-* Bugs and versions::           Contact information, etc.
+* Bugs and versions::           Contact information, version history and list of contributors.
 * Tips and tricks::             Some tips to make your life easier with GetDP.
 * Gmsh examples::               Sample Gmsh input files.
 * Concept index::               Index of concepts.
@@ -1629,6 +1630,12 @@ network type for the definition of circuit connections, to be used in
 @code{Formulation} objects.
 
 The syntax for the definition of constraints is:
+
+@c todo: constraints of type LINK
+@c        < RegionRef @var{group-def}; > < SubRegionRef @var{group-def}; > 
+@c        < Coefficient @var{expression}; | Coefficient [ , ] >
+@c        < Filter @var{expression}; | Filter [ , ]; > 
+@c + constraint-val -> Function @var{expression}
 
 @example
 Constraint @{
@@ -5297,13 +5304,17 @@ as in the electrostatic problem in @ref{Electrostatic problem}.
 @cindex Options, command line
 @cindex Running GetDP
 
-GetDP has no graphical interface. It is a command-line driven program that
-reads a problem definition file once at the begining of the processing. This
-problem definition file is a regular ASCII text file (@pxref{Numerical tools
-as objects}), hence created with whatever editor you like. Gmsh
-(@value{GMSH-WEB}) provides a simple front-end to GetDP, which enables to
-construct geometries, generate meshes, launch computations and visualize
-results with user-friendly graphical interface.
+GetDP has no graphical interface@footnote{If you are looking for a graphical
+front-end to GetDP, you may consider using Gmsh (available on
+@value{GMSH-WEB}). Gmsh permits to construct geometries, generate meshes,
+launch computations and visualize results directly from within a
+user-friendly graphical interface. The file formats used by Gmsh for mesh
+generation and post-processing are the default file formats accepted by
+GetDP (@xref{Input file format}, and @ref{Types for PostOperation}).}. It is
+a command-line driven program that reads a problem definition file once at
+the begining of the processing. This problem definition file is a regular
+ASCII text file (@pxref{Numerical tools as objects}), hence created with
+whatever editor you like.
 
 If you just type the program name at your shell prompt (without any
 argument), you will get a short help on how to run GetDP. All GetDP
