@@ -1,4 +1,4 @@
-/* $Id: Amos_F.h,v 1.1 2001-08-08 14:40:28 sabarieg Exp $ */
+/* $Id: Amos_F.h,v 1.2 2001-09-06 09:49:11 geuzaine Exp $ */
 #ifndef _AMOS_F_H_
 #define _AMOS_F_H_
 
@@ -12,7 +12,6 @@
 #define zbesi_ zbesi
 #define zbesk_ zbesk         
   
-#define 
 #endif
 
 EXTERN_C_BEGIN

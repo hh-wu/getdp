@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.8 2001-08-10 16:22:51 sabarieg Exp $ */
+/* $Id: F_Function.h,v 1.9 2001-09-06 09:49:11 geuzaine Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -11,7 +11,6 @@
 
 void  F_Sphere            (F_ARG) ;
 void  F_Cylinder          (F_ARG) ;
-// Scattering
 void  F_JFIE_ZPolCyl      (F_ARG) ; 
 void  F_JFIE_TransZPolCyl (F_ARG) ;
 void  F_JFIE_SphTheta     (F_ARG) ;

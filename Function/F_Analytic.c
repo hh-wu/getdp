@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.7 2001-08-10 16:22:51 sabarieg Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.8 2001-09-06 09:49:11 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -240,7 +240,7 @@ void F_JFIE_SphTheta(F_ARG){
   V->Val[0] = 0.;
   V->Val[MAX_DIM] = 0. ;
 
-  if ( theta == 0. ) theta += 1e-7; // Warning! This is an approximation.
+  if ( theta == 0. ) theta += 1e-7; /* Warning! This is an approximation. */
   if ( theta == PI || theta == -PI ) theta -= 1e-7;
 
 
@@ -258,7 +258,7 @@ void F_JFIE_SphTheta(F_ARG){
 
     a1 = cos((1-i)*PI/2) ;
     b1 = sin((1-i)*PI/2) ;
-    c1 = -AltSpherical_j_n(i+1, kr) + (i+1) * AltSpherical_j_n(i, kr)/kr ;//Derivative
+    c1 = -AltSpherical_j_n(i+1, kr) + (i+1) * AltSpherical_j_n(i, kr)/kr ; /* Derivative */
     d1 = -(-AltSpherical_y_n(i+1, kr) + (i+1) * AltSpherical_y_n(i, kr)/kr) ;
     
     a2 =  cos((2-i)*PI/2) ;
@@ -306,7 +306,7 @@ void F_RCS_SphTheta(F_ARG){
 
   n = 50 ;  
 
-  if ( theta == 0. ) theta += 1e-7; // Warning! This is an approximation.
+  if ( theta == 0. ) theta += 1e-7; /* Warning! This is an approximation. */
   if ( theta == PI || theta == -PI ) theta -= 1e-7;
 
   for (i = 1 ; i <= n ; i++ ){
@@ -371,7 +371,7 @@ void F_JFIE_SphPhi(F_ARG){
   V->Val[0] = 0.;
   V->Val[MAX_DIM] = 0. ;
   
-  if ( theta == 0. ) theta += 1e-7;// Warning! This is an approximation.
+  if ( theta == 0. ) theta += 1e-7; /* Warning! This is an approximation. */
   if ( theta == PI || theta == -PI ) theta -= 1e-7;
  
   for (i = 1 ; i <= n ; i++ ){
@@ -381,14 +381,14 @@ void F_JFIE_SphPhi(F_ARG){
     P =  Legendre(i,1,ctheta);
     P0 = Legendre(i,0,ctheta);
 
-    dP = (i+1)*i* P0/stheta - ctheta/(ctheta*ctheta-1)*P;//Derivative
+    dP = (i+1)*i* P0/stheta - ctheta/(ctheta*ctheta-1)*P; /* Derivative */
 
     cteRe1 = (2*i+1) * P /i/(i+1)/stheta;
     cteRe2 = (2*i+1) * stheta * dP/i/(i+1);
 
     a1 = cos((1-i)*PI/2) ;
     b1 = sin((1-i)*PI/2) ;
-    c1 = -AltSpherical_j_n(i+1, kr) + (i+1)*AltSpherical_j_n(i, kr)/kr ;//Derivative
+    c1 = -AltSpherical_j_n(i+1, kr) + (i+1)*AltSpherical_j_n(i, kr)/kr ; /* Derivative */
     d1 = -(-AltSpherical_y_n(i+1, kr) + (i+1)*AltSpherical_y_n(i, kr)/kr) ;
     
     a2 =  cos((2-i)*PI/2) ;
@@ -437,7 +437,7 @@ void F_RCS_SphPhi(F_ARG){
 
   n = 50 ;  
 
-  if ( theta == 0. ) theta += 1e-7; // Warning! This is an approximation.
+  if ( theta == 0. ) theta += 1e-7; /* Warning! This is an approximation. */
   if ( theta == PI || theta == -PI ) theta -= 1e-7;
 
   for (i = 1 ; i <= n ; i++ ){

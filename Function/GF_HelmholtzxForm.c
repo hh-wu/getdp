@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_HelmholtzxForm.c,v 1.1 2001-08-09 11:59:34 sabarieg Exp $"
+#define RCSID "$Id: GF_HelmholtzxForm.c,v 1.2 2001-09-06 09:49:11 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -119,11 +119,11 @@ void GF_HelmholtzxForm (F_ARG2) {
 	    B0 = fabs(t00) <= EPSILON ? 0 : atan(t00*s0p/(SQU(r00)+fabs(zl)*r0p))-atan(t00*s0m/(SQU(r00)+fabs(zl)*r0m));
 	    B1 = fabs(t10) <= EPSILON ? 0 : atan(t10*s1p/(SQU(r10)+fabs(zl)*r1p))-atan(t10*s1m/(SQU(r10)+fabs(zl)*r0p));
 	    B2 = fabs(t20) <= EPSILON ? 0 : atan(t20*s2p/(SQU(r20)+fabs(zl)*r0m))-atan(t20*s2m/(SQU(r20)+fabs(zl)*r1p));
-	    d = a * l2[1];//Double aire a cause de normalization
+	    d = a * l2[1]; /* Double aire a cause de normalization */
 	   
 	    IS +=  ONE_OVER_TWO_PI * (-fabs(zl)*(B0+B1+B2) + t00*f0+t10*f1+t20*f2)/d; /* 1/r integral solution*/
 	    
-	    // Gauss Numerical Integration of (exp(Fct->Para[1]*R)-1)/R
+	    /* Gauss Numerical Integration of (exp(Fct->Para[1]*R)-1)/R */
 	    for (i_IntPoint = 1; i_IntPoint <= NGT_Points; i_IntPoint++){
 	      Gauss_Triangle(NGT_Points,i_IntPoint,&us,&vs,&ws,&wghti);
 	      usi = u[0]*us + u[1]*vs + u[2]*ws ;
@@ -139,7 +139,7 @@ void GF_HelmholtzxForm (F_ARG2) {
 	    vali = d * vali/2;
 
 	    Val->Val[0] = IS + valr ;
-	    Val->Val[MAX_DIM] = vali ;//Imaginary part. Numerical integral
+	    Val->Val[MAX_DIM] = vali ; /* Imaginary part. Numerical integral */
 	    
 	    if (j == 0){
 	      xs[1] = xs[2]; ys[1] = ys[2]; zs[1] = zs[2];
