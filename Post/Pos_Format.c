@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.10 2000-11-07 08:49:12 dular Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.11 2000-11-22 09:57:13 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -720,7 +720,7 @@ void  Format_PostValue(int Format,
   static int  Size ;
   int  j, k ;
   double TimeMH, Freq ;
-  struct Value  TmpValue, *TmpValues ;
+  static struct Value  TmpValue, *TmpValues ;
 
   GetDP_Begin("Format_PostValue");
 
