@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.24 2002-09-28 16:28:03 geuzaine Exp $
+# $Id: Makefile,v 1.25 2002-10-03 18:08:39 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -7,7 +7,7 @@
 
 SOLVER   = -D_SPARSKIT
 
-C_FLAGS = -g
+C_FLAGS = -g -O3
 #C_FLAGS = -g -O3 -Wall
 #C_FLAGS = -g -Wall -D_PETSC
 #include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables
@@ -61,10 +61,10 @@ exe:
                ../lib/libSparskit.a ../lib/libNumeric.a ../lib/libDataStr.a $(F2C)
 
 3d:
-	$(CXX) $(C_FLAGS) -o hf3d \
+	$(CXX) $(C_FLAGS) $(INCLUDE) -o hf3d \
            -I$(FASSTER_DIR)/lib \
            -I$(MATH_TOOLKIT_DIR)/lib \
-           main3d.cpp \
+           Main3D.cpp Utils.cpp \
            $(FASSTER_DIR)/lib/libfasster.a \
            $(MATH_TOOLKIT_DIR)/lib/libmathtoolkit.a \
            -lgsl -lgslcblas -lm
