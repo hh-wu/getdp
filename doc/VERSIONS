@@ -1,6 +1,8 @@
-$Id: VERSIONS,v 1.13 2001-05-03 00:17:18 geuzaine Exp $
+$Id: VERSIONS,v 1.14 2001-05-06 12:37:55 geuzaine Exp $
 
 0.82: Added communication socket for interactive use with Gmsh;
+corrected (again) memory problem (leak + seg. fault) in time stepping
+schemes; corrected bug in Update[];
 
 0.81: Generalization of transformation jacobians (spherical and
 rectangular, with optional parameters); changed handling of missing

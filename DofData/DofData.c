@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.17 2001-03-27 19:19:57 dular Exp $"
+#define RCSID "$Id: DofData.c,v 1.18 2001-05-06 12:37:55 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -480,7 +480,7 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
   struct DofData  * DofData_P ;
   struct Solution Solution_S ;
   char            String[MAX_STRING_LENGTH] ;
-
+  int i;
   GetDP_Begin("Dof_ReadFileRES");
 
   while (1) {
@@ -505,6 +505,8 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
       /* Warning: the '\n' character is needed for subsequent fread */
       fscanf(File_RES, "%d %lf %d\n", &Num_DofData, &Val_Time, &Val_TimeStep) ;
 
+      /* printf("Found solution %d\n", Val_TimeStep); */
+
       if (Read_DofData < 0){
 	Read = 1 ; DofData_P = (struct DofData*)List_Pointer(DofData_L, Num_DofData) ;
       }
@@ -519,10 +521,16 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 	Solution_S.Time = Val_Time ;
 	Solution_S.TimeStep = Val_TimeStep ;
 	LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
-		      DofData_P->NbrPart, DofData_P->Part) ;
+			    DofData_P->NbrPart, DofData_P->Part) ;
 	Format ? 
 	  LinAlg_ReadVector(File_RES, &Solution_S.x) :
 	  LinAlg_ScanVector(File_RES, &Solution_S.x) ;
+
+	/*
+	  for(i=0; i<5; i++) printf("val= %g\n", Solution_S.x.V[i]);
+	  printf("\n");
+	*/
+
 	if (DofData_P->Solutions == NULL)
 	  DofData_P->Solutions = List_Create( 20, 20, sizeof(struct Solution)) ;
 	List_Add(DofData_P->Solutions, &Solution_S) ;
@@ -1098,13 +1106,13 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       }
       else{
 	LinAlg_GetComplexInVector(&a, &b, Vec0,
-			    Dof_P->Case.Unknown.NumDof-1, 
-			    (gSCALAR_SIZE==1)?((Dof_P+1)->Case.Unknown.NumDof-1):-1) ;
+				  Dof_P->Case.Unknown.NumDof-1, 
+				  (gSCALAR_SIZE==1)?((Dof_P+1)->Case.Unknown.NumDof-1):-1) ;
 	c = a * Val[0] - b * Val[1] ; 
 	d = a * Val[1] + b * Val[0] ;
 	LinAlg_AddComplexInVector(c, d, Vec,
-			    Equ_P->Case.Unknown.NumDof-1, 
-			    (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Unknown.NumDof-1):-1) ;
+				  Equ_P->Case.Unknown.NumDof-1, 
+				  (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Unknown.NumDof-1):-1) ;
       }
       break ;
 
@@ -1224,8 +1232,8 @@ void  Dof_TransferSolutionToConstraint(struct DofData * DofData_P) {
     case DOF_UNKNOWN :
       Dof_P->Type = DOF_FIXED ;
       LinAlg_GetScalarInVector(&Dof_P->Val, 
-			 &DofData_P->CurrentSolution->x, 
-			 Dof_P->Case.Unknown.NumDof-1) ;
+			       &DofData_P->CurrentSolution->x, 
+			       Dof_P->Case.Unknown.NumDof-1) ;
       Dof_P->Case.FixedAssociate.TimeFunctionIndex = 0 ;
       break ;
 
@@ -1259,17 +1267,17 @@ gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P) {
 
   case DOF_UNKNOWN :
     LinAlg_GetScalarInVector(&tmp, &DofData_P->CurrentSolution->x, 
-		       Dof_P->Case.Unknown.NumDof-1) ;
+			     Dof_P->Case.Unknown.NumDof-1) ;
     break ;
 
   case DOF_FIXED :
   case DOF_FIXEDWITHASSOCIATE :
     LinAlg_ProdScalarDouble(&Dof_P->Val, 
-		      ((Dof_P->Case.FixedAssociate.TimeFunctionIndex)?
-		       DofData_P->CurrentSolution->TimeFunctionValues
-		       [Dof_P->Case.FixedAssociate.TimeFunctionIndex] :
-		       1.),
-		      &tmp);
+			    ((Dof_P->Case.FixedAssociate.TimeFunctionIndex)?
+			     DofData_P->CurrentSolution->TimeFunctionValues
+			     [Dof_P->Case.FixedAssociate.TimeFunctionIndex] :
+			     1.),
+			    &tmp);
     break ;
 
   case DOF_LINK :
@@ -1342,9 +1350,9 @@ gScalar Dof_GetDofValueDt(struct DofData * DofData_P, struct Dof * Dof_P) {
   case DOF_UNKNOWN :
     if (DofData_P->NbrHar == 1) {
       LinAlg_GetScalarInVector(&t1, &DofData_P->CurrentSolution->x, 
-			 Dof_P->Case.Unknown.NumDof-1) ;
+			       Dof_P->Case.Unknown.NumDof-1) ;
       LinAlg_GetScalarInVector(&t2, &(DofData_P->CurrentSolution-1)->x, 
-			 Dof_P->Case.Unknown.NumDof-1) ;
+			       Dof_P->Case.Unknown.NumDof-1) ;
       LinAlg_SubScalarScalar(&t1, &t2, &t1) ;
       LinAlg_DivScalarDouble
 	(&t1, DofData_P->CurrentSolution->Time-(DofData_P->CurrentSolution-1)->Time,

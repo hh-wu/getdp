@@ -1,4 +1,4 @@
-/* $Id: Data_DofData.h,v 1.7 2001-03-27 19:19:57 dular Exp $ */
+/* $Id: Data_DofData.h,v 1.8 2001-05-06 12:37:55 geuzaine Exp $ */
 #ifndef _DATA_DOFDATA_H_
 #define _DATA_DOFDATA_H_
 
@@ -48,7 +48,7 @@ struct Solution {
   int       TimeStep ; /* Premiere position pour permettre les recherches */
   double    Time ;
   int       SolutionExist ;
-  double  * TimeFunctionValues ;
+  double  * TimeFunctionValues, ExplicitTimeFunctionValue ;
   gVector   x ;
 } ;
 

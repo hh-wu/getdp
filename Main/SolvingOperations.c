@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.22 2001-03-19 11:08:45 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.23 2001-05-06 12:37:55 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -311,7 +311,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			    DofData_P->NbrPart, DofData_P->Part) ;
 
 	/* The last solution, if any, initializes the current one.
-	   Otherwise nul solution is used */
+	   Otherwise nul solution is used. 
+	   a revoir qd les conditions initiales seront mieux traitees */
 	if (List_Nbr(DofData_P->Solutions)) {
 	  LinAlg_CopyVector(&((struct Solution *)
 			      List_Pointer(DofData_P->Solutions,
@@ -504,11 +505,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_TIMELOOPTHETA :
-      /* debug */
+      if(!List_Nbr(Current.DofData->Solutions))
+	Msg(ERROR, "Not enough initial solutions for TimeLoopTheta");
+
+      Msg(OPERATION, "TimeLoopTheta ...") ;
+
       /*
 	FilePWM = fopen("PWM", "w+") ;
       */
-      Msg(OPERATION, "TimeLoopTheta ...") ;
 
       Save_TypeTime  = Current.TypeTime ;
       Save_DTime     = Current.DTime ;  
@@ -545,18 +549,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopTheta.Operation, 
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
-	/* moved into Generate_System
-	if(!Flag_POS){
-	  if(List_Nbr(Current.DofData->Solutions) > 2){
-	    Solution_P = (struct Solution*)
-	      List_Pointer(Current.DofData->Solutions, 
-			   List_Nbr(Current.DofData->Solutions)-2);
-	    LinAlg_DestroyVector(&Solution_P->x);
-	    Free(Solution_P->TimeFunctionValues) ;
-	    Solution_P->SolutionExist = 0 ;
-	  }
-	}
-	*/
       }
 
       Current.TypeTime = Save_TypeTime ;
@@ -567,14 +559,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_TIMELOOPNEWMARK :
-
-      /* Bricolage: 2 premiere solutions initialisees de maniere identique par Init
-	 -> derivee initiale nulle */
-      List_Read(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1, &Solution_S) ;
-      List_Add(DofData_P->Solutions, &Solution_S) ;      
-      DofData_P->CurrentSolution = (struct Solution*)
-	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
-
       if(List_Nbr(Current.DofData->Solutions) < 2)
 	Msg(ERROR, "Not enough initial solutions for TimeLoopNewmark");
 
@@ -606,19 +590,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopNewmark.Operation, 
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
-
-	/* moved into Generate_System
-	if(!Flag_POS){
-	  if(List_Nbr(Current.DofData->Solutions) > 3){
-	    Solution_P = (struct Solution*)
-	      List_Pointer(Current.DofData->Solutions, 
-			   List_Nbr(Current.DofData->Solutions)-3);
-	    LinAlg_DestroyVector(&Solution_P->x);
-	    Free(Solution_P->TimeFunctionValues) ;
-	    Solution_P->SolutionExist = 0 ;
-	  }
-	}
-	*/
 
       }
 
@@ -885,8 +856,9 @@ void Free_UnusedSolutions(struct DofData * DofData_P){
   if(!Flag_POS){
     if(Current.TypeTime == TIME_THETA)
       index = List_Nbr(DofData_P->Solutions)-3 ;
-    else if(Current.TypeTime == TIME_NEWMARK)
+    else if(Current.TypeTime == TIME_NEWMARK){
       index = List_Nbr(DofData_P->Solutions)-4 ;
+    }
 
     if(index >= 0){
       Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, index);
@@ -927,7 +899,6 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
   
   if (!(Solution_P = (struct Solution*)
 	List_PQuery(DofData_P->Solutions, &i_TimeStep, fcmp_int))) {
-
     Solution_S.TimeStep = (int)Current.TimeStep ;
     Solution_S.Time = Current.Time ;
     Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
@@ -955,8 +926,9 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     for(i=0 ; i<List_Nbr(DofData_P->TimeFunctionIndex) ; i++)
       if(*(int*)List_Pointer(DofData_P->TimeFunctionIndex, i) > 0)
 	Msg(WARNING, "Ignored TimeFunction in Constraint for GenerateSeparate") ;
-    for(i=0 ; i<List_Nbr(Problem_S.Expression) ; i++)
+    for(i=0 ; i<List_Nbr(Problem_S.Expression) ; i++){
       DofData_P->CurrentSolution->TimeFunctionValues[i] = 1. ;
+    }
   }
   else{
     LinAlg_ZeroMatrix(&Current.DofData->A) ;
@@ -1059,12 +1031,12 @@ void Cal_ThetaRHS(int *init, double *coef,
   }
 
   /*   + [ c0 * m2 + c1 * m1 ] * TimeFct(n)      */
-  tfval = Current.DofData->CurrentSolution->TimeFunctionValues[0] ;
+  tfval = Current.DofData->CurrentSolution->ExplicitTimeFunctionValue ;
   if(init[2] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
   if(init[1] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
   
   /*   + [ c2 * m2 + c3 * m1 ] * TimeFct(n-1)      */
-  tfval = (Current.DofData->CurrentSolution-1)->TimeFunctionValues[0] ;
+  tfval = (Current.DofData->CurrentSolution-1)->ExplicitTimeFunctionValue ;
   if(init[2] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
   if(init[1] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
 
@@ -1146,19 +1118,19 @@ void Cal_NewmarkRHS(int *init, double *coef,
   }
   
   /*   + [ c0 * m3 + c1 * m2 + c2 * m1 ] * TimeFct(n)      */
-  tfval = Current.DofData->CurrentSolution->TimeFunctionValues[0] ;
+  tfval = Current.DofData->CurrentSolution->ExplicitTimeFunctionValue ;
   if(init[3] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
   if(init[2] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
   if(init[1] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
   
   /*   + [ c3 * m3 + c4 * m2 + c5 * m1 ] * TimeFct(n-1)      */
-  tfval = (Current.DofData->CurrentSolution-1)->TimeFunctionValues[0] ;
+  tfval = (Current.DofData->CurrentSolution-1)->ExplicitTimeFunctionValue ;
   if(init[3] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
   if(init[2] && (val=coef[4]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
   if(init[1] && (val=coef[5]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
   
   /*   + [ c6 * m3 + c7 * m2 + c8 * m1 ] * TimeFct(n-2)    */
-  tfval = (Current.DofData->CurrentSolution-2)->TimeFunctionValues[0] ;
+  tfval = (Current.DofData->CurrentSolution-2)->ExplicitTimeFunctionValue ;
   if(init[3] && (val=coef[6]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
   if(init[2] && (val=coef[7]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
   if(init[1] && (val=coef[8]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
@@ -1187,18 +1159,14 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 
   i_TimeStep = (int)Current.TimeStep ;
   if (!(Solution_P = (struct Solution*)
-	/*
-	  List_PQuery(DofData_P->Solutions, &Current.Time, fcmp_double))) {
-	*/
 	List_PQuery(DofData_P->Solutions, &i_TimeStep, fcmp_int))) {
 
     Solution_S.TimeStep = (int)Current.TimeStep ;
     Solution_S.Time = Current.Time ;
+    Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P);
 
     Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
-    
-    Solution_S.TimeFunctionValues = (double *)Malloc(sizeof(double)) ;
-    Solution_S.TimeFunctionValues[0] = Value.Val[0] ;
+    Solution_S.ExplicitTimeFunctionValue = Value.Val[0] ;
     
     Solution_S.SolutionExist = 1 ;
     LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
@@ -1207,6 +1175,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
     List_Add(DofData_P->Solutions, &Solution_S) ;
     DofData_P->CurrentSolution = (struct Solution*)
       List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
+
   }
   else if (Solution_P != DofData_P->CurrentSolution) {
     Msg(ERROR, "Incompatible time") ;
@@ -1220,6 +1189,17 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 
     if(!Init_Update){
       Init_Update = 1;
+
+      /* bidouillage provisoire : a revoir qd les conditions initiales
+         seront mieux traitees */
+      Current.Time -= Current.DTime ;
+      Current.TimeStep -= 1. ;
+      Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
+      (DofData_P->CurrentSolution-1)->ExplicitTimeFunctionValue = Value.Val[0] ;
+      Current.Time += Current.DTime ;
+      Current.TimeStep += 1. ;
+      /* */
+
       LinAlg_CreateVector(&TmpVect, &DofData_P->Solver, DofData_P->NbrDof,
 			  DofData_P->NbrPart, DofData_P->Part) ;
 
@@ -1256,14 +1236,20 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 
     if(!Init_Update){
       Init_Update = 1;
+
+      /* bidouillage provisoire : a revoir qd les conditions initiales
+         seront mieux traitees */
+      Current.Time -= Current.DTime ;
+      Current.TimeStep -= 1. ;
+      Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
+      (DofData_P->CurrentSolution-1)->ExplicitTimeFunctionValue = Value.Val[0] ;
+      (DofData_P->CurrentSolution-2)->ExplicitTimeFunctionValue = Value.Val[0] ;
+      Current.Time += Current.DTime ;
+      Current.TimeStep += 1. ;
+      /* */
+
       LinAlg_CreateVector(&TmpVect, &DofData_P->Solver, DofData_P->NbrDof,
 			  DofData_P->NbrPart, DofData_P->Part) ;
-
-      /* Bidouillage provisoire. Necessaire car seule la valeur de la
-	 fonction temporelle pour la solution courante a ete
-	 initialisee. */
-      Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, 0);
-      Solution_P->TimeFunctionValues[0] = 0. ;
 
       Save_Num   = DofData_P->Num ;
       Save_DTime = Current.DTime ;
