@@ -4,6 +4,7 @@
 #include <math.h>
 
 #include "GeoData.h"
+#include "Data_Passive.h"
 #include "Data_Element.h"
 #include "ualloc.h"
 #include "Magic.h"
@@ -120,9 +121,37 @@ void  Geo_CloseFile(void) {
 /*  G e o _ R e a d F i l e                                                 */
 /* ------------------------------------------------------------------------ */
 
+int Geo_GetElementType(int Format, int Type){
+
+  switch(Format){
+  case FORMAT_GMSH :
+    switch(Type){
+    case 15 : return POINT ;
+    case 1  : return LINE ;
+    case 2  : return TRIANGLE ;
+    case 3  : return QUADRANGLE ;
+    case 4  : return TETRAHEDRON ;      
+    case 5  : return HEXAHEDRON ;
+    case 6  : return PRISM ;
+    case 7  : return PYRAMID ;
+    case 8  : return LINE_2 ;
+    case 9  : return TRIANGLE_2 ;
+    case 10 : return QUADRANGLE_2 ;
+    case 11 : return TETRAHEDRON_2 ;      
+    case 12 : return HEXAHEDRON_2 ;
+    case 13 : return PRISM_2 ;
+    case 14 : return PYRAMID_2 ;
+    }
+    break ;
+  default :
+    Msg(ERROR, "Unkown Mesh Format") ;
+  }
+
+}
+
 void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
-  int                 Nbr, i, j, iDummy ;
+  int                 Nbr, i, j, Type, iDummy ;
   struct Geo_Node     Geo_Node ;
   struct Geo_Element  Geo_Element ;
   char                String[MAX_STRING_LENGTH] ;
@@ -165,8 +194,10 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
       for (i = 0 ; i < Nbr ; i++) {
 	fscanf(File_GEO, "%d %d %d %d %d",
-	       &Geo_Element.Num, &Geo_Element.Type, &Geo_Element.Region,
+	       &Geo_Element.Num, &Type, &Geo_Element.Region,
 	       &iDummy, &Geo_Element.NbrNodes) ;
+
+	Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
 	Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
 	for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
 	  fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) ;
