@@ -1,4 +1,6 @@
-$Date: 2004-03-08 06:55:51 $
+$Date: 2004-07-03 06:04:02 $
+
+New since 1.0: Lanczos with GSL+lapack
 
 1.0: New license (GNU GPL); added support for latest Gmsh mesh file
 format; more code cleanup;

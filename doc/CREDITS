@@ -1,4 +1,4 @@
-$Id: CREDITS,v 1.9 2004-03-05 18:35:54 geuzaine Exp $
+$Id: CREDITS,v 1.10 2004-07-03 06:07:22 geuzaine Exp $
 
              GetDP is copyright (C) 1997-2004
 
@@ -17,10 +17,11 @@ Gyselinck <johan.gyselinck at ulg.ac.be> and Ruth Sabariego
 Other code contributors include: David Colignon <david.colignon at
 ulg.ac.be>, Tuan Ledinh <tuan.ledinh at student.ulg.ac.be>, Patrick
 Lefevre <P.Lefevre at ulg.ac.be>, Andre Nicolet <andre.nicolet at
-fresnel.fr>, Jean-Francois Remacle <remacle at scorec.rpi.edu>, Timo
-Tarhasaari <timo.tarhasaari at tut.fi>, Christophe Trophime <trophime
-at labs.polycnrs-gre.fr> and Marc Ume <Marc.Ume at
-digitalgraphics.be>. See the source code for more details.
+fresnel.fr>, <ohyeahq@yahoo.co.jp>, Jean-Francois Remacle <remacle at
+scorec.rpi.edu>, Timo Tarhasaari <timo.tarhasaari at tut.fi>,
+Christophe Trophime <trophime at labs.polycnrs-gre.fr> and Marc Ume
+<Marc.Ume at digitalgraphics.be>. See the source code for more
+details.
 
 The AVL tree code (DataStr/avl.*) is copyright (C) 1988-1993, 1995 The
 Regents of the University of California. Permission to use, copy,
