@@ -847,6 +847,7 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-multiharmonic  enable multiharmonic (> 2) calculations (default=no)
   --enable-petsc          use PETSc linear solvers (default=no)
   --enable-debug          build debug stack frame (default=no)
   --enable-purewin32      don't depend on Cygwin on Windows (default=no)
@@ -1329,6 +1330,11 @@ else
   FFTW_PREFIX="${FFTW_DIR}"
 fi;
 
+# Check whether --enable-multiharmonic or --disable-multiharmonic was given.
+if test "${enable_multiharmonic+set}" = set; then
+  enableval="$enable_multiharmonic"
+
+fi;
 # Check whether --enable-petsc or --disable-petsc was given.
 if test "${enable_petsc+set}" = set; then
   enableval="$enable_petsc"
@@ -2332,7 +2338,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2335:" \
+echo "$as_me:2341:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3149,6 +3155,10 @@ fi
 
 if test "x$enable_debug" = "xyes"; then
   C_FLAGS="${C_FLAGS} -DGETDP_USE_DEBUG_STACK"
+fi
+
+if test "x$enable_multiharmonic" = "xyes"; then
+  C_FLAGS="${C_FLAGS} -DGETDP_MULTIHARMONIC"
 fi
 
 if test "x${METIS_PREFIX}" != "x"; then

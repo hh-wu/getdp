@@ -45,16 +45,15 @@
 /*  V a l u e                                                               */
 /* ------------------------------------------------------------------------ */
 
-#define MAX_DIM             9   /* second-rank tensor of order 3 : 3^2 = 9  */
+#define MAX_DIM  9   /* second-rank tensor of order 3 : 3^2 = 9  */
 
-/* Please set this to the lowest possible value for common getdp
-   versions, until we do dynamic allocation. Otherwise, some
+/* Please set NBR_MAX_HARMONIC to the lowest possible value for common
+   getdp versions, until we do dynamic allocation. Otherwise, some
    postprocessing operations become almost impossible to perform in
-   3D... */
+   3D.
+*/
 
-#define _MULTIHAR 0
-
-#ifdef _MULTIHAR
+#ifdef GETDP_MULTIHARMONIC
 #define NBR_MAX_HARMONIC    40
 #else
 #define NBR_MAX_HARMONIC    2   
@@ -80,9 +79,6 @@ struct Problem {
 /* ------------------------------------------------------------------------ */
 /*  G r o u p                                                               */
 /* ------------------------------------------------------------------------ */
-
-
-
 
 struct Group {
   char    * Name ;
@@ -425,7 +421,8 @@ struct ConstraintInFS {
 /* ------------------------------------------------------------------------ */
 
 struct Function {
-  void    (*Fct)() ; /* ANSI C++ forbids data member `Function' with same name as enclosing class */
+  void    (*Fct)() ; /* ANSI C++ forbids data member `Function' with 
+			same name as enclosing class */
   int     TypeOfValue, NbrArguments, NbrParameters ;
   double  *Para ;
   struct FunctionActive  * Active ;
@@ -1128,9 +1125,4 @@ struct CurrentData {
 } ;
 
 #endif
-
-
-
-
-
 
