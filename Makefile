@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.43 2001-03-02 22:16:00 geuzaine Exp $
+# $Id: Makefile,v 1.44 2001-03-03 08:40:13 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -59,7 +59,7 @@ GETDP_SOURCES         = `find . \( ! -name "*.tar*" -a ! -name "*.tgz" \
 GETDP_UNAME           = `uname`
 
 # ----------------------------------------------------------------------
-# Metis 4.0 definitions
+# Metis definitions
 # ----------------------------------------------------------------------
 
 METIS_INCLUDE         = -I$(METIS_DIR)/Lib
@@ -162,7 +162,6 @@ linux2: initialtag
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
 	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
-#	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
 
 linux2W: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -174,7 +173,6 @@ linux2W: initialtag
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
 	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
-#	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
 
 
 ## Christophe
@@ -358,7 +356,7 @@ linux: tag
            "FC=g77" \
            "C_FLAGS=-O3" \
            "C_PARSER_FLAGS=-O3" \
-           "F77_FLAGS=-O1" \
+           "F77_FLAGS=-O3" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done

@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Region.c,v 1.6 2000-12-08 12:04:13 dular Exp $"
+#define RCSID "$Id: BF_Region.c,v 1.7 2001-03-03 08:40:13 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -6,6 +6,7 @@
 #include "Get_DofOfElement.h"
 #include "CurrentData.h"
 #include "Treatment_Formulation.h"
+#include "Cal_Quantity.h"
 
 void  BF_SubFunction(struct Element * Element, int NumExpression,
 		     int Dim, double s[] ) ;

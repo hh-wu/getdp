@@ -1,5 +1,7 @@
 2001-03-02  Christophe Geuzaine  <geuzaine@elap74.montefiore.ulg.ac.be>
 
+	* Added treatment for r==0 in VolAxi
+
 	* No more USE_DEBUG by default
 
 	* Fixed bugs in Pos_Format and Pos_Quantity

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.8 2001-02-06 21:48:27 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.9 2001-03-03 08:40:13 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -483,15 +483,23 @@ double  JacobianVol2D (struct Element * Element, MATRIX3x3 * Jac) {
 
 double  JacobianVolAxi2D (struct Element * Element, MATRIX3x3 * Jac) {
   int  i ;
-  double DetJac ;
+  double s = 0., DetJac ;
 
   GetDP_Begin("JacobianVolAxi2D");
 
   DetJac = JacobianVol2D(Element, Jac) ;
 
-  Jac->c33 = 0. ;
   for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
-    Jac->c33 += Element->x[i] * Element->n[i] ;
+    s += Element->x[i] * Element->n[i] ;
+
+  /* Warning! For evaluations on the symmetry axis */
+  if (s==0.0) {
+    for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) 
+      s += Element->x[i] ;
+    s /= (double)Element->GeoElement->NbrNodes  ;
+  }
+
+  Jac->c33 = s ;
 
   GetDP_Return(DetJac * Jac->c33) ;
 }
@@ -513,7 +521,7 @@ double  JacobianVolAxiSqu2D (struct Element * Element, MATRIX3x3 * Jac) {
     s += DSQU(Element->x[i]) * Element->n[i] ;
 
 
-  /* !!!!!!!!! test */
+  /* Warning! For evaluations on the symmetry axis */
   if (s==0.0) {
     for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) 
       s += Element->x[i] * Element->x[i] ;
