@@ -259,6 +259,8 @@ Info                         return tHelp ;
 Cpu                          return tCpu ;
 
 
+EquationTerm                 return tEquation ;
+PostQuantity                 return tQuantity ;
 Integral                     return tGalerkin ;
 
 {digit}+                     { yylval.i = atoi(yytext) ; return tINT ; }
