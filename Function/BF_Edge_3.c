@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Edge_3.c,v 1.4 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: BF_Edge_3.c,v 1.5 2001-06-27 10:55:14 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -6,8 +6,8 @@
 #include "Data_Passive.h"
 #include "BF_Function.h"
 
-/* The non-symmetric facets functions are selected according to the
-   NumIndexth smallest global node number */
+/* The non-symmetric facet functions are selected according to the
+   NumIndex^th smallest global node number */
 
 int fcmp_Int2(const void * a, const void * b){
   return ((struct TwoInt *)a)->Int2 - ((struct TwoInt *)b)->Int2 ;
