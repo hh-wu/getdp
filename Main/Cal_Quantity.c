@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.10 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.11 2001-03-07 15:21:07 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -159,6 +159,7 @@ void Cal_WholeQuantity(struct Element * Element,
   
   struct WholeQuantity   *WholeQuantity_P0, *WholeQuantity_P ;
   struct DofData         *Save_DofData ;
+  struct Solution        *Solution_P0 ;
 
   /* Should be Stack[NBR_MAX_BASISFUNCTION][MAX_STACK_SIZE] but this overflows the
      stack for long recursive calls. 8 is still OK since the 'multi' feature is only
@@ -416,11 +417,15 @@ void Cal_WholeQuantity(struct Element * Element,
 			  WholeQuantity_P->Case.TimeDerivative.WholeQuantity,
 			  u, v, w, -1, 0, &Stack[0][Index]) ;
 	
-	for (k = 0 ; k < Current.NbrSystem ; k++)
-	  if (List_Nbr((Current.DofData_P0+k)->Solutions) > 1)
-	    ((Current.DofData_P0+k)->CurrentSolution) -- ;
+	for (k = 0 ; k < Current.NbrSystem ; k++){
+	  if(List_Nbr((Current.DofData_P0+k)->Solutions) > 1){
+	    Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
+	    if ((Current.DofData_P0+k)->CurrentSolution != Solution_P0)
+	      ((Current.DofData_P0+k)->CurrentSolution) -- ;
+	  }
 	  else
 	    Msg(WARNING, "Missing solution for time derivative computation");
+	}
 
 	Save_Time = Current.Time ;
 	Current.Time = Current.DofData->CurrentSolution->Time ;
