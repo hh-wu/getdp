@@ -1,4 +1,4 @@
-/* $Id: Data_DofData.h,v 1.8 2001-05-06 12:37:55 geuzaine Exp $ */
+/* $Id: Data_DofData.h,v 1.9 2001-07-26 14:46:00 geuzaine Exp $ */
 #ifndef _DATA_DOFDATA_H_
 #define _DATA_DOFDATA_H_
 
@@ -30,15 +30,19 @@ struct DofData {
 
   int       Flag_Init[4] ;
 
-  /* Flag_Init[0] */
-  gMatrix   A, Jac ;
-  gVector   b, res, dx ;
+  /* Flag_Init[0] == 1 || 2 */
+  gMatrix   A ;
+  gVector   b ;
   gSolver   Solver ;
   gGraph    Graph ;
 
+  /* Flag_Init[0] == 2 */
+  gMatrix   Jac ;
+  gVector   res, dx ;
+
   int     * Nnz, NbrPart, Part[NBR_MAX_PARTITION] ;
 
-  /* Flag_Init[1,2,3] */
+  /* Flag_Init[1,2,3] == 1 */
   gMatrix   M1, M2, M3 ;
   gVector   m1, m2, m3 ;
 } ;
