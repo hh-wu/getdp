@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.37 2004-09-17 23:33:05 geuzaine Exp $
+dnl $Id: configure.in,v 1.38 2004-11-03 01:00:24 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -304,14 +304,22 @@ if test "x$enable_readline" != "xno"; then
     LDFLAGS="-L${READLINE_PREFIX}/lib ${LDFLAGS}"
   fi
   AC_CHECK_HEADER(readline/readline.h,READLINE="yes",READLINE="no")
-  AC_CHECK_LIB(readline,main,READLINE="yes",READLINE="no",-lhistory -ltermcap)
+  AC_CHECK_LIB(termcap,main,TERMCAP="yes",TERMCAP="no")
+  if test "x${TERMCAP}" = "xyes"; then
+    AC_CHECK_LIB(readline,main,READLINE="yes",READLINE="no",-lhistory -ltermcap)
+  else
+    AC_CHECK_LIB(readline,main,READLINE="yes",READLINE="no",-lhistory)
+  fi
   if test "x${READLINE}" = "xyes"; then
     C_FLAGS="${C_FLAGS} -DHAVE_READLINE"
     if test "x${READLINE_PREFIX}" = "x"; then
-      GETDP_LIBS="${GETDP_LIBS} -lreadline -lhistory -ltermcap"
+      GETDP_LIBS="${GETDP_LIBS} -lreadline -lhistory"
     else
-      GETDP_LIBS="${GETDP_LIBS} -L${READLINE_PREFIX}/lib -lreadline -lhistory -ltermcap"
+      GETDP_LIBS="${GETDP_LIBS} -L${READLINE_PREFIX}/lib -lreadline -lhistory"
       C_FLAGS="${C_FLAGS} -I${READLINE_PREFIX}/include"
+    fi
+    if test "x${TERMCAP}" = "xyes"; then
+      GETDP_LIBS="${GETDP_LIBS} -ltermcap"
     fi
   fi
 fi
