@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.113 2003-01-28 22:10:38 geuzaine Exp $
+# $Id: Makefile,v 1.114 2003-01-29 20:28:28 geuzaine Exp $
 
 # ----------------------------------------------------------------------
 #  Optional packages: 
@@ -379,8 +379,8 @@ compile-hpux: initialtag
            "SOLVER_FLAGS=-D_ILU_FLOAT -D_UNDERSCORE" \
         ); done
 link-hpux:
-	fort77 +DAportable -o $(GETDP_BIN_DIR)/getdp $(GETDP_MAIN_DIR)/Main.o \
-               $(GETDP_SPARSKIT_LIBS) -lm
+	f77 +DAportable -o $(GETDP_BIN_DIR)/getdp $(GETDP_MAIN_DIR)/Main.o \
+            $(GETDP_SPARSKIT_LIBS) -lm
 hpux: compile-hpux link-hpux
 distrib-hpux: clean tag hpux distrib
 
