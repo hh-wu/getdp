@@ -4911,7 +4911,7 @@ getdp @var{filename} @var{options}
 
 @noindent
 where @var{filename} is an ASCII file containing the problem definition,
-i.e.@: the structures this user's guide teached you to create. This file
+i.e.@: the structures this user's guide taught you to create. This file
 can include other files (@pxref{Includes}), so that only one problem
 definition file should always be given on the command line. The input
 files containing the problem definition structure are usually given the
