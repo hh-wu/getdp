@@ -1,4 +1,4 @@
-% $Id: fem.tex,v 1.7 2001-06-15 12:21:46 geuzaine Exp $
+% $Id: fem.tex,v 1.8 2001-06-15 12:34:35 geuzaine Exp $
 
 % ---------------------------------------------------------------------------
 \part{Introduction}
@@ -64,7 +64,8 @@ developments don't change the fundamental principles anymore
 \begin{slide}
 
 \begin{slideitemize}
-\item 1960s for mechanical problems (very large \emph{application range} since 1980s)
+\item 1960s for mechanical problems (very large \emph{application range}
+since the 1980s)
 \item Strong \emph{mathematical foundations} (convergence, unicity)
 \item Generalizations/re-interpretations (vanishing boundaries between finite
 differences, finite elements and finite volumes, ...) call for a
@@ -73,9 +74,9 @@ differences, finite elements and finite volumes, ...) call for a
 
 But FEM is not the magic/universal tool:
 \begin{slideitemize}
-\item Many conflicting/\emph{antinomic} issues (continuous
-vs. discontinuous, conform vs. non conform meshes, implicit vs. explicit,
-...)
+\item Many conflicting/\emph{antinomic} issues (continuous vs. discontinuous
+interpolation, conform vs. non conform meshes, implicit vs. explicit time
+integration, ...)
 \item Generality always has a price (i.e.\ \emph{efficiency} trade-off)
 \end{slideitemize}
 
@@ -83,13 +84,14 @@ vs. discontinuous, conform vs. non conform meshes, implicit vs. explicit,
 
 \begin{slide}
 
-Based on a double \emph{discretization}: ``replace'' the
+Based on a double \emph{discretization}:
 \begin{slideitemize}
-\item function spaces to which the fields belong (e.g.\ $\Hone{\Omega}$,
-$\Hcurl{\Omega}$, $\Hdiv{\Omega}$ and $\Ltwo{\Omega}$) by \emph{finite
-dimensional function spaces}
-\item domains on which these subspaces are defined by a union of elementary
-geometrical elements of simple shapes (a ``\emph{mesh}'' or ``grid'')
+\item ``replace'' the function spaces to which the fields belong (e.g.\
+$\Hone{\Omega}$, $\Hcurl{\Omega}$, $\Hdiv{\Omega}$ or $\Ltwo{\Omega}$) by
+\emph{finite dimensional subspaces}
+\item ``replace'' the domains on which these subspaces are defined by a
+union of elementary geometrical elements of simple shapes (a ``\emph{mesh}''
+or ``grid'')
 \end{slideitemize}
 
 \bigskip
@@ -173,20 +175,20 @@ continuous} scalar fields like charge density, heat source density, ...)
 \begin{slide}
 
 \emph{Error} on the solution of a discrete formulation:
-\begin{enumerate}
+\begin{slideitemize}
 \item 
 \emph{Hypotheses} in the continuous models (e.g.\ constitutive laws) 
 \item 
 \emph{Discretization} of the continuous model (finite dimensional spaces):
-\begin{enumerate}
+\begin{itemize}
 \item 
 Discretizing the \emph{geometry} (idealized geometry, meshed with a finite
 number of elementary elements)
 \item
 Discretizing the \emph{fields} (locally approximated by polynomials of
 finite order)
-\end{enumerate}
-\end{enumerate}
+\end{itemize}
+\end{slideitemize}
 
 \end{slide}
 
@@ -195,20 +197,19 @@ finite order)
 \emph{Adaptation}: foresee/control the discretization error. Possible if
 \begin{slideitemize}
 \item
-known asymptotic \emph{error convergence}
+Knowledge of asymptotic \emph{error convergence}
 \item
-available error \emph{approximation} (if the exact value is known, so is the
-exact solution!)
+Availability of an error \emph{approximation} (if the exact value is known,
+so is the exact solution!)
 \end{slideitemize}
 
-Goal: generate the best discrete function space possible (either constrain
-the size of the function space or the discretization error)
+Goal: generate the best discrete function space possible 
 
-Solution: modify (if possible, locally)
-\begin{slideitemize}
-\item interpolation order (\emph{$p$-refinement})
-\item size geometrical elements (\emph{$h$-refinement})
-\end{slideitemize}
+Constraint: size of the function space or discretization error
+
+Solution: modify (if possible, locally) the interpolation order
+(\emph{$p$-refinement}) or the size of geometrical elements
+(\emph{$h$-refinement})
 
 \end{slide}
 
