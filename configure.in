@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.38 2004-11-03 01:00:24 geuzaine Exp $
+dnl $Id: configure.in,v 1.39 2004-11-03 01:12:28 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -304,11 +304,17 @@ if test "x$enable_readline" != "xno"; then
     LDFLAGS="-L${READLINE_PREFIX}/lib ${LDFLAGS}"
   fi
   AC_CHECK_HEADER(readline/readline.h,READLINE="yes",READLINE="no")
+  dnl readline neads the termcap functions (also available in libcurses)
   AC_CHECK_LIB(termcap,main,TERMCAP="yes",TERMCAP="no")
   if test "x${TERMCAP}" = "xyes"; then
     AC_CHECK_LIB(readline,main,READLINE="yes",READLINE="no",-lhistory -ltermcap)
   else
-    AC_CHECK_LIB(readline,main,READLINE="yes",READLINE="no",-lhistory)
+    AC_CHECK_LIB(curses,main,CURSES="yes",CURSES="no")
+    if test "x${CURSES}" = "xyes"; then
+      AC_CHECK_LIB(readline,main,READLINE="yes",READLINE="no",-lhistory -lcurses)
+    else
+      READLINE="no"
+    fi
   fi
   if test "x${READLINE}" = "xyes"; then
     C_FLAGS="${C_FLAGS} -DHAVE_READLINE"
@@ -320,6 +326,8 @@ if test "x$enable_readline" != "xno"; then
     fi
     if test "x${TERMCAP}" = "xyes"; then
       GETDP_LIBS="${GETDP_LIBS} -ltermcap"
+    else
+      GETDP_LIBS="${GETDP_LIBS} -lcurses"
     fi
   fi
 fi
