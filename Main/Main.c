@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.30 2001-03-19 19:32:08 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.31 2001-03-20 08:18:06 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -521,7 +521,7 @@ void  Read_ProblemStructure (char * Name){
     
     yyin = fopen(yyname, "r");
     yyrestart(yyin);
-    for(i=0;i<yylinenum;i++) fgets(AbsPath, MAX_STRING_LENGTH, yyin);
+    for(i=0;i<yylinenum;i++) fgets(AbsPath, 2048, yyin);
     yylinenum++ ;
     yyparse(); fclose(yyin);
     if(ErrorLevel) FinalizeAndExit();
