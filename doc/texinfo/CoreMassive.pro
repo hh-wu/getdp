@@ -83,12 +83,12 @@ Include "Integration_Lib.pro"
 Include "MagDyn_av_2D.pro"
 
 PostOperation @{
-  @{ Name Map_a; NameOfFormulation MagDyn_av_2D;
+  @{ Name Map_a; NameOfPostProcessing MagDyn_av_2D;
     Operation @{
       Print[ az, OnElementsOf Domain_Mag, File "Core_m_a.pos" ];
     @}
   @}
-  @{ Name U_av;  NameOfFormulation MagDyn_av_2D;
+  @{ Name U_av;  NameOfPostProcessing MagDyn_av_2D;
     Operation @{
       Print[ U, OnRegion Ind ];
       Print[ I, OnRegion Ind ];

@@ -70,7 +70,7 @@ p2 = @{0.12,e,0@};
 
 PostOperation @{
 
-  @{ Name Map_a; NameOfFormulation MagSta_av_2D;
+  @{ Name Map_a; NameOfPostProcessing MagSta_a_2D;
     Operation @{
       Print[ az, OnElementsOf Domain_Mag, File "CoreSta_a.pos" ];
       Print[ b, OnLine@{@{List[p1]@}@{List[p2]@}@} @{1000@}, File "k_a" ];
