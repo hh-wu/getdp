@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.147 2003-09-01 09:57:00 geuzaine Exp $
+# $Id: Makefile,v 1.148 2003-11-22 09:35:59 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -105,8 +105,8 @@ doc-info:
 	cd doc/texinfo && ${MAKE} info
 
 purge:
-	for i in . lib include doc demos utils archives ${GETDP_DIRS}; \
-        do (cd $$i && rm -f *~ *~~ \#*\#); done
+	rm -f `find . -name "*~" -o -name "*~~" -o -name ".gmsh-errors"\
+                   -o -name "\#*" -o -name "gmon.out"`
 
 tgz:
 	if (test -f ${GETDP_ARCHIVE}.tar.gz); \
