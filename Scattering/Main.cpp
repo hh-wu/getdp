@@ -1,14 +1,4 @@
-// $Id: Main.cpp,v 1.17 2002-06-17 07:41:01 geuzaine Exp $
-
-/* Some tests:
-
-   cv_doubleboyd, q=4, FFT*16+spline
-   hf -iter -c -k 1600 -n 2500 -scat circ -t 100 -store -v 1 -eps 1.0 -rise 0.25
-   hf -iter -c -k 3200 -n 2500 -scat circ -t 100 -store -v 1 -eps 0.5 -rise 0.125
-  
-
- */
-
+// $Id: Main.cpp,v 1.18 2002-06-17 07:59:48 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"

@@ -1,4 +1,4 @@
-// $Id: ChangeOfVars.cpp,v 1.2 2002-06-17 07:41:01 geuzaine Exp $
+// $Id: ChangeOfVars.cpp,v 1.3 2002-06-17 07:59:48 geuzaine Exp $
 
 #include "Utils.h"
 
@@ -104,7 +104,7 @@ double cv_boyd(double s, int deriv){
 // perfect since one has eventually too few points in some places.
 
 double cv_doubleboyd(double s, int deriv){
-  double res, q=4;
+  double res, q=2;
 
   if(!deriv){
     if(s<PI){

@@ -1,0 +1,17 @@
+Some tests:
+
+cv_doubleboyd, q=2, FFT*16+spline
+hf -iter -f -k 1 -n 100 -scat circ -t 100 -store
+hf -iter -f -k 5 -n 100 -scat circ -t 100 -store
+hf -iter -f -k 10 -n 100 -scat circ -t 100 -store
+hf -iter -f -k 25 -n 150 -scat circ -t 100 -store
+hf -iter -f -k 50 -n 300 -scat circ -t 100 -store
+hf -iter -f -k 100 -n 600 -scat circ -t 100 -store
+hf -iter -f -k 200 -n 1250 -scat circ -t 100 -store
+hf -iter -f -k 400 -n 2500 -scat circ -t 100 -store
+hf -iter -f -k 800 -n 5000 -scat circ -t 100 -store
+hf -iter -f -k 1600 -n 10000 -scat circ -t 100 -store
+hf -iter -c -k 1600 -n 2500 -scat circ -t 100 -store -v 1 -eps 1.0 -rise 0.5
+hf -iter -c -k 3200 -n 2500 -scat circ -t 100 -store -v 1 -eps 0.5 -rise 0.25
+hf -iter -c -k 6400 -n 2500 -scat circ -t 100 -store -v 1 -eps 0.25 -rise 0.125
+hf -iter -c -k 12800 -n 2500 -scat circ -t 100 -store -v 1 -eps 0.125 -rise 0.0625
