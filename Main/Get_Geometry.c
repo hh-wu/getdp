@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.15 2001-03-13 15:04:26 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.16 2001-03-13 15:36:07 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -83,32 +83,6 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
-  case JACOBIAN_VOL_AXI :
-
-    switch (Type_Element) {
-
-    case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
-      *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxi2D) ;
-
-    default : 
-      Msg(ERROR, "Unknown Jacobian VolAxi for Element Type (%s)",
-	  Get_StringForDefine(Element_Type, Type_Element)); 
-    }
-    
-  case JACOBIAN_VOL_AXI_SQU :
-
-    switch (Type_Element) {
-
-    case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
-      *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiSqu2D) ;
-
-    default : 
-      Msg(ERROR, "Unknown Jacobian VolAxiSqu for Element Type (%s)",
-	  Get_StringForDefine(Element_Type, Type_Element));
-    }
-
   case JACOBIAN_VOL_SPH_SHELL :
 
     switch (Type_Element) {
@@ -147,6 +121,32 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
+  case JACOBIAN_VOL_PLPD_X :
+
+    switch (Type_Element) {
+
+    case TRIANGLE    : case TRIANGLE_2   :  
+    case QUADRANGLE  : case QUADRANGLE_2 : 
+      *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolPlpdX2D) ;
+
+    default : 
+      Msg(ERROR, "Unknown Jacobian VolPlpdX for Element Type (%s)",
+	  Get_StringForDefine(Element_Type, Type_Element));
+    }
+
+  case JACOBIAN_VOL_AXI :
+
+    switch (Type_Element) {
+
+    case TRIANGLE    : case TRIANGLE_2   :  
+    case QUADRANGLE  : case QUADRANGLE_2 : 
+      *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxi2D) ;
+
+    default : 
+      Msg(ERROR, "Unknown Jacobian VolAxi for Element Type (%s)",
+	  Get_StringForDefine(Element_Type, Type_Element)); 
+    }
+    
   case JACOBIAN_VOL_AXI_SPH_SHELL :
 
     switch (Type_Element) {
@@ -157,6 +157,19 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     default : 
       Msg(ERROR, "Unknown Jacobian VolAxiSphShell for Element Type (%s)",
+	  Get_StringForDefine(Element_Type, Type_Element));
+    }
+
+  case JACOBIAN_VOL_AXI_RECT_SHELL :
+
+    switch (Type_Element) {
+
+    case TRIANGLE    : case TRIANGLE_2   :  
+    case QUADRANGLE  : case QUADRANGLE_2 : 
+      *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiRectShell2D) ;
+
+    default : 
+      Msg(ERROR, "Unknown Jacobian VolAxiRectShell for Element Type (%s)",
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -173,6 +186,20 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
+
+  case JACOBIAN_VOL_AXI_SQU :
+
+    switch (Type_Element) {
+
+    case TRIANGLE    : case TRIANGLE_2   :  
+    case QUADRANGLE  : case QUADRANGLE_2 : 
+      *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiSqu2D) ;
+
+    default : 
+      Msg(ERROR, "Unknown Jacobian VolAxiSqu for Element Type (%s)",
+	  Get_StringForDefine(Element_Type, Type_Element));
+    }
+
   case JACOBIAN_VOL_AXI_SQU_SPH_SHELL :
 
     switch (Type_Element) {
@@ -183,6 +210,19 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     default : 
       Msg(ERROR, "Unknown Jacobian VolAxiSquSphShell for Element Type (%s)",
+	  Get_StringForDefine(Element_Type, Type_Element));
+    }
+
+  case JACOBIAN_VOL_AXI_SQU_RECT_SHELL :
+
+    switch (Type_Element) {
+
+    case TRIANGLE    : case TRIANGLE_2   :  
+    case QUADRANGLE  : case QUADRANGLE_2 : 
+      *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiSquRectShell2D) ;
+
+    default : 
+      Msg(ERROR, "Unknown Jacobian VolAxiSquRectShell for Element Type (%s)",
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -275,7 +315,7 @@ double  PlpdX2D (struct Element * Element, MATRIX3x3 * Jac) {
   R = CoorX ;
 
   if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
-    Msg(ERROR, "Bad parameters for Jacobian VolPlpdX: "
+    Msg(ERROR, "Bad parameters for unidirectional transformation Jacobian: "
 	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
 
   if (B == R) {
