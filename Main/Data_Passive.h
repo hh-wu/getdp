@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.27 2001-03-13 08:47:18 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.28 2001-03-13 12:48:26 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -192,18 +192,24 @@ struct JacobianCase {
 #define JACOBIAN_SUR_SPH_SHELL           30
 #define JACOBIAN_VOL_SPH_SHELL           31
 
-#define JACOBIAN_VOL_AXI_SPH_SHELL       40
+#define JACOBIAN_SUR_AXI_SPH_SHELL       40
+#define JACOBIAN_VOL_AXI_SPH_SHELL       41
 
-#define JACOBIAN_VOL_AXI_SQU_SPH_SHELL   50
+#define JACOBIAN_SUR_AXI_SQU_SPH_SHELL   50
+#define JACOBIAN_VOL_AXI_SQU_SPH_SHELL   51
 
-#define JACOBIAN_VOL_PLPD_X              60
-#define JACOBIAN_VOL_AXI_PLPD_X          63
+#define JACOBIAN_SUR_RECT_SHELL          60
+#define JACOBIAN_VOL_RECT_SHELL          61
 
-#define JACOBIAN_VOL_SPH_FINITE_SHELL    70
+#define JACOBIAN_SUR_AXI_RECT_SHELL      70
+#define JACOBIAN_VOL_AXI_RECT_SHELL      71
 
-#define JACOBIAN_VOL_RECT_SHELL          80
+#define JACOBIAN_SUR_AXI_SQU_RECT_SHELL  80
+#define JACOBIAN_VOL_AXI_SQU_RECT_SHELL  81
 
-#define JACOBIAN_VOL_AXI_RECT_SHELL      90
+#define JACOBIAN_VOL_PLPD_X              90
+
+#define JACOBIAN_VOL_AXI_PLPD_X          100
 
 /* ------------------------------------------------------------------------ */
 /*  I n t e g r a t i o n   M e t h o d                                     */

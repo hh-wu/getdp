@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.17 2001-03-13 08:47:18 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.18 2001-03-13 12:48:26 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -64,21 +64,31 @@ struct StringXDefine  FunctionForGroup_SuppList[] = {
 
 struct StringXDefine1Nbr  Jacobian_Type[] = {
   {"Vol"               , JACOBIAN_VOL                   , 0} ,
+  {"VolSphShell"       , JACOBIAN_VOL_SPH_SHELL         , -1} ,
+  {"VolRectShell"      , JACOBIAN_VOL_RECT_SHELL        , -1} ,
+  {"VolPlpdX"          , JACOBIAN_VOL_PLPD_X            , 2} ,
+
   {"VolAxi"            , JACOBIAN_VOL_AXI               , 0} ,
+  {"VolAxiSphShell"    , JACOBIAN_VOL_AXI_SPH_SHELL     , -1} ,
+  {"VolAxiRectShell"   , JACOBIAN_VOL_AXI_RECT_SHELL    , -1} ,
+  {"VolAxiPlpdX"       , JACOBIAN_VOL_AXI_PLPD_X        , 2} ,
+
   {"VolAxiSqu"         , JACOBIAN_VOL_AXI_SQU           , 0} ,
-  {"VolSphShell"       , JACOBIAN_VOL_SPH_SHELL         , 2} ,
-  {"VolSphFiniteShell" , JACOBIAN_VOL_SPH_FINITE_SHELL  , 3} ,
-  {"VolAxiSphShell"    , JACOBIAN_VOL_AXI_SPH_SHELL     , 2} ,
-  {"VolAxiSquSphShell" , JACOBIAN_VOL_AXI_SQU_SPH_SHELL , 2} ,
+  {"VolAxiSquSphShell" , JACOBIAN_VOL_AXI_SQU_SPH_SHELL , -1} ,
+  {"VolAxiSquRectShell", JACOBIAN_VOL_AXI_SQU_RECT_SHELL, -1} ,
 
-  {"VolRectShell"      , JACOBIAN_VOL_RECT_SHELL        , 6} ,
-  {"VolAxiRectShell"   , JACOBIAN_VOL_AXI_RECT_SHELL    , 6} ,
-
-  {"VolPlpdX"          , JACOBIAN_VOL_PLPD              , 2} ,
-  {"VolAxiPlpdX"       , JACOBIAN_VOL_AXI_PLPD          , 2} ,
   {"Sur"               , JACOBIAN_SUR                   , 0} ,
+  {"SurSphShell"       , JACOBIAN_SUR_SPH_SHELL         , -1} ,
+  {"SurRectShell"      , JACOBIAN_SUR_RECT_SHELL        , -1} ,
+
   {"SurAxi"            , JACOBIAN_SUR_AXI               , 0} ,
-  {"SurSphShell"       , JACOBIAN_SUR_SPH_SHELL         , 2} ,
+  {"SurAxiSphShell"    , JACOBIAN_SUR_AXI_SPH_SHELL     , -1} ,
+  {"SurAxiRectShell"   , JACOBIAN_SUR_AXI_RECT_SHELL    , -1} ,
+
+  {"SurAxiSqu"         , JACOBIAN_SUR_AXI_SQU           , 0} ,
+  {"SurAxiSquSphShell" , JACOBIAN_SUR_AXI_SQU_SPH_SHELL , -1} ,
+  {"SurAxiSquRectShell", JACOBIAN_SUR_AXI_SQU_RECT_SHELL, -1} ,
+
   {"Lin"               , JACOBIAN_LIN                   , 0} ,
   {NULL                , JACOBIAN_VOL                   , 0} 
 } ;
