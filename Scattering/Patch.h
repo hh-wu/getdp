@@ -40,7 +40,7 @@ public:
   int nbdof;
   int beg, end; // indices in global vector
   Partition *part;
-  double *nodes;
+  double *nodes, *jacs;
   Complex *localVals;
   FFT *fft;
   Spline *spline;
