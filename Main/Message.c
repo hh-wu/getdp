@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.68 2004-03-05 18:18:04 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.69 2004-03-05 19:25:36 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -190,7 +190,8 @@ void Print_GetDPContext(FILE *stream){
   char Dum[256], FileDate[256];
   int  i, Line ;
 
-  fprintf(stream, "Stack     :\n");
+  fprintf(stream, "Debug     : Stack trace (depth = %d) is printed below\n",
+	  GetDP_CurrentStackIndex);
   for(i = 0; i < GetDP_CurrentStackIndex; i++){
     sscanf(GetDP_CurrentSourceFile[i],
 	   "$Id: %s %s %s %s %s", FileName, FileVersion, FileDate, Dum, FileAuthor);
