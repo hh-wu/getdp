@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.21 2003-02-13 19:40:56 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.22 2003-03-17 23:47:10 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -255,23 +255,14 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
 	  fact = (w * k1 + PI/(double)n * k2) * ansatz * pou * jac;
 
-	  if(0)
+	  if(1)
 	    printf("xt=(%g,%g) xtau=(%g,%g) dxtau=(%g,%g) ddxtau(%g,%g) jac=%g "
-		   "w=%g k1=(%g,%g) k2=(%g,%g) ansatz=(%g,%g) pou=%g\n",
+		   "w=%g k1=(%.16g,%.16g) k2=(%.16g,%.16g) ansatz=(%g,%g) pou=%g "
+		   "density=(%.16g,%.16g)\n",
 		   xt[0], xt[1], xtau[0], xtau[1], dxtau[0], dxtau[1],
 		   ddxtau[0], ddxtau[1], jac,
 		   w, k1.real(), k1.imag(), k2.real(), k2.imag(),
-		   ansatz.real(), ansatz.imag(), pou);
-
-#if 0
-    printf("n=%d t=%g t_pp=%g tau=%g tau_pp=%g jac=%g pou=%g x=%g,%g,%g\n", 
-    	   n, t, t_pp, tau, tau_pp, jac, pou, xt[0], xt[1], xt[2]);
-    printf("xtau=%g,%g dxtau=%g,%g ddxtau=%g,%g density=%g,%g ansatz=%g,%g\n", 
-    	   xtau[0], xtau[1], dxtau[0], dxtau[1], ddxtau[0], ddxtau[1], 
-	   density.real(), density.imag(), ansatz.real(), ansatz.imag());
-    printf("k1=%g,%g k2=%g,%g w=%g fact=%g,%g\n", 
-    	   k1.real(), k1.imag(), k2.real(), k2.imag(), w, fact.real(), fact.imag());
-#endif
+		   ansatz.real(), ansatz.imag(), pou, density.real(), density.imag());
 	}
 	else{
 	  // simple trapezoidal

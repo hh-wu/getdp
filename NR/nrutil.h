@@ -1,4 +1,4 @@
-/* $Id: nrutil.h,v 1.2 2000-09-07 18:47:27 geuzaine Exp $ */
+/* $Id: nrutil.h,v 1.1 2003-03-17 23:47:10 geuzaine Exp $ */
 #ifndef _NRUTIL_H_
 #define _NRUTIL_H_
 
@@ -29,8 +29,13 @@ void free_f3tensor(float ***t, long nrl, long nrh, long ncl, long nch,
 	long ndl, long ndh);
 
 
+
+double brent(double ax, double xx, double bx, 
+	     double (*f)(double), double tol, double *xmin);
+void mnbrak(double *ax, double *bx, double *cx, double *fa, double *fb, double *fc,
+	    double (*func)(double));
+void dsvdcmp(double **a, int m, int n, double w[], double **v);
 double ran3(long *idum) ;
 void hqr(double **a, int n, double wr[], double wi[]) ;
-
 
 #endif 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: dsvdcmp.c,v 1.5 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: dsvdcmp.c,v 1.1 2003-03-17 23:47:09 geuzaine Exp $"
 #include <math.h>
 
 #include "nrutil.h"

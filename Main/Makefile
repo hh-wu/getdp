@@ -1,11 +1,12 @@
-# $Id: Makefile,v 1.23 2003-03-17 18:42:00 geuzaine Exp $
+# $Id: Makefile,v 1.24 2003-03-17 23:47:09 geuzaine Exp $
 
 include ../variables
 
 
 LIB     = ../lib/libMain.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../Function\
-          -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit -I../FMM
+          -I../GeoData -I../Integration -I../Numeric -I../Post\
+          -I../Sparskit -I../FMM -I../NR
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
 SRC = Main.c Message.c \
@@ -127,7 +128,7 @@ Get_Geometry.o: Get_Geometry.c ../include/GetDP.h Message.h \
   ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Function/BF_Function.h Data_Numeric.h Data_DefineE.h \
-  ../Sparskit/Solver.h ../Numeric/Numeric.h ../Numeric/nrutil.h
+  ../Sparskit/Solver.h ../NR/nrutil.h
 Get_ElementSource.o: Get_ElementSource.c ../include/GetDP.h Message.h \
   ../DataStr/Malloc.h Treatment_Formulation.h Data_Active.h \
   Data_Passive.h ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
@@ -263,7 +264,7 @@ Get_Define.o: Get_Define.c ../include/GetDP.h Message.h \
 Graph.o: Graph.c ../include/GetDP.h Message.h ../DataStr/Malloc.h Graph.h \
   ../DataStr/List.h ../DofData/DofData.h ../DataStr/Tree.h \
   ../DataStr/avl.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../DofData/Data_DofData.h ../include/Compat.h ../Numeric/nrutil.h
+  ../DofData/Data_DofData.h ../include/Compat.h ../NR/nrutil.h
 Print_ProblemStructure.o: Print_ProblemStructure.c ../include/GetDP.h \
   Message.h ../DataStr/Malloc.h Data_Active.h Data_Passive.h \
   ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \

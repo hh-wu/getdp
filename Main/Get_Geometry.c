@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.25 2003-01-26 07:31:29 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.26 2003-03-17 23:47:09 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -9,7 +9,7 @@
 #include "Data_DefineE.h"
 
 #include "Solver.h"
-#include "Numeric.h"
+#include "nrutil.h"
 
 /* ------------------------------------------------------------------------ */
 /*  G e t _ N o d e s C o o r d i n a t e s O f E l e m e n t               */

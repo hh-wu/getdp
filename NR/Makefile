@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.1 2003-03-17 18:45:02 geuzaine Exp $
+# $Id: Makefile,v 1.2 2003-03-17 23:47:09 geuzaine Exp $
 
 include ../variables
 
 LIB     = ../lib/libNR.a
-INCLUDE = -I. -I../include -I../DataStr
+INCLUDE = -I. -I../Main -I../include -I../DataStr
 CFLAGS  = ${C_FLAGS} ${INCLUDE} 
 
 CSRC =  nrutil.c \
@@ -37,3 +37,9 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
+nrutil.o: nrutil.c ../Main/Message.h
+ran3.o: ran3.c
+hqr.o: hqr.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
+dsvdcmp.o: dsvdcmp.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
+brent.o: brent.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
+mnbrak.o: mnbrak.c nrutil.h nrdefs.h ../Main/Data_Numeric.h

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Adapt.c,v 1.8 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Adapt.c,v 1.9 2003-03-17 23:47:10 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -11,11 +11,6 @@
 
 #define TOL     1.e-08
 #define MAXDEG  999
-
-double brent(double ax, double bx, double cx,
-	     double (*f)(double), double tol, double *xmin);
-void mnbrak(double *ax, double *bx, double *cx, double *fa, double *fb,
-	    double *fc, double (*func)(double));
 
 static int     NN ;
 static double  MINH , *ERR , *HH , *PP , E0, DIM ;

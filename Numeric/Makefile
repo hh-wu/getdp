@@ -1,22 +1,16 @@
-# $Id: Makefile,v 1.21 2003-03-17 18:42:00 geuzaine Exp $
+# $Id: Makefile,v 1.22 2003-03-17 23:47:10 geuzaine Exp $
 
 include ../variables
 
 LIB     = ../lib/libNumeric.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData\
-          -I../Main -I../Sparskit
+          -I../Main -I../Sparskit -I../NR
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE} 
 FFLAGS  = ${F77_FLAGS} ${INCLUDE}
 
-CSRC =  nrutil.c \
-        ran3.c \
-        hqr.c \
-        dsvdcmp.c \
-        Analytic_HollowCylLF.c \
+CSRC =  Analytic_HollowCylLF.c \
         Lanczos.c \
         Adapt.c \
-        brent.c \
-        mnbrak.c \
 	Legendre.c \
 	SphBessel.c
 
@@ -55,11 +49,7 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-nrutil.o: nrutil.c ../Main/Message.h
-ran3.o: ran3.c
-hqr.o: hqr.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
-dsvdcmp.o: dsvdcmp.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
-Analytic_HollowCylLF.o: Analytic_HollowCylLF.c nrdefs.h \
+Analytic_HollowCylLF.o: Analytic_HollowCylLF.c ../NR/nrdefs.h \
   ../Main/Data_Numeric.h
 Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
@@ -67,13 +57,11 @@ Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
   ../Main/Data_Numeric.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h ../include/Magic.h nrutil.h
+  ../GeoData/Data_GeoData.h ../include/Magic.h ../NR/nrutil.h
 Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h nrutil.h \
-  nrdefs.h ../Main/Data_Numeric.h
-brent.o: brent.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
-mnbrak.o: mnbrak.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
+  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h \
+  ../NR/nrutil.h ../NR/nrdefs.h ../Main/Data_Numeric.h
 Legendre.o: Legendre.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h
 SphBessel.o: SphBessel.c ../include/GetDP.h ../Main/Message.h \

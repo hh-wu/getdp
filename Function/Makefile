@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.20 2003-03-17 18:41:59 geuzaine Exp $
+# $Id: Makefile,v 1.21 2003-03-17 23:47:09 geuzaine Exp $
 
 include ../variables
 
 LIB     = ../lib/libFunction.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData -I../Main\
-          -I../Numeric -I../Sparskit -I../Integration -I../FMM
+          -I../Numeric -I../Sparskit -I../Integration -I../FMM -I../NR
 
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
@@ -64,12 +64,11 @@ F_Analytic.o: F_Analytic.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Numeric/Numeric.h \
-  ../Numeric/nrutil.h ../Numeric/Numeric_F.h ../include/Compat.h \
-  ../Main/Get_Geometry.h ../Main/Cal_Value.h ../Main/CurrentData.h \
-  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
-  ../Main/Data_Numeric.h ../Numeric/Legendre.h ../Numeric/SphBessel.h \
-  ../Numeric/Amos_F.h
+  ../Numeric/Numeric_F.h ../include/Compat.h ../Main/Get_Geometry.h \
+  ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h \
+  ../Numeric/Legendre.h ../Numeric/SphBessel.h ../Numeric/Amos_F.h
 F_Coord.o: F_Coord.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
@@ -102,7 +101,7 @@ F_Misc.o: F_Misc.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h \
-  ../DataStr/Tools.h ../Numeric/nrutil.h
+  ../DataStr/Tools.h ../NR/nrutil.h
 F_Type.o: F_Type.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \

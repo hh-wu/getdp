@@ -1,4 +1,4 @@
-#define RCSID "$Id: nrutil.c,v 1.6 2001-08-10 08:40:13 ledinh Exp $"
+#define RCSID "$Id: nrutil.c,v 1.1 2003-03-17 23:47:10 geuzaine Exp $"
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>

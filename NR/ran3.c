@@ -1,4 +1,4 @@
-#define RCSID "$Id: ran3.c,v 1.4 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: ran3.c,v 1.1 2003-03-17 23:47:10 geuzaine Exp $"
 #define MBIG 1000000000
 #define MSEED 161803398
 #define MZ 0

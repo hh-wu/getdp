@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.22 2003-03-17 16:38:05 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.23 2003-03-17 23:47:09 geuzaine Exp $"
 dnl
 dnl Copyright (C) 1997-2003 by P. Dular and C. Geuzaine
 dnl
@@ -213,9 +213,7 @@ if test "x$enable_gsl" != "xno"; then
 fi
 if test "x${GSL}" != "xyes"; then
   dnl Check if non-free numerical recipes routines are in the tree
-dnl FIXME:
-dnl  AC_CHECK_FILE(./NR/dsvdcmp.c,NR="yes",NR="no")
-  AC_CHECK_FILE(./Numeric/dsvdcmp.c,NR="yes",NR="no")
+  AC_CHECK_FILE(./NR/dsvdcmp.c,NR="yes",NR="no")
   if test "x${NR}" = "xyes"; then
     echo "********************************************************************"
     echo "You are building a non-free version of GetDP, using code copyright"
@@ -223,7 +221,7 @@ dnl  AC_CHECK_FILE(./NR/dsvdcmp.c,NR="yes",NR="no")
     echo "To use the GSL instead, run configure again with the --enable-gsl"
     echo "option."
     echo "********************************************************************"
-dnl FIXME:
+dnl FIXME: remove NR below and uncomment this as soon as GSL integration is complete!
 dnl    GETDP_DIRS="${GETDP_DIRS} NR"
 dnl    GETDP_LIBS="${GETDP_LIBS} -lNR"
   else
@@ -242,6 +240,10 @@ dnl    GETDP_LIBS="${GETDP_LIBS} -lNR"
     AC_MSG_ERROR([Could not find GSL, aborting.])
   fi
 fi
+
+dnl FIXME: remove this as soon as GSL integration is complete!
+GETDP_DIRS="${GETDP_DIRS} NR"
+GETDP_LIBS="${GETDP_LIBS} -lNR"
 
 dnl Do we trace the function calls in getdp?
 if test "x$enable_debug" = "xyes"; then

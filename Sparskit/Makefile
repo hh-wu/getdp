@@ -1,10 +1,11 @@
-# $Id: Makefile,v 1.17 2003-03-17 18:42:03 geuzaine Exp $
+# $Id: Makefile,v 1.18 2003-03-17 23:47:11 geuzaine Exp $
 
 include ../variables
 
 LIB      = ../lib/libSparskit.a
 
-INCLUDE  = -I. -I../include -I../DataStr -I../Main -I../Numeric -I../FMM
+INCLUDE  = -I. -I../include -I../DataStr -I../Main -I../Numeric\
+           -I../FMM -I../NR
 CFLAGS = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 FFLAGS = ${F77_FLAGS} ${SOLVER} ${INCLUDE}
 
@@ -69,4 +70,4 @@ Matrix.o: Matrix.c Solver.h ../DataStr/List.h Solver_F.h \
 Parser.o: Parser.c Solver.h ../DataStr/List.h ../Main/Message.h \
   ../DataStr/Malloc.h
 CSR.o: CSR.c Solver.h ../DataStr/List.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Numeric/nrutil.h
+  ../DataStr/Malloc.h ../NR/nrutil.h
