@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.9 2001-06-13 12:31:44 geuzaine Exp $
+@c $Id: getdp.texi,v 1.10 2001-06-13 13:06:50 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -2217,7 +2217,7 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
   @var{string}
 
 @var{post-operation-op}:
-  Print[ @var{post-quantity-id}, @var{print-support} <,@var{print-option}> @dots{} ] |
+  Print[ @var{post-quantity-id} <[@var{group-def}]>, @var{print-support} <,@var{print-option}> @dots{} ] |
   @var{etc}
 
 @var{print-support}:
@@ -2227,7 +2227,7 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
   File < '>' > "@var{string}" | Format @var{post-operation-fmt} | @var{etc}
 
 @var{post-operation-fmt}:
-  Table | TimeTable | "@var{string}" | @var{etc}
+  Table | TimeTable | @var{etc}
 @end example
 
 @noindent Note:
