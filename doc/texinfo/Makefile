@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2004-01-19 16:51:28 geuzaine Exp $
+# $Id: Makefile,v 1.11 2004-03-25 07:57:51 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -29,12 +29,12 @@ pdf:
 	texi2pdf getdp.texi 
 
 html:
-	./texi2html -init_file getdp.t2h getdp.texi
+	perl texi2html -init_file getdp.t2h getdp.texi
 	rm -f index.html
 	ln -s getdp.html index.html
 
 html1:
-	./texi2html -prefix getdp-full -init_file getdp-full.t2h getdp.texi
+	perl texi2html -prefix getdp-full -init_file getdp-full.t2h getdp.texi
 
 html2:
 	makeinfo --html getdp.texi
@@ -47,7 +47,7 @@ install-info:
 	install-info getdp.info /usr/info/dir
 
 infoz: info
-	gtar zcvf getdp-info.tgz getdp.info*
+	tar zcvf getdp-info.tgz getdp.info*
 
 txt:
 	makeinfo --no-headers getdp.texi |\
