@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.49 2001-07-25 13:08:15 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.50 2001-11-20 09:05:00 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -118,6 +118,9 @@ void Info (int level, char *arg0){
 /* ------------------------------------------------------------------------ */
 
 void Signal (int sig_num){
+
+  /* It is VERY wrong to call stdio functions in a signal handler. But
+     who cares? ;-) */
 
   if(sig_num == SIGINT){
     if(!InteractiveLevel){
