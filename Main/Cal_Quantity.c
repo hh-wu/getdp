@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.23 2003-02-13 21:30:05 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.24 2003-02-15 00:51:34 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -109,11 +109,25 @@ void  Get_ValueOfExpressionByIndex(int Index_Expression,
 /* ------------------------------------------------------------------------ */
 
 #define MAX_REGISTER_SIZE   100
-#define MAX_RECURSION       100
+#define MAX_RECURSION       50
 
 #define CAST3V    void(*)(struct Value*, struct Value*, struct Value*)
 #define CAST1V    void(*)(struct Value*)
 #define CASTF2V   void(*)(struct Function*, struct Value*, struct Value*)
+
+/* There can be at max one "Dof{op qty}" per WholeQuantity, but as
+   many {op qty} as you want. 
+
+   Note that Stack[8][MAX_STACK_SIZE] should actually be
+   Stack[NBR_MAX_BASISFUNCTION][MAX_STACK_SIZE]. But this tends to
+   overflow the stack when we don't use USE_STATIC_STACK. Also, 8 is
+   OK since the 'multi' feature is only used for SolidAngle
+   computations at the moment.
+
+   A better solution would be to build a single stack (instead of 8
+   stacks), where a Value could be multiple. But this requires to
+   change the way we deal with function arguments.
+*/
 
 void Cal_WholeQuantity(struct Element * Element,
 		       struct QuantityStorage * QuantityStorage_P0,
@@ -122,21 +136,13 @@ void Cal_WholeQuantity(struct Element * Element,
 		       int DofIndexInWholeQuantity, 
 		       int Nbr_Dof, struct Value DofValue[]) {
 
-  
-  /* Warning: Maximum one "Dof{op qty}" per WholeQuantity, but as many 
-              {op qty} as you want 
-
-     See the notes at the end of this file for current limitations and
-     some ideas to improve Cal_WholeQuantity.
-  */
-
   static int          Flag_WarningMissSolForDt = 0 ;
   static struct Value ValueSaved[MAX_REGISTER_SIZE] ;  
 
   int     i_WQ, j, k, Flag_True, Index, DofIndex, Multi[MAX_STACK_SIZE] ;
   int     Save_NbrHar, Save_Region, Type_Dimension ;
   double  Save_Time, X, Y, Z, Order ;
-  
+
   struct WholeQuantity   *WholeQuantity_P0, *WholeQuantity_P ;
   struct DofData         *Save_DofData ;
   struct Solution        *Solution_P0 ;
@@ -145,10 +151,28 @@ void Cal_WholeQuantity(struct Element * Element,
 #define USE_STATIC_STACK
 
 #if defined(USE_STATIC_STACK)
-  struct Value **Stack;
+  /* Stack size 
+       = MAX_RECURSION * MAX_STACK_SIZE * 8 * sizeof(struct Value)
+       = 50 * 40 * 8 * (MAX_DIM * NBR_MAX_HARMONIC * sizeof(double))
+       = 50 * 40 * 8 * (9 * 2 * 8)
+      ~= 2 Mb
+
+     Beware that for NBR_MAX_HARMONIC=40, the size grows to 40Mb...
+
+     We need MAX_RECURSION sufficiently large for expressions like
+     (a?b:(c?d:(e?...))) with all n<MAX_RECURSION first tests
+     evaluating to false. This case happens quite often when
+     specifying piecewise defined physical characteristics.
+
+     If this poses problem in the future, we could still think about
+     reallocating ths stack as it grows. The same holds for
+     MAX_STACK_SIZE, of course.
+  */
   static struct Value ***StaticStack;
   static int RecursionIndex = -1, first = 1;
+  struct Value **Stack;
 #else
+  /* This quickly overflows the stack on Windows and Mac OS X */
   struct Value Stack[8][MAX_STACK_SIZE] ;
 #endif
 
@@ -564,63 +588,22 @@ void Cal_WholeQuantity(struct Element * Element,
   GetDP_End ;
 }
 
-#undef CAST3V
-#undef CAST1V
-#undef CASTF2V
-
 /* ------------------------------------------------------------------------ */
 /*  P u r i f y _ W h o l e Q u a n t i t y                                 */
 /* ------------------------------------------------------------------------ */
 
-/* 
-   Effectuerait les operations qui peuvent l'etre avant execution 
-   Reste a savoir si c'est possible...
-
-struct WholeQuantity* Purify_WholeQuantity(List_T * WQ_L) {
+List_T * Purify_WholeQuantity(List_T * WQ_L) {
   
   GetDP_Begin("Purify_WholeQuantity");
 
+  /* 
+     It would be nice to pre-compute all trivial sequences in a list
+     of WholeQuantities. For example, when all the quantties are
+     constants, it is pretty stupid to recompute everything
+     everytime using the stack...
+  */
+
   GetDP_End ;
 }
-*/
 
-/* Some notes on Cal_WholeQuantity 
-
-Stack[8][MAX_STACK_SIZE] should be
-Stack[NBR_MAX_BASISFUNCTION][MAX_STACK_SIZE] but this overflows the
-stack for long recursive calls. 8 is still OK since the 'multi'
-feature is only used for SolidAngle computation for now.
-
--> see the HEAP define to overcome this.
-
-How to generalize the stack stuff:
-
-Pour l'angle solide, je ne voulais pas d'un operateur special
-agissant sur une qty, vu le manque de souplesse (et je voulais
-pouvoir faire reference a une qty autre que le Dof courant, dans
-le cas de qtes integrales).  Considerer un vecteur local me
-parait limite (si on a besoin d'autres grandeurs pouvant dependre
-du Dof, ou de plusieurs grandeurs de ce type)
-
--> La solution immediate pour etre plus general etait de
-considerer une pile de type Stack[MAX_STACK_SIZE][NBR_MAX_BASISFUNCTIONS]
-et de reellement tout empiler dedans. J'ai choisi de garder le
-cas particulier du DofValue, pour eviter (2*Nbr_Dof) memcopy
-inutiles (empiler le dof value et le desempiler).
-
-Ce qui n'est pas encore fait : 
-1) On ne peut pas appliquer de fonction sur un multi
-2) la recursion ne marche pas avec ce type de grandeurs
-
--> Une autre solution (meilleure) serait de garder une pile
-simple, mais ou une Value pourrait etre multiple. Mais ca
-necessite de changer un petit peu le traitement des arguments des
-fcts. Qu'en penses-tu ?
-
-De toute facons, l'indexage ne se fait plus par pointeurs, mais
-avec un index explicite (c'est presque aussi efficace, et ca
-permet de detecter facilement un stack overflow). (On pourrait
-d'ailleurs reallouer, ce qui serait plus elegant.)
-
-*/
 
