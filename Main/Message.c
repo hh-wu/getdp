@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.46 2001-05-18 12:26:27 dular Exp $"
+#define RCSID "$Id: Message.c,v 1.47 2001-06-29 07:27:29 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -28,25 +28,25 @@ void FinalizeAndExit(void);
 char acronym[]   = "GetDP %g, a General environment for the treatment of Discrete Problems\n";
 char copyright[] = "Copyright (c) 1997-2001 Patrick Dular and Christophe Geuzaine\n";
 
-char version[]   = "Version          : %g\n";
-char os[]        = "Operating system : %s\n";
-char date[]      = "Build date       : %s\n";
-char host[]      = "Build host       : %s\n";
-char packager[]  = "Packager         : %s\n";
-char url[]       = "Web site         : http://www.geuz.org/getdp/\n";
-char email[]     = "Mailing list     : getdp@geuz.org\n";
+char version[]   = "Version      : %g\n";
+char os[]        = "Build OS     : %s\n";
+char date[]      = "Build date   : %s\n";
+char host[]      = "Build host   : %s\n";
+char packager[]  = "Packager     : %s\n";
+char url[]       = "Web site     : http://www.geuz.org/getdp/\n";
+char email[]     = "Mailing list : getdp@geuz.org\n";
 
 #ifdef _SPARSKIT
 #ifdef _ILU_FLOAT
-char solver[]    = "Solver           : Default (real arithmetic, single precision preconditioning)\n";
+char solver[]    = "Solver       : Default (real arithmetic, single precision preconditioning)\n";
 #else
-char solver[]    = "Solver           : Default (real arithmetic)\n";
+char solver[]    = "Solver       : Default (real arithmetic)\n";
 #endif
 #else
 #ifdef PETSC_USE_COMPLEX
-char solver[]    = "Solver           : PETSc (complex arithmetic)\n";
+char solver[]    = "Solver       : PETSc (complex arithmetic)\n";
 #else
-char solver[]    = "Solver           : PETSc (real arithmetic)\n";
+char solver[]    = "Solver       : PETSc (real arithmetic)\n";
 #endif
 #endif
 
