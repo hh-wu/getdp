@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.18 2000-10-30 10:46:57 dular Exp $"
+#define RCSID "$Id: Main.c,v 1.19 2001-02-05 20:31:17 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -13,7 +13,7 @@
 extern FILE *yyin ;
 long int     yylinenum=0 ;
 int          yycolnum=0, yyincludenum=0 ;
-char         yyname[MAX_FILE_NAME_LENGTH], yyincludename[MAX_FILE_NAME_LENGTH];
+char         yyname[MAX_FILE_NAME_LENGTH]="", yyincludename[MAX_FILE_NAME_LENGTH];
 int          yyparse(void) ;
 int          yyrestart(FILE*) ;
 void         Interactive(void);
@@ -463,16 +463,22 @@ void  Read_ProblemStructure (char * Name){
 
   GetDP_Begin("Read_ProblemStructure");
 
-  Msg(LOADING, "Problem Definition '%s'", Name) ;
-
   Last_yylinenum = yylinenum ; 
   strcpy(Last_yyname, yyname);
   Last_ErrorLevel = ErrorLevel ; 
   Last_yyincludenum = yyincludenum ;
 
-  if(!(yyin = fopen(Name, "r"))) Msg(ERROR, "Unable to Open File '%s'", Name);
+  strcpy(String, yyname);
+  i = strlen(yyname)-1 ;
+  while(i >= 0 && yyname[i] != '/' && yyname[i] != '\\') i-- ;
+  String[i+1] = '\0';
+  strcat(String, Name);
 
-  ErrorLevel = 0 ;  yylinenum = 1 ; yyincludenum=0 ; strcpy(yyname,Name) ;
+  Msg(LOADING, "Problem Definition '%s'", String) ;
+
+  if(!(yyin = fopen(String, "r"))) Msg(ERROR, "Unable to Open File '%s'", String);
+
+  ErrorLevel = 0 ;  yylinenum = 1 ; yyincludenum=0 ; strcpy(yyname, String) ;
 
   yyrestart(yyin); yyparse(); fclose(yyin);
 
