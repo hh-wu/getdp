@@ -6,8 +6,6 @@
 #define H1 3
 #define H2 4
 
-double Get_ElementSize(struct Element * Element);
-
 double Adapt (int N,        /* Number of elements */
 	      int method,   /* H1, H2, P1 or P2 */
 	      int dim,      /* 2 or 3 */
