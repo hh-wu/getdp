@@ -831,10 +831,6 @@ struct Operation {
       int     NumNode, ExpressionIndex2 ;
     } ChangeOfCoordinates ;
     struct {
-      int     GroupIndex, ExpressionIndex1, ExpressionIndex2, Num_Node ;
-      List_T * ArgumentExpression, * ArgumentValue;
-    } ChangeOfCoordinates2 ;
-    struct {
       int    CheckAll ;
       List_T * Factor_L ;
     } SolveJac_AdaptRelax ;

@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.58 2004-01-19 17:19:36 gyselinc Exp $ */
+/* $Id: GetDP.y,v 1.59 2004-02-04 14:59:32 gyselinc Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -208,6 +208,8 @@ static double LoopControlVariablesTab[10][3];
 static char *LoopControlVariablesNameTab[10];
 
 time_t date_info;
+
+char   buff[128];
 
 
 %}
@@ -5020,33 +5022,6 @@ OperationTerm :
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = $9 ; 
     }
 
-  | tChangeOfCoordinates2 '[' GroupRHS ',' ListOfExpression 
-    {
-      Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = OPERATION_CHANGEOFCOORDINATES2 ;
-      Operation_P->Case.ChangeOfCoordinates2.GroupIndex =
-	Num_Group(&Group_S, "OP_ChgCoord2", $3) ;
-
-      Operation_P->Case.ChangeOfCoordinates2.ArgumentExpression = List_Copy(ListOfInt_L); 
-      Operation_P->Case.ChangeOfCoordinates2.ArgumentValue = NULL; 
-
-    }
-    ',' tSTRING ',' tSTRING ',' FExpr ']' tEND
-    {
-      if ((i = List_ISearchSeq(Problem_S.Expression, $8,fcmp_Expression_Name)) < 0) 
-	vyyerror("Undefined function '%s' used in ChangeOfCoordinates2 ", $8) ;
-      Operation_P->Case.ChangeOfCoordinates2.ExpressionIndex1 = i ;
-
-      if ((i = List_ISearchSeq(Problem_S.Expression, $10,fcmp_Expression_Name)) < 0) 
-	vyyerror("Undefined function '%s' used in ChangeOfCoordinates2 ", $10) ;
-      Operation_P->Case.ChangeOfCoordinates2.ExpressionIndex2 = i ;
-
-      Operation_P->Case.ChangeOfCoordinates2.Num_Node = (int)$12 ;
- 
-    }
-
-
   | tPostOperation '[' String__Index ']' tEND
     {
       Operation_P = (struct Operation*)
@@ -6716,14 +6691,29 @@ Affectation :
       else if(i>0)
 	vyyerror("Too many arguments (%d) in Printf", i);
       else
-	Msg(INFO, tmpstring);
+	Msg(INFO2, tmpstring);
       List_Delete($5);
     }
 
   | tRead '(' String__Index ')' tEND
     {
-      Msg(INFO, "Enter %s",$3);
-      scanf("%lf",&Constant_S.Value.Float) ;
+      Msg(INFO2, "? ");
+      fgets(buff, 128, stdin);
+      Constant_S.Value.Float = atof(buff);
+      Constant_S.Name = $3 ; 
+      Constant_S.Type = VAR_FLOAT ;
+      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
+    }
+
+  | tRead '(' String__Index ')' '[' FExpr ']' tEND
+    {
+      Msg(INFO2, "[<return>=%g] ? ",$6);
+      fgets(buff, 128, stdin);
+
+      if(!strcmp(buff,"\n"))
+	Constant_S.Value.Float = $6;
+      else
+	Constant_S.Value.Float = atof(buff);
       Constant_S.Name = $3 ; 
       Constant_S.Type = VAR_FLOAT ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;

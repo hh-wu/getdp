@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.60 2004-01-22 17:04:25 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.61 2004-02-04 14:59:31 gyselinc Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -1888,13 +1888,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break ;
 
-    case OPERATION_CHANGEOFCOORDINATES2 :
-      Msg(OPERATION, "ChangeOfCoordinates2") ;
-      Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0) ;
-      Operation_ChangeOfCoordinates2
-	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
-      break ;
-
     case OPERATION_DEFORMEMESH :
       if (Operation_P->Case.DeformeMesh.Name_MshFile == NULL)
 	Operation_P->Case.DeformeMesh.Name_MshFile = Name_MshFile ;
@@ -3246,89 +3239,6 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
     Geo_SetNodesCoordinates(1, &Num_Node,
 			    &Value.Val[0], &Value.Val[1], &Value.Val[2]) ;
   }
-
-  GetDP_End ;
-}
-
-/*
-  Johan : please fix this
-  - ValueOld should probably be ValueNew (this routine should crash the way it 
-    is written right now)
-  - the list is never deleted
-*/
-
-void  Operation_ChangeOfCoordinates2(struct Resolution  * Resolution_P,
-				     struct Operation   * Operation_P, 
-				     struct DofData     * DofData_P0,
-				     struct GeoData     * GeoData_P0) {
-
-  int  i, Num_Node, Nbr_Argument, ExpressionIndex ;
-  List_T * ArgumentValue = NULL ;
-  struct Value * ArgumentOld=0, * ValueOld=0, * ValueNew ;
-  int NbrArgument=0 ;
-
-  double x=0., y=0.;
-  
-  struct Value  Value ;
-  struct Group  * Group_P ;
-
-  GetDP_Begin("Operation_ChangeOfCoordinates2");
-
-  Group_P = (struct Group *)
-    List_Pointer(Problem_S.Group, 
-		 Operation_P->Case.ChangeOfCoordinates2.GroupIndex) ;
-  if (!Group_P->ExtendedList)  Generate_ExtendedGroup(Group_P) ;
-  if (Group_P->FunctionType != NODESOF)
-    Msg(ERROR, "ChangeOfCoordinates2: Group must be of NodesOf function type") ;
-
-  /* new argument values */
-  Nbr_Argument = List_Nbr(Operation_P->Case.ChangeOfCoordinates2.ArgumentExpression) ;
-
-  if (!ArgumentValue)
-    ArgumentValue = List_Create(Nbr_Argument, 1, sizeof(struct Value)) ;
-
-  ValueNew = (struct Value*)Malloc(NbrArgument * sizeof(struct Value)) ;
-
-  for (i=0 ; i<Nbr_Argument ; i++) {
-    List_Read(Operation_P->Case.ChangeOfCoordinates2.ArgumentExpression, i, &ExpressionIndex) ;
-    Get_ValueOfExpressionByIndex(ExpressionIndex, NULL, 0., 0., 0., &Value) ;
-    List_Add (ArgumentValue, &Value) ;
-    List_Read(ArgumentValue, i, ValueOld+i) ;
-    Msg(INFO, " oooooo %d %e", i, Value.Val[0]);
-  }
-  
-  /* resetting coordinates by means of inverse function */
-  
-  if (ArgumentOld) {
-    Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
-    Get_ValueOfExpressionByIndex
-      (Operation_P->Case.ChangeOfCoordinates2.ExpressionIndex2,
-       NULL, 0., 0., 0., ValueOld) ;
-    Geo_SetNodesCoordinates(1, &Num_Node,
-			    &(ValueOld->Val[0]), &(ValueOld->Val[1]), &(ValueOld->Val[2])) ;
-    List_Read(ArgumentValue, 0, ValueOld+i) ;
-  }
-  
-  if (Num_Node == 3) {
-    x = Current.x ;
-    y = Current.y ;
-  }
-  
-  Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
-  
-  Get_ValueOfExpressionByIndex
-    (Operation_P->Case.ChangeOfCoordinates2.ExpressionIndex1,
-     NULL, 0., 0., 0., &Value) ;
-  
-  if (Num_Node == 13) {
-    printf("before x %e y %e %e  ||| after x %e y %e %e\n",x,y, atan2(y,x)/PI*180.,
-	   Value.Val[0], Value.Val[1], atan2(Value.Val[1],Value.Val[0])/PI*180. );
-    
-  }
-  
-  Geo_SetNodesCoordinates(1, &Num_Node,
-			  &Value.Val[0], &Value.Val[1], &Value.Val[2]) ;
-  
 
   GetDP_End ;
 }
