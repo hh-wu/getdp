@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.23 2003-05-05 23:02:52 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.24 2003-05-29 20:14:34 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -271,8 +271,7 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 	    double pou2 = part2->eval(tau);
 	    pou -= pou2;
 	  }
-	  if(pou){
-
+	  if(pou > 0){
 	    if((ctx->type & FIRST_KIND_IE) && (ctx->type & SECOND_KIND_IE)){
 	      k1 = ctx->couplingCoef * kern.M()
 		+ (1.-ctx->couplingCoef) * kern.L();
