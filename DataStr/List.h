@@ -1,6 +1,6 @@
-/* $Id: listman.h,v 1.3 2000-09-28 22:12:58 geuzaine Exp $ */
-#ifndef _LISTMAN_H_
-#define _LISTMAN_H_
+/* $Id: List.h,v 1.1 2000-10-30 01:00:34 geuzaine Exp $ */
+#ifndef _LIST_H_
+#define _LIST_H_
 
 typedef struct {
   int nmax;
@@ -42,6 +42,4 @@ void    List_Action_Inverse(List_T *liste, void (*action)(void *data, void *dumm
 List_T *List_Copy(List_T *src);
 
 #endif
-
-
 

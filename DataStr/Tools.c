@@ -1,9 +1,9 @@
-/* $Id: outil.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+static char *rcsid = "$Id: Tools.c,v 1.1 2000-10-30 01:00:34 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <math.h>
-#include "outil.h"
+#include "Tools.h"
 
-/* Fonctions de comparaison --------------------------------------*/
+/* Comparison functions */
 
 int fcmp_int(const void *a, const void *b){
   return(*(int*)a - *(int*)b );
@@ -20,14 +20,9 @@ int fcmp_double(const void *a, const void *b){
   if      (cmp > 1.e-16)  return  1 ;
   else if (cmp < -1.e-16) return -1 ;
   else                    return  0 ;
-/*
-  if (fabs(*(double*)a - *(double*)b) < 1.e-16) return  0 ;
-  else if (*(double*)a > *(double*)b)           return  1 ;
-  else                                          return -1 ;
-*/
 }
 
-/* Transfert Arbre==>Liste ----------------------------------------*/
+/* Tree ==> List transfer */
 
 List_T *pListeTransfert;
 
@@ -42,7 +37,7 @@ List_T *Tree2List(Tree_T *pTree){
   return(pListeTransfert);
 }
 
-/* Utilitaires algebriques -----------------------------------------*/
+/* Algebraic utilities */
 
 Tree_T *pTreeTransfert;
 Tree_T *pTreeTransfert2;

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2000-09-08 09:51:11 geuzaine Exp $
+# $Id: Makefile,v 1.4 2000-10-30 01:00:34 geuzaine Exp $
 #
 # Makefile for "libDataStr.a"
 #
@@ -13,11 +13,11 @@ INCLUDE  = -I. -I../include -I../Main
 
 CFLAGS = $(C_FLAGS) $(OS_FLAGS) $(INCLUDE)
 
-SRC = listman.c \
-      ualloc.c \
-      treeman.c \
+SRC = List.c \
+      Malloc.c \
+      Tree.c \
       avl.c \
-      outil.c
+      Tools.c
 
 OBJ = $(SRC:.c=.o)
 
@@ -46,8 +46,8 @@ nodepend:
 	$(RM) Makefile.new
 
 # DO NOT DELETE THIS LINE
-listman.o: listman.c ualloc.h listman.h ../Main/Message.h
-ualloc.o: ualloc.c ualloc.h ../Main/Message.h
-treeman.o: treeman.c ualloc.h treeman.h avl.h
-avl.o: avl.c avl.h ualloc.h
-outil.o: outil.c outil.h listman.h treeman.h avl.h
+List.o: List.c Malloc.h List.h ../Main/Message.h
+Malloc.o: Malloc.c Malloc.h ../Main/Message.h
+Tree.o: Tree.c Malloc.h Tree.h avl.h
+avl.o: avl.c avl.h Malloc.h
+Tools.o: Tools.c Tools.h List.h Tree.h avl.h

@@ -1,9 +1,9 @@
-/* $Id: outil.h,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
-#ifndef _OUTIL_H_
-#define _OUTIL_H_
+/* $Id: Tools.h,v 1.1 2000-10-30 01:00:34 geuzaine Exp $ */
+#ifndef _TOOLS_H_
+#define _TOOLS_H_
 
-#include "listman.h"
-#include "treeman.h"
+#include "List.h"
+#include "Tree.h"
 
 int fcmp_int(const void *a, const void *b);
 int fcmp_absint(const void *a, const void *b);

@@ -1,4 +1,4 @@
-/* $Id: listman.c,v 1.3 2000-09-28 22:12:58 geuzaine Exp $ */
+static char *rcsid = "$Id: List.c,v 1.1 2000-10-30 01:00:34 geuzaine Exp $" ;
 /* Original author: Marc UME */
 
 #include <stdlib.h>
@@ -6,8 +6,8 @@
 #include <string.h>
 #include <sys/types.h>
 
-#include "ualloc.h"
-#include "listman.h"
+#include "Malloc.h"
+#include "List.h"
 #include "Message.h"
 
 static char *startptr;

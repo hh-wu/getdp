@@ -1,13 +1,13 @@
-/* $Id: treeman.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+static char *rcsid = "$Id: Tree.c,v 1.1 2000-10-30 01:00:34 geuzaine Exp $" ;
 /* Auteur: Marc UME  **  Date: 17/03/94  ** 
    Commentaire: Gestionnaire d'arbres balances */
 
-/* version modifiee par geuz */
+/* modified version */
 
 #include <stdlib.h>
 #include <string.h>
-#include "ualloc.h"
-#include "treeman.h"
+#include "Malloc.h"
+#include "Tree.h"
 
 
 Tree_T *Tree_Create(int size, int (*fcmp)(const void *a, const void *b))

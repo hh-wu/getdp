@@ -1,7 +1,8 @@
-/* $Id: avl.c,v 1.2 2000-09-07 18:47:21 geuzaine Exp $ */
+static char *rcsid = "$Id: avl.c,v 1.3 2000-10-30 01:00:34 geuzaine Exp $" ;
 #include <stdio.h>
+
 #include "avl.h"
-#include "ualloc.h"
+#include "Malloc.h"
 
 #define ALLOC(type, number)  (type *) Malloc((unsigned) sizeof(type) * number)
 #define NIL(type)            (type *) 0

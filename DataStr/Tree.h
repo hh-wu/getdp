@@ -1,6 +1,6 @@
-/* $Id: treeman.h,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
-#ifndef _TREEMAN_H_
-#define _TREEMAN_H_
+/* $Id: Tree.h,v 1.1 2000-10-30 01:00:34 geuzaine Exp $ */
+#ifndef _TREE_H_
+#define _TREE_H_
 
 #include "avl.h"
 
@@ -26,6 +26,4 @@ void    Tree_Action(Tree_T *tree, void (*action) (void *data, void *dummy));
 int     Tree_Size(Tree_T *tree) ;
 
 #endif
-
-
 
