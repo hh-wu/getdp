@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.98 2002-09-01 22:17:17 geuzaine Exp $
+# $Id: Makefile,v 1.99 2002-10-23 15:24:59 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -83,7 +83,7 @@ GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-# include ${PETSC_DIR}/bmake/common/base
+include ${PETSC_DIR}/bmake/common/base
 
 # ----------------------------------------------------------------------
 # Rules for developpers
@@ -422,7 +422,9 @@ ibm: compile-ibm link-ibm
 distrib-ibm: tag clean ibm distrib
 
 #
-# Cygwin
+# Cygwin (recent versions of Cygwin limit the size of the stack to a
+# value too small to handle our recursive Cal_WholeQuantity -> this is
+# the reason for the '-Wl,--stack,8388608' gcc flag. Thanks Dave!)
 #
 compile-cygwin: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -436,7 +438,7 @@ compile-cygwin: initialtag
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
 link-cygwin:
-	g77 -o $(GETDP_BIN_DIR)/getdp.exe $(GETDP_SPARSKIT_LIBS) -lm
+	g77 -Wl,--stack,8388608 -o $(GETDP_BIN_DIR)/getdp.exe $(GETDP_SPARSKIT_LIBS) -lm
 cygwin: compile-cygwin link-cygwin
 distrib-cygwin: tag clean cygwin distrib-win
 
