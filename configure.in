@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.29 2003-09-01 09:36:55 geuzaine Exp $
+dnl $Id: configure.in,v 1.30 2003-09-01 10:28:23 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 dnl
@@ -265,8 +265,8 @@ if test "x${FFTW_PREFIX}" != "x"; then
 fi
 CPPFLAGS="-I${FFTW_DIR}/include"
 AC_CHECK_HEADER(fftw.h,FFTW="yes",FFTW="no")
-LDFLAGS="-L${FFTW_DIR}/lib -lm"
-AC_CHECK_LIB(fftw,main,FFTW="yes",FFTW="no")
+LDFLAGS="-L${FFTW_DIR}/lib ${LDFLAGS}"
+AC_CHECK_LIB(fftw,main,FFTW="yes",FFTW="no",-lm)
 
 dnl Check for GNU readline
 if test "x$enable_readline" != "xno"; then
@@ -275,8 +275,8 @@ if test "x$enable_readline" != "xno"; then
   fi
   CPPFLAGS="-I${READLINE_DIR}/include"
   AC_CHECK_HEADER(readline/readline.h,READLINE="yes",READLINE="no")
-  LDFLAGS="-L${READLINE_DIR}/lib -lhistory -ltermcap"
-  AC_CHECK_LIB(readline,main,READLINE="yes",READLINE="no")
+  LDFLAGS="-L${READLINE_DIR}/lib ${LDFLAGS}"
+  AC_CHECK_LIB(readline,main,READLINE="yes",READLINE="no",-lhistory -ltermcap)
   if test "x${READLINE}" = "xyes"; then
     C_FLAGS="${C_FLAGS} -DHAVE_READLINE"
     if test "x${READLINE_PREFIX}" = "x"; then

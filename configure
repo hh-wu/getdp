@@ -3534,14 +3534,14 @@ else
 fi
 
 
-LDFLAGS="-L${FFTW_DIR}/lib -lm"
+LDFLAGS="-L${FFTW_DIR}/lib ${LDFLAGS}"
 echo "$as_me:$LINENO: checking for main in -lfftw" >&5
 echo $ECHO_N "checking for main in -lfftw... $ECHO_C" >&6
 if test "${ac_cv_lib_fftw_main+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lfftw  $LIBS"
+LIBS="-lfftw -lm $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
@@ -3731,14 +3731,14 @@ else
 fi
 
 
-  LDFLAGS="-L${READLINE_DIR}/lib -lhistory -ltermcap"
+  LDFLAGS="-L${READLINE_DIR}/lib ${LDFLAGS}"
   echo "$as_me:$LINENO: checking for main in -lreadline" >&5
 echo $ECHO_N "checking for main in -lreadline... $ECHO_C" >&6
 if test "${ac_cv_lib_readline_main+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   ac_check_lib_save_LIBS=$LIBS
-LIBS="-lreadline  $LIBS"
+LIBS="-lreadline -lhistory -ltermcap $LIBS"
 cat >conftest.$ac_ext <<_ACEOF
 #line $LINENO "configure"
 /* confdefs.h.  */
