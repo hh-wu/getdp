@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.14 2000-10-16 21:02:16 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.15 2000-10-17 21:38:53 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -77,7 +77,7 @@ void Pro_DefineQuantityIndex(List_T * WholeQuantity_L,int DefineQuantityIndexEqu
 			     int * NbrQuantityIndex, int ** QuantityIndexTable,
 			     int ** QuantityTraceGroupIndexTable) ;
 void Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) ;
-void Pos_InteractiveHelp(void);
+void Pos_InteractiveHelp(char *topic);
 
 char  *strsave(char *string) ;
 void  yyerror(char *s) ;
@@ -430,17 +430,11 @@ Interactive :
     { InteractiveExit = 1; }
 
   | tHelp tEND
-    { Pos_InteractiveHelp(); }
+    { Pos_InteractiveHelp(NULL); }
 
-/*
-  Le but serait de pouvoir rentrer en mode interactif des le debut, 
-  pour y faire e.g. le check de la structure. 
-
-  | tCheck tEND
-    {
-      ;
-    }
-*/
+  /* inutile, vu que les mot-cles sont deja definis comme tokens... */
+  | tHelp tSTRING tEND
+    { Pos_InteractiveHelp($2); }
 
   | tCpu tEND
 

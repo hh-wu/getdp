@@ -1,5 +1,5 @@
 %{
-/* $Id: lex.l,v 1.8 2000-10-15 14:02:48 geuzaine Exp $ */
+/* $Id: lex.l,v 1.9 2000-10-17 21:38:53 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -259,9 +259,8 @@ Exit                         return tExit ;
 Quit                         return tExit ;
 Break                        return tBreak ;
 Help                         return tHelp ;
-Info                         return tHelp ;
+help                         return tHelp ;
 Cpu                          return tCpu ;
-
 
 EquationTerm                 return tEquation ;
 PostQuantity                 return tQuantity ;

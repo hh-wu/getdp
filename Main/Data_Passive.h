@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.11 2000-10-16 21:02:15 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.12 2000-10-17 21:38:53 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -16,7 +16,7 @@
 #define _3D      3
 #define _ALL     4
 
-#define GETDP_PROMPT_STRING  "GetDP> "
+#define GETDP_PROMPT_STRING  "getdp> "
 #define GETDP_TMP_FILENAME   "getdp.tmp"
 
 /* ------------------------------------------------------------------------ */
