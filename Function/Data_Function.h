@@ -1,4 +1,4 @@
-/* $Id: Data_Function.h,v 1.19 2002-01-18 19:47:57 geuzaine Exp $ */
+/* $Id: Data_Function.h,v 1.20 2002-02-04 19:01:04 geuzaine Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 
@@ -536,6 +536,8 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"RCS_SphTheta",                (CAST)F_RCS_SphTheta,        4,   1 },
   {"JFIE_OnSphCutPhi",            (CAST)F_JFIE_SphPhi,         4,   1 },
   {"RCS_SphPhi",                  (CAST)F_RCS_SphPhi,          4,   1 },
+
+  {"AcousticSoftSphere",          (CAST)F_AcousticSoftSphere,  0,   4 },
 
   /* GF_XXX : Green Functions */
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.9 2001-11-19 18:30:36 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.10 2002-02-04 19:01:04 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -477,27 +477,85 @@ void F_RCS_SphPhi(F_ARG){
 
 } 
 
+/* ------------------------------------------------------------------------ */
+/*  Problem of the sphere. Acoustic scattering.                             */
+/* ------------------------------------------------------------------------ */
+
+/* 
+   Scattering on an acoustically soft sphere (exterior Dirichlet
+   problem) by incident plane wave in the direction of the negative
+   z-axis
+
+   J.J. Bowman, T.B.A. Senior and P.L.E. Uslenghi, Electromagnetic and
+   Acoustic Scattering by Simple Shapes, p. 358 
+
+   In:
+   k: wave number
+   a: sphere radius
+   r: r coord in spherical coords
+   theta: theta coord in spherical coords
+
+   Out:
+   total field V_i+V_s
+*/
+
+void  F_AcousticSoftSphere(F_ARG){
+#define N 50
+  double k, a, r, theta, ka, kr, fact;
+  int n;
+  double jnka[N], jnkr[N], hnkar[N], hnkai[N], hnkrr[N], hnkri[N];
+  struct Value V_tmp, V_tmp2, V_mi, V_jnka, V_jnkr, V_hnka, V_hnkr, V_an;
+
+  k     = A->Val[0];
+  a     = (A+1)->Val[0];
+  r     = (A+2)->Val[0];
+  theta = (A+3)->Val[0];
+
+  kr = k*r ;
+  ka = k*a ;
+
+  V->Type         = SCALAR ;
+  V->Val[0]       = 0.;
+  V->Val[MAX_DIM] = 0. ;
+
+  V_tmp.Type = V_tmp2.Type = SCALAR;
+  V_mi.Type = V_jnka.Type = V_jnkr.Type = SCALAR;
+  V_hnka.Type = V_hnkr.Type = V_an.Type = SCALAR;
+
+  n = 0;
+  Spherical_j_nArray(n,kr,N,&jnkr[0]);
+  Spherical_j_nArray(n,ka,N,&jnka[0]);
+  Spherical_h_nArray(1,n,kr,N,hnkrr,hnkri);
+  Spherical_h_nArray(1,n,ka,N,hnkar,hnkai);
+
+  for (n = 0 ; n < N ; n++){
+    V_mi.Val[0] = 0.; V_mi.Val[MAX_DIM] = -1.;
+    V_tmp.Val[0] = n ; V_tmp.Val[MAX_DIM] = 0.;
+    Cal_PowerValue (&V_mi, &V_tmp, &V_mi);
+
+    V_jnkr.Val[0] = jnkr[n]; V_jnkr.Val[MAX_DIM] = 0;
+    V_jnka.Val[0] = jnka[n]; V_jnka.Val[MAX_DIM] = 0;
+    V_hnkr.Val[0] = hnkrr[n]; V_hnkr.Val[MAX_DIM] = hnkri[n];
+    V_hnka.Val[0] = hnkar[n]; V_hnka.Val[MAX_DIM] = hnkai[n];
+
+    Cal_ComplexDivision(V_jnka.Val,V_hnka.Val,V_an.Val);
+    Cal_ComplexProduct(V_an.Val,V_hnkr.Val,V_tmp.Val);
+    
+    V_tmp.Val[0]       = V_jnkr.Val[0]       - V_tmp.Val[0];
+    V_tmp.Val[MAX_DIM] = V_jnkr.Val[MAX_DIM] - V_tmp.Val[MAX_DIM];
+
+    Cal_ComplexProduct(V_mi.Val,V_tmp.Val,V_tmp2.Val);
+
+    fact = (2*n+1) * Legendre(n,0,cos(theta));
+
+    V->Val[0]       += fact * V_tmp2.Val[0] ; 
+    V->Val[MAX_DIM] += fact * V_tmp2.Val[MAX_DIM] ;
+  }
+#undef N   
+}
+
+void  F_AcousticHardSphere(F_ARG){
+
+}
 
 #undef F_ARG
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

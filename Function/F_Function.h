@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.13 2002-01-18 19:47:57 geuzaine Exp $ */
+/* $Id: F_Function.h,v 1.14 2002-02-04 19:01:04 geuzaine Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -17,6 +17,7 @@ void  F_JFIE_SphTheta     (F_ARG) ;
 void  F_RCS_SphTheta      (F_ARG) ;
 void  F_JFIE_SphPhi       (F_ARG) ;
 void  F_RCS_SphPhi        (F_ARG) ;
+void  F_AcousticSoftSphere(F_ARG) ;
 
 /* F_Math */
 
