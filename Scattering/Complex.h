@@ -4,6 +4,8 @@
 #include <complex>
 
 typedef std::complex<double> Complex;
+//typedef std::complex<float> Complex;
+//typedef std::complex<long double> Complex;
 
 extern Complex I;
 

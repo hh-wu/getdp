@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.8 2002-05-04 01:42:46 geuzaine Exp $
+// $Id: Patch.cpp,v 1.9 2002-05-09 00:50:29 geuzaine Exp $
 
 #include "Main.h"
 #include "Utils.h"
@@ -75,8 +75,7 @@ Patch::Patch(PatchType _type, int _beg, int _end,
     // experimental stuff to better resolve the shadowing point
     // e.g. q=3 for k=500
     
-    /*
-    double q=5.;
+    double q=2.;
     if(i<nbdof/2){
       nodes[i] = atan(q*tan(nodes[i])) ;
       if(i>nbdof/4) nodes[i] += PI;
@@ -86,7 +85,7 @@ Patch::Patch(PatchType _type, int _beg, int _end,
       if(i>3*nbdof/4) nodes[i] += PI;
     }
     printf("%.16g\n", nodes[i]);
-    */
+   
 
     /*
     double q=5.;

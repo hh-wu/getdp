@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.19 2002-05-04 01:42:46 geuzaine Exp $
+// $Id: Solve.cpp,v 1.20 2002-05-09 00:50:29 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -93,7 +93,7 @@ void SaveSolution(Ctx *ctx, gVector *x){
   for(i=0; i<ctx->nbdof; i++){
     Complex tmp;
     LinAlg_GetComplexInVector(&tmp,x,i);
-    fprintf(fp, "%.16g %.16g %.16g\n",ctx->scat.nodes[i],tmp.real(),tmp.imag());
+    fprintf(fp, "%.16g %.16g %.16g\n",ctx->scat.nodes[i],(double)tmp.real(),(double)tmp.imag());
   }
   
   fclose(fp);
