@@ -1,4 +1,4 @@
-$Id: FAQ,v 1.8 2004-03-05 18:35:54 geuzaine Exp $
+$Id: FAQ,v 1.9 2004-03-08 05:38:37 geuzaine Exp $
 
 This is the GetDP FAQ
 
@@ -42,7 +42,7 @@ Section 2: Installation
 
 * 2.1 Which OSes does GetDP run on?
 
-Gmsh is known to run on Windows 95/98/NT/2000/XP, Linux, Mac OS X,
+GetDP is known to run on Windows 95/98/NT/2000/XP, Linux, Mac OS X,
 Compaq Tru64 Unix (aka OSF1, aka Digital Unix), Sun OS, IBM AIX, SGI
 IRIX, FreeBSD and HP-UX. It should compile on any Unix-like operating
 system, provided that you have access to a recent C and Fortran 77
@@ -70,7 +70,7 @@ clean' before rebuilding GetDP.
 * 2.4 GetDP [from a binary distribution] complains about missing
 libraries.
 
-Try 'ldd getdp' (or 'otool -L gmsh' on Mac OS X) to check if all the
+Try 'ldd getdp' (or 'otool -L getdp' on Mac OS X) to check if all the
 required shared libraries are installed on your system. If not,
 install them. If it still doesn't work, recompile GetDP from the
 sources.
