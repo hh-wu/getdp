@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Type.c,v 1.5 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: F_Type.c,v 1.6 2000-11-24 13:38:43 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -572,5 +572,54 @@ void  F_CompZZ (F_ARG) { get_comp_tensor(8,5, 2,"CompZZ") }
 
 #undef get_comp_tensor
 
+
+/* ------------------------------------------------------------------------ */
+/*  U n i t V e c t o r X, Y, Z                                             */
+/* ------------------------------------------------------------------------ */
+
+void  F_UnitVectorX (F_ARG) {
+  int k ;
+
+  GetDP_Begin("F_UnitVectorX");
+
+  for (k = 0 ; k < Current.NbrHar ; k++) {
+    V->Val[MAX_DIM*k  ] = (k)? 0.:1. ;
+    V->Val[MAX_DIM*k+1] = 0. ;
+    V->Val[MAX_DIM*k+2] = 0. ;
+  }
+  V->Type = VECTOR ;
+
+  GetDP_End ;
+}
+
+void  F_UnitVectorY (F_ARG) {
+  int k ;
+
+  GetDP_Begin("F_UnitVectorY");
+
+  for (k = 0 ; k < Current.NbrHar ; k++) {
+    V->Val[MAX_DIM*k  ] = 0. ;
+    V->Val[MAX_DIM*k+1] = (k)? 0.:1. ;
+    V->Val[MAX_DIM*k+2] = 0. ;
+  }
+  V->Type = VECTOR ;
+
+  GetDP_End ;
+}
+
+void  F_UnitVectorZ (F_ARG) {
+  int k ;
+
+  GetDP_Begin("F_UnitVectorZ");
+
+  for (k = 0 ; k < Current.NbrHar ; k++) {
+    V->Val[MAX_DIM*k  ] = 0. ;
+    V->Val[MAX_DIM*k+1] = 0. ;
+    V->Val[MAX_DIM*k+2] = (k)? 0.:1. ;
+  }
+  V->Type = VECTOR ;
+
+  GetDP_End ;
+}
 
 #undef F_ARG

@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.4 2000-11-03 08:31:31 dular Exp $ */
+/* $Id: F_Function.h,v 1.5 2000-11-24 13:38:43 dular Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -72,6 +72,9 @@ void  F_CompYZ          (F_ARG) ;
 void  F_CompZX          (F_ARG) ;
 void  F_CompZY          (F_ARG) ;
 void  F_CompZZ          (F_ARG) ;
+void  F_UnitVectorX     (F_ARG) ;
+void  F_UnitVectorY     (F_ARG) ;
+void  F_UnitVectorZ     (F_ARG) ;
 
 /* F_Coord */
 

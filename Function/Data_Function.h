@@ -1,4 +1,4 @@
-/* $Id: Data_Function.h,v 1.10 2000-10-27 15:03:17 geuzaine Exp $ */
+/* $Id: Data_Function.h,v 1.11 2000-11-24 13:38:43 dular Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 
@@ -457,6 +457,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"CompZX"            , (CAST)F_CompZX           ,   0,   1 },
   {"CompZY"            , (CAST)F_CompZY           ,   0,   1 },
   {"CompZZ"            , (CAST)F_CompZZ           ,   0,   1 },
+  {"UnitVectorX"       , (CAST)F_UnitVectorX      ,   0,   0 },
+  {"UnitVectorY"       , (CAST)F_UnitVectorY      ,   0,   0 },
+  {"UnitVectorZ"       , (CAST)F_UnitVectorZ      ,   0,   0 },
 
   /* F_Coord */
 
