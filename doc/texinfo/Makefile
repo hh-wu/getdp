@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2003-07-23 18:38:14 geuzaine Exp $
+# $Id: Makefile,v 1.9 2003-07-23 18:41:11 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -58,5 +58,5 @@ all: ps pdf html html1 infoz txt
 
 clean:
 	rm -f *~ .*~ *.cp* *.fn* *.ky* *.pg* *.tp* *.vr* *.mv* \
-              *.log *.toc *.aux *.dvi *.html *.txt \
-              getdp.ps getdp.pdf getdp.info* getdp-info.tgz
+              *.log *.toc *.aux *.dvi *.html \
+              getdp.ps getdp.pdf getdp.info* getdp-info.tgz getdp.txt
