@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.27 2003-04-28 03:54:32 geuzaine Exp $
+# $Id: Makefile,v 1.28 2003-04-28 17:44:56 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -32,6 +32,7 @@ CSRC =  Analytic_HollowCylLF.c \
         Adapt.c \
         Legendre.c \
         SphBessel.c \
+        Numeric.c \
         gsl_newt.c \
         gsl_brent.c
 
@@ -86,6 +87,8 @@ Legendre.o: Legendre.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h
 SphBessel.o: SphBessel.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h Amos_F.h ../include/Compat.h
+Numeric.o: Numeric.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h Numeric.h
 gsl_newt.o: gsl_newt.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h
 gsl_brent.o: gsl_brent.c ../include/GetDP.h ../Main/Message.h \

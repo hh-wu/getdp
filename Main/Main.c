@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.47 2003-03-22 03:30:13 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.48 2003-04-28 17:44:56 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -30,6 +30,7 @@
 #include "Print_ProblemStructure.h"
 #include "LinAlg.h"
 #include "Magic.h"
+#include "Numeric.h"
 #include "GmshClient.h"
 
 extern FILE *yyin ;
@@ -148,6 +149,10 @@ int  main(int argc, char *argv[]) {
     strcpy(Name_MshFile, Name_Generic) ;
     strcat(Name_MshFile, ".msh") ;
   }
+
+  /* check GSL version */
+
+  check_gsl();
 
   /* Solver init */
 

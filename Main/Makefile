@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.29 2003-04-28 03:54:32 geuzaine Exp $
+# $Id: Makefile,v 1.30 2003-04-28 17:44:56 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -86,7 +86,8 @@ Main.o: Main.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \
   Init_Problem.h Data_Passive.h ../DataStr/List.h Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/Tree.h \
   ../DataStr/avl.h Print_ProblemStructure.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../include/Magic.h GmshClient.h
+  ../Sparskit/Solver.h ../include/Magic.h ../Numeric/Numeric.h \
+  GmshClient.h
 Message.o: Message.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \
   ../include/GetDPVersion.h CurrentData.h Data_Active.h Data_Passive.h \
   ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
