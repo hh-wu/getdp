@@ -526,7 +526,7 @@ void  Init_PartInDofData(struct DofData * DofData_P, int NbrPart) {
     DofData_P->Nnz = (int*)Malloc(DofData_P->NbrDof * sizeof(int)) ;
 
   for(i = 0 ; i < DofData_P->NbrDof ; i++)
-    DofData_P->Nnz[i] = 30;
+    DofData_P->Nnz[i] = 40;
 
   DofData_P->NbrPart = 1;
   DofData_P->Part[0] = 1;
