@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.26 2000-11-07 08:49:12 dular Exp $ */
+/* $Id: yacc.y,v 1.27 2000-11-16 14:04:02 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -5231,6 +5231,7 @@ PrintOptions :
       PostSubOperation_S.Target = -1. ;
       PostSubOperation_S.HarmonicToTime = 1 ;
       PostSubOperation_S.TimeStep_L = List_Create(10,10,sizeof(int)); ;
+      PostSubOperation_S.Frequency_L = List_Create(10,10,sizeof(double)); ;
       PostSubOperation_S.Value_L = List_Create(10,10,sizeof(double)); ;
       PostSubOperation_S.Iso = 0 ;
       PostSubOperation_S.Iso_L = List_Create(10,10,sizeof(double)); ;
@@ -5376,6 +5377,13 @@ PrintOption :
   | ',' tNoNewLine
     { 
       PostSubOperation_S.NoNewLine = 1 ;
+    }
+  | ',' tFrequency ListOfDouble
+    { 
+      for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
+	List_Read(ListOfDouble_L,i,&d);	
+	List_Add(PostSubOperation_S.Frequency_L, &d);
+      }
     }
   ;
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.22 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.23 2000-11-16 14:04:02 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -25,7 +25,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 		      struct PostSubOperation  *PostSubOperation_P) {
 
   struct PostQuantity   *NCPQ_P, *CPQ_P ;
-  int                    Order ;
+  double                 Pulsation ;
+  int                    i, Order ;
 
   GetDP_Begin("Pos_Formulation");
 
@@ -51,11 +52,6 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   Format_PostFormat(PostSubOperation_P->Format) ;
 
-  /*
-  if(((struct PostQuantity *)
-      List_Pointer(PostProcessing_P->PostQuantity, 
-		   PostSubOperation_P->PostQuantityIndex[0]))->Type == NONCUMULATIVE){
-  */
   if (PostSubOperation_P->PostQuantitySupport[0] < 0) { /* Noncumulative */
     NCPQ_P = 
       (struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
@@ -77,6 +73,15 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 					  PostSubOperation_P->PostQuantityIndex[1]) :
       NULL ;
     Order = 0 ;
+  }
+
+  if(List_Nbr(PostSubOperation_P->Frequency_L)){
+    if(List_Nbr(PostSubOperation_P->Frequency_L) > List_Nbr(Current.DofData->Pulsation))
+      Msg(ERROR, "Too Many Frequencies Specified in PostOperation");
+    for(i = 0 ; i < List_Nbr(PostSubOperation_P->Frequency_L) ; i++){
+      Pulsation = *((double *)List_Pointer(PostSubOperation_P->Frequency_L, i)) * TWO_PI ;
+      List_Write(Current.DofData->Pulsation, i, &Pulsation) ;
+    }
   }
 
   switch (Formulation_P->Type) {
