@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Interactive.c,v 1.20 2001-07-29 12:34:44 geuzaine Exp $"
+#define RCSID "$Id: Pos_Interactive.c,v 1.21 2001-07-29 16:23:35 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -112,7 +112,8 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
       else if(!strcmp(myptr,"dir") || !strcmp(myptr,"ls")){ /* direct system calls */
 	system("ls -al");
       }
-      else if(!strcmp(myptr,"log") || !strcmp(myptr,"Log")){ /* log */
+      else if(!strcmp(myptr,"l") || /* log */
+	      !strcmp(myptr,"log") || !strcmp(myptr,"Log")){	      
 	save_history(10000, stdout);
       }
       else if(strlen(myptr) > 4 &&
@@ -230,7 +231,9 @@ void Help_Log(void) {
 	 " \n"
 	 " To print simply print the history on the screen, type\n"
 	 " \n"
-	 "    Log\n");
+	 "    Log\n"
+	 " \n"
+	 " The default Log is also available with the shortcut 'l'.\n");
 }
 
 void Help_Cpu(void) { 
@@ -242,7 +245,7 @@ void Help_Help(void) {
 	 " \n"	 
 	 "    Help TOPIC\n"
 	 " \n"	 
-	 " The default help is also available with the shortcut 'h'\n");
+	 " The default help is also available with the shortcut 'h'.\n");
 }
 
 void Help_Quit(void) { 
