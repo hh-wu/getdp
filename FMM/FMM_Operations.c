@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Operations.c,v 1.8 2004-05-11 15:31:03 geuzaine Exp $"
+#define RCSID "$Id: FMM_Operations.c,v 1.9 2004-09-18 18:03:00 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -497,7 +497,11 @@ void FMM_Scaling(double *rowscal, double *colscal, int N){
     TypeTimeDerivative = FMMmat_P->TypeTimeDerivative ;
    
     if ( TypeTimeDerivative == DT_ && Current.NbrHar == 1 ){
+#if defined(HAVE_SPARSKIT)
       x_prev = ((Current.DofData->CurrentSolution-1)->x).V ;
+#else
+      Msg(ERROR, "FMM_Scaling only implemented for Sparskit");
+#endif
       if (!Flag_scaled){
 	for (i = 0 ; i < N ; i++)
 	  x_prev[i] /= colscal[i] ;
@@ -774,7 +778,11 @@ void FMMProd_AllLaplace2D(struct FMMmat *FMMmat_P, double *x, double *y ){
   w = FMMmat_P->Pulsation ;
 
   if (TypeTimeDerivative == DT_ && NbrHar == 1 )
+#if defined(HAVE_SPARSKIT)
     x_prev = ((Current.DofData->CurrentSolution-1)->x).V ;
+#else
+    Msg(ERROR, "FMM_Scaling only implemented for Sparskit");
+#endif
 
 
   NbrGroupSrc = List_Nbr( FMMmat_P->A_L );
@@ -896,7 +904,11 @@ void FMMProd_AllLaplace3D(struct FMMmat *FMMmat_P, double *x, double *y ){
   w = FMMmat_P->Pulsation ;
   
   if (TypeTimeDerivative == DT_ && NbrHar == 1 )
+#if defined(HAVE_SPARSKIT)
     x_prev = ((Current.DofData->CurrentSolution-1)->x).V ;
+#else
+    Msg(ERROR, "FMM_Scaling only implemented for Sparskit");
+#endif
 
   
   NbrGroupSrc = List_Nbr( FMMmat_P->A_L );

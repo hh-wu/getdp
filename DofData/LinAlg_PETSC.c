@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.35 2004-09-17 23:33:05 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.36 2004-09-18 18:03:00 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -184,6 +184,7 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *P
 
   GetDP_End ;
 }
+
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m, 
 			 int NbrPart, int *Part, int *Nnz){
 
