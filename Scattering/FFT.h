@@ -3,6 +3,7 @@
 
 #include <fftw.h>
 #include "Complex.h"
+#include "Spline.h"
 
 class FFT {
 private:
@@ -12,6 +13,7 @@ private:
   fftw_plan forwardPlan;
   fftw_plan backwardPlan;
   fftw_complex *tmp1, *tmp2;
+  Spline *spline;
 
 public:
   FFT(int n);

@@ -1,4 +1,4 @@
-// $Id: FFT.cpp,v 1.2 2002-04-16 17:51:43 geuzaine Exp $
+// $Id: FFT.cpp,v 1.3 2002-05-06 21:13:54 geuzaine Exp $
 
 #include "Utils.h"
 #include "FFT.h"
@@ -78,6 +78,7 @@ FFT::FFT(int n){
   tmp2 = new fftw_complex[Nexp]; // partially overkill
   fourierCoefs = new Complex[Nexp];
   expandedVals = new Complex[Nexp];
+  spline = new Spline(Nexp);
 }
 
 FFT::~FFT(){
