@@ -1,4 +1,4 @@
-#define RCSID "$Id: List.c,v 1.18 2004-10-05 14:27:14 dular Exp $"
+#define RCSID "$Id: List.c,v 1.19 2005-01-01 18:46:23 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -400,12 +400,8 @@ List_T *List_CreateFromFile(int n, int size, FILE *file, int format, int swap){
       for(i=0;i<n;i++) fscanf(file, "%f", (float*)&liste->array[i*size]) ;
     else if(size == sizeof(int))
       for(i=0;i<n;i++) fscanf(file, "%d", (int*)&liste->array[i*size]) ;
-    else if(size == sizeof(char)){
-      for(i=0;i<n;i++){
-	fscanf(file, "%c", (char*)&liste->array[i*size]) ;
-	if(liste->array[i*size]=='^') liste->array[i*size]='\0';
-      }
-    }
+    else if(size == sizeof(char))
+      for(i=0;i<n;i++) liste->array[i * size] = fgetc(file);
     else{
       Msg(GERROR, "Bad type of data to create list from (size = %d)", size);
       return NULL;
@@ -436,14 +432,7 @@ void List_WriteToFile(List_T *liste, FILE *file, int format){
     else if(liste->size == sizeof(int))
       for(i=0;i<n;i++) fprintf(file, " %d", *((int*)&liste->array[i*liste->size])) ;
     else if(liste->size == sizeof(char))
-      for(i=0;i<n;i++){
-	if(*((char*)&liste->array[i*liste->size]) == '\0')
-	  fprintf(file, "^") ;
-	else if(*((char*)&liste->array[i*liste->size]) == '^')
-	  fprintf(file, "_") ; /* we don't allow '^' as a valid character */
-	else
-	  fprintf(file, "%c", *((char*)&liste->array[i*liste->size])) ;
-      }
+      for(i=0;i<n;i++) fputc(*((char *)&liste->array[i * liste->size]), file);
     else
       Msg(GERROR, "Bad type of data to write list to file (size = %d)", liste->size);
     break;
