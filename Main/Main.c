@@ -1,10 +1,11 @@
-#define RCSID "$Id: Main.c,v 1.38 2001-05-23 10:23:23 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.39 2001-05-30 18:10:27 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
+#include <time.h>
 
 #include "GetDP.h"
 #include "Init_Problem.h"
@@ -58,9 +59,10 @@ int Flag_RemoveSingularity = 0;
 #else
 
 int  main(int argc, char *argv[]) {
-  char  **sargv;
-  int   sargc, i, choose = 1 ;
-  char  Name_ProFile[MAX_FILE_NAME_LENGTH], Name_LogFile[MAX_FILE_NAME_LENGTH] ;
+  char   **sargv;
+  int    sargc, i, choose = 1 ;
+  char   Name_ProFile[MAX_FILE_NAME_LENGTH], Name_LogFile[MAX_FILE_NAME_LENGTH] ;
+  time_t now;
 
   GetDP_Begin("main");
 
@@ -93,6 +95,10 @@ int  main(int argc, char *argv[]) {
     if(!(LogStream = fopen(Name_LogFile, "w+"))){
       Flag_LOG = 0;
       Msg(WARNING, "Unable to open file '%s'", Name_LogFile) ;
+    }
+    else{
+      time(&now);
+      fprintf(LogStream, "%s", ctime(&now));
     }
   }
 
@@ -158,8 +164,12 @@ int  main(int argc, char *argv[]) {
   
   Msg(DIRECT, "E n d");
 
-  if(Flag_LOG) fclose(LogStream);
-  
+  if(Flag_LOG){
+    time(&now);
+    fprintf(LogStream, "%s", ctime(&now));
+    fclose(LogStream);
+  }
+
   /* finalize MPI job */
 
   LinAlg_Finalize() ;
@@ -497,10 +507,18 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 /* ------------------------------------------------------------------------ */
 
 void FinalizeAndExit(void){
+  time_t now;
 
   GetDP_Begin("FinalizeAndExit");
 
   LinAlg_FinalizeSolver();
+
+  if(Flag_LOG){
+    time(&now);
+    fprintf(LogStream, "%s", ctime(&now));
+    fclose(LogStream);
+  }
+
   LinAlg_Finalize();
 
   if(Flag_SOCKET>0){ 
