@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.40 2001-07-29 09:37:15 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.41 2002-01-03 10:22:38 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,7 +12,7 @@
 #include "Print_ProblemStructure.h"
 #include "LinAlg.h"
 #include "Magic.h"
-#include "Socket.h"
+#include "GmshClient.h"
 
 extern FILE *yyin ;
 long int     yylinenum=0 ;
@@ -178,8 +178,8 @@ int  main(int argc, char *argv[]) {
   /* close socket */
 
   if(Flag_SOCKET>0){
-    Socket_SendInt(Flag_SOCKET, GETDP_END);
-    Socket_Close(Flag_SOCKET);
+    Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_STOP, "Goodbye!");
+    Gmsh_Disconnect(Flag_SOCKET);
   }
 
   GetDP_Return(0) ;
@@ -240,6 +240,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 		char *Name_ProFile, char *Name_Generic, char *Name_Path) {
   
   int  i, j, Flag_TmpLOG = 0, Flag_NameProblem = 0 ;
+  char pid[32];
 
   GetDP_Begin("Get_Options");
 
@@ -268,8 +269,13 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       else if (!strcmp(argv[i]+1, "socket")) {
 	i++ ;
 	if (i<argc && argv[i][0]!='-') { 
-	  Flag_SOCKET = Socket_Connect(argv[i]) ;
-	  Socket_SendInt(Flag_SOCKET, getpid());
+	  Flag_SOCKET = Gmsh_Connect(argv[i]) ;
+	  if(Flag_SOCKET == -1)
+	    Msg(ERROR, "Couldn't create socket %s", argv[i]);
+	  else if(Flag_SOCKET == -2)
+	    Msg(ERROR, "Couldn't connect to socket %s", argv[i]);
+	  sprintf(pid, "%d", getpid());
+	  Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_START, pid);
 	  i++ ; 
 	}
 	else {
@@ -520,8 +526,8 @@ void FinalizeAndExit(void){
   LinAlg_Finalize();
 
   if(Flag_SOCKET>0){ 
-    Socket_SendInt(Flag_SOCKET, GETDP_END);
-    Socket_Close(Flag_SOCKET);
+    Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_STOP, "Goodbye (prematured...)!");
+    Gmsh_Disconnect(Flag_SOCKET);
   }
 
   GetDP_Exit(1) ;

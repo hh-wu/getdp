@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.50 2001-11-20 09:05:00 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.51 2002-01-03 10:22:38 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,7 +12,7 @@
 #include "CurrentData.h"
 #include "Version.h"
 #include "LinAlg.h"
-#include "Socket.h"
+#include "GmshClient.h"
 
 extern int     InteractiveLevel, InteractiveInterrupt ;
 
@@ -168,7 +168,7 @@ void Get_GetDPContext(char *FileName, char *FileVersion, char *FileDate,
 void PrintMsg(FILE *stream, int level, int Verbosity, 
 	      va_list args, char *fmt, int *abort) {
 
-  int  verb, nl;
+  int  verb, nl, gmshlevel;
   char *str, prefix[1000], sockmsg[1000];
 
 #ifdef USE_DEBUG
@@ -204,8 +204,13 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       vsprintf(sockmsg, fmt, args);
       if(!nl) sockmsg[strlen(sockmsg)-1] = '\0' ;
       strcat(prefix, sockmsg);
-      Socket_SendInt(Flag_SOCKET, GETDP_INFO);
-      Socket_SendString(Flag_SOCKET, prefix);
+      switch(level){
+      case ERROR    : /* fall-through */
+      case BIGERROR : gmshlevel = GMSH_CLIENT_ERROR; break;
+      case WARNING  : gmshlevel = GMSH_CLIENT_WARNING; break;
+      default       : gmshlevel = GMSH_CLIENT_INFO; break;
+      }
+      Gmsh_SendString(Flag_SOCKET, gmshlevel, prefix);
     }
     else{
       if(str) fprintf(stream, str); 
@@ -251,8 +256,7 @@ void PrintResources(FILE *stream, char *fmt, long s, long us, long mem){
   char sockmsg[1000];
   if(Flag_SOCKET > 0){
     sprintf(sockmsg, RESOURCES_STR "%scpu %ld.%ld s / mem %ld kb\n", fmt, s, us, mem);
-    Socket_SendInt(Flag_SOCKET, GETDP_INFO);
-    Socket_SendString(Flag_SOCKET, sockmsg);
+    Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_INFO, sockmsg);
   }
   else{
     fprintf(stream, RESOURCES_STR) ;
@@ -312,8 +316,7 @@ void Progress(int current, int final, char *label){
   if(100*current/(double)final >= ProgressIndex){
     if(Flag_SOCKET > 0){
       sprintf(sockmsg, "(%s%d %%)", label, ProgressIndex) ;
-      Socket_SendInt(Flag_SOCKET, GETDP_PROGRESS);
-      Socket_SendString(Flag_SOCKET, sockmsg);
+      Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_PROGRESS, sockmsg);
     }
     else
       fprintf(stderr, "(%s%d %%)     \r", label, ProgressIndex) ;

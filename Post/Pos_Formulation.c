@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.32 2001-06-27 13:18:10 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.33 2002-01-03 10:22:38 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -13,7 +13,7 @@
 #include "Pos_Formulation.h"
 #include "Pos_Print.h"
 #include "Pos_Format.h"
-#include "Socket.h"
+#include "GmshClient.h"
 
 extern int  InteractiveInterrupt ;
 
@@ -114,8 +114,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     if (Flag_SOCKET > 0 && 
 	(PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
 	 PostSubOperation_P->Format == FORMAT_GMSH)){
-      Socket_SendInt(Flag_SOCKET, GETDP_LOAD_VIEW);
-      Socket_SendString(Flag_SOCKET, FileName);
+      Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_VIEW, FileName);
     }
   }
 

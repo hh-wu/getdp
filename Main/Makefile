@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2001-11-20 12:21:08 geuzaine Exp $
+# $Id: Makefile,v 1.16 2002-01-03 10:22:38 geuzaine Exp $
 #
 # Makefile for 'libMain.a'
 # 
@@ -44,7 +44,7 @@ SRC = Main.c Message.c \
       Get_Define.c \
       Graph.c \
       Print_ProblemStructure.c\
-      Socket.c
+      GmshClient.c
 
 OBJ = $(SRC:.c=.o)
 
@@ -77,14 +77,14 @@ Main.o: Main.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \
   Init_Problem.h Data_Passive.h ../DataStr/List.h Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/Tree.h \
   ../DataStr/avl.h Print_ProblemStructure.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../include/Magic.h Socket.h
+  ../Sparskit/Solver.h ../include/Magic.h GmshClient.h
 Message.o: Message.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \
   CurrentData.h Data_Active.h Data_Passive.h ../DataStr/List.h \
   Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../include/Version.h \
-  Socket.h
+  GmshClient.h
 SolvingAnalyse.o: SolvingAnalyse.c ../include/GetDP.h Message.h \
   ../DataStr/Malloc.h Treatment_Formulation.h Data_Active.h \
   Data_Passive.h ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
@@ -271,5 +271,5 @@ Print_ProblemStructure.o: Print_ProblemStructure.c ../include/GetDP.h \
   Data_DefineE.h Print_ProblemStructure.h Treatment_Formulation.h \
   CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h Socket.h
-Socket.o: Socket.c Message.h
+  ../include/Magic.h GmshClient.h
+GmshClient.o: GmshClient.c Message.h

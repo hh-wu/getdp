@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.27 2001-11-09 09:46:51 dular Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.28 2002-01-03 10:22:38 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -9,7 +9,7 @@
 #include "Print_ProblemStructure.h"
 #include "Treatment_Formulation.h"
 #include "CurrentData.h"
-#include "Socket.h"
+#include "GmshClient.h"
 
 char  * Get_ExpressionName(struct Problem * Problem, int Index) {
 
@@ -1416,10 +1416,8 @@ void  Print_ListResolution(int choose, struct Problem  * Problem) {
       for (i = 0 ; i < Nbr ; i++) {
 	RE = (struct Resolution*)List_Pointer(Problem->Resolution, i) ;
 	Msg(CHECK, "(%d) %s\n", i+1, RE->Name) ;
-	if(Flag_SOCKET > 0){
-	  Socket_SendInt(Flag_SOCKET, GETDP_RESOLUTION_NAME);
-	  Socket_SendString(Flag_SOCKET, RE->Name);
-	}
+	if(Flag_SOCKET > 0)
+	  Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_OPTION_1, RE->Name);
       }
       if(choose){
 	Msg(CHECK, "Choice: ") ;
@@ -1496,10 +1494,8 @@ void  Print_ListPostOperation(int choose, struct Problem  * Problem) {
       for (i = 0 ; i < Nbr ; i++) {
 	PO = (struct PostOperation*)List_Pointer(Problem->PostOperation, i) ;
 	Msg(CHECK, "(%d) %s\n", i+1, PO->Name) ;
-	if(Flag_SOCKET > 0){
-	  Socket_SendInt(Flag_SOCKET, GETDP_POSTOPERATION_NAME);
-	  Socket_SendString(Flag_SOCKET, PO->Name);
-	}
+	if(Flag_SOCKET > 0)
+	  Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_OPTION_2, PO->Name);
       }
       if(choose){
 	Msg(CHECK, "Choice: ") ;

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.19 2001-11-20 12:21:08 geuzaine Exp $
+# $Id: Makefile,v 1.20 2002-01-03 10:22:38 geuzaine Exp $
 #
 # Makefile for 'libPost.a'
 # 
@@ -83,7 +83,7 @@ Pos_Formulation.o: Pos_Formulation.c ../include/GetDP.h ../Main/Message.h \
   ../Main/CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
   ../include/Magic.h ../Main/Get_DofOfElement.h Pos_Formulation.h \
-  Pos_Print.h Pos_Format.h ../Main/Socket.h
+  Pos_Print.h Pos_Format.h ../Main/GmshClient.h
 Pos_Print.o: Pos_Print.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \

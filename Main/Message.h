@@ -1,4 +1,4 @@
-/* $Id: Message.h,v 1.12 2001-05-18 12:26:27 dular Exp $ */
+/* $Id: Message.h,v 1.13 2002-01-03 10:22:38 geuzaine Exp $ */
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
@@ -45,14 +45,5 @@ void Signal(int signum);
 void Msg(int level, char *fmt, ...);
 void Progress(int current, int final, char *label);
 void Debug(void);
-
-/* Socket message protocol */
-
-#define GETDP_END                 -1
-#define GETDP_INFO                 1
-#define GETDP_PROGRESS             2
-#define GETDP_RESOLUTION_NAME      3
-#define GETDP_POSTOPERATION_NAME   4
-#define GETDP_LOAD_VIEW            5
 
 #endif
