@@ -78,7 +78,7 @@ Main.o: Main.c Message.h Init_Problem.h Data_Passive.h \
  ../include/Data_GeoData.h ../include/ualloc.h \
  ../include/../DataStr/ualloc.h ../include/LinAlg.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
- ../include/../Sparskit/Solver.h
+ ../include/../Sparskit/Solver.h ../include/Magic.h
 Message.o: Message.c CurrentData.h Data_Active.h Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h Message.h \
  Data_Element.h ../include/GeoData.h ../include/../GeoData/GeoData.h \

@@ -7,6 +7,7 @@
 #include "Version.h"
 #include "outil.h"
 #include "ualloc.h"
+#include "Magic.h"
 
 #include "CurrentData.h"
 
@@ -83,12 +84,12 @@ void  Dof_SetCurrentDofData(struct DofData * DofData_P) {
 /* ------------------------------------------------------------------------ */
 
 void  Dof_OpenFile(int Type, char * Name, char * Mode) {
-  char  * Extension, FileName[256] ;
+  char  * Extension, FileName[MAX_FILE_NAME_LENGTH] ;
   FILE  * File_X ;
 
   switch (Type) {
   case DOF_PRE :  Extension = ".pre" ;  break ;
-  case DOF_RES :  Extension = ".res" ;  break ;
+  case DOF_RES :  Extension = ""     ;  break ;
   case DOF_TMP :  Extension = ""     ;  break ;
   default      :  Extension = ".pre" ;  break ;
   }
@@ -149,10 +150,10 @@ void  Dof_WriteFilePRE0(int Num_Resolution, char * Name_Resolution,
 /* ------------------------------------------------------------------------ */
 
 void  Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData) {
-  char  String[256] ;
+  char  String[MAX_STRING_LENGTH] ;
 
   do { 
-    fgets(String, 256, File_PRE) ; 
+    fgets(String, MAX_STRING_LENGTH, File_PRE) ; 
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
@@ -163,7 +164,7 @@ void  Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData) {
   }
 
   do {
-    fgets(String, 256, File_PRE) ;
+    fgets(String, MAX_STRING_LENGTH, File_PRE) ;
     if (feof(File_PRE)) Msg(ERROR, "Prematured End of File");
   } while (String[0] != '$') ;
 }
@@ -274,10 +275,10 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
 
   int         i, Nbr_Index, Int ;
   struct Dof  Dof ;
-  char        String[256] ;
+  char        String[MAX_STRING_LENGTH] ;
 
   do { 
-    fgets(String, 256, File_PRE) ; 
+    fgets(String, MAX_STRING_LENGTH, File_PRE) ; 
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
@@ -352,7 +353,7 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
   }
 
   do {
-    fgets(String, 256, File_PRE) ;
+    fgets(String, MAX_STRING_LENGTH, File_PRE) ;
     if (feof(File_PRE)) Msg(ERROR, "Prematured End of File");
   } while (String[0] != '$') ;
 
@@ -364,21 +365,16 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
 /*  D o f _ W r i t e F i l e R E S 0                                       */
 /* ------------------------------------------------------------------------ */
 
-static int RES0 = 0 ;
-
 void  Dof_WriteFileRES0(char * Name_File, int Format) {
 
   gSequentialBegin();
 
-  if(!RES0){
-    Dof_OpenFile(DOF_RES, Name_File, "w") ;
-    RES0 = 1 ;
-    fprintf(File_RES, "$ResFormat /* GetDP v%g, %s */\n", 
-	     GETDP_VERSION, Format ? "binary" : "ascii") ;
-    fprintf(File_RES, "%g %d\n", GETDP_VERSION, Format) ;
-    fprintf(File_RES, "$EndResFormat\n") ;
-    Dof_CloseFile(DOF_RES) ;
-  }
+  Dof_OpenFile(DOF_RES, Name_File, "w") ;
+  fprintf(File_RES, "$ResFormat /* GetDP v%g, %s */\n", 
+	  GETDP_VERSION, Format ? "binary" : "ascii") ;
+  fprintf(File_RES, "%g %d\n", GETDP_VERSION, Format) ;
+  fprintf(File_RES, "$EndResFormat\n") ;
+  Dof_CloseFile(DOF_RES) ;
 
   gSequentialEnd();
 }
@@ -426,12 +422,12 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
   double          Val_Time, Version ;
   struct DofData  * DofData_P ;
   struct Solution Solution_S ;
-  char            String[256] ;
+  char            String[MAX_STRING_LENGTH] ;
 
   while (1) {
 
     do { 
-      fgets(String, 256, File_RES) ; 
+      fgets(String, MAX_STRING_LENGTH, File_RES) ; 
       if (feof(File_RES))  break ;
     } while (String[0] != '$') ;  
 
@@ -474,7 +470,7 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
     }
 
     do {
-      fgets(String, 256, File_RES) ;
+      fgets(String, MAX_STRING_LENGTH, File_RES) ;
       if (feof(File_RES)) Msg(ERROR,"Prematured End of File");
     } while (String[0] != '$') ;
 

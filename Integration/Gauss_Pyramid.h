@@ -1,13 +1,13 @@
 /* 
    GAUSS PYRAMID 
 
-   8 points d'integration 
-
    ref.: Coulomb et al., IEEE tr.mag. 32(3) May 1996, p.1395 
          2 plans // a la base quadrangulaire, 4 points par plan 
 	 suffisant pour integrer exactement nodal degre 2
 	 cf. ../utils/pyram.c
 */
+
+/* 8 integration points */
 
 double upyr8[8] = {0.2631840555694285,-0.2631840555694285,
 		   0.2631840555694285,-0.2631840555694285,

@@ -6,6 +6,7 @@
 #include "GeoData.h"
 #include "Data_Element.h"
 #include "ualloc.h"
+#include "Magic.h"
 
 FILE  * File_GEO ;
 
@@ -114,12 +115,12 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
   int                 Nbr, i, j, iDummy ;
   struct Geo_Node     Geo_Node ;
   struct Geo_Element  Geo_Element ;
-  char                String[256] ;
+  char                String[MAX_STRING_LENGTH] ;
 
   while (1) {
 
     do { 
-      fgets(String, 256, File_GEO) ; 
+      fgets(String, MAX_STRING_LENGTH, File_GEO) ; 
       if (feof(File_GEO))  break ;
     } while (String[0] != '$') ;  
     
@@ -168,7 +169,7 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
     }
 
     do {
-      fgets(String, 256, File_GEO) ;
+      fgets(String, MAX_STRING_LENGTH, File_GEO) ;
       if (feof(File_GEO)) Msg(ERROR, "Prematured End of File");
     } while (String[0] != '$') ;
 

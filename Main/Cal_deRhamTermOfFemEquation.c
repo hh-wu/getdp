@@ -370,7 +370,8 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
 
       switch (IntegrationCase_P->Type) {
 	
-      case GAUSS       :  
+      case GAUSS :  
+      case GAUSSLEGENDRE :  
       case NEWTONCOTES :
 	
 	Quadrature_P = (struct Quadrature*)

@@ -27,7 +27,7 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition) ;
 /*  S o l v i n g A n a l y s e                                             */
 /* ------------------------------------------------------------------------ */
 
-void  SolvingAnalyse (char * NameGene) {
+void  SolvingAnalyse (void) {
 
   struct Resolution     * Resolution_P     , * Resolution2_P ;
   struct DefineSystem   * DefineSystem_P0  , * DefineSystem2_P0, * DefineSystem_P ;
@@ -51,15 +51,13 @@ void  SolvingAnalyse (char * NameGene) {
   int  Num_PostProcessing, Num_PostOperation, Nbr_GeoData ;
   int  Nbr_PreResolution, Nbr_OtherSystem ;
 
-  Current.Name = NameGene ;
-
   /* ----------------------------- */
   /* Creating Geometric Data Bases */
   /* ----------------------------- */
 
   if (!Name_MshFile) {
-    Name_MshFile = (char*) Malloc((strlen(NameGene)+5)*sizeof(char)) ;
-    strcpy(Name_MshFile, NameGene) ;
+    Name_MshFile = (char*) Malloc((strlen(Name_Generic)+5)*sizeof(char)) ;
+    strcpy(Name_MshFile, Name_Generic) ;
     strcat(Name_MshFile, ".msh") ;
   }
   GeoData_L = List_Create( 1, 5, sizeof(struct GeoData)) ;
@@ -80,7 +78,7 @@ void  SolvingAnalyse (char * NameGene) {
       Msg(ERROR, "Missing Resolution");
   }
   else if (Flag_PAR || Flag_CAL || Flag_POS) {
-    Dof_OpenFile(DOF_PRE, NameGene,"r") ;
+    Dof_OpenFile(DOF_PRE, Name_Generic,"r") ;
     Dof_ReadFilePRE0(&Num_Resolution, &Nbr_DefineSystem) ;
     Nbr_OtherSystem = Nbr_DefineSystem ;
   }
@@ -146,8 +144,6 @@ void  SolvingAnalyse (char * NameGene) {
       Current.TypeTime = TIME_STATIC  ; Current.Time = 0. ; Current.TimeStep = 0. ;
       Current.RelativeDifference = 0. ; Current.RelaxationFactor = 1. ;
 
-      /* Dof_OpenFile(DOF_RES, NameGene, "w+") ; */
-      
       TreatmentStatus = _CAL ;
 
       Current.NbrSystem  = Nbr_DefineSystem2 ;  /* Attention: init for Dt[] */
@@ -156,8 +152,6 @@ void  SolvingAnalyse (char * NameGene) {
       Treatment_Operation(Resolution2_P, Resolution2_P->Operation, 
                           DofData2_P0, GeoData_P0, Resolution_P, DofData_P0) ;
       
-      /* Dof_CloseFile(DOF_RES) ; */
-
       if (PreResolutionInfo_S.Type == PR_GLOBALBASISFUNCTION) {
         for (j = 0 ; j < Nbr_DefineSystem2 ; j++) {
           DofData_P = DofData2_P0 + j ;
@@ -173,7 +167,7 @@ void  SolvingAnalyse (char * NameGene) {
           i+1, Nbr_PreResolution) ;
     }
     
-    Dof_OpenFile(DOF_PRE, NameGene, "w+") ;
+    Dof_OpenFile(DOF_PRE, Name_Generic, "w+") ;
     Dof_WriteFilePRE0(Num_Resolution, Resolution_P->Name, Nbr_DefineSystem) ;
 
     for (i = 0 ; i < Nbr_DefineSystem ; i++){
@@ -200,7 +194,7 @@ void  SolvingAnalyse (char * NameGene) {
     if(Flag_PAR > NBR_MAX_PARTITION)
       Msg(ERROR, "Too Many Partitions");
 
-    Msg(LOADING,"Pre-Processing Data '%s.pre'", NameGene) ;
+    Msg(LOADING,"Pre-Processing Data '%s.pre'", Name_Generic) ;
 
     for(i = 0 ; i < Nbr_DefineSystem ; i++)
       Dof_ReadFilePRE(DofData_P0 + i) ;
@@ -251,7 +245,7 @@ void  SolvingAnalyse (char * NameGene) {
 
     Treatment_Preprocessing(Nbr_DefineSystem, DofData_P0, DefineSystem_P0, GeoData_P0) ;
 
-    Dof_OpenFile(DOF_PRE, NameGene, "w") ;
+    Dof_OpenFile(DOF_PRE, Name_Generic, "w") ;
 
     Dof_WriteFilePRE0(Num_Resolution, Resolution_P->Name, Nbr_DefineSystem) ;
 
@@ -293,16 +287,18 @@ void  SolvingAnalyse (char * NameGene) {
     }
     
     if(Flag_RESTART) {
-      Msg(LOADING, "Processing Data '%s.res'", NameGene) ;
-      Dof_OpenFile(DOF_RES, NameGene, "r");
-      Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeStep) ;
-      /* Dof_FlushFile(DOF_RES); */
-      Dof_CloseFile(DOF_RES);
+      i = 0 ;
+      while(Name_ResFile[i]){
+	Msg(LOADING, "Processing Data '%s'", Name_ResFile[i]) ;
+	Dof_OpenFile(DOF_RES, Name_ResFile[i], "r");
+	Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeStep) ;
+	Dof_CloseFile(DOF_RES);
+	i++ ;
+      }
       Msg(BIGINFO, "Restarting Computation at Time=%g s (TimeStep %g)", 
 	  Current.Time, Current.TimeStep) ;
     }
     else{
-      /* Dof_OpenFile(DOF_RES, NameGene,"w+"); */
       Current.Time = Current.TimeStep = 0. ;
     }
 
@@ -316,8 +312,6 @@ void  SolvingAnalyse (char * NameGene) {
 
     Treatment_Operation(Resolution_P, Resolution_P->Operation, 
                         DofData_P0, GeoData_P0, NULL, NULL) ;
-
-    /* Dof_CloseFile(DOF_RES) ; */
 
     Msg(SUMMARY, "");
     Msg(DIRECT, "E n d   P r o c e s s i n g");
@@ -354,10 +348,14 @@ void  SolvingAnalyse (char * NameGene) {
     }
 
     if (!Flag_CAL) {
-      Msg(LOADING, "Processing Data '%s.res'", NameGene) ;
-      Dof_OpenFile(DOF_RES, NameGene, "r");
-      Dof_ReadFileRES(DofData_L, NULL, -1, &d, &d) ;
-      Dof_CloseFile(DOF_RES) ;
+      i = 0 ;
+      while(Name_ResFile[i]){
+	Msg(LOADING, "Processing Data '%s'", Name_ResFile[i]) ;
+	Dof_OpenFile(DOF_RES, Name_ResFile[i], "r");
+	Dof_ReadFileRES(DofData_L, NULL, -1, &d, &d) ;
+	Dof_CloseFile(DOF_RES) ;
+	i++ ;
+      }
     }
 
     for (i = 0 ; i < Nbr_DefineSystem ; i++) {

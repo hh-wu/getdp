@@ -27,7 +27,7 @@ This man page does not describe the syntax of the ASCII input files:
 you should refer to the info documentation for this (e.g. with \fBinfo
 getdp\fR). Various versions of the Texinfo manual (html, postscript,
 pdf) are available at
-\fIhttp://www.montefiore.ulg.ac.be/~geuzaine/getdp.html\fR.
+\fIhttp://www.geuz.org/getdp/\fR.
 .SH OPTIONS
 \fIGetDP\fR accepts many arguments on the command line. Here is a
 description of the most common ones:
@@ -75,8 +75,15 @@ post-processing operations manually. If \fBpost-processing-id\fR is
 omitted, the list of available choices is displayed.
 .TP 4
 .B \-msh filename
-reads the mesh database from \fBfilename\fR instead of in the default
-problem file name (with the \fI.msh\fR extension appended).
+reads the mesh database from \fBfilename\fR instead of from the default
+problem file name with the \fI.msh\fR extension appended.
+.TP 4
+.B \-split
+save processing results in separate files (one for each timestep).
+.TP 4
+.B \-res filename(s)
+load processing results from \fBfilename(s)\fR instead of from the
+default problem file name with the \fI.res\fR extension appended.
 .TP 4
 .B \-log
 saves all processing history in a log file (the input file name with
@@ -94,8 +101,11 @@ information displayed during processing.
 sets the progress update rate. This controls the refreshment rate of
 the counter indicating the progress of the current computation.
 .TP 4
-.B \-version
+.B \-info
 displays version information.
+.TP 4
+.B \-version
+displays version number.
 .TP 4
 .B \-help
 displays a message listing basic usage and available options.
@@ -108,8 +118,8 @@ the info file for a comprehensive list of collaborators).
 Texinfo documentation (\fBinfo getdp\fR)
 .PP
 GetDP internet site:
-\fIhttp://www.montefiore.ulg.ac.be/~geuzaine/getdp.html\fR
+\fIhttp://www.geuz.org/getdp/\fR
 .PP
 Gmsh (a three-dimensional mesh generator with built-in pre- and
 post-processing facilities) internet site:
-\fIhttp://www.montefiore.ulg.ac.be/~geuzaine/gmsh.html\fR
+\fIhttp://www.geuz.org/gmsh/\fR

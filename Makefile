@@ -22,6 +22,8 @@
 #
 # ----------------------------------------------------------------------
 
+GETDP_RELEASE         = 0.75
+
 # ----------------------------------------------------------------------
 # General definitions 
 # ----------------------------------------------------------------------
@@ -79,7 +81,7 @@ GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData\
                         -lNumeric -lDataStr
 
-include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
+##include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
 
 # ----------------------------------------------------------------------
 # Rules for developpers
@@ -201,7 +203,7 @@ parser:
 
 tag:
 	$(RM) $(RMFLAGS) $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_VERSION 0.75" \
+	echo "#define GETDP_VERSION $(GETDP_RELEASE)" \
              > $(GETDP_INCLUDE_DIR)/Version.h
 	echo "#define GETDP_BUILD \"`date` on `hostname` (`logname`)\"" \
              >> $(GETDP_INCLUDE_DIR)/Version.h

@@ -50,7 +50,7 @@ GeoData.o: GeoData.c GeoData.h ../include/Message.h \
  ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
  ../include/Data_Element.h ../include/../Main/Data_Element.h \
  ../include/GeoData.h ../include/../GeoData/GeoData.h \
- ../include/ualloc.h ../include/../DataStr/ualloc.h
+ ../include/ualloc.h ../include/../DataStr/ualloc.h ../include/Magic.h
 GeoEntity.o: GeoEntity.c GeoData.h ../include/Message.h \
  ../include/../Main/Message.h Data_GeoData.h ../include/listman.h \
  ../include/../DataStr/listman.h ../include/treeman.h \
@@ -59,7 +59,7 @@ GeoEntity.o: GeoEntity.c GeoData.h ../include/Message.h \
  ../include/../Main/Data_Element.h ../include/GeoData.h \
  ../include/../GeoData/GeoData.h GeoEntity.h ../include/ualloc.h \
  ../include/../DataStr/ualloc.h ../include/outil.h \
- ../include/../DataStr/outil.h
+ ../include/../DataStr/outil.h ../include/Magic.h
 GeoTree.o: GeoTree.c GeoData.h ../include/Message.h \
  ../include/../Main/Message.h Data_GeoData.h ../include/listman.h \
  ../include/../DataStr/listman.h ../include/treeman.h \
