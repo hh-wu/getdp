@@ -1,21 +1,4 @@
-
-Andre Nicolet <andre.nicolet@fresnel.fr>
-
-* generaliser localterm (partie equation doit appeler Cal_vBFxDof)
-
-* ajouter un champ dans Data_Function pour les fcts de forme a
-valeurs vectorielles: gradient generalise
-
-* definir les derivees selont x, y et z des fcts de forme a valeurs
-vectorielles
-
-* definir une fct de forme 'gradient generalise' se basant sur ces
-derivees partielles (attention au chgt de coord!)
-
-* generliser Cal_Galerkin, Get_FunctionValue, etc. pour accepter les
-valeurs tensorielles retournees par le gradient generalise
-
-=================================================================================
+$Id: TODO,v 1.3 2004-03-27 19:20:47 geuzaine Exp $
 
 * Arguments in nested expressions don't work. A workaround is to store
   the arguments in registers (i.e. with '#1'-like commands).
@@ -26,4 +9,19 @@ valeurs tensorielles retournees par le gradient generalise
 * Global quantities have to be defined on "single" regions,
   i.e. regions of type aa = Region[num].
 
+********************************************************************
 
+Andre Nicolet <andre.nicolet@fresnel.fr>
+
+* generalize localterm (equation part should call Cal_vBFxDof)
+
+* add field in Data_Function for vector-valued basis functions:
+generalized gradient
+
+* define x, y and z derivatives of vector-valued basis functions
+
+* define a 'generalized gradient' basis function based on these
+partial derivatives (warning: change of ccords!)
+
+* generalize Cal_Galerkin, Get_FunctionValue, etc. so that they accept
+the tensor values retuned by the generalized gradient
