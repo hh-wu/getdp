@@ -1,11 +1,11 @@
-$Date: 2003-02-13 23:16:50 $
+$Date: 2003-02-14 05:03:10 $
 
 0.87: Fixed major performance problem on Windows (matrix assembly and
-post-processing can be up to 10 times faster with 0.87 compared to
-0.86, bringing performance mostly up to par with Unix versions); fixed
-stack overflow on Mac OS X; Re-introduced face basis functions
-mistakenly removed in 0.86; Removed erroneous pyramidal basis
-functions; New build system based on autoconf;
+post-processing can be up to 3-4 times faster with 0.87 compared to
+0.86, bringing performance much closer to Unix versions); fixed stack
+overflow on Mac OS X; Re-introduced face basis functions mistakenly
+removed in 0.86; Removed erroneous pyramidal basis functions; New
+build system based on autoconf;
 
 0.86: Updated Gmsh output format; many small bug fixes;
 
