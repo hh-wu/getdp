@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.28 2004-10-27 12:59:15 dular Exp $ */
+/* $Id: GetDP.l,v 1.29 2004-11-10 09:58:20 dular Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -226,6 +226,7 @@ DtDtDof                      return tDtDtDof ;
 JacNL                        return tJacNL ;
 NeverDt                      return tNeverDt ;
 DtNL                         return tDtNL ;
+AtAnteriorTimeStep           return tAtAnteriorTimeStep ;
 
 In                           return tIn ;
 Full_Matrix                  return tFull_Matrix ;

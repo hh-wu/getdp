@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.63 2004-10-27 12:59:16 dular Exp $ */
+/* $Id: GetDP.y,v 1.64 2004-11-10 09:58:21 dular Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -297,7 +297,7 @@ double _value;
 %token        tSymmetry
 %token    tEquation
 %token        tGalerkin tdeRham tGlobalTerm tGlobalEquation
-%token          tDt tDtDof tDtDt tDtDtDof  tJacNL  tNeverDt  tDtNL
+%token          tDt tDtDof tDtDt tDtDtDof  tJacNL  tNeverDt  tDtNL  tAtAnteriorTimeStep
 %token          tIn
 %token          tFull_Matrix
 
@@ -1495,6 +1495,21 @@ WholeQuantity_Single :
     '[' WholeQuantityExpression ']'
     { WholeQuantity_S.Type = WQ_TIMEDERIVATIVE ;
       WholeQuantity_S.Case.TimeDerivative.WholeQuantity = $4 ;
+      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
+		&Current_WholeQuantity_L) ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+
+      if (Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
+	vyyerror("Dof{} definition out of context") ;
+    }
+
+
+  | tAtAnteriorTimeStep
+    { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity ; }
+    '[' WholeQuantityExpression ',' tINT ']'
+    { WholeQuantity_S.Type = WQ_ATANTERIORTIMESTEP ;
+      WholeQuantity_S.Case.AtAnteriorTimeStep.WholeQuantity = $4 ;
+      WholeQuantity_S.Case.AtAnteriorTimeStep.TimeStep = $6 ;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
 		&Current_WholeQuantity_L) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
@@ -7350,6 +7365,10 @@ void  Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) {
       Pro_DefineQuantityIndex_1
 	((WholeQuantity_P+i)->Case.TimeDerivative.WholeQuantity, TraceGroupIndex) ;
       break ;
+    case WQ_ATANTERIORTIMESTEP :
+      Pro_DefineQuantityIndex_1
+	((WholeQuantity_P+i)->Case.AtAnteriorTimeStep.WholeQuantity, TraceGroupIndex) ;
+      break ;
     case WQ_CAST :
       Pro_DefineQuantityIndex_1
 	((WholeQuantity_P+i)->Case.Cast.WholeQuantity, TraceGroupIndex) ;
@@ -7358,6 +7377,12 @@ void  Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) {
       Pro_DefineQuantityIndex_1
 	((WholeQuantity_P+i)->Case.Trace.WholeQuantity, 
 	 (WholeQuantity_P+i)->Case.Trace.InIndex) ;
+      break ;
+    case WQ_TEST :
+      Pro_DefineQuantityIndex_1
+	((WholeQuantity_P+i)->Case.Test.WholeQuantity_True, TraceGroupIndex) ;
+      Pro_DefineQuantityIndex_1
+	((WholeQuantity_P+i)->Case.Test.WholeQuantity_False, TraceGroupIndex) ;
       break ;
     }
   List_Sort(ListOfTwoInt_L, fcmp_int) ;

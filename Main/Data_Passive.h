@@ -652,6 +652,7 @@ struct WholeQuantity {
              int  TypeQuantity ; }                                OperatorAndQuantity ;
     struct { int  Index, NbrArguments ; }                         Expression ;
     struct { List_T *WholeQuantity ; }                            TimeDerivative ;
+    struct { List_T *WholeQuantity ; int TimeStep ; }             AtAnteriorTimeStep ;
     struct { double *Value ; }                                    CurrentValue ;
     struct { int  Index ; }                                       Argument ;
     struct { List_T *WholeQuantity_True, *WholeQuantity_False ; } Test ;
@@ -700,6 +701,7 @@ struct WholeQuantity {
 #define WQ_MHJACNL                 212
 #define WQ_DOFVALUE                213
 #define WQ_POSTSAVE                214
+#define WQ_ATANTERIORTIMESTEP        22
 
 /* TypeOperator */
 #define OP_PLUS           1

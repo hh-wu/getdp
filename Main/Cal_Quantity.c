@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.30 2004-01-19 16:51:16 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.31 2004-11-10 09:58:20 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -161,7 +161,7 @@ void Cal_WholeQuantity(struct Element * Element,
   static struct Value ValueSaved[MAX_REGISTER_SIZE] ;  
 
   int     i_WQ, j, k, Flag_True, Index, DofIndex, Multi[MAX_STACK_SIZE] ;
-  int     Save_NbrHar, Save_Region, Type_Dimension, ntime ;
+  int     Save_NbrHar, Save_Region, Type_Dimension, ntime, numSolution ;
   double  Save_Time, X, Y, Z, Order ;
 
   struct WholeQuantity   *WholeQuantity_P0, *WholeQuantity_P ;
@@ -296,7 +296,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	  ntime = (int)Stack[0][Index].Val[0] ;
 	  
 	  for (k = 0 ; k < Current.NbrSystem ; k++){
-	    if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){
+	    if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){  /* Not the correct test !!! */
 	      ((Current.DofData_P0+k)->CurrentSolution) -= ntime ;
 	    }
 	    else {
@@ -574,6 +574,80 @@ void Cal_WholeQuantity(struct Element * Element,
       Multi[Index] = 0 ;
       Index++ ;  
       break ;
+
+    case WQ_ATANTERIORTIMESTEP :
+      if (Current.NbrHar == 1) {
+
+	ntime = WholeQuantity_P->Case.AtAnteriorTimeStep.TimeStep ;
+
+	for (k = 0 ; k < Current.NbrSystem ; k++){
+
+
+	  numSolution = (Current.DofData_P0+k)->CurrentSolution
+	    - (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0) ;
+
+
+	  /* Not the correct test in Post !!!
+	  if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){
+	  */
+	  if(numSolution - ntime >=0){
+	    /*
+	    Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
+	    if ((Current.DofData_P0+k)->CurrentSolution != Solution_P0)
+	      ((Current.DofData_P0+k)->CurrentSolution) -- ;
+	    */
+
+	    ((Current.DofData_P0+k)->CurrentSolution) -= ntime ;
+	  }
+	  else {
+	    if (!Flag_WarningMissSolForTime_ntime) {
+	      Msg(WARNING,
+		  "Missing solution for time -%d  computation (Sys#%d/%d)",
+		  ntime, k, Current.NbrSystem);
+	      Flag_WarningMissSolForTime_ntime = 1 ;
+	    }
+	  }
+	}
+
+	Save_Time = Current.Time ;
+	Current.Time = Current.DofData->CurrentSolution->Time ;
+
+	Cal_WholeQuantity(Element, QuantityStorage_P0,
+			  WholeQuantity_P->Case.AtAnteriorTimeStep.WholeQuantity,
+			  u, v, w, -1, 0, &Stack[0][Index]) ;
+
+	/*
+	  Cal_ZeroValue(&Stack[0][Index]);
+	*/
+
+	for (k = 0 ; k < Current.NbrSystem ; k++){
+	  if(numSolution - ntime >=0){
+	    /*
+	  if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){
+	    */
+	    ((Current.DofData_P0+k)->CurrentSolution) += ntime ;
+	  }
+	  else {
+	    if (!Flag_WarningMissSolForTime_ntime) {
+	      Msg(WARNING,
+		  "Missing solution for time -%d  computation (Sys#%d/%d)",
+		  ntime, k, Current.NbrSystem);
+	      Flag_WarningMissSolForTime_ntime = 1 ;
+	    }
+	  }
+	}
+
+	Current.Time = Save_Time ;
+      }
+      else {
+	Msg(ERROR, 
+	    "AtAnteriorTimeStep function not allowed in Frequency domain") ;
+      }
+      Multi[Index] = 0 ;
+      Index++ ;  
+      break ;
+
+
 
     case WQ_MHTRANSFORM :
       if(Current.NbrHar == 1)
