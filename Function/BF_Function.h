@@ -1,4 +1,4 @@
-/* $Id: BF_Function.h,v 1.4 2000-09-12 20:19:34 geuzaine Exp $ */
+/* $Id: BF_Function.h,v 1.5 2000-09-26 07:27:53 geuzaine Exp $ */
 #ifndef _BF_FUNCTION_H_
 #define _BF_FUNCTION_H_
 
@@ -164,7 +164,7 @@ void  BF_DivPerpendicularFacet_4E(BF_ARG) ;
 void  BF_DivPerpendicularFacet_4F(BF_ARG) ;  
 void  BF_DivPerpendicularFacet_4V(BF_ARG) ;  
   
-/* H^0 basis Functions */
+/* L^2 basis Functions */
   
 void  BF_Volume(BF_ARG) ; 
   
