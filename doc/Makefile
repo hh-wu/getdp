@@ -9,7 +9,7 @@ pdf:
 	texi2pdf getdp.texi 
 
 html:
-	texi2html-new -init_file getdp.t2h getdp.texi
+	./texi2html -init_file getdp.t2h getdp.texi
 
 html2:
 	Texi2html -init_file getdp.t2h getdp.texi
