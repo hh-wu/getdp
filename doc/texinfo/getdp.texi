@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.3 2001-03-13 15:20:56 geuzaine Exp $
+@c $Id: getdp.texi,v 1.4 2001-03-18 13:56:46 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -33,9 +33,9 @@
 @c =========================================================================
 @c %**start of header
 @setfilename   getdp.info
-@set EDITION   2.2
+@set EDITION   2.3
 @set VERSION   0.80
-@set DAY       10
+@set DAY       18
 @set MONTH     March 2001
 @set COPYRIGHT @copyright{} 1997-2001 Patrick Dular, Christophe Geuzaine
 @set WEB-GETDP @uref{http://www.geuz.org/getdp/}
@@ -395,7 +395,7 @@ any kind---particularly validations.  GetDP permits to rapidly develop
 tools for the comparison of methods and the exchange of solutions
 between research teams, which is one of the main aims of collaboration.
 Moreover, after a short training, GetDP could be used by teams as a basis
-to their own developments, while keeping a large freedom in these.
+for their own developments, while allowing a large freedom in the latter.
 
 @c -------------------------------------------------------------------------
 @c Education and Training Activities
@@ -411,7 +411,7 @@ definition of discrete problems and their symbolic mathematical expressions
 entails that the theory and mathematical bases of numerical methods, which
 are essential to anyone who wants to tackle the solving of discrete
 problems, can be directly followed by their practical applications. These
-applications can be evolutiionary, in the sense that the offered tools are
+applications can be evolutionary, in the sense that the offered tools are
 of various levels of complexity. Everyone can tackle, step by step,
 according to his apprenticeship level, the tools adapted to the solving of
 more and more complex problems, as well as various methods for the solving
@@ -426,7 +426,7 @@ of the same problem.
 
 The treatment of industrial problems can also be facilitated because
 GetDP is adapted to the study of a wide range of physical problems using
-various numerical methods. In particular, adapted made-to-measure and
+various numerical methods. In particular, adapted made to measure and
 ready-to-use software could be rapidly developed for given problems.
 
 
@@ -441,7 +441,7 @@ ready-to-use software could be rapidly developed for given problems.
 
 After reading @ref{Overview}, and @ref{Expressions}, which depict the
 general concepts and the way to construct simple expressions in GetDP, you
-can safely (in a first reading) skip @ref{Objects} and @ref{Types for
+can safely (during a first reading) skip @ref{Objects} and @ref{Types for
 objects} and directly go to @ref{Short examples}. This chapter gives simple
 examples of the problem definition syntax used to define the discrete
 problems. For each example, you should then go back to @ref{Objects}, and
@@ -484,8 +484,8 @@ from the web site.
 @node Numerical tools as objects, Syntactic rules, Overview, Overview
 @section Numerical tools as objects
 
-@cindex Objects, dependencies
-@cindex Dependencies, objects
+@cindex Objects, dependences
+@cindex Dependences, objects
 @cindex Linking, objects
 @cindex Tools, order of definition
 @cindex Philosophy, general
@@ -497,7 +497,7 @@ mathematical expression of the problem, and forms a text data file: the
 equations describing a phenomenon, written in a mathematical form
 adapted to a chosen numerical method, directly constitute data for
 GetDP. The following table summarizes the names of all GetDP objects (in
-the first column), along with their respective dependencies (in the
+the first column), along with their respective dependences (in the
 second column):
 
 @sp 1
@@ -524,7 +524,7 @@ the formal mathematical formulation of the problem. Reading the table from
 top to bottom pictures the working philosophy and the linking of operations
 peculiar to GetDP, from mesh generation to result visualization.
 
-The computational tools which are at the center of a problem definition
+The computational tools which are in the center of a problem definition
 structure are formulations (@code{Formulation}) and function spaces
 (@code{FunctionSpace}). Formulations define systems of equations that
 have to be built and solved, while function spaces contain all the
@@ -532,7 +532,7 @@ quantities, i.e.@: functions, fields of vectors or covectors, known or
 not, involved in formulations. 
 
 Each object of a problem definition structure must be defined before being
-referred to by others. A chaining which always respects this property is the
+referred to by others. A linking which always respects this property is the
 following: it first contains the objects defining particular data of a
 problem, such as geometry, physical characteristics and boundary conditions
 (i.e.@: @code{Group}, @code{Function} and @code{Constraint}) followed by
@@ -571,17 +571,17 @@ index}, for an index of all metasyntactic variables.
 @item 
 Keywords and literal symbols are printed like @code{this}.
 @item 
-Metasyntactic variables (i.e.@: pieces of text that are not part of the
-syntax, but stand for other pieces of text) are printed like @var{this}.
+Metasyntactic variables (i.e.@: text bits that are not part of the syntax,
+but stand for other text bits) are printed like @var{this}.
 @item 
-A colon @code{:} after a metasyntactic variable separates the variable
+A colon (@code{:}) after a metasyntactic variable separates the variable
 from its definition.
 @item 
 Optional rules are enclosed in @code{<} @code{>} pairs.
 @item 
 Multiple choices are separated by @code{|}.
 @item 
-Three dots @dots{} indicate a possible repetition of the preceding rule.
+Three dots (@dots{}) indicate a possible repetition of the preceding rule.
 @item 
 For conciseness, the notation @code{@var{rule} <, @var{rule} > @dots{}}
 is replaced by @code{@var{rule} <,@dots{}>}.
@@ -603,7 +603,7 @@ The @var{etc} symbol replaces nonlisted rules.
 @tindex //
 
 Both C and C++ style comments are supported and can be used in the input
-data file to comment selected regions of text:
+data file to comment selected text regions:
 
 @enumerate
 @item 
@@ -870,8 +870,8 @@ Five constants are predefined in GetDP: @code{Pi} (3.1415926535897932),
 The affectation in @code{DefineConstant} (zero if no @var{expression-cst} is
 given) is performed only if @var{constant-id} has not been defined yet. This
 kind of explicit default definition mechanism is used several times in
-GetDP, and is most useful with ready-to-use problem definition structures
-making use of a large number of generic constants, functions or groups. When
+GetDP, and is most useful with general problem definition structures making
+use of a large number of generic constants, functions or groups. When
 exploiting only a part of a complex problem definition structure, the
 default definition mechanism allows to define the quantities of interest
 only, the others being assigned a default value (that will not be used
@@ -1346,7 +1346,7 @@ of tree for gauge conditions, groups of nodes for floating potentials,
 elements on one side of a surface for cuts, etc).
 @end itemize
 
-A definition of initially empty groups can be made thanks to a
+A definition of initially empty groups can be obtained thanks to a
 @code{DefineGroup} command, so that their identifiers exist and can be
 referred to in other objects, even if these groups are not explicitly
 defined. This procedure is similar to the procedure introduced for
@@ -1549,10 +1549,9 @@ the constraints @code{@var{constraint-id}@{@var{i}@}},
 @code{@var{group-id}@{@}} in @var{group-def}s of @code{Case}
 fields with @var{group-id}@{@var{i}@}.
 @item
-The constraint type @var{constraint-type} defined out of the @code{Case} fields 
-is applied to all the cases of the constraint, unless other types are 
-explicitly given in these cases. 
-The default type is @code{Assign}.
+The constraint type @var{constraint-type} defined outside the @code{Case}
+fields is applied to all the cases of the constraint, unless other types are
+explicitly given in these cases.  The default type is @code{Assign}.
 @item
 The region type @code{Region @var{group-def}} will be the main
 @var{group-list} argument of the @var{group-def} to be built for the
@@ -1562,7 +1561,7 @@ constraints of @code{FunctionSpace}s. The optional region type
 @item
 @var{expression} in @code{Value} of @var{constraint-val} cannot be time
 dependent (@code{$Time}) because it is evaluated only once during the
-pre-processing (for efficiency reasons).  Time dependencies must be defined
+pre-processing (for efficiency reasons).  Time dependences must be defined
 in @code{TimeFunction @var{expression}}.
 @end enumerate
 
@@ -2036,7 +2035,7 @@ the saving of the solution or its transfer to another system, the
 definition of various time iterative methods, the construction of
 iterative loops for nonlinear problems (Newton-Raphson and fixed point
 methods), etc.  Multi-harmonic resolutions, coupled problems (e.g.@:
-magneto-thermal) or chained problems (e.g.@: pre-computations of source
+magneto-thermal) or linked problems (e.g.@: pre-computations of source
 fields) are thus easily defined in GetDP.
 
 The @code{Resolution} object is characterized by a list of systems to
@@ -4759,7 +4758,7 @@ iteratively until convergence (@code{Criterion}), using a relaxation factor
 (@code{RelaxationFactor}).
 
 
-It can be seen through these examples that many resolutions can be chained or 
+It can be seen through these examples that many resolutions can be linked or 
 nested directly by the user, which gives a great freedom for coupled problems.
 
 
