@@ -1,7 +1,6 @@
-// $Id: Scatterer.cpp,v 1.22 2002-06-20 16:24:47 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.23 2002-06-22 00:40:04 geuzaine Exp $
 
 #include "Utils.h"
-#include "Tools.h"
 #include "Scatterer.h"
 #include "Function.h"
 #include "nrutil.h"
@@ -308,18 +307,18 @@ void Scatterer::phase2D(double *xvec, int n, double *fvec, double **fjac){
     k1*ddy1 + k2*ddy2;
 }
 
-#define NB_INITIAL_GUESS 100
+#define NB_INITIAL_GUESS 1000
 
 void Scatterer::criticalPoints(int nbnodes, double k[3]){
   int i_node, i, n, check;
-  double pt, tmp[2], theta, theta0, normk=NORM3(k);
+  double pt, tmp[2], t, t0, normk=NORM3(k);
 
   criticalPointsList = new List_T*[nbnodes];
 
   for(i_node=0; i_node<nbnodes; i_node++){
 
     criticalPointsList[i_node] = List_Create(5,5,sizeof(double));
-    theta0 = nodes[i_node];
+    t0 = nodes[i_node];
 
     switch(type){
 
@@ -327,20 +326,20 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
       // in the case of a circle, they are given in closed form by, for
       // an integer n:
       //
-      //  0 <= t-theta0 = Pi - 2*theta0 + 4*n*PI <= 2*PI
-      //  0 <= t-theta0 = (PI-2*theta0)/3 + 4/3*PI*n
+      //  0 <= t-t0 = Pi - 2*t0 + 4*n*PI <= 2*PI
+      //  0 <= t-t0 = (PI-2*t0)/3 + 4/3*PI*n
       
       if(k[1] || k[2])
 	Msg(ERROR, "Analytical critical point computation only for k=(kx,0,0)");
 
       for(n=-2 ; n<=2 ; n++){
-	pt = PI-theta0+4.*n*PI;
-	if((pt-theta0>=0) && (pt-theta0<=TWO_PI)){
+	pt = PI-t0+4.*n*PI;
+	if((pt-t0>=0) && (pt-t0<=TWO_PI)){
 	  while(pt > TWO_PI) pt-=TWO_PI;
 	  List_Insert(criticalPointsList[i_node], &pt, compareDouble);
 	}
-	pt = (PI+theta0)/3.+4./3.*n*PI;
-	if((pt-theta0>=0) && (pt-theta0<=TWO_PI)){
+	pt = (PI+t0)/3.+4./3.*n*PI;
+	if((pt-t0>=0) && (pt-t0<=TWO_PI)){
 	  while(pt > TWO_PI) pt-=TWO_PI;
 	  List_Insert(criticalPointsList[i_node], &pt, compareDouble);
 	}
@@ -352,25 +351,24 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
     case KITE:
       // solve the nonlinear system, using the exact jacobian
 
-      currentTargetU = theta0;
+      currentTargetU = t0;
       normalizedWaveNum[0] = k[0]/normk;
       normalizedWaveNum[1] = k[1]/normk;
-      theta = 0.;
+      t = 0.;
      
       for(i=0; i<NB_INITIAL_GUESS; i++){
-	tmp[1] = theta;
+	tmp[1] = t;
 	
-	if(fabs(theta-theta0) > TOL_POINT){
+	if(fabs(t-t0) > TOL_POINT){
 	  check = mnewt(200, tmp, 1, 0.1*TOL_POINT /* tolx */, 1.e-12 /* tolf */);
 	  if(!check){
 	    tmp[1] = GetInInterval(tmp[1], 0., TWO_PI);
 	    List_Insert(criticalPointsList[i_node], &tmp[1], compareDouble);
 	  }
 	  else
-	    Msg(WARNING,"Newton did not converge for theta0=%g, theta=%g", 
-		theta0, theta);
+	    Msg(WARNING,"Newton did not converge for t0=%g, t=%g", t0, t);
 	}
-	theta += TWO_PI/NB_INITIAL_GUESS;
+	t += TWO_PI/NB_INITIAL_GUESS;
       }
       break;
       
