@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.25 2001-07-29 12:34:44 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.26 2001-09-05 09:03:37 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1380,6 +1380,7 @@ void  Print_ProblemStructure(struct Problem  * Problem) {
     Msg(CHECK, "(5) Integration          (6) FunctionSpace\n") ;
     Msg(CHECK, "(7) Formulation          (8) Resolution\n") ;
     Msg(CHECK, "(9) PostProcessing      (10) PostOperation\n") ;
+    Msg(CHECK, "(0) Quit\n") ; 
     Msg(CHECK, "Choice: ") ;
     fgets(buff, 128, stdin);
     ichoice = atoi(buff);
