@@ -1,4 +1,4 @@
-% $Id: fem.tex,v 1.10 2001-06-18 09:49:15 geuzaine Exp $
+% $Id: fem.tex,v 1.11 2001-06-22 06:52:40 geuzaine Exp $
 
 % ---------------------------------------------------------------------------
 \part{Introduction}
@@ -170,7 +170,7 @@ continuous} scalar fields like charge density, heat source density, ...)
 
 % ---------------------------------------------------------------------------
 
-\chapter{Error estimation}
+\chapter{Controlling the error}
 
 \begin{slide}
 
@@ -214,3 +214,141 @@ Solution: modify (if possible, locally) the interpolation order
 
 \end{slide}
 
+% ---------------------------------------------------------------------------
+
+\chapter{Local and global errors}
+
+\begin{slide}
+
+If $u$ and $u'$ are the exact and approximate solutions on $\Omega$:
+\begin{slideitemize}
+\item
+Elementary and global \emph{absolute} errors $e_i$ and $e$
+\begin{equation*}
+e_i^2 = \ivol[_{K_i}]{u'-u}{u'-u} \quad\text{and}\quad
+e^2   = \ivol[_\Omega]{u'-u}{u'-u}
+\end{equation*}
+\item
+Elementary and global \emph{relative} errors
+\begin{equation*}
+\varepsilon_i^2 = e_i^2 / n^2 \quad\text{and}\quad
+\varepsilon^2   = e^2 / n^2 = \sum_{i=1}^N \varepsilon_i^2
+\end{equation*}
+\begin{equation*}
+n^2 = \ivol[_\Omega]{u'+u}{u'+u}
+\end{equation*}
+\end{slideitemize}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Error convergence for elliptic problems}
+
+\begin{slide}
+
+\begin{slideitemize}
+\item If $h_i$ and $p_i$ measure the size and polynomial degree of element
+$K_i$: 
+\begin{equation*}
+\varepsilon_i = \Order\Big( \frac{1}{p_i} h_i^{\min(p_i,\gamma)} \Big) 
+\end{equation*}
+($\gamma$ depends on singularities of $u$)
+\item
+If \emph{uniform} error distribution (or no singularities):
+\begin{equation*}
+\varepsilon_i = \Order\Big( \frac{1}{p_i} h_i^{p_i} \Big) 
+\end{equation*}
+\end{slideitemize}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Error estimates through dual solutions}
+
+\begin{slide}
+
+\begin{slideitemize}
+\item
+Two \emph{dual} formulations, each being conform on one side of a Tonti diagram
+\item
+Error estimated through \emph{non fulfillment of the constitutive
+relations}. For example:
+\begin{equation*}
+\varepsilon_i^\mu       = \frac{\Norm{\vec{b}-\mu\vec{h}}_{K_i}} 
+                                {\Norm{\vec{b}+\mu\vec{h}}_\Omega} ,\quad
+\varepsilon_i^\epsilon  = \frac{\Norm{\vec{d}-\epsilon\vec{e}}_{K_i}}
+                                {\Norm{\vec{d}+\epsilon\vec{e}}_\Omega} \quad\text{and}\quad
+\varepsilon_i^\sigma    = \frac{\Norm{\vec{j}-\sigma\vec{e}}_{K_i}}
+                                {\Norm{\vec{j}+\sigma\vec{e}}_\Omega}
+\end{equation*}
+\item
+\emph{Hypercirle theorem} implies upper bounds to the exact error for non
+dissipative systems.
+\item
+For other systems, if mesh size sufficiently small, ...
+\end{slideitemize}
+
+\end{slide}
+
+\begin{slide}
+
+Example: convergence of global quantities (inductance and resistance) for
+dual formulations
+
+\centerline{
+\includegraphics[width=11\semcm]{fig/IndL}
+\includegraphics[width=11\semcm]{fig/IndR}
+}
+
+\end{slide}
+
+\begin{slide}
+\emph{Deterministic optimization of the global spaces}: minimize the number of
+unknowns, while respecting a prescribed global error $\varepsilon_0$
+\begin{equation*}
+\min_{h_i',p_i'} \sum_{i=1}^N {p_i'}^3 (h_i/h_i')^3 
+\quad\text{with}\quad
+\varepsilon_0^2 =
+\sum_{i=1}^N \varepsilon_i^2 \,
+ \frac{p_i^2 \, {h_i'}^{2 p_i'}}{{p_i'}^2 \, h_i^{2 p_i}}
+\end{equation*}
+
+\begin{enumerate}
+\item 
+solve on $\mathcal{M}$;
+\item 
+create $\mathcal{M}'$ by \emph{$h$-adaptation} with a global constraint
+$\alpha\varepsilon''$ ($\alpha>1$);
+\item 
+solve on $\mathcal{M}'$;
+\item 
+create $M''$ by \emph{$p$-adaptation} with the global constraint
+$\varepsilon''$. Since the uniform error distribution was achieved on
+$\mathcal{M}'$, this leads to the ideal convergence rate;
+\item
+solve on $\mathcal{M}''$.
+\end{enumerate}
+\end{slide}
+
+\begin{slide}
+
+Disadvantages of the dual approach:
+\begin{slideitemize}
+\item
+Both dual formulations have to be solved (\emph{cost!})
+\item
+Implementation of one formulations usually (much) \emph{harder} than the
+other
+\end{slideitemize}
+
+Solutions?
+\begin{slideitemize}
+\item
+Projection techniques
+\item
+Generalize the software tools to tackle various formulations easily
+\end{slideitemize}
+
+\end{slide}
