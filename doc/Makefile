@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.20 2003-03-22 03:30:20 geuzaine Exp $
+# $Id: Makefile,v 1.21 2003-04-15 05:17:29 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -20,7 +20,6 @@
 # Please report all bugs and problems to "getdp@geuz.org".
 
 all:
-	chmod 644 *
 	cd texinfo && ${MAKE} all
 	gtar zcvf getdp-doc.tgz\
           FAQ CONTRIBUTORS VERSIONS README.win32 \
