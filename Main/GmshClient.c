@@ -1,8 +1,8 @@
-/* $Id: GmshClient.c,v 1.2 2003-01-28 04:34:16 geuzaine Exp $ */
+/* $Id: GmshClient.c,v 1.3 2003-01-28 06:25:31 geuzaine Exp $ */
 
 #ifdef MSDOS /* pure DOS/Windows code, without cygwin */
 
-int  Gmsh_Connect(char *sockname){;}
+int  Gmsh_Connect(char *sockname){ return -2;}
 void Gmsh_SendString(int socket, int type, char str[]){;}
 void Gmsh_Disconnect(int sock){;}
 
