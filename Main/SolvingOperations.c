@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.56 2004-01-08 20:02:30 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.57 2004-01-13 15:04:39 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -220,7 +220,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   double  d, d2 ;
   int     Nbr_Operation, i_Operation ;
   int     Num_Iteration ;
-  int     Flag_Jac, Flag_CPU, Flag_Binary=0 ;
+  int     Flag_Jac, Flag_CPU, Flag_Binary=0, Flag_FMMDA=0 ;
   double  MeanError, RelFactor_Modified ;
   int     Save_TypeTime ;
   double  Save_DTime ;
@@ -440,13 +440,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_CPU = 1 ;
       break ;
 
+    case OPERATION_UPDATEFMMDATA : Flag_FMMDA = 1 ;
     case OPERATION_UPDATETRANSLATION :
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
 
       ReSet_FMMGroupCenters();      
-      ReGenerate_FMMGroupNeighbours();
+      ReGenerate_FMMGroupNeighbours(Flag_FMMDA);
 
       NbrFMMEqu = List_Nbr(Current.DofData->FMM_Matrix) ;
       FMMmat_P0 = (struct FMMmat*)List_Pointer(Current.DofData->FMM_Matrix, 0 ) ;
@@ -1544,6 +1545,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       break ;
 
     case OPERATION_DEFORMEMESH :
+      if (Operation_P->Case.DeformeMesh.Name_MshFile == NULL)
+	Operation_P->Case.DeformeMesh.Name_MshFile = Name_MshFile ;
       Msg(OPERATION, "DeformeMesh[%s, %s, '%s']",
 	  ((struct DefineSystem *)
 	   List_Pointer(Resolution_P->DefineSystem, Operation_P->DefineSystemIndex))->Name, 
@@ -2883,7 +2886,7 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
                             struct GeoData     * GeoData_P0) {
 
   int  i, Num_Node, NumBF_X=-1, NumBF_Y=-1, NumBF_Z=-1 ;
-  double Value ;
+  double Value, un_x, un_y, un_z ;
 
   struct DefineSystem * DS ;
   struct Formulation  * FO ;
@@ -2923,38 +2926,44 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
       NumBF_Z = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Num;
   }
   
-
   for(i = 0 ; i < List_Nbr(FunctionSpace_P->DofData->DofList) ; i++){
-    Dof_GetRealDofValue
-      (FunctionSpace_P->DofData,
-       ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i )) , &Value) ;
-    
-    Num_Node = ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->Entity ;
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_X ||
+        ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Y ||
+        ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Z ){
+      
 
-    /* The mesh associated to the mechanical system is the reference, it does not change */
-    Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + DofData_P->GeoDataIndex) ;
-    Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
+      Dof_GetRealDofValue
+	(FunctionSpace_P->DofData,
+	 ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i )) , &Value) ;
+      
+      Num_Node = ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->Entity ;
+      
+      /* Reference mesh */
+      Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex) ;
+      Geo_GetNodesCoordinates(1, &Num_Node, &un_x, &un_y, &un_z) ;
+      
+      /* The mesh associated to the electromechanical system */
+      if (GeoData_P0 + DofData_P->GeoDataIndex != GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex)
+	Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + DofData_P->GeoDataIndex) ;
 
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_X){
+       un_x += Operation_P->Case.DeformeMesh.Factor * Value ; 
+       Geo_SetNodesCoordinatesX(1, &Num_Node, &un_x) ;       
+    }
+           
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Y){
+      un_y += Operation_P->Case.DeformeMesh.Factor * Value ;
+      Geo_SetNodesCoordinatesY(1, &Num_Node, &un_y) ;
+    }
 
-    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType != NumBF_X &&
-        ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType != NumBF_Y &&
-        ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType != NumBF_Z )
-      Msg(ERROR,"Bad BasisFunction for DeformeMesh");
-
-    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_X)
-      Current.x +=  Operation_P->Case.DeformeMesh.Factor * Value ; 
-     
-    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Y)
-      Current.y +=  Operation_P->Case.DeformeMesh.Factor * Value ;
-    
-    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Z)
-      Current.z +=  Operation_P->Case.DeformeMesh.Factor * Value ;
-
-    /* The mesh associated to the electrostatic system varies */
-    Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex) ;    
-    Geo_SetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Z){
+      un_z +=  Operation_P->Case.DeformeMesh.Factor * Value ;
+      Geo_SetNodesCoordinatesZ(1, &Num_Node, &un_z) ;
+    }
+       
+    }
   }
-
+  
   GetDP_End ;
 }
 
