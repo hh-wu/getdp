@@ -1,3 +1,4 @@
+#define RCSID "$Id: MovingBand2D.c,v 1.5 2003-02-09 07:55:22 geuzaine Exp $"
 #include <stdlib.h> /* pour int abs(int) */
 #include <stdio.h>
 #include <math.h>

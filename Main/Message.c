@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.60 2003-02-09 05:37:51 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.61 2003-02-09 07:55:22 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -168,15 +168,23 @@ void Signal (int sig_num){
 /*  M s g                                                                   */
 /* ------------------------------------------------------------------------ */
 
-void Get_GetDPContext(char *FileName, char *FileVersion, char *FileDate, 
-		      char *FileAuthor, int *Line, char *FunctionName){
-  char Dum[32] ;
+void Print_GetDPContext(FILE *stream){
+#ifdef GETDP_USE_DEBUG_STACK
+  char FileName[256], FileVersion[256], FunctionName[256], FileAuthor[256];
+  char Dum[256], FileDate[256];
+  int  i, Line ;
 
-  sscanf(GetDP_CurrentSourceFile[GetDP_CurrentStackIndex-1],
-	 "$Id: %s %s %s %s %s", FileName, FileVersion, FileDate, Dum, FileAuthor);
-  FileName[strlen(FileName)-2] = '\0' ;
-  strcpy(FunctionName, GetDP_CurrentFunction[GetDP_CurrentStackIndex-1]);
-  *Line = GetDP_CurrentSourceLine[GetDP_CurrentStackIndex-1];
+  fprintf(stream, "Stack     :\n");
+  for(i = 0; i < GetDP_CurrentStackIndex; i++){
+    sscanf(GetDP_CurrentSourceFile[i],
+	   "$Id: %s %s %s %s %s", FileName, FileVersion, FileDate, Dum, FileAuthor);
+    FileName[strlen(FileName)-2] = '\0' ;
+    strcpy(FunctionName, GetDP_CurrentFunction[i]);
+    Line = GetDP_CurrentSourceLine[i];
+    fprintf(stream, "'%s' in '%s', line %d (version %s by %s on %s)\n", 
+	    FunctionName, FileName, Line, FileVersion, FileAuthor, FileDate);
+  }
+#endif
 }
 
 
@@ -186,11 +194,6 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
   int  verb, nl, gmshlevel;
   char *str, prefix[1000], sockmsg[1000];
 
-#ifdef USE_DEBUG
-  char FileName[256], FileVersion[32], FunctionName[256], FileAuthor[32], FileDate[32];
-  int  Line ;
-#endif
-  
   switch(level){
   case CHECK     : verb = 0; nl = 0; str = NULL; break;
   case ERROR     : /* fall-through */
@@ -235,19 +238,13 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       vfprintf(stream, fmt, args); 
       if(nl) fprintf(stream, "\n");
       if(level == BIGERROR){
-#ifdef USE_DEBUG
-	Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
-			 &Line, FunctionName);
-	fprintf(stream, WHITE_STR); 
-	fprintf(stream, "File '%s' (V%s by %s on %s)\n", 
-		FileName, FileVersion, FileAuthor, FileDate);
-	fprintf(stream, WHITE_STR); 
-	fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
-#endif
 	fprintf(stream, WHITE_STR "------------------------------------------------------\n");
 	fprintf(stream, WHITE_STR "You have discovered a bug in GetDP! You may report it\n");
 	fprintf(stream, WHITE_STR "by e-mail (together with any helpful data permitting to\n");
 	fprintf(stream, WHITE_STR "reproduce it) to <getdp@geuz.org>\n");
+      }
+      if(*abort){
+	Print_GetDPContext(stream);
       }
 #if !defined(WIN32) 
     }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Legendre.c,v 1.4 2003-01-23 01:28:12 geuzaine Exp $"
+#define RCSID "$Id: Legendre.c,v 1.5 2003-02-09 07:55:22 geuzaine Exp $"
 
 #include <stdio.h>
 #include <math.h>
@@ -71,12 +71,14 @@ double Legendre(int l, int m, double x){
       fact += 2. ;
     }
   }
-  if (l==m)
+  if (l==m){
     GetDP_Return( Cte*pmm ) ;
+  }
   else {
     pmmp1 = x * (2*m+1)*pmm ;
-    if  (l==(m+1))
+    if  (l==(m+1)){
       GetDP_Return( Cte*pmmp1 ) ;
+    }
     else {
       for (ll=(m+2);ll<=l;ll++) {
 	pll = (x*(2*ll-1)*pmmp1-(ll+m-1)*pmm)/(ll-m) ;

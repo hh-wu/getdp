@@ -1,4 +1,4 @@
-#define RCSID "$Id: ExtendedGroup.c,v 1.7 2003-01-26 07:31:28 geuzaine Exp $"
+#define RCSID "$Id: ExtendedGroup.c,v 1.8 2003-02-09 07:55:22 geuzaine Exp $"
 #include <stdlib.h> /* pour int abs(int) */
 #include <stdio.h>
 
@@ -38,11 +38,10 @@ int  Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
     if ((Group_P->InitialList && !Group_P->ExtendedList)  ||
 	(Group_P->InitialSuppList && !Group_P->ExtendedSuppList))
       Generate_ExtendedGroup(Group_P) ;
-    GetDP_Return
-      (!Group_P->InitialList ||
-       (List_Search(Group_P->ExtendedList, &Entity, fcmp_int))) &&
-	 (!Group_P->InitialSuppList ||
-	  (! List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int))) ;
+    GetDP_Return((!Group_P->InitialList ||
+		  (List_Search(Group_P->ExtendedList, &Entity, fcmp_int))) &&
+		 (!Group_P->InitialSuppList ||
+		  (! List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int)))) ;
 
   case ELEMENTSOF :  case EDGESOFTREEIN :  case FACETSOFTREEIN :
     if (!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;

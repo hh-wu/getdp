@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.42 2002-01-03 14:01:59 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.43 2003-02-09 07:55:22 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -22,9 +22,9 @@ int          yyparse(void) ;
 int          yyrestart(FILE*) ;
 
 int   GetDP_CurrentStackIndex = 0 ;
-char *GetDP_CurrentFunction[GETDP_STACK_SIZE] ;
-char *GetDP_CurrentSourceFile[GETDP_STACK_SIZE] ;
-int   GetDP_CurrentSourceLine[GETDP_STACK_SIZE] ;
+char *GetDP_CurrentFunction[GETDP_DEBUG_STACK_SIZE] ;
+char *GetDP_CurrentSourceFile[GETDP_DEBUG_STACK_SIZE] ;
+int   GetDP_CurrentSourceLine[GETDP_DEBUG_STACK_SIZE] ;
 
 FILE   *PostStream, *LogStream, *PrintStream ;
 List_T *GeoData_L, *PreResolutionIndex_L ;
