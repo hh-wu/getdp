@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.26 2003-08-18 08:55:38 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.27 2004-04-14 15:09:41 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -255,7 +255,7 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
 	  fact = (w * k1 + PI/(double)n * k2) * ansatz * pou * jac;
 
-#if 0
+#if 1
 	    printf("xt=(%g,%g) xtau=(%g,%g) dxtau=(%g,%g) ddxtau(%g,%g) jac=%g "
 		   "w=%g k1=(%.16g,%.16g) k2=(%.16g,%.16g) ansatz=(%g,%g) pou=%g "
 		   "density=(%.16g,%.16g)\n",

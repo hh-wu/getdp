@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.60 2004-03-05 18:18:06 geuzaine Exp $
+@c $Id: getdp.texi,v 1.61 2004-04-14 15:09:42 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 @c
@@ -806,6 +806,8 @@ defined as:
 @vindex @var{constant-def}
 @vindex @var{string-id}
 @vindex @var{expression-char}
+@c todo: add this
+@c @vindex @var{affectation}
 
 The three constant types used in GetDP are @var{integer}, @var{real} and
 @var{string}.  These types have the same meaning and syntax as in the C or
@@ -868,9 +870,13 @@ evaluated during the syntactic analysis of the problem (when GetDP reads the
 with identifiers can be made outside or inside any GetDP object. The syntax
 for the definition of constants is:
 
+@c TODO: add the affectation metavar in the definition of all supported
+@c objects
+
 @example
-DefineConstant [ @var{constant-id} < = @var{expression-cst} > <,@dots{}> ]; |
-@var{constant-id} = @var{constant-def};
+@var{affectation}:
+  DefineConstant [ @var{constant-id} < = @var{expression-cst} > <,@dots{}> ]; |
+  @var{constant-id} = @var{constant-def};
 @end example
 
 @noindent with
@@ -1356,7 +1362,6 @@ Inverse div: applied to a divergence field.
 
 @end ftable
 
-
 @noindent Note:
 @enumerate
 @item
@@ -1364,6 +1369,76 @@ While the operators @code{Grad}, @code{Curl} and @code{Div} can be applied
 to 0, 1 and 2-forms respectively, the exterior derivative operator @code{d}
 is usually preferred with such fields.
 @end enumerate
+
+@c -------------------------------------------------------------------------
+@c Loops and conditionals
+@c -------------------------------------------------------------------------
+
+@c @node Loops and conditionals, General commands, User-defined functions, General tools
+@c @section Loops and conditionals
+
+@c @cindex Loops
+@c @cindex Conditionals
+
+@c @vindex @var{loop}
+
+@c Loops and conditionals are defined as follows, and can be imbricated:
+
+@c @c TODO: somehow add a loop (?) metavar in the definition of all
+@c supported objects? (not esay since if can enclose different things...)
+
+@c @ftable @code
+@c @item For ( @var{expression} : @var{expression} )
+@c Iterates from the value of the first @var{expression} to the value of the
+@c second @var{expression}, with a unit incrementation step. At each iteration,
+@c the commands comprised between `@code{For ( @var{expression} :
+@c @var{expression} )}' and the matching @code{EndFor} are executed.
+
+@c @item For ( @var{expression} : @var{expression} : @var{expression} )
+@c Iterates from the value of the first @var{expression} to the value of the
+@c second @var{expression}, with a positive or negative incrementation step
+@c equal to the third @var{expression}. At each iteration, the commands
+@c comprised between `@code{For ( @var{expression} : @var{expression} :
+@c @var{expression} )}' and the matching @code{EndFor} are executed.
+
+@c @item For @var{string} In @{ @var{expression} : @var{expression} @}
+@c Iterates from the value of the first @var{expression} to the value of the
+@c second @var{expression}, with a unit incrementation step. At each iteration,
+@c the value of the iterate is affected to an expression named @var{string},
+@c and the commands comprised between `@code{For @var{string} In @{
+@c @var{expression} : @var{expression} @}}' and the matching @code{EndFor} are
+@c executed.
+
+@c @item For @var{string} In @{ @var{expression} : @var{expression} : @var{expression} @}
+@c Iterates from the value of the first @var{expression} to the value of the
+@c second @var{expression}, with a positive or negative incrementation step
+@c equal to the third @var{expression}. At each iteration, the value of the
+@c iterate is affected to an expression named @var{string}, and the commands
+@c comprised between `@code{For @var{string} In @{ @var{expression} :
+@c @var{expression} : @var{expression} @}}' and the matching @code{EndFor} are
+@c executed.
+
+@c @item EndFor
+@c Ends a matching @code{For} command.
+
+@c @item If ( @var{expression} )
+@c The body enclosed between `@code{If ( @var{expression} )}' and the matching
+@c @code{Endif} is evaluated if @var{expression} is non-zero.
+
+@c @item EndIf
+@c Ends a matching @code{If} command.
+@c @end ftable
+
+@c Loops and conditionals can be used in any of the following objects: Group,
+@c Function, Constraint (as well as in a contraint-case), FunctionSpace,
+@c Formulation (as well as in the quantity and equation defintions), Resolution
+@c (as well as resolution-term, system defintion and operations),
+@c PostProcessing (in the definition of the PostQuantities), PostOperation
+@c (as well as in the Operation list
+
+@c See @ref{t5.geo}, for an example of @code{For} and @code{If} commands. Gmsh
+@c does not provide any @code{Else} (or similar) command at the time of this
+@c writing.
 
 
 @c =========================================================================
