@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.23 2001-07-22 15:22:39 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.24 2001-07-25 13:08:16 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -4437,12 +4437,12 @@ OperationTerm :
       List_Add(Operation_P->Case.PostOperation.PostOperations, &$3);
     }
 
-  | tSystemCommand tBIGSTR tEND
+  | tSystemCommand '[' CharExpr ']' tEND
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SYSTEMCOMMAND ;
-      Operation_P->Case.SystemCommand = $2 ; 
+      Operation_P->Case.SystemCommand = $3 ; 
     }
 
   ;

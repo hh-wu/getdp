@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.22 2001-07-24 11:36:06 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.23 2001-07-25 13:08:15 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -1242,6 +1242,7 @@ void  Print_PostOperation(struct Problem  * Problem) {
 
 void  Print_ProblemStructure(struct Problem  * Problem) {
   int  ichoice ;
+  char buff[128];
 
   GetDP_Begin("Print_ProblemStructure");
 
@@ -1253,8 +1254,8 @@ void  Print_ProblemStructure(struct Problem  * Problem) {
     Msg(CHECK, "(7) Formulation          (8) Resolution\n") ;
     Msg(CHECK, "(9) PostProcessing      (10) PostOperation\n") ;
     Msg(CHECK, "Choice: ") ;
-    ichoice = 0 ;
-    scanf("%d", &ichoice) ;
+    fgets(buff, 128, stdin);
+    ichoice = atoi(buff);
 
     switch (ichoice) {
     case  1 : Print_Group             (Problem) ;  break ;
@@ -1282,6 +1283,7 @@ void  Print_ProblemStructure(struct Problem  * Problem) {
 void  Print_ListResolution(int choose, struct Problem  * Problem) {
   struct Resolution *RE ;
   int    i, Nbr, ichoice = 0 ;
+  char   buff[128];
 
   GetDP_Begin("Print_ListResolution");
 
@@ -1301,7 +1303,8 @@ void  Print_ListResolution(int choose, struct Problem  * Problem) {
       }
       if(choose){
 	Msg(CHECK, "Choice: ") ;
-	scanf("%d", &ichoice) ;
+	fgets(buff, 128, stdin);
+	ichoice = atoi(buff);
       }
     }
     if(ichoice > 0 && ichoice < Nbr+1){
@@ -1324,6 +1327,7 @@ void  Print_ListResolution(int choose, struct Problem  * Problem) {
 void  Print_ListPostProcessing(int choose, struct Problem  * Problem) {
   struct PostProcessing *PP ;
   int    i, Nbr, ichoice = 0 ;
+  char   buff[128];
 
   GetDP_Begin("Print_ListPostProcessing");
 
@@ -1335,7 +1339,8 @@ void  Print_ListPostProcessing(int choose, struct Problem  * Problem) {
     }
     if(choose){
       Msg(CHECK, "Choice: ") ;
-      scanf("%d", &ichoice) ;
+      fgets(buff, 128, stdin);
+      ichoice = atoi(buff);
     }
     if(ichoice > 0 && ichoice < Nbr+1){
       PP = (struct PostProcessing*)List_Pointer(Problem->PostProcessing, ichoice-1) ;
@@ -1358,6 +1363,7 @@ void  Print_ListPostProcessing(int choose, struct Problem  * Problem) {
 void  Print_ListPostOperation(int choose, struct Problem  * Problem) {
   struct PostOperation *PO ;
   int    i, Nbr, ichoice = 0 ;
+  char   buff[128];
 
   GetDP_Begin("Print_ListPostOperation");
 
@@ -1377,7 +1383,8 @@ void  Print_ListPostOperation(int choose, struct Problem  * Problem) {
       }
       if(choose){
 	Msg(CHECK, "Choice: ") ;
-	scanf("%d", &ichoice) ;
+	fgets(buff, 128, stdin);
+	ichoice = atoi(buff);
       }
     }
     if(ichoice > 0 && ichoice < Nbr+1){

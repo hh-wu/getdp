@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Interactive.c,v 1.16 2001-06-05 08:21:58 geuzaine Exp $"
+#define RCSID "$Id: Pos_Interactive.c,v 1.17 2001-07-25 13:08:16 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -162,22 +162,6 @@ void  Interactive(void){
 /*  H e l p                                                                 */
 /* ------------------------------------------------------------------------ */
 
-#include <ctype.h>
-
-#define GET(first,topic)			\
-  if(!first && !isspace(i = getc(stdin)))	\
-    ungetc(i, stdin) ;				\
-  if(first)                                     \
-    first = 0 ;                                 \
-  if(isspace(i = getc(stdin)))			\
-    return ;					\
-  else{						\
-    ungetc(i, stdin) ;				\
-    scanf("%s", topic) ;			\
-  }
-
-static int first ;
-
 void Help_File(void) { printf("%s\n", i_file); }
 void Help_Gmsh(void) { printf("%s\n", i_gmsh); }
 void Help_Gnuplot(void) { printf("%s\n", i_gmsh); }
@@ -197,7 +181,7 @@ void Help_Iso(void) { printf("%s\n", i_iso); }
 void Help_Quit(void) { printf("%s\n", i_quit); }
 void Help_Format(void) { 
   int i ;
-  char topic[200] ;  
+  char topic[128] ;  
   printf("%s", i_format); 
   while(1){
     printf(" \n"
@@ -205,17 +189,21 @@ void Help_Format(void) {
 	   "    gmsh       gnuplot      table     timetable\n"
 	   " \n"
 	   "Option for Format: ");
-    GET(first, topic) ;
-    if     (!strcmp(topic, "gmsh")) Help_Gmsh();
-    else if(!strcmp(topic, "gnuplot")) Help_Gnuplot();
-    else if(!strcmp(topic, "table")) Help_Table();
-    else if(!strcmp(topic, "timetable")) Help_TimeTable();
-    else printf("Sorry, no help for Format option '%s'\n", topic);
+    fgets(topic,128,stdin) ;
+    if     (!strcmp(topic, "gmsh\n")) Help_Gmsh();
+    else if(!strcmp(topic, "gnuplot\n")) Help_Gnuplot();
+    else if(!strcmp(topic, "table\n")) Help_Table();
+    else if(!strcmp(topic, "timetable\n")) Help_TimeTable();
+    else if(!strlen(topic) || !strcmp(topic, "\n")) break;
+    else{
+      topic[strlen(topic)-1] = '\0';
+      printf("Sorry, no help for Format option '%s'\n", topic);
+    }
   }
 }
 void Help_Print(void){
   int i ;
-  char topic[200] ;
+  char topic[128] ;
   printf("%s", i_print);
   while(1){
     printf(" \n"
@@ -225,59 +213,67 @@ void Help_Print(void){
 	   "    sort            target     value     iso\n"
 	   " \n"
 	   "Option for Print: ");
-    GET(first, topic) ;
-    if     (!strcmp(topic, "file")) Help_File();
-    else if(!strcmp(topic, "format")) Help_Format();
-    else if(!strcmp(topic, "depth")) Help_Depth();
-    else if(!strcmp(topic, "skin")) Help_Skin();
-    else if(!strcmp(topic, "smoothing")) Help_Smoothing();
-    else if(!strcmp(topic, "harmonictotime")) Help_HarmonicToTime();
-    else if(!strcmp(topic, "dimension")) Help_Dimension();
-    else if(!strcmp(topic, "timestep")) Help_TimeStep();
-    else if(!strcmp(topic, "adapt")) Help_Adapt();
-    else if(!strcmp(topic, "sort")) Help_Sort();
-    else if(!strcmp(topic, "target")) Help_Target();
-    else if(!strcmp(topic, "value")) Help_Value();
-    else if(!strcmp(topic, "iso")) Help_Iso();
-    else printf("Sorry, no help for Print option '%s'\n", topic);
+    fgets(topic,128,stdin) ;
+    if     (!strcmp(topic, "file\n")) Help_File();
+    else if(!strcmp(topic, "format\n")) Help_Format();
+    else if(!strcmp(topic, "depth\n")) Help_Depth();
+    else if(!strcmp(topic, "skin\n")) Help_Skin();
+    else if(!strcmp(topic, "smoothing\n")) Help_Smoothing();
+    else if(!strcmp(topic, "harmonictotime\n")) Help_HarmonicToTime();
+    else if(!strcmp(topic, "dimension\n")) Help_Dimension();
+    else if(!strcmp(topic, "timestep\n")) Help_TimeStep();
+    else if(!strcmp(topic, "adapt\n")) Help_Adapt();
+    else if(!strcmp(topic, "sort\n")) Help_Sort();
+    else if(!strcmp(topic, "target\n")) Help_Target();
+    else if(!strcmp(topic, "value\n")) Help_Value();
+    else if(!strcmp(topic, "iso\n")) Help_Iso();
+    else if(!strlen(topic) || !strcmp(topic, "\n")) break;
+    else{
+      topic[strlen(topic)-1] = '\0';
+      printf("Sorry, no help for Print option '%s'\n", topic);
+    }
   }
 }
 
 void Help(char *start){
   int  i ;
-  char topic[200] ;
-
-  first = 1 ;
+  char topic[128] ;
 
   if(!start){
     printf(" Operations available for interactive PostOperation:\n"
 	   "    print      quit\n"
 	   " \n"
 	   "PostOperation: ");
-    GET(first, topic) ;
+    fgets(topic,128,stdin) ;
   }
-  else
-    strncpy(topic, start, 200) ;
+  else{
+    strncpy(topic,start,127) ;
+    strcat(topic,"\n") ;
+  }
 
-  if     (!strcmp(topic, "print")) Help_Print();
-  else if(!strcmp(topic, "quit")) Help_Quit();
-  else if(!strcmp(topic, "file")) Help_File();
-  else if(!strcmp(topic, "format")) Help_Format();
-  else if(!strcmp(topic, "gmsh")) Help_Gmsh();
-  else if(!strcmp(topic, "gnuplot")) Help_Gnuplot();
-  else if(!strcmp(topic, "table")) Help_Table();
-  else if(!strcmp(topic, "timetable")) Help_TimeTable();
-  else if(!strcmp(topic, "depth")) Help_Depth();
-  else if(!strcmp(topic, "skin")) Help_Skin();
-  else if(!strcmp(topic, "smoothing")) Help_Smoothing();
-  else if(!strcmp(topic, "harmonictotime")) Help_HarmonicToTime();
-  else if(!strcmp(topic, "dimension")) Help_Dimension();
-  else if(!strcmp(topic, "timestep")) Help_TimeStep();
-  else if(!strcmp(topic, "adapt")) Help_Adapt();
-  else if(!strcmp(topic, "sort")) Help_Sort();
-  else if(!strcmp(topic, "target")) Help_Target();
-  else if(!strcmp(topic, "value")) Help_Value();
-  else if(!strcmp(topic, "iso")) Help_Iso();
-  else printf("Sorry, no help for '%s'\n", topic);
-
+  if     (!strcmp(topic, "print\n")) Help_Print();
+  else if(!strcmp(topic, "quit\n")) Help_Quit();
+  else if(!strcmp(topic, "file\n")) Help_File();
+  else if(!strcmp(topic, "format\n")) Help_Format();
+  else if(!strcmp(topic, "gmsh\n")) Help_Gmsh();
+  else if(!strcmp(topic, "gnuplot\n")) Help_Gnuplot();
+  else if(!strcmp(topic, "table\n")) Help_Table();
+  else if(!strcmp(topic, "timetable\n")) Help_TimeTable();
+  else if(!strcmp(topic, "depth\n")) Help_Depth();
+  else if(!strcmp(topic, "skin\n")) Help_Skin();
+  else if(!strcmp(topic, "smoothing\n")) Help_Smoothing();
+  else if(!strcmp(topic, "harmonictotime\n")) Help_HarmonicToTime();
+  else if(!strcmp(topic, "dimension\n")) Help_Dimension();
+  else if(!strcmp(topic, "timestep\n")) Help_TimeStep();
+  else if(!strcmp(topic, "adapt\n")) Help_Adapt();
+  else if(!strcmp(topic, "sort\n")) Help_Sort();
+  else if(!strcmp(topic, "target\n")) Help_Target();
+  else if(!strcmp(topic, "value\n")) Help_Value();
+  else if(!strcmp(topic, "iso\n")) Help_Iso();
+  else if(!strlen(topic) || !strcmp(topic, "\n")){
+  }
+  else{
+    topic[strlen(topic)-1] = '\0';
+    printf("Sorry, no help for '%s'\n", topic);
+  }
 }

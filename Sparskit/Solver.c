@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.13 2001-06-26 13:36:44 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.14 2001-07-25 13:08:16 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -37,7 +37,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   for(i=0 ; i<M->N ; i++){
     if(b[i] != 0.) break;
     if(i == M->N-1) {
-      /* Msg(ERROR, "Null right hand side in linear system"); */
+      Msg(WARNING, "Null right hand side in linear system");
       for(i=0 ; i<M->N ; i++)  x[i] = 0. ;    
       return ;
     }

@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.25 2001-07-23 13:58:12 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.26 2001-07-25 13:08:15 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -191,7 +191,6 @@ struct StringXDefine  Operation_Type[] = {
   {"Update"               , OPERATION_UPDATE},
   {"UpdateConstraint"     , OPERATION_UPDATECONSTRAINT},
   {"Solve"                , OPERATION_SOLVE},
-  {"Lanczos"              , OPERATION_LANCZOS},
   {"GenerateJac"          , OPERATION_GENERATEJAC},
   {"SolveJac"             , OPERATION_SOLVEJAC},
   {"GenerateSeparate"     , OPERATION_GENERATESEPARATE},

@@ -1,4 +1,4 @@
-/* $Id: Pos_Interactive.h,v 1.4 2001-06-17 21:04:46 geuzaine Exp $ */
+/* $Id: Pos_Interactive.h,v 1.5 2001-07-25 13:08:16 geuzaine Exp $ */
 #ifndef _POS_INTERACTIVE_H_
 #define _POS_INTERACTIVE_H_
 
@@ -35,13 +35,11 @@ char i_file[] =
 " \n"
 "    File \"STRING\"\n"
 " \n"
-" The output can also be appended to an existing file by adding > before\n"
+" The output can also be appended to an existing file by adding > or >> before\n"
 " the file name:\n"
 " \n"
 "    File > \"STRING\"\n"
 " \n"
-" If a double >> is given instead of >, a blank line is added in the\n"
-" file before the appended data.\n"
 ;
 
 char i_format[] = 

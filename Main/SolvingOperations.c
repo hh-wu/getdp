@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.31 2001-07-22 15:22:39 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.32 2001-07-25 13:08:15 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -396,9 +396,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	DofData_P->CurrentSolution = (struct Solution*)
 	  List_Pointer(DofData_P->Solutions, i) ;
 	if (!DofData_P->CurrentSolution->SolutionExist)
-	  Msg(ERROR, "SaveSolutions: solution #%d doesn't exist anymore", i) ;
-	Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, 
-			 DofData_P->CurrentSolution->Time, i) ;
+	  Msg(WARNING, "SaveSolutions: solution #%d doesn't exist anymore", i) ;
+	else
+	  Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, 
+			   DofData_P->CurrentSolution->Time, i) ;
       }
       break ;
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.48 2001-07-08 15:44:11 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.49 2001-07-25 13:08:15 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -71,7 +71,7 @@ char help[] =
   "  -order num                restrict maximum interpolation order\n"
 #if _SPARSKIT
   "Linear solver options:\n"
-  "  -solver file              specify parameter file (default: SOLVER.PAR)\n"
+  "  -solver file              specify parameter file (default: solver.par)\n"
   "  -'Parameter' num          override value of solver parameter 'Parameter'\n"
 #endif
   "Output options:\n"
