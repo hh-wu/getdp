@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.32 2001-08-04 03:33:37 geuzaine Exp $
+@c $Id: getdp.texi,v 1.33 2001-08-07 13:45:18 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -3863,7 +3863,7 @@ represent the three cartesian coordinates @var{x}, @var{y} and @var{z}, and
 can be functions of the current values @code{$A}, @code{$B} and
 @code{$C}. The values for @code{$A}, @code{$B} and @code{$C} are specified
 by each @var{expression-cst-list-item} or @var{expression-cst-list}. For
-example, @code{OnGrid @{Cos[$A], Sin[$A], 0@} @{ 0:2*Pi:Pi/180@, 0, 0 @}} will
+example, @code{OnGrid @{Cos[$A], Sin[$A], 0@} @{ 0:2*Pi:Pi/180, 0, 0 @}} will
 compute the quantity on 360 points equally distributed on a circle in the
 z=0 plane, and centered on the origin.
 
