@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.16 2002-06-11 00:04:21 geuzaine Exp $
+// $Id: Patch.cpp,v 1.17 2002-06-12 00:22:34 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -63,14 +63,51 @@ Patch::Patch(PatchType _type, int _beg, int _end,
   nbdof = end-beg;
 
   nodes = new double[nbdof] ;
+  jacs = new double[nbdof] ;
   localVals = new Complex[nbdof] ;
   part = new Partition();
   part->init(center,eps,rise);
 
-  // uniform mesh in each element:
+#if 1
+  // mesh that does *not* comrise the origin
+  double h = 2.*eps/(double)(nbdof);
+  for(i=0; i<nbdof; i++){
+    nodes[i] = center-eps + i*h + h/2.;
+    jacs[i] = 1.0;
+
+    // colton&kress chg of vars
+    /*
+    extern double w(double s, int p);
+    extern double dwds(double s, int p);
+    double s=nodes[i];
+    nodes[i] = w(s,8);
+    jacs[i] = dwds(s,8);
+    */
+
+    // leonid's
+    /*
+    double s=nodes[i];
+    double leonid(double s);
+    double dleonidds(double s);
+    nodes[i] = leonid(s);
+    jacs[i] = dleonidds(s);
+    */
+
+    // tan/atan chg of vars
+        
+    double q=0.2, s=nodes[i];
+    nodes[i] = 2*atan(q*tan(s/2.)) ;
+    if(nodes[i]<0) nodes[i] +=TWO_PI;
+    jacs[i] = 2.*(q/2.*(1.+SQU(tan(s/2.)))) / (1.+SQU(q)*SQU(tan(s/2.))) ;
+    
+
+  }
+#else
+  // uniform mesh in each patch:
   double h = 2.*eps/(double)(nbdof);
   for(i=0; i<nbdof; i++){
     nodes[i] = center-eps + i*h;
+    jacs[i] = 1.0;
 
     // experimental stuff to better resolve the shadowing point
     // e.g. q=3 for k=500
@@ -87,20 +124,24 @@ Patch::Patch(PatchType _type, int _beg, int _end,
     printf("%.16g\n", nodes[i]);
     */
 
-    
-    double q=0.5;
-    nodes[i] = 2*atan(q*tan(nodes[i]/2.)) ;
-    if(nodes[i]<0) nodes[i] +=TWO_PI;
-    
-
+    // tan/atan chg of vars
     /*
-    extern double w(double s, int p);
-    nodes[i] = w(nodes[i],8);
+    double q=0.5, s=nodes[i];
+    nodes[i] = 2*atan(q*tan(s/2.)) ;
+    if(nodes[i]<0) nodes[i] +=TWO_PI;
+    jacs[i] = 2.*(q/2.*(1.+SQU(tan(s/2.)))) / (1.+SQU(q)*SQU(tan(s/2.))) ;
     */
 
-    //printf("%.16g\n", nodes[i]);
-    
+    // colton&kress chg of vars
+    extern double w(double s, int p);
+    extern double dwds(double s, int p);
+    double s=nodes[i];
+    nodes[i] = w(s,8);
+    jacs[i] = dwds(s,8);
+
+    printf("node %.16g jac %.16g\n", nodes[i], jacs[i]);
   }
+#endif
 
   if(type == SPLINE)
     spline = new Spline(nbdof,nodes);
@@ -132,10 +173,15 @@ void Ctx::createMesh(Patch::PatchType patchtype){
 
   if(!(type & PATCHES)){ // single patch by default
 
-    // odd nb of Fourier modes... to change
-    if((type & ITER_SOLVE) || (type & POST_PROCESS))
-      if(!(nbTargetPts % 2)) 
-	nbTargetPts++;
+    if((type & ITER_SOLVE) || (type & POST_PROCESS)){
+      if(type & REAL_COLTON_KRESS){
+	if((nbTargetPts % 2)) nbTargetPts++;
+      }
+      else{
+	// odd nb of Fourier modes... to change
+	if(!(nbTargetPts % 2)) nbTargetPts++;
+      }
+    }
 
     p[0] = new Patch(patchtype, 
 		     0, nbTargetPts, 
