@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.4 2000-10-30 08:44:06 colignon Exp $";
+#define RCSID "$Id: F_MultiHar.c,v 1.5 2000-10-30 08:59:26 gyselinc Exp $";
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -60,11 +60,9 @@ void  F_MHToTime (F_ARG) {
   case SCALAR :
 
     tmp[0] = 0. ;
-    for (k = 0 ; k < Current.NbrHar ; k+=2) {
-      tmp[0] +=
-	A->Val[MAX_DIM* k   ] * Psi_MH [ Current_iTime ] [ k ]
-	- A->Val[MAX_DIM*(k+1)] * Psi_MH [ Current_iTime ] [ k+1 ] ;
-      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+    for (k = 0 ; k < Current.NbrHar ; k++) {
+      tmp[0] += A->Val[ MAX_DIM * k ] * Psi_MH [ Current_iTime ] [ k ] ;
+      V->Val[MAX_DIM*k] = 0. ;
     }
     V->Val[0] = tmp[0] ;
 
@@ -74,19 +72,13 @@ void  F_MHToTime (F_ARG) {
   case TENSOR_DIAG :
 
     tmp[0] = tmp[1] = tmp[2] = 0. ;
-    for (k = 0 ; k < Current.NbrHar ; k+=2) {
-      tmp[0] +=
-	A->Val[MAX_DIM* k   ] * Psi_MH [ Current_iTime ] [ k ]
-	- A->Val[MAX_DIM*(k+1)] * Psi_MH [ Current_iTime ] [ k+1 ] ;
-      tmp[1] +=
-	A->Val[MAX_DIM* k   +1] * Psi_MH [ Current_iTime ] [ k ]
-	- A->Val[MAX_DIM*(k+1)+1] * Psi_MH [ Current_iTime ] [ k+1 ] ;
-      tmp[2] +=
-	A->Val[MAX_DIM* k   +2] * Psi_MH [ Current_iTime ] [ k ]
-	- A->Val[MAX_DIM*(k+1)+2] * Psi_MH [ Current_iTime ] [ k+1 ] ;
-      V->Val[MAX_DIM*k  ] = V->Val[MAX_DIM*(k+1)  ] = 0. ;
-      V->Val[MAX_DIM*k+1] = V->Val[MAX_DIM*(k+1)+1] = 0. ;
-      V->Val[MAX_DIM*k+2] = V->Val[MAX_DIM*(k+1)+2] = 0. ;
+    for (k = 0 ; k < Current.NbrHar ; k++) {
+      tmp[0] += A->Val[MAX_DIM * k   ] * Psi_MH [ Current_iTime ] [ k ] ;
+      tmp[1] +=	A->Val[MAX_DIM * k +1] * Psi_MH [ Current_iTime ] [ k ] ;
+      tmp[2] += A->Val[MAX_DIM * k +2] * Psi_MH [ Current_iTime ] [ k ] ;
+      V->Val[MAX_DIM*k  ] = 0. ;
+      V->Val[MAX_DIM*k+1] = 0. ;
+      V->Val[MAX_DIM*k+2] = 0. ;
     }
     V->Val[0] = tmp[0] ;  V->Val[1] = tmp[1] ;  V->Val[2] = tmp[2] ;
 
@@ -117,9 +109,11 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
   int iPul, iTime, iHar, jHar ;
   double MaxPulsation = 0. , MinPulsation = 1.e99 ;
 
+
   GetDP_Begin("MH_InitTimes");
 
   /* NbrTimePoint_M */
+
   for ( iPul = 0 ; iPul < NbrHar /2 ; iPul++ ) {
     if ( Val_Pulsation [ iPul ] &&  Val_Pulsation [ iPul ] < MinPulsation )
       MinPulsation = Val_Pulsation [ iPul ] ;
@@ -147,7 +141,7 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
   }
 
   for ( iTime = 0 ; iTime < NbrTimePoint_MH ; iTime++ ) {
-    t_MH [ iTime ] = (double)iTime / ( (double)NbrTimePoint_MH - 1.0 ) 
+    t_MH [ iTime ] = (double)iTime / ( (double)NbrTimePoint_MH - 1. ) 
                      / ( MinPulsation / TWO_PI ) ;
     w_MH [ iTime ] = 2. / ( (double)NbrTimePoint_MH - 1.0 ) ;
   } 
@@ -156,12 +150,12 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
   for ( iTime = 0 ; iTime < NbrTimePoint_MH ; iTime++ ) {
     for ( iPul = 0 ; iPul < NbrHar /2 ; iPul++ ) {
       if ( Val_Pulsation [ iPul ] ){
-	Psi_MH [ iTime ] [ 2* iPul     ] = cos ( Val_Pulsation [ iPul ] * t_MH [iTime ] ) ;
-	Psi_MH [ iTime ] [ 2* iPul + 1 ] = sin ( Val_Pulsation [ iPul ] * t_MH [iTime ] ) ;
+	Psi_MH [iTime] [2* iPul    ] =   cos ( Val_Pulsation [iPul] * t_MH [iTime] ) ;
+	Psi_MH [iTime] [2* iPul + 1] = - sin ( Val_Pulsation [iPul] * t_MH [iTime] ) ;
       }
       else {
-	Psi_MH [ iTime ] [ 2* iPul     ] = 0.5 ;
-	Psi_MH [ iTime ] [ 2* iPul + 1 ] = 0 ;
+	Psi_MH [iTime] [2* iPul    ] = 0.5 ;
+	Psi_MH [iTime] [2* iPul + 1] = 0 ;
       }
     }
   }
@@ -258,7 +252,7 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
     case SCALAR :
       if (TypePsi == 1) {
 	for ( iHar = 0 ; iHar < Current.NbrHar ; iHar++ )
-	  ValueOut->Val [ iHar * MAX_DIM ] =
+	  ValueOut->Val [ iHar * MAX_DIM ] +=
 	    Value.Val[0] * Psi_MH [ iTime ] [ iHar ] * w_MH [ iTime ] ;
       }
       else {
@@ -274,9 +268,9 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 	ValueOut->Val[iHar*MAX_DIM] +=
 	  Value.Val[0] * Psi_MH [ iTime ] [ iHar ] * w_MH [ iTime ] ;
 	ValueOut->Val[iHar*MAX_DIM+1] +=
-	  Value.Val[0] * Psi_MH [ iTime ] [ iHar ] * w_MH [ iTime ] ;
+	  Value.Val[1] * Psi_MH [ iTime ] [ iHar ] * w_MH [ iTime ] ;
 	ValueOut->Val[iHar*MAX_DIM+2] +=
-	  Value.Val[0] * Psi_MH [ iTime ] [ iHar ] * w_MH [ iTime ] ;
+	  Value.Val[2] * Psi_MH [ iTime ] [ iHar ] * w_MH [ iTime ] ;
       }
       break ;
 
@@ -296,8 +290,8 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 	  Matrix2_MH [iHar*3+2] [jHar*3+2] +=
 	    Value.Val[5] * PsiPsi_MH [ iTime ] [ iHar ] [ jHar ] ;
 	  Matrix2_MH [iHar*3+1] [jHar*3+0] = Matrix2_MH [iHar*3+0] [jHar*3+1] ;
-	  Matrix2_MH [iHar*3+2] [jHar*3+0] = Matrix2_MH [iHar*3+0] [jHar*3+1] ;
-	  Matrix2_MH [iHar*3+2] [jHar*3+1] = Matrix2_MH [iHar*3+0] [jHar*3+1] ;
+	  Matrix2_MH [iHar*3+2] [jHar*3+0] = Matrix2_MH [iHar*3+0] [jHar*3+2] ;
+	  Matrix2_MH [iHar*3+2] [jHar*3+1] = Matrix2_MH [iHar*3+1] [jHar*3+2] ;
 	}
       break ;
 
