@@ -1,4 +1,4 @@
-// $Id: Bessel.cpp,v 1.3 2002-02-10 23:05:59 geuzaine Exp $
+// $Id: Bessel.cpp,v 1.4 2002-02-11 21:32:38 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -11,6 +11,7 @@
 complex<double> I(0.0,1.0);
 
 // First kind Bessel function
+
 complex<double> Bessel_j(int n, complex<double> x){
   double bjr, bji, fnu = (double)n, xr = x.real(), xi = x.imag();
   int nz = 0, ierr, kode = 1, NB = 1;
@@ -22,6 +23,7 @@ complex<double> Bessel_j(int n, complex<double> x){
 }
 
 // Second kind Bessel function
+
 complex<double> Bessel_y(int n, complex<double> x){
   double byr, byi, auxbyr, auxbyi, fnu = (double)n, xr = x.real(), xi = x.imag();
   int nz = 0, ierr, kode = 1, NB = 1;
@@ -32,6 +34,7 @@ complex<double> Bessel_y(int n, complex<double> x){
 }
 
 // Third kind Bessel function (Hankel function)
+
 complex<double> Bessel_h(int type, int n, complex<double> x){
   double bhr, bhi, fnu = (double)n, xr = x.real(), xi = x.imag(); 
   int nz = 0, ierr, kode = 1, NB = 1;

@@ -1,4 +1,4 @@
-// $Id: CriticalPoints.cpp,v 1.3 2002-02-10 23:05:59 geuzaine Exp $
+// $Id: CriticalPoints.cpp,v 1.4 2002-02-11 21:32:38 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -14,7 +14,7 @@
 //
 //  0 <= t-t0 = Pi - 2*t0 + 4*n*PI <= 2*PI
 //  0 <= t-t0 = (PI-2*t0)/3 + 4/3*PI*n
-//
+
 void CriticalPointsCircle(double t0, List_T *pts){
   int n;
   double tmp;
