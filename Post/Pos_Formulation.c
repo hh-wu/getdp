@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.c,v 1.13 2000-09-29 14:07:49 geuzaine Exp $ */
+/* $Id: Pos_Formulation.c,v 1.14 2000-10-01 06:51:10 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -341,13 +341,14 @@ int Compare_PostElementNode(struct PostElement * PE1, int n1,
 
 #undef TOL
  
-int fcmp_PostElement_Index(const void *a, const void *b){
-  return (*(struct PostElement**)a)->Index - (*(struct PostElement**)b)->Index;
+int fcmp_PostElement_v0(const void *a, const void *b){
+  return (int)( (*(struct PostElement**)a)->v[0] - 
+		(*(struct PostElement**)b)->v[0] ) ;
 }  
 
-int fcmp_PostElement_absu(const void *a, const void *b){
+int fcmp_PostElement_absu0(const void *a, const void *b){
   return (int)( fabs((*(struct PostElement**)b)->u[0]) - 
-		fabs((*(struct PostElement**)a)->u[0]) );
+		fabs((*(struct PostElement**)a)->u[0]) ) ;
 }  
 
 int fcmp_IntxList(const void * a, const void * b) {
@@ -803,10 +804,18 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   /* Sort the elements */
 
   switch(PostSubOperation_P->Sort){
+
   case SORT_BY_POSITION : 
     List_Sort(PostElement_L, fcmp_PostElement) ;
     break ;
+
   case SORT_BY_CONNECTIVITY :
+    /* 
+       u[0] = 1 if the element is in the ordered list, with natural orientation
+             -1 if the element is in the ordered list, but with opposite orientation 
+              0 if the element is not in the list
+       v[0] = relative index (to the first element) in the ordered list
+     */
     for(ii = 0 ; ii < NbrPost ; ii++){
       PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
       if(PE->NbrNodes != 2)
@@ -816,8 +825,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
     }
 
     PE = *(struct PostElement**)List_Pointer(PostElement_L, 0);
-    PE->u[0] = 1. ;
-    PE->Index = 0 ;
+    PE->u[0] = 1. ; PE->v[0] = 0. ;
 
     iPost = 1 ;
     while(iPost < NbrPost){
@@ -835,25 +843,25 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 	      PE2 = *(struct PostElement**)List_Pointer(PostElement_L, jj);
 	      if(!PE2->u[0]){
 		if(Compare_PostElementNode(PE, end, PE2, 0)){
-		  PE2->u[0] = 1. ; PE2->Index = PE->Index + 1 ; iPost++ ;
+		  PE2->u[0] = 1. ; PE2->v[0] = PE->v[0] + 1. ; iPost++ ;
 		}
 		else if (Compare_PostElementNode(PE, start, PE2, 0)){
-		  PE2->u[0] = -1. ; PE2->Index = PE->Index -1  ; iPost++ ;
+		  PE2->u[0] = -1. ; PE2->v[0] = PE->v[0] - 1.  ; iPost++ ;
 		}
 		else if (Compare_PostElementNode(PE, start, PE2, 1)){
-		  PE2->u[0] = 1. ; PE2->Index = PE->Index - 1 ; iPost++ ;
+		  PE2->u[0] = 1. ; PE2->v[0] = PE->v[0] - 1. ; iPost++ ;
 		}
 		else if (Compare_PostElementNode(PE, end, PE2, 1)){
-		  PE2->u[0] = -1. ; PE2->Index = PE->Index + 1 ; iPost++ ;
+		  PE2->u[0] = -1. ; PE2->v[0] = PE->v[0] + 1. ; iPost++ ;
 		}
 	      }
 	    }
 	  }
 	}
       }
-      List_Sort(PostElement_L, fcmp_PostElement_absu) ;
+      List_Sort(PostElement_L, fcmp_PostElement_absu0) ;
     }
-    List_Sort(PostElement_L, fcmp_PostElement_Index) ;
+    List_Sort(PostElement_L, fcmp_PostElement_v0) ;
     break ;
   default :
     break ;
@@ -862,6 +870,9 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   /* Print everything if we are in Store mode */
 
   if(Store && !InteractiveInterrupt){
+
+    Dummy[0] = Dummy[1] = Dummy[2] = Dummy[3] = Dummy[4] = 0. ;
+
     for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
 
@@ -885,10 +896,17 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 	}
       }
 
+      /* Compute curvilinear coord if connection sort */
+      if(PostSubOperation_P->Sort == SORT_BY_CONNECTIVITY){
+	Dummy[0] = Dummy[1] ;
+	Dummy[1] = Dummy[0] + sqrt(DSQU(PE->x[1]-PE->x[0])+
+				   DSQU(PE->y[1]-PE->y[0])+
+				   DSQU(PE->z[1]-PE->z[0])) ;
+      }
+
       Print_PostElement(PostSubOperation_P->Format, Current.Time, 0, 
 			1, Current.NbrHar, 
-			PostSubOperation_P->HarmonicToTime, 
-			PostSubOperation_P->Adapt ? Dummy : NULL, PE);
+			PostSubOperation_P->HarmonicToTime, Dummy, PE);
       Destroy_PostElement(PE) ;
     }
   }
@@ -1190,7 +1208,7 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
 
 #define LETS_PRINT_THE_RESULT							\
  PE->x[0] = Current.xp = Current.x ;						\
- PE->y[0] = Current.yp = Current.y ; 						\
+ PE->y[0] = Current.yp = Current.y ;						\
  PE->z[0] = Current.zp = Current.z ;						\
  if(!NCPQ_P){									\
    for (ts = 0 ; ts < NbTimeStep ; ts++){					\
@@ -1203,6 +1221,7 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
    InWhichElement(Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension,	\
                   Current.x, Current.y, Current.z, &u, &v, &w) ;		\
    Current.Region = Element.Region ;						\
+   PE->Index = Element.Num ;							\
    for (ts = 0 ; ts < NbTimeStep ; ts++) {					\
      Pos_InitAllSolutions(PSO_P->TimeStep_L, ts) ;				\
      Pos_Element(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,			\
@@ -1211,9 +1230,9 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
        Combine_PostQuantity(PSO_P->CombinationType, Order,			\
                             &PE->Value[0], &CumulativeValues[ts]) ;		\
      Print_PostElement(PSO_P->Format, Current.Time, ts, NbTimeStep,		\
-                       Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE);      \
+                       Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE);	\
    }										\
- }
+ }										\
 
 
 void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
