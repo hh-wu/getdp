@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.127 2003-02-13 06:52:38 geuzaine Exp $
+# $Id: Makefile,v 1.128 2003-02-26 03:29:24 geuzaine Exp $
 
 include variables
 
@@ -108,8 +108,9 @@ tgzdoc:
 	gzip getdp-texi.tar
 
 package-unix:
-	strip bin/getdp
+	rm -rf getdp-${GETDP_RELEASE}
 	mkdir getdp-${GETDP_RELEASE}
+	strip bin/getdp
 	cp bin/getdp getdp-${GETDP_RELEASE}
 	cp doc/VERSIONS doc/FAQ doc/BUGS doc/CONTRIBUTORS getdp-${GETDP_RELEASE}
 	cp -R demos getdp-${GETDP_RELEASE}
@@ -122,28 +123,28 @@ package-unix:
 	tar cvf getdp-${GETDP_RELEASE}-${UNAME}.tar getdp-${GETDP_RELEASE}
 	gzip getdp-${GETDP_RELEASE}-${UNAME}.tar
 	mv getdp-${GETDP_RELEASE}-${UNAME}.tar.gz getdp-${GETDP_RELEASE}-${UNAME}.tgz
-	rm -rf getdp-${GETDP_RELEASE}
 
 package-windows:
+	rm -rf getdp-${GETDP_RELEASE}
+	mkdir getdp-${GETDP_RELEASE}
 	strip bin/getdp.exe
-	cp bin/getdp.exe ../getdp-distrib
-	cp doc/README.txt ../getdp-distrib
-	cp doc/VERSIONS ../getdp-distrib/VERSIONS.txt
-	cp doc/FAQ ../getdp-distrib/FAQ.txt
-	cp doc/CONTRIBUTORS ../getdp-distrib/CONTRIBUTORS.txt
-	cd utils && unix2dos ../../getdp-distrib/*.txt
-	cp -R demos ../getdp-distrib
-	rm -rf ../getdp-distrib/*/CVS
-	rm -f ../getdp-distrib/*/*.pre
-	rm -f ../getdp-distrib/*/*.res
-	rm -f ../getdp-distrib/*/*.pos
-	rm -f ../getdp-distrib/*/*.cut
-	rm -f ../getdp-distrib/*/*~
-	cd utils && unix2dos ../../getdp-distrib/demos/*
-	cd ../getdp-distrib && zip -r getdp-${GETDP_RELEASE}-Windows.zip *
-	mv ../getdp-distrib/getdp-${GETDP_RELEASE}-Windows.zip .
-	rm -rf ../getdp-distrib/*.txt
-	rm -rf ../getdp-distrib/demos
+	cp /usr/bin/cygwin1.dll getdp-${GETDP_RELEASE}
+	cp bin/getdp.exe getdp-${GETDP_RELEASE}
+	cp doc/README.txt getdp-${GETDP_RELEASE}
+	cp doc/VERSIONS getdp-${GETDP_RELEASE}/VERSIONS.txt
+	cp doc/FAQ getdp-${GETDP_RELEASE}/FAQ.txt
+	cp doc/CONTRIBUTORS getdp-${GETDP_RELEASE}/CONTRIBUTORS.txt
+	cd utils && unix2dos ../getdp-${GETDP_RELEASE}/*.txt
+	cp -R demos getdp-${GETDP_RELEASE}
+	rm -rf getdp-${GETDP_RELEASE}/*/CVS
+	rm -f getdp-${GETDP_RELEASE}/*/*.pre
+	rm -f getdp-${GETDP_RELEASE}/*/*.res
+	rm -f getdp-${GETDP_RELEASE}/*/*.pos
+	rm -f getdp-${GETDP_RELEASE}/*/*.cut
+	rm -f getdp-${GETDP_RELEASE}/*/*~
+	cd utils && unix2dos ../getdp-${GETDP_RELEASE}/demos/*
+	cd getdp-${GETDP_RELEASE} && zip -r getdp-${GETDP_RELEASE}-Windows.zip *
+	mv getdp-${GETDP_RELEASE}/getdp-${GETDP_RELEASE}-Windows.zip .
 
 source:
 	rm -rf getdp-${GETDP_RELEASE}
