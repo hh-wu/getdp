@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.10 2002-02-13 21:18:49 bruno Exp $
+// $Id: Nystrom.cpp,v 1.11 2002-02-13 22:53:36 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,7 +18,7 @@
 
 int Verbose = 2;
 using namespace std;
-typedef enum Analysis {FULL, CRIT};
+typedef enum Analysis {FULL, CRITICAL, INTERACTIVE};
 
 // Function to integrate
 
@@ -170,6 +170,8 @@ complex<double> Nystrom(int singular, double t, Function *func, double kvec[3],
   double k = NORM3(kvec);
   GFHelmholtzParametric2D kern;
 
+  if(!nbpts) return 0.;
+
   scat->val(t,xt);
   scat->der(t,dxt);
 
@@ -220,34 +222,66 @@ int fcmp_Interval(const void * a, const void * b) {
 // Outer integration loop on target points
 
 void Integrate(Analysis typ, Function *f, Scatterer *scat, 
-	       double kv[3], int nbtarget, int nbpts, 
+	       double kv[3], int nbtarget, double t0, int nbpts, 
 	       double eps, double rise){
   Partition part, part2;
   Interval I, *pI;
   List_T *CritPts, *Intervals;
   complex<double> res, tmp, tmp2;
   double t, d;
-  int i, j, nb, sindex;
+  int i, j, nb, s_index, i_index;
+  List_T *reslist;
+
+  reslist = List_Create(20,20,sizeof(complex<double>));
 
   switch(typ){
 
   case FULL :
     for(i=0 ; i<nbtarget ; i++){
-      t = 2*PI*i/(double)nbtarget;
+      t = 2*PI*i/(double)nbtarget + t0;
       // stupid pou around t, equal to 1 everywhere in [t-PI,t+PI]
       part.init(t,PI,0.);
       res = Nystrom(1,t,f,kv,nbpts,scat,&part);
-      //Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
-      Msg(INFO, "%.15e + (%.15ei)", res.real(), res.imag());
+      Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
+      List_Add(reslist, &res);
     }
     break;
 
-  case CRIT :
+  case INTERACTIVE :
+    CritPts = List_Create(10,10,sizeof(double));
+
+    for(i=0 ; i<nbtarget ; i++){
+      t = 2*PI*i/(double)nbtarget + t0;
+      List_Reset(CritPts);
+      CriticalPointsCircle(t,CritPts);
+      List_Insert(CritPts, &t, fcmp_double);
+      s_index = List_ISearch(CritPts, &t, fcmp_double);
+      for(j=0 ; j<List_Nbr(CritPts) ; j++) {
+	List_Read(CritPts,j,&d);
+	printf("%d (%s) = %g\n", j, (j==s_index)?"sing":"crit", d);
+      }
+      printf("Point number? "); scanf("%d", &i_index);
+      printf("Epsilon? "); scanf("%lf", &eps);
+      printf("Rise? "); scanf("%lf", &rise);
+      printf("Number of integration points? "); scanf("%d", &nb);
+      List_Read(CritPts, i_index, &d);
+      part.init(d,eps,rise);
+      j = (s_index==i_index);
+      Msg(DEBUG, "%s int. : %d pts in [%g , %g]", j ? "Sing." : "Crit.", nb, d-eps, d+eps);
+      res = Nystrom(j,t,f,kv,nb,scat,&part);
+      Msg(INFO, "I**(%.7e) = %' '.15e %+.15e * i", t, res.real(), res.imag());
+      List_Add(reslist, &res);
+    }
+    
+    List_Delete(CritPts);
+    break;
+    
+  case CRITICAL :
     CritPts = List_Create(10,10,sizeof(double));
     Intervals = List_Create(10,10,sizeof(Interval));
    
     for(i=0 ; i<nbtarget ; i++){
-      t = 2*PI*i/(double)nbtarget;
+      t = 2*PI*i/(double)nbtarget + t0;
 
       List_Reset(CritPts);
       List_Reset(Intervals);
@@ -256,24 +290,24 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 
       // add target in crit pts list
       List_Insert(CritPts, &t, fcmp_double);
-      sindex = List_ISearch(CritPts, &t, fcmp_double);
+      s_index = List_ISearch(CritPts, &t, fcmp_double);
 
       // merge all overlapping pous in an interval list
       for(j=0 ; j<List_Nbr(CritPts) ; j++) {
 	List_Read(CritPts,j,&d);
 	I.num = j;
-	if(j == sindex){
+	if(j == s_index){ // singular (target) point
 	  I.min = d-eps;
 	  I.max = d+eps;
 	  Msg(DEBUG, "  - target     = %.15e -> [%g,%g]", d, I.min, I.max);
 	}
-	else{
+	else{ // critical point
 	  I.min = d-sqrt(eps);
 	  I.max = d+sqrt(eps);
 	  Msg(DEBUG, "  - crit. pt %d = %.15e -> [%g,%g]", j, d, I.min, I.max);
 	}
 	if((pI = (Interval*)List_PQuery(Intervals, &I, fcmp_Interval))){
-	  if(j == sindex) pI->num = sindex;
+	  if(j == s_index) pI->num = s_index;
 	  pI->min = MIN(pI->min, I.min);
 	  pI->max = MAX(pI->max, I.max);
 	}
@@ -294,10 +328,10 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	  Msg(DEBUG, "  ! Flipping last interval");
 	  I.min -= TWO_PI;
 	  I.max -= TWO_PI;
-	  if(sindex==I.num) t-=TWO_PI;
+	  if(s_index==I.num) t-=TWO_PI;
 	  List_PSuppress(Intervals, List_Nbr(Intervals)-1);
 	  if((pI = (Interval*)List_PQuery(Intervals, &I, fcmp_Interval))){
-	    if(sindex==I.num) pI->num = sindex;
+	    if(s_index==I.num) pI->num = s_index;
 	    pI->min = MIN(pI->min, I.min);
 	    pI->max = MAX(pI->max, I.max);
 	  }
@@ -317,10 +351,9 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
       for(j=0 ; j<List_Nbr(Intervals) ; j++) {
 	List_Read(Intervals, j, &I);
 
-	if(I.num==sindex){
+	if(I.num==s_index){
 	  part.init(t,eps,rise);
-	  // change this
-	  nb = (int)(2*eps/TWO_PI*nbpts);
+	  nb = (int)(2*eps/TWO_PI*nbpts);//change this
 	  Msg(DEBUG, "  - singular int. : %d pts in [%g , %g]", nb, t-eps, t+eps);
 	  tmp = Nystrom(1,t,f,kv,nb,scat,&part);
 	  Msg(DEBUG, "    IS = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
@@ -331,8 +364,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	    part.subparts = List_Create(1,1,sizeof(Partition));
 	    part2.init(t,eps,rise);
 	    List_Add(part.subparts, &part2);
-	    // change this
-	    nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts);
+	    nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts); // change this
 	    Msg(DEBUG, "  - critical int. in [%g,%g] \\ [%g,%g]",I.min,I.max,t-eps, t+eps);
 	    tmp2 = Nystrom(0,t,f,kv,nb,scat,&part);
 	    Msg(DEBUG, "    IC* = %' '.15e %+.15e * i", tmp2.real(), tmp2.imag());
@@ -344,8 +376,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	}
 	else{
 	  part.init((I.min+I.max)/2.,(I.max-I.min)/2.,rise);
-	  // change this
-	  nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts);
+	  nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts);//change this
 	  Msg(DEBUG, "  - critical int.: %d pts in [%g , %g]", nb, I.min, I.max);
 	  tmp = Nystrom(0,t,f,kv,nb,scat,&part);
 	  Msg(DEBUG, "    IC = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
@@ -355,9 +386,9 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
       }
 
       Msg(DEBUG, "------------------------------------------------------------------------");
-      //Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
-      Msg(INFO, "%.15e + (%.15ei)", res.real(), res.imag());
+      Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
       Msg(DEBUG, "------------------------------------------------------------------------");
+      List_Add(reslist, &res);
 
     }
 
@@ -370,13 +401,23 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
     break;
     
   }
+
+  Msg(INFO, "out = [");
+  for(i=0; i<List_Nbr(reslist); i++){
+    List_Read(reslist, i, &res);
+    Msg(INFO, "%.15e + (%.15ei)", res.real(), res.imag());
+  }
+  Msg(INFO, "]");
+
+  List_Delete(reslist);
+  
 }
 
 
 // Main routine
 
 int main(int argc, char *argv[]){
-  double WaveNum[3]={1600.,0.,0.}, Epsilon=1., Rise=0.5;
+  double WaveNum[3]={1600.,0.,0.}, Epsilon=1., Rise=0.5, InitialTarget=0.;
   int NbIntPts=10000, NbTargetPts=20;
   Analysis Type=FULL;
   Scatterer scat;
@@ -394,13 +435,19 @@ int main(int argc, char *argv[]){
 	i++; Type = FULL; Msg(INFO, "Full Nystrom integrator");
       }
       else if(Cmp(argv[i]+1, "critical", 1)){ 
-	i++; Type = CRIT; Msg(INFO, "Critical point integrator");
+	i++; Type = CRITICAL; Msg(INFO, "Critical point integrator");
+      }
+      else if(Cmp(argv[i]+1, "interactive", 1)){ 
+	i++; Type = INTERACTIVE; Msg(INFO, "Interactive integrator");
       }
       else if(Cmp(argv[i]+1, "nbpts", 1)){ 
 	i++; NbIntPts = (int)GetNum(argc,argv,&i); 
       }
       else if(Cmp(argv[i]+1, "targets", 1)){ 
 	i++; NbTargetPts = (int)GetNum(argc,argv,&i); 
+      }
+      else if(Cmp(argv[i]+1, "zero", 1)){ 
+	i++; InitialTarget = GetNum(argc,argv,&i); 
       }
       else if(Cmp(argv[i]+1, "k", 1)){
 	i++; WaveNum[0] = GetNum(argc,argv,&i); 
@@ -415,15 +462,16 @@ int main(int argc, char *argv[]){
 	i++; Verbose = (int)GetNum(argc,argv,&i);
       }
       else{
-	Msg(ERROR, "Unknown option"); 
+	Msg(ERROR, "Unknown or ambiguous option"); 
       }
     }
   }
 
-  Msg(INFO, "Options: -nbpts %d, -targets %d, -k %g, -eps %g, -rise %g", 
-      NbIntPts, NbTargetPts, WaveNum[0], Epsilon, Rise);
+  Msg(INFO, "Options: -nbpts %d, -targets %d, -zero %g, -k %g, -eps %g, -rise %g", 
+      NbIntPts, NbTargetPts, InitialTarget, WaveNum[0], Epsilon, Rise);
 
-  Integrate(Type, &f, &scat, WaveNum, NbTargetPts, NbIntPts, Epsilon, Rise);
+  Integrate(Type, &f, &scat, WaveNum, NbTargetPts, InitialTarget, 
+	    NbIntPts, Epsilon, Rise);
   
   return 0;
 }
