@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.16 2002-01-18 20:14:48 geuzaine Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.17 2002-02-07 17:19:04 geuzaine Exp $"
 
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
@@ -38,11 +38,11 @@ int fcmp_MH_InitData(const void * a, const void * b) {
     return ((struct MH_InitData *)a)->NbrPoints  - ((struct MH_InitData *)b)->NbrPoints ;
   else 
     return ((struct MH_InitData *)a)->NbrPointsX - ((struct MH_InitData *)b)->NbrPointsX ;
- 
+  
 }
 
 
-int NbrValues_Type (Type){
+int NbrValues_Type (int Type){
   switch (Type){
   case SCALAR : return 1 ;
   case VECTOR : case TENSOR_DIAG : return 3 ; 

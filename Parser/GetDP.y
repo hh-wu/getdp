@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.34 2002-02-01 17:31:01 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.35 2002-02-07 17:19:04 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -4519,7 +4519,7 @@ OperationTerm :
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_ITERATIVELOOP ;
-      Operation_P->Case.IterativeLoop.NbrMaxIteration = $3 ;
+      Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)$3 ;
       Operation_P->Case.IterativeLoop.Criterion = $5 ;
       Operation_P->Case.IterativeLoop.RelaxationFactorIndex = $7 ;
       Operation_P->Case.IterativeLoop.Flag = 0 ;
@@ -4532,10 +4532,10 @@ OperationTerm :
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_ITERATIVELOOP ;
-      Operation_P->Case.IterativeLoop.NbrMaxIteration = $3 ;
+      Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)$3 ;
       Operation_P->Case.IterativeLoop.Criterion = $5 ;
       Operation_P->Case.IterativeLoop.RelaxationFactorIndex = $7 ;
-      Operation_P->Case.IterativeLoop.Flag = $9 ;
+      Operation_P->Case.IterativeLoop.Flag = (int)$9 ;
       Operation_P->Case.IterativeLoop.Operation = $12 ;
     }
 
@@ -4607,7 +4607,7 @@ OperationTerm :
 	vyyerror("Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.SaveSolutionExtendedMH.NbrFreq = $5 ;
+      Operation_P->Case.SaveSolutionExtendedMH.NbrFreq = (int)$5 ;
       Operation_P->Case.SaveSolutionExtendedMH.ResFile = $7 ;
     }
 

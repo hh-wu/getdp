@@ -1,6 +1,6 @@
-/* $Id: complex.h,v 1.2 2000-09-07 18:47:31 geuzaine Exp $ */
-#ifndef _COMPLEX_H_
-#define _COMPLEX_H_
+/* $Id: fakecomplex.h,v 1.1 2002-02-07 17:19:05 geuzaine Exp $ */
+#ifndef _FAKECOMPLEX_H_
+#define _FAKECOMPLEX_H_
 
 #include <math.h>
 

@@ -214,7 +214,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.39 2002-02-01 17:31:00 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.40 2002-02-07 17:19:04 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -7140,7 +7140,7 @@ case 413:
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_ITERATIVELOOP ;
-      Operation_P->Case.IterativeLoop.NbrMaxIteration = yyvsp[-8].d ;
+      Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)yyvsp[-8].d ;
       Operation_P->Case.IterativeLoop.Criterion = yyvsp[-6].d ;
       Operation_P->Case.IterativeLoop.RelaxationFactorIndex = yyvsp[-4].i ;
       Operation_P->Case.IterativeLoop.Flag = 0 ;
@@ -7153,10 +7153,10 @@ case 414:
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_ITERATIVELOOP ;
-      Operation_P->Case.IterativeLoop.NbrMaxIteration = yyvsp[-10].d ;
+      Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)yyvsp[-10].d ;
       Operation_P->Case.IterativeLoop.Criterion = yyvsp[-8].d ;
       Operation_P->Case.IterativeLoop.RelaxationFactorIndex = yyvsp[-6].i ;
-      Operation_P->Case.IterativeLoop.Flag = yyvsp[-4].d ;
+      Operation_P->Case.IterativeLoop.Flag = (int)yyvsp[-4].d ;
       Operation_P->Case.IterativeLoop.Operation = yyvsp[-1].l ;
     ;
     break;}
@@ -7233,7 +7233,7 @@ case 423:
 	vyyerror("Unknown System: %s", yyvsp[-6].c) ;
       Free(yyvsp[-6].c) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.SaveSolutionExtendedMH.NbrFreq = yyvsp[-4].d ;
+      Operation_P->Case.SaveSolutionExtendedMH.NbrFreq = (int)yyvsp[-4].d ;
       Operation_P->Case.SaveSolutionExtendedMH.ResFile = yyvsp[-2].c ;
     ;
     break;}

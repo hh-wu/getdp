@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.10 2002-02-04 19:01:04 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.11 2002-02-07 17:19:04 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -527,6 +527,16 @@ void  F_AcousticSoftSphere(F_ARG){
   Spherical_j_nArray(n,ka,N,&jnka[0]);
   Spherical_h_nArray(1,n,kr,N,hnkrr,hnkri);
   Spherical_h_nArray(1,n,ka,N,hnkar,hnkai);
+
+  /* to compare with gsl/python */
+  /*
+  for (n = 0 ; n < N ; n++){
+    jnkr[n] = Spherical_j_n(n,kr);
+    jnka[n] = Spherical_j_n(n,ka);
+    Spherical_h_n(1,n,kr,&hnkrr[n],&hnkri[n]);
+    Spherical_h_n(1,n,ka,&hnkar[n],&hnkai[n]);
+  }
+  */
 
   for (n = 0 ; n < N ; n++){
     V_mi.Val[0] = 0.; V_mi.Val[MAX_DIM] = -1.;
