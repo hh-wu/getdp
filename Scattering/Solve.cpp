@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.35 2002-08-27 23:38:16 geuzaine Exp $
+// $Id: Solve.cpp,v 1.36 2002-08-29 00:10:40 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -18,7 +18,9 @@ void Ctx::forwardMap(){
   f.type = Function::ANALYTIC; 
 
   for(i=0 ; i<nbTargetPts ; i++){
-    res = integrate(i);
+    res = 2./I * integrate(i); // 2/I factor to be able to compare with Alain
+    Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", 
+	i+1, getTarget(i), res.real(), res.imag());
     List_Add(reslist, &res);
   }
 
@@ -33,12 +35,6 @@ Complex Ctx::integrate(int index){
   if(scat.dim() == 2){
     t = getTarget(index);
     res = Integrate2D(this, index, t);
-
-    if(f.type == Function::ANALYTIC){
-      res *= 2./I;  // 2/I factor to be able to compare with Alain
-      Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", 
-	  index+1, t, res.real(), res.imag());
-    }
   }
   else{
     //return Integrate3D(this, index);
