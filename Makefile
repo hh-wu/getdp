@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.86 2002-03-08 18:59:28 geuzaine Exp $
+# $Id: Makefile,v 1.87 2002-04-12 17:12:14 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -82,7 +82,7 @@ GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-#include ${PETSC_DIR}/bmake/common/base
+include ${PETSC_DIR}/bmake/common/base
 
 # ----------------------------------------------------------------------
 # Rules for developpers
@@ -624,11 +624,49 @@ compile-petsc-scat:
            "FC=$(FC)" \
            "F77=$(FC)" \
            "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS)" \
+           "C_FLAGS=$(COPTFLAGS) -I$(FFTW_DIR)/include -Wall" \
            "F77_FLAGS=$(FOPTFLAGS)" \
            "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
         ); done
 link-petsc-scat:
-	${CLINKER} -o Scattering/hf lib/libScattering.a lib/libDofData.a\
-               lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)
+	$(CLINKER) -o Scattering/hf lib/libScattering.a lib/libDofData.a\
+               lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)\
+               -L$(FFTW_DIR)/lib -lfftw
 petsc-scat: compile-petsc-scat link-petsc-scat
+
+#
+# PETSc Scattering (profile)
+#
+compile-petsc-scat-profile:
+	@for i in $(GETDP_STUFF_DIR) Scattering; do (cd $$i && $(MAKE) \
+           "CC=$(CC)" \
+           "CXX=$(CC)" \
+           "FC=$(FC)" \
+           "F77=$(FC)" \
+           "RANLIB=$(RANLIB)" \
+           "C_FLAGS=$(COPTFLAGS) -I$(FFTW_DIR)/include -pg -Wall" \
+           "F77_FLAGS=$(FOPTFLAGS) -pg" \
+           "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
+        ); done
+link-petsc-scat-profile:
+	$(CLINKER) -pg -o Scattering/hf lib/libScattering.a lib/libDofData.a\
+               lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)\
+               -L$(FFTW_DIR)/lib -lfftw
+petsc-scat-profile: compile-petsc-scat-profile link-petsc-scat-profile
+
+#
+# ACM Scattering
+#
+compile-acm-scat:
+	@for i in $(GETDP_STUFF_DIR) Scattering; do (cd $$i && $(MAKE) \
+           "CC=g++" \
+           "CXX=g++" \
+           "FC=g77" \
+           "C_FLAGS=-g -Wall" \
+           "F77_FLAGS=-g" \
+           "SOLVER=-D_ACM" \
+        ); done
+link-acm-scat:
+	${CLINKER} -o Scattering/hf2 lib/libScattering.a lib/libDofData.a\
+               lib/libNumeric.a lib/libDataStr.a lib/libAcmSolver.a
+acm-scat: compile-acm-scat link-acm-scat
