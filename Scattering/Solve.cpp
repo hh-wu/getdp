@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.21 2002-05-14 01:15:47 geuzaine Exp $
+// $Id: Solve.cpp,v 1.22 2002-05-21 23:13:15 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -201,6 +201,9 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
     res = (-I/2.) * Integrate(ctx, i, t);
     LinAlg_SetComplexInVector(res, y, i);
   }
+
+  //if(ctx->iterNum == 18)
+  //LinAlg_PrintVector(stdout,x);
    
   LinAlg_Barrier();
 }
@@ -252,11 +255,13 @@ void PostProcess(Ctx *ctx){
 
   InitializeInterpolation(ctx,&x);
 
+  // compute far field
   coord[0] = 1;
   coord[0] = 0;
   coord[0] = 0;
   vs = (-2./I) * Evaluate(ctx, 1, coord);
   printf("FAR FIELD = %g %g \n", vs.real(), vs.imag());
+
   return;
 
   double xmin = -2*PI, xmax = 2*PI, ymin = -2*PI, ymax = 2*PI;

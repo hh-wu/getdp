@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.12 2002-05-14 01:15:47 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.13 2002-05-21 23:13:15 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -12,9 +12,9 @@ int fcmp_CPoint(const void * a, const void * b) {
   double cmp ;
   
   cmp = ((CPoint*)a)->val - ((CPoint*)b)->val ;
-  if      (cmp > 1.e-16)  return  1 ;
-  else if (cmp < -1.e-16) return -1 ;
-  else                    return  0 ;
+  if      (cmp > TOL_LOOSE)  return  1 ;
+  else if (cmp < -TOL_LOOSE) return -1 ;
+  else                       return  0 ;
 }
 
 int fcmp_double_loose(const void *a, const void *b){
@@ -184,7 +184,7 @@ void Scatterer::criticalPoints(int index, List_T *pts){
   }
 }
 
-#define NB_INITIAL_GUESS 100
+#define NB_INITIAL_GUESS 1000
 
 void Scatterer::criticalPoints(int nbnodes, double k[3]){
   int i_node, i, n, check;

@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.34 2002-05-14 01:15:47 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.35 2002-05-21 23:13:15 geuzaine Exp $
 
 #include "Utils.h"
 #include "Nystrom.h"
@@ -443,15 +443,17 @@ Complex Evaluate(Ctx *ctx, int farfield, double x[3]){
     ctx->f.type = Function::INTERPOLATED; 
     tmp = ctx->f.density(&ctx->scat,tau);
 
+    printf("%g %g %g\n", tau, tmp.real(), tmp.imag());
+    
     if(!farfield){
       kern.init(0,x,dummy,tau,xtau,dxtau,k);
       res += kern.M() * f * tmp;
     }
     else{
       res += exp(-I*k*(x[0]*xtau[0]+x[1]*xtau[1])) * 
-	f * tmp * 
-	sqrt(SQU(dxtau[0]) + SQU(dxtau[1])) ;
+	f * tmp * sqrt(SQU(dxtau[0]) + SQU(dxtau[1])) ;
     }
+    
   }
 
   res *= PI/(double)n; // trapezoidal rule weight
