@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.12 2000-10-17 07:20:54 geuzaine Exp $ */
+/* $Id: Pos_Print.c,v 1.13 2000-10-17 08:51:53 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -104,6 +104,12 @@ void  Print_PostFooter(struct PostSubOperation *PSO_P){
       NbrIso = List_Nbr(PSO_P->Iso_L) ;
     if(NbrIso > NBR_MAX_ISO) 
       Msg(ERROR, "Too Many Iso Values");
+    if(PSO_P->Format == FORMAT_GNUPLOT){
+      fprintf(PostStream, "# Min = %g\n", IsoMin) ;
+      fprintf(PostStream, "# Max = %g\n", IsoMax) ;
+      fprintf(PostStream, "# Num = %g\n", NbrIso) ;
+    }
+
     for(iIso = 0 ; iIso < NbrIso ; iIso++)
       Iso_L[iIso] = List_Create(10, 10, sizeof(struct PostElement*)) ;
 

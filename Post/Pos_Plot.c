@@ -1,4 +1,4 @@
-/* $Id: Pos_Plot.c,v 1.4 2000-10-17 07:20:54 geuzaine Exp $ */
+/* $Id: Pos_Plot.c,v 1.5 2000-10-17 08:51:53 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -888,7 +888,7 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
    else											\
      for (ts = 0 ; ts < NbTimeStep ; ts++)						\
        for(k = 0 ; k < Current.NbrHar ; k++)						\
-         ARRAY(i1,i2,k,ts) = (float)CumulativeValues[ts].Val[MAX_DIM*k] ;		\
+         ARRAY(i1,i2,k,ts) = CumulativeValues[ts].Val[MAX_DIM*k] ;		        \
  }											\
  else{											\
    InWhichElement(Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension,		\
@@ -904,7 +904,7 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
        Combine_PostQuantity(PSO_P->CombinationType, Order,				\
                             &PE->Value[0], &CumulativeValues[ts]) ;			\
      for(k = 0 ; k < Current.NbrHar ; k++)						\
-       ARRAY(i1,i2,k,ts) = (float)PE->Value[0].Val[MAX_DIM*k] ;				\
+       ARRAY(i1,i2,k,ts) = PE->Value[0].Val[MAX_DIM*k] ;				\
    }											\
  }
 
@@ -920,7 +920,7 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
   struct PostElement * PE , * PE2 ;
 
   int     i1, i2, i3, j, k, NbTimeStep, ts ;
-  float  *Array ;
+  double  *Array ;
   double  u, v, w, Length, Normal[4] = {0., 0., 0., 0.} ;
   double  X[4], Y[4], Z[4], S[4], N[4];
 
@@ -993,8 +993,8 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
     N[0] = PSO_P->Case.OnGrid.n[0] ; N[1] = PSO_P->Case.OnGrid.n[1] ;
 
     if(PSO_P->Depth > 1)
-      Array = (float*)
-	Malloc(NbTimeStep*Current.NbrHar*(N[0]+1)*(N[1]+1)*sizeof(float)) ;
+      Array = (double*)
+	Malloc(NbTimeStep*Current.NbrHar*(N[0]+1)*(N[1]+1)*sizeof(double)) ;
     
     for (i1 = 0 ; i1 <= N[0] ; i1++) {
       S[0] = (double)i1 / (double)(N[0] ? N[0] : 1) ;
