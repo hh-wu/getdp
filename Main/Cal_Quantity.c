@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.20 2003-02-13 18:29:34 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.21 2003-02-13 18:41:07 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -141,7 +141,7 @@ void Cal_WholeQuantity(struct Element * Element,
   struct DofData         *Save_DofData ;
   struct Solution        *Solution_P0 ;
 
-#undef USE_STATIC_STACK
+#define USE_STATIC_STACK
 
 #if !defined(USE_STATIC_STACK)
 
