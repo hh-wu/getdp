@@ -26,7 +26,7 @@ char version[]   = "Version : %g\n";
 char os[]        = "OS      : %s\n";
 char build[]     = "Build   : %s\n";
 char email[]     = "E-mail  : Patrick.Dular@ulg.ac.be, Christophe.Geuzaine@ulg.ac.be\n";
-char url[]       = "URL     : http://www.montefiore.ulg.ac.be/~geuzaine/getdp.html\n";
+char url[]       = "URL     : http://www.geuz.org/getdp/\n";
 
 #ifdef _SPARSKIT
 #ifdef _ILU_FLOAT
