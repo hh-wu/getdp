@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.83 2002-03-06 09:08:16 trophime Exp $
+# $Id: Makefile,v 1.84 2002-03-06 19:30:14 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -579,9 +579,9 @@ distrib-macos:
 	cp doc/getdp.info* getdp-$(GETDP_RELEASE)/usr/local/info
 	gzip getdp-$(GETDP_RELEASE)/usr/local/info/getdp.info*
 	gzip getdp-$(GETDP_RELEASE)/usr/local/man/man1/getdp.1
-	package getdp-$(GETDP_RELEASE) getdp.info -d /Users/christop -r ./Resources
+	package getdp-$(GETDP_RELEASE) getdp.info -d /Users/christop -r ./utils/Resources
 	rm -rf getdp-$(GETDP_RELEASE)	
-	
+
 #
 # Linux, Pentium 4 with Intel compiler
 #   -xW : generate code for P4 (this _really_ increases perf)
