@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.114 2003-01-29 20:28:28 geuzaine Exp $
+# $Id: Makefile,v 1.115 2003-02-01 04:32:29 geuzaine Exp $
 
 # ----------------------------------------------------------------------
 #  Optional packages: 
@@ -452,14 +452,14 @@ compile-mingw: initialtag
            "CC=gcc -mno-cygwin" \
            "FC=g77 -mno-cygwin" \
            "RANLIB=ls" \
-           "C_FLAGS=-O3" \
-           "F77_FLAGS=-O1" \
+           "C_FLAGS=-g -O3" \
+           "F77_FLAGS=-g -O1" \
            "OS_FLAGS=-DMSDOS" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
 link-mingw:
-	g77 -mno-cygwin -o $(GETDP_BIN_DIR)/getdp.exe $(GETDP_SPARSKIT_LIBS)
+	g77 -Wl,--stack,8388608 -mno-cygwin -o $(GETDP_BIN_DIR)/getdp.exe $(GETDP_SPARSKIT_LIBS)
 mingw: compile-mingw link-mingw
 
 #

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_ReadLine.c,v 1.8 2003-02-01 01:53:08 geuzaine Exp $"
+#define RCSID "$Id: Pos_ReadLine.c,v 1.9 2003-02-01 04:32:29 geuzaine Exp $"
 /*
  * Copyright (C) 1986 - 1993   Thomas Williams, Colin Kelley
  *
@@ -488,7 +488,7 @@ char * readline (char *prompt){
     }
 
 #ifdef MSDOS
-    cur_char = dos_getch ();
+    cur_char = msdos_getch ();
 #else
     cur_char = ansi_getc ();
 #endif
