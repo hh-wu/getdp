@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.15 2001-08-25 07:58:20 geuzaine Exp $"
+#define RCSID "$Id: Matrix.c,v 1.16 2001-11-22 15:39:57 ledinh Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -878,3 +878,56 @@ void print_matrix_info_MSR (int N, scalar *a, int *jptr){
 void print_matrix_info_DENSE (int N){
   Msg(SPARSKIT, "N: %d\n", N);
 }
+
+
+/* ------------------------------------------------------------------------ */
+/*  get _ column _ in _ m a t r i x                                         */
+/* ------------------------------------------------------------------------ */
+
+void get_column_in_matrix (Matrix *M, int col, double *V){
+
+  int     k, i, j, *ai, *jptr ;
+  double  *a;
+  int found;
+
+  switch (M->T) {
+  case SPARSE :
+    /* csr_format transpose! 
+       donc la matrice arrivant dans cette routine doit
+       bel et bien etre la transposee !!! */
+    if(M->changed){
+      csr_format (&M->S, M->N);
+      restore_format (&M->S);
+      M->changed = 0 ;
+    }
+    jptr = (int*) M->S.jptr->array;
+    a    = (double*) M->S.a->array;
+    ai   = (int*) M->S.ai->array;
+
+    for(i=0; i<M->N; i++){  /* lignes */
+      found=0;
+      for(k=jptr[i]-1;k<jptr[i+1]-1;k++){ /*colonne */
+         if(ai[k]-1==col) { 
+	   V[i]=a[k]; found=1; break; 
+	 }
+	 else if (ai[k]-1 > col) { 
+	   break; 
+	 }
+       }
+      if (!found) V[i]=0; 
+    printf(" V[%d] = %g \n",i, V[i]); 
+    } 
+    break;
+  case DENSE :
+    if(M->notranspose){
+	for(j=0; j<M->N; j++) V[j] = M->F.a[(M->N)*col+j];
+    }
+    else{
+      for(i=0; i<M->N; i++){
+	for(j=0; j<M->N; j++) V[j] = M->F.a[(M->N)*j+col];
+      }
+    }
+    break;
+  }
+}
+
