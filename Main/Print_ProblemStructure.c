@@ -1,4 +1,4 @@
-/* $Id: Print_ProblemStructure.c,v 1.5 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Print_ProblemStructure.c,v 1.6 2000-10-19 11:30:25 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 
@@ -1019,25 +1019,31 @@ void  Print_PostOperation(struct Problem  * Problem) {
 			    PSO->PostQuantityIndex[1]))->Name) ;
 	
 	switch (PSO->SubType) {
-	case PLOT_ONREGION :
+	case PRINT_ONREGION :
 	  Msg(CHECK, ", OnRegion %s",
 	      ((struct Group *)
 	       List_Pointer(Problem->Group,
 			    PSO->Case.OnRegion.RegionIndex))->Name ) ;
 	  break ;
-	case PLOT_ONGRID_0D :
+	case PRINT_ONELEMENTSOF :
+	  Msg(CHECK, ", OnElementsOf %s",
+	      ((struct Group *)
+	       List_Pointer(Problem->Group,
+			    PSO->Case.OnRegion.RegionIndex))->Name ) ;
+	  break ;
+	case PRINT_ONGRID_0D :
 	  Msg(CHECK, ", OnGrid {%.10g,%.10g,%.10g}",
 	      PSO->Case.OnGrid.x[0], PSO->Case.OnGrid.y[0],
 	      PSO->Case.OnGrid.z[0]) ;
 	  break ;
-	case PLOT_ONGRID_1D :
+	case PRINT_ONGRID_1D :
 	  Msg(CHECK, ", OnGrid {{%.10g,%.10g,%.10g}{%.10g,%.10g,%.10g}} {%d}",
 	      PSO->Case.OnGrid.x[0], PSO->Case.OnGrid.y[0],
 	      PSO->Case.OnGrid.z[0],
 	      PSO->Case.OnGrid.x[1], PSO->Case.OnGrid.y[1],
 	      PSO->Case.OnGrid.z[1], PSO->Case.OnGrid.n[0]) ;
 	  break ;
-	case PLOT_ONGRID_2D :
+	case PRINT_ONGRID_2D :
 	  Msg(CHECK, ", OnGrid {{%.10g,%.10g,%.10g}{%.10g,%.10g,%.10g}"
 	      "{%.10g,%.10g,%.10g}} {%d,%d}",
 	      PSO->Case.OnGrid.x[0], PSO->Case.OnGrid.y[0],
@@ -1067,7 +1073,7 @@ void  Print_PostOperation(struct Problem  * Problem) {
 	
 
 	switch (PSO->SubType) {
-	case PLOT_ONREGION :
+	case PRINT_ONREGION :
 	  Msg(CHECK, ", OnRegion %s",
 	      ((struct Group *)
 	       List_Pointer(Problem->Group,

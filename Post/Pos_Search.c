@@ -1,4 +1,4 @@
-/* $Id: Pos_Search.c,v 1.11 2000-09-28 22:15:24 geuzaine Exp $ */
+/* $Id: Pos_Search.c,v 1.12 2000-10-19 11:24:21 dular Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -539,10 +539,10 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
     Msg(ERROR, "Brick %d not found in Grid", i) ;
 
   switch(ChainDim){
-  case _ALL : lowdim = 0 ; highdim = 3 ; break;
-  case _1D  : lowdim = 0 ; highdim = 1 ; break;
-  case _2D  : lowdim = 1 ; highdim = 2 ; break;
-  case _3D  : lowdim = 2 ; highdim = 3 ; break;    
+  case _ALL : lowdim = 0 ; highdim = 2 ; break;
+  case _1D  : lowdim = 0 ; highdim = 0 ; break;
+  case _2D  : lowdim = 1 ; highdim = 1 ; break;
+  case _3D  : lowdim = 2 ; highdim = 2 ; break;    
   default   : 
     Msg(ERROR, "Unknown Chain Dimension %d", ChainDim);
     break;
@@ -550,9 +550,9 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 
   if(!Projection){
 
-    for(dim = highdim ; dim > lowdim ; dim--) {
-      for (i=0 ; i < List_Nbr(Brick_P->p[dim-1]) ; i++) {
-	Element->GeoElement = *(struct Geo_Element**)List_Pointer(Brick_P->p[dim-1], i) ;
+    for(dim = highdim ; dim >= lowdim ; dim--) {
+      for (i=0 ; i < List_Nbr(Brick_P->p[dim]) ; i++) {
+	Element->GeoElement = *(struct Geo_Element**)List_Pointer(Brick_P->p[dim], i) ;
 	if (PointInElement(Element, ExcludeRegion_L, x, y, z, u, v, w)) {
 	  LastElement = Element;
 	  return;
@@ -565,10 +565,10 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
     
     PointElement_L = List_Create(10, 10, sizeof(PointElement));
 
-    for (dim = lowdim ; dim < highdim  ; dim++){
+    for (dim = lowdim ; dim <= highdim  ; dim++){
 
-      for (i=0 ; i < List_Nbr(Brick_P->p[dim-1]) ; i++) {
-	Element->GeoElement = *(struct Geo_Element**)List_Pointer(Brick_P->p[dim-1], i) ;
+      for (i=0 ; i < List_Nbr(Brick_P->p[dim]) ; i++) {
+	Element->GeoElement = *(struct Geo_Element**)List_Pointer(Brick_P->p[dim], i) ;
 	Element->Num = Element->GeoElement->Num ;
 	Element->Type = Element->GeoElement->Type ;
 	Element->Region = Element->GeoElement->Region ;

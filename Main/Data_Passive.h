@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.12 2000-10-17 21:38:53 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.13 2000-10-19 11:30:25 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -789,7 +789,7 @@ struct PostOperation {
 } ;
 
 struct PostSubOperation {
-  int    PostQuantityIndex[2];  
+  int    PostQuantityIndex[2], PostQuantitySupport[2] ;  
   int    Type, SubType, CombinationType ;
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
   int    Format, Adapt, Sort, Iso ;
@@ -801,6 +801,7 @@ struct PostSubOperation {
   List_T * TimeStep_L, * Value_L, * Iso_L ;
   union {
     struct { int RegionIndex ; } OnRegion ;
+    struct { int RegionIndex ; } OnElementsOf ;
     struct { double x[4], y[4], z[4] ; int n[3] ; } OnGrid ;
     struct { int ExpressionIndex[3] ; List_T * ParameterValue[2] ; } OnParamGrid ;
     struct { double x[3], y[3], z[3] ; } OnCut ;
@@ -813,16 +814,17 @@ struct PostSubOperation {
 #define POP_PRINT         2
 
 /* PostOperation.SubType */
-#define PLOT_ONREGION        1
-#define PLOT_ONCUT_1D        2
-#define PLOT_ONCUT_2D        3
-#define PLOT_ONGRID          4
-#define PLOT_ONGRID_0D       5
-#define PLOT_ONGRID_1D       6
-#define PLOT_ONGRID_2D       7
-#define PLOT_ONGRID_3D       8
-#define PLOT_ONGRID_PARAM    10
-#define PLOT_WITHARGUMENT    11
+#define PRINT_ONREGION        1
+#define PRINT_ONELEMENTSOF    2
+#define PRINT_ONCUT_1D        3
+#define PRINT_ONCUT_2D        4
+#define PRINT_ONGRID          5
+#define PRINT_ONGRID_0D       6
+#define PRINT_ONGRID_1D       7
+#define PRINT_ONGRID_2D       8
+#define PRINT_ONGRID_3D       9
+#define PRINT_ONGRID_PARAM    10
+#define PRINT_WITHARGUMENT    11
 
 /* PostOperation.CombinationType */
 #define ADDITION        1

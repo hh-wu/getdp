@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.23 2000-10-06 14:25:22 geuzaine Exp $
+# $Id: Makefile,v 1.24 2000-10-19 11:30:25 dular Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -82,7 +82,7 @@ GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
+#include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
 
 # ----------------------------------------------------------------------
 # Rules for developpers
@@ -161,7 +161,7 @@ linux2:
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
 	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+#	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
 
 
 ## Christophe

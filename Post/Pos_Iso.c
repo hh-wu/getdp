@@ -1,4 +1,4 @@
-/* $Id: Pos_Iso.c,v 1.7 2000-10-17 07:20:54 geuzaine Exp $ */
+/* $Id: Pos_Iso.c,v 1.8 2000-10-19 11:24:21 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -8,6 +8,7 @@
 #include "CurrentData.h"
 #include "ualloc.h"
 
+#include "Pos_Iso.h"
 #include "Pos_Element.h"
 
 /* ------------------------------------------------------------------------ */

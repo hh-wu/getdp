@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.c,v 1.18 2000-10-16 12:32:04 geuzaine Exp $ */
+/* $Id: Pos_Formulation.c,v 1.19 2000-10-19 11:24:21 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -12,8 +12,8 @@
 #include "Get_DofOfElement.h"
 
 #include "Pos_Formulation.h"
-#include "Pos_Plot.h"
 #include "Pos_Print.h"
+#include "Pos_Format.h"
 
 extern int  InteractiveInterrupt ;
 
@@ -50,7 +50,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   if (PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n") ;
 
-  Print_PostFormat(PostSubOperation_P->Format) ;
+  Format_PostFormat(PostSubOperation_P->Format) ;
 
   if(((struct PostQuantity *)
       List_Pointer(PostProcessing_P->PostQuantity, 
@@ -145,37 +145,37 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
     
   case POP_PLOT :
     switch (PostSubOperation_P->SubType) {
-    case PLOT_ONREGION :
-    case PLOT_ONGRID   :
-      Pos_PlotOnRegion(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
-		       QuantityStorage_P0, PostSubOperation_P) ; 
+    case PRINT_ONELEMENTSOF :
+      Pos_PrintOnElementsOf(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
+			    QuantityStorage_P0, PostSubOperation_P) ; 
       break ;
-    case PLOT_ONCUT_1D :
-    case PLOT_ONCUT_2D :
-      Pos_PlotOnCut(NCPQ_P, CPQ_P, Order, DefineQuantity_P0,
-		    QuantityStorage_P0, PostSubOperation_P) ;
-      break ;
-    case PLOT_ONGRID_0D    :
-    case PLOT_ONGRID_1D    :
-    case PLOT_ONGRID_2D    :
-    case PLOT_ONGRID_3D    :
-    case PLOT_ONGRID_PARAM :
-      Pos_PlotOnGrid(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
-		     QuantityStorage_P0, PostSubOperation_P) ; 
-      break ;
-    default :
-      Msg(ERROR, "Unknown Operation Type for Plot") ;
-      break;
-    }
-    break ;
+    } /* Attention : a supprimer */
 
-  case POP_PRINT :    
+  case POP_PRINT :
     switch (PostSubOperation_P->SubType) {
-    case PLOT_ONREGION :
+    case PRINT_ONREGION :
       Pos_PrintOnRegion(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
 			QuantityStorage_P0, PostSubOperation_P) ; 
       break ;
-    case PLOT_WITHARGUMENT :
+    case PRINT_ONELEMENTSOF :
+    case PRINT_ONGRID   :
+      Pos_PrintOnElementsOf(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
+			    QuantityStorage_P0, PostSubOperation_P) ; 
+      break ;
+    case PRINT_ONCUT_1D :
+    case PRINT_ONCUT_2D :
+      Pos_PrintOnCut(NCPQ_P, CPQ_P, Order, DefineQuantity_P0,
+		     QuantityStorage_P0, PostSubOperation_P) ;
+      break ;
+    case PRINT_ONGRID_0D    :
+    case PRINT_ONGRID_1D    :
+    case PRINT_ONGRID_2D    :
+    case PRINT_ONGRID_3D    :
+    case PRINT_ONGRID_PARAM :
+      Pos_PrintOnGrid(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
+		      QuantityStorage_P0, PostSubOperation_P) ; 
+      break ;
+    case PRINT_WITHARGUMENT :
       Pos_PrintWithArgument(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
 			    QuantityStorage_P0, PostSubOperation_P) ; 
       break ;

@@ -1,9 +1,10 @@
-gdb /home/dular/GETDP17/bin/getdp-Linux \
-  --directory=/home/dular/GETDP17/Main \
-  --directory=/home/dular/GETDP17/Post \
-  --directory=/home/dular/GETDP17/Function \
-  --directory=/home/dular/GETDP17/Integration \
-  --directory=/home/dular/GETDP17/GeoData \
-  --directory=/home/dular/GETDP17/DofData \
-  --directory=/home/dular/GETDP17/Numeric \
-  --directory=/home/dular/GETDP17/DataStr
+gdb /home/dular/CVS/getdp/bin/getdp-Linux \
+  --directory=/home/dular/CVS/getdp/Main \
+  --directory=/home/dular/CVS/getdp/Parser \
+  --directory=/home/dular/CVS/getdp/Post \
+  --directory=/home/dular/CVS/getdp/Function \
+  --directory=/home/dular/CVS/getdp/Integration \
+  --directory=/home/dular/CVS/getdp/GeoData \
+  --directory=/home/dular/CVS/getdp/DofData \
+  --directory=/home/dular/CVS/getdp/Numeric \
+  --directory=/home/dular/CVS/getdp/DataStr

@@ -1,4 +1,4 @@
-/* $Id: Pos_Element.c,v 1.5 2000-10-16 21:02:16 geuzaine Exp $ */
+/* $Id: Pos_Element.c,v 1.6 2000-10-19 11:24:21 dular Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -6,7 +6,7 @@
 #include "Get_Geometry.h"
 #include "Get_DofOfElement.h"
 #include "Data_Active.h"
-#include "Pos_Formulation.h"
+#include "Pos_Element.h"
 
 #include "ualloc.h"
 

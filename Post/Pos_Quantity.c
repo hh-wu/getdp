@@ -1,10 +1,11 @@
-/* $Id: Pos_Quantity.c,v 1.1 2000-10-16 12:32:05 geuzaine Exp $ */
+/* $Id: Pos_Quantity.c,v 1.2 2000-10-19 11:24:21 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
 #include "Treatment_Formulation.h"
 #include "Pos_Formulation.h"
+#include "Pos_Quantity.h"
 #include "Get_DofOfElement.h"
 #include "GeoData.h"
 #include "Cal_Quantity.h"
@@ -15,6 +16,243 @@
 
 #include "CurrentData.h"
 #include "outil.h"
+
+
+/* ------------------------------------------------------------------------ */
+/*  C a l _ P o s t Q u a n t i t y                                         */
+/* ------------------------------------------------------------------------ */
+
+void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P, 
+		      struct DefineQuantity  *DefineQuantity_P0,
+		      struct QuantityStorage *QuantityStorage_P0,
+		      List_T *Support_L,
+		      struct Element         *Element, 
+		      double u, double v, double w, 
+		      struct Value *Value) {
+
+  struct PostQuantityTerm  PostQuantityTerm ;
+
+  List_T   *InRegion_L ;
+  int       i_PQT, Type_Quantity ;
+
+  /* mettre tout a zero: on ne connait pas a priori le type de retour */
+
+  Cal_ZeroValue(Value);
+
+  /* default type and value returned if Type_Quantity == -1 */
+
+  Value->Type = SCALAR; 
+
+  /* Loop on PostQuantity Terms */
+  /* ... with sum of results if common supports (In ...) */
+
+  for (i_PQT = 0 ; i_PQT < List_Nbr(PostQuantity_P->PostQuantityTerm) ; i_PQT++) {
+    
+    List_Read(PostQuantity_P->PostQuantityTerm, i_PQT, &PostQuantityTerm) ;
+    
+    InRegion_L = (PostQuantityTerm.InIndex < 0)?  NULL :
+      ((struct Group *)List_Pointer(Problem_S.Group, 
+				    PostQuantityTerm.InIndex))->InitialList ;
+
+    Type_Quantity = PostQuantityTerm.Type ;
+
+    if (InRegion_L) {
+      if (Element->Num != NO_ELEMENT) {
+	if (!List_Search(InRegion_L, &Element->Region, fcmp_int)) { 
+	  Type_Quantity = -1 ; 
+	}
+      }
+      else {
+	if (Type_Quantity == GLOBALQUANTITY) {
+	  /* Plus de test ici... vu que le OnRegion de la PostOperation n'a rien
+	     a voir avec le support d'une integration ...
+	  if (!List_Search(InRegion_L, &Current.Region, fcmp_int)) {
+	    Type_Quantity = -1 ;
+	  }
+	  */
+	}
+	else if (Type_Quantity != INTEGRALQUANTITY) {
+	  Type_Quantity = -1 ;
+	}
+      }
+    }
+
+    /* ---------------------------- */
+    /* Local or Integral quantities */
+    /* ---------------------------- */
+
+    if (Type_Quantity == LOCALQUANTITY || Type_Quantity == INTEGRALQUANTITY) {
+
+      Pos_LocalOrIntegralQuantity(PostQuantity_P,
+				  DefineQuantity_P0, QuantityStorage_P0,
+				  &PostQuantityTerm, Element, Type_Quantity,
+				  u, v, w, Value) ;
+    }
+
+    /* ----------------- */
+    /* Global quantities */
+    /* ----------------- */
+
+    else if (Type_Quantity == GLOBALQUANTITY) {
+
+      Pos_GlobalQuantity(PostQuantity_P,
+			 DefineQuantity_P0, QuantityStorage_P0,
+			 &PostQuantityTerm, Element, InRegion_L, Support_L, Value) ;
+    }
+   
+  }  /* for i_PQT ... */
+
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  P o s _ G l o b a l Q u a n t i t y                                     */
+/* ------------------------------------------------------------------------ */
+
+void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
+			struct DefineQuantity  *DefineQuantity_P0,
+			struct QuantityStorage *QuantityStorage_P0,
+			struct PostQuantityTerm  *PostQuantityTerm_P,
+			struct Element         *ElementEmpty, 
+			List_T  *InRegion_L, List_T  *Support_L,
+			struct Value *Value) {
+
+  struct DefineQuantity    *DefineQuantity_P ;
+  struct QuantityStorage   *QuantityStorage_P ;
+  struct FunctionSpace     *FunctionSpace_P ;
+  struct GlobalQuantity    *GlobalQuantity_P ;
+  struct Value              TermValue ;
+
+  int  k, Index_DefineQuantity ;
+
+
+  int    Nbr_Element, i_Element ;
+  struct Element  Element ;
+  int    Type_Quantity ;
+
+
+  if (PostQuantityTerm_P->EvaluationType == LOCAL &&
+      List_Search(InRegion_L, &Current.Region, fcmp_int)) {
+
+    for (k = 0 ; k < PostQuantityTerm_P->NbrQuantityIndex ; k++) {	  
+      Index_DefineQuantity = PostQuantityTerm_P->QuantityIndexTable[k] ;
+      DefineQuantity_P     = DefineQuantity_P0  + Index_DefineQuantity ;
+      QuantityStorage_P    = QuantityStorage_P0 + Index_DefineQuantity ;
+
+      if (QuantityStorage_P->NumLastElementForFunctionSpace != Current.Region) {
+	QuantityStorage_P->NumLastElementForFunctionSpace = Current.Region ;
+	QuantityStorage_P->FunctionSpace = FunctionSpace_P =
+	  (struct FunctionSpace*)
+	  List_Pointer(Problem_S.FunctionSpace,
+		       DefineQuantity_P->FunctionSpaceIndex) ;
+	GlobalQuantity_P = (struct GlobalQuantity*)
+	  List_Pointer
+	  (QuantityStorage_P->FunctionSpace->GlobalQuantity,
+	   *(int *)List_Pointer(DefineQuantity_P->IndexInFunctionSpace, 0)) ;
+
+	if (DefineQuantity_P->Type == GLOBALQUANTITY)
+	  Get_DofOfRegion(Current.Region, GlobalQuantity_P,
+			  FunctionSpace_P, QuantityStorage_P) ;
+      }
+    }
+
+    Cal_WholeQuantity
+      (Current.Element = ElementEmpty,
+       QuantityStorage_P0, PostQuantityTerm_P->WholeQuantity,
+       Current.u = 0., Current.v = 0., Current.w = 0., -1, -1, &TermValue) ;
+
+    Value->Type = TermValue.Type;
+    Cal_AddValue(Value,&TermValue,Value);
+
+  }  /* if LOCAL && ... */
+
+  else if (PostQuantityTerm_P->EvaluationType == INTEGRAL) {
+
+    Nbr_Element = Geo_GetNbrGeoElements() ;
+
+    Type_Quantity = LOCALQUANTITY ; /* Attention... il faut se comprendre: */
+    /* il s'agit de grandeurs locales qui seront integrees */
+    for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
+      Progress(i_Element, Nbr_Element, "") ;
+
+      Element.GeoElement = Geo_GetGeoElement(i_Element) ;
+      Element.Num    = Element.GeoElement->Num ;
+      Element.Type   = Element.GeoElement->Type ;
+      Current.Region = Element.Region = Element.GeoElement->Region ;
+
+      if (List_Search(InRegion_L, &Element.Region, fcmp_int) &&
+	  (!Support_L || List_Search(Support_L, &Element.Region, fcmp_int))) {
+	Pos_LocalOrIntegralQuantity(PostQuantity_P,
+				    DefineQuantity_P0, QuantityStorage_P0,
+				    PostQuantityTerm_P, &Element, Type_Quantity,
+				    0., 0., 0., Value) ;
+      }
+    }  /* for i_Element ... */
+  }  /* if INTEGRAL ... */
+
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  C a l _ P o s t C u m u l a t i v e Q u a n t i t y                     */
+/* ------------------------------------------------------------------------ */
+
+void Cal_PostCumulativeQuantity(List_T                 *Region_L,
+				List_T                 *TimeStep_L, 
+				struct PostQuantity    *PostQuantity_P, 
+				struct DefineQuantity  *DefineQuantity_P0,
+				struct QuantityStorage *QuantityStorage_P0,
+				struct Value           *Value){  
+  struct Element Element ;
+  struct Value tmpValue ;
+  int i, j, NbElement, NbTimeStep ;
+
+  NbTimeStep = List_Nbr(TimeStep_L) ; 
+  NbElement = Geo_GetNbrGeoElements() ;
+
+  Get_InitDofOfElement(&Element) ;
+
+  for(i = 0 ; i < NbTimeStep ; i++) Cal_ZeroValue(&Value[i]);
+  
+  for(i = 0 ; i < NbElement ; i++) {    
+    Progress(i, NbElement, "Accumulate: ") ;
+
+    Element.GeoElement = Geo_GetGeoElement(i) ;
+    Element.Num        = Element.GeoElement->Num ;
+    Element.Type       = Element.GeoElement->Type ;
+    Current.Region     = Element.Region = Element.GeoElement->Region ;
+
+    if(!Region_L || List_Search(Region_L, &Current.Region, fcmp_int)){
+      Get_NodesCoordinatesOfElement(&Element) ;
+      for (j = 0 ; j < NbTimeStep ; j++) {	
+	Pos_InitAllSolutions(TimeStep_L, j) ;
+	Current.x = Element.x[0];
+	Current.y = Element.y[0];
+	Current.z = Element.z[0]; 
+	Cal_PostQuantity(PostQuantity_P, DefineQuantity_P0, QuantityStorage_P0, 
+			 NULL, &Element, 0, 0, 0, &tmpValue);
+	Value[j].Type = tmpValue.Type;
+	Cal_AddValue(&Value[j],&tmpValue,&Value[j]);
+      }
+    }
+
+  }    
+}
+
+/* ------------------------------------------------------------------------ */
+/*  C o m b i n e _ P o s t Q u a n t i t y                                 */
+/* ------------------------------------------------------------------------ */
+
+void Combine_PostQuantity(int Type, int Order, 
+			  struct Value *V1, struct Value *V2){
+  switch(Type){
+  case MULTIPLICATION : Cal_ProductValue(V1, V2, V1) ; break ;
+  case ADDITION :       Cal_AddValue(V1, V2, V1) ; break ;
+  case DIVISION :       Cal_DivideValue(Order?V1:V2, Order?V2:V1, V1) ; break;
+  case SOUSTRACTION :   Cal_SubstractValue(Order?V1:V2, Order?V2:V1, V1) ; break;	
+  }
+}
+
 
 /* ------------------------------------------------------------------------ */
 /*  P o s _ L o c a l O r I n t e g r a l Q u a n t i t y                   */
@@ -122,7 +360,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
     Get_NodesCoordinatesOfElement(Element) ;
   }
 
-  /* local evaluation on one point */
+  /* local evaluation at one point */
 
   if(PostQuantityTerm_P->EvaluationType == LOCAL){
 
@@ -227,239 +465,3 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
   Cal_AddValue(Value,&TermValue,Value);
 
 }
-
-
-/* ------------------------------------------------------------------------ */
-/*  P o s _ G l o b a l Q u a n t i t y                                     */
-/* ------------------------------------------------------------------------ */
-
-void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
-			struct DefineQuantity  *DefineQuantity_P0,
-			struct QuantityStorage *QuantityStorage_P0,
-			struct PostQuantityTerm  *PostQuantityTerm_P,
-			struct Element         *ElementEmpty, 
-			List_T  *InRegion_L, int Num_Region,
-			struct Value *Value) {
-
-  struct DefineQuantity    *DefineQuantity_P ;
-  struct QuantityStorage   *QuantityStorage_P ;
-  struct FunctionSpace     *FunctionSpace_P ;
-  struct GlobalQuantity    *GlobalQuantity_P ;
-  struct Value              TermValue ;
-
-  int  k, Index_DefineQuantity ;
-
-
-  int    Nbr_Element, i_Element ;
-  struct Element  Element ;
-  int    Type_Quantity ;
-
-
-  if (PostQuantityTerm_P->EvaluationType == LOCAL &&
-      List_Search(InRegion_L, &Current.Region, fcmp_int)) {
-
-    for (k = 0 ; k < PostQuantityTerm_P->NbrQuantityIndex ; k++) {	  
-      Index_DefineQuantity = PostQuantityTerm_P->QuantityIndexTable[k] ;
-      DefineQuantity_P     = DefineQuantity_P0  + Index_DefineQuantity ;
-      QuantityStorage_P    = QuantityStorage_P0 + Index_DefineQuantity ;
-
-      if (QuantityStorage_P->NumLastElementForFunctionSpace != Current.Region) {
-	QuantityStorage_P->NumLastElementForFunctionSpace = Current.Region ;
-	QuantityStorage_P->FunctionSpace = FunctionSpace_P =
-	  (struct FunctionSpace*)
-	  List_Pointer(Problem_S.FunctionSpace,
-		       DefineQuantity_P->FunctionSpaceIndex) ;
-	GlobalQuantity_P = (struct GlobalQuantity*)
-	  List_Pointer
-	  (QuantityStorage_P->FunctionSpace->GlobalQuantity,
-	   *(int *)List_Pointer(DefineQuantity_P->IndexInFunctionSpace, 0)) ;
-
-	if (DefineQuantity_P->Type == GLOBALQUANTITY)
-	  Get_DofOfRegion(Current.Region, GlobalQuantity_P,
-			  FunctionSpace_P, QuantityStorage_P) ;
-      }
-    }
-
-    Cal_WholeQuantity
-      (Current.Element = ElementEmpty,
-       QuantityStorage_P0, PostQuantityTerm_P->WholeQuantity,
-       Current.u = 0., Current.v = 0., Current.w = 0., -1, -1, &TermValue) ;
-
-    Value->Type = TermValue.Type;
-    Cal_AddValue(Value,&TermValue,Value);
-
-  }  /* if LOCAL && ... */
-
-  else if (PostQuantityTerm_P->EvaluationType == INTEGRAL) {
-
-    Nbr_Element = Geo_GetNbrGeoElements() ;
-
-    Type_Quantity = LOCALQUANTITY ; /* Attention... il faut se comprendre: */
-    /* il s'agit de grandeurs locales qui seront integrees */
-    for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
-      Progress(i_Element, Nbr_Element, "") ;
-
-      Element.GeoElement = Geo_GetGeoElement(i_Element) ;
-      Element.Num    = Element.GeoElement->Num ;
-      Element.Type   = Element.GeoElement->Type ;
-      Current.Region = Element.Region = Element.GeoElement->Region ;
-
-      if (List_Search(InRegion_L, &Element.Region, fcmp_int)) {
-	Pos_LocalOrIntegralQuantity(PostQuantity_P,
-				    DefineQuantity_P0, QuantityStorage_P0,
-				    PostQuantityTerm_P, &Element, Type_Quantity,
-				    0., 0., 0., Value) ;
-      }
-    }  /* for i_Element ... */
-  }  /* if INTEGRAL ... */
-
-}
-
-/* ------------------------------------------------------------------------ */
-/*  C a l _ P o s t Q u a n t i t y                                         */
-/* ------------------------------------------------------------------------ */
-
-void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P, 
-		      struct DefineQuantity  *DefineQuantity_P0,
-		      struct QuantityStorage *QuantityStorage_P0,
-		      struct Element         *Element, 
-		      double u, double v, double w, 
-		      struct Value *Value) {
-
-  struct PostQuantityTerm  PostQuantityTerm ;
-
-  List_T   *InRegion_L ;
-  int       i_PQT, Type_Quantity ;
-
-  /* mettre tout a zero: on ne connait pas a priori le type de retour */
-
-  Cal_ZeroValue(Value);
-
-  /* default type and value returned if Type_Quantity == -1 */
-
-  Value->Type = SCALAR; 
-
-  /* Loop on PostQuantity Terms */
-  /* ... with sum of results if common supports (In ...) */
-
-  for (i_PQT = 0 ; i_PQT < List_Nbr(PostQuantity_P->PostQuantityTerm) ; i_PQT++) {
-    
-    List_Read(PostQuantity_P->PostQuantityTerm, i_PQT, &PostQuantityTerm) ;
-    
-    InRegion_L = (PostQuantityTerm.InIndex < 0)?  NULL :
-      ((struct Group *)List_Pointer(Problem_S.Group, 
-				    PostQuantityTerm.InIndex))->InitialList ;
-
-    Type_Quantity = PostQuantityTerm.Type ;
-
-    if (InRegion_L) {
-      if (Element->Num != NO_ELEMENT) {
-	if (!List_Search(InRegion_L, &Element->Region, fcmp_int)) { 
-	  Type_Quantity = -1 ; 
-	}
-      }
-      else {
-	if (Type_Quantity == GLOBALQUANTITY) {
-	  /* Plus de test ici... vu que le OnRegion de la PostOperation n'a rien
-	     a voir avec le support d'une integration ...
-	  if (!List_Search(InRegion_L, &Current.Region, fcmp_int)) {
-	    Type_Quantity = -1 ;
-	  }
-	  */
-	}
-	else if (Type_Quantity != INTEGRALQUANTITY) {
-	  Type_Quantity = -1 ;
-	}
-      }
-    }
-
-    /* ---------------------------- */
-    /* Local or Integral quantities */
-    /* ---------------------------- */
-
-    if (Type_Quantity == LOCALQUANTITY || Type_Quantity == INTEGRALQUANTITY) {
-
-      Pos_LocalOrIntegralQuantity(PostQuantity_P,
-				  DefineQuantity_P0, QuantityStorage_P0,
-				  &PostQuantityTerm, Element, Type_Quantity,
-				  u, v, w, Value) ;
-    }
-
-    /* ----------------- */
-    /* Global quantities */
-    /* ----------------- */
-
-    else if (Type_Quantity == GLOBALQUANTITY) {
-
-      Pos_GlobalQuantity(PostQuantity_P,
-			 DefineQuantity_P0, QuantityStorage_P0,
-			 &PostQuantityTerm, Element, InRegion_L,
-			 Current.Region, Value) ;
-    }
-   
-  }  /* for i_PQT ... */
-
-}
-
-
-
-/* ------------------------------------------------------------------------ */
-/*  C a l _ P o s t C u m u l a t i v e Q u a n t i t y                     */
-/* ------------------------------------------------------------------------ */
-
-void Cal_PostCumulativeQuantity(List_T                 *Region_L,
-				List_T                 *TimeStep_L, 
-				struct PostQuantity    *PostQuantity_P, 
-				struct DefineQuantity  *DefineQuantity_P0,
-				struct QuantityStorage *QuantityStorage_P0,
-				struct Value           *Value){  
-  struct Element Element ;
-  struct Value tmpValue ;
-  int i, j, NbElement, NbTimeStep ;
-
-  NbTimeStep = List_Nbr(TimeStep_L) ; 
-  NbElement = Geo_GetNbrGeoElements() ;
-
-  Get_InitDofOfElement(&Element) ;
-
-  for(i = 0 ; i < NbTimeStep ; i++) Cal_ZeroValue(&Value[i]);
-  
-  for(i = 0 ; i < NbElement ; i++) {    
-    Progress(i, NbElement, "Accumulate: ") ;
-
-    Element.GeoElement = Geo_GetGeoElement(i) ;
-    Element.Num        = Element.GeoElement->Num ;
-    Element.Type       = Element.GeoElement->Type ;
-    Current.Region     = Element.Region = Element.GeoElement->Region ;
-
-    if(!Region_L || List_Search(Region_L, &Current.Region, fcmp_int)){
-      Get_NodesCoordinatesOfElement(&Element) ;
-      for (j = 0 ; j < NbTimeStep ; j++) {	
-	Pos_InitAllSolutions(TimeStep_L, j) ;
-	Current.x = Element.x[0];
-	Current.y = Element.y[0];
-	Current.z = Element.z[0]; 
-	Cal_PostQuantity(PostQuantity_P, DefineQuantity_P0, QuantityStorage_P0, 
-			 &Element, 0, 0, 0, &tmpValue);
-	Value[j].Type = tmpValue.Type;
-	Cal_AddValue(&Value[j],&tmpValue,&Value[j]);
-      }
-    }
-
-  }    
-}
-
-/* ------------------------------------------------------------------------ */
-/*  C o m b i n e _ P o s t Q u a n t i t y                                 */
-/* ------------------------------------------------------------------------ */
-
-void Combine_PostQuantity(int Type, int Order, 
-			  struct Value *V1, struct Value *V2){
-  switch(Type){
-  case MULTIPLICATION : Cal_ProductValue(V1, V2, V1) ; break ;
-  case ADDITION :       Cal_AddValue(V1, V2, V1) ; break ;
-  case DIVISION :       Cal_DivideValue(Order?V1:V2, Order?V2:V1, V1) ; break;
-  case SOUSTRACTION :   Cal_SubstractValue(Order?V1:V2, Order?V2:V1, V1) ; break;	
-  }
-}
-

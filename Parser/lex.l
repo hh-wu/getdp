@@ -1,5 +1,5 @@
 %{
-/* $Id: lex.l,v 1.9 2000-10-17 21:38:53 geuzaine Exp $ */
+/* $Id: lex.l,v 1.10 2000-10-19 11:27:08 dular Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -231,7 +231,9 @@ Plot                         return tPlot ;
 Print                        return tPrint ;
 Adapt                        return tAdapt ;
 Write                        return tWrite ;
+OnGlobal                     return tOnGlobal ;
 OnRegion                     return tOnRegion ;
+OnElementsOf                 return tOnElementsOf ;
 OnGrid                       return tOnGrid ;
 OnCut                        return tOnCut ;
 OnPoint                      return tOnPoint ;

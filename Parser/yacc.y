@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.16 2000-10-18 09:21:03 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.17 2000-10-19 11:27:08 dular Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -195,6 +195,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %type <i>  GroupRHS, ReducedGroupRHS, FunctionForGroup, SuppListTypeForGroup
 %type <i>  Expression, DefineDimension, MultipleIndex, Index
 %type <i>  ArgumentsForFunction, RecursiveListOfQuantity
+%type <i>  PostQuantitySupport
 %type <d>  FExpr, OneFExpr
 %type <l>  RecursiveListOfRegion
 %type <l>  ListOfRegion, ListOfRegionOrAll, SuppListOfRegion, IRegion
@@ -276,7 +277,8 @@ struct PostSubOperation         PostSubOperation_S ;
 %token  tPostOperation  
 %token    tNameOfPostProcessing tUsingPost tAppend
 %token      tPlot tPrint tWrite tAdapt
-%token        tOnRegion tOnGrid tOnCut tOnPoint tOnLine tOnPlane tOnBox
+%token        tOnGlobal tOnRegion tOnElementsOf
+%token        tOnGrid tOnCut tOnPoint tOnLine tOnPlane tOnBox
 %token        tWithArgument
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
@@ -4997,72 +4999,51 @@ PostSubOperation :
 
     tPlot '[' PostQuantitiesToPlot PlotSubType PlotOptions ']' tEND
     {
-      PostSubOperation_S.Type = POP_PLOT ;
+      PostSubOperation_S.Type = POP_PLOT ;  /* Warning: to be removed ! */
     }
 
-  | tPrint '[' PostQuantitiesToPlot tOnRegion GroupRHS PlotOptions ']' tEND
+  | tPrint '[' PostQuantitiesToPlot PrintSubType PlotOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_PRINT ;
-      PostSubOperation_S.SubType = PLOT_ONREGION ;
-      PostSubOperation_S.Case.OnRegion.RegionIndex = 
-	Num_Group(&Group_S, "PO_OnRegion", $5) ;
-    }
-
-
-  | tPrint '[' PostQuantitiesToPlot
-               tOnRegion GroupRHS
-               tWithArgument tSTRING
-               '{' FExpr ',' FExpr '}'  '{' FExpr '}'  PlotOptions ']' tEND
-    {
-      PostSubOperation_S.Type = POP_PRINT ;
-      PostSubOperation_S.SubType = PLOT_WITHARGUMENT ;
-
-      PostSubOperation_S.Case.WithArgument.RegionIndex = 
-	Num_Group(&Group_S, "PO_On", $5) ;
-
-      if((i = List_ISearchSeq(Problem_S.Expression, $7, fcmp_Expression_Name)) < 0)
-	vyyerror("Unknown Name of Expression: %s", $7) ;
-      Free($7) ;
-
-      PostSubOperation_S.Case.WithArgument.ArgumentIndex = i ;
-      PostSubOperation_S.Case.WithArgument.x[0] = $9 ;
-      PostSubOperation_S.Case.WithArgument.x[1] = $11 ;
-      PostSubOperation_S.Case.WithArgument.n = (int)$14 ;
     }
 
   ;
 
 PostQuantitiesToPlot :
 
-    tSTRING ','
+    tSTRING PostQuantitySupport ','
     {
       if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1, 
 			       fcmp_PostQuantity_Name)) < 0)
 	vyyerror("Unknown PostQuantity: %s", $1) ;
       PostSubOperation_S.PostQuantityIndex[0] = i ;
       PostSubOperation_S.PostQuantityIndex[1] = -1 ;
+      PostSubOperation_S.PostQuantitySupport[0] = $2 ;
+      PostSubOperation_S.PostQuantitySupport[1] = -1 ;
       Free($1) ;
     }
 
- |  tSTRING Combination tSTRING ','
+ |  tSTRING  PostQuantitySupport Combination tSTRING  PostQuantitySupport ','
     {
       if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1, 
 			       fcmp_PostQuantity_Name)) < 0)
 	vyyerror("Unknown PostQuantity: %s", $1) ;
       PostSubOperation_S.PostQuantityIndex[0] = i ;
+      PostSubOperation_S.PostQuantitySupport[0] = $2 ;
 
-      if ((j = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $3, 
+      if ((j = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $4, 
 			       fcmp_PostQuantity_Name)) < 0)
-	vyyerror("Unknown PostQuantity: %s", $3) ;
+	vyyerror("Unknown PostQuantity: %s", $4) ;
       PostSubOperation_S.PostQuantityIndex[1] = j ;
+      PostSubOperation_S.PostQuantitySupport[1] = $5 ;
 
       if((k=((struct PostQuantity*)
 	     List_Pointer(InteractivePostProcessing_S.PostQuantity, i))->Type) == 
 	 ((struct PostQuantity*)List_Pointer(InteractivePostProcessing_S.PostQuantity, j))->Type){
 	vyyerror("PostQuantities '%s' and '%s' should not be of same type (%s)", 
-		 $1, $3, Get_StringForDefine(PostQuantity_Type, k)) ;
+		 $1, $4, Get_StringForDefine(PostQuantity_Type, k)) ;
       }      
-      Free($1) ; Free($3) ;
+      Free($1) ; Free($4) ;
     }
   ;
 
@@ -5074,11 +5055,19 @@ Combination :
   | '-' { PostSubOperation_S.CombinationType = SOUSTRACTION ; }
   ;
 
+PostQuantitySupport :
+
+    /* none */
+    { $$ = -1 ; }
+  | '[' GroupRHS ']'
+    { $$ = Num_Group(&Group_S, "PO_Support", $2) ; }
+
+
 PlotSubType :
 
     tOnRegion GroupRHS
     {
-      PostSubOperation_S.SubType = PLOT_ONREGION ;
+      PostSubOperation_S.SubType = PRINT_ONELEMENTSOF ;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
 	Num_Group(&Group_S, "PO_OnRegion", $2) ;
     }
@@ -5087,7 +5076,7 @@ PlotSubType :
                '{' FExpr ',' FExpr ',' FExpr '}'
                '{' FExpr ',' FExpr ',' FExpr '}' '}'
     {
-      PostSubOperation_S.SubType = PLOT_ONCUT_2D ;
+      PostSubOperation_S.SubType = PRINT_ONCUT_2D ;
       PostSubOperation_S.Case.OnCut.x[0] = $4 ;
       PostSubOperation_S.Case.OnCut.y[0] = $6 ;
       PostSubOperation_S.Case.OnCut.z[0] = $8 ;
@@ -5101,7 +5090,7 @@ PlotSubType :
 
   | tOnGrid GroupRHS
     {
-      PostSubOperation_S.SubType = PLOT_ONGRID ;
+      PostSubOperation_S.SubType = PRINT_ONGRID ;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
 	Num_Group(&Group_S, "PO_OnGrid", $2) ;
     }
@@ -5109,7 +5098,7 @@ PlotSubType :
   | tOnGrid '{' Expression ',' Expression ',' Expression '}' 
             '{' ListOfDouble
     {
-      PostSubOperation_S.SubType = PLOT_ONGRID_PARAM ;
+      PostSubOperation_S.SubType = PRINT_ONGRID_PARAM ;
       PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[0] = $3 ;
       PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[1] = $5 ;
       PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[2] = $7 ;
@@ -5132,7 +5121,7 @@ PlotSubType :
 
   | tOnPoint '{' FExpr ',' FExpr ',' FExpr '}'
     {
-      PostSubOperation_S.SubType = PLOT_ONGRID_0D ;
+      PostSubOperation_S.SubType = PRINT_ONGRID_0D ;
       PostSubOperation_S.Case.OnGrid.x[0] = $3 ;
       PostSubOperation_S.Case.OnGrid.y[0] = $5 ;
       PostSubOperation_S.Case.OnGrid.z[0] = $7 ;
@@ -5141,7 +5130,7 @@ PlotSubType :
   | tOnLine '{' '{' FExpr ',' FExpr ',' FExpr '}'
                 '{' FExpr ',' FExpr ',' FExpr '}' '}'  '{' FExpr '}'
     {
-      PostSubOperation_S.SubType = PLOT_ONGRID_1D ;
+      PostSubOperation_S.SubType = PRINT_ONGRID_1D ;
       PostSubOperation_S.Case.OnGrid.x[0] = $4 ;
       PostSubOperation_S.Case.OnGrid.y[0] = $6 ;
       PostSubOperation_S.Case.OnGrid.z[0] = $8 ;
@@ -5155,7 +5144,7 @@ PlotSubType :
                  '{' FExpr ',' FExpr ',' FExpr '}'
                  '{' FExpr ',' FExpr ',' FExpr '}' '}'  '{' FExpr ',' FExpr '}'
     {
-      PostSubOperation_S.SubType = PLOT_ONGRID_2D ;
+      PostSubOperation_S.SubType = PRINT_ONGRID_2D ;
       PostSubOperation_S.Case.OnGrid.x[0] = $4 ;
       PostSubOperation_S.Case.OnGrid.y[0] = $6 ;
       PostSubOperation_S.Case.OnGrid.z[0] = $8 ;
@@ -5174,7 +5163,7 @@ PlotSubType :
                '{' FExpr ',' FExpr ',' FExpr '}'
                '{' FExpr ',' FExpr ',' FExpr '}' '}'  '{' FExpr ',' FExpr ',' FExpr '}'
     {
-      PostSubOperation_S.SubType = PLOT_ONGRID_3D ;
+      PostSubOperation_S.SubType = PRINT_ONGRID_3D ;
       PostSubOperation_S.Case.OnGrid.x[0] = $4 ;
       PostSubOperation_S.Case.OnGrid.y[0] = $6 ;
       PostSubOperation_S.Case.OnGrid.z[0] = $8 ;
@@ -5190,6 +5179,158 @@ PlotSubType :
       PostSubOperation_S.Case.OnGrid.n[0] = (int)$33 ;
       PostSubOperation_S.Case.OnGrid.n[1] = (int)$35 ;
       PostSubOperation_S.Case.OnGrid.n[2] = (int)$37 ;
+    }
+
+  ;
+
+PrintSubType :
+
+    tOnGlobal
+    {
+      PostSubOperation_S.SubType = PRINT_ONREGION ;
+      PostSubOperation_S.Case.OnRegion.RegionIndex = -1 ;
+    }
+
+  | tOnRegion GroupRHS
+    {
+      PostSubOperation_S.SubType = PRINT_ONREGION ;
+      PostSubOperation_S.Case.OnRegion.RegionIndex = 
+	Num_Group(&Group_S, "PO_OnRegion", $2) ;
+    }
+
+  | tOnElementsOf GroupRHS
+    {
+      PostSubOperation_S.SubType = PRINT_ONELEMENTSOF ;
+      PostSubOperation_S.Case.OnRegion.RegionIndex =
+	Num_Group(&Group_S, "PO_OnElementsOf", $2) ;
+    }
+
+  | tOnCut '{' '{' FExpr ',' FExpr ',' FExpr '}'
+               '{' FExpr ',' FExpr ',' FExpr '}'
+               '{' FExpr ',' FExpr ',' FExpr '}' '}'
+    {
+      PostSubOperation_S.SubType = PRINT_ONCUT_2D ;
+      PostSubOperation_S.Case.OnCut.x[0] = $4 ;
+      PostSubOperation_S.Case.OnCut.y[0] = $6 ;
+      PostSubOperation_S.Case.OnCut.z[0] = $8 ;
+      PostSubOperation_S.Case.OnCut.x[1] = $11 ;
+      PostSubOperation_S.Case.OnCut.y[1] = $13 ;
+      PostSubOperation_S.Case.OnCut.z[1] = $15 ;
+      PostSubOperation_S.Case.OnCut.x[2] = $18 ;
+      PostSubOperation_S.Case.OnCut.y[2] = $20 ;
+      PostSubOperation_S.Case.OnCut.z[2] = $22 ;
+    }
+
+  | tOnGrid GroupRHS
+    {
+      PostSubOperation_S.SubType = PRINT_ONGRID ;
+      PostSubOperation_S.Case.OnRegion.RegionIndex =
+	Num_Group(&Group_S, "PO_OnGrid", $2) ;
+    }
+
+  | tOnGrid '{' Expression ',' Expression ',' Expression '}' 
+            '{' ListOfDouble
+    {
+      PostSubOperation_S.SubType = PRINT_ONGRID_PARAM ;
+      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[0] = $3 ;
+      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[1] = $5 ;
+      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[2] = $7 ;
+      PostSubOperation_S.Case.OnParamGrid.ParameterValue[0] =
+	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
+      for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
+	List_Read(ListOfDouble_L, i, &Value) ;
+	List_Add(PostSubOperation_S.Case.OnParamGrid.ParameterValue[0], &Value) ;
+      }
+    }
+    ','  ListOfDouble '}'
+    {
+      PostSubOperation_S.Case.OnParamGrid.ParameterValue[1] =
+	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
+      for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
+	List_Read(ListOfDouble_L, i, &Value) ;
+	List_Add(PostSubOperation_S.Case.OnParamGrid.ParameterValue[1], &Value) ;
+      }
+    }
+
+  | tOnPoint '{' FExpr ',' FExpr ',' FExpr '}'
+    {
+      PostSubOperation_S.SubType = PRINT_ONGRID_0D ;
+      PostSubOperation_S.Case.OnGrid.x[0] = $3 ;
+      PostSubOperation_S.Case.OnGrid.y[0] = $5 ;
+      PostSubOperation_S.Case.OnGrid.z[0] = $7 ;
+    }
+
+  | tOnLine '{' '{' FExpr ',' FExpr ',' FExpr '}'
+                '{' FExpr ',' FExpr ',' FExpr '}' '}'  '{' FExpr '}'
+    {
+      PostSubOperation_S.SubType = PRINT_ONGRID_1D ;
+      PostSubOperation_S.Case.OnGrid.x[0] = $4 ;
+      PostSubOperation_S.Case.OnGrid.y[0] = $6 ;
+      PostSubOperation_S.Case.OnGrid.z[0] = $8 ;
+      PostSubOperation_S.Case.OnGrid.x[1] = $11 ;
+      PostSubOperation_S.Case.OnGrid.y[1] = $13 ;
+      PostSubOperation_S.Case.OnGrid.z[1] = $15 ;
+      PostSubOperation_S.Case.OnGrid.n[0] = (int)$19 ;
+    }
+
+  | tOnPlane '{' '{' FExpr ',' FExpr ',' FExpr '}'
+                 '{' FExpr ',' FExpr ',' FExpr '}'
+                 '{' FExpr ',' FExpr ',' FExpr '}' '}'  '{' FExpr ',' FExpr '}'
+    {
+      PostSubOperation_S.SubType = PRINT_ONGRID_2D ;
+      PostSubOperation_S.Case.OnGrid.x[0] = $4 ;
+      PostSubOperation_S.Case.OnGrid.y[0] = $6 ;
+      PostSubOperation_S.Case.OnGrid.z[0] = $8 ;
+      PostSubOperation_S.Case.OnGrid.x[1] = $11 ;
+      PostSubOperation_S.Case.OnGrid.y[1] = $13 ;
+      PostSubOperation_S.Case.OnGrid.z[1] = $15 ;
+      PostSubOperation_S.Case.OnGrid.x[2] = $18 ;
+      PostSubOperation_S.Case.OnGrid.y[2] = $20 ;
+      PostSubOperation_S.Case.OnGrid.z[2] = $22 ;
+      PostSubOperation_S.Case.OnGrid.n[0] = (int)$26 ;
+      PostSubOperation_S.Case.OnGrid.n[1] = (int)$28 ;
+    }
+
+  | tOnBox '{' '{' FExpr ',' FExpr ',' FExpr '}'
+               '{' FExpr ',' FExpr ',' FExpr '}'
+               '{' FExpr ',' FExpr ',' FExpr '}'
+               '{' FExpr ',' FExpr ',' FExpr '}' '}'  '{' FExpr ',' FExpr ',' FExpr '}'
+    {
+      PostSubOperation_S.SubType = PRINT_ONGRID_3D ;
+      PostSubOperation_S.Case.OnGrid.x[0] = $4 ;
+      PostSubOperation_S.Case.OnGrid.y[0] = $6 ;
+      PostSubOperation_S.Case.OnGrid.z[0] = $8 ;
+      PostSubOperation_S.Case.OnGrid.x[1] = $11 ;
+      PostSubOperation_S.Case.OnGrid.y[1] = $13 ;
+      PostSubOperation_S.Case.OnGrid.z[1] = $15 ;
+      PostSubOperation_S.Case.OnGrid.x[2] = $18 ;
+      PostSubOperation_S.Case.OnGrid.y[2] = $20 ;
+      PostSubOperation_S.Case.OnGrid.z[2] = $22 ;
+      PostSubOperation_S.Case.OnGrid.x[3] = $25 ;
+      PostSubOperation_S.Case.OnGrid.y[3] = $27 ;
+      PostSubOperation_S.Case.OnGrid.z[3] = $29 ;
+      PostSubOperation_S.Case.OnGrid.n[0] = (int)$33 ;
+      PostSubOperation_S.Case.OnGrid.n[1] = (int)$35 ;
+      PostSubOperation_S.Case.OnGrid.n[2] = (int)$37 ;
+    }
+
+
+  | tOnRegion GroupRHS
+    tWithArgument tSTRING '{' FExpr ',' FExpr '}'  '{' FExpr '}'
+    {
+      PostSubOperation_S.SubType = PRINT_WITHARGUMENT ;
+
+      PostSubOperation_S.Case.WithArgument.RegionIndex = 
+	Num_Group(&Group_S, "PO_On", $2) ;
+
+      if((i = List_ISearchSeq(Problem_S.Expression, $4, fcmp_Expression_Name)) < 0)
+	vyyerror("Unknown Name of Expression: %s", $4) ;
+      Free($4) ;
+
+      PostSubOperation_S.Case.WithArgument.ArgumentIndex = i ;
+      PostSubOperation_S.Case.WithArgument.x[0] = $6 ;
+      PostSubOperation_S.Case.WithArgument.x[1] = $8 ;
+      PostSubOperation_S.Case.WithArgument.n = (int)$11 ;
     }
 
   ;
