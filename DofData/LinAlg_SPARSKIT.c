@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.15 2002-01-18 19:47:57 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.16 2002-02-22 23:21:21 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -149,7 +149,7 @@ void LinAlg_DestroySolver(gSolver *Solver){
 
   GetDP_Begin("LinAlg_DestroySolver");
 
-  Msg(ERROR, "'LinAlg_DestroySolver' not yet implemented");
+  Msg(WARNING, "'LinAlg_DestroySolver' not yet implemented");
 
   GetDP_End ;
 }
@@ -165,7 +165,7 @@ void LinAlg_DestroyMatrix(gMatrix *M){
 
   GetDP_Begin("LinAlg_DestroyMatrix");
 
-  Msg(ERROR, "'LinAlg_DestroyMatrix' not yet implemented");  
+  Msg(WARNING, "'LinAlg_DestroyMatrix' not yet implemented");  
 
   GetDP_End ;
 }
