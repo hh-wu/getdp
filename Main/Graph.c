@@ -1,4 +1,4 @@
-#define RCSID "$Id: Graph.c,v 1.7 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Graph.c,v 1.8 2000-11-10 16:05:32 colignon Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -367,11 +367,11 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
   for (i = 0 ; i < List_Nbr(DofData_P->DofList) ; i++) {
     Dof_P=(struct Dof *) List_Pointer(DofData_P->DofList,i);
     switch (Dof_P->Type) {
-    case DOF_SYMMETRICAL : 
-      Dof_P->Case.Symmetrical.NumDof = iperm9[Dof_P->Case.Symmetrical.NumDof-1];
+    case DOF_UNKNOWN : 
+      Dof_P->Case.Unknown.NumDof = iperm9[Dof_P->Case.Unknown.NumDof-1];
       break;
     case DOF_FIXED :
-    case DOF_ASSOCIATE :
+    case DOF_FIXEDWITHASSOCIATE :
       break;
     default :
       Msg(ERROR,"Strange stuff in Partitioning");
