@@ -1,4 +1,4 @@
-#define RCSID "$Id: nrutil.c,v 1.5 2001-05-03 00:17:18 geuzaine Exp $"
+#define RCSID "$Id: nrutil.c,v 1.6 2001-08-10 08:40:13 ledinh Exp $"
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -17,6 +17,15 @@ void nrerror(char error_text[])
   Msg(ERROR, "%s", error_text);
 }
 
+float *vector(long nl,long nh)   /* pour Tuan */
+{
+   /* allocate an float vector with subscript range v[nl..nh] */
+	float *v;
+	v=(float *)malloc((unsigned) (nh-nl+1)*sizeof(float));
+	if (!v) nrerror("allocation failure in vector()");
+	return v-nl+1;
+}
+
 int *ivector(long nl, long nh){
   /* allocate an int vector with subscript range v[nl..nh] */
   int *v;
@@ -25,6 +34,13 @@ int *ivector(long nl, long nh){
   if (!v) fprintf(stderr, "allocation failure in ivector()\n");
   return v-nl+1;
 }
+
+void free_vector(float *v,long nl,long nh)  /*pour Tuan */
+  /* free an int vector allocated with vector() */
+{
+	free((char*) (v+nl-1));
+}
+
 
 void free_ivector(int *v, long nl, long nh){
   /* free an int vector allocated with ivector() */
@@ -78,3 +94,4 @@ void free_dmatrix(double **m, long nrl, long nrh, long ncl, long nch)
   free((FREE_ARG) (m[nrl]+ncl-NR_END));
   free((FREE_ARG) (m+nrl-NR_END));
 }
+
