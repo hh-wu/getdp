@@ -201,31 +201,31 @@ void  Pre_GlobalTermOfFemEquation(int  Num_Region,
 	 QuantityStorageEqu_P->BasisFunction[0].Value,
 	 QuantityStorageEqu_P->BasisFunction[0].TimeFunctionIndex) ;
       break ;
-      case INIT:
-	Dof_DefineInitFixedDof
-	  (QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
-	   QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
-	   QuantityStorageEqu_P->BasisFunction[0].Value) ;
-	break;
-      case ASSIGNFROMRESOLUTION:
-	Dof_DefineAssignSolveDof
-	  (QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
-	   QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
-	   QuantityStorageEqu_P->BasisFunction[0].TimeFunctionIndex) ;
-	break;
-      case INITFROMRESOLUTION:
-	Dof_DefineInitSolveDof
-	  (QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
-	   QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar);
-	break;
-      case CST_LINK:
-	Dof_DefineLinkDof
-	  (QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
-	   QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
-	   QuantityStorageEqu_P->BasisFunction[0].Coef,
-	   QuantityStorageEqu_P->BasisFunction[0].CodeEntity_Link) ;
-	break;
-      }
+    case INIT:
+      Dof_DefineInitFixedDof
+	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
+	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
+	 QuantityStorageEqu_P->BasisFunction[0].Value) ;
+      break;
+    case ASSIGNFROMRESOLUTION:
+      Dof_DefineAssignSolveDof
+	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
+	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
+	 QuantityStorageEqu_P->BasisFunction[0].TimeFunctionIndex) ;
+      break;
+    case INITFROMRESOLUTION:
+      Dof_DefineInitSolveDof
+	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
+	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar);
+      break;
+    case CST_LINK:
+      Dof_DefineLinkDof
+	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
+	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
+	 QuantityStorageEqu_P->BasisFunction[0].Coef,
+	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity_Link) ;
+      break;
+    }
   }
 
   if (QuantityStorageDof_P && (QuantityStorageDof_P != QuantityStorageEqu_P)) {
