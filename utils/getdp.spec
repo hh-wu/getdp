@@ -14,11 +14,12 @@ GetDP is a scientific software environment for the numerical solution
 of integro-differential equations, open to the coupling of physical
 problems (electromagnetic, thermal, mechanical, etc) as well as of
 numerical methods (finite element method, integral methods, etc). It
-can deal with such problems of various dimensions (1D, 2D or 3D) and
-time states (static, transient or harmonic). The main feature of GetDP
-is the closeness between the organization of data defining discrete
-problems (written by the user in ASCII data files) and the symbolic
-mathematical expressions of these problems.
+can deal with such problems of various dimensions (1D, 2D, 2D
+axisymmetric or 3D) and time states (static, transient or
+harmonic). The main feature of GetDP is the closeness between the
+organization of data defining discrete problems (written by the user
+in ASCII data files) and the symbolic mathematical expressions of
+these problems.
 
 Install GetDP if you need a finite element solver for multi-physic
 problems.
