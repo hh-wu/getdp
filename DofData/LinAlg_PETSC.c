@@ -23,7 +23,7 @@ int dummymat( Mat, int, int *, int, int * , Scalar *, int ) {
 }
 */
 
-static int  ierr, its, i_Start, i_End ;
+static int  ierr, i_Start, i_End ;
 static int  SolverInitialized=0 ;
 
 /* Initialize */
@@ -608,10 +608,19 @@ void gAssembleVector(gVector *V){
 /* Solve */
 
 void gSolve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
+  int its ;
+
+  /* Should be done only once */
   ierr = SLESCreate(PETSC_COMM_WORLD, &Solver->sles); CHKERRA(ierr);
+
+  /* Should be done only if the structure and/or the value of the elements change */
+  /* if (!ReUse_ILU) */
   ierr = SLESSetOperators(Solver->sles, A->M, A->M, DIFFERENT_NONZERO_PATTERN); CHKERRA(ierr);
-  ierr = SLESSetFromOptions(Solver->sles); CHKERRA(ierr);      
+  ierr = SLESSetFromOptions(Solver->sles); CHKERRA(ierr);
+
+  /* Todo everytime */
   ierr = SLESSolve(Solver->sles, B->V, X->V, &its); CHKERRA(ierr); 
+  Msg(PETSC, "%d Iterations", its) ;
 }
 
 #endif
