@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_NodeXYZ.c,v 1.4 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: BF_NodeXYZ.c,v 1.5 2000-12-06 14:26:05 dular Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -44,18 +44,14 @@ void  BF_NodeZ(struct Element * Element, int NumNode,
 
 
 /* ------------------------------------------------------------------------ */
-/*  B F _ C u r l N o d e X ,  Y ,  Z                                       */
+/*  B F _ N o d e X ,  Y ,  Z _ D . . .                                     */
 /* ------------------------------------------------------------------------ */
 
-void  BF_CurlNodeX(struct Element * Element, int NumNode, 
+void  BF_NodeX_D12(struct Element * Element, int NumNode, 
 		   double u, double v, double w,  double s[] ) {
   double su[3] ;
 
-  GetDP_Begin("BF_CurlNodeX");
-
-  /*
-  s[0] = s[1] = s[2] = 0. ;
-  */
+  GetDP_Begin("BF_NodeX_D12");
 
   BF_GradNode(Element, NumNode, u, v, w, su) ;
   ChangeOfCoord_Form1(Element, su, s) ;
@@ -66,15 +62,11 @@ void  BF_CurlNodeX(struct Element * Element, int NumNode,
   GetDP_End ;
 }
 
-void  BF_CurlNodeY(struct Element * Element, int NumNode, 
+void  BF_NodeY_D12(struct Element * Element, int NumNode, 
 		   double u, double v, double w,  double s[] ) {
   double su[3] ;
 
-  GetDP_Begin("BF_CurlNodeY");
-
-  /*
-  s[0] = s[1] = s[2] = 0. ;
-  */
+  GetDP_Begin("BF_NodeY_D12");
 
   BF_GradNode(Element, NumNode, u, v, w, su) ;
   ChangeOfCoord_Form1(Element, su, s) ;
@@ -85,48 +77,100 @@ void  BF_CurlNodeY(struct Element * Element, int NumNode,
   GetDP_End ;
 }
 
-void  BF_CurlNodeZ(struct Element * Element, int NumNode, 
+void  BF_NodeZ_D12(struct Element * Element, int NumNode, 
 		   double u, double v, double w,  double s[] ) {
 
-  GetDP_Begin("BF_CurlNodeZ");
+  GetDP_Begin("BF_NodeZ_D12");
 
   s[0] = s[1] = s[2] = 0. ;
 
   GetDP_End ;
 }
 
-
-/* ------------------------------------------------------------------------ */
-/*  B F _ D i v N o d e X ,  Y ,  Z                                         */
 /* ------------------------------------------------------------------------ */
 
-void  BF_DivNodeX(struct Element * Element, int NumNode, 
+void  BF_NodeX_D1(struct Element * Element, int NumNode, 
 		  double u, double v, double w,  double s[] ) {
+  double su[3] ;
 
-  GetDP_Begin("BF_DivNodeX");
+  GetDP_Begin("BF_NodeX_D1");
 
-  *s = 0. ;
+  BF_GradNode(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[1] = s[2] = 0;
 
   GetDP_End ;
 }
 
-void  BF_DivNodeY(struct Element * Element, int NumNode, 
+void  BF_NodeY_D1(struct Element * Element, int NumNode, 
 		  double u, double v, double w,  double s[] ) {
+  double su[3] ;
 
-  GetDP_Begin("BF_NodeY");
+  GetDP_Begin("BF_NodeY_D1");
 
-  *s = 0. ;
+  BF_GradNode(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[0] = s[2] = 0;
 
   GetDP_End ;
 }
 
-void  BF_DivNodeZ(struct Element * Element, int NumNode, 
+void  BF_NodeZ_D1(struct Element * Element, int NumNode, 
 		  double u, double v, double w,  double s[] ) {
+  double su[3] ;
 
-  GetDP_Begin("BF_DivNodeZ");
+  GetDP_Begin("BF_NodeZ_D1");
 
-  *s = 0. ;
+  BF_GradNode(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[0] = s[1] = 0;
 
   GetDP_End ;
 }
 
+/* ------------------------------------------------------------------------ */
+
+void  BF_NodeX_D2(struct Element * Element, int NumNode, 
+		  double u, double v, double w,  double s[] ) {
+  double su[3] ;
+
+  GetDP_Begin("BF_NodeX_D2");
+
+  BF_GradNode(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[0] = s[1] ; s[1] = 0 ;
+
+  GetDP_End ;
+}
+
+void  BF_NodeY_D2(struct Element * Element, int NumNode, 
+		  double u, double v, double w,  double s[] ) {
+  double su[3] ;
+
+  GetDP_Begin("BF_NodeY_D2");
+
+  BF_GradNode(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[1] = s[2] ; s[2] = 0 ;
+
+  GetDP_End ;
+}
+
+void  BF_NodeZ_D2(struct Element * Element, int NumNode, 
+		  double u, double v, double w,  double s[] ) {
+  double su[3] ;
+
+  GetDP_Begin("BF_NodeZ_D2");
+
+  BF_GradNode(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[2] = s[0] ; s[0] = 0 ;
+
+  GetDP_End ;
+}

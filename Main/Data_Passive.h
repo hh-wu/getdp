@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.22 2000-11-25 23:09:38 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.23 2000-12-06 14:26:05 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -507,7 +507,8 @@ struct GlobalEquationTerm {
 #define NSxCURL   17
 #define NSxDIV    18
 
-#define DXY       21
+#define _D1       21
+#define _D2       22
 
 
 /* CanonicalWholeQuantity */

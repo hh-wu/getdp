@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.28 2000-11-24 13:39:03 dular Exp $ */
+/* $Id: yacc.y,v 1.29 2000-12-06 14:26:05 dular Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -148,6 +148,7 @@ struct Quadrature               QuadratureCase_S ;
 
 struct FunctionSpace          FunctionSpace_S ;
 struct BasisFunction            BasisFunction_S ;
+void  (*FunctionDummy)();
 struct GlobalBasisFunction        GlobalBasisFunction_S ;
 struct SubSpace                 SubSpace_S ;
 struct GlobalQuantity           GlobalQuantity_S ;
@@ -236,7 +237,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token  tFunctionSpace
 %token    tName
 %token    tBasisFunction
-%token      tNameOfCoef  tFunction  tSupport  tEntity
+%token      tNameOfCoef  tFunction  tdFunction  tSupport  tEntity
 %token    tSubSpace  tNameOfBasisFunction
 %token    tGlobalQuantity
 %token      tEntityType tEntitySubType tNameOfConstraint
@@ -2338,6 +2339,22 @@ BasisFunctionTerm :
       if (FlagError)  vyyerror("Unknown Function for BasisFunction: %s %s", 
 			       $2, Get_Valid_SX3F2N(BF_Function)) ;
       Free($2) ;
+    }
+
+  | tdFunction '{' tSTRING Comma tSTRING '}' tEND
+    {
+      Get_3Function2NbrForString
+	(BF_Function, $3, &FlagError,
+	 &BasisFunction_S.dFunction, &FunctionDummy, &FunctionDummy, &d, &i) ;
+      if (FlagError)  vyyerror("Unknown dFunction (1) for BasisFunction: %s %s", 
+			       $3, Get_Valid_SX3F2N(BF_Function)) ;
+      Free($3) ;
+      Get_3Function2NbrForString
+	(BF_Function, $5, &FlagError,
+	 &BasisFunction_S.dInvFunction, &FunctionDummy, &FunctionDummy, &d, &i) ;
+      if (FlagError)  vyyerror("Unknown dFunction (2) for BasisFunction: %s %s", 
+			       $5, Get_Valid_SX3F2N(BF_Function)) ;
+      Free($5) ;
     }
 
   | tSupport GroupRHS tEND

@@ -1,4 +1,4 @@
-/* $Id: BF_Function.h,v 1.5 2000-09-26 07:27:53 geuzaine Exp $ */
+/* $Id: BF_Function.h,v 1.6 2000-12-06 14:26:04 dular Exp $ */
 #ifndef _BF_FUNCTION_H_
 #define _BF_FUNCTION_H_
 
@@ -174,21 +174,35 @@ void  BF_NodeX(BF_ARG) ;
 void  BF_NodeY(BF_ARG) ; 
 void  BF_NodeZ(BF_ARG) ; 
 
-void  BF_CurlNodeX(BF_ARG) ; 
-void  BF_CurlNodeY(BF_ARG) ; 
-void  BF_CurlNodeZ(BF_ARG) ; 
+void  BF_NodeX_D1(BF_ARG) ; 
+void  BF_NodeY_D1(BF_ARG) ; 
+void  BF_NodeZ_D1(BF_ARG) ; 
 
-void  BF_DivNodeX(BF_ARG) ; 
-void  BF_DivNodeY(BF_ARG) ; 
-void  BF_DivNodeZ(BF_ARG) ; 
-  
+void  BF_NodeX_D2(BF_ARG) ; 
+void  BF_NodeY_D2(BF_ARG) ; 
+void  BF_NodeZ_D2(BF_ARG) ; 
+
+void  BF_NodeX_D12(BF_ARG) ; 
+void  BF_NodeY_D12(BF_ARG) ; 
+void  BF_NodeZ_D12(BF_ARG) ; 
+
 void  BF_GroupOfNodesX(BF_ARG) ; 
 void  BF_GroupOfNodesY(BF_ARG) ; 
 void  BF_GroupOfNodesZ(BF_ARG) ; 
 
-void  BF_DxyGNodesX(BF_ARG) ;
-void  BF_DxyGNodesY(BF_ARG) ;
-  
+
+void  BF_GroupOfNodesX_D1(BF_ARG) ; 
+void  BF_GroupOfNodesY_D1(BF_ARG) ; 
+void  BF_GroupOfNodesZ_D1(BF_ARG) ; 
+
+void  BF_GroupOfNodesX_D2(BF_ARG) ; 
+void  BF_GroupOfNodesY_D2(BF_ARG) ; 
+void  BF_GroupOfNodesZ_D2(BF_ARG) ; 
+
+void  BF_GroupOfNodesX_D12(BF_ARG) ; 
+void  BF_GroupOfNodesY_D12(BF_ARG) ; 
+void  BF_GroupOfNodesZ_D12(BF_ARG) ; 
+
 /* Special basis Functions */
   
 void  BF_Zero(BF_ARG) ; 

@@ -1,5 +1,5 @@
 %{
-/* $Id: lex.l,v 1.14 2000-11-07 08:49:12 dular Exp $ */
+/* $Id: lex.l,v 1.15 2000-12-06 14:26:05 dular Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -158,6 +158,7 @@ SubType                      return tSubType ;
 BasisFunction                return tBasisFunction ;
 NameOfCoef                   return tNameOfCoef ;
 Function                     return tFunction ;
+dFunction                    return tdFunction ;
 Support                      return tSupport ;
 Entity                       return tEntity ;
 SubSpace                     return tSubSpace ;

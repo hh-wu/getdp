@@ -1,4 +1,4 @@
-/* $Id: Data_Function.h,v 1.11 2000-11-24 13:38:43 dular Exp $ */
+/* $Id: Data_Function.h,v 1.12 2000-12-06 14:26:05 dular Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 
@@ -349,13 +349,37 @@ struct StringX3Function2Nbr  BF_Function[] = {
 
   /* (H^1)^3 Basis Functions */
 
-  {"BF_NodeX" , (CAST)BF_NodeX , (CAST)BF_CurlNodeX , (CAST)BF_DivNodeX , 1. , ALL },
-  {"BF_NodeY" , (CAST)BF_NodeY , (CAST)BF_CurlNodeY , (CAST)BF_DivNodeY , 1. , ALL },
-  {"BF_NodeZ" , (CAST)BF_NodeZ , (CAST)BF_CurlNodeZ , (CAST)BF_DivNodeZ , 1. , ALL },
+  {"BF_NodeX" , (CAST)BF_NodeX , (CAST)BF_NodeX_D1 , (CAST)BF_NodeX_D2 , 1. , ALL },
+  {"BF_NodeY" , (CAST)BF_NodeY , (CAST)BF_NodeY_D1 , (CAST)BF_NodeY_D2 , 1. , ALL },
+  {"BF_NodeZ" , (CAST)BF_NodeZ , (CAST)BF_NodeZ_D1 , (CAST)BF_NodeZ_D2 , 1. , ALL },
 
-  {"BF_GroupOfNodesX" , (CAST)BF_GroupOfNodesX , (CAST)BF_DxyGNodesX , (CAST)BF_Zero , 1. , ALL },
-  {"BF_GroupOfNodesY" , (CAST)BF_GroupOfNodesY , (CAST)BF_DxyGNodesY , (CAST)BF_Zero , 1. , ALL },
-  {"BF_GroupOfNodesZ" , (CAST)BF_GroupOfNodesZ , (CAST)BF_Zero       , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeX_D1" , (CAST)BF_NodeX_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeY_D1" , (CAST)BF_NodeY_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeZ_D1" , (CAST)BF_NodeZ_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+
+  {"BF_NodeX_D2" , (CAST)BF_NodeX_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeY_D2" , (CAST)BF_NodeY_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeZ_D2" , (CAST)BF_NodeZ_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+
+  {"BF_NodeX_D12" , (CAST)BF_NodeX_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeY_D12" , (CAST)BF_NodeY_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeZ_D12" , (CAST)BF_NodeZ_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+
+  {"BF_GroupOfNodesX" , (CAST)BF_GroupOfNodesX , (CAST)BF_GroupOfNodesX_D1 , (CAST)BF_GroupOfNodesX_D2 , 1. , ALL },
+  {"BF_GroupOfNodesY" , (CAST)BF_GroupOfNodesY , (CAST)BF_GroupOfNodesY_D1 , (CAST)BF_GroupOfNodesY_D2 , 1. , ALL },
+  {"BF_GroupOfNodesZ" , (CAST)BF_GroupOfNodesZ , (CAST)BF_GroupOfNodesZ_D1 , (CAST)BF_GroupOfNodesZ_D2 , 1. , ALL },
+
+  {"BF_GroupOfNodesX_D1" , (CAST)BF_GroupOfNodesX_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_GroupOfNodesY_D1" , (CAST)BF_GroupOfNodesY_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_GroupOfNodesZ_D1" , (CAST)BF_GroupOfNodesZ_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+
+  {"BF_GroupOfNodesX_D2" , (CAST)BF_GroupOfNodesX_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_GroupOfNodesY_D2" , (CAST)BF_GroupOfNodesY_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_GroupOfNodesZ_D2" , (CAST)BF_GroupOfNodesZ_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+
+  {"BF_GroupOfNodesX_D12" , (CAST)BF_GroupOfNodesX_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_GroupOfNodesY_D12" , (CAST)BF_GroupOfNodesY_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_GroupOfNodesZ_D12" , (CAST)BF_GroupOfNodesZ_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
 
 
   /* Special basis Functions */

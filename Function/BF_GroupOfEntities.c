@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_GroupOfEntities.c,v 1.6 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: BF_GroupOfEntities.c,v 1.7 2000-12-06 14:26:04 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* abs */
 #include <math.h>
@@ -205,8 +205,7 @@ void  BF_CurlGroupOfEdges_4V(ARGS){ BF("BF_CurlGroupOfEdges_4V",BF_CurlEdge_4V) 
 /* ------------------------------------------------------------------------ */
 
 void  BF_GroupOfNodesX(struct Element * Element, int NumGroup, 
-	       double u, double v, double w,  double s[] ) {
-
+		       double u, double v, double w,  double s[] ) {
   GetDP_Begin("BF_GroupOfNodesX");
 
   s[1] = s[2] = 0. ;
@@ -216,8 +215,7 @@ void  BF_GroupOfNodesX(struct Element * Element, int NumGroup,
 }
 
 void  BF_GroupOfNodesY(struct Element * Element, int NumGroup, 
-	       double u, double v, double w,  double s[] ) {
-
+		       double u, double v, double w,  double s[] ) {
   GetDP_Begin("BF_GroupOfNodesY");
 
   s[0] = s[2] = 0. ;
@@ -227,8 +225,7 @@ void  BF_GroupOfNodesY(struct Element * Element, int NumGroup,
 }
 
 void  BF_GroupOfNodesZ(struct Element * Element, int NumGroup, 
-	       double u, double v, double w,  double s[] ) {
-
+		       double u, double v, double w,  double s[] ) {
   GetDP_Begin("BF_GroupOfNodesZ");
 
   s[0] = s[1] = 0. ;
@@ -238,13 +235,17 @@ void  BF_GroupOfNodesZ(struct Element * Element, int NumGroup,
 }
 
 
-void  BF_DxyGNodesX(struct Element * Element, int NumGroup, 
-		   double u, double v, double w,  double s[] ) {
+/* ------------------------------------------------------------------------ */
+/*  B F _ G r o u p O f N o d e X ,  Y ,  Z _ D . . .                       */
+/* ------------------------------------------------------------------------ */
+
+void  BF_GroupOfNodesX_D12(struct Element * Element, int NumNode, 
+			   double u, double v, double w,  double s[] ) {
   double su[3] ;
 
-  GetDP_Begin("BF_DxyGNodesX");
+  GetDP_Begin("BF_GroupOfNodesX_D12");
 
-  BF_GradGroupOfNodes(Element, NumGroup, u, v, w, su) ;
+  BF_GradGroupOfNodes(Element, NumNode, u, v, w, su) ;
   ChangeOfCoord_Form1(Element, su, s) ;
 
   s[2] = s[1] ;
@@ -253,17 +254,115 @@ void  BF_DxyGNodesX(struct Element * Element, int NumGroup,
   GetDP_End ;
 }
 
-void  BF_DxyGNodesY(struct Element * Element, int NumGroup, 
-		   double u, double v, double w,  double s[] ) {
+void  BF_GroupOfNodesY_D12(struct Element * Element, int NumNode, 
+			   double u, double v, double w,  double s[] ) {
   double su[3] ;
 
-  GetDP_Begin("BF_DxyGNodesY");
+  GetDP_Begin("BF_GroupOfNodesY_D12");
 
-  BF_GradGroupOfNodes(Element, NumGroup, u, v, w, su) ;
+  BF_GradGroupOfNodes(Element, NumNode, u, v, w, su) ;
   ChangeOfCoord_Form1(Element, su, s) ;
 
   s[2] = s[0] ;
   s[0] = 0. ;
+
+  GetDP_End ;
+}
+
+void  BF_GroupOfNodesZ_D12(struct Element * Element, int NumNode, 
+			   double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_GroupOfNodesZ_D12");
+
+  s[0] = s[1] = s[2] = 0. ;
+
+  GetDP_End ;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void  BF_GroupOfNodesX_D1(struct Element * Element, int NumNode, 
+			  double u, double v, double w,  double s[] ) {
+  double su[3] ;
+
+  GetDP_Begin("BF_GroupOfNodesX_D1");
+
+  BF_GradGroupOfNodes(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[1] = s[2] = 0;
+
+  GetDP_End ;
+}
+
+void  BF_GroupOfNodesY_D1(struct Element * Element, int NumNode, 
+			  double u, double v, double w,  double s[] ) {
+  double su[3] ;
+
+  GetDP_Begin("BF_GroupOfNodesY_D1");
+
+  BF_GradGroupOfNodes(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[0] = s[2] = 0;
+
+  GetDP_End ;
+}
+
+void  BF_GroupOfNodesZ_D1(struct Element * Element, int NumNode, 
+			  double u, double v, double w,  double s[] ) {
+  double su[3] ;
+
+  GetDP_Begin("BF_GroupOfNodesZ_D1");
+
+  BF_GradGroupOfNodes(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[0] = s[1] = 0;
+
+  GetDP_End ;
+}
+
+/* ------------------------------------------------------------------------ */
+
+void  BF_GroupOfNodesX_D2(struct Element * Element, int NumNode, 
+			  double u, double v, double w,  double s[] ) {
+  double su[3] ;
+
+  GetDP_Begin("BF_GroupOfNodesX_D2");
+
+  BF_GradGroupOfNodes(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[0] = s[1] ; s[1] = 0 ;
+
+  GetDP_End ;
+}
+
+void  BF_GroupOfNodesY_D2(struct Element * Element, int NumNode, 
+			  double u, double v, double w,  double s[] ) {
+  double su[3] ;
+
+  GetDP_Begin("BF_GroupOfNodesY_D2");
+
+  BF_GradGroupOfNodes(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[1] = s[2] ; s[2] = 0 ;
+
+  GetDP_End ;
+}
+
+void  BF_GroupOfNodesZ_D2(struct Element * Element, int NumNode, 
+			  double u, double v, double w,  double s[] ) {
+  double su[3] ;
+
+  GetDP_Begin("BF_GroupOfNodesZ_D2");
+
+  BF_GradGroupOfNodes(Element, NumNode, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[2] = s[0] ; s[0] = 0 ;
 
   GetDP_End ;
 }

@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.13 2000-11-25 23:09:38 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.14 2000-12-06 14:26:05 dular Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -159,7 +159,8 @@ struct StringXDefine  Operator_Type[] = {
   {"NSxGrad" , NSxGRAD  } ,
   {"NPxGrad" , NPxGRAD  } ,
   
-  {"Dxy"     , DXY  } ,
+  {"D1"      , _D1 } ,
+  {"D2"      , _D2 } ,
   
   {NULL      , NOOP }
 } ;

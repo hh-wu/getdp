@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_FunctionValue.c,v 1.9 2000-10-30 09:04:05 dular Exp $"
+#define RCSID "$Id: Get_FunctionValue.c,v 1.10 2000-12-06 14:26:05 dular Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -191,12 +191,21 @@ void  Get_FunctionValue(int Nbr_Function,
     }
     break ;
 
-  case DXY :
+  case _D1 :
     if (QuantityStorage_P->TypeQuantity == VECTOR) {
       *Type_Form = VECTOR ;
       for (i = 0 ; i < Nbr_Function ; i++)
 	xFunctionBF[i] =
 	  QuantityStorage_P->BasisFunction[i].BasisFunction->dFunction ;
+    }
+    break ;
+
+  case _D2 :
+    if (QuantityStorage_P->TypeQuantity == VECTOR) {
+      *Type_Form = VECTOR ;
+      for (i = 0 ; i < Nbr_Function ; i++)
+	xFunctionBF[i] =
+	  QuantityStorage_P->BasisFunction[i].BasisFunction->dInvFunction ;
     }
     break ;
 
@@ -269,7 +278,8 @@ void  Get_InitFunctionValue(int Type_Operator,
     else if (QuantityStorage_P->TypeQuantity == SCALAR)  *Type_Form = VECTOR ;
     break ;
 
-  case DXY :
+  case _D1 :
+  case _D2 :
     if (QuantityStorage_P->TypeQuantity == VECTOR)
       *Type_Form = VECTOR ;
     else
