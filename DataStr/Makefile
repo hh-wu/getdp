@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2001-11-22 15:38:35 ledinh Exp $
+# $Id: Makefile,v 1.7 2002-11-01 19:28:09 geuzaine Exp $
 #
 # Makefile for "libDataStr.a"
 #
@@ -47,3 +47,8 @@ nodepend:
 	$(RM) Makefile.new
 
 # DO NOT DELETE THIS LINE
+List.o: List.c Malloc.h List.h ../Main/Message.h
+Malloc.o: Malloc.c Malloc.h ../Main/Message.h
+Tree.o: Tree.c Malloc.h Tree.h avl.h
+avl.o: avl.c avl.h Malloc.h
+Tools.o: Tools.c Tools.h List.h Tree.h avl.h
