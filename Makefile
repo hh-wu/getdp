@@ -22,7 +22,7 @@
 #
 # ----------------------------------------------------------------------
 
-GETDP_RELEASE         = 0.75
+GETDP_RELEASE         = 0.76
 
 # ----------------------------------------------------------------------
 # General definitions 
@@ -38,8 +38,8 @@ STRIP                 = strip
 # ----------------------------------------------------------------------
 
 GETDP_DIR             = .
-GETDP_STUFF_DIR       = Main Parser Post Function Integration GeoData DofData\
-                        Numeric DataStr 
+GETDP_STUFF_DIR       = Main Parser Post Function Integration GeoData\
+                        DofData Numeric DataStr
 GETDP_LIB_DIR         = lib
 GETDP_BIN_DIR         = bin
 GETDP_DOC_DIR         = doc
@@ -69,7 +69,7 @@ METIS_LIB             = $(METIS_DIR)/libmetis.a
 
 SPARSKIT_DIR          = Sparskit
 GETDP_SPARSKIT_LIBS   = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
-                        -lIntegration -lGeoData -lDofData\
+                        -lIntegration -lGeoData -lDofData \
                         -lNumeric -lSparskit -lDataStr
 
 # ----------------------------------------------------------------------
@@ -78,7 +78,7 @@ GETDP_SPARSKIT_LIBS   = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
 
 BOPT                  = g
 GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
-                        -lIntegration -lGeoData -lDofData\
+                        -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
 ##include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
