@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.41 2003-01-31 13:51:53 dular Exp $ */
+/* $Id: GetDP.y,v 1.42 2003-02-06 18:23:23 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -21,13 +21,6 @@
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
-
-/* bison est mal foutu */
-#ifndef __APPLE__
-#if !defined __cplusplus && !defined MSDOS && !defined _AIX && !defined __CYGWIN__
-#include <alloca.h> 
-#endif
-#endif /* __APPLE__ */
 
 #include "Data_Passive.h"
 #include "Data_Active.h"
