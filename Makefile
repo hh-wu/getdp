@@ -22,6 +22,8 @@
 #
 # ----------------------------------------------------------------------
 
+GETDP_RELEASE         = 0.76
+
 # ----------------------------------------------------------------------
 # General definitions 
 # ----------------------------------------------------------------------
@@ -36,8 +38,8 @@ STRIP                 = strip
 # ----------------------------------------------------------------------
 
 GETDP_DIR             = .
-GETDP_STUFF_DIR       = Main Parser Post Function Integration GeoData DofData\
-                        Numeric DataStr 
+GETDP_STUFF_DIR       = Main Parser Post Function Integration GeoData\
+                        DofData Numeric DataStr
 GETDP_LIB_DIR         = lib
 GETDP_BIN_DIR         = bin
 GETDP_DOC_DIR         = doc
@@ -67,7 +69,7 @@ METIS_LIB             = $(METIS_DIR)/libmetis.a
 
 SPARSKIT_DIR          = Sparskit
 GETDP_SPARSKIT_LIBS   = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
-                        -lIntegration -lGeoData -lDofData\
+                        -lIntegration -lGeoData -lDofData \
                         -lNumeric -lSparskit -lDataStr
 
 # ----------------------------------------------------------------------
@@ -76,10 +78,10 @@ GETDP_SPARSKIT_LIBS   = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
 
 BOPT                  = g
 GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
-                        -lIntegration -lGeoData -lDofData\
+                        -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
+#include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
 
 # ----------------------------------------------------------------------
 # Rules for developpers
@@ -170,6 +172,12 @@ gnu:
            "F77_FLAGS=-g -Wall" \
         ); done
 
+efence:
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
+        do (cd $$i && $(MAKE) \
+        ); done
+	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp-efence $(GETDP_SPARSKIT_LIBS) -lefence -lm
+
 profile:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE) \
@@ -201,7 +209,7 @@ parser:
 
 tag:
 	$(RM) $(RMFLAGS) $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_VERSION 0.75" \
+	echo "#define GETDP_VERSION $(GETDP_RELEASE)" \
              > $(GETDP_INCLUDE_DIR)/Version.h
 	echo "#define GETDP_BUILD \"`date` on `hostname` (`logname`)\"" \
              >> $(GETDP_INCLUDE_DIR)/Version.h

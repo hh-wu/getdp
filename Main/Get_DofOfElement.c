@@ -23,6 +23,7 @@ void  Get_InitDofOfElement(struct Element * Element) {
   Element->NumLastElementForNodesCoordinates      = -1 ;
   Element->NumLastElementForGroupsOfEntities      = -1 ;
   Element->NumLastElementForSolidAngle            = -1 ;
+  Element->NumLastElementForSortedNodesByFacet    = -1 ;
 }
 
 
@@ -77,12 +78,16 @@ void  Get_DofOfElement(struct Element          * Element,
       List_Pointer(Problem_S.Group, BasisFunction_P->SupportIndex) ;
 
     /*  2.  I f   t h e   e l e m e n t   i s   i n   t h e   s u p p o r t   o f   
-	    t h e   B a s i s F u n c t i o n : */
-    if ((GroupSupport_P->Type == REGIONLIST  &&
-	 List_Search(GroupSupport_P->InitialList, &Element->Region, fcmp_int))
-	||
-	(GroupSupport_P->Type == ELEMENTLIST  &&
-	 Check_IsEntityInExtendedGroup(GroupSupport_P, Element->Num, 0)) )  {
+	    t h e   B a s i s F u n c t i o n   a n d
+	    I f   t h e   B a s i s F u n c t i o n   e x i s t s   f o r   t h i s
+	    k i n d   o f   e l e m e n t   */
+    if ( ( BasisFunction_P->ElementType & Current.Element->Type ) 
+	 &&
+	 ( (GroupSupport_P->Type == REGIONLIST  &&
+	    List_Search(GroupSupport_P->InitialList, &Element->Region, fcmp_int))
+	   ||
+	   (GroupSupport_P->Type == ELEMENTLIST  &&
+	    Check_IsEntityInExtendedGroup(GroupSupport_P, Element->Num, 0)) ) ) {
 
       GroupEntity_P = (struct Group*)
 	List_Pointer(Problem_S.Group, BasisFunction_P->EntityIndex) ;
@@ -352,7 +357,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
      GroupSupport_P    : In
      GroupEntity_P     : In  */
 
-  int         i_Entity, CodeExist ;
+  int         k, i_Entity, CodeExist ;
   struct Dof  * Dof_P ;
 
   /*  1.  F o r   e a c h   e n t i t y   t o   w h i c h   a   b a s i s
@@ -400,10 +405,26 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
       QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction
 	= BasisFunction_P ;
 
-      if (TreatmentStatus == _PRE)  /* Contrainte associee ? */
+      if (TreatmentStatus == _PRE){ /* Associated Contraints? */
+	/* in the FunctionSpace... */
 	Treatment_ConstraintForElement(FunctionSpace_P, QuantityStorage_P,
 				       Num_Entity, i_Entity,
 				       i_BFunction, TypeConstraint) ;
+
+	/* ...due to P-refinement */
+	if( ( Current.GeoData->P && 
+	      Current.GeoData->P[Current.Element->GeoElement->Index+1] >= 0 &&
+	      Current.GeoData->P[Current.Element->GeoElement->Index+1] < 
+	      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Degree ) ||
+	    ( Flag_DEGREE >= 0. && Flag_DEGREE <
+	      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Degree ) ){
+	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = ASSIGN ;
+	  for (k = 0 ; k < Current.NbrHar ; k++)
+	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value[k] = 0. ;
+	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].TimeFunctionIndex = -1 ;
+	}
+      }
+
       Nbr_ElementaryBF++ ;
       
     }  /* if CodeExist ... */

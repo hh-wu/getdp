@@ -1,3 +1,3 @@
-#define GETDP_VERSION 0.75
-#define GETDP_BUILD "Fri Jun 30 11:01:18 MET DST 2000 on elap57.montefiore.ulg.ac.be (dular)"
-#define GETDP_OS "OSF1 V4.0"
+#define GETDP_VERSION 0.76
+#define GETDP_BUILD "Wed Aug 16 16:09:22 CEST 2000 on elap83 ()"
+#define GETDP_OS "Linux 2.2.12-20"

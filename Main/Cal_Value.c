@@ -227,76 +227,79 @@ void  Cal_AddValue (struct Value * V1, struct Value * V2, struct Value * R) {
 
 void  Cal_AddMultValue (struct Value * V1, struct Value * V2, double d, struct Value * R) {
   int k;
+  struct Value A ;
+
+  A.Type = V2->Type ;
 
   switch(V2->Type){
   case SCALAR :
     if (Current.NbrHar == 1) {
-      V2->Val[0] *= d;      
+      A.Val[0] = V2->Val[0] * d;      
     }
     else{
       for (k = 0 ; k < Current.NbrHar ; k++) {
-	V2->Val[MAX_DIM*k] *= d;
+	A.Val[MAX_DIM*k] = V2->Val[MAX_DIM*k] * d;
       }
     }
     break;
   case VECTOR :
   case TENSOR_DIAG :
     if (Current.NbrHar == 1) {
-      V2->Val[0] *= d;
-      V2->Val[1] *= d;
-      V2->Val[2] *= d;
+      A.Val[0] = V2->Val[0] * d;
+      A.Val[1] = V2->Val[1] * d;
+      A.Val[2] = V2->Val[2] * d;
     }
     else{
       for (k = 0 ; k < Current.NbrHar ; k++) {
-	V2->Val[MAX_DIM*k  ] *= d;
-	V2->Val[MAX_DIM*k+1] *= d;
-	V2->Val[MAX_DIM*k+2] *= d;
+	A.Val[MAX_DIM*k  ] = V2->Val[MAX_DIM*k  ] * d;
+	A.Val[MAX_DIM*k+1] = V2->Val[MAX_DIM*k+1] * d;
+	A.Val[MAX_DIM*k+2] = V2->Val[MAX_DIM*k+2] * d;
       }
     }
     break;
   case TENSOR_SYM :
     if (Current.NbrHar == 1) {
-      V2->Val[0] *= d;
-      V2->Val[1] *= d;
-      V2->Val[2] *= d;
-      V2->Val[3] *= d;
-      V2->Val[4] *= d;
-      V2->Val[5] *= d;
+      A.Val[0] = V2->Val[0] * d;
+      A.Val[1] = V2->Val[1] * d;
+      A.Val[2] = V2->Val[2] * d;
+      A.Val[3] = V2->Val[3] * d;
+      A.Val[4] = V2->Val[4] * d;
+      A.Val[5] = V2->Val[5] * d;
     }
     else{
       for (k = 0 ; k < Current.NbrHar ; k++) {
-	V2->Val[MAX_DIM*k  ] *= d;
-	V2->Val[MAX_DIM*k+1] *= d;
-	V2->Val[MAX_DIM*k+2] *= d;
-	V2->Val[MAX_DIM*k+3] *= d;
-	V2->Val[MAX_DIM*k+4] *= d;
-	V2->Val[MAX_DIM*k+5] *= d;
+	A.Val[MAX_DIM*k  ] = V2->Val[MAX_DIM*k  ] * d;
+	A.Val[MAX_DIM*k+1] = V2->Val[MAX_DIM*k+1] * d;
+	A.Val[MAX_DIM*k+2] = V2->Val[MAX_DIM*k+2] * d;
+	A.Val[MAX_DIM*k+3] = V2->Val[MAX_DIM*k+3] * d;
+	A.Val[MAX_DIM*k+4] = V2->Val[MAX_DIM*k+4] * d;
+	A.Val[MAX_DIM*k+5] = V2->Val[MAX_DIM*k+5] * d;
       }
     }
     break;
   case TENSOR :
     if (Current.NbrHar == 1) {
-      V2->Val[0] *= d;
-      V2->Val[1] *= d;
-      V2->Val[2] *= d;
-      V2->Val[3] *= d;
-      V2->Val[4] *= d;
-      V2->Val[5] *= d;
-      V2->Val[6] *= d;
-      V2->Val[7] *= d;
-      V2->Val[8] *= d;
+      A.Val[0] = V2->Val[0] * d;
+      A.Val[1] = V2->Val[1] * d;
+      A.Val[2] = V2->Val[2] * d;
+      A.Val[3] = V2->Val[3] * d;
+      A.Val[4] = V2->Val[4] * d;
+      A.Val[5] = V2->Val[5] * d;
+      A.Val[6] = V2->Val[6] * d;
+      A.Val[7] = V2->Val[7] * d;
+      A.Val[8] = V2->Val[8] * d;
     }
     else{
       for (k = 0 ; k < Current.NbrHar ; k++) {
-	V2->Val[MAX_DIM*k  ] *= d;
-	V2->Val[MAX_DIM*k+1] *= d;
-	V2->Val[MAX_DIM*k+2] *= d;
-	V2->Val[MAX_DIM*k+3] *= d;
-	V2->Val[MAX_DIM*k+4] *= d;
-	V2->Val[MAX_DIM*k+5] *= d;
-	V2->Val[MAX_DIM*k+6] *= d;
-	V2->Val[MAX_DIM*k+7] *= d;
-	V2->Val[MAX_DIM*k+8] *= d;
+	A.Val[MAX_DIM*k  ] = V2->Val[MAX_DIM*k  ] * d;
+	A.Val[MAX_DIM*k+1] = V2->Val[MAX_DIM*k+1] * d;
+	A.Val[MAX_DIM*k+2] = V2->Val[MAX_DIM*k+2] * d;
+	A.Val[MAX_DIM*k+3] = V2->Val[MAX_DIM*k+3] * d;
+	A.Val[MAX_DIM*k+4] = V2->Val[MAX_DIM*k+4] * d;
+	A.Val[MAX_DIM*k+5] = V2->Val[MAX_DIM*k+5] * d;
+	A.Val[MAX_DIM*k+6] = V2->Val[MAX_DIM*k+6] * d;
+	A.Val[MAX_DIM*k+7] = V2->Val[MAX_DIM*k+7] * d;
+	A.Val[MAX_DIM*k+8] = V2->Val[MAX_DIM*k+8] * d;
       }
     }
     break;        
@@ -304,7 +307,7 @@ void  Cal_AddMultValue (struct Value * V1, struct Value * V2, double d, struct V
     Msg(ERROR, "Wrong Argument Type Quantity for 'Cal_AddMultValue'");
     break;
   }
-  Cal_AddValue(V1,V2,R);
+  Cal_AddValue(V1,&A,R);
 }
 
 /* ------------------------------------------------------------------------ 

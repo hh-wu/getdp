@@ -4,8 +4,10 @@
 #include <math.h>
 
 #include "GeoData.h"
+#include "Data_Passive.h"
 #include "Data_Element.h"
 #include "ualloc.h"
+#include "Magic.h"
 
 FILE  * File_GEO ;
 
@@ -17,13 +19,13 @@ struct GeoData  * CurrentGeoData ;
 /* ------------------------------------------------------------------------ */
 
 int  Geo_AddGeoData(List_T * GeoData_L,
-		    char * Name_MshFile, char * Name_DefaultMshFile) {
+		    char * Name_MshFile, char * Name_DefaultMshFile,
+		    char * Name_AdaptFile, char * Name_DefaultAdaptFile) {
 
-  struct GeoData  GeoData_S, * GeoData_P ;
+  struct GeoData  GeoData_S ;
   int  i ;
 
   int  fcmp_GeoData_Name(const void *a, const void *b) ;
-
 
   if (!Name_MshFile)  Name_MshFile = Name_DefaultMshFile ;
 
@@ -34,6 +36,14 @@ int  Geo_AddGeoData(List_T * GeoData_L,
     Geo_OpenFile(Name_MshFile, "r") ;
     Geo_ReadFile(&GeoData_S) ;
     Geo_CloseFile() ;
+
+    if (!Name_AdaptFile) Name_AdaptFile = Name_DefaultAdaptFile ;
+    if (Name_AdaptFile) {
+      Msg(LOADING,"Adaption Data '%s'", Name_AdaptFile) ;
+      Geo_OpenFile(Name_AdaptFile, "r") ;
+      Geo_ReadFileAdapt(&GeoData_S) ;
+      Geo_CloseFile() ;
+    }
     List_Add(GeoData_L, &GeoData_S) ;
   }
 
@@ -71,6 +81,8 @@ void  Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name) {
   GeoData_P->GroupForPRE = NULL ;
 
   GeoData_P->Grid.Init = 0 ;
+
+  GeoData_P->H = GeoData_P->P = NULL ;
 }
 
 
@@ -109,17 +121,47 @@ void  Geo_CloseFile(void) {
 /*  G e o _ R e a d F i l e                                                 */
 /* ------------------------------------------------------------------------ */
 
+int Geo_GetElementType(int Format, int Type){
+
+  switch(Format){
+  case FORMAT_GMSH :
+    switch(Type){
+    case 15 : return POINT ;
+    case 1  : return LINE ;
+    case 2  : return TRIANGLE ;
+    case 3  : return QUADRANGLE ;
+    case 4  : return TETRAHEDRON ;      
+    case 5  : return HEXAHEDRON ;
+    case 6  : return PRISM ;
+    case 7  : return PYRAMID ;
+    case 8  : return LINE_2 ;
+    case 9  : return TRIANGLE_2 ;
+    case 10 : return QUADRANGLE_2 ;
+    case 11 : return TETRAHEDRON_2 ;      
+    case 12 : return HEXAHEDRON_2 ;
+    case 13 : return PRISM_2 ;
+    case 14 : return PYRAMID_2 ;
+    default : Msg(ERROR, "Unkown Element Type in Gmsh Format") ; return -1 ;
+    }
+    break ;
+  default :
+    Msg(ERROR, "Unkown Mesh Format") ;
+    return -1 ;
+  }
+
+}
+
 void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
-  int                 Nbr, i, j, iDummy ;
+  int                 Nbr, i, j, Type, iDummy ;
   struct Geo_Node     Geo_Node ;
   struct Geo_Element  Geo_Element ;
-  char                String[256] ;
+  char                String[MAX_STRING_LENGTH] ;
 
   while (1) {
 
     do { 
-      fgets(String, 256, File_GEO) ; 
+      fgets(String, MAX_STRING_LENGTH, File_GEO) ; 
       if (feof(File_GEO))  break ;
     } while (String[0] != '$') ;  
     
@@ -154,8 +196,10 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
       for (i = 0 ; i < Nbr ; i++) {
 	fscanf(File_GEO, "%d %d %d %d %d",
-	       &Geo_Element.Num, &Geo_Element.Type, &Geo_Element.Region,
+	       &Geo_Element.Num, &Type, &Geo_Element.Region,
 	       &iDummy, &Geo_Element.NbrNodes) ;
+
+	Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
 	Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
 	for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
 	  fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) ;
@@ -164,11 +208,13 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
       }
 
       List_Tri(GeoData_P->Elements, fcmp_Elm) ;
-
+      
+      for (i = 0 ; i < List_Nbr(GeoData_P->Elements) ; i++)
+	((struct Geo_Element *) List_Pointer(GeoData_P->Elements, i))->Index = i ;
     }
 
     do {
-      fgets(String, 256, File_GEO) ;
+      fgets(String, MAX_STRING_LENGTH, File_GEO) ;
       if (feof(File_GEO)) Msg(ERROR, "Prematured End of File");
     } while (String[0] != '$') ;
 
@@ -176,6 +222,54 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
 }
 
+
+void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
+
+  struct Geo_Element Geo_Element, * Geo_Element_P ;
+  int        Nbr, i ;
+  double     E, H, P ;
+  char       String[MAX_STRING_LENGTH] ;
+
+  Nbr = List_Nbr(GeoData_P->Elements) ;
+
+  if(!GeoData_P->H){
+    GeoData_P->H = (double*)Malloc((Nbr+2)*sizeof(double)) ;
+    for (i = 0 ; i < Nbr ; i++) GeoData_P->H[i+1] = -1.0 ;
+  }
+  if(!GeoData_P->P){
+    GeoData_P->P = (double*)Malloc((Nbr+2)*sizeof(double)) ;
+    for (i = 0 ; i < Nbr ; i++) GeoData_P->P[i+1] = -1.0 ;
+  }
+
+  while (1) {
+
+    do { 
+      fgets(String, MAX_STRING_LENGTH, File_GEO) ; 
+      if (feof(File_GEO))  break ;
+    } while (String[0] != '$') ;  
+    
+    if (feof(File_GEO))  break ;
+
+    if (!strncmp(&String[1], "Adapt", 5)) {
+      fscanf(File_GEO, "%d", &Nbr) ;
+      for (i = 0 ; i < Nbr ; i++) {
+	fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) ;
+	if(!(Geo_Element_P = (struct Geo_Element *)
+	     List_PQuery(GeoData_P->Elements, &Geo_Element, fcmp_Elm)))
+	  Msg(ERROR, "Element %d Not Found in Database", Geo_Element.Num) ;
+	GeoData_P->H[Geo_Element_P->Index+1] = H ;
+	GeoData_P->P[Geo_Element_P->Index+1] = P ;
+      }
+    }
+
+    do {
+      fgets(String, MAX_STRING_LENGTH, File_GEO) ;
+      if (feof(File_GEO)) Msg(ERROR, "Prematured End of File");
+    } while (String[0] != '$') ;
+
+  }   /* while 1 ... */
+
+}
 
 
 /* ------------------------------------------------------------------------ */
@@ -221,7 +315,6 @@ struct Geo_Element  * Geo_GetGeoElementOfNum(int Num_Element) {
   elm.Num = Num_Element ;
   return (struct Geo_Element*)List_PQuery(CurrentGeoData->Elements, &elm, fcmp_Elm) ;
 }
-
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ G e t N b r G e o N o d e s                                     */

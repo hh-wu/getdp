@@ -8,6 +8,7 @@
 #include "GeoData.h"
 
 #include "CurrentData.h"
+#include "Data_Numeric.h"
 #include "outil.h"
 
 
@@ -269,4 +270,23 @@ void  Get_InitFunctionValue(int Type_Operator,
   }
 
 }
+
+
+
+/* ------------------------------------------------------------------------ */
+/*  C a l _ I n t e r p o l a t i o n D e g r e e                           */
+/* ------------------------------------------------------------------------ */
+
+double Cal_InterpolationDegree(struct Element * Element,
+			       struct QuantityStorage * QuantityStorage){
+  int i ;
+  double Degree = 0.0 ;
+
+  for(i = 0 ; i < QuantityStorage->NbrElementaryBasisFunction ; i++)
+    if(QuantityStorage->BasisFunction[i].Dof->Type == DOF_SYMMETRICAL)
+      Degree = MAX(QuantityStorage->BasisFunction[i].BasisFunction->Degree, Degree) ;
+
+  return Degree ;
+}
+
 

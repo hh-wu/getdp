@@ -53,7 +53,12 @@ DofData.o: DofData.c DofData.h ../include/listman.h \
  ../include/Graph.h ../include/../Main/Graph.h Data_DofData.h \
  ../include/Message.h ../include/../Main/Message.h \
  ../include/Version.h ../include/outil.h ../include/../DataStr/outil.h \
- ../include/ualloc.h ../include/../DataStr/ualloc.h
+ ../include/ualloc.h ../include/../DataStr/ualloc.h ../include/Magic.h \
+ ../include/CurrentData.h ../include/../Main/CurrentData.h \
+ ../include/../Main/Data_Active.h ../include/../Main/Data_Passive.h \
+ ../include/../Main/Data_Element.h ../include/GeoData.h \
+ ../include/../GeoData/GeoData.h ../include/../GeoData/Data_GeoData.h \
+ ../include/DofData.h ../include/../DofData/DofData.h
 LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/listman.h \
  ../include/../DataStr/listman.h ../include/Message.h \

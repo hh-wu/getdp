@@ -5,9 +5,12 @@ struct CutEdge {
   int     nbc ;
   double  x[2],y[2],z[2] ;  
   double  xc,yc,zc ;
+  double  uc,vc,wc ;
   struct  Value  *Value ;
 } ;
 
+struct PostElement * Create_PostElement(int Index, int Type, int NbrNodes, int Depth);
+void Destroy_PostElement(struct PostElement * PostElement) ;
 
 void  Pos_FemFormulation(struct Formulation      * Formulation_P,
 			 struct PostQuantity     * LocalPQ,
@@ -57,8 +60,11 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 			struct Value *Value) ;
 
 
-void  Pos_FillPostElement(struct PostElement PE, struct Geo_Element *GE,
-			  List_T *PostElement_L, int depth, int skin) ;
+void  Pos_FillPostElement(struct Geo_Element *GE, List_T *PostElement_L, 
+			  int Index, int Depth, int Skin, int DecomposeInSimplex) ;
+void Pos_CutPostElement(struct PostElement * PE, struct Geo_Element * GE,
+			List_T * PE_L, int Index, int Depth, int Skin,
+			int DecomposeInSimplex) ;
 
 
 /* Interface Printing Functions */
@@ -66,17 +72,15 @@ void  Pos_FillPostElement(struct PostElement PE, struct Geo_Element *GE,
 void  Print_PostFormat(int Format) ;
 
 void  Print_PostHeader(int Format, int NbTimeStep, int HarmonicToTime,
-		       int Type, int Order,
+		       int Type, int Order, 
 		       struct PostQuantity  *NCPQ_P,
 		       struct PostQuantity  *CPQ_P) ;
 
 void  Print_PostFooter(int Format) ;
 
-void  Print_PostElement(int Format, 
-			double Time, int TimeStep, int NbTimeStep, 
+void  Print_PostElement(int Format, double Time, int TimeStep, int NbTimeStep, 
 			int NbHarmonics, int HarmonicToTime,
-			int Type, int NbrNodes, double *x, double *y, double *z,
-			double *Normal, struct Value *Value);
+			double *Dummy, struct PostElement *PE);
 
 void  Print_PostValue(int Format, struct Value * Value, int NbHarmonic, double Time, 
 		      int Flag_PrintTime, int Flag_NewLine) ;

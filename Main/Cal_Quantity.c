@@ -145,10 +145,10 @@ void Cal_WholeQuantity(struct Element * Element,
 
   int     i_WQ, j, k, Flag_True, Index, DofIndex, Multi[MAX_STACK_SIZE] ;
   int     Save_NbrHar, Save_Region, Type_Dimension ;
-  double  Save_Time, X, Y, Z ;
+  double  Save_Time, X, Y, Z, Degree ;
   
-  struct WholeQuantity  *WholeQuantity_P0, *WholeQuantity_P ;
-  struct DofData        *Save_DofData ;
+  struct WholeQuantity   *WholeQuantity_P0, *WholeQuantity_P ;
+  struct DofData         *Save_DofData ;
 
   /* Should be Stack[NBR_MAX_BASISFUNCTION][MAX_STACK_SIZE] but this overflows the
      stack for long recursive calls. 8 is still OK since the 'multi' feature is only
@@ -184,6 +184,18 @@ void Cal_WholeQuantity(struct Element * Element,
       else {
 	DofIndex = Index ;
       }
+      Index++ ;  
+      break ;
+
+    case WQ_DEGREE : /* Degree[{qty}] */
+      Degree = Cal_InterpolationDegree
+	(Element, QuantityStorage_P0 + WholeQuantity_P->Case.OperatorAndQuantity.Index) ;
+      for (k = 0 ; k < Current.NbrHar ; k += 2) {
+	Stack[0][Index].Val[MAX_DIM* k   ] = Degree ;
+	Stack[0][Index].Val[MAX_DIM*(k+1)] = 0. ;
+      }
+      Stack[0][Index].Type = SCALAR ;
+      Multi[Index] = 0 ;
       Index++ ;  
       break ;
 

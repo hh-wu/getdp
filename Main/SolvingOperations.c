@@ -14,6 +14,7 @@
 #include "Data_Numeric.h"
 #include "Get_DofOfElement.h"
 #include "CurrentData.h"
+#include "Magic.h"
 
 int  fcmp_DefineSystem_Name(const void * a, const void * b) ;
 
@@ -130,6 +131,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   double  MeanError, RelFactor_Modified ;
   int     Save_TypeTime ;
   double  Save_DTime ;
+  char    ResName[MAX_FILE_NAME_LENGTH], ResNum[MAX_STRING_LENGTH] ;
   gScalar tmp ;
 
   struct Operation     * Operation_P ;
@@ -138,6 +140,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   struct Solution      * Solution_P, Solution_S ;
   struct Dof           Dof, * Dof_P ;
   struct Value         Value ;
+
+  static int RES0 = -1 ;
 
   Nbr_Operation = List_Nbr(Operation_L) ;
 
@@ -317,9 +321,25 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_SAVESOLUTION :
       Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
-      Dof_WriteFileRES0(Current.Name, Flag_BIN) ;
-      Dof_WriteFileRES(Current.Name, DofData_P, Flag_BIN, Current.Time, (int)Current.TimeStep) ;
-      /* Dof_FlushFile(DOF_RES); */
+      strcpy(ResName, Name_Generic) ;
+      if(!Flag_SPLIT){
+	strcat(ResName, ".res") ;
+	if(RES0 < 0){
+	  Dof_WriteFileRES0(ResName, Flag_BIN) ;
+	  RES0 = 1 ;
+	}
+      }
+      else{
+	strcat(ResName, "-") ;
+	sprintf(ResNum, "%d.res", (int)Current.TimeStep) ;
+	for(i = 0 ; i < 5+4-(int)strlen(ResNum) ; i++) strcat(ResName, "0") ;
+	strcat(ResName, ResNum) ;
+	if(RES0 != (int)Current.TimeStep){
+	  Dof_WriteFileRES0(ResName, Flag_BIN) ;
+	  RES0 = (int)Current.TimeStep ;
+	}
+      }
+      Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, Current.Time, (int)Current.TimeStep) ;
       break ;
 
     /*  -->  S a v e S o l u t i o n s              */
@@ -328,19 +348,23 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_SAVESOLUTIONS :
       Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
-      Dof_WriteFileRES0(Current.Name, Flag_BIN) ;
+      strcpy(ResName, Name_Generic) ;
+      strcat(ResName, ".res") ;
+      Dof_WriteFileRES0(ResName, Flag_BIN) ;
       for(i=0 ; i<List_Nbr(DofData_P->Solutions) ; i++){
 	DofData_P->CurrentSolution = (struct Solution*)
 	  List_Pointer(DofData_P->Solutions, i) ;
-	Dof_WriteFileRES(Current.Name, DofData_P, Flag_BIN, DofData_P->CurrentSolution->Time, i) ;
+	Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, 
+			 DofData_P->CurrentSolution->Time, i) ;
       }
-      /* Dof_FlushFile(DOF_RES); */
       break ;
 
     /*  -->  R e a d S o l u t i o n                */
     /*  ------------------------------------------  */
 
     case OPERATION_READSOLUTION :
+      Msg(ERROR, "ReadSolution is not currently  available") ;
+      /*
       Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       if(!Name_ResFile)
@@ -357,6 +381,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;	
       DofData_P->CurrentSolution->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
+      */
       break ;
 
     /*  -->  T r a n s f e r S o l u t i o n        */
