@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.18 2000-12-26 20:49:21 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.19 2001-02-20 13:43:10 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -117,7 +117,7 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
   List_T  * Iso_L[NBR_MAX_ISO] ;
   double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0 ;
   int       NbrIso = 0, DecomposeInSimplex = 0 ; 
-  int       iPost, iNode, iIso, i, f, One=1 ;
+  int       iPost, iNode, iIso, f, One=1 ;
   struct PostElement *PE ;
 
   GetDP_Begin("Format_PostFooter");
