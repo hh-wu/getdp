@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.18 2000-10-20 07:42:07 dular Exp $ */
+/* $Id: yacc.y,v 1.19 2000-10-20 09:05:31 dular Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -4989,7 +4989,7 @@ PostSubOperation :
 
     tPlot '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
-      yyerror("Plot has been superseeded by Print. "
+      yyerror("Plot has been superseded by Print. "
 	      "Plot OnRegion becomes Print OnElementsOf.") ;
     }
 

@@ -190,7 +190,7 @@
 
 #line 1 "yacc.y"
 
-/* $Id: yacc.tab.c,v 1.20 2000-10-20 07:42:07 dular Exp $ */
+/* $Id: yacc.tab.c,v 1.21 2000-10-20 09:05:31 dular Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -7344,7 +7344,7 @@ case 474:
 case 475:
 #line 4991 "yacc.y"
 {
-      yyerror("Plot has been superseeded by Print. "
+      yyerror("Plot has been superseded by Print. "
 	      "Plot OnRegion becomes Print OnElementsOf.") ;
     ;
     break;}
