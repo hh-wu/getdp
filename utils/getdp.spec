@@ -32,7 +32,7 @@ problems.
 %build
 make linux
 cp bin/getdp-Linux bin/getdp
-make doc-ps
+make doc-pdf
 make doc-info
 rm -rf CVS */CVS */*/CVS
 
@@ -54,7 +54,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc doc/getdp.ps demos
+%doc doc/getdp.pdf demos
 /usr/bin/getdp
 /usr/man/man1/getdp*
 /usr/info/getdp*
@@ -62,3 +62,4 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Sat Sep 23 2000 Christophe Geuzaine <Christophe.Geuzaine@AdValvas.be> 
  - initial revision
+
