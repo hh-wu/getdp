@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.53 2001-04-05 06:30:12 geuzaine Exp $
+# $Id: Makefile,v 1.54 2001-04-20 08:53:48 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -230,6 +230,10 @@ initialtag:
 	@if [ ! -r $(GETDP_INCLUDE_DIR)/Version.h ]; then \
         $(MAKE) tag ; \
         fi
+
+tags:
+	gtags
+	htags
 
 depend:
 	for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do \
