@@ -1,4 +1,4 @@
-#define RCSID "$Id: List.c,v 1.5 2000-11-27 17:26:43 geuzaine Exp $"
+#define RCSID "$Id: List.c,v 1.6 2000-11-27 17:27:18 geuzaine Exp $"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -340,21 +340,6 @@ List_T *List_Copy(List_T *src)
   memcpy(dest->array, src->array, src->nmax * src->size);
 
   return(dest);
-}
-
-void Swap_Array(double *p, int nobjs){
-  int obj;
-  unsigned int c;
-  double x;
-  char *px, *pp;
-
-  for (obj = 0; obj < nobjs; ++obj) {
-    x = p[obj];
-    px = (char *) &x;
-    pp = (char *) (p+obj);
-    for (c = 0; c < sizeof(double); ++c)
-      pp[sizeof(double)-1-c] = px[c];
-  }
 }
 
 void List_WriteToFile(List_T *liste, FILE *file, int format){
