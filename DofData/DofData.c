@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.33 2003-03-22 03:30:07 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.34 2003-03-29 00:29:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -90,11 +90,10 @@ void  Dof_InitDofData(struct DofData * DofData_P, int Num,
   DofData_P->Flag_InitOnly[1] = 0 ;
   DofData_P->Flag_InitOnly[2] = 0 ;
 
-
   DofData_P->OnlyTheseMatrices = NULL;
 
-
   DofData_P->Solutions = NULL ;
+  DofData_P->CurrentSolution = NULL ;
 
   GetDP_End ;
 }
@@ -1423,6 +1422,9 @@ gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P) {
   switch (Dof_P->Type) {
 
   case DOF_UNKNOWN :
+    if(!DofData_P->CurrentSolution->SolutionExist){
+      Msg(ERROR, "Empty solution in DofData %d", DofData_P->Num);
+    }
     LinAlg_GetScalarInVector(&tmp, &DofData_P->CurrentSolution->x, 
 			     Dof_P->Case.Unknown.NumDof-1) ;
     break ;
