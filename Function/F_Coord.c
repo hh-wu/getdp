@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Coord.c,v 1.15 2003-03-22 03:30:10 geuzaine Exp $"
+#define RCSID "$Id: F_Coord.c,v 1.16 2003-03-30 22:27:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -100,7 +100,7 @@ void  F_CoordXYZ (F_ARG) {
   }										\
   else{										\
     Get_NodesCoordinatesOfElement(Current.Element) ;				\
-    Get_BFGeoElement(Current.Element, Current.u, Current.v, Current.w) ;		\
+    Get_BFGeoElement(Current.Element, Current.u, Current.v, Current.w) ;	\
     tmp = 0. ;									\
     for (i = 0 ; i < Current.Element->GeoElement->NbrNodes ; i++) {		\
       tmp += Current.Element->coord[i] * Current.Element->n[i] ;		\
