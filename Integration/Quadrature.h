@@ -1,8 +1,10 @@
-/* $Id: Quadrature.h,v 1.5 2000-09-08 08:17:24 geuzaine Exp $ */
+/* $Id: Quadrature.h,v 1.6 2000-10-21 12:17:56 geuzaine Exp $ */
 #ifndef _QUADRATURE_H_
 #define _QUADRATURE_H_
 
-#define MAX_LINE_POINTS 20
+#define MAX_LINE_POINTS 100
+
+void GaussLegendre(double x1, double x2, double x[], double w[], int n) ;
 
 #define GAUSS_ARGS  int Nbr_Points, int Num_Point, \
                     double *u, double *v, double *w, double *wght
