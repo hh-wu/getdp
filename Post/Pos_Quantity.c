@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.11 2001-03-03 19:21:22 geuzaine Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.12 2001-03-05 12:16:37 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -259,6 +259,8 @@ void Combine_PostQuantity(int Type, int Order,
 /*  P o s _ L o c a l O r I n t e g r a l Q u a n t i t y                   */
 /* ------------------------------------------------------------------------ */
 
+static int Warning_NoJacobian = 0 ;
+
 void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P, 
 				 struct DefineQuantity  *DefineQuantity_P0,
 				 struct QuantityStorage *QuantityStorage_P0,
@@ -355,6 +357,11 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 			     Element->Type, &Type_Dimension) ;
     }
     else {
+      if(!Warning_NoJacobian){
+	Msg(WARNING, "No Jacobian method specification in PostProcessing quantity");
+	Msg(WARNING, "Using default Jacobian (Vol)");
+	Warning_NoJacobian = 1 ;
+      }
       Get_Jacobian = (double (*)(struct Element*, MATRIX3x3*))
 	Get_JacobianFunction(JACOBIAN_VOL, Element->Type, &Type_Dimension) ;
     }
