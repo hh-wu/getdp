@@ -25,7 +25,6 @@ int  Geo_AddGeoData(List_T * GeoData_L,
 
   int  fcmp_GeoData_Name(const void *a, const void *b) ;
 
-
   if (!Name_MshFile)  Name_MshFile = Name_DefaultMshFile ;
 
   if ((i = List_ISearchSeq(GeoData_L, Name_MshFile, fcmp_GeoData_Name)) < 0) {
