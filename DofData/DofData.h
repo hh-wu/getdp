@@ -1,4 +1,4 @@
-/* $Id: DofData.h,v 1.11 2002-01-23 23:52:32 geuzaine Exp $ */
+/* $Id: DofData.h,v 1.12 2003-01-23 10:11:28 geuzaine Exp $ */
 #ifndef _DOFDATA_H_
 #define _DOFDATA_H_
 
@@ -48,6 +48,7 @@ void  Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double * Val) ;
 void  Dof_DefineAssignSolveDof(int D1, int D2, int NbrHar, int Index_TimeFunction) ;
 void  Dof_DefineInitSolveDof(int D1, int D2, int NbrHar) ;
 void  Dof_DefineLinkDof(int D1, int D2, int NbrHar, double Value[], int D2_Link) ;
+void  Dof_DefineLinkCplxDof(int D1, int D2, int NbrHar, double Value[], int D2_Link) ;
 void  Dof_DefineUnknownDof(int D1, int D2, int NbrHar) ;
 void  Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar) ;
 void  Dof_DefineUnknownDofFromSolveOrInitDof(struct DofData ** DofData_P) ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.21 2002-01-08 13:25:35 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.22 2003-01-23 10:11:28 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -401,11 +401,8 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
     *CodeEntity_Link = abs(TwoIntOneDouble_P->Int2) ;
     Value[0] = TwoIntOneDouble_P->Double ;
     if (TwoIntOneDouble_P->Int1 < 0)  Value[0] *= -1. ;
-
     Value[1] = TwoIntOneDouble_P->Double2 ;  /* LinkCplx */
-    if (Current.NbrHar == 2) {
-      if (TwoIntOneDouble_P->Int1 < 0)  Value[1] *= -1. ;
-    }
+    if (TwoIntOneDouble_P->Int1 < 0)  Value[1] *= -1. ;
   }
 
   GetDP_End ;
@@ -671,11 +668,11 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
     Get_ValueOfExpressionByIndex(Index_Coef, NULL, 0., 0., 0., &Value) ;
     TwoIntOneDouble.Double = Value.Val[0] ;
-
-    if (Current.NbrHar == 2) /* LinkCplx */
-      TwoIntOneDouble.Double2 = Value.Val[MAX_DIM] ;
-    else
+    if (Current.NbrHar == 1)
       TwoIntOneDouble.Double2 = 0. ;
+    else
+      TwoIntOneDouble.Double2 = Value.Val[MAX_DIM] ; /* LinkCplx */
+
 
     List_Add(Couples_L, &TwoIntOneDouble) ;
 
@@ -988,11 +985,10 @@ void  Generate_LinkRegions(struct ConstraintInFS * Constraint_P,
 
   Get_ValueOfExpressionByIndex(Index_Coef, NULL, 0., 0., 0., &Value) ;
   TwoIntOneDouble.Double = Value.Val[0] ;
-
-  if (Current.NbrHar == 2) /* LinkCplx */
-    TwoIntOneDouble.Double2 = Value.Val[MAX_DIM] ;
-  else
+  if (Current.NbrHar == 1)
     TwoIntOneDouble.Double2 = 0. ;
+  else
+    TwoIntOneDouble.Double2 = Value.Val[MAX_DIM] ; /* LinkCplx */
 
   List_Add(Couples_L, &TwoIntOneDouble) ;
 

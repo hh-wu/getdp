@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.28 2003-01-23 08:24:20 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.29 2003-01-23 10:11:28 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -862,12 +862,6 @@ void  Dof_DefineLinkDof(int D1, int D2, int NbrHar, double Value[], int D2_Link)
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_LINK ;
       Dof.Case.Link.Coef = Value[0] ;
-
-      if (Value[1] != 0.){ /* LinkCplx ... bricolage */
-	Dof.Type = DOF_LINKCPLX ;
-	Dof.Case.Link.Coef2 = Value[1] ;
-      }
-
       Dof.Case.Link.EntityRef = D2_Link ;
       Dof.Case.Link.Dof = NULL ;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
@@ -877,6 +871,28 @@ void  Dof_DefineLinkDof(int D1, int D2, int NbrHar, double Value[], int D2_Link)
   GetDP_End ;
 }
 
+void  Dof_DefineLinkCplxDof(int D1, int D2, int NbrHar, double Value[], int D2_Link) {
+  struct Dof  Dof ;
+  int         k ;
+
+  GetDP_Begin("Dof_DefineLinkCplxDof");
+
+  Dof.NumType = D1 ;  Dof.Entity = D2 ;  
+  
+  for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
+    Dof.Harmonic = k ;
+    if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
+      Dof.Type = DOF_LINKCPLX ;
+      Dof.Case.Link.Coef = Value[0] ;
+      Dof.Case.Link.Coef2 = Value[1] ;
+      Dof.Case.Link.EntityRef = D2_Link ;
+      Dof.Case.Link.Dof = NULL ;
+      Tree_Add(CurrentDofData->DofTree, &Dof) ;
+    }
+  }
+
+  GetDP_End ;
+}
 
 /* ------------------------------------------------------------------------ */
 /*  D o f _ D e f i n e U n k n o w n D o f                                 */
@@ -1136,8 +1152,6 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef - Val[1] * Dof_P->Case.Link.Coef2 ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef + Val[0] * Dof_P->Case.Link.Coef2 ;
       }
-      if(Dof_P->Case.Link.Dof->Type == DOF_LINKCPLX)
-	Msg(WARNING, "Dof LinkCplx of Dof LinkCplx!");
       Dof_AssembleInMat(Equ_P, Dof_P->Case.Link.Dof, NbrHar, valtmp, Mat, Vec) ;
       break ;
 
@@ -1171,8 +1185,6 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef + Val[1] * Equ_P->Case.Link.Coef2 ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef - Val[0] * Equ_P->Case.Link.Coef2 ;
     }
-    if(Equ_P->Case.Link.Dof->Type == DOF_LINKCPLX)
-      Msg(WARNING, "Equ LinkCplx of Equ LinkCplx!");
     Dof_AssembleInMat(Equ_P->Case.Link.Dof, Dof_P, NbrHar, valtmp, Mat, Vec) ;
     break ;
 
@@ -1391,7 +1403,7 @@ gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P) {
     break ;
 
   case DOF_LINKCPLX :
-    /* Warning! Trop tot pour traitement ... parties reelle et imag. necessaires */
+    /* Too soon to treat LinkCplx: we need the real and imaginary parts */
     Msg(ERROR, "Cannot call Dof_GetDofValue for LinkCplx");
     break ;
 
@@ -1408,6 +1420,10 @@ void Dof_GetRealDofValue(struct DofData * DofData_P, struct Dof * Dof_P, double 
 
   GetDP_Begin("Dof_GetRealDofValue");
 
+  if (Dof_P->Type == DOF_LINKCPLX) {
+    Msg(ERROR, "Cannot call Dof_GetRealDofValue for LinkCplx");
+  }
+
   tmp = Dof_GetDofValue(DofData_P, Dof_P) ;
   LinAlg_GetDoubleInScalar(d, &tmp) ;
 
@@ -1422,15 +1438,16 @@ void Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P,
   GetDP_Begin("Dof_GetComplexDofValue");
 
   if(gSCALAR_SIZE == 1){
-    if (Dof_P->Type == DOF_LINKCPLX) { /* LinkCplx */ /* Ne peut etre fait qu'ici */
-      tmp1 = Dof_GetDofValue(DofData_P, Dof_P->Case.Link.Dof) ;
-      tmp2 = Dof_GetDofValue(DofData_P, (Dof_P+1)->Case.Link.Dof) ;
-      LinAlg_GetDoubleInScalar(d1, &tmp1) ;
-      LinAlg_GetDoubleInScalar(d2, &tmp2) ;
-      valtmp[0] = Dof_P->Case.Link.Coef*(*d1) - Dof_P->Case.Link.Coef2*(*d2) ;
-      valtmp[1] = Dof_P->Case.Link.Coef*(*d2) + Dof_P->Case.Link.Coef2*(*d1) ;
-      *d1 = valtmp[0] ;
-      *d2 = valtmp[1] ; 
+    if(Dof_P->Type == DOF_LINKCPLX) { /* Can only be done here */
+      if (Dof_P->Case.Link.Dof->Type == DOF_LINKCPLX) { /* recurse */
+	Dof_GetComplexDofValue(DofData_P, Dof_P->Case.Link.Dof, d1, d2);
+      }
+      else{
+	tmp1 = Dof_GetDofValue(DofData_P, Dof_P->Case.Link.Dof) ;
+	tmp2 = Dof_GetDofValue(DofData_P, (Dof_P+1)->Case.Link.Dof) ;
+	LinAlg_GetDoubleInScalar(d1, &tmp1) ;
+	LinAlg_GetDoubleInScalar(d2, &tmp2) ;
+      }
     }
     else{
       tmp1 = Dof_GetDofValue(DofData_P, Dof_P) ;
@@ -1440,14 +1457,26 @@ void Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P,
     }
   }
   else{
-    if (Dof_P->Type == DOF_LINKCPLX) { /* LinkCplx */ /* Ne peut etre fait qu'ici */
-      tmp1 = Dof_GetDofValue(DofData_P, Dof_P->Case.Link.Dof) ; 
-      LinAlg_GetComplexInScalar(d1, d2, &tmp1) ;
+    if (Dof_P->Type == DOF_LINKCPLX) { /* Can only be done here */
+      if (Dof_P->Case.Link.Dof->Type == DOF_LINKCPLX) { /* recurse */
+	Dof_GetComplexDofValue(DofData_P, Dof_P->Case.Link.Dof, d1, d2);
+      }
+      else{
+	tmp1 = Dof_GetDofValue(DofData_P, Dof_P->Case.Link.Dof) ; 
+	LinAlg_GetComplexInScalar(d1, d2, &tmp1) ;
+      }
     }
     else{
       tmp1 = Dof_GetDofValue(DofData_P, Dof_P) ; 
       LinAlg_GetComplexInScalar(d1, d2, &tmp1) ;
     }
+  }
+
+  if(Dof_P->Type == DOF_LINKCPLX){
+    valtmp[0] = Dof_P->Case.Link.Coef*(*d1) - Dof_P->Case.Link.Coef2*(*d2) ;
+    valtmp[1] = Dof_P->Case.Link.Coef*(*d2) + Dof_P->Case.Link.Coef2*(*d1) ;
+    *d1 = valtmp[0] ;
+    *d2 = valtmp[1] ; 
   }
 
   GetDP_End ;
@@ -1648,8 +1677,11 @@ void Print_DofNumber(struct Dof *Dof_P){
     printf("Assoc-%d ", Dof_P->Case.FixedAssociate.NumDof) ; 
     break ;
   case DOF_LINK : 
-  case DOF_LINKCPLX : 
     printf("Link-");
+    Print_DofNumber(Dof_P->Case.Link.Dof);
+    break ;
+  case DOF_LINKCPLX : 
+    printf("LinkCplx-");
     Print_DofNumber(Dof_P->Case.Link.Dof);
     break ;
   default : 
