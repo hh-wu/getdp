@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.11 2002-01-18 11:10:26 gyselinc Exp $ */
+/* $Id: F_Function.h,v 1.12 2002-01-18 17:58:59 geuzaine Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -123,7 +123,7 @@ void  F_TransformPiezoT (F_ARG) ;  /* pour Tuan */
 /* F_MultiHar */
 
 void  F_MHToTime           (F_ARG) ;
-//void  F_MHToTime2          (F_ARG) ;
+/*void  F_MHToTime2          (F_ARG) ; */
 
 void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 			   List_T * WholeQuantity_L, int FreqOffSet,

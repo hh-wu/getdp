@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.11 2002-01-18 11:10:26 gyselinc Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.12 2002-01-18 18:00:31 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -287,11 +287,7 @@ void  F_InterpolationLinear (F_ARG) {
     yp =  y[up] + ( xp - x[up] ) * a ;
   }
 
-  //  if (Current.NbrHar == 1)
-    V->Val[0] = yp ;
-    //else {
-    //Msg(ERROR,"Function 'Interpolation' not valid for Complex");
-    // }
+  V->Val[0] = yp ;
   V->Type = SCALAR ;
 
   GetDP_End ;
@@ -324,12 +320,8 @@ void  F_dInterpolationLinear (F_ARG) {
     dyp = (y[up] - y[lo]) / (x[up] - x[lo]) ;
   }
 
-  // if (Current.NbrHar == 1)
-    V->Val[0] = dyp ;
-    // else {
-    // Msg(ERROR,"Function 'Interpolation' not valid for Complex");
-    //}
-    V->Type = SCALAR ;
+  V->Val[0] = dyp ;
+  V->Type = SCALAR ;
 
   GetDP_End ;
 }

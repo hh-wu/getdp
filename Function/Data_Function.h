@@ -1,4 +1,4 @@
-/* $Id: Data_Function.h,v 1.17 2002-01-18 11:10:26 gyselinc Exp $ */
+/* $Id: Data_Function.h,v 1.18 2002-01-18 17:57:53 geuzaine Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 
@@ -524,7 +524,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   /* F_MultiHar */
 
   {"MHToTime"          , (CAST)F_MHToTime         ,   0,   2 },
-  //{"MHToTime2"         , (CAST)F_MHToTime2        ,   0,   2 },
+  /* {"MHToTime2"         , (CAST)F_MHToTime2        ,   0,   2 }, */
 
 
 
