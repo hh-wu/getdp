@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.42 2003-02-06 18:23:23 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.43 2003-03-17 11:26:48 sabarieg Exp $ */
 
 /*
   Modifs a faire
@@ -231,6 +231,8 @@ struct PostSubOperation         PostSubOperation_S ;
 %token      tCase
 
 %token  tIntegration
+%token  tFMMIntegration
+%token  tMatrix
 %token    tType tSubType tCriterion tGeoElement
 %token      tNumberOfPoints  tMaxNumberOfPoints
 %token        tNumberOfDivisions  tMaxNumberOfDivisions
@@ -270,6 +272,9 @@ struct PostSubOperation         PostSubOperation_S ;
 %token      tIterativeTimeReduction
 %token        tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tSystemCommand
+%token      tGenerateFMMGroups
+%token      tGenerateOnly
+%token      tGenerateOnlyJac
 %token      tSolveJac_AdaptRelax 
 %token      tSaveSolutionExtendedMH
 %token      tInit_MovingBand2D tMesh_MovingBand2D tGenerate_MH_Moving 
@@ -384,7 +389,7 @@ Stats :
 	List_Delete(ListOfEquationTerm) ;
       }
     }
-  ;
+ 
 
 /* ------------------------------------------------------------------------ */
 /*  P r o b l e m                                                           */
@@ -823,9 +828,6 @@ IRegion :
     { Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; List_Add($$ = ListOfInt_L, &($1)) ; }
 
-  | '@' RecursiveListOfFExpr '@'
-    { Flag_MultipleIndex = 0 ;
-      List_Reset(ListOfInt_L) ; j = (int)$2 ; List_Add($$ = ListOfInt_L, &j) ; }
   | tINT tDOTS FExpr
     { 
       Flag_MultipleIndex = 0 ;
@@ -1892,7 +1894,6 @@ QuadratureCaseTerm :
 	  break ;
 	}
 	break ;
-
       default :
 	vyyerror("Incompatible type of Integration method") ;
 	break ;
@@ -3116,6 +3117,7 @@ DefineQuantity :
 
       DefineQuantity_S.IntegralQuantity.InIndex = -1 ;
       DefineQuantity_S.IntegralQuantity.IntegrationMethodIndex = -1 ;
+      DefineQuantity_S.IntegralQuantity.FMMIntegrationMethodIndex = -1 ;
       DefineQuantity_S.IntegralQuantity.JacobianMethodIndex = -1 ;
       DefineQuantity_S.IntegralQuantity.Symmetry = 0 ;
       DefineQuantity_S.IntegralQuantity.WholeQuantity = NULL ;
@@ -3272,13 +3274,23 @@ DefineQuantityTerm :
 				  (WholeQuantity_P+0)->Case.Function.Fct,
 				  &FlagError,
 				  &DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Fct);
-	  if (!FlagError){
-	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF ;
+	   	  
+	  if (!FlagError){	   
 	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.NbrParameters =
 	      (WholeQuantity_P+0)->Case.Function.NbrParameters ;
 	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Para =
 	      (WholeQuantity_P+0)->Case.Function.Para ;	    
 	  }
+
+	  DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF ;
+
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Fct =
+	    (WholeQuantity_P+0)->Case.Function.Fct ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.NbrParameters =
+	    (WholeQuantity_P+0)->Case.Function.NbrParameters ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Para =
+	    (WholeQuantity_P+0)->Case.Function.Para ;	    
+	  
 	}
       }
 
@@ -3289,55 +3301,137 @@ DefineQuantityTerm :
 		 (WholeQuantity_P+1)->Type == WQ_OPERATORANDQUANTITY &&
 		 (WholeQuantity_P+2)->Type == WQ_BINARYOPERATOR      &&
 		 Current_DofIndexInWholeQuantity == 1 ) {
-
+	  
 	  Get_FunctionForFunction(GF_Function,
 				  (WholeQuantity_P+0)->Case.Function.Fct,
 				  &FlagError,
 				  &DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Fct);
+	  
 	  if (!FlagError){
-	    if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME)
-	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PSCA_DOF ;
-	    if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
-	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PVEC_DOF ;
-
 	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.NbrParameters =
 	      (WholeQuantity_P+0)->Case.Function.NbrParameters ;
 	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Para =
 	      (WholeQuantity_P+0)->Case.Function.Para ;	    
 	  }
-
+	  
+	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME)
+	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PSCA_DOF ;
+	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
+	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PVEC_DOF ;
+	    
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Fct =
+	    (WholeQuantity_P+0)->Case.Function.Fct ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.NbrParameters =
+	    (WholeQuantity_P+0)->Case.Function.NbrParameters ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Para =
+	    (WholeQuantity_P+0)->Case.Function.Para ;
 	}
+
+	/* DOF OPER GF_FUNCTION */
+	else if( (WholeQuantity_P+0)->Type == WQ_OPERATORANDQUANTITY &&
+		 (WholeQuantity_P+1)->Type == WQ_BUILTINFUNCTION     &&
+		 (WholeQuantity_P+2)->Type == WQ_BINARYOPERATOR      &&
+		 Current_DofIndexInWholeQuantity == 0 ) {
+
+	  Get_FunctionForFunction(GF_Function,
+				  (WholeQuantity_P+1)->Case.Function.Fct,
+				  &FlagError,
+				  &DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Fct);
+	  if (!FlagError){
+	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.NbrParameters =
+	      (WholeQuantity_P+1)->Case.Function.NbrParameters ;
+	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Para =
+	      (WholeQuantity_P+1)->Case.Function.Para ;	    
+	  }
+
+	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME)
+	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PSCA_DOF ;// Scalar Prod Transitive
+	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
+	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_DOF_PVEC_GF ;
+	  
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Fct =
+	    (WholeQuantity_P+1)->Case.Function.Fct ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.NbrParameters =
+	    (WholeQuantity_P+1)->Case.Function.NbrParameters ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Para =
+	    (WholeQuantity_P+1)->Case.Function.Para ;	 
+	}
+
 	/* GF_FUNCTION  OPER  EXPR */
 	else if( (WholeQuantity_P+0)->Type == WQ_BUILTINFUNCTION &&
 		 (WholeQuantity_P+1)->Type == WQ_EXPRESSION      &&
 		 (WholeQuantity_P+2)->Type == WQ_BINARYOPERATOR  ) {
-
+	 
 	  Get_FunctionForFunction(GF_Function,
 				  (WholeQuantity_P+0)->Case.Function.Fct,
 				  &FlagError,
 				  &DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Fct);
+		  
 	  if (!FlagError){
-	    DefineQuantity_S.IntegralQuantity.ExpressionIndexForCanonical =
-	      (WholeQuantity_P+1)->Case.Expression.Index ;
-
-	    if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME)
-	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PSCA_EXP ;
-	    if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
-	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PVEC_EXP ;
-
 	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.NbrParameters =
 	      (WholeQuantity_P+0)->Case.Function.NbrParameters ;
 	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Para =
-	      (WholeQuantity_P+0)->Case.Function.Para ;	    
+	      (WholeQuantity_P+0)->Case.Function.Para ;	
 	  }
 
-	}
+	  DefineQuantity_S.IntegralQuantity.ExpressionIndexForCanonical =
+	    (WholeQuantity_P+1)->Case.Expression.Index ;
+	    
+	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME)
+	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PSCA_EXP ;
+	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
+	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PVEC_EXP ;
+	  
+	  DefineQuantity_S.IntegralQuantity.FunctionForCanonical.NbrParameters =
+	    (WholeQuantity_P+0)->Case.Function.NbrParameters ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Para =
+	    (WholeQuantity_P+0)->Case.Function.Para ;	 
+	    
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Fct =
+	    (WholeQuantity_P+0)->Case.Function.Fct ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.NbrParameters =
+	    (WholeQuantity_P+0)->Case.Function.NbrParameters ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Para =
+	    (WholeQuantity_P+0)->Case.Function.Para ;	 
+	}	  
+      
+	/* EXPR OPER GF_FUNCTION */
+	else if( (WholeQuantity_P+0)->Type == WQ_EXPRESSION      &&
+		 (WholeQuantity_P+1)->Type == WQ_BUILTINFUNCTION &&
+		 (WholeQuantity_P+2)->Type == WQ_BINARYOPERATOR  ) {
+	 
+	  Get_FunctionForFunction(GF_Function,
+				  (WholeQuantity_P+1)->Case.Function.Fct,
+				  &FlagError,
+				  &DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Fct) ;
 
+	  if (!FlagError){
+	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.NbrParameters =
+	      (WholeQuantity_P+1)->Case.Function.NbrParameters ;
+	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Para =
+	      (WholeQuantity_P+1)->Case.Function.Para ;	
+	  }
+
+	  DefineQuantity_S.IntegralQuantity.ExpressionIndexForCanonical =
+	    (WholeQuantity_P+0)->Case.Expression.Index ;
+	  
+	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME)
+	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PSCA_EXP ;// Transitive product
+	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
+	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_EXP_PVEC_GF ;
+	     
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Fct =
+	    (WholeQuantity_P+1)->Case.Function.Fct ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.NbrParameters =
+	    (WholeQuantity_P+1)->Case.Function.NbrParameters ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Para =
+	    (WholeQuantity_P+1)->Case.Function.Para ;	 
+	}
       }
 
       else if (List_Nbr(DefineQuantity_S.IntegralQuantity.WholeQuantity) == 5){
 	
-	/* EXPR  TIME  GF_FUNCTION  OPER  DOF */
+	/* EXPR  OPER  GF_FUNCTION  OPER  DOF */
 	if     ( (WholeQuantity_P+0)->Type == WQ_EXPRESSION          &&
 		 (WholeQuantity_P+1)->Type == WQ_BUILTINFUNCTION     &&
 		 (WholeQuantity_P+2)->Type == WQ_BINARYOPERATOR      &&
@@ -3349,26 +3443,85 @@ DefineQuantityTerm :
 				  (WholeQuantity_P+1)->Case.Function.Fct,
 				  &FlagError,
 				  &DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Fct);
+
 	  if (!FlagError){
-	    if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME){
-
-	      DefineQuantity_S.IntegralQuantity.ExpressionIndexForCanonical =
-		(WholeQuantity_P+0)->Case.Expression.Index ;
-
-	      if((WholeQuantity_P+4)->Case.Operator.TypeOperator == OP_TIME)
-		DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_EXP_TIME_GF_PSCA_DOF ;
-	      if((WholeQuantity_P+4)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
-		DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_EXP_TIME_GF_PVEC_DOF ;
-	      
-	      DefineQuantity_S.IntegralQuantity.FunctionForCanonical.NbrParameters =
-		(WholeQuantity_P+1)->Case.Function.NbrParameters ;
-	      DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Para =
-		(WholeQuantity_P+1)->Case.Function.Para ;	    
-	    }
+	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.NbrParameters =
+	      (WholeQuantity_P+1)->Case.Function.NbrParameters ;
+	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Para =
+	      (WholeQuantity_P+1)->Case.Function.Para ;	  
 	  }
 
+	  DefineQuantity_S.IntegralQuantity.ExpressionIndexForCanonical =
+	    (WholeQuantity_P+0)->Case.Expression.Index ;
+
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Fct =
+	    (WholeQuantity_P+1)->Case.Function.Fct ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.NbrParameters =
+	    (WholeQuantity_P+1)->Case.Function.NbrParameters ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Para =
+	    (WholeQuantity_P+1)->Case.Function.Para ;
+
+	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME){
+	    if((WholeQuantity_P+4)->Case.Operator.TypeOperator == OP_TIME)
+	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_EXP_TIME_GF_PSCA_DOF ;
+	    if((WholeQuantity_P+4)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
+	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_EXP_TIME_GF_PVEC_DOF ;
+	  }
+	  else if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT){
+	    if((WholeQuantity_P+4)->Case.Operator.TypeOperator == OP_TIME)
+	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_EXP_PVEC_GF_PSCA_DOF ;
+	    if((WholeQuantity_P+4)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
+	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_EXP_PVEC_GF_PVEC_DOF ;
+	  } 
 	}
 
+	/* FCT OPER  GF_FUNCTION  OPER  DOF */	
+	else if( (WholeQuantity_P+0)->Type == WQ_BUILTINFUNCTION     &&
+		 (WholeQuantity_P+1)->Type == WQ_BUILTINFUNCTION     &&
+		 (WholeQuantity_P+2)->Type == WQ_BINARYOPERATOR      &&
+		 (WholeQuantity_P+3)->Type == WQ_OPERATORANDQUANTITY &&
+		 (WholeQuantity_P+4)->Type == WQ_BINARYOPERATOR      &&
+		 Current_DofIndexInWholeQuantity == 3 ) {
+ 
+	  Get_FunctionForFunction(GF_Function,
+				  (WholeQuantity_P+1)->Case.Function.Fct,
+				  &FlagError,
+				  &DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Fct);
+
+	  if (!FlagError){
+	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.NbrParameters =
+	      (WholeQuantity_P+1)->Case.Function.NbrParameters ;
+	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Para =
+	      (WholeQuantity_P+1)->Case.Function.Para ;	    
+	  }
+
+	  DefineQuantity_S.IntegralQuantity.AnyFunction.Fct =
+	    (WholeQuantity_P+0)->Case.Function.Fct ;
+	  DefineQuantity_S.IntegralQuantity.AnyFunction.NbrParameters =
+	    (WholeQuantity_P+0)->Case.Function.NbrParameters ;
+	  DefineQuantity_S.IntegralQuantity.AnyFunction.Para =
+	    (WholeQuantity_P+0)->Case.Function.Para ;	
+
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Fct =
+	    (WholeQuantity_P+1)->Case.Function.Fct ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.NbrParameters =
+	    (WholeQuantity_P+1)->Case.Function.NbrParameters ;
+	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Para =
+	    (WholeQuantity_P+1)->Case.Function.Para ;
+
+	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME){
+	    if((WholeQuantity_P+4)->Case.Operator.TypeOperator == OP_TIME)
+	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_FCT_TIME_GF_PSCA_DOF ;
+	    if((WholeQuantity_P+4)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
+	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_FCT_TIME_GF_PVEC_DOF ;
+	  }
+	  else if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT){
+	    if((WholeQuantity_P+4)->Case.Operator.TypeOperator == OP_TIME)
+	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_FCT_PVEC_GF_PSCA_DOF ;
+	    if((WholeQuantity_P+4)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
+	      DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_FCT_PVEC_GF_PVEC_DOF ;
+	  } 
+	}
       }
 
       Pro_DefineQuantityIndex
@@ -3393,6 +3546,15 @@ DefineQuantityTerm :
 	vyyerror("Unknown Integration method: %s", $2) ;
       else
 	DefineQuantity_S.IntegralQuantity.IntegrationMethodIndex = i ;
+      Free($2) ;
+    }
+
+  | tFMMIntegration tSTRING tEND
+    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, $2,
+			       fcmp_IntegrationMethod_Name)) < 0)
+	vyyerror("Unknown Integration method: %s", $2) ;
+      else
+	DefineQuantity_S.IntegralQuantity.FMMIntegrationMethodIndex = i ;
       Free($2) ;
     }
 
@@ -3595,6 +3757,8 @@ LocalTerm :
       EquationTerm_S.Case.LocalTerm.Term.DofInTrace = 0 ;
       EquationTerm_S.Case.LocalTerm.InIndex = -1 ;
       EquationTerm_S.Case.LocalTerm.IntegrationMethodIndex = -1 ;
+      EquationTerm_S.Case.LocalTerm.FMMIntegrationMethodIndex = -1 ;
+      EquationTerm_S.Case.LocalTerm.MatrixIndex = -1 ;
       EquationTerm_S.Case.LocalTerm.JacobianMethodIndex = -1 ;
       EquationTerm_S.Case.LocalTerm.Active = NULL ;
     }
@@ -3663,6 +3827,23 @@ LocalTermTerm  :
 	  CWQ_EXP_TIME_DOF ;
 	EquationTerm_S.Case.LocalTerm.Term.ExpressionIndexForCanonical =
 	  (WholeQuantity_P+0)->Case.Expression.Index ;
+      }
+      else if ((List_Nbr(EquationTerm_S.Case.LocalTerm.Term.WholeQuantity) == 3) &&
+	  ((WholeQuantity_P+0)->Type == WQ_BUILTINFUNCTION) &&
+	  ((WholeQuantity_P+1)->Type == WQ_OPERATORANDQUANTITY) &&
+	  ((WholeQuantity_P+2)->Type == WQ_BINARYOPERATOR) &&
+	  (Current_DofIndexInWholeQuantity == 1)) {
+	if ((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME)
+	  EquationTerm_S.Case.LocalTerm.Term.CanonicalWholeQuantity = CWQ_FCT_TIME_DOF ;
+	if ((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
+	  EquationTerm_S.Case.LocalTerm.Term.CanonicalWholeQuantity = CWQ_FCT_PVEC_DOF ;
+	    
+	EquationTerm_S.Case.LocalTerm.Term.FunctionForCanonical.Fct =
+	  (WholeQuantity_P+0)->Case.Function.Fct ;
+	EquationTerm_S.Case.LocalTerm.Term.FunctionForCanonical.NbrParameters =
+	  (WholeQuantity_P+0)->Case.Function.NbrParameters ;
+	EquationTerm_S.Case.LocalTerm.Term.FunctionForCanonical.Para =
+	  (WholeQuantity_P+0)->Case.Function.Para ;
       }
       else if ((List_Nbr(EquationTerm_S.Case.LocalTerm.Term.WholeQuantity) == 1) &&
 	       ((WholeQuantity_P+0)->Type == WQ_OPERATORANDQUANTITY) &&
@@ -3761,6 +3942,22 @@ LocalTermTerm  :
       else
 	EquationTerm_S.Case.LocalTerm.IntegrationMethodIndex = i ;
       Free($2) ;
+    }
+
+  | tFMMIntegration tSTRING tEND
+    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, $2,
+			       fcmp_IntegrationMethod_Name)) < 0)
+	vyyerror("Unknown Integration method: %s", $2) ;
+      else
+	EquationTerm_S.Case.LocalTerm.FMMIntegrationMethodIndex = i ;
+      Free($2) ;
+    }
+
+  | tMatrix '[' tINT ']' tEND
+    { if ( $3 == 1 || $3 == 2 || $3 == 3 )
+	EquationTerm_S.Case.LocalTerm.MatrixIndex = $3 ;
+      else
+	vyyerror("Unknown Matrix123: %d", $3) ;
     }
 
   ;
@@ -4077,6 +4274,7 @@ DefineSystem :
       DefineSystem_S.OriginSystemIndex = NULL ;
       DefineSystem_S.DestinationSystemName = NULL ;
       DefineSystem_S.DestinationSystemIndex = -1 ;
+      DefineSystem_S.Flag_FMM = 0 ;
     }
 
   | DefineSystem DefineSystemTerm
@@ -4308,8 +4506,7 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i ;
 
       if (Operation_P->Type == OPERATION_GENERATE || Operation_P->Type == OPERATION_GENERATEJAC)
-	Operation_P->Case.Generate.GroupIndex = -1 ;      
-
+	Operation_P->Case.Generate.GroupIndex = -1 ;
     }
 
   | tSetTime '[' Expression ']' tEND
@@ -4359,22 +4556,79 @@ OperationTerm :
       Operation_P->Case.SetFrequency.ExpressionIndex = $5 ;
     }
 
-  | tUpdate '[' tSTRING ',' Expression ']' tEND
+
+  | tGenerateFMMGroups '[' tSTRING ',' Expression ',' Expression ',' Expression ',' Expression ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = OPERATION_UPDATE ;
+      Operation_P->Type = OPERATION_GENERATEFMMGROUPS ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.Update.ExpressionIndex = $5 ;
+      Operation_P->Case.GenerateFMMGroups.DivXYZIndex = $5;      
+      Operation_P->Case.GenerateFMMGroups.Dfar = $7;
+      Operation_P->Case.GenerateFMMGroups.Precision = $9;
+      Operation_P->Case.GenerateFMMGroups.FlagDTA = $11;      
     }
 
-  | tUpdateConstraint '[' tSTRING ',' GroupRHS ',' tSTRING ']' tEND
+  | tGenerateOnly '[' tSTRING ',' ListOfFExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
+      Operation_P->Type = OPERATION_GENERATEONLY ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.GenerateOnly.MatrixIndex_L =
+	List_Create(List_Nbr($5),1,sizeof(int));
+     
+      for(i=0 ; i<List_Nbr($5) ; i++){
+	List_Read($5,i,&d);
+	j = (int)d ;
+	List_Add(Operation_P->Case.GenerateOnly.MatrixIndex_L, &j);
+      }
+      List_Delete($5); 
+    }
+
+  | tGenerateOnlyJac '[' tSTRING ',' ListOfFExpr ']' tEND
+     { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_GENERATEONLYJAC ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.GenerateOnly.MatrixIndex_L =
+	List_Create(List_Nbr($5),1,sizeof(int));
+     
+      for(i=0 ; i<List_Nbr($5) ; i++){
+	List_Read($5,i,&d);
+	j = (int)d ;
+	List_Add(Operation_P->Case.GenerateOnly.MatrixIndex_L, &j);
+      }
+      List_Delete($5); 
+    }
+
+
+  | tUpdate '[' tSTRING ',' Expression ']' tEND
+    { Operation_P = (struct Operation*)
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_UPDATE ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+                               fcmp_DefineSystem_Name)) < 0)
+        vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.Update.ExpressionIndex = $5 ;
+    }
+    
+   | tUpdateConstraint '[' tSTRING ',' GroupRHS ',' tSTRING ']' tEND
+     { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+    Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $3) ;

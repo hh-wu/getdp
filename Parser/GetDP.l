@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.18 2003-02-06 18:26:59 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.19 2003-03-17 11:26:47 sabarieg Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -150,6 +150,8 @@ Jacobian                     return tJacobian ;
 Case                         return tCase ;
 
 Integration                  return tIntegration ;
+FMMIntegration               return tFMMIntegration ;
+Matrix                       return tMatrix ;
 Criterion                    return tCriterion ;
 GeoElement                   return tGeoElement ;
 NumberOfPoints               return tNumberOfPoints ;
@@ -212,6 +214,9 @@ SetTime                      return tSetTime ;
 SetFrequency                 return tSetFrequency ;
 Update                       return tUpdate ;
 UpdateConstraint             return tUpdateConstraint ;
+Generate_FMMGroups           return tGenerateFMMGroups ;
+GenerateOnly                 return tGenerateOnly ;
+GenerateOnlyJac              return tGenerateOnlyJac ;
 FourierTransform             return tFourierTransform ;
 FourierTransformJ            return tFourierTransformJ ;
 Lanczos                      return tLanczos ;

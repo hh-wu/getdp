@@ -1,16 +1,19 @@
-# $Id: Makefile,v 1.14 2003-02-12 02:26:45 geuzaine Exp $
+# $Id: Makefile,v 1.15 2003-03-17 11:30:21 sabarieg Exp $
 
 include ../variables
 
 LIB      = ../lib/libSparskit.a
-INCLUDE  = -I. -I../include -I../DataStr -I../Main -I../Numeric
+
+INCLUDE  = -I. -I../include -I../DataStr -I../Main -I../Numeric -I../FMM
 CFLAGS = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 FFLAGS = ${F77_FLAGS} ${SOLVER} ${INCLUDE}
+
 
 CSRC =  Solver.c \
         Matrix.c \
         Parser.c \
-        CSR.c 
+        CSR.c \
+        MatVector.c
 
 FSRC1 = blas1.f \
         blassm.f \
@@ -60,10 +63,13 @@ nodepend:
 
 # DO NOT DELETE THIS LINE
 Solver.o: Solver.c Solver.h ../DataStr/List.h Solver_F.h \
-  ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h
+ ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h \
+ ../FMM/F_FMMOperations.h ../include/GetDP.h
 Matrix.o: Matrix.c Solver.h ../DataStr/List.h Solver_F.h \
-  ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h
+ ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h
 Parser.o: Parser.c Solver.h ../DataStr/List.h ../Main/Message.h \
-  ../DataStr/Malloc.h
+ ../DataStr/Malloc.h
 CSR.o: CSR.c Solver.h ../DataStr/List.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Numeric/nrutil.h
+ ../DataStr/Malloc.h ../Numeric/nrutil.h
+MatVector.o: MatVector.c ../include/GetDP.h ../Main/Message.h \
+ ../DataStr/Malloc.h

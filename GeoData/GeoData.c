@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.20 2003-01-23 01:28:12 geuzaine Exp $"
+#define RCSID "$Id: GeoData.c,v 1.21 2003-03-17 11:23:40 sabarieg Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -176,6 +176,7 @@ int Geo_GetElementType(int Format, int Type){
   }
 
 }
+
 
 int Geo_GetElementTypeInv(int Format, int Type){
 
@@ -359,6 +360,7 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 	       &Geo_Element.Num, &Type, &Geo_Element.Region,
 	       &iDummy, &Geo_Element.NbrNodes) ;
 
+	Geo_Element.FMMGroup = Geo_Element.Region ;
 	Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
 	Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
 	for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
@@ -596,4 +598,7 @@ void Geo_SetNodesCoordinates(int Nbr_Node, int * Num_Node,
 
   GetDP_End ;
 }
+
+
+
 

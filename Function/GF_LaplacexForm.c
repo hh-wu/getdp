@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_LaplacexForm.c,v 1.11 2003-01-23 01:28:12 geuzaine Exp $"
+#define RCSID "$Id: GF_LaplacexForm.c,v 1.12 2003-03-17 11:22:42 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -37,7 +37,7 @@ void GF_LaplacexForm (F_ARG2) {
   int      Type_Int, i, j = 1 ;
   double   a, b, c, d, e, f, i1, I1 = 0., Iua, Iva, r2;
   double   s0m, s0p, s1m, s1p, s2m, s2p, t00, t10, t20, t0m_2, t0p_2, t1p_2;
-  double   r00_2, r10_2, r20_2, r0p, r0m, r1p, f20, f21, f22, B0, B1, B2 ;
+  double   r00_2, r10_2, r20_2, r00, r10, r20, r0p, r0m, r1p, f20, f21, f22, B0, B1, B2 ;
   double   f30, f31, f32, N10, N20, N30 ;
   double   DetJ, valr, vali ;
 
@@ -279,30 +279,34 @@ void GF_LaplacexForm (F_ARG2) {
 	r0p = sqrt(t0p_2 + zl_2);      
 	r0m = sqrt(t0m_2 + zl_2);
 	r1p = sqrt(t1p_2 + zl_2);
+
+	r00 = sqrt(r00_2);
+	r10 = sqrt(r10_2);
+	r20 = sqrt(r20_2);
 	
 	/* intermediate functions */ 
-	if(fabs(t00) <= EPSILON*(fabs(s0m)+fabs(s0p)) ){ f20 = 0; B0 = 0; }
+	if(r00 <= EPSILON*(fabs(s0m)+fabs(s0p)) ){ f20 = log(s0m/s0p) ; B0 = 0; }
 	else{
 	  if (!(r0m + s0m)) 
-	    Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15 %.15",
+	    Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15e %.15e",
 		Element->ElementSource->Num, x, y, z) ;
 	  f20 = log((r0p + s0p) / (r0m + s0m));
 	  B0  = atan(t00*s0p/(r00_2+fabs(zl)*r0p))-atan(t00*s0m/(r00_2+fabs(zl)*r0m));
 	}
 	
-	if(fabs(t10) <= EPSILON*(fabs(s1m)+fabs(s1p)) ){ f21 = 0; B1 = 0; }
+	if(r10 <= EPSILON*(fabs(s1m)+fabs(s1p)) ){ f21 = log(s1m/s1p); B1 = 0; }
 	else{
 	  if(!(r0p + s1m)) 
-	    Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15 %.15",
+	    Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15e %.15e",
 		Element->ElementSource->Num, x, y, z) ;
 	  f21 = log((r1p + s1p) / (r0p + s1m));
 	  B1 =  atan(t10*s1p/(r10_2+fabs(zl)*r1p))-atan(t10*s1m/(r10_2+fabs(zl)*r0p));
 	}
 	
-	if(fabs(t20) <= EPSILON*(fabs(s2m)+fabs(s2p)) ){ f22 = 0; B2 = 0; }
+	if(r20 <= EPSILON*(fabs(s2m)+fabs(s2p)) ){ f22 = log(s2m/s2p); B2 = 0; }
 	else{
 	  if(!(r1p+s2m))
-	    Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15 %.15",
+	    Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15e %.15e",
 		Element->ElementSource->Num, x, y, z) ;
 	  f22 = log((r0m + s2p) / (r1p + s2m));
 	  B2 = atan(t20*s2p/(r20_2+fabs(zl)*r0m))-atan(t20*s2m/(r20_2+fabs(zl)*r1p));
@@ -321,8 +325,8 @@ void GF_LaplacexForm (F_ARG2) {
 	break;
 
       case 2 : /* BF_Node */
-	if (!u2 || !v2) 	
-	  Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) u2 %e v2 %e", u2,v2);
+	if (!v2) 	
+	  Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) v2 %e", v2);
 
 	f30 = (s0p*r0p-s0m*r0m) + r00_2 * f20 ; /* f3i */
 	f31 = (s1p*r1p-s1m*r0p) + r10_2 * f21 ;
@@ -397,8 +401,9 @@ void GF_LaplacexForm (F_ARG2) {
 void GF_GradLaplacexForm (F_ARG2) {
   
   double  xs[MAX_NODES], ys[MAX_NODES], zs[MAX_NODES] ;
-  double  xxs, yys, r2 ;
+  double  xxs, yys, r2, EPS ;
   double  a, b, c, a2, I1, I2 ;
+
   double  mx, my, valr, vali, DetJ ;
   double  f0[3], f1[3], f2[3], N10, N20, N30 ;
   double  m0[3], m1[3], m2[3], s0[3], s1[3] ;
@@ -406,7 +411,7 @@ void GF_GradLaplacexForm (F_ARG2) {
   double  u[3], v[3], n[3], u2, v2, xl, yl, zl, zl_2 ;
   double  area, I[3], Iua[3], Iva[3] ;
   double  s0m, s0p, s1m, s1p, s2m, s2p, t00, t10, t20, t0m_2, t0p_2, t1p_2;
-  double  r00_2, r10_2, r20_2, r0p, r0m, r1p, f20, f21, f22, B0, B1, B2, B ;
+  double  r00_2, r10_2, r20_2,  r00, r10, r20, r0p, r0m, r1p, f20, f21, f22, B0, B1, B2, B ;
   int Type_Int ;
 
   GetDP_Begin("GF_GradLaplacexForm");
@@ -513,6 +518,7 @@ void GF_GradLaplacexForm (F_ARG2) {
       xs[2] = Element->ElementSource->x[2] ; ys[2] = Element->ElementSource->y[2] ;
       zs[2] = Element->ElementSource->z[2] ;
       
+
       if(xFunctionBF == (CAST)BF_Volume) Type_Int = 1 ;
       if(xFunctionBF == (CAST)BF_Node)   Type_Int = 2 ;
 
@@ -540,7 +546,10 @@ void GF_GradLaplacexForm (F_ARG2) {
       xl = u[0] * (x-xs[0]) +  u[1] * (y-ys[0]) + u[2] * (z-zs[0]);
       yl = v[0] * (x-xs[0]) +  v[1] * (y-ys[0]) + v[2] * (z-zs[0]);
       zl = n[0] * (x-xs[0]) +  n[1] * (y-ys[0]) + n[2] * (z-zs[0]);
-  
+
+      area = a * v2/2 ;/* Triangle area */
+      if (!zl) zl = sqrt(area) * 1e-15 ;
+
       s0m = -( (a-xl) * (a-u2) + yl*v2 ) / b;
       s0p = s0m + b;
       s1p = ( xl * u2 + yl * v2 ) / c;
@@ -562,39 +571,28 @@ void GF_GradLaplacexForm (F_ARG2) {
       r00_2 = SQU(t00) + zl_2 ;
       r10_2 = SQU(t10) + zl_2 ;
       r20_2 = SQU(t20) + zl_2 ;
-      
+     
+      r00 = sqrt(r00_2);
+      r10 = sqrt(r10_2);
+      r20 = sqrt(r20_2);
+
       /* distances from observation point to the vertices*/
       r0p = sqrt(t0p_2 + zl_2);      
       r0m = sqrt(t0m_2 + zl_2);
       r1p = sqrt(t1p_2 + zl_2);
       
-      
-      if(fabs(t00) <= EPSILON*(fabs(s0m)+fabs(s0p)) ){ f20 = 0; B0 = 0; }
-      else{
-	if (!(r0m + s0m)) 
-	  Msg(ERROR,"1/0 in GF_GradLaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15 %.15",
-	      Element->ElementSource->Num, x, y, z) ;
-	f20 = log((r0p + s0p) / (r0m + s0m));
-	B0  = atan(t00*s0p/(r00_2+fabs(zl)*r0p))-atan(t00*s0m/(r00_2+fabs(zl)*r0m));
-      }
-      
-      if(fabs(t10) <= EPSILON*(fabs(s1m)+fabs(s1p)) ){ f21 = 0; B1 = 0; }
-      else{
-	if(!(r0p + s1m)) 
-	  Msg(ERROR,"1/0 in GF_GradLaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15 %.15",
-	      Element->ElementSource->Num, x, y, z) ;
-	f21 = log((r1p + s1p) / (r0p + s1m));
-	B1 =  atan(t10*s1p/(r10_2+fabs(zl)*r1p))-atan(t10*s1m/(r10_2+fabs(zl)*r0p));
-      }
-      
-      if(fabs(t20) <= EPSILON*(fabs(s2m)+fabs(s2p)) ){ f22 = 0; B2 = 0; }
-      else{
-	if(!(r1p+s2m))
-	  Msg(ERROR,"1/0 in GF_GradLaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15 %.15",
-	      Element->ElementSource->Num, x, y, z) ;
-	f22 = log((r0m + s2p) / (r1p + s2m));
-	B2 = atan(t20*s2p/(r20_2+fabs(zl)*r0m))-atan(t20*s2m/(r20_2+fabs(zl)*r1p));
-      }
+      EPS = EPSILON*(fabs(s0m)+fabs(s0p));
+
+      B0 = (r00 <= EPS) ? 0. : atan(t00*s0p/(r00_2+fabs(zl)*r0p))-atan(t00*s0m/(r00_2+fabs(zl)*r0m));
+      f20 = ((r0m + s0m) <= EPS) ? log(s0m/s0p) : log((r0p + s0p) / (r0m + s0m)) ;
+
+      EPS = EPSILON*(fabs(s1m)+fabs(s1p)) ; 
+      B1 = (r10 <=EPS) ? 0. : atan(t10*s1p/(r10_2+fabs(zl)*r1p))-atan(t10*s1m/(r10_2+fabs(zl)*r0p));
+      f21 = ((r0p + s1m)<=EPS) ? log(s1m/s1p) : log((r1p + s1p) / (r0p + s1m));
+
+      EPS = EPSILON*(fabs(s2m)+fabs(s2p)) ; 
+      B2 =  (r20 <= EPS) ? 0. : atan(t20*s2p/(r20_2+fabs(zl)*r0m))-atan(t20*s2m/(r20_2+fabs(zl)*r1p));
+      f22 = ((r1p + s2m)< EPS) ? log(s2m/s2p): log((r0m + s2p) / (r1p + s2m));
       
       B = B0 + B1 + B2 ; 
 
@@ -624,16 +622,15 @@ void GF_GradLaplacexForm (F_ARG2) {
       I[2] = -n[2] * THESIGN(zl) * B - (m0[2]*f20 + m1[2]*f21 + m2[2]*f22) ;
 
       switch ( Type_Int ){
-      case 1 : /* BF_Volume */
-	area = a * v2/2 ;/* Triangle area */
-	Val->Val[0] = I[0] /area ; 	
-	Val->Val[1] = I[1] /area ; 	
-	Val->Val[2] = I[2] /area ; 	
+      case 1 : /* BF_Volume */	
+	Val->Val[0] = I[0]/area ; 	
+	Val->Val[1] = I[1]/area ; 	
+	Val->Val[2] = I[2]/area ; 	
 	break;
     
       case 2 : /* BF_Node */
-	if (!u2 || !v2 ) 	
-	  Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) u2 %e v2 %e", u2,v2);
+	if (!v2 ) 	
+	  Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) v2 %e", v2);
 
 	f0[0] = s0[0] * t00 * f20 - m0[0]*(r0p-r0m) ; /* fi */
 	f0[1] = s0[1] * t00 * f20 - m0[1]*(r0p-r0m) ;
@@ -698,9 +695,9 @@ void GF_GradLaplacexForm (F_ARG2) {
 	break;
       }
       
-      Val->Val[0] *= -ONE_OVER_FOUR_PI ;
-      Val->Val[1] *= -ONE_OVER_FOUR_PI ;
-      Val->Val[2] *= -ONE_OVER_FOUR_PI ;      
+      Val->Val[0] *= ONE_OVER_FOUR_PI ;
+      Val->Val[1] *= ONE_OVER_FOUR_PI ;
+      Val->Val[2] *= ONE_OVER_FOUR_PI ;      
       break ;
       
     default :
@@ -809,9 +806,8 @@ void GF_NPxGradLaplacexForm (F_ARG2) {
       Geo_CreateNormal(Element->Type,
 		       Element->x,Element->y,Element->z, N);
 
-      /* printf("Normal %e %e %e\n",N[0],N[1],N[2]); */
       GF_GradLaplacexForm(Element, Fct, xFunctionBF, NumEntity, x, y, z, &ValGrad) ;
-      /* printf("ValGrad %e %e %e\n", ValGrad.Val[0],ValGrad.Val[0], ValGrad.Val[0]); */
+
       Val->Val[0] = N[0]*ValGrad.Val[0] + N[1]*ValGrad.Val[1] + N[2]*ValGrad.Val[2] ;
       break ;
     default :

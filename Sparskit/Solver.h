@@ -1,4 +1,4 @@
-/* $Id: Solver.h,v 1.10 2002-01-18 19:47:57 geuzaine Exp $ */
+/* $Id: Solver.h,v 1.11 2003-03-17 11:30:21 sabarieg Exp $ */
 #ifndef _SOLVER_H_
 #define _SOLVER_H_
 
@@ -176,6 +176,11 @@ void restore_format (Sparse_Matrix *M);
 void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x);
 void print_parametres (Solver_Params *p);
 
+/* MatVector.c*/
+void MatrixVectorProd (int n, double *x, double *y, double *a, int *ja, int *ia) ;
+void MatrixTVectorProd (int n, double *x, double *y, double *a, int *ja, int *ia) ;
+void LUsol(int n, double *y, double *x, scalar *alu, int *jlu, int *ju) ;
+void LUTsol(int n, double *y, double *x, scalar *alu, int *jlu, int *ju) ;
 
 
 #endif

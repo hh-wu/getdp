@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.13 2003-02-07 10:26:57 geuzaine Exp $
+# $Id: Makefile,v 1.14 2003-03-17 11:23:40 sabarieg Exp $
 
 include ../variables
 
@@ -36,19 +36,19 @@ nodepend:
 
 # DO NOT DELETE THIS LINE
 GeoData.o: GeoData.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
-  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
-  ../Main/Data_Element.h ../Main/Data_Numeric.h ../include/Magic.h
+ ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
+ ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
+ ../Main/Data_Element.h ../Main/Data_Numeric.h ../include/Magic.h
 GeoEntity.o: GeoEntity.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
-  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
-  ../Main/Data_Element.h GeoEntity.h ../include/Magic.h \
-  ../DataStr/Tools.h
+ ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
+ ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
+ ../Main/Data_Element.h GeoEntity.h ../include/Magic.h \
+ ../DataStr/Tools.h
 GeoTree.o: GeoTree.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
-  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
-  ../Main/Data_Element.h ../DataStr/Tools.h
+ ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
+ ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
+ ../Main/Data_Element.h ../DataStr/Tools.h
 GeoNormal.o: GeoNormal.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
-  ../Main/Data_Element.h GeoData.h Data_GeoData.h ../DataStr/Tree.h \
-  ../DataStr/avl.h ../Main/Data_Numeric.h ../DataStr/Tools.h
+ ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
+ ../Main/Data_Element.h GeoData.h Data_GeoData.h ../DataStr/Tree.h \
+ ../DataStr/avl.h ../Main/Data_Numeric.h ../DataStr/Tools.h

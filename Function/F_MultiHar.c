@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.17 2002-02-07 17:19:04 geuzaine Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.18 2003-03-17 11:22:41 sabarieg Exp $"
 
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
@@ -463,7 +463,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
   int     i, j, k, Type_Dimension,  Nbr_IntPoints, i_IntPoint ;
   int     iTime, iDof, jDof, iHar, jHar, nVal1, nVal2, iVal1, iVal2, Type1;
-  double **H, ***HH, *weight, Factor, plus, plus0, weightIntPoint;
+  double **H, ***HH, Factor, plus, plus0, weightIntPoint;
   int NbrPointsX, OffSet;
   struct Expression * Expression_P;
   struct Dof * Dofi, *Dofj;
@@ -567,7 +567,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   Expression_P = Problem_Expression0 + FI->MHJacNL_Index;
   OffSet       = FI->MHJacNL_HarOffSet;
   Factor       = FI->MHJacNL_Factor;
-  weight       = FI->MHJacNL_w; /* never used... */
+
 
 
   /*  ------------------------------------------------------------------------  */

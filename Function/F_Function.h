@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.15 2002-10-15 19:23:19 geuzaine Exp $ */
+/* $Id: F_Function.h,v 1.16 2003-03-17 11:22:41 sabarieg Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -12,6 +12,7 @@
 void  F_Sphere            (F_ARG) ;
 void  F_Cylinder          (F_ARG) ;
 void  F_JFIE_ZPolCyl      (F_ARG) ; 
+void  F_RCS_ZPolCyl       (F_ARG) ; 
 void  F_JFIE_TransZPolCyl (F_ARG) ;
 void  F_JFIE_SphTheta     (F_ARG) ;
 void  F_RCS_SphTheta      (F_ARG) ;
@@ -135,10 +136,14 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 			   double u, double v, double w,
 			   struct Value *ValueOut) ;
 void  F_MHToTime0 (int init, struct Value * A, struct Value * V, 
-		   int iTime, int NbrTimePoint, double * TimeMH) ;
+		   int iTime, int NbrTimePoint, double * TimeMH) ;// OJO!!! int *init
 void  MHTransform(struct Element * Element, struct QuantityStorage * QuantityStorage_P0,
 		  double u, double v, double w, struct Value *MH_Value,
 		  struct Expression * Expression_P, int NbrPoints);
+
+/* F_BiotSavart */
+void  F_BiotSavart (F_ARG) ;
+
 
 #undef F_ARG
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.14 2003-01-26 07:31:28 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.15 2003-03-17 11:22:41 sabarieg Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -72,7 +72,7 @@ void  F_Normal(F_ARG) {
     }
   }
   V->Type = VECTOR ;
-
+ 
   GetDP_End ;
 }
 

@@ -1,10 +1,11 @@
-/* $Id: Data_Function.h,v 1.21 2002-10-15 19:23:19 geuzaine Exp $ */
+/* $Id: Data_Function.h,v 1.22 2003-03-17 11:22:41 sabarieg Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 
 #include "BF_Function.h"
 #include "F_Function.h"
 #include "GF_Function.h"
+#include "F_FMM.h"
 
 #define CAST  void(*)()
 
@@ -26,7 +27,7 @@
 struct StringX3Function2Nbr  BF_Function[] = {
  
   /* H^1 Basis Functions and their gradients */
-
+  
   {"BF_Node",    (CAST)BF_Node,    
                  (CAST)BF_GradNode,    (CAST)BF_Zero, 1., ALL },
   {"BF_Node_1N", (CAST)BF_Node,    
@@ -532,6 +533,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"F_Cylinder"        , (CAST)F_Cylinder         ,   7,   0 },
  
   {"JFIE_ZPolAnalyticOnCyl",      (CAST)F_JFIE_ZPolCyl     ,   4,   1 },
+  {"RCS_ZPolAnalyticCyl",         (CAST)F_RCS_ZPolCyl      ,   3,   1 }, 
   {"JFIE_TransZPolAnalyticOnCyl", (CAST)F_JFIE_TransZPolCyl,   3,   1 },
   {"JFIE_OnSphCutTheta",          (CAST)F_JFIE_SphTheta,       4,   1 },
   {"RCS_SphTheta",                (CAST)F_RCS_SphTheta,        4,   1 },
@@ -553,6 +555,10 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"NPxGradHelmholtz"  , (CAST)GF_NPxGradHelmholtz ,   2,   0 },
   {"NSxGradHelmholtz"  , (CAST)GF_NSxGradHelmholtz ,   2,   0 },
 
+  /* Biot Savart law */
+  {"BiotSavart"        , (CAST)F_BiotSavart        ,   1,   0 },
+
+
   {NULL                , NULL                      ,   0,   0 } 
 
 } ;
@@ -571,14 +577,43 @@ struct FunctionXFunction  GF_Function[] = {
   {(CAST)GF_GradLaplace     , (CAST)GF_GradLaplacexForm    } ,
   {(CAST)GF_NPxGradLaplace  , (CAST)GF_NPxGradLaplacexForm } ,
   {(CAST)GF_NSxGradLaplace  , (CAST)GF_NSxGradLaplacexForm } ,
-
   {(CAST)GF_ApproximateLaplace  , (CAST)GF_ApproximateLaplacexForm  } ,
-
   {(CAST)GF_Helmholtz         , (CAST)GF_HelmholtzxForm        } ,
-
-  {NULL                    , NULL }  
+  {NULL                       , NULL }  
 
 } ;
+
+
+/* ------------------------------------------------------------------------ */
+/* The Green Function and its associated FMM Matrix-Vector product function */
+/* ------------------------------------------------------------------------ */
+
+
+struct FunctionXFunction FMMProd_Function2D[] = {
+
+  {(CAST)GF_Laplace         , (CAST)FMMProd_AllLaplace2D        } ,
+  {(CAST)GF_GradLaplace     , (CAST)FMMProd_AllLaplace2D    } ,
+  {(CAST)GF_NPxGradLaplace  , (CAST)FMMProd_AllLaplace2D    } ,
+  {(CAST)GF_Helmholtz       , (CAST)FMMProd_AllHelmholtz   } ,
+  {(CAST)GF_GradHelmholtz   , (CAST)FMMProd_AllHelmholtz   } ,
+  {(CAST)GF_NSxGradHelmholtz, (CAST)FMMProd_AllHelmholtz   } ,
+  {NULL                     , NULL }  
+
+} ;
+
+
+struct FunctionXFunction FMMProd_Function3D[] = {
+
+  {(CAST)GF_Laplace         , (CAST)FMMProd_AllLaplace3D   } ,
+  {(CAST)GF_GradLaplace     , (CAST)FMMProd_AllLaplace3D   } ,
+  {(CAST)GF_NPxGradLaplace  , (CAST)FMMProd_AllLaplace3D  } ,
+  {(CAST)GF_Helmholtz       , (CAST)FMMProd_AllHelmholtz   } ,
+  {(CAST)GF_GradHelmholtz   , (CAST)FMMProd_AllHelmholtz   } ,
+  {(CAST)GF_NSxGradHelmholtz, (CAST)FMMProd_AllHelmholtz   } ,
+  {NULL                     , NULL }  
+
+} ;
+
 
 
 #undef CAST

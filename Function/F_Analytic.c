@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.11 2002-02-07 17:19:04 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.12 2003-03-17 11:22:41 sabarieg Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -168,6 +168,48 @@ void F_JFIE_ZPolCyl(F_ARG){
 } 
 
 
+void F_RCS_ZPolCyl(F_ARG){
+  
+  double k0, r, kr, rinf, krinf, phi, a, b, d,den ; 
+  double lambda, bjn, rr = 0., ri = 0. ;
+  int i, ns ;
+
+  GetDP_Begin("F_RCS_ZPolCyl") ;  
+ 
+  phi = atan2( A->Val[1], A->Val[0] ) ;
+ 
+  k0  = Fct->Para[0] ;
+  r  = Fct->Para[1] ;
+  rinf   = Fct->Para[2] ; 
+
+  kr = k0*r ;
+  krinf = k0*rinf ;
+  lambda = 2*PI/k0 ;
+
+  ns = 100 ;  
+  
+  for (i = -ns ; i <= ns ; i++ ){
+    bjn = jn(i,kr) ;
+    a = bjn * cos(i*phi) ;
+    b = bjn * sin(i*phi) ;
+    d =  -yn(i,kr) ;     
+    
+    den = bjn*bjn+d*d ;
+    
+    rr += (a*bjn+b*d)/den ; 
+    ri += (b*bjn-a*d)/den ;
+  }
+  
+  V->Val[0] =  10*log10( 4*PI*SQU(rinf/lambda) * 2/krinf/PI *(SQU(rr)+SQU(ri)) ) ;
+  V->Val[MAX_DIM] = 0. ;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+
+} 
+
+
 
 /*  Incident wave polarized transversely to z                               */
 
@@ -260,7 +302,7 @@ void F_JFIE_SphTheta(F_ARG){
     b1 = sin((1-i)*PI/2) ;
     c1 = -AltSpherical_j_n(i+1, kr) + (i+1) * AltSpherical_j_n(i, kr)/kr ; /* Derivative */
     d1 = -(-AltSpherical_y_n(i+1, kr) + (i+1) * AltSpherical_y_n(i, kr)/kr) ;
-    
+   
     a2 =  cos((2-i)*PI/2) ;
     b2 =  sin((2-i)*PI/2) ;    
     c2 =  AltSpherical_j_n(i, kr) ;
@@ -476,6 +518,7 @@ void F_RCS_SphPhi(F_ARG){
   GetDP_End;
 
 } 
+
 
 /* ------------------------------------------------------------------------ */
 /*  Problem of the sphere. Acoustic scattering.                             */

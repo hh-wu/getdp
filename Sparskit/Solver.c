@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.20 2003-02-14 07:30:12 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.21 2003-03-17 11:30:21 sabarieg Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -8,26 +8,35 @@
 #include "Message.h"
 #include "Malloc.h"
 
+#include "F_FMMOperations.h"
+
+
 /* ------------------------------------------------------------------------ */
 /*  S o l v e _ m a t r i x                                                 */
 /* ------------------------------------------------------------------------ */
 
+
+extern int Flag_FMM ;
+extern int Flag_DTA ;
+
 void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   FILE    *pf;
   double   fpar[17];
-  double  *a, *w, *rhs, *sol, *dx;
+  double  *a, *w, *rhs, *sol, *dx ;
   double   res;
   int      i, j, k, nnz, nnz_ilu, ierr, ipar[17];
   int     *ja, *ia, *jw, *mask, *levels;
   int      its, end, do_permute=0;
   int      zero=0, un=1, deux=2, six=6, douze=12, trente=30, trente_et_un=31;
   int      ROW=0, COLUMN=1;
-  double     res1=1.;
-
+  double   res1=1.;
+ 
   if (!M->N) {
     Msg(WARNING, "No equations in linear system");
     return;
   }
+  
+
 
   for(i=0 ; i<M->N ; i++){
     if(b[i] != 0.) break;
@@ -91,6 +100,8 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       do_permute = 1 ;
       M->changed = 0 ;
     }
+
+    Msg(RESOURCES, "");
 
   } /* if DENSE */
   else{
@@ -185,6 +196,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     ja = M->S.ja_rcmk;
   }
   
+
   if (p->Matrix_Printing == 1 || p->Matrix_Printing == 3) {
     Msg(SPARSKIT, "Matrix printing\n");
     skit_(&M->N, a, ja, ia, &douze, &douze, &ierr); 
@@ -270,62 +282,65 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       M->S.ju  = (int*) Malloc((M->N+1) * sizeof(int));
     }
 
-reallocate :
+    reallocate :
     
-    switch(p->Preconditioner){
-    case ILUT :
-      w  = (double*) Malloc((M->N+1) * sizeof(double));
-      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-      ilut_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance,
-	    M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, w, jw, &ierr);    
-      Free(w); Free(jw); break;
-      
-    case ILUTP :
-      w  = (double*) Malloc((M->N+1) * sizeof(double));
-      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-      ilutp_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance, 
-	     &p->Permutation_Tolerance, &M->N, M->S.alu, M->S.jlu, 
-	     M->S.ju, &nnz_ilu, w, jw, M->S.permp, &ierr);    
-      Free(jw); Free(w); break;
-      
-    case ILUD :
-      w  = (double*) Malloc((M->N+1) * sizeof(double));
-      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-      ilud_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
-	    &p->Dropping_Tolerance, M->S.alu, M->S.jlu, 
-	    M->S.ju, &nnz_ilu, w, jw, &ierr);    
-      Free(w); Free(jw); break;
-      
-    case ILUDP :
-      w     = (double*) Malloc((M->N+1) * sizeof(double));
-      jw    = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-      iludp_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
-	     &p->Dropping_Tolerance, &p->Permutation_Tolerance, 
-	     &M->N, M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, 
-	     w, jw, M->S.permp, &ierr);    
-      Free(jw); Free(w); break;
-      
-    case ILUK :    
-      levels = (int*) Malloc(nnz_ilu * sizeof(int));
-      w      = (double*) Malloc((M->N+1) * sizeof(double));
-      jw     = (int*) Malloc(3 * (M->N+1) * sizeof(int));
-      iluk_(&M->N, a, ja, ia, &p->Nb_Fill, 
-	    M->S.alu, M->S.jlu, M->S.ju, 
-	    levels, &nnz_ilu, w, jw, &ierr);    
-      Free(levels); Free(w); Free(jw); break;
-      
-    case ILU0 :
-      jw = (int*) Malloc((M->N+1) * sizeof(int));    
-      ilu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
-      Free(jw); break;
-      
-    case MILU0 :
-      jw = (int*) Malloc((M->N+1) * sizeof(int));    
-      milu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
-      Free(jw); break;      
-      
-    }
+      switch(p->Preconditioner){
+      case ILUT :
+	w  = (double*) Malloc((M->N+1) * sizeof(double));
+	jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+	ilut_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance,
+	      M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, w, jw, &ierr);    
+	Free(w); Free(jw); break;
+	
+      case ILUTP :
+	w  = (double*) Malloc((M->N+1) * sizeof(double));
+	jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+	ilutp_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance, 
+	       &p->Permutation_Tolerance, &M->N, M->S.alu, M->S.jlu, 
+	       M->S.ju, &nnz_ilu, w, jw, M->S.permp, &ierr);    
+	Free(jw); Free(w); break;
+	
+      case ILUD :
+	w  = (double*) Malloc((M->N+1) * sizeof(double));
+	jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+	ilud_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
+	      &p->Dropping_Tolerance, M->S.alu, M->S.jlu, 
+	      M->S.ju, &nnz_ilu, w, jw, &ierr);    
+	Free(w); Free(jw); break;
+	
+      case ILUDP :
+	w     = (double*) Malloc((M->N+1) * sizeof(double));
+	jw    = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+	iludp_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
+	       &p->Dropping_Tolerance, &p->Permutation_Tolerance, 
+	       &M->N, M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, 
+	       w, jw, M->S.permp, &ierr);    
+	Free(jw); Free(w); break;
+	
+      case ILUK :    
+	levels = (int*) Malloc(nnz_ilu * sizeof(int));
+	w      = (double*) Malloc((M->N+1) * sizeof(double));
+	jw     = (int*) Malloc(3 * (M->N+1) * sizeof(int));
+	iluk_(&M->N, a, ja, ia, &p->Nb_Fill, 
+	      M->S.alu, M->S.jlu, M->S.ju, 
+	      levels, &nnz_ilu, w, jw, &ierr);    
+	Free(levels); Free(w); Free(jw); break;
+	
+      case ILU0 :
+	jw = (int*) Malloc((M->N+1) * sizeof(int));    
+	ilu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
+	Free(jw); break;
+	
+      case MILU0 :
+	jw = (int*) Malloc((M->N+1) * sizeof(int));    
+	milu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
+	Free(jw); break;      
+	
+      }
     
+
+    
+  
     switch (ierr){
     case  0 : 
       break;
@@ -414,9 +429,21 @@ reallocate :
   its = 0;
   end = 0;
   res = 0.0;
-  
+
+
+  if( Flag_FMM && p->Scaling != NONE ){
+    Msg(SPARSKIT, "FMM Scaling\n") ;    
+    FMM_Scaling(M->rowscal, M->colscal);
+  }
+
+  if( Flag_FMM && p->Renumbering_Technique == RCMK ){
+    Msg(SPARSKIT, "FMM DTAx with Renumbering\n") ; 
+    FMM_Renumbering( M->N, M->S.permr, M->S.permp ) ;
+  }
+
+
   while(1){
-    
+
     switch(p->Algorithm){
     case CG      : cg_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;      
     case CGNR    : cgnr_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;
@@ -437,13 +464,13 @@ reallocate :
     if(!end){
       
       if(ipar[7] != its){
-	if(its) Msg(ITER, "%4d  %.7e  %.7e\n", its, res, res/res1);
+	if(its) Msg(ITER, " %4d  %.7e  %.7e\n", its, res, res/res1);
 	its = ipar[7] ;
       }
       
       res = fpar[5];
       if(its==1) res1 = fpar[5] ;
-      
+       
       switch(ipar[1]){
       case 1 : 
 	amux_(&M->N, &w[ipar[8]-1], &w[ipar[9]-1], a, ja, ia); break;
@@ -467,23 +494,28 @@ reallocate :
 	Msg(WARNING, "Iterative solver terminated (code = %d)", ipar[1]); end = 1; break;
       }
       
-    }
-    
+      if (Flag_FMM && !Flag_DTA){ 
+	FMM_MatVectorProd(&w[ipar[8]-1], &w[ipar[9]-1]) ;
+      }
+      
+    }    
     if(end) break;
     
-  }
+  }//while(1)
+
   
   /* Convergence results monitoring */
   
-  Msg(ITER, "%4d  %.7e  %.7e\n", ipar[7], fpar[6], fpar[6]/res1);
+  Msg(ITER, " %4d  %.7e  %.7e\n", ipar[7], fpar[6], fpar[6]/res1);
   
   amux_(&M->N, sol, w, a, ja, ia);
   
+ 
   for(i=0 ; i<M->N ; i++){
     w[M->N+i] = sol[i] - 1.0 ;
     w[i] -= rhs[i] ;
   }      
-
+  
  
   Msg(SPARSKIT, "%d Iterations / Residual: %g\n", ipar[7], dnrm2_(&M->N,w,&un));
   /*
@@ -499,6 +531,20 @@ reallocate :
     k = M->S.permp[j+M->N] - 1;        
     x[i] = sol[k];
   }
+
+  
+  if( Flag_FMM && p->Renumbering_Technique == RCMK ){
+    Msg(SPARSKIT, "FMM InverseRenumbering\n") ; 
+    FMM_InverseRenumbering(M->S.rpermr) ;
+    Flag_FMM = 3;
+  } 
+
+  if( Flag_FMM && p->Scaling != NONE ){  
+    Msg(SPARSKIT, "FMM UnScaling\n") ; 
+    FMM_UnScaling(M->rowscal, M->colscal);
+  } 
+  
+
   
   /* Free memory */
   
@@ -555,4 +601,6 @@ void print_parametres (Solver_Params *p){
   printf(" Nb_Iter_Max             : %d\n", p->Nb_Iter_Max);
   printf(" Stopping_Test           : %g\n", p->Stopping_Test);
 }
+
+
 

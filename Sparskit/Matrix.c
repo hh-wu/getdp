@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.17 2003-01-26 07:31:30 geuzaine Exp $"
+#define RCSID "$Id: Matrix.c,v 1.18 2003-03-17 11:30:21 sabarieg Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -321,6 +321,7 @@ void scale_matrix (int scaling, Matrix *M){
 	  return ;
 	}
       }
+
       diamua_ (&M->N, &job1, a, ai, jptr, rowscal, a, ai, jptr) ;
       amudia_ (&M->N, &job1, a, ai, jptr, colscal, a, ai, jptr) ;
       break ;
@@ -350,9 +351,9 @@ void scale_matrix (int scaling, Matrix *M){
       colscal = (double*)Malloc(M->N * sizeof(double));
       cnrms_ (&M->N, &norm, a, ai, jptr, colscal); 
       for (i = 0 ; i < M->N ; i++){
-
 	if (colscal[i]){
 	  colscal[i] = 1./colscal[i] ;
+
 	  /* printf("  %d %e %e \n", i, 1./rowscal[i], 1./colscal[i] ); */
 	}
 	else {
@@ -370,10 +371,11 @@ void scale_matrix (int scaling, Matrix *M){
       break;
 
     }
-
+   
     M->scaled = 1 ; 
     M->rowscal = rowscal ;
     M->colscal = colscal ;
+   
     break;
 
   case DENSE :
@@ -399,7 +401,6 @@ void scale_vector (int ROW_or_COLUMN, Matrix *M, double *V){
 
   for (i = 0 ; i < M->N ; i++) V[i] *= scal[i] ; 
 }
-
 
 
 void prod_matrix_vector (Matrix *M, double *V , double *res ){
