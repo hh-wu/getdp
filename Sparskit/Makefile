@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2003-03-17 11:30:21 sabarieg Exp $
+# $Id: Makefile,v 1.16 2003-03-17 16:31:23 sabarieg Exp $
 
 include ../variables
 
@@ -12,8 +12,7 @@ FFLAGS = ${F77_FLAGS} ${SOLVER} ${INCLUDE}
 CSRC =  Solver.c \
         Matrix.c \
         Parser.c \
-        CSR.c \
-        MatVector.c
+        CSR.c 
 
 FSRC1 = blas1.f \
         blassm.f \
