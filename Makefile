@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.65 2001-07-30 09:56:03 geuzaine Exp $
+# $Id: Makefile,v 1.66 2001-09-06 09:02:32 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -308,6 +308,7 @@ distrib:
 	$(STRIP) $(GETDP_BIN_DIR)/getdp
 	mkdir getdp-$(GETDP_RELEASE)
 	cp $(GETDP_BIN_DIR)/getdp getdp-$(GETDP_RELEASE)
+	cp doc/VERSIONS doc/FAQ doc/BUGS doc/CONTRIBUTORS getdp-$(GETDP_RELEASE)
 	cp -R demos getdp-$(GETDP_RELEASE)
 	rm -rf getdp-$(GETDP_RELEASE)/*/CVS
 	rm -f getdp-$(GETDP_RELEASE)/*/*.pre
@@ -319,6 +320,26 @@ distrib:
 	gzip getdp-$(GETDP_RELEASE)-$(GETDP_UNAME).tar
 	mv getdp-$(GETDP_RELEASE)-$(GETDP_UNAME).tar.gz getdp-$(GETDP_RELEASE)-$(GETDP_UNAME).tgz
 	rm -rf getdp-$(GETDP_RELEASE)
+
+distrib-win:
+	cp $(GETDP_BIN_DIR)/getdp.exe ../getdp-distrib
+	cp doc/README.txt ../getdp-distrib
+	cp doc/VERSIONS ../getdp-distrib/VERSIONS.txt
+	cp doc/FAQ ../getdp-distrib/FAQ.txt
+	cp doc/CONTRIBUTORS ../getdp-distrib/CONTRIBUTORS.txt
+	cd utils && unix2dos ../../getdp-distrib/*.txt
+	cp -R demos ../getdp-distrib
+	rm -rf ../getdp-distrib/*/CVS
+	rm -f ../getdp-distrib/*/*.pre
+	rm -f ../getdp-distrib/*/*.res
+	rm -f ../getdp-distrib/*/*.pos
+	rm -f ../getdp-distrib/*/*.cut
+	rm -f ../getdp-distrib/*/*~
+	cd utils && unix2dos ../../getdp-distrib/demos/*
+	cd ../getdp-distrib && zip -r getdp-$(GMSH_RELEASE)-Windows.zip *
+	mv ../getdp-distrib/getdp-$(GMSH_RELEASE)-Windows.zip .
+	rm -rf ../getdp-distrib/*.txt
+	rm -rf ../getdp-distrib/demos
 
 # ----------------------------------------------------------------------
 # Black Box version (with embedded formulation and reduced interface)
