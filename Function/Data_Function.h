@@ -676,9 +676,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Pocklington"       , (CAST)F_Pocklington       ,   2,   0 },
 
   /* F_DiscreteGeometry */
-  {"IncMatrixEdgesXNodes"    , (CAST)F_IncMatrixEdgesXNodes       ,   0,   0 }
+  {"IncMatrixEdgesXNodes"    , (CAST)F_IncMatrixEdgesXNodes       ,   0,   0 },
 
-  {"MatrixDualEdgesXEdges"    , (CAST)F_MatrixDualEdgesXEdges     ,   0,   1 }
+  {"MatrixDualEdgesXEdges"    , (CAST)F_MatrixDualEdgesXEdges     ,   0,   1 },
 
 
 
