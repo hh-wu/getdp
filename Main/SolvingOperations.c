@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.63 2004-05-11 08:15:45 sabarieg Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.64 2004-09-09 11:24:27 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -3215,37 +3215,42 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
   for (i=0 ; i < Nbr_Node ; i++) {
     List_Read(Group_P->ExtendedList, i, &Num_Node) ;
 
-    Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
+    if (!Group_P->InitialSuppList ||
+	! List_Search(Group_P->ExtendedSuppList, &Num_Node, fcmp_int)) {
 
-    if (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex >= 0 &&
-	Num_Node == Operation_P->Case.ChangeOfCoordinates.NumNode) { 
-      x = Current.x ;
-      y = Current.y ;
-      z = Current.z ;
+      Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
+
+      if (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex >= 0 &&
+	  Num_Node == Operation_P->Case.ChangeOfCoordinates.NumNode) { 
+	x = Current.x ;
+	y = Current.y ;
+	z = Current.z ;
+	Get_ValueOfExpressionByIndex
+	  (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2,
+	   NULL, 0., 0., 0., &Value1) ;
+	ThisIsTheNode = 1 ;
+      } else ThisIsTheNode = 0 ;
+
       Get_ValueOfExpressionByIndex
-	(Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2,
-	 NULL, 0., 0., 0., &Value1) ;
-      ThisIsTheNode = 1 ;
-    } else ThisIsTheNode = 0 ;
+	(Operation_P->Case.ChangeOfCoordinates.ExpressionIndex,
+	 NULL, 0., 0., 0., &Value) ;
 
-    Get_ValueOfExpressionByIndex
-      (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex,
-       NULL, 0., 0., 0., &Value) ;
+      if (ThisIsTheNode) {
+	Current.x = Value.Val[0] ;
+	Current.y = Value.Val[1] ;
+	Current.z = Value.Val[2] ;
+	Get_ValueOfExpressionByIndex
+	  (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2,
+	   NULL, 0., 0., 0., &Value2) ;
+	printf("before x %e  y %e  z %e  ||| after x %e  y %e  z %e\n",
+	       x, y, z, Value.Val[0], Value.Val[1], Value.Val[2]);
+	Msg(INFO, "  before %e  after %e", Value1.Val[0], Value2.Val[0]) ;
+      }
 
-    if (ThisIsTheNode) {
-      Current.x = Value.Val[0] ;
-      Current.y = Value.Val[1] ;
-      Current.z = Value.Val[2] ;
-      Get_ValueOfExpressionByIndex
-	(Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2,
-	 NULL, 0., 0., 0., &Value2) ;
-      printf("before x %e  y %e  z %e  ||| after x %e  y %e  z %e\n",
-	     x, y, z, Value.Val[0], Value.Val[1], Value.Val[2]);
-      Msg(INFO, "  before %e  after %e", Value1.Val[0], Value2.Val[0]) ;
+      Geo_SetNodesCoordinates(1, &Num_Node,
+			      &Value.Val[0], &Value.Val[1], &Value.Val[2]) ;
     }
 
-    Geo_SetNodesCoordinates(1, &Num_Node,
-			    &Value.Val[0], &Value.Val[1], &Value.Val[2]) ;
   }
 
   GetDP_End ;
