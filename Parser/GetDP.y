@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.36 2002-02-22 12:12:53 dular Exp $ */
+/* $Id: GetDP.y,v 1.37 2002-03-06 09:14:37 trophime Exp $ */
 
 /*
   Modifs a faire
@@ -23,9 +23,11 @@
 #include <math.h>
 
 /* bison est mal foutu */
-#if !defined __cplusplus && !defined MSDOS && !defined _AIX && !defined __CYGWIN__
+#ifndef __APPLE__
+#if !defined __cplusplus && !defined MSDOS && !defined _AIX && !defined __CYGWIN_
 #include <alloca.h> 
 #endif
+#endif /* __APPLE__ */
 
 #include "Data_Passive.h"
 #include "Data_Active.h"
