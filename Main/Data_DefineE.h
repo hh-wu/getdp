@@ -63,6 +63,7 @@ extern struct StringXDefine  PostSubOperation_FormatTag[];
 extern struct StringXPointer Current_Value[] ;
 
 extern struct DefineXFunction  FunctionForGauss[] ;
+extern struct DefineXFunction  FunctionForGaussLegendre[] ;
 extern struct DefineXFunction  FunctionForSingularGauss[] ;
 extern struct DefineXFunction  FunctionForNewtonCotes[] ;
 

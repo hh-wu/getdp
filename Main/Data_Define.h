@@ -80,6 +80,7 @@ struct StringXDefine1Nbr  Jacobian_Type[] = {
 
 struct StringXDefine  Integration_Type[] = {
   {"Gauss"                 , GAUSS},
+  {"GaussLegendre"         , GAUSSLEGENDRE},
   {"NewtonCotes"           , NEWTONCOTES},
   {"Patterson"             , PATTERSON},
   {"Analytic"              , ANALYTIC},
@@ -281,9 +282,9 @@ struct DefineXFunction  FunctionForGauss[] = {
 } ;
 
 struct DefineXFunction  FunctionForSingularGauss[] = {
-  {TRIANGLE       , (CAST)Gauss_Triangle_Singular},
-  {QUADRANGLE     , (CAST)Gauss_Quadrangle_Singular},
-  {0              , (CAST)Gauss_Triangle_Singular}
+  {TRIANGLE       , (CAST)GaussSingularR_Triangle},
+  {QUADRANGLE     , (CAST)GaussSingularR_Quadrangle},
+  {0              , (CAST)GaussSingularR_Triangle}
 } ;
 
 struct DefineXFunction  FunctionForNewtonCotes[] = {
@@ -292,6 +293,15 @@ struct DefineXFunction  FunctionForNewtonCotes[] = {
   {0              , NULL} 
 } ;
 
+struct DefineXFunction  FunctionForGaussLegendre[] = {
+  {POINT          , (CAST)Gauss_Point},
+  {LINE           , (CAST)Gauss_Line},
+  {TRIANGLE       , (CAST)GaussLegendre_Triangle},
+  {QUADRANGLE     , (CAST)GaussLegendre_Quadrangle},
+  {TETRAHEDRON    , (CAST)GaussLegendre_Tetrahedron},
+  {HEXAHEDRON     , (CAST)GaussLegendre_Hexahedron},
+  {0              , (CAST)GaussLegendre_Triangle}
+} ;
 
 /* ------------------------------------------------------------------------ */
 

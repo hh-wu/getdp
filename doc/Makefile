@@ -9,25 +9,23 @@ pdf:
 	texi2pdf getdp.texi 
 
 html:
-	texi2html -expandinfo -number -split_chapter getdp.texi
+	./texi2html -init_file getdp.t2h getdp.texi
 
 html2:
-	Texi2html -init_file getdp.htmlconfig getdp.texi
-
-html3:
 	makeinfo --html getdp.texi
 
 info:
 	makeinfo getdp.texi
 
+install-info:
+	cp getdp.info* /usr/local/info/
+	install-info getdp.info /usr/local/info/dir
+
 infoz:
 	gtar zcvf getdp-info.tgz getdp.info*
 
-doc: ps pdf html info
+all: ps pdf html info
 
-install:
-	cp getdp.info* /usr/local/info/
-	install-info getdp.info /usr/local/info/dir
 
 clean:
 	$(RM) $(RMFLAGS) *.cp* *.fn* *.ky* *.pg* *.tp* *.vr* *.mv* \

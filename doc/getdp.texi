@@ -16,19 +16,21 @@
 @c dvi   : texi2dvi getdp.texi
 @c ps    : dvips getdp.dvi -o
 @c pdf   : texi2pdf getdp.texi
-@c html  : texi2html -expandinfo -split_chapter getdp.texi
+@c html  : texi2html -init_file getdp.t2h getdp.texi
 @c nroff : texi2roff getdp.texi
 @c
 @c =========================================================================
 @c %**start of header
-@setfilename getdp.info
-@set EDITION 1.7
-@set VERSION 0.75
-@set UPDATED 23 June 2000
-@set UPDATE-MONTH June 2000
+@setfilename   getdp.info
+@c variables
+@set EDITION   1.7
+@set VERSION   0.75
+@set DAY       20 
+@set MONTH     July 2000
 @set COPYRIGHT @copyright{} 1997-2000 Patrick Dular, Christophe Geuzaine
-@set WEB @uref{http://www.geuz.org/getdp/}
-@set WEB-GMSH @uref{http://www.geuz.org/gmsh/}
+@set WEB-GETDP @uref{http://www.geuz.org/getdp/}
+@set WEB-GMSH  @uref{http://www.geuz.org/gmsh/}
+@c title
 @settitle GetDP @value{VERSION}
 @footnotestyle separate
 @c recto : on / recto-verso : odd
@@ -48,7 +50,7 @@
 * GetDP: (getdp).       a General environment for the treatment of Discrete Problems
 @end direntry
 @noindent
-This is Edition @value{EDITION}, last updated @value{UPDATED}, of the
+This is Edition @value{EDITION}, last updated @value{DAY} @value{MONTH}, of the
 @cite{GetDP Manual}, for GetDP, a General environment for the Treatment
 of Discrete Problems, Version @value{VERSION}.
 @noindent
@@ -66,7 +68,7 @@ BELGIUM @*
 @global@let@bullet=-
 @global@let@sl=@it
 @global@setfont@indit@itshape{9}{1000}
-@global@let@linkcolor=@Blue
+@global@let@linkcolor=@Orange
 @parskip=5pt
 @end iftex
 
@@ -75,12 +77,15 @@ BELGIUM @*
 @c =========================================================================
 
 @shorttitlepage GetDP
+
 @titlepage
+
 @title GetDP Manual
+
 @subtitle The documentation for GetDP, Version  @value{VERSION}
 @subtitle A General environment for the treatment of Discrete Problems
 @subtitle 
-@subtitle Edition @value{EDITION}, @value{UPDATE-MONTH}
+@subtitle Edition @value{EDITION}, @value{MONTH}
 
 @author Patrick Dular
 @author Christophe Geuzaine
@@ -98,7 +103,8 @@ BELGIUM
 @sp 1
 This document was prepared with Texinfo (@uref{http://texinfo.org}). The source
 of this document as well as several formatted versions (info, postscript, pdf,
-html) are available at @value{WEB}.
+html) are available at @value{WEB-GETDP}.
+
 @end titlepage
 
 @c =========================================================================
@@ -112,20 +118,16 @@ html) are available at @value{WEB}.
 @c Top node
 @c =========================================================================
 
-@c @ifnottex
 @ifinfo
 @node Top, Copying, (dir), (dir)
 @top GetDP
-
 GetDP is a scientific computation software for the numerical solution of
 integro-differential equations, using finite element and integral type
 methods.
 
 This is Edition @value{EDITION} of the @cite{GetDP Manual}, last updated
-@value{UPDATED} for GetDP Version @value{VERSION}.
+@value{DAY} @value{MONTH} for GetDP Version @value{VERSION}.
 @end ifinfo
-@c @end ifnottex
-
 
 @c =========================================================================
 @c Master menu
@@ -313,7 +315,7 @@ Versions and Credits
 
 Executable versions of GetDP can be downloaded for most of the classical
 UNIX platforms (SUN, DEC, IBM, HP, SGI and Linux) and for Windows 95/98/NT
-from the web site @value{WEB} (no source distribution is available for
+from the web site @value{WEB-GETDP} (no source distribution is available for
 the moment). The executable versions of GetDP are free; the only thing
 asked if you use GetDP is to mention it in your work. Published
 references, as well as the latest news about GetDP developments and
@@ -4909,7 +4911,7 @@ getdp @var{filename} @var{options}
 
 @noindent
 where @var{filename} is an ASCII file containing the problem definition,
-i.e.@: the structures this user's guide teached you to create. This file
+i.e.@: the structures this user's guide taught you to create. This file
 can include other files (@pxref{Includes}), so that only one problem
 definition file should always be given on the command line. The input
 files containing the problem definition structure are usually given the
@@ -4923,6 +4925,7 @@ order):
 
 @table @code
 @item -pre @var{resolution-id}
+@cindex @code{-pre}
 Performs the pre-processing associated with the resolution
 @var{resolution-id}. In the pre-processing stage, GetDP creates the
 geometric database (from the mesh file), identifies the degrees of
@@ -4932,6 +4935,7 @@ these degrees of freedom. The pre-processing creates a file with a
 available choices is displayed.
 
 @item -cal
+@cindex @code{-cal}
 Performs the processing. This requires that a pre-processing has been
 performed previously, or a that a @code{-pre} option is given on the
 same command line. The performed resolution is the one given as an
@@ -4941,6 +4945,7 @@ selected @code{Resolution} object (such as matrix assemblies, system
 resolutions, ...).
 
 @item -pos @var{post-operation-id}
+@cindex @code{-pos}
 Performs the operations in the @var{PostOperation} selected by
 @var{post-operation-id}. This requires that a processing has been
 performed previously, or that a @code{-cal} option is given on the same
@@ -4948,6 +4953,7 @@ command line. If @var{post-operation-id} is omitted, the list of
 available choices is displayed.
 
 @item -ipos @var{post-processing-id}
+@cindex @code{-ipos}
 Enters an interactive post-processing mode, enabling you to enter
 @code{PostOperation}-like commands manually. These commands are based on
 the @var{PostProcessing} object selected by @var{post-processing-id}.
@@ -4955,41 +4961,60 @@ If @var{post-processing-id} is omitted, the list of available choices is
 displayed.
 
 @item -msh @var{filename}
+@cindex @code{-msh}
 Reads the mesh database (in @code{.msh} format) from @var{filename}
 (@pxref{File formats}) instead of in the default problem file name (with
 the @file{.msh} extension appended).
 
-@item -res @var{filename}
-Undocumented.
+@item -split
+@cindex @code{-split}
+save processing results in separate files (one for each timestep).
+
+@item -res @var{filename} @dots{}
+@cindex @code{-res}
+load processing results from file(s).
 
 @item -restart
+@cindex @code{-restart}
 Restarts processing of a transient problem interrupted before being complete.
 
 @item -solve @var{resolution-id}
+@cindex @code{-solve}
 Same as @code{-pre @var{resolution-id} -cal}.
 
 @item -bin 
+@cindex @code{-bin}
 Selects binary format for output files.
 
 @item -log
+@cindex @code{-log}
 Saves all processing history in a log file (the input file name with an
 appended @code{.log} extension).
 
 @item -check  
+@cindex @code{-check}
 Lets you check the problem structure interactively. 
 
 @item -v @var{int}
+@cindex @code{-v}
 Sets the verbosity level. A value of 0 means that no information will be
 displayed during processing.
 
 @item -p @var{int}
+@cindex @code{-p}
 Sets the progress update rate. This controls the refreshment rate of the
 counter indicating the progress of the current computation.
 
-@item -version
+@item -info
+@cindex @code{-info}
 Displays version information.
 
+@item -version
+@cindex @code{-version}
+Displays version number.
+
 @item -help
+@cindex @code{-help}
 Displays a message listing basic usage and available options.
 
 @end table

@@ -66,7 +66,6 @@
 */
 
 extern  int       InteractiveInterrupt ;
-extern  List_T  * GeoData_L ;
 
 /* ------------------------------------------------------------------------ */
 /*  P o s _ F o r m u l a t i o n                                           */

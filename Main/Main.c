@@ -8,11 +8,12 @@
 #include "Init_Problem.h"
 #include "ualloc.h"
 #include "LinAlg.h"
+#include "Magic.h"
 
 extern FILE *yyin ;
 long int     yylinenum=0 ;
 int          yycolnum=0, yyincludenum=0 ;
-char         yyname[256], yyincludename[256];
+char         yyname[MAX_FILE_NAME_LENGTH], yyincludename[MAX_FILE_NAME_LENGTH];
 int          yyparse(void) ;
 int          yyrestart(FILE*) ;
 
@@ -31,9 +32,10 @@ int     InteractiveCompute, InteractiveExit=0, InteractiveInterrupt=0 ;
 int     Flag_PRE, Flag_PAR, Flag_CAL, Flag_POS, Flag_IPOS, Flag_XDATA;
 int     Flag_CHECK, Flag_LRES, Flag_LPOS, Flag_LIPOS; 
 int     Flag_RESTART, Flag_LOG, Flag_VERBOSE, Flag_BIN, Flag_PROGRESS ;
-char    NameFilePro[256], NameGene[256], NameFileLog[256]; 
+int     Flag_SPLIT ;
+char    Name_Generic[MAX_FILE_NAME_LENGTH] ;
 char   *Name_Resolution, *Name_PostProcessing, *Name_PostOperation ;
-char   *Name_MshFile, *Name_ResFile ;
+char   *Name_MshFile, *Name_ResFile[MAX_RES_FILES] ;
 
 int Flag_RemoveSingularity = 0;
 
@@ -48,6 +50,7 @@ int Flag_RemoveSingularity = 0;
 int  main(int argc, char *argv[]) {
   char  ext[6], **sargv;
   int   sargc ;
+  char  ProName[MAX_FILE_NAME_LENGTH], LogName[MAX_FILE_NAME_LENGTH] ;
 
   /* init MPI for multi-processor jobs */
 
@@ -62,7 +65,7 @@ int  main(int argc, char *argv[]) {
   sargv = (char**)Malloc(256*sizeof(char**));
 
   Init_GlobalVariables() ;
-  Get_Options(argc, argv, &sargc, sargv, NameFilePro) ;
+  Get_Options(argc, argv, &sargc, sargv, ProName) ;
 
   /* handle some signals */
 
@@ -72,21 +75,38 @@ int  main(int argc, char *argv[]) {
 
   /* generic problem name */
 
-  strcpy(NameGene, NameFilePro) ;
-  strcpy(ext, NameFilePro+(strlen(NameFilePro)-4)) ;
+  strcpy(Name_Generic, ProName) ;
+  strcpy(ext, ProName+(strlen(ProName)-4)) ;
   if(!strcmp(ext, ".pro") || !strcmp(ext, ".PRO"))
-    NameGene[strlen(NameFilePro)-4] = '\0' ;
+    Name_Generic[strlen(ProName)-4] = '\0' ;
   else
-    strcat(NameFilePro,".pro") ;
+    strcat(ProName,".pro") ;
+
+  /* default .res file */
+
+  if(!Name_ResFile[0]){
+    Name_ResFile[0] = (char*)Malloc((strlen(Name_Generic)+5)*sizeof(char)) ;
+    strcpy(Name_ResFile[0], Name_Generic) ;
+    strcat(Name_ResFile[0], ".res") ;
+    Name_ResFile[1] = NULL ;
+  }
+
+  /* default .msh file */
+
+  if (!Name_MshFile) {
+    Name_MshFile = (char*) Malloc((strlen(Name_Generic)+5)*sizeof(char)) ;
+    strcpy(Name_MshFile, Name_Generic) ;
+    strcat(Name_MshFile, ".msh") ;
+  }
 
   /* log file */
 
   if(Flag_LOG){
-    strcpy(NameFileLog, NameGene) ;
-    strcat(NameFileLog, ".log") ;
-    if(!(LogStream = fopen(NameFileLog, "w+"))){
+    strcpy(LogName, Name_Generic) ;
+    strcat(LogName, ".log") ;
+    if(!(LogStream = fopen(LogName, "w+"))){
       Flag_LOG = 0;
-      Msg(WARNING, "Unable to Open File '%s'", NameFileLog) ;
+      Msg(WARNING, "Unable to Open File '%s'", LogName) ;
     }
   }
 
@@ -97,7 +117,7 @@ int  main(int argc, char *argv[]) {
   /* fill-in problem structure (read pro files) */
 
   Init_ProblemStructure();
-  Read_ProblemStructure(NameFilePro) ;
+  Read_ProblemStructure(ProName) ;
 
   /* process */
 
@@ -108,8 +128,7 @@ int  main(int argc, char *argv[]) {
   if (Flag_LRES) Print_ListResolution(&Problem_S) ;
   if (Flag_LPOS) Print_ListPostOperation(&Problem_S) ;
   if (Flag_LIPOS) Print_ListPostProcessing(&Problem_S) ;
-  if (Flag_PRE || Flag_PAR || Flag_CAL || Flag_POS) 
-    SolvingAnalyse(NameGene) ;
+  if (Flag_PRE || Flag_PAR || Flag_CAL || Flag_POS) SolvingAnalyse() ;
 
   /* finalize the solver */
 
@@ -139,10 +158,10 @@ void Init_GlobalVariables(void){
   Flag_PRE = 0   ; Flag_CAL = 0     ; Flag_POS = 0       ; Flag_IPOS = 0 ;  
   Flag_CHECK = 0 ; Flag_XDATA = 0   ; Flag_RESTART = 0   ; Flag_BIN = 0  ; 
   Flag_LRES = 0  ; Flag_LPOS = 0    ; Flag_LIPOS = 0     ; Flag_PAR = 0; 
-  Flag_LOG = 0   ; Flag_VERBOSE = 4 ; Flag_PROGRESS = 10 ;
+  Flag_LOG = 0   ; Flag_VERBOSE = 4 ; Flag_PROGRESS = 10 ; Flag_SPLIT = 0 ;
 
   Name_Resolution = Name_PostProcessing = Name_PostOperation = NULL ;
-  Name_MshFile = Name_ResFile = NULL ;
+  Name_MshFile = Name_ResFile[0] = NULL ;
 
   PostStream = PrintStream = stdout ;
 }  
@@ -171,7 +190,7 @@ void Init_ProblemStructure(void){
 int Get_Options(int argc, char *argv[], int *sargc, char **sargv, 
 		char *NameProblem) {
   
-  int  i, Flag_TmpLOG = 0, Flag_NameProblem = 0 ;
+  int  i, j, Flag_TmpLOG = 0, Flag_NameProblem = 0 ;
   
   strcpy(NameProblem, "") ;  
   i = *sargc = 1 ;
@@ -190,6 +209,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       else if (!strcmp(argv[i]+1, "debug"))  { Flag_VERBOSE = 99 ; i++ ; } 
       else if (!strcmp(argv[i]+1, "bin"))    { Flag_BIN     = 1 ; i++ ; } 
       else if (!strcmp(argv[i]+1, "ascii"))  { Flag_BIN     = 0 ; i++ ; } 
+      else if (!strcmp(argv[i]+1, "split"))  { Flag_SPLIT   = 1 ; i++ ; } 
 
       else if (!strcmp(argv[i]+1, "restart")){ 
 	Flag_PRE = Flag_PAR = 0 ; Flag_CAL = Flag_RESTART = 1 ; i++ ;
@@ -214,6 +234,11 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       else if (!strcmp(argv[i]+1, "version") || 
 	       !strcmp(argv[i]+1, "-version")) {
 	Info(1, argv[0]);
+      }
+
+      else if (!strcmp(argv[i]+1, "info") || 
+	       !strcmp(argv[i]+1, "-info")) {
+	Info(2, argv[0]);
       }
 
       else if (!strcmp(argv[i]+1, "progress") ||
@@ -306,12 +331,17 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       }
 
       else if (!strcmp(argv[i]+1, "res")) {
-	i++ ;
-	if (i<argc && argv[i][0]!='-') { 
-	  Name_ResFile = argv[i] ; i++ ; 
+	i++ ; j = 0 ;
+	while (i<argc && argv[i][0]!='-') { 
+	  Name_ResFile[j] = argv[i] ; i++ ; j++ ;
+	  if(j == MAX_RES_FILES)
+	    Msg(ERROR, "Too Many '.res' Files");
 	}
-	else {
+	if(!j)
 	  Msg(ERROR, "Missing File Name");
+	else{
+	  Flag_SPLIT = 1 ;
+	  Name_ResFile[j] = NULL ;
 	}
       }
 
@@ -358,7 +388,7 @@ void FinalizeAndExit(void){
 
 void  Read_ProblemStructure (char * Name){
 
-  char    String[256], Last_yyname[256];
+  char    String[MAX_STRING_LENGTH], Last_yyname[MAX_FILE_NAME_LENGTH];
   int     Last_yylinenum, Last_yyincludenum, Last_ErrorLevel, i ;
 
   Msg(LOADING, "Problem Definition '%s'", Name) ;
@@ -381,7 +411,7 @@ void  Read_ProblemStructure (char * Name){
     
     yyin = fopen(yyname, "r");
     yyrestart(yyin);
-    for(i=0;i<yylinenum;i++) fgets(String, 256, yyin);
+    for(i=0;i<yylinenum;i++) fgets(String, MAX_STRING_LENGTH, yyin);
     yylinenum++ ;
     yyparse(); fclose(yyin);
     if(ErrorLevel) FinalizeAndExit();

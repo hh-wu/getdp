@@ -72,4 +72,5 @@ yacc.tab.o: yacc.tab.c ../include/Data_Passive.h \
  ../include/BF_Function.h ../include/../Function/BF_Function.h \
  ../include/Data_Element.h ../include/../Function/HBF_Function.h \
  ../include/Quadrature.h ../include/../Integration/Quadrature.h \
- ../include/Cal_Value.h ../include/../Main/Cal_Value.h Constant.h
+ ../include/Cal_Value.h ../include/../Main/Cal_Value.h Constant.h \
+ ../include/Magic.h
