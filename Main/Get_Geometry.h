@@ -1,4 +1,7 @@
-/* $Id: Get_Geometry.h,v 1.2 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Get_Geometry.h,v 1.3 2000-09-08 08:17:24 geuzaine Exp $ */
+#ifndef _GET_GEOMETRY_H_
+#define _GET_GEOMETRY_H_
+
 #include "Data_Active.h"
 
 
@@ -76,3 +79,5 @@ double  Cal_Product123 (double v1[], double v2[]) ;
 double  Cal_Product12  (double v1[], double v2[]) ;
 double  Cal_Product3   (double v1[], double v2[]) ;
 double  Cal_Product1   (double v1[], double v2[]) ;
+
+#endif

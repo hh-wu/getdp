@@ -1,4 +1,6 @@
-/* $Id: Quadrature.h,v 1.4 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Quadrature.h,v 1.5 2000-09-08 08:17:24 geuzaine Exp $ */
+#ifndef _QUADRATURE_H_
+#define _QUADRATURE_H_
 
 #define MAX_LINE_POINTS 20
 
@@ -33,3 +35,4 @@ void  NewtonCotes_Line       () ;
 void  NewtonCotes_Quadrangle () ;
 
 
+#endif

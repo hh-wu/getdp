@@ -1,4 +1,7 @@
-/* $Id: Init_Problem.h,v 1.4 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Init_Problem.h,v 1.5 2000-09-08 08:17:24 geuzaine Exp $ */
+#ifndef _INIT_PROBLEM_H_
+#define _INIT_PROBLEM_H_
+
 #include "Data_Passive.h"
 #include "Data_GeoData.h"
 
@@ -88,3 +91,5 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 				    struct Operation   * Operation_P, 
 				    struct DofData     * DofData_P0,
 				    struct GeoData     * GeoData_P0) ;
+
+#endif

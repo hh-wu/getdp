@@ -1,4 +1,7 @@
-/* $Id: Data_DefineE.h,v 1.5 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Data_DefineE.h,v 1.6 2000-09-08 08:17:24 geuzaine Exp $ */
+
+#ifndef _DADA_DEFINE_E_H_
+#define _DATA_DEFINE_E_H_
 
 struct StringXDefine {
   char *string ; 
@@ -115,3 +118,5 @@ char*  Get_Valid_SXD1N (struct StringXDefine1Nbr    V[]);
 char*  Get_Valid_SXP   (struct StringXPointer       V[]);
 char*  Get_Valid_SX3F2N(struct StringX3Function2Nbr V[]);
 char*  Get_Valid_SXF2N (struct StringXFunction2Nbr  V[]);
+
+#endif

@@ -1,4 +1,7 @@
-/* $Id: ExtendedGroup.h,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: ExtendedGroup.h,v 1.3 2000-09-08 08:17:24 geuzaine Exp $ */
+#ifndef _EXTENDED_GROUP_H_
+#define _EXTENDED_GROUP_H_
+
 #include "Data_Active.h"
 
 
@@ -15,3 +18,4 @@ void Generate_GroupsOfEdges(List_T * InitialList, int Type_SuppList,
 void Generate_Elements(List_T * InitialList, int Type_SuppList, 
 		       List_T * InitialSuppList, List_T ** ExtendedList) ;
 
+#endif

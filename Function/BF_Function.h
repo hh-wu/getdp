@@ -1,13 +1,13 @@
-/* $Id: BF_Function.h,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+/* $Id: BF_Function.h,v 1.3 2000-09-08 08:17:24 geuzaine Exp $ */
+#ifndef _BF_FUNCTION_H_
+#define _BF_FUNCTION_H_
 
 #include "Message.h"
-
 #include "Data_Element.h"
 #include "HBF_Function.h"
 
 #define BF_ARG  struct Element * Element, int NumEntity, \
                 double u, double v, double w,  double Value[]
-
 
 /* BF_ ...   */
 /* --------- */
@@ -67,3 +67,4 @@ void  BF_One                         (BF_ARG) ;
 
 #undef BF_ARG
 
+#endif

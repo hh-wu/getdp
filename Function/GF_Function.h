@@ -1,5 +1,5 @@
-/* $Id: GF_Function.h,v 1.2 2000-09-07 18:47:23 geuzaine Exp $ */
-#ifndef _GF_FUNCTION_H__
+/* $Id: GF_Function.h,v 1.3 2000-09-08 08:17:24 geuzaine Exp $ */
+#ifndef _GF_FUNCTION_H_
 #define _GF_FUNCTION_H_
 
 #include "Data_Active.h"

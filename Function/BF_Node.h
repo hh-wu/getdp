@@ -1,4 +1,6 @@
-/* $Id: BF_Node.h,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+/* $Id: BF_Node.h,v 1.3 2000-09-08 08:17:24 geuzaine Exp $ */
+#ifndef _BF_NODE_H_
+#define _BF_NODE_H_
 
 /* Barycentric functions */
 
@@ -137,3 +139,5 @@
 #define dPYR5v  ( 0.                                  )
 #define dPYR5w  ( 1.                                  )
 
+
+#endif

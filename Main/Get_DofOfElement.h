@@ -1,4 +1,7 @@
-/* $Id: Get_DofOfElement.h,v 1.2 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Get_DofOfElement.h,v 1.3 2000-09-08 08:17:24 geuzaine Exp $ */
+#ifndef _GET_DOF_OF_ELEMENT_H_
+#define _GET_DOF_OF_ELEMENT_H_
+
 #include "Data_Active.h"
 
 
@@ -51,3 +54,4 @@ void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
 				    struct FunctionSpace    * FunctionSpace_P,
 				    struct QuantityStorage  * QuantityStorage_P) ;
 
+#endif

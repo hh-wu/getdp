@@ -1,4 +1,7 @@
-/* $Id: Treatment_Formulation.h,v 1.5 2000-09-07 18:47:27 geuzaine Exp $ */
+/* $Id: Treatment_Formulation.h,v 1.6 2000-09-08 08:17:24 geuzaine Exp $ */
+#ifndef _TREATMENT_FORMULATION_H_
+#define _TREATMENT_FORMULATION_H_
+
 #include "Data_Active.h"
 
 
@@ -156,3 +159,5 @@ void  Cal_SolidAngle(int Source, struct Element *Element,
 		     struct QuantityStorage * QuantityStorage,
 		     int Nbr_Dof, int Index,
 		     struct Value Angles[NBR_MAX_BASISFUNCTIONS][MAX_STACK_SIZE]);
+
+#endif

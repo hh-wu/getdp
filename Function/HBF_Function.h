@@ -1,4 +1,6 @@
-/* $Id: HBF_Function.h,v 1.3 2000-09-07 18:47:23 geuzaine Exp $ */
+/* $Id: HBF_Function.h,v 1.4 2000-09-08 08:17:24 geuzaine Exp $ */
+#ifndef _HBF_FUNCTION_H_
+#define _HBF_FUNCTION_H_
 
 #define HBF_ARG  struct Element * Element, int NumEntity, \
                  double u, double v, double w,  double Value[]
@@ -105,3 +107,4 @@ void  HBF_CurlGroupOfEdges_2E        (HBF_ARG) ;
 
 #undef HBF_ARG
 
+#endif

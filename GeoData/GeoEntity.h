@@ -1,4 +1,6 @@
-/* $Id: GeoEntity.h,v 1.5 2000-09-07 18:47:24 geuzaine Exp $ */
+/* $Id: GeoEntity.h,v 1.6 2000-09-08 08:17:24 geuzaine Exp $ */
+#ifndef _GEO_ENTITY_H_
+#define _GEO_ENTITY_H_
 
 /* Incidence Matrices : Den (EdgesXNodes), Dfe (FacetsXEdges) */
 /* Xp stands for 'expanded' (used in discrete operators)      */
@@ -360,3 +362,6 @@ static int  Dfe_Pyramid_Xp []
 static int  Dfn_Pyramid [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
   = { { 1, 2, 5, 0}, { 1, 4, 3, 2, 0}, { 1, 5, 4, 0},
       { 2, 3, 5, 0}, { 3, 4, 5, 0} } ;
+
+
+#endif
