@@ -65,8 +65,8 @@ Include "Integration_Lib.pro"
 Include "MagSta_a_2D.pro"
 
 e = 1.e-5;
-p1 = {e,e,0};
-p2 = {0.12,e,0};
+p1 = @{e,e,0@};
+p2 = @{0.12,e,0@};
 
 PostOperation @{
 

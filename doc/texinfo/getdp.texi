@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.16 2001-07-21 18:36:37 geuzaine Exp $
+@c $Id: getdp.texi,v 1.17 2001-07-21 19:52:39 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -207,6 +207,7 @@ Expressions
 * Functions::                   
 * Current values::              
 * Arguments::                   
+* Registers::                   
 * Fields::                      
 
 Definition
@@ -727,6 +728,7 @@ define and solve his problem.
 * Functions::                   
 * Current values::              
 * Arguments::                   
+* Registers::                   
 * Fields::                      
 @end menu
 
@@ -756,6 +758,8 @@ Expressions are denoted by the metasyntactic variable @var{expression}
   @var{quantity} |
   @var{argument} |
   @var{current-value} |
+  @var{register-value-set} |
+  @var{register-value-get} |
   @var{operator-unary} @var{expression} |
   @var{expression} @var{operator-binary} @var{expression} |
   @var{expression} @var{operator-ternary-left} @var{expression} @var{operator-ternary-right} @var{expression} |
@@ -767,7 +771,8 @@ Expressions are denoted by the metasyntactic variable @var{expression}
 expressions, i.e.@: constant terminals (@var{integer}, @var{real}) and
 constant expression identifiers (@var{constant-id},
 @var{expression-cst-list}), discretized fields (@var{quantity}), arguments
-(@var{argument}), current values (@var{current-value}), operators
+(@var{argument}), current values (@var{current-value}), register values
+(@var{register-value-set}, @var{register-value-get}), operators
 (@var{operator-unary}, @var{operator-binary}, @var{operator-ternary-left},
 @var{operator-ternary-right}) and built-in or user-defined functions
 (@var{built-in-function-id}, @var{function-id}). List of expressions are
@@ -1215,16 +1220,14 @@ coordinates, i.e.@: coordinates in which the mesh is expressed.
 @c Arguments
 @c -------------------------------------------------------------------------
 
-@node Arguments, Fields, Current values, Expressions
+@node Arguments, Registers, Current values, Expressions
 @section Arguments
 
 @cindex Arguments, definition
 
 @vindex @var{argument}
 
-@tindex #@var{integer}
 @tindex $@var{integer}
-
 
 Function arguments can be used in expressions and have the following
 syntax (@var{integer} indicates the number of the argument in the
@@ -1239,10 +1242,52 @@ syntax (@var{integer} indicates the number of the argument in the
 
 
 @c -------------------------------------------------------------------------
+@c Registers
+@c -------------------------------------------------------------------------
+
+@node Registers, Fields, Arguments, Expressions
+@section Registers
+
+@cindex Registers, definition
+
+@vindex @var{register-value-set}
+@vindex @var{register-value-get}
+
+@tindex #@var{integer}
+
+In many situations, identical parts of expressions are used more than
+once. If this is not a problem with constant expressions (since
+@var{expression-cst}s are evaluated only once during the analysis of the
+problem definition structure, cf. @ref{Constants}), it may introduce some
+important overhead while evaluating complex @var{expression}s (which are
+evaluated at runtime, thanks to an internal stack mechanism). In order to
+circumvent this problem, the evaluation result of any part of an
+@var{expression} can be saved in a register: a memory location where this
+partial result will be accessible without any costly reevaluation of the
+partial expression.
+
+Registers have the following syntax: 
+@example
+@var{register-value-set}:
+  @var{expression}#@var{integer}
+
+@var{register-value-get}:
+  #@var{integer}
+@end example
+
+@noindent Thus, to store any part of an expression in the register 5, one
+should add @code{#5} directly after the expression. To reuse the value
+stored in this register, one simply uses @code{#5} instead of the expression
+it should replace.
+
+@xref{Function examples}, for an example.
+
+
+@c -------------------------------------------------------------------------
 @c Fields
 @c -------------------------------------------------------------------------
 
-@node Fields,  , Arguments, Expressions
+@node Fields,  , Registers, Expressions
 @section Fields
 
 @cindex Fields
@@ -4024,6 +4069,19 @@ Function @{
   dfdx[] = dInterpolationLinear[$1]@{ListAlt[data_x, data_f]@};
 @}
 @end example
+
+@noindent In order to optimize the evaluation time of complex expressions,
+registers may be used (@pxref{Registers}). For example, the evaluation of
+@code{g[] = f[$1]*Sin[f[$1]^2]} would require two (costly) linear
+interpolations. But the result of the evaluation of @code{f[]} may be stored
+in a register (for example the register 0) with
+
+@example
+g[] = f[$1]#0 * Sin[#0^2];
+@end example
+
+@noindent thus reducing the number of evaluations of @code{f[]} (and of the
+argument @code{$1}) to one.
 
 A function can also be time dependent, e.g.
 

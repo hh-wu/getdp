@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.14 2001-06-27 16:42:34 dular Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.15 2001-07-21 19:52:39 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -106,7 +106,7 @@ void  Get_ValueOfExpressionByIndex(int Index_Expression,
 /*  C a l _ W h o l e Q u a n t i t y                                       */
 /* ------------------------------------------------------------------------ */
 
-#define MAX_REGISTER_SIZE   10
+#define MAX_REGISTER_SIZE   100
 
 #define CAST3V    void(*)(struct Value*, struct Value*, struct Value*)
 #define CAST1V    void(*)(struct Value*)
