@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.25 2002-01-23 22:00:59 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.26 2002-01-23 23:52:32 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -1618,16 +1618,28 @@ void Dof_InitDofForNoDof(struct Dof * DofForNoDof, int NbrHar) {
 /*  P r i n t _  D o f N u m b e r                         */
 /* ------------------------------------------------------- */
 
-void Print_DofNumber(struct Dof *Dof_P, char *fmt){
+void Print_DofNumber(struct Dof *Dof_P){
 
   GetDP_Begin("Print_DofNumber");
 
   switch(Dof_P->Type){
-  case DOF_UNKNOWN : printf(fmt, Dof_P->Case.Unknown.NumDof) ; break ;
-  case DOF_FIXED   : printf(fmt, -1) ; break ;
-  case DOF_FIXEDWITHASSOCIATE   :
-    printf(fmt, Dof_P->Case.FixedAssociate.NumDof) ; break ;
-  default              : printf(" ? ") ; break ;
+  case DOF_UNKNOWN : 
+    printf("%d ", Dof_P->Case.Unknown.NumDof) ; 
+    break ;
+  case DOF_FIXED   : 
+    printf("Fixed ") ; 
+    break ;
+  case DOF_FIXEDWITHASSOCIATE : 
+    printf("Assoc-%d ", Dof_P->Case.FixedAssociate.NumDof) ; 
+    break ;
+  case DOF_LINK : 
+  case DOF_LINKCPLX : 
+    printf("Link-");
+    Print_DofNumber(Dof_P->Case.Link.Dof);
+    break ;
+  default : 
+    printf(" ? ") ; 
+    break ;
   }
 
   GetDP_End ;

@@ -1,4 +1,4 @@
-/* $Id: DofData.h,v 1.10 2002-01-18 19:47:57 geuzaine Exp $ */
+/* $Id: DofData.h,v 1.11 2002-01-23 23:52:32 geuzaine Exp $ */
 #ifndef _DOFDATA_H_
 #define _DOFDATA_H_
 
@@ -72,5 +72,5 @@ void    Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P, d
 
 void Dof_InitDofForNoDof(struct Dof * DofForNoDof, int NbrHar) ;
 
-void Print_DofNumber(struct Dof *Dof_P, char *fmt) ;
+void Print_DofNumber(struct Dof *Dof_P) ;
 #endif

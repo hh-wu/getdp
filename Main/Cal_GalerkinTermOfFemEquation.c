@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.13 2002-01-18 19:47:57 geuzaine Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.14 2002-01-23 23:52:32 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -565,10 +565,10 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
     if(Flag_VERBOSE == 10) {
       printf("Galerkin = ") ;
       for (j = 0 ; j < Nbr_Dof ; j++)
-	Print_DofNumber(QuantityStorageDof_P->BasisFunction[j].Dof, "%12d ") ; 
+	Print_DofNumber(QuantityStorageDof_P->BasisFunction[j].Dof) ; 
       printf("\n") ;
       for (i = 0 ; i < Nbr_Equ ; i++) { 
-	Print_DofNumber(QuantityStorageEqu_P->BasisFunction[i].Dof, "%8d ") ; 
+	Print_DofNumber(QuantityStorageEqu_P->BasisFunction[i].Dof) ; 
 	printf("[ ") ;
 	for (j = 0 ; j < Nbr_Dof ; j++) {
 	  printf("(") ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.9 2001-11-19 17:06:09 sabarieg Exp $"
+#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.10 2002-01-23 23:52:32 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -506,10 +506,10 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
     if(Flag_VERBOSE == 10) {
       printf("H D      = ") ;
       for (j = 0 ; j < Nbr_Dof ; j++)
-	Print_DofNumber(QuantityStorageDof_P->BasisFunction[j].Dof, "%12d ") ; 
+	Print_DofNumber(QuantityStorageDof_P->BasisFunction[j].Dof) ; 
       printf("\n") ;
       for (i = 0 ; i < Nbr_Equ ; i++) { 
-	Print_DofNumber(QuantityStorageEqu_P->BasisFunction[i].Dof, "%8d ") ; 
+	Print_DofNumber(QuantityStorageEqu_P->BasisFunction[i].Dof) ; 
 	printf("[ ") ;
 	for (j = 0 ; j < Nbr_Dof ; j++) 
 	  printf("% .5e ", Cell_Value[i][j].Val[0]) ;
@@ -531,10 +531,10 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
       if(Flag_VERBOSE == 10) {
 	printf("D^T H D  = ") ;
 	for (j = 0 ; j < Nbr_Dof ; j++)
-	  Print_DofNumber(QuantityStorageDof_P->BasisFunction[j].Dof, "%12d ") ; 
+	  Print_DofNumber(QuantityStorageDof_P->BasisFunction[j].Dof) ; 
 	printf("\n") ;
 	for (i = 0 ; i < Nbr_Equ ; i++) { 
-	  Print_DofNumber(QuantityStorageEqu_P->BasisFunction[i].Dof, "%8d ") ; 
+	  Print_DofNumber(QuantityStorageEqu_P->BasisFunction[i].Dof) ; 
 	  printf("[ ") ;
 	  for (j = 0 ; j < Nbr_Dof ; j++) 
 	    printf("% .5e ", Ek[i][j][0]) ;
