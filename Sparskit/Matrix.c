@@ -1,4 +1,4 @@
-/* $Id: Matrix.c,v 1.4 2000-09-07 18:47:29 geuzaine Exp $ */
+/* $Id: Matrix.c,v 1.5 2000-09-12 15:46:58 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -532,7 +532,8 @@ void formatted_write_matrix (FILE *pfile, Matrix *M, int style){
 void formatted_write_vector (FILE *pfile, int Nb, double *V, int style){
   int  i;
 
-  for(i=0 ; i<Nb ; i++) fprintf(pfile,"%d %.16g\n", i+1, V[i]);
+  //for(i=0 ; i<Nb ; i++) fprintf(pfile,"%d %.16g\n", i+1, V[i]);
+  for(i=0 ; i<Nb ; i++) fprintf(pfile,"%.16g\n", V[i]);
 }
 
 
