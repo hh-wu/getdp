@@ -587,19 +587,26 @@ void  Dof_AddPulsation(struct DofData * DofData_P, double Val_Pulsation) {
 
 void  Dof_DefineAssignFixedDof(int D1, int D2, int NbrHar, double *Val, 
 			       int Index_TimeFunction) {
-  struct Dof  Dof ;
+  struct Dof  Dof, * Dof_P ;
   int         k ;
 
   Dof.NumType = D1 ;  Dof.Entity = D2 ;  
   
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
-    if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
+    if (!(Dof_P = Tree_PQuery(CurrentDofData->DofTree, &Dof))) {
       Dof.Type = DOF_FIXED ;
       gSetScalar(&Dof.Val, &Val[k]) ;
       Dof.Case.FixedAssociate.TimeFunctionIndex = Index_TimeFunction + 1 ;
       Dof_AddTimeFunctionIndex(Index_TimeFunction + 1) ;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
+    }
+    else if(Dof_P->Type == DOF_SYMMETRICAL) {
+      /* Msg(INFO, "Overriding Symmetrical DoF with Fixed DoF"); */
+      Dof_P->Type = DOF_FIXED ;
+      gSetScalar(&Dof_P->Val, &Val[k]) ;
+      Dof_P->Case.FixedAssociate.TimeFunctionIndex = Index_TimeFunction + 1 ;
+      Dof_AddTimeFunctionIndex(Index_TimeFunction + 1) ;
     }
   }
 }
@@ -707,12 +714,32 @@ void  Dof_DefineSymmetricalDof(int D1, int D2, int NbrHar) {
     Dof.Harmonic = k ;
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_SYMMETRICAL ;
-      Dof.Case.Symmetrical.NumDof = ++(CurrentDofData->NbrDof) ;
+      Dof.Case.Symmetrical.NumDof = -1 ;
+      /* Dof.Case.Symmetrical.NumDof = ++(CurrentDofData->NbrDof) ; */
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
   }
 
 }
+
+void NumberSymmetricalDof (void *a, void *b) {
+  struct Dof * Dof_P ;
+  
+  Dof_P = (struct Dof *)a ;
+  
+  if(Dof_P->Type == DOF_SYMMETRICAL && Dof_P->Case.Symmetrical.NumDof == -1)
+    Dof_P->Case.Symmetrical.NumDof = ++(CurrentDofData->NbrDof) ;
+}
+
+void  Dof_NumberSymmetricalDof(void) {
+
+  if(CurrentDofData->DofTree)
+    Tree_Action(CurrentDofData->DofTree, NumberSymmetricalDof) ;
+  else
+    List_Action(CurrentDofData->DofList, NumberSymmetricalDof) ;
+
+}
+
 
 /* ------------------------------------------------------------------------ */
 /*  D o f _ D e f i n e A s s o c i a t e D o f                             */
