@@ -480,7 +480,7 @@ int fcmp_PointElement(const void * a, const void * b) {
 
 int InWhichBrick (struct Grid *pGrid, double X, double Y, double Z) {
 
-  int    Ix,Iy,Iz,index;
+  int    Ix,Iy,Iz;
 
   if(X > pGrid->Xmax || X < pGrid->Xmin || Y > pGrid->Ymax || 
      Y < pGrid->Ymin || Z > pGrid->Zmax || Z < pGrid->Zmin){
@@ -498,7 +498,7 @@ int InWhichBrick (struct Grid *pGrid, double X, double Y, double Z) {
   if(Iy<0)Iy=0;
   if(Iz<0)Iz=0;
 
-  return index = Ix + Iy * pGrid->Nx + Iz * pGrid->Nx * pGrid->Ny;
+  return Ix + Iy * pGrid->Nx + Iz * pGrid->Nx * pGrid->Ny;
 }
 
 void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,

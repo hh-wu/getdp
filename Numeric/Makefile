@@ -25,7 +25,7 @@ CSRC =  nrutil.c \
         Lanczos.c \
         Adapt.c \
         brent.c \
-        mnbrak.c \
+        mnbrak.c
 
 FSRC =  clt2d.f \
         solcyl.f \
