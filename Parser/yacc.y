@@ -213,7 +213,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil
 %token    tFmod tModulo tHypot 
-%token    tSolidAngle tTrace tCrossProduct
+%token    tSolidAngle tTrace tDegree tCrossProduct
 
 %token  tGroup tDefineGroup tAll tInSupport
 
@@ -272,11 +272,12 @@ struct PostSubOperation         PostSubOperation_S ;
 
 %token  tPostOperation  
 %token    tNameOfPostProcessing tUsingPost tAppend
-%token      tPlot tPrint tWrite 
+%token      tPlot tPrint tWrite tAdapt
 %token        tOnRegion tOnGrid tOnCut tOnPoint tOnLine tOnPlane tOnBox
 %token        tWithArgument
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
+%token        tTarget
 
 %token  tFlag
 
@@ -1362,12 +1363,15 @@ WholeQuantity_Single :
 	yyerror("Dof definition out of context") ;
     }
 
-  | tSolidAngle '[' '{' tSTRING '}' ']'
+  | tSolidAngle '[' Quantity_Def ']'
     { WholeQuantity_S.Type = WQ_SOLIDANGLE ;
-      if ((WholeQuantity_S.Case.OperatorAndQuantity.Index = 
-	   List_ISearchSeq(Formulation_S.DefineQuantity, $4,
-			   fcmp_DefineQuantity_Name)) < 0)
-	vyyerror("Unknown DefineQuantity: %s", $4) ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+    }
+
+  | tDegree '[' Quantity_Def ']'
+    { WholeQuantity_S.Type = WQ_DEGREE ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
@@ -2308,10 +2312,10 @@ BasisFunctionTerm :
 
   | tFunction tSTRING OptionalParametersForBasisFunction tEND
     {
-      Get_3FunctionForString
+      Get_3Function1NbrForString
 	(BF_Function, $2, &FlagError,
 	 &BasisFunction_S.Function, &BasisFunction_S.dFunction, 
-	 &BasisFunction_S.dInvFunction) ;
+	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Degree) ;
       if (FlagError)  vyyerror("Unknown Function for BasisFunction: %s %s", 
 			       $2, Get_Valid_SX3F(BF_Function)) ;
       Free($2) ;
@@ -3842,6 +3846,7 @@ DefineSystem :
       DefineSystem_S.Type = VAL_REAL ;
       DefineSystem_S.FormulationIndex = NULL ;
       DefineSystem_S.MeshName = NULL ;
+      DefineSystem_S.AdaptName = NULL ;
       DefineSystem_S.FrequencyValue = NULL ;
       DefineSystem_S.SolverDataFileName = NULL ;
       DefineSystem_S.OriginSystemIndex = NULL ;
@@ -5188,8 +5193,11 @@ PlotOptions :
       PostSubOperation_S.Smoothing = 0 ; 
       PostSubOperation_S.Skin = 0 ; 
       PostSubOperation_S.Dimension = _ALL ;
+      PostSubOperation_S.Adapt = 0 ;
+      PostSubOperation_S.Target = -1. ;
       PostSubOperation_S.HarmonicToTime = 1 ;
       PostSubOperation_S.TimeStep_L = List_Create(10,10,sizeof(int)); ;
+      PostSubOperation_S.Value_L = List_Create(10,10,sizeof(double)); ;
     }
   | PlotOptions PlotOption 
   ;
@@ -5217,13 +5225,21 @@ PlotOption :
       PostSubOperation_S.CatFile = 2 ; 
     }
   | ',' tDepth FExpr  
-    { PostSubOperation_S.Depth = (int)$3 ; }
+    { 
+      PostSubOperation_S.Depth = (int)$3 ; 
+    }
   | ',' tSkin   
-    { PostSubOperation_S.Skin = 1 ; }
+    { 
+      PostSubOperation_S.Skin = 1 ; 
+    }
   | ',' tSmoothing FExpr  
-    { PostSubOperation_S.Smoothing = (int)$3 ; }
+    {
+      PostSubOperation_S.Smoothing = (int)$3 ; 
+    }
   | ',' tHarmonicToTime FExpr
-    { PostSubOperation_S.HarmonicToTime = (int)$3 ; }
+    {
+      PostSubOperation_S.HarmonicToTime = (int)$3 ; 
+    }
   | ',' tFormat tSTRING
     { 
       PostSubOperation_S.Format =
@@ -5275,6 +5291,28 @@ PlotOption :
       for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
 	List_Read(ListOfDouble_L,i,&d);	j = (int)d ;
 	List_Add(PostSubOperation_S.TimeStep_L, &j);
+      }
+    }
+  | ',' tAdapt tSTRING
+    { 
+      PostSubOperation_S.Adapt = 
+	Get_DefineForString(Adaption_Type, $3, &FlagError) ;
+      if(FlagError)
+	vyyerror("Unknown Adaption Method: %s %s", $3, 
+		 Get_Valid_SXD(Adaption_Type)) ;
+    }
+  | ',' tTarget FExpr
+    { 
+      if($3 >= 0. && $3 < 3.)
+	PostSubOperation_S.Target = $3 ;
+      else
+	vyyerror("Bad Target") ;
+    }
+  | ',' tValue ListOfDouble 
+    { 
+      for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
+	List_Read(ListOfDouble_L,i,&d);	
+	List_Add(PostSubOperation_S.Value_L, &d);
       }
     }
   ;
@@ -5735,6 +5773,8 @@ void  Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) {
     switch ((WholeQuantity_P+i)->Type) {
     case WQ_OPERATORANDQUANTITY :
     case WQ_OPERATORANDQUANTITYEVAL :
+    case WQ_SOLIDANGLE :
+    case WQ_DEGREE :
       Pair.Int1 = (WholeQuantity_P+i)->Case.OperatorAndQuantity.Index ;
       Pair.Int2 = TraceGroupIndex ;
       List_Insert(ListOfTwoInt_L, &Pair, fcmp_int) ;

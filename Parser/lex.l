@@ -30,7 +30,7 @@ extern int       yycolnum, yyincludenum ;
 char  tmpstring[2048];
 void  parsestring(char endchar);
 void  C_comments(void) ;
-void  CPP_comments(void) ;
+void  CC_comments(void) ;
 char  *strsave(char *string) ;
 %}
 
@@ -53,7 +53,7 @@ string     {alpha}({alpha}|{digit})*
 
 ";"                          return tEND ; 
 "/*"                         C_comments() ;
-"//"                         CPP_comments() ;
+"//"                         CC_comments() ;
 "\""                         { parsestring('\"'); return tBIGSTR; }
 
 "="                          return tDEF ;
@@ -118,6 +118,7 @@ Hypot                        return tHypot ;
 Cross                        return tCrossProduct ;
 CrossProduct                 return tCrossProduct ;
 SolidAngle                   return tSolidAngle ;
+Degree                       return tDegree ;
 Trace                        return tTrace ;
 
 Constraint                   return tConstraint ;
@@ -226,6 +227,7 @@ UsingPost                    return tUsingPost ;
 Append                       return tAppend ;
 Plot                         return tPlot ;
 Print                        return tPrint ;
+Adapt                        return tAdapt ;
 Write                        return tWrite ;
 OnRegion                     return tOnRegion ;
 OnGrid                       return tOnGrid ;
@@ -244,6 +246,7 @@ Depth                        return tDepth ;
 Dimension                    return tDimension ;
 HarmonicToTime               return tHarmonicToTime ;
 TimeStep                     return tTimeStep ;
+Target                       return tTarget ;
 File                         return tFile ;
 
 Flag                         return tFlag ;
@@ -256,13 +259,6 @@ Info                         return tHelp ;
 Cpu                          return tCpu ;
 
 
-
-JacobianMethod               return tJacobian ;
-IntegrationMethod            return tIntegration ;
-UsingConstraint              return tNameOfConstraint ;
-PostQuantity                 return tQuantity ;
-DefineQuantity               return tQuantity ;
-DefineSystem                 return tDefineSystem ;
 Integral                     return tGalerkin ;
 
 {digit}+                     { yylval.i = atoi(yytext) ; return tINT ; }
@@ -303,14 +299,14 @@ void  C_comments(void) {
   }
 }
 
-void  CPP_comments(void) {
+void  CC_comments(void) {
   while(input() != '\n'){ }
   yylinenum++ ; 
 }
 
 void  parsestring(char endchar) {
   int c, i;
-
+  
   c = input();  
   i = 0;
   while(c != endchar){ 
