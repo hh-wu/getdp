@@ -39,7 +39,7 @@ SRC = Main.c Message.c \
                 Cal_AssembleTerm.c \
                 Cal_SolidAngle.c \
       Get_Define.c \
-      Lanczos.c Graph.c \
+      Graph.c \
       Print_ProblemStructure.c
 
 OBJ = $(SRC:.c=.o)

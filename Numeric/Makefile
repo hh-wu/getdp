@@ -4,21 +4,25 @@
 
 .IGNORE:
 
-C_FLAGS   = -g
+RANLIB  = /usr/bin/ranlib
+
+C_FLAGS = -g
 F77_FLAGS = -g
-RANLIB    = /usr/bin/ranlib
+SOLVER  = -D_SPARSKIT
 
-LIB      = ../lib/libNumeric.a
-INCLUDE  = -I../include
+LIB     = ../lib/libNumeric.a
+INCLUDE = -I../include 
 
-CFLAGS = $(C_FLAGS) $(OS_FLAGS) $(INCLUDE)
+CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER)\
+          $(INCLUDE) 
 FFLAGS = $(F77_FLAGS) $(OS_FLAGS) $(INCLUDE)
 
 CSRC =  nrutil.c \
         ran3.c \
         hqr.c \
         dsvdcmp.c \
-        hollowcyl.c 
+        hollowcyl.c \
+        Lanczos.c
 
 FSRC =  clt2d.f \
         solcyl.f \
