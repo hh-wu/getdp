@@ -91,7 +91,7 @@ Include "Integration_Lib.pro"
 Include "MagDyn_av_2D.pro"
 
 PostOperation Map_a UsingPost MagDyn_av_2D @{
-  Plot[ az, OnRegion Domain_Mag, File "Core_m_a.pos"] ;
+  Print[ az, OnElementsOf Domain_Mag, File "Core_m_a.pos"] ;
 @}
 
 PostOperation U_av UsingPost MagDyn_av_2D @{

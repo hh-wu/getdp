@@ -74,13 +74,13 @@ Include "Integration_Lib.pro"
 Include "MagSta_a_2D.pro"
 
 PostOperation Map_a UsingPost MagSta_a_2D @{
-  Plot[ az, OnRegion Domain_Mag, File "CoreSta_a.pos"] ;
+  Print[ az, OnElementsOf Domain_Mag, File "CoreSta_a.pos"] ;
 @}
 
 e = 1.e-5 ;
 
 PostOperation Cutb_a UsingPost MagSta_a_2D @{
-  Plot[ b, OnLine@{@{e,e,0@}@{0.12,e,0@}@} @{1000@}, File "k_a"] ;
+  Print[ b, OnLine@{@{e,e,0@}@{0.12,e,0@}@} @{1000@}, File "k_a"] ;
 @}
 }
 @end format

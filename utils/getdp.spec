@@ -22,7 +22,7 @@ organization of data defining discrete problems (written by the user
 in ASCII data files) and the symbolic mathematical expressions of
 these problems.
 
-Install GetDP if you need a finite element solver for multi-physic
+Install GetDP if you need a finite element solver for multiphysic
 problems.
 
 %prep

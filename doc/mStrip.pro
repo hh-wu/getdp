@@ -67,13 +67,13 @@ e = 1.e-7 ;
 PostOperation @{
   @{ Name Map ; NameOfPostProcessing EleSta_v ;
      Operation @{
-       Plot [ v, OnRegion DomainCC_Ele, File "mStrip_v.pos" ] ;
-       Plot [ e, OnRegion DomainCC_Ele, File "mStrip_e.pos" ] ;
+       Print [ v, OnElementsOf DomainCC_Ele, File "mStrip_v.pos" ] ;
+       Print [ e, OnElementsOf DomainCC_Ele, File "mStrip_e.pos" ] ;
      @}
   @}
   @{ Name Cut ; NameOfPostProcessing EleSta_v ;
      Operation @{
-       Plot [ e, OnLine @{@{e,e,0@}@{10.e-3,e,0@}@} @{500@}, File "Cut_e" ] ;
+       Print [ e, OnLine @{@{e,e,0@}@{10.e-3,e,0@}@} @{500@}, File "Cut_e" ] ;
      @}
   @}
 

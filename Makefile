@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.38 2001-02-02 15:51:00 geuzaine Exp $
+# $Id: Makefile,v 1.39 2001-02-06 21:08:27 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -226,7 +226,7 @@ tag:
 	echo "#define GETDP_VERSION  $(GETDP_RELEASE)" > $(GETDP_INCLUDE_DIR)/Version.h
 	echo "#define GETDP_DATE     \"`date`\""      >> $(GETDP_INCLUDE_DIR)/Version.h
 	echo "#define GETDP_HOST     \"`hostname`\""  >> $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_PACKAGER \"`logname`\""   >> $(GETDP_INCLUDE_DIR)/Version.h
+	echo "#define GETDP_PACKAGER \"`whoami`\""    >> $(GETDP_INCLUDE_DIR)/Version.h
 	echo "#define GETDP_OS       \"`uname -sr`\"" >> $(GETDP_INCLUDE_DIR)/Version.h
 
 initialtag:
@@ -361,6 +361,7 @@ rpm: src
 	cp /usr/src/redhat/RPMS/i386/$(GETDP_SRCRPM)-1.i386.rpm .
 	cp /usr/src/redhat/BUILD/$(GETDP_SRCRPM)/bin/getdp .
 	gtar zcvf getdp-$(GETDP_UNAME).tgz getdp
+	rm -f getdp
 
 hp: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \

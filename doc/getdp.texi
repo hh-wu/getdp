@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.25 2000-10-18 21:23:57 geuzaine Exp $
+@c $Id: getdp.texi,v 1.26 2001-02-06 21:08:27 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -31,11 +31,11 @@
 @c =========================================================================
 @c %**start of header
 @setfilename   getdp.info
-@set EDITION   1.8
+@set EDITION   1.9
 @set VERSION   0.77
-@set DAY       26
-@set MONTH     September 2000
-@set COPYRIGHT @copyright{} 1997-2000 Patrick Dular, Christophe Geuzaine
+@set DAY       05
+@set MONTH     February 2001
+@set COPYRIGHT @copyright{} 1997-2001 Patrick Dular, Christophe Geuzaine
 @set WEB-GETDP @uref{http://www.geuz.org/getdp/}
 @set WEB-GMSH  @uref{http://www.geuz.org/gmsh/}
 @settitle GetDP @value{VERSION}
@@ -2189,14 +2189,11 @@ defines the post-processings @code{@var{post-proces@-sing-id}@{@var{i}@}},
 @tindex Operation
 @tindex UsingPost
 @tindex Print
-@tindex Adapt
-@tindex Sort
 
 @mvindex @var{post-operation-id}
 @mvindex @var{post-operation-op}
 @mvindex @var{post-operation-fmt}
-@mvindex @var{plot-support}
-@mvindex @var{plot-option}
+@mvindex @var{print-support}
 @mvindex @var{print-option}
 
 The @code{PostOperation} is the bridge between results obtained with
@@ -2225,18 +2222,14 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
   @var{string}
 
 @var{post-operation-op}:
-  Plot[ @var{post-quantity-id}, @var{plot-support} <,@var{plot-option}> @dots{} ] |
-  Print[ @var{post-quantity-id}, On @var{group-def} <,@var{print-option}> @dots{} ] |
+  Print[ @var{post-quantity-id}, @var{print-suupport} <,@var{print-option}> @dots{} ] |
   @var{etc}
 
-@var{plot-support}:
-  OnRegion @var{group-def} | OnGrid @var{group-def} | @var{etc}
-
-@var{plot-option}:
-  File < '>' > "@var{string}" | Format @var{post-operation-fmt} | @var{etc}
+@var{print-support}:
+  OnRegion @var{group-def} | OnElementsOf @var{group-def} | @var{etc}
 
 @var{print-option}:
-  File < '>' > "@var{string}" | @var{etc}
+  File < '>' > "@var{string}" | Format @var{post-operation-fmt} | @var{etc}
 
 @var{post-operation-fmt}:
   Table | TimeTable | "@var{string}" | @var{etc}
@@ -3537,7 +3530,7 @@ To integrate the expression.
 
 @cindex Post-operation, types
 
-@mvindex @var{plot-support}
+@mvindex @var{print-support}
 
 @noindent
 @var{vector-of-reals}:
@@ -3549,16 +3542,19 @@ To integrate the expression.
 
 
 @noindent
-@var{plot-support}:
+@var{print-support}:
 
 @vtable @code
 
-@item OnRegion
+@item OnElementsOf
 @var{group-def}
 
 To compute a local quantity on elements belonging to the current mesh,
 of groups of region type, where the solution was computed during the
 processing stage.
+
+@item OnRegion
+@var{group-def}
 
 To compute global quantities associated with regions.
 
@@ -3612,10 +3608,10 @@ associated number of divisions.
 
 @end vtable
 
-@mvindex @var{plot-option}
+@mvindex @var{print-option}
 
 @noindent
-@var{plot-option}:
+@var{print-option}:
 
 @vtable @code
 @item File "@var{string}"
@@ -3651,6 +3647,12 @@ available interpolation orders).
 @item Sort Position|Connection
 Sorts the output by position (x, y, z) or by connection (for @code{LINE}
 elements only).
+@item Iso @var{integer}
+Output directly contour prints (with @var{integer} values) instead of
+elementary values.
+@item Iso @var{real-list}
+Output directly contour prints for the values specified in the
+@var{real-list} instead of elementary values.
 @end vtable
 
 
@@ -4809,8 +4811,8 @@ which points out the way to define post-quantities based on global quantities.
 
 @example
 PostOperation Map_v_e UsingPost EleSta_v @{
-  Plot [ v, OnRegion Domain, File "map_v.pos" ];
-  Plot [ e, OnRegion Domain, File "map_e.pos" ];
+  Print [ v, OnElementsOf Domain, File "map_v.pos" ];
+  Print [ e, OnElementsOf Domain, File "map_e.pos" ];
 @}
 @end example
 
@@ -4825,7 +4827,7 @@ PostOperation Map_v_e UsingPost EleSta_v @{
 e = 1.e-7;
 
 PostOperation Cut_e UsingPost EleSta_v @{
-  Plot [ e, OnLine @{ @{e,e,0@} @{10.e-3,e,0@} @} @{1000@}, File "cut_e.cut" ];
+  Print [ e, OnLine @{ @{e,e,0@} @{10.e-3,e,0@} @} @{1000@}, File "cut_e.cut" ];
 @}
 @end example
 
@@ -5365,7 +5367,11 @@ integral quantity correction; separate iteration matrix generation;
 @item
 @b{0.76}: Reorganized high order shape functions; Optimization of the
 post-processing (faster and less bloated); Lots of internal cleaning;
-@b{0.77}: Table oriented post-processing formats have changed;
+@item
+@b{0.77}: Changed syntax for PostOperations (suppressed @code{Plot} in
+favour of @code{Print}; @code{Plot OnRegion} becomes @code{Print
+OnElementsOf}); Changed table oriented post-processing formats; New binary
+formats; New error diagnostics;
 @end itemize
 
 @c -------------------------------------------------------------------------
