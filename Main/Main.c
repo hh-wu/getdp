@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.29 2001-03-19 19:15:07 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.30 2001-03-19 19:32:08 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -454,11 +454,11 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
   else{
     if(!strlen(Name_Generic)){
       strcpy(Name_Generic, Name_ProFile) ;
-      if(!strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".pro") ||
-	 !strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".PRO"))
-	Name_Generic[strlen(Name_ProFile)-4] = '\0' ;
-      else
+      if(strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".pro") &&
+	 strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".PRO"))
 	strcat(Name_ProFile,".pro") ;
+      else
+	Name_Generic[strlen(Name_ProFile)-4] = '\0' ;
     }
     else if(strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".pro") &&
 	    strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".PRO"))
