@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.18 2003-01-24 23:04:09 geuzaine Exp $
+# $Id: Makefile,v 1.19 2003-01-29 22:35:21 geuzaine Exp $
 #
 # Makefile for 'libMain.a'
 # 
@@ -81,12 +81,11 @@ Main.o: Main.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \
   ../DataStr/avl.h Print_ProblemStructure.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h ../include/Magic.h GmshClient.h
 Message.o: Message.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \
-  CurrentData.h Data_Active.h Data_Passive.h ../DataStr/List.h \
-  Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../DataStr/Tree.h ../DataStr/avl.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../include/GetDPVersion.h \
-  GmshClient.h
+  ../include/GetDPVersion.h CurrentData.h Data_Active.h Data_Passive.h \
+  ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h GmshClient.h
 SolvingAnalyse.o: SolvingAnalyse.c ../include/GetDP.h Message.h \
   ../DataStr/Malloc.h Treatment_Formulation.h Data_Active.h \
   Data_Passive.h ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
@@ -253,6 +252,13 @@ Cal_SolidAngle.o: Cal_SolidAngle.c ../include/GetDP.h Message.h \
   Data_Active.h Data_Passive.h Data_Element.h Cal_Value.h CurrentData.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h Data_Numeric.h
+MovingBand2D.o: MovingBand2D.c ../include/GetDP.h Message.h \
+  ../DataStr/Malloc.h ExtendedGroup.h Data_Active.h Data_Passive.h \
+  ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+  Data_DefineE.h CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
+  ../Sparskit/Solver.h Graph.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../DataStr/Tools.h
 Get_Define.o: Get_Define.c ../include/GetDP.h Message.h \
   ../DataStr/Malloc.h Data_Active.h Data_Passive.h ../DataStr/List.h \
   Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
@@ -273,22 +279,5 @@ Print_ProblemStructure.o: Print_ProblemStructure.c ../include/GetDP.h \
   Data_DefineE.h Print_ProblemStructure.h Treatment_Formulation.h \
   CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h ../DataStr/Tools.h
-MovingBand2D.o: ExtendedGroup.c ../include/GetDP.h Message.h \
-  ../DataStr/Malloc.h ExtendedGroup.h Data_Active.h Data_Passive.h \
-  ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  Data_DefineE.h CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h Graph.h ../DofData/Data_DofData.h 
-GmshClient.o: GmshClient.c Message.h
-
-
-
-
-
-
-
-
-
-
-
+  ../include/Magic.h GmshClient.h
+GmshClient.o: GmshClient.c

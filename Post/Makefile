@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.21 2003-01-24 23:04:09 geuzaine Exp $
+# $Id: Makefile,v 1.22 2003-01-29 22:35:21 geuzaine Exp $
 #
 # Makefile for 'libPost.a'
 # 
@@ -92,9 +92,9 @@ Pos_Print.o: Pos_Print.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Get_Geometry.h ../Main/CurrentData.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../Main/Get_DofOfElement.h \
-  ../Main/Cal_Quantity.h ../Main/Cal_Value.h Pos_Formulation.h \
-  Pos_Quantity.h Pos_Element.h Pos_Search.h Pos_Print.h Pos_Format.h \
-  ../Numeric/Adapt.h ../DataStr/Tools.h
+  ../Main/ExtendedGroup.h ../Main/Cal_Quantity.h ../Main/Cal_Value.h \
+  Pos_Formulation.h Pos_Quantity.h Pos_Element.h Pos_Search.h Pos_Print.h \
+  Pos_Format.h ../Numeric/Adapt.h ../DataStr/Tools.h
 Pos_Quantity.o: Pos_Quantity.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Treatment_Formulation.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
@@ -110,7 +110,9 @@ Pos_Element.o: Pos_Element.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/Data_Passive.h \
   ../Main/Data_Element.h ../Main/Get_DofOfElement.h Pos_Element.h \
-  ../Main/Cal_Value.h
+  ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h
 Pos_Iso.o: Pos_Iso.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Active.h ../Main/Data_Passive.h \
   ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
@@ -127,10 +129,10 @@ Pos_Search.o: Pos_Search.c ../include/GetDP.h ../Main/Message.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
   ../include/Magic.h ../DataStr/Tools.h ../Main/Data_Numeric.h
 Pos_Format.o: Pos_Format.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../Main/Data_Passive.h ../Main/Data_Element.h ../Main/Data_DefineE.h \
-  ../Main/Data_Numeric.h ../include/GetDPVersion.h ../Main/CurrentData.h \
+  ../DataStr/Malloc.h ../include/GetDPVersion.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../DataStr/List.h ../DataStr/Tree.h \
+  ../DataStr/avl.h ../Main/Data_Passive.h ../Main/Data_Element.h \
+  ../Main/Data_DefineE.h ../Main/Data_Numeric.h ../Main/CurrentData.h \
   ../Main/Data_Active.h ../DofData/DofData.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
   ../include/Magic.h Pos_Iso.h Pos_Format.h Pos_Element.h \
