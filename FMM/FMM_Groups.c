@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.8 2004-01-22 14:13:46 sabarieg Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.9 2004-01-26 20:36:43 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -992,8 +992,8 @@ void  Geo_CreateMultilevelFMMGroup( int InSupport, struct GeoData *GeoData_P, do
   int NbrGroupsInSupport, iGroup, NbrFMMGroupsInRegion ;
   int NbrElms, NbrElmsInRegion, NbrElmsInSupport ;
   int j, k, l, m, FoundHome, iFMMGroup, iElm, iFMMParentGroup ;
-  int ***NbrElmsDiv, ****ElmsDiv, ***NbrGrsDiv, ****GrsDiv, Dimension ;
-  double  Xmax, Xmin, Ymax, Ymin, Zmax, Zmin, l0 ;
+  int ***NbrElmsDiv, ****ElmsDiv, ***NbrGrsDiv, ****GrsDiv ;
+  double  Xmax, Xmin, Ymax, Ymin, Zmax, Zmin ;
   int NbrDivX, NbrDivY, NbrDivZ;
   int NbrDivX0 = 1, NbrDivY0 = 1, NbrDivZ0 = 1, NbrDivX1 = 1, NbrDivY1 = 1, NbrDivZ1 = 1  ;
   double  x1, x2, y1, y2, z1, z2, Centroid[3], tol ;
@@ -1002,15 +1002,12 @@ void  Geo_CreateMultilevelFMMGroup( int InSupport, struct GeoData *GeoData_P, do
   struct FMMData FMMData_S ;
   struct FMMData FMMParentData_S ;
   struct FMMGroup FMMGroup_S ;
-  struct FMMGroup FMMParentGroup_S ;
 
   List_T * FMMGroup_L ;  
   List_T * FMMParentGroup_L ;  
 
 
   GetDP_Begin("Geo_CreateMultilevelFMMGroup");
-
-  Dimension = (int)GeoData_P->Dimension ;    
 
   tol = 1e-6;
 

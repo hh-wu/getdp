@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GlobalTermOfFemEquation.c,v 1.9 2004-01-19 16:51:16 geuzaine Exp $"
+#define RCSID "$Id: Cal_GlobalTermOfFemEquation.c,v 1.10 2004-01-26 20:36:43 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -65,7 +65,6 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   int     NbrHar, iTime, iHar, jHar, OffSet=0 ;
   double  Val_Dof [NBR_MAX_HARMONIC] ;
 
-  double  E_MH [NBR_MAX_HARMONIC][NBR_MAX_HARMONIC] ;
   double  E_D [NBR_MAX_HARMONIC][NBR_MAX_HARMONIC] ;
   struct Dof * Dof;
   struct Value t_Value;
@@ -161,11 +160,6 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
 	break;
       }
     
-    /* resetting elementary matrix */
-    for (iHar = 0 ; iHar < NbrHar ; iHar++)
-      for (jHar = OFFSET ; jHar <= iHar ; jHar++)
-	E_MH[iHar][jHar] = 0. ;
-
     for (k = 0 ; k < Current.NbrHar ; k+=2) 
       Dof_GetComplexDofValue
 	(QuantityStorage_P->FunctionSpace->DofData,

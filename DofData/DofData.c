@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.37 2004-01-19 16:51:12 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.38 2004-01-26 20:36:43 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -523,7 +523,7 @@ void  Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P, in
 void  Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P, 
 				int Format, List_T * Time_L) {
   gVector x;
-  double Time, d1, d2, d, *Pulsation, f1,f2;
+  double Time, d1, d2, d, *Pulsation;
   int iT, i, j, k;
 
   GetDP_Begin("Dof_WriteFileRES_MHtoTime");
@@ -555,8 +555,6 @@ void  Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
 	j = i * Current.NbrHar + 2*k ; 
 	LinAlg_GetDoubleInVector(&d1, &DofData_P->CurrentSolution->x, j) ;
 	LinAlg_GetDoubleInVector(&d2, &DofData_P->CurrentSolution->x, j+1) ;
-	f1 = cos(Pulsation[k]*Time);
-	f2 = sin(Pulsation[k]*Time);
 	d += d1 * cos(Pulsation[k]*Time) - d2 * sin(Pulsation[k]*Time) ; 
       }
       LinAlg_SetDoubleInVector(d, &x, i) ;
