@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.25 2001-03-18 10:41:48 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.26 2001-03-19 10:51:57 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -232,10 +232,9 @@ void Init_SearchGrid(struct Grid * Grid) {
 
   struct Element      Element;
   struct ElementBox   ElementBox;
-  struct Geo_Node    *GeoNode;
   struct Brick        Brick, *Brick_P;
   double Xc, Yc, Zc ;
-  int    NbrGeoNodes, NbrGeoElements, iElm;
+  int    NbrGeoElements, iElm;
   int    Ix1, Ix2, Iy1, Iy2, Iz1, Iz2;
   int    i, j, k, index;
 
@@ -744,10 +743,6 @@ void xyz2uvwInAnElement (struct Element *Element,
 void xyz2uvwInAnElementSimple (struct Element *Element, 
 			       double  x, double  y, double  z, 
 			       double *u, double *v, double *w){
-  int i, NbrGeoNodes;
-  double Xmin, Xmax, Ymin, Ymax, Zmin, Zmax;
-  struct Geo_Node    *GeoNode;
-  
   if(Element->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID))
     ChainDim = 3;
   else if(Element->Type & (TRIANGLE|QUADRANGLE))
