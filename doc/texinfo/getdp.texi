@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.65 2004-10-24 01:53:17 geuzaine Exp $
+@c $Id: getdp.texi,v 1.66 2004-10-24 01:58:05 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 @c
@@ -37,7 +37,7 @@
 @c =========================================================================
 @c %**start of header
 @setfilename        getdp.info
-@set EDITION        4.0
+@set EDITION        4.1
 @set GETDP-VERSION  1.0
 @set GETDP-WEB      @uref{http://www.geuz.org/getdp/}
 @set GMSH-WEB       @uref{http://www.geuz.org/gmsh/}
@@ -162,8 +162,9 @@ Reference Manual}, for GetDP @value{GETDP-VERSION}.
 * Complete examples::           Some simple complete examples.
 * Running GetDP::               How to run GetDP on your operating system.
 * File formats::                Input and output file formats.
-* Bugs and versions::           
+* Bugs and versions::           Contact information and ChangeLog
 * Tips and tricks::             Some tips to make your life easier with GetDP.
+* Frequently asked questions::  The GetDP FAQ
 * Gmsh examples::               Sample Gmsh input files.
 * License::                     Complete copy of the license.
 * Concept index::               Index of concepts.
@@ -5933,7 +5934,7 @@ already know about.
 @c Tips ans Tricks
 @c =========================================================================
 
-@node Tips and tricks, Gmsh examples, Bugs and versions, Top
+@node Tips and tricks, Frequently asked questions, Bugs and versions, Top
 @appendix Tips and tricks
 
 @cindex Tips
@@ -5977,12 +5978,24 @@ the PostOperation is missing) will produce an error message listing all
 available PostOperations.
 @end itemize
 
+@c =========================================================================
+@c Frequently asked questions
+@c =========================================================================
+
+@node Frequently asked questions, Gmsh examples, Tips and tricks, Top
+@appendix Frequently asked questions
+
+@cindex Frequently asked questions
+@cindex Questions, frequently asked
+@cindex FAQ
+
+@verbatiminclude ../FAQ
 
 @c =========================================================================
 @c Gmsh Examples
 @c =========================================================================
 
-@node Gmsh examples, License, Tips and tricks, Top
+@node Gmsh examples, License, Frequently asked questions, Top
 @appendix Gmsh examples
 
 @cindex Gmsh, examples
@@ -6010,6 +6023,8 @@ the mesh files @file{mStrip.msh} and @file{Core.msh} used in the examples of
 
 @node  License, Concept index, Gmsh examples, Top
 @appendix License
+
+@cindex License
 
 @include license.texi
 
