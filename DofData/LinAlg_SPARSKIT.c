@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.26 2004-03-05 18:18:03 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.27 2004-09-17 23:33:05 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -53,6 +53,7 @@ void LinAlg_Initialize(int* argc, char*** argv, int *NbrCpu, int *RankCpu){
 
   GetDP_End ;
 }
+
 void LinAlg_InitializeSolver(int* sargc, char*** sargv, int *NbrCpu, int *RankCpu){
   int i=1, argc, iopt=0;
   char **argv;
@@ -98,6 +99,7 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv, int *NbrCpu, int *RankCp
 
 void LinAlg_Finalize(void){
 }
+
 void LinAlg_FinalizeSolver(void){
 }
 
@@ -110,6 +112,7 @@ void LinAlg_Barrier(void){
 
 void LinAlg_SequentialBegin(void){
 }
+
 void LinAlg_SequentialEnd(void){
 }
 
@@ -155,6 +158,7 @@ void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName){
 
   GetDP_End ;
 }
+
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *Part){
 
   GetDP_Begin("LinAlg_CreateVector");
@@ -164,6 +168,7 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *P
 
   GetDP_End ;
 }
+
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m, 
 			 int NbrPart, int *Part, int *Nnz){
 
@@ -173,6 +178,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
 
   GetDP_End ;
 }
+
 void LinAlg_CreateMatrixShell(gMatrix *A, gSolver *Solver, int n, int m, void *ctx, 
 			      void (*myMult)(gMatrix *A, gVector *x, gVector *y)){
   GetDP_Begin("LinAlg_CreateMatrixShell");
@@ -181,7 +187,6 @@ void LinAlg_CreateMatrixShell(gMatrix *A, gSolver *Solver, int n, int m, void *c
 
   GetDP_End;
 }
-
 
 /* Destroy */
 
@@ -193,6 +198,7 @@ void LinAlg_DestroySolver(gSolver *Solver){
 
   GetDP_End ;
 }
+
 void LinAlg_DestroyVector(gVector *V){
 
   GetDP_Begin("LinAlg_DestroyVector");
@@ -201,6 +207,7 @@ void LinAlg_DestroyVector(gVector *V){
 
   GetDP_End ;
 }
+
 void LinAlg_DestroyMatrix(gMatrix *M){
 
   GetDP_Begin("LinAlg_DestroyMatrix");
@@ -220,6 +227,7 @@ void LinAlg_CopyScalar(gScalar *S1, gScalar *S2){
 
   GetDP_End ;
 }
+
 void LinAlg_CopyVector(gVector *V1, gVector *V2){
 
   GetDP_Begin("LinAlg_CopyVector");
@@ -228,6 +236,7 @@ void LinAlg_CopyVector(gVector *V1, gVector *V2){
 
   GetDP_End ;
 }
+
 void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2){
 
   GetDP_Begin("LinAlg_CopyMatrix");
@@ -247,6 +256,7 @@ void LinAlg_ZeroScalar(gScalar *S){
 
   GetDP_End ;
 }
+
 void LinAlg_ZeroVector(gVector *V){
 
   GetDP_Begin("LinAlg_ZeroCopyVector");
@@ -255,6 +265,7 @@ void LinAlg_ZeroVector(gVector *V){
 
   GetDP_End ;
 }
+
 void LinAlg_ZeroMatrix(gMatrix *M){
   int i ;
 
@@ -278,6 +289,7 @@ void LinAlg_ScanScalar(FILE *file, gScalar *S){
 
   GetDP_End ;
 }
+
 void LinAlg_ScanVector(FILE *file, gVector *V) {
   int i ;
 
@@ -287,6 +299,7 @@ void LinAlg_ScanVector(FILE *file, gVector *V) {
 
   GetDP_End ;
 }
+
 void LinAlg_ScanMatrix(FILE *file, gMatrix *M){
 
   GetDP_Begin("LinAlg_ScanMatrix");
@@ -306,6 +319,7 @@ void LinAlg_ReadScalar(FILE *file, gScalar *S){
 
   GetDP_End ;
 }
+
 void LinAlg_ReadVector(FILE *file, gVector *V) {
 
   GetDP_Begin("LinAlg_ReadVector");
@@ -314,6 +328,7 @@ void LinAlg_ReadVector(FILE *file, gVector *V) {
 
   GetDP_End ;
 }
+
 void LinAlg_ReadMatrix(FILE *file, gMatrix *M){
 
   GetDP_Begin("LinAlg_ReadMatrix");
@@ -333,6 +348,7 @@ void LinAlg_PrintScalar(FILE *file, gScalar *S){
 
   GetDP_End ;
 }
+
 void LinAlg_PrintVector(FILE *file, gVector *V){
 
   GetDP_Begin("LinAlg_PrintVector");
@@ -341,6 +357,7 @@ void LinAlg_PrintVector(FILE *file, gVector *V){
 
   GetDP_End ;
 }
+
 void LinAlg_PrintMatrix(FILE *file, gMatrix *M){
 
   GetDP_Begin("LinAlg_PrintMatrix");
@@ -360,6 +377,7 @@ void LinAlg_WriteScalar(FILE *file, gScalar *S){
 
   GetDP_End ;
 }
+
 void LinAlg_WriteVector(FILE *file, gVector *V){
 
   GetDP_Begin("LinAlg_WriteVector");
@@ -369,6 +387,7 @@ void LinAlg_WriteVector(FILE *file, gVector *V){
 
   GetDP_End ;
 }
+
 void LinAlg_WriteMatrix(FILE *file, gMatrix *M){
 
   GetDP_Begin("LinAlg_WriteMatrix");
@@ -388,6 +407,7 @@ void LinAlg_GetVectorSize(gVector *V, int *i){
 
   GetDP_End ;
 }
+
 void LinAlg_GetLocalVectorRange(gVector *V, int *low, int *high){
 
   GetDP_Begin("LinAlg_GetLocalVectorRange");
@@ -397,6 +417,7 @@ void LinAlg_GetLocalVectorRange(gVector *V, int *low, int *high){
 
   GetDP_End ;
 }
+
 void LinAlg_GetMatrixSize(gMatrix *M, int *i, int *j){
 
   GetDP_Begin("LinAlg_GetMatrixSize");
@@ -405,6 +426,7 @@ void LinAlg_GetMatrixSize(gMatrix *M, int *i, int *j){
 
   GetDP_End ;
 }
+
 void LinAlg_GetLocalMatrixRange(gMatrix *M, int *low, int *high){
 
   GetDP_Begin("LinAlg_GetLocalVectorRange");
@@ -414,6 +436,7 @@ void LinAlg_GetLocalMatrixRange(gMatrix *M, int *low, int *high){
 
   GetDP_End ;
 }
+
 void LinAlg_GetDoubleInScalar(double *d, gScalar *S){
 
   GetDP_Begin("LinAlg_GetDoubleInScalar");
@@ -422,6 +445,7 @@ void LinAlg_GetDoubleInScalar(double *d, gScalar *S){
 
   GetDP_End ;
 }
+
 void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S){
 
   GetDP_Begin("LinAlg_GetComplexInScalar");
@@ -430,6 +454,7 @@ void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S){
 
   GetDP_End ;
 }
+
 void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i){
 
   GetDP_Begin("LinAlg_GetScalarInVector");
@@ -438,6 +463,7 @@ void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i){
 
   GetDP_End ;
 }
+
 void LinAlg_GetDoubleInVector(double *d, gVector *V, int i){
 
   GetDP_Begin("LinAlg_GetDoubleInVector");
@@ -446,6 +472,7 @@ void LinAlg_GetDoubleInVector(double *d, gVector *V, int i){
 
   GetDP_End ;
 }
+
 void LinAlg_GetAbsDoubleInVector(double *d, gVector *V, int i){
 
   GetDP_Begin("LinAlg_GetAbsDoubleInVector");
@@ -454,6 +481,7 @@ void LinAlg_GetAbsDoubleInVector(double *d, gVector *V, int i){
 
   GetDP_End ;
 }
+
 void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j){
 
   GetDP_Begin("LinAlg_GetComplexInVector");
@@ -463,6 +491,7 @@ void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j)
 
   GetDP_End ;
 }
+
 void LinAlg_GetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
 
   GetDP_Begin("LinAlg_GetScalarInMatrix");
@@ -471,6 +500,7 @@ void LinAlg_GetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
 
   GetDP_End ;
 }
+
 void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j){
 
   GetDP_Begin("LinAlg_GetDoubleInMatrix");
@@ -479,6 +509,7 @@ void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j){
 
   GetDP_End ;
 }
+
 void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j, int k, int l){
 
   GetDP_Begin("LinAlg_GetComplexInMatrix");
@@ -487,6 +518,7 @@ void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j,
 
   GetDP_End ;
 }
+
 void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1){
 
   GetDP_Begin("LinAlg_GetColumnInMatrix");
@@ -495,6 +527,7 @@ void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1){
 
   GetDP_End ;
 }
+
 void LinAlg_GetMatrixContext(gMatrix *A, void **ctx){
 
   GetDP_Begin("LinAlg_GetMatrixContext");
@@ -514,6 +547,7 @@ void LinAlg_SetScalar(gScalar *S, double *d){
 
   GetDP_End ;
 }
+
 void LinAlg_SetScalarInVector(gScalar *S, gVector *V, int i){
 
   GetDP_Begin("LinAlg_SetScalarInVector");
@@ -522,6 +556,7 @@ void LinAlg_SetScalarInVector(gScalar *S, gVector *V, int i){
 
   GetDP_End ;
 }
+
 void LinAlg_SetDoubleInVector(double d, gVector *V, int i){
 
   GetDP_Begin("LinAlg_SetDoubleInVector");
@@ -530,6 +565,7 @@ void LinAlg_SetDoubleInVector(double d, gVector *V, int i){
 
   GetDP_End ;
 }
+
 void LinAlg_SetComplexInVector(double d1, double d2, gVector *V, int i, int j){
 
   GetDP_Begin("LinAlg_SetComplexInVector");
@@ -539,6 +575,7 @@ void LinAlg_SetComplexInVector(double d1, double d2, gVector *V, int i, int j){
 
   GetDP_End ;
 }
+
 void LinAlg_SetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
 
   GetDP_Begin("LinAlg_SetScalarInMatrix");
@@ -547,6 +584,7 @@ void LinAlg_SetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
 
   GetDP_End ;
 }
+
 void LinAlg_SetDoubleInMatrix(double d, gMatrix *M, int i, int j){
 
   GetDP_Begin("LinAlg_SetDoubleInMatrix");
@@ -555,6 +593,7 @@ void LinAlg_SetDoubleInMatrix(double d, gMatrix *M, int i, int j){
 
   GetDP_End ;
 }
+
 void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l){
 
   GetDP_Begin("LinAlg_SetComplexInMatrix");
@@ -597,6 +636,7 @@ void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i){
 
   GetDP_End ;
 }
+
 void LinAlg_AddDoubleInVector(double d, gVector *V, int i){
 
   int * DummyDof;
@@ -610,6 +650,7 @@ void LinAlg_AddDoubleInVector(double d, gVector *V, int i){
 
   GetDP_End ;
 }
+
 void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j){
   int * DummyDof, iok,jok;
   GetDP_Begin("LinAlg_AddComplexInVector");
@@ -629,6 +670,7 @@ void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j){
 
   GetDP_End ;
 }
+
 void LinAlg_AddScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
 
   GetDP_Begin("LinAlg_AddScalarInMatrix");
@@ -637,6 +679,7 @@ void LinAlg_AddScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
 
   GetDP_End ;
 }
+
 void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j){
 
   int * DummyDof;
@@ -651,6 +694,7 @@ void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j){
 
   GetDP_End ;
 }
+
 void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l){
 
   GetDP_Begin("LinAlg_AddComplexInMatrix");
@@ -666,6 +710,7 @@ void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, i
 
   GetDP_End ;
 }
+
 void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3){
 
   GetDP_Begin("LinAlg_AddvectorVector");
@@ -677,6 +722,7 @@ void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3){
 
   GetDP_End ;
 }
+
 void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVector *V3){
 
   GetDP_Begin("LinAlg_AddVectorProdVectorDouble");
@@ -688,6 +734,7 @@ void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVecto
 
   GetDP_End ;
 }
+
 void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
 
   GetDP_Begin("LinAlg_AddMatrixMatrix");
@@ -699,6 +746,7 @@ void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
 
   GetDP_End ;
 }
+
 void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatrix *M3){
 
   GetDP_Begin("LinAlg_AddMatrixProdMatrixDouble");
@@ -721,6 +769,7 @@ void LinAlg_SubScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
 
   GetDP_End ;
 }
+
 void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3){
 
   GetDP_Begin("LinAlg_SubVectorVector");
@@ -734,6 +783,7 @@ void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3){
 
   GetDP_End ;
 }
+
 void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
 
   GetDP_Begin("LinAlg_SubMatrixMatrix");
@@ -753,6 +803,7 @@ void LinAlg_ProdScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
 
   GetDP_End ;
 }
+
 void LinAlg_ProdScalarDouble(gScalar *S1, double d, gScalar *S2){
 
   GetDP_Begin("LinAlg_ProdScalarDouble");
@@ -761,6 +812,7 @@ void LinAlg_ProdScalarDouble(gScalar *S1, double d, gScalar *S2){
 
   GetDP_End ;
 }
+
 void LinAlg_ProdScalarComplex(gScalar *S, double d1, double d2, double *d3, double *d4){
 
   GetDP_Begin("LinAlg_ProdScalarComplex");
@@ -770,6 +822,7 @@ void LinAlg_ProdScalarComplex(gScalar *S, double d1, double d2, double *d3, doub
 
   GetDP_End ;
 }
+
 void LinAlg_ProdVectorScalar(gVector *V1, gScalar *S, gVector *V2){
 
   GetDP_Begin("LinAlg_ProdvectorScalar");
@@ -778,6 +831,7 @@ void LinAlg_ProdVectorScalar(gVector *V1, gScalar *S, gVector *V2){
 
   GetDP_End ;
 }
+
 void LinAlg_ProdVectorDouble(gVector *V1, double d, gVector *V2){
   
   GetDP_Begin("LinAlg_ProdVectorDouble");
@@ -789,6 +843,7 @@ void LinAlg_ProdVectorDouble(gVector *V1, double d, gVector *V2){
 
   GetDP_End ;
 }
+
 void LinAlg_ProdVectorComplex(gVector *V1, double d1, double d2, gVector *V2){
 
   GetDP_Begin("LinAlg_ProdVectorComplex");
@@ -797,6 +852,7 @@ void LinAlg_ProdVectorComplex(gVector *V1, double d1, double d2, gVector *V2){
 
   GetDP_End ;
 }
+
 void LinAlg_ProdVectorVector(gVector *V1, gVector *V2, double *d){
 
   GetDP_Begin("LinAlg_ProdVectorVector");
@@ -805,6 +861,7 @@ void LinAlg_ProdVectorVector(gVector *V1, gVector *V2, double *d){
 
   GetDP_End ;
 }
+
 void LinAlg_ProdMatrixVector(gMatrix *M, gVector *V1, gVector *V2){
 
   GetDP_Begin("LinAlg_ProdMatrixVector");
@@ -816,6 +873,7 @@ void LinAlg_ProdMatrixVector(gMatrix *M, gVector *V1, gVector *V2){
 
   GetDP_End ;
 }
+
 void LinAlg_ProdMatrixScalar(gMatrix *M1, gScalar *S, gMatrix *M2){
 
   GetDP_Begin("LinAlg_ProdMatrixScalar");
@@ -827,6 +885,7 @@ void LinAlg_ProdMatrixScalar(gMatrix *M1, gScalar *S, gMatrix *M2){
 
   GetDP_End ;
 }
+
 void LinAlg_ProdMatrixDouble(gMatrix *M1, double d, gMatrix *M2){
 
   GetDP_Begin("LinAlg_ProdMatrixDouble");
@@ -838,6 +897,7 @@ void LinAlg_ProdMatrixDouble(gMatrix *M1, double d, gMatrix *M2){
 
   GetDP_End ;
 }
+
 void LinAlg_ProdMatrixComplex(gMatrix *M1, double d1, double d2, gMatrix *M2){
 
   GetDP_Begin("LinAlg_ProdMatrixComplex");
@@ -857,6 +917,7 @@ void LinAlg_DivScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
 
   GetDP_End ;
 }
+
 void LinAlg_DivScalarDouble(gScalar *S1, double d, gScalar *S2){
 
   GetDP_Begin("LinAlg_DivScalarDouble");
@@ -870,6 +931,7 @@ void LinAlg_DivScalarDouble(gScalar *S1, double d, gScalar *S2){
 
 void LinAlg_AssembleMatrix(gMatrix *M){
 }
+
 void LinAlg_AssembleVector(gVector *V){
 }
 

@@ -53,7 +53,14 @@ typedef struct { Solver_Params Params ; } gSolver ;
 
 #elif defined(HAVE_PETSC)
 
-#include "petscsles.h"
+#include "petsc.h"
+
+#if ((PETSC_VERSION_MAJOR==2)&&(PETSC_VERSION_MINOR>=2))
+  #include "petscksp.h"
+#else
+  #include "petscsles.h"
+#endif
+
 #if PETSC_USE_COMPLEX
 #define gSCALAR_SIZE 2
 #define gCOMPLEX_INCREMENT 1
@@ -64,7 +71,12 @@ typedef struct { Solver_Params Params ; } gSolver ;
 typedef struct { PetscScalar s ; }               gScalar ;
 typedef struct { Mat M ; }                       gMatrix ;
 typedef struct { Vec V ; }                       gVector ;
-typedef struct { SLES sles ; PC pc ; KSP ksp ; } gSolver ;
+
+#if ((PETSC_VERSION_MAJOR==2)&&(PETSC_VERSION_MINOR>=2))
+  typedef struct { KSP ksp ; PC pc ; } gSolver ;
+#else
+  typedef struct { SLES sles ; PC pc ; KSP ksp ; } gSolver ;
+#endif
 
 #else
 

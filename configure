@@ -2908,7 +2908,7 @@ GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDo
 
 if test "x$enable_petsc" = "xyes"; then
 
-  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_SLES_LIB} -lm'
+  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_SLES_LIB} ${PETSC_KSP_LIB} -lm'
   SOLVER='-DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
   if test "x${PETSC_PREFIX}" != "x"; then

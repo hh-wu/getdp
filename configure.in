@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.36 2004-07-03 06:03:23 geuzaine Exp $
+dnl $Id: configure.in,v 1.37 2004-09-17 23:33:05 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -129,7 +129,7 @@ GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDo
 dnl Modify the above defaults and specify the linker
 if test "x$enable_petsc" = "xyes"; then
 
-  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_SLES_LIB} -lm'
+  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_SLES_LIB} ${PETSC_KSP_LIB} -lm'
   SOLVER='-DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
   if test "x${PETSC_PREFIX}" != "x"; then
