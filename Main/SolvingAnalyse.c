@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.20 2001-03-07 11:09:08 dular Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.21 2001-03-07 13:26:16 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -350,11 +350,13 @@ void  SolvingAnalyse (void) {
         List_Add(DofData_P->Solutions, &Solution_S) ;
         Nbr_Solution = 1 ;
       }
-      for (j = 0 ; j < Nbr_Solution ; j++) { /* Pas necessaire si Flag_CAL ! OK? */
-        Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, j) ;
-        Current.Time = Solution_P->Time ;
-        Current.TimeStep = 0.;
-        Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
+      if (!Flag_CAL) { /* Pas necessaire si Flag_CAL */
+	for (j = 0 ; j < Nbr_Solution ; j++) {
+	  Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, j) ;
+	  Current.Time = Solution_P->Time ;
+	  Current.TimeStep = 0.;
+	  Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
+	}
       }
       DofData_P->CurrentSolution = (Nbr_Solution)?
 	(struct Solution*)List_Pointer(DofData_P->Solutions, 0) : NULL ;

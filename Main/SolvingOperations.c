@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.19 2001-03-06 08:46:59 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.20 2001-03-07 13:26:16 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -102,12 +102,14 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac) {
   if (!DofData_P->Flag_Init[0]) {
     DofData_P->Flag_Init[0] = 1 ;
     LinAlg_CreateSolver(&DofData_P->Solver, DofData_P->SolverDataFileName) ;
-    LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver, DofData_P->NbrDof, DofData_P->NbrDof,
+    LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver,
+			DofData_P->NbrDof, DofData_P->NbrDof,
 			DofData_P->NbrPart, DofData_P->Part, DofData_P->Nnz) ;
     LinAlg_CreateVector(&DofData_P->b, &DofData_P->Solver, DofData_P->NbrDof,
 			DofData_P->NbrPart, DofData_P->Part) ;
     if (Flag_Jac) {
-      LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver, DofData_P->NbrDof, DofData_P->NbrDof,
+      LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
+			  DofData_P->NbrDof, DofData_P->NbrDof,
 			  DofData_P->NbrPart, DofData_P->Part, DofData_P->Nnz) ;
       LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof,
 			  DofData_P->NbrPart, DofData_P->Part) ;
@@ -291,6 +293,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
           if(Dof_P->Type == DOF_UNKNOWN_INIT) Dof_P->Type = DOF_UNKNOWN ;
         }
+	/* The last solution is the current one */
         DofData_P->CurrentSolution = (struct Solution*)
           List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;        
         DofData_P->CurrentSolution->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
@@ -307,6 +310,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
 			    DofData_P->NbrPart, DofData_P->Part) ;
 
+	/* The last solution, if any, initializes the current one.
+	   Otherwise nul solution is used */
 	if (List_Nbr(DofData_P->Solutions)) {
 	  LinAlg_CopyVector(&((struct Solution *)
 			      List_Pointer(DofData_P->Solutions,
@@ -319,7 +324,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	for(i=0 ; i<DofData_P->NbrAnyDof ; i++){
 	  Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
-	  if(Dof_P->Type == DOF_UNKNOWN_INIT){
+	  if(Dof_P->Type == DOF_UNKNOWN_INIT){ /* Init values loaded */
 	    Dof_P->Type = DOF_UNKNOWN ;
 	    LinAlg_SetScalarInVector
 	      (&Dof_P->Val, &Solution_S.x, Dof_P->Case.Unknown.NumDof-1) ;
@@ -878,20 +883,13 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
   int    i, Nbr_Formulation, Index_Formulation, i_TimeStep ;
   struct Solution        * Solution_P, Solution_S ;
   struct Formulation     * Formulation_P ;
-  struct FunctionSpace   * FunctionSpace_P ;
 
   GetDP_Begin("Generate_System");
 
   /* (Re)creation des liens entre FunctionSpace et DofData:
      seuls les FS n'intervenant pas dans le DD courant peuvent
      pointer vers un autre DD */
-
-  for (i = 0 ; i < List_Nbr(DofData_P->FunctionSpaceIndex) ; i++) {
-    FunctionSpace_P = (struct FunctionSpace *)
-      List_Pointer(Problem_S.FunctionSpace,
-		   *((int *)List_Pointer(DofData_P->FunctionSpaceIndex, i))) ;
-    FunctionSpace_P->DofData = FunctionSpace_P->MainDofData = DofData_P ;
-  }
+  Init_DofDataInFunctionSpace(1, DofData_P) ;
 
   if (!DofData_P->Solutions)
     DofData_P->Solutions = List_Create(20, 20, sizeof(struct Solution)) ;
@@ -899,9 +897,6 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
   i_TimeStep = (int)Current.TimeStep ;
   
   if (!(Solution_P = (struct Solution*)
-	/*
-	  List_PQuery(DofData_P->Solutions, &Current.Time, fcmp_double))) {
-	*/
 	List_PQuery(DofData_P->Solutions, &i_TimeStep, fcmp_int))) {
 
     Solution_S.TimeStep = (int)Current.TimeStep ;
@@ -949,7 +944,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     Formulation_P = (struct Formulation*)
       List_Pointer(Problem_S.Formulation, Index_Formulation) ;
 
-    Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);
+    Init_DofDataInDefineQuantity(DefineSystem_P, DofData_P0, Formulation_P);
     Treatment_Formulation(Formulation_P) ;
   }
 
