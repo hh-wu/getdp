@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.24 2001-03-06 09:03:39 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.25 2001-03-11 08:16:01 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -56,7 +56,7 @@ int Flag_RemoveSingularity = 0;
 #else
 
 int  main(int argc, char *argv[]) {
-  char  ext[4], **sargv;
+  char  ext[5], **sargv;
   int   sargc, i ;
   char  ProName[MAX_FILE_NAME_LENGTH], LogName[MAX_FILE_NAME_LENGTH] ;
 
