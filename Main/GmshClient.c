@@ -1,4 +1,4 @@
-/* $Id: GmshClient.c,v 1.7 2004-01-19 16:51:17 geuzaine Exp $ */
+/* $Id: GmshClient.c,v 1.8 2004-05-06 19:08:35 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2004 C. Geuzaine, J.-F. Remacle
  *
@@ -24,7 +24,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
  * OF THIS SOFTWARE.
  * 
- *  Please report all bugs and problems to "gmsh@geuz.org".
+ *  Please report all bugs and problems to <gmsh@geuz.org>.
  */
 
 #ifdef MSDOS /* pure DOS/Windows code, without cygwin */

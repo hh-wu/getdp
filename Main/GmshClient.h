@@ -26,7 +26,7 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
  * OF THIS SOFTWARE.
  * 
- * Please report all bugs and problems to "gmsh@geuz.org".
+ * Please report all bugs and problems to <gmsh@geuz.org>.
  */
 
 #define GMSH_CLIENT_START       1
