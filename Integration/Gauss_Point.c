@@ -1,6 +1,6 @@
-#define RCSID "$Id: Gauss_Point.c,v 1.4 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Point.c,v 1.5 2000-10-30 08:31:00 geuzaine Exp $"
 
-#include "stdlib.h"
+#include <stdlib.h>
 
 #include "GetDP.h"
 

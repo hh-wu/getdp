@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2000-10-30 01:05:44 geuzaine Exp $
+# $Id: Makefile,v 1.8 2000-10-30 08:31:00 geuzaine Exp $
 #
 # Makefile for "libIntegration.a"
 #
@@ -51,7 +51,7 @@ nodepend:
 	$(RM) Makefile.new
 
 # DO NOT DELETE THIS LINE
-Gauss_Point.o: Gauss_Point.c /usr/include/stdlib.h ../include/GetDP.h \
+Gauss_Point.o: Gauss_Point.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h
 Gauss_Line.o: Gauss_Line.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Quadrature.h Gauss_Line.h
