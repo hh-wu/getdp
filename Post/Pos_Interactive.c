@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Interactive.c,v 1.24 2003-09-01 09:36:55 geuzaine Exp $"
+#define RCSID "$Id: Pos_Interactive.c,v 1.25 2003-11-11 17:25:41 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -40,34 +40,14 @@ int   yyparse(void) ;
 void  FinalizeAndExit(void);
 void  Help(char *start);
 
+void Pos_SaveHistory(FILE *fp);
+void Pos_UsingHistory();
+void Pos_AddHistory(char *str);
+char *Pos_Readline(char *str);
+
 /* ------------------------------------------------------------------------ */
 /*  P o s _ I n t e r a c t i v e                                           */
 /* ------------------------------------------------------------------------ */
-
-#if !defined(HAVE_READLINE)
-
-void  Pos_Interactive(struct Formulation *Formulation_P,
-		      struct PostProcessing *PostProcessing_P){
-  Msg(WARNING, "Interactive mode not available (please recompile with readline support)");
-}
-
-#else
-
-#include <readline/readline.h>
-#include <readline/history.h>
-
-void save_history(FILE *fp){
-  HISTORY_STATE *state;
-  int i;
-
-  if(!fp) return;
-  if(!(state = history_get_history_state())) return;
-
-  for(i = 0; i < state->length; i++){
-    if(state->entries[i])
-      fprintf(fp, "%s\n", state->entries[i]->line);
-  }
-}
 
 void  Pos_Interactive(struct Formulation *Formulation_P,
 		      struct PostProcessing *PostProcessing_P){
@@ -77,7 +57,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 
   GetDP_Begin("Pos_Interactive");
 
-  using_history();
+  Pos_UsingHistory();
 
   if(Formulation_P && PostProcessing_P) post = 1;
 
@@ -87,7 +67,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 
   /* add a simple gmsh operation in the stack */
   sprintf(tmp,"!gmsh %s", Name_MshFile);
-  add_history(tmp);
+  Pos_AddHistory(tmp);
 
   if(post){
     PostStream = stdout;
@@ -102,7 +82,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 	  myptr = Print_PostSubOperation(&Problem_S,PostProcessing_P,
 					 (struct PostSubOperation *)
 					 List_Pointer(PostOperation_P->PostSubOperation, j));
-	  if(strlen(myptr)) add_history(myptr);
+	  if(strlen(myptr)) Pos_AddHistory(myptr);
 	  Free(myptr);
 	}
       }
@@ -112,7 +92,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
   while (1) {
 
     /* read input char until CR, LF, EOF, ^D */
-    myptr = readline(GETDP_PROMPT_STRING);
+    myptr = Pos_Readline(GETDP_PROMPT_STRING);
 
     InteractiveCompute = ErrorLevel = 0;
 
@@ -127,7 +107,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
       if(myptr[strlen(myptr)-1]==';') myptr[strlen(myptr)-1]='\0';
 
       /* add the command in the stack */
-      add_history(myptr);
+      Pos_AddHistory(myptr);
 
       /* parse some simple stuff here (in order not to consume too
          many keywords in GetDP.l) */
@@ -156,7 +136,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
       }
       else if(!strcmp(myptr,"l") || /* log */
 	      !strcmp(myptr,"log") || !strcmp(myptr,"Log")){	      
-	save_history(stdout);
+	Pos_SaveHistory(stdout);
       }
       else if(strlen(myptr) > 4 &&
 	      (!strncmp(myptr,"log ",4) || !strncmp(myptr,"Log ",4))){ /* log to file */
@@ -164,7 +144,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 	   Msg(WARNING, "Unable to open file '%s'", &myptr[4]);
 	}
 	else{
-	  save_history(yyin);
+	  Pos_SaveHistory(yyin);
 	  fclose(yyin);
 	}
       }
@@ -200,8 +180,6 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 
   GetDP_End ;
 }
-
-#endif
 
 /* ------------------------------------------------------------------------ */
 /*  H e l p                                                                 */
