@@ -60,17 +60,17 @@ argument to the \fB\-pre\fP option. In the processing stage,
 (such as matrix assemblies, system resolutions, ...). The processing
 creates a file with a \fI.res\fP extension.
 .TP 4
-.B \-pos \fIpost-operation-id\fP
-performs the post-processing operations selected by
-\fIpost-operation-id\fP. This requires that a processing has been
+.B \-pos \fIpost-operation-id\fP(s)
+performs the post-processing operations selected by the 
+\fIpost-operation-id\fP(s). This requires that a processing has been
 performed previously, or that a \fB\-cal\fP option is given on the
 same command line. If \fIpost-operation-id\fP is omitted, the list of
 available choices is displayed.
 .TP 4
-.B \-ipos \fIpost-processing-id\fP
+.B \-ipos \fIpost-processing-id\fP(s)
 enters an interactive post-processing mode, enabling you to enter
-post-processing operations manually. If \fIpost-processing-id\fP is
-omitted, the list of available choices is displayed.
+post-processing operations manually. If no \fIpost-processing-id\fP(s)
+is (are) given, the list of available choices is displayed.
 .TP 4
 .B \-msh \fIfilename\fP
 reads the mesh database from \fIfilename\fP instead of from the default
@@ -79,11 +79,11 @@ problem file name with the \fI.msh\fP extension appended.
 .B \-split
 save processing results in separate files (one for each timestep).
 .TP 4
-.B \-res \fIfilename(s)\fP
+.B \-res \fIfilename\fP(s)
 load processing results from \fIfilename(s)\fP instead of from the
 default problem file name with the \fI.res\fP extension appended.
 .TP 4
-.B \-adapt \fIfilename(s)\fP
+.B \-adapt \fIfilename\fP(s)
 read adaption constraints from \fIfilename(s)\fP.
 .TP 4
 .B \-degree \fIfloat\fP

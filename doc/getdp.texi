@@ -4986,19 +4986,19 @@ executes all the commands given in the @code{Operation} field of the
 selected @code{Resolution} object (such as matrix assemblies, system
 resolutions, ...).
 
-@item -pos @var{post-operation-id}
+@item -pos @var{post-operation-id} @dots{}
 @cindex @code{-pos}
-Performs the operations in the @var{PostOperation} selected by
-@var{post-operation-id}. This requires that a processing has been
+Performs the operations in the @var{PostOperation}(s) selected by the
+@var{post-operation-id}(s). This requires that a processing has been
 performed previously, or that a @code{-cal} option is given on the same
-command line. If @var{post-operation-id} is omitted, the list of
-available choices is displayed.
+command line. If @var{post-operation-id} is omitted, the list of available
+choices is displayed.
 
-@item -ipos @var{post-processing-id}
+@item -ipos @var{post-processing-id} @dots{}
 @cindex @code{-ipos}
 Enters an interactive post-processing mode, enabling you to enter
-@code{PostOperation}-like commands manually. These commands are based on
-the @var{PostProcessing} object selected by @var{post-processing-id}.
+@code{PostOperation}-like commands manually. These commands are based on the
+@var{PostProcessing} object(s) selected by the @var{post-processing-id}(s).
 If @var{post-processing-id} is omitted, the list of available choices is
 displayed.
 
