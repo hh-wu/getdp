@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.23 2000-10-26 15:50:08 dular Exp $ */
+/* $Id: Pos_Print.c,v 1.24 2000-10-26 16:28:18 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1231,7 +1231,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 			 NULL, &Element, 0., 0., 0., &Value) ;
 
 	Format_PostValue(PostSubOperation_P->Format, &Value, 
-			 Current.NbrHar, Current.Time, 0, 1) ;
+			 Current.NbrHar, Current.Time, 0, 0) ;
       }
 
       fprintf(PostStream, "\n"); 
