@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.18 2001-03-15 16:01:27 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.19 2001-03-19 14:51:08 lefevre Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -417,14 +417,14 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
   }
   else{
     switch(Axis) {
-    case 1: R = fabs(X-Cx) ; dRdx =1.0 ; dRdy =0.0 ; dRdz =0.0 ; break;
-    case 2: R = fabs(Y-Cy) ; dRdx =0.0 ; dRdy =1.0 ; dRdz =0.0 ; break;
-    case 3: R = fabs(Z-Cz) ; dRdx =0.0 ; dRdy =0.0 ; dRdz =1.0 ; break;
+    case 1: R = (X-Cx) ; dRdx =1.0 ; dRdy =0.0 ; dRdz =0.0 ; break;
+    case 2: R = (Y-Cy) ; dRdx =0.0 ; dRdy =1.0 ; dRdz =0.0 ; break;
+    case 3: R = (Z-Cz) ; dRdx =0.0 ; dRdy =0.0 ; dRdz =1.0 ; break;
     default: Msg(ERROR, "Bad axis specification: 1 for X, 2 for Y and 3 for Z");
     }
   }
 
-  if ( (R > fabs(B)+1.e-12*fabs(B)) || (R < fabs(A)-1.e-12*fabs(A)) )
+  if ( (fabs(R) > fabs(B)+1.e-12) || (fabs(R) < fabs(A)-1.e-12) )
     Msg(ERROR, "Bad parameters for transformation Jacobian: %g not in [%g,%g]", R, A, B) ;
 
   f     = power((A*(B-A))/(R*(B-R)), p) ;
