@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.h,v 1.4 2001-06-17 21:04:46 geuzaine Exp $ */
+/* $Id: Pos_Print.h,v 1.5 2001-08-10 09:54:43 geuzaine Exp $ */
 #ifndef _POS_PRINT_H_
 #define _POS_PRINT_H_
 
@@ -16,5 +16,7 @@ void  Pos_PrintOnGrid       (ARG);
 void  Pos_PrintWithArgument (ARG);
 
 #undef ARG
+
+void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P);
 
 #endif
