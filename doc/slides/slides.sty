@@ -1,7 +1,7 @@
 %
 % LaTeX2e/seminar style sheet for the layout of GetDP-related slides
 %
-% $Id: slides.sty,v 1.1 2001-06-09 11:14:36 geuzaine Exp $
+% $Id: slides.sty,v 1.2 2001-06-11 07:50:49 geuzaine Exp $
 %
 
 % -------------------------------------------------------------------
@@ -13,7 +13,7 @@
 \RequirePackage{fancybox,amsmath,amsfonts,amssymb,pifont,bbm}
 \RequirePackage{semcolor,color}
 \RequirePackage[latin1]{inputenc}
-\RequirePackage{alltt}
+\RequirePackage{alltt,wasysym}
 
 \ifx\pdfoutput\undefined
   \RequirePackage{graphicx}
@@ -35,12 +35,14 @@
 % Define some generic colors
 % -------------------------------------------------------------------
 
+\definecolor{colback}{rgb}{1,1,1}
+\definecolor{colfront}{rgb}{0,0,0}
 \definecolor{coltitle}{rgb}{0.,0.2,0.7}
 \definecolor{colbottom}{rgb}{0.4,0.4,0.4}
 \definecolor{colbullet}{rgb}{0.,0.2,0.7}
 \definecolor{colpos}{rgb}{0,0.6,0}
 \definecolor{colwarn}{rgb}{1,0,0}
-\definecolor{colbox}{rgb}{1,1,0}
+\definecolor{colbox}{rgb}{1,1,0.7}
 
 % -------------------------------------------------------------------
 % (Re)define some font-related commands
@@ -146,7 +148,7 @@
 % -------------------------------------------------------------------
 
 \newcommand{\slideitem}{${\color{colbullet}\bullet}$}
-\newenvironment{slideitemize}%
+\newenvironment{slideitemize}[1][colbullet]%
  {\begin{list}{\slideitem}{%
 	 \setlength{\partopsep}{0em}%
 	 \setlength{\parsep}{.5em}%

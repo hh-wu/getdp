@@ -1,8 +1,26 @@
-% $Id: christophe.tex,v 1.1 2001-06-09 11:14:35 geuzaine Exp $
+% $Id: christophe.tex,v 1.2 2001-06-11 07:50:49 geuzaine Exp $
 
 \documentclass[a4]{seminar}
 
 \usepackage{slides}
+
+\renewcommand{\vec}[1]{\boldsymbol{#1}}
+\newcommand{\mat}[1]{\mathbf{#1}}
+\newcommand{\GradSymb}{\text{\bf grad}}
+\newcommand{\CurlSymb}{\text{\bf curl}}
+\newcommand{\DivSymb}{\text{\rm div}}
+\newcommand{\pvec}[2]  {{#1}\times{#2}}
+\newcommand{\psca}[2]  {{#1}\cdot{#2}}
+\newcommand{\Curl}[1]  {\text{\CurlSymb}\,{#1}}\let\Rot\Curl
+\newcommand{\Grad}[1]  {\text{\GradSymb}\,{#1}}
+\newcommand{\Div}[1]   {\text{\DivSymb}\,{#1}}
+\newcommand{\isur}[3][]{\langle#2,#3\rangle#1}
+\newcommand{\ivol}[3][]{(#2,#3)#1}
+\newcommand{\Ltwo}[2][]    {L^2#1(#2)}
+\newcommand{\LLtwo}[2][]   {\boldsymbol{L}^2#1(#2)}
+\newcommand{\Hone}[2][]    {H^1{#1}(#2)}
+\newcommand{\Hcurl}[2][]   {\boldsymbol{H}#1(\CurlSymb;#2)}
+\newcommand{\Hdiv}[2][]    {\boldsymbol{H}#1(\DivSymb;#2)}
 
 \graphicspath{{.}{fig/}}
 
@@ -22,7 +40,7 @@
 \bigskip\bigskip
 \medtitle{Christophe Geuzaine}\\
 \bigskip
-\medtitle{Deptartment of Electrical Engineering}\\
+\medtitle{Department of Electrical Engineering}\\
 \medtitle{Montefiore Institute B28, Sart Tilman Campus}\\
 \medtitle{University of Liège}\\
 \medtitle{B-4000 Liège (BELGIUM)}
@@ -38,14 +56,14 @@
 
 \begin{slide}
 
-Maxwell's equations, with...
+Maxwell's equations, coupled with...
 
 \begin{slideitemize}
-\item Electric and electronic \emph{circuit} coupling (Power electronic supplies)
-\item \emph{Mechanical} coupling (force calculation, magnetostriction,
+\item Electric and electronic \emph{circuits} (power electronic supplies)
+\item \emph{Mechanical} phenomena (force calculation, magnetostriction,
 piezoelectricity, noise and vibrations)
-\item \emph{Thermal} coupling (thermal losses, induction heating, dielectric heating)
-\item \emph{Fluid} dynamics coupling (charged particules, magnetohydrodynamics)
+\item \emph{Thermal} phenomena (thermal losses, induction heating, dielectric heating)
+\item \emph{Fluid} dynamics (charged particules, magnetohydrodynamics)
 \end{slideitemize}
 
 \end{slide}
@@ -58,11 +76,11 @@ piezoelectricity, noise and vibrations)
 
 \begin{slideitemize}
 \item \emph{Analytic} models are difficult/impossible to apply to complex/coupled problems
-\item Basic \emph{theory} of classic numerical methods (Finite differences, finite
-volumes, finite elements, integral methods) is now well known, and future
-developments don't change the fundamental principles anymore
 \item \emph{Performance} (both floating point and visualization) of low end PCs is
 exploding
+\item Basic \emph{theory} of classic numerical methods (finite differences, finite
+volumes, finite elements, integral methods) is now well known, and future
+developments don't change the fundamental principles anymore
 \end{slideitemize}
 
 \end{slide}
@@ -76,60 +94,176 @@ exploding
 \begin{slideitemize}
 \item 1960s for mechanical problems (very large \emph{application range} since 1980s)
 \item Strong \emph{mathematical foundations} (convergence, unicity)
-\item Generalizations/reinterpretations (vanishing boundaries between FEM,
-FDM, FVM, ...) call for a \emph{single sofware implementation}
+\item Generalizations/reinterpretations (vanishing boundaries between finite
+differences, finite elements and finite volumes, ...) call for a
+\emph{single sofware implementation}
 \end{slideitemize}
 
-But not a magic tool:
+But FEM is not the magic/universal tool:
 \begin{slideitemize}
 \item Many conflicting/\emph{antinomic} issues (continuous
 vs. discontinuous, conform vs. non conform meshes, implicit vs. explicit,
 ...)
-\item Generality always has a price (\emph{efficiency} tradeoff)
+\item Generality always has a price (i.e.\ \emph{efficiency} trade-off)
 \end{slideitemize}
 
 \end{slide}
 
 \begin{slide}
 
-Double discretization:
+Based on a double \emph{discretization}: ``replace'' the
+\begin{slideitemize}
+\item function spaces to which the field belong (e.g.\ $\Hone{\Omega}$,
+$\Hcurl{\Omega}$, $\Hdiv{\Omega}$ and $\Ltwo{\Omega}$) by \emph{finite
+dimensional function spaces}
+\item domains on which these subspaces are defined by a union of elementary
+geometrical elements of simple shapes (a ``\emph{mesh}'' or ``grid'')
+\end{slideitemize}
 
-1) geometry: mesh finite number of elementary elements which... tri, qua, ...
+\bigskip
 
-2) function spaces: finite dimension spaces, local support basis
-   functions...
-
-Weak formulation: ...
-
-Galerkin if basis functions=test functions.
+\mybox{colbox}{\textwidth}{
+\begin{center}
+FEM\\ $\Updownarrow$\\ the finite dimensional subspaces are built so that
+their bases are piecewise defined on the mesh
+\end{center}
+}
 
 \end{slide}
 
 \begin{slide}
 
-Example: magnetostatics
+One way to obtain a consistent Galerkin FEM formulation:
+\begin{slideitemize}
+\item Write a \emph{weak formulation} of the problem:
 
-...
+\begin{equation*}
+\begin{cases}
+L u = f \text{ in } \Omega \\
+B u = g \text{ in } \Gamma 
+\end{cases}
+\Rightarrow\quad
+\ivol[_\Omega]{u}{L^* v} - 
+\ivol[_\Omega]{f}{v} + 
+\int\limits_\Gamma Q_g(v) \, ds , 
+\quad\forall v \in V(\Omega) 
+\end{equation*}
+
+% $L$ is a differential operator of order $n$ defined on $\Omega$
+% 
+% L^* is the adjoint of L:
+%
+% \ivol[_\Omega]{L u}{v} - \ivol[_\Omega]{u}{L^* v} = \int\limits_\Gamma Q(u,v) ds ,
+%
+% $Q$ is a bilinear function of $u$ and $v$ and in their derivatives up
+% to the order $n-1$
+%
+% $Q_g$ is a linear form in $v$ which depends of $g$
+
+\item Discretize with \emph{Whitney/Mixed} elements $w_i$:
+\begin{equation*}
+\bar{u}, \bar{v} \in W(\Omega) \subset V(\Omega), \quad
+W(\Omega) = \text{span}\{w_i\} 
+\end{equation*}
+
+% \bar{u} = \sum_{i} u_i w_i 
+
+\end{slideitemize}
 
 \end{slide}
 
 \begin{slide}
-
-In practice?
 
 \begin{slideitemize}
-\item Geometry (CAD)
-\item Mesh
-\item Solver: our focus today - GetDP: next slides
-\item Post-processing
+\item ``\emph{nodal}'' elements for ``0-forms'' (\emph{continuous} scalar
+fields like scalar potentials, temperature, pressure, ...)
+
+\item ``\emph{edge}'' elements for ``1-forms'' (vector fields with
+\emph{continuous tangential components} across material interfaces, like
+electric and magnetic fields, magnetic vector potential, ...)
+
+\item ``\emph{face}'' elements for ``2-forms'' (vector fields with
+\emph{continuous normal components} across material interfaces, like
+magnetic flux density, current density, ...)
+
+\item ``\emph{volume}'' elements for ``3-forms'' (\emph{piecewise
+continuous} scalar fields like charge density, heat source density, ...)
+
 \end{slideitemize}
+
+\end{slide}
+
+
+\begin{slide}
+
+The simplest example: magnetostatics
+
+\begin{slideitemize}
+
+\item Scalar potential:
+
+
+
+\end{slideitemize}
+
 
 \end{slide}
 
 % ---------------------------------------------------------------------------
 
 \input{getdp-basics.tex}
+\input{getdp-examples.tex}
+
+% ---------------------------------------------------------------------------
+\part{Solver integration}
+% ---------------------------------------------------------------------------
+
+\chapter{FEM in practice}
+
+\begin{slide}
+
+Four steps
+
+\begin{slideitemize}
+\item Geometry
+\item Mesh
+\item Solver
+\item Post-processing
+\end{slideitemize}
+
+And most of time is usually not spent on Solver... {\large\color{colwarn}\frownie}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Batch vs. interactive processing}
+
+\begin{slide}
+
+GetDP has no graphical interface 
+
+Command line
+
+Integration into higher level optimization toolboxes:
+\begin{slideitemize}
+\item High level: Matlab, Mathematica, shell scripts (Perl, Python, ...),
+other programming languages (C, C++, ...)  $\rightarrow$ \emph{system call}
+\item Medium level: shell scripts (Perl, Python, ...), other programming
+languages (C, C++, ...) $\rightarrow$ \emph{UNIX sockets}
+\item Low level: programming languages (C, C++, Fortran) $\rightarrow$
+\emph{source code}
+\end{slideitemize}
+
+
+Example: Gmsh
+
+\end{slide}
+
+
 %\input{gmsh.tex}
+
+
 
 % ---------------------------------------------------------------------------
 \part{Collaboration}
@@ -149,6 +283,20 @@ In practice?
 % ---------------------------------------------------------------------------
 \part{Conclusion}
 % ---------------------------------------------------------------------------
+
+\chapter{Conclusions}
+
+\begin{slide}
+
+Open software: input text files, no physics in code, free.
+
+Current aids: mailing lists, documentation
+
+Interactive use through Gmsh
+
+
+\end{slide}
+
 
 \end{document}
 
