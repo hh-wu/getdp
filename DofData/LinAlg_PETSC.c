@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.15 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.16 2000-11-10 16:06:09 colignon Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -139,7 +139,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
   ierr = MatCreateSeqAIJ(PETSC_COMM_SELF, n, m, 20, PETSC_NULL, &M->M); CHKERRA(ierr);
   ierr = MatCreateMPIBAIJ(PETSC_COMM_WORLD, 1, PETSC_DECIDE, PETSC_DECIDE, n, m, 
                          30, PETSC_NULL, 30, PETSC_NULL, &M->M); CHKERRA(ierr); 
-  ierr = MatCreateMPIRowbs(PETSC_COMM_WORLD, PETSC_DECIDE, n, 30, PETSC_NULL, PETSC_NULL, &M->M);
+  ierr = MatCreateMPIRowbs(PETSC_COMM_WORLD,PETSCC_DECIDE, n, 50, PETSC_NULL, &M->M);
   */
 
 #ifdef _METIS
@@ -158,10 +158,16 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
 			 &M->M); CHKERRA(ierr); 
   Msg(PETSC, "Matrix Creation : %d->%d", i_Start, i_End-1);
 #else
+
   ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m, 
-                         30, PETSC_NULL, 30, PETSC_NULL, &M->M); CHKERRA(ierr); 
+                         50, PETSC_NULL, 50, PETSC_NULL, &M->M); CHKERRA(ierr); 
   ierr = MatGetOwnershipRange(M->M, &i_Start, &i_End) ; CHKERRA(ierr);
   Msg(PETSC, "Matrix Creation : %d->%d", i_Start, i_End);
+
+  /* ierr = MatCreateMPIRowbs(PETSC_COMM_WORLD, PETSC_DECIDE, n, 50, PETSC_NULL, &M->M);
+  ierr = MatGetOwnershipRange(M->M, &i_Start, &i_End) ; CHKERRA(ierr);
+  Msg(PETSC, "Matrix Creation : %d->%d", i_Start, i_End); */
+
 #endif
 
   GetDP_End ;
@@ -451,10 +457,10 @@ void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S){
   GetDP_End ;
 }
 void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i){
+  Scalar *tmp ;
 
   GetDP_Begin("LinAlg_GetScalarInVector");
 
-  Scalar *tmp ;
   ierr = VecGetArray(V->V, &tmp); CHKERRA(ierr);
   S->s = tmp[i] ;
   ierr = VecRestoreArray(V->V, &tmp); CHKERRA(ierr);
