@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.157 2004-04-15 05:57:24 geuzaine Exp $
+# $Id: Makefile,v 1.158 2004-04-24 20:38:30 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -136,7 +136,7 @@ etags:
 source-common:
 	rm -rf getdp-${GETDP_VERSION}
 	tar zcvf getdp.tgz `ls README* configure *.in Makefile */Makefile\
-                            */*.[chylfF] */*.[ch]pp *.spec` doc demos
+                            */*.[chylfF] */*.[ch]pp *.spec` doc demos utils
 	mkdir getdp-${GETDP_VERSION}
 	cd getdp-${GETDP_VERSION} && tar zxvf ../getdp.tgz
 	rm -f getdp.tgz
@@ -144,13 +144,20 @@ source-common:
 	cd getdp-${GETDP_VERSION}/doc && ${MAKE} clean
 
 source: source-common
-	cd getdp-${GETDP_VERSION} && rm -rf NR Scattering utils doc/slides\
-                                            ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
+	cd getdp-${GETDP_VERSION} && rm -rf CVS */CVS */*/CVS */.globalrc\
+          ${GETDP_VERSION_FILE} NR Scattering utils/commercial utils/temp\
+          doc/slides
 	tar zcvf getdp-${GETDP_VERSION}-source.tgz getdp-${GETDP_VERSION}
 
 source-commercial: source-common
-	cd getdp-${GETDP_VERSION} && rm -rf Scattering utils doc/slides\
-                                            ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
+	cd getdp-${GETDP_VERSION} && rm -rf CVS */CVS */*/CVS */.globalrc\
+          ${GETDP_VERSION_FILE} Scattering utils/commercial utils/temp\
+          doc/slides TODO *.spec doc/getdp.html doc/FAQ doc/README.cvs
+	cp -f utils/commercial/README getdp-${GETDP_VERSION}/README
+	cp -f utils/commercial/LICENSE getdp-${GETDP_VERSION}/doc/LICENSE
+	cp -f utils/commercial/license.texi getdp-${GETDP_VERSION}/doc/texinfo/license.texi
+	cp -f utils/commercial/copying.texi getdp-${GETDP_VERSION}/doc/texinfo/copying.texi
+	utils/commercial/sanitize.sh getdp-${GETDP_VERSION}
 	tar zcvf getdp-${GETDP_VERSION}-source-commercial.tgz getdp-${GETDP_VERSION}
 
 # Rules to package the binaries
@@ -183,7 +190,7 @@ package-win:
 	cp doc/FAQ getdp-${GETDP_VERSION}/FAQ.txt
 	cp doc/CREDITS getdp-${GETDP_VERSION}/CREDITS.txt
 	cp doc/LICENSE getdp-${GETDP_VERSION}/LICENSE.txt
-	cd utils && unix2dos ../getdp-${GETDP_VERSION}/*.txt
+	cd utils/misc && unix2dos ../../getdp-${GETDP_VERSION}/*.txt
 	cp -R demos getdp-${GETDP_VERSION}
 	rm -rf getdp-${GETDP_VERSION}/*/CVS
 	rm -f getdp-${GETDP_VERSION}/*/*.pre
@@ -191,7 +198,7 @@ package-win:
 	rm -f getdp-${GETDP_VERSION}/*/*.pos
 	rm -f getdp-${GETDP_VERSION}/*/*.cut
 	rm -f getdp-${GETDP_VERSION}/*/*~
-	cd utils && unix2dos ../getdp-${GETDP_VERSION}/demos/*
+	cd utils/misc && unix2dos.bash ../../getdp-${GETDP_VERSION}/demos/*
 	cd getdp-${GETDP_VERSION} && zip -r getdp-${GETDP_VERSION}-Windows.zip *
 	mv getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-Windows.zip .
 

@@ -1,4 +1,4 @@
-/* $Id: pyram.c,v 1.3 2002-03-06 09:24:48 trophime Exp $ */
+/* $Id: pyram.c,v 1.1 2004-04-24 20:38:30 geuzaine Exp $ */
 
 /* 
    Calcul des points de Gauss pour une pyramide

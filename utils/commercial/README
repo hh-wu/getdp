@@ -1,0 +1,21 @@
+This is GetDP, a General environment for the treatment of Discrete
+Problems.
+
+To install GetDP, type
+
+./configure --disable-gsl
+make
+make install
+
+Please note that compiling the Windows version requires the Cygwin
+tools (freely available from http://www.cygwin.com).
+
+For a description of all other configuration options, type
+
+./configure --help
+
+See doc/LICENSE and doc/CREDITS for licensing and copyright
+information.
+
+See the doc/ and demos/ directories for documentation and
+examples. The reference manual is located in doc/texinfo/.

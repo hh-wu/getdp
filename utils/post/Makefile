@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2004-01-19 16:51:31 geuzaine Exp $
+# $Id: Makefile,v 1.1 2004-04-24 20:38:30 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -18,9 +18,6 @@
 # USA.
 # 
 # Please report all bugs and problems to <getdp@geuz.org>.
-
-INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData -I../Main\
-          -I../Numeric -I../Sparskit -I../Integration
 
 extrabem: extrabem.c fakecomplex.c
 	${CC} -O3 -o extrabem extrabem.c fakecomplex.c -lm

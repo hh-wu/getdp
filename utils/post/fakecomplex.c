@@ -1,4 +1,4 @@
-/* $Id: fakecomplex.c,v 1.2 2003-03-22 03:30:23 geuzaine Exp $ */
+/* $Id: fakecomplex.c,v 1.1 2004-04-24 20:38:30 geuzaine Exp $ */
 
 #include "fakecomplex.h"
 

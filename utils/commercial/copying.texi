@@ -1,0 +1,7 @@
+The precise licensing conditions for this version of GetDP can be found in
+the @file{doc/LICENSE} file that accompanies the source code, or in
+@ref{License}. Detailed copyright information can be found in the
+@file{doc/CREDITS} file, or in @ref{Credits}.
+
+Please send all GetDP-related questions to the GetDP mailing list at
+@email{getdp@@geuz.org}.
