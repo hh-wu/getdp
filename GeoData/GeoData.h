@@ -5,7 +5,8 @@
 #include "Data_GeoData.h"
 
 int  Geo_AddGeoData(List_T * GeoData_L,
-		    char * Name_MshFile, char * Name_DefaultMshFile) ;
+		    char * Name_MshFile, char * Name_DefaultMshFile,
+		    char * Name_AdaptFile, char * Name_DefaultAdaptFile) ;
 void  Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name) ;
 
 void  Geo_SetCurrentGeoData(struct GeoData * GeoData_P) ;
@@ -13,10 +14,12 @@ void  Geo_SetCurrentGeoData(struct GeoData * GeoData_P) ;
 void  Geo_OpenFile(char * Name, char * Mode) ;
 void  Geo_CloseFile(void) ;
 void  Geo_ReadFile(struct GeoData * GeoData_P) ;
+void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) ;
 
 int  Geo_GetNbrGeoElements(void) ;
 struct Geo_Element  * Geo_GetGeoElement(int Index_Element) ;
 struct Geo_Element  * Geo_GetGeoElementOfNum(int Num_Element) ;
+int Geo_GetIndexOfGeoElementOfNum(int Num_Element) ;
 
 int  Geo_GetNbrGeoNodes(void) ;
 struct Geo_Node  * Geo_GetGeoNode(int Index_Node) ;

@@ -18,9 +18,10 @@ struct GeoData  * CurrentGeoData ;
 /* ------------------------------------------------------------------------ */
 
 int  Geo_AddGeoData(List_T * GeoData_L,
-		    char * Name_MshFile, char * Name_DefaultMshFile) {
+		    char * Name_MshFile, char * Name_DefaultMshFile,
+		    char * Name_AdaptFile, char * Name_DefaultAdaptFile) {
 
-  struct GeoData  GeoData_S, * GeoData_P ;
+  struct GeoData  GeoData_S ;
   int  i ;
 
   int  fcmp_GeoData_Name(const void *a, const void *b) ;
@@ -34,6 +35,14 @@ int  Geo_AddGeoData(List_T * GeoData_L,
     Geo_OpenFile(Name_MshFile, "r") ;
     Geo_ReadFile(&GeoData_S) ;
     Geo_CloseFile() ;
+
+    if (!Name_AdaptFile) Name_AdaptFile = Name_DefaultAdaptFile ;
+    if (Name_AdaptFile) {
+      Msg(LOADING,"Adaption Data '%s'", Name_AdaptFile) ;
+      Geo_OpenFile(Name_AdaptFile, "r") ;
+      Geo_ReadFileAdapt(&GeoData_S) ;
+      Geo_CloseFile() ;
+    }
     List_Add(GeoData_L, &GeoData_S) ;
   }
 
@@ -71,6 +80,8 @@ void  Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name) {
   GeoData_P->GroupForPRE = NULL ;
 
   GeoData_P->Grid.Init = 0 ;
+
+  GeoData_P->H = GeoData_P->P = NULL ;
 }
 
 
@@ -177,6 +188,58 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 }
 
 
+void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
+
+  int        Nbr, Num, i, Index ;
+  double     E, H, P ;
+  char       String[MAX_STRING_LENGTH] ;
+  struct Geo_Element elm ;
+
+  Nbr = List_Nbr(GeoData_P->Elements) ;
+
+  if(!GeoData_P->H){
+    GeoData_P->H = (double*)Malloc((Nbr+2)*sizeof(double)) ;
+    for (i = 0 ; i < Nbr ; i++) GeoData_P->H[i+1] = -1.0 ;
+  }
+  if(!GeoData_P->P){
+    GeoData_P->P = (double*)Malloc((Nbr+2)*sizeof(double)) ;
+    for (i = 0 ; i < Nbr ; i++) GeoData_P->P[i+1] = -1.0 ;
+  }
+
+  while (1) {
+
+    do { 
+      fgets(String, MAX_STRING_LENGTH, File_GEO) ; 
+      if (feof(File_GEO))  break ;
+    } while (String[0] != '$') ;  
+    
+    if (feof(File_GEO))  break ;
+
+    if (!strncmp(&String[1], "Adapt", 5)) {
+      fscanf(File_GEO, "%d", &Nbr) ;
+      for (i = 0 ; i < Nbr ; i++) {
+	fscanf(File_GEO, "%d %lf %lf %lf", &Num, &E, &H, &P) ;
+	elm.Num = Num ;
+	if((Index = List_ISearch(GeoData_P->Elements, &elm, fcmp_Elm)) < 0)
+	  Msg(ERROR, "Element %d Not Found in Database", elm.Num) ;
+	GeoData_P->H[Index+1] = H ;
+	GeoData_P->P[Index+1] = P ;
+      }
+    }
+
+    do {
+      fgets(String, MAX_STRING_LENGTH, File_GEO) ;
+      if (feof(File_GEO)) Msg(ERROR, "Prematured End of File");
+    } while (String[0] != '$') ;
+
+  }   /* while 1 ... */
+
+  for(i=0 ; i<List_Nbr(GeoData_P->Elements) ; i++)
+    printf("-- %g %g \n", GeoData_P->H[i+1], GeoData_P->P[i+1] );
+
+
+}
+
 
 /* ------------------------------------------------------------------------ */
 /*  f c m p _ E l m   &   f c m p _ N o d                                   */
@@ -222,6 +285,22 @@ struct Geo_Element  * Geo_GetGeoElementOfNum(int Num_Element) {
   return (struct Geo_Element*)List_PQuery(CurrentGeoData->Elements, &elm, fcmp_Elm) ;
 }
 
+/* ------------------------------------------------------------------------ */
+/*  G e o _ G e t G e o E l e m e n t I n d e x                             */
+/* ------------------------------------------------------------------------ */
+
+int Geo_GetIndexOfGeoElementOfNum(int Num) {
+  int i ;
+  struct Geo_Element elm ;
+
+  elm.Num = Num ;
+  if((i = List_ISearch(CurrentGeoData->Elements, &elm, fcmp_Elm)) >= 0)
+    return i ;
+  else{
+    Msg(WARNING, "Element %d Not Found in Database", elm.Num) ;
+    return 0 ;
+  }
+}
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ G e t N b r G e o N o d e s                                     */

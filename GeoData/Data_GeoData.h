@@ -25,6 +25,8 @@ struct GeoData {
   List_T  * GroupForPRE ;
 
   struct Grid Grid;
+
+  double  * H, * P ;
 } ;
 
 struct Geo_Node {
