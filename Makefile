@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.81 2002-03-01 19:17:12 geuzaine Exp $
+# $Id: Makefile,v 1.82 2002-03-04 17:13:15 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -82,7 +82,7 @@ GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-##include ${PETSC_DIR}/bmake/common/base
+include ${PETSC_DIR}/bmake/common/base
 
 # ----------------------------------------------------------------------
 # Rules for developpers
@@ -260,7 +260,7 @@ zip:
 
 minizip:
 	tar jcvf getdp-`date "+%Y.%m.%d"`.tar.bz2\
-            `ls Makefile */Makefile */*.[cfFhyl] */*.cpp */*.txt`
+            `ls Makefile */Makefile */*.[cfFhyl] */*.cpp */*.txt */*.pro */*.par */*.geo`
 
 tgzdoc:
 	tar cvf getdp-texi.tar $(GETDP_DOC_DIR)
