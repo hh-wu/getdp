@@ -1,4 +1,4 @@
-#define RCSID "$Id: Generate_Network.c,v 1.6 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Generate_Network.c,v 1.7 2001-05-14 14:45:31 dular Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -32,6 +32,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L) {
 
   ListInt_L = List_Create(10, 10, sizeof(int)) ;
   Nbr_Branch = List_Nbr(ConstraintPerRegion_L) ;
+  if (!Nbr_Branch) Msg(ERROR, "No branch in Network") ;
 
   for (j = 0 ; j < Nbr_Branch ; j++) {
     CPR = (struct ConstraintPerRegion *)List_Pointer(ConstraintPerRegion_L, j) ;
