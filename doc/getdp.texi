@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.31 2001-03-01 14:46:57 geuzaine Exp $
+@c $Id: getdp.texi,v 1.32 2001-03-03 20:03:34 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -32,8 +32,8 @@
 @c %**start of header
 @setfilename   getdp.info
 @set EDITION   2.1
-@set VERSION   0.78
-@set DAY       01
+@set VERSION   0.79
+@set DAY       05
 @set MONTH     March 2001
 @set COPYRIGHT @copyright{} 1997-2001 Patrick Dular, Christophe Geuzaine
 @set WEB-GETDP @uref{http://www.geuz.org/getdp/}
@@ -5371,6 +5371,9 @@ OnElementsOf}); Changed table oriented post-processing formats; New binary
 formats; New error diagnostics;
 @item
 @b{0.78}: Various bug fixes;
+@item
+@b{0.79}: Various bug fixes; Automatic treatment of degenerated cases in
+axisymmetrical problems;
 @end itemize
 
 @c -------------------------------------------------------------------------
