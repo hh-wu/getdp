@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.20 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.21 2001-03-04 13:20:28 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -290,13 +290,6 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 
       else if (!strcmp(argv[i]+1, "pre")) {
 	i++ ;
-	if(Flag_PRE == 1){
-	  Msg(ERROR, 
-	      "This syntax is not valid any more.\n" 
-	      "Old syntax: 'getdp -res <Resolution name> -pre'\n"
-	      "New syntax: 'getdp -pre <Resolution name>'\n"
-	      "Type 'getdp -help' for more info.");
-	}
 	if (i<argc && argv[i][0]!='-') { 
 	  Flag_PRE = 1 ; Name_Resolution = argv[i] ; i++ ; 
 	}
@@ -370,7 +363,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	}
 	else{
 	  Flag_IPOS = Flag_POS = 1 ;
-	  Name_PostOperation[j] = NULL ;
+	  Name_PostProcessing[j] = NULL ;
 	}
       }
 

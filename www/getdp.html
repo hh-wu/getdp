@@ -56,7 +56,7 @@ ENDSCRIPT--->
     This page is a mirror of <a href="/getdp/">/getdp/</a><p>
 ENDMIRROR--->
 
-<!---BEGINDATE$Date: 2001-03-03 08:40:13 $ENDDATE--->
+<!---BEGINDATE$Date: 2001-03-04 13:20:28 $ENDDATE--->
 
     &copy; 1998-2001 Patrick Dular and Christophe Geuzaine<br>
 
@@ -89,8 +89,7 @@ ENDMIRROR--->
 <tr valign=top>
 
   <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Description</b></font>
-  </td>
+    <font color="#ffffff" face="Helvetica, Arial"><b>Description</b></font></td>
 
   <td width="60"></td>
 
@@ -112,63 +111,104 @@ ENDMIRROR--->
 <tr valign=top>
 
   <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Documentation</b></font>
-  </td>
+    <font color="#ffffff" face="Helvetica, Arial"><b>Documentation</b></font></td>
 
   <td width="60">
   </td>
 
   <td align="left" colspan=2><font face="Helvetica, Arial" size=-1>
-    <a target="_top" href="/getdp/doc/getdp.html">Online</a>,
-    <a target="_top" href="/getdp/doc/getdp.ps">postscript</a>,
-    <a target="_top" href="/getdp/doc/getdp.pdf">pdf</a>,
-    <a target="_top" href="/getdp/doc/getdp-info.tgz">info</a>,
-    <a target="_top" href="/getdp/doc/getdp.1">man page</a>.
-<!---BEGINSCRIPT
-    <br>
-    <FORM METHOD=POST ACTION="/cgi-bin/htsearch">
-      Search online documentation:
-      <INPUT SIZE=30 NAME="words" VALUE="">
-      <INPUT TYPE=HIDDEN NAME="config" VALUE="htdig">
-      <INPUT TYPE=HIDDEN NAME="restrict" VALUE="http://www.geuz.org/getdp/">
-    </FORM>
-ENDSCRIPT--->
+    <ul>
+      <li><a target="_top" href="/getdp/doc/getdp.html">Online HTML documentation</a> 
+          (also available in
+          <a target="_top" href="/getdp/doc/getdp.ps">postscript</a>,
+          <a target="_top" href="/getdp/doc/getdp.pdf">pdf</a> and 
+          <a target="_top" href="/getdp/doc/getdp-info.tgz">info</a>
+          formats)
+      <li><a target="_top" href="/getdp/doc/VERSIONS">Version history</a>
+      <li><a target="_top" href="/getdp/doc/BUGS">List of open bugs</a>
+      <li><a target="_top" href="/getdp/doc/CONTRIBUTORS">List of contributors</a>
+      <li><a target="_top" href="/getdp/doc/FAQ">Frequently asked questions</a>
+      <li><a target="_top" href="/getdp/doc/README.txt">For Windows versions only</a>
+    </ul>
   </font></td>
 
 </tr>
 
 <!------------------------------------------------------------------>
 
+<!---BEGINSCRIPT     --->
+
 <tr valign=top>
 
   <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Download</b></font>
+    <font color="#ffffff" face="Helvetica, Arial"><b>Search documentation</b></font></td>
+
+  <td width="60">
   </td>
+
+  <td align="left" colspan=2><font face="Helvetica, Arial" size=-1>
+
+<form method="get" action="/cgi-bin/htsearch">
+<input type="text" size="30" name="words" value="">
+</select>
+&nbsp;
+<input type="hidden" name="config" value="htdig">
+<input type="hidden" name="restrict" value="http://www.geuz.org/getdp/">
+<input type="hidden" name="exclude" value="">
+Match <select name="method">
+<option value="and" selected>All
+<option value="or">Any
+<option value="boolean">Boolean
+</select>
+Format <select name="format">
+<option value="mylong">Long
+<option value="myshort">Short
+</select>
+Sort by <select name="sort">
+<option value="score" selected>Score
+<option value="time">Time
+<option value="title">Title
+<option value="revscore">Reverse Score
+<option value="revtime">Reverse Time
+<option value="revtitle">Reverse Title
+</select>
+</form>
+
+  </font></td>
+
+</tr>
+
+<!--- ENDSCRIPT--->
+
+<!------------------------------------------------------------------>
+
+<tr valign=top>
+
+  <td width="130" align="right">
+    <font color="#ffffff" face="Helvetica, Arial"><b>Download</b></font></td>
 
   <td width="60">
   </td>
 
   <td align="left" colspan=2 bgcolor="#f0f0f0"><font face="Helvetica, Arial" size=-1>
 
-    <b>Version 0.781 (March 5, 2001)</b>
+    <b>Version 0.79 (March 5, 2001)</b>
     <p>
     Executable versions of GetDP are available for Windows 95/98/NT
     and for most of the classical UNIX platforms. These versions are
     free. The only thing required if you use GetDP is to <a
     target="_top" href="/getdp/doc/getdp.bib">mention</a> it in your
-    work. Answers to some frequently asked questions are available <a
-    target="_top" href="/getdp/doc/FAQ">here</a>. A sample demo file
-    is included in the archives.
+    work. A sample demo file is included in the archives.
     <p>
     <ul>
-      <li><A href="/getdp/bin/getdp-0.781-Windows.zip">Windows zip archive (95/98/NT)</A>
-      <li><A href="/getdp/bin/getdp-0.781-1.i386.rpm">Linux RPM (Red Hat 6.2 and compatible, i386, glibc 2.1)</A> 
-      <li><A href="/getdp/bin/getdp-0.781-Linux.tgz">Linux tarball (i386, glibc 2.1)</A> 
-      <li><A href="/getdp/bin/getdp-0.781-OSF1.tgz">Compaq Tru64 tarball (OSF 4.0)</A>
-      <li><A href="/getdp/bin/getdp-0.781-SunOS.tgz">Sun tarball (SunOS 5.5)</A>
-      <li><A href="/getdp/bin/getdp-0.781-AIX.tgz">IBM tarball (AIX)</A>
-      <li><A href="/getdp/bin/getdp-0.781-IRIX.tgz">SGI tarball (IRIX 6.5)</A>
-      <li><A href="/getdp/bin/getdp-0.781-HP-UX.tgz">HP tarball (HPUX 10.20)</A>
+      <li><A href="/getdp/bin/getdp-0.79-Windows.zip">Windows zip archive (95/98/NT)</A>
+      <li><A href="/getdp/bin/getdp-0.79-1.i386.rpm">Linux RPM (Red Hat 6.2 and compatible, i386, glibc 2.1)</A> 
+      <li><A href="/getdp/bin/getdp-0.79-Linux.tgz">Linux tarball (i386, glibc 2.1)</A> 
+      <li><A href="/getdp/bin/getdp-0.79-OSF1.tgz">Compaq Tru64 tarball (OSF 4.0)</A>
+      <li><A href="/getdp/bin/getdp-0.79-SunOS.tgz">Sun tarball (SunOS 5.5)</A>
+      <li><A href="/getdp/bin/getdp-0.79-AIX.tgz">IBM tarball (AIX)</A>
+      <li><A href="/getdp/bin/getdp-0.79-IRIX.tgz">SGI tarball (IRIX 6.5)</A>
+      <li><A href="/getdp/bin/getdp-0.79-HP-UX.tgz">HP tarball (HPUX 10.20)</A>
     </ul>
 
   </font></td>
@@ -180,8 +220,7 @@ ENDSCRIPT--->
 <tr valign=top>
 
   <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Authors</b></font>
-  </td>
+    <font color="#ffffff" face="Helvetica, Arial"><b>Authors</b></font></td>
 
   <td width="60">
   </td>
@@ -205,8 +244,7 @@ ENDSCRIPT--->
 <tr valign=top>
 
   <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Links</b></font>
-  </td>
+    <font color="#ffffff" face="Helvetica, Arial"><b>Links</b></font></td>
 
   <td width="60">
   </td>

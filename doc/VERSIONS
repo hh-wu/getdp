@@ -1,0 +1,29 @@
+$Id: VERSIONS,v 1.1 2001-03-04 13:19:47 geuzaine Exp $
+
+0.79: Various bug fixes (mainly for the post-processing of intergal
+quantities); Automatic treatment of degenerated cases in
+axisymmetrical problems;
+
+0.78: Various bug fixes;
+
+0.77: Changed syntax for PostOperations (Plot suppressed in favour of
+Print; Plot OnRegion becomes Print OnElementsOf); Changed table
+oriented post-processing formats; New binary formats; New error
+diagnostics;
+
+0.76: Reorganized high order shape functions; Optimization of the
+post-processing (faster and less bloated); Lots of internal cleaning;
+
+0.74: High order shape functions; lots of small bug fixes;
+
+0.73: Eigen value problems (Lanczos); minor corrections;
+
+0.7: constraint syntax; fourier transform; unary minus correction; complex
+integral quantity correction; separate iteration matrix generation;
+
+0.6: Second order time derivatives; Newton nonlinear scheme; Newmark
+time stepping scheme; global quantity syntax; interactive
+post-processing; tensors; integral quantities; post-processing
+facilities;
+
+0.3: First distributed version;

@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.33 2001-03-04 10:26:49 geuzaine Exp $
+@c $Id: getdp.texi,v 1.34 2001-03-04 13:19:47 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -5325,58 +5325,17 @@ Undocumented.
 
 
 @c =========================================================================
-@c Versions and Credits
+@c Bugs, versions and contributors
 @c =========================================================================
 
-@node Versions and credits, Tips and tricks, File formats, Top
-@chapter Versions and credits
+@node Bugs and versions, Tips and tricks, File formats, Top
+@chapter Bugs, versions and contributors
 
 @menu
 * Version history::             
 * Bugs::                        
 * Contributors::                
 @end menu
-
-@c -------------------------------------------------------------------------
-@c Versions
-@c -------------------------------------------------------------------------
-
-@node Version history, Bugs, Versions and credits, Versions and credits
-@section Version history
-
-@cindex Versions
-@cindex History, versions
-@cindex Changelog
-
-@itemize @bullet
-@item
-@b{0.3}: First distributed version;
-@item 
-@b{0.6}: Second order time derivatives; Newton nonlinear scheme; Newmark
-time stepping scheme; global quantity syntax; interactive
-post-processing; tensors; integral quantities; post-processing
-facilities;
-@item
-@b{0.7}: constraint syntax; fourier transform; unary minus correction; complex
-integral quantity correction; separate iteration matrix generation;
-@item
-@b{0.73}: Eigen value problems (Lanczos); minor corrections;
-@item
-@b{0.74}: High order shape functions; lots of small bug fixes;
-@item
-@b{0.76}: Reorganized high order shape functions; Optimization of the
-post-processing (faster and less bloated); Lots of internal cleaning;
-@item
-@b{0.77}: Changed syntax for PostOperations (@code{Plot} suppressed in
-favour of @code{Print}; @code{Plot OnRegion} becomes @code{Print
-OnElementsOf}); Changed table oriented post-processing formats; New binary
-formats; New error diagnostics;
-@item
-@b{0.78}: Various bug fixes;
-@item
-@b{0.79}: Various bug fixes; Automatic treatment of degenerated cases in
-axisymmetrical problems;
-@end itemize
 
 @c -------------------------------------------------------------------------
 @c Bugs
@@ -5400,13 +5359,21 @@ produce the bug (problem definition and mesh files). Don't forget to mention
 both the version of GetDP and the version of your operation system
 (@pxref{Running GetDP} to see how to get this information).
 
-Here is a list of known bugs:
+The current list of open bugs is available in the @file{BUGS} file
+included in the distribution of GetDP.
 
-@itemize @bullet
-@item
-Arguments in nested expressions don't work. This is a *BIG* bug.
-@end itemize
+@c -------------------------------------------------------------------------
+@c Versions
+@c -------------------------------------------------------------------------
 
+@node Version history, Bugs, Versions and credits, Versions and credits
+@section Version history
+
+@cindex Versions
+@cindex History, versions
+@cindex Changelog
+
+See the @file{VERSIONS} file included in the distribution of GetDP.
 
 @c -------------------------------------------------------------------------
 @c Contributors
@@ -5419,31 +5386,7 @@ Arguments in nested expressions don't work. This is a *BIG* bug.
 @cindex Contributors, list
 @cindex Credits 
 
-@itemize @bullet
-@item
-M. Ume: code for lists and trees (listman.c, treeman.c). 
-@item
-J.-F. Remacle: initial version of default solver; ideas for
-Pos_Search.c, Pos_Fill.c and for the three-dimensional cutting
-algorithm.
-@item 
-F. Henrotte: special axisymetric jacobians; ideas about many other
-things.
-@item 
-B. Meys: concepts for the Newmark time stepping scheme.
-@item
-T. Tarhasaari: ideas for de Rham maps and dual meshes.
-@item
-D. Colignon: code for infinite jacobians, parallelization.
-@item
-Unknown: avl tree code
-@item
-@dots{}
-@end itemize
-
-And many thanks to all the users whose feedback permitted lots of
-improvements and bug correction...
-
+See the @file{CONTRIBUTORS} file included in the distribution of GetDP.
 
 @c =========================================================================
 @c Tips ans Tricks

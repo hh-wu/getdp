@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.13 2000-12-08 12:04:13 dular Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.14 2001-03-04 13:20:28 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -1191,15 +1191,15 @@ void  Print_ListResolution(struct Problem  * Problem) {
   GetDP_Begin("Print_ListResolution");
 
   if((Nbr = List_Nbr(Problem->Resolution))){
-    Msg(WARNING, "Missing Resolution Name") ;
-    printf("\nAvailable Choices:\n");
+    Msg(WARNING, "Missing Resolution name") ;
+    printf("\nAvailable choices:\n");
     for (i = 0 ; i < Nbr ; i++) {
       RE = (struct Resolution*)List_Pointer(Problem->Resolution, i) ;
       printf("Resolution (%d/%d) : %s\n", i+1, Nbr, RE->Name) ;
     }
   }
   else
-    Msg(WARNING, "No Resolution Available") ;
+    Msg(WARNING, "No Resolution available") ;
 
   printf("\n") ;
 
@@ -1217,15 +1217,15 @@ void  Print_ListPostProcessing(struct Problem  * Problem) {
   GetDP_Begin("Print_ListPostProcessing");
 
   if((Nbr = List_Nbr(Problem->PostProcessing))){
-    Msg(WARNING, "Missing PostProcessing Name") ;
-    printf("\nAvailable Choices:\n") ;
+    Msg(WARNING, "Missing PostProcessing name") ;
+    printf("\nAvailable choices:\n") ;
     for (i = 0 ; i < Nbr ; i++) {
       PP = (struct PostProcessing*)List_Pointer(Problem->PostProcessing, i) ;
       printf("PostProcessing (%d/%d) : %s\n", i+1, Nbr, PP->Name) ;
     }
   }
   else
-    Msg(WARNING, "No PostProcessing Available") ;
+    Msg(WARNING, "No PostProcessing available") ;
     
   printf("\n") ;
 
@@ -1243,15 +1243,15 @@ void  Print_ListPostOperation(struct Problem  * Problem) {
   GetDP_Begin("Print_ListPostOperation");
 
   if((Nbr = List_Nbr(Problem->PostOperation))){
-    Msg(WARNING, "Missing PostOperation Name") ;
-    printf("\nAvailable Choices:\n") ;
+    Msg(WARNING, "Missing PostOperation name") ;
+    printf("\nAvailable choices:\n") ;
     for (i = 0 ; i < Nbr ; i++) {
       PO = (struct PostOperation*)List_Pointer(Problem->PostOperation, i) ;
       printf("PostOperation (%d/%d) : %s\n", i+1, Nbr, PO->Name) ;
     }
   }
   else
-    Msg(WARNING, "No PostOperation Available");
+    Msg(WARNING, "No PostOperation available");
     
   printf("\n") ;
 
