@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.8 2002-06-14 00:11:15 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.9 2002-06-14 03:16:20 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -169,7 +169,6 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
     // then compute the target point in [0,2\pi]:
     t_pp = TWO_PI/(tau_p_max-tau_p_min)*(t_p-tau_p_min);
-    //printf("t_pp = %g\n", t_pp);
 
     pou = part->eval(tau);
 
