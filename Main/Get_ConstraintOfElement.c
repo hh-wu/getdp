@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.14 2001-05-21 09:31:22 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.15 2001-06-27 16:42:34 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -551,10 +551,6 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   }
   Nbr_EntityRef = List_Nbr(NodeXYZRef_L) ;
 
-  if (Nbr_EntityRef != Nbr_Entity)
-    Msg(ERROR, "Constraint Link: bad correspondance of number of Nodes (%d, %d)",
-	Nbr_Entity, Nbr_EntityRef) ;
-
   /*
   Msg(DEBUG2, "Before sorting\n") ;
   Msg(DEBUG2, "- Other\n") ;
@@ -592,6 +588,11 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 	    i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y,
 	    atan2(NodeXYZ.y,NodeXYZ.x)/3.1415926535897*180.) ;
   }
+
+  if (Nbr_EntityRef != Nbr_Entity)
+    Msg(ERROR, "Constraint Link: bad correspondance of number of Nodes (%d, %d)",
+	Nbr_Entity, Nbr_EntityRef) ;
+
   Msg(DEBUG2, "==> List of link for nodes\n") ;
 
   for (i = 0 ; i < Nbr_Entity ; i++) {
@@ -613,7 +614,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     /*
     Current.x = NodeXYZ.x ; Current.y = NodeXYZ.y ; Current.z = NodeXYZ.z ;
     */
-    /* Si on veut comme reference les coordonnees du noeud de ref ... */
+    /* Calcul du coefficient base sur les coordonnees du noeud de ref ... */
 
     Geo_GetNodesCoordinates( 1, &NodeXYZRef.NumNode,
 			     &Current.x, &Current.y, &Current.z) ;
@@ -762,6 +763,10 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 	    List_PQuery(CouplesOfNodes2_L, &EdgeNN.Node1, fcmp_int) ;
 	  TwoIntOneDouble2_P = (struct TwoIntOneDouble *)
 	    List_PQuery(CouplesOfNodes2_L, &EdgeNN.Node2, fcmp_int) ;
+	  if (!TwoIntOneDouble_P)
+	    Msg(ERROR, "Constraint Link: unknown node (%d)", EdgeNN.Node1) ;
+	  if (!TwoIntOneDouble2_P)
+	    Msg(ERROR, "Constraint Link: unknown node (%d)", EdgeNN.Node2) ;
 	}
 	else  Msg(ERROR, "Constraint Link: bad correspondance for edges") ;
       }

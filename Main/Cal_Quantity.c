@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.13 2001-05-21 09:31:56 dular Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.14 2001-06-27 16:42:34 dular Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -13,6 +13,8 @@
 #include "Tools.h"
 
 int  fcmp_int2(const void * a, const void * b) ;
+
+static int Flag_WarningMissSolForDt = 0 ;
 
 /* ------------------------------------------------------------------------ */
 /*  G e t _ V a l u e O f E x p r e s s i o n                               */
@@ -423,8 +425,14 @@ void Cal_WholeQuantity(struct Element * Element,
 	    if ((Current.DofData_P0+k)->CurrentSolution != Solution_P0)
 	      ((Current.DofData_P0+k)->CurrentSolution) -- ;
 	  }
-	  else
-	    Msg(WARNING, "Missing solution for time derivative computation");
+	  else {
+	    if (!Flag_WarningMissSolForDt) {
+	      Msg(WARNING,
+		  "Missing solution for time derivative computation (Sys#%d/%d)",
+		  k, Current.NbrSystem);
+	      Flag_WarningMissSolForDt = 1 ;
+	    }
+	  }
 	}
 
 	Save_Time = Current.Time ;
