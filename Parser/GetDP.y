@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.30 2000-12-08 12:04:13 dular Exp $ */
+/* $Id: GetDP.y,v 1.1 2000-12-11 15:51:38 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -286,22 +286,23 @@ struct PostSubOperation         PostSubOperation_S ;
 %token  tBreak tHelp tCpu
 
 /* ------------------------------------------------------------------ */
-/* Operators (with ascending priority) : cf. C language (except #,$)  */
+/* Operators (with ascending priority): cf. C language                */
 /*                                                                    */
-/* Notes: - evaluation order (%left, %right)                          */
+/* Notes: - associativity (%left, %right)                             */
 /*        - UNARYPREC is a dummy terminal to resolve ambiguous cases  */ 
 /*          for + and - (which exist in both unary and binary form)   */
 /* ------------------------------------------------------------------ */
-%left    tDEF
+%right   tDEF
 %right   '?' tDOTS
-%left    tAND tOR
-%left    tNOTEQUAL tEQUAL tAPPROXEQUAL
-%left    '<' '>' tLESSOREQUAL tGREATEROREQUAL tLESSLESS tGREATERGREATER
+%left    tOR
+%left    tAND
+%left    tEQUAL tNOTEQUAL tAPPROXEQUAL
+%left    '<' tLESSOREQUAL  '>' tGREATEROREQUAL tLESSLESS tGREATERGREATER
 %left    '+' '-'
-%left    '*' '/' '%'
-%left    tCROSSPRODUCT
-%left    UNARYPREC '!'
+%left    '*' '/' '%' tCROSSPRODUCT
+%right   '!' UNARYPREC
 %right   '^'
+%left    '(' ')' '[' ']' '.'
 %left    '#' '$'
 /* ------------------------------------------------------------------ */
 

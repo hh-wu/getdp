@@ -1,5 +1,5 @@
 %{
-/* $Id: lex.l,v 1.16 2000-12-08 12:04:13 dular Exp $ */
+/* $Id: GetDP.l,v 1.1 2000-12-11 15:51:38 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,7 +8,7 @@
 #include "Data_Passive.h"
 #include "Constant.h"
 #include "Malloc.h"
-#include "yacc.tab.h"
+#include "GetDP.tab.h"
 
 extern long int  yylinenum ;
 extern int       yycolnum, yyincludenum ;
