@@ -1,17 +1,10 @@
-#define RCSID "$Id: CSR.c,v 1.7 2003-01-23 18:52:27 geuzaine Exp $"
+#define RCSID "$Id: CSR.c,v 1.8 2003-03-18 00:30:54 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "Solver.h"
 #include "Message.h"
 #include "Malloc.h"
-#include "nrutil.h"
-
-#define SWAP(a,b)  temp=(a);(a)=(b);(b)=temp;
-#define SWAPI(a,b) tempi=(a);(a)=(b);(b)=tempi;
-#define M          7
-#define NSTACK     50
-#define M1        -1
 
 static int cmpij(int ai,int aj,int bi,int bj){
   if(ai<bi)return -1;
@@ -21,13 +14,30 @@ static int cmpij(int ai,int aj,int bi,int bj){
   return 0;
 }
 
-void sort2(unsigned long n, double arr[], int ai[] , int aj [] ){
+static int *alloc_ivec(long nl, long nh){
+  int *v;
+  
+  v=(int *)Malloc((size_t) ((nh-nl+1+1)*sizeof(int)));
+  return v-nl+1;
+}
+
+static void free_ivec(int *v, long nl, long nh){
+  Free((v+nl-1));
+}
+
+#define SWAP(a,b)  temp=(a);(a)=(b);(b)=temp;
+#define SWAPI(a,b) tempi=(a);(a)=(b);(b)=tempi;
+#define M          7
+#define NSTACK     50
+#define M1        -1
+
+static void sort2(unsigned long n, double arr[], int ai[] , int aj []){
   unsigned long i,ir=n,j,k,l=1;
   int *istack,jstack=0,tempi;
   double a,temp;
   int    b,c;
     
-  istack=ivector(1,NSTACK);
+  istack=alloc_ivec(1,NSTACK);
   for (;;) {
     if (ir-l < M) {
       for (j=l+1;j<=ir;j++) {
@@ -45,7 +55,7 @@ void sort2(unsigned long n, double arr[], int ai[] , int aj [] ){
 	aj[i+1 M1]=c;
       }
       if (!jstack) {
-	free_ivector(istack,1,NSTACK);
+	free_ivec(istack,1,NSTACK);
 	return;
       }
       ir=istack[jstack];
@@ -109,21 +119,13 @@ void sort2(unsigned long n, double arr[], int ai[] , int aj [] ){
   }
 }
 
+#undef M
+#undef NSTACK
+#undef SWAP
+#undef SWAPI
+#undef M1
 
-void ptr2i ( int n , int *ptr , int *jptr){
-  int i,iptr,iptr2;
-  for(i=0;i<n;i++){
-    iptr = jptr[i];
-    while(iptr){
-      iptr2 = ptr[iptr];
-      ptr[iptr]=i+1;
-      iptr = iptr2;      
-    }
-  }
-}
-
-
-void deblign ( int nz , int *ptr , int *jptr , int *ai){
+static void deblign ( int nz , int *ptr , int *jptr , int *ai){
   int i,ilign;
 
   ilign = 1;
@@ -173,12 +175,5 @@ void restore_format (Sparse_Matrix *MM){
   MM->ptr->array = MM->ai->array;
   MM->ai->array = temp;
 } 
-
-
-#undef M
-#undef NSTACK
-#undef SWAP
-#undef SWAPI
-#undef M1
 
 

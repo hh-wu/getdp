@@ -1,4 +1,4 @@
-#define RCSID "$Id: Graph.c,v 1.10 2001-05-03 00:17:18 geuzaine Exp $"
+#define RCSID "$Id: Graph.c,v 1.11 2003-03-18 00:30:54 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,9 +8,6 @@
 #include "Graph.h"
 #include "DofData.h"
 #include "Compat.h"
-
-#include "nrutil.h"
-
 
 /*
   Si on est sur d'utiliser Metis tout le temps, on devrait definir 
@@ -29,20 +26,31 @@ static int Graph_cmpij(int ai,int aj,int bi,int bj){
   return 0;
 }
 
+static int *alloc_ivec(long nl, long nh){
+  int *v;
+  
+  v=(int *)Malloc((size_t) ((nh-nl+1+1)*sizeof(int)));
+  return v-nl+1;
+}
+
+static void free_ivec(int *v, long nl, long nh){
+  Free((v+nl-1));
+}
+
 #define SWAP(a,b)  temp=(a);(a)=(b);(b)=temp;
 #define SWAPI(a,b) tempi=(a);(a)=(b);(b)=tempi;
 #define M          7
 #define NSTACK     50
 #define M1        -1
 
-void Graph_sort(unsigned long n, int ai[] , int aj [] ){
+static void Graph_sort(unsigned long n, int ai[] , int aj []){
   unsigned long i,ir=n,j,k,l=1;
   int *istack,jstack=0,tempi;
   int    b,c;
 
   GetDP_Begin("Graph_sort");
     
-  istack=ivector(1,NSTACK);
+  istack=alloc_ivec(1,NSTACK);
   for (;;) {
     if (ir-l < M) {
       for (j=l+1;j<=ir;j++) {
@@ -57,7 +65,7 @@ void Graph_sort(unsigned long n, int ai[] , int aj [] ){
 	aj[i+1 M1]=c;
       }
       if (!jstack) {
-	free_ivector(istack,1,NSTACK);
+	free_ivec(istack,1,NSTACK);
 	GetDP_End;
       }
       ir=istack[jstack];
@@ -122,25 +130,7 @@ void Graph_sort(unsigned long n, int ai[] , int aj [] ){
 #undef SWAPI
 #undef M1
 
-void Graph_ptr2i ( int n , int *ptr , int *jptr){
-  int i,iptr,iptr2;
-
-  GetDP_Begin("Graph_ptr2i");
-
-  for(i=0;i<n;i++){
-    iptr = jptr[i];
-    while(iptr){
-      iptr2 = ptr[iptr];
-      ptr[iptr]=i+1;
-      iptr = iptr2;      
-    }
-  }
-
-  GetDP_End ;
-}
-
-
-void Graph_deblign ( int nz , int *ptr , int *jptr , int *ai){
+static void Graph_deblign (int nz , int *ptr , int *jptr , int *ai){
   int i,ilign;
 
   GetDP_Begin("Graph_deblign");
