@@ -1,4 +1,4 @@
-/* $Id: Pos_Search.h,v 1.5 2000-11-16 17:26:49 geuzaine Exp $ */
+/* $Id: Pos_Search.h,v 1.6 2001-03-16 18:05:46 geuzaine Exp $ */
 #ifndef _POS_SEARCH_H_
 #define _POS_SEARCH_H_
 
@@ -32,5 +32,8 @@ void xyz2uvwInAnElement (struct Element *Element,
 			 double *u, double *v, double *w,
 			 double   (*Get_Jacobian) (struct Element * Element, MATRIX3x3 * Jac),
 			 int      Dimension) ;
+void xyz2uvwInAnElementSimple (struct Element *Element,
+			       double  x, double  y, double  z, 
+			       double *u, double *v, double *w);
 
 #endif

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.23 2001-03-03 19:21:22 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.24 2001-03-16 18:05:46 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -14,7 +14,7 @@
 #include "Data_Numeric.h"
 
 static struct Element  * LastElement;
-static int GeoDim, ChainDim;
+static int GeoDim = -1, ChainDim = -1;
 
 /* ------------------------------------------------------------------------ */
 /*  C o m p u t e E l e m e n t B o x                                       */
@@ -766,3 +766,47 @@ void xyz2uvwInAnElement (struct Element *Element,
 #undef NR_PRECISION
 #undef NR_MAX_ITER
   
+void xyz2uvwInAnElementSimple (struct Element *Element, 
+			       double  x, double  y, double  z, 
+			       double *u, double *v, double *w){
+  int i, NbrGeoNodes;
+  double Xmin, Xmax, Ymin, Ymax, Zmin, Zmax;
+  struct Geo_Node    *GeoNode;
+  
+  if(Element->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID))
+    ChainDim = 3;
+  else if(Element->Type & (TRIANGLE|QUADRANGLE))
+    ChainDim = 2;
+  else if(Element->Type & LINE)
+    ChainDim = 1;
+  else
+    ChainDim = 0;
+
+  if(GeoDim < 0){
+    NbrGeoNodes = Geo_GetNbrGeoNodes();
+    GeoNode = Geo_GetGeoNode(0);
+    Xmin = Xmax = GeoNode->x;
+    Ymin = Ymax = GeoNode->y;
+    Zmin = Zmax = GeoNode->z; 
+    for (i = 1 ; i < NbrGeoNodes ; i++) {
+      GeoNode = Geo_GetGeoNode(i);
+      Xmin = MIN(Xmin, GeoNode->x);
+      Xmax = MAX(Xmax, GeoNode->x);
+      Ymin = MIN(Ymin, GeoNode->y);
+      Ymax = MAX(Ymax, GeoNode->y);
+      Zmin = MIN(Zmin, GeoNode->z); 
+      Zmax = MAX(Zmax, GeoNode->z); 
+    }
+    if(Xmin != Xmax && Ymin != Ymax && Zmin != Zmax) GeoDim = _3D;
+    else if(Xmin != Xmax && Ymin != Ymax) GeoDim = _2D;
+    else if(Xmin != Xmax && Zmin != Zmax) GeoDim = _2D;
+    else if(Ymin != Ymax && Zmin != Zmax) GeoDim = _2D;
+    else if(Xmin != Xmax) GeoDim = _1D;
+    else if(Ymin != Ymax) GeoDim = _1D;
+    else if(Zmin != Zmax) GeoDim = _1D;
+    else GeoDim = _0D;
+  }
+  
+  xyz2uvwInAnElement (Element, x, y, z, u, v, w, NULL, -1);
+
+}

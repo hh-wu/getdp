@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.39 2001-03-16 13:17:19 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.40 2001-03-16 18:05:46 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -753,8 +753,8 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
       Element.Type       = Element.GeoElement->Type ;
       Current.Region = Element.Region = Element.GeoElement->Region ;
 
-      if((PostSubOperation_P->Dimension == _ALL &&
-	  (Element.GeoElement->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID|TRIANGLE|QUADRANGLE))) ||
+      if((PostSubOperation_P->Dimension == _ALL && 
+	  (Element.GeoElement->Type != POINT)) ||
 	 (PostSubOperation_P->Dimension == _3D && 
 	  (Element.GeoElement->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID))) ||
 	 (PostSubOperation_P->Dimension == _2D && 
@@ -789,8 +789,8 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
 	    e[NbCut].zc = u*e[NbCut].z[0] + (1.-u)*e[NbCut].z[1];	  
 
 	    if(NCPQ_P)
-	      xyz2uvwInAnElement(&Element, e[NbCut].xc, e[NbCut].yc, e[NbCut].zc, 
-				 &e[NbCut].uc, &e[NbCut].vc, &e[NbCut].wc, NULL, -1);	  
+	      xyz2uvwInAnElementSimple(&Element, e[NbCut].xc, e[NbCut].yc, e[NbCut].zc, 
+				       &e[NbCut].uc, &e[NbCut].vc, &e[NbCut].wc);	  
 	    NbCut++;
 	  }
 	}
