@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.8 2000-11-03 10:42:36 dular Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.9 2000-11-06 23:03:23 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -455,7 +455,7 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 		     struct Value *Value){
   static int  Size, TmpIndex ;
   static double  * TmpValues ;
-  int         i, j, k, t, k2 ;
+  int         i, j, k, t, i2, k2 ;
   double      TimeMH ;
   struct Value  TmpValue ;
 
@@ -480,10 +480,17 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 
   if(TimeStep == NbrTimeSteps-1){
 
-    for(i = 0 ; i < NbrNodes ; i++){ /* New line for each node */
+    for(i = 0 ; i <= NbrNodes ; i++){ /* New line for each node, closed loop for tri/qua */
+      
+      if(i != NbrNodes)
+	i2 = i ;
+      else{
+	if(NbrNodes < 3) break ;
+	else i2 = 0 ;
+      }
 
       fprintf(PostStream, "%d %d ", Get_GmshElementType(ElementType), NumElement);
-      fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
+      fprintf(PostStream, " %.8g %.8g %.8g ", x[i2], y[i2], z[i2]);
       if(Dummy){
 	if(Dummy[3]<0){
 	  if(!i)
@@ -504,23 +511,22 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	    for(j = 0 ; j < Size ; j++){
 	      fprintf(PostStream, " %.8g", 
 		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
-			       + i*NbrHarmonics*Size
+			       + i2*NbrHarmonics*Size
 			       + k*Size
 			       + j ]);
 	    }
 	    fprintf(PostStream, " ");
 	  }
-	  fprintf(PostStream, " ");
 	}
 	else {
 	  TmpValue.Type = Value->Type ;
 	  for(k = 0 ; k < HarmonicToTime ; k++){
 
-	    for(k2 = 0 ; k < NbrHarmonics ; k++)
+	    for(k2 = 0 ; k2 < NbrHarmonics ; k2++)
 	      for(j = 0 ; j < Size ; j++)
 		TmpValue.Val[MAX_DIM*k2+j] =
 		  TmpValues[ t*NbrNodes*NbrHarmonics*Size
-			   + i*NbrHarmonics*Size
+			   + i2*NbrHarmonics*Size
 			   + k2*Size
 			   + j ] ;
 
@@ -529,27 +535,8 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	      fprintf(PostStream, "%.8g", TmpValue.Val[0]);
 	    fprintf(PostStream, " ");
 	  }
-
-	  /*
-	  for(k = 0 ; k < HarmonicToTime ; k++){
-	    p = TWO_PI * k / (HarmonicToTime-1);
-	    for(j = 0 ; j < Size ; j++){
-	      fprintf(PostStream, " %.8g",
-		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
-			       + i*NbrHarmonics*Size
-			       + 0*Size
-			       + j ] * cos(p) -
-		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
-			       + i*NbrHarmonics*Size
-			       + 1*Size
-			       + j ] * sin(p));
-	    }
-	    fprintf(PostStream, " ");
-	  }
-	  */
-
-	  fprintf(PostStream, " ");
 	}
+	fprintf(PostStream, " ");
 
       } /* for t */
       fprintf(PostStream, "\n");      
