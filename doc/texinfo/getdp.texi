@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.25 2001-07-26 14:49:01 geuzaine Exp $
+@c $Id: getdp.texi,v 1.26 2001-07-27 17:19:56 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -4005,6 +4005,15 @@ Outputs directly contour prints for the values specified in the
 @item NoNewLine
 Suppresses the new lines in the output when printing global quantities
 (i.e.@: with @code{Print OnRegion} or @code{Print OnGlobal}).
+
+@item ChangeOfCoordinates
+@code{@{ @var{expression}, @var{expression}, @var{expression} @}}
+
+Changes the coordinates of the results according to the three exressions
+given in argument. The three @var{expression}s represent the three new
+cartesian coordinates @var{x}, @var{y} and @var{z}, and can be functions of
+the current values of the cartesian coordinates @code{$X}, @code{$Y} and
+@code{$Z}.
 
 @end ftable
 

@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.36 2001-06-27 13:18:09 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.37 2001-07-27 17:19:55 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -833,6 +833,7 @@ struct PostSubOperation {
   int    Type, SubType, CombinationType ;
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
   int    Format, Adapt, Sort, Iso, NoNewLine ;
+  int    ChangeOfCoordinates[3] ; 
   double Target ;
   List_T * HeaderChar_L, * HeaderTag_L ;
   List_T * FormatChar_L, * FormatTag_L ;
@@ -930,22 +931,26 @@ struct CurrentData {
   int     NumEntity, NumEntityInElement ;
 
   struct  Element  * Element ;
-  double  x, y, z ;
-  double  u, v, w ;
   int     IntegrationSupportIndex ;
 
   struct  Element  * ElementSource ;
+  int     SourceIntegrationSupportIndex ;
+
+  int     TypeTime, TypeAssembly ;
+
+  /* All values below must be of double type */
+
+  double  x, y, z ;
+  double  u, v, w ;
+
   double  xs, ys, zs ;
   double  us, vs, ws ;
-  int     SourceIntegrationSupportIndex ;
 
   double  s, t ;
   double  xp, yp, zp ;
   double  ut, vt, wt ;
 
-  int     TypeTime, TypeAssembly ;
-
-  /* All values below must be of double type */
+  double  Val[NBR_MAX_HARMONIC * MAX_DIM];
 
   double  Time, TimeStep, DTime ;
   double  Theta, Beta, Gamma ;

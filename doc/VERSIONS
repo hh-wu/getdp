@@ -1,4 +1,6 @@
-$Id: VERSIONS,v 1.23 2001-07-25 13:05:50 geuzaine Exp $
+$Id: VERSIONS,v 1.24 2001-07-27 17:19:56 geuzaine Exp $
+
+0.84: New ChangeOfCoordinate option in PostOperation;
 
 0.83: Fixed bugs in SaveSolutions[] and InitSolution[]; Fixed
 corrupted binary post-processing files in the harmonic case for the

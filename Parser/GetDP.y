@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.24 2001-07-25 13:08:16 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.25 2001-07-27 17:19:55 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -5452,6 +5452,9 @@ PrintOptions :
       PostSubOperation_S.Iso_L = List_Create(10,10,sizeof(double)); ;
       PostSubOperation_S.Sort = 0 ;
       PostSubOperation_S.NoNewLine = 0 ;
+      PostSubOperation_S.ChangeOfCoordinates[0] = -1 ;
+      PostSubOperation_S.ChangeOfCoordinates[1] = -1 ;
+      PostSubOperation_S.ChangeOfCoordinates[2] = -1 ;
     }
   | PrintOptions PrintOption 
   ;
@@ -5607,6 +5610,12 @@ PrintOption :
 	List_Add(PostSubOperation_S.Frequency_L, &d);
       }
       List_Delete($3);
+    }
+  | ',' tChangeOfCoordinates '{' Expression ',' Expression ',' Expression '}'
+    { 
+      PostSubOperation_S.ChangeOfCoordinates[0] = $4 ;
+      PostSubOperation_S.ChangeOfCoordinates[1] = $6 ;
+      PostSubOperation_S.ChangeOfCoordinates[2] = $8 ;
     }
   ;
 

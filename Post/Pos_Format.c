@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.23 2001-07-17 23:28:47 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.24 2001-07-27 17:19:56 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -17,6 +17,7 @@
 #include "Pos_Element.h"
 #include "F_Function.h"
 #include "Cal_Value.h"
+#include "Cal_Quantity.h"
 
 #define NBR_MAX_ISO  200
 
@@ -169,7 +170,7 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
 	Format_PostElement(PSO_P->Format, 0, 0, 
 			   Current.Time, 0, 1, 
 			   Current.NbrHar, PSO_P->HarmonicToTime, 
-			   NULL, PE);
+			   NULL, PE, PSO_P->ChangeOfCoordinates);
 	Destroy_PostElement(PE) ;
       }
       List_Delete(Iso_L[iIso]) ;
@@ -666,11 +667,13 @@ void  Format_Adapt(double * Dummy){
 void  Format_PostElement(int Format, int Contour, int Store, 
 			 double Time, int TimeStep, int NbTimeStep, 
 			 int NbrHarmonics, int HarmonicToTime, double *Dummy,
-			 struct PostElement * PE){
+			 struct PostElement * PE, int *ChangeOfCoordinates){
 
-  int Num_Element ;
+  int    i, j, Num_Element ;
+  struct PostElement  * PE2 ;
+  struct Value          Value ;
+
   static int Warning_FirstHarmonic = 0 ;
-  struct PostElement *PE2 ;
 
   GetDP_Begin("Format_PostElement");
 
@@ -695,6 +698,21 @@ void  Format_PostElement(int Format, int Contour, int Store,
       List_Add(PostElement_L, &PE2) ;
     }
     GetDP_End ;
+  }
+
+  if(ChangeOfCoordinates && ChangeOfCoordinates[0] >= 0){
+    for(i=0 ; i<PE->NbrNodes ; i++){
+      Current.x = PE->x[i];
+      Current.y = PE->y[i];
+      Current.z = PE->z[i];
+      for(j = 0; j<9 ; j++) Current.Val[j] = PE->Value[i].Val[j];
+      Get_ValueOfExpressionByIndex(ChangeOfCoordinates[0], NULL, 0., 0., 0., &Value) ; 
+      PE->x[i] = Value.Val[0];
+      Get_ValueOfExpressionByIndex(ChangeOfCoordinates[1], NULL, 0., 0., 0., &Value) ; 
+      PE->y[i] = Value.Val[0];
+      Get_ValueOfExpressionByIndex(ChangeOfCoordinates[2], NULL, 0., 0., 0., &Value) ; 
+      PE->z[i] = Value.Val[0];
+    }
   }
 
   switch(Format){
