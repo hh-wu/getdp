@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.27 2000-10-22 13:52:05 geuzaine Exp $
+# $Id: Makefile,v 1.28 2000-10-23 10:51:28 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -10,9 +10,9 @@
 #
 # ----------------------------------------------------------------------
 #  To build a stand alone executable on Windows, you should install 
-#  the mingw includes and libraries in addition to cygwin B20 (see
-#  ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/) and compile
-#  with 'make mingw'.
+#  the mingw-extra includes and libraries in addition to cygwin (see
+#  ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/*extra*) in
+#  the /mingw directory, and compile with 'make mingw'.
 #  To check the final dependendies: 'objdump -p getdp-win | grep DLL'
 #
 # ----------------------------------------------------------------------
@@ -395,8 +395,8 @@ cygwin: tag
 
 mingw:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
-           "CC=gcc -mno-cygwin -I/cygnus/mingw/include" \
-           "FC=g77 -mno-cygwin -I/cygnus/mingw/include" \
+           "CC=gcc -mno-cygwin -I/mingw/include" \
+           "FC=g77 -mno-cygwin -I/mingw/include" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
@@ -404,8 +404,8 @@ mingw:
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)\
-            -mno-cygwin -L/cygnus/mingw/lib $(GETDP_SPARSKIT_LIBS) -lm
+	g77 -o $(GETDP_BIN_DIR)/getdp.exe\
+            -mno-cygwin -L/mingw/lib $(GETDP_SPARSKIT_LIBS) -lm
 
 sgi: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
