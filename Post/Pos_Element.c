@@ -1,4 +1,4 @@
-/* $Id */
+/* $Id: Pos_Element.c,v 1.4 2000-10-16 14:45:54 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 
