@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.2 2002-05-29 23:33:25 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.3 2002-05-31 00:52:13 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -282,6 +282,14 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
   //double eps_shad = 2*0.46; // k=320000;
   double eps_shad = pow(ctx->epsilon,1./3.) ;
 
+  // FIXME:
+  //
+  // We should maybe keep the sing, scat, crit pts in separate
+  // lists. At least, add a test on the type before discarding a
+  // point: what happens when critical points approach a target pt?
+  // 
+  // Should change fcmp_CPoint ?????????
+
   // add target, critical and shadowing points in list
   ctx->scat.singularPoint(t,CritPts);
   ctx->scat.criticalPoints(index,CritPts);
@@ -444,7 +452,7 @@ Complex Evaluate2D(Ctx *ctx, int farfield, double x[3]){
     tmp = ctx->f.density(&ctx->scat,tau);
 
     //printf("%g %g %g\n", tau, tmp.real(), tmp.imag());
-    
+
     if(!farfield){
       kern.init(0,x,dummy,tau,xtau,dxtau,k);
       res += kern.M() * f * tmp;

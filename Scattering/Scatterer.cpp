@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.16 2002-05-30 17:08:23 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.17 2002-05-31 00:52:13 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -248,6 +248,8 @@ void Scatterer::lubksb (double **a, int n, int *indx, double b[]){
 #define FREERETURN {free_dmatrix(fjac,1,n,1,n);free_dvector(fvec,1,n);\
 	free_dvector(p,1,n);free_ivector(indx,1,n);}
 
+// we should particularize for the 1d case...
+
 int Scatterer::mnewt(int ntrial, double x[], int n, double tolx, double tolf){
   int k,i,*indx;
   double errx,errf,d,*fvec,**fjac,*p;
@@ -420,9 +422,9 @@ void Scatterer::printPoints(double t, List_T *pts){
 
   if(first){
     first = 0;
-    fp = fopen("points.pos", "w");
+    fp = fopen("critpoints.pos", "w");
     fprintf(fp, "View.PointSize = 10;\n");
-    fp2 = fopen("func.dat", "w");
+    fp2 = fopen("gradphase.dat", "w");
   }
 
   fprintf(fp, "View \"target=%g\" {\n", t);

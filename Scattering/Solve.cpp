@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.26 2002-05-30 17:08:23 geuzaine Exp $
+// $Id: Solve.cpp,v 1.27 2002-05-31 00:52:13 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -73,7 +73,7 @@ void Ctx::computeRHS(gVector *b){
     kr = waveNum[0]*xt[0]+waveNum[1]*xt[1]+waveNum[2]*xt[2];
     res = 1.;
     //res = cos(kr)+I*sin(kr);
-    res *= 2 / NORM3(waveNum); // warning!
+    res *= 2 ; /// NORM3(waveNum); // warning!
     LinAlg_SetComplexInVector(res, b, i);
   }
   LinAlg_AssembleVector(b);
@@ -274,14 +274,14 @@ void Ctx::postProcess(){
   initializeInterpolation(&x);
 
   // compute far field
-  /*
+  
   coord[0] = 1;
-  coord[0] = 0;
-  coord[0] = 0;
-  vs = (-2./I) * Evaluate2D(this, 1, coord);
-  printf("FAR FIELD = %g %g \n", vs.real(), vs.imag());
+  coord[1] = 0;
+  coord[2] = 0;
+  vs = (-2./I) /2. * Evaluate2D(this, 1, coord); //????? /2
+  printf("farfield = %.15g + i* %.15g \n", vs.real(), vs.imag());
   return;
-  */
+  
 
   double xmin = -2*PI, xmax = 2*PI, ymin = -2*PI, ymax = 2*PI;
   //double xmin = -2., xmax = 2., ymin = 0., ymax = 2.;

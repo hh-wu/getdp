@@ -1,4 +1,4 @@
-// $Id: FFT.cpp,v 1.7 2002-05-14 05:09:41 geuzaine Exp $
+// $Id: FFT.cpp,v 1.8 2002-05-31 00:52:13 geuzaine Exp $
 
 #include "Utils.h"
 #include "FFT.h"
@@ -7,7 +7,7 @@
 
 // packing order for F: [0,1...n/2-1,-n/2,...,-1]
 
-#if 0 // Slow DFT
+#if 1 // Slow DFT
 
 FFT::FFT(int n){
   N = Nexp = n;
