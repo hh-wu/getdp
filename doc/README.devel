@@ -1,0 +1,10 @@
+
+Some easy rules to make the code easy to read/debug/maintain:
+- enable full warnings for your compiler (e.g. gcc -Wall)
+- always use Msg() to print information/errors/etc.
+- begin any new function with GetDP_Begin("function_name") and end
+  it with GetDP_End or GetDP_Return(value). Never use 'return'
+  directly.
+- if working under Microsoft Windows, please indent your files and
+  suppress the tabs before committing your changes (untabify)
+
