@@ -1,11 +1,11 @@
-# $Id: Makefile,v 1.101 2002-11-01 19:22:48 geuzaine Exp $
+# $Id: Makefile,v 1.102 2002-11-10 18:58:59 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
 #  Optional packages: 
 #    * flex and bison to rebuild the parser
 #    * cygwin to build on Windows 9x/NT (http://www.cygwin.com) 
-#    * PETSc 2.1.1 (you have to define the PETSC_DIR and PETSC_ARCH variables)
+#    * PETSc 2.1.X (you have to define the PETSC_DIR and PETSC_ARCH variables)
 #    * METIS 4.0 (you have to define the METIS_DIR variable)
 #
 # ----------------------------------------------------------------------
@@ -83,7 +83,7 @@ GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-# include ${PETSC_DIR}/bmake/common/base
+#include ${PETSC_DIR}/bmake/common/variables
 
 # ----------------------------------------------------------------------
 # Rules for developpers
@@ -552,46 +552,28 @@ link-petsc-simple:
 petsc-simple: compile-petsc-simple link-petsc-simple
 
 #
-# MacOS
+# MacOS X
 #
-macos: tag
+compile-macosx:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
-           "CC=cc" \
-           "FC=fort77" \
+           "CC=gcc" \
+           "FC=g77" \
            "C_FLAGS=-O3 -D_BSD" \
            "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	cc -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm -lf2c
-
-distrib-macos:
-	mkdir getdp-$(GETDP_RELEASE)
-	mkdir getdp-$(GETDP_RELEASE)/usr/
-	mkdir getdp-$(GETDP_RELEASE)/usr/local/
-	mkdir getdp-$(GETDP_RELEASE)/usr/local/bin
-	mkdir getdp-$(GETDP_RELEASE)/usr/local/getdp/
-	mkdir getdp-$(GETDP_RELEASE)/usr/local/man
-	mkdir getdp-$(GETDP_RELEASE)/usr/local/man/man1
-	mkdir getdp-$(GETDP_RELEASE)/usr/local/info
-	mkdir getdp-$(GETDP_RELEASE)/usr/local/getdp/demos
-	mkdir getdp-$(GETDP_RELEASE)/usr/local/getdp/doc
-	cp $(GETDP_BIN_DIR)/getdp getdp-$(GETDP_RELEASE)/usr/local/bin
-	cp doc/VERSIONS doc/FAQ doc/BUGS doc/CONTRIBUTORS getdp-$(GETDP_RELEASE)/usr/local/getdp/doc
-	cp -R demos getdp-$(GETDP_RELEASE)/usr/local/getdp/demos
-	cp doc/getdp.1 getdp-$(GETDP_RELEASE)/usr/local/man/man1
-	cp doc/getdp.info* getdp-$(GETDP_RELEASE)/usr/local/info
-	gzip getdp-$(GETDP_RELEASE)/usr/local/info/getdp.info*
-	gzip getdp-$(GETDP_RELEASE)/usr/local/man/man1/getdp.1
-	package getdp-$(GETDP_RELEASE) ./utils/getdp.info -d /Users/christop -r ./utils/Resources
-	rm -rf getdp-$(GETDP_RELEASE)	
+link-macosx:
+	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+macosx: compile-macosx link-macosx
+distrib-macosx: tag clean macosx distrib
 
 #
 # Linux, Pentium 4 with Intel compiler
 #   -xW : generate code for P4 (this _really_ increases perf)
 #
-compile-p4: initialtag
+compile-linux-intelp4: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) Scattering; do (cd $$i && $(MAKE) \
            "CC=icc -Kc++" \
            "CXX=icc -Kc++" \
@@ -602,36 +584,17 @@ compile-p4: initialtag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-link-p4:
+link-linux-intelp4:
 	icc -Kc++ -o $(GETDP_BIN_DIR)/getdp\
                lib/libMain.a lib/libParser.a lib/libPost.a lib/libFunction.a\
                lib/libIntegration.a lib/libGeoData.a lib/libDofData.a\
                lib/libNumeric.a lib/libSparskit.a lib/libDataStr.a\
                -lCEPCF90 -lF90 -lsvml
-link-p4-scat:
+link-linux-intelp4-scat:
 	icc -Kc++ -o bin/hf lib/libScattering.a lib/libDofData.a\
                lib/libSparskit.a lib/libNumeric.a lib/libDataStr.a\
                -lCEPCF90 -lF90 -lsvml
-p4: compile-p4 link-p4 link-p4-scat
-
-#
-# Linux Scattering
-#
-compile-scat: initialtag
-	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) Scattering; do (cd $$i && $(MAKE) \
-           "CC=g++" \
-           "CXX=g++" \
-           "FC=g77" \
-           "C_FLAGS=-g -Wall" \
-           "C_PARSER_FLAGS=-g" \
-           "F77_FLAGS=-g" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
-        ); done
-link-scat:
-	g++ -o bin/hf lib/libScattering.a lib/libDofData.a\
-               lib/libSparskit.a lib/libNumeric.a lib/libDataStr.a -lg2c -lm
-scat: compile-scat link-scat
+linux-intelp4: compile-p4 link-p4 link-p4-scat
 
 #
 # PETSc Scattering
@@ -652,24 +615,3 @@ link-petsc-scat:
                lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)\
                -L$(FFTW_DIR)/lib -lfftw -lm
 petsc-scat: compile-petsc-scat link-petsc-scat
-
-#
-# PETSc Scattering (profile)
-#
-compile-petsc-scat-profile: initialtag
-	@for i in $(GETDP_STUFF_DIR) Scattering; do (cd $$i && $(MAKE) \
-           "CC=$(CC)" \
-           "CXX=$(CC)" \
-           "FC=$(FC)" \
-           "F77=$(FC)" \
-           "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS) -I$(FFTW_DIR)/include -pg -Wall" \
-           "F77_FLAGS=$(FOPTFLAGS) -pg" \
-           "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
-        ); done
-link-petsc-scat-profile:
-	$(CLINKER) -pg -o bin/hf lib/libScattering.a lib/libDofData.a\
-               lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)\
-               -L$(FFTW_DIR)/lib -lfftw -lm
-petsc-scat-profile: compile-petsc-scat-profile link-petsc-scat-profile
-
