@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.20 2000-10-21 12:16:24 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.21 2000-10-22 13:52:06 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -94,7 +94,7 @@ extern int                     ErrorLevel, InteractiveLevel ;
 extern struct Problem          Problem_S ;
 extern struct PostProcessing   InteractivePostProcessing_S ;
 extern struct PostSubOperation InteractivePostSubOperation_S ;
-extern int                     InteractiveCompute, InteractiveExit ;
+extern int                     InteractiveCompute ;
 
 List_T  * ConstantTable_L, * ListDummy_L ;
 List_T  * ListOfInt_L, * ListOfTwoInt_L, * ListOfDouble_L, * ListOfDouble2_L ;
@@ -286,7 +286,7 @@ struct PostSubOperation         PostSubOperation_S ;
 
 %token  tFlag
 
-%token  tExit tBreak tHelp tCpu
+%token  tBreak tHelp tCpu
 
 /* ------------------------------------------------------------------ */
 /* Operators (with ascending priority) : cf. C language (except #,$)  */
@@ -428,15 +428,17 @@ ProblemDefinition :
 /* ------------------------------------------------------------------------ */
 
 Interactive :
-    tExit tEND
-    { InteractiveExit = 1; }
-
-  | tHelp tEND
+    tHelp tEND
     { Help(NULL); }
 
-  /* inutile, vu que les mot-cles sont deja definis comme tokens... */
   | tHelp tSTRING tEND
     { Help($2); }
+
+  | tHelp tSTRING tSTRING tEND
+    { Free($2); Help($3); }
+
+  | tHelp tSTRING tSTRING tSTRING tEND
+    { Free($2); Free($3); Help($4); }
 
   | tCpu tEND
 

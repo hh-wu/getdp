@@ -1,4 +1,4 @@
-/* $Id: Main.c,v 1.13 2000-10-18 09:21:02 geuzaine Exp $ */
+/* $Id: Main.c,v 1.14 2000-10-22 13:52:05 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -30,7 +30,7 @@ struct PostSubOperation  InteractivePostSubOperation_S ;
 
 int     TreatmentStatus;
 int     ErrorLevel, InteractiveLevel=0; 
-int     InteractiveCompute, InteractiveExit=0, InteractiveInterrupt=0 ;
+int     InteractiveCompute, InteractiveInterrupt=0 ;
 int     Flag_PRE, Flag_PAR, Flag_CAL, Flag_POS, Flag_IPOS, Flag_XDATA;
 int     Flag_CHECK, Flag_LRES, Flag_LPOS, Flag_LIPOS; 
 int     Flag_RESTART, Flag_LOG, Flag_VERBOSE, Flag_BIN, Flag_PROGRESS ;

@@ -1,5 +1,5 @@
 %{
-/* $Id: lex.l,v 1.10 2000-10-19 11:27:08 dular Exp $ */
+/* $Id: lex.l,v 1.11 2000-10-22 13:52:05 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -219,6 +219,7 @@ DivisionCoefficient          return tDivisionCoefficient ;
 ChangeOfState                return tChangeOfState ;
 ChangeOfCoordinates          return tChangeOfCoordinates ;
 SystemCommand                return tSystemCommand ;
+Break                        return tBreak ;
 
 PostProcessing               return tPostProcessing ;
 NameOfSystem                 return tNameOfSystem ;
@@ -257,9 +258,6 @@ Iso                          return tIso ;
 
 Flag                         return tFlag ;
 
-Exit                         return tExit ;
-Quit                         return tExit ;
-Break                        return tBreak ;
 Help                         return tHelp ;
 help                         return tHelp ;
 Cpu                          return tCpu ;

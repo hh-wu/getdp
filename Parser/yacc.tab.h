@@ -171,22 +171,21 @@ typedef union {
 #define	tSort	421
 #define	tIso	422
 #define	tFlag	423
-#define	tExit	424
-#define	tBreak	425
-#define	tHelp	426
-#define	tCpu	427
-#define	tDEF	428
-#define	tAND	429
-#define	tOR	430
-#define	tNOTEQUAL	431
-#define	tEQUAL	432
-#define	tAPPROXEQUAL	433
-#define	tLESSOREQUAL	434
-#define	tGREATEROREQUAL	435
-#define	tLESSLESS	436
-#define	tGREATERGREATER	437
-#define	tCROSSPRODUCT	438
-#define	UNARYPREC	439
+#define	tBreak	424
+#define	tHelp	425
+#define	tCpu	426
+#define	tDEF	427
+#define	tAND	428
+#define	tOR	429
+#define	tNOTEQUAL	430
+#define	tEQUAL	431
+#define	tAPPROXEQUAL	432
+#define	tLESSOREQUAL	433
+#define	tGREATEROREQUAL	434
+#define	tLESSLESS	435
+#define	tGREATERGREATER	436
+#define	tCROSSPRODUCT	437
+#define	UNARYPREC	438
 
 
 extern YYSTYPE yylval;

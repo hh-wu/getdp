@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.26 2000-10-20 08:49:21 geuzaine Exp $
+# $Id: Makefile,v 1.27 2000-10-22 13:52:05 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -324,8 +324,8 @@ dec: tag
 
 linux: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
-           "CC=gcc" \
-           "FC=g77" \
+           "CC=i386-glibc21-linux-gcc" \
+           "FC=i386-glibc21-linux-g77" \
            "C_FLAGS=-O3" \
            "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \

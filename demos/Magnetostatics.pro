@@ -54,16 +54,6 @@ Integration {
       }
     }
   }
-  { Name I2 ;
-    Case { 
-      { Type Gauss ;
-        Case { 
-	  { GeoElement Triangle    ; NumberOfPoints  4 ; }
-	  { GeoElement Quadrangle  ; NumberOfPoints  4 ; }
-	}
-      }
-    }
-  }
 }
 
 
