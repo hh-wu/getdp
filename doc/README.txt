@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.7 2001-03-21 16:30:20 geuzaine Exp $
+$Id: README.txt,v 1.8 2001-05-18 08:09:04 geuzaine Exp $
 
 For Windows versions of GetDP only:
 ===================================
@@ -26,9 +26,9 @@ are available at ftp://ftp.gnu.org/gnu/windows/emacs/.
 
 If you regularly use GetDP with the DOS shell, you will soon want a
 more capable shell (with cut-and-paste possibilities, complete
-history, customizable scroll bars, arbitrary geometry specification, file
-name completion, wildcards, scripting, etc.). We strongly recommend to
-use the cygwin tools:
+history, customizable scroll bars, arbitrary geometry specification,
+file name completion, wildcards, scripting, etc.). We recommend to use
+the cygwin tools:
 
 1. Go to http://sources.redhat.com/cygwin/
 2. Download and execute setup.exe
@@ -36,17 +36,21 @@ use the cygwin tools:
    note that a complete installation can use quite much disk space
    (approx. 150 Mb). To get a minimal working installation (approx. 15
    Mb), just deselect undesired packages (e.g. C, C++ and Fortran
-   compilers, Perl, networking, etc.) during the installation.
-4. Go to http://sources.redhat.com/cygwin/ported.html
-5. Download the latest tar.gz archive of rxvt and save it in
-   C:\cygwin\
-6. Launch cygwin, and type 'cd /; tar zxvf rxvt-*'
-7. Edit the file 'C:\cygwin\cygwin.bat' and replace the line starting
+   compilers, TeTeX, Perl, networking, etc.) during the installation.
+4. Edit the file 'C:\cygwin\cygwin.bat' and replace the line starting
    with 'bash' by 'rxvt -sl 1000 -e \cygwin\bin\bash --login'
-8. Remove the cygwin1.dll file from the GetDP distribution
+5. Remove the cygwin1.dll file from the GetDP distribution
 
 Instead of launching the DOS command shell, you should now launch
 cygwin, and enjoy the particular taste of the Unix way of life under
 Windows!
 
+3) Using Gmsh as a graphical front end to GetDP:
+
+Gmsh (http://www.geuz.org/gmsh/) is an automatic three-dimensional
+finite element mesh generator, primarily Delaunay, with built-in pre-
+and post-processing facilities. Gmsh can also be used as a graphical
+front end to GetDP. The default behaviour of Gmsh is to look for GetDP
+in the same directory as the Gmsh executable (i.e. you should copy
+getdp.exe in the same directory as gmsh.exe).
 
