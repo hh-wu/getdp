@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.31 2000-10-30 11:08:44 geuzaine Exp $
+# $Id: Makefile,v 1.32 2000-10-30 11:53:31 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -109,7 +109,7 @@ opti:
 debug:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE) \
-           "C_FLAGS=-g" \
+           "C_FLAGS=-g -DUSE_DEBUG" \
            "F77_FLAGS=-g" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
@@ -123,7 +123,7 @@ petsc:
            "FC=$(FC)" \
            "F77=$(FC)" \
            "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS)" \
+           "C_FLAGS=$(COPTFLAGS) -DUSE_DEBUG" \
            "F77_FLAGS=$(FOPTFLAGS)" \
            "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE) -D_METIS $(METIS_INCLUDE)" \
         ); done
@@ -140,7 +140,7 @@ petsc-simple:
            "FC=$(FC)" \
            "F77=$(FC)" \
            "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS)" \
+           "C_FLAGS=$(COPTFLAGS) -DUSE_DEBUG" \
            "F77_FLAGS=$(FOPTFLAGS)" \
            "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
         ); done
@@ -313,7 +313,7 @@ PETSc: tag
            "FC=$(FC)" \
            "F77=$(FC)" \
            "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS)" \
+           "C_FLAGS=$(COPTFLAGS) -DUSE_DEBUG" \
            "C_PARSER_FLAGS=$(COPTFLAGS)" \
            "F77_FLAGS=$(FOPTFLAGS)" \
            "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE) -D_METIS $(METIS_INCLUDE)" \
@@ -325,7 +325,7 @@ dec: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
-           "C_FLAGS=-O3" \
+           "C_FLAGS=-O3 -DUSE_DEBUG" \
            "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O3" \
            "SOLVER=-D_SPARSKIT" \
@@ -338,7 +338,7 @@ linux-compat: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=i386-glibc21-linux-gcc" \
            "FC=i386-glibc21-linux-g77" \
-           "C_FLAGS=-O3" \
+           "C_FLAGS=-O3 -DUSE_DEBUG" \
            "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
            "SOLVER=-D_SPARSKIT" \
@@ -351,7 +351,7 @@ linux: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=g77" \
-           "C_FLAGS=-O3" \
+           "C_FLAGS=-O3 -DUSE_DEBUG" \
            "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
            "SOLVER=-D_SPARSKIT" \
@@ -365,7 +365,7 @@ hp: tag
            "CC=cc" \
            "FC=f77" \
            "RANLIB=ls" \
-           "C_FLAGS=+O2 +Onolimit -Ae +DAportable" \
+           "C_FLAGS=+O2 +Onolimit -Ae +DAportable -DUSE_DEBUG" \
            "C_PARSER_FLAGS=+O1 -Ae +DAportable" \
            "F77_FLAGS=+O2 +DAportable" \
            "OS_FLAGS=-D_HP" \
@@ -381,7 +381,7 @@ sun: tag
            "CC=gcc" \
            "FC=f77" \
            "RANLIB=ls" \
-           "C_FLAGS=-O3" \
+           "C_FLAGS=-O3 -DUSE_DEBUG" \
            "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O3" \
            "SOLVER=-D_SPARSKIT" \
@@ -395,7 +395,7 @@ ibm: tag
            "CC=cc" \
            "FC=f77" \
            "RANLIB=ls" \
-           "C_FLAGS=-O2" \
+           "C_FLAGS=-O2 -DUSE_DEBUG" \
            "C_PARSER_FLAGS=-O2" \
            "F77_FLAGS=-O2" \
            "SOLVER=-D_SPARSKIT" \
@@ -409,7 +409,7 @@ cygwin: tag
            "CC=gcc" \
            "FC=g77" \
            "RANLIB=ls" \
-           "C_FLAGS=-O3" \
+           "C_FLAGS=-O3 -DUSE_DEBUG" \
            "C_PARSER_FLAGS=-O1" \
            "F77_FLAGS=-O1" \
            "SOLVER=-D_SPARSKIT" \
@@ -423,7 +423,7 @@ mingw:
            "CC=gcc -mno-cygwin -I/mingw/include" \
            "FC=g77 -mno-cygwin -I/mingw/include" \
            "RANLIB=ls" \
-           "C_FLAGS=-O3" \
+           "C_FLAGS=-O3 -DUSE_DEBUG" \
            "F77_FLAGS=-O1" \
            "OS_FLAGS=-DMSDOS" \
            "SOLVER=-D_SPARSKIT" \
@@ -437,7 +437,7 @@ sgi: tag
            "CC=cc" \
            "FC=f77" \
            "RANLIB=ls" \
-           "C_FLAGS=-O3 -mips4" \
+           "C_FLAGS=-O3 -mips4 -DUSE_DEBUG" \
            "C_PARSER_FLAGS=-g -mips4 " \
            "F77_FLAGS=-O3 -mips4" \
            "SOLVER=-D_SPARSKIT" \
@@ -451,7 +451,7 @@ sgi64: tag
            "CC=cc" \
            "FC=f77" \
            "RANLIB=ls" \
-           "C_FLAGS=-O3 -mips4 -64" \
+           "C_FLAGS=-O3 -mips4 -64 -DUSE_DEBUG" \
            "C_PARSER_FLAGS=-g -mips4 -64" \
            "F77_FLAGS=-O3 -mips4 -64" \
            "SOLVER=-D_SPARSKIT" \
