@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.12 2002-01-18 11:10:27 gyselinc Exp $ */
+/* $Id: GetDP.l,v 1.13 2002-01-19 00:48:44 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -232,6 +232,7 @@ IterativeTimeReduction       return tIterativeTimeReduction ;
 DivisionCoefficient          return tDivisionCoefficient ;
 ChangeOfState                return tChangeOfState ;
 ChangeOfCoordinates          return tChangeOfCoordinates ;
+ChangeOfValues               return tChangeOfValues ;
 SystemCommand                return tSystemCommand ;
 Break                        return tBreak ;
 SolveJac_AdaptRelax          return tSolveJac_AdaptRelax ;
