@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.50 2003-03-24 16:23:17 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.51 2003-06-21 07:05:22 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -302,8 +302,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       
       DefineSystem_P->Flag_FMM = Flag_FMM ;      
       Current.FMM.SystemIndex = Operation_P->DefineSystemIndex ;
-
-      List_Read(DefineSystem_P->FormulationIndex, Operation_P->DefineSystemIndex, &Index_Formulation) ;
+            
+      if (List_Nbr(DefineSystem_P->FormulationIndex) == 1)
+	List_Read(DefineSystem_P->FormulationIndex, 0, &Index_Formulation) ;
+      else
+	Msg(ERROR,"FMM not ready for working with more than 1 formulation per system!");
 
       Current.FMM.DivXYZIndex = Operation_P->Case.GenerateFMMGroups.DivXYZIndex ;
       Get_ValueOfExpressionByIndex(Operation_P->Case.GenerateFMMGroups.Dfar,
@@ -315,9 +318,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       				   NULL, 0., 0., 0., &Value) ; /* Precision */
       Current.FMM.Precision = Value.Val[0] ;
      
-      Get_ValueOfExpressionByIndex(Operation_P->Case.GenerateFMMGroups.FlagDTA,
-				   NULL, 0., 0., 0., &Value) ; /* DTA matrix, testing option */
-      Flag_DTA = (int)Value.Val[0] ;
+      if (Operation_P->Case.GenerateFMMGroups.FlagDTA == -1)
+	Flag_DTA = 0 ;
+      else{
+	Get_ValueOfExpressionByIndex(Operation_P->Case.GenerateFMMGroups.FlagDTA,
+				     NULL, 0., 0., 0., &Value) ; /* DTA matrix, testing option */
+	Flag_DTA = (int)Value.Val[0] ;
+      }
+
       Current.FMM.NbrDir = 0 ;
       Get_InFMMGroupList( Index_Formulation, GeoData_P0+DofData_P->GeoDataIndex );
       
@@ -327,8 +335,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       strcpy(FileFMM, Name_Generic);strcat(FileFMM, "Gr.pos") ;
       Geo_WriteFileFMMGroups( GeoData_P0+DofData_P->GeoDataIndex , FileFMM ) ;
 
-      strcpy(FileFMM, Name_Generic) ; strcat(FileFMM, "FMMGr.msh") ;
-      Geo_WriteFileMshFMMGroups( GeoData_P0+DofData_P->GeoDataIndex, FileFMM ) ;
+      //strcpy(FileFMM, Name_Generic) ; strcat(FileFMM, "FMMGr.msh") ;
+      //Geo_WriteFileMshFMMGroups( GeoData_P0+DofData_P->GeoDataIndex, FileFMM ) ;     
       break;
 
     case OPERATION_GENERATEONLYJAC :  Flag_Jac  = 1 ;
