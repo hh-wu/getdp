@@ -1,5 +1,11 @@
-% $Id: examples.tex,v 1.4 2001-06-14 14:48:32 geuzaine Exp $
+% $Id: examples.tex,v 1.5 2001-06-15 07:38:53 geuzaine Exp $
 
+%
+% WARNING:
+%
+% If \bigpictures is set to 1, the pictures must have been checked out
+% (cvs module name is getdp-picts) in the ../../../getdp-picts directory.
+%
 % ---------------------------------------------------------------------------
 
 \begin{slide}
@@ -24,7 +30,25 @@
 \part{GetDP/Gmsh examples}
 % ---------------------------------------------------------------------------
 
-\chapter{The simplest example: magnetostatics}
+\chapter{Magnetostatics}
+
+\ifnum\bigpictures=1
+\ifx\pdfoutput\undefined
+
+\begin{slide}
+
+\begin{center}
+\includegraphics[width=0.38\textwidth]{getdp-picts/ind1}%
+\includegraphics[width=0.38\textwidth]{getdp-picts/ind2}
+
+\includegraphics[width=0.38\textwidth]{getdp-picts/ind3}%
+\includegraphics[width=0.38\textwidth]{getdp-picts/ind4}
+\end{center}
+
+\end{slide}
+
+\fi
+\fi
 
 \begin{slide}
 
@@ -34,7 +58,7 @@
 \Div{\vec{b}} = 0 \quad\text{and}\quad
 \vec{b} = \mu \vec{h} + \mu_0 \vec{h}_m 
 \end{equation*}
-\begin{equation*}\label{eq:tonti-sta}
+\begin{equation*}
 \begin{split}
 \xymatrix{
  \color{colpos}\phi    \ar@{->}[r]^-{\GradSymb_h}  &
@@ -70,12 +94,168 @@
 
 \end{slide}
 
+% ---------------------------------------------------------------------------
+
+\chapter{Magnetostatics: $\vec{b}$-conform}
+
 \begin{slide}
 
 \mybox{colbox}{\textwidth}{
 \begin{center}
-\emph{Scalar potential} formulation
-\begin{equation*}\label{eq:hs+hr1}
+\emph{Vector potential} formulation
+\begin{equation*}
+\vec{b} = \Curl{\vec{a}}
+\end{equation*}
+\end{center}
+}
+
+\begin{center}
+$\Downarrow$\\
+Weak form of Ampère's law\\
+$\Downarrow$\\
+$\displaystyle\ivol{\mu^{-1}\Curl{\vec{a}}}{\Curl{\vec{a}'}} 
+= \ivol{\vec{j}}{\vec{a}'} ,
+\quad\forall\vec{a}'\in\Hcurl[_0]{\Omega}$
+\end{center}
+
+\bigskip
+NB: gauge for $\vec{a}$, ...
+
+\end{slide}
+
+\ifnum\bigpictures=1
+\ifx\pdfoutput\undefined
+\background{7\semcm}{0\semcm}{\includegraphics[width=0.38\textwidth]{getdp-picts/ind1}}
+\fi\fi
+
+\begin{slide}
+
+\begin{smallsyntax}
+Group \{
+  Core = 1; Inductor = 2; SkinInductor = 3, Air = 4;
+  Omega = Region[\{Core, Inductor, Air\}];
+\}
+Function \{
+  mu0 = 4.e-7 * Pi; mur = 1000;
+  mu[ Core ] = mur * mu0;
+  mu[ Region[\{Air, Inductor\}] ] = mu0;
+  j[ Inductor ] = ...; //to be defined
+\}
+Constraint \{
+  \{ Name a; 
+    Case \{ 
+      \{ Region CL_a0; Value 0; \}
+    \}
+  \}
+\}
+\end{smallsyntax}
+
+\end{slide}
+
+\background{}{}{}
+
+\begin{slide}
+
+\begin{smallsyntax}
+FunctionSpace \{
+  \{ Name Hcurl; Type Form1; \CC{vector potential}
+    BasisFunction \{
+      \{ Name se;  NameOfCoef ae; Function BF_Edge; Support Omega; 
+        Entity EdgesOf[All]; \} \CC{associated with the edges of the mesh}
+    \}
+    Constraint \{ \CC{essential constraint + gauge (unicity)}
+      \{ NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; \}
+      \{ NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn;
+        NameOfConstraint Gauge ; \}
+    \}
+  \}
+\}
+\end{smallsyntax}
+
+\end{slide}
+
+\begin{slide}
+
+\begin{smallsyntax}
+Formulation \{
+  \{ Name MagSta_a; Type FemEquation;
+    Quantity \{ 
+      \{ Name a ; Type Local; NameOfSpace Hcurl; \}
+    \}
+    Equation \{
+      Galerkin \{ [ 1/mu[] * Dof\{Curl a\} , \{Curl a\} ]; 
+                 In Omega; Integration I1; Jacobian JVol; \}
+      Galerkin \{ [ -j[] , \{a\} ]; 
+                 In Inductor; Integration I1; Jacobian JVol; \}
+    \}
+  \}
+\}
+\end{smallsyntax}
+
+\end{slide}
+
+\begin{slide}
+
+\begin{smallsyntax}
+Resolution \{
+  \{ Name MagSta_a;
+    System \{
+      \{ Name A; NameOfFormulation MagSta_a; \}
+    \}
+    Operation \{ Generate A; Solve A; SaveSolution A; \}
+  \}
+\}
+PostProcessing \{
+  \{ Name test; NameOfFormulation MagSta_a;
+    Quantity \{
+      \{ Name a; Value \{ Local\{ [ \{a\} ]; In Omega; \} \} \}
+      \{ Name normb; Value \{ Local\{ [ Norm[\{d a\}] ]; Omega; \} \} \}
+    \}
+  \}
+\}
+\end{smallsyntax}
+
+\end{slide}
+
+\begin{slide}
+
+Magnetodynamics?
+
+Additional term in the formulation: 
+
+\begin{smallsyntax}
+      Galerkin \{ DtDof [ sigma[] * Dof\{a\} , \{a\} ]; 
+                 In Core; Integration I1; Jacobian JVol; \}   
+\end{smallsyntax}
+
+New resolution:
+\begin{smallsyntax}
+  \{ Name MagDyn_a_t; \CC{time domain}
+    System \{
+      \{ Name A; NameOfFormulation MagDyn_a; \}
+    \}
+    Operation \{ 
+      InitSolution[A]
+      TimeLoopTheta[0,20/50,0.1/50,1]\{
+        Generate[A]; Solve[A]; SaveSolution[A];
+      \}
+    \}
+  \}
+\end{smallsyntax}
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Magnetostatics: $\vec{h}$-conform}
+
+\begin{slide}
+
+\mybox{colbox}{\textwidth}{
+\begin{center}
+\emph{Magnetic field conform} formulation
+\begin{equation*}
 \vec{h} = \vec{h}_s+\vec{h}_r ,\quad\text{with}\quad
 \Curl{\vec{h}_s} = \vec{j}     \quad\text{and}\quad
 \vec{h}_r = -\Grad{\phi}
@@ -83,39 +263,101 @@
 \end{center}
 }
 
-\begin{equation*}
-%\ivol{\Div{\vec{b}}}{\phi'} = 0 \Rightarrow
-\ivol{\vec{b}}{\Grad{\phi'}} + \isur{\psca{\vec{n}}{\vec{b}}}{\phi'} 
-= 0
-\quad \forall\phi'\in\Hone[_0]{\Omega}
-\end{equation*}
+\begin{center}
+$\Downarrow$\\
+Weak form of Gauss law\\
+$\Downarrow$\\
+$\displaystyle\ivol{\mu(-\Grad{\phi}+\vec{h}_s)}{\Grad{\phi'}} 
+= 0 ,
+\quad \forall\phi'\in\Hone[_0]{\Omega}$
+\end{center}
 
 \bigskip
-NB: choice of source field $\vec{h}_s$, tretament of multiply connected
+NB: choice of source field $\vec{h}_s$, treatment of multiply connected
 $\Omega$, ...
 
 \end{slide}
 
 \begin{slide}
 
-\mybox{colbox}{\textwidth}{
-\begin{center}
-\emph{Vector potential} formulation
-\begin{equation*}\label{eq:hs+hr1}
-\vec{b} = \Curl{\vec{a}}
-\end{equation*}
-\end{center}
-}
+\begin{smallsyntax}
+FunctionSpace \{
+  \{ Name H1; Type Form0; \CC{scalar potential}
+    BasisFunction \{
+      \{ Name sn; NameOfCoef phin; Function BF_Node; Support Omega; 
+        Entity NodesOf[All]; \} \CC{associated with the nodes of Omega}
+    \}
+    Constraint \{ \CC{essential constraint}
+      \{ NameOfCoef phin; EntityType NodesOf; NameOfConstraint phi; \}
+    \}
+  \}
+\}
+\end{smallsyntax}
 
-\bigskip
-NB: gauge for $\vec{a}$, ...
+\end{slide}
 
+\begin{slide}
+
+\begin{smallsyntax}
+Formulation \{
+  \{ Name MagSta_phi; Type FemEquation;
+    Quantity \{
+      \{ Name phi; Type Local; NameOfSpace H1; \}
+      \{ Name hs; Type Local; NameOfSpace Hcurl_s; \}  \CC{a little patience...}
+    \}
+    Equation \{
+      Galerkin \{ [ mu[] * \{hs\} , \{Grad phi\} ];
+                 In Omega; Integration I1; Jacobian JVol;  \}
+      Galerkin \{ [ mu[] * Dof\{Grad phi\} , \{Grad phi\} ]; 
+                 In Omega; Integration I1; Jacobian JVol;  \}
+    \}
+  \}
+\}
+
+\end{smallsyntax}
+
+\end{slide}
+
+\begin{slide}
+
+\begin{smallsyntax}
+FunctionSpace \{
+  \{ Name Hcurl_s; Type Form1; \CC{space for the source field}
+    BasisFunction \{
+      \{ Name se; NameOfCoef he; Function BF_Edge; Support Inductor; 
+        Entity EdgesOf[All, Not SkinInductor]; \}
+      \{ Name sc; NameOfCoef Ic; Function BF_GradGroupOfNodes; 
+        Support Transition; Entity GroupsOfNodesOf[Cut]; \}
+      \{ Name sc; NameOfCoef Icc; Function BF_GroupOfEdges; 
+        Support Inductor; Entity ...; \}
+    \}
+    Constraint \{
+      \{ NameOfCoef he; EntityType EdgesOfTreeIn; EntitySubType StartingOn;
+        NameOfConstraint Gauge; \}
+      \{ NameOfCoef Ic;  EntityType GroupsOfNodesOf; NameOfConstraint I; \}
+      \{ NameOfCoef Icc; EntityType GroupsOfNodesOf; NameOfConstraint I; \}
+    \}
+  \}
+\}
+\end{smallsyntax}
+
+%... -> GroupsOfEdgesOf[Cut, InSupport ElementsOf[SkinInductor, OnOneSideOf Cut] ]
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Magneto-thermal coupling}
+
+\begin{slide}
+....
 \end{slide}
 
 % ---------------------------------------------------------------------------
 
 \background{}{}{}
 
+\ifnum\bigpictures=1
 \ifx\pdfoutput\undefined
 
 \chapter{Other examples...}
@@ -123,13 +365,20 @@ NB: gauge for $\vec{a}$, ...
 \begin{slide}
 
 \begin{center}
-\includegraphics[width=\textwidth]{picts/antenna1}
-\includegraphics[width=\textwidth]{picts/antenna2}
-\includegraphics[height=\textheight]{picts/indheat}
-\includegraphics[angle=-90,width=\textwidth]{picts/line220kv}
-\includegraphics[height=\textheight]{picts/magnet}
-\includegraphics[height=\textheight]{picts/motoras}
-\includegraphics[width=\textwidth]{picts/f16}
+\includegraphics[width=\textwidth]{getdp-picts/antenna1}
+\includegraphics[width=\textwidth]{getdp-picts/antenna3}
+\includegraphics[width=\textwidth]{getdp-picts/antenna2}
+\includegraphics[height=\textheight]{getdp-picts/indheat}
+\includegraphics[angle=-90,width=\textwidth]{getdp-picts/line220kv}
+\includegraphics[height=\textheight]{getdp-picts/magnet}
+\includegraphics[height=\textheight]{getdp-picts/motoras}
+\includegraphics[width=\textwidth]{getdp-picts/f16a}
+\includegraphics[width=\textwidth]{getdp-picts/f16b}
+
+\hspace*{-0.2\textwidth}%
+\includegraphics[width=0.5\textwidth]{getdp-picts/p20induc2}\hspace*{-0.2\textwidth}
+\includegraphics[width=0.5\textwidth]{getdp-picts/p20}\hspace*{-0.2\textwidth}%
+\includegraphics[width=0.5\textwidth]{getdp-picts/p20ada}\hspace*{-0.2\textwidth}%
 
 piezo-electricity, magnetostriction, non-homogeneous waveguides, photonic
 cristals, electromagnetic shielding, dielectric heating, ...
@@ -142,4 +391,5 @@ cristals, electromagnetic shielding, dielectric heating, ...
 
 \else
 
+\fi
 \fi
