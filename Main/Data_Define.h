@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.30 2001-07-30 08:32:15 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.31 2001-08-26 12:13:14 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -248,8 +248,8 @@ struct StringXDefine  PostSubOperation_CombinationType[] = {
 struct StringXDefine  PostSubOperation_Format[] = {
   {"Table"               , FORMAT_SPACE_TABLE }, 
   {"TimeTable"           , FORMAT_TIME_TABLE }, 
+  {"HarmonicToTimeTable" , FORMAT_TIME_TABLE },   /* a supprimer */
   {"FrequencyTable"      , FORMAT_FREQUENCY_TABLE }, 
-  {"HarmonicToTimeTable" , FORMAT_HARMONICTOTIME_TABLE }, 
   {"Gmsh"                , FORMAT_GMSH},
   {"GmshParsed"          , FORMAT_GMSH_PARSED},
   {"Gnuplot"             , FORMAT_GNUPLOT }, 

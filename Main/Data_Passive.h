@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.39 2001-08-05 21:25:51 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.40 2001-08-26 12:13:14 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -908,7 +908,6 @@ struct PostSubOperation {
 /* PostSubOperation.Format */
 #define FORMAT_SPACE_TABLE            1
 #define FORMAT_TIME_TABLE             2
-#define FORMAT_HARMONICTOTIME_TABLE   3
 #define FORMAT_FREQUENCY_TABLE        4
 #define FORMAT_ADAPT                  9
 #define FORMAT_GMSH                  10

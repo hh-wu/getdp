@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.24 2001-07-27 17:19:56 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.25 2001-08-26 12:13:15 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -593,8 +593,7 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
     }
   }
 
-  switch(Format){
-  case FORMAT_SPACE_TABLE :
+  if(Format == FORMAT_SPACE_TABLE){
     if(TimeStep == 0){
       fprintf(PostStream, "%d %d ", Get_GmshElementType(ElementType), NumElement);
       for(i=0 ; i<NbrNodes ; i++)
@@ -604,17 +603,14 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
       else
 	fprintf(PostStream, " 0 0 0 ");
     }
-    break ;
-  case FORMAT_TIME_TABLE :
-    fprintf(PostStream, "%d %.8g ", TimeStep, Time);
-    for(i=0 ; i<NbrNodes ; i++)
-      fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
-    break ;
-  case FORMAT_HARMONICTOTIME_TABLE : /* Time not known jet */
-    break ;
   }
-  
+
   if (HarmonicToTime == 1) {
+    if(Format == FORMAT_TIME_TABLE){
+      fprintf(PostStream, "%d %.8g ", TimeStep, Time);
+      for(i=0 ; i<NbrNodes ; i++)
+	fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
+    }
     for(k = 0 ; k < NbrHarmonics ; k++) {
       for(i = 0 ; i < NbrNodes ; i++){
 	for(j = 0 ; j < Size ; j++){
@@ -629,7 +625,7 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
     for(k = 0 ; k < HarmonicToTime ; k++){
       for(i = 0 ; i < NbrNodes ; i++){
 	F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
-	if (!i && Format == FORMAT_HARMONICTOTIME_TABLE) {
+	if (!i && Format == FORMAT_TIME_TABLE) {
 	  fprintf(PostStream, "%d %.8g ", TimeStep, TimeMH);
 	  for(i=0 ; i<NbrNodes ; i++)
 	    fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
@@ -638,7 +634,7 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	  fprintf(PostStream, " %.8g", TmpValue.Val[j]) ;
 	fprintf(PostStream, " ");
       }
-      if(Format == FORMAT_HARMONICTOTIME_TABLE)
+      if(Format == FORMAT_TIME_TABLE)
 	fprintf(PostStream, "\n");
     }
   }
@@ -740,7 +736,6 @@ void  Format_PostElement(int Format, int Contour, int Store,
     break ;
   case FORMAT_SPACE_TABLE :
   case FORMAT_TIME_TABLE :
-  case FORMAT_HARMONICTOTIME_TABLE :
     Format_Tabular(Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
 		   PE->Value) ;
@@ -811,8 +806,7 @@ void  Format_PostValue(int Format,
       else
 	fprintf(PostStream, "\n") ;
     }
-
-    else { /* FORMAT_HARMONICTOTIME_TABLE */
+    else {
       for(k = 0 ; k < HarmonicToTime ; k++) {
 	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
 	  F_MHToTime0(NULL, &TmpValues[iRegion], &TmpValue, 
