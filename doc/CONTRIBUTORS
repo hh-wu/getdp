@@ -1,4 +1,4 @@
-$Id: CONTRIBUTORS,v 1.16 2003-02-14 00:27:36 geuzaine Exp $
+$Id: CONTRIBUTORS,v 1.17 2003-03-13 22:23:12 geuzaine Exp $
 
 GetDP is copyright (c) 1997-2003 by
 
@@ -12,13 +12,13 @@ GetDP has been developed over the years by
   Christophe Geuzaine <christophe.geuzaine@@ulg.ac.be>
   Johan Gyselinck <johan.gyselinck@@ulg.ac.be>
   Tuan Ledinh <tuan.ledinh@@student.ulg.ac.be>
-  Patrick Lef`evre <P.Lefevre@@ulg.ac.be>
-  Andr'e Nicolet <andre.nicolet@@fresnel.fr>
-  Jean-Fran,cois Remacle <remacle@@scorec.rpi.edu>
+  Patrick Lefevre <P.Lefevre@@ulg.ac.be>
+  Andre Nicolet <andre.nicolet@@fresnel.fr>
+  Jean-Francois Remacle <remacle@@scorec.rpi.edu>
   Ruth Sabariego <ruth.sabariego@@student.ulg.ac.be>
   Timo Tarhasaari <timo.tarhasaari@@tut.fi>
   Christophe Trophime <trophime@@labs.polycnrs-gre.fr>
-  Marc Um'e <Marc.Ume@@digitalgraphics.be>
+  Marc Ume <Marc.Ume@@digitalgraphics.be>
 
 Portions of GetDP are copyright (c)
 
@@ -33,16 +33,17 @@ machines for testing GetDP:
 
   Olivier Adam <o.adam@@ulg.ac.be>
   Alejandro Angulo <aacusm@@yahoo.com>
-  Geoffrey Deli`ege <deliege@@mailserv.esat.kuleuven.ac.be>
+  Geoffrey Deliege <deliege@@mailserv.esat.kuleuven.ac.be>
   Mark Evans <evans@@gte.net> 
   Philippe Geuzaine <geuzaine@@gnat.colorado.edu>
-  'Eric Godard <godard@@montefiore.ulg.ac.be>
-  S'ebastien Guenneau <guenneau@@liverpool.ac.uk> 
+  Eric Godard <godard@@montefiore.ulg.ac.be>
+  Sebastien Guenneau <guenneau@@liverpool.ac.uk> 
   Fran,cois Henrotte <fhenrott@@esat.kuleuven.ac.be>
   Daniel Kedzierski <kedzierski@@uol.com.br>
   Samuel Kvasnica <kvasnica@@iaee.tuwien.ac.at> 
-  Beno^it Meys <bmeys@@techspace-aero.be>
+  Benoit Meys <bmeys@@techspace-aero.be>
   Uwe Pahner <uwe.pahner@@esat.kuleuven.ac.be>
   Georgia Psoni and Robert Struijs <gpsoni@@free.fr> 
   Ahmed Rassili <a.rassili@@ulg.ac.be>
-  Herv'e Tortel <tortel@@loe.u-3mrs.fr>
+  Thierry Scordilis <t.scordilis@@atral.fr>
+  Herve Tortel <tortel@@loe.u-3mrs.fr>
