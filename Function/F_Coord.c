@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Coord.c,v 1.8 2001-03-05 11:10:21 sabarieg Exp $"
+#define RCSID "$Id: F_Coord.c,v 1.9 2001-03-05 11:13:52 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -83,7 +83,7 @@ void  F_CoordXYZ (F_ARG) {
   }										\
   else{										\
     Get_NodesCoordinatesOfElement(Current.Element) ;				\
-    Get_GeoElement(Current.Element, Current.u, Current.v, Current.w) ;	\	\
+    Get_GeoElement(Current.Element, Current.u, Current.v, Current.w) ;		\
     tmp = 0. ;									\
     for (i = 0 ; i < Current.Element->GeoElement->NbrNodes ; i++) {		\
       tmp += Current.Element->coord[i] * Current.Element->n[i] ;		\
