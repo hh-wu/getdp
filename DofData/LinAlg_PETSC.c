@@ -1,4 +1,4 @@
-/* $Id: LinAlg_PETSC.c,v 1.11 2000-10-03 08:18:44 colignon Exp $ */
+/* $Id: LinAlg_PETSC.c,v 1.12 2000-10-06 14:25:22 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -13,7 +13,7 @@
 #include "Message.h"
 
 /* Pour tester assemblage sans faire d'appel a PETSc */
-
+/*
 #define VecSetValues dummyvec
 #define MatSetValues dummymat
 int dummyvec( Vec aa, int bb, int * cc, Scalar * dd , int ee ) {
@@ -22,6 +22,7 @@ int dummyvec( Vec aa, int bb, int * cc, Scalar * dd , int ee ) {
 int dummymat( Mat aa, int bb, int * cc, int dd, int * ee, Scalar * ff, int gg ) {
   return 0; 
 }
+*/
 
 static int  ierr, i_Start, i_End ;
 static int  SolverInitialized=0 ;
@@ -610,7 +611,20 @@ void gAssembleVector(gVector *V){
 /* Solve */
 
 void gSolve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
+  Vec diag, newb, newx ;
   int its, RankCpu ;
+
+  /* Should be done only if the structure and/or the value of the elements change */
+  /* scale
+  VecDuplicate(X->V, &diag);
+  VecDuplicate(X->V, &newx);
+  VecDuplicate(X->V, &newb);
+
+  MatGetDiagonal(A->M, diag);
+  VecReciprocal(diag);
+  MatDiagonalScale(A->M, diag, PETSC_NULL);
+  VecPointwiseMult(B->V, diag, newb);
+  */
 
   /* Should be done only once */
   ierr = SLESCreate(PETSC_COMM_WORLD, &Solver->sles); CHKERRA(ierr);
@@ -621,9 +635,19 @@ void gSolve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   ierr = SLESSetFromOptions(Solver->sles); CHKERRA(ierr);
 
   /* Todo everytime */
+  /*
+  ierr = SLESSolve(Solver->sles, newb, newx, &its); CHKERRA(ierr); 
+  */
   ierr = SLESSolve(Solver->sles, B->V, X->V, &its); CHKERRA(ierr); 
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
   if (!RankCpu) Msg(PETSC, "%d Iterations", its) ;
+
+  /* unscale 
+  VecReciprocal(diag);
+  MatDiagonalScale(A->M, diag, PETSC_NULL);
+  VecPointwiseMult(newb, diag, B->V);
+  VecPointwiseMult(newx, diag, X->V);
+  */
 }
 
 #endif
