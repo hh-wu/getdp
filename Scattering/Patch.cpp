@@ -1,9 +1,10 @@
-// $Id: Patch.cpp,v 1.20 2002-06-15 17:39:47 geuzaine Exp $
+// $Id: Patch.cpp,v 1.21 2002-06-17 07:27:29 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
 #include "Patch.h"
 #include "Function.h"
+#include "ChangeOfVars.h"
 
 // Partitions of unity
 //
@@ -53,9 +54,19 @@ double Partition::eval(double t){
 
 // Patches
 
+double Patch::changeOfVars(double s, int deriv){
+  //return cv_none(s,deriv);
+  //return cv_leonid(s,deriv);
+  //return cv_boyd(s,deriv);
+  //return cv_colton(s,deriv);
+  //return cv_doubleboyd(s,deriv);
+  return cv_shadow(s,deriv);
+}
+
 Patch::Patch(PatchType _type, int _beg, int _end, 
 	     double center, double eps, double rise){
   int i;
+  double s;
 
   type = _type;
   beg = _beg;
@@ -68,87 +79,19 @@ Patch::Patch(PatchType _type, int _beg, int _end,
   part = new Partition();
   part->init(center,eps,rise);
 
-#if 1
-  // mesh that does *not* comprise the origin
-  double h = 2.*eps/(double)(nbdof);
+  double step = 2.*eps/(double)(nbdof);
   for(i=0; i<nbdof; i++){
-    nodes[i] = center-eps + i*h + h/2.;
-    jacs[i] = 1.0;
-
-    // colton&kress chg of vars
-    
-    extern double w(double s, int p);
-    extern double dwds(double s, int p);
-    double s=nodes[i];
-    nodes[i] = w(s,8);
-    jacs[i] = dwds(s,8);
-    
-
-    // leonid's
-    /*
-    double s=nodes[i];
-    double leonid(double s);
-    double dleonidds(double s);
-    nodes[i] = leonid(s);
-    jacs[i] = dleonidds(s);
-    */
-
-    // tan/atan chg of vars
-    /*
-    double q=0.5, s=nodes[i];
-    nodes[i] = 2*atan(q*tan(s/2.)) ;
-    if(nodes[i]<0) nodes[i] +=TWO_PI;
-    jacs[i] = 2.*(q/2.*(1.+SQU(tan(s/2.)))) / (1.+SQU(q)*SQU(tan(s/2.))) ;
-    */
-
+    s = center-eps + i*step; // uniform mesh in each patch
+    //s = center-eps + i*step + step/2.; // mesh that does *not* comprise the origin
+    nodes[i] = changeOfVars(s,0);
+    jacs[i] = changeOfVars(s,1);
+    //printf("node %.16g jac %.16g\n", nodes[i], jacs[i]);
   }
-#else
-  // uniform mesh in each patch:
-  double h = 2.*eps/(double)(nbdof);
-  for(i=0; i<nbdof; i++){
-    nodes[i] = center-eps + i*h;
-    jacs[i] = 1.0;
-
-    // experimental stuff to better resolve the shadowing point
-    // e.g. q=3 for k=500
-    /*
-    double q=2;
-    if(i<nbdof/2){
-      nodes[i] = atan(q*tan(nodes[i])) ;
-      if(i>nbdof/4) nodes[i] += PI;
-    }
-    else{
-      nodes[i] = atan(q*tan(nodes[i]-PI))+PI ;
-      if(i>3*nbdof/4) nodes[i] += PI;
-    }
-    printf("%.16g\n", nodes[i]);
-    */
-
-    // tan/atan chg of vars
-    /*
-    double q=0.5, s=nodes[i];
-    nodes[i] = 2*atan(q*tan(s/2.)) ;
-    if(nodes[i]<0) nodes[i] +=TWO_PI;
-    jacs[i] = 2.*(q/2.*(1.+SQU(tan(s/2.)))) / (1.+SQU(q)*SQU(tan(s/2.))) ;
-    */
-
-    // colton&kress chg of vars
-    /*
-    extern double w(double s, int p);
-    extern double dwds(double s, int p);
-    double s=nodes[i];
-    nodes[i] = w(s,8);
-    jacs[i] = dwds(s,8);
-
-    printf("node %.16g jac %.16g\n", nodes[i], jacs[i]);
-    */
-  }
-#endif
 
   if(type == SPLINE)
     spline = new Spline(nbdof,nodes);
   else
-    fft = new FFT(nbdof);
+    fft = new FFT(nbdof,this);
 
 }
 

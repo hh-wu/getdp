@@ -50,6 +50,7 @@ public:
       printf("%g %g\n", nodes[k], part->eval(nodes[k]));
     }
   }
+  double changeOfVars(double t, int deriv);
 };
 
 #endif

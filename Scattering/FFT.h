@@ -5,6 +5,8 @@
 #include "Complex.h"
 #include "Spline.h"
 
+class Patch;
+
 class FFT {
 private:
   int N, expansionFactor, Nexp;
@@ -16,7 +18,7 @@ private:
   Spline *spline;
 
 public:
-  FFT(int n);
+  FFT(int n, Patch *patch);
   ~FFT();
 
   void forward(Complex *f, Complex *F);

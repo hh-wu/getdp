@@ -1,15 +1,16 @@
-// $Id: FFT.cpp,v 1.8 2002-05-31 00:52:13 geuzaine Exp $
+// $Id: FFT.cpp,v 1.9 2002-06-17 07:27:29 geuzaine Exp $
 
 #include "Utils.h"
 #include "FFT.h"
+#include "Patch.h"
 
 #define DEBUG_FFT 0
 
 // packing order for F: [0,1...n/2-1,-n/2,...,-1]
 
-#if 1 // Slow DFT
+#if 0 // Slow DFT
 
-FFT::FFT(int n){
+FFT::FFT(int n, Patch *patch){
   N = Nexp = n;
   expansionFactor = 1;
   fourierCoefs = new Complex[n];
@@ -65,12 +66,18 @@ Complex FFT::eval(double t){ // t has to be in [0,2*Pi]
     sum += (cos(j*t)+I*sin(j*t)) * fourierCoefs[i] / (double)N;
   }
 
+#if DEBUG_FFT
+  printf("eval(%.16g) = %.16g %.16g\n", t, sum.real(), sum.imag());
+#endif
+
   return sum;
 }
 
 #else
 
-FFT::FFT(int n){
+FFT::FFT(int n, Patch *patch){
+  int i;
+
   N = n;
   expansionFactor = 16;
   Nexp = expansionFactor*N;
@@ -80,11 +87,29 @@ FFT::FFT(int n){
   tmp1 = new fftw_complex[Nexp]; // partially overkill
   tmp2 = new fftw_complex[Nexp]; // partially overkill
   fourierCoefs = new Complex[Nexp];
-  expandedVals = new Complex[Nexp];
+  expandedVals = new Complex[Nexp+1]; // add endpoint
 
-  double *nodes = new double[Nexp];
-  for(int i=0; i<Nexp; i++) nodes[i] = TWO_PI/Nexp*i;
-  spline = new Spline(Nexp,nodes);
+  double *nodes = new double[Nexp+1]; // add endpoint
+  double a=patch->part->center - patch->part->epsilon;
+  double b=patch->part->center + patch->part->epsilon;
+  for(i=0; i<Nexp+1; i++){
+    nodes[i] = patch->changeOfVars(a + i*(b-a)/(double)(Nexp), 0);
+  }
+
+#if DEBUG_FFT
+  printf("nodes_orig = [\n");
+  for(i=0; i<patch->nbdof ; i++){
+    printf("%.16g\n", patch->nodes[i]);
+  }
+  printf("];");
+  printf("nodes_interpol = [\n");
+  for(i=0; i<Nexp+1 ; i++){
+    printf("%.16g\n", nodes[i]);
+  }
+  printf("];");
+#endif
+
+  spline = new Spline(Nexp+1,nodes);
   delete [] nodes;
 }
 
@@ -103,16 +128,11 @@ void FFT::forward(Complex *f, Complex *F){
     tmp1[i].re = f[i].real();
     tmp1[i].im = f[i].imag();
   }
+
   fftw_one(forwardPlan,tmp1,tmp2);
 
   // padding with zeros in the exanded case
   // [0,  1...N/2-1,0,...0,  0,...0,-N/2,...,-1]
-
-  /*
-  for(i=0; i<N; i++)
-    F[i] = Complex(tmp2[i].re,tmp2[i].im);
-  return;
-  */
 
   for(i=0; i<Nexp; i++){
     if(i<N/2+1)
@@ -140,6 +160,7 @@ void FFT::backward(Complex *F, Complex *f){
 void FFT::init(Complex *f){
   forward(f,fourierCoefs);
   backward(fourierCoefs,expandedVals);
+  expandedVals[Nexp] = expandedVals[0]; // add end point
 
 #if DEBUG_FFT
   int k;
@@ -149,21 +170,53 @@ void FFT::init(Complex *f){
   printf("]; \n");
 
   printf("f1 = [ \n");
-  for(k=0 ; k<N ; k++) 
+  for(k=0 ; k<Nexp ; k++) 
     printf("%.15e + (%.15ei)\n", fourierCoefs[k].real(), fourierCoefs[k].imag());
   printf("]; \n");
 
   printf("t2 = [ \n");
-  for(k=0 ; k<Nexp ; k++)
+  for(k=0 ; k<Nexp+1 ; k++)
     printf("%.15e + (%.15ei)\n", expandedVals[k].real(), expandedVals[k].imag());
   printf("]; \n");
 #endif
 
   spline->init(expandedVals);
+
+#if DEBUG_FFT
+  printf("t2reinterpol = [ \n");
+  for(k=0; k<200; k++){
+    double t=k*TWO_PI/200.;
+    Complex sum = spline->eval(t);
+    printf("%.15e + (%.15ei)\n", sum.real(), sum.imag());
+  }
+  printf("]; \n");
+#endif
+
 }
 
 Complex FFT::eval(double t){
-  return spline->eval(t);
+  /* this works
+  int i, j;
+  Complex sum;
+
+  sum = 0.;
+  for(i=0 ; i<Nexp ; i++){
+    if(i<=Nexp/2) j = i;
+    else j = -Nexp+i;
+    sum += (cos(j*t)+I*sin(j*t)) * fourierCoefs[i] / (double)Nexp;
+  }
+
+  return sum;
+  */
+
+  Complex sum;
+  sum = spline->eval(t);
+
+#if DEBUG_FFT
+  printf("eval(%.16g) = %.16g %.16g\n", t, sum.real(), sum.imag());
+#endif
+
+  return sum;
 }
 
 #endif

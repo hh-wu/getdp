@@ -1,9 +1,10 @@
-// $Id: Function.cpp,v 1.16 2002-06-13 00:11:57 geuzaine Exp $
+// $Id: Function.cpp,v 1.17 2002-06-17 07:27:29 geuzaine Exp $
 
 #include "Utils.h"
 #include "Function.h"
 #include "Scatterer.h"
 #include "Patch.h"
+#include "ChangeOfVars.h"
 #include "nrutil.h"
 
 double GetInInterval(double t, double t1, double t2){
@@ -86,9 +87,13 @@ Complex Function::density(Scatterer *scat, double tau){
 	  val += p->spline->eval(tau2);
 	}
 	else{
-	  // FIXME: this is OK only if there is not change of variables
 	  tau2 -= ap;
-	  val += p->fft->eval(tau2*TWO_PI/(bp-ap));
+	  val += p->fft->eval(tau2);
+
+	  //use this with the direct (slow) FFT without low order
+	  //interpolation on finer grid. Ony OK if there is *no*
+	  //change of variable!
+	  //val += p->fft->eval(tau2*TWO_PI/(bp-ap));
 	}
       }
     }
@@ -102,100 +107,6 @@ Complex Function::density(Scatterer *scat, double tau){
   }
 }
 
-// leonid's chg of vars
-// maps [0,2pi] into [0,2pi] and behaves as  x^4 on the both ends.
-
-double leonid(double s){
-  double res, si;
-
-  si = sin(s/2.-PI/2.);
-  res = PI+2*PI*si/(1+SQU(si));
-
-  return res;
-}
-
-double dleonidds(double s){
-  double res, si,co;
-
-  si = sin(s/2.-PI/2.);
-  co = cos(s/2.-PI/2.);
-  res = PI*CUB(co)/SQU(1+SQU(si));
-
-  return res;
-}
-
-
-// Colton & Kress p. 74
-
-#define PP 8 // chg var order
-
-double v(double s, int p){
-  return (1./p-0.5) * CUB((PI-s)/PI) + 1./p * (s-PI)/PI + 0.5;
-}
-
-double dvds(double s, int p){
-  return -3 * (1./p-0.5) * SQU(PI-s) / CUB(PI) + 1./(p*PI);
-}
-
-double w(double s, int p){
-  int where;
-  double vsp, res;
-
-  // handle cases where s is not in [0,2\pi]
-  if(s<0.){
-    s = TWO_PI + s;
-    where = -1;
-  }
-  else if(s<TWO_PI){
-    where = 0;
-  }
-  else{
-    s = s - TWO_PI;
-    where = 1;
-  }
-
-  vsp = pow(v(s,p),p);
-  res = TWO_PI * vsp/(vsp+pow(v(TWO_PI-s,p),p));
-  
-  if(where < 0){
-    return - (TWO_PI-res);
-  }
-  else if(where == 0){
-    return res;
-  }
-  else{
-    return TWO_PI+res;
-  }
-}
-
-double dwds(double s, int p){
-  double vsp, res;
-
-  // handle cases where s is not in [0,2\pi]
-  if(s<0.){
-    s = TWO_PI + s;
-  }
-  else if(s<TWO_PI){
-  }
-  else{
-    s = s - TWO_PI;
-  }
-
-  vsp = pow(v(s,p),p);
-  res = TWO_PI * p * (pow(v(s,p),p-1) * dvds(s,p) * pow(v(TWO_PI-s,p),p) +
-		      vsp * pow(v(TWO_PI-s,p),p-1) * dvds(TWO_PI-s,p)) /
-    SQU(vsp + pow(v(TWO_PI-s,p),p)) ;
-
-  //if(!res) Msg(ERROR, "Jac==0! s=%.16g", s);
-  
-  return res;
-}
-
-// Boyd's tan/atan chg of vars
-
-
-
-
 // wrapper
 
 double Function::chgVar(double u, double *t){
@@ -204,8 +115,8 @@ double Function::chgVar(double u, double *t){
   switch(applyChgVar){
 
   case 1 :
-    *t = w(u,PP);
-    jac = dwds(u,PP);
+    *t = cv_colton(u,0);
+    jac = cv_colton(u,1);
     break;
 
   case 0 : // none
@@ -225,7 +136,7 @@ double Function::chgVar(double u, double *t){
 static double THEINVPOINT;
 
 double bisfunc(double x){
-  return w(x,PP) - THEINVPOINT ;
+  return cv_colton(x,0) - THEINVPOINT ;
 }
 
 #define JMAX 10000
