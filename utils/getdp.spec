@@ -55,7 +55,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc doc/getdp.pdf doc/VERSIONS doc/FAQ doc/BUGS doc/CONTRIBUTORS demos
+%doc doc/getdp.pdf doc/COPYING doc/VERSIONS doc/FAQ doc/BUGS doc/CONTRIBUTORS demos
 /usr/bin/getdp
 /usr/share/man/man1/getdp*
 /usr/share/info/getdp*
