@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node_2.c,v 1.4 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: BF_Node_2.c,v 1.5 2001-06-14 16:02:48 dular Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -39,10 +39,16 @@ void  BF_Node_2E (struct Element * Element, int NumEntity,
 
   case QUADRANGLE :
     switch(NumEntity) {
+    case 1  : *s = 0.0625 * (1.-u*u) * (1.-v)*(1.-v) ; break ;
+    case 2  : *s = 0.0625 * (1.-u)*(1.-u) * (1.-v*v) ; break ;
+    case 3  : *s = 0.0625 * (1.+u)*(1.+u) * (1.-v*v) ; break ;
+    case 4  : *s = 0.0625 * (1.-u*u) * (1.+v)*(1.+v) ; break ;
+      /*
     case 1  : *s = 0.0625 * (1.-u*u) * (1.-v*v) ; break ;
     case 2  : *s = 0.0625 * (1.-u)*(1.-u) * (1.-v*v) ; break ;
     case 3  : *s = 0.0625 * (1.+u)*(1.+u) * (1.+v)*(1.+v) ; break ;
     case 4  : *s = 0.0625 * (1.-u*u) * (1.+v)*(1.+v) ; break ;
+      */
     default : WrongNumEntity ;
     }
     break ;
@@ -202,7 +208,17 @@ void  BF_GradNode_2E (struct Element * Element, int NumEntity,
 
   case QUADRANGLE :
     switch(NumEntity) {
+    case 1  : s[0] = 0.0625 * (-2.*u) * (1.-v)*(1.-v) ;
+      s[1] = 0.0625 * (1.-u*u) * (-2.)*(1.-v) ; s[2] = 0. ; break ;
+    case 2  : s[0] = 0.0625 * (-2.)*(1.-u) * (1.-v*v) ;
+      s[1] = 0.0625 * (1.-u)*(1.-u) * (-2.*v) ; s[2] = 0. ; break ;
+    case 3  : s[0] = 0.0625 * (2.)*(1.+u) * (1.-v*v) ;
+      s[1] = 0.0625 * (1.+u)*(1.+u) * (-2.*v) ; s[2] = 0. ; break ;
+    case 4  : s[0] = 0.0625 * (-2.*u) * (1.+v)*(1.+v) ;
+      s[1] = 0.0625 * (1.-u*u) * (2.)*(1.+v) ; s[2] = 0. ; break ;
+      /*
     default : Msg(ERROR, "BF_GradNode_2E not ready for QUADRANGLE");
+      */
     }
     break ;
 
