@@ -1,4 +1,4 @@
-#define RCSID "$Id: Parser.c,v 1.11 2001-06-26 11:44:28 gyselinc Exp $"
+#define RCSID "$Id: Parser.c,v 1.12 2001-07-08 15:44:10 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -316,7 +316,7 @@ void init_solver (Solver_Params *p , char *name){
 	if(buff[0] == '/' && buff[1] == '*'){
 	  while(1){
 	    if(feof(pSOLVER_PAR)){
-	      Msg(WARNING, "End of Comment not Detected");
+	      Msg(WARNING, "End of comment not detected");
 	      return;
 	    }
 	    if((getc(pSOLVER_PAR)=='*')&&(getc(pSOLVER_PAR)=='/')){
@@ -325,7 +325,7 @@ void init_solver (Solver_Params *p , char *name){
 	  }
 	}
 	else{
-	  Msg(WARNING, "Unknown Parameter %s", buff);
+	  Msg(WARNING, "Unknown solver parameter '%s'", buff);
 	  fscanf(pSOLVER_PAR,"%s",buff);
 	}
       }
@@ -344,5 +344,35 @@ void init_solver (Solver_Params *p , char *name){
     }
   }
 }
+
+
+void init_solver_option (Solver_Params *p , char *name, char *value){
+  InfoSolver *pI;
+  int i, vali;
+  float valf;
+
+  for(i=0;i<NbInfosSolver;i++){
+    pI = &Tab_Params[i];
+
+    if(!strcmp(pI->str, name)){
+      switch(pI->typeinfo){
+      case REEL   : 
+	valf = atof(value);
+	(pI->action)(p,pI->defaultint,valf); 
+	Msg(SPARSKIT, "Overriding parameter '%s': %g\n", pI->str, valf);
+	break;
+      case ENTIER : 
+	vali = atoi(value);
+	(pI->action)(p,vali,pI->defaultfloat);
+	Msg(SPARSKIT, "Overriding parameter '%s': %d\n", pI->str, vali);
+	break;
+      }
+      return;
+    }    
+  }
+
+  Msg(ERROR, "Unknown solver parameter '%s'", name);
+}
+
 
 

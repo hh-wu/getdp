@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.10 2001-06-30 22:07:06 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.11 2001-07-08 15:44:11 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -14,6 +14,7 @@
 
 extern char  Name_Path[MAX_FILE_NAME_LENGTH] ;
 static char *Name_SolverFile=NULL, *Name_DefaultSolverFile="SOLVER.PAR" ;
+static char *SolverOptions[100];
 
 /* Init */
 
@@ -27,7 +28,7 @@ void LinAlg_Initialize(int* argc, char*** argv, int *NbrCpu, int *RankCpu){
   GetDP_End ;
 }
 void LinAlg_InitializeSolver(int* sargc, char*** sargv, int *NbrCpu, int *RankCpu){
-  int i=1, argc;
+  int i=1, argc, iopt=0;
   char **argv;
  
   GetDP_Begin("LinAlg_InitializeSolver");
@@ -36,6 +37,7 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv, int *NbrCpu, int *RankCp
   *RankCpu = 0 ;
   argc = *sargc ;
   argv = *sargv ;
+  SolverOptions[0] = NULL;
 
   while (i < argc) {
     if (argv[i][0] == '-') {
@@ -46,8 +48,18 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv, int *NbrCpu, int *RankCp
 	else
 	  Msg(ERROR, "Missing file name");
       }
-      else
-	Msg(SPARSKIT, "Unknown option: '%s'\n", argv[i++]) ; 
+      else{
+	i++ ;
+	if (i<argc && argv[i][0]!='-') { 
+	  SolverOptions[iopt++] = argv[i-1]+1;
+	  SolverOptions[iopt++] = argv[i];
+	  SolverOptions[iopt] = NULL;
+	  i++ ; 
+	}
+	else {
+	  Msg(ERROR, "Missing number");
+	}
+      }
     }
     else
       Msg(SPARSKIT, "Unknown option: '%s'\n", argv[i++]) ; 
@@ -73,6 +85,7 @@ void LinAlg_SequentialEnd(void){
 /* Create */
 
 void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName){
+  int  i;
   char FileName[MAX_FILE_NAME_LENGTH];
 
   GetDP_Begin("LinAlg_CreateSolver");
@@ -98,8 +111,16 @@ void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName){
     /* default file name -> always relative */
     strcat(FileName, Name_DefaultSolverFile);
   }
+  
+  Msg(SPARSKIT, "Loading parameter file '%s'\n", FileName);
 
   init_solver(&Solver->Params, FileName) ;
+
+  i = 0;
+  while(SolverOptions[i] && SolverOptions[i+1]){
+    init_solver_option(&Solver->Params, SolverOptions[i], SolverOptions[i+1]) ;
+    i+=2;
+  }
 
   GetDP_End ;
 }

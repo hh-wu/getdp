@@ -1,4 +1,4 @@
-/* $Id: Solver.h,v 1.7 2001-06-26 11:44:29 gyselinc Exp $ */
+/* $Id: Solver.h,v 1.8 2001-07-08 15:44:11 geuzaine Exp $ */
 #ifndef _SOLVER_H_
 #define _SOLVER_H_
 
@@ -108,6 +108,7 @@ typedef struct {
 /* Parser.c */
 
 void init_solver (Solver_Params *p , char *name) ;
+void init_solver_option (Solver_Params *p , char *name, char *value);
 
 /* Matrix.c */
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.47 2001-06-29 07:27:29 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.48 2001-07-08 15:44:11 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -68,10 +68,11 @@ char help[] =
   "  -res file(s)              load processing results from file(s)\n"
   "  -name string              use string as generic file name\n"
   "  -adapt file               read adaptation constraints from file\n"
-  "  -order float              restrict maximum interpolation order\n"
+  "  -order num                restrict maximum interpolation order\n"
 #if _SPARSKIT
   "Linear solver options:\n"
   "  -solver file              specify parameter file (default: SOLVER.PAR)\n"
+  "  -'Parameter' num          override value of solver parameter 'Parameter'\n"
 #endif
   "Output options:\n"
   "  -bin                      use binary format for output files\n"
@@ -79,8 +80,8 @@ char help[] =
   "  -socket string            communicate through socket string\n"
   "Other options:\n"
   "  -check                    interactive check of problem structure\n"
-  "  -v int                    set verbosity level (default: 4)\n"
-  "  -p int                    set progress indicator update (default: 10)\n"
+  "  -v num                    set verbosity level (default: 4)\n"
+  "  -p num                    set progress indicator update (default: 10)\n"
   "  -version                  show version number\n"
   "  -info                     show detailed version information\n"
   "  -help                     show this message\n"
