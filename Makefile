@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.63 2001-07-17 15:20:42 geuzaine Exp $
+# $Id: Makefile,v 1.64 2001-07-26 07:29:39 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -233,6 +233,7 @@ tag:
 	echo "#define GETDP_HOST     \"`hostname`\""  >> $(GETDP_INCLUDE_DIR)/Version.h
 	echo "#define GETDP_PACKAGER \"`whoami`\""    >> $(GETDP_INCLUDE_DIR)/Version.h
 	echo "#define GETDP_OS       \"`uname -sr`\"" >> $(GETDP_INCLUDE_DIR)/Version.h
+	touch $(GETDP_INCLUDE_DIR)/Version.h
 
 initialtag:
 	@if [ ! -r $(GETDP_INCLUDE_DIR)/Version.h ]; then \
