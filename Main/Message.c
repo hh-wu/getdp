@@ -1,4 +1,4 @@
-/* $Id: Message.c,v 1.11 2000-09-21 07:42:43 geuzaine Exp $ */
+/* $Id: Message.c,v 1.12 2000-09-21 14:52:04 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
@@ -23,6 +23,9 @@ void FinalizeAndExit(void);
 /* The Sparskit is under GNU license. If we mention it, we have to 
    make GetDP free sofware... */
 
+char acronym[]   = "GetDP %g, a General environment for the treatment of Discrete Problems\n";
+char copyright[] = "Copyright (C) 1997-2000 P. Dular, C. Geuzaine\n";
+
 char version[]   = "Version : %g\n";
 char os[]        = "OS      : %s\n";
 char build[]     = "Build   : %s\n";
@@ -43,9 +46,6 @@ char solver[]    = "Solver  : PETSc (real arithmetic)\n";
 #endif
 #endif
 
-char acronym[]   = "GetDP %g, a General environment for the treatment of Discrete Problems\n";
-char copyright[] = "Copyright (C) 1997-2000 P. Dular, C. Geuzaine\n";
-
 char help[] = 
 #if _SPARSKIT
   "Usage: %s [file] [options]\n"
@@ -63,7 +63,7 @@ char help[] =
   "  -split                    save processing results in separate files\n"
   "  -res file(s)              load processing results from file(s)\n"
   "  -adapt file               read adaption constraints from file\n"
-  "  -degree float             specify maximum interpolation degree\n"
+  "  -degree float             restrict maximum interpolation degree\n"
 #if _SPARSKIT
   "Linear solver options:\n"
   "  -solver file              specify parameter file (default: SOLVER.PAR)\n"
