@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.16 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.17 2000-10-30 09:48:16 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,6 +21,7 @@ void         Interactive(void);
 int   GetDP_CurrentStackIndex ;
 char *GetDP_CurrentFunction[GETDP_STACK_SIZE] ;
 char *GetDP_CurrentSourceFile[GETDP_STACK_SIZE] ;
+int   GetDP_CurrentSourceLine[GETDP_STACK_SIZE] ;
 
 FILE   *PostStream, *LogStream, *PrintStream ;
 List_T *GeoData_L, *PreResolutionIndex_L ;

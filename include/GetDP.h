@@ -1,4 +1,4 @@
-/* $Id: GetDP.h,v 1.2 2000-10-30 01:29:49 geuzaine Exp $ */
+/* $Id: GetDP.h,v 1.3 2000-10-30 09:48:16 geuzaine Exp $ */
 #ifndef _GETDP_H_
 #define _GETDP_H_
 
@@ -13,12 +13,14 @@
 extern int   GetDP_CurrentStackIndex ;
 extern char *GetDP_CurrentFunction[GETDP_STACK_SIZE] ;
 extern char *GetDP_CurrentSourceFile[GETDP_STACK_SIZE] ;
+extern int   GetDP_CurrentSourceLine[GETDP_STACK_SIZE] ;
 
 #ifdef USE_DEBUG
 
 #define GetDP_Begin(text)					\
   GetDP_CurrentFunction[GetDP_CurrentStackIndex] = text ;	\
-  GetDP_CurrentSourceFile[GetDP_CurrentStackIndex++] = RCSID 
+  GetDP_CurrentSourceFile[GetDP_CurrentStackIndex] = RCSID ;    \
+  GetDP_CurrentSourceLine[GetDP_CurrentStackIndex++] = __LINE__
 
 #define GetDP_End				\
   GetDP_CurrentStackIndex-- ;			\

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.18 2000-10-30 08:47:33 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.19 2000-10-30 09:48:16 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -146,15 +146,16 @@ void Signal (int sig_num){
 /*  M s g                                                                   */
 /* ------------------------------------------------------------------------ */
 
-void Get_GetDPContext(char *FileName, char *FunctionName){
+void Get_GetDPContext(char *FileName, char *FileVersion, char *FileDate, 
+		      char *FileAuthor, int *Line, char *FunctionName){
   unsigned int i = 5, j = 0 ;
+  char Dum[32] ;
 
-  while(i<strlen(GetDP_CurrentSourceFile[GetDP_CurrentStackIndex-1]) &&
-	GetDP_CurrentSourceFile[GetDP_CurrentStackIndex-1][i] != ',')
-    FileName[j++] = GetDP_CurrentSourceFile[GetDP_CurrentStackIndex-1][i++];
-  FileName[j] = '\0';
+  sscanf(GetDP_CurrentSourceFile[GetDP_CurrentStackIndex-1],
+	 "$Id: %s %s %s %s %s", FileName, FileVersion, FileDate, Dum, FileAuthor);
+  FileName[strlen(FileName)-2] = '\0' ;
   strcpy(FunctionName, GetDP_CurrentFunction[GetDP_CurrentStackIndex-1]);
-
+  *Line = GetDP_CurrentSourceLine[GetDP_CurrentStackIndex-1];
 }
 
 
@@ -162,7 +163,8 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
 	      va_list args, char *fmt, int *abort) {
 
 #ifdef USE_DEBUG
-  char FileName[256], FunctionName[256];
+  char FileName[256], FileVersion[32], FunctionName[256], FileAuthor[32], FileDate[32];
+  int  Line ;
 #endif
 
   switch(level){
@@ -183,9 +185,13 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
     vfprintf(stream, fmt, args); 
     fprintf(stream, "\n");
 #ifdef USE_DEBUG
+    Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
+		     &Line, FunctionName);
     fprintf(stream, WHITE_STR); 
-    Get_GetDPContext(FileName, FunctionName);
-    fprintf(stream, "(Error occured in '%s' function '%s')\n", FileName, FunctionName);
+    fprintf(stream, "In '%s' (V%s by %s on %s)\n", 
+	    FileName, FileVersion, FileAuthor, FileDate);
+    fprintf(stream, WHITE_STR); 
+    fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
 #endif
     *abort = 1;
     break;
@@ -195,9 +201,13 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
     vfprintf(stream, fmt,args); 
     fprintf(stream, "\n");
 #ifdef USE_DEBUG
-    Get_GetDPContext(FileName, FunctionName);
+    Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
+		     &Line, FunctionName);
     fprintf(stream, WHITE_STR); 
-    fprintf(stream, "(Warning occured in '%s' function '%s')\n", FileName, FunctionName);
+    fprintf(stream, "In '%s' (V%s by %s on %s)\n", 
+	    FileName, FileVersion, FileAuthor, FileDate);
+    fprintf(stream, WHITE_STR); 
+    fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
 #endif
     break;
 
