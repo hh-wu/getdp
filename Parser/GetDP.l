@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.20 2003-03-22 03:30:16 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.21 2003-05-22 15:09:58 dular Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -99,6 +99,9 @@ string     {alpha}({alpha}|{digit})*
 "##"                         return tSHOW ;
 
 StrCat                       return tStrCat ;
+
+For                          return tFor ;
+EndFor                       return tEndFor ;
 
 Pi                           return tPi ;
 0D                           return t0D ;
@@ -313,6 +316,9 @@ Sort                         return tSort ;
 Iso                          return tIso ;
 NoNewLine                    return tNoNewLine ;
 DecomposeInSimplex           return tDecomposeInSimplex ;
+
+Str                          return tStr ;
+Date                         return tDate ;
 
 Flag                         return tFlag ;
 

@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.48 2003-05-21 12:54:42 dular Exp $ */
+/* $Id: GetDP.y,v 1.49 2003-05-22 15:09:58 dular Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -40,6 +40,7 @@
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
+#include <time.h>
 
 #include "Data_Passive.h"
 #include "Data_Active.h"
@@ -190,6 +191,16 @@ struct PostQuantityTerm           PostQuantityTerm_S ;
 struct PostOperation          PostOperation_S ;
 struct PostSubOperation         PostSubOperation_S ;
 
+
+static ImbricatedLoop = 0;
+static fpos_t yyposImbricatedLoopsTab[10];
+static int yylinenoImbricatedLoopsTab[10];
+static double LoopControlVariablesTab[10][3];
+static char *LoopControlVariablesNameTab[10];
+
+time_t date_info;
+
+
 %}
 
 /* ------------------------------------------------------------------ */
@@ -222,12 +233,13 @@ struct PostSubOperation         PostSubOperation_S ;
 %type <l>  ListOfFormulation, RecursiveListOfFormulation
 %type <l>  ListOfSystem, RecursiveListOfSystem
 %type <l>  PostQuantities, SubPostQuantities, PostSubOperations
-%type <c>  NameForFunction, CharExpr
+%type <c>  NameForFunction, CharExpr, StrCat
 %type <t>  Quantity_Def
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
 %token  tStrCat
+%token  tFor tEndFor
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace
 %token  tDefineConstant  tPi  t0D  t1D  t2D  t3D 
@@ -313,6 +325,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
+%token        tStr, tDate
 
 %token  tFlag
 
@@ -544,8 +557,58 @@ Group :
   | MovingBand2DGroup 
 
   | Affectation
+
+  | ForLoop
   
   ;
+
+
+ForLoop :
+
+    tFor '(' FExpr tDOTS FExpr ')'
+    {
+      LoopControlVariablesTab[ImbricatedLoop][0] = $3 ;
+      LoopControlVariablesTab[ImbricatedLoop][1] = $5 ;
+      LoopControlVariablesTab[ImbricatedLoop][2] = 1.0 ;
+      LoopControlVariablesNameTab[ImbricatedLoop] = "" ;
+      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
+      yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum; /* !!! Pq? -1 ?? */
+      ImbricatedLoop++;
+    }
+  | tFor '(' FExpr tDOTS FExpr tDOTS FExpr ')'
+    {
+      LoopControlVariablesTab[ImbricatedLoop][0] = $3 ;
+      LoopControlVariablesTab[ImbricatedLoop][1] = $5 ;
+      LoopControlVariablesTab[ImbricatedLoop][2] = $7 ;
+      LoopControlVariablesNameTab[ImbricatedLoop] = "" ;
+      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
+      yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum;
+      ImbricatedLoop++;
+    }
+  | tEndFor
+    {
+      /*      fprintf(stderr, "numline = %d\n", yylinenum) ; */
+      /* !!! Probleme avec num ligne decale -> necessaire mettre un espace apres EndFor ???*/
+      if(LoopControlVariablesTab[ImbricatedLoop-1][1] >  
+	 LoopControlVariablesTab[ImbricatedLoop-1][0]){
+	LoopControlVariablesTab[ImbricatedLoop-1][0] +=
+	  LoopControlVariablesTab[ImbricatedLoop-1][2];
+	/*	
+	if(strlen(LoopControlVariablesNameTab[ImbricatedLoop-1])){
+	  TheSymbol.Name = LoopControlVariablesNameTab[ImbricatedLoop-1];
+	  pSymbol = (Symbol*)List_PQuery(Symbol_L, &TheSymbol, CompareSymbols);
+	  *(double*)List_Pointer_Fast(pSymbol->val, 0) += 
+	    LoopControlVariablesTab[ImbricatedLoop-1][2] ;
+	}
+	*/	
+	fsetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
+	yylinenum = yylinenoImbricatedLoopsTab[ImbricatedLoop-1];
+      }
+      else{
+	ImbricatedLoop--;
+      }
+    }
+;
 
 
 MovingBand2DGroup :
@@ -5723,6 +5786,12 @@ PostSubOperation :
       PostSubOperation_S.String = $3 ;
       PostSubOperation_S.Val = $5 ;
     }
+  | tPrint '[' tBIGSTR ',' tStr '[' CharExpr ']' PrintOptions ']' tEND
+    {
+      PostSubOperation_S.Type = POP_PRINTVALSTR ;
+      PostSubOperation_S.String = $3 ;
+      PostSubOperation_S.String2 = $7 ;
+    }
   | tPrintGroup '[' GroupRHS 
     {
       PostSubOperation_S.Type = POP_GROUP ;
@@ -6241,6 +6310,18 @@ Affectation :
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
 
+  | tSTRING tDEF tStr '[' CharExpr ']' tEND
+    { Constant_S.Name = $1 ; Constant_S.Type = VAR_CHAR ;
+      Constant_S.Value.Char = $5 ;
+      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
+    }
+
+  | tSTRING tDEF StrCat tEND
+    { Constant_S.Name = $1 ; Constant_S.Type = VAR_CHAR ;
+      Constant_S.Value.Char = $3 ;
+      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
+    }
+
   | tDefineConstant '[' DefineConstants ']' tEND
 
   ;
@@ -6553,16 +6634,16 @@ CharExpr :
       }
       Free($1) ;
     }
-
-  | tStrCat '[' CharExpr ',' CharExpr ']'
+  | StrCat
     {
-      if ($3 != NULL && $5 != NULL) {
-	$$ = (char *)Malloc((strlen($3)+strlen($5)+1)*sizeof(char)) ;
-	strcpy($$, $3) ;  strcat($$, $5) ;
-      }
-      else {
-	vyyerror("Undefined argument for StrCat function") ;  $$ = NULL ;
-      }
+      $$ = $1 ;
+    }
+  | tDate
+    {
+      time(&date_info);
+      $$ = (char *)Malloc((strlen(ctime(&date_info))+1)*sizeof(char)) ;
+      strcpy($$, ctime(&date_info));
+      $$[strlen($$)-1] = 0;
     }
 /*
   | CharExpr '+' CharExpr
@@ -6573,6 +6654,18 @@ CharExpr :
 */
   ;
 
+StrCat :
+    tStrCat '[' CharExpr ',' CharExpr ']'
+    {
+      if ($3 != NULL && $5 != NULL) {
+	$$ = (char *)Malloc((strlen($3)+strlen($5)+1)*sizeof(char)) ;
+	strcpy($$, $3) ;  strcat($$, $5) ;
+      }
+      else {
+	vyyerror("Undefined argument for StrCat function") ;  $$ = NULL ;
+      }
+    }
+  ;
 
 %%
 

@@ -978,7 +978,7 @@ struct PostSubOperation {
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
   int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex ;
   int    ChangeOfCoordinates[3] ; 
-  char   * String ;
+  char   * String, * String2 ;
   double Target, Val ;
   List_T * HeaderChar_L, * HeaderTag_L ;
   List_T * FormatChar_L, * FormatTag_L ;
@@ -1002,6 +1002,7 @@ struct PostSubOperation {
 #define POP_GROUP         2
 #define POP_ECHO          3
 #define POP_PRINTVAL      4
+#define POP_PRINTVALSTR   5
 
 /* PostOperation.SubType */
 #define PRINT_ONREGION        1

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.39 2003-03-22 03:30:19 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.40 2003-05-22 15:09:58 dular Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -238,8 +238,13 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
     break;
 
   case POP_PRINTVAL :
-    fprintf(PostStream, "%s %.16g\n", 
+    fprintf(PostStream, "%s%.16g\n", 
 	    PostSubOperation_P->String, PostSubOperation_P->Val) ;
+    break;
+
+  case POP_PRINTVALSTR :
+    fprintf(PostStream, "%s%s\n", 
+	    PostSubOperation_P->String, PostSubOperation_P->String2) ;
     break;
 
   default :
