@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.22 2001-03-05 17:29:37 dular Exp $"
+#define RCSID "$Id: Main.c,v 1.23 2001-03-06 08:46:59 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -56,11 +56,17 @@ int Flag_RemoveSingularity = 0;
 #else
 
 int  main(int argc, char *argv[]) {
-  char  ext[6], **sargv;
+  char  ext[4], **sargv;
   int   sargc, i ;
   char  ProName[MAX_FILE_NAME_LENGTH], LogName[MAX_FILE_NAME_LENGTH] ;
 
   GetDP_Begin("main");
+
+  /* handle some signals */
+
+  signal(SIGFPE,  Signal); /* Floating-point exception (ANSI).  */
+  signal(SIGSEGV, Signal); /* Segmentation violation (ANSI).  */
+  signal(SIGINT,  Signal); /* Interrupt (ANSI).  */
 
   /* init MPI for multi-processor jobs */
 
@@ -85,12 +91,6 @@ int  main(int argc, char *argv[]) {
     }
     Msg(INFO3, "'") ;
   }
-
-  /* handle some signals */
-
-  signal(SIGFPE,  Signal); 
-  signal(SIGSEGV, Signal);
-  signal(SIGINT,  Signal); 
 
   /* generic problem name */
 
@@ -140,13 +140,14 @@ int  main(int argc, char *argv[]) {
 
   /* process */
 
-  if (Problem_S.Expression) Problem_Expression0 = (struct Expression*)
-			      List_Pointer(Problem_S.Expression, 0) ;
+  Problem_Expression0 = (Problem_S.Expression)?
+    (struct Expression*)List_Pointer(Problem_S.Expression, 0) : NULL ;
 
   if (Flag_CHECK) Print_ProblemStructure(&Problem_S) ;
   if (Flag_LRES) Print_ListResolution(&Problem_S) ;
   if (Flag_LPOS) Print_ListPostOperation(&Problem_S) ;
   if (Flag_LIPOS) Print_ListPostProcessing(&Problem_S) ;
+
   if (Flag_PRE || Flag_PAR || Flag_CAL || Flag_POS) SolvingAnalyse() ;
 
   /* finalize the solver */
@@ -413,12 +414,12 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
     }
     else{
       if (!Flag_NameProblem) { 
-	Flag_NameProblem = 1 ; 
-	sargv[0] = argv[i] ; 
-	strcpy(NameProblem, argv[i++]) ; 
+	Flag_NameProblem = 1 ;
+	sargv[0] = argv[i] ;
+	strcpy(NameProblem, argv[i++]) ;
       }
       else{
-	sargv[(*sargc)++] = argv[i++]; 
+	sargv[(*sargc)++] = argv[i++];
       }
     }
     
@@ -493,4 +494,3 @@ void  Read_ProblemStructure (char * Name){
 
   GetDP_End ;
 }
-

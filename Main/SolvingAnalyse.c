@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.18 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.19 2001-03-06 08:46:59 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -70,7 +70,7 @@ void  SolvingAnalyse (void) {
       Msg(ERROR, "Missing Resolution");
   }
   else if (Flag_PAR || Flag_CAL || Flag_POS) {
-    Dof_OpenFile(DOF_PRE, Name_Generic,"r") ;
+    Dof_OpenFile(DOF_PRE, Name_Generic, "r") ;
     Dof_ReadFilePRE0(&Num_Resolution, &Nbr_DefineSystem) ;
     Nbr_OtherSystem = Nbr_DefineSystem ;
   }
@@ -122,7 +122,7 @@ void  SolvingAnalyse (void) {
         Dof_TransferDofTreeToList(DofData2_P0 + j) ;
 
       /* Creation des liens entre FunctionSpace et DofData:
-         incorrect si correspondance non biunivoque entre FS et DD */
+         correspondance biunivoque entre FS et DD */
 
       for (j = 0 ; j < Nbr_DefineSystem2 ; j++) {
         DofData_P = DofData2_P0 + j ;
@@ -224,7 +224,7 @@ void  SolvingAnalyse (void) {
     Msg(DIRECT, "P a r t i t i o n n i n g . . .") ;
 
     /* Creation des liens entre FunctionSpace et DofData:
-       incorrect si correspondance non biunivoque entre FS et DD */
+       correspondance biunivoque entre FS et DD */
 
     for (i = 0 ; i < Nbr_DefineSystem ; i++) {
       DofData_P = DofData_P0 + i ;
@@ -268,7 +268,7 @@ void  SolvingAnalyse (void) {
     Msg(DIRECT, "P r o c e s s i n g . . .") ;
 
     /* Creation des liens entre FunctionSpace et DofData:
-       incorrect si correspondance non biunivoque entre FS et DD */
+       correspondance biunivoque entre FS et DD */
 
     for (i = 0 ; i < Nbr_DefineSystem ; i++) {
       DofData_P = DofData_P0 + i ;
@@ -389,7 +389,7 @@ void  SolvingAnalyse (void) {
       
 
       /* Creation des liens entre FunctionSpace et DofData 
-         incorrect si correspondance non biunivoque entre FS et DD */
+         correspondance biunivoque entre FS et DD */
 
       for (j = 0 ; j < List_Nbr(DofData_P->FunctionSpaceIndex) ; j++){
         FunctionSpace_P = (struct FunctionSpace *)
@@ -445,8 +445,7 @@ void  Treatment_Resolution(int ResolutionIndex,
   
   *Nbr_DefineSystem = List_Nbr((*Resolution_P)->DefineSystem) ;
   if (!*Nbr_DefineSystem)
-    Msg(ERROR, "No System exists for Resolution '%s'",
-        (*Resolution_P)->Name) ;
+    Msg(ERROR, "No System exists for Resolution '%s'", (*Resolution_P)->Name) ;
   
   if (*Nbr_OtherSystem)  *Nbr_OtherSystem -= *Nbr_DefineSystem ;
 
@@ -645,7 +644,7 @@ void Treatment_Preprocessing(int Nbr_DefineSystem,
         List_Pointer(Problem_S.Formulation, Index_Formulation) ;
       Msg(OPERATION, "Treatment Formulation '%s'", Formulation_P->Name) ;
 
-      Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);
+      Init_DofDataInDefineQuantity(DefineSystem_P, DofData_P0, Formulation_P) ;
       Treatment_Formulation(Formulation_P) ;
     }
     

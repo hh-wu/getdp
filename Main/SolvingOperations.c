@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.18 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.19 2001-03-06 08:46:59 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -322,8 +322,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  if(Dof_P->Type == DOF_UNKNOWN_INIT){
 	    Dof_P->Type = DOF_UNKNOWN ;
 	    LinAlg_SetScalarInVector
-	      (&Dof_P->Val, &Solution_S.x, 
-	       Dof_P->Case.Unknown.NumDof-1) ;
+	      (&Dof_P->Val, &Solution_S.x, Dof_P->Case.Unknown.NumDof-1) ;
 	  }
 	}
 	
