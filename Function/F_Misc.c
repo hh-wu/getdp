@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.19 2003-07-18 15:45:20 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.20 2003-11-20 09:19:35 dular Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -321,9 +321,11 @@ void  F_SurfaceArea (F_ARG) {
   V->Type = SCALAR ;
   V->Val[0] = Fct->Active->Case.SurfaceArea.Value ;
 
-  for (k = 2 ; k < Current.NbrHar ; k += 2) 
-    V->Val[MAX_DIM* k] = V->Val[0] ;
-
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k += 2) 
+      V->Val[MAX_DIM* k] = V->Val[0] ;
+  }
 
   GetDP_End ;
 }
