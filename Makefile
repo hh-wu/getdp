@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.112 2003-01-28 04:34:16 geuzaine Exp $
+# $Id: Makefile,v 1.113 2003-01-28 22:10:38 geuzaine Exp $
 
 # ----------------------------------------------------------------------
 #  Optional packages: 
@@ -6,12 +6,6 @@
 #    * cygwin to build on Windows (http://www.cygwin.com) 
 #    * PETSc 2.1.X (you have to define the PETSC_DIR and PETSC_ARCH variables)
 #    * METIS 4.0 (you have to define the METIS_DIR variable)
-# ----------------------------------------------------------------------
-#  To build a stand alone executable on Windows, you should install, 
-#  in addition to cygwin, the mingw-extra includes and libraries (see
-#  ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/*extra*) in
-#  the /mingw directory, and then compile with 'make mingw'.
-#  To check the final dependendies: 'objdump -p getdp-win | grep DLL'
 # ----------------------------------------------------------------------
 
 GETDP_MAJOR_VERSION = 0
@@ -451,6 +445,7 @@ distrib-cygwin: clean tag cygwin distrib-win
 
 #
 # Mingw (don't add -lm : the math functions are in msvcrt.dll)
+# To check the final dependendies, do 'objdump -p getdp.exe | grep DLL'
 #
 compile-mingw: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
