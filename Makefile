@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.35 2000-12-13 11:59:54 geuzaine Exp $
+# $Id: Makefile,v 1.36 2001-01-31 13:53:07 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -152,7 +152,7 @@ getdp-petsc-simple:
 
 ## Patrick
 
-linux2:
+linux2: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=g77" \
@@ -164,7 +164,7 @@ linux2:
 	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
 #	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
 
-linux2W:
+linux2W: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=g77" \
