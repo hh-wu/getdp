@@ -1,4 +1,4 @@
-$Id: TODO,v 1.3 2004-03-27 19:20:47 geuzaine Exp $
+$Id: TODO,v 1.4 2004-10-26 07:51:26 geuzaine Exp $
 
 * Arguments in nested expressions don't work. A workaround is to store
   the arguments in registers (i.e. with '#1'-like commands).
@@ -8,6 +8,10 @@ $Id: TODO,v 1.3 2004-03-27 19:20:47 geuzaine Exp $
 
 * Global quantities have to be defined on "single" regions,
   i.e. regions of type aa = Region[num].
+
+********************************************************************
+
+Should recompute Current.x,y,z in Cal_vBFxDof??
 
 ********************************************************************
 
