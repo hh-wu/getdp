@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.17 2000-10-20 08:04:29 dular Exp $ */
+/* $Id: Pos_Print.c,v 1.18 2000-10-20 08:43:44 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -112,8 +112,8 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   struct Value        * CumulativeValues ;
   struct IntxList       NxPE, * NxPE_P ;
 
-  double  * Error, Dummy[5], d ;
-  int       ii, jj, kk, NbrGeo, iGeo, incGeo, NbrPost, iPost ;
+  double  * Error=NULL, Dummy[5], d ;
+  int       ii, jj, kk, NbrGeo, iGeo, incGeo, NbrPost=0, iPost ;
   int       NbrTimeStep, iTime, NbrSmoothing, iNode ;
   int       Store = 0, DecomposeInSimplex = 0, Depth ;
 
@@ -813,9 +813,9 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
 	    PE->x[0] = e[0].xc; PE->x[1] = e[1].xc; 
 	    PE->y[0] = e[0].yc; PE->y[1] = e[1].yc; 
 	    PE->z[0] = e[0].zc; PE->z[1] = e[1].zc; 
-	    PE->u[0] = e[0].uc; PE->u[1] = e[k-1].uc;
-	    PE->v[0] = e[0].vc; PE->v[1] = e[k-1].vc;
-	    PE->w[0] = e[0].wc; PE->w[1] = e[k-1].wc;
+	    PE->u[0] = e[0].uc; PE->u[1] = e[1].uc;
+	    PE->v[0] = e[0].vc; PE->v[1] = e[1].vc;
+	    PE->w[0] = e[0].wc; PE->w[1] = e[1].wc;
 	    LETS_PRINT_THE_RESULT ;
 	  }
 	  else{
@@ -928,10 +928,9 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
   struct Element       Element ;
   struct Value       * CumulativeValues, Value ;
   struct PostElement * PE , * PE2 ;
-  List_T             * Support_L ;
 
   int     i1, i2, i3, j, k, NbTimeStep, ts ;
-  float  *Array ;
+  float  *Array=NULL ;
   double  u, v, w, Length, Normal[4] = {0., 0., 0., 0.} ;
   double  X[4], Y[4], Z[4], S[4], N[4];
 

@@ -1,4 +1,4 @@
-/* $Id: Pos_Quantity.c,v 1.3 2000-10-20 07:42:07 dular Exp $ */
+/* $Id: Pos_Quantity.c,v 1.4 2000-10-20 08:43:45 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -16,6 +16,8 @@
 
 #include "CurrentData.h"
 #include "outil.h"
+
+#include "ualloc.h"
 
 
 /* ------------------------------------------------------------------------ */
@@ -180,7 +182,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
       Element.Type   = Element.GeoElement->Type ;
       Current.Region = Element.Region = Element.GeoElement->Region ;
 
-      if (!InRegion_L || List_Search(InRegion_L, &Element.Region, fcmp_int) &&
+      if ((!InRegion_L || List_Search(InRegion_L, &Element.Region, fcmp_int)) &&
 	  (!Support_L || List_Search(Support_L, &Element.Region, fcmp_int))) {
 	Get_NodesCoordinatesOfElement(&Element) ;
 	Current.x = Element.x[0];

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.24 2000-10-19 11:30:25 dular Exp $
+# $Id: Makefile,v 1.25 2000-10-20 08:43:44 dular Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -155,7 +155,7 @@ linux2:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=g77" \
-           "C_FLAGS=-O3" \
+           "C_FLAGS=-O3 -Wall" \
            "F77_FLAGS=-O1" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2000-10-20 07:42:07 dular Exp $
+# $Id: Makefile,v 1.12 2000-10-20 08:43:44 dular Exp $
 #
 # Makefile for 'libPost.a'
 # 
@@ -99,12 +99,14 @@ Pos_Quantity.o: Pos_Quantity.c ../Main/Treatment_Formulation.h \
   ../Main/Cal_Quantity.h ../Main/Cal_Value.h ../Main/Get_Geometry.h \
   ../Main/Data_DefineE.h ../Main/CurrentData.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../DataStr/outil.h
+  ../DofData/Data_DofData.h ../include/Magic.h ../DataStr/outil.h \
+  ../DataStr/ualloc.h
 Pos_Element.o: Pos_Element.c ../GeoData/GeoData.h ../Main/Message.h \
   ../GeoData/Data_GeoData.h ../DataStr/listman.h ../DataStr/treeman.h \
   ../DataStr/avl.h ../Main/Get_Geometry.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h \
-  ../Main/Get_DofOfElement.h Pos_Element.h ../DataStr/ualloc.h
+  ../Main/Get_DofOfElement.h Pos_Element.h ../Main/Cal_Value.h \
+  ../DataStr/ualloc.h
 Pos_Iso.o: Pos_Iso.c ../Main/Data_Active.h ../Main/Data_Passive.h \
   ../DataStr/listman.h ../Main/Message.h ../Main/Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/treeman.h \
