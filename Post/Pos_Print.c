@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.20 2000-10-20 17:24:03 geuzaine Exp $ */
+/* $Id: Pos_Print.c,v 1.21 2000-10-22 13:50:40 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -298,10 +298,11 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	for (iTime = 0 ; iTime < NbrTimeStep ; iTime++){
 	  for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++)
 	    Cal_CopyValue(&CumulativeValues[iTime], &PE->Value[iNode]);
-	  Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
-			     Current.Time, iTime, NbrTimeStep, 
-			     Current.NbrHar, PostSubOperation_P->HarmonicToTime,
-			     NULL, PE);
+	  if(!Store)
+	    Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+			       Current.Time, iTime, NbrTimeStep, 
+			       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
+			       NULL, PE);
 	}
       }
       else{ /* There is one non-cumulative */
@@ -549,15 +550,20 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	Dummy[3] = -1. ;
       }
 
-      Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+      Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 1,
 			 Current.Time, 0, 1, 
 			 Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 			 Dummy, PE);
-      Destroy_PostElement(PE) ;
     }
   }
 
-  Format_PostFooter(PostSubOperation_P);
+  Format_PostFooter(PostSubOperation_P, Store);
+
+  if(Store)
+    for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
+      PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
+      Destroy_PostElement(PE) ;
+    }
 
   List_Delete(PostElement_L);
 
@@ -834,7 +840,7 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
       }
 
     }
-    Format_PostFooter(PostSubOperation_P);
+    Format_PostFooter(PostSubOperation_P, 0);
     break;
     
   default :
@@ -1125,7 +1131,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 
   Destroy_PostElement(PE) ;
 
-  Format_PostFooter(PSO_P);
+  Format_PostFooter(PSO_P, 0);
 
   if(CPQ_P) Free(CumulativeValues);
 }

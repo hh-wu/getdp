@@ -1,4 +1,4 @@
-/* $Id: Pos_Format.c,v 1.2 2000-10-20 07:42:07 dular Exp $ */
+/* $Id: Pos_Format.c,v 1.3 2000-10-22 13:50:40 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -85,14 +85,17 @@ void  Format_PostHeader(int Format, int Contour,
   }
 }
 
-void  Format_PostFooter(struct PostSubOperation *PSO_P){
+void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
   List_T  * Iso_L[NBR_MAX_ISO] ;
   double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0 ;
-  int       NbrIso = 0 ; 
+  int       NbrIso = 0, DecomposeInSimplex = 0 ; 
   int       iPost, iNode, iIso ;
   struct PostElement *PE ;
 
   if(PSO_P->Iso){
+
+    if(PSO_P->Format == FORMAT_GMSH || PSO_P->Format == FORMAT_GMSH_NL)
+      DecomposeInSimplex = 1 ;
 
     for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){ 
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
@@ -113,14 +116,14 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P){
       for(iIso = 0 ; iIso < NbrIso ; iIso++){
 	if(PSO_P->Iso > 0){
 	  Cal_Iso(PE, Iso_L[iIso], IsoMin+iIso*(IsoMax-IsoMin)/(double)(NbrIso-1), 
-		  IsoMin, IsoMax) ;
+		  IsoMin, IsoMax, DecomposeInSimplex) ;
 	}
 	else{
 	  List_Read(PSO_P->Iso_L, iIso, &IsoVal) ;
-	  Cal_Iso(PE, Iso_L[iIso], IsoVal, IsoMin, IsoMax) ;
+	  Cal_Iso(PE, Iso_L[iIso], IsoVal, IsoMin, IsoMax, DecomposeInSimplex) ;
 	}
       }
-      if(1) Destroy_PostElement(PE);
+      if(!Store) Destroy_PostElement(PE);
     }
 
     for(iIso = 0 ; iIso < NbrIso ; iIso++){

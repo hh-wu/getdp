@@ -1,4 +1,4 @@
-/* $Id: Pos_Iso.c,v 1.10 2000-10-20 17:08:28 geuzaine Exp $ */
+/* $Id: Pos_Iso.c,v 1.11 2000-10-22 13:50:40 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -147,13 +147,12 @@ void Fill_Iso(struct PostElement *PE, int nb, int *index,
 void normvec(double *a);
 
 void Cal_Iso(struct PostElement *PE, List_T *list, 
-	     double val, double vmin, double vmax){
+	     double val, double vmin, double vmax, int DecomposeInSimplex){
 
   struct PostElement *PE2 ;
   double x[5], y[5], z[5] ;
   double d1[3], d2[3], d3[3], a1, a2, a3 ;
-  int    nb, DecomposeInSimplex = 1 ;
-  int    index[5], index_default[] = {0,1,2,3} ;
+  int    nb, index[5], index_default[] = {0,1,2,3} ;
 
   switch(PE->Type){
   case TRIANGLE :

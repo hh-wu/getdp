@@ -1,4 +1,4 @@
-/* $Id: Pos_Format.h,v 1.1 2000-10-19 11:25:39 dular Exp $ */
+/* $Id: Pos_Format.h,v 1.2 2000-10-22 13:50:40 geuzaine Exp $ */
 #ifndef _POS_FORMAT_H_
 #define _POS_FORMAT_H_
 
@@ -10,7 +10,7 @@ void  Format_PostHeader(int Format, int Contour,
 			struct PostQuantity  *NCPQ_P,
 			struct PostQuantity  *CPQ_P) ;
 
-void  Format_PostFooter(struct PostSubOperation * PSO_P) ;
+void  Format_PostFooter(struct PostSubOperation * PSO_P, int Store) ;
 
 void  Format_PostElement(int Format, int Contour, int Store,
 			 double Time, int TimeStep, int NbTimeStep, 

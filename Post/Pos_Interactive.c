@@ -1,4 +1,4 @@
-/* $Id: Pos_Interactive.c,v 1.10 2000-10-21 12:17:27 geuzaine Exp $ */
+/* $Id: Pos_Interactive.c,v 1.11 2000-10-22 13:50:40 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -12,7 +12,7 @@
 
 extern int     ErrorLevel ;
 extern int     InteractiveLevel, InteractiveCompute ; 
-extern int     InteractiveExit, InteractiveInterrupt ;
+extern int     InteractiveInterrupt ;
 extern struct  PostProcessing InteractivePostProcessing_S ;
 extern struct  PostSubOperation InteractivePostSubOperation_S ;
 extern FILE   *yyin;
@@ -38,10 +38,11 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
     /* read input char until CR, LF, EOF, ^D */
     myptr = readline (GETDP_PROMPT_STRING);
 
-    /* exit interactive if EOF, ^D, quit, q or exit */
-    if(!myptr || !strcmp(myptr,"quit") || !strcmp(myptr,"q") ||
-       !strcmp(myptr,"exit")) break;
-
+    /* exit interactive if EOF, ^D, quit */
+    if(!myptr || 
+       !strcmp(myptr,"Quit") || !strcmp(myptr,"quit") || !strcmp(myptr,"q") ||
+       !strcmp(myptr,"exit") || !strcmp(myptr,"Exit")) 
+      break;
 
     /* if there is something in the line */
     if(strlen(myptr)){
@@ -55,16 +56,13 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
       fclose(yyin);
 
       /* parse the tmp file */
-      InteractiveCompute = InteractiveExit = ErrorLevel = 0;
+      InteractiveCompute = ErrorLevel = 0;
       yyin = fopen(GETDP_TMP_FILENAME,"r");
       while(!feof(yyin)){
 	yyparse();
       }
       fclose(yyin);
       
-      /* exit if Exit token read */
-      if(InteractiveExit) break;
-
       /* compute something */
       if(!ErrorLevel && InteractiveCompute){
 	InteractiveInterrupt = 0;
@@ -96,9 +94,10 @@ void  Interactive(void){
     /* read input char until CR, LF, EOF, ^D */
     myptr = readline (GETDP_PROMPT_STRING);
 
-    /* exit interactive if EOF, ^D, quit, q or exit */
-    if(!myptr || !strcmp(myptr,"quit") || !strcmp(myptr,"q") ||
-       !strcmp(myptr,"exit")){
+    /* exit interactive if EOF, ^D, quit */
+    if(!myptr || 
+       !strcmp(myptr,"Quit") || !strcmp(myptr,"quit") || !strcmp(myptr,"q") ||
+       !strcmp(myptr,"exit") || !strcmp(myptr,"Exit")) {
       unlink(GETDP_TMP_FILENAME);
       exit(1) ;
     }
@@ -115,16 +114,13 @@ void  Interactive(void){
       fclose(yyin);
 
       /* parse the tmp file */
-      InteractiveCompute = InteractiveExit = ErrorLevel = 0;
+      InteractiveCompute = ErrorLevel = 0;
       yyin = fopen(GETDP_TMP_FILENAME,"r");
       while(!feof(yyin)){
 	yyparse();
       }
       fclose(yyin);
       
-      /* exit if Exit token read */
-      if(InteractiveExit) break;
-
       /* compute something ... */
     }
 
