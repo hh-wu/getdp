@@ -37,7 +37,6 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 void Sort_PostElement_Connectivity(List_T *PostElement_L);
 
 int fcmp_PostElement (const void *a, const void *b);
-int fcmp_PostElement_heterog (const void *a, const void *b);
 int fcmp_PostElement_v0(const void *a, const void *b);
 int fcmp_PostElement_absu0(const void *a, const void *b);
 

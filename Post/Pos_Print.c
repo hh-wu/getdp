@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.60 2003-03-22 03:30:19 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.61 2003-11-22 09:38:56 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -274,12 +274,8 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     /* Compute the skin */
 
     if(PostSubOperation_P->Skin){
+      PostElement_T = Tree_Create(sizeof(struct PostElement *), fcmp_PostElement);
 
-      if(PostSubOperation_P->DecomposeInSimplex)
-	PostElement_T = Tree_Create(sizeof(struct PostElement *), fcmp_PostElement_heterog);
-      else
-	PostElement_T = Tree_Create(sizeof(struct PostElement *), fcmp_PostElement);
-      
       for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){
 	if(InteractiveInterrupt) break;
 	Progress(iPost, List_Nbr(PostElement_L), "Skin: ") ;
@@ -306,14 +302,13 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	SkinPostElement_L = PostElement_L ;
 	SkinDepth = PostSubOperation_P->Depth ;
 	Tree_Action(PostElement_T, Cut_SkinPostElement) ;
-	Tree_Delete(PostElement_T);
       }
       else{
 	List_Delete(PostElement_L);
 	PostElement_L = Tree2List(PostElement_T);
-	Tree_Delete(PostElement_T);
       }
-      
+
+      Tree_Delete(PostElement_T);
     }
 
   } /* if Store */

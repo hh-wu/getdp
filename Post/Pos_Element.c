@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.22 2003-11-20 19:23:39 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.23 2003-11-22 09:38:55 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -146,6 +146,9 @@ int fcmp_PostElement(const void *a, const void *b){
 
   PE1 = *(struct PostElement**)a; PE2 = *(struct PostElement**)b;
 
+  if(PE1->NbrNodes != PE2->NbrNodes) 
+    return PE1->NbrNodes - PE2->NbrNodes;
+
   s1 = s2 = 0.0 ;  
   for(i=0;i<PE1->NbrNodes;i++){ s1 += PE1->x[i]; s2 += PE2->x[i]; }
   if(s1-s2 > TOL) return 1; else if(s1-s2 < -TOL) return -1;
@@ -156,31 +159,6 @@ int fcmp_PostElement(const void *a, const void *b){
 
   s1 = s2 = 0.0 ;
   for(i=0;i<PE1->NbrNodes;i++){ s1 += PE1->z[i]; s2 += PE2->z[i]; }
-  if(s1-s2 > TOL) return 1; else if(s1-s2 < -TOL) return -1;
-
-  return 0;
-}  
-
-int fcmp_PostElement_heterog(const void *a, const void *b){
-  struct PostElement *PE1, *PE2 ;
-  double s1, s2, TOL=Current.GeoData->CharacteristicLength * 1.e-12 ;
-  int i;
-
-  PE1 = *(struct PostElement**)a; PE2 = *(struct PostElement**)b;
-
-  s1 = s2 = 0.0 ;  
-  for(i=0;i<PE1->NbrNodes;i++) s1 += PE1->x[i]; s1/=(double)PE1->NbrNodes;
-  for(i=0;i<PE2->NbrNodes;i++) s2 += PE2->x[i]; s2/=(double)PE2->NbrNodes;
-  if(s1-s2 > TOL) return 1; else if(s1-s2 < -TOL) return -1;
-
-  s1 = s2 = 0.0 ;
-  for(i=0;i<PE1->NbrNodes;i++) s1 += PE1->y[i]; s1/=(double)PE1->NbrNodes;
-  for(i=0;i<PE2->NbrNodes;i++) s2 += PE2->y[i]; s2/=(double)PE2->NbrNodes;
-  if(s1-s2 > TOL) return 1; else if(s1-s2 < -TOL) return -1;
-
-  s1 = s2 = 0.0 ;
-  for(i=0;i<PE1->NbrNodes;i++) s1 += PE1->z[i]; s1/=(double)PE1->NbrNodes;
-  for(i=0;i<PE2->NbrNodes;i++) s2 += PE2->z[i]; s2/=(double)PE2->NbrNodes;
   if(s1-s2 > TOL) return 1; else if(s1-s2 < -TOL) return -1;
 
   return 0;
@@ -914,7 +892,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[1] ;
 	  PE->NumNodes[2] = GE->NumNodes[5] ;
-	  PE->NumNodes[4] = GE->NumNodes[4] ;
+	  PE->NumNodes[3] = GE->NumNodes[4] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
 	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ;
@@ -925,7 +903,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
 	  PE->NumNodes[2] = GE->NumNodes[2] ;
-	  PE->NumNodes[4] = GE->NumNodes[1] ;
+	  PE->NumNodes[3] = GE->NumNodes[1] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
 	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
@@ -936,7 +914,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[4] ;
 	  PE->NumNodes[2] = GE->NumNodes[7] ;
-	  PE->NumNodes[4] = GE->NumNodes[3] ;
+	  PE->NumNodes[3] = GE->NumNodes[3] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
 	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
 	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
@@ -947,7 +925,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[0] = GE->NumNodes[1] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
 	  PE->NumNodes[2] = GE->NumNodes[6] ;
-	  PE->NumNodes[4] = GE->NumNodes[5] ;
+	  PE->NumNodes[3] = GE->NumNodes[5] ;
 	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
 	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
@@ -958,7 +936,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[0] = GE->NumNodes[2] ;
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
 	  PE->NumNodes[2] = GE->NumNodes[7] ;
-	  PE->NumNodes[4] = GE->NumNodes[6] ;
+	  PE->NumNodes[3] = GE->NumNodes[6] ;
 	  PE->u[0] = 1. ; PE->v[0] = 1. ; PE->w[0] =-1. ;
 	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
 	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
@@ -969,7 +947,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[0] = GE->NumNodes[4] ;
 	  PE->NumNodes[1] = GE->NumNodes[5] ;
 	  PE->NumNodes[2] = GE->NumNodes[6] ;
-	  PE->NumNodes[4] = GE->NumNodes[7] ;
+	  PE->NumNodes[3] = GE->NumNodes[7] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 1. ;
 	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
