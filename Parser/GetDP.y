@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.20 2001-07-17 07:04:19 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.21 2001-07-17 23:29:47 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -4226,7 +4226,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_ITERATIVETIMEREDUCTION ;
     }
 
-  /* NEW syntax ("function" style) */
+  /* NEW syntax (function style): Only missing is IterativeTimeReduction */
 
   | tSTRING '[' tSTRING ']' tEND
     { Operation_P = (struct Operation*)
@@ -4398,6 +4398,32 @@ OperationTerm :
       Operation_P->Case.TimeLoopNewmark.Operation = $14 ;
     }
 
+  | tIterativeLoop  '[' FExpr ',' FExpr ',' Expression ']' 
+                     '{' Operation '}' 
+    { List_Pop(Operation_L) ;
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_ITERATIVELOOP ;
+      Operation_P->Case.IterativeLoop.NbrMaxIteration = $3 ;
+      Operation_P->Case.IterativeLoop.Criterion = $5 ;
+      Operation_P->Case.IterativeLoop.RelaxationFactorIndex = $7 ;
+      Operation_P->Case.IterativeLoop.Flag = 0 ;
+      Operation_P->Case.IterativeLoop.Operation = $10 ;
+    }
+
+  | tIterativeLoop  '[' FExpr ',' FExpr ',' Expression ',' FExpr ']' 
+                     '{' Operation '}' 
+    { List_Pop(Operation_L) ;
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_ITERATIVELOOP ;
+      Operation_P->Case.IterativeLoop.NbrMaxIteration = $3 ;
+      Operation_P->Case.IterativeLoop.Criterion = $5 ;
+      Operation_P->Case.IterativeLoop.RelaxationFactorIndex = $7 ;
+      Operation_P->Case.IterativeLoop.Flag = $9 ;
+      Operation_P->Case.IterativeLoop.Operation = $12 ;
+    }
+
   | tPrint 
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -4499,6 +4525,8 @@ PrintOperationOption :
   ;
 
 
+/* ------ the following should disapear with the new syntax ------------- */
+
 TimeLoopTheta :
 
     /* none */
@@ -4598,8 +4626,8 @@ IterativeLoop :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeLoop.NbrMaxIteration  = 20 ;
+      Operation_P->Case.IterativeLoop.Criterion = 1.e-3 ;
       Operation_P->Case.IterativeLoop.RelaxationFactorIndex = -1 ;
-      Operation_P->Case.IterativeLoop.Criterion        = 1.e-3 ;
       Operation_P->Case.IterativeLoop.Flag = 0 ;
       Operation_P->Case.IterativeLoop.Operation = NULL ;
     }
@@ -4613,19 +4641,18 @@ IterativeLoopTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)$2 ; }
-  | tRelaxationFactor Expression tEND
-    { Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeLoop.RelaxationFactorIndex = $2 ; }
   | tCriterion FExpr tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeLoop.Criterion = $2 ; }
+  | tRelaxationFactor Expression tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Case.IterativeLoop.RelaxationFactorIndex = $2 ; }
   | tFlag FExpr tEND  /* Attention: phase test */
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeLoop.Flag = (int)$2 ; }
-
   | tOperation  '{' Operation '}'
     { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
@@ -4791,6 +4818,8 @@ ChangeOfStateTerm :
       ChangeOfState_S.FlagIndex = i ;
     }
   ;
+
+/* ------ end of "the following should disapear with the new syntax" ------ */
 
 
 /* ------------------------------------------------------------------------ */
