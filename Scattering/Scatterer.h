@@ -7,7 +7,7 @@
 
 class Scatterer{
 public:
-  typedef enum {CIRCLE,ELLIPSE,DROP} ScattererType;
+  typedef enum {CIRCLE,ELLIPSE,DROP,KITE} ScattererType;
   ScattererType type;
   double a, b;
   List_T *patches;

@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.20 2002-05-09 00:50:29 geuzaine Exp $
+// $Id: Solve.cpp,v 1.21 2002-05-14 01:15:47 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -242,6 +242,8 @@ void PostProcess(Ctx *ctx){
   char fn[256];
   FILE *fp;
   Complex vi, vs;
+  double k = NORM3(ctx->waveNum);
+  double coord[3];
 
   LinAlg_CreateVector(&x, &ctx->solver, ctx->nbdof, 1, NULL);
   ReadSolution(ctx,&x);
@@ -250,11 +252,16 @@ void PostProcess(Ctx *ctx){
 
   InitializeInterpolation(ctx,&x);
 
+  coord[0] = 1;
+  coord[0] = 0;
+  coord[0] = 0;
+  vs = (-2./I) * Evaluate(ctx, 1, coord);
+  printf("FAR FIELD = %g %g \n", vs.real(), vs.imag());
+  return;
+
   double xmin = -2*PI, xmax = 2*PI, ymin = -2*PI, ymax = 2*PI;
   //double xmin = -2., xmax = 2., ymin = 0., ymax = 2.;
 
-  double k = NORM3(ctx->waveNum);
-  double coord[3];
   int nbx = (int)((xmax-xmin)/TWO_PI*10*k);
   int nby = (int)((ymax-ymin)/TWO_PI*10*k);
 
@@ -270,7 +277,7 @@ void PostProcess(Ctx *ctx){
       coord[1] = ymin + j*(ymax-ymin)/(double)(nby-1) ;
       coord[2] = 0. ;
       if(coord[0]*coord[0]+coord[1]*coord[1] > 1.){
-	vs = (-2./I) * Evaluate(ctx, coord);
+	vs = (-2./I) * Evaluate(ctx, 0, coord);
 	double kr = ctx->waveNum[0]*coord[0]+ctx->waveNum[1]*coord[1]+ctx->waveNum[2]*coord[2];
 	vi = cos(kr)+I*sin(kr);
       }

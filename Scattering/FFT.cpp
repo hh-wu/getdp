@@ -1,11 +1,13 @@
-// $Id: FFT.cpp,v 1.5 2002-05-11 00:50:46 geuzaine Exp $
+// $Id: FFT.cpp,v 1.6 2002-05-14 01:15:46 geuzaine Exp $
 
 #include "Utils.h"
 #include "FFT.h"
 
+#define DEBUG_FFT 1
+
 // packing order for F: [0,1...n/2-1,-n/2,...,-1]
 
-#if 0 // Slow DFT
+#if 1 // Slow DFT
 
 FFT::FFT(int n){
   N = Nexp = n;
@@ -26,15 +28,16 @@ void FFT::forward(Complex *f, Complex *F){
     }
   }
 
-  /*
+#if DEBUG_FFT
   printf("t = [ \n");
   for(k=0 ; k<N ; k++) printf("%.15e + (%.15ei)\n", f[k].real(), f[k].imag());
-  printf("] \n");
+  printf("]; \n");
 
   printf("f = [ \n");
   for(n=0 ; n<N ; n++) printf("%.15e + (%.15ei)\n", F[n].real(), F[n].imag());
-  printf("] \n");
-  */
+  printf("]; \n");
+#endif
+  
 }
 
 void FFT::backward(Complex *F, Complex *f){
@@ -69,7 +72,7 @@ Complex FFT::eval(double t){ // t has to be in [0,2*Pi]
 
 FFT::FFT(int n){
   N = n;
-  expansionFactor = 16;
+  expansionFactor = 1;
   Nexp = expansionFactor*N;
 
   forwardPlan = fftw_create_plan(N,FFTW_FORWARD,FFTW_ESTIMATE);
@@ -80,7 +83,8 @@ FFT::FFT(int n){
   expandedVals = new Complex[Nexp];
 
   double *nodes = new double[Nexp];
-  for(int i=0; i<Nexp; i++) nodes[i] = TWO_PI/Nexp*i;
+  //for(int i=0; i<Nexp; i++) nodes[i] = TWO_PI/Nexp*i;
+  for(int i=0; i<Nexp; i++) nodes[i] = TWO_PI/Nexp*(i-1);
   spline = new Spline(Nexp,nodes);
   delete [] nodes;
 }
@@ -119,8 +123,8 @@ void FFT::forward(Complex *f, Complex *F){
 void FFT::backward(Complex *F, Complex *f){
   int i;
   for(i=0; i<Nexp; i++){
-    tmp1[i].re = F[i].real() * Nexp;
-    tmp1[i].im = F[i].imag() * Nexp;
+    tmp1[i].re = F[i].real()/(double)N;
+    tmp1[i].im = F[i].imag()/(double)N;
   }
   fftw_one(backwardPlan,tmp1,tmp2);
   for(i=0; i<Nexp; i++){
@@ -131,6 +135,25 @@ void FFT::backward(Complex *F, Complex *f){
 void FFT::init(Complex *f){
   forward(f,fourierCoefs);
   backward(fourierCoefs,expandedVals);
+
+#if DEBUG_FFT
+  int k;
+  printf("t1 = [ \n");
+  for(k=0 ; k<N ; k++) 
+    printf("%.15e + (%.15ei)\n", f[k].real(), f[k].imag());
+  printf("]; \n");
+
+  printf("f1 = [ \n");
+  for(k=0 ; k<N ; k++) 
+    printf("%.15e + (%.15ei)\n", fourierCoefs[k].real(), fourierCoefs[k].imag());
+  printf("]; \n");
+
+  printf("t2 = [ \n");
+  for(k=0 ; k<Nexp ; k++)
+    printf("%.15e + (%.15ei)\n", expandedVals[k].real(), expandedVals[k].imag());
+  printf("]; \n");
+#endif
+
   spline->init(expandedVals);
 }
 

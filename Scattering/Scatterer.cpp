@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.11 2002-05-04 01:42:46 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.12 2002-05-14 01:15:47 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -46,6 +46,11 @@ void Scatterer::x(double u, double *x){
     x[1] = -sin(u); 
     x[2] = 0.; 
     break;
+  case KITE :
+    x[0] = cos(u) + 0.65*cos(2*u) -0.65;
+    x[1] = 1.5*sin(u); 
+    x[2] = 0.; 
+    break;
   }
 }
 
@@ -66,6 +71,11 @@ void Scatterer::dx(double u, double *x){
     x[1] = -cos(u); 
     x[2] = 0.; 
     break;
+  case KITE :
+    x[0] = -sin(u) - 2*0.65*sin(2*u);
+    x[1] = 1.5*cos(u); 
+    x[2] = 0.; 
+    break;
   }
 }
 
@@ -84,6 +94,11 @@ void Scatterer::ddx(double u, double *x){
   case DROP :
     x[0] = -0.5*sin(u/2.); 
     x[1] = sin(u); 
+    x[2] = 0.; 
+    break;
+  case KITE :
+    x[0] = -cos(u) - 4*0.65*cos(2*u);
+    x[1] = -1.5*sin(u); 
     x[2] = 0.; 
     break;
   }

@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.33 2002-05-03 01:26:29 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.34 2002-05-14 01:15:47 geuzaine Exp $
 
 #include "Utils.h"
 #include "Nystrom.h"
@@ -426,7 +426,7 @@ Complex Integrate(Ctx *ctx, int index, double t){
 
 // Post-process solution
 
-Complex Evaluate(Ctx *ctx, double x[3]){
+Complex Evaluate(Ctx *ctx, int farfield, double x[3]){
   int j, n = ctx->nbIntPts/2;
   double tau, xtau[3], dxtau[3], dummy[3]={0,0,0}, k = NORM3(ctx->waveNum);
   Complex res=0., f, tmp;
@@ -443,9 +443,20 @@ Complex Evaluate(Ctx *ctx, double x[3]){
     ctx->f.type = Function::INTERPOLATED; 
     tmp = ctx->f.density(&ctx->scat,tau);
 
-    kern.init(0,x,dummy,tau,xtau,dxtau,k);
-    res += PI/(double)n * kern.M() * f * tmp;
+    if(!farfield){
+      kern.init(0,x,dummy,tau,xtau,dxtau,k);
+      res += kern.M() * f * tmp;
+    }
+    else{
+      res += exp(-I*k*(x[0]*xtau[0]+x[1]*xtau[1])) * 
+	f * tmp * 
+	sqrt(SQU(dxtau[0]) + SQU(dxtau[1])) ;
+    }
   }
+
+  res *= PI/(double)n; // trapezoidal rule weight
+
+  if(farfield) res *= exp(-I*PI/4.)/sqrt(8.*PI*k); // from asympt. kern.
 
   return res;
 }

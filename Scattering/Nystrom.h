@@ -21,6 +21,6 @@ public:
 // prototypes
 
 Complex Integrate(Ctx *ctx, int index, double t);
-Complex Evaluate(Ctx *ctx, double x[3]);
+Complex Evaluate(Ctx *ctx, int farfield, double x[3]);
 
 #endif
