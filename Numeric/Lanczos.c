@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.4 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.5 2000-11-07 12:44:45 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -148,7 +148,8 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     /* print_lanczos_to_file (i,NbrDof,Hes,Lan,shift,Name); */
 
     for(k=1 ; k<=i ; k++)
-      Msg(INFO, "Lanczos Eigen Value %d = %g %g",k, shift+1.0/wr[k], wi[k]);
+      Msg(INFO, "Lanczos Eigen Value %d = %g (%g) %g",k, 
+	  shift+1.0/wr[k], sqrt(shift+1.0/wr[k])/TWO_PI, wi[k]);
     
     /* store the real eigen values */
     for (k=1 ; k<=i ; k++)
@@ -193,7 +194,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
       break ;
     }
 
-    Msg(BIGINFO, "Eigen Value %d = %g", ii, wi[ii]);
+    Msg(BIGINFO, "Eigen Value %d = %g (f = %g)", ii, wi[ii], sqrt(wi[ii])/TWO_PI);
 
     if(i != 0){
       LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, NbrDof,
