@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.12 2003-02-13 18:41:07 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.13 2003-02-13 21:46:47 geuzaine Exp $"
 dnl
 dnl Machine independent configuration script for GetDP.
 dnl
@@ -120,6 +120,14 @@ else
   SOLVER='-D_SPARSKIT -D_ILU_FLOAT'
   LINKER='${F77}'
   case "$UNAME" in
+    IRIX*)
+      CC="cc"
+      F77="f77"
+      C_FLAGS="-O3"
+      C_PARSER_FLAGS="-g"
+      F77_FLAGS="-O3"
+      SOLVER="-D_SPARSKIT"
+    ;;
 dnl    IRIX*)
 dnl      CC="cc"
 dnl      F77="f77"
