@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.5 2003-03-23 05:54:17 geuzaine Exp $"
+#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.6 2003-03-25 09:41:29 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -103,7 +103,7 @@ void GF_FMMTranslationValue ( ){
 	    T[i][j] = (double*)Malloc(2*N*sizeof(double)) ;	
       }
       
-      Current.FMM.Flag_GF = 3 ;
+      Current.FMM.Flag_GF = FMM_TRANSLATION ;
 
       for(i = 0 ; i < NbrGroupSrc ; i++){ /* i Origin */
 	List_Read((FMMmat_P0+iEqu)->FG_L, i, &FG_L) ;	  
@@ -209,10 +209,10 @@ void GF_FMMTranslationValueAdaptive( ){
 	    (((int)GFx->Para[0] == _2D) ? Nd_A[j]*Nd_A[j] : (2*Nd_A[j]-1)*(2*Nd_A[j]+1) ); 
 	  T[i][j] = (double*)Malloc(2*N*sizeof(double)) ;
 	}	
-	
       }
       
-      Current.FMM.Flag_GF = 3 ;
+      
+      Current.FMM.Flag_GF = FMM_TRANSLATION ;
 
       for(i = 0 ; i < NbrGroupSrc ; i++){ /* i Origin */
 	List_Read((FMMmat_P0+iEqu)->FG_L, i, &FG_L) ;	  
@@ -221,13 +221,15 @@ void GF_FMMTranslationValueAdaptive( ){
 	if(NbrFG){
 	  FG = (int*)(FG_L->array) ;
 	  Nd_A = (int*)(Nd_L->array) ;
-	
 	  Current.xs = (FMMDataSrc_P0+i)->Xgc ;
 	  Current.ys = (FMMDataSrc_P0+i)->Ygc ;
 	  Current.zs = (FMMDataSrc_P0+i)->Zgc ;
 	  Current.FMM.Rsrc = (FMMDataSrc_P0+i)->Rmax ;
+
 	  for (j = 0 ; j < NbrFG ; j++){ /* j Destination */
 	    Current.FMM.NbrDir = Nd_A[j] ;
+	    N = (GFx->NbrParameters==2) ? Nd_A[j] :
+	      (((int)GFx->Para[0] == _2D) ? Nd_A[j]*Nd_A[j] : (2*Nd_A[j]-1)*(2*Nd_A[j]+1) );
 	    Current.x = (FMMDataObs_P0 + FG[j])->Xgc ;
 	    Current.y = (FMMDataObs_P0 + FG[j])->Ygc ;
 	    Current.z = (FMMDataObs_P0 + FG[j])->Zgc ;
