@@ -1,18 +1,18 @@
-# $Id: Makefile,v 1.32 2000-10-30 11:53:31 geuzaine Exp $
+# $Id: Makefile,v 1.33 2000-10-31 18:35:50 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
 #  Optional packages: 
 #    * flex and bison to rebuild the parser
-#    * Windows 95/98/NT: cygwin B20 (http://sources.redhat.com/cygwin/) 
-#    * PETSc: 2.0.28 (you have to define PETSC_DIR and PETSC_ARCH)
-#    * METIS: 4.0 (you have to define METIS_DIR)
+#    * cygwin to build on Windows 9x/NT (http://sources.redhat.com/cygwin/) 
+#    * PETSc 2.0.29 (you have to define the PETSC_DIR and PETSC_ARCH variables)
+#    * METIS 4.0 (you have to define the METIS_DIR variable)
 #
 # ----------------------------------------------------------------------
-#  To build a stand alone executable on Windows, you should install 
-#  the mingw-extra includes and libraries in addition to cygwin (see
+#  To build a stand alone executable on Windows, you should install, 
+#  in addition to cygwin, the mingw-extra includes and libraries (see
 #  ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/*extra*) in
-#  the /mingw directory, and compile with 'make mingw'.
+#  the /mingw directory, and then compile with 'make mingw'.
 #  To check the final dependendies: 'objdump -p getdp-win | grep DLL'
 #
 # ----------------------------------------------------------------------
@@ -459,4 +459,5 @@ sgi64: tag
         ); done
 	f77 -64 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
 	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.19 2000-10-30 09:48:16 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.20 2000-10-31 18:35:50 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -271,7 +271,6 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
   }
 
 }
-
 
 void GetResources(long *s, long *us, long *mem){
 #ifndef MSDOS
