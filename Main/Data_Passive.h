@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.38 2001-07-30 08:32:15 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.39 2001-08-05 21:25:51 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -23,7 +23,16 @@
 /* ------------------------------------------------------------------------ */
 
 #define MAX_DIM             9   /* second-rank tensor of order 3 : 3^2 = 9  */
+
+/* Please set this to the lowest possible value for common getdp
+   versions, until we do dynamic allocation. Otherwise, some
+   postprocessing operations become almost impossible to perform in
+   3D... */
+#ifdef _MULTIHAR
 #define NBR_MAX_HARMONIC    10
+#else
+#define NBR_MAX_HARMONIC    2   
+#endif
 
 struct Value {
   int     Type ;
