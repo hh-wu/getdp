@@ -10,7 +10,7 @@
 
 /* Encore assez experimental... Aucune desallocation 
    n'est effectuee. */
-
+/* Mais si, mais si */
 #include "LinAlg.h"
 #include "Message.h"
 
