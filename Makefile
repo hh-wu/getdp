@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.162 2004-05-01 15:54:17 geuzaine Exp $
+# $Id: Makefile,v 1.163 2004-07-02 20:32:33 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -222,21 +222,21 @@ distrib-post:
 	mv -f Makefile.distrib Makefile
 	rm -f ${GETDP_VERSION_FILE}
 
-distrib-unix: clean 
+distrib-unix:
 	make distrib-pre
 	make all
 	make package-unix
 	make distrib-post
 	ldd bin/getdp
 
-distrib-win: clean 
+distrib-win: 
 	make distrib-pre
 	make all
 	make package-win
 	make distrib-post
 	objdump -p bin/getdp.exe | grep DLL
 
-distrib-mac: clean
+distrib-mac:
 	make distrib-pre
 	make all
 	make package-mac
