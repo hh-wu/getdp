@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.46 2003-03-25 22:46:50 geuzaine Exp $
+@c $Id: getdp.texi,v 1.47 2003-03-25 22:56:44 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 @c
@@ -48,7 +48,7 @@
 @c For commercial releases, set the COMMERCIAL flag (uncomment the following
 @c line). This will prevent all references to "free software" and the like...
 @c
-@set COMMERCIAL
+@c @set COMMERCIAL
 @c
 @c =========================================================================
 @c %**start of header
