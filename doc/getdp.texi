@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.24 2000-10-05 08:58:05 geuzaine Exp $
+@c $Id: getdp.texi,v 1.25 2000-10-18 21:23:57 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -31,7 +31,6 @@
 @c =========================================================================
 @c %**start of header
 @setfilename   getdp.info
-@c variables
 @set EDITION   1.8
 @set VERSION   0.77
 @set DAY       26
@@ -39,13 +38,10 @@
 @set COPYRIGHT @copyright{} 1997-2000 Patrick Dular, Christophe Geuzaine
 @set WEB-GETDP @uref{http://www.geuz.org/getdp/}
 @set WEB-GMSH  @uref{http://www.geuz.org/gmsh/}
-@c title
 @settitle GetDP @value{VERSION}
 @footnotestyle separate
-@c recto-verso (recto -> on)
 @setchapternewpage odd
 @paragraphindent 0
-@c @afourpaper
 @finalout
 @c %**end of header
 
@@ -53,6 +49,10 @@
 @defcodeindex mv
 @c merge function and type indexes 
 @syncodeindex fn vr
+
+@c =========================================================================
+@c Info directives
+@c =========================================================================
 
 @ifinfo
 @dircategory Math
@@ -73,6 +73,10 @@ Sart Tilman Campus, Building B28 @*
 B-4000 Li@`ege @*
 BELGIUM @*
 @end ifinfo
+
+@c =========================================================================
+@c TeX directives
+@c =========================================================================
 
 @iftex
 @global@let@bullet=-
@@ -125,11 +129,11 @@ html) are available at @value{WEB-GETDP}.
 @contents
 
 @c =========================================================================
-@c Top node
+@c Top node (for all output, except TeX)
 @c =========================================================================
 
-@ifinfo
-@node Top, Copying, (dir), (dir)
+@ifnottex
+@node Top, Copying Conditions, (dir), (dir)
 @top GetDP
 
 @chapheading The documentation for GetDP, version  @value{VERSION}
@@ -141,16 +145,16 @@ GetDP is a scientific computation software for the numerical solution of
 integro-differential equations, using finite element and integral type
 methods. This is Edition @value{EDITION} of the @cite{GetDP Manual}, last
 updated @value{DAY} @value{MONTH} for GetDP Version @value{VERSION}.
-@end ifinfo
+@end ifnottex
 
 @c =========================================================================
 @c Master menu
 @c =========================================================================
 
 @menu
-* Copying::                     Copyright and copying conditions
+* Copying Conditions::          
 * Introduction::                Basic presentation
-* Overview::                    Problem resolution philosophy
+* General overview::            
 * Expressions::                 The expression mechanism
 * Objects::                     Definition of all GetDP objects
 * Types for objects::           Definition of all types for objects
@@ -159,7 +163,7 @@ updated @value{DAY} @value{MONTH} for GetDP Version @value{VERSION}.
 * Running GetDP::               How to run GetDP on your operating system
 * File formats::                Input and output file formats
 * Versions and credits::        Versions history and contributors
-* Tips::                        Tips to improve the efficiency
+* Tips and tricks::             
 * Gmsh examples::               Sample Gmsh input files
 * Concept index::               Main concepts
 * Syntax index::                Reserved keywords
@@ -174,15 +178,15 @@ Introduction
 * Research::                    
 * Education::                   
 * Industry::                    
-* Reading Guidelines::          
+* How to Read this Manual?::    
 
 General Overview
 
-* Tools::                       
-* Syntax::                      
+* Numerical tools as objects::  
+* Syntactic rules::             
 * Comments::                    
 * Includes::                    
-* Possibilities::               
+* Which Problems can GetDP Actually Solve?::  
 
 Expressions 
 
@@ -238,7 +242,7 @@ Types for @code{Function}
 * Math functions::              
 * Extended math functions::     
 * Green functions::             
-* Type functions::              
+* Type manipulation functions::  
 * Coordinate functions::        
 * Miscellaneous functions::     
 
@@ -307,7 +311,7 @@ Output File Format
 
 Versions and Credits
 
-* Versions::                    
+* Version history::             
 * Bugs::                        
 * Contributors::                
 
@@ -340,7 +344,7 @@ download information, are always available on the web site.
 @c Introduction
 @c =========================================================================
 
-@node Introduction, Overview, Copying, Top
+@node Introduction, General overview, Copying Conditions, Top
 @unnumbered Introduction
 
 @cindex Introduction
@@ -371,7 +375,7 @@ as research, collaboration, education, training and industrial studies.
 * Research::                    
 * Education::                   
 * Industry::                    
-* Reading Guidelines::          
+* How to Read this Manual?::    
 @end menu
 
 @c -------------------------------------------------------------------------
@@ -416,7 +420,7 @@ problem.
 @c Industrial studies
 @c -------------------------------------------------------------------------
 
-@node Industry, Reading Guidelines, Education, Introduction
+@node Industry, How to Read this Manual?, Education, Introduction
 @heading Industrial Studies
 
 The treatment of industrial problems can also be facilitated because
@@ -434,16 +438,15 @@ ready-to-use software could be rapidly developed for given problems.
 
 @cindex Reading, guidelines
 
-After reading @ref{Overview}, and @ref{Expressions}, which depict the
-general concepts and the way to construct simple expressions in GetDP,
-you can safely (in a first reading) skip @ref{Objects} and @ref{Types
-for objects} and directly go to @ref{Short examples}. This chapter gives
-simple examples of the problem definition syntax used to define the
-discrete problems. For each example, you should then go back to
-@ref{Objects}, and @ref{Types for objects}, and have a detailed view of
-the syntax of the objects appearing in it. Note that indexes for many
-concepts and for all the syntax elements are available at the end of
-this manual.
+After reading @ref{General overview}, and @ref{Expressions}, which depict
+the general concepts and the way to construct simple expressions in GetDP,
+you can safely (in a first reading) skip @ref{Objects} and @ref{Types for
+objects} and directly go to @ref{Short examples}. This chapter gives simple
+examples of the problem definition syntax used to define the discrete
+problems. For each example, you should then go back to @ref{Objects}, and
+@ref{Types for objects}, and have a detailed view of the syntax of the
+objects appearing in it. Note that indexes for many concepts and for all the
+syntax elements are available at the end of this manual.
 
 Once the examples presented in @ref{Short examples}, are understood, you
 may start to use GetDP on your computer (@pxref{Running GetDP}), for
@@ -466,18 +469,18 @@ from the web site.
 @cindex Numerical tools, overview
 
 @menu
-* Tools::                       
-* Syntax::                      
+* Numerical tools as objects::  
+* Syntactic rules::             
 * Comments::                    
 * Includes::                    
-* Possibilities::               
+* Which Problems can GetDP Actually Solve?::  
 @end menu
 
 @c -------------------------------------------------------------------------
 @c Numerical Tools as Objects
 @c -------------------------------------------------------------------------
 
-@node Numerical tools as objects, Syntax, Overview, Overview
+@node Numerical tools as objects, Syntactic rules, General overview, General overview
 @section Numerical Tools as Objects
 
 @cindex Objects, dependencies
@@ -546,7 +549,7 @@ objects of the second group, adapted to treatments of defined problems.
 @c Syntactic Rules Used in this Document
 @c -------------------------------------------------------------------------
 
-@node Syntactic rules, Comments, Tools, Overview
+@node Syntactic rules, Comments, Numerical tools as objects, General overview
 @section Syntactic Rules Used in this Document
 
 @cindex Syntax, rules
@@ -590,7 +593,7 @@ The @var{etc} symbol replaces nonlisted rules.
 @c Comments
 @c -------------------------------------------------------------------------
 
-@node Comments, Includes, Syntax, Overview
+@node Comments, Includes, Syntactic rules, General overview
 @section Comments
 
 @cindex Comments
@@ -616,7 +619,7 @@ These commands won't have the described effects inside double quotes
 @c Includes
 @c -------------------------------------------------------------------------
 
-@node Includes, Possibilities, Comments, Overview
+@node Includes, Which Problems can GetDP Actually Solve?, Comments, General overview
 @section Includes
 
 @cindex Includes
@@ -639,7 +642,7 @@ is ignored.
 @c Which Problems can GetDP actually solve?
 @c -------------------------------------------------------------------------
 
-@node Which Problems can GetDP Actually Solve?,  , Includes, Overview
+@node Which Problems can GetDP Actually Solve?,  , Includes, General overview
 @section Which Problems can GetDP Actually Solve?
 
 @cindex Scope of GetDP
@@ -716,7 +719,7 @@ time domain finite difference method
 @c Expressions
 @c =========================================================================
 
-@node Expressions, Objects, Overview, Top
+@node Expressions, Objects, General overview, Top
 @chapter Expressions 
 
 @c -------------------------------------------------------------------------
@@ -750,7 +753,7 @@ operators, etc. Note that `white space' (spaces, tabs, new line
 characters) is ignored inside expressions.
 
 Expressions are denoted by the metasyntactic variable @var{expression}
-(remember the definition of the syntactic rules in @ref{Syntax}):
+(remember the definition of the syntactic rules in @ref{Syntactic rules}):
 
 @example
 @var{expression}:
@@ -2185,7 +2188,6 @@ defines the post-processings @code{@var{post-proces@-sing-id}@{@var{i}@}},
 @tindex NameOfPostProcessing
 @tindex Operation
 @tindex UsingPost
-@tindex Plot
 @tindex Print
 @tindex Adapt
 @tindex Sort
@@ -2381,7 +2383,7 @@ Dual volumes of elements of @var{R1}.
 * Math functions::              
 * Extended math functions::     
 * Green functions::             
-* Type functions::              
+* Type manipulation functions::  
 * Coordinate functions::        
 * Miscellaneous functions::     
 @end menu
@@ -2536,7 +2538,7 @@ result is always in [0,@var{real}[.
 @c Green functions
 @c .........................................................................
 
-@node Green functions, Type functions, Extended math functions, Types for Function
+@node Green functions, Type manipulation functions, Extended math functions, Types for Function
 @subsection Green Functions
 
 @mvindex @var{green-function-id}
@@ -2681,7 +2683,7 @@ Gets the ZZ component of a tensor.
 @c Coord
 @c .........................................................................
 
-@node Coordinate functions, Miscellaneous functions, Type functions, Types for Function
+@node Coordinate functions, Miscellaneous functions, Type manipulation functions, Types for Function
 @subsection Coordinate functions
 
 @mvindex @var{coord-function-id}
@@ -4949,10 +4951,10 @@ as for the electrostatic problem in @ref{Electrostatic problem}.
 @cindex Options, command line
 @cindex Running GetDP
 
-GetDP has no graphical interface. It is a command-line driven program
-that reads a problem definition file once at the begining of the
-processing. This problem definition file is a regular ASCII file
-(@pxref{Tools}), hence created with whatever editor you like.
+GetDP has no graphical interface. It is a command-line driven program that
+reads a problem definition file once at the begining of the processing. This
+problem definition file is a regular ASCII file (@pxref{Numerical tools as
+objects}), hence created with whatever editor you like.
 
 If you just type the program name at your shell prompt (without any
 argument), you will get a short help on how to run GetDP. All GetDP
@@ -5325,11 +5327,11 @@ Undocumented.
 @c Versions and Credits
 @c =========================================================================
 
-@node Versions and credits, Tips, File formats, Top
+@node Versions and credits, Tips and tricks, File formats, Top
 @chapter Versions and Credits
 
 @menu
-* Versions::                    
+* Version history::             
 * Bugs::                        
 * Contributors::                
 @end menu
@@ -5370,7 +5372,7 @@ post-processing (faster and less bloated); Lots of internal cleaning;
 @c Bugs
 @c -------------------------------------------------------------------------
 
-@node Bugs, Contributors, Versions, Versions and credits
+@node Bugs, Contributors, Version history, Versions and credits
 @section Bugs
 
 @cindex Known bugs
@@ -5446,17 +5448,25 @@ improvements and bug correction...
 
 @itemize @bullet
 @item
-Use emacs to edit your files, and load the C++ mode. This permits
-automatic syntax highlighting and easy indentation. Automatic loading of
-the C++ mode for @file{.pro} files can be done by adding the following
-command in your @code{.emacs} file: @code{(setq auto-mode-alist (append
-'(("\\.pro$" . c++-mode)) auto-mode-alist))}.
+Install the 'info' version of this user's guide! On your (Unix) system, this
+can be done by 1) copying all getdp.info* files to the place where your info
+files live (usually /usr/info), and 2) issuing the command 'install-info
+/usr/info/getdp.info /usr/info/dir'. You will then be able to access the
+documentation with the command 'info getdp'. Note that particular sections
+("nodes") can be accessed directly. For example, 'info getdp functionspace'
+will take you directly to the definition of the FunctionSpace object.
 @item
-Define integration and Jacobian method in separate files, reusable
-(@pxref{Includes}) in all your problem definition structures. Define
-meshes, groups, functions and constraints in one file dependent of the
-geometrical model, and functions spaces, formulations, resolutions and
-post-processings in files independent of the geometrical model.
+Use emacs to edit your files, and load the C++ mode! This permits automatic
+syntax highlighting and easy indentation. Automatic loading of the C++ mode
+for @file{.pro} files can be done by adding the following command in your
+@code{.emacs} file: @code{(setq auto-mode-alist (append '(("\\.pro$"
+. c++-mode)) auto-mode-alist))}.
+@item
+Define integration and Jacobian method in separate files, reusable in all
+your problem definition structures (@pxref{Includes}). Define meshes,
+groups, functions and constraints in one file dependent of the geometrical
+model, and functions spaces, formulations, resolutions and post-processings
+in files independent of the geometrical model.
 @item
 Use @code{All} as soon as you can in the definition of topological
 entities used as @code{Entity} of @code{BasisFunction}'s. 
@@ -5465,6 +5475,11 @@ This will prevent GetDP of constructing unnecessary lists of entities.
 Intentionnally misspelling an object type in the problem definition
 structure will produce an error message listing all available types in
 the particular context.
+@item
+If you don't specify the mandatory arguments on the command line, GetDP will
+give you the available choices. For example, 'getdp test -pos' (the name of
+the PostOperation is missing) will produce an error message listing all
+available PostOperations.
 @end itemize
 
 
@@ -5472,7 +5487,7 @@ the particular context.
 @c Gmsh Examples
 @c =========================================================================
 
-@node Gmsh examples, Concept index, Tips, Top
+@node Gmsh examples, Concept index, Tips and tricks, Top
 @appendix Gmsh Examples
 
 @cindex Gmsh, examples
