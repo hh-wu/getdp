@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.12 2000-11-25 23:09:38 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.13 2000-11-26 21:33:44 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -20,6 +20,10 @@
 
 #define NBR_MAX_ISO  200
 
+/* bricolage: en attendant de trouver une meilleure solution pour les
+   sorties ascii en format Gmsh (au niveau allocation memoire), je
+   laisse la sortie GmshParsed par defaut. */
+
 List_T *PostElement_L = NULL ;
 List_T *TimeValue_L = NULL ;
 
@@ -40,10 +44,12 @@ void  Format_PostFormat(int Format){
 
   switch(Format){
   case FORMAT_GMSH :
-    fprintf(PostStream, "$PostFormat /* Gmsh 0.995, %s */\n",
-	    Flag_BIN ? "binary" : "ascii") ;
-    fprintf(PostStream, "0.995 %d\n", Flag_BIN) ;
-    fprintf(PostStream, "$EndPostFormat\n") ;
+    if(Flag_BIN){/* bricolage */
+      fprintf(PostStream, "$PostFormat /* Gmsh 0.995, %s */\n",
+	      Flag_BIN ? "binary" : "ascii") ;
+      fprintf(PostStream, "0.995 %d\n", Flag_BIN) ;
+      fprintf(PostStream, "$EndPostFormat\n") ;
+    }
     break ;
   case FORMAT_GNUPLOT :
     fprintf(PostStream, "# GetDP v%g, %s\n",
@@ -86,9 +92,14 @@ void  Format_PostHeader(int Format, int Contour,
     fprintf(PostStream, "View \"%s\" {\n", name) ;
     break ;
   case FORMAT_GMSH :
-    fprintf(PostStream, "$View /* %s */\n", name);
-    fprintf(PostStream, "%s ", name);
-    Gmsh_StartNewView = 1 ;
+    if(Flag_BIN){ /* bricolage */
+      fprintf(PostStream, "$View /* %s */\n", name);
+      fprintf(PostStream, "%s ", name);
+      Gmsh_StartNewView = 1 ;
+    }
+    else{
+      fprintf(PostStream, "View \"%s\" {\n", name) ;
+    }
     break ;
   case FORMAT_GNUPLOT :
     fprintf(PostStream, "# PostData '%s'\n", name);
@@ -164,20 +175,25 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
     fprintf(PostStream, "};\n") ;
     break ;
   case FORMAT_GMSH :
-    fprintf(PostStream, "%d %d %d %d %d %d %d %d %d %d %d %d %d\n", 
-	    List_Nbr(TimeValue_L),
-	    NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, 
-	    NbST, NbVT, NbTT, NbSS, NbVS, NbTS);
-    f = Flag_BIN ? LIST_FORMAT_BINARY : LIST_FORMAT_ASCII ;
-    List_WriteToFile(TimeValue_L, PostStream, f); 
-    List_WriteToFile(SP, PostStream, f); List_WriteToFile(VP, PostStream, f);
-    List_WriteToFile(TP, PostStream, f); List_WriteToFile(SL, PostStream, f);
-    List_WriteToFile(VL, PostStream, f); List_WriteToFile(TL, PostStream, f);
-    List_WriteToFile(ST, PostStream, f); List_WriteToFile(VT, PostStream, f);
-    List_WriteToFile(TT, PostStream, f); List_WriteToFile(SS, PostStream, f);
-    List_WriteToFile(VS, PostStream, f); List_WriteToFile(TS, PostStream, f);
-    if(Flag_BIN) fprintf(PostStream, "\n");
-    fprintf(PostStream, "$EndView\n");
+    if(Flag_BIN){ /* bricolage */
+      fprintf(PostStream, "%d %d %d %d %d %d %d %d %d %d %d %d %d\n", 
+	      List_Nbr(TimeValue_L),
+	      NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, 
+	      NbST, NbVT, NbTT, NbSS, NbVS, NbTS);
+      f = Flag_BIN ? LIST_FORMAT_BINARY : LIST_FORMAT_ASCII ;
+      List_WriteToFile(TimeValue_L, PostStream, f); 
+      List_WriteToFile(SP, PostStream, f); List_WriteToFile(VP, PostStream, f);
+      List_WriteToFile(TP, PostStream, f); List_WriteToFile(SL, PostStream, f);
+      List_WriteToFile(VL, PostStream, f); List_WriteToFile(TL, PostStream, f);
+      List_WriteToFile(ST, PostStream, f); List_WriteToFile(VT, PostStream, f);
+      List_WriteToFile(TT, PostStream, f); List_WriteToFile(SS, PostStream, f);
+      List_WriteToFile(VS, PostStream, f); List_WriteToFile(TS, PostStream, f);
+      if(Flag_BIN) fprintf(PostStream, "\n");
+      fprintf(PostStream, "$EndView\n");
+    }
+    else{
+      fprintf(PostStream, "};\n") ;
+    }
     break ;
   case FORMAT_ADAPT :
     fprintf(PostStream, "$EndAdapt\n");
@@ -666,9 +682,16 @@ void  Format_PostElement(int Format, int Contour, int Store,
 		      PE->Value) ;
     break ;
   case FORMAT_GMSH :
-    Format_Gmsh(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-		PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
-		PE->Value) ;
+    if(Flag_BIN){/* bricolage */
+      Format_Gmsh(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
+		  PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
+		  PE->Value) ;
+    }
+    else{
+      Format_GmshParsed(TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
+			PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
+			PE->Value) ;
+    }
     break ;
   case FORMAT_GNUPLOT :
     Format_Gnuplot(Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
