@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.c,v 1.16 2000-10-15 14:02:48 geuzaine Exp $ */
+/* $Id: Pos_Formulation.c,v 1.17 2000-10-16 08:14:46 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -879,19 +879,16 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
     }
   }
 
-  /* Sort the elements */
-
-  if(!NbrIso && !InteractiveInterrupt){
-    switch(PostSubOperation_P->Sort){
-    case SORT_BY_POSITION : List_Sort(PostElement_L, fcmp_PostElement) ; break ;
-    case SORT_BY_CONNECTIVITY : Sort_PostElementByConnectivity(PostElement_L) ; break ;
-    default : break ;
-    }
-  }
-
   /* Print everything if we are in Store mode */
 
   if(Store && !InteractiveInterrupt){
+
+    /* Sort the elements */
+    
+    switch(PostSubOperation_P->Sort){
+    case SORT_BY_POSITION : List_Sort(PostElement_L, fcmp_PostElement) ; break ;
+    case SORT_BY_CONNECTIVITY : Sort_PostElementByConnectivity(PostElement_L) ; break ;
+    }
 
     /* Initialisations for Iso Computations */
     if(NbrIso){
@@ -942,6 +939,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 				   DSQU(PE->y[1]-PE->y[0])+
 				   DSQU(PE->z[1]-PE->z[0])) ;
 	Dummy[2] = PE->v[0] ;
+	Dummy[3] = -1. ;
       }
 
       if(!IsoType)
@@ -964,8 +962,6 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 
   if(IsoType){
     for(ii = 0 ; ii < NbrIso ; ii++){
-      if(PostSubOperation_P->Sort == SORT_BY_CONNECTIVITY)
-	Sort_PostElementByConnectivity(Iso_L[ii]) ;
       for(iPost = 0 ; iPost < List_Nbr(Iso_L[ii]) ; iPost++){
 	PE = *(struct PostElement**)List_Pointer(Iso_L[ii], iPost) ;
 	Print_PostElement(PostSubOperation_P->Format, Current.Time, 0, 
@@ -1314,12 +1310,10 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
   struct PostElement * PE ;
 
   int     i1, i2, i3, j, NbTimeStep, ts ;
-  double  u, v, w, Length, Normal[3] ;
+  double  u, v, w, Length, Normal[4] = {0., 0., 0., 0.} ;
   double  X[4], Y[4], Z[4], S[3], N[4];
 
   Get_InitDofOfElement(&Element) ;
-
-  PE = Create_PostElement(0, POINT, 1, 0) ;
 
   if( !(NbTimeStep = List_Nbr(PSO_P->TimeStep_L)) ){
     NbTimeStep = List_Nbr(Current.DofData->Solutions);
@@ -1341,14 +1335,17 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
   switch(PSO_P->SubType) {
 
   case PLOT_ONGRID_0D :
+    PE = Create_PostElement(0, POINT, 1, 0) ;
     Current.x = PSO_P->Case.OnGrid.x[0] ;
     Current.y = PSO_P->Case.OnGrid.y[0] ;
     Current.z = PSO_P->Case.OnGrid.z[0] ;
     Normal[0] = Normal[1] = Normal[2] = 0.0 ;
     LETS_PRINT_THE_RESULT ;
+    Destroy_PostElement(PE) ;
     break;
 
   case PLOT_ONGRID_1D :
+    PE = Create_PostElement(0, POINT, 1, 0) ;
     X[0] = PSO_P->Case.OnGrid.x[0] ; X[1] = PSO_P->Case.OnGrid.x[1] ;
     Y[0] = PSO_P->Case.OnGrid.y[0] ; Y[1] = PSO_P->Case.OnGrid.y[1] ; 
     Z[0] = PSO_P->Case.OnGrid.z[0] ; Z[1] = PSO_P->Case.OnGrid.z[1] ;
@@ -1363,9 +1360,11 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
       Current.z = Z[0] + (Z[1] - Z[0]) * S[0] ;
       LETS_PRINT_THE_RESULT ;
     }
+    Destroy_PostElement(PE) ;
     break;
 
   case PLOT_ONGRID_2D :
+    PE = Create_PostElement(0, POINT, 1, 0) ;
     X[0] = PSO_P->Case.OnGrid.x[0] ; X[1] = PSO_P->Case.OnGrid.x[1] ;
     Y[0] = PSO_P->Case.OnGrid.y[0] ; Y[1] = PSO_P->Case.OnGrid.y[1] ;
     Z[0] = PSO_P->Case.OnGrid.z[0] ; Z[1] = PSO_P->Case.OnGrid.z[1] ;
@@ -1395,9 +1394,11 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
       }
       fprintf(PostStream, "\n");
     }
+    Destroy_PostElement(PE) ;
     break;
 
   case PLOT_ONGRID_3D :
+    PE = Create_PostElement(0, POINT, 1, 0) ;
     X[0] = PSO_P->Case.OnGrid.x[0] ; X[1] = PSO_P->Case.OnGrid.x[1] ; 
     Y[0] = PSO_P->Case.OnGrid.y[0] ; Y[1] = PSO_P->Case.OnGrid.y[1] ;
     Z[0] = PSO_P->Case.OnGrid.z[0] ; Z[1] = PSO_P->Case.OnGrid.z[1] ;
@@ -1423,9 +1424,11 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
       }
       fprintf(PostStream, "\n");
     }
+    Destroy_PostElement(PE) ;
     break;
 
   case PLOT_ONGRID_PARAM :
+    PE = Create_PostElement(0, POINT, 1, 0) ;
     Normal[0] = Normal[1] = Normal[2] = 0.0 ;
     for (i1 = 0 ; i1 < List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[0]) ; i1++) {
       List_Read(PSO_P->Case.OnParamGrid.ParameterValue[0], i1, &Current.s) ;
@@ -1447,12 +1450,12 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
       }
       if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1])>1) fprintf(PostStream, "\n");
     }
+    Destroy_PostElement(PE) ;
     break;
   }
 
   Print_PostFooter(PSO_P->Format);
 
-  Destroy_PostElement(PE) ;
   if(CPQ_P) Free(CumulativeValues);
 }
 
