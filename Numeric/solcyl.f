@@ -1,4 +1,4 @@
-c $Id: solcyl.f,v 1.2 2000-09-07 18:56:37 geuzaine Exp $
+c $Id: solcyl.f,v 1.3 2002-01-18 20:22:37 geuzaine Exp $
 c     -------------------------------------------------------
 c     Probleme du cylindre (solution analytique)
 c     Calcul de l'induction
@@ -26,6 +26,7 @@ c     -------------------------------------------------------
       endif
 
       mu0 = 4.e-7 * 3.1415926536
+      t = atan2(y,x)
       
 c     ----- dynamique
       
@@ -48,8 +49,6 @@ c     ----- dynamique
          
          ri = cmplx(r)
          z = k*ri
-         
-         t = atan2(y,x)
          
          mat(1,1)= (-1.0,0.0)/r0i
          mat(1,2)= j1
