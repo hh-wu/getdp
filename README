@@ -1,6 +1,5 @@
-
 This is GetDP, a General environment for the treatment of Discrete
-Problems
+Problems.
 
 To install GetDP, type
 
@@ -13,3 +12,4 @@ system. You can either use the --with-gsl-prefix configure option or
 set the GSL_DIR environment variable to specify a non-standard
 location. The GSL is available at http://sources.redhat.com/gsl/.
 
+See the doc/ and demos/ directories for documentation and examples.
