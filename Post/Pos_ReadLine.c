@@ -1,7 +1,7 @@
-#define RCSID "$Id: Pos_ReadLine.c,v 1.4 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Pos_ReadLine.c,v 1.5 2000-11-21 16:05:54 geuzaine Exp $"
 /* GNUPLOT - readline.c */
 
-/* WARNING: THIS IS A MODIFIED VERSION: see the 'getdp' tags */
+/* This is a modified version (see the 'getdp' tags) */
 
 /*
  * Copyright (C) 1986 - 1993   Thomas Williams, Colin Kelley

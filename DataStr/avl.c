@@ -1,4 +1,34 @@
-#define RCSID "$Id: avl.c,v 1.4 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: avl.c,v 1.5 2000-11-21 16:05:54 geuzaine Exp $"
+
+/*
+ * This is a modified version of the avl package
+ */
+
+/*
+ * avl package
+ *
+ * Copyright (c) 1988-1993, The Regents of the University of California.
+ *
+ * Permission to use, copy, modify, and distribute this software and its
+ * documentation for any purpose and without fee is hereby granted, provided
+ * that the above copyright notice appear in all copies and that both that
+ * copyright notice and this permission notice appear in supporting
+ * documentation, and that the name of the University of California not
+ * be used in advertising or publicity pertaining to distribution of 
+ * the software without specific, written prior permission.  The University
+ * of California makes no representations about the suitability of this
+ * software for any purpose.  It is provided "as is" without express or
+ * implied warranty.
+ *
+ * THE UNIVERSITY OF CALIFORNIA DISCLAIMS ALL WARRANTIES WITH REGARD TO 
+ * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND 
+ * FITNESS, IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE FOR
+ * ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
+ * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
+ * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN 
+ * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ */
+
 #include <stdio.h>
 
 #include "avl.h"
@@ -7,11 +37,9 @@
 #define ALLOC(type, number)  (type *) Malloc((unsigned) sizeof(type) * number)
 #define NIL(type)            (type *) 0
 #define FREE(item)           (void) Free(item)
-
-#define XRNMAX(a,b)             ((a) > (b) ? (a) : (b))
-
-#define HEIGHT(node) (node == NIL(avl_node) ? -1 : (node)->height)
-#define BALANCE(node) (HEIGHT((node)->right) - HEIGHT((node)->left))
+#define XRNMAX(a,b)          ((a) > (b) ? (a) : (b))
+#define HEIGHT(node)         (node == NIL(avl_node) ? -1 : (node)->height)
+#define BALANCE(node)        (HEIGHT((node)->right) - HEIGHT((node)->left))
 
 #define compute_height(node) {				\
     int x=HEIGHT(node->left), y=HEIGHT(node->right);	\
@@ -31,9 +59,11 @@ static void rotate_left(avl_node **node_p);
 static void rotate_right(avl_node **node_p);
 static void avl_walk_forward(avl_node *node, void (*func)(void *key, void *value));
 static void avl_walk_backward(avl_node *node, void (*func)(void *key, void *value));
-static void free_entry(avl_node *node, void (*key_free)(void *key), void (*value_free)(void *value));
+static void free_entry(avl_node *node, void (*key_free)(void *key), 
+		       void (*value_free)(void *value));
 static avl_node *new_node(void *key, void *value);
-static int do_check_tree(avl_node *node, int (*compar)(const void *key1, const void *key2), int *error);
+static int do_check_tree(avl_node *node, int (*compar)(const void *key1, const void *key2),
+			 int *error);
 
 
 avl_tree *avl_init_table(int (*compar)(const void *key1, const void *key2))
@@ -368,7 +398,8 @@ int avl_check_tree(avl_tree *tree)
     return error;
 }
 
-static int do_check_tree(avl_node *node, int (*compar)(const void *key1, const void *key2), int *error)
+static int do_check_tree(avl_node *node, 
+			 int (*compar)(const void *key1, const void *key2), int *error)
 {
     int l_height, r_height, comp_height, bal;
     
