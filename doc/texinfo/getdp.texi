@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.47 2003-03-25 22:56:44 geuzaine Exp $
+@c $Id: getdp.texi,v 1.48 2003-04-11 23:35:10 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 @c
@@ -80,9 +80,8 @@
 Problems
 @end direntry
 @noindent
-This is edition @value{EDITION}/@today{} of the @cite{GetDP Reference
-Manual}, for GetDP, a General environment for the Treatment of Discrete
-Problems, Version @value{GETDP-VERSION}.
+This is edition @value{EDITION} (@today{}) of the @cite{GetDP Reference
+Manual}, for GetDP @value{GETDP-VERSION}.
 @noindent
 Copyright @value{COPYRIGHT}
 @noindent
@@ -117,10 +116,10 @@ BELGIUM @*
 
 @title GetDP Reference Manual
 
-@subtitle The documentation for GetDP, Version  @value{GETDP-VERSION}
+@subtitle The documentation for GetDP, Version @value{GETDP-VERSION}
 @subtitle A General environment for the treatment of Discrete Problems
 @subtitle 
-@subtitle Edition @value{EDITION}/@today{}
+@subtitle Edition @value{EDITION} (@today{})
 
 @author Patrick Dular
 @author Christophe Geuzaine
@@ -157,15 +156,14 @@ all copies.
 @node Top, Copying conditions, (dir), (dir)
 @top GetDP
 
-@chapheading The documentation for GetDP, version  @value{GETDP-VERSION}
-@chapheading a General environment for the treatment of Discrete Problems
+@chapheading GetDP Reference Manual
 
 Patrick Dular and Christophe Geuzaine
 
 GetDP is a scientific computation software for the numerical solution of
 integro-differential equations, using finite element and integral type
-methods. This is edition @value{EDITION}/@today{} of the @cite{GetDP
-Reference Manual}, for GetDP Version @value{GETDP-VERSION}.
+methods. This is edition @value{EDITION} (@today{}) of the @cite{GetDP
+Reference Manual}, for GetDP @value{GETDP-VERSION}.
 @end ifnottex
 
 @c =========================================================================
