@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.6 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.7 2001-05-28 10:06:50 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -198,14 +198,16 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 
     if(i != 0){
       LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, NbrDof,
-		    DofData_P->NbrPart, DofData_P->Part);
+			  DofData_P->NbrPart, DofData_P->Part);
       List_Add(DofData_P->Solutions, &Solution_S) ;
       DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
     }
 
     DofData_P->CurrentSolution->Time = wi[ii] ;
+    DofData_P->CurrentSolution->TimeStep = ii ;
     DofData_P->CurrentSolution->TimeFunctionValues = NULL ;
+    DofData_P->CurrentSolution->SolutionExists = 1 ;
     LinAlg_ZeroVector(&DofData_P->CurrentSolution->x) ;
 
     for(k=0;k<NbrDof;k++){
