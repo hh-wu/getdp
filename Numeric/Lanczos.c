@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.20 2004-07-03 06:03:23 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.21 2004-07-03 06:19:46 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -47,7 +47,7 @@
    ce que vous devez savoir sur les matrices pour commencer), bon
    niveau theorique sans abstraction stratospherique et decrit
    precisement les ALGORITHMES (dont par exemple la methode
-   d'Arnoldi-Tchebychev conu par Saad lui-même).
+   d'Arnoldi-Tchebychev conu par Saad lui-meme).
    
    Golub & Van Loan, Matrix Computations, Johns Hopkins University
    Press, 3rd ed, 1996.  La troisieme edition de la bible du calcul
@@ -81,7 +81,7 @@
    ... Le best seller du calcul numerique des annees 90. Generation
    fast food oblige, c'est le fast programming. Indispensable en fait
    comme trousse de secours: un petit rappel theorique rapide ou une
-   petite routine toute faite peuvent être des gestes qui
+   petite routine toute faite peuvent etre des gestes qui
    sauvent...
 
    Et enfin, les Wilkinson: J. H. Wilkinson, Rounding Errors in
@@ -134,7 +134,7 @@
    5) Ameliorer les valeurs propres et les vecteurs propres a
    posteriori (il y a une methode simple expliquee dans Numerical
    Recipes, je crois...) et eventuellemnt introduire un critere
-   d'arrêt.
+   d'arret.
 
    6) Amelioration de l'algorithme: Preconditionner (il y a des trucs
    la dessus dans Saad, je crois).  Reorthogonaliser les colonnes de
@@ -461,7 +461,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
      RESOLUTIONS DU SYSTEME pour les iterations inverses qui est
      couteux). Par contre on ne considere que la partie reelle des
      produits scalaires de vecteurs et on construit une matrice de
-     Hessenberg reelle -> Ce n'est pas assez general pour être du
+     Hessenberg reelle -> Ce n'est pas assez general pour etre du
      vrai Arnoldi sur une matrice quelconque !!!  */
   
   /* Construire une Hessenberg complexe !! */
