@@ -20,8 +20,8 @@ Group {
   Val_Rint = 200.e-3;
   Val_Rext = 250.e-3;
 
-  DomainCC_Mag = Region[ {Air, AirInf, Core} ];
-  DomainC_Mag  = Region[ {Ind} ]; // Massive inductor (Ind), in DomainC_Mag
+  DomainCC_Mag = Region[ {Air, AirInf} ];
+  DomainC_Mag  = Region[ {Ind, Core} ]; // Massive inductor and conducting core
   DomainB_Mag  = Region[ {} ];
   DomainS_Mag  = Region[ {} ];
   DomainInf    = Region[ {AirInf} ];
@@ -40,7 +40,7 @@ Function {
   sigma [ Ind ] = 5.9e7;
   sigma [ Core ] = 2.5e7;
 
-  Freq = 50.;
+  Freq = 1.;
 
 }
 
@@ -68,13 +68,11 @@ Constraint {
 
   { Name Voltage_2D;
     Case {
-      // To use if Core in DomainC_Mag
-      // { Region Core; Value 0.; }
+      { Region Core; Value 0.; }
     }
   }
 
 }
-
 
 Include "Jacobian_Lib.pro"
 Include "Integration_Lib.pro"
@@ -84,6 +82,7 @@ PostOperation {
   { Name Map_a; NameOfPostProcessing MagDyn_av_2D;
     Operation {
       Print[ az, OnElementsOf Domain_Mag, File "Core_m_a.pos" ];
+      Print[ j, OnElementsOf Domain_Mag, File "Core_m_j.pos" ];
     }
   }
   { Name U_av;  NameOfPostProcessing MagDyn_av_2D;
