@@ -1,0 +1,16 @@
+
+### possible de changer ceci aussi en ligne de commande
+
+$T2H_DOCTYPE = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">'; 
+$T2H_EXPAND = "info";
+$T2H_USE_ISO = 0;
+@T2H_INCLUDE_DIRS = (".");
+$T2H_SHOW_MENU = 0;
+$T2H_NUMBER_SECTIONS = 0;
+$T2H_SPLIT = 'chapter';
+$T2H_LANG = 'en';
+
+
+# The following can only be set in the init file
+
+$T2H_INDEX_CHAPTER = 'Concept index';
