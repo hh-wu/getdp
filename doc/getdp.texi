@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.22 2000-09-28 08:11:19 geuzaine Exp $
+@c $Id: getdp.texi,v 1.23 2000-09-28 22:17:21 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -2188,6 +2188,7 @@ defines the post-processings @code{@var{post-proces@-sing-id}@{@var{i}@}},
 @tindex Plot
 @tindex Print
 @tindex Adapt
+@tindex Sort
 
 @mvindex @var{post-operation-id}
 @mvindex @var{post-operation-op}
@@ -3637,7 +3638,7 @@ p-refinement).
 Output results for the specified time steps only.
 @item Format @var{post-operation-fmt}
 Output results in the specified format.
-@item Adapt @code{P1}|@code{H1}|@code{H2}
+@item Adapt P1|H1|H2
 Performs p- or h-refinement on the post-processing result, considered as an
 error map.
 @item Target @var{expression-cst} 
@@ -3645,6 +3646,9 @@ Specifies the target for the optimizer during adaption.
 @item Value @var{real-list}
 Specifies acceptable output values for discrete optimization (e.g. the
 available interpolation orders).
+@item Sort Position|Connection
+Sorts the output by position (x, y, z) or by connection (for @code{LINE}
+elements only).
 @end vtable
 
 
@@ -3660,16 +3664,17 @@ Post processing format readable by Gmsh.
 @item Gnuplot
 @item Table
 Column-oriented output, e.g.@: suitable for Gnuplot, Excel, Caleida Graph,
-etc. The columns are: @var{element-type} @var{x-coords} @var{y-coords}
-@var{z-coords} < @var{real} @var{real} @var{real} > @var{values}. The three
-optional @var{real} numbers preceding the @var{values} contain
-context-dependant information, depending on the type of plot: curvilinear
-abscissa for @code{OnLine} plots, normal to the plane for @code{OnPlane}
-plots, etc.
+etc. The columns are: @var{element-type} @var{element-index} @var{x-coord}
+@var{y-coord} @var{z-coord} <@var{x-coord} @var{y-coord} @var{z-coord}>
+@dots{} @var{real} @var{real} @var{real} @var{values}. The three @var{real}
+numbers preceding the @var{values} contain context-dependant information,
+depending on the type of plot: curvilinear abscissa for @code{OnLine} plots,
+normal to the plane for @code{OnPlane} plots, etc.
 @item TimeTable
 Time oriented column output, e.g.@: suitable for Gnuplot, Excel, Caleida
-Graph, etc. The columns are: @var{time-step} @var{time} @var{x-coords}
-@var{y-coords} @var{z-coords} @var{value}.
+Graph, etc. The columns are: @var{time-step} @var{time} @var{x-coord}
+@var{y-coord} @var{z-coord} <@var{x-coord} @var{y-coord} @var{z-coord}>
+@dots{} @var{value}.
 @item Adaption
 Adaption map. Undocumented.
 @end vtable
@@ -5358,6 +5363,7 @@ integral quantity correction; separate iteration matrix generation;
 @item
 @b{0.76}: Reorganized high order shape functions; Optimization of the
 post-processing (faster and less bloated); Lots of internal cleaning;
+@b{0.77}: Table oriented post-processing formats have changed;
 @end itemize
 
 @c -------------------------------------------------------------------------
