@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.152 2004-03-05 18:37:37 geuzaine Exp $
+# $Id: Makefile,v 1.153 2004-03-07 02:37:30 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -182,6 +182,7 @@ distrib-win: clean all package-win distrib-msg
 	objdump -p bin/getdp.exe | grep DLL
 
 distrib-mac: clean all package-unix distrib-msg
+	mv getdp-${GETDP_RELEASE}-${UNAME}.tgz getdp-${GETDP_RELEASE}-MacOSX.tgz
 	otool -L bin/getdp
 
 source-common:

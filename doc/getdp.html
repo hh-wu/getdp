@@ -3,16 +3,16 @@
 
 <head>
 
-<title>GetDP: a General Environment for the Treatment of Discrete Problems</title>
+<title>GetDP: a General Environment for the Treatment of Discrete
+Problems</title>
 
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1"> 
 
-<meta name="keywords" content="free finite element software, free
-integral equation sofware, free boundary element sofware, General
-Environment for the Treatment of Discrete Problems, partial
-differential equations, numerical methods, electromagnetism,
-electromagnetics, thermal, thermics, mechanical, mechanics, acoustics,
-couplings, Gmsh">
+<meta name="keywords" content="free, finite element, solver, finite elements,
+integral equations, boundary elements, partial differential equations,
+numerical methods, electromagnetism, electromagnetics, thermal,
+thermics, mechanical, mechanics, acoustics, couplings, Gmsh, solveur,
+elements finis, programme gratuit">
 
 <link href="/general.css" rel="stylesheet" type="text/css">
 
@@ -20,18 +20,20 @@ couplings, Gmsh">
 
 <body>
 
-<h1 align="center">GetDP: a General Environment for the Treatment of Discrete Problems</h1>
+<h1 align="center">GetDP: a General Environment for the Treatment of
+Discrete Problems</h1>
 <p>
 <h3 align="center">Patrick Dular and Christophe Geuzaine</h3>
 <p>
-<h3 align=center>Version <a href="doc/VERSIONS">0.89</a>, 26 March 2003</h3>
+<h3 align=center>Version <a href="doc/VERSIONS">1.0</a>, xx March 2004</h3>
 <p>
 <center>
   <a href="#Description">Description</a> |
   <a href="#Documentation">Documentation</a> |
   <a href="#Mailing lists">Mailing lists</a> |
   <a href="#Download"><b>Download</b></a> |
-  <a href="#Credits">Credits</a> |
+  <a href="#Authors">Authors and credits</a> |
+  <a href="#Licensing">Licensing</a> |
   <a href="#Links">Links</a>
 </center>
 
@@ -66,7 +68,6 @@ capabilities</a>.
   <li><a href="/getdp/doc/FAQ">Frequently asked questions</a>
   <li><a href="/getdp/doc/VERSIONS">Version history</a>
   <li><a href="/getdp/doc/CREDITS">Credits</a>
-  <li><a href="/getdp/doc/README.txt">For Windows versions only</a>
 </ul>
 
 <form method=GET action="http://www.geuz.org/search/search-geuz.cgi">
@@ -98,44 +99,69 @@ capabilities</a>.
 
 <h2><a name="Download"></a>Download</h2>
 
-<!--
-GetDP is freely available under the terms of the <a
-href="/getdp/doc/COPYING">GNU General Public License (GNU GPL)</a>.
-Pre-compiled binaries are available for Windows, Mac OS X and
-Linux. A sample demo file is included in the archives.
--->
-
-Executable versions of GetDP are available for Windows and for most of
-the classical UNIX platforms. A sample demo file is included in the
-archives.
+GetDP is distributed under the terms of the <a
+href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License
+(GPL)</a>. Pre-compiled binaries are available for Windows, Linux and
+Mac OS X. A sample demo file is included in the archives.
 
 <ul>
-  <li><a href="/getdp/bin/getdp-0.89.0-Windows.zip">Windows zip archive (95/98/NT)</a>
-  <li><a href="/getdp/bin/getdp-0.89.0-1.i386.rpm">Linux RPM (Red Hat >= 7.3, i386)</a> 
-  <li><a href="/getdp/bin/getdp-0.89.0-Linux.tgz">Linux tarball (glibc >= 2.2, i386)</a> 
-  <li><a href="/getdp/bin/getdp-0.89.0-Darwin.tgz">Mac OS X tarball (Darwin 6.4)</a>
-  <li><a href="/getdp/bin/getdp-0.89.0-OSF1.tgz">Compaq Tru64 tarball (OSF 4.0)</a>
-  <li><a href="/getdp/bin/getdp-0.89.0-SunOS.tgz">Sun tarball (SunOS 5.8)</a>
-  <li><a href="/getdp/bin/getdp-0.89.0-AIX.tgz">IBM tarball (AIX)</a>
-  <li><a href="/getdp/bin/getdp-0.89.0-IRIX.tgz">SGI tarball (IRIX 6.5)</a>
-  <li><a href="/getdp/bin/getdp-0.89.0-HP-UX.tgz">HP tarball (HPUX 11.00)</a>
-<!--
-  <li><a href="/getdp/bin/getdp-0.89.0-source.tgz">Source tarball</a>
--->
+<li><a href="/getdp/bin/Windows/getdp-1.0.0-Windows.zip">Windows zip archive (95/98/NT/2000/XP)</a>
+<li><a href="/getdp/bin/Linux/getdp-1.0.0-1.i386.rpm">Linux RPM (i386, Red Hat >= 7.3)</a> 
+<li><a href="/getdp/bin/Linux/getdp-1.0.0-Linux.tgz">Linux tarball (i386, glibc >= 2.2)</a> 
+<li><a href="/getdp/bin/MacOSX/getdp-1.0.0-MacOSX.tgz">Mac OS X tarball (Mac OS X >= 10.2)</a>
+<li><a href="/getdp/src/getdp-1.0.0-source.tgz">Source tarball (all platforms)</a>
+    <a href="#build-footnote" name="build-footmark"><sup>1</sup></a>
 </ul>
-Older versions are still available <A href="/getdp/bin/">here</a>.
+
+<p>
+Older versions are also still available: <a
+href="/getdp/src/">sources</a>, <a href="/getdp/bin/">binaries</a>.
 
 If you use GetDP, we would appreciate if you could <a
 href="/getdp/doc/getdp.bib">mention</a> it in your work.
 
+<p>
+<a name="build-footnote"></a><a
+href="#build-footmark"><sup>1</sup></a>In addition to a C and a
+Fortran 77 compiler, you need the <a
+href="http://sources.redhat.com/gsl/">GSL (> 1.2)</a> libraries
+properly installed on your system in order to compile Gmsh. Compiling
+the Windows version requires the <a
+href="http://www.cygwin.com">Cygwin</a> tools and compilers.
 
-<h2><a name="Credits"></a>Credits</h2>
+<h2><a name="Authors"></a>Authors and credits</h2>
 
-GetDP is developed by Patrick Dular and Christophe Geuzaine, of the <a
-href="http://elap.montefiore.ulg.ac.be/">Department of Electrical
-Engineering</a> (ELAP) of the <a
-href="http://www.ulg.ac.be/">University of Liège</a>, with the help of
-many other <a href="/getdp/doc/CREDITS">people</a>.
+GetDP is developed by Patrick Dular (currently with the <a
+href="http://www.ulg.ac.be">University of Liège</a>) and Christophe
+Geuzaine (currently with the <a
+href="http://www.caltech.edu">California Institute of Technology</a>).
+The <a href="doc/CREDITS">CREDITS file</a> has more information.
+<p>
+Please use <a HREF="mailto:getdp@geuz.org">getdp@geuz.org</a> to send
+questions or bug reports.
+
+<h2><a name="Licensing"></a>Licensing</h2>
+
+GetDP is copyright (C) 1997-2004 by P. Dular and C. Geuzaine and is
+distributed under the terms of the <a
+href="http://www.gnu.org/copyleft/gpl.html">GNU General Public License
+(GPL)</a>.
+
+<p>
+In short, this means that everyone is free to use GetDP and to
+redistribute it on a free basis. GetDP is not in the public domain; it
+is copyrighted and there are restrictions on its distribution (see the
+<a href="http://www.gnu.org/copyleft/gpl.html">license</a> and its
+associated <a href="http://www.gnu.org/copyleft/gpl-faq.html">FAQ</a>).
+For example, you cannot integrate this version of GetDP (in full or in
+parts) in any <em>closed-source</em> software you plan to distribute
+(commercially or not).
+<p>
+If you want to integrate GetDP into a closed-source software, or want
+to sell a modified closed-source version of GetDP, please contact us in
+person. You can purchase a version of GetDP under a different license,
+with "no strings attached" (for example allowing you to take parts of
+GetDP and integrate them into your own proprietary code).
 
 <h2><a name="Links"></a>Links</h2>
 
