@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_LaplacexForm.c,v 1.9 2002-10-21 15:37:44 sabarieg Exp $"
+#define RCSID "$Id: GF_LaplacexForm.c,v 1.10 2002-11-19 17:10:16 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -40,8 +40,6 @@ void GF_LaplacexForm (F_ARG2) {
   double   r00_2, r10_2, r20_2, r0p, r0m, r1p, f20, f21, f22, B0, B1, B2 ;
   double   f30, f31, f32, N10, N20, N30 ;
   double   DetJ, valr, vali ;
-  double   r0, phi0, r1, phi1, p0, p1 ;
-
 
   GetDP_Begin("GF_LaplacexForm");
 
@@ -400,7 +398,7 @@ void GF_GradLaplacexForm (F_ARG2) {
   
   double  xs[MAX_NODES], ys[MAX_NODES], zs[MAX_NODES] ;
   double  xxs, yys, r2 ;
-  double  a, b, c, d,a2, I1, I2 ;
+  double  a, b, c, a2, I1, I2 ;
   double  mx, my, valr, vali, DetJ ;
   double  f0[3], f1[3], f2[3], N10, N20, N30 ;
   double  m0[3], m1[3], m2[3], s0[3], s1[3] ;
