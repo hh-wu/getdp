@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.11 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.12 2000-11-24 13:37:25 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -560,10 +560,10 @@ void  Print_FunctionSpace(struct Problem  * Problem) {
 	Msg(CHECK, "      Name %s ; NameOfBasisFunction {", SS->Name) ;
 	Nbrj = List_Nbr(SS->BasisFunction) ;
 	for (j=0 ; j<Nbrj ; j++)
-	  Msg(CHECK, " %s",
+	  Msg(CHECK, " %s /* n%d */",
 	      ((struct BasisFunction *)
 	       List_Pointer(BF_L, *((int *)List_Pointer(SS->BasisFunction, j))))
-	      ->Name) ;
+	      ->Name, *((int *)List_Pointer(SS->BasisFunction, j))) ;
 	Msg(CHECK, " } ;\n") ;
 	SS += 1 ;
       }

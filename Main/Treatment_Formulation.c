@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.6 2000-10-30 09:04:05 dular Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.7 2000-11-24 13:37:25 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -211,6 +211,10 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 				      LocalTerm.InIndex))->InitialList, 
 			&Element.Region, fcmp_int ) ) {
 
+	  if(Flag_VERBOSE == 10)
+	    printf("==> Element #%d, EquationTerm #%d/%d\n",
+		   Element.Num, i_EquTerm+1, Nbr_EquationTerm) ;
+
 	  Current.IntegrationSupportIndex = EquationTerm_P->Case.LocalTerm.InIndex ;
 
 	  /* ---------------------------------------------------------- */
@@ -231,7 +235,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 
 	    /*
 	     * Attention : l'operateur de trace ne fonctionne que si le champ 
-	     * dont on prend la trace n'intrvient qu'une seule fois dans le terme.
+	     * dont on prend la trace n'intervient qu'une seule fois dans le terme.
 	     * du a - manque de generalite du code au niveau de la gestion des 
 	     *        espaces fonctionnels des fcts tests  pour 'Trace de Dof'
 	     *      - et Christophe fatigué 
@@ -239,6 +243,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 
 	    if (QuantityStorage_P->NumLastElementForFunctionSpace != Element.Num ||
 		TraceGroupIndex_DefineQuantity >= 0) {
+
 	      QuantityStorage_P->NumLastElementForFunctionSpace = Element.Num ;
 
 	      switch (DefineQuantity_P->Type) {
