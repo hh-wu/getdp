@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.14 2000-11-27 14:42:48 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.15 2000-11-27 16:27:43 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -117,7 +117,7 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
   List_T  * Iso_L[NBR_MAX_ISO] ;
   double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0 ;
   int       NbrIso = 0, DecomposeInSimplex = 0 ; 
-  int       iPost, iNode, iIso, i, f ;
+  int       iPost, iNode, iIso, i, f, One=1 ;
   struct PostElement *PE ;
 
   GetDP_Begin("Format_PostFooter");
@@ -180,7 +180,13 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
 	      List_Nbr(TimeValue_L),
 	      NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, 
 	      NbST, NbVT, NbTT, NbSS, NbVS, NbTS);
-      f = Flag_BIN ? LIST_FORMAT_BINARY : LIST_FORMAT_ASCII ;
+      if(Flag_BIN){
+	f = LIST_FORMAT_BINARY;
+	fwrite(&One, sizeof(int), 1, PostStream);
+      }
+      else{
+	f = LIST_FORMAT_ASCII;
+      }
       List_WriteToFile(TimeValue_L, PostStream, f); 
       List_WriteToFile(SP, PostStream, f); List_WriteToFile(VP, PostStream, f);
       List_WriteToFile(TP, PostStream, f); List_WriteToFile(SL, PostStream, f);
