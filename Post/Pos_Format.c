@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.33 2003-03-22 03:30:18 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.34 2003-09-01 09:10:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -41,21 +41,21 @@
    sorties ascii en format Gmsh (au niveau allocation memoire), je
    laisse la sortie GmshParsed par defaut. */
 
-List_T *PostElement_L = NULL ;
-List_T *TimeValue_L = NULL ;
+static List_T *PostElement_L = NULL ;
+static List_T *TimeValue_L = NULL ;
 
-int     Gmsh_StartNewView = 0 ;
-int     NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT;
-int     NbSQ, NbVQ, NbTQ, NbSS, NbVS, NbTS, NbSH, NbVH, NbTH;
-int     NbSI, NbVI, NbTI, NbSY, NbVY, NbTY;
-List_T *SP = NULL, *VP = NULL, *TP = NULL;
-List_T *SL = NULL, *VL = NULL, *TL = NULL;
-List_T *ST = NULL, *VT = NULL, *TT = NULL;
-List_T *SQ = NULL, *VQ = NULL, *TQ = NULL;
-List_T *SS = NULL, *VS = NULL, *TS = NULL;
-List_T *SH = NULL, *VH = NULL, *TH = NULL;
-List_T *SI = NULL, *VI = NULL, *TI = NULL;
-List_T *SY = NULL, *VY = NULL, *TY = NULL;
+static int     Gmsh_StartNewView = 0 ;
+static int     NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT;
+static int     NbSQ, NbVQ, NbTQ, NbSS, NbVS, NbTS, NbSH, NbVH, NbTH;
+static int     NbSI, NbVI, NbTI, NbSY, NbVY, NbTY;
+static List_T *SP = NULL, *VP = NULL, *TP = NULL;
+static List_T *SL = NULL, *VL = NULL, *TL = NULL;
+static List_T *ST = NULL, *VT = NULL, *TT = NULL;
+static List_T *SQ = NULL, *VQ = NULL, *TQ = NULL;
+static List_T *SS = NULL, *VS = NULL, *TS = NULL;
+static List_T *SH = NULL, *VH = NULL, *TH = NULL;
+static List_T *SI = NULL, *VI = NULL, *TI = NULL;
+static List_T *SY = NULL, *VY = NULL, *TY = NULL;
 
 /* ------------------------------------------------------------------------ */
 /*  F o r m a t _ P o s t F o r m a t / H e a d e r / F o o t e r           */
