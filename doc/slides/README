@@ -39,6 +39,8 @@ on your system in order to compile the various files.
   pdflatex slides-web
   dvips slides-web -o
 
+  Clean up slides-web.sec and copy it to gif/getdp.toc
+
   Then open The Gimp and use the Geuzaine/ps2gif script (you need to
   have ps2gif.scm installed in the ~/.gimp-1.2/scripts/ directory) to
   generate the 'gif/getdp-*.gif' files. Finally, compile makehtml.c 
