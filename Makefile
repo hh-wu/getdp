@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.21 2000-09-26 09:38:53 geuzaine Exp $
+# $Id: Makefile,v 1.22 2000-09-27 06:18:59 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -245,6 +245,9 @@ doc-info:
 
 doc-ps:
 	cd $(GETDP_DOC_DIR) && $(MAKE) ps
+
+doc-pdf:
+	cd $(GETDP_DOC_DIR) && $(MAKE) pdf
 
 purge:
 	for i in $(GETDP_DIR) $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) \
