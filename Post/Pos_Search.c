@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.27 2001-10-24 16:01:20 dular Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.28 2001-11-19 17:11:27 sabarieg Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -684,7 +684,7 @@ void xyz2uvwInAnElement (struct Element *Element,
 
     iter++ ;
 
-    Get_GeoElement(Element, *u, *v, *w) ;
+    Get_BFGeoElement(Element, *u, *v, *w) ;
     
     if(!Get_Jacobian){
       Get_Jacobian = (double (*)(struct Element*, MATRIX3x3*))

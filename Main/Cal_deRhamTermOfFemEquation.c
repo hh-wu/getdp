@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.8 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.9 2001-11-19 17:06:09 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -351,7 +351,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
 	Current.v = Cells[i_Cell].y[0] ;
 	Current.w = Cells[i_Cell].z[0] ;
 
-	Get_GeoElement(Element, Current.u, Current.v, Current.w) ;
+	Get_BFGeoElement(Element, Current.u, Current.v, Current.w) ;
 	Element->DetJac = Get_Jacobian(Element, &Element->Jac) ;
 
 	if (FI->Flag_InvJac)
@@ -400,7 +400,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
 	    
 	    Get_IntPoint(Nbr_IntPoints, i_IntPoint, &u, &v, &w, &weight) ;
 	    
-	    Get_GeoElement(&Cells[i_Cell], u, v, w) ;
+	    Get_BFGeoElement(&Cells[i_Cell], u, v, w) ;
 	    
 	    Cells[i_Cell].DetJac = Cell_Get_Jacobian(&Cells[i_Cell], &Cells[i_Cell].Jac) ;
 	    

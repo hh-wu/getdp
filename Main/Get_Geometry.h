@@ -1,4 +1,4 @@
-/* $Id: Get_Geometry.h,v 1.6 2001-03-13 15:04:26 geuzaine Exp $ */
+/* $Id: Get_Geometry.h,v 1.7 2001-11-19 17:06:54 sabarieg Exp $ */
 #ifndef _GET_GEOMETRY_H_
 #define _GET_GEOMETRY_H_
 
@@ -10,7 +10,7 @@
 
 void  Get_NodesCoordinatesOfElement(struct Element * Element) ;
 
-void  Get_GeoElement(struct Element * Element, double u, double v, double w) ;
+void  Get_BFGeoElement(struct Element * Element, double u, double v, double w) ;
 
 void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 			      int * Type_Dimension) ;

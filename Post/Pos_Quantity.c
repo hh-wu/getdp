@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.13 2001-06-15 09:51:08 dular Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.14 2001-11-19 17:10:49 sabarieg Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -378,7 +378,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
   if(PostQuantityTerm_P->EvaluationType == LOCAL){
 
     if (Element->Num != NO_ELEMENT) {
-      Get_GeoElement(Element, u, v, w) ;
+      Get_BFGeoElement(Element, u, v, w) ;
       Element->DetJac = Get_Jacobian(Element, &Element->Jac) ;
       if (Element->DetJac != 0.)
 	Get_InverseMatrix(Type_Dimension, Element->Type, Element->DetJac,
@@ -444,7 +444,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
       
       Get_IntPoint(Nbr_IntPoints, i_IntPoint, &ui, &vi, &wi, &weight) ;
       
-      Get_GeoElement (Element, ui, vi, wi) ;
+      Get_BFGeoElement (Element, ui, vi, wi) ;
       Element->DetJac = Get_Jacobian(Element, &Element->Jac) ;
       if (Element->DetJac != 0.){
 	Get_InverseMatrix(Type_Dimension, Element->Type, Element->DetJac,

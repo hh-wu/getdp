@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.23 2001-07-20 15:21:41 dular Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.24 2001-11-19 17:06:27 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -34,10 +34,10 @@ void  Get_NodesCoordinatesOfElement(struct Element * Element) {
 /*  G e t _ G e o E l e m e n t                                             */
 /* ------------------------------------------------------------------------ */
 
-void  Get_GeoElement(struct Element * Element, double u, double v, double w) {
+void  Get_BFGeoElement(struct Element * Element, double u, double v, double w) {
   int  i ;
 
-  GetDP_Begin("Get_GeoElement");
+  GetDP_Begin("Get_BFGeoElement");
 
   for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) {
     BF_Node    (Element, i+1, u, v, w, &(Element->n[i])) ;

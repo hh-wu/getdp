@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.15 2001-08-28 15:10:36 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.16 2001-11-19 17:08:07 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -343,7 +343,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 	PE->z[i] = E.z[i] ;
       }
       else{
-	Get_GeoElement(&E, PE->u[i], PE->v[i], PE->w[i]) ;
+	Get_BFGeoElement(&E, PE->u[i], PE->v[i], PE->w[i]) ;
 	
 	PE->x[i] = PE->y[i] = PE->z[i] = 0. ;
 	for (j = 0 ; j < E.GeoElement->NbrNodes ; j++) {
