@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2002-03-04 17:11:20 geuzaine Exp $
+# $Id: Makefile,v 1.10 2002-03-08 22:15:21 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -11,7 +11,6 @@ C_FLAGS = -g -O3 -Wall
 #C_FLAGS = -g -Wall -D_PETSC
 #include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables
 #C_FLAGS = -O3 -tpp7 -xW  # pentium 4 specific
-#C_FLAGS = -O0 -xW  # pentium 4 specific: runs faster than -O3!!!!!!!!!!!!!!!
 
 CXX      = c++
 #CXX     = icpc
