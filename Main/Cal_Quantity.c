@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.19 2003-02-07 19:22:57 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.20 2003-02-13 18:29:34 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -17,8 +17,6 @@ int  fcmp_int2(const void * a, const void * b) ;
 void  Cal_SolidAngle(int Source, struct Element *Element,
 		     struct QuantityStorage * QuantityStorage,
 		     int Nbr_Dof, int Index, struct Value **Stack);
-
-static int Flag_WarningMissSolForDt = 0 ;
 
 /* ------------------------------------------------------------------------ */
 /*  G e t _ V a l u e O f E x p r e s s i o n                               */
@@ -111,12 +109,11 @@ void  Get_ValueOfExpressionByIndex(int Index_Expression,
 /* ------------------------------------------------------------------------ */
 
 #define MAX_REGISTER_SIZE   100
+#define MAX_RECURSION       100
 
 #define CAST3V    void(*)(struct Value*, struct Value*, struct Value*)
 #define CAST1V    void(*)(struct Value*)
 #define CASTF2V   void(*)(struct Function*, struct Value*, struct Value*)
-
-static struct Value  ValueSaved[MAX_REGISTER_SIZE] ;  
 
 void Cal_WholeQuantity(struct Element * Element,
 		       struct QuantityStorage * QuantityStorage_P0,
@@ -127,37 +124,14 @@ void Cal_WholeQuantity(struct Element * Element,
 
   
   /* Warning: Maximum one "Dof{op qty}" per WholeQuantity, but as many 
-              {op qty} as you want */
+              {op qty} as you want 
 
-  /* Patrick: 
+     See the notes at the end of this file for current limitations and
+     some ideas to improve Cal_WholeQuantity.
+  */
 
-     Pour l'angle solide, je ne voulais pas d'un operateur special
-     agissant sur une qty, vu le manque de souplesse (et je voulais
-     pouvoir faire reference a une qty autre que le Dof courant, dans
-     le cas de qtes integrales).  Considerer un vecteur local me
-     parait limite (si on a besoin d'autres grandeurs pouvant dependre
-     du Dof, ou de plusieurs grandeurs de ce type)
-
-     -> La solution immediate pour etre plus general etait de
-     considerer une pile de type Stack[MAX_STACK_SIZE][NBR_MAX_BASISFUNCTIONS]
-     et de reellement tout empiler dedans. J'ai choisi de garder le
-     cas particulier du DofValue, pour eviter (2*Nbr_Dof) memcopy
-     inutiles (empiler le dof value et le desempiler).
-
-     Ce qui n'est pas encore fait : 
-     1) On ne peut pas appliquer de fonction sur un multi
-     2) la recursion ne marche pas avec ce type de grandeurs
-
-     -> Une autre solution (meilleure) serait de garder une pile
-     simple, mais ou une Value pourrait etre multiple. Mais ca
-     necessite de changer un petit peu le traitement des arguments des
-     fcts. Qu'en penses-tu ?
-
-     De toute facons, l'indexage ne se fait plus par pointeurs, mais
-     avec un index explicite (c'est presque aussi efficace, et ca
-     permet de detecter facilement un stack overflow). (On pourrait
-     d'ailleurs reallouer, ce qui serait plus elegant.)
-     */
+  static int          Flag_WarningMissSolForDt = 0 ;
+  static struct Value ValueSaved[MAX_REGISTER_SIZE] ;  
 
   int     i_WQ, j, k, Flag_True, Index, DofIndex, Multi[MAX_STACK_SIZE] ;
   int     Save_NbrHar, Save_Region, Type_Dimension ;
@@ -167,22 +141,34 @@ void Cal_WholeQuantity(struct Element * Element,
   struct DofData         *Save_DofData ;
   struct Solution        *Solution_P0 ;
 
-  /* Should be Stack[NBR_MAX_BASISFUNCTION][MAX_STACK_SIZE] but this
-     overflows the stack for long recursive calls. 8 is still OK since
-     the 'multi' feature is only used for SolidAngle computation for
-     now */
+#undef USE_STATIC_STACK
 
-#undef HEAP
-  /* To measure the overhead induced by the allocation, just define
-     HEAP. Apparently, the (huge) performance hit is the same as the
-     one witnessed under Cygwin... So, does Cygwin play dirty tricks
-     with the stack??? This should REALLY be examined in detail. */
-#ifdef HEAP
-  struct Value *Stack[8];
-  for(j = 0; j < 8; j++) 
-    Stack[j] = (struct Value*)Malloc(MAX_STACK_SIZE*sizeof(struct Value));
+#if !defined(USE_STATIC_STACK)
+
+  struct Value Stack[8][MAX_STACK_SIZE] ;
+
 #else
-  struct Value           Stack[8][MAX_STACK_SIZE] ;
+
+  struct Value **Stack;
+  static struct Value ***StaticStack;
+  static int RecursionIndex = -1, first = 1;
+
+  if(first){
+    StaticStack = (struct Value***)Malloc(MAX_RECURSION*sizeof(struct Value**));
+    for(j = 0; j < MAX_RECURSION; j++){
+      StaticStack[j] = (struct Value**)Malloc(8*sizeof(struct Value*));
+      for(k = 0; k < 8; k++){
+	StaticStack[j][k] = (struct Value*)Malloc(MAX_STACK_SIZE*sizeof(struct Value));
+      }
+    }
+    first = 0;
+  }
+  RecursionIndex++;
+  if(RecursionIndex < 0 || RecursionIndex >= MAX_RECURSION) 
+    Msg(ERROR, "Recursion problem in Cal_WholeQuantity (%d outside [0,%d])", 
+	MAX_RECURSION);
+  Stack = StaticStack[RecursionIndex];
+
 #endif
 
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
@@ -574,9 +560,8 @@ void Cal_WholeQuantity(struct Element * Element,
 
   if (DofIndexInWholeQuantity < 0) Cal_CopyValue(&Stack[0][0], &DofValue[0]) ;
 
-#ifdef HEAP
-  for(j = 0; j < 8; j++)
-    Free(Stack[j]);
+#if defined(USE_STATIC_STACK)
+  RecursionIndex--;
 #endif
 
   GetDP_End ;
@@ -585,8 +570,6 @@ void Cal_WholeQuantity(struct Element * Element,
 #undef CAST3V
 #undef CAST1V
 #undef CASTF2V
-
-#undef MAX_REGISTER_SIZE
 
 /* ------------------------------------------------------------------------ */
 /*  P u r i f y _ W h o l e Q u a n t i t y                                 */
@@ -604,4 +587,43 @@ struct WholeQuantity* Purify_WholeQuantity(List_T * WQ_L) {
 }
 */
 
+/* Some notes on Cal_WholeQuantity 
+
+Stack[8][MAX_STACK_SIZE] should be
+Stack[NBR_MAX_BASISFUNCTION][MAX_STACK_SIZE] but this overflows the
+stack for long recursive calls. 8 is still OK since the 'multi'
+feature is only used for SolidAngle computation for now.
+
+-> see the HEAP define to overcome this.
+
+How to generalize the stack stuff:
+
+Pour l'angle solide, je ne voulais pas d'un operateur special
+agissant sur une qty, vu le manque de souplesse (et je voulais
+pouvoir faire reference a une qty autre que le Dof courant, dans
+le cas de qtes integrales).  Considerer un vecteur local me
+parait limite (si on a besoin d'autres grandeurs pouvant dependre
+du Dof, ou de plusieurs grandeurs de ce type)
+
+-> La solution immediate pour etre plus general etait de
+considerer une pile de type Stack[MAX_STACK_SIZE][NBR_MAX_BASISFUNCTIONS]
+et de reellement tout empiler dedans. J'ai choisi de garder le
+cas particulier du DofValue, pour eviter (2*Nbr_Dof) memcopy
+inutiles (empiler le dof value et le desempiler).
+
+Ce qui n'est pas encore fait : 
+1) On ne peut pas appliquer de fonction sur un multi
+2) la recursion ne marche pas avec ce type de grandeurs
+
+-> Une autre solution (meilleure) serait de garder une pile
+simple, mais ou une Value pourrait etre multiple. Mais ca
+necessite de changer un petit peu le traitement des arguments des
+fcts. Qu'en penses-tu ?
+
+De toute facons, l'indexage ne se fait plus par pointeurs, mais
+avec un index explicite (c'est presque aussi efficace, et ca
+permet de detecter facilement un stack overflow). (On pourrait
+d'ailleurs reallouer, ce qui serait plus elegant.)
+
+*/
 
