@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.28 2001-06-02 07:00:47 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.29 2001-06-02 07:07:43 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -941,6 +941,12 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
   }
   else if (Solution_P != DofData_P->CurrentSolution && !Flag_Separate) {
+    /* the test on Flag_Separate is necessary for high order time
+       schemes, where InitSolution[] gets called multiple times,
+       resulting in multiple stored solutions with the same TimeStep
+       number. Since GenerateSeparate[] is called outside the time
+       loop (i.e. before TimeStep+=1), the List_PQuery may return (in
+       an unpredictable way) any of the initial solutions. */
     Msg(ERROR, "Incompatible time") ;
   }
 
