@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.18 2000-10-20 08:43:44 dular Exp $ */
+/* $Id: Pos_Print.c,v 1.19 2000-10-20 17:06:42 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -605,7 +605,7 @@ void prodvec (double *a , double *b , double *c){
 
 void normvec(double *a){
   double mod;
-  mod = hypot(hypot(a[0],a[1]),a[2]);
+  mod = sqrt(SQU(a[0])+SQU(a[1])+SQU(a[2]));
   a[0]/=mod;
   a[1]/=mod;
   a[2]/=mod;
