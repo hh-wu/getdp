@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2001-11-20 12:21:08 geuzaine Exp $
+# $Id: Makefile,v 1.10 2001-11-22 15:40:58 ledinh Exp $
 #
 # Makefile for 'libSparskit.a'
 #
@@ -70,11 +70,3 @@ nodepend:
 	$(RM) Makefile.new
 
 # DO NOT DELETE THIS LINE
-Solver.o: Solver.c Solver.h ../DataStr/List.h Solver_F.h \
-  ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h
-Matrix.o: Matrix.c Solver.h ../DataStr/List.h Solver_F.h \
-  ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h
-Parser.o: Parser.c Solver.h ../DataStr/List.h ../Main/Message.h \
-  ../DataStr/Malloc.h
-CSR.o: CSR.c Solver.h ../DataStr/List.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Numeric/nrutil.h
