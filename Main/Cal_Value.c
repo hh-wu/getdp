@@ -3,6 +3,7 @@
 #include <string.h> /* memcpy */
 
 #include "Data_Passive.h"
+#include "Data_DefineE.h"
 #include "Cal_Value.h"
 #include "CurrentData.h"
 #include "Data_Numeric.h"
@@ -214,7 +215,9 @@ void  Cal_AddValue (struct Value * V1, struct Value * V2, struct Value * R) {
   }
   
   else {
-    Msg(ERROR, "Addition (+) of different quantities");
+    Msg(ERROR, "Addition of different quantities: %s + %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -402,7 +405,9 @@ void  Cal_SubstractValue (struct Value * V1, struct Value * V2, struct Value * R
   }
 
   else {
-    Msg(ERROR, "Substraction (-) of different quantities") ;
+    Msg(ERROR, "Substraction of different quantities: %s - %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -722,7 +727,9 @@ void  Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * R) 
   /* a faire: differents tenseurs entre eux */
 
   else {
-    Msg(ERROR, "Product (*) of non adapted quantities");
+    Msg(ERROR, "Product of non adapted quantities: %s * %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 
 }
@@ -826,7 +833,9 @@ void  Cal_DivideValue (struct Value * V1, struct Value * V2, struct Value * R) {
   }
 
   else {
-    Msg(ERROR, "Division (/) of non adapted quantities") ;
+    Msg(ERROR, "Division of non adapted quantities: %s / %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -861,7 +870,9 @@ void  Cal_ModuloValue (struct Value * V1, struct Value * V2, struct Value * R) {
   }
 
   else {
-    Msg(ERROR, "Modulo (%%) of non adapted quantities");
+    Msg(ERROR, "Modulo of non adapted quantities: %s %% %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 
 }
@@ -904,7 +915,9 @@ void  Cal_CrossProductValue (struct Value * V1, struct Value * V2, struct Value 
   }
 
   else {
-    Msg(ERROR, "Cross product (x) between non vector quantities");
+    Msg(ERROR, "Cross product of non vector quantities: %s /\ %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 
 }
@@ -953,7 +966,9 @@ void  Cal_PowerValue (struct Value * V1, struct Value * V2, struct Value * R) {
   }
 
   else {
-    Msg(ERROR, "Power of non scalar quantities");
+    Msg(ERROR, "Power of non scalar quantities: %s ^ %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 
 }
@@ -971,7 +986,9 @@ void  Cal_LessValue (struct Value * V1, struct Value * V2, struct Value * R) {
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison (<) of non scalar quantities");
+    Msg(ERROR, "Comparison of non scalar quantities: %s < %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -987,7 +1004,9 @@ void  Cal_LessOrEqualValue (struct Value * V1, struct Value * V2, struct Value *
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison (<=) of non scalar quantities") ;
+    Msg(ERROR, "Comparison of non scalar quantities: %s <= %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1003,7 +1022,9 @@ void  Cal_GreaterValue (struct Value * V1, struct Value * V2, struct Value * R) 
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison (>) of non scalar quantities") ;
+    Msg(ERROR, "Comparison of non scalar quantities: %s > %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1019,7 +1040,9 @@ void  Cal_GreaterOrEqualValue (struct Value * V1, struct Value * V2, struct Valu
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison (>=) of non scalar quantities") ;
+    Msg(ERROR, "Comparison of non scalar quantities: %s >= %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1035,7 +1058,9 @@ void  Cal_EqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison (==) of non scalar quantities") ;
+    Msg(ERROR, "Comparison of non scalar quantities: %s == %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1051,7 +1076,9 @@ void  Cal_NotEqualValue (struct Value * V1, struct Value * V2, struct Value * R)
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison (!=) of non scalar quantities") ;
+    Msg(ERROR, "Comparison of non scalar quantities: %s != %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1066,7 +1093,9 @@ void  Cal_ApproxEqualValue (struct Value * V1, struct Value * V2, struct Value *
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison (~=) of non scalar quantities") ;
+    Msg(ERROR, "Comparison of non scalar quantities: %s ~= %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1081,7 +1110,9 @@ void  Cal_AndValue (struct Value * V1, struct Value * V2, struct Value * R) {
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "And (&&) of non scalar quantities") ;
+    Msg(ERROR, "And of non scalar quantities: %s && %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1097,7 +1128,9 @@ void  Cal_OrValue (struct Value * V1, struct Value * V2, struct Value * R) {
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Or (||) of non scalar quantities") ;
+    Msg(ERROR, "Or of non scalar quantities: %s || %s",
+	Get_StringForDefine(Field_Type, V1->Type),
+	Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1163,7 +1196,8 @@ void  Cal_NotValue (struct Value * R) {
     R->Val[0] = !R->Val[0] ;
   }
   else {
-    Msg(ERROR, "Not (!) of non scalar quantity") ;
+    Msg(ERROR, "Negation of non scalar quantity: ! %s",
+	Get_StringForDefine(Field_Type, R->Type));
   }
 }
 
