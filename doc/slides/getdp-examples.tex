@@ -1,14 +1,87 @@
-% $Id: getdp-examples.tex,v 1.1 2001-06-09 11:14:35 geuzaine Exp $
+% $Id: getdp-examples.tex,v 1.2 2001-06-12 16:21:33 geuzaine Exp $
 
 % ---------------------------------------------------------------------------
 \part{GetDP examples}
 % ---------------------------------------------------------------------------
 
-\chapter{Electrostatic}
+\chapter{The simplest example: magnetostatics}
 
 \begin{slide}
 
-...
+\mybox{colbox}{\textwidth}{
+\begin{equation*}
+\Curl{\vec{h}} = \vec{j} ,\quad
+\Div{\vec{b}} = 0 \quad\text{and}\quad
+\vec{b} = \mu \vec{h} + \mu_0 \vec{h}_m 
+\end{equation*}
+\begin{equation*}\label{eq:tonti-sta}
+\begin{split}
+\xymatrix{
+ \color{colpos}\phi    \ar@{->}[r]^-{\GradSymb_h}  &
+ \vec{h} \ar@{->}[r]^-{\CurlSymb_h} \ar@{<->}[d]^{\mu} &
+ \vec{j} \ar@{->}[r]^-{\DivSymb_h}   &
+ 0 \\
+ 0       \ar@{<-}[r]^-{\DivSymb_e}&
+ \vec{b} \ar@{<-}[r]^-{\CurlSymb_e}&
+ \color{colpos}\vec{a} 
+}
+\end{split}
+\end{equation*}
+}
+
+\begin{slideitemize}
+\item Weak form of Gauss law: 
+\begin{equation*}
+%\ivol{\Div{\vec{b}}}{\phi'} = 0 \Rightarrow
+\ivol{\vec{b}}{\Grad{\phi'}} + \isur{\psca{\vec{n}}{\vec{b}}}{\phi'} 
+= 0
+\quad \forall\phi'\in\Hone[_0]{\Omega}
+\end{equation*}
+
+\item Weak form of Ampere's law:
+\begin{equation*}
+%\ivol{\Curl{\vec{h}}}{\vec{a}'} = \ivol{\vec{j}}{\vec{a}'} \Rightarrow
+\ivol{\vec{h}}{\Curl{\vec{a}'}} + \isur{\pvec{\vec{n}}{\vec{h}}}{\vec{a}'}
+= \ivol{\vec{j}}{\vec{a}'} 
+\quad \forall\vec{a}'\in\Hcurl[_0]{\Omega}
+\end{equation*}
+
+\end{slideitemize}
+
+\end{slide}
+
+\begin{slide}
+
+\mybox{colbox}{\textwidth}{
+\begin{center}
+\emph{Scalar potential} formulation
+\begin{equation*}\label{eq:hs+hr1}
+\vec{h} = \vec{h}_s+\vec{h}_r ,\quad\text{with}\quad
+\Curl{\vec{h}_s} = \vec{j}     \quad\text{and}\quad
+\vec{h}_r = -\Grad{\phi}
+\end{equation*}
+\end{center}
+}
+
+\bigskip
+NB: choice of source field $\vec{h}_s$, tretament of multiply connected
+$\Omega$, ...
+
+\end{slide}
+
+\begin{slide}
+
+\mybox{colbox}{\textwidth}{
+\begin{center}
+\emph{Vector potential} formulation
+\begin{equation*}\label{eq:hs+hr1}
+\vec{b} = \Curl{\vec{a}}
+\end{equation*}
+\end{center}
+}
+
+\bigskip
+NB: gauge for $\vec{a}$, ...
 
 \end{slide}
 

@@ -1,4 +1,4 @@
-% $Id: getdp.tex,v 1.1 2001-06-11 07:50:49 geuzaine Exp $
+% $Id: getdp.tex,v 1.2 2001-06-12 16:21:33 geuzaine Exp $
 
 % ---------------------------------------------------------------------------
 
@@ -90,14 +90,13 @@ Method of resolution (``black box'')
   \end{slideitemize}
 }
 
-Example:
-
+\bigskip
 \begin{syntax}
-Air = Region[1]; Core = Region[2];
-    = ;
+Air = Region[1]; \CC{elementary group (linked with the mesh)}
+Core = Region[2];
+Omega = Region[\{Air, Core\}];
+Nodes = NodesOf[Omega]; \CC{function group}
 \end{syntax}
-
-
 
 \end{slide}
 
@@ -117,8 +116,13 @@ Air = Region[1]; Core = Region[2];
   \end{slideitemize}
 }
 
-Example:
-
+\bigskip
+\begin{syntax}
+mu0 = 4.e-7*Pi; f = 50; \CC{constants}
+mu[Air] = mu0; 
+mu[Core] = mu0 + 1/(100+100*$1^6); \CC{argument}
+TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
+\end{syntax}
 
 \end{slide}
 
@@ -139,10 +143,39 @@ Example:
   \end{slideitemize}
 }
 
-Example:
-
+\bigskip
+\begin{syntax}
+\{ Name Dirichlet; Type Assign; \CC{boundary conditions}
+  Case \{ \{ Region Surface0; Value 0; \}
+         \{ Region Surface1; Value 1; \} \}
+\}
+\end{syntax}
 
 \end{slide}
+
+\background{7\semcm}{-2.5\semcm}{\scalebox{0.65}{\input{fig/getdp-rlccircuit.tex}}}
+
+\begin{slide}
+
+\begin{syntax}
+\{ Name Current; Type Assign; \CC{constraints on global quantities}
+  Case \{ 
+    \{ Region Inductor1; Value 1000; TimeFunction TimeFct[]; \} 
+  \} 
+\}
+
+\{ Name ElectricalCircuit; Type Network; \CC{circuit}
+  Case Circuit1 \{ 
+    \{ Region E1; Branch \{1,2\}; \}
+    \{ Region R1; Branch \{1,3\}; \}
+    \{ Region L1; Branch \{3,2\}; \}
+    \{ Region C1; Branch \{1,2\}; \}
+  \}
+\}
+\end{syntax}
+
+\end{slide}
+
 
 % ---------------------------------------------------------------------------
 
@@ -152,12 +185,46 @@ Example:
 
 \begin{slide}
 
+\mybox{colbox}{11\semcm}{
+  \begin{slideitemize}
+  \item Various quantity types (0, 1, 2, 3-forms, scalar, vector)
+  \item Various basis functions (associated with nodes, edges, facets,
+  volumes) of various orders
+  \item Coupling of fields and potentials ($T$-$\Omega$, $\vec{h}$-$\phi$,
+  $\vec{a}$-$v$, ...)
+  \item Definition of global quantities (fluxes, circulations: current,
+  voltage, m.m.f., ...)
+  \item Essential constraints (boundary and gauge conditions, ...)
+  \end{slideitemize}
+}
 
-
-Example:
-
+\rput(0.75\textwidth,4\semcm){\input{fig/getdp-sum.tex}}
 
 \end{slide}
+
+\background{}{}{}
+
+\begin{slide}
+
+\begin{syntax}
+\{ Name H1 ; Type Form0 ; \CC{discrete function space for H1}
+  BasisFunction \{
+    \{ Name wi ; NameOfCoef fi ; Function BF_Node ; \CC{order 1}
+      Support Omega ; Entity NodesOf[ All ] ; \}
+    \{ Name wi2 ; NameOfCoef fi2 ; Function BF_Node_2E ;  \CC{order 2}
+      Support Omega ; Entity EdgesOf[ All ] ; \}
+  \}
+  Constraint \{
+    \{ NameOfCoef fi ; \CC{cf. 'Constraint'}
+      EntityType NodesOf ; NameOfConstraint Dirichlet ; \}
+    \{ NameOfCoef fi2 ;
+      EntityType NodesOf ; NameOfConstraint Dirichlet ; \}
+  \}
+\}
+\end{syntax}
+
+\end{slide}
+
 
 % ---------------------------------------------------------------------------
 
@@ -167,9 +234,24 @@ Example:
 
 \begin{slide}
 
+\mybox{colbox}{11\semcm}{
+  \begin{slideitemize}
+  \item Mapping from reference to real space 
+  \item Geometrical transformations (axisymmetric transformation, infinite
+  domains, ...)
+  \end{slideitemize}
+}
 
-Example:
-
+\bigskip
+\begin{syntax}
+\{ Name Jacobian1 ;
+  Case \{ \CC{piecewise defined on groups}
+    \{ Region OmegaInf; Jacobian VolSphShell \{Rint, Rext\}; \}
+    \{ Region OmegaAxi; Jacobian VolAxi; \}
+    \{ Region All; Jacobian Vol ; \}
+  \}
+\}
+\end{syntax}
 
 \end{slide}
 
@@ -181,10 +263,25 @@ Example:
 
 \begin{slide}
 
+\mybox{colbox}{11\semcm}{
+  \begin{slideitemize}
+  \item Various numeric and analytic integration methods
+  \end{slideitemize}
+}
 
-
-Example:
-
+\bigskip
+\bigskip
+\bigskip
+\begin{syntax}
+\{ Name Integration1 ; Criterion Test[]; \CC{combination of methods}
+  Case \{ 
+    \{ Type Gauss ;
+      Case \{ \{ GeoElement Triangle ; NumberOfPoints 12; \}
+             \{ GeoElement Tetrahedron; NumberOfPoints 15; \} \} \}
+    \{ Type Analytic ; \}
+  \} 
+\}
+\end{syntax}
 
 \end{slide}
 
@@ -196,10 +293,26 @@ Example:
 
 \begin{slide}
 
+\mybox{colbox}{11\semcm}{
+  \begin{slideitemize}
+  \item Various formulation types: FEM, BEM, circuit equations, ...
+  \item Symbolic expression of equations: volume and surface integral
+  terms, collocation
+  \item involves local, global and integral quantities based on function
+  spaces
+  \end{slideitemize}
+}
 
+\begin{syntax}
+Equation \{
+  Galerkin \{ DtDt [ epsilon[] * Dof\{e\} , \{e\} ]; ... \}
+  Galerkin \{ [ 1/mu[] * Dof\{Curl e\} , \{Curl e\} ]; ... \}
+\}
+\end{syntax}
 
-Example:
-
+\rput(0.8\textwidth,6\semcm)
+     {$\partial_t^2\ivol{\epsilon\vec{e}}{\vec{e}} + 
+       \ivol{\mu^{-1}\Curl{\vec{e}}}{\Curl{\vec{e}}'}=0$}
 
 \end{slide}
 
@@ -211,9 +324,11 @@ Example:
 
 \begin{slide}
 
-
-Example:
-
+\mybox{colbox}{11\semcm}{
+  \begin{slideitemize}
+  \item ...
+  \end{slideitemize}
+}
 
 \end{slide}
 
