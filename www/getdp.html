@@ -1,15 +1,4 @@
-<!---BEGINSCRIPT#!/bin/sh
-
-BASEDIR=/usr/local/cgi-bin
-
-echo Content-type: text/html
-echo
-cat << EOM
-ENDSCRIPT--->
-
 <HTML>
-
-<!--- PLEASE DO NOT EDIT the BEGINSCRIPT and ENDSCRIPT comments --->
 
 <HEAD>
 
@@ -34,265 +23,113 @@ couplings">
 
 </HEAD>
 
-<BODY TEXT="#000000" BGCOLOR="#ffffff" LINK="#CC8800" VLINK="#CC8800" ALINK="#FFBB00" 
- BACKGROUND="/getdp/images/background.gif">
+<BODY BGCOLOR="#ffffff">
 
-<!------------------------------------------------------------------>
+<h1 align="center">GetDP: A General Environment for the Treatment of Discrete Problems</h1>
+<p>
+<h3 align="center">Patrick Dular and Christophe Geuzaine</h3>
+<p>
+<h3 align=center>Version <a href="doc/VERSIONS">0.84</a>, 6 September 2001</h3>
+<p>
 
-<table width="100%" border=0 cellspacing=10 cellpadding=5>
+<h2>Description</h2>
 
-<tr valign=bottom>
+GetDP is a scientific computation software for the numerical solution
+of integro-differential equations, using finite element and integral
+type methods.
 
-  <td width="130" align="right" valign=top><font size=-2 face="Helvetica, Arial" color="#fffff">
+The main feature of GetDP is the closeness between the input data
+defining discrete problems (written by the user in ASCII data files)
+and the symbolic mathematical expressions of these problems.
 
-<!---BEGINSCRIPT
-EOM
-${BASEDIR}/n2l ${BASEDIR}/counter.getdp
-cat << EOM
-    page requests since September 18, 1998<p>
-ENDSCRIPT--->
+<h2>Documentation</h2>
 
-<!---BEGINMIRROR
-    This page is a mirror of <a href="/getdp/">/getdp/</a><p>
-ENDMIRROR--->
+<ul>
+  <li><a target="_top" href="/getdp/doc/slides/getdp-01.html">Short presentation</a>
+      (also available in
+      <a target="_top" href="/getdp/doc/slides/getdp.ps">postscript</a> and
+      <a target="_top" href="/getdp/doc/slides/getdp.pdf">pdf</a> formats)
+  <li><a target="_top" href="/getdp/doc/texinfo/getdp.html">Reference manual</a> 
+      (also available in
+      <a target="_top" href="/getdp/doc/texinfo/getdp.ps">postscript</a>,
+      <a target="_top" href="/getdp/doc/texinfo/getdp.pdf">pdf</a> and 
+      <a target="_top" href="/getdp/doc/texinfo/getdp-info.tgz">info</a> formats)
+  <li><a target="_top" href="/getdp/doc/VERSIONS">Version history</a>
+  <li><a target="_top" href="/getdp/doc/BUGS">Open bugs</a>
+  <li><a target="_top" href="/getdp/doc/CONTRIBUTORS">Contributors</a>
+  <li><a target="_top" href="/getdp/doc/FAQ">Frequently asked questions</a>
+  <li><a target="_top" href="/getdp/doc/README.txt">For Windows versions only</a>
+</ul>
 
-<!---BEGINDATE$Date: 2001-09-06 09:32:25 $ENDDATE--->
+<FORM METHOD=GET ACTION="http://www.geuz.org/search/search-geuz.cgi" TARGET="_top">
+<INPUT SIZE=30 NAME="q" VALUE="">&nbsp;
+<INPUT TYPE="submit" VALUE="Search!">&nbsp;
+<SELECT NAME="ul">
+<OPTION VALUE="/getdp/" SELECTED="ul">all GetDP resources
+<OPTION VALUE="/getdp/doc/" SELECTED="ul">documentation
+<OPTION VALUE="/pipermail/getdp" SELECTED="ul">mailing lists archives
+</SELECT>
+</FORM>
 
-    &copy; 1998-2001 Patrick Dular and Christophe Geuzaine<br>
+<h2>Mailing lists</h2>
 
-  </font></td>
-
-  <td width="60">
-  </td>
-
-  <td><font face="Helvetica, Arial" >
-
-    <font size="+3"><b>GetDP</b></font>
-    <p>
-    <b>A General Environment for the Treatment of Discrete Problems</b>
-
-  </font></td>
-
-</tr>
-
-<!------------------------------------------------------------------>
-
-<tr valign=bottom>
-
-  <td><spacer type="vertical" size=20>
-  </td>
-
-</tr>
-
-<!------------------------------------------------------------------>
-
-<tr valign=top>
-
-  <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Description</b></font></td>
-
-  <td width="60"></td>
-
-  <td align="left" colspan=2><font face="Helvetica, Arial" size=-1>
-    GetDP is a scientific computation software for the numerical solution
-    of integro-differential equations, using finite element and integral
-    type methods.  
-
-    The main feature of GetDP is the closeness between the
-    input data defining discrete problems (written by the user in ASCII
-    data files) and the symbolic mathematical expressions of these
-    problems.
-  </font></td>
-
-</tr>
-
-<!------------------------------------------------------------------>
-
-<tr valign=top>
-
-  <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Documentation</b></font></td>
-
-  <td width="60">
-  </td>
-
-  <td align="left" colspan=2><font face="Helvetica, Arial" size=-1>
-    <ul>
-      <li><a target="_top" href="/getdp/doc/slides/getdp-01.html">Short presentation</a>
-          (also available in
-          <a target="_top" href="/getdp/doc/slides/getdp.ps">postscript</a> and
-          <a target="_top" href="/getdp/doc/slides/getdp.pdf">pdf</a>
-	  formats)
-      <li><a target="_top" href="/getdp/doc/texinfo/getdp.html">Reference manual</a> 
-          (also available in
-          <a target="_top" href="/getdp/doc/texinfo/getdp.ps">postscript</a>,
-          <a target="_top" href="/getdp/doc/texinfo/getdp.pdf">pdf</a> and 
-          <a target="_top" href="/getdp/doc/texinfo/getdp-info.tgz">info</a>
-          formats)
-      <li><a target="_top" href="/getdp/doc/VERSIONS">Version history</a>
-      <li><a target="_top" href="/getdp/doc/BUGS">Open bugs</a>
-      <li><a target="_top" href="/getdp/doc/CONTRIBUTORS">Contributors</a>
-      <li><a target="_top" href="/getdp/doc/FAQ">Frequently asked questions</a>
-      <li><a target="_top" href="/getdp/doc/README.txt">For Windows versions only</a>
-    </ul>
-  </font></td>
-
-</tr>
-
-<!------------------------------------------------------------------>
-
-<!---BEGINSCRIPT
-
-
-<tr valign=top>
-
-  <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Mailing lists</b></font></td>
-
-  <td width="60">
-  </td>
-
-  <td align="left" colspan=2><font face="Helvetica, Arial" size=-1>
-
-     <ul>
-     <li><a target="_top" href="/mailman/listinfo/getdp/">getdp</a> is
+<ul>
+  <li><a target="_top" href="/mailman/listinfo/getdp/">getdp</a> is
      the public mailing list for GetDP users. You should send all
      questions, bug reports, requests or pleas for changes related to
      GetDP to this list. The list is archived <a target="_top"
      href="/pipermail/getdp/">here</a>
 
-     <li><a target="_top"
+  <li><a target="_top"
      href="/mailman/listinfo/getdp-announce/">getdp-announce</a> is a
      moderated (i.e. "read-only") list for announcements about
      significant GetDP events. You should subscribe to this list to
      get information about software releases, important bug fixes and
      other GetDP-specific news. The list is archived <a target="_top"
      href="/pipermail/getdp-announce/">here</a>.
-     </ul>
+</ul>
 
-  </font></td>
+<h2>Download</h2>
 
-</tr>
+Executable versions of GetDP are available for Windows and for most of
+the classical UNIX platforms. These versions are free. The only thing
+required if you use GetDP is to <a target="_top"
+href="/getdp/doc/getdp.bib">mention</a> it in your work. A sample demo
+file is included in the archives.
 
-<!------------------------------------------------------------------>
+<ul>
+  <li><A href="/getdp/bin/getdp-0.84-Windows.zip">Windows zip archive (95/98/NT)</A>
+  <li><A href="/getdp/bin/getdp-0.84-1.i386.rpm">Linux RPM (Red Hat 6.2 and compatible, i386, glibc 2.1)</A> 
+  <li><A href="/getdp/bin/getdp-0.84-Linux.tgz">Linux tarball (i386, glibc 2.1)</A> 
+  <li><A href="/getdp/bin/getdp-0.84-OSF1.tgz">Compaq Tru64 tarball (OSF 4.0)</A>
+  <li><A href="/getdp/bin/getdp-0.84-SunOS.tgz">Sun tarball (SunOS 5.5)</A>
+  <li><A href="/getdp/bin/getdp-0.84-AIX.tgz">IBM tarball (AIX)</A>
+  <li><A href="/getdp/bin/getdp-0.84-IRIX.tgz">SGI tarball (IRIX 6.5)</A>
+  <li><A href="/getdp/bin/getdp-0.84-HP-UX.tgz">HP tarball (HPUX 10.20)</A>
+</ul>
 
-<tr valign=top>
 
-  <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Search documentation</b></font></td>
+<h2>Credits</h2>
 
-  <td width="60">
-  </td>
+GetDP is developed by <a href="mailto:patrick.dular@ulg.ac.be">Patrick
+Dular</a> and <a
+href="mailto:Christophe.Geuzaine@ulg.ac.be">Christophe Geuzaine</a>,
+of the <a target="_top"
+href="http://elap.montefiore.ulg.ac.be/">Department of Electrical
+Engineering</a> (ELAP) of the <a target="_top"
+href="http://www.ulg.ac.be/">University of Liège</a>, with the help of
+many other <a target="_top" href="/getdp/doc/CONTRIBUTORS">people</a>.
 
-  <td align="left" colspan=2><font face="Helvetica, Arial" size=-1>
+<h2>Links</h2>
 
-<FORM METHOD=GET ACTION="http://www.geuz.org/search/search-geuz.cgi" TARGET="_top">
-<INPUT SIZE=30 NAME="q" VALUE="">
-<INPUT TYPE="submit" VALUE="Search">
-<SELECT NAME="ul">
-<OPTION VALUE="/getdp/" SELECTED="ul">All GetDP resources
-<OPTION VALUE="/getdp/doc/" SELECTED="ul">Documentation
-<OPTION VALUE="/pipermail/getdp" SELECTED="ul">Mailing lists archives
-</SELECT>
-</FORM>
-
-  </font></td>
-
-</tr>
-
-ENDSCRIPT--->
-
-<!------------------------------------------------------------------>
-
-<tr valign=top>
-
-  <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Download</b></font></td>
-
-  <td width="60">
-  </td>
-
-  <td align="left" colspan=2 bgcolor="#f0f0f0"><font face="Helvetica, Arial" size=-1>
-
-    <b>Version 0.84 (September 6, 2001)</b>
-    <p>
-    Executable versions of GetDP are available for Windows and for
-    most of the classical UNIX platforms. These versions are free. The
-    only thing required if you use GetDP is to <a target="_top"
-    href="/getdp/doc/getdp.bib">mention</a> it in your work. A sample
-    demo file is included in the archives.
-    <p>
-    <ul>
-      <li><A href="/getdp/bin/getdp-0.84-Windows.zip">Windows zip archive (95/98/NT)</A>
-      <li><A href="/getdp/bin/getdp-0.84-1.i386.rpm">Linux RPM (Red Hat 6.2 and compatible, i386, glibc 2.1)</A> 
-      <li><A href="/getdp/bin/getdp-0.84-Linux.tgz">Linux tarball (i386, glibc 2.1)</A> 
-      <li><A href="/getdp/bin/getdp-0.84-OSF1.tgz">Compaq Tru64 tarball (OSF 4.0)</A>
-      <li><A href="/getdp/bin/getdp-0.84-SunOS.tgz">Sun tarball (SunOS 5.5)</A>
-      <li><A href="/getdp/bin/getdp-0.84-AIX.tgz">IBM tarball (AIX)</A>
-      <li><A href="/getdp/bin/getdp-0.84-IRIX.tgz">SGI tarball (IRIX 6.5)</A>
-      <li><A href="/getdp/bin/getdp-0.84-HP-UX.tgz">HP tarball (HPUX 10.20)</A>
-    </ul>
-
-  </font></td>
-
-</tr>
-
-<!------------------------------------------------------------------>
-
-<tr valign=top>
-
-  <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Authors</b></font></td>
-
-  <td width="60">
-  </td>
-
-  <td colspan=2 align="left"><font face="Helvetica, Arial" size=-1>
-
-    GetDP is developed by <a
-    href="mailto:patrick.dular@ulg.ac.be">Patrick Dular</a> and <a
-    href="mailto:Christophe.Geuzaine@ulg.ac.be">Christophe
-    Geuzaine</a>, of the <a target="_top"
-    href="http://elap.montefiore.ulg.ac.be/">Department of Electrical
-    Engineering</a> (ELAP) of the <a target="_top"
-    href="http://www.ulg.ac.be/">University of Liège</a>, with the
-    help of many other <a target="_top"
-    href="/getdp/doc/CONTRIBUTORS">people</a>.
-
-  </font></td>
-
-</tr>
-
-<!------------------------------------------------------------------>
-
-<tr valign=top>
-
-  <td width="130" align="right">
-    <font color="#ffffff" face="Helvetica, Arial"><b>Links</b></font></td>
-
-  <td width="60">
-  </td>
-
-  <td colspan=2 align="left"><font face="Helvetica, Arial" size=-1> 
-
-    <a target="_top" href="/gmsh/">Gmsh</a> is a three-dimensional meshing
-    tool (with pre- and post-processing facilities). Written in C/C++ and
-    using OpenGL, Gmsh can be a useful companion to GetDP for mesh generation
-    and post-processing.
-
-  </font></td>
-
-</tr>
-
-<!------------------------------------------------------------------>
-
-</table>
+<a target="_top" href="/gmsh/">Gmsh</a> is a three-dimensional meshing
+tool (with pre- and post-processing facilities). Written in C/C++ and
+using OpenGL, Gmsh can be a useful companion to GetDP for mesh
+generation and post-processing.
 
 <p>
 
+$Date: 2001-10-12 16:19:14 $
+
 </BODY>
 </HTML>
-
-<!---BEGINSCRIPT
-EOM
-ENDSCRIPT--->

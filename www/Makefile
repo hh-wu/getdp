@@ -1,4 +1,7 @@
 
+default:
+	@echo "Nothing to do..."
+
 cgi:
 	cat getdp.html |\
         sed "s/<!---BEGINSCRIPT//g" |\
