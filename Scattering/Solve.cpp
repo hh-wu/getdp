@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.12 2002-04-12 20:52:13 bruno Exp $
+// $Id: Solve.cpp,v 1.13 2002-04-12 20:53:53 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -85,7 +85,6 @@ void SaveSolution(Ctx *ctx, gVector *x){
   char fn[256];
   FILE *fp;
 
-  /*
   sprintf(fn, "hf.res");
   if(!(fp = fopen(fn, "w")))
     Msg(ERROR, "Could not open res file");
@@ -97,7 +96,6 @@ void SaveSolution(Ctx *ctx, gVector *x){
   }
   
   fclose(fp);
-  */
 
   sprintf(fn, "hf.m");
   if(!(fp = fopen(fn, "w")))
