@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.30 2000-10-27 11:47:28 dular Exp $
+# $Id: Makefile,v 1.31 2000-10-30 11:08:44 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -101,7 +101,7 @@ getdp:
 opti:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE) \
-           "C_FLAGS=-O3" \
+           "C_FLAGS=-O3 -DUSE_DEBUG" \
            "F77_FLAGS=-O3" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
