@@ -1,4 +1,4 @@
-/* $Id: Data_Numeric.h,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Data_Numeric.h,v 1.3 2000-10-20 17:07:39 geuzaine Exp $ */
 #ifndef _DATA_NUMERIC_H_
 #define _DATA_NUMERIC_H_
 
@@ -8,6 +8,10 @@
 #define MIN(a,b)   ((a)<(b) ? (a) : (b))
 #define MAX(a,b)   ((a)>(b) ? (a) : (b))
 #define HYPOT(a,b) (sqrt((a)*(a)+(b)*(b)))
+#define PSCA2(a,b) ((a)[0]*(b)[0] + (a)[1]*(b)[1])
+#define PSCA3(a,b) ((a)[0]*(b)[0] + (a)[1]*(b)[1] + (a)[2]*(b)[2])
+#define NORM2(a)   (sqrt((a)[0]*(a)[0]+(a)[1]*(a)[1])) 
+#define NORM3(a)   (sqrt((a)[0]*(a)[0]+(a)[1]*(a)[1]+(a)[2]*(a)[2])) 
 
 #define DSQU SQU
 
