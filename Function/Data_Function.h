@@ -1,4 +1,4 @@
-/* $Id: Data_Function.h,v 1.20 2002-02-04 19:01:04 geuzaine Exp $ */
+/* $Id: Data_Function.h,v 1.21 2002-10-15 19:23:19 geuzaine Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 
@@ -509,6 +509,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"NormalSource"      , (CAST)F_NormalSource     ,   0,   0 },
   {"Tangent"           , (CAST)F_Tangent          ,   0,   0 },
   {"CompElementNum"    , (CAST)F_CompElementNum   ,   0,   0 },
+  {"ElementVol"        , (CAST)F_ElementVol       ,   0,   0 },
   {"SurfaceArea"       , (CAST)F_SurfaceArea      ,  -1,   0 },
   {"InterpolationLinear"   , (CAST)F_InterpolationLinear   ,  -2,   1 },
   {"dInterpolationLinear"  , (CAST)F_dInterpolationLinear  ,  -2,   1 },

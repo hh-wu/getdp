@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.12 2002-01-18 18:00:31 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.13 2002-10-15 19:23:19 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -169,6 +169,55 @@ void  F_CompElementNum (F_ARG) {
   GetDP_End ;
 }
 
+
+/* ------------------------------------------------------------------------ */
+/*  Volume                                                                  */
+/* ------------------------------------------------------------------------ */
+
+void F_ElementVol (F_ARG) {
+  int k;
+  double Vol;
+  MATRIX3x3 Jac;
+
+  /* It would be more efficient to compute the volumes directly from
+     the node coordinates, but I'm lazy... */
+
+  Get_NodesCoordinatesOfElement(Current.Element) ;
+  Get_BFGeoElement(Current.Element, Current.u, Current.v, Current.w) ;
+
+  /* we use the most general case (3D embedding) */
+
+  switch(Current.Element->Type){
+  case LINE:
+    Vol = 2. * JacobianLin3D(Current.Element,&Jac);
+    break;
+  case TRIANGLE:
+    Vol = 0.5 * JacobianSur3D(Current.Element,&Jac) ;
+    break;
+  case QUADRANGLE:
+    Vol = 4. * JacobianSur3D(Current.Element,&Jac) ;
+    break;
+  case TETRAHEDRON:
+    Vol = 1./6. * JacobianVol3D(Current.Element,&Jac) ;
+    break;
+  case HEXAHEDRON:
+    Vol = 8. * JacobianVol3D(Current.Element,&Jac) ;
+    break;
+  case PRISM:
+    Vol = JacobianVol3D(Current.Element,&Jac) ;
+    break;
+  default :
+    Msg(ERROR, "F_ElementVol not implemented for %s",
+	Get_StringForDefine(Element_Type, Current.Element->Type));
+  }
+
+  V->Type = SCALAR ;
+  V->Val[0] = fabs(Vol);
+
+  for (k = 2 ; k < Current.NbrHar ; k += 2) 
+    V->Val[MAX_DIM* k] = V->Val[0] ;
+  
+}
 
 /* ------------------------------------------------------------------------ */
 /*  SurfaceArea                                                             */

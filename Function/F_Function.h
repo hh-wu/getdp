@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.14 2002-02-04 19:01:04 geuzaine Exp $ */
+/* $Id: F_Function.h,v 1.15 2002-10-15 19:23:19 geuzaine Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -106,6 +106,7 @@ void  F_Normal          (F_ARG) ;
 void  F_NormalSource    (F_ARG) ;
 void  F_Tangent         (F_ARG) ;
 void  F_CompElementNum  (F_ARG) ;
+void  F_ElementVol      (F_ARG) ;
 void  F_SurfaceArea     (F_ARG) ;
 void  F_InterpolationLinear   (F_ARG) ;
 void  F_dInterpolationLinear  (F_ARG) ;
