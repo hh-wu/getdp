@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.125 2003-02-12 02:26:45 geuzaine Exp $
+# $Id: Makefile,v 1.126 2003-02-12 22:05:24 geuzaine Exp $
 
 include variables
 
@@ -85,7 +85,7 @@ doc-pdf:
 	cp doc/texinfo/getdp.pdf doc/
 
 purge:
-	for i in . lib include archives ${GETDP_DIRS}; \
+	for i in . lib include doc archives ${GETDP_DIRS}; \
         do (cd $$i && rm -f *~ *~~ \#*\#); done
 
 tgz:
