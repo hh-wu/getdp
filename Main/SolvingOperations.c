@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.64 2004-09-09 11:24:27 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.65 2005-03-18 13:56:12 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -3337,7 +3337,7 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
 
       if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Y){
 	un_y +=  Operation_P->Case.DeformeMesh.Factor * Value ;
-	Geo_SetNodesCoordinatesZ(1, &Num_Node, &un_z) ;
+	Geo_SetNodesCoordinatesY(1, &Num_Node, &un_y) ;
       }
 
       if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Z){
