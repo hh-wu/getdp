@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Helmholtz.c,v 1.6 2001-08-09 13:47:38 sabarieg Exp $"
+#define RCSID "$Id: GF_Helmholtz.c,v 1.7 2001-08-09 14:55:15 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -30,7 +30,6 @@
 void GF_Helmholtz (F_ARG) {
  
   double  r, phi_r, phi ;
-  int p, ns, i_FMMDir ;
   
   GetDP_Begin("GF_Helmholtz");
 
@@ -39,99 +38,30 @@ void GF_Helmholtz (F_ARG) {
   }
   
   V->Type = SCALAR ;
-  
-  if (Flag_FMM && Current.CurrentFMM.GFx.Fct == NULL)
-    Current.CurrentFMM.GFx = *Fct; 
-
-  if (!Current.CurrentFMM.Flag_GF){
     
-    switch((int)Fct->Para[0]){      
-    case _2D :
-      r = sqrt(SQU(Current.x-Current.xs)+
-	       SQU(Current.y-Current.ys)) ;
-      if(!r) Msg(ERROR, "1/0 in 'GF_Helmholtz'") ;
-      V->Val[0]       = -y0(Fct->Para[1]*r)/4 ; 
-      V->Val[MAX_DIM] = -j0(Fct->Para[1]*r)/4 ;
-      break ;
-      
-    case _3D :
-      r = sqrt(SQU(Current.x-Current.xs)+
-	       SQU(Current.y-Current.ys)+
-	       SQU(Current.z-Current.zs)) ;
-      if(!r) Msg(ERROR, "1/0 in 'GF_Helmholtz'") ;
-      V->Val[0]       =  ONE_OVER_FOUR_PI * cos(Fct->Para[1]*r) / r ; 
-      V->Val[MAX_DIM] = -ONE_OVER_FOUR_PI * sin(Fct->Para[1]*r) / r ;
-      break ;
-      
-    default :
-      Msg(ERROR, "Bad Parameter for 'GF_Helmholtz' (%d)", (int)Fct->Para[0]);
-      break;
-    }
-  }    
-  else {
-    switch((int)Fct->Para[0]){      
-    case _2D :
-      ns =  Current.CurrentFMM.FactorDir ;
-      
-      switch(Current.CurrentFMM.Flag_GF){
-      case 1 : //Aggregation
-	r = sqrt( SQU(Current.xs-Current.CurrentFMM.Xgc)+ SQU(Current.ys-Current.CurrentFMM.Ygc)) ;
-	phi_r = atan2(Current.ys- Current.CurrentFMM.Ygc, Current.xs-Current.CurrentFMM.Xgc) ;
-	
-	if (r==0)
-	  for (i_FMMDir = 0 ; i_FMMDir < 2*ns+1 ;  i_FMMDir++){ 
-	    V[i_FMMDir].Type = SCALAR ;
-	    V[i_FMMDir].Val[0] = 1. ;
-	    V[i_FMMDir].Val[MAX_DIM] = 0. ;
-	  }
-	else
-	  for (i_FMMDir = 0 ; i_FMMDir < 2*ns+1 ;  i_FMMDir++){ 
-	    V[i_FMMDir].Type = SCALAR ;
-	    V[i_FMMDir].Val[0] = 0. ;
-	    V[i_FMMDir].Val[MAX_DIM] = 0. ;
-	    
-	    phi = Current.CurrentFMM.Phi[i_FMMDir] ;
-	      
-	    for ( p = 0; p < 2*ns+1  ; p++ ){
-	      V[i_FMMDir].Val[0] += (p<=ns) ? jn(p,Fct->Para[1]*r)*cos(p*(phi_r+phi)) : jn(ns-p, Fct->Para[1]*r)*cos((ns-p)*(phi_r+phi)) ; 
-  	      V[i_FMMDir].Val[MAX_DIM] += (p<=ns) ? -jn(p,Fct->Para[1]*r)*sin(p*(phi_r+phi)): -jn(ns-p, Fct->Para[1]*r)*sin((ns-p)*(phi_r+phi)) ; 
-	    }
-	  }
-	
-	
-	/*  phi =  Current.CurrentFMM.Phi[Current.CurrentFMM.NumDir]; */
-	
-	/*  	V->Val[0] =  V->Val[MAX_DIM] = 0.; */
-	
-	/*          for ( p = 0; p < 2*ns +1  ; p++ ){ */
-	/*  	  V->Val[0] += (p<=ns) ? jn(p,Fct->Para[1]*r)*cos(p*(phi_r+phi)) : jn(ns-p, Fct->Para[1]*r)*cos((ns-p)*(phi_r+phi)) ; */
-	/*  	  V->Val[MAX_DIM] += (p<=ns) ? -jn(p,Fct->Para[1]*r)*sin(p*(phi_r+phi)): -jn(ns-p, Fct->Para[1]*r)*sin((ns-p)*(phi_r+phi)) ; */
-	/*  	}	 */	
-	break;
-
-      case 2 : //Disaggregation
-	r = sqrt( SQU(Current.x - Current.CurrentFMM.Xgc)+ SQU(Current.y - Current.CurrentFMM.Ygc)) ;
-	phi_r = atan2((Current.y - Current.CurrentFMM.Ygc), (Current.x - Current.CurrentFMM.Xgc)) ;
-
-	for (i_FMMDir = 0 ; i_FMMDir < 2*ns+1 ;  i_FMMDir++){ 
-	  V[i_FMMDir].Type = SCALAR ;
-	  phi = Current.CurrentFMM.Phi[i_FMMDir];
-	  V[i_FMMDir].Val[0]       = cos(Fct->Para[1]*r*sin(phi+phi_r)) ;
-	  V[i_FMMDir].Val[MAX_DIM] = sin(Fct->Para[1]*r*sin(phi+phi_r)) ;
-	}
-	break;
-
-      default :
-	Msg(ERROR, "Bad Flag_GF 'GF_HelmholtzFMMAg_Disag' (%d)", Current.CurrentFMM.Flag_GF);  
-	break;
-      }
-      
-      break;
-    default :
-      Msg(ERROR, "Bad Parameter for 'GF_HelmholtzFMMAg_Disag' (%d)", (int)Fct->Para[0]);  
-      break;
-    }
-  }     
+  switch((int)Fct->Para[0]){      
+  case _2D :
+    r = sqrt(SQU(Current.x-Current.xs)+
+	     SQU(Current.y-Current.ys)) ;
+    if(!r) Msg(ERROR, "1/0 in 'GF_Helmholtz'") ;
+    V->Val[0]       = -y0(Fct->Para[1]*r)/4 ; 
+    V->Val[MAX_DIM] = -j0(Fct->Para[1]*r)/4 ;
+    break ;
+    
+  case _3D :
+    r = sqrt(SQU(Current.x-Current.xs)+
+	     SQU(Current.y-Current.ys)+
+	     SQU(Current.z-Current.zs)) ;
+    if(!r) Msg(ERROR, "1/0 in 'GF_Helmholtz'") ;
+    V->Val[0]       =  ONE_OVER_FOUR_PI * cos(Fct->Para[1]*r) / r ; 
+    V->Val[MAX_DIM] = -ONE_OVER_FOUR_PI * sin(Fct->Para[1]*r) / r ;
+    break ;
+    
+  default :
+    Msg(ERROR, "Bad Parameter for 'GF_Helmholtz' (%d)", (int)Fct->Para[0]);
+    break;
+  }
+    
   GetDP_End ;
 }
 
