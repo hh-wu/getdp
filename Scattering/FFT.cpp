@@ -1,4 +1,4 @@
-// $Id: FFT.cpp,v 1.13 2002-09-05 00:10:32 geuzaine Exp $
+// $Id: FFT.cpp,v 1.14 2002-09-19 01:17:17 geuzaine Exp $
 
 #include "Utils.h"
 #include "FFT.h"
@@ -79,7 +79,7 @@ FFT::FFT(int n, Patch *patch){
   int i;
 
   N = n;
-  expansionFactor = 16;
+  expansionFactor = 128;
   Nexp = expansionFactor*N;
 
   forwardPlan = fftw_create_plan(N,FFTW_FORWARD,FFTW_ESTIMATE);

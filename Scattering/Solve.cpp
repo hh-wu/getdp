@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.39 2002-09-11 00:55:37 geuzaine Exp $
+// $Id: Solve.cpp,v 1.40 2002-09-19 01:17:17 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -156,6 +156,8 @@ void Ctx::saveSolution(gVector *x){
   LinAlg_SequentialEnd() ;
 }
 
+#define REGRESSION_TEST 0
+
 void Ctx::initializeInterpolation(gVector *x){
   int i, j;
   double t, pou, pou2;
@@ -174,7 +176,12 @@ void Ctx::initializeInterpolation(gVector *x){
 
     p = (Patch*)List_Pointer(scat.patches,0);
     for(j=0; j<p->nbdof; j++){
+#if REGRESSION_TEST
+      //p->localVals[j] = fabs(sin(p->nodes[j]));
+      p->localVals[j] = (sin(p->nodes[j]));
+#else
       LinAlg_GetComplexInVector(&p->localVals[j],x,j+p->beg);
+#endif
       t = p->nodes[j];
       pou = p->part->eval(t);
       p->localVals[j] *= pou;
@@ -191,13 +198,17 @@ void Ctx::initializeInterpolation(gVector *x){
 
     for(i=0; i<List_Nbr(scat.patches); i++){
       p = (Patch*)List_Pointer(scat.patches,i);
+
       for(j=0; j<p->nbdof; j++){
 	if(j<p->nbdof/2)
 	  p2 = (Patch*)List_Pointer(scat.patches,(i==0)?List_Nbr(scat.patches)-1:i-1);
 	else
 	  p2 = (Patch*)List_Pointer(scat.patches,(i==List_Nbr(scat.patches)-1)?0:i+1);
-	
+#if REGRESSION_TEST
+	p->localVals[j] = sin(p->nodes[j]);
+#else
 	LinAlg_GetComplexInVector(&p->localVals[j],x,j+p->beg);
+#endif
 	t = p->nodes[j];
 	pou = p->part->eval(t);
 	pou2 = p2->part->eval(GetInInterval(t, p2->part->center - p2->part->epsilon,
@@ -213,6 +224,34 @@ void Ctx::initializeInterpolation(gVector *x){
     }
 
   }
+
+#if REGRESSION_TEST
+  FILE *fp = fopen("test.m", "w");
+  for(i=0; i<List_Nbr(scat.patches); i++){
+    fprintf(fp, "p%d = [\n", i);
+    printf("TESTING  PATCH %d\n", i);
+    p = (Patch*)List_Pointer(scat.patches,i);
+    for(j=0; j<1000; j++){
+      Complex vv;
+      double tt = 
+	p->part->center - p->part->epsilon + 
+	j * 2. * p->part->epsilon / 1000.;
+      if(p->type == Patch::SPLINE)
+	vv = p->spline->eval(tt);
+      else{
+	double ap = p->part->center - p->part->epsilon;
+	double bp = p->part->center + p->part->epsilon;
+	vv = p->fft->eval((tt-ap)*TWO_PI/(bp-ap));
+	//vv = p->fft->eval(tt);
+      }
+      //fprintf(fp, "%d %.16g %.16g %.16g\n", i, tt, vv.real(), vv.imag());
+      printf("eval at %.16g\n", tt);
+      fprintf(fp, "%.16g\n", vv.real());
+    }
+    fprintf(fp, "];\n");
+  }
+  exit(1);
+#endif
 
 }
 
@@ -247,7 +286,6 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
 
   for(i=beg ; i<end ; i++){
     res = - ctx->integrate(i);
-
     if(ctx->type & SECOND_KIND_IE){
       LinAlg_GetComplexInVector(&tmp,x,i);
       res += (1.-ctx->couplingCoef)*tmp;
