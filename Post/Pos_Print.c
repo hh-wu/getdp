@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.43 2001-06-27 13:18:10 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.44 2001-07-08 15:44:47 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -579,7 +579,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
 
 /* ------------------------------------------------------------------------ */
-/*  P o s _ P r i n t O n C u t                                             */
+/*  P o s _ P r i n t O n S e c t i o n                                     */
 /* ------------------------------------------------------------------------ */
 
 double Plane(double a, double b, double c, double d, 

@@ -1,8 +1,10 @@
-$Id: VERSIONS,v 1.16 2001-06-03 11:08:29 geuzaine Exp $
+$Id: VERSIONS,v 1.17 2001-07-08 15:44:47 geuzaine Exp $
 
 0.83: Various bug fixes (SaveSolutions[], InitSolution[], ...) and
-small enhancements (output files are created relatively to the input
-file directory, ...); 
+small enhancements (output files created relatively to the input file
+directory, solver options available on the command line, ...); New
+features: UpdateConstraint[]; optional matrix scaling (Warning: change
+the scaling definition in your old SOLVER.PAR files!), ...
 
 0.82: Added communication socket for interactive use with Gmsh;
 corrected (again) memory problem (leak + seg. fault) in time stepping
