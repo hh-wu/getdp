@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.51 2003-04-16 23:29:56 geuzaine Exp $
+@c $Id: getdp.texi,v 1.52 2003-04-18 23:03:29 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 @c
@@ -182,7 +182,7 @@ Reference Manual}, for GetDP @value{GETDP-VERSION}.
 * Bugs and versions::           Contact information, version history and list of contributors.
 * Tips and tricks::             Some tips to make your life easier with GetDP.
 * Gmsh examples::               Sample Gmsh input files.
-* GNU General Public License::  
+* GNU General Public License::  Copy of the GNU GPL.
 * Concept index::               Index of concepts.
 * Metasyntactic variable index::  Index of metasyntactic variables used in this manual.
 * Syntax index::                Index of reserved keywords in the GetDP language.
@@ -613,7 +613,7 @@ objects of the second group, adapted to treatments of defined problems.
 Here are the rules we tried to follow when writing this user's guide. Note
 that metasyntactic variable definitions stay valid throughout all the manual
 (and not only in the sections where the definitions
-appear). @xref{Metasyntactic variable index}, for an index of all
+appear). See @ref{Metasyntactic variable index}, for an index of all
 metasyntactic variables.
 
 @enumerate
@@ -687,7 +687,7 @@ same line is ignored.
 @code{#include @var{expression-char}} 
 @end example
 
-@xref{Constants}, for the definition of the character expression
+See @ref{Constants}, for the definition of the character expression
 @var{expression-char}.
 
 @c -------------------------------------------------------------------------
@@ -959,7 +959,7 @@ value (that will not be used during the processing but that avoids the error
 messages produced when references to undefined quantities are made).
 @end enumerate
 
-@xref{Constant expression examples}, as well as @ref{Function examples}, for
+See @ref{Constant expression examples}, as well as @ref{Function examples}, for
 some examples.
 
 Constant character strings can also be defined. The syntax for their
@@ -1276,7 +1276,7 @@ syntax (@var{integer} indicates the position of the argument in the
   $@var{integer}
 @end example
 
-@xref{Function}, and @ref{Function examples}, for more details.
+See @ref{Function}, and @ref{Function examples}, for more details.
 
 
 @c -------------------------------------------------------------------------
@@ -1318,7 +1318,7 @@ should add @code{#5} directly after the expression. To reuse the value
 stored in this register, one simply uses @code{#5} instead of the expression
 it should replace.
 
-@xref{Function examples}, for an example.
+See @ref{Function examples}, for an example.
 
 
 @c -------------------------------------------------------------------------
@@ -1576,7 +1576,7 @@ defines the groups @code{@var{group-id}@{@var{i}@}},
 @code{#@var{group-list}} is an abbreviation of @code{Region[@var{group-list}]}.
 @end enumerate
 
-@xref{Types for Group}, for the complete list of options and @ref{Group
+See @ref{Types for Group}, for the complete list of options and @ref{Group
 examples}, for some examples.
 
 
@@ -1634,7 +1634,7 @@ definition of @code{f[]} and @code{g[]} don't match.
 @end enumerate
 
 
-@xref{Types for Function}, for the complete list of built-in functions
+See @ref{Types for Function}, for the complete list of built-in functions
 and @ref{Function examples}, for some examples.
 
 
@@ -1740,7 +1740,7 @@ pre-processing (for efficiency reasons).  Time dependences must be defined
 in @code{TimeFunction @var{expression}}.
 @end enumerate
 
-@xref{Types for Constraint}, for the complete list of options and
+See @ref{Types for Constraint}, for the complete list of options and
 @ref{Constraint examples}, for some examples.
 
 
@@ -1894,7 +1894,7 @@ Function: a global basis function (@code{BF_Global} or
 multiformulations.
 @end enumerate
 
-@xref{Types for FunctionSpace}, for the complete list of options and
+See @ref{Types for FunctionSpace}, for the complete list of options and
 @ref{FunctionSpace examples}, for some examples.
 
 
@@ -1962,7 +1962,7 @@ The default case of a @code{Jacobian} object is defined by @code{Region All}
 and must follow all the other cases.
 @end enumerate
 
-@xref{Types for Jacobian}, for the complete list of options and
+See @ref{Types for Jacobian}, for the complete list of options and
 @ref{Jacobian examples}, for some examples.
 
 @c -------------------------------------------------------------------------
@@ -2029,7 +2029,7 @@ Integration @{
   Line | Triangle | Tetrahedron @var{etc} 
 @end example
 
-@xref{Types for Integration}, for the complete list of options and
+See @ref{Types for Integration}, for the complete list of options and
 @ref{Integration examples}, for some examples.
 
 @c -------------------------------------------------------------------------
@@ -2169,7 +2169,7 @@ A @code{GlobalEquation} defines a global equation to be assembled in the
 matrix of the system.
 @end enumerate
 
-@xref{Types for Formulation}, for the complete list of options and
+See @ref{Types for Formulation}, for the complete list of options and
 @ref{Formulation examples}, for some examples.
 
 
@@ -2290,7 +2290,7 @@ the case if you downloaded a pre-compiled copy of GetDP from the internet).
 quantity definitions can be solved (@pxref{Formulation}).
 @end enumerate
 
-@xref{Types for Resolution}, for the complete list of options and
+See @ref{Types for Resolution}, for the complete list of options and
 @ref{Resolution examples}, for some examples.
 
 @c -------------------------------------------------------------------------
@@ -2378,7 +2378,7 @@ automatically selected as the one to which the first quantity listed in
 the @code{Quantity} field of @var{formulation-id} is associated.
 @end enumerate
 
-@xref{Types for PostProcessing}, for the complete list of options and
+See @ref{Types for PostProcessing}, for the complete list of options and
 @ref{PostProcessing examples}, for some examples.
 
 
@@ -2476,7 +2476,7 @@ quantities (@var{post-quantity-id}) with global integral quantities
 (@code{@var{post-quantity-id}[@var{group-def}]}).
 @end enumerate
 
-@xref{Types for PostOperation}, for the complete list of options and
+See @ref{Types for PostOperation}, for the complete list of options and
 @ref{PostOperation examples}, for some examples.
 
 
@@ -5329,7 +5329,7 @@ Print [ e, OnGrid Domain2 ];
 @end example
 
 Many options can be used to modify the aspect of all these maps, as well as
-the default behaviour of the @code{Print} commands. @xref{Types for
+the default behaviour of the @code{Print} commands. See @ref{Types for
 PostOperation}, to get the list of all these options. For example, to obtain
 a map of the scalar potential at the barycenters of the elements on the
 boundary of the region @code{Domain}, in a table oriented format appended to
@@ -5470,7 +5470,7 @@ front-end to GetDP, you may consider using Gmsh (available at
 launch computations and visualize results directly from within a
 user-friendly graphical interface. The file formats used by Gmsh for mesh
 generation and post-processing are the default file formats accepted by
-GetDP (@xref{Input file format}, and @ref{Types for PostOperation}).}. It is
+GetDP (see @ref{Input file format}, and @ref{Types for PostOperation}).}. It is
 a command-line driven program that reads a problem definition file once at
 the beginning of the processing. This problem definition file is a regular
 ASCII text file (@pxref{Numerical tools as objects}), hence created with
