@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.c,v 1.11 2000-09-28 22:16:35 geuzaine Exp $ */
+/* $Id: Pos_Formulation.c,v 1.12 2000-09-29 09:53:39 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -343,6 +343,10 @@ int Compare_PostElementNode(struct PostElement * PE1, int n1,
  
 int fcmp_PostElement_Index(const void *a, const void *b){
   return (*(struct PostElement**)a)->Index - (*(struct PostElement**)b)->Index;
+}  
+
+int fcmp_PostElement_u(const void *a, const void *b){
+  return (int)((*(struct PostElement**)b)->u[0] - (*(struct PostElement**)a)->u[0]);
 }  
 
 int fcmp_IntxList(const void * a, const void * b) {
@@ -807,19 +811,44 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
       if(PE->NbrNodes != 2)
 	Msg(ERROR, "Connectivity Sorting Impossible for %d-Noded Elements",
 	    PE->NbrNodes) ;
-      PE->Index = 0 ;
+      PE->u[0] = 0. ;
     }
-    for(ii = 0 ; ii < NbrPost ; ii++){
-      PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
-      if(!ii || PE->Index){
-	for(jj = 1 ; jj < NbrPost ; jj++){
-	  PE2 = *(struct PostElement**)List_Pointer(PostElement_L, jj);
-	  if(!PE2->Index){
-	    if(Compare_PostElementNode(PE2, 0, PE, 1)) PE2->Index = PE->Index + 1 ;
-	    else if (Compare_PostElementNode(PE2, 1, PE, 0)) PE2->Index = PE->Index - 1 ;
+
+    PE = *(struct PostElement**)List_Pointer(PostElement_L, 0);
+    PE->u[0] = 1. ;
+    PE->Index = 0 ;
+
+    iPost = 1 ;
+    while(iPost < NbrPost){
+      for(ii = 0 ; ii < NbrPost ; ii++){
+	PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
+	if(PE->u[0]){
+	  for(jj = 0 ; jj < NbrPost ; jj++){
+	    if(jj != ii){
+	      PE2 = *(struct PostElement**)List_Pointer(PostElement_L, jj);
+	      if(!PE2->u[0]){
+		if(Compare_PostElementNode(PE2, 0, PE, 1)){
+		  PE2->u[0] = 1. ;
+		  PE2->Index = PE->Index + 1 ;
+		  iPost++ ;
+		}
+		else if (Compare_PostElementNode(PE2, 1, PE, 0)){
+		  PE2->u[0] = 1. ;
+		  PE2->Index = PE->Index - 1 ;
+		  iPost++ ;
+		}
+		else if (Compare_PostElementNode(PE2, 0, PE, 0) ||
+			 Compare_PostElementNode(PE2, 1, PE, 1)){
+		  PE2->u[0] = 1. ;
+		  PE2->Index = PE->Index  ;
+		  iPost++ ;
+		}
+	      }
+	    }
 	  }
 	}
       }
+      List_Sort(PostElement_L, fcmp_PostElement_u) ;
     }
     List_Sort(PostElement_L, fcmp_PostElement_Index) ;
     break ;
@@ -827,7 +856,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
     break ;
   }
 
-  /* Print evrything if we are in Store mode */
+  /* Print everything if we are in Store mode */
 
   if(Store && !InteractiveInterrupt){
     for(iPost = 0 ; iPost < NbrPost ; iPost++){ 

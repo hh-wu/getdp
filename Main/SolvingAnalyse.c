@@ -1,4 +1,4 @@
-/* $Id: SolvingAnalyse.c,v 1.13 2000-09-26 09:47:33 geuzaine Exp $ */
+/* $Id: SolvingAnalyse.c,v 1.14 2000-09-29 09:53:39 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -502,7 +502,7 @@ void  Init_HarInDofData(struct DefineSystem * DefineSystem_P,
 
   if (DofData_P->NbrHar > NBR_MAX_HARMONIC)
     Msg(ERROR, "Too many harmonics to generate system (%d > %d)", 
-        DofData_P->NbrHar, NBR_MAX_HARMONIC) ; 
+        DofData_P->NbrHar/2, NBR_MAX_HARMONIC/2) ; 
 
   if (DofData_P->NbrHar > 1) {
     for (j = 0 ; j < DofData_P->NbrHar/2 ; j++)
