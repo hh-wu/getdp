@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.20 2001-11-29 11:28:55 geuzaine Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.21 2002-01-08 13:25:35 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -544,6 +544,10 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 	  List_Search(ExtendedSuppList_L, &NodeXYZ.NumNode, fcmp_int))) {
       Geo_GetNodesCoordinates( 1, &NodeXYZ.NumNode,
 			       &Current.x, &Current.y, &Current.z) ;
+      Get_ValueOfExpressionByIndex(Index_Function, NULL, 0., 0., 0., &Value) ;
+
+      Current.x = Value.Val[0] ; Current.y = Value.Val[1] ;
+      Current.z = Value.Val[2] ;
       if (Index_Filter < 0)  Flag_Filter = 1 ;
       else {
 	Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
@@ -576,10 +580,12 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 	  List_Search(ExtendedSuppListRef_L, &NodeXYZRef.NumNode, fcmp_int))) {
       Geo_GetNodesCoordinates( 1, &NodeXYZRef.NumNode,
 			       &Current.x, &Current.y, &Current.z) ;
+      /*
       Get_ValueOfExpressionByIndex(Index_Function, NULL, 0., 0., 0., &Value) ;
 
       Current.x = Value.Val[0] ; Current.y = Value.Val[1] ;
       Current.z = Value.Val[2] ;
+      */
       if (Index_Filter < 0)  Flag_Filter = 1 ;
       else {
 	Get_ValueOfExpressionByIndex(Index_Filter, NULL, 0., 0., 0., &Value) ;
@@ -621,15 +627,15 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   Msg(DEBUG2, "- Other\n") ;
   for (i = 0 ; i < Nbr_Entity ; i++) {
     List_Read(NodeXYZ_L, i, &NodeXYZ) ;
-    Msg(DEBUG2, "%d -> %d: %e %e :: %e\n",
-	    i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y,
+    Msg(DEBUG2, "%d -> %d: %e %e %e :: %e\n",
+	    i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y, NodeXYZ.z,
 	    atan2(NodeXYZ.y,NodeXYZ.x)/3.1415926535897*180.) ;
   }
   Msg(DEBUG2, "- Reference (after rotation)\n") ;
   for (i = 0 ; i < Nbr_EntityRef ; i++) {
     List_Read(NodeXYZRef_L, i, &NodeXYZ) ;
-    Msg(DEBUG2, "%d -> %d: %e %e :: %e\n",
-	    i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y,
+    Msg(DEBUG2, "%d -> %d: %e %e %e :: %e\n",
+	    i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y, NodeXYZ.z,
 	    atan2(NodeXYZ.y,NodeXYZ.x)/3.1415926535897*180.) ;
   }
 
