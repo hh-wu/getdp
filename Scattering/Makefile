@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.22 2002-08-17 23:10:41 geuzaine Exp $
+# $Id: Makefile,v 1.23 2002-09-20 23:18:17 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -7,7 +7,8 @@
 
 SOLVER   = -D_SPARSKIT
 
-C_FLAGS = -g -O3 -Wall
+C_FLAGS = -g
+#C_FLAGS = -g -O3 -Wall
 #C_FLAGS = -g -Wall -D_PETSC
 #include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables
 #C_FLAGS = -O3 -tpp7 -xW  # pentium 4 specific
@@ -64,10 +65,10 @@ exe:
                -I$(FASSTER_DIR)/lib -I$(MATHTOOLKIT_DIR)/lib \
          -I/usr/include/python2.1\
          -I/home/amavisitors/redrod/root/python2.2_Numeric/include/python2.1/Numeric\
-         -I/home/amavisitors/redrod/src/mathToolkit/lib\
                main3d.cpp \
                $(FASSTER_DIR)/lib/libfasster.a \
-               $(MATHTOOLKIT_DIR)/lib/libmathtoolkit.a
+               $(MATHTOOLKIT_DIR)/lib/libmathtoolkit.a \
+               -lgsl -lgslcblas -lm
 
 clean:
 	$(RM) $(RMFLAGS) *.o

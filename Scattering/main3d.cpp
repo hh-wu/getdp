@@ -6,10 +6,15 @@
 #include "grid.h"
 #include "gridIntegrator.h"
 
+#define MAX(a,b)   ((a)>(b) ? (a) : (b))
+#define TWO_PI     6.2831853071795865
+
+
 template <class T>
 
 grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
-  int nbPatches = bodyArray.size();
+  int i, nbPatches = bodyArray.size();
+  patch3D *patch;
 
   printf("nbpatch = %d\n", nbPatches);
 
@@ -32,9 +37,26 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
   gridInst->vH.resize(nbPatches);
   gridInst->scalarData.resize(nbPatches);
 
-  /*
+  double u[nbIntervalsU+1], v[nbIntervalsU+1];
+  for(i=0 ; i<nbIntervalsU+1; i++)
+    u[i] = i/(double)nbIntervalsU;
+  for(i=0 ; i<nbIntervalsV+1; i++)
+    v[i] = i/(double)nbIntervalsV;
+
+  double uPatch[nbIntervalsU+1], vPatch[nbIntervalsU+1];
+
   for(i=0 ; i<nbPatches ; i++){
     
+    patch = bodyArray[i];
+
+    for(j=0 ; j<nbIntervalsU+1; j++)
+      uPatch[j] = (patch->uEnd - patch->uStart)*u[j] + patch->uStart;
+    for(j=0 ; j<nbIntervalsV+1; j++)
+      vPatch[j] = (patch->vEnd - patch->vStart)*v[j] + patch->vStart;
+
+    gridInst->uH[i] = uPatch[0][0]-uPatch[1][0];
+    gridInst->vH[i] = vPatch[0][0]-vPatch[0][1];
+
     int nbPts = (nbIntervalsU+1)*(nbIntervalsV+1);
     gridInst->positionsX[i].resize(nbPts);
     gridInst->positionsY[i].resize(nbPts);
@@ -47,13 +69,14 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
     gridInst->v[i].resize(nbPts);
     gridInst->jacobianDeterminant[i].resize(nbPts);
     gridInst->densities[i].resize(nbPts);
-    gridInst->uH[i].resize(nbPts);
-    gridInst->vH[i].resize(nbPts);
+
+    gridInst->uH[i] = 1;
+    gridInst->vH[i] = 1;
 
     gridInst->scalarData[i].resize(1);
     gridInst->scalarData[i][0].resize(nbPts);
 
- 
+    /* 
     for(j=0 ; j<nbIntervalsU+1 ; j++){
       for(k=0 ; k<nbIntervalsV+1 ; k++){
 	gridInst->positionsX[i][j*nbIntervalsU+k] = ...;
@@ -72,19 +95,20 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
 	gridInst->scalarData[i][0][j*nbIntervalsU+k] = ...;
       }
     }
+    */
+
   }
-  */
 
   return gridInst;
 }
 
 int main(){
-  double radius = 1.0, waveNumber = 1.0;
+  double radius = 1.0, waveNumber = 1.0, gamma = MAX(3,1./TWO_PI*waveNumber);
   int nbPatches = 6;
   int nbIntervalsU = 10, nbIntervalsV = 10;
 
   // create patches
-  valarray<spherePatch*> bodyArray(nbPatches);
+  valarray<patch3D*> bodyArray(nbPatches);
   bodyArray[0] = new spherePatch(radius,0.0+0.001234     ,0.0               );
   bodyArray[1] = new spherePatch(radius,0.0              ,0.5*M_PI+0.001734 );
   bodyArray[2] = new spherePatch(radius,0.5*M_PI+0.002734,0.0+0.001234      );
@@ -95,8 +119,8 @@ int main(){
   // create grid
   grid *gridInst = initGrid(bodyArray, nbIntervalsU, nbIntervalsV);
 
-  gridIntegrator *integrator = new gridIntegrator(NULL, &bodyArray,
-						  waveNumber, "single", 0.0);
+  gridIntegrator *integrator = new gridIntegrator(gridInst, &bodyArray, waveNumber,
+						  "both", gamma, "no");
 
   printf("hehe\n");
   
