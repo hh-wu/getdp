@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.26 2002-01-23 23:52:32 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.27 2002-01-24 00:09:52 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -1300,7 +1300,7 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
   case DOF_LINKCPLX :
     if(NbrHar==1)
       Msg(ERROR,"LinkCplx only valid for Complex systems") ;
-    else{ /* Warning: Conjugate! */
+    else{ /* Warning: conjugate! */
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef + Val[1] * Equ_P->Case.Link.Coef2 ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef - Val[0] * Equ_P->Case.Link.Coef2 ;
     }
