@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.51 2004-03-05 18:18:04 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.52 2004-12-06 06:55:09 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -305,6 +305,8 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	    Msg(ERROR, "Couldn't create socket %s", argv[i]);
 	  else if(Flag_SOCKET == -2)
 	    Msg(ERROR, "Couldn't connect to socket %s", argv[i]);
+	  else if(Flag_SOCKET == -3)
+	    Msg(ERROR, "No such host %s", argv[i]);
 	  else{
 	    sprintf(pid, "%d", getpid());
 	    Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_START, pid);
