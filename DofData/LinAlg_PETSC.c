@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.22 2002-03-04 17:11:39 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.23 2002-04-12 17:09:15 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -1070,7 +1070,7 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
 
   /* Should be done only if the structure and/or the value of the elements change */
 
-  /* scale */
+  /* Scaling */
   /*  
   VecDuplicate(X->V, &diag);
   MatGetDiagonal(A->M, diag);
@@ -1078,9 +1078,17 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   MatDiagonalScale(A->M, diag, PETSC_NULL);
   VecPointwiseMult(B->V, diag, B->V);
   */
+
   /* Should be done only once */
 
   ierr = SLESCreate(PETSC_COMM_WORLD, &Solver->sles); MYCHECK(ierr);
+
+  /* Explicitly set the initial solution */
+  /*
+  KSP ksp;
+  SLESGetKSP(Solver->sles,&ksp);
+  KSPSetInitialGuessNonzero(ksp,PETSC_TRUE);
+  */
 
   /* Should be done only if the structure and/or the value of the elements change */
   /* if (!ReUse_ILU) */

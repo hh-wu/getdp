@@ -1,6 +1,8 @@
-/* $Id: LinAlg.h,v 1.6 2002-03-04 17:11:39 geuzaine Exp $ */
+/* $Id: LinAlg.h,v 1.7 2002-04-12 17:09:15 geuzaine Exp $ */
 #ifndef _LINALG_H_
 #define _LINALG_H_
+
+#include <stdio.h>
 
 /* 
 
@@ -43,6 +45,22 @@ typedef struct { PetscScalar s ; }               gScalar ;
 typedef struct { Mat M ; }                       gMatrix ;
 typedef struct { Vec V ; }                       gVector ;
 typedef struct { SLES sles ; PC pc ; KSP ksp ; } gSolver ;
+
+#elif _ACM
+
+#if !defined(__cplusplus)
+#error "ACM solver must be compiled in C++"
+#endif
+
+#include<complex>
+typedef std::complex<double> Complex;
+
+#define gSCALAR_SIZE 2
+#define gCOMPLEX_INCREMENT 1
+typedef struct { Complex c ; }            gScalar ;
+typedef struct { int N, M ; }             gMatrix ;
+typedef struct { int N ; Complex *V ; }   gVector ;
+typedef struct { int none ; }             gSolver ;
 
 #elif _AZTEC
 

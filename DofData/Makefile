@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2001-11-22 15:38:36 ledinh Exp $
+# $Id: Makefile,v 1.11 2002-04-12 17:09:15 geuzaine Exp $
 #
 # Makefile for "libDofData.a"
 #
@@ -19,7 +19,8 @@ CFLAGS = $(C_FLAGS) $(OS_FLAGS) $(SOLVER) $(INCLUDE)
 
 SRC = DofData.c \
       LinAlg_SPARSKIT.c \
-      LinAlg_PETSC.c
+      LinAlg_PETSC.c \
+      LinAlg_ACM.c
 
 OBJ  = $(SRC:.c=.o)
 
