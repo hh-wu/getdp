@@ -1,4 +1,4 @@
-/* $Id: Gauss_Hexahedron.c,v 1.5 2000-09-07 18:47:24 geuzaine Exp $ */
+/* $Id: Gauss_Hexahedron.c,v 1.6 2000-09-25 12:09:25 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -48,7 +48,11 @@ void  GaussLegendre_Hexahedron (int Nbr_Points, int Num,
   int i,j,k,index=0,nb;
   double pt1,pt2,pt3,wt1,wt2,wt3,dum;
   
+#ifdef DOS
+  nb = (int)pow((double)Nbr_Points, 1./3.);
+#else
   nb = (int)cbrt((double)Nbr_Points);
+#endif
   
   if(nb*nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
     Msg(ERROR, "Number of Points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;

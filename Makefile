@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.17 2000-09-25 09:32:47 geuzaine Exp $
+# $Id: Makefile,v 1.18 2000-09-25 12:09:25 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -423,17 +423,17 @@ win: tag
 
 mingw:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
-           "CC=gcc" \
-           "FC=g77" \
+           "CC=gcc -mno-cygwin -I/cygnus/mingw/include" \
+           "FC=g77 -mno-cygwin -I/cygnus/mingw/include" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
-           "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
            "OS_FLAGS=-DMSDOS" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)\
+            -mno-cygwin -L/cygnus/mingw/lib $(GETDP_SPARSKIT_LIBS) -lm
 
 sgi: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
