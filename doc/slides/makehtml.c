@@ -1,4 +1,4 @@
-/* $Id: makehtml.c,v 1.2 2001-07-24 11:36:06 geuzaine Exp $ 
+/* $Id: makehtml.c,v 1.3 2001-08-26 14:18:17 geuzaine Exp $ 
    
    Generate a HTML slide show from a set of image files
 */
@@ -9,15 +9,17 @@
 #include <time.h>
 
 #define HOME         "http://www.geuz.org/getdp/"
+#define TOC          "getdp.toc" /* should contain 1 line per slide */
 #define INDEX        "getdp.html"
 #define POSTSCRIPT   "getdp.ps"
 #define PDF          "getdp.pdf"
 #define TITLE        "GetDP presentation"
 #define AUTHOR       "Christophe Geuzaine"
+#define MAXFILES     1000
 
 int  main(int argc, char *argv[]) {
   int i, j, nbfiles;
-  char out[1000][1000];
+  char out[MAXFILES][256], toc[MAXFILES][256];
   FILE *file;
   time_t now;
   
@@ -45,6 +47,16 @@ int  main(int argc, char *argv[]) {
 
   /* create the index */
 
+  for(i=0;i<MAXFILES;i++) strcpy(toc[i],"");
+
+  if(!(file=fopen(TOC, "r"))){
+    printf("could not open file '%s'\n", TOC);
+  }
+  else{
+    for(i=0 ; i<nbfiles ; i++)
+      fgets(toc[i], 256, file);
+  }
+
   if(!(file=fopen(INDEX, "w"))){
     printf("could not open file '%s'\n", INDEX);
     exit(1);
@@ -60,16 +72,22 @@ int  main(int argc, char *argv[]) {
 	  "</HEAD>\n"
 	  "<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\" LINK=\"#0000FF\" VLINK=\"#800080\" ALINK=\"#FF0000\">\n"
 	  "<CENTER>\n"
-	  "<A HREF=\"%s\">[ Home ]</A>\n"
-	  "<P>\n",
+	  "[<A HREF=\"%s\"> Home </A>]\n"
+	  "<P>\n"
+	  "<TABLE cellspacing=0 cellpadding=0>\n",
 	  TITLE, HOME);
 
-  for(i=0 ; i<nbfiles ; i++)
+  for(i=0 ; i<nbfiles ; i++){
     fprintf(file, 
-	    "[<A HREF=\"%s\"> %s %d/%d  </A>]<br>\n",
-	    out[i], TITLE, i+1, nbfiles);
+	    "<TR><TD align=right>[<A HREF=\"%s\"> %d/%d </A>]</TD>",
+	    out[i], i+1, nbfiles);
+    fprintf(file, 
+	    "<TD>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;%s</TD></TR>\n",
+	    toc[i]);
+  }
 
   fprintf(file, 
+	  "</TABLE>\n"
 	  "<P>\n"
 	  "[<A HREF=\"%s\"> Postscript version </A>]<br>\n"
 	  "[<A HREF=\"%s\"> PDF version </A>]<br>\n"
