@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.16 2001-03-13 15:36:07 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.17 2001-03-13 15:39:31 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -371,6 +371,9 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
     A = Element->JacobianCase->Para[0] ;  
     B = Element->JacobianCase->Para[1] ;
   }
+  else
+    Msg(ERROR, "Missing interior and/or exterior radius for transformation Jacobian");
+
   if(Type == JACOBIAN_RECT){
     if(Element->JacobianCase->NbrParameters >= 3)
       Axis = Element->JacobianCase->Para[2] ; 
