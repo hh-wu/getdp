@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.32 2001-07-25 13:08:15 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.33 2001-07-26 14:43:59 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -100,7 +100,7 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac) {
 
   GetDP_Begin("Init_SystemData");
 
-  if (!DofData_P->Flag_Init[0]) {
+  if (DofData_P->Flag_Init[0] == 0) {
     DofData_P->Flag_Init[0] = 1 ;
     LinAlg_CreateSolver(&DofData_P->Solver, DofData_P->SolverDataFileName) ;
     LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver,
@@ -108,15 +108,16 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac) {
 			DofData_P->NbrPart, DofData_P->Part, DofData_P->Nnz) ;
     LinAlg_CreateVector(&DofData_P->b, &DofData_P->Solver, DofData_P->NbrDof,
 			DofData_P->NbrPart, DofData_P->Part) ;
-    if (Flag_Jac) {
-      LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
-			  DofData_P->NbrDof, DofData_P->NbrDof,
-			  DofData_P->NbrPart, DofData_P->Part, DofData_P->Nnz) ;
-      LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof,
-			  DofData_P->NbrPart, DofData_P->Part) ;
-      LinAlg_CreateVector(&DofData_P->dx, &DofData_P->Solver, DofData_P->NbrDof,
-			  DofData_P->NbrPart, DofData_P->Part) ;
-    }
+  }
+  if (DofData_P->Flag_Init[0] == 1 && Flag_Jac) {
+    DofData_P->Flag_Init[0] = 2 ;
+    LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
+			DofData_P->NbrDof, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part, DofData_P->Nnz) ;
+    LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part) ;
+    LinAlg_CreateVector(&DofData_P->dx, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part) ;
   }
 
   GetDP_End ;
