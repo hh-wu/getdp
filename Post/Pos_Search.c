@@ -1,4 +1,4 @@
-/* $Id: Pos_Search.c,v 1.8 2000-09-07 18:47:29 geuzaine Exp $ */
+/* $Id: Pos_Search.c,v 1.9 2000-09-26 09:36:54 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -130,34 +130,40 @@ int PointInElementBox(struct ElementBox ElementBox, double x, double y, double z
     return (1);
 }
 
+#define ONE (1.0+1.e-12)
+#define ZERO (1.e-12)
+
 int PointInRefElement (struct Element * Element, double u, double v, double w){
   
   switch(Element->Type) {
   case LINE : case LINE_2 :
-    if (u<-1. || u>1.) return(0); 
+    if (u<-ONE || u>ONE) return(0); 
     return(1);
   case TRIANGLE : case TRIANGLE_2 :
-    if (u<0. || v<0. || u>(1.-v)) return(0); 
+    if (u<ZERO || v<ZERO || u>(ONE-v)) return(0); 
     return(1);
   case QUADRANGLE : case QUADRANGLE_2 :
-    if (u<-1.  || v<-1. || u>1. || v>1.) return (0); 
+    if (u<-ONE  || v<-ONE || u>ONE || v>ONE) return (0); 
     return(1);
   case TETRAHEDRON : case TETRAHEDRON_2 :
-    if (u<0. || v<0. || w<0. || u>(1.-v-w)) return(0); 
+    if (u<ZERO || v<ZERO || w<ZERO || u>(ONE-v-w)) return(0); 
     return(1);
   case HEXAHEDRON : case HEXAHEDRON_2 :
-    if (u<-1. || v<-1. || w<-1. || u>1. || v>1. || w>1.) return(0); 
+    if (u<-ONE || v<-ONE || w<-ONE || u>ONE || v>ONE || w>ONE) return(0); 
     return(1);
   case PRISM : case PRISM_2 :
-    if (w>1. || w<-1. || u<0. || v<0. || u>(1.-v)) return(0); 
+    if (w>ONE || w<-ONE || u<ZERO || v<ZERO || u>(ONE-v)) return(0); 
     return(1);
   case PYRAMID : case PYRAMID_2 :
-    if (u<(w-1.) || u>(1.-w) || v<(w-1.) || v>(1.-w) || w<0. || w>1.) return(0); 
+    if (u<(w-ONE) || u>(ONE-w) || v<(w-ONE) || v>(ONE-w) || w<ZERO || w>ONE) return(0); 
     return(1);
   default :
     return(0);
   }
 }
+
+#undef ONE
+#undef ZERO
 
 int PointInElement (struct Element * Element,
 		    List_T *ExcludeRegion_L,
