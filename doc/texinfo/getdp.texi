@@ -1,9 +1,8 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.12 2001-07-17 23:27:45 geuzaine Exp $
+@c $Id: getdp.texi,v 1.13 2001-07-19 14:30:49 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
-@c  - de Equation == en fait EquationTerm
 @c  - du mecanisme de selection du systeme pour le post (==1ere 
 @c    Quantity definie dans la formulation)
 @c
@@ -12,11 +11,10 @@
 @c
 @c This is the GetDP documentation texinfo source file
 @c
-@c Indexing : @cindex  == concepts
-@c            @tindex  == syntax ossature
-@c            @mvindex == metasyntactic variables
-@c           /@vindex  == types to use in the different objects
-@c           \@findex  == functions 
+@c Indexing: @cindex = concept index, e.g. "Numerical tools, overview"
+@c           @vindex = (metasyntactic) variable index, e.g.  "constraint-type"
+@c          /@tindex = type index (=frozen syntax ossature), e.g. "DefineGroup"
+@c          \@findex = function index (=all types in the objects), e.g. "Curl"
 @c
 @c Before release, run C-u C-c C-u C-a in GNU Emacs
 @c This updates all node pointers and menus
@@ -31,26 +29,30 @@
 @c nroff : texi2roff getdp.texi
 @c
 @c =========================================================================
+@c
+@c For commercial releases, set the COMMERCIAL flag (uncomment the following
+@c line). This will prevent all references to "free software" and the like...
+@c
+@c      @set COMMERCIAL
+@c
+@c =========================================================================
 @c %**start of header
-@setfilename   getdp.info
-@set EDITION   2.5
-@set VERSION   0.83
-@set DAY       17
-@set MONTH     July 2001
-@set COPYRIGHT @copyright{} 1997-2001 Patrick Dular, Christophe Geuzaine
-@set WEB-GETDP @uref{http://www.geuz.org/getdp/}
-@set WEB-GMSH  @uref{http://www.geuz.org/gmsh/}
-@settitle GetDP @value{VERSION}
+@setfilename        getdp.info
+@set EDITION        2.6
+@set GETDP-VERSION  0.83
+@set GETDP-WEB      @uref{http://www.geuz.org/getdp/}
+@set GMSH-WEB       @uref{http://www.geuz.org/gmsh/}
+@set COPYRIGHT      @copyright{} 1997-2001 Patrick Dular, Christophe Geuzaine
+@c
+@settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate
 @setchapternewpage odd
 @paragraphindent 0
 @finalout
 @c %**end of header
 
-@c new index for meta variables
-@defcodeindex mv
-@c merge function and type indexes 
-@syncodeindex fn vr
+@c merge function index into type index
+@syncodeindex fn tp
 
 @c =========================================================================
 @c Info directives
@@ -59,12 +61,13 @@
 @ifinfo
 @dircategory Math
 @direntry
-* GetDP: (getdp).       a General environment for the treatment of Discrete Problems
+* GetDP: (getdp).  a General environment for the treatment of Discrete
+Problems
 @end direntry
 @noindent
-This is Edition @value{EDITION}, last updated @value{DAY} @value{MONTH}, of the
-@cite{GetDP Manual}, for GetDP, a General environment for the Treatment
-of Discrete Problems, Version @value{VERSION}.
+This is edition @value{EDITION}/@today{} of the @cite{GetDP
+Manual}, for GetDP, a General environment for the Treatment of Discrete
+Problems, Version @value{GETDP-VERSION}.
 @noindent
 Copyright @value{COPYRIGHT}
 @noindent
@@ -98,10 +101,15 @@ BELGIUM @*
 
 @title GetDP Manual
 
-@subtitle The documentation for GetDP, Version  @value{VERSION}
+@subtitle The documentation for GetDP, Version  @value{GETDP-VERSION}
 @subtitle A General environment for the treatment of Discrete Problems
 @subtitle 
-@subtitle Edition @value{EDITION}, @value{MONTH}
+@ifclear COMMERCIAL
+@subtitle Edition @value{EDITION}/@today{}
+@end ifclear
+@ifset COMMERCIAL
+@subtitle Commercial edition @value{EDITION}/@today{}
+@end ifset
 
 @author Patrick Dular
 @author Christophe Geuzaine
@@ -116,10 +124,12 @@ Institut d'@'Electricit@'e Montefiore @*
 Sart Tilman Campus, Building B28 @*
 B-4000 Li@`ege @*
 BELGIUM
+@ifclear COMMERCIAL
 @sp 1
 This manual was prepared with Texinfo (@uref{http://texinfo.org}). The source
 of the document as well as several formatted versions (info, postscript, pdf,
-html) are available at @value{WEB-GETDP}.
+html) are available at @value{GETDP-WEB}.
+@end ifclear
 
 @end titlepage
 
@@ -138,15 +148,15 @@ html) are available at @value{WEB-GETDP}.
 @node Top, Copying conditions, (dir), (dir)
 @top GetDP
 
-@chapheading The documentation for GetDP, version  @value{VERSION}
+@chapheading The documentation for GetDP, version  @value{GETDP-VERSION}
 @chapheading a General environment for the treatment of Discrete Problems
 
 Patrick Dular and Christophe Geuzaine
 
 GetDP is a scientific computation software for the numerical solution of
 integro-differential equations, using finite element and integral type
-methods. This is Edition @value{EDITION} of the @cite{GetDP Manual}, last
-updated @value{DAY} @value{MONTH} for GetDP Version @value{VERSION}.
+methods. This is edition @value{EDITION}/@today{} of the @cite{GetDP
+Manual}, for GetDP Version @value{GETDP-VERSION}.
 @end ifnottex
 
 @c =========================================================================
@@ -154,23 +164,22 @@ updated @value{DAY} @value{MONTH} for GetDP Version @value{VERSION}.
 @c =========================================================================
 
 @menu
-* Copying conditions::          
-* Introduction::                Basic presentation
-* Overview::                    
-* Expressions::                 The expression mechanism
-* Objects::                     Definition of all GetDP objects
-* Types for objects::           Definition of all types for objects
-* Short examples::              Simple object examples
-* Complete examples::           Some complete examples
-* Running GetDP::               How to run GetDP on your operating system
-* File formats::                Input and output file formats
-* Bugs and versions::           
-* Tips and tricks::             
-* Gmsh examples::               Sample Gmsh input files
-* Concept index::               Main concepts
-* Syntax index::                Reserved keywords
-* Variable index::              Metasyntactic variables
-* Type index::                  Available types for objects
+* Copying conditions::          Terms and conditions of use.
+* Introduction::                What is GetDP? (And what is it not?)
+* Overview::                    Quick overview of the general philosophy of GetDP.
+* Expressions::                 Definition of basic expressions in GetDP.
+* Objects::                     Definition of the 10 GetDP objects.
+* Types for objects::           Definition of all available types for the 10 objects.
+* Short examples::              Simple object examples.
+* Complete examples::           Some simple complete examples.
+* Running GetDP::               How to run GetDP on your operating system.
+* File formats::                Input and output file formats.
+* Bugs and versions::           Contact information, etc.
+* Tips and tricks::             Some tips to make your life easier with GetDP.
+* Gmsh examples::               Sample Gmsh input files.
+* Concept index::               Index of concepts.
+* Metasyntactic variable index::  Index of metasyntactic variables used in this manual.
+* Syntax index::                Index of reserved keywords in the GetDP language.
 
 @detailmenu
  --- The Detailed Node Listing ---
@@ -323,6 +332,8 @@ Bugs, versions and contributors
 @c Copying Conditions
 @c =========================================================================
 
+@ifclear COMMERCIAL
+
 @node Copying conditions, Introduction, Top, Top
 @unnumbered Copying conditions
 
@@ -334,12 +345,13 @@ Bugs, versions and contributors
 
 Executable versions of GetDP can be downloaded for most of the classical
 UNIX platforms (SUN, DEC, IBM, HP, SGI and Linux) and for Windows 95/98/NT
-from the web site @value{WEB-GETDP} (no source distribution is available at
+from the web site @value{GETDP-WEB} (no source distribution is available at
 the moment). The executable versions of GetDP are free; the only thing
 required, if you use GetDP, is to mention it in your work. Published
 references, as well as the latest news about GetDP developments and
 download information, are always available on the web site.
 
+@end ifclear
 
 @c =========================================================================
 @c Introduction
@@ -353,8 +365,8 @@ download information, are always available on the web site.
 GetDP (a General environment for the treatment of Discrete Problems) is
 a scientific software environment for the numerical solution of
 integro-differential equations, open to the coupling of physical
-problems (electromagnetic, thermal, mechanical, etc) as well as of
-numerical methods (finite element method, integral methods, etc). It can
+problems (electromagnetic, thermal, mechanical, etc.) as well as of
+numerical methods (finite element method, integral methods, etc.). It can
 deal with such problems of various dimensions (1D, 2D or 3D) and time
 states (static, transient or harmonic).
 
@@ -451,8 +463,10 @@ syntax elements are available at the end of this manual.
 Once the examples presented in @ref{Short examples}, are understood, you
 may start to use GetDP on your computer (@pxref{Running GetDP}), for
 example by solving the complete examples presented in @ref{Complete
-examples}. Ready-to-use input files for these examples can be downloaded
-from the web site.
+examples}. 
+
+@c Ready-to-use input files for these examples can be downloaded
+@c from the web site.
 
 
 
@@ -490,14 +504,17 @@ from the web site.
 @cindex Philosophy, general
 @cindex Processing cycle
 
-An assembly of computational tools (or objects) in GetDP leads to a
-problem definition structure, which is a transcription of the
-mathematical expression of the problem, and forms a text data file: the
-equations describing a phenomenon, written in a mathematical form
-adapted to a chosen numerical method, directly constitute data for
-GetDP. The following table summarizes the names of all GetDP objects (in
-the first column), along with their respective dependences (in the
-second column):
+An assembly of computational tools (or objects) in GetDP leads to a problem
+definition structure, which is a transcription of the mathematical
+expression of the problem, and forms a text data file: the equations
+describing a phenomenon, written in a mathematical form adapted to a chosen
+numerical method, directly constitute data for GetDP.
+
+The resolution of a discrete problem with GetDP requires the definition, in
+a text data file, of the GetDP objects listed (together with their
+dependencies) in the following figure and table.
+
+@image{objects-wrap,13.5cm,}
 
 @sp 1
 @example
@@ -516,19 +533,21 @@ PostOperation   Group, PostProcessing
 @end example
 @sp 1
 
-The resolution of a discrete problem with GetDP requires the definition, in
-a text data file, of the objects listed in this table. The gathering of all
-the objects constitutes the problem definition structure, which is a copy of
-the formal mathematical formulation of the problem. Reading the table from
-top to bottom pictures the working philosophy and the linking of operations
-peculiar to GetDP, from mesh generation to result visualization.
+The gathering of all these objects constitutes the problem definition
+structure, which is a copy of the formal mathematical formulation of the
+problem. Reading the first column of the table from top to bottom pictures
+the working philosophy and the linking of operations peculiar to GetDP, from
+group definition to results visualization.  The decomposition highlighted in
+the figure points out the separation between the objects defining the method
+of resolution, which may be isolated in a ``black box'' (bottom) and those
+defining the data peculiar to a given problem (top). 
 
 The computational tools which are in the center of a problem definition
 structure are formulations (@code{Formulation}) and function spaces
-(@code{FunctionSpace}). Formulations define systems of equations that
-have to be built and solved, while function spaces contain all the
-quantities, i.e.@: functions, fields of vectors or covectors, known or
-not, involved in formulations. 
+(@code{FunctionSpace}). Formulations define systems of equations that have
+to be built and solved, while function spaces contain all the quantities,
+i.e.@: functions, fields of vectors or covectors, known or not, involved in
+formulations.
 
 Each object of a problem definition structure must be defined before being
 referred to by others. A linking which always respects this property is the
@@ -555,16 +574,17 @@ objects of the second group, adapted to treatments of defined problems.
 @cindex Rules, syntactic
 @cindex Document syntax
 
-@tindex @var{etc}
-@tindex @dots{}
-@tindex <, >
-@tindex |
-@tindex :
+@vindex @dots{}
+@vindex <, >
+@vindex |
+@vindex :
+@vindex @var{etc}
 
 Here are the rules we tried to follow when writing this user's guide. Note
-that Metasyntactic variable definitions stay valid throughout all the manual
-(and not only in the sections where the definitions appear). @xref{Variable
-index}, for an index of all metasyntactic variables.
+that metasyntactic variable definitions stay valid throughout all the manual
+(and not only in the sections where the definitions
+appear). @xref{Metasyntactic variable index}, for an index of all
+metasyntactic variables.
 
 @enumerate
 @item 
@@ -677,21 +697,10 @@ transient states
 @end table
 
 These methods have been successfully applied to build coupled physical
-models including:
-
-@table @asis
-@item magnetic problems
-magnetostatics@*
-magnetodynamics@*
-@item electric problems
-electrostatics@*
-electrokinetics@*
-electrodynamics@*
-@item electromagnetic wave problems
-@item acoustic wave problems
-@item lumped electric circuits
-@item thermal problems
-@end table
+models involving electromagnetic phenomena (magnetostatics, magnetodynamics,
+electrostatics, electrokinetics, electrodynamics, wave propagation, lumped
+electric circuits), acoustic phenomena, thermal phenomena and mechanical
+phenomena (elasticity, rigid body movement).
 
 As can be guessed from the preceding list, GetDP has been initially
 developed in the field of computational electromagnetics, which fully uses
@@ -699,16 +708,16 @@ all the offered coupling features. We believe that this does not interfere
 with the expected generality of the software because a particular modeling
 forms a problem definition structure which is totally external to the
 software: GetDP offers computational tools; the user freely applies them to
-define and solve his problem. Problems and methods that are under
-development include:
+define and solve his problem.
 
-@table @asis
-@item Physical models
-mechanical problems (rigid body movement, elasticity)
-@item Numerical methods
-finite volume method@*
-time domain finite difference method
-@end table
+@c  Problems and methods that are under development include:
+@c  @table @asis
+@c  @item Physical models
+@c  mechanical problems (rigid body movement, elasticity)
+@c  @item Numerical methods
+@c  finite volume method@*
+@c  time domain finite difference method
+@c  @end table
 
 
 
@@ -739,14 +748,12 @@ time domain finite difference method
 
 @cindex Expression, definition
 
-@mvindex @var{integer}
-@mvindex @var{real}
-@mvindex @var{expression}
-@mvindex @var{expression-list}
+@vindex @var{expression}
+@vindex @var{expression-list}
 
 Expressions are the basic tool of GetDP. They cover a wide range of
 functional expressions, from constants to formal expressions containing
-functions (built-in or user-defined, depending on space and time, etc),
+functions (built-in or user-defined, depending on space and time, etc.),
 arguments, discrete quantities and their associated differential
 operators, etc. Note that `white space' (spaces, tabs, new line
 characters) is ignored inside expressions.
@@ -759,24 +766,25 @@ Expressions are denoted by the metasyntactic variable @var{expression}
   @var{integer} |
   @var{real} |
   @var{constant-id} |
+  @var{quantity} |
+  @var{argument} |
+  @var{current-value} |
   @var{operator-unary} @var{expression} |
   @var{expression} @var{operator-binary} @var{expression} |
-  @var{expression} ? @var{expression} : @var{expression} |
+  @var{expression} @var{operator-ternary-left} @var{expression} @var{operator-ternary-right} @var{expression} |
   @var{built-in-function-id} [ < @var{expression-list} > ] 
                  < @{ @var{expression-cst-list} | List[@var{constant-id}] @} > |
-  @var{function-id} [ < @var{expression-list} > ] |
-  @var{current-value} |
-  @var{argument} |
-  @var{discrete-quantity} 
+  @var{function-id} [ < @var{expression-list} > ]
 @end example
 
 @noindent The following sections introduce the quantities that can appear in
 expressions, i.e.@: constant terminals (@var{integer}, @var{real}) and
 constant expression identifiers (@var{constant-id}), operators
-(@var{operator-unary}, @var{operator-binary}, @code{?:}), built-in or
-user-defined functions (@var{built-in-function-id}, @var{function-id}),
-current values (@var{current-value}), arguments (@var{argument}) and fields
-(@var{discrete-quantity}). List of expressions are defined as:
+(@var{operator-unary}, @var{operator-binary}, @code{operator-ternary-left},
+@code{operator-ternary-right}), built-in or user-defined functions
+(@var{built-in-function-id}, @var{function-id}), current values
+(@var{current-value}), arguments (@var{argument}) and discrete fields
+(@var{quantity}). List of expressions are defined as:
 
 @example
 @var{expression-list}: 
@@ -817,12 +825,13 @@ current values (@var{current-value}), arguments (@var{argument}) and fields
 @tindex 3D
 @tindex =
 
-@mvindex @var{integer}
-@mvindex @var{real}
-@mvindex @var{string}
-@mvindex @var{constant-id}
-@mvindex @var{expression-cst}
-@mvindex @var{expression-cst-list}
+@vindex @var{integer}
+@vindex @var{real}
+@vindex @var{string}
+@vindex @var{expression-cst}
+@vindex @var{expression-cst-list}
+@vindex @var{constant-id}
+@vindex @var{constant-def}
 
 The three constant types used in GetDP are @var{integer}, @var{real} and
 @var{string}.  These terminals have the same meaning and syntax as in
@@ -840,12 +849,20 @@ metasyntactic variable @var{expression-cst}, are also used:
   @var{math-function-id} [ < @var{expression-cst-list} > ]
 @end example
 
-@noindent where @var{expression-cst-list} is defined as:
+List of constant expressions (@var{expression-cst-list}) are defined as:
 
 @example
 @var{expression-cst-list}:
-  @var{expression-cst} <,@dots{}>
+  @var{expression-cst} <,@dots{}> |
+  @var{expression-cst} : @var{expression-cst} <,@var{expression-cst}> |
+  @var{expression-cst} : @var{expression-cst} : @var{expression-cst} <,@var{expression-cst}>
 @end example
+
+The second definition permits to create a list containing the range of
+numbers comprised between the two @var{expression-cst}, incremented by a
+step of 1. The third definition also permits to create a list containing the
+range of numbers comprised between the two @var{expression-cst}, but with
+the incrementation step equal to the third @var{expression-cst}.
 
 Contrary to a general @var{expression} which is evaluated at runtime (thanks
 to an internal stack mechanism), an @var{expression-cst} is completely
@@ -867,7 +884,7 @@ DefineConstant [ @var{constant-id} < = @var{expression-cst} > <,@dots{}> ]; |
 
 @var{constant-def}:
   @var{expression-cst} |
-  @{ @var{expression-cst-list} @} 
+  @{ @var{expression-cst-list} @} |
   ListAlt [ @var{constant-id}, @var{constant-id} ]
 @end example
 
@@ -927,16 +944,17 @@ in the C programming language, except that all operators accept
 @cindex Binary operators
 @cindex Ternary operators
 
-@mvindex @var{operator-unary}
-@mvindex @var{operator-binary}
-@mvindex @var{operator-ternary}
+@vindex @var{operator-unary}
+@vindex @var{operator-binary}
+@vindex @var{operator-ternary-left}
+@vindex @var{operator-ternary-right}
 
 @tindex -
 @tindex !
 @tindex +
 @tindex -
 @tindex *
-@tindex *^
+@tindex /\
 @tindex /
 @tindex ^
 @tindex %
@@ -968,7 +986,7 @@ Exponentiation. The evaluation of the second argument must result in a
 floating point value.
 @item *
 Multiplication
-@item *^
+@item /\
 Cross-multiplication. The evaluation of both arguments must result in 
 vectors.
 @item /
@@ -1005,13 +1023,20 @@ the second operand of @code{||} is evaluated even if the first one is true.
 @end table
 
 @noindent
-@var{operator-ternary}:
+@var{operator-ternary-left}:
 @table @code
-@item ?:
-Ternary operation. The evaluation of the first argument must result in an
-integer value. The ternary operator first evaluates its first
-argument. If it is true (non-zero) the second argument is evaluated and
-returned; otherwise the third argument is evaluated and returned.
+@item ?
+@end table
+@var{operator-ternary-right}:
+@table @code
+@item :
+The only ternary operator, constituted of @var{operator-ternary-left} and
+@var{operator-ternary-right} is defined as in the C or C++ programming
+languages. It first evaluates its first argument, i.e.@: the
+@var{expression-cst} located before the @code{?}. If it is true (non-zero)
+the second argument (located between @code{?} and @code{:}) is evaluated and
+returned; otherwise the third argument (located after @code{:}) is evaluated
+and returned.
 @end table
 
 
@@ -1036,7 +1061,7 @@ i.e.@: @code{^} has the highest evaluation priority). Parentheses
 @table @code
 @item ^
 @item - (unary), ! 
-@item *^
+@item /\
 @item *, /, %
 @item +, - 
 @item <, >, <=, >=
@@ -1059,7 +1084,7 @@ i.e.@: @code{^} has the highest evaluation priority). Parentheses
 @cindex Arguments
 @cindex Parameters
 
-@mvindex @var{built-in-function-id}
+@vindex @var{built-in-function-id}
 
 @tindex List
 
@@ -1138,6 +1163,9 @@ Value of the current (destination or source) X-coordinate.
 Value of the current (destination or source) Y-coordinate.
 @item $Z, $ZS
 Value of the current (destination or source) Z-coordinate.
+@item $S, $T
+Value of the current parametric coordinates used in the parametric
+@code{OnGrid} @code{PostOperation} (@pxref{Types for PostOperation}).
 @end table
 
 @noindent Note:
@@ -1157,7 +1185,7 @@ coordinates, i.e.@: coordinates in which the mesh is expressed.
 
 @cindex Arguments, definition
 
-@mvindex @var{argument}
+@vindex @var{argument}
 
 @tindex #@var{integer}
 @tindex $@var{integer}
@@ -1194,11 +1222,10 @@ syntax (@var{integer} indicates the number of the argument in the
 @cindex Exterior derivative
 @cindex Derivative, exterior
 
-@mvindex @var{discrete-quantity}
-@mvindex @var{discrete-quantity-type}
-@mvindex @var{operator-type}
-@mvindex @var{quantity-id}
-
+@vindex @var{quantity}
+@vindex @var{quantity-id}
+@vindex @var{quantity-dof}
+@vindex @var{quantity-operator}
 
 A discretized quantity (defined in a function space, cf.@:
 @ref{FunctionSpace}) is represented between braces @code{@{@}}, and can
@@ -1207,20 +1234,19 @@ only appear in well-defined expressions of @code{Formulation}
 objects:
 
 @example
-@var{discrete-quantity}:
-  < @var{discrete-quantity-type} > @{ < @var{operator-type} > @var{quantity-id} @}
+@var{quantity}:
+  < @var{quantity-dof} > @{ < @var{quantity-operator} > @var{quantity-id} @}
 @end example
 
 @noindent with 
 
-@example
-@var{quantity-id}:
-  @var{string}
-@end example
+@noindent
+@var{quantity-id}: @var{string}
 
 @noindent
-@var{discrete-quantity-type}:
-@vtable @code
+@var{quantity-dof}:
+@ftable @code
+
 @item Dof
 defines a vector of discrete quantities (vector of
 @code{D}egrees @code{o}f @code{f}reedom), to be used only in
@@ -1229,33 +1255,44 @@ Roughly said, the @code{Dof} symbol in front of a discrete quantity
 indicates that this quantity is an unknown quantity, and should
 therefore not be considered as already computed (thus leading to a
 simple evaluation).
+
 @item BF
 indicates that only a basis function will be used 
 (only valid with basis functions associated with regions).
-@end vtable
+
+@end ftable
 
 @noindent
-@var{operator-type}:
-@vtable @code
+@var{quantity-operator}:
+@ftable @code
+
 @item d
 Exterior derivative (d): applied to a @var{p}-form, gives a (@var{p+1})-form.
+
 @item Grad
 Gradient: applied to a scalar field, gives a vector.
+
 @item Curl
 @itemx Rot
 Curl: applied to a vector field, gives a vector.
+
 @item Div
 Divergence (div): applied to a vector field, gives a scalar.
+
 @item dInv
 d^(-1): applied to a p-form, gives a (p-1)-form.
+
 @item GradInv
 Inverse grad: applied to a gradient field, gives a scalar.
+
 @item CurlInv
 @itemx RotInv
 Inverse curl: applied to a curl field, gives a vector.
+
 @item DivInv
 Inverse div: applied to a divergence field.
-@end vtable
+
+@end ftable
 
 
 @noindent Note:
@@ -1311,18 +1348,18 @@ is usually preferred with such fields.
 @tindex DefineGroup
 @tindex =
 
-@mvindex @var{group-id}
-@mvindex @var{group-def}
-@mvindex @var{group-type}
-@mvindex @var{group-list}
-@mvindex @var{group-sub-type}
-@mvindex @var{group-item}
+@vindex @var{group-id}
+@vindex @var{group-def}
+@vindex @var{group-type}
+@vindex @var{group-list}
+@vindex @var{group-sub-type}
+@vindex @var{group-item}
 
 Meshes (grids) constitute the input data of GetDP. All that is needed by
 GetDP as a mesh is a file containing a list of nodes (with their
 coordinates) and a list of geometrical elements with, for each one, a number
 characterizing its geometrical type (i.e.@: line, triangle, quadrangle,
-tetrahedron, hexahedron, prism, etc), a number characterizing the physical
+tetrahedron, hexahedron, prism, etc.), a number characterizing the physical
 region to which it belongs and the list of its nodes. This minimal input set
 can be easily extracted from most of the classical mesh file
 formats. @xref{Input file format}.
@@ -1340,12 +1377,12 @@ distinguished: elementary groups are relative to single regions (e.g.@:
 physical regions in which piecewise defined functions or constraints can
 be defined) while global groups are relative to sets of regions for
 which given treatments have to be performed (e.g.@: domain of
-integration, support of a function space, etc). 
+integration, support of a function space, etc.). 
 @item
 Groups of function type contain lists of entities built on some region
 groups (e.g.@: nodes for nodal elements, edges for edge elements, edges
 of tree for gauge conditions, groups of nodes for floating potentials,
-elements on one side of a surface for cuts, etc).
+elements on one side of a surface for cuts, etc.).
 @end itemize
 
 A definition of initially empty groups can be obtained thanks to a
@@ -1381,8 +1418,10 @@ Group @{
   All | @var{group-item} | @{ @var{group-item} <,@dots{}> @}
 
 @var{group-item}:
-  @var{integer} | @var{group-id} <@{<@var{integer}>@}> |
-  @var{integer} '@dots{}' @var{integer}
+  @var{integer} | 
+  @var{integer} : @var{integer} | 
+  @var{integer} : @var{integer} : @var{integer} |
+  @var{group-id} <@{<@var{integer}>@}>
 
 @var{group-sub-type}: 
   Not | StartingOn | OnOneSideOf | @var{etc}
@@ -1394,10 +1433,11 @@ Group @{
 @var{integer} as a @var{group-item} is the only interface with the mesh data
 (i.e.@: geometrical elements and their nodes); with each element is
 associated a region number, being this @var{integer}, and a geometrical type
-(@pxref{Input file format}).
-@item
-@var{group-item} '@var{i1} '@dots{}' @var{in}' replaces the list of consecutive
-@var{integers} '@var{i1}, @var{i1+1}, @dots{}, @var{in-1}, @var{in}'.
+(@pxref{Input file format}). Ranges of integers can be specified in the same
+way as ranges of constant expressions in a @var{expression-cst-list}
+(@pxref{Constants}): @code{@var{i1}:@var{in}} replaces the list of
+consecutive @var{integers} @{ @code{@var{i1}, @var{i1+1}, @dots{}, @var{in-1},
+@var{in}} @}.
 @item
 Array of groups: @code{DefineGroup[@var{group-id}@{@var{n}@}]} defines
 the empty groups @code{@var{group-id}@{@var{i}@}}, @var{i}=1, @dots{}, n.
@@ -1432,11 +1472,11 @@ examples}, for some examples.
 @tindex DefineFunction
 @tindex =
 
-@mvindex @var{function-id}
+@vindex @var{function-id}
 
 A function can be global in space or piecewise defined in region
 groups. A physical characteristic is an example of a piecewise defined
-function (e.g.@: magnetic permeability, electric conductivity, etc) and
+function (e.g.@: magnetic permeability, electric conductivity, etc.) and
 can be simply a constant, for linear materials, or a function of one or
 several arguments for nonlinear materials. Such functions can of course
 depend on space coordinates or time, which can be needed to express
@@ -1489,11 +1529,11 @@ and @ref{Function examples}, for some examples.
 @tindex NameOfResolution
 @tindex Branch
 
-@mvindex @var{constraint-id}
-@mvindex @var{constraint-type}
-@mvindex @var{constraint-val}
-@mvindex @var{constraint-case-id}
-@mvindex @var{constraint-case-val}
+@vindex @var{constraint-id}
+@vindex @var{constraint-type}
+@vindex @var{constraint-val}
+@vindex @var{constraint-case-id}
+@vindex @var{constraint-case-val}
 
 Constraints can be referred to in @code{FunctionSpace} objects to be
 used for boundary conditions, to impose global quantities or to
@@ -1596,42 +1636,33 @@ in @code{TimeFunction @var{expression}}.
 @tindex GlobalQuantity
 @tindex NameOfConstraint
 
-@mvindex @var{function-space-id}
-@mvindex @var{function-space-type}
-@mvindex @var{mesh-list}
-@mvindex @var{basis-function-id}
-@mvindex @var{basis-function-type}
-@mvindex @var{coef-id}
-@mvindex @var{quantity-id}
-@mvindex @var{sub-space-id}
-@mvindex @var{basis-function-list}
-@mvindex @var{global-quantity-id}
-@mvindex @var{global-quantity-type}
+@vindex @var{function-space-id}
+@vindex @var{function-space-type}
+@vindex @var{mesh-list}
+@vindex @var{basis-function-id}
+@vindex @var{basis-function-type}
+@vindex @var{coef-id}
+@vindex @var{sub-space-id}
+@vindex @var{basis-function-list}
+@vindex @var{global-quantity-id}
+@vindex @var{global-quantity-type}
 
 A @code{FunctionSpace} is characterized by the type of its interpolated
 fields, one or several basis functions and optional constraints (in
 space and time). Subspaces of a function space can be defined (e.g.@:
 for the use with hierarchical elements), as well as direct associations of
 global quantities (e.g.@: floating potential, electric charge, current,
-voltage, magnetomotive force, etc).
+voltage, magnetomotive force, etc.).
 
 A key point is that basis functions are defined by any number of subsets
 of functions, being added. Each subset is characterized by associated
 built-in functions for evaluation, a support of definition and a set of
 associated supporting geometrical entities (e.g.@: nodes, edges, facets,
-volumes, groups of nodes, edges incident to a node, etc). The freedom in
+volumes, groups of nodes, edges incident to a node, etc.). The freedom in
 defining various kinds of basis functions associated with different
 geometrical entities, to interpolate a field permits to build
 made-to-measure function spaces adapted to a wide variety of field
 approximations (@pxref{FunctionSpace examples}).
-
-@c j'aimerais bien qu'on change le Entity @var{group-type} NameOfConstraint
-@c @var{constraint-id} dans les contraintes : c'est le seul endroit ou on a ce
-@c genre de syntaxe... --> J'ai justement l'intention de changer cela... et
-@c aussi d'eliminer la definition des contraintes dans les FS...
-@c ==> Je commence bientot cela ... C'est fait... Super !
-@c (ca peut continuer longtemps ;-)
-@c La prochaine fois, je supprime ces commentaires...
 
 The syntax for the definition of function spaces is:
 
@@ -1672,7 +1703,6 @@ FunctionSpace @{
 @var{coef-id}:
 @var{sub-space-id}:
 @var{global-quantity-id}: 
-@var{quantity-id}:
 @var{formulation-id}:
 @var{resolution-id}:
   @var{string}
@@ -1746,16 +1776,16 @@ multiformulations.
 @tindex Jacobian
 @tindex All
 
-@mvindex @var{jacobian-id}
-@mvindex @var{jacobian-type}
-@mvindex @var{jacobian-arg}
+@vindex @var{jacobian-id}
+@vindex @var{jacobian-type}
+@vindex @var{jacobian-arg}
 
 Jacobian methods can be referred to in @code{Formulation} and
 @code{PostProcessing} objects to be used in the computation of integral
 terms and for changes of coordinates. They are based on @code{Group}
 objects and define the geometrical transformations applied to the
 reference elements (i.e.@: lines, triangles, quadrangles, tetrahedra,
-prisms, hexahedra, etc). Besides the classical lineic, surfacic and
+prisms, hexahedra, etc.). Besides the classical lineic, surfacic and
 volumic Jacobians, the @code{Jacobian} object allows the construction of
 various transformation methods (e.g.@: infinite transformations for
 unbounded domains) thanks to dedicated jabobian methods.
@@ -1814,17 +1844,16 @@ and must follow all the other cases.
 @tindex GeoElement
 @tindex NumberOfPoints
 
-@mvindex @var{integration-id}
-@mvindex @var{numerical-integration-type}
-@mvindex @var{element-type}
-@mvindex @var{integration-type}
+@vindex @var{integration-id}
+@vindex @var{element-type}
+@vindex @var{integration-type}
 
 Various numerical or analytical integration methods can be referred to in
 @code{Formulation} and @code{PostProcessing} objects to be used in the
 computation of integral terms, each with a set of particular options (number of
 integration points for quadrature methods---which can be linked to an error
 criterion for adaptative methods, definition of transformations for singular
-integrations, etc). Moreover, a choice can be made between several
+integrations, etc.). Moreover, a choice can be made between several
 integration methods according to a criterion (e.g.@: on the proximity between
 the source and computation points in integral formulations).
 
@@ -1834,12 +1863,12 @@ The syntax for the definition of integration methods is:
 Integration @{
   @{ Name @var{integration-id}; < Criterion @var{expression}; >
     Case @{ 
-    < @{ Type @var{numerical-integration-type}; 
+    < @{ Type @var{integration-type}; 
         Case @{ 
           @{ GeoElement @var{element-type}; NumberOfPoints @var{expression-cst} @} @dots{} 
         @} 
       @} @dots{} >
-    < @{ Type @var{integration-type}; @} @dots{} >
+    < @{ Type Analytic; @} @dots{} >
     @} 
   @} @dots{} 
 @}
@@ -1852,9 +1881,6 @@ Integration @{
   @var{string}
 
 @var{integration-type}:
-  Analytic | @var{etc}
-
-@var{numerical-integration-type}:
   Gauss | @var{etc}
 
 @var{element-type}:
@@ -1896,12 +1922,11 @@ Integration @{
 @tindex Node
 @tindex Loop
 
-@mvindex @var{formulation-id}
-@mvindex @var{formulation-type}
-@mvindex @var{quantity-id}
-@mvindex @var{local-term-type}
-@mvindex @var{quantity-type}
-@mvindex @var{term-op-type}
+@vindex @var{formulation-id}
+@vindex @var{formulation-type}
+@vindex @var{local-term-type}
+@vindex @var{quantity-type}
+@vindex @var{term-op-type}
 
 The @code{Formulation} tool permits to deal with volume, surface and
 line integrals with many kinds of densities to integrate, written in a
@@ -1909,7 +1934,7 @@ form that is similar to their symbolic expressions (it uses the same
 @var{expression} syntax as elsewhere in GetDP), which therefore permits
 to directly take into account various kinds of elementary matrices
 (e.g.@: with scalar or cross products, anisotropies, nonlinearities, time
-derivatives, various test functions, etc). In case nonlinear physical
+derivatives, various test functions, etc.). In case nonlinear physical
 characteristics are considered, arguments are used for associated
 functions. In that way, many formulations can be directly written in the
 data file, as they are written symbolically. Fields involved in each
@@ -1958,7 +1983,6 @@ Formulation @{
 
 @example
 @var{formulation-id}:
-@var{quantity-id}:
   @var{string}
 
 @var{formulation-type}:
@@ -2019,10 +2043,10 @@ the formulations @code{@var{formulation-id}@{@var{i}@}},
 @tindex Operation
 @tindex :
 
-@mvindex @var{resolution-id}
-@mvindex @var{system-id}
-@mvindex @var{formulation-list}
-@mvindex @var{resolution-op}
+@vindex @var{resolution-id}
+@vindex @var{system-id}
+@vindex @var{formulation-list}
+@vindex @var{resolution-op}
 
 The operations available in a @code{Resolution} include: the generation
 of a linear system, its solving with various kinds of linear solvers,
@@ -2071,8 +2095,8 @@ Resolution @{
 @enumerate
 @item
 Multidefinition: @code{Name @var{resolution-id}@{#@var{n}@}} defines the
-resolutions @code{@var{resolution-id}@{@var{i}@}}, @var{i}=1, @dots{}, @var{n},
-replacing for each @var{i} any @code{@{@}} in
+resolutions @code{@var{resolution-id}@{@var{i}@}}, @var{i}=1, @dots{},
+@var{n}, replacing for each @var{i} any @code{@{@}} in
 @var{formulation-id}@code{@{@}} of @code{System} field with @{@var{i}@}.
 @item
 The default type for a system of equations considers the time domain
@@ -2103,12 +2127,12 @@ Frequency @{ @var{expression-cst-list} @}}).
 @tindex Integration
 @tindex Jacobian
 
-@mvindex @var{post-processing-id}
-@mvindex @var{post-quantity-id}
-@mvindex @var{post-quantity-type}
-@mvindex @var{post-value}
-@mvindex @var{local-value}
-@mvindex @var{integral-value}
+@vindex @var{post-processing-id}
+@vindex @var{post-quantity-id}
+@vindex @var{post-quantity-type}
+@vindex @var{post-value}
+@vindex @var{local-value}
+@vindex @var{integral-value}
 
 The @code{PostProcessing} object is based on the quantities defined in a
 @code{Formulation} and permits the construction (thanks to the
@@ -2178,16 +2202,16 @@ defines the post-processings @code{@var{post-proces@-sing-id}@{@var{i}@}},
 @tindex UsingPost
 @tindex Print
 
-@mvindex @var{post-operation-id}
-@mvindex @var{post-operation-op}
-@mvindex @var{post-operation-fmt}
-@mvindex @var{print-support}
-@mvindex @var{print-option}
+@vindex @var{post-operation-id}
+@vindex @var{post-operation-op}
+@vindex @var{post-operation-fmt}
+@vindex @var{print-support}
+@vindex @var{print-option}
 
 The @code{PostOperation} is the bridge between results obtained with
 GetDP and the external world. It defines several elementary operations
 on @code{PostProcessing} quantities (e.g.@: plot on a region, cut on a
-user-defined plane, etc), and outputs the results in several file
+user-defined plane, etc.), and outputs the results in several file
 formats.
 
 @example
@@ -2266,7 +2290,7 @@ the overall interface, but the second one is more concise.
 
 @cindex Group, types
 
-@mvindex @var{group-type}
+@vindex @var{group-type}
 
 @noindent Types in
 
@@ -2277,7 +2301,8 @@ the overall interface, but the second one is more concise.
 @noindent
 @code{@var{group-type} < @var{group-sub-type} >}:
 
-@vtable @code
+@ftable @code
+
 @item Region
 Regions in @var{R1}.
 
@@ -2350,7 +2375,7 @@ Dual facets of elements of @var{R1}.
 @item DualVolumesOf
 Dual volumes of elements of @var{R1}.
 
-@end vtable
+@end ftable
 
 
 @c -------------------------------------------------------------------------
@@ -2376,7 +2401,7 @@ Dual volumes of elements of @var{R1}.
 @node Math functions, Extended math functions, Types for Function, Types for Function
 @subsection Math functions
 
-@mvindex @var{math-function-id}
+@vindex @var{math-function-id}
 
 The following functions are the equivalent of the functions of the C
 math library. Application of these functions always return real-valued
@@ -2388,68 +2413,84 @@ expressions (@var{expression-cst}, see @ref{Constants}).
 @ftable @code
 
 @item Exp 
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Exponential function: e^@var{expression}.
 
 @item Log
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Natural logarithm: ln(@var{expression}), @var{expression}>0.
 
 @item Log10
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Base 10 logarithm: log10(@var{expression}), @var{expression}>0.
 
-@item Sqrt 
-@code{[@var{expression}]}@*
+@item Sqrt
+@code{[@var{expression}]}
+
 Square root, @var{expression}>=0.
 
 @item Sin
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Sine of @var{expression}.
 
 @item Asin 
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Arc sine (inverse sine) of @var{expression} in [-Pi/2,Pi/2], @var{expression} in [-1,1].
 
 @item Cos  
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Cosine of @var{expression}.
 
 @item Acos 
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Arc cosine (inverse cosine) of @var{expression} in [0,Pi], @var{expression} in [-1,1].
 
 @item Tan  
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Tangent of @var{expression}.
 
 @item Atan 
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Arc tangent (inverse tangent) of @var{expression} in [-Pi/2,Pi/2].
 
 @item Atan2
-@code{[@var{expression},@var{expression}]}@*
+@code{[@var{expression},@var{expression}]}
+
 Arc tangent (inverse tangent) of the first @var{expression} divided by the
 second, in [-Pi,Pi].
 
 @item Sinh 
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Hyperbolic sine of @var{expression}.
 
 @item Cosh 
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Hyperbolic cosine of @var{expression}.
 
 @item Tanh 
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Hyperbolic tangent of @var{expression}.
 
 @item Fabs 
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Absolute value of @var{expression}.
 
 @item Fmod
-@code{[@var{expression},@var{expression}]}@*
+@code{[@var{expression},@var{expression}]}
+
 Remainder of the division of the first @var{expression} by the second, with
 the sign of the first.
 
@@ -2462,43 +2503,51 @@ the sign of the first.
 @node Extended math functions, Green functions, Math functions, Types for Function
 @subsection Extended math functions
 
-@mvindex @var{extended-math-function-id}
+@vindex @var{extended-math-function-id}
 
 @noindent
 @var{extended-math-function-id}:
 @ftable @code
 @item Cross
-@code{[@var{expression},@var{expression}]}@*
+@code{[@var{expression},@var{expression}]}
+
 Cross product of the two arguments; @var{expression} must a vector.
 
 @item Hypot
-@code{[@var{expression},@var{expression}]}@*
+@code{[@var{expression},@var{expression}]}
+
 Square root of the sum of the squares of its arguments.
 
 @item Norm
-@code{[@var{expression}]}@* 
+@code{[@var{expression}]}
+
 Absolute value if @var{expression} is a scalar; euclidian norm if @var{expression}
 is a vector.
 
 @item SquNorm
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Square norm: @code{Norm[@var{expression}]^2}.
 
 @item Unit
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Normalization: @code{@var{expression}/Norm[@var{expression}]}. Returns 0 if the norm is
 smaller than 1.e-30.
 
 @item Transpose
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Transposition; @var{expression} must be a tensor.
 
 @item TTrace
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Trace; @var{expression} must be a tensor.
 
 @item F_Cos_wt_p
-@code{[]@{@var{expression-cst},@var{expression-cst}@}}@*
+@code{[]@{@var{expression-cst},@var{expression-cst}@}}
+
 The first parameter represents the angular frequency and the second
 represents the phase. If the type of the current system is @code{Real},
 @code{F_Cos_wt_p[]@{w,p@}} is identical to @code{Cos[w*$Time+p]}. If the
@@ -2506,7 +2555,8 @@ type of the current system is @code{Complex}, it is identical to
 @code{Complex[Cos[w],Sin[w]]}.
 
 @item F_Sin_wt_p
-@code{[]@{@var{expression-cst},@var{expression-cst}@}}@*
+@code{[]@{@var{expression-cst},@var{expression-cst}@}}
+
 The first parameter represents the angular frequency and the second
 represents the phase. If the type of the current system is @code{Real},
 @code{F_Sin_wt_p[]@{w,p@}} is identical to @code{Sin[w*$Time+p]}. If the
@@ -2514,7 +2564,8 @@ type of the current system is @code{Complex}, it is identical to
 @code{Complex[Sin[w],-Cos[w]]}.
 
 @item F_Period
-@code{[@var{expression}]@{@var{expression-cst}@}}@* 
+@code{[@var{expression}]@{@var{expression-cst}@}}
+
 @code{Fmod[@var{expression},@var{expression-cst}]} 
 @code{+}
 @code{(@var{expression}<0 ? @var{expression-cst} : 0)};
@@ -2529,7 +2580,7 @@ the result is always in [0,@var{expression-cst}[.
 @node Green functions, Type manipulation functions, Extended math functions, Types for Function
 @subsection Green functions
 
-@mvindex @var{green-function-id}
+@vindex @var{green-function-id}
 
 The Green functions are only used in integral quantities
 (@pxref{Formulation}). The first parameter represents the dimension of the
@@ -2550,20 +2601,24 @@ The triplets of values given in the definitions below correspond to the
 @ftable @code
 
 @item Laplace
-@code{[]@{@var{expression-cst}@}}@*
+@code{[]@{@var{expression-cst}@}}
+
 @code{r/2}, @code{1/(2*Pi)*ln(1/r)}, @code{1/(4*Pi*r)}.
 
 @item GradLaplace
-@code{[]@{@var{expression-cst}@}}@*
+@code{[]@{@var{expression-cst}@}}
+
 Gradient of @code{Laplace} relative to the destination point (@code{$X},
 @code{$Y}, @code{$Z}).
 
 @item Helmholtz
-@code{[]@{@var{expression-cst}, @var{expression-cst}@}}@*
+@code{[]@{@var{expression-cst}, @var{expression-cst}@}}
+
 @code{exp(j*k0*r)/(4*Pi*r)}, where @code{k0} is given by the second parameter.
 
 @item GradHelmholtz
-@code{[]@{@var{expression-cst}, @var{expression-cst}@}}@*
+@code{[]@{@var{expression-cst}, @var{expression-cst}@}}
+
 Gradient of @code{Helmholtz} relative to the destination point (@code{$X},
 @code{$Y}, @code{$Z}).
 
@@ -2577,93 +2632,114 @@ Gradient of @code{Helmholtz} relative to the destination point (@code{$X},
 @node Type manipulation functions, Coordinate functions, Green functions, Types for Function
 @subsection Type manipulation functions
 
-@mvindex @var{type-function-id}
+@vindex @var{type-function-id}
 
 @noindent
 @var{type-function-id}:
 @ftable @code
 
 @item Complex
-@code{[@var{expression-list}]}@*
+@code{[@var{expression-list}]}
+
 Creates a (multi-harmonic) complex expression from an number of
 real-valued expressions. The number of expressions in @var{expression-list}
 must be even.
 
 @item Re
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Takes the real part of a complex-valued expression.
 
 @item Im
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Takes the imaginary part of a complex-valued expression.
 
 @item Vector
-@code{[@var{expression},@var{expression},@var{expression}]}@*
+@code{[@var{expression},@var{expression},@var{expression}]}
+
 Creates a vector from 3 scalars.
 
 @item Tensor
-@code{[@var{expression},@var{expression},@var{expression},@var{expression},@var{expression},@var{expression},}@*
-@code{@var{expression},@var{expression},@var{expression}]}@*
+@code{[@var{expression},@var{expression},@var{expression},@var{expression},@var{expression},@var{expression},}
+
+@code{@var{expression},@var{expression},@var{expression}]}
+
 Creates a second-rank tensor of order 3 from 9 scalars.
 
 @item TensorV
-@code{[@var{expression},@var{expression},@var{expression}]}@*
+@code{[@var{expression},@var{expression},@var{expression}]}
+
 Creates a second-rank tensor of order 3 from 3 vectors.
 
 @item TensorSym
-@code{[@var{expression},@var{expression},@var{expression},@var{expression},@var{expression},@var{expression}]}@*
+@code{[@var{expression},@var{expression},@var{expression},@var{expression},@var{expression},@var{expression}]}
+
 Creates a symmetrical second-rank tensor of order 3 from 6 scalars.
 
 @item TensorDiag
-@code{[@var{expression},@var{expression},@var{expression}]}@*
+@code{[@var{expression},@var{expression},@var{expression}]}
+
 Creates a diagonal second-rank tensor of order 3 from 3 scalars.
 
 @item CompX
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the X component of a vector.
 
 @item CompY
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the Y component of a vector.
 
 @item CompZ
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the Z component of a vector.
 
 @item CompXX
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the XX component of a tensor.
 
 @item CompXY
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the XY component of a tensor.
 
 @item CompXZ
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the XZ component of a tensor.
 
 @item CompYX
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the YX component of a tensor.
 
 @item CompYY
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the YY component of a tensor.
 
 @item CompYZ
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the YZ component of a tensor.
 
 @item CompZX
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the ZX component of a tensor.
 
 @item CompZY
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the ZY component of a tensor.
 
 @item CompZZ
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Gets the ZZ component of a tensor.
 
 @end ftable
@@ -2676,7 +2752,7 @@ Gets the ZZ component of a tensor.
 @node Coordinate functions, Miscellaneous functions, Type manipulation functions, Types for Function
 @subsection Coordinate functions
 
-@mvindex @var{coord-function-id}
+@vindex @var{coord-function-id}
 
 
 @noindent
@@ -2684,26 +2760,30 @@ Gets the ZZ component of a tensor.
 @ftable @code
 
 @item X
-@code{[]}@*
+@code{[]}
+
 Gets the X coordinate.
 
 @item Y
-@code{[]}@*
+@code{[]}
+
 Gets the Y coordinate.
 
 @item Z
-@code{[]}@*
+@code{[]}
+
 Gets the Z coordinate.
 
 @item XYZ
-@code{[]}@*
+@code{[]}
+
 Gets X, Y and Z in a vector.
 
 @c @item F_aX_bY_cZ
-@c @code{[]@{@var{expression-cst},@var{expression-cst},@var{expression-cst}@}}@*
+@c @code{[]@{@var{expression-cst},@var{expression-cst},@var{expression-cst}@}}
 
 @c @item F_aX21_bY21_cZ21
-@c @code{[]@{@var{expression-cst},@var{expression-cst},@var{expression-cst}@}}@*
+@c @code{[]@{@var{expression-cst},@var{expression-cst},@var{expression-cst}@}}
 
 @end ftable
 
@@ -2716,53 +2796,62 @@ Gets X, Y and Z in a vector.
 @node Miscellaneous functions,  , Coordinate functions, Types for Function
 @subsection Miscellaneous functions
 
-@mvindex @var{misc-function-id}
+@vindex @var{misc-function-id}
 
 @noindent
 @var{misc-function-id}:
 @ftable @code
 
 @item Printf
-@code{[@var{expression}]}@*
+@code{[@var{expression}]}
+
 Prints the value of @var{expression} when evaluated.
 
 @item Normal
-@code{[]}@*
+@code{[]}
+
 Computes the normal to the element.
 
 @item NormalSource
-@code{[]}@* 
+@code{[]}
+
 Computes the normal to the source element (only valid in a quantity of
 Integral type).
 
 @item F_CompElementNum
-@code{[]}@*
+@code{[]}
+
 Returns 0 if the current element and the current source element are
 identical.
 
 @item InterpolationLinear
-@code{[]@{@var{expression-cst-list}@}}@*
+@code{[]@{@var{expression-cst-list}@}}
+
 Linear interpolation of points. The number of constant expressions in
 @var{expression-cst-list} must be even.
 
 @item dInterpolationLinear
-@code{[]@{@var{expression-cst-list}@}}@*
+@code{[]@{@var{expression-cst-list}@}}
+
 Derivative of linear interpolation of points. The number of constant
 expressions in @var{expression-cst-list} must be even.
 
 @item InterpolationAkima
-@code{[]@{@var{expression-cst-list}@}}@*
+@code{[]@{@var{expression-cst-list}@}}
+
 Akima interpolation of points. The number of constant expressions in
 @var{expression-cst-list} must be even.
 
 @item dInterpolationAkima
-@code{[]@{@var{expression-cst-list}@}}@*
+@code{[]@{@var{expression-cst-list}@}}
+
 Derivative of Akima interpolation of points. The number of constant
 expressions in @var{expression-cst-list} must be even.
 
 @item Order
-@code{[@var{discrete-quantity}]}@*
-Returns the interpolation order of the @var{discrete-quantity}.
+@code{[@var{quantity}]}
+
+Returns the interpolation order of the @var{quantity}.
 
 @end ftable
 
@@ -2776,12 +2865,12 @@ Returns the interpolation order of the @var{discrete-quantity}.
 
 @cindex Constraint, types
 
-@mvindex @var{constraint-type}
+@vindex @var{constraint-type}
 
 @noindent
 @var{constraint-type}:
 
-@vtable @code
+@ftable @code
 
 @item Assign
 To assign a value (e.g.@: for boundary condition).
@@ -2798,7 +2887,7 @@ To give an initial value to be computed by a pre-resolution.
 @item Network
 To describe the node connections of branches in a network.
 
-@end vtable
+@end ftable
 
 @c -------------------------------------------------------------------------
 @c FunctionSpace
@@ -2809,14 +2898,14 @@ To describe the node connections of branches in a network.
 
 @cindex Function space, types
 
-@mvindex @var{function-space-type}
-@mvindex @var{basis-function-type}
-@mvindex @var{global-quantity-type}
+@vindex @var{function-space-type}
+@vindex @var{basis-function-type}
+@vindex @var{global-quantity-type}
 
 @noindent
 @var{function-space-type}:
 
-@vtable @code
+@ftable @code
 
 @item Form0
 0-form, i.e.@: scalar field of potential type.
@@ -2844,29 +2933,34 @@ Scalar field.
 @item Vector
 Vector field.
 
-@end vtable
+@end ftable
 
 
 @noindent
 @var{basis-function-type}:
 
-@vtable @code
+@ftable @code
 
 @item BF_Node
 Nodal function (on @code{NodesOf}, value @code{Form0}).
+
 @item BF_Edge
 Edge function (on @code{EdgesOf}, value @code{Form1}).
+
 @item BF_Facet
 Facet function (on @code{FacetsOf}, value @code{Form2}).
+
 @item BF_Volume
 Volume function (on @code{VolumesOf}, value @code{Form3}).
 
 @item BF_GradNode
 Gradient of nodal function 
 (on @code{NodesOf}, value @code{Form1}).
+
 @item BF_CurlEdge
 Curl of edge function 
 (on @code{EdgesOf}, value @code{Form2}).
+
 @item BF_DivFacet
 Divergence of facet function 
 (on @code{FacetsOf}, value @code{Form3}).
@@ -2874,6 +2968,7 @@ Divergence of facet function
 @item BF_GroupOfNodes
 Sum of nodal functions 
 (on @code{GroupsOfNodesOf}, value @code{Form0}).
+
 @item BF_GradGroupOfNodes
 Gradient of sum of nodal functions 
 (on @code{GroupsOfNodesOf}, value @code{Form1}).
@@ -2881,17 +2976,20 @@ Gradient of sum of nodal functions
 @item BF_GroupOfEdges
 Sum of edge functions 
 (on @code{GroupsOfEdgesOf}, value @code{Form1}).
+
 @item BF_CurlGroupOfEdges
 Curl of sum of edge functions 
 (on @code{GroupsOfEdgesOf}, value @code{Form2}).
 
 @item BF_PerpendicularEdge
 1-form (0, 0, @code{BF_Node}) (on @code{NodesOf}, value @code{Form1P}).
+
 @item BF_CurlPerpendicularEdge
 Curl of 1-form (0, 0, @code{BF_Node}) (on @code{NodesOf}, value @code{Form2P}).
 
 @item BF_GroupOfPerpendicularEdge
 Sum of 1-forms (0, 0, @code{BF_Node}) (on @code{NodesOf}, value @code{Form1P}).
+
 @item BF_CurlGroupOfPerpendicularEdge
 Curl of sum of 1-forms (0, 0, @code{BF_Node}) (on @code{NodesOf}, 
 value @code{Form2P}).
@@ -2899,22 +2997,27 @@ value @code{Form2P}).
 @item BF_PerpendicularFacet
 2-form (90 degree rotation of @code{BF_Edge}) 
 (on @code{EdgesOf}, value @code{Form2P}).
+
 @item BF_DivPerpendicularFacet
 Div of 2-form (90 degree rotation of @code{BF_Edge}) 
 (on @code{EdgesOf}, value @code{Form3}).
 
 @item BF_Region
 Unit value 1 (on @code{Region}, value @code{Scalar}).
+
 @item BF_RegionX
 Unit vector (1, 0, 0) (on @code{Region}, value @code{Vector}).
+
 @item BF_RegionY
 Unit vector (0, 1, 0) (on @code{Region}, value @code{Vector}).
+
 @item BF_RegionZ
 Unit vector (0, 0, 1) (on @code{Region}, value @code{Vector}).
 
 @item BF_Global
 Global pre-computed quantity 
 (on @code{Global}, value depends on parameters).
+
 @item BF_dGlobal
 Exterior derivative of global pre-computed quantity 
 (on @code{Global}, value depends on parameters).
@@ -2922,25 +3025,28 @@ Exterior derivative of global pre-computed quantity
 @item BF_NodeX
 Vector (@code{BF_Node}, 0, 0) 
 (on @code{NodesOf}, value @code{Vector}).
+
 @item BF_NodeY
 Vector (0, @code{BF_Node}, 0) 
 (on @code{NodesOf}, value @code{Vector}).
+
 @item BF_NodeZ
 Vector (0, 0, @code{BF_Node}) 
 (on @code{NodesOf}, value @code{Vector}).
 
 @item BF_Zero
 Zero value 0 (on all regions, value @code{Scalar}).
+
 @item BF_One
 Unit value 1 (on all regions, value @code{Scalar}).
 
-@end vtable
+@end ftable
 
 
 @noindent
 @var{global-quantity-type}:
 
-@vtable @code
+@ftable @code
 
 @item AliasOf
 Another name for a name of coefficient of basis function.
@@ -2949,7 +3055,7 @@ Another name for a name of coefficient of basis function.
 A global quantity associated with a name of coefficient of basis function, 
 and therefore with this basis function.
 
-@end vtable
+@end ftable
 
 
 @c -------------------------------------------------------------------------
@@ -2961,12 +3067,12 @@ and therefore with this basis function.
 
 @cindex Jacobian, types
 
-@mvindex @var{jacobian-type}
+@vindex @var{jacobian-type}
 
 @noindent
 @var{jacobian-type}:
 
-@vtable @code
+@ftable @code
 
 @item Vol
 Volume Jacobian, for @var{n}-D regions in @var{n}-D geometries, 
@@ -3043,7 +3149,7 @@ Same as @code{VolAxiSqu}, but with rectangular shell transformation.
                   @var{center-X}, @var{center-Y}, @var{center-Z},
                   @var{power}, @var{1/infinity} >.
 
-@end vtable
+@end ftable
 
 
 @c -------------------------------------------------------------------------
@@ -3055,37 +3161,30 @@ Same as @code{VolAxiSqu}, but with rectangular shell transformation.
 
 @cindex Integration, types
 
-@mvindex @var{integration-type}
-@mvindex @var{numerical-integration-type}
-@mvindex @var{element-type}
+@vindex @var{integration-type}
+@vindex @var{element-type}
 
 @noindent
 @var{integration-type}:
 
-@vtable @code
-
-@item Analytic
-Analytic integration.
-
-@end vtable
-
-
-@noindent
-@var{numerical-integration-type}:
-
-@vtable @code
+@ftable @code
 
 @item Gauss
 Numerical Gauss integration.
 @i{Parameters} (#1): @code{NumberOfPoints}.
 
-@end vtable
+@item GaussLegendre
+Numerical Gauss integration, obtained by multiplication of the
+one-dimensional Gauss integration.
+@i{Parameters} (#1): @code{NumberOfPoints}.
+
+@end ftable
 
 
 @noindent
 @var{element-type}:
 
-@vtable @code
+@ftable @code
 
 @item Line
 Line (2 nodes, 1 edge, 1 volume) (#1).
@@ -3111,7 +3210,7 @@ Pyramid (5 nodes, 8 edges, 6 facets, 1 volume) (#7).
 @item Point
 Point (1 node) (#15).
 
-@end vtable
+@end ftable
 
 @noindent Note:
 @enumerate
@@ -3130,40 +3229,41 @@ Point (1 node) (#15).
 
 @cindex Formulation, types
 
-@mvindex @var{formulation-type}
-@mvindex @var{local-term-type}
-@mvindex @var{quantity-type}
-@mvindex @var{term-op-type}
+@vindex @var{formulation-type}
+@vindex @var{local-term-type}
+@vindex @var{quantity-type}
+@vindex @var{term-op-type}
 
 
 @noindent
 @var{formulation-type}:
 
-@vtable @code
+@ftable @code
 
 @item FemEquation
 Finite element method formulation (all method moments, integral methods).
 
-@end vtable
+@end ftable
 
 
 @noindent
 @var{local-term-type}:
 
-@vtable @code
+@ftable @code
 
 @item Galerkin
 Integral of Galerkin type.
+
 @item deRham
 deRham projection (collocation).
 
-@end vtable
+@end ftable
 
 
 @noindent
 @var{Other types of @code{Equation}s}:
 
-@vtable @code
+@ftable @code
 
 @item GlobalTerm
 Global term to be assembled in an equation associated with a global quantity. 
@@ -3173,13 +3273,13 @@ local quantities.
 @item GlobalEquation
 Global equations to be assembled in the matrix of the system.
 
-@end vtable
+@end ftable
 
 
 @noindent
 @var{quantity-type}:
 
-@vtable @code
+@ftable @code
 
 @item Local
 Local quantity defining a field in a function space.
@@ -3194,21 +3294,24 @@ The identifier of this quantity has to be given in the brackets following the
 @item Integral
 Integral quantity obtained by the integration of a
 @code{LocalQuantity} before its use in an @code{Equation} term.
-@end vtable
+
+@end ftable
 
 
 @noindent
 @var{term-op-type}:
 
-@vtable @code
+@ftable @code
 
 @item Dt
 Time derivative applied to the whole term of the equation.
+
 @item DtDof
 Time derivative applied only to the @code{Dof@{@}} term of the equation.
 
 @item DtDt
 Time derivative of 2nd order applied to the whole term of the equation.
+
 @item DtDtDof
 Time derivative of 2nd order applied only to the @code{Dof@{@}} term of the 
 equation.
@@ -3220,7 +3323,7 @@ Jacobian term to be assembled in the Jacobian matrix for nonlinear analysis.
 No time scheme applied to the term 
 (e.g.@: Theta is always 1 even if a theta scheme is applied).
 
-@end vtable
+@end ftable
 
 
 
@@ -3234,12 +3337,12 @@ No time scheme applied to the term
 
 @cindex Resolution, types
 
-@mvindex @var{resolution-op}
+@vindex @var{resolution-op}
 
 @noindent
 @var{resolution-op}:
 
-@vtable @code
+@ftable @code
 
 @item Generate
 @code{[@var{system-id}]}
@@ -3337,13 +3440,13 @@ optional parameter is a flag for testing purposes.
 Iterative reduction of time interval to delimit variations of solutions 
 (e.g.@: used in types of nonlinear analyses).
 
-@end vtable
+@end ftable
 
 
 @noindent
 @var{iterative-time-reduction-arg}:
 
-@vtable @code
+@ftable @code
 
 @item NbrMaxIteration
 @var{expression-cst}
@@ -3385,12 +3488,12 @@ Operations to perform at each step.
 
 Operations to perform after the last iteration (when leaving the loop).
 
-@end vtable
+@end ftable
 
 @noindent
 @var{change-of-state-arg}:
 
-@vtable @code
+@ftable @code
 
 @item Type
 @var{change-of-state-type}
@@ -3414,12 +3517,12 @@ Relative error accepted.
 
 Reference function.
 
-@end vtable
+@end ftable
 
 @noindent
 @var{change-of-state-type}:
 
-@vtable @code
+@ftable @code
 
 @item ChangeSign
 Test of change of sign of quantities.
@@ -3433,7 +3536,7 @@ Compare quantities to reference functions (e.g.@: for regulation).
 @item ChangeReference2
 Compare quantities to reference functions (e.g.@: for regulation).
 
-@end vtable
+@end ftable
 
 
 @c -------------------------------------------------------------------------
@@ -3445,12 +3548,12 @@ Compare quantities to reference functions (e.g.@: for regulation).
 
 @cindex Post-processing, types
 
-@mvindex @var{post-value}
+@vindex @var{post-value}
 
 @noindent
 @var{post-value}:
 
-@vtable @code
+@ftable @code
 
 @item Local
 @{ @var{local-value} @}
@@ -3462,7 +3565,7 @@ To compute a local quantity.
 
 To integrate the expression.
 
-@end vtable
+@end ftable
 
 
 @c -------------------------------------------------------------------------
@@ -3474,7 +3577,7 @@ To integrate the expression.
 
 @cindex Post-operation, types
 
-@mvindex @var{print-support}
+@vindex @var{print-support}
 
 @noindent
 @var{expression-cst-vector}:
@@ -3487,7 +3590,7 @@ To integrate the expression.
 @noindent
 @var{print-support}:
 
-@vtable @code
+@ftable @code
 
 @item OnElementsOf
 @var{group-def}
@@ -3501,7 +3604,10 @@ processing stage.
 
 To compute global quantities associated with regions.
 
-@itemx OnSection
+@item OnGlobal
+To compute global integral quantities, with no associated region.
+
+@item OnSection
 @{ @var{expression-cst-vector} @var{expression-cst-vector} @var{expression-cst-vector} @}
 
 To compute a quantity on a section of the mesh defined by three points
@@ -3515,11 +3621,14 @@ To compute a quantity in elements of a mesh (support for a solution that
 differs from the real support of the solution, i.e.@: reinterpolation).
 
 @item OnGrid
-@{ @var{expression-vector} @} @{ @{@var{expression-cst-list}@}, @{@var{expression-cst-list}@} @}
+@var{expression-vector} @{ @var{expression-cst-list}, @var{expression-cst-list} @}
 
 To compute a quantity on a parametric grid. The three expressions in
-@var{expression-vector} can be functions of current values @code{$s}
-and @code{$t}, whose values are given by each @var{expression-cst-list}.
+@var{expression-vector} can be functions of current values @code{$S} and
+@code{$T}, whose values are given by each @var{expression-cst-list}. For
+example, @code{OnGrid @{Cos[$S], Sin[$S], 0@} @{ @{0:2*Pi:Pi/180@}, 0 @}}
+will compute the quantity on 360 points equally distributed on a circle in
+the z=0 plane, and centered on the origin.
 
 @item OnPoint
 @var{expression-cst-vector}
@@ -3547,70 +3656,132 @@ associated number of divisions.
 To compute a quantity in a box (specified by four points), with an
 associated number of divisions.
 
-@end vtable
+@end ftable
 
-@mvindex @var{print-option}
+@vindex @var{print-option}
 
 @noindent
 @var{print-option}:
 
-@vtable @code
-@item File "@var{string}"
+@ftable @code
+@item File
+@code{"@var{string}"}
+
 Outputs the result in a file named @var{string}. 
-@item File > "@var{string}"
-Appends the result to a file named @var{string}. 
-@item Depth @var{expression-cst}
+
+@item File
+@code{> "@var{string}"}
+
+Same as @code{File  "@var{string}"}, except that, if several @code{File >
+"@var{string}"} appear in the same @code{PostOperation}, the results are
+concatenated in the file @var{string}. 
+
+@item File
+@code{>> "@var{string}"}
+
+Appends the result to a file named @var{string}.
+
+@item Depth
+@var{expression-cst}
+
 Recursive division of the elements if @var{expression-cst} is greater than
 zero, derefinement if @var{expression-cst} is smaller than zero. If
 @var{expression-cst} is equal to zero, evaluation at the barycenter of the
 elements.
+
 @item Skin
 Computes the result on the boundary of the region. 
-@item Smoothing @var{expression-cst}
+
+@item Smoothing
+@var{expression-cst}
+
 Smoothes the solution @var{expression-cst} times.
-@item HarmonicToTime @var{expression-cst}
+
+@item HarmonicToTime
+@var{expression-cst}
+
 Converts a harmonic solution into a time-dependent one (with @var{expression-cst}
 steps).
-@item Dimension @var{expression-cst}
+
+@item Dimension
+@var{expression-cst}
+
 Forces the dimension of the elements to consider in an element
 search. Specifies the problem dimension during an adaptation (h- or
 p-refinement).
-@item TimeStep @var{expression-cst} | TimeStep @{ @var{expression-cst-list} @}
+
+@item TimeStep
+@code{@var{expression-cst} | TimeStep @{ @var{expression-cst-list} @}}
+
 Outputs results for the specified time steps only.
-@item Format @var{post-operation-fmt}
+
+@item Frequency
+@code{@var{expression-cst} | Frequency @{ @var{expression-cst-list} @}}
+
+Outputs results for the specified frequencies only.
+
+@item Format
+@var{post-operation-fmt}
+
 Outputs results in the specified format.
-@item Adapt P1|H1|H2
+
+@item Adapt
+@code{P1|H1|H2}
+
 Performs p- or h-refinement on the post-processing result, considered as an
 error map.
-@item Target @var{expression-cst} 
+
+@item Target
+@var{expression-cst} 
+
 Specifies the target for the optimizer during adaptation.
-@item Value @var{expression-cst} | Value @{ @var{expression-cst-list} @}
+
+@item Value
+@code{@var{expression-cst} | Value @{ @var{expression-cst-list} @}}
+
 Specifies acceptable output values for discrete optimization (e.g. the
 available interpolation orders).
-@item Sort Position|Connection
+
+@item Sort
+@code{Position|Connection}
+
 Sorts the output by position (x, y, z) or by connection (for @code{LINE}
 elements only).
-@item Iso @var{expression-cst}
+
+@item Iso
+@var{expression-cst}
+
 Outputs directly contour prints (with @var{expression-cst} values) instead of
 elementary values.
-@item Iso @{ @var{expression-cst-list} @}
+
+@item Iso
+@code{@{ @var{expression-cst-list} @}}
+
 Outputs directly contour prints for the values specified in the
 @var{expression-cst-list} instead of elementary values.
-@end vtable
+
+@item NoNewLine
+Suppresses the new lines in the output when printing global quantities
+(i.e.@: with @code{Print OnRegion}).
+
+@end ftable
 
 
 
-@mvindex @var{post-operation-fmt}
+@vindex @var{post-operation-fmt}
 
 @noindent
 @var{post-operation-fmt}:
 
-@vtable @code
+@ftable @code
+
 @item Gmsh
+@itemx GmshParsed
 Gmsh output. See the documentation of Gmsh for a description of the file
-format.
-@item Gnuplot
+formats.
+
 @item Table
+@itemx Gnuplot
 Column-oriented output, e.g.@: suitable for Gnuplot, Excel, Caleida Graph,
 etc. The columns are: @var{element-type} @var{element-index} @var{x-coord}
 @var{y-coord} @var{z-coord} <@var{x-coord} @var{y-coord} @var{z-coord}>
@@ -3618,14 +3789,17 @@ etc. The columns are: @var{element-type} @var{element-index} @var{x-coord}
 numbers preceding the @var{values} contain context-dependent information,
 depending on the type of plot: curvilinear abscissa for @code{OnLine} plots,
 normal to the plane for @code{OnPlane} plots, etc.
+
 @item TimeTable
 Time oriented column output, e.g.@: suitable for Gnuplot, Excel, Caleida
 Graph, etc. The columns are: @var{time-step} @var{time} @var{x-coord}
 @var{y-coord} @var{z-coord} <@var{x-coord} @var{y-coord} @var{z-coord}>
 @dots{} @var{value}.
+
 @item Adaptation
-Adaptation map. Undocumented.
-@end vtable
+Adaptation map, suitable for the GetDP @code{-adapt} command line option.
+
+@end ftable
 
 
 @c =========================================================================
@@ -3710,8 +3884,8 @@ Group @{
 region groups while @code{NonConductingDom@-ain} and
 @code{ConductingDomain} are global region groups.
 
-Groups of function type contain lists of entities built on the region groups 
-appearing in their arguments. For example,
+Groups of function type contain lists of entities built on the region groups
+appearing in their arguments. For example, 
 
 @example
 NodesOf[NonConductingDomain]
@@ -4458,7 +4632,7 @@ Formulation @{
 @c .........................................................................
 
 @node Other formulations,  , Magnetodynamics, Formulation examples
-@subsection Nonlinearities, Mixed formulations, ...
+@subsection Nonlinearities, Mixed formulations, @dots{}
 
 In case nonlinear physical characteristics are considered, arguments are
 used for associated functions, e.g.@: @code{mu[@{h@}]}. Several test
@@ -4632,7 +4806,7 @@ Function @{
 
 A coupled problem, e.g.@: magnetodynamic (in frequency domain; 
 @code{Frequency Freq}) - thermal (in time domain) coupling, with temperature 
-dependent characteristics (e.g.@: @code{rho[@{T@}]}, ...), can be defined by:
+dependent characteristics (e.g.@: @code{rho[@{T@}]}, @dots{}), can be defined by:
 
 @example
 Resolution @{
@@ -4931,7 +5105,7 @@ command line. The performed resolution is the one given as an argument to
 the @code{-pre} option. In the processing stage, GetDP executes all the
 commands given in the @code{Operation} field of the selected
 @code{Resolution} object (such as matrix assemblies, system resolutions,
-...).
+@dots{}).
 
 @item -pos @var{post-operation-id} @dots{}
 @cindex @code{-pos}
@@ -5053,7 +5227,7 @@ Displays a message listing basic usage and available options.
 
 
 The native mesh format read by GetDP is the mesh file format produced by
-Gmsh (@value{WEB-GMSH}). The file is divided into two sections, defining the
+Gmsh (@value{GMSH-WEB}). The file is divided into two sections, defining the
 nodes and the elements in the mesh.
 
 @example
@@ -5125,7 +5299,7 @@ Point (1 node).
 The @file{.pre} file is generated by the pre-processing stage. It
 contains all the information about the degrees of freedom to be
 considered during the processing stage for a given resolution (i.e.@:
-unknowns, fixed values, initial values, etc).
+unknowns, fixed values, initial values, etc.).
 
 @example
 $Resolution /* '@var{resolution-id}' */
@@ -5256,6 +5430,8 @@ the numbering of the equations given in the @file{.pre} file
 @c Bugs, versions and contributors
 @c =========================================================================
 
+@ifclear COMMERCIAL
+
 @node Bugs and versions, Tips and tricks, File formats, Top
 @chapter Bugs, versions and contributors
 
@@ -5286,8 +5462,11 @@ files that produce the bug (problem definition and mesh files). Don't forget
 to mention both the version of GetDP and the version of your operation
 system (@pxref{Running GetDP} to see how to get this information).
 
-The current list of open bugs is available in the @file{BUGS} file
-included in the distribution of GetDP.
+Here is the list of open bugs for version @value{GETDP-VERSION}:
+
+@example
+@include ../BUGS
+@end example
 
 @c -------------------------------------------------------------------------
 @c Versions
@@ -5300,7 +5479,9 @@ included in the distribution of GetDP.
 @cindex History, versions
 @cindex Changelog
 
-See the @file{VERSIONS} file included in the distribution of GetDP.
+@example
+@include ../VERSIONS
+@end example
 
 @c -------------------------------------------------------------------------
 @c Contributors
@@ -5313,7 +5494,11 @@ See the @file{VERSIONS} file included in the distribution of GetDP.
 @cindex Contributors, list
 @cindex Credits 
 
-See the @file{CONTRIBUTORS} file included in the distribution of GetDP.
+@example
+@include ../CONTRIBUTORS
+@end example
+
+@end ifclear
 
 @c =========================================================================
 @c Tips ans Tricks
@@ -5376,7 +5561,7 @@ available PostOperations.
 Gmsh is a three-dimensional meshing tool (with pre- and post-processing
 facilities). Written in C/C++ and using OpenGL, Gmsh is available for
 most of the classical UNIX platforms (SUN, DEC, IBM, HP and Linux) and
-for Windows 95/98/NT. Gmsh can be downloaded from @value{WEB-GMSH}.
+for Windows 95/98/NT. Gmsh can be downloaded from @value{GMSH-WEB}.
 
 This appendix reproduces verbatim the input files needed by Gmsh to
 produce the mesh files @file{mStrip.msh} and @file{Core.msh} used in the
@@ -5387,10 +5572,10 @@ examples of @ref{Complete examples}.
 
 
 @c =========================================================================
-@c Concept Index
+@c Concept Index (cindex)
 @c =========================================================================
 
-@node Concept index, Syntax index, Gmsh examples, Top
+@node Concept index, Metasyntactic variable index, Gmsh examples, Top
 @unnumbered Concept index
 
 @cindex Index, concepts
@@ -5399,10 +5584,23 @@ examples of @ref{Complete examples}.
 @printindex cp
 
 @c =========================================================================
-@c Syntax Index
+@c Variable Index (vindex)
 @c =========================================================================
 
-@node Syntax index, Variable index, Concept index, Top
+@node Metasyntactic variable index, Syntax index, Concept index, Top
+@unnumbered Metasyntactic variable index
+
+@cindex Index, metasyntactic variables
+@cindex Variables, index
+@cindex Metasyntactic variables, index
+
+@printindex vr
+
+@c =========================================================================
+@c Syntax Index (tindex+findex)
+@c =========================================================================
+
+@node Syntax index,  , Metasyntactic variable index, Top
 @unnumbered Syntax index
 
 @cindex Index, syntax
@@ -5410,34 +5608,5 @@ examples of @ref{Complete examples}.
 @cindex Keywords, index
 
 @printindex tp
-
-@c =========================================================================
-@c Variable Index
-@c =========================================================================
-
-@node Variable index, Type index, Syntax index, Top
-@unnumbered Variable index
-
-@cindex Index, metasyntactic variables
-@cindex Variables, index
-@cindex Metasyntactic variables, index
-
-@printindex mv
-
-@c =========================================================================
-@c Type Index
-@c =========================================================================
-
-@node Type index,  , Variable index, Top
-@unnumbered Type index
-
-@cindex Index, types for objects
-@cindex Types for objects, index
-
-@printindex vr
-
-@c mis au debut
-@c @summarycontents
-@c @contents
 
 @bye
