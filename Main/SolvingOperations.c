@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.52 2003-06-21 07:14:11 sabarieg Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.53 2003-06-21 07:26:16 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -40,6 +40,7 @@
 #include "F_FMM.h"
 #include "F_FMMOperations.h"
 #include "F_FMM_DTA.h"
+#include "BF_Function.h"
 
 /*
   All this stuff should really go into appropriate header files...
@@ -47,6 +48,8 @@
 
 int  fcmp_DefineSystem_Name(const void * a, const void * b) ;
 int  fcmp_PostOperation_Name(const void * a, const void * b) ;
+int  fcmp_DefineQuantity_Name(const void * a, const void * b) ;
+int  fcmp_GeoData_Name(const void * a, const void * b) ;
 
 void  Cal_SolutionError(gVector * dx, gVector * x, int diff, double * MeanError) ;
 void  Cal_SolutionErrorX(int Nbr, double * dx, double * x, double * MeanError) ;
