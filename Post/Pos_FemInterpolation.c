@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_FemInterpolation.c,v 1.13 2003-01-26 07:31:29 geuzaine Exp $"
+#define RCSID "$Id: Pos_FemInterpolation.c,v 1.14 2003-03-17 16:44:03 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -120,7 +120,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	 QuantityStorage_P->DefineQuantity->IndexInFunctionSpace) ;
     }
     else{
-      TheElement_P = Element ;
+      TheElement_P = Element;
     }
   }
   else{
@@ -389,11 +389,15 @@ void  Pos_FemInterpolation(struct Element * Element,
 
     
     else { 
-      
-      Cal_IntegralQuantity (Current.Element = TheElement_P, &IQA, 
-			    QuantityStorage_P0, QuantityStorage_P, 
-			    SubType_DefineQuantity, Nbr_Dof, 
-			    (void (**)())xFunctionBF, vBFxDof) ;
+      if (IQA.IntegrationCase_P->Type == ANALYTIC)	
+	Cal_AnalyticIntegralQuantity (Current.Element = TheElement_P, 
+				      QuantityStorage_P, Nbr_Dof, 
+				      (void (**)())xFunctionBF, vBFxDof) ;
+      else
+	Cal_NumericalIntegralQuantity (Current.Element = TheElement_P, &IQA, 
+				       QuantityStorage_P0, QuantityStorage_P, 
+				       SubType_DefineQuantity, Nbr_Dof, 
+				       (void (**)())xFunctionBF, vBFxDof) ;
 
       Type_Form = vBFxDof[0].Type ;
       
