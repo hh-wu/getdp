@@ -1,53 +1,41 @@
-// $Id: Function.cpp,v 1.1 2002-03-04 17:13:15 geuzaine Exp $
+// $Id: Function.cpp,v 1.2 2002-03-05 22:48:10 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Data_Numeric.h"
 #include "Function.h"
 
-double angle_02pi (double A3){
-  double DP = 2 * PI;
-  while (A3 > DP || A3 < 0.){
-    if (A3 > 0)
-      A3 -= DP;
+double angle_02pi (double t){
+  while(t > TWO_PI || t < 0.){
+    if (t > 0)
+      t -= TWO_PI;
     else
-      A3 += DP;
+      t += TWO_PI;
   }
-  return A3;
+  return t;
 }
 
 void ChgVar(double u, double *t, double *jac){
-  //if(u > PI) u-= 2*PI;
-  //if(u < -PI) u+= 2*PI;
-
-  u = angle_02pi(u);  
-  *t = u; return;
-  
-  //*t = PI/2.*sin(u/2.+PI); return;
-  //*t = PI*sin(u/2.); return;
-  *t = 2*sin(u/2.); return;
-  
-  *jac = PI*cos(u/2.)/2.;
-  //printf("aa %g\n",u);
-  //*u = 2*PI*sin(*u/4.);
-  
+  *t = u;
+  *jac = 1.;
   return;
-  /*
-    if(t > 2*PI) t-= 2*PI;
-    if(t < 0) t+= 2*PI;
-    if(t>=0. && t<PI/2.){
-    *u = PI*sin(t)/(1+SQU(sin(t)));
-    // *jac = PI*pow(cos(t),3.)/(4-4*pow(cos(t),2.)+pow(cos(t),4.));
-    }
-    else if(t>=PI/2. && t<3*PI/2.){
-    *u = PI+PI*sin(t-PI)/(1+SQU(sin(t-PI)));
-    // *jac = 1;
-    }
-    else{
-    *u = 2*PI+PI*sin(t)/(1+SQU(sin(t)));
-    // *jac = 1;
-    }
-    //printf("t u %g %g \n", t, *u);
-   */
+
+  *t = 2*PI*sin(u/4.);
+  *jac = 0.5*PI*cos(u/4.);
+  return;
+
+  if(u>=0. && u<PI/2.){
+    *t = PI*sin(u)/(1+SQU(sin(u)));
+    *jac = PI*pow(cos(u),3.)/(4-4*pow(cos(u),2.)+pow(cos(u),4.));
+  }
+  else if(u>=PI/2. && u<3*PI/2.){
+    *t = PI+PI*sin(u-PI)/(1+SQU(sin(u-PI)));
+    *jac = 1;
+  }
+  else{
+    *t = 2*PI+PI*sin(u)/(1+SQU(sin(u)));
+    *jac = 1;
+  }
+  //printf("u u %g %g \n", u, *u);
 }
 
 Complex Function::val(double k[3], double tau, double xtau[3]){
@@ -66,8 +54,7 @@ Complex Function::val(double k[3], double tau, double xtau[3]){
 Complex Function::bf(double tau){
   int i, j, beg, end;
   Complex res, lsum, sum;
-  double taunew,jac;
-  
+
   switch(Type){
     
   case Test : 
@@ -76,16 +63,10 @@ Complex Function::bf(double tau){
     
   case Single : 
     // build matrix, global Fourier basis functions (NumBF=-N/2,...,N/2)
-    
-    ChgVar(tau,&taunew,&jac);
-    tau=taunew;
     return (cos(NumBF*tau)+I*sin(NumBF*tau));
     
   case Vector : 
     // eval series using the vector Sol (should be done with FFT)
-    ChgVar(tau,&taunew,&jac);
-    tau=taunew;
-    
     LinAlg_GetLocalVectorRange(Sol,&beg,&end);
     beg /= gCOMPLEX_INCREMENT;
     end /= gCOMPLEX_INCREMENT;
@@ -95,7 +76,6 @@ Complex Function::bf(double tau){
       j = -NumBF/2+i;
       lsum += (cos(j*tau)+I*sin(j*tau)) * res;
     }
-    
     // sum results from all processors
     LinAlg_ReduceSum(&lsum,&sum);
     return sum;

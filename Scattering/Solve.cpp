@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.5 2002-03-04 17:43:49 geuzaine Exp $
+// $Id: Solve.cpp,v 1.6 2002-03-05 22:48:10 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Complex.h"
@@ -9,11 +9,7 @@
 #include "Solve.h"
 
 double GetTarget(int i, int nb, double start){
-  double t,tnew,jac;
-  t = 2*PI*i/(double)nb + start;
-  //t = -PI+2*PI*i/(double)nb + start; pq ca fout la merde si pas dans 0,2pi ???
-  ChgVar(t,&tnew,&jac); return tnew;
-  return t;
+  return 2*PI*i/(double)nb + start;
 }
 
 void ComputeRHS(Ctx *ctx, gVector *b){

@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.21 2002-03-04 17:11:20 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.22 2002-03-05 22:48:10 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Complex.h"
@@ -75,12 +75,15 @@ public:
     return -2./(I*TWO_PI) * Bessel_j(0,kr) * d;
   }
   Complex M2(double tau_orig, double jac){
-    if(fabs(t-tau)>EPSILON)
+    if(fabs(t-tau)>EPSILON){
+      //return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
       return M()-M1()*log(4.*SQU(sin((tau_orig-PI)/2.)));
-    //return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
-    else
+    }
+    else{
+      //return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*d))) * d;
       return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d;
-    //return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*d))) * d;
+      //return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d + 2. * log(jac) * M1() ;
+    }
   }
 }; 
 
@@ -107,7 +110,7 @@ double SpecialQuadratureWeightForLog(double t, double tau, int n){
 //          * f(tau) * pou(tau) dtau 
 //
 // where the integrand is 2*eps-periodic thanks to the partition of
-// unity (pou), centered on 'a'.
+// unity (pou), centered on 'a==t'.
 //
 // Nystrom integrator given in Colton & Kress being only valid for a
 // 2*PI-periodic integrand, from 0 to 2*PI, the change of variables
@@ -118,18 +121,25 @@ double SpecialQuadratureWeightForLog(double t, double tau, int n){
 // is applied, to give:
 //
 // I(t) = \int_{0}^{2*PI} 
-//            H_0^(1)(k*r(t,(tau-PI)*eps/PI+a))
-//          * \sqrt{x_1'((tau-PI)*eps/PI+a))^2+x_2'((tau-a)*eps/PI+a))^2}
-//          * f((tau-a)*eps/PI+a)) * pou((tau-a)*eps/PI+a)) 
-//          * eps/PI dtau 
+//            H_0^(1)(k*r(t,(tau'-PI)*eps/PI+a))
+//          * \sqrt{x_1'((tau'-PI)*eps/PI+a))^2+x_2'((tau'-PI)*eps/PI+a))^2}
+//          * f((tau'-PI)*eps/PI+a)) * pou((tau'-PI)*eps/PI+a)) 
+//          * eps/PI dtau' 
 //
 // The decomposition of the logarithmic singularity is then made as in
 // Colton & Kress. Warning: the jacobian eps/PI also appears in the
 // decomposition of the kernel.
-
-// What should we do for the tangency points (2) ? separate the
-// integral in 2 parts, and apply the following change of variables in
-// each integral
+//
+// We also introduce an additional change of variables in order to
+// grade the mesh around the shadowing points:
+//
+// tau' = 
+// dtau' = 
+//
+// We thus get:
+//
+// I(t) = ...
+//
 
 Complex Nystrom(int singular, double t, Function *func, double kvec[3], 
 		int nbpts, Scatterer *scat, Partition *part){
@@ -146,24 +156,33 @@ Complex Nystrom(int singular, double t, Function *func, double kvec[3],
 
   for(j=0 ; j<=2*n-1 ; j++){
     tau_orig = TWO_PI*j/(2.*n);
-    tau = (tau_orig-PI)*part->epsilon/PI+part->center;
     jac = 1.;
 
-    //double tau_orig2;
-    //func->chgvar(tau, &tau_orig2, &jac);
+    double tau2 = tau_orig;
+    //ChgVar(tau_orig, &tau2, &jac);
 
+    tau = (tau2-PI)*part->epsilon/PI+part->center;
     jac *= part->epsilon/PI ;
+
     pou = part->val(tau);
     if(pou){
       scat->Val(tau,xtau);
       scat->Der(tau,dxtau);
-      f = func->val(kvec,tau,xtau) * func->bf(tau); //bf(tau_orig2)
+      f = func->val(kvec,tau,xtau) * func->bf(tau);
       kern.init(t,xt,dxt,tau,xtau,dxtau,k);
       if(singular){ // combine special quadrature with trapezoidal
 	w = SpecialQuadratureWeightForLog(PI,tau_orig,n);
 	m1 = kern.M1();
 	m2 = kern.M2(tau_orig,jac);
-	res += (w * m1 + PI/(double)n * m2) * f * pou;
+	res += (w * m1 + PI/(double)n * m2) * f * pou * jac;
+	/*
+	printf("m1=%g %g\n",m1.real(),m1.imag());
+	printf("m2=%g %g\n",m2.real(),m2.imag());
+	printf("w=%g\n",w);
+	printf("pou=%g\n",pou);
+	printf("f=%g %g\n",f.real(), f.imag());
+	printf("res=%g %g\n",res.real(), res.imag());
+	*/
       }
       else{ // simple trapezoidal
 	if(List_Nbr(part->subparts)){
@@ -173,13 +192,13 @@ Complex Nystrom(int singular, double t, Function *func, double kvec[3],
 	}
 	if(pou){
 	  m = kern.M();
-	  res += (PI/(double)n * m) * f * pou;
+	  res += (PI/(double)n * m) * f * pou * jac;
 	}
       }
     }
   }
     
-  return jac * res;
+  return res;
 }
 
 // Stuff for interval comparison
