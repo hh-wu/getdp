@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.11 2001-03-27 19:19:58 dular Exp $ */
+/* $Id: GetDP.y,v 1.12 2001-05-03 01:00:58 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -36,6 +36,7 @@
 #include "Quadrature.h"
 #include "Cal_Value.h"
 #include "Constant.h"
+#include "Message.h"
 #include "Magic.h"
 
 char  tmp[MAX_STRING_LENGTH] ;
@@ -5811,7 +5812,7 @@ FExpr :
   | tModulo '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }
   | tHypot  '[' FExpr ',' FExpr ']'  { $$ = sqrt($3*$3+$5*$5);  }
   | FExpr '?' FExpr tDOTS FExpr      { $$ = $1? $3 : $5 ; }
-  | FExpr '#' { fprintf(stderr, "Value (line %ld) --> %.16g\n", yylinenum, $1); }
+  | FExpr '#' { Msg(DIRECT, "Value (line %ld) --> %.16g", yylinenum, $1); }
   ;
 
 OneFExpr :
@@ -6106,8 +6107,8 @@ void  yyerror (char *s) {
   char space1[32] = "", space2[512]= "";
 
   if(!InteractiveLevel){
-    fprintf(stderr, "Error ('%s' line %ld): %s on '%s'\n", 
-	    yyname, yylinenum, s, yytext) ;
+    Msg(DIRECT, "Error ('%s' line %ld): %s on '%s'", yyname, yylinenum, 
+	s, yytext) ;
   }
   else{
     if(!ErrorLevel){
@@ -6119,7 +6120,10 @@ void  yyerror (char *s) {
       for(i=0 ; i<yycolnum-2 ; i++) {
 	strcat(space2, " ");
       }
-      fprintf(stderr, "%s^\n%s%s\n\n", space2, space1, s) ;
+      Msg(DIRECT, "%s^", space2);
+      Msg(DIRECT, "%s%s", space1, s);
+      Msg(DIRECT, "") ;
+      Msg(DIRECT, "") ;
     }
   }
 
@@ -6128,15 +6132,15 @@ void  yyerror (char *s) {
 
 void  vyyerror (char *fmt, ...){
   int      i, nn ;
-  char space1[32] = "";
+  char space1[32] = "", str[256];
   va_list  args;
 
+  va_start (args, fmt);
+  vsprintf (str, fmt, args);
+  va_end (args);
+
   if(!InteractiveLevel){
-    fprintf (stderr, "Error ('%s' line %ld): ", yyname, yylinenum);
-    va_start (args, fmt);
-    vfprintf (stderr, fmt, args);
-    va_end (args);
-    fprintf (stderr, "\n");
+    Msg(DIRECT, "Error ('%s' line %ld): %s", yyname, yylinenum, str);
   }
   else{
     if(!ErrorLevel){
@@ -6144,11 +6148,8 @@ void  vyyerror (char *fmt, ...){
       for(i=0 ; i<nn ; i++) {
 	strcat(space1, " ");
       }
-      fprintf(stderr, "%s", space1) ;
-      va_start (args, fmt);
-      vfprintf (stderr, fmt, args);
-      va_end (args);
-      fprintf (stderr, "\n\n");
+      Msg(DIRECT, "%s%s", space1, str) ;
+      Msg(DIRECT, "");
     }
   }
 
