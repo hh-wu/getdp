@@ -367,7 +367,9 @@ void Init_SearchGrid(struct Grid * Grid) {
     }
   }
 
-  /* debug
+  Grid->Init = 1;    
+
+#if 0
   for (i=0 ; i<List_Nbr(Grid->Bricks) ; i++) {
     Brick_P = (struct Brick *)List_Pointer(Grid->Bricks, i) ;
     printf("BRICK %d : ", i) ;
@@ -377,9 +379,8 @@ void Init_SearchGrid(struct Grid * Grid) {
     }
     printf("\n");
   }
-  */
+#endif
 
-  Grid->Init = 1;    
 }
 
 
@@ -681,7 +682,9 @@ void xyz2uvwInAnElement (struct Element *Element,
   if(iter == NR_MAX_ITER) 
     Msg(WARNING, "Maximum Number of Iterations Exceeded in xyz2uvwInAnElement") ;
 
-  /* Msg(INFO, "%d iterations in xyz2uvw", iter); */
+#if 0
+  Msg(INFO, "%d iterations in xyz2uvw", iter);
+#endif
 
 }
 
