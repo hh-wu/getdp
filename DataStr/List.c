@@ -1,4 +1,4 @@
-#define RCSID "$Id: List.c,v 1.10 2001-11-01 09:54:20 geuzaine Exp $"
+#define RCSID "$Id: List.c,v 1.11 2001-11-05 13:03:41 geuzaine Exp $"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -404,9 +404,9 @@ void List_WriteToFile(List_T *liste, FILE *file, int format){
   switch(format){
   case LIST_FORMAT_ASCII :
     if(liste->size == sizeof(double))
-      for(i=0;i<n;i++) fprintf(file, " %g", *((double*)&liste->array[i*liste->size])) ;
+      for(i=0;i<n;i++) fprintf(file, " %.16g", *((double*)&liste->array[i*liste->size])) ;
     else if(liste->size == sizeof(float))
-      for(i=0;i<n;i++) fprintf(file, " %g", *((float*)&liste->array[i*liste->size])) ;
+      for(i=0;i<n;i++) fprintf(file, " %.16g", *((float*)&liste->array[i*liste->size])) ;
     else if(liste->size == sizeof(int))
       for(i=0;i<n;i++) fprintf(file, " %d", *((int*)&liste->array[i*liste->size])) ;
     else if(liste->size == sizeof(char))
