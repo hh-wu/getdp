@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.17 2000-10-30 09:48:16 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.18 2000-10-30 10:46:57 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -18,7 +18,7 @@ int          yyparse(void) ;
 int          yyrestart(FILE*) ;
 void         Interactive(void);
 
-int   GetDP_CurrentStackIndex ;
+int   GetDP_CurrentStackIndex = 0 ;
 char *GetDP_CurrentFunction[GETDP_STACK_SIZE] ;
 char *GetDP_CurrentSourceFile[GETDP_STACK_SIZE] ;
 int   GetDP_CurrentSourceLine[GETDP_STACK_SIZE] ;
@@ -60,7 +60,6 @@ int  main(int argc, char *argv[]) {
   int   sargc, i ;
   char  ProName[MAX_FILE_NAME_LENGTH], LogName[MAX_FILE_NAME_LENGTH] ;
 
-  GetDP_CurrentStackIndex = 0;
   GetDP_Begin("main");
 
   /* init MPI for multi-processor jobs */
