@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.144 2003-07-23 18:38:14 geuzaine Exp $
+# $Id: Makefile,v 1.145 2003-07-23 21:08:10 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -99,7 +99,7 @@ doc:
 	cd doc && tar zcvf ../getdp-${GETDP_RELEASE}-doc.tgz\
           FAQ CREDITS VERSIONS README.win32 getdp.1\
           texinfo/getdp.ps texinfo/getdp.pdf texinfo/getdp.txt\
-          texinfo/*.html texinfo/getdp-info.tgz
+          texinfo/*.html texinfo/*.jpg texinfo/getdp-info.tgz
 
 doc-info:
 	cd doc/texinfo && ${MAKE} info
