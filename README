@@ -1,37 +1,42 @@
+$Id: README,v 1.5 2001-03-05 07:47:11 geuzaine Exp $
 
+About CVS
+---------
 
-1) The file doc/STRUCTURE contains some information about how GetDP
-   works internally. Please read this file to get the basic internal
-   working philosophy.
+a) The first time you want to download the latset full source by
+   CVS, type:
 
-2) Some easy rules to make the code easy to read/debug/maintain:
-   - *please* enable full warnings for your compiler (e.g. gcc -Wall)
-   - always use Msg() to print information/errors/etc.
-   - begin any new function with GetDP_Begin("function_name") and end
-     it with GetDP_End or GetDP_Return(value). Never use 'return'
-     directly.
-   - if working under Microsoft Windows, please indent your files and
-     suppress the tabs before committing your changes (untabify)
+   cvs -d :pserver:NAME@139.165.160.57:/usr/users57/cvs-master CMD
 
-3) a) The first time you want to download the latset full source by
-      CVS, type:
+   where NAME is your username on 139.165.160.57, and where CMD is
+   first 'login' (you will be prompted for a password), and then
+   'checkout getdp'. When this is done, you can use 'logout' to
+   exit.
 
-      cvs -d :pserver:NAME@139.165.160.57:/usr/users57/cvs-master CMD
-
-      where NAME is your username on 139.165.160.57, and where CMD is
-      first 'login' (you will be prompted for a password), and then
-      'checkout getdp'. When this is done, you can use 'logout' to
-      exit.
-
-   b) The next times, just go into the getdp directory and type
+b) The next times, just go into the getdp directory and type
  
-      cvs update -d
+   cvs update -d
 
-      to update your local version, or 
+   to update your local version, or 
 
-      cvs commit
+   cvs commit
 
-      to commit your changes to the central repository.
+   to commit your changes to the central repository.
 
---
-Christophe
+
+Developping in GetDP
+--------------------
+
+The file doc/STRUCTURE contains some information about how GetDP works
+internally. Please read this file to get the basic internal working
+philosophy.
+
+Some easy rules to make the code easy to read/debug/maintain:
+- enable full warnings for your compiler (e.g. gcc -Wall)
+- always use Msg() to print information/errors/etc.
+- begin any new function with GetDP_Begin("function_name") and end
+  it with GetDP_End or GetDP_Return(value). Never use 'return'
+  directly.
+- if working under Microsoft Windows, please indent your files and
+  suppress the tabs before committing your changes (untabify)
+
