@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.16 2002-02-22 23:21:21 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.17 2002-02-27 16:37:28 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -75,6 +75,11 @@ void LinAlg_Finalize(void){
 void LinAlg_FinalizeSolver(void){
 }
 
+/* Barrier */
+
+void LinAlg_Barrier(void){
+}
+
 /* Sequential */
 
 void LinAlg_SequentialBegin(void){
@@ -134,11 +139,15 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *P
   GetDP_End ;
 }
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m, 
-		   int NbrPart, int *Part, int *Nnz){
+			 int NbrPart, int *Part, int *Nnz){
 
   GetDP_Begin("LinAlg_CreateMatrix");
 
   init_matrix(n, &M->M, &Solver->Params) ;
+  if(Part){
+    Part[0] = 0;
+    Part[1] = n-1;
+  }
 
   GetDP_End ;
 }

@@ -1,4 +1,4 @@
-/* $Id: LinAlg.h,v 1.4 2000-10-30 01:05:43 geuzaine Exp $ */
+/* $Id: LinAlg.h,v 1.5 2002-02-27 16:37:28 geuzaine Exp $ */
 #ifndef _LINALG_H_
 #define _LINALG_H_
 
@@ -39,7 +39,7 @@ typedef struct { Solver_Params Params ; } gSolver ;
 #define gSCALAR_SIZE 1
 #define gCOMPLEX_INCREMENT 2
 #endif
-typedef struct { Scalar s ; }                    gScalar ;
+typedef struct { PetscScalar s ; }               gScalar ;
 typedef struct { Mat M ; }                       gMatrix ;
 typedef struct { Vec V ; }                       gVector ;
 typedef struct { SLES sles ; PC pc ; KSP ksp ; } gSolver ;
@@ -59,6 +59,10 @@ void LinAlg_InitializeSolver(int* argc, char*** argv, int *NbrCpu, int *RankCpu)
 
 void LinAlg_Finalize(void);
 void LinAlg_FinalizeSolver(void);
+
+/* Barrier */
+
+void LinAlg_Barrier(void);
 
 /* Sequential */
 
