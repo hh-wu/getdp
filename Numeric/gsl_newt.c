@@ -1,4 +1,4 @@
-#define RCSID "$Id: gsl_newt.c,v 1.4 2003-09-01 09:57:20 geuzaine Exp $"
+#define RCSID "$Id: gsl_newt.c,v 1.5 2003-10-02 17:31:09 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -81,8 +81,16 @@ void newt(double x[], int n, int *check,
   int status;
   size_t iter = 0;
   struct gsl_dummy p = { 1 };
-  gsl_multiroot_function f = { &gslfunc, n, &p };
   gsl_vector *xx = gsl_vector_alloc(n);
+
+  /* IRIX C compiler doesn't like this
+  gsl_multiroot_function f = { &gslfunc, n, &p };
+  */
+  gsl_multiroot_function f;
+  f.f = &gslfunc;
+  f.n = n;
+  f.params = &p;
+
 
   if(n > MAX_DIM_NEWT - 1)
     Msg(ERROR, "Maximum Newton dimension exceeded\n");

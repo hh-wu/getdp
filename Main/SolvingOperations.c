@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.54 2003-06-21 08:10:40 sabarieg Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.55 2003-10-02 17:31:09 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -2882,7 +2882,7 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
                             struct DofData     * DofData_P0,
                             struct GeoData     * GeoData_P0) {
 
-  int  i, Nbr_Node, Num_Node, NumBF_X, NumBF_Y, NumBF_Z ;
+  int  i, Num_Node, NumBF_X, NumBF_Y, NumBF_Z ;
   double Value ;
 
   struct DefineSystem * DS ;
