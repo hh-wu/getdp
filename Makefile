@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.88 2002-04-12 17:15:22 bruno Exp $
+# $Id: Makefile,v 1.89 2002-04-12 17:15:59 bruno Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -77,7 +77,7 @@ GETDP_SPARSKIT_LIBS   = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
 # PETSc definitions
 # ----------------------------------------------------------------------
 
-BOPT                  = g_complex
+BOPT                  = O_complex
 GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
