@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.14 2002-01-23 23:52:32 geuzaine Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.15 2002-09-05 03:04:59 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -104,6 +104,9 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
   /*  G e t   I n t e g r a t i o n   M e t h o d   */
   /*  --------------------------------------------  */
   
+  if(EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex < 0)
+    Msg(ERROR, "Integration method missing in equation term");
+
   FI->IntegrationCase_L = 
     ((struct IntegrationMethod *)
      List_Pointer(Problem_S.IntegrationMethod,
@@ -119,6 +122,9 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
 
   /*  G e t   J a c o b i a n   M e t h o d   */
   /*  --------------------------------------  */
+
+  if(EquationTerm_P->Case.LocalTerm.JacobianMethodIndex < 0)
+    Msg(ERROR, "Jacobian method missing in equation term");
   
   FI->JacobianCase_L =
     ((struct JacobianMethod *)
