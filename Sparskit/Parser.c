@@ -1,4 +1,4 @@
-#define RCSID "$Id: Parser.c,v 1.7 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Parser.c,v 1.8 2001-02-19 16:40:40 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -200,20 +200,20 @@ static InfoSolver Tab_Params[] =
   {"Matrix_Storage",          ENTIER, 0,     0.,    comMATRIX_STORAGE,          actMATRIX_STORAGE},
   {"Scaling",                 ENTIER, 1,     0.,    comSCALING,                 actSCALING},
   {"Renumbering_Technique",   ENTIER, 1,     0.,    comRENUMBERING_TECHNIQUE,   actRENUMBERING_TECHNIQUE},
-  {"Preconditioner",          ENTIER, 1,     0.,    comPRECONDITIONER,          actPRECONDITIONER},
+  {"Preconditioner",          ENTIER, 2,     0.,    comPRECONDITIONER,          actPRECONDITIONER},
   {"Preconditioner_Position", ENTIER, 2,     0.,    comPRECONDITIONER_POSITION, actPRECONDITIONER_POSITION},
-  {"Nb_Fill",                 ENTIER, 10,    0.,    comNB_FILL,                 actNB_FILL},
+  {"Nb_Fill",                 ENTIER, 50,    0.,    comNB_FILL,                 actNB_FILL},
   {"Permutation_Tolerance",   REEL,   0,     5.e-2, comPERMUTATION_TOLERANCE,   actPERMUTATION_TOLERANCE},
   {"Dropping_Tolerance",      REEL,   0,     0.,    comDROPPING_TOLERANCE,      actDROPPING_TOLERANCE},    
   {"Diagonal_Compensation",   REEL,   0,     0.,    comDIAGONAL_COMPENSATION,   actDIAGONAL_COMPENSATION},    
   {"Re_Use_ILU",              ENTIER, 0,     0.,    comRE_USE_ILU,              actRE_USE_ILU},
   {"Algorithm",               ENTIER, 8,     0.,    comALGORITHM,               actALGORITHM},
-  {"Krylov_Size",             ENTIER, 20,    0.,    comKRYLOV_SIZE,             actKRYLOV_SIZE},
+  {"Krylov_Size",             ENTIER, 40,    0.,    comKRYLOV_SIZE,             actKRYLOV_SIZE},
   {"IC_Acceleration",         REEL,   0,     1.,    comIC_ACCELERATION,         actIC_ACCELERATION},
   {"Re_Use_LU",               ENTIER, 0,     0.,    comRE_USE_LU,               actRE_USE_LU},
   {"Iterative_Improvement",   ENTIER, 0,     0.,    comITERATIVE_IMPROVEMENT,   actITERATIVE_IMPROVEMENT},
-  {"Nb_Iter_Max",             ENTIER, 10000, 0.,    comNB_ITER_MAX,             actNB_ITER_MAX},
-  {"Stopping_Test",           REEL,   0,     1.e-8, comSTOPPING_TEST,           actSTOPPING_TEST}
+  {"Nb_Iter_Max",             ENTIER, 1000,  0.,    comNB_ITER_MAX,             actNB_ITER_MAX},
+  {"Stopping_Test",           REEL,   0,     1.e-10,comSTOPPING_TEST,           actSTOPPING_TEST}
 };
 
 
