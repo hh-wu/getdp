@@ -43,6 +43,33 @@ int ComputeElementBox(struct Element * Element,
       ElementBox->Zmin = MIN(ElementBox->Zmin, Element->z[i]);
       ElementBox->Zmax = MAX(ElementBox->Zmax, Element->z[i]);
     }
+
+    if( (ChainDim == _1D && Element->Type == LINE) ||
+	(ChainDim == _2D && (Element->Type == TRIANGLE || Element->Type == QUADRANGLE)) ){
+	
+      dxy = (ElementBox->Xmax-ElementBox->Xmin)-(ElementBox->Ymax-ElementBox->Ymin);
+      dxz = (ElementBox->Xmax-ElementBox->Xmin)-(ElementBox->Zmax-ElementBox->Zmin);
+      dyz = (ElementBox->Ymax-ElementBox->Ymin)-(ElementBox->Zmax-ElementBox->Zmin);
+
+      if(dxy >= 0 && dxz >= 0){
+	ElementBox->Ymin -= dxy/2. ; ElementBox->Ymax += dxy/2. ;
+	ElementBox->Zmin -= dxz/2. ; ElementBox->Zmax += dxz/2. ;
+      }
+      else if(dxy <= 0 && dyz >= 0){
+	ElementBox->Xmin += dxy/2. ; ElementBox->Xmax -= dxy/2. ;
+	ElementBox->Zmin -= dyz/2. ; ElementBox->Zmax += dyz/2. ;
+      }
+      else if(dxz <= 0 && dyz <= 0){
+	ElementBox->Xmin += dxz/2. ; ElementBox->Xmax -= dxz/2. ;
+	ElementBox->Ymin += dyz/2. ; ElementBox->Ymax -= dyz/2. ;	
+      }
+      
+      d = ElementBox->Xmax - ElementBox->Xmin ;
+
+      ElementBox->Xmin -= d/10. ; ElementBox->Xmax += d/10.;
+      ElementBox->Ymin -= d/10. ; ElementBox->Ymax += d/10.;
+      ElementBox->Zmin -= d/10. ; ElementBox->Zmax += d/10.;
+    }
     break;
 
   case LINE_2      :
@@ -193,7 +220,19 @@ void Init_SearchGrid(struct Grid * Grid) {
     Grid->Zmax = MAX(Grid->Zmax, GeoNode->z); 
   }
 
-  // trouver un critere, en fct du nbr d'elements...
+  /* trouver un critere, en fct du nbr d'elements...
+
+     if(Grid->Zmin == Grid->Zmax){	  
+       Grid->Nx = Grid->Ny = MIN(250, (int)(sqrt(NbrGeoElements / 3.)+1.));
+       Grid->Nz = 1; Grid->Zmin = 0.0; Grid->Zmax = 1.0;
+       GeoDim = _2D;
+     }
+     else{
+       Grid->Nx = Grid->Ny = Grid->Nz = MIN(40, (int)(pow(NbrGeoElements / 3., 0.333)+1.));
+       GeoDim = _3D;
+     }
+  */
+
   if(Grid->Ymin == Grid->Ymax){
     Grid->Nx = 20 ; Grid->Ny = Grid->Nz = 1;
     GeoDim = _1D;
