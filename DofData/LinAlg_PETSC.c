@@ -11,6 +11,18 @@
 #include "LinAlg.h"
 #include "Message.h"
 
+/* Pour tester assemblage sans faire d'appel a PETSc
+
+#define VecSetValues dummyvec
+#define MatSetValues dummymat
+int dummyvec( Vec, int, int *, Scalar *, int ) {
+  return 0;
+}
+int dummymat( Mat, int, int *, int, int * , Scalar *, int ) {
+  return 0; 
+}
+*/
+
 static int  ierr, its, i_Start, i_End ;
 static int  SolverInitialized=0 ;
 
@@ -375,9 +387,12 @@ void gAddDoubleInVector(double d, gVector *V, int i){
 void gAddComplexInVector(double d1, double d2, gVector *V, int i, int j){
   Scalar tmp ;
 #if PETSC_USE_COMPLEX
-  tmp = d1 + PETSC_i * d2 ;
-  ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); CHKERRA(ierr);
+  if (i_Start <= i && i < i_End){
+    tmp = d1 + PETSC_i * d2 ;
+    ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); CHKERRA(ierr);
+  }
 #else
+  if (!i_Start) Msg(ERROR, "AddComplexInMatrix not Ready for Complex on Multi CPU");
   tmp = d1 ;
   ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); CHKERRA(ierr);
   tmp = d2 ;
