@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.45 2002-01-18 11:10:27 gyselinc Exp $ */
+/* $Id: Data_Passive.h,v 1.46 2002-01-18 18:22:13 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -29,7 +29,7 @@
    postprocessing operations become almost impossible to perform in
    3D... */
 
-#define _MULTIHAR 1
+#define _MULTIHAR 0
 
 #ifdef _MULTIHAR
 #define NBR_MAX_HARMONIC    40
