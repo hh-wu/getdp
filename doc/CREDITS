@@ -1,20 +1,18 @@
-$Id: CREDITS,v 1.2 2003-07-26 04:25:46 geuzaine Exp $
+$Id: CREDITS,v 1.3 2003-08-08 16:05:08 geuzaine Exp $
 
-GetDP is copyright (c) 1997-2003 Patrick Dular
-<patrick.dular@ulg.ac.be> and Christophe Geuzaine
-<geuzaine@acm.caltech.edu>.
+GetDP is copyright (c) 1997-2003 Patrick Dular <patrick.dular at
+ulg.ac.be> and Christophe Geuzaine <geuzaine at acm.caltech.edu>.
 
 GetDP has been developed over the years by David Colignon
-<david.colignon@ulg.ac.be>, Patrick Dular <patrick.dular@ulg.ac.be>,
-Christophe Geuzaine <geuzaine@acm.caltech.edu>, Johan Gyselinck
-<johan.gyselinck@ulg.ac.be>, Tuan Ledinh
-<tuan.ledinh@student.ulg.ac.be>, Patrick Lefevre
-<P.Lefevre@ulg.ac.be>, Andre Nicolet <andre.nicolet@fresnel.fr>,
-Jean-Francois Remacle <remacle@scorec.rpi.edu>, Ruth Sabariego
-<ruth.sabariego@student.ulg.ac.be>, Timo Tarhasaari
-<timo.tarhasaari@tut.fi>, Christophe Trophime
-<trophime@labs.polycnrs-gre.fr> and Marc Ume
-<Marc.Ume@digitalgraphics.be>.
+<david.colignon at ulg.ac.be>, Patrick Dular <patrick.dular at
+ulg.ac.be>, Christophe Geuzaine <geuzaine at acm.caltech.edu>, Johan
+Gyselinck <johan.gyselinck at ulg.ac.be>, Tuan Ledinh <tuan.ledinh at
+student.ulg.ac.be>, Patrick Lefevre <P.Lefevre at ulg.ac.be>, Andre
+Nicolet <andre.nicolet at fresnel.fr>, Jean-Francois Remacle <remacle
+at scorec.rpi.edu>, Ruth Sabariego <ruth.sabariego at
+student.ulg.ac.be>, Timo Tarhasaari <timo.tarhasaari at tut.fi>,
+Christophe Trophime <trophime at labs.polycnrs-gre.fr> and Marc Ume
+<Marc.Ume at digitalgraphics.be>.
 
 The AVL tree code (DataStr/avl.*) is copyright (c) 1988-1993, 1995 The
 Regents of the University of California. Permission to use, copy,
@@ -43,16 +41,15 @@ options.
 Thanks to the following folks who have contributed by providing fresh
 ideas on theoretical or programming topics, who have sent patches,
 requests for changes or improvements, or who gave us access to exotic
-machines for testing GetDP: Olivier Adam <o.adam@ulg.ac.be>, Alejandro
-Angulo <aacusm@yahoo.com>, Geoffrey Deliege
-<deliege@mailserv.esat.kuleuven.ac.be>, Mark Evans <evans@gte.net>,
-Philippe Geuzaine <geuzaine@gnat.colorado.edu>, Eric Godard
-<godard@montefiore.ulg.ac.be>, Sebastien Guenneau
-<guenneau@liverpool.ac.uk>, Francois Henrotte
-<fhenrott@esat.kuleuven.ac.be>, Daniel Kedzierski
-<kedzierski@uol.com.br>, Samuel Kvasnica <kvasnica@iaee.tuwien.ac.at>,
-Benoit Meys <bmeys@techspace-aero.be>, Uwe Pahner
-<uwe.pahner@esat.kuleuven.ac.be>, Georgia Psoni and Robert Struijs
-<gpsoni@free.fr>, Ahmed Rassili <a.rassili@ulg.ac.be>, Thierry
-Scordilis <t.scordilis@atral.fr> and Herve Tortel
-<tortel@loe.u-3mrs.fr>.
+machines for testing GetDP: Olivier Adam <o.adam at ulg.ac.be>,
+Alejandro Angulo <aacusm at yahoo.com>, Geoffrey Deliege <deliege at
+mailserv.esat.kuleuven.ac.be>, Mark Evans <evans at gte.net>, Philippe
+Geuzaine <geuzaine at gnat.colorado.edu>, Eric Godard <godard at
+montefiore.ulg.ac.be>, Sebastien Guenneau <guenneau at
+liverpool.ac.uk>, Francois Henrotte <fhenrott at esat.kuleuven.ac.be>,
+Daniel Kedzierski <kedzierski at uol.com.br>, Samuel Kvasnica
+<kvasnica at iaee.tuwien.ac.at>, Benoit Meys <bmeys at
+techspace-aero.be>, Uwe Pahner <uwe.pahner at esat.kuleuven.ac.be>,
+Georgia Psoni and Robert Struijs <gpsoni at free.fr>, Ahmed Rassili
+<a.rassili at ulg.ac.be>, Thierry Scordilis <t.scordilis at atral.fr>
+and Herve Tortel <tortel at loe.u-3mrs.fr>.
