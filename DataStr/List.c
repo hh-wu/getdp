@@ -1,4 +1,4 @@
-#define RCSID "$Id: List.c,v 1.13 2002-01-18 17:39:21 geuzaine Exp $"
+#define RCSID "$Id: List.c,v 1.14 2002-01-19 01:08:11 geuzaine Exp $"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -414,7 +414,7 @@ void List_WriteToFile(List_T *liste, FILE *file, int format){
 	if(*((char*)&liste->array[i*liste->size]) == '\0')
 	  fprintf(file, "^") ;
 	else if(*((char*)&liste->array[i*liste->size]) == '^')
-	  fprintf(file, "_") ;//we don't allow '^' as a valid character
+	  fprintf(file, "_") ; /* we don't allow '^' as a valid character */
 	else
 	  fprintf(file, "%c", *((char*)&liste->array[i*liste->size])) ;
       }
