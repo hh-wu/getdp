@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.57 2002-09-01 22:06:51 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.58 2003-01-31 13:50:21 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1316,12 +1316,11 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
     for(i = 0 ; i < Nbr_Region ; i++) {
 
-      if (Region_L) {
+      if (Region_L)
 	List_Read(Region_L, i, &Num_Region) ;
-	Current.SubRegion = Num_Region ; /* Region being a GlobalQuantity Entity no */
-      }
       else
 	Num_Region = NO_REGION ;
+      Current.SubRegion = Num_Region ; /* Region being a GlobalQuantity Entity no */
 
       Element.GeoElement = NULL ;
       Element.Num = NO_ELEMENT ;
