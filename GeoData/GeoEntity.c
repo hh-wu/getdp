@@ -10,6 +10,7 @@
 
 #include "ualloc.h"
 #include "outil.h"
+#include "Magic.h"
 
 extern FILE            * File_PRE ;
 extern struct GeoData  * CurrentGeoData ;
@@ -397,7 +398,7 @@ void  Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
   struct Group        * Group_P ;
   int   i, Index_Element, Nbr_Entities, j, Index_Group, Num_Entity ;
   int   GeoDataIndex ;
-  char  String[256] ;
+  char  String[MAX_STRING_LENGTH] ;
 
   for(GeoDataIndex = 0 ; GeoDataIndex < NbrGeoData ; GeoDataIndex++){    
     if(!(GeoData_P0 + GeoDataIndex)->Elements){
@@ -409,7 +410,7 @@ void  Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
   while (1) {
 
     do { 
-      fgets(String, 256, File_PRE) ; 
+      fgets(String, MAX_STRING_LENGTH, File_PRE) ; 
       if (feof(File_PRE))  break ;
     } while (String[0] != '$') ;  
 
@@ -473,7 +474,7 @@ void  Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
     }
 
     do {
-      fgets(String, 256, File_PRE) ;
+      fgets(String, MAX_STRING_LENGTH, File_PRE) ;
       if (feof(File_PRE)) Msg(ERROR, "Prematured End of File");
     } while (String[0] != '$') ;
 

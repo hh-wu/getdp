@@ -41,8 +41,9 @@
 #include "Cal_Value.h"
 
 #include "Constant.h"
+#include "Magic.h"
 
-char  tmp[256] ;
+char  tmp[MAX_STRING_LENGTH] ;
 
 
 void  Check_NameOfStructNotExist(char * Struct, List_T * List_L, void * data,
@@ -84,7 +85,7 @@ int   yylex();
 
 extern FILE            *yyin ;
 extern long int         yylinenum ;
-extern char             yyname[256], yyincludename[256] ;
+extern char             yyname[MAX_FILE_NAME_LENGTH], yyincludename[MAX_FILE_NAME_LENGTH] ;
 extern int              yycolnum, yyincludenum ;
 extern char            *yytext ;
 
