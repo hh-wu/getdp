@@ -1,4 +1,4 @@
-#define RCSID "$Id: List.c,v 1.4 2000-11-25 23:09:38 geuzaine Exp $"
+#define RCSID "$Id: List.c,v 1.5 2000-11-27 17:26:43 geuzaine Exp $"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -342,26 +342,19 @@ List_T *List_Copy(List_T *src)
   return(dest);
 }
 
-List_T *List_CreateFromFile(int n, int size, FILE *file, int format){
-  int i;
-  List_T *liste;
+void Swap_Array(double *p, int nobjs){
+  int obj;
+  unsigned int c;
+  double x;
+  char *px, *pp;
 
-  if(!n) return NULL;
-  
-  liste = List_Create(n, 1, size);
-  liste->n = n;
-  switch(format){
-  case LIST_FORMAT_ASCII :
-    for(i=0;i<n;i++) fscanf(file, "%lf", (double*)&liste->array[i*size]) ;
-    return liste;
-  case LIST_FORMAT_BINARY :
-    fread(liste->array, size, n, file);
-    return liste;
-  default :
-    Msg(ERROR, "Unknown List Format");
-    return NULL;
+  for (obj = 0; obj < nobjs; ++obj) {
+    x = p[obj];
+    px = (char *) &x;
+    pp = (char *) (p+obj);
+    for (c = 0; c < sizeof(double); ++c)
+      pp[sizeof(double)-1-c] = px[c];
   }
-
 }
 
 void List_WriteToFile(List_T *liste, FILE *file, int format){
