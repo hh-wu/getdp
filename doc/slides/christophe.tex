@@ -1,0 +1,61 @@
+\documentclass[a4]{seminar}
+
+\usepackage{talks}
+
+\typeout{}
+\typeout{*******************************************************}
+\typeout{* Do you want to include all the pictures? (you need}
+\typeout{* to checkout the getdp-picts module at the same level}
+\typeout{* as getdp for this)? (0/1)}
+\typein[\bigpictures]
+        {*******************************************************}
+
+\fulltitle=0 % set to 1 to get full authors/affiliation on title pages
+
+\begin{document}
+
+%\talk{CNRS Grenoble June 20, 2001}
+\talk{Software environment}
+
+\begin{slide}
+
+\slidepagestyle{none}
+
+\begin{center}
+\bigtitle{Benefits of an open software environment for the modeling of
+          coupled electromagnetic problems}\\
+\bigskip\bigskip
+\mediumtitle{Christophe Geuzaine}\\
+\bigskip
+\smalltitle{Department of Electrical Engineering}\\
+\smalltitle{Montefiore Institute B28, Sart Tilman Campus}\\
+\smalltitle{University of Liège}\\
+\smalltitle{B-4000 Liège (BELGIUM)}
+\end{center}
+
+\end{slide}
+
+% Summary: With its strong mathematical foundations, the finite element
+% method is an invaluable tool for the modeling of complex coupled
+% physical problems that cannot be solved by analytical methods. Indeed,
+% automatic mesh generation and mixed finite elements have tremendously
+% widened its range of application, and call for a more general software
+% implementation.
+% The presentation will focus on such a generalization, called GetDP,
+% which is freely available on the Internet for research in collaboration.
+% After an overview of the general working philosophy of the software, the
+% benefits it may bring for the modeling of magnetic problems (taking
+% thermal, mechanical and circuit couplings into account) will be
+% highlighted thanks to a couple of examples. Topics which could be
+% studied in collaboration will then be presented, such as error
+% estimation or the use of the software as a black box in higher level
+% optimization packages.
+
+\input{fem.tex}
+\input{getdp.tex}
+\input{examples.tex}
+\input{gmsh.tex}
+\input{conclusion.tex}
+
+\end{document}
+
