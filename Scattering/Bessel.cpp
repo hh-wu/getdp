@@ -1,4 +1,4 @@
-// $Id: Bessel.cpp,v 1.2 2002-02-09 19:52:41 geuzaine Exp $
+// $Id: Bessel.cpp,v 1.3 2002-02-10 23:05:59 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,19 +9,6 @@
 #include "Amos_F.h"
 
 complex<double> I(0.0,1.0);
-
-// Generic output. Remove this as soon as we integrate the stuff into GetDP.
-void Msg(int level, char *fmt, ...){
-  va_list  args;
-  switch(level){
-  case ERROR: fprintf(stderr, "Error: "); break;
-  case WARNING: fprintf(stderr, "Warning: "); break;
-  }
-  va_start (args, fmt);
-  vfprintf(stderr, fmt, args); fprintf(stderr, "\n");
-  va_end (args);
-  if(level == ERROR) exit(1);
-}
 
 // First kind Bessel function
 complex<double> Bessel_j(int n, complex<double> x){

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2002-02-09 19:52:41 geuzaine Exp $
+# $Id: Makefile,v 1.3 2002-02-10 23:05:59 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -24,7 +24,8 @@ CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER)\
 
 SRC = Nystrom.cpp\
       CriticalPoints.cpp\
-      Bessel.cpp
+      Bessel.cpp\
+      Utils.cpp
 
 OBJ = $(SRC:.cpp=.o)
 
@@ -33,7 +34,7 @@ OBJ = $(SRC:.cpp=.o)
 $(LIB): $(OBJ)
 	$(AR) $(LIB) $(OBJ) 
 	$(RANLIB) $(LIB)
-	$(CXX) $(C_FLAGS) -o hf -L../lib -lScattering -lNumeric $(F2C) -lm
+	$(CXX) $(C_FLAGS) -o hf -L../lib -lScattering -lNumeric -lDataStr $(F2C) -lm
 
 .cpp.o:
 	$(CXX) $(CFLAGS) -c $<

@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.2 2002-02-09 19:52:41 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.3 2002-02-10 23:05:59 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -9,6 +9,8 @@
 #include "GetDP.h"
 #include "Amos_F.h"
 #include "Data_Numeric.h"
+#include "Tools.h"
+#include "Utils.h"
 #include "Bessel.h"
 #include "CriticalPoints.h"
 
@@ -20,19 +22,9 @@ using namespace std;
 class Function{
 public:
   complex<double> val(double k[3], double tau, double xtau[3]){
-    int i=0, Nnu=1;
-    double nu[3]={0.5,0.,0.5};
-    complex<double> res=0.;
-
-    // mu_slow given by its Fourier coefficients
-    for(int j=-Nnu; j<=Nnu; j++){
-      res += nu[i]*(cos(j*tau)+I*sin(j*tau));
-      i++;
-    }
-    // * e(ikr)
     double kr = k[0]*xtau[0]+k[1]*xtau[1]+k[2]*xtau[2];
-    res *= (cos(kr)+I*sin(kr));
-    return res;
+    // f = cos(tau) * e(ikr)
+    return cos(tau) * (cos(kr)+I*sin(kr));
   }
 };
 
@@ -51,36 +43,31 @@ public:
   }
 };
 
-// Partition of unity
+// Partition of unity stuff
 class Partition{
+private:
+  // pou(x,c) = 1 , - 1 < -c < x < c < 1 
+  //          = smooth((|x|-c)/(1-c)) , otherwise
+  // with smooth(x) = exp(2*exp(-1/x)/(x-1) 
+  double smooth(double x){
+    if(x==0.) return 1.;
+    else if(x==1.)  return 0.;
+    else return exp(2.*exp(-1./x)/(x-1));
+  }
+  double pou(double x, double c){
+    if(fabs(x) > 1.) return 0.;
+    else if(fabs(x) <= c) return 1.;
+    else return smooth((fabs(x)-c)/(1.-c));
+  }
 public:
-  typedef enum{SHARP=1,EXP=2} Type;
-  Type type;
-  double center, epsilon;
-  void init(double t0, double eps, Type typ){
-    center = t0;
-    epsilon = eps;
-    type = typ;
-    /*
-    switch(type){
-    case SHARP : Msg(INFO, "Sharp partition of unity"); break;
-    case EXP : Msg(INFO, "Exponential partition of unity"); break;
-    default : Msg(ERROR, "Unknown type of partition of unity"); break;
-    }
-    */
+  double center, crest, epsilon;
+  void init(double _center, double _epsilon, double _crest){
+    center = _center;
+    epsilon = _epsilon;
+    crest = _crest;
   }
   double val(double t){
-    switch(type){
-    case SHARP : 
-      if((center-epsilon <= t) &&  (t <= center+epsilon))
-	return 1.;
-      else
-	return 0.;
-    case EXP :
-      return 1.;
-    default :
-      return 0.;
-    }
+    return pou((t-center)/epsilon,crest/epsilon);
   }
 };
 
@@ -113,13 +100,14 @@ public:
   complex<double> M1(){
     return -2./(I*TWO_PI) * Bessel_j(0,kr) * d;
   }
-  complex<double> M2(){
+  complex<double> M2(double tau_orig, double epsilon){
     if(fabs(t-tau)>EPSILON)
-      return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
+      return M()-M1()*log(4.*SQU(sin((tau_orig-PI)/2.)));
+    //return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
     else
-      return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(k*k/4.*d*d)) * d;
+      return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*epsilon/PI*d))) * d;
+    //return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*d))) * d;
   }
-
 }; 
 
 // Special quadrature weights for Nystrom integrator
@@ -130,21 +118,40 @@ double SpecialQuadratureWeightForLog(double t, double tau, int n){
 }
 
 
-// Nystrom integrator (cf. single layer potential in from Colton &
-// Kress, p. 69) for
+// Nystrom integrator (cf. single layer potential formulation in
+// Colton & Kress, p. 69) for
 //
-// I(t) = \int_{c-eps}^{c+eps} 
-//          H_0^(1)(k*r(t,tau)) * \sqrt{x_1'(tau)^2+x_2'(tau)^2}
+// I(t) = \int_{a-eps}^{a+eps} 
+//            H_0^(1)(k*r(t,tau))
+//          * \sqrt{x_1'(tau)^2+x_2'(tau)^2}
 //          * f(tau) * pou(tau) dtau 
 //
-// where the integrand is made 2*eps-periodic thanks to the partition
-// of unity (pou), centered at c.
+// where the integrand is 2*eps-periodic thanks to the partition of
+// unity (pou), centered on 'a'.
 //
-complex<double> Nystrom(double t, Function *func, double kvec[3], 
-			int nbpnts, Scatterer *scat, Partition *part){
-  complex<double> res=0., f, m1, m2;
-  double xt[3], dxt[3], xtau[3], dxtau[3], tau, pou, w;
-  int j, n = nbpnts/2;
+// Nystrom integrator given in Colton & Kress being only valid for a
+// 2*PI-periodic integrand, from 0 to 2*PI, the change of variables
+// 
+// tau = (tau'-PI)*eps/PI+a
+// dtau = eps/PI*dtau'
+//
+// is applied, to give:
+//
+// I(t) = \int_{0}^{2*PI} 
+//            H_0^(1)(k*r(t,(tau-PI)*eps/PI+a))
+//          * \sqrt{x_1'((tau-PI)*eps/PI+a))^2+x_2'((tau-a)*eps/PI+a))^2}
+//          * f((tau-a)*eps/PI+a)) * pou((tau-a)*eps/PI+a)) 
+//          * eps/PI dtau 
+//
+// The decomposition of the logarithmic singularity is then made as in
+// Colton & Kress. Warning: the jacobian eps/PI also appears in the
+// decomposition of the kernel.
+//
+complex<double> Nystrom(int singular, double t, Function *func, double kvec[3], 
+			int nbpts, Scatterer *scat, Partition *part){
+  complex<double> res=0., f, m, m1, m2;
+  double xt[3], dxt[3], xtau[3], dxtau[3], tau, tau_orig, pou, w;
+  int j, n = nbpts/2;
   double k = NORM3(kvec);
   GFHelmholtzParametric2D kern;
 
@@ -152,19 +159,26 @@ complex<double> Nystrom(double t, Function *func, double kvec[3],
   scat->der(t,dxt);
 
   for(j=0 ; j<=2*n-1 ; j++){
-    tau = part->center+part->epsilon*(j/(double)n-1.);
+    tau_orig = TWO_PI*j/(2.*n);
+    tau = (tau_orig-PI)*part->epsilon/PI+part->center;
     scat->val(tau,xtau);
     scat->der(tau,dxtau);
     pou = part->val(tau);
     f = func->val(kvec,tau,xtau);
-    w = SpecialQuadratureWeightForLog(t,tau,n);
     kern.init(t,xt,dxt,tau,xtau,dxtau,k);
-    m1 = kern.M1();
-    m2 = kern.M2();
-    res += (w * m1 + PI/n * m2) * f * pou;
+    if(singular){ // combine special quadrature with trapezoidal
+      w = SpecialQuadratureWeightForLog(PI,tau_orig,n);
+      m1 = kern.M1();
+      m2 = kern.M2(tau_orig,part->epsilon);
+      res += (w * m1 + PI/(double)n * m2) * f * pou;
+    }
+    else{ // simple trapezoidal
+      m = kern.M();
+      res += (PI/(double)n * m) * f * pou;
+    }
   }
     
-  return res;
+  return part->epsilon/PI * res;
 }
 
 // Main routine
@@ -173,68 +187,118 @@ typedef enum Analysis {FULL, CRIT};
 
 int main(int argc, char *argv[]){
   complex<double> res;
-  double WaveNumber[3]={1600,0,0}, t;
-  int i, j, NbPoints=10000, NbTargetPoints=21;
+  double WaveNum[3]={1600,0,0}, t;
+  int i, j, NbIntPts=10000, NbTargetPts=20, Nc;
+  List_T *CritPts;
   Analysis Type=FULL;
   Scatterer scat;
   Partition part;
   Function f;
 
+  if(argc < 2){
+    Msg(INFO, "Usage: %s [-full|-critical] options...", argv[0]);
+    exit(1);
+  }
+
   i = 1;
   while (i < argc) {
     if (argv[i][0] == '-') {
-      if      (!strcmp(argv[i]+1, "full")){ Type = FULL; i++ ; }
-      else if (!strcmp(argv[i]+1, "crit")){ Type = CRIT; i++ ; }
-      else if (!strcmp(argv[i]+1, "n")){ 
-	i++;
-	if (i<argc && argv[i][0]!='-') { NbPoints = atoi(argv[i]); i++;	}
-	else{ Msg(ERROR, "Missing number"); }
+      if(Cmp(argv[i]+1, "full", 1)){ 
+	i++; Type = FULL; Msg(INFO, "Full Nystrom integrator");
       }
-      else if (!strcmp(argv[i]+1, "t")){
-	i++;
-	if (i<argc && argv[i][0]!='-') { NbTargetPoints = atoi(argv[i]); i++; }
-	else{ Msg(ERROR, "Missing number"); }
+      else if(Cmp(argv[i]+1, "critical", 1)){ 
+	i++; Type = CRIT; Msg(INFO, "Critical point integrator");
       }
-      else if (!strcmp(argv[i]+1, "k")){
-	i++;
-	if (i<argc && argv[i][0]!='-') { WaveNumber[0] = atof(argv[i]); i++; }
-	else{ Msg(ERROR, "Missing number"); }
+      else if(Cmp(argv[i]+1, "nbpts", 1)){ 
+	i++; NbIntPts = (int)GetNum(argc,argv,&i); 
+      }
+      else if(Cmp(argv[i]+1, "targets", 1)){ 
+	i++; NbTargetPts = (int)GetNum(argc,argv,&i); 
+      }
+      else if(Cmp(argv[i]+1, "k", 1)){	
+	i++; WaveNum[0] = GetNum(argc,argv,&i); 
       }
       else{
-	Msg(ERROR, "Unknown option");
+	Msg(ERROR, "Unknown option"); 
       }
     }
   }
 
+  Msg(INFO, "Options: -nbpts %d, -targets %d, -k %g", 
+      NbIntPts, NbTargetPts, WaveNum[0]);
+
   switch(Type){
-  case FULL :
-    Msg(INFO, "Full Nystrom integrator: %d int. pts, %d targets, k=(%g,%g,%g)", 
-	NbPoints, NbTargetPoints, WaveNumber[0], WaveNumber[1], WaveNumber[2]);
-    for(i=0 ; i<NbTargetPoints ; i++){
-      t = 2*PI*i/(NbTargetPoints-1);
-      part.init(t,PI,Partition::SHARP);
-      res = Nystrom(t,&f,WaveNumber,NbPoints,&scat,&part);
-      Msg(INFO, "I(%.15e) = %' '.15e %+.15e * i", t, res.real(), res.imag());
+
+  case FULL : {
+    for(i=0 ; i<NbTargetPts ; i++){
+      t = 2*PI*i/(double)NbTargetPts;
+      part.init(t,PI,PI); // stupid POU, equal to 1 everywhere in [-PI,PI]
+      res = Nystrom(1, t,&f,WaveNum,NbIntPts,&scat,&part);
+      Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i",
+	  i+1, t, res.real(), res.imag());
     }
     break;
-  case CRIT :
-    Msg(INFO, "Critical point integrator: %d int. pts, %d targets, k=(%g,%g,%g)", 
-	NbPoints, NbTargetPoints, WaveNumber[0], WaveNumber[1], WaveNumber[2]);
-    for(i=0 ; i<NbTargetPoints ; i++){
-      t = 2*PI*i/(NbTargetPoints-1);
-      double tau[3];
-      int Nc;
-      part.init(t,PI,Partition::EXP);
-      CriticalPointsCircle(t,tau,&Nc);
+  }
+
+  case CRIT : {
+    int nbpts;
+    double d, eps = 1., crest = 0.;//0.75*eps;
+    complex<double> tmp;
+
+    CritPts = List_Create(10,10,sizeof(double));
+   
+    for(i=0 ; i<NbTargetPts ; i++){
+      t = 2*PI*i/(double)NbTargetPts;
+      List_Reset(CritPts);
+      CriticalPointsCircle(t,CritPts);
+      Nc = List_Nbr(CritPts);
       Msg(INFO, "I(%.15e)", t);
-      for(j=0 ; j<Nc ; j++) Msg(INFO, "  Critical Point %d = %.15e", j, tau[j]);
+      for(j=0 ; j<Nc ; j++) {
+	List_Read(CritPts,j,&d);
+	Msg(INFO, "Critical Point %d = %.15e", j, d);
+      }
+
+      part.init(t,eps,crest);
+      nbpts = (int)(2*eps/TWO_PI*NbIntPts);
+      Msg(INFO, "-> integration points: %d", nbpts);
+      tmp = Nystrom(1, t,&f,WaveNum,nbpts,&scat,&part);
+      Msg(INFO, "I.Singular (%d: %.7e) = %' '.15e %+.15e * i", 
+	  i+1, t, tmp.real(), tmp.imag());
+
+      
+
+      //merge crit points intervals
+      //part.init(t,epsilon,crest);
     }
+
+    List_Delete(CritPts);
+
+    /* test critical on target=Pi
+    t = PI;
+    part.init(t,eps,crest);
+    nbpts = (int)(2*eps/TWO_PI*NbIntPts);
+    Msg(INFO, "-> integration points: %d", nbpts);
+    res1 = Nystrom(1, t,&f,WaveNum,nbpts,&scat,&part);
+    Msg(INFO, "I sing (%.15e) = %' '.15e %+.15e * i", t, res1.real(), res1.imag());
+    
+    part.init(2*PI,sqrt(eps),sqrt(crest));
+    nbpts = (int)(2*sqrt(eps)/TWO_PI*NbIntPts);
+    Msg(INFO, "-> integration points: %d", nbpts);
+    res2 = Nystrom(0, t,&f,WaveNum,nbpts,&scat,&part);
+    Msg(INFO, "I crit (%.15e) = %' '.15e %+.15e * i", t, res2.real(), res2.imag());
+
+    res = res1+res2;
+    Msg(INFO, "I(%.15e) = %' '.15e %+.15e * i", t, res.real(), res.imag());
+    */
     break;
+  }
+
   default :
     Msg(ERROR, "Unknown analysis type");
     break;
+    
   }
-
+  
   return 0;
 }
 
