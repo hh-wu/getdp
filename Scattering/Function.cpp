@@ -1,4 +1,4 @@
-// $Id: Function.cpp,v 1.14 2002-06-07 23:45:25 geuzaine Exp $
+// $Id: Function.cpp,v 1.15 2002-06-12 00:24:10 geuzaine Exp $
 
 #include "Utils.h"
 #include "Function.h"
@@ -46,6 +46,20 @@ Complex Function::ansatz(double k[3], double xt[3], double xtau[3]){
   }
 }
 
+Complex Function::density(Scatterer *scat, int index, double tau){
+  Patch *p;
+
+  switch(type){
+  case ANALYTIC :
+    return density(scat, tau);
+  default :
+    p = (Patch*)List_Pointer(scat->patches,0);
+    //printf("nbdof=%d index=%d val=%g\n", p->nbdof, index,  p->localVals[index].real());
+    return p->localVals[index];
+  }
+
+}
+
 Complex Function::density(Scatterer *scat, double tau){
   int k;
   Complex val;
@@ -87,6 +101,29 @@ Complex Function::density(Scatterer *scat, double tau){
   }
 }
 
+// leonid's chg of vars
+// maps [0,2pi] into [0,2pi] and behaves as  x^4 on the both ends.
+
+double leonid(double s){
+  double res, si;
+
+  si = sin(s/2.-PI/2.);
+  res = PI+2*PI*si/(1+SQU(si));
+
+  return res;
+}
+
+double dleonidds(double s){
+  double res, si,co;
+
+  si = sin(s/2.-PI/2.);
+  co = cos(s/2.-PI/2.);
+  res = PI*CUB(co)/SQU(1+SQU(si));
+
+  return res;
+}
+
+
 // Colton & Kress p. 74
 
 #define PP 8 // chg var order
@@ -115,7 +152,6 @@ double w(double s, int p){
     s = s - TWO_PI;
     where = 1;
   }
-  //s = GetInInterval(s, 0., TWO_PI);
 
   vsp = pow(v(s,p),p);
   res = TWO_PI * vsp/(vsp+pow(v(TWO_PI-s,p),p));
@@ -143,7 +179,6 @@ double dwds(double s, int p){
   else{
     s = s - TWO_PI;
   }
-  //s = GetInInterval(s, 0., TWO_PI);
 
   vsp = pow(v(s,p),p);
   res = TWO_PI * p * (pow(v(s,p),p-1) * dvds(s,p) * pow(v(TWO_PI-s,p),p) +

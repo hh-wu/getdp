@@ -13,6 +13,7 @@ public:
 
   Complex ansatz(double k[3], double xt[3], double xtau[3]);
   Complex density(Scatterer *scat, double tau);
+  Complex density(Scatterer *scat, int index, double tau);
   double chgVar(double u, double *t);
   void invChgVar(double t, double *u);
 };
