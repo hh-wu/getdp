@@ -1,4 +1,4 @@
-/* $Id: Data_Element.h,v 1.4 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Data_Element.h,v 1.5 2000-10-02 08:20:31 geuzaine Exp $ */
 #ifndef _DATA_ELEMENT_H_
 #define _DATA_ELEMENT_H_
 
@@ -65,20 +65,20 @@ struct Element {
 } ;
 
 /* Element.Type */
-#define POINT                1
-#define LINE                 2
-#define TRIANGLE             4
-#define QUADRANGLE           8
-#define TETRAHEDRON         16
-#define HEXAHEDRON          32
-#define PRISM               64
-#define PYRAMID            128
-#define LINE_2             256
-#define TRIANGLE_2         512
-#define QUADRANGLE_2      1024
-#define TETRAHEDRON_2     2048
-#define HEXAHEDRON_2      4096
-#define PRISM_2           8192
-#define PYRAMID_2        16384
+#define POINT            (1<<0)
+#define LINE             (1<<1)
+#define TRIANGLE         (1<<2)
+#define QUADRANGLE       (1<<3)
+#define TETRAHEDRON      (1<<4)
+#define HEXAHEDRON       (1<<5)
+#define PRISM            (1<<6)
+#define PYRAMID          (1<<7)
+#define LINE_2           (1<<8)
+#define TRIANGLE_2       (1<<9)
+#define QUADRANGLE_2     (1<<10)
+#define TETRAHEDRON_2    (1<<11)
+#define HEXAHEDRON_2     (1<<12)
+#define PRISM_2          (1<<13)
+#define PYRAMID_2        (1<<14)
 
 #endif
