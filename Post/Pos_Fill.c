@@ -158,11 +158,11 @@ void Pos_CutPostElement(struct PostElement * PE, struct Geo_Element * GE,
   }
   else{
 
+    Get_InitDofOfElement(&E) ;
     E.GeoElement = GE ;
     E.Num = E.GeoElement->Num ;
     E.Type = E.GeoElement->Type ;
     E.Region = E.GeoElement->Region ;
-
     Get_NodesCoordinatesOfElement(&E) ;
 
     for(i = 0 ; i < PE->NbrNodes ; i++){

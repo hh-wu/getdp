@@ -252,6 +252,8 @@ void Cal_PostCumulativeQuantity(List_T                 *Region_L,
   NbTimeStep = List_Nbr(TimeStep_L) ; 
   NbElement = Geo_GetNbrGeoElements() ;
 
+  Get_InitDofOfElement(&Element) ;
+
   for(i = 0 ; i < NbTimeStep ; i++) Cal_ZeroValue(&Value[i]);
   
   for(i = 0 ; i < NbElement ; i++) {    
@@ -362,6 +364,18 @@ void Destroy_PostElement(struct PostElement * PostElement){
   Free(PostElement) ;
 }
 
+List_T * SkinPostElement_L ;
+int      SkinDepth ;
+
+void Cut_SkinPostElement(void *a, void *b){
+  struct PostElement  * PE ;
+  
+  PE = *(struct PostElement**)a ;
+
+  Pos_CutPostElement(PE, Geo_GetGeoElement(PE->Index), SkinPostElement_L, 
+		     PE->Index, SkinDepth, 0, 1) ;
+}
+
 void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 		       struct PostQuantity     *CPQ_P,
 		       int                      Order,
@@ -380,7 +394,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   double  * Error, Dummy[5], d ;
   int       ii, jj, kk, NbrGeo, iGeo, incGeo, NbrPost, iPost ;
   int       NbrTimeStep, iTime, NbrSmoothing, iNode ;
-  int       Store = 0, DecomposeInSimplex = 0 ;
+  int       Store = 0, DecomposeInSimplex = 0, Depth ;
 
 
   /* Select the TimeSteps */
@@ -405,6 +419,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   Region_L = ((struct Group *)
 	      List_Pointer(Problem_S.Group, 
 			   PostSubOperation_P->Case.OnRegion.RegionIndex))->InitialList ;
+  Get_InitDofOfElement(&Element) ;
 
   /* Compute the Cumulative quantity, if any */
 
@@ -469,6 +484,13 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 
   if(Store){
     
+    /* If we have a Skin, we will divide after the skin extraction */
+
+    if(PostSubOperation_P->Skin && PostSubOperation_P->Depth > 1)
+      Depth = 1;
+    else
+      Depth = PostSubOperation_P->Depth;
+    
     /* Generate all PostElements */
 
     for(iGeo = 0 ; iGeo < NbrGeo ; iGeo += incGeo) {
@@ -477,7 +499,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
       Element.GeoElement = Geo_GetGeoElement(iGeo) ;
       if(List_Search(Region_L, &Element.GeoElement->Region, fcmp_int)){
 	Pos_FillPostElement(Element.GeoElement, PostElement_L, iGeo,
-			    PostSubOperation_P->Depth, PostSubOperation_P->Skin,
+			    Depth, PostSubOperation_P->Skin,
 			    DecomposeInSimplex) ;
       }
     }
@@ -489,7 +511,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 
       for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){
 	if(InteractiveInterrupt) break;
-	Progress(iPost, List_Nbr(PostElement_L), "Extract: ") ;
+	Progress(iPost, List_Nbr(PostElement_L), "Skin: ") ;
 	PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost) ;
 	if(Tree_Query(PostElement_T, &PE)){
 	  Tree_Suppress(PostElement_T, &PE);
@@ -499,15 +521,23 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 	  Tree_Add(PostElement_T, &PE);
       }
       
-      List_Delete(PostElement_L);
-      PostElement_L = Tree2List(PostElement_T);
-      Tree_Delete(PostElement_T);
+      if(PostSubOperation_P->Depth > 1){
+	List_Reset(PostElement_L);
+	SkinPostElement_L = PostElement_L ;
+	SkinDepth = PostSubOperation_P->Depth ;
+	Tree_Action(PostElement_T, Cut_SkinPostElement) ;
+	Tree_Delete(PostElement_T);
+      }
+      else{
+	List_Delete(PostElement_L);
+	PostElement_L = Tree2List(PostElement_T);
+	Tree_Delete(PostElement_T);
+      }
+      
     }
 
   }
   
-  Get_InitDofOfElement(&Element) ;
-
   /* Loop on GeoElements */
   
   for(iGeo = 0 ; iGeo < NbrGeo ; iGeo += incGeo) {
