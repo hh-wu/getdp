@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.14 2002-02-14 00:32:14 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.15 2002-02-14 00:59:44 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -426,12 +426,13 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
     
   }
 
-  Msg(INFO, "out = [");
+  // matlab output
+  printf("out = [\n");
   for(i=0; i<List_Nbr(reslist); i++){
     List_Read(reslist, i, &res);
-    Msg(INFO, "%.15e + (%.15ei)", res.real(), res.imag());
+    printf("%.15e + (%.15ei)\n", res.real(), res.imag());
   }
-  Msg(INFO, "]");
+  printf("]\n");
 
   List_Delete(reslist);
   
