@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2001-03-02 20:49:12 geuzaine Exp $
+# $Id: Makefile,v 1.10 2001-07-26 10:23:34 geuzaine Exp $
 #
 # Makefile for 'libParser.a'
 # 
@@ -51,13 +51,13 @@ nodepend:
 
 # DO NOT DELETE THIS LINE
 GetDP.yy.o: GetDP.yy.c ../Main/Data_Passive.h ../DataStr/List.h \
-  ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
-  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h Constant.h \
-  ../DataStr/Malloc.h GetDP.tab.h
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
+ ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+ Constant.h ../DataStr/Malloc.h GetDP.tab.h
 GetDP.tab.o: GetDP.tab.c ../Main/Data_Passive.h ../DataStr/List.h \
-  ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
-  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../Main/Data_Active.h ../Main/Data_DefineE.h ../DataStr/Malloc.h \
-  ../DataStr/Tools.h ../Main/Init_Problem.h ../Function/BF_Function.h \
-  ../Integration/Quadrature.h ../Main/Cal_Value.h Constant.h \
-  ../include/Magic.h
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
+ ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+ ../Main/Data_Active.h ../Main/Data_DefineE.h ../DataStr/Malloc.h \
+ ../DataStr/Tools.h ../Main/Init_Problem.h ../Function/BF_Function.h \
+ ../Integration/Quadrature.h ../Main/Cal_Value.h Constant.h \
+ ../include/Magic.h
