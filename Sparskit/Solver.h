@@ -68,9 +68,6 @@ typedef struct {
   double  *a, *lu;
 }Dense_Matrix;
 
-/* Il n'y a plus d'union, car le transfert du format Dense au
-   format Sparse peut etre effectue au cours d'une resolution */
-
 typedef struct{
   int T, N, changed, ILU_Exists, notranspose;
   Sparse_Matrix   S; 
@@ -99,11 +96,14 @@ typedef struct {
 }Solver_Params;
 
 
-/* matrix.c */
+/* Parser.c */
+
+void init_solver (Solver_Params *p , char *name) ;
+
+/* Matrix.c */
 
 void init_matrix (int Nb, Matrix *M, Solver_Params *p);
 void init_vector (int Nb, double **V);
-void init_solver (Solver_Params *p , char *name) ;
 
 void zero_matrix (Matrix *M);
 void zero_vector (int Nb, double *V);
@@ -150,16 +150,14 @@ void print_matrix_info_CSR (int N, int *jptr, int *ai);
 void print_matrix_info_MSR (int N, scalar *a, int *jptr);
 void print_matrix_info_DENSE (int N);
 
-/* sort.c */
+/* CSR.c */
 
 void csr_format (Sparse_Matrix *M, int N);
 void restore_format (Sparse_Matrix *M);
 
-/* solver.c */
+/* Solver.c */
 
 void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x);
-void solve_complex_matrix (Sparse_Matrix *M, int N, Solver_Params *p, double *b, double *x);
-
 void print_parametres (Solver_Params *p);
 
 

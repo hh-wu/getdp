@@ -5,6 +5,7 @@
 
 #include "Solver.h"
 #include "ualloc.h"
+#include "Message.h"
 
 #define REEL    1
 #define ENTIER  2
@@ -266,7 +267,7 @@ void init_solver (Solver_Params *p , char *name){
 	if(buff[0] == '/' && buff[1] == '*'){
 	  while(1){
 	    if(feof(pSOLVER_PAR)){
-	      printf("SOLVER.PAR Warning : fin de commentaire non detectee \n");
+	      Msg(WARNING, "End of Comment not Detected");
 	      return;
 	    }
 	    if((getc(pSOLVER_PAR)=='*')&&(getc(pSOLVER_PAR)=='/')){
@@ -275,7 +276,7 @@ void init_solver (Solver_Params *p , char *name){
 	  }
 	}
 	else{
-	  printf("SOLVER.PAR Warning : parametre %s inconnu \n",buff);
+	  Msg(WARNING, "Unknown Parameter %s", buff);
 	  fscanf(pSOLVER_PAR,"%s",buff);
 	}
       }

@@ -677,60 +677,9 @@ void formatted_read_vector (int Nb, double *V, char *name, char *ext, int style)
   fclose(pfile) ;
 }
 
-
-
 /* ------------------------------------------------------------------------ */
-/*  p r i n t                                                               */
+/*  p r i n t _ m a t r i x _ i n f o _ X X X                               */
 /* ------------------------------------------------------------------------ */
-
-void print_matrix (Matrix *M){
-  
-  int *ptr,*ai,i,*jptr;
-  double *a;
-  
-  switch (M->T) {
-  case SPARSE :
-    a = (double*)M->S.a->array;
-    ai = (int*)M->S.ai->array;
-    ptr = (int*)M->S.ptr->array;
-    jptr = (int*)M->S.jptr->array;
-    
-    printf(" taille : %d  \n",M->N);
-    printf(" ai  ptr  a  \n");
-    for(i=0;i<List_Nbr(M->S.a);i++){
-      printf("%5d %5d %12.5E\n",ai[i],ptr[i],a[i]);
-    }
-    printf("debut de lignes :");
-    for(i=0;i<M->N;i++){
-      printf(" %d",jptr[i]);
-    }
-    printf("\n");
-    break;
-
-  case DENSE :
-    for(i=0;i<(M->N)*(M->N);i++){
-      printf("a[%d] = %g \n", i, M->F.a[i]);
-    }
-    break;
-
-  }
-}
-
-
-void print_vector (double *v, int N){
-  int i;
-  for(i=0;i<N;i++){
-    printf("%5d %12.5E\n",i,v[i]);
-  }
-}
-
-void print_vector_int (int *v, int N){
-  int i;
-  for(i=0;i<N;i++){
-    printf("%5d %d \n",i,v[i]);
-  }
-}
-
 
 int maximum (int a, int b) {
   if (a>b) 
