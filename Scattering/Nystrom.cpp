@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.11 2002-02-13 22:53:36 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.12 2002-02-13 23:54:11 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,7 +18,7 @@
 
 int Verbose = 2;
 using namespace std;
-typedef enum Analysis {FULL, CRITICAL, INTERACTIVE};
+typedef enum Analysis {FULL, CRITICAL, INTERACT1, INTERACT2};
 
 // Function to integrate
 
@@ -223,12 +223,12 @@ int fcmp_Interval(const void * a, const void * b) {
 
 void Integrate(Analysis typ, Function *f, Scatterer *scat, 
 	       double kv[3], int nbtarget, double t0, int nbpts, 
-	       double eps, double rise){
+	       double prescribed_eps, double rise){
   Partition part, part2;
   Interval I, *pI;
   List_T *CritPts, *Intervals;
   complex<double> res, tmp, tmp2;
-  double t, d;
+  double t, d, eps, s_eps;
   int i, j, nb, s_index, i_index;
   List_T *reslist;
 
@@ -247,7 +247,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
     }
     break;
 
-  case INTERACTIVE :
+  case INTERACT1 :
     CritPts = List_Create(10,10,sizeof(double));
 
     for(i=0 ; i<nbtarget ; i++){
@@ -256,11 +256,12 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
       CriticalPointsCircle(t,CritPts);
       List_Insert(CritPts, &t, fcmp_double);
       s_index = List_ISearch(CritPts, &t, fcmp_double);
+      printf("Target = %g\n", t);
       for(j=0 ; j<List_Nbr(CritPts) ; j++) {
 	List_Read(CritPts,j,&d);
 	printf("%d (%s) = %g\n", j, (j==s_index)?"sing":"crit", d);
       }
-      printf("Point number? "); scanf("%d", &i_index);
+      printf("Pt num to integrate around? "); scanf("%d", &i_index);
       printf("Epsilon? "); scanf("%lf", &eps);
       printf("Rise? "); scanf("%lf", &rise);
       printf("Number of integration points? "); scanf("%d", &nb);
@@ -269,7 +270,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
       j = (s_index==i_index);
       Msg(DEBUG, "%s int. : %d pts in [%g , %g]", j ? "Sing." : "Crit.", nb, d-eps, d+eps);
       res = Nystrom(j,t,f,kv,nb,scat,&part);
-      Msg(INFO, "I**(%.7e) = %' '.15e %+.15e * i", t, res.real(), res.imag());
+      Msg(INFO, "I = %' '.15e %+.15e * i", res.real(), res.imag());
       List_Add(reslist, &res);
     }
     
@@ -277,6 +278,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
     break;
     
   case CRITICAL :
+  case INTERACT2 :
     CritPts = List_Create(10,10,sizeof(double));
     Intervals = List_Create(10,10,sizeof(Interval));
    
@@ -296,16 +298,19 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
       for(j=0 ; j<List_Nbr(CritPts) ; j++) {
 	List_Read(CritPts,j,&d);
 	I.num = j;
-	if(j == s_index){ // singular (target) point
-	  I.min = d-eps;
-	  I.max = d+eps;
-	  Msg(DEBUG, "  - target     = %.15e -> [%g,%g]", d, I.min, I.max);
+	if(typ == INTERACT2){
+	  printf("Epsilon for t=%g?\n", d); 
+	  scanf("%lf", &eps);
+	  if(j == s_index) s_eps = eps;
 	}
-	else{ // critical point
-	  I.min = d-sqrt(eps);
-	  I.max = d+sqrt(eps);
-	  Msg(DEBUG, "  - crit. pt %d = %.15e -> [%g,%g]", j, d, I.min, I.max);
+	else{
+	  if(j == s_index) eps = s_eps = prescribed_eps;
+	  else eps = sqrt(prescribed_eps);
 	}
+	I.min = d-eps;
+	I.max = d+eps;
+	Msg(DEBUG, "  - %s pt %d = %.15e -> [%g,%g]", 
+	    (j == s_index) ? "target" : "crit.", j, d, I.min, I.max);
 	if((pI = (Interval*)List_PQuery(Intervals, &I, fcmp_Interval))){
 	  if(j == s_index) pI->num = s_index;
 	  pI->min = MIN(pI->min, I.min);
@@ -352,20 +357,32 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	List_Read(Intervals, j, &I);
 
 	if(I.num==s_index){
-	  part.init(t,eps,rise);
-	  nb = (int)(2*eps/TWO_PI*nbpts);//change this
-	  Msg(DEBUG, "  - singular int. : %d pts in [%g , %g]", nb, t-eps, t+eps);
+	  part.init(t,s_eps,rise);
+	  if(typ == INTERACT2){
+	    printf("Int. Pts for singular? "); 
+	    scanf("%d", &nb);
+	  }
+	  else{
+	    nb = (int)(2*s_eps/TWO_PI*nbpts); // change this
+	  }
+	  Msg(DEBUG, "  - singular int. : %d pts in [%g , %g]", nb, t-s_eps, t+s_eps);
 	  tmp = Nystrom(1,t,f,kv,nb,scat,&part);
 	  Msg(DEBUG, "    IS = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
 	  
 	  // if the singular integration is embedded in a larger one
-	  if((I.max-I.min) > 2.*eps) {
+	  if((I.max-I.min) > 2.*s_eps) {
 	    part.init((I.min+I.max)/2,(I.max-I.min)/2.,rise);
 	    part.subparts = List_Create(1,1,sizeof(Partition));
-	    part2.init(t,eps,rise);
+	    part2.init(t,s_eps,rise);
 	    List_Add(part.subparts, &part2);
-	    nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts); // change this
-	    Msg(DEBUG, "  - critical int. in [%g,%g] \\ [%g,%g]",I.min,I.max,t-eps, t+eps);
+	    if(typ == INTERACT2){
+	      printf("Int. Pts for special critical? "); 
+	      scanf("%d", &nb);
+	    }
+	    else{
+	      nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts); // change this
+	    }
+	    Msg(DEBUG, "  - critical int. in [%g,%g] \\ [%g,%g]",I.min,I.max,t-s_eps, t+s_eps);
 	    tmp2 = Nystrom(0,t,f,kv,nb,scat,&part);
 	    Msg(DEBUG, "    IC* = %' '.15e %+.15e * i", tmp2.real(), tmp2.imag());
 	    List_Delete(part.subparts);
@@ -376,7 +393,13 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	}
 	else{
 	  part.init((I.min+I.max)/2.,(I.max-I.min)/2.,rise);
-	  nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts);//change this
+	  if(typ == INTERACT2){
+	    printf("Int. Pts for critical? "); 
+	    scanf("%d", &nb);
+	  }
+	  else{
+	    nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts);//change this
+	  }
 	  Msg(DEBUG, "  - critical int.: %d pts in [%g , %g]", nb, I.min, I.max);
 	  tmp = Nystrom(0,t,f,kv,nb,scat,&part);
 	  Msg(DEBUG, "    IC = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
@@ -424,7 +447,7 @@ int main(int argc, char *argv[]){
   Function f;
 
   if(argc < 2){
-    Msg(INFO, "Usage: %s [-full|-critical] options...", argv[0]);
+    Msg(INFO, "Usage: %s [-f|-c|-i] options...", argv[0]);
     exit(1);
   }
 
@@ -437,8 +460,11 @@ int main(int argc, char *argv[]){
       else if(Cmp(argv[i]+1, "critical", 1)){ 
 	i++; Type = CRITICAL; Msg(INFO, "Critical point integrator");
       }
-      else if(Cmp(argv[i]+1, "interactive", 1)){ 
-	i++; Type = INTERACTIVE; Msg(INFO, "Interactive integrator");
+      else if(Cmp(argv[i]+1, "i1", 2)){ 
+	i++; Type = INTERACT1; Msg(INFO, "Interactive integrator");
+      }
+      else if(Cmp(argv[i]+1, "i2", 2)){ 
+	i++; Type = INTERACT2; Msg(INFO, "Interactive critical point integrator");
       }
       else if(Cmp(argv[i]+1, "nbpts", 1)){ 
 	i++; NbIntPts = (int)GetNum(argc,argv,&i); 
