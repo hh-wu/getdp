@@ -209,7 +209,7 @@ void  SolvingAnalyse (void) {
 
   }  
 
-  Msg(RESOURCES, "");
+  Msg(SUMMARY, "");
   Msg(DIRECT, "E n d   P r e - P r o c e s s i n g");
 
   /* ------------- */
@@ -252,7 +252,7 @@ void  SolvingAnalyse (void) {
 
     Dof_CloseFile(DOF_PRE) ;
 
-    Msg(RESOURCES, "");
+    Msg(SUMMARY, "");
     Msg(DIRECT, "E n d   P a r t i t i o n n i n g");
   }
 
@@ -407,7 +407,7 @@ void  SolvingAnalyse (void) {
       i++ ;
     }
 
-    Msg(RESOURCES, "");
+    Msg(SUMMARY, "");
     Msg(DIRECT, "E n d   P o s t - P r o c e s s i n g");
   }
 
