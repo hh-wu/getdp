@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.28 2000-10-30 09:04:06 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.29 2000-10-30 10:19:30 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1226,12 +1226,17 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   }
   else { /* There is one non-cumulative */
 #endif
-    /* Il vaut mieux supprimer cela ...
-    if (List_Nbr(NCPQ_P->PostQuantityTerm) &&
-	((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
-	->Type != GLOBALQUANTITY)
+    /* Il vaut mieux supprimer cela ... ou plutot l'entendre comme cela : */
+    if (!Support_L &&
+	List_Nbr(NCPQ_P->PostQuantityTerm) &&
+	(
+	 ((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
+	 ->Type == LOCALQUANTITY &&
+	 ((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
+	 ->EvaluationType == LOCAL)
+	)
       Msg(ERROR, "Print OnRegion not valid for PostQuantity '%s'", NCPQ_P->Name);
-    */
+
     Region_L =  (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
       ((struct Group *)
        List_Pointer(Problem_S.Group, 
