@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_LaplacexForm.c,v 1.8 2002-10-21 09:04:17 sabarieg Exp $"
+#define RCSID "$Id: GF_LaplacexForm.c,v 1.9 2002-10-21 15:37:44 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -508,6 +508,13 @@ void GF_GradLaplacexForm (F_ARG2) {
     case TRIANGLE : 
       Val->Type = VECTOR ;
 
+      xs[0] = Element->ElementSource->x[0] ; ys[0] = Element->ElementSource->y[0] ;
+      zs[0] = Element->ElementSource->z[0] ;
+      xs[1] = Element->ElementSource->x[1] ; ys[1] = Element->ElementSource->y[1] ;
+      zs[1] = Element->ElementSource->z[1] ;
+      xs[2] = Element->ElementSource->x[2] ; ys[2] = Element->ElementSource->y[2] ;
+      zs[2] = Element->ElementSource->z[2] ;
+      
       if(xFunctionBF == (CAST)BF_Volume) Type_Int = 1 ;
       if(xFunctionBF == (CAST)BF_Node)   Type_Int = 2 ;
 
@@ -801,11 +808,12 @@ void GF_NPxGradLaplacexForm (F_ARG2) {
   case _3D:
     switch (Element->ElementSource->Type) {
     case TRIANGLE :
-      Geo_CreateNormal(Element->ElementSource->Type,
-		       Element->ElementSource->x,Element->ElementSource->y,Element->ElementSource->z, N);
+      Geo_CreateNormal(Element->Type,
+		       Element->x,Element->y,Element->z, N);
 
+      // printf("Normal %e %e %e\n",N[0],N[1],N[2]);
       GF_GradLaplacexForm(Element, Fct, xFunctionBF, NumEntity, x, y, z, &ValGrad) ;
-      
+      //printf("ValGrad %e %e %e\n", ValGrad.Val[0],ValGrad.Val[0], ValGrad.Val[0]);
       Val->Val[0] = N[0]*ValGrad.Val[0] + N[1]*ValGrad.Val[1] + N[2]*ValGrad.Val[2] ;
       break ;
     default :
