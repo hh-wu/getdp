@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.109 2003-01-25 03:06:08 geuzaine Exp $
+# $Id: Makefile,v 1.110 2003-01-26 06:55:33 geuzaine Exp $
 
 # ----------------------------------------------------------------------
 #  Optional packages: 
@@ -12,10 +12,6 @@
 #  ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/*extra*) in
 #  the /mingw directory, and then compile with 'make mingw'.
 #  To check the final dependendies: 'objdump -p getdp-win | grep DLL'
-# ----------------------------------------------------------------------
-#  cvs access with passord:
-#  1) define CVS_RHS=ssh in your shell
-#  2) cvs -d username@cvs.geuz.org:/cvsroot checkout getdp
 # ----------------------------------------------------------------------
 
 GETDP_MAJOR_VERSION = 0
