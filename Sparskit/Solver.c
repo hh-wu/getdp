@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.24 2004-01-19 16:51:28 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.25 2004-03-05 18:18:05 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -240,7 +240,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     
     if (p->Re_Use_ILU) M->ILU_Exists = 1;
     
-#if defined(_ILU_FLOAT)
+#if defined(HAVE_ILU_FLOAT)
 #define ILUSTORAGE "Float"
 #else
 #define ILUSTORAGE "Double"

@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.59 2004-02-29 05:59:18 geuzaine Exp $
+@c $Id: getdp.texi,v 1.60 2004-03-05 18:18:06 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 @c
@@ -37,8 +37,8 @@
 @c =========================================================================
 @c %**start of header
 @setfilename        getdp.info
-@set EDITION        3.2
-@set GETDP-VERSION  0.90
+@set EDITION        4.0
+@set GETDP-VERSION  1.0
 @set GETDP-WEB      @uref{http://www.geuz.org/getdp/}
 @set GMSH-WEB       @uref{http://www.geuz.org/gmsh/}
 @set COPYRIGHT      @copyright{} 1997-2004 Patrick Dular, Christophe Geuzaine
@@ -440,7 +440,6 @@ examples}.
 @c from the web site.
 
 
-
 @c =========================================================================
 @c Overview
 @c =========================================================================
@@ -630,6 +629,8 @@ same line is ignored.
 
 See @ref{Constants}, for the definition of the character expression
 @var{expression-char}.
+
+@c todo: give the syntax for loops and tests (if/endif, for/endfor)
 
 @c -------------------------------------------------------------------------
 @c Which Problems can GetDP actually solve?
@@ -5791,39 +5792,6 @@ the numbering of the equations given in the @file{.pre} file
 
 
 @c =========================================================================
-@c Programming Comments
-@c =========================================================================
-
-@c todo: ceci peut constituer une intro a un futur guide de programmation
-@c dans GetDP... Attendons un peu que les sources soit rendues publiques
-@c sous GPL :-)
-
-@c @node Programming comments, Syntactic rules, Working philosophy, Overview
-@c @chapter Programming comments
-
-@c @cindex Programming comments
-@c @cindex Language
-@c @cindex C
-@c @cindex C++
-@c @cindex @code{lex}
-@c @cindex @code{flex}
-@c @cindex @code{yacc}
-@c @cindex @code{bison}
-
-@c The analysis of the syntax is performed by Lex and Yacc, the software
-@c being written in C. C permits the manipulation of data structures and
-@c function pointers in ways that Fortran simply does not allow. ANSI C is
-@c a complete standard that all modern C compilers support, and the
-@c language is identical on all machines. It would be natural and
-@c reasonable to have coded GetDP in C++; we have opted to use C instead,
-@c since C++ is still evolving and compilers on different machines still
-@c present differences on advanced features. Using C function pointers to
-@c provide data encapsulation and polymorphism has allowed us to get many
-@c of the advantages of C++ without using such a large and more complicated
-@c language.
-
-
-@c =========================================================================
 @c Bugs, versions and credits
 @c =========================================================================
 
@@ -5963,7 +5931,7 @@ examples of @ref{Complete examples}.
 @verbatiminclude Core.geo
 
 @c =========================================================================
-@c GNU GPL
+@c License
 @c =========================================================================
 
 @node  License, Concept index, Gmsh examples, Top

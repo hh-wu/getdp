@@ -24,7 +24,7 @@
 
 #include "Compat.h"
 
-#ifdef _UNDERSCORE
+#if defined(HAVE_UNDERSCORE)
 #define solcyl_     solcyl
 #define solsph_     solsph
 #define cglt2d_     cglt2d

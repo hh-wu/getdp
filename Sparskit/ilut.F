@@ -1,13 +1,13 @@
-c $Id: ilut.F,v 1.3 2001-04-05 06:30:01 geuzaine Exp $
+c $Id: ilut.F,v 1.4 2004-03-05 18:18:06 geuzaine Exp $
 c----------------------------------------------------------------------c
 c The file has been renamed from ilut.f to ilut.F to permit            c
 c preprocessing by 'cpp'                                               c
 c The '-cpp' flag is not standard                                      c
 c                                                                      c
 c WARNING: the preprocessing is NOT done under AIX with the native C   c
-c          compiler -> you CANNOT use the -D_ILU_FLOAT option.         c
+c          compiler -> you CANNOT use the -DHAVE_ILU_FLOAT option.     c
 c----------------------------------------------------------------------c
-#ifndef _ILU_FLOAT
+#ifndef HAVE_ILU_FLOAT
 #define scalar real*8
 #else
 #define scalar real*4

@@ -24,7 +24,7 @@
 
 #include "Compat.h"
 
-#ifdef _UNDERSCORE
+#if defined(HAVE_UNDERSCORE)
 #define etime_      etime
 #define ilut_       ilut
 #define ilutp_      ilutp

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.150 2004-01-19 16:51:12 geuzaine Exp $
+# $Id: Makefile,v 1.151 2004-03-05 18:18:03 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -21,8 +21,8 @@
 
 include variables
 
-GETDP_MAJOR_VERSION = 0
-GETDP_MINOR_VERSION = 91
+GETDP_MAJOR_VERSION = 1
+GETDP_MINOR_VERSION = 0
 GETDP_PATCH_VERSION = 0
 
 GETDP_VERSION_FILE = include/GetDPVersion.h
@@ -84,7 +84,7 @@ parser:
 
 depend:
 	for i in ${GETDP_DIRS};\
-          do (cd $$i && ${MAKE} depend "SOLVER=-D_SPARSKIT -DHAVE_GSL");\
+          do (cd $$i && ${MAKE} depend "SOLVER=-DHAVE_SPARSKIT -DHAVE_GSL");\
         done
 
 nodepend:
@@ -111,7 +111,7 @@ purge:
 
 tgz:
 	if (test -f ${GETDP_ARCHIVE}.tar.gz); \
-	then mv -f ${GETDP_ARCHIVE}.tar.gz ${GETDP_ARCHIVE}.tar.gz~; \
+	  then mv -f ${GETDP_ARCHIVE}.tar.gz ${GETDP_ARCHIVE}.tar.gz~; \
 	fi
 	tar cvf ${GETDP_ARCHIVE}.tar ${GETDP_SOURCES}
 	gzip ${GETDP_ARCHIVE}.tar
@@ -199,6 +199,10 @@ source: source-common
                                             ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
 	tar zcvf getdp-${GETDP_RELEASE}-source.tgz getdp-${GETDP_RELEASE}
 
+source-nightly: source
+	rm -rf getdp-${GETDP_RELEASE}
+	mv getdp-${GETDP_RELEASE}-source.tgz getdp-nightly-source.tgz
+
 source-commercial: source-common
 	cd getdp-${GETDP_RELEASE} && rm -rf Scattering utils doc/slides\
                                             ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
@@ -213,13 +217,15 @@ rpm:
 blackbox: initialtag
 	@for i in ${GETDP_DIRS}; \
         do (cd $$i && ${MAKE} \
-           "C_FLAGS=${C_FLAGS} -D_BLACKBOX" \
+           "C_FLAGS=${C_FLAGS} -DHAVE_BLACKBOX" \
         ); done
 	${LINKER} -o bin/getdp-box ${GETDP_LIBS}
 
 compile-hf: initialtag
 	@for i in Scattering DofData Numeric DataStr NR; do (cd $$i && ${MAKE}); done
+
 link-hf:
 	${CLINKER} -o bin/hf lib/libScattering.a lib/libDofData.a lib/libNumeric.a\
           lib/libDataStr.a lib/libNR.a  ${PETSC_SLES_LIB} -L${FFTW_DIR}/lib -lfftw -lm
+
 hf: compile-hf link-hf

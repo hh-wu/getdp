@@ -1,4 +1,4 @@
-// $Id: Complex.cpp,v 1.2 2002-04-12 17:11:02 geuzaine Exp $
+// $Id: Complex.cpp,v 1.3 2004-03-05 18:18:05 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -38,7 +38,7 @@ void LinAlg_AddComplexInMatrix(Complex c, gMatrix *m, int i, int j){
     LinAlg_AddComplexInMatrix(c.real(), c.imag(), m, i, j, -1, -1);
 }
 
-#ifdef _PETSC
+#if defined(HAVE_PETSC)
 
 void LinAlg_ReduceSum(Complex *local, Complex *global){
   MPI_Allreduce(local,global,1,MPIU_SCALAR,PetscSum_Op,PETSC_COMM_WORLD);

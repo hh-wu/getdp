@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.29 2004-01-19 16:51:19 geuzaine Exp $
+# $Id: Makefile,v 1.30 2004-03-05 18:18:04 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -72,7 +72,7 @@ nodepend:
 
 # DO NOT DELETE THIS LINE
 Analytic_HollowCylLF.o: Analytic_HollowCylLF.c ../include/GetDP.h \
-  ../Main/Message.h ../DataStr/Malloc.h Numeric.h
+  ../Main/Message.h ../DataStr/Malloc.h Numeric.h ../DataStr/List.h
 Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
@@ -84,12 +84,13 @@ Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h Numeric.h
 Legendre.o: Legendre.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h Numeric.h
+  ../DataStr/Malloc.h Numeric.h ../DataStr/List.h
 SphBessel.o: SphBessel.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h Numeric.h Amos_F.h ../include/Compat.h
+  ../DataStr/Malloc.h Numeric.h ../DataStr/List.h Amos_F.h \
+  ../include/Compat.h
 Numeric.o: Numeric.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h Numeric.h
+  ../DataStr/Malloc.h Numeric.h ../DataStr/List.h
 gsl_newt.o: gsl_newt.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h Numeric.h
+  ../DataStr/Malloc.h Numeric.h ../DataStr/List.h
 gsl_brent.o: gsl_brent.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h Numeric.h
+  ../DataStr/Malloc.h Numeric.h ../DataStr/List.h

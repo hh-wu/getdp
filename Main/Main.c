@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.50 2004-01-19 16:51:17 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.51 2004-03-05 18:18:04 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -74,7 +74,7 @@ int Flag_RemoveSingularity = 0;
 /*  m a i n                                                                 */
 /* ------------------------------------------------------------------------ */
 
-#ifdef _BLACKBOX
+#if defined(HAVE_BLACKBOX)
 #include "MainBlackBox.c"
 #else
 

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.26 2004-01-19 16:51:15 geuzaine Exp $
+# $Id: Makefile,v 1.27 2004-03-05 18:18:04 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -148,7 +148,7 @@ F_Jiles.o: F_Jiles.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
-  ../DataStr/Tools.h ../NR/nrutil.h
+  ../DataStr/Tools.h
 BF_Node.o: BF_Node.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h BF_Function.h ../Main/Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/List.h \

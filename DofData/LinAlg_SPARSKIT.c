@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.25 2004-01-19 16:51:12 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.26 2004-03-05 18:18:03 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -23,7 +23,7 @@
  *   Ruth Sabariego
  */
 
-#if _SPARSKIT
+#if defined(HAVE_SPARSKIT)
 
 /* This is the interface library for the Default (SPARSKIT based) solver */
 

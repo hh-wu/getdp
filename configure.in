@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.34 2004-01-19 16:51:12 geuzaine Exp $
+dnl $Id: configure.in,v 1.35 2004-03-05 18:18:03 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -126,7 +126,7 @@ dnl Modify the above defaults and specify the linker
 if test "x$enable_petsc" = "xyes"; then
 
   GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_SLES_LIB} -lm'
-  SOLVER='-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
+  SOLVER='-DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
   if test "x${PETSC_PREFIX}" != "x"; then
     PETSC_DIR="${PETSC_PREFIX}"	
@@ -142,7 +142,7 @@ if test "x$enable_petsc" = "xyes"; then
 else
 
   GETDP_DIRS="${GETDP_DIRS} Sparskit"
-  SOLVER='-D_SPARSKIT -D_ILU_FLOAT'
+  SOLVER='-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT'
   LINKER='${F77}'
   case "${UNAME}" in
     IRIX*)
@@ -153,8 +153,8 @@ else
       C_PARSER_FLAGS="-g -n32 -mips3"
       dnl Warning: -O3 crashes Sparskit
       F77_FLAGS="-O2 -n32 -mips3"
-      dnl Warning: -D_ILU_FLOAT crashes Sparskit
-      SOLVER="-D_SPARSKIT"
+      dnl Warning: -DHAVE_ILU_FLOAT crashes Sparskit
+      SOLVER="-DHAVE_SPARSKIT"
       LINKER="f77 -n32 -mips3"
       ;;
     IRIX64*)
@@ -164,7 +164,7 @@ else
       C_FLAGS="-O3 -mips4 -64"
       C_PARSER_FLAGS="-g -mips4 -64"
       F77_FLAGS="-O3 -mips4 -64"
-      SOLVER="-D_SPARSKIT -D_ILU_FLOAT"
+      SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
       LINKER="f77 -64"
       ;;
     HP-UX*)
@@ -173,7 +173,7 @@ else
       C_FLAGS="+O2 +Onolimit -Ae +DAportable"
       C_PARSER_FLAGS="+O1 -Ae +DAportable"
       F77_FLAGS="+O2 +DAportable"
-      SOLVER="-D_SPARSKIT -D_ILU_FLOAT -D_UNDERSCORE"
+      SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT -DHAVE_UNDERSCORE"
       LINKER="f77 +DAportable"
       GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
       ;;
@@ -194,7 +194,7 @@ else
       C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
       C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
       F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
-      SOLVER="-D_SPARSKIT -D_UNDERSCORE"
+      SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
       ;;
     MINGW*)
       CC="gcc -mno-cygwin"
@@ -254,12 +254,12 @@ fi
 
 dnl Do we trace the function calls in getdp?
 if test "x$enable_debug" = "xyes"; then
-  C_FLAGS="${C_FLAGS} -DGETDP_USE_DEBUG_STACK"
+  C_FLAGS="${C_FLAGS} -DHAVE_DEBUG_STACK"
 fi
 
 dnl Do we enable large multiharmic calculations?
 if test "x$enable_multiharmonic" = "xyes"; then
-  C_FLAGS="${C_FLAGS} -DGETDP_MULTIHARMONIC"
+  C_FLAGS="${C_FLAGS} -DHAVE_MULTIHARMONIC"
 fi
 
 dnl Check for METIS

@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.32 2004-01-19 16:51:12 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.33 2004-03-05 18:18:03 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -24,11 +24,12 @@
  *   Ruth Sabariego
  */
 
-#if _PETSC
-
 /* This is the interface library for the PETSC solver */
 
 #include "GetDP.h"
+
+#if defined(HAVE_PETSC)
+
 #include "LinAlg.h"
 #include "F_FMMOperations.h"
 #include "SafeIO.h"

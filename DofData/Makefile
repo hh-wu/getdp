@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.23 2004-01-19 16:51:12 geuzaine Exp $
+# $Id: Makefile,v 1.24 2004-03-05 18:18:03 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -69,4 +69,5 @@ LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c ../include/GetDP.h ../Main/Message.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/CurrentData.h ../Main/Data_Active.h DofData.h ../Main/Graph.h \
   Data_DofData.h
-LinAlg_PETSC.o: LinAlg_PETSC.c
+LinAlg_PETSC.o: LinAlg_PETSC.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h

@@ -24,7 +24,7 @@
 
 #include "Compat.h"
 
-#ifdef _UNDERSCORE
+#if defined(HAVE_UNDERSCORE)
 
 #define zbesj_ zbesj
 #define zbesy_ zbesy

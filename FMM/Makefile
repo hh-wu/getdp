@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2004-01-19 16:51:13 geuzaine Exp $
+# $Id: Makefile,v 1.8 2004-03-05 18:18:03 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -52,9 +52,9 @@ nodepend:
 
 # DO NOT DELETE THIS LINE
 FMM_Groups.o: FMM_Groups.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Numeric/Numeric.h ../Main/Data_DefineE.h \
-  ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
-  ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../DataStr/Malloc.h ../Numeric/Numeric.h ../DataStr/List.h \
+  ../Main/Data_DefineE.h ../Main/CurrentData.h ../Main/Data_Active.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
   ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
@@ -73,8 +73,8 @@ FMM_CalDTAmatrices.o: FMM_CalDTAmatrices.c ../include/GetDP.h \
   ../Function/GF_Function.h ../DataStr/Tools.h Data_FMM.h \
   Cal_FMMAnalyticalIntegral.h F_FMM_DTA.h
 FMM_Operations.o: FMM_Operations.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Numeric/Numeric.h ../Main/Data_Passive.h \
-  ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../DataStr/Malloc.h ../Numeric/Numeric.h ../DataStr/List.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/Data_DefineE.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \

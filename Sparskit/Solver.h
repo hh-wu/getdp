@@ -73,7 +73,7 @@
 #define NORM2_SCALING   4
 
 
-#ifdef _ILU_FLOAT
+#if defined(HAVE_ILU_FLOAT)
 #define scalar float
 #else
 #define scalar double

@@ -2899,7 +2899,7 @@ GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDo
 if test "x$enable_petsc" = "xyes"; then
 
   GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_SLES_LIB} -lm'
-  SOLVER='-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
+  SOLVER='-DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
   if test "x${PETSC_PREFIX}" != "x"; then
     PETSC_DIR="${PETSC_PREFIX}"
@@ -2915,7 +2915,7 @@ if test "x$enable_petsc" = "xyes"; then
 else
 
   GETDP_DIRS="${GETDP_DIRS} Sparskit"
-  SOLVER='-D_SPARSKIT -D_ILU_FLOAT'
+  SOLVER='-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT'
   LINKER='${F77}'
   case "${UNAME}" in
     IRIX*)
@@ -2924,7 +2924,7 @@ else
       C_FLAGS="-O3 -n32 -mips3"
       C_PARSER_FLAGS="-g -n32 -mips3"
             F77_FLAGS="-O2 -n32 -mips3"
-            SOLVER="-D_SPARSKIT"
+            SOLVER="-DHAVE_SPARSKIT"
       LINKER="f77 -n32 -mips3"
       ;;
     IRIX64*)
@@ -2933,7 +2933,7 @@ else
       C_FLAGS="-O3 -mips4 -64"
       C_PARSER_FLAGS="-g -mips4 -64"
       F77_FLAGS="-O3 -mips4 -64"
-      SOLVER="-D_SPARSKIT -D_ILU_FLOAT"
+      SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
       LINKER="f77 -64"
       ;;
     HP-UX*)
@@ -2942,7 +2942,7 @@ else
       C_FLAGS="+O2 +Onolimit -Ae +DAportable"
       C_PARSER_FLAGS="+O1 -Ae +DAportable"
       F77_FLAGS="+O2 +DAportable"
-      SOLVER="-D_SPARSKIT -D_ILU_FLOAT -D_UNDERSCORE"
+      SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT -DHAVE_UNDERSCORE"
       LINKER="f77 +DAportable"
       GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
       ;;
@@ -2963,7 +2963,7 @@ else
       C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
       C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
       F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
-      SOLVER="-D_SPARSKIT -D_UNDERSCORE"
+      SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
       ;;
     MINGW*)
       CC="gcc -mno-cygwin"
@@ -3154,11 +3154,11 @@ echo "$as_me: error: Could not find GSL, aborting." >&2;}
 fi
 
 if test "x$enable_debug" = "xyes"; then
-  C_FLAGS="${C_FLAGS} -DGETDP_USE_DEBUG_STACK"
+  C_FLAGS="${C_FLAGS} -DHAVE_DEBUG_STACK"
 fi
 
 if test "x$enable_multiharmonic" = "xyes"; then
-  C_FLAGS="${C_FLAGS} -DGETDP_MULTIHARMONIC"
+  C_FLAGS="${C_FLAGS} -DHAVE_MULTIHARMONIC"
 fi
 
 if test "x${METIS_PREFIX}" != "x"; then

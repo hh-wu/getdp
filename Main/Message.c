@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.67 2004-01-19 16:51:17 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.68 2004-03-05 18:18:04 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -65,8 +65,8 @@ char packager[]  = "Packager     : %s\n";
 char url[]       = "Web site     : http://www.geuz.org/getdp/\n";
 char email[]     = "Mailing list : getdp@geuz.org\n";
 
-#if defined(_SPARSKIT)
-#if defined(_ILU_FLOAT)
+#if defined(HAVE_SPARSKIT)
+#if defined(HAVE_ILU_FLOAT)
 char solver[]    = "Solver       : Sparskit (real arithmetic, single precision preconditioning)\n";
 #else
 char solver[]    = "Solver       : Sparskit (real arithmetic)\n";
@@ -80,7 +80,7 @@ char solver[]    = "Solver       : PETSc (real arithmetic)\n";
 #endif
 
 char help[] = 
-#if defined(_SPARSKIT)
+#if defined(HAVE_SPARSKIT)
   "Usage: %s [file] [options]\n"
 #else
   "Usage: mpirun [MPI options] %s [file] [options] [PETSc options]\n"
@@ -98,7 +98,7 @@ char help[] =
   "  -name string              use string as generic file name\n"
   "  -adapt file               read adaptation constraints from file\n"
   "  -order num                restrict maximum interpolation order\n"
-#if defined(_SPARSKIT)
+#if defined(HAVE_SPARSKIT)
   "Linear solver options:\n"
   "  -solver file              specify parameter file (default: solver.par)\n"
   "  -'Parameter' num          override value of solver parameter 'Parameter'\n"
@@ -185,7 +185,7 @@ void Signal (int sig_num){
 /* ------------------------------------------------------------------------ */
 
 void Print_GetDPContext(FILE *stream){
-#if defined(GETDP_USE_DEBUG_STACK)
+#if defined(HAVE_DEBUG_STACK)
   char FileName[256], FileVersion[256], FunctionName[256], FileAuthor[256];
   char Dum[256], FileDate[256];
   int  i, Line ;

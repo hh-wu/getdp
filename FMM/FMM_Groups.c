@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.9 2004-01-26 20:36:43 geuzaine Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.10 2004-03-05 18:18:03 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -985,7 +985,7 @@ void  Geo_CreateFMMGroup( int InSupport, struct GeoData *GeoData_P, double k0 ){
 }
 
 
-
+#if 0 /* FIXME: this is just a sketch -- is not meant to work or even compile */
   
 void  Geo_CreateMultilevelFMMGroup( int InSupport, struct GeoData *GeoData_P, double k0 ){
 
@@ -1242,6 +1242,8 @@ void  Geo_CreateMultilevelFMMGroup( int InSupport, struct GeoData *GeoData_P, do
   
   GetDP_End ;
 }
+
+#endif
 
 
 void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){

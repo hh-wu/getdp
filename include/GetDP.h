@@ -42,7 +42,7 @@ extern char *GetDP_CurrentFunction[GETDP_DEBUG_STACK_SIZE] ;
 extern char *GetDP_CurrentSourceFile[GETDP_DEBUG_STACK_SIZE] ;
 extern int   GetDP_CurrentSourceLine[GETDP_DEBUG_STACK_SIZE] ;
 
-#ifdef GETDP_USE_DEBUG_STACK
+#if defined(HAVE_DEBUG_STACK)
 
 #define GetDP_Begin(text)						\
   {									\

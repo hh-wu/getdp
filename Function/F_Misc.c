@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.21 2004-01-19 16:51:14 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.22 2004-03-05 18:18:03 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -37,7 +37,6 @@
 #define NRANSI
 #include "nrutil.h"    /* pour Tuan */
 #endif
-
 
 /* ------------------------------------------------------------------------ */
 /*  Warning: the pointers A and V can be identical. You must                */

@@ -41,7 +41,7 @@ should
 
 */
 
-#if _SPARSKIT
+#if defined(HAVE_SPARSKIT)
 
 #include "Solver.h"
 #define gSCALAR_SIZE 1
@@ -51,7 +51,7 @@ typedef struct { Matrix M ; }             gMatrix ;
 typedef struct { int N ; double *V ; }    gVector ;
 typedef struct { Solver_Params Params ; } gSolver ;
 
-#elif _PETSC
+#elif defined(HAVE_PETSC)
 
 #include "petscsles.h"
 #if PETSC_USE_COMPLEX
@@ -68,7 +68,7 @@ typedef struct { SLES sles ; PC pc ; KSP ksp ; } gSolver ;
 
 #else
 
-#error "You have to define either _SPARSKIT or _PETSC"
+#error "You have to define either HAVE_SPARSKIT or HAVE_PETSC"
 
 #endif
 
