@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.29 2001-03-01 13:48:08 geuzaine Exp $
+@c $Id: getdp.texi,v 1.30 2001-03-01 14:04:33 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -154,7 +154,7 @@ updated @value{DAY} @value{MONTH} for GetDP Version @value{VERSION}.
 @menu
 * Copying conditions::          
 * Introduction::                Basic presentation
-* General overview::            
+* Overview::                    
 * Expressions::                 The expression mechanism
 * Objects::                     Definition of all GetDP objects
 * Types for objects::           Definition of all types for objects
@@ -178,9 +178,9 @@ Introduction
 * Research::                    
 * Education::                   
 * Industry::                    
-* How to Read this Manual?::    
+* How to Read this Manual::     
 
-General overview
+Overview
 
 * Numerical tools as objects::  
 * Syntactic rules::             
@@ -344,7 +344,7 @@ download information, are always available on the web site.
 @c Introduction
 @c =========================================================================
 
-@node Introduction, General overview, Copying conditions, Top
+@node Introduction, Overview, Copying conditions, Top
 @unnumbered Introduction
 
 @cindex Introduction
@@ -375,7 +375,7 @@ as research, collaboration, education, training and industrial studies.
 * Research::                    
 * Education::                   
 * Industry::                    
-* How to Read this Manual?::    
+* How to Read this Manual::     
 @end menu
 
 @c -------------------------------------------------------------------------
@@ -419,7 +419,7 @@ of the same problem.
 @c Industrial studies
 @c -------------------------------------------------------------------------
 
-@node Industry, How to Read this Manual?, Education, Introduction
+@node Industry, How to Read this Manual, Education, Introduction
 @heading Industrial studies
 
 The treatment of industrial problems can also be facilitated because
@@ -437,9 +437,9 @@ ready-to-use software could be rapidly developed for given problems.
 
 @cindex Reading, guidelines
 
-After reading @ref{General overview}, and @ref{Expressions}, which depict
-the general concepts and the way to construct simple expressions in GetDP,
-you can safely (in a first reading) skip @ref{Objects} and @ref{Types for
+After reading @ref{Overview}, and @ref{Expressions}, which depict the
+general concepts and the way to construct simple expressions in GetDP, you
+can safely (in a first reading) skip @ref{Objects} and @ref{Types for
 objects} and directly go to @ref{Short examples}. This chapter gives simple
 examples of the problem definition syntax used to define the discrete
 problems. For each example, you should then go back to @ref{Objects}, and
@@ -479,7 +479,7 @@ from the web site.
 @c Numerical Tools as Objects
 @c -------------------------------------------------------------------------
 
-@node Numerical tools as objects, Syntactic rules, General overview, General overview
+@node Numerical tools as objects, Syntactic rules, Overview, Overview
 @section Numerical tools as objects
 
 @cindex Objects, dependencies
@@ -547,7 +547,7 @@ objects of the second group, adapted to treatments of defined problems.
 @c Syntactic Rules Used in this Document
 @c -------------------------------------------------------------------------
 
-@node Syntactic rules, Comments, Numerical tools as objects, General overview
+@node Syntactic rules, Comments, Numerical tools as objects, Overview
 @section Syntactic rules used in this document
 
 @cindex Syntax, rules
@@ -591,7 +591,7 @@ The @var{etc} symbol replaces nonlisted rules.
 @c Comments
 @c -------------------------------------------------------------------------
 
-@node Comments, Includes, Syntactic rules, General overview
+@node Comments, Includes, Syntactic rules, Overview
 @section Comments
 
 @cindex Comments
@@ -617,7 +617,7 @@ These commands won't have the described effects inside double quotes
 @c Includes
 @c -------------------------------------------------------------------------
 
-@node Includes, Which problems can GetDP actually solve?, Comments, General overview
+@node Includes, Which problems can GetDP actually solve?, Comments, Overview
 @section Includes
 
 @cindex Includes
@@ -639,7 +639,7 @@ Any text placed after an include command on the same line is ignored.
 @c Which Problems can GetDP actually solve?
 @c -------------------------------------------------------------------------
 
-@node Which problems can GetDP actually solve?,  , Includes, General overview
+@node Which problems can GetDP actually solve?,  , Includes, Overview
 @section Which problems can GetDP actually solve?
 
 @cindex Scope of GetDP
@@ -716,7 +716,7 @@ time domain finite difference method
 @c Expressions
 @c =========================================================================
 
-@node Expressions, Objects, General overview, Top
+@node Expressions, Objects, Overview, Top
 @chapter Expressions 
 
 @c -------------------------------------------------------------------------
