@@ -240,7 +240,7 @@ void  Dof_WriteDofPRE(void * a, void * b) {
   switch (Dof_P->Type) {
   case DOF_SYMMETRICAL :
     fprintf(File_PRE, "%d %d\n", Dof_P->Case.Symmetrical.NumDof,
-	    Nnz[Dof_P->Case.Symmetrical.NumDof]) ;
+	    Nnz[Dof_P->Case.Symmetrical.NumDof-1]) ;
     break ;
   case DOF_ASSOCIATE :
     fprintf(File_PRE, "%d ", Dof_P->Case.FixedAssociate.NumDof) ;
@@ -257,7 +257,7 @@ void  Dof_WriteDofPRE(void * a, void * b) {
   case DOF_SYMMETRICAL_INIT :
     fprintf(File_PRE, "%d ", Dof_P->Case.Symmetrical.NumDof) ;
     gPrintScalar(File_PRE, &Dof_P->Val);
-    fprintf(File_PRE, " %d\n", Nnz[Dof_P->Case.Symmetrical.NumDof]) ;
+    fprintf(File_PRE, " %d\n", Nnz[Dof_P->Case.Symmetrical.NumDof-1]) ;
     break ;
   case DOF_LINK :
     fprintf(File_PRE, "%.16g %d\n",
@@ -322,7 +322,7 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
       switch (Dof.Type) {
       case DOF_SYMMETRICAL :
 	fscanf(File_PRE, "%d", &Dof.Case.Symmetrical.NumDof) ;
-	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Symmetrical.NumDof]) ;
+	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Symmetrical.NumDof-1]) ;
 	break ;
       case DOF_ASSOCIATE :
 	fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.NumDof) ;
@@ -339,7 +339,7 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
       case DOF_SYMMETRICAL_INIT :
 	fscanf(File_PRE, "%d", &Dof.Case.Symmetrical.NumDof) ;
 	gScanScalar(File_PRE, &Dof.Val) ;
-	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Symmetrical.NumDof]) ;
+	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Symmetrical.NumDof-1]) ;
 	break ;
       case DOF_LINK :
 	fscanf(File_PRE, "%lf %d",
