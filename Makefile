@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.111 2003-01-26 07:39:51 geuzaine Exp $
+# $Id: Makefile,v 1.112 2003-01-28 04:34:16 geuzaine Exp $
 
 # ----------------------------------------------------------------------
 #  Optional packages: 
@@ -450,12 +450,12 @@ cygwin: compile-cygwin link-cygwin
 distrib-cygwin: clean tag cygwin distrib-win
 
 #
-# Mingw
+# Mingw (don't add -lm : the math functions are in msvcrt.dll)
 #
 compile-mingw: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
-           "CC=gcc -mno-cygwin -I/mingw/include" \
-           "FC=g77 -mno-cygwin -I/mingw/include" \
+           "CC=gcc -mno-cygwin" \
+           "FC=g77 -mno-cygwin" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
@@ -464,8 +464,7 @@ compile-mingw: initialtag
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
 link-mingw:
-	g77 -o $(GETDP_BIN_DIR)/getdp.exe\
-            -mno-cygwin -L/mingw/lib $(GETDP_SPARSKIT_LIBS) -lm
+	g77 -mno-cygwin -o $(GETDP_BIN_DIR)/getdp.exe $(GETDP_SPARSKIT_LIBS)
 mingw: compile-mingw link-mingw
 
 #

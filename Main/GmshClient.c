@@ -1,4 +1,12 @@
-/* $Id: GmshClient.c,v 1.1 2002-01-03 10:22:38 geuzaine Exp $ */
+/* $Id: GmshClient.c,v 1.2 2003-01-28 04:34:16 geuzaine Exp $ */
+
+#ifdef MSDOS /* pure DOS/Windows code, without cygwin */
+
+int  Gmsh_Connect(char *sockname){;}
+void Gmsh_SendString(int socket, int type, char str[]){;}
+void Gmsh_Disconnect(int sock){;}
+
+#else
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -78,3 +86,4 @@ void Gmsh_Disconnect(int sock){
   close(sock);
 }
 
+#endif /* MSDOS */
