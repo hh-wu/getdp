@@ -1,25 +1,23 @@
-# $Id: Makefile,v 1.20 2000-09-25 20:25:42 geuzaine Exp $
+# $Id: Makefile,v 1.19 2000-09-25 12:54:09 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
 #  Optional packages: 
-#    * flex and bison to rebuild the parser
-#    * Windows 95/98/NT: cygwin B20 (http://sources.redhat.com/cygwin/) 
-#    * PETSc: 2.0.28 (you have to define PETSC_DIR and PETSC_ARCH)
-#    * METIS: 4.0 (you have to define METIS_DIR)
+#    * parser: flex and bison
+#    * Windows 95/98/NT: cygwin (http://sourceware.cygnus.com/cygwin/) 
+#    * PETSc: 2.0.28 (PETSC_DIR and PETSC_ARCH variables must be defined)
+#    * METIS: 4.0 (the METIS_DIR variable must be defined)
 #
-# ----------------------------------------------------------------------
-#  To build a stand alone executable on Windows, you should install 
-#  the mingw includes and libraries in addition to cygwin B20 (see
-#  ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/) and compile
-#  with 'make mingw'.
-#  To check the final dependendies: 'objdump -p getdp-win | grep DLL'
 #
-# ----------------------------------------------------------------------
-#  CVS access with passord:
-#  'cvs -d :pserver:username@elap57.montefiore.ulg.ac.be:/usr/users57/cvs-master cmd'
-#  where * username is your username (you need an account on elap57)
-#        * 'cmd' is first 'login', then 'checkout getdp', and finally 'logout'
+#   To build a stand alone executable, you should cygwin plus the mingw
+#   includes and libraries gcc-XXX-mingw-extra.tar.gz
+#   (ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/)
+#   and compile with 'make no-cygwin' .
+#   To check the final dependendies: objdump -p getdp-win | grep DLL#
+#
+#  Acces CVS avec mot de passe:
+#  cvs -d :pserver:user@elap57.montefiore.ulg.ac.be:/usr/users57/cvs-master login 
+#  cvs -d :pserver:user@elap57.montefiore.ulg.ac.be:/usr/users57/cvs-master checkout getdp 
 # ----------------------------------------------------------------------
 
 GETDP_RELEASE         = 0.76
@@ -270,9 +268,6 @@ tgzdoc:
 	tar cvf getdp-texi.tar $(GETDP_DOC_DIR)
 	gzip getdp-texi.tar
 
-dem:
-	gtar zcvf getdp-demo.tgz $(GETDP_DEMO_DIR)
-
 # ----------------------------------------------------------------------
 # Black Box version (with embedded formulation and reduced interface)
 # ----------------------------------------------------------------------
@@ -288,6 +283,31 @@ bb:
 # ----------------------------------------------------------------------
 # "Ready to compile" rules for somes platforms
 # ----------------------------------------------------------------------
+
+dem:
+	gtar zcvf getdp-demo.tgz $(GETDP_DEMO_DIR)
+
+help: versions
+
+versions:
+	@echo " "
+	@echo "The following operating systems are supported."
+	@echo "Type 'make os' to build the executable."
+	@echo " "
+	@echo "========================================================= "
+	@echo "  os           notes "
+	@echo "--------------------------------------------------------- "
+	@echo "  PETSc        All architectures with PETSc and METIS"
+	@echo "  dec          DEC OSF "
+	@echo "  linux        Linux "
+	@echo "  hp           HPUX "
+	@echo "  sun          SunOS with gcc "
+	@echo "  ibm          AIX without ILU_FLOAT "
+	@echo "  cygwin       Windows with cygwin1.dll "
+	@echo "  win          Windows stand alone "
+	@echo "  sgi          SGI with -mips4 "
+	@echo "======================================================== "
+	@echo " "
 
 PETSc: tag
 	@for i in $(GETDP_STUFF_DIR); do (cd $$i && $(MAKE) \
@@ -386,6 +406,20 @@ cygwin: tag
         ); done
 	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
 	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+
+win: tag
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
+           "CC=gcc -mno-cygwin" \
+           "FC=g77 -mno-cygwin" \
+           "RANLIB=ls" \
+           "C_FLAGS=-g" \
+           "C_PARSER_FLAGS=-g" \
+           "F77_FLAGS=-g" \
+           "OS_FLAGS=-DMSDOS" \
+           "SOLVER=-D_SPARSKIT" \
+           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+        ); done
+	g77 -mno-cygwin -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 
 mingw:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
