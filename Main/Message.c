@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.32 2001-03-04 10:26:49 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.33 2001-03-08 14:50:49 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -33,7 +33,7 @@ char date[]      = "Build Date       : %s\n";
 char host[]      = "Build Host       : %s\n";
 char packager[]  = "Packager         : %s\n";
 char url[]       = "URL              : http://www.geuz.org/getdp/\n";
-char email[]     = "E-Mail           : Patrick.Dular@ulg.ac.be, Christophe.Geuzaine@ulg.ac.be\n";
+char email[]     = "Mailing List     : getdp@geuz.org\n";
 
 #ifdef _SPARSKIT
 #ifdef _ILU_FLOAT
