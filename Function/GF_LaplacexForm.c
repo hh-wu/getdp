@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_LaplacexForm.c,v 1.5 2001-03-05 08:50:42 sabarieg Exp $"
+#define RCSID "$Id: GF_LaplacexForm.c,v 1.6 2001-03-05 09:02:18 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -34,7 +34,7 @@ void GF_LaplacexForm (F_ARG2) {
   
   double   xs[MAX_NODES], ys[MAX_NODES], zs[MAX_NODES], u[3], v[3], n[3], l2[2], xl, yl, zl ;
   int      Type_Int, i, j = 1 ;
-  double   a, b, c, d, e, f, i1, I1, r2,d2,dl2;
+  double   a, b, c, d, e, f, i1, I1, r2;
   double   s0m, s0p, s1m, s1p, s2m, s2p, t00, t10, t20, t0m, t0p, t1p, r00, r10, r20, r0p, r0m, r1p, f0, f1, f2, B0, B1, B2 ;
   double   DetJ, valr, vali ;
 
@@ -213,7 +213,7 @@ void GF_LaplacexForm (F_ARG2) {
       
       Val->Val[0] = 0.;
 
-      printf("xFunctionBF= %g \n ", xFunctionBF);
+      /* printf("xFunctionBF= %p \n ", xFunctionBF); */
 
       if (Element->ElementSource->Type ==  QUADRANGLE) {
 	     xs[3] = Element->ElementSource->x[3] ; ys[3] = Element->ElementSource->y[3] ;
@@ -283,7 +283,7 @@ void GF_LaplacexForm (F_ARG2) {
 	    B2 = fabs(t20) <= EPSILON ? 0 : atan(t20*s2p/(SQU(r20)+fabs(zl)*r0m))-atan(t20*s2m/(SQU(r20)+fabs(zl)*r1p));
 	    d = a * l2[1];//Double aire a cause de normalization
 	   
-	    Val->Val[0] + =  ONE_OVER_TWO_PI * (-fabs(zl)*(B0+B1+B2) + t00*f0+t10*f1+t20*f2)/d; /* 1/r integral solution*/
+	    Val->Val[0] +=  ONE_OVER_TWO_PI * (-fabs(zl)*(B0+B1+B2) + t00*f0+t10*f1+t20*f2)/d; /* 1/r integral solution*/
 	
 	    if (j == 0){
 		   xs[1] = xs[2]; ys[1] = ys[2]; zs[1] = zs[2];
