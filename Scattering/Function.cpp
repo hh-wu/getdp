@@ -1,7 +1,8 @@
-// $Id: Function.cpp,v 1.8 2002-04-23 00:47:27 geuzaine Exp $
+// $Id: Function.cpp,v 1.9 2002-05-03 01:26:29 geuzaine Exp $
 
 #include "Utils.h"
 #include "Function.h"
+#include "Scatterer.h"
 #include "Patch.h"
 
 double GetInInterval(double t, double t1, double t2){
@@ -43,7 +44,7 @@ Complex Function::ansatz(double k[3], double xt[3], double xtau[3]){
   }
 }
 
-Complex Function::density(double tau){
+Complex Function::density(Scatterer *scat, double tau){
   int k;
   Complex val;
   Patch *p;
@@ -58,8 +59,8 @@ Complex Function::density(double tau){
   case INTERPOLATED : // cubic splines or Fourier (off-grid!)
 
     val = 0.;
-    for(k=0 ; k<List_Nbr(patches); k++){
-      p = (Patch*)List_Pointer(patches,k);
+    for(k=0 ; k<List_Nbr(scat->patches); k++){
+      p = (Patch*)List_Pointer(scat->patches,k);
       double ap = p->part->center - p->part->epsilon;
       double bp = p->part->center + p->part->epsilon;
       double tau2 = GetInInterval(tau,ap,ap+TWO_PI);

@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.6 2002-04-26 20:18:54 geuzaine Exp $
+// $Id: Patch.cpp,v 1.7 2002-05-03 01:26:29 geuzaine Exp $
 
 #include "Main.h"
 #include "Utils.h"
@@ -116,7 +116,7 @@ void Create_Mesh(Ctx *ctx, Patch::PatchType type){
   int i;
   double a;
 
-  ctx->f.patches = List_Create(10,10,sizeof(Patch));
+  ctx->scat.patches = List_Create(10,10,sizeof(Patch));
 
   if(!(ctx->type & PATCHES)){ // single patch by default
 
@@ -128,7 +128,7 @@ void Create_Mesh(Ctx *ctx, Patch::PatchType type){
     p[0] = new Patch(type, 
 		     0, ctx->nbTargetPts, 
 		     PI, PI, 0);
-    List_Add(ctx->f.patches, p[0]);
+    List_Add(ctx->scat.patches, p[0]);
 
   }
   else{
@@ -141,27 +141,27 @@ void Create_Mesh(Ctx *ctx, Patch::PatchType type){
     ctx->rise = 0.5;
     p[0] = new Patch(Patch::FOURIER, 0, ctx->nbTargetPts/4, 
 		     0, PI/2.-a, ctx->rise);
-    List_Add(ctx->f.patches, p[0]);
+    List_Add(ctx->scat.patches, p[0]);
     p[1] = new Patch(Patch::FOURIER, ctx->nbTargetPts/4, ctx->nbTargetPts/2, 
 		     PI/2., a + ctx->Rise, ctx->rise);
-    List_Add(ctx->f.patches, p[1]);
+    List_Add(ctx->scat.patches, p[1]);
 
     p[2] = new Patch(Patch::FOURIER, 20, 30, 
 		     PI, PI/2. - a + ctx->Rise, ctx->rise);
-    List_Add(ctx->f.patches, p[2]);
+    List_Add(ctx->scat.patches, p[2]);
     p[3] = new Patch(Patch::FOURIER, 30, ctx->nbTargetPts, 
 		     3.*PI/2., a + ctx->rise, ctx->rise);
-    List_Add(ctx->f.patches, p[3]);
+    List_Add(ctx->scat.patches, p[3]);
 #endif
     
 #if 0
     a=1.;
     p[0] = new Patch(Patch::FOURIER, 0, ctx->nbTargetPts/2, 
 		     PI/2., PI/2., a);
-    List_Add(ctx->f.patches, p[0]);
+    List_Add(ctx->scat.patches, p[0]);
     p[1] = new Patch(Patch::FOURIER, ctx->nbTargetPts/2, ctx->nbTargetPts, 
 		     3.*PI/2., PI/2.+a, a);
-    List_Add(ctx->f.patches, p[1]);
+    List_Add(ctx->scat.patches, p[1]);
 #endif
 
 #if 0    // overlapping nodes match "1 on 2"
@@ -169,11 +169,11 @@ void Create_Mesh(Ctx *ctx, Patch::PatchType type){
     a=5.0*PI/20.;
     p[0] = new Patch(Patch::FOURIER, 0, 40, 
 		     PI/2., PI/2., a);
-    List_Add(ctx->f.patches, p[0]);
+    List_Add(ctx->scat.patches, p[0]);
     ctx->nbTargetPts += 10;
     p[1] = new Patch(Patch::FOURIER, 40, ctx->nbTargetPts, 
 		     3.*PI/2., PI/2.+a, a);
-    List_Add(ctx->f.patches, p[1]);
+    List_Add(ctx->scat.patches, p[1]);
 #endif
 
 #if 1 // 5 overlapping nodes -> working 34 iters
@@ -181,24 +181,28 @@ void Create_Mesh(Ctx *ctx, Patch::PatchType type){
     a=5.1*PI/20.;
     p[0] = new Patch(Patch::FOURIER, 0, 20, 
 		     PI/2., PI/2., a);
-    List_Add(ctx->f.patches, p[0]);
+    List_Add(ctx->scat.patches, p[0]);
     ctx->nbTargetPts += 10;
     p[1] = new Patch(Patch::FOURIER, 20, ctx->nbTargetPts, 
 		     3.*PI/2., PI/2.+a, a);
-    List_Add(ctx->f.patches, p[1]);
+    List_Add(ctx->scat.patches, p[1]);
 #endif
 
   }
 
 
   // put all the nodes in a single vector
-  ctx->nodes = new double[ctx->nbTargetPts];
+  ctx->scat.nodes = new double[ctx->nbTargetPts];
   ctx->nbdof = gCOMPLEX_INCREMENT*ctx->nbTargetPts;
   int k = 0;
-  for(i=0; i<List_Nbr(ctx->f.patches); i++){
-    p[0] = (Patch*)List_Pointer(ctx->f.patches,i);
+  for(i=0; i<List_Nbr(ctx->scat.patches); i++){
+    p[0] = (Patch*)List_Pointer(ctx->scat.patches,i);
     for(int j=0; j<p[0]->nbdof; j++)
-      ctx->nodes[k++] = p[0]->nodes[j];
+      ctx->scat.nodes[k++] = p[0]->nodes[j];
   }
+
+  // precompute critical points for the mesh
+  if(!(ctx->type & FULL_INTEGRATION))
+    ctx->scat.criticalPoints(ctx->nbTargetPts,ctx->waveNum);
 
 }

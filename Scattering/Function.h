@@ -3,6 +3,7 @@
 
 #include "Complex.h"
 #include "List.h"
+#include "Scatterer.h"
 
 class Function{
 public:
@@ -10,10 +11,9 @@ public:
   FunctionType type;
   int applyChgVar;
   double a, b;
-  List_T *patches;
 
   Complex ansatz(double k[3], double xt[3], double xtau[3]);
-  Complex density(double tau);
+  Complex density(Scatterer *scat, double tau);
   double chgVar(double u, double *t);
   double invChgVar(double t, double *u);
 };

@@ -23,8 +23,7 @@ typedef struct {
   // global parameters
   double waveNum[3], epsilon, rise, initialTarget;
 
-  // location of unknowns (=merge of all patch nodes)
-  double *nodes; 
+  // number of unknowns
   int nbTargetPts, nbdof; // nbdof = gCOMPLEX_INCREMENT*nbTargetPts
 
   // - nb of integration points

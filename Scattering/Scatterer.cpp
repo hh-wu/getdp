@@ -1,10 +1,12 @@
-// $Id: Scatterer.cpp,v 1.9 2002-05-02 22:44:18 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.10 2002-05-03 01:26:29 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
 #include "Scatterer.h"
 #include "Function.h"
 #include "Newton.h"
+
+#define TOL_LOOSE  1.e-6
 
 int fcmp_CPoint(const void * a, const void * b) {
   double cmp ;
@@ -19,9 +21,9 @@ int fcmp_double_loose(const void *a, const void *b){
   double cmp ;
   
   cmp = *(double*)a - *(double*)b ;
-  if      (cmp > 1.e-6)  return  1 ;
-  else if (cmp < -1.e-6) return -1 ;
-  else                    return  0 ;
+  if      (cmp > TOL_LOOSE)  return  1 ;
+  else if (cmp < -TOL_LOOSE) return -1 ;
+  else                       return  0 ;
 }
 
 // Parametric definition of the scatterers. This is awfull c++, I
@@ -90,9 +92,10 @@ void Scatterer::singularPoint(double t0, List_T *pts){
 //  phase of the integral equation vanishes).
 
 static Scatterer *TheScat;
+static double     TheTarget;
 
 void phaseGradient(int n, double *in, double *out){
-  double theta0 = TheScat->targetPoint, theta = in[1];
+  double theta0 = TheTarget, theta = in[1];
   double r0, dr0, r, dr;
 
   TheScat->polar(theta,&r,&dr);
@@ -108,79 +111,87 @@ void phaseGradient(int n, double *in, double *out){
   
 }
 
-void Scatterer::criticalPoints(double t0, double k[3], List_T *pts){
-  int i, n, check;
+void Scatterer::criticalPoints(int index, List_T *pts){
+  int i;
+  double val;
   CPoint pt;
-  double tmp[2], theta;
-  List_T *tmplist;
 
   pt.degree = 2;
 
-  switch(type){
+  for(i=0; i<List_Nbr(criticalPointsList[index]); i++){
+    List_Read(criticalPointsList[index],i,&val);
+    pt.val = val;
+    List_Insert(pts, &pt, fcmp_CPoint);
+  }
+}
 
-  case CIRCLE :
-    // in the case of a circle, they are given in closed form by, for
-    // an integer n:
-    //
-    //  0 <= t-t0 = Pi - 2*t0 + 4*n*PI <= 2*PI
-    //  0 <= t-t0 = (PI-2*t0)/3 + 4/3*PI*n
+#define NB_INITIAL_GUESS 1000
 
-    if(k[1] || k[2])
-      Msg(ERROR, "Critical point computation not done in the general case");
+void Scatterer::criticalPoints(int nbnodes, double k[3]){
+  int i_node, i, n, check;
+  double pt, tmp[2], theta, theta0;
 
-    for(n=-2 ; n<=2 ; n++){
-      pt.val = PI-t0+4.*n*PI;
-      if((pt.val-t0>=0) && (pt.val-t0<=TWO_PI)){
-	while(pt.val > TWO_PI) pt.val-=TWO_PI;
-	List_Insert(pts, &pt, fcmp_CPoint);
-      }
-      pt.val = (PI+t0)/3.+4./3.*n*PI;
-      if((pt.val-t0>=0) && (pt.val-t0<=TWO_PI)){
-	while(pt.val > TWO_PI) pt.val-=TWO_PI;
-	List_Insert(pts, &pt, fcmp_CPoint);
-      }
-    }
-    break;
+  if(k[1] || k[2])
+    Msg(ERROR, "Critical point computation not done (yet) in the general case");
 
-  default :
-    // solve the nonlinear system in the general case
+  criticalPointsList = new List_T*[nbnodes];
 
-    if(k[1] || k[2])
-      Msg(ERROR, "Critical point computation not done in the general case");
+  for(i_node=0; i_node<nbnodes; i_node++){
 
-    TheScat = this;
-    theta = 0.;
-    targetPoint = t0;
-    tmplist = List_Create(10,10,sizeof(double));
-#define NBPTS 100
-    for(i=0; i<NBPTS; i++){
-      tmp[1] = theta;
+    criticalPointsList[i_node] = List_Create(10,10,sizeof(double));
+    theta0 = nodes[i_node];
 
-      if(fabs(theta-t0)>1.e-6){
-	newt(tmp, 1, &check, phaseGradient);
-	if(!check){
-	  tmp[1] = GetInInterval(tmp[1], 0., TWO_PI);
-	  List_Insert(tmplist, &tmp[1], fcmp_double_loose);
-	  //printf("theta = %g sol = %.16g check = %d\n", theta, tmp[1], check);
+    switch(type){
+
+    case CIRCLE :
+      // in the case of a circle, they are given in closed form by, for
+      // an integer n:
+      //
+      //  0 <= t-theta0 = Pi - 2*theta0 + 4*n*PI <= 2*PI
+      //  0 <= t-theta0 = (PI-2*theta0)/3 + 4/3*PI*n
+      
+      for(n=-2 ; n<=2 ; n++){
+	pt = PI-theta0+4.*n*PI;
+	if((pt-theta0>=0) && (pt-theta0<=TWO_PI)){
+	  while(pt > TWO_PI) pt-=TWO_PI;
+	  List_Insert(criticalPointsList[i_node], &pt, fcmp_CPoint);
 	}
-	else{
-	  Msg(WARNING,"Newton did not converge for theta0=%g, theta=%g",
-	      t0, theta);
+	pt = (PI+theta0)/3.+4./3.*n*PI;
+	if((pt-theta0>=0) && (pt-theta0<=TWO_PI)){
+	  while(pt > TWO_PI) pt-=TWO_PI;
+	  List_Insert(criticalPointsList[i_node], &pt, fcmp_CPoint);
 	}
       }
-      theta += TWO_PI/NBPTS;
-    }
+      break;
 
-    for(i=0; i<List_Nbr(tmplist); i++){
-      List_Read(tmplist, i, &theta);
-      //printf("CRIT POINT = %g \n", theta);
-      pt.val=theta;  
-      List_Insert(pts, &pt, fcmp_CPoint);
-    }
+    default :
+      // solve the nonlinear system in the general case
 
-    break;
+      TheScat = this;
+      TheTarget = theta0;
+      theta = 0.;
+      
+      for(i=0; i<NB_INITIAL_GUESS; i++){
+	tmp[1] = theta;
+	
+	if(fabs(theta-theta0)>1*TOL_LOOSE){
+	  newt(tmp, 1, &check, phaseGradient);
+	  if(!check){
+	    tmp[1] = GetInInterval(tmp[1], 0., TWO_PI);
+	    List_Insert(criticalPointsList[i_node], &tmp[1], fcmp_double_loose);
+	  }
+	  else
+	    Msg(WARNING,"Newton did not converge for theta0=%g, theta=%g", theta0, theta);
+	}
+	theta += TWO_PI/NB_INITIAL_GUESS;
+      }
+      
+      break;
+      
+    }
 
   }
+  
 }
 
 

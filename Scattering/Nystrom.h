@@ -20,7 +20,7 @@ public:
 
 // prototypes
 
-Complex Integrate(Ctx *ctx, double t);
+Complex Integrate(Ctx *ctx, int index, double t);
 Complex Evaluate(Ctx *ctx, double x[3]);
 
 #endif

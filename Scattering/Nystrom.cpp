@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.32 2002-05-02 22:44:18 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.33 2002-05-03 01:26:29 geuzaine Exp $
 
 #include "Utils.h"
 #include "Nystrom.h"
@@ -151,7 +151,7 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
    
     if(pou){
 
-      density = ctx->f.density(tau_p); //tau
+      density = ctx->f.density(&ctx->scat,tau_p); //tau
 
       if((ctx->type & STORE_OPERATOR) && ctx->iterNum > 1){
 	
@@ -229,7 +229,7 @@ int fcmp_Interval(const void * a, const void * b) {
 
 // Integrate, given the target point 't'
 
-Complex Integrate(Ctx *ctx, double t){
+Complex Integrate(Ctx *ctx, int index, double t){
   Partition part, part2;
   CPoint pt;
   Interval I, *pI;
@@ -255,7 +255,7 @@ Complex Integrate(Ctx *ctx, double t){
 
     // add singular and  critical points in list
     ctx->scat.singularPoint(t,CritPts);
-    ctx->scat.criticalPoints(t,ctx->waveNum,CritPts);
+    ctx->scat.criticalPoints(index,CritPts);
     List_Sort(CritPts, fcmp_CPoint);
   
     // around which point should we integrate?
@@ -284,13 +284,13 @@ Complex Integrate(Ctx *ctx, double t){
 
   // add target, critical and shadowing points in list
   ctx->scat.singularPoint(t,CritPts);
-  ctx->scat.criticalPoints(t,ctx->waveNum,CritPts);
+  ctx->scat.criticalPoints(index,CritPts);
   ctx->scat.shadowingPoints(t,eps_shad/2.,ctx->waveNum,CritPts);
   // ctx->scat.shadowingPoints(t,0.,ctx->waveNum,CritPts);
 
   List_Sort(CritPts, fcmp_CPoint);
 
-  ctx->scat.printPoints(t,CritPts);
+  if(ctx->iterNum==1) ctx->scat.printPoints(t,CritPts);
 
   // merge all overlapping pous in an interval list
   for(j=0 ; j<List_Nbr(CritPts) ; j++) {
@@ -441,7 +441,7 @@ Complex Evaluate(Ctx *ctx, double x[3]){
     f = ctx->f.ansatz(ctx->waveNum,NULL,xtau);
 
     ctx->f.type = Function::INTERPOLATED; 
-    tmp = ctx->f.density(tau);
+    tmp = ctx->f.density(&ctx->scat,tau);
 
     kern.init(0,x,dummy,tau,xtau,dxtau,k);
     res += PI/(double)n * kern.M() * f * tmp;

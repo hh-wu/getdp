@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.17 2002-04-23 00:46:41 geuzaine Exp $
+// $Id: Solve.cpp,v 1.18 2002-05-03 01:26:29 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -22,7 +22,7 @@ void ForwardMap(Ctx *ctx){
   for(i=0 ; i<ctx->nbTargetPts ; i++){
     //t = GetTarget(i,ctx);
     t = 2*PI*i/(double)ctx->nbTargetPts + ctx->initialTarget;
-    res = Integrate(ctx, t); 
+    res = Integrate(ctx, i, t); 
     Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
     List_Add(reslist, &res);
   }
@@ -36,7 +36,7 @@ void ForwardMap(Ctx *ctx){
 double GetTarget(int index, Ctx *ctx){
   if(index<0 || index>ctx->nbdof-1) 
     Msg(ERROR, "Target out of bounds");
-  return ctx->nodes[index];
+  return ctx->scat.nodes[index];
 }
 
 void ComputeRHS(Ctx *ctx, gVector *b){
@@ -92,7 +92,7 @@ void SaveSolution(Ctx *ctx, gVector *x){
   for(i=0; i<ctx->nbdof; i++){
     Complex tmp;
     LinAlg_GetComplexInVector(&tmp,x,i);
-    fprintf(fp, "%.16g %.16g %.16g\n",ctx->nodes[i],tmp.real(),tmp.imag());
+    fprintf(fp, "%.16g %.16g %.16g\n",ctx->scat.nodes[i],tmp.real(),tmp.imag());
   }
   
   fclose(fp);
@@ -115,7 +115,7 @@ void SaveSolution(Ctx *ctx, gVector *x){
 
   fprintf(fp, "angle = [\n");
   for(i=0; i<ctx->nbdof; i++){
-    fprintf(fp, "%.15e\n", ctx->nodes[i]);
+    fprintf(fp, "%.15e\n", ctx->scat.nodes[i]);
   }
   fprintf(fp, "]\n");
   
@@ -133,9 +133,9 @@ void InitializeInterpolation(Ctx *ctx, gVector *x){
   double t, pou, pou2;
   Patch *p, *p2;
 
-  if(List_Nbr(ctx->f.patches) == 1){
+  if(List_Nbr(ctx->scat.patches) == 1){
 
-    p = (Patch*)List_Pointer(ctx->f.patches,0);
+    p = (Patch*)List_Pointer(ctx->scat.patches,0);
     for(j=0; j<p->nbdof; j++){
       LinAlg_GetComplexInVector(&p->localVals[j],x,j+p->beg);
       t = p->nodes[j];
@@ -152,13 +152,13 @@ void InitializeInterpolation(Ctx *ctx, gVector *x){
   }
   else{
 
-    for(i=0; i<List_Nbr(ctx->f.patches); i++){
-      p = (Patch*)List_Pointer(ctx->f.patches,i);
+    for(i=0; i<List_Nbr(ctx->scat.patches); i++){
+      p = (Patch*)List_Pointer(ctx->scat.patches,i);
       for(j=0; j<p->nbdof; j++){
 	if(j<p->nbdof/2)
-	  p2 = (Patch*)List_Pointer(ctx->f.patches,(i==0)?List_Nbr(ctx->f.patches)-1:i-1);
+	  p2 = (Patch*)List_Pointer(ctx->scat.patches,(i==0)?List_Nbr(ctx->scat.patches)-1:i-1);
 	else
-	  p2 = (Patch*)List_Pointer(ctx->f.patches,(i==List_Nbr(ctx->f.patches)-1)?0:i+1);
+	  p2 = (Patch*)List_Pointer(ctx->scat.patches,(i==List_Nbr(ctx->scat.patches)-1)?0:i+1);
 	
 	LinAlg_GetComplexInVector(&p->localVals[j],x,j+p->beg);
 	t = p->nodes[j];
@@ -197,7 +197,7 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
 
   for(i=beg ; i<end ; i++){
     t = GetTarget(i,ctx);
-    res = (-I/2.) * Integrate(ctx, t);
+    res = (-I/2.) * Integrate(ctx, i, t);
     LinAlg_SetComplexInVector(res, y, i);
   }
    
