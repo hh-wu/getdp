@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.25 2002-09-26 00:16:43 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.26 2002-10-03 18:08:54 geuzaine Exp $
 
 #include "Utils.h"
 #include "Scatterer.h"
@@ -111,7 +111,7 @@ void Scatterer::n(double u, double v, double *x){
     x[2] = 0.; 
     break;
   case ELLIPSE :
-    Msg(ERROR, "Ellipse: n not done");
+    Msg(GERROR, "Ellipse: n not done");
     break;
   case DROP :
     x[0] = cos(u)/arclength;
@@ -360,7 +360,7 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
       //  0 <= t-t0 = (PI-2*t0)/3 + 4/3*PI*n
       
       if(k[1] || k[2])
-	Msg(ERROR, "Analytical critical point computation only for k=(kx,0,0)");
+	Msg(GERROR, "Analytical critical point computation only for k=(kx,0,0)");
 
       for(n=-2 ; n<=2 ; n++){
 	pt = PI-t0+4.*n*PI;
@@ -406,7 +406,7 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
       // solve the nonlinear system in the general case, using a
       // finite difference approximation for the jacobian
 
-      Msg(ERROR, "General Newton with finite difference jac not done");
+      Msg(GERROR, "General Newton with finite difference jac not done");
       break;
 
     }
@@ -427,7 +427,7 @@ void Scatterer::shadowingPoints(double t, double shift, double k[3], List_T *pts
   case ELLIPSE :
   case DROP :
     if(k[1] || k[2])
-      Msg(ERROR, "Shadowing point computation not done in the general case");
+      Msg(GERROR, "Shadowing point computation not done in the general case");
 
     pt.val = PI/2. + shift ;
     List_Insert(pts, &pt, compareCPoint);
@@ -437,7 +437,7 @@ void Scatterer::shadowingPoints(double t, double shift, double k[3], List_T *pts
     break;
 
   default :
-    Msg(ERROR, "Unknown type of scatterer for shadowing point computation");
+    Msg(GERROR, "Unknown type of scatterer for shadowing point computation");
     break;
 
   }

@@ -1,4 +1,4 @@
-// $Id: Utils.cpp,v 1.8 2002-04-12 17:11:02 geuzaine Exp $
+// $Id: Utils.cpp,v 1.9 2002-10-03 18:09:37 geuzaine Exp $
 
 #include "Utils.h"
 
@@ -16,10 +16,10 @@ void Msg(int level, char *fmt, ...){
   va_list  args;
   extern int Verbose;
   switch(level){
-  case ERROR: fprintf(stderr, "Error: "); break;
+  case GERROR: fprintf(stderr, "Error: "); break;
   case WARNING: fprintf(stderr, "Warning: "); break;
   case SPARSKIT: fprintf(stderr, "Sparskit: "); break;
-  case DEBUG: if(Verbose<2) return;
+  case GDEBUG: if(Verbose<2) return;
   case INFO: if(Verbose<1) return;
   }
   if(NbCpu>1) fprintf(stderr, "[%3d] ", RankCpu);
@@ -28,7 +28,7 @@ void Msg(int level, char *fmt, ...){
   if(level!=SPARSKIT && level!=ITER) fprintf(stderr, "\n");
   fflush(stderr);
   va_end (args);
-  if(level == ERROR) exit(1);
+  if(level == GERROR) exit(1);
 }
 
 int Cmp(char *str1, char *str2, int min){
@@ -43,7 +43,7 @@ double GetNum(int argc, char *argv[], int *i){
     return atof(argv[(*i)++]); 
   }
   else{ 
-    Msg(ERROR, "Missing number"); 
+    Msg(GERROR, "Missing number"); 
     return 0;
   }
 }
@@ -53,7 +53,7 @@ char *GetString(int argc, char *argv[], int *i){
     return argv[(*i)++]; 
   }
   else{ 
-    Msg(ERROR, "Missing string"); 
+    Msg(GERROR, "Missing string"); 
     return NULL;
   }
 }

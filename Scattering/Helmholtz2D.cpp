@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.17 2002-09-13 01:39:13 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.18 2002-10-03 18:07:38 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -187,6 +187,16 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
     pou = part->eval(tau);
 
+    // Trick to force density to 0 outside the actual integration
+    // domain. Need to test this for the simplified algorithm we
+    // thought about in the convex case (no critical points).
+    /*
+    if(tau < ctx->scat.nodes[0] || tau > ctx->scat.nodes[ctx->nbdof-1]){
+      printf("FORCE POU = 0 (tau = %g)\n", tau);
+      pou = 0.;
+    }
+    */
+
     if(singular && 
        (first || (ctx->f.applyChgVar && !(ctx->type & STORE_OPERATOR))))
       Weights[j] = kern.singLogQuadWeight(t_pp,tau_pp,n);
@@ -223,7 +233,7 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 	}
 	else if(singular){
 	  // combine special quadrature with trapezoidal
-	  if(!jac) Msg(ERROR, "Jac==0!");
+	  if(!jac) Msg(GERROR, "Jac==0!");
 	  w = Weights[j]; // kern.singLogQuadWeight(PI,tau_pp,n);
 
 	  if((ctx->type & FIRST_KIND_IE) && (ctx->type & SECOND_KIND_IE)){
@@ -428,7 +438,7 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
     printf("Rise? "); scanf("%lf", &ctx->rise);
     printf("Number of integration points? "); scanf("%d", &nb);
     List_Read(CritPts, i_index, &pt);
-    Msg(DEBUG, "%s int. : %d pts in [%g , %g]", pt.name(), nb, pt.val-eps, pt.val+eps);
+    Msg(GDEBUG, "%s int. : %d pts in [%g , %g]", pt.name(), nb, pt.val-eps, pt.val+eps);
 
     part.init(pt.val,eps,ctx->rise);
     return Nystrom((pt.degree==1),ctx,t,nb,&part);
@@ -486,7 +496,7 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
     }
     I.min = pt.val-eps;
     I.max = pt.val+eps;
-    Msg(DEBUG, "  - %s pt %d = %.15e -> [%g,%g]", pt.name(), j, pt.val, I.min, I.max);
+    Msg(GDEBUG, "  - %s pt %d = %.15e -> [%g,%g]", pt.name(), j, pt.val, I.min, I.max);
     if((pI = (Interval*)List_PQuery(Intervals, &I, compareInterval))){
       if(I.singular) pI->singular = 1;
       pI->min = MIN(pI->min, I.min);
@@ -499,7 +509,7 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
   
   for(j=0 ; j<List_Nbr(Intervals) ; j++) {
     List_Read(Intervals, j, &I);
-    Msg(DEBUG, "  * [%g , %g]", I.min, I.max);
+    Msg(GDEBUG, "  * [%g , %g]", I.min, I.max);
   }
   
   // insure periodicity
@@ -507,7 +517,7 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
     pI = (Interval*)List_Pointer(Intervals, 0);
     List_Read(Intervals, List_Nbr(Intervals)-1, &I);
     if(I.max > TWO_PI+pI->min){
-      Msg(DEBUG, "  ! Flipping last interval");
+      Msg(GDEBUG, "  ! Flipping last interval");
       I.min -= TWO_PI;
       I.max -= TWO_PI;
       if(I.singular) t-=TWO_PI;
@@ -525,7 +535,7 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
   
   for(j=0 ; j<List_Nbr(Intervals) ; j++) {
     List_Read(Intervals, j, &I);
-    Msg(DEBUG, "  ** [%g , %g]", I.min, I.max);
+    Msg(GDEBUG, "  ** [%g , %g]", I.min, I.max);
   }
   
   // integrate
@@ -543,9 +553,9 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
 	//nb = (int)(2*s_eps/TWO_PI*ctx->nbIntPts); // change this
 	nb = ctx->nbIntPts;
       }
-      Msg(DEBUG, "  - singular int. : %d pts in [%g , %g]", nb, t-s_eps, t+s_eps);
+      Msg(GDEBUG, "  - singular int. : %d pts in [%g , %g]", nb, t-s_eps, t+s_eps);
       tmp = Nystrom(1,ctx,t,nb,&part);
-      Msg(DEBUG, "    IS = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
+      Msg(GDEBUG, "    IS = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
       
       // if the singular integration is embedded in a larger one
       if((I.max-I.min) > 2.*s_eps) {
@@ -567,9 +577,9 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
 
 	  nb = (int)(part.epsilon/sqrt(ctx->epsilon) * ctx->nbIntPts2);
 	}
-	Msg(DEBUG, "  - critical int. in [%g,%g] \\ [%g,%g]",I.min,I.max,t-s_eps, t+s_eps);
+	Msg(GDEBUG, "  - critical int. in [%g,%g] \\ [%g,%g]",I.min,I.max,t-s_eps, t+s_eps);
 	tmp2 = Nystrom(0,ctx,t,nb,&part);
-	Msg(DEBUG, "    IC* = %' '.15e %+.15e * i", tmp2.real(), tmp2.imag());
+	Msg(GDEBUG, "    IC* = %' '.15e %+.15e * i", tmp2.real(), tmp2.imag());
 	List_Delete(part.subParts);
 	part.subParts = NULL;
 	tmp += tmp2;
@@ -589,9 +599,9 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
 
 	nb = (int)(part.epsilon/sqrt(ctx->epsilon) * ctx->nbIntPts2);
       }
-      Msg(DEBUG, "  - critical int.: %d pts in [%g , %g]", nb, I.min, I.max);
+      Msg(GDEBUG, "  - critical int.: %d pts in [%g , %g]", nb, I.min, I.max);
       tmp = Nystrom(0,ctx,t,nb,&part);
-      Msg(DEBUG, "    IC = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
+      Msg(GDEBUG, "    IC = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
     }
     
     res += tmp;
@@ -624,7 +634,7 @@ Complex Evaluate2D(Ctx *ctx, int farfield, double x[3]){
     n = ctx->nbIntPts/2;
 
   if(ctx->type & SECOND_KIND_IE)
-    Msg(ERROR, "Post-pro not ready for 2nd kind equation");
+    Msg(GERROR, "Post-pro not ready for 2nd kind equation");
 
   for(j=0 ; j<=2*n-1 ; j++){
     tau = TWO_PI*j/(2.*n);

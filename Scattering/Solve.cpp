@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.40 2002-09-19 01:17:17 geuzaine Exp $
+// $Id: Solve.cpp,v 1.41 2002-10-03 18:09:37 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -47,7 +47,7 @@ Complex Ctx::integrate(int index){
 
 double Ctx::getTarget(int index){
   if(index<0 || index>nbdof-1) 
-    Msg(ERROR, "Target out of bounds");
+    Msg(GERROR, "Target out of bounds");
   return scat.nodes[index];
 }
 
@@ -93,7 +93,7 @@ void Ctx::readSolution(gVector *x){
 
   sprintf(fn, "hf.res");
   if(!(fp = fopen(fn, "r")))
-    Msg(ERROR, "Could not open res file");
+    Msg(GERROR, "Could not open res file");
   
   for(i=0; i<nbdof; i++){
     Complex tmp;
@@ -113,7 +113,7 @@ void Ctx::saveSolution(gVector *x){
 
   sprintf(fn, "hf.res");
   if(!(fp = fopen(fn, "w")))
-    Msg(ERROR, "Could not open res file");
+    Msg(GERROR, "Could not open res file");
   
   for(i=0; i<nbdof; i++){
     Complex tmp;
@@ -125,7 +125,7 @@ void Ctx::saveSolution(gVector *x){
 
   sprintf(fn, "hf.m");
   if(!(fp = fopen(fn, "w")))
-    Msg(ERROR, "Could not open matlab file");
+    Msg(GERROR, "Could not open matlab file");
   
   fprintf(fp, "k = [%g %g %g];\n", waveNum[0], waveNum[1], waveNum[2]);
   fprintf(fp, "a = %g;\n", scat.a);
@@ -165,7 +165,7 @@ void Ctx::initializeInterpolation(gVector *x){
 
   if(type & REAL_COLTON_KRESS){
     if(List_Nbr(scat.patches) != 1)
-      Msg(ERROR, "Multi-patch not implemented for classic Colton/Kress integrator");
+      Msg(GERROR, "Multi-patch not implemented for classic Colton/Kress integrator");
     p = (Patch*)List_Pointer(scat.patches,0);
     for(j=0; j<p->nbdof; j++)
       LinAlg_GetComplexInVector(&p->localVals[j],x,j+p->beg);
@@ -340,7 +340,7 @@ void Ctx::postProcess(){
   double k = NORM3(waveNum);
   double coord[3], angle;
 
-  if(scat.dim() != 2) Msg(ERROR, "Postpro not ready for 3D");
+  if(scat.dim() != 2) Msg(GERROR, "Postpro not ready for 3D");
 
   LinAlg_CreateVector(&x, &solver, nbdof, 1, NULL);
   readSolution(&x);
@@ -362,7 +362,7 @@ void Ctx::postProcess(){
   // far field polar plot
   sprintf(fn, "far.m");
   if(!(fp = fopen(fn, "w")))
-    Msg(ERROR, "Could not open .m file");
+    Msg(GERROR, "Could not open .m file");
 
 #define NBP 1000
 
@@ -406,7 +406,7 @@ void Ctx::postProcess(){
 
   sprintf(fn, "hf.pos");
   if(!(fp = fopen(fn, "w")))
-    Msg(ERROR, "Could not open pos file");
+    Msg(GERROR, "Could not open pos file");
 
   fprintf(fp, "View \"phi\" {\n");
   for(i=0; i<nbx; i++){

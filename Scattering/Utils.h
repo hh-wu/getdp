@@ -2,6 +2,10 @@
 #define _UTILS_H_
 
 #include "GetDP.h"
+// this is a hack, to allow compatibility with Randy's code:
+#undef ERROR
+#undef DEBUG
+
 #include "Data_Numeric.h"
 
 extern int Verbose, NbCpu, RankCpu;

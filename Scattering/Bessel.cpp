@@ -1,4 +1,4 @@
-// $Id: Bessel.cpp,v 1.10 2002-08-27 23:38:16 geuzaine Exp $
+// $Id: Bessel.cpp,v 1.11 2002-10-03 18:05:11 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -10,10 +10,10 @@ void Bessel_error(int ierr, char *str){
   case 0 :
     break;
   case 1 :
-    Msg(ERROR, "Input error in %s", str);
+    Msg(GERROR, "Input error in %s", str);
     break;
   case 2 :
-    Msg(ERROR, "Overflow in %s", str);
+    Msg(GERROR, "Overflow in %s", str);
     break;
   case 3 :
     if(!warn){
@@ -22,10 +22,10 @@ void Bessel_error(int ierr, char *str){
     }
     break;
   case 4 :
-    Msg(ERROR, "Complete loss of significance in %s (argument or order too large)", str);
+    Msg(GERROR, "Complete loss of significance in %s (argument or order too large)", str);
     break;
   case 5 :
-    Msg(ERROR, "Failed to converge in %s", str);
+    Msg(GERROR, "Failed to converge in %s", str);
     break;
   }
 }

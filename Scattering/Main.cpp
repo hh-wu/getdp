@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.21 2002-09-11 00:55:37 geuzaine Exp $
+// $Id: Main.cpp,v 1.22 2002-10-03 18:08:27 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
@@ -72,7 +72,7 @@ int main(int argc, char *argv[]){
 	else if(!strncmp(str,"ellipse",1)) ctx->scat.type = Scatterer::ELLIPSE;
 	else if(!strncmp(str,"drop",1))    ctx->scat.type = Scatterer::DROP;
 	else if(!strncmp(str,"kite",1))    ctx->scat.type = Scatterer::KITE;
-	else Msg(ERROR, "Unknown scatterer");
+	else Msg(GERROR, "Unknown scatterer");
       }
       else if(Cmp(argv[i]+1, "spline", 2)){ 
 	i++; spline=1; Msg(INFO, "Interpolation: cubic splines");

@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.32 2002-09-19 01:17:17 geuzaine Exp $
+// $Id: Patch.cpp,v 1.33 2002-10-03 18:08:27 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -23,7 +23,7 @@ void Partition::init(double _center, double _epsilon, double _rise){
 
   crest = epsilon-fabs(_rise);
   if(crest<0.) 
-    Msg(ERROR, "Invalid rise (%g > epsilon)", _rise);
+    Msg(GERROR, "Invalid rise (%g > epsilon)", _rise);
 
   subParts = NULL;
 }
@@ -130,7 +130,8 @@ void Ctx::createMesh(Patch::PatchType patchtype){
 
     p[0] = new Patch(patchtype, 
 		     0, nbTargetPts, 
-		     PI, PI, 0);
+		     //		     PI, PI/1.5, 0);
+		      PI, PI, 0);
     List_Add(scat.patches, p[0]);
 
   }
