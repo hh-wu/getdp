@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.22 2001-06-27 13:18:10 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.23 2001-07-17 23:28:47 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -371,23 +371,25 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       case LINE        : Current_L = SL ; NbSL++ ; break ;
       case TRIANGLE    : Current_L = ST ; NbST++ ; break ;
       case TETRAHEDRON : Current_L = SS ; NbSS++ ; break ;
-      }    
+      }
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
     }
-    List_Put(TimeValue_L, TimeStep, &Time);
     if (HarmonicToTime == 1)
-      for(k = 0 ; k < NbHarmonic ; k++)
+      for(k = 0 ; k < NbHarmonic ; k++){
+	List_Put(TimeValue_L, NbHarmonic*TimeStep+k, &Time);
 	for(i = 0 ; i < NbrNodes ; i++)
 	  List_Add(Current_L, &Value[i].Val[MAX_DIM*k]);
+      }
     else
-      for(k = 0 ; k < HarmonicToTime ; k++)
+      for(k = 0 ; k < HarmonicToTime ; k++){
+	List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);	
 	for(i = 0 ; i < NbrNodes ; i++){
 	  F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	  List_Add(Current_L, &TmpValue.Val[0]);
 	}
-
+      }
     break ;
 
   case VECTOR :
@@ -398,24 +400,27 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       case LINE        : Current_L = VL ; NbVL++ ; break ;
       case TRIANGLE    : Current_L = VT ; NbVT++ ; break ;
       case TETRAHEDRON : Current_L = VS ; NbVS++ ; break ;
-      }    
+      }
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
     }
-    List_Put(TimeValue_L, TimeStep, &Time);
     if (HarmonicToTime == 1)
-      for(k = 0 ; k < NbHarmonic ; k++)
+      for(k = 0 ; k < NbHarmonic ; k++){
+	List_Put(TimeValue_L, NbHarmonic*TimeStep+k, &Time);
 	for(i = 0 ; i < NbrNodes ; i++)
 	  for(j = 0 ; j < 3 ; j++)
 	    List_Add(Current_L, &Value[i].Val[MAX_DIM*k+j]);
+      }
     else
-      for(k = 0 ; k < HarmonicToTime ; k++)
+      for(k = 0 ; k < HarmonicToTime ; k++){
+	List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);
 	for(i = 0 ; i < NbrNodes ; i++){
 	  F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	  for(j = 0 ; j < 3 ; j++)
 	    List_Add(Current_L, &TmpValue.Val[j]);
 	}
+      }
     break ;
 
   case TENSOR_DIAG :
