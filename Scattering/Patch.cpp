@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.26 2002-06-19 00:37:30 geuzaine Exp $
+// $Id: Patch.cpp,v 1.27 2002-08-17 23:09:25 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -83,6 +83,7 @@ Patch::Patch(PatchType _type, int _beg, int _end,
   for(i=0; i<nbdof; i++){
     s = center-eps + i*step; // uniform mesh in each patch
     //s = center-eps + i*step + step/2.; // mesh that does *not* comprise the origin
+    //s = PI/4.; // TEST!!!
     nodes[i] = changeOfVars(s,0);
     jacs[i] = changeOfVars(s,1);
     //printf("node %.16g jac %.16g\n", nodes[i], jacs[i]);
@@ -138,31 +139,38 @@ void Ctx::createMesh(Patch::PatchType patchtype){
 
     // change this when doing Fourier interpolation to have odd nb of
     // Fourier modes on each patch...
+
+    nbTargetPts = 512;
+    a = 0;
+    p[0] = new Patch(patchtype,   0, 128,      0, PI/8+a, a); List_Add(scat.patches, p[0]);
+    p[1] = new Patch(patchtype, 128, 256,   PI/2, PI/8+a, a); List_Add(scat.patches, p[1]);
+    p[2] = new Patch(patchtype, 256, 384,     PI, PI/8+a, a); List_Add(scat.patches, p[2]);
+    p[3] = new Patch(patchtype, 384, 512, 3*PI/2, PI/8+a, a); List_Add(scat.patches, p[3]);
     
 #if 0
     a = 0.5;
     rise = 0.5;
-    p[0] = new Patch(Patch::FOURIER, 0, nbTargetPts/4, 
+    p[0] = new Patch(patchtype, 0, nbTargetPts/4, 
 		     0, PI/2.-a, rise);
     List_Add(scat.patches, p[0]);
-    p[1] = new Patch(Patch::FOURIER, nbTargetPts/4, nbTargetPts/2, 
-		     PI/2., a + Rise, rise);
+    p[1] = new Patch(patchtype, nbTargetPts/4, nbTargetPts/2, 
+		     PI/2., a + rise, rise);
     List_Add(scat.patches, p[1]);
 
-    p[2] = new Patch(Patch::FOURIER, 20, 30, 
-		     PI, PI/2. - a + Rise, rise);
+    p[2] = new Patch(patchtype, 20, 30, 
+		     PI, PI/2. - a + rise, rise);
     List_Add(scat.patches, p[2]);
-    p[3] = new Patch(Patch::FOURIER, 30, nbTargetPts, 
+    p[3] = new Patch(patchtype, 30, nbTargetPts, 
 		     3.*PI/2., a + rise, rise);
     List_Add(scat.patches, p[3]);
 #endif
     
 #if 0
     a=1.;
-    p[0] = new Patch(Patch::FOURIER, 0, nbTargetPts/2, 
+    p[0] = new Patch(patchtype, 0, nbTargetPts/2, 
 		     PI/2., PI/2., a);
     List_Add(scat.patches, p[0]);
-    p[1] = new Patch(Patch::FOURIER, nbTargetPts/2, nbTargetPts, 
+    p[1] = new Patch(patchtype, nbTargetPts/2, nbTargetPts, 
 		     3.*PI/2., PI/2.+a, a);
     List_Add(scat.patches, p[1]);
 #endif
@@ -170,23 +178,23 @@ void Ctx::createMesh(Patch::PatchType patchtype){
 #if 0    // overlapping nodes match "1 on 2"
     nbTargetPts = 60;
     a=5.0*PI/20.;
-    p[0] = new Patch(Patch::FOURIER, 0, 40, 
+    p[0] = new Patch(patchtype, 0, 40, 
 		     PI/2., PI/2., a);
     List_Add(scat.patches, p[0]);
     nbTargetPts += 10;
-    p[1] = new Patch(Patch::FOURIER, 40, nbTargetPts, 
+    p[1] = new Patch(patchtype, 40, nbTargetPts, 
 		     3.*PI/2., PI/2.+a, a);
     List_Add(scat.patches, p[1]);
 #endif
 
-#if 1 // 5 overlapping nodes -> working 34 iters
+#if 0 // 5 overlapping nodes -> working 34 iters
     nbTargetPts = 40;
     a=5.1*PI/20.;
-    p[0] = new Patch(Patch::FOURIER, 0, 20, 
+    p[0] = new Patch(patchtype, 0, 20, 
 		     PI/2., PI/2., a);
     List_Add(scat.patches, p[0]);
     nbTargetPts += 10;
-    p[1] = new Patch(Patch::FOURIER, 20, nbTargetPts, 
+    p[1] = new Patch(patchtype, 20, nbTargetPts, 
 		     3.*PI/2., PI/2.+a, a);
     List_Add(scat.patches, p[1]);
 #endif
