@@ -1,4 +1,4 @@
-/* $Id: Message.c,v 1.10 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Message.c,v 1.11 2000-09-21 07:42:43 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
@@ -74,7 +74,7 @@ char help[] =
   "Other options:\n"
   "  -check                    interactive check of problem structure\n"
   "  -v int                    set verbosity level (default: 4)\n"
-  "  -p int                    set progress update (default: 10)\n"
+  "  -p int                    set progress indicator update (default: 10)\n"
   "  -info                     show version information\n"
   "  -version                  show version number\n"
   "  -help                     show this message\n"
