@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.6 2001-07-28 13:54:26 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -508,7 +508,7 @@ void  Fi_InitAkima (F_ARG) {
 
   D = Fct->Active ;  N = D->Case.Interpolation.NbrPoint ;
   x = D->Case.Interpolation.x ;  y = D->Case.Interpolation.y ;
-  mi = D->Case.Interpolation.mi = (double *)Malloc(sizeof(double)*N+4) ;
+  mi = D->Case.Interpolation.mi = (double *)Malloc(sizeof(double)*(N+4)) ;
   mi += 2 ;
   bi = D->Case.Interpolation.bi = (double *)Malloc(sizeof(double)*N) ;
   ci = D->Case.Interpolation.ci = (double *)Malloc(sizeof(double)*N) ;
