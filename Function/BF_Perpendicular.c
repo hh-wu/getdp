@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Perpendicular.c,v 1.6 2004-01-19 16:51:14 geuzaine Exp $"
+#define RCSID "$Id: BF_Perpendicular.c,v 1.7 2004-05-11 08:06:11 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -26,6 +26,36 @@
 #define ARGS 					\
   struct Element * Element, int NumEntity, 	\
   double u, double v, double w,  double *s 
+
+
+/* ------------------------------------------------------------------------ */
+/*  B F _ W i r e                                                           */
+/* ------------------------------------------------------------------------ */
+#define BF(BF_Wire_X,BF_Node_X)		\
+  							\
+  GetDP_Begin(BF_Wire_X);			\
+							\
+  s[1] = s[2] = 0. ;					\
+  (BF_Node_X)(Element, NumEntity, u, v, w, &s[0]) ;	\
+							\
+  GetDP_End ;
+
+void  BF_Wire(ARGS) { BF("BF_Wire",BF_Node) ; }
+#undef BF
+
+/* ------------------------------------------------------------------------ */
+/*  B F _ D i v W i r e                                                           */
+/* ------------------------------------------------------------------------ */
+#define BF(BF_DivWire_X,BF_GradNode_X)		       \
+          					        \
+  GetDP_Begin(BF_DivWire_X);			        \
+                                                        \
+  (BF_GradNode_X)(Element, NumEntity, u, v, w, &s[0]) ;	\
+							\
+  GetDP_End ;
+
+void  BF_DivWire(ARGS) { BF("BF_DivWire",BF_GradNode) ; }
+#undef BF
 
 /* ------------------------------------------------------------------------ */
 /*  B F _ P e r p e n d i c u l a r E d g e                                 */
