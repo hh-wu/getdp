@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.30 2003-02-07 10:26:58 geuzaine Exp $
+# $Id: Makefile,v 1.31 2003-03-18 00:19:19 geuzaine Exp $
 
 # history of cvs tags:
 # scat_0_1 : scat-oscar+andy
@@ -27,7 +27,7 @@ RANLIB  = ranlib
 LIB     = ../lib/libScattering.a
 INCLUDE = -I. -I../include -I../Main -I../DataStr -I../DofData -I../Function\
           -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit\
-          -I${FFTW_PREFIX}/include
+          -I../NR -I${FFTW_PREFIX}/include
 
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 

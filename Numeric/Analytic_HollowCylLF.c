@@ -1,4 +1,4 @@
-#define RCSID "$Id: Analytic_HollowCylLF.c,v 1.1 2002-02-04 19:00:09 geuzaine Exp $"
+#define RCSID "$Id: Analytic_HollowCylLF.c,v 1.2 2003-03-18 00:19:19 geuzaine Exp $"
 /* Solution analytique de l'induction magnetique dans le cas
    d'un cylindre creux de rayon interne r0 et de rayon externe r1.
    Le champ applique est dirige selon la direction horizontale de
@@ -14,7 +14,7 @@ composantes de la densite d'induction magnetique b selon x et selon y */
 
 #include <stdlib.h>
 #include <math.h>
-#include "nrdefs.h"
+#include "Numeric.h"
 
 void hollowcyl(double x, double y, double *bx, double *by, double *phi, 
 	       double b0, double mur, double r0, double r1) {

@@ -1,13 +1,12 @@
-#define RCSID "$Id: Adapt.c,v 1.9 2003-03-17 23:47:10 geuzaine Exp $"
+#define RCSID "$Id: Adapt.c,v 1.10 2003-03-18 00:19:19 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
 #include "GetDP.h"
 #include "Data_Element.h"
 #include "Adapt.h"
-
+#include "Numeric.h"
 #include "nrutil.h"
-#include "nrdefs.h"
 
 #define TOL     1.e-08
 #define MAXDEG  999

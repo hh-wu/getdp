@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.22 2003-03-17 23:47:10 geuzaine Exp $
+# $Id: Makefile,v 1.23 2003-03-18 00:19:19 geuzaine Exp $
 
 include ../variables
 
@@ -49,7 +49,7 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-Analytic_HollowCylLF.o: Analytic_HollowCylLF.c ../NR/nrdefs.h \
+Analytic_HollowCylLF.o: Analytic_HollowCylLF.c Numeric.h \
   ../Main/Data_Numeric.h
 Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
@@ -57,11 +57,11 @@ Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
   ../Main/Data_Numeric.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h ../include/Magic.h ../NR/nrutil.h
+  ../GeoData/Data_GeoData.h ../include/Magic.h Numeric.h ../NR/nrutil.h
 Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h \
-  ../NR/nrutil.h ../NR/nrdefs.h ../Main/Data_Numeric.h
+  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h Numeric.h \
+  ../Main/Data_Numeric.h ../NR/nrutil.h
 Legendre.o: Legendre.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h
 SphBessel.o: SphBessel.c ../include/GetDP.h ../Main/Message.h \
