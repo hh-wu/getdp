@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: Pos_ReadLine.c,v 1.3 2000-10-30 01:05:48 geuzaine Exp $" ;
+#define RCSID "$Id: Pos_ReadLine.c,v 1.4 2000-10-30 01:29:49 geuzaine Exp $"
 /* GNUPLOT - readline.c */
 
 /* WARNING: THIS IS A MODIFIED VERSION: see the 'getdp' tags */

@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: F_MultiHar.c,v 1.2 2000-10-30 01:05:44 geuzaine Exp $";
+#define RCSID "$Id: F_MultiHar.c,v 1.3 2000-10-30 01:29:47 geuzaine Exp $";
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>

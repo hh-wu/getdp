@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: Get_Define.c,v 1.5 2000-10-30 01:05:45 geuzaine Exp $" ;
+#define RCSID "$Id: Get_Define.c,v 1.6 2000-10-30 01:29:48 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: Gauss_Hexahedron.c,v 1.8 2000-10-30 01:05:44 geuzaine Exp $" ;
+#define RCSID "$Id: Gauss_Hexahedron.c,v 1.9 2000-10-30 01:29:47 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>

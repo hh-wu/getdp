@@ -191,7 +191,7 @@
 #line 1 "yacc.y"
 
 
-static char *rcsid = "$Id: yacc.tab.c,v 1.26 2000-10-30 01:05:46 geuzaine Exp $" ;
+#define RCSID "$Id: yacc.tab.c,v 1.27 2000-10-30 01:29:48 geuzaine Exp $"
 
 /*
   Modifs a faire (Patrick):

@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: Malloc.c,v 1.1 2000-10-30 01:00:34 geuzaine Exp $" ;
+#define RCSID "$Id: Malloc.c,v 1.2 2000-10-30 01:29:46 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>

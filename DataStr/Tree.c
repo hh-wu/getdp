@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: Tree.c,v 1.1 2000-10-30 01:00:34 geuzaine Exp $" ;
+#define RCSID "$Id: Tree.c,v 1.2 2000-10-30 01:29:46 geuzaine Exp $"
 /* Auteur: Marc UME  **  Date: 17/03/94  ** 
    Commentaire: Gestionnaire d'arbres balances */
 

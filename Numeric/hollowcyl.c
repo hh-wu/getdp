@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: hollowcyl.c,v 1.3 2000-10-30 01:05:46 geuzaine Exp $" ;
+#define RCSID "$Id: hollowcyl.c,v 1.4 2000-10-30 01:29:48 geuzaine Exp $"
 /* Solution analytique de l'induction magnetique dans le cas
    d'un cylindre creux de rayon interne r0 et de rayon externe r1.
    Le champ applique est dirige selon la direction horizontale de

@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: mnbrak.c,v 1.3 2000-10-30 01:05:46 geuzaine Exp $" ;
+#define RCSID "$Id: mnbrak.c,v 1.4 2000-10-30 01:29:48 geuzaine Exp $"
 #include <math.h>
 
 #define NRANSI

@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: Get_FunctionValue.c,v 1.7 2000-10-30 01:05:45 geuzaine Exp $" ;
+#define RCSID "$Id: Get_FunctionValue.c,v 1.8 2000-10-30 01:29:48 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */

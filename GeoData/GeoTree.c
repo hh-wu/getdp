@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: GeoTree.c,v 1.4 2000-10-30 01:05:44 geuzaine Exp $" ;
+#define RCSID "$Id: GeoTree.c,v 1.5 2000-10-30 01:29:47 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: Cal_Value.c,v 1.9 2000-10-30 01:05:45 geuzaine Exp $" ;
+#define RCSID "$Id: Cal_Value.c,v 1.10 2000-10-30 01:29:47 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */

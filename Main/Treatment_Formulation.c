@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: Treatment_Formulation.c,v 1.4 2000-10-30 01:05:45 geuzaine Exp $" ;
+#define RCSID "$Id: Treatment_Formulation.c,v 1.5 2000-10-30 01:29:48 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -685,7 +685,6 @@ struct Dof * Cal_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
     GetDP_Return(NULL) ;
   }
 
-  GetDP_End ;
 }
 
 

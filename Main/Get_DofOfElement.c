@@ -1,4 +1,4 @@
-static char *rcsid = "$Id: Get_DofOfElement.c,v 1.13 2000-10-30 01:05:45 geuzaine Exp $" ;
+#define RCSID "$Id: Get_DofOfElement.c,v 1.14 2000-10-30 01:29:48 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
