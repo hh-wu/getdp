@@ -1,0 +1,8 @@
+#!/usr/users50/geuzaine/BIN/bash -
+
+for A in  *.c
+do
+sed "s/\.\"/\"/g" $A > $A.XXX
+/bin/rm -f $A
+mv $A.XXX $A   
+done

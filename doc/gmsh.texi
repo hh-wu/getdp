@@ -1,0 +1,417 @@
+\input texinfo.tex    @c -*-texinfo-*-
+@c =========================================================================
+@c
+@c This is the Gmsh documentation texinfo source file
+@c
+@c Indexing : @cindex  == concepts
+@c            @tindex  == syntax
+@c            @mvindex == metasyntactic variables
+@c
+@c Before release, run C-u C-c C-u C-a in GNU Emacs
+@c This updates all node pointers and menus
+@c 
+@c info  : makeinfo getdp.texi
+@c dvi   : texi2dvi getdp.texi
+@c ps    : dvips getdp.dvi -o
+@c pdf   : texi2pdf getdp.texi
+@c html  : texi2html -expandinfo -split_chapter getdp.texi
+@c nroff : texi2roff getdp.texi
+@c
+@c =========================================================================
+@c %**start of header
+@setfilename getdp.info
+@set EDITION 0.1
+@set VERSION 0.97
+@set UPDATED 17 August 1999
+@set UPDATE-MONTH August 1999
+@set COPYRIGHT @copyright{} 1997-1999 Christophe Geuzaine, Jean-Francois Remacle
+@set WEB @uref{http://www.montefiore.ulg.ac.be/~geuzaine/gmsh.html}
+@settitle Gmsh @value{VERSION}
+@footnotestyle separate
+@c recto-verso
+@setchapternewpage odd
+@c recto
+@c @setchapternewpage on
+@paragraphindent 2
+@finalout
+@defcodeindex mv
+@c %**end of header
+
+@ifinfo
+@dircategory Mesh Software
+@direntry
+* Gmsh: (gmsh).       GNU Mesh
+@end direntry
+@noindent
+This is Edition @value{EDITION}, last updated @value{UPDATED}, of the
+@cite{Gmsh Manual}, for Gmsh, Version @value{VERSION}.
+@noindent
+Copyright @value{COPYRIGHT}
+@noindent
+University of Li@`ege @*
+Department of Electrical Engineering @*
+Institut d'@'Electricit@'e Montefiore @*
+Sart Tilman Campus, Building B28 @*
+B-4000 Li@`ege @*
+BELGIUM @*
+@:
+University of Renselear @*
+Troy @*
+USA @*
+@end ifinfo
+
+@iftex
+@global@let@bullet=-
+@global@let@sl=@it
+@global@setfont@indit@itshape{9}{1000}
+@end iftex
+
+@c =========================================================================
+@c Title page
+@c =========================================================================
+
+@shorttitlepage Gmsh
+@titlepage
+@title Gmsh
+@subtitle The GNU Mesh Manual for Gmsh, Version  @value{VERSION}
+@subtitle 
+@subtitle Edition @value{EDITION}, @value{UPDATE-MONTH}
+
+@author Christophe Geuzaine
+@author Jean-Francois Remacle
+
+@page
+@vskip 0pt plus 1filll
+Copyright @value{COPYRIGHT}
+@sp 1
+University of Li@`ege @*
+Department of Electrical Engineering @*
+Institut d'@'Electricit@'e Montefiore @*
+Sart Tilman Campus, Building B28 @*
+B-4000 Li@`ege @*
+BELGIUM @*
+@:
+University of Renselear @*
+Troy @*
+USA @*
+@end titlepage
+
+@c =========================================================================
+@c Table of contents
+@c =========================================================================
+@c  this doesn't work with older makeinfo/texi2dvi
+@c @summarycontents
+@c @contents
+
+@c =========================================================================
+@c Top node
+@c =========================================================================
+
+@ifnottex
+@node Top, Copying, (dir), (dir)
+@top Gmsh
+
+Gmsh is a 1D, 2D and 3D automatic mesh generator.
+
+This is Edition @value{EDITION} of the @cite{Gmsh Manual}, last updated
+@value{UPDATED} for Gmsh Version @value{VERSION}.
+@end ifnottex
+
+
+@c =========================================================================
+@c Master menu
+@c =========================================================================
+
+@menu
+* Copying::                     Copyright and copying conditions
+* Introduction::                Basic presentation
+* Overview::                    Problem resolution philosophy
+* File formats::                Input and output file formats
+* Versions and credits::        Versions history and contributors
+
+Appendices:
+
+* Tips and tricks::             Little tricks to improve the efficiency
+* Gmsh examples::               Sample Gmsh input files
+
+Indices:
+
+* Concept index::               
+* Syntax index::                
+* Variable index::              
+@end menu
+
+
+@c =========================================================================
+@c Copying Conditions
+@c =========================================================================
+
+@node Copying, Introduction, Top, Top
+@unnumbered Copying Conditions
+
+@cindex Copyright
+@cindex Web site
+@cindex Internet address
+@cindex Download
+@cindex Platforms
+
+Executable versions of GetDP can be downloaded for most of the classical
+UNIX platforms (SUN, DEC, IBM, HP and Linux) and for Windows 95/98/NT
+from the web site @value{WEB} (no source distribution is available for
+the moment). The executable versions of GetDP are free; the only thing
+asked if you use GetDP is to mention it in your work. Published
+references, as well as the latest news about GetDP developments and
+download information, are always available on the web site.
+
+
+@c =========================================================================
+@c Introduction
+@c =========================================================================
+
+@node Introduction, Overview, Copying, Top
+@unnumbered Introduction
+
+@cindex Introduction
+
+GetDP (a General environment for the treatment of Discrete Problems) is
+a scientific software environment for the numerical solution of
+integro-differential equations, open to the coupling of physical
+problems (electromagnetic, thermal, mechanical, etc) as well as of
+numerical methods (finite element method, integral methods, etc). It can
+deal with such problems of various dimensions (1D, 2D or 3D) and time
+states (static, transient or harmonic).
+
+The main feature of GetDP is the closeness between its internal
+structure (written in C), the organization of data defining discrete
+problems (written by the user in ASCII data files) and the symbolic
+mathematical expressions of these problems. Its aim is to be welcoming
+and of easy use for both development and application levels: it consists
+of a working environment in which the definition of any problem
+makes use of a limited number of objects, which makes the environment
+structured and concise. It therefore gives researchers advanced
+developing tools and a large freedom in adding new functionalities.
+
+The modeling tools provided by GetDP can be tackled at various levels of
+complexity: this opens the software to a wide range of activities, such
+as research, collaboration, education, training and industrial studies.
+
+
+
+
+@c =========================================================================
+@c General Overview
+@c =========================================================================
+
+@node Overview, File formats, Introduction, Top
+@chapter General Overview
+
+@cindex Overview
+@cindex Objects, overview
+@cindex Tools, overview
+@cindex Numerical tools, overview
+
+
+@c =========================================================================
+@c File Formats
+@c =========================================================================
+
+@node File formats, Versions and credits, Overview, Top
+@chapter File Formats
+
+@c =========================================================================
+@c Versions and Credits
+@c =========================================================================
+
+@node Versions and credits, Tips and tricks, File formats, Top
+@chapter Versions and Credits
+
+@menu
+* Versions::                    
+* Bugs::                        
+* Contributors::                
+@end menu
+
+@c -------------------------------------------------------------------------
+@c Versions
+@c -------------------------------------------------------------------------
+
+@node Versions, Bugs, Versions and credits, Versions and credits
+@section Version History
+
+@cindex Versions
+@cindex History, versions
+@cindex Changelog
+
+@itemize @bullet
+@item
+@b{0.3}: First distributed version;
+@item 
+@b{0.6}: Second order time derivatives; Newton nonlinear scheme; Newmark
+time stepping scheme; global quantity syntax; interactive
+post-processing; tensors; integral quantities; many post-processing
+facilities; ...
+@item
+@b{0.7}: new constraint syntax; convolution; unary minus correction; ...
+@end itemize
+
+@c -------------------------------------------------------------------------
+@c Bugs
+@c -------------------------------------------------------------------------
+
+@node Bugs, Contributors, Versions, Versions and credits
+@section Bugs
+
+@cindex Known bugs
+@cindex Bugs, known
+@cindex Bugs, reporting
+@cindex Reporting bugs
+@cindex Authors, e-mail
+@cindex E-mail, authors
+
+If you think you have found a bug in GetDP, please report it by
+electronic mail to @email{Patrick.Dular@@ulg.ac.be} or
+@email{Christophe.Geuzaine@@ulg.ac.be}.  Send as precise a description
+of the problem as you can, including sample input files that produce the
+bug (problem definition and mesh files). Don't forget to mention both
+the versions of GetDP and of your operation system.
+
+Here is a list of known bugs:
+
+@itemize @bullet
+@item
+Arguments in nested expressions don't work. This is a *BIG* bug.
+@end itemize
+
+
+@c -------------------------------------------------------------------------
+@c Contributors
+@c -------------------------------------------------------------------------
+
+@node Contributors,  , Bugs, Versions and credits
+@section Contributors
+
+@cindex Acknowledgments
+@cindex Contributors, list
+@cindex Credits 
+
+@itemize @bullet
+@item
+M. Ume: code for lists and trees (listman.c, treeman.c). 
+@item
+J.-F. Remacle: first version of the default solver interface; ideas for
+Pos_Search.c, Pos_Fill.c and for the three-dimensional cutting
+algorithm.
+@item 
+F. Henrotte: special axisymetric jacobians; ideas about many others
+things.
+@item 
+B. Meys: concepts for the Newmark time stepping scheme.
+@item
+T. Tarhasaari: ideas for de Rham maps and dual meshes.
+@item
+D. Colignon: code for infinite jacobians.
+@item
+Unknown: avl tree code
+@item
+@dots{}
+@end itemize
+
+
+
+@c =========================================================================
+@c Tips ans Tricks
+@c =========================================================================
+
+@node Tips and tricks, Gmsh examples, Versions and credits, Top
+@appendix Tips and Tricks
+
+@cindex Tips
+@cindex Tricks
+@cindex Efficiency, tips
+
+@itemize @bullet
+@item
+Use emacs to edit your files, and load the C++ mode. This permits
+automatic syntax highlighting and easy indentation. Automatic loading of
+the C++ mode for @file{.pro} files can be done by adding the following
+command in your @code{.emacs} file: @code{(setq auto-mode-alist (append
+'(("\\.pro$" . c++-mode)) auto-mode-alist))}.
+@item
+Define integration and Jacobian method in separate files, reusable
+(@pxref{Includes}) in all your problem definition structures. Define
+meshes, groups, functions and constraints in one file dependent of the
+geometrical model, and functions spaces, formulations, resolutions and
+post-processings in files independent of the geometrical model.
+@item
+Use @code{All} as soon as you can in the definition of topological
+entities used as @code{Entity} of @code{BasisFunction}'s. 
+This will prevent GetDP of constructing unnecessary lists of entities.
+@item
+Intentionnally misspelling an object type in the problem definition
+structure will produce an error message listing all available types in
+the particular context.
+@end itemize
+
+
+@c =========================================================================
+@c Gmsh Examples
+@c =========================================================================
+
+@node Gmsh examples, Concept index, Tips and tricks, Top
+@appendix Gmsh Examples
+
+@cindex Gmsh, examples
+@cindex Mesh, examples
+
+Gmsh is a three-dimensional meshing tool (with pre- and post-processing
+facilities). Written in C/C++ and using OpenGL, Gmsh is available for
+most of the classical UNIX platforms (SUN, DEC, IBM, HP and Linux) and
+for Windows 95/98/NT. Gmsh can be downloaded from @value{WEB-GMSH}.
+
+This appendix reproduces verbatim the input files needed by Gmsh to
+produce the mesh files @file{mStrip.msh} and @file{Core.msh} used in the
+examples of @ref{Complete examples}. 
+
+
+@c =========================================================================
+@c Concept Index
+@c =========================================================================
+
+@node Concept index, Syntax index, Gmsh examples, Top
+@unnumbered Concept Index
+
+@cindex Index, concepts
+@cindex Concepts, index
+
+@printindex cp
+
+@c =========================================================================
+@c Syntax Index
+@c =========================================================================
+
+@node Syntax index, Variable index, Concept index, Top
+@unnumbered Syntax Index
+
+@cindex Index, syntax
+@cindex Syntax, index
+@cindex Keywords, index
+
+@printindex tp
+
+@c =========================================================================
+@c Variable Index
+@c =========================================================================
+
+@node Variable index,  , Syntax index, Top
+@unnumbered Variable Index
+
+@cindex Index, metasyntactic variables
+@cindex Variables, index
+@cindex Metasyntactic variables, index
+
+@printindex mv
+
+
+@summarycontents
+@contents
+@bye

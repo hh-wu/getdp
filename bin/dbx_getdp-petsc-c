@@ -1,0 +1,11 @@
+dbx /usr/users53/geuzaine/SOURCES/getdp/bin/getdp-petsc-c \
+  -I/usr/users53/geuzaine/SOURCES/getdp/Main \
+  -I/usr/users53/geuzaine/SOURCES/getdp/Post \
+  -I/usr/users53/geuzaine/SOURCES/getdp/Function \
+  -I/usr/users53/geuzaine/SOURCES/getdp/GeoData \
+  -I/usr/users53/geuzaine/SOURCES/getdp/DofData \
+  -I/usr/users53/geuzaine/SOURCES/getdp/DataStr \
+  -I/usr/users53/geuzaine/SOURCES/getdp/Sparskit \
+  -I/usr/users53/geuzaine/SOURCES/getdp/SolverMisc \
+  -I/usr/users53/geuzaine/SOURCES/getdp/Integration
+

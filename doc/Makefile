@@ -1,0 +1,38 @@
+
+dvi:
+	texi2dvi getdp.texi 
+
+ps: dvi
+	dvips getdp -o
+
+pdf:
+	texi2pdf getdp.texi 
+
+html:
+	texi2html -expandinfo -number -split_chapter getdp.texi
+
+html2:
+	Texi2html -init_file getdp.htmlconfig getdp.texi
+
+html3:
+	makeinfo --html getdp.texi
+
+info:
+	makeinfo getdp.texi
+
+infoz:
+	gtar zcvf getdp-info.tgz getdp.info*
+
+doc: ps pdf html info
+
+install:
+	cp getdp.info* /usr/local/info/
+	install-info getdp.info /usr/local/info/dir
+
+clean:
+	$(RM) $(RMFLAGS) *.cp* *.fn* *.ky* *.pg* *.tp* *.vr* *.mv* \
+                         *.log *.toc *.aux \
+                         *.dvi *.ps getdp.pdf \
+                         *.html *.info* getdp-info.tgz*
+
+

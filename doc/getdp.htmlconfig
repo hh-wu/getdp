@@ -1,0 +1,51 @@
+
+$T2H_DOCTYPE = '<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0 Strict Level 2//EN">'; 
+$T2H_EXPANDINFO = 1;
+$T2H_USE_ISO = 0;
+@T2H_INCLUDE_DIRS = (".");
+$T2H_SHOW_MENU = 0;
+$T2H_NUMBER_SECTIONS = 0;
+$T2H_SPLIT_NODE = 0;
+$T2H_SPLIT_CHAPTER = 1;
+$T2H_BODYTEXT = 'LANG="EN" BGCOLOR="#FFFFFF"';
+# $T2H_BODYTEXT = 'LANG="EN" BGCOLOR="#FFFFFF" LINK="#CC7700" ALINK="#cc8800" VLINK="#995500"';
+
+# <style type="text/css">
+# <!--
+# A:link, A:visited, A:active {text-decoration: none}
+# -->
+# </style>
+
+sub t2h_top_navigation
+{
+  return &t2h_navigation . "<BR><HR><BR>\n";
+}
+
+sub t2h_bottom_navigation
+{
+  local($navigation);
+  return "<P></P><HR>\n" . &t2h_navigation. "\n";
+}
+
+sub t2h_navigation
+{
+  local($navigation);
+
+  $navigation .= "Contents: " . &t2h_anchor("full", ("getdp_toc.html" ne $T2H_THIS_HREF ? "getdp_toc.html" : ''), "full") . " | ";
+  $navigation .=               &t2h_anchor("short", ("getdp_stoc.html" ne $T2H_THIS_HREF ? "getdp_stoc.html" : ''), "short") . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+
+  $navigation .= "Section: " . &t2h_anchor("first", ($T2H_FIRST_HREF ne $T2H_THIS_HREF ? $T2H_FIRST_HREF : ''), "first") . " | ";
+  $navigation .=               &t2h_anchor("previous", ($T2H_BACK_HREF ne $T2H_THIS_HREF ? $T2H_BACK_HREF : ''), "previous") . " | ";
+  $navigation .=               &t2h_anchor("next", ($T2H_FORWARD_HREF ne $T2H_THIS_HREF ? $T2H_FORWARD_HREF : ''), "next") . " | ";
+  $navigation .=               &t2h_anchor("last", ($T2H_LAST_HREF ne $T2H_THIS_HREF ? $T2H_LAST_HREF : ''), "last") . "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;";
+
+  $navigation .= "Index: " . &t2h_anchor("concept", ("getdp_14.html" ne $T2H_THIS_HREF ? "getdp_14.html" : ''), "concept") . " | ";
+  $navigation .=             &t2h_anchor("syntax", ("getdp_15.html" ne $T2H_THIS_HREF ? "getdp_15.html" : ''), "syntax") . " | ";
+  $navigation .=             &t2h_anchor("variable",("getdp_16.html" ne $T2H_THIS_HREF ? "getdp_16.html" : ''), "variable"). " | ";
+  $navigation .=             &t2h_anchor("type", ("getdp_17.html" ne $T2H_THIS_HREF ? "getdp_17.html" : ''), "type") . "";
+
+  return $navigation;
+}
+
+1; # This must be the last line
+
