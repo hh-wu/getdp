@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.5 2001-03-19 19:15:57 geuzaine Exp $
+@c $Id: getdp.texi,v 1.6 2001-04-05 06:30:12 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -33,8 +33,8 @@
 @c =========================================================================
 @c %**start of header
 @setfilename   getdp.info
-@set EDITION   2.3
-@set VERSION   0.80
+@set EDITION   2.4
+@set VERSION   0.81
 @set DAY       18
 @set MONTH     March 2001
 @set COPYRIGHT @copyright{} 1997-2001 Patrick Dular, Christophe Geuzaine

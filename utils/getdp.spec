@@ -1,7 +1,7 @@
 Summary: A General environment for the treatment of Discrete Problems
 Name: getdp
-Version: 0.80
-Source: getdp-0.80.tar.gz
+Version: 0.81
+Source: getdp-0.81.tar.gz
 Release: 1
 Copyright: distributable
 Group: Applications/Engineering
@@ -58,8 +58,3 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/getdp
 /usr/man/man1/getdp*
 /usr/info/getdp*
-
-%changelog
-* Sat Sep 23 2000 Christophe Geuzaine <Christophe.Geuzaine@AdValvas.be> 
- - initial revision
-

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Cells.c,v 1.5 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Get_Cells.c,v 1.6 2001-04-05 06:30:12 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -254,6 +254,17 @@ void Get_deRhamCells(struct Element *Element,
     Get_BarycentricDivision(Element, Bary_Edge, Bary_Facet, Bary_Volume) ;
     
     switch(Element->Type){
+
+    case LINE :
+      for(i=0 ; i<2 ; i++){       	
+	Cells[i].GeoElement->Type = Cells[i].Type = POINT ;
+	Cells[i].GeoElement->NbrNodes = 1 ;
+	/* This a a hack: x,y,z <- u,v,w */
+	Cells[i].x[0] = 0. ;
+	Cells[i].y[0] = 0. ; 
+	Cells[i].z[0] = 0. ;
+      }
+      break;
 
     case TRIANGLE :
       for(i=0 ; i<3 ; i++){       	
