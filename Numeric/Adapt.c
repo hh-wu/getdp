@@ -1,7 +1,6 @@
-#define RCSID "$Id: Adapt.c,v 1.5 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Adapt.c,v 1.6 2000-11-15 09:28:26 dular Exp $"
 #include <stdio.h>
 #include <math.h>
-#include <time.h>
 
 #include "GetDP.h"
 #include "Data_Element.h"
