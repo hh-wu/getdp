@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2002-04-12 17:58:38 geuzaine Exp $
+# $Id: Makefile,v 1.13 2002-04-23 00:42:08 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -42,6 +42,7 @@ SRC = Main.cpp\
       Bessel.cpp\
       FFT.cpp\
       Spline.cpp\
+      Newton.cpp\
       Utils.cpp
 
 OBJ = $(SRC:.cpp=.o)
