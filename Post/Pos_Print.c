@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.54 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.55 2002-01-18 17:36:02 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -157,8 +157,8 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       if (Flag_Pos_TimeLoop) { 
 	iTime = NbrTimeStep - 1;
 	NbrTimeStep = 1;
-	//if(!List_Nbr(PostSubOperation_P->TimeStep_L))
-	  List_Reset(PostSubOperation_P->TimeStep_L);
+	/* if(!List_Nbr(PostSubOperation_P->TimeStep_L)) */
+	List_Reset(PostSubOperation_P->TimeStep_L);
       }
       List_Add(PostSubOperation_P->TimeStep_L, &iTime);
 
@@ -1168,7 +1168,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	if(!Flag_BIN) fprintf(PostStream, "\n");
       }
       if(!Flag_BIN) fprintf(PostStream, "\n\n");
-/*  two blanks lines for -index in gnuplot  */
+      /*  two blanks lines for -index in gnuplot  */
     }
     break;
 
@@ -1199,7 +1199,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
       }
       if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1])>1 && !Flag_BIN) 
 	fprintf(PostStream, "\n\n");
-/*  two blanks lines for -index in gnuplot  */
+      /*  two blanks lines for -index in gnuplot  */
     }
     break;
   }
