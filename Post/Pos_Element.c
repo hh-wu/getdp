@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.21 2003-03-22 03:30:18 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.22 2003-11-20 19:23:39 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -408,11 +408,10 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
     case TETRAHEDRON : PE->u[0] = 0.25 ; PE->v[0] = 0.25 ; PE->w[0] = 0.25 ; break ;
     case HEXAHEDRON  : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
     case PRISM       : PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
-    case PYRAMID     : 
 #if defined(NEW_PYRAMIDS)
-      PE->u[0] = 2./5.   ; PE->v[0] = 2./5.   ; PE->w[0] = 1./5.; break ;
+    case PYRAMID     : PE->u[0] = 2./5.; PE->v[0] = 2./5.; PE->w[0] = 1./5.; break ;
 #else
-      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
+    case PYRAMID     : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
 #endif
     }
     POS_CUT_FILL ;     
@@ -643,74 +642,38 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	
       case PYRAMID :
 	if(DecomposeInSimplex){
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 2 x 5 */
+	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 2 4 5 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[1] ;
-	  PE->NumNodes[2] = -1 ;
+	  PE->NumNodes[2] = GE->NumNodes[3] ;
 	  PE->NumNodes[3] = GE->NumNodes[4] ;
 #if defined(NEW_PYRAMIDS)
 	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
 	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] = 0.5; PE->v[2] = 0.5; PE->w[2] = 0. ;   	     
+	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 0. ;   	     
 	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	
 #else
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 0. ;   	     
+	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;   	     
 	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	
 #endif     
 	  POS_CUT_FILL;
 
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 2 3 x 5 */
+	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 2 3 4 5 */
 	  PE->NumNodes[0] = GE->NumNodes[1] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
-	  PE->NumNodes[2] = -1 ;
+	  PE->NumNodes[2] = GE->NumNodes[3] ;
 	  PE->NumNodes[3] = GE->NumNodes[4] ;
 #if defined(NEW_PYRAMIDS)
 	  PE->u[0] = 1. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
 	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] = 0.5; PE->v[2] = 0.5; PE->w[2] = 0. ; 	     
+	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 0. ; 	     
 	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
 #else
 	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 0. ; 	     
-	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
-#endif
-	  POS_CUT_FILL;
-
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 3 4 x 5 */
-	  PE->NumNodes[0] = GE->NumNodes[2] ;
-	  PE->NumNodes[1] = GE->NumNodes[3] ;
-	  PE->NumNodes[2] = -1 ;
-	  PE->NumNodes[3] = GE->NumNodes[4] ;
-#if defined(NEW_PYRAMIDS)
-	  PE->u[0] = 1. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
-	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] = 0.5; PE->v[2] = 0.5; PE->w[2] = 0. ; 	     
-	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
-#else
-	  PE->u[0] = 1. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
-	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 0. ; 	     
-	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
-#endif
-	  POS_CUT_FILL;
-
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 4 1 x 5 */
-	  PE->NumNodes[0] = GE->NumNodes[3] ;
-	  PE->NumNodes[1] = GE->NumNodes[0] ;
-	  PE->NumNodes[2] = -1 ;
-	  PE->NumNodes[3] = GE->NumNodes[4] ;
-#if defined(NEW_PYRAMIDS)
-	  PE->u[0] = 0. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
-	  PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] = 0.5; PE->v[2] = 0.5; PE->w[2] = 0. ; 	     
-	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
-#else
-	  PE->u[0] =-1. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
-	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 0. ; 	     
+	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ; 	     
 	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
 #endif
 	  POS_CUT_FILL;
