@@ -53,6 +53,8 @@
    3D.
 */
 
+#define  GETDP_MULTIHARMONIC 0
+
 #ifdef GETDP_MULTIHARMONIC
 #define NBR_MAX_HARMONIC    40
 #else
@@ -882,6 +884,7 @@ struct ChangeOfState {
 #define OPERATION_UPDATE                    6
 #define OPERATION_UPDATECONSTRAINT          7
 #define OPERATION_UPDATETRANSLATION       104
+#define OPERATION_UPDATEFMMDATA           105
 #define OPERATION_LANCZOS                   8
 #define OPERATION_PERTURBATION              9
 
@@ -1091,7 +1094,7 @@ struct CurrentData {
   /* double  s, t ; */
 
   struct{
-    int DivXYZIndex, SystemIndex ;
+    int DivXYZIndex, SystemIndex, Dimension ;
     int Obs, Src, Type, NbrCom, NbrDir, N, Flag_GF, Flag_Normal ;
     double *Phi, *Theta, *Weight, **Kdir, Xgc, Ygc, Zgc ;
     double Rsrc, Robs, Precision, far ;
