@@ -53,8 +53,6 @@
    3D.
 */
 
-#define  GETDP_MULTIHARMONIC 0
-
 #ifdef GETDP_MULTIHARMONIC
 #define NBR_MAX_HARMONIC    40
 #else
