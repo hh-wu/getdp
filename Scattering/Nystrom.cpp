@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.13 2002-02-14 00:02:45 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.14 2002-02-14 00:32:14 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -328,8 +328,9 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 
       // insure periodicity
       if(List_Nbr(Intervals)>1){
+	pI = (Interval*)List_Pointer(Intervals, 0);
 	List_Read(Intervals, List_Nbr(Intervals)-1, &I);
-	if(I.max > TWO_PI){
+	if(I.max > TWO_PI+pI->min){
 	  Msg(DEBUG, "  ! Flipping last interval");
 	  I.min -= TWO_PI;
 	  I.max -= TWO_PI;
