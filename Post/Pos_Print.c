@@ -18,6 +18,7 @@
 void  Print_PostFormat(int Format){
   switch(Format){
   case FORMAT_GMSH :
+  case FORMAT_ADAPT :
     break ;
   case FORMAT_GMSH_NL :
     fprintf(PostStream, "$PostFormat /* GetDP v%g, %s */\n",
@@ -50,7 +51,7 @@ void  Print_PostHeader(int Format, int NbTimeStep, int HarmonicToTime,
 
   switch(Format){
   case FORMAT_GMSH :
-    fprintf(PostStream, "View \"%s\" Offset{0,0,0} {\n", name) ;
+    fprintf(PostStream, "View \"%s\" {\n", name) ;
     break ;
   case FORMAT_GMSH_NL :
     fprintf(PostStream, "$PostData /* %s */\n", name);
@@ -58,6 +59,9 @@ void  Print_PostHeader(int Format, int NbTimeStep, int HarmonicToTime,
     break ;
   case FORMAT_GNUPLOT :
     fprintf(PostStream, "# PostData /* %s */\n", name);
+    break ;
+  case FORMAT_ADAPT :
+    fprintf(PostStream, "$Adapt /* %s */\n", name) ;
     break ;
   }
 }
@@ -71,18 +75,19 @@ void  Print_PostFooter(int Format){
   case FORMAT_GMSH_NL :
     fprintf(PostStream, "0\n$EndPostData\n");
     break ;
+  case FORMAT_ADAPT :
+    fprintf(PostStream, "$EndAdapt\n");
+    break ;
   }
 }
 
 /* ------------------------------------------------------------------------ */
-/*  P r i n t _ X X X P o s t E l e m e n t                                 */
+/*  P r i n t _ X X X                                                       */
 /* ------------------------------------------------------------------------ */
 
-void  Print_GmshPostElement(int TimeStep, int NbTimeStep, 
-			    int NbHarmonic, int HarmonicToTime,
-			    int Type, int NbrNodes, 
-			    double *x, double *y, double *z,
-			    struct Value *Value){
+void  Print_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic, 
+		 int HarmonicToTime, int Type, int NbrNodes, 
+		 double *x, double *y, double *z, struct Value *Value){
   int     i,j,k;
   double  p;
 
@@ -224,34 +229,9 @@ void  Print_GmshPostElement(int TimeStep, int NbTimeStep,
 #define POST_TENSOR_PRISM           27
 #define POST_TENSOR_PYRAMID         28
 
-
-/*
-  Everything gets defined, even if Gmsh only recognizes points, lines, 
-  triangles and tetrahedra. Maybe we should also define some structured
-  types like grids (lineic, surfacic and volumic) to optimize the numbers of 
-  things stored, etc, etc, but would all this stuff not go a bit against
-  the general philosophy? 
-
-  $PostFormat
-  version bin_or_ascii
-  $EndPostFormat
-  $PostData
-  view_name nb_timesteps
-  key listofvalues
-  key listofvalues
-  key listofvalues
-  key listofvalues
-  $EndPostData
-
-  Ceci sera le format gmsh. Il faudrait regarder e.g. quel format est 
-  adapte a Matlab (grille->OK, mais sinon...)
-*/
-
-void  Print_NewGmshPostElement(int TimeStep, int NbrTimeSteps,
-			       int NbrHarmonics, int HarmonicToTime,
-			       int ElementType, int NbrNodes,
-			       double *x, double *y, double *z,
-			       struct Value *Value){
+void  Print_NewGmsh(int TimeStep, int NbrTimeSteps, int NbrHarmonics, 
+		    int HarmonicToTime, int ElementType, int NbrNodes,
+		    double *x, double *y, double *z, struct Value *Value){
 
   static int      Index, OutSize, Type, Size ;
   static double  *Tmp ;
@@ -368,12 +348,9 @@ void  Print_NewGmshPostElement(int TimeStep, int NbrTimeSteps,
 }
 
 
-void  Print_TabularPostElement(int Format, 
-			       double Time, int TimeStep, int NbrTimeSteps,
-			       int NbrHarmonics, int HarmonicToTime,
-			       int ElementType, int NbrNodes,
-			       double *x, double *y, double *z,
-			       double *Normal, struct Value *Value){
+void  Print_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
+		    int NbrHarmonics, int HarmonicToTime, int ElementType, int NbrNodes,
+		    double *x, double *y, double *z, double *Normal, struct Value *Value){
   static int  Size ;
   int         i,j,k ;
   double      p ;
@@ -439,33 +416,39 @@ void  Print_TabularPostElement(int Format,
 
 }
 
+void  Print_Adapt(double * Dummy){
+  if(Dummy[4]) fprintf(PostStream, "%d\n", (int)Dummy[4]) ;
+  fprintf(PostStream, "%d %g %g %g\n", 
+	  (int)Dummy[0], Dummy[1], Dummy[2], Dummy[3]);
+}
+
 /* ------------------------------------------------------------------------ */
 /*  P r i n t _ P o s t E l e m e n t                                       */
 /* ------------------------------------------------------------------------ */
 
-void  Print_PostElement(int Format, 
-			double Time, int TimeStep, int NbTimeStep, 
-			int NbHarmonic, int HarmonicToTime,
-			int Type, int NbrNodes, double *x, double *y, double *z,
-			double *Normal, struct Value *Value){
+void  Print_PostElement(int Format, double Time, int TimeStep, int NbTimeStep, 
+			int NbHarmonic, int HarmonicToTime, double *Dummy,
+			struct PostElement * PE){
   switch(Format){
   case FORMAT_GMSH :
-    Print_GmshPostElement(TimeStep, NbTimeStep, 
-			  NbHarmonic, HarmonicToTime,
-			  Type, NbrNodes, x, y, z, Value) ;
+    Print_Gmsh(TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
+	       PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, PE->Value) ;
     break ;
   case FORMAT_GMSH_NL :
-    Print_NewGmshPostElement(TimeStep, NbTimeStep, 
-			     NbHarmonic, HarmonicToTime,
-			     Type, NbrNodes, x, y, z, Value) ;
+    Print_NewGmsh(TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
+		  PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, PE->Value) ;
     break ;
   case FORMAT_GNUPLOT :
   case FORMAT_SPACE_TABLE :
   case FORMAT_TIME_TABLE :
-    Print_TabularPostElement(Format, Time, TimeStep, NbTimeStep, 
-			     NbHarmonic, HarmonicToTime,
-			     Type, NbrNodes, x, y, z, Normal, Value) ;
+    Print_Tabular(Format, Time, TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
+		  PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, PE->Value) ;
     break ;
+  case FORMAT_ADAPT:
+    Print_Adapt(Dummy) ;
+    break ;
+  default :
+    Msg(ERROR, "Unknown Format in Print_PostElement");
   }
 }
 

@@ -18,8 +18,8 @@ static int GeoDim, ChainDim;
 /*  C o m p u t e E l e m e n t B o x                                       */
 /* ------------------------------------------------------------------------ */
 
-int ComputeElementBox(struct Element * Element,
-		      struct ElementBox * ElementBox) {
+void ComputeElementBox(struct Element * Element,
+		       struct ElementBox * ElementBox) {
 
   double XPolyConv, YPolyConv, Xmid, Ymid;
   double d, dxy, dxz, dyz;
@@ -509,11 +509,11 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   /* Note: Il est garanti en sortie que les fcts de forme geometriques sont 
      initialisees en u,v,w */
  
-  List_T              *PointElement_L;
-  struct ElementBox    ElementBox;
-  struct Brick         Brick, *Brick_P ;
-  struct PointElement  PointElement ;
-  int                  i, j, dim, lowdim, highdim, Projection;  
+  List_T              * PointElement_L;
+  struct ElementBox     ElementBox;
+  struct Brick        * Brick_P ;
+  struct PointElement   PointElement ;
+  int                   i, dim, lowdim, highdim, Projection;  
 
   ChainDim   = Dim ;
   Projection = (ChainDim == _1D || (ChainDim == _2D && GeoDim == _3D));

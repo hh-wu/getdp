@@ -1,3 +1,5 @@
+#ifndef _POS_SEARCH_H_
+#define _POS_SEARCH_H_
 
 struct Brick {
   List_T *p[3];
@@ -29,3 +31,5 @@ void xyz2uvwInAnElement (struct Element *Element,
 			 double *u, double *v, double *w,
 			 double   (*Get_Jacobian) (struct Element * Element, MATRIX3x3 * Jac),
 			 int      Dimension) ;
+
+#endif
