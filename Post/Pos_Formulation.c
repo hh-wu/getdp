@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.c,v 1.19 2000-10-19 11:24:21 dular Exp $ */
+/* $Id: Pos_Formulation.c,v 1.20 2000-10-20 07:42:07 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -32,16 +32,14 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     if (!PostSubOperation_P->CatFile) {
       if((PostStream = fopen(PostSubOperation_P->FileOut, "w")))
 	Msg(DIRECT, "          > '%s'", PostSubOperation_P->FileOut) ;
-      else{
+      else
 	Msg(ERROR, "Unable to Open File '%s'", PostSubOperation_P->FileOut) ;
-      }
     }
     else {
       if((PostStream = fopen(PostSubOperation_P->FileOut, "a")))
 	Msg(DIRECT, "         >> '%s'", PostSubOperation_P->FileOut) ;
-      else{
+      else
 	Msg(ERROR, "Unable to Open File '%s'", PostSubOperation_P->FileOut) ;
-      }
     }
   }
   else{
@@ -52,9 +50,12 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   Format_PostFormat(PostSubOperation_P->Format) ;
 
+  /*
   if(((struct PostQuantity *)
       List_Pointer(PostProcessing_P->PostQuantity, 
 		   PostSubOperation_P->PostQuantityIndex[0]))->Type == NONCUMULATIVE){
+  */
+  if (PostSubOperation_P->PostQuantitySupport[0] < 0) { /* Noncumulative */
     NCPQ_P = 
       (struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
 					   PostSubOperation_P->PostQuantityIndex[0]) ;
@@ -65,7 +66,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       NULL ;
     Order = 1 ;
   }
-  else{
+  else {
     CPQ_P = 
       (struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
 					   PostSubOperation_P->PostQuantityIndex[0]) ;
@@ -76,7 +77,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       NULL ;
     Order = 0 ;
   }
-  
+
   switch (Formulation_P->Type) {
 
   case FEMEQUATION :
@@ -143,14 +144,6 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
 
   switch (PostSubOperation_P->Type) {
     
-  case POP_PLOT :
-    switch (PostSubOperation_P->SubType) {
-    case PRINT_ONELEMENTSOF :
-      Pos_PrintOnElementsOf(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
-			    QuantityStorage_P0, PostSubOperation_P) ; 
-      break ;
-    } /* Attention : a supprimer */
-
   case POP_PRINT :
     switch (PostSubOperation_P->SubType) {
     case PRINT_ONREGION :
@@ -216,5 +209,3 @@ void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep) {
   Current.Time = Current.DofData->CurrentSolution->Time ;
 
 }
-
-

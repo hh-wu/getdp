@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.15 2000-10-19 11:24:21 dular Exp $ */
+/* $Id: Pos_Print.c,v 1.16 2000-10-20 07:42:07 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -144,11 +144,12 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
   /* Compute the Cumulative quantity, if any */
 
-  if(CPQ_P){    
-    CumulativeValues = (struct Value *)Malloc(NbrTimeStep*sizeof(struct Value)) ;    
-    Cal_PostCumulativeQuantity(Region_L, PostSubOperation_P->TimeStep_L, 
+  if(CPQ_P){
+    Cal_PostCumulativeQuantity(Region_L,
+			       PostSubOperation_P->PostQuantitySupport[Order],
+			       PostSubOperation_P->TimeStep_L,
 			       CPQ_P, DefineQuantity_P0,
-			       QuantityStorage_P0, CumulativeValues);    
+			       QuantityStorage_P0, &CumulativeValues);
   }
 
   /* Init a search grid if we plot a NonCumulative quantity with OnGrid */
@@ -682,11 +683,12 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
 		    PostSubOperation_P->CombinationType, Order,
 		    NCPQ_P, CPQ_P);
 
-  if(CPQ_P){    
-    CumulativeValues = (struct Value*) Malloc(NbTimeStep*sizeof(struct Value)) ;    
-    Cal_PostCumulativeQuantity(NULL, PostSubOperation_P->TimeStep_L, 
+  if(CPQ_P){
+    Cal_PostCumulativeQuantity(NULL,
+			       PostSubOperation_P->PostQuantitySupport[Order],
+			       PostSubOperation_P->TimeStep_L,
 			       CPQ_P, DefineQuantity_P0,
-			       QuantityStorage_P0, CumulativeValues);    
+			       QuantityStorage_P0, &CumulativeValues);
   }
 
   switch(PostSubOperation_P->SubType) {
@@ -869,15 +871,15 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
    InWhichElement(Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension,	\
                   Current.x, Current.y, Current.z, &u, &v, &w) ;		\
    Current.Region = Element.Region ;						\
-   PE->Index = Element.Num ;							\
+   PE->Index = Geo_GetGeoElementIndex(Element.GeoElement) ;			\
    for (ts = 0 ; ts < NbTimeStep ; ts++) {					\
      Pos_InitAllSolutions(PSO_P->TimeStep_L, ts) ;				\
      Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,		\
-                 NULL, &Element, u, v, w, &PE->Value[0]);	       		\
+                 NULL, &Element, u, v, w, &PE->Value[0]);			\
      if(CPQ_P)									\
        Combine_PostQuantity(PSO_P->CombinationType, Order,			\
                             &PE->Value[0], &CumulativeValues[ts]) ;		\
-     Format_PostElement(PSO_P->Format, PSO_P->Iso, 0, 				\
+     Format_PostElement(PSO_P->Format, PSO_P->Iso, 0,				\
                         Current.Time, ts, NbTimeStep,				\
                         Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE);	\
    }										\
@@ -926,6 +928,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
   struct Element       Element ;
   struct Value       * CumulativeValues, Value ;
   struct PostElement * PE , * PE2 ;
+  List_T             * Support_L ;
 
   int     i1, i2, i3, j, k, NbTimeStep, ts ;
   float  *Array ;
@@ -939,11 +942,11 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
     for(j = 0 ; j < NbTimeStep ; j++) List_Add(PSO_P->TimeStep_L, &j);
   }
 
-  if(CPQ_P){    
-    CumulativeValues = (struct Value*) Malloc(NbTimeStep*sizeof(struct Value)) ;    
-    Cal_PostCumulativeQuantity(NULL, PSO_P->TimeStep_L, 
+  if(CPQ_P){
+    Cal_PostCumulativeQuantity(NULL, PSO_P->PostQuantitySupport[Order],
+			       PSO_P->TimeStep_L,
 			       CPQ_P, DefineQuantity_P0,
-			       QuantityStorage_P0, CumulativeValues);    
+			       QuantityStorage_P0, &CumulativeValues);
   }
 
   Init_SearchGrid(&Current.GeoData->Grid) ;
@@ -1143,75 +1146,85 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 			struct QuantityStorage   *QuantityStorage_P0,
 			struct PostSubOperation  *PostSubOperation_P) {
 
-  struct Element           Element ;
-  struct Value             Value ;
+  struct Element   Element ;
+  struct Value   * CumulativeValues ;
+  struct Value     Value ;
 
   List_T  *Region_L, *Support_L ;
   int      i, j, NbTimeStep ;
   int      Nbr_Region, Num_Region ;
 
-  if(CPQ_P)
-    Msg(ERROR, "Cumulative PostQuantity in PrintOnRegion not Done") ;
 
   if( !(NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
     NbTimeStep = List_Nbr(Current.DofData->Solutions);
     for(i = 0 ; i < NbTimeStep ; i++) List_Add(PostSubOperation_P->TimeStep_L, &i);
   }
 
-  Region_L =  (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
-    ((struct Group *)
-	      List_Pointer(Problem_S.Group, 
-			   PostSubOperation_P->Case.OnRegion.RegionIndex))
-    ->InitialList ;
-  if (Region_L) {
-    List_Sort(Region_L, fcmp_int) ;
-    Nbr_Region = List_Nbr(Region_L) ;
-
-    fprintf(PostStream, "# %s on", NCPQ_P->Name) ;
-    for(i = 0 ; i < Nbr_Region ; i++) {
-      List_Read(Region_L, i, &Num_Region) ;
-      fprintf(PostStream, " %d", Num_Region) ;
-    }
-    fprintf(PostStream, "\n") ;
+  if(CPQ_P){
+    Cal_PostCumulativeQuantity(NULL, PostSubOperation_P->PostQuantitySupport[Order],
+			       PostSubOperation_P->TimeStep_L,
+			       CPQ_P, DefineQuantity_P0,
+			       QuantityStorage_P0, &CumulativeValues);
   }
-  else
-    Nbr_Region = 1 ;
 
-  Support_L = (PostSubOperation_P->PostQuantitySupport[0] < 0)?  NULL :
-    ((struct Group *)
-     List_Pointer(Problem_S.Group,
-		  PostSubOperation_P->PostQuantitySupport[0]))->InitialList ;
-
-
-  for (j = 0 ; j < NbTimeStep ; j++) {
-      
-    Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, j) ;
-
-    fprintf(PostStream, "%.8g", Current.Time) ;
-
-    for(i = 0 ; i < Nbr_Region ; i++) {
-
-      if (Region_L) {
-	List_Read(Region_L, i, &Num_Region) ;
-
-	Current.SubRegion = Num_Region ; /* Region being a GlobalQuantity Entity no */
-      }
-      else
-	Num_Region = NO_REGION ;
-
-      Element.GeoElement = NULL ;
-      Element.Num = NO_ELEMENT ;
-      Element.Type = -1 ;
-      Current.Region = Element.Region = Num_Region ;
-      Current.x = Current.y = Current.z = 0. ;
-      Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0, 
-		       Support_L, &Element, 0., 0., 0., &Value) ;
-
-      Format_PostValue(PostSubOperation_P->Format, &Value, 
+  if (!NCPQ_P) { /* Only one Cumulative */
+    for (j = 0 ; j < NbTimeStep ; j++) {
+      Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, j) ;
+      fprintf(PostStream, "%.8g", Current.Time) ;
+      Format_PostValue(PostSubOperation_P->Format, &CumulativeValues[j],
 		       Current.NbrHar, Current.Time, 0, 0) ;
     }
-
     fprintf(PostStream, "\n"); 
+  }
+  else { /* There is one non-cumulative */
+
+    Region_L =  (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
+      ((struct Group *)
+       List_Pointer(Problem_S.Group, 
+		    PostSubOperation_P->Case.OnRegion.RegionIndex))->InitialList ;
+    if (Region_L) {
+      List_Sort(Region_L, fcmp_int) ;
+      Nbr_Region = List_Nbr(Region_L) ;
+
+      fprintf(PostStream, "# %s on", NCPQ_P->Name) ;
+      for(i = 0 ; i < Nbr_Region ; i++) {
+	List_Read(Region_L, i, &Num_Region) ;
+	fprintf(PostStream, " %d", Num_Region) ;
+      }
+      fprintf(PostStream, "\n") ;
+    }
+    else
+      Nbr_Region = 1 ;
+
+    for (j = 0 ; j < NbTimeStep ; j++) {
+
+      Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, j) ;
+
+      fprintf(PostStream, "%.8g", Current.Time) ;
+
+      for(i = 0 ; i < Nbr_Region ; i++) {
+
+	if (Region_L) {
+	  List_Read(Region_L, i, &Num_Region) ;
+	  Current.SubRegion = Num_Region ; /* Region being a GlobalQuantity Entity no */
+	}
+	else
+	  Num_Region = NO_REGION ;
+
+	Element.GeoElement = NULL ;
+	Element.Num = NO_ELEMENT ;
+	Element.Type = -1 ;
+	Current.Region = Element.Region = Num_Region ;
+	Current.x = Current.y = Current.z = 0. ;
+	Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0, 
+			 Support_L, &Element, 0., 0., 0., &Value) ;
+
+	Format_PostValue(PostSubOperation_P->Format, &Value, 
+			 Current.NbrHar, Current.Time, 0, 0) ;
+      }
+
+      fprintf(PostStream, "\n"); 
+    }
   }
 
 }

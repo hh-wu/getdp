@@ -1,9 +1,10 @@
-/* $Id: Pos_Format.c,v 1.1 2000-10-19 11:25:39 dular Exp $ */
+/* $Id: Pos_Format.c,v 1.2 2000-10-20 07:42:07 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
+#include "GeoData.h"
 #include "Data_Passive.h"
 #include "Data_DefineE.h"
 #include "Data_Numeric.h"
@@ -154,7 +155,7 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P){
 /* ------------------------------------------------------------------------ */
 
 void  Format_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic, 
-		  int HarmonicToTime, int Type, int Index, int NbrNodes, 
+		  int HarmonicToTime, int Type, int NbrNodes, 
 		  double *x, double *y, double *z, struct Value *Value){
   int     i,j,k;
   double  p;
@@ -298,7 +299,7 @@ void  Format_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic,
 #define POST_TENSOR_PYRAMID         28
 
 void  Format_NewGmsh(int TimeStep, int NbrTimeSteps, int NbrHarmonics, 
-		     int HarmonicToTime, int ElementType, int ElementIndex, int NbrNodes,
+		     int HarmonicToTime, int ElementType, int NbrNodes,
 		     double *x, double *y, double *z, struct Value *Value){
 
   static int      Index, OutSize, Type, Size ;
@@ -441,7 +442,7 @@ int Get_GmshElementType(int Type){
 
 void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 		     int NbrHarmonics, int HarmonicToTime, 
-		     int ElementType, int Index, int NbrNodes,
+		     int ElementType, int NumElement, int NbrNodes,
 		     double *x, double *y, double *z, double *Dummy,
 		     struct Value *Value){
   static int  Size, TmpIndex ;
@@ -470,7 +471,7 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 
     for(i = 0 ; i < NbrNodes ; i++){
 
-      fprintf(PostStream, "%d %d  ", Get_GmshElementType(ElementType), Index);
+      fprintf(PostStream, "%d %d  ", Get_GmshElementType(ElementType), NumElement);
       fprintf(PostStream, "%.8g %.8g %.8g  ", x[i], y[i], z[i]);
       if(Dummy){
 	if(Dummy[3]<0){
@@ -535,7 +536,7 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 
 void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
 		     int NbrHarmonics, int HarmonicToTime, 
-		     int ElementType, int Index, int NbrNodes,
+		     int ElementType, int NumElement, int NbrNodes,
 		     double *x, double *y, double *z, double *Dummy,
 		     struct Value *Value){
   static int  Size ;
@@ -555,7 +556,7 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
   switch(Format){
   case FORMAT_SPACE_TABLE :
     if(TimeStep == 0){
-      fprintf(PostStream, "%d %d  ", Get_GmshElementType(ElementType), Index);
+      fprintf(PostStream, "%d %d  ", Get_GmshElementType(ElementType), NumElement);
       for(i=0 ; i<NbrNodes ; i++)
 	fprintf(PostStream, "%.8g %.8g %.8g  ", x[i], y[i], z[i]);
       if(Dummy) 
@@ -621,12 +622,15 @@ void  Format_PostElement(int Format, int Contour, int Store,
 			 int NbHarmonic, int HarmonicToTime, double *Dummy,
 			 struct PostElement * PE){
 
+  int Num_Element ;
   static int Warning_FirstHarmonic = 0 ;
   struct PostElement *PE2 ;
 
+  Num_Element = Geo_GetGeoElement(PE->Index)->Num ;
+
   if(Contour){
     if(PE->Value[0].Type != SCALAR)
-      Msg(ERROR, "Non Scalar Element %d in Contour Creation", PE->Index);
+      Msg(ERROR, "Non Scalar Element %d in Contour Creation", Num_Element);
     if(NbTimeStep != 1)
       Msg(ERROR, "Contour Creation not Allowed for Multiple Time Steps");
     if(Current.NbrHar != 1 && !Warning_FirstHarmonic){
@@ -645,20 +649,24 @@ void  Format_PostElement(int Format, int Contour, int Store,
   switch(Format){
   case FORMAT_GMSH :
     Format_Gmsh(TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
-		PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, PE->Value) ;
+		PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
+		PE->Value) ;
     break ;
   case FORMAT_GMSH_NL :
     Format_NewGmsh(TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
-		   PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, PE->Value) ;
+		   PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
+		   PE->Value) ;
     break ;
   case FORMAT_GNUPLOT :
     Format_Gnuplot(Format, Time, TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
-		   PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, PE->Value) ;
+		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
+		   PE->Value) ;
     break ;
   case FORMAT_SPACE_TABLE :
   case FORMAT_TIME_TABLE :
     Format_Tabular(Format, Time, TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
-		   PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, PE->Value) ;
+		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
+		   PE->Value) ;
     break ;
   case FORMAT_ADAPT:
     Format_Adapt(Dummy) ;
@@ -719,4 +727,3 @@ void  Format_PostValue(int Format, struct Value * Value, int NbHarmonic, double 
   }
   if (Flag_NewLine) fprintf(PostStream, "\n") ;
 }
-

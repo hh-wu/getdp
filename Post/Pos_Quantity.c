@@ -1,4 +1,4 @@
-/* $Id: Pos_Quantity.c,v 1.2 2000-10-19 11:24:21 dular Exp $ */
+/* $Id: Pos_Quantity.c,v 1.3 2000-10-20 07:42:07 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -36,11 +36,9 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
   int       i_PQT, Type_Quantity ;
 
   /* mettre tout a zero: on ne connait pas a priori le type de retour */
+  /* (default type and value returned if Type_Quantity == -1) */
 
   Cal_ZeroValue(Value);
-
-  /* default type and value returned if Type_Quantity == -1 */
-
   Value->Type = SCALAR; 
 
   /* Loop on PostQuantity Terms */
@@ -54,7 +52,8 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
       ((struct Group *)List_Pointer(Problem_S.Group, 
 				    PostQuantityTerm.InIndex))->InitialList ;
 
-    Type_Quantity = PostQuantityTerm.Type ;
+    if (!Support_L)  Type_Quantity = PostQuantityTerm.Type ;
+    else             Type_Quantity = GLOBALQUANTITY ;
 
     if (InRegion_L) {
       if (Element->Num != NO_ELEMENT) {
@@ -169,19 +168,24 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
   else if (PostQuantityTerm_P->EvaluationType == INTEGRAL) {
 
     Nbr_Element = Geo_GetNbrGeoElements() ;
+    Get_InitDofOfElement(&Element) ;
 
     Type_Quantity = LOCALQUANTITY ; /* Attention... il faut se comprendre: */
     /* il s'agit de grandeurs locales qui seront integrees */
     for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
-      Progress(i_Element, Nbr_Element, "") ;
+      Progress(i_Element, Nbr_Element, "Accumulate: ") ;
 
       Element.GeoElement = Geo_GetGeoElement(i_Element) ;
       Element.Num    = Element.GeoElement->Num ;
       Element.Type   = Element.GeoElement->Type ;
       Current.Region = Element.Region = Element.GeoElement->Region ;
 
-      if (List_Search(InRegion_L, &Element.Region, fcmp_int) &&
+      if (!InRegion_L || List_Search(InRegion_L, &Element.Region, fcmp_int) &&
 	  (!Support_L || List_Search(Support_L, &Element.Region, fcmp_int))) {
+	Get_NodesCoordinatesOfElement(&Element) ;
+	Current.x = Element.x[0];
+	Current.y = Element.y[0];
+	Current.z = Element.z[0]; 
 	Pos_LocalOrIntegralQuantity(PostQuantity_P,
 				    DefineQuantity_P0, QuantityStorage_P0,
 				    PostQuantityTerm_P, &Element, Type_Quantity,
@@ -198,45 +202,32 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 /* ------------------------------------------------------------------------ */
 
 void Cal_PostCumulativeQuantity(List_T                 *Region_L,
+				int                    SupportIndex,
 				List_T                 *TimeStep_L, 
 				struct PostQuantity    *PostQuantity_P, 
 				struct DefineQuantity  *DefineQuantity_P0,
 				struct QuantityStorage *QuantityStorage_P0,
-				struct Value           *Value){  
+				struct Value          **Values) {
   struct Element Element ;
-  struct Value tmpValue ;
-  int i, j, NbElement, NbTimeStep ;
+  List_T *Support_L ;
+  int i, NbrTimeStep ;
 
-  NbTimeStep = List_Nbr(TimeStep_L) ; 
-  NbElement = Geo_GetNbrGeoElements() ;
 
-  Get_InitDofOfElement(&Element) ;
+  Support_L = ((struct Group *)
+	       List_Pointer(Problem_S.Group, SupportIndex))->InitialList ;
 
-  for(i = 0 ; i < NbTimeStep ; i++) Cal_ZeroValue(&Value[i]);
-  
-  for(i = 0 ; i < NbElement ; i++) {    
-    Progress(i, NbElement, "Accumulate: ") ;
+  NbrTimeStep = List_Nbr(TimeStep_L) ;
+  *Values = (struct Value *)Malloc(NbrTimeStep*sizeof(struct Value)) ;
 
-    Element.GeoElement = Geo_GetGeoElement(i) ;
-    Element.Num        = Element.GeoElement->Num ;
-    Element.Type       = Element.GeoElement->Type ;
-    Current.Region     = Element.Region = Element.GeoElement->Region ;
+  Element.Num = NO_ELEMENT ;
 
-    if(!Region_L || List_Search(Region_L, &Current.Region, fcmp_int)){
-      Get_NodesCoordinatesOfElement(&Element) ;
-      for (j = 0 ; j < NbTimeStep ; j++) {	
-	Pos_InitAllSolutions(TimeStep_L, j) ;
-	Current.x = Element.x[0];
-	Current.y = Element.y[0];
-	Current.z = Element.z[0]; 
-	Cal_PostQuantity(PostQuantity_P, DefineQuantity_P0, QuantityStorage_P0, 
-			 NULL, &Element, 0, 0, 0, &tmpValue);
-	Value[j].Type = tmpValue.Type;
-	Cal_AddValue(&Value[j],&tmpValue,&Value[j]);
-      }
-    }
+  for(i = 0 ; i < NbrTimeStep ; i++) {
+    Pos_InitAllSolutions(TimeStep_L, i) ;
 
-  }    
+    Cal_PostQuantity(PostQuantity_P, DefineQuantity_P0, QuantityStorage_P0,
+		     Support_L, &Element, 0, 0, 0, &(*Values)[i]) ;
+  }
+
 }
 
 /* ------------------------------------------------------------------------ */

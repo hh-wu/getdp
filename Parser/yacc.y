@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.17 2000-10-19 11:27:08 dular Exp $ */
+/* $Id: yacc.y,v 1.18 2000-10-20 07:42:07 dular Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -4739,7 +4739,6 @@ PostQuantity :
     /* none */
     { 
       PostQuantity_S.Name = NULL ;  
-      PostQuantity_S.Type = NONCUMULATIVE ;
       PostQuantity_S.PostQuantityTerm = NULL ; 
     }
 
@@ -4750,15 +4749,6 @@ PostQuantity :
 PostQuantityTerm :
     tName tSTRING tEND
     { PostQuantity_S.Name = $2 ; }
-
-  | tType tSTRING tEND
-    { PostQuantity_S.Type =
-	Get_DefineForString(PostQuantity_Type, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown Type of PostQuantity: %s %s",
-		 $2, Get_Valid_SXD(PostQuantity_Type)) ;
-      Free($2) ;
-    }
 
   | tValue '{' SubPostQuantities '}'
     { PostQuantity_S.PostQuantityTerm = $3 ; }
@@ -4997,19 +4987,20 @@ PostSubOperations :
 
 PostSubOperation :
 
-    tPlot '[' PostQuantitiesToPlot PlotSubType PlotOptions ']' tEND
+    tPlot '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
-      PostSubOperation_S.Type = POP_PLOT ;  /* Warning: to be removed ! */
+      yyerror("Plot has been superseeded by Print. "
+	      "Plot OnRegion becomes Print OnElementsOf.") ;
     }
 
-  | tPrint '[' PostQuantitiesToPlot PrintSubType PlotOptions ']' tEND
+  | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_PRINT ;
     }
 
   ;
 
-PostQuantitiesToPlot :
+PostQuantitiesToPrint :
 
     tSTRING PostQuantitySupport ','
     {
@@ -5037,11 +5028,9 @@ PostQuantitiesToPlot :
       PostSubOperation_S.PostQuantityIndex[1] = j ;
       PostSubOperation_S.PostQuantitySupport[1] = $5 ;
 
-      if((k=((struct PostQuantity*)
-	     List_Pointer(InteractivePostProcessing_S.PostQuantity, i))->Type) == 
-	 ((struct PostQuantity*)List_Pointer(InteractivePostProcessing_S.PostQuantity, j))->Type){
+      if (($2<0 && $5<0) || ($2>=0 && $5>=0)) {
 	vyyerror("PostQuantities '%s' and '%s' should not be of same type (%s)", 
-		 $1, $4, Get_StringForDefine(PostQuantity_Type, k)) ;
+		 $1, $4, ($2>0)? "with Support":"without Support") ;
       }      
       Free($1) ; Free($4) ;
     }
@@ -5062,126 +5051,6 @@ PostQuantitySupport :
   | '[' GroupRHS ']'
     { $$ = Num_Group(&Group_S, "PO_Support", $2) ; }
 
-
-PlotSubType :
-
-    tOnRegion GroupRHS
-    {
-      PostSubOperation_S.SubType = PRINT_ONELEMENTSOF ;
-      PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, "PO_OnRegion", $2) ;
-    }
-
-  | tOnCut '{' '{' FExpr ',' FExpr ',' FExpr '}'
-               '{' FExpr ',' FExpr ',' FExpr '}'
-               '{' FExpr ',' FExpr ',' FExpr '}' '}'
-    {
-      PostSubOperation_S.SubType = PRINT_ONCUT_2D ;
-      PostSubOperation_S.Case.OnCut.x[0] = $4 ;
-      PostSubOperation_S.Case.OnCut.y[0] = $6 ;
-      PostSubOperation_S.Case.OnCut.z[0] = $8 ;
-      PostSubOperation_S.Case.OnCut.x[1] = $11 ;
-      PostSubOperation_S.Case.OnCut.y[1] = $13 ;
-      PostSubOperation_S.Case.OnCut.z[1] = $15 ;
-      PostSubOperation_S.Case.OnCut.x[2] = $18 ;
-      PostSubOperation_S.Case.OnCut.y[2] = $20 ;
-      PostSubOperation_S.Case.OnCut.z[2] = $22 ;
-    }
-
-  | tOnGrid GroupRHS
-    {
-      PostSubOperation_S.SubType = PRINT_ONGRID ;
-      PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, "PO_OnGrid", $2) ;
-    }
-
-  | tOnGrid '{' Expression ',' Expression ',' Expression '}' 
-            '{' ListOfDouble
-    {
-      PostSubOperation_S.SubType = PRINT_ONGRID_PARAM ;
-      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[0] = $3 ;
-      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[1] = $5 ;
-      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[2] = $7 ;
-      PostSubOperation_S.Case.OnParamGrid.ParameterValue[0] =
-	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
-      for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
-	List_Read(ListOfDouble_L, i, &Value) ;
-	List_Add(PostSubOperation_S.Case.OnParamGrid.ParameterValue[0], &Value) ;
-      }
-    }
-    ','  ListOfDouble '}'
-    {
-      PostSubOperation_S.Case.OnParamGrid.ParameterValue[1] =
-	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
-      for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
-	List_Read(ListOfDouble_L, i, &Value) ;
-	List_Add(PostSubOperation_S.Case.OnParamGrid.ParameterValue[1], &Value) ;
-      }
-    }
-
-  | tOnPoint '{' FExpr ',' FExpr ',' FExpr '}'
-    {
-      PostSubOperation_S.SubType = PRINT_ONGRID_0D ;
-      PostSubOperation_S.Case.OnGrid.x[0] = $3 ;
-      PostSubOperation_S.Case.OnGrid.y[0] = $5 ;
-      PostSubOperation_S.Case.OnGrid.z[0] = $7 ;
-    }
-
-  | tOnLine '{' '{' FExpr ',' FExpr ',' FExpr '}'
-                '{' FExpr ',' FExpr ',' FExpr '}' '}'  '{' FExpr '}'
-    {
-      PostSubOperation_S.SubType = PRINT_ONGRID_1D ;
-      PostSubOperation_S.Case.OnGrid.x[0] = $4 ;
-      PostSubOperation_S.Case.OnGrid.y[0] = $6 ;
-      PostSubOperation_S.Case.OnGrid.z[0] = $8 ;
-      PostSubOperation_S.Case.OnGrid.x[1] = $11 ;
-      PostSubOperation_S.Case.OnGrid.y[1] = $13 ;
-      PostSubOperation_S.Case.OnGrid.z[1] = $15 ;
-      PostSubOperation_S.Case.OnGrid.n[0] = (int)$19 ;
-    }
-
-  | tOnPlane '{' '{' FExpr ',' FExpr ',' FExpr '}'
-                 '{' FExpr ',' FExpr ',' FExpr '}'
-                 '{' FExpr ',' FExpr ',' FExpr '}' '}'  '{' FExpr ',' FExpr '}'
-    {
-      PostSubOperation_S.SubType = PRINT_ONGRID_2D ;
-      PostSubOperation_S.Case.OnGrid.x[0] = $4 ;
-      PostSubOperation_S.Case.OnGrid.y[0] = $6 ;
-      PostSubOperation_S.Case.OnGrid.z[0] = $8 ;
-      PostSubOperation_S.Case.OnGrid.x[1] = $11 ;
-      PostSubOperation_S.Case.OnGrid.y[1] = $13 ;
-      PostSubOperation_S.Case.OnGrid.z[1] = $15 ;
-      PostSubOperation_S.Case.OnGrid.x[2] = $18 ;
-      PostSubOperation_S.Case.OnGrid.y[2] = $20 ;
-      PostSubOperation_S.Case.OnGrid.z[2] = $22 ;
-      PostSubOperation_S.Case.OnGrid.n[0] = (int)$26 ;
-      PostSubOperation_S.Case.OnGrid.n[1] = (int)$28 ;
-    }
-
-  | tOnBox '{' '{' FExpr ',' FExpr ',' FExpr '}'
-               '{' FExpr ',' FExpr ',' FExpr '}'
-               '{' FExpr ',' FExpr ',' FExpr '}'
-               '{' FExpr ',' FExpr ',' FExpr '}' '}'  '{' FExpr ',' FExpr ',' FExpr '}'
-    {
-      PostSubOperation_S.SubType = PRINT_ONGRID_3D ;
-      PostSubOperation_S.Case.OnGrid.x[0] = $4 ;
-      PostSubOperation_S.Case.OnGrid.y[0] = $6 ;
-      PostSubOperation_S.Case.OnGrid.z[0] = $8 ;
-      PostSubOperation_S.Case.OnGrid.x[1] = $11 ;
-      PostSubOperation_S.Case.OnGrid.y[1] = $13 ;
-      PostSubOperation_S.Case.OnGrid.z[1] = $15 ;
-      PostSubOperation_S.Case.OnGrid.x[2] = $18 ;
-      PostSubOperation_S.Case.OnGrid.y[2] = $20 ;
-      PostSubOperation_S.Case.OnGrid.z[2] = $22 ;
-      PostSubOperation_S.Case.OnGrid.x[3] = $25 ;
-      PostSubOperation_S.Case.OnGrid.y[3] = $27 ;
-      PostSubOperation_S.Case.OnGrid.z[3] = $29 ;
-      PostSubOperation_S.Case.OnGrid.n[0] = (int)$33 ;
-      PostSubOperation_S.Case.OnGrid.n[1] = (int)$35 ;
-      PostSubOperation_S.Case.OnGrid.n[2] = (int)$37 ;
-    }
-
-  ;
 
 PrintSubType :
 
@@ -5335,7 +5204,7 @@ PrintSubType :
 
   ;
 
-PlotOptions :
+PrintOptions :
     /* none */        
     { 
       PostSubOperation_S.FileOut = NULL ; 
@@ -5352,10 +5221,10 @@ PlotOptions :
       PostSubOperation_S.Iso_L = List_Create(10,10,sizeof(double)); ;
       PostSubOperation_S.Sort = 0 ;
     }
-  | PlotOptions PlotOption 
+  | PrintOptions PrintOption 
   ;
 
-PlotOption :
+PrintOption :
     ',' tFile CharExpr
     { 
       PostSubOperation_S.FileOut = $3 ; 
@@ -5437,7 +5306,7 @@ PlotOption :
       if((int)$3 >= 1 && (int)$3 <= 3)
 	PostSubOperation_S.Dimension = (int)$3 ;
       else
-	vyyerror("Bad Dimension in Plot") ;  	
+	vyyerror("Bad Dimension in Print") ;  	
     }
   | ',' tTimeStep ListOfDouble 
     { 

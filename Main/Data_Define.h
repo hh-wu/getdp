@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.8 2000-09-28 22:14:39 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.9 2000-10-20 07:42:06 dular Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -216,12 +216,6 @@ struct StringXPointer  Current_Value[] = {
   {"S"  , &Current.s} ,{"T"  , &Current.t}, 
 
   {NULL       , NULL}
-} ;
-
-struct StringXDefine  PostQuantity_Type[] = {
-  {"NonCumulative"   , NONCUMULATIVE},
-  {"Cumulative"      , CUMULATIVE},
-  {NULL              , NONCUMULATIVE}
 } ;
 
 struct StringXDefine  PostQuantityTerm_EvaluationType[] = {

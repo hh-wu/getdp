@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.13 2000-10-19 11:30:25 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.14 2000-10-20 07:42:06 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -751,13 +751,8 @@ struct PostProcessing {
 
 struct PostQuantity {
   char    * Name ;
-  int       Type ;
   List_T  * PostQuantityTerm ;
 } ;
-
-/* PostQuantity.Type */
-#define NONCUMULATIVE  1
-#define CUMULATIVE     2
 
 struct PostQuantityTerm {
   int     Type, EvaluationType ;
@@ -810,8 +805,7 @@ struct PostSubOperation {
 } ;
 
 /* PostOperation.Type */
-#define POP_PLOT          1
-#define POP_PRINT         2
+#define POP_PRINT         1
 
 /* PostOperation.SubType */
 #define PRINT_ONREGION        1

@@ -1,4 +1,4 @@
-/* $Id: Print_ProblemStructure.c,v 1.6 2000-10-19 11:30:25 dular Exp $ */
+/* $Id: Print_ProblemStructure.c,v 1.7 2000-10-20 07:42:07 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 
@@ -936,7 +936,6 @@ void  Print_PostProcessing(struct Problem  * Problem) {
       for (j = 0 ; j < Nbrj ; j++) {
 	PQ = (struct PostQuantity*)List_Pointer(PP->PostQuantity, j) ;
 	Msg(CHECK, "      { Name %s ;\n", PQ->Name) ;
-	Msg(CHECK, "        Type %s ;\n", Get_StringForDefine(PostQuantity_Type, PQ->Type)) ;
 	Msg(CHECK, "        Value {\n") ;
 	Nbrk = List_Nbr(PQ->PostQuantityTerm) ;
 	for (k = 0 ; k < Nbrk ; k++) {
@@ -1004,8 +1003,8 @@ void  Print_PostOperation(struct Problem  * Problem) {
       PSO = (struct PostSubOperation*)List_Pointer(PO->PostSubOperation, k) ;
 
       switch (PSO->Type) {
-      case POP_PLOT :
-	Msg(CHECK, "      Plot[") ;
+      case POP_PRINT :
+	Msg(CHECK, "      Print[") ;
 	Msg(CHECK, " %s",
 	    ((struct PostQuantity *)
 	     List_Pointer(PP->PostQuantity,
@@ -1058,32 +1057,6 @@ void  Print_PostOperation(struct Problem  * Problem) {
 	
 	if (PSO->FileOut)  Msg(CHECK, ", \"%s\"", PSO->FileOut) ;
 	Msg(CHECK, " ] ;\n") ;
-	break ;
-      case POP_PRINT :
-	Msg(CHECK, "      Print[") ;
-	Msg(CHECK, " %s",
-	    ((struct PostQuantity *)
-	     List_Pointer(PP->PostQuantity,
-			  PSO->PostQuantityIndex[0]))->Name) ;
-	if(PSO->PostQuantityIndex[1] > 0)
-	  Msg(CHECK, " * %s",
-	      ((struct PostQuantity *)
-	       List_Pointer(PP->PostQuantity,
-			    PSO->PostQuantityIndex[1]))->Name) ;
-	
-
-	switch (PSO->SubType) {
-	case PRINT_ONREGION :
-	  Msg(CHECK, ", OnRegion %s",
-	      ((struct Group *)
-	       List_Pointer(Problem->Group,
-			    PSO->Case.OnRegion.RegionIndex))->Name ) ;
-	  break ;
-	}
-	
-	if (PSO->FileOut)  Msg(CHECK, ", \"%s\"", PSO->FileOut) ;
-	Msg(CHECK, " ] ;\n") ;
-
 	break ;
       }
     }

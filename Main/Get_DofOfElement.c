@@ -1,4 +1,4 @@
-/* $Id: Get_DofOfElement.c,v 1.10 2000-10-02 09:20:22 geuzaine Exp $ */
+/* $Id: Get_DofOfElement.c,v 1.11 2000-10-20 07:42:07 dular Exp $ */
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -351,7 +351,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
      GroupSupport_P    : In
      GroupEntity_P     : In  */
 
-  int         k, i_Entity, CodeExist ;
+  int         k, i_Entity, CodeExist, Index_GeoElement ;
   struct Dof  * Dof_P ;
 
   /*  1.  F o r   e a c h   e n t i t y   t o   w h i c h   a   b a s i s
@@ -406,14 +406,16 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 				       i_BFunction, TypeConstraint) ;
 
 	/* ... or due to P-refinement */
-	if(Current.GeoData->P && 
-	   Current.GeoData->P[Current.Element->GeoElement->Index+1] >= 0 &&
-	   Current.GeoData->P[Current.Element->GeoElement->Index+1] < 
-	   QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Order){
-	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = ASSIGN ;
-	  for (k = 0 ; k < Current.NbrHar ; k++)
-	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value[k] = 0. ;
-	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].TimeFunctionIndex = -1 ;
+	if(Current.GeoData->P) {
+	  Index_GeoElement = Geo_GetGeoElementIndex(Current.Element->GeoElement) ;
+	  if (Current.GeoData->P[Index_GeoElement+1] >= 0 &&
+	      Current.GeoData->P[Index_GeoElement+1] < 
+	      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Order){
+	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = ASSIGN ;
+	    for (k = 0 ; k < Current.NbrHar ; k++)
+	      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value[k] = 0. ;
+	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].TimeFunctionIndex = -1 ;
+	  }
 	}
       }
 

@@ -1,4 +1,4 @@
-/* $Id: GeoData.c,v 1.11 2000-09-28 22:13:33 geuzaine Exp $ */
+/* $Id: GeoData.c,v 1.12 2000-10-20 07:42:06 dular Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -212,8 +212,6 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
       List_Sort(GeoData_P->Elements, fcmp_Elm) ;
       
-      for (i = 0 ; i < List_Nbr(GeoData_P->Elements) ; i++)
-	((struct Geo_Element *) List_Pointer(GeoData_P->Elements, i))->Index = i ;
     }
 
     do {
@@ -229,7 +227,7 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
 
   struct Geo_Element Geo_Element, * Geo_Element_P ;
-  int        Nbr, i ;
+  int        Nbr, i, Index_GeoElement ;
   double     E, H, P, Max_Order = -1.0 ;
   char       String[MAX_STRING_LENGTH] ;
 
@@ -260,8 +258,9 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
 	if(!(Geo_Element_P = (struct Geo_Element *)
 	     List_PQuery(GeoData_P->Elements, &Geo_Element, fcmp_Elm)))
 	  Msg(ERROR, "Element %d Not Found in Database", Geo_Element.Num) ;
-	GeoData_P->H[Geo_Element_P->Index+1] = H ;
-	GeoData_P->P[Geo_Element_P->Index+1] = P ;
+	Index_GeoElement = Geo_GetGeoElementIndex(Geo_Element_P) ;
+	GeoData_P->H[Index_GeoElement+1] = H ;
+	GeoData_P->P[Index_GeoElement+1] = P ;
 	if(P > Max_Order) Max_Order = P ;
       }
     }
@@ -310,6 +309,16 @@ int  Geo_GetNbrGeoElements(void) {
 struct Geo_Element  * Geo_GetGeoElement(int Index_Element) {
   return
     (struct Geo_Element *)List_Pointer(CurrentGeoData->Elements, Index_Element) ;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  G e o _ G e t G e o E l e m e n t I n d e x                             */
+/* ------------------------------------------------------------------------ */
+
+int Geo_GetGeoElementIndex(struct Geo_Element * GeoElement) {
+  return
+    GeoElement - (struct Geo_Element*)List_Pointer(CurrentGeoData->Elements, 0) ;
 }
 
 

@@ -1,4 +1,4 @@
-/* $Id: Data_DefineE.h,v 1.7 2000-09-28 22:14:39 geuzaine Exp $ */
+/* $Id: Data_DefineE.h,v 1.8 2000-10-20 07:42:06 dular Exp $ */
 
 #ifndef _DADA_DEFINE_E_H_
 #define _DATA_DEFINE_E_H_
@@ -60,7 +60,6 @@ extern struct StringXDefine  QuantityFromFS_Type[] ;
 extern struct StringXDefine  DefineSystem_Type[] ;
 extern struct StringXDefine  Operation_Type[] ;
 extern struct StringXDefine  ChangeOfState_Type[] ;
-extern struct StringXDefine  PostQuantity_Type[];
 extern struct StringXDefine  PostQuantityTerm_EvaluationType[];
 extern struct StringXDefine  PostSubOperation_CombinationType[];
 extern struct StringXDefine  PostSubOperation_Format[];

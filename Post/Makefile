@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2000-10-19 11:24:21 dular Exp $
+# $Id: Makefile,v 1.11 2000-10-20 07:42:07 dular Exp $
 #
 # Makefile for 'libPost.a'
 # 
@@ -119,9 +119,9 @@ Pos_Search.o: Pos_Search.c ../Main/Data_Active.h ../Main/Data_Passive.h \
   ../Main/CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
   ../include/Magic.h ../DataStr/outil.h ../Main/Data_Numeric.h
-Pos_Format.o: Pos_Format.c ../Main/Data_Passive.h ../DataStr/listman.h \
-  ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
+Pos_Format.o: Pos_Format.c ../GeoData/GeoData.h ../Main/Message.h \
+  ../GeoData/Data_GeoData.h ../DataStr/listman.h ../DataStr/treeman.h \
+  ../DataStr/avl.h ../Main/Data_Passive.h ../Main/Data_Element.h \
   ../Main/Data_DefineE.h ../Main/Data_Numeric.h ../include/Version.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \

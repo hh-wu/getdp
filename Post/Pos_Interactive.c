@@ -1,4 +1,4 @@
-/* $Id: Pos_Interactive.c,v 1.8 2000-10-19 11:40:02 dular Exp $ */
+/* $Id: Pos_Interactive.c,v 1.9 2000-10-20 07:42:07 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -192,18 +192,18 @@ void Help_Format(void) {
     else printf("Sorry, no help for Format option '%s'\n", topic);
   }
 }
-void Help_Plot(void){
+void Help_Print(void){
   int i ;
   char topic[200] ;
-  printf("%s", i_plot);
+  printf("%s", i_print);
   while(1){
     printf(" \n"
-	   " OPTIONS available for plot include:\n"
+	   " OPTIONS available for print include:\n"
 	   "    file            depth      skin      smoothing\n"
 	   "    harmonictotime  dimension  timestep  adapt\n"
 	   "    sort            target     value     iso\n"
 	   " \n"
-	   "Option for Plot: ");
+	   "Option for Print: ");
     GET(first, topic) ;
     if     (!strcmp(topic, "file")) Help_File();
     else if(!strcmp(topic, "format")) Help_Format();
@@ -218,24 +218,6 @@ void Help_Plot(void){
     else if(!strcmp(topic, "target")) Help_Target();
     else if(!strcmp(topic, "value")) Help_Value();
     else if(!strcmp(topic, "iso")) Help_Iso();
-    else printf("Sorry, no help for Plot option '%s'\n", topic);
-  }
-}
-void Help_Print(void){
-  int i ;
-  char topic[200] ;
-  printf("%s", i_plot);
-  while(1){
-    printf(" \n"
-	   " OPTIONS available for print include:\n"
-	   "    file            timestep\n"
-	   " \n"
-	   "Option for Print: ");
-    GET(first, topic) ;
-    if     (!strcmp(topic, "file")) Help_File();
-    else if(!strcmp(topic, "format")) Help_Format();
-    else if(!strcmp(topic, "harmonictotime")) Help_HarmonicToTime();
-    else if(!strcmp(topic, "timestep")) Help_TimeStep();
     else printf("Sorry, no help for Print option '%s'\n", topic);
   }
 }
@@ -248,7 +230,7 @@ void Help(char *start){
 
   if(!start){
     printf(" Operations available for interactive PostOperation:\n"
-	   "    plot      print      quit\n"
+	   "    print      quit\n"
 	   " \n"
 	   "PostOperation: ");
     GET(first, topic) ;
@@ -256,8 +238,7 @@ void Help(char *start){
   else
     strncpy(topic, start, 200) ;
 
-  if     (!strcmp(topic, "plot")) Help_Plot();
-  else if(!strcmp(topic, "print")) Help_Print();
+  if     (!strcmp(topic, "print")) Help_Print();
   else if(!strcmp(topic, "quit")) Help_Quit();
   else if(!strcmp(topic, "file")) Help_File();
   else if(!strcmp(topic, "format")) Help_Format();

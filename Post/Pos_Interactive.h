@@ -1,18 +1,19 @@
-/* $Id: Pos_Interactive.h,v 1.1 2000-10-18 07:29:09 geuzaine Exp $ */
+/* $Id: Pos_Interactive.h,v 1.2 2000-10-20 07:42:07 dular Exp $ */
 #ifndef _POS_INTERACTIVE_H_
 #define _POS_INTERACTIVE_H_
 
-char i_plot[] = 
-" The Plot operation has the structure\n"
+char i_print[] = 
+" The Print operation has the structure\n"
 " \n"
-"    Plot[ PostQuantity , WHERE, OPTIONS ]\n"
+"    Print[ PostQuantity , WHERE, OPTIONS ]\n"
 " \n"
 " The WHERE argument specifies where the data should be evaluated in the\n"
 " three-dimensional space, and can be one of the following (X1, X2, N1,\n"
 " ... are constant expressions):\n"
 " \n"
-"    OnRegion  GROUP\n"
-"    OnGrid    GROUP\n"
+"    OnRegion     GROUP\n"
+"    OnElementsOf GROUP\n"
+"    OnGrid       GROUP\n"
 "    OnPoint   {X1,Y1,Z1}\n"
 "    OnLine  { {X1,Y1,Z1} {X2,Y2,Z2} } {N1}\n"
 "    OnPlane { {X1,X1,Z1} {X2,Y2,Z2} {X3,Y3,Z3} } {N1,N2}\n"
@@ -20,12 +21,6 @@ char i_plot[] =
 "    OnCut   { {X1,Y1,Z1} {X2,Y2,Z2} {X3,Y3,Z3} }\n"
 " \n"
 " Check the user's manual for the detailed description of each command.\n"
-;
-
-char i_print[] = 
-" The Print operation has the structure\n"
-" \n"
-"    Print[ PostQuantity , OnRegion GROUP, OPTIONS ]\n"
 ;
 
 char i_quit[] = 
@@ -87,7 +82,7 @@ char i_skin[] =
 " \n"
 "    Skin\n"
 " \n"
-" Skin works only for OnRegion plots.\n"
+" Skin works only for OnElementsOf prints.\n"
 ;
 
 char i_smoothing[] = 
@@ -96,7 +91,7 @@ char i_smoothing[] =
 " \n"
 "    Smoothing N\n"
 " \n"
-" Smoothing works only for OnRegion plots.\n"
+" Smoothing works only for OnElementsOf prints.\n"
 ;
 
 char i_harmonictotime[] = 
@@ -113,7 +108,7 @@ char i_dimension[] =
 "    Dimension N\n"
 " \n"
 " Dimension works only for OnGrid, OnPoint, OnLine, OnPlane and OnBox\n"
-" plots.\n"
+" prints.\n"
 ;
 
 char i_timestep[] = 
@@ -153,7 +148,7 @@ char i_value[] =
 ;
 
 char i_iso[] = 
-" The Iso option instructs GetDP to ouput directly contour plots (with N\n"
+" The Iso option instructs GetDP to ouput directly contour prints (with N\n"
 " values) instead of elementary values:\n"
 " \n"
 "    Iso N\n"

@@ -1,4 +1,4 @@
-/* $Id: Data_GeoData.h,v 1.6 2000-09-07 18:47:23 geuzaine Exp $ */
+/* $Id: Data_GeoData.h,v 1.7 2000-10-20 07:42:06 dular Exp $ */
 #ifndef _DATA_GEODATA_H_
 #define _DATA_GEODATA_H_
 
@@ -36,7 +36,7 @@ struct Geo_Node {
 } ;
 
 struct Geo_Element {
-  int  Num, Index ;
+  int  Num ;
   int  Type, Region ;
   int  NbrNodes , * NumNodes ;
   int  NbrEdges , * NumEdges ;

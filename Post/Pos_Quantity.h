@@ -1,4 +1,4 @@
-/* $Id: Pos_Quantity.h,v 1.2 2000-10-19 11:24:21 dular Exp $ */
+/* $Id: Pos_Quantity.h,v 1.3 2000-10-20 07:42:07 dular Exp $ */
 #ifndef _POS_QUANTITY_H_
 #define _POS_QUANTITY_H_
 
@@ -19,11 +19,12 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 			struct Value *Value) ;
 
 void Cal_PostCumulativeQuantity(List_T                 *Region_L,
+				int                    SupportIndex,
 				List_T                 *TimeStep_L, 
 				struct PostQuantity    *PostQuantity_P, 
 				struct DefineQuantity  *DefineQuantity_P0,
 				struct QuantityStorage *QuantityStorage_P0,
-				struct Value           *Value) ;
+				struct Value          **Value) ;
 
 void Combine_PostQuantity(int Type, int Order, 
 			  struct Value *V1, struct Value *V2) ;
