@@ -1,11 +1,11 @@
-# $Id: Makefile,v 1.4 2000-09-09 07:29:41 geuzaine Exp $
+# $Id: Makefile,v 1.5 2000-10-22 18:36:43 geuzaine Exp $
 #
 # Makefile for 'libSparskit.a'
 #
 
 .IGNORE:
 
-C_FLAGS   = -g
+C_FLAGS   = -O3
 F77_FLAGS = -O3
 RANLIB    = /usr/bin/ranlib
 
