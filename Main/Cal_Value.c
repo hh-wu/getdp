@@ -1,4 +1,4 @@
-/* $Id: Cal_Value.c,v 1.5 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Cal_Value.c,v 1.6 2000-10-03 13:56:05 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
@@ -583,7 +583,8 @@ void  Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * R) 
   }
   
   
-  else if (V1->Type == TENSOR_DIAG && V2->Type == VECTOR) {
+  else if ( (V1->Type == TENSOR_DIAG && V2->Type == VECTOR) ||
+	    (V2->Type == TENSOR_DIAG && V1->Type == VECTOR) ) {
     if (Current.NbrHar == 1) {
       R->Val[0] = V1->Val[0]*V2->Val[0];      
       R->Val[1] = V1->Val[1]*V2->Val[1];      
@@ -724,7 +725,7 @@ void  Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * R) 
     }
     R->Type = TENSOR;
   }
-  
+
   /* a faire: differents tenseurs entre eux */
 
   else {
@@ -953,7 +954,7 @@ void  Cal_PowerValue (struct Value * V1, struct Value * V2, struct Value * R) {
 	R->Val[0] = pow(V1->Val[0],V2->Val[0]) ;
       }
       else{
-	Msg(WARNING, "Power > 2 not tested for Complex");
+	/* Msg(WARNING, "Power > 2 not tested for Complex"); */
 	for (k = 0 ; k < Current.NbrHar ; k+=2) {
 	  abs = pow(sqrt(DSQU(V1->Val[MAX_DIM*k])+DSQU(V1->Val[MAX_DIM*(k+1)])), 
 		    V2->Val[0]) ;
