@@ -1,11 +1,19 @@
-// $Id: Fasster.cpp,v 1.1 2002-05-24 20:38:39 geuzaine Exp $
+// $Id: Fasster.cpp,v 1.2 2002-05-29 23:33:25 geuzaine Exp $
+
+#ifndef USE_FASSTER
+
+void Fasster_Initialize(){;}
+void Fasster_Finalize(){;}
+void Fasster_InitializeScatterer(int nbpatch, char *moduleName, char *className){;}
+
+#else
 
 #include "Fasster.h"
 #include "Utils.h"
 #include "Tools.h"
 #include "Scatterer.h"
 
-void Fasster_Initilialize(){
+void Fasster_Initialize(){
   static int init=0;
   if(!init){
     init = 1;
@@ -80,3 +88,6 @@ void Fasster_Call(PyObject *fct, int n, double* u, int m, double *v){
 	result.getValue(i,j,k);
   
 }
+
+
+#endif // USE_FASSTER

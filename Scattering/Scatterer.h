@@ -9,7 +9,7 @@ class Scatterer{
 public:
   enum ScattererType {CIRCLE,ELLIPSE,DROP,KITE} ;
   ScattererType type;
-  double a, b;
+  double a, b, currentTargetU;
   List_T *patches;
   double *nodes; // merge of all patch nodes
   List_T **criticalPointsList;
@@ -28,6 +28,12 @@ public:
   void criticalPoints(int index, double k[3]);
   void shadowingPoints(double t, double shift, double k[3], List_T *pts);
   void printPoints(double t, List_T *pts);
+
+  // Newton stuff for critical point computation
+  void phase2D(double *x, int n, double *fvec, double **fjac);
+  void ludcmp (double **a, int n, int *indx, double *d);
+  void lubksb (double **a, int n, int *indx, double b[]);
+  int  mnewt(int ntrial, double x[], int n, double tolx, double tolf);
 };
 
 class CPoint{

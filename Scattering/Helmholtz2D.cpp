@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.1 2002-05-24 20:38:19 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.2 2002-05-29 23:33:25 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -443,7 +443,7 @@ Complex Evaluate2D(Ctx *ctx, int farfield, double x[3]){
     ctx->f.type = Function::INTERPOLATED; 
     tmp = ctx->f.density(&ctx->scat,tau);
 
-    printf("%g %g %g\n", tau, tmp.real(), tmp.imag());
+    //printf("%g %g %g\n", tau, tmp.real(), tmp.imag());
     
     if(!farfield){
       kern.init(0,x,dummy,tau,xtau,dxtau,k);

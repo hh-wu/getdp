@@ -1,10 +1,10 @@
-// $Id: Scatterer.cpp,v 1.14 2002-05-23 00:50:32 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.15 2002-05-29 23:33:25 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
 #include "Scatterer.h"
 #include "Function.h"
-#include "Newton.h"
+#include "nrutil.h"
 
 #define TOL_LOOSE  1.e-6
 
@@ -149,37 +149,6 @@ void Scatterer::singularPoint(double t0, List_T *pts){
 //  Compute all critical points (i.e. for which gradient of the total
 //  phase of the integral equation vanishes).
 
-static Scatterer *TheScat;
-static double     TheTarget;
-
-void phaseGradient(int n, double *x, double *f){
-  double theta0 = TheTarget, theta = x[1];
-  double r0, dr0, ddr0, r, dr, ddr;
-
-  TheScat->polar(theta,&r,&dr,&ddr);
-  TheScat->polar(theta0,&r0,&dr0, &ddr0);
-
-  //f[1] = x[1]*x[1]-2.;
-
-  //f[1] = sin(theta-theta0) / sqrt(2*(1-cos(theta-theta0))) - sin(theta) ;
-
-  f[1] = (r*dr - r0*dr*cos(theta-theta0) + r0*r*sin(theta-theta0)) /
-    sqrt(r0*r0 + r*r - 2*r0*r*cos(theta-theta0)) +
-    dr*cos(theta) - r*sin(theta) ;
-  
-}
-
-void phaseGradientDiff(int n, double *x, double *f,
-		       double **df, void (*vecfunc) (int, double[], double[])){
-  double theta0 = TheTarget, theta = x[1];
-  double r0, dr0, ddr0, r, dr, ddr;
-
-  TheScat->polar(theta,&r,&dr,&ddr);
-  TheScat->polar(theta0,&r0,&dr0, &ddr0);
-  
-  df[1][1] = 1;
-}
-
 void Scatterer::criticalPoints(int index, List_T *pts){
   int i;
   double val;
@@ -192,6 +161,146 @@ void Scatterer::criticalPoints(int index, List_T *pts){
     pt.val = val;
     List_Insert(pts, &pt, fcmp_CPoint);
   }
+}
+
+#define TINY 1.0e-20;
+
+void Scatterer::ludcmp (double **a, int n, int *indx, double *d){
+  int i, imax, j, k;
+  double big, dum, sum, temp;
+  double *vv;
+
+  vv = dvector (1, n);
+  *d = 1.0;
+  for (i = 1; i <= n; i++) {
+    big = 0.0;
+    for (j = 1; j <= n; j++)
+      if ((temp = fabs (a[i][j])) > big)
+	big = temp;
+    if (big == 0.0)
+      nrerror ("Singular matrix in routine ludcmp");
+    vv[i] = 1.0 / big;
+  }
+  for (j = 1; j <= n; j++) {
+    for (i = 1; i < j; i++) {
+      sum = a[i][j];
+      for (k = 1; k < i; k++)
+	sum -= a[i][k] * a[k][j];
+      a[i][j] = sum;
+    }
+    big = 0.0;
+    for (i = j; i <= n; i++) {
+      sum = a[i][j];
+      for (k = 1; k < j; k++)
+	sum -= a[i][k] * a[k][j];
+      a[i][j] = sum;
+      if ((dum = vv[i] * fabs (sum)) >= big) {
+	big = dum;
+	imax = i;
+      }
+    }
+    if (j != imax) {
+      for (k = 1; k <= n; k++) {
+	dum = a[imax][k];
+	a[imax][k] = a[j][k];
+	a[j][k] = dum;
+      }
+      *d = -(*d);
+      vv[imax] = vv[j];
+    }
+    indx[j] = imax;
+    if (a[j][j] == 0.0)
+      a[j][j] = TINY;
+    if (j != n) {
+      dum = 1.0 / (a[j][j]);
+      for (i = j + 1; i <= n; i++)
+	a[i][j] *= dum;
+    }
+  }
+  free_dvector (vv, 1, n);
+}
+
+#undef TINY
+
+void Scatterer::lubksb (double **a, int n, int *indx, double b[]){
+  int i, ii = 0, ip, j;
+  double sum;
+
+  for (i = 1; i <= n; i++) {
+    ip = indx[i];
+    sum = b[ip];
+    b[ip] = b[i];
+    if (ii)
+      for (j = ii; j <= i - 1; j++)
+	sum -= a[i][j] * b[j];
+    else if (sum)
+      ii = i;
+    b[i] = sum;
+  }
+  for (i = n; i >= 1; i--) {
+    sum = b[i];
+    for (j = i + 1; j <= n; j++)
+      sum -= a[i][j] * b[j];
+    b[i] = sum / a[i][i];
+  }
+}
+
+#define FREERETURN {free_dmatrix(fjac,1,n,1,n);free_dvector(fvec,1,n);\
+	free_dvector(p,1,n);free_ivector(indx,1,n);}
+
+int Scatterer::mnewt(int ntrial, double x[], int n, double tolx, double tolf){
+  int k,i,*indx;
+  double errx,errf,d,*fvec,**fjac,*p;
+  
+  indx=ivector(1,n);
+  p=dvector(1,n);
+  fvec=dvector(1,n);
+  fjac=dmatrix(1,n,1,n);
+  for (k=1;k<=ntrial;k++) {
+    phase2D(x,n,fvec,fjac);
+    errf=0.0;
+    for (i=1;i<=n;i++) errf += fabs(fvec[i]);
+    if (errf <= tolf){
+      FREERETURN;
+      return 0;
+    }
+    for (i=1;i<=n;i++) p[i] = -fvec[i];
+    ludcmp(fjac,n,indx,&d);
+    lubksb(fjac,n,indx,p);
+    errx=0.0;
+    for (i=1;i<=n;i++) {
+      errx += fabs(p[i]);
+      x[i] += p[i];
+    }
+    if (errx <= tolx){
+      FREERETURN;
+      return 0;
+    }
+  }
+  FREERETURN;
+  return 1;
+}
+
+#undef FREERETURN
+
+void Scatterer::phase2D(double *x, int n, double *fvec, double **fjac){
+  double t = x[1], t0 = currentTargetU;
+  double r0, dr0, ddr0, r, dr, ddr, tmp1, tmp2;
+
+  polar(t,&r,&dr,&ddr);
+  polar(t0,&r0,&dr0, &ddr0);
+
+  tmp1 = 2.*r*dr - 2.*r0*dr*cos(-t+t0) - 2.*r0*r*sin(-t+t0) ;
+  tmp2 = r0*r0 + r*r - 2*r0*r*cos(t-t0) ;
+
+  // gradient of the phase
+  fvec[1] = 0.5 * tmp1 / sqrt(tmp2) + dr*cos(t) - r*sin(t) ;
+
+  // derivative for jacobian
+  fjac[1][1] = -0.25* SQU(tmp1) / pow(tmp2, 3./2.)  +
+    0.5 * (2.*dr*dr + 2.*r*ddr - 2.*r0*ddr*cos(-t+t0) - 4.*r0*dr*sin(-t+t0) + 
+	   2.*r0*r*cos(-t+t0)) / sqrt(tmp2) +
+    ddr * cos(t) - 2.*dr*sin(t) - r*cos(t);
 }
 
 #define NB_INITIAL_GUESS 1000
@@ -233,31 +342,39 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
       }
       break;
 
-    default :
+    case ELLIPSE:
+    case DROP:
+    case KITE:
       // solve the nonlinear system in the general case
 
-      TheScat = this;
-      TheTarget = theta0;
+      currentTargetU = theta0;
       theta = 0.;
-      
+     
       for(i=0; i<NB_INITIAL_GUESS; i++){
 	tmp[1] = theta;
 	
 	if(fabs(theta-theta0)>1*TOL_LOOSE){
-	  newt(tmp, 1, &check, phaseGradient, fdjac);
+	  //newt(tmp, 1, &check, phaseGradient, fdjac);
 	  //newt(tmp, 1, &check, phaseGradient, phaseGradientDiff);
+	  check = mnewt(200, tmp, 1, 1.e-6, 1.e-4);
 	  if(!check){
 	    tmp[1] = GetInInterval(tmp[1], 0., TWO_PI);
 	    List_Insert(criticalPointsList[i_node], &tmp[1], fcmp_double_loose);
 	  }
 	  else
-	    Msg(WARNING,"Newton did not converge for theta0=%g, theta=%g", theta0, theta);
+	    Msg(WARNING,"Newton did not converge for theta0=%g, theta=%g", 
+		theta0, theta);
 	}
 	theta += TWO_PI/NB_INITIAL_GUESS;
       }
-      
       break;
       
+    default :
+      // solve the nonlinear system in the general case
+
+      Msg(ERROR, "General newton with finite difference jac not done");
+      break;
+
     }
 
   }

@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.24 2002-05-24 00:29:30 geuzaine Exp $
+// $Id: Solve.cpp,v 1.25 2002-05-29 23:33:25 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -274,13 +274,14 @@ void Ctx::postProcess(){
   initializeInterpolation(&x);
 
   // compute far field
+  /*
   coord[0] = 1;
   coord[0] = 0;
   coord[0] = 0;
   vs = (-2./I) * Evaluate2D(this, 1, coord);
   printf("FAR FIELD = %g %g \n", vs.real(), vs.imag());
-
   return;
+  */
 
   double xmin = -2*PI, xmax = 2*PI, ymin = -2*PI, ymax = 2*PI;
   //double xmin = -2., xmax = 2., ymin = 0., ymax = 2.;
@@ -299,14 +300,14 @@ void Ctx::postProcess(){
     for(j=0; j<nby; j++){
       coord[1] = ymin + j*(ymax-ymin)/(double)(nby-1) ;
       coord[2] = 0. ;
-      if(coord[0]*coord[0]+coord[1]*coord[1] > 1.){
+      //if(coord[0]*coord[0]+coord[1]*coord[1] > 1.){
 	vs = (-2./I) * Evaluate2D(this, 0, coord);
 	double kr = waveNum[0]*coord[0]+waveNum[1]*coord[1]+waveNum[2]*coord[2];
 	vi = cos(kr)+I*sin(kr);
-      }
-      else{
-	vs = vi = 0.;
-      }
+      //}
+      //else{
+	//vs = vi = 0.;
+      //}
       
       fprintf(fp, "SP(%g,%g,%g){%g,%g,%g,%g,%g,%g,%g};\n"
 	      , coord[0], coord[1], coord[2]
