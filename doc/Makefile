@@ -1,40 +1,12 @@
-# $Id: Makefile,v 1.12 2001-03-04 13:19:47 geuzaine Exp $
+# $Id: Makefile,v 1.13 2001-03-07 09:27:42 geuzaine Exp $
 
-dvi:
-	texi2dvi getdp.texi 
-
-ps: dvi
-	dvips getdp -o
-
-pdf:
-	texi2pdf getdp.texi 
-
-html:
-	./texi2html -init_file getdp.t2h getdp.texi
-
-html2:
-	makeinfo --html getdp.texi
-
-info:
-	makeinfo getdp.texi
-
-install-info:
-	cp getdp.info* /usr/local/info/
-	install-info getdp.info /usr/local/info/dir
-
-infoz: info
-	gtar zcvf getdp-info.tgz getdp.info*
-
-all: ps pdf html infoz
+all:
+	cd texinfo && $(MAKE) all
 	gtar zcvf getdp-doc.tgz\
-             FAQ CONTRIBUTORS BUGS VERSIONS\
-             getdp.bib getdp.ps getdp.pdf \
-             *.html *.jpg \
-             getdp-info.tgz getdp.1 
-
+          FAQ CONTRIBUTORS BUGS VERSIONS\
+          getdp.bib texinfo/getdp.ps texinfo/getdp.pdf \
+          texinfo/*.html texinfo/*.jpg \
+          texinfo/getdp-info.tgz getdp.1 
 
 clean:
-	$(RM) $(RMFLAGS) *.cp* *.fn* *.ky* *.pg* *.tp* *.vr* *.mv* \
-                         *.log *.toc *.aux *.dvi *.html \
-                         getdp.ps getdp.pdf getdp.info*
-
+	$(RM) $(RMFLAGS) getdp.ps getdp.pdf getdp.info*

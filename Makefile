@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.46 2001-03-03 20:03:34 geuzaine Exp $
+# $Id: Makefile,v 1.47 2001-03-07 09:27:42 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -43,7 +43,7 @@ GETDP_STUFF_DIR       = Main Parser Post Function Integration GeoData\
                         DofData Numeric DataStr
 GETDP_LIB_DIR         = lib
 GETDP_BIN_DIR         = bin
-GETDP_DOC_DIR         = doc
+GETDP_DOC_DIR         = doc/texinfo
 GETDP_DEMO_DIR        = demos
 GETDP_INCLUDE_DIR     = include
 GETDP_ARCHIVE_DIR     = archives
@@ -258,12 +258,15 @@ cleandoc:
 
 doc-info:
 	cd $(GETDP_DOC_DIR) && $(MAKE) info
+	cp $(GETDP_DOC_DIR)/getdp.info* doc/
 
 doc-ps:
 	cd $(GETDP_DOC_DIR) && $(MAKE) ps
+	cp $(GETDP_DOC_DIR)/getdp.ps doc/
 
 doc-pdf:
 	cd $(GETDP_DOC_DIR) && $(MAKE) pdf
+	cp $(GETDP_DOC_DIR)/getdp.pdf doc/
 
 purge:
 	for i in $(GETDP_DIR) $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) \

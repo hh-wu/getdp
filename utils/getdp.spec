@@ -44,7 +44,7 @@ mkdir -p $RPM_BUILD_ROOT/usr/info
 
 install -m 755 bin/getdp $RPM_BUILD_ROOT/usr/bin/getdp
 install -m 644 doc/getdp.1 $RPM_BUILD_ROOT/usr/man/man1/getdp.1
-install -m 644 doc/getdp.info* $RPM_BUILD_ROOT/usr/info/
+install -m 644 doc/texinfo/getdp.info* $RPM_BUILD_ROOT/usr/info/
 
 %post
 /sbin/install-info /usr/info/getdp.info /usr/info/dir
