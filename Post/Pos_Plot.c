@@ -1,4 +1,4 @@
-/* $Id: Pos_Plot.c,v 1.3 2000-10-16 21:02:16 geuzaine Exp $ */
+/* $Id: Pos_Plot.c,v 1.4 2000-10-17 07:20:54 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -154,9 +154,9 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   
   if(PostSubOperation_P->Smoothing){
     if(PostSubOperation_P->Depth > 1)
-      Msg(ERROR, "Smoothing not Allowed: Depth = %d > 1", PostSubOperation_P->Depth); 
+      Msg(ERROR, "Smoothing not Allowed with Depth > 1"); 
     if(NbrTimeStep > 1)
-      Msg(ERROR, "Smoothing not Allowed: Time Steps = %d > 1", NbrTimeStep); 
+      Msg(ERROR, "Smoothing not Allowed with More than One Time Step"); 
     NbrSmoothing = PostSubOperation_P->Smoothing ;
   }
   else
@@ -177,7 +177,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
     if(PostSubOperation_P->Target < 0.)
       Msg(ERROR, "You have to specify a Target for the Adaption (e.g. 0.01)");
     if(NbrTimeStep > 1)
-      Msg(ERROR, "Adaption not ready for Time Steps = %d > 1", NbrTimeStep); 
+      Msg(ERROR, "Adaption not Ready with More than One Time Step"); 
   }
 
   /* Check if we should decompose all PostElements to simplices */
@@ -684,7 +684,7 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
   switch(PostSubOperation_P->SubType) {
 
   case PLOT_ONCUT_1D :
-    Msg(ERROR, "Plot on 1D cuts not done. Use Plot OnLine instead");
+    Msg(ERROR, "Plot on 1D Cuts not Done: Use Plot OnLine instead");
     break;
 
   case PLOT_ONCUT_2D :
@@ -881,31 +881,31 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
          (j) * ((int)N[0]+1) +					\
          (i) ]
 
-#define LETS_STORE_THE_RESULT							\
- if(!NCPQ_P){									\
-   if(CumulativeValues[0].Type != SCALAR)					\
-     Msg(ERROR, "Plot OnPlane not ready for non scalar fields with Depth > 1");	\
-   else										\
-     for (ts = 0 ; ts < NbTimeStep ; ts++)					\
-       for(k = 0 ; k < Current.NbrHar ; k++)					\
-         ARRAY(i1,i2,k,ts) = (float)CumulativeValues[ts].Val[MAX_DIM*k] ;	\
- }										\
- else{										\
-   InWhichElement(Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension,	\
-                  Current.x, Current.y, Current.z, &u, &v, &w) ;		\
-   Current.Region = Element.Region ;						\
-   for (ts = 0 ; ts < NbTimeStep ; ts++) {					\
-     Pos_InitAllSolutions(PSO_P->TimeStep_L, ts) ;				\
-     Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,		\
-                      &Element, u, v, w, &PE->Value[0]);			\
-     if(PE->Value[0].Type != SCALAR)						\
-       Msg(ERROR, "Plot OnPlane not ready for non scalar fields with Depth > 1");\
-     if(CPQ_P)									\
-       Combine_PostQuantity(PSO_P->CombinationType, Order,			\
-                            &PE->Value[0], &CumulativeValues[ts]) ;		\
-     for(k = 0 ; k < Current.NbrHar ; k++)					\
-       ARRAY(i1,i2,k,ts) = (float)PE->Value[0].Val[MAX_DIM*k] ;			\
-   }										\
+#define LETS_STORE_THE_RESULT								\
+ if(!NCPQ_P){										\
+   if(CumulativeValues[0].Type != SCALAR)						\
+     Msg(ERROR, "Plot OnPlane is not Designed for Non Scalar Plots with Depth > 1");	\
+   else											\
+     for (ts = 0 ; ts < NbTimeStep ; ts++)						\
+       for(k = 0 ; k < Current.NbrHar ; k++)						\
+         ARRAY(i1,i2,k,ts) = (float)CumulativeValues[ts].Val[MAX_DIM*k] ;		\
+ }											\
+ else{											\
+   InWhichElement(Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension,		\
+                  Current.x, Current.y, Current.z, &u, &v, &w) ;			\
+   Current.Region = Element.Region ;							\
+   for (ts = 0 ; ts < NbTimeStep ; ts++) {						\
+     Pos_InitAllSolutions(PSO_P->TimeStep_L, ts) ;					\
+     Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,			\
+                      &Element, u, v, w, &PE->Value[0]);				\
+     if(PE->Value[0].Type != SCALAR)							\
+       Msg(ERROR, "Plot OnPlane is not Designed for Non Scalar Plots with Depth > 1");	\
+     if(CPQ_P)										\
+       Combine_PostQuantity(PSO_P->CombinationType, Order,				\
+                            &PE->Value[0], &CumulativeValues[ts]) ;			\
+     for(k = 0 ; k < Current.NbrHar ; k++)						\
+       ARRAY(i1,i2,k,ts) = (float)PE->Value[0].Val[MAX_DIM*k] ;				\
+   }											\
  }
 
 void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
@@ -1143,7 +1143,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   int      Nbr_Region, Num_Region ;
 
   if(CPQ_P)
-    Msg(ERROR, "Cumulative PostQuantity in PrintOnRegion not done") ;
+    Msg(ERROR, "Cumulative PostQuantity in PrintOnRegion not Done") ;
 
   if( !(NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
     NbTimeStep = List_Nbr(Current.DofData->Solutions);
@@ -1229,7 +1229,7 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
   double   X[2], S, x ;
 
   if(CPQ_P)
-    Msg(ERROR, "Cumulative PostQuantity in PrintWithArgument not done") ;
+    Msg(ERROR, "Cumulative PostQuantity in PrintWithArgument not Done") ;
 
   X[0] = PostSubOperation_P->Case.WithArgument.x[0] ;
   X[1] = PostSubOperation_P->Case.WithArgument.x[1] ;

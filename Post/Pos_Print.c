@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.11 2000-10-16 21:02:16 geuzaine Exp $ */
+/* $Id: Pos_Print.c,v 1.12 2000-10-17 07:20:54 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -87,7 +87,7 @@ void  Print_PostHeader(int Format, int Contour,
 void  Print_PostFooter(struct PostSubOperation *PSO_P){
   List_T  * Iso_L[NBR_MAX_ISO] ;
   double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0 ;
-  int       NbrIso = 0, IsoType = 0 ; 
+  int       NbrIso = 0 ; 
   int       iPost, iNode, iIso ;
   struct PostElement *PE ;
 
@@ -119,6 +119,7 @@ void  Print_PostFooter(struct PostSubOperation *PSO_P){
 	  Cal_Iso(PE, Iso_L[iIso], IsoVal, IsoMin, IsoMax) ;
 	}
       }
+      if(1) Destroy_PostElement(PE);
     }
 
     for(iIso = 0 ; iIso < NbrIso ; iIso++){
@@ -629,7 +630,7 @@ void  Print_PostElement(int Format, int Contour, int Store,
     if(NbTimeStep != 1)
       Msg(ERROR, "Contour Creation not Allowed for Multiple Time Steps");
     if(Current.NbrHar != 1 && !Warning_FirstHarmonic){
-      Msg(WARNING, "Contour Creation done only for First Harmonic");
+      Msg(WARNING, "Contour Creation done only for First Harmonic: Please use Re[] or Im[]");
       Warning_FirstHarmonic = 1 ;
     }
     if(Store)

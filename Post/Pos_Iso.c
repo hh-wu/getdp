@@ -1,4 +1,4 @@
-/* $Id: Pos_Iso.c,v 1.6 2000-10-16 21:02:16 geuzaine Exp $ */
+/* $Id: Pos_Iso.c,v 1.7 2000-10-17 07:20:54 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -177,7 +177,7 @@ void Cal_Iso(struct PostElement *PE, List_T *list,
       Destroy_PostElement(PE2);
     break ;
   default :
-    Msg(ERROR, "Cal_Iso not done for this type of element");
+    Msg(ERROR, "Iso Computation not Done for this Type of Element");
     break ;
   }
 
