@@ -1,4 +1,4 @@
-/* $Id: GmshClient.c,v 1.13 2005-01-01 18:42:16 geuzaine Exp $ */
+/* $Id: GmshClient.c,v 1.14 2005-01-15 21:46:07 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2004 C. Geuzaine, J.-F. Remacle
  *
@@ -91,7 +91,7 @@ int Gmsh_Connect(char *sockname)
 {
   struct sockaddr_un addr_un;
   struct sockaddr_in addr_in;
-  int len, sock;
+  int sock;
   int tries;
   struct hostent *server;
   int portno, remotelen;
@@ -124,9 +124,8 @@ int Gmsh_Connect(char *sockname)
     /* try to connect socket to given name */
     strcpy(addr_un.sun_path, sockname);
     addr_un.sun_family = AF_UNIX;
-    len = strlen(addr_un.sun_path) + sizeof(addr_un.sun_family);
     for(tries = 0; tries < 5; tries++) {
-      if(connect(sock, (struct sockaddr *)&addr_un, len) >= 0)
+      if(connect(sock, (struct sockaddr *)&addr_un, sizeof(addr_un)) >= 0)
 	return sock;
       Socket_Idle(0.1);
     }
@@ -138,9 +137,9 @@ int Gmsh_Connect(char *sockname)
       return -1; /* Error: Couldn't create socket */
     if(!(server = gethostbyname(remote)))
       return -3; /* Error: No such host */
-    bzero((char *) &addr_in, sizeof(addr_in));
+    memset((char *) &addr_in, 0, sizeof(addr_in));
     addr_in.sin_family = AF_INET;
-    bcopy((char *)server->h_addr, (char *)&addr_in.sin_addr.s_addr, server->h_length);
+    memcpy((char *)&addr_in.sin_addr.s_addr, (char *)server->h_addr, server->h_length);
     addr_in.sin_port = htons(portno);
     addr_in.sin_addr.s_addr = INADDR_ANY;
     for(tries = 0; tries < 5; tries++) {
@@ -150,7 +149,7 @@ int Gmsh_Connect(char *sockname)
     }
   }
 
-  return -2;    /* Error: Couldn't connect */
+  return -2; /* Error: Couldn't connect */
 }
 
 void Gmsh_SendString(int socket, int type, char str[])
