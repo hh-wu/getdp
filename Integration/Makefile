@@ -1,11 +1,11 @@
-# $Id: Makefile,v 1.9 2001-03-02 20:49:11 geuzaine Exp $
+# $Id: Makefile,v 1.10 2001-03-02 22:16:00 geuzaine Exp $
 #
 # Makefile for "libIntegration.a"
 #
 
 .IGNORE:
 
-C_FLAGS = -g -DUSE_DEBUG
+C_FLAGS = -g
 RANLIB  = /usr/bin/ranlib
 
 LIB     = ../lib/libIntegration.a

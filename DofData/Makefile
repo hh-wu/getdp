@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2000-10-30 01:05:43 geuzaine Exp $
+# $Id: Makefile,v 1.6 2001-03-02 22:16:00 geuzaine Exp $
 #
 # Makefile for "libDofData.a"
 #
@@ -9,7 +9,7 @@ RANLIB  = /usr/bin/ranlib
 
 SOLVER = -D_SPARSKIT
 
-C_FLAGS = -g -DUSE_DEBUG
+C_FLAGS = -g
 
 LIB     = ../lib/libDofData.a
 INCLUDE = -I. -I../include -I../DataStr -I../GeoData -I../Main -I../Sparskit

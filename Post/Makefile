@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.14 2000-11-03 08:31:31 dular Exp $
+# $Id: Makefile,v 1.15 2001-03-02 22:16:00 geuzaine Exp $
 #
 # Makefile for 'libPost.a'
 # 
@@ -9,7 +9,7 @@ RANLIB  = /usr/bin/ranlib
 
 SOLVER = -D_SPARSKIT
 
-C_FLAGS = -g -DUSE_DEBUG
+C_FLAGS = -g
 
 LIB     = ../lib/libPost.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData\

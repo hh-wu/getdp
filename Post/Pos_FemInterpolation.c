@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_FemInterpolation.c,v 1.9 2001-02-24 16:20:29 geuzaine Exp $"
+#define RCSID "$Id: Pos_FemInterpolation.c,v 1.10 2001-03-02 22:16:00 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -85,6 +85,10 @@ void  Pos_FemInterpolation(struct Element * Element,
      --------------- */
 
   if(SubType_DefineQuantity != NODOF) {
+
+    if(!QuantityStorage_P->FunctionSpace)
+      Msg(ERROR, "No function space for quantity: "
+	  "did you define an integral quantity without a Dof{}");
 
     if(!QuantityStorage_P->FunctionSpace->DofData)
       Msg(ERROR, "No available DofData to interpolate this Quantity");

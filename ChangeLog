@@ -1,7 +1,12 @@
+2001-03-02  Christophe Geuzaine  <geuzaine@elap74.montefiore.ulg.ac.be>
+
+	* No more USE_DEBUG by default
+
+	* Fixed bugs in Pos_Format and Pos_Quantity
+
 2001-02-24  Christophe Geuzaine  <geuzaine@elap74.montefiore.ulg.ac.be>
 
 	* Fixed bug for WQ_OPERATORANDQUANTITYEVAL in parser + other
 	potential recursion problems
 
 	* Created this ChangeLog
-

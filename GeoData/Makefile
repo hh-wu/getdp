@@ -1,11 +1,11 @@
-# $Id: Makefile,v 1.5 2000-10-30 01:05:44 geuzaine Exp $
+# $Id: Makefile,v 1.6 2001-03-02 22:16:00 geuzaine Exp $
 #
 # Makefile for "libGeoData.a"
 #
 
 .IGNORE:
 
-C_FLAGS = -g -DUSE_DEBUG
+C_FLAGS = -g
 RANLIB  = /usr/bin/ranlib
 
 LIB     = ../lib/libGeoData.a

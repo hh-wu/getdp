@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2001-03-02 20:49:11 geuzaine Exp $
+# $Id: Makefile,v 1.11 2001-03-02 22:16:00 geuzaine Exp $
 #
 # Makefile for 'libMain.a'
 # 
@@ -7,7 +7,7 @@
 
 RANLIB  = /usr/bin/ranlib
 
-C_FLAGS = -g -DUSE_DEBUG
+C_FLAGS = -g
 SOLVER  = -D_SPARSKIT
 
 LIB     = ../lib/libMain.a

@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.3 2001-02-24 16:20:28 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.4 2001-03-02 22:16:00 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -3128,6 +3128,9 @@ DefineQuantityTerm :
 
       WholeQuantity_P = (struct WholeQuantity*)
 	List_Pointer(DefineQuantity_S.IntegralQuantity.WholeQuantity, 0) ;
+
+      /* Ce qui suit ne suffit pas : il faudrait aussi gerer des
+	Quantity_def sans Dof */
 
       if (Current_DofIndexInWholeQuantity >= 0) {
 	DefineQuantity_S.IntegralQuantity.TypeOperatorDof =

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2000-10-30 01:05:46 geuzaine Exp $
+# $Id: Makefile,v 1.9 2001-03-02 22:16:00 geuzaine Exp $
 #
 # Makefile for 'libSolverMisc.a'
 #
@@ -7,7 +7,7 @@
 
 RANLIB  = /usr/bin/ranlib
 
-C_FLAGS = -g -DUSE_DEBUG
+C_FLAGS = -g
 F77_FLAGS = -g
 SOLVER  = -D_SPARSKIT
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.8 2001-03-02 20:49:12 geuzaine Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.9 2001-03-02 22:16:00 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -312,9 +312,6 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 
       if (Type_Quantity == INTEGRALQUANTITY &&
 	  DefineQuantity_P->IntegralQuantity.DefineQuantityIndexDof >= 0){
-
-	printf("qqqqqqq\n");
-
 	QuantityStorage_P->FunctionSpace = (struct FunctionSpace*)
 	  List_Pointer(Problem_S.FunctionSpace,
 		       DefineQuantity_P->FunctionSpaceIndex) ;
