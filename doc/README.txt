@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.6 2001-03-11 07:58:27 geuzaine Exp $
+$Id: README.txt,v 1.7 2001-03-21 16:30:20 geuzaine Exp $
 
 For Windows versions of GetDP only:
 ===================================
@@ -33,7 +33,7 @@ use the cygwin tools:
 1. Go to http://sources.redhat.com/cygwin/
 2. Download and execute setup.exe
 3. Answer all questions until the installation is complete. Please
-   note that a complete installation can occupy quite much disk space
+   note that a complete installation can use quite much disk space
    (approx. 150 Mb). To get a minimal working installation (approx. 15
    Mb), just deselect undesired packages (e.g. C, C++ and Fortran
    compilers, Perl, networking, etc.) during the installation.
