@@ -1,0 +1,25 @@
+
+Q. Is there a complete user's guide anywhere?
+A. Yes (finally). Check http://www.geuz.org/getdp/
+
+Q. When I run GetDP, I get the message  "getdp: /sbin/loader: Fatal Error: 
+   cannot map libUfor.so" (or a similar message)
+A. The fortran libraries are not installed on your system. GetDP needs these 
+   libraries for its default linear solvers. Ask your system manager to 
+   install these libraries. (Check which libraries are needed by typing
+   'ldd getdp-name').
+
+Q. How can I provide a mesh to GetDP?
+A. The only meshing format accepted by this version of GetDP is the 'msh'
+   format created by GMSH. See the 'GetDP Manual' for more details.
+
+Q. How can I visualize the results produced by GetDP?
+A. You can specify a format in all post-processing operations. Currently 
+   available formats are 'Table', 'TimeTable' and 'Gmsh'. 'Table' and
+   'TimeTable' output lists of numbers easily readable by any gnuplot-like 
+   software. 'Gmsh' outputs post-processing views directly loadable by Gmsh.
+
+Q. How do I change the linear solver used by GetDP?
+A. Edit the SOLVER.PAR file which was created the first time GetDP was run
+   in the current directory.
+
