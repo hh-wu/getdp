@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.54 2003-06-20 21:51:56 geuzaine Exp $
+@c $Id: getdp.texi,v 1.55 2003-07-23 18:38:14 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 @c
@@ -34,8 +34,6 @@
 @c Before release, run C-u C-c C-u C-a in GNU Emacs
 @c This updates all node pointers and menus
 @c 
-@c (to sort the contributors alphabetically: C-u 2 M-x sort-fields)
-@c
 @c info  : makeinfo getdp.texi
 @c dvi   : texi2dvi getdp.texi
 @c ps    : dvips getdp.dvi -o
@@ -179,7 +177,7 @@ Reference Manual}, for GetDP @value{GETDP-VERSION}.
 * Complete examples::           Some simple complete examples.
 * Running GetDP::               How to run GetDP on your operating system.
 * File formats::                Input and output file formats.
-* Bugs and versions::           Contact information, version history and list of contributors.
+* Bugs and versions::           
 * Tips and tricks::             Some tips to make your life easier with GetDP.
 * Gmsh examples::               Sample Gmsh input files.
 * GNU General Public License::  Copy of the GNU GPL.
@@ -320,11 +318,11 @@ Output file format
 * File pre::                    
 * File res::                    
 
-Bugs, versions and contributors
+Bugs, versions and credits
 
 * Bugs::                        
-* Version history::             
-* Contributors::                
+* Versions::                    
+* Credits::                     
 
 @end detailmenu
 @end menu
@@ -370,7 +368,8 @@ reflect on our reputation.
 The precise conditions of the license for GetDP are found in the General
 Public License that accompanies the source code (@pxref{GNU General Public
 License}). Further information about this license is available from the GNU
-Project webpage @uref{http://www.gnu.org/copyleft/gpl-faq.html}.
+Project webpage @uref{http://www.gnu.org/copyleft/gpl-faq.html}.  Detailed
+copyright information can be found in @ref{Credits}.
 
 The source code and various pre-compiled versions of GetDP (for most of the
 classical UNIX platforms, for Windows and for Mac OS) can be downloaded from
@@ -5397,10 +5396,21 @@ and therefore how it is possible to build black boxes adapted to well
 defined categories of problems. The files are commented
 (@pxref{Comments}) and can be run without any modification.
 
-@include mStrip.pro
-@include EleSta_v.pro
-@include Jacobian_Lib.pro
-@include Integration_Lib.pro
+@sp 1
+
+@verbatiminclude mStrip.pro
+
+@sp 1
+
+@verbatiminclude EleSta_v.pro
+
+@sp 1
+
+@verbatiminclude Jacobian_Lib.pro
+
+@sp 1
+
+@verbatiminclude Integration_Lib.pro
 
 @page
 
@@ -5423,8 +5433,13 @@ structure is considered by symmetry.
 The jacobian and integration methods used are the same as for the
 electrostatic problem presented in @ref{Electrostatic problem}.
 
-@include CoreSta.pro
-@include MagSta_a_2D.pro
+@sp 1
+
+@verbatiminclude CoreSta.pro
+
+@sp 1
+
+@verbatiminclude MagSta_a_2D.pro
 
 @page
 
@@ -5447,9 +5462,13 @@ file format}).
 The jacobian and integration methods used are defined in the same file
 as in the electrostatic problem in @ref{Electrostatic problem}.
 
-@include CoreMassive.pro
-@include MagDyn_av_2D.pro
+@sp 1
 
+@verbatiminclude CoreMassive.pro
+
+@sp 1
+
+@verbatiminclude MagDyn_av_2D.pro
 
 @c =========================================================================
 @c Running GetDP
@@ -5863,25 +5882,25 @@ the numbering of the equations given in the @file{.pre} file
 
 
 @c =========================================================================
-@c Bugs, versions and contributors
+@c Bugs, versions and credits
 @c =========================================================================
 
 @ifclear COMMERCIAL
 
 @node Bugs and versions, Tips and tricks, File formats, Top
-@chapter Bugs, versions and contributors
+@chapter Bugs, versions and credits
 
 @menu
 * Bugs::                        
-* Version history::             
-* Contributors::                
+* Versions::                    
+* Credits::                     
 @end menu
 
 @c -------------------------------------------------------------------------
 @c Bugs
 @c -------------------------------------------------------------------------
 
-@node Bugs, Version history, Bugs and versions, Bugs and versions
+@node Bugs, Versions, Bugs and versions, Bugs and versions
 @section Bugs
 
 @cindex Known bugs
@@ -5905,31 +5924,27 @@ already know about.
 @c Versions
 @c -------------------------------------------------------------------------
 
-@node Version history, Contributors, Bugs, Bugs and versions
-@section Version history
+@node Versions, Credits, Bugs, Bugs and versions
+@section Versions
 
 @cindex Versions
 @cindex History, versions
 @cindex Changelog
 
-@example
-@include ../VERSIONS
-@end example
+@verbatiminclude ../VERSIONS
 
 @c -------------------------------------------------------------------------
-@c Contributors
+@c Credits
 @c -------------------------------------------------------------------------
 
-@node Contributors,  , Version history, Bugs and versions
-@section Contributors
+@node Credits,  , Versions, Bugs and versions
+@section Credits
 
 @cindex Acknowledgments
 @cindex Contributors, list
 @cindex Credits 
 
-@example
-@include ../CONTRIBUTORS
-@end example
+@verbatiminclude ../CREDITS
 
 @end ifclear
 
@@ -6001,8 +6016,13 @@ This appendix reproduces verbatim the input files needed by Gmsh to
 produce the mesh files @file{mStrip.msh} and @file{Core.msh} used in the
 examples of @ref{Complete examples}. 
 
-@include mStrip.geo
-@include Core.geo
+@sp 1
+
+@verbatiminclude mStrip.geo
+
+@sp 1
+
+@verbatiminclude Core.geo
 
 @c =========================================================================
 @c GNU GPL

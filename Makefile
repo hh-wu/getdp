@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.143 2003-06-20 21:51:56 geuzaine Exp $
+# $Id: Makefile,v 1.144 2003-07-23 18:38:14 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -93,14 +93,16 @@ clean:
 	for i in lib doc/texinfo ${GETDP_DIRS}; do (cd $$i && ${MAKE} clean ); done
 	rm -f ${GETDP_VERSION_FILE}
 
+.PHONY: doc
+doc:
+	cd doc/texinfo && ${MAKE} all
+	cd doc && tar zcvf ../getdp-${GETDP_RELEASE}-doc.tgz\
+          FAQ CREDITS VERSIONS README.win32 getdp.1\
+          texinfo/getdp.ps texinfo/getdp.pdf texinfo/getdp.txt\
+          texinfo/*.html texinfo/getdp-info.tgz
+
 doc-info:
 	cd doc/texinfo && ${MAKE} info
-
-doc-ps:
-	cd doc/texinfo && ${MAKE} ps
-
-doc-pdf:
-	cd doc/texinfo && ${MAKE} pdf
 
 purge:
 	for i in . lib include doc demos utils archives ${GETDP_DIRS}; \
@@ -132,7 +134,7 @@ package-unix:
 	mkdir getdp-${GETDP_RELEASE}
 	strip bin/getdp
 	cp bin/getdp getdp-${GETDP_RELEASE}
-	cp doc/VERSIONS doc/FAQ doc/CONTRIBUTORS getdp-${GETDP_RELEASE}
+	cp doc/VERSIONS doc/FAQ doc/CREDITS getdp-${GETDP_RELEASE}
 	cp -R demos getdp-${GETDP_RELEASE}
 	rm -rf getdp-${GETDP_RELEASE}/*/CVS
 	rm -f getdp-${GETDP_RELEASE}/*/*.pre
@@ -153,7 +155,7 @@ package-win:
 	cp doc/README.win32 getdp-${GETDP_RELEASE}/README.txt
 	cp doc/VERSIONS getdp-${GETDP_RELEASE}/VERSIONS.txt
 	cp doc/FAQ getdp-${GETDP_RELEASE}/FAQ.txt
-	cp doc/CONTRIBUTORS getdp-${GETDP_RELEASE}/CONTRIBUTORS.txt
+	cp doc/CREDITS getdp-${GETDP_RELEASE}/CREDITS.txt
 	cd utils && unix2dos ../getdp-${GETDP_RELEASE}/*.txt
 	cp -R demos getdp-${GETDP_RELEASE}
 	rm -rf getdp-${GETDP_RELEASE}/*/CVS

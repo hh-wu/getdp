@@ -1,5 +1,3 @@
-@format
-@code{
 /* -------------------------------------------------------------------
    File "mStrip.pro"
 
@@ -11,7 +9,7 @@
                          or getdp mStrip -pos Cut
    ------------------------------------------------------------------- */
 
-Group @{
+Group {
    
   /* Let's start by defining the interface (i.e. elementary groups)
      between the mesh file and GetDP (no mesh object is defined, so 
@@ -25,11 +23,11 @@ Group @{
   /* We can then define a global group (used in "EleSta_v.pro",
      the file containing the function spaces and formulations) */
 
-  DomainCC_Ele = Region[@{Air, Diel1@}];
+  DomainCC_Ele = Region[{Air, Diel1}];
 
-@}
+}
 
-Function @{
+Function {
 
   /* The relative permittivity (needed in the formulation) is piecewise
      defined in elementary groups */
@@ -37,22 +35,22 @@ Function @{
   epsr[Air] = 1.;
   epsr[Diel1] = 9.8;
 
-@}
+}
 
-Constraint @{
+Constraint {
 
   /* Now, some Dirichlet conditions are defined. The name 
      'ElectricScalarPotential' refers to the constraint name given in
      the function space */
 
-  @{ Name ElectricScalarPotential; Type Assign;
-    Case @{
-      @{ Region Region[@{Ground, SurfInf@}]; Value 0.; @}
-      @{ Region Line; Value 1.e-3; @}
-    @}
-  @}
+  { Name ElectricScalarPotential; Type Assign;
+    Case {
+      { Region Region[{Ground, SurfInf}]; Value 0.; }
+      { Region Line; Value 1.e-3; }
+    }
+  }
 
-@}
+}
 
 /* The formulation used and its tools, considered as being 
    in a black box, can now be included */
@@ -65,19 +63,17 @@ Include "EleSta_v.pro"
 
 e = 1.e-7;
 
-PostOperation @{
-  @{ Name Map; NameOfPostProcessing EleSta_v;
-     Operation @{
+PostOperation {
+  { Name Map; NameOfPostProcessing EleSta_v;
+     Operation {
        Print [ v, OnElementsOf DomainCC_Ele, File "mStrip_v.pos" ];
        Print [ e, OnElementsOf DomainCC_Ele, File "mStrip_e.pos" ];
-     @}
-  @}
-  @{ Name Cut; NameOfPostProcessing EleSta_v;
-     Operation @{
-       Print [ e, OnLine @{@{e,e,0@}@{10.e-3,e,0@}@} @{500@}, File "Cut_e" ];
-     @}
-  @}
+     }
+  }
+  { Name Cut; NameOfPostProcessing EleSta_v;
+     Operation {
+       Print [ e, OnLine {{e,e,0}{10.e-3,e,0}} {500}, File "Cut_e" ];
+     }
+  }
 
-@}
 }
-@end format

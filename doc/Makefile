@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.22 2003-06-21 01:01:34 geuzaine Exp $
+# $Id: Makefile,v 1.23 2003-07-23 18:38:14 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -19,15 +19,7 @@
 # 
 # Please report all bugs and problems to "getdp@geuz.org".
 
-all:
-	cd texinfo && ${MAKE} all
-	gtar zcvf getdp-doc.tgz\
-          FAQ CONTRIBUTORS VERSIONS README.win32 \
-          getdp.bib texinfo/getdp.ps texinfo/getdp.pdf \
-          texinfo/*.html texinfo/*.jpg \
-          texinfo/getdp-info.tgz getdp.1 
-
 clean:
-	rm -f *~ .*~ getdp.ps getdp.pdf getdp.info*
+	rm -f *~ .*~
 	cd texinfo && ${MAKE} clean
 	cd slides && ${MAKE} clean

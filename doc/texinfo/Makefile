@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2003-06-21 01:01:34 geuzaine Exp $
+# $Id: Makefile,v 1.8 2003-07-23 18:38:14 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -33,6 +33,9 @@ html:
 	rm -f index.html
 	ln -s getdp.html index.html
 
+html1:
+	./texi2html -prefix getdp-full -init_file getdp-full.t2h getdp.texi
+
 html2:
 	makeinfo --html getdp.texi
 
@@ -46,11 +49,14 @@ install-info:
 infoz: info
 	gtar zcvf getdp-info.tgz getdp.info*
 
-all: ps pdf html infoz
+txt:
+	makeinfo --no-headers getdp.texi |\
+        sed -n '/...Table of Contents.../,$$p' |\
+        sed 's/...Table of Contents...//' > getdp.txt
+
+all: ps pdf html html1 infoz txt
 
 clean:
 	rm -f *~ .*~ *.cp* *.fn* *.ky* *.pg* *.tp* *.vr* *.mv* \
-              *.log *.toc *.aux *.dvi *.html \
-              getdp.ps getdp.pdf getdp.info* \
-              getdp-info.tgz getdp-doc.tgz
-
+              *.log *.toc *.aux *.dvi *.html *.txt \
+              getdp.ps getdp.pdf getdp.info* getdp-info.tgz

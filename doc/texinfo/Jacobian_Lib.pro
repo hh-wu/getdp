@@ -1,5 +1,3 @@
-@format
-@code{
 /* -------------------------------------------------------------------
    File "Jacobian_Lib.pro"
 
@@ -19,18 +17,16 @@
                             of DomainInf
 */
 
-Group @{
+Group {
   DefineGroup[ DomainInf ] ;
   DefineVariable[ Val_Rint, Val_Rext ] ;
-@}
-
-Jacobian @{
-  @{ Name Vol ;
-    Case @{ @{ Region DomainInf ;
-             Jacobian VolSphShell @{Val_Rint, Val_Rext@} ; @}
-           @{ Region All ; Jacobian Vol ; @}
-    @}
-  @}
-@}
 }
-@end format
+
+Jacobian {
+  { Name Vol ;
+    Case { { Region DomainInf ;
+             Jacobian VolSphShell {Val_Rint, Val_Rext} ; }
+           { Region All ; Jacobian Vol ; }
+    }
+  }
+}
