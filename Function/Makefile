@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2000-10-30 01:05:44 geuzaine Exp $
+# $Id: Makefile,v 1.9 2001-03-02 20:49:11 geuzaine Exp $
 #
 # Makefile for "libFunction.a"
 #
@@ -124,10 +124,10 @@ F_MultiHar.o: F_MultiHar.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Get_Geometry.h \
-  ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h \
-  ../DataStr/Tools.h
+  ../Main/Cal_Value.h ../Main/Cal_Quantity.h ../Main/CurrentData.h \
+  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
+  ../Main/Data_Numeric.h ../DataStr/Tools.h
 BF_Node.o: BF_Node.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h BF_Function.h ../Main/Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/List.h \

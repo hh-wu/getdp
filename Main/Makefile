@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2000-10-30 01:05:45 geuzaine Exp $
+# $Id: Makefile,v 1.10 2001-03-02 20:49:11 geuzaine Exp $
 #
 # Makefile for 'libMain.a'
 # 
@@ -225,9 +225,10 @@ Cal_Quantity.o: Cal_Quantity.c ../include/GetDP.h Message.h \
   ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   Cal_Value.h Treatment_Formulation.h Get_Geometry.h ../Post/Pos_Search.h \
-  CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h Data_Numeric.h ../DataStr/Tools.h
+  ../Function/F_Function.h CurrentData.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h Data_Numeric.h \
+  ../DataStr/Tools.h
 Cal_Value.o: Cal_Value.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \
   Data_Passive.h ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \

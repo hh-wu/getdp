@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.7 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.8 2001-03-02 20:49:12 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -312,6 +312,9 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 
       if (Type_Quantity == INTEGRALQUANTITY &&
 	  DefineQuantity_P->IntegralQuantity.DefineQuantityIndexDof >= 0){
+
+	printf("qqqqqqq\n");
+
 	QuantityStorage_P->FunctionSpace = (struct FunctionSpace*)
 	  List_Pointer(Problem_S.FunctionSpace,
 		       DefineQuantity_P->FunctionSpaceIndex) ;
@@ -385,84 +388,84 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 
   else if(PostQuantityTerm_P->EvaluationType == INTEGRAL){
 
-    if(Element->Num != NO_ELEMENT) {
+    if(Element->Num == NO_ELEMENT)
+      Msg(ERROR, "No element in which to integrate");
 
-      if(PostQuantityTerm_P->IntegrationMethodIndex < 0)
-	Msg(ERROR, "Missing Integration Method in PostQuantity '%s'", 
-	    PostQuantity_P->Name);
-
-      IntegrationCase_L = 
-	((struct IntegrationMethod *)
-	 List_Pointer(Problem_S.IntegrationMethod, 
-		      PostQuantityTerm_P->IntegrationMethodIndex))->IntegrationCase ;
-
-      CriterionIndex = 
-	((struct IntegrationMethod *)
-	 List_Pointer(Problem_S.IntegrationMethod, 
-		      PostQuantityTerm_P->IntegrationMethodIndex))
-	->CriterionIndex ;
-
-      IntegrationCase_P = Get_IntegrationCase(Element, 
-					      IntegrationCase_L,
-					      CriterionIndex) ;
-
-      if(IntegrationCase_P->Type != GAUSS && IntegrationCase_P->Type != NEWTONCOTES)
-	Msg(ERROR, "Only Numerical Integration is Available "
-	    "in Integral PostQuantities");
-	  
-      Quadrature_P = (struct Quadrature*)
-	List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
-
-      if(!Quadrature_P)
-	Msg(ERROR, "Unknown Type of Element (%s) for IntegrationMethod (%s) "
-	    " in PostQuantity (%s)", 
-	    Get_StringForDefine(Element_Type, Element->Type),
-	    ((struct IntegrationMethod *)
-	     List_Pointer(Problem_S.IntegrationMethod,
-			  PostQuantityTerm_P->IntegrationMethodIndex))->Name,
-	    PostQuantity_P->Name);
-	  
-      Cal_ZeroValue(&TermValue);
-
-      Nbr_IntPoints = Quadrature_P->NumberOfPoints ;
-      Get_IntPoint = (void (*) (int,int,double*,double*,double*,double*))
-	Quadrature_P->Function ;
-
-      for (i_IntPoint = 0 ; i_IntPoint < Nbr_IntPoints ; i_IntPoint++) {
-
-	Get_IntPoint(Nbr_IntPoints, i_IntPoint, &ui, &vi, &wi, &weight) ;
-	    
-	Get_GeoElement (Element, ui, vi, wi) ;
-	Element->DetJac = Get_Jacobian(Element, &Element->Jac) ;
-	if (Element->DetJac != 0.){
-	  Get_InverseMatrix(Type_Dimension, Element->Type, Element->DetJac,
-			    &Element->Jac, &Element->InvJac) ;	  
-	}
-	else{
-	  Msg(WARNING, "Null Jacobian Determinant in 'Cal_PostQuantity'");
-	}
-	Current.x = Current.y = Current.z = 0. ;
-	if (Type_Quantity == INTEGRALQUANTITY){
-	  for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) {
-	    Current.x += Element->x[i] * Element->n[i] ;
-	    Current.y += Element->y[i] * Element->n[i] ;
-	    Current.z += Element->z[i] * Element->n[i] ;
-	  }
-	}
-	    
-	Cal_WholeQuantity
-	  (Current.Element = Element,
-	   QuantityStorage_P0, PostQuantityTerm_P->WholeQuantity,
-	   Current.u = ui, Current.v = vi, Current.w = wi, -1, -1, &tmpValue) ;
-
-	Factor = weight * fabs(Element->DetJac) ;
-
-	TermValue.Type = tmpValue.Type ;
-	Cal_AddMultValue(&TermValue,&tmpValue,Factor,&TermValue);
+    if(PostQuantityTerm_P->IntegrationMethodIndex < 0)
+      Msg(ERROR, "Missing Integration Method in PostQuantity '%s'", 
+	  PostQuantity_P->Name);
+    
+    IntegrationCase_L = 
+      ((struct IntegrationMethod *)
+       List_Pointer(Problem_S.IntegrationMethod, 
+		    PostQuantityTerm_P->IntegrationMethodIndex))->IntegrationCase ;
+    
+    CriterionIndex = 
+      ((struct IntegrationMethod *)
+       List_Pointer(Problem_S.IntegrationMethod, 
+		    PostQuantityTerm_P->IntegrationMethodIndex))
+      ->CriterionIndex ;
+    
+    IntegrationCase_P = Get_IntegrationCase(Element, 
+					    IntegrationCase_L,
+					    CriterionIndex) ;
+    
+    if(IntegrationCase_P->Type != GAUSS && IntegrationCase_P->Type != NEWTONCOTES)
+      Msg(ERROR, "Only Numerical Integration is Available "
+	  "in Integral PostQuantities");
+    
+    Quadrature_P = (struct Quadrature*)
+      List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
+    
+    if(!Quadrature_P)
+      Msg(ERROR, "Unknown Type of Element (%s) for IntegrationMethod (%s) "
+	  " in PostQuantity (%s)", 
+	  Get_StringForDefine(Element_Type, Element->Type),
+	  ((struct IntegrationMethod *)
+	   List_Pointer(Problem_S.IntegrationMethod,
+			PostQuantityTerm_P->IntegrationMethodIndex))->Name,
+	  PostQuantity_P->Name);
+    
+    Cal_ZeroValue(&TermValue);
+    
+    Nbr_IntPoints = Quadrature_P->NumberOfPoints ;
+    Get_IntPoint = (void (*) (int,int,double*,double*,double*,double*))
+      Quadrature_P->Function ;
+    
+    for (i_IntPoint = 0 ; i_IntPoint < Nbr_IntPoints ; i_IntPoint++) {
+      
+      Get_IntPoint(Nbr_IntPoints, i_IntPoint, &ui, &vi, &wi, &weight) ;
+      
+      Get_GeoElement (Element, ui, vi, wi) ;
+      Element->DetJac = Get_Jacobian(Element, &Element->Jac) ;
+      if (Element->DetJac != 0.){
+	Get_InverseMatrix(Type_Dimension, Element->Type, Element->DetJac,
+			  &Element->Jac, &Element->InvJac) ;	  
       }
+      else{
+	Msg(WARNING, "Null Jacobian Determinant in 'Cal_PostQuantity'");
+      }
+      Current.x = Current.y = Current.z = 0. ;
+      if (Type_Quantity == INTEGRALQUANTITY){
+	for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) {
+	  Current.x += Element->x[i] * Element->n[i] ;
+	  Current.y += Element->y[i] * Element->n[i] ;
+	  Current.z += Element->z[i] * Element->n[i] ;
+	}
+      }
+      
+      Cal_WholeQuantity
+	(Current.Element = Element,
+	 QuantityStorage_P0, PostQuantityTerm_P->WholeQuantity,
+	 Current.u = ui, Current.v = vi, Current.w = wi, -1, -1, &tmpValue) ;
+      
+      Factor = weight * fabs(Element->DetJac) ;
+      
+      TermValue.Type = tmpValue.Type ;
+      Cal_AddMultValue(&TermValue,&tmpValue,Factor,&TermValue);
     }
   }
-      
+
   Value->Type = TermValue.Type;
   Cal_AddValue(Value,&TermValue,Value);
 
