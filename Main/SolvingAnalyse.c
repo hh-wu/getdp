@@ -616,6 +616,9 @@ void Treatment_Preprocessing(int Nbr_DefineSystem,
       Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);
       Treatment_Formulation(Formulation_P) ;
     }
+    
+    Dof_NumberSymmetricalDof() ;
+
   }
   
 }

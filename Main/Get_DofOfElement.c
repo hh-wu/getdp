@@ -417,7 +417,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = ASSIGN ;
 	  for (k = 0 ; k < Current.NbrHar ; k++)
 	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value[k] = 0. ;
-	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].TimeFunctionIndex = 0 ;
+	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].TimeFunctionIndex = -1 ;
 	}
       }
 
