@@ -10,7 +10,7 @@ mirror:
         > getdp-mirror.html
 
 cgi:
-	cat gmsh.html |\
+	cat getdp.html |\
         sed "s/<!---BEGINSCRIPT//g" |\
         sed "s/ENDSCRIPT--->//g" |\
         sed "s/<!---BEGINDATE.Date: /Last updated<br>/g" |\
