@@ -35,7 +35,7 @@ struct Geo_Node {
 } ;
 
 struct Geo_Element {
-  int  Num ;
+  int  Num, Index ;
   int  Type, Region ;
   int  NbrNodes , * NumNodes ;
   int  NbrEdges , * NumEdges ;

@@ -175,7 +175,9 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
       }
 
       List_Tri(GeoData_P->Elements, fcmp_Elm) ;
-
+      
+      for (i = 0 ; i < List_Nbr(GeoData_P->Elements) ; i++)
+	((struct Geo_Element *) List_Pointer(GeoData_P->Elements, i))->Index = i ;
     }
 
     do {
@@ -190,10 +192,10 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
 void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
 
-  int        Nbr, Num, i, Index ;
+  struct Geo_Element Geo_Element, * Geo_Element_P ;
+  int        Nbr, i ;
   double     E, H, P ;
   char       String[MAX_STRING_LENGTH] ;
-  struct Geo_Element elm ;
 
   Nbr = List_Nbr(GeoData_P->Elements) ;
 
@@ -218,12 +220,12 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
     if (!strncmp(&String[1], "Adapt", 5)) {
       fscanf(File_GEO, "%d", &Nbr) ;
       for (i = 0 ; i < Nbr ; i++) {
-	fscanf(File_GEO, "%d %lf %lf %lf", &Num, &E, &H, &P) ;
-	elm.Num = Num ;
-	if((Index = List_ISearch(GeoData_P->Elements, &elm, fcmp_Elm)) < 0)
-	  Msg(ERROR, "Element %d Not Found in Database", elm.Num) ;
-	GeoData_P->H[Index+1] = H ;
-	GeoData_P->P[Index+1] = P ;
+	fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) ;
+	if(!(Geo_Element_P = (struct Geo_Element *)
+	     List_PQuery(GeoData_P->Elements, &Geo_Element, fcmp_Elm)))
+	  Msg(ERROR, "Element %d Not Found in Database", Geo_Element.Num) ;
+	GeoData_P->H[Geo_Element_P->Index+1] = H ;
+	GeoData_P->P[Geo_Element_P->Index+1] = P ;
       }
     }
 
@@ -233,10 +235,6 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
-
-  for(i=0 ; i<List_Nbr(GeoData_P->Elements) ; i++)
-    printf("-- %g %g \n", GeoData_P->H[i+1], GeoData_P->P[i+1] );
-
 
 }
 
@@ -283,23 +281,6 @@ struct Geo_Element  * Geo_GetGeoElementOfNum(int Num_Element) {
 
   elm.Num = Num_Element ;
   return (struct Geo_Element*)List_PQuery(CurrentGeoData->Elements, &elm, fcmp_Elm) ;
-}
-
-/* ------------------------------------------------------------------------ */
-/*  G e o _ G e t G e o E l e m e n t I n d e x                             */
-/* ------------------------------------------------------------------------ */
-
-int Geo_GetIndexOfGeoElementOfNum(int Num) {
-  int i ;
-  struct Geo_Element elm ;
-
-  elm.Num = Num ;
-  if((i = List_ISearch(CurrentGeoData->Elements, &elm, fcmp_Elm)) >= 0)
-    return i ;
-  else{
-    Msg(WARNING, "Element %d Not Found in Database", elm.Num) ;
-    return 0 ;
-  }
 }
 
 /* ------------------------------------------------------------------------ */

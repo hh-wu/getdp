@@ -19,7 +19,6 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) ;
 int  Geo_GetNbrGeoElements(void) ;
 struct Geo_Element  * Geo_GetGeoElement(int Index_Element) ;
 struct Geo_Element  * Geo_GetGeoElementOfNum(int Num_Element) ;
-int Geo_GetIndexOfGeoElementOfNum(int Num_Element) ;
 
 int  Geo_GetNbrGeoNodes(void) ;
 struct Geo_Node  * Geo_GetGeoNode(int Index_Node) ;

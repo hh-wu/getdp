@@ -353,7 +353,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
      GroupSupport_P    : In
      GroupEntity_P     : In  */
 
-  int         k, i_Entity, i_GeoElement, CodeExist ;
+  int         k, i_Entity, CodeExist ;
   double      Degree ;
   struct Dof  * Dof_P ;
 
@@ -408,11 +408,12 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 				       Num_Entity, i_Entity,
 				       i_BFunction, TypeConstraint) ;
 	/* or due to p-refinement */
-	i_GeoElement = Geo_GetIndexOfGeoElementOfNum(Current.Element->Num) ;
-	Degree = QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Degree ;
-	if( ( Current.GeoData->P && Current.GeoData->P[i_GeoElement+1] >= 0 &&
-	      Degree > Current.GeoData->P[i_GeoElement+1] ) ||
-	    ( Flag_DEGREE >= 0. && Degree > Flag_DEGREE ) ){
+	if( ( Current.GeoData->P && 
+	      Current.GeoData->P[Current.Element->GeoElement->Index+1] >= 0 &&
+	      Current.GeoData->P[Current.Element->GeoElement->Index+1] < 
+	      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Degree ) ||
+	    ( Flag_DEGREE >= 0. && Flag_DEGREE <
+	      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Degree ) ){
 	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = ASSIGN ;
 	  for (k = 0 ; k < Current.NbrHar ; k++)
 	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value[k] = 0. ;
