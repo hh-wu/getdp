@@ -1,4 +1,4 @@
-% $Id: getdp.tex,v 1.2 2001-06-12 16:21:33 geuzaine Exp $
+% $Id: getdp.tex,v 1.3 2001-06-13 08:38:05 geuzaine Exp $
 
 % ---------------------------------------------------------------------------
 
@@ -263,14 +263,15 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 
 \begin{slide}
 
+\bigskip
+\bigskip
 \mybox{colbox}{11\semcm}{
   \begin{slideitemize}
   \item Various numeric and analytic integration methods
+  \item Criterion-based selection
   \end{slideitemize}
 }
 
-\bigskip
-\bigskip
 \bigskip
 \begin{syntax}
 \{ Name Integration1 ; Criterion Test[]; \CC{combination of methods}
@@ -298,7 +299,7 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
   \item Various formulation types: FEM, BEM, circuit equations, ...
   \item Symbolic expression of equations: volume and surface integral
   terms, collocation
-  \item involves local, global and integral quantities based on function
+  \item Involves local, global and integral quantities based on function
   spaces
   \end{slideitemize}
 }
@@ -324,11 +325,28 @@ Equation \{
 
 \begin{slide}
 
-\mybox{colbox}{11\semcm}{
+\mybox{colbox}{10\semcm}{
   \begin{slideitemize}
-  \item ...
+  \item Description of a sequence of operations
+  \item Time loops (with time step adaptation)
+  \item Nonlinear iterative loops (e.g.\ fixed point or Newton-Raphson methods)
+  \item Coupled problems (e.g.\ magneto-thermal coupling)
+  \item Linking of various resolution steps (e.g.\ pre-computation of source
+  fields) 
   \end{slideitemize}
 }
+
+\rput(0.8\textwidth,4\semcm){\parbox{12\semcm}{
+\begin{syntax}
+Operation\{\\
+\hspace*{1em}InitSolution[A];\\
+\hspace*{1em}TimeLoopTheta[tmin,tmax,dt,1]\{\\
+\hspace*{2em}Generate[A]; Solve[A];\\
+\hspace*{2em}If[Save[]]\{ SaveSolution[A]; \}\\
+\hspace*{1em}\}\\
+\}
+\end{syntax}
+}}
 
 \end{slide}
 
@@ -340,9 +358,23 @@ Equation \{
 
 \begin{slide}
 
+\mybox{colbox}{11\semcm}{
+  \begin{slideitemize}
+  \item Definition of the any quantity of interest, based on
+  the quantities defined in a formulation
+  \item Piecewise defintion
+  \item Local or integral evaluation
+  \end{slideitemize}
+}
 
-
-Example:
+\bigskip
+\begin{syntax}
+Quantity \{
+  \{ Name Induction;
+    Value \{ Local \{ [ -mu[]*\{Grad phi\} ]; In Omega; \}
+            Local \{ [ -\{dGreen\} ]; In BEM; \} \}
+\}
+\end{syntax}
 
 
 \end{slide}
@@ -355,10 +387,22 @@ Example:
 
 \begin{slide}
 
+\mybox{colbox}{11\semcm}{
+  \begin{slideitemize}
+  \item Evaluation of post-processing quantities (e.g.\ maps, cuts, local or
+  global evaluation, ...)
+  \item Operations post-processing quantities (sorting, smoothing,
+  adaptation, ...) 
+  \item Various output formats (e.g.\ space or time oriented, text, binary,
+  ...) 
+  \end{slideitemize}
+}
 
-
-Example:
-
+\bigskip
+\begin{syntax}
+Print[ Induction, OnElementsOf Omega, File "b.pos", Format Gmsh ] ;
+Print[ Induction, OnLine \{\{0,0,0\}\{1,0,0\}\} \{100\}, File "b.cut" ] ;
+\end{syntax}
 
 \end{slide}
 
