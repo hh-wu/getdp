@@ -1,4 +1,4 @@
-% $Id: fem.tex,v 1.4 2001-06-14 14:48:32 geuzaine Exp $
+% $Id: fem.tex,v 1.5 2001-06-14 15:31:14 geuzaine Exp $
 
 % ---------------------------------------------------------------------------
 
@@ -165,3 +165,50 @@ continuous} scalar fields like charge density, heat source density, ...)
 \end{slideitemize}
 
 \end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Error estimation}
+
+\begin{slide}
+
+\emph{Error} on the solution of a discrete formulation:
+\begin{enumerate}
+\item 
+\emph{Hypotheses} in the continuous models (e.g.\ constitutive laws) 
+\item 
+\emph{Discretization} of the continuous model (finite dimensional spaces):
+\begin{enumerate}
+\item 
+Discretizing the \emph{geometry} (idealized geometry, meshed with a finite
+number of elementary elements)
+\item
+Discretizing the \emph{fields} (locally approximated by polynomials of
+finite order)
+\end{enumerate}
+\end{enumerate}
+
+\end{slide}
+
+\begin{slide}
+
+\emph{Adaptation}: forsee/control the discretization error. Possible if
+\begin{slideitemize}
+\item
+known asymptotic \emph{error convergence}
+\item
+available error \emph{approximation} (if the exact value is known, so is the
+exact solution!)
+\end{slideitemize}
+
+Goal: generate the best discrete function space possible (either constrain
+the size of the function space or the discretization error)
+
+Solution: modify (if possible, locally)
+\begin{slideitemize}
+\item interpolation order (\emph{$p$-refinement})
+\item size geometrical elements (\emph{$h$-refinement})
+\end{slideitemize}
+
+\end{slide}
+
