@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.27 2003-03-17 10:50:30 sabarieg Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.28 2003-03-18 00:55:27 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -9,7 +9,7 @@
 #include "Pos_Search.h"
 #include "F_Function.h"
 #include "CurrentData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Tools.h"
 
 int  fcmp_int2(const void * a, const void * b) ;

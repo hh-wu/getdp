@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_FMM.c,v 1.3 2003-03-17 19:22:33 geuzaine Exp $"
+#define RCSID "$Id: Print_FMM.c,v 1.4 2003-03-18 00:55:26 geuzaine Exp $"
 
 #include <math.h>
 #include <malloc.h>
@@ -9,7 +9,7 @@
 
 #include "GetDP.h"
 #include "GeoData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Data_Passive.h"
 #include "CurrentData.h"
 #include "Tools.h"

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.21 2003-03-17 23:47:09 geuzaine Exp $
+# $Id: Makefile,v 1.22 2003-03-18 00:55:27 geuzaine Exp $
 
 include ../variables
 
@@ -66,41 +66,156 @@ F_Analytic.o: F_Analytic.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Numeric/Numeric.h \
   ../Numeric/Numeric_F.h ../include/Compat.h ../Main/Get_Geometry.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h \
-  ../Numeric/Legendre.h ../Numeric/SphBessel.h ../Numeric/Amos_F.h
+  ../DofData/LinAlg.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Legendre.h \
+  ../Numeric/SphBessel.h
 F_Coord.o: F_Coord.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Get_Geometry.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h
+  ../DofData/LinAlg.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h
 F_Math.o: F_Math.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Get_Geometry.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h
+  ../DofData/LinAlg.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h
 F_ExtMath.o: F_ExtMath.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Get_Geometry.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h
+  ../DofData/LinAlg.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h
 F_Misc.o: F_Misc.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Get_Geometry.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h \
+  ../DofData/LinAlg.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
   ../DataStr/Tools.h ../NR/nrutil.h
 F_Type.o: F_Type.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
@@ -108,8 +223,31 @@ F_Type.o: F_Type.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Get_Geometry.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h
+  ../DofData/LinAlg.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h
 F_MultiHar.o: F_MultiHar.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
@@ -117,13 +255,36 @@ F_MultiHar.o: F_MultiHar.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Get_Geometry.h \
   ../Main/Cal_Value.h ../Main/Treatment_Formulation.h \
   ../Main/Cal_Quantity.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h \
+  ../DofData/LinAlg.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
   ../DataStr/Tools.h
 BF_Node.o: BF_Node.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h BF_Function.h ../Main/Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/List.h \
-  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Numeric.h
+  ../DataStr/Tree.h ../DataStr/avl.h ../Numeric/Numeric.h
 BF_Node_2.o: BF_Node_2.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h BF_Function.h ../Main/Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/List.h \
@@ -175,8 +336,31 @@ BF_Region.o: BF_Region.c ../include/GetDP.h ../Main/Message.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Get_DofOfElement.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../Main/CurrentData.h \
-  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
+  ../DofData/DofData.h ../DofData/LinAlg.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h \
   ../Main/Treatment_Formulation.h ../Main/Cal_Quantity.h \
   ../Main/Cal_Value.h
 GF_Laplace.o: GF_Laplace.c ../include/GetDP.h ../Main/Message.h \
@@ -184,42 +368,152 @@ GF_Laplace.o: GF_Laplace.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h ../Main/Data_Numeric.h ../FMM/Data_FMM.h \
-  ../Numeric/Legendre.h ../Numeric/SphBessel.h ../Numeric/Amos_F.h \
-  ../include/Compat.h
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
+  ../FMM/Data_FMM.h ../Numeric/Legendre.h ../Numeric/SphBessel.h
 GF_LaplacexForm.o: GF_LaplacexForm.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Active.h ../Main/Data_Passive.h \
   ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   BF_Function.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h \
-  ../Main/Data_DefineE.h ../Numeric/Numeric_F.h ../include/Compat.h
+  ../DofData/LinAlg.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_DefineE.h \
+  ../Numeric/Numeric.h ../Numeric/Numeric_F.h ../include/Compat.h
 GF_Helmholtz.o: GF_Helmholtz.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Active.h ../Main/Data_Passive.h \
   ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_Numeric.h \
-  ../FMM/Data_FMM.h ../Numeric/Legendre.h ../Numeric/SphBessel.h \
-  ../Numeric/Amos_F.h ../include/Compat.h
+  ../DofData/LinAlg.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
+  ../FMM/Data_FMM.h ../Numeric/Legendre.h ../Numeric/SphBessel.h
 GF_HelmholtzxForm.o: GF_HelmholtzxForm.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../DataStr/List.h ../Main/Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/Tree.h \
   ../DataStr/avl.h BF_Function.h ../Main/CurrentData.h \
-  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
-  ../Main/Data_Numeric.h ../Main/Data_DefineE.h ../Numeric/Numeric_F.h \
-  ../include/Compat.h ../Integration/Quadrature.h
+  ../DofData/DofData.h ../DofData/LinAlg.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_DefineE.h \
+  ../Numeric/Numeric.h ../Numeric/Numeric_F.h ../include/Compat.h \
+  ../Integration/Quadrature.h
 F_BiotSavart.o: F_BiotSavart.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Active.h ../Main/Data_Passive.h \
   ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h ../Main/Data_Numeric.h ../FMM/Data_FMM.h \
-  ../Numeric/Legendre.h ../Numeric/SphBessel.h ../Numeric/Amos_F.h \
-  ../include/Compat.h
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsles.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscpc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmat.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscvec.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscis.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsc.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscversion.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/bmake/linux/petscconf.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpidefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_fortdefs.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpio.h \
+  /home/geuzaine/SOURCES/mpich-1.2.3/include/mpi_errno.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscmath.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscviewer.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscoptions.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscerror.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscdraw.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petschead.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petsclog.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscengine.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscsys.h \
+  /home/geuzaine/SOURCES/petsc-2.1.1/include/petscksp.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
+  ../FMM/Data_FMM.h ../Numeric/Legendre.h ../Numeric/SphBessel.h

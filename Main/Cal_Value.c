@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Value.c,v 1.19 2003-03-17 10:50:30 sabarieg Exp $"
+#define RCSID "$Id: Cal_Value.c,v 1.20 2003-03-18 00:55:27 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
@@ -8,7 +8,7 @@
 #include "Data_DefineE.h"
 #include "Cal_Value.h"
 #include "CurrentData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 
 
 /* ------------------------------------------------------------------------ */

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.15 2003-03-18 00:19:19 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.16 2003-03-18 00:55:30 geuzaine Exp $"
 
 /* Version commentée par A. Nicolet de Lanczos.c le 2001/11/29 */
 
@@ -150,7 +150,6 @@
 
 #include "GetDP.h"
 #include "DofData.h"
-#include "Data_Numeric.h"
 #include "CurrentData.h"
 #include "Numeric.h"
 #include "nrutil.h"

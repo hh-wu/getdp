@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.29 2003-01-26 07:31:30 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.30 2003-03-18 00:55:31 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,7 +11,7 @@
 #include "Get_DofOfElement.h"
 #include "CurrentData.h"
 #include "Tools.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 
 static struct Element  * LastElement;
 static int ChainDim = -1;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_ExtMath.c,v 1.6 2002-01-18 11:10:26 gyselinc Exp $"
+#define RCSID "$Id: F_ExtMath.c,v 1.7 2003-03-18 00:55:27 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -10,7 +10,7 @@
 #include "Get_Geometry.h"
 #include "Cal_Value.h" 
 #include "CurrentData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 
 /* ------------------------------------------------------------------------ */
 /*  Warning: the pointers A and V can be identical. You must                */

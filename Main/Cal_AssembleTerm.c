@@ -1,11 +1,11 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.12 2003-01-31 13:51:53 dular Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.13 2003-03-18 00:55:27 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
 #include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "DofData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "CurrentData.h"
 
 static int Warning_DtStatic = 0 ;

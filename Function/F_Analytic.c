@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.12 2003-03-17 11:22:41 sabarieg Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.13 2003-03-18 00:55:26 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -12,7 +12,6 @@
 #include "Get_Geometry.h"
 #include "Cal_Value.h" 
 #include "CurrentData.h"
-#include "Data_Numeric.h"
 #include "Legendre.h"
 #include "SphBessel.h"
 

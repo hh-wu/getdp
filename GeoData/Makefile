@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.15 2003-03-17 18:41:59 geuzaine Exp $
+# $Id: Makefile,v 1.16 2003-03-18 00:55:27 geuzaine Exp $
 
 include ../variables
 
 LIB     = ../lib/libGeoData.a
-INCLUDE = -I. -I../include -I../DataStr -I../Main
+INCLUDE = -I. -I../include -I../DataStr -I../Main -I../Numeric
 CFLAGS  = ${C_FLAGS} ${INCLUDE}
 
 SRC = GeoData.c \
@@ -38,7 +38,7 @@ nodepend:
 GeoData.o: GeoData.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
-  ../Main/Data_Element.h ../Main/Data_Numeric.h ../include/Magic.h
+  ../Main/Data_Element.h ../Numeric/Numeric.h ../include/Magic.h
 GeoEntity.o: GeoEntity.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
@@ -51,4 +51,4 @@ GeoTree.o: GeoTree.c ../include/GetDP.h ../Main/Message.h \
 GeoNormal.o: GeoNormal.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h GeoData.h Data_GeoData.h ../DataStr/Tree.h \
-  ../DataStr/avl.h ../Main/Data_Numeric.h ../DataStr/Tools.h
+  ../DataStr/avl.h ../Numeric/Numeric.h ../DataStr/Tools.h

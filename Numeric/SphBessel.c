@@ -1,10 +1,10 @@
-#define RCSID "$Id: SphBessel.c,v 1.6 2002-02-04 19:00:09 geuzaine Exp $"
+#define RCSID "$Id: SphBessel.c,v 1.7 2003-03-18 00:55:30 geuzaine Exp $"
 
 #include <stdio.h>
 #include <math.h>
 
 #include "GetDP.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Amos_F.h"
 
 #ifndef NBR_MAX_EXP

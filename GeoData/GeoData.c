@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.21 2003-03-17 11:23:40 sabarieg Exp $"
+#define RCSID "$Id: GeoData.c,v 1.22 2003-03-18 00:55:27 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,7 +8,7 @@
 #include "GeoData.h"
 #include "Data_Passive.h"
 #include "Data_Element.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Magic.h"
 
 extern double Flag_ORDER ;

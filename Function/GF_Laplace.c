@@ -1,11 +1,11 @@
-#define RCSID "$Id: GF_Laplace.c,v 1.10 2003-03-17 18:41:59 geuzaine Exp $"
+#define RCSID "$Id: GF_Laplace.c,v 1.11 2003-03-18 00:55:27 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
 #include "GetDP.h" 
 #include "Data_Active.h"
 #include "CurrentData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Data_FMM.h"
 #include "Legendre.h"
 #include "SphBessel.h"

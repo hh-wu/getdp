@@ -1,4 +1,4 @@
-/* $Id: Cal_FMMAnalyticalIntegral.h,v 1.1 2003-03-17 16:13:07 sabarieg Exp $ */
+/* $Id: Cal_FMMAnalyticalIntegral.h,v 1.2 2003-03-18 00:55:26 geuzaine Exp $ */
 #ifndef _Cal_FMMAnalyticalIntegral_H_ 
 #define _Cal_FMMAnalyticalIntegral_H_
 
@@ -10,7 +10,7 @@
 #include "BF_Function.h"
 #include "CurrentData.h"
 #include "Tools.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 
 
 #define MAX_NODES        6 

@@ -1,4 +1,4 @@
-/* $Id: F_FMM.h,v 1.1 2003-03-17 16:13:09 sabarieg Exp $ */
+/* $Id: F_FMM.h,v 1.2 2003-03-18 00:55:26 geuzaine Exp $ */
 #ifndef _F_FMM_H_ 
 #define _F_FMM_H_
 
@@ -10,7 +10,7 @@
 
 #include "GetDP.h"
 #include "GeoData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Data_Passive.h"
 #include "CurrentData.h"
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.37 2002-02-22 12:32:19 dular Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.38 2003-03-18 00:55:31 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -6,7 +6,7 @@
 
 #include "GetDP.h"
 #include "Data_Passive.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Treatment_Formulation.h"
 #include "CurrentData.h"
 #include "Get_DofOfElement.h"

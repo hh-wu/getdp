@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoNormal.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: GeoNormal.c,v 1.6 2003-03-18 00:55:27 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,7 +6,7 @@
 
 #include "GetDP.h"
 #include "Data_Passive.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "GeoData.h"
 #include "Tools.h"
 

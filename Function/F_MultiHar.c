@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.19 2003-03-17 18:41:58 geuzaine Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.20 2003-03-18 00:55:27 geuzaine Exp $"
 
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
@@ -15,7 +15,7 @@
 
 #include "Cal_Quantity.h" 
 #include "CurrentData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Tools.h"
 
 struct MH_InitData{

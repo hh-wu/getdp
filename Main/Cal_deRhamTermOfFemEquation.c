@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.12 2003-03-06 22:25:53 geuzaine Exp $"
+#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.13 2003-03-18 00:55:28 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -10,7 +10,7 @@
 #include "Get_Geometry.h"
 #include "Get_Cells.h"
 #include "Pos_Search.h" /* xyz2uvw */
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Data_DefineE.h"
 #include "GeoData.h"
 #include "CurrentData.h"

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_SolidAngle.c,v 1.6 2003-02-07 10:17:56 geuzaine Exp $"
+#define RCSID "$Id: Cal_SolidAngle.c,v 1.7 2003-03-18 00:55:27 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -8,7 +8,7 @@
 #include "Cal_Quantity.h"
 
 #include "CurrentData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 
 
 /* ------------------------------------------------------------------------ */

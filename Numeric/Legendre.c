@@ -1,11 +1,10 @@
-#define RCSID "$Id: Legendre.c,v 1.8 2003-03-17 11:26:07 sabarieg Exp $"
+#define RCSID "$Id: Legendre.c,v 1.9 2003-03-18 00:55:30 geuzaine Exp $"
 
 #include <stdio.h>
 #include <math.h>
 
 #include "GetDP.h"
-#include "Data_Numeric.h"
-
+#include "Numeric.h"
 
 double Factorial( double n ){
   /* FACTORIAL(n) is the product of all the integers from 1 to n */  
@@ -23,8 +22,6 @@ double Factorial( double n ){
   GetDP_Return(F);
 }
 
-
-
 double BinomialCoef( double n, double m ){
   /* Binomial Coefficients: (n m) 
      Computes de number of ways of choosing m objects from a collection of n distinct objects */
@@ -40,7 +37,6 @@ double BinomialCoef( double n, double m ){
 
   GetDP_Return(B);
 }
-
 
 double Legendre(int l, int m, double x){
 
@@ -88,7 +84,6 @@ double Legendre(int l, int m, double x){
   }
 }
 
-
 void LegendreRecursive(int l, int m, double x, double P[]){
   /* Computes recursively a (l+1)-terms sequence of the associated Legendre polynomial P_l^m(x).
      l and m are the integers satisfying 0<=m<=l
@@ -114,7 +109,6 @@ void LegendreRecursive(int l, int m, double x, double P[]){
 
   GetDP_End ;
 }
-
 
 void LegendreRecursiveM(int l, double x, double P[]){
   /* Computes recursively a (l+1)-terms sequence of the associated Legendre polynomial P_l^m(x).
@@ -146,7 +140,6 @@ void LegendreRecursiveM(int l, double x, double P[]){
   GetDP_End ;
 }
 
-
 double dLegendre (int l, int m, double x){
   /* Computes the derivative of the associated Legendre polynomial P_l^m(x) */
 
@@ -167,7 +160,6 @@ double dLegendre (int l, int m, double x){
 
 }
 
-
 double dLegendreFinDif (int l, int m, double x){
   /* Computes the derivative of the associated Legendre polynomial P_l^m(x)
    using Finite Differences: f'(x) = (f(x+\delta x)-f(x-\delta x))/(2 \delta) */
@@ -184,8 +176,6 @@ double dLegendreFinDif (int l, int m, double x){
   GetDP_Return(dpl);
 
 }
-
-
 
 void PrintLegendre(int l, int m, double x, char * FileName){
 
@@ -208,7 +198,6 @@ void PrintLegendre(int l, int m, double x, char * FileName){
   
   GetDP_End;
 }
-
 
 void SphericalHarmonics(int l, int m, double Theta, double Phi, double Yl_m[]){
   

@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.46 2003-03-17 19:22:33 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.47 2003-03-18 00:55:29 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,7 +12,7 @@
 #include "Cal_Quantity.h"
 #include "Tools.h"
 #include "Data_DefineE.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Get_DofOfElement.h"
 #include "CurrentData.h"
 #include "Magic.h"

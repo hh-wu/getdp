@@ -1,11 +1,11 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.26 2003-03-17 23:47:09 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.27 2003-03-18 00:55:29 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
 #include "GetDP.h"
 #include "Get_Geometry.h"
 #include "BF_Function.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Data_DefineE.h"
 
 #include "Solver.h"

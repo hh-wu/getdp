@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_FunctionValue.c,v 1.11 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Get_FunctionValue.c,v 1.12 2003-03-18 00:55:29 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -9,7 +9,7 @@
 #include "Get_Geometry.h"
 #include "GeoData.h"
 #include "CurrentData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Tools.h"
 
 

@@ -6,7 +6,7 @@
 #undef ERROR
 #undef DEBUG
 
-#include "Data_Numeric.h"
+#include "Numeric.h"
 
 extern int Verbose, NbCpu, RankCpu;
 

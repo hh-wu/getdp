@@ -1,9 +1,9 @@
-#define RCSID "$Id: BF_Node.c,v 1.10 2003-02-13 19:42:17 geuzaine Exp $"
+#define RCSID "$Id: BF_Node.c,v 1.11 2003-03-18 00:55:26 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
 #include "BF_Function.h"
-#include "Data_Numeric.h" /* DSQU */
+#include "Numeric.h" /* DSQU */
 
 
 /* ------------------------------------------------------------------------ */

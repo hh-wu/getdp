@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_HelmholtzxForm.c,v 1.2 2001-09-06 09:49:11 geuzaine Exp $"
+#define RCSID "$Id: GF_HelmholtzxForm.c,v 1.3 2003-03-18 00:55:27 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -6,8 +6,8 @@
 #include "Data_Active.h"
 #include "BF_Function.h"
 #include "CurrentData.h"
-#include "Data_Numeric.h"
 #include "Data_DefineE.h"
+#include "Numeric.h"
 #include "Numeric_F.h"
 #include "Quadrature.h"
 

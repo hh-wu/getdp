@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Cells.c,v 1.6 2001-04-05 06:30:12 geuzaine Exp $"
+#define RCSID "$Id: Get_Cells.c,v 1.7 2003-03-18 00:55:29 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -6,11 +6,9 @@
 #include "GetDP.h"
 #include "Get_Geometry.h"
 #include "Get_Cells.h"
-
 #include "GeoData.h"
 #include "CurrentData.h"
-
-#include "Data_Numeric.h"
+#include "Numeric.h"
 
 
 void Get_BarycentricDivision(struct Element * Element, double Bary_Edge[][3], 

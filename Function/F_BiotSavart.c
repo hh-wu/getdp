@@ -1,11 +1,11 @@
-#define RCSID "$Id: F_BiotSavart.c,v 1.1 2003-03-17 11:22:41 sabarieg Exp $"
+#define RCSID "$Id: F_BiotSavart.c,v 1.2 2003-03-18 00:55:26 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
 #include "GetDP.h" 
 #include "Data_Active.h"
 #include "CurrentData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Data_FMM.h"
 #include "Legendre.h"
 #include "SphBessel.h"

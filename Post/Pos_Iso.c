@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Iso.c,v 1.14 2001-03-03 19:21:22 geuzaine Exp $"
+#define RCSID "$Id: Pos_Iso.c,v 1.15 2003-03-18 00:55:31 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -6,7 +6,7 @@
 
 #include "GetDP.h"
 #include "Data_Active.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "CurrentData.h"
 #include "Pos_Iso.h"
 #include "Pos_Element.h"

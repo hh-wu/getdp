@@ -1,14 +1,7 @@
-/* $Id: SphBessel.h,v 1.4 2002-02-04 19:00:09 geuzaine Exp $ */
+/* $Id: SphBessel.h,v 1.5 2003-03-18 00:55:30 geuzaine Exp $ */
 
 #ifndef _SPHBESSEL_H_
 #define _SPHBESSEL_H_
-
-#include <stdio.h>
-#include <math.h>
-
-#include "GetDP.h"
-#include "Data_Numeric.h"
-#include "Amos_F.h"
 
 double Spherical_j_n(int n, double x) ;
 void Spherical_j_nArray(int n, double x, int NB, double jsph[]) ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.31 2003-01-24 23:04:09 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.32 2003-03-18 00:55:30 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -9,7 +9,7 @@
 #include "GeoData.h"
 #include "Data_Passive.h"
 #include "Data_DefineE.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "CurrentData.h"
 #include "Magic.h"
 #include "Pos_Iso.h"

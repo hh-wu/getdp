@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Helmholtz.c,v 1.10 2003-03-17 11:22:42 sabarieg Exp $"
+#define RCSID "$Id: GF_Helmholtz.c,v 1.11 2003-03-18 00:55:27 geuzaine Exp $"
 
 #include <stdio.h>
 #include <math.h>
@@ -7,7 +7,7 @@
 #include "Data_Active.h"
 #include "Cal_Value.h"
 #include "CurrentData.h"
-#include "Data_Numeric.h"
+#include "Numeric.h"
 #include "Data_FMM.h"
 #include "Legendre.h"
 #include "SphBessel.h"
