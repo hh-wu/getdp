@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_DiscreteGeometry.c,v 1.1 2004-11-17 13:23:26 dular Exp $"
+#define RCSID "$Id: F_DiscreteGeometry.c,v 1.2 2004-11-17 13:36:28 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -44,15 +44,45 @@
 
 
 /* ------------------------------------------------------------------------ */
-/*  Interpolation                                                           */
+/*  Discrete Geometric Approach                                             */
 /* ------------------------------------------------------------------------ */
 
-void  F_DGF (F_ARG) {
+
+void  F_IncMatrixEdgesXNodes (F_ARG) {
+
+  int k;
+
+  GetDP_Begin("F_IncMatrixEdgesXNodes");
+
+
+
+
+
+
+
+  for (k = 0 ; k < Current.NbrHar ; k++) {
+    V->Val[MAX_DIM*k  ] = 0. ;
+    V->Val[MAX_DIM*k+1] = 0. ;
+    V->Val[MAX_DIM*k+2] = 0. ;
+    V->Val[MAX_DIM*k+3] = 0. ;
+    V->Val[MAX_DIM*k+4] = 0. ;
+    V->Val[MAX_DIM*k+5] = 0. ;
+    V->Val[MAX_DIM*k+6] = 0. ;
+    V->Val[MAX_DIM*k+7] = 0. ;
+    V->Val[MAX_DIM*k+8] = 0. ;
+  }
+  V->Type = TENSOR ;
+
+  GetDP_End ;
+}
+
+
+void  F_MatrixDualEdgesXEdges (F_ARG) {
 
   double valArg;
   int k;
 
-  GetDP_Begin("F_DGF");
+  GetDP_Begin("F_MatrixDualEdgesXEdges");
 
   valArg = A->Val[0] ; /* For A->Type == SCALAR ... */
 

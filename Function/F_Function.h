@@ -174,7 +174,9 @@ void  F_Pocklington (F_ARG) ;
 
 /* F_DiscreteGeometry */
 
-void  F_DGF             (F_ARG) ;
+void  F_IncMatrixEdgesXNodes    (F_ARG) ;
+
+void  F_MatrixDualEdgesXEdges   (F_ARG) ;
 
 
 #undef F_ARG
