@@ -31,7 +31,6 @@ problems.
 
 %build
 make linux
-cp bin/getdp-Linux bin/getdp
 make doc-pdf
 make doc-info
 rm -rf CVS */CVS */*/CVS
