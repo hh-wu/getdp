@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.24 2000-12-08 12:04:13 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.25 2001-01-02 13:42:20 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -178,31 +178,32 @@ struct JacobianCase {
 /* JacobianCase.TypeJacobian */
 /* WARNING! The numbering is important (boundary operator -> -1) */
 
-#define JACOBIAN_PNT                  0
-#define JACOBIAN_LIN                  1
-#define JACOBIAN_SUR                  2
-#define JACOBIAN_VOL                  3
+#define JACOBIAN_PNT                     0
+#define JACOBIAN_LIN                     1
+#define JACOBIAN_SUR                     2
+#define JACOBIAN_VOL                     3
 
-#define JACOBIAN_SURAXI               10
-#define JACOBIAN_VOLAXI               11
+#define JACOBIAN_SUR_AXI                 10
+#define JACOBIAN_VOL_AXI                 11
 
-#define JACOBIAN_SURAXISQU            20
-#define JACOBIAN_VOLAXISQU            21
+#define JACOBIAN_SUR_AXI_SQU             20
+#define JACOBIAN_VOL_AXI_SQU             21
 
-#define JACOBIAN_SURSPHSHELL          30
-#define JACOBIAN_VOLSPHSHELL          31
+#define JACOBIAN_SUR_SPH_SHELL           30
+#define JACOBIAN_VOL_SPH_SHELL           31
 
-#define JACOBIAN_VOLAXISPHSHELL       40
+#define JACOBIAN_VOL_AXI_SPH_SHELL       40
 
-#define JACOBIAN_VOLAXISQUSPHSHELL    50
+#define JACOBIAN_VOL_AXI_SQU_SPH_SHELL   50
 
-#define JACOBIAN_VOLPLPDX             60
-#define JACOBIAN_VOLPLPDY             61
-#define JACOBIAN_VOLPLPDZ             62
-#define JACOBIAN_VOLAXIPLPDX          63
-#define JACOBIAN_VOLAXIPLPDY          64
-#define JACOBIAN_VOLAXIPLPDZ          65
+#define JACOBIAN_VOL_PLPD_X              60
+#define JACOBIAN_VOL_PLPD_Y              61
+#define JACOBIAN_VOL_PLPD_Z              62
+#define JACOBIAN_VOL_AXI_PLPD_X          63
+#define JACOBIAN_VOL_AXI_PLPD_Y          64
+#define JACOBIAN_VOL_AXI_PLPD_Z          65
 
+#define JACOBIAN_VOL_SPH_FINITE_SHELL    70
 
 
 /* ------------------------------------------------------------------------ */

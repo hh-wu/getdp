@@ -1,4 +1,4 @@
-/* $Id: Get_Geometry.h,v 1.3 2000-09-08 08:17:24 geuzaine Exp $ */
+/* $Id: Get_Geometry.h,v 1.4 2001-01-02 13:42:20 geuzaine Exp $ */
 #ifndef _GET_GEOMETRY_H_
 #define _GET_GEOMETRY_H_
 
@@ -27,6 +27,8 @@ double  JacobianVol3D               (Jacobian_ARG) ;
 
 double  JacobianVolSphShell2D       (Jacobian_ARG) ;
 double  JacobianVolSphShell3D       (Jacobian_ARG) ;
+
+double  JacobianVolSphFiniteShell2D (Jacobian_ARG) ;
 
 double  JacobianVolAxi2D            (Jacobian_ARG) ;
 double  JacobianVolAxiSphShell2D    (Jacobian_ARG) ;

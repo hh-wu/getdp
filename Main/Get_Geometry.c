@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.6 2000-12-22 11:21:13 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.7 2001-01-02 13:42:20 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -83,7 +83,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
-  case JACOBIAN_VOLAXI :
+  case JACOBIAN_VOL_AXI :
 
     switch (Type_Element) {
 
@@ -96,7 +96,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element)); 
     }
     
-  case JACOBIAN_VOLAXISQU :
+  case JACOBIAN_VOL_AXI_SQU :
 
     switch (Type_Element) {
 
@@ -109,7 +109,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
-  case JACOBIAN_VOLSPHSHELL :
+  case JACOBIAN_VOL_SPH_SHELL :
 
     switch (Type_Element) {
 
@@ -128,7 +128,20 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
-  case JACOBIAN_VOLAXISPHSHELL :
+  case JACOBIAN_VOL_SPH_FINITE_SHELL :
+
+    switch (Type_Element) {
+
+    case TRIANGLE    : case TRIANGLE_2   :  
+    case QUADRANGLE  : case QUADRANGLE_2 : 
+      *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolSphFiniteShell2D) ;
+
+    default : 
+      Msg(ERROR, "Unknown JacobianVolSphShell for Element Type (%s)", 
+	  Get_StringForDefine(Element_Type, Type_Element));
+    }
+
+  case JACOBIAN_VOL_AXI_SPH_SHELL :
 
     switch (Type_Element) {
 
@@ -141,7 +154,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
-  case JACOBIAN_VOLAXIPLPDX :
+  case JACOBIAN_VOL_AXI_PLPD_X :
 
     switch (Type_Element) {
 
@@ -154,7 +167,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
-  case JACOBIAN_VOLAXISQUSPHSHELL :
+  case JACOBIAN_VOL_AXI_SQU_SPH_SHELL :
 
     switch (Type_Element) {
 
@@ -186,7 +199,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
-  case JACOBIAN_SURSPHSHELL :
+  case JACOBIAN_SUR_SPH_SHELL :
 
     switch (Type_Element) {
 
@@ -198,7 +211,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
-  case JACOBIAN_SURAXI :
+  case JACOBIAN_SUR_AXI :
 
     switch (Type_Element) {
 
@@ -278,6 +291,61 @@ double  SphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
 
   GetDP_Return(DetJac) ;
 }
+
+double  SphFiniteShell2D (struct Element * Element, MATRIX3x3 * Jac) {
+  int  i ;
+  double  CoorX, CoorY, A, B, C, R, thetax,thetay,thetaxy, XR, YR, f;
+  double  fac, fac1, fac2, term1, term2;
+  double  DetJac ;
+
+  GetDP_Begin("SphFiniteShell2D");
+
+  Jac->c11 = 0. ;  Jac->c12 = 0. ;  Jac->c13 = 0. ;
+  Jac->c21 = 0. ;  Jac->c22 = 0. ;  Jac->c23 = 0. ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
+
+  CoorX = CoorY = 0. ;
+  for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) {
+    CoorX += Element->x[i] * Element->n[i] ;
+    CoorY += Element->y[i] * Element->n[i] ;
+  }
+
+  A = Element->JacobianCase->Para[0] ;  B = Element->JacobianCase->Para[1] ;
+  C = Element->JacobianCase->Para[2] ;
+
+  R = HYPOT(CoorX, CoorY) ;
+
+  if ( (R > B) || (R < A) )
+    Msg(ERROR, "Bad parameters for JacobianVolSphShell: "
+	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
+
+  if (B == R) {
+    Jac->c11  = 1. ; Jac->c22  = 1. ; GetDP_Return(1.) ;
+  }
+
+  fac     = A*(A - B);
+  fac1    = fac*C;
+  term1   = fac*R;
+  term2   = R*(CoorX*CoorX - CoorY*CoorY);
+  fac2    = - A*A + A*B + (C-1)*(B - R)*R;
+  f       = 1./(R*fac2*fac2);
+
+  thetax  = fac1*(term1 - (C-1)*(B*CoorY*CoorY + term2));
+  thetay  = fac1*(term1 - (C-1)*(B*CoorX*CoorX - term2));
+  thetaxy = fac1*(C-1)*(B - 2*R)*CoorX*CoorY;
+  
+  Jac->c11  = f * thetax  ;    Jac->c12  = f * thetaxy  ;
+  Jac->c21  = Jac->c12 ;       Jac->c22  = f * thetay  ;
+
+ /* DetJac = (pow(A,2)*pow(A - B,2)* pow(C,2)* (pow(A,2) - A*B - 
+           (-1 + C)*pow(R,2))*(pow(A,2)*R - A*B*R + 
+           (-1 + C)*(pow(R,3) - B*(pow(CoorX,2) + pow(CoorY,2)))))*R*f*f;
+ */
+  DetJac = (thetax * thetay - thetaxy * thetaxy) * f * f;
+
+  GetDP_Return(DetJac) ;
+}
+
 
 double  SphShell3D (struct Element * Element, MATRIX3x3 * Jac) {
   int  i ;
@@ -475,6 +543,24 @@ double  JacobianVolSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
 
   DetJac1 = JacobianVol2D (Element, &Jac1) ;
   DetJac2 = SphShell2D    (Element, &Jac2) ;
+
+  Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
+
+                                    Jac->c13 = 0. ;
+                                    Jac->c23 = 0. ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
+
+  GetDP_Return(DetJac1 * DetJac2) ;
+}
+
+double  JacobianVolSphFiniteShell2D (struct Element * Element, MATRIX3x3 * Jac) {
+  MATRIX3x3  Jac1, Jac2 ;
+  double     DetJac1, DetJac2 ;
+
+  GetDP_Begin("JacobianVolSphFiniteShell2D");
+
+  DetJac1 = JacobianVol2D    (Element, &Jac1) ;
+  DetJac2 = SphFiniteShell2D (Element, &Jac2) ;
 
   Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
 

@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.14 2000-12-06 14:26:05 dular Exp $ */
+/* $Id: Data_Define.h,v 1.15 2001-01-02 13:42:20 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -63,23 +63,24 @@ struct StringXDefine  FunctionForGroup_SuppList[] = {
 } ;
 
 struct StringXDefine1Nbr  Jacobian_Type[] = {
-  {"Vol"               , JACOBIAN_VOL               , 0} ,
-  {"VolAxi"            , JACOBIAN_VOLAXI            , 0} ,
-  {"VolAxiSqu"         , JACOBIAN_VOLAXISQU         , 0} ,
-  {"VolSphShell"       , JACOBIAN_VOLSPHSHELL       , 2} ,
-  {"VolAxiSphShell"    , JACOBIAN_VOLAXISPHSHELL    , 2} ,
-  {"VolAxiSquSphShell" , JACOBIAN_VOLAXISQUSPHSHELL , 2} ,
-  {"VolPlpdX"          , JACOBIAN_VOLPLPDX          , 2} ,
-  {"VolPlpdY"          , JACOBIAN_VOLPLPDY          , 2} ,
-  {"VolPlpdZ"          , JACOBIAN_VOLPLPDZ          , 2} ,
-  {"VolAxiPlpdX"       , JACOBIAN_VOLAXIPLPDX       , 2} ,
-  {"VolAxiPlpdY"       , JACOBIAN_VOLAXIPLPDY       , 2} ,
-  {"VolAxiPlpdZ"       , JACOBIAN_VOLAXIPLPDZ       , 2} ,
-  {"Sur"               , JACOBIAN_SUR               , 0} ,
-  {"SurAxi"            , JACOBIAN_SURAXI            , 0} ,
-  {"SurSphShell"       , JACOBIAN_SURSPHSHELL       , 2} ,
-  {"Lin"               , JACOBIAN_LIN               , 0} ,
-  {NULL                , JACOBIAN_VOL               , 0} 
+  {"Vol"               , JACOBIAN_VOL                   , 0} ,
+  {"VolAxi"            , JACOBIAN_VOL_AXI               , 0} ,
+  {"VolAxiSqu"         , JACOBIAN_VOL_AXI_SQU           , 0} ,
+  {"VolSphShell"       , JACOBIAN_VOL_SPH_SHELL         , 2} ,
+  {"VolSphFiniteShell" , JACOBIAN_VOL_SPH_FINITE_SHELL  , 3} ,
+  {"VolAxiSphShell"    , JACOBIAN_VOL_AXI_SPH_SHELL     , 2} ,
+  {"VolAxiSquSphShell" , JACOBIAN_VOL_AXI_SQU_SPH_SHELL , 2} ,
+  {"VolPlpdX"          , JACOBIAN_VOL_PLPD_X            , 2} ,
+  {"VolPlpdY"          , JACOBIAN_VOL_PLPD_Y            , 2} ,
+  {"VolPlpdZ"          , JACOBIAN_VOL_PLPD_Z            , 2} ,
+  {"VolAxiPlpdX"       , JACOBIAN_VOL_AXI_PLPD_X        , 2} ,
+  {"VolAxiPlpdY"       , JACOBIAN_VOL_AXI_PLPD_Y        , 2} ,
+  {"VolAxiPlpdZ"       , JACOBIAN_VOL_AXI_PLPD_Z        , 2} ,
+  {"Sur"               , JACOBIAN_SUR                   , 0} ,
+  {"SurAxi"            , JACOBIAN_SUR_AXI               , 0} ,
+  {"SurSphShell"       , JACOBIAN_SUR_SPH_SHELL         , 2} ,
+  {"Lin"               , JACOBIAN_LIN                   , 0} ,
+  {NULL                , JACOBIAN_VOL                   , 0} 
 } ;
 
 struct StringXDefine  Integration_Type[] = {
