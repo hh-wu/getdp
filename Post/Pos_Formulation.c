@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.36 2002-02-22 12:12:53 dular Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.37 2002-02-22 12:32:19 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -217,7 +217,8 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
     break;
 
   case POP_ECHO :
-    fprintf(PostStream, PostSubOperation_P->Case.EchoString);    
+    fprintf(PostStream, PostSubOperation_P->Case.EchoString);
+    fprintf(PostStream, "\n");
     break;
 
   case POP_PRINTVAL :
