@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.11 2001-03-07 15:21:07 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.12 2001-03-20 18:59:56 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -436,7 +436,10 @@ void Cal_WholeQuantity(struct Element * Element,
 	Cal_SubstractValue(&Stack[0][Index], &Stack[0][Index+1], &Stack[0][Index]) ;
 	Stack[0][Index+1].Val[0] = Save_Time - Current.Time ;
 	Stack[0][Index+1].Type = SCALAR ;
-	Cal_DivideValue(&Stack[0][Index], &Stack[0][Index+1], &Stack[0][Index]) ;
+	if(Stack[0][Index+1].Val[0])
+	  Cal_DivideValue(&Stack[0][Index], &Stack[0][Index+1], &Stack[0][Index]) ;
+	else
+	  Cal_ZeroValue(&Stack[0][Index]);
 
 	for (k = 0 ; k < Current.NbrSystem ; k++)
 	  if (List_Nbr((Current.DofData_P0+k)->Solutions) > 1)

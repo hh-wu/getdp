@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.19 2001-03-19 14:51:08 lefevre Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.20 2001-03-20 18:59:56 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -424,7 +424,8 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
     }
   }
 
-  if ( (fabs(R) > fabs(B)+1.e-12) || (fabs(R) < fabs(A)-1.e-12) )
+  if ( (fabs(R) > fabs(B) + 1.e-12*fabs(B)) || 
+       (fabs(R) < fabs(A) - 1.e-12*fabs(A)) )
     Msg(ERROR, "Bad parameters for transformation Jacobian: %g not in [%g,%g]", R, A, B) ;
 
   f     = power((A*(B-A))/(R*(B-R)), p) ;
