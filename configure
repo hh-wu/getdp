@@ -2226,17 +2226,19 @@ C_FLAGS="$CFLAGS"
 C_PARSER_FLAGS="$CFLAGS"
 F77_FLAGS="$FFLAGS"
 
-GETDP_DIRS='Main Parser Post Function Integration GeoData DofData Numeric DataStr'
+GETDP_DIRS="Main Parser Post Function Integration GeoData DofData Numeric DataStr"
+GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr"
+
 if test x$enable_petsc = xyes; then
+  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr ${PETSC_SLES_LIB} -lm'
   SOLVER='-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
-  LINKER_LIBS='${GETDP_PETSC_LIBS} ${PETSC_SLES_LIB} -lm'
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
 else
+  GETDP_DIRS="${GETDP_DIRS} Sparskit"
+  GETDP_LIBS="${GETDP_LIBS} -lm"
   SOLVER='-D_SPARSKIT -D_ILU_FLOAT'
   LINKER='${FC}'
-  LINKER_LIBS='${GETDP_SPARSKIT_LIBS} -lm'
-  GETDP_DIRS="${GETDP_DIRS} Sparskit"
   case "$UNAME" in
     IRIX*)
       CC="cc"
@@ -2268,7 +2270,7 @@ else
       F77_FLAGS="+O2 +DAportable"
       SOLVER="-D_SPARSKIT -D_ILU_FLOAT -D_UNDERSCORE"
       LINKER="f77 +DAportable"
-      LINKER_LIBS='Main/Main.o ${GETDP_SPARSKIT_LIBS} -lm'
+      GETDP_LIBS="Main/Main.o ${GETDP_LIBS} -lm"
       ;;
     OSF1*)
       CC="cc"
@@ -2279,7 +2281,7 @@ else
       LINKER="f77 -nofor_main"
       ;;
     SunOS*)
-      LINKER_LIBS='${GETDP_SPARSKIT_LIBS} -lsocket -lm'
+      GETDP_LIBS="${GETDP_LIBS} -lsocket -lm"
       ;;
     AIX*)
       CC="cc"
@@ -2297,13 +2299,12 @@ else
       C_FLAGS="-g -O3 -DMSDOS"
       F77_FLAGS="-g -O1 -DMSDOS"
       LINKER="g77 -Wl,--stack,8388608"
-      LINKER_LIBS='${GETDP_SPARSKIT_LIBS}'
+      GETDP_LIBS="${GETDP_LIBS}"
       ;;
     *)
       ;;
   esac
 fi
-
 
 
 
@@ -3880,10 +3881,9 @@ s,@C_FLAGS@,$C_FLAGS,;t t
 s,@C_PARSER_FLAGS@,$C_PARSER_FLAGS,;t t
 s,@F77_FLAGS@,$F77_FLAGS,;t t
 s,@LINKER@,$LINKER,;t t
-s,@LINKER_LIBS@,$LINKER_LIBS,;t t
+s,@GETDP_LIBS@,$GETDP_LIBS,;t t
 s,@GETDP_DIRS@,$GETDP_DIRS,;t t
 s,@SOLVER@,$SOLVER,;t t
-s,@SOLVER_FLAGS@,$SOLVER_FLAGS,;t t
 s,@PETSC_INCLUDE_MAKEFILE@,$PETSC_INCLUDE_MAKEFILE,;t t
 s,@PETSC_DIR@,$PETSC_DIR,;t t
 s,@PETSC_ARCH@,$PETSC_ARCH,;t t

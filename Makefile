@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.118 2003-02-07 17:56:51 geuzaine Exp $
+# $Id: Makefile,v 1.119 2003-02-07 19:16:24 geuzaine Exp $
 
 include variables
 
@@ -17,21 +17,13 @@ GETDP_SOURCES = `find . \( ! -name "*.tar*" -a ! -name "*.tgz" \
                         -a ! -name "*.bak"  -a ! -name "getdp" -a ! -name "getdp-*" \
                         -a ! -type d       \)`
 
-GETDP_SPARSKIT_LIBS = -Llib -lMain -lParser -lPost -lFunction\
-                      -lIntegration -lGeoData -lDofData \
-                      -lNumeric -lSparskit -lDataStr
-
-GETDP_PETSC_LIBS = -Llib -lMain -lParser -lPost -lFunction\
-                   -lIntegration -lGeoData -lDofData \
-                   -lNumeric -lDataStr
-
 all: variables initialtag compile link
 
 compile: variables initialtag
 	@for i in ${GETDP_DIRS}; do (cd $$i && ${MAKE}); done
 
 link: variables
-	${LINKER} -o bin/getdp ${LINKER_LIBS}
+	${LINKER} -o bin/getdp ${GETDP_LIBS}
 
 variables: configure
 	@echo "=================================================================="
@@ -179,7 +171,7 @@ blackbox: initialtag
            "C_FLAGS=-g -D_BLACKBOX" \
            "F77_FLAGS=-g" \
         ); done
-	${FC} -nofor_main -o bin/getdp-box ${GETDP_SPARSKIT_LIBS} -lm
+	${FC} -nofor_main -o bin/getdp-box ${GETDP_LIBS}
 
 compile-scat: initialtag
 	@for i in ${GETDP_DIRS} Scattering; do (cd $$i && ${MAKE} \
@@ -193,7 +185,6 @@ compile-scat: initialtag
            "SOLVER=-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}" \
         ); done
 link-scat:
-	${CLINKER} -o bin/hf lib/libScattering.a lib/libDofData.a\
-               lib/libNumeric.a lib/libDataStr.a ${PETSC_SLES_LIB}\
-               -L${FFTW_PREFIX}/lib -lfftw -lm
+	${CLINKER} -o bin/hf lib/libScattering.a lib/libDofData.a lib/libNumeric.a\
+                   lib/libDataStr.a ${PETSC_SLES_LIB} -L${FFTW_PREFIX}/lib -lfftw -lm
 scat: compile-scat link-scat
