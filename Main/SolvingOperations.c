@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.24 2001-05-07 06:25:00 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.25 2001-05-18 12:26:27 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -210,6 +210,18 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       Update_System(DefineSystem_P, DofData_P, DofData_P0, 
 		    Operation_P->Case.Update.ExpressionIndex) ;
+      Flag_CPU = 1 ;
+      break ;
+
+      /*  -->  U p d a t e C o n s t r a i n t        */
+      /*  ------------------------------------------  */
+
+    case OPERATION_UPDATECONSTRAINT :
+      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+      UpdateConstraint_System(DefineSystem_P, DofData_P, DofData_P0, 
+			      Operation_P->Case.UpdateConstraint.GroupIndex,
+			      Operation_P->Case.UpdateConstraint.Type) ;
       Flag_CPU = 1 ;
       break ;
 
@@ -822,6 +834,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_CHANGEOFCOORDINATES :
       Msg(OPERATION, "ChangeOfCoordinates") ;
+      Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0) ;
       Operation_ChangeOfCoordinates
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break ;
@@ -1288,6 +1301,44 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
   if(!i) Msg(ERROR, "Generated system is of dimension zero");
 
   Free_UnusedSolutions(DofData_P);
+
+  GetDP_End ;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  U p d a t e _ C o n s t r a i n t S y s t e m                           */
+/* ------------------------------------------------------------------------ */
+/*! Update constraints, i.e. new preprocessing of _CST type */
+
+void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
+			      struct DofData * DofData_P, 
+			      struct DofData * DofData_P0,
+			      int GroupIndex, int Type_Constraint){
+
+  int k,  Nbr_Formulation, Index_Formulation,  Save_TreatmentStatus ;
+  struct Formulation    * Formulation_P ;
+
+  GetDP_Begin("UpdateConstraint_System");
+
+  Save_TreatmentStatus = TreatmentStatus ;
+  TreatmentStatus = _CST ;
+
+  Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
+
+  for (k = 0 ; k < Nbr_Formulation ; k++) {
+    List_Read(DefineSystem_P->FormulationIndex, k, &Index_Formulation) ;
+    Formulation_P = (struct Formulation*)
+      List_Pointer(Problem_S.Formulation, Index_Formulation) ;
+    Msg(OPERATION, "Treatment Formulation '%s'", Formulation_P->Name) ;
+
+    Init_DofDataInDefineQuantity(DefineSystem_P, DofData_P0, Formulation_P) ;
+    Treatment_Formulation(Formulation_P) ;
+  }
+
+  Dof_InitDofType(DofData_P) ; /* Attention: Init for only one DofData */
+
+  TreatmentStatus = Save_TreatmentStatus ;
 
   GetDP_End ;
 }

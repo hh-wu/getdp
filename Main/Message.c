@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.45 2001-05-18 07:06:51 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.46 2001-05-18 12:26:27 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -185,6 +185,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
   case INFO3     : verb = 3; nl = 1; str = NULL; break;
   case BIGINFO   : verb = 1; nl = 1; str = BIGINFO_STR; break;
   case DEBUG     : verb =99; nl = 0; str = NULL; break;
+  case DEBUG2    : verb =98; nl = 0; str = NULL; break;
   case SPARSKIT  : verb = 3; nl = 0; str = SPARSKIT_STR; break;
   case PETSC     : verb = 3; nl = 1; str = PETSC_STR; break;
   case ITER      : verb = 4; nl = 0; str = NULL; break;

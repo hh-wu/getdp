@@ -1,4 +1,4 @@
-/* $Id: Init_Problem.h,v 1.8 2001-03-19 19:15:07 geuzaine Exp $ */
+/* $Id: Init_Problem.h,v 1.9 2001-05-18 12:26:27 dular Exp $ */
 #ifndef _INIT_PROBLEM_H_
 #define _INIT_PROBLEM_H_
 
@@ -71,6 +71,11 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 		    struct DofData * DofData_P, 
 		    struct DofData * DofData_P0,
 		    int TimeFunctionIndex) ;
+
+void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
+			      struct DofData * DofData_P, 
+			      struct DofData * DofData_P0,
+			      int GroupIndex, int Type_Constraint) ;
 
 double  * Get_TimeFunctionValues(struct DofData * DofData_P) ;
 

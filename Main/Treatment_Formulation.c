@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.8 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.9 2001-05-18 12:26:27 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -308,6 +308,9 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 	      else
 		Cal_deRhamTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
 	    }
+	    break ;
+	  case _CST :
+	    Cst_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
 	    break ;
 	  }
 

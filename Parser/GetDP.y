@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.14 2001-05-16 09:21:16 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.15 2001-05-18 12:26:27 dular Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -260,7 +260,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token      tOriginSystem  tDestinationSystem 
 %token    tOperation  tOperationEnd
 %token      tSetTime tDTime tSetFrequency tFourierTransform tIf tElse
-%token      tLanczos tUpdate
+%token      tLanczos tUpdate tUpdateConstraint
 %token      tTimeLoopTheta
 %token        tTime0  tTimeMax  tDTime  tTheta
 %token      tTimeLoopNewmark
@@ -4306,6 +4306,26 @@ OperationTerm :
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.Update.ExpressionIndex = $5 ;
+    }
+
+  | tUpdateConstraint '[' tSTRING ',' GroupRHS ',' tSTRING ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.UpdateConstraint.GroupIndex =
+	Num_Group(&Group_S, "OP_UpdateCst", $5) ;
+      Operation_P->Case.UpdateConstraint.Type =
+	Get_DefineForString(Constraint_Type, $7, &FlagError) ;
+      if (FlagError){
+	vyyerror("Unknown type of Constraint: %s", $7);
+	Get_Valid_SXD(Constraint_Type);
+      }
+      Free($7) ;
     }
 
   | tFourierTransform '[' tSTRING ',' tSTRING ',' ListOfDouble ']' tEND

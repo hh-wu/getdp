@@ -1,4 +1,4 @@
-/* $Id: Treatment_Formulation.h,v 1.7 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: Treatment_Formulation.h,v 1.8 2001-05-18 12:26:27 dular Exp $ */
 #ifndef _TREATMENT_FORMULATION_H_
 #define _TREATMENT_FORMULATION_H_
 
@@ -38,6 +38,10 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 void  Pre_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 			    struct DefineQuantity  * DefineQuantity_P0,
 			    struct QuantityStorage * QuantityStorage_P0) ;
+
+void  Cst_TermOfFemEquation(struct Element          * Element,
+			    struct EquationTerm     * EquationTerm_P,
+			    struct QuantityStorage  * QuantityStorage_P0) ;
 
 /*---------------------------------------------------------------------*/
 

@@ -1,4 +1,4 @@
-/* $Id: Data_Active.h,v 1.6 2001-03-27 19:19:57 dular Exp $ */
+/* $Id: Data_Active.h,v 1.7 2001-05-18 12:26:27 dular Exp $ */
 #ifndef _DATA_ACTIVE_H_
 #define _DATA_ACTIVE_H_
 
@@ -9,6 +9,7 @@
 #define _PAR  4 /* partitionning */
 #define _CAL  2 /* processing */
 #define _POS  3 /* post-processing */
+#define _CST  5 /* update constraint */
 
 #define TIME_STATIC   1
 #define TIME_THETA    2
@@ -128,6 +129,7 @@ struct PostElement {
 /* En parallele avec Constraint (zone active)      */
 
 struct ConstraintActive {
+  int  TimeStep ;
   union {
     struct {
       int  NbrNode, NbrBranch, NbrLoop ;

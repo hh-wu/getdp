@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.18 2001-05-06 12:37:55 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.19 2001-05-18 12:26:27 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -828,7 +828,7 @@ void  Dof_DefineLinkDof(int D1, int D2, int NbrHar, double Value[], int D2_Link)
 
 
 /* ------------------------------------------------------------------------ */
-/*  D o f _ D e f i n e S y m m e t r i c a l D o f                         */
+/*  D o f _ D e f i n e U n k n o w n D o f                                 */
 /* ------------------------------------------------------------------------ */
 
 void  Dof_DefineUnknownDof(int D1, int D2, int NbrHar) {
@@ -941,6 +941,35 @@ struct Dof  * Dof_GetDofStruct(struct DofData * DofData_P, int D1, int D2, int D
   Dof.NumType = D1 ;  Dof.Entity = D2 ;  Dof.Harmonic = D3 ;
 
   GetDP_Return((struct Dof *)List_PQuery(DofData_P->DofList, &Dof, fcmp_Dof)) ;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  D o f _ U p d a t e L i n k D o f                                       */
+/* ------------------------------------------------------------------------ */
+
+void  Dof_UpdateLinkDof(struct Dof *Dof_P, int NbrHar, double Value[], int D2_Link) {
+  int         k ;
+
+  GetDP_Begin("Dof_UpdateLinkDof");
+
+  if (Dof_P->Type == DOF_LINK || Dof_P->Type == DOF_LINKCPLX) {
+    /*
+    fprintf(stderr,"===> %d %d %.16g\n", Dof_P->NumType, Dof_P->Entity, Value[0]) ;
+    */
+    for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
+      Dof_P->Case.Link.Coef = Value[0] ;
+
+      if (Dof_P->Type == DOF_LINKCPLX)
+	Dof_P->Case.Link.Coef2 = Value[MAX_DIM] ;
+
+      Dof_P->Case.Link.EntityRef = D2_Link ;
+      Dof_P->Case.Link.Dof = NULL ;
+    }
+
+  }
+
+  GetDP_End ;
 }
 
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.36 2001-05-16 13:16:06 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.37 2001-05-18 12:26:27 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -265,22 +265,6 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	}
       }
 
-      else if (!strcmp(argv[i]+1, "1") || !strcmp(argv[i]+1, "2") ||
-	       !strcmp(argv[i]+1, "3") || !strcmp(argv[i]+1, "4") ||
-	       !strcmp(argv[i]+1, "5") || !strcmp(argv[i]+1, "6") ||
-	       !strcmp(argv[i]+1, "7") || !strcmp(argv[i]+1, "8") ||
-	       !strcmp(argv[i]+1, "9")) {
-	if(Flag_LRES){
-	  Flag_POS = 1 ;
-	  Flag_LPOS = -atoi(argv[i]+1) ;
-	}
-	else{
-	  Flag_PRE = Flag_CAL = 1 ;
-	  Flag_LRES = -atoi(argv[i]+1) ;
-	}
-	i++ ;
-      }
-
       else if (!strcmp(argv[i]+1, "i")) { 
 	Interactive();
       } 
@@ -328,7 +312,10 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 
       else if (!strcmp(argv[i]+1, "pre")) {
 	i++ ;
-	if (i<argc && argv[i][0]!='-') { 
+	if (i<argc && argv[i][0]=='#') {
+	  Flag_PRE = 1 ; Flag_LRES = -atoi(argv[i]+1) ; i++ ;
+	}
+	else if (i<argc && argv[i][0]!='-') { 
 	  Flag_PRE = 1 ; Name_Resolution = argv[i] ; i++ ; 
 	}
 	else {
@@ -362,7 +349,10 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       else if (!strcmp(argv[i]+1, "solve") ||
 	       !strcmp(argv[i]+1, "sol")) {
 	i++ ;
-	if (i<argc && argv[i][0]!='-') { 
+	if (i<argc && argv[i][0]=='#') {
+	  Flag_PRE = Flag_CAL = 1 ; Flag_LRES = -atoi(argv[i]+1) ; i++ ;
+	}
+	else if (i<argc && argv[i][0]!='-') {
 	  Flag_PRE = Flag_CAL = 1 ; Name_Resolution = argv[i] ; i++ ; 
 	}
 	else { 
@@ -373,17 +363,22 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       else if (!strcmp(argv[i]+1, "post") ||
 	       !strcmp(argv[i]+1, "pos")) {
 	i++ ; j = 0 ;
-	while (i<argc && argv[i][0]!='-') { 
-	  Name_PostOperation[j] = argv[i] ; i++ ; j++ ;
-	  if(j == NBR_MAX_POS)
-	    Msg(ERROR, "Too many PostOperations");
-	}
-	if(!j){
-	  Flag_POS = Flag_LPOS = 1 ;
-	}
-	else{
-	  Flag_POS = 1 ;
-	  Name_PostOperation[j] = NULL ;
+	if (i<argc && argv[i][0]=='#') {
+	  Flag_POS = 1 ; Flag_LPOS = -atoi(argv[i]+1) ; i++ ;
+	} /* Only one numbered (#) PostOperation allowed */
+	else {
+	  while (i<argc && argv[i][0]!='-') { 
+	    Name_PostOperation[j] = argv[i] ; i++ ; j++ ;
+	    if(j == NBR_MAX_POS)
+	      Msg(ERROR, "Too many PostOperations");
+	  }
+	  if(!j){
+	    Flag_POS = Flag_LPOS = 1 ;
+	  }
+	  else{
+	    Flag_POS = 1 ;
+	    Name_PostOperation[j] = NULL ;
+	  }
 	}
       }
 

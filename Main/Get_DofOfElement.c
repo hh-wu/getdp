@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_DofOfElement.c,v 1.17 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Get_DofOfElement.c,v 1.18 2001-05-18 12:26:27 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -416,7 +416,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
      GroupSupport_P    : In
      GroupEntity_P     : In  */
 
-  int         k, i_Entity, CodeExist, Index_GeoElement, Code_BasisFunction ;
+  int         i_Entity, CodeExist, Code_BasisFunction ;
   struct Dof  * Dof_P ;
 
   GetDP_Begin("Get_CodesOfElement");
@@ -434,6 +434,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
     case _PAR :
     case _CAL :
     case _POS :
+    case _CST :
       if(!FunctionSpace_P->DofData)
 	Msg(ERROR, "Empty DofData in FunctionSpace '%s' (no unknowns?)",
 	    FunctionSpace_P->Name);
@@ -446,7 +447,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
       if (Flag_SubSpace && CodeExist && TreatmentStatus != _POS)
 	CodeExist =
 	  Check_IsEntityInExtendedGroup(GroupEntity_P, abs(Num_Entity[i_Entity]), 0) ;
-      /* ... parce que le code n'existe peut etre pas quand sous-espace ! */
+      /* ... parce que le code peut ne pas exister quand sous-espace ! */
       break ;
 
     case _PRE :
@@ -473,25 +474,11 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
       QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction
 	= BasisFunction_P ;
 
-      if (TreatmentStatus == _PRE){ /* Associated Contraints? */
-	/* in the FunctionSpace... */
+      if (TreatmentStatus == _PRE ||
+	  TreatmentStatus == _CST)  /* Associated Contraints? */
 	Treatment_ConstraintForElement(FunctionSpace_P, QuantityStorage_P,
 				       Num_Entity, i_Entity,
 				       i_BFunction, TypeConstraint) ;
-
-	/* ... or due to P-refinement */
-	if(Current.GeoData->P) {
-	  Index_GeoElement = Geo_GetGeoElementIndex(Current.Element->GeoElement) ;
-	  if (Current.GeoData->P[Index_GeoElement+1] >= 0 &&
-	      Current.GeoData->P[Index_GeoElement+1] < 
-	      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Order){
-	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = ASSIGN ;
-	    for (k = 0 ; k < Current.NbrHar ; k++)
-	      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value[k] = 0. ;
-	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].TimeFunctionIndex = -1 ;
-	  }
-	}
-      }
 
       Nbr_ElementaryBF++ ;
       

@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.23 2001-03-27 19:19:57 dular Exp $ */
+/* $Id: Data_Define.h,v 1.24 2001-05-18 12:26:27 dular Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -190,6 +190,7 @@ struct StringXDefine  DefineSystem_Type[] = {
 struct StringXDefine  Operation_Type[] = {
   {"Generate"             , OPERATION_GENERATE},
   {"Update"               , OPERATION_UPDATE},
+  {"UpdateConstraint"     , OPERATION_UPDATECONSTRAINT},
   {"Solve"                , OPERATION_SOLVE},
   {"Lanczos"              , OPERATION_LANCZOS},
   {"GenerateJac"          , OPERATION_GENERATEJAC},

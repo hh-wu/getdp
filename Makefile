@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.60 2001-05-17 07:19:31 geuzaine Exp $
+# $Id: Makefile,v 1.61 2001-05-18 12:26:27 dular Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -160,7 +160,7 @@ linux2: initialtag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
+	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 
 linux2W: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -171,7 +171,7 @@ linux2W: initialtag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
+	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 
 
 ## Christophe

@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.32 2001-03-27 19:19:57 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.33 2001-05-18 12:26:27 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -671,6 +671,9 @@ struct Operation {
       int     ExpressionIndex ;
     } Update ;
     struct {
+      int     GroupIndex, Type ;
+    } UpdateConstraint ;
+    struct {
       int     ExpressionIndex ;
     } SetFrequency ;
     struct {
@@ -737,7 +740,8 @@ struct ChangeOfState {
 #define OPERATION_SOLVEJAC                  4
 #define OPERATION_GENERATESEPARATE          5
 #define OPERATION_UPDATE                    6
-#define OPERATION_LANCZOS                   7
+#define OPERATION_UPDATECONSTRAINT          7
+#define OPERATION_LANCZOS                   8
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11

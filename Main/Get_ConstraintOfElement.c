@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.12 2001-03-27 19:19:57 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.13 2001-05-18 12:26:27 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -23,7 +23,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 				     int Num_Entity[], int i_Entity,
 				     int i_BFunction, int TypeConstraint) {
 
-  int                    Nbr_Constraint, i_Constraint ;
+  int                    Nbr_Constraint, i_Constraint, k, Index_GeoElement ;
   List_T                      * Constraint_L ;
   struct ConstraintInFS       * Constraint_P ;
   struct ConstraintPerRegion  * ConstraintPerRegion_P ;
@@ -100,7 +100,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		  CodeEntity_Link)
 		QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint =
-		  NONE ;
+		  NONE ; /* Code linked with itself not allowed */
 	    }
 	    else {
 	      Get_PreResolutionForConstraint
@@ -167,6 +167,19 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
     }
     
   }  /* for i_Constraint ... */
+
+  /* Constraints due to P-refinement */
+  if(Current.GeoData->P) {
+    Index_GeoElement = Geo_GetGeoElementIndex(Current.Element->GeoElement) ;
+    if (Current.GeoData->P[Index_GeoElement+1] >= 0 &&
+	Current.GeoData->P[Index_GeoElement+1] < 
+	QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Order){
+      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = ASSIGN ;
+      for (k = 0 ; k < Current.NbrHar ; k++)
+	QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value[k] = 0. ;
+      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].TimeFunctionIndex = -1 ;
+    }
+  }
 
   GetDP_End ;
 }
@@ -343,12 +356,14 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
 
   struct TwoIntOneDouble  * TwoIntOneDouble_P ;
 
-  struct ConstraintActive * Generate_Link(struct ConstraintInFS * Constraint_P) ;
+  void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New) ;
 
   GetDP_Begin("Get_LinkForConstraint");
 
   if (!Constraint_P->Active.Active)
-    Constraint_P->Active.Active = Generate_Link(Constraint_P) ;
+    Generate_Link(Constraint_P, 1) ;
+  else if (Constraint_P->Active.Active->TimeStep != (int)Current.TimeStep)
+    Generate_Link(Constraint_P, 0) ;
 
   TwoIntOneDouble_P = (struct TwoIntOneDouble *)
     List_PQuery(Constraint_P->Active.Active->Case.Link.Couples,
@@ -389,7 +404,7 @@ void  Generate_ElementaryEntities_EdgeNN
 /* ----- */
 
 
-struct ConstraintActive * Generate_Link(struct ConstraintInFS * Constraint_P) {
+void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New) {
 
   struct ConstraintActive * Active ;
   struct Group  * Group_P, * RegionRef_P, * SubRegionRef_P ;
@@ -397,9 +412,14 @@ struct ConstraintActive * Generate_Link(struct ConstraintInFS * Constraint_P) {
 
   GetDP_Begin("Generate_Link");
 
-  Msg(BIGINFO, "\nC o n s t r a i n t   ( L i n k )") ;
+  Msg(DEBUG2, "C o n s t r a i n t   ( L i n k )\n") ;
 
-  Active = (struct ConstraintActive *)Malloc(sizeof(struct ConstraintActive)) ;
+  if (Flag_New)
+    Constraint_P->Active.Active =
+      (struct ConstraintActive *)Malloc(sizeof(struct ConstraintActive)) ;
+
+  Active = Constraint_P->Active.Active ;
+  Active->TimeStep = (int)Current.TimeStep ;
 
   Group_P = (struct Group*)
     List_Pointer(Problem_S.Group, Constraint_P->EntityIndex) ;
@@ -413,12 +433,16 @@ struct ConstraintActive * Generate_Link(struct ConstraintInFS * Constraint_P) {
 		 Constraint_P->ConstraintPerRegion->Case.Link.SubRegionRefIndex) :
     NULL ;
 
-  if ((Nbr_Entity = List_Nbr(Group_P->ExtendedList)))
-    Active->Case.Link.Couples =
-      List_Create(Nbr_Entity, 1, sizeof(struct TwoIntOneDouble)) ;
+  if ((Nbr_Entity = List_Nbr(Group_P->ExtendedList))) {
+    if (Flag_New)
+      Active->Case.Link.Couples =
+	List_Create(Nbr_Entity, 1, sizeof(struct TwoIntOneDouble)) ;
+    else
+      List_Reset(Active->Case.Link.Couples) ;
+  }
   else {
     Active->Case.Link.Couples = NULL ;
-    GetDP_Return(Active) ;
+    GetDP_End ;
   }
 
   switch (Group_P->FunctionType) {
@@ -444,7 +468,7 @@ struct ConstraintActive * Generate_Link(struct ConstraintInFS * Constraint_P) {
     break ;
   }
 
-  GetDP_Return(Active) ;
+  GetDP_End ;
 }
 
 
@@ -532,43 +556,43 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 	Nbr_Entity, Nbr_EntityRef) ;
 
   /*
-  Msg(BIGINFO, "Before sorting") ;
-  Msg(BIGINFO, "- Other") ;
+  Msg(DEBUG2, "Before sorting\n") ;
+  Msg(DEBUG2, "- Other\n") ;
   for (i = 0 ; i < Nbr_Entity ; i++) {
     List_Read(NodeXYZ_L, i, &NodeXYZ) ;
-    Msg(BIGINFO, "%d -> %d: %e %e :: %e",
-	    i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y,
-	    atan2(NodeXYZ.y,NodeXYZ.x)/3.1415926535897*180.) ;
+    Msg(DEBUG2, "%d -> %d: %e %e :: %e\n",
+        i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y,
+	atan2(NodeXYZ.y,NodeXYZ.x)/3.1415926535897*180.) ;
   }
-  Msg(BIGINFO, "\n- Reference (after rotation)") ;
+  Msg(DEBUG2, "- Reference (after rotation)\n") ;
   for (i = 0 ; i < Nbr_EntityRef ; i++) {
     List_Read(NodeXYZRef_L, i, &NodeXYZ) ;
-    Msg(BIGINFO, "%d -> %d: %e %e :: %e",
-	    i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y,
-	    atan2(NodeXYZ.y,NodeXYZ.x)/3.1415926535897*180.) ;
+    Msg(DEBUG2, "%d -> %d: %e %e :: %e\n",
+	i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y,
+	atan2(NodeXYZ.y,NodeXYZ.x)/3.1415926535897*180.) ;
   }
-  Msg(BIGINFO, "") ;
+  Msg(DEBUG2, "\n") ;
   */
 
   List_Sort(NodeXYZ_L   , fcmp_XYZ) ;
   List_Sort(NodeXYZRef_L, fcmp_XYZ) ;
 
-  Msg(BIGINFO, "After sorting") ;
-  Msg(BIGINFO, "- Other") ;
+  Msg(DEBUG2, "After sorting\n") ;
+  Msg(DEBUG2, "- Other\n") ;
   for (i = 0 ; i < Nbr_Entity ; i++) {
     List_Read(NodeXYZ_L, i, &NodeXYZ) ;
-    Msg(BIGINFO, "%d -> %d: %e %e :: %e",
+    Msg(DEBUG2, "%d -> %d: %e %e :: %e\n",
 	    i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y,
 	    atan2(NodeXYZ.y,NodeXYZ.x)/3.1415926535897*180.) ;
   }
-  Msg(BIGINFO, "\n- Reference (after rotation)") ;
+  Msg(DEBUG2, "- Reference (after rotation)\n") ;
   for (i = 0 ; i < Nbr_EntityRef ; i++) {
     List_Read(NodeXYZRef_L, i, &NodeXYZ) ;
-    Msg(BIGINFO, "%d -> %d: %e %e :: %e",
+    Msg(DEBUG2, "%d -> %d: %e %e :: %e\n",
 	    i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y,
 	    atan2(NodeXYZ.y,NodeXYZ.x)/3.1415926535897*180.) ;
   }
-  Msg(BIGINFO, "\n==> List of link for nodes") ;
+  Msg(DEBUG2, "==> List of link for nodes\n") ;
 
   for (i = 0 ; i < Nbr_Entity ; i++) {
     List_Read(NodeXYZ_L, i, &NodeXYZ) ;
@@ -598,7 +622,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
     List_Add(Couples_L, &TwoIntOneDouble) ;
 
-    Msg(BIGINFO, "%d %d", NodeXYZ.NumNode, NodeXYZRef.NumNode) ;
+    Msg(DEBUG2, "%d %d\n", NodeXYZ.NumNode, NodeXYZRef.NumNode) ;
   }
 
   List_Delete(NodeXYZ_L) ;  List_Delete(NodeXYZRef_L) ;
@@ -718,7 +742,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
       List_Add(EdgeNN_L, &EdgeNN) ;
 
     /* -- */
-      Msg(BIGINFO, "Other %d: a%d, n%d - n%d",
+      Msg(DEBUG2, "Other %d: a%d, n%d - n%d\n",
 	  i, EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2) ;
 
       TwoIntOneDouble_P = (struct TwoIntOneDouble *)
@@ -753,7 +777,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
       /*      List_Write(EdgeNN_L, i, &EdgeNN) ; */
       List_Write(EdgeNN_L, List_Nbr(EdgeNN_L)-1, &EdgeNN) ;
       /* -- */
-      Msg(BIGINFO, "                         -->  a%d, n%d - n%d",
+      Msg(DEBUG2, "                         -->  a%d, n%d - n%d\n",
 	  EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2) ;
 
     }
@@ -787,7 +811,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
       List_Add(EdgeNNRef_L, &EdgeNNRef) ;
 
       /* -- */
-      Msg(BIGINFO, "Ref   %d: a%d, n%d - n%d",
+      Msg(DEBUG2, "Ref   %d: a%d, n%d - n%d\n",
 	  i, EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
     }
   }
@@ -804,7 +828,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     List_Read(EdgeNN_L, i, &EdgeNN) ;
     List_Read(EdgeNNRef_L, i, &EdgeNNRef) ;
 
-    Msg(BIGINFO, "%d: a%d, n%d - n%d (%.16g) / a%d, n%d - n%d",
+    Msg(DEBUG2, "%d: a%d, n%d - n%d (%.16g) / a%d, n%d - n%d\n",
 	i, 
 	EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2, EdgeNN.Coef,
 	EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
@@ -824,8 +848,9 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
   }
 
   List_Delete(EdgeNN_L) ;  List_Delete(EdgeNNRef_L) ;
+  List_Delete(CouplesOfNodes_L) ;  List_Delete(CouplesOfNodes2_L) ;
 
-  Msg(BIGINFO, "====> End Link Edge") ;
+  Msg(DEBUG2, "====> End Link Edge\n") ;
 
   GetDP_End ;
 }

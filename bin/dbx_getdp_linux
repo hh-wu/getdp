@@ -1,4 +1,4 @@
-gdb /home/dular/CVS/getdp/bin/getdp-Linux \
+gdb /home/dular/CVS/getdp/bin/getdp \
   --directory=/home/dular/CVS/getdp/Main \
   --directory=/home/dular/CVS/getdp/Parser \
   --directory=/home/dular/CVS/getdp/Post \

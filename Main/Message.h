@@ -1,4 +1,4 @@
-/* $Id: Message.h,v 1.11 2001-05-06 14:36:44 geuzaine Exp $ */
+/* $Id: Message.h,v 1.12 2001-05-18 12:26:27 dular Exp $ */
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
@@ -21,10 +21,11 @@
 #define PETSC        11
 #define ITER         12
 #define DEBUG        13
-#define LOADING      14
-#define RESOURCES    15
-#define SUMMARY      16
-#define CHECK        17
+#define DEBUG2       14
+#define LOADING      15
+#define RESOURCES    16
+#define SUMMARY      17
+#define CHECK        18
 
 #define WHITE_INDENT  12
 #define WHITE_STR     "            "

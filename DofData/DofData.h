@@ -1,4 +1,4 @@
-/* $Id: DofData.h,v 1.8 2001-03-27 19:19:57 dular Exp $ */
+/* $Id: DofData.h,v 1.9 2001-05-18 12:26:27 dular Exp $ */
 #ifndef _DOFDATA_H_
 #define _DOFDATA_H_
 
@@ -51,6 +51,8 @@ void  Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar) ;
 void  Dof_DefineUnknownDofFromSolveOrInitDof(struct DofData ** DofData_P) ;
 
 void  Dof_NumberUnknownDof(void) ;
+
+void  Dof_UpdateLinkDof(struct Dof *Dof_P, int NbrHar, double Value[], int D2_Link) ;
 
 void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar, double * Val,
 			gMatrix * Mat, gVector * Vec) ;
