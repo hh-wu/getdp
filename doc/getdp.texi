@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.35 2001-03-05 11:36:16 geuzaine Exp $
+@c $Id: getdp.texi,v 1.36 2001-03-05 14:51:26 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -511,7 +511,7 @@ Integration     @var{---}
 Formulation     Group, Function, (Constraint), FunctionSpace,
                 Jacobian, Integration
 Resolution      Function, Formulation
-PostProcessing  Group, Function, (Jacobian), (Integration), 
+PostProcessing  Group, Function, Jacobian, (Integration), 
                 Formulation, (Resolution)
 PostOperation   PostProcessing
 @end example
