@@ -4,7 +4,8 @@ Name: getdp
 Version: %{getdpversion}
 Source: getdp-%{version}.tar.gz
 Release: 1
-Copyright: GPL
+# Copyright: GPL
+Copyright: Distributable
 Group: Applications/Engineering
 URL: http://www.geuz.org/getdp/
 Packager: geuz@geuz.org
@@ -55,7 +56,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc doc/getdp.pdf doc/COPYING doc/VERSIONS doc/FAQ doc/CONTRIBUTORS demos
+# %doc doc/getdp.pdf doc/COPYING doc/VERSIONS doc/FAQ doc/CONTRIBUTORS demos
+%doc doc/getdp.pdf doc/VERSIONS doc/FAQ doc/CONTRIBUTORS demos
 /usr/bin/getdp
 /usr/share/man/man1/getdp*
 /usr/share/info/getdp*

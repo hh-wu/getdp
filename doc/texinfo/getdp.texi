@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.45 2003-03-22 03:30:21 geuzaine Exp $
+@c $Id: getdp.texi,v 1.46 2003-03-25 22:46:50 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 @c
@@ -48,7 +48,7 @@
 @c For commercial releases, set the COMMERCIAL flag (uncomment the following
 @c line). This will prevent all references to "free software" and the like...
 @c
-@c      @set COMMERCIAL
+@set COMMERCIAL
 @c
 @c =========================================================================
 @c %**start of header
@@ -120,12 +120,7 @@ BELGIUM @*
 @subtitle The documentation for GetDP, Version  @value{GETDP-VERSION}
 @subtitle A General environment for the treatment of Discrete Problems
 @subtitle 
-@ifclear COMMERCIAL
 @subtitle Edition @value{EDITION}/@today{}
-@end ifclear
-@ifset COMMERCIAL
-@subtitle Commercial edition @value{EDITION}/@today{}
-@end ifset
 
 @author Patrick Dular
 @author Christophe Geuzaine
@@ -140,12 +135,10 @@ Institut d'@'Electricit@'e Montefiore @*
 Sart Tilman Campus, Building B28 @*
 B-4000 Li@`ege @*
 BELGIUM
-@ifclear COMMERCIAL
 @sp 1
 Permission is granted to make and distribute verbatim copies of this manual
 provided the copyright notice and this permission notice are preserved on
 all copies.
-@end ifclear
 
 @end titlepage
 
