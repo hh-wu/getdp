@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.13 2001-05-18 12:26:27 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.14 2001-05-21 09:31:22 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -610,8 +610,14 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
     TwoIntOneDouble.Int1 = NodeXYZ.NumNode ;
     TwoIntOneDouble.Int2 = NodeXYZRef.NumNode ;
-
+    /*
     Current.x = NodeXYZ.x ; Current.y = NodeXYZ.y ; Current.z = NodeXYZ.z ;
+    */
+    /* Si on veut comme reference les coordonnees du noeud de ref ... */
+
+    Geo_GetNodesCoordinates( 1, &NodeXYZRef.NumNode,
+			     &Current.x, &Current.y, &Current.z) ;
+
     Get_ValueOfExpressionByIndex(Index_Coef, NULL, 0., 0., 0., &Value) ;
     TwoIntOneDouble.Double = Value.Val[0] ;
 
