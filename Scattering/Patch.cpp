@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.12 2002-05-23 00:50:32 geuzaine Exp $
+// $Id: Patch.cpp,v 1.13 2002-05-24 00:29:30 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -115,7 +115,7 @@ Patch::~Patch(){
 
 // Mesh
 
-void Ctx::Create_Mesh(Patch::PatchType patchtype){
+void Ctx::createMesh(Patch::PatchType patchtype){
   Patch *p[10];
   int i;
   double a;

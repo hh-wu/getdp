@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.14 2002-05-23 00:50:32 geuzaine Exp $
+# $Id: Makefile,v 1.15 2002-05-24 00:29:30 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -29,11 +29,11 @@ INCLUDE = -I. -I../include -I../Main -I../DataStr -I../DofData -I../Function\
           -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit\
           -I$(FFTW_DIR)/include
 PY_INCLUDES= -I/usr/include/python2.1\
-             -I$(HOME)/LOCAL/lib/python2.1/site-packages/Numeric/\
+             -I$(HOME)/LOCAL/include/python2.1/Numeric/\
              -I$(HOME)/SOURCES/mathToolkit/lib
 
 CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER)\
-          $(INCLUDE)
+          $(INCLUDE) $(PY_INCLUDES)
 
 SRC = Main.cpp\
       Solve.cpp\

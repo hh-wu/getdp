@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.23 2002-05-23 00:50:32 geuzaine Exp $
+// $Id: Solve.cpp,v 1.24 2002-05-24 00:29:30 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -10,7 +10,7 @@
 
 // Forward map computation
 
-void Ctx::ForwardMap(){
+void Ctx::forwardMap(){
   List_T *reslist=List_Create(nbTargetPts,20,sizeof(Complex));
   Complex res;
   int i;
@@ -18,7 +18,7 @@ void Ctx::ForwardMap(){
   f.type = Function::ANALYTIC; 
 
   for(i=0 ; i<nbTargetPts ; i++){
-    res = Integrate(i); 
+    res = integrate(i); 
     List_Add(reslist, &res);
   }
 
@@ -26,7 +26,7 @@ void Ctx::ForwardMap(){
   List_Delete(reslist);
 }
 
-Complex Ctx::Integrate(int index){
+Complex Ctx::integrate(int index){
   double t;
   Complex res;
 
@@ -38,7 +38,7 @@ Complex Ctx::Integrate(int index){
 	  index+1, t, res.real(), res.imag());
     }
     else{
-      t = GetTarget(index);
+      t = getTarget(index);
       res = Integrate2D(this, index, t);
     }
   }
@@ -51,13 +51,13 @@ Complex Ctx::Integrate(int index){
 
 // Iterative solver
 
-double Ctx::GetTarget(int index){
+double Ctx::getTarget(int index){
   if(index<0 || index>nbdof-1) 
     Msg(ERROR, "Target out of bounds");
   return scat.nodes[index];
 }
 
-void Ctx::ComputeRHS(gVector *b){
+void Ctx::computeRHS(gVector *b){
   int i, beg, end;
   double t, xt[3], kr;
   Complex res;
@@ -68,7 +68,7 @@ void Ctx::ComputeRHS(gVector *b){
   Msg(INFO, "RHS %d->%d", beg, end-1);
 
   for(i=beg ; i<end ; i++){
-    t = GetTarget(i);
+    t = getTarget(i);
     scat.x(t,-1,xt);
     kr = waveNum[0]*xt[0]+waveNum[1]*xt[1]+waveNum[2]*xt[2];
     res = 1.;
@@ -79,7 +79,7 @@ void Ctx::ComputeRHS(gVector *b){
   LinAlg_AssembleVector(b);
 }
 
-void Ctx::ReadSolution(gVector *x){
+void Ctx::readSolution(gVector *x){
   int i;
   char fn[256];
   FILE *fp;
@@ -99,7 +99,7 @@ void Ctx::ReadSolution(gVector *x){
   fclose(fp);
 }
 
-void Ctx::SaveSolution(gVector *x){
+void Ctx::saveSolution(gVector *x){
   int i;
   char fn[256];
   FILE *fp;
@@ -147,7 +147,7 @@ void Ctx::SaveSolution(gVector *x){
   LinAlg_SequentialEnd() ;
 }
 
-void Ctx::InitializeInterpolation(gVector *x){
+void Ctx::initializeInterpolation(gVector *x){
   int i, j;
   double t, pou, pou2;
   Patch *p, *p2;
@@ -205,7 +205,7 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
 
   LinAlg_GetMatrixContext(A,(void **)(&ctx));
 
-  ctx->InitializeInterpolation(x);
+  ctx->initializeInterpolation(x);
 
   LinAlg_GetLocalVectorRange(x,&beg,&end);
   Msg(INFO, "A*x %d->%d", beg, end-1);
@@ -214,7 +214,7 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   ctx->discreteMapIndex=0;
 
   for(i=beg ; i<end ; i++){
-    res = (-I/2.) * ctx->Integrate(i);
+    res = (-I/2.) * ctx->integrate(i);
     LinAlg_SetComplexInVector(res, y, i);
   }
 
@@ -224,7 +224,7 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   LinAlg_Barrier();
 }
 
-void Ctx::IterSolve(){
+void Ctx::iterSolve(){
   gVector b, x;
   gMatrix A;
 
@@ -236,18 +236,18 @@ void Ctx::IterSolve(){
   LinAlg_CreateMatrixShell(&A, &solver, nbdof, nbdof, 
 			   (void*)this, MatrixFreeMatMult);
 
-  ComputeRHS(&b);
+  computeRHS(&b);
 
   // set initial solution (change also LinAlg_PETSC!)
   //    for(int i=0; i<nbTargetPts; i++){
-  //      double t = GetTarget(i);
+  //      double t = getTarget(i);
   //      Complex res = cos(t);
   //      VecSetValues(x.V,1, &i, &res, INSERT_VALUES);
   //    }
 
   LinAlg_Solve(&A, &b, &solver, &x);
 
-  SaveSolution(&x);
+  saveSolution(&x);
 
   LinAlg_DestroyMatrix(&A);
   LinAlg_DestroyVector(&b);
@@ -255,7 +255,7 @@ void Ctx::IterSolve(){
 }
 
 
-void Ctx::PostProcess(){
+void Ctx::postProcess(){
   gVector x;
   int i, j;
   char fn[256];
@@ -267,11 +267,11 @@ void Ctx::PostProcess(){
   if(scat.dim() != 2) Msg(ERROR, "Postpro not ready for 3D");
 
   LinAlg_CreateVector(&x, &solver, nbdof, 1, NULL);
-  ReadSolution(&x);
+  readSolution(&x);
 
   LinAlg_PrintVector(stderr, &x);
 
-  InitializeInterpolation(&x);
+  initializeInterpolation(&x);
 
   // compute far field
   coord[0] = 1;

@@ -1,9 +1,10 @@
-// $Id: Main.cpp,v 1.14 2002-05-23 00:50:32 geuzaine Exp $
+// $Id: Main.cpp,v 1.15 2002-05-24 00:29:30 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
 #include "Context.h"
 #include "Patch.h"
+#include "Fasster.h"
 
 int main(int argc, char *argv[]){
   int sargc, spline=0;
@@ -166,22 +167,33 @@ int main(int argc, char *argv[]){
   // Initialize solver
   
   LinAlg_InitializeSolver(&sargc, &sargv, &NbCpu, &RankCpu) ;
-
   LinAlg_CreateSolver(&ctx->solver, "solver.par") ;
+
+  // Initialize Fasster (Python)
+
+  Fasster_Initialize();
+  Fasster_InitializeScatterer(6, "fasster.sphere3D", "sphere");
+  //Fasster_InitializeScatterer(4, "fasster.disk3D", "disk");
 
   // Create mesh (default is 1 single patch)
 
-  ctx->Create_Mesh(spline ? Patch::SPLINE : Patch::FOURIER);
+  ctx->createMesh(spline ? Patch::SPLINE : Patch::FOURIER);
 
   // solve!
 
   if(ctx->type & ITER_SOLVE)
-    ctx->IterSolve();
+    ctx->iterSolve();
   else if(!(ctx->type & POST_PROCESS))
-    ctx->ForwardMap();
+    ctx->forwardMap();
 
   if(ctx->type & POST_PROCESS)
-    ctx->PostProcess();
+    ctx->postProcess();
+
+  // Finalize Fasster (Python)
+
+  Fasster_Finalize();
+
+  // Finalize solver
 
   LinAlg_FinalizeSolver() ;
   LinAlg_Finalize() ;
