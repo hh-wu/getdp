@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.11 2001-03-03 19:21:22 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.12 2001-08-04 09:00:51 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -27,12 +27,21 @@ struct PostElement * Create_PostElement(int Index, int Type,
   PostElement->NbrNodes = NbrNodes ;
   if(NbrNodes > 0){
     PostElement->NumNodes = (int *) Malloc(NbrNodes * sizeof(int)) ;
+    /* allocate as much as possible in one step */
+    PostElement->u = (double *) Malloc(6 * NbrNodes * sizeof(double)) ;
+    PostElement->v = &PostElement->u[NbrNodes] ;
+    PostElement->w = &PostElement->u[2*NbrNodes] ;
+    PostElement->x = &PostElement->u[3*NbrNodes] ;
+    PostElement->y = &PostElement->u[4*NbrNodes] ;
+    PostElement->z = &PostElement->u[5*NbrNodes] ;
+    /*
     PostElement->u = (double *) Malloc(NbrNodes * sizeof(double)) ;
     PostElement->v = (double *) Malloc(NbrNodes * sizeof(double)) ;
     PostElement->w = (double *) Malloc(NbrNodes * sizeof(double)) ;
     PostElement->x = (double *) Malloc(NbrNodes * sizeof(double)) ;
     PostElement->y = (double *) Malloc(NbrNodes * sizeof(double)) ;
     PostElement->z = (double *) Malloc(NbrNodes * sizeof(double)) ;
+    */
     PostElement->Value = (struct Value *) Malloc(NbrNodes * sizeof(struct Value)) ;
   }
 
@@ -44,12 +53,18 @@ void Destroy_PostElement(struct PostElement * PostElement){
   GetDP_Begin("Destroy_PostElement");
 
   if(PostElement->NbrNodes > 0){
-    Free(PostElement->u) ;
+    Free(PostElement->NumNodes) ;
+    if(PostElement->u) /* normal case */
+      Free(PostElement->u) ;
+    else if(PostElement->x) /* partial copy */
+      Free(PostElement->x) ;
+    /*
     Free(PostElement->v) ;
     Free(PostElement->w) ;
     Free(PostElement->x) ;
     Free(PostElement->y) ;
     Free(PostElement->z) ;
+    */
     Free(PostElement->Value) ;
   }
   Free(PostElement) ;
@@ -71,9 +86,14 @@ struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement){
   if(Copy->NbrNodes > 0){
     Copy->NumNodes = NULL ;
     Copy->u = Copy->v = Copy->w = NULL ;
+    Copy->x = (double *) Malloc(3* Copy->NbrNodes * sizeof(double)) ;
+    Copy->y = &Copy->x[Copy->NbrNodes];
+    Copy->z = &Copy->x[2 * Copy->NbrNodes];
+    /*
     Copy->x = (double *) Malloc(Copy->NbrNodes * sizeof(double)) ;
     Copy->y = (double *) Malloc(Copy->NbrNodes * sizeof(double)) ;
     Copy->z = (double *) Malloc(Copy->NbrNodes * sizeof(double)) ;
+    */
     Copy->Value = (struct Value *) Malloc(Copy->NbrNodes * sizeof(struct Value)) ;
     for(i = 0 ; i < Copy->NbrNodes ; i++){
       Copy->x[i] = PostElement->x[i] ;
