@@ -1,163 +1,184 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+// $Id: Solve.cpp,v 1.3 2002-03-04 17:11:20 geuzaine Exp $
 
 #include "GetDP.h"
-#include "Utils.h"
+#include "Complex.h"
 #include "LinAlg.h"
-#include "Tools.h"
+#include "Utils.h"
+#include "List.h"
 #include "Data_Numeric.h"
 #include "Solve.h"
 
-void List_PrintMatlab(List_T *list){
+double GetTarget(int i, int nb, double start){
+  double t,tnew,jac;
+  t = 2*PI*i/(double)nb + start;
+  //t = -PI+2*PI*i/(double)nb + start; pq ca fout la merde si pas dans 0,2pi ???
+  ChgVar(t,&tnew,&jac); return tnew;
+  return t;
+}
+
+void ComputeRHS(Ctx *ctx, gVector *b){
+  int i, beg, end;
+  double t, xt[3], kr;
   Complex res;
-  printf("out = [\n");
-  for(int i=0; i<List_Nbr(list); i++){
-    List_Read(list, i, &res);
-    printf("%.15e + (%.15ei)\n", res.real(), res.imag());
+
+  LinAlg_GetLocalVectorRange(b,&beg,&end);
+  beg /= gCOMPLEX_INCREMENT;
+  end /= gCOMPLEX_INCREMENT;
+  Msg(DEBUG, "RHS %d->%d", beg, end-1);
+
+  for(i=beg ; i<end ; i++){
+    t = GetTarget(i,ctx->NbTargetPts,ctx->InitialTarget);
+    ctx->scat.Val(t,xt);
+    kr = ctx->WaveNum[0]*xt[0]+ctx->WaveNum[1]*xt[1]+ctx->WaveNum[2]*xt[2];
+    res = cos(kr)+I*sin(kr);
+    res *= 2 / NORM3(ctx->WaveNum); // warning!
+    LinAlg_SetComplexInVector(res, b, i);
   }
-  printf("]\n");
+  LinAlg_AssembleVector(b);
+  //LinAlg_PrintVector(stderr,b);
+}
+
+void PostProcess(Ctx *ctx, gVector *x){
+  double t;
+  int i;
+  Complex res; 
+
+  LinAlg_PrintVector(stderr,x);
+
+  ctx->f.Type = Function::Vector;
+  ctx->f.NumBF = ctx->NbTargetPts;
+  ctx->f.Sol = x;
+  
+  for(i=0 ; i<100 ; i++){
+    t = 2*PI*i/100.;
+    res = ctx->f.bf(t);
+    fprintf(stdout, "%g %g %g\n", t, res.real(), res.imag());
+  }
 }
 
 
 // Forward map computation only
 
-void ForwardSolve(int typ, Function *f, Scatterer *scat, 
-		  double kv[3], int nbtarget, double t0, int nbpts, 
-		  double prescribed_eps, double rise){
-
-  List_T *reslist=List_Create(nbtarget,20,sizeof(Complex));
+void ForwardSolve(Ctx *ctx){
+  List_T *reslist=List_Create(ctx->NbTargetPts,20,sizeof(Complex));
   Complex res;
   double t;
   int i;
 
-  for(i=0 ; i<nbtarget ; i++){
-    t = 2*PI*i/(double)nbtarget + t0;
-    res = Integrate(typ, f, scat, kv, t, nbpts, prescribed_eps, rise); 
+  ctx->f.Type = Function::Test; 
+
+  for(i=0 ; i<ctx->NbTargetPts ; i++){
+    t = GetTarget(i,ctx->NbTargetPts,ctx->InitialTarget);
+    res = Integrate(ctx, t); 
     Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
     List_Add(reslist, &res);
   }
 
-  List_PrintMatlab(reslist);
+  List_PrintMatlabComplex(reslist);
   List_Delete(reslist);
 }
 
 // Full Matrix solver
 
-void BuildSolve(int typ, Function *f, Scatterer *scat, 
-		double kv[3], int nbtarget, double t0, int nbpts, 
-		double prescribed_eps, double rise){
-
+void BuildSolve(Ctx *ctx){
   gSolver Solver;
   gMatrix A;
   gVector b, x;
-  List_T *reslist=List_Create(nbtarget,20,sizeof(Complex));
   Complex res;
-  double t, xt[3], kr, d1, d2;
-  int i, j, nbdof, localrange[2];
+  double t;
+  int i, j, nbdof, beg, end;
 
-  if(!(nbtarget%2)) nbtarget++;
+  ctx->f.Type = Function::Single; 
+
+  if(!(ctx->NbTargetPts % 2)) ctx->NbTargetPts++;
   
-  nbdof = gCOMPLEX_INCREMENT*nbtarget;
+  nbdof = gCOMPLEX_INCREMENT*ctx->NbTargetPts;
   
   LinAlg_CreateSolver(&Solver, "solver.par") ;
-  LinAlg_CreateMatrix(&A, &Solver, nbdof, nbdof, 0, localrange, NULL) ;
+  LinAlg_CreateMatrix(&A, &Solver, nbdof, nbdof, 0, NULL, NULL) ;
   LinAlg_CreateVector(&b, &Solver, nbdof, 1, NULL) ;
   LinAlg_CreateVector(&x, &Solver, nbdof, 1, NULL) ;
   LinAlg_ZeroMatrix(&A);
-  LinAlg_ZeroVector(&b);
+
+  ComputeRHS(ctx,&b);
+
+  LinAlg_GetLocalMatrixRange(&A,&beg,&end);
+  beg /= gCOMPLEX_INCREMENT;
+  end /= gCOMPLEX_INCREMENT;
+  Msg(DEBUG, "MAT %d->%d", beg, end-1);
   
-  Msg(INFO, "local range = %d %d", localrange[0], localrange[1]);
-  
-  for(i=localrange[0] ; i<localrange[1] ; i++){
-    t = 2*PI*i/(double)nbtarget + t0;
-    Msg(INFO, "Computing target %d", i);
-    // assemble a line in the matrix
-    for(j=0 ; j<nbtarget ; j++){
-      f->num_bf = -nbtarget/2+j;
-      res = Integrate(typ, f, scat, kv, t, nbpts, prescribed_eps, rise); 
-      res *= (-I/2.); //warning
-      if(gCOMPLEX_INCREMENT == 2)
-	LinAlg_AddComplexInMatrix(res.real(), res.imag(), &A, 2*i, 2*j, 2*i+1, 2*j+1);
-      else
-	LinAlg_AddComplexInMatrix(res.real(), res.imag(), &A, i, j, -1, -1);
+  for(i=beg ; i<end ; i++){
+    t = GetTarget(i,ctx->NbTargetPts,ctx->InitialTarget);
+    Msg(DEBUG, "Assembling line %d", i);
+    for(j=0 ; j<ctx->NbTargetPts ; j++){
+      ctx->f.NumBF = -ctx->NbTargetPts/2+j;
+      res = (-I/2.) * Integrate(ctx, t); 
+      LinAlg_AddComplexInMatrix(res, &A, i, j);
     }
-    // assemble rhs, assume plane wave incident field
-    scat->val(t,xt);
-    kr = kv[0]*xt[0]+kv[1]*xt[1]+kv[2]*xt[2];
-    res = cos(kr)+I*sin(kr);
-    res *= 2; // warning
-    res /= NORM3(kv); // warning
-    if(gCOMPLEX_INCREMENT == 2)
-      LinAlg_AddComplexInVector(res.real(), res.imag(), &b, 2*i, 2*i+1);
-    else
-      LinAlg_AddComplexInVector(res.real(), res.imag(), &b, i, -1);
   }
-  
   LinAlg_AssembleMatrix(&A);
-  LinAlg_AssembleVector(&b);
   LinAlg_Solve(&A, &b, &Solver, &x);
-  
-  if(NBRCPU > 1){
-#ifndef _PETSC
-    Msg(WARNING, "Postprocessing not done in parallel");
-    LinAlg_PrintVector(stdout,&x);
-#else
-    /*
-    Vec local;
-    ISCreateGeneral(MPI_Comm comm,int n,const int idx[],IS *is);
-    VecScatterCreate(Vec xin,IS ix,Vec yin,IS iy,VecScatter *newctx);
-    VecScatterCreate(Vec xin,IS ix,Vec yin,IS iy,VecScatter *newctx);
-    
-    we now have the full solution on proc 1 (dummy stuff on otther nodes)
-    */
-#endif
-  }
-  else{
-  
-    // should do a scatter (gather) to get the full vector on one node
-    for(i=0 ; i<nbtarget ; i++){
-      if(gCOMPLEX_INCREMENT == 2)
-	LinAlg_GetComplexInVector(&d1, &d2, &x, 2*i, 2*i+1);
-      else
-	LinAlg_GetComplexInVector(&d1, &d2, &x, i, -1);
-      res = d1+I*d2;
-      List_Add(reslist, &res);
-    }
-    //List_PrintMatlab(reslist);
-    
-    // the following should be done with a FFT (in parallel!)
-    Complex phi; 
-    for(i=0 ; i<100 ; i++){
-      phi = 0.;
-      t = 2*PI*i/100.;
-      for(j=0 ; j<nbtarget ; j++){
-	f->num_bf = -nbtarget/2+j;
-	List_Read(reslist,j,&res);
-	phi += res * f->bf(t);
-      }
-      printf("%g %g\n", phi.real(), phi.imag());
-    }
-    
-  }
+
+  PostProcess(ctx,&x);
   
   LinAlg_DestroyMatrix(&A);
   LinAlg_DestroyVector(&b);
   LinAlg_DestroyVector(&x);
   LinAlg_DestroySolver(&Solver);
-  
-  List_Delete(reslist);
 }
 
 
 // Iterative solver
 
-void IterSolve(int typ, Function *f, Scatterer *scat, 
-	       double kv[3], int nbtarget, double t0, int nbpts, 
-	       double prescribed_eps, double rise){
+void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
+  Ctx *ctx;
+  int i, beg, end;
+  double t;
+  Complex res;
 
+  LinAlg_GetMatrixContext(A,(void **)(&ctx));
+
+  ctx->f.NumBF = ctx->NbTargetPts;
+  ctx->f.Sol = x;
+  LinAlg_GetLocalVectorRange(x,&beg,&end);
+  beg /= gCOMPLEX_INCREMENT;
+  end /= gCOMPLEX_INCREMENT;
+  Msg(DEBUG, "A*x %d->%d", beg, end-1);
   
-
+  for(i=beg ; i<end ; i++){
+    t = GetTarget(i,ctx->NbTargetPts,ctx->InitialTarget);
+    res = (-I/2.) * Integrate(ctx, t);
+    LinAlg_SetComplexInVector(res, y, i);
+  }
+  
+  LinAlg_Barrier();
 }
 
+void IterSolve(Ctx *ctx){
+  gSolver Solver;
+  gVector b, x;
+  gMatrix A;
+  int nbdof;
+
+  ctx->f.Type = Function::Vector; 
+
+  if(!(ctx->NbTargetPts % 2)) ctx->NbTargetPts++;
+
+  nbdof = gCOMPLEX_INCREMENT*ctx->NbTargetPts;
+  
+  LinAlg_CreateSolver(&Solver, "solver.par") ;
+  LinAlg_CreateVector(&b, &Solver, nbdof, 1, NULL);
+  LinAlg_CreateVector(&x, &Solver, nbdof, 1, NULL);
+  LinAlg_CreateMatrixShell(&A, &Solver, nbdof, nbdof, (void*)ctx, MatrixFreeMatMult);
+
+  ComputeRHS(ctx,&b);
+
+  LinAlg_Solve(&A, &b, &Solver, &x);
+
+  PostProcess(ctx,&x);
+
+  LinAlg_DestroyMatrix(&A);
+  LinAlg_DestroyVector(&b);
+  LinAlg_DestroyVector(&x);
+  LinAlg_DestroySolver(&Solver);
+}

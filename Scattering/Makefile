@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2002-03-01 19:17:13 geuzaine Exp $
+# $Id: Makefile,v 1.9 2002-03-04 17:11:20 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -35,7 +35,9 @@ CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER)\
 SRC = Main.cpp\
       Solve.cpp\
       Nystrom.cpp\
-      CriticalPoints.cpp\
+      Function.cpp\
+      Scatterer.cpp\
+      Complex.cpp\
       Bessel.cpp\
       Utils.cpp
 
@@ -69,17 +71,30 @@ depend:
 	$(RM) $(RMFLAGS) Makefile.new
 
 # DO NOT DELETE THIS LINE
+Main.o: Main.cpp ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h Utils.h \
+  Solve.h Nystrom.h Complex.h Scatterer.h ../Main/Data_Numeric.h \
+  Function.h
+Solve.o: Solve.cpp ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+  ../DataStr/List.h Utils.h ../Main/Data_Numeric.h Solve.h Nystrom.h \
+  Scatterer.h Function.h
 Nystrom.o: Nystrom.cpp ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Numeric/Amos_F.h ../include/Compat.h \
-  ../Main/Data_Numeric.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../DataStr/List.h ../DataStr/Tools.h ../DataStr/Tree.h ../DataStr/avl.h \
-  Utils.h Bessel.h CriticalPoints.h
-CriticalPoints.o: CriticalPoints.cpp ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+  ../DataStr/List.h ../Main/Data_Numeric.h ../DataStr/Tools.h \
+  ../DataStr/Tree.h ../DataStr/avl.h Bessel.h Nystrom.h Scatterer.h \
+  Function.h
+Function.o: Function.cpp ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_Numeric.h Function.h Complex.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h
+Scatterer.o: Scatterer.cpp ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h ../DataStr/Tools.h \
-  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h
+  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Scatterer.h
+Complex.o: Complex.cpp ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+  ../DataStr/List.h
 Bessel.o: Bessel.cpp ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Numeric/Amos_F.h ../include/Compat.h
+  ../DataStr/Malloc.h Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+  ../DataStr/List.h ../Numeric/Amos_F.h ../include/Compat.h
 Utils.o: Utils.cpp ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Numeric/Amos_F.h ../include/Compat.h \
-  ../Main/Data_Numeric.h ../DataStr/Tools.h ../DataStr/List.h \
-  ../DataStr/Tree.h ../DataStr/avl.h Bessel.h CriticalPoints.h
+  ../DataStr/Malloc.h

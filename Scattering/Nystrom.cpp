@@ -1,18 +1,11 @@
-// $Id: Nystrom.cpp,v 1.20 2002-03-01 19:17:13 geuzaine Exp $
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+// $Id: Nystrom.cpp,v 1.21 2002-03-04 17:11:20 geuzaine Exp $
 
 #include "GetDP.h"
-#include "Utils.h"
-#include "Amos_F.h"
-#include "Data_Numeric.h"
+#include "Complex.h"
 #include "LinAlg.h"
+#include "Data_Numeric.h"
 #include "Tools.h"
 #include "Bessel.h"
-#include "CriticalPoints.h"
 #include "Nystrom.h"
 
 #define EPSILON 1.e-14
@@ -25,8 +18,8 @@ private:
   //          = smooth((|x|-c)/(1-c)) , otherwise
   // with smooth(x) = exp(2*exp(-1/x)/(x-1) 
   double smooth(double x){
-    if(x==0.) return 1.;
-    else if(x==1.)  return 0.;
+    if(x == 0.) return 1.;
+    else if(x == 1.) return 0.;
     else return exp(2.*exp(-1./x)/(x-1));
   }
   double pou(double x, double c){
@@ -40,11 +33,9 @@ public:
   void init(double _center, double _epsilon, double _rise){
     center = _center;
     epsilon = _epsilon;
-    if(epsilon>PI)
-      Msg(ERROR, "Epsilon is too large (%g > PI)", _epsilon);
+    if(epsilon>PI) Msg(ERROR, "Epsilon is too large (%g > PI)", _epsilon);
     crest = _epsilon-fabs(_rise);
-    if(crest<0.) 
-      Msg(ERROR, "Invalid rise (%g > epsilon)", _rise);
+    if(crest<0.) Msg(ERROR, "Invalid rise (%g > epsilon)", _rise);
     subparts = NULL;
   }
   double val(double t){
@@ -97,17 +88,11 @@ public:
 // Special quadrature weights for Nystrom integrator
 
 double SpecialQuadratureWeightForLog(double t, double tau, int n){
-  /*
-  double m, w=0.;
-  for(m=1. ; m<=n-1 ; m++) w += cos(m*(t-tau))/m;
-  return -TWO_PI/n*w - PI/(n*n)*cos(n*(t-tau));
-  */
   int m;
   double w=0., tmp;
   for(m=1 ; m<=n-1 ; m++){
     w += cos(m*(t-tau))/m;
   }
-  
   tmp = -TWO_PI/n*w - PI/(n*n)*cos(n*(t-tau));
   return tmp;
 }
@@ -142,32 +127,42 @@ double SpecialQuadratureWeightForLog(double t, double tau, int n){
 // Colton & Kress. Warning: the jacobian eps/PI also appears in the
 // decomposition of the kernel.
 
+// What should we do for the tangency points (2) ? separate the
+// integral in 2 parts, and apply the following change of variables in
+// each integral
+
 Complex Nystrom(int singular, double t, Function *func, double kvec[3], 
 		int nbpts, Scatterer *scat, Partition *part){
   Complex res=0., f, m, m1, m2;
   double xt[3], dxt[3], xtau[3], dxtau[3], tau, tau_orig, pou, w;
   int j, n = nbpts/2;
-  double k = NORM3(kvec);
+  double k = NORM3(kvec), jac=1.;
   GFHelmholtzParametric2D kern;
 
   if(!nbpts) return 0.;
 
-  scat->val(t,xt);
-  scat->der(t,dxt);
+  scat->Val(t,xt);
+  scat->Der(t,dxt);
 
   for(j=0 ; j<=2*n-1 ; j++){
     tau_orig = TWO_PI*j/(2.*n);
     tau = (tau_orig-PI)*part->epsilon/PI+part->center;
+    jac = 1.;
+
+    //double tau_orig2;
+    //func->chgvar(tau, &tau_orig2, &jac);
+
+    jac *= part->epsilon/PI ;
     pou = part->val(tau);
     if(pou){
-      scat->val(tau,xtau);
-      scat->der(tau,dxtau);
-      f = func->val(kvec,tau,xtau) * func->bf(tau);
+      scat->Val(tau,xtau);
+      scat->Der(tau,dxtau);
+      f = func->val(kvec,tau,xtau) * func->bf(tau); //bf(tau_orig2)
       kern.init(t,xt,dxt,tau,xtau,dxtau,k);
       if(singular){ // combine special quadrature with trapezoidal
 	w = SpecialQuadratureWeightForLog(PI,tau_orig,n);
 	m1 = kern.M1();
-	m2 = kern.M2(tau_orig,part->epsilon/PI);
+	m2 = kern.M2(tau_orig,jac);
 	res += (w * m1 + PI/(double)n * m2) * f * pou;
       }
       else{ // simple trapezoidal
@@ -184,63 +179,7 @@ Complex Nystrom(int singular, double t, Function *func, double kvec[3],
     }
   }
     
-  return part->epsilon/PI * res;
-}
-
-// compute the tangency points (2) separate the integral in 2 parts,
-// and apply the following change of variables in each integral:
-//
-// 
-
-Complex NystromNew(int singular, double t, Function *func, double kvec[3], 
-		   int nbpts, Scatterer *scat, Partition *part){
-  Complex res=0., f, m, m1, m2;
-  double xt[3], dxt[3], xtau[3], dxtau[3], tau, tau_orig, pou, w;
-  int j, n = nbpts/2, chgofvars=1;
-  double k = NORM3(kvec);
-  GFHelmholtzParametric2D kern;
-
-  if(!nbpts) return 0.;
-
-  scat->val(t,xt);
-  scat->der(t,dxt);
-
-  for(j=0 ; j<=2*n-1 ; j++){
-    tau_orig = TWO_PI*j/(2.*n);
-    tau = (tau_orig-PI)*part->epsilon/PI+part->center;
-    
-    if(chgofvars){
-      
-    }
-
-
-    pou = part->val(tau);
-    if(pou){
-      scat->val(tau,xtau);
-      scat->der(tau,dxtau);
-      f = func->val(kvec,tau,xtau) * func->bf(tau);
-      kern.init(t,xt,dxt,tau,xtau,dxtau,k);
-      if(singular){ // combine special quadrature with trapezoidal
-	w = SpecialQuadratureWeightForLog(PI,tau_orig,n);
-	m1 = kern.M1();
-	m2 = kern.M2(tau_orig,part->epsilon/PI);
-	res += (w * m1 + PI/(double)n * m2) * f * pou;
-      }
-      else{ // simple trapezoidal
-	if(List_Nbr(part->subparts)){
-	  Partition *part2 = (Partition*)List_Pointer(part->subparts,0);
-	  double pou2 = part2->val(tau);
-	  pou -= pou2;
-	}
-	if(pou){
-	  m = kern.M();
-	  res += (PI/(double)n * m) * f * pou;
-	}
-      }
-    }
-  }
-    
-  return part->epsilon/PI * res;
+  return jac * res;
 }
 
 // Stuff for interval comparison
@@ -259,30 +198,28 @@ int fcmp_Interval(const void * a, const void * b) {
 
 // Integrate, given the target point 't'
 
-Complex Integrate(int typ, Function *f, Scatterer *scat, 
-		  double kv[3], double t, int nbpts, 
-		  double prescribed_eps, double rise){
+Complex Integrate(Ctx *ctx, double t){
   Partition part, part2;
   Interval I, *pI;
   static List_T *CritPts=List_Create(10,10,sizeof(double));
   static List_T *Intervals=List_Create(10,10,sizeof(Interval));
   Complex res, tmp, tmp2;
-  double d, eps, s_eps;
+  double d, eps, s_eps=0.;
   int j, nb, s_index, i_index;
 
-  if(typ & FULL_INTEGRATION){ // full Nystrom integrator
+  if(ctx->Type & FULL_INTEGRATION){ // full Nystrom integrator
 
     // stupid pou around t, equal to 1 everywhere in [t-PI,t+PI]
     part.init(t,PI,0.);
-    return Nystrom(1,t,f,kv,nbpts,scat,&part);
+    return Nystrom(1,t,&ctx->f,ctx->WaveNum,ctx->NbIntPts,&ctx->scat,&part);
 
   }
 
-  if(typ & INTERACT1){ // interactive integration around one critical point
+  if(ctx->Type & INTERACT1){ // interactive integration around one critical point
 
     // compute critical points
     List_Reset(CritPts);
-    CriticalPointsCircle(t,CritPts);
+    ctx->scat.CriticalPoints(t,CritPts);
 
     // add target in crit pts list
     List_Insert(CritPts, &t, fcmp_double);
@@ -296,20 +233,20 @@ Complex Integrate(int typ, Function *f, Scatterer *scat,
     }
     printf("Pt num to integrate around? "); scanf("%d", &i_index);
     printf("Epsilon? "); scanf("%lf", &eps);
-    printf("Rise? "); scanf("%lf", &rise);
+    printf("Rise? "); scanf("%lf", &ctx->Rise);
     printf("Number of integration points? "); scanf("%d", &nb);
     List_Read(CritPts, i_index, &d);
     j = (s_index==i_index);
     Msg(DEBUG, "%s int. : %d pts in [%g , %g]", j ? "Sing." : "Crit.", nb, d-eps, d+eps);
 
-    part.init(d,eps,rise);
-    return Nystrom(j,t,f,kv,nb,scat,&part);
+    part.init(d,eps,ctx->Rise);
+    return Nystrom(j,t,&ctx->f,ctx->WaveNum,nb,&ctx->scat,&part);
 
   }
 
   // compute critical points
   List_Reset(CritPts);
-  CriticalPointsCircle(t,CritPts);
+  ctx->scat.CriticalPoints(t,CritPts);
   
   // add target in crit pts list
   List_Insert(CritPts, &t, fcmp_double);
@@ -320,14 +257,14 @@ Complex Integrate(int typ, Function *f, Scatterer *scat,
   for(j=0 ; j<List_Nbr(CritPts) ; j++) {
     List_Read(CritPts,j,&d);
     I.num = j;
-    if(typ == INTERACT2){
+    if(ctx->Type == INTERACT2){
       printf("Epsilon for t=%g?\n", d); 
       scanf("%lf", &eps);
       if(j == s_index) s_eps = eps;
     }
     else{
-      if(j == s_index) eps = s_eps = prescribed_eps;
-      else eps = sqrt(prescribed_eps);
+      if(j == s_index) eps = s_eps = ctx->Epsilon;
+      else eps = sqrt(ctx->Epsilon);
     }
     I.min = d-eps;
     I.max = d+eps;
@@ -380,33 +317,33 @@ Complex Integrate(int typ, Function *f, Scatterer *scat,
     List_Read(Intervals, j, &I);
     
     if(I.num==s_index){
-      part.init(t,s_eps,rise);
-      if(typ & INTERACT2){
+      part.init(t,s_eps,ctx->Rise);
+      if(ctx->Type & INTERACT2){
 	printf("Nb int. pts for singular part.? "); 
 	scanf("%d", &nb);
       }
       else{
-	nb = (int)(2*s_eps/TWO_PI*nbpts); // change this
+	nb = (int)(2*s_eps/TWO_PI*ctx->NbIntPts); // change this
       }
       Msg(DEBUG, "  - singular int. : %d pts in [%g , %g]", nb, t-s_eps, t+s_eps);
-      tmp = Nystrom(1,t,f,kv,nb,scat,&part);
+      tmp = Nystrom(1,t,&ctx->f,ctx->WaveNum,nb,&ctx->scat,&part);
       Msg(DEBUG, "    IS = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
       
       // if the singular integration is embedded in a larger one
       if((I.max-I.min) > 2.*s_eps) {
-	part.init((I.min+I.max)/2,(I.max-I.min)/2.,rise);
+	part.init((I.min+I.max)/2,(I.max-I.min)/2.,ctx->Rise);
 	part.subparts = List_Create(1,1,sizeof(Partition));
-	part2.init(t,s_eps,rise);
+	part2.init(t,s_eps,ctx->Rise);
 	List_Add(part.subparts, &part2);
-	if(typ & INTERACT2){
+	if(ctx->Type & INTERACT2){
 	  printf("Nb int. pts for special critical part.? "); 
 	  scanf("%d", &nb);
 	}
 	else{
-	  nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts); // change this
+	  nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->NbIntPts); // change this
 	}
 	Msg(DEBUG, "  - critical int. in [%g,%g] \\ [%g,%g]",I.min,I.max,t-s_eps, t+s_eps);
-	tmp2 = Nystrom(0,t,f,kv,nb,scat,&part);
+	tmp2 = Nystrom(0,t,&ctx->f,ctx->WaveNum,nb,&ctx->scat,&part);
 	Msg(DEBUG, "    IC* = %' '.15e %+.15e * i", tmp2.real(), tmp2.imag());
 	List_Delete(part.subparts);
 	part.subparts = NULL;
@@ -415,16 +352,16 @@ Complex Integrate(int typ, Function *f, Scatterer *scat,
       
     }
     else{
-      part.init((I.min+I.max)/2.,(I.max-I.min)/2.,rise);
-      if(typ & INTERACT2){
+      part.init((I.min+I.max)/2.,(I.max-I.min)/2.,ctx->Rise);
+      if(ctx->Type & INTERACT2){
 	printf("Nb int. pts for critical part.? "); 
 	scanf("%d", &nb);
       }
       else{
-	nb = (int)(2*sqrt(part.epsilon)/TWO_PI*nbpts);//change this
+	nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->NbIntPts);//change this
       }
       Msg(DEBUG, "  - critical int.: %d pts in [%g , %g]", nb, I.min, I.max);
-      tmp = Nystrom(0,t,f,kv,nb,scat,&part);
+      tmp = Nystrom(0,t,&ctx->f,ctx->WaveNum,nb,&ctx->scat,&part);
       Msg(DEBUG, "    IC = %' '.15e %+.15e * i", tmp.real(), tmp.imag());
     }
     

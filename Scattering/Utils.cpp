@@ -1,28 +1,16 @@
-// $Id: Utils.cpp,v 1.6 2002-03-01 19:17:13 geuzaine Exp $
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+// $Id: Utils.cpp,v 1.7 2002-03-04 17:11:20 geuzaine Exp $
 
 #include "GetDP.h"
-#include "Utils.h"
-#include "Amos_F.h"
-#include "Data_Numeric.h"
-#include "Tools.h"
-#include "Bessel.h"
-#include "CriticalPoints.h"
 
-// one def
-
-Complex I(0.0,1.0);
-
-// move this to trash after merge with getdp
+// define some global variables (move this to trash after merge with
+// getdp)
 
 int Flag_SOCKET=0;
 char *Name_Path=NULL;
 int Verbose = 2;
+int NbCpu, RankCpu;
 
-int NBRCPU, RANKCPU;
+// temporary replacement for Message.c
 
 void Msg(int level, char *fmt, ...){
   va_list  args;
@@ -34,10 +22,10 @@ void Msg(int level, char *fmt, ...){
   case DEBUG: if(Verbose<2) return;
   case INFO: if(Verbose<1) return;
   }
-  if(NBRCPU>1) fprintf(stderr, "CPU#%d: ", RANKCPU);
+  if(NbCpu>1) fprintf(stderr, "[%3d] ", RankCpu);
   va_start (args, fmt);
   vfprintf(stderr, fmt, args); 
-  if(level!=SPARSKIT) fprintf(stderr, "\n");
+  if(level!=SPARSKIT && level!=ITER) fprintf(stderr, "\n");
   fflush(stderr);
   va_end (args);
   if(level == ERROR) exit(1);

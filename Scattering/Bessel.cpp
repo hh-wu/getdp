@@ -1,11 +1,7 @@
-// $Id: Bessel.cpp,v 1.6 2002-03-01 19:17:13 geuzaine Exp $
-
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+// $Id: Bessel.cpp,v 1.7 2002-03-04 17:11:20 geuzaine Exp $
 
 #include "GetDP.h"
-#include "Utils.h"
+#include "Complex.h"
 #include "Amos_F.h"
 
 // First kind Bessel function
