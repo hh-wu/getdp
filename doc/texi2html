@@ -36,7 +36,7 @@ require 5.0;
 #--##############################################################################
 
 # CVS version:
-# $Id: texi2html,v 1.1 2000-07-19 14:16:51 geuzaine Exp $
+# $Id: texi2html,v 1.2 2000-07-24 15:33:00 geuzaine Exp $
 
 # Homepage:
 $T2H_HOMEPAGE = <<EOT;
@@ -92,7 +92,7 @@ eval { ($T2H_USER = (getpwuid ($<))[6]) =~ s/,.*//;}; # Who am i
 # Copy this file and make changes to it, if you like.
 # Afterwards, either, load it with command-line option -init_file <your_init_file>
 #
-# $Id: texi2html,v 1.1 2000-07-19 14:16:51 geuzaine Exp $
+# $Id: texi2html,v 1.2 2000-07-24 15:33:00 geuzaine Exp $
 
 ######################################################################
 # stuff which can also be set by command-line options
@@ -665,7 +665,7 @@ sub T2H_DEFAULT_print_Top
   # as it is, 'Top', 'Contents', 'Index', 'About' are printed
   local $T2H_BUTTONS = \@T2H_MISC_BUTTONS;
   &$T2H_print_Top_header($fh);
-  if ($T2H_THIS_SECTION)
+  if (0) #GEUZ $T2H_THIS_SECTION)
   {
     # if top-level node has content, then print it with extra header
     print $fh "<H1>$T2H_NAME{Top}</H1>"
@@ -1390,7 +1390,7 @@ package Getopt::MySimple;
 
 # --------------------------------------------------------------------------
 # Locally modified by obachman (Display type instead of env, order by cmp)
-# $Id: texi2html,v 1.1 2000-07-19 14:16:51 geuzaine Exp $
+# $Id: texi2html,v 1.2 2000-07-24 15:33:00 geuzaine Exp $
 
 # use strict;
 # no strict 'refs';

@@ -1,7 +1,7 @@
 
 # possible de changer ceci aussi en ligne de commande
 
-$T2H_SHOW_MENU = 0;
+# $T2H_SHOW_MENU = 0;
 $T2H_SPLIT = 'chapter';
 $T2H_SPLIT_INDEX = 1000;
 

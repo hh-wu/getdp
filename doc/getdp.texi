@@ -77,8 +77,11 @@ BELGIUM @*
 @c =========================================================================
 
 @shorttitlepage GetDP
+
 @titlepage
+
 @title GetDP Manual
+
 @subtitle The documentation for GetDP, Version  @value{VERSION}
 @subtitle A General environment for the treatment of Discrete Problems
 @subtitle 
@@ -101,6 +104,7 @@ BELGIUM
 This document was prepared with Texinfo (@uref{http://texinfo.org}). The source
 of this document as well as several formatted versions (info, postscript, pdf,
 html) are available at @value{WEB-GETDP}.
+
 @end titlepage
 
 @c =========================================================================
@@ -114,11 +118,9 @@ html) are available at @value{WEB-GETDP}.
 @c Top node
 @c =========================================================================
 
-@c @ifnottex
 @ifinfo
 @node Top, Copying, (dir), (dir)
 @top GetDP
-
 GetDP is a scientific computation software for the numerical solution of
 integro-differential equations, using finite element and integral type
 methods.
@@ -126,8 +128,6 @@ methods.
 This is Edition @value{EDITION} of the @cite{GetDP Manual}, last updated
 @value{DAY} @value{MONTH} for GetDP Version @value{VERSION}.
 @end ifinfo
-@c @end ifnottex
-
 
 @c =========================================================================
 @c Master menu
