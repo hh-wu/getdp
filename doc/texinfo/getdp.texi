@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.48 2003-04-11 23:35:10 geuzaine Exp $
+@c $Id: getdp.texi,v 1.49 2003-04-15 18:36:47 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 @c
@@ -155,8 +155,6 @@ all copies.
 @ifnottex
 @node Top, Copying conditions, (dir), (dir)
 @top GetDP
-
-@chapheading GetDP Reference Manual
 
 Patrick Dular and Christophe Geuzaine
 
