@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.42 2003-01-26 07:31:29 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.43 2003-01-31 13:46:37 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -189,7 +189,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   gVector x_Save;
   int NbrSteps_relax;
   double  Norm, Cal_NormVector(gVector *);
-  double Frelax, Frelax_Opt = 1., Error_Prev;
+  double Frelax, Frelax_Opt, Error_Prev;
   int istep;
   void ShowVector(gVector *);
 
@@ -411,7 +411,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_RHS = 1;  
       /* MHJacNL-terms don't contribute to the RHS and residu, and are thus disregarded */
 
-      Error_Prev = 1e99 ;
+      Error_Prev = 1e99 ;  Frelax_Opt = 1. ;
 
       if (!(NbrSteps_relax = List_Nbr(Operation_P->Case.SolveJac_AdaptRelax.Factor_L)))
 	  Msg(ERROR, "No factors provided for Adaptive Relaxation");
@@ -2032,9 +2032,12 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
     GetDP_End ;
   }
 
+  Time_LimitHi = Current.Time ; /* Sera initialise correctement par apres. */
+  Type_LimitHi = Type_ChangeOfState ; /* Mais boin, c'est pour la rigueur */
+
   /* Recherche de l'intervalle de temps [Time_LimitLo, Time_LimitHi] < Criterion
      sur lequel un changement d'etat de grandeurs globales specifiees a lieu
-     (utilisation pour les circuits avec diodes et thyristors)
+     (e.g. utilisation pour les circuits avec diodes et thyristors)
   */
 
   for (Num_Iteration = 1 ;
@@ -2046,8 +2049,8 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
       Time_LimitLo  = Current.Time ;  DTime_LimitLo = Current.DTime ;
     }
     else {
-      Time_LimitHi  = Current.Time ;
-      Type_LimitHi  = Type_ChangeOfState ;
+      Time_LimitHi = Current.Time ;
+      Type_LimitHi = Type_ChangeOfState ;
     }
 
     if (Time_LimitHi - Time_LimitLo <
@@ -2197,8 +2200,8 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 				int Type_Analyse, int * Type_ChangeOfState,
 				int * FlagIndex, int Flag_First) {
 
-  List_T  *Region_L = NULL;
-  int      i, Nbr_Region = 0, Num_Region ;
+  List_T  *Region_L ;
+  int      i, Nbr_Region, Num_Region ;
   int      Nbr_ChangeOfState, i_COS ;
 
   struct ChangeOfState     *ChangeOfState_P ;
@@ -2520,8 +2523,6 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 
   int  i, Nbr_Node, Num_Node ;
 
-  double x = 0., y = 0.;
-  
   struct Value  Value ;
   struct Group  * Group_P ;
 
@@ -2541,22 +2542,9 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 
     Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
 
-    if (Num_Node == 3) {
-      x = Current.x ;
-      y = Current.y ;
-    }
-
-
     Get_ValueOfExpressionByIndex
       (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex,
        NULL, 0., 0., 0., &Value) ;
-
-    if (Num_Node == 13) {
-      printf("before x %e y %e %e  ||| after x %e y %e %e\n",x,y, atan2(y,x)/PI*180.,
-	     Value.Val[0], Value.Val[1], atan2(Value.Val[1],Value.Val[0])/PI*180. );
-
-    }
-
 
     Geo_SetNodesCoordinates(1, &Num_Node,
 			    &Value.Val[0], &Value.Val[1], &Value.Val[2]) ;
