@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.95 2002-06-13 00:11:57 geuzaine Exp $
+# $Id: Makefile,v 1.96 2002-06-17 08:13:52 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -616,30 +616,7 @@ link-scat:
 scat: compile-scat link-scat
 
 #
-# PETSc Scattering with python
-#
-compile-petsc-scat2: initialtag
-	@for i in $(GETDP_STUFF_DIR) Scattering; do (cd $$i && $(MAKE) \
-           "CC=$(CC)" \
-           "CXX=$(CC)" \
-           "FC=$(FC)" \
-           "F77=$(FC)" \
-           "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS) -I$(FFTW_DIR)/include -Wall -Wno-uninitialized" \
-           "F77_FLAGS=$(FOPTFLAGS)" \
-           "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
-        ); done
-link-petsc-scat2:
-	$(CLINKER) -o bin/hf lib/libScattering.a lib/libDofData.a\
-               lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)\
-               -L$(FFTW_DIR)/lib -lfftw -lm\
-                     $(HOME)/SOURCES/mathToolkit/lib/_interpolation.so\
-                     -L/usr/lib/python2.1/config -lpython2.1\
-                     -ldl -lpthread -lutil -Xlinker -export-dynamic
-petsc-scat2: compile-petsc-scat2 link-petsc-scat2
-
-#
-# PETSc Scattering OLD (before python)
+# PETSc Scattering
 #
 compile-petsc-scat: initialtag
 	@for i in $(GETDP_STUFF_DIR) Scattering; do (cd $$i && $(MAKE) \
