@@ -1,4 +1,4 @@
-/* $Id: SolvingOperations.c,v 1.10 2000-09-28 22:14:40 geuzaine Exp $ */
+/* $Id: SolvingOperations.c,v 1.11 2000-10-06 15:24:54 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -152,6 +152,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     Flag_CPU = 0 ;  Flag_Jac = 0 ;
 
     switch (Operation_P->Type) {
+
+    /*  -->  S o l v e                              */
+    /*  ------------------------------------------  */
+
+    case OPERATION_SYSTEMCOMMAND :
+      system(Operation_P->Case.SystemCommand);
+      break ;
 
     /*  -->  G e n e r a t e                        */
     /*  ------------------------------------------  */

@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.11 2000-09-28 22:09:22 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.12 2000-10-06 15:24:54 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -268,7 +268,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token        tNbrMaxIteration  tRelaxationFactor
 %token      tIterativeTimeReduction
 %token        tDivisionCoefficient tChangeOfState
-%token      tChangeOfCoordinates
+%token      tChangeOfCoordinates tSystemCommand
 
 %token  tPostProcessing
 %token      tNameOfSystem
@@ -4250,6 +4250,13 @@ OperationTerm :
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = $5 ; 
     }
 
+  | tSystemCommand tBIGSTR tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_SYSTEMCOMMAND ;
+      Operation_P->Case.SystemCommand = $2 ; 
+    }
 
   ;
 

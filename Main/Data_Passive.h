@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.8 2000-09-28 22:14:39 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.9 2000-10-06 15:24:54 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -630,6 +630,7 @@ struct Operation {
 
   union {
     int     SetTimeIndex ;
+    char   *SystemCommand ;
     struct {
       int     ExpressionIndex ;
     } Update ;
@@ -725,6 +726,8 @@ struct ChangeOfState {
 #define OPERATION_ITERATIVETIMEREDUCTION   33
 
 #define OPERATION_CHANGEOFCOORDINATES      40
+
+#define OPERATION_SYSTEMCOMMAND            50
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
