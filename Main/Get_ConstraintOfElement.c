@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.16 2001-08-09 19:28:56 geuzaine Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.17 2001-09-05 09:05:12 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -374,9 +374,10 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
   Value[0] = TwoIntOneDouble_P->Double ;
   if (TwoIntOneDouble_P->Int1 < 0)  Value[0] *= -1. ;
 
-  if (Current.NbrHar == 2) { /* LinkCplx */
-    Value[MAX_DIM] = TwoIntOneDouble_P->Double2 ;
-    if (TwoIntOneDouble_P->Int1 < 0)  Value[MAX_DIM] *= -1. ;
+
+  Value[1] = TwoIntOneDouble_P->Double2 ;  /* LinkCplx */
+  if (Current.NbrHar == 2) {
+    if (TwoIntOneDouble_P->Int1 < 0)  Value[1] *= -1. ;
   }
 
   GetDP_End ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.20 2001-07-26 07:07:50 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.21 2001-09-05 09:05:12 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -812,9 +812,9 @@ void  Dof_DefineLinkDof(int D1, int D2, int NbrHar, double Value[], int D2_Link)
       Dof.Type = DOF_LINK ;
       Dof.Case.Link.Coef = Value[0] ;
 
-      if (Value[MAX_DIM] != 0.){ /* LinkCplx ... bricolage */
+      if (Value[1] != 0.){ /* LinkCplx ... bricolage */
 	Dof.Type = DOF_LINKCPLX ;
-	Dof.Case.Link.Coef2 = Value[MAX_DIM] ;
+	Dof.Case.Link.Coef2 = Value[1] ;
       }
 
       Dof.Case.Link.EntityRef = D2_Link ;
@@ -961,7 +961,7 @@ void  Dof_UpdateLinkDof(struct Dof *Dof_P, int NbrHar, double Value[], int D2_Li
       Dof_P->Case.Link.Coef = Value[0] ;
 
       if (Dof_P->Type == DOF_LINKCPLX)
-	Dof_P->Case.Link.Coef2 = Value[MAX_DIM] ;
+	Dof_P->Case.Link.Coef2 = Value[1] ;
 
       Dof_P->Case.Link.EntityRef = D2_Link ;
       Dof_P->Case.Link.Dof = NULL ;
@@ -1059,7 +1059,7 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
     case DOF_LINKCPLX :
       if(NbrHar==1)
-	Msg(ERROR,"Situation impossible!!!") ;
+	Msg(ERROR,"Situation impossible (Dof, Dof_AssembleInMat)!!!") ;
       else{
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef - Val[1] * Dof_P->Case.Link.Coef2 ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef + Val[0] * Dof_P->Case.Link.Coef2 ;
@@ -1092,7 +1092,7 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
   case DOF_LINKCPLX :
     if(NbrHar==1)
-      Msg(ERROR,"Situation impossible!!!") ;
+      Msg(ERROR,"Situation impossible (Equ, Dof_AssembleInMat)!!!") ;
     else{
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef - Val[1] * Equ_P->Case.Link.Coef2 ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef + Val[0] * Equ_P->Case.Link.Coef2 ;
@@ -1189,7 +1189,7 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
     case DOF_LINKCPLX :
       if(NbrHar==1)
-	Msg(ERROR,"Situation impossible!!!") ;
+	Msg(ERROR,"Situation impossible (Dof, Dof_AssembleInVec)!!!") ;
       else{
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef - Val[1] * Dof_P->Case.Link.Coef2 ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef + Val[0] * Dof_P->Case.Link.Coef2 ;
@@ -1223,7 +1223,7 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
   case DOF_LINKCPLX :
     if(NbrHar==1)
-      Msg(ERROR,"Situation impossible!!!") ;
+      Msg(ERROR,"Situation impossible (Equ, Dof_AssembleInVec)!!!") ;
     else{
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef - Val[1] * Equ_P->Case.Link.Coef2 ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef + Val[0] * Equ_P->Case.Link.Coef2 ;
