@@ -187,6 +187,9 @@ void  BF_DivPerpendicularFacet_4V(BF_ARG) ;
 /* L^2 basis Functions */
   
 void  BF_Volume(BF_ARG) ; 
+void  BF_VolumeX(BF_ARG) ; 
+void  BF_VolumeY(BF_ARG) ; 
+void  BF_VolumeZ(BF_ARG) ; 
   
 /* (H^1)^3 Basis Functions */
   

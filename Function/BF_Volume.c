@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Volume.c,v 1.8 2003-03-22 03:30:10 geuzaine Exp $"
+#define RCSID "$Id: BF_Volume.c,v 1.9 2003-08-19 16:31:26 gyselinc Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -104,3 +104,36 @@ void  BF_Volume  (struct Element * Element, int NumVolume,
 #undef WrongNumVolume
 
 
+
+void  BF_VolumeX (struct Element * Element, int NumVolume,
+		  double u, double v, double w,  double *s ) {
+
+  GetDP_Begin("BF_VolumeX");
+
+  s[1] = s[2] = 0.;
+  BF_Volume (Element, NumVolume, u, v, w, &s[0]) ;
+
+  GetDP_End ;
+}
+
+void  BF_VolumeY (struct Element * Element, int NumVolume,
+		  double u, double v, double w,  double *s ) {
+
+  GetDP_Begin("BF_VolumeY");
+
+  s[0] = s[2] = 0.;
+  BF_Volume (Element, NumVolume, u, v, w, &s[1]) ;
+
+  GetDP_End ;
+}
+
+void  BF_VolumeZ (struct Element * Element, int NumVolume,
+		  double u, double v, double w,  double *s ) {
+
+  GetDP_Begin("BF_VolumeZ");
+
+  s[0] = s[1] = 0.;
+  BF_Volume (Element, NumVolume, u, v, w, &s[2]) ;
+
+  GetDP_End ;
+}

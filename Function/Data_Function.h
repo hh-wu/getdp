@@ -365,8 +365,10 @@ struct StringX3Function2Nbr  BF_Function[] = {
 
   /* L^2 basis Functions */
 
-  {"BF_Volume", (CAST)BF_Volume, (CAST)BF_Volume, (CAST)BF_Zero, 0., ALL },
-
+  {"BF_Volume",  (CAST)BF_Volume,  (CAST)BF_Volume,  (CAST)BF_Zero, 0., ALL },
+  {"BF_VolumeX", (CAST)BF_VolumeX, (CAST)BF_VolumeX, (CAST)BF_Zero, 0., ALL },
+  {"BF_VolumeY", (CAST)BF_VolumeY, (CAST)BF_VolumeY, (CAST)BF_Zero, 0., ALL },
+  {"BF_VolumeZ", (CAST)BF_VolumeZ, (CAST)BF_VolumeZ, (CAST)BF_Zero, 0., ALL },
 
   /* (H^1)^3 Basis Functions */
 
