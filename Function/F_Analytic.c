@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.8 2001-09-06 09:49:11 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.9 2001-11-19 18:30:36 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -286,7 +286,7 @@ void F_JFIE_SphTheta(F_ARG){
 
 void F_RCS_SphTheta(F_ARG){
   
-  double k0, r, kr, e0, rinf, krinf, eta, theta, phi, a1 =0., b1=0., d1, den1, P, P0, dP ;
+  double k0, r, kr, e0, rinf, krinf, theta, phi, a1 =0., b1=0., d1, den1, P, P0, dP ;
   double J, J_1, dJ, ctheta, stheta, cteRe1, cteRe2, a2, b2, d2, den2, lambda ;
   int i, n ;
 
@@ -416,7 +416,7 @@ void F_JFIE_SphPhi(F_ARG){
 
 void F_RCS_SphPhi(F_ARG){
   
-  double k0, r, kr, e0, rinf, krinf, eta, theta, phi, a1 =0., b1=0., d1, den1, P, P0, dP ;
+  double k0, r, kr, e0, rinf, krinf, theta, phi, a1 =0., b1=0., d1, den1, P, P0, dP ;
   double J, J_1, dJ, ctheta, stheta, cteRe1, cteRe2, a2, b2, d2, den2, lambda ;
   int i, n ;
 

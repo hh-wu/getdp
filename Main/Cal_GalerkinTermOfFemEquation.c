@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.9 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.10 2001-11-19 18:30:36 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -388,7 +388,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 		     &Current.u, &Current.v, &Current.w, &weight) ;
 	
 	if (FI->Flag_ChangeCoord) {
-	  Get_GeoElement(Element, Current.u, Current.v, Current.w) ;
+	  Get_BFGeoElement(Element, Current.u, Current.v, Current.w) ;
 
 	  Element->DetJac = Get_Jacobian(Element, &Element->Jac) ;
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.6 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.7 2001-11-19 18:30:36 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -258,7 +258,7 @@ void  Cal_IntegralQuantity (struct Element                 *Element,
 	 IQA->Get_IntPoint) (IQA->Nbr_IntPoints, i_IntPoint, 
 			     &Current.us, &Current.vs, &Current.ws, &weight) ;
 
-	Get_GeoElement (ES, Current.us, Current.vs, Current.ws) ;
+	Get_BFGeoElement (ES, Current.us, Current.vs, Current.ws) ;
 	
 	ES->DetJac =
 	  ((double (*)(struct Element*, MATRIX3x3*))
