@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.24 2003-05-29 20:14:34 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.25 2003-06-20 02:50:37 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -60,7 +60,7 @@ Complex GFHelmholtzParametric2D::L2(double t_pp, double tau_pp, double jac, doub
     return L()-L1()*log(4.*SQU(sin((t_pp-tau_pp)/2.)));
   }
   else{
-    return 1./TWO_PI * (dxt[0]*ddxt[1]-dxt[1]*ddxt[0]) / SQU(d*jac);
+    return 1./TWO_PI * (dxt[0]*ddxt[1]-dxt[1]*ddxt[0]) / SQU(d);
   }
 }
 
