@@ -1,9 +1,10 @@
-$Date: 2004-09-14 14:43:52 $
+$Id $
 
-New since 1.0: Lanczos with GSL+lapack; various small improvements
+New since 1.0: Lanczos with GSL+lapack; various small improvements and
+bug fixes;
 
 1.0: New license (GNU GPL); added support for latest Gmsh mesh file
-format; more code cleanup;
+format; more code cleanups;
 
 0.91: Merged moving band and multi-harmonic code; new loops and
 conditionals in the parser; removed old readline code (just use GNU
@@ -71,7 +72,7 @@ oriented post-processing formats; New binary formats; New error
 diagnostics;
 
 0.76: Reorganized high order shape functions; Optimization of the
-post-processing (faster and less bloated); Lots of internal cleanup;
+post-processing (faster and less bloated); Lots of internal cleanups;
 
 0.74: High order shape functions; lots of small bug fixes;
 
