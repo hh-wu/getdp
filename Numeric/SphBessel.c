@@ -1,4 +1,4 @@
-#define RCSID "$Id: SphBessel.c,v 1.2 2001-11-19 17:41:04 sabarieg Exp $"
+#define RCSID "$Id: SphBessel.c,v 1.3 2001-11-21 17:10:11 sabarieg Exp $"
 
 #include <stdio.h>
 #include <math.h>
@@ -47,12 +47,14 @@ void Spherical_j_nArray(int n, double x, int NB, double jsph[]){
 
   GetDP_Begin("Spherical_j_n_Array");
 
-  jsphi[NBR_MAX_EXP] = 0. ;
+  if (NB > NBR_MAX_EXP)
+    Msg(ERROR, "The number of Spherical_j_n required exceeds the maximum defined: NBR_MAX_EXP = %d",NBR_MAX_EXP) ;
+ 
+ for(i = 0 ; i < NB ; i++ )
+    jsph[i] = 0.; 
 
   if (x == 0.){
     jsph[0] = 1. ;
-    for(i = 1 ; i < NB ; i++ )
-      jsph[i] = 0.; 
   }
   else{
     fnu = n + 0.5 ; // From order n to (n+NB-1)
@@ -119,12 +121,15 @@ void Spherical_y_nArray(int n, double x, int NB, double ysph[]){
 
   GetDP_Begin("Spherical_y_n_Array");
 
-  ysphi[NBR_MAX_EXP] = 0. ;
+
+  if (NB > NBR_MAX_EXP)
+    Msg(ERROR, "The number of Spherical_y_n required exceeds the maximum defined: NBR_MAX_EXP = %d",NBR_MAX_EXP) ;
+
+  for(i = 0 ; i < NB ; i++ )
+    ysphi[i] = 0.; 
 
   if (x == 0.){
     ysph[0] = 1. ;
-    for(i = 1 ; i < NB ; i++ )
-      ysph[i] = 0.; 
   }
   else{
     fnu = n + 0.5 ; // From order n to (n+NB-1)
