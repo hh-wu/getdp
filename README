@@ -7,12 +7,19 @@ To install GetDP, type
 make
 make install
 
-This requires the GNU Scientific Library (GSL) to be installed on your
-system. You can either use the --with-gsl-prefix configure option or
-set the GSL_DIR environment variable to specify a non-standard
-location. The GSL is freely available from http://sources.redhat.com/gsl/.
+This requires GNU Scientific Library 1.2 or higher (freely available
+from http://sources.redhat.com/gsl/). You can use the
+--with-gsl-prefix configure option (or define the GSL_DIR environment
+variable) if the library is not installed in its default
+location. Please note that compiling the Windows version requires the
+Cygwin tools (freely available from http://www.cygwin.com).
+
+For a description of all other configuration options, type
+
+./configure --help
 
 GetDP is distributed under the terms of the GNU General Public
 License. See doc/COPYING for more information.
 
-See the doc/ and demos/ directories for documentation and examples.
+See the doc/ and demos/ directories for documentation and
+examples. The reference manual is located in doc/texinfo/.
