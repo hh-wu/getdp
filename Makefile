@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.155 2004-04-15 03:51:02 geuzaine Exp $
+# $Id: Makefile,v 1.156 2004-04-15 05:34:36 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -144,53 +144,6 @@ tgz:
 	gzip ${GETDP_ARCHIVE}.tar
 	chmod 640 ${GETDP_ARCHIVE}.tar.gz
 
-distrib-pre:
-	mv -f Makefile Makefile.distrib
-	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION =/g"\
-          Makefile.distrib > Makefile
-
-distrib-post:
-	mv -f Makefile.distrib Makefile
-	rm -f ${GETDP_VERSION_FILE}
-
-distrib-unix: clean 
-	make distrib-pre
-	make all
-	make package-unix
-	make distrib-post
-	ldd bin/getdp
-
-distrib-win: clean 
-	make distrib-pre
-	make all
-	make package-win
-	make distrib-post
-	objdump -p bin/getdp.exe | grep DLL
-
-distrib-mac: clean
-	make distrib-pre
-	make all
-	make package-mac
-	make distrib-post
-	otool -L bin/getdp
-
-distrib-source:
-	make distrib-pre
-	make source
-	make distrib-post
-
-distrib-source-commercial:
-	make distrib-pre
-	make source-commercial
-	make distrib-post
-
-distrib-source-nightly:
-	mv -f Makefile Makefile.distrib
-	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION = \"-nightly-${GETDP_DATE}\"/g"\
-          Makefile.distrib > Makefile
-	make source
-	make distrib-post
-
 package-unix:
 	rm -rf getdp-${GETDP_VERSION}
 	mkdir getdp-${GETDP_VERSION}
@@ -255,3 +208,52 @@ link-hf:
           lib/libDataStr.a lib/libNR.a  ${PETSC_SLES_LIB} -L${FFTW_DIR}/lib -lfftw -lm
 
 hf: compile-hf link-hf
+
+# Rules to distribute official releases
+
+distrib-pre:
+	mv -f Makefile Makefile.distrib
+	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION =/g"\
+          Makefile.distrib > Makefile
+
+distrib-post:
+	mv -f Makefile.distrib Makefile
+	rm -f ${GETDP_VERSION_FILE}
+
+distrib-unix: clean 
+	make distrib-pre
+	make all
+	make package-unix
+	make distrib-post
+	ldd bin/getdp
+
+distrib-win: clean 
+	make distrib-pre
+	make all
+	make package-win
+	make distrib-post
+	objdump -p bin/getdp.exe | grep DLL
+
+distrib-mac: clean
+	make distrib-pre
+	make all
+	make package-mac
+	make distrib-post
+	otool -L bin/getdp
+
+distrib-source:
+	make distrib-pre
+	make source
+	make distrib-post
+
+distrib-source-commercial:
+	make distrib-pre
+	make source-commercial
+	make distrib-post
+
+distrib-source-nightly:
+	mv -f Makefile Makefile.distrib
+	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION = \"-nightly-${GETDP_DATE}\"/g"\
+          Makefile.distrib > Makefile
+	make source
+	make distrib-post
