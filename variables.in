@@ -1,4 +1,4 @@
-# $Id: variables.in,v 1.6 2003-03-22 03:30:07 geuzaine Exp $
+# $Id: variables.in,v 1.7 2003-11-20 20:25:41 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -22,9 +22,15 @@
 # OS
 UNAME=@UNAME@
 
-# The names of the C and Fortran compilers and linker
+# The names of the C and Fortran compilers
 CC=@CC@
 F77=@F77@
+
+# If you need to link to dynamic libraries installed in non-standard
+# locations and are using the GNU linker, you may want to add
+# '-Wl,--rpath,/path/to/dynamic/library' to the 'LINKER' variable
+# below. Alternatively, you could edit the 'LD_LIBARY_PATH'
+# environement variable or use the 'ldconfig' program.
 LINKER=@LINKER@
 
 # Compiler flags
