@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.35 2003-01-23 19:02:56 geuzaine Exp $
+@c $Id: getdp.texi,v 1.36 2003-01-23 20:00:22 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -1642,6 +1642,8 @@ The syntax for the definition of constraints is:
 @c        < Coefficient @var{expression}; | Coefficient [ , ] >
 @c        < Filter @var{expression}; | Filter [ , ]; > 
 @c + constraint-val -> Function @var{expression}
+@c
+@c + LinkCplx
 
 @example
 Constraint @{
@@ -3078,6 +3080,11 @@ To describe the node connections of branches in a network.
 @item Link
 To define links between degrees of freedom. This is not document yet.
 
+@c todo: linkcplx
+@item LinkCplx
+To define complex-valued links between degrees of freedom. This is not
+document yet.
+
 @end ftable
 
 @c -------------------------------------------------------------------------
@@ -3546,7 +3553,8 @@ Update the system of equations @var{system-id} (built from iteration
 matrices generated separately with @code{GenerateSeparate}) with
 @var{expression}
 
-@c todo: is this ok? what about UpdateConstrain[@var{system-id}]?
+@c todo: is this ok? what about UpdateConstraint[@var{system-id}]?
+
 @c  @item UpdateConstraint
 @c  @code{[@var{system-id}, @var{group-id}, @var{constraint-type}]}
 
@@ -3684,6 +3692,8 @@ optional parameter is a flag for testing purposes.
 
 @end ftable
 
+
+@c  todo: Patrick, la suite est-elle comprehensible ?
 
 @c  @noindent
 @c  @var{iterative-time-reduction-arg}:
