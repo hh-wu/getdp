@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.5 2002-06-07 23:45:25 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.6 2002-06-12 00:23:40 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -251,49 +251,63 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
   return res;
 }
 
-Complex NystromSimple(Ctx *ctx, double t, int nbpts, int index){
-  Complex res=0., density, ansatz, w, m1, m2, fact;
-  double xt[3], dxt[3], xtau[3], dxtau[3];
-  double tau, sigma;
-  int j, n = nbpts/2;
-  double k = NORM3(ctx->waveNum), jac=1.;
+Complex NystromSimple(Ctx *ctx, int index, double t){
   GFHelmholtzParametric2D kern;
+  Patch *p = (Patch*)List_Pointer(ctx->scat.patches,0);
+  Complex res=0., density, ansatz, w, m1, m2, fact;
+  double xt[3], dxt[3], xtau[3], dxtau[3], tau, sigma, s, k=NORM3(ctx->waveNum), jac=1.;
+  int j, n=ctx->nbTargetPts/2;
+  static int first = 1;
 
-  printf("hello!\n");
-
-  if(!nbpts) return 0.;
+  double STEP=TWO_PI/(2.*n);
+  s = index*STEP+STEP/2.;
+  //s = index*STEP;
 
   ctx->scat.x(t,-1,xt);
   ctx->scat.dx(t,-1,dxt);
 
+  if((ctx->type & STORE_OPERATOR) && first)
+    ctx->discreteMap = List_Create(2*n, 2*n, sizeof(Complex));
+
   for(j=0 ; j<=2*n-1 ; j++){
-    sigma = TWO_PI*j/(2.*n);
-    jac = 1.;
+    sigma = j*STEP+STEP/2.;
+    //sigma = j*STEP;
 
-    jac *= ctx->f.chgVar(sigma, &tau);
+    tau = p->nodes[j];
+    jac = p->jacs[j];
 
-    density = ctx->f.density(&ctx->scat,tau);
+    density = ctx->f.density(&ctx->scat,j,tau);
 
-    ctx->scat.x(tau,-1,xtau);
-    ctx->scat.dx(tau,-1,dxtau);
-
-    ansatz = ctx->f.ansatz(ctx->waveNum,xt,xtau);
-
-    kern.init(t,xt,dxt,tau,xtau,dxtau,k);
-
-    if(!jac){
-      Msg(WARNING, "corner: jac=0 (tau=%g, sigma=%g, jac=%g)", tau, sigma, jac);
-      fact = 0;
+    if((ctx->type & STORE_OPERATOR) && ctx->iterNum > 1){
+      
+      res += *(Complex*)List_Pointer(ctx->discreteMap, ctx->discreteMapIndex) * density;
+      
     }
     else{
-      w = kern.singLogQuadWeight(t,sigma,n);
+      
+      ctx->scat.x(tau,-1,xtau);
+      ctx->scat.dx(tau,-1,dxtau);
+      
+      ansatz = ctx->f.ansatz(ctx->waveNum,xt,xtau);
+      
+      kern.init(t,xt,dxt,tau,xtau,dxtau,k);
+      w = kern.singLogQuadWeight(s,sigma,n);
       m1 = kern.M1();
-      m2 = kern.M2(t,sigma,jac);
+      m2 = kern.M2(s,sigma,jac);
       fact = (w * m1 + PI/(double)n * m2) * ansatz * jac;
+      
+      if(ctx->type & STORE_OPERATOR)
+	List_Add(ctx->discreteMap, &fact);
+
+      res += fact * density;
+
     }
-    res += fact * density;
+
+    ctx->discreteMapIndex++;
 
   }
+
+  if(first) first = 0;
 
   return res;
 }
@@ -330,7 +344,7 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
 
   if(ctx->type & REAL_COLTON_KRESS){ // simple Nystrom, always in [0,2\pi]
 
-    return NystromSimple(ctx,t,ctx->nbIntPts,index);
+    return NystromSimple(ctx,index,t);
 
   }
   else if(ctx->type & FULL_INTEGRATION){ // full Nystrom integrator
@@ -526,10 +540,15 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
 // Post-process solution
 
 Complex Evaluate2D(Ctx *ctx, int farfield, double x[3]){
-  int j, n = ctx->nbIntPts/2;
+  int j, n;
   double tau, xtau[3], dxtau[3], dummy[3]={0,0,0}, k = NORM3(ctx->waveNum);
   Complex res=0., f, tmp;
   GFHelmholtzParametric2D kern;
+
+  if(ctx->type & REAL_COLTON_KRESS)
+    n = ctx->nbTargetPts/2;
+  else
+    n = ctx->nbIntPts/2;
 
   for(j=0 ; j<=2*n-1 ; j++){
     tau = TWO_PI*j/(2.*n);
@@ -540,7 +559,13 @@ Complex Evaluate2D(Ctx *ctx, int farfield, double x[3]){
     f = ctx->f.ansatz(ctx->waveNum,NULL,xtau);
 
     ctx->f.type = Function::INTERPOLATED; 
-    tmp = ctx->f.density(&ctx->scat,tau);
+
+    if(ctx->type & REAL_COLTON_KRESS){
+      tmp = ctx->f.density(&ctx->scat,j,tau);
+    }
+    else{
+      tmp = ctx->f.density(&ctx->scat,tau);
+    }
 
     //printf("%g %g %g\n", tau, tmp.real(), tmp.imag());
 
