@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.28 2003-01-29 22:52:44 geuzaine Exp $
+# $Id: Makefile,v 1.29 2003-02-07 02:46:34 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -37,7 +37,7 @@ INCLUDE = -I. -I../include -I../Main -I../DataStr -I../DofData -I../Function\
           -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit\
           -I$(FFTW_PREFIX)/include
 
-CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER) $(INCLUDE)
+CFLAGS  = $(C_FLAGS) $(SOLVER) $(INCLUDE)
 
 SRC = Main.cpp\
       Solve.cpp\
