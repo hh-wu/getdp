@@ -1,4 +1,4 @@
-// $Id: Utils.cpp,v 1.1 2002-02-10 23:05:59 geuzaine Exp $
+// $Id: Utils.cpp,v 1.2 2002-02-11 22:50:02 geuzaine Exp $
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,19 +21,9 @@ void Msg(int level, char *fmt, ...){
   case WARNING: fprintf(stderr, "Warning: "); break;
   }
   va_start (args, fmt);
-  switch(level){
-  case ERROR: 
-  case WARNING: 
-    vfprintf(stderr, fmt, args); 
-    fprintf(stderr, "\n");
-    fflush(stderr);
-    break;
-  default :
-    vfprintf(stdout, fmt, args); 
-    fprintf(stdout, "\n");
-    fflush(stdout);
-    break;
-  }
+  vfprintf(stderr, fmt, args); 
+  fprintf(stderr, "\n");
+  fflush(stderr);
   va_end (args);
   if(level == ERROR) exit(1);
 }
