@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.87 2002-04-12 17:12:14 geuzaine Exp $
+# $Id: Makefile,v 1.88 2002-04-12 17:15:22 bruno Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -617,7 +617,7 @@ scat: compile-scat link-scat
 #
 # PETSc Scattering
 #
-compile-petsc-scat:
+compile-petsc-scat: initialtag
 	@for i in $(GETDP_STUFF_DIR) Scattering; do (cd $$i && $(MAKE) \
            "CC=$(CC)" \
            "CXX=$(CC)" \
@@ -637,7 +637,7 @@ petsc-scat: compile-petsc-scat link-petsc-scat
 #
 # PETSc Scattering (profile)
 #
-compile-petsc-scat-profile:
+compile-petsc-scat-profile: initialtag
 	@for i in $(GETDP_STUFF_DIR) Scattering; do (cd $$i && $(MAKE) \
            "CC=$(CC)" \
            "CXX=$(CC)" \
@@ -657,7 +657,7 @@ petsc-scat-profile: compile-petsc-scat-profile link-petsc-scat-profile
 #
 # ACM Scattering
 #
-compile-acm-scat:
+compile-acm-scat: initialtag
 	@for i in $(GETDP_STUFF_DIR) Scattering; do (cd $$i && $(MAKE) \
            "CC=g++" \
            "CXX=g++" \
