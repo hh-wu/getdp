@@ -1,4 +1,4 @@
-/* $Id: Main.c,v 1.10 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: Main.c,v 1.11 2000-09-26 16:20:10 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -424,7 +424,7 @@ void FinalizeAndExit(void){
 
 void  Read_ProblemStructure (char * Name){
 
-  char    String[MAX_STRING_LENGTH], Last_yyname[MAX_FILE_NAME_LENGTH];
+  char    String[2048], Last_yyname[MAX_FILE_NAME_LENGTH];
   int     Last_yylinenum, Last_yyincludenum, Last_ErrorLevel, i ;
 
   Msg(LOADING, "Problem Definition '%s'", Name) ;
