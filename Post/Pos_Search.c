@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.17 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.18 2000-10-30 11:03:56 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -636,7 +636,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 	ComputeElementBox(Element, &ElementBox) ;
 	if (PointInElementBox(ElementBox, x, y, z)){
 	  PointElementDistance(Element, x, y, z, &PointElement);
-	  Msg(INFO, "Element %d: distance = %g, project (x=%g y=%g z=%g)\n", 
+	  Msg(INFO, "Element %d: distance = %g, project (x=%g y=%g z=%g)", 
 	      Element->Num, PointElement.d, PointElement.xp, 
 	      PointElement.yp, PointElement.zp);
 	  PointElement.Element = *Element;
@@ -652,7 +652,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 			 PointElement.zp, u, v, w, NULL, -1);
       if(PointInRefElement(&PointElement.Element, *u, *v, *w)) {
 	Element = LastElement = &PointElement.Element;
-	Msg(INFO, "Selected Element %d (u=%g v=%g w=%g)\n", Element->Num,*u,*v,*w);
+	Msg(INFO, "Selected Element %d (u=%g v=%g w=%g)", Element->Num,*u,*v,*w);
 	GetDP_End;      
       }
     }
