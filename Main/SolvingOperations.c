@@ -141,7 +141,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   struct Dof           Dof, * Dof_P ;
   struct Value         Value ;
 
-  static int RES0 = 0 ;
+  static int RES0 = -1 ;
 
   Nbr_Operation = List_Nbr(Operation_L) ;
 
@@ -324,7 +324,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       strcpy(ResName, Name_Generic) ;
       if(!Flag_SPLIT){
 	strcat(ResName, ".res") ;
-	if(!RES0){
+	if(RES0 < 0){
 	  Dof_WriteFileRES0(ResName, Flag_BIN) ;
 	  RES0 = 1 ;
 	}
@@ -334,7 +334,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	sprintf(ResNum, "%d.res", (int)Current.TimeStep) ;
 	for(i = 0 ; i < 5+4-strlen(ResNum) ; i++) strcat(ResName, "0") ;
 	strcat(ResName, ResNum) ;
-	Dof_WriteFileRES0(ResName, Flag_BIN) ;
+	if(RES0 != (int)Current.TimeStep){
+	  Dof_WriteFileRES0(ResName, Flag_BIN) ;
+	  RES0 = (int)Current.TimeStep ;
+	}
       }
       Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, Current.Time, (int)Current.TimeStep) ;
       break ;
