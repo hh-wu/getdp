@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.21 2001-09-05 09:05:12 dular Exp $"
+#define RCSID "$Id: DofData.c,v 1.22 2001-11-19 17:36:34 sabarieg Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -855,7 +855,7 @@ void  Dof_DefineUnknownDof(int D1, int D2, int NbrHar) {
 void NumberUnknownDof (void *a, void *b) {
   struct Dof * Dof_P ;
   
-  GetDP_Begin("NumberSymmetericalDof");
+  GetDP_Begin("NumberSymmetricalDof");
 
   Dof_P = (struct Dof *)a ;
 
