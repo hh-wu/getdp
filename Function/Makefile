@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.24 2003-03-22 03:30:10 geuzaine Exp $
+# $Id: Makefile,v 1.25 2003-04-28 03:54:32 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -120,7 +120,7 @@ F_Misc.o: F_Misc.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
-  ../DataStr/Tools.h ../NR/nrutil.h
+  ../DataStr/Tools.h
 F_Type.o: F_Type.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \

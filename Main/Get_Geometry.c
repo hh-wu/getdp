@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.29 2003-03-23 06:29:26 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.30 2003-04-28 03:54:32 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -28,8 +28,16 @@
 #include "BF_Function.h"
 #include "Numeric.h"
 #include "Data_DefineE.h"
-#include "Solver.h"
+
+#if defined(HAVE_GSL)
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_linalg.h>
+#else
+#define NRANSI
 #include "nrutil.h"
+#endif
+
+#include "Solver.h"
 
 /* ------------------------------------------------------------------------ */
 /*  G e t _ N o d e s C o o r d i n a t e s O f E l e m e n t               */
@@ -935,12 +943,63 @@ double  JacobianLin3D (struct Element * Element, MATRIX3x3 * Jac) {
 /* ------------------------------------------------------------------------ */
 
 void  Get_InverseSingularMatrix(MATRIX3x3 * Mat, MATRIX3x3 * InvMat) {
+  double T[3][3] = {{0.,0.,0.},{0.,0.,0.},{0.,0.,0.}};
+  int i, j, k;
+#if defined(HAVE_GSL)
+  gsl_matrix *M, *V;
+  gsl_vector *W, *TMPVEC;
+  double ww;
+#else
   double **M, **V, *W;
-  double T[4][4] = {{0.,0.,0.,0.},{0.,0.,0.,0.},{0.,0.,0.,0.},{0.,0.,0.,0.}};
-  int    i, j, k; 
+#endif
 
   GetDP_Begin("Get_InverseSingularMatrix");
 
+  InvMat->c11 = InvMat->c12 = InvMat->c13 = 0.0;
+  InvMat->c21 = InvMat->c22 = InvMat->c23 = 0.0;
+  InvMat->c31 = InvMat->c32 = InvMat->c33 = 0.0;
+
+#if defined(HAVE_GSL)
+  M = gsl_matrix_alloc(3, 3);
+  V = gsl_matrix_alloc(3, 3);
+  W = gsl_vector_alloc(3);
+  TMPVEC = gsl_vector_alloc(3);
+
+  gsl_matrix_set(M, 0, 0, Mat->c11);
+  gsl_matrix_set(M, 0, 1, Mat->c12);
+  gsl_matrix_set(M, 0, 2, Mat->c13);
+  gsl_matrix_set(M, 1, 0, Mat->c21);
+  gsl_matrix_set(M, 1, 1, Mat->c22);
+  gsl_matrix_set(M, 1, 2, Mat->c23);
+  gsl_matrix_set(M, 2, 0, Mat->c31);
+  gsl_matrix_set(M, 2, 1, Mat->c32);
+  gsl_matrix_set(M, 2, 2, Mat->c33);
+
+  gsl_linalg_SV_decomp(M, V, W, TMPVEC);
+  for(i = 0; i < 3; i++) {
+    for(j = 0; j < 3; j++) {
+      ww = gsl_vector_get(W, i);
+      if(fabs(ww) > 1.e-16) {   /* singular value precision */
+        T[i][j] += gsl_matrix_get(M, j, i) / ww;
+      }
+    }
+  }
+  for(k=0 ; k<3 ; k++){
+    InvMat->c11 += gsl_matrix_get(V, 0, k) * T[k][0] ;
+    InvMat->c12 += gsl_matrix_get(V, 0, k) * T[k][1] ;
+    InvMat->c13 += gsl_matrix_get(V, 0, k) * T[k][2] ;
+    InvMat->c21 += gsl_matrix_get(V, 1, k) * T[k][0] ;
+    InvMat->c22 += gsl_matrix_get(V, 1, k) * T[k][1] ;
+    InvMat->c23 += gsl_matrix_get(V, 1, k) * T[k][2] ;
+    InvMat->c31 += gsl_matrix_get(V, 2, k) * T[k][0] ;
+    InvMat->c32 += gsl_matrix_get(V, 2, k) * T[k][1] ;
+    InvMat->c33 += gsl_matrix_get(V, 2, k) * T[k][2] ;
+  }
+  gsl_matrix_free(M);
+  gsl_matrix_free(V);
+  gsl_vector_free(W);
+  gsl_vector_free(TMPVEC);
+#else
   M = dmatrix(1,3,1,3);
   V = dmatrix(1,3,1,3);
   W = dvector(1,3);
@@ -956,27 +1015,24 @@ void  Get_InverseSingularMatrix(MATRIX3x3 * Mat, MATRIX3x3 * InvMat) {
   for(i=1 ; i<=3 ; i++)
     for(j=1 ; j<=3 ; j++)
       if(fabs(W[i]) > 1.e-16) /* precision */
-	T[i][j] += M[j][i] / W[i] ;
+	T[i-1][j-1] += M[j][i] / W[i] ;
   
-  InvMat->c11 = InvMat->c12 = InvMat->c13 = 
-    InvMat->c21 = InvMat->c22 = InvMat->c23 = 
-    InvMat->c31 = InvMat->c32 = InvMat->c33 = 0.0 ;  
-
   for(k=1 ; k<=3 ; k++){
-    InvMat->c11 += V[1][k] * T[k][1] ;
-    InvMat->c12 += V[1][k] * T[k][2] ;
-    InvMat->c13 += V[1][k] * T[k][3] ;
-    InvMat->c21 += V[2][k] * T[k][1] ;
-    InvMat->c22 += V[2][k] * T[k][2] ;
-    InvMat->c23 += V[2][k] * T[k][3] ;
-    InvMat->c31 += V[3][k] * T[k][1] ;
-    InvMat->c32 += V[3][k] * T[k][2] ;
-    InvMat->c33 += V[3][k] * T[k][3] ;
+    InvMat->c11 += V[1][k] * T[k-1][0] ;
+    InvMat->c12 += V[1][k] * T[k-1][1] ;
+    InvMat->c13 += V[1][k] * T[k-1][2] ;
+    InvMat->c21 += V[2][k] * T[k-1][0] ;
+    InvMat->c22 += V[2][k] * T[k-1][1] ;
+    InvMat->c23 += V[2][k] * T[k-1][2] ;
+    InvMat->c31 += V[3][k] * T[k-1][0] ;
+    InvMat->c32 += V[3][k] * T[k-1][1] ;
+    InvMat->c33 += V[3][k] * T[k-1][2] ;
   }
 
   free_dmatrix(M,1,3,1,3);
   free_dmatrix(V,1,3,1,3);
   free_dvector(W,1,3);
+#endif
 
   GetDP_End ;
 }

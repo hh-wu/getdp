@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.28 2003-03-22 03:30:13 geuzaine Exp $
+# $Id: Makefile,v 1.29 2003-04-28 03:54:32 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -146,7 +146,7 @@ Get_Geometry.o: Get_Geometry.c ../include/GetDP.h Message.h \
   ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Function/BF_Function.h ../Numeric/Numeric.h Data_DefineE.h \
-  ../Sparskit/Solver.h ../NR/nrutil.h
+  ../Sparskit/Solver.h
 Get_ElementSource.o: Get_ElementSource.c ../include/GetDP.h Message.h \
   ../DataStr/Malloc.h Treatment_Formulation.h Data_Active.h \
   Data_Passive.h ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.26 2003-03-22 03:30:15 geuzaine Exp $
+# $Id: Makefile,v 1.27 2003-04-28 03:54:32 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -30,15 +30,17 @@ FFLAGS  = ${F77_FLAGS} ${INCLUDE}
 CSRC =  Analytic_HollowCylLF.c \
         Lanczos.c \
         Adapt.c \
-	Legendre.c \
-	SphBessel.c
+        Legendre.c \
+        SphBessel.c \
+        gsl_newt.c \
+        gsl_brent.c
 
 FSRC =  Integration_CLT2D.f \
         Analytic_SphCylLF.f \
-	Amos_Airy.f \
-	Amos_Bessel.f \
-	Amos_Lib.f \
-	Amos_Mach.f
+        Amos_Airy.f \
+        Amos_Bessel.f \
+        Amos_Lib.f \
+        Amos_Mach.f
 
 COBJ  = ${CSRC:.c=.o}
 FOBJ  = ${FSRC:.f=.o}
@@ -76,7 +78,7 @@ Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../include/Magic.h Numeric.h ../NR/nrutil.h
+  ../include/Magic.h Numeric.h
 Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h Numeric.h
@@ -84,3 +86,7 @@ Legendre.o: Legendre.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h
 SphBessel.o: SphBessel.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h Amos_F.h ../include/Compat.h
+gsl_newt.o: gsl_newt.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h Numeric.h
+gsl_brent.o: gsl_brent.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h Numeric.h

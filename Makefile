@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.138 2003-03-25 16:27:17 geuzaine Exp $
+# $Id: Makefile,v 1.139 2003-04-28 03:54:32 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -82,7 +82,9 @@ parser:
 	cd Parser && ${MAKE} parser
 
 depend:
-	for i in ${GETDP_DIRS}; do (cd $$i && ${MAKE} depend); done
+	for i in ${GETDP_DIRS};\
+          do (cd $$i && ${MAKE} depend "SOLVER=-D_SPARSKIT -DHAVE_GSL");\
+        done
 
 nodepend:
 	for i in ${GETDP_DIRS}; do (cd $$i && ${MAKE} nodepend); done

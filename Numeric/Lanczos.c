@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.17 2003-03-22 03:30:15 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.18 2003-04-28 03:54:32 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -28,7 +28,10 @@
 #include "DofData.h"
 #include "CurrentData.h"
 #include "Numeric.h"
+
+#if !defined(HAVE_GSL)
 #include "nrutil.h"
+#endif
 
 /* Version commentée par A. Nicolet de Lanczos.c le 2001/11/29 */
 
@@ -171,6 +174,14 @@
    interface objet en C++ ARPACK++ ?
    http://www.caam.rice.edu/software/ARPACK/
 */
+
+#if defined(HAVE_GSL)
+
+void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double shift){
+  Msg(ERROR, "Lanczos algorithm not available with the GSL");
+}
+
+#else
 
 /* 
    calcul des vecteurs propres d'une matrice de Hessenberg réelle
@@ -786,3 +797,4 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   GetDP_End ;
 }
 
+#endif /* #if !defined(HAVE_GSL) */

@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.17 2003-03-22 03:30:10 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.18 2003-04-28 03:54:32 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -32,7 +32,12 @@
 #include "CurrentData.h"
 #include "Numeric.h"
 #include "Tools.h"
+
+#if !defined(HAVE_GSL)
+#define NRANSI
 #include "nrutil.h"    /* pour Tuan */
+#endif
+
 
 /* ------------------------------------------------------------------------ */
 /*  Warning: the pointers A and V can be identical. You must                */
@@ -42,7 +47,6 @@
 /* ------------------------------------------------------------------------ */
 
 #define F_ARG    struct Function * Fct, struct Value * A, struct Value * V
-#define TINY 1.0e-20;     /*pour Tuan*/
 
 /* ------------------------------------------------------------------------ */
 /*  Printf                                                                  */
@@ -624,7 +628,31 @@ void  Fi_InitAkima (F_ARG) {
 /*  Transformation of a stiffness matrix (6x6) with 3 given angles          */
 /* ------------------------------------------------------------------------ */
 
+#if defined(HAVE_GSL)
+
+/* All the following should really be rewritten and generalized... */
+
+void  F_TransformTensor (F_ARG) {
+  Msg(ERROR, "Tuan's routines are not available with the GSL");
+}
+
+void  F_TransformPerm (F_ARG) {
+  Msg(ERROR, "Tuan's routines are not available with the GSL");
+}
+
+void  F_TransformPiezo (F_ARG) {
+  Msg(ERROR, "Tuan's routines are not available with the GSL");
+}
+
+void  F_TransformPiezoT (F_ARG) {
+  Msg(ERROR, "Tuan's routines are not available with the GSL");
+}
+
+#else
+
 /* LU decomposition */
+
+#define TINY 1.0e-20;     /*pour Tuan*/
 
 void ludcmp1(double **a, int n, int *indx, double *d)
 {
@@ -676,6 +704,8 @@ void ludcmp1(double **a, int n, int *indx, double *d)
   }
   free_dvector(vv,0,n-1);
 }
+
+#undef TINY
 
 /* Forward substitution and backsubstitution */
 
@@ -1380,5 +1410,6 @@ void  F_TransformPiezoT (F_ARG) {
   GetDP_End ;
 }
 
-#undef TINY
+#endif /* #if !defined(HAVE_GSL) */
+
 #undef F_ARG

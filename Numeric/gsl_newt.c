@@ -1,4 +1,4 @@
-#define RCSID "$Id: gsl_newt.c,v 1.2 2003-03-22 03:30:16 geuzaine Exp $"
+#define RCSID "$Id: gsl_newt.c,v 1.3 2003-04-28 03:54:32 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -85,7 +85,7 @@ void newt(double x[], int n, int *check,
   gsl_vector *xx = gsl_vector_alloc(n);
 
   if(n > MAX_DIM_NEWT - 1)
-    Msg(FATAL, "Maximum Newton dimension exceeded\n");
+    Msg(ERROR, "Maximum Newton dimension exceeded\n");
   nrdim = n;
 
   nrfunc = func;

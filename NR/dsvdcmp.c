@@ -88,6 +88,7 @@ void dsvdcmp(double **a, int m, int n, double w[], double **v)
 	}
 	for (k=n;k>=1;k--) {
 		for (its=1;its<=30;its++) {
+		  /* printf("SVD iteration %d\n", its); */
 			flag=1;
 			for (l=k;l>=1;l--) {
 				nm=l-1;
