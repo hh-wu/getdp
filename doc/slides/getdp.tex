@@ -1,4 +1,4 @@
-% $Id: getdp.tex,v 1.10 2001-06-13 17:18:12 geuzaine Exp $
+% $Id: getdp.tex,v 1.11 2001-06-14 14:48:32 geuzaine Exp $
 
 \newcommand{\smallgetdp}[1]
    {\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{#1}}}}
@@ -54,10 +54,10 @@ How?
 
 \begin{slide}
 
-\begin{slideitemize}
-\item Copy of formal mathematical expression of problems 
-\item ASCII \emph{Text} file (``\code{.pro} file'')
-\end{slideitemize}
+\begin{center}
+Copy of the formal mathematical expression of problems in \emph{text data
+files} (``\code{.pro} files'')
+\end{center}
 
 \begin{center}
 \scalebox{0.54}{\input{fig/getdp-struct.tex}}
@@ -247,7 +247,7 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 \bigskip
 \begin{syntax}
 \{ Name Jacobian1 ;
-  Case \{ \CC{piecewise defined on groups}
+  Case \{ \CC{piece-wise defined on groups}
     \{ Region OmegaInf; Jacobian VolSphShell \{Rint, Rext\}; \}
     \{ Region OmegaAxi; Jacobian VolAxi; \}
     \{ Region All; Jacobian Vol ; \}
@@ -274,6 +274,7 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
   \end{slideitemize}
 }
 
+\bigskip
 \bigskip
 \begin{syntax}
 \{ Name Integration1 ; Criterion Test[]; \CC{combination of methods}
@@ -363,7 +364,7 @@ Operation\{\\
 \mybox{colbox}{11\semcm}{
   \begin{slideitemize}
   \item ``Front-end'' to computational data
-  \item Piecewise definition of any quantity of interest
+  \item Piece-wise definition of any quantity of interest
   \item Local or integral evaluation
   \end{slideitemize}
 }

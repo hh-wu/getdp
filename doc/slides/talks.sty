@@ -1,7 +1,7 @@
 %
 % LaTeX2e/seminar style sheet for the layout of GetDP-related slides
 %
-% $Id: talks.sty,v 1.4 2001-06-13 17:35:06 geuzaine Exp $
+% $Id: talks.sty,v 1.5 2001-06-14 14:48:32 geuzaine Exp $
 %
 
 % -------------------------------------------------------------------
@@ -15,10 +15,6 @@
 \RequirePackage[latin1]{inputenc}
 \RequirePackage{alltt,wasysym}
 \RequirePackage[all]{xy}
-\RequirePackage{ifthen}
-
-\newcount\fulltitle
-\fulltitle=1
 
 \ifx\pdfoutput\undefined
   \RequirePackage{graphicx}
@@ -89,7 +85,7 @@
 \newcommand{\enhance}[2][1]{{\hspace{#1\semcm}\myarrow {\color{colpos} #2}}}
 \newcommand{\itempos}{{\color{colpos}\Pisymbol{psy}{197}}}
 \newcommand{\itemneg}{${\color{colwarn}\circleddash}$}
-\newcommand{\CC}[1]{{\color{colwarn}//#1}}
+\newcommand{\CC}[1]{{\color{colpos}//#1}}
 \renewcommand{\labelitemi}{\normalfont\bfseries --}
 
 % -------------------------------------------------------------------
@@ -109,6 +105,9 @@
 % -------------------------------------------------------------------
 % Personal macros for titles, parts, chapters, ...
 % -------------------------------------------------------------------
+
+\newcount\fulltitle
+\fulltitle=1
 
 \newcounter{chapterstart}
 \setcounter{chapterstart}{1}

@@ -1,5 +1,5 @@
-# $Id: Makefile,v 1.1 2001-06-13 16:20:59 geuzaine Exp $
+# $Id: Makefile,v 1.2 2001-06-14 14:48:32 geuzaine Exp $
 
 clean:
-	$(RM) $(RMFLAGS) *.log *.toc *.aux *.dvi *~
+	$(RM) $(RMFLAGS) *.log *.toc *.aux *.dvi *~ *.ps *.pdf
 
