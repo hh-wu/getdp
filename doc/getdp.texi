@@ -1,6 +1,14 @@
 \input texinfo.tex    @c -*-texinfo-*-
 @c =========================================================================
 @c
+@c On devrait parler
+@c  - de Equation == en fait EquationTerm
+@c  - du mecanisme de selection du systeme pour le post (==1ere 
+@c    Quantity definie dans la formulation)
+@c
+@c
+@c
+@c
 @c This is the GetDP documentation texinfo source file
 @c
 @c Indexing : @cindex  == concepts

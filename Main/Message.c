@@ -60,7 +60,7 @@ char help[] =
   "  -restart                 resume processing from where it stopped\n"
   "  -solve 'Resolution'      same as -pre 'Resolution' -cal\n"
   "  -split                   save processing results in separate files\n"
-  "  -res file[s]             load processing results from file(s)\n"
+  "  -res file(s)             load processing results from file(s)\n"
 #if _SPARSKIT
   "Linear solver options:\n"
   "  -solver file             specify parameter file (default: SOLVER.PAR)\n"
