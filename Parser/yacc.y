@@ -2312,12 +2312,13 @@ BasisFunctionTerm :
 
   | tFunction tSTRING OptionalParametersForBasisFunction tEND
     {
-      Get_3Function1NbrForString
+      Get_3Function2NbrForString
 	(BF_Function, $2, &FlagError,
 	 &BasisFunction_S.Function, &BasisFunction_S.dFunction, 
-	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Degree) ;
+	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Degree,
+	 &BasisFunction_S.ElementType) ;
       if (FlagError)  vyyerror("Unknown Function for BasisFunction: %s %s", 
-			       $2, Get_Valid_SX3F(BF_Function)) ;
+			       $2, Get_Valid_SX3F2N(BF_Function)) ;
       Free($2) ;
     }
 
