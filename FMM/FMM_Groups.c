@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.12 2004-04-24 16:21:45 geuzaine Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.13 2004-05-11 07:57:14 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -94,15 +94,16 @@ void Init_CurrentFMMData ( double k0 ){
     Val_ns = FMM_NbrSpectralDirections( k0 );
     NbrDir = (Dimension ==_2D) ? 2*Val_ns+1 : 2*Val_ns*Val_ns ;
     Current.FMM.NbrDir = NbrDir ; 
+    Msg(INFO, "NbrDirections = %d Val_ns = %d", NbrDir, Val_ns) ;  
  }
 
 
   Current.FMM.N = (k0 < 0 && Dimension == _3D) ? (NbrDir-1)*(NbrDir+1): Current.FMM.NbrDir ; /* Laplace & GradLaplace 3D */
 
-  if (Current.FMM.N > NBR_MAX_DIR)
+  if (Current.FMM.N > NBR_MAX_DIR || Current.FMM.NbrDir >  NBR_MAX_DIR )
     Msg(ERROR, "NbrDirections exceeds the NBR_MAX_DIR: %d", NBR_MAX_DIR ) ;
 
-  Msg(INFO, "NbrDirections = %d N = %d", NbrDir, Current.FMM.N ) ;  
+  if (k0 < 0) Msg(INFO, "NbrDirections = %d N = %d", NbrDir, Current.FMM.N ) ;  
  
   Current.FMM.Type    = SCALAR ; /* Default */
   Current.FMM.NbrCom  = 1 ;
@@ -310,10 +311,13 @@ void Get_GroupNeighbours( int i_FMMEqu ){
 	  List_Add(NGi, &j) ;
 	else{ 
 	  List_Add(FGi, &j) ;
-	  Ndir = FMM_SetTruncationOLD((FMMDataGSrc_P0+i)->Rmax, d, Current.FMM.Dimension) ;
-	  /* Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax, 
-	                              d, Current.FMM.Dimension) ; */
-	  List_Add(Ndi, &Ndir) ;
+
+	  if(Current.FMM.Precision != 0){
+	    Ndir = FMM_SetTruncationOLD((FMMDataGSrc_P0+i)->Rmax, d, Current.FMM.Dimension) ;
+	    //Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax, d, Current.FMM.Dimension) ;
+	    List_Add(Ndi, &Ndir) ;
+	  }
+
 	  if (!Flag_Far) Flag_Far = 1;
 	} 
       }/* NbrGroupObs */
@@ -621,7 +625,7 @@ int FMM_NbrSpectralDirections( double k0 ){
 
   int i, j, i_Support, NbrInSupport, NbrGroups, NbrElmsGroupi ;
   int NumElmj, NumElmjp ;
-  double D = 1., Daux = 0., Centroidj[3], Centroidjp[3] ; 
+  double D = 0., Daux = 0., Centroidj[3], Centroidjp[3] ; 
   struct FMMData  *FMMData_P0 ;
   struct FMMGroup  FMMGroup_S ;
 
@@ -837,7 +841,8 @@ void  Geo_CreateFMMGroup( int InSupport, struct GeoData *GeoData_P, double k0 ){
 
   GetDP_Begin("Geo_CreateFMMGroup");
 
-  Dimension = (int)GeoData_P->Dimension ;    
+  //Dimension = (int)GeoData_P->Dimension ;    
+  Dimension = Current.FMM.Dimension ;    
 
   tol = 1e-6;
 
@@ -1271,7 +1276,7 @@ void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){
 
   Current.DofData->FMM_Matrix = NULL ;
 
-  Current.FMM.Dimension = DIM = (int)((GeoData_P)->Dimension) ;
+  //Current.FMM.Dimension = DIM = (int)((GeoData_P)->Dimension) ;
   
   for (i_EquTerm = 0 ; i_EquTerm < Nbr_EquationTerm ; i_EquTerm++) {
     EquationTerm_P = EquationTerm_P0 + i_EquTerm ;
@@ -1284,7 +1289,8 @@ void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){
 
 	if(DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.NbrParameters == 2)
 	  k0 = DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[1] ;/* Helmoltz Case */
-	/* DIM = (int)DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[0] ; */
+	  DIM = (int)DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[0] ;
+	  Current.FMM.Dimension = DIM ;
 
 	if( List_PQuery(InIndex, &EquationTerm_P->Case.LocalTerm.InIndex, fcmp_int) == NULL ){
 	  List_Add( InIndex, &EquationTerm_P->Case.LocalTerm.InIndex ) ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_FMM.c,v 1.8 2004-01-19 16:51:13 geuzaine Exp $"
+#define RCSID "$Id: Print_FMM.c,v 1.9 2004-05-11 08:02:33 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -36,7 +36,7 @@ int Get_GmshElementType(int Type) ;
 
 void  Geo_WriteFileFMMGroups(struct GeoData *GeoData_P, char * FileName){
 
-  int  i, j, i_Support, NbrInSupport, NbrGroups, NbrElmsGroupi ;
+  int  i, j, i_Support, NbrInSupport, NbrGroups, NbrElmsGroupi, k = -1 ;
   int *ElmsGroupi_P0 ;
   struct Geo_Element *Element_P ;
   struct FMMData  *FMMData_P0 ;
@@ -59,6 +59,8 @@ void  Geo_WriteFileFMMGroups(struct GeoData *GeoData_P, char * FileName){
     fprintf(file, "View \"FMM Support %d (%d)\" { \n", i_Support, NbrGroups ) ;
     
     for( i = 0 ; i < NbrGroups ; i++ ){
+      if ( k < 10 ) k++;
+      else k = 0 ;
       NbrElmsGroupi =  List_Nbr((FMMData_P0+i)->Element) ;
       ElmsGroupi_P0 = (int*)List_Pointer((FMMData_P0+i)->Element,0) ;
       for( j = 0 ; j < NbrElmsGroupi ; j++){
@@ -87,7 +89,7 @@ void  Geo_WriteFileFMMGroups(struct GeoData *GeoData_P, char * FileName){
 		  Geo_GetGeoNodeOfNum(Element_P->NumNodes[1])->z,
 		  Geo_GetGeoNodeOfNum(Element_P->NumNodes[2])->x,
 		  Geo_GetGeoNodeOfNum(Element_P->NumNodes[2])->y,
-		  Geo_GetGeoNodeOfNum(Element_P->NumNodes[2])->z, i, i, i); break;
+		  Geo_GetGeoNodeOfNum(Element_P->NumNodes[2])->z, k, k, k); break;
 	case QUADRANGLE : 
 	  fprintf(file, "SQ( %f , %f , %f , %f , %f , %f, %f , %f , %f, %f , %f , %f) { %d, %d ,%d, %d };\n",
 		  Geo_GetGeoNodeOfNum(Element_P->NumNodes[0])->x,
@@ -266,10 +268,12 @@ void Print_FMMGroupInfo( char* FileName ){
   NbrDir = Current.FMM.NbrDir ;
   N = (NbrDir-1)*(NbrDir+1);
   NbrHar = 2 ;
+
+  if (Current.FMM.Precision == 0) NbrDirMAX = NbrDirAV = NbrDir ;
+
   NbrCom = Current.FMM.NbrCom ;
   NbrFMMEqu = List_Nbr(Current.DofData->FMM_Matrix) ;
   NbrInSupport = List_Nbr(Problem_S.FMMGroup) ;
-
 
   NbrMultLaplace2D = NbrMultLaplace3D = 0 ;
 
@@ -291,6 +295,7 @@ void Print_FMMGroupInfo( char* FileName ){
     StorageFMMA = StorageFMMD = StorageFMMT = 0. ;
 
     List_Read(Current.DofData->FMM_Matrix, iFMMEqu, &FMMmat_S ) ;
+    
     List_Read(Problem_S.FMMGroup, FMMmat_S.Src, &FMMGroupSrc_S) ;
     FMMDataSrc_P0 =  FMMDataObs_P0 = (struct FMMData*)List_Pointer(FMMGroupSrc_S.List, 0) ; 
     NbrGroupsSrc = NbrGroupsObs =  List_Nbr(FMMGroupSrc_S.List) ;
@@ -365,15 +370,22 @@ void Print_FMMGroupInfo( char* FileName ){
       List_Read(FMMmat_S.FG_L, i, &G_L) ;	  
       NbrFG = List_Nbr(G_L) ;
       FG = (int*)( G_L->array ) ;
-      List_Read(FMMmat_S.Nd_L, i, &Nd_L) ;	  
-      Nd = (int*)( Nd_L->array ) ;
       fprintf(file, "\nFAR (on %d) ", FMMmat_S.Obs);
-      for (j = 0 ; j < NbrFG ; j++ ){
-	fprintf(file,"%d(%d) ", FG[j], Nd[j]);	
-	NbrDirAV += Nd[j] ;
-	NbrDirMAX = (NbrDirMAX < Nd[j]) ? Nd[j] : NbrDirMAX ; 
+     
+      if(Current.FMM.Precision != 0){
+	List_Read(FMMmat_S.Nd_L, i, &Nd_L) ;	  
+	Nd = (int*)( Nd_L->array ) ;      
+	for (j = 0 ; j < NbrFG ; j++ ){
+	  fprintf(file,"%d(%d) ", FG[j], Nd[j]);	
+	  NbrDirAV += Nd[j] ;
+	  NbrDirMAX = (NbrDirMAX < Nd[j]) ? Nd[j] : NbrDirMAX ; 
+	}
       }
-      if(NbrFG) NbrDirAV /=NbrFG ;
+      else 
+	for (j = 0 ; j < NbrFG ; j++ )
+	  fprintf(file,"%d(%d) ", FG[j], NbrDir);	
+
+      if(NbrFG && Current.FMM.Precision != 0) NbrDirAV /=NbrFG ;
       fprintf(file, "\n\n");    
     }
     

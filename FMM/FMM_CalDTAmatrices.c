@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.7 2004-01-19 16:51:12 geuzaine Exp $"
+#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.8 2004-05-11 07:59:17 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -25,13 +25,13 @@
 
 #include "GetDP.h"
 #include "Treatment_Formulation.h"
+#include "Cal_Quantity.h"
 #include "CurrentData.h"
 #include "Get_Geometry.h"
 #include "Get_DofOfElement.h"
 #include "DofData.h"
 #include "Data_DefineE.h"
 #include "Cal_Value.h"
-#include "Cal_Quantity.h"
 #include "GF_Function.h"
 #include "Tools.h"
 #include "Data_FMM.h"
@@ -61,7 +61,7 @@ void GF_FMMTranslationValue ( ){
   Msg(INFO, "Creation Translation matrix (with GF_Functions)");
 
   Nd = Current.FMM.NbrDir ;
-
+ 
   /* The dimensions of the matrix depend on the case we are dealing with.
      Helmholtz -> Nd, Laplace2D -> Nd * Nd, Laplace3D -> (2*Nd-1)*(2*Nd+1) */
 
@@ -76,15 +76,16 @@ void GF_FMMTranslationValue ( ){
     FMMObs = (FMMmat_P0+iEqu)->Obs ;
     GFx = (FMMmat_P0+iEqu)->GFx ;
 
-    N = (GFx->NbrParameters==2) ? Nd : 
+    N = (GFx->NbrParameters==2 || GFx->NbrParameters == 3 ) ? Nd : 
       (((int)GFx->Para[0] == _2D) ? Nd*Nd : (2*Nd-1)*(2*Nd+1)) ; 
 
     jEqu = 0 ; while( jEqu<iEqu && ((FMMmat_P0+jEqu)->Src != FMMSrc ||
 				    (FMMmat_P0+jEqu)->Obs != FMMObs)) jEqu ++ ;
     if (jEqu < iEqu && GFx->NbrParameters == 1 && GFx->Para[0] != _2D  )
       (FMMmat_P0 + iEqu)->T = (FMMmat_P0 + jEqu)->T ;
-    else {
-
+    else { 
+      /* If the Source and Observation supports are the same for two Galerkin Terms, 
+	 the translation matrix is common */ 
       List_Read(Problem_S.FMMGroup, FMMSrc, &FMMGroup_S ) ;
       NbrGroupSrc = List_Nbr(FMMGroup_S.List ) ;
       FMMDataSrc_P0 = FMMDataObs_P0 =(struct FMMData*)List_Pointer(FMMGroup_S.List, 0) ;
@@ -131,6 +132,7 @@ void GF_FMMTranslationValue ( ){
   }
   Current.NbrHar = NbrHar ;
   Current.FMM.Flag_GF = FMM_DIRECT ;
+
   GetDP_End ;
 }
 
@@ -176,7 +178,6 @@ void GF_FMMTranslationValueAdaptive( ){
   for(iEqu = 0 ; iEqu < NbrFMMEqu ; iEqu ++ ){
     FMMSrc = (FMMmat_P0+iEqu)->Src ;
     FMMObs = (FMMmat_P0+iEqu)->Obs ;
-
     GFx = (FMMmat_P0+iEqu)->GFx ;
 
     jEqu = 0 ; while( jEqu<iEqu && ((FMMmat_P0+jEqu)->Src != FMMSrc ||
@@ -250,7 +251,7 @@ void GF_FMMTranslationValueAdaptive( ){
   Current.NbrHar = NbrHar ;
   Current.FMM.Flag_GF = FMM_DIRECT ;
 
-  Msg(RESOURCES, "After translation ");
+  Msg(RESOURCES, "After translation");
 
   GetDP_End ;
 }
@@ -303,6 +304,7 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 
   GetDP_Begin("Cal_FMMGalerkinDisaggregation");
 
+  Msg(RESOURCES, "Before Disaggregation ");
   Msg(INFO, "Creation Disaggregation matrices");
 
   NbrFMMEqu = List_Nbr(Current.DofData->FMM_Matrix) ;
@@ -312,19 +314,17 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 
   Current.FMM.Type = SCALAR ;
 
-  /* Watch out, the equations in the profile should be
-     written so as to obtained a SCALAR, 
-     the VECTOR possibility has not yet been implemented */
-
   Current.NbrHar = 2 ; /* FMM requires complex numbers, even with Laplace equation */
 
   for ( i_FMMEqu = 0 ; i_FMMEqu < NbrFMMEqu ; i_FMMEqu ++ ){
     FMMmat_P = FMMmat_P0 + i_FMMEqu ;
-    FMMmat_P->NbrCom = 1 ; 
     FMMObs = FMMmat_P->Obs ;
         
     EquationTerm_P = EquationTerm_P0 + FMMmat_P->EquTermIndex ;    
     FI = EquationTerm_P->Case.LocalTerm.Active ;
+
+    if ( FMMmat_P->NbrCom == 0 )
+      FMMmat_P->NbrCom = (Get_ValueFromForm(FI->Type_FormEqu)== VECTOR) ? 3 : 1 ;
 
     QuantityStorageEqu_P = FI->QuantityStorageEqu_P ;
     QuantityStorageDof_P = FI->QuantityStorageDof_P ;
@@ -380,8 +380,6 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 	if (Element.GeoElement->FMMGroup != i_Group) 
 	  Msg(ERROR, "Element.GeoElement->FMMGroup != i_Group");
 	Element.FMMGroup = i_Group ;
-
-	
 	
 	QuantityStorageEqu_P->NumLastElementForFunctionSpace = Element.Num ;
 	Get_DofOfElement
@@ -393,7 +391,7 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 	Get_FunctionValue(Nbr_Equ, (void (**)())xFunctionBFEqu,
 			  EquationTerm_P->Case.LocalTerm.Term.TypeOperatorEqu,
 			  QuantityStorageEqu_P, &FI->Type_FormEqu) ;
-	
+
 	Current.Element = &Element ; 
 	Element.ElementSource = &Element ;
 	Current.ElementSource = Element.ElementSource ;
@@ -471,7 +469,7 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 	    
 	    Cal_ZeroValue(&TermFct);
 	    Cal_TermsforDisaggregation( EquationTerm_P, QuantityStorage_P0, &TermFct ) ;
-	    
+
 	    /* Test Functions */		
 
 	    for (i = 0 ; i < Nbr_Equ ; i++) {
@@ -481,7 +479,7 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 		  (&Element,
 		   QuantityStorageEqu_P->BasisFunction[i].NumEntityInElement+1,
 		   Current.u, Current.v, Current.w, vBFuEqu) ;
-		
+		vBFxEqu[0] = vBFxEqu[1]= vBFxEqu[2] = 0. ;/* Initialization */		
 		((void (*)(struct Element*, double*, double*))
 		 FI->xChangeOfCoordinatesEqu) (&Element, vBFuEqu, vBFxEqu) ;
 		
@@ -600,7 +598,7 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
   int     i, j, Type_Dimension, Nbr_IntPoints, i_IntPoint ;
   int     Nbr_DofList, NbrHar ;
   
-  double  weight, Factor ;
+  double  weight, Factor = 1. ;
   double  vBFuDof [MAX_DIM], vBFxDof [MAX_DIM] ;
 
 
@@ -617,28 +615,26 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 
   GetDP_Begin("Cal_FMMGalerkinAggregation");
 
+  Msg(RESOURCES, "Before Aggregation ");
   Msg(INFO, "Creation Aggregation matrices");
 
   NbrFMMEqu = List_Nbr(Current.DofData->FMM_Matrix) ;
   FMMmat_P0 = (struct FMMmat*)List_Pointer(Current.DofData->FMM_Matrix, 0 ) ;
-  NbrDir = Current.FMM.N ; 
+  NbrDir = Current.FMM.N ;
+
   NbrHar = Current.NbrHar ;
 
-  Current.FMM.Type = SCALAR ;
-
-  /* Watch out, the equations in the profile should be
-     written so as to obtained a SCALAR, 
-     the VECTOR possibility has not yet been implemented */
-
-  Current.NbrHar = 2 ; /* FMM requires complex numbers, even with Laplace equation */
+  Current.NbrHar = 2 ; /* ALWAYS complex numbers in FMM data matrices*/
 
   for ( i_FMMEqu = 0 ; i_FMMEqu < NbrFMMEqu ; i_FMMEqu ++ ){
     FMMmat_P = FMMmat_P0 + i_FMMEqu ;
-    FMMmat_P->NbrCom = 1 ; 
     FMMSrc = FMMmat_P->Src ;
         
     EquationTerm_P = EquationTerm_P0 + FMMmat_P->EquTermIndex ;    
     FI = EquationTerm_P->Case.LocalTerm.Active ;
+
+    if ( FMMmat_P->NbrCom == 0 )
+      FMMmat_P->NbrCom = (Get_ValueFromForm(FI->IntegralQuantityActive.Type_FormDof)== VECTOR) ? 3 : 1 ;
 
     QuantityStorageDof_P = FI->QuantityStorageDof_P ;
 
@@ -673,18 +669,18 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
       List_Read(FMMmat_P->A_L, i_Group, &Aggreg_M) ;
       List_Read(FMMmat_P->NumDof, i_Group, &NumDof_L) ;
       Nbr_DofList = List_Nbr(NumDof_L) ;
-	
+
       if (Aggreg_M == NULL){		  
 	Aggreg_M = (double**)Malloc(Nbr_DofList*sizeof(double*)) ;
 	for (j = 0 ; j < Nbr_DofList ; j++)
 	  Aggreg_M[j] = (double*)Calloc(2 * FMMmat_P->NbrCom * NbrDir, sizeof(double)) ;
       }
-      
+
       Current.FMM.Xgc  = FMMData_P->Xgc ; /* FMM group center */
       Current.FMM.Ygc  = FMMData_P->Ygc ;
       Current.FMM.Zgc  = FMMData_P->Zgc ;
       Current.FMM.Rsrc = FMMData_P->Rmax ;
-
+      
       for (i_Element = 0 ; i_Element < Nbr_ElmsInGroup ; i_Element++) {
 	Element.GeoElement = Geo_GetGeoElementOfNum(ElmtsGr[i_Element]) ;
 	Element.Num    = Element.GeoElement->Num ;
@@ -702,27 +698,30 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 	Get_DofOfElement
 	  (&Element, QuantityStorageDof_P->FunctionSpace, QuantityStorageDof_P,
 	   NULL) ;
-	  
+
+	Get_NodesCoordinatesOfElement(Element.ElementSource) ;  
 	Nbr_Dof = QuantityStorageDof_P->NbrElementaryBasisFunction ;
-	  
+	
 	Get_FunctionValue(Nbr_Dof, (void (**)())xFunctionBFDof,
-			  EquationTerm_P->Case.LocalTerm.Term.TypeOperatorDof,
-			  QuantityStorageDof_P, &FI->Type_FormDof) ;
-	  
+                          QuantityStorageDof_P->DefineQuantity->IntegralQuantity.TypeOperatorDof, 
+                          QuantityStorageDof_P, &FI->IntegralQuantityActive.Type_FormDof) ;
+
 	FI->xChangeOfCoordinatesDof =
-	  (void (*)())Get_ChangeOfCoordinates(FI->Flag_ChangeCoord, FI->Type_FormDof) ;
+	  (void (*)())Get_ChangeOfCoordinates(FI->Flag_ChangeCoord, FI->IntegralQuantityActive.Type_FormDof) ;
 	  
 	i = 0 ;
-	while ((i < FI->NbrJacobianCase) &&
-	       ((j = (FI->JacobianCase_P0 + i)->RegionIndex) >= 0) &&
+
+	while ((i <  List_Nbr(FI->IntegralQuantityActive.JacobianCase_L)) &&
+	       ((j = ((struct JacobianCase *)List_Pointer(FI->IntegralQuantityActive.JacobianCase_L, i))
+		 ->RegionIndex) >= 0) &&
 	       !List_Search
-	       (((struct Group *)List_Pointer(Problem_S.Group, j))
-		->InitialList, &Element.Region, fcmp_int) )  i++ ;
-	
-	if (i == FI->NbrJacobianCase)
+	       (((struct Group *)List_Pointer(Problem_S.Group, j)) ->InitialList,
+		&Element.ElementSource->Region, fcmp_int) )  i++ ;
+    
+	if (i == List_Nbr(FI->IntegralQuantityActive.JacobianCase_L))
 	  Msg(ERROR, "Undefined Jacobian in Region %d", Element.Region);
 	
-	Element.JacobianCase = FI->JacobianCase_P0 + i ;
+	Element.JacobianCase = (struct JacobianCase*)List_Pointer(FI->IntegralQuantityActive.JacobianCase_L, i) ;
 	
 	Get_Jacobian = (double (*)(struct Element*, MATRIX3x3*))
 	  Get_JacobianFunction(Element.JacobianCase->TypeJacobian,
@@ -760,7 +759,7 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 	      Get_BFGeoElement(&Element, Current.us, Current.vs, Current.ws) ;
 	      
 	      Element.DetJac = Get_Jacobian(&Element, &Element.Jac) ;
-	      
+
 	      if (FI->Flag_InvJac)
 		Get_InverseMatrix(Type_Dimension, Element.Type, Element.DetJac,
 				  &Element.Jac, &Element.InvJac) ;
@@ -782,39 +781,39 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 	    ((CASTF2V)QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM.Fct)
 	      (&QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM,
 	       GFValue, GFValue ) ;
-	    
-	    for (i = 0 ; i < Nbr_Dof ; i++) {
+
+	    for (i = 0 ; i < Nbr_Dof ; i++) {	    
 	      if (QuantityStorageDof_P->BasisFunction[i].Dof->Type == DOF_UNKNOWN){
 		xFunctionBFDof[i]
 		  (&Element,
 		   QuantityStorageDof_P->BasisFunction[i].NumEntityInElement+1,
 		   Current.us, Current.vs, Current.ws, vBFuDof) ;
-		
+
+		vBFxDof[0] = vBFxDof[1]= vBFxDof[2] = 0. ;
 		((void (*)(struct Element*, double*, double*))
 		 FI->xChangeOfCoordinatesDof) (&Element, vBFuDof, vBFxDof) ;
-		
+				
 		vBFxDofV.Type = Get_ValueFromForm(FI->Type_FormDof) ;
-		vBFxDofV.Val[0]         = vBFxDof[0] * Factor ;
+      		vBFxDofV.Val[0]         = vBFxDof[0] * Factor ;
 		vBFxDofV.Val[1]         = vBFxDof[1] * Factor ;
 		vBFxDofV.Val[2]         = vBFxDof[2] * Factor ;
 		vBFxDofV.Val[MAX_DIM]   = 0. ;
 		vBFxDofV.Val[MAX_DIM+1] = 0. ;
 		vBFxDofV.Val[MAX_DIM+2] = 0. ;
-		
+
 		Apply_ConstantFactor(QuantityStorageDof_P, &vBFxDofV, &Val0) ;
 		
-		for (i_FMM = 0 ; i_FMM < NbrDir ; i_FMM++) 		
+		for (i_FMM = 0 ; i_FMM < NbrDir ; i_FMM++){ 		
 		  ((CAST3V)FunctionProd)(&vBFxDofV, &GFValue[i_FMM], &BFGFValue[i_FMM]) ;
-		
+		}
 		j = List_ISearch(NumDof_L, 
 				 &QuantityStorageDof_P->BasisFunction[i].Dof->
 				 Case.Unknown.NumDof, fcmp_int) ;
-		
+
 		if (j != -1) Cal_AddValueArray2DoubleArray(BFGFValue, Aggreg_M[j], NbrDir) ; 
 		else  Msg(ERROR, "Wrong NumEqu %d for Aggreg",
 			  QuantityStorageDof_P->BasisFunction[i].Dof->Case.Unknown.NumDof) ;
-		
-	      }/* if DOF_UNKNOWN */      
+	      }/* if DOF_UNKNOWN */     
 	    } /* for i Nbr_Dof */
 	    
 	  } /* for i_IntPoint ... */
