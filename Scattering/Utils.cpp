@@ -1,16 +1,20 @@
-// $Id: Utils.cpp,v 1.5 2002-02-27 16:38:15 geuzaine Exp $
+// $Id: Utils.cpp,v 1.6 2002-03-01 19:17:13 geuzaine Exp $
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <complex>
 
 #include "GetDP.h"
+#include "Utils.h"
 #include "Amos_F.h"
 #include "Data_Numeric.h"
 #include "Tools.h"
 #include "Bessel.h"
 #include "CriticalPoints.h"
+
+// one def
+
+Complex I(0.0,1.0);
 
 // move this to trash after merge with getdp
 

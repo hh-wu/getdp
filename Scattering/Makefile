@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2002-02-28 01:00:04 geuzaine Exp $
+# $Id: Makefile,v 1.8 2002-03-01 19:17:13 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -7,10 +7,14 @@
 
 SOLVER   = -D_SPARSKIT
 
-CXX      = c++ -g -Wall
-#CXX     = icc -Kc++ -O3 -xW # pentium 4 specific
-#CXX     = c++ -Wall -D_PETSC
+C_FLAGS = -g -O3 -Wall
+#C_FLAGS = -g -Wall -D_PETSC
 #include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables
+#C_FLAGS = -O3 -tpp7 -xW  # pentium 4 specific
+#C_FLAGS = -O0 -xW  # pentium 4 specific: runs faster than -O3!!!!!!!!!!!!!!!
+
+CXX      = c++
+#CXX     = icpc
 
 F2C     = -lg2c -lm # Linux gcc
 #F2C     = -lCEPCF90 -lF90 # Linux with intel compilers

@@ -1,10 +1,6 @@
 #ifndef _NYSTROM_H_
 #define _NYSTROM_H_
 
-#include <complex>
-
-using namespace std;
-
 #define FULL_INTEGRATION     (1<<0)
 #define CRITICAL_INTEGRATION (1<<1)
 #define INTERACT1            (1<<2)
@@ -18,7 +14,7 @@ class Function{
 public:
   int num_bf, which;
 
-  complex<double> val(double k[3], double tau, double xtau[3]){
+  Complex val(double k[3], double tau, double xtau[3]){
     double kr;
     switch(which){
     case 0 : // Alain
@@ -31,7 +27,7 @@ public:
     }
   }
 
-  complex<double> bf(double tau){
+  Complex bf(double tau){
     switch(which){
     case 0 : // Alain
       return cos(tau);
@@ -66,8 +62,8 @@ public:
 
 // prototypes
 
-complex<double> Integrate(int typ, Function *f, Scatterer *scat, 
-			  double kv[3], double t, int nbpts, 
-			  double prescribed_eps, double rise);
+Complex Integrate(int typ, Function *f, Scatterer *scat, 
+		  double kv[3], double t, int nbpts, 
+		  double prescribed_eps, double rise);
 
 #endif

@@ -1,20 +1,16 @@
-// $Id: Bessel.cpp,v 1.5 2002-02-22 22:14:14 geuzaine Exp $
+// $Id: Bessel.cpp,v 1.6 2002-03-01 19:17:13 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
-#include <complex>
-
-using namespace std;
 
 #include "GetDP.h"
+#include "Utils.h"
 #include "Amos_F.h"
-
-complex<double> I(0.0,1.0);
 
 // First kind Bessel function
 
-complex<double> Bessel_j(int n, complex<double> x){
+Complex Bessel_j(int n, Complex x){
   double bjr, bji, fnu = (double)n, xr = x.real(), xi = x.imag();
   int nz = 0, ierr, kode = 1, NB = 1;
 
@@ -26,7 +22,7 @@ complex<double> Bessel_j(int n, complex<double> x){
 
 // Second kind Bessel function
 
-complex<double> Bessel_y(int n, complex<double> x){
+Complex Bessel_y(int n, Complex x){
   double byr, byi, auxbyr, auxbyi, fnu = (double)n, xr = x.real(), xi = x.imag();
   int nz = 0, ierr, kode = 1, NB = 1;
 
@@ -37,7 +33,7 @@ complex<double> Bessel_y(int n, complex<double> x){
 
 // Third kind Bessel function (Hankel function)
 
-complex<double> Bessel_h(int type, int n, complex<double> x){
+Complex Bessel_h(int type, int n, Complex x){
   double bhr, bhi, fnu = (double)n, xr = x.real(), xi = x.imag(); 
   int nz = 0, ierr, kode = 1, NB = 1;
 

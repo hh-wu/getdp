@@ -2,19 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <complex>
-
-using namespace std;
 
 #include "GetDP.h"
+#include "Utils.h"
 #include "LinAlg.h"
 #include "Tools.h"
-#include "Utils.h"
 #include "Data_Numeric.h"
 #include "Solve.h"
 
 void List_PrintMatlab(List_T *list){
-  complex<double> res;
+  Complex res;
   printf("out = [\n");
   for(int i=0; i<List_Nbr(list); i++){
     List_Read(list, i, &res);
@@ -30,8 +27,8 @@ void ForwardSolve(int typ, Function *f, Scatterer *scat,
 		  double kv[3], int nbtarget, double t0, int nbpts, 
 		  double prescribed_eps, double rise){
 
-  List_T *reslist=List_Create(nbtarget,20,sizeof(complex<double>));
-  complex<double> res;
+  List_T *reslist=List_Create(nbtarget,20,sizeof(Complex));
+  Complex res;
   double t;
   int i;
 
@@ -55,8 +52,8 @@ void BuildSolve(int typ, Function *f, Scatterer *scat,
   gSolver Solver;
   gMatrix A;
   gVector b, x;
-  List_T *reslist=List_Create(nbtarget,20,sizeof(complex<double>));
-  complex<double> res;
+  List_T *reslist=List_Create(nbtarget,20,sizeof(Complex));
+  Complex res;
   double t, xt[3], kr, d1, d2;
   int i, j, nbdof, localrange[2];
 
@@ -131,7 +128,7 @@ void BuildSolve(int typ, Function *f, Scatterer *scat,
     //List_PrintMatlab(reslist);
     
     // the following should be done with a FFT (in parallel!)
-    complex<double> phi; 
+    Complex phi; 
     for(i=0 ; i<100 ; i++){
       phi = 0.;
       t = 2*PI*i/100.;

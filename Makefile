@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.80 2002-02-28 01:00:04 geuzaine Exp $
+# $Id: Makefile,v 1.81 2002-03-01 19:17:12 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -82,7 +82,7 @@ GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-#include ${PETSC_DIR}/bmake/common/base
+##include ${PETSC_DIR}/bmake/common/base
 
 # ----------------------------------------------------------------------
 # Rules for developpers
@@ -536,16 +536,14 @@ petsc-simple: compile-petsc-simple link-petsc-simple
 # Linux, Pentium 4 with Intel compiler
 #   -xW : generate code for P4 (this _really_ increases perf)
 #
-# ! There are strange things happening with optimization
-#
 compile-p4: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) Scattering; do (cd $$i && $(MAKE) \
            "CC=icc -Kc++" \
            "CXX=icc -Kc++" \
            "FC=ifc -w90 -w" \
-           "C_FLAGS=-O2 -xW" \
-           "C_PARSER_FLAGS=-O2 -xW" \
-           "F77_FLAGS=-O2 -xW" \
+           "C_FLAGS=-O3 -xW" \
+           "C_PARSER_FLAGS=-O3 -xW" \
+           "F77_FLAGS=-O3 -xW" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done

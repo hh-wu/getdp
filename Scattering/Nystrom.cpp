@@ -1,19 +1,16 @@
-// $Id: Nystrom.cpp,v 1.19 2002-02-28 01:00:04 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.20 2002-03-01 19:17:13 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <complex>
-
-using namespace std;
 
 #include "GetDP.h"
+#include "Utils.h"
 #include "Amos_F.h"
 #include "Data_Numeric.h"
 #include "LinAlg.h"
 #include "Tools.h"
-#include "Utils.h"
 #include "Bessel.h"
 #include "CriticalPoints.h"
 #include "Nystrom.h"
@@ -80,13 +77,13 @@ public:
     kr = k*r;
     d = sqrt(SQU(dxtau[0])+SQU(dxtau[1])) ;
   }
-  complex<double> M(){
+  Complex M(){
     return Bessel_h(1,0,kr) * d;
   }
-  complex<double> M1(){
+  Complex M1(){
     return -2./(I*TWO_PI) * Bessel_j(0,kr) * d;
   }
-  complex<double> M2(double tau_orig, double jac){
+  Complex M2(double tau_orig, double jac){
     if(fabs(t-tau)>EPSILON)
       return M()-M1()*log(4.*SQU(sin((tau_orig-PI)/2.)));
     //return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
@@ -100,9 +97,19 @@ public:
 // Special quadrature weights for Nystrom integrator
 
 double SpecialQuadratureWeightForLog(double t, double tau, int n){
+  /*
   double m, w=0.;
   for(m=1. ; m<=n-1 ; m++) w += cos(m*(t-tau))/m;
   return -TWO_PI/n*w - PI/(n*n)*cos(n*(t-tau));
+  */
+  int m;
+  double w=0., tmp;
+  for(m=1 ; m<=n-1 ; m++){
+    w += cos(m*(t-tau))/m;
+  }
+  
+  tmp = -TWO_PI/n*w - PI/(n*n)*cos(n*(t-tau));
+  return tmp;
 }
 
 
@@ -135,9 +142,9 @@ double SpecialQuadratureWeightForLog(double t, double tau, int n){
 // Colton & Kress. Warning: the jacobian eps/PI also appears in the
 // decomposition of the kernel.
 
-complex<double> Nystrom(int singular, double t, Function *func, double kvec[3], 
-			int nbpts, Scatterer *scat, Partition *part){
-  complex<double> res=0., f, m, m1, m2;
+Complex Nystrom(int singular, double t, Function *func, double kvec[3], 
+		int nbpts, Scatterer *scat, Partition *part){
+  Complex res=0., f, m, m1, m2;
   double xt[3], dxt[3], xtau[3], dxtau[3], tau, tau_orig, pou, w;
   int j, n = nbpts/2;
   double k = NORM3(kvec);
@@ -185,9 +192,9 @@ complex<double> Nystrom(int singular, double t, Function *func, double kvec[3],
 //
 // 
 
-complex<double> NystromNew(int singular, double t, Function *func, double kvec[3], 
-			   int nbpts, Scatterer *scat, Partition *part){
-  complex<double> res=0., f, m, m1, m2;
+Complex NystromNew(int singular, double t, Function *func, double kvec[3], 
+		   int nbpts, Scatterer *scat, Partition *part){
+  Complex res=0., f, m, m1, m2;
   double xt[3], dxt[3], xtau[3], dxtau[3], tau, tau_orig, pou, w;
   int j, n = nbpts/2, chgofvars=1;
   double k = NORM3(kvec);
@@ -252,14 +259,14 @@ int fcmp_Interval(const void * a, const void * b) {
 
 // Integrate, given the target point 't'
 
-complex<double> Integrate(int typ, Function *f, Scatterer *scat, 
-			  double kv[3], double t, int nbpts, 
-			  double prescribed_eps, double rise){
+Complex Integrate(int typ, Function *f, Scatterer *scat, 
+		  double kv[3], double t, int nbpts, 
+		  double prescribed_eps, double rise){
   Partition part, part2;
   Interval I, *pI;
   static List_T *CritPts=List_Create(10,10,sizeof(double));
   static List_T *Intervals=List_Create(10,10,sizeof(Interval));
-  complex<double> res, tmp, tmp2;
+  Complex res, tmp, tmp2;
   double d, eps, s_eps;
   int j, nb, s_index, i_index;
 
