@@ -24,6 +24,13 @@
 
 #include "List.h"
 
+#ifdef MAX
+#undef MAX
+#endif
+#ifdef MIN
+#undef MIN
+#endif
+
 #define THESIGN(a) ((a)>=0 ? 1 : -1)
 #define THEABS(a)  ((a)>=0 ? a : -a)
 #define SQU(a)     ((a)*(a)) 

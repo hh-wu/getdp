@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.26 2002-10-03 18:08:54 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.27 2004-04-02 17:23:56 geuzaine Exp $
 
 #include "Utils.h"
 #include "Scatterer.h"
@@ -111,7 +111,9 @@ void Scatterer::n(double u, double v, double *x){
     x[2] = 0.; 
     break;
   case ELLIPSE :
-    Msg(GERROR, "Ellipse: n not done");
+    x[0] = b*cos(u)/arclength;
+    x[1] = a*sin(u)/arclength; 
+    x[2] = 0.;
     break;
   case DROP :
     x[0] = cos(u)/arclength;
