@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.18 2001-10-24 16:00:48 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.19 2001-11-09 09:46:51 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -259,45 +259,64 @@ void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
       (struct ConstraintInFS*)List_Pointer(Constraint_L, i_Constraint) ;
     ConstraintPerRegion_P = Constraint_P->ConstraintPerRegion ;
     
-    if ((ConstraintPerRegion_P->Type == ASSIGN ||
-	 ConstraintPerRegion_P->Type == INIT ||
-	 ConstraintPerRegion_P->Type == ASSIGNFROMRESOLUTION ||
-	 ConstraintPerRegion_P->Type == INITFROMRESOLUTION) &&
-	(Constraint_P->QuantityType == GLOBALQUANTITY)) {
+    if (Constraint_P->QuantityType == GLOBALQUANTITY) {
 
-      GlobalQuantity_Pr = (struct GlobalQuantity*)
-	List_Pointer(FunctionSpace_P->GlobalQuantity,
-		     Constraint_P->ReferenceIndex) ;
+      switch(ConstraintPerRegion_P->Type) {
+	
+      case ASSIGN :                case INIT :
+      case ASSIGNFROMRESOLUTION :  case INITFROMRESOLUTION :
+      case CST_LINK : case CST_LINKCPLX :
 
-      if (GlobalQuantity_Pr == GlobalQuantity_P) {
+	GlobalQuantity_Pr = (struct GlobalQuantity*)
+	  List_Pointer(FunctionSpace_P->GlobalQuantity,
+		       Constraint_P->ReferenceIndex) ;
+
+	if (GlobalQuantity_Pr == GlobalQuantity_P) {
 	  
-	GroupEntity_Pr = (struct Group*)
-	  List_Pointer(Problem_S.Group, Constraint_P->EntityIndex) ;
+	  GroupEntity_Pr = (struct Group*)
+	    List_Pointer(Problem_S.Group, Constraint_P->EntityIndex) ;
 	  
-	if (/*(GroupEntity_Pr->FunctionType == 
-	      ((struct Group *)List_Pointer(Problem_S.Group, 
-	      BasisFunction_P->EntityIndex))
-	      ->FunctionType)  && */
-	    List_Search
-	    (GroupEntity_Pr->InitialList,
-	     &QuantityStorage_P->BasisFunction[0].CodeEntity, fcmp_int) ) {
+	  if (/*(GroupEntity_Pr->FunctionType == 
+		((struct Group *)List_Pointer(Problem_S.Group, 
+		BasisFunction_P->EntityIndex))
+		->FunctionType)  && */
+	      List_Search
+	      (GroupEntity_Pr->InitialList,
+	       &QuantityStorage_P->BasisFunction[0].CodeEntity, fcmp_int) ) {
 
-	  QuantityStorage_P->BasisFunction[0].Constraint =
-	    ConstraintPerRegion_P->Type ;
+	    QuantityStorage_P->BasisFunction[0].Constraint =
+	      ConstraintPerRegion_P->Type ;
 
-	  if (ConstraintPerRegion_P->Type == ASSIGN ||
-	      ConstraintPerRegion_P->Type == INIT)
-	    Get_ValueForConstraint
-	      (Constraint_P, QuantityStorage_P->BasisFunction[0].Value,
-	       &QuantityStorage_P->BasisFunction[0].TimeFunctionIndex) ;
-	  else
-	    Get_PreResolutionForConstraint
-	      (Constraint_P,
-	       &QuantityStorage_P->BasisFunction[0].TimeFunctionIndex) ;
+	    if (ConstraintPerRegion_P->Type == ASSIGN ||
+		ConstraintPerRegion_P->Type == INIT)
+	      Get_ValueForConstraint
+		(Constraint_P, QuantityStorage_P->BasisFunction[0].Value,
+		 &QuantityStorage_P->BasisFunction[0].TimeFunctionIndex) ;
+	    else if (ConstraintPerRegion_P->Type == CST_LINK ||
+		     ConstraintPerRegion_P->Type == CST_LINKCPLX) {
+	      Get_LinkForConstraint
+		(Constraint_P,
+		 QuantityStorage_P->BasisFunction[0].CodeEntity,
+		 &QuantityStorage_P->BasisFunction[0].CodeEntity_Link,
+		 QuantityStorage_P->BasisFunction[0].Value) ;
+	      if (QuantityStorage_P->BasisFunction[0].CodeEntity ==
+		  QuantityStorage_P->BasisFunction[0].CodeEntity_Link)
+		  QuantityStorage_P->BasisFunction[0].Constraint = NONE ;
+		/* Code linked with itself not allowed */
+	    }
+	    else
+	      Get_PreResolutionForConstraint
+		(Constraint_P,
+		 &QuantityStorage_P->BasisFunction[0].TimeFunctionIndex) ;
+	  }
 	}
+	break ;  /* ASSIGN || INIT || ASSIGNFROMRESOLUTION || INITFROMRESOLUTION */
+
+      default :
+	Msg(ERROR, "Unknown type of Constraint");
+	break;
       }
-    }  /* if (ASSIGN || INIT || ASSIGNFROMRESOLUTION || INITFROMRESOLUTION) && 
-	      GLOBALQUANTITY ... */
+    }  /* if (GLOBALQUANTITY) ... */
 
   }  /* for i_Constraint ... */
 
@@ -355,6 +374,7 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
 			    int * CodeEntity_Link, double Value[]) {
 
   struct TwoIntOneDouble  * TwoIntOneDouble_P ;
+  List_T * Couples_L ;
 
   void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New) ;
 
@@ -369,18 +389,23 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
 
 
   TwoIntOneDouble_P = (struct TwoIntOneDouble *)
+    ((Couples_L = Constraint_P->Active.Active->Case.Link.Couples)?
+     List_PQuery(Couples_L, &Num_Entity, fcmp_absint) : NULL) ;
+  /* old
     List_PQuery(Constraint_P->Active.Active->Case.Link.Couples,
 		&Num_Entity, fcmp_absint) ;
   if (!TwoIntOneDouble_P)  Msg(ERROR, "Constraint Link: bad definition") ;
+  */
 
-  *CodeEntity_Link = abs(TwoIntOneDouble_P->Int2) ;
-  Value[0] = TwoIntOneDouble_P->Double ;
-  if (TwoIntOneDouble_P->Int1 < 0)  Value[0] *= -1. ;
+  if (TwoIntOneDouble_P) {
+    *CodeEntity_Link = abs(TwoIntOneDouble_P->Int2) ;
+    Value[0] = TwoIntOneDouble_P->Double ;
+    if (TwoIntOneDouble_P->Int1 < 0)  Value[0] *= -1. ;
 
-
-  Value[1] = TwoIntOneDouble_P->Double2 ;  /* LinkCplx */
-  if (Current.NbrHar == 2) {
-    if (TwoIntOneDouble_P->Int1 < 0)  Value[1] *= -1. ;
+    Value[1] = TwoIntOneDouble_P->Double2 ;  /* LinkCplx */
+    if (Current.NbrHar == 2) {
+      if (TwoIntOneDouble_P->Int1 < 0)  Value[1] *= -1. ;
+    }
   }
 
   GetDP_End ;
@@ -402,6 +427,9 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 			 List_T * Couples_L) ;
 int fcmp_XYZ(const void * a, const void * b) ;
 int fcmp_NN(const void * a, const void * b) ;
+void  Generate_LinkRegions(struct ConstraintInFS * Constraint_P,
+			   List_T * Region_L, List_T * RegionRef_L,
+			   int Index_Coef, List_T * Couples_L) ;
 void  Generate_ElementaryEntities_EdgeNN
   (List_T * InitialList, List_T ** ExtendedList, int Type_Entity) ;
 
@@ -438,7 +466,12 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New) {
 		 Constraint_P->ConstraintPerRegion->Case.Link.SubRegionRefIndex) :
     NULL ;
 
-  if ((Nbr_Entity = List_Nbr(Group_P->ExtendedList))) {
+  if (Group_P->FunctionType == REGION)
+    Nbr_Entity = List_Nbr(Group_P->InitialList) ;
+  else
+    Nbr_Entity = List_Nbr(Group_P->ExtendedList) ;
+
+  if (Nbr_Entity) {
     if (Flag_New)
       Active->Case.Link.Couples =
 	List_Create(Nbr_Entity, 1, sizeof(struct TwoIntOneDouble)) ;
@@ -467,6 +500,12 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New) {
     break ;
   case FACETSOF :
     Msg(ERROR, "Link not yet implemented for FACETSOF") ;
+    break ;
+  case REGION :
+    Generate_LinkRegions(Constraint_P,
+			 Group_P->InitialList, RegionRef_P->InitialList,
+			 Constraint_P->ConstraintPerRegion->Case.Link.CoefIndex,
+			 Active->Case.Link.Couples) ;
     break ;
   default :
     Msg(ERROR, "Bad function type for Constraint Link: %d", Group_P->FunctionType) ;
@@ -920,6 +959,36 @@ void  Generate_ElementaryEntities_EdgeNN
     Tree_Delete(Entity_Tr) ;
   }
   else  *ExtendedList = NULL ;
+
+  GetDP_End ;
+}
+
+/*  G e n e r a t e _ L i n k R e g i o n s  */
+
+void  Generate_LinkRegions(struct ConstraintInFS * Constraint_P,
+			   List_T * Region_L, List_T * RegionRef_L,
+			   int Index_Coef, List_T * Couples_L) {
+
+  struct TwoIntOneDouble  TwoIntOneDouble ;
+  struct Value  Value ;
+
+  GetDP_Begin("Generate_LinkRegions");
+
+  if (List_Nbr(Region_L) > 1 || List_Nbr(RegionRef_L) > 1)
+    Msg(ERROR, "More than one region for link type constraint") ;
+
+  List_Read(Region_L, 0, &TwoIntOneDouble.Int1) ;
+  List_Read(RegionRef_L, 0, &TwoIntOneDouble.Int2) ;
+
+  Get_ValueOfExpressionByIndex(Index_Coef, NULL, 0., 0., 0., &Value) ;
+  TwoIntOneDouble.Double = Value.Val[0] ;
+
+  if (Current.NbrHar == 2) /* LinkCplx */
+    TwoIntOneDouble.Double2 = Value.Val[MAX_DIM] ;
+  else
+    TwoIntOneDouble.Double2 = 0. ;
+
+  List_Add(Couples_L, &TwoIntOneDouble) ;
 
   GetDP_End ;
 }

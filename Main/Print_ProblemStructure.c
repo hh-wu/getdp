@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.26 2001-09-05 09:03:37 dular Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.27 2001-11-09 09:46:51 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -296,6 +296,7 @@ void  Print_Network(struct MultiConstraintPerRegion  * MCPR_P) {
       CA->Case.Network.NbrNode, CA->Case.Network.NbrBranch) ;
   Msg(CHECK, "\n") ;
 
+  Msg(CHECK, "MatNode (NbrNode x NbrBranch):\n");
   for (i = 0 ; i < CA->Case.Network.NbrNode ; i++) {
     for (j = 0 ; j < CA->Case.Network.NbrBranch ; j++) {
       Msg(CHECK, "%2d ", CA->Case.Network.MatNode[i][j]) ;
@@ -305,6 +306,7 @@ void  Print_Network(struct MultiConstraintPerRegion  * MCPR_P) {
 
   Msg(CHECK, "\n");
 
+  Msg(CHECK, "MatLoop (NbrLoop x NbrBranch):\n");
   for (i = 0 ; i < CA->Case.Network.NbrLoop ; i++) {
     for (j = 0 ; j < CA->Case.Network.NbrBranch ; j++) {
       Msg(CHECK, "%2d ", CA->Case.Network.MatLoop[i][j]) ;

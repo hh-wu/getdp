@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.9 2001-05-18 12:26:27 dular Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.10 2001-11-09 09:46:51 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -572,8 +572,9 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
   DofGlobal_DofLoop = (struct DofGlobal*)List_Pointer(DofGlobal_DofLoop_L, 0) ;
 
   for (k = 0 ; k < List_Nbr(DofGlobal_Equ_L) ; k++) {
-    if (DofGlobal_Equ[k].Dof->Type == DOF_FIXED) {
-      if (DofGlobal_DofNode[k].Dof == DofGlobal_Equ[k].Dof)
+    if (DofGlobal_Equ[k].Dof->Type == DOF_FIXED ||
+	DofGlobal_Equ[k].Dof->Type == DOF_LINK) {
+      if (DofGlobal_Equ[k].Dof == DofGlobal_DofNode[k].Dof)
 	DofGlobal_Equ[k].Dof = DofGlobal_DofLoop[k].Dof ;
       else
 	DofGlobal_Equ[k].Dof = DofGlobal_DofNode[k].Dof ;
@@ -616,6 +617,14 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 	      Val[k] = Val[0] ;  Val[k+1] = 0. ;
 	    }
 	  }
+	  /*
+	  Msg(CHECK, "Node: eq.(%d) [%d, %d], dof [%d, %d] : %.16g\n",
+	      Num_Equ,
+	      DofGlobal_Equ[Num_Equ].Dof->NumType, DofGlobal_Equ[Num_Equ].Dof->Entity,
+	      DofGlobal_P->Dof->NumType, DofGlobal_P->Dof->Entity,
+	      Val[0]
+	      ) ;
+	  */
 	  Cal_AssembleTerm_NeverDt(DofGlobal_Equ[Num_Equ].Dof, DofGlobal_P->Dof, Val) ;
 	}
       }
@@ -647,6 +656,14 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 	      Val[k] = Val[0] ;  Val[k+1] = 0. ;
 	    }
 	  }
+	  /*
+	  Msg(CHECK, "Loop: eq.(%d) [%d, %d], dof [%d, %d] : %.16g\n",
+	      Num_Equ,
+	      DofGlobal_Equ[Num_Equ].Dof->NumType, DofGlobal_Equ[Num_Equ].Dof->Entity,
+	      DofGlobal_P->Dof->NumType, DofGlobal_P->Dof->Entity,
+	      Val[0]
+	      ) ;
+	  */
 	  Cal_AssembleTerm_NeverDt(DofGlobal_Equ[Num_Equ].Dof, DofGlobal_P->Dof, Val) ;
 
 	}
