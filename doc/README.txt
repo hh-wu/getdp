@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.5 2001-03-10 20:01:29 geuzaine Exp $
+$Id: README.txt,v 1.6 2001-03-11 07:58:27 geuzaine Exp $
 
 For Windows versions of GetDP only:
 ===================================
@@ -37,7 +37,7 @@ use the cygwin tools:
    (approx. 150 Mb). To get a minimal working installation (approx. 15
    Mb), just deselect undesired packages (e.g. C, C++ and Fortran
    compilers, Perl, networking, etc.) during the installation.
-4. Go to http://sources.redhat.com/cygwin/sofware/
+4. Go to http://sources.redhat.com/cygwin/ported.html
 5. Download the latest tar.gz archive of rxvt and save it in
    C:\cygwin\
 6. Launch cygwin, and type 'cd /; tar zxvf rxvt-*'

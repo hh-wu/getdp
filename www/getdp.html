@@ -56,7 +56,7 @@ ENDSCRIPT--->
     This page is a mirror of <a href="/getdp/">/getdp/</a><p>
 ENDMIRROR--->
 
-<!---BEGINDATE$Date: 2001-03-10 23:54:03 $ENDDATE--->
+<!---BEGINDATE$Date: 2001-03-11 07:58:27 $ENDDATE--->
 
     &copy; 1998-2001 Patrick Dular and Christophe Geuzaine<br>
 
@@ -172,19 +172,19 @@ ENDMIRROR--->
 
   <td align="left" colspan=2><font face="Helvetica, Arial" size=-1>
 
-<form method="get" action="/cgi-bin/htsearch">
+<form method="post" action="/cgi-bin/htsearch">
 <input type="text" size="30" name="words" value="">
-</select>
-&nbsp;
+<input type="submit" value="Search">
 <input type="hidden" name="config" value="htdig">
 <input type="hidden" name="exclude" value="">
 Match <select name="method">
-<option value="and" selected>all words
-<option value="or">any words
+<option value="and" selected>all words</option>
+<option value="or">any words</option>
+<option value="boolean">boolean expression</option>
 </select>
-Search <select name="restrict">
-<option value="http://www.geuz.org/getdp/">whole web site
-<option value="http://www.geuz.org/pipermail/getdp/">mailing list only
+Limit to <select name="restrict">
+<option value="http://www.geuz.org/getdp/">entire site</option>
+<option value="http://www.geuz.org/pipermail/getdp/">mailing list</option>
 </select>
 </form>
 
