@@ -31,7 +31,7 @@ problems.
 
 %build
 make linux
-make compress_bin
+make distrib
 make doc-pdf
 make doc-info
 rm -rf CVS */CVS */*/CVS
