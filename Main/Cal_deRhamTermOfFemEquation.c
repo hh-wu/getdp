@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.11 2003-01-26 07:31:28 geuzaine Exp $"
+#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.12 2003-03-06 22:25:53 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -175,7 +175,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
   double  u2, v2, w2, x2, y2, z2 ;
   double  Ek [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_HARMONIC] ;   
 
-  int     Nbr_Equ, Nbr_Dof = 0. ;
+  int     Nbr_Equ, Nbr_Dof = 0 ;
   int     i, j, k, n, ii, Nbr_IntPoints, i_IntPoint, i_Cell ;
   int     Type_Dimension, Cell_Type_Dimension ;
   int     Nbr_Cells, Cell_RelativeJacobianType ;
