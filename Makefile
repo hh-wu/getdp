@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.33 2000-10-31 18:35:50 geuzaine Exp $
+# $Id: Makefile,v 1.34 2000-11-17 19:41:01 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -222,9 +222,11 @@ parser:
 
 tag:
 	$(RM) $(RMFLAGS) $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_VERSION $(GETDP_RELEASE)" > $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_BUILD \"`date` on `hostname` (`logname`)\"" >> $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_OS \"`uname -sr`\"" >> $(GETDP_INCLUDE_DIR)/Version.h
+	echo "#define GETDP_VERSION  $(GETDP_RELEASE)" > $(GETDP_INCLUDE_DIR)/Version.h
+	echo "#define GETDP_DATE     \"`date`\""      >> $(GETDP_INCLUDE_DIR)/Version.h
+	echo "#define GETDP_HOST     \"`hostname`\""  >> $(GETDP_INCLUDE_DIR)/Version.h
+	echo "#define GETDP_PACKAGER \"`logname`\""   >> $(GETDP_INCLUDE_DIR)/Version.h
+	echo "#define GETDP_OS       \"`uname -sr`\"" >> $(GETDP_INCLUDE_DIR)/Version.h
 
 initialtag:
 	@if [ ! -r $(GETDP_INCLUDE_DIR)/Version.h ]; then \

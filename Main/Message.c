@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.22 2000-11-08 09:04:53 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.23 2000-11-17 19:41:01 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -27,23 +27,25 @@ void FinalizeAndExit(void);
 char acronym[]   = "GetDP %g, a General environment for the treatment of Discrete Problems\n";
 char copyright[] = "Copyright (C) 1997-2000 P. Dular, C. Geuzaine\n";
 
-char version[]   = "Version : %g\n";
-char os[]        = "OS      : %s\n";
-char build[]     = "Build   : %s\n";
-char email[]     = "E-mail  : Patrick.Dular@ulg.ac.be, Christophe.Geuzaine@ulg.ac.be\n";
-char url[]       = "URL     : http://www.geuz.org/getdp/\n";
+char version[]   = "Version          : %g\n";
+char os[]        = "Operating System : %s\n";
+char date[]      = "Build Date       : %s\n";
+char host[]      = "Build Host       : %s\n";
+char packager[]  = "Packager         : %s\n";
+char url[]       = "URL              : http://www.geuz.org/getdp/\n";
+char email[]     = "E-Mail           : Patrick.Dular@ulg.ac.be, Christophe.Geuzaine@ulg.ac.be\n";
 
 #ifdef _SPARSKIT
 #ifdef _ILU_FLOAT
-char solver[]    = "Solver  : Default (real arithmetic, single precision preconditioning)\n";
+char solver[]    = "Solver           : Default (real arithmetic, single precision preconditioning)\n";
 #else
-char solver[]    = "Solver  : Default (real arithmetic)\n";
+char solver[]    = "Solver           : Default (real arithmetic)\n";
 #endif
 #else
 #ifdef PETSC_USE_COMPLEX
-char solver[]    = "Solver  : PETSc (complex arithmetic)\n";
+char solver[]    = "Solver           : PETSc (complex arithmetic)\n";
 #else
-char solver[]    = "Solver  : PETSc (real arithmetic)\n";
+char solver[]    = "Solver           : PETSc (real arithmetic)\n";
 #endif
 #endif
 
@@ -95,7 +97,9 @@ void Info (int level, char *arg0){
   case 2:
     fprintf(stderr, version, GETDP_VERSION);
     fprintf(stderr, os, GETDP_OS);
-    fprintf(stderr, build, GETDP_BUILD);
+    fprintf(stderr, date, GETDP_DATE);
+    fprintf(stderr, host, GETDP_HOST);
+    fprintf(stderr, packager, GETDP_PACKAGER);
     fprintf(stderr, solver);
     fprintf(stderr, email);
     fprintf(stderr, url);
