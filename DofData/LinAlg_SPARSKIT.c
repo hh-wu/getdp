@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.21 2003-03-17 10:56:20 sabarieg Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.22 2003-03-17 18:41:58 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,6 +12,7 @@
 #include "Magic.h"
 #include "LinAlg.h"
 #include "SafeIO.h"
+#include "F_FMMOperations.h"
 
 extern char  Name_Path[MAX_FILE_NAME_LENGTH] ;
 static char *Name_SolverFile=NULL, *Name_DefaultSolverFile="solver.par" ;

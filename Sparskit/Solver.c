@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.21 2003-03-17 11:30:21 sabarieg Exp $"
+#define RCSID "$Id: Solver.c,v 1.22 2003-03-17 18:42:04 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -36,8 +36,6 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     return;
   }
   
-
-
   for(i=0 ; i<M->N ; i++){
     if(b[i] != 0.) break;
     if(i == M->N-1) {
@@ -284,63 +282,60 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
 
     reallocate :
     
-      switch(p->Preconditioner){
-      case ILUT :
-	w  = (double*) Malloc((M->N+1) * sizeof(double));
-	jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-	ilut_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance,
-	      M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, w, jw, &ierr);    
-	Free(w); Free(jw); break;
-	
-      case ILUTP :
-	w  = (double*) Malloc((M->N+1) * sizeof(double));
-	jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-	ilutp_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance, 
-	       &p->Permutation_Tolerance, &M->N, M->S.alu, M->S.jlu, 
-	       M->S.ju, &nnz_ilu, w, jw, M->S.permp, &ierr);    
-	Free(jw); Free(w); break;
-	
-      case ILUD :
-	w  = (double*) Malloc((M->N+1) * sizeof(double));
-	jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-	ilud_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
-	      &p->Dropping_Tolerance, M->S.alu, M->S.jlu, 
-	      M->S.ju, &nnz_ilu, w, jw, &ierr);    
-	Free(w); Free(jw); break;
-	
-      case ILUDP :
-	w     = (double*) Malloc((M->N+1) * sizeof(double));
-	jw    = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-	iludp_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
-	       &p->Dropping_Tolerance, &p->Permutation_Tolerance, 
-	       &M->N, M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, 
-	       w, jw, M->S.permp, &ierr);    
-	Free(jw); Free(w); break;
-	
-      case ILUK :    
-	levels = (int*) Malloc(nnz_ilu * sizeof(int));
-	w      = (double*) Malloc((M->N+1) * sizeof(double));
-	jw     = (int*) Malloc(3 * (M->N+1) * sizeof(int));
-	iluk_(&M->N, a, ja, ia, &p->Nb_Fill, 
-	      M->S.alu, M->S.jlu, M->S.ju, 
-	      levels, &nnz_ilu, w, jw, &ierr);    
-	Free(levels); Free(w); Free(jw); break;
-	
-      case ILU0 :
-	jw = (int*) Malloc((M->N+1) * sizeof(int));    
-	ilu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
-	Free(jw); break;
-	
-      case MILU0 :
-	jw = (int*) Malloc((M->N+1) * sizeof(int));    
-	milu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
-	Free(jw); break;      
-	
-      }
+    switch(p->Preconditioner){
+    case ILUT :
+      w  = (double*) Malloc((M->N+1) * sizeof(double));
+      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+      ilut_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance,
+	    M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, w, jw, &ierr);    
+      Free(w); Free(jw); break;
+      
+    case ILUTP :
+      w  = (double*) Malloc((M->N+1) * sizeof(double));
+      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+      ilutp_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance, 
+	     &p->Permutation_Tolerance, &M->N, M->S.alu, M->S.jlu, 
+	     M->S.ju, &nnz_ilu, w, jw, M->S.permp, &ierr);    
+      Free(jw); Free(w); break;
+      
+    case ILUD :
+      w  = (double*) Malloc((M->N+1) * sizeof(double));
+      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+      ilud_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
+	    &p->Dropping_Tolerance, M->S.alu, M->S.jlu, 
+	    M->S.ju, &nnz_ilu, w, jw, &ierr);    
+      Free(w); Free(jw); break;
+      
+    case ILUDP :
+      w     = (double*) Malloc((M->N+1) * sizeof(double));
+      jw    = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+      iludp_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
+	     &p->Dropping_Tolerance, &p->Permutation_Tolerance, 
+	     &M->N, M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, 
+	     w, jw, M->S.permp, &ierr);    
+      Free(jw); Free(w); break;
+      
+    case ILUK :    
+      levels = (int*) Malloc(nnz_ilu * sizeof(int));
+      w      = (double*) Malloc((M->N+1) * sizeof(double));
+      jw     = (int*) Malloc(3 * (M->N+1) * sizeof(int));
+      iluk_(&M->N, a, ja, ia, &p->Nb_Fill, 
+	    M->S.alu, M->S.jlu, M->S.ju, 
+	    levels, &nnz_ilu, w, jw, &ierr);    
+      Free(levels); Free(w); Free(jw); break;
+      
+    case ILU0 :
+      jw = (int*) Malloc((M->N+1) * sizeof(int));    
+      ilu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
+      Free(jw); break;
+      
+    case MILU0 :
+      jw = (int*) Malloc((M->N+1) * sizeof(int));    
+      milu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
+      Free(jw); break;      
+      
+    }
     
-
-    
-  
     switch (ierr){
     case  0 : 
       break;
@@ -501,7 +496,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     }    
     if(end) break;
     
-  }//while(1)
+  }
 
   
   /* Convergence results monitoring */

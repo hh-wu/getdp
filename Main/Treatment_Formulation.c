@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.12 2003-03-17 10:47:24 sabarieg Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.13 2003-03-17 18:42:00 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -12,6 +12,7 @@
 #include "CurrentData.h"
 #include "Tools.h"
 
+#include "F_FMM.h"
 #include "F_FMM_DTA.h"
 #include "Pre_GetDofFMMGroup.h"
 
@@ -537,7 +538,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
     Cal_FMMGalerkinAggregation(EquationTerm_P0, QuantityStorage_P0) ;
     Cal_FMMGalerkinDisaggregation(EquationTerm_P0, QuantityStorage_P0) ;
 
-    //GF_FMMTranslationValue() ;
+    /* GF_FMMTranslationValue() ; */
     GF_FMMTranslationValueAdaptive() ;
     Flag_FMM = 2 ;
   } /* FMM */

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_FMMAnalyticalIntegral.c,v 1.1 2003-03-17 16:13:07 sabarieg Exp $"
+#define RCSID "$Id: Cal_FMMAnalyticalIntegral.c,v 1.2 2003-03-17 18:41:58 geuzaine Exp $"
 
 #include <stdio.h>
 #include <math.h>
@@ -15,8 +15,8 @@ void GF_FMMLaplacexForm( struct Element           * Element,
 			 struct Value                Val,
 			 double                   ** M ){
 
-  int      i, j, id, NbrDir, NbrHar, i_FMM ;
-  double   xs[MAX_NODES], ys[MAX_NODES], zs[MAX_NODES] ;
+  int      i, j, id, NbrDir ;
+  double   xs[MAX_NODES], ys[MAX_NODES] ;
   double   r0, phi0, r1, phi1, p0, p1, d, phi, cphi, sphi, Re, Im, cte, R ;
   double   ValRe = 1., ValIm = 0., Re2, Im2 ;
 

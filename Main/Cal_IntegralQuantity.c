@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.8 2003-03-17 10:50:30 sabarieg Exp $"
+#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.9 2003-03-17 18:41:59 geuzaine Exp $"
 
 #include <stdio.h>
 #include <math.h>
@@ -13,10 +13,6 @@
 #include "Data_DefineE.h"
 #include "Tools.h"
 #include "Pos_Search.h" /* xyz2uvw */
-
-//#undef __DEB
-#define __DEB
-
 
 int            Nbr_deRhamCells;
 struct Element deRhamCells[NBR_MAX_DERHAM_CELLS];

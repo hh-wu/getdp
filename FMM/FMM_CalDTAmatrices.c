@@ -1,10 +1,12 @@
-#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.1 2003-03-17 16:13:08 sabarieg Exp $"
+#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.2 2003-03-17 18:41:58 geuzaine Exp $"
 
 
 #include "Treatment_Formulation.h"
 #include "Data_DefineE.h"
+#include "Cal_Value.h"
+#include "Cal_Quantity.h"
 #include "GF_Function.h"
-
+#include "Cal_FMMAnalyticalIntegral.h"
 #include "F_FMM_DTA.h"
 
 /* ------------------------------------------------------------------------- */ 
@@ -106,7 +108,7 @@ void GF_FMMTranslationValue ( ){
 void GF_FMMTranslationValueAdaptive( ){
    
   int FMMObs, FMMSrc, NbrGroupSrc, NbrFG, *FG ;
-  int i, j, is,js,iEqu, NbrFMMEqu, jEqu, N, *Nd_A, NbrDirMAX, NbrHar ;
+  int i, j, iEqu, NbrFMMEqu, jEqu, N, *Nd_A, NbrDirMAX, NbrHar ;
   double ***T ;
 
   struct Value TV[NBR_MAX_DIR] ;
@@ -542,7 +544,7 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
   
   struct EquationTerm       * EquationTerm_P ;
   struct FemLocalTermActive * FI ;
-  struct QuantityStorage    * QuantityStorageEqu_P, * QuantityStorageDof_P ;
+  struct QuantityStorage    * QuantityStorageDof_P ;
   struct IntegrationCase    * IntegrationCase_P ;
   struct Quadrature         * Quadrature_P ;
   struct Value                vBFxDofV ;
@@ -558,7 +560,7 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
   int     Nbr_Dof ;
   int     Nbr_Group, i_Group, Nbr_ElmsInGroup, i_Element, *ElmtsGr ;
   int     FMMSrc, NbrFMMEqu, i_FMMEqu, NbrDir, i_FMM ;
-  int     i, j, k, Type_Dimension, Nbr_IntPoints, i_IntPoint ;
+  int     i, j, Type_Dimension, Nbr_IntPoints, i_IntPoint ;
   int     Nbr_DofList, NbrHar ;
   
   double  weight, Factor ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_FMM.c,v 1.1 2003-03-17 16:13:09 sabarieg Exp $"
+#define RCSID "$Id: Print_FMM.c,v 1.2 2003-03-17 18:41:58 geuzaine Exp $"
 
 #include <math.h>
 #include <malloc.h>
@@ -208,9 +208,10 @@ void  Geo_WriteFileMshFMMGroups( struct GeoData *GeoData_P, char * FileName ){
 		  Element_P->Num , ElemType, i, Element_P->Region, Element_P->NbrNodes,
 		  Element_P->NumNodes[0], Element_P->NumNodes[1] ,Element_P->NumNodes[2]); break;
 	case QUADRANGLE : 
-	  fprintf(file, "%d %d %d %d %d %d %d %d %d %d %d \n", 
+	  fprintf(file, "%d %d %d %d %d %d %d %d %d \n", 
 		  Element_P->Num , ElemType, i, Element_P->Region, Element_P->NbrNodes,
-		  Element_P->NumNodes[0], Element_P->NumNodes[1] ,Element_P->NumNodes[2],Element_P->NumNodes[3]); break;
+		  Element_P->NumNodes[0], Element_P->NumNodes[1],
+		  Element_P->NumNodes[2],Element_P->NumNodes[3]); break;
 
 	default :  Msg(ERROR, "Wrong Type of Element for FMM groups"); break;
 	}
@@ -230,7 +231,7 @@ void Print_FMMGroupInfo( char* FileName ){
   
   int i, j, NbrInSupport, NumElm, *NG, *FG, *Nd, NbrGroupsSrc, NbrGroupsObs ;
   int NbrDir, NbrHar, NbrCom, NbrElmsGroup, NbrNG, NbrFG ;
-  int NbrDof, NbrEqu, NbrDofNGj, NbrEquNGj, *NumDof, *NumEqu, NbrFMMEqu, iFMMEqu ;
+  int NbrDof, NbrEqu, *NumDof, *NumEqu, NbrFMMEqu, iFMMEqu ;
   double  StorageFMM, StorageFMMA, StorageFMMD, StorageFMMT, StorageDir, TotalMem ;
   int NbrMultLaplace2D, NbrMultLaplace3D, N ;
   int NbrDirMAX = 0, NbrDirAV = 0 ;
@@ -388,8 +389,8 @@ void Print_FMMGroupInfo( char* FileName ){
       for (i = 0 ; i < NbrGroupsSrc ; i++){
 	NbrElmsGroup =  List_Nbr((FMMDataSrc_P0+i)->Element) ;     
 	fprintf(file, "$GROUP %d (Equ %d, Support %d)\n", i, iFMMEqu, FMMmat_S.Src) ;
-	fprintf(file, "%f\n", (FMMDataSrc_P0+i)->Rmax);//Group radius
-	fprintf(file, "%f %f %f\n", (FMMDataSrc_P0+i)->Xgc, (FMMDataSrc_P0+i)->Ygc, (FMMDataSrc_P0+i)->Zgc);//Group Center
+	fprintf(file, "%f\n", (FMMDataSrc_P0+i)->Rmax); /* Group radius */
+	fprintf(file, "%f %f %f\n", (FMMDataSrc_P0+i)->Xgc, (FMMDataSrc_P0+i)->Ygc, (FMMDataSrc_P0+i)->Zgc); /* Group Center */
       
 	NbrElmsGroup =  List_Nbr((FMMDataSrc_P0+i)->Element) ;
 	fprintf(file, "%d $EL ", NbrElmsGroup);
@@ -430,8 +431,8 @@ void Print_FMMGroupInfo( char* FileName ){
       for (i = 0 ; i < NbrGroupsSrc ; i++){
 	NbrElmsGroup =  List_Nbr((FMMDataSrc_P0+i)->Element) ;     
 	fprintf(file, "$GROUP SRC %d (Equ %d)\n", i, iFMMEqu);
-	fprintf(file, "%f\n", (FMMDataSrc_P0+i)->Rmax);//Group radius
-	fprintf(file, "%f %f %f\n", (FMMDataSrc_P0+i)->Xgc, (FMMDataSrc_P0+i)->Ygc, (FMMDataSrc_P0+i)->Zgc);//Group Center
+	fprintf(file, "%f\n", (FMMDataSrc_P0+i)->Rmax); /* Group radius */
+	fprintf(file, "%f %f %f\n", (FMMDataSrc_P0+i)->Xgc, (FMMDataSrc_P0+i)->Ygc, (FMMDataSrc_P0+i)->Zgc); /* Group Center */
       
 	NbrElmsGroup =  List_Nbr((FMMDataSrc_P0+i)->Element) ;
 	fprintf(file, "%d $EL ", NbrElmsGroup);
@@ -455,8 +456,8 @@ void Print_FMMGroupInfo( char* FileName ){
       fprintf(file, "$OBSERVATION GROUPS on %d (Equ %d) \n", FMMmat_S.Obs, iFMMEqu) ;
       for (i = 0 ; i < NbrGroupsObs ; i++){
 	fprintf(file, "$GROUP OBS %d (Equ %d)\n", i, iFMMEqu);
-	fprintf(file, "%f\n", (FMMDataObs_P0+i)->Rmax);//Group radius
-	fprintf(file, "%f %f %f\n", (FMMDataObs_P0+i)->Xgc, (FMMDataObs_P0+i)->Ygc, (FMMDataObs_P0+i)->Zgc);//Group Center      
+	fprintf(file, "%f\n", (FMMDataObs_P0+i)->Rmax); /* Group radius */
+	fprintf(file, "%f %f %f\n", (FMMDataObs_P0+i)->Xgc, (FMMDataObs_P0+i)->Ygc, (FMMDataObs_P0+i)->Zgc); /* Group Center */
 	NbrElmsGroup =  List_Nbr((FMMDataObs_P0+i)->Element) ;
 	fprintf(file, "%d $EL ", NbrElmsGroup);
 	for (j = 0 ; j < NbrElmsGroup ; j++){
@@ -486,11 +487,10 @@ void Print_FMMGroupInfo( char* FileName ){
 
 void Print_FMMGroupNeighbours( char* FileName ){
   
-  int i, j, NbrInSupport, NumElm, *NG, *FG, *Nd, NbrGroupsSrc, NbrGroupsObs ;
-  int NbrDir, NbrHar, NbrCom, NbrElmsGroup, NbrNG, NbrFG ;
-  int NbrDof, NbrEqu, NbrDofNGj, NbrEquNGj, *NumDof, *NumEqu, NbrFMMEqu, iFMMEqu ;
-  struct FMMData *FMMDataObs_P0, *FMMDataSrc_P0 ;
-  struct FMMGroup FMMGroupObs_S, FMMGroupSrc_S ;
+  int i, j, *NG, *FG, *Nd, NbrGroupsSrc ;
+  int NbrNG, NbrFG ;
+  int NbrFMMEqu, iFMMEqu ;
+  struct FMMGroup FMMGroupSrc_S ;
   struct FMMmat FMMmat_S ;
   List_T *G_L, *Nd_L ;
  

@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Edge.c,v 1.8 2003-02-13 19:42:17 geuzaine Exp $"
+#define RCSID "$Id: BF_Edge.c,v 1.9 2003-03-17 18:41:58 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -15,8 +15,10 @@
 void  BF_Edge    (struct Element * Element, int NumEdge, 
 		  double u, double v, double w,  double s[] ) {
 
+#if defined(NEW_PYRAMIDS)
   double r, ru, rv, rw;
   double t;
+#endif
   
   GetDP_Begin("BF_Edge");
 

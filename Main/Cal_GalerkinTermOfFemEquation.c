@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.18 2003-03-17 10:50:30 sabarieg Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.19 2003-03-17 18:41:59 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -11,7 +11,7 @@
 #include "GeoData.h"
 #include "CurrentData.h"
 #include "Tools.h"
-
+#include "F_FMM.h"
 
 void  Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTerm_P) ;
 void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
@@ -244,11 +244,11 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   struct Value                vBFxDof [NBR_MAX_BASISFUNCTIONS], CoefPhys ;
   struct Value                CanonicExpression_Equ, V1, V2;
 
-  int     Nbr_Equ, Nbr_Dof ;
+  int     Nbr_Equ, Nbr_Dof = 0;
   int     i, j, k, Type_Dimension, Nbr_IntPoints, i_IntPoint ;
   int     NextElement ;
   
-  double  weight, Factor ;
+  double  weight, Factor = 1. ;
   double  vBFuEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double  vBFxEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double  Ek [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_HARMONIC] ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.18 2003-03-17 11:22:41 sabarieg Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.19 2003-03-17 18:41:58 geuzaine Exp $"
 
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
@@ -318,7 +318,7 @@ void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStor
   double **H, ***HH, *t, *weight ;
   int NbrHar;
   struct Value t_Value, MH_Value_Tr;
-  int NbrPointsX, iVal, nVal1, nVal2, iHar, iTime;
+  int NbrPointsX, iVal, nVal1, nVal2 = 0, iHar, iTime;
 
   MH_Get_InitData(1, NbrPoints, &NbrPointsX, &H, &HH, &t, &weight);
 
@@ -462,7 +462,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   double  Val     [3*NBR_MAX_BASISFUNCTIONS];
 
   int     i, j, k, Type_Dimension,  Nbr_IntPoints, i_IntPoint ;
-  int     iTime, iDof, jDof, iHar, jHar, nVal1, nVal2, iVal1, iVal2, Type1;
+  int     iTime, iDof, jDof, iHar, jHar, nVal1, nVal2 = 0, iVal1, iVal2, Type1;
   double **H, ***HH, Factor, plus, plus0, weightIntPoint;
   int NbrPointsX, OffSet;
   struct Expression * Expression_P;

@@ -1,9 +1,11 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.1 2003-03-17 16:13:08 sabarieg Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.2 2003-03-17 18:41:58 geuzaine Exp $"
 
 
 #include "Data_DefineE.h"
 #include "Tools.h"
-
+#include "Quadrature.h"
+#include "Treatment_Formulation.h"
+#include "Cal_Quantity.h"
 #include "Data_FMM.h"
 #include "F_FMM.h"
 #include "Truncation.h"
@@ -730,15 +732,16 @@ void  Geo_CreateFMMGroup( int InSupport, struct GeoData *GeoData_P, double k0 ){
 
   tol = 1e-6;
 
-  if (!List_Nbr(Problem_S.FMMGroup))
+  if (!List_Nbr(Problem_S.FMMGroup)){
     if(k0 > 0){
       l0 = k0/TWO_PI ; /* Wavelength */
       Msg(INFO,"Helmholtz %dD, Wavelength = %g", Dimension, l0);
     }  
-    else
+    else{
       Msg(INFO,"Laplace %dD", Dimension);
+    }
+  }
 
- 
   NbrElms = List_Nbr(GeoData_P->Elements) ;
   Elements_P0 =  (struct Geo_Element*)List_Pointer(GeoData_P->Elements, 0) ;
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Laplace.c,v 1.9 2003-03-17 11:22:42 sabarieg Exp $"
+#define RCSID "$Id: GF_Laplace.c,v 1.10 2003-03-17 18:41:59 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -247,7 +247,7 @@ void  GF_Laplace (F_ARG) {
 
 void GF_GradLaplace (F_ARG) {
 
-  double xxs, yys, zzs, Theta, Phi, sTheta, cTheta, sPhi, cPhi, Plm, dPlm;// P[NBR_MAX_EXP] ;
+  double xxs, yys, zzs, Theta, Phi, sTheta, cTheta, sPhi, cPhi, Plm, dPlm;
   double cte, r, phi_r, cphi_r, sphi_r, cr, r_l_2, a, b ;
   double r_l, r_l_1, r_2, rxy, rxy_2, srxy, c1, tx1, ty1, tx2, ty2 ;
   int i, Nd, k, l, m ;   

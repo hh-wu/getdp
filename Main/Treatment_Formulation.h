@@ -1,4 +1,4 @@
-/* $Id: Treatment_Formulation.h,v 1.12 2003-03-17 10:50:32 sabarieg Exp $ */
+/* $Id: Treatment_Formulation.h,v 1.13 2003-03-17 18:42:00 geuzaine Exp $ */
 #ifndef _TREATMENT_FORMULATION_H_
 #define _TREATMENT_FORMULATION_H_
 
@@ -161,6 +161,10 @@ void  Get_InitElementSource (struct Element * Element, int InIndex) ;
 int   Get_NextElementSource (struct Element * ElementSource) ;
 
 void  Get_ElementTrace (struct Element * Element, int InIndex) ;
+
+void Apply_ConstantFactor(struct QuantityStorage * QuantityStorage_P, 
+			  struct Value           * vBFxDof, 
+			  struct Value           * Val);
 
 /*---------------------------------------------------------------------*/
 

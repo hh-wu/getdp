@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.24 2003-01-31 13:51:53 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.25 2003-03-17 18:41:59 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -925,7 +925,7 @@ void  Generate_ElementaryEntities_EdgeNN
   Tree_T  * Entity_Tr ;
   struct Geo_Element  * GeoElement ;
   int     Nbr_Element, i_Element ;
-  int     Nbr_Entity, i_Entity, * Num_Entities ;
+  int     Nbr_Entity = 0, i_Entity, * Num_Entities = NULL;
 
   struct EdgeNN  EdgeNN ;
   int  * Num_Nodes ;

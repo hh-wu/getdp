@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.44 2003-03-17 10:45:03 sabarieg Exp $"
+#define RCSID "$Id: Main.c,v 1.45 2003-03-17 18:42:00 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -164,11 +164,6 @@ int  main(int argc, char *argv[]) {
   /* finalize the solver */
 
   LinAlg_FinalizeSolver() ;
-
- /* FMM routine  using the tools available in GetDp. Just a trial version! */
-  //printf("Hola mundo \n");
-   //My_Routine();
-  /**************************************************************************/
 
   /* end */
   

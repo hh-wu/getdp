@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.20 2003-03-17 11:26:07 sabarieg Exp $
+# $Id: Makefile,v 1.21 2003-03-17 18:42:00 geuzaine Exp $
 
 include ../variables
 
@@ -60,22 +60,21 @@ ran3.o: ran3.c
 hqr.o: hqr.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
 dsvdcmp.o: dsvdcmp.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
 Analytic_HollowCylLF.o: Analytic_HollowCylLF.c nrdefs.h \
- ../Main/Data_Numeric.h
+  ../Main/Data_Numeric.h
 Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
- ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
- ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
- ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
- ../Main/Data_Numeric.h ../Main/CurrentData.h ../Main/Data_Active.h \
- ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
- ../GeoData/Data_GeoData.h ../include/Magic.h nrutil.h
-Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h \
- ../DataStr/Malloc.h ../Main/Data_Element.h ../GeoData/GeoData.h \
- ../GeoData/Data_GeoData.h ../DataStr/List.h ../DataStr/Tree.h \
- ../DataStr/avl.h Adapt.h nrutil.h nrdefs.h ../Main/Data_Numeric.h
+  ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
+  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+  ../Main/Data_Numeric.h ../Main/CurrentData.h ../Main/Data_Active.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../include/Magic.h nrutil.h
+Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h nrutil.h \
+  nrdefs.h ../Main/Data_Numeric.h
 brent.o: brent.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
 mnbrak.o: mnbrak.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
 Legendre.o: Legendre.c ../include/GetDP.h ../Main/Message.h \
- ../DataStr/Malloc.h ../Main/Data_Numeric.h
+  ../DataStr/Malloc.h ../Main/Data_Numeric.h
 SphBessel.o: SphBessel.c ../include/GetDP.h ../Main/Message.h \
- ../DataStr/Malloc.h ../Main/Data_Numeric.h Amos_F.h \
- ../include/Compat.h
+  ../DataStr/Malloc.h ../Main/Data_Numeric.h Amos_F.h ../include/Compat.h

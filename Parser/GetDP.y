@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.43 2003-03-17 11:26:48 sabarieg Exp $ */
+/* $Id: GetDP.y,v 1.44 2003-03-17 18:42:01 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -389,7 +389,7 @@ Stats :
 	List_Delete(ListOfEquationTerm) ;
       }
     }
- 
+  ; 
 
 /* ------------------------------------------------------------------------ */
 /*  P r o b l e m                                                           */
@@ -3345,7 +3345,7 @@ DefineQuantityTerm :
 	  }
 
 	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME)
-	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PSCA_DOF ;// Scalar Prod Transitive
+	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PSCA_DOF ;/* Scalar Prod Transitive */
 	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
 	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_DOF_PVEC_GF ;
 	  
@@ -3416,7 +3416,7 @@ DefineQuantityTerm :
 	    (WholeQuantity_P+0)->Case.Expression.Index ;
 	  
 	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_TIME)
-	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PSCA_EXP ;// Transitive product
+	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PSCA_EXP ;/* Transitive product */
 	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
 	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_EXP_PVEC_GF ;
 	     

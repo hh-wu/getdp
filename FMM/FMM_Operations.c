@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Operations.c,v 1.1 2003-03-17 16:13:08 sabarieg Exp $"
+#define RCSID "$Id: FMM_Operations.c,v 1.2 2003-03-17 18:41:58 geuzaine Exp $"
 
 #include <math.h>
 #include <malloc.h>
@@ -387,7 +387,7 @@ void FMMProd_AllLaplace2DNonAdaptive(struct FMMmat *FMMmat_P, double *x, double 
   double  **Ag_M, *Ag_V, AgJRe[NBR_MAX_DIR], AgJIm[NBR_MAX_DIR], ***T, *TG1G2, **Disag_M, *Disag_V ;
   double Treal, Timag, TARe[NBR_MAX_DIR], TAIm[NBR_MAX_DIR] ; 
 
-  List_T *FG_L, *Nd_L, *NumDof_L, *NumEqu_L ;
+  List_T *FG_L, *NumDof_L, *NumEqu_L ;
 
 
   GetDP_Begin("FMMProd_AllLaplace2DNonAdaptive");

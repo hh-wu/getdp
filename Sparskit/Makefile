@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.16 2003-03-17 16:31:23 sabarieg Exp $
+# $Id: Makefile,v 1.17 2003-03-17 18:42:03 geuzaine Exp $
 
 include ../variables
 
@@ -62,13 +62,11 @@ nodepend:
 
 # DO NOT DELETE THIS LINE
 Solver.o: Solver.c Solver.h ../DataStr/List.h Solver_F.h \
- ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h \
- ../FMM/F_FMMOperations.h ../include/GetDP.h
+  ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h \
+  ../FMM/F_FMMOperations.h ../include/GetDP.h
 Matrix.o: Matrix.c Solver.h ../DataStr/List.h Solver_F.h \
- ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h
+  ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h
 Parser.o: Parser.c Solver.h ../DataStr/List.h ../Main/Message.h \
- ../DataStr/Malloc.h
+  ../DataStr/Malloc.h
 CSR.o: CSR.c Solver.h ../DataStr/List.h ../Main/Message.h \
- ../DataStr/Malloc.h ../Numeric/nrutil.h
-MatVector.o: MatVector.c ../include/GetDP.h ../Main/Message.h \
- ../DataStr/Malloc.h
+  ../DataStr/Malloc.h ../Numeric/nrutil.h

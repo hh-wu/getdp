@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.44 2003-03-17 10:46:00 sabarieg Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.45 2003-03-17 18:42:00 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -18,6 +18,7 @@
 #include "Magic.h"
 #include "F_FMM.h"
 #include "F_FMMOperations.h"
+#include "F_FMM_DTA.h"
 
 /*
   All this stuff should really go into appropriate header files...
@@ -245,10 +246,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   int NbrHar1, NbrHar2, NbrDof1, NbrDof2 ;
   double dd ;
   int NumDof,iMat ;
-  int NbrFMMEqu,  NbrGroupSrc, NbrFG;
+  int NbrFMMEqu;
   struct FMMmat *FMMmat_P0 ;
-
-  List_T *FG_L ;
 
   GetDP_Begin("Treatment_Operation");
 
@@ -430,7 +429,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       } 
 
       GF_FMMTranslationValueAdaptive();
-      //GF_FMMTranslationValue(); 
+      /* GF_FMMTranslationValue(); */
 
       break;
 
@@ -2479,11 +2478,11 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 				int Type_Analyse, int * Type_ChangeOfState,
 				int * FlagIndex, int Flag_First) {
 
-  List_T  *Region_L ;
-  int      i, Nbr_Region, Num_Region ;
+  List_T  *Region_L = NULL ;
+  int      i, Nbr_Region = 0, Num_Region ;
   int      Nbr_ChangeOfState, i_COS ;
 
-  struct ChangeOfState     *ChangeOfState_P ;
+  struct ChangeOfState     *ChangeOfState_P = NULL;
   struct Formulation       *Formulation_P ;
   struct FunctionSpace     *FunctionSpace_P ;
   struct GlobalQuantity    *GlobalQuantity_P ;
@@ -2491,7 +2490,7 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
   struct QuantityStorage   QuantityStorage_S ;
 
   double  Val0_Dof, Val1_Dof ;
-  double  *val0, *val1, MeanError, v0, v1 ;
+  double  *val0 = NULL, *val1 = NULL, MeanError, v0, v1 ;
   struct  Value  Value ;
 
   double  Val1_E, Val0_E, Val_S, Val0_Ref, Val1_Ref, v_fz, v_k, v_ke, v_sat ;
