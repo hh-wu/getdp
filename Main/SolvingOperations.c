@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.35 2001-07-29 09:37:15 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.36 2001-08-03 09:29:26 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -38,7 +38,8 @@ static FILE * FilePWM ;
 /*  I n i t _ O p e r a t i o n O n S y s t e m                             */
 /* ------------------------------------------------------------------------ */
 
-void  Init_OperationOnSystem(struct Resolution   * Resolution_P,
+void  Init_OperationOnSystem(char                * Name,
+			     struct Resolution   * Resolution_P,
 			     struct Operation    * Operation_P ,
 			     struct DofData      * DofData_P0,
 			     struct GeoData      * GeoData_P0,
@@ -80,9 +81,9 @@ void  Init_OperationOnSystem(struct Resolution   * Resolution_P,
       (*DefineSystem_P)->DestinationSystemIndex = i ;      
     }
   }
-
+  
   Msg(OPERATION, "%s[%s]",
-      Get_StringForDefine(Operation_Type, Operation_P->Type),
+      Name?Name:Get_StringForDefine(Operation_Type, Operation_P->Type),
       (*DefineSystem_P)->Name) ;
 
   GetDP_End ;
@@ -182,7 +183,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_GENERATEJAC :  Flag_Jac  = 1 ;
     case OPERATION_GENERATE :
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       Current.TypeAssembly = ASSEMBLY_AGGREGATE ;
       Init_SystemData(DofData_P, Flag_Jac) ;
@@ -194,7 +196,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_GENERATESEPARATE :
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem("GenerateSeparate",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       Current.TypeAssembly = ASSEMBLY_SEPARATE ;
 
@@ -212,7 +215,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_UPDATE :
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem("Update",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       Update_System(DefineSystem_P, DofData_P, DofData_P0, 
 		    Operation_P->Case.Update.ExpressionIndex) ;
@@ -223,7 +227,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_UPDATECONSTRAINT :
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem("UpdateConstraint",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       UpdateConstraint_System(DefineSystem_P, DofData_P, DofData_P0, 
 			      Operation_P->Case.UpdateConstraint.GroupIndex,
@@ -236,7 +241,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_SOLVE :
       /*  Solve : A x = b  */
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem("Solve",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
 		   &DofData_P->CurrentSolution->x) ;
@@ -247,7 +253,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_LANCZOS :
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem("Lanczos",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       Lanczos(DofData_P, Operation_P->Case.Lanczos.Size, 
 	      Operation_P->Case.Lanczos.Save, Operation_P->Case.Lanczos.Shift) ;
@@ -260,7 +267,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_SOLVEJAC :
       /*  SolveJac : J(xn) dx = b(xn) - A(xn) xn ;  x = xn + dx  */
       Flag_Jac = 1 ;
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem("SolveJac",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
 
       if(DofData_P->Flag_Init[0] < 2)
@@ -303,7 +311,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_INITSOLUTION :
 
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem("InitSolution",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
 
       if(Flag_RESTART){
@@ -364,7 +373,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_SAVESOLUTION :
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem("SaveSolution",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       strcpy(ResName, Name_Generic) ;
       if(!Flag_SPLIT){
@@ -391,7 +401,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_SAVESOLUTIONS :
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem("SaveSolutions",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       strcpy(ResName, Name_Generic) ;
       strcat(ResName, ".res") ;
@@ -411,7 +422,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_READSOLUTION :
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem("ReadSolution",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       i = 0 ;
       while(Name_ResFile[i]){
@@ -433,7 +445,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_TRANSFERSOLUTION :
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem("TransferSolution",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       
       if(Resolution2_P){ /* pre-resolution */
@@ -823,7 +836,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 #if 0
       /* A refaire */
 
-      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+      Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
 
       if (DofData_P->Solutions == NULL) {

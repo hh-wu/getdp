@@ -1,4 +1,4 @@
-/* $Id: Init_Problem.h,v 1.11 2001-07-29 09:37:15 geuzaine Exp $ */
+/* $Id: Init_Problem.h,v 1.12 2001-08-03 09:29:26 geuzaine Exp $ */
 #ifndef _INIT_PROBLEM_H_
 #define _INIT_PROBLEM_H_
 
@@ -48,7 +48,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                           struct Resolution  * Resolution2_P,
                           struct DofData     * DofData2_P0) ;
 
-void  Init_OperationOnSystem(struct Resolution   * Resolution_P,
+void  Init_OperationOnSystem(char                * Name,
+			     struct Resolution   * Resolution_P,
 			     struct Operation    * Operation_P ,
 			     struct DofData      * DofData_P0,
 			     struct GeoData      * GeoData_P0,
