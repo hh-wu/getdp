@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.7 2000-09-29 14:08:28 geuzaine Exp $ */
+/* $Id: Pos_Print.c,v 1.8 2000-10-01 06:51:31 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -18,9 +18,6 @@
 
 void  Print_PostFormat(int Format){
   switch(Format){
-  case FORMAT_GMSH :
-  case FORMAT_ADAPT :
-    break ;
   case FORMAT_GMSH_NL :
     fprintf(PostStream, "$PostFormat /* GetDP v%g, %s */\n",
 	    GETDP_VERSION, Flag_BIN ? "binary" : "ascii") ;
@@ -60,7 +57,8 @@ void  Print_PostHeader(int Format, int NbTimeStep, int HarmonicToTime,
     break ;
   case FORMAT_GNUPLOT :
     fprintf(PostStream, "# PostData '%s'\n", name);
-    fprintf(PostStream, "# Type Index X Y Z < X Y Z > ... N1 N2 N3 Values <Values> ...\n");
+    fprintf(PostStream, 
+	    "# Type Num  X Y Z  < X Y Z > ...  N1 N2 N3  Values  <Values> ...\n");
     break ;
   case FORMAT_ADAPT :
     fprintf(PostStream, "$Adapt /* %s */\n", name) ;
@@ -396,19 +394,19 @@ void  Print_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
   case FORMAT_GNUPLOT :
   case FORMAT_SPACE_TABLE :
     if(TimeStep == 0){
-      fprintf(PostStream, "%d %d ", Get_GmshElementType(ElementType), Index);
+      fprintf(PostStream, "%d %d  ", Get_GmshElementType(ElementType), Index);
       for(i=0 ; i<NbrNodes ; i++)
-	fprintf(PostStream, "%.8g %.8g %.8g ", x[i], y[i], z[i]);
+	fprintf(PostStream, "%.8g %.8g %.8g  ", x[i], y[i], z[i]);
       if(Dummy) 
-	fprintf(PostStream, "%.8g %.8g %.8g ", Dummy[0], Dummy[1],  Dummy[2]);
+	fprintf(PostStream, "%.8g %.8g %.8g  ", Dummy[0], Dummy[1],  Dummy[2]);
       else
-	fprintf(PostStream, "0 0 0 ");
+	fprintf(PostStream, "0 0 0  ");
     }
     break ;
   case FORMAT_TIME_TABLE :
-    fprintf(PostStream, "%d %.8g ", TimeStep, Time);
+    fprintf(PostStream, "%d %.8g  ", TimeStep, Time);
     for(i=0 ; i<NbrNodes ; i++) 
-      fprintf(PostStream, "%.8g %.8g %.8g ", x[i], y[i], z[i]);
+      fprintf(PostStream, "%.8g %.8g %.8g  ", x[i], y[i], z[i]);
     break ;
   }
   
@@ -420,11 +418,13 @@ void  Print_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
       p = TWO_PI * k / (HarmonicToTime-1);
       for(i = 0 ; i < NbrNodes ; i++){
 	for(j = 0 ; j < Size ; j++){
-	  fprintf(PostStream, "%.8g",
+	  fprintf(PostStream, "%.8g ",
 		  Value[i].Val[        j] * cos(p) -
 		  Value[i].Val[MAX_DIM+j] * sin(p));
 	}
+	fprintf(PostStream, " ");
       }
+      fprintf(PostStream, " ");
     }
   }    
   else{
@@ -433,7 +433,9 @@ void  Print_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	for(j = 0 ; j < Size ; j++){
 	  fprintf(PostStream, "%.8g ", Value[i].Val[MAX_DIM*k+j]);
 	}
+	fprintf(PostStream, " ");
       }
+      fprintf(PostStream, " ");
     }
   }
 
