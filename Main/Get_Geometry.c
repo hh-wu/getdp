@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.28 2003-03-22 03:30:13 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.29 2003-03-23 06:29:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -18,6 +18,9 @@
  * USA.
  *
  * Please report all bugs and problems to "getdp@geuz.org".
+ *
+ * Contributor(s):
+ *   Patrick Lefevre
  */
 
 #include "GetDP.h"
