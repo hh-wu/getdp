@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.36 2001-03-08 21:06:23 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.37 2001-03-19 19:15:07 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -65,6 +65,7 @@ char help[] =
   "  -solve 'Resolution'       same as -pre 'Resolution' -cal\n"
   "  -split                    save processing results in separate files\n"
   "  -res file(s)              load processing results from file(s)\n"
+  "  -name string              use string as generic file name\n"
   "  -adapt file               read adaptation constraints from file\n"
   "  -order float              restrict maximum interpolation order\n"
 #if _SPARSKIT

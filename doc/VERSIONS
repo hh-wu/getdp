@@ -1,9 +1,9 @@
-$Id: VERSIONS,v 1.10 2001-03-19 10:18:50 geuzaine Exp $
+$Id: VERSIONS,v 1.11 2001-03-19 19:15:57 geuzaine Exp $
 
 0.81: Generalization of transformation jacobians (spherical and
 rectangular, with optional parameters); changed handling of missing
 command line arguments; enhanced Print OnCut; fixed memory leak for
-time domain analysis of coupled problems;
+time domain analysis of coupled problems; -name option;
 
 0.80: Fixed computation of time derivatives on first time step (in
 post-processing); Added tolerance in transformation jacobians; Fixed

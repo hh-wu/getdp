@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.28 2001-03-16 10:56:46 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.29 2001-03-19 19:15:07 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -56,9 +56,9 @@ int Flag_RemoveSingularity = 0;
 #else
 
 int  main(int argc, char *argv[]) {
-  char  ext[5], **sargv;
+  char  **sargv;
   int   sargc, i, choose = 1 ;
-  char  ProName[MAX_FILE_NAME_LENGTH], LogName[MAX_FILE_NAME_LENGTH] ;
+  char  Name_ProFile[MAX_FILE_NAME_LENGTH], Name_LogFile[MAX_FILE_NAME_LENGTH] ;
 
   GetDP_Begin("main");
 
@@ -81,7 +81,7 @@ int  main(int argc, char *argv[]) {
   sargv = (char**)Malloc(256*sizeof(char**));
 
   Init_GlobalVariables() ;
-  Get_Options(argc, argv, &sargc, sargv, ProName) ;
+  Get_Options(argc, argv, &sargc, sargv, Name_ProFile, Name_Generic) ;
 
   if(sargc > 1){
     Msg(INFO1, "Passing unused options to solver: '") ;
@@ -91,15 +91,6 @@ int  main(int argc, char *argv[]) {
     }
     Msg(INFO3, "'") ;
   }
-
-  /* generic problem name */
-
-  strcpy(Name_Generic, ProName) ;
-  strcpy(ext, ProName+(strlen(ProName)-4)) ;
-  if(!strcmp(ext, ".pro") || !strcmp(ext, ".PRO"))
-    Name_Generic[strlen(ProName)-4] = '\0' ;
-  else
-    strcat(ProName,".pro") ;
 
   /* default .res file */
 
@@ -112,8 +103,8 @@ int  main(int argc, char *argv[]) {
 
   /* default .msh file */
 
-  if (!Name_MshFile) {
-    Name_MshFile = (char*) Malloc((strlen(Name_Generic)+5)*sizeof(char)) ;
+  if(!Name_MshFile){
+    Name_MshFile = (char*)Malloc((strlen(Name_Generic)+5)*sizeof(char)) ;
     strcpy(Name_MshFile, Name_Generic) ;
     strcat(Name_MshFile, ".msh") ;
   }
@@ -121,11 +112,11 @@ int  main(int argc, char *argv[]) {
   /* log file */
 
   if(Flag_LOG){
-    strcpy(LogName, Name_Generic) ;
-    strcat(LogName, ".log") ;
-    if(!(LogStream = fopen(LogName, "w+"))){
+    strcpy(Name_LogFile, Name_Generic) ;
+    strcat(Name_LogFile, ".log") ;
+    if(!(LogStream = fopen(Name_LogFile, "w+"))){
       Flag_LOG = 0;
-      Msg(WARNING, "Unable to open file '%s'", LogName) ;
+      Msg(WARNING, "Unable to open file '%s'", Name_LogFile) ;
     }
   }
 
@@ -136,7 +127,7 @@ int  main(int argc, char *argv[]) {
   /* fill-in problem structure (read pro files) */
 
   Init_ProblemStructure();
-  Read_ProblemStructure(ProName) ;
+  Read_ProblemStructure(Name_ProFile) ;
 
   /* process */
 
@@ -224,13 +215,15 @@ void Init_ProblemStructure(void){
 /* ------------------------------------------------------------------------ */
 
 int Get_Options(int argc, char *argv[], int *sargc, char **sargv, 
-		char *NameProblem) {
+		char *Name_ProFile, char *Name_Generic) {
   
   int  i, j, Flag_TmpLOG = 0, Flag_NameProblem = 0 ;
 
   GetDP_Begin("Get_Options");
 
-  strcpy(NameProblem, "") ;  
+  strcpy(Name_ProFile, "") ;  
+  strcpy(Name_Generic, "") ;  
+
   i = *sargc = 1 ;
 
   while (i < argc) {
@@ -428,6 +421,16 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	}
       }
 
+      else if (!strcmp(argv[i]+1, "name")) {
+	i++ ;
+	if (i<argc && argv[i][0]!='-') { 
+	  strcpy(Name_Generic, argv[i]) ; i++ ; 
+	}
+	else {
+	  Msg(ERROR, "Missing string");
+	}
+      }
+
       else {
 	sargv[(*sargc)++] = argv[i++]; 
       }
@@ -437,7 +440,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       if (!Flag_NameProblem) { 
 	Flag_NameProblem = 1 ;
 	sargv[0] = argv[i] ;
-	strcpy(NameProblem, argv[i++]) ;
+	strcpy(Name_ProFile, argv[i++]) ;
       }
       else{
 	sargv[(*sargc)++] = argv[i++];
@@ -446,7 +449,21 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
     
   }
   
-  if(!strlen(NameProblem)) Msg(ERROR, "Missing input file name");
+  if(!strlen(Name_ProFile))
+    Msg(ERROR, "Missing input file name");
+  else{
+    if(!strlen(Name_Generic)){
+      strcpy(Name_Generic, Name_ProFile) ;
+      if(!strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".pro") ||
+	 !strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".PRO"))
+	Name_Generic[strlen(Name_ProFile)-4] = '\0' ;
+      else
+	strcat(Name_ProFile,".pro") ;
+    }
+    else if(strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".pro") &&
+	    strcmp(Name_ProFile+(strlen(Name_ProFile)-4), ".PRO"))
+      strcat(Name_ProFile,".pro") ;
+  }
 
   Flag_LOG = Flag_TmpLOG ;
 

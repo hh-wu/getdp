@@ -1,4 +1,4 @@
-.\" $Id: getdp.1,v 1.18 2001-03-10 23:54:03 geuzaine Exp $
+.\" $Id: getdp.1,v 1.19 2001-03-19 19:15:57 geuzaine Exp $
 .\" ======================================================================
 .\"
 .\" This is the manual page for GetDP
@@ -86,6 +86,10 @@ save processing results in separate files (one for each timestep).
 .B \-res \fIfilename\fP(s)
 load processing results from \fIfilename(s)\fP instead of from the
 default problem file name with the \fI.res\fP extension appended.
+.TP 4
+.B \-name \fIstring\fP
+use \fIstring\fP as the default generic file name for input or output
+of mesh, pre-processing and processing files.
 .TP 4
 .B \-adapt \fIfilename\fP(s)
 read adaptation constraints from \fIfilename(s)\fP.

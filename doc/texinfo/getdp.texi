@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.4 2001-03-18 13:56:46 geuzaine Exp $
+@c $Id: getdp.texi,v 1.5 2001-03-19 19:15:57 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -5060,6 +5060,11 @@ Saves processing results in separate files (one for each timestep).
 @item -res @var{filename} @dots{}
 @cindex @code{-res}
 Loads processing results from file(s).
+
+@item -name @var{string}
+@cindex @code{-name}
+Uses @var{string} as the default generic file name for input or output
+of mesh, pre-processing and processing files.
 
 @item -restart
 @cindex @code{-restart}
