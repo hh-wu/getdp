@@ -1,11 +1,18 @@
-% $Id: cnrs-2001.tex,v 1.10 2001-06-17 21:07:00 geuzaine Exp $
+% $Id: cnrs-2001.tex,v 1.11 2001-06-18 08:16:56 geuzaine Exp $
 
 \documentclass[a4]{seminar}
 
 \usepackage{talks}
 
-\fulltitle=0   % set to 1 to get authors/affiliation on title pages
-\bigpictures=1 % set to 1 if the getdp-picts module has been checked out
+\typeout{}
+\typeout{*******************************************************}
+\typeout{* Do you want to include all the pictures? (you need}
+\typeout{* to checkout the getdp-picts module at the same level}
+\typeout{* as getdp for this)? (0/1)}
+\typein[\bigpictures]
+        {*******************************************************}
+
+\fulltitle=0 % set to 1 to get full authors/affiliation on title pages
 
 \begin{document}
 
