@@ -1,9 +1,10 @@
-// $Id: Scatterer.cpp,v 1.8 2002-05-02 01:13:02 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.9 2002-05-02 22:44:18 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
 #include "Scatterer.h"
 #include "Function.h"
+#include "Newton.h"
 
 int fcmp_CPoint(const void * a, const void * b) {
   double cmp ;
@@ -11,6 +12,15 @@ int fcmp_CPoint(const void * a, const void * b) {
   cmp = ((CPoint*)a)->val - ((CPoint*)b)->val ;
   if      (cmp > 1.e-16)  return  1 ;
   else if (cmp < -1.e-16) return -1 ;
+  else                    return  0 ;
+}
+
+int fcmp_double_loose(const void *a, const void *b){
+  double cmp ;
+  
+  cmp = *(double*)a - *(double*)b ;
+  if      (cmp > 1.e-6)  return  1 ;
+  else if (cmp < -1.e-6) return -1 ;
   else                    return  0 ;
 }
 
@@ -79,33 +89,30 @@ void Scatterer::singularPoint(double t0, List_T *pts){
 //  Compute all critical points (i.e. for which gradient of the total
 //  phase of the integral equation vanishes).
 
-void newt (double x[], int n, int *check, void (*vecfunc) (int, double[], double[]));
-
 static Scatterer *TheScat;
 
 void phaseGradient(int n, double *in, double *out){
-  out[1] = cos(10*in[1]); return;
-
   double theta0 = TheScat->targetPoint, theta = in[1];
-  double r0, dr0, r, dr, phip;
+  double r0, dr0, r, dr;
 
   TheScat->polar(theta,&r,&dr);
   TheScat->polar(theta0,&r0,&dr0);
 
-  phip = (r*dr - r0*dr*cos(theta-theta0) + r0*r*sin(theta-theta0)) /
+  //out[1] = in[1]*in[1]-2.;
+
+  //out[1] = sin(theta-theta0) / sqrt(2*(1-cos(theta-theta0))) - sin(theta) ;
+
+  out[1] = (r*dr - r0*dr*cos(theta-theta0) + r0*r*sin(theta-theta0)) /
     sqrt(r0*r0 + r*r - 2*r0*r*cos(theta-theta0)) +
     dr*cos(theta) - r*sin(theta) ;
-
-  out[1] = phip;
-
-  //printf("in=%g   out=%g\n", in[1], out[1]);
-
+  
 }
 
 void Scatterer::criticalPoints(double t0, double k[3], List_T *pts){
   int i, n, check;
   CPoint pt;
   double tmp[2], theta;
+  List_T *tmplist;
 
   pt.degree = 2;
 
@@ -136,24 +143,41 @@ void Scatterer::criticalPoints(double t0, double k[3], List_T *pts){
     break;
 
   default :
-    // store the critical points during the first gmres iteration
+    // solve the nonlinear system in the general case
 
-    theta = 0.;
-    targetPoint = t0;
+    if(k[1] || k[2])
+      Msg(ERROR, "Critical point computation not done in the general case");
 
     TheScat = this;
-
-    for(i=0; i<1000; i++){
+    theta = 0.;
+    targetPoint = t0;
+    tmplist = List_Create(10,10,sizeof(double));
+#define NBPTS 100
+    for(i=0; i<NBPTS; i++){
       tmp[1] = theta;
-      newt(tmp, 1, &check, phaseGradient);
 
-      tmp[1] = GetInInterval(tmp[1], 0., TWO_PI);
-
-      printf("theta = %g sol = %.16g check = %d\n", theta, tmp[1], check);
-
-      theta += TWO_PI/1000.;
+      if(fabs(theta-t0)>1.e-6){
+	newt(tmp, 1, &check, phaseGradient);
+	if(!check){
+	  tmp[1] = GetInInterval(tmp[1], 0., TWO_PI);
+	  List_Insert(tmplist, &tmp[1], fcmp_double_loose);
+	  //printf("theta = %g sol = %.16g check = %d\n", theta, tmp[1], check);
+	}
+	else{
+	  Msg(WARNING,"Newton did not converge for theta0=%g, theta=%g",
+	      t0, theta);
+	}
+      }
+      theta += TWO_PI/NBPTS;
     }
-    Msg(ERROR, "Unknown type of scatterer for critical point computation");
+
+    for(i=0; i<List_Nbr(tmplist); i++){
+      List_Read(tmplist, i, &theta);
+      //printf("CRIT POINT = %g \n", theta);
+      pt.val=theta;  
+      List_Insert(pts, &pt, fcmp_CPoint);
+    }
+
     break;
 
   }
@@ -168,6 +192,7 @@ void Scatterer::shadowingPoints(double t, double shift, double k[3], List_T *pts
   switch(type){
 
   case CIRCLE :
+  case ELLIPSE :
     if(k[1] || k[2])
       Msg(ERROR, "Shadowing point computation not done in the general case");
 

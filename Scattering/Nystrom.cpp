@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.31 2002-04-26 20:18:54 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.32 2002-05-02 22:44:18 geuzaine Exp $
 
 #include "Utils.h"
 #include "Nystrom.h"
@@ -286,7 +286,7 @@ Complex Integrate(Ctx *ctx, double t){
   ctx->scat.singularPoint(t,CritPts);
   ctx->scat.criticalPoints(t,ctx->waveNum,CritPts);
   ctx->scat.shadowingPoints(t,eps_shad/2.,ctx->waveNum,CritPts);
-  //ctx->scat.shadowingPoints(t,0.,ctx->waveNum,CritPts);
+  // ctx->scat.shadowingPoints(t,0.,ctx->waveNum,CritPts);
 
   List_Sort(CritPts, fcmp_CPoint);
 

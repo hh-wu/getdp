@@ -1,4 +1,4 @@
-// $Id: Newton.cpp,v 1.2 2002-05-02 01:13:02 geuzaine Exp $
+// $Id: Newton.cpp,v 1.3 2002-05-02 22:44:18 geuzaine Exp $
 
 #include <math.h>
 
@@ -114,7 +114,9 @@ newt (double x[], int n, int *check, void (*vecfunc) (int, double[], double[]))
     if (test < TOLX)
       FREERETURN;
   }
-  nrerror ("MAXITS exceeded in newt");
+
+  //Msg(WARNING, "MAXITS exceeded in newt");
+  *check=1;
 }
 
 #undef MAXITS
