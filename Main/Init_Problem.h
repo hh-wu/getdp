@@ -72,6 +72,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 			      struct DofData        * DofData_P0,
 			      struct DefineSystem   * DefineSystem_P0,
 			      struct GeoData        * GeoData_P0,
+			      struct PostProcessing * PostProcessing_P,
 			      struct PostOperation  * PostOperation_P) ;
 
 void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,

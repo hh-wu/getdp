@@ -42,13 +42,14 @@ void  SolvingAnalyse (void) {
 
   struct DofData        * DofData_P ;
   struct Dof            * Dof_P ;
-  struct PostOperation  * PostOperation_P ;
+  struct PostOperation  * PostOperation_P[NBR_MAX_POS] ;
+  struct PostProcessing * PostProcessing_P[NBR_MAX_POS] ;
   struct FunctionSpace  * FunctionSpace_P ;
   struct PreResolutionInfo  PreResolutionInfo_S ;
 
   double  d;
   int  i, j, k ;
-  int  Num_PostProcessing, Num_PostOperation, Nbr_GeoData ;
+  int  Num, Nbr_GeoData ;
   int  Nbr_PreResolution, Nbr_OtherSystem ;
 
   GeoData_L = List_Create( 1, 5, sizeof(struct GeoData)) ;
@@ -315,27 +316,32 @@ void  SolvingAnalyse (void) {
     TreatmentStatus = _POS ;
     Msg(DIRECT, "P o s t - P r o c e s s i n g . . .") ;
 
+    i = 0 ;
     if(Flag_IPOS){
-      Num_PostProcessing =
-        List_ISearchSeq(Problem_S.PostProcessing, Name_PostProcessing,
-                        fcmp_PostProcessing_Name) ;
-      if (Num_PostProcessing < 0)
-        Msg(ERROR, "Unknown PostProcessing") ;
-      List_Read(Problem_S.PostProcessing, Num_PostProcessing, &PostProcessing_S) ;
-      PostOperation_P = NULL ;
+      while(Name_PostProcessing[i]){
+	if((Num = List_ISearchSeq(Problem_S.PostProcessing, Name_PostProcessing[i],
+				  fcmp_PostProcessing_Name)) < 0)
+	  Msg(ERROR, "Unknown PostProcessing") ;
+	PostProcessing_P[i] = (struct PostProcessing *)
+	  List_Pointer(Problem_S.PostProcessing, Num) ;
+	PostOperation_P[i] = NULL ;
+	i++ ;
+      }
     }
     else{
-      Num_PostOperation =
-        List_ISearchSeq(Problem_S.PostOperation, Name_PostOperation,
-                        fcmp_PostOperation_Name) ;
-      if (Num_PostOperation < 0)
-        Msg(ERROR, "Unknown PostOperation") ;
-
-      PostOperation_P = (struct PostOperation*)
-        List_Pointer(Problem_S.PostOperation, Num_PostOperation) ;
-      List_Read(Problem_S.PostProcessing,PostOperation_P->PostProcessingIndex,
-                &PostProcessing_S) ;
+      i = 0 ;
+      while(Name_PostOperation[i]){
+	if((Num = List_ISearchSeq(Problem_S.PostOperation, Name_PostOperation[i],
+				  fcmp_PostOperation_Name)) < 0)
+	  Msg(ERROR, "Unknown PostOperation") ;
+	PostOperation_P[i] = (struct PostOperation*)
+	  List_Pointer(Problem_S.PostOperation, Num) ;
+	PostProcessing_P[i] = (struct PostProcessing *)
+	  List_Pointer(Problem_S.PostProcessing, PostOperation_P[i]->PostProcessingIndex) ;
+	i++ ;
+      }
     }
+    PostProcessing_P[i] = NULL ;
 
     if (!Flag_CAL) {
       i = 0 ;
@@ -394,8 +400,12 @@ void  SolvingAnalyse (void) {
     Current.NbrSystem  = Nbr_DefineSystem ;  /* Attention: init for Dt[] */
     Current.DofData_P0 = DofData_P0 ;
     
-    Treatment_PostOperation(Resolution_P, DofData_P0, DefineSystem_P0, GeoData_P0,
-                            PostOperation_P) ;
+    i = 0 ;
+    while(PostProcessing_P[i]){
+      Treatment_PostOperation(Resolution_P, DofData_P0, DefineSystem_P0, GeoData_P0,
+			      PostProcessing_P[i], PostOperation_P[i]) ;
+      i++ ;
+    }
 
     Msg(RESOURCES, "");
     Msg(DIRECT, "E n d   P o s t - P r o c e s s i n g");
@@ -632,6 +642,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 			      struct DofData        * DofData_P0,
 			      struct DefineSystem   * DefineSystem_P0,
 			      struct GeoData        * GeoData_P0,
+			      struct PostProcessing * PostProcessing_P,
 			      struct PostOperation  * PostOperation_P) {
 
   struct PostSubOperation  * PostSubOperation_P ;
@@ -642,12 +653,12 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   int    Nbr_PostSubOperation, i_POP, i ;
 
 
-  if (!List_Nbr(PostProcessing_S.PostQuantity))
+  if (!List_Nbr(PostProcessing_P->PostQuantity))
     Msg(ERROR, "No Quantity available for PostProcessing '%s'",
-	PostProcessing_S.Name) ;
+	PostProcessing_P->Name) ;
 
   Formulation_P = (struct Formulation *)
-    List_Pointer(Problem_S.Formulation, PostProcessing_S.FormulationIndex) ;
+    List_Pointer(Problem_S.Formulation, PostProcessing_P->FormulationIndex) ;
 
   if (!List_Nbr(Formulation_P->DefineQuantity))
     Msg(ERROR, "No DefineQuantity exists for Formulation '%s'",
@@ -655,12 +666,12 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 
   /* Choice of Current DofData */
 
-  if(PostProcessing_S.NameOfSystem){
+  if(PostProcessing_P->NameOfSystem){
     if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
-			     PostProcessing_S.NameOfSystem,
+			     PostProcessing_P->NameOfSystem,
 			     fcmp_DefineSystem_Name)) < 0)
       Msg(ERROR, "Unknown NameOfSystem (%s) in PostProcessing (%s)", 
-	  PostProcessing_S.NameOfSystem, PostProcessing_S.Name) ;
+	  PostProcessing_P->NameOfSystem, PostProcessing_P->Name) ;
     
     Current.DofData = DofData_P0 + i;
 
@@ -698,14 +709,14 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 			GeoData_P0 + Current.DofData->GeoDataIndex) ;
 
   Msg(INFO, "Selected PostProcessing '%s' (System '%s', Mesh '%s')",
-      PostProcessing_S.Name, DefineSystem_P->Name, 
+      PostProcessing_P->Name, DefineSystem_P->Name, 
       Current.GeoData->Name);
 
   Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);
   
   if(Flag_IPOS){
 
-    Pos_Interactive(Formulation_P);
+    Pos_Interactive(Formulation_P, PostProcessing_P);
 
   }
   else{
@@ -715,7 +726,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
       Msg(OPERATION, "PostOperation %d/%d ", i_POP+1, Nbr_PostSubOperation) ;      
       PostSubOperation_P = (struct PostSubOperation*)
 	List_Pointer(PostOperation_P->PostSubOperation, i_POP) ;
-      Pos_Formulation(Formulation_P, PostSubOperation_P) ;
+      Pos_Formulation(Formulation_P, PostProcessing_P, PostSubOperation_P) ;
     }
 
   }

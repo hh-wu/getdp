@@ -98,6 +98,7 @@ double  Cal_AnalyticIntegration(struct Element * Element,
 /*---------------------------------------------------------------------*/
 
 void  Pos_Formulation(struct Formulation * Formulation_P,
+		      struct PostProcessing * PostProcessing_P,
 		      struct PostSubOperation * PostSubOperation_P) ;
 void  Pos_FemInterpolation (struct Element          * Element,
 			    struct QuantityStorage  * QuantityStorage_P0,
@@ -107,7 +108,8 @@ void  Pos_FemInterpolation (struct Element          * Element,
 			    double x, double y, double z, 
 			    double Val[], int * Type_FormDof,
 			    int Flag_ChangeOfCoordinates) ;
-void  Pos_Interactive(struct Formulation *Formulation_P);
+void  Pos_Interactive(struct Formulation *Formulation_P,
+		      struct PostProcessing * PostProcessing_P);
 
 /*---------------------------------------------------------------------*/
 

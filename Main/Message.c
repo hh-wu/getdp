@@ -54,7 +54,7 @@ char help[] =
   "Processing options:\n"
   "  -pre 'Resolution'        pre-processing\n"
   "  -cal                     processing\n"
-  "  -pos 'PostOperation'     post-processing\n"
+  "  -pos 'PostOperation(s)'  post-processing\n"
   "  -ipos 'PostProcessing'   interactive post-processing\n"
   "  -msh file                read mesh (in msh format) from file\n"
   "  -restart                 resume processing from where it stopped\n"

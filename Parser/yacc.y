@@ -91,7 +91,7 @@ extern char            *yytext ;
 
 extern int                     ErrorLevel, InteractiveLevel ;
 extern struct Problem          Problem_S ;
-extern struct PostProcessing   PostProcessing_S ;
+extern struct PostProcessing   InteractivePostProcessing_S ;
 extern struct PostSubOperation InteractivePostSubOperation_S ;
 extern int                     InteractiveCompute, InteractiveExit ;
 
@@ -170,11 +170,13 @@ struct DefineSystem             DefineSystem_S ;
 struct Operation                Operation_S, * Operation_P ;
 struct ChangeOfState            ChangeOfState_S ;
 
+struct PostProcessing         PostProcessing_S ;
 struct PostQuantity             PostQuantity_S ;
 struct PostQuantityTerm           PostQuantityTerm_S ;
 
 struct PostOperation          PostOperation_S ;
 struct PostSubOperation         PostSubOperation_S ;
+
 %}
 
 /* ------------------------------------------------------------------ */
@@ -446,9 +448,12 @@ Interactive :
       PostOperation_S.AppendString = NULL ;  
       PostOperation_S.Format = FORMAT_GMSH ;  
       PostOperation_S.PostProcessingIndex = -1 ; 
+      PostSubOperation_S.Format = -1 ;
     }
     PostSubOperation
     {
+      if(PostSubOperation_S.Format<0)
+	PostSubOperation_S.Format = PostOperation_S.Format ;
       InteractivePostSubOperation_S = PostSubOperation_S ;
       InteractiveCompute = 1;
     }
@@ -4917,7 +4922,7 @@ PostOperationTerm :
 	vyyerror("Unknown PostProcessing: %s", $2) ;
       else {
 	PostOperation_S.PostProcessingIndex = i ;
-	List_Read(Problem_S.PostProcessing, i, &PostProcessing_S) ;
+	List_Read(Problem_S.PostProcessing, i, &InteractivePostProcessing_S) ;
       }
       Free($2) ;
     }
@@ -4953,7 +4958,7 @@ SeparatePostOperation :
 	vyyerror("Unknown PostProcessing: %s", $4) ;
       else {
 	PostOperation_S.PostProcessingIndex = i ;
-	List_Read(Problem_S.PostProcessing, i, &PostProcessing_S) ;
+	List_Read(Problem_S.PostProcessing, i, &InteractivePostProcessing_S) ;
 	if (!Problem_S.PostOperation)
 	  Problem_S.PostOperation = List_Create(5, 5, sizeof (struct PostOperation)) ;
 	PostOperation_S.Name = $2 ;
@@ -5029,7 +5034,7 @@ PostQuantitiesToPlot :
 
     tSTRING ','
     {
-      if ((i = List_ISearchSeq(PostProcessing_S.PostQuantity, $1, 
+      if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1, 
 			       fcmp_PostQuantity_Name)) < 0)
 	vyyerror("Unknown PostQuantity: %s", $1) ;
       PostSubOperation_S.PostQuantityIndex[0] = i ;
@@ -5039,18 +5044,19 @@ PostQuantitiesToPlot :
 
  |  tSTRING Combination tSTRING ','
     {
-      if ((i = List_ISearchSeq(PostProcessing_S.PostQuantity, $1, 
+      if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1, 
 			       fcmp_PostQuantity_Name)) < 0)
 	vyyerror("Unknown PostQuantity: %s", $1) ;
       PostSubOperation_S.PostQuantityIndex[0] = i ;
 
-      if ((j = List_ISearchSeq(PostProcessing_S.PostQuantity, $3, 
+      if ((j = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $3, 
 			       fcmp_PostQuantity_Name)) < 0)
 	vyyerror("Unknown PostQuantity: %s", $3) ;
       PostSubOperation_S.PostQuantityIndex[1] = j ;
 
-      if((k=((struct PostQuantity*)List_Pointer(PostProcessing_S.PostQuantity, i))->Type) == 
-	 ((struct PostQuantity*)List_Pointer(PostProcessing_S.PostQuantity, j))->Type){
+      if((k=((struct PostQuantity*)
+	     List_Pointer(InteractivePostProcessing_S.PostQuantity, i))->Type) == 
+	 ((struct PostQuantity*)List_Pointer(InteractivePostProcessing_S.PostQuantity, j))->Type){
 	vyyerror("PostQuantities '%s' and '%s' should not be of same type (%s)", 
 		 $1, $3, Get_StringForDefine(PostQuantity_Type, k)) ;
       }      

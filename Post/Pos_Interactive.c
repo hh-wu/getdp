@@ -11,6 +11,7 @@
 extern int     ErrorLevel ;
 extern int     InteractiveLevel, InteractiveCompute ; 
 extern int     InteractiveExit, InteractiveInterrupt ;
+extern struct  PostProcessing InteractivePostProcessing_S ;
 extern struct  PostSubOperation InteractivePostSubOperation_S ;
 extern FILE   *yyin;
 
@@ -19,11 +20,13 @@ int   yyparse(void) ;
 char *readline(char *prompt);
 void  add_history(char *line);
 
-void  Pos_Interactive(struct Formulation *Formulation_P){
+void  Pos_Interactive(struct Formulation *Formulation_P,
+		      struct PostProcessing *PostProcessing_P){
   char *myptr;
 
   PostStream = stdout;
   InteractiveLevel = 1;
+  InteractivePostProcessing_S = *PostProcessing_P;
 
   while (1) {
 
@@ -59,7 +62,8 @@ void  Pos_Interactive(struct Formulation *Formulation_P){
       /* compute something */
       if(!ErrorLevel && InteractiveCompute){
 	InteractiveInterrupt = 0;
-	Pos_Formulation(Formulation_P, &InteractivePostSubOperation_S);
+	Pos_Formulation(Formulation_P, PostProcessing_P,
+			&InteractivePostSubOperation_S);
       }
     }
 

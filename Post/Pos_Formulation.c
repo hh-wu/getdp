@@ -26,6 +26,7 @@ extern int  InteractiveInterrupt ;
 /* ------------------------------------------------------------------------ */
 
 void  Pos_Formulation(struct Formulation       *Formulation_P,
+		      struct PostProcessing    *PostProcessing_P,
 		      struct PostSubOperation  *PostSubOperation_P) {
 
   struct PostQuantity   *NCPQ_P, *CPQ_P ;
@@ -56,25 +57,25 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   Print_PostFormat(PostSubOperation_P->Format) ;
 
   if(((struct PostQuantity *)
-      List_Pointer(PostProcessing_S.PostQuantity, 
+      List_Pointer(PostProcessing_P->PostQuantity, 
 		   PostSubOperation_P->PostQuantityIndex[0]))->Type == NONCUMULATIVE){
     NCPQ_P = 
-      (struct PostQuantity *) List_Pointer(PostProcessing_S.PostQuantity, 
+      (struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
 					   PostSubOperation_P->PostQuantityIndex[0]) ;
     CPQ_P = 
       (PostSubOperation_P->PostQuantityIndex[1] >= 0) ?
-      (struct PostQuantity *)List_Pointer(PostProcessing_S.PostQuantity, 
+      (struct PostQuantity *)List_Pointer(PostProcessing_P->PostQuantity, 
 					  PostSubOperation_P->PostQuantityIndex[1]) :
       NULL ;
     Order = 1 ;
   }
   else{
     CPQ_P = 
-      (struct PostQuantity *) List_Pointer(PostProcessing_S.PostQuantity, 
+      (struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
 					   PostSubOperation_P->PostQuantityIndex[0]) ;
     NCPQ_P = 
       (PostSubOperation_P->PostQuantityIndex[1] >= 0) ?
-      (struct PostQuantity *)List_Pointer(PostProcessing_S.PostQuantity, 
+      (struct PostQuantity *)List_Pointer(PostProcessing_P->PostQuantity, 
 					  PostSubOperation_P->PostQuantityIndex[1]) :
       NULL ;
     Order = 0 ;
@@ -863,7 +864,7 @@ void normvec(double *a){
   a[2]/=mod;
 }
 
-#define NB_MAX_CUT 10
+#define NBR_MAX_CUT 10
 
 #define LETS_PRINT_THE_RESULT								\
   List_Reset(PE_L);									\
@@ -907,7 +908,7 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
 		    struct QuantityStorage  *QuantityStorage_P0,
 		    struct PostSubOperation *PostSubOperation_P) {
 
-  struct CutEdge       e[NB_MAX_CUT];
+  struct CutEdge       e[NBR_MAX_CUT];
   struct Element       Element ;
   struct PostElement * PE ;
   struct Value       * CumulativeValues ;
@@ -925,7 +926,7 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
 
   PE_L = List_Create(10, 10, sizeof(struct PostElement *)) ;
 
-  for(i=0 ; i<NB_MAX_CUT ; i++)
+  for(i=0 ; i<NBR_MAX_CUT ; i++)
     e[i].Value = (struct Value*) Malloc(NbTimeStep*sizeof(struct Value)) ;    
     
   Print_PostHeader(PostSubOperation_P->Format, 
@@ -1092,11 +1093,11 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
 
   List_Delete(PE_L) ;
   if(CPQ_P) Free(CumulativeValues);
-  for(i=0 ; i<NB_MAX_CUT ; i++) Free(e[i].Value) ;
+  for(i=0 ; i<NBR_MAX_CUT ; i++) Free(e[i].Value) ;
 
 }
 
-#undef NB_MAX_CUT
+#undef NBR_MAX_CUT
 #undef LETS_PRINT_THE_RESULT
 
 /* ------------------------------------------------------------------------ */

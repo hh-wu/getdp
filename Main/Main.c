@@ -21,9 +21,9 @@ FILE   *PostStream, *LogStream, *PrintStream ;
 List_T *GeoData_L, *PreResolutionIndex_L ;
 
 struct Problem           Problem_S ;
-struct PostProcessing    PostProcessing_S ;
 struct Expression       *Problem_Expression0 ;
 struct CurrentData       Current ;
+struct PostProcessing    InteractivePostProcessing_S ;
 struct PostSubOperation  InteractivePostSubOperation_S ;
 
 int     TreatmentStatus;
@@ -35,8 +35,9 @@ int     Flag_RESTART, Flag_LOG, Flag_VERBOSE, Flag_BIN, Flag_PROGRESS ;
 int     Flag_SPLIT ;
 double  Flag_DEGREE ;
 char    Name_Generic[MAX_FILE_NAME_LENGTH] ;
-char   *Name_Resolution, *Name_PostProcessing, *Name_PostOperation ;
-char   *Name_MshFile, *Name_ResFile[MAX_RES_FILES], *Name_AdaptFile ;
+char   *Name_Resolution ;
+char   *Name_PostProcessing[NBR_MAX_POS], *Name_PostOperation[NBR_MAX_POS] ;
+char   *Name_MshFile, *Name_ResFile[NBR_MAX_RES], *Name_AdaptFile ;
 
 int Flag_RemoveSingularity = 0;
 
@@ -162,7 +163,7 @@ void Init_GlobalVariables(void){
   Flag_LOG = 0   ; Flag_VERBOSE = 4 ; Flag_PROGRESS = 10 ; Flag_SPLIT = 0 ;
   Flag_DEGREE = -1. ;
 
-  Name_Resolution = Name_PostProcessing = Name_PostOperation = NULL ;
+  Name_Resolution = Name_PostProcessing[0] = Name_PostOperation[0] = NULL ;
   Name_MshFile = Name_ResFile[0] = Name_AdaptFile = NULL ;
 
   PostStream = PrintStream = stdout ;
@@ -307,24 +308,36 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 
       else if (!strcmp(argv[i]+1, "post") ||
 	       !strcmp(argv[i]+1, "pos")) {
-	i++ ;
-	if (i<argc && argv[i][0]!='-') { 
-	  Flag_POS = 1 ; Name_PostOperation = argv[i] ; i++ ; 
+	i++ ; j = 0 ;
+	while (i<argc && argv[i][0]!='-') { 
+	  Name_PostOperation[j] = argv[i] ; i++ ; j++ ;
+	  if(j == NBR_MAX_POS)
+	    Msg(ERROR, "Too Many PostOperations");
 	}
-	else {
+	if(!j){
 	  Flag_LPOS = 1 ; i++ ; 
+	}
+	else{
+	  Flag_POS = 1 ;
+	  Name_PostOperation[j] = NULL ;
 	}
       }
 
       else if (!strcmp(argv[i]+1, "interactive-post") ||
 	       !strcmp(argv[i]+1, "ipost") ||
 	       !strcmp(argv[i]+1, "ipos")) {
-	i++ ;
-	if (i<argc && argv[i][0]!='-') { 
-	  Flag_IPOS = Flag_POS = 1 ; Name_PostProcessing = argv[i] ; i++ ; 
+	i++ ; j = 0 ;
+	while (i<argc && argv[i][0]!='-') { 
+	  Name_PostProcessing[j] = argv[i] ; i++ ; j++ ;
+	  if(j == NBR_MAX_POS)
+	    Msg(ERROR, "Too Many PostOperations");
 	}
-	else {
-	  Flag_LIPOS = 1 ; i++ ;
+	if(!j){
+	  Flag_LIPOS = 1 ; i++ ; 
+	}
+	else{
+	  Flag_IPOS = Flag_POS = 1 ;
+	  Name_PostOperation[j] = NULL ;
 	}
       }
 
@@ -355,7 +368,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	i++ ; j = 0 ;
 	while (i<argc && argv[i][0]!='-') { 
 	  Name_ResFile[j] = argv[i] ; i++ ; j++ ;
-	  if(j == MAX_RES_FILES)
+	  if(j == NBR_MAX_RES)
 	    Msg(ERROR, "Too Many '.res' Files");
 	}
 	if(!j)
