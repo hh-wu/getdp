@@ -357,7 +357,8 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
     /*  Q U A D R A T U R E                    */
     /*  -------------------------------------  */
 
-    case GAUSS       :  
+    case GAUSS :  
+    case GAUSSLEGENDRE :
     case NEWTONCOTES :
 
       Quadrature_P = (struct Quadrature*)

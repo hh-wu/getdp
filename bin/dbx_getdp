@@ -1,11 +1,11 @@
-dbx /usr/users53/getdp/bin/getdp \
-  -I/usr/users53/getdp/Main \
-  -I/usr/users53/getdp/Post \
-  -I/usr/users53/getdp/Function \
-  -I/usr/users53/getdp/GeoData \
-  -I/usr/users53/getdp/DofData \
-  -I/usr/users53/getdp/DataStr \
-  -I/usr/users53/getdp/Sparskit \
-  -I/usr/users53/getdp/Numeric \
-  -I/usr/users53/getdp/Integration
+dbx /usr/users57/geuzaine/SOURCES/getdp/bin/getdp \
+  -I/usr/users57/geuzaine/SOURCES/getdp/Main \
+  -I/usr/users57/geuzaine/SOURCES/getdp/Post \
+  -I/usr/users57/geuzaine/SOURCES/getdp/Function \
+  -I/usr/users57/geuzaine/SOURCES/getdp/GeoData \
+  -I/usr/users57/geuzaine/SOURCES/getdp/DofData \
+  -I/usr/users57/geuzaine/SOURCES/getdp/DataStr \
+  -I/usr/users57/geuzaine/SOURCES/getdp/Sparskit \
+  -I/usr/users57/geuzaine/SOURCES/getdp/Numeric \
+  -I/usr/users57/geuzaine/SOURCES/getdp/Integration
 

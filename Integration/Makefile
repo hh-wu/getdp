@@ -4,7 +4,7 @@
 
 .IGNORE:
 
-C_FLAGS = -O3
+C_FLAGS = -g
 RANLIB  = /usr/bin/ranlib
 
 LIB     = ../lib/libIntegration.a
@@ -54,13 +54,17 @@ Gauss_Point.o: Gauss_Point.c
 Gauss_Line.o: Gauss_Line.c ../include/Message.h \
  ../include/../Main/Message.h Gauss_Line.h
 Gauss_Triangle.o: Gauss_Triangle.c ../include/Message.h \
- ../include/../Main/Message.h Gauss_Triangle.h
-Gauss_Quadrangle.o: Gauss_Quadrangle.c Gauss_Quadrangle.h \
- ../include/Message.h ../include/../Main/Message.h
+ ../include/../Main/Message.h Quadrature.h Gauss_Triangle.h \
+ ../include/ualloc.h ../include/../DataStr/ualloc.h
+Gauss_Quadrangle.o: Gauss_Quadrangle.c ../include/Message.h \
+ ../include/../Main/Message.h Quadrature.h Gauss_Quadrangle.h \
+ ../include/ualloc.h ../include/../DataStr/ualloc.h
 Gauss_Tetrahedron.o: Gauss_Tetrahedron.c ../include/Message.h \
- ../include/../Main/Message.h Gauss_Tetrahedron.h
+ ../include/../Main/Message.h Quadrature.h Gauss_Tetrahedron.h \
+ ../include/ualloc.h ../include/../DataStr/ualloc.h
 Gauss_Hexahedron.o: Gauss_Hexahedron.c ../include/Message.h \
- ../include/../Main/Message.h Gauss_Hexahedron.h
+ ../include/../Main/Message.h Quadrature.h Gauss_Hexahedron.h \
+ ../include/ualloc.h ../include/../DataStr/ualloc.h
 Gauss_Prism.o: Gauss_Prism.c ../include/Message.h \
  ../include/../Main/Message.h Gauss_Prism.h
 Gauss_Pyramid.o: Gauss_Pyramid.c ../include/Message.h \

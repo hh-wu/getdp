@@ -108,7 +108,7 @@ Pos_Print.o: Pos_Print.c ../include/Data_Passive.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/ualloc.h ../include/../DataStr/ualloc.h
+ ../include/ualloc.h ../include/../DataStr/ualloc.h ../include/Magic.h
 Pos_Element.o: Pos_Element.c ../include/Treatment_Formulation.h \
  ../include/../Main/Treatment_Formulation.h \
  ../include/../Main/Data_Active.h ../include/../Main/Data_Passive.h \

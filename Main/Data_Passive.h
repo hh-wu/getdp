@@ -114,7 +114,7 @@ struct ExpressionPerRegion {
 } ;
 
 /* Expression.Type */
-#define UNDEFINED             0
+#define UNDEFINED_EXP         0
 #define CONSTANT              1
 #define WHOLEQUANTITY         2
 #define PIECEWISEFUNCTION     3
@@ -225,6 +225,7 @@ struct IntegrationCase {
 #define GAUSS                  2
 #define NEWTONCOTES            3
 #define PATTERSON              4
+#define GAUSSLEGENDRE          5
 
 /* IntegrationCase.SubType */
 #define STANDARD               1

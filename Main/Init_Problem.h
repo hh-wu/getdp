@@ -17,7 +17,7 @@ void  Print_ListResolution(struct Problem  * Problem) ;
 void  Print_ListPostOperation(struct Problem  * Problem) ;
 void  Print_ListPostProcessing(struct Problem  * Problem) ;
 
-void  SolvingAnalyse(char * NameGene) ;
+void  SolvingAnalyse(void) ;
 
 void  Treatment_Resolution(int ResolutionIndex,
 			   int * Nbr_DefineSystem, int * Nbr_OtherSystem,

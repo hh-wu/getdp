@@ -178,7 +178,9 @@ BF_Node.o: BF_Node.c BF_Function.h ../include/Message.h \
  ../include/listman.h ../include/../DataStr/listman.h \
  ../include/treeman.h ../include/../DataStr/treeman.h \
  ../include/../DataStr/avl.h HBF_Function.h ../include/Data_Numeric.h \
- ../include/../Main/Data_Numeric.h
+ ../include/../Main/Data_Numeric.h ../include/Get_Geometry.h \
+ ../include/../Main/Get_Geometry.h ../include/../Main/Data_Active.h \
+ ../include/../Main/Data_Passive.h
 BF_Edge.o: BF_Edge.c BF_Function.h ../include/Message.h \
  ../include/../Main/Message.h ../include/Data_Element.h \
  ../include/../Main/Data_Element.h ../include/GeoData.h \
@@ -207,7 +209,9 @@ BF_GroupOfEntities.o: BF_GroupOfEntities.c BF_Function.h \
  ../include/../GeoData/Data_GeoData.h ../include/listman.h \
  ../include/../DataStr/listman.h ../include/treeman.h \
  ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- HBF_Function.h
+ HBF_Function.h ../include/Get_Geometry.h \
+ ../include/../Main/Get_Geometry.h ../include/../Main/Data_Active.h \
+ ../include/../Main/Data_Passive.h
 BF_Region.o: BF_Region.c BF_Function.h ../include/Message.h \
  ../include/../Main/Message.h ../include/Data_Element.h \
  ../include/../Main/Data_Element.h ../include/GeoData.h \
