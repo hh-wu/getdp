@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.29 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.30 2003-01-26 06:56:51 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1242,8 +1242,9 @@ char * Print_PostSubOperation(struct Problem *Problem,
     strcat(out,tmp);
     break;
 
-
-  case POP_GROUP :
+  default : /* POP_GROUP, POP_ECHO, etc. */
+    strcpy(out, "");
+    return out;
     break;
    
   }
