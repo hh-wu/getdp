@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.18 2002-02-01 17:27:23 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.19 2002-02-04 19:00:48 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -527,6 +527,12 @@ reallocate :
       Free(M->S.ia_rcmk);
       Free(M->S.ja_rcmk);
     }          
+  }
+
+  if(M->T == DENSE){
+    List_Delete(M->S.a);
+    List_Delete(M->S.jptr);
+    List_Delete(M->S.ai);
   }
 
   if(p->Scaling)
