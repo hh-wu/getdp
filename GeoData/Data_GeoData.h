@@ -6,9 +6,9 @@
 
 struct Grid{
   int     Init;
-  List_T *Bricks;
-  double  Xmin,Xmax,Ymin,Ymax,Zmin,Zmax;
-  int     Nx,Ny,Nz;
+  List_T  * Bricks;
+  double  Xmin, Xmax, Ymin, Ymax, Zmin, Zmax;
+  int     Nx, Ny, Nz;
 };
 
 struct GeoData {
