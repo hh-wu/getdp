@@ -35,23 +35,15 @@ Point(9) = @{ xBox, yBox, 0, pyBox@} ;
 
 /* Definition of gemetrical lines */
 
-Line(1) = @{1,2@};
-Line(2) = @{2,3@};
-Line(3) = @{3,9@};
-Line(4) = @{9,8@};
-Line(5) = @{8,6@};
-Line(7) = @{4,1@};
-Line(8) = @{5,3@};
-Line(9) = @{4,5@};
-Line(10) = @{6,7@};
+Line(1) = @{1,2@};   Line(2) = @{2,3@};  Line(3) = @{3,9@};
+Line(4) = @{9,8@};   Line(5) = @{8,6@};  Line(7) = @{4,1@};
+Line(8) = @{5,3@};   Line(9) = @{4,5@};  Line(10) = @{6,7@};
 Line(11) = @{5,7@};
 
 /* Definition of geometrical surfaces */
 
-Line Loop(12) = @{8,-2,-1,-7,9@};
-Plane Surface(13) = @{12@};
-Line Loop(14) = @{10,-11,8,3,4,5@};
-Plane Surface(15) = @{14@};
+Line Loop(12) = @{8,-2,-1,-7,9@};   Plane Surface(13) = @{12@};
+Line Loop(14) = @{10,-11,8,3,4,5@}; Plane Surface(15) = @{14@};
 
 /* Definition of Physical entities (surfaces, lines). The Physical
    entities tell GMSH the elements and their associated region numbers

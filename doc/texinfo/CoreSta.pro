@@ -8,79 +8,75 @@
    
    To compute the solution: getdp CoreSta -msh Core.msh -solve MagSta_a_2D
    To compute post-results: getdp CoreSta -msh Core.msh -pos Map_a
-                         or getdp CoreSta -msh Core.msh -pos Cutb_a
    ------------------------------------------------------------------- */
 
 Group @{
 
-  Air        = # 101 ;
-  Core       = # 102 ;
-  Ind        = # 103 ;
-  AirInf     = # 111 ;
+  Air    = Region[ 101 ];   Core   = Region[ 102 ];
+  Ind    = Region[ 103 ];   AirInf = Region[ 111 ];
 
-  SurfaceGh0  = # 1100 ;  SurfaceGe0  = # 1101 ;
-  SurfaceGInf = # 1102 ;
+  SurfaceGh0  = Region[ 1100 ];  SurfaceGe0 = Region[ 1101 ];
+  SurfaceGInf = Region[ 1102 ];
 
+  Val_Rint = 200.e-3;
+  Val_Rext = 250.e-3;
 
-  DomainCC_Mag = Region[ @{Air, AirInf, Core, Ind@} ] ;
-  DomainC_Mag  = Region[ @{@} ] ;
-
-  DomainS_Mag  = Region[ @{Ind@} ] ;  // Stranded inductor
-
-  DomainInf = Region[ @{AirInf@} ] ;
-  Val_Rint = 200.e-3 ;  Val_Rext = 250.e-3 ;
-
-  Domain_Mag = Region[ @{DomainCC_Mag, DomainC_Mag@} ] ;
+  DomainCC_Mag = Region[ @{Air, AirInf, Core, Ind@} ];
+  DomainC_Mag  = Region[ @{@} ];
+  DomainS_Mag  = Region[ @{Ind@} ]; // Stranded inductor
+  DomainInf    = Region[ @{AirInf@} ];
+  Domain_Mag   = Region[ @{DomainCC_Mag, DomainC_Mag@} ];
 
 @}
-
 
 Function @{
 
-  mu0 = 4.e-7 * Pi ;
+  mu0 = 4.e-7 * Pi;
+  murCore = 100.;
 
-  murCore = 100. ;
+  nu [ Region[@{Air, Ind, AirInf@}] ]  = 1. / mu0;
+  nu [ Core ]  = 1. / (murCore * mu0);
 
-  nu [ #@{Air, Ind, AirInf@} ]  = 1. / mu0 ;
-  nu [ Core ]  = 1. / (murCore * mu0) ;
-
-  Sc[ Ind ] = 2.5e-2 * 5.e-2 ;
+  Sc[ Ind ] = 2.5e-2 * 5.e-2;
 
 @}
-
 
 Constraint @{
 
-  @{ Name MagneticVectorPotential_2D ;
+  @{ Name MagneticVectorPotential_2D;
     Case @{
-      @{ Region SurfaceGe0  ; Value 0. ; @}
-      @{ Region SurfaceGInf ; Value 0. ; @}
+      @{ Region SurfaceGe0 ; Value 0.; @}
+      @{ Region SurfaceGInf; Value 0.; @}
     @}
   @}
 
-  Val_I_1_ = 0.01 * 1000.   ;
+  Val_I_1_ = 0.01 * 1000.;
 
-  @{ Name SourceCurrentDensityZ ;
+  @{ Name SourceCurrentDensityZ;
     Case @{
-      @{ Region Ind ; Value Val_I_1_/Sc[] ; @}
+      @{ Region Ind; Value Val_I_1_/Sc[]; @}
     @}
   @}
 
 @}
-
 
 Include "Jacobian_Lib.pro"
 Include "Integration_Lib.pro"
 Include "MagSta_a_2D.pro"
 
-PostOperation Map_a UsingPost MagSta_a_2D @{
-  Print[ az, OnElementsOf Domain_Mag, File "CoreSta_a.pos"] ;
-@}
+e = 1.e-5;
+p1 = {e,e,0};
+p2 = {0.12,e,0};
 
-e = 1.e-5 ;
+PostOperation @{
 
-PostOperation Cutb_a UsingPost MagSta_a_2D @{
-  Print[ b, OnLine@{@{e,e,0@}@{0.12,e,0@}@} @{1000@}, File "k_a"] ;
+  @{ Name Map_a; NameOfFormulation MagSta_av_2D;
+    Operation @{
+      Print[ az, OnElementsOf Domain_Mag, File "CoreSta_a.pos" ];
+      Print[ b, OnLine@{@{List[p1]@}@{List[p2]@}@} @{1000@}, File "k_a" ];
+    @}
+  @}
+
 @}
 }
 @end format

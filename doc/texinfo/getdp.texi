@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.15 2001-07-21 12:09:58 geuzaine Exp $
+@c $Id: getdp.texi,v 1.16 2001-07-21 18:36:37 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -641,14 +641,18 @@ These commands won't have the described effects inside double quotes
 @tindex Include
 @tindex #include
 
-Files can be included by placing one of the following commands (@var{string}
-represents a file name) on a separate line, and outside any GetDP object.
-Any text placed after an include command on the same line is ignored.
+Files can be included by placing one of the following commands
+(@var{expression-char} represents a file name) on a separate line, and
+outside any GetDP object.  Any text placed after an include command on the
+same line is ignored.
 
 @example
-@code{Include "@var{string}"} 
-@code{#include "@var{string}"} 
+@code{Include @var{expression-char}} 
+@code{#include @var{expression-char}} 
 @end example
+
+@xref{Constants}, for the definition of the character expression
+@var{expression-char}.
 
 @c -------------------------------------------------------------------------
 @c Which Problems can GetDP actually solve?
@@ -704,17 +708,6 @@ forms a problem definition structure which is totally external to the
 software: GetDP offers computational tools; the user freely applies them to
 define and solve his problem.
 
-@c  Problems and methods that are under development include:
-@c  @table @asis
-@c  @item Physical models
-@c  mechanical problems (rigid body movement, elasticity)
-@c  @item Numerical methods
-@c  finite volume method@*
-@c  time domain finite difference method
-@c  @end table
-
-
-
 
 @c =========================================================================
 @c Expressions
@@ -766,17 +759,16 @@ Expressions are denoted by the metasyntactic variable @var{expression}
   @var{operator-unary} @var{expression} |
   @var{expression} @var{operator-binary} @var{expression} |
   @var{expression} @var{operator-ternary-left} @var{expression} @var{operator-ternary-right} @var{expression} |
-  @var{built-in-function-id} [ < @var{expression-list} > ] 
-                 < @{ @var{expression-cst-list} | List[@var{constant-id}] @} > |
+  @var{built-in-function-id} [ < @var{expression-list} > ] < @{ @var{expression-cst-list} @} > |
   @var{function-id} [ < @var{expression-list} > ]
 @end example
 
 @noindent The following sections introduce the quantities that can appear in
 expressions, i.e.@: constant terminals (@var{integer}, @var{real}) and
-constant expression identifiers (@var{constant-id}), discretized fields
-(@var{quantity}), arguments (@var{argument}), current values
-(@var{current-value}), operators (@var{operator-unary},
-@var{operator-binary}, @var{operator-ternary-left},
+constant expression identifiers (@var{constant-id},
+@var{expression-cst-list}), discretized fields (@var{quantity}), arguments
+(@var{argument}), current values (@var{current-value}), operators
+(@var{operator-unary}, @var{operator-binary}, @var{operator-ternary-left},
 @var{operator-ternary-right}) and built-in or user-defined functions
 (@var{built-in-function-id}, @var{function-id}). List of expressions are
 defined as:
@@ -812,6 +804,7 @@ defined as:
 @cindex String
 
 @tindex DefineConstant
+@tindex List
 @tindex ListAlt
 @tindex Pi
 @tindex 0D
@@ -825,8 +818,11 @@ defined as:
 @vindex @var{string}
 @vindex @var{expression-cst}
 @vindex @var{expression-cst-list}
+@vindex @var{expression-cst-list-item}
 @vindex @var{constant-id}
 @vindex @var{constant-def}
+@vindex @var{string-id}
+@vindex @var{expression-char}
 
 The three constant types used in GetDP are @var{integer}, @var{real} and
 @var{string}.  These terminals have the same meaning and syntax as in
@@ -846,21 +842,37 @@ metasyntactic variable @var{expression-cst}, are also used:
   @var{math-function-id} [ < @var{expression-cst-list} > ]
 @end example
 
-List of constant expressions (@var{expression-cst-list}) are defined as:
+List of constant expressions are defined as:
 
 @example
 @var{expression-cst-list}:
-  @var{expression-cst} <,@dots{}> |
-  @var{expression-cst} : @var{expression-cst} <,@var{expression-cst}> |
-  @var{expression-cst} : @var{expression-cst} : @var{expression-cst} <,@var{expression-cst}>
+  @var{expression-cst-list-item} <,@dots{}>
 @end example
 
-The second case in this definition permits to create a list containing the
-range of numbers comprised between the two @var{expression-cst}, with a unit
-incrementation step. The third case also permits to create a list containing
-the range of numbers comprised between the two @var{expression-cst}, but
-with a positive or negative incrementation step equal to the third
-@var{expression-cst}.
+@noindent with
+
+@example
+@var{expression-cst-list-item}:
+  @var{expression-cst} |
+  @var{expression-cst} : @var{expression-cst} |
+  @var{expression-cst} : @var{expression-cst} : @var{expression-cst} |
+  List[ @var{constant-id} ] |
+  ListAlt[ @var{constant-id}, @var{constant-id} ]
+@end example
+
+The second case in this last definition permits to create a list containing
+the range of numbers comprised between the two @var{expression-cst}, with a
+unit incrementation step. The third case also permits to create a list
+containing the range of numbers comprised between the two
+@var{expression-cst}, but with a positive or negative incrementation step
+equal to the third @var{expression-cst}. The fourth and fifth cases permit
+to reference constant identifiers (@var{constant-id}s) of lists of constants
+(see below for the definition of constant identifiers). The arguments of
+@code{ListAlt} must be @var{constant-id}s of lists of constants of the same
+dimension. The result is an alternate list of these constants: first
+constant of argument 1, first constant of argument 2, second constant of
+argument 1, @dots{} These kinds of lists of constants are for example often
+used for function parameters (@pxref{Functions}).
 
 Contrary to a general @var{expression} which is evaluated at runtime (thanks
 to an internal stack mechanism), an @var{expression-cst} is completely
@@ -881,9 +893,8 @@ DefineConstant [ @var{constant-id} < = @var{expression-cst} > <,@dots{}> ]; |
   @var{string}
 
 @var{constant-def}:
-  @var{expression-cst} |
-  @{ @var{expression-cst-list} @} |
-  ListAlt [ @var{constant-id}, @var{constant-id} ]
+  @var{expression-cst-list-item} |
+  @{ @var{expression-cst-list} @}
 @end example
 
 @noindent Notes:
@@ -902,18 +913,36 @@ default definition mechanism allows to define the quantities of interest
 only, the others being assigned a default value (that will not be used
 during the processing but that avoids the error messages produced when
 references to undefined quantities are made).
-@item
-@var{constant-id}s of lists of constants (@var{expression-cst-list}) are
-used for function parameters (@pxref{Functions}).
-@item
-The arguments of @code{ListAlt} must be @var{constant-id}s of lists of
-constants of the same dimension. The result is an alternate list of
-these constants: first constant of argument 1, first constant of
-argument 2, second constant of argument 1, @dots{}
 @end enumerate
 
-@xref{Constant expression examples} as well as @ref{Function examples}, for
+@xref{Constant expression examples}, as well as @ref{Function examples}, for
 some examples.
+
+Constant character strings can also be defined. The syntax for their
+definition is the following:
+
+@example
+@var{string-id} = "@var{string}";
+@end example
+
+@noindent with
+
+@example
+@var{string-id}:
+  @var{string}
+@end example
+
+Character expressions can be defined, using these constant strings:
+
+@example
+@var{expression-char}:
+  "@var{string}" |
+  @var{string-id} |
+  StrCat[ @var{expression-char} , @var{expression-char} ]
+@end example
+
+@noindent The second case in this definition permits to concatenate two
+character expressions.
 
 @c -------------------------------------------------------------------------
 @c Operators
@@ -1085,9 +1114,6 @@ i.e.@: @code{^} has the highest evaluation priority). Parentheses
 
 @vindex @var{built-in-function-id}
 
-@tindex List
-
-
 Two types of functions coexist in GetDP: user-defined functions
 (@var{function-id}, see @ref{Function}) and built-in functions
 (@var{built-in-function-id}, defined in this section). 
@@ -1100,8 +1126,7 @@ parameters, given between braces (@code{@{@}}), and which are completely
 evaluated during the analysis of the syntax (not at runtime):
 
 @example
-@var{built-in-function-id} [ < @var{expression-list} > ] 
-               < @{ @var{expression-cst-list} | List[@var{constant-id}] @} >
+@var{built-in-function-id} [ < @var{expression-list} > ] < @{ @var{expression-cst-list} @} >
 @end example
 
 @noindent with
@@ -1124,9 +1149,6 @@ All possible values for @var{built-in-function-id} are listed in
 @item 
 Classical mathematical functions (@pxref{Math functions}) are
 the only functions allowed in a constant definition (@pxref{Constants}).
-@item
-@var{constant-id} in @code{List[]} must refer to a list of constants
-(@var{expression-cst-list}).
 @end enumerate
 
 
@@ -1140,7 +1162,19 @@ the only functions allowed in a constant definition (@pxref{Constants}).
 @cindex Current values
 @cindex Values, current
 
-@tindex $@var{string}
+@tindex $Time
+@tindex $DTime
+@tindex $Theta
+@tindex $TimeStep
+@tindex $Iteration
+@tindex $X
+@tindex $XS
+@tindex $Y
+@tindex $YS
+@tindex $Z
+@tindex $ZS
+@tindex $S
+@tindex $T
 
 Current values are a special kind of arguments (@pxref{Arguments}) which
 return the current integer or floating point value of an internal GetDP
@@ -1433,7 +1467,7 @@ Group @{
 (i.e.@: geometrical elements and their nodes); with each element is
 associated a region number, being this @var{integer}, and a geometrical type
 (@pxref{Input file format}). Ranges of integers can be specified in the same
-way as ranges of constant expressions in a @var{expression-cst-list}
+way as ranges of constant expressions in an @var{expression-cst-list-item}
 (@pxref{Constants}). For example, @code{@var{i}:@var{j}} replaces the list
 of consecutive integers @var{i}, @var{i}+1, @dots{}, @var{j}-1, @var{j}.
 @item
@@ -1780,7 +1814,6 @@ multiformulations.
 
 @vindex @var{jacobian-id}
 @vindex @var{jacobian-type}
-@vindex @var{jacobian-arg}
 
 Jacobian methods can be referred to in @code{Formulation} and
 @code{PostProcessing} objects to be used in the computation of integral
@@ -1799,7 +1832,7 @@ Jacobian @{
   @{ Name @var{jacobian-id};
     Case @{ 
       @{ Region @var{group-def} | All; 
-        Jacobian @var{jacobian-type} < @var{jacobian-arg} >; @} @dots{}
+        Jacobian @var{jacobian-type} < @{ @var{expression-cst-list} @} >; @} @dots{}
     @} 
   @} @dots{}
 @}
@@ -1813,9 +1846,6 @@ Jacobian @{
 
 @var{jacobian-type}:
   Vol | Sur | VolAxi | @var{etc}
-
-@var{jacobian-arg}:
-  @{ @var{expression-cst} <,@dots{}> @}
 @end example
 
 
@@ -2071,9 +2101,10 @@ Resolution @{
     System @{ 
       @{ Name @var{system-id}; NameOfFormulation @var{formulation-list}; 
         < Type @var{system-type}; >
-        < Frequency @var{expression-cst} | Frequency @{ @var{expression-cst-list} @}; >
+        < Frequency @var{expression-cst-list-item} | 
+          Frequency @{ @var{expression-cst-list} @}; >
         < DestinationSystem @var{system-id}; > < OriginSystem @var{system-id}; >
-        < NameOfMesh "@var{string}" > < Solver "@var{string}" > @} @dots{}
+        < NameOfMesh @var{expression-char} > < Solver @var{expression-char} > @} @dots{}
     @} 
     Operation @{ < @var{resolution-op}; > @dots{} @}
   @} @dots{}
@@ -2108,10 +2139,11 @@ resolutions @code{@var{resolution-id}@{@var{i}@}}, @var{i}=1, @dots{},
 @item
 The default type for a system of equations considers the time domain
 analysis.  The frequency domain analysis is defined through the definition
-of one or several frequencies (@code{Frequency @var{expression-cst} |
-Frequency @{ @var{expression-cst-list} @}}). Complex systems of equations
-with no predefined list of frequencies (e.g.@: in modal analyses) can be
-explicitely defined with @code{Type Complex}.
+of one or several frequencies (@code{Frequency
+@var{expression-cst-list-item} | Frequency @{ @var{expression-cst-list}
+@}}). Complex systems of equations with no predefined list of frequencies
+(e.g.@: in modal analyses) can be explicitely defined with @code{Type
+Complex}.
 @end enumerate
 
 @xref{Types for Resolution}, for the complete list of options and
@@ -2263,7 +2295,7 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
   OnElementsOf @var{group-def} | OnRegion @var{group-def} | OnGlobal | @var{etc}
 
 @var{print-option}:
-  File "@var{string}" | Format @var{post-operation-fmt} | @var{etc}
+  File @var{expression-char} | Format @var{post-operation-fmt} | @var{etc}
 
 @var{post-operation-fmt}:
   Table | TimeTable | @var{etc}
@@ -2329,7 +2361,6 @@ quantities (@code{@var{post-quantity-id}[@var{group-def}]}).
 
 @noindent
 @code{@var{group-type} < @var{group-sub-type} >}:
-
 @ftable @code
 
 @item Region
@@ -2537,6 +2568,7 @@ the sign of the first.
 @noindent
 @var{extended-math-function-id}:
 @ftable @code
+
 @item Cross
 @code{[@var{expression},@var{expression}]}
 
@@ -2898,7 +2930,6 @@ Returns the interpolation order of the @var{quantity}.
 
 @noindent
 @var{constraint-type}:
-
 @ftable @code
 
 @item Assign
@@ -2933,7 +2964,6 @@ To describe the node connections of branches in a network.
 
 @noindent
 @var{function-space-type}:
-
 @ftable @code
 
 @item Form0
@@ -2967,7 +2997,6 @@ Vector field.
 
 @noindent
 @var{basis-function-type}:
-
 @ftable @code
 
 @item BF_Node
@@ -3074,7 +3103,6 @@ Unit value 1 (on all regions, value @code{Scalar}).
 
 @noindent
 @var{global-quantity-type}:
-
 @ftable @code
 
 @item AliasOf
@@ -3100,7 +3128,6 @@ and therefore with this basis function.
 
 @noindent
 @var{jacobian-type}:
-
 @ftable @code
 
 @item Vol
@@ -3195,7 +3222,6 @@ Same as @code{VolAxiSqu}, but with rectangular shell transformation.
 
 @noindent
 @var{integration-type}:
-
 @ftable @code
 
 @item Gauss
@@ -3210,7 +3236,6 @@ on the one-dimensional Gauss integration.
 
 @noindent
 @var{element-type}:
-
 @ftable @code
 
 @item Line
@@ -3264,7 +3289,6 @@ Point (1 node) (#15).
 
 @noindent
 @var{formulation-type}:
-
 @ftable @code
 
 @item FemEquation
@@ -3275,7 +3299,6 @@ Finite element method formulation (all method moments, integral methods).
 
 @noindent
 @var{local-term-type}:
-
 @ftable @code
 
 @item Galerkin
@@ -3289,7 +3312,6 @@ deRham projection (collocation).
 
 @noindent
 @var{Other types of @code{Equation}s}:
-
 @ftable @code
 
 @item GlobalTerm
@@ -3305,7 +3327,6 @@ Global equations to be assembled in the matrix of the system.
 
 @noindent
 @var{quantity-type}:
-
 @ftable @code
 
 @item Local
@@ -3327,7 +3348,6 @@ Integral quantity obtained by the integration of a
 
 @noindent
 @var{term-op-type}:
-
 @ftable @code
 
 @item Dt
@@ -3368,7 +3388,6 @@ No time scheme applied to the term
 
 @noindent
 @var{resolution-op}:
-
 @ftable @code
 
 @item Generate
@@ -3472,7 +3491,6 @@ Iterative reduction of time interval to delimit variations of solutions
 
 @noindent
 @var{iterative-time-reduction-arg}:
-
 @ftable @code
 
 @item NbrMaxIteration
@@ -3519,7 +3537,6 @@ Operations to perform after the last iteration (when leaving the loop).
 
 @noindent
 @var{change-of-state-arg}:
-
 @ftable @code
 
 @item Type
@@ -3548,7 +3565,6 @@ Reference function.
 
 @noindent
 @var{change-of-state-type}:
-
 @ftable @code
 
 @item ChangeSign
@@ -3579,7 +3595,6 @@ Compare quantities to reference functions (e.g.@: for regulation).
 
 @noindent
 @var{post-value}:
-
 @ftable @code
 
 @item Local
@@ -3607,16 +3622,7 @@ To integrate the expression over each element.
 @vindex @var{print-support}
 
 @noindent
-@var{expression-cst-vector}:
-  @{ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} @}
-
-@noindent
-@var{expression-vector}:
-  @{ @var{expression}, @var{expression}, @var{expression} @}
-
-@noindent
 @var{print-support}:
-
 @ftable @code
 
 @item OnElementsOf
@@ -3635,11 +3641,12 @@ To compute a global quantity associated with the region @var{group-def}.
 To compute a global integral quantity, with no associated region.
 
 @item OnSection
-@{ @var{expression-cst-vector} @var{expression-cst-vector} @var{expression-cst-vector} @}
+@{ @{ @var{expression-cst-list} @} @{ @var{expression-cst-list} @} @{ @var{expression-cst-list} @} @}
 
 To compute a quantity on a section of the mesh defined by three points
 (i.e.@: on the intersection of the mesh with a cutting a plane, specified by
-three points).
+three points). Each @var{expression-cst-list} must contain exactly three
+elements (the coordinates of the points).
 
 @item OnGrid
 @var{group-def}
@@ -3650,40 +3657,51 @@ support of the solution. @code{OnGrid @var{group-def}} differs from
 performed.
 
 @item OnGrid
-@var{expression-vector} @{ @var{expression-cst-list}, @var{expression-cst-list} @}
+@code{@{ @var{expression},  @var{expression},  @var{expression} @}}@*
+@code{@{ @var{expression-cst-list-item} | @{ @var{expression-cst-list} @} ,}@*
+@code{@: @: @var{expression-cst-list-item} | @{ @var{expression-cst-list} @} @}}
 
-To compute a quantity on a parametric grid. The three expressions in
-@var{expression-vector} can be functions of current values @code{$S} and
-@code{$T}, whose values are given by each @var{expression-cst-list}. For
-example, @code{OnGrid @{Cos[$S], Sin[$S], 0@} @{ @{0:2*Pi:Pi/180@}, 0 @}}
-will compute the quantity on 360 points equally distributed on a circle in
-the z=0 plane, and centered on the origin.
+To compute a quantity on a parametric grid. The three @var{expression}s
+represent the three cartesian coordinates @var{x}, @var{y} and @var{z}, and
+can be functions of the current values @code{$S} and @code{$T}. The values
+for @code{$S} and @code{$T} are specified by each @var{expression-cst-list-item}
+or @var{expression-cst-list}. For example, @code{OnGrid @{Cos[$S], Sin[$S],
+0@} @{ 0:2*Pi:Pi/180@ , 0 @}} will compute the quantity on 360 points
+equally distributed on a circle in the z=0 plane, and centered on the
+origin.
 
 @item OnPoint
-@var{expression-cst-vector}
+@{ @var{expression-cst-list} @}
 
-To compute a quantity at a point.
+To compute a quantity at a point. The @var{expression-cst-list} must contain
+exactly three elements (the coordinates of the point).
 
 @item OnLine
-@{ @var{expression-cst-vector} @var{expression-cst-vector} @} @{ @var{expression-cst} @}
+@{ @{ @var{expression-cst-list} @} @{ @var{expression-cst-list} @} @} @{ @var{expression-cst} @}
 
 To compute a quantity along a line (given by its two end points), with an
-associated number of divisions. The interpolation points on the line are
-equidistant.
+associated number of divisions equal to @var{expression-cst}. The
+interpolation points on the line are equidistant. Each
+@var{expression-cst-list} must contain exactly three elements (the
+coordinates of the points).
 
 @item OnPlane
-@{ @var{expression-cst-vector} @var{expression-cst-vector} @var{expression-cst-vector} @}@*
-@{ @var{expression-cst}, @var{expression-cst} @}
+@{ @{ @var{expression-cst-list} @} @{ @var{expression-cst-list} @} @{ @var{expression-cst-list} @} @}@*
+@code{@{ @var{expression-cst}, @var{expression-cst} @}}
 
 To compute a quantity on a plane (specified by three points), with an
-associated number of divisions.
+associated number of divisions equal to each @var{expression-cst} along both
+generating directions. Each @var{expression-cst-list} must contain exactly
+three elements (the coordinates of the points).
 
 @item OnBox
-@{ @var{expression-cst-vector} @var{expression-cst-vector} @var{expression-cst-vector}@*
- @var{expression-cst-vector} @} @{ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} @}
+@{ @{ @var{expression-cst-list} @} @{ @var{expression-cst-list} @} @{ @var{expression-cst-list} @}@*
+@code{@: @: @{ @var{expression-cst-list} @} @} @{ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} @}}
 
 To compute a quantity in a box (specified by four points), with an
-associated number of divisions.
+associated number of divisions equal to each @var{expression-cst} along the
+three generating directions. Each @var{expression-cst-list} must contain
+exactly three elements (the coordinates of the points).
 
 @end ftable
 
@@ -3691,24 +3709,24 @@ associated number of divisions.
 
 @noindent
 @var{print-option}:
-
 @ftable @code
-@item File
-@code{"@var{string}"}
-
-Outputs the result in a file named @var{string}. 
 
 @item File
-@code{> "@var{string}"}
+@code{@var{expression-char}}
 
-Same as @code{File "@var{string}"}, except that, if several @code{File >
-"@var{string}"} options appear in the same @code{PostOperation}, the results
-are concatenated in the file @var{string}.
+Outputs the result in a file named @var{expression-char}. 
 
 @item File
-@code{>> "@var{string}"}
+@code{> @var{expression-char}}
 
-Appends the result to a file named @var{string}.
+Same as @code{File @var{expression-char}}, except that, if several @code{File >
+@var{expression-char}} options appear in the same @code{PostOperation}, the results
+are concatenated in the file @var{expression-char}.
+
+@item File
+@code{>> @var{expression-char}}
+
+Appends the result to a file named @var{expression-char}.
 
 @item Depth
 @var{expression-cst}
@@ -3740,12 +3758,12 @@ search. Specifies the problem dimension during an adaptation (h- or
 p-refinement).
 
 @item TimeStep
-@code{@var{expression-cst} | TimeStep @{ @var{expression-cst-list} @}}
+@code{@var{expression-cst-list-item} | @{ @var{expression-cst-list} @}}
 
 Outputs results for the specified time steps only.
 
 @item Frequency
-@code{@var{expression-cst} | Frequency @{ @var{expression-cst-list} @}}
+@code{@var{expression-cst-list-item} | @{ @var{expression-cst-list} @}}
 
 Outputs results for the specified frequencies only.
 
@@ -3755,7 +3773,7 @@ Outputs results for the specified frequencies only.
 Outputs results in the specified format.
 
 @item Adapt
-@code{P1|H1|H2}
+@code{P1 | H1 | H2}
 
 Performs p- or h-refinement on the post-processing result, considered as an
 error map.
@@ -3767,13 +3785,13 @@ Specifies the target for the optimizer during adaptation (error for
 @code{P1|H1}, number of elements for @code{H2}).
 
 @item Value
-@code{@var{expression-cst} | Value @{ @var{expression-cst-list} @}}
+@code{@var{expression-cst-list-item} | @{ @var{expression-cst-list} @}}
 
 Specifies acceptable output values for discrete optimization (e.g. the
 available interpolation orders with @code{Adapt P1}).
 
 @item Sort
-@code{Position|Connection}
+@code{Position | Connection}
 
 Sorts the output by position (x, y, z) or by connection (for @code{LINE}
 elements only).
@@ -3797,12 +3815,10 @@ Suppresses the new lines in the output when printing global quantities
 @end ftable
 
 
-
 @vindex @var{post-operation-fmt}
 
 @noindent
 @var{post-operation-fmt}:
-
 @ftable @code
 
 @item Gmsh
@@ -3993,18 +4009,19 @@ Function @{
 @end example
 
 @noindent The function @code{f[]} may then be called in an @code{Equation}
-term of a @code{Formulation} with one argument, @var{x}. In order to
-facilitate the construction of such interpolations, the couples can also be
-specified in two separate lists, merged with the alternate list
-@code{ListAlt} command (@pxref{Constants}):
+term of a @code{Formulation} with one argument, @var{x}. Notice how the list
+of constants @code{List[couples]} is supplied as a list of parameters to the
+built-in function @code{InterpolationLinear} (@pxref{Constants}, as well as
+@ref{Functions}). In order to facilitate the construction of such
+interpolations, the couples can also be specified in two separate lists,
+merged with the alternate list @code{ListAlt} command (@pxref{Constants}):
 
 @example
 Function @{
   data_x = @{0, 1, 2, 3@};
   data_f = @{0.65, 0.72, 0.98, 1.12@};
-  couples = ListAlt[data_x, data_f];
-  f[] = InterpolationLinear[$1]@{List[couples]@};
-  dfdx[] = dInterpolationLinear[$1]@{List[couples]@};
+  f[] = InterpolationLinear[$1]@{ListAlt[data_x, data_f]@};
+  dfdx[] = dInterpolationLinear[$1]@{ListAlt[data_x, data_f]@};
 @}
 @end example
 
@@ -5015,7 +5032,7 @@ Print [ e, OnPoint @{0,0,1@} ];
 Print [ e, OnLine @{ @{0,0,1@} @{1,0,1@} @} @{125@} ];
 Print [ e, OnPlane @{ @{0,0,1@} @{1,0,1@} @{0,1,1@} @} @{125, 75@} ];
 Print [ e, OnBox @{ @{0,0,1@} @{1,0,1@} @{0,1,1@} @{0,0,2@} @} @{125, 75, 85@} ];
-Print [ e, OnGrid @{$S, $T, 1@} @{ @{0:1:1/125@}, @{0:1:1/75@} @} ];
+Print [ e, OnGrid @{$S, $T, 1@} @{ 0:1:1/125@ , 0:1:1/75 @} ];
 Print [ e, OnGrid Domain2 ];
 @end example
 
@@ -5025,6 +5042,7 @@ PostOperation}, to get the list of all these options. For example, to obtain
 a map of the scalar potential at the barycenters of the elements on the
 boundary of the region @code{Domain}, in a table oriented format appended to
 an already existing file @code{out.txt}, the operation would be:
+
 @example
 Print [ v, OnElementsOf Domain, Depth 0, Skin, Format Table, 
         File >> "out.txt" ];
@@ -5091,7 +5109,6 @@ defined categories of problems. The files are commented
 @include EleSta_v.pro
 @include Jacobian_Lib.pro
 @include Integration_Lib.pro
-
 
 @page
 
@@ -5182,9 +5199,10 @@ the processing stages.
 The @var{options} are a combination of the following commands (in any
 order):
 
-@table @code
-@item -pre @var{resolution-id}
-@cindex @code{-pre}
+@ftable @code
+@item -pre
+@var{resolution-id}
+
 Performs the pre-processing associated with the resolution
 @var{resolution-id}. In the pre-processing stage, GetDP creates the
 geometric database (from the mesh file), identifies the degrees of
@@ -5194,7 +5212,7 @@ these degrees of freedom. The pre-processing creates a file with a
 available choices is displayed.
 
 @item -cal
-@cindex @code{-cal}
+
 Performs the processing. This requires that a pre-processing has been
 performed previously, or that a @code{-pre} option is given on the same
 command line. The performed resolution is the one given as an argument to
@@ -5203,97 +5221,108 @@ commands given in the @code{Operation} field of the selected
 @code{Resolution} object (such as matrix assemblies, system resolutions,
 @dots{}).
 
-@item -pos @var{post-operation-id} @dots{}
-@cindex @code{-pos}
+@item -pos
+@var{post-operation-id} @dots{}
+
 Performs the operations in the @var{PostOperation}(s) selected by the
 @var{post-operation-id}(s). This requires that a processing has been
 performed previously, or that a @code{-cal} option is given on the same
 command line. If @var{post-operation-id} is omitted, the list of available
 choices is displayed.
 
-@item -ipos @var{post-processing-id} @dots{}
-@cindex @code{-ipos}
+@item -ipos
+@var{post-processing-id} @dots{}
+
 Enters an interactive post-processing mode, permetting to manually type
 @code{PostOperation}-like commands. These commands are based on the
 @var{PostProcessing} object(s) selected by the @var{post-processing-id}(s).
 If @var{post-processing-id} is omitted, the list of available choices is
 displayed.
 
-@item -msh @var{filename}
-@cindex @code{-msh}
+@item -msh
+@var{filename}
+
 Reads the mesh database (in @code{.msh} format) from @var{filename}
 (@pxref{File formats}) rather than reading it from the default problem file
 name (with the @file{.msh} extension appended).
 
 @item -split
-@cindex @code{-split}
+
 Saves processing results in separate files (one for each timestep).
 
-@item -res @var{filename} @dots{}
-@cindex @code{-res}
+@item -res
+@var{filename} @dots{}
+
 Loads processing results from file(s).
 
-@item -name @var{string}
-@cindex @code{-name}
+@item -name
+@var{string}
+
 Uses @var{string} as the default generic file name for input or output
 of mesh, pre-processing and processing files.
 
 @item -restart
-@cindex @code{-restart}
+
 Restarts processing of a transient problem interrupted before being complete.
 
-@item -solve @var{resolution-id}
-@cindex @code{-solve}
+@item -solve
+@var{resolution-id}
+
 Same as @code{-pre @var{resolution-id} -cal}.
 
-@item -adapt @var{file}
-@cindex @code{-adapt}
+@item -adapt
+@var{file}
+
 Reads adaptation constraints from file.
 
-@item -order @var{real}
-@cindex @code{-order}
+@item -order
+@var{real}
+
 Specifies the maximum interpolation order.
 
 @item -bin 
-@cindex @code{-bin}
+
 Selects binary format for output files.
 
 @item -log
-@cindex @code{-log}
+
 Saves all processing history in a log file (the input file name with an
 appended @code{.log} extension).
 
-@item -socket @var{string}
-@cindex @code{-socket}
+@item -socket
+@var{string}
+
 Communicates through socket @var{string}.
 
 @item -check  
-@cindex @code{-check}
+
 Lets you check the problem structure interactively. 
 
-@item -v @var{integer}
-@cindex @code{-v}
+@item -v
+@var{integer}
+
 Sets the verbosity level. A value of 0 means that no information will be
 displayed during the processing.
 
-@item -p @var{integer}
-@cindex @code{-p}
+@item -p
+@var{integer}
+
 Sets the progress update rate. This controls the refreshment rate of the
 counter indicating the progress of the current computation.
 
 @item -info
-@cindex @code{-info}
+
 Displays the version information.
 
 @item -version
-@cindex @code{-version}
+
 Displays the version number.
 
 @item -help
-@cindex @code{-help}
+
 Displays a message listing basic usage and available options.
 
-@end table
+@end ftable
 
 @c =========================================================================
 @c File Formats

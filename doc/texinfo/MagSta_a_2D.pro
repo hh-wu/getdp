@@ -64,7 +64,6 @@ FunctionSpace @{
 
 @}
 
-
 Formulation @{
   @{ Name Magnetostatics_a_2D; Type FemEquation;
     Quantity @{
@@ -72,14 +71,13 @@ Formulation @{
       @{ Name js; Type Local; NameOfSpace Hregion_j_Mag_2D; @}
     @}
     Equation @{
-      Galerkin @{ [ nu[] * Dof@{d a@} , @{d a@} ] ; In Domain_Mag;
+      Galerkin @{ [ nu[] * Dof@{d a@} , @{d a@} ]; In Domain_Mag;
                  Jacobian Vol; Integration CurlCurl; @}
       Galerkin @{ [ - Dof@{js@} , @{a@} ]; In DomainS_Mag;
                  Jacobian Vol; Integration CurlCurl; @}
     @}
   @}
 @}
-
 
 Resolution @{
   @{ Name MagSta_a_2D;
@@ -92,11 +90,10 @@ Resolution @{
   @}
 @}
 
-
 PostProcessing @{
   @{ Name MagSta_a_2D; NameOfFormulation Magnetostatics_a_2D;
     Quantity @{
-      @{ Name a ; 
+      @{ Name a; 
         Value @{ 
           Local @{ [ @{a@} ]; In Domain_Mag; Jacobian Vol; @} 
         @}
@@ -106,12 +103,12 @@ PostProcessing @{
           Local @{ [ CompZ[@{a@}] ]; In Domain_Mag; Jacobian Vol; @}
         @}
       @}
-      @{ Name b ; 
+      @{ Name b; 
         Value @{ 
           Local @{ [ @{d a@} ]; In Domain_Mag; Jacobian Vol; @}
         @}
       @}
-      @{ Name h ; 
+      @{ Name h; 
         Value @{ 
           Local @{ [ nu[] * @{d a@} ]; In Domain_Mag; Jacobian Vol; @}
         @}

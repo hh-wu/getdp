@@ -13,72 +13,65 @@
 
 Group @{
 
-  Air        = # 101 ;
-  Core       = # 102 ;
-  Ind        = # 103 ;
-  AirInf     = # 111 ;
+  Air    = Region[ 101 ];   Core   = Region[ 102 ];
+  Ind    = Region[ 103 ];   AirInf = Region[ 111 ];
 
-  SurfaceGh0  = # 1100 ;  SurfaceGe0  = # 1101 ;
-  SurfaceGInf = # 1102 ;
+  SurfaceGh0  = Region[ 1100 ];  SurfaceGe0 = Region[ 1101 ];
+  SurfaceGInf = Region[ 1102 ];
 
+  Val_Rint = 200.e-3;
+  Val_Rext = 250.e-3;
 
-  DomainCC_Mag = Region[ @{Air, AirInf, Core@} ] ;
-  /* Massive inductor (Ind), in DomainC_Mag */
-  DomainC_Mag  = Region[ @{Ind@} ] ;
-  DomainB_Mag  = Region[ @{@} ] ;
-
-  DomainS_Mag  = Region[ @{@} ] ;
-
-
-  DomainInf = Region[ @{AirInf@} ] ;
-  Val_Rint = 200.e-3 ;  Val_Rext = 250.e-3 ;
-
-
-  Domain_Mag = Region[ @{DomainCC_Mag, DomainC_Mag@} ] ;
+  DomainCC_Mag = Region[ @{Air, AirInf, Core@} ];
+  DomainC_Mag  = Region[ @{Ind@} ]; // Massive inductor (Ind), in DomainC_Mag
+  DomainB_Mag  = Region[ @{@} ];
+  DomainS_Mag  = Region[ @{@} ];
+  DomainInf    = Region[ @{AirInf@} ];
+  Domain_Mag   = Region[ @{DomainCC_Mag, DomainC_Mag@} ];
 
 @}
 
 Function @{
 
-  mu0 = 4.e-7 * Pi ;
+  mu0 = 4.e-7 * Pi;
 
-  murCore = 100. ;
+  murCore = 100.;
 
-  nu [ #@{Air, Ind, AirInf@} ]  = 1. / mu0 ;
-  nu [ Core ]  = 1. / (murCore * mu0) ;
-  sigma [ Ind ] = 5.9e7 ;
-  sigma [ Core ] = 2.5e7 ;
+  nu [ #@{Air, Ind, AirInf@} ]  = 1. / mu0;
+  nu [ Core ]  = 1. / (murCore * mu0);
+  sigma [ Ind ] = 5.9e7;
+  sigma [ Core ] = 2.5e7;
 
-  Freq = 50. ;
+  Freq = 50.;
 
 @}
 
 Constraint @{
 
-  @{ Name MagneticVectorPotential_2D ;
+  @{ Name MagneticVectorPotential_2D;
     Case @{
-      @{ Region SurfaceGe0  ; Value 0. ; @}
-      @{ Region SurfaceGInf ; Value 0. ; @}
+      @{ Region SurfaceGe0 ; Value 0.; @}
+      @{ Region SurfaceGInf; Value 0.; @}
     @}
   @}
 
-  @{ Name SourceCurrentDensityZ ;
+  @{ Name SourceCurrentDensityZ;
     Case @{
     @}
   @}
 
-  Val_I_ = 0.01 * 1000. ;
+  Val_I_ = 0.01 * 1000.;
 
-  @{ Name Current_2D ;
+  @{ Name Current_2D;
     Case @{
-      @{ Region Ind ; Value Val_I_ ; @}
+      @{ Region Ind; Value Val_I_; @}
     @}
   @}
 
-  @{ Name Voltage_2D ;
+  @{ Name Voltage_2D;
     Case @{
       // To use if Core in DomainC_Mag
-      // @{ Region Core ; Value 0. ; @}
+      // @{ Region Core; Value 0.; @}
     @}
   @}
 
@@ -87,16 +80,20 @@ Constraint @{
 
 Include "Jacobian_Lib.pro"
 Include "Integration_Lib.pro"
-
 Include "MagDyn_av_2D.pro"
 
-PostOperation Map_a UsingPost MagDyn_av_2D @{
-  Print[ az, OnElementsOf Domain_Mag, File "Core_m_a.pos"] ;
-@}
-
-PostOperation U_av UsingPost MagDyn_av_2D @{
-  Print[ U, OnRegion #@{Ind@}] ;
-  Print[ I, OnRegion #@{Ind@}] ;
+PostOperation @{
+  @{ Name Map_a; NameOfFormulation MagDyn_av_2D;
+    Operation @{
+      Print[ az, OnElementsOf Domain_Mag, File "Core_m_a.pos" ];
+    @}
+  @}
+  @{ Name U_av;  NameOfFormulation MagDyn_av_2D;
+    Operation @{
+      Print[ U, OnRegion Ind ];
+      Print[ I, OnRegion Ind ];
+    @}
+  @}
 @}
 }
 @end format
