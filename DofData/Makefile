@@ -1,21 +1,20 @@
-# $Id: Makefile,v 1.14 2003-01-29 22:35:21 geuzaine Exp $
+# $Id: Makefile,v 1.15 2003-02-07 02:39:02 geuzaine Exp $
 #
 # Makefile for "libDofData.a"
 #
 
 .IGNORE:
 
+C_FLAGS = -g
 RANLIB  = ranlib
 AR      = ar ruvs
 
 SOLVER = -D_SPARSKIT
 
-C_FLAGS = -g
-
 LIB     = ../lib/libDofData.a
 INCLUDE = -I. -I../include -I../DataStr -I../GeoData -I../Main -I../Sparskit
 
-CFLAGS = $(C_FLAGS) $(OS_FLAGS) $(SOLVER) $(INCLUDE)
+CFLAGS = $(C_FLAGS) $(SOLVER) $(INCLUDE)
 
 SRC = DofData.c \
       LinAlg_SPARSKIT.c \

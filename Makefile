@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.115 2003-02-01 04:32:29 geuzaine Exp $
+# $Id: Makefile,v 1.116 2003-02-07 02:39:02 geuzaine Exp $
 
 # ----------------------------------------------------------------------
 #  Optional packages: 
@@ -89,7 +89,7 @@ opti: initialtag
         do (cd $$i && $(MAKE) \
            "C_FLAGS=-O3" \
            "F77_FLAGS=-O3" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 
 debug: initialtag
@@ -97,7 +97,7 @@ debug: initialtag
         do (cd $$i && $(MAKE) \
            "C_FLAGS=-g -DUSE_DEBUG" \
            "F77_FLAGS=-g" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 
 # Patrick
@@ -108,8 +108,7 @@ linux2: initialtag
            "FC=g77" \
            "C_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 
@@ -119,8 +118,7 @@ linux2W: initialtag
            "FC=g77" \
            "C_FLAGS=-O3 -Wall" \
            "F77_FLAGS=-O1" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 
@@ -332,8 +330,7 @@ compile-osf1: initialtag
            "C_FLAGS=-O3" \
            "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O3" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 link-osf1:
 	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
@@ -350,8 +347,7 @@ compile-linux: initialtag
            "C_FLAGS=-O3 -Wall -Wno-uninitialized" \
            "C_PARSER_FLAGS=-O3 -Wall -Wno-uninitialized" \
            "F77_FLAGS=-O1 -Wall -Wno-uninitialized" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 link-linux:
 	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
@@ -374,9 +370,7 @@ compile-hpux: initialtag
            "C_FLAGS=+O2 +Onolimit -Ae +DAportable" \
            "C_PARSER_FLAGS=+O1 -Ae +DAportable" \
            "F77_FLAGS=+O2 +DAportable" \
-           "OS_FLAGS=-D_HP" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT -D_UNDERSCORE" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT -D_UNDERSCORE" \
         ); done
 link-hpux:
 	f77 +DAportable -o $(GETDP_BIN_DIR)/getdp $(GETDP_MAIN_DIR)/Main.o \
@@ -395,8 +389,7 @@ compile-sunos: initialtag
            "C_FLAGS=-O3" \
            "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O3" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 link-sunos:
 	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lsocket -lm
@@ -414,8 +407,7 @@ compile-aix: initialtag
            "C_FLAGS=-O2 -D_BSD -qMAXMEM=10000" \
            "C_PARSER_FLAGS=-O2" \
            "F77_FLAGS=-O2" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_UNDERSCORE" \
+           "SOLVER=-D_SPARSKIT -D_UNDERSCORE" \
         ); done
 link-aix:
 	$(FC) -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
@@ -435,8 +427,7 @@ compile-cygwin: initialtag
            "C_FLAGS=-O3 -Wall -Wno-uninitialized" \
            "C_PARSER_FLAGS=-O1 -Wall -Wno-uninitialized" \
            "F77_FLAGS=-O1 -Wall -Wno-uninitialized" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 link-cygwin:
 	g77 -Wl,--stack,8388608 -o $(GETDP_BIN_DIR)/getdp.exe $(GETDP_SPARSKIT_LIBS) -lm
@@ -452,11 +443,9 @@ compile-mingw: initialtag
            "CC=gcc -mno-cygwin" \
            "FC=g77 -mno-cygwin" \
            "RANLIB=ls" \
-           "C_FLAGS=-g -O3" \
-           "F77_FLAGS=-g -O1" \
-           "OS_FLAGS=-DMSDOS" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "C_FLAGS=-g -O3 -DMSDOS" \
+           "F77_FLAGS=-g -O1 -DMSDOS" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 link-mingw:
 	g77 -Wl,--stack,8388608 -mno-cygwin -o $(GETDP_BIN_DIR)/getdp.exe $(GETDP_SPARSKIT_LIBS)
@@ -474,7 +463,6 @@ compile-irix: initialtag
            "C_PARSER_FLAGS=-g -n32 -mips3" \
            "F77_FLAGS=-O3 -n32 -mips3" \
            "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=" \
         ); done
 link-irix:
 	f77 -n32 -mips3 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
@@ -492,8 +480,7 @@ compile-irix64: initialtag
            "C_FLAGS=-O3 -mips4 -64" \
            "C_PARSER_FLAGS=-g -mips4 -64" \
            "F77_FLAGS=-O3 -mips4 -64" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 link-irix64:
 	f77 -64 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
@@ -546,8 +533,7 @@ compile-macosx: initialtag
            "C_FLAGS=-O3 -Wall -Wno-uninitialized -D_BSD" \
            "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 link-macosx:
 	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
@@ -566,8 +552,7 @@ compile-linux-intelp4: initialtag
            "C_FLAGS=-O3 -xW" \
            "C_PARSER_FLAGS=-O3 -xW" \
            "F77_FLAGS=-O3 -xW" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER=-D_SPARSKIT -D_ILU_FLOAT" \
         ); done
 link-linux-intelp4:
 	icc -Kc++ -o $(GETDP_BIN_DIR)/getdp\

@@ -1,22 +1,21 @@
-# $Id: Makefile,v 1.19 2003-01-29 22:35:21 geuzaine Exp $
+# $Id: Makefile,v 1.20 2003-02-07 02:39:02 geuzaine Exp $
 #
 # Makefile for 'libMain.a'
 # 
 
 .IGNORE:
 
+C_FLAGS = -g
 RANLIB  = ranlib
 AR      = ar ruvs
 
-C_FLAGS = -g
 SOLVER  = -D_SPARSKIT
 
 LIB     = ../lib/libMain.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../Function\
           -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit
 
-CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER)\
-          $(INCLUDE)
+CFLAGS  = $(C_FLAGS) $(SOLVER) $(INCLUDE)
 
 SRC = Main.c Message.c \
         SolvingAnalyse.c SolvingOperations.c \

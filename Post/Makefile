@@ -1,22 +1,21 @@
-# $Id: Makefile,v 1.22 2003-01-29 22:35:21 geuzaine Exp $
+# $Id: Makefile,v 1.23 2003-02-07 02:39:03 geuzaine Exp $
 #
 # Makefile for 'libPost.a'
 # 
 
 .IGNORE:
 
+C_FLAGS = -g
 RANLIB  = ranlib
 AR      = ar ruvs
 
 SOLVER = -D_SPARSKIT
 
-C_FLAGS = -g
-
 LIB     = ../lib/libPost.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData\
           -I../Main -I../Numeric -I../Sparskit -I../Function
 
-CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER) $(INCLUDE) 
+CFLAGS  = $(C_FLAGS) $(SOLVER) $(INCLUDE) 
 
 SRC = Pos_FemInterpolation.c \
       Pos_Interactive.c \

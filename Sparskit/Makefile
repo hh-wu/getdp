@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2002-11-01 19:30:44 geuzaine Exp $
+# $Id: Makefile,v 1.12 2003-02-07 02:39:03 geuzaine Exp $
 #
 # Makefile for 'libSparskit.a'
 #
@@ -10,13 +10,13 @@ F77_FLAGS = -O3
 RANLIB    = ranlib
 AR        = ar ruvs
 
-SOLVER_FLAGS = -D_SPARSKIT
+SOLVER   = -D_SPARSKIT
 
 LIB      = ../lib/libSparskit.a
 INCLUDE  = -I. -I../include -I../DataStr -I../Main -I../Numeric
 
-CFLAGS = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(INCLUDE)
-FFLAGS = $(F77_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(INCLUDE)
+CFLAGS = $(C_FLAGS) $(SOLVER) $(INCLUDE)
+FFLAGS = $(F77_FLAGS) $(SOLVER) $(INCLUDE)
 
 CSRC =  Solver.c \
         Matrix.c \

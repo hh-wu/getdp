@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.16 2002-11-01 19:29:12 geuzaine Exp $
+# $Id: Makefile,v 1.17 2003-02-07 02:39:02 geuzaine Exp $
 #
 # Makefile for "libFunction.a"
 #
@@ -15,7 +15,7 @@ INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData -I../Main\
 
 SOLVER = -D_SPARSKIT
 
-CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER) $(INCLUDE)
+CFLAGS  = $(C_FLAGS) $(SOLVER) $(INCLUDE)
 
 SRC = F_Analytic.c \
       F_Coord.c \

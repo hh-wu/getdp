@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.13 2001-11-20 12:21:08 geuzaine Exp $
+# $Id: Makefile,v 1.14 2003-02-07 02:39:02 geuzaine Exp $
 #
 # Makefile for "libIntegration.a"
 #
@@ -12,7 +12,7 @@ AR      = ar ruvs
 LIB     = ../lib/libIntegration.a
 INCLUDE = -I. -I../include -I../DataStr -I../Main
 
-CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(INCLUDE)
+CFLAGS  = $(C_FLAGS) $(INCLUDE)
 
 SRC = Gauss_Point.c \
       Gauss_Line.c \

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2002-11-01 19:28:09 geuzaine Exp $
+# $Id: Makefile,v 1.8 2003-02-07 02:39:02 geuzaine Exp $
 #
 # Makefile for "libDataStr.a"
 #
@@ -12,7 +12,7 @@ AR       = ar ruvs
 LIB      = ../lib/libDataStr.a
 INCLUDE  = -I. -I../include -I../Main
 
-CFLAGS = $(C_FLAGS) $(OS_FLAGS) $(INCLUDE)
+CFLAGS = $(C_FLAGS) $(INCLUDE)
 
 SRC = List.c \
       Malloc.c \

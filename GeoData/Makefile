@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2002-11-01 19:29:32 geuzaine Exp $
+# $Id: Makefile,v 1.12 2003-02-07 02:39:02 geuzaine Exp $
 #
 # Makefile for "libGeoData.a"
 #
@@ -12,7 +12,7 @@ AR      = ar ruvs
 LIB     = ../lib/libGeoData.a
 INCLUDE = -I. -I../include -I../DataStr -I../Main
 
-CFLAGS = $(C_FLAGS) $(OS_FLAGS) $(INCLUDE)
+CFLAGS = $(C_FLAGS) $(INCLUDE)
 
 SRC = GeoData.c \
       GeoEntity.c \

@@ -1,22 +1,22 @@
-# $Id: Makefile,v 1.12 2001-11-20 12:21:08 geuzaine Exp $
+# $Id: Makefile,v 1.13 2003-02-07 02:39:03 geuzaine Exp $
 #
 # Makefile for 'libParser.a'
 # 
 
 .IGNORE:
 
+C_PARSER_FLAGS = -g
+
 RANLIB  = ranlib
 AR      = ar ruvs
 YACC    = bison
 LEX     = flex
 
-C_PARSER_FLAGS = -g
-
 LIB     = ../lib/libParser.a
 INCLUDE = -I. -I../include -I../DataStr -I../GeoData -I../Function\
           -I../Integration -I../Main
 
-CFLAGS  = $(C_PARSER_FLAGS) $(OS_FLAGS) $(INCLUDE) 
+CFLAGS  = $(C_PARSER_FLAGS) $(INCLUDE) 
 
 SRC = GetDP.yy.c GetDP.tab.c
 
