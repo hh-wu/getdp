@@ -1,9 +1,8 @@
-/* $Id: BF_Node.c,v 1.4 2000-09-12 20:19:34 geuzaine Exp $ */
+/* $Id: BF_Node.c,v 1.5 2000-10-03 15:51:23 geuzaine Exp $ */
 #include <stdio.h>
 
 #include "BF_Function.h"
 #include "Data_Numeric.h" /* DSQU */
-#include "Get_Geometry.h"
 
 
 /* ------------------------------------------------------------------------ */

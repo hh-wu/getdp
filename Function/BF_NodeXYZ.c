@@ -1,6 +1,7 @@
-/* $Id: BF_NodeXYZ.c,v 1.1 2000-09-12 20:21:06 geuzaine Exp $ */
+/* $Id: BF_NodeXYZ.c,v 1.2 2000-10-03 15:51:23 geuzaine Exp $ */
 #include <stdio.h>
 
+#include "Get_Geometry.h"
 #include "BF_Function.h"
 
 /* ------------------------------------------------------------------------ */
