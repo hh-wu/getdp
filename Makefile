@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.160 2004-05-01 15:41:35 geuzaine Exp $
+# $Id: Makefile,v 1.161 2004-05-01 15:51:04 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -32,11 +32,6 @@ GETDP_SHORT_LICENSE = "GNU General Public License"
 
 GETDP_VERSION_FILE = include/GetDPVersion.h
 GETDP_DATE = `date "+%Y%m%d"`
-GETDP_SOURCES = `find . \( ! -name "*.tar*" -a ! -name "*.tgz" \
-                        -a ! -name "*.o"    -a ! -name "*.a"   -a ! -name "*.cut"   \
-                        -a ! -name "*.pos"  -a ! -name "*.pre" -a ! -name "*.res" \
-                        -a ! -name "*.bak"  -a ! -name "getdp" -a ! -name "getdp-*" \
-                        -a ! -type d       \)`
 
 all: variables initialtag compile link
 
@@ -206,7 +201,8 @@ package-mac: package-unix
 	mv getdp-${GETDP_VERSION}-${UNAME}.tgz getdp-${GETDP_VERSION}-MacOSX.tgz
 
 package-rpm:
-	tar zcvf /usr/src/redhat/SOURCES/getdp-${GETDP_VERSION}.tar.gz ${GETDP_SOURCES}
+	make source
+	mv getdp-${GETDP_VERSION}-source.tgz /usr/src/redhat/SOURCES/getdp-${GETDP_VERSION}.tar.gz
 	sed -e "s/^Version:.*/Version: ${GETDP_VERSION}/g" getdp.spec > getdp.spec~
 	mv -f getdp.spec~ getdp.spec
 	rpmbuild -ba getdp.spec
