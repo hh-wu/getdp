@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.36 2003-01-23 20:00:22 geuzaine Exp $
+@c $Id: getdp.texi,v 1.37 2003-01-25 17:28:44 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -5287,7 +5287,7 @@ Print [ e, OnPoint @{0,0,1@} ];
 Print [ e, OnLine @{ @{0,0,1@} @{1,0,1@} @} @{125@} ];
 Print [ e, OnPlane @{ @{0,0,1@} @{1,0,1@} @{0,1,1@} @} @{125, 75@} ];
 Print [ e, OnBox @{ @{0,0,1@} @{1,0,1@} @{0,1,1@} @{0,0,2@} @} @{125, 75, 85@} ];
-Print [ e, OnGrid @{$A, $B, 1@} @{ 0:1:1/125@, 0:1:1/75, 0 @} ];
+Print [ e, OnGrid @{$A, $B, 1@} @{ 0:1:1/125, 0:1:1/75, 0 @} ];
 Print [ e, OnGrid Domain2 ];
 @end example
 
