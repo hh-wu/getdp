@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pre_GetDofFMMGroup.c,v 1.4 2004-01-19 16:51:17 geuzaine Exp $"
+#define RCSID "$Id: Pre_GetDofFMMGroup.c,v 1.5 2004-05-11 08:11:15 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -72,15 +72,16 @@ void  Pre_GetDofFMMGroup (struct Formulation * Formulation_P,
       FMMmat_P = FMMmat_P0 + EquationTerm_P->Case.LocalTerm.iFMMEqu ;
 
       FMMmat_P->EquTermIndex = i_EquTerm ;
+      
       FMMmat_P->FunctionSpaceIndexDof = 
 	QuantityStorageDof_P->DefineQuantity->FunctionSpaceIndex ;
       FMMmat_P->FunctionSpaceIndexEqu = 
 	QuantityStorageEqu_P->DefineQuantity->FunctionSpaceIndex ;
       FMMmat_P->TypeTimeDerivative = 
 	EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative ;
-      if (FMMmat_P->TypeTimeDerivative != NODT_)
+    
+      if (FMMmat_P->TypeTimeDerivative != NODT_ && Current.NbrHar == 2 )
 	FMMmat_P->Pulsation = Current.DofData->Val_Pulsation[0] ;
-
 
       if (QuantityStorageEqu_P->DefineQuantity->FunctionSpaceIndex 
 	  == QuantityStorageDof_P->DefineQuantity->FunctionSpaceIndex)
@@ -140,7 +141,8 @@ void  Pre_GetDofFMMGroup (struct Formulation * Formulation_P,
 		  
 	List_Add( FMMmat_P->NumEqu, &NumEqui );
       }/* Loop in Group Observation */
-     
+
+
       if ((FMMSource != FMMObservation) || DifBasisFunctionForEquDof ){
 	Msg(INFO, "NON SYMMETRIC Galerkin Term %d TypeTimeDerivative %d",
 	    i_EquTerm,  FMMmat_P->TypeTimeDerivative) ;
@@ -177,6 +179,7 @@ void  Pre_GetDofFMMGroup (struct Formulation * Formulation_P,
 				QuantityStorageDof_P->FunctionSpace,
 				QuantityStorageDof_P, NULL);
 	    }
+
 	    Nbr_Dof = QuantityStorageDof_P->NbrElementaryBasisFunction ;
 	  
 	    for (jDof = 0; jDof < Nbr_Dof; jDof++)

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.15 2004-01-19 16:51:18 geuzaine Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.16 2004-05-11 08:13:46 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -226,7 +226,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
     Msg(DIRECT, "E n d  P r e - P r o c e s s i n g F M M. . .") ; 
   }
 
-  
+
   /* ---------------------------------------------------------- */
   /* 2.  Loop on geometrical elements :                         */
   /*     Treatment of eventual GALERKIN / DERAHM terms          */
@@ -556,12 +556,20 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
   }  /* for i_EquTerm ... */
     
 
-  if (TreatmentStatus==_CAL && Flag_FMM == 1){
+  if (TreatmentStatus==_CAL && Flag_FMM ){
+    Msg(DIRECT, "P r o c e s s i n g   F M M   D A T A. . .") ;
     Cal_FMMGalerkinAggregation(EquationTerm_P0, QuantityStorage_P0) ;
     Cal_FMMGalerkinDisaggregation(EquationTerm_P0, QuantityStorage_P0) ;
-
-    /* GF_FMMTranslationValue() ; */
-    GF_FMMTranslationValueAdaptive() ;
+    if (Flag_FMM != 1) Msg(DIRECT, "E n d   P r o c e s s i n g   F M M   D A T A. . .") ;
+  }
+  
+  if (TreatmentStatus==_CAL && Flag_FMM == 1){
+    
+    if (Current.FMM.Precision == 0.)/* Helmholtz */
+      GF_FMMTranslationValue() ;
+    else
+      GF_FMMTranslationValueAdaptive() ;
+    Msg(DIRECT, "E n d   P r o c e s s i n g   F M M   D A T A. . .") ;
     Flag_FMM = 2 ;
   } /* FMM */
 

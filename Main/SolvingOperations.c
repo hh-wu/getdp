@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.62 2004-04-15 02:17:02 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.63 2004-05-11 08:15:45 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -316,10 +316,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       				   NULL, 0., 0., 0., &far) ;
       /* far = Factor for determining the far groups */
       Current.FMM.far = far.Val[0] ;
-      
-      Get_ValueOfExpressionByIndex(Operation_P->Case.GenerateFMMGroups.Precision,
-      				   NULL, 0., 0., 0., &Value) ; /* Precision */
-      Current.FMM.Precision = Value.Val[0] ;
+
+      if (Operation_P->Case.GenerateFMMGroups.Precision == -1)
+	Current.FMM.Precision = 0. ;
+      else{
+	Get_ValueOfExpressionByIndex(Operation_P->Case.GenerateFMMGroups.Precision,
+				     NULL, 0., 0., 0., &Value) ; /* Precision */
+	Current.FMM.Precision = Value.Val[0] ;
+      }
      
       if (Operation_P->Case.GenerateFMMGroups.FlagDTA == -1)
 	Flag_DTA = 0 ;
