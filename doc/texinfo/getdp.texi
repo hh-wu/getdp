@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.39 2003-02-18 06:38:24 geuzaine Exp $
+@c $Id: getdp.texi,v 1.40 2003-02-18 22:32:37 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -6004,9 +6004,13 @@ examples of @ref{Complete examples}.
 @c GNU GPL
 @c =========================================================================
 
+@ifclear COMMERCIAL
+
 @node  GNU General Public License, Concept index, Gmsh examples, Top
 @appendix GNU General Public License
 @include gpl.texi
+
+@end ifclear
 
 @c =========================================================================
 @c Concept Index (cindex)
