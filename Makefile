@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.39 2001-02-06 21:08:27 geuzaine Exp $
+# $Id: Makefile,v 1.40 2001-03-01 08:04:55 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -295,9 +295,19 @@ dem:
 	gtar zcvf getdp-demo.tgz $(GETDP_DEMO_DIR)
 
 compress_bin:
-	cd $(GETDP_BIN_DIR) && tar cvf getdp-$(GETDP_UNAME).tar getdp
-	gzip $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME).tar
-	mv $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME).tar.gz getdp-$(GETDP_UNAME).tgz
+	mkdir getdp-$(GETDP_RELEASE)
+	cp $(GETDP_BIN_DIR)/getdp getdp-$(GETDP_RELEASE)
+	cp -R demos getdp-$(GETDP_RELEASE)
+	rm -rf getdp-$(GETDP_RELEASE)/*/CVS
+	rm -f getdp-$(GETDP_RELEASE)/*/*.pre
+	rm -f getdp-$(GETDP_RELEASE)/*/*.res
+	rm -f getdp-$(GETDP_RELEASE)/*/*.pos
+	rm -f getdp-$(GETDP_RELEASE)/*/*.cut
+	rm -f getdp-$(GETDP_RELEASE)/*/*~
+	tar cvf getdp-$(GETDP_RELEASE)-$(GETDP_UNAME).tar getdp-$(GETDP_RELEASE)
+	gzip getdp-$(GETDP_RELEASE)-$(GETDP_UNAME).tar
+	mv getdp-$(GETDP_RELEASE)-$(GETDP_UNAME).tar.gz getdp-$(GETDP_RELEASE)-$(GETDP_UNAME).tgz
+	rm -rf getdp-$(GETDP_RELEASE)
 
 # ----------------------------------------------------------------------
 # Black Box version (with embedded formulation and reduced interface)
@@ -359,9 +369,7 @@ rpm: src
 	mv $(GETDP_SRCRPM).tar.gz /usr/src/redhat/SOURCES
 	rpm -bb utils/getdp.spec
 	cp /usr/src/redhat/RPMS/i386/$(GETDP_SRCRPM)-1.i386.rpm .
-	cp /usr/src/redhat/BUILD/$(GETDP_SRCRPM)/bin/getdp .
-	gtar zcvf getdp-$(GETDP_UNAME).tgz getdp
-	rm -f getdp
+	cp /usr/src/redhat/BUILD/$(GETDP_SRCRPM)/getdp-$(GETDP_RELEASE)-$(GETDP_UNAME).tgz .
 
 hp: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
