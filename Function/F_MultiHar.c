@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.8 2000-11-03 08:31:31 dular Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.9 2000-11-03 15:24:18 gyselinc Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -27,7 +27,7 @@
 /*  M U L T I   H A R M O N I C  */
 
 struct DofData * MH_Init = NULL ;
-int NbrTimePoint_MH, NbrTimePointForSP_MH ;
+int NbrTimePoint_MH, NbrTimePointForSP_MH, NbrTimePointForGP_MH  ;
 double *t_MH, *w_MH ; /* [ NBR_TIME_POINT ] */
 double **Psi_MH ; /* [ NBR_TIME_POINT ] [ NBR_HARMONIC ] */
 double ***PsiPsi_MH ; /* [ NBR_TIME_POINT ] [ NBR_HARMONIC ] [ NBR_HARMONIC ] */
@@ -40,6 +40,7 @@ double Matrix2_MH [ NBR_MAX_HARMONIC * 3 ] [ NBR_MAX_HARMONIC * 3 ] ;
 /* ------------------------------------------------------------------------ */
 /*  F_MHToTime                                                              */
 /* ------------------------------------------------------------------------ */
+
 
 void  F_MHToTime (F_ARG) {
 
@@ -104,7 +105,9 @@ void  F_MHToTime (F_ARG) {
 /*  MH_InitTimes                                                            */
 /* ------------------------------------------------------------------------ */
 
-void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmallestPeriod, int Flag_Psi) {
+void  MH_InitTimes(int NbrHar, double Val_Pulsation[], 
+		   int NbrTimePointForSmallestPeriod, int NbrTimePointForGreatestPeriod, 
+		   int Flag_Psi) {
 
   int iPul, iTime, iHar, jHar ;
   double MaxPulsation, MinPulsation ;
@@ -112,7 +115,6 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
 
   GetDP_Begin("MH_InitTimes");
 
-  NbrTimePointForSP_MH = NbrTimePointForSmallestPeriod ;
 
   /* NbrTimePoint_M */
 
@@ -123,9 +125,22 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
     if ( Val_Pulsation [ iPul ] &&  Val_Pulsation [ iPul ] > MaxPulsation )
       MaxPulsation = Val_Pulsation [ iPul ] ;
   }
-  NbrTimePoint_MH = 
-    (int)rint((double)MaxPulsation / (double)MinPulsation 
-	      * (double)NbrTimePointForSmallestPeriod) ;
+
+  if ( (NbrTimePointForSmallestPeriod && NbrTimePointForGreatestPeriod) ||
+       (!NbrTimePointForSmallestPeriod && !NbrTimePointForGreatestPeriod) )
+    Msg(ERROR, "MH_InitTimes: NbrTimePoint_MH cannot be determined") ;
+
+  if (NbrTimePointForSmallestPeriod){
+    NbrTimePointForSP_MH = NbrTimePointForSmallestPeriod ;
+    NbrTimePointForGP_MH = 0 ;
+    NbrTimePoint_MH = (int)rint((double)MaxPulsation / (double)MinPulsation 
+		             * (double)NbrTimePointForSmallestPeriod) ;
+  }else{ 
+    NbrTimePointForGP_MH = NbrTimePointForGreatestPeriod ;
+    NbrTimePointForSP_MH = 0 ;
+    NbrTimePoint_MH = NbrTimePointForGreatestPeriod ;
+  }
+
   printf ("MH_InitTime => NbrHar = %d  NbrTimePoint_MH = %d \n", NbrHar, NbrTimePoint_MH );
 
   /* Trapezoidal integration */
@@ -133,6 +148,7 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
   Psi_MH = (double **)Malloc(sizeof(double *)*NbrTimePoint_MH) ;
   for (iTime=0 ; iTime<NbrTimePoint_MH ; iTime++)
     Psi_MH[iTime] = (double *)Malloc(sizeof(double)*NbrHar) ;
+
 
   if (!Flag_Psi) {
     PsiPsi_MH = (double ***)Malloc(sizeof(double **)*NbrTimePoint_MH) ;
@@ -187,7 +203,7 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
 /*  F_MHTimeIntegration                                                     */
 /* ------------------------------------------------------------------------ */
 
-void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
+void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePointSP,
 			   List_T * WholeQuantity_L,
 			   struct Element * Element,
 			   struct QuantityStorage * QuantityStorage_P0,
@@ -200,12 +216,13 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
   GetDP_Begin("MH_TimeIntegration");
 
   if (MH_Init != Current.DofData ||
-      (MH_Init == Current.DofData && NbrTimePointForSP_MH != NbrTimePoint)) {
+      (MH_Init == Current.DofData && NbrTimePointForSP_MH != NbrTimePointSP)) {
     MH_Init = Current.DofData ;
-    MH_InitTimes(Current.NbrHar, Current.DofData->Val_Pulsation, NbrTimePoint, 0) ;
+    MH_InitTimes(Current.NbrHar, Current.DofData->Val_Pulsation, NbrTimePointSP, 0, 0) ;
   }
 
   for ( iTime = 0 ; iTime < NbrTimePoint_MH ; iTime++ ) {
+
     Current_iTime = iTime ;
 
     Cal_WholeQuantity(Element, QuantityStorage_P0,
@@ -340,6 +357,25 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 
   } /* for iTime */
 
+
+      switch (Value.Type) {
+      case TENSOR_SYM :
+
+	for ( iHar = 0 ; iHar < Current.NbrHar ; iHar++ ){
+	  for ( jHar = 0 ; jHar < Current.NbrHar ; jHar++ ) {
+	    for ( iDim = 0 ; iDim < 3 ; iDim++ ){
+	      for ( jDim = 0 ; jDim < 3 ; jDim++ ){
+		//		printf ("+++ %d %d %d %d %f \n",iHar,jHar,iDim,jDim,
+		// Matrix2_MH [iHar*3+iDim] [jHar*3+jDim] );
+	      }
+	    }
+	  }
+	}
+	break ;
+
+      }
+
+
   GetDP_End ;
 }
 
@@ -350,6 +386,8 @@ void  MH_Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * 
   struct Value  Value ;
 
   GetDP_Begin("MH_Cal_ProductValue");
+
+  // printf(" Begin H_Cal_ProductValue \n");
 
   for ( iHar = 0 ; iHar < Current.NbrHar ; iHar++ ) {
 
@@ -376,7 +414,7 @@ void  MH_Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * 
 /*  F_MHToTime0                                                             */
 /* ------------------------------------------------------------------------ */
 
-void  F_MHToTime0 (F_ARG, int iTime, int NbrTimePoint, double * TimeMH) {
+void  F_MHToTime0 (F_ARG, int iTime, int NbrTimePointGP, double * TimeMH) {
 
 
   GetDP_Begin("F_MHToTime0");
@@ -386,9 +424,9 @@ void  F_MHToTime0 (F_ARG, int iTime, int NbrTimePoint, double * TimeMH) {
   }
 
   if (MH_Init != Current.DofData ||
-      (MH_Init == Current.DofData && NbrTimePointForSP_MH != NbrTimePoint)) {
+      (MH_Init == Current.DofData && NbrTimePointForGP_MH != NbrTimePointGP)) {
     MH_Init = Current.DofData ;
-    MH_InitTimes(Current.NbrHar, Current.DofData->Val_Pulsation, NbrTimePoint, 1) ;
+    MH_InitTimes(Current.NbrHar, Current.DofData->Val_Pulsation, 0, NbrTimePointGP, 1) ;
   }
 
   Current_iTime = iTime ;
