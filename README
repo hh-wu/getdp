@@ -1,9 +1,9 @@
-$Id: README,v 1.5 2001-03-05 07:47:11 geuzaine Exp $
+$Id: README,v 1.6 2001-08-06 10:55:08 geuzaine Exp $
 
 About CVS
 ---------
 
-a) The first time you want to download the latset full source by
+a) The first time you want to download the latest full source by
    CVS, type:
 
    cvs -d :pserver:NAME@139.165.160.57:/usr/users57/cvs-master CMD
@@ -24,7 +24,7 @@ b) The next times, just go into the getdp directory and type
    to commit your changes to the central repository.
 
 
-Developping in GetDP
+Developing in GetDP
 --------------------
 
 The file doc/STRUCTURE contains some information about how GetDP works
