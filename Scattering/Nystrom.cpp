@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.16 2002-02-22 22:14:14 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.17 2002-02-23 00:43:34 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -34,12 +34,22 @@ public:
   complex<double> val(double k[3], double tau, double xtau[3]){
     double kr;
     switch(which){
-    case 0 : // test Alain
+    case 0 : // Alain
+    case 1 : // hf test
       kr = k[0]*xtau[0]+k[1]*xtau[1]+k[2]*xtau[2];
-      return cos(tau) * (cos(kr)+I*sin(kr));
-    case 1: // global Fourier basis functions //num_bf=-N/2,...,N/2
-      return cos(num_bf*tau)+I*sin(num_bf*tau);
-    default : // stupid
+      return (cos(kr)+I*sin(kr));
+    default :
+      return 1.;
+    }
+  }
+
+  complex<double> bf(double tau){
+    switch(which){
+    case 0 : // Alain
+      return cos(tau);
+    case 1 : // global Fourier basis functions (num_bf=-N/2,...,N/2)
+      return (cos(num_bf*tau)+I*sin(num_bf*tau));
+    default :
       return 1.;
     }
   }
@@ -198,7 +208,7 @@ complex<double> Nystrom(int singular, double t, Function *func, double kvec[3],
     if(pou){
       scat->val(tau,xtau);
       scat->der(tau,dxtau);
-      f = func->val(kvec,tau,xtau);
+      f = func->val(kvec,tau,xtau) * func->bf(tau);
       kern.init(t,xt,dxt,tau,xtau,dxtau,k);
       if(singular){ // combine special quadrature with trapezoidal
 	w = SpecialQuadratureWeightForLog(PI,tau_orig,n);
@@ -455,6 +465,7 @@ void Solve(int typ, Function *f, Scatterer *scat,
       for(j=0 ; j<nbtarget ; j++){
 	f->num_bf = -nbtarget/2+j;
 	res = Integrate(typ, f, scat, kv, t, nbpts, prescribed_eps, rise); 
+	res *= (-I/2.);//warning
 	Msg(INFO, "A[%d,%d]=%g+i%g  Fourier = %d", i,j,res.real(), res.imag(),f->num_bf);
 	LinAlg_AddComplexInMatrix(res.real(), res.imag(), &A, 2*i, 2*j, 2*i+1, 2*j+1);
       }
@@ -462,6 +473,8 @@ void Solve(int typ, Function *f, Scatterer *scat,
       scat->val(t,xt);
       kr = kv[0]*xt[0]+kv[1]*xt[1]+kv[2]*xt[2];
       res = cos(kr)+I*sin(kr);
+      res *= 2; //warning
+      res /= NORM3(kv);//warning
       LinAlg_AddComplexInVector(res.real(), res.imag(), &b, 2*i, 2*i+1);
     }
     //LinAlg_PrintMatrix(stdout,&A);
@@ -478,11 +491,10 @@ void Solve(int typ, Function *f, Scatterer *scat,
     for(i=0 ; i<100 ; i++){
       phi = 0.;
       t = 2*PI*i/100.;
-      scat->val(t,xt);
       for(j=0 ; j<nbtarget ; j++){
 	f->num_bf = -nbtarget/2+j;
 	List_Read(reslist,j,&res);
-	phi += res * f->val(kv,t,xt);
+	phi += res * f->bf(t);
       }
       printf("%g %g\n", phi.real(), phi.imag());
     }
