@@ -22,7 +22,7 @@ extern char *Name_MshFile, *Name_ResFile[MAX_RES_FILES] ;
 
 extern struct Expression  *Problem_Expression0 ;
 extern int                 TreatmentStatus ;
-extern List_T             *PreResolutionIndex_L ;
+extern List_T             *GeoData_L , *PreResolutionIndex_L ;
 
 extern FILE  *LogStream, *PrintStream, *PostStream ;
 

@@ -34,7 +34,7 @@ void  SolvingAnalyse (void) {
   struct Solution       * Solution_P       , Solution_S ;
   struct GeoData        * GeoData_P0 ;
   struct DofData        * DofData_P0       , * DofData2_P0 ;
-  List_T                * DofData_L        , * DofData2_L,  * GeoData_L ;
+  List_T                * DofData_L        , * DofData2_L ;
 
   int                     Num_Resolution   ,   Num_Resolution2 ;
   int                     Nbr_DefineSystem ,   Nbr_DefineSystem2 ;
@@ -52,7 +52,7 @@ void  SolvingAnalyse (void) {
   int  Nbr_PreResolution, Nbr_OtherSystem ;
 
   /* ----------------------------- */
-  /* Creating Geometric Data Bases */
+  /* Default Geometric Data Base   */
   /* ----------------------------- */
 
   if (!Name_MshFile) {
@@ -61,9 +61,10 @@ void  SolvingAnalyse (void) {
     strcat(Name_MshFile, ".msh") ;
   }
   GeoData_L = List_Create( 1, 5, sizeof(struct GeoData)) ;
+  /* 
   Geo_AddGeoData(GeoData_L, Name_MshFile, NULL) ;
   GeoData_P0 = (struct GeoData *)List_Pointer(GeoData_L, 0) ;
-
+  */
 
   /* -------------------- */
   /* Treatment Resolution */
@@ -212,6 +213,7 @@ void  SolvingAnalyse (void) {
     Nbr_DefineSystem = List_Nbr(DofData_L) ;  /* New Value ... */
 
     Nbr_GeoData = List_Nbr(GeoData_L) ;
+    
     Geo_ReadFilePRE(GeoData_P0, Nbr_GeoData, Problem_S.Group) ;
 
     Dof_CloseFile(DOF_PRE) ;
