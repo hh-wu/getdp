@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.47 2001-07-30 08:32:15 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.48 2001-08-04 03:33:37 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -23,10 +23,6 @@
 
 extern int  InteractiveInterrupt ;
 
-int fcmp_IntxList(const void * a, const void * b) {
-  return  ((struct IntxList *)a)->Int - ((struct IntxList *)b)->Int ;
-}
-
 struct CutEdge {
   int     nbc ;
   double  x[2],y[2],z[2] ;  
@@ -35,12 +31,32 @@ struct CutEdge {
   struct  Value  *Value ;
 } ;
 
-/*
-  Print OnRegion
-  --------------
-  expl: print Global Quantities associated with Regions
-  args: list of groups of region type
+struct xyzv{
+  double x,y,z;
+  struct Value v;
+  /*int nbvals; for time domain -> malloc Value *v... */
+  int nboccurences;
+};
 
+#define TOL 1.e-12  /* should be relative... */
+
+int fcmp_xyzv(const void * a, const void * b) {
+  struct xyzv *p1, *p2;
+  p1 = (struct xyzv*)a;
+  p2 = (struct xyzv*)b;
+  if(p1->x - p2->x > TOL) return 1;
+  if(p1->x - p2->x <-TOL) return -1;
+  if(p1->y - p2->y > TOL) return 1;
+  if(p1->y - p2->y <-TOL) return -1;
+  if(p1->z - p2->z > TOL) return 1;
+  if(p1->z - p2->z <-TOL) return -1;
+  return 0;
+}
+
+#undef TOL
+
+
+/*
   Print OnElementsOf
   ------------------
   expl: plot on elements, belonging to the current mesh, where 
@@ -67,12 +83,10 @@ struct CutEdge {
   args: 1, 2, 3 or 4 points (0d, 1d, 2d or 3d grid) and the associated
         number of divisions
 
-  Depth 
-  ----- 
-    <0 -> derefinement 
-     0 -> punctual values (only useful for "vector type" quantities)
-     1 -> default (line, triangle, tetrahedron)
-    >1 -> recursive subdivision (useful for interpolation > linear)
+  Print OnRegion
+  --------------
+  expl: print Global Quantities associated with Regions
+  args: list of groups of region type
 
 */
 
@@ -87,14 +101,10 @@ int      SkinDepth ;
 void Cut_SkinPostElement(void *a, void *b){
   struct PostElement  * PE ;
 
-  GetDP_Begin("Cut_SkinPostElement");
-  
   PE = *(struct PostElement**)a ;
 
   Cut_PostElement(PE, Geo_GetGeoElement(PE->Index), SkinPostElement_L, 
 		  PE->Index, SkinDepth, 0, 1) ;
-
-  GetDP_End ;
 }
 
 void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
@@ -105,16 +115,16 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 			    struct PostSubOperation *PostSubOperation_P) {
 
   Tree_T  * PostElement_T, * NodexPostElement_T ;
-  List_T  * PostElement_L, * PostElement2_L, * Region_L, * Tmp_L ;
+  List_T  * PostElement_L, * Region_L, * Tmp_L ;
 
   struct Element        Element ;
-  struct PostElement  * PE, * PE2 ;
+  struct PostElement  * PE ;
   struct Value        * CumulativeValues ;
-  struct IntxList       NxPE, * NxPE_P ;
-
-  double  * Error=NULL, Dummy[5], d ;
+  struct xyzv           xyzv, *xyzv_P ;
+  Tree_T              * xyzv_T ;
+  double  * Error=NULL, Dummy[5], d, x1, x2 ;
   int       ii, jj, kk, NbrGeo, iGeo, incGeo, NbrPost=0, iPost ;
-  int       NbrTimeStep, iTime, NbrSmoothing, iNode ;
+  int       NbrTimeStep, iTime, iNode ;
   int       Store = 0, DecomposeInSimplex = 0, Depth ;
 
   GetDP_Begin("Pos_PrintOnElementsOf");
@@ -160,23 +170,11 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   if(NCPQ_P && PostSubOperation_P->SubType == PRINT_ONGRID)
     Init_SearchGrid(&Current.GeoData->Grid) ;
 
-  /* How many smoothing steps should we apply to the results? */
-  
-  if(PostSubOperation_P->Smoothing){
-    if(PostSubOperation_P->Depth > 1)
-      Msg(ERROR, "Smoothing not allowed with Depth > 1"); 
-    if(NbrTimeStep > 1)
-      Msg(ERROR, "Smoothing not allowed with more than one time step"); 
-    NbrSmoothing = PostSubOperation_P->Smoothing ;
-  }
-  else
-    NbrSmoothing = 0;
-
   /* If we compute a skin, apply smoothing, sort the results, or
      perform adaption, we'll need to store all the PostElements */
 
-  if(NbrSmoothing || PostSubOperation_P->Skin || PostSubOperation_P->Adapt ||
-     PostSubOperation_P->Sort)
+  if(PostSubOperation_P->Smoothing || PostSubOperation_P->Skin ||
+     PostSubOperation_P->Adapt || PostSubOperation_P->Sort)
     Store = 1 ;
 
   /* Check if everything is OK for Adaption */
@@ -372,87 +370,51 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
   /* Perform Smoothing */
   
-  if(NbrSmoothing && !InteractiveInterrupt){
+  if(PostSubOperation_P->Smoothing && !InteractiveInterrupt){
 
-    Msg(INFO, "Smoothing (%d)", NbrSmoothing);
+    Msg(INFO, "Smoothing (phase 1)");
 
-    PostElement2_L = List_Create(NbrPost, 1, sizeof(struct PostElement *)) ;
+    xyzv_T = Tree_Create(sizeof(struct xyzv), fcmp_xyzv);
     
-    NodexPostElement_T = Tree_Create(sizeof(struct IntxList), fcmp_IntxList);
-    
-    for (iPost = 0 ; iPost < NbrPost ; iPost++ ){ 
+    for (iPost = 0 ; iPost < NbrPost ; iPost++){ 
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost) ;
-      PE2 = Create_PostElement(PE->Index, PE->Type, PE->NbrNodes, PE->Depth) ;
-
       for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++) {
-
-	if(PE->NumNodes[iNode] < 0)
-	  Msg(ERROR, "Smoothing not done with Pyramids");
-
-	NxPE.Int = PE->NumNodes[iNode] ; 
-	if(!(NxPE_P = (struct IntxList*)Tree_PQuery(NodexPostElement_T, &NxPE))){
-	  NxPE.List = List_Create(5, 5, sizeof(int));  
-	  List_Add(NxPE.List, &iPost);
-	  Tree_Add(NodexPostElement_T, &NxPE) ;
+	xyzv.x = PE->x[iNode];
+	xyzv.y = PE->y[iNode];
+	xyzv.z = PE->z[iNode];
+	if((xyzv_P = (struct xyzv*)Tree_PQuery(xyzv_T, &xyzv))){
+	  x1 = (double)(xyzv_P->nboccurences)/ (double)(xyzv_P->nboccurences + 1.);
+	  x2 = 1./(double)(xyzv_P->nboccurences + 1);
+	  Cal_AddMultValue2(&xyzv_P->v, x1, &PE->Value[iNode], x2);
+	  xyzv_P->nboccurences++;
 	}
-	else
-	  List_Add(NxPE_P->List, &iPost);
-
-	PE2->NumNodes[iNode] = PE->NumNodes[iNode] ;
-	PE2->u[iNode] = PE->u[iNode] ;
-	PE2->v[iNode] = PE->v[iNode] ;
-	PE2->w[iNode] = PE->w[iNode] ;
-	PE2->x[iNode] = PE->x[iNode] ;
-	PE2->y[iNode] = PE->y[iNode] ;
-	PE2->z[iNode] = PE->z[iNode] ;
+	else{
+	  Cal_CopyValue(&PE->Value[iNode],&xyzv.v);
+	  xyzv.nboccurences = 1;
+	  Tree_Add(xyzv_T, &xyzv);
+	}
       }
-
-      List_Add(PostElement2_L, &PE2) ;
     }
 
-    while(NbrSmoothing){
-     
-      for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
-
-	PE2 = *(struct PostElement**)List_Pointer(PostElement2_L, iPost) ;
-
-	for(iNode = 0 ; iNode < PE2->NbrNodes ; iNode++){
-
-	  Cal_ZeroValue(&PE2->Value[iNode]) ;  	  
-
-	  NxPE.Int = PE2->NumNodes[iNode];
-	  NxPE_P = (struct IntxList *)Tree_PQuery(NodexPostElement_T, &NxPE);
-
-	  for(ii = 0 ; ii < List_Nbr(NxPE_P->List) ; ii++){
-	    List_Read(NxPE_P->List, ii, &jj);
-	    PE = *(struct PostElement**)List_Pointer(PostElement_L, jj) ;
-
-	    PE2->Value[iNode].Type = PE->Value[0].Type ;
-	    for (jj = 0 ; jj < PE->NbrNodes ; jj++){
-	      Cal_AddMultValue(&PE2->Value[iNode], &PE->Value[jj], 
-			       1./(double)PE->NbrNodes, &PE2->Value[iNode]) ;
-	    }
-	  }
-
-	  for (ii = 0 ; ii < MAX_DIM ; ii++)
-	    for (kk = 0 ; kk < Current.NbrHar ; kk++)
-	      PE2->Value[iNode].Val[MAX_DIM*kk+ii] /= (double)List_Nbr(NxPE_P->List) ;
-	}
-	
-      }
-
-      Tmp_L = PostElement_L ;	
-      PostElement_L = PostElement2_L ; 
-      PostElement2_L = Tmp_L ;
-      NbrSmoothing-- ;
-    }
+    Msg(INFO, "Smoothing (phase 2)");
 
     for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
-      PE2 = *(struct PostElement**)List_Pointer(PostElement2_L, iPost);
-      Destroy_PostElement(PE2) ;
+      PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost) ;
+      for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++) {
+	xyzv.x = PE->x[iNode];
+	xyzv.y = PE->y[iNode];
+	xyzv.z = PE->z[iNode];
+	if((xyzv_P = (struct xyzv*)Tree_PQuery(xyzv_T, &xyzv))){
+	  Cal_CopyValue(&xyzv_P->v, &PE->Value[iNode]);
+	}
+	else
+	  Msg(WARNING, "Node (%g,%g,%g) not found", xyzv.x, xyzv.y, xyzv.z);
+      }
     }
+    
+    Tree_Delete(xyzv_T);
 
-  } /* if NbrSmoothing */
+  } /* if Smoothing */
 
   /* Perform Adaption */
 

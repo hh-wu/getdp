@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Value.c,v 1.12 2001-07-20 16:51:09 geuzaine Exp $"
+#define RCSID "$Id: Cal_Value.c,v 1.13 2001-08-04 03:33:36 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
@@ -336,6 +336,50 @@ void  Cal_AddMultValue (struct Value * V1, struct Value * V2, double d, struct V
     break;
   }
   Cal_AddValue(V1,&A,R);
+
+  GetDP_End ;
+}
+
+/* ------------------------------------------------------------------------ 
+   V1 <- V1 * d1 + V2 * d2 ,   where d1, d2 are doubles
+   ------------------------------------------------------------------------ */
+
+void  Cal_AddMultValue2 (struct Value * V1, double d1,
+			 struct Value * V2, double d2) {
+  int k;
+
+  GetDP_Begin("Cal_AddMultValue");
+
+  switch(V1->Type){
+  case SCALAR :
+    if (Current.NbrHar == 1) {
+      V1->Val[0] = V1->Val[0] * d1 + V2->Val[0] * d2;      
+    }
+    else{
+      for (k = 0 ; k < Current.NbrHar ; k++) {
+	V1->Val[MAX_DIM*k] = V1->Val[MAX_DIM*k] * d1 + V2->Val[MAX_DIM*k] * d2;
+      }
+    }
+    break;
+  case VECTOR :
+  case TENSOR_DIAG :
+    if (Current.NbrHar == 1) {
+      V1->Val[0] = V1->Val[0] * d1 + V2->Val[0] * d2;
+      V1->Val[1] = V1->Val[1] * d1 + V2->Val[1] * d2;
+      V1->Val[2] = V1->Val[2] * d1 + V2->Val[2] * d2;
+    }
+    else{
+      for (k = 0 ; k < Current.NbrHar ; k++) {
+	V1->Val[MAX_DIM*k  ] = V1->Val[MAX_DIM*k  ] * d1 + V2->Val[MAX_DIM*k  ] * d2;
+	V1->Val[MAX_DIM*k+1] = V1->Val[MAX_DIM*k+1] * d1 + V2->Val[MAX_DIM*k+1] * d2;
+	V1->Val[MAX_DIM*k+2] = V1->Val[MAX_DIM*k+2] * d1 + V2->Val[MAX_DIM*k+2] * d2;
+      }
+    }
+    break;
+  default :
+    Msg(ERROR, "Wrong argument type for 'Cal_AddMultValue2'");
+    break;
+  }
 
   GetDP_End ;
 }

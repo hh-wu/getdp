@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.27 2001-07-30 08:32:15 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.28 2001-08-04 03:33:36 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -5518,9 +5518,9 @@ PrintOption :
     { 
       PostSubOperation_S.Skin = 1 ; 
     }
-  | ',' tSmoothing FExpr  
+  | ',' tSmoothing
     {
-      PostSubOperation_S.Smoothing = (int)$3 ; 
+      PostSubOperation_S.Smoothing = 1 ; 
     }
   | ',' tHarmonicToTime FExpr
     {

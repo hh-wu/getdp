@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.31 2001-07-30 10:48:07 geuzaine Exp $
+@c $Id: getdp.texi,v 1.32 2001-08-04 03:33:37 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -3943,9 +3943,7 @@ elements.
 Computes the result on the boundary of the region. 
 
 @item Smoothing
-@var{expression-cst}
-
-Smoothes the solution @var{expression-cst} times.
+Smoothes the solution at the nodes.
 
 @item HarmonicToTime
 @var{expression-cst}
