@@ -1,4 +1,4 @@
-/* $Id: Pos_Interactive.c,v 1.7 2000-10-19 11:24:21 dular Exp $ */
+/* $Id: Pos_Interactive.c,v 1.8 2000-10-19 11:40:02 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -277,6 +277,5 @@ void Help(char *start){
   else if(!strcmp(topic, "value")) Help_Value();
   else if(!strcmp(topic, "iso")) Help_Iso();
   else printf("Sorry, no help for '%s'\n", topic);
->>>>>>> 1.6
 
 }
