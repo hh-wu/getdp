@@ -1,4 +1,4 @@
-#define RCSID "$Id: List.c,v 1.17 2004-01-19 16:51:12 geuzaine Exp $"
+#define RCSID "$Id: List.c,v 1.18 2004-10-05 14:27:14 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -260,7 +260,9 @@ int List_LQuery(List_T *liste, void *data,
   }
   else {
     if (startptr != NULL)
-      ptr = (char *) lolofind(data,startptr,liste->n,liste->size,fcmp);
+      ptr = (char *) lolofind(data,startptr,
+			      liste->n - (startptr-liste->array)/liste->size,
+			      liste->size,fcmp);
     else
       return(0);
   }
