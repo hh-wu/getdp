@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.29 2002-09-01 22:06:51 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.30 2002-12-04 17:21:35 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -554,16 +554,16 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
       }
 
       fprintf(PostStream, "%d %d ", Get_GmshElementType(ElementType), NumElement);
-      fprintf(PostStream, " %.8g %.8g %.8g ", x[i2], y[i2], z[i2]);
+      fprintf(PostStream, " %.16g %.16g %.16g ", x[i2], y[i2], z[i2]);
       if(Dummy){
 	if(Dummy[3]<0){
 	  if(!i)
-	    fprintf(PostStream, " %.8g %.8g 0 ", Dummy[0], Dummy[2]);
+	    fprintf(PostStream, " %.16g %.16g 0 ", Dummy[0], Dummy[2]);
 	  else
-	    fprintf(PostStream, " %.8g %.8g 0 ", Dummy[1], Dummy[2]);
+	    fprintf(PostStream, " %.16g %.16g 0 ", Dummy[1], Dummy[2]);
 	}
 	else
-	  fprintf(PostStream, " %.8g %.8g %.8g ", Dummy[0], Dummy[1], Dummy[2]);
+	  fprintf(PostStream, " %.16g %.16g %.16g ", Dummy[0], Dummy[1], Dummy[2]);
       }
       else
 	fprintf(PostStream, " 0 0 0 ");
@@ -573,7 +573,7 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	if (HarmonicToTime == 1) {
 	  for(k = 0 ; k < NbrHarmonics ; k++) {
 	    for(j = 0 ; j < Size ; j++){
-	      fprintf(PostStream, " %.8g", 
+	      fprintf(PostStream, " %.16g", 
 		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
 			       + i2*NbrHarmonics*Size
 			       + k*Size
@@ -596,7 +596,7 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 
 	    F_MHToTime0(k, &TmpValue, &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	    for(j = 0 ; j < Size ; j++)
-	      fprintf(PostStream, "%.8g", TmpValue.Val[0]);
+	      fprintf(PostStream, "%.16g", TmpValue.Val[0]);
 	    fprintf(PostStream, " ");
 	  }
 	}
@@ -644,9 +644,9 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
     if(TimeStep == 0){
       fprintf(PostStream, "%d %d ", Get_GmshElementType(ElementType), NumElement);
       for(i=0 ; i<NbrNodes ; i++)
-	fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
+	fprintf(PostStream, " %.16g %.16g %.16g ", x[i], y[i], z[i]);
       if(Dummy) 
-	fprintf(PostStream, " %.8g %.8g %.8g ", Dummy[0], Dummy[1],  Dummy[2]);
+	fprintf(PostStream, " %.16g %.16g %.16g ", Dummy[0], Dummy[1],  Dummy[2]);
       else
 	fprintf(PostStream, " 0 0 0 ");
     }
@@ -654,14 +654,14 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
 
   if (HarmonicToTime == 1) {
     if(Format == FORMAT_TIME_TABLE){
-      fprintf(PostStream, "%d %.8g ", TimeStep, Time);
+      fprintf(PostStream, "%d %.16g ", TimeStep, Time);
       for(i=0 ; i<NbrNodes ; i++)
-	fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
+	fprintf(PostStream, " %.16g %.16g %.16g ", x[i], y[i], z[i]);
     }
     for(k = 0 ; k < NbrHarmonics ; k++) {
       for(i = 0 ; i < NbrNodes ; i++){
 	for(j = 0 ; j < Size ; j++){
-	  fprintf(PostStream, " %.8g", Value[i].Val[MAX_DIM*k+j]);
+	  fprintf(PostStream, " %.16g", Value[i].Val[MAX_DIM*k+j]);
 	}
 	fprintf(PostStream, " ");
       }
@@ -673,12 +673,12 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
       for(i = 0 ; i < NbrNodes ; i++){
 	F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	if (!i && Format == FORMAT_TIME_TABLE) {
-	  fprintf(PostStream, "%d %.8g ", TimeStep, TimeMH);
+	  fprintf(PostStream, "%d %.16g ", TimeStep, TimeMH);
 	  for(i=0 ; i<NbrNodes ; i++)
-	    fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
+	    fprintf(PostStream, " %.16g %.16g %.16g ", x[i], y[i], z[i]);
 	}
 	for(j = 0 ; j < Size ; j++)
-	  fprintf(PostStream, " %.8g", TmpValue.Val[j]) ;
+	  fprintf(PostStream, " %.16g", TmpValue.Val[j]) ;
 	fprintf(PostStream, " ");
       }
       if(Format == FORMAT_TIME_TABLE)
@@ -854,17 +854,17 @@ void  Format_PostValue(int Format,
 	  Msg(ERROR, "FrequencyTable format not allowed (only one harmonic)") ;
 	break ;
       default :
-	fprintf(PostStream, "%.8g ", Time) ;
+	fprintf(PostStream, "%.16g ", Time) ;
 	break ;
       }
       for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++)
 	for (k = 0 ; k < NbrHarmonics ; k++) {
 	  if (Format == FORMAT_FREQUENCY_TABLE && !(k%2)) {
 	    Freq = Current.DofData->Val_Pulsation[0] / TWO_PI ;
-	    fprintf(PostStream, "%.8g ", Freq) ;
+	    fprintf(PostStream, "%.16g ", Freq) ;
 	  }
 	  for(j = 0 ; j < Size ; j++)
-	    fprintf(PostStream, " %.8g", TmpValues[iRegion].Val[MAX_DIM*k+j]) ;
+	    fprintf(PostStream, " %.16g", TmpValues[iRegion].Val[MAX_DIM*k+j]) ;
 	}
       if (Flag_NoNewLine)
 	fprintf(PostStream, "  ") ;
@@ -876,9 +876,9 @@ void  Format_PostValue(int Format,
 	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
 	  F_MHToTime0(k+iRegion, &TmpValues[iRegion], &TmpValue, 
 		      k, HarmonicToTime, &TimeMH) ;
-	  if (iRegion == 0)  fprintf(PostStream, "%.8g ", TimeMH) ;
+	  if (iRegion == 0)  fprintf(PostStream, "%.16g ", TimeMH) ;
 	  for(j = 0 ; j < Size ; j++)
-	    fprintf(PostStream, " %.8g", TmpValue.Val[j]) ;
+	    fprintf(PostStream, " %.16g", TmpValue.Val[j]) ;
 	}
 	fprintf(PostStream, "\n") ;
       }
