@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.13 2003-02-13 21:46:47 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.14 2003-02-13 23:34:09 geuzaine Exp $"
 dnl
 dnl Machine independent configuration script for GetDP.
 dnl
@@ -121,31 +121,27 @@ else
   LINKER='${F77}'
   case "$UNAME" in
     IRIX*)
+      dnl to build portable code between 32 and 64 bit machines
       CC="cc"
       F77="f77"
-      C_FLAGS="-O3"
-      C_PARSER_FLAGS="-g"
-      F77_FLAGS="-O3"
+      C_FLAGS="-O3 -n32 -mips3"
+      C_PARSER_FLAGS="-g -n32 -mips3"
+      dnl warning: -O3 crashes Sparskit
+      F77_FLAGS="-O1 -n32 -mips3"
+      dnl warning: -D_ILU_FLOAT crashes Sparskit
       SOLVER="-D_SPARSKIT"
-    ;;
-dnl    IRIX*)
-dnl      CC="cc"
-dnl      F77="f77"
-dnl      C_FLAGS="-O3 -n32 -mips3"
-dnl      C_PARSER_FLAGS="-g -n32 -mips3"
-dnl      F77_FLAGS="-O3 -n32 -mips3"
-dnl      SOLVER="-D_SPARSKIT"
-dnl      LINKER="f77 -n32 -mips3"
-dnl      ;;
-dnl    IRIX64*)
-dnl      CC="cc"
-dnl      F77="f77"
-dnl      C_FLAGS="-O3 -mips4 -64"
-dnl      C_PARSER_FLAGS="-g -mips4 -64"
-dnl      F77_FLAGS="-O3 -mips4 -64"
-dnl      SOLVER="-D_SPARSKIT -D_ILU_FLOAT"
-dnl      LINKER="f77 -64"
-dnl      ;;
+      LINKER="f77 -n32 -mips3"
+      ;;
+    IRIX64*)
+      dnl never called at the moment: we force IRIX
+      CC="cc"
+      F77="f77"
+      C_FLAGS="-O3 -mips4 -64"
+      C_PARSER_FLAGS="-g -mips4 -64"
+      F77_FLAGS="-O3 -mips4 -64"
+      SOLVER="-D_SPARSKIT -D_ILU_FLOAT"
+      LINKER="f77 -64"
+      ;;
     HP-UX*)
       CC="cc"
       F77="f77"

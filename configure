@@ -2467,13 +2467,23 @@ else
   LINKER='${F77}'
   case "$UNAME" in
     IRIX*)
-      CC="cc"
+            CC="cc"
       F77="f77"
-      C_FLAGS="-O3"
-      C_PARSER_FLAGS="-g"
-      F77_FLAGS="-O3"
-      SOLVER="-D_SPARSKIT"
-    ;;
+      C_FLAGS="-O3 -n32 -mips3"
+      C_PARSER_FLAGS="-g -n32 -mips3"
+            F77_FLAGS="-O1 -n32 -mips3"
+            SOLVER="-D_SPARSKIT"
+      LINKER="f77 -n32 -mips3"
+      ;;
+    IRIX64*)
+            CC="cc"
+      F77="f77"
+      C_FLAGS="-O3 -mips4 -64"
+      C_PARSER_FLAGS="-g -mips4 -64"
+      F77_FLAGS="-O3 -mips4 -64"
+      SOLVER="-D_SPARSKIT -D_ILU_FLOAT"
+      LINKER="f77 -64"
+      ;;
     HP-UX*)
       CC="cc"
       F77="f77"
