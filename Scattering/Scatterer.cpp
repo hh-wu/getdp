@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.5 2002-04-26 20:18:54 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.6 2002-04-30 01:22:47 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -64,6 +64,14 @@ void Scatterer::dx(double u, double *x){
   }
 }
 
+void Scatterer::polar(double u, double *r, double *dr){
+  double cart[3], dcart[3];
+  x(u,cart);
+  *r = sqrt(cart[0]*cart[0]+cart[1]*cart[1]);
+  dx(u,dcart);
+  *dr = (cart[0]*dcart[0]+cart[1]*dcart[1]) / *r;
+}
+
 // Compute (hum!) the target point
 
 void Scatterer::singularPoint(double t0, List_T *pts){
@@ -81,6 +89,8 @@ void Scatterer::singularPoint(double t0, List_T *pts){
 //
 //  0 <= t-t0 = Pi - 2*t0 + 4*n*PI <= 2*PI
 //  0 <= t-t0 = (PI-2*t0)/3 + 4/3*PI*n
+
+void newt (double x[], int n, int *check, void (*vecfunc) (int, double[], double[]));
 
 void Scatterer::criticalPoints(double t0, double k[3], List_T *pts){
   int n;
@@ -109,10 +119,9 @@ void Scatterer::criticalPoints(double t0, double k[3], List_T *pts){
     break;
 
   default :
-    
-    //newt();
-    
 
+    // je dois passer la phase, ou dphase/dtheta, a newt ?
+    //newt();
 
     Msg(ERROR, "Unknown type of scatterer for critical point computation");
     break;

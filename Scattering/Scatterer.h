@@ -11,10 +11,9 @@ public:
   ScattererType type;
   double a, b;
 
-  void x(double theta, double *x);
-  void dx(double theta, double *dx);
-  void r(double theta, double *r);
-  void dr(double theta, double *dr);
+  void x(double theta, double *x); // x=x(theta), y=y(theta)
+  void dx(double theta, double *dx); // dx=d x/d theta, dy=d y/d theta
+  void polar(double theta, double *r, double *dr); // r=sqrt(x^2+y^2), dr=d r/d theta
 
   void singularPoint(double t, List_T *pts);
   void criticalPoints(double t, double k[3], List_T *pts);
