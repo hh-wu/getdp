@@ -2651,12 +2651,12 @@ fi
 
 
 
-GETDP_DIRS="Main Parser Post Function Integration GeoData DofData Numeric DataStr"
-GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr"
+GETDP_DIRS="Main Parser Post Function Integration GeoData DofData Numeric DataStr FMM"
+GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr -lFMM"
 
 if test "x$enable_petsc" = "xyes"; then
 
-  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr ${PETSC_SLES_LIB} -lm'
+  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_SLES_LIB} -lm'
   SOLVER='-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
