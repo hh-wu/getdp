@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.5 2003-02-09 05:37:51 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.6 2003-02-09 07:08:37 geuzaine Exp $"
 dnl
 dnl Machine independent configuration script for GetDP.
 dnl
@@ -227,7 +227,7 @@ echo "*******************************************************************"
 
 if test x${GSL} = "xno"; then
   echo "*******************************************************************"
-  echo "Configure could not find the GNU Scientific Libray (GSL):"
+  echo "Configure could not find the GNU Scientific Library (GSL):"
   echo "- if it is installed in a non-standard location, please run"
   echo "  ./configure again with the --with-gsl-prefix option"
   echo "- if it is not installed on your system, you can download it from"
