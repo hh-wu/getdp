@@ -44,7 +44,8 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
   gridInst->densities.resize(nbPatches);
   gridInst->uH.resize(nbPatches);
   gridInst->vH.resize(nbPatches);
-  gridInst->scalarData.resize(nbPatches);
+  gridInst->indexI.resize(nbPatches);
+  gridInst->indexJ.resize(nbPatches);
 
   for(j=0 ; j<nbIntervalsU+1; j++){
     for(k=0 ; k<nbIntervalsV+1; k++){
@@ -78,12 +79,10 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
     gridInst->v[i].resize(nbPts);
     gridInst->jacobianDeterminant[i].resize(nbPts);
     gridInst->densities[i].resize(nbPts);
-
-    gridInst->scalarData[i].resize(nbIntervalsU+1);
+    gridInst->indexI[i].resize(nbPts);
+    gridInst->indexJ[i].resize(nbPts);
 
     for(j=0 ; j<nbIntervalsU+1 ; j++){
-
-      gridInst->scalarData[i][j].resize(nbIntervalsV+1);
 
       for(k=0 ; k<nbIntervalsV+1 ; k++){
 
@@ -123,7 +122,7 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
 	if(otherPOU < 1.e-6)
 	  printf("Sum of POU too small: patch %d, (u,v)=(%g,%g)\n", i, uTmp, vTmp);
 
-	gridInst->pou[i][index] = thisPOU/otherPOU;
+	gridInst->pou[i][index] = 1;// thisPOU/otherPOU;
 
 	xyzTmp = patch->unitNormal(uTmp, vTmp);
 	gridInst->normalsX[i][index] = (*xyzTmp)[0];
@@ -133,8 +132,10 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
 	gridInst->u[i][index] = u[j][k];
 	gridInst->v[i][index] = v[j][k];
 
-	gridInst->densities[i][index] = 1.;
-	gridInst->scalarData[i][j][k] = gridInst->densities[i][index] * gridInst->pou[i][index];
+	gridInst->densities[i][index] = 0.;
+	gridInst->indexI[i][index] = j;
+	gridInst->indexJ[i][index] = k;
+
       }
     }
 
@@ -173,7 +174,7 @@ void printGrid(grid *g){
 
 int main(){
   int i, j, k;
-  double radius = 1.0, waveNumber = 1.0, gamma = MAX(3,1./TWO_PI*waveNumber);
+  double radius = 1.0, waveNumber = 1.0, gamma = MAX(3,radius/TWO_PI*waveNumber);
   int nbIntervalsU = 3, nbIntervalsV = 3;
   patch3D *patch;
   complex<double> value;
@@ -199,7 +200,6 @@ int main(){
 
   gridIntegrator *integrator = new gridIntegrator(gridInst, &bodyArray, waveNumber,
 						  "both", gamma, "no");
-
   for(i=0 ; i<gridInst->densities.size() ; i++){ // loop on patches
     for(j=0 ; j<gridInst->densities[i].size() ; j++){ // loop on target points
       value = integrator->integrateTargetPointOnGrid(i,j);
