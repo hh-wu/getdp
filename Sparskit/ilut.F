@@ -1,4 +1,4 @@
-c $Id: ilut.F,v 1.2 2000-09-07 18:56:37 geuzaine Exp $
+c $Id: ilut.F,v 1.3 2001-04-05 06:30:01 geuzaine Exp $
 c----------------------------------------------------------------------c
 c The file has been renamed from ilut.f to ilut.F to permit            c
 c preprocessing by 'cpp'                                               c
@@ -1763,6 +1763,8 @@ c
 c     update u-matrix
 c
          do 302 k=ii+1,ii+lenu-1 
+c     oups: who suppressed the following test in getdp < 0.81?
+            if (ju0 .gt. iwk) goto 997
             if (jw(n2+k) .le. lfil) then
                jlu(ju0) = jw(k)
                alu(ju0) = w(k)
@@ -1797,8 +1799,8 @@ c
 c     
 c     insufficient storage in U.
 c     
-c 997  ierr = -3
-c      return
+ 997  ierr = -3
+      return
 c     
 c     illegal lfil entered.
 c     
