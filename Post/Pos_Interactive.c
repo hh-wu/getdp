@@ -1,4 +1,4 @@
-/* $Id: Pos_Interactive.c,v 1.9 2000-10-20 07:42:07 dular Exp $ */
+/* $Id: Pos_Interactive.c,v 1.10 2000-10-21 12:17:27 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -186,9 +186,9 @@ void Help_Format(void) {
 	   "Option for Format: ");
     GET(first, topic) ;
     if     (!strcmp(topic, "gmsh")) Help_Gmsh();
-    else if(!strcmp(topic, "gnuplot")) Help_Gnuplot;
-    else if(!strcmp(topic, "table")) Help_Table;
-    else if(!strcmp(topic, "timetable")) Help_TimeTable;
+    else if(!strcmp(topic, "gnuplot")) Help_Gnuplot();
+    else if(!strcmp(topic, "table")) Help_Table();
+    else if(!strcmp(topic, "timetable")) Help_TimeTable();
     else printf("Sorry, no help for Format option '%s'\n", topic);
   }
 }

@@ -190,7 +190,7 @@
 
 #line 1 "yacc.y"
 
-/* $Id: yacc.tab.c,v 1.21 2000-10-20 09:05:31 dular Exp $ */
+/* $Id: yacc.tab.c,v 1.22 2000-10-21 12:16:24 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -3827,17 +3827,17 @@ case 110:
 	if (Current_DofIndexInWholeQuantity == -1)
 	  Current_DofIndexInWholeQuantity = List_Nbr(Current_WholeQuantity_L) ;
 	else if (Current_DofIndexInWholeQuantity == -2)
-	  yyerror("Dof Definition out of Context") ;
+	  vyyerror("Dof Definition out of Context") ;
 	else
-	  yyerror("More than one Dof Definition in Expression") ;
+	  vyyerror("More than one Dof Definition in Expression") ;
 	break ;
       case QUANTITY_NODOF :
 	if (Current_DofIndexInWholeQuantity == -2)
-	  yyerror("NoDof Definition out of Context") ;
+	  vyyerror("NoDof Definition out of Context") ;
 	else if (Current_NoDofIndexInWholeQuantity == -1)
 	  Current_NoDofIndexInWholeQuantity = List_Nbr(Current_WholeQuantity_L) ;
 	else
-	  yyerror("More than one NoDof Definition in Expression") ;
+	  vyyerror("More than one NoDof Definition in Expression") ;
 	break ;
       }
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
@@ -3881,7 +3881,7 @@ case 114:
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
 
       if (Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
-	yyerror("Dof definition out of context") ;
+	vyyerror("Dof definition out of context") ;
     ;
     break;}
 case 115:
@@ -4258,7 +4258,7 @@ case 166:
 	     &FlagError, (void (**)())&QuadratureCase_S.Function) ;
 	  break ;
 	default : 
-	  yyerror("Incompatible Type of Integration Method") ;
+	  vyyerror("Incompatible Type of Integration Method") ;
 	  break ;
 	}
 	break ;
@@ -4271,13 +4271,13 @@ case 166:
 	     &FlagError, (void (**)())&QuadratureCase_S.Function) ;
 	  break ;
 	default : 
-	  yyerror("Incompatible Type of Integration Method") ;
+	  vyyerror("Incompatible Type of Integration Method") ;
 	  break ;
 	}
 	break ;
 
       default :
-	yyerror("Incompatible Type of Integration Method") ;
+	vyyerror("Incompatible Type of Integration Method") ;
 	break ;
       }
 
@@ -5875,7 +5875,7 @@ case 306:
 
       if (List_Nbr(yyvsp[-2].l) == 1){
 	if ((WholeQuantity_P+0)->Type != WQ_OPERATORANDQUANTITY)
-	  yyerror("Missing DefineQuantity in Equation");
+	  vyyerror("Missing DefineQuantity in Equation");
       }
       else if (List_Nbr(yyvsp[-2].l) == 3 &&
 	       ( (WholeQuantity_P+0)->Type == WQ_EXPRESSION &&
@@ -5889,7 +5889,7 @@ case 306:
 	  (WholeQuantity_P+2)->Case.Operator.TypeOperator ;
       }
       else{
-	yyerror("Unrecognized Quantity Structure in Equation");
+	vyyerror("Unrecognized Quantity Structure in Equation");
       }
 
       Pro_DefineQuantityIndex
@@ -7344,8 +7344,8 @@ case 474:
 case 475:
 #line 4991 "yacc.y"
 {
-      yyerror("Plot has been superseded by Print. "
-	      "Plot OnRegion becomes Print OnElementsOf.") ;
+      vyyerror("Plot has been superseded by Print "
+	       "(Plot OnRegion becomes Print OnElementsOf)") ;
     ;
     break;}
 case 476:
