@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.31 2002-06-15 17:39:47 geuzaine Exp $
+// $Id: Solve.cpp,v 1.32 2002-06-17 07:41:01 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -69,7 +69,7 @@ void Ctx::computeRHS(gVector *b){
     kr = waveNum[0]*xt[0]+waveNum[1]*xt[1]+waveNum[2]*xt[2];
     res = 1.;
     //res = cos(kr)+I*sin(kr);
-    res *= 2  / NORM3(waveNum); // warning!
+    res *= 2 / NORM3(waveNum); // warning!
     LinAlg_SetComplexInVector(res, b, i);
   }
   LinAlg_AssembleVector(b);

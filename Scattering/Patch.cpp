@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.21 2002-06-17 07:27:29 geuzaine Exp $
+// $Id: Patch.cpp,v 1.22 2002-06-17 07:41:01 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -59,8 +59,8 @@ double Patch::changeOfVars(double s, int deriv){
   //return cv_leonid(s,deriv);
   //return cv_boyd(s,deriv);
   //return cv_colton(s,deriv);
-  //return cv_doubleboyd(s,deriv);
-  return cv_shadow(s,deriv);
+  return cv_doubleboyd(s,deriv);
+  //return cv_shadow(s,deriv);
 }
 
 Patch::Patch(PatchType _type, int _beg, int _end, 
