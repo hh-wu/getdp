@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.23 2001-07-25 13:05:50 geuzaine Exp $
+@c $Id: getdp.texi,v 1.24 2001-07-26 10:03:05 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -616,10 +616,10 @@ Both C and C++ style comments are supported and can be used in the input
 data file to comment selected text regions:
 
 @enumerate
-@item 
-the text region comprised between @code{/*} and @code{*/} pairs is ignored.
 @item
-the rest of a line after a double slash @code{//} is ignored;
+the text region comprised between @code{/*} and @code{*/} pairs is ignored;
+@item
+the rest of a line after a double slash @code{//} is ignored.
 @end enumerate
 
 These commands won't have the described effects inside double quotes or
@@ -674,7 +674,7 @@ same line is ignored.
 
 The preceding explanations may seem very (too) general.  Which are the
 problems that GetDP can actually solve? To answer this question, here is a
-list of methods that we have considered and coupled together until now:
+list of methods that we have considered and coupled until now:
 
 @table @asis
 @item Numerical methods
@@ -688,7 +688,8 @@ three-dimensional models (3D)
 @item Time states
 static states@*
 sinusoidal and harmonic states@*
-transient states
+transient states@*
+eigen value problems
 @end table
 
 These methods have been successfully applied to build coupled physical
@@ -826,10 +827,10 @@ defined as:
 @vindex @var{expression-char}
 
 The three constant types used in GetDP are @var{integer}, @var{real} and
-@var{string}.  These terminals have the same meaning and syntax as in
-the C or C++ programming languages. Besides general expressions
-(@var{expression}), purely constant expressions, denoted by the
-metasyntactic variable @var{expression-cst}, are also used:
+@var{string}.  These types have the same meaning and syntax as in the C or
+C++ programming languages. Besides general expressions (@var{expression}),
+purely constant expressions, denoted by the metasyntactic variable
+@var{expression-cst}, are also used:
 
 @example
 @var{expression-cst}:
@@ -908,16 +909,15 @@ DefineConstant [ @var{constant-id} < = @var{expression-cst} > <,@dots{}> ]; |
 Five constants are predefined in GetDP: @code{Pi} (3.1415926535897932),
 @code{0D} (0), @code{1D} (1), @code{2D} (2) and @code{3D} (3).
 @item
-The affectation in @code{DefineConstant} (zero if no @var{expression-cst} is
-given) is performed only if @var{constant-id} has not been defined yet. This
-kind of explicit default definition mechanism is used several times in
-GetDP, and is most useful with general problem definition structures making
-use of a large number of generic constants, functions or groups. When
-exploiting only a part of a complex problem definition structure, the
-default definition mechanism allows to define the quantities of interest
-only, the others being assigned a default value (that will not be used
-during the processing but that avoids the error messages produced when
-references to undefined quantities are made).
+The assignment in @code{DefineConstant} (zero if no @var{expression-cst} is
+given) is performed only if @var{constant-id} has not yet been defined. This
+kind of explicit default definition mechanism is most useful in general
+problem definition structures making use of a large number of generic
+constants, functions or groups. When exploiting only a part of a complex
+problem definition structure, the default definition mechanism allows to
+define the quantities of interest only, the others being assigned a default
+value (that will not be used during the processing but that avoids the error
+messages produced when references to undefined quantities are made).
 @end enumerate
 
 @xref{Constant expression examples}, as well as @ref{Function examples}, for
@@ -969,8 +969,7 @@ character expressions.
 @subsection Operator types
 
 The operators in GetDP are similar to the corresponding operators in the C
-or C++ programming languages, except that all operators accept
-@var{expression} or @var{expression-cst} type arguments.
+or C++ programming languages.
 
 @cindex Operators, definition
 @cindex Unary operators
@@ -1020,8 +1019,7 @@ value.
 @item *
 Multiplication or scalar product, depending on the type of the arguments. 
 @item /\
-Cross-multiplication. The evaluation of both arguments must result in 
-vectors.
+Cross product. The evaluation of both arguments must result in vectors.
 @item /
 Division.
 @item %
@@ -1198,7 +1196,7 @@ Current theta value in a theta time stepping algorithm.
 @item $TimeStep
 Number of the current time step in a time stepping algorithm.
 @item $Iteration
-Number of the current nonlinear iteration in a nonlinear loop.
+Number of the current iteration in a nonlinear loop.
 @item $X, $XS
 Value of the current (destination or source) X-coordinate.
 @item $Y, $YS
@@ -1554,13 +1552,13 @@ examples}, for some examples.
 
 @vindex @var{function-id}
 
-A function can be global in space or piecewise defined in region
-groups. A physical characteristic is an example of a piecewise defined
-function (e.g.@: magnetic permeability, electric conductivity, etc.) and
-can be simply a constant, for linear materials, or a function of one or
+A user-defined function can be global in space or piecewise defined in
+region groups. A physical characteristic is an example of a piecewise
+defined function (e.g.@: magnetic permeability, electric conductivity, etc.)
+and can be simply a constant, for linear materials, or a function of one or
 several arguments for nonlinear materials. Such functions can of course
-depend on space coordinates or time, which can be needed to express
-complex constraints.
+depend on space coordinates or time, which can be needed to express complex
+constraints.
 
 A definition of initially empty functions can be made thanks to the
 @code{DefineFunction} command so that their identifiers exist and can be
@@ -1884,7 +1882,7 @@ reference elements (i.e.@: lines, triangles, quadrangles, tetrahedra,
 prisms, hexahedra, etc.). Besides the classical lineic, surfacic and
 volumic Jacobians, the @code{Jacobian} object allows the construction of
 various transformation methods (e.g.@: infinite transformations for
-unbounded domains) thanks to dedicated jabobian methods.
+unbounded domains) thanks to dedicated jacobian methods.
 
 The syntax for the definition of Jacobian methods is:
 
@@ -2043,7 +2041,7 @@ characteristics are considered, arguments are used for associated
 functions. In that way, many formulations can be directly written in the
 data file, as they are written symbolically. Fields involved in each
 formulation are declared as belonging to beforehand defined function
-spaces. The decoupling between formulations and function spaces allows
+spaces. The uncoupling between formulations and function spaces allows
 to maintain a generality in both their definitions.
 
 A @code{Formulation} is characterized by its type, the involved
@@ -2172,14 +2170,14 @@ matrix of the system.
 The operations available in a @code{Resolution} include: the generation of a
 linear system, its solving with various kinds of linear solvers, the saving
 of the solution or its transfer to another system, the definition of various
-time iterative methods, the construction of iterative loops for nonlinear
+time stepping methods, the construction of iterative loops for nonlinear
 problems (Newton-Raphson and fixed point methods), etc.  Multi-harmonic
 resolutions, coupled problems (e.g.@: magneto-thermal) or linked problems
 (e.g.@: pre-computations of source fields) are thus easily defined in GetDP.
 
 The @code{Resolution} object is characterized by a list of systems to
 build and their associated formulations, using time or frequency domain,
-and a list of possibly recursive elementary operations:
+and a list of elementary operations:
 
 @example
 Resolution @{
@@ -2223,13 +2221,12 @@ resolutions @code{@var{resolution-id}@{@var{i}@}}, @var{i}=1, @dots{},
 @var{n}, replacing for each @var{i} any @code{@{@}} in
 @var{formulation-id}@code{@{@}} of @code{System} field with @{@var{i}@}.
 @item
-The default type for a system of equations considers the time domain
-analysis.  The frequency domain analysis is defined through the definition
-of one or several frequencies (@code{Frequency
-@var{expression-cst-list-item} | Frequency @{ @var{expression-cst-list}
-@}}). Complex systems of equations with no predefined list of frequencies
-(e.g.@: in modal analyses) can be explicitely defined with @code{Type
-Complex}.
+The default type for a system of equations is @code{Real}. A frequency
+domain analysis is defined through the definition of one or several
+frequencies (@code{Frequency @var{expression-cst-list-item} | Frequency @{
+@var{expression-cst-list} @}}). Complex systems of equations with no
+predefined list of frequencies (e.g.@: in modal analyses) can be explicitely
+defined with @code{Type Complex}.
 @item
 @code{NameOfMesh} permits to explicitely specify the mesh to be used for the
 construction of the system of equations.
@@ -2427,7 +2424,7 @@ can only be used when this quantity has been defined as an
 @var{integral-value} (@pxref{PostProcessing}). In this case, the sum of all
 elementary integrals is performed over the region @var{group-def}.
 @item
-The @var{post-quantity-op} allows the simple combination of space-dependant
+The @var{post-quantity-op} allows the simple combination of space-dependent
 quantities (@var{post-quantity-id}) with global integral quantities
 (@code{@var{post-quantity-id}[@var{group-def}]}).
 @end enumerate
@@ -2583,10 +2580,10 @@ Dual volumes of elements of @var{R1}.
 
 @vindex @var{math-function-id}
 
-The following functions are the equivalent of the functions of the C
-math library. Application of these functions always return real-valued
-expressions. These are the only functions allowed in constant
-expressions (@var{expression-cst}, see @ref{Constants}).
+The following functions are the equivalent of the functions of the C math
+library, and always return real-valued expressions. These are the only
+functions allowed in constant expressions (@var{expression-cst}, see
+@ref{Constants}).
 
 @noindent
 @var{math-function-id}:
@@ -2692,7 +2689,7 @@ the sign of the first.
 @item Cross
 @code{[@var{expression},@var{expression}]}
 
-Cross product of the two arguments; @var{expression} must a vector.
+Cross product of the two arguments; @var{expression} must be a vector.
 
 @item Hypot
 @code{[@var{expression},@var{expression}]}
@@ -2768,7 +2765,7 @@ The Green functions are only used in integral quantities
 problem:
 @itemize @bullet
 @item @code{1D}:
-@code{r = $X-$XS}
+@code{r = Fabs[$X-$XS]}
 @item @code{2D}:
 @code{r = Sqrt[($X-$XS)^2+($Y-$YS)^2]}
 @item @code{3D}:
@@ -3105,11 +3102,11 @@ To define links between degrees of freedom. This is not document yet.
 3-form, i.e.@: scalar field of density type.
 
 @item Form1P
-1-form perpendicular to the 2D plane, i.e.@:  perpendicular curl-conform 
-field (associated with a curl).
+1-form perpendicular to the @var{z}=0 plane, i.e.@: perpendicular
+curl-conform field (associated with a curl).
 
 @item Form2P
-2-form in the 2D plane, i.e.@: parallel div-conform field 
+2-form in the @var{z}=0 plane, i.e.@: parallel div-conform field 
 (associated with a divergence).
 
 @item Scalar
@@ -3383,7 +3380,7 @@ Hexahedron (8 nodes, 12 edges, 6 facets, 1 volume) (#5).
 Prism (6 nodes, 9 edges, 5 facets, 1 volume) (#6).
 
 @item Pyramid
-Pyramid (5 nodes, 8 edges, 6 facets, 1 volume) (#7).
+Pyramid (5 nodes, 8 edges, 5 facets, 1 volume) (#7).
 
 @item Point
 Point (1 node) (#15).
@@ -3418,7 +3415,7 @@ Point (1 node) (#15).
 @ftable @code
 
 @item FemEquation
-Finite element method formulation (all method moments, integral methods).
+Finite element method formulation (all methods of moments, integral methods).
 
 @end ftable
 
@@ -3440,14 +3437,14 @@ deRham projection (collocation).
 @ftable @code
 
 @item Local
-Local quantity defining a field in a function space.
-In case a subspace is considered, its identifier has to be given in the brackets
-following the @code{NameOfSpace @var{function-space-id}}.
+Local quantity defining a field in a function space.  In case a subspace is
+considered, its identifier has to be given between the brackets following
+the @code{NameOfSpace @var{function-space-id}}.
 
 @item Global
-Global quantity defining a global quantity from a function space. 
-The identifier of this quantity has to be given in the brackets following the 
-@code{NameOfSpace @var{function-space-id}}.
+Global quantity defining a global quantity from a function space.  The
+identifier of this quantity has to be given between the brackets following
+the @code{NameOfSpace @var{function-space-id}}.
 
 @item Integral
 Integral quantity obtained by the integration of a
@@ -3522,7 +3519,8 @@ which the unknowns are corrections @var{dx} of the current solution
 
 Solve the system of equations @var{system-id} using a jacobian matrix (of
 which the unknowns are corrections @var{dx} of the current solution
-@var{x}). Then, compute the relative error @var{dx}/@var{x}.
+@var{x}). Then, Increment the solution (@var{x}=@var{x}+@var{dx}) and
+compute the relative error @var{dx}/@var{x}.
 
 @item GenerateSeparate
 @code{[@var{system-id}]}
@@ -4111,8 +4109,8 @@ c2 = -1/c1;
 
 @cindex Group, examples
 
-Let us assume that some elements in the input mesh are associated with the
-region numbers 1000, 2000 and 3000. In the definitions
+Let us assume that some elements in the input mesh have the region numbers
+1000, 2000 and 3000. In the definitions
 
 @example
 Group @{
@@ -4579,7 +4577,6 @@ FunctionSpace @{
     BasisFunction @{
       @{ Name sk; NameOfCoef hk; Function BF_Edge; 
         Support DomainC; Entity EdgesOf[All, Not SkinDomainC]; @}
-
       @{ Name vn; NameOfCoef phin; Function BF_GradNode; 
         Support DomainCC; Entity NodesOf[All]; @}
       @{ Name vn; NameOfCoef phic; Function BF_GroupOfEdges; 
@@ -4588,7 +4585,6 @@ FunctionSpace @{
     Constraint @{
       @{ NameOfCoef hk;
         EntityType EdgesOf; NameOfConstraint MagneticField; @}
-
       @{ NameOfCoef phin;
         EntityType NodesOf; NameOfConstraint MagneticScalarPotential; @}
       @{ NameOfCoef phic;
@@ -4715,7 +4711,7 @@ Jacobian @{
 @cindex Integration, examples
 
 
-A usually used numerical integration method is the @code{Gauss} integration,
+A commonly used numerical integration method is the @code{Gauss} integration,
 with a number of integration points (@code{NumberOfPoints}) depending on 
 geometrical element types (@code{GeoElement}), i.e.
 
@@ -4735,8 +4731,8 @@ Integration @{
 @end example
 
 @noindent
-The method above is valid either for 2D or 3D problems, for different 
-kinds of elements.
+The method above is valid for both 2D and 3D problems, for different kinds
+of elements.
 
 @c -------------------------------------------------------------------------
 @c Formulation Examples
@@ -4802,10 +4798,10 @@ scalar product of this with the gradient of test function @code{v} results
 in a symmetrical matrix.
 
 @noindent
-Note that another @code{Quantity} could be defined for test functions, e.g.@:
-@code{vp} defined by @code{@{ Name vp; Type Local; NameOfSpace Hgrad_v; @}}.
-Nevertheless, its use would result in the computation of a full matrix and
-consequently in a loss of efficiency.
+Note that another @code{Quantity} could be defined for test functions,
+e.g.@: @code{vp} defined by @code{@{ Name vp; Type Local; NameOfSpace
+Hgrad_v; @}}.  However, its use would result in the computation of a full
+matrix and consequently in a loss of efficiency.
 
 @c .........................................................................
 @c Electrostatic Scalar Potential Formulation with Floating Potentials and Electric Charges
@@ -5074,7 +5070,7 @@ time step 1 ms.
 @subsection Nonlinear time domain resolution (magnetodynamic problem)
 
 In case a nonlinear problem is solved, an iterative loop has to be defined
-in an appropriate level of the recursive @code{Operation} field, e.g.@: for
+in an appropriate level of the recursive resolution operations, e.g.@: for
 the magnetodynamic problem above,
 
 @example
@@ -5103,11 +5099,11 @@ Function @{
 
 
 @c .........................................................................
-@c Nonlinear Formulations
+@c Coupled Formulations
 @c .........................................................................
 
-@node Nonlinear formulations,  , Nonlinear resolution, Resolution examples
-@subsection Nonlinear formulations
+@node Coupled formulations,  , Nonlinear resolution, Resolution examples
+@subsection Coupled formulations
 
 A coupled problem, e.g.@: magnetodynamic (in frequency domain; 
 @code{Frequency Freq}) - thermal (in time domain) coupling, with temperature 
@@ -5392,7 +5388,7 @@ user-friendly graphical interface. The file formats used by Gmsh for mesh
 generation and post-processing are the default file formats accepted by
 GetDP (@xref{Input file format}, and @ref{Types for PostOperation}).}. It is
 a command-line driven program that reads a problem definition file once at
-the begining of the processing. This problem definition file is a regular
+the beginning of the processing. This problem definition file is a regular
 ASCII text file (@pxref{Numerical tools as objects}), hence created with
 whatever editor you like.
 
@@ -5518,16 +5514,18 @@ Communicates through socket @var{string}.
 Lets you check the problem structure interactively. 
 
 @item -v
+@itemx -verbose
 @var{integer}
 
 Sets the verbosity level. A value of 0 means that no information will be
 displayed during the processing.
 
 @item -p
+@itemx -progress
 @var{integer}
 
 Sets the progress update rate. This controls the refreshment rate of the
-counter indicating the progress of the current computation.
+counter indicating the progress of the current computation (in %).
 
 @item -info
 
@@ -5653,6 +5651,7 @@ $DofData /* #@var{dofdata-number} */
 @var{resolution-number} @var{system-number}
 @var{number-of-function-spaces} @var{function-space-number} @dots{}
 @var{number-of-time-functions} @var{time-function-number} @dots{}
+@var{number-of-partitions} @var{partition-index} @dots{}
 @var{number-of-any-dof} @var{number-of-dof}
 @var{dof-basis-function-number} @var{dof-entity} @var{dof-harmonic} @var{dof-type} @var{dof-data}
 @dots{}
@@ -5665,7 +5664,7 @@ with
 
 @example
 @var{dof-data}:
-  @var{equation-number}
+  @var{equation-number} @var{nnz}
     (@var{dof-type}: 1; @var{unknown}) |
   @var{dof-value} @var{dof-time-function-number}
     (@var{dof-type}: 2; @var{fixed value}) |
@@ -5693,6 +5692,8 @@ the application of constraints.
 Each degree of freedom is coded with three integer values, which are the 
 associated basis function, entity and harmonic numbers, i.e.@:
 @var{dof-basis-function-number}, @var{dof-entity} and @var{dof-harmonic}.
+@item
+@var{nnz} is not used at the moment.
 @end enumerate
 
 
@@ -5860,17 +5861,18 @@ Here is the list of open bugs for version @value{GETDP-VERSION}:
 @itemize @bullet
 @item
 Install the 'info' version of this user's guide! On your (Unix) system, this
-can be done by 1) copying all getdp.info* files to the place where your info
-files live (usually /usr/info), and 2) issuing the command 'install-info
-/usr/info/getdp.info /usr/info/dir'. You will then be able to access the
-documentation with the command 'info getdp'. Note that particular sections
-("nodes") can be accessed directly. For example, 'info getdp functionspace'
-will take you directly to the definition of the FunctionSpace object.
+can be achieved by 1) copying all getdp.info* files to the place where your
+info files live (usually /usr/info), and 2) issuing the command
+'install-info /usr/info/getdp.info /usr/info/dir'. You will then be able to
+access the documentation with the command 'info getdp'. Note that particular
+sections ("nodes") can be accessed directly. For example, 'info getdp
+functionspace' will take you directly to the definition of the FunctionSpace
+object.
 @item
 Use emacs to edit your files, and load the C++ mode! This permits automatic
 syntax highlighting and easy indentation. Automatic loading of the C++ mode
-for @file{.pro} files can be done by adding the following command in your
-@code{.emacs} file: @code{(setq auto-mode-alist (append '(("\\.pro$"
+for @file{.pro} files can be achieved by adding the following command in
+your @code{.emacs} file: @code{(setq auto-mode-alist (append '(("\\.pro$"
 . c++-mode)) auto-mode-alist))}.
 @item
 Define integration and Jacobian method in separate files, reusable in all
