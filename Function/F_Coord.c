@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Coord.c,v 1.9 2001-03-05 11:13:52 geuzaine Exp $"
+#define RCSID "$Id: F_Coord.c,v 1.10 2001-07-30 09:42:54 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -31,7 +31,7 @@ void  F_CoordXYZ (F_ARG) {
 
   GetDP_Begin("F_CoordXYZ");
 
-  if(Current.Element->Num == NO_ELEMENT){
+  if(!Current.Element || Current.Element->Num == NO_ELEMENT){
      X = Current.x ;
      Y = Current.y ;
      Z = Current.z ;
@@ -78,7 +78,7 @@ void  F_CoordXYZ (F_ARG) {
 										\
   GetDP_Begin(name);								\
 										\
-  if(Current.Element->Num == NO_ELEMENT){					\
+  if(!Current.Element || Current.Element->Num == NO_ELEMENT){			\
      tmp = Current.coord ;							\
   }										\
   else{										\
@@ -107,7 +107,6 @@ void  F_CoordY (F_ARG) { get_1_coord("F_CoordY",y) }
 void  F_CoordZ (F_ARG) { get_1_coord("F_CoordZ",z) }
 
 #undef get_1_coord
-
 
 
 /* ------------------------------------------------------------------------ */
@@ -147,6 +146,9 @@ void  F_aX21_bY21_cZ21 (F_ARG) {
   double  X1, Y1, Z1, X2, Y2, Z2, tmp ;
 
   GetDP_Begin("F_aX21_bY21_cZ21");
+
+  if(!Current.Element || Current.Element->Num == NO_ELEMENT)
+    Msg(ERROR, "No element on which to perform F_aX21_bY21_cZ21");
 
   NumNodes = Geo_GetNodesOfEdgeInElement (Current.Element->GeoElement, 
 					  Current.NumEntityInElement) ;

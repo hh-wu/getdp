@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.6 2001-07-28 13:54:26 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.7 2001-07-30 09:42:54 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -48,6 +48,9 @@ void  F_Normal(F_ARG) {
 
   GetDP_Begin("F_Normal");
 
+  if(!Current.Element || Current.Element->Num == NO_ELEMENT)
+    Msg(ERROR, "No element on which to compute 'F_Normal'");
+
   Geo_CreateNormal(Current.Element->Type, 
 		   Current.Element->x, 
 		   Current.Element->y, 
@@ -76,6 +79,9 @@ void  F_NormalSource(F_ARG) {
   int  k ;
 
   GetDP_Begin("F_NormalSource");
+
+  if(!Current.ElementSource || Current.ElementSource->Num == NO_ELEMENT)
+    Msg(ERROR, "No element on which to compute 'F_NormalSource'");
 
   Geo_CreateNormal(Current.ElementSource->Type, 
 		   Current.ElementSource->x, 
@@ -107,6 +113,9 @@ void  F_Tangent(F_ARG) {
   double  tx, ty, tz, norm ;
 
   GetDP_Begin("F_Tangent");
+
+  if(!Current.Element || Current.Element->Num == NO_ELEMENT)
+    Msg(ERROR, "No element on which to compute 'F_Tangent'");
 
   switch (Current.Element->Type) {
    
@@ -150,8 +159,8 @@ void  F_CompElementNum (F_ARG) {
 
   GetDP_Begin("F_CompElementNum");
 
-  if(!Current.ElementSource) 
-    Msg(ERROR, "Uninitialized source Element in 'F_CompElementNum'");
+  if(!Current.Element || !Current.ElementSource)
+    Msg(ERROR, "Uninitialized Element in 'F_CompElementNum'");
 
   V->Type = SCALAR ;
   V->Val[0] = (Current.Element->Num == Current.ElementSource->Num) ;
