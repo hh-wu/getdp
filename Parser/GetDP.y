@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.55 2004-01-08 20:02:31 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.56 2004-01-15 10:03:07 sabarieg Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -1510,7 +1510,7 @@ WholeQuantity_Single :
 
   | Quantity_Def ArgumentsForFunction
     { 
-      if($2!=3 && $2!=4) 
+      if($2!=3 && $2!=4 && $2!=1) /* Modification for using the previous result of a Quantity */
 	vyyerror("Wrong number of arguments for discrete quantity evaluation (%d)", $2) ;
       WholeQuantity_S.Type = WQ_OPERATORANDQUANTITYEVAL ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = $2 ;
@@ -4677,7 +4677,6 @@ OperationTerm :
       Operation_P->Case.GenerateFMMGroups.FlagDTA = -1;      
     }
 
-
   | tGenerateOnly '[' tSTRING ',' ListOfFExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -5037,6 +5036,21 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.DeformeMesh.Quantity = $5 ;
       Operation_P->Case.DeformeMesh.Name_MshFile = $8 ;
+      Operation_P->Case.DeformeMesh.GeoDataIndex = -1 ;
+      Operation_P->Case.DeformeMesh.Factor = 1 ;
+      Operation_P->Type = OPERATION_DEFORMEMESH ;
+    }
+
+  | tDeformeMesh  '{' tSTRING ',' tSTRING '}' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.DeformeMesh.Quantity = $5 ;
+      Operation_P->Case.DeformeMesh.Name_MshFile = NULL ;
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1 ;
       Operation_P->Case.DeformeMesh.Factor = 1 ;
       Operation_P->Type = OPERATION_DEFORMEMESH ;
