@@ -1,4 +1,4 @@
-#define RCSID "$Id: List.c,v 1.6 2000-11-27 17:27:18 geuzaine Exp $"
+#define RCSID "$Id: List.c,v 1.7 2000-11-28 19:17:29 geuzaine Exp $"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -340,6 +340,45 @@ List_T *List_Copy(List_T *src)
   memcpy(dest->array, src->array, src->nmax * src->size);
 
   return(dest);
+}
+
+void swap_bytes(char *array, int size, int n){
+  int i, c;
+  char *x, *a;
+  
+  x = (char*)Malloc(size);
+
+  for (i = 0; i < n; i++) {
+    a = &array[i*size];
+    memcpy(x, a, size);
+    for (c = 0; c < size; c++)
+      a[size-1-c] = x[c];
+  }
+
+  Free(x);
+}
+
+List_T *List_CreateFromFile(int n, int size, FILE *file, int format, int swap){
+  int i;
+  List_T *liste;
+
+  if(!n) return NULL;
+  
+  liste = List_Create(n, 1, size);
+  liste->n = n;
+  switch(format){
+  case LIST_FORMAT_ASCII :
+    for(i=0;i<n;i++) fscanf(file, "%lf", (double*)&liste->array[i*size]) ;
+    return liste;
+  case LIST_FORMAT_BINARY :
+    fread(liste->array, size, n, file);
+    if(swap) swap_bytes(liste->array, size, n);
+    return liste;
+  default :
+    Msg(ERROR, "Unknown List Format");
+    return NULL;
+  }
+
 }
 
 void List_WriteToFile(List_T *liste, FILE *file, int format){
