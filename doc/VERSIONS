@@ -1,9 +1,10 @@
-$Id: VERSIONS,v 1.28 2001-08-09 19:29:45 geuzaine Exp $
+$Id: VERSIONS,v 1.29 2001-08-25 07:58:20 geuzaine Exp $
 
 0.84: New ChangeOfCoordinate option in PostOperation; Fixed crash in
 InterpolationAkima; Improved interactive postprocessing (-ipos);
-Changed syntax of parametric OnGrid ($S, $T -> $A, $B, $C); Many other
-small fixes and clean-ups; Corrected Skin for non simplicial meshes;
+Changed syntax of parametric OnGrid ($S, $T -> $A, $B, $C); Corrected
+Skin for non simplicial meshes; Fixed FPE in diagonal matrix scaling;
+Many other small fixes and clean-ups;
 
 0.83: Fixed bugs in SaveSolutions[] and InitSolution[]; Fixed
 corrupted binary post-processing files in the harmonic case for the

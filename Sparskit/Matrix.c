@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.14 2001-08-10 09:55:03 geuzaine Exp $"
+#define RCSID "$Id: Matrix.c,v 1.15 2001-08-25 07:58:20 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -311,11 +311,11 @@ void scale_matrix (int scaling, Matrix *M){
       Free (idiag);
 
       for (i = 0 ; i < M->N ; i++){
-
 	if (rowscal[i]){
 	  rowscal[i] = 1./sqrt(fabs(rowscal[i])) ;
 	  /* printf("  %d %e \n", i, rowscal[i] ); */
-	} else {
+	}
+	else {
 	  Msg(WARNING, "Diagonal scaling aborted because of zero diagonal element (%d)",i+1) ;
 	  Free (rowscal) ;
 	  return ;
@@ -346,7 +346,7 @@ void scale_matrix (int scaling, Matrix *M){
 	}
       }
       diamua_ (&M->N, &job1, a, ai, jptr, rowscal, a, ai, jptr) ;
-
+      
       colscal = (double*)Malloc(M->N * sizeof(double));
       cnrms_ (&M->N, &norm, a, ai, jptr, colscal); 
       for (i = 0 ; i < M->N ; i++){
@@ -354,7 +354,8 @@ void scale_matrix (int scaling, Matrix *M){
 	if (colscal[i]){
 	  colscal[i] = 1./colscal[i] ;
 	  /* printf("  %d %e %e \n", i, 1./rowscal[i], 1./colscal[i] ); */
-	} else {
+	}
+	else {
 	  Msg(WARNING, "Scaling aborted because of zero column (%d)", i+1) ;
 	  Free (colscal) ;
 	  return ;
@@ -370,19 +371,16 @@ void scale_matrix (int scaling, Matrix *M){
 
     }
 
-
-
-
     M->scaled = 1 ; 
     M->rowscal = rowscal ;
     M->colscal = colscal ;
-
-
     break;
-  case DENSE :
 
+  case DENSE :
+    Msg(WARNING, "Scaling is not implemented for dense matrices") ;
     break;
   }
+
 }
 
 
