@@ -1,4 +1,4 @@
-// $Id: Spline.cpp,v 1.2 2002-04-12 18:10:51 geuzaine Exp $
+// $Id: Spline.cpp,v 1.3 2002-04-12 23:07:35 geuzaine Exp $
 
 #include "Utils.h"
 #include "Spline.h"
@@ -81,16 +81,32 @@ void Spline::spline(double x[], double y[], int n, double yp1, double ypn, doubl
 }
 
 void Spline::splint(double xa[], double ya[], double y2a[], int n, double x, double *y){
-  int klo,khi,k;
   double h,b,a;
-  
-  klo=1;
-  khi=n;
-  while (khi-klo > 1) {
-    k=(khi+klo) >> 1;
-    if (xa[k] > x) khi=k;
-    else klo=k;
+  int klo,khi,k;
+
+#define TEST_LAST 1
+
+#if TEST_LAST
+  static int klo_stored=1, khi_stored=2;
+  if(x>=xa[klo_stored] && x<=xa[khi_stored]){
+    klo = klo_stored;
+    khi = khi_stored;
   }
+  else{
+#endif
+    klo=1;
+    khi=n;
+    while (khi-klo > 1) {
+      k=(khi+klo) >> 1;
+      if (xa[k] > x) khi=k;
+      else klo=k;
+    }
+#if TEST_LAST
+    klo_stored = klo;
+    khi_stored = khi;
+  }
+#endif
+
   h=xa[khi]-xa[klo];
   if (h == 0.0) Msg(ERROR, "Bad xa input to routine splint");
   a=(xa[khi]-x)/h;
