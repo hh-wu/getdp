@@ -56,7 +56,7 @@ ENDSCRIPT--->
     This page is a mirror of <a href="/getdp/">/getdp/</a><p>
 ENDMIRROR--->
 
-<!---BEGINDATE$Date: 2001-08-29 12:11:59 $ENDDATE--->
+<!---BEGINDATE$Date: 2001-08-29 12:16:59 $ENDDATE--->
 
     &copy; 1998-2001 Patrick Dular and Christophe Geuzaine<br>
 
@@ -188,7 +188,11 @@ ENDMIRROR--->
 
 <FORM METHOD=GET ACTION="http://www.geuz.org/search/search-geuz.cgi" TARGET="_top">
 <INPUT SIZE=30 NAME="q" VALUE="">
-<INPUT TYPE=HIDDEN NAME="ul" VALUE="/getdp/">
+<SELECT NAME="ul">
+<OPTION VALUE="/getdp/" SELECTED="ul">All GetDP resources
+<OPTION VALUE="/getdp/doc/" SELECTED="ul">Official documentation
+<OPTION VALUE="/pipermail/getdp" SELECTED="ul">GetDP mailing lists
+</SELECT>
 </FORM>
 
   </font></td>
