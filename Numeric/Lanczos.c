@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.10 2002-01-18 19:47:57 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.11 2002-01-23 22:00:41 geuzaine Exp $"
 
 /* Version commentée par A. Nicolet de Lanczos.c le 2001/11/29 */
 
@@ -264,17 +264,17 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   /* construction du nom de fichier global */  
   strcpy(EigenFileName, Name_Path);
   strcat(EigenFileName, "eigen.par");
-  Msg(INFO, "Loading eigenproblem parameter file '%s'\n", EigenFileName);
+  Msg(INFO, "Loading eigenproblem parameter file '%s'", EigenFileName);
   
   /* lecture des parametres */
   eigenf=fopen(EigenFileName,"r+t");
   if (eigenf) { /* le fichier existe ! */
     fscanf(eigenf,"%lg ",&eigenpar.prec); 
-    Msg(INFO, "eigenpar.prec = %g \n", eigenpar.prec );
+    Msg(INFO, "eigenpar.prec = %g", eigenpar.prec );
     fscanf(eigenf,"%d ",&eigenpar.reortho);
-    Msg(INFO, "eigenpar.reortho = %d \n", eigenpar.reortho );
+    Msg(INFO, "eigenpar.reortho = %d", eigenpar.reortho );
     fscanf(eigenf,"%d ",&eigenpar.size);
-    Msg(INFO, "eigenpar.size = %d \n", eigenpar.size );
+    Msg(INFO, "eigenpar.size = %d", eigenpar.size );
     /* tester la fin du fichier avec un entier standard */
     fclose(eigenf);
   }
@@ -285,11 +285,17 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   fprintf(eigenf,"%d \n",eigenpar.reortho);
   fprintf(eigenf,"%d \n",eigenpar.size);
   fprintf(eigenf,
-	  "/* The numbers above are the parameters for the numerical eigenvalue problem:\n"
-	  "prec    = aimed accuracy for eigenvectors (default=1.e-4)  \n"
-	  "reortho = reorthogonalisation of Krylov basis: yes=1, no=0 (default=0) \n"
-	  "size    = number of iterations and max size of the Krylov basis \n"
-	  "shift is given in the .pro file because its choice relies on physical considerations */");
+	  "/*\n"
+	  "   The numbers above are the parameters for the numerical\n"
+	  "   eigenvalue problem:\n"
+	  "\n"
+	  "   prec = aimed accuracy for eigenvectors (default=1.e-4)\n"
+	  "   reortho = reorthogonalisation of Krylov basis: yes=1, no=0 (default=0) \n"
+	  "   size = number of iterations and max size of the Krylov basis\n"
+	  "\n"
+	  "   The shift is given in the .pro file because its choice relies\n"
+	  "   on physical considerations...\n"
+	  "*/");
   fclose(eigenf);
 
   /* LanSize = eigenpar.size */
