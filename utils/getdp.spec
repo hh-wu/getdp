@@ -34,6 +34,7 @@ make linux
 cp bin/getdp-Linux bin/getdp
 make doc-ps
 make doc-info
+rm -rf CVS */CVS */*/CVS
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -53,7 +54,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc doc/getdp.ps
+%doc doc/getdp.ps demos
 /usr/bin/getdp
 /usr/man/man1/getdp*
 /usr/info/getdp*
