@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ElementSource.c,v 1.8 2003-03-22 03:30:13 geuzaine Exp $"
+#define RCSID "$Id: Get_ElementSource.c,v 1.9 2003-03-23 05:54:17 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -129,20 +129,3 @@ void  Get_ElementTrace(struct Element *Element, int InIndex) {
 
   GetDP_End ;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Laplace.c,v 1.12 2003-03-22 03:30:10 geuzaine Exp $"
+#define RCSID "$Id: GF_Laplace.c,v 1.13 2003-03-23 05:54:17 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -31,7 +31,6 @@
 #include "Legendre.h"
 #include "SphBessel.h"
 
-
 /* ------------------------------------------------------------------------ */
 /*  Warning: the pointers A and V can be identical. You must                */
 /*           use temporary variables in your computations: you can only     */
@@ -43,9 +42,7 @@
 
 /* 
    Fct->Para[0] == dimension 
-   Fct->Para[1] == wave number
 */
-
 
 /* ------------------------------------------------------------------------ */
 /*  G F _ L a p l a c e                                                     */
@@ -72,14 +69,14 @@ void  GF_Laplace (F_ARG) {
 
   case _2D : /* 1/(2*Pi) * ln(1/r) = -1/(4*Pi)*ln(r^2) */
     switch(Current.FMM.Flag_GF){
-    case DIRECT :
+    case FMM_DIRECT :
       d = SQU(Current.x-Current.xs) + SQU(Current.y-Current.ys) ;
       if(!d) Msg(ERROR, "Log(0) in 'GF_Laplace'") ;
       V->Val[0] = - ONE_OVER_FOUR_PI * log(d) ;
       V->Val[MAX_DIM] = 0. ; 
       break;
 
-    case AGGREGATION :
+    case FMM_AGGREGATION :
       Nd = Current.FMM.NbrDir ;
       /* Normalization with regard to the maximum distance in the FMM group, (x-xc)/Rx */
       r = sqrt(SQU(Current.xs-Current.FMM.Xgc) + SQU(Current.ys-Current.FMM.Ygc))/Current.FMM.Rsrc ; 
@@ -98,7 +95,7 @@ void  GF_Laplace (F_ARG) {
       }
       break;
 
-    case DISAGGREGATION :
+    case FMM_DISAGGREGATION :
      Nd = Current.FMM.NbrDir ;
      /* Normalization with regard to the maximum distance in the FMM group,   (yc-y)/Ry */
      r = sqrt(SQU(Current.FMM.Xgc-Current.x) + SQU(Current.FMM.Ygc-Current.y))/Current.FMM.Robs ;
@@ -115,7 +112,7 @@ void  GF_Laplace (F_ARG) {
      }
      break ;
 
-    case TRANSLATION : /* 2D */
+    case FMM_TRANSLATION : /* 2D */
       Nd = Current.FMM.NbrDir ;/* (x, y, z) Destination, (xs, ys, zs) Origin */
       r = sqrt( SQU(Current.x-Current.xs) + SQU(Current.y-Current.ys)) ; /* (yc-xc) */  
       phi_r = atan2(Current.y-Current.ys, Current.x-Current.xs) ;
@@ -155,7 +152,7 @@ void  GF_Laplace (F_ARG) {
 
   case _3D : /* 1/(4*Pi*r) */
     switch(Current.FMM.Flag_GF){          
-    case DIRECT :         
+    case FMM_DIRECT :         
       if(0){/* Flag_RemoveSingularity */
 	printf("  ->removed in %d %d \n", Current.Element->Num, Current.ElementSource->Num);
 	V->Val[0] = ONE_OVER_FOUR_PI ;
@@ -168,7 +165,7 @@ void  GF_Laplace (F_ARG) {
       V->Val[MAX_DIM] = 0. ; 
       break;
       /* Not normalization for 3D */
-    case AGGREGATION : /* 3D */
+    case FMM_AGGREGATION : /* 3D */
       Nd = Current.FMM.NbrDir ;
       xxs = Current.xs - Current.FMM.Xgc ;
       yys = Current.ys - Current.FMM.Ygc ;
@@ -192,7 +189,7 @@ void  GF_Laplace (F_ARG) {
       }
       break;
 
-    case DISAGGREGATION : /* 3D */
+    case FMM_DISAGGREGATION : /* 3D */
       Nd = Current.FMM.NbrDir ;
       xxs = (- Current.x + Current.FMM.Xgc) ;
       yys = (- Current.y + Current.FMM.Ygc) ;
@@ -217,7 +214,7 @@ void  GF_Laplace (F_ARG) {
       }
       break;
 
-    case TRANSLATION: /* 3D */
+    case FMM_TRANSLATION: /* 3D */
       Nd =  Current.FMM.NbrDir ;     
       xxs = Current.x - Current.xs ;
       yys = Current.y - Current.ys ;
@@ -281,7 +278,7 @@ void GF_GradLaplace (F_ARG) {
   switch((int)Fct->Para[0]){
   case _2D :
     switch(Current.FMM.Flag_GF){
-    case DIRECT :
+    case FMM_DIRECT :
       xxs = Current.x-Current.xs ; 
       yys = Current.y-Current.ys ; 
       r = SQU(xxs)+SQU(yys) ;
@@ -294,7 +291,7 @@ void GF_GradLaplace (F_ARG) {
       break ;    
 
 
-    case AGGREGATION : /* 2D -> SCALAR */
+    case FMM_AGGREGATION : /* 2D -> SCALAR */
       Nd = Current.FMM.NbrDir ;
       r = sqrt(SQU(Current.FMM.Xgc-Current.xs) + SQU(Current.FMM.Ygc-Current.ys))/Current.FMM.Rsrc;  /* (x-xc)/Rx */
       phi_r = atan2( Current.FMM.Ygc-Current.ys, Current.FMM.Xgc-Current.xs) ;    
@@ -307,7 +304,7 @@ void GF_GradLaplace (F_ARG) {
       } 
       break;
 
-    case DISAGGREGATION : /* 2D -> VECTOR */
+    case FMM_DISAGGREGATION : /* 2D -> VECTOR */
      Nd = Current.FMM.NbrDir ;
      xxs = -Current.FMM.Xgc + Current.x;
      yys = -Current.FMM.Ygc + Current.y;
@@ -329,7 +326,7 @@ void GF_GradLaplace (F_ARG) {
       }
      break ;
 
-    case TRANSLATION :/* 2D */
+    case FMM_TRANSLATION : /* 2D */
       Nd = Current.FMM.NbrDir ;  /* (x, y, z) Destination, (xs, ys, zs) Origin */ 
       r = sqrt(SQU(Current.xs-Current.x) + SQU(Current.ys-Current.y)) ;  
       phi_r = atan2(Current.ys-Current.y, Current.xs-Current.x) ;
@@ -360,7 +357,7 @@ void GF_GradLaplace (F_ARG) {
 
   case _3D :
     switch(Current.FMM.Flag_GF){
-    case DIRECT :
+    case FMM_DIRECT :
       xxs = Current.x-Current.xs ; 
       yys = Current.y-Current.ys ; 
       zzs = Current.z-Current.zs ;
@@ -374,7 +371,7 @@ void GF_GradLaplace (F_ARG) {
       V->Val[MAX_DIM    ] = V->Val[MAX_DIM + 1] = V->Val[MAX_DIM + 2] = 0. ;
       break ;
 
-    case AGGREGATION : /* 3D */
+    case FMM_AGGREGATION : /* 3D */
       Nd = Current.FMM.NbrDir ;
 
       xxs = Current.xs - Current.FMM.Xgc ;
@@ -400,7 +397,7 @@ void GF_GradLaplace (F_ARG) {
       }
       break;
 
-    case DISAGGREGATION : /* 3D  -> VECTOR */
+    case FMM_DISAGGREGATION : /* 3D  -> VECTOR */
       Nd = Current.FMM.NbrDir ;
       xxs = -Current.x + Current.FMM.Xgc ;
       yys = -Current.y + Current.FMM.Ygc ;
@@ -452,7 +449,7 @@ void GF_GradLaplace (F_ARG) {
       }    
       break;
 
-    case TRANSLATION : /* 3D */
+    case FMM_TRANSLATION : /* 3D */
       Nd =  Current.FMM.NbrDir ;     
 
       xxs = Current.x - Current.xs ;
@@ -519,7 +516,7 @@ void GF_NPxGradLaplace (F_ARG) {
   switch((int)Fct->Para[0]){      
   case _2D :
     switch(Current.FMM.Flag_GF){
-    case DIRECT : /* Normal on Element */
+    case FMM_DIRECT : /* Normal on Element */
       x1x0 = Current.Element->x[1] - Current.Element->x[0] ; 
       y1y0 = Current.Element->y[1] - Current.Element->y[0] ;
       xxs  = Current.x-Current.xs ; 
@@ -533,7 +530,7 @@ void GF_NPxGradLaplace (F_ARG) {
       V->Val[MAX_DIM] = 0. ;
       break;
 
-    case AGGREGATION :/* 2D -> SCALAR */
+    case FMM_AGGREGATION :/* 2D -> SCALAR */
       Nd = Current.FMM.NbrDir ;
       r = sqrt(SQU(Current.FMM.Xgc-Current.xs) + SQU(Current.FMM.Ygc-Current.ys))/Current.FMM.Rsrc;  /* (x-xc)/Rx */
       phi_r = atan2( Current.FMM.Ygc-Current.ys, Current.FMM.Xgc-Current.xs) ;    
@@ -550,7 +547,7 @@ void GF_NPxGradLaplace (F_ARG) {
       } 
       break;
 
-    case DISAGGREGATION :/* 2D */
+    case FMM_DISAGGREGATION :/* 2D */
       Nd = Current.FMM.NbrDir ;
       x1x0 = Current.Element->x[1] - Current.Element->x[0] ;
       y1y0 = Current.Element->y[1] - Current.Element->y[0] ; 
@@ -575,7 +572,7 @@ void GF_NPxGradLaplace (F_ARG) {
       }      
       break;
       
-    case TRANSLATION : /* 2D */
+    case FMM_TRANSLATION : /* 2D */
       Nd = Current.FMM.NbrDir ;  /* (x, y, z) Destination, (xs, ys, zs) Origin */ 
       r = sqrt(SQU(Current.xs-Current.x) + SQU(Current.ys-Current.y)) ;  
       phi_r = atan2(Current.ys-Current.y, Current.xs-Current.x) ;
@@ -606,7 +603,7 @@ void GF_NPxGradLaplace (F_ARG) {
     
   case _3D :
     switch(Current.FMM.Flag_GF){
-    case DIRECT : /* Normal on Element */
+    case FMM_DIRECT : /* Normal on Element */
       x1x0 = Current.Element->x[1] - Current.Element->x[0] ;
       y1y0 = Current.Element->y[1] - Current.Element->y[0] ;
       z1z0 = Current.Element->z[1] - Current.Element->z[0] ;
@@ -625,7 +622,7 @@ void GF_NPxGradLaplace (F_ARG) {
       V->Val[MAX_DIM] = 0. ;
       break ;
       
-    case AGGREGATION : /* SCALAR Grad 3D -> VECTOR in Disaggregation */
+    case FMM_AGGREGATION : /* SCALAR Grad 3D -> VECTOR in Disaggregation */
       Nd = Current.FMM.NbrDir ;
 
       xxs = Current.xs - Current.FMM.Xgc ;
@@ -650,7 +647,7 @@ void GF_NPxGradLaplace (F_ARG) {
       }
       break ;
 
-    case DISAGGREGATION : /* Grad 3D -> VECTOR */      
+    case FMM_DISAGGREGATION : /* Grad 3D -> VECTOR */      
       x1x0 = Current.Element->x[1] - Current.Element->x[0] ;
       y1y0 = Current.Element->y[1] - Current.Element->y[0] ;
       z1z0 = Current.Element->z[1] - Current.Element->z[0] ;
@@ -718,7 +715,7 @@ void GF_NPxGradLaplace (F_ARG) {
 
       break ;
 
-    case TRANSLATION :
+    case FMM_TRANSLATION :
       Nd =  Current.FMM.NbrDir ;     
 
       xxs = Current.x - Current.xs ;
@@ -829,4 +826,3 @@ void  GF_ApproximateLaplace (F_ARG) {
 }
 
 #undef F_ARG
-

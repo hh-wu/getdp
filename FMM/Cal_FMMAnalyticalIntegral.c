@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_FMMAnalyticalIntegral.c,v 1.4 2003-03-22 03:30:08 geuzaine Exp $"
+#define RCSID "$Id: Cal_FMMAnalyticalIntegral.c,v 1.5 2003-03-23 05:54:17 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -65,7 +65,7 @@ void GF_FMMLaplacexForm( struct Element           * Element,
       r1 = sqrt(SQU(xs[1]-Current.FMM.Xgc) + SQU(ys[1] -Current.FMM.Ygc)) ;
 
       switch (Current.FMM.Flag_GF) {
-      case AGGREGATION :
+      case FMM_AGGREGATION :
 	if(!Current.FMM.Flag_Normal){
 	  phi = atan2(ys[1]-ys[0], xs[1]-xs[0]) ;
 	  phi0 = atan2(ys[0] - Current.FMM.Ygc, xs[0] - Current.FMM.Xgc) ;    
@@ -81,7 +81,7 @@ void GF_FMMLaplacexForm( struct Element           * Element,
 	cte = -ONE_OVER_TWO_PI ;
 	R = Current.FMM.Rsrc ;
 	break;
-      case DISAGGREGATION :
+      case FMM_DISAGGREGATION :
 	phi = atan2(-ys[1]+ys[0], -xs[1]+xs[0]) ;
 	phi0 = atan2(-ys[0] + Current.FMM.Ygc, -xs[0] + Current.FMM.Xgc) ;    
 	phi1 = atan2(-ys[1] + Current.FMM.Ygc, -xs[1] + Current.FMM.Xgc) ; 

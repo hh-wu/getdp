@@ -72,7 +72,7 @@ struct DofData {
   gMatrix   M1, M2, M3 ;
   gVector   m1, m2, m3 ;
 
-  /* Flag_Init[4] == 1 */
+  /* Flag_Only and Flag_InitOnly[0,1,2] */
   gMatrix   A1, A2, A3 ;
   gVector   b1, b2, b3 ;
 

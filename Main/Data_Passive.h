@@ -31,11 +31,6 @@
 #include "List.h"
 #include "Data_Element.h"
 
-
-#ifndef NULL
-#define NULL  0L
-#endif
-
 #define _0D      0
 #define _1D      1
 #define _2D      2
@@ -152,10 +147,10 @@ struct MovingBand2D {
 
 
 /* FMM operations */
-#define DIRECT         0
-#define AGGREGATION    1       
-#define DISAGGREGATION 2       
-#define TRANSLATION    3       
+#define FMM_DIRECT         0
+#define FMM_AGGREGATION    1       
+#define FMM_DISAGGREGATION 2       
+#define FMM_TRANSLATION    3       
 
 /* ------------------------------------------------------------------------ */
 /*  E x p r e s s i o n                                                     */

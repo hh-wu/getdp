@@ -1,4 +1,6 @@
-$Date: 2003-03-17 19:22:33 $
+$Date: 2003-03-23 05:54:21 $
+
+0.89: Code cleanup;
 
 0.88: Integrated FMM code;
 
@@ -18,7 +20,7 @@ option in PostOperation; Many internal changes;
 InterpolationAkima; Improved interactive postprocessing (-ipos);
 Changed syntax of parametric OnGrid ($S, $T -> $A, $B, $C); Corrected
 Skin for non simplicial meshes; Fixed floating point exception in
-diagonal matrix scaling; Many other small fixes and clean-ups;
+diagonal matrix scaling; Many other small fixes and cleanups;
 
 0.83: Fixed bugs in SaveSolutions[] and InitSolution[]; Fixed
 corrupted binary post-processing files in the harmonic case for the
@@ -30,7 +32,7 @@ SOLVER.PAR files); Generalized syntax for lists (start:[incr]end ->
 start:end:incr); Updated reference guide; Added a new short
 presentation on the web site; OnCut -> OnSection; New functional
 syntax for resolution operations (e.g. Generate X -> Generate[X]);
-Many other small fixes and clean-ups;
+Many other small fixes and cleanups;
 
 0.82: Added communication socket for interactive use with Gmsh;
 corrected (again) memory problem (leak + seg. fault) in time stepping
@@ -59,7 +61,7 @@ oriented post-processing formats; New binary formats; New error
 diagnostics;
 
 0.76: Reorganized high order shape functions; Optimization of the
-post-processing (faster and less bloated); Lots of internal cleaning;
+post-processing (faster and less bloated); Lots of internal cleanup;
 
 0.74: High order shape functions; lots of small bug fixes;
 

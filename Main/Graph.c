@@ -1,4 +1,4 @@
-#define RCSID "$Id: Graph.c,v 1.12 2003-03-22 03:30:13 geuzaine Exp $"
+#define RCSID "$Id: Graph.c,v 1.13 2003-03-23 05:54:18 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -53,7 +53,7 @@ static int *alloc_ivec(long nl, long nh){
 }
 
 static void free_ivec(int *v, long nl, long nh){
-  Free((v+nl-1));
+  Free(v+nl-1);
 }
 
 #define SWAP(a,b)  temp=(a);(a)=(b);(b)=temp;

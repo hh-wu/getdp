@@ -220,7 +220,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.52 2003-03-22 08:30:31 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.53 2003-03-23 05:54:18 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -7465,7 +7465,7 @@ case 411:
 #line 4647 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-    Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
+      Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, yyvsp[-6].c,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", yyvsp[-6].c) ;

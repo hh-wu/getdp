@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.134 2003-03-22 03:30:07 geuzaine Exp $
+# $Id: Makefile,v 1.135 2003-03-23 05:54:17 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -22,7 +22,7 @@
 include variables
 
 GETDP_MAJOR_VERSION = 0
-GETDP_MINOR_VERSION = 88
+GETDP_MINOR_VERSION = 89
 GETDP_PATCH_VERSION = 0
 
 GETDP_VERSION_FILE = include/GetDPVersion.h

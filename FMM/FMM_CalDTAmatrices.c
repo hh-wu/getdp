@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.4 2003-03-22 03:30:08 geuzaine Exp $"
+#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.5 2003-03-23 05:54:17 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -130,7 +130,7 @@ void GF_FMMTranslationValue ( ){
     }
   }
   Current.NbrHar = NbrHar ;
-  Current.FMM.Flag_GF = DIRECT ;
+  Current.FMM.Flag_GF = FMM_DIRECT ;
   GetDP_End ;
 }
 
@@ -246,7 +246,7 @@ void GF_FMMTranslationValueAdaptive( ){
 
   Current.FMM.NbrDir = NbrDirMAX ;
   Current.NbrHar = NbrHar ;
-  Current.FMM.Flag_GF = DIRECT ;
+  Current.FMM.Flag_GF = FMM_DIRECT ;
 
   Msg(RESOURCES, "After translation ");
 
@@ -462,7 +462,7 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 	
 	    Factor = (FI->Flag_ChangeCoord) ? weight * fabs(Element.DetJac) : weight ;
 
-	    Current.FMM.Flag_GF = DISAGGREGATION ;
+	    Current.FMM.Flag_GF = FMM_DISAGGREGATION ;
 	    ((CASTF2V)QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM.Fct)
 	      (&QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM,
 	       GFValue, GFValue ) ;
@@ -520,7 +520,7 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 	  break ; /* case GAUSS */
 
 	case ANALYTIC :
-	  Current.FMM.Flag_GF = DISAGGREGATION ;
+	  Current.FMM.Flag_GF = FMM_DISAGGREGATION ;
 	  Cal_ZeroValue(&TermFct);
 	  Cal_TermsforDisaggregation( EquationTerm_P, QuantityStorage_P0, &TermFct ) ;
 	  GF_FMMLaplacexForm( &Element, QuantityStorageEqu_P, Nbr_Equ, (void (*)())xFunctionBFEqu, NumEqu_L, TermFct, Disagg_M );
@@ -532,7 +532,7 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
  
   }/* i_FMMEqu */
 
-  Current.FMM.Flag_GF = DIRECT ;
+  Current.FMM.Flag_GF = FMM_DIRECT ;
   Current.NbrHar = NbrHar ;
 
   GetDP_End ;
@@ -776,7 +776,7 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 	    
 	    Cal_TermsforAggregation( QuantityStorageDof_P, Val0, &FunctionProd );
 	    
-	    Current.FMM.Flag_GF = AGGREGATION ;	
+	    Current.FMM.Flag_GF = FMM_AGGREGATION ;	
 	    ((CASTF2V)QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM.Fct)
 	      (&QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM,
 	       GFValue, GFValue ) ;
@@ -819,7 +819,7 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 	  break ; /* case GAUSS */
 	    
 	case ANALYTIC :
-	  Current.FMM.Flag_GF = AGGREGATION ;
+	  Current.FMM.Flag_GF = FMM_AGGREGATION ;
 	  Current.FMM.Flag_Normal = 0;
 	  if(((CASTF2V)QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM.Fct)
 	     == ((CASTF2V)GF_NPxGradLaplace))	   
@@ -839,7 +839,7 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 
   }/* i_FMMEqu */
 
-  Current.FMM.Flag_GF = DIRECT ;
+  Current.FMM.Flag_GF = FMM_DIRECT ;
   Current.NbrHar = NbrHar ;
   
   
