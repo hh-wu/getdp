@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.57 2004-01-19 16:51:20 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.58 2004-01-19 17:19:36 gyselinc Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -6643,7 +6643,7 @@ Loop :
 	}
 
 	fsetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
-	yylinenum = yylinenoImbricatedLoopsTab[ImbricatedLoop-1]-1;
+	yylinenum = yylinenoImbricatedLoopsTab[ImbricatedLoop-1];
       }
       else{
 	ImbricatedLoop--;
