@@ -55,6 +55,10 @@ void  HBF_Edge_3F (struct Element * Element, int NumEntity, int Index,
 
   switch (Element->Type) {
 
+  case LINE :
+    Msg(ERROR, "You Should Never be Here (HBF_Edge_3F)");
+    break;
+
   case TRIANGLE :
     switch(NumEntity) {
     case 1  :
@@ -156,6 +160,10 @@ void  HBF_CurlEdge_3F (struct Element * Element, int NumEntity, int Index,
 		       double u, double v, double w, double s[] ) {
 
   switch (Element->Type) {
+
+  case LINE :
+    Msg(ERROR, "You Should Never be Here (HBF_CurlEdge_3F)");
+    break;
 
   case TRIANGLE :
     switch(NumEntity) {

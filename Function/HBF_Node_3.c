@@ -87,7 +87,7 @@ void  HBF_Node_3F (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
-    *s = 0. ;
+    Msg(ERROR, "You Should Never be Here (HBF_Node_3F)");
     break;
 
   case TRIANGLE :
@@ -148,7 +148,7 @@ void  HBF_Node_3V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
-    *s = 0. ;
+    Msg(ERROR, "You Should Never be Here (HBF_Node_3V)");
     break ;
 
   case HEXAHEDRON :
@@ -283,7 +283,7 @@ void  HBF_GradNode_3F (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
-    s[0] = s[1] = s[2] = 0. ;
+    Msg(ERROR, "You Should Never be Here (HBF_GradNode_3F)");
     break ;
 
   case TRIANGLE :
@@ -343,7 +343,7 @@ void  HBF_GradNode_3V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
-    s[0] = s[1] = s[2] = 0. ;
+    Msg(ERROR, "You Should Never be Here (HBF_GradNode_3V)");
     break ;
 
   case HEXAHEDRON :

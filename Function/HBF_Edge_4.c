@@ -114,6 +114,10 @@ void  HBF_Edge_4F (struct Element * Element, int NumEntity,
 
   switch (Element->Type) {
 
+  case LINE :
+    Msg(ERROR, "You Should Never be Here (HBF_Edge_4F)");
+    break;
+
   case TRIANGLE :
     switch(NumEntity) {
     case 1  : s[0] = v-2.0*u*v-v*v ; s[1] = u-u*u-2.0*u*v ; s[2] = 0. ; break ;
@@ -170,6 +174,7 @@ void  HBF_Edge_4F (struct Element * Element, int NumEntity,
 }
 
 #undef WrongNumEntity
+
 
 /* ------------------------------------------------------------------------ */
 /*  H B F _ C u r l E d g e _ 4                                             */

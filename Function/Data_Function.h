@@ -7,186 +7,205 @@
 
 #define CAST  void(*)()
 
+#define POI  POINT
+#define LIN  LINE | LINE_2
+#define TRI  TRIANGLE | TRIANGLE_2
+#define QUA  QUADRANGLE | QUADRANGLE_2
+#define TET  TETRAHEDRON | TETRAHEDRON_2
+#define HEX  HEXAHEDRON | HEXAHEDRON_2
+#define PRI  PRISM | PRISM_2
+#define PYR  PYRAMID | PYRAMID_2
+
+#define ALL  POI|LIN|TRI|QUA|TET|HEX|PRI|PYR
+
 /* ------------------------------------------------------------------------ */
-/*  Keywords, their assigned 3 functions and 1 number                       */
+/*  Keywords, their assigned 3 functions and 2 numbers                      */
 /* ------------------------------------------------------------------------ */
 
-struct StringX3Function1Nbr  BF_Function[] = {
+struct StringX3Function2Nbr  BF_Function[] = {
 
   /* Basis Functions */  
 
-  {"BF_Node"     , (CAST)BF_Node     , (CAST)BF_GradNode  , (CAST)BF_Zero , 1. },
-  {"BF_Edge"     , (CAST)BF_Edge     , (CAST)BF_CurlEdge  , (CAST)BF_Zero , 0.5 },
-  {"BF_Facet"    , (CAST)BF_Facet    , (CAST)BF_DivFacet  , (CAST)BF_Zero , 0.5 },
-  {"BF_Volume"   , (CAST)BF_Volume   , (CAST)BF_Volume    , (CAST)BF_Zero , 0. },
+  {"BF_Node"   , (CAST)BF_Node   , (CAST)BF_GradNode , (CAST)BF_Zero , 1.  , ALL },
+  {"BF_Edge"   , (CAST)BF_Edge   , (CAST)BF_CurlEdge , (CAST)BF_Zero , 0.5 , ALL },
+  {"BF_Facet"  , (CAST)BF_Facet  , (CAST)BF_DivFacet , (CAST)BF_Zero , 0.5 , ALL },
+  {"BF_Volume" , (CAST)BF_Volume , (CAST)BF_Volume   , (CAST)BF_Zero , 0.  , ALL },
 
-  {"BF_GradNode" , (CAST)BF_GradNode , (CAST)BF_Zero      , (CAST)BF_Node , 0. },
-  {"BF_CurlEdge" , (CAST)BF_CurlEdge , (CAST)BF_Zero      , (CAST)BF_Edge , 0. },
-  {"BF_DivFacet" , (CAST)BF_DivFacet , (CAST)BF_Zero      , (CAST)BF_Facet, 0. },
+  {"BF_GradNode" , (CAST)BF_GradNode , (CAST)BF_Zero , (CAST)BF_Node , 0. , ALL },
+  {"BF_CurlEdge" , (CAST)BF_CurlEdge , (CAST)BF_Zero , (CAST)BF_Edge , 0. , ALL },
+  {"BF_DivFacet" , (CAST)BF_DivFacet , (CAST)BF_Zero , (CAST)BF_Facet, 0. , ALL },
 
-  {"BF_NodeX"    , (CAST)BF_NodeX    , (CAST)BF_CurlNodeX , (CAST)BF_DivNodeX , 1. } ,
-  {"BF_NodeY"    , (CAST)BF_NodeY    , (CAST)BF_CurlNodeY , (CAST)BF_DivNodeY , 1. } ,
-  {"BF_NodeZ"    , (CAST)BF_NodeZ    , (CAST)BF_CurlNodeZ , (CAST)BF_DivNodeZ , 1. } ,
+  {"BF_NodeX" , (CAST)BF_NodeX , (CAST)BF_CurlNodeX , (CAST)BF_DivNodeX , 1. , ALL },
+  {"BF_NodeY" , (CAST)BF_NodeY , (CAST)BF_CurlNodeY , (CAST)BF_DivNodeY , 1. , ALL },
+  {"BF_NodeZ" , (CAST)BF_NodeZ , (CAST)BF_CurlNodeZ , (CAST)BF_DivNodeZ , 1. , ALL },
 
-  {"BF_GroupOfNodesX"    , (CAST)BF_GroupOfNodesX , (CAST)BF_DxyGNodesX , (CAST)BF_Zero , 1. } ,
-  {"BF_GroupOfNodesY"    , (CAST)BF_GroupOfNodesY , (CAST)BF_DxyGNodesY , (CAST)BF_Zero , 1. } ,
-  {"BF_GroupOfNodesZ"    , (CAST)BF_GroupOfNodesZ , (CAST)BF_Zero , (CAST)BF_Zero , 1. } ,
+  {"BF_GroupOfNodesX" , (CAST)BF_GroupOfNodesX , (CAST)BF_DxyGNodesX , (CAST)BF_Zero , 1. , ALL },
+  {"BF_GroupOfNodesY" , (CAST)BF_GroupOfNodesY , (CAST)BF_DxyGNodesY , (CAST)BF_Zero , 1. , ALL },
+  {"BF_GroupOfNodesZ" , (CAST)BF_GroupOfNodesZ , (CAST)BF_Zero       , (CAST)BF_Zero , 1. , ALL },
 
-  {"BF_Region"   , (CAST)BF_Region   , (CAST)BF_Zero      , (CAST)BF_Zero , 0. },
-  {"BF_RegionX"  , (CAST)BF_RegionX  , (CAST)BF_Zero      , (CAST)BF_Zero , 0. },
-  {"BF_RegionY"  , (CAST)BF_RegionY  , (CAST)BF_Zero      , (CAST)BF_Zero , 0. },
-  {"BF_RegionZ"  , (CAST)BF_RegionZ  , (CAST)BF_Zero      , (CAST)BF_Zero , 0. },
+  {"BF_Region"  , (CAST)BF_Region   , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_RegionX" , (CAST)BF_RegionX  , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_RegionY" , (CAST)BF_RegionY  , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_RegionZ" , (CAST)BF_RegionZ  , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
 
-  {"BF_Global"   , (CAST)BF_Global   , (CAST)BF_dGlobal   , (CAST)BF_Zero , 0. },
-  {"BF_dGlobal"  , (CAST)BF_dGlobal  , (CAST)BF_Zero      , (CAST)BF_Global, 0. },
+  {"BF_Global"  , (CAST)BF_Global   , (CAST)BF_dGlobal , (CAST)BF_Zero , 0. , ALL },
+  {"BF_dGlobal" , (CAST)BF_dGlobal  , (CAST)BF_Zero    , (CAST)BF_Global, 0. , ALL },
 
-  {"BF_Zero"     , (CAST)BF_Zero     , (CAST)BF_Zero      , (CAST)BF_Zero, 0. },
-  {"BF_One"      , (CAST)BF_One      , (CAST)BF_One       , (CAST)BF_One, 0. },
+  {"BF_Zero" , (CAST)BF_Zero , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_One"  , (CAST)BF_One  , (CAST)BF_One  , (CAST)BF_One  , 0. , ALL },
 
   {"BF_PerpendicularEdge" , (CAST)BF_PerpendicularEdge ,
                             (CAST)BF_CurlPerpendicularEdge , 
-                            (CAST)BF_Zero , 1. },
+                            (CAST)BF_Zero , 1. , ALL },
 
   {"BF_CurlPerpendicularEdge" , (CAST)BF_CurlPerpendicularEdge ,
                                 (CAST)BF_Zero , 
-                                (CAST)BF_PerpendicularEdge , 0. },
+                                (CAST)BF_PerpendicularEdge , 0. , ALL },
 
   {"BF_PerpendicularFacet" , (CAST)BF_PerpendicularFacet ,
                              (CAST)BF_DivPerpendicularFacet , 
-                             (CAST)BF_Zero , 0.5 },
+                             (CAST)BF_Zero , 0.5 , ALL },
 
   {"BF_DivPerpendicularFacet" , (CAST)BF_DivPerpendicularFacet ,
                                 (CAST)BF_Zero , 
-                                (CAST)BF_PerpendicularFacet , 0. },
+                                (CAST)BF_PerpendicularFacet , 0. , ALL },
 
   {"BF_GroupOfNodes" , (CAST)BF_GroupOfNodes ,
                        (CAST)BF_GradGroupOfNodes , 
-                       (CAST)BF_Zero , 1. },
+                       (CAST)BF_Zero , 1. , ALL },
 
   {"BF_GradGroupOfNodes" , (CAST)BF_GradGroupOfNodes ,
                            (CAST)BF_Zero , 
-                           (CAST)BF_GroupOfNodes , 0. },
+                           (CAST)BF_GroupOfNodes , 0. , ALL },
 
   {"BF_GroupOfPerpendicularEdges", (CAST)BF_GroupOfPerpendicularEdges,
                                    (CAST)BF_CurlGroupOfPerpendicularEdges, 
-                                   (CAST)BF_Zero , 1. },
+                                   (CAST)BF_Zero , 1. , ALL },
 
   {"BF_CurlGroupOfPerpendicularEdges", (CAST)BF_CurlGroupOfPerpendicularEdges,
                                        (CAST)BF_Zero, 
-                                       (CAST)BF_GroupOfPerpendicularEdges , 0. },
+                                       (CAST)BF_GroupOfPerpendicularEdges , 0. , ALL },
 
   {"BF_GroupOfEdges" , (CAST)BF_GroupOfEdges ,
                        (CAST)BF_CurlGroupOfEdges , 
-                       (CAST)BF_Zero , 0.5 },
+                       (CAST)BF_Zero , 0.5 , ALL },
 
   {"BF_CurlGroupOfEdges" , (CAST)BF_CurlGroupOfEdges ,
                            (CAST)BF_Zero , 
-                           (CAST)BF_GroupOfEdges , 0. },
+                           (CAST)BF_GroupOfEdges , 0. , ALL },
 
   /* Nodal Hierarchical Basis Functions */
 
-  {"HBF_Node_1N" , (CAST)BF_Node     , (CAST)BF_GradNode     , (CAST)BF_Zero , 1. },
-  {"HBF_Node_2E" , (CAST)HBF_Node_2E , (CAST)HBF_GradNode_2E , (CAST)BF_Zero , 2. }, 
-  {"HBF_Node_2F" , (CAST)HBF_Node_2F , (CAST)HBF_GradNode_2F , (CAST)BF_Zero , 2. }, 
-  {"HBF_Node_2V" , (CAST)HBF_Node_2V , (CAST)HBF_GradNode_2V , (CAST)BF_Zero , 2. }, 
-  {"HBF_Node_3E" , (CAST)HBF_Node_3E , (CAST)HBF_GradNode_3E , (CAST)BF_Zero , 3. }, 
-  {"HBF_Node_3F" , (CAST)HBF_Node_3F , (CAST)HBF_GradNode_3F , (CAST)BF_Zero , 3. }, 
-  {"HBF_Node_3V" , (CAST)HBF_Node_3V , (CAST)HBF_GradNode_3V , (CAST)BF_Zero , 3. }, 
+  {"HBF_Node_1N" , (CAST)BF_Node     , (CAST)BF_GradNode     , (CAST)BF_Zero , 1. , ALL },
+  {"HBF_Node_2E" , (CAST)HBF_Node_2E , (CAST)HBF_GradNode_2E , (CAST)BF_Zero , 2. , ALL }, 
+  {"HBF_Node_2F" , (CAST)HBF_Node_2F , (CAST)HBF_GradNode_2F , (CAST)BF_Zero , 2. , QUA|HEX|PRI }, 
+  {"HBF_Node_2V" , (CAST)HBF_Node_2V , (CAST)HBF_GradNode_2V , (CAST)BF_Zero , 2. , HEX|PRI }, 
+  {"HBF_Node_3E" , (CAST)HBF_Node_3E , (CAST)HBF_GradNode_3E , (CAST)BF_Zero , 3. , ALL }, 
+  {"HBF_Node_3F" , (CAST)HBF_Node_3F , (CAST)HBF_GradNode_3F , (CAST)BF_Zero , 3. , TRI|QUA|TET|HEX|PRI }, 
+  {"HBF_Node_3V" , (CAST)HBF_Node_3V , (CAST)HBF_GradNode_3V , (CAST)BF_Zero , 3. , HEX|PRI }, 
 
-  {"HBF_GradNode_1N" , (CAST)BF_GradNode     , (CAST)BF_Zero , (CAST)BF_Node     , 0. },
-  {"HBF_GradNode_2E" , (CAST)HBF_GradNode_2E , (CAST)BF_Zero , (CAST)HBF_Node_2E , 1. },
-  {"HBF_GradNode_2F" , (CAST)HBF_GradNode_2F , (CAST)BF_Zero , (CAST)HBF_Node_2F , 1. },
-  {"HBF_GradNode_2V" , (CAST)HBF_GradNode_2V , (CAST)BF_Zero , (CAST)HBF_Node_2V , 1. },
-  {"HBF_GradNode_3E" , (CAST)HBF_GradNode_3E , (CAST)BF_Zero , (CAST)HBF_Node_3E , 2. },
-  {"HBF_GradNode_3F" , (CAST)HBF_GradNode_3F , (CAST)BF_Zero , (CAST)HBF_Node_3F , 2. },
-  {"HBF_GradNode_3V" , (CAST)HBF_GradNode_3V , (CAST)BF_Zero , (CAST)HBF_Node_3V , 2. },
+  {"HBF_GradNode_1N" , (CAST)BF_GradNode     , (CAST)BF_Zero , (CAST)BF_Node     , 0. , ALL },
+  {"HBF_GradNode_2E" , (CAST)HBF_GradNode_2E , (CAST)BF_Zero , (CAST)HBF_Node_2E , 1. , ALL },
+  {"HBF_GradNode_2F" , (CAST)HBF_GradNode_2F , (CAST)BF_Zero , (CAST)HBF_Node_2F , 1. , QUA|HEX|PRI },
+  {"HBF_GradNode_2V" , (CAST)HBF_GradNode_2V , (CAST)BF_Zero , (CAST)HBF_Node_2V , 1. , HEX|PRI },
+  {"HBF_GradNode_3E" , (CAST)HBF_GradNode_3E , (CAST)BF_Zero , (CAST)HBF_Node_3E , 2. , ALL },
+  {"HBF_GradNode_3F" , (CAST)HBF_GradNode_3F , (CAST)BF_Zero , (CAST)HBF_Node_3F , 2. , TRI|QUA|TET|HEX|PRI },
+  {"HBF_GradNode_3V" , (CAST)HBF_GradNode_3V , (CAST)BF_Zero , (CAST)HBF_Node_3V , 2. , HEX|PRI },
 
   {"HBF_PerpendicularEdge_2E", (CAST)HBF_PerpendicularEdge_2E,
                                (CAST)HBF_CurlPerpendicularEdge_2E, 
-                               (CAST)BF_Zero , 2. }, 
+                               (CAST)BF_Zero , 2. , ALL }, 
   {"HBF_CurlPerpendicularEdge_2E", (CAST)HBF_CurlPerpendicularEdge_2E, 
                                    (CAST)BF_Zero,
-                                   (CAST)HBF_PerpendicularEdge_2E , 1. },
+                                   (CAST)HBF_PerpendicularEdge_2E , 1. , ALL },
   {"HBF_PerpendicularEdge_3E", (CAST)HBF_PerpendicularEdge_3E,
                                (CAST)HBF_CurlPerpendicularEdge_3E, 
-                               (CAST)BF_Zero , 3. }, 
+                               (CAST)BF_Zero , 3. , ALL }, 
   {"HBF_CurlPerpendicularEdge_3E", (CAST)HBF_CurlPerpendicularEdge_3E, 
                                    (CAST)BF_Zero,
-                                   (CAST)HBF_PerpendicularEdge_3E , 2. },
+                                   (CAST)HBF_PerpendicularEdge_3E , 2. , ALL },
   {"HBF_PerpendicularEdge_3F", (CAST)HBF_PerpendicularEdge_3F,
                                (CAST)HBF_CurlPerpendicularEdge_3F, 
-                               (CAST)BF_Zero , 3. }, 
+                               (CAST)BF_Zero , 3. , TRI|QUA|TET|HEX|PRI }, 
   {"HBF_CurlPerpendicularEdge_3F", (CAST)HBF_CurlPerpendicularEdge_3F, 
                                    (CAST)BF_Zero,
-                                   (CAST)HBF_PerpendicularEdge_3F , 2. },
+                                   (CAST)HBF_PerpendicularEdge_3F , 2. , TRI|QUA|TET|HEX|PRI },
 
 
   /* Edge Hierarchical Basis Functions */
 
-  {"HBF_Edge_1E"   , (CAST)BF_Edge       , (CAST)BF_CurlEdge       , (CAST)BF_Zero , 0.5 },
-  {"HBF_Edge_2E"   , (CAST)HBF_Edge_2E   , (CAST)HBF_CurlEdge_2E   , (CAST)BF_Zero , 1. }, 
-  {"HBF_Edge_3F_a" , (CAST)HBF_Edge_3F_a , (CAST)HBF_CurlEdge_3F_a , (CAST)BF_Zero , 1.5 }, 
-  {"HBF_Edge_3F_b" , (CAST)HBF_Edge_3F_b , (CAST)HBF_CurlEdge_3F_b , (CAST)BF_Zero , 1.5 }, 
-  {"HBF_Edge_3F_c" , (CAST)HBF_Edge_3F_c , (CAST)HBF_CurlEdge_3F_c , (CAST)BF_Zero , 1.5 }, 
-  {"HBF_Edge_4E"   , (CAST)HBF_Edge_4E   , (CAST)HBF_CurlEdge_4E   , (CAST)BF_Zero , 2. }, 
-  {"HBF_Edge_4F"   , (CAST)HBF_Edge_4F   , (CAST)HBF_CurlEdge_4F   , (CAST)BF_Zero , 2. }, 
+  {"HBF_Edge_1E"   , (CAST)BF_Edge       , (CAST)BF_CurlEdge       , (CAST)BF_Zero , 0.5 , ALL },
+  {"HBF_Edge_2E"   , (CAST)HBF_Edge_2E   , (CAST)HBF_CurlEdge_2E   , (CAST)BF_Zero , 1.  , ALL }, 
+  {"HBF_Edge_3F_a" , (CAST)HBF_Edge_3F_a , (CAST)HBF_CurlEdge_3F_a , (CAST)BF_Zero , 1.5 , TRI|QUA|TET|HEX|PRI }, 
+  {"HBF_Edge_3F_b" , (CAST)HBF_Edge_3F_b , (CAST)HBF_CurlEdge_3F_b , (CAST)BF_Zero , 1.5 , TRI|QUA|TET|HEX|PRI }, 
+  {"HBF_Edge_3F_c" , (CAST)HBF_Edge_3F_c , (CAST)HBF_CurlEdge_3F_c , (CAST)BF_Zero , 1.5 , TRI|QUA|TET|HEX|PRI }, 
+  {"HBF_Edge_4E"   , (CAST)HBF_Edge_4E   , (CAST)HBF_CurlEdge_4E   , (CAST)BF_Zero , 2.  , ALL }, 
+  {"HBF_Edge_4F"   , (CAST)HBF_Edge_4F   , (CAST)HBF_CurlEdge_4F   , (CAST)BF_Zero , 2.  , TRI|QUA|TET|HEX|PRI }, 
 
-  {"HBF_CurlEdge_1E"   , (CAST)BF_CurlEdge       , (CAST)BF_Zero  , (CAST)BF_Edge       , 0. },
-  {"HBF_CurlEdge_2E"   , (CAST)HBF_CurlEdge_2E   , (CAST)BF_Zero  , (CAST)HBF_Edge_2E   , 0. },
-  {"HBF_CurlEdge_3F_a" , (CAST)HBF_CurlEdge_3F_a , (CAST)BF_Zero  , (CAST)HBF_Edge_3F_a , 1. },
-  {"HBF_CurlEdge_3F_b" , (CAST)HBF_CurlEdge_3F_b , (CAST)BF_Zero  , (CAST)HBF_Edge_3F_b , 1. },
-  {"HBF_CurlEdge_3F_c" , (CAST)HBF_CurlEdge_3F_c , (CAST)BF_Zero  , (CAST)HBF_Edge_3F_c , 1. },
-  {"HBF_CurlEdge_4E"   , (CAST)HBF_CurlEdge_4E   , (CAST)BF_Zero  , (CAST)HBF_Edge_4E   , 1. },
-  {"HBF_CurlEdge_4F"   , (CAST)HBF_CurlEdge_4F   , (CAST)BF_Zero  , (CAST)HBF_Edge_4F   , 1. },
+  {"HBF_CurlEdge_1E"   , (CAST)BF_CurlEdge       , (CAST)BF_Zero  , (CAST)BF_Edge       , 0. , ALL },
+  {"HBF_CurlEdge_2E"   , (CAST)HBF_CurlEdge_2E   , (CAST)BF_Zero  , (CAST)HBF_Edge_2E   , 0. , ALL },
+  {"HBF_CurlEdge_3F_a" , (CAST)HBF_CurlEdge_3F_a , (CAST)BF_Zero  , (CAST)HBF_Edge_3F_a , 1. , TRI|QUA|TET|HEX|PRI },
+  {"HBF_CurlEdge_3F_b" , (CAST)HBF_CurlEdge_3F_b , (CAST)BF_Zero  , (CAST)HBF_Edge_3F_b , 1. , TRI|QUA|TET|HEX|PRI },
+  {"HBF_CurlEdge_3F_c" , (CAST)HBF_CurlEdge_3F_c , (CAST)BF_Zero  , (CAST)HBF_Edge_3F_c , 1. , TRI|QUA|TET|HEX|PRI },
+  {"HBF_CurlEdge_4E"   , (CAST)HBF_CurlEdge_4E   , (CAST)BF_Zero  , (CAST)HBF_Edge_4E   , 1. , ALL },
+  {"HBF_CurlEdge_4F"   , (CAST)HBF_CurlEdge_4F   , (CAST)BF_Zero  , (CAST)HBF_Edge_4F   , 1. , TRI|QUA|TET|HEX|PRI },
 
   {"HBF_PerpendicularFacet_2E", (CAST)HBF_PerpendicularFacet_2E,
                                 (CAST)HBF_DivPerpendicularFacet_2E, 
-                                (CAST)BF_Zero , 1. }, 
+                                (CAST)BF_Zero , 1. , ALL }, 
 
   {"HBF_DivPerpendicularFacet_2E", (CAST)HBF_DivPerpendicularFacet_2E, 
                                    (CAST)BF_Zero,
-                                   (CAST)HBF_PerpendicularFacet_2E , 0. },
+                                   (CAST)HBF_PerpendicularFacet_2E , 0. , ALL },
 
   /* Group Of Entities Hierarchical Basis Functions */
 
 
   {"HBF_GroupOfNodes_2E"    , (CAST)HBF_GroupOfNodes_2E, 
                               (CAST)HBF_GradGroupOfNodes_2E, 
-                              (CAST)BF_Zero , 2. },
+                              (CAST)BF_Zero , 2. , ALL },
 
   {"HBF_GroupOfNodes_2F"    , (CAST)HBF_GroupOfNodes_2F, 
                               (CAST)HBF_GradGroupOfNodes_2F, 
-                              (CAST)BF_Zero, 2. },
+                              (CAST)BF_Zero, 2. , QUA|HEX|PRI },
 
   {"HBF_GroupOfNodes_2V"    , (CAST)HBF_GroupOfNodes_2V, 
                               (CAST)HBF_GradGroupOfNodes_2V, 
-                              (CAST)BF_Zero, 2. },
+                              (CAST)BF_Zero, 2. , HEX|PRI },
 
   {"HBF_GradGroupOfNodes_2E", (CAST)HBF_GradGroupOfNodes_2E, 
                               (CAST)BF_Zero, 
-                              (CAST)HBF_GroupOfNodes_2E, 1. },
+                              (CAST)HBF_GroupOfNodes_2E, 1. , ALL },
 
   {"HBF_GradGroupOfNodes_2F", (CAST)HBF_GradGroupOfNodes_2F, 
                               (CAST)BF_Zero, 
-                              (CAST)HBF_GroupOfNodes_2F, 1. },
+                              (CAST)HBF_GroupOfNodes_2F, 1. , QUA|HEX|PRI },
 
   {"HBF_GradGroupOfNodes_2V", (CAST)HBF_GradGroupOfNodes_2V, 
                               (CAST)BF_Zero, 
-                              (CAST)HBF_GroupOfNodes_2V, 1. },
+                              (CAST)HBF_GroupOfNodes_2V, 1. , HEX|PRI },
 
   {"HBF_GroupOfEdges_2E"    , (CAST)HBF_GroupOfEdges_2E, 
                               (CAST)HBF_CurlGroupOfEdges_2E, 
-                              (CAST)BF_Zero , 1. },
+                              (CAST)BF_Zero , 1. , ALL },
 
   {"HBF_CurlGroupOfEdges_2E", (CAST)BF_CurlGroupOfEdges, 
                               (CAST)BF_Zero, 
-                              (CAST)HBF_GroupOfEdges_2E, 0. },
+                              (CAST)HBF_GroupOfEdges_2E, 0. , ALL },
 
-  {NULL , NULL , NULL , NULL , 0. }
+  {NULL , NULL , NULL , NULL , 0. , ALL }
 } ;
 
-
-
+#undef POI
+#undef LIN
+#undef TRI
+#undef QUA
+#undef TET
+#undef HEX
+#undef PRI
+#undef PYR
+          
+#undef ALL
 
 
 /* ------------------------------------------------------------------------ */
