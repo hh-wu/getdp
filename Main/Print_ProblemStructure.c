@@ -1,4 +1,4 @@
-/* $Id: Print_ProblemStructure.c,v 1.7 2000-10-20 07:42:07 dular Exp $ */
+/* $Id: Print_ProblemStructure.c,v 1.8 2000-10-20 10:59:01 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 
@@ -1009,20 +1009,32 @@ void  Print_PostOperation(struct Problem  * Problem) {
 	    ((struct PostQuantity *)
 	     List_Pointer(PP->PostQuantity,
 			  PSO->PostQuantityIndex[0]))->Name) ;
-	if(PSO->PostQuantityIndex[1] > 0)
+	if(PSO->PostQuantitySupport[0] >= 0)
+	  Msg(CHECK, "[%s]",
+	      ((struct Group *)
+	       List_Pointer(Problem->Group, PSO->PostQuantitySupport[0]))->Name) ;
+	if(PSO->PostQuantityIndex[1] >= 0) {
 	  Msg(CHECK, " %s %s",
 	      Get_StringForDefine(PostSubOperation_CombinationType, 
 				  PSO->CombinationType),
 	      ((struct PostQuantity *)
 	       List_Pointer(PP->PostQuantity,
 			    PSO->PostQuantityIndex[1]))->Name) ;
+	  if(PSO->PostQuantitySupport[1] >= 0)
+	    Msg(CHECK, "[%s]",
+		((struct Group *)
+		 List_Pointer(Problem->Group, PSO->PostQuantitySupport[1]))->Name) ;
+	}
 	
 	switch (PSO->SubType) {
 	case PRINT_ONREGION :
-	  Msg(CHECK, ", OnRegion %s",
-	      ((struct Group *)
-	       List_Pointer(Problem->Group,
-			    PSO->Case.OnRegion.RegionIndex))->Name ) ;
+	  if (PSO->Case.OnRegion.RegionIndex >=0)
+	    Msg(CHECK, ", OnRegion %s",
+		((struct Group *)
+		 List_Pointer(Problem->Group,
+			      PSO->Case.OnRegion.RegionIndex))->Name ) ;
+	  else
+	    Msg(CHECK, ", OnGlobal") ;
 	  break ;
 	case PRINT_ONELEMENTSOF :
 	  Msg(CHECK, ", OnElementsOf %s",
