@@ -12,7 +12,7 @@ html:
 	texi2html -expandinfo -number -split_chapter getdp.texi
 
 html2:
-	Texi2html -init_file getdp.htmlconfig getdp.texi
+	Texi2html -init_file getdp.t2h getdp.texi
 
 html3:
 	makeinfo --html getdp.texi
