@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.14 2000-10-30 09:04:05 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.15 2000-11-17 12:22:41 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -372,6 +372,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       for(i=0 ; i<List_Nbr(DofData_P->Solutions) ; i++){
 	DofData_P->CurrentSolution = (struct Solution*)
 	  List_Pointer(DofData_P->Solutions, i) ;
+	if (!DofData_P->CurrentSolution->TimeFunctionValues)
+	  Msg(ERROR, "SaveSolutions: Solution #%d doesn't exist anymore", i) ;
 	Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, 
 			 DofData_P->CurrentSolution->Time, i) ;
       }
@@ -547,6 +549,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			   List_Nbr(Current.DofData->Solutions)-2);
 	    LinAlg_DestroyVector(&Solution_P->x);
 	    Free(Solution_P->TimeFunctionValues) ;
+	    Solution_P->TimeFunctionValues = NULL ;
 	  }
 	}
 
@@ -607,6 +610,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			   List_Nbr(Current.DofData->Solutions)-3);
 	    LinAlg_DestroyVector(&Solution_P->x);
 	    Free(Solution_P->TimeFunctionValues) ;
+	    Solution_P->TimeFunctionValues = NULL ;
 	  }
 	}
 
@@ -1433,7 +1437,9 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 	  Solution_P = (struct Solution *)
 	    List_Pointer(Current.DofData->Solutions,
 			 List_Nbr(Current.DofData->Solutions)-1) ;
-	  LinAlg_DestroyVector(&Solution_P->x) ;  Free(Solution_P->TimeFunctionValues) ;
+	  LinAlg_DestroyVector(&Solution_P->x) ;
+	  Free(Solution_P->TimeFunctionValues) ;
+	  Solution_P->TimeFunctionValues = NULL ;
 	  List_Pop(Current.DofData->Solutions) ;  /* Attention: a changer ! */
 	}
 
@@ -1538,7 +1544,9 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
     Solution_P = (struct Solution *)
       List_Pointer(Current.DofData->Solutions,
 		   List_Nbr(Current.DofData->Solutions)-1) ;
-    LinAlg_DestroyVector(&Solution_P->x) ;  Free(Solution_P->TimeFunctionValues) ;
+    LinAlg_DestroyVector(&Solution_P->x) ;
+    Free(Solution_P->TimeFunctionValues) ;
+    Solution_P->TimeFunctionValues = NULL ;
     List_Pop(Current.DofData->Solutions) ;  /* Attention: a changer ! */
 
     Treatment_Operation(Resolution_P,
