@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.48 2003-04-28 17:44:56 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.49 2003-09-01 18:36:08 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -562,6 +562,8 @@ void FinalizeAndExit(void){
     Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_STOP, "Goodbye (prematured...)!");
     Gmsh_Disconnect(Flag_SOCKET);
   }
+
+  unlink(GETDP_TMP_FILENAME);
 
   GetDP_Exit(1) ;
 }
