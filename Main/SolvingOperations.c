@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.20 2001-03-07 13:26:16 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.21 2001-03-19 10:17:10 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -545,6 +545,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopTheta.Operation, 
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
+	/* moved into Generate_System
 	if(!Flag_POS){
 	  if(List_Nbr(Current.DofData->Solutions) > 2){
 	    Solution_P = (struct Solution*)
@@ -555,7 +556,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	    Solution_P->SolutionExist = 0 ;
 	  }
 	}
-
+	*/
       }
 
       Current.TypeTime = Save_TypeTime ;
@@ -606,6 +607,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopNewmark.Operation, 
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
+	/* moved into Generate_System
 	if(!Flag_POS){
 	  if(List_Nbr(Current.DofData->Solutions) > 3){
 	    Solution_P = (struct Solution*)
@@ -616,6 +618,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	    Solution_P->SolutionExist = 0 ;
 	  }
 	}
+	*/
 
       }
 
@@ -869,7 +872,31 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 }
 
 
+/* ------------------------------------------------------------------------ */
+/*  F r e e _ U n u s e d S o l u t i o n s                                 */
+/* ------------------------------------------------------------------------ */
 
+void Free_UnusedSolutions(struct DofData * DofData_P){
+  struct Solution * Solution_P ;
+  int index = -1;
+
+  if(!Flag_POS){
+    if(Current.TypeTime == TIME_THETA)
+      index = List_Nbr(DofData_P->Solutions)-2 ;
+    else if(Current.TypeTime == TIME_NEWMARK)
+      index = List_Nbr(DofData_P->Solutions)-3 ;
+
+    if(index >= 0){
+      Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, index);
+      if(Solution_P->SolutionExist){
+	Msg(INFO, "Freeing Solution %d", index);
+	LinAlg_DestroyVector(&Solution_P->x);
+	Free(Solution_P->TimeFunctionValues) ;
+	Solution_P->SolutionExist = 0 ;
+      }
+    }
+  }
+}
 
 /* ------------------------------------------------------------------------ */
 /*  G e n e r a t e _ S y s t e m                                           */
@@ -970,6 +997,9 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     if(!i) Msg(WARNING, "Generated system is of dimension zero");
   }
 
+
+  Free_UnusedSolutions(DofData_P);
+  
   GetDP_End ;
 }
 
@@ -1268,6 +1298,8 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 
   LinAlg_GetVectorSize(&DofData_P->b, &i) ;
   if(!i) Msg(ERROR, "Generated system is of dimension zero");
+
+  Free_UnusedSolutions(DofData_P);
 
   GetDP_End ;
 }
