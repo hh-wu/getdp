@@ -37,6 +37,7 @@ void gInitializeSolver(int* argc, char*** argv, int *NbrCpu, int *RankCpu){
 /* Finalize */
 
 void gFinalize(void){
+  /* a retester --geuz*/
   int flag;
   MPI_Initialized(&flag);
   if(flag) MPI_Finalize();
