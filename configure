@@ -3592,9 +3592,9 @@ fi
 
 if test "x$enable_readline" != "xno"; then
   if test "x${READLINE_PREFIX}" != "x"; then
-    READLINE_DIR="${READLINE_PREFIX}"
+    CPPFLAGS="-I${READLINE_PREFIX}/include"
+    LDFLAGS="-L${READLINE_PREFIX}/lib ${LDFLAGS}"
   fi
-  CPPFLAGS="-I${READLINE_DIR}/include"
   if test "${ac_cv_header_readline_readline_h+set}" = set; then
   echo "$as_me:$LINENO: checking for readline/readline.h" >&5
 echo $ECHO_N "checking for readline/readline.h... $ECHO_C" >&6
@@ -3731,7 +3731,6 @@ else
 fi
 
 
-  LDFLAGS="-L${READLINE_DIR}/lib ${LDFLAGS}"
   echo "$as_me:$LINENO: checking for main in -lreadline" >&5
 echo $ECHO_N "checking for main in -lreadline... $ECHO_C" >&6
 if test "${ac_cv_lib_readline_main+set}" = set; then
