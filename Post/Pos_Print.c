@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.51 2001-10-12 11:32:23 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.52 2001-10-25 07:06:37 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -337,7 +337,9 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	    Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
 			       Current.Time, iTime, NbrTimeStep, 
 			       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
-			       NULL, PE, PostSubOperation_P->ChangeOfCoordinates);
+			       NULL, PE, 
+			       PostSubOperation_P->ChangeOfCoordinates,
+			       PostSubOperation_P->ChangeOfValues);
 	}
       }
       else{ /* There is one non-cumulative */
@@ -365,7 +367,9 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	      Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
 				 Current.Time, iTime, NbrTimeStep, 
 				 Current.NbrHar, PostSubOperation_P->HarmonicToTime,
-				 NULL, PE, PostSubOperation_P->ChangeOfCoordinates);
+				 NULL, PE, 
+				 PostSubOperation_P->ChangeOfCoordinates,
+				 PostSubOperation_P->ChangeOfValues);
 	  }
 	}
 	else{ /* PRINT_ONREGION: We work on the real mesh */
@@ -392,7 +396,9 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	      Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
 				 Current.Time, iTime, NbrTimeStep,
 				 Current.NbrHar, PostSubOperation_P->HarmonicToTime,
-				 NULL, PE, PostSubOperation_P->ChangeOfCoordinates);
+				 NULL, PE, 
+				 PostSubOperation_P->ChangeOfCoordinates,
+				 PostSubOperation_P->ChangeOfValues);
 	  }
 	}
       }
@@ -552,7 +558,9 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 1,
 			 Current.Time, 0, 1, 
 			 Current.NbrHar, PostSubOperation_P->HarmonicToTime,
-			 Dummy, PE, PostSubOperation_P->ChangeOfCoordinates);
+			 Dummy, PE, 
+			 PostSubOperation_P->ChangeOfCoordinates,
+			 PostSubOperation_P->ChangeOfValues);
     }
   }
 
@@ -662,7 +670,9 @@ void normvec(double *a){
       Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso,0, \
 			 Current.Time, iTime, NbTimeStep,			\
 			 Current.NbrHar, PostSubOperation_P->HarmonicToTime,	\
-			 NULL, PE, PostSubOperation_P->ChangeOfCoordinates);	\
+			 NULL, PE,                                              \
+			 PostSubOperation_P->ChangeOfCoordinates,               \
+			 PostSubOperation_P->ChangeOfValues);	                \
     }										\
   }										\
   for(iPost = 0 ; iPost < List_Nbr(PE_L) ; iPost++)				\
@@ -894,7 +904,9 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
      Format_PostElement(PSO_P->Format, PSO_P->Iso, 0,				\
 		        Current.Time, ts, NbTimeStep,				\
                         Current.NbrHar, PSO_P->HarmonicToTime,                  \
-			Normal, PE, PSO_P->ChangeOfCoordinates);	        \
+			Normal, PE,                                             \
+			PSO_P->ChangeOfCoordinates,                             \
+			PSO_P->ChangeOfValues);                                 \
    }										\
  }										\
  else{										\
@@ -915,7 +927,9 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
      Format_PostElement(PSO_P->Format, PSO_P->Iso, 0,				\
                         Current.Time, ts, NbTimeStep,				\
                         Current.NbrHar, PSO_P->HarmonicToTime,                  \
-			Normal, PE, PSO_P->ChangeOfCoordinates);         	\
+			Normal, PE,                                      	\
+			PSO_P->ChangeOfCoordinates,                             \
+			PSO_P->ChangeOfValues);                                 \
    }										\
  }
 
@@ -1090,7 +1104,9 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	    Format_PostElement(PSO_P->Format, PSO_P->Iso, 0,
 			       Current.Time, ts, NbTimeStep,
 			       Current.NbrHar, PSO_P->HarmonicToTime, 
-			       Normal, PE2, PSO_P->ChangeOfCoordinates);
+			       Normal, PE2,
+			       PSO_P->ChangeOfCoordinates,
+			       PSO_P->ChangeOfValues);
 	  }
 	  PE2->x[0] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[3] ;
 	  PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[3] ;
@@ -1101,7 +1117,9 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	    Format_PostElement(PSO_P->Format, PSO_P->Iso, 0,
 			       Current.Time, ts, NbTimeStep,
 			       Current.NbrHar, PSO_P->HarmonicToTime, 
-			       Normal, PE2, PSO_P->ChangeOfCoordinates);
+			       Normal, PE2, 
+			       PSO_P->ChangeOfCoordinates,
+			       PSO_P->ChangeOfValues);
 	  }
 	}
       }
@@ -1438,7 +1456,9 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P) {
 	    SL->Value[0].Val[0] = SL->Value[1].Val[0] = GeoElement->NumEdges[i];
 	    Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
 			       0, 0, 1, 1, 1, 
-			       NULL, SL, PostSubOperation_P->ChangeOfCoordinates);
+			       NULL, SL, 
+			       PostSubOperation_P->ChangeOfCoordinates,
+			       PostSubOperation_P->ChangeOfValues);
 	  }
 	}
 	break ;

@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.33 2001-08-07 13:45:18 geuzaine Exp $
+@c $Id: getdp.texi,v 1.34 2001-10-25 07:06:37 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -33,7 +33,7 @@
 @c =========================================================================
 @c %**start of header
 @setfilename        getdp.info
-@set EDITION        2.8
+@set EDITION        2.9
 @set GETDP-VERSION  0.84
 @set GETDP-WEB      @uref{http://www.geuz.org/getdp/}
 @set GMSH-WEB       @uref{http://www.geuz.org/gmsh/}
@@ -4016,11 +4016,19 @@ Suppresses the new lines in the output when printing global quantities
 @item ChangeOfCoordinates
 @code{@{ @var{expression}, @var{expression}, @var{expression} @}}
 
-Changes the coordinates of the results according to the three exressions
+Changes the coordinates of the results according to the three expressions
 given in argument. The three @var{expression}s represent the three new
 cartesian coordinates @var{x}, @var{y} and @var{z}, and can be functions of
 the current values of the cartesian coordinates @code{$X}, @code{$Y} and
 @code{$Z}.
+
+@item ChangeOfValues
+@code{@{ @var{expression-list} @}}
+
+Changes the values of the results according to the expressions given in
+argument. The @var{expression}s represent the new values (@var{x}-compoment,
+@var{y}-component, etc.), and can be functions of the current values of the
+solution (@var{$Val0}, @var{$Val1}, etc.). 
 
 @end ftable
 

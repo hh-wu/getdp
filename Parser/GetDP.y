@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.29 2001-09-05 10:23:29 dular Exp $ */
+/* $Id: GetDP.y,v 1.30 2001-10-25 07:06:36 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -285,7 +285,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token        tWithArgument
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
-%token        tTarget tSort tIso tNoNewLine
+%token        tTarget tSort tIso tNoNewLine tChangeOfValues 
 
 %token  tFlag
 
@@ -2421,12 +2421,8 @@ BasisFunctionTerm :
     }
 
   | tSubFunction ListOfExpression tEND
-    { BasisFunction_S.SubFunction =
-	List_Create(List_Nbr(ListOfInt_L), 1, sizeof(int)) ;
-      for (i = 0 ; i < List_Nbr(ListOfInt_L) ; i++) {
-	List_Read(ListOfInt_L, i, &j) ; 
-	List_Add(BasisFunction_S.SubFunction, &j) ;
-      }
+    {
+      BasisFunction_S.SubFunction = List_Copy(ListOfInt_L); 
     }
 
   | tSupport GroupRHS tEND
@@ -4477,12 +4473,8 @@ OperationTerm :
 
 PrintOperation :
     ListOfExpression
-    { Operation_P->Case.Print.Expression = 
-	List_Create(List_Nbr(ListOfInt_L), 1, sizeof(int)) ;
-      for (i = 0 ; i < List_Nbr(ListOfInt_L) ; i++) {
-	List_Read(ListOfInt_L, i, &j) ; 
-	List_Add(Operation_P->Case.Print.Expression, &j) ;
-      }
+    {
+      Operation_P->Case.Print.Expression = List_Copy(ListOfInt_L) ; 
     }
 
   | tSTRING
@@ -5484,6 +5476,7 @@ PrintOptions :
       PostSubOperation_S.ChangeOfCoordinates[0] = -1 ;
       PostSubOperation_S.ChangeOfCoordinates[1] = -1 ;
       PostSubOperation_S.ChangeOfCoordinates[2] = -1 ;
+      PostSubOperation_S.ChangeOfValues = NULL ;
     }
   | PrintOptions PrintOption 
   ;
@@ -5645,6 +5638,10 @@ PrintOption :
       PostSubOperation_S.ChangeOfCoordinates[0] = $4 ;
       PostSubOperation_S.ChangeOfCoordinates[1] = $6 ;
       PostSubOperation_S.ChangeOfCoordinates[2] = $8 ;
+    }
+  | ',' tChangeOfValues ListOfExpression
+    { 
+      PostSubOperation_S.ChangeOfValues = List_Copy(ListOfInt_L) ;
     }
   ;
 

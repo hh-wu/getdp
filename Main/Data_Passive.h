@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.41 2001-10-24 16:00:48 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.42 2001-10-25 07:06:36 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -849,6 +849,7 @@ struct PostSubOperation {
   List_T * FooterChar_L, * FooterTag_L ;
   char   * FileOut ;
   List_T * TimeStep_L, * Value_L, * Iso_L, * Frequency_L ;
+  List_T * ChangeOfValues ; 
   union {
     struct { int RegionIndex ; } OnRegion ;
     struct { double x[4], y[4], z[4] ; int n[3] ; } OnGrid ;

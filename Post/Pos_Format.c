@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.25 2001-08-26 12:13:15 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.26 2001-10-25 07:06:37 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -170,7 +170,9 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
 	Format_PostElement(PSO_P->Format, 0, 0, 
 			   Current.Time, 0, 1, 
 			   Current.NbrHar, PSO_P->HarmonicToTime, 
-			   NULL, PE, PSO_P->ChangeOfCoordinates);
+			   NULL, PE,
+			   PSO_P->ChangeOfCoordinates,
+			   PSO_P->ChangeOfValues);
 	Destroy_PostElement(PE) ;
       }
       List_Delete(Iso_L[iIso]) ;
@@ -663,9 +665,11 @@ void  Format_Adapt(double * Dummy){
 void  Format_PostElement(int Format, int Contour, int Store, 
 			 double Time, int TimeStep, int NbTimeStep, 
 			 int NbrHarmonics, int HarmonicToTime, double *Dummy,
-			 struct PostElement * PE, int *ChangeOfCoordinates){
+			 struct PostElement * PE, 
+			 int *ChangeOfCoordinates,
+			 List_T *ChangeOfValues){
 
-  int    i, j, Num_Element ;
+  int    i, j, k, l, Num_Element ;
   struct PostElement  * PE2 ;
   struct Value          Value ;
 
@@ -708,6 +712,22 @@ void  Format_PostElement(int Format, int Contour, int Store,
       PE->y[i] = Value.Val[0];
       Get_ValueOfExpressionByIndex(ChangeOfCoordinates[2], NULL, 0., 0., 0., &Value) ; 
       PE->z[i] = Value.Val[0];
+    }
+  }
+
+  if(ChangeOfValues && List_Nbr(ChangeOfValues) > 0){
+    for(i=0 ; i<PE->NbrNodes ; i++){
+      Current.x = PE->x[i];
+      Current.y = PE->y[i];
+      Current.z = PE->z[i];
+      for(k=0 ; k<Current.NbrHar ; k++){
+	for(j = 0; j<9 ; j++) Current.Val[j] = PE->Value[i].Val[MAX_DIM*k+j];
+	for(l=0 ; l<List_Nbr(ChangeOfValues) ; l++){
+	  Get_ValueOfExpressionByIndex(*(int*)List_Pointer(ChangeOfValues, l), 
+				       NULL, 0., 0., 0., &Value) ; 
+	  PE->Value[i].Val[MAX_DIM*k+l] = Value.Val[0];
+	}
+      }
     }
   }
 

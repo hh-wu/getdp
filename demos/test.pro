@@ -103,7 +103,7 @@ PostOperation {
   { Name a ; NameOfPostProcessing MagSta_a;
     Operation {
       Print[ a, OnElementsOf Domain, File "a.pos"] ;
-      Print[ a, OnElementsOf Domain, File > "a.pos", ChangeOfCoordinates {$X,-$Y,$Z}] ;
+      Print[ a, OnElementsOf Domain, File > "a.pos", ChangeOfCoordinates {$X,-$Y,$Z}, ChangeOfValues {2*$Val0/2}] ;
       Print[ b, OnElementsOf Domain, File "b_a.pos", Depth 0 ] ;
       Print[ h, OnElementsOf Domain, File "h_a.pos", Depth 0 ] ;
       Print[ b, OnPlane {{-0.1,0,0}{0.1, 0, 0}{-0.1,0.1,0}} {60,30}, File "b_a_grid.pos" ] ;

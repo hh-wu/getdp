@@ -1,4 +1,6 @@
-$Date: 2001-09-25 13:07:18 $
+$Date: 2001-10-25 07:06:37 $
+
+0.85: New ChangeOfValues option in PostOperation;
 
 0.84: New ChangeOfCoordinate option in PostOperation; Fixed crash in
 InterpolationAkima; Improved interactive postprocessing (-ipos);
