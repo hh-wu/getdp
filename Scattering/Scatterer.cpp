@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.17 2002-05-31 00:52:13 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.18 2002-06-07 23:45:26 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -165,7 +165,7 @@ void Scatterer::criticalPoints(int index, List_T *pts){
 
 #define TINY 1.0e-20;
 
-void Scatterer::ludcmp (double **a, int n, int *indx, double *d){
+void ludcmp (double **a, int n, int *indx, double *d){
   int i, imax, j, k;
   double big, dum, sum, temp;
   double *vv;
@@ -222,7 +222,7 @@ void Scatterer::ludcmp (double **a, int n, int *indx, double *d){
 
 #undef TINY
 
-void Scatterer::lubksb (double **a, int n, int *indx, double b[]){
+void lubksb (double **a, int n, int *indx, double b[]){
   int i, ii = 0, ip, j;
   double sum;
 

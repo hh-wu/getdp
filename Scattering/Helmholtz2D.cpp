@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.4 2002-05-31 23:07:02 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.5 2002-06-07 23:45:25 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -42,20 +42,30 @@ Complex GFHelmholtzParametric2D::M1(){
   return -2./(I*TWO_PI) * Bessel_j(0,kr) * d;
 }
 
-Complex GFHelmholtzParametric2D::M2(double tau_orig, double jac){
+Complex GFHelmholtzParametric2D::M2(double t_pp, double tau_pp, double jac){
   //  if(fabs(t-tau)>EPSILON)
   //    return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
   //  else
   //    return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*d))) * d;
 
-  // Colton and Kress chg of vars for corner:
-  // return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d
-  //       + 2. * log(jac) * M1() ;
-    
-  if(fabs(tau_orig-PI) > EPSILON)
-    return M()-M1()*log(4.*SQU(sin((tau_orig-PI)/2.)));
-  else
+
+  /*
+  if(fabs(t-tau) > EPSILON){
+    return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
+  }
+  else{
     return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d;
+  }
+  */
+
+  if(fabs(t_pp-tau_pp) > EPSILON){
+    return M()-M1()*log(4.*SQU(sin((t_pp-tau_pp)/2.)));
+  }
+  else{
+    return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d
+      //+ 2. * log(jac) * M1(); // Colton and Kress chg of vars for corner
+      ;
+  }
 }
 
 // Special quadrature weights
@@ -108,14 +118,16 @@ double GFHelmholtzParametric2D::singLogQuadWeight(double t, double tau, int n){
 Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
   Complex res=0., density, ansatz, m, m1, m2, fact;
-  double xt[3], dxt[3], xtau[3], dxtau[3], tau, tau_p, tau_pp, pou, w;
+  double xt[3], dxt[3], xtau[3], dxtau[3];
+  double tau, tau_p, tau_pp, t_p, t_pp, pou, w;
+  double tau_p_min, tau_p_max;
   int j, n = nbpts/2;
   double k = NORM3(ctx->waveNum), jac=1.;
   GFHelmholtzParametric2D kern;
   static int first = 1;
   static double *Weights;
 
-#undef TEST
+#define TEST
 #ifdef TEST
   static FILE *fp;
   if(first) fp = fopen("debug","w");
@@ -132,25 +144,47 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
   if((ctx->type & STORE_OPERATOR) && first)
     ctx->discreteMap = List_Create(nbpts, nbpts, sizeof(Complex));
 
+  // invert the change of vars to get the location of the target
+  // point in the [0,2\pi] parameterization. In the classic case,
+  // since we apply a linear chg of var and the interval is *always*
+  // centered arount the target point, the target is always at
+  // t_pp==PI! This is not the case anymore when a nonlinear chg of
+  // var is applied. 
+  // Here we first compute t_p in [w^{-1}(t_min),w^{-1}(t_max)] :
+  ctx->f.invChgVar(t, &t_p);
+
   for(j=0 ; j<=2*n-1 ; j++){
+    // tau_pp \in [0,2\pi]
     tau_pp = TWO_PI*j/(2.*n);
     jac = 1.;
 
-    tau_p = (tau_pp-PI)*part->epsilon/PI+part->center;
-    jac *= part->epsilon/PI ;
+    // tau_p \in [w(a-\epsilon),w(a+\epsilon)]
+    ctx->f.invChgVar(part->center-part->epsilon, &tau_p_min);
+    ctx->f.invChgVar(part->center+part->epsilon, &tau_p_max);
+    tau_p = (tau_p_max-tau_p_min)/TWO_PI*tau_pp + tau_p_min;
+    jac *= (tau_p_max-tau_p_min)/TWO_PI;
 
-    pou = part->eval(tau_p);
-
-    ctx->f.a = part->center - part->epsilon;
-    ctx->f.b = part->center + part->epsilon;
+    // tau in [a-\epsilon,a+\epsilon]
     jac *= ctx->f.chgVar(tau_p, &tau);
 
-    if(singular && first)
-      Weights[j] = kern.singLogQuadWeight(PI,tau_pp,n);
-   
+    // then compute the target point in [0,2\pi]:
+    t_pp = TWO_PI/(tau_p_max-tau_p_min)*(t_p-tau_p_min);
+    //printf("t_pp = %g\n", t_pp);
+
+    pou = part->eval(tau);
+
+#ifdef TEST
+    fprintf(fp,"%.12g %.12g %.12g    %.12g %.12g %.12g    %.12g\n",
+	    t,t_p,t_pp,tau,tau_p,tau_pp,pou);
+#endif
+
+    if(singular && 
+       (first || (ctx->f.applyChgVar && !(ctx->type & STORE_OPERATOR))))
+	Weights[j] = kern.singLogQuadWeight(t_pp,tau_pp,n);
+    
     if(pou){
 
-      density = ctx->f.density(&ctx->scat,tau_p); //tau
+      density = ctx->f.density(&ctx->scat,tau);
 
       if((ctx->type & STORE_OPERATOR) && ctx->iterNum > 1){
 	
@@ -165,13 +199,23 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 	ansatz = ctx->f.ansatz(ctx->waveNum,xt,xtau);
 
 	kern.init(t,xt,dxt,tau,xtau,dxtau,k);
-	if(singular){ // combine special quadrature with trapezoidal
+
+	if(!jac){//ctx->f.applyChgVar && fabs(tau)<1.e-16){
+	  // we are on the corner (jac is 0)
+	  Msg(WARNING, "corner: jac=0 (tau=%g, tau'=%g, tau\"=%g, jac=%g)",
+	      tau, tau_p, tau_pp, jac);
+	  fact = 0;
+	}
+	else if(singular){
+	  // combine special quadrature with trapezoidal
+	  if(!jac) Msg(ERROR, "Jac==0!");
 	  w = Weights[j]; // kern.singLogQuadWeight(PI,tau_pp,n);
 	  m1 = kern.M1();
-	  m2 = kern.M2(tau_pp,jac);
+	  m2 = kern.M2(t_pp,tau_pp,jac);
 	  fact = (w * m1 + PI/(double)n * m2) * ansatz * pou * jac;
 	}
-	else{ // simple trapezoidal
+	else{
+	  // simple trapezoidal
 	  if(List_Nbr(part->subParts)){
 	    Partition *part2 = (Partition*)List_Pointer(part->subParts,0);
 	    double pou2 = part2->eval(tau);
@@ -183,11 +227,6 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 	  }
 	  else
 	    fact = 0.;
-
-#ifdef TEST
-	  Complex xx=fact*density;
-	  fprintf(fp,"%.12g %.12g %.12g\n",tau,xx.real(),xx.imag());
-#endif
 
 	}
 
@@ -206,9 +245,56 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
   if(singular && first) first = 0;
 
 #ifdef TEST
-  fprintf(fp,"\n");
+  fprintf(fp,"\n\n");
 #endif
   
+  return res;
+}
+
+Complex NystromSimple(Ctx *ctx, double t, int nbpts, int index){
+  Complex res=0., density, ansatz, w, m1, m2, fact;
+  double xt[3], dxt[3], xtau[3], dxtau[3];
+  double tau, sigma;
+  int j, n = nbpts/2;
+  double k = NORM3(ctx->waveNum), jac=1.;
+  GFHelmholtzParametric2D kern;
+
+  printf("hello!\n");
+
+  if(!nbpts) return 0.;
+
+  ctx->scat.x(t,-1,xt);
+  ctx->scat.dx(t,-1,dxt);
+
+  for(j=0 ; j<=2*n-1 ; j++){
+    sigma = TWO_PI*j/(2.*n);
+    jac = 1.;
+
+    jac *= ctx->f.chgVar(sigma, &tau);
+
+    density = ctx->f.density(&ctx->scat,tau);
+
+    ctx->scat.x(tau,-1,xtau);
+    ctx->scat.dx(tau,-1,dxtau);
+
+    ansatz = ctx->f.ansatz(ctx->waveNum,xt,xtau);
+
+    kern.init(t,xt,dxt,tau,xtau,dxtau,k);
+
+    if(!jac){
+      Msg(WARNING, "corner: jac=0 (tau=%g, sigma=%g, jac=%g)", tau, sigma, jac);
+      fact = 0;
+    }
+    else{
+      w = kern.singLogQuadWeight(t,sigma,n);
+      m1 = kern.M1();
+      m2 = kern.M2(t,sigma,jac);
+      fact = (w * m1 + PI/(double)n * m2) * ansatz * jac;
+    }
+    res += fact * density;
+
+  }
+
   return res;
 }
 
@@ -242,11 +328,17 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
   List_Reset(CritPts);
   List_Reset(Intervals);
 
-  if(ctx->type & FULL_INTEGRATION){ // full Nystrom integrator
+  if(ctx->type & REAL_COLTON_KRESS){ // simple Nystrom, always in [0,2\pi]
+
+    return NystromSimple(ctx,t,ctx->nbIntPts,index);
+
+  }
+  else if(ctx->type & FULL_INTEGRATION){ // full Nystrom integrator
 
     // stupid pou around t, equal to 1 everywhere in [t-PI,t+PI]
     part.init(t,PI,0.);
     return Nystrom(1,ctx,t,ctx->nbIntPts,&part);
+    //return Nystrom(0,ctx,t,ctx->nbIntPts,&part);// pure trapezoidal (non log sing removal)
 
   }
 

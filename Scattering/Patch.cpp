@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.14 2002-05-31 23:07:02 geuzaine Exp $
+// $Id: Patch.cpp,v 1.15 2002-06-07 23:45:25 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -86,11 +86,18 @@ Patch::Patch(PatchType _type, int _beg, int _end,
     }
     printf("%.16g\n", nodes[i]);
     */
+
     /*
     double q=0.2;
     nodes[i] = 2*atan(q*tan(nodes[i]/2.)) ;
     if(nodes[i]<0) nodes[i] +=TWO_PI;
-    //printf("%.16g\n", nodes[i]);
+    */
+
+    /*
+    extern double w(double s, int p);
+    nodes[i] = w(nodes[i],8);
+
+    printf("%.16g\n", nodes[i]);
     */
   }
 

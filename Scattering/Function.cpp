@@ -1,9 +1,10 @@
-// $Id: Function.cpp,v 1.13 2002-05-31 23:07:02 geuzaine Exp $
+// $Id: Function.cpp,v 1.14 2002-06-07 23:45:25 geuzaine Exp $
 
 #include "Utils.h"
 #include "Function.h"
 #include "Scatterer.h"
 #include "Patch.h"
+#include "nrutil.h"
 
 double GetInInterval(double t, double t1, double t2){
   while(t > t2 || t < t1){
@@ -53,7 +54,7 @@ Complex Function::density(Scatterer *scat, double tau){
   switch(type){
     
   case ANALYTIC : // comparison with Alain/Oscar
-
+    
     return cos(tau);
     //return 1.;
 
@@ -86,47 +87,82 @@ Complex Function::density(Scatterer *scat, double tau){
   }
 }
 
-// the following is not used at the moment
+// Colton & Kress p. 74
+
+#define PP 8 // chg var order
+
+double v(double s, int p){
+  return (1./p-0.5) * CUB((PI-s)/PI) + 1./p * (s-PI)/PI + 0.5;
+}
+
+double dvds(double s, int p){
+  return -3 * (1./p-0.5) * SQU(PI-s) / CUB(PI) + 1./(p*PI);
+}
+
+double w(double s, int p){
+  int where;
+  double vsp, res;
+
+  // handle cases where s is not in [0,2\pi]
+  if(s<0.){
+    s = TWO_PI + s;
+    where = -1;
+  }
+  else if(s<TWO_PI){
+    where = 0;
+  }
+  else{
+    s = s - TWO_PI;
+    where = 1;
+  }
+  //s = GetInInterval(s, 0., TWO_PI);
+
+  vsp = pow(v(s,p),p);
+  res = TWO_PI * vsp/(vsp+pow(v(TWO_PI-s,p),p));
+  
+  if(where < 0){
+    return - (TWO_PI-res);
+  }
+  else if(where == 0){
+    return res;
+  }
+  else{
+    return TWO_PI+res;
+  }
+}
+
+double dwds(double s, int p){
+  double vsp, res;
+
+  // handle cases where s is not in [0,2\pi]
+  if(s<0.){
+    s = TWO_PI + s;
+  }
+  else if(s<TWO_PI){
+  }
+  else{
+    s = s - TWO_PI;
+  }
+  //s = GetInInterval(s, 0., TWO_PI);
+
+  vsp = pow(v(s,p),p);
+  res = TWO_PI * p * (pow(v(s,p),p-1) * dvds(s,p) * pow(v(TWO_PI-s,p),p) +
+		      vsp * pow(v(TWO_PI-s,p),p-1) * dvds(TWO_PI-s,p)) /
+    SQU(vsp + pow(v(TWO_PI-s,p),p)) ;
+
+  //if(!res) Msg(ERROR, "Jac==0! s=%.16g", s);
+  
+  return res;
+}
 
 double Function::chgVar(double u, double *t){
   double jac;
 
   switch(applyChgVar){
 
-  case 1 : // test
-    if(u>=-PI && u<PI){
-      *t = PI*cos((u-PI)/2.);
-      jac = -PI*sin((u-PI)/2.)/2.;
-      if(*t < a) *t += 2*PI;
-    }
-    else{
-      *t = PI*cos((u+PI)/2.) + 2.*PI;
-      jac = -PI*sin((u+PI)/2.)/2.;
-      if(*t > b) *t -= 2*PI;
-    }
-    break;
-
-  case 11 : // based on leonid's [-1,1]->[-1,1] mapping
-    jac = -PI*pow(cos(u),3.)/(4-4*pow(cos(u),2.)+pow(cos(u),4.));
-    if(u<-PI/2){
-      *t = -1*PI + PI * sin(u+PI)/(1+pow(sin(u+PI),2)) ;
-    }
-    else if(u<PI/2){
-      *t = 0*PI  + PI * sin(u)   /(1+pow(sin(u),2)) ;
-      jac *= -1;
-    }
-    else if(u<PI/2+PI){
-      *t = 1*PI  + PI * sin(u-PI)/(1+pow(sin(u-PI),2));
-    }
-    else if(u<PI/2+2*PI){
-      *t = 2.*PI + PI * sin(u)   /(1+pow(sin(u),2));
-      jac *= -1;
-    }
-    break;
-
-  case -1 : // boyd
-    jac = 1; // todo
-    *t = 2.*atan(0.5*tan(u/2.)) ;
+  case 1 :
+    *t = w(u,PP);
+    jac = dwds(u,PP);
     break;
 
   case 0 : // none
@@ -141,11 +177,73 @@ double Function::chgVar(double u, double *t){
 
 }
 
-double Function::invChgVar(double u, double *t){
-  double jac;
+// invert chg of vars : bissection
 
-  *t = u;
-  jac = 1.;
+static double THEINVPOINT;
 
-  return jac;
+double bisfunc(double x){
+  return w(x,PP) - THEINVPOINT ;
+}
+
+#define JMAX 10000
+
+double rtbis(double (*func)(double), double x1, double x2, double xacc){
+  void nrerror(char error_text[]);
+  int j;
+  double dx,f,fmid,xmid,rtb;
+  
+  f=(*func)(x1);
+  fmid=(*func)(x2);
+  if (f*fmid >= 0.0) nrerror("Root must be bracketed for bisection in rtbis");
+  rtb = f < 0.0 ? (dx=x2-x1,x1) : (dx=x1-x2,x2);
+  for (j=1;j<=JMAX;j++) {
+    fmid=(*func)(xmid=rtb+(dx *= 0.5));
+    if (fmid <= 0.0) rtb=xmid;
+    //if (fabs(dx) < xacc || fmid == 0.0) return rtb;
+    if (fabs(dx) < xacc) return rtb;
+  }
+  nrerror("Too many bisections in rtbis");
+  return 0.0;
+}
+
+#undef JMAX
+
+void Function::invChgVar(double u, double *t){
+  int where;
+
+  switch(applyChgVar){
+
+  case 1 :
+    // handle cases where u is not in [0,2\pi]
+    if(u<0.){
+      THEINVPOINT = TWO_PI + u;
+      where = -1;
+    }
+    else if(u<TWO_PI){
+      THEINVPOINT = u;
+      where = 0;
+    }
+    else{
+      THEINVPOINT = u - TWO_PI;
+      where = 1;
+    }
+    *t = rtbis(bisfunc,-0.1,TWO_PI+0.1,1.0e-16);
+    if(where < 0){
+      *t = - (TWO_PI-*t);
+    }
+    else if(where > 0){
+      *t = TWO_PI+*t;
+    }
+
+    //printf("invchv: in %g out %g\n", u, *t);
+
+    break;
+
+  case 0 : // none
+  default :
+    *t = u;
+    break;
+
+  }
+
 }

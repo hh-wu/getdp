@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.15 2002-05-24 00:29:30 geuzaine Exp $
+// $Id: Main.cpp,v 1.16 2002-06-07 23:45:25 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
@@ -81,6 +81,10 @@ int main(int argc, char *argv[]){
       }
       else if(Cmp(argv[i]+1, "critical", 1)){ 
 	i++; Msg(INFO, "Integrator: critical points");
+      }
+      else if(Cmp(argv[i]+1, "ck", 2)){ 
+	i++; Msg(INFO, "Real Colton and Kress integrator (always from 0 to 2*pi)");
+	ctx->type |= REAL_COLTON_KRESS;
       }
       else if(Cmp(argv[i]+1, "i1", 2)){ 
 	i++; ctx->type |= INTERACT1; Msg(INFO, "Integrator: interactive (1 point)");

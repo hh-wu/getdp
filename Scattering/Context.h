@@ -15,6 +15,7 @@
 #define ITER_SOLVE           (1<<5)
 #define PATCHES              (1<<6)
 #define POST_PROCESS         (1<<7)
+#define REAL_COLTON_KRESS    (1<<8)
 
 // General context
 

@@ -14,7 +14,7 @@ public:
 	    double _k);
   Complex M();
   Complex M1();
-  Complex M2(double tau_orig, double jac);
+  Complex M2(double t_pp, double tau_pp, double jac);
   double singLogQuadWeight(double t, double tau, int n);
 }; 
 

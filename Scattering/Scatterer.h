@@ -31,8 +31,6 @@ public:
 
   // Newton stuff for critical point computation
   void phase2D(double *x, int n, double *fvec, double **fjac);
-  void ludcmp (double **a, int n, int *indx, double *d);
-  void lubksb (double **a, int n, int *indx, double b[]);
   int  mnewt(int ntrial, double x[], int n, double tolx, double tolf);
 };
 
