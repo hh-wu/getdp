@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.20 2001-05-04 11:52:02 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.21 2001-05-04 14:58:46 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -8,6 +8,7 @@
 #include "Data_DefineE.h"
 #include "Treatment_Formulation.h"
 #include "CurrentData.h"
+#include "Socket.h"
 
 char  * Get_ExpressionName(struct Problem * Problem, int Index) {
 

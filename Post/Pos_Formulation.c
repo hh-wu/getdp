@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.26 2001-05-04 11:52:02 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.27 2001-05-04 14:58:46 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -13,6 +13,7 @@
 #include "Pos_Formulation.h"
 #include "Pos_Print.h"
 #include "Pos_Format.h"
+#include "Socket.h"
 
 extern int  InteractiveInterrupt ;
 

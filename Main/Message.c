@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.41 2001-05-04 11:52:02 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.42 2001-05-04 14:58:46 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,6 +12,7 @@
 #include "CurrentData.h"
 #include "Version.h"
 #include "LinAlg.h"
+#include "Socket.h"
 
 extern int     InteractiveLevel, InteractiveInterrupt ;
 
@@ -172,7 +173,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
 
   if(Flag_SOCKET > 0){
     vsprintf(sockmsg, fmt, args);
-    sprintf(prefix, "");
+    strcpy(prefix, "");
     switch(level){
     case CHECK :
       sockmsg[strlen(sockmsg)-1] = '\0' ;

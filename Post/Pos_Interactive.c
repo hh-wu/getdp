@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Interactive.c,v 1.14 2001-05-03 00:17:18 geuzaine Exp $"
+#define RCSID "$Id: Pos_Interactive.c,v 1.15 2001-05-04 14:58:46 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -21,6 +21,7 @@ extern FILE   *yyin;
 int   yyparse(void) ;
 char *readline(char *prompt);
 void  add_history(char *line);
+void  FinalizeAndExit(void);
 
 /* ------------------------------------------------------------------------ */
 /*  P o s _ I n t e r a c t i v e                                           */
