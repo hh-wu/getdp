@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.12 2002-02-13 23:54:11 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.13 2002-02-14 00:02:45 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -236,7 +236,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 
   switch(typ){
 
-  case FULL :
+  case FULL : // full Nystrom integrator
     for(i=0 ; i<nbtarget ; i++){
       t = 2*PI*i/(double)nbtarget + t0;
       // stupid pou around t, equal to 1 everywhere in [t-PI,t+PI]
@@ -247,7 +247,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
     }
     break;
 
-  case INTERACT1 :
+  case INTERACT1 : // interactive integration around one critical point
     CritPts = List_Create(10,10,sizeof(double));
 
     for(i=0 ; i<nbtarget ; i++){
@@ -277,8 +277,8 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
     List_Delete(CritPts);
     break;
     
-  case CRITICAL :
-  case INTERACT2 :
+  case CRITICAL : // critical point integration
+  case INTERACT2 : // interactive critical point integration
     CritPts = List_Create(10,10,sizeof(double));
     Intervals = List_Create(10,10,sizeof(Interval));
    
@@ -359,7 +359,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	if(I.num==s_index){
 	  part.init(t,s_eps,rise);
 	  if(typ == INTERACT2){
-	    printf("Int. Pts for singular? "); 
+	    printf("Nb int. pts for singular part.? "); 
 	    scanf("%d", &nb);
 	  }
 	  else{
@@ -376,7 +376,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	    part2.init(t,s_eps,rise);
 	    List_Add(part.subparts, &part2);
 	    if(typ == INTERACT2){
-	      printf("Int. Pts for special critical? "); 
+	      printf("Nb int. pts for special critical part.? "); 
 	      scanf("%d", &nb);
 	    }
 	    else{
@@ -394,7 +394,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	else{
 	  part.init((I.min+I.max)/2.,(I.max-I.min)/2.,rise);
 	  if(typ == INTERACT2){
-	    printf("Int. Pts for critical? "); 
+	    printf("Nb int. pts for critical part.? "); 
 	    scanf("%d", &nb);
 	  }
 	  else{
