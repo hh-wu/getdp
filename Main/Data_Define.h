@@ -23,7 +23,9 @@ struct StringXDefine  Mesh_Format[] = {
 struct StringXDefine  Field_Type[] = {
   {"Form0"  , FORM0 }, {"Form1"  , FORM1 }, {"Form2"   , FORM2  }, {"Form3"  , FORM3 },
   {"Form0P" , FORM0P}, {"Form1P" , FORM1P}, {"Form2P"  , FORM2P }, {"Form3P" , FORM3P},
+  {"Form0S" , FORM0S}, {"Form1S" , FORM1S}, {"Form2S"  , FORM2S }, {"Form3S" , FORM3S},
   {"Scalar" , SCALAR}, {"Vector" , VECTOR}, {"VectorP" , VECTORP},
+  {"Tensor" , TENSOR}, {"TensorSym" , TENSOR_SYM}, {"TensorDiag" , TENSOR_DIAG},
   {NULL     , FORM0}
 } ;
 
