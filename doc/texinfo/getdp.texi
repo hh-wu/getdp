@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.17 2001-07-21 19:52:39 geuzaine Exp $
+@c $Id: getdp.texi,v 1.18 2001-07-22 10:16:17 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -626,8 +626,8 @@ the text region comprised between @code{/*} and @code{*/} pairs is ignored.
 the rest of a line after a double slash @code{//} is ignored;
 @end enumerate
 
-These commands won't have the described effects inside double quotes
-(used to specify file names) or inside GetDP keywords.
+These commands won't have the described effects inside double quotes or
+inside GetDP keywords.
 
 @c -------------------------------------------------------------------------
 @c Includes
@@ -743,9 +743,9 @@ define and solve his problem.
 Expressions are the basic tool of GetDP. They cover a wide range of
 functional expressions, from constants to formal expressions containing
 functions (built-in or user-defined, depending on space and time, etc.),
-arguments, discrete quantities and their associated differential
-operators, etc. Note that `white space' (spaces, tabs, new line
-characters) is ignored inside expressions.
+arguments, discrete quantities and their associated differential operators,
+etc. Note that `white space' (spaces, tabs, new line characters) is ignored
+inside expressions (as well as inside all GetDP objects).
 
 Expressions are denoted by the metasyntactic variable @var{expression}
 (remember the definition of the syntactic rules in @ref{Syntactic rules}):
@@ -969,7 +969,7 @@ character expressions.
 @subsection Operator types
 
 The operators in GetDP are similar to the corresponding operators in the C
-pr C++ programming languages, except that all operators accept
+or C++ programming languages, except that all operators accept
 @var{expression} or @var{expression-cst} type arguments.
 
 @cindex Operators, definition
@@ -1123,12 +1123,13 @@ Two types of functions coexist in GetDP: user-defined functions
 (@var{function-id}, see @ref{Function}) and built-in functions
 (@var{built-in-function-id}, defined in this section). 
 
-Both types of functions are always followed by a pair of brackets
-@code{[]} that can possibly contain arguments. This makes it simple to
-distinguish a @var{function-id} or a @var{built-in-function-id} from a
-@var{constant-id}. As shown below, built-in functions might also have
-parameters, given between braces (@code{@{@}}), and which are completely
-evaluated during the analysis of the syntax (not at runtime):
+Both types of functions are always followed by a pair of brackets @code{[]}
+that can possibly contain arguments (@pxref{Arguments}). This makes it
+simple to distinguish a @var{function-id} or a @var{built-in-function-id}
+from a @var{constant-id}. As shown below, built-in functions might also have
+parameters, given between braces @code{@{@}}, and which are completely
+evaluated during the analysis of the syntax (since they are of
+@var{expression-cst-list} type):
 
 @example
 @var{built-in-function-id} [ < @var{expression-list} > ] < @{ @var{expression-cst-list} @} >
@@ -1153,7 +1154,8 @@ All possible values for @var{built-in-function-id} are listed in
 @ref{Types for Function}.  
 @item 
 Classical mathematical functions (@pxref{Math functions}) are
-the only functions allowed in a constant definition (@pxref{Constants}).
+the only functions allowed in a constant definition (see the definition of
+@var{expression-cst} in @ref{Constants}).
 @end enumerate
 
 
@@ -1183,7 +1185,7 @@ the only functions allowed in a constant definition (@pxref{Constants}).
 
 Current values are a special kind of arguments (@pxref{Arguments}) which
 return the current integer or floating point value of an internal GetDP
-variable.
+variable:
 
 @table @code
 @item $Time
@@ -1230,8 +1232,8 @@ coordinates, i.e.@: coordinates in which the mesh is expressed.
 @tindex $@var{integer}
 
 Function arguments can be used in expressions and have the following
-syntax (@var{integer} indicates the number of the argument in the
-@var{expression-list} of the function):
+syntax (@var{integer} indicates the position of the argument in the
+@var{expression-list} of the function, starting from 1):
 
 @example
 @var{argument}:
@@ -1332,14 +1334,14 @@ objects:
 @ftable @code
 
 @item Dof
-defines a vector of discrete quantities (vector of @code{D}egrees @code{o}f
+Defines a vector of discrete quantities (vector of @code{D}egrees @code{o}f
 @code{f}reedom), to be used only in @code{Equation} terms of formulations to
 define (elementary) matrices.  Roughly said, the @code{Dof} symbol in front
 of a discrete quantity indicates that this quantity is an unknown quantity,
 and should therefore not be considered as already computed.
 
 @item BF
-indicates that only a basis function will be used (only valid with basis
+Indicates that only a basis function will be used (only valid with basis
 functions associated with regions).
 
 @end ftable
@@ -1434,8 +1436,8 @@ is usually preferred with such fields.
 @vindex @var{group-def}
 @vindex @var{group-type}
 @vindex @var{group-list}
+@vindex @var{group-list-item}
 @vindex @var{group-sub-type}
-@vindex @var{group-item}
 
 Meshes (grids) constitute the input data of GetDP. All that is needed by
 GetDP as a mesh is a file containing a list of nodes (with their
@@ -1443,8 +1445,9 @@ coordinates) and a list of geometrical elements with, for each one, a number
 characterizing its geometrical type (i.e.@: line, triangle, quadrangle,
 tetrahedron, hexahedron, prism, etc.), a number characterizing the physical
 region to which it belongs and the list of its nodes. This minimal input set
-can should be easy to extract from most of the classical mesh file
-formats (@pxref{Input file format}).
+should be easy to extract from most of the classical mesh file
+formats (@pxref{Input file format}, for a complete description of the mesh
+file format read by GetDP).
 
 Groups of geometrical entities of various types can be considered and are
 used in many objects. There are region groups, of which the entities are
@@ -1493,9 +1496,9 @@ Group @{
   Region | Global | NodesOf | EdgesOf | @var{etc}
 
 @var{group-list}:
-  All | @var{group-item} | @{ @var{group-item} <,@dots{}> @}
+  All | @var{group-list-item} | @{ @var{group-list-item} <,@dots{}> @}
 
-@var{group-item}:
+@var{group-list-item}:
   @var{integer} | 
   @var{integer} : @var{integer} | 
   @var{integer} : @var{integer} : @var{integer} |
@@ -1508,13 +1511,13 @@ Group @{
 @noindent Notes:
 @enumerate
 @item
-@var{integer} as a @var{group-item} is the only interface with the mesh data
-(i.e.@: geometrical elements and their nodes); with each element is
-associated a region number, being this @var{integer}, and a geometrical type
-(@pxref{Input file format}). Ranges of integers can be specified in the same
-way as ranges of constant expressions in an @var{expression-cst-list-item}
-(@pxref{Constants}). For example, @code{@var{i}:@var{j}} replaces the list
-of consecutive integers @var{i}, @var{i}+1, @dots{}, @var{j}-1, @var{j}.
+@var{integer} as a @var{group-list-item} is the only interface with the
+mesh; with each element is associated a region number, being this
+@var{integer}, and a geometrical type (@pxref{Input file format}). Ranges of
+integers can be specified in the same way as ranges of constant expressions
+in an @var{expression-cst-list-item} (@pxref{Constants}). For example,
+@code{@var{i}:@var{j}} replaces the list of consecutive integers @var{i},
+@var{i}+1, @dots{}, @var{j}-1, @var{j}.
 @item
 Array of groups: @code{DefineGroup[@var{group-id}@{@var{n}@}]} defines
 the empty groups @code{@var{group-id}@{@var{i}@}}, @var{i}=1, @dots{}, n.
@@ -1560,7 +1563,7 @@ depend on space coordinates or time, which can be needed to express
 complex constraints.
 
 A definition of initially empty functions can be made thanks to the
-@code{DefineFunction} command, so that their identifiers exist and can be
+@code{DefineFunction} command so that their identifiers exist and can be
 referred to (but cannot be used) in other objects. The syntax for the
 definition of functions is:
 
@@ -1583,8 +1586,8 @@ Function @{
 @item
 The optional @var{group-def} in brackets must be of @code{Region} type, and
 indicates on which region the (piecewise) function is defined. Warning: it
-is thus incorrect to write @code{f[reg1]=1; g[reg2]=f[]+1;} since the
-domains of definition of @code{f[]} and @code{g[]} don't match.
+is incorrect to write @code{f[reg1]=1; g[reg2]=f[]+1;} since the domains of
+definition of @code{f[]} and @code{g[]} don't match.
 @end enumerate
 
 
@@ -2083,6 +2086,13 @@ the formulations @code{@var{formulation-id}@{@var{i}@}},
 @var{i}=1, @dots{}, @var{n}, replacing for each @var{i} any @code{@{@}} in
 @var{function-space-id}@code{@{@}} of @code{Quantity} field and in
 @var{group-def}s of @code{Equation} field with @{@var{i}@}.
+@item
+A @code{GlobalTerm} defines a term to be assembled in an equation associated
+with a global quantity.  This equation is a finite element equation if that
+global quantity is linked with local quantities.
+@item
+A @code{GlobalEquation} defines a global equation to be assembled in the
+matrix of the system.
 @end enumerate
 
 @xref{Types for Formulation}, for the complete list of options and
@@ -2164,8 +2174,7 @@ Resolution @{
   @var{string}
 
 @var{formulation-list}:
-  @var{formulation-id} <@{@}> < [ @var{mesh-id} ] > |
-  @{ @var{formulation-id} <@{@}> < [ @var{mesh-id}] > <,@dots{}> @}
+  @var{formulation-id} <@{@}> | @{ @var{formulation-id} <@{@}> <,@dots{}> @}
 
 @var{system-type}:
   Real | Complex
@@ -2228,7 +2237,7 @@ interest:
 @example
 PostProcessing @{
   @{ Name @var{post-processing-id} <@{#@var{integer}@}>; 
-    NameOfFormulation @var{formulation-id} <@{@}> < [ @var{mesh-id} ] >; 
+    NameOfFormulation @var{formulation-id} <@{@}>; < NameOfSystem @var{system-id}; >
     Quantity @{
       @{ Name @var{post-quantity-id}; Value @{ @var{post-value} @dots{} @} @} @dots{}
     @}
@@ -2247,7 +2256,7 @@ PostProcessing @{
   Local @{ @var{local-value} @} | Integral @{ @var{integral-value} @}
 
 @var{local-value}:
-  [ @var{expression} ]; In @var{group-def}; Jacobian @var{jacobian-id}
+  [ @var{expression} ]; In @var{group-def}; Jacobian @var{jacobian-id};
 
 @var{integral-value}:
   [ @var{expression} ]; In @var{group-def}; 
@@ -2351,13 +2360,20 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
 @item
 Both @code{PostOperation} syntaxes are equivalent.  The first one conforms to
 the overall interface, but the second one is more concise.
-@item The optional argument @code{[@var{group-def}]} of the
-@var{post-quantity-id} can only be used when this quantity has been defined
-as an @var{integral-value} (@pxref{PostProcessing}). In this case, the sum
-of all elementary integrals is performed over the region @var{group-def}.
-@item The @var{post-quantity-op} allows the simple combination of
-space-dependant quantities (@var{post-quantity-id}) with global integral
-quantities (@code{@var{post-quantity-id}[@var{group-def}]}).
+@item
+The format @var{post-operation-fmt} defined outside the @code{Operation}
+field is applied to all the post-processing operations, unless other formats
+are explicitly given in these operations with the @code{Format} option
+(@pxref{Types for PostOperation}). The default format is @code{Gmsh}.
+@item
+The optional argument @code{[@var{group-def}]} of the @var{post-quantity-id}
+can only be used when this quantity has been defined as an
+@var{integral-value} (@pxref{PostProcessing}). In this case, the sum of all
+elementary integrals is performed over the region @var{group-def}.
+@item
+The @var{post-quantity-op} allows the simple combination of space-dependant
+quantities (@var{post-quantity-id}) with global integral quantities
+(@code{@var{post-quantity-id}[@var{group-def}]}).
 @end enumerate
 
 @xref{Types for PostOperation}, for the complete list of options and
@@ -2370,6 +2386,9 @@ quantities (@code{@var{post-quantity-id}[@var{group-def}]}).
 
 @node Types for objects, Short examples, Objects, Top
 @chapter Types for objects
+
+This chapter presents the complete list of choices associated with
+metasyntactic variables introduced for the ten GetDP objects.
 
 @cindex Types, definition
 @cindex Objects, types
@@ -3354,22 +3373,6 @@ deRham projection (collocation).
 
 @end ftable
 
-
-@noindent
-@var{Other types of @code{Equation}s}:
-@ftable @code
-
-@item GlobalTerm
-Global term to be assembled in an equation associated with a global quantity. 
-This equation is a finite element equation if that global quantity is linked with 
-local quantities.
-
-@item GlobalEquation
-Global equations to be assembled in the matrix of the system.
-
-@end ftable
-
-
 @noindent
 @var{quantity-type}:
 @ftable @code
@@ -3525,106 +3528,110 @@ number of iterations (if no convergence), the relaxation factor (multiplies
 the iterative correction @var{dx}) and the relative error to achieve. The
 optional parameter is a flag for testing purposes.
 
-@item IterativeTimeReduction
-@{ @var{iterative-time-reduction-arg}; @}
 
-Iterative reduction of time interval to delimit variations of solutions 
-(e.g.@: used in types of nonlinear analyses).
-
-@end ftable
+@c  Patrick : la suite est-elle comprehensible ?
 
 
-@noindent
-@var{iterative-time-reduction-arg}:
-@ftable @code
+@c  @item IterativeTimeReduction
+@c  @{ @var{iterative-time-reduction-arg}; @}
 
-@item NbrMaxIteration
-@var{expression-cst}
-
-Maximum number of iterations (if no convergence).
-
-@item DivisionCoefficient
-@var{expression-cst}
-
-Division coefficient of the time interval (usually 2 for dichotomy).
-
-@item Criterion
-@var{expression-cst}
-
-Dimension of the time interval to achieve before stopping divisions.
-
-@item Flag
-@var{expression-cst}
-
-Option for test. [To be explained later.]
-
-@item System
-@var{system-id}
-
-System containing the quantities to test.
-
-@item ChangeOfState
-@{ @{ @var{change-of-state-arg} @} @dots{} @}
-
-Tests to perform.
-
-@item Operation
-@{ < @var{resolution-op}; > @dots{} @}
-
-Operations to perform at each step.
-
-@item OperationEnd
-@{ < @var{resolution-op}; > @dots{} @}
-
-Operations to perform after the last iteration (when leaving the loop).
+@c  Iterative reduction of time interval to delimit variations of solutions 
+@c  (e.g.@: used in types of nonlinear analyses).
 
 @end ftable
 
-@noindent
-@var{change-of-state-arg}:
-@ftable @code
 
-@item Type
-@var{change-of-state-type}
+@c  @noindent
+@c  @var{iterative-time-reduction-arg}:
+@c  @ftable @code
 
-Type of change of state analysis.
+@c  @item NbrMaxIteration
+@c  @var{expression-cst}
 
-@item Quantity
-@var{quantity-id}
-@itemx In
-@var{group-def}
+@c  Maximum number of iterations (if no convergence).
 
-Global quantity to analyse.
+@c  @item DivisionCoefficient
+@c  @var{expression-cst}
 
-@item Criterion
-@var{expression-cst}
+@c  Division coefficient of the time interval (usually 2 for dichotomy).
 
-Relative error accepted.
+@c  @item Criterion
+@c  @var{expression-cst}
 
-@item Function
-@var{expression}
+@c  Dimension of the time interval to achieve before stopping divisions.
 
-Reference function.
+@c  @item Flag
+@c  @var{expression-cst}
 
-@end ftable
+@c  Option for test. [To be explained later.]
 
-@noindent
-@var{change-of-state-type}:
-@ftable @code
+@c  @item System
+@c  @var{system-id}
 
-@item ChangeSign
-Test of change of sign of quantities.
+@c  System containing the quantities to test.
 
-@item ChangeLevel
-Test of change of level of quantities.
+@c  @item ChangeOfState
+@c  @{ @{ @var{change-of-state-arg} @} @dots{} @}
 
-@item ChangeReference
-Compare quantities to reference functions (e.g.@: for regulation).
+@c  Tests to perform.
 
-@item ChangeReference2
-Compare quantities to reference functions (e.g.@: for regulation).
+@c  @item Operation
+@c  @{ < @var{resolution-op}; > @dots{} @}
 
-@end ftable
+@c  Operations to perform at each step.
+
+@c  @item OperationEnd
+@c  @{ < @var{resolution-op}; > @dots{} @}
+
+@c  Operations to perform after the last iteration (when leaving the loop).
+
+@c  @end ftable
+
+@c  @noindent
+@c  @var{change-of-state-arg}:
+@c  @ftable @code
+
+@c  @item Type
+@c  @var{change-of-state-type}
+
+@c  Type of change of state analysis.
+
+@c  @item Quantity
+@c  @var{quantity-id}
+@c  @itemx In
+@c  @var{group-def}
+
+@c  Global quantity to analyse.
+
+@c  @item Criterion
+@c  @var{expression-cst}
+
+@c  Relative error accepted.
+
+@c  @item Function
+@c  @var{expression}
+
+@c  Reference function.
+
+@c  @end ftable
+
+@c  @noindent
+@c  @var{change-of-state-type}:
+@c  @ftable @code
+
+@c  @item ChangeSign
+@c  Test of change of sign of quantities.
+
+@c  @item ChangeLevel
+@c  Test of change of level of quantities.
+
+@c  @item ChangeReference
+@c  Compare quantities to reference functions (e.g.@: for regulation).
+
+@c  @item ChangeReference2
+@c  Compare quantities to reference functions (e.g.@: for regulation).
+
+@c  @end ftable
 
 
 @c -------------------------------------------------------------------------

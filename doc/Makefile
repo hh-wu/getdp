@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.14 2001-03-11 10:20:25 geuzaine Exp $
+# $Id: Makefile,v 1.15 2001-07-22 10:16:17 geuzaine Exp $
 
 all:
 	chmod 755 *
@@ -11,3 +11,5 @@ all:
 
 clean:
 	$(RM) $(RMFLAGS) getdp.ps getdp.pdf getdp.info*
+	cd texinfo && $(MAKE) clean
+	cd slides && $(MAKE) clean
