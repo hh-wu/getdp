@@ -1,4 +1,4 @@
-/* $Id: Get_DofOfElement.c,v 1.9 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: Get_DofOfElement.c,v 1.10 2000-10-02 09:20:22 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -299,17 +299,7 @@ void  Get_RegionForElement(struct Element * Element, int * StartingIndex) {
   }
 
   *StartingIndex = Element->NbrGroupsOfEntities ;
-  /*
-  if (List_Nbr(GroupEntity_P->InitialList) == 1) { 
-    / Attention : bricolage devant disparaitre !! provisoire pour Patrick /
-    Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] =
-      *((int *)List_Pointer(GroupEntity_P->InitialList, 0)) ;
-  }
-  else
-  */
   Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Element->Region ;
-
-  return ;
 }
 
 

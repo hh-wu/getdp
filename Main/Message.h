@@ -1,4 +1,4 @@
-/* $Id: Message.h,v 1.3 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Message.h,v 1.4 2000-10-02 09:20:22 geuzaine Exp $ */
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
@@ -9,15 +9,18 @@
 #define WARNING      2      /*   >= 0 (always)     */
 #define OPERATION    3      /*   >= 2              */
 #define INFO         4      /*   >= 3              */
-#define BIGINFO      6      /*   >= 1              */
-#define SPARSKIT     7      /*   >= 3              */
-#define PETSC        8      /*   >= 3              */
-#define ITER         9      /*   >= 4              */
-#define DEBUG        10     /*   == 99             */
-#define LOADING      11     /*   >= 2              */
-#define RESOURCES    12     /*   >= 4              */
-#define SUMMARY      13     /*   >= 1              */
-#define CHECK        14     /*   >= 0 (always)     */
+#define INFO1        5      /*   >= 3              */
+#define INFO2        6      /*   >= 3              */
+#define INFO3        7      /*   >= 3              */
+#define BIGINFO      8      /*   >= 1              */
+#define SPARSKIT     9      /*   >= 3              */
+#define PETSC        10     /*   >= 3              */
+#define ITER         11     /*   >= 4              */
+#define DEBUG        12     /*   == 99             */
+#define LOADING      13     /*   >= 2              */
+#define RESOURCES    14     /*   >= 4              */
+#define SUMMARY      15     /*   >= 1              */
+#define CHECK        16     /*   >= 0 (always)     */
 
 #define ERROR_STR     "Error     : "
 #define WARNING_STR   "Warning   : "

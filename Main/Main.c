@@ -1,4 +1,4 @@
-/* $Id: Main.c,v 1.11 2000-09-26 16:20:10 geuzaine Exp $ */
+/* $Id: Main.c,v 1.12 2000-10-02 09:20:22 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -52,7 +52,7 @@ int Flag_RemoveSingularity = 0;
 
 int  main(int argc, char *argv[]) {
   char  ext[6], **sargv;
-  int   sargc ;
+  int   sargc, i ;
   char  ProName[MAX_FILE_NAME_LENGTH], LogName[MAX_FILE_NAME_LENGTH] ;
 
   /* init MPI for multi-processor jobs */
@@ -69,6 +69,15 @@ int  main(int argc, char *argv[]) {
 
   Init_GlobalVariables() ;
   Get_Options(argc, argv, &sargc, sargv, ProName) ;
+
+  if(sargc > 1){
+    Msg(INFO1, "Passing Unused Options to Solver: '") ;
+    for(i = 1 ; i < sargc ; i++) {
+      if(i != 1) Msg(INFO2, " ") ; 
+      Msg(INFO2, "%s", sargv[i]) ;
+    }
+    Msg(INFO3, "'") ;
+  }
 
   /* handle some signals */
 
@@ -382,7 +391,6 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       }
 
       else {
-	/*  Msg(INFO, "Passing Option to Solver: '%s'", argv[i]) ; */
 	sargv[(*sargc)++] = argv[i++]; 
       }
       
@@ -394,7 +402,6 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	strcpy(NameProblem, argv[i++]) ; 
       }
       else{
-	/* Msg(INFO, "Passing Option to Solver: '%s'", argv[i]) ; */
 	sargv[(*sargc)++] = argv[i++]; 
       }
     }

@@ -1,4 +1,4 @@
-/* $Id: Message.c,v 1.14 2000-10-01 06:50:28 geuzaine Exp $ */
+/* $Id: Message.c,v 1.15 2000-10-02 09:20:22 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
@@ -188,10 +188,13 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
     break;
 
   case INFO :
+  case INFO1 :
+  case INFO2 :
+  case INFO3 :
     if(Verbosity > 2 || stream == LogStream){
-      fprintf(stream, INFO_STR); 
+      if(level == INFO || level == INFO1) fprintf(stream, INFO_STR); 
       vfprintf(stream, fmt, args);
-      fprintf(stream, "\n");
+      if(level == INFO || level == INFO3) fprintf(stream, "\n");
     }
     break;
 
