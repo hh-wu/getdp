@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.12 2001-08-04 09:00:51 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.13 2001-08-09 19:29:21 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -9,10 +9,24 @@
 #include "Data_Active.h"
 #include "Pos_Element.h"
 #include "Cal_Value.h"
+#include "CurrentData.h"
 
 /* ------------------------------------------------------------------------ */
 /*  Create/Destroy/Compare                                                  */
 /* ------------------------------------------------------------------------ */
+
+void Alloc_PostElement(struct PostElement * PostElement){
+  PostElement->NumNodes = (int *) Malloc(PostElement->NbrNodes * sizeof(int)) ;
+  /* allocate as much as possible in one step */
+  PostElement->u = (double *) Malloc(6 * PostElement->NbrNodes * sizeof(double)) ;
+  PostElement->v = &PostElement->u[PostElement->NbrNodes] ;
+  PostElement->w = &PostElement->u[2*PostElement->NbrNodes] ;
+  PostElement->x = &PostElement->u[3*PostElement->NbrNodes] ;
+  PostElement->y = &PostElement->u[4*PostElement->NbrNodes] ;
+  PostElement->z = &PostElement->u[5*PostElement->NbrNodes] ;
+  PostElement->Value = (struct Value *) 
+    Malloc(PostElement->NbrNodes * sizeof(struct Value)) ;
+}
 
 struct PostElement * Create_PostElement(int Index, int Type, 
 					int NbrNodes, int Depth){
@@ -25,25 +39,7 @@ struct PostElement * Create_PostElement(int Index, int Type,
   PostElement->Type = Type ;
   PostElement->Depth = Depth ;
   PostElement->NbrNodes = NbrNodes ;
-  if(NbrNodes > 0){
-    PostElement->NumNodes = (int *) Malloc(NbrNodes * sizeof(int)) ;
-    /* allocate as much as possible in one step */
-    PostElement->u = (double *) Malloc(6 * NbrNodes * sizeof(double)) ;
-    PostElement->v = &PostElement->u[NbrNodes] ;
-    PostElement->w = &PostElement->u[2*NbrNodes] ;
-    PostElement->x = &PostElement->u[3*NbrNodes] ;
-    PostElement->y = &PostElement->u[4*NbrNodes] ;
-    PostElement->z = &PostElement->u[5*NbrNodes] ;
-    /*
-    PostElement->u = (double *) Malloc(NbrNodes * sizeof(double)) ;
-    PostElement->v = (double *) Malloc(NbrNodes * sizeof(double)) ;
-    PostElement->w = (double *) Malloc(NbrNodes * sizeof(double)) ;
-    PostElement->x = (double *) Malloc(NbrNodes * sizeof(double)) ;
-    PostElement->y = (double *) Malloc(NbrNodes * sizeof(double)) ;
-    PostElement->z = (double *) Malloc(NbrNodes * sizeof(double)) ;
-    */
-    PostElement->Value = (struct Value *) Malloc(NbrNodes * sizeof(struct Value)) ;
-  }
+  if(NbrNodes > 0) Alloc_PostElement(PostElement);
 
   GetDP_Return(PostElement) ;
 }
@@ -54,22 +50,40 @@ void Destroy_PostElement(struct PostElement * PostElement){
 
   if(PostElement->NbrNodes > 0){
     Free(PostElement->NumNodes) ;
-    if(PostElement->u) /* normal case */
-      Free(PostElement->u) ;
-    else if(PostElement->x) /* partial copy */
-      Free(PostElement->x) ;
-    /*
-    Free(PostElement->v) ;
-    Free(PostElement->w) ;
-    Free(PostElement->x) ;
-    Free(PostElement->y) ;
-    Free(PostElement->z) ;
-    */
+    if(PostElement->u) Free(PostElement->u); /* normal case */
+    else if(PostElement->x) Free(PostElement->x); /* partial copy */
     Free(PostElement->Value) ;
   }
   Free(PostElement) ;
 
   GetDP_End ;
+}
+
+struct PostElement * NodeCopy_PostElement(struct PostElement *PostElement){
+  struct PostElement * Copy ;
+  int i ;
+
+  GetDP_Begin("Copy_PostElement");
+
+  Copy = (struct PostElement *) Malloc(sizeof(struct PostElement)) ;
+  Copy->Index = PostElement->Index ; 
+  Copy->Type = PostElement->Type ;
+  Copy->Depth = PostElement->Depth ;
+  Copy->NbrNodes = PostElement->NbrNodes ;
+  if(Copy->NbrNodes > 0){
+    Alloc_PostElement(Copy);
+    for(i = 0 ; i < Copy->NbrNodes ; i++){
+      Copy->NumNodes[i] = PostElement->NumNodes[i];
+      Copy->u[i] = PostElement->u[i] ;
+      Copy->v[i] = PostElement->v[i] ;
+      Copy->w[i] = PostElement->w[i] ;
+      Copy->x[i] = PostElement->x[i] ;
+      Copy->y[i] = PostElement->y[i] ;
+      Copy->z[i] = PostElement->z[i] ;
+    }
+  }
+
+  GetDP_Return(Copy) ;
 }
 
 struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement){
@@ -86,14 +100,10 @@ struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement){
   if(Copy->NbrNodes > 0){
     Copy->NumNodes = NULL ;
     Copy->u = Copy->v = Copy->w = NULL ;
+    /* allocate as much as possible in one step */
     Copy->x = (double *) Malloc(3* Copy->NbrNodes * sizeof(double)) ;
     Copy->y = &Copy->x[Copy->NbrNodes];
     Copy->z = &Copy->x[2 * Copy->NbrNodes];
-    /*
-    Copy->x = (double *) Malloc(Copy->NbrNodes * sizeof(double)) ;
-    Copy->y = (double *) Malloc(Copy->NbrNodes * sizeof(double)) ;
-    Copy->z = (double *) Malloc(Copy->NbrNodes * sizeof(double)) ;
-    */
     Copy->Value = (struct Value *) Malloc(Copy->NbrNodes * sizeof(struct Value)) ;
     for(i = 0 ; i < Copy->NbrNodes ; i++){
       Copy->x[i] = PostElement->x[i] ;
@@ -108,11 +118,9 @@ struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement){
 
 /* 2 PostElements never have the same barycenter unless they are identical */
 
-#define TOL 1.e-08  /* should be relative... */
- 
 int fcmp_PostElement(const void *a, const void *b){
   struct PostElement *PE1, *PE2 ;
-  double s1, s2 ;
+  double s1, s2, TOL=Current.GeoData->CharacteristicLength * 1.e-6 ;
   int i;
 
   PE1 = *(struct PostElement**)a; PE2 = *(struct PostElement**)b;
@@ -132,7 +140,30 @@ int fcmp_PostElement(const void *a, const void *b){
   return 0;
 }  
 
-#undef TOL
+int fcmp_PostElement_heterog(const void *a, const void *b){
+  struct PostElement *PE1, *PE2 ;
+  double s1, s2, TOL=Current.GeoData->CharacteristicLength * 1.e-6 ;
+  int i;
+
+  PE1 = *(struct PostElement**)a; PE2 = *(struct PostElement**)b;
+
+  s1 = s2 = 0.0 ;  
+  for(i=0;i<PE1->NbrNodes;i++) s1 += PE1->x[i]; s1/=(double)PE1->NbrNodes;
+  for(i=0;i<PE2->NbrNodes;i++) s2 += PE2->x[i]; s2/=(double)PE2->NbrNodes;
+  if(s1-s2 > TOL) return 1; else if(s1-s2 < -TOL) return -1;
+
+  s1 = s2 = 0.0 ;
+  for(i=0;i<PE1->NbrNodes;i++) s1 += PE1->y[i]; s1/=(double)PE1->NbrNodes;
+  for(i=0;i<PE2->NbrNodes;i++) s2 += PE2->y[i]; s2/=(double)PE2->NbrNodes;
+  if(s1-s2 > TOL) return 1; else if(s1-s2 < -TOL) return -1;
+
+  s1 = s2 = 0.0 ;
+  for(i=0;i<PE1->NbrNodes;i++) s1 += PE1->z[i]; s1/=(double)PE1->NbrNodes;
+  for(i=0;i<PE2->NbrNodes;i++) s2 += PE2->z[i]; s2/=(double)PE2->NbrNodes;
+  if(s1-s2 > TOL) return 1; else if(s1-s2 < -TOL) return -1;
+
+  return 0;
+}  
 
 int fcmp_PostElement_v0(const void *a, const void *b){
   return (int)( (*(struct PostElement**)a)->v[0] - 
@@ -954,7 +985,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
 	  PE->NumNodes[2] = GE->NumNodes[4] ;
-	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 1. ;
+	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
 	  PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 1. ;
 	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
@@ -1119,18 +1150,15 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 /*  S o r t B y C o n n e c t i v i t y                                     */
 /* ------------------------------------------------------------------------ */
 
-#define TOL 1.e-12  /* should be relative... */
-
 int Compare_PostElement_Node(struct PostElement * PE1, int n1,
 			     struct PostElement * PE2, int n2){
+  double TOL=Current.GeoData->CharacteristicLength * 1.e-6;
   if ( (fabs(PE1->x[n1] - PE2->x[n2]) < TOL) &&
        (fabs(PE1->y[n1] - PE2->y[n2]) < TOL) &&
        (fabs(PE1->z[n1] - PE2->z[n2]) < TOL) )
     return 1 ;
   return 0 ;
 }
-
-#undef TOL
 
 void Sort_PostElement_Connectivity(List_T *PostElement_L){
   int ii, jj, start, end, iPost, NbrPost ;

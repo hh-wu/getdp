@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.48 2001-08-04 03:33:37 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.49 2001-08-09 19:29:21 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -38,10 +38,9 @@ struct xyzv{
   int nboccurences;
 };
 
-#define TOL 1.e-12  /* should be relative... */
-
 int fcmp_xyzv(const void * a, const void * b) {
   struct xyzv *p1, *p2;
+  double TOL=Current.GeoData->CharacteristicLength * 1.e-6;
   p1 = (struct xyzv*)a;
   p2 = (struct xyzv*)b;
   if(p1->x - p2->x > TOL) return 1;
@@ -52,8 +51,6 @@ int fcmp_xyzv(const void * a, const void * b) {
   if(p1->z - p2->z <-TOL) return -1;
   return 0;
 }
-
-#undef TOL
 
 
 /*
@@ -105,6 +102,28 @@ void Cut_SkinPostElement(void *a, void *b){
 
   Cut_PostElement(PE, Geo_GetGeoElement(PE->Index), SkinPostElement_L, 
 		  PE->Index, SkinDepth, 0, 1) ;
+}
+
+void Decompose_SkinPostElement(void *a, void *b){
+  struct PostElement  * PE, * PE2 ;
+
+  PE = *(struct PostElement**)a ;
+
+  if(PE->Type != QUADRANGLE) return;
+  /* change the quad to a tri */
+  PE->Type = TRIANGLE;
+  PE->NbrNodes = 3;
+  /* create a second tri */
+  PE2 = NodeCopy_PostElement(PE) ;
+  PE2->NumNodes[1] = PE->NumNodes[2];
+  PE2->u[1] = PE->u[2]; PE2->x[1] = PE->x[2];
+  PE2->v[1] = PE->v[2]; PE2->y[1] = PE->y[2];
+  PE2->w[1] = PE->w[2]; PE2->z[1] = PE->z[2];
+  PE2->NumNodes[2] = PE->NumNodes[3];
+  PE2->u[2] = PE->u[3]; PE2->x[2] = PE->x[3];
+  PE2->v[2] = PE->v[3]; PE2->y[2] = PE->y[3];
+  PE2->w[2] = PE->w[3]; PE2->z[2] = PE->z[3];
+  List_Add(SkinPostElement_L, &PE2);
 }
 
 void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
@@ -190,8 +209,9 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
   /* Check if we should decompose all PostElements to simplices */
 
-  if(PostSubOperation_P->Format == FORMAT_GMSH || 
-     PostSubOperation_P->Format == FORMAT_GMSH_PARSED)
+  if(!PostSubOperation_P->Skin && 
+     (PostSubOperation_P->Format == FORMAT_GMSH || 
+      PostSubOperation_P->Format == FORMAT_GMSH_PARSED))
     DecomposeInSimplex = 1 ;
 
   /* Check for de-refinement */
@@ -231,20 +251,35 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     /* Compute the skin */
 
     if(PostSubOperation_P->Skin){
-      PostElement_T = Tree_Create(sizeof(struct PostElement *), fcmp_PostElement);
 
+      if(PostSubOperation_P->Format == FORMAT_GMSH || 
+	 PostSubOperation_P->Format == FORMAT_GMSH_PARSED)
+	PostElement_T = Tree_Create(sizeof(struct PostElement *), fcmp_PostElement_heterog);
+      else
+	PostElement_T = Tree_Create(sizeof(struct PostElement *), fcmp_PostElement);
+      
       for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){
 	if(InteractiveInterrupt) break;
 	Progress(iPost, List_Nbr(PostElement_L), "Skin: ") ;
 	PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost) ;
-	if(Tree_Query(PostElement_T, &PE)){
+	if(Tree_PQuery(PostElement_T, &PE)){
 	  Tree_Suppress(PostElement_T, &PE);
 	  Destroy_PostElement(PE) ;
 	}
 	else
 	  Tree_Add(PostElement_T, &PE);
       }
-      
+
+      /* only decompose in simplices (triangles!) now */
+      if(PostSubOperation_P->Format == FORMAT_GMSH || 
+	 PostSubOperation_P->Format == FORMAT_GMSH_PARSED){
+	List_Reset(PostElement_L);
+	SkinPostElement_L = PostElement_L ;
+	Tree_Action(PostElement_T, Decompose_SkinPostElement);
+	for(iPost = 0 ; iPost < List_Nbr(SkinPostElement_L) ; iPost++)
+	  Tree_Add(PostElement_T, (struct PostElement**)List_Pointer(SkinPostElement_L, iPost)) ;
+      }
+
       if(PostSubOperation_P->Depth > 1){
 	List_Reset(PostElement_L);
 	SkinPostElement_L = PostElement_L ;
