@@ -4,12 +4,8 @@
 #include "Data_Passive.h"
 #include "BF_Function.h"
 
-
-/*
-  How to associate the "non-symmetric" facets functions? By selecting
-  the function according to the NumIndexth smallest global node number
-  (This is tricky... and slow)
-*/
+/* The non-symmetric facets functions are selected according to the
+   NumIndexth smallest global node number */
 
 int fcmp_Int2(const void * a, const void * b){
   return ((struct TwoInt *)a)->Int2 - ((struct TwoInt *)b)->Int2 ;

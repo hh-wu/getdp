@@ -9,6 +9,8 @@
 #include "ualloc.h"
 #include "Magic.h"
 
+extern double Flag_DEGREE ;
+
 FILE  * File_GEO ;
 
 struct GeoData  * CurrentGeoData ;
@@ -227,7 +229,7 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
 
   struct Geo_Element Geo_Element, * Geo_Element_P ;
   int        Nbr, i ;
-  double     E, H, P ;
+  double     E, H, P, Max_Degree = -1.0 ;
   char       String[MAX_STRING_LENGTH] ;
 
   Nbr = List_Nbr(GeoData_P->Elements) ;
@@ -259,6 +261,7 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
 	  Msg(ERROR, "Element %d Not Found in Database", Geo_Element.Num) ;
 	GeoData_P->H[Geo_Element_P->Index+1] = H ;
 	GeoData_P->P[Geo_Element_P->Index+1] = P ;
+	if(P > Max_Degree) Max_Degree = P ;
       }
     }
 
@@ -268,6 +271,10 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
+
+  if(Flag_DEGREE < 0) Flag_DEGREE = Max_Degree ;
+ 
+  Msg(INFO, "Maximum Interpolation Degree = %g", Flag_DEGREE) ;
 
 }
 
