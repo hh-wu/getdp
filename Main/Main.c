@@ -1,7 +1,8 @@
-#define RCSID "$Id: Main.c,v 1.34 2001-05-04 11:52:02 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.35 2001-05-04 22:48:21 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <sys/types.h>
 #include <unistd.h>
 #include <signal.h>
 
@@ -253,7 +254,9 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       else if (!strcmp(argv[i]+1, "socket")) {
 	i++ ;
 	if (i<argc && argv[i][0]!='-') { 
-	  Flag_SOCKET = Socket_Connect(argv[i]) ; i++ ; 
+	  Flag_SOCKET = Socket_Connect(argv[i]) ;
+	  Socket_SendInt(Flag_SOCKET, getpid());
+	  i++ ; 
 	}
 	else {
 	  Msg(ERROR, "Missing socket name");
