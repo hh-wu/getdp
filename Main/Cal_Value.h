@@ -1,4 +1,4 @@
-/* $Id: Cal_Value.h,v 1.5 2002-01-18 11:10:27 gyselinc Exp $ */
+/* $Id: Cal_Value.h,v 1.6 2003-03-17 10:50:30 sabarieg Exp $ */
 #ifndef _CAL_VALUE_H_
 #define _CAL_VALUE_H_
 
@@ -51,7 +51,7 @@ void  Show_Value (struct Value *A);
 
 /* From struct Value to array of doubles */
 
-void  Cal_ValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values);
-
+void  Cal_ValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values) ;
+void  Cal_AddValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values) ;
 
 #endif

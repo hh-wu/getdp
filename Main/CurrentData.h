@@ -1,4 +1,4 @@
-/* $Id: CurrentData.h,v 1.10 2001-05-23 10:23:23 geuzaine Exp $ */
+/* $Id: CurrentData.h,v 1.11 2003-03-17 10:50:31 sabarieg Exp $ */
 #ifndef _CURRENT_DATA_H_
 #define _CURRENT_DATA_H_
 
@@ -14,6 +14,7 @@ extern int    Flag_PRE, Flag_PAR, Flag_CAL, Flag_POS, Flag_IPOS ;
 extern int    Flag_XDATA, Flag_LRES, Flag_LPOS ;
 extern int    Flag_CHECK, Flag_RESTART ;
 extern int    Flag_LOG, Flag_VERBOSE ;
+extern int    Flag_BIN, Flag_PROGRESS, Flag_SPLIT, Flag_FMM, Flag_DTA ;
 extern int    Flag_BIN, Flag_PROGRESS, Flag_SPLIT, Flag_SOCKET ;
 extern double Flag_ORDER ;
 
@@ -25,7 +26,6 @@ extern char *Name_MshFile, *Name_ResFile[NBR_MAX_RES], *Name_AdaptFile ;
 extern struct Expression  *Problem_Expression0 ;
 extern int                 TreatmentStatus ;
 extern List_T             *GeoData_L , *PreResolutionIndex_L ;
-
 extern FILE  *LogStream, *PrintStream, *PostStream ;
 
 struct PreResolutionInfo {
@@ -41,5 +41,7 @@ struct PreResolutionInfo {
 /* Current values */
 
 extern struct CurrentData  Current ;
+
+
 
 #endif

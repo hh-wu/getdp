@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AnalyticIntegration.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Cal_AnalyticIntegration.c,v 1.6 2003-03-17 10:50:30 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -48,7 +48,6 @@ double  Cal_AnalyticIntegration(struct Element * E,
       Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");
       GetDP_Return(0.) ;
     }
-    break;
     
   case 1 :
     switch (j) {
@@ -68,7 +67,6 @@ double  Cal_AnalyticIntegration(struct Element * E,
       Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");
       GetDP_Return(0.) ;
     }
-    break;
     
   case 2 :
     switch (j) {
@@ -88,7 +86,6 @@ double  Cal_AnalyticIntegration(struct Element * E,
       Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");
       GetDP_Return(0.);
     }
-    break;
 
   default :
     Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");

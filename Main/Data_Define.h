@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.32 2002-01-18 11:10:27 gyselinc Exp $ */
+/* $Id: Data_Define.h,v 1.33 2003-03-17 10:50:31 sabarieg Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -189,6 +189,11 @@ struct StringXDefine  DefineSystem_Type[] = {
 
 struct StringXDefine  Operation_Type[] = {
   {"Generate"               , OPERATION_GENERATE},
+  {"GenerateOnly"           , OPERATION_GENERATEONLY},
+  {"GenerateOnlyJac"        , OPERATION_GENERATEONLYJAC},
+  {"GenerateFMMGroups"      , OPERATION_GENERATEFMMGROUPS},
+  {"Update"                 , OPERATION_UPDATE},
+  {"Update_Translation"     , OPERATION_UPDATETRANSLATION},
   {"Solve"                  , OPERATION_SOLVE},
   {"GenerateJac"            , OPERATION_GENERATEJAC},
   {"SolveJac"               , OPERATION_SOLVEJAC},
@@ -337,3 +342,7 @@ struct DefineXFunction  FunctionForGaussLegendre[] = {
 #undef CAST
 
 #endif
+
+
+
+

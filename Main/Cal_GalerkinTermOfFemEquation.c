@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.17 2003-01-31 13:51:53 dular Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.18 2003-03-17 10:50:30 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -11,6 +11,7 @@
 #include "GeoData.h"
 #include "CurrentData.h"
 #include "Tools.h"
+
 
 void  Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTerm_P) ;
 void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
@@ -231,6 +232,7 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
 /*  C a l _ T e r m O f F e m E q u a t i o n                               */
 /* ------------------------------------------------------------------------ */
 
+
 void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 				    struct EquationTerm     * EquationTerm_P,
 				    struct QuantityStorage  * QuantityStorage_P0) {
@@ -239,12 +241,13 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   struct QuantityStorage    * QuantityStorageEqu_P, * QuantityStorageDof_P ;
   struct IntegrationCase    * IntegrationCase_P ;
   struct Quadrature         * Quadrature_P ;
-  struct Value                vBFxDof[NBR_MAX_BASISFUNCTIONS], CoefPhys;
-  struct Value                CanonicExpression_Equ, V1, V2 ;
+  struct Value                vBFxDof [NBR_MAX_BASISFUNCTIONS], CoefPhys ;
+  struct Value                CanonicExpression_Equ, V1, V2;
 
   int     Nbr_Equ, Nbr_Dof ;
   int     i, j, k, Type_Dimension, Nbr_IntPoints, i_IntPoint ;
-
+  int     NextElement ;
+  
   double  weight, Factor ;
   double  vBFuEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double  vBFxEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
@@ -258,8 +261,9 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
      double u, double v, double w, double Value[] ) ;
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
   void (*Get_IntPoint)(int,int,double*,double*,double*,double*);
-
+  
   extern int Flag_RHS;  
+ 
 
   GetDP_Begin("Cal_GalerkinTermOfFemEquation");
 
@@ -346,7 +350,6 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   if (FI->Flag_ChangeCoord)
     Get_NodesCoordinatesOfElement(Element) ;
 
-
   /*  ------------------------------------------------------------------------  */
   /*  ------------------------------------------------------------------------  */
   /*  C o m p u t a t i o n   o f   E l e m e n t a r y   m a t r i x           */
@@ -360,16 +363,21 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 
     if (FI->Type_DefineQuantityDof == INTEGRALQUANTITY) {
 
-      if ( Get_NextElementSource(Element->ElementSource) ) {
-
+      if (!Flag_FMM)
+	NextElement = Get_NextElementSource(Element->ElementSource) ;
+      else{
+	NextElement = Get_NextElementSourceNeighbour(Element) ;
+      }
+      
+      if (NextElement) {
 	/* Get DOF of source element */
-
+      
 	Get_DofOfElement(Element->ElementSource,
 			 QuantityStorageDof_P->FunctionSpace,
 			 QuantityStorageDof_P, NULL) ;
-
+	
 	/* Get function value for shape function */
-
+      
 	Get_NodesCoordinatesOfElement(Element->ElementSource) ;
 	Nbr_Dof = QuantityStorageDof_P->NbrElementaryBasisFunction ;
 	Get_FunctionValue(Nbr_Dof, (void (**)())xFunctionBFDof,
@@ -377,38 +385,37 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 			  QuantityStorageDof_P, &FI->IntegralQuantityActive.Type_FormDof) ;
 	
 	/* Initialize Integral Quantity (integration & jacobian) */
-
+	
 	Cal_InitIntegralQuantity(Element, &FI->IntegralQuantityActive, 
-				 QuantityStorageDof_P);
+				   QuantityStorageDof_P);
       }
       else { 
-        break ;
-      }
-
+	break ;	  
+      }/* if Get_NextElementSource (Neighbour) */
     } /* if INTEGRALQUANTITY */
-
-
+      
+   
     if (FI->SymmetricalMatrix)
       for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j <= i      ; j++) 
 	for (k = 0 ; k < Current.NbrHar ; k++)  Ek[i][j][k] = 0. ;
     else
       for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j < Nbr_Dof ; j++)
 	for (k = 0 ; k < Current.NbrHar ; k++)  Ek[i][j][k] = 0. ;
-
-
+    
+   
     switch (IntegrationCase_P->Type) {
-
-    /*  -------------------------------------  */
-    /*  Q U A D R A T U R E                    */
-    /*  -------------------------------------  */
-
+      
+      /*  -------------------------------------  */
+      /*  Q U A D R A T U R E                    */
+      /*  -------------------------------------  */
+      
     case GAUSS :  
     case GAUSSLEGENDRE :
     case NEWTONCOTES :
-
+     
       Quadrature_P = (struct Quadrature*)
 	List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
-
+      
       if(!Quadrature_P)
 	Msg(ERROR, "Unknown type of Element (%s) for Integration method (%s)",
 	    Get_StringForDefine(Element_Type, Element->Type),
@@ -419,6 +426,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       Nbr_IntPoints = Quadrature_P->NumberOfPoints ;
       Get_IntPoint  = (void(*)(int,int,double*,double*,double*,double*))
 	Quadrature_P->Function ;
+           
       
       for (i_IntPoint = 0 ; i_IntPoint < Nbr_IntPoints ; i_IntPoint++) {
 	
@@ -429,19 +437,19 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	  Get_BFGeoElement(Element, Current.u, Current.v, Current.w) ;
 
 	  Element->DetJac = Get_Jacobian(Element, &Element->Jac) ;
-
+	  
 	  if (FI->Flag_InvJac)
 	    Get_InverseMatrix(Type_Dimension, Element->Type, Element->DetJac,
 			      &Element->Jac, &Element->InvJac) ;
 	}
 	
 	/* Test Functions */
-
+	
 	if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE)
 	  Get_ValueOfExpressionByIndex
 	    (EquationTerm_P->Case.LocalTerm.Term.ExpressionIndexForCanonical_Equ,
 	     QuantityStorage_P0, Current.u, Current.v, Current.w, &CanonicExpression_Equ) ;
-
+	
 	for (i = 0 ; i < Nbr_Equ ; i++) {
 	  xFunctionBFEqu[i]
 	    (Element,
@@ -449,7 +457,8 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	     Current.u, Current.v, Current.w, vBFuEqu[i]) ;
 	  ((void (*)(struct Element*, double*, double*))
 	   FI->xChangeOfCoordinatesEqu) (Element, vBFuEqu[i], vBFxEqu[i]) ;
-
+	  
+	  
 	  if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE){
 	    V1.Type = Get_ValueFromForm(FI->Type_FormEqu);
 	    V1.Val[0]         = vBFxEqu[i][0] ;
@@ -458,7 +467,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	    V1.Val[MAX_DIM]   = 0;
 	    V1.Val[MAX_DIM+1] = 0;
 	    V1.Val[MAX_DIM+2] = 0;
-
+	    
 	    switch(EquationTerm_P->Case.LocalTerm.Term.OperatorTypeForCanonical_Equ){
 	    case OP_TIME : Cal_ProductValue (&CanonicExpression_Equ,&V1,&V2); break;
 	    case OP_CROSSPRODUCT : Cal_CrossProductValue (&CanonicExpression_Equ,&V1,&V2); break;
@@ -468,20 +477,21 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	    vBFxEqu[i][1] = V2.Val[1];
 	    vBFxEqu[i][2] = V2.Val[2];
 	  }
-
+	  
 	} /* for Nbr_Equ */
 	
+	
 	/* Shape Functions (+ surrounding expression) */
-
+	
 	Current.Element = Element ;
 	Cal_vBFxDof(EquationTerm_P, FI, 
 		    QuantityStorage_P0, QuantityStorageDof_P,
 		    Nbr_Dof, xFunctionBFDof, vBFxEqu, vBFxDof);
-
+		
 	Factor = (FI->Flag_ChangeCoord) ? weight * fabs(Element->DetJac) : weight ;
 
-       	/* Product and assembly in elementary submatrix             (k?-1.:1.)*   */
-	
+	/* Product and assembly in elementary submatrix             (k?-1.:1.)*   */
+
 	if (FI->SymmetricalMatrix)
 	  for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j <= i ; j++)
 	    for (k = 0 ; k < Current.NbrHar ; k++)
@@ -495,19 +505,16 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 		((double (*)(double*, double*))
 		 FI->Cal_Productx) (vBFxEqu[i], &(vBFxDof[j].Val[MAX_DIM*k])) ;
 
-
       }  /* for i_IntPoint ... */            
-
-
       break ; /* case GAUSS/NEWTONCOTES */
-
-
-    /*  -------------------------------------  */
-    /*  A N A L Y T I C                        */
-    /*  -------------------------------------  */
-
+      
+      
+      /*  -------------------------------------  */
+      /*  A N A L Y T I C                        */
+      /*  -------------------------------------  */
+      
     case ANALYTIC :
-
+      
       if (EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity ==
 	  CWQ_DOF) {
 	Factor = 1. ;
@@ -525,13 +532,13 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       else {
 	Msg(ERROR, "Bad expression for full analytic integration");
       }
-
+      
       if (FI->SymmetricalMatrix) {
 	for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j <= i ; j++)
 	  Ek[i][j][0] = Factor *
 	    Cal_AnalyticIntegration
-	      (Element, (void (*)())xFunctionBFEqu[i], (void (*)())xFunctionBFEqu[j], i, j,
-	       FI->Cal_Productx) ;
+	    (Element, (void (*)())xFunctionBFEqu[i], (void (*)())xFunctionBFEqu[j], i, j,
+	     FI->Cal_Productx) ;
       }
       else {
 	switch (FI->Type_DefineQuantityDof) {
@@ -539,36 +546,36 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	  for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j < Nbr_Dof ; j++)
 	    Ek[i][j][0] = Factor *
 	      Cal_AnalyticIntegration
-		(Element, (void (*)())xFunctionBFEqu[i], (void (*)())xFunctionBFDof[j], i, j,
-		 FI->Cal_Productx) ;
+	      (Element, (void (*)())xFunctionBFEqu[i], (void (*)())xFunctionBFDof[j], i, j,
+	       FI->Cal_Productx) ;
 	  break;
 	default :
 	  Msg(ERROR, "Exterior analytical integration not implemented");
 	  break;
 	}
       }
-
+      
       break ; /* case ANALYTIC */
-
+      
     default :
       Msg(ERROR, "Unknown type of Integration method (%s)",
 	  ((struct IntegrationMethod *)
 	   List_Pointer(Problem_S.IntegrationMethod,
 			EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))->Name);
       break;
-
+      
     }
 
-
+    
     /* Complete elementary matrix if symmetrical */
     /* ----------------------------------------- */
-
+    
     if (FI->SymmetricalMatrix)
       for (i = 1 ; i < Nbr_Equ ; i++)  
 	for (j = 0 ; j < i ; j++)
 	  for (k = 0 ; k < Current.NbrHar ; k++)  
 	    Ek[j][i][k] = Ek[i][j][k] ;
-
+    
     if(Flag_VERBOSE == 10) {
       printf("Galerkin = ") ;
       for (j = 0 ; j < Nbr_Dof ; j++)
@@ -585,10 +592,10 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	printf("]\n") ;
       }
     }
-
+    
     /* Assembly in global matrix */
     /* ------------------------- */
-
+   
     for (i = 0 ; i < Nbr_Equ ; i++)  
       for (j = 0 ; j < Nbr_Dof ; j++)
 	((void (*)(struct Dof*, struct Dof*, double*)) 
@@ -601,7 +608,6 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
     if (FI->Type_DefineQuantityDof != INTEGRALQUANTITY)  break ;
 
   }  /* while (1) ... */
-
+   
   GetDP_End ;
 }
-

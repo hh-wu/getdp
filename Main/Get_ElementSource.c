@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ElementSource.c,v 1.6 2001-03-16 10:56:46 geuzaine Exp $"
+#define RCSID "$Id: Get_ElementSource.c,v 1.7 2003-03-17 10:45:33 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -55,6 +55,7 @@ int  Get_NextElementSource(struct Element *ElementSource) {
     if (List_Search(RegionSource_L, &ElementSource->Region, fcmp_int)) {
       ElementSource->Num  = ElementSource->GeoElement->Num ;
       ElementSource->Type = ElementSource->GeoElement->Type ;
+      ElementSource->FMMGroup = ElementSource->GeoElement->FMMGroup ;
       GetDP_Return(1) ;
     }
   }
@@ -110,3 +111,20 @@ void  Get_ElementTrace(struct Element *Element, int InIndex) {
 
   GetDP_End ;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-/* $Id: Data_DefineE.h,v 1.9 2001-07-29 09:37:15 geuzaine Exp $ */
+/* $Id: Data_DefineE.h,v 1.10 2003-03-17 10:50:31 sabarieg Exp $ */
 
 #ifndef _DADA_DEFINE_E_H_
 #define _DATA_DEFINE_E_H_
@@ -77,6 +77,9 @@ extern struct DefineXFunction  FunctionForNewtonCotes[] ;
 extern struct StringX3Function2Nbr BF_Function[] ;
 extern struct StringXFunction2Nbr  F_Function[] ;
 extern struct FunctionXFunction    GF_Function[] ;
+extern struct FunctionXFunction    FMMProd_Function2D[] ;
+extern struct FunctionXFunction    FMMProd_Function3D[] ;
+
 
 char *Get_StringForDefine(struct StringXDefine SXD[], int define) ;
 int   Get_DefineForString(struct StringXDefine SXD[], char * string,

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Value.c,v 1.18 2003-01-26 07:31:28 geuzaine Exp $"
+#define RCSID "$Id: Cal_Value.c,v 1.19 2003-03-17 10:50:30 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
@@ -208,11 +208,40 @@ void  Cal_ValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values){
     Msg(ERROR, "Wrong type conversion: %s ",
 	Get_StringForDefine(Field_Type, V1[0].Type));
   }
+
   GetDP_End ;
 }
 
 
 
+void  Cal_AddValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values){
+  int  k, i;
+
+  GetDP_Begin("Cal_AddValueArray2DoubleArray");
+
+  
+  if (V1[0].Type == SCALAR) {
+    for (i = 0 ; i < Nbr_Values ; i++){
+      for (k = 0 ; k < Current.NbrHar ; k++){
+	R[Current.NbrHar*i+k] += V1[i].Val[MAX_DIM*k  ] ;
+      } 
+    }
+  }
+  else if (V1[0].Type == VECTOR){
+    for (i = 0 ; i < Nbr_Values ; i++){
+      for (k = 0 ; k < Current.NbrHar ; k++) {
+	R[3*(Current.NbrHar*i+k)  ] += V1[i].Val[MAX_DIM*k  ] ;
+	R[3*(Current.NbrHar*i+k)+1] += V1[i].Val[MAX_DIM*k+1] ;
+	R[3*(Current.NbrHar*i+k)+2] += V1[i].Val[MAX_DIM*k+2] ;
+      }
+    }
+  }
+  else {
+    Msg(ERROR, "Wrong type conversion: %s ",
+	Get_StringForDefine(Field_Type, V1[0].Type));
+  }
+  GetDP_End ;
+}
 
 
 
@@ -221,9 +250,9 @@ void  Cal_ValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values){
    ------------------------------------------------------------------------ */
 
 static double VALUE_ZERO [NBR_MAX_HARMONIC * MAX_DIM] = 
-  {0.,0.,0., 0.,0.,0.,
-   0.,0.,0., 0.,0.,0.,
-   0.,0.,0., 0.,0.,0.} ;
+{0.,0.,0., 0.,0.,0.,
+ 0.,0.,0., 0.,0.,0.,
+ 0.,0.,0., 0.,0.,0.} ;
 
 void  Cal_ZeroValue(struct Value * R) {
 

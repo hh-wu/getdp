@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.11 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.12 2003-03-17 10:47:24 sabarieg Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -12,7 +12,12 @@
 #include "CurrentData.h"
 #include "Tools.h"
 
+#include "F_FMM_DTA.h"
+#include "Pre_GetDofFMMGroup.h"
+
 extern List_T  * GeoData_L ;
+
+int LastElementforAggreg;
 
 /* ------------------------------------------------------------------------ */
 /*  T r e a t m e n t _ F o r m u l a t i o n                               */
@@ -61,15 +66,21 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
   struct FemLocalTermActive* FemLocalTermActive_S ;
   List_T                   * QuantityStorage_L ;
 
-  int    i, Nbr_Element, i_Element, Nbr_EquationTerm, i_EquTerm ;
+  int    i, j, Nbr_Element, i_Element, Nbr_EquationTerm, i_EquTerm ;
   int    Index_DefineQuantity, 	TraceGroupIndex_DefineQuantity ;
   int    Nbr_UnusedEquation ;
 
   List_T  * InitialListInIndex_L ;
   int     Nbr_Region, i_Region, Num_Region ;
+  char    FileFMM[MAX_FILE_NAME_LENGTH];
 
   extern struct Group * Generate_Group ;
   extern double ** MH_Moving_Matrix ;
+
+  gMatrix  A ;
+  gVector  b ;
+  
+  int Flag_Only ;
 
   GetDP_Begin("Treatment_FemFormulation");
 
@@ -124,7 +135,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
   EquationTerm_P0 = (struct EquationTerm*)List_Pointer(Formulation_P->Equation, 0) ;
   FemLocalTermActive_L = List_Create(Nbr_EquationTerm,  1,
 				     sizeof (struct FemLocalTermActive) ) ;
-
+  
   for (i_EquTerm = 0 ; i_EquTerm < Nbr_EquationTerm ; i_EquTerm++) {
     List_Add(FemLocalTermActive_L, &FemLocalTermActive_S) ;
     EquationTerm_P = EquationTerm_P0 + i_EquTerm ;
@@ -177,7 +188,22 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 
   }  
 
+  /* ---------------------------------------------------------- */
+  /* PREprocessing FMM: Assigning NumDof to Groups              */
+  /*  --------------------------------------------------------- */
 
+  if(TreatmentStatus==_CAL && Flag_FMM == 1){
+    Msg(DIRECT, "P r e - P r o c e s s i n g F M M. . .") ;
+
+    Pre_GetDofFMMGroup(Formulation_P, QuantityStorage_P0) ;
+    if (!Current.FMM.NbrDir){ Msg(INFO, "No FMM far groups -> Flag_FMM = 0 ") ; Flag_FMM = 0 ; }
+ 
+    strcpy(FileFMM, Name_Generic); strcat(FileFMM, ".fmm");   Print_FMMGroupInfo(FileFMM);
+
+    Msg(DIRECT, "E n d  P r e - P r o c e s s i n g F M M. . .") ; 
+  }
+
+  
   /* ---------------------------------------------------------- */
   /* 2.  Loop on geometrical elements :                         */
   /*     Treatment of eventual GALERKIN / DERAHM terms          */
@@ -198,6 +224,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
       if (i_Element == Nbr_Element) break ;
     }
 
+
     Progress(i_Element, Nbr_Element, "") ;
 
     Element.GeoElement = Geo_GetGeoElement(i_Element) ;
@@ -205,14 +232,22 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
     Element.Type   = Element.GeoElement->Type ;
     Current.Region = Element.Region = Element.GeoElement->Region ;
 
+    if (Flag_FMM) Element.FMMGroup = Element.GeoElement->FMMGroup ;
+
     /* ---------------------------- */
     /* 2.1.  Loop on equation terms */
     /* ---------------------------- */
-
+    
     for (i_EquTerm = 0 ; i_EquTerm < Nbr_EquationTerm ; i_EquTerm++) {
-
       EquationTerm_P = EquationTerm_P0 + i_EquTerm ;
-
+      
+      if (Flag_FMM){
+	Current.FMM.Src = EquationTerm_P->Case.LocalTerm.FMMSource ;
+	Current.FMM.Obs = EquationTerm_P->Case.LocalTerm.FMMObservation ;
+      }
+     
+      
+      
       if (EquationTerm_P->Type == GALERKIN ||
 	  EquationTerm_P->Type == DERHAM) {
 
@@ -298,42 +333,82 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 	    Par_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
 	    break ;
 	  case _CAL :
-	    Nbr_UnusedEquation = 0;
-	    QuantityStorage_P = QuantityStorage_P0 + 
-	      EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
+	    Flag_Only = 0 ; 	    
+	    
+	    if (Current.DofData->Flag_Only){	      
+	      A = Current.DofData->A ;
+	      b = Current.DofData->b ;
 
-	    if(Current.NbrCpu > 1){
-	      for(i = 0 ; i < QuantityStorage_P->NbrElementaryBasisFunction ; i++){
-		if(QuantityStorage_P->BasisFunction[i].Dof->Type == DOF_UNKNOWN){
-		  if(QuantityStorage_P->BasisFunction[i].Dof->Case.Unknown.NumDof >= 
-		     QuantityStorage_P->FunctionSpace->DofData->Part[Current.RankCpu] &&
-		     QuantityStorage_P->BasisFunction[i].Dof->Case.Unknown.NumDof < 
-		     QuantityStorage_P->FunctionSpace->DofData->Part[Current.RankCpu+1])
-		    break;
-		  else
-		    Nbr_UnusedEquation += 1; 
+	      if (EquationTerm_P->Case.LocalTerm.MatrixIndex == -1)
+		EquationTerm_P->Case.LocalTerm.MatrixIndex = 0 ;
+
+	      j = List_ISearch(Current.DofData->OnlyTheseMatrices,
+			       &EquationTerm_P->Case.LocalTerm.MatrixIndex, fcmp_int) ;
+	      if(j!=-1){
+		Flag_Only = 1 ;
+		switch(EquationTerm_P->Case.LocalTerm.MatrixIndex){
+		case 1 :
+		  Current.DofData->A = Current.DofData->A1 ;
+		  Current.DofData->b = Current.DofData->b1 ;
+		  break;
+		case 2 :
+		  Current.DofData->A = Current.DofData->A2 ;
+		  Current.DofData->b = Current.DofData->b2 ;
+		  break;
+		case 3 : 
+		  Current.DofData->A = Current.DofData->A3 ;
+		  Current.DofData->b = Current.DofData->b3 ;
+		  break;
+		}		
+	      }
+	    }/* Only the matrices that vary are recalculated */
+
+	    if (!Current.DofData->Flag_Only || (Current.DofData->Flag_Only && Flag_Only) ){
+	      Nbr_UnusedEquation = 0;
+	      QuantityStorage_P = QuantityStorage_P0 + 
+		EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
+	      
+	      if(Current.NbrCpu > 1){
+		for(i = 0 ; i < QuantityStorage_P->NbrElementaryBasisFunction ; i++){
+		  if(QuantityStorage_P->BasisFunction[i].Dof->Type == DOF_UNKNOWN){
+		    if(QuantityStorage_P->BasisFunction[i].Dof->Case.Unknown.NumDof >= 
+		       QuantityStorage_P->FunctionSpace->DofData->Part[Current.RankCpu] &&
+		       QuantityStorage_P->BasisFunction[i].Dof->Case.Unknown.NumDof < 
+		       QuantityStorage_P->FunctionSpace->DofData->Part[Current.RankCpu+1])
+		      break;
+		    else
+		      Nbr_UnusedEquation += 1; 
+		  }
 		}
 	      }
-	    }
+	      
+	      if(Nbr_UnusedEquation != QuantityStorage_P->NbrElementaryBasisFunction){
+		if(EquationTerm_P->Type == GALERKIN)
+		  Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+		else
+		  Cal_deRhamTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+	      }
+	      
+	      if (Current.DofData->Flag_Only && Flag_Only){
+		Current.DofData->A = A ;
+		Current.DofData->b = b ;
+	      }
+	      
+	    }/* Flag_Only */
+	      break ;
 
-	    if(Nbr_UnusedEquation != QuantityStorage_P->NbrElementaryBasisFunction){
-	      if(EquationTerm_P->Type == GALERKIN)
-		Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
-	      else
-		Cal_deRhamTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
-	    }
-	    break ;
-	  case _CST :
-	    Cst_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
-	    break ;
-	  }
-
-	}  /* if Support ... */
-
-      }  /* if GALERKIN ... */
-
+	    case _CST :
+	      Cst_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+	      break ;
+	    	        
+	  } 
+	
+	}/* if Support ... */
+	
+      } /* if GALERKIN ... */
+      
     }  /* for i_EquTerm ... */
-
+    
   }  /* for i_Element ... */
 
 
@@ -341,7 +416,6 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
     List_Delete(FemLocalTermActive_L) ;  List_Delete(QuantityStorage_L) ;
     GetDP_End ;
   }
-
 
   /* ------------------------------------------------------ */
   /* 3.  Loop on equation terms :                           */
@@ -435,7 +509,6 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
   /* --------------------------------------------------------- */
 
   for (i_EquTerm = 0 ; i_EquTerm < Nbr_EquationTerm ; i_EquTerm++) {
-
     EquationTerm_P = EquationTerm_P0 + i_EquTerm ;
 
     if (EquationTerm_P->Type == GLOBALEQUATION) {
@@ -458,15 +531,24 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 
     }  /* if GLOBALEQUATION ... */
   }  /* for i_EquTerm ... */
+    
 
+  if (TreatmentStatus==_CAL && Flag_FMM == 1){
+    Cal_FMMGalerkinAggregation(EquationTerm_P0, QuantityStorage_P0) ;
+    Cal_FMMGalerkinDisaggregation(EquationTerm_P0, QuantityStorage_P0) ;
 
-  
+    //GF_FMMTranslationValue() ;
+    GF_FMMTranslationValueAdaptive() ;
+    Flag_FMM = 2 ;
+  } /* FMM */
+
+ 
   /* -------------------------- */
   /* 5.   End of FEM treatment  */
   /* -------------------------- */
 
   List_Delete(FemLocalTermActive_L) ;  List_Delete(QuantityStorage_L) ;
-
+  
   GetDP_End ;
 }
 

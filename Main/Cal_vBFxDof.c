@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_vBFxDof.c,v 1.6 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Cal_vBFxDof.c,v 1.7 2003-03-17 10:50:30 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -35,6 +35,7 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
   int  i, j, Type_Dimension ;
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
 
+ 
   GetDP_Begin("Cal_vBFxDof");
   
   if(EquationTerm_P->Case.LocalTerm.Term.DofInTrace){
@@ -83,12 +84,20 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
       }
       break ;
     case INTEGRALQUANTITY :
-      Cal_IntegralQuantity (Current.Element, 
-			    &FI->IntegralQuantityActive, 
-			    QuantityStorage_P0, QuantityStorageDof_P, 
-			    FI->Type_DefineQuantityDof, Nbr_Dof, 
-			    (void (**)())xFunctionBFDof, 
-			    vBFxDof) ;
+      if (FI->IntegralQuantityActive.IntegrationCase_P->Type == ANALYTIC)
+	Cal_AnalyticIntegralQuantity (Current.Element, 
+				      QuantityStorageDof_P, Nbr_Dof, 
+				      (void (**)())xFunctionBFDof, vBFxDof) ;
+      
+      else
+	Cal_NumericalIntegralQuantity (Current.Element, 
+				       &FI->IntegralQuantityActive, 
+				       QuantityStorage_P0, QuantityStorageDof_P, 
+				       FI->Type_DefineQuantityDof, Nbr_Dof, 
+				       (void (**)())xFunctionBFDof, vBFxDof) ;
+
+
+
       FI->Type_ValueDof = FI->Type_FormDof = vBFxDof[0].Type; /* now this type is correct */
       break ;
     case NODOF :  /* Supprimer le DofForNoDof_P de la structure dans Data_Active.h */
@@ -120,14 +129,13 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
     for (j = 0 ; j < Nbr_Dof ; j++)
       Cal_ProductValue(&CoefPhys, &vBFxDof[j], &vBFxDof[j]) ;
   }
-  else{
+  else
     Cal_WholeQuantity
       (Current.Element, QuantityStorage_P0,
        EquationTerm_P->Case.LocalTerm.Term.WholeQuantity,
        Current.u, Current.v, Current.w,
        EquationTerm_P->Case.LocalTerm.Term.DofIndexInWholeQuantity,
-       Nbr_Dof, vBFxDof) ;
-  }
+       Nbr_Dof, vBFxDof) ;  
 
   GetDP_End ;
 }

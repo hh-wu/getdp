@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Define.c,v 1.7 2001-05-03 08:41:43 geuzaine Exp $"
+#define RCSID "$Id: Get_Define.c,v 1.8 2003-03-17 10:50:32 sabarieg Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -111,8 +111,6 @@ void Get_FunctionForDefine(struct DefineXFunction DXF[], int define,
 
   GetDP_End ;
 }
-
-
 
 char  * Get_StringForDefine(struct StringXDefine SXD[], int define) {
   int  i = 0 ;  char * string ;

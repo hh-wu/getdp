@@ -1,9 +1,10 @@
-/* $Id: Data_Passive.h,v 1.50 2003-01-31 13:51:53 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.51 2003-03-17 10:50:31 sabarieg Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
 #include "List.h"
 #include "Data_Element.h"
+
 
 #ifndef NULL
 #define NULL  0L
@@ -51,6 +52,7 @@ struct Problem {
   List_T  * FunctionSpace , * Constraint        , * Formulation   ;
   List_T  * JacobianMethod, * IntegrationMethod ;
   List_T  * Resolution    , * PostProcessing    , * PostOperation ;
+  List_T  * FMMGroup ;
 } ;
 
 /* ------------------------------------------------------------------------ */
@@ -77,6 +79,7 @@ struct MovingBand2D {
   int PhysNum, StartNumTr, StartIndexTr ;
   int *b1_p1, *b1_p2, *b1_p3, *b2_p1, *b2_p2, *b2_p3;
 } ;
+
 
 /* Group.Type */
 #define REGIONLIST   1
@@ -121,6 +124,13 @@ struct MovingBand2D {
 #define SUPPLIST_INSUPPORT         4
 #define SUPPLIST_CONNECTEDTO       5
 
+
+/* FMM operations */
+#define DIRECT         0
+#define AGGREGATION    1       
+#define DISAGGREGATION 2       
+#define TRANSLATION    3       
+
 /* ------------------------------------------------------------------------ */
 /*  E x p r e s s i o n                                                     */
 /* ------------------------------------------------------------------------ */
@@ -160,6 +170,7 @@ struct Constraint {
   List_T  * MultiConstraintPerRegion ;
 } ;
 
+
 struct ConstraintPerRegion {
   int  Type, RegionIndex, SubRegionIndex, TimeFunctionIndex ;
   union {
@@ -173,6 +184,7 @@ struct ConstraintPerRegion {
     } Link ;
   } Case ;
 } ;
+
 
 struct MultiConstraintPerRegion {
   char    * Name ;
@@ -426,11 +438,11 @@ struct IntegralQuantity {
   int    * QuantityTraceGroupIndexTable ;
 
   int      InIndex ;
-  int      IntegrationMethodIndex, JacobianMethodIndex;
+  int      IntegrationMethodIndex, FMMIntegrationMethodIndex, JacobianMethodIndex;
   int      Symmetry ;
 
   int      CanonicalWholeQuantity, ExpressionIndexForCanonical ;
-  struct   Function  FunctionForCanonical ;
+  struct   Function FunctionForCanonical, FunctionForFMM, AnyFunction ;
 } ;
 
 struct DefineQuantity {
@@ -466,6 +478,7 @@ struct EquationTerm {
 	List_T  * WholeQuantity ;
 	int     DofIndexInWholeQuantity ;
 	int     CanonicalWholeQuantity, ExpressionIndexForCanonical ;
+	struct  Function  FunctionForCanonical ;
 	int     CanonicalWholeQuantity_Equ, ExpressionIndexForCanonical_Equ, 
 	          OperatorTypeForCanonical_Equ ;
 
@@ -478,8 +491,10 @@ struct EquationTerm {
       } Term ;
 
       int  InIndex ; 
-      int  IntegrationMethodIndex, JacobianMethodIndex ;
-
+      int  IntegrationMethodIndex, FMMIntegrationMethodIndex, JacobianMethodIndex ;
+    
+      int  FMMObservation, FMMSource, iFMMEqu ;
+      int  MatrixIndex ;
       struct FemLocalTermActive  * Active ;
     } LocalTerm ;
 
@@ -576,15 +591,25 @@ struct GlobalEquationTerm {
 #define CWQ_NONE           0
 #define CWQ_DOF            1
 #define CWQ_EXP_TIME_DOF   2
+#define CWQ_FCT_TIME_DOF   3
+#define CWQ_FCT_PVEC_DOF   4
 
-#define CWQ_GF             3
-#define CWQ_GF_PSCA_DOF    4
-#define CWQ_GF_PSCA_EXP    5
-#define CWQ_GF_PVEC_DOF    6
-#define CWQ_GF_PVEC_EXP    7
+#define CWQ_GF             5
+#define CWQ_GF_PSCA_DOF    6
+#define CWQ_GF_PSCA_EXP    7
+#define CWQ_GF_PVEC_DOF    8
+#define CWQ_DOF_PVEC_GF    9
+#define CWQ_GF_PVEC_EXP   10 
+#define CWQ_EXP_PVEC_GF   11
 
-#define CWQ_EXP_TIME_GF_PSCA_DOF  8
-#define CWQ_EXP_TIME_GF_PVEC_DOF  9
+#define CWQ_EXP_TIME_GF_PSCA_DOF  12
+#define CWQ_EXP_TIME_GF_PVEC_DOF  13
+#define CWQ_EXP_PVEC_GF_PSCA_DOF  14
+#define CWQ_EXP_PVEC_GF_PVEC_DOF  15
+#define CWQ_FCT_TIME_GF_PSCA_DOF  16
+#define CWQ_FCT_TIME_GF_PVEC_DOF  17
+#define CWQ_FCT_PVEC_GF_PSCA_DOF  18
+#define CWQ_FCT_PVEC_GF_PVEC_DOF  19
 
 /* ------------------------------------------------------------------------ */
 /*  W h o l e Q u a n t i t y                                               */
@@ -691,6 +716,7 @@ struct DefineSystem {
   List_T  * OriginSystemIndex ;
   char    * DestinationSystemName ;
   int     DestinationSystemIndex ;
+  int     Flag_FMM ; 
 } ;
 
 /* DefineSystem.Type */
@@ -703,6 +729,12 @@ struct Operation {
   union {
     int     SetTimeIndex ;
     char   *SystemCommand ;
+    struct {
+      int DivXYZIndex, Dfar, Precision, FlagDTA ;
+    } GenerateFMMGroups ;
+    struct {
+      List_T * MatrixIndex_L ;
+    } GenerateOnly ;
     struct {
       int     ExpressionIndex ;
     } Update ;
@@ -819,11 +851,15 @@ struct ChangeOfState {
 #define OPERATION_GENERATE                  1
 #define OPERATION_SOLVE                     2
 #define OPERATION_GENERATEJAC               3
+#define OPERATION_GENERATEFMMGROUPS       100
+#define OPERATION_GENERATEONLY            101
+#define OPERATION_GENERATEONLYJAC         103
 #define OPERATION_SOLVEJAC                  4
-#define OPERATION_SOLVEJACADAPTRELAX        888
+#define OPERATION_SOLVEJACADAPTRELAX      888
 #define OPERATION_GENERATESEPARATE          5
 #define OPERATION_UPDATE                    6
 #define OPERATION_UPDATECONSTRAINT          7
+#define OPERATION_UPDATETRANSLATION       104
 #define OPERATION_LANCZOS                   8
 #define OPERATION_PERTURBATION              9
 
@@ -1027,6 +1063,16 @@ struct CurrentData {
   int     IntegrationSupportIndex ;
 
   struct  Element  * ElementSource ;
+
+  //  double  s, t ;
+
+  struct{
+    int DivXYZIndex, SystemIndex ;
+    int Obs, Src, Type, NbrCom, NbrDir, N, Flag_GF, Flag_Normal ;
+    double *Phi, *Theta, *Weight, **Kdir, Xgc, Ygc, Zgc ;
+    double Rsrc, Robs, Precision, far ;
+  } FMM ;
+
   int     SourceIntegrationSupportIndex ;
 
   int     TypeTime, TypeAssembly ;
@@ -1054,3 +1100,9 @@ struct CurrentData {
 } ;
 
 #endif
+
+
+
+
+
+

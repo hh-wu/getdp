@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.43 2003-02-09 07:55:22 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.44 2003-03-17 10:45:03 sabarieg Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -41,6 +41,7 @@ int     InteractiveCompute, InteractiveInterrupt=0 ;
 int     Flag_PRE, Flag_PAR, Flag_CAL, Flag_POS, Flag_IPOS, Flag_XDATA;
 int     Flag_CHECK, Flag_LRES, Flag_LPOS, Flag_LIPOS, Flag_I; 
 int     Flag_RESTART, Flag_LOG, Flag_VERBOSE, Flag_BIN, Flag_PROGRESS ;
+int     Flag_FMM, Flag_DTA ;
 int     Flag_SPLIT, Flag_SOCKET ;
 double  Flag_ORDER ;
 char    Name_Generic[MAX_FILE_NAME_LENGTH], Name_Path[MAX_FILE_NAME_LENGTH] ;
@@ -83,6 +84,8 @@ int  main(int argc, char *argv[]) {
   /* process getdp options, save unused options in sargv */
 
   sargv = (char**)Malloc(256*sizeof(char**));
+
+ 
 
   Init_GlobalVariables() ;
   Get_Options(argc, argv, &sargc, sargv, Name_ProFile, Name_Generic, Name_Path) ;
@@ -134,6 +137,7 @@ int  main(int argc, char *argv[]) {
 
   LinAlg_InitializeSolver(&sargc, &sargv, &Current.NbrCpu, &Current.RankCpu) ;
 
+
   /* fill-in problem structure (read pro files) */
 
   Init_ProblemStructure();
@@ -160,6 +164,11 @@ int  main(int argc, char *argv[]) {
   /* finalize the solver */
 
   LinAlg_FinalizeSolver() ;
+
+ /* FMM routine  using the tools available in GetDp. Just a trial version! */
+  //printf("Hola mundo \n");
+   //My_Routine();
+  /**************************************************************************/
 
   /* end */
   
@@ -200,7 +209,9 @@ void Init_GlobalVariables(void){
   Flag_CHECK = 0 ; Flag_XDATA = 0   ; Flag_RESTART = 0   ; Flag_BIN = 0  ; 
   Flag_LRES = 0  ; Flag_LPOS = 0    ; Flag_LIPOS = 0     ; Flag_PAR = 0; 
   Flag_LOG = 0   ; Flag_VERBOSE = 4 ; Flag_PROGRESS = 10 ; Flag_SPLIT = 0 ;
-  Flag_ORDER = -1. ; Flag_SOCKET = -1 ; Flag_I = 0 ;
+
+  Flag_ORDER = -1. ; Flag_FMM = 0 ; Flag_DTA = 0 ; Flag_SOCKET = -1 ; Flag_I = 0 ;
+
 
   Name_Resolution = Name_PostProcessing[0] = Name_PostOperation[0] = NULL ;
   Name_MshFile = Name_ResFile[0] = Name_AdaptFile = NULL ;
@@ -228,6 +239,7 @@ void Init_ProblemStructure(void){
   Problem_S.Resolution        = NULL ;  
   Problem_S.PostProcessing    = NULL ;  
   Problem_S.PostOperation     = NULL ;
+  Problem_S.FMMGroup          = NULL ;
 
   GetDP_End ;
 }
@@ -580,6 +592,18 @@ void  Read_ProblemStructure (char * Name){
 
   yylinenum = Last_yylinenum ; strcpy(yyname, Last_yyname) ;
   ErrorLevel = Last_ErrorLevel ; yyincludenum = Last_yyincludenum ;
-
+ 
+  
   GetDP_End ;
 }
+
+
+
+
+
+
+
+
+
+
+

@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.43 2003-01-31 13:46:37 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.44 2003-03-17 10:46:00 sabarieg Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,9 +16,11 @@
 #include "Get_DofOfElement.h"
 #include "CurrentData.h"
 #include "Magic.h"
+#include "F_FMM.h"
+#include "F_FMMOperations.h"
 
 /*
-  All this stuff should reaaly go into appropriate header files...
+  All this stuff should really go into appropriate header files...
 */
 
 int  fcmp_DefineSystem_Name(const void * a, const void * b) ;
@@ -31,6 +33,7 @@ static int  Flag_IterativeLoop = 0 ;  /* Attention: phase de test */
 static int  Flag_NextThetaFixed = 0 ;  /* Attention: phase de test */
 
 static int  Init_Update = 0 ; /* provisoire */
+
 
 void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double shift) ;
 
@@ -129,6 +132,39 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac) {
     LinAlg_CreateVector(&DofData_P->b, &DofData_P->Solver, DofData_P->NbrDof,
 			DofData_P->NbrPart, DofData_P->Part) ;
   }
+
+  /* GenerateOnly: Taking advantage of the invariant parts of the matrix in every time-step */
+
+  if(DofData_P->Flag_InitOnly[0]==1){
+    DofData_P->Flag_InitOnly[0] = 2;    
+    Msg(INFO,"Initializing System {A1,b1}");
+    LinAlg_CreateMatrix(&DofData_P->A1, &DofData_P->Solver,
+			DofData_P->NbrDof, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part, DofData_P->Nnz) ;
+    LinAlg_CreateVector(&DofData_P->b1, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part) ;
+  }
+  
+  if(DofData_P->Flag_InitOnly[1]==1){
+    DofData_P->Flag_InitOnly[1] = 2;    
+    Msg(INFO,"Initializing System {A2,b2}");
+    LinAlg_CreateMatrix(&DofData_P->A2, &DofData_P->Solver,
+			DofData_P->NbrDof, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part, DofData_P->Nnz) ;
+    LinAlg_CreateVector(&DofData_P->b2, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part) ;
+  }
+  
+  if(DofData_P->Flag_InitOnly[2]==1){
+    DofData_P->Flag_InitOnly[2] = 2;       
+    Msg(INFO,"Initializing System {A2,b2}");
+    LinAlg_CreateMatrix(&DofData_P->A3, &DofData_P->Solver,
+			DofData_P->NbrDof, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part, DofData_P->Nnz) ;
+    LinAlg_CreateVector(&DofData_P->b3, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part) ;
+  }
+
   if (DofData_P->Flag_Init[0] < 2 && Flag_Jac) {
     DofData_P->Flag_Init[0] = 2 ;
     LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
@@ -155,9 +191,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                           struct Resolution  * Resolution2_P,
                           struct DofData     * DofData2_P0) {
 
-  int     i, j, k, l;
+  int     i, j, k, l ;
   double  d, d2 ;
-  int     Nbr_Operation, i_Operation;
+  int     Nbr_Operation, i_Operation ;
   int     Num_Iteration ;
   int     Flag_Jac, Flag_CPU, Flag_Binary=0 ;
   double  MeanError, RelFactor_Modified ;
@@ -166,7 +202,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   char    *str;
   char    ResName[MAX_FILE_NAME_LENGTH], ResNum[MAX_STRING_LENGTH] ;
   char    FileName[MAX_FILE_NAME_LENGTH];
+  char    FileFMM[MAX_FILE_NAME_LENGTH];
   char    NameApp[MAX_FILE_NAME_LENGTH];
+
   gScalar tmp ;
   double * Scales, d1 ;
   int NbrSol ;
@@ -180,10 +218,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   struct PostOperation  * PostOperation_P ;
   struct PostProcessing * PostProcessing_P ;
   struct Dof           Dof, * Dof_P ;
-  struct Value         Value ;
+  struct Value         Value, far ;
+
+  double  **DTA ;
+  FILE * MomFMM ;
+  int iDof, iEqu, N ;
 
   static int RES0 = -1 ;
-
 
   /* adaptive relaxation */
   gVector x_Save;
@@ -203,8 +244,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
   int NbrHar1, NbrHar2, NbrDof1, NbrDof2 ;
   double dd ;
-  int NumDof ;
+  int NumDof,iMat ;
+  int NbrFMMEqu,  NbrGroupSrc, NbrFG;
+  struct FMMmat *FMMmat_P0 ;
 
+  List_T *FG_L ;
 
   GetDP_Begin("Treatment_Operation");
 
@@ -213,7 +257,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   for (i_Operation = 0 ; i_Operation < Nbr_Operation ; i_Operation++) {
     Operation_P = (struct Operation*)List_Pointer(Operation_L, i_Operation) ;
 
-    Flag_CPU = 0 ;  Flag_Jac = 0 ;
+    Flag_CPU = 0 ;  
+
+ 
+    Flag_Jac = 0 ;
 
     switch (Operation_P->Type) {
 
@@ -226,13 +273,93 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       /*  -->  G e n e r a t e                        */
       /*  ------------------------------------------  */
-
-    case OPERATION_GENERATEJAC :  Flag_Jac  = 1 ;
-    case OPERATION_GENERATE :
+   
+    case OPERATION_GENERATEFMMGROUPS : Flag_FMM  = 1 ;       
+      
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+      
+      DefineSystem_P->Flag_FMM = Flag_FMM ;      
+      Current.FMM.SystemIndex = Operation_P->DefineSystemIndex ;
+
+      List_Read(DefineSystem_P->FormulationIndex, Operation_P->DefineSystemIndex, &Index_Formulation) ;
+
+      Current.FMM.DivXYZIndex = Operation_P->Case.GenerateFMMGroups.DivXYZIndex ;
+      Get_ValueOfExpressionByIndex(Operation_P->Case.GenerateFMMGroups.Dfar,
+      				   NULL, 0., 0., 0., &far) ;
+      /* far = Factor for determining the far groups */
+      Current.FMM.far = far.Val[0] ;
+      
+      Get_ValueOfExpressionByIndex(Operation_P->Case.GenerateFMMGroups.Precision,
+      				   NULL, 0., 0., 0., &Value) ; /* Precision */
+      Current.FMM.Precision = Value.Val[0] ;
+     
+      Get_ValueOfExpressionByIndex(Operation_P->Case.GenerateFMMGroups.FlagDTA,
+				   NULL, 0., 0., 0., &Value) ; /* DTA matrix, testing option */
+      Flag_DTA = Value.Val[0] ;
+      Current.FMM.NbrDir = 0 ;
+      Get_InFMMGroupList( Index_Formulation, GeoData_P0+DofData_P->GeoDataIndex );
+      
+      strcpy(FileFMM, Name_Generic) ; strcat(FileFMM, "GrCen.pos") ;
+      Geo_WriteFileFMMGroupsCenter(FileFMM) ;
+
+      strcpy(FileFMM, Name_Generic);strcat(FileFMM, "Gr.pos") ;
+      Geo_WriteFileFMMGroups( GeoData_P0+DofData_P->GeoDataIndex , FileFMM ) ;
+
+      strcpy(FileFMM, Name_Generic) ; strcat(FileFMM, "FMMGr.msh") ;
+      Geo_WriteFileMshFMMGroups( GeoData_P0+DofData_P->GeoDataIndex, FileFMM ) ;
+      break;
+
+    case OPERATION_GENERATEONLYJAC :  Flag_Jac  = 1 ;
+    case OPERATION_GENERATEONLY:
+      Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+
+      if ( Current.FMM.SystemIndex == Operation_P->DefineSystemIndex )
+	if (Flag_FMM)
+	  DefineSystem_P->Flag_FMM = Flag_FMM ;
+	else 
+	  Flag_FMM = DefineSystem_P->Flag_FMM ;
+      else Flag_FMM = DefineSystem_P->Flag_FMM ;
+
+      if(DofData_P->Flag_Only < 2) DofData_P->Flag_Only += 1 ;
+      
+      DofData_P->OnlyTheseMatrices = Operation_P->Case.GenerateOnly.MatrixIndex_L ;
+      
+      if (DofData_P->Flag_Only <= 2)
+	for (i = 0 ; i < List_Nbr(DofData_P->OnlyTheseMatrices); i++){
+	  List_Read( DofData_P->OnlyTheseMatrices, i, &iMat);
+	  switch(iMat){
+	  case 1: DofData_P->Flag_InitOnly[0] = 1 ; break ;
+	  case 2: DofData_P->Flag_InitOnly[1] = 1 ; break ;
+	  case 3: DofData_P->Flag_InitOnly[2] = 1 ; break ;
+	  }
+	}
+
       Current.TypeAssembly = ASSEMBLY_AGGREGATE ;
+      
+      Init_SystemData(DofData_P, Flag_Jac) ;
+      Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
+      Flag_CPU = 1 ;
+      break;
+
+    case OPERATION_GENERATEJAC :  Flag_Jac  = 1 ;   
+    case OPERATION_GENERATE :
+      Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
+			       Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+			       &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+
+      if ( Current.FMM.SystemIndex == Operation_P->DefineSystemIndex )
+	if (Flag_FMM)
+	  DefineSystem_P->Flag_FMM = Flag_FMM ;
+	else 
+	  Flag_FMM = DefineSystem_P->Flag_FMM ;
+      else Flag_FMM = DefineSystem_P->Flag_FMM ;
+
+      Current.TypeAssembly = ASSEMBLY_AGGREGATE ;
+      
       Init_SystemData(DofData_P, Flag_Jac) ;
 
       if (Operation_P->Case.Generate.GroupIndex >= 0) 
@@ -243,6 +370,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if (Operation_P->Case.Generate.GroupIndex >= 0) Generate_Group = NULL ;
 
       Flag_CPU = 1 ;
+
       break ;
 
 
@@ -253,6 +381,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("GenerateSeparate",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+
+      if (Operation_P->Case.Generate.GroupIndex >= 0) 
+	Generate_Group = (struct Group *) List_Pointer(Problem_S.Group, 
+						       Operation_P->Case.Generate.GroupIndex) ;
+      Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
       Current.TypeAssembly = ASSEMBLY_SEPARATE ;
 
       Init_Update = 0 ; /* modif... ! */
@@ -277,6 +410,32 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_CPU = 1 ;
       break ;
 
+    case OPERATION_UPDATETRANSLATION :
+      Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+
+      ReSet_FMMGroupCenters();      
+      ReGenerate_FMMGroupNeighbours();
+
+      NbrFMMEqu = List_Nbr(Current.DofData->FMM_Matrix) ;
+      FMMmat_P0 = (struct FMMmat*)List_Pointer(Current.DofData->FMM_Matrix, 0 ) ;
+
+      for(iEqu = 0 ; iEqu < NbrFMMEqu ; iEqu ++ ){
+	if((FMMmat_P0 + iEqu)->T != NULL){
+	  Free((FMMmat_P0 + iEqu)->T);
+
+	  (FMMmat_P0 + iEqu)->T = NULL;
+	}
+      } 
+
+      GF_FMMTranslationValueAdaptive();
+      //GF_FMMTranslationValue(); 
+
+      break;
+
+
+
       /*  -->  U p d a t e C o n s t r a i n t        */
       /*  ------------------------------------------  */
 
@@ -298,6 +457,53 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("Solve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+
+      if ( Current.FMM.SystemIndex == Operation_P->DefineSystemIndex )
+	if (Flag_FMM) DefineSystem_P->Flag_FMM = Flag_FMM ;
+
+
+      if (Flag_FMM && Flag_DTA){	
+	LinAlg_GetMatrixSize(&DofData_P->A, &N, &N);
+	FMM_DTAMatrix(N, &DTA);
+
+	strcpy(FileFMM, Name_Generic) ;
+	strcat(FileFMM, "DTA.mat") ;
+	Print_FMM_MatrixDTA(N, DTA, FileFMM) ;
+	
+	for(iDof = 0 ; iDof < N ; iDof+=Current.NbrHar)
+	  for(iEqu = 0; iEqu < N ; iEqu+=Current.NbrHar)
+	    if (Current.NbrHar == 2)
+	      LinAlg_AddComplexInMatrix(DTA[iDof][iEqu],DTA[iDof+1][iEqu+1],&DofData_P->A, iDof, iEqu, iDof+1, iEqu+1);
+	    else   
+	      LinAlg_AddDoubleInMatrix(DTA[iEqu][iDof], &DofData_P->A, iDof, iEqu );
+
+	strcpy(FileFMM, Name_Generic) ;
+	strcat(FileFMM, "FMM.mat") ;
+
+	Msg(INFO,"Printing MoM + DTA matrix '%s'", FileFMM) ;
+	MomFMM = fopen(FileFMM, "w" );
+	LinAlg_PrintMatrix(MomFMM , &DofData_P->A) ;
+	fclose(MomFMM);
+      }
+     
+      if (DofData_P->Flag_Only){
+	if(DofData_P->Flag_InitOnly[0]){
+	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A1, &DofData_P->A);
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b1, &DofData_P->b) ;
+	}
+
+	if(DofData_P->Flag_InitOnly[1]){
+	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A2, &DofData_P->A) ;
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b2, &DofData_P->b) ;
+	}
+	if(DofData_P->Flag_InitOnly[2]){
+	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;	
+	}
+
+	LinAlg_AssembleMatrix(&DofData_P->A) ;
+	LinAlg_AssembleVector(&DofData_P->b) ;
+      }
 
       LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
 		   &DofData_P->CurrentSolution->x) ;
@@ -346,13 +552,42 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
 
+      if ( Current.FMM.SystemIndex == Operation_P->DefineSystemIndex )
+	if (Flag_FMM) DefineSystem_P->Flag_FMM = Flag_FMM ;
+
       if(DofData_P->Flag_Init[0] < 2)
 	Msg(ERROR, "Jacobian system not initialized (missing GenerateJac?)");
+      
+      if (DofData_P->Flag_Only){
+	if(DofData_P->Flag_InitOnly[0]){
+	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A1, &DofData_P->A);
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b1, &DofData_P->b) ;
+	}
+
+	if(DofData_P->Flag_InitOnly[1]){
+	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A2, &DofData_P->A) ;
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b2, &DofData_P->b) ;
+	}
+	if(DofData_P->Flag_InitOnly[2]){
+	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;	
+	}
+
+	LinAlg_AssembleMatrix(&DofData_P->A) ;
+	LinAlg_AssembleVector(&DofData_P->b) ;
+      }
 
       LinAlg_AddMatrixMatrix(&DofData_P->Jac, &DofData_P->A, &DofData_P->Jac) ;
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
+     
+      if (Flag_FMM)
+	LinAlg_FMMMatVectorProd(&DofData_P->CurrentSolution->x, &DofData_P->res) ;
+      
       LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
+    
       LinAlg_Solve(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
+
+
 
       Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
       Msg(BIGINFO, "Mean error: %.3e  (after %d iteration%s)", 
@@ -1283,7 +1518,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      
     case OPERATION_POSTOPERATION :
       Msg(OPERATION, "PostOperation") ;
-      
       for(i=0 ; i<List_Nbr(Operation_P->Case.PostOperation.PostOperations); i++){
 	str = *(char**)List_Pointer(Operation_P->Case.PostOperation.PostOperations, i);
 	if((j = List_ISearchSeq(Problem_S.PostOperation, str, fcmp_PostOperation_Name)) < 0){
@@ -1360,7 +1594,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 		      struct DofData * DofData_P0, 
 		      int Flag_Jac, int Flag_Separate) {
 
-  int    i, Nbr_Formulation, Index_Formulation, i_TimeStep ;
+  int    i, Nbr_Formulation, Index_Formulation, i_TimeStep, iMat ;
   struct Solution        * Solution_P, Solution_S ;
   struct Formulation     * Formulation_P ;
 
@@ -1416,8 +1650,33 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     }
   }
   else{
+    Msg(INFO,"Setting System {A,b} to zero");
     LinAlg_ZeroMatrix(&Current.DofData->A) ;
     LinAlg_ZeroVector(&Current.DofData->b) ;
+
+    if(DofData_P->Flag_Only){
+      for(i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
+	List_Read( DofData_P->OnlyTheseMatrices,i,&iMat);
+	if(iMat){
+	  Msg(INFO,"Setting System {A%d,b%d} to zero",iMat,iMat);
+	  switch(iMat){
+	  case 1 :
+	    LinAlg_ZeroMatrix(&Current.DofData->A1) ;
+	    LinAlg_ZeroVector(&Current.DofData->b1) ;
+	    break;
+	  case 2 :
+	    LinAlg_ZeroMatrix(&Current.DofData->A2) ;
+	    LinAlg_ZeroVector(&Current.DofData->b2) ;
+	    break;
+	  case 3 : 
+	    LinAlg_ZeroMatrix(&Current.DofData->A3) ;
+	    LinAlg_ZeroVector(&Current.DofData->b3) ;
+	    break;
+	  }
+	}
+      }
+    }
+
   }
 
   if(Flag_Jac) 
@@ -1454,6 +1713,26 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     LinAlg_AssembleVector(&DofData_P->b) ;
     LinAlg_GetVectorSize(&DofData_P->b, &i) ;
     if(!i) Msg(WARNING, "Generated system is of dimension zero");
+  
+    if(DofData_P->Flag_Only){
+      for(i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
+	List_Read( DofData_P->OnlyTheseMatrices,i,&iMat);
+	switch(iMat){
+	case 1 :
+	  LinAlg_AssembleMatrix(&Current.DofData->A1) ;
+	  LinAlg_AssembleVector(&Current.DofData->b1) ;
+	  break;
+	case 2 :
+	  LinAlg_AssembleMatrix(&Current.DofData->A2) ;
+	  LinAlg_AssembleVector(&Current.DofData->b2) ;
+	  break;
+	case 3:
+	  LinAlg_AssembleMatrix(&Current.DofData->A3) ;
+	  LinAlg_AssembleVector(&Current.DofData->b3) ;
+	  break;
+	}
+      }
+    }
   }
 
   if(Flag_Jac){ /* This should in fact only be done if a JacNL term
@@ -2552,8 +2831,3 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 
   GetDP_End ;
 }
-
-
-
-
-

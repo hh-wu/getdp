@@ -1,4 +1,4 @@
-/* $Id: Treatment_Formulation.h,v 1.11 2003-02-07 10:17:56 geuzaine Exp $ */
+/* $Id: Treatment_Formulation.h,v 1.12 2003-03-17 10:50:32 sabarieg Exp $ */
 #ifndef _TREATMENT_FORMULATION_H_
 #define _TREATMENT_FORMULATION_H_
 
@@ -79,15 +79,19 @@ void  Cal_InitIntegralQuantity(struct Element                *Element,
 			       struct IntegralQuantityActive *IQ,
 			       struct QuantityStorage        *QuantityStorage_P) ;
 
-void  Cal_IntegralQuantity(struct Element                *Element, 
-			   struct IntegralQuantityActive *IQ,
-			   struct QuantityStorage        *QuantityStorageDof_P0,
-			   struct QuantityStorage        *QuantityStorageDof_P,
-			   int                            Type_DEfineQuantity, 
-			   int                            Nbr_Dof, 
-			   void                         (*xFunctionBF[])(),
-			   struct                         Value vBFxDof[] ) ;
-
+void  Cal_NumericalIntegralQuantity(struct Element                *Element, 
+				    struct IntegralQuantityActive *IQ,
+				    struct QuantityStorage        *QuantityStorageDof_P0,
+				    struct QuantityStorage        *QuantityStorageDof_P,
+				    int                            Type_DEfineQuantity, 
+				    int                            Nbr_Dof, 
+				    void                         (*xFunctionBF[])(),
+				    struct                         Value vBFxDof[] ) ;
+void  Cal_AnalyticIntegralQuantity(struct Element                *Element, 
+				   struct QuantityStorage        *QuantityStorageDof_P,
+				   int                            Nbr_Dof, 
+				   void                         (*xFunctionBF[])(),
+				   struct                         Value vBFxDof[] ) ;
 void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
 		 struct FemLocalTermActive * FI,
 		 struct QuantityStorage    * QuantityStorage_P0,

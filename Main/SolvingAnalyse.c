@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.24 2003-01-26 07:31:29 geuzaine Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.25 2003-03-17 10:49:40 sabarieg Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -201,7 +201,7 @@ void  SolvingAnalyse (void) {
     Geo_ReadFilePRE(GeoData_P0, Nbr_GeoData, Problem_S.Group) ;
 
     Dof_CloseFile(DOF_PRE) ;
-
+    
   }  
 
   Msg(SUMMARY, "");
@@ -292,6 +292,9 @@ void  SolvingAnalyse (void) {
 
   if (Flag_POS) {
     TreatmentStatus = _POS ;
+
+    Flag_FMM = 0 ; Current.FMM.Flag_GF = 0 ;
+
     Msg(DIRECT, "P o s t - P r o c e s s i n g . . .") ;
 
     i = 0 ;

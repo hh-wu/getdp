@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.26 2003-02-18 22:37:13 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.27 2003-03-17 10:50:30 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -559,18 +559,17 @@ void Cal_WholeQuantity(struct Element * Element,
 		    ValueSaved + WholeQuantity_P->Case.SaveValue.Index) ;
       break ;
 
-   case WQ_SHOWVALUE :
-     if (Index-1 == DofIndex) {
-       for(j=0 ; j<Nbr_Dof ; j++){
-	 fprintf(stderr, "##%d Dof %d ", WholeQuantity_P->Case.ShowValue.Index, j+1);
-	 Show_Value(&DofValue[j]);
-      }
-     } else {
-       fprintf(stderr, "##%d ", WholeQuantity_P->Case.ShowValue.Index);
-       Show_Value(&Stack[0][Index-1]);
+    case WQ_SHOWVALUE :
+      if (Index-1 == DofIndex) {
+	for(j=0 ; j<Nbr_Dof ; j++){
+	  fprintf(stderr, "##%d Dof %d ", WholeQuantity_P->Case.ShowValue.Index, j+1);
+	  Show_Value(&DofValue[j]);
+	}
+      } else {
+	fprintf(stderr, "##%d ", WholeQuantity_P->Case.ShowValue.Index);
+	Show_Value(&Stack[0][Index-1]);
      }
-     break ;
-
+      break ;
 
     case WQ_VALUESAVED :
       if(WholeQuantity_P->Case.ValueSaved.Index > MAX_REGISTER_SIZE-1)

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.30 2003-01-26 06:56:51 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.31 2003-03-17 10:48:03 sabarieg Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -865,12 +865,15 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 
   Nbrj = List_Nbr(Operation_L) ;
 
+
   for (j=0 ; j<Nbrj ; j++) {
     OPE = (struct Operation*)List_Pointer(Operation_L, j) ;
 
     switch (OPE->Type) {
 
     case OPERATION_GENERATE :
+    case OPERATION_GENERATEONLY :
+    case OPERATION_GENERATEFMMGROUPS :
     case OPERATION_SOLVE :
     case OPERATION_GENERATEJAC :
     case OPERATION_SOLVEJAC :
@@ -1161,9 +1164,7 @@ char * Print_PostSubOperation(struct Problem *Problem,
   out = (char*)Malloc(1000*sizeof(char));
 
   switch (PSO->Type) {
-
   case POP_PRINT :
-
     sprintf(out, "Print[%s",
 	    ((struct PostQuantity *)
 	     List_Pointer(PP->PostQuantity, PSO->PostQuantityIndex[0]))->Name) ;
@@ -1245,6 +1246,7 @@ char * Print_PostSubOperation(struct Problem *Problem,
   default : /* POP_GROUP, POP_ECHO, etc. */
     strcpy(out, "");
     return out;
+
     break;
    
   }

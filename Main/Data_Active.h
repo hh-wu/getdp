@@ -1,4 +1,4 @@
-/* $Id: Data_Active.h,v 1.9 2002-01-18 11:10:27 gyselinc Exp $ */
+/* $Id: Data_Active.h,v 1.10 2003-03-17 10:50:31 sabarieg Exp $ */
 #ifndef _DATA_ACTIVE_H_
 #define _DATA_ACTIVE_H_
 
@@ -85,6 +85,7 @@ struct QuantityStorage {
   int    NumLastElementForFunctionSpace ;
   int    NumLastElementForDofDefinition ;
   int    NumLastElementForEquDefinition ;
+  int    FMMGroupList ;
 
   struct FunctionSpace   * FunctionSpace ;
 

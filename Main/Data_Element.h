@@ -1,4 +1,4 @@
-/* $Id: Data_Element.h,v 1.7 2002-01-18 11:10:27 gyselinc Exp $ */
+/* $Id: Data_Element.h,v 1.8 2003-03-17 10:50:31 sabarieg Exp $ */
 #ifndef _DATA_ELEMENT_H_
 #define _DATA_ELEMENT_H_
 
@@ -31,7 +31,7 @@ typedef struct Matrix3x3  MATRIX3x3 ;
 struct Element {
   struct Geo_Element  * GeoElement ;
 
-  int       Num, Type, Region ;
+  int       Num, Type, Region, FMMGroup ;
 
   struct Element  * ElementSource, * ElementTrace ;
 
@@ -83,3 +83,9 @@ struct Element {
 #define PYRAMID_2        (1<<14)
 
 #endif
+
+
+
+
+
+
