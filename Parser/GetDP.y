@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.38 2002-09-01 22:06:50 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.39 2002-09-07 01:24:10 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -24,7 +24,7 @@
 
 /* bison est mal foutu */
 #ifndef __APPLE__
-#if !defined __cplusplus && !defined MSDOS && !defined _AIX && !defined __CYGWIN_
+#if !defined __cplusplus && !defined MSDOS && !defined _AIX && !defined __CYGWIN__
 #include <alloca.h> 
 #endif
 #endif /* __APPLE__ */
