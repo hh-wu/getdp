@@ -301,6 +301,7 @@ PETSc: tag
            "F77=$(FC)" \
            "RANLIB=$(RANLIB)" \
            "C_FLAGS=$(COPTFLAGS)" \
+           "C_PARSER_FLAGS=$(COPTFLAGS)" \
            "F77_FLAGS=$(FOPTFLAGS)" \
            "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE) -D_METIS $(METIS_INCLUDE)" \
         ); done
@@ -312,6 +313,7 @@ dec: tag
            "CC=cc" \
            "FC=f77" \
            "C_FLAGS=-O3" \
+           "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O3" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
@@ -324,6 +326,7 @@ linux: tag
            "CC=gcc" \
            "FC=g77" \
            "C_FLAGS=-O3" \
+           "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
@@ -337,6 +340,7 @@ hp: tag
            "FC=f77" \
            "RANLIB=ls" \
            "C_FLAGS=+O2 +Onolimit -Ae +DAportable" \
+           "C_PARSER_FLAGS=+O1 -Ae +DAportable" \
            "F77_FLAGS=+O2 +DAportable" \
            "OS_FLAGS=-D_HP" \
            "SOLVER=-D_SPARSKIT" \
@@ -352,6 +356,7 @@ sun: tag
            "FC=f77" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
+           "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O3" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
@@ -365,6 +370,7 @@ ibm: tag
            "FC=f77" \
            "RANLIB=ls" \
            "C_FLAGS=-O2" \
+           "C_PARSER_FLAGS=-O1" \
            "F77_FLAGS=-O2" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_UNDERSCORE" \
@@ -378,6 +384,7 @@ cygwin: tag
            "FC=g77" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
+           "C_PARSER_FLAGS=-O1" \
            "F77_FLAGS=-O1" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
@@ -391,6 +398,7 @@ win: tag
            "FC=g77 -mno-cygwin" \
            "RANLIB=ls" \
            "C_FLAGS=-g" \
+           "C_PARSER_FLAGS=-g" \
            "F77_FLAGS=-g" \
            "OS_FLAGS=-DMSDOS" \
            "SOLVER=-D_SPARSKIT" \
@@ -404,6 +412,7 @@ mingw:
            "FC=g77" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
+           "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
            "OS_FLAGS=-DMSDOS" \
            "SOLVER=-D_SPARSKIT" \
@@ -417,6 +426,7 @@ sgi: tag
            "FC=f77" \
            "RANLIB=ls" \
            "C_FLAGS=-O3 -mips4" \
+           "C_PARSER_FLAGS=-g -mips4 " \
            "F77_FLAGS=-O3 -mips4" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
