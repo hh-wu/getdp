@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.16 2000-09-13 18:47:42 geuzaine Exp $
+@c $Id: getdp.texi,v 1.17 2000-09-15 08:27:24 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -45,7 +45,7 @@
 @c recto-verso (recto -> on)
 @setchapternewpage odd
 @paragraphindent 0
-@afourpaper
+@c @afourpaper
 @finalout
 @c %**end of header
 
