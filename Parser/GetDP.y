@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.52 2003-07-01 19:08:14 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.53 2003-08-29 14:50:20 gyselinc Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -130,6 +130,7 @@ List_T  * ListOfInt_Lnew ;
 int     * ListOfInt_P ;
 
 char     StringAux1[255], * Save_Name ;
+static char  tmpstring[1024] ;
 
 int      i, j, k, l, FlagError ;
 int      Num_BasisFunction = 1 ;
@@ -238,7 +239,7 @@ time_t date_info;
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
-%token  tStrCat
+%token  tStrCat tPrintf
 %token  tFor tEndFor
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace
@@ -6371,6 +6372,22 @@ Affectation :
 
   | tDefineConstant '[' DefineConstants ']' tEND
 
+  | tPrintf '(' tBIGSTR ')' tEND
+    {
+      Msg(DIRECT, $3);
+    }
+
+  | tPrintf '(' tBIGSTR ',' RecursiveListOfFExpr ')' tEND
+    {
+      i = PrintListOfDouble($3,$5,tmpstring);
+      if(i<0) 
+	vyyerror("Too few arguments in Printf");
+      else if(i>0)
+	vyyerror("Too many arguments (%d) in Printf", i);
+      else
+	Msg(INFO, tmpstring);
+      List_Delete($5);
+    }
   ;
 
 DefineConstants :
@@ -7027,5 +7044,41 @@ void  vyyerror (char *fmt, ...){
 
   ErrorLevel=1 ;
 }
+
+
+int PrintListOfDouble(char *format, List_T *list, char *buffer){
+  int i, j, k;
+  char tmp1[256], tmp2[256];
+
+  j=0;
+  while(format[j]!='%') j++;
+  strncpy(buffer, format, j); 
+  buffer[j]='\0'; 
+  for(i = 0 ; i<List_Nbr(list) ; i++){
+    k = j;
+    j++;
+    if(j<(int)strlen(format)){
+      if(format[j]=='%'){
+	strcat(buffer, "%");
+	j++;
+      }
+      while(format[j]!='%' && j<(int)strlen(format)) j++;
+      if(k != j){
+	strncpy(tmp1, &(format[k]),j-k);
+	tmp1[j-k]='\0';
+	sprintf(tmp2, tmp1, *(double*)List_Pointer(list,i)); 
+	strcat(buffer, tmp2);
+      }
+    }
+    else{
+      return List_Nbr(list)-i;
+      break ;
+    }
+  }
+  if(j != (int)strlen(format))
+    return -1;
+  return 0;
+}
+  
 
 

@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.22 2003-06-21 07:17:50 sabarieg Exp $ */
+/* $Id: GetDP.l,v 1.23 2003-08-29 14:50:20 gyselinc Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -98,7 +98,8 @@ string     {alpha}({alpha}|{digit})*
 ":"                          return tDOTS ;
 "##"                         return tSHOW ;
 
-StrCat                       return tStrCat ;
+StrCat                       return tStrCat ; 
+Printf                       return tPrintf ;
 
 For                          return tFor ;
 EndFor                       return tEndFor ;
