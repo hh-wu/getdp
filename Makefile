@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.140 2003-05-05 23:02:52 geuzaine Exp $
+# $Id: Makefile,v 1.141 2003-05-16 02:55:24 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -147,7 +147,7 @@ package-unix:
 	gzip getdp-${GETDP_RELEASE}-${UNAME}.tar
 	mv getdp-${GETDP_RELEASE}-${UNAME}.tar.gz getdp-${GETDP_RELEASE}-${UNAME}.tgz
 
-package-windows:
+package-win:
 	rm -rf getdp-${GETDP_RELEASE}
 	mkdir getdp-${GETDP_RELEASE}
 	strip bin/getdp.exe
@@ -171,7 +171,7 @@ package-windows:
 
 distrib-unix: clean all package-unix
 
-distrib-windows: clean all package-windows
+distrib-win: clean all package-win
 
 source-common:
 	rm -rf getdp-${GETDP_RELEASE}
