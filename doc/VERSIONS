@@ -1,8 +1,8 @@
-$Id: VERSIONS,v 1.15 2001-05-28 10:49:31 geuzaine Exp $
+$Id: VERSIONS,v 1.16 2001-06-03 11:08:29 geuzaine Exp $
 
-0.83: Various bug fixes (SaveSolutions[], ...) and small enhancements
-(output files are created in the same directory as the input file,
-...);
+0.83: Various bug fixes (SaveSolutions[], InitSolution[], ...) and
+small enhancements (output files are created relatively to the input
+file directory, ...); 
 
 0.82: Added communication socket for interactive use with Gmsh;
 corrected (again) memory problem (leak + seg. fault) in time stepping
