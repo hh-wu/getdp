@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.14 2003-02-13 23:34:09 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.15 2003-02-13 23:40:23 geuzaine Exp $"
 dnl
 dnl Machine independent configuration script for GetDP.
 dnl
@@ -127,7 +127,7 @@ else
       C_FLAGS="-O3 -n32 -mips3"
       C_PARSER_FLAGS="-g -n32 -mips3"
       dnl warning: -O3 crashes Sparskit
-      F77_FLAGS="-O1 -n32 -mips3"
+      F77_FLAGS="-O2 -n32 -mips3"
       dnl warning: -D_ILU_FLOAT crashes Sparskit
       SOLVER="-D_SPARSKIT"
       LINKER="f77 -n32 -mips3"

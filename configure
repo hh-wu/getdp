@@ -2471,7 +2471,7 @@ else
       F77="f77"
       C_FLAGS="-O3 -n32 -mips3"
       C_PARSER_FLAGS="-g -n32 -mips3"
-            F77_FLAGS="-O1 -n32 -mips3"
+            F77_FLAGS="-O2 -n32 -mips3"
             SOLVER="-D_SPARSKIT"
       LINKER="f77 -n32 -mips3"
       ;;
