@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.12 2001-06-26 13:34:19 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.13 2001-06-26 13:36:44 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -443,7 +443,7 @@ reallocate :
     if(!end){
       
       if(ipar[7] != its){
-	if(its) Msg(ITER, "%4d  %.7e %.7e\n", its, res, res/res1);
+	if(its) Msg(ITER, "%4d  %.7e  %.7e\n", its, res, res/res1);
 	its = ipar[7] ;
       }
       
@@ -481,7 +481,7 @@ reallocate :
   
   /* Convergence results monitoring */
   
-  Msg(ITER, "%4d  %.7e %.7e\n", ipar[7], fpar[6], fpar[6]/res1);
+  Msg(ITER, "%4d  %.7e  %.7e\n", ipar[7], fpar[6], fpar[6]/res1);
   
   amux_(&M->N, sol, w, a, ja, ia);
   
