@@ -1,4 +1,4 @@
-/* $Id: GmshClient.c,v 1.11 2004-12-06 08:01:12 geuzaine Exp $ */
+/* $Id: GmshClient.c,v 1.12 2005-01-01 01:51:33 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2004 C. Geuzaine, J.-F. Remacle
  *
@@ -101,10 +101,15 @@ int Gmsh_Connect(char *sockname)
      server before we attempt to connect to it... */
   Socket_Idle(0.1);
 
-  if(!(port = strstr(sockname, ":"))){ /* UNIX socket */
+  if(strstr(sockname, "/") || strstr(sockname, "\\") || !strstr(sockname, ":")){
+    /* UNIX socket (testing ":" is not enough with Windows paths) */
     portno = -1;
   }
-  else{ /* INET socket */
+  else{
+    /* INET socket */
+    port = strstr(sockname, ":");
+    if(!port)
+      return -1; /* Error: Couldn't create socket */
     portno = atoi(port+1);
     remotelen = strlen(sockname) - strlen(port);
     if(remotelen > 0)
@@ -117,7 +122,7 @@ int Gmsh_Connect(char *sockname)
   if(portno < 0){
     sock = socket(PF_UNIX, SOCK_STREAM, 0);
     if(sock < 0)
-      return -1;  /* Error: Couldn't create socket */
+      return -1; /* Error: Couldn't create socket */
     /* try to connect socket to given name */
     strcpy(addr_un.sun_path, sockname);
     addr_un.sun_family = AF_UNIX;
@@ -132,7 +137,7 @@ int Gmsh_Connect(char *sockname)
     /* try to connect socket to given name */
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock < 0)
-      return -1;  /* Error: Couldn't create socket */
+      return -1; /* Error: Couldn't create socket */
     if(!(server = gethostbyname(remote)))
       return -3; /* Error: No such host */
     bzero((char *) &addr_in, sizeof(addr_in));
