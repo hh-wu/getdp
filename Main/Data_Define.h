@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.7 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.8 2000-09-28 22:14:39 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -275,6 +275,12 @@ struct StringXDefine  Adaption_Type[] = {
   {"H1"     , H1},
   {"H2"     , H2},
   {NULL     , P1}
+} ;
+
+struct StringXDefine  Sort_Type[] = {
+  {"Position"     , SORT_BY_POSITION },
+  {"Connection"   , SORT_BY_CONNECTIVITY },
+  {NULL           , 0 }
 } ;
 
 /* ------------------------------------------------------------------------ */

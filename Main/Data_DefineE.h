@@ -1,4 +1,4 @@
-/* $Id: Data_DefineE.h,v 1.6 2000-09-08 08:17:24 geuzaine Exp $ */
+/* $Id: Data_DefineE.h,v 1.7 2000-09-28 22:14:39 geuzaine Exp $ */
 
 #ifndef _DADA_DEFINE_E_H_
 #define _DATA_DEFINE_E_H_
@@ -66,6 +66,7 @@ extern struct StringXDefine  PostSubOperation_CombinationType[];
 extern struct StringXDefine  PostSubOperation_Format[];
 extern struct StringXDefine  PostSubOperation_FormatTag[];
 extern struct StringXDefine  Adaption_Type[];
+extern struct StringXDefine  Sort_Type[] ;
 
 extern struct StringXPointer Current_Value[] ;
 

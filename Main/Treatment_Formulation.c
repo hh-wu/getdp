@@ -1,4 +1,4 @@
-/* $Id: Treatment_Formulation.c,v 1.2 2000-09-07 18:47:27 geuzaine Exp $ */
+/* $Id: Treatment_Formulation.c,v 1.3 2000-09-28 22:14:40 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -328,7 +328,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 	((struct Group *)List_Pointer(Problem_S.Group,
 				      EquationTerm_P->Case.GlobalTerm.InIndex))
 	->InitialList ;
-      List_Tri(InitialListInIndex_L, fcmp_int) ;
+      List_Sort(InitialListInIndex_L, fcmp_int) ;
       Nbr_Region = List_Nbr(InitialListInIndex_L) ;
       
       /* ---------------------------------------------- */
@@ -524,7 +524,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
       ((struct Group *)List_Pointer(Problem_S.Group,
 				    GlobalEquationTerm_P->InIndex))->InitialList ;
     Nbr_Region = List_Nbr(InitialListInIndex_L) ;
-    List_Tri(InitialListInIndex_L, fcmp_int) ;
+    List_Sort(InitialListInIndex_L, fcmp_int) ;
 
     for (i_Region = 0 ; i_Region < Nbr_Region ; i_Region++) {
       List_Read(InitialListInIndex_L, i_Region, &Num_Region) ;

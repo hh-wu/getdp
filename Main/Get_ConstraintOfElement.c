@@ -1,4 +1,4 @@
-/* $Id: Get_ConstraintOfElement.c,v 1.3 2000-09-25 08:04:42 geuzaine Exp $ */
+/* $Id: Get_ConstraintOfElement.c,v 1.4 2000-09-28 22:14:39 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -531,8 +531,8 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   */
   /* ...fprintf */
 
-  List_Tri(NodeXYZ_L   , fcmp_XYZ) ;
-  List_Tri(NodeXYZRef_L, fcmp_XYZ) ;
+  List_Sort(NodeXYZ_L   , fcmp_XYZ) ;
+  List_Sort(NodeXYZRef_L, fcmp_XYZ) ;
 
   /* fprintf... */
   Msg(BIGINFO, "After sorting") ;
@@ -750,8 +750,8 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 	    i, EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
   }
 
-  List_Tri(EdgeNN_L   , fcmp_NN) ;
-  List_Tri(EdgeNNRef_L, fcmp_NN) ;
+  List_Sort(EdgeNN_L   , fcmp_NN) ;
+  List_Sort(EdgeNNRef_L, fcmp_NN) ;
 
   for (i = 0 ; i < Nbr_Entity ; i++) {
     List_Read(EdgeNN_L, i, &EdgeNN) ;

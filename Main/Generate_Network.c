@@ -1,4 +1,4 @@
-/* $Id: Generate_Network.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Generate_Network.c,v 1.3 2000-09-28 22:14:39 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -40,7 +40,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L) {
     List_Replace(ListInt_L, &(CPR->Case.Network.Node1), fcmp_int) ;
     List_Replace(ListInt_L, &(CPR->Case.Network.Node2), fcmp_int) ;
   }
-  if (Nbr_Branch)  List_Tri(ListInt_L, fcmp_int) ;
+  if (Nbr_Branch)  List_Sort(ListInt_L, fcmp_int) ;
 
   n = List_Nbr(ListInt_L) - 1 ;  /* Nbr_Node - 1 */
   Nbr_Loop = Nbr_Branch - n ;    /* Nbr of independent loops */

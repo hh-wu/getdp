@@ -1,4 +1,4 @@
-/* $Id: Pre_TermOfFemEquation.c,v 1.3 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Pre_TermOfFemEquation.c,v 1.4 2000-09-28 22:14:40 geuzaine Exp $ */
 #include <stdio.h>
 
 #include "Treatment_Formulation.h"
@@ -357,7 +357,7 @@ void  Pre_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
       ((struct Group *)List_Pointer(Problem_S.Group,
 				    GlobalEquationTerm_P->InIndex))->InitialList ;
     Nbr_Region = List_Nbr(InitialListInIndex_L) ;
-    List_Tri(InitialListInIndex_L, fcmp_int) ;
+    List_Sort(InitialListInIndex_L, fcmp_int) ;
 
     for (i_Region = 0 ; i_Region < Nbr_Region ; i_Region++) {
       List_Read(InitialListInIndex_L, i_Region, &Num_Region) ;

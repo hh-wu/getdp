@@ -1,4 +1,4 @@
-/* $Id: Pos_Search.c,v 1.10 2000-09-26 09:42:25 geuzaine Exp $ */
+/* $Id: Pos_Search.c,v 1.11 2000-09-28 22:15:24 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -584,7 +584,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 	}	
       }
     }
-    List_Tri(PointElement_L, fcmp_PointElement);
+    List_Sort(PointElement_L, fcmp_PointElement);
     
     for(i=0 ; i<List_Nbr(PointElement_L) ; i++){
       List_Read(PointElement_L, i, &PointElement);

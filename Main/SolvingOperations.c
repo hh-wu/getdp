@@ -1,4 +1,4 @@
-/* $Id: SolvingOperations.c,v 1.9 2000-09-07 18:47:27 geuzaine Exp $ */
+/* $Id: SolvingOperations.c,v 1.10 2000-09-28 22:14:40 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -1539,7 +1539,7 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
     Region_L =
       ((struct Group *)List_Pointer(Problem_S.Group, ChangeOfState_P->InIndex))
       ->InitialList ;
-    List_Tri(Region_L, fcmp_int) ;
+    List_Sort(Region_L, fcmp_int) ;
 
     Nbr_Region = List_Nbr(Region_L) ;
 

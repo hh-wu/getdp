@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.7 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.8 2000-09-28 22:14:39 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -789,7 +789,7 @@ struct PostSubOperation {
   int    PostQuantityIndex[2];  
   int    Type, SubType, CombinationType ;
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
-  int    Format, Adapt ;
+  int    Format, Adapt, Sort ;
   double Target ;
   List_T * HeaderChar_L, * HeaderTag_L ;
   List_T * FormatChar_L, * FormatTag_L ;
@@ -860,6 +860,10 @@ struct PostSubOperation {
 #define FORMAT_GREF           13
 #define FORMAT_MATLAB         14
 #define FORMAT_GNUPLOT        15
+
+/* PostSubOperation.Sort */
+#define SORT_BY_POSITION      1
+#define SORT_BY_CONNECTIVITY  2
 
 /* ------------------------------------------------------------------------ */
 /*  C u r r e n t D a t a                                                   */
