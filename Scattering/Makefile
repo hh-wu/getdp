@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.23 2002-09-20 23:18:17 geuzaine Exp $
+# $Id: Makefile,v 1.24 2002-09-28 16:28:03 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -62,13 +62,12 @@ exe:
 
 3d:
 	$(CXX) $(C_FLAGS) -o hf3d \
-               -I$(FASSTER_DIR)/lib -I$(MATHTOOLKIT_DIR)/lib \
-         -I/usr/include/python2.1\
-         -I/home/amavisitors/redrod/root/python2.2_Numeric/include/python2.1/Numeric\
-               main3d.cpp \
-               $(FASSTER_DIR)/lib/libfasster.a \
-               $(MATHTOOLKIT_DIR)/lib/libmathtoolkit.a \
-               -lgsl -lgslcblas -lm
+           -I$(FASSTER_DIR)/lib \
+           -I$(MATH_TOOLKIT_DIR)/lib \
+           main3d.cpp \
+           $(FASSTER_DIR)/lib/libfasster.a \
+           $(MATH_TOOLKIT_DIR)/lib/libmathtoolkit.a \
+           -lgsl -lgslcblas -lm
 
 clean:
 	$(RM) $(RMFLAGS) *.o
