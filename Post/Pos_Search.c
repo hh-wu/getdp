@@ -46,7 +46,7 @@ int ComputeElementBox(struct Element * Element,
 
     if( (ChainDim == _1D && Element->Type == LINE) ||
 	(ChainDim == _2D && (Element->Type == TRIANGLE || Element->Type == QUADRANGLE)) ){
-	
+      
       dxy = (ElementBox->Xmax-ElementBox->Xmin)-(ElementBox->Ymax-ElementBox->Ymin);
       dxz = (ElementBox->Xmax-ElementBox->Xmin)-(ElementBox->Zmax-ElementBox->Zmin);
       dyz = (ElementBox->Ymax-ElementBox->Ymin)-(ElementBox->Zmax-ElementBox->Zmin);
@@ -220,42 +220,90 @@ void Init_SearchGrid(struct Grid * Grid) {
     Grid->Zmax = MAX(Grid->Zmax, GeoNode->z); 
   }
 
-  /* trouver un critere, en fct du nbr d'elements...
+#define NBB  20
+#define FACT 0.1
 
-     if(Grid->Zmin == Grid->Zmax){	  
-       Grid->Nx = Grid->Ny = MIN(250, (int)(sqrt(NbrGeoElements / 3.)+1.));
-       Grid->Nz = 1; Grid->Zmin = 0.0; Grid->Zmax = 1.0;
-       GeoDim = _2D;
-     }
-     else{
-       Grid->Nx = Grid->Ny = Grid->Nz = MIN(40, (int)(pow(NbrGeoElements / 3., 0.333)+1.));
-       GeoDim = _3D;
-     }
-  */
-
-  if(Grid->Ymin == Grid->Ymax){
-    Grid->Nx = 20 ; Grid->Ny = Grid->Nz = 1;
-    GeoDim = _1D;
-  }
-  else if(Grid->Zmin == Grid->Zmax){
-    Grid->Nx = Grid->Ny = 20 ; Grid->Nz = 1;
-    GeoDim = _2D;
-  }
-  else{
-    Grid->Nx = Grid->Ny = Grid->Nz = 20;
+  if(Grid->Xmin != Grid->Xmax && Grid->Ymin != Grid->Ymax && Grid->Zmin != Grid->Zmax){
     GeoDim = _3D;
+
+    Grid->Nx = Grid->Ny = Grid->Nz = NBB;
+
+    Xc = Grid->Xmax-Grid->Xmin; Yc = Grid->Ymax-Grid->Ymin; Zc = Grid->Zmax-Grid->Zmin;
+
+    Grid->Xmin -= FACT * Xc ; Grid->Ymin -= FACT * Yc ; Grid->Zmin -= FACT * Zc ;
+    Grid->Xmax += FACT * Xc ; Grid->Ymax += FACT * Yc ; Grid->Zmax += FACT * Zc ;
   }
 
-  Xc = Grid->Xmax-Grid->Xmin;
-  Yc = Grid->Ymax-Grid->Ymin;
-  Zc = Grid->Zmax-Grid->Zmin;
-  
-  Grid->Xmin = Grid->Xmin - 0.1 * Xc ;
-  Grid->Ymin = Grid->Ymin - 0.1 * Yc ;
-  Grid->Zmin = Grid->Zmin - 0.1 * Zc ;
-  Grid->Xmax = Grid->Xmax + 0.1 * Xc ;
-  Grid->Ymax = Grid->Ymax + 0.1 * Yc ;
-  Grid->Zmax = Grid->Zmax + 0.1 * Zc ;
+  else if(Grid->Xmin != Grid->Xmax && Grid->Ymin != Grid->Ymax){
+    GeoDim = _2D;
+
+    Grid->Nx = Grid->Ny = NBB ; Grid->Nz = 1 ;
+
+    Xc = Grid->Xmax-Grid->Xmin; Yc = Grid->Ymax-Grid->Ymin;
+
+    Grid->Xmin -= FACT * Xc ; Grid->Ymin -= FACT * Xc ; Grid->Zmin -= 1. ;
+    Grid->Xmax += FACT * Xc ; Grid->Ymax += FACT * Xc ; Grid->Zmax += 1. ;
+  }
+  else if(Grid->Xmin != Grid->Xmax && Grid->Zmin != Grid->Zmax){
+    GeoDim = _2D;
+
+    Grid->Nx = Grid->Nz = NBB ; Grid->Ny = 1 ;
+
+    Xc = Grid->Xmax-Grid->Xmin; Zc = Grid->Zmax-Grid->Zmin;
+
+    Grid->Xmin -= FACT * Xc ; Grid->Ymin -= 1. ; Grid->Zmin -= FACT * Zc ;
+    Grid->Xmax += FACT * Xc ; Grid->Ymax += 1. ; Grid->Zmax += FACT * Zc ;
+  }
+  else if(Grid->Ymin != Grid->Ymax && Grid->Zmin != Grid->Zmax){
+    GeoDim = _2D;
+
+    Grid->Nx = 1 ; Grid->Ny = Grid->Nz = NBB ;
+
+    Yc = Grid->Ymax-Grid->Ymin; Zc = Grid->Zmax-Grid->Zmin;
+
+    Grid->Xmin -= 1. ; Grid->Ymin -= FACT * Yc ; Grid->Zmin -= FACT * Zc ;
+    Grid->Xmax += 1. ; Grid->Ymax += FACT * Yc ; Grid->Zmax += FACT * Zc ;
+  }
+
+  else if(Grid->Xmin != Grid->Xmax){
+    GeoDim = _1D;
+
+    Grid->Nx = NBB ; Grid->Ny = Grid->Nz = 1 ;
+
+    Xc = Grid->Xmax-Grid->Xmin;
+
+    Grid->Xmin -= FACT * Xc ; Grid->Ymin -= 1. ; Grid->Zmin -= 1. ;
+    Grid->Xmax += FACT * Xc ; Grid->Ymax += 1. ; Grid->Zmax += 1. ;
+  }
+  else if(Grid->Ymin != Grid->Ymax){
+    GeoDim = _1D;
+
+    Grid->Nx = Grid->Nz = 1 ; Grid->Ny = NBB ;
+
+    Yc = Grid->Ymax-Grid->Ymin;
+
+    Grid->Xmin -= 1. ; Grid->Ymin -= FACT * Yc ; Grid->Zmin -= 1. ;
+    Grid->Xmax += 1. ; Grid->Ymax += FACT * Yc ; Grid->Zmax += 1. ;
+  }
+  else if(Grid->Zmin != Grid->Zmax){
+    GeoDim = _1D;
+
+    Grid->Nx = Grid->Ny = 1 ; Grid->Nz = NBB ;
+
+    Zc = Grid->Zmax-Grid->Zmin;
+
+    Grid->Xmin -= 1. ; Grid->Ymin -= 1. ; Grid->Zmin -= FACT * Zc ;
+    Grid->Xmax += 1. ; Grid->Ymax += 1. ; Grid->Zmax += FACT * Zc ;
+  }
+
+  else{
+    GeoDim = _0D;
+
+    Grid->Nx = Grid->Ny = Grid->Nz = 1;
+
+    Grid->Xmin -= 1. ; Grid->Ymin -= 1. ; Grid->Zmin -= 1. ;
+    Grid->Xmax += 1. ; Grid->Ymax += 1. ; Grid->Zmax += 1. ;
+  }
 
   Msg(INFO, "Initializing Grid (%d,%d,%d)", Grid->Nx, Grid->Ny, Grid->Nz);
 
@@ -542,7 +590,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
     }
     
   }
-  
+
   Element->Num = NO_ELEMENT ;
   Element->Region = NO_REGION ;
 }
@@ -625,7 +673,6 @@ void xyz2uvwInAnElement (struct Element *Element,
       *w = w_new;
     }
     else{
-      Debug();
       Msg(WARNING, "Zero Determinant in xyz2uvwInAnElement") ;
       break;
     }
