@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.20 2000-10-31 18:35:50 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.21 2000-11-07 15:43:08 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -148,7 +148,6 @@ void Signal (int sig_num){
 
 void Get_GetDPContext(char *FileName, char *FileVersion, char *FileDate, 
 		      char *FileAuthor, int *Line, char *FunctionName){
-  unsigned int i = 5, j = 0 ;
   char Dum[32] ;
 
   sscanf(GetDP_CurrentSourceFile[GetDP_CurrentStackIndex-1],
