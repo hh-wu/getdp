@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.145 2003-07-23 21:08:10 geuzaine Exp $
+# $Id: Makefile,v 1.146 2003-08-24 23:22:24 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -127,14 +127,12 @@ tgzdoc:
 	tar cvf getdp-texi.tar doc/texinfo
 	gzip getdp-texi.tar
 
-# FIXME: add doc/COPYING...
-
 package-unix:
 	rm -rf getdp-${GETDP_RELEASE}
 	mkdir getdp-${GETDP_RELEASE}
 	strip bin/getdp
 	cp bin/getdp getdp-${GETDP_RELEASE}
-	cp doc/VERSIONS doc/FAQ doc/CREDITS getdp-${GETDP_RELEASE}
+	cp doc/getdp.1 doc/COPYING doc/VERSIONS doc/FAQ doc/CREDITS getdp-${GETDP_RELEASE}
 	cp -R demos getdp-${GETDP_RELEASE}
 	rm -rf getdp-${GETDP_RELEASE}/*/CVS
 	rm -f getdp-${GETDP_RELEASE}/*/*.pre
@@ -156,6 +154,7 @@ package-win:
 	cp doc/VERSIONS getdp-${GETDP_RELEASE}/VERSIONS.txt
 	cp doc/FAQ getdp-${GETDP_RELEASE}/FAQ.txt
 	cp doc/CREDITS getdp-${GETDP_RELEASE}/CREDITS.txt
+	cp doc/COPYING getdp-${GETDP_RELEASE}/COPYING.txt
 	cd utils && unix2dos ../getdp-${GETDP_RELEASE}/*.txt
 	cp -R demos getdp-${GETDP_RELEASE}
 	rm -rf getdp-${GETDP_RELEASE}/*/CVS
@@ -191,12 +190,6 @@ source-nonfree: source-common
 	cd getdp-${GETDP_RELEASE} && rm -rf Scattering utils doc/slides\
                                             ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
 	tar zcvf getdp-${GETDP_RELEASE}-source-nonfree.tgz getdp-${GETDP_RELEASE}
-
-rpmold:
-	tar zcvf /usr/src/redhat/SOURCES/${GETDP_SRCRPM}.tar.gz ${GETDP_SOURCES}
-	rpm -bb --define 'getdpversion ${GETDP_RELEASE}' getdp.spec
-	cp /usr/src/redhat/RPMS/i386/${GETDP_SRCRPM}-1.i386.rpm .
-	cp /usr/src/redhat/BUILD/${GETDP_SRCRPM}/getdp-${GETDP_RELEASE}-${UNAME}.tgz .
 
 rpm:
 	tar zcvf /usr/src/redhat/SOURCES/${GETDP_SRCRPM}.tar.gz ${GETDP_SOURCES}
