@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.7 2001-08-08 14:47:54 sabarieg Exp $ */
+/* $Id: F_Function.h,v 1.8 2001-08-10 16:22:51 sabarieg Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -15,7 +15,9 @@ void  F_Cylinder          (F_ARG) ;
 void  F_JFIE_ZPolCyl      (F_ARG) ; 
 void  F_JFIE_TransZPolCyl (F_ARG) ;
 void  F_JFIE_SphTheta     (F_ARG) ;
+void  F_RCS_SphTheta      (F_ARG) ;
 void  F_JFIE_SphPhi       (F_ARG) ;
+void  F_RCS_SphPhi        (F_ARG) ;
 
 /* F_Math */
 

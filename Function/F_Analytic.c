@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.6 2001-08-08 14:47:54 sabarieg Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.7 2001-08-10 16:22:51 sabarieg Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -226,8 +226,8 @@ void F_JFIE_SphTheta(F_ARG){
 
   GetDP_Begin("F_JFIE_SphTheta") ;  
 
-  theta = atan2(sqrt( A->Val[0]* A->Val[0] + A->Val[1]*A->Val[1] ),  -A->Val[2]);
-  phi = atan2( A->Val[1], -A->Val[0] ) ;
+  theta = atan2(sqrt( A->Val[0]* A->Val[0] + A->Val[1]*A->Val[1] ),  A->Val[2]);
+  phi = atan2( A->Val[1], A->Val[0] ) ;
 
   k0  = Fct->Para[0] ;
   eta = Fct->Para[1] ;
@@ -239,8 +239,10 @@ void F_JFIE_SphTheta(F_ARG){
 
   V->Val[0] = 0.;
   V->Val[MAX_DIM] = 0. ;
-  
-  if (theta == 0.|| theta == PI || theta == -PI) GetDP_End;
+
+  if ( theta == 0. ) theta += 1e-7; // Warning! This is an approximation.
+  if ( theta == PI || theta == -PI ) theta -= 1e-7;
+
 
   for (i = 1 ; i <= n ; i++ ){
     ctheta = cos(theta);
@@ -257,12 +259,12 @@ void F_JFIE_SphTheta(F_ARG){
     a1 = cos((1-i)*PI/2) ;
     b1 = sin((1-i)*PI/2) ;
     c1 = -AltSpherical_j_n(i+1, kr) + (i+1) * AltSpherical_j_n(i, kr)/kr ;//Derivative
-    d1 = -AltSpherical_y_n(i+1, kr) + (i+1) * AltSpherical_y_n(i, kr)/kr ;
+    d1 = -(-AltSpherical_y_n(i+1, kr) + (i+1) * AltSpherical_y_n(i, kr)/kr) ;
     
     a2 =  cos((2-i)*PI/2) ;
     b2 =  sin((2-i)*PI/2) ;    
     c2 =  AltSpherical_j_n(i, kr) ;
-    d2 =  AltSpherical_y_n(i, kr) ;     
+    d2 = -AltSpherical_y_n(i, kr) ; 
 
     den1 = c1*c1+d1*d1 ;
     den2 = c2*c2+d2*d2 ;
@@ -282,6 +284,71 @@ void F_JFIE_SphTheta(F_ARG){
 
 
 
+void F_RCS_SphTheta(F_ARG){
+  
+  double k0, r, kr, e0, rinf, krinf, eta, theta, phi, a1 =0., b1=0., d1, den1, P, P0, dP ;
+  double J, J_1, dJ, ctheta, stheta, cteRe1, cteRe2, a2, b2, d2, den2, lambda ;
+  int i, n ;
+
+  GetDP_Begin("F_RCS_SphTheta") ;  
+
+  theta = atan2(sqrt( A->Val[0]* A->Val[0] + A->Val[1]*A->Val[1] ),  A->Val[2]);
+  phi = atan2( A->Val[1], A->Val[0] ) ;
+
+  k0  = Fct->Para[0] ;
+  e0 = Fct->Para[1] ;
+  r  = Fct->Para[2] ;
+  rinf   = Fct->Para[3] ;   
+  
+  kr = k0*r ;
+  krinf = k0*rinf ;
+  lambda = 2*PI/k0 ;
+
+  n = 50 ;  
+
+  if ( theta == 0. ) theta += 1e-7; // Warning! This is an approximation.
+  if ( theta == PI || theta == -PI ) theta -= 1e-7;
+
+  for (i = 1 ; i <= n ; i++ ){
+    ctheta = cos(theta);
+    stheta = sin(theta);
+    
+    P =  Legendre(i,1,ctheta);
+    P0 = Legendre(i,0,ctheta);
+    dP = (i+1)*i* P0/stheta-(ctheta/(ctheta*ctheta-1))* P;
+     
+    J = AltSpherical_j_n(i, kr) ;
+    J_1 = AltSpherical_j_n(i+1, kr) ;
+    dJ = -J_1 + (i + 1) * J/kr ; 
+
+    cteRe1 = -(2*i+1) * stheta * dP * dJ /i/(i+1);
+    cteRe2 = (2*i+1) * P * J /stheta/i/(i+1);
+
+    d1 = -(-AltSpherical_y_n(i+1, kr) + (i+1) * AltSpherical_y_n(i, kr)/kr) ;
+    
+    d2 = -AltSpherical_y_n(i, kr) ;     
+
+    den1 = dJ*dJ+d1*d1 ;
+    den2 = J*J+d2*d2 ;
+    
+    a1 += cteRe1 * dJ /den1 +  cteRe2 * J /den2 ; 
+    b1 += cteRe1*(-d1) /den1 + cteRe2*(-d2) /den2 ;
+  }
+
+  a2 = e0*cos(phi)*sin(krinf)/krinf ;
+  b2 = e0*cos(phi)*cos(krinf)/krinf ;
+ 
+  V->Val[0] = 10*log10( 4*PI*SQU(rinf/lambda)*(SQU(a1*a2-b1*b2) + SQU(a1*b2+a2*b1)) );
+  V->Val[MAX_DIM] = 0. ;
+  
+  V->Type = SCALAR ;
+
+
+  GetDP_End;
+}
+
+
+
 void F_JFIE_SphPhi(F_ARG){
   
   double k0, r, kr, e0, eta, theta, phi, a1, b1, c1, d1, den1, P, P0, dP ;
@@ -290,7 +357,7 @@ void F_JFIE_SphPhi(F_ARG){
 
   GetDP_Begin("F_JFIE_SphPhi") ;  
 
-  theta = atan2( sqrt( A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] ), -A->Val[2]);
+  theta = atan2( sqrt( A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] ), A->Val[2]);
   phi = atan2( A->Val[1], A->Val[0] ) ;
 
   k0  = Fct->Para[0] ;
@@ -301,10 +368,11 @@ void F_JFIE_SphPhi(F_ARG){
   kr = k0*r ;
   n = 50 ;  
 
-  if (theta == 0.||theta == PI) GetDP_End;
-  
   V->Val[0] = 0.;
   V->Val[MAX_DIM] = 0. ;
+  
+  if ( theta == 0. ) theta += 1e-7;// Warning! This is an approximation.
+  if ( theta == PI || theta == -PI ) theta -= 1e-7;
  
   for (i = 1 ; i <= n ; i++ ){
     ctheta = cos(theta);
@@ -313,7 +381,7 @@ void F_JFIE_SphPhi(F_ARG){
     P =  Legendre(i,1,ctheta);
     P0 = Legendre(i,0,ctheta);
 
-    dP = (i+1)*i* P0/stheta - ctheta/(ctheta*ctheta-1)*P;
+    dP = (i+1)*i* P0/stheta - ctheta/(ctheta*ctheta-1)*P;//Derivative
 
     cteRe1 = (2*i+1) * P /i/(i+1)/stheta;
     cteRe2 = (2*i+1) * stheta * dP/i/(i+1);
@@ -321,12 +389,12 @@ void F_JFIE_SphPhi(F_ARG){
     a1 = cos((1-i)*PI/2) ;
     b1 = sin((1-i)*PI/2) ;
     c1 = -AltSpherical_j_n(i+1, kr) + (i+1)*AltSpherical_j_n(i, kr)/kr ;//Derivative
-    d1 = -AltSpherical_y_n(i+1, kr) + (i+1)*AltSpherical_y_n(i, kr)/kr ;//Derivative
+    d1 = -(-AltSpherical_y_n(i+1, kr) + (i+1)*AltSpherical_y_n(i, kr)/kr) ;
     
     a2 =  cos((2-i)*PI/2) ;
     b2 =  sin((2-i)*PI/2) ;    
     c2 =  AltSpherical_j_n(i, kr) ;
-    d2 =  AltSpherical_y_n(i, kr) ;     
+    d2 =  -AltSpherical_y_n(i, kr) ;     
 
     den1 = c1*c1+d1*d1 ;
     den2 = c2*c2+d2*d2 ;
@@ -337,6 +405,71 @@ void F_JFIE_SphPhi(F_ARG){
   
   V->Val[0] *= e0*sin(phi)/eta/kr ;
   V->Val[MAX_DIM] *= e0*sin(phi)/eta/kr  ;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+
+}
+
+
+
+void F_RCS_SphPhi(F_ARG){
+  
+  double k0, r, kr, e0, rinf, krinf, eta, theta, phi, a1 =0., b1=0., d1, den1, P, P0, dP ;
+  double J, J_1, dJ, ctheta, stheta, cteRe1, cteRe2, a2, b2, d2, den2, lambda ;
+  int i, n ;
+
+
+  GetDP_Begin("F_RCS_SphPhi") ;  
+
+  theta = atan2(sqrt( A->Val[0]* A->Val[0] + A->Val[1]*A->Val[1] ),  A->Val[2]);
+  phi = PI/2 ;
+
+  k0  = Fct->Para[0] ;
+  e0 = Fct->Para[1] ;
+  r  = Fct->Para[2] ;
+  rinf   = Fct->Para[3] ;   
+  
+  kr = k0*r ;
+  krinf = k0*rinf ;
+  lambda = 2*PI/k0 ;
+
+  n = 50 ;  
+
+  if ( theta == 0. ) theta += 1e-7; // Warning! This is an approximation.
+  if ( theta == PI || theta == -PI ) theta -= 1e-7;
+
+  for (i = 1 ; i <= n ; i++ ){
+    ctheta = cos(theta);
+    stheta = sin(theta);
+    
+    P =  Legendre(i,1,ctheta);
+    P0 = Legendre(i,0,ctheta);
+    dP = (i+1)*i* P0/stheta-(ctheta/(ctheta*ctheta-1))* P;
+     
+    J = AltSpherical_j_n(i, kr) ;
+    J_1 = AltSpherical_j_n(i+1, kr) ;
+    dJ = -J_1 + (i + 1) * J/kr ; 
+
+    cteRe1 = -(2*i+1) * P * dJ /stheta/i/(i+1);
+    cteRe2 = (2*i+1) * stheta * dP * J/i/(i+1);
+
+    d1 = -(-AltSpherical_y_n(i+1, kr) + (i+1) * AltSpherical_y_n(i, kr)/kr) ;
+    d2 = -AltSpherical_y_n(i, kr) ;     
+
+    den1 = dJ*dJ+d1*d1 ;
+    den2 = J*J+d2*d2 ;
+    
+    a1 += cteRe1 * dJ /den1 +  cteRe2 * J /den2 ; 
+    b1 += cteRe1*(-d1) /den1 + cteRe2*(-d2) /den2 ;
+  }
+
+  a2 = e0*sin(phi)*sin(krinf)/krinf ;
+  b2 = e0*sin(phi)*cos(krinf)/krinf ;
+ 
+  V->Val[0] = 10*log10( 4*PI*SQU(rinf/lambda)*(SQU(a1*a2-b1*b2) + SQU(a1*b2+a2*b1)) );
+  V->Val[MAX_DIM] = 0. ;
   
   V->Type = SCALAR ;
 
