@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.40 2003-05-22 15:09:58 dular Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.41 2003-11-08 05:56:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -65,13 +65,13 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       if (Flag_Pos_TimeLoop) strcat(FileName, NameApp);
     }
     if (!PostSubOperation_P->CatFile) {
-      if((PostStream = fopen(FileName, "w")))
+      if((PostStream = fopen(FileName, Flag_BIN ? "wb" : "w")))
 	Msg(DIRECT, "          > '%s'", FileName) ;
       else
 	Msg(ERROR, "Unable to open file '%s'", FileName) ;
     }
     else {
-      if((PostStream = fopen(FileName, "a")))
+      if((PostStream = fopen(FileName, Flag_BIN ? "ab" : "a")))
 	Msg(DIRECT, "         >> '%s'", FileName) ;
       else
 	Msg(ERROR, "Unable to open file '%s'", FileName) ;
