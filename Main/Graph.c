@@ -263,22 +263,24 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
   perm9 =  (idxtype*) Malloc( n9 * sizeof(idxtype));
   iperm9 = (idxtype*) Malloc( n9 * sizeof(idxtype));
 
-  if ( NbPartition == 1 ) {
+  /* si Flag_PAR = 1, on n'arrive meme pas jusqu'ici car if (Flag_PAR > 1) dans SolvingAnalyse
+    if ( NbPartition == 1 ) {
     options8[0] = 0 ;
     METIS_NodeND( &n9, xadj9, adjncy9, &numflag9, options8, perm9, iperm9);
-    Msg(PETSC, "METIS Renumbering done") ;
+    Msg(PETSC, "METIS Renumbering done") ;   
     DofData_P->NbrPart = NbPartition ;
     DofData_P->Part[0] = 1  ;
     DofData_P->Part[1] = DofData_P->NbrDof+1 ;
-  }
-  else {
+    }
+    else {
+  */
+
     wgtflag9 = 0;
     options9[0] = 0;
     part9 = (idxtype*) Malloc( n9 * sizeof(idxtype));
     METIS_PartGraphRecursive( &n9, xadj9, adjncy9, NULL, NULL, 
 			      &wgtflag9, &numflag9, &NbPartition, options9, &edgecut9, part9);
     Msg(PETSC, "METIS Partitionning done. Edgecut : %d ", edgecut9) ;
-    Msg(RESOURCES, ""); /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! */
     part_P  = (int*) Malloc( (NbPartition) * sizeof(int));
     cptr_P  = (int*) Malloc( (NbPartition) * sizeof(int));
     start_P = (int*) Malloc( (NbPartition) * sizeof(int));
@@ -305,8 +307,10 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
     for (i=1 ; i <= NbPartition ; i++)
       DofData_P->Part[i-1] = start_P[i-1]+1  ;
     DofData_P->Part[NbPartition] = DofData_P->NbrDof+1 ;
-    
+
+    /* 
   }
+    */
 
   /* Si on veut imprimer le masque de la matrice, il faut retrier le graphe ...
 
@@ -345,8 +349,8 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
   
   /* a faire */
   for(i = 0 ; i<DofData_P->NbrDof ; i++){
-    DofData_P->Nnz[i] = 22 ;
-    DofData_P->Nnz[i] = 22 ;
+    DofData_P->Nnz[i] = 40 ;
+    DofData_P->Nnz[i] = 40 ;
   }
 
   Free(perm9);
@@ -362,3 +366,12 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
 }
 
 #endif
+
+
+
+
+
+
+
+
+
