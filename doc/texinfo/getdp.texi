@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.61 2004-04-14 15:09:42 geuzaine Exp $
+@c $Id: getdp.texi,v 1.62 2004-04-18 06:58:11 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 @c
@@ -336,10 +336,10 @@ Bugs, versions and credits
 GetDP (a ``General environment for the treatment of Discrete Problems'') is
 a scientific software environment for the numerical solution of
 integro-differential equations, open to the coupling of physical problems
-(electromagnetic, thermal, mechanical, etc.) as well as of numerical methods
-(finite element method, integral methods, etc.). It can deal with such
-problems of various dimensions (1D, 2D or 3D) and time states (static,
-transient or harmonic).
+(electromagnetic, thermal, etc.) as well as of numerical methods (finite
+element method, integral methods, etc.). It can deal with such problems of
+various dimensions (1D, 2D or 3D) and time states (static, transient or
+harmonic).
 
 The main feature of GetDP is the closeness between its internal
 structure (written in C), the organization of data defining discrete
