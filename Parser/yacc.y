@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.27 2000-11-16 14:04:02 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.28 2000-11-24 13:39:03 dular Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -196,6 +196,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %type <l>  ConstraintCases, IntegrationCases, QuadratureCases, JacobianCases
 %type <l>  BasisFunctions, SubSpaces, GlobalQuantities, ConstraintInFSs
 %type <l>  ListOfBasisFunction, RecursiveListOfBasisFunction
+%type <l>  ListOfBasisFunctionCoef, RecursiveListOfBasisFunctionCoef
 %type <l>  Equations, WholeQuantityExpression
 %type <l>  DefineSystems, Operation, ChangeOfStates
 %type <l>  ListOfFormulation, RecursiveListOfFormulation
@@ -2527,6 +2528,9 @@ SubSpaceTerm :
 
   | tNameOfBasisFunction ListOfBasisFunction tEND
     { SubSpace_S.BasisFunction = $2 ; }
+
+  | tNameOfCoef ListOfBasisFunctionCoef tEND
+    { SubSpace_S.BasisFunction = $2 ; }
   ;
 
 
@@ -2568,6 +2572,42 @@ RecursiveListOfBasisFunction :
 					   $3, j, fcmp_BasisFunction_Name)) >= 0) {
 	  List_Add($1, &i) ; j = i+1 ;  /* for piecewise defined basis functions */
 	}
+      }
+      $$ = $1 ; Free($3) ;
+    }
+  ;
+
+
+ListOfBasisFunctionCoef :
+
+    tSTRING
+    {
+      $$ = List_Create(1, 1, sizeof(int)) ;
+      if ((i = List_ISearchSeq(Current_BasisFunction_L,
+			       $1, fcmp_BasisFunction_NameOfCoef)) < 0)
+	vyyerror("Unknown BasisFunctionCoef: %s", $1) ;
+      else {
+	List_Add($$, &i) ; j = i+1 ;
+      }
+      Free($1) ;
+    }
+
+  | '{' RecursiveListOfBasisFunctionCoef '}'
+    { $$ = $2 ; }
+  ;
+
+
+RecursiveListOfBasisFunctionCoef :
+
+    /* none */    { $$ = List_Create(5, 5, sizeof(int)) ; }
+
+  | RecursiveListOfBasisFunctionCoef Comma tSTRING
+    {
+      if ((i = List_ISearchSeq(Current_BasisFunction_L,
+			       $3, fcmp_BasisFunction_NameOfCoef)) < 0)
+	vyyerror("Unknown BasisFunctionCoef: %s", $3) ;
+      else {
+	List_Add($1, &i) ; j = i+1 ;
       }
       $$ = $1 ; Free($3) ;
     }
