@@ -1,4 +1,4 @@
-/* $Id: Data_Active.h,v 1.3 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Data_Active.h,v 1.4 2001-03-27 18:23:59 geuzaine Exp $ */
 #ifndef _DATA_ACTIVE_H_
 #define _DATA_ACTIVE_H_
 
@@ -91,7 +91,7 @@ struct QuantityStorage {
     int    Constraint ;
     double Value[NBR_MAX_HARMONIC] ;
     int    TimeFunctionIndex ;
-    int    CodeEntity_Link ;  double Coef ;
+    int    CodeEntity_Link ;
     struct BasisFunction  * BasisFunction ;
   } BasisFunction [NBR_MAX_BASISFUNCTIONS] ;
 

@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.20 2001-03-13 15:36:07 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.21 2001-03-27 18:23:59 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -64,25 +64,21 @@ struct StringXDefine  FunctionForGroup_SuppList[] = {
 
 struct StringXDefine1Nbr  Jacobian_Type[] = {
   {"Vol"               , JACOBIAN_VOL                   , 0} ,
-  {"VolSphShell"       , JACOBIAN_VOL_SPH_SHELL         , -1} ,
-  {"VolRectShell"      , JACOBIAN_VOL_RECT_SHELL        , -1} ,
-  {"VolPlpdX"          , JACOBIAN_VOL_PLPD_X            , 2} ,
-
   {"VolAxi"            , JACOBIAN_VOL_AXI               , 0} ,
-  {"VolAxiSphShell"    , JACOBIAN_VOL_AXI_SPH_SHELL     , -1} ,
-  {"VolAxiRectShell"   , JACOBIAN_VOL_AXI_RECT_SHELL    , -1} ,
-  {"VolAxiPlpdX"       , JACOBIAN_VOL_AXI_PLPD_X        , 2} ,
-
   {"VolAxiSqu"         , JACOBIAN_VOL_AXI_SQU           , 0} ,
-  {"VolAxiSquSphShell" , JACOBIAN_VOL_AXI_SQU_SPH_SHELL , -1} ,
-  {"VolAxiSquRectShell", JACOBIAN_VOL_AXI_SQU_RECT_SHELL, -1} ,
-
+  {"VolSphShell"       , JACOBIAN_VOL_SPH_SHELL         , 2} ,
+  {"VolSphFiniteShell" , JACOBIAN_VOL_SPH_FINITE_SHELL  , 3} ,
+  {"VolAxiSphShell"    , JACOBIAN_VOL_AXI_SPH_SHELL     , 2} ,
+  {"VolAxiSquSphShell" , JACOBIAN_VOL_AXI_SQU_SPH_SHELL , 2} ,
+  {"VolPlpdX"          , JACOBIAN_VOL_PLPD_X            , 2} ,
+  {"VolPlpdY"          , JACOBIAN_VOL_PLPD_Y            , 2} ,
+  {"VolPlpdZ"          , JACOBIAN_VOL_PLPD_Z            , 2} ,
+  {"VolAxiPlpdX"       , JACOBIAN_VOL_AXI_PLPD_X        , 2} ,
+  {"VolAxiPlpdY"       , JACOBIAN_VOL_AXI_PLPD_Y        , 2} ,
+  {"VolAxiPlpdZ"       , JACOBIAN_VOL_AXI_PLPD_Z        , 2} ,
   {"Sur"               , JACOBIAN_SUR                   , 0} ,
-  {"SurSphShell"       , JACOBIAN_SUR_SPH_SHELL         , -1} ,
-  {"SurRectShell"      , JACOBIAN_SUR_RECT_SHELL        , -1} ,
-
   {"SurAxi"            , JACOBIAN_SUR_AXI               , 0} ,
-
+  {"SurSphShell"       , JACOBIAN_SUR_SPH_SHELL         , 2} ,
   {"Lin"               , JACOBIAN_LIN                   , 0} ,
   {NULL                , JACOBIAN_VOL                   , 0} 
 } ;
@@ -128,6 +124,8 @@ struct StringXDefine  Constraint_Type[] = {
   {"InitFromResolution"   , INITFROMRESOLUTION},
   {"Network"              , NETWORK},
   {"Link"                 , CST_LINK},
+  {"Link"                 , CST_LINK},
+  {"LinkCplx"             , CST_LINKCPLX},
   {NULL                   , ASSIGN}
  } ;
 
