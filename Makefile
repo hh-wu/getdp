@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.84 2002-03-06 19:30:14 geuzaine Exp $
+# $Id: Makefile,v 1.85 2002-03-06 19:41:25 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -320,20 +320,6 @@ bb:
 # "Ready to compile" rules for somes platforms
 # ----------------------------------------------------------------------
 
-PETSc: tag
-	@for i in $(GETDP_STUFF_DIR); do (cd $$i && $(MAKE) \
-           "CC=$(CC)" \
-           "FC=$(FC)" \
-           "F77=$(FC)" \
-           "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS)" \
-           "C_PARSER_FLAGS=$(COPTFLAGS)" \
-           "F77_FLAGS=$(FOPTFLAGS)" \
-           "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE) -D_METIS $(METIS_INCLUDE)" \
-        ); done
-	$(CLINKER) -o $(GETDP_BIN_DIR)/getdp-petsc-$(PETSC_ARCH)-$(BOPT)\
-                      $(GETDP_PETSC_LIBS) $(METIS_LIB) $(PETSC_SLES_LIB)
-
 #
 # Digital (Compaq) Tru64
 #
@@ -579,7 +565,7 @@ distrib-macos:
 	cp doc/getdp.info* getdp-$(GETDP_RELEASE)/usr/local/info
 	gzip getdp-$(GETDP_RELEASE)/usr/local/info/getdp.info*
 	gzip getdp-$(GETDP_RELEASE)/usr/local/man/man1/getdp.1
-	package getdp-$(GETDP_RELEASE) getdp.info -d /Users/christop -r ./utils/Resources
+	package getdp-$(GETDP_RELEASE) ./utils/getdp.info -d /Users/christop -r ./utils/Resources
 	rm -rf getdp-$(GETDP_RELEASE)	
 
 #
