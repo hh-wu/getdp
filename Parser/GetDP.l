@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.6 2001-05-18 12:26:27 dular Exp $ */
+/* $Id: GetDP.l,v 1.7 2001-06-17 21:04:46 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -242,7 +242,8 @@ OnGlobal                     return tOnGlobal ;
 OnRegion                     return tOnRegion ;
 OnElementsOf                 return tOnElementsOf ;
 OnGrid                       return tOnGrid ;
-OnCut                        return tOnCut ;
+OnCut                        return tOnSection ;
+OnSection                    return tOnSection ;
 OnPoint                      return tOnPoint ;
 OnLine                       return tOnLine ;
 OnPlane                      return tOnPlane ;

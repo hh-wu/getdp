@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.34 2001-06-16 09:28:23 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.35 2001-06-17 21:04:46 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -844,7 +844,7 @@ struct PostSubOperation {
     struct { int RegionIndex ; } OnElementsOf ;
     struct { double x[4], y[4], z[4] ; int n[3] ; } OnGrid ;
     struct { int ExpressionIndex[3] ; List_T * ParameterValue[2] ; } OnParamGrid ;
-    struct { double x[3], y[3], z[3] ; } OnCut ;
+    struct { double x[3], y[3], z[3] ; } OnSection ;
     struct { int RegionIndex, ArgumentIndex ; double x[2] ; int n ; } WithArgument ;
   } Case ;
 } ;
@@ -855,8 +855,8 @@ struct PostSubOperation {
 /* PostOperation.SubType */
 #define PRINT_ONREGION        1
 #define PRINT_ONELEMENTSOF    2
-#define PRINT_ONCUT_1D        3
-#define PRINT_ONCUT_2D        4
+#define PRINT_ONSECTION_1D    3
+#define PRINT_ONSECTION_2D    4
 #define PRINT_ONGRID          5
 #define PRINT_ONGRID_0D       6
 #define PRINT_ONGRID_1D       7

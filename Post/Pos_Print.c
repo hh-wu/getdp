@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.41 2001-06-15 09:51:08 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.42 2001-06-17 21:04:46 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -47,8 +47,8 @@ struct CutEdge {
         the solution was computed during the processing stage
   args: list of groups of region type
   
-  Print OnCut 
-  -----------
+  Print OnSection 
+  ---------------
   expl: plot an a 'real' cut of the mesh, i.e. computation on the 
         intersections of the mesh with a cutting entity (plane, line)
   args: 2 (not done) or 3 points, specifying the cutting line or the cutting plane
@@ -672,12 +672,12 @@ void normvec(double *a){
      Destroy_PostElement(*(struct PostElement **)List_Pointer(PE_L, iPost));
   
 
-void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
-		     struct PostQuantity     *CPQ_P,
-		     int                      Order,
-		     struct DefineQuantity   *DefineQuantity_P0,
-		     struct QuantityStorage  *QuantityStorage_P0,
-		     struct PostSubOperation *PostSubOperation_P) {
+void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
+			 struct PostQuantity     *CPQ_P,
+			 int                      Order,
+			 struct DefineQuantity   *DefineQuantity_P0,
+			 struct QuantityStorage  *QuantityStorage_P0,
+			 struct PostSubOperation *PostSubOperation_P) {
 
   struct CutEdge       e[NBR_MAX_CUT];
   struct Element       Element ;
@@ -690,7 +690,7 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
   double  A, B, C, D, d1, d2, u, xcg, ycg, zcg ;
   double  x[3], y[3], z[3] ;
 
-  GetDP_Begin("Pos_PrintOnCut");
+  GetDP_Begin("Pos_PrintOnSection");
 
   if( !(NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
     NbTimeStep = List_Nbr(Current.DofData->Solutions);
@@ -719,23 +719,23 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
 
   switch(PostSubOperation_P->SubType) {
 
-  case PRINT_ONCUT_1D :
+  case PRINT_ONSECTION_1D :
     Msg(ERROR, "Print on 1D cuts not done (use Print OnLine instead)");
     break;
 
-  case PRINT_ONCUT_2D :
+  case PRINT_ONSECTION_2D :
     
     /* Ax+By+Cz+D=0  from  (x0,y0,z0),(x1,y1,z1),(x2,y2,z2) */
     
-    x[0] = PostSubOperation_P->Case.OnCut.x[0] ;
-    y[0] = PostSubOperation_P->Case.OnCut.y[0] ;
-    z[0] = PostSubOperation_P->Case.OnCut.z[0] ;
-    x[1] = PostSubOperation_P->Case.OnCut.x[1] ;
-    y[1] = PostSubOperation_P->Case.OnCut.y[1] ;
-    z[1] = PostSubOperation_P->Case.OnCut.z[1] ;
-    x[2] = PostSubOperation_P->Case.OnCut.x[2] ;
-    y[2] = PostSubOperation_P->Case.OnCut.y[2] ;
-    z[2] = PostSubOperation_P->Case.OnCut.z[2] ;
+    x[0] = PostSubOperation_P->Case.OnSection.x[0] ;
+    y[0] = PostSubOperation_P->Case.OnSection.y[0] ;
+    z[0] = PostSubOperation_P->Case.OnSection.z[0] ;
+    x[1] = PostSubOperation_P->Case.OnSection.x[1] ;
+    y[1] = PostSubOperation_P->Case.OnSection.y[1] ;
+    z[1] = PostSubOperation_P->Case.OnSection.z[1] ;
+    x[2] = PostSubOperation_P->Case.OnSection.x[2] ;
+    y[2] = PostSubOperation_P->Case.OnSection.y[2] ;
+    z[2] = PostSubOperation_P->Case.OnSection.z[2] ;
     A =  (y[1]-y[0])*(z[2]-z[0]) - (z[1]-z[0])*(y[2]-y[0]) ;
     B = -(x[1]-x[0])*(z[2]-z[0]) + (z[1]-z[0])*(x[2]-x[0]) ;
     C =  (x[1]-x[0])*(y[2]-y[0]) - (y[1]-y[0])*(x[2]-x[0]) ;
@@ -867,7 +867,7 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
     break;
     
   default :
-    Msg(ERROR, "Unknown operation in Print OnCut");
+    Msg(ERROR, "Unknown operation in Print OnSection");
     break;
   }
 

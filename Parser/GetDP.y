@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.16 2001-06-16 09:29:22 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.17 2001-06-17 21:04:46 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -278,7 +278,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token    tNameOfPostProcessing tUsingPost tAppend
 %token      tPlot tPrint tWrite tAdapt
 %token        tOnGlobal tOnRegion tOnElementsOf
-%token        tOnGrid tOnCut tOnPoint tOnLine tOnPlane tOnBox
+%token        tOnGrid tOnSection tOnPoint tOnLine tOnPlane tOnBox
 %token        tWithArgument
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
@@ -5267,20 +5267,20 @@ PrintSubType :
 	Num_Group(&Group_S, "PO_OnElementsOf", $2) ;
     }
 
-  | tOnCut '{' '{' FExpr ',' FExpr ',' FExpr '}'
-               '{' FExpr ',' FExpr ',' FExpr '}'
-               '{' FExpr ',' FExpr ',' FExpr '}' '}'
+  | tOnSection '{' '{' FExpr ',' FExpr ',' FExpr '}'
+                   '{' FExpr ',' FExpr ',' FExpr '}'
+                   '{' FExpr ',' FExpr ',' FExpr '}' '}'
     {
-      PostSubOperation_S.SubType = PRINT_ONCUT_2D ;
-      PostSubOperation_S.Case.OnCut.x[0] = $4 ;
-      PostSubOperation_S.Case.OnCut.y[0] = $6 ;
-      PostSubOperation_S.Case.OnCut.z[0] = $8 ;
-      PostSubOperation_S.Case.OnCut.x[1] = $11 ;
-      PostSubOperation_S.Case.OnCut.y[1] = $13 ;
-      PostSubOperation_S.Case.OnCut.z[1] = $15 ;
-      PostSubOperation_S.Case.OnCut.x[2] = $18 ;
-      PostSubOperation_S.Case.OnCut.y[2] = $20 ;
-      PostSubOperation_S.Case.OnCut.z[2] = $22 ;
+      PostSubOperation_S.SubType = PRINT_ONSECTION_2D ;
+      PostSubOperation_S.Case.OnSection.x[0] = $4 ;
+      PostSubOperation_S.Case.OnSection.y[0] = $6 ;
+      PostSubOperation_S.Case.OnSection.z[0] = $8 ;
+      PostSubOperation_S.Case.OnSection.x[1] = $11 ;
+      PostSubOperation_S.Case.OnSection.y[1] = $13 ;
+      PostSubOperation_S.Case.OnSection.z[1] = $15 ;
+      PostSubOperation_S.Case.OnSection.x[2] = $18 ;
+      PostSubOperation_S.Case.OnSection.y[2] = $20 ;
+      PostSubOperation_S.Case.OnSection.z[2] = $22 ;
     }
 
   | tOnGrid GroupRHS

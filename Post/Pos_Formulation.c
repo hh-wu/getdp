@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.30 2001-05-30 18:10:57 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.31 2001-06-17 21:04:46 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -182,10 +182,10 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
       Pos_PrintOnElementsOf(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
 			    QuantityStorage_P0, PostSubOperation_P) ; 
       break ;
-    case PRINT_ONCUT_1D :
-    case PRINT_ONCUT_2D :
-      Pos_PrintOnCut(NCPQ_P, CPQ_P, Order, DefineQuantity_P0,
-		     QuantityStorage_P0, PostSubOperation_P) ;
+    case PRINT_ONSECTION_1D :
+    case PRINT_ONSECTION_2D :
+      Pos_PrintOnSection(NCPQ_P, CPQ_P, Order, DefineQuantity_P0,
+			 QuantityStorage_P0, PostSubOperation_P) ;
       break ;
     case PRINT_ONGRID_0D    :
     case PRINT_ONGRID_1D    :

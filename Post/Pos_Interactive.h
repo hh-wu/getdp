@@ -1,4 +1,4 @@
-/* $Id: Pos_Interactive.h,v 1.3 2000-10-21 12:17:27 geuzaine Exp $ */
+/* $Id: Pos_Interactive.h,v 1.4 2001-06-17 21:04:46 geuzaine Exp $ */
 #ifndef _POS_INTERACTIVE_H_
 #define _POS_INTERACTIVE_H_
 
@@ -17,7 +17,7 @@ char i_print[] =
 "    OnLine       { {X1,Y1,Z1} {X2,Y2,Z2} } {N1}\n"
 "    OnPlane      { {X1,X1,Z1} {X2,Y2,Z2} {X3,Y3,Z3} } {N1,N2}\n"
 "    OnBox        { {X1,Y1,Z1} {X2,Y2,Z2} {X3,Y3,Z3} {X4,Y4,Z4} } {N1,N2,N3}\n"
-"    OnCut        { {X1,Y1,Z1} {X2,Y2,Z2} {X3,Y3,Z3} }\n"
+"    OnSection    { {X1,Y1,Z1} {X2,Y2,Z2} {X3,Y3,Z3} }\n"
 "    OnGrid       GROUP\n"
 "    OnGrid       {EXPR,EXPR,EXPR} {LIST,LIST}\n"
 " \n"

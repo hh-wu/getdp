@@ -156,7 +156,7 @@
 #define	tOnRegion	406
 #define	tOnElementsOf	407
 #define	tOnGrid	408
-#define	tOnCut	409
+#define	tOnSection	409
 #define	tOnPoint	410
 #define	tOnLine	411
 #define	tOnPlane	412
@@ -195,7 +195,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.19 2001-06-16 09:29:22 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.20 2001-06-17 21:04:46 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -854,7 +854,7 @@ static const char * const yytname[] = {   "$","error","$undefined.","tINT","tFLO
 "tRelaxationFactor","tIterativeTimeReduction","tDivisionCoefficient","tChangeOfState",
 "tChangeOfCoordinates","tSystemCommand","tPostProcessing","tNameOfSystem","tPostOperation",
 "tNameOfPostProcessing","tUsingPost","tAppend","tPlot","tPrint","tWrite","tAdapt",
-"tOnGlobal","tOnRegion","tOnElementsOf","tOnGrid","tOnCut","tOnPoint","tOnLine",
+"tOnGlobal","tOnRegion","tOnElementsOf","tOnGrid","tOnSection","tOnPoint","tOnLine",
 "tOnPlane","tOnBox","tWithArgument","tFile","tDepth","tDimension","tTimeStep",
 "tHarmonicToTime","tFormat","tHeader","tFooter","tSkin","tSmoothing","tTarget",
 "tSort","tIso","tNoNewLine","tFlag","tBreak","tHelp","tCpu","tDEF","'?'","tOR",
@@ -7806,16 +7806,16 @@ case 500:
 case 501:
 #line 5273 "GetDP.y"
 {
-      PostSubOperation_S.SubType = PRINT_ONCUT_2D ;
-      PostSubOperation_S.Case.OnCut.x[0] = yyvsp[-20].d ;
-      PostSubOperation_S.Case.OnCut.y[0] = yyvsp[-18].d ;
-      PostSubOperation_S.Case.OnCut.z[0] = yyvsp[-16].d ;
-      PostSubOperation_S.Case.OnCut.x[1] = yyvsp[-13].d ;
-      PostSubOperation_S.Case.OnCut.y[1] = yyvsp[-11].d ;
-      PostSubOperation_S.Case.OnCut.z[1] = yyvsp[-9].d ;
-      PostSubOperation_S.Case.OnCut.x[2] = yyvsp[-6].d ;
-      PostSubOperation_S.Case.OnCut.y[2] = yyvsp[-4].d ;
-      PostSubOperation_S.Case.OnCut.z[2] = yyvsp[-2].d ;
+      PostSubOperation_S.SubType = PRINT_ONSECTION_2D ;
+      PostSubOperation_S.Case.OnSection.x[0] = yyvsp[-20].d ;
+      PostSubOperation_S.Case.OnSection.y[0] = yyvsp[-18].d ;
+      PostSubOperation_S.Case.OnSection.z[0] = yyvsp[-16].d ;
+      PostSubOperation_S.Case.OnSection.x[1] = yyvsp[-13].d ;
+      PostSubOperation_S.Case.OnSection.y[1] = yyvsp[-11].d ;
+      PostSubOperation_S.Case.OnSection.z[1] = yyvsp[-9].d ;
+      PostSubOperation_S.Case.OnSection.x[2] = yyvsp[-6].d ;
+      PostSubOperation_S.Case.OnSection.y[2] = yyvsp[-4].d ;
+      PostSubOperation_S.Case.OnSection.z[2] = yyvsp[-2].d ;
     ;
     break;}
 case 502:

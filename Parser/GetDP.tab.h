@@ -157,7 +157,7 @@ typedef union {
 #define	tOnRegion	406
 #define	tOnElementsOf	407
 #define	tOnGrid	408
-#define	tOnCut	409
+#define	tOnSection	409
 #define	tOnPoint	410
 #define	tOnLine	411
 #define	tOnPlane	412
