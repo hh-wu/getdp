@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.21 2003-03-13 02:13:37 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.22 2003-03-17 16:38:05 geuzaine Exp $"
 dnl
 dnl Copyright (C) 1997-2003 by P. Dular and C. Geuzaine
 dnl
@@ -109,13 +109,13 @@ dnl See if we need a .exe extension on executables
 AC_EXEEXT
 
 dnl Set default subdirectories and libraries
-GETDP_DIRS="Main Parser Post Function Integration GeoData DofData Numeric DataStr"
-GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr"
+GETDP_DIRS="Main Parser Post Function Integration GeoData DofData Numeric DataStr FMM"
+GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr -lFMM"
 
 dnl Modify the above defaults and specify the linker
 if test "x$enable_petsc" = "xyes"; then
 
-  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr ${PETSC_SLES_LIB} -lm'
+  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_SLES_LIB} -lm'
   SOLVER='-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
