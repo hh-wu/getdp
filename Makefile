@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.136 2003-03-23 06:08:49 geuzaine Exp $
+# $Id: Makefile,v 1.137 2003-03-24 17:04:29 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -125,6 +125,8 @@ minizip:
 tgzdoc:
 	tar cvf getdp-texi.tar doc/texinfo
 	gzip getdp-texi.tar
+
+# FIXME: add doc/COPYING...
 
 package-unix:
 	rm -rf getdp-${GETDP_RELEASE}
