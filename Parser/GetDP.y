@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.47 2003-03-23 05:54:19 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.48 2003-05-21 12:54:42 dular Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -6556,8 +6556,13 @@ CharExpr :
 
   | tStrCat '[' CharExpr ',' CharExpr ']'
     {
-      $$ = (char *)Malloc((strlen($3)+strlen($5)+1)*sizeof(char)) ;
-      strcpy($$, $3) ;  strcat($$, $5) ;
+      if ($3 != NULL && $5 != NULL) {
+	$$ = (char *)Malloc((strlen($3)+strlen($5)+1)*sizeof(char)) ;
+	strcpy($$, $3) ;  strcat($$, $5) ;
+      }
+      else {
+	vyyerror("Undefined argument for StrCat function") ;  $$ = NULL ;
+      }
     }
 /*
   | CharExpr '+' CharExpr

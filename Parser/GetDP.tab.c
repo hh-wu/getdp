@@ -220,7 +220,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.53 2003-03-23 05:54:18 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.54 2003-05-21 12:54:42 dular Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -9606,8 +9606,13 @@ case 676:
 case 677:
 #line 6558 "GetDP.y"
 {
-      yyval.c = (char *)Malloc((strlen(yyvsp[-3].c)+strlen(yyvsp[-1].c)+1)*sizeof(char)) ;
-      strcpy(yyval.c, yyvsp[-3].c) ;  strcat(yyval.c, yyvsp[-1].c) ;
+      if (yyvsp[-3].c != NULL && yyvsp[-1].c != NULL) {
+	yyval.c = (char *)Malloc((strlen(yyvsp[-3].c)+strlen(yyvsp[-1].c)+1)*sizeof(char)) ;
+	strcpy(yyval.c, yyvsp[-3].c) ;  strcat(yyval.c, yyvsp[-1].c) ;
+      }
+      else {
+	vyyerror("Undefined argument for StrCat function") ;  yyval.c = NULL ;
+      }
     ;
     break;}
 }
@@ -9843,7 +9848,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 6572 "GetDP.y"
+#line 6577 "GetDP.y"
 
 
 
