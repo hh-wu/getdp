@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.19 2001-11-09 09:46:51 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.20 2001-11-29 11:28:55 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -525,7 +525,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * Couples_L) {
 
   int  Nbr_Entity, i, Nbr_EntityRef, Flag_Filter ;
-  double TOL=Current.GeoData->CharacteristicLength * 1.e-6;
+  double TOL=Current.GeoData->CharacteristicLength * 1.e-8;
   struct TwoIntOneDouble  TwoIntOneDouble ;
   struct NodeXYZ  NodeXYZ, NodeXYZRef ;
   List_T  * NodeXYZ_L, * NodeXYZRef_L ;
@@ -682,7 +682,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 }
 
 int fcmp_XYZ(const void * a, const void * b) {
-  double Result, TOL=Current.GeoData->CharacteristicLength * 1.e-6 ;
+  double Result, TOL=Current.GeoData->CharacteristicLength * 1.e-8 ;
 
   if (fabs(Result = ((struct NodeXYZ *)a)->x - ((struct NodeXYZ *)b)->x) > TOL)
     return (Result > 0.)? 1 : -1 ;

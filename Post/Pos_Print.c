@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.52 2001-10-25 07:06:37 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.53 2001-11-29 11:28:55 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -79,7 +79,7 @@ struct xyzv{
 
 static int fcmp_xyzv(const void * a, const void * b) {
   struct xyzv *p1, *p2;
-  double TOL=Current.GeoData->CharacteristicLength * 1.e-6;
+  double TOL=Current.GeoData->CharacteristicLength * 1.e-8;
   p1 = (struct xyzv*)a;
   p2 = (struct xyzv*)b;
   if(p1->x - p2->x > TOL) return 1;

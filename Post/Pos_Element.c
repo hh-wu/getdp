@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.16 2001-11-19 17:08:07 sabarieg Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.17 2001-11-29 11:28:55 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -1152,7 +1152,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 
 int Compare_PostElement_Node(struct PostElement * PE1, int n1,
 			     struct PostElement * PE2, int n2){
-  double TOL=Current.GeoData->CharacteristicLength * 1.e-6;
+  double TOL=Current.GeoData->CharacteristicLength * 1.e-8;
   if ( (fabs(PE1->x[n1] - PE2->x[n2]) < TOL) &&
        (fabs(PE1->y[n1] - PE2->y[n2]) < TOL) &&
        (fabs(PE1->z[n1] - PE2->z[n2]) < TOL) )
