@@ -1,18 +1,15 @@
-% $Id: gmsh.tex,v 1.6 2001-06-13 16:05:15 geuzaine Exp $
+% $Id: gmsh.tex,v 1.7 2001-06-13 17:18:12 geuzaine Exp $
 
 % ---------------------------------------------------------------------------
 
-\chapter{}
-
 \begin{slide}
 
-\slidepagestyle{reduced}
+\slidepagestyle{none}
 
 \begin{center}
 \bigtitle{Gmsh --- Geometry, mesh, solver integration
 and visualization}\\
-\ifthenelse{\boolean{fulltitle}}{
-\bigskip\bigskip
+\ifnum\fulltitle=1\par\bigskip\bigskip
 \begin{minipage}{0.5\textwidth}\center
 \mediumtitle{Christophe Geuzaine}\\
 \bigskip
@@ -28,7 +25,8 @@ and visualization}\\
 \smalltitle{Rensselaer Polytechnic Insitute}\\
 \smalltitle{CII 110 8th Street}\\
 \smalltitle{Troy, New York 12180-3590 (USA)}
-\end{minipage}}
+\end{minipage}
+\fi
 \end{center}
 
 \end{slide}

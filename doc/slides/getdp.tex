@@ -1,24 +1,25 @@
-% $Id: getdp.tex,v 1.9 2001-06-13 16:32:13 geuzaine Exp $
+% $Id: getdp.tex,v 1.10 2001-06-13 17:18:12 geuzaine Exp $
+
+\newcommand{\smallgetdp}[1]
+   {\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{#1}}}}
 
 % ---------------------------------------------------------------------------
 
-\chapter{}
-
 \begin{slide}
 
-\slidepagestyle{reduced}
+\slidepagestyle{none}
 
 \begin{center}
 \bigtitle{GetDP --- A general software environment for the treatment of
 discrete problems}\\
-\ifthenelse{\boolean{fulltitle}}{
-\bigskip\bigskip
+\ifnum\fulltitle=1\par\bigskip\bigskip
 \mediumtitle{Patrick Dular and Christophe Geuzaine}\\
 \bigskip
 \smalltitle{Department of Electrical Engineering}\\
 \smalltitle{Montefiore Institute B28, Sart Tilman Campus}\\
 \smalltitle{University of Liège}\\
-\smalltitle{B-4000 Liège (BELGIUM)}}{}
+\smalltitle{B-4000 Liège (BELGIUM)}
+\fi
 \end{center}
 
 \end{slide}
@@ -78,7 +79,7 @@ Method of resolution (``black box'')
 
 % ---------------------------------------------------------------------------
 
-\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-group.tex}}}
+\smallgetdp{fig/getdp-struct-group.tex}
 
 \chapter{\code{Group}: defining topological entities}
 
@@ -103,7 +104,7 @@ Nodes = NodesOf[Omega]; \CC{function group}
 
 % ---------------------------------------------------------------------------
 
-\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-function.tex}}}
+\smallgetdp{fig/getdp-struct-function.tex}
 
 \chapter{\code{Function}: defining expressions}
 
@@ -121,7 +122,7 @@ Nodes = NodesOf[Omega]; \CC{function group}
 \begin{syntax}
 mu0 = 4.e-7*Pi; f = 50; \CC{constants}
 mu[Air] = mu0; 
-mu[Core] = mu0 + 1/(100+100*$1^6); \CC{argument}
+mu[Core] = mu0 + 1/(100+100*$1^6); \CC{argument ($1 <- b)}
 TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 \end{syntax}
 
@@ -129,7 +130,7 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 
 % ---------------------------------------------------------------------------
 
-\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-constraint.tex}}}
+\smallgetdp{fig/getdp-struct-constraint.tex}
 
 \chapter{\code{Constraint}: specifying constraints}
 
@@ -180,7 +181,7 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 
 % ---------------------------------------------------------------------------
 
-\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-functionspace.tex}}}
+\smallgetdp{fig/getdp-struct-functionspace.tex}
 
 \chapter{\code{FunctionSpace}: building function spaces}
 
@@ -229,7 +230,7 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 
 % ---------------------------------------------------------------------------
 
-\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-jacobian.tex}}}
+\smallgetdp{fig/getdp-struct-jacobian.tex}
 
 \chapter{\code{Jacobian}: defining jacobian methods}
 
@@ -258,7 +259,7 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 
 % ---------------------------------------------------------------------------
 
-\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-integration.tex}}}
+\smallgetdp{fig/getdp-struct-integration.tex}
 
 \chapter{\code{Integration}: defining integration methods}
 
@@ -289,7 +290,7 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 
 % ---------------------------------------------------------------------------
 
-\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-formulation.tex}}}
+\smallgetdp{fig/getdp-struct-formulation.tex}
 
 \chapter{\code{Formulation}: building equations}
 
@@ -320,7 +321,7 @@ Equation \{
 
 % ---------------------------------------------------------------------------
 
-\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-resolution.tex}}}
+\smallgetdp{fig/getdp-struct-resolution.tex}
 
 \chapter{\code{Resolution}: solving systems of equations}
 
@@ -353,7 +354,7 @@ Operation\{\\
 
 % ---------------------------------------------------------------------------
 
-\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-postprocessing.tex}}}
+\smallgetdp{fig/getdp-struct-postprocessing.tex}
 
 \chapter{\code{PostProcessing}: exploiting computational data}
 
@@ -381,7 +382,7 @@ Quantity \{
 
 % ---------------------------------------------------------------------------
 
-\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-postoperation.tex}}}
+\smallgetdp{fig/getdp-struct-postoperation.tex}
 
 \chapter{\code{PostOperation}: exporting results}
 
