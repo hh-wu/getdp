@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.8 2002-04-12 17:58:38 geuzaine Exp $
+// $Id: Main.cpp,v 1.9 2002-04-12 18:40:36 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
@@ -27,10 +27,10 @@ int main(int argc, char *argv[]){
     Msg(INFO, "  -nbpts : set number of integration points (meaning varies...)");
     Msg(INFO, "  -targets : set number of target points/unknowns");
     Msg(INFO, "  -a, -b : set ellipse dimensions");
-    Msg(INFO, "  -zero : set staring point for forward map targets");
+    Msg(INFO, "  -zero : set starting point for forward map targets");
     Msg(INFO, "  -epsilon : set base epsilon for critical point integrator");
     Msg(INFO, "  -rise : set rise for partitions of unity");
-    Msg(INFO, "  -patches : use multiples patches");
+    Msg(INFO, "  -patches : use multiple patches");
     Msg(INFO, "  -verbose : set output message verbosity");
     Msg(INFO, "Note:");
     Msg(INFO, "  all options and arguments may be abbreviated as long as the");

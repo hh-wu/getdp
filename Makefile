@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.90 2002-04-12 17:55:33 geuzaine Exp $
+# $Id: Makefile,v 1.91 2002-04-12 18:40:36 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -631,7 +631,7 @@ compile-petsc-scat: initialtag
 link-petsc-scat:
 	$(CLINKER) -o Scattering/hf lib/libScattering.a lib/libDofData.a\
                lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)\
-               -L$(FFTW_DIR)/lib -lfftw
+               -L$(FFTW_DIR)/lib -lfftw -lm
 petsc-scat: compile-petsc-scat link-petsc-scat
 
 #
@@ -651,7 +651,7 @@ compile-petsc-scat-profile: initialtag
 link-petsc-scat-profile:
 	$(CLINKER) -pg -o Scattering/hf lib/libScattering.a lib/libDofData.a\
                lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)\
-               -L$(FFTW_DIR)/lib -lfftw
+               -L$(FFTW_DIR)/lib -lfftw -lm
 petsc-scat-profile: compile-petsc-scat-profile link-petsc-scat-profile
 
 #
