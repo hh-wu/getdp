@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.61 2004-04-24 16:21:46 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.62 2004-05-11 07:56:22 sabarieg Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -4759,6 +4759,21 @@ OperationTerm :
       Operation_P->Case.GenerateFMMGroups.DivXYZIndex = $5;      
       Operation_P->Case.GenerateFMMGroups.Dfar = $7;
       Operation_P->Case.GenerateFMMGroups.Precision = $9;
+      Operation_P->Case.GenerateFMMGroups.FlagDTA = -1;      
+    }
+
+  | tGenerateFMMGroups '[' tSTRING ',' Expression ',' Expression ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_GENERATEFMMGROUPS ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.GenerateFMMGroups.DivXYZIndex = $5;      
+      Operation_P->Case.GenerateFMMGroups.Dfar = $7;
+      Operation_P->Case.GenerateFMMGroups.Precision = -1;
       Operation_P->Case.GenerateFMMGroups.FlagDTA = -1;      
     }
 
