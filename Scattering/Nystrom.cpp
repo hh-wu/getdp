@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.9 2002-02-12 02:16:16 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.10 2002-02-13 21:18:49 bruno Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -237,7 +237,8 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
       // stupid pou around t, equal to 1 everywhere in [t-PI,t+PI]
       part.init(t,PI,0.);
       res = Nystrom(1,t,f,kv,nbpts,scat,&part);
-      Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
+      //Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
+      Msg(INFO, "%.15e + (%.15ei)", res.real(), res.imag());
     }
     break;
 
@@ -354,7 +355,8 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
       }
 
       Msg(DEBUG, "------------------------------------------------------------------------");
-      Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
+      //Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
+      Msg(INFO, "%.15e + (%.15ei)", res.real(), res.imag());
       Msg(DEBUG, "------------------------------------------------------------------------");
 
     }
