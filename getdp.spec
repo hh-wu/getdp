@@ -1,6 +1,7 @@
 Summary: A General environment for the treatment of Discrete Problems
 Name: getdp
-Version: 1.0.0-cvs
+# Version: 1.0
+Version: %{getdpversion}
 Source: getdp-%{version}.tar.gz
 Release: 1
 Copyright: GPL
