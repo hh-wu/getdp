@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.61 2003-02-09 07:55:22 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.62 2003-02-14 06:18:24 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -230,9 +230,10 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       }
       Gmsh_SendString(Flag_SOCKET, gmshlevel, prefix);
     }
-#if !defined(WIN32) 
-    else{ /* on Unix, don't print anything if getdp is called with a
-	     socket arg: it would be piped to .xsession-errors */
+#if !defined(__CYGWIN__) 
+    else{ /* on everything but cygwin, don't print anything if getdp
+	     is called with a socket arg: it would be piped to
+	     .xsession-errors */
 #endif
       if(str) fprintf(stream, str); 
       vfprintf(stream, fmt, args); 
@@ -246,7 +247,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       if(*abort){
 	Print_GetDPContext(stream);
       }
-#if !defined(WIN32) 
+#if !defined(__CYGWIN__) 
     }
 #endif
 
