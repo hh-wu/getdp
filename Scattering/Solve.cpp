@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.33 2002-06-18 18:45:53 geuzaine Exp $
+// $Id: Solve.cpp,v 1.34 2002-06-20 16:24:47 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -275,7 +275,7 @@ void Ctx::postProcess(){
   FILE *fp;
   Complex vi, vs;
   double k = NORM3(waveNum);
-  double coord[3], angle, r, dr, ddr;
+  double coord[3], angle;
 
   if(scat.dim() != 2) Msg(ERROR, "Postpro not ready for 3D");
 

@@ -9,7 +9,7 @@ class Scatterer{
 public:
   enum ScattererType {CIRCLE,ELLIPSE,DROP,KITE} ;
   ScattererType type;
-  double a, b, currentTargetU;
+  double a, b, currentTargetU, normalizedWaveNum[3];
   List_T *patches;
   double *nodes; // merge of all patch nodes
   List_T **criticalPointsList;
@@ -19,9 +19,6 @@ public:
   void x(double u, double v, double *x); // x=x(u), y=y(u)
   void dx(double u, double v, double *dx); // dx=d x/d u, dy=d y/d u
   void ddx(double u, double v, double *ddx); // ddx=d^2 x/d u^2, dy=d^2 y/d u^2
-
-  // r=sqrt(x^2+y^2), dr=d r/d theta, ddr=d^2 r/d theta^2
-  void polar(double theta, double *r, double *dr, double *ddr); 
 
   void singularPoint(double t, List_T *pts);
   void criticalPoints(int index, List_T *pts);

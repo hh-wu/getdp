@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.21 2002-06-14 00:11:15 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.22 2002-06-20 16:24:47 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -6,8 +6,8 @@
 #include "Function.h"
 #include "nrutil.h"
 
-// Parametric definition of the scatterers. This is awfull c++, I
-// know, thanks :-)
+// Parametric definition of the scatterers. Should use virtual
+// functions, blah blah.
 
 int Scatterer::dim(){
   switch(type){
@@ -33,7 +33,7 @@ void Scatterer::x(double u, double v, double *x){
     x[2] = 0.; 
     break;
   case DROP :
-    x[0] = 2.*sin(u/2.) - 1.; // -1 to avoid r=0 polar parameterization
+    x[0] = 2.*sin(u/2.);
     x[1] = -sin(u); 
     x[2] = 0.; 
     break;
@@ -97,30 +97,9 @@ void Scatterer::ddx(double u, double v, double *x){
   }
 }
 
-void Scatterer::polar(double u, double *r, double *dr, double *ddr){
-  double r2, cart[3], dcart[3], ddcart[3];
-
-  x(u,-1,cart);
-  r2 = SQU(cart[0])+SQU(cart[1]);
-  *r = sqrt(r2);
-
-  if(!r2){
-    Msg(WARNING, "r==0 in polar transformation");
-    *dr = *ddr = 0.;
-    return;
-  }
-
-  dx(u,-1,dcart);
-  *dr = (cart[0]*dcart[0]+cart[1]*dcart[1]) / *r;
-
-  ddx(u,-1,ddcart);
-  *ddr = (SQU(dcart[0]) + cart[0]*ddcart[0] + SQU(dcart[1]) + cart[1]*ddcart[1]) / *r
-    - SQU(*dr) / r2;
-}
-
 // Critical point comparison
 
-#define TOL_POINT  1.e-6
+#define TOL_POINT  1.e-6  // accuracy on critical point computation
 
 int compareCPoint(const void * a, const void * b) {
   double cmp ;
@@ -301,34 +280,39 @@ int Scatterer::mnewt(int ntrial, double x[], int n, double tolx, double tolf){
 
 #undef FREERETURN
 
-void Scatterer::phase2D(double *x, int n, double *fvec, double **fjac){
-  double t = x[1], t0 = currentTargetU;
-  double r0, dr0, ddr0, r, dr, ddr, tmp1, tmp2;
+void Scatterer::phase2D(double *xvec, int n, double *fvec, double **fjac){
+  double t=xvec[1], t0=currentTargetU;
+  double tmp[3], y1, y2, dy1, dy2, ddy1, ddy2, x1, x2, k1, k2, tmp1, tmp2;
+  
+  // incident wave direction
+  k1 = normalizedWaveNum[0];
+  k2 = normalizedWaveNum[1];
 
-  polar(t,&r,&dr,&ddr);
-  polar(t0,&r0,&dr0, &ddr0);
+  // source point x
+  x(t,-1,tmp); y1=tmp[0]; y2=tmp[1];
+  dx(t,-1,tmp); dy1=tmp[0]; dy2=tmp[1];
+  ddx(t,-1,tmp); ddy1=tmp[0]; ddy2=tmp[1];
 
-  tmp1 = 2.*r*dr - 2.*r0*dr*cos(-t+t0) - 2.*r0*r*sin(-t+t0) ;
-  tmp2 = r0*r0 + r*r - 2*r0*r*cos(-t+t0) ;
+  // targt point y
+  x(t0,-1,tmp); x1=tmp[0]; x2=tmp[1];
+
+  tmp1 = 2.*(y1-x1)*dy1 + 2.*(y2-x2)*dy2 ;
+  tmp2 = SQU(y1-x1)+SQU(y2-x2) ;
 
   // gradient of the phase
-  fvec[1] = 0.5 * tmp1 / sqrt(tmp2) + dr*cos(t) - r*sin(t) ;
+  fvec[1] = 0.5 * tmp1 / sqrt(tmp2) + k1*dy1 + k2*dy2 ;
 
   // derivative for jacobian
   fjac[1][1] = -0.25* SQU(tmp1) / pow(tmp2, 3./2.)  +
-    0.5 * (2.*dr*dr + 2.*r*ddr - 2.*r0*ddr*cos(-t+t0) - 4.*r0*dr*sin(-t+t0) + 
-	   2.*r0*r*cos(-t+t0)) / sqrt(tmp2) +
-    ddr * cos(t) - 2.*dr*sin(t) - r*cos(t);
+    0.5 * (2.*SQU(dy1) + 2.*(y1-x1)*ddy1 + 2.*SQU(dy2) + 2.*(y2-x2)*ddy2) / sqrt(tmp2) +
+    k1*ddy1 + k2*ddy2;
 }
 
 #define NB_INITIAL_GUESS 100
 
 void Scatterer::criticalPoints(int nbnodes, double k[3]){
   int i_node, i, n, check;
-  double pt, tmp[2], theta, theta0;
-
-  if(k[1] || k[2])
-    Msg(ERROR, "Critical point computation not done (yet) in the general case");
+  double pt, tmp[2], theta, theta0, normk=NORM3(k);
 
   criticalPointsList = new List_T*[nbnodes];
 
@@ -346,6 +330,9 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
       //  0 <= t-theta0 = Pi - 2*theta0 + 4*n*PI <= 2*PI
       //  0 <= t-theta0 = (PI-2*theta0)/3 + 4/3*PI*n
       
+      if(k[1] || k[2])
+	Msg(ERROR, "Analytical critical point computation only for k=(kx,0,0)");
+
       for(n=-2 ; n<=2 ; n++){
 	pt = PI-theta0+4.*n*PI;
 	if((pt-theta0>=0) && (pt-theta0<=TWO_PI)){
@@ -366,15 +353,15 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
       // solve the nonlinear system, using the exact jacobian
 
       currentTargetU = theta0;
+      normalizedWaveNum[0] = k[0]/normk;
+      normalizedWaveNum[1] = k[1]/normk;
       theta = 0.;
      
       for(i=0; i<NB_INITIAL_GUESS; i++){
 	tmp[1] = theta;
 	
 	if(fabs(theta-theta0) > TOL_POINT){
-	  //newt(tmp, 1, &check, phaseGradient, fdjac);
-	  //newt(tmp, 1, &check, phaseGradient, phaseGradientDiff);
-	  check = mnewt(200, tmp, 1, 0.1*TOL_POINT, 0.1*TOL_POINT);
+	  check = mnewt(200, tmp, 1, 0.1*TOL_POINT /* tolx */, 1.e-12 /* tolf */);
 	  if(!check){
 	    tmp[1] = GetInInterval(tmp[1], 0., TWO_PI);
 	    List_Insert(criticalPointsList[i_node], &tmp[1], compareDouble);
