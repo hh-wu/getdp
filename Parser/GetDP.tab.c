@@ -194,7 +194,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.7 2001-03-03 19:21:21 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.8 2001-03-08 14:26:54 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -352,7 +352,7 @@ struct ConstraintInFS           ConstraintInFS_S ;
 struct Formulation            Formulation_S ;
 struct DefineQuantity           DefineQuantity_S ;
 struct EquationTerm             EquationTerm_S ;
-struct WholeQuantity            WholeQuantity_S, *WholeQuantity_P, *ttt ;
+struct WholeQuantity            WholeQuantity_S, *WholeQuantity_P ;
 
 struct GlobalEquationTerm       GlobalEquationTerm_S ;
 

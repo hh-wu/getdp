@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.1 2000-12-11 15:51:38 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.2 2001-03-08 14:26:54 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -49,7 +49,7 @@ string     {alpha}({alpha}|{digit})*
 %%
 
 [\ \t]                       /* nothing to do */ ;
-[\n]                         { yycolnum = 0 ; yylinenum++ ; }
+[\n]                       { yycolnum = 0 ; yylinenum++ ; }
 <<EOF>>                      { yyincludenum = 0 ; return(0); }
 
 ";"                          return tEND ; 
