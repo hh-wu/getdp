@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.21 2001-03-19 10:17:10 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.22 2001-03-19 11:08:45 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -880,11 +880,13 @@ void Free_UnusedSolutions(struct DofData * DofData_P){
   struct Solution * Solution_P ;
   int index = -1;
 
+  /* We store 1 solution too much (to allow for an imbricated iterative loop) */
+
   if(!Flag_POS){
     if(Current.TypeTime == TIME_THETA)
-      index = List_Nbr(DofData_P->Solutions)-2 ;
-    else if(Current.TypeTime == TIME_NEWMARK)
       index = List_Nbr(DofData_P->Solutions)-3 ;
+    else if(Current.TypeTime == TIME_NEWMARK)
+      index = List_Nbr(DofData_P->Solutions)-4 ;
 
     if(index >= 0){
       Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, index);
