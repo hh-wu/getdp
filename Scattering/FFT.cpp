@@ -1,13 +1,13 @@
-// $Id: FFT.cpp,v 1.6 2002-05-14 01:15:46 geuzaine Exp $
+// $Id: FFT.cpp,v 1.7 2002-05-14 05:09:41 geuzaine Exp $
 
 #include "Utils.h"
 #include "FFT.h"
 
-#define DEBUG_FFT 1
+#define DEBUG_FFT 0
 
 // packing order for F: [0,1...n/2-1,-n/2,...,-1]
 
-#if 1 // Slow DFT
+#if 0 // Slow DFT
 
 FFT::FFT(int n){
   N = Nexp = n;
@@ -72,7 +72,7 @@ Complex FFT::eval(double t){ // t has to be in [0,2*Pi]
 
 FFT::FFT(int n){
   N = n;
-  expansionFactor = 1;
+  expansionFactor = 16;
   Nexp = expansionFactor*N;
 
   forwardPlan = fftw_create_plan(N,FFTW_FORWARD,FFTW_ESTIMATE);
@@ -83,8 +83,7 @@ FFT::FFT(int n){
   expandedVals = new Complex[Nexp];
 
   double *nodes = new double[Nexp];
-  //for(int i=0; i<Nexp; i++) nodes[i] = TWO_PI/Nexp*i;
-  for(int i=0; i<Nexp; i++) nodes[i] = TWO_PI/Nexp*(i-1);
+  for(int i=0; i<Nexp; i++) nodes[i] = TWO_PI/Nexp*i;
   spline = new Spline(Nexp,nodes);
   delete [] nodes;
 }
@@ -109,8 +108,14 @@ void FFT::forward(Complex *f, Complex *F){
   // padding with zeros in the exanded case
   // [0,  1...N/2-1,0,...0,  0,...0,-N/2,...,-1]
 
+  /*
+  for(i=0; i<N; i++)
+    F[i] = Complex(tmp2[i].re,tmp2[i].im);
+  return;
+  */
+
   for(i=0; i<Nexp; i++){
-    if(i<N/2)
+    if(i<N/2+1)
       F[i] = Complex(tmp2[i].re,tmp2[i].im);
     else if(i<Nexp-N/2)
       F[i] = 0.;
