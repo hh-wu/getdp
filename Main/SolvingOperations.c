@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.36 2001-08-03 09:29:26 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.37 2001-10-24 16:00:48 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -1526,6 +1526,7 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
   Msg(DEBUG, "\n T I M E   %g (TS #%d, DT %g, Theta %g)\n",
       Current.Time, (int)Current.TimeStep, Current.DTime, Current.Theta) ;
 
+  Current.SubTimeStep = 0 ;
   Treatment_Operation(Resolution_P,
 		      Operation_P->Case.IterativeTimeReduction.Operation,
 		      DofData_P0, GeoData_P0, NULL, NULL) ;
@@ -1584,6 +1585,7 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 	  Msg(DEBUG, "==> Re-calculation at Time_LimitLo ... (%.16g)\n",
 	      Time_LimitLo) ;
 	  Current.Time  = Time_LimitLo ;  Current.DTime = DTime_LimitLo ;
+	  Current.SubTimeStep++ ;
 
 	  Treatment_Operation(Resolution_P,
 			      Operation_P->Case.IterativeTimeReduction.Operation,
@@ -1626,6 +1628,7 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 	   OK because dt is then very small also in this case ! */
 	Current.Time  = Time_LimitHi ;
 	Current.DTime = Time_LimitHi - Time_LimitLo ;
+	Current.SubTimeStep++ ;
 
 	Msg(DEBUG, "==> iterations for TimeHi ...\n") ;
 
@@ -1675,6 +1678,7 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 
     Current.DTime = DTime0 + DTime1 ;
     Current.Time = Time_Previous + Current.DTime ;
+    Current.SubTimeStep++ ;
 
     Solution_P = (struct Solution *)
       List_Pointer(Current.DofData->Solutions,
@@ -1970,8 +1974,8 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 
       case COMPARE_CONVERGENCE :
 	Cal_SolutionErrorX(Nbr_Region, val1, val0, &MeanError) ;
-	if (MeanError > 1.e-14)  *Type_ChangeOfState = !CHANGEOFSTATE_NOCHANGE ;
-	break ;
+	if (MeanError > 1.e-8)  *Type_ChangeOfState = !CHANGEOFSTATE_NOCHANGE ;
+	break ; /* critere a revoir, avant 1.e-14 */
 
       }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.17 2001-09-05 09:05:12 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.18 2001-10-24 16:00:48 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -364,6 +364,9 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
     Generate_Link(Constraint_P, 1) ;
   else if (Constraint_P->Active.Active->TimeStep != (int)Current.TimeStep)
     Generate_Link(Constraint_P, 0) ;
+  else if (Constraint_P->Active.Active->SubTimeStep != Current.SubTimeStep)
+    Generate_Link(Constraint_P, 0) ; /* +++ */
+
 
   TwoIntOneDouble_P = (struct TwoIntOneDouble *)
     List_PQuery(Constraint_P->Active.Active->Case.Link.Couples,
@@ -421,6 +424,7 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New) {
 
   Active = Constraint_P->Active.Active ;
   Active->TimeStep = (int)Current.TimeStep ;
+  Active->SubTimeStep = Current.SubTimeStep ;
 
   Group_P = (struct Group*)
     List_Pointer(Problem_S.Group, Constraint_P->EntityIndex) ;

@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.40 2001-08-26 12:13:14 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.41 2001-10-24 16:00:48 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -945,6 +945,7 @@ struct CurrentData {
   int     SourceIntegrationSupportIndex ;
 
   int     TypeTime, TypeAssembly ;
+  int     SubTimeStep ;
 
   /* All values below must be of double type */
 
