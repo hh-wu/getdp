@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.40 2003-02-18 22:32:37 geuzaine Exp $
+@c $Id: getdp.texi,v 1.41 2003-03-12 23:15:26 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -60,7 +60,7 @@
 Problems
 @end direntry
 @noindent
-This is edition @value{EDITION}/@today{} of the @cite{GetDP
+This is edition @value{EDITION}/@today{} of the @cite{GetDP Reference
 Manual}, for GetDP, a General environment for the Treatment of Discrete
 Problems, Version @value{GETDP-VERSION}.
 @noindent
@@ -95,7 +95,7 @@ BELGIUM @*
 
 @titlepage
 
-@title GetDP Manual
+@title GetDP Reference Manual
 
 @subtitle The documentation for GetDP, Version  @value{GETDP-VERSION}
 @subtitle A General environment for the treatment of Discrete Problems
@@ -152,7 +152,7 @@ Patrick Dular and Christophe Geuzaine
 GetDP is a scientific computation software for the numerical solution of
 integro-differential equations, using finite element and integral type
 methods. This is edition @value{EDITION}/@today{} of the @cite{GetDP
-Manual}, for GetDP Version @value{GETDP-VERSION}.
+Reference Manual}, for GetDP Version @value{GETDP-VERSION}.
 @end ifnottex
 
 @c =========================================================================
