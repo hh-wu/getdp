@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.5 2000-11-24 13:38:43 dular Exp $ */
+/* $Id: F_Function.h,v 1.6 2001-03-01 16:36:05 sabarieg Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -72,6 +72,7 @@ void  F_CompYZ          (F_ARG) ;
 void  F_CompZX          (F_ARG) ;
 void  F_CompZY          (F_ARG) ;
 void  F_CompZZ          (F_ARG) ;
+void  F_Cart2Sph        (F_ARG) ;
 void  F_UnitVectorX     (F_ARG) ;
 void  F_UnitVectorY     (F_ARG) ;
 void  F_UnitVectorZ     (F_ARG) ;
@@ -124,3 +125,8 @@ void  F_MHToTime0 (F_ARG, int iTime, int NbrTimePoint, double * TimeMH) ;
 #undef F_ARG
 
 #endif
+
+
+
+
+
