@@ -1,4 +1,4 @@
-#define RCSID "$Id: Malloc.c,v 1.4 2003-03-22 03:30:07 geuzaine Exp $"
+#define RCSID "$Id: Malloc.c,v 1.5 2003-05-12 16:39:44 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -22,7 +22,6 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <malloc.h>
 
 #include "Malloc.h"
 #include "Message.h"
