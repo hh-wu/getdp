@@ -1,4 +1,4 @@
-/* $Id: Pos_Interactive.c,v 1.4 2000-10-17 21:38:53 geuzaine Exp $ */
+/* $Id: Pos_Interactive.c,v 1.5 2000-10-18 07:28:50 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -79,9 +79,14 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 
 }
 
+
 #include <ctype.h>
 
-#define GET(topic)				\
+#define GET(first,topic)			\
+  if(!first && !isspace(i = getc(stdin)))	\
+    ungetc(i, stdin) ;				\
+  if(first)                                     \
+    first = 0 ;                                 \
   if(isspace(i = getc(stdin)))			\
     return ;					\
   else{						\
@@ -89,66 +94,127 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
     scanf("%s", topic) ;			\
   }
 
-#define GETSUB(topic)				\
-  if(!isspace(i = getc(stdin)))			\
-    ungetc(i, stdin) ;				\
-  GET(topic) ;
-    
+static int first ;
+
+void Help_File(void) { printf("%s\n", i_file); }
+void Help_Gmsh(void) { printf("%s\n", i_gmsh); }
+void Help_Gnuplot(void) { printf("%s\n", i_gmsh); }
+void Help_Table(void) { printf("%s\n", i_gmsh); }
+void Help_TimeTable(void) { printf("%s\n", i_timetable); }
+void Help_Depth(void) { printf("%s\n", i_depth); }
+void Help_Skin(void) { printf("%s\n", i_skin); }
+void Help_Smoothing(void) { printf("%s\n", i_smoothing); }
+void Help_HarmonicToTime(void) { printf("%s\n", i_harmonictotime); }
+void Help_Dimension(void) { printf("%s\n", i_dimension); }
+void Help_TimeStep(void) { printf("%s\n", i_timestep); }
+void Help_Adapt(void) { printf("%s\n", i_adapt); }
+void Help_Sort(void) { printf("%s\n", i_sort); }
+void Help_Target(void) { printf("%s\n", i_target); }
+void Help_Value(void) { printf("%s\n", i_value); }
+void Help_Iso(void) { printf("%s\n", i_iso); }
+void Help_Quit(void) { printf("%s\n", i_quit); }
+void Help_Format(void) { 
+  int i ;
+  char topic[200] ;  
+  printf("%s", i_format); 
+  while(1){
+    printf(" \n"
+	   " Available formats include:\n"
+	   "    gmsh       gnuplot      table     timetable\n"
+	   " \n"
+	   "Option for Format: ");
+    GET(first, topic) ;
+    if     (!strcmp(topic, "gmsh")) Help_Gmsh();
+    else if(!strcmp(topic, "gnuplot")) Help_Gnuplot;
+    else if(!strcmp(topic, "table")) Help_Table;
+    else if(!strcmp(topic, "timetable")) Help_TimeTable;
+    else printf("Sorry, no help for Format option '%s'\n", topic);
+  }
+}
+void Help_Plot(void){
+  int i ;
+  char topic[200] ;
+  printf("%s", i_plot);
+  while(1){
+    printf(" \n"
+	   " OPTIONS available for plot include:\n"
+	   "    file            depth      skin      smoothing\n"
+	   "    harmonictotime  dimension  timestep  adapt\n"
+	   "    sort            target     value     iso\n"
+	   " \n"
+	   "Option for Plot: ");
+    GET(first, topic) ;
+    if     (!strcmp(topic, "file")) Help_File();
+    else if(!strcmp(topic, "format")) Help_Format();
+    else if(!strcmp(topic, "depth")) Help_Depth();
+    else if(!strcmp(topic, "skin")) Help_Skin();
+    else if(!strcmp(topic, "smoothing")) Help_Smoothing();
+    else if(!strcmp(topic, "harmonictotime")) Help_HarmonicToTime();
+    else if(!strcmp(topic, "dimension")) Help_Dimension();
+    else if(!strcmp(topic, "timestep")) Help_TimeStep();
+    else if(!strcmp(topic, "adapt")) Help_Adapt();
+    else if(!strcmp(topic, "sort")) Help_Sort();
+    else if(!strcmp(topic, "target")) Help_Target();
+    else if(!strcmp(topic, "value")) Help_Value();
+    else if(!strcmp(topic, "iso")) Help_Iso();
+    else printf("Sorry, no help for Plot option '%s'\n", topic);
+  }
+}
+void Help_Print(void){
+  int i ;
+  char topic[200] ;
+  printf("%s", i_plot);
+  while(1){
+    printf(" \n"
+	   " OPTIONS available for print include:\n"
+	   "    file            timestep\n"
+	   " \n"
+	   "Option for Print: ");
+    GET(first, topic) ;
+    if     (!strcmp(topic, "file")) Help_File();
+    else if(!strcmp(topic, "format")) Help_Format();
+    else if(!strcmp(topic, "harmonictotime")) Help_HarmonicToTime();
+    else if(!strcmp(topic, "timestep")) Help_TimeStep();
+    else printf("Sorry, no help for Print option '%s'\n", topic);
+  }
+}
+
 void Pos_InteractiveHelp(char *start){
-  char topic[200], subtopic[200] ;
   int  i ;
+  char topic[200] ;
+
+  first = 1 ;
 
   if(!start){
-    printf("%s", i_getdp);
-    printf("PostOperation: ") ;
-    GET(topic) ;
+    printf(" Operations available for interactive PostOperation:\n"
+	   "    plot      print      quit\n"
+	   " \n"
+	   "PostOperation: ");
+    GET(first, topic) ;
   }
   else
     strncpy(topic, start, 200) ;
 
-  if(!strcmp(topic, "plot")){
-    printf("%s", i_plot);
-    while(1){
-      printf("Option for Plot: ");
-      GETSUB(subtopic) ;
-      if     (!strcmp(subtopic, "file")) printf("%s", i_file);
-      else if(!strcmp(subtopic, "depth")) printf("%s", i_depth);
-      else if(!strcmp(subtopic, "skin")) printf("%s", i_skin);
-      else if(!strcmp(subtopic, "smoothing")) printf("%s", i_smoothing);
-      else if(!strcmp(subtopic, "harmonictotime")) printf("%s", i_harmonictotime);
-      else if(!strcmp(subtopic, "dimension")) printf("%s", i_dimension);
-      else if(!strcmp(subtopic, "timestep")) printf("%s", i_timestep);
-      else if(!strcmp(subtopic, "adapt")) printf("%s", i_adapt);
-      else if(!strcmp(subtopic, "sort")) printf("%s", i_sort);
-      else if(!strcmp(subtopic, "target")) printf("%s", i_target);
-      else if(!strcmp(subtopic, "value")) printf("%s", i_value);
-      else if(!strcmp(subtopic, "iso")) printf("%s", i_iso);
-      else printf("Sorry, no help for Plot option '%s'\n", subtopic);
-    }
-  }
-  else if(!strcmp(topic, "print")){
-    printf("%s", i_print);
-    while(1){
-      printf("Option for Print: ");
-      GETSUB(subtopic) ;
-      if     (!strcmp(subtopic, "file")) printf("%s", i_file);
-      else if(!strcmp(subtopic, "timestep")) printf("%s", i_timestep);
-      else printf("Sorry, no help for Print option '%s'\n", subtopic);
-    }
-  }
-  else if(!strcmp(topic, "quit")) printf("%s", i_quit);
-  else if(!strcmp(topic, "file")) printf("%s", i_file);
-  else if(!strcmp(topic, "depth")) printf("%s", i_depth);
-  else if(!strcmp(topic, "skin")) printf("%s", i_skin);
-  else if(!strcmp(topic, "smoothing")) printf("%s", i_smoothing);
-  else if(!strcmp(topic, "harmonictotime")) printf("%s", i_harmonictotime);
-  else if(!strcmp(topic, "dimension")) printf("%s", i_dimension);
-  else if(!strcmp(topic, "timestep")) printf("%s", i_timestep);
-  else if(!strcmp(topic, "adapt")) printf("%s", i_adapt);
-  else if(!strcmp(topic, "sort")) printf("%s", i_sort);
-  else if(!strcmp(topic, "target")) printf("%s", i_target);
-  else if(!strcmp(topic, "value")) printf("%s", i_value);
-  else if(!strcmp(topic, "iso")) printf("%s", i_iso);
+  if     (!strcmp(topic, "plot")) Help_Plot();
+  else if(!strcmp(topic, "print")) Help_Print();
+  else if(!strcmp(topic, "quit")) Help_Quit();
+  else if(!strcmp(topic, "file")) Help_File();
+  else if(!strcmp(topic, "format")) Help_Format();
+  else if(!strcmp(topic, "gmsh")) Help_Gmsh();
+  else if(!strcmp(topic, "gnuplot")) Help_Gnuplot();
+  else if(!strcmp(topic, "table")) Help_Table();
+  else if(!strcmp(topic, "timetable")) Help_TimeTable();
+  else if(!strcmp(topic, "depth")) Help_Depth();
+  else if(!strcmp(topic, "skin")) Help_Skin();
+  else if(!strcmp(topic, "smoothing")) Help_Smoothing();
+  else if(!strcmp(topic, "harmonictotime")) Help_HarmonicToTime();
+  else if(!strcmp(topic, "dimension")) Help_Dimension();
+  else if(!strcmp(topic, "timestep")) Help_TimeStep();
+  else if(!strcmp(topic, "adapt")) Help_Adapt();
+  else if(!strcmp(topic, "sort")) Help_Sort();
+  else if(!strcmp(topic, "target")) Help_Target();
+  else if(!strcmp(topic, "value")) Help_Value();
+  else if(!strcmp(topic, "iso")) Help_Iso();
   else printf("Sorry, no help for '%s'\n", topic);
 
 }
