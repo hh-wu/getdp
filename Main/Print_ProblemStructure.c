@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.16 2001-03-15 16:06:02 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.17 2001-03-16 10:56:46 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -1152,8 +1152,7 @@ void  Print_ProblemStructure(struct Problem  * Problem) {
   GetDP_Begin("Print_ProblemStructure");
 
   while (1) {
-    Msg(CHECK, "------------------------------------------------------------\n") ;
-    Msg(CHECK, "C h e c k i n g . . .\n") ;
+    Msg(INFO, "Checking") ;
     Msg(CHECK, "(0) Exit            (1) Group           (2) Function      \n") ; 
     Msg(CHECK, "(3) Constraint      (4) Jacobian        (5) Integration\n") ;
     Msg(CHECK, "(6) FunctionSpace   (7) Formulation     (8) Resolution\n") ;
@@ -1185,7 +1184,7 @@ void  Print_ProblemStructure(struct Problem  * Problem) {
 /*  P r i n t _ L i s t R e s o l u t i o n                */
 /* ------------------------------------------------------- */
 
-void  Print_ListResolution(struct Problem  * Problem) {
+void  Print_ListResolution(int choose, struct Problem  * Problem) {
   struct Resolution *RE ;
   int    i, Nbr, ichoice = 0 ;
 
@@ -1196,19 +1195,21 @@ void  Print_ListResolution(struct Problem  * Problem) {
       ichoice = - Flag_LRES ;
     }
     else{
-      Msg(WARNING, "Missing Resolution name") ;
+      Msg(INFO, "Available Resolutions") ;
       for (i = 0 ; i < Nbr ; i++) {
 	RE = (struct Resolution*)List_Pointer(Problem->Resolution, i) ;
 	Msg(CHECK, "(%d) %s\n", i+1, RE->Name) ;
       }
-      Msg(CHECK, "Choice: ") ;
-      scanf("%d", &ichoice) ;
+      if(choose){
+	Msg(CHECK, "Choice: ") ;
+	scanf("%d", &ichoice) ;
+      }
     }
     if(ichoice > 0 && ichoice < Nbr+1){
       RE = (struct Resolution*)List_Pointer(Problem->Resolution, ichoice-1) ;
       Name_Resolution = RE->Name ; 
     }
-    else
+    else if(choose)
       Msg(ERROR, "Unknown Resolution") ;
   }
   else
@@ -1221,26 +1222,28 @@ void  Print_ListResolution(struct Problem  * Problem) {
 /*  P r i n t _ L i s t P o s t P r o c e s s i n g        */
 /* ------------------------------------------------------- */
 
-void  Print_ListPostProcessing(struct Problem  * Problem) {
+void  Print_ListPostProcessing(int choose, struct Problem  * Problem) {
   struct PostProcessing *PP ;
   int    i, Nbr, ichoice = 0 ;
 
   GetDP_Begin("Print_ListPostProcessing");
 
   if((Nbr = List_Nbr(Problem->PostProcessing))){
-    Msg(WARNING, "Missing PostProcessing name") ;
+    Msg(INFO, "Available PostProcessings") ;
     for (i = 0 ; i < Nbr ; i++) {
       PP = (struct PostProcessing*)List_Pointer(Problem->PostProcessing, i) ;
       Msg(CHECK, "(%d) %s\n", i+1, PP->Name) ;
     }
-    Msg(CHECK, "Choice: ") ;
-    scanf("%d", &ichoice) ;
+    if(choose){
+      Msg(CHECK, "Choice: ") ;
+      scanf("%d", &ichoice) ;
+    }
     if(ichoice > 0 && ichoice < Nbr+1){
       PP = (struct PostProcessing*)List_Pointer(Problem->PostProcessing, ichoice-1) ;
       Name_PostProcessing[0] = PP->Name ;
       Name_PostProcessing[1] = NULL ;
     }
-    else
+    else if(choose)
       Msg(ERROR, "Unknown PostProcessing") ;
   }
   else
@@ -1253,7 +1256,7 @@ void  Print_ListPostProcessing(struct Problem  * Problem) {
 /*  P r i n t _ L i s t P o s t O p e r a t i o n          */
 /* ------------------------------------------------------- */
 
-void  Print_ListPostOperation(struct Problem  * Problem) {
+void  Print_ListPostOperation(int choose, struct Problem  * Problem) {
   struct PostOperation *PO ;
   int    i, Nbr, ichoice = 0 ;
 
@@ -1264,20 +1267,22 @@ void  Print_ListPostOperation(struct Problem  * Problem) {
       ichoice = - Flag_LPOS ;
     }
     else{
-      Msg(WARNING, "Missing PostOperation name") ;
+      Msg(INFO, "Available PostOperations") ;
       for (i = 0 ; i < Nbr ; i++) {
 	PO = (struct PostOperation*)List_Pointer(Problem->PostOperation, i) ;
 	Msg(CHECK, "(%d) %s\n", i+1, PO->Name) ;
       }
-      Msg(CHECK, "Choice: ") ;
-      scanf("%d", &ichoice) ;
+      if(choose){
+	Msg(CHECK, "Choice: ") ;
+	scanf("%d", &ichoice) ;
+      }
     }
     if(ichoice > 0 && ichoice < Nbr+1){
       PO = (struct PostOperation*)List_Pointer(Problem->PostOperation, ichoice-1) ;
       Name_PostOperation[0] = PO->Name ;
       Name_PostOperation[1] = NULL ;
     }
-    else
+    else if(choose)
       Msg(ERROR, "Unknown PostOperation") ;
   }
   else

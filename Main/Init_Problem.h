@@ -1,4 +1,4 @@
-/* $Id: Init_Problem.h,v 1.6 2001-03-07 11:09:08 dular Exp $ */
+/* $Id: Init_Problem.h,v 1.7 2001-03-16 10:56:46 geuzaine Exp $ */
 #ifndef _INIT_PROBLEM_H_
 #define _INIT_PROBLEM_H_
 
@@ -17,9 +17,9 @@ void  Init_GlobalVariables (void) ;
 void  Read_ProblemStructure (char * NameFilePro) ;
 
 void  Print_ProblemStructure(struct Problem  * Problem) ;
-void  Print_ListResolution(struct Problem  * Problem) ;
-void  Print_ListPostOperation(struct Problem  * Problem) ;
-void  Print_ListPostProcessing(struct Problem  * Problem) ;
+void  Print_ListResolution(int choice, struct Problem  * Problem) ;
+void  Print_ListPostOperation(int choice, struct Problem  * Problem) ;
+void  Print_ListPostProcessing(int choice, struct Problem  * Problem) ;
 
 void  SolvingAnalyse(void) ;
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ElementSource.c,v 1.5 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Get_ElementSource.c,v 1.6 2001-03-16 10:56:46 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -106,9 +106,7 @@ void  Get_ElementTrace(struct Element *Element, int InIndex) {
 
   Get_NodesCoordinatesOfElement(Element->ElementTrace) ;
 
-  /*
   Msg(INFO, "Element %d -> Trace %d", Element->Num, Element->ElementTrace->Num);
-  */
 
   GetDP_End ;
 }

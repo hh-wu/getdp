@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.27 2001-03-15 16:06:02 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.28 2001-03-16 10:56:46 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -57,7 +57,7 @@ int Flag_RemoveSingularity = 0;
 
 int  main(int argc, char *argv[]) {
   char  ext[5], **sargv;
-  int   sargc, i ;
+  int   sargc, i, choose = 1 ;
   char  ProName[MAX_FILE_NAME_LENGTH], LogName[MAX_FILE_NAME_LENGTH] ;
 
   GetDP_Begin("main");
@@ -143,10 +143,15 @@ int  main(int argc, char *argv[]) {
   Problem_Expression0 = (Problem_S.Expression)?
     (struct Expression*)List_Pointer(Problem_S.Expression, 0) : NULL ;
 
+  if (!Flag_PRE && !Flag_PAR && !Flag_CAL && !Flag_POS && !Flag_CHECK){
+    Flag_LRES = Flag_LPOS = 1 ;
+    choose = 0 ;
+  }
+
   if (Flag_CHECK) Print_ProblemStructure(&Problem_S) ;
-  if (Flag_LRES) Print_ListResolution(&Problem_S) ;
-  if (Flag_LPOS) Print_ListPostOperation(&Problem_S) ;
-  if (Flag_LIPOS) Print_ListPostProcessing(&Problem_S) ;
+  if (Flag_LRES) Print_ListResolution(choose, &Problem_S) ;
+  if (Flag_LPOS) Print_ListPostOperation(choose, &Problem_S) ;
+  if (Flag_LIPOS) Print_ListPostProcessing(choose, &Problem_S) ;
 
   if (Flag_PRE || Flag_PAR || Flag_CAL || Flag_POS) SolvingAnalyse() ;
 
