@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.50 2003-04-16 02:59:02 geuzaine Exp $
+@c $Id: getdp.texi,v 1.51 2003-04-16 23:29:56 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 @c
@@ -1082,9 +1082,7 @@ Less. The evaluation of both arguments must result in scalar values.
 Less or equality. The evaluation of both arguments must result in scalar values.
 @item &&
 Logical `and'. The evaluation of both arguments must result in scalar
-values. Warning: the logical `and' always (unlike in C or C++) implies the
-evaluation of both arguments. That is, the second operand of @code{&&} is
-evaluated even if the first one is false.
+values.
 @item ||
 Logical `or'. The evaluation of both arguments must result in floating point
 values. Warning: the logical `or' always (unlike in C or C++) implies the
