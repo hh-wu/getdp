@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.19 2000-10-20 17:06:42 geuzaine Exp $ */
+/* $Id: Pos_Print.c,v 1.20 2000-10-20 17:24:03 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -622,8 +622,8 @@ void normvec(double *a){
 		    PostSubOperation_P->Depth, 0, 1) ;				\
   for(iPost = 0 ; iPost < List_Nbr(PE_L) ; iPost++){				\
     PE = *(struct PostElement **)List_Pointer(PE_L, iPost) ;			\
-    for(ts = 0 ; ts < NbTimeStep ; ts++){					\
-      Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, ts) ;		\
+    for(iTime = 0 ; iTime < NbTimeStep ; iTime++){				\
+      Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;     	\
       for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++){				\
 	if(NCPQ_P){								\
 	  Current.x = PE->x[iNode] ;						\
@@ -634,13 +634,13 @@ void normvec(double *a){
 		      &PE->Value[iNode]);					\
 	  if(CPQ_P)								\
              Combine_PostQuantity(PostSubOperation_P->CombinationType, Order,	\
-				  &PE->Value[iNode], &CumulativeValues[ts]) ;	\
+				  &PE->Value[iNode], &CumulativeValues[iTime]) ;\
 	}									\
 	else									\
-	  Cal_CopyValue(&CumulativeValues[ts],&PE->Value[iNode]);		\
+	  Cal_CopyValue(&CumulativeValues[iTime],&PE->Value[iNode]);		\
       }										\
       Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso,0, \
-			 Current.Time, ts, NbTimeStep,				\
+			 Current.Time, iTime, NbTimeStep,			\
 			 Current.NbrHar, PostSubOperation_P->HarmonicToTime,	\
 			 NULL, PE);						\
     }										\
@@ -662,20 +662,21 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
   struct Value       * CumulativeValues ;
   List_T             * PE_L ;
 
-  int     NbElement, NbTimeStep, iPost, iNode ;
-  int     i, j, k, ts, * NumNodes, nbc ;
+  int     NbGeoElement, NbTimeStep, NbCut, * NumNodes ;
+  int     iPost, iNode, iGeo, iTime, iCut, iEdge ;
   double  A, B, C, D, d1, d2, u, xcg, ycg, zcg ;
   double  x[3], y[3], z[3] ;
 
   if( !(NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
     NbTimeStep = List_Nbr(Current.DofData->Solutions);
-    for(j = 0 ; j < NbTimeStep ; j++) List_Add(PostSubOperation_P->TimeStep_L, &j);
+    for(iTime = 0 ; iTime < NbTimeStep ; iTime++)
+      List_Add(PostSubOperation_P->TimeStep_L, &iTime);
   }
 
   PE_L = List_Create(10, 10, sizeof(struct PostElement *)) ;
 
-  for(i=0 ; i<NBR_MAX_CUT ; i++)
-    e[i].Value = (struct Value*) Malloc(NbTimeStep*sizeof(struct Value)) ;    
+  for(iCut = 0 ; iCut < NBR_MAX_CUT ; iCut++)
+    e[iCut].Value = (struct Value*) Malloc(NbTimeStep*sizeof(struct Value)) ;    
     
   Format_PostHeader(PostSubOperation_P->Format, 
 		    PostSubOperation_P->Iso, NbTimeStep, 
@@ -717,12 +718,12 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
 
     /* Cut each element */
     
-    NbElement = Geo_GetNbrGeoElements() ;
+    NbGeoElement = Geo_GetNbrGeoElements() ;
 
-    for(i = 0 ; i < NbElement ; i++) {
+    for(iGeo = 0 ; iGeo < NbGeoElement ; iGeo++) {
       if(InteractiveInterrupt) break;   
-      Progress(i, NbElement, "Cut: ") ;
-      Element.GeoElement = Geo_GetGeoElement(i) ;
+      Progress(iGeo, NbGeoElement, "Cut: ") ;
+      Element.GeoElement = Geo_GetGeoElement(iGeo) ;
       Element.Num        = Element.GeoElement->Num ;
       Element.Type       = Element.GeoElement->Type ;
       Current.Region = Element.Region = Element.GeoElement->Region ;
@@ -737,79 +738,79 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
 	if(Element.GeoElement->NbrEdges == 0)
 	  Geo_CreateEdgesOfElement(Element.GeoElement) ;
 
-	nbc = 0;
+	NbCut = 0;
 	
-	for(j=0 ; j<Element.GeoElement->NbrEdges ; j++){
-	  NumNodes = Geo_GetNodesOfEdgeInElement(Element.GeoElement, j) ;
-	  e[nbc].x[0] = Element.x[abs(NumNodes[0])-1] ;
-	  e[nbc].y[0] = Element.y[abs(NumNodes[0])-1] ;
-	  e[nbc].z[0] = Element.z[abs(NumNodes[0])-1] ;
-	  e[nbc].x[1] = Element.x[abs(NumNodes[1])-1] ;
-	  e[nbc].y[1] = Element.y[abs(NumNodes[1])-1] ;
-	  e[nbc].z[1] = Element.z[abs(NumNodes[1])-1] ;
-	  d1 = Plane(A,B,C,D,e[nbc].x[0],e[nbc].y[0],e[nbc].z[0]);
-	  d2 = Plane(A,B,C,D,e[nbc].x[1],e[nbc].y[1],e[nbc].z[1]);
+	for(iEdge = 0 ; iEdge < Element.GeoElement->NbrEdges ; iEdge++){
+	  NumNodes = Geo_GetNodesOfEdgeInElement(Element.GeoElement, iEdge) ;
+	  e[NbCut].x[0] = Element.x[abs(NumNodes[0])-1] ;
+	  e[NbCut].y[0] = Element.y[abs(NumNodes[0])-1] ;
+	  e[NbCut].z[0] = Element.z[abs(NumNodes[0])-1] ;
+	  e[NbCut].x[1] = Element.x[abs(NumNodes[1])-1] ;
+	  e[NbCut].y[1] = Element.y[abs(NumNodes[1])-1] ;
+	  e[NbCut].z[1] = Element.z[abs(NumNodes[1])-1] ;
+	  d1 = Plane(A,B,C,D,e[NbCut].x[0],e[NbCut].y[0],e[NbCut].z[0]);
+	  d2 = Plane(A,B,C,D,e[NbCut].x[1],e[NbCut].y[1],e[NbCut].z[1]);
 	  
 	  if(d1*d2 <= 0) {
 	    if(d1*d2 < 0.) u = -d2/(d1-d2) ;	    
 	    else if(d1 == 0.) u = 1. ;
 	    else u = 0. ;
-	    e[nbc].xc = u*e[nbc].x[0] + (1.-u)*e[nbc].x[1];
-	    e[nbc].yc = u*e[nbc].y[0] + (1.-u)*e[nbc].y[1];
-	    e[nbc].zc = u*e[nbc].z[0] + (1.-u)*e[nbc].z[1];	  
+	    e[NbCut].xc = u*e[NbCut].x[0] + (1.-u)*e[NbCut].x[1];
+	    e[NbCut].yc = u*e[NbCut].y[0] + (1.-u)*e[NbCut].y[1];
+	    e[NbCut].zc = u*e[NbCut].z[0] + (1.-u)*e[NbCut].z[1];	  
 
 	    if(NCPQ_P)
-	      xyz2uvwInAnElement(&Element, e[nbc].xc, e[nbc].yc, e[nbc].zc, 
-				 &e[nbc].uc, &e[nbc].vc, &e[nbc].wc, NULL, -1);	  
-	    nbc++;
+	      xyz2uvwInAnElement(&Element, e[NbCut].xc, e[NbCut].yc, e[NbCut].zc, 
+				 &e[NbCut].uc, &e[NbCut].vc, &e[NbCut].wc, NULL, -1);	  
+	    NbCut++;
 	  }
 	}
 	
-	if(nbc > 3){
+	if(NbCut > 3){
 	  xcg = ycg = zcg = 0.;
-	  for(k=0 ; k<nbc ; k++){
-	    xcg += e[k].xc; ycg += e[k].yc; zcg += e[k].zc;
+	  for(iCut = 0 ; iCut < NbCut ; iCut++){
+	    xcg += e[iCut].xc; ycg += e[iCut].yc; zcg += e[iCut].zc;
 	  }
-	  xcg /= (double)nbc; ycg /= (double)nbc; zcg /= (double)nbc;
+	  xcg /= (double)NbCut; ycg /= (double)NbCut; zcg /= (double)NbCut;
 	  DIRZ[0] = A; DIRY[0] = xcg-e[0].xc; 
 	  DIRZ[1] = B; DIRY[1] = ycg-e[0].yc; 
 	  DIRZ[2] = C; DIRY[2] = zcg-e[0].zc;
 	  normvec(DIRZ); normvec(DIRY); prodvec(DIRY,DIRZ,DIRX); normvec(DIRX);
 	  XCP = xcg*DIRX[0] + ycg*DIRX[1] + zcg*DIRX[2];
 	  YCP = xcg*DIRY[0] + ycg*DIRY[1] + zcg*DIRY[2];	
-	  qsort(e,nbc,sizeof(struct CutEdge), fcmp_Angle);
+	  qsort(e,NbCut,sizeof(struct CutEdge), fcmp_Angle);
 	}
 	
-	if(nbc > 2){
-	  k=2;
-	  while(k < nbc){
+	if(NbCut > 2){
+	  iCut = 2;
+	  while(iCut < NbCut){
 	    if(PostSubOperation_P->Depth > 0){
-	      PE = Create_PostElement(Element.Num, TRIANGLE, 3, 1) ;
-	      PE->x[0] = e[0].xc; PE->x[1] = e[k-1].xc; PE->x[2] = e[k].xc;
-	      PE->y[0] = e[0].yc; PE->y[1] = e[k-1].yc; PE->y[2] = e[k].yc;
-	      PE->z[0] = e[0].zc; PE->z[1] = e[k-1].zc; PE->z[2] = e[k].zc;
-	      PE->u[0] = e[0].uc; PE->u[1] = e[k-1].uc; PE->u[2] = e[k].uc;
-	      PE->v[0] = e[0].vc; PE->v[1] = e[k-1].vc; PE->v[2] = e[k].vc;
-	      PE->w[0] = e[0].wc; PE->w[1] = e[k-1].wc; PE->w[2] = e[k].wc;
+	      PE = Create_PostElement(iGeo, TRIANGLE, 3, 1) ;
+	      PE->x[0] = e[0].xc; PE->x[1] = e[iCut-1].xc; PE->x[2] = e[iCut].xc;
+	      PE->y[0] = e[0].yc; PE->y[1] = e[iCut-1].yc; PE->y[2] = e[iCut].yc;
+	      PE->z[0] = e[0].zc; PE->z[1] = e[iCut-1].zc; PE->z[2] = e[iCut].zc;
+	      PE->u[0] = e[0].uc; PE->u[1] = e[iCut-1].uc; PE->u[2] = e[iCut].uc;
+	      PE->v[0] = e[0].vc; PE->v[1] = e[iCut-1].vc; PE->v[2] = e[iCut].vc;
+	      PE->w[0] = e[0].wc; PE->w[1] = e[iCut-1].wc; PE->w[2] = e[iCut].wc;
 	      LETS_PRINT_THE_RESULT ;
 	    }
 	    else{
-	      PE = Create_PostElement(Element.Num, POINT, 1, 0) ;
-	      PE->x[0] = (e[0].xc + e[k-1].xc + e[k].xc) / 3. ;
-	      PE->y[0] = (e[0].yc + e[k-1].yc + e[k].yc) / 3. ;
-	      PE->z[0] = (e[0].zc + e[k-1].zc + e[k].zc) / 3. ;
-	      PE->u[0] = (e[0].uc + e[k-1].uc + e[k].uc) / 3. ;
-	      PE->v[0] = (e[0].vc + e[k-1].vc + e[k].vc) / 3. ;
-	      PE->w[0] = (e[0].wc + e[k-1].wc + e[k].wc) / 3. ;
+	      PE = Create_PostElement(iGeo, POINT, 1, 0) ;
+	      PE->x[0] = (e[0].xc + e[iCut-1].xc + e[iCut].xc) / 3. ;
+	      PE->y[0] = (e[0].yc + e[iCut-1].yc + e[iCut].yc) / 3. ;
+	      PE->z[0] = (e[0].zc + e[iCut-1].zc + e[iCut].zc) / 3. ;
+	      PE->u[0] = (e[0].uc + e[iCut-1].uc + e[iCut].uc) / 3. ;
+	      PE->v[0] = (e[0].vc + e[iCut-1].vc + e[iCut].vc) / 3. ;
+	      PE->w[0] = (e[0].wc + e[iCut-1].wc + e[iCut].wc) / 3. ;
 	      LETS_PRINT_THE_RESULT ;
 	    }
-	    k++;
+	    iCut++;
 	  }
 	}
 	
-	if(nbc == 2){
+	if(NbCut == 2){
 	  if(PostSubOperation_P->Depth > 0){
-	    PE = Create_PostElement(Element.Num, LINE, 2, 1) ;
+	    PE = Create_PostElement(iGeo, LINE, 2, 1) ;
 	    PE->x[0] = e[0].xc; PE->x[1] = e[1].xc; 
 	    PE->y[0] = e[0].yc; PE->y[1] = e[1].yc; 
 	    PE->z[0] = e[0].zc; PE->z[1] = e[1].zc; 
@@ -819,7 +820,7 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
 	    LETS_PRINT_THE_RESULT ;
 	  }
 	  else{
-	    PE = Create_PostElement(Element.Num, POINT, 1, 0) ;
+	    PE = Create_PostElement(iGeo, POINT, 1, 0) ;
 	    PE->x[0] = (e[0].xc + e[1].xc) / 2. ; 
 	    PE->y[0] = (e[0].yc + e[1].yc) / 2. ; 
 	    PE->z[0] = (e[0].zc + e[1].zc) / 2. ; 
@@ -843,7 +844,7 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
 
   List_Delete(PE_L) ;
   if(CPQ_P) Free(CumulativeValues);
-  for(i=0 ; i<NBR_MAX_CUT ; i++) Free(e[i].Value) ;
+  for(iCut = 0 ; iCut < NBR_MAX_CUT ; iCut++) Free(e[iCut].Value) ;
 
 }
 
