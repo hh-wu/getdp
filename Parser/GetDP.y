@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.7 2001-03-06 13:36:23 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.8 2001-03-13 12:23:11 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -1624,6 +1624,11 @@ JacobianCaseTerm :
 	Get_Define1NbrForString(Jacobian_Type, $2, &FlagError,
 				&JacobianCase_S.NbrParameters) ;
       if (!FlagError) {
+	if (JacobianCase_S.NbrParameters == -2 && (List_Nbr(ListOfDouble_L))%2 != 0)
+	  vyyerror("Wrong number of parameters for Jacobian '%s' (%d is not even)",
+		   $2, List_Nbr(ListOfDouble_L)) ;
+	if (JacobianCase_S.NbrParameters < 0)
+	  JacobianCase_S.NbrParameters = List_Nbr(ListOfDouble_L);
 	if (List_Nbr(ListOfDouble_L) == JacobianCase_S.NbrParameters) {
 	  if (JacobianCase_S.NbrParameters) {
 	    JacobianCase_S.Para =
@@ -1632,10 +1637,9 @@ JacobianCaseTerm :
 	      List_Read(ListOfDouble_L, i, &JacobianCase_S.Para[i]) ;
 	  }
 	}
-	else {
+	else
 	  vyyerror("Wrong number of parameters for Jacobian '%s' (%d instead of %d)", 
 		   $2, List_Nbr(ListOfDouble_L), JacobianCase_S.NbrParameters) ;
-	}
       }
       else  vyyerror("Unknown type of Jacobian: %s %s", 
 		     $2, Get_Valid_SXD1N(Jacobian_Type)) ;
