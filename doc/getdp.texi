@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.23 2000-09-28 22:17:21 geuzaine Exp $
+@c $Id: getdp.texi,v 1.24 2000-10-05 08:58:05 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -318,7 +318,7 @@ Versions and Credits
 @c Copying Conditions
 @c =========================================================================
 
-@node Copying, Introduction, Top, Top
+@node Copying Conditions, Introduction, Top, Top
 @unnumbered Copying Conditions
 
 @cindex Copyright
@@ -429,7 +429,7 @@ ready-to-use software could be rapidly developed for given problems.
 @c How to Read this Manual?
 @c -------------------------------------------------------------------------
 
-@node Reading Guidelines,  , Industry, Introduction
+@node How to Read this Manual?,  , Industry, Introduction
 @heading How to Read this Manual?
 
 @cindex Reading, guidelines
@@ -457,7 +457,7 @@ from the web site.
 @c General Overview
 @c =========================================================================
 
-@node Overview, Expressions, Introduction, Top
+@node General overview, Expressions, Introduction, Top
 @chapter General Overview
 
 @cindex Overview
@@ -477,7 +477,7 @@ from the web site.
 @c Numerical Tools as Objects
 @c -------------------------------------------------------------------------
 
-@node Tools, Syntax, Overview, Overview
+@node Numerical tools as objects, Syntax, Overview, Overview
 @section Numerical Tools as Objects
 
 @cindex Objects, dependencies
@@ -546,7 +546,7 @@ objects of the second group, adapted to treatments of defined problems.
 @c Syntactic Rules Used in this Document
 @c -------------------------------------------------------------------------
 
-@node Syntax, Comments, Tools, Overview
+@node Syntactic rules, Comments, Tools, Overview
 @section Syntactic Rules Used in this Document
 
 @cindex Syntax, rules
@@ -639,7 +639,7 @@ is ignored.
 @c Which Problems can GetDP actually solve?
 @c -------------------------------------------------------------------------
 
-@node Possibilities,  , Includes, Overview
+@node Which Problems can GetDP Actually Solve?,  , Includes, Overview
 @section Which Problems can GetDP Actually Solve?
 
 @cindex Scope of GetDP
@@ -2584,7 +2584,7 @@ Gradient of @code{Helmholtz} relative to the destination point (@code{$X},
 @c Type
 @c .........................................................................
 
-@node Type functions, Coordinate functions, Green functions, Types for Function
+@node Type manipulation functions, Coordinate functions, Green functions, Types for Function
 @subsection Type Manipulation Functions
 
 @mvindex @var{type-function-id}
@@ -5338,7 +5338,7 @@ Undocumented.
 @c Versions
 @c -------------------------------------------------------------------------
 
-@node Versions, Bugs, Versions and credits, Versions and credits
+@node Version history, Bugs, Versions and credits, Versions and credits
 @section Version History
 
 @cindex Versions
@@ -5437,7 +5437,7 @@ improvements and bug correction...
 @c Tips ans Tricks
 @c =========================================================================
 
-@node Tips, Gmsh examples, Versions and credits, Top
+@node Tips and tricks, Gmsh examples, Versions and credits, Top
 @appendix Tips and Tricks
 
 @cindex Tips
