@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.51 2003-06-21 07:17:51 sabarieg Exp $ */
+/* $Id: GetDP.y,v 1.52 2003-07-01 19:08:14 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -41,15 +41,6 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-
-#ifndef __APPLE__
-#if !defined __cplusplus && !defined MSDOS && !defined _AIX && !defined __CYGWIN__
-
-#include <alloca.h> 
-#endif
-#endif /* __APPLE__ */
-
-
 
 #include "Data_Passive.h"
 #include "Data_Active.h"
