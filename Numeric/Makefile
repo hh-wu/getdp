@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2001-07-29 12:34:44 geuzaine Exp $
+# $Id: Makefile,v 1.12 2001-08-09 11:49:04 sabarieg Exp $
 #
 # Makefile for 'libSolverMisc.a'
 #
@@ -27,12 +27,17 @@ CSRC =  nrutil.c \
         Lanczos.c \
         Adapt.c \
         brent.c \
-        mnbrak.c
+        mnbrak.c \
+	Legendre.c \
+	SphBessel.c
 
 FSRC =  clt2d.f \
         solcyl.f \
         solsph.f \
-        bessel.f 
+        bessel.f \
+	AiryAmos.f\
+	BesselAmos.f \
+	LibAmos.f
 
 COBJ  = $(CSRC:.c=.o)
 FOBJ  = $(FSRC:.f=.o)
@@ -68,15 +73,15 @@ hqr.o: hqr.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
 dsvdcmp.o: dsvdcmp.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
 hollowcyl.o: hollowcyl.c nrdefs.h ../Main/Data_Numeric.h
 Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
-  ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
-  ../Main/Data_Numeric.h ../Main/CurrentData.h ../Main/Data_Active.h \
-  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h ../include/Magic.h nrutil.h
-Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
-  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h nrutil.h \
-  nrdefs.h ../Main/Data_Numeric.h
+ ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
+ ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
+ ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+ ../Main/Data_Numeric.h ../Main/CurrentData.h ../Main/Data_Active.h \
+ ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../include/Magic.h nrutil.h
+Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h \
+ ../DataStr/Malloc.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../DataStr/List.h ../DataStr/Tree.h \
+ ../DataStr/avl.h Adapt.h nrutil.h nrdefs.h ../Main/Data_Numeric.h
 brent.o: brent.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
 mnbrak.o: mnbrak.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
