@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Perpendicular.c,v 1.3 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: BF_Perpendicular.c,v 1.4 2001-03-23 15:51:33 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -25,9 +25,9 @@ void  BF_PerpendicularEdge(ARGS) { BF("BF_PerpendicularEdge",BF_Node) ; }
 void  BF_PerpendicularEdge_2E(ARGS) { BF("BF_PerpendicularEdge_2E",BF_Node_2E) ; }
 void  BF_PerpendicularEdge_2F(ARGS) { BF("BF_PerpendicularEdge_2F",BF_Node_2F) ; }
 void  BF_PerpendicularEdge_2V(ARGS) { BF("BF_PerpendicularEdge_2V",BF_Node_2V) ; }
-void  BF_PerpendicularEdge_3E(ARGS) { BF("BF_PerpendicularEdge_3E",BF_Node_2E) ; }
-void  BF_PerpendicularEdge_3F(ARGS) { BF("BF_PerpendicularEdge_3F",BF_Node_2F) ; }
-void  BF_PerpendicularEdge_3V(ARGS) { BF("BF_PerpendicularEdge_3V",BF_Node_2V) ; }
+void  BF_PerpendicularEdge_3E(ARGS) { BF("BF_PerpendicularEdge_3E",BF_Node_3E) ; }
+void  BF_PerpendicularEdge_3F(ARGS) { BF("BF_PerpendicularEdge_3F",BF_Node_3F) ; }
+void  BF_PerpendicularEdge_3V(ARGS) { BF("BF_PerpendicularEdge_3V",BF_Node_3V) ; }
 
 #undef BF
 
