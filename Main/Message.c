@@ -1,19 +1,19 @@
-#define RCSID "$Id: Message.c,v 1.58 2003-01-26 07:02:42 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.59 2003-01-29 20:05:04 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
 
-#ifdef __APPLE__
 #include <sys/time.h>
-#endif /* __APPLE__ */
+
 #ifndef MSDOS
 #include <sys/resource.h>
-#endif /* MSDOS */
+#endif
+
 #ifdef __APPLE__
-#define   RUSAGE_SELF      0
-#define   RUSAGE_CHILDREN -1
-#endif /* __APPLE__ */
+#define RUSAGE_SELF      0
+#define RUSAGE_CHILDREN -1
+#endif
 
 #include "GetDP.h"
 #include "GetDPVersion.h"
