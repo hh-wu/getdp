@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Value.c,v 1.11 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Cal_Value.c,v 1.12 2001-07-20 16:51:09 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
@@ -1120,15 +1120,75 @@ void  Cal_GreaterOrEqualValue (struct Value * V1, struct Value * V2, struct Valu
    ------------------------------------------------------------------------ */
 
 void  Cal_EqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
+  int    k;
 
   GetDP_Begin("Cal_EqualValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     R->Val[0] = (V1->Val[0] == V2->Val[0]) ;
+    for (k = 1 ; k < Current.NbrHar ; k++){
+      if(!R->Val[0]) break;
+      R->Val[0] = (V1->Val[MAX_DIM*k] == V2->Val[MAX_DIM*k]) ;
+    }
+    R->Type = SCALAR ;
+  }
+  else if ( ( (V1->Type == VECTOR) && (V2->Type == VECTOR) ) ||
+	    ( (V1->Type == TENSOR_DIAG) && (V2->Type == TENSOR_DIAG) ) ) {
+    R->Val[0] = (V1->Val[0] == V2->Val[0] &&
+		 V1->Val[1] == V2->Val[1] &&
+		 V1->Val[2] == V2->Val[2]) ;
+    for (k = 0 ; k < Current.NbrHar ; k++) {
+      if(!R->Val[0]) break;
+      R->Val[0] = (V1->Val[MAX_DIM*k  ] == V2->Val[MAX_DIM*k  ] &&
+		   V1->Val[MAX_DIM*k+1] == V2->Val[MAX_DIM*k+1] &&
+		   V1->Val[MAX_DIM*k+2] == V2->Val[MAX_DIM*k+2]) ;
+    }
+    R->Type = SCALAR ;
+  }
+  else if ( (V1->Type == TENSOR_SYM) && (V2->Type == TENSOR_SYM) ) {
+    R->Val[0] = (V1->Val[0] == V2->Val[0] &&
+		 V1->Val[1] == V2->Val[1] &&
+		 V1->Val[2] == V2->Val[2] &&
+		 V1->Val[3] == V2->Val[3] &&
+		 V1->Val[4] == V2->Val[4] &&
+		 V1->Val[5] == V2->Val[5]) ;
+    for (k = 0 ; k < Current.NbrHar ; k++) {
+      if(!R->Val[0]) break;
+      R->Val[0] = (V1->Val[MAX_DIM*k  ] == V2->Val[MAX_DIM*k  ] &&
+		   V1->Val[MAX_DIM*k+1] == V2->Val[MAX_DIM*k+1] &&
+		   V1->Val[MAX_DIM*k+2] == V2->Val[MAX_DIM*k+2] &&
+		   V1->Val[MAX_DIM*k+3] == V2->Val[MAX_DIM*k+3] &&
+		   V1->Val[MAX_DIM*k+4] == V2->Val[MAX_DIM*k+4] &&
+		   V1->Val[MAX_DIM*k+5] == V2->Val[MAX_DIM*k+5]) ;
+    }
+    R->Type = SCALAR ;
+  }
+  else if ( (V1->Type == TENSOR) && (V2->Type == TENSOR) ) {
+    R->Val[0] = (V1->Val[0] == V2->Val[0] &&
+		 V1->Val[1] == V2->Val[1] &&
+		 V1->Val[2] == V2->Val[2] &&
+		 V1->Val[3] == V2->Val[3] &&
+		 V1->Val[4] == V2->Val[4] &&
+		 V1->Val[5] == V2->Val[5] &&
+		 V1->Val[6] == V2->Val[6] &&
+		 V1->Val[7] == V2->Val[7] &&
+		 V1->Val[8] == V2->Val[8]) ;
+    for (k = 0 ; k < Current.NbrHar ; k++) {
+      if(!R->Val[0]) break;
+      R->Val[0] = (V1->Val[MAX_DIM*k  ] == V2->Val[MAX_DIM*k  ] &&
+		   V1->Val[MAX_DIM*k+1] == V2->Val[MAX_DIM*k+1] &&
+		   V1->Val[MAX_DIM*k+2] == V2->Val[MAX_DIM*k+2] &&
+		   V1->Val[MAX_DIM*k+3] == V2->Val[MAX_DIM*k+3] &&
+		   V1->Val[MAX_DIM*k+4] == V2->Val[MAX_DIM*k+4] &&
+		   V1->Val[MAX_DIM*k+5] == V2->Val[MAX_DIM*k+5] &&
+		   V1->Val[MAX_DIM*k+6] == V2->Val[MAX_DIM*k+6] &&
+		   V1->Val[MAX_DIM*k+7] == V2->Val[MAX_DIM*k+7] &&
+		   V1->Val[MAX_DIM*k+8] == V2->Val[MAX_DIM*k+8]) ;
+    }
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison of non scalar quantities: %s == %s",
+    Msg(ERROR, "Comparison of different quantities: %s == %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1142,15 +1202,75 @@ void  Cal_EqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
    ------------------------------------------------------------------------ */
 
 void  Cal_NotEqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
+  int    k;
 
   GetDP_Begin("Cal_NotEqualValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     R->Val[0] = (V1->Val[0] != V2->Val[0]) ;
+    for (k = 1 ; k < Current.NbrHar ; k++){
+      if(R->Val[0]) break;
+      R->Val[0] = (V1->Val[MAX_DIM*k] != V2->Val[MAX_DIM*k]) ;
+    }
+    R->Type = SCALAR ;
+  }
+  else if ( ( (V1->Type == VECTOR) && (V2->Type == VECTOR) ) ||
+	    ( (V1->Type == TENSOR_DIAG) && (V2->Type == TENSOR_DIAG) ) ) {
+    R->Val[0] = (V1->Val[0] != V2->Val[0] ||
+		 V1->Val[1] != V2->Val[1] ||
+		 V1->Val[2] != V2->Val[2]) ;
+    for (k = 0 ; k < Current.NbrHar ; k++) {
+      if(R->Val[0]) break;
+      R->Val[0] = (V1->Val[MAX_DIM*k  ] != V2->Val[MAX_DIM*k  ] ||
+		   V1->Val[MAX_DIM*k+1] != V2->Val[MAX_DIM*k+1] ||
+		   V1->Val[MAX_DIM*k+2] != V2->Val[MAX_DIM*k+2]) ;
+    }
+    R->Type = SCALAR ;
+  }
+  else if ( (V1->Type == TENSOR_SYM) && (V2->Type == TENSOR_SYM) ) {
+    R->Val[0] = (V1->Val[0] != V2->Val[0] ||
+		 V1->Val[1] != V2->Val[1] ||
+		 V1->Val[2] != V2->Val[2] ||
+		 V1->Val[3] != V2->Val[3] ||
+		 V1->Val[4] != V2->Val[4] ||
+		 V1->Val[5] != V2->Val[5]) ;
+    for (k = 0 ; k < Current.NbrHar ; k++) {
+      if(R->Val[0]) break;
+      R->Val[0] = (V1->Val[MAX_DIM*k  ] != V2->Val[MAX_DIM*k  ] ||
+		   V1->Val[MAX_DIM*k+1] != V2->Val[MAX_DIM*k+1] ||
+		   V1->Val[MAX_DIM*k+2] != V2->Val[MAX_DIM*k+2] ||
+		   V1->Val[MAX_DIM*k+3] != V2->Val[MAX_DIM*k+3] ||
+		   V1->Val[MAX_DIM*k+4] != V2->Val[MAX_DIM*k+4] ||
+		   V1->Val[MAX_DIM*k+5] != V2->Val[MAX_DIM*k+5]) ;
+    }
+    R->Type = SCALAR ;
+  }
+  else if ( (V1->Type == TENSOR) && (V2->Type == TENSOR) ) {
+    R->Val[0] = (V1->Val[0] != V2->Val[0] ||
+		 V1->Val[1] != V2->Val[1] ||
+		 V1->Val[2] != V2->Val[2] ||
+		 V1->Val[3] != V2->Val[3] ||
+		 V1->Val[4] != V2->Val[4] ||
+		 V1->Val[5] != V2->Val[5] ||
+		 V1->Val[6] != V2->Val[6] ||
+		 V1->Val[7] != V2->Val[7] ||
+		 V1->Val[8] != V2->Val[8]) ;
+    for (k = 0 ; k < Current.NbrHar ; k++) {
+      if(R->Val[0]) break;
+      R->Val[0] = (V1->Val[MAX_DIM*k  ] != V2->Val[MAX_DIM*k  ] ||
+		   V1->Val[MAX_DIM*k+1] != V2->Val[MAX_DIM*k+1] ||
+		   V1->Val[MAX_DIM*k+2] != V2->Val[MAX_DIM*k+2] ||
+		   V1->Val[MAX_DIM*k+3] != V2->Val[MAX_DIM*k+3] ||
+		   V1->Val[MAX_DIM*k+4] != V2->Val[MAX_DIM*k+4] ||
+		   V1->Val[MAX_DIM*k+5] != V2->Val[MAX_DIM*k+5] ||
+		   V1->Val[MAX_DIM*k+6] != V2->Val[MAX_DIM*k+6] ||
+		   V1->Val[MAX_DIM*k+7] != V2->Val[MAX_DIM*k+7] ||
+		   V1->Val[MAX_DIM*k+8] != V2->Val[MAX_DIM*k+8]) ;
+    }
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison of non scalar quantities: %s != %s",
+    Msg(ERROR, "Comparison of different quantities: %s != %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
