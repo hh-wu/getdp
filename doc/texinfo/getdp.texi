@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.36 2001-03-05 14:51:26 geuzaine Exp $
+@c $Id: getdp.texi,v 1.1 2001-03-07 09:02:09 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler

@@ -1,0 +1,25 @@
+
+                        SurfaceGInf
+         ______          /
+         |     -----____/
+         |              \___
+         |____    AirInf    \__
+     S   |    ------_          \
+     u   |            \          \
+     r   |     Air       \         \
+     f   |                 \        \
+     a   |                   \       |
+     c   |                     |      |
+     e   +------+               |      |
+     G   |      |                |      |
+     e   | Core |   +---+        |      |
+     0   |      |   |Ind|         |      |
+         |      |   |   |         |      |
+         +------+---+---+---------+------+
+                              \
+                              SurfaceGh0
+
+  2D elements in: Air, AirInf, Core, Ind
+  1D elements in: SurfaceGh0, SurfaceGe0, SurfaceGInf
+
+  (AirInf is a spherical shell corresponding to an infinite region)
