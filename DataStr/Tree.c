@@ -1,10 +1,9 @@
-#define RCSID "$Id: Tree.c,v 1.3 2000-11-21 16:07:16 geuzaine Exp $"
+#define RCSID "$Id: Tree.c,v 1.4 2000-11-23 18:14:53 geuzaine Exp $"
 
 #include <stdlib.h>
 #include <string.h>
 #include "Malloc.h"
 #include "Tree.h"
-
 
 Tree_T *Tree_Create(int size, int (*fcmp)(const void *a, const void *b))
 {
@@ -20,6 +19,7 @@ Tree_T *Tree_Create(int size, int (*fcmp)(const void *a, const void *b))
 
 void Tree_Delete(Tree_T *tree)
 {
+  if(!tree) return;
   avl_free_table(tree->root, Free, 0);
   Free(tree);
 }
@@ -45,6 +45,7 @@ void * Tree_AddP(Tree_T *tree, void *data)
 
 int Tree_Nbr(Tree_T *tree)
 {
+  if(!tree) return 0;
   return(avl_count(tree->root));
 }
 
@@ -145,9 +146,11 @@ int Tree_Right(Tree_T *tree, void *data)
 
 void Tree_Action(Tree_T *tree, void (*action) (void *data, void *dummy))
 {
+  if(!tree) return;
   avl_foreach(tree->root, action, AVL_FORWARD);
 }
 
 int Tree_Size(Tree_T *tree) {
+  if(!tree) return 0;
   return(tree->size);
 }
