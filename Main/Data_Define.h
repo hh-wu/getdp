@@ -294,6 +294,8 @@ struct DefineXFunction  FunctionForNewtonCotes[] = {
 } ;
 
 struct DefineXFunction  FunctionForGaussLegendre[] = {
+  {POINT          , (CAST)Gauss_Point},
+  {LINE           , (CAST)Gauss_Line},
   {TRIANGLE       , (CAST)GaussLegendre_Triangle},
   {QUADRANGLE     , (CAST)GaussLegendre_Quadrangle},
   {TETRAHEDRON    , (CAST)GaussLegendre_Tetrahedron},
