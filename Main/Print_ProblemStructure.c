@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.15 2001-03-13 22:25:33 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.16 2001-03-15 16:06:02 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -1205,7 +1205,6 @@ void  Print_ListResolution(struct Problem  * Problem) {
       scanf("%d", &ichoice) ;
     }
     if(ichoice > 0 && ichoice < Nbr+1){
-      Flag_PRE = Flag_CAL = 1 ; 
       RE = (struct Resolution*)List_Pointer(Problem->Resolution, ichoice-1) ;
       Name_Resolution = RE->Name ; 
     }
@@ -1237,7 +1236,6 @@ void  Print_ListPostProcessing(struct Problem  * Problem) {
     Msg(CHECK, "Choice: ") ;
     scanf("%d", &ichoice) ;
     if(ichoice > 0 && ichoice < Nbr+1){
-      Flag_POS = Flag_IPOS = 1 ;
       PP = (struct PostProcessing*)List_Pointer(Problem->PostProcessing, ichoice-1) ;
       Name_PostProcessing[0] = PP->Name ;
       Name_PostProcessing[1] = NULL ;
@@ -1275,7 +1273,6 @@ void  Print_ListPostOperation(struct Problem  * Problem) {
       scanf("%d", &ichoice) ;
     }
     if(ichoice > 0 && ichoice < Nbr+1){
-      Flag_POS = 1 ;
       PO = (struct PostOperation*)List_Pointer(Problem->PostOperation, ichoice-1) ;
       Name_PostOperation[0] = PO->Name ;
       Name_PostOperation[1] = NULL ;
