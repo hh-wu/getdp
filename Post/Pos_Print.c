@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.44 2001-07-08 15:44:47 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.45 2001-07-26 07:07:50 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1380,7 +1380,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P) {
   struct Geo_Element  *GeoElement;
   struct PostElement  *SL;
   List_T              *Region_L;
-  int                  i, j, NbrGeo, iGeo, *NumNodes;
+  int                  i, NbrGeo, iGeo, *NumNodes;
   double               x [NBR_MAX_NODES_IN_ELEMENT] ;
   double               y [NBR_MAX_NODES_IN_ELEMENT] ;
   double               z [NBR_MAX_NODES_IN_ELEMENT] ;

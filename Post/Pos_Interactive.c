@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Interactive.c,v 1.17 2001-07-25 13:08:16 geuzaine Exp $"
+#define RCSID "$Id: Pos_Interactive.c,v 1.18 2001-07-26 07:07:50 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -180,7 +180,6 @@ void Help_Value(void) { printf("%s\n", i_value); }
 void Help_Iso(void) { printf("%s\n", i_iso); }
 void Help_Quit(void) { printf("%s\n", i_quit); }
 void Help_Format(void) { 
-  int i ;
   char topic[128] ;  
   printf("%s", i_format); 
   while(1){
@@ -202,7 +201,6 @@ void Help_Format(void) {
   }
 }
 void Help_Print(void){
-  int i ;
   char topic[128] ;
   printf("%s", i_print);
   while(1){
@@ -236,7 +234,6 @@ void Help_Print(void){
 }
 
 void Help(char *start){
-  int  i ;
   char topic[128] ;
 
   if(!start){

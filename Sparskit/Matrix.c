@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.11 2001-06-26 11:44:28 gyselinc Exp $"
+#define RCSID "$Id: Matrix.c,v 1.12 2001-07-26 07:07:50 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -77,7 +77,7 @@ void zero_matrix (Matrix *M){
 }
 
 void zero_matrix2 (Matrix *M){
-  int i,j=0, iptr;
+  int      i, iptr;
   int     *jptr, *ptr;
   double  *a;
 
@@ -286,7 +286,7 @@ void prodsc_vector_vector (int Nb, double *U, double *V, double *prosca){
 
 
 void scaling_matrix (int scaling, Matrix *M){
-  int     k, i, j, *ai, *jptr ;
+  int     i, *ai, *jptr ;
   double  *a, *rowscal, *colscal;
   int job0=0, job1=1,  ioff=0, len, *idiag, norm ;
 
@@ -314,7 +314,7 @@ void scaling_matrix (int scaling, Matrix *M){
 
 	if (rowscal[i]){
 	  rowscal[i] = 1./sqrt(abs(rowscal[i])) ;
-	  // printf("  %d %e \n", i, rowscal[i] );
+	  /* printf("  %d %e \n", i, rowscal[i] ); */
 	} else {
 	  Msg(WARNING, "Diagonal scaling aborted because of zero diagonal element (%d)",i+1) ;
 	  Free (rowscal) ;
@@ -336,7 +336,7 @@ void scaling_matrix (int scaling, Matrix *M){
       rowscal = (double*)Malloc(M->N * sizeof(double));
       rnrms_ (&M->N, &norm, a, ai, jptr, rowscal); 
       for (i = 0 ; i < M->N ; i++){
-	//printf("  %d %e \n", i, rowscal[i] );
+	/* printf("  %d %e \n", i, rowscal[i] ); */
 	if (rowscal[i])
 	  rowscal[i] = 1./rowscal[i] ;
 	else {
@@ -353,7 +353,7 @@ void scaling_matrix (int scaling, Matrix *M){
 
 	if (colscal[i]){
 	  colscal[i] = 1./colscal[i] ;
-	  //printf("  %d %e %e \n", i, 1./rowscal[i], 1./colscal[i] );
+	  /* printf("  %d %e %e \n", i, 1./rowscal[i], 1./colscal[i] ); */
 	} else {
 	  Msg(WARNING, "Scaling aborted because of zero column (%d)", i+1) ;
 	  Free (colscal) ;

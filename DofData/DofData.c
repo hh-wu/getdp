@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.19 2001-05-18 12:26:27 dular Exp $"
+#define RCSID "$Id: DofData.c,v 1.20 2001-07-26 07:07:50 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -480,7 +480,7 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
   struct DofData  * DofData_P ;
   struct Solution Solution_S ;
   char            String[MAX_STRING_LENGTH] ;
-  int i;
+
   GetDP_Begin("Dof_ReadFileRES");
 
   while (1) {
