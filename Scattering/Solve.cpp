@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.3 2002-03-04 17:11:20 geuzaine Exp $
+// $Id: Solve.cpp,v 1.4 2002-03-04 17:37:02 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Complex.h"
@@ -43,7 +43,9 @@ void PostProcess(Ctx *ctx, gVector *x){
   int i;
   Complex res; 
 
+  LinAlg_SequentialBegin() ;
   LinAlg_PrintVector(stderr,x);
+  LinAlg_SequentialEnd() ;
 
   ctx->f.Type = Function::Vector;
   ctx->f.NumBF = ctx->NbTargetPts;
@@ -52,7 +54,7 @@ void PostProcess(Ctx *ctx, gVector *x){
   for(i=0 ; i<100 ; i++){
     t = 2*PI*i/100.;
     res = ctx->f.bf(t);
-    fprintf(stdout, "%g %g %g\n", t, res.real(), res.imag());
+    if(!RankCpu) fprintf(stdout, "%g %g %g\n", t, res.real(), res.imag());
   }
 }
 
