@@ -6,6 +6,7 @@ Release: 1
 Copyright: distributable
 Group: Applications/Engineering
 URL: http://www.geuz.org/getdp/
+Packager: Christophe.Geuzaine@AdValvas.be
 Prereq: /sbin/install-info
 Buildroot: /var/tmp/%{name}-buildroot
 

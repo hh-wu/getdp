@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2000-09-23 18:16:27 geuzaine Exp $
+# $Id: Makefile,v 1.16 2000-09-24 21:50:30 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -47,7 +47,7 @@ GETDP_ARCHIVE_DIR     = archives
 GETDP_MAIN_DIR        = Main
 GETDP_PARSER_DIR      = Parser
 GETDP_ARCHIVE         = $(GETDP_ARCHIVE_DIR)/getdp-`date "+%Y.%m.%d"`
-#GETDP_ARCHIVE        = $(GETDP_ARCHIVE_DIR)/getdp-$(GETDP_RELEASE)
+GETDP_SRCRPM          = getdp-$(GETDP_RELEASE)
 GETDP_SOURCES         = `find . \( ! -name "*.tar*" -a ! -name "*.tgz" \
                          -a ! -name "*.o"    -a ! -name "*.a"   -a ! -name "*.cut"   \
                          -a ! -name "*.pos"  -a ! -name "*.pre" -a ! -name "*.res" \
@@ -256,6 +256,10 @@ tgz:
 	tar cvf $(GETDP_ARCHIVE).tar $(GETDP_SOURCES)
 	gzip $(GETDP_ARCHIVE).tar
 	chmod 640 $(GETDP_ARCHIVE).tar.gz
+
+src:
+	tar cvf $(GETDP_SRCRPM).tar $(GETDP_SOURCES)
+	gzip $(GETDP_SRCRPM).tar
 
 zip:
 	zip $(GETDP_ARCHIVE).zip $(GETDP_SOURCES)
