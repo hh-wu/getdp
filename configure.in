@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.27 2003-07-18 15:45:20 geuzaine Exp $
+dnl $Id: configure.in,v 1.28 2003-08-18 08:55:38 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 dnl
@@ -118,11 +118,13 @@ if test "x$enable_petsc" = "xyes"; then
   GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_SLES_LIB} -lm'
   SOLVER='-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
-  PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
   if test "x${PETSC_PREFIX}" != "x"; then
     PETSC_DIR="${PETSC_PREFIX}"	
   fi
-  PETSC_ARCH=`${PETSC_DIR}/bin/petscarch`
+  PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
+  if test "x${PETSC_ARCH}" = "x"; then
+    PETSC_ARCH=`${PETSC_DIR}/bin/petscarch`
+  fi
   if test "x${BOPT}" = "x"; then
      BOPT="g_complex"
   fi
@@ -300,6 +302,7 @@ echo "- F77 FLAGS : $F77_FLAGS"
 echo "- SOLVER    : $SOLVER"
 if test "x$enable_petsc" = "xyes"; then
 echo "- PETSC_DIR : $PETSC_DIR"
+echo "- PETSC_ARCH: $PETSC_ARCH"
 echo "- BOPT      : $BOPT"
 fi
 echo "********************************************************************"
