@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2002-04-12 17:09:15 geuzaine Exp $
+# $Id: Makefile,v 1.12 2002-11-01 19:28:28 geuzaine Exp $
 #
 # Makefile for "libDofData.a"
 #
@@ -19,8 +19,7 @@ CFLAGS = $(C_FLAGS) $(OS_FLAGS) $(SOLVER) $(INCLUDE)
 
 SRC = DofData.c \
       LinAlg_SPARSKIT.c \
-      LinAlg_PETSC.c \
-      LinAlg_ACM.c
+      LinAlg_PETSC.c
 
 OBJ  = $(SRC:.c=.o)
 
@@ -49,3 +48,14 @@ nodepend:
 	$(RM) Makefile.new
 
 # DO NOT DELETE THIS LINE
+DofData.o: DofData.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h DofData.h ../DataStr/List.h ../DataStr/Tree.h \
+  ../DataStr/avl.h LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
+  Data_DofData.h ../include/Version.h ../DataStr/Tools.h \
+  ../include/Magic.h ../Main/CurrentData.h ../Main/Data_Active.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h
+LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../include/Magic.h LinAlg.h ../Sparskit/Solver.h \
+  ../DataStr/List.h
+LinAlg_PETSC.o: LinAlg_PETSC.c
