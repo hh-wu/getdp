@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.6 2002-04-30 01:22:47 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.7 2002-05-01 00:27:39 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -33,14 +33,6 @@ void Scatterer::x(double u, double *x){
     x[1] = -sin(u); 
     x[2] = 0.; 
     break;
-    /*
-  case RECTANGLE :
-    if(u<TWO_PI/
-    x[0] = a*cos(u); 
-    x[1] = b*sin(u); 
-    x[2] = 0.; 
-    break;
-    */
   }
 }
 
@@ -84,23 +76,42 @@ void Scatterer::singularPoint(double t0, List_T *pts){
 
 
 //  Compute all critical points (i.e. for which gradient of the total
-//  phase of the integral equation vanishes) in the case of a
-//  circle. They are given in closed form by, for an integer n:
-//
-//  0 <= t-t0 = Pi - 2*t0 + 4*n*PI <= 2*PI
-//  0 <= t-t0 = (PI-2*t0)/3 + 4/3*PI*n
+//  phase of the integral equation vanishes).
 
 void newt (double x[], int n, int *check, void (*vecfunc) (int, double[], double[]));
 
+static Scatterer *TheScat;
+
+void phaseGradient(int n, double *in, double *out){
+  double theta0 = TheScat->targetPoint, theta = in[1];
+  double r0, dr0, r, dr, phip;
+
+  TheScat->polar(theta,&r,&dr);
+  TheScat->polar(theta0,&r0,&dr0);
+
+  phip = (r*dr - r0*dr*cos(theta-theta0) + r0*r*sin(theta-theta0)) /
+    sqrt(r0*r0 + r*r - 2*r0*r*cos(theta-theta0)) +
+    dr*cos(theta) - r*sin(theta) ;
+
+  out[1] = phip;
+}
+
 void Scatterer::criticalPoints(double t0, double k[3], List_T *pts){
-  int n;
+  int i, n, check;
   CPoint pt;
+  double theta[2];
 
   pt.degree = 2;
 
   switch(type){
 
   case CIRCLE :
+    // in the case of a circle, they are given in closed form by, for
+    // an integer n:
+    //
+    //  0 <= t-t0 = Pi - 2*t0 + 4*n*PI <= 2*PI
+    //  0 <= t-t0 = (PI-2*t0)/3 + 4/3*PI*n
+
     if(k[1] || k[2])
       Msg(ERROR, "Critical point computation not done in the general case");
 
@@ -119,10 +130,23 @@ void Scatterer::criticalPoints(double t0, double k[3], List_T *pts){
     break;
 
   default :
+    // store the critical points during the first gmres iteration
 
-    // je dois passer la phase, ou dphase/dtheta, a newt ?
-    //newt();
+    theta[1] = 0.;
+    targetPoint = t0;
 
+    TheScat = this;
+
+    for(i=0; i<100; i++){
+      newt(theta, 1, &check, phaseGradient);
+
+      extern double *fvec;
+
+      //printf("theta = %g check = %d val = %g\n", theta[1], check, fvec[1]);
+      printf("theta = %g check = %d\n", theta[1], check);
+
+      theta[1] += TWO_PI/100.;
+    }
     Msg(ERROR, "Unknown type of scatterer for critical point computation");
     break;
 
@@ -141,15 +165,11 @@ void Scatterer::shadowingPoints(double t, double shift, double k[3], List_T *pts
     if(k[1] || k[2])
       Msg(ERROR, "Shadowing point computation not done in the general case");
 
-    //if(fabs(t-PI/2.) < 2*shift){
-      pt.val = PI/2. + shift ;
-      List_Insert(pts, &pt, fcmp_CPoint);
-      //}
+    pt.val = PI/2. + shift ;
+    List_Insert(pts, &pt, fcmp_CPoint);
 
-      //if(fabs(t-3*PI/2.) < 2*shift){
-      pt.val = 3*PI/2. - shift ;
-      List_Insert(pts, &pt, fcmp_CPoint);
-      //}
+    pt.val = 3*PI/2. - shift ;
+    List_Insert(pts, &pt, fcmp_CPoint);
     break;
 
   default :
