@@ -1,16 +1,16 @@
-#define RCSID "$Id: Legendre.c,v 1.1 2001-08-08 14:42:30 sabarieg Exp $"
+#define RCSID "$Id: Legendre.c,v 1.2 2001-11-19 17:41:04 sabarieg Exp $"
 
 #include <stdio.h>
 #include <math.h>
 
 #include "GetDP.h"
-
+#include "Data_Numeric.h"
 
 double Legendre(int l, int m, double x){
 
   /* Computes the associated Legendre polynomial P_l^m(x).
-     Here l and m are the integers satisfying 0<=m<=l, while x lies
-     in the range -1<=x<=1 */
+     Here the degree l and the order m are the integers
+     satisfying 0<=m<=l, while x lies in the range -1<=x<=1 */
      
   double fact,pll,pmm,pmmp1,somx2;
   int i, ll;
@@ -48,6 +48,73 @@ double Legendre(int l, int m, double x){
 }
 
 
+
+void LegendreRecursive(int l, int m, double x, double P[]){
+  /* Computes recursively a (l+1)-terms sequence of the associated Legendre polynomial P_l^m(x).
+     l and m are the integers satisfying 0<=m<=l
+     x lies in the range -1<=x<=1
+     l = maximum order considered, m = invariable */
+
+  int il ;
+  double Pl_m, Plm1_m ;
+
+
+  GetDP_Begin("LegendreRecursive");
+
+  P[0] = Plm1_m = Legendre(0, m, x) ;
+  P[1] = Pl_m = Legendre(1, m, x) ;
+ 
+  if (l >=2) 
+    for(il = 1 ; il < l ; il ++){    
+      P[il+1] = (2*il+1)*x*Pl_m/(il-m+1) + (il+m)*Plm1_m/(m-il-1) ; 
+      Plm1_m = Pl_m ;
+      Pl_m =  P[il+1];
+    }
+  else GetDP_End ;
+
+  GetDP_End ;
+}
+
+
+
+double dLegendre (int l, int m, double x){
+  /* Computes the derivative of the associated Legendre polynomial P_l^m(x) */
+
+  double dpl;
+
+  GetDP_Begin("dLegendre");
+  
+  if (m < 0 || m > l || fabs(x) > 1.)
+    Msg(ERROR, "Bad arguments for dLegendre: 0<=m<=l (integers), -1<=x<=1 ");
+  
+  if (fabs(x)==1.) dpl = 0.;
+  else    
+    dpl = ((l+m)*(l-m+1)*sqrt(x*x-1)* Legendre (l,m-1,x) - m*x* Legendre (l,m,x))/(x*x-1);
+  
+  GetDP_Return(dpl);
+
+}
+
+
+double dLegendreFinDif (int l, int m, double x){
+  /* Computes the derivative of the associated Legendre polynomial P_l^m(x)
+   using Finite Differences: f'(x) = (f(x+\delta x)-f(x-\delta x))/(2 \delta) */
+
+  double dpl, delta = 1e-6;
+
+  GetDP_Begin("dLegendreFinDif");
+  
+  if (m < 0 || m > l || fabs(x) > 1.)
+    Msg(ERROR, "Bad arguments for dLegendre: 0<=m<=l (integers), -1<=x<=1 ");
+  
+  dpl =  (Legendre (l, m, x+delta) - Legendre (l, m, x-delta))/(2*delta);
+  
+  GetDP_Return(dpl);
+
+}
+
+
+
 void PrintLegendre(int l, int m, double x, char * FileName){
 
   double P ;
@@ -72,44 +139,46 @@ void PrintLegendre(int l, int m, double x, char * FileName){
 
 
 
-double dLegendre (int l, int m, double x){
-  /* Computes the derivative of the associated Legendre polynomial P_l^m(x) */
+double Factorial( double n ){
+  /* FACTORIAL(n) is the product of all the integers from 1 to n */  
+  double F ;
 
-  double dpl;
+  GetDP_Begin("Factorial");
 
-  GetDP_Begin("dLegendre");
-  
-  if (m < 0 || m > l || fabs(x) > 1.)
-    Msg(ERROR, "Bad arguments for dLegendre: 0<=m<=l (integers), -1<=x<=1 ");
-  
-  if (fabs(x)==1.) dpl = 0.;
-  else    
-    dpl = ((l+m)*(l-m+1)*sqrt(x*x-1)* Legendre (l,m-1,x) - m*x* Legendre (l,m,x))/(x*x-1);
-  
-  GetDP_Return(dpl);
+  if ( n < 0 ) Msg(ERROR, "Factorial(n): n must be a positive integer") ;
+  if ( n == 0 ) GetDP_Return(1.) ;
+  if ( n <= 2 ) GetDP_Return(n) ;
 
+  if ( n > 170 ) Msg(ERROR, "Floating point exception: Factorial( n > 170 )") ;
+
+  F = n ;
+  while ( n > 2 ){ n-- ; F *= n ; }
+  
+  GetDP_Return(F);
 }
 
 
-
-double dLegendreFinDif (int l, int m, double x){
-  /* Computes the derivative of the associated Legendre polynomial P_l^m(x)
-   using Finite Differences: f'(x) = (f(x+\delta x)-f(x-\delta x))/(2 \delta) */
-
-  double dpl, delta = 1e-6;
-
-  GetDP_Begin("dLegendreFinDif");
+void SphericalHarmonics(int l, int m, double Theta, double Phi, double Yl_m[]){
   
-  if (m < 0 || m > l || fabs(x) > 1.)
-    Msg(ERROR, "Bad arguments for dLegendre: 0<=m<=l (integers), -1<=x<=1 ");
-  
-  dpl =  (Legendre (l, m, x+delta) - Legendre (l, m, x-delta))/(2*delta);
-  
-  GetDP_Return(dpl);
+  int am ;
+  double cn, Pl_m, F, cRe ;
 
+  GetDP_Begin("SphericalHarmonics");
+  
+  cn = sqrt((2*l+1)*ONE_OVER_FOUR_PI) ;
+  am = THESIGN(m)*m ; 
+
+  F= sqrt(Factorial((double)(l-am))/ Factorial((double)(l+am))) ;
+  Pl_m = Legendre(l, am, cos(Theta));
+
+  cRe = cn * F * Pl_m ;
+
+  Yl_m[0] = cRe*cos(m*Phi) ;
+  Yl_m[1] = cRe*sin(m*Phi) ;
+
+
+  GetDP_End;
 }
-
-
 
 
 
