@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.32 2002-01-18 11:10:27 gyselinc Exp $ */
+/* $Id: GetDP.y,v 1.33 2002-01-19 00:57:45 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -1337,8 +1337,7 @@ WholeQuantity_Single :
 	    }
 	    else if (WholeQuantity_S.Case.Function.NbrArguments == -1  ||
 		     (WholeQuantity_S.Case.Function.NbrArguments == -2 )) { 
-		      // &&
-		      //   ($2)%2 == 0)) {
+	      /* && ($2)%2 == 0)) { */
 	      WholeQuantity_S.Type = WQ_BUILTINFUNCTION ;
 	      WholeQuantity_S.Case.Function.NbrArguments = $2 ;
 	    }
@@ -6148,7 +6147,7 @@ MultiFExpr :
 	vyyerror("Unknown Constant: %s", $1) ;
       else
 	if (Constant_S.Type != VAR_LISTOFFLOAT)
-	  //	  vyyerror("Multi value Constant needed: %s", $1) ;
+	  /* vyyerror("Multi value Constant needed: %s", $1) ; */
 	  List_Add($$, &Constant_S.Value.Float) ;
 	else
 	  for(i=0 ; i<List_Nbr(Constant_S.Value.ListOfFloat) ; i++) {
