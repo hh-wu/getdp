@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.26 2002-12-03 02:03:32 geuzaine Exp $
+# $Id: Makefile,v 1.27 2002-12-05 04:47:29 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -59,15 +59,6 @@ $(LIB): $(OBJ)
 exe:
 	$(CXX) $(C_FLAGS) -o hf ../lib/libScattering.a ../lib/libDofData.a\
                ../lib/libSparskit.a ../lib/libNumeric.a ../lib/libDataStr.a $(F2C)
-
-3d:
-	$(CXX) $(C_FLAGS) $(INCLUDE) -o hf3d \
-           -I$(FASSTER_PREFIX)/lib \
-           -I$(MATHTOOLKIT_PREFIX)/lib \
-           Main3D.cpp Utils.cpp \
-           $(FASSTER_PREFIX)/lib/libfasster.a \
-           $(MATHTOOLKIT_PREFIX)/lib/libmathtoolkit.a \
-           -lgsl -lgslcblas -lm
 
 clean:
 	$(RM) $(RMFLAGS) *.o
