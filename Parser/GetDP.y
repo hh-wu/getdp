@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.28 2001-08-04 03:33:36 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.29 2001-09-05 10:23:29 dular Exp $ */
 
 /*
   Modifs a faire
@@ -791,7 +791,7 @@ IRegion :
     { Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; List_Add($$ = ListOfInt_L, &($1)) ; }
 
-  | tINT tDOTS tINT
+  | tINT tDOTS FExpr
     { 
       Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; 
@@ -804,12 +804,12 @@ IRegion :
     { 
       Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; 
-      if(!$5 || ($1<$3 && $5<0) || ($1>$3 && $5>0)){
+      if(!(int)$5 || ($1<$3 && (int)$5<0) || ($1>$3 && (int)$5>0)){
 	vyyerror("Wrong increment in '%d : %d : %d'", $1, $3, (int)$5) ;
 	List_Add(ListOfInt_L, &($1)) ;
       }
       else
-	for(j=$1 ; ($5>0)?(j<=$3):(j>=$3) ; j+=(int)$5) 
+	for(j=$1 ; ((int)$5>0)?(j<=$3):(j>=$3) ; j+=(int)$5) 
 	  List_Add(ListOfInt_L, &j) ;
       $$ = ListOfInt_L ;
     }
