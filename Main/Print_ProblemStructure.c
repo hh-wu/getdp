@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.17 2001-03-16 10:56:46 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.18 2001-03-16 13:07:13 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -1153,10 +1153,11 @@ void  Print_ProblemStructure(struct Problem  * Problem) {
 
   while (1) {
     Msg(INFO, "Checking") ;
-    Msg(CHECK, "(0) Exit            (1) Group           (2) Function      \n") ; 
-    Msg(CHECK, "(3) Constraint      (4) Jacobian        (5) Integration\n") ;
-    Msg(CHECK, "(6) FunctionSpace   (7) Formulation     (8) Resolution\n") ;
-    Msg(CHECK, "(9) PostProcessing (10) PostOperation   \n") ;
+    Msg(CHECK, "(1) Group                (2) Function\n") ; 
+    Msg(CHECK, "(3) Constraint           (4) Jacobian\n") ;
+    Msg(CHECK, "(5) Integration          (6) FunctionSpace\n") ;
+    Msg(CHECK, "(7) Formulation          (8) Resolution\n") ;
+    Msg(CHECK, "(9) PostProcessing      (10) PostOperation\n") ;
     Msg(CHECK, "Choice: ") ;
     ichoice = 0 ;
     scanf("%d", &ichoice) ;

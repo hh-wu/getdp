@@ -1,4 +1,4 @@
-/* $Id: Message.h,v 1.7 2000-11-08 09:08:03 geuzaine Exp $ */
+/* $Id: Message.h,v 1.8 2001-03-16 13:07:13 geuzaine Exp $ */
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
@@ -24,6 +24,7 @@
 #define SUMMARY      16     /*   >= 1              */
 #define CHECK        17     /*   >= 0 (always)     */
 
+#define WHITE_INDENT  12
 #define WHITE_STR     "            "
 #define ERROR_STR     "Error     : "
 #define WARNING_STR   "Warning   : "
