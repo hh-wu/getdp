@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.8 2001-07-17 07:04:19 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.9 2001-07-29 09:37:15 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -268,7 +268,7 @@ NoNewLine                    return tNoNewLine ;
 Flag                         return tFlag ;
 
 Help                         return tHelp ;
-help                         return tHelp ;
+Check                        return tCheck ;
 Cpu                          return tCpu ;
 
 EquationTerm                 return tEquation ;

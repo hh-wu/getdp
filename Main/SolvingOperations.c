@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.34 2001-07-28 13:54:00 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.35 2001-07-29 09:37:15 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -1034,6 +1034,10 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     if(!i) Msg(WARNING, "Generated system is of dimension zero");
   }
 
+  if(Flag_Jac){ /* This should in fact only be done if a JacNL term
+                   exists in the formulation... */
+    LinAlg_AssembleMatrix(&DofData_P->Jac) ;
+  }
 
   Free_UnusedSolutions(DofData_P);
   

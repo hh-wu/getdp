@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.28 2001-07-27 17:19:55 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.29 2001-07-29 09:37:15 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -278,14 +278,14 @@ struct StringXDefine  PostSubOperation_FormatTag[] = {
   {NULL       , 0}
 } ;
 
-struct StringXDefine  Adaption_Type[] = {
+struct StringXDefine  PostSubOperation_AdaptationType[] = {
   {"P1"     , P1},
   {"H1"     , H1},
   {"H2"     , H2},
   {NULL     , P1}
 } ;
 
-struct StringXDefine  Sort_Type[] = {
+struct StringXDefine  PostSubOperation_SortType[] = {
   {"Position"     , SORT_BY_POSITION },
   {"Connection"   , SORT_BY_CONNECTIVITY },
   {NULL           , 0 }

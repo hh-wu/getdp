@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.25 2001-07-27 17:19:55 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.26 2001-07-29 09:37:15 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -33,6 +33,7 @@
 #include "Malloc.h"
 #include "Tools.h"
 #include "Init_Problem.h"
+#include "Print_ProblemStructure.h"
 #include "BF_Function.h"
 #include "Quadrature.h"
 #include "Cal_Value.h"
@@ -262,7 +263,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token      tOriginSystem  tDestinationSystem 
 %token    tOperation  tOperationEnd
 %token      tSetTime tDTime tSetFrequency tFourierTransform tIf tElse
-%token      tLanczos tUpdate tUpdateConstraint
+%token      tLanczos tUpdate tUpdateConstraint tBreak 
 %token      tTimeLoopTheta
 %token        tTime0  tTimeMax  tDTime  tTheta
 %token      tTimeLoopNewmark
@@ -288,7 +289,7 @@ struct PostSubOperation         PostSubOperation_S ;
 
 %token  tFlag
 
-%token  tBreak tHelp tCpu
+%token  tHelp tCpu tCheck
 
 /* ------------------------------------------------------------------ */
 /* Operators (with ascending priority): cf. C language                */
@@ -430,17 +431,44 @@ ProblemDefinition :
 Interactive :
     tHelp tEND
     { Help(NULL); }
-
+  | tHelp tPrint tEND
+    { Help("Print"); }
+  | tHelp tCheck tEND
+    { Help("Check"); }
+  | tHelp tLog tEND
+    { Help("Log"); }
+  | tHelp tCpu tEND
+    { Help("Log"); }
+  | tHelp tHelp tEND
+    { Help("Help"); }
   | tHelp tSTRING tEND
     { Help($2); }
-
-  | tHelp tSTRING tSTRING tEND
-    { Free($2); Help($3); }
-
-  | tHelp tSTRING tSTRING tSTRING tEND
-    { Free($2); Free($3); Help($4); }
-
   | tCpu tEND
+    { Msg(RESOURCES, ""); }
+  | tCheck tEND
+    { Print_ProblemStructure(&Problem_S); }
+  | tCheck tGroup tEND
+    { Print_Group(&Problem_S); }
+  | tCheck tFunction tEND
+    { Print_Expression(&Problem_S); }
+  | tCheck tConstraint tEND
+    { Print_Constraint(&Problem_S); }
+  | tCheck tJacobian tEND
+    { Print_Jacobian(&Problem_S); }
+  | tCheck tIntegration tEND
+    { Print_Integration(&Problem_S); }
+  | tCheck tFunctionSpace tEND
+    { Print_FunctionSpace(&Problem_S); }
+  | tCheck tFormulation tEND
+    { Print_Formulation(&Problem_S); }
+  | tCheck tResolution tEND
+    { Print_Resolution(&Problem_S); }
+  | tCheck tPostProcessing tEND
+    { Print_PostProcessing(&Problem_S); }
+  | tCheck tPostOperation tEND
+    { Print_PostOperation(&Problem_S); }
+  | tCheck tINT tEND
+    { Print_Object($2, &Problem_S); }
 
   | {
       PostOperation_S.Name = NULL ;  
@@ -5556,19 +5584,19 @@ PrintOption :
   | ',' tAdapt tSTRING
     { 
       PostSubOperation_S.Adapt = 
-	Get_DefineForString(Adaption_Type, $3, &FlagError) ;
+	Get_DefineForString(PostSubOperation_AdaptationType, $3, &FlagError) ;
       if(FlagError){
 	vyyerror("Unknown Adaptation method: %s", $3);
-	Get_Valid_SXD(Adaption_Type);
+	Get_Valid_SXD(PostSubOperation_AdaptationType);
       }
     }
   | ',' tSort tSTRING
     { 
       PostSubOperation_S.Sort = 
-	Get_DefineForString(Sort_Type, $3, &FlagError) ;
+	Get_DefineForString(PostSubOperation_SortType, $3, &FlagError) ;
       if(FlagError){
 	vyyerror("Unknown Sort method: %s", $3);
-	Get_Valid_SXD(Sort_Type);
+	Get_Valid_SXD(PostSubOperation_SortType);
       }
     }
   | ',' tTarget FExpr
@@ -6171,6 +6199,36 @@ void  Check_NameOfStructNotExist(char * Struct, List_T * List_L, void * data,
   if (List_ISearchSeq(List_L, data, fcmp) >= 0)
     vyyerror("Redefinition of %s %s", Struct, (char*)data) ;
 }
+
+
+/* P r i n t _ C o n s t a n t  */
+
+void  Print_Constant(){
+  int i,j;
+  char tmp1[1000], tmp2[100];
+  struct Constant *Constant_P;
+
+  for(i=0 ; i<List_Nbr(ConstantTable_L) ; i++){
+    Constant_P = (struct Constant*)List_Pointer(ConstantTable_L, i);
+    switch(Constant_P->Type){
+    case VAR_FLOAT:
+      Msg(CHECK, "%s = %g;\n", Constant_P->Name, Constant_P->Value.Float);
+      break;
+    case VAR_LISTOFFLOAT:
+      sprintf(tmp1, "%g", *(double*)List_Pointer(Constant_P->Value.ListOfFloat,0));
+      for(j=1 ; j<List_Nbr(Constant_P->Value.ListOfFloat) ; j++){
+	sprintf(tmp2, ",%g", *(double*)List_Pointer(Constant_P->Value.ListOfFloat,j));
+	strcat(tmp1,tmp2);
+      }
+      Msg(CHECK, "%s = {%s};\n", Constant_P->Name, tmp1);
+      break;
+    case VAR_CHAR:
+      Msg(CHECK, "%s = \"%s\";\n", Constant_P->Name, Constant_P->Value.Char);
+      break;
+    }
+  }
+}
+
 
 /* f c m p _ . . .  */
 

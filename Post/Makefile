@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.16 2001-07-26 10:23:34 geuzaine Exp $
+# $Id: Makefile,v 1.17 2001-07-29 09:37:16 geuzaine Exp $
 #
 # Makefile for 'libPost.a'
 # 
@@ -70,7 +70,7 @@ Pos_Interactive.o: Pos_Interactive.c ../include/GetDP.h \
  ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
  ../DataStr/Tree.h ../DataStr/avl.h Pos_Formulation.h \
- Pos_Interactive.h ../Main/CurrentData.h ../DofData/DofData.h \
+ ../Main/CurrentData.h ../DofData/DofData.h \
  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
  ../DofData/Data_DofData.h ../include/Magic.h
 Pos_ReadLine.o: Pos_ReadLine.c

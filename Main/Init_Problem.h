@@ -1,4 +1,4 @@
-/* $Id: Init_Problem.h,v 1.10 2001-05-23 10:23:23 geuzaine Exp $ */
+/* $Id: Init_Problem.h,v 1.11 2001-07-29 09:37:15 geuzaine Exp $ */
 #ifndef _INIT_PROBLEM_H_
 #define _INIT_PROBLEM_H_
 
@@ -15,11 +15,6 @@ void  Init_ProblemStructure (void) ;
 void  Init_GlobalVariables (void) ;
 
 void  Read_ProblemStructure (char * NameFilePro) ;
-
-void  Print_ProblemStructure(struct Problem  * Problem) ;
-void  Print_ListResolution(int choice, struct Problem  * Problem) ;
-void  Print_ListPostOperation(int choice, struct Problem  * Problem) ;
-void  Print_ListPostProcessing(int choice, struct Problem  * Problem) ;
 
 void  SolvingAnalyse(void) ;
 
@@ -86,6 +81,9 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 			      struct PostProcessing * PostProcessing_P,
 			      struct PostOperation  * PostOperation_P) ;
 
+void  Pos_Interactive(struct Formulation *Formulation_P,
+		      struct PostProcessing *PostProcessing_P);
+
 void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 				       struct Operation   * Operation_P, 
 				       struct DofData     * DofData_P0,
@@ -100,3 +98,5 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 				    struct GeoData     * GeoData_P0) ;
 
 #endif
+
+

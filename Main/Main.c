@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.39 2001-05-30 18:10:27 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.40 2001-07-29 09:37:15 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,6 +9,7 @@
 
 #include "GetDP.h"
 #include "Init_Problem.h"
+#include "Print_ProblemStructure.h"
 #include "LinAlg.h"
 #include "Magic.h"
 #include "Socket.h"
@@ -19,7 +20,6 @@ int          yycolnum=0, yyincludenum=0 ;
 char         yyname[MAX_FILE_NAME_LENGTH]="", yyincludename[MAX_FILE_NAME_LENGTH];
 int          yyparse(void) ;
 int          yyrestart(FILE*) ;
-void         Interactive(void);
 
 int   GetDP_CurrentStackIndex = 0 ;
 char *GetDP_CurrentFunction[GETDP_STACK_SIZE] ;
@@ -39,7 +39,7 @@ int     TreatmentStatus;
 int     ErrorLevel, InteractiveLevel=0; 
 int     InteractiveCompute, InteractiveInterrupt=0 ;
 int     Flag_PRE, Flag_PAR, Flag_CAL, Flag_POS, Flag_IPOS, Flag_XDATA;
-int     Flag_CHECK, Flag_LRES, Flag_LPOS, Flag_LIPOS; 
+int     Flag_CHECK, Flag_LRES, Flag_LPOS, Flag_LIPOS, Flag_I; 
 int     Flag_RESTART, Flag_LOG, Flag_VERBOSE, Flag_BIN, Flag_PROGRESS ;
 int     Flag_SPLIT, Flag_SOCKET ;
 double  Flag_ORDER ;
@@ -144,11 +144,12 @@ int  main(int argc, char *argv[]) {
   Problem_Expression0 = (Problem_S.Expression)?
     (struct Expression*)List_Pointer(Problem_S.Expression, 0) : NULL ;
 
-  if (!Flag_PRE && !Flag_PAR && !Flag_CAL && !Flag_POS && !Flag_CHECK){
+  if (!Flag_PRE && !Flag_PAR && !Flag_CAL && !Flag_POS && !Flag_CHECK && !Flag_I){
     Flag_LRES = Flag_LPOS = 1 ;
     choose = 0 ;
   }
 
+  if (Flag_I) Pos_Interactive(NULL, NULL) ;
   if (Flag_CHECK) Print_ProblemStructure(&Problem_S) ;
   if (Flag_LRES) Print_ListResolution(choose, &Problem_S) ;
   if (Flag_LPOS) Print_ListPostOperation(choose, &Problem_S) ;
@@ -199,7 +200,7 @@ void Init_GlobalVariables(void){
   Flag_CHECK = 0 ; Flag_XDATA = 0   ; Flag_RESTART = 0   ; Flag_BIN = 0  ; 
   Flag_LRES = 0  ; Flag_LPOS = 0    ; Flag_LIPOS = 0     ; Flag_PAR = 0; 
   Flag_LOG = 0   ; Flag_VERBOSE = 4 ; Flag_PROGRESS = 10 ; Flag_SPLIT = 0 ;
-  Flag_ORDER = -1. ; Flag_SOCKET = -1 ;
+  Flag_ORDER = -1. ; Flag_SOCKET = -1 ; Flag_I = 0 ;
 
   Name_Resolution = Name_PostProcessing[0] = Name_PostOperation[0] = NULL ;
   Name_MshFile = Name_ResFile[0] = Name_AdaptFile = NULL ;
@@ -253,6 +254,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       
       if      (!strcmp(argv[i]+1, "cal"))    { Flag_CAL     = 1 ; i++ ; } 
       else if (!strcmp(argv[i]+1, "check"))  { Flag_CHECK   = 1 ; i++ ; } 
+      else if (!strcmp(argv[i]+1, "i"))      { Flag_I       = 1 ; i++ ; } 
       else if (!strcmp(argv[i]+1, "xdata"))  { Flag_XDATA   = 1 ; i++ ; } 
       else if (!strcmp(argv[i]+1, "quiet"))  { Flag_VERBOSE = 1 ; i++ ; } 
       else if (!strcmp(argv[i]+1, "silent")) { Flag_VERBOSE = 0 ; i++ ; } 
@@ -274,10 +276,6 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Msg(ERROR, "Missing socket name");
 	}
       }
-
-      else if (!strcmp(argv[i]+1, "i")) { 
-	Interactive();
-      } 
 
       else if (!strcmp(argv[i]+1, "restart")){ 
 	Flag_PRE = Flag_PAR = 0 ; Flag_CAL = Flag_RESTART = 1 ; i++ ;

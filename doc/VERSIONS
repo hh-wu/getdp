@@ -1,7 +1,8 @@
-$Id: VERSIONS,v 1.25 2001-07-28 13:54:26 geuzaine Exp $
+$Id: VERSIONS,v 1.26 2001-07-29 09:37:16 geuzaine Exp $
 
 0.84: New ChangeOfCoordinate option in PostOperation; Fixed crash in
-InterpolationAkima; Many other small fixes and clean-ups;
+InterpolationAkima; Improved interactive postprocessing (-ipos); Many
+other small fixes and clean-ups;
 
 0.83: Fixed bugs in SaveSolutions[] and InitSolution[]; Fixed
 corrupted binary post-processing files in the harmonic case for the

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_ReadLine.c,v 1.5 2000-11-21 16:05:54 geuzaine Exp $"
+#define RCSID "$Id: Pos_ReadLine.c,v 1.6 2001-07-29 09:37:16 geuzaine Exp $"
 /* GNUPLOT - readline.c */
 
 /* This is a modified version (see the 'getdp' tags) */
@@ -625,6 +625,22 @@ add_history(char *line){
 		history->next = entry;
 	}
 	history = entry;
+}
+
+/* getdp: save history to file */
+void save_history(int num, FILE *file){
+  struct hist *entry=history;
+  int i=0;
+  /* rewind */
+  while(entry && entry->prev && i < num){
+    entry = entry->prev;
+    i++;
+  }
+  /* print */
+  while(entry){
+    fprintf(file, "%s\n", entry->line);
+    entry = entry->next;
+  }
 }
 
 

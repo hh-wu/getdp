@@ -1,11 +1,12 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.23 2001-07-25 13:08:15 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.24 2001-07-29 09:37:15 geuzaine Exp $"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "GetDP.h"
-#include "Init_Problem.h"
 #include "Data_Active.h"
 #include "Data_DefineE.h"
+#include "Print_ProblemStructure.h"
 #include "Treatment_Formulation.h"
 #include "CurrentData.h"
 #include "Socket.h"
@@ -403,15 +404,15 @@ void  Print_Constraint(struct Problem  * Problem) {
 
 
 /* ------------------------------------------------------- */
-/*  -->  P r i n t _ J a c o b i a n M e t h o d           */
+/*  -->  P r i n t _ J a c o b i a n                       */
 /* ------------------------------------------------------- */
 
-void  Print_JacobianMethod(struct Problem  * Problem) {
+void  Print_Jacobian(struct Problem  * Problem) {
   int    i, Nbr, j, Nbrj, k ;
   struct JacobianMethod *JM ; 
   struct JacobianCase *JC ;
 
-  GetDP_Begin("Print_JacobianMethod");
+  GetDP_Begin("Print_Jacobian");
 
   Nbr = List_Nbr(Problem->JacobianMethod) ;
 
@@ -455,16 +456,16 @@ void  Print_JacobianMethod(struct Problem  * Problem) {
 
 
 /* ------------------------------------------------------- */
-/*  -->  P r i n t _ I n t e g r a t i o n M e t h o d     */
+/*  -->  P r i n t _ I n t e g r a t i o n                 */
 /* ------------------------------------------------------- */
 
-void  Print_IntegrationMethod (struct Problem  * Problem) {
+void  Print_Integration (struct Problem  * Problem) {
   int    i, j, k, Nbrm, Nbrc, Nbrq ;
   struct IntegrationMethod *IM ;  
   struct IntegrationCase *IC ;
   struct Quadrature *Q ;
 
-  GetDP_Begin("Print_IntegrationMethod");
+  GetDP_Begin("Print_Integration");
 
   Nbrm = List_Nbr(Problem->IntegrationMethod) ;
 
@@ -1132,11 +1133,175 @@ void  Print_PostProcessing(struct Problem  * Problem) {
 /*  -->  P r i n t _ P o s t O p e r a t i o n             */
 /* ------------------------------------------------------- */
 
+/* This routine prints into a string buffer: check Pos_Interactive.c
+   to understand why */
+
+char * Print_PostSubOperation(struct Problem *Problem,
+			      struct PostProcessing *PP,
+			      struct PostSubOperation *PSO){
+  int  i;
+  char tmp[256], *out;
+
+  out = (char*)Malloc(1000*sizeof(char));
+
+  switch (PSO->Type) {
+
+  case POP_PRINT :
+
+    sprintf(out, "Print[%s",
+	    ((struct PostQuantity *)
+	     List_Pointer(PP->PostQuantity, PSO->PostQuantityIndex[0]))->Name) ;
+    
+    if(PSO->PostQuantitySupport[0] >= 0){
+      sprintf(tmp, "[%s]",
+	      ((struct Group *)
+	       List_Pointer(Problem->Group, PSO->PostQuantitySupport[0]))->Name) ;
+      strcat(out,tmp);
+    }
+    
+    if(PSO->PostQuantityIndex[1] >= 0) {
+      sprintf(tmp, " %s %s",
+	      Get_StringForDefine(PostSubOperation_CombinationType, PSO->CombinationType),
+	      ((struct PostQuantity *)
+	       List_Pointer(PP->PostQuantity, PSO->PostQuantityIndex[1]))->Name) ;
+      strcat(out,tmp);
+      if(PSO->PostQuantitySupport[1] >= 0){
+	sprintf(tmp, "[%s]",
+		((struct Group *)
+		 List_Pointer(Problem->Group, PSO->PostQuantitySupport[1]))->Name) ;
+	strcat(out,tmp);
+      }
+    }
+    
+    switch (PSO->SubType) {
+    case PRINT_ONREGION :
+      if (PSO->Case.OnRegion.RegionIndex >=0)
+	sprintf(tmp, ", OnRegion %s",
+		((struct Group *)
+		 List_Pointer(Problem->Group,
+			      PSO->Case.OnRegion.RegionIndex))->Name ) ;
+      else
+	sprintf(tmp, ", OnGlobal") ;
+      break ;
+    case PRINT_ONELEMENTSOF :
+      sprintf(tmp, ", OnElementsOf %s",
+	      ((struct Group *)
+	       List_Pointer(Problem->Group,
+			    PSO->Case.OnRegion.RegionIndex))->Name ) ;
+      break ;
+    case PRINT_ONGRID_0D :
+      sprintf(tmp, ", OnPoint {%.10g,%.10g,%.10g}",
+	      PSO->Case.OnGrid.x[0], PSO->Case.OnGrid.y[0],
+	      PSO->Case.OnGrid.z[0]) ;
+      break ;
+    case PRINT_ONGRID_1D :
+      sprintf(tmp, ", OnLine {{%.10g,%.10g,%.10g}{%.10g,%.10g,%.10g}} {%d}",
+	      PSO->Case.OnGrid.x[0], PSO->Case.OnGrid.y[0],
+	      PSO->Case.OnGrid.z[0],
+	      PSO->Case.OnGrid.x[1], PSO->Case.OnGrid.y[1],
+	      PSO->Case.OnGrid.z[1], PSO->Case.OnGrid.n[0]) ;
+      break ;
+    case PRINT_ONGRID_2D :
+      sprintf(tmp, ", OnPlane {{%.10g,%.10g,%.10g}{%.10g,%.10g,%.10g}"
+	      "{%.10g,%.10g,%.10g}} {%d,%d}",
+	      PSO->Case.OnGrid.x[0], PSO->Case.OnGrid.y[0],
+	      PSO->Case.OnGrid.z[0],
+	      PSO->Case.OnGrid.x[1], PSO->Case.OnGrid.y[1],
+	      PSO->Case.OnGrid.z[1],
+	      PSO->Case.OnGrid.x[2], PSO->Case.OnGrid.y[2],
+	      PSO->Case.OnGrid.z[2],
+	      PSO->Case.OnGrid.n[0], PSO->Case.OnGrid.n[1]) ;
+      break ;
+    }
+    strcat(out,tmp);
+    break;
+
+
+  case POP_GROUP :
+    break;
+   
+  }
+
+  if(PSO->Depth != 1){
+    sprintf(tmp, ", Depth %d", PSO->Depth) ;
+    strcat(out,tmp);
+  }
+
+  if(PSO->Skin) strcat(out,", Skin");
+
+  if(PSO->NoNewLine) strcat(out,", NoNewLine");
+
+  if(PSO->Smoothing){
+    sprintf(tmp, ", Smoothing %d", PSO->Smoothing) ;
+    strcat(out,tmp);
+  }
+
+  if(PSO->Dimension != _ALL){
+    sprintf(tmp, ", Dimension %d", PSO->Dimension) ;
+    strcat(out,tmp);
+  }
+  
+  if(PSO->HarmonicToTime > 1){
+    sprintf(tmp, ", HarmonicToTime %d", PSO->HarmonicToTime) ;
+    strcat(out,tmp);
+  }
+  
+  if(PSO->Sort){
+    sprintf(tmp, ", Sort %s",
+	    Get_StringForDefine(PostSubOperation_SortType, PSO->Adapt));
+    strcat(out,tmp);
+  }
+
+  if(PSO->Adapt){
+    sprintf(tmp, ", Adapt %s",
+	    Get_StringForDefine(PostSubOperation_AdaptationType, PSO->Adapt));
+    strcat(out,tmp);
+  }
+
+  if(PSO->Target >= 0){
+    sprintf(tmp, ", Target %g", PSO->Target) ;
+    strcat(out,tmp);
+  }
+
+  if(PSO->Iso){
+    if(PSO->Iso < 0){
+      strcat(out, ", Iso {") ;
+      for(i=0 ; i<List_Nbr(PSO->Iso_L) ; i++){
+	if(i!=List_Nbr(PSO->Iso_L)-1) sprintf(tmp, "%g,", *(double*)List_Pointer(PSO->Iso_L,i)) ;
+	else sprintf(tmp, "%g}", *(double*)List_Pointer(PSO->Iso_L,i)) ;
+	strcat(out,tmp);
+      }
+    }
+    else{
+      sprintf(tmp, ", Iso %d", PSO->Iso) ;
+      strcat(out,tmp);
+    }
+  }
+
+  /* todo: time steps, frequencies, values, changeofcoord, ... */
+
+  sprintf(tmp, ", Format %s",
+	  Get_StringForDefine(PostSubOperation_Format, PSO->Format));
+  strcat(out,tmp);
+
+  if(PSO->FileOut){
+    sprintf(tmp, ", File %s\"%s\"", 
+	    (PSO->CatFile==2)?">> ":(PSO->CatFile==1)?"> ":"", PSO->FileOut) ;
+    strcat(out,tmp);
+  }
+
+  sprintf(tmp, " ]") ;
+  strcat(out,tmp);
+
+  return out;
+}
+
 void  Print_PostOperation(struct Problem  * Problem) {
   struct PostProcessing  * PP ;  
   struct PostOperation     *PO ;
   struct PostSubOperation  *PSO ;
   int   i, Nbr, k, Nbrk ;
+  char *str;
 
   GetDP_Begin("Print_PostOperation");
 
@@ -1156,76 +1321,8 @@ void  Print_PostOperation(struct Problem  * Problem) {
     Nbrk = List_Nbr(PO->PostSubOperation) ;
     for (k = 0 ; k < Nbrk ; k++) {
       PSO = (struct PostSubOperation*)List_Pointer(PO->PostSubOperation, k) ;
-
-      switch (PSO->Type) {
-      case POP_PRINT :
-	Msg(CHECK, "      Print[") ;
-	Msg(CHECK, " %s",
-	    ((struct PostQuantity *)
-	     List_Pointer(PP->PostQuantity,
-			  PSO->PostQuantityIndex[0]))->Name) ;
-	if(PSO->PostQuantitySupport[0] >= 0)
-	  Msg(CHECK, "[%s]",
-	      ((struct Group *)
-	       List_Pointer(Problem->Group, PSO->PostQuantitySupport[0]))->Name) ;
-	if(PSO->PostQuantityIndex[1] >= 0) {
-	  Msg(CHECK, " %s %s",
-	      Get_StringForDefine(PostSubOperation_CombinationType, 
-				  PSO->CombinationType),
-	      ((struct PostQuantity *)
-	       List_Pointer(PP->PostQuantity,
-			    PSO->PostQuantityIndex[1]))->Name) ;
-	  if(PSO->PostQuantitySupport[1] >= 0)
-	    Msg(CHECK, "[%s]",
-		((struct Group *)
-		 List_Pointer(Problem->Group, PSO->PostQuantitySupport[1]))->Name) ;
-	}
-	
-	switch (PSO->SubType) {
-	case PRINT_ONREGION :
-	  if (PSO->Case.OnRegion.RegionIndex >=0)
-	    Msg(CHECK, ", OnRegion %s",
-		((struct Group *)
-		 List_Pointer(Problem->Group,
-			      PSO->Case.OnRegion.RegionIndex))->Name ) ;
-	  else
-	    Msg(CHECK, ", OnGlobal") ;
-	  break ;
-	case PRINT_ONELEMENTSOF :
-	  Msg(CHECK, ", OnElementsOf %s",
-	      ((struct Group *)
-	       List_Pointer(Problem->Group,
-			    PSO->Case.OnRegion.RegionIndex))->Name ) ;
-	  break ;
-	case PRINT_ONGRID_0D :
-	  Msg(CHECK, ", OnGrid {%.10g,%.10g,%.10g}",
-	      PSO->Case.OnGrid.x[0], PSO->Case.OnGrid.y[0],
-	      PSO->Case.OnGrid.z[0]) ;
-	  break ;
-	case PRINT_ONGRID_1D :
-	  Msg(CHECK, ", OnGrid {{%.10g,%.10g,%.10g}{%.10g,%.10g,%.10g}} {%d}",
-	      PSO->Case.OnGrid.x[0], PSO->Case.OnGrid.y[0],
-	      PSO->Case.OnGrid.z[0],
-	      PSO->Case.OnGrid.x[1], PSO->Case.OnGrid.y[1],
-	      PSO->Case.OnGrid.z[1], PSO->Case.OnGrid.n[0]) ;
-	  break ;
-	case PRINT_ONGRID_2D :
-	  Msg(CHECK, ", OnGrid {{%.10g,%.10g,%.10g}{%.10g,%.10g,%.10g}"
-	      "{%.10g,%.10g,%.10g}} {%d,%d}",
-	      PSO->Case.OnGrid.x[0], PSO->Case.OnGrid.y[0],
-	      PSO->Case.OnGrid.z[0],
-	      PSO->Case.OnGrid.x[1], PSO->Case.OnGrid.y[1],
-	      PSO->Case.OnGrid.z[1],
-	      PSO->Case.OnGrid.x[2], PSO->Case.OnGrid.y[2],
-	      PSO->Case.OnGrid.z[2],
-	      PSO->Case.OnGrid.n[0], PSO->Case.OnGrid.n[1]) ;
-	  break ;
-	}
-	
-	if (PSO->FileOut)  Msg(CHECK, ", \"%s\"", PSO->FileOut) ;
-	Msg(CHECK, " ] ;\n") ;
-	break ;
-      }
+      Msg(CHECK, "      %s ;\n", str=Print_PostSubOperation(Problem, PP, PSO));
+      Free(str);
     }
     Msg(CHECK, "    }\n ");
     Msg(CHECK, " }\n") ;
@@ -1240,9 +1337,29 @@ void  Print_PostOperation(struct Problem  * Problem) {
 /*  P r i n t _ P r o b l e m S t r u c t u r e                             */
 /* ------------------------------------------------------------------------ */
 
+void  Print_Constant();
+
+int Print_Object(int ichoice, struct Problem * Problem){
+  switch (ichoice) {
+  case  0 : Print_Constant      () ;  break ;
+  case  1 : Print_Group         (Problem) ;  break ;
+  case  2 : Print_Expression    (Problem) ;  break ;
+  case  3 : Print_Constraint    (Problem) ;  break ;
+  case  4 : Print_Jacobian      (Problem) ;  break ;
+  case  5 : Print_Integration   (Problem) ;  break ;
+  case  6 : Print_FunctionSpace (Problem) ;  break ;
+  case  7 : Print_Formulation   (Problem) ;  break ;
+  case  8 : Print_Resolution    (Problem) ;  break ;
+  case  9 : Print_PostProcessing(Problem) ;  break ;
+  case 10 : Print_PostOperation (Problem) ;  break ;
+  default : return 1;
+  }
+  return 0;
+}
+
 void  Print_ProblemStructure(struct Problem  * Problem) {
-  int  ichoice ;
   char buff[128];
+  int  ichoice;
 
   GetDP_Begin("Print_ProblemStructure");
 
@@ -1256,19 +1373,9 @@ void  Print_ProblemStructure(struct Problem  * Problem) {
     Msg(CHECK, "Choice: ") ;
     fgets(buff, 128, stdin);
     ichoice = atoi(buff);
-
-    switch (ichoice) {
-    case  1 : Print_Group             (Problem) ;  break ;
-    case  2 : Print_Expression        (Problem) ;  break ;
-    case  3 : Print_Constraint        (Problem) ;  break ;
-    case  4 : Print_JacobianMethod    (Problem) ;  break ;
-    case  5 : Print_IntegrationMethod (Problem) ;  break ;
-    case  6 : Print_FunctionSpace     (Problem) ;  break ;
-    case  7 : Print_Formulation       (Problem) ;  break ;
-    case  8 : Print_Resolution        (Problem) ;  break ;
-    case  9 : Print_PostProcessing    (Problem) ;  break ;
-    case 10 : Print_PostOperation     (Problem) ;  break ;
-    default : Msg(CHECK, "E n d C h e c k i n g\n") ;  GetDP_End ;
+    if(Print_Object(ichoice?ichoice:-1, Problem)){
+      Msg(CHECK, "E n d C h e c k i n g\n") ;
+      GetDP_End ;
     }
   }
 
