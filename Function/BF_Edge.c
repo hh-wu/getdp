@@ -1,4 +1,4 @@
-/* $Id: BF_Edge.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+/* $Id: BF_Edge.c,v 1.3 2000-09-12 20:19:34 geuzaine Exp $ */
 #include <stdio.h>
 
 #include "BF_Function.h"
@@ -220,32 +220,5 @@ void  BF_CurlEdge(struct Element * Element, int NumEdge,
 }
 
 #undef WrongNumEdge
-
-/* ------------------------------------------------------------------------ */
-/*  B F _ P e r p e n d i c u l a r F a c e t                               */
-/* ------------------------------------------------------------------------ */
-
-void  BF_PerpendicularFacet(struct Element * Element, int NumEdge, 
-			    double u, double v, double w,  double s[] ) {
-  double ss ;
-
-  BF_Edge(Element, NumEdge, u, v, w, s) ;
-
-  ss = s[0] ;  s[0] = -s[1] ;  s[1] = ss ;
-}
-
-
-/* ------------------------------------------------------------------------ */
-/*  B F _ D i v P e r p e n d i c u l a r F a c e t                         */
-/* ------------------------------------------------------------------------ */
-
-void  BF_DivPerpendicularFacet(struct Element * Element, int NumEdge, 
-			       double u, double v, double w,  double s[] ) {
-
-  BF_CurlEdge(Element, NumEdge, u, v, w, s) ;
-  s[0] = -s[2] ; s[2] = 0. ;
-}
-
-
 
 #undef NoEdge

@@ -1,19 +1,19 @@
-/* $Id: HBF_Edge_2.c,v 1.3 2000-09-07 18:47:23 geuzaine Exp $ */
+/* $Id: BF_Edge_2.c,v 1.1 2000-09-12 20:21:06 geuzaine Exp $ */
 #include <stdio.h>
 
 #include "BF_Function.h"
 
 /* ------------------------------------------------------------------------ */
-/*  H B F _ E d g e _ 2                                                     */
+/*  B F _ E d g e _ 2                                                       */
 /* ------------------------------------------------------------------------ */
 
 /* ------- */
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Edge Number in 'HBF_Edge_2E'")
+#define WrongNumEntity   Msg(ERROR, "Wrong Edge Number in 'BF_Edge_2E'")
 
-void  HBF_Edge_2E (struct Element * Element, int NumEntity, 
+void  BF_Edge_2E (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double s[] ) {
 
   switch (Element->Type) {
@@ -35,7 +35,7 @@ void  HBF_Edge_2E (struct Element * Element, int NumEntity,
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : Msg(ERROR, "HBF_Edge_2E not ready for QUADRANGLE");
+    default : Msg(ERROR, "BF_Edge_2E not ready for QUADRANGLE");
     }
     break ;
 
@@ -53,18 +53,18 @@ void  HBF_Edge_2E (struct Element * Element, int NumEntity,
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : Msg(ERROR, "HBF_Edge_2E not ready for HEXAHEDRON");
+    default : Msg(ERROR, "BF_Edge_2E not ready for HEXAHEDRON");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg(ERROR, "HBF_Edge_2E not ready for PRISM");
+    default : Msg(ERROR, "BF_Edge_2E not ready for PRISM");
     }
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in HBF_Edge_2E");
+    Msg(ERROR, "Unkown Element Type in BF_Edge_2E");
     break ;
   }
 
@@ -72,58 +72,61 @@ void  HBF_Edge_2E (struct Element * Element, int NumEntity,
 
 #undef WrongNumEntity
 
+/* ------- */
+/*  Faces  */
+/* ------- */
+
+#define WrongNumEntity   Msg(ERROR, "Wrong Face Number in 'BF_Edge_2F'")
+
+void  BF_Edge_2F (struct Element * Element, int NumEntity, 
+		   double u, double v, double w,  double s[] ) {
+  Msg(ERROR, "Should never be here") ;
+}
+
+#undef WrongNumEntity
+
+/* -------- */
+/*  Volume  */
+/* -------- */
+
+void  BF_Edge_2V (struct Element * Element, int NumEntity, 
+		   double u, double v, double w,  double s[] ) {
+  Msg(ERROR, "Should never be here") ;
+}
 
 /* ------------------------------------------------------------------------ */
-/*  H B F _ C u r l E d g e _ 2                                             */
+/*  B F _ C u r l E d g e _ 2                                               */
 /* ------------------------------------------------------------------------ */
 
 /* ------- */
 /*  Edges  */
 /* ------- */
 
-void  HBF_CurlEdge_2E (struct Element * Element, int NumEntity, 
+void  BF_CurlEdge_2E (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
 
   s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; 
 
 }
 
-
-
-/* ------------------------------------------------------------------------ */
-/*  H B F _ P e r p e n d i c u l a r F a c e t _ 2                         */
-/* ------------------------------------------------------------------------ */
-
 /* ------- */
-/*  Edges  */
+/*  Faces  */
 /* ------- */
 
-void  HBF_PerpendicularFacet_2E (struct Element * Element, int NumEntity, 
-				 double u, double v, double w,  double s[] ) {
-  double ss ;
+void  BF_CurlEdge_2F (struct Element * Element, int NumEntity, 
+		       double u, double v, double w,  double s[] ) {
 
-  HBF_Edge_2E (Element, NumEntity, u, v, w, s) ;
-  ss = s[0] ;  s[0] = -s[1] ;  s[1] = ss ;
+  s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; 
 
 }
 
+/* -------- */
+/*  Volume  */
+/* -------- */
 
-/* ------------------------------------------------------------------------ */
-/*  H B F _ D i v P e r p e n d i c u l a r F a c e t _ 2                   */
-/* ------------------------------------------------------------------------ */
+void  BF_CurlEdge_2V (struct Element * Element, int NumEntity, 
+		       double u, double v, double w,  double s[] ) {
 
-/* ------- */
-/*  Edges  */
-/* ------- */
-
-void  HBF_DivPerpendicularFacet_2E (struct Element * Element, int NumEntity, 
-				    double u, double v, double w,  double s[] ) {
-
-  HBF_CurlEdge_2E (Element, NumEntity, u, v, w, s) ;
-  s[0] = -s[2] ; s[2] = 0. ;
+  s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; 
 
 }
-
-
-
-

@@ -1,4 +1,4 @@
-/* $Id: HBF_Edge_3.c,v 1.6 2000-09-07 18:47:23 geuzaine Exp $ */
+/* $Id: BF_Edge_3.c,v 1.1 2000-09-12 20:21:06 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -38,22 +38,35 @@ int Get_FacetFunctionIndex(struct Element * Element, int NumEntity, int NumIndex
 
 
 /* ------------------------------------------------------------------------ */
-/*  H B F _ E d g e _ 3                                                     */
+/*  B F _ E d g e _ 3                                                       */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Facet Number in 'HBF_Edge_3F'")
+/* ------- */
+/*  Edges  */
+/* ------- */
+
+#define WrongNumEntity   Msg(ERROR, "Wrong Edge Number in 'BF_Edge_3E'")
+
+void  BF_Edge_3E (struct Element * Element, int NumEntity,
+		   double u, double v, double w, double s[] ) {
+  Msg(ERROR, "Should never be here") ;
+}
+
+#undef WrongNumEntity
 
 /* -------- */
 /*  Facets  */
 /* -------- */
 
-void  HBF_Edge_3F (struct Element * Element, int NumEntity, int Index,
+#define WrongNumEntity   Msg(ERROR, "Wrong Facet Number in 'BF_Edge_3F'")
+
+void  BF_Edge_3F (struct Element * Element, int NumEntity, int Index,
 		   double u, double v, double w, double s[] ) {
 
   switch (Element->Type) {
 
   case LINE :
-    Msg(ERROR, "You Should Never be Here (HBF_Edge_3F)");
+    Msg(ERROR, "You Should Never be Here (BF_Edge_3F)");
     break;
 
   case TRIANGLE :
@@ -71,7 +84,7 @@ void  HBF_Edge_3F (struct Element * Element, int NumEntity, int Index,
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : Msg(ERROR, "HBF_Edge_3F not ready for QUADRANGLE");
+    default : Msg(ERROR, "BF_Edge_3F not ready for QUADRANGLE");
     }
     break ;
 
@@ -111,55 +124,82 @@ void  HBF_Edge_3F (struct Element * Element, int NumEntity, int Index,
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : Msg(ERROR, "HBF_Edge_3F not ready for HEXAHEDRON");
+    default : Msg(ERROR, "BF_Edge_3F not ready for HEXAHEDRON");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg(ERROR, "HBF_Edge_3F not ready for PRISM");
+    default : Msg(ERROR, "BF_Edge_3F not ready for PRISM");
     }
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in HBF_Edge_3F");
+    Msg(ERROR, "Unkown Element Type in BF_Edge_3F");
     break ;
 
   }
 
 }
 
-void  HBF_Edge_3F_a (struct Element * Element, int NumEntity, 
+#undef WrongNumEntity
+
+void  BF_Edge_3F_a (struct Element * Element, int NumEntity, 
 		     double u, double v, double w, double s[] ) {
-  HBF_Edge_3F(Element, NumEntity, 1, u, v, w, s) ;
+  BF_Edge_3F(Element, NumEntity, 1, u, v, w, s) ;
 }
 
-void  HBF_Edge_3F_b (struct Element * Element, int NumEntity, 
+void  BF_Edge_3F_b (struct Element * Element, int NumEntity, 
 		     double u, double v, double w, double s[] ) {
-  HBF_Edge_3F(Element, NumEntity, 2, u, v, w, s) ;
+  BF_Edge_3F(Element, NumEntity, 2, u, v, w, s) ;
 }
 
-void  HBF_Edge_3F_c (struct Element * Element, int NumEntity, 
+void  BF_Edge_3F_c (struct Element * Element, int NumEntity, 
 		     double u, double v, double w, double s[] ) {
-  HBF_Edge_3F(Element, NumEntity, 3, u, v, w, s) ;
+  BF_Edge_3F(Element, NumEntity, 3, u, v, w, s) ;
 }
+
+/* -------- */
+/*  Volume  */
+/* -------- */
+
+void  BF_Edge_3V (struct Element * Element, int NumEntity,
+		   double u, double v, double w, double s[] ) {
+  Msg(ERROR, "Should never be here") ;
+}
+
 
 
 /* ------------------------------------------------------------------------ */
-/*  H B F _ C u r l E d g e _ 3                                             */
+/*  B F _ C u r l E d g e _ 3                                               */
 /* ------------------------------------------------------------------------ */
+
+/* ------- */
+/*  Edges  */
+/* ------- */
+
+#define WrongNumEntity   Msg(ERROR, "Wrong Edge Number in 'BF_CurlEdge_3E'")
+
+void  BF_CurlEdge_3E (struct Element * Element, int NumEntity,
+		   double u, double v, double w, double s[] ) {
+  Msg(ERROR, "Should never be here") ;
+}
+
+#undef WrongNumEntity
 
 /* -------- */
 /*  Facets  */
 /* -------- */
 
-void  HBF_CurlEdge_3F (struct Element * Element, int NumEntity, int Index,
+#define WrongNumEntity   Msg(ERROR, "Wrong Facet Number in 'BF_CurlEdge_3F'")
+
+void  BF_CurlEdge_3F (struct Element * Element, int NumEntity, int Index,
 		       double u, double v, double w, double s[] ) {
 
   switch (Element->Type) {
 
   case LINE :
-    Msg(ERROR, "You Should Never be Here (HBF_CurlEdge_3F)");
+    Msg(ERROR, "You Should Never be Here (BF_CurlEdge_3F)");
     break;
 
   case TRIANGLE :
@@ -177,7 +217,7 @@ void  HBF_CurlEdge_3F (struct Element * Element, int NumEntity, int Index,
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : Msg(ERROR, "HBF_CurlEdge_3F not ready for QUADRANGLE");
+    default : Msg(ERROR, "BF_CurlEdge_3F not ready for QUADRANGLE");
     }
     break ;
 
@@ -217,93 +257,46 @@ void  HBF_CurlEdge_3F (struct Element * Element, int NumEntity, int Index,
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : Msg(ERROR, "HBF_CurlEdge_3F not ready for HAXAHEDRON");
+    default : Msg(ERROR, "BF_CurlEdge_3F not ready for HAXAHEDRON");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg(ERROR, "HBF_CurlEdge_3F not ready for PRISM");
+    default : Msg(ERROR, "BF_CurlEdge_3F not ready for PRISM");
     }
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in HBF_CurlEdge_3F");
+    Msg(ERROR, "Unkown Element Type in BF_CurlEdge_3F");
     break ;
 
   }
 
 }
 
-void  HBF_CurlEdge_3F_a (struct Element * Element, int NumEntity,
+#undef WrongNumEntity
+
+void  BF_CurlEdge_3F_a (struct Element * Element, int NumEntity,
 			 double u, double v, double w, double s[] ) {
-  HBF_CurlEdge_3F(Element, NumEntity, 1, u, v, w, s) ;
+  BF_CurlEdge_3F(Element, NumEntity, 1, u, v, w, s) ;
 }
 
-void  HBF_CurlEdge_3F_b (struct Element * Element, int NumEntity,
+void  BF_CurlEdge_3F_b (struct Element * Element, int NumEntity,
 			 double u, double v, double w, double s[] ) {
-  HBF_CurlEdge_3F(Element, NumEntity, 2, u, v, w, s) ;
+  BF_CurlEdge_3F(Element, NumEntity, 2, u, v, w, s) ;
 }
 
-void  HBF_CurlEdge_3F_c (struct Element * Element, int NumEntity,
+void  BF_CurlEdge_3F_c (struct Element * Element, int NumEntity,
 			 double u, double v, double w, double s[] ) {
-  HBF_CurlEdge_3F(Element, NumEntity, 3, u, v, w, s) ;
+  BF_CurlEdge_3F(Element, NumEntity, 3, u, v, w, s) ;
 }
-
-/* ------------------------------------------------------------------------ */
-/*  H B F _ P e r p e n d i c u l a r F a c e t _ 3                         */
-/* ------------------------------------------------------------------------ */
-
-/* ------- */
-/*  Facets */
-/* ------- */
-
-void  HBF_PerpendicularFacet_3F_a (struct Element * Element, int NumNode, 
-				   double u, double v, double w,  double s[] ) {
-  double ss ;
-
-  HBF_Edge_3F (Element, NumNode, 1, u, v, w, s) ;
-  ss = s[0] ;  s[0] = -s[1] ;  s[1] = ss ;
-}
-void  HBF_PerpendicularFacet_3F_b (struct Element * Element, int NumNode, 
-				   double u, double v, double w,  double s[] ) {
-  double ss ;
-
-  HBF_Edge_3F (Element, NumNode, 2, u, v, w, s) ;
-  ss = s[0] ;  s[0] = -s[1] ;  s[1] = ss ;
-}
-void  HBF_PerpendicularFacet_3F_c (struct Element * Element, int NumNode, 
-				   double u, double v, double w,  double s[] ) {
-  double ss ;
-
-  HBF_Edge_3F (Element, NumNode, 3, u, v, w, s) ;
-  ss = s[0] ;  s[0] = -s[1] ;  s[1] = ss ;
-}
-
-/* ------------------------------------------------------------------------ */
-/*  H B F _ D i v P e r p e n d i c u l a r F a c e t _ 3                   */
-/* ------------------------------------------------------------------------ */
 
 /* -------- */
-/*  Facets  */
+/*  Volume  */
 /* -------- */
 
-void  HBF_DivPerpendicularFacet_3F_a (struct Element * Element, int NumNode, 
-				      double u, double v, double w,  double s[] ) {
-  
-  HBF_CurlEdge_3F (Element, NumNode, 1, u, v, w, s) ;
-  s[0] = -s[2] ; s[2] = 0. ;
+void  BF_CurlEdge_3V (struct Element * Element, int NumEntity,
+		   double u, double v, double w, double s[] ) {
+  Msg(ERROR, "Should never be here") ;
 }
-void  HBF_DivPerpendicularFacet_3F_b (struct Element * Element, int NumNode, 
-				      double u, double v, double w,  double s[] ) {
-  
-  HBF_CurlEdge_3F (Element, NumNode, 2, u, v, w, s) ;
-  s[0] = -s[2] ; s[2] = 0. ;
-}
-void  HBF_DivPerpendicularFacet_3F_c (struct Element * Element, int NumNode, 
-				      double u, double v, double w,  double s[] ) {
-  
-  HBF_CurlEdge_3F (Element, NumNode, 3, u, v, w, s) ;
-  s[0] = -s[2] ; s[2] = 0. ;
-}
-

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2000-09-08 09:51:11 geuzaine Exp $
+# $Id: Makefile,v 1.6 2000-09-12 20:19:35 geuzaine Exp $
 #
 # Makefile for "libFunction.a"
 #
@@ -23,17 +23,18 @@ SRC = F_Analytic.c \
       F_Misc.c \
       F_Type.c \
       BF_Node.c \
+      BF_Node_2.c \
+      BF_Node_3.c \
       BF_Edge.c \
+      BF_Edge_2.c \
+      BF_Edge_3.c \
+      BF_Edge_4.c \
       BF_Facet.c \
       BF_Volume.c \
+      BF_Perpendicular.c \
       BF_GroupOfEntities.c \
+      BF_NodeXYZ.c \
       BF_Region.c \
-      HBF_Node_2.c \
-      HBF_Node_3.c \
-      HBF_Edge_2.c \
-      HBF_Edge_3.c \
-      HBF_Edge_4.c \
-      HBF_GroupOfEntities_2.c \
       GF_Laplace.c \
       GF_LaplacexForm.c \
       GF_Helmholtz.c
@@ -118,57 +119,46 @@ F_Type.o: F_Type.c ../Main/Data_DefineE.h F_Function.h \
 BF_Node.o: BF_Node.c BF_Function.h ../Main/Message.h \
  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
  ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- HBF_Function.h ../Main/Data_Numeric.h ../Main/Get_Geometry.h \
- ../Main/Data_Active.h ../Main/Data_Passive.h
+ ../Main/Data_Numeric.h ../Main/Get_Geometry.h ../Main/Data_Active.h \
+ ../Main/Data_Passive.h
+BF_Node_2.o: BF_Node_2.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h
+BF_Node_3.o: BF_Node_3.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h
 BF_Edge.o: BF_Edge.c BF_Function.h ../Main/Message.h \
  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
- ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- HBF_Function.h
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h
+BF_Edge_2.o: BF_Edge_2.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h
+BF_Edge_3.o: BF_Edge_3.c ../Main/Data_Passive.h ../DataStr/listman.h \
+ ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
+ BF_Function.h
+BF_Edge_4.o: BF_Edge_4.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h
 BF_Facet.o: BF_Facet.c BF_Function.h ../Main/Message.h \
  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
- ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- HBF_Function.h
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h
 BF_Volume.o: BF_Volume.c BF_Function.h ../Main/Message.h \
  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
- ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- HBF_Function.h
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h
 BF_GroupOfEntities.o: BF_GroupOfEntities.c BF_Function.h \
  ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
  ../GeoData/Data_GeoData.h ../DataStr/listman.h ../DataStr/treeman.h \
- ../DataStr/avl.h HBF_Function.h ../Main/Get_Geometry.h \
- ../Main/Data_Active.h ../Main/Data_Passive.h
+ ../DataStr/avl.h ../Main/Get_Geometry.h ../Main/Data_Active.h \
+ ../Main/Data_Passive.h
 BF_Region.o: BF_Region.c BF_Function.h ../Main/Message.h \
  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
  ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- HBF_Function.h ../Main/Get_DofOfElement.h ../Main/Data_Active.h \
+ ../Main/Get_DofOfElement.h ../Main/Data_Active.h \
  ../Main/Data_Passive.h ../Main/CurrentData.h ../DofData/DofData.h \
  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
  ../DofData/Data_DofData.h ../include/Magic.h \
  ../Main/Treatment_Formulation.h ../DataStr/ualloc.h
-HBF_Node_2.o: HBF_Node_2.c BF_Function.h ../Main/Message.h \
- ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
- ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- HBF_Function.h
-HBF_Node_3.o: HBF_Node_3.c BF_Function.h ../Main/Message.h \
- ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
- ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- HBF_Function.h
-HBF_Edge_2.o: HBF_Edge_2.c BF_Function.h ../Main/Message.h \
- ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
- ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- HBF_Function.h
-HBF_Edge_3.o: HBF_Edge_3.c ../Main/Data_Passive.h ../DataStr/listman.h \
- ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
- ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
- BF_Function.h HBF_Function.h
-HBF_Edge_4.o: HBF_Edge_4.c BF_Function.h ../Main/Message.h \
- ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
- ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- HBF_Function.h
-HBF_GroupOfEntities_2.o: HBF_GroupOfEntities_2.c BF_Function.h \
- ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
- ../GeoData/Data_GeoData.h ../DataStr/listman.h ../DataStr/treeman.h \
- ../DataStr/avl.h HBF_Function.h
 GF_Laplace.o: GF_Laplace.c ../Main/Data_Active.h \
  ../Main/Data_Passive.h ../DataStr/listman.h ../Main/Message.h \
  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
@@ -179,7 +169,7 @@ GF_Laplace.o: GF_Laplace.c ../Main/Data_Active.h \
 GF_LaplacexForm.o: GF_LaplacexForm.c ../Main/Data_Active.h \
  ../Main/Data_Passive.h ../DataStr/listman.h ../Main/Message.h \
  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
- ../DataStr/treeman.h ../DataStr/avl.h BF_Function.h HBF_Function.h \
+ ../DataStr/treeman.h ../DataStr/avl.h BF_Function.h \
  ../Main/CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
  ../include/Magic.h ../Main/Data_Numeric.h ../Main/Data_DefineE.h \
