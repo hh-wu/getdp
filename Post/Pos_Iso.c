@@ -1,10 +1,11 @@
-/* $Id: Pos_Iso.c,v 1.9 2000-10-20 08:04:29 dular Exp $ */
+/* $Id: Pos_Iso.c,v 1.10 2000-10-20 17:08:28 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
 #include "Data_Active.h"
+#include "Data_Numeric.h"
 #include "CurrentData.h"
 #include "ualloc.h"
 
@@ -128,54 +129,98 @@ void Cal_IsoTriangle(double *X, double *Y, double *Z, struct Value *Val,
 
 }
 
+void Fill_Iso(struct PostElement *PE, int nb, int *index,
+	      double *x, double *y, double *z, double val){
+  int i, k ;
+
+  for (i = 0 ; i < nb ; i++){
+    PE->x[i] = x[index[i]] ;
+    PE->y[i] = y[index[i]] ;
+    PE->z[i] = z[index[i]] ;
+    PE->Value[i].Type = SCALAR ;
+    PE->Value[i].Val[0] = val ;
+    for (k = 1 ; k < Current.NbrHar ; k++)
+      PE->Value[i].Val[MAX_DIM*k] = 0. ;
+  }
+}
+
+void normvec(double *a);
 
 void Cal_Iso(struct PostElement *PE, List_T *list, 
 	     double val, double vmin, double vmax){
 
-  int    i, k, nb;
   struct PostElement *PE2 ;
+  double x[5], y[5], z[5] ;
+  double d1[3], d2[3], d3[3], a1, a2, a3 ;
+  int    nb, DecomposeInSimplex = 1 ;
+  int    index[5], index_default[] = {0,1,2,3} ;
 
   switch(PE->Type){
   case TRIANGLE :
-    PE2 =  Create_PostElement(PE->Index, LINE, 2, 1) ;
     Cal_IsoTriangle(PE->x, PE->y, PE->z, PE->Value, 
-		    val, vmin, vmax, PE2->x, PE2->y, PE2->z, &nb) ;
-    if(nb > 1){
-      for (i = 0 ; i < nb ; i++){
-	PE2->Value[i].Type = SCALAR ;
-	PE2->Value[i].Val[0] = val ;
-	for (k = 1 ; k < Current.NbrHar ; k++)
-	  PE2->Value[i].Val[MAX_DIM*k] = 0. ;
-      }
+		    val, vmin, vmax, x, y, z, &nb) ;
+    if(nb == 2){
+      PE2 =  Create_PostElement(PE->Index, LINE, 2, 1) ;
+      Fill_Iso(PE2, nb, index_default, x, y, z, val) ;
       List_Add(list, &PE2);
     }
-    else
-      Destroy_PostElement(PE2);
     break ;
   case TETRAHEDRON :
-    PE2 =  Create_PostElement(PE->Index, QUADRANGLE, 4, 1) ;
     Cal_IsoTetrahedron(PE->x, PE->y, PE->z, PE->Value, 
-		       val, vmin, vmax, PE2->x, PE2->y, PE2->z, &nb) ;
-    if(nb > 2){
-      for (i = 0 ; i < nb ; i++){
-	PE2->Value[i].Type = SCALAR ;
-	PE2->Value[i].Val[0] = val ;
-	for (k = 1 ; k < Current.NbrHar ; k++)
-	  PE2->Value[i].Val[MAX_DIM*k] = 0. ;
-      }
-      if(nb == 3){
-	PE2->Type = TRIANGLE ;
-	PE2->NbrNodes = nb ;
-	List_Add(list, &PE2);
+		       val, vmin, vmax, x, y, z, &nb) ;
+
+    if(nb == 3){
+      PE2 =  Create_PostElement(PE->Index, TRIANGLE, 3, 1) ;
+      Fill_Iso(PE2, nb, index_default, x, y, z, val) ;
+      List_Add(list, &PE2);
+    }
+    else if(nb == 4){
+      if(DecomposeInSimplex){
+	d1[0] = x[0] - x[1] ; d1[1] = y[0] - y[1] ; d1[2] = z[0] - z[1] ;
+	d2[0] = x[0] - x[2] ; d2[1] = y[0] - y[2] ; d2[2] = z[0] - z[2] ;
+	d3[0] = x[0] - x[3] ; d3[1] = y[0] - y[3] ; d3[2] = z[0] - z[3] ;
+	normvec(d1) ; normvec(d2) ; normvec(d3) ;
+	a1 = acos(PSCA3(d1,d2)) ;
+	a2 = acos(PSCA3(d1,d3)) ;
+	a3 = acos(PSCA3(d2,d3)) ;
+
+	if(a1 >= a2 && a1 >= a3){
+	  PE2 =  Create_PostElement(PE->Index, TRIANGLE, 3, 1) ;
+	  index[0] = 0 ; index[1] = 1 ; index[2] = 2 ; 
+	  Fill_Iso(PE2, 3, index, x, y, z, val) ;
+	  List_Add(list, &PE2);
+	  PE2 =  Create_PostElement(PE->Index, TRIANGLE, 3, 1) ;
+	  index[0] = 3 ; index[1] = 2 ; index[2] = 1 ; 
+	  Fill_Iso(PE2, 3, index, x, y, z, val) ;
+	  List_Add(list, &PE2);
+	}
+	else if(a2 >= a1 && a2 >= a3){
+	  PE2 =  Create_PostElement(PE->Index, TRIANGLE, 3, 1) ;
+	  index[0] = 0 ; index[1] = 1 ; index[2] = 3 ; 
+	  Fill_Iso(PE2, 3, index, x, y, z, val) ;
+	  List_Add(list, &PE2);
+	  PE2 =  Create_PostElement(PE->Index, TRIANGLE, 3, 1) ;
+	  index[0] = 2 ; index[1] = 3 ; index[2] = 1 ; 
+	  Fill_Iso(PE2, 3, index, x, y, z, val) ;
+	  List_Add(list, &PE2);
+	}
+	else{
+	  PE2 =  Create_PostElement(PE->Index, TRIANGLE, 3, 1) ;
+	  index[0] = 0 ; index[1] = 2 ; index[2] = 3 ; 
+	  Fill_Iso(PE2, 3, index, x, y, z, val) ;
+	  List_Add(list, &PE2);
+	  PE2 =  Create_PostElement(PE->Index, TRIANGLE, 3, 1) ;
+	  index[0] = 1 ; index[1] = 3 ; index[2] = 2 ; 
+	  Fill_Iso(PE2, 3, index, x, y, z, val) ;
+	  List_Add(list, &PE2);
+	}
       }
       else{
-	PE2->Type = QUADRANGLE ;
-	PE2->NbrNodes = nb ;
+	PE2 =  Create_PostElement(PE->Index, QUADRANGLE, 4, 1) ;
+	Fill_Iso(PE2, nb, index_default, x, y, z, val) ;
+	List_Add(list, &PE2);
       }
-
     }
-    else
-      Destroy_PostElement(PE2);
     break ;
   default :
     Msg(ERROR, "Iso Computation not Done for this Type of Element");
