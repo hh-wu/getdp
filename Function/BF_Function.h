@@ -263,6 +263,10 @@ void  BF_NodeX_D12(BF_ARG) ;
 void  BF_NodeY_D12(BF_ARG) ; 
 void  BF_NodeZ_D12(BF_ARG) ; 
 
+void  BF_NodeX_D12_2E(BF_ARG) ; 
+void  BF_NodeY_D12_2E(BF_ARG) ; 
+void  BF_NodeZ_D12_2E(BF_ARG) ; 
+
 void  BF_GroupOfNodesX(BF_ARG) ; 
 void  BF_GroupOfNodesY(BF_ARG) ; 
 void  BF_GroupOfNodesZ(BF_ARG) ; 

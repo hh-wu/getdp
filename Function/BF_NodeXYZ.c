@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_NodeXYZ.c,v 1.7 2003-06-20 21:32:07 geuzaine Exp $"
+#define RCSID "$Id: BF_NodeXYZ.c,v 1.8 2003-08-26 16:20:11 gyselinc Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -109,6 +109,49 @@ void  BF_NodeZ_D12(struct Element * Element, int NumNode,
 
   GetDP_End ;
 }
+
+
+void  BF_NodeX_D12_2E(struct Element * Element, int NumEdge, 
+		      double u, double v, double w,  double s[] ) {
+  double su[3] ;
+
+  GetDP_Begin("BF_NodeX_D12_2E");
+
+  BF_GradNode_2E(Element, NumEdge, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[2] = s[1] ;
+  s[1] = 0. ;
+
+  GetDP_End ;
+}
+
+void  BF_NodeY_D12_2E(struct Element * Element, int NumEdge, 
+		      double u, double v, double w,  double s[] ) {
+  double su[3] ;
+
+  GetDP_Begin("BF_NodeY_D12_2E");
+
+  BF_GradNode_2E(Element, NumEdge, u, v, w, su) ;
+  ChangeOfCoord_Form1(Element, su, s) ;
+
+  s[2] = s[0] ;
+  s[0] = 0. ;
+
+  GetDP_End ;
+}
+
+void  BF_NodeZ_D12_2E(struct Element * Element, int NumEdge, 
+		      double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_NodeZ_D12_2E");
+
+  s[0] = s[1] = s[2] = 0. ;
+
+  GetDP_End ;
+}
+
+
 
 /* ------------------------------------------------------------------------ */
 

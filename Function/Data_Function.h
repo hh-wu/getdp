@@ -463,6 +463,10 @@ struct StringX3Function2Nbr  BF_Function[] = {
   {"BF_NodeY_D12" , (CAST)BF_NodeY_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
   {"BF_NodeZ_D12" , (CAST)BF_NodeZ_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
 
+  {"BF_NodeX_D12_2E" , (CAST)BF_NodeX_D12_2E , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_NodeY_D12_2E" , (CAST)BF_NodeY_D12_2E , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_NodeZ_D12_2E" , (CAST)BF_NodeZ_D12_2E , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+
 
   {"BF_GroupOfNodesX" , (CAST)BF_GroupOfNodesX , (CAST)BF_GroupOfNodesX_D1 , (CAST)BF_GroupOfNodesX_D2 , 1. , ALL },
   {"BF_GroupOfNodesY" , (CAST)BF_GroupOfNodesY , (CAST)BF_GroupOfNodesY_D1 , (CAST)BF_GroupOfNodesY_D2 , 1. , ALL },
