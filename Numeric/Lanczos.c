@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.7 2001-05-28 10:06:50 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.8 2001-05-28 10:08:08 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -207,7 +207,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     DofData_P->CurrentSolution->Time = wi[ii] ;
     DofData_P->CurrentSolution->TimeStep = ii ;
     DofData_P->CurrentSolution->TimeFunctionValues = NULL ;
-    DofData_P->CurrentSolution->SolutionExists = 1 ;
+    DofData_P->CurrentSolution->SolutionExist = 1 ;
     LinAlg_ZeroVector(&DofData_P->CurrentSolution->x) ;
 
     for(k=0;k<NbrDof;k++){
