@@ -8,8 +8,6 @@ AIX     sp2s.ulg.ac.be
 
 Where to change the version number?
  Makfile
- utils/getdp.spec
- doc/getdp.1
  doc/texinfo/getdp.texi
  doc/VERSIONS
  www/getdp.html
