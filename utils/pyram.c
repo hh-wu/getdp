@@ -1,4 +1,15 @@
-/* $Id: pyram.c,v 1.2 2000-09-07 18:47:31 geuzaine Exp $ */
+/* $Id: pyram.c,v 1.3 2002-03-06 09:24:48 trophime Exp $ */
+
+/* 
+   Calcul des points de Gauss pour une pyramide
+   cf. ../Integration/Gauss_Pyramid.h
+
+   ref.: Coulomb et al., IEEE tr.mag. 32(3) May 1996, p.1395 
+   
+   Note: Pyramid de reference de sommets [(0,0,0),(1,0,0),(0,1,0),(0,0,1)]
+   a la difference de l'article de Coulomb
+*/
+
 
 #include "stdlib.h"
 #include "math.h"
@@ -19,7 +30,18 @@ double b[4] = {0.010352240749918, 0.068633887172923, 0.143458789799214, 0.110888
 */
 
 
-void main(void){
+void printout(int i, double * s, char * item){
+  int m;
+  
+  printf("double %s%d[%d] = {",item,i,i);
+  for(m=0 ; m<i ; m++) {
+    if(m)printf(",");
+    printf("%.16g",s[m]);
+  }
+  printf("};\n");
+}
+
+int main(void){
 
   int i,j,k;
   int m,n;
@@ -30,41 +52,19 @@ void main(void){
   /* 2 planes/4 nodes */
   for(k=0 ; k<2 ; k++){
     for(j=0 ; j<4 ; j++){
-      u[i] = x[k] * xq4[j] ;
-      v[i] = x[k] * yq4[j] ;
+      u[i] = x[k] * (xq4[j] + 1.)/2. ;
+      v[i] = x[k] * (yq4[j] + 1.)/2. ;
       w[i] = 1. - x[k] ;      
-      p[i] = b[k] * pq4[j] ;     
+      p[i] = b[k] * (pq4[j] / 4.0) ;     
       i++;
     }
   }
 
-  printf("double upyr%d[%d] = {",i,i);
-  for(m=0 ; m<i ; m++) {
-    if(m)printf(",");
-    printf("%.16g",u[m]);
-  }
-  printf("};\n");
+  printout(i, u, "upyr");
+  printout(i, v, "vpyr");
+  printout(i, w, "wpyr");
 
-  printf("double vpyr%d[%d] = {",i,i);
-  for(m=0 ; m<i ; m++) {
-    if(m)printf(",");
-    printf("%.16g",v[m]);
-  }
-  printf("};\n");
+  printout(i, p, "ppyr");
 
-  printf("double wpyr%d[%d] = {",i,i);
-  for(m=0 ; m<i ; m++) {
-    if(m)printf(",");
-    printf("%.16g",w[m]);
-  }
-  printf("};\n");
-
-  printf("double ppyr%d[%d] = {",i,i);
-  for(m=0 ; m<i ; m++) {
-    if(m)printf(",");
-    printf("%.16g",p[m]);
-  }
-  printf("};\n");
-
-
+  return 0;
 }

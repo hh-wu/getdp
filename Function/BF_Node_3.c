@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node_3.c,v 1.5 2002-01-18 11:10:26 gyselinc Exp $"
+#define RCSID "$Id: BF_Node_3.c,v 1.6 2002-03-06 09:24:48 trophime Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -68,6 +68,12 @@ void  BF_Node_3E (struct Element * Element, int NumEntity,
   case PRISM :
     switch(NumEntity) {
     default : Msg(ERROR, "BF_Node_3E not ready for PRISM");
+    }
+    break ;
+
+  case PYRAMID :
+    switch(NumEntity) {
+    default : Msg(ERROR, "BF_Node_3E not ready for PYRAMID");
     }
     break ;
 

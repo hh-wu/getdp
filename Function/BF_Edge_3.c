@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Edge_3.c,v 1.5 2001-06-27 10:55:14 geuzaine Exp $"
+#define RCSID "$Id: BF_Edge_3.c,v 1.6 2002-03-06 09:24:48 trophime Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -141,6 +141,12 @@ void  BF_Edge_3F (struct Element * Element, int NumEntity, int Index,
   case PRISM :
     switch(NumEntity) {
     default : Msg(ERROR, "BF_Edge_3F not ready for PRISM");
+    }
+    break ;
+
+  case PYRAMID :
+    switch(NumEntity) {
+    default : Msg(ERROR, "BF_Edge_3F not ready for PYRAMID");
     }
     break ;
 

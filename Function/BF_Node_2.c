@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node_2.c,v 1.6 2002-01-18 11:10:26 gyselinc Exp $"
+#define RCSID "$Id: BF_Node_2.c,v 1.7 2002-03-06 09:24:48 trophime Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -79,6 +79,12 @@ void  BF_Node_2E (struct Element * Element, int NumEntity,
     }
     break ;
 
+  case PYRAMID :
+    switch(NumEntity) {
+    default : Msg(ERROR, "BF_Node_2E not ready for PYRAMID");
+    }
+    break ;
+
   default :
     Msg(ERROR, "Unkown type of Element in BF_Node_2E");
     break ;
@@ -126,6 +132,12 @@ void  BF_Node_2F (struct Element * Element, int NumEntity,
     }
     break ;
 
+  case PYRAMID :
+    switch(NumEntity) {
+    default : Msg(ERROR, "BF_Node_2F not ready for PYRAMID");
+    }
+    break ;
+
   default :
     Msg(ERROR, "Unkown Element Type in BF_Node_2F");
     break ;
@@ -167,6 +179,12 @@ void  BF_Node_2V (struct Element * Element, int NumEntity,
   case PRISM :
     switch(NumEntity) {
     default : Msg(ERROR, "BF_Node_2V not ready for PRISM");
+    }
+    break ;
+
+  case PYRAMID :
+    switch(NumEntity) {
+    default : Msg(ERROR, "BF_Node_2V not ready for PYRAMID");
     }
     break ;
 

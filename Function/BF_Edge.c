@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Edge.c,v 1.6 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: BF_Edge.c,v 1.7 2002-03-06 09:24:48 trophime Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -15,6 +15,9 @@
 void  BF_Edge    (struct Element * Element, int NumEdge, 
 		  double u, double v, double w,  double s[] ) {
 
+  double r, ru, rv, rw;
+  double t;
+  
   GetDP_Begin("BF_Edge");
 
   switch (Element->Type) {
@@ -105,6 +108,48 @@ void  BF_Edge    (struct Element * Element, int NumEdge,
     case 9  : s[0] = -0.5 * v      * (1.+w) ;
               s[1] =  0.5 * u      * (1.+w) ;
               s[2] =  0.                    ; break ;
+    default : WrongNumEdge ;
+    }
+    break ;
+
+  case PYRAMID :
+    r  = 0. ;
+    ru = 0. ;
+    rv = 0. ;
+    rw = 0. ;
+    if ( w != 1){
+       r  = u * v / ( 1. - w) ;
+       t = w / ( 1. - w) ;
+
+       ru = u * t ;
+       rv = v * t ;
+       rw = r * t ;
+    } 
+    switch(NumEdge) {
+    case 1  : s[0] =  1. - w - v ;
+              s[1] =  0. ;
+              s[2] =  u - r ; break ;
+    case 2  : s[0] =  0. ;
+              s[1] =  u ;
+              s[2] =  r ; break ;
+    case 3  : s[0] =  v                    ;
+              s[1] =  0.                    ;
+              s[2] =  r ; break ;
+    case 4  : s[0] =  0. ;
+              s[1] =  1. - w - v ;
+              s[2] =  v - r ; break ;
+    case 5  : s[0] =  w - rv ;
+              s[1] =  w - ru ;
+              s[2] =  1. - u - v + r - rw ; break ;
+    case 6  : s[0] = -w + rv ;
+              s[1] =  ru ;
+              s[2] =  u - r + rw ; break ;
+    case 7  : s[0] =  rv ;
+              s[1] = -w + ru ;
+              s[2] =  v - r + rw ; break ;
+    case 8  : s[0] = -rv ;
+              s[1] = -ru ;
+              s[2] =  r - rw ; break ;
     default : WrongNumEdge ;
     }
     break ;
@@ -209,6 +254,38 @@ void  BF_CurlEdge(struct Element * Element, int NumEdge,
     case 8  : s[0] =  0.5*(u-1.) ; s[1] =  0.5*v      ; s[2] = -1.-w ; break ;
     case 9  : s[0] = -0.5*u      ; s[1] = -0.5*v      ; s[2] =  1.+w ; break ;
     default : WrongNumEdge ;
+    }
+    break ;
+
+  case PYRAMID :
+    if ( w == 1){
+      switch(NumEdge) {
+      case 1  : s[0] = 0. ; s[1] = -2. ; s[2] = -1. ; break ;
+      case 2  : s[0] = 0. ; s[1] =  0. ; s[2] =  1. ; break ;
+      case 3  : s[0] = 0. ; s[1] =  0. ; s[2] = -1. ; break ;
+      case 4  : s[0] = 2. ; s[1] =  0. ; s[2] = -1. ; break ;
+
+      case 5  : s[0] = -2. ; s[1] =  0. ; s[2] = 0. ; break ;
+      case 6  : s[0] =  0. ; s[1] = -2. ; s[2] = 0. ; break ;
+      case 7  : s[0] =  2. ; s[1] =  0  ; s[2] = 0. ; break ;
+
+      case 8  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+      default : WrongNumEdge ;
+      }
+    } else {
+      switch(NumEdge) {
+      case 1  : s[0] =    -u / (1. - w) ; s[1] = -2. + v / (1. - w) ; s[2] = -1. ; break ;
+      case 2  : s[0] =     u / (1. - w) ; s[1] =       v / (1. - w) ; s[2] =  1. ; break ;
+      case 3  : s[0] =     u / (1. - w) ; s[1] =       v / (1. - w) ; s[2] = -1. ; break ;
+      case 4  : s[0] = 2. -u / (1. - w) ; s[1] =       v / (1. - w) ; s[2] = -1. ; break ;
+
+      case 5  : s[0] = -2. + u / (1. - w) + v / (1. - w) ; s[1] = 2. * ( 1. - v / (1. - w)) ; s[2] = 0. ; break ;
+      case 6  : s[0] =                -2. * u / (1. - w) ; s[1] = 2. * (-1. + v / (1. - w)) ; s[2] = 0. ; break ;
+      case 7  : s[0] =          2. * (1. - u / (1. - w)) ; s[1] =         2. * v / (1. - w) ; s[2] = 0. ; break ;
+
+      case 8  : s[0] = 2. * u / (1. - w) ; s[1] = -2. * v / (1. - w); s[2] = 0. ; break ;
+      default : WrongNumEdge ;
+      }
     }
     break ;
 

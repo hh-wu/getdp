@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node.c,v 1.8 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: BF_Node.c,v 1.9 2002-03-06 09:24:48 trophime Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -90,6 +90,7 @@ void  BF_Node(struct Element * Element, int NumNode,
     break ;
 
   case PYRAMID :
+/***
     if(w != 1. && NumNode != 5) r = u*v*w / (1.-w) ;
     else                        r = 0. ;
     switch(NumNode) {
@@ -98,6 +99,17 @@ void  BF_Node(struct Element * Element, int NumNode,
     case 3  : *s = 0.25 * ((1.+u) * (1.+v) - w + r); break ;
     case 4  : *s = 0.25 * ((1.-u) * (1.+v) - w - r); break ;
     case 5  : *s = w                               ; break ;
+    default : WrongNumNode ;
+    }
+***/
+    if(w != 1. && NumNode != 5) r = u*v / (1.-w) ;
+    else                        r = 0. ;
+    switch(NumNode) {
+    case 1  : *s = 1. - u - v - w + r ; break ;
+    case 2  : *s =              u - r ; break ;
+    case 3  : *s =                  r ; break ;
+    case 4  : *s =              v - r ; break ;
+    case 5  : *s =                  w ; break ;
     default : WrongNumNode ;
     }
     break ;
@@ -223,6 +235,7 @@ void  BF_GradNode(struct Element * Element, int NumNode,
     break ;
 
   case PYRAMID :
+/***
     if(w == 1. && NumNode != 5) {
       s[0] =  0.25 ; 
       s[1] =  0.25 ;
@@ -242,6 +255,41 @@ void  BF_GradNode(struct Element * Element, int NumNode,
       case 4  : s[0] = 0.25 * ( -(1.+v) + v*w/(1.-w) ) ;
                 s[1] = 0.25 * (  (1.-u) + u*w/(1.-w) ) ;
                 s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
+      case 5  : s[0] = 0. ; 
+                s[1] = 0. ;
+                s[2] = 1. ; break ;
+      default : WrongNumNode ;
+      }
+    }
+***/
+    if(w == 1.) {
+      s[0] =  0. ; 
+      s[1] =  0. ;
+      s[2] = -0. ; 
+      switch(NumNode) {
+      case 1  : s[0] = -1. ;            
+	        s[1] = -1. ;            
+      	        s[2] = -1. ; break ;
+      case 2  : s[0] =  1. ; break ;
+      case 3  :              break ;
+      case 4  : s[1] =  1. ; break ;
+      case 5  : s[2] = 1. ; break ;
+      default : WrongNumNode ;
+      }
+    } else{
+      switch(NumNode) {
+      case 1  : s[0] = -1. + v / (1. -w) ;            
+	        s[1] = -1. + u / (1. -w) ;            
+      	        s[2] = -1. + u * v / DSQU(1.-w) ; break ;
+      case 2  : s[0] =  1. - v / (1. -w) ;            
+	        s[1] = - u / (1. -w) ;            
+	        s[2] = - u * v / DSQU(1.-w) ; break ;
+      case 3  : s[0] = v / (1.-w) ;
+                s[1] = u / (1.-w) ;
+                s[2] = u * v / DSQU(1.-w) ; break ;
+      case 4  : s[0] = - v / (1. -w) ; 
+                s[1] = 1. - u / (1. -w) ;
+                s[2] = - u * v/ DSQU(1.-w) ; break ;
       case 5  : s[0] = 0. ; 
                 s[1] = 0. ;
                 s[2] = 1. ; break ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Volume.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: BF_Volume.c,v 1.6 2002-03-06 09:24:48 trophime Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -62,6 +62,13 @@ void  BF_Volume  (struct Element * Element, int NumVolume,
   case PRISM :
     switch(NumVolume) {
     case 1  : *s = 1. ; break ;
+    default : WrongNumVolume ;
+    }
+    break ;
+
+  case PYRAMID :
+    switch(NumVolume) {
+    case 1  : *s = 3. ; break ;
     default : WrongNumVolume ;
     }
     break ;
