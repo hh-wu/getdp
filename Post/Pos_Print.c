@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.9 2000-10-02 15:00:46 geuzaine Exp $ */
+/* $Id: Pos_Print.c,v 1.10 2000-10-16 08:13:47 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -58,7 +58,7 @@ void  Print_PostHeader(int Format, int NbTimeStep, int HarmonicToTime,
   case FORMAT_GNUPLOT :
     fprintf(PostStream, "# PostData '%s'\n", name);
     fprintf(PostStream, 
-	    "# Type Num  X Y Z  < X Y Z >...   N1 N2 N3  Values  <Values>...\n");
+	    "# Type Num  X Y Z  N1 N2 N3  Values  <Values>...\n");
     break ;
   case FORMAT_ADAPT :
     fprintf(PostStream, "$Adapt /* %s */\n", name) ;
@@ -371,6 +371,100 @@ int Get_GmshElementType(int Type){
   }
 }
 
+void  Print_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
+		    int NbrHarmonics, int HarmonicToTime, 
+		    int ElementType, int Index, int NbrNodes,
+		    double *x, double *y, double *z, double *Dummy,
+		    struct Value *Value){
+  static int  Size, TmpIndex ;
+  int         i, j, k, t ;
+  double      p ;
+  double    * TmpValues ;
+
+  if(TimeStep == 0){
+    switch(Value->Type){
+    case SCALAR      : Size = 1 ; break ;
+    case VECTOR      : Size = 3 ; break ;
+    case TENSOR_DIAG : 
+    case TENSOR_SYM  : 
+    case TENSOR      : Size = 9 ; break ;
+    }
+    TmpValues = (double*) Malloc(NbrTimeSteps*NbrNodes*NbrHarmonics*Size*sizeof(double));
+    TmpIndex = 0;
+  }
+
+  for(i = 0 ; i < NbrNodes ; i++)
+    for(k = 0 ; k < NbrHarmonics ; k++)
+      for(j = 0 ; j < Size ; j++)
+	TmpValues[TmpIndex++] = Value[i].Val[MAX_DIM*k+j];
+
+  if(TimeStep == NbrTimeSteps-1){
+
+    for(i = 0 ; i < NbrNodes ; i++){
+
+      fprintf(PostStream, "%d %d  ", Get_GmshElementType(ElementType), Index);
+      fprintf(PostStream, "%.8g %.8g %.8g  ", x[i], y[i], z[i]);
+      if(Dummy){
+	if(Dummy[3]<0){
+	  if(!i)
+	    fprintf(PostStream, "%.8g %.8g 0  ", Dummy[0], Dummy[2]);
+	  else
+	    fprintf(PostStream, "%.8g %.8g 0  ", Dummy[1], Dummy[2]);
+	}
+	else
+	  fprintf(PostStream, "%.8g %.8g %.8g  ", Dummy[0], Dummy[1], Dummy[2]);
+      }
+      else
+	fprintf(PostStream, "0 0 0  ");
+
+      for(t = 0 ; t < NbrTimeSteps ; t++){
+	
+	if(HarmonicToTime > 1){
+	  if(NbrHarmonics != 2){
+	    Msg(ERROR, "HarmonicToTime Conversion expects 2 Harmonics");
+	  }
+	  for(k = 0 ; k < HarmonicToTime ; k++){
+	    p = TWO_PI * k / (HarmonicToTime-1);
+	    for(j = 0 ; j < Size ; j++){
+	      fprintf(PostStream, "%.8g ",
+		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
+			       + i*NbrHarmonics*Size
+			       + 0*Size
+			       + j ] * cos(p) -
+		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
+			       + i*NbrHarmonics*Size
+			       + 1*Size
+			       + j ] * sin(p));
+	    }
+	    fprintf(PostStream, " ");
+	  }
+	  fprintf(PostStream, " ");
+	}
+	else{
+	  for(k = 0 ; k < NbrHarmonics ; k++) {
+	    for(j = 0 ; j < Size ; j++){
+	      fprintf(PostStream, "%.8g ", 
+		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
+			       + i*NbrHarmonics*Size
+			       + k*Size
+			       + j ]);
+	    }
+	    fprintf(PostStream, " ");
+	  }
+	  fprintf(PostStream, " ");
+	}
+	
+      }
+      fprintf(PostStream, "\n");      
+
+    }
+    if(NbrNodes > 1) fprintf(PostStream, "\n");
+
+    free(TmpValues);
+  }
+
+}
+
 void  Print_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
 		    int NbrHarmonics, int HarmonicToTime, 
 		    int ElementType, int Index, int NbrNodes,
@@ -391,7 +485,6 @@ void  Print_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
   }
 
   switch(Format){
-  case FORMAT_GNUPLOT :
   case FORMAT_SPACE_TABLE :
     if(TimeStep == 0){
       fprintf(PostStream, "%d %d  ", Get_GmshElementType(ElementType), Index);
@@ -468,6 +561,9 @@ void  Print_PostElement(int Format, double Time, int TimeStep, int NbTimeStep,
 		  PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, PE->Value) ;
     break ;
   case FORMAT_GNUPLOT :
+    Print_Gnuplot(Format, Time, TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
+		  PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, PE->Value) ;
+    break ;
   case FORMAT_SPACE_TABLE :
   case FORMAT_TIME_TABLE :
     Print_Tabular(Format, Time, TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
