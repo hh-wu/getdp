@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_LaplacexForm.c,v 1.4 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: GF_LaplacexForm.c,v 1.5 2001-03-05 08:50:42 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -32,9 +32,10 @@
 
 void GF_LaplacexForm (F_ARG2) {
   
-  double   xs[MAX_NODES], ys[MAX_NODES], zs[MAX_NODES] ;
-  int      Type_Int ;
-  double   a, b, c, d, e, f, i1,  I1, r2 ;
+  double   xs[MAX_NODES], ys[MAX_NODES], zs[MAX_NODES], u[3], v[3], n[3], l2[2], xl, yl, zl ;
+  int      Type_Int, i, j = 1 ;
+  double   a, b, c, d, e, f, i1, I1, r2,d2,dl2;
+  double   s0m, s0p, s1m, s1p, s2m, s2p, t00, t10, t20, t0m, t0p, t1p, r00, r10, r20, r0p, r0m, r1p, f0, f1, f2, B0, B1, B2 ;
   double   DetJ, valr, vali ;
 
   GetDP_Begin("GF_LaplacexForm");
@@ -200,14 +201,105 @@ void GF_LaplacexForm (F_ARG2) {
 	log( ( 2.*sqrt(a*(a+b+c))+2.*a+b ) / ( 2.*sqrt(a*c)+b ) ) ;
       Val->Type = SCALAR ;
       break ;
+    
+    case TRIANGLE :
+    case QUADRANGLE :  
+      xs[0] = Element->ElementSource->x[0] ; ys[0] = Element->ElementSource->y[0] ;
+      zs[0] = Element->ElementSource->z[0] ;
+      xs[1] = Element->ElementSource->x[1] ; ys[1] = Element->ElementSource->y[1] ;
+      zs[1] = Element->ElementSource->z[1] ;
+      xs[2] = Element->ElementSource->x[2] ; ys[2] = Element->ElementSource->y[2] ;
+      zs[2] = Element->ElementSource->z[2] ;
       
+      Val->Val[0] = 0.;
+
+      printf("xFunctionBF= %g \n ", xFunctionBF);
+
+      if (Element->ElementSource->Type ==  QUADRANGLE) {
+	     xs[3] = Element->ElementSource->x[3] ; ys[3] = Element->ElementSource->y[3] ;
+	     zs[3] = Element->ElementSource->z[3] ;
+	     j = 0 ;
+       };
+      
+      for(i = j; i < 2; i++){      
+	    /* triangle side lengths */
+	    a = sqrt(SQU(xs[1]-xs[0]) + SQU(ys[1]-ys[0]) +  SQU(zs[1]-zs[0]));
+	    b = sqrt(SQU(xs[2]-xs[1]) + SQU(ys[2]-ys[1]) +  SQU(zs[2]-zs[1]));
+	    c = sqrt(SQU(xs[2]-xs[0]) + SQU(ys[2]-ys[0]) +  SQU(zs[2]-zs[0]));
+	    
+	    /* local system (u,v,w) centered at (xs[0],ys[0],zs[0]) */
+	    u[0] = (xs[1]-xs[0])/a;
+	    u[1] = (ys[1]-ys[0])/a;
+	    u[2] = (zs[1]-zs[0])/a;
+      
+	    /* triangle normal */
+	    Geo_CreateNormal(Element->ElementSource->Type,xs,ys,zs,n);
+                  
+	    v[0] = n[1]*u[2]-n[2]*u[1];
+	    v[1] = n[2]*u[0]-n[0]*u[2];
+	    v[2] = n[0]*u[1]-n[1]*u[0];
+
+	    l2[0] = (xs[2]-xs[0])*u[0] + (ys[2]-ys[0])*u[1] + (zs[2]-zs[0])*u[2]; /*u2 coordinate*/
+	    l2[1] = (xs[2]-xs[0])*v[0] + (ys[2]-ys[0])*v[1] + (zs[2]-zs[0])*v[2];  /*triangle height, v2 coordinate*/
+     
+	    /* local coordinates of the observation point (xl, yl, zl)*/ 
+	    xl = u[0] * (x-xs[0]) +  u[1] * (y-ys[0]) + u[2] * (z-zs[0]);
+	    yl = v[0] * (x-xs[0]) +  v[1] * (y-ys[0]) + v[2] * (z-zs[0]);
+	    zl = n[0] * (x-xs[0]) +  n[1] * (y-ys[0]) + n[2] * (z-zs[0]);
+	    
+	    s0m = -( (a-xl) * (a-l2[0]) + yl*l2[1] ) / b;
+	    s0p = s0m + b;
+	    s1p = ( xl * l2[0] + yl * l2[1] ) / c;
+	    s1m = s1p - c;
+	    s2m = - xl;
+	    s2p = a - xl;
+    
+	    /*distance observation point projection on triangle plane to triangle local vertices*/
+	    t00 = (yl * (l2[0]-a) + l2[1] * (a-xl)) / b;
+	    t10 = (xl * l2[1] - yl * l2[0]) / c;
+	    t20 = yl;
+	    t0m = sqrt((a-xl)*(a-xl) + yl*yl); 
+	    t0p = sqrt((l2[0]-xl)*(l2[0]-xl) + (l2[1]-yl)*(l2[1]-yl)); 
+	    t1p = sqrt(xl*xl + yl*yl);
+
+	    /* minimum distances from the observation point to each triangle side*/
+	    r00 = sqrt(SQU(t00) + SQU(zl));
+	    r10 = sqrt(SQU(t10) + SQU(zl));
+	    r20 = sqrt(SQU(t20) + SQU(zl));
+	    
+	    /* distances from observation point to the vertices*/
+	    r0p = sqrt(SQU(t0p) + SQU(zl));      
+	    r0m = sqrt(SQU(t0m) + SQU(zl));
+	    r1p = sqrt(SQU(t1p) + SQU(zl));
+
+	    /* intermediate functions */
+           	   	    
+	    f0 = r00 <= EPSILON ? 0 : log((r0p + s0p) / (r0m + s0m));
+	    f1 = r10 <= EPSILON ? 0 : log((r1p + s1p) / (r0p + s1m));
+	    f2 = r20 <= EPSILON ? 0 : log((r0m + s2p) / (r1p + s2m));
+                  
+	    B0 = fabs(t00) <= EPSILON ? 0 : atan(t00*s0p/(SQU(r00)+fabs(zl)*r0p))-atan(t00*s0m/(SQU(r00)+fabs(zl)*r0m));
+	    B1 = fabs(t10) <= EPSILON ? 0 : atan(t10*s1p/(SQU(r10)+fabs(zl)*r1p))-atan(t10*s1m/(SQU(r10)+fabs(zl)*r0p));
+	    B2 = fabs(t20) <= EPSILON ? 0 : atan(t20*s2p/(SQU(r20)+fabs(zl)*r0m))-atan(t20*s2m/(SQU(r20)+fabs(zl)*r1p));
+	    d = a * l2[1];//Double aire a cause de normalization
+	   
+	    Val->Val[0] + =  ONE_OVER_TWO_PI * (-fabs(zl)*(B0+B1+B2) + t00*f0+t10*f1+t20*f2)/d; /* 1/r integral solution*/
+	
+	    if (j == 0){
+		   xs[1] = xs[2]; ys[1] = ys[2]; zs[1] = zs[2];
+		   xs[2] = xs[3]; ys[2] = ys[3]; zs[2] = zs[3];
+	     }
+      }
+      if (j == 0){ Val->Val[0] = (Val->Val[0])/2; }
+      Val->Type = SCALAR;
+    break ;
+    
     default :
       Msg(ERROR, "Unknown Element Type (%s) for 'GF_LaplacexForm'",
 	  Get_StringForDefine(Element_Type, Element->ElementSource->Type));
     }
-    
     break ;
-    
+
   default :
     Msg(ERROR, "Unknown Dimension (%d) for 'GF_LaplacexForm'", 
 	(int)Fct->Para[0]);

@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Helmholtz.c,v 1.4 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: GF_Helmholtz.c,v 1.5 2001-03-05 08:50:42 sabarieg Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -38,6 +38,13 @@ void GF_Helmholtz (F_ARG) {
   V->Type = SCALAR ;
 
   switch((int)Fct->Para[0]){      
+  case _2D :
+    r = sqrt(SQU(Current.x-Current.xs)+
+	     SQU(Current.y-Current.ys)) ;
+    if(!r) Msg(ERROR, "1/0 in 'GF_Helmholtz'") ;
+    V->Val[0]       = - y0(Fct->Para[1]*r)/4 ; 
+    V->Val[MAX_DIM] = - j0(Fct->Para[1]*r)/4 ;
+    break ;
   case _3D :
     r = sqrt(SQU(Current.x-Current.xs)+
 	     SQU(Current.y-Current.ys)+
@@ -73,28 +80,25 @@ void GF_GradHelmholtz (F_ARG) {
 
   V->Type = VECTOR ;
 
-  /* Faux ! Uniquement valable pour la mfie... */
-  if (Current.Element->Num == Current.ElementSource->Num) {
-    Cal_ZeroValue(V);
-    return ;
-  }
-
   switch((int)Fct->Para[0]){      
   case _3D :
     xxs  = Current.x-Current.xs ;
     yys  = Current.y-Current.ys ;
     zzs  = Current.z-Current.zs ;
-
+        
     r = sqrt(SQU(xxs)+SQU(yys)+SQU(zzs)) ;
-    if(!r) Msg(ERROR, "1/0 in 'GF_GradHelmholtz'") ;
+    
+    if(!r) Cal_ZeroValue(V);
+    else {
+	  c1 = - ONE_OVER_FOUR_PI / CUB(r) ;
+	  c2 =  ONE_OVER_FOUR_PI * Fct->Para[1] / SQU(r) ;
+	  cr = (c1 * cos(Fct->Para[1]*r) - c2 * sin(Fct->Para[1]*r)) ;
+	  ci = (c1 * sin(Fct->Para[1]*r) + c2 * cos(Fct->Para[1]*r)) ;
+	  V->Val[0] = xxs * cr ; V->Val[MAX_DIM  ] = xxs * ci ;
+	  V->Val[1] = yys * cr ; V->Val[MAX_DIM+1] = yys * ci ;
+	  V->Val[2] = zzs * cr ; V->Val[MAX_DIM+2] = zzs * ci ;
 
-    c1 = -ONE_OVER_FOUR_PI / CUB(r) ;
-    c2 =  ONE_OVER_FOUR_PI * Fct->Para[1] / SQU(r) ;
-    cr = (c1 * cos(Fct->Para[1]*r) - c2 * sin(Fct->Para[1]*r)) ;
-    ci = (c1 * sin(Fct->Para[1]*r) + c2 * cos(Fct->Para[1]*r)) ;
-    V->Val[0] = xxs * cr ; V->Val[MAX_DIM  ] = xxs * ci ;
-    V->Val[1] = yys * cr ; V->Val[MAX_DIM+1] = yys * ci ;
-    V->Val[2] = zzs * cr ; V->Val[MAX_DIM+2] = zzs * ci ;
+    }
     break ;
 
   default :
@@ -159,7 +163,12 @@ void GF_NPxGradHelmholtz (F_ARG) {
     V->Val[0] = (ny * zzs - nz *yys) * ccr ;
     V->Val[1] = (nz * xxs - nx *zzs) * ccr ;
     V->Val[2] = (nx * yys - ny *xxs) * ccr ;
-
+    
+    printf("NxGradHelmholtz \n");
+    printf(" V->Val[0] = %g \n", V->Val[0]);
+    printf(" V->Val[1] = %g \n", V->Val[1]);
+    printf(" V->Val[0] = %g \n", V->Val[0]);
+    
     V->Val[MAX_DIM  ] = (ny * zzs - nz *yys) * cci ;
     V->Val[MAX_DIM+1] = (nz * xxs - nx *zzs) * cci ;
     V->Val[MAX_DIM+2] = (nx * yys - ny *xxs) * cci ;
@@ -172,3 +181,6 @@ void GF_NPxGradHelmholtz (F_ARG) {
   
   GetDP_End ;
 }
+
+
+

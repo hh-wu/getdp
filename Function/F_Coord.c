@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Coord.c,v 1.5 2000-10-30 08:31:00 geuzaine Exp $"
+#define RCSID "$Id: F_Coord.c,v 1.6 2001-03-05 08:50:41 sabarieg Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -169,3 +169,26 @@ void  F_aX21_bY21_cZ21 (F_ARG) {
 
 
 #undef F_ARG
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
