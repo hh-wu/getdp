@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2000-09-09 07:29:41 geuzaine Exp $
+# $Id: Makefile,v 1.6 2000-09-12 20:22:17 geuzaine Exp $
 #
 # Makefile for 'libParser.a'
 # 
@@ -59,5 +59,5 @@ yacc.tab.o: yacc.tab.c ../Main/Data_Passive.h ../DataStr/listman.h \
  ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
  ../Main/Data_Active.h ../Main/Data_DefineE.h ../DataStr/ualloc.h \
  ../DataStr/outil.h ../Main/Init_Problem.h ../Function/BF_Function.h \
- ../Function/HBF_Function.h ../Integration/Quadrature.h \
- ../Main/Cal_Value.h Constant.h ../include/Magic.h
+ ../Integration/Quadrature.h ../Main/Cal_Value.h Constant.h \
+ ../include/Magic.h

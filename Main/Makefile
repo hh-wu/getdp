@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2000-09-09 07:29:41 geuzaine Exp $
+# $Id: Makefile,v 1.8 2000-09-12 20:22:17 geuzaine Exp $
 #
 # Makefile for 'libMain.a'
 # 
@@ -130,9 +130,9 @@ Get_FunctionValue.o: Get_FunctionValue.c Treatment_Formulation.h \
 Get_Geometry.o: Get_Geometry.c Get_Geometry.h Data_Active.h \
  Data_Passive.h ../DataStr/listman.h Message.h Data_Element.h \
  ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/treeman.h \
- ../DataStr/avl.h ../Function/BF_Function.h ../Function/HBF_Function.h \
- Data_Numeric.h Data_DefineE.h ../Sparskit/Solver.h \
- ../Numeric/Numeric.h ../Numeric/nrutil.h
+ ../DataStr/avl.h ../Function/BF_Function.h Data_Numeric.h \
+ Data_DefineE.h ../Sparskit/Solver.h ../Numeric/Numeric.h \
+ ../Numeric/nrutil.h
 Get_ElementSource.o: Get_ElementSource.c Treatment_Formulation.h \
  Data_Active.h Data_Passive.h ../DataStr/listman.h Message.h \
  Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
@@ -208,15 +208,15 @@ Cal_IntegralQuantity.o: Cal_IntegralQuantity.c Treatment_Formulation.h \
  Data_Active.h Data_Passive.h ../DataStr/listman.h Message.h \
  Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
  ../DataStr/treeman.h ../DataStr/avl.h Get_Geometry.h Get_Cells.h \
- ../Function/BF_Function.h ../Function/HBF_Function.h CurrentData.h \
- ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
+ ../Function/BF_Function.h CurrentData.h ../DofData/DofData.h \
+ ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
  ../DofData/Data_DofData.h ../include/Magic.h Cal_Quantity.h \
  Cal_Value.h Data_DefineE.h ../DataStr/outil.h ../Post/Pos_Search.h
 Cal_AnalyticIntegration.o: Cal_AnalyticIntegration.c \
  Treatment_Formulation.h Data_Active.h Data_Passive.h \
  ../DataStr/listman.h Message.h Data_Element.h ../GeoData/GeoData.h \
  ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
- ../Function/BF_Function.h ../Function/HBF_Function.h
+ ../Function/BF_Function.h
 Cal_Quantity.o: Cal_Quantity.c Cal_Quantity.h Data_Active.h \
  Data_Passive.h ../DataStr/listman.h Message.h Data_Element.h \
  ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/treeman.h \
@@ -247,9 +247,8 @@ Cal_SolidAngle.o: Cal_SolidAngle.c ../GeoData/GeoData.h Message.h \
 Get_Define.o: Get_Define.c Data_Active.h Data_Passive.h \
  ../DataStr/listman.h Message.h Data_Element.h ../GeoData/GeoData.h \
  ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
- ../Function/BF_Function.h ../Function/HBF_Function.h \
- ../Integration/Quadrature.h Data_Define.h Data_DefineE.h \
- ../Function/Data_Function.h ../Function/F_Function.h \
+ ../Function/BF_Function.h ../Integration/Quadrature.h Data_Define.h \
+ Data_DefineE.h ../Function/Data_Function.h ../Function/F_Function.h \
  ../Function/GF_Function.h Cal_Quantity.h Cal_Value.h CurrentData.h \
  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Adapt.h
