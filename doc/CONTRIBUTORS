@@ -1,4 +1,4 @@
-$Id: CONTRIBUTORS,v 1.15 2003-02-10 20:07:05 geuzaine Exp $
+$Id: CONTRIBUTORS,v 1.16 2003-02-14 00:27:36 geuzaine Exp $
 
 GetDP is copyright (c) 1997-2003 by
 
@@ -24,6 +24,7 @@ Portions of GetDP are copyright (c)
 
   1988-1993 The Regents of the University of California.
   1990 Yousef Saad
+  1986-1993 Thomas Williams, Colin Kelley
 
 Thanks to the following folks who have contributed by providing fresh
 ideas on theoretical or programming topics, who have sent patches,
