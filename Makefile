@@ -22,6 +22,8 @@
 #
 # ----------------------------------------------------------------------
 
+GETDP_RELEASE         = 0.75
+
 # ----------------------------------------------------------------------
 # General definitions 
 # ----------------------------------------------------------------------
@@ -201,7 +203,7 @@ parser:
 
 tag:
 	$(RM) $(RMFLAGS) $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_VERSION 0.75" \
+	echo "#define GETDP_VERSION $(GETDP_RELEASE)" \
              > $(GETDP_INCLUDE_DIR)/Version.h
 	echo "#define GETDP_BUILD \"`date` on `hostname` (`logname`)\"" \
              >> $(GETDP_INCLUDE_DIR)/Version.h
