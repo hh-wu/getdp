@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.24 2003-02-15 00:51:34 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.25 2003-02-15 01:01:45 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -109,7 +109,6 @@ void  Get_ValueOfExpressionByIndex(int Index_Expression,
 /* ------------------------------------------------------------------------ */
 
 #define MAX_REGISTER_SIZE   100
-#define MAX_RECURSION       50
 
 #define CAST3V    void(*)(struct Value*, struct Value*, struct Value*)
 #define CAST1V    void(*)(struct Value*)
@@ -157,8 +156,17 @@ void Cal_WholeQuantity(struct Element * Element,
        = 50 * 40 * 8 * (9 * 2 * 8)
       ~= 2 Mb
 
-     Beware that for NBR_MAX_HARMONIC=40, the size grows to 40Mb...
+     Beware that for NBR_MAX_HARMONIC=40, the size would grow to
+     40Mb... So let's define MAX_RECURSION as follows :
+  */
 
+#if NBR_MAX_HARMONIC <= 10
+#define MAX_RECURSION 50
+#else
+#define MAX_RECURSION 10
+#endif
+
+  /*
      We need MAX_RECURSION sufficiently large for expressions like
      (a?b:(c?d:(e?...))) with all n<MAX_RECURSION first tests
      evaluating to false. This case happens quite often when
