@@ -1,4 +1,4 @@
-// $Id: Function.cpp,v 1.2 2002-03-05 22:48:10 geuzaine Exp $
+// $Id: Function.cpp,v 1.3 2002-03-06 02:06:39 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Data_Numeric.h"
@@ -14,28 +14,38 @@ double angle_02pi (double t){
   return t;
 }
 
-void ChgVar(double u, double *t, double *jac){
-  *t = u;
-  *jac = 1.;
-  return;
+void Function::chgvar(double u, double *t, double *jac){
 
-  *t = 2*PI*sin(u/4.);
-  *jac = 0.5*PI*cos(u/4.);
-  return;
+  switch(ChgOfVar){
 
-  if(u>=0. && u<PI/2.){
-    *t = PI*sin(u)/(1+SQU(sin(u)));
+  case 1 : // based on leonid's [-1,1]->[-1,1] mapping
+    u = angle_02pi(u);
     *jac = PI*pow(cos(u),3.)/(4-4*pow(cos(u),2.)+pow(cos(u),4.));
+    if(u>=0. && u<PI/2.){
+      *t = PI*sin(u)/(1+pow(sin(u),2));
+    }
+    else if(u>=PI/2. && u<3*PI/2.){
+      *t = PI+PI*sin(u-PI)/(1+pow(sin(u-PI),2));
+      *jac *= -1;
+    }
+    else{
+      *t = 2.*PI+PI*sin(u)/(1+pow(sin(u),2));
+    }
+    break;
+
+  case 2 : // test
+    *t = 2*PI*sin(u/4.);
+    *jac = 0.5*PI*cos(u/4.);
+    break;
+
+  case 0 : // none
+  default :
+    *t = u;
+    *jac = 1.;
+    break;
+
   }
-  else if(u>=PI/2. && u<3*PI/2.){
-    *t = PI+PI*sin(u-PI)/(1+SQU(sin(u-PI)));
-    *jac = 1;
-  }
-  else{
-    *t = 2*PI+PI*sin(u)/(1+SQU(sin(u)));
-    *jac = 1;
-  }
-  //printf("u u %g %g \n", u, *u);
+
 }
 
 Complex Function::val(double k[3], double tau, double xtau[3]){

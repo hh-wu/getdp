@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.2 2002-03-04 17:11:20 geuzaine Exp $
+// $Id: Main.cpp,v 1.3 2002-03-06 02:06:39 geuzaine Exp $
 
 #include "GetDP.h"
 #include "LinAlg.h"
@@ -29,6 +29,7 @@ int main(int argc, char *argv[]){
   ctx.NbTargetPts = 20;
   ctx.Type = 0;
   ctx.scat.Type = Scatterer::Circle;
+  ctx.f.ChgOfVar = 0;
 
   sargv[0] = argv[0] ;
   int i = sargc = 1;
@@ -66,6 +67,9 @@ int main(int argc, char *argv[]){
       }
       else if(Cmp(argv[i]+1, "epsilon", 1)){
 	i++; ctx.Epsilon = GetNum(argc,argv,&i); 
+      }
+      else if(Cmp(argv[i]+1, "cv", 1)){ 
+	i++; ctx.f.ChgOfVar = 1;
       }
       else if(Cmp(argv[i]+1, "rise", 1)){
 	i++; ctx.Rise = GetNum(argc,argv,&i);

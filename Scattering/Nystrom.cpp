@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.22 2002-03-05 22:48:10 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.23 2002-03-06 02:06:39 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Complex.h"
@@ -69,6 +69,10 @@ public:
     d = sqrt(SQU(dxtau[0])+SQU(dxtau[1])) ;
   }
   Complex M(){
+    if(!kr){
+      Msg(WARNING, "kr=0 in M");
+      return 0.;
+    }
     return Bessel_h(1,0,kr) * d;
   }
   Complex M1(){
@@ -133,8 +137,8 @@ double SpecialQuadratureWeightForLog(double t, double tau, int n){
 // We also introduce an additional change of variables in order to
 // grade the mesh around the shadowing points:
 //
-// tau' = 
-// dtau' = 
+// tau' = ...
+// dtau' = ...
 //
 // We thus get:
 //
@@ -159,7 +163,7 @@ Complex Nystrom(int singular, double t, Function *func, double kvec[3],
     jac = 1.;
 
     double tau2 = tau_orig;
-    //ChgVar(tau_orig, &tau2, &jac);
+    func->chgvar(tau_orig, &tau2, &jac);
 
     tau = (tau2-PI)*part->epsilon/PI+part->center;
     jac *= part->epsilon/PI ;

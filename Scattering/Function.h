@@ -8,11 +8,12 @@ class Function{
 public:
   typedef enum {Test,Single,Vector} FunctionType;
   FunctionType Type;
-  int NumBF;
+  int NumBF, ChgOfVar;
   gVector *Sol;
 
   Complex val(double k[3], double tau, double xtau[3]);
   Complex bf(double tau);
+  void    chgvar(double u, double *t, double *jac);
 };
 
 // prototypes
