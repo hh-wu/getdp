@@ -31,9 +31,21 @@ void  Gauss_Tetrahedron (int Nbr_Points, int Num,
     *u = xtet15[Num] ; *v = ytet15[Num] ; *w = ztet15[Num] ;
     *wght = ptet15[Num] ; break ;
 
+  case 16 : 
+    *u = xtet16[Num] ; *v = ytet16[Num] ; *w = ztet16[Num] ;
+    *wght = ptet16[Num] ; break ;
+
+  case 17 : 
+    *u = xtet17[Num] ; *v = ytet17[Num] ; *w = ztet17[Num] ;
+    *wght = ptet17[Num] ; break ;
+
+  case 29 : 
+    *u = xtet29[Num] ; *v = ytet29[Num] ; *w = ztet29[Num] ;
+    *wght = ptet29[Num] ; break ;
+
   default : 
     Msg(ERROR, "Wrong Number of Integration Points in Gauss_Tetrahedron\n"
-	       "Valid choices: 1, 4, 5, 15");
+	       "Valid choices: 1, 4, 5, 15, 16, 17, 29");
     break;
   }
 
@@ -42,8 +54,9 @@ void  Gauss_Tetrahedron (int Nbr_Points, int Num,
 
 /* Degenerate n1Xn2Xn3 Gauss-Legendre scheme to integrate over a tet */
 
-int gltet[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-double *glxtet[20], *glytet[20], *glztet[20], *glptet[20];
+int gltet[MAX_LINE_POINTS] = {-1};
+double *glxtet[MAX_LINE_POINTS], *glytet[MAX_LINE_POINTS] ;
+double *glztet[MAX_LINE_POINTS], *glptet[MAX_LINE_POINTS];
 
 void hexToTet(double xi,double eta, double zeta,
 	      double *r, double *s, double *t, double *J) {
@@ -58,22 +71,23 @@ void hexToTet(double xi,double eta, double zeta,
 
 void  GaussLegendre_Tetrahedron (int Nbr_Points, int Num,
 				 double *u, double *v, double *w, double *wght) {
-
-  int i,j,k,index,nb;
+  int i,j,k,index=0,nb;
   double pt1,pt2,pt3,wt1,wt2,wt3,dJ,dum;
 
   nb = (int)cbrt((double)Nbr_Points);
 
-  if(nb*nb*nb != Nbr_Points || nb > 20)
-    Msg(ERROR, "Number of Points should be n^3 with n in [1,20]") ;
+  if(nb*nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
+    Msg(ERROR, "Number of Points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
+
+  if(gltet[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) gltet[i] = 0 ;
 
   if(!gltet[nb-1]){
-    Msg(INFO, "Computing GaussLegendre %dx%dx%d for Tetrahedron", nb, nb, nb);
+    Msg(INFO, "Computing Degenerate Gauss-Legendre %dX%dX%d for Tetrahedron", 
+	nb, nb, nb);
     glxtet[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
     glytet[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
     glztet[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
     glptet[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
-    index = 0;
     for(i=0; i < nb; i++) {
       Gauss_Line(nb, i, &pt1, &dum, &dum, &wt1);
       for(j=0; j < nb; j++) {
@@ -88,6 +102,7 @@ void  GaussLegendre_Tetrahedron (int Nbr_Points, int Num,
     }
     gltet[nb-1] = 1;
   }
-  *u= glxtet[nb-1][Num] ; *v= glytet[nb-1][Num] ; *w=  glztet[nb-1][Num] ;
-  *wght= glptet[nb-1][Num] ;
+
+  *u = glxtet[nb-1][Num] ; *v = glytet[nb-1][Num] ; *w = glztet[nb-1][Num] ;
+  *wght = glptet[nb-1][Num] ;
 }

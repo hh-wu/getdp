@@ -27,25 +27,26 @@ void  Gauss_Quadrangle (int Nbr_Points, int Num,
 
 /* Gauss-Legendre scheme to integrate over a quadrangle */
 
-int glq[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-double *glxq[20], *glyq[20], *glpq[20];
+int glq[MAX_LINE_POINTS] = {-1};
+double *glxq[MAX_LINE_POINTS], *glyq[MAX_LINE_POINTS], *glpq[MAX_LINE_POINTS];
 
 void  GaussLegendre_Quadrangle (int Nbr_Points, int Num,
 				double *u, double *v, double *w, double *wght) {
-  int i,j,index,nb;
+  int i,j,index=0,nb;
   double pt1,pt2,wt1,wt2,dJ,dum;
 
   nb = (int)sqrt((double)Nbr_Points);
 
-  if(nb*nb != Nbr_Points || nb > 20)
-    Msg(ERROR, "Number of Points should be n^2 with n in [1,20]") ;
+  if(nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
+    Msg(ERROR, "Number of Points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
+
+  if(glq[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) glq[i] = 0 ;
 
   if(!glq[nb-1]){
-    Msg(INFO, "Computing GaussLegendre %dx%d for Quadrangle", nb, nb);
+    Msg(INFO, "Computing Gauss-Legendre %dX%d for Quadrangle", nb, nb);
     glxq[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
     glyq[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
     glpq[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
-    index = 0;
     for(i=0; i < nb; i++) {
       Gauss_Line(nb, i, &pt1, &dum, &dum, &wt1);
       for(j=0; j < nb; j++) {
@@ -57,13 +58,13 @@ void  GaussLegendre_Quadrangle (int Nbr_Points, int Num,
     }
     glq[nb-1] = 1;
   }
-  *u= glxq[nb-1][Num] ; *v= glyq[nb-1][Num] ; *w= 0. ; 
-  *wght= glpq[nb-1][Num] ;
+
+  *u = glxq[nb-1][Num] ; *v = glyq[nb-1][Num] ; *w = 0. ; *wght = glpq[nb-1][Num] ;
 }
 
 /* Gauss Integration over a quadrangle with a 1/R singularity over node (-1,-1,0) */
 
-void  Gauss_Quadrangle_Singular (int Nbr_Points, int Num,
+void  GaussSingularR_Quadrangle (int Nbr_Points, int Num,
 				 double *u, double *v, double *w, double *wght) {
 
   switch (Nbr_Points) {
@@ -71,7 +72,7 @@ void  Gauss_Quadrangle_Singular (int Nbr_Points, int Num,
   case  3 : *u= xqs3 [Num] ; *v= yqs3 [Num] ; *w= 0. ; *wght= pqs3 [Num] ; break ;
   case  4 : *u= xqs4 [Num] ; *v= yqs4 [Num] ; *w= 0. ; *wght= pqs4 [Num] ; break ;
   default : 
-    Msg(ERROR, "Wrong Number of Integration Points in Gauss_Quadrangle_Singular\n"
+    Msg(ERROR, "Wrong Number of Integration Points in GaussSingularR_Quadrangle\n"
 	       "Valid choices: 1, 3, 4");
     break;
   }
