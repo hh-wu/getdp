@@ -1,4 +1,4 @@
-#define RCSID "$Id: CSR.c,v 1.6 2001-05-03 00:17:18 geuzaine Exp $"
+#define RCSID "$Id: CSR.c,v 1.7 2003-01-23 18:52:27 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -144,6 +144,8 @@ void deblign ( int nz , int *ptr , int *jptr , int *ai){
 void csr_format (Sparse_Matrix *MM, int N){
   int    i,*ptr,*jptr,*ai,n,iptr,iptr2;
   double *a;
+
+  if(!N) return;
 
   ptr  = (int*)MM->ptr->array;
   jptr = (int*)MM->jptr->array;
