@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.19 2001-07-12 15:56:28 dular Exp $ */
+/* $Id: GetDP.y,v 1.20 2001-07-17 07:04:19 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -276,7 +276,7 @@ struct PostSubOperation         PostSubOperation_S ;
 
 %token  tPostOperation  
 %token    tNameOfPostProcessing tUsingPost tAppend
-%token      tPlot tPrint tWrite tAdapt
+%token      tPlot tPrint tPrintGroup tWrite tAdapt
 %token        tOnGlobal tOnRegion tOnElementsOf
 %token        tOnGrid tOnSection tOnPoint tOnLine tOnPlane tOnBox
 %token        tWithArgument
@@ -5185,13 +5185,11 @@ PostSubOperation :
     {
       vyyerror("Plot has been superseded by Print (Plot OnRegion becomes Print OnElementsOf)") ;
     }
-
   | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_PRINT ;
     }
-/* 1 shift/reduce conflict !!!!!!!!
-  | tGroup '[' GroupRHS 
+  | tPrintGroup '[' GroupRHS 
     {
       PostSubOperation_S.Type = POP_GROUP ;
       PostSubOperation_S.Case.Group.ExtendedGroupIndex = Num_Group(&Group_S, "PO_Group", $3) ;
@@ -5200,7 +5198,6 @@ PostSubOperation :
     {
       PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, "PO_Group", $7) ;
     }
-*/
   ;
 
 PostQuantitiesToPrint :

@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.7 2001-06-17 21:04:46 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.8 2001-07-17 07:04:19 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -236,6 +236,7 @@ UsingPost                    return tUsingPost ;
 Append                       return tAppend ;
 Plot                         return tPlot ;
 Print                        return tPrint ;
+PrintGroup                   return tPrintGroup ;
 Adapt                        return tAdapt ;
 Write                        return tWrite ;
 OnGlobal                     return tOnGlobal ;
