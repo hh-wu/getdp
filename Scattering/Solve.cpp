@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.29 2002-06-13 00:11:57 geuzaine Exp $
+// $Id: Solve.cpp,v 1.30 2002-06-14 00:11:15 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -31,16 +31,12 @@ Complex Ctx::integrate(int index){
   Complex res;
 
   if(scat.dim() == 2){
-    if(f.type == Function::ANALYTIC){
-      t = initialTarget + TWO_PI*index/(double)nbTargetPts;
-      res = Integrate2D(this, index, t);
+    t = getTarget(index);
+    res = Integrate2D(this, index, t);
+
+    if(f.type == Function::ANALYTIC)
       Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", 
 	  index+1, t, res.real(), res.imag());
-    }
-    else{
-      t = getTarget(index);
-      res = Integrate2D(this, index, t);
-    }
   }
   else{
     //return Integrate3D(this, index);

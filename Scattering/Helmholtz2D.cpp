@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.7 2002-06-13 00:11:57 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.8 2002-06-14 00:11:15 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -180,8 +180,8 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
     if(singular && 
        (first || (ctx->f.applyChgVar && !(ctx->type & STORE_OPERATOR))))
-	Weights[j] = kern.singLogQuadWeight(t_pp,tau_pp,n);
-    
+      Weights[j] = kern.singLogQuadWeight(t_pp,tau_pp,n);
+
     if(pou){
 
       density = ctx->f.density(&ctx->scat,tau);
@@ -319,7 +319,7 @@ typedef struct{
   double min, max;
 } Interval;
 
-int fcmp_Interval(const void * a, const void * b) {
+int compareInterval(const void * a, const void * b) {
   Interval *i1 = (Interval*)a, *i2 = (Interval*)b;
   if(i1->max < i2->min) return -1;
   else if(i1->min > i2->max) return 1;
@@ -361,7 +361,7 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
     // add singular and  critical points in list
     ctx->scat.singularPoint(t,CritPts);
     ctx->scat.criticalPoints(index,CritPts);
-    List_Sort(CritPts, fcmp_CPoint);
+    List_Sort(CritPts, compareCPoint);
   
     // around which point should we integrate?
     printf("Target = %g\n", t);
@@ -393,15 +393,25 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
   // lists. At least, add a test on the type before discarding a
   // point: what happens when critical points approach a target pt?
   // 
-  // Should change fcmp_CPoint ?????????
+  // Should change compareCPoint ?
 
   // add target, critical and shadowing points in list
   ctx->scat.singularPoint(t,CritPts);
   ctx->scat.criticalPoints(index,CritPts);
   //ctx->scat.shadowingPoints(t,eps_shad/2.,ctx->waveNum,CritPts);
-  // ctx->scat.shadowingPoints(t,0.,ctx->waveNum,CritPts);
+  //ctx->scat.shadowingPoints(t,0.,ctx->waveNum,CritPts);
 
-  List_Sort(CritPts, fcmp_CPoint);
+  // FIXME:
+  /*
+  if(0 || ctx->scat.type == Scatterer::DROP){
+    CPoint corner;
+    corner.degree = 3;
+    corner.val = 0. ;
+    List_Insert(CritPts, &corner, compareCPoint);
+  }
+  */
+
+  List_Sort(CritPts, compareCPoint);
 
   if(ctx->iterNum==1) ctx->scat.printPoints(t,CritPts);
 
@@ -423,7 +433,7 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
     I.min = pt.val-eps;
     I.max = pt.val+eps;
     Msg(DEBUG, "  - %s pt %d = %.15e -> [%g,%g]", pt.name(), j, pt.val, I.min, I.max);
-    if((pI = (Interval*)List_PQuery(Intervals, &I, fcmp_Interval))){
+    if((pI = (Interval*)List_PQuery(Intervals, &I, compareInterval))){
       if(I.singular) pI->singular = 1;
       pI->min = MIN(pI->min, I.min);
       pI->max = MAX(pI->max, I.max);
@@ -448,7 +458,7 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
       I.max -= TWO_PI;
       if(I.singular) t-=TWO_PI;
       List_PSuppress(Intervals, List_Nbr(Intervals)-1);
-      if((pI = (Interval*)List_PQuery(Intervals, &I, fcmp_Interval))){
+      if((pI = (Interval*)List_PQuery(Intervals, &I, compareInterval))){
 	if(I.singular) pI->singular = 1;
 	pI->min = MIN(pI->min, I.min);
 	pI->max = MAX(pI->max, I.max);

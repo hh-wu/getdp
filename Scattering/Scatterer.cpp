@@ -1,30 +1,10 @@
-// $Id: Scatterer.cpp,v 1.20 2002-06-13 06:13:23 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.21 2002-06-14 00:11:15 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
 #include "Scatterer.h"
 #include "Function.h"
 #include "nrutil.h"
-
-#define TOL_LOOSE  1.e-3
-
-int fcmp_CPoint(const void * a, const void * b) {
-  double cmp ;
-  
-  cmp = ((CPoint*)a)->val - ((CPoint*)b)->val ;
-  if      (cmp > TOL_LOOSE)  return  1 ;
-  else if (cmp < -TOL_LOOSE) return -1 ;
-  else                       return  0 ;
-}
-
-int fcmp_double_loose(const void *a, const void *b){
-  double cmp ;
-  
-  cmp = *(double*)a - *(double*)b ;
-  if      (cmp > TOL_LOOSE)  return  1 ;
-  else if (cmp < -TOL_LOOSE) return -1 ;
-  else                       return  0 ;
-}
 
 // Parametric definition of the scatterers. This is awfull c++, I
 // know, thanks :-)
@@ -134,9 +114,32 @@ void Scatterer::polar(double u, double *r, double *dr, double *ddr){
   *dr = (cart[0]*dcart[0]+cart[1]*dcart[1]) / *r;
 
   ddx(u,-1,ddcart);
-  *ddr = - *dr / r2 + 
-    (SQU(dcart[0]) + cart[0]*ddcart[0] + SQU(dcart[1]) + cart[1]*ddcart[1]) / *r ;
+  *ddr = (SQU(dcart[0]) + cart[0]*ddcart[0] + SQU(dcart[1]) + cart[1]*ddcart[1]) / *r
+    - SQU(*dr) / r2;
 }
+
+// Critical point comparison
+
+#define TOL_POINT  1.e-6
+
+int compareCPoint(const void * a, const void * b) {
+  double cmp ;
+  
+  cmp = ((CPoint*)a)->val - ((CPoint*)b)->val ;
+  if      (cmp > TOL_POINT)  return  1 ;
+  else if (cmp < -TOL_POINT) return -1 ;
+  else                       return  0 ;
+}
+
+int compareDouble(const void *a, const void *b){
+  double cmp ;
+  
+  cmp = *(double*)a - *(double*)b ;
+  if      (cmp > TOL_POINT)  return  1 ;
+  else if (cmp < -TOL_POINT) return -1 ;
+  else                       return  0 ;
+}
+
 
 // Compute (hum!) the target point
 
@@ -145,7 +148,7 @@ void Scatterer::singularPoint(double t0, List_T *pts){
 
   pt.degree = 1;
   pt.val = t0;
-  List_Insert(pts, &pt, fcmp_CPoint);
+  List_Insert(pts, &pt, compareCPoint);
 }
 
 
@@ -162,13 +165,13 @@ void Scatterer::criticalPoints(int index, List_T *pts){
   for(i=0; i<List_Nbr(criticalPointsList[index]); i++){
     List_Read(criticalPointsList[index],i,&val);
     pt.val = val;
-    List_Insert(pts, &pt, fcmp_CPoint);
+    List_Insert(pts, &pt, compareCPoint);
   }
 }
 
 #define TINY 1.0e-20;
 
-void ludcmp (double **a, int n, int *indx, double *d){
+int ludcmp (double **a, int n, int *indx, double *d){
   int i, imax, j, k;
   double big, dum, sum, temp;
   double *vv;
@@ -180,8 +183,10 @@ void ludcmp (double **a, int n, int *indx, double *d){
     for (j = 1; j <= n; j++)
       if ((temp = fabs (a[i][j])) > big)
 	big = temp;
-    if (big == 0.0)
-      nrerror ("Singular matrix in routine ludcmp");
+    if (big == 0.0){
+      Msg(WARNING, "Singular matrix in routine ludcmp");
+      return 1; // error
+    }
     vv[i] = 1.0 / big;
   }
   for (j = 1; j <= n; j++) {
@@ -221,11 +226,12 @@ void ludcmp (double **a, int n, int *indx, double *d){
     }
   }
   free_dvector (vv, 1, n);
+  return 0; // OK
 }
 
 #undef TINY
 
-void lubksb (double **a, int n, int *indx, double b[]){
+int lubksb (double **a, int n, int *indx, double b[]){
   int i, ii = 0, ip, j;
   double sum;
 
@@ -246,6 +252,7 @@ void lubksb (double **a, int n, int *indx, double b[]){
       sum -= a[i][j] * b[j];
     b[i] = sum / a[i][i];
   }
+  return 0; // OK
 }
 
 #define FREERETURN {free_dmatrix(fjac,1,n,1,n);free_dvector(fvec,1,n);\
@@ -267,11 +274,17 @@ int Scatterer::mnewt(int ntrial, double x[], int n, double tolx, double tolf){
     for (i=1;i<=n;i++) errf += fabs(fvec[i]);
     if (errf <= tolf){
       FREERETURN;
-      return 0;
+      return 0; // OK
     }
     for (i=1;i<=n;i++) p[i] = -fvec[i];
-    ludcmp(fjac,n,indx,&d);
-    lubksb(fjac,n,indx,p);
+    if(ludcmp(fjac,n,indx,&d)){
+      FREERETURN;
+      return 2; //error in lu
+    }
+    if(lubksb(fjac,n,indx,p)){
+      FREERETURN;
+      return 3; //error in back substitution
+    }
     errx=0.0;
     for (i=1;i<=n;i++) {
       errx += fabs(p[i]);
@@ -279,11 +292,11 @@ int Scatterer::mnewt(int ntrial, double x[], int n, double tolx, double tolf){
     }
     if (errx <= tolx){
       FREERETURN;
-      return 0;
+      return 0; // OK
     }
   }
   FREERETURN;
-  return 1;
+  return 1; // did not converge
 }
 
 #undef FREERETURN
@@ -296,7 +309,7 @@ void Scatterer::phase2D(double *x, int n, double *fvec, double **fjac){
   polar(t0,&r0,&dr0, &ddr0);
 
   tmp1 = 2.*r*dr - 2.*r0*dr*cos(-t+t0) - 2.*r0*r*sin(-t+t0) ;
-  tmp2 = r0*r0 + r*r - 2*r0*r*cos(t-t0) ;
+  tmp2 = r0*r0 + r*r - 2*r0*r*cos(-t+t0) ;
 
   // gradient of the phase
   fvec[1] = 0.5 * tmp1 / sqrt(tmp2) + dr*cos(t) - r*sin(t) ;
@@ -308,7 +321,7 @@ void Scatterer::phase2D(double *x, int n, double *fvec, double **fjac){
     ddr * cos(t) - 2.*dr*sin(t) - r*cos(t);
 }
 
-#define NB_INITIAL_GUESS 1000
+#define NB_INITIAL_GUESS 100
 
 void Scatterer::criticalPoints(int nbnodes, double k[3]){
   int i_node, i, n, check;
@@ -337,12 +350,12 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
 	pt = PI-theta0+4.*n*PI;
 	if((pt-theta0>=0) && (pt-theta0<=TWO_PI)){
 	  while(pt > TWO_PI) pt-=TWO_PI;
-	  List_Insert(criticalPointsList[i_node], &pt, fcmp_CPoint);
+	  List_Insert(criticalPointsList[i_node], &pt, compareDouble);
 	}
 	pt = (PI+theta0)/3.+4./3.*n*PI;
 	if((pt-theta0>=0) && (pt-theta0<=TWO_PI)){
 	  while(pt > TWO_PI) pt-=TWO_PI;
-	  List_Insert(criticalPointsList[i_node], &pt, fcmp_CPoint);
+	  List_Insert(criticalPointsList[i_node], &pt, compareDouble);
 	}
       }
       break;
@@ -358,13 +371,13 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
       for(i=0; i<NB_INITIAL_GUESS; i++){
 	tmp[1] = theta;
 	
-	if(fabs(theta-theta0)>1*TOL_LOOSE){
+	if(fabs(theta-theta0) > TOL_POINT){
 	  //newt(tmp, 1, &check, phaseGradient, fdjac);
 	  //newt(tmp, 1, &check, phaseGradient, phaseGradientDiff);
-	  check = mnewt(200, tmp, 1, 1.e-12, 1.e-12);
+	  check = mnewt(200, tmp, 1, 0.1*TOL_POINT, 0.1*TOL_POINT);
 	  if(!check){
 	    tmp[1] = GetInInterval(tmp[1], 0., TWO_PI);
-	    List_Insert(criticalPointsList[i_node], &tmp[1], fcmp_double_loose);
+	    List_Insert(criticalPointsList[i_node], &tmp[1], compareDouble);
 	  }
 	  else
 	    Msg(WARNING,"Newton did not converge for theta0=%g, theta=%g", 
@@ -378,7 +391,7 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
       // solve the nonlinear system in the general case, using a
       // finite difference approximation for the jacobian
 
-      Msg(ERROR, "General newton with finite difference jac not done");
+      Msg(ERROR, "General Newton with finite difference jac not done");
       break;
 
     }
@@ -402,10 +415,10 @@ void Scatterer::shadowingPoints(double t, double shift, double k[3], List_T *pts
       Msg(ERROR, "Shadowing point computation not done in the general case");
 
     pt.val = PI/2. + shift ;
-    List_Insert(pts, &pt, fcmp_CPoint);
+    List_Insert(pts, &pt, compareCPoint);
 
     pt.val = 3*PI/2. - shift ;
-    List_Insert(pts, &pt, fcmp_CPoint);
+    List_Insert(pts, &pt, compareCPoint);
     break;
 
   default :
@@ -446,9 +459,9 @@ void Scatterer::printPoints(double t, List_T *pts){
   for(i=0; i<100; i++){
     currentTargetU = t;
     xvec[1] = TWO_PI*i/100.;
-    if(fabs(xvec[1]-t)>TOL_LOOSE){
+    if(fabs(xvec[1]-t)>TOL_POINT){
       phase2D(xvec,n,fvec,fjac);
-      fprintf(fp2,"%g %g\n", xvec[1],fvec[1]);
+      fprintf(fp2,"%g %g %g\n", xvec[1],fvec[1],fjac[1][1]);
     }
   }
   fprintf(fp2,"\n\n");

@@ -48,6 +48,6 @@ public:
   }
 };
 
-int fcmp_CPoint(const void * a, const void * b);
+int compareCPoint(const void * a, const void * b);
 
 #endif

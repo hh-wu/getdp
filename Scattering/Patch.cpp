@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.18 2002-06-13 00:11:57 geuzaine Exp $
+// $Id: Patch.cpp,v 1.19 2002-06-14 00:11:15 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -76,13 +76,13 @@ Patch::Patch(PatchType _type, int _beg, int _end,
     jacs[i] = 1.0;
 
     // colton&kress chg of vars
-    /*
+    
     extern double w(double s, int p);
     extern double dwds(double s, int p);
     double s=nodes[i];
     nodes[i] = w(s,8);
     jacs[i] = dwds(s,8);
-    */
+    
 
     // leonid's
     /*
@@ -94,12 +94,12 @@ Patch::Patch(PatchType _type, int _beg, int _end,
     */
 
     // tan/atan chg of vars
-        
-    double q=0.2, s=nodes[i];
+    /*
+    double q=0.5, s=nodes[i];
     nodes[i] = 2*atan(q*tan(s/2.)) ;
     if(nodes[i]<0) nodes[i] +=TWO_PI;
     jacs[i] = 2.*(q/2.*(1.+SQU(tan(s/2.)))) / (1.+SQU(q)*SQU(tan(s/2.))) ;
-    
+    */
 
   }
 #else
