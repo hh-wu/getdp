@@ -45,7 +45,7 @@ double *glzhex[MAX_LINE_POINTS], *glphex[MAX_LINE_POINTS];
 void  GaussLegendre_Hexahedron (int Nbr_Points, int Num,
 				double *u, double *v, double *w, double *wght) {
   int i,j,k,index=0,nb;
-  double pt1,pt2,pt3,wt1,wt2,wt3,dJ,dum;
+  double pt1,pt2,pt3,wt1,wt2,wt3,dum;
   
   nb = (int)cbrt((double)Nbr_Points);
   

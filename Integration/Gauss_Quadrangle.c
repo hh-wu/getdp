@@ -33,7 +33,7 @@ double *glxq[MAX_LINE_POINTS], *glyq[MAX_LINE_POINTS], *glpq[MAX_LINE_POINTS];
 void  GaussLegendre_Quadrangle (int Nbr_Points, int Num,
 				double *u, double *v, double *w, double *wght) {
   int i,j,index=0,nb;
-  double pt1,pt2,wt1,wt2,dJ,dum;
+  double pt1,pt2,wt1,wt2,dum;
 
   nb = (int)sqrt((double)Nbr_Points);
 
