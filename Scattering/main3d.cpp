@@ -12,17 +12,14 @@
 
 template <class T>
 
-// put this as a method in the patch class
-
-
-
 // put this as an alternative constructor in the grid class
 
 grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
-  int i, j, k, l, nbPatches = bodyArray.size();
+  int i, j, k, l, index;
+  int nbPts = (nbIntervalsU+1)*(nbIntervalsV+1), nbPatches = bodyArray.size();
   double u[nbIntervalsU+1][nbIntervalsV+1], v[nbIntervalsU+1][nbIntervalsV+1];
   double uPatch[nbIntervalsU+1][nbIntervalsV+1], vPatch[nbIntervalsU+1][nbIntervalsV+1];
-  double uTmp, vTmp, uTmp2, vTmp2, thisPOU, otherPOU;
+  double uTmp, vTmp, uTmp2, vTmp2, xTmp, yTmp, zTmp, thisPOU, otherPOU;
   valarray<double> *xyzTmp, *uvTmp;
   patch3D *patch, *patch2;
   grid *gridInst;
@@ -69,7 +66,6 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
     gridInst->uH[i] = uPatch[0][0]-uPatch[1][0];
     gridInst->vH[i] = vPatch[0][0]-vPatch[0][1];
 
-    int nbPts = (nbIntervalsU+1)*(nbIntervalsV+1);
     gridInst->positionsX[i].resize(nbPts);
     gridInst->positionsY[i].resize(nbPts);
     gridInst->positionsZ[i].resize(nbPts);
@@ -82,32 +78,39 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
     gridInst->jacobianDeterminant[i].resize(nbPts);
     gridInst->densities[i].resize(nbPts);
 
-    gridInst->scalarData[i].resize(1);
-    gridInst->scalarData[i][0].resize(nbPts);
-
-    // no masking: everything in straight 1D arrays
+    gridInst->scalarData[i].resize(nbIntervalsU+1);
 
     for(j=0 ; j<nbIntervalsU+1 ; j++){
+
+      gridInst->scalarData[i][j].resize(nbIntervalsV+1);
+
       for(k=0 ; k<nbIntervalsV+1 ; k++){
 
 	uTmp = uPatch[j][k];
 	vTmp = vPatch[j][k];
-	thisPOU = patch->pou(uTmp,vTmp);
+
 	xyzTmp = patch->call(uTmp,vTmp);
+	xTmp = (*xyzTmp)[0];
+	yTmp = (*xyzTmp)[1];
+	zTmp = (*xyzTmp)[2];
 	
-	int index = j*(nbIntervalsV+1)+k;
-	double x = (*xyzTmp)[0], y = (*xyzTmp)[1], z = (*xyzTmp)[2];
+	index = j*(nbIntervalsV+1)+k;
 
-	gridInst->positionsX[i][index] = x;
-	gridInst->positionsY[i][index] = y;
-	gridInst->positionsZ[i][index] = z;
-
+	gridInst->positionsX[i][index] = xTmp;
+	gridInst->positionsY[i][index] = yTmp;
+	gridInst->positionsZ[i][index] = zTmp;
 	gridInst->jacobianDeterminant[i][index] = patch->jacobianDeterminant(uTmp,vTmp);
+
+	thisPOU = patch->pou(uTmp,vTmp);
+
+	if(fabs(thisPOU) < 1.e-15 ||
+	   fabs(thisPOU)*gridInst->jacobianDeterminant[i][index] < 1.e-15)
+	  printf("Should mask this point\n");
 	
 	otherPOU = 0.;
 	for(l=0 ; l<nbPatches ; l++){
 	  patch2 = bodyArray[l];
-	  if((uvTmp = patch2->inverse(x,y,z))){
+	  if((uvTmp = patch2->inverse(xTmp,yTmp,zTmp))){
 	    uTmp2 = (*uvTmp)[0];
 	    vTmp2 = (*uvTmp)[1];
 	    if(uTmp2 >= patch2->uStart && uTmp2 <= patch2->uEnd &&
@@ -117,23 +120,20 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
 	}
 	
 	if(otherPOU < 1.e-6)
-	  printf("Sum of partitions of unity too small: patch %d, (u,v)=(%g,%g)",
-	      i, uTmp, vTmp);
+	  printf("Sum of POU too small: patch %d, (u,v)=(%g,%g)\n", i, uTmp, vTmp);
 
 	gridInst->pou[i][index] = thisPOU/otherPOU;
 
-	/*
-	gridInst->normalsX[i][index] = ...;
-	gridInst->normalsY[i][index] = ...;
-	gridInst->normalsZ[i][index] = ...;
-	gridInst->u[i][index] = ...;
-	gridInst->v[i][index] = ...;
-	gridInst->jacobianDeterminant[i][index] = ...;
-	gridInst->densities[i][index] = ...;
-	gridInst->uH[i][index] = ...;
-	gridInst->vH[i][index] = ...;
-	gridInst->scalarData[i][0][index] = ...;
-	*/
+	xyzTmp = patch->unitNormal(uTmp, vTmp);
+	gridInst->normalsX[i][index] = (*xyzTmp)[0];
+	gridInst->normalsY[i][index] = (*xyzTmp)[1];
+	gridInst->normalsZ[i][index] = (*xyzTmp)[2];
+
+	gridInst->u[i][index] = u[j][k];
+	gridInst->v[i][index] = v[j][k];
+
+	gridInst->densities[i][index] = 0.;
+	gridInst->scalarData[i][j][k] = 0.;
       }
     }
 
@@ -142,7 +142,7 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
   return gridInst;
 }
 
-void plotGrid(grid *g){
+void printGrid(grid *g){
   int i, j, k, i0, i1, i2, i3;
   int nbPatches = g->positionsX.size();
   
@@ -172,7 +172,7 @@ void plotGrid(grid *g){
 
 int main(){
   double radius = 1.0, waveNumber = 1.0, gamma = MAX(3,1./TWO_PI*waveNumber);
-  int nbIntervalsU = 20, nbIntervalsV = 20;
+  int nbIntervalsU = 10, nbIntervalsV = 10;
 
   // create patches
   valarray<patch3D*> bodyArray(6);
@@ -186,7 +186,7 @@ int main(){
   // create grid
   grid *gridInst = initGrid(bodyArray, nbIntervalsU, nbIntervalsV);
 
-  plotGrid(gridInst);
+  printGrid(gridInst);
 
   gridIntegrator *integrator = new gridIntegrator(gridInst, &bodyArray, waveNumber,
 						  "both", gamma, "no");
