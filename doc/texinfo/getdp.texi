@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.14 2001-07-20 16:51:52 geuzaine Exp $
+@c $Id: getdp.texi,v 1.15 2001-07-21 12:09:58 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -38,7 +38,7 @@
 @c =========================================================================
 @c %**start of header
 @setfilename        getdp.info
-@set EDITION        2.6
+@set EDITION        2.7
 @set GETDP-VERSION  0.83
 @set GETDP-WEB      @uref{http://www.geuz.org/getdp/}
 @set GMSH-WEB       @uref{http://www.geuz.org/gmsh/}
@@ -296,12 +296,6 @@ Short examples
 * Time domain resolution::      
 * Nonlinear resolution::        
 * Nonlinear formulations::      
-
-@code{PostOperation} examples
-
-* Maps::                        
-* Sections::                    
-* Prints::                      
 
 Complete examples
 
@@ -918,7 +912,8 @@ these constants: first constant of argument 1, first constant of
 argument 2, second constant of argument 1, @dots{}
 @end enumerate
 
-@xref{Constant expression examples}, for some examples. 
+@xref{Constant expression examples} as well as @ref{Function examples}, for
+some examples.
 
 @c -------------------------------------------------------------------------
 @c Operators
@@ -2182,7 +2177,7 @@ PostProcessing @{
   Integration @var{integration-id}; Jacobian @var{jacobian-id};
 @end example
 
-@noindent Note:
+@noindent Notes:
 @enumerate
 @item
 Multidefinition: @code{Name @var{post-processing-id}@{#@var{n}@}}
@@ -2194,7 +2189,7 @@ The quantity defined with @var{integral-value} is piecewise defined over the
 elements of the mesh of @var{group-def}, and takes, in each element, the
 value of the integration of @var{expression} over this element. The global
 integral of @var{expression} over a whole region (being either
-@var{group-def} or a subset of @var{group-def}) will be defined in the
+@var{group-def} or a subset of @var{group-def}) has to be defined in the
 @code{PostOperation} with the @code{@var{post-quantity-id}[@var{group-def}]}
 command (@pxref{PostOperation}).
 @end enumerate
@@ -2274,7 +2269,7 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
   Table | TimeTable | @var{etc}
 @end example
 
-@noindent Note:
+@noindent Notes:
 @enumerate
 @item
 Both @code{PostOperation} syntaxes are equivalent.  The first one conforms to
@@ -2283,9 +2278,9 @@ the overall interface, but the second one is more concise.
 @var{post-quantity-id} can only be used when this quantity has been defined
 as an @var{integral-value} (@pxref{PostProcessing}). In this case, the sum
 of all elementary integrals is performed over the region @var{group-def}.
-@item The @var{post-quantity-op} to allow the (simple) combination of
+@item The @var{post-quantity-op} allows the simple combination of
 space-dependant quantities (@var{post-quantity-id}) with global integral
-quantities (@var{post-quantity-id}[@var{group-def}]).
+quantities (@code{@var{post-quantity-id}[@var{group-def}]}).
 @end enumerate
 
 @xref{Types for PostOperation}, for the complete list of options and
@@ -3205,12 +3200,10 @@ Same as @code{VolAxiSqu}, but with rectangular shell transformation.
 
 @item Gauss
 Numerical Gauss integration.
-@i{Parameters} (#1): @code{NumberOfPoints}.
 
 @item GaussLegendre
-Numerical Gauss integration, obtained by multiplication of the
-one-dimensional Gauss integration.
-@i{Parameters} (#1): @code{NumberOfPoints}.
+Numerical Gauss integration obtained by application of a multiplicative rule
+on the one-dimensional Gauss integration.
 
 @end ftable
 
@@ -3597,7 +3590,7 @@ To compute a local quantity.
 @item Integral
 @{ @var{integral-value} @}
 
-To integrate the expression.
+To integrate the expression over each element.
 
 @end ftable
 
@@ -3629,17 +3622,17 @@ To integrate the expression.
 @item OnElementsOf
 @var{group-def}
 
-To compute a local quantity on elements belonging to the current mesh,
-of groups of region type, where the solution was computed during the
-processing stage.
+To compute a quantity on the elements belonging to the region
+@var{group-def}, where the solution was computed during the processing
+stage.
 
 @item OnRegion
 @var{group-def}
 
-To compute global quantities associated with regions.
+To compute a global quantity associated with the region @var{group-def}.
 
 @item OnGlobal
-To compute evaluate global integral quantities, with no associated region.
+To compute a global integral quantity, with no associated region.
 
 @item OnSection
 @{ @var{expression-cst-vector} @var{expression-cst-vector} @var{expression-cst-vector} @}
@@ -3651,8 +3644,10 @@ three points).
 @item OnGrid
 @var{group-def}
 
-To compute a quantity in elements of a mesh (support for a solution that
-differs from the real support of the solution, i.e.@: reinterpolation).
+To compute a quantity in elements of a mesh which differs from the real
+support of the solution. @code{OnGrid @var{group-def}} differs from
+@code{OnElementsOf @var{group-def}} by the reinterpolation that must be
+performed.
 
 @item OnGrid
 @var{expression-vector} @{ @var{expression-cst-list}, @var{expression-cst-list} @}
@@ -3706,9 +3701,9 @@ Outputs the result in a file named @var{string}.
 @item File
 @code{> "@var{string}"}
 
-Same as @code{File  "@var{string}"}, except that, if several @code{File >
-"@var{string}"} appear in the same @code{PostOperation}, the results are
-concatenated in the file @var{string}. 
+Same as @code{File "@var{string}"}, except that, if several @code{File >
+"@var{string}"} options appear in the same @code{PostOperation}, the results
+are concatenated in the file @var{string}.
 
 @item File
 @code{>> "@var{string}"}
@@ -3768,13 +3763,14 @@ error map.
 @item Target
 @var{expression-cst} 
 
-Specifies the target for the optimizer during adaptation.
+Specifies the target for the optimizer during adaptation (error for
+@code{P1|H1}, number of elements for @code{H2}).
 
 @item Value
 @code{@var{expression-cst} | Value @{ @var{expression-cst-list} @}}
 
 Specifies acceptable output values for discrete optimization (e.g. the
-available interpolation orders).
+available interpolation orders with @code{Adapt P1}).
 
 @item Sort
 @code{Position|Connection}
@@ -3796,7 +3792,7 @@ Outputs directly contour prints for the values specified in the
 
 @item NoNewLine
 Suppresses the new lines in the output when printing global quantities
-(i.e.@: with @code{Print OnRegion}).
+(i.e.@: with @code{Print OnRegion} or @code{Print OnGlobal}).
 
 @end ftable
 
@@ -3971,12 +3967,46 @@ Function @{
 @end example
 
 @noindent
-where function @code{mu[]} in region @code{NonLinearCore} has one argument 
-@code{$1} which has to be the magnetic flux density @var{b} = curl @var{a}. 
-This function is actually called when writing the equations of a formulation, 
-which permits to directly extend it to a nonlinear form by adding only the 
-necessary arguments, e.g.@: by writing @code{nu[@{Curl a@}]} instead of 
-@code{nu[]} in @code{Equation} terms (@pxref{Formulation examples}).
+where function @code{mu[]} in region @code{NonLinearCore} has one argument
+@code{$1} which has to be the magnetic flux density.  This function is
+actually called when writing the equations of a formulation, which permits
+to directly extend it to a nonlinear form by adding only the necessary
+arguments. For example, in a magnetic vector potential formulation, one may
+write @code{mu[@{Curl a@}]} instead of @code{mu[]} in @code{Equation} terms
+(@pxref{Formulation examples}). Multiple arguments can be specified in a
+similar way: writing @code{mu[@{Curl a@},@{T@}]} in an @code{Equation} term
+will provide the function @code{mu[]} with two usable arguments, @code{$1}
+(the magnetic flux density) and @code{$2} (the temperature).
+
+It is also possible to directly interpolate one-dimensional functions from
+tabulated data. In the following example, the function @var{f}(@var{x}) as
+well as its derivative @var{f}'(@var{x}) are interpolated from the
+(@var{x},@var{f}(@var{x})) couples (0,0.65), (1,0.72), (2,0.98) and
+(3,1.12):
+
+@example
+Function @{
+  couples = @{0, 0.65 , 1, 0.72 , 2, 0.98 , 3, 1.12@};
+  f[] = InterpolationLinear[$1]@{List[couples]@};
+  dfdx[] = dInterpolationLinear[$1]@{List[couples]@};
+@}
+@end example
+
+@noindent The function @code{f[]} may then be called in an @code{Equation}
+term of a @code{Formulation} with one argument, @var{x}. In order to
+facilitate the construction of such interpolations, the couples can also be
+specified in two separate lists, merged with the alternate list
+@code{ListAlt} command (@pxref{Constants}):
+
+@example
+Function @{
+  data_x = @{0, 1, 2, 3@};
+  data_f = @{0.65, 0.72, 0.98, 1.12@};
+  couples = ListAlt[data_x, data_f];
+  f[] = InterpolationLinear[$1]@{List[couples]@};
+  dfdx[] = dInterpolationLinear[$1]@{List[couples]@};
+@}
+@end example
 
 A function can also be time dependent, e.g.
 
@@ -3990,9 +4020,9 @@ Function @{
 @end example
 
 @noindent
-Note that @code{TimeFct_ExtSin[]} is an extended math function equivalent to
-@code{TimeFct_Sin[]}.  It is usually used in harmonic analyses for implicit
-definitions of phasors.
+Note that @code{TimeFct_ExtSin[]} is identical to @code{TimeFct_Sin[]} in a
+time domain analysis, but also permits to define phasors implicitely in the
+case of harmonic analyses.
 
 @c -------------------------------------------------------------------------
 @c Constraint Examples
@@ -4020,11 +4050,21 @@ Constraint @{
 @end example
 
 @noindent
-The way the @code{Value}s are associated with @code{Region}s (with their nodes,
-their edges, their global regions, @dots{}) is defined in the 
-@code{FunctionSpace}s which use the @code{Constraint}.
-In other words, a @code{Constraint} defines data but does not define the method
-to process them.
+The way the @code{Value}s are associated with @code{Region}s (with their
+nodes, their edges, their global regions, @dots{}) is defined in the
+@code{FunctionSpace}s which use the @code{Constraint}.  In other words, a
+@code{Constraint} defines data but does not define the method to process
+them. A time dependent essential boundary condition on @code{Surf1} would be
+introduced as (cf. @ref{Function examples} for the definition of
+@code{TimeFct_Exp[]}):
+
+@example
+      @{ Region Surf1; Value 1.; TimeFunction 3*TimeFct_Exp[] @}
+@end example
+
+@noindent It is important to notice that the time dependence cannot be
+introduced in the @code{Value} field, since the @code{Value} is only
+evaluated once during the pre-processing.
 
 Other constraints can be referred to in @code{Formulation}s. It is the case of 
 those defining electrical circuit connections (@code{Network} type), e.g.@:
@@ -4049,6 +4089,8 @@ which defines two non-connected circuits (@code{Circuit1} and @code{Circuit2}),
 with an independent numbering of nodes: region @code{VoltageSource} is connected in
 parallel with region @code{PrimaryCoil}, and region @code{SecondaryCoil} is 
 connected in parallel with region @code{Charge}.
+
+@c More examples to come here...
 
 @c -------------------------------------------------------------------------
 @c FunctionSpace Examples
@@ -4900,7 +4942,6 @@ PostProcessing @{
 @end example
 
 @noindent
-with the predefinition @code{Function @{ eps0 = 8.854187818e-12; @}}.
 The electric scalar potential @var{v} (@code{v}), the electric field
 @var{e} (@code{e}) and the electric flux density @var{d} (@code{d}) can
 all be computed from the solution. They are all defined in the region
@@ -4936,54 +4977,75 @@ which points out the way to define post-quantities based on global quantities.
 
 @cindex Post-operation, examples
 
-@menu
-* Maps::                        
-* Sections::                    
-* Prints::                      
-@end menu
-
-@c .........................................................................
-@c Maps
-@c .........................................................................
-
-@node Maps, Sections, PostOperation examples, PostOperation examples
-@subsection Maps
+The simplest post-processing operation is the generation of maps of local
+quantities, i.e.@: the display of the computed fields on the mesh. For
+example, using the @code{PostProcessing} defined in @ref{PostProcessing
+examples}, the maps of the electric scalar potential and of the electric
+field on the elements of the region @code{Domain} are defined as:
 
 @example
-PostOperation Map_v_e UsingPost EleSta_v @{
-  Print [ v, OnElementsOf Domain, File "map_v.pos" ];
-  Print [ e, OnElementsOf Domain, File "map_e.pos" ];
+PostOperation @{
+  @{ Name Map_v_e; NameOfPostprocessing EleSta_v ;
+     Operation @{
+       Print [ v, OnElementsOf Domain, File "map_v.pos" ];
+       Print [ e, OnElementsOf Domain, File "map_e.pos" ];
+     @}
+  @}
 @}
 @end example
 
-@c .........................................................................
-@c Sections
-@c .........................................................................
-
-@node Sections, Prints, Maps, PostOperation examples
-@subsection Sections
+It is also possible to display local quantities on sections of the mesh,
+here for example on the plane containing the points (0,0,1), (1,0,1) and
+(0,1,1):
 
 @example
-e = 1.e-7;
+Print [ v, OnSection @{ @{0,0,1@} @{1,0,1@} @{0,1,1@} @}, File "sec_v.pos" ];
+@end example
 
-PostOperation Cut_e UsingPost EleSta_v @{
-  Print [ e, OnLine @{ @{e,e,0@} @{10.e-3,e,0@} @} @{1000@}, File "sec_e" ];
+Finally, local quantities can also be interpolated on another mesh than the
+one on which they have been computed. Six types of grids can be specified
+for this interpolation: a single point, a set of points evenly distributed
+on a line, a set of points evenly distributed on a plane, a set of points
+evenly distributed in a box, a set of points defined by a parametric
+equation, and a set of elements belonging to a different mesh than the
+original one:
+
+@example
+Print [ e, OnPoint @{0,0,1@} ];
+Print [ e, OnLine @{ @{0,0,1@} @{1,0,1@} @} @{125@} ];
+Print [ e, OnPlane @{ @{0,0,1@} @{1,0,1@} @{0,1,1@} @} @{125, 75@} ];
+Print [ e, OnBox @{ @{0,0,1@} @{1,0,1@} @{0,1,1@} @{0,0,2@} @} @{125, 75, 85@} ];
+Print [ e, OnGrid @{$S, $T, 1@} @{ @{0:1:1/125@}, @{0:1:1/75@} @} ];
+Print [ e, OnGrid Domain2 ];
+@end example
+
+Many options can be used to modify the aspect of all these maps, as well as
+the default behaviour of the @code{Print} commands. @xref{Types for
+PostOperation}, to get the list of all these options. For example, to obtain
+a map of the scalar potential at the barycenters of the elements on the
+boundary of the region @code{Domain}, in a table oriented format appended to
+an already existing file @code{out.txt}, the operation would be:
+@example
+Print [ v, OnElementsOf Domain, Depth 0, Skin, Format Table, 
+        File >> "out.txt" ];
+@end example
+
+Global quantities, which are associated with regions (and not with the
+elements of the mesh of these regions), are displayed thanks to the
+@code{OnRegion} operation. For example, the global potential and charge on
+the region @code{SkinDomainC} can be displayed with:
+
+@example
+PostOperation @{
+  @{ Name Val_V_Q; NameOfPostprocessing EleSta_vf ;
+     Operation @{
+       Print [ V, OnRegion SkinDomainC ];
+       Print [ Q, OnRegion SkinDomainC ];
+     @}
+  @}
 @}
 @end example
 
-@c .........................................................................
-@c Evaluation of Global Quantities
-@c .........................................................................
-
-@node Prints,  , Sections, PostOperation examples
-@subsection Evaluation of global quantities
-
-@example
-PostOperation Val_V_Q UsingPost EleSta_vf @{
-  Print [ V, OnRegion SkinDomainC ];
-  Print [ Q, OnRegion SkinDomainC ];
-@}
-@end example
 
 @c =========================================================================
 @c Complete Examples
