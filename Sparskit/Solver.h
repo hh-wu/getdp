@@ -1,4 +1,4 @@
-/* $Id: Solver.h,v 1.8 2001-07-08 15:44:11 geuzaine Exp $ */
+/* $Id: Solver.h,v 1.9 2001-08-10 09:55:03 geuzaine Exp $ */
 #ifndef _SOLVER_H_
 #define _SOLVER_H_
 
@@ -142,6 +142,9 @@ void multi_prod_matrix_vector(int n, int Sizevec, Matrix **Mat, double **Vec, do
 void normation_vector(int Nb, double *U);
 
 void identity_matrix (Matrix *M);
+
+void scale_matrix (int scaling, Matrix *M);
+void scale_vector (int ROW_or_COLUMN, Matrix *M, double *V);
 
 void formatted_write_matrix (FILE *pfile, Matrix *M, int style);
 void formatted_write_vector (FILE *pfile, int Nb, double *V, int style);

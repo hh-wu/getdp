@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.14 2001-07-25 13:08:16 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.15 2001-08-10 09:55:03 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -116,7 +116,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   if(p->Scaling != NONE){
     Msg(SPARSKIT, "Scaling system of equations\n") ;
 
-    scaling_matrix (p->Scaling, M) ;
+    scale_matrix (p->Scaling, M) ;
     scale_vector (ROW, M, b) ;    
   } else 
     Msg(SPARSKIT, "No scaling of system of equations\n") ;
