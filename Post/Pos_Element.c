@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.19 2003-01-26 07:31:29 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.20 2003-03-17 18:05:50 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -387,7 +387,12 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
     case TETRAHEDRON : PE->u[0] = 0.25 ; PE->v[0] = 0.25 ; PE->w[0] = 0.25 ; break ;
     case HEXAHEDRON  : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
     case PRISM       : PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
-    case PYRAMID     : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
+    case PYRAMID     : 
+#if defined(NEW_PYRAMIDS)
+      PE->u[0] = 2./5.   ; PE->v[0] = 2./5.   ; PE->w[0] = 1./5.; break ;
+#else
+      PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
+#endif
     }
     POS_CUT_FILL ;     
 
@@ -622,10 +627,17 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[1] = GE->NumNodes[1] ;
 	  PE->NumNodes[2] = -1 ;
 	  PE->NumNodes[3] = GE->NumNodes[4] ;
+#if defined(NEW_PYRAMIDS)
+	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
+	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ; 	      
+	  PE->u[2] = 0.5; PE->v[2] = 0.5; PE->w[2] = 0. ;   	     
+	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	
+#else
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 0. ; 	     
-	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
+	  PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 0. ;   	     
+	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	
+#endif     
 	  POS_CUT_FILL;
 
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 2 3 x 5 */
@@ -633,10 +645,17 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
 	  PE->NumNodes[2] = -1 ;
 	  PE->NumNodes[3] = GE->NumNodes[4] ;
+#if defined(NEW_PYRAMIDS)
+	  PE->u[0] = 1. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
+	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
+	  PE->u[2] = 0.5; PE->v[2] = 0.5; PE->w[2] = 0. ; 	     
+	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
+#else
 	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
 	  PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 0. ; 	     
 	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
+#endif
 	  POS_CUT_FILL;
 
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 3 4 x 5 */
@@ -644,10 +663,17 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
 	  PE->NumNodes[2] = -1 ;
 	  PE->NumNodes[3] = GE->NumNodes[4] ;
+#if defined(NEW_PYRAMIDS)
+	  PE->u[0] = 1. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
+	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
+	  PE->u[2] = 0.5; PE->v[2] = 0.5; PE->w[2] = 0. ; 	     
+	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
+#else
 	  PE->u[0] = 1. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
 	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
 	  PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 0. ; 	     
 	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
+#endif
 	  POS_CUT_FILL;
 
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 4 1 x 5 */
@@ -655,10 +681,17 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[1] = GE->NumNodes[0] ;
 	  PE->NumNodes[2] = -1 ;
 	  PE->NumNodes[3] = GE->NumNodes[4] ;
+#if defined(NEW_PYRAMIDS)
+	  PE->u[0] = 0. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
+	  PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 0. ; 	      
+	  PE->u[2] = 0.5; PE->v[2] = 0.5; PE->w[2] = 0. ; 	     
+	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
+#else
 	  PE->u[0] =-1. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
 	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 0. ; 	      
 	  PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 0. ; 	     
 	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
+#endif
 	  POS_CUT_FILL;
 	}
 	else{
@@ -668,11 +701,19 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[2] = GE->NumNodes[2] ;
 	  PE->NumNodes[3] = GE->NumNodes[3] ;
 	  PE->NumNodes[4] = GE->NumNodes[4] ;
+#if defined(NEW_PYRAMIDS)
+	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
+	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ; 	      
+	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+	  PE->u[3] = 0. ; PE->v[3] = 1. ; PE->w[3] = 0. ; 	     
+	  PE->u[4] = 0. ; PE->v[4] = 0. ; PE->w[4] = 1. ;
+#else
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ; 	      
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
 	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 0. ; 	     
 	  PE->u[4] = 0. ; PE->v[4] = 0. ; PE->w[4] = 1. ;
+#endif
 	  POS_CUT_FILL;
 	}
 	break ;
@@ -1068,36 +1109,60 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->NumNodes[1] = GE->NumNodes[1] ;
 	PE->NumNodes[2] = GE->NumNodes[4] ;
+#if defined(NEW_PYRAMIDS)
+	PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
+	PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
+	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+#else
 	PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
 	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+#endif
 	POS_CUT_SKIN;
 
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 2 3 5 */
 	PE->NumNodes[0] = GE->NumNodes[1] ;
 	PE->NumNodes[1] = GE->NumNodes[2] ;
 	PE->NumNodes[2] = GE->NumNodes[4] ;
+#if defined(NEW_PYRAMIDS)
+	PE->u[0] = 1. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
+	PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
+	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+#else
 	PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
 	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+#endif
 	POS_CUT_SKIN;
 
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 3 4 5 */
 	PE->NumNodes[0] = GE->NumNodes[2] ;
 	PE->NumNodes[1] = GE->NumNodes[3] ;
 	PE->NumNodes[2] = GE->NumNodes[4] ;
+#if defined(NEW_PYRAMIDS)
+	PE->u[0] = 1. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
+	PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
+	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+#else
 	PE->u[0] = 1. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
 	PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
 	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+#endif
 	POS_CUT_SKIN;
 
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 4 1 5 */
 	PE->NumNodes[0] = GE->NumNodes[3] ;
 	PE->NumNodes[1] = GE->NumNodes[0] ;
 	PE->NumNodes[2] = GE->NumNodes[4] ;
+#if defined(NEW_PYRAMIDS)
+	PE->u[0] = 0. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
+	PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
+	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+#else
 	PE->u[0] =-1. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
 	PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
 	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+#endif
 	POS_CUT_SKIN;
 	
 	if(DecomposeInSimplex){
@@ -1105,18 +1170,30 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
 	  PE->NumNodes[2] = GE->NumNodes[1] ;
+#if defined(NEW_PYRAMIDS)
+	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
+	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
+	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 0. ;
+#else
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
 	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 0. ;
+#endif
 	  POS_CUT_SKIN;
 	  
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 4 3 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
 	  PE->NumNodes[2] = GE->NumNodes[2] ;
+#if defined(NEW_PYRAMIDS)
+	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
+	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
+	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+#else
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+#endif
 	  POS_CUT_SKIN;	
 	}
 	else{
@@ -1125,10 +1202,17 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
 	  PE->NumNodes[2] = GE->NumNodes[2] ;
 	  PE->NumNodes[3] = GE->NumNodes[1] ;
+#if defined(NEW_PYRAMIDS)
+	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
+	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
+	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+	  PE->u[3] = 1. ; PE->v[3] = 0. ; PE->w[3] = 0. ;
+#else
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
 	  PE->u[3] = 1. ; PE->v[3] =-1. ; PE->w[3] = 0. ;
+#endif
 	  POS_CUT_SKIN;
 	}
 	break ;
