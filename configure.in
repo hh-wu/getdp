@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.15 2003-02-13 23:40:23 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.16 2003-02-13 23:57:08 geuzaine Exp $"
 dnl
 dnl Machine independent configuration script for GetDP.
 dnl
@@ -167,6 +167,8 @@ else
       CC="cc"
       F77="f77"
       C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+      C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
+      F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
       SOLVER="-D_SPARSKIT -D_UNDERSCORE"
       LINKER="f77"
       ;;

@@ -2509,6 +2509,8 @@ else
       CC="cc"
       F77="f77"
       C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+      C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
+      F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
       SOLVER="-D_SPARSKIT -D_UNDERSCORE"
       LINKER="f77"
       ;;
