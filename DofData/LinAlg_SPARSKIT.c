@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.17 2002-02-27 16:37:28 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.18 2002-03-01 19:41:13 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -146,7 +146,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
   init_matrix(n, &M->M, &Solver->Params) ;
   if(Part){
     Part[0] = 0;
-    Part[1] = n-1;
+    Part[1] = n;
   }
 
   GetDP_End ;

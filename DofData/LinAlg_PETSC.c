@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.20 2002-02-28 01:00:04 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.21 2002-03-01 19:41:13 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -1039,13 +1039,13 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   /* Should be done only if the structure and/or the value of the elements change */
 
   /* scale */
-  
+  /*  
   VecDuplicate(X->V, &diag);
   MatGetDiagonal(A->M, diag);
   VecReciprocal(diag); 
   MatDiagonalScale(A->M, diag, PETSC_NULL);
   VecPointwiseMult(B->V, diag, B->V);
-
+  */
   /* Should be done only once */
 
   ierr = SLESCreate(PETSC_COMM_WORLD, &Solver->sles); MYCHECK(ierr);
@@ -1060,9 +1060,11 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   
   ierr = SLESSolve(Solver->sles, B->V, X->V, &its); MYCHECK(ierr); 
 
+  /*
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
   if (!RankCpu) Msg(PETSC, "%d iterations", its) ;
+  */
 
   /* unscale */
   /*  VecReciprocal(diag); 
