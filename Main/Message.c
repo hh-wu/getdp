@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.55 2003-01-24 23:04:09 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.56 2003-01-25 00:55:24 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -227,25 +227,31 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       }
       Gmsh_SendString(Flag_SOCKET, gmshlevel, prefix);
     }
-
-    if(str) fprintf(stream, str); 
-    vfprintf(stream, fmt, args); 
-    if(nl) fprintf(stream, "\n");
-    if(level == BIGERROR){
-#ifdef USE_DEBUG
-      Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
-		       &Line, FunctionName);
-      fprintf(stream, WHITE_STR); 
-      fprintf(stream, "File '%s' (V%s by %s on %s)\n", 
-	      FileName, FileVersion, FileAuthor, FileDate);
-      fprintf(stream, WHITE_STR); 
-      fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
+#if !defined(WIN32) 
+    else{ // on Unix, don't print anything if getdp is called with a
+	  // socket arg: it would be piped to .xsession-errors
 #endif
-      fprintf(stream, WHITE_STR "------------------------------------------------------\n");
-      fprintf(stream, WHITE_STR "You have discovered a bug in GetDP! You may report it\n");
-      fprintf(stream, WHITE_STR "by e-mail (together with any helpful data permitting to\n");
-      fprintf(stream, WHITE_STR "reproduce it) to <getdp@geuz.org>\n");
+      if(str) fprintf(stream, str); 
+      vfprintf(stream, fmt, args); 
+      if(nl) fprintf(stream, "\n");
+      if(level == BIGERROR){
+#ifdef USE_DEBUG
+	Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
+			 &Line, FunctionName);
+	fprintf(stream, WHITE_STR); 
+	fprintf(stream, "File '%s' (V%s by %s on %s)\n", 
+		FileName, FileVersion, FileAuthor, FileDate);
+	fprintf(stream, WHITE_STR); 
+	fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
+#endif
+	fprintf(stream, WHITE_STR "------------------------------------------------------\n");
+	fprintf(stream, WHITE_STR "You have discovered a bug in GetDP! You may report it\n");
+	fprintf(stream, WHITE_STR "by e-mail (together with any helpful data permitting to\n");
+	fprintf(stream, WHITE_STR "reproduce it) to <getdp@geuz.org>\n");
+      }
+#if !defined(WIN32) 
     }
+#endif
 
   }
 
