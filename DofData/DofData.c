@@ -186,8 +186,7 @@ void  Dof_WriteFilePRE(struct DofData * DofData_P) {
   fprintf(File_PRE, "%d %d\n",
 	  DofData_P->ResolutionIndex, DofData_P->SystemIndex) ;
 
-  Nbr_Index =
-    (DofData_P->FunctionSpaceIndex)? List_Nbr(DofData_P->FunctionSpaceIndex) : 0 ;
+  Nbr_Index = List_Nbr(DofData_P->FunctionSpaceIndex) ;
   fprintf(File_PRE, "%d", Nbr_Index) ;
   for (i = 0 ; i < Nbr_Index ; i++)
     fprintf(File_PRE, " %d",
