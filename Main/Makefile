@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.6 2000-09-08 09:51:11 geuzaine Exp $
+# $Id: Makefile,v 1.7 2000-09-09 07:29:41 geuzaine Exp $
 #
-#  Makefile for 'libMain.a'
+# Makefile for 'libMain.a'
 # 
 
 .IGNORE:
@@ -12,10 +12,10 @@ SOLVER  = -D_SPARSKIT
 
 LIB     = ../lib/libMain.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../Function\
-          -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit 
+          -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit
 
 CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER)\
-          $(INCLUDE) 
+          $(INCLUDE)
 
 SRC = Main.c Message.c \
         SolvingAnalyse.c SolvingOperations.c \

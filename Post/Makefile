@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.5 2000-09-08 09:51:11 geuzaine Exp $
+# $Id: Makefile,v 1.6 2000-09-09 07:29:41 geuzaine Exp $
 #
-#  Makefile for 'libPost.a'
+# Makefile for 'libPost.a'
 # 
 
 .IGNORE:

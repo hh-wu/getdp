@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.6 2000-09-08 09:51:11 geuzaine Exp $
+# $Id: Makefile,v 1.7 2000-09-09 07:29:41 geuzaine Exp $
 #
-#  Makefile for 'libSolverMisc.a'
+# Makefile for 'libSolverMisc.a'
 #
 
 .IGNORE:

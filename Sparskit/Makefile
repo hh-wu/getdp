@@ -1,6 +1,6 @@
-# $Id: Makefile,v 1.3 2000-09-08 09:51:11 geuzaine Exp $
+# $Id: Makefile,v 1.4 2000-09-09 07:29:41 geuzaine Exp $
 #
-#  Makefile for 'libSparskit.a'
+# Makefile for 'libSparskit.a'
 #
 
 .IGNORE:
