@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.64 2004-05-11 15:19:42 geuzaine Exp $
+@c $Id: getdp.texi,v 1.65 2004-10-24 01:53:17 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 @c
@@ -660,8 +660,8 @@ list of methods that we have considered and coupled until now:
 @table @asis
 @item Numerical methods
 finite element method@*
-boundary element method@*
-volumic integral methods
+boundary element method (experimental, undocumented)@*
+volume integral methods (experimental, undocumented)
 @item Geometrical models
 one-dimensional models (1D)@*
 two-dimensional models (2D), plane and axisymmetric@*
@@ -670,7 +670,7 @@ three-dimensional models (3D)
 static states@*
 sinusoidal and harmonic states@*
 transient states@*
-eigen value problems
+eigen value problems (experimental)
 @end table
 
 These methods have been successfully applied to build coupled physical
@@ -1944,7 +1944,7 @@ terms and for changes of coordinates. They are based on @code{Group}
 objects and define the geometrical transformations applied to the
 reference elements (i.e.@: lines, triangles, quadrangles, tetrahedra,
 prisms, hexahedra, etc.). Besides the classical lineic, surfacic and
-volumic Jacobians, the @code{Jacobian} object allows the construction of
+volume Jacobians, the @code{Jacobian} object allows the construction of
 various transformation methods (e.g.@: infinite transformations for
 unbounded domains) thanks to dedicated jacobian methods.
 
