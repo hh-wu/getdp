@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.35 2001-05-04 22:48:21 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.36 2001-05-16 13:16:06 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -85,6 +85,19 @@ int  main(int argc, char *argv[]) {
   Init_GlobalVariables() ;
   Get_Options(argc, argv, &sargc, sargv, Name_ProFile, Name_Generic) ;
 
+  /* log file */
+
+  if(Flag_LOG){
+    strcpy(Name_LogFile, Name_Generic) ;
+    strcat(Name_LogFile, ".log") ;
+    if(!(LogStream = fopen(Name_LogFile, "w+"))){
+      Flag_LOG = 0;
+      Msg(WARNING, "Unable to open file '%s'", Name_LogFile) ;
+    }
+  }
+
+  /* unused options */
+
   if(sargc > 1){
     Msg(INFO1, "Passing unused options to solver: '") ;
     for(i = 1 ; i < sargc ; i++) {
@@ -109,17 +122,6 @@ int  main(int argc, char *argv[]) {
     Name_MshFile = (char*)Malloc((strlen(Name_Generic)+5)*sizeof(char)) ;
     strcpy(Name_MshFile, Name_Generic) ;
     strcat(Name_MshFile, ".msh") ;
-  }
-
-  /* log file */
-
-  if(Flag_LOG){
-    strcpy(Name_LogFile, Name_Generic) ;
-    strcat(Name_LogFile, ".log") ;
-    if(!(LogStream = fopen(Name_LogFile, "w+"))){
-      Flag_LOG = 0;
-      Msg(WARNING, "Unable to open file '%s'", Name_LogFile) ;
-    }
   }
 
   /* Solver init */
