@@ -141,10 +141,12 @@ int Geo_GetElementType(int Format, int Type){
     case 12 : return HEXAHEDRON_2 ;
     case 13 : return PRISM_2 ;
     case 14 : return PYRAMID_2 ;
+    default : Msg(ERROR, "Unkown Element Type in Gmsh Format") ; return -1 ;
     }
     break ;
   default :
     Msg(ERROR, "Unkown Mesh Format") ;
+    return -1 ;
   }
 
 }

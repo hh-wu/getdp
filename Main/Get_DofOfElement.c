@@ -358,7 +358,6 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
      GroupEntity_P     : In  */
 
   int         k, i_Entity, CodeExist ;
-  double      Degree ;
   struct Dof  * Dof_P ;
 
   /*  1.  F o r   e a c h   e n t i t y   t o   w h i c h   a   b a s i s

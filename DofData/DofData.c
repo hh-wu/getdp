@@ -594,7 +594,7 @@ void  Dof_DefineAssignFixedDof(int D1, int D2, int NbrHar, double *Val,
   
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
-    if (!(Dof_P = Tree_PQuery(CurrentDofData->DofTree, &Dof))) {
+    if (!(Dof_P = (struct Dof *)Tree_PQuery(CurrentDofData->DofTree, &Dof))) {
       Dof.Type = DOF_FIXED ;
       gSetScalar(&Dof.Val, &Val[k]) ;
       Dof.Case.FixedAssociate.TimeFunctionIndex = Index_TimeFunction + 1 ;
