@@ -1,7 +1,7 @@
-$Date: 2002-01-03 10:22:38 $
+$Date: 2002-01-18 23:32:43 $
 
 0.85: Upgraded communication interface with Gmsh; New ChangeOfValues
-option in PostOperation; Many small internal changes;
+option in PostOperation; Many internal changes;
 
 0.84: New ChangeOfCoordinate option in PostOperation; Fixed crash in
 InterpolationAkima; Improved interactive postprocessing (-ipos);
