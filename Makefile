@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.141 2003-05-16 02:55:24 geuzaine Exp $
+# $Id: Makefile,v 1.142 2003-05-26 22:35:06 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -95,15 +95,12 @@ clean:
 
 doc-info:
 	cd doc/texinfo && ${MAKE} info
-	cp doc/texinfo/getdp.info* doc/
 
 doc-ps:
 	cd doc/texinfo && ${MAKE} ps
-	cp doc/texinfo/getdp.ps doc/
 
 doc-pdf:
 	cd doc/texinfo && ${MAKE} pdf
-	cp doc/texinfo/getdp.pdf doc/
 
 purge:
 	for i in . lib include doc demos utils archives ${GETDP_DIRS}; \
@@ -176,7 +173,7 @@ distrib-win: clean all package-win
 source-common:
 	rm -rf getdp-${GETDP_RELEASE}
 	tar zcvf getdp.tgz `ls README* configure *.in Makefile */Makefile\
-                            */*.[chylfF] */*.[ch]pp */*.opt */*.spec` doc demos
+                            */*.[chylfF] */*.[ch]pp */*.opt *.spec` doc demos
 	mkdir getdp-${GETDP_RELEASE}
 	cd getdp-${GETDP_RELEASE} && tar zxvf ../getdp.tgz
 	rm -f getdp.tgz
@@ -195,13 +192,13 @@ source-nonfree: source-common
 
 rpmold:
 	tar zcvf /usr/src/redhat/SOURCES/${GETDP_SRCRPM}.tar.gz ${GETDP_SOURCES}
-	rpm -bb --define 'getdpversion ${GETDP_RELEASE}' utils/getdp.spec
+	rpm -bb --define 'getdpversion ${GETDP_RELEASE}' getdp.spec
 	cp /usr/src/redhat/RPMS/i386/${GETDP_SRCRPM}-1.i386.rpm .
 	cp /usr/src/redhat/BUILD/${GETDP_SRCRPM}/getdp-${GETDP_RELEASE}-${UNAME}.tgz .
 
 rpm:
 	tar zcvf /usr/src/redhat/SOURCES/${GETDP_SRCRPM}.tar.gz ${GETDP_SOURCES}
-	rpmbuild -bb --define 'getdpversion ${GETDP_RELEASE}' utils/getdp.spec
+	rpmbuild -bb --define 'getdpversion ${GETDP_RELEASE}' getdp.spec
 	cp /usr/src/redhat/RPMS/i386/${GETDP_SRCRPM}-1.i386.rpm .
 	cp /usr/src/redhat/BUILD/${GETDP_SRCRPM}/getdp-${GETDP_RELEASE}-${UNAME}.tgz .
 

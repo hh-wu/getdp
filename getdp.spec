@@ -34,7 +34,6 @@ problems.
 
 %build
 make distrib-unix
-make doc-pdf
 make doc-info
 rm -rf CVS */CVS */*/CVS
 
@@ -56,8 +55,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-# %doc doc/getdp.pdf doc/COPYING doc/VERSIONS doc/FAQ doc/CONTRIBUTORS demos
-%doc doc/getdp.pdf doc/VERSIONS doc/FAQ doc/CONTRIBUTORS demos
+# %doc doc/COPYING doc/VERSIONS doc/FAQ doc/CONTRIBUTORS demos
+%doc doc/VERSIONS doc/FAQ doc/CONTRIBUTORS demos
 /usr/bin/getdp
 /usr/share/man/man1/getdp*
 /usr/share/info/getdp*
