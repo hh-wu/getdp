@@ -1,4 +1,4 @@
-/* $Id: listman.h,v 1.2 2000-09-07 18:47:21 geuzaine Exp $ */
+/* $Id: listman.h,v 1.3 2000-09-28 22:12:58 geuzaine Exp $ */
 #ifndef _LISTMAN_H_
 #define _LISTMAN_H_
 
@@ -24,7 +24,7 @@ void    List_Put(List_T *liste, int index, void *data);
 void    List_Pop(List_T *liste);
 void   *List_Pointer(List_T *liste, int index);
 void   *List_Pointer_NoChange(List_T *liste, int index);
-void    List_Tri(List_T *liste, int (*fcmp)(const void *a, const void *b));
+void    List_Sort(List_T *liste, int (*fcmp)(const void *a, const void *b));
 int     List_Search(List_T *liste, void *data, int (*fcmp)(const void *a, const void *b));
 int     List_ISearch(List_T *liste, void *data, int (*fcmp)(const void *a, const void *b));
 int     List_ISearchSeq(List_T *liste, void * data, int (*fcmp)(const void *a, const void *b));
@@ -34,6 +34,7 @@ int     List_Query(List_T *liste, void *data, int (*fcmp)(const void *a, const v
 int     List_LQuery(List_T *liste, void *data, int (*fcmp)(const void *a, const void *b), int first);
 void   *List_PQuery(List_T *liste, void *data, int (*fcmp)(const void *a, const void *b));
 int     List_Suppress(List_T *liste, void *data, int (*fcmp)(const void *a, const void *b));
+int     List_PSuppress(List_T *liste, int index);
 void    List_Invert(List_T *a, List_T *b);
 void    List_Reset(List_T *liste);
 void    List_Action(List_T *liste, void (*action)(void *data, void *dummy));

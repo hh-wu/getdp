@@ -1,4 +1,4 @@
-/* $Id: listman.c,v 1.2 2000-09-07 18:47:21 geuzaine Exp $ */
+/* $Id: listman.c,v 1.3 2000-09-28 22:12:58 geuzaine Exp $ */
 /* Original author: Marc UME */
 
 #include <stdlib.h>
@@ -81,7 +81,7 @@ int List_Replace(List_T *liste, void *data,
 {
   void *ptr;
 
-  if (liste->isorder != 1) List_Tri(liste,fcmp);
+  if (liste->isorder != 1) List_Sort(liste,fcmp);
   liste->isorder = 1;
   ptr = (void *) bsearch(data,liste->array,liste->n,liste->size,fcmp);
   if (ptr == NULL) {
@@ -145,7 +145,7 @@ void *List_Pointer_NoChange(List_T *liste, int index)
   return(&liste->array[index * liste->size]);
 }
 
-void List_Tri(List_T *liste, int (*fcmp)(const void *a, const void *b))
+void List_Sort(List_T *liste, int (*fcmp)(const void *a, const void *b))
 {
   qsort(liste->array,liste->n,liste->size,fcmp);
 }
@@ -155,7 +155,7 @@ int List_Search(List_T *liste, void *data,
 {
   void *ptr;
 
-  if (liste->isorder != 1) { List_Tri(liste,fcmp) ; liste->isorder = 1 ; }
+  if (liste->isorder != 1) { List_Sort(liste,fcmp) ; liste->isorder = 1 ; }
   ptr = (void *) bsearch(data,liste->array,liste->n,liste->size,fcmp);
   if (ptr == NULL) return(0);
   return (1);
@@ -166,7 +166,7 @@ int List_ISearch(List_T *liste, void *data,
 {
   void *ptr;
 
-  if (liste->isorder != 1) List_Tri(liste,fcmp);
+  if (liste->isorder != 1) List_Sort(liste,fcmp);
   liste->isorder = 1;
   ptr = (void *) bsearch(data,liste->array,liste->n,liste->size,fcmp);
   if (ptr == NULL) return(-1);
@@ -202,7 +202,7 @@ int List_Query(List_T *liste, void *data,
 {
   void *ptr;
 
-  if (liste->isorder != 1) List_Tri(liste,fcmp);
+  if (liste->isorder != 1) List_Sort(liste,fcmp);
   liste->isorder = 1;
   ptr = (void *) bsearch(data,liste->array,liste->n,liste->size,fcmp);
   if (ptr == NULL) return(0);
@@ -255,7 +255,7 @@ void *List_PQuery(List_T *liste, void *data,
 {
   void *ptr;
 
-  if (liste->isorder != 1) List_Tri(liste,fcmp);
+  if (liste->isorder != 1) List_Sort(liste,fcmp);
   liste->isorder = 1;
   ptr = (void *) bsearch(data,liste->array,liste->n,liste->size,fcmp);
   return(ptr);
@@ -268,6 +268,20 @@ int List_Suppress(List_T *liste, void *data,
   int len;
   
   ptr = (char*)List_PQuery(liste,data,fcmp) ;
+  if (ptr == NULL) return(0);
+  
+  liste->n--;
+  len = liste->n - (((long)ptr - (long)liste->array) / liste->size);
+  if (len > 0) memmove(ptr, ptr + liste->size, len * liste->size);
+  return(1);
+}
+
+int List_PSuppress(List_T *liste, int index)
+{
+  char *ptr;
+  int len;
+  
+  ptr = (char*)List_Pointer_NoChange(liste,index) ;
   if (ptr == NULL) return(0);
   
   liste->n--;
