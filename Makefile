@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.102 2002-11-10 18:58:59 geuzaine Exp $
+# $Id: Makefile,v 1.103 2002-11-10 19:29:38 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -558,7 +558,7 @@ compile-macosx:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=g77" \
-           "C_FLAGS=-O3 -D_BSD" \
+           "C_FLAGS=-O3 -Wall -Wno-uninitialized -D_BSD" \
            "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
            "SOLVER=-D_SPARSKIT" \

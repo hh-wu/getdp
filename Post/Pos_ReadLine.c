@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_ReadLine.c,v 1.6 2001-07-29 09:37:16 geuzaine Exp $"
+#define RCSID "$Id: Pos_ReadLine.c,v 1.7 2002-11-10 19:29:38 geuzaine Exp $"
 /* GNUPLOT - readline.c */
 
 /* This is a modified version (see the 'getdp' tags) */
@@ -888,7 +888,11 @@ set_termio()
 		ioctl(0, TIOCSLTC, &s_ltchars);
 #endif /* TIOCGLTC */
 #else  /* SGTTY */
+#ifdef __APPLE__
+		rl_termio.c_iflag &= ~(BRKINT|PARMRK|INPCK|IXON|IXOFF);
+#else /* __APPLE__ */
 		rl_termio.c_iflag &= ~(BRKINT|PARMRK|INPCK|IUCLC|IXON|IXOFF);
+#endif /* __APPLE__ */
 		rl_termio.c_iflag |=  (IGNBRK|IGNPAR);
 
 		/* rl_termio.c_oflag &= ~(ONOCR); Costas Sphocleous Irvine,CA */
