@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.14 2001-11-21 17:10:03 sabarieg Exp $
+# $Id: Makefile,v 1.15 2002-02-04 19:00:09 geuzaine Exp $
 #
 # Makefile for 'libSolverMisc.a'
 #
@@ -24,7 +24,7 @@ CSRC =  nrutil.c \
         ran3.c \
         hqr.c \
         dsvdcmp.c \
-        hollowcyl.c \
+        Analytic_HollowCylLF.c \
         Lanczos.c \
         Adapt.c \
         brent.c \
@@ -32,16 +32,12 @@ CSRC =  nrutil.c \
 	Legendre.c \
 	SphBessel.c
 
-FSRC =  clt2d.f \
-        solcyl.f \
-        solsph.f \
-        bessel.f \
-	AiryAmos.f\
-	BesselAmos.f \
-	LibAmos.f \
-	r1mach.f \
-	d1mach.f \
-	i1mach.f
+FSRC =  Integration_CLT2D.f \
+        Analytic_SphCylLF.f \
+	Amos_Airy.f \
+	Amos_Bessel.f \
+	Amos_Lib.f \
+	Amos_Mach.f
 
 COBJ  = $(CSRC:.c=.o)
 FOBJ  = $(FSRC:.f=.o)
@@ -75,7 +71,6 @@ nrutil.o: nrutil.c ../Main/Message.h
 ran3.o: ran3.c
 hqr.o: hqr.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
 dsvdcmp.o: dsvdcmp.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
-hollowcyl.o: hollowcyl.c nrdefs.h ../Main/Data_Numeric.h
 Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
  ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
  ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \

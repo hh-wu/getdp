@@ -1,4 +1,4 @@
-#define RCSID "$Id: hollowcyl.c,v 1.4 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Analytic_HollowCylLF.c,v 1.1 2002-02-04 19:00:09 geuzaine Exp $"
 /* Solution analytique de l'induction magnetique dans le cas
    d'un cylindre creux de rayon interne r0 et de rayon externe r1.
    Le champ applique est dirige selon la direction horizontale de

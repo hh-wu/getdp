@@ -1,4 +1,4 @@
-#define RCSID "$Id: SphBessel.c,v 1.5 2002-02-01 17:25:26 geuzaine Exp $"
+#define RCSID "$Id: SphBessel.c,v 1.6 2002-02-04 19:00:09 geuzaine Exp $"
 
 #include <stdio.h>
 #include <math.h>
@@ -49,11 +49,9 @@ void Spherical_j_nArray(int n, double x, int NB, double jsph[]){
     Msg(ERROR, "The number of Spherical_j_n required exceeds the maximum "
 	"defined: NBR_MAX_EXP = %d",NBR_MAX_EXP) ;
  
- for(i = 0 ; i < NB ; i++ )
-    jsph[i] = 0.; 
-
   if (x == 0.){
     jsph[0] = 1. ;
+    for(i = 1 ; i < NB ; i++ ) jsph[i] = 0.; 
   }
   else{
     fnu = n + 0.5 ; /* From order n to (n+NB-1) */
@@ -143,11 +141,9 @@ void Spherical_y_nArray(int n, double x, int NB, double ysph[]){
     Msg(ERROR, "The number of Spherical_y_n required exceeds the maximum "
 	"defined: NBR_MAX_EXP = %d",NBR_MAX_EXP) ;
 
-  for(i = 0 ; i < NB ; i++ )
-    ysphi[i] = 0.; 
-
   if (x == 0.){
     ysph[0] = 1. ;
+    for(i = 1 ; i < NB ; i++ ) ysphi[i] = 0.; 
   }
   else{
     fnu = n + 0.5 ; /* From order n to (n+NB-1) */
@@ -222,3 +218,27 @@ void Spherical_h_n(int type, int n, double x, double *hr, double *hi){
   GetDP_End;  
 }
 
+void Spherical_h_nArray(int type, int n, double x, int NB, double hr[], double hi[]){
+  /* Computes the Spherical first or second Hankel function of order n
+     and Real argument */
+  
+  double fact, fnu, xi = 0. ;
+  int nz = 0, ierr, kode = 1, i;
+
+  GetDP_Begin("Spherical_h_n");
+
+  if (NB > NBR_MAX_EXP)
+    Msg(ERROR, "The number of Spherical_h_n required exceeds the maximum "
+	"defined: NBR_MAX_EXP = %d",NBR_MAX_EXP) ;
+
+  fnu = n + 0.5;
+  zbesh_(&x, &xi, &fnu, &kode, &type, &NB, hr, hi, &nz, &ierr) ;
+  if(ierr) Msg(ERROR, "Exception caught in third kind Bessel function");     
+  fact = sqrt(0.5*PI/x); 
+  for(i=0 ; i<NB ; i++){
+    hr[i] *= fact;
+    hi[i] *= fact;
+  }
+
+  GetDP_End;  
+}

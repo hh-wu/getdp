@@ -1,4 +1,4 @@
-/* $Id: SphBessel.h,v 1.3 2002-02-01 17:25:26 geuzaine Exp $ */
+/* $Id: SphBessel.h,v 1.4 2002-02-04 19:00:09 geuzaine Exp $ */
 
 #ifndef _SPHBESSEL_H_
 #define _SPHBESSEL_H_
@@ -21,6 +21,7 @@ double AltSpherical_y_n(int n, double x) ;
 void PrintSpherical_y_n(int n, char * FileName) ;
 
 void Spherical_h_n(int type, int n, double x, double *hr, double *hi);
+void Spherical_h_nArray(int type, int n, double x, int N, double *hr, double *hi);
 
 
 #endif

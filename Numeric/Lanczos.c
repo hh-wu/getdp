@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.11 2002-01-23 22:00:41 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.12 2002-02-04 19:00:09 geuzaine Exp $"
 
 /* Version commentée par A. Nicolet de Lanczos.c le 2001/11/29 */
 
@@ -615,6 +615,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   }
 
   /* fin des itérations d' A R N O L D I */
+  /* ----------------------------------- */
 
   Msg(INFO, "Final eigenvalue/eigenvector Computation");
 
