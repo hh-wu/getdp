@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_FunctionValue.c,v 1.8 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Get_FunctionValue.c,v 1.9 2000-10-30 09:04:05 dular Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -298,7 +298,7 @@ double Cal_InterpolationOrder(struct Element * Element,
   GetDP_Begin("Cal_InterpolationOrder");
 
   for(i = 0 ; i < QuantityStorage->NbrElementaryBasisFunction ; i++)
-    if(QuantityStorage->BasisFunction[i].Dof->Type == DOF_SYMMETRICAL)
+    if(QuantityStorage->BasisFunction[i].Dof->Type == DOF_UNKNOWN)
       Order = MAX(QuantityStorage->BasisFunction[i].BasisFunction->Order, Order) ;
 
   GetDP_Return(Order) ;

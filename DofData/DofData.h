@@ -1,4 +1,4 @@
-/* $Id: DofData.h,v 1.4 2000-10-30 01:05:43 geuzaine Exp $ */
+/* $Id: DofData.h,v 1.5 2000-10-30 09:04:05 dular Exp $ */
 #ifndef _DOFDATA_H_
 #define _DOFDATA_H_
 
@@ -46,11 +46,11 @@ void  Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double * Val) ;
 void  Dof_DefineAssignSolveDof(int D1, int D2, int NbrHar, int Index_TimeFunction) ;
 void  Dof_DefineInitSolveDof(int D1, int D2, int NbrHar) ;
 void  Dof_DefineLinkDof(int D1, int D2, int NbrHar, double Coef, int D2_Link) ;
-void  Dof_DefineSymmetricalDof(int D1, int D2, int NbrHar) ;
+void  Dof_DefineUnknownDof(int D1, int D2, int NbrHar) ;
 void  Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar) ;
-void  Dof_DefineSymmetricalDofFromSolveOrInitDof(struct DofData ** DofData_P) ;
+void  Dof_DefineUnknownDofFromSolveOrInitDof(struct DofData ** DofData_P) ;
 
-void  Dof_NumberSymmetricalDof(void) ;
+void  Dof_NumberUnknownDof(void) ;
 
 void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar, double * Val,
 			gMatrix * Mat, gVector * Vec) ;

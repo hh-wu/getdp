@@ -1,4 +1,4 @@
-#define RCSID "$Id: Par_TermOfFemEquation.c,v 1.5 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Par_TermOfFemEquation.c,v 1.6 2000-10-30 09:04:05 dular Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -68,17 +68,17 @@ void  Par_TermOfFemEquation (struct Element *Element,
     
     for (i = 0; i < Nbr_Equ; i++) {
       
-      if (QuantityStorageEqu_P->BasisFunction[i].Dof->Type == DOF_SYMMETRICAL) {
+      if (QuantityStorageEqu_P->BasisFunction[i].Dof->Type == DOF_UNKNOWN) {
 
 	for (j = 0; j < Nbr_Dof; j++) {
 	  
-	  if ( j!=i && QuantityStorageDof_P->BasisFunction[j].Dof->Type == DOF_SYMMETRICAL) {
+	  if ( j!=i && QuantityStorageDof_P->BasisFunction[j].Dof->Type == DOF_UNKNOWN) {
 	    AddEdgeInGraph(&Current.DofData->Graph, 
-			   QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Symmetrical.NumDof, 
-			   QuantityStorageDof_P->BasisFunction[j].Dof->Case.Symmetrical.NumDof);
+			   QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof, 
+			   QuantityStorageDof_P->BasisFunction[j].Dof->Case.Unknown.NumDof);
 	    AddEdgeInGraph(&Current.DofData->Graph, 
-			   QuantityStorageDof_P->BasisFunction[j].Dof->Case.Symmetrical.NumDof, 
-			   QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Symmetrical.NumDof);
+			   QuantityStorageDof_P->BasisFunction[j].Dof->Case.Unknown.NumDof, 
+			   QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof);
 	  }
 	}
       }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.8 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Matrix.c,v 1.9 2000-10-30 09:04:06 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -480,9 +480,14 @@ void formatted_write_matrix (FILE *pfile, Matrix *M, int style){
   switch (M->T) {
 
   case DENSE :
-    for(i=0 ; i<M->N ; i++)
-      for(j=0 ; j<M->N ; j++)
-	fprintf(pfile,"%d %d %.16g\n", i+1, j+1, M->F.a[i*(M->N)+j]);
+    if(M->notranspose)
+      for(i=0 ; i<M->N ; i++)
+	for(j=0 ; j<M->N ; j++)
+	  fprintf(pfile,"%d %d %.16g\n", j+1, i+1, M->F.a[i*(M->N)+j]);
+    else
+      for(i=0 ; i<M->N ; i++)
+	for(j=0 ; j<M->N ; j++)
+	  fprintf(pfile,"%d %d %.16g\n", i+1, j+1, M->F.a[i*(M->N)+j]);
     break;
 
   case SPARSE :

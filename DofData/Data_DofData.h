@@ -1,4 +1,4 @@
-/* $Id: Data_DofData.h,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+/* $Id: Data_DofData.h,v 1.3 2000-10-30 09:04:05 dular Exp $ */
 #ifndef _DATA_DOFDATA_H_
 #define _DATA_DOFDATA_H_
 
@@ -66,7 +66,7 @@ struct Dof {
     struct {
       int       NumDof ;  /* Equation number - 1st position */
       /* gScalar   Val ; */    /* Init value */
-    } Symmetrical ;
+    } Unknown ;
     struct {
       int       NumDof ;  /* Equation number (Associate) - 1st position */
       /* gScalar   Val ; */
@@ -83,16 +83,16 @@ struct Dof {
 /* Dof.Type */
 
 /* definitive in preprocessing and processing */
-#define DOF_SYMMETRICAL   1  /* unknown */
-#define DOF_FIXED         2  /* spatial fixed */
-#define DOF_ASSOCIATE     3  /* associate */
-#define DOF_LINK          7  /* link */
+#define DOF_UNKNOWN              1  /* unknown */
+#define DOF_FIXED                2  /* spatial fixed */
+#define DOF_FIXEDWITHASSOCIATE   3  /* associate */
+#define DOF_LINK                 7  /* link */
 
 /* definitive in a preprocessing */
-#define DOF_SYMMETRICAL_INIT   5  /* initial condition */
+#define DOF_UNKNOWN_INIT         5  /* initial condition */
 
 /* temporary */
-#define DOF_FIXED_SOLVE        4  /* waiting to be fixed by a resolution */
-#define DOF_ASSOCIATE_SOLVE    6  /* waiting to be fixed by a resolution */
+#define DOF_FIXED_SOLVE               4  /* waiting to be fixed by a resolution */
+#define DOF_FIXEDWITHASSOCIATE_SOLVE  6  /* waiting to be fixed by a resolution */
 
 #endif

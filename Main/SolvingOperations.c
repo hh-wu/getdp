@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.13 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.14 2000-10-30 09:04:05 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -68,7 +68,7 @@ void  Init_OperationOnSystem(struct Resolution   * Resolution_P,
 	Msg(ERROR, "Unknown DestinationSystem (%s) in DefineSystem (%s)", 
 	    (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
       (*DefineSystem_P)->DestinationSystemIndex = i ;      
-      Dof_DefineSymmetricalDofFromSolveOrInitDof(DofData_P) ;
+      Dof_DefineUnknownDofFromSolveOrInitDof(DofData_P) ;
     }
     else { /* a changer !!! */
       if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
@@ -289,7 +289,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
         for(i=0 ; i<DofData_P->NbrAnyDof ; i++){
           Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
-          if(Dof_P->Type == DOF_SYMMETRICAL_INIT) Dof_P->Type = DOF_SYMMETRICAL ;
+          if(Dof_P->Type == DOF_UNKNOWN_INIT) Dof_P->Type = DOF_UNKNOWN ;
         }
         DofData_P->CurrentSolution = (struct Solution*)
           List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;        
@@ -318,11 +318,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	for(i=0 ; i<DofData_P->NbrAnyDof ; i++){
 	  Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
-	  if(Dof_P->Type == DOF_SYMMETRICAL_INIT){
-	    Dof_P->Type = DOF_SYMMETRICAL ;
+	  if(Dof_P->Type == DOF_UNKNOWN_INIT){
+	    Dof_P->Type = DOF_UNKNOWN ;
 	    LinAlg_SetScalarInVector
 	      (&Dof_P->Val, &Solution_S.x, 
-	       Dof_P->Case.Symmetrical.NumDof-1) ;
+	       Dof_P->Case.Unknown.NumDof-1) ;
 	  }
 	}
 	
@@ -436,12 +436,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 						       List_Nbr(DofData_P->Solutions)-1) ;
 	  for(i=0 ; i<DofData_P->NbrAnyDof ; i++){
 	    Dof = *(struct Dof *)List_Pointer(DofData_P->DofList, i) ;
-	    if(Dof.Type == DOF_SYMMETRICAL){
-	      LinAlg_GetScalarInVector(&tmp, &Solution_P->x, Dof.Case.Symmetrical.NumDof-1) ;    
+	    if(Dof.Type == DOF_UNKNOWN){
+	      LinAlg_GetScalarInVector(&tmp, &Solution_P->x, Dof.Case.Unknown.NumDof-1) ;
 
 	      if((Dof_P = (struct Dof*)List_PQuery(DofData2_P->DofList, &Dof, fcmp_Dof))){
-		LinAlg_SetScalarInVector(&tmp, &Solution_S.x, Dof_P->Case.Symmetrical.NumDof-1) ;
-		Dof_P->Type = DOF_SYMMETRICAL ;
+		LinAlg_SetScalarInVector(&tmp, &Solution_S.x, Dof_P->Case.Unknown.NumDof-1) ;
+		Dof_P->Type = DOF_UNKNOWN ;
 	      }
 	      else{
 		Msg(WARNING, "Unknown DoF in TransferSolution") ;

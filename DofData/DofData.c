@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.11 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.12 2000-10-30 09:04:05 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -272,11 +272,11 @@ void  Dof_WriteDofPRE(void * a, void * b) {
 	  Dof_P->NumType, Dof_P->Entity, Dof_P->Harmonic, Dof_P->Type) ;
 
   switch (Dof_P->Type) {
-  case DOF_SYMMETRICAL :
-    fprintf(File_PRE, "%d %d\n", Dof_P->Case.Symmetrical.NumDof,
-	    Nnz[Dof_P->Case.Symmetrical.NumDof-1]) ;
+  case DOF_UNKNOWN :
+    fprintf(File_PRE, "%d %d\n", Dof_P->Case.Unknown.NumDof,
+	    Nnz[Dof_P->Case.Unknown.NumDof-1]) ;
     break ;
-  case DOF_ASSOCIATE :
+  case DOF_FIXEDWITHASSOCIATE :
     fprintf(File_PRE, "%d ", Dof_P->Case.FixedAssociate.NumDof) ;
     LinAlg_PrintScalar(File_PRE, &Dof_P->Val);
     fprintf(File_PRE, " %d\n", Dof_P->Case.FixedAssociate.TimeFunctionIndex) ;
@@ -288,10 +288,10 @@ void  Dof_WriteDofPRE(void * a, void * b) {
   case DOF_FIXED_SOLVE :
     fprintf(File_PRE, "%d\n", Dof_P->Case.FixedAssociate.TimeFunctionIndex) ;
     break ;
-  case DOF_SYMMETRICAL_INIT :
-    fprintf(File_PRE, "%d ", Dof_P->Case.Symmetrical.NumDof) ;
+  case DOF_UNKNOWN_INIT :
+    fprintf(File_PRE, "%d ", Dof_P->Case.Unknown.NumDof) ;
     LinAlg_PrintScalar(File_PRE, &Dof_P->Val);
-    fprintf(File_PRE, " %d\n", Nnz[Dof_P->Case.Symmetrical.NumDof-1]) ;
+    fprintf(File_PRE, " %d\n", Nnz[Dof_P->Case.Unknown.NumDof-1]) ;
     break ;
   case DOF_LINK :
     fprintf(File_PRE, "%.16g %d\n",
@@ -358,11 +358,11 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
 	     &Dof.NumType, &Dof.Entity, &Dof.Harmonic, &Dof.Type) ;
 
       switch (Dof.Type) {
-      case DOF_SYMMETRICAL :
-	fscanf(File_PRE, "%d", &Dof.Case.Symmetrical.NumDof) ;
-	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Symmetrical.NumDof-1]) ;
+      case DOF_UNKNOWN :
+	fscanf(File_PRE, "%d", &Dof.Case.Unknown.NumDof) ;
+	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Unknown.NumDof-1]) ;
 	break ;
-      case DOF_ASSOCIATE :
+      case DOF_FIXEDWITHASSOCIATE :
 	fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.NumDof) ;
 	LinAlg_ScanScalar(File_PRE, &Dof.Val) ;
 	fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.TimeFunctionIndex) ;
@@ -374,10 +374,10 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
       case DOF_FIXED_SOLVE :
 	fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.TimeFunctionIndex) ;
 	break ;
-      case DOF_SYMMETRICAL_INIT :
-	fscanf(File_PRE, "%d", &Dof.Case.Symmetrical.NumDof) ;
+      case DOF_UNKNOWN_INIT :
+	fscanf(File_PRE, "%d", &Dof.Case.Unknown.NumDof) ;
 	LinAlg_ScanScalar(File_PRE, &Dof.Val) ;
-	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Symmetrical.NumDof-1]) ;
+	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Unknown.NumDof-1]) ;
 	break ;
       case DOF_LINK :
 	fscanf(File_PRE, "%lf %d",
@@ -675,8 +675,8 @@ void  Dof_DefineAssignFixedDof(int D1, int D2, int NbrHar, double *Val,
       Dof_AddTimeFunctionIndex(Index_TimeFunction + 1) ;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
-    else if(Dof_P->Type == DOF_SYMMETRICAL) {
-      /* Msg(INFO, "Overriding Symmetrical DoF with Fixed DoF"); */
+    else if(Dof_P->Type == DOF_UNKNOWN) {
+      /* Msg(INFO, "Overriding Unknown DoF with Fixed DoF"); */
       Dof_P->Type = DOF_FIXED ;
       LinAlg_SetScalar(&Dof_P->Val, &Val[k]) ;
       Dof_P->Case.FixedAssociate.TimeFunctionIndex = Index_TimeFunction + 1 ;
@@ -728,9 +728,9 @@ void  Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double *Val) {
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
-      Dof.Type = DOF_SYMMETRICAL_INIT ;
+      Dof.Type = DOF_UNKNOWN_INIT ;
       LinAlg_SetScalar(&Dof.Val, &Val[k]) ;
-      Dof.Case.Symmetrical.NumDof = ++(CurrentDofData->NbrDof) ;
+      Dof.Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
   }
@@ -754,8 +754,8 @@ void  Dof_DefineInitSolveDof(int D1, int D2, int NbrHar) {
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
-      Dof.Type = DOF_SYMMETRICAL_INIT ;
-      Dof.Case.Symmetrical.NumDof = ++(CurrentDofData->NbrDof) ;
+      Dof.Type = DOF_UNKNOWN_INIT ;
+      Dof.Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
   }
@@ -795,20 +795,20 @@ void  Dof_DefineLinkDof(int D1, int D2, int NbrHar, double Coef, int D2_Link) {
 /*  D o f _ D e f i n e S y m m e t r i c a l D o f                         */
 /* ------------------------------------------------------------------------ */
 
-void  Dof_DefineSymmetricalDof(int D1, int D2, int NbrHar) {
+void  Dof_DefineUnknownDof(int D1, int D2, int NbrHar) {
   struct Dof  Dof ;
   int         k ;
 
-  GetDP_Begin("Dof_DefineSymmetricalDof");
+  GetDP_Begin("Dof_DefineUnknownDof");
 
   Dof.NumType = D1 ;  Dof.Entity = D2 ;
 
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
-      Dof.Type = DOF_SYMMETRICAL ;
-      Dof.Case.Symmetrical.NumDof = -1 ;
-      /* Dof.Case.Symmetrical.NumDof = ++(CurrentDofData->NbrDof) ; */
+      Dof.Type = DOF_UNKNOWN ;
+      Dof.Case.Unknown.NumDof = -1 ;
+      /* Dof.Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ; */
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
   }
@@ -816,27 +816,27 @@ void  Dof_DefineSymmetricalDof(int D1, int D2, int NbrHar) {
   GetDP_End ;
 }
 
-void NumberSymmetricalDof (void *a, void *b) {
+void NumberUnknownDof (void *a, void *b) {
   struct Dof * Dof_P ;
   
   GetDP_Begin("NumberSymmetericalDof");
 
   Dof_P = (struct Dof *)a ;
-  
-  if(Dof_P->Type == DOF_SYMMETRICAL && Dof_P->Case.Symmetrical.NumDof == -1)
-    Dof_P->Case.Symmetrical.NumDof = ++(CurrentDofData->NbrDof) ;
+
+  if(Dof_P->Type == DOF_UNKNOWN && Dof_P->Case.Unknown.NumDof == -1)
+    Dof_P->Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ;
 
   GetDP_End ;
 }
 
-void  Dof_NumberSymmetricalDof(void) {
+void  Dof_NumberUnknownDof(void) {
 
-  GetDP_Begin("Dof_NumberSymmetricalDof");
+  GetDP_Begin("Dof_NumberUnknownDof");
 
   if(CurrentDofData->DofTree)
-    Tree_Action(CurrentDofData->DofTree, NumberSymmetricalDof) ;
+    Tree_Action(CurrentDofData->DofTree, NumberUnknownDof) ;
   else
-    List_Action(CurrentDofData->DofList, NumberSymmetricalDof) ;
+    List_Action(CurrentDofData->DofList, NumberUnknownDof) ;
 
   GetDP_End ;
 }
@@ -859,27 +859,27 @@ void  Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar) {
     if ((Equ_P = (struct Dof*)Tree_PQuery(CurrentDofData->DofTree, &Equ))) {
       switch (Equ_P->Type) {
       case DOF_FIXED :
-	Equ_P->Type = DOF_ASSOCIATE ;
+	Equ_P->Type = DOF_FIXEDWITHASSOCIATE ;
 	Equ_P->Case.FixedAssociate.NumDof = ++(CurrentDofData->NbrDof) ;
 	Dof.NumType = D1 ; Dof.Entity = D2 ; Dof.Harmonic = k ;
 	if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
-	  Dof.Type = DOF_SYMMETRICAL ;
-	  Dof.Case.Symmetrical.NumDof = CurrentDofData->NbrDof ;
+	  Dof.Type = DOF_UNKNOWN ;
+	  Dof.Case.Unknown.NumDof = CurrentDofData->NbrDof ;
 	  Tree_Add(CurrentDofData->DofTree, &Dof) ;
 	}
 	break ;
       case DOF_FIXED_SOLVE :
-	Equ_P->Type = DOF_ASSOCIATE_SOLVE ;
+	Equ_P->Type = DOF_FIXEDWITHASSOCIATE_SOLVE ;
 	Equ_P->Case.FixedAssociate.NumDof = ++(CurrentDofData->NbrDof) ;
 	Dof.NumType = D1 ; Dof.Entity = D2 ; Dof.Harmonic = k ;
 	if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
-	  Dof.Type = DOF_SYMMETRICAL ;
-	  Dof.Case.Symmetrical.NumDof = CurrentDofData->NbrDof ;
+	  Dof.Type = DOF_UNKNOWN ;
+	  Dof.Case.Unknown.NumDof = CurrentDofData->NbrDof ;
 	  Tree_Add(CurrentDofData->DofTree, &Dof) ;
 	}
 	break ;
-      case DOF_SYMMETRICAL :  case DOF_SYMMETRICAL_INIT :
-	Dof_DefineSymmetricalDof(D1, D2, NbrHar) ;
+      case DOF_UNKNOWN :  case DOF_UNKNOWN_INIT :
+	Dof_DefineUnknownDof(D1, D2, NbrHar) ;
 	break ;
       }
     }
@@ -920,28 +920,28 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
   GetDP_Begin("Dof_AssembleInMat");
 
   switch (Equ_P->Type) {
-  case DOF_SYMMETRICAL :
-  case DOF_ASSOCIATE :
+  case DOF_UNKNOWN :
+  case DOF_FIXEDWITHASSOCIATE :
 
     switch (Dof_P->Type) {
       
-    case DOF_SYMMETRICAL :
+    case DOF_UNKNOWN :
       if(NbrHar==1){
 	if(Val[0])
 	  LinAlg_AddDoubleInMatrix
 	    (Val[0], Mat, 
-	     Equ_P->Case.Symmetrical.NumDof-1, Dof_P->Case.Symmetrical.NumDof-1) ;
+	     Equ_P->Case.Unknown.NumDof-1, Dof_P->Case.Unknown.NumDof-1) ;
       }
       else
 	LinAlg_AddComplexInMatrix
 	  (Val[0], Val[1], Mat,
-	   Equ_P->Case.Symmetrical.NumDof-1, Dof_P->Case.Symmetrical.NumDof-1,
-	   (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Symmetrical.NumDof-1):-1,
-	   (gSCALAR_SIZE==1)?((Dof_P+1)->Case.Symmetrical.NumDof-1):-1) ;
+	   Equ_P->Case.Unknown.NumDof-1, Dof_P->Case.Unknown.NumDof-1,
+	   (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Unknown.NumDof-1):-1,
+	   (gSCALAR_SIZE==1)?((Dof_P+1)->Case.Unknown.NumDof-1):-1) ;
       break ;
 
-    case DOF_ASSOCIATE :
     case DOF_FIXED :
+    case DOF_FIXEDWITHASSOCIATE :
       if(Vec){
 	if(NbrHar==1){
 	  if(Val[0]){
@@ -951,7 +951,7 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	       TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex],
 	       &tmp);
 	    LinAlg_ProdScalarDouble(&tmp, -Val[0], &tmp) ;
-	    LinAlg_AddScalarInVector(&tmp, Vec, Equ_P->Case.Symmetrical.NumDof-1) ;
+	    LinAlg_AddScalarInVector(&tmp, Vec, Equ_P->Case.Unknown.NumDof-1) ;
 	  }
 	}
 	else{
@@ -976,8 +976,8 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	  }
 	  LinAlg_AddComplexInVector
 	    (valtmp[0], valtmp[1], Vec,
-	     Equ_P->Case.Symmetrical.NumDof-1,
-	     (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Symmetrical.NumDof-1):-1) ;
+	     Equ_P->Case.Unknown.NumDof-1,
+	     (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Unknown.NumDof-1):-1) ;
 	}
       }
       break ;
@@ -992,12 +992,12 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       Dof_AssembleInMat(Equ_P, Dof_P->Case.Link.Dof, NbrHar, valtmp, Mat, Vec) ;
       break ;
 
-    case DOF_FIXED_SOLVE :  case DOF_ASSOCIATE_SOLVE :
+    case DOF_FIXED_SOLVE :  case DOF_FIXEDWITHASSOCIATE_SOLVE :
       Msg(ERROR,"Wrong Constraints: "
 	  "Dof Waiting to be Fixed by a Resolution Remaining");
       break;
 
-    case DOF_SYMMETRICAL_INIT :
+    case DOF_UNKNOWN_INIT :
       Msg(ERROR,"Wrong Initial Constraints: "
 	  "Dof with Non-fixed Initial Condition Remaining");
       break;
@@ -1034,65 +1034,33 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
   GetDP_Begin("Dof_AssembleInVec");
 
   switch (Equ_P->Type) {
-  case DOF_SYMMETRICAL :
-  case DOF_ASSOCIATE :
+  case DOF_UNKNOWN :
+  case DOF_FIXEDWITHASSOCIATE :
 
     switch (Dof_P->Type) {
 
-    case DOF_SYMMETRICAL :
+    case DOF_UNKNOWN :
       if(NbrHar==1){	
 	if(Val[0]){
-	  LinAlg_GetDoubleInVector(&a, Vec0, Dof_P->Case.Symmetrical.NumDof-1) ;
+	  LinAlg_GetDoubleInVector(&a, Vec0, Dof_P->Case.Unknown.NumDof-1) ;
 	  a *= Val[0] ;
-	  LinAlg_AddDoubleInVector(a, Vec, Equ_P->Case.Symmetrical.NumDof-1) ;
+	  LinAlg_AddDoubleInVector(a, Vec, Equ_P->Case.Unknown.NumDof-1) ;
 	}
       }
       else{
 	LinAlg_GetComplexInVector(&a, &b, Vec0,
-			    Dof_P->Case.Symmetrical.NumDof-1, 
-			    (gSCALAR_SIZE==1)?((Dof_P+1)->Case.Symmetrical.NumDof-1):-1) ;
+			    Dof_P->Case.Unknown.NumDof-1, 
+			    (gSCALAR_SIZE==1)?((Dof_P+1)->Case.Unknown.NumDof-1):-1) ;
 	c = a * Val[0] - b * Val[1] ; 
 	d = a * Val[1] + b * Val[0] ;
 	LinAlg_AddComplexInVector(c, d, Vec,
-			    Equ_P->Case.Symmetrical.NumDof-1, 
-			    (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Symmetrical.NumDof-1):-1) ;
-      }
-      break ;
-
-    case DOF_ASSOCIATE :
-      if(NbrHar==1){	
-	if(Val[0]){
-	  LinAlg_GetDoubleInVector(&a, Vec0, Dof_P->Case.FixedAssociate.NumDof-1) ;
-	  a *= Val[0] * OtherSolution->
-	    TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex];
-	  LinAlg_ProdScalarDouble(&Dof_P->Val, a, &tmp) ;
-	  LinAlg_AddScalarInVector(&tmp, Vec, Equ_P->Case.Symmetrical.NumDof-1) ;
-	}
-      }
-      else{
-	LinAlg_GetComplexInVector
-	  (&a, &b, Vec0, 
-	   Dof_P->Case.FixedAssociate.NumDof-1, 
-	   (gSCALAR_SIZE==1)?((Dof_P+1)->Case.FixedAssociate.NumDof-1):-1) ;
-	c = (a * Val[0] - b * Val[1]) * 
-	  OtherSolution->
-	  TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex] ; 
-	d = (a * Val[1] + b * Val[0]) * 
-	  OtherSolution->
-	  TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex] ;
-	if(gSCALAR_SIZE == 2){
-	  LinAlg_ProdScalarComplex(&Dof_P->Val, c, d, &a, &b) ;
-	  LinAlg_AddComplexInVector(a, b, Vec,
-			      Equ_P->Case.Symmetrical.NumDof-1, 
-			      (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Symmetrical.NumDof-1):-1) ;
-	}
-	else{
-	  Msg(ERROR, "AssembleInVec with NbrHar > 1 not finished") ;
-	}
+			    Equ_P->Case.Unknown.NumDof-1, 
+			    (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Unknown.NumDof-1):-1) ;
       }
       break ;
 
     case DOF_FIXED :
+    case DOF_FIXEDWITHASSOCIATE :
       if(NbrHar==1){	
 	if(Val[0]){
 	  LinAlg_ProdScalarDouble
@@ -1100,7 +1068,7 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	     Val[0] * OtherSolution->
 	     TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex], 
 	     &tmp) ;
-	  LinAlg_AddScalarInVector(&tmp, Vec, Equ_P->Case.Symmetrical.NumDof-1) ;
+	  LinAlg_AddScalarInVector(&tmp, Vec, Equ_P->Case.Unknown.NumDof-1) ;
 	}
       }
       else{
@@ -1113,8 +1081,8 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	     TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex], 
 	     &a, &b) ;
 	  LinAlg_AddComplexInVector(a, b, Vec,
-			      Equ_P->Case.Symmetrical.NumDof-1, 
-			      (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Symmetrical.NumDof-1):-1) ;
+				    Equ_P->Case.Unknown.NumDof-1, 
+				    (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Unknown.NumDof-1):-1) ;
 	}
 	else{
 	  Msg(ERROR, "AssembleInVec with NbrHar > 1 not finished") ;
@@ -1133,12 +1101,12 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 			valtmp, OtherSolution, Vec0, Vec) ;
       break ;
 
-    case DOF_FIXED_SOLVE :  case DOF_ASSOCIATE_SOLVE :
+    case DOF_FIXED_SOLVE :  case DOF_FIXEDWITHASSOCIATE_SOLVE :
       Msg(ERROR,"Wrong Constraints: "
 	  "Dof Waiting to be Fixed by a Resolution Remaining");
       break;
 
-    case DOF_SYMMETRICAL_INIT :
+    case DOF_UNKNOWN_INIT :
       Msg(ERROR,"Wrong Initial Constraints: "
 	  "Dof with Non-fixed Initial Condition Remaining");
       break;
@@ -1181,16 +1149,16 @@ void  Dof_TransferSolutionToConstraint(struct DofData * DofData_P) {
 
     switch (Dof_P->Type) {
 
-    case DOF_SYMMETRICAL :
+    case DOF_UNKNOWN :
       Dof_P->Type = DOF_FIXED ;
       LinAlg_GetScalarInVector(&Dof_P->Val, 
 			 &DofData_P->CurrentSolution->x, 
-			 Dof_P->Case.Symmetrical.NumDof-1) ;
+			 Dof_P->Case.Unknown.NumDof-1) ;
       Dof_P->Case.FixedAssociate.TimeFunctionIndex = 0 ;
       break ;
 
-    case DOF_ASSOCIATE :
     case DOF_FIXED :
+    case DOF_FIXEDWITHASSOCIATE :
     case DOF_LINK :
       break ;
 
@@ -1216,13 +1184,13 @@ gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P) {
 
   switch (Dof_P->Type) {
 
-  case DOF_SYMMETRICAL :
+  case DOF_UNKNOWN :
     LinAlg_GetScalarInVector(&tmp, &DofData_P->CurrentSolution->x, 
-		       Dof_P->Case.Symmetrical.NumDof-1) ;
+		       Dof_P->Case.Unknown.NumDof-1) ;
     break ;
 
-  case DOF_ASSOCIATE :
   case DOF_FIXED :
+  case DOF_FIXEDWITHASSOCIATE :
     LinAlg_ProdScalarDouble(&Dof_P->Val, 
 		      ((Dof_P->Case.FixedAssociate.TimeFunctionIndex)?
 		       DofData_P->CurrentSolution->TimeFunctionValues
@@ -1286,12 +1254,12 @@ gScalar Dof_GetDofValueDt(struct DofData * DofData_P, struct Dof * Dof_P) {
 
   switch (Dof_P->Type) {
 
-  case DOF_SYMMETRICAL :
+  case DOF_UNKNOWN :
     if (DofData_P->NbrHar == 1) {
       LinAlg_GetScalarInVector(&t1, &DofData_P->CurrentSolution->x, 
-			 Dof_P->Case.Symmetrical.NumDof-1) ;
+			 Dof_P->Case.Unknown.NumDof-1) ;
       LinAlg_GetScalarInVector(&t2, &(DofData_P->CurrentSolution-1)->x, 
-			 Dof_P->Case.Symmetrical.NumDof-1) ;
+			 Dof_P->Case.Unknown.NumDof-1) ;
       LinAlg_SubScalarScalar(&t1, &t2, &t1) ;
       LinAlg_DivScalarDouble
 	(&t1, DofData_P->CurrentSolution->Time-(DofData_P->CurrentSolution-1)->Time,
@@ -1301,20 +1269,20 @@ gScalar Dof_GetDofValueDt(struct DofData * DofData_P, struct Dof * Dof_P) {
       if(Dof_P->Harmonic%2 == 0){
 	LinAlg_GetScalarInVector
 	  (&t1, 
-	   &DofData_P->CurrentSolution->x, (Dof_P+1)->Case.Symmetrical.NumDof-1) ;
+	   &DofData_P->CurrentSolution->x, (Dof_P+1)->Case.Unknown.NumDof-1) ;
 	LinAlg_ProdScalarDouble(&t1, -DofData_P->Val_Pulsation[Dof_P->Harmonic/2], &t1) ;
       }
       else{
 	LinAlg_GetScalarInVector
 	  (&t1, 
-	   &DofData_P->CurrentSolution->x, (Dof_P-1)->Case.Symmetrical.NumDof-1) ;
+	   &DofData_P->CurrentSolution->x, (Dof_P-1)->Case.Unknown.NumDof-1) ;
 	LinAlg_ProdScalarDouble(&t1, DofData_P->Val_Pulsation[Dof_P->Harmonic/2], &t1) ;
       }
     }
     break ;
 
-  case DOF_ASSOCIATE :
   case DOF_FIXED :
+  case DOF_FIXEDWITHASSOCIATE :
     if (DofData_P->NbrHar == 1)
       LinAlg_ProdScalarDouble
 	(&Dof_P->Val, 
@@ -1351,14 +1319,14 @@ gScalar Dof_GetDofValueDt(struct DofData * DofData_P, struct Dof * Dof_P) {
 
 
 /* ------------------------------------------------------------------------- */
-/*  D o f _ D e f i n e Symmetrical D o f F r o m Solve o r Init D o f       */
+/*  D o f _ D e f i n e Unknown D o f F r o m Solve o r Init D o f           */
 /* ------------------------------------------------------------------------- */
 
-void  Dof_DefineSymmetricalDofFromSolveOrInitDof(struct DofData ** DofData_P) {
+void  Dof_DefineUnknownDofFromSolveOrInitDof(struct DofData ** DofData_P) {
   int         i, Nbr_AnyDof ;
   struct Dof  * Dof_P ;
 
-  GetDP_Begin("Dof_DefineSymmetricalDofFromSolveOrInitDof");
+  GetDP_Begin("Dof_DefineUnknownDofFromSolveOrInitDof");
 
   Nbr_AnyDof = List_Nbr((*DofData_P)->DofList) ;
 
@@ -1368,12 +1336,12 @@ void  Dof_DefineSymmetricalDofFromSolveOrInitDof(struct DofData ** DofData_P) {
 
     switch (Dof_P->Type) {
     case DOF_FIXED_SOLVE :
-    case DOF_ASSOCIATE_SOLVE :
-      Dof_P->Type = DOF_SYMMETRICAL ;
-      Dof_P->Case.Symmetrical.NumDof = ++((*DofData_P)->NbrDof) ;
+    case DOF_FIXEDWITHASSOCIATE_SOLVE :
+      Dof_P->Type = DOF_UNKNOWN ;
+      Dof_P->Case.Unknown.NumDof = ++((*DofData_P)->NbrDof) ;
       break ;
-    case DOF_SYMMETRICAL_INIT :
-      Dof_P->Type = DOF_SYMMETRICAL ;
+    case DOF_UNKNOWN_INIT :
+      Dof_P->Type = DOF_UNKNOWN ;
       break ;
     }
   }
@@ -1409,17 +1377,17 @@ void  Dof_TransferDof(struct DofData  * DofData_P1,
 	Dof_P->Type = DOF_FIXED ;
 	Dof_P->Val = Dof_GetDofValue(DofData_P1, &Dof) ;
 	break ;
-      case DOF_ASSOCIATE_SOLVE :
-	Dof_P->Type = DOF_ASSOCIATE ;
+      case DOF_FIXEDWITHASSOCIATE_SOLVE :
+	Dof_P->Type = DOF_FIXEDWITHASSOCIATE ;
 	Dof_P->Val = Dof_GetDofValue(DofData_P1, &Dof) ;
 	break ;
-      case DOF_SYMMETRICAL_INIT :
+      case DOF_UNKNOWN_INIT :
 	Dof_P->Val = Dof_GetDofValue(DofData_P1, &Dof) ;
 	break ;
 
-	/* Un DOF_SYMMETRICAL_INIT prendra toujours une valeur obtenue par
+	/* Un DOF_UNKNOWN_INIT prendra toujours une valeur obtenue par
 	   pre-resolution, meme si on ne demande qu'une simple initialisation ...
-	   Pourquoi pas definir un type DOF_SYMMETRICAL_INIT_SOLVE,
+	   Pourquoi pas definir un type DOF_UNKNOWN_INIT_SOLVE,
 	   propre a Dof_DefineInitSolveDof() ? ... */
 
       }
@@ -1457,9 +1425,10 @@ void Print_DofNumber(struct Dof *Dof_P, char *fmt){
   GetDP_Begin("Print_DofNumber");
 
   switch(Dof_P->Type){
-  case DOF_SYMMETRICAL : printf(fmt, Dof_P->Case.Symmetrical.NumDof) ; break ;
-  case DOF_FIXED       : printf(fmt, -1) ; break ;
-  case DOF_ASSOCIATE   : printf(fmt, Dof_P->Case.FixedAssociate.NumDof) ; break ;
+  case DOF_UNKNOWN : printf(fmt, Dof_P->Case.Unknown.NumDof) ; break ;
+  case DOF_FIXED   : printf(fmt, -1) ; break ;
+  case DOF_FIXEDWITHASSOCIATE   :
+    printf(fmt, Dof_P->Case.FixedAssociate.NumDof) ; break ;
   default              : printf(" ? ") ; break ;
   }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.5 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.6 2000-10-30 09:04:05 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -285,10 +285,10 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 
 	    if(Current.NbrCpu > 1){
 	      for(i = 0 ; i < QuantityStorage_P->NbrElementaryBasisFunction ; i++){
-		if(QuantityStorage_P->BasisFunction[i].Dof->Type == DOF_SYMMETRICAL){
-		  if(QuantityStorage_P->BasisFunction[i].Dof->Case.Symmetrical.NumDof >= 
+		if(QuantityStorage_P->BasisFunction[i].Dof->Type == DOF_UNKNOWN){
+		  if(QuantityStorage_P->BasisFunction[i].Dof->Case.Unknown.NumDof >= 
 		     QuantityStorage_P->FunctionSpace->DofData->Part[Current.RankCpu] &&
-		     QuantityStorage_P->BasisFunction[i].Dof->Case.Symmetrical.NumDof < 
+		     QuantityStorage_P->BasisFunction[i].Dof->Case.Unknown.NumDof < 
 		     QuantityStorage_P->FunctionSpace->DofData->Part[Current.RankCpu+1])
 		    break;
 		  else

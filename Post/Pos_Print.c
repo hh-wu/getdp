@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.27 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.28 2000-10-30 09:04:06 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1178,10 +1178,11 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 			struct PostSubOperation  *PostSubOperation_P) {
 
   struct Element   Element ;
-  struct Value   * CumulativeValues ;
+  //  struct Value   * CumulativeValues ;
   struct Value     Value ;
+  struct PostQuantity  *PQ_P ;
 
-  List_T  *Region_L ;
+  List_T  *Region_L, *Support_L ;
   int      i, j, NbTimeStep ;
   int      Nbr_Region, Num_Region ;
 
@@ -1192,6 +1193,21 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     for(i = 0 ; i < NbTimeStep ; i++) List_Add(PostSubOperation_P->TimeStep_L, &i);
   }
 
+  if (CPQ_P && NCPQ_P)
+    Msg(ERROR, "Only one PostQuantity allowed in PostOperation") ;
+
+  if (CPQ_P) {
+    PQ_P = CPQ_P ;
+    Support_L =
+      ((struct Group *)
+       List_Pointer(Problem_S.Group, 
+		    PostSubOperation_P->PostQuantitySupport[Order]))->InitialList ;
+  }
+  else {
+    PQ_P = NCPQ_P ;  Support_L = NULL ;
+  }
+
+#if 0
   if(CPQ_P){
     Cal_PostCumulativeQuantity(NULL, PostSubOperation_P->PostQuantitySupport[Order],
 			       PostSubOperation_P->TimeStep_L,
@@ -1209,12 +1225,13 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     fprintf(PostStream, "\n"); 
   }
   else { /* There is one non-cumulative */
-
+#endif
+    /* Il vaut mieux supprimer cela ...
     if (List_Nbr(NCPQ_P->PostQuantityTerm) &&
 	((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
 	->Type != GLOBALQUANTITY)
       Msg(ERROR, "Print OnRegion not valid for PostQuantity '%s'", NCPQ_P->Name);
-
+    */
     Region_L =  (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
       ((struct Group *)
        List_Pointer(Problem_S.Group, 
@@ -1223,7 +1240,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       List_Sort(Region_L, fcmp_int) ;
       Nbr_Region = List_Nbr(Region_L) ;
 
-      fprintf(PostStream, "# %s on", NCPQ_P->Name) ;
+      fprintf(PostStream, "# %s on", PQ_P->Name) ;
       for(i = 0 ; i < Nbr_Region ; i++) {
 	List_Read(Region_L, i, &Num_Region) ;
 	fprintf(PostStream, " %d", Num_Region) ;
@@ -1253,8 +1270,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 	Element.Type = -1 ;
 	Current.Region = Element.Region = Num_Region ;
 	Current.x = Current.y = Current.z = 0. ;
-	Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0, 
-			 NULL, &Element, 0., 0., 0., &Value) ;
+	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0, 
+			 Support_L, &Element, 0., 0., 0., &Value) ;
 
 	Format_PostValue(PostSubOperation_P->Format, &Value, 
 			 Current.NbrHar, Current.Time, 0, 0) ;
@@ -1262,7 +1279,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
       fprintf(PostStream, "\n"); 
     }
-  }
+    //  }
 
   GetDP_End ;
 }

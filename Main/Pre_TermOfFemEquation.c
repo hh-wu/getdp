@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pre_TermOfFemEquation.c,v 1.6 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Pre_TermOfFemEquation.c,v 1.7 2000-10-30 09:04:05 dular Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -65,7 +65,7 @@ void  Pre_TermOfFemEquation(struct Element          * Element,
     for (i = 0 ; i < QuantityStorageEqu_P->NbrElementaryBasisFunction ; i++)
       switch(QuantityStorageEqu_P->BasisFunction[i].Constraint){
       case NONE:
-	Dof_DefineSymmetricalDof
+	Dof_DefineUnknownDof
 	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar) ;
 	break;
@@ -201,7 +201,7 @@ void  Pre_GlobalTermOfFemEquation(int  Num_Region,
 
     switch(QuantityStorageEqu_P->BasisFunction[0].Constraint) {
     case NONE:
-      Dof_DefineSymmetricalDof
+      Dof_DefineUnknownDof
 	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
 	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar) ;
       break ;
@@ -423,7 +423,7 @@ void  Pre_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
 
     switch(QuaSto_S.BasisFunction[0].Constraint) {
     case NONE:
-      Dof_DefineSymmetricalDof
+      Dof_DefineUnknownDof
 	(QuaSto_S.BasisFunction[0].CodeBasisFunction,
 	 QuaSto_S.BasisFunction[0].CodeEntity, Current.NbrHar) ;
       break ;

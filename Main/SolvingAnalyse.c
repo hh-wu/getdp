@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.16 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.17 2000-10-30 09:04:05 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -362,8 +362,8 @@ void  SolvingAnalyse (void) {
 
       for(j=0 ; j<DofData_P->NbrAnyDof ; j++){
         Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, j) ;
-        if(Dof_P->Type == DOF_SYMMETRICAL_INIT){
-          Dof_P->Type = DOF_SYMMETRICAL ;
+        if(Dof_P->Type == DOF_UNKNOWN_INIT){
+          Dof_P->Type = DOF_UNKNOWN ;
           LinAlg_ZeroScalar(&Dof_P->Val) ;
         }
       }
@@ -649,7 +649,7 @@ void Treatment_Preprocessing(int Nbr_DefineSystem,
       Treatment_Formulation(Formulation_P) ;
     }
     
-    Dof_NumberSymmetricalDof() ;
+    Dof_NumberUnknownDof() ;
 
   }
   
