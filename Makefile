@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.110 2003-01-26 06:55:33 geuzaine Exp $
+# $Id: Makefile,v 1.111 2003-01-26 07:39:51 geuzaine Exp $
 
 # ----------------------------------------------------------------------
 #  Optional packages: 
@@ -16,7 +16,7 @@
 
 GETDP_MAJOR_VERSION = 0
 GETDP_MINOR_VERSION = 86
-GETDP_PATCH_VERSION = 0
+GETDP_PATCH_VERSION = 1
 
 MAKE = make
 RM = rm
