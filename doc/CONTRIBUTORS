@@ -1,19 +1,19 @@
-$Id: CONTRIBUTORS,v 1.9 2001-05-03 00:17:18 geuzaine Exp $
+$Id: CONTRIBUTORS,v 1.10 2001-07-19 14:32:24 geuzaine Exp $
 
 GetDP is copyright (c) 1997-2001 by
 
-    Patrick Dular <patrick.dular@ulg.ac.be> and
-    Christophe Geuzaine <christophe.geuzaine@ulg.ac.be>
+    Patrick Dular <patrick.dular@@ulg.ac.be> and
+    Christophe Geuzaine <christophe.geuzaine@@ulg.ac.be>
 
 Parts of the code have been contributed by
 
-    David Colignon <david.colignon@ulg.ac.be>
-    Johan Gyselinck <johan.gyselinck@ulg.ac.be>
-    Patrick Lefèvre <P.Lefevre@ulg.ac.be>
-    Jean-François Remacle <remacle@scorec.rpi.edu>
-    Ruth Sabariego <ruth.sabariego@student.ulg.ac.be>
-    Timo Tarhasaari <timo.tarhasaari@tut.fi>
-    Marc Umé <Marc.Ume@digitalgraphics.be>
+    David Colignon <david.colignon@@ulg.ac.be>
+    Johan Gyselinck <johan.gyselinck@@ulg.ac.be>
+    Patrick Lef`evre <P.Lefevre@@ulg.ac.be>
+    Jean-Fran,cois Remacle <remacle@@scorec.rpi.edu>
+    Ruth Sabariego <ruth.sabariego@@student.ulg.ac.be>
+    Timo Tarhasaari <timo.tarhasaari@@tut.fi>
+    Marc Um'e <Marc.Ume@@digitalgraphics.be>
 
 Special thanks to the following folks who have greatly contributed by
 providing fresh ideas on theoretical or programming topics, or who
@@ -23,23 +23,23 @@ it is inevitable that some contributors have been omitted. If you are
 in this situation, just send an e-mail to one of the authors, and you
 will be added to the list!
 
-    Alejandro Angulo <aacusm@yahoo.com>
-    Geoffrey Deliège <deliege@mailserv.esat.kuleuven.ac.be>
-    Mark Evans <evans@gte.net> 
-    Philippe Geuzaine <geuzaine@gnat.colorado.edu>
-    Éric Godard <godard@montefiore.ulg.ac.be>
-    Sébastien Guenneau <guenneau@liverpool.ac.uk> 
-    François Henrotte <fhenrott@esat.kuleuven.ac.be>
-    Daniel Kedzierski <kedzierski@uol.com.br>
-    Samuel Kvasnica <kvasnica@iaee.tuwien.ac.at> 
-    Tuan Ledinh <tuan.ledinh@student.ulg.ac.be>
-    Benoît Meys <bmeys@techspace-aero.be>
-    André Nicolet <andre.nicolet@fresnel.fr>
-    Uwe Pahner <uwe.pahner@esat.kuleuven.ac.be>
-    Georgia Psoni and Robert Struijs <gpsoni@free.fr> 
-    Ahmed Rassili <a.rassili@ulg.ac.be>
-    Hervé Tortel <tortel@loe.u-3mrs.fr>
-    Christophe Trophime <trophime@labs.polycnrs-gre.fr>
+    Alejandro Angulo <aacusm@@yahoo.com>
+    Geoffrey Deli`ege <deliege@@mailserv.esat.kuleuven.ac.be>
+    Mark Evans <evans@@gte.net> 
+    Philippe Geuzaine <geuzaine@@gnat.colorado.edu>
+    'Eric Godard <godard@@montefiore.ulg.ac.be>
+    S'ebastien Guenneau <guenneau@@liverpool.ac.uk> 
+    Fran,cois Henrotte <fhenrott@@esat.kuleuven.ac.be>
+    Daniel Kedzierski <kedzierski@@uol.com.br>
+    Samuel Kvasnica <kvasnica@@iaee.tuwien.ac.at> 
+    Tuan Ledinh <tuan.ledinh@@student.ulg.ac.be>
+    Beno^it Meys <bmeys@@techspace-aero.be>
+    Andr'e Nicolet <andre.nicolet@@fresnel.fr>
+    Uwe Pahner <uwe.pahner@@esat.kuleuven.ac.be>
+    Georgia Psoni and Robert Struijs <gpsoni@@free.fr> 
+    Ahmed Rassili <a.rassili@@ulg.ac.be>
+    Herv'e Tortel <tortel@@loe.u-3mrs.fr>
+    Christophe Trophime <trophime@@labs.polycnrs-gre.fr>
 
 Finally, thanks to all of you who sent e-mail showing interest. This
 has motivated us a lot to release the code as free software and to

@@ -1,4 +1,4 @@
-$Id: VERSIONS,v 1.18 2001-07-17 23:27:44 geuzaine Exp $
+$Id: VERSIONS,v 1.19 2001-07-19 14:32:24 geuzaine Exp $
 
 0.83: Various bug fixes (SaveSolutions[], InitSolution[], corrupted
 binary post-processing files in the harmonic case (only for the Gmsh
@@ -41,8 +41,9 @@ post-processing (faster and less bloated); Lots of internal cleaning;
 
 0.73: Eigen value problems (Lanczos); minor corrections;
 
-0.7: constraint syntax; fourier transform; unary minus correction; complex
-integral quantity correction; separate iteration matrix generation;
+0.7: constraint syntax; fourier transform; unary minus correction;
+complex integral quantity correction; separate iteration matrix
+generation;
 
 0.6: Second order time derivatives; Newton nonlinear scheme; Newmark
 time stepping scheme; global quantity syntax; interactive

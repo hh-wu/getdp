@@ -1,6 +1,10 @@
 
+This directory contains some LaTeX material for GetDP-related
+presentations. You will need LaTeX and the seminar package to be
+installed on your system to compile the various files.
+
 * To create a full presentation, make a copy of 'christophe.tex' and
-  edit it to match your needs. Then compile it with 
+  edit it to match your needs. Then compile it with the command 
 
   latex file
 
@@ -18,12 +22,9 @@
 
 * To print 2 or 4 slides per page, type
 
-  psnup -2 file.ps | lpr
+  psnup -r -2 file.ps | lpr
 
   or
 
   psnup -r -4 file.ps | lpr
 
-
-
-Christophe
