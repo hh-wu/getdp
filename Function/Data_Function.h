@@ -374,33 +374,109 @@ struct StringX3Function2Nbr  BF_Function[] = {
   {"BF_NodeY" , (CAST)BF_NodeY , (CAST)BF_NodeY_D1 , (CAST)BF_NodeY_D2 , 1. , ALL },
   {"BF_NodeZ" , (CAST)BF_NodeZ , (CAST)BF_NodeZ_D1 , (CAST)BF_NodeZ_D2 , 1. , ALL },
 
-  {"BF_NodeX_D1" , (CAST)BF_NodeX_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_NodeY_D1" , (CAST)BF_NodeY_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_NodeZ_D1" , (CAST)BF_NodeZ_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeX_2E" , (CAST)BF_NodeX_2E , (CAST)BF_NodeX_D1_2E , (CAST)BF_NodeX_D2_2E , 2. , ALL },
+  {"BF_NodeY_2E" , (CAST)BF_NodeY_2E , (CAST)BF_NodeY_D1_2E , (CAST)BF_NodeY_D2_2E , 2. , ALL },
+  {"BF_NodeZ_2E" , (CAST)BF_NodeZ_2E , (CAST)BF_NodeZ_D1_2E , (CAST)BF_NodeZ_D2_2E , 2. , ALL },
 
-  {"BF_NodeX_D2" , (CAST)BF_NodeX_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_NodeY_D2" , (CAST)BF_NodeY_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_NodeZ_D2" , (CAST)BF_NodeZ_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeX_2F" , (CAST)BF_NodeX_2F , (CAST)BF_NodeX_D1_2F , (CAST)BF_NodeX_D2_2F , 2. , QUA|HEX|PRI },
+  {"BF_NodeY_2F" , (CAST)BF_NodeY_2F , (CAST)BF_NodeY_D1_2F , (CAST)BF_NodeY_D2_2F , 2. , QUA|HEX|PRI },
+  {"BF_NodeZ_2F" , (CAST)BF_NodeZ_2F , (CAST)BF_NodeZ_D1_2F , (CAST)BF_NodeZ_D2_2F , 2. , QUA|HEX|PRI },
 
-  {"BF_NodeX_D12" , (CAST)BF_NodeX_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_NodeY_D12" , (CAST)BF_NodeY_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_NodeZ_D12" , (CAST)BF_NodeZ_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeX_2V" , (CAST)BF_NodeX_2V , (CAST)BF_NodeX_D1_2V , (CAST)BF_NodeX_D2_2V , 2. , HEX|PRI },
+  {"BF_NodeY_2V" , (CAST)BF_NodeY_2V , (CAST)BF_NodeY_D1_2V , (CAST)BF_NodeY_D2_2V , 2. , HEX|PRI },
+  {"BF_NodeZ_2V" , (CAST)BF_NodeZ_2V , (CAST)BF_NodeZ_D1_2V , (CAST)BF_NodeZ_D2_2V , 2. , HEX|PRI },
+
+  {"BF_NodeX_3E" , (CAST)BF_NodeX_3E , (CAST)BF_NodeX_D1_3E , (CAST)BF_NodeX_D2_3E , 3. , ALL },
+  {"BF_NodeY_3E" , (CAST)BF_NodeY_3E , (CAST)BF_NodeY_D1_3E , (CAST)BF_NodeY_D2_3E , 3. , ALL },
+  {"BF_NodeZ_3E" , (CAST)BF_NodeZ_3E , (CAST)BF_NodeZ_D1_3E , (CAST)BF_NodeZ_D2_3E , 3. , ALL },
+
+  {"BF_NodeX_3F" , (CAST)BF_NodeX_3F , (CAST)BF_NodeX_D1_3F , (CAST)BF_NodeX_D2_3F , 3. , TRI|QUA|TET|HEX|PRI },
+  {"BF_NodeY_3F" , (CAST)BF_NodeY_3F , (CAST)BF_NodeY_D1_3F , (CAST)BF_NodeY_D2_3F , 3. , TRI|QUA|TET|HEX|PRI },
+  {"BF_NodeZ_3F" , (CAST)BF_NodeZ_3F , (CAST)BF_NodeZ_D1_3F , (CAST)BF_NodeZ_D2_3F , 3. , TRI|QUA|TET|HEX|PRI },
+
+  {"BF_NodeX_3V" , (CAST)BF_NodeX_3V , (CAST)BF_NodeX_D1_3V , (CAST)BF_NodeX_D2_3V , 3. , HEX|PRI },
+  {"BF_NodeY_3V" , (CAST)BF_NodeY_3V , (CAST)BF_NodeY_D1_3V , (CAST)BF_NodeY_D2_3V , 3. , HEX|PRI },
+  {"BF_NodeZ_3V" , (CAST)BF_NodeZ_3V , (CAST)BF_NodeZ_D1_3V , (CAST)BF_NodeZ_D2_3V , 3. , HEX|PRI },
+
+
+  {"BF_NodeX_D1" , (CAST)BF_NodeX_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_NodeY_D1" , (CAST)BF_NodeY_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_NodeZ_D1" , (CAST)BF_NodeZ_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+
+  {"BF_NodeX_D1_2E" , (CAST)BF_NodeX_D1_2E , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeY_D1_2E" , (CAST)BF_NodeY_D1_2E , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeZ_D1_2E" , (CAST)BF_NodeZ_D1_2E , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+
+  {"BF_NodeX_D1_2F" , (CAST)BF_NodeX_D1_2F , (CAST)BF_Zero , (CAST)BF_Zero , 1. , QUA|HEX|PRI },
+  {"BF_NodeY_D1_2F" , (CAST)BF_NodeY_D1_2F , (CAST)BF_Zero , (CAST)BF_Zero , 1. , QUA|HEX|PRI },
+  {"BF_NodeZ_D1_2F" , (CAST)BF_NodeZ_D1_2F , (CAST)BF_Zero , (CAST)BF_Zero , 1. , QUA|HEX|PRI },
+
+  {"BF_NodeX_D1_2V" , (CAST)BF_NodeX_D1_2V , (CAST)BF_Zero , (CAST)BF_Zero , 1. , HEX|PRI },
+  {"BF_NodeY_D1_2V" , (CAST)BF_NodeY_D1_2V , (CAST)BF_Zero , (CAST)BF_Zero , 1. , HEX|PRI },
+  {"BF_NodeZ_D1_2V" , (CAST)BF_NodeZ_D1_2V , (CAST)BF_Zero , (CAST)BF_Zero , 1. , HEX|PRI },
+
+  {"BF_NodeX_D1_3E" , (CAST)BF_NodeX_D1_3E , (CAST)BF_Zero , (CAST)BF_Zero , 2. , ALL },
+  {"BF_NodeY_D1_3E" , (CAST)BF_NodeY_D1_3E , (CAST)BF_Zero , (CAST)BF_Zero , 2. , ALL },
+  {"BF_NodeZ_D1_3E" , (CAST)BF_NodeZ_D1_3E , (CAST)BF_Zero , (CAST)BF_Zero , 2. , ALL },
+
+  {"BF_NodeX_D1_3F" , (CAST)BF_NodeX_D1_3F , (CAST)BF_Zero , (CAST)BF_Zero , 2. , TRI|QUA|TET|HEX|PRI },
+  {"BF_NodeY_D1_3F" , (CAST)BF_NodeY_D1_3F , (CAST)BF_Zero , (CAST)BF_Zero , 2. , TRI|QUA|TET|HEX|PRI },
+  {"BF_NodeZ_D1_3F" , (CAST)BF_NodeZ_D1_3F , (CAST)BF_Zero , (CAST)BF_Zero , 2. , TRI|QUA|TET|HEX|PRI },
+
+  {"BF_NodeX_D1_3V" , (CAST)BF_NodeX_D1_3V , (CAST)BF_Zero , (CAST)BF_Zero , 2. , HEX|PRI },
+  {"BF_NodeY_D1_3V" , (CAST)BF_NodeY_D1_3V , (CAST)BF_Zero , (CAST)BF_Zero , 2. , HEX|PRI },
+  {"BF_NodeZ_D1_3V" , (CAST)BF_NodeZ_D1_3V , (CAST)BF_Zero , (CAST)BF_Zero , 2. , HEX|PRI },
+
+
+  {"BF_NodeX_D2" , (CAST)BF_NodeX_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_NodeY_D2" , (CAST)BF_NodeY_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_NodeZ_D2" , (CAST)BF_NodeZ_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+
+  {"BF_NodeX_D2_2E" , (CAST)BF_NodeX_D2_2E , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeY_D2_2E" , (CAST)BF_NodeY_D2_2E , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_NodeZ_D2_2E" , (CAST)BF_NodeZ_D2_2E , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+
+  {"BF_NodeX_D2_2F" , (CAST)BF_NodeX_D2_2F , (CAST)BF_Zero , (CAST)BF_Zero , 1. , QUA|HEX|PRI },
+  {"BF_NodeY_D2_2F" , (CAST)BF_NodeY_D2_2F , (CAST)BF_Zero , (CAST)BF_Zero , 1. , QUA|HEX|PRI },
+  {"BF_NodeZ_D2_2F" , (CAST)BF_NodeZ_D2_2F , (CAST)BF_Zero , (CAST)BF_Zero , 1. , QUA|HEX|PRI },
+
+  {"BF_NodeX_D2_2V" , (CAST)BF_NodeX_D2_2V , (CAST)BF_Zero , (CAST)BF_Zero , 1. , HEX|PRI },
+  {"BF_NodeY_D2_2V" , (CAST)BF_NodeY_D2_2V , (CAST)BF_Zero , (CAST)BF_Zero , 1. , HEX|PRI },
+  {"BF_NodeZ_D2_2V" , (CAST)BF_NodeZ_D2_2V , (CAST)BF_Zero , (CAST)BF_Zero , 1. , HEX|PRI },
+
+  {"BF_NodeX_D2_3E" , (CAST)BF_NodeX_D2_3E , (CAST)BF_Zero , (CAST)BF_Zero , 2. , ALL },
+  {"BF_NodeY_D2_3E" , (CAST)BF_NodeY_D2_3E , (CAST)BF_Zero , (CAST)BF_Zero , 2. , ALL },
+  {"BF_NodeZ_D2_3E" , (CAST)BF_NodeZ_D2_3E , (CAST)BF_Zero , (CAST)BF_Zero , 2. , ALL },
+
+  {"BF_NodeX_D2_3F" , (CAST)BF_NodeX_D2_3F , (CAST)BF_Zero , (CAST)BF_Zero , 2. , TRI|QUA|TET|HEX|PRI },
+  {"BF_NodeY_D2_3F" , (CAST)BF_NodeY_D2_3F , (CAST)BF_Zero , (CAST)BF_Zero , 2. , TRI|QUA|TET|HEX|PRI },
+  {"BF_NodeZ_D2_3F" , (CAST)BF_NodeZ_D2_3F , (CAST)BF_Zero , (CAST)BF_Zero , 2. , TRI|QUA|TET|HEX|PRI },
+
+  {"BF_NodeX_D2_3V" , (CAST)BF_NodeX_D2_3V , (CAST)BF_Zero , (CAST)BF_Zero , 2. , HEX|PRI },
+  {"BF_NodeY_D2_3V" , (CAST)BF_NodeY_D2_3V , (CAST)BF_Zero , (CAST)BF_Zero , 2. , HEX|PRI },
+  {"BF_NodeZ_D2_3V" , (CAST)BF_NodeZ_D2_3V , (CAST)BF_Zero , (CAST)BF_Zero , 2. , HEX|PRI },
+
+
+  {"BF_NodeX_D12" , (CAST)BF_NodeX_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_NodeY_D12" , (CAST)BF_NodeY_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_NodeZ_D12" , (CAST)BF_NodeZ_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+
 
   {"BF_GroupOfNodesX" , (CAST)BF_GroupOfNodesX , (CAST)BF_GroupOfNodesX_D1 , (CAST)BF_GroupOfNodesX_D2 , 1. , ALL },
   {"BF_GroupOfNodesY" , (CAST)BF_GroupOfNodesY , (CAST)BF_GroupOfNodesY_D1 , (CAST)BF_GroupOfNodesY_D2 , 1. , ALL },
   {"BF_GroupOfNodesZ" , (CAST)BF_GroupOfNodesZ , (CAST)BF_GroupOfNodesZ_D1 , (CAST)BF_GroupOfNodesZ_D2 , 1. , ALL },
 
-  {"BF_GroupOfNodesX_D1" , (CAST)BF_GroupOfNodesX_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_GroupOfNodesY_D1" , (CAST)BF_GroupOfNodesY_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_GroupOfNodesZ_D1" , (CAST)BF_GroupOfNodesZ_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_GroupOfNodesX_D1" , (CAST)BF_GroupOfNodesX_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_GroupOfNodesY_D1" , (CAST)BF_GroupOfNodesY_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_GroupOfNodesZ_D1" , (CAST)BF_GroupOfNodesZ_D1 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
 
-  {"BF_GroupOfNodesX_D2" , (CAST)BF_GroupOfNodesX_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_GroupOfNodesY_D2" , (CAST)BF_GroupOfNodesY_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_GroupOfNodesZ_D2" , (CAST)BF_GroupOfNodesZ_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_GroupOfNodesX_D2" , (CAST)BF_GroupOfNodesX_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_GroupOfNodesY_D2" , (CAST)BF_GroupOfNodesY_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_GroupOfNodesZ_D2" , (CAST)BF_GroupOfNodesZ_D2 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
 
-  {"BF_GroupOfNodesX_D12" , (CAST)BF_GroupOfNodesX_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_GroupOfNodesY_D12" , (CAST)BF_GroupOfNodesY_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
-  {"BF_GroupOfNodesZ_D12" , (CAST)BF_GroupOfNodesZ_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 1. , ALL },
+  {"BF_GroupOfNodesX_D12" , (CAST)BF_GroupOfNodesX_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_GroupOfNodesY_D12" , (CAST)BF_GroupOfNodesY_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_GroupOfNodesZ_D12" , (CAST)BF_GroupOfNodesZ_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
 
 
   /* Special basis Functions */

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Define.c,v 1.9 2003-03-22 03:30:13 geuzaine Exp $"
+#define RCSID "$Id: Get_Define.c,v 1.10 2003-06-20 21:32:07 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -200,7 +200,7 @@ static char Valid[5000];
   GetDP_Begin(Get_Valid_X);			\
   Msg(DIRECT,"Valid Choices are:");		\
   while (V[i].string != NULL){			\
-    if(!(i%4)){					\
+    if(!(i%3)){					\
       if(i) Msg(DIRECT,"  %s", Valid);		\
       strcpy(Valid, V[i].string);		\
     }						\
