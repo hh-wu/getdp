@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.8 2001-06-09 11:15:00 geuzaine Exp $
+@c $Id: getdp.texi,v 1.9 2001-06-13 12:31:44 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -2127,7 +2127,7 @@ PostProcessing @{
   @{ Name @var{post-processing-id} <@{#@var{integer}@}>; 
     NameOfFormulation @var{formulation-id} <@{@}> < [ @var{mesh-id} ] >; 
     Quantity @{
-      @{ Name @var{post-quantity-id}; Type @var{post-quantity-type}; 
+      @{ Name @var{post-quantity-id};
         Value @{ @var{post-value} @dots{} @} @} @dots{}
     @}
   @} @dots{}
@@ -2141,14 +2141,11 @@ PostProcessing @{
 @var{post-quantity-id}:
   @var{string}
 
-@var{post-quantity-type}:
-  NonCumulative | Cumulative
-
 @var{post-value}:
   Local @{ @var{local-value} @} | Integral @{ @var{integral-value} @}
 
 @var{local-value}:
-  [ @var{expression} ]; In @var{group-def}; < Jacobian @var{jacobian-id} >
+  [ @var{expression} ]; In @var{group-def}; Jacobian @var{jacobian-id}
 
 @var{integral-value}:
   [ @var{expression} ]; In @var{group-def}; 
@@ -3516,23 +3513,7 @@ Compare quantities to reference functions (e.g.@: for regulation).
 
 @cindex Post-processing, types
 
-@mvindex @var{post-quantity-type}
 @mvindex @var{post-value}
-
-
-@noindent
-@var{post-quantity-type}:
-
-@vtable @code
-
-@item NonCumulative
-Is the default.
-
-@item Cumulative
-Sums all computed values.
-
-@end vtable
-
 
 @noindent
 @var{post-value}:
@@ -3543,6 +3524,7 @@ Sums all computed values.
 @{ @var{local-value} @}
 
 To compute a local quantity.
+
 @item Integral
 @{ @var{integral-value} @}
 
