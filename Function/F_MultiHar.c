@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.9 2000-11-03 15:24:18 gyselinc Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.10 2000-11-06 09:18:27 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -133,8 +133,8 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[],
   if (NbrTimePointForSmallestPeriod){
     NbrTimePointForSP_MH = NbrTimePointForSmallestPeriod ;
     NbrTimePointForGP_MH = 0 ;
-    NbrTimePoint_MH = (int)rint((double)MaxPulsation / (double)MinPulsation 
-		             * (double)NbrTimePointForSmallestPeriod) ;
+    NbrTimePoint_MH = (int)( (double)MaxPulsation / (double)MinPulsation 
+		             * (double)NbrTimePointForSmallestPeriod +0.5 );
   }else{ 
     NbrTimePointForGP_MH = NbrTimePointForGreatestPeriod ;
     NbrTimePointForSP_MH = 0 ;
