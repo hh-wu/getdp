@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.10 2001-03-27 19:00:58 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.11 2001-03-27 19:19:58 dular Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -2085,7 +2085,8 @@ ConstraintCaseTerm :
 
   | tRegionRef GroupRHS tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK) {
+      if (ConstraintPerRegion_S.Type == CST_LINK ||
+	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.RegionRefIndex =
 	  Num_Group(&Group_S, "CO_RegionRef", $2) ;
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex = -1 ;
@@ -2101,26 +2102,30 @@ ConstraintCaseTerm :
     }
   | tSubRegionRef GroupRHS tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK)
+      if (ConstraintPerRegion_S.Type == CST_LINK ||
+	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex =
 	  Num_Group(&Group_S, "CO_RegionRef", $2) ;
       else  vyyerror("SubRegionRef incompatible with Type") ;
     }
   | tFunction Expression tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK)
+      if (ConstraintPerRegion_S.Type == CST_LINK ||
+	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.FunctionIndex = $2 ;
       else  vyyerror("Function incompatible with Type") ;
     }
   | tCoefficient Expression tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK)
+      if (ConstraintPerRegion_S.Type == CST_LINK ||
+	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.CoefIndex = $2 ;
       else  vyyerror("Coefficient incompatible with Type") ;
     }
   | tFilter Expression tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK) {
+      if (ConstraintPerRegion_S.Type == CST_LINK ||
+	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.FilterIndex  = $2 ;
 	ConstraintPerRegion_S.Case.Link.FilterIndex2 = -1 ;
       }
@@ -2128,7 +2133,8 @@ ConstraintCaseTerm :
     }
   | tFunction '[' Expression ',' Expression ']' tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK) {
+      if (ConstraintPerRegion_S.Type == CST_LINK ||
+	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.FunctionIndex  = $3 ;
 	ConstraintPerRegion_S.Case.Link.FunctionIndex2 = $5 ;
       }
@@ -2136,7 +2142,8 @@ ConstraintCaseTerm :
     }
   | tCoefficient '[' Expression ',' Expression ']' tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK) {
+      if (ConstraintPerRegion_S.Type == CST_LINK ||
+	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.CoefIndex  = $3 ;
 	ConstraintPerRegion_S.Case.Link.CoefIndex2 = $5 ;
       }
@@ -2144,7 +2151,8 @@ ConstraintCaseTerm :
     }
   | tFilter '[' Expression ',' Expression ']' tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK) {
+      if (ConstraintPerRegion_S.Type == CST_LINK ||
+	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.FilterIndex  = $3 ;
 	ConstraintPerRegion_S.Case.Link.FilterIndex2 = $5 ;
       }

@@ -1,4 +1,4 @@
-/* $Id: Get_DofOfElement.h,v 1.6 2001-03-27 18:58:36 geuzaine Exp $ */
+/* $Id: Get_DofOfElement.h,v 1.7 2001-03-27 19:19:57 dular Exp $ */
 #ifndef _GET_DOF_OF_ELEMENT_H_
 #define _GET_DOF_OF_ELEMENT_H_
 
@@ -42,7 +42,7 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
 void  Get_PreResolutionForConstraint(struct ConstraintInFS * Constraint_P,
 				     int * Index_TimeFunction) ;
 void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
-			    int Num_Entity, int * CodeEntity_Link, double * Coef) ;
+			    int Num_Entity, int * CodeEntity_Link, double Value[]) ;
 
 void  Get_PreResolutionForGlobalBasisFunction(int Nbr_Global, int StartingIndex,
 					      struct Element * Element) ;

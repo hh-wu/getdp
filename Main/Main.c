@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.31 2001-03-20 08:18:06 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.32 2001-03-27 19:19:57 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -416,7 +416,6 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	if(!j)
 	  Msg(ERROR, "Missing file name");
 	else{
-	  Flag_SPLIT = 1 ;
 	  Name_ResFile[j] = NULL ;
 	}
       }

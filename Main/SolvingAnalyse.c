@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.21 2001-03-07 13:26:16 dular Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.22 2001-03-27 19:19:58 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -723,7 +723,9 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 			GeoData_P0 + Current.DofData->GeoDataIndex) ;
 
   Msg(INFO, "Selected PostProcessing '%s'", PostProcessing_P->Name);
+  /*
   Msg(INFO, "Selected System '%s'", DefineSystem_P->Name) ;
+  */
   Msg(INFO, "Selected Mesh '%s'", Current.GeoData->Name);
 
   Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);

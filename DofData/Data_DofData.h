@@ -1,4 +1,4 @@
-/* $Id: Data_DofData.h,v 1.6 2001-03-27 18:58:36 geuzaine Exp $ */
+/* $Id: Data_DofData.h,v 1.7 2001-03-27 19:19:57 dular Exp $ */
 #ifndef _DATA_DOFDATA_H_
 #define _DATA_DOFDATA_H_
 
@@ -75,7 +75,7 @@ struct Dof {
     } FixedAssociate ;
     struct {
       int       EntityRef ;
-      double    Coef ;
+      double    Coef, Coef2 ;
       struct Dof  * Dof ;
     } Link ;
   } Case ;
@@ -88,6 +88,7 @@ struct Dof {
 #define DOF_FIXED                2  /* spatial fixed */
 #define DOF_FIXEDWITHASSOCIATE   3  /* associate */
 #define DOF_LINK                 7  /* link */
+#define DOF_LINKCPLX             8  /* linkcplx */
 
 /* definitive in a preprocessing */
 #define DOF_UNKNOWN_INIT         5  /* initial condition */

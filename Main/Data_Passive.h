@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.31 2001-03-27 18:58:36 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.32 2001-03-27 19:19:57 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -159,6 +159,7 @@ struct MultiConstraintPerRegion {
 #define INITFROMRESOLUTION    4
 #define NETWORK               5
 #define CST_LINK              6
+#define CST_LINKCPLX          7
 
 
 /* ------------------------------------------------------------------------ */

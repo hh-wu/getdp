@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.22 2001-03-27 18:58:36 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.23 2001-03-27 19:19:57 dular Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -128,6 +128,8 @@ struct StringXDefine  Constraint_Type[] = {
   {"InitFromResolution"   , INITFROMRESOLUTION},
   {"Network"              , NETWORK},
   {"Link"                 , CST_LINK},
+  {"Link"                 , CST_LINK},
+  {"LinkCplx"             , CST_LINKCPLX},
   {NULL                   , ASSIGN}
  } ;
 
