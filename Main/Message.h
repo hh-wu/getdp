@@ -1,4 +1,4 @@
-/* $Id: Message.h,v 1.8 2001-03-16 13:07:13 geuzaine Exp $ */
+/* $Id: Message.h,v 1.9 2001-05-03 00:17:18 geuzaine Exp $ */
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
@@ -42,5 +42,8 @@ void Signal(int signum);
 void Msg(int level, char *fmt, ...);
 void Progress(int current, int final, char *label);
 void Debug(void);
+
+
+#define GERROR ERROR /* for Gmsh compatibility */
 
 #endif

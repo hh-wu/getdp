@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2001-03-02 22:16:00 geuzaine Exp $
+# $Id: Makefile,v 1.12 2001-05-03 00:17:18 geuzaine Exp $
 #
 # Makefile for 'libMain.a'
 # 
@@ -42,7 +42,8 @@ SRC = Main.c Message.c \
                 Cal_SolidAngle.c \
       Get_Define.c \
       Graph.c \
-      Print_ProblemStructure.c
+      Print_ProblemStructure.c\
+      Socket.c
 
 OBJ = $(SRC:.c=.o)
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.32 2001-03-27 19:19:57 dular Exp $"
+#define RCSID "$Id: Main.c,v 1.33 2001-05-03 00:17:18 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -9,6 +9,7 @@
 #include "Init_Problem.h"
 #include "LinAlg.h"
 #include "Magic.h"
+#include "Socket.h"
 
 extern FILE *yyin ;
 long int     yylinenum=0 ;
@@ -38,7 +39,7 @@ int     InteractiveCompute, InteractiveInterrupt=0 ;
 int     Flag_PRE, Flag_PAR, Flag_CAL, Flag_POS, Flag_IPOS, Flag_XDATA;
 int     Flag_CHECK, Flag_LRES, Flag_LPOS, Flag_LIPOS; 
 int     Flag_RESTART, Flag_LOG, Flag_VERBOSE, Flag_BIN, Flag_PROGRESS ;
-int     Flag_SPLIT ;
+int     Flag_SPLIT, Flag_SOCKET ;
 double  Flag_ORDER ;
 char    Name_Generic[MAX_FILE_NAME_LENGTH] ;
 char   *Name_Resolution ;
@@ -160,6 +161,13 @@ int  main(int argc, char *argv[]) {
 
   LinAlg_Finalize() ;
 
+  /* close socket */
+
+  if(Flag_SOCKET>0){
+    Socket_SendInt(Flag_SOCKET, -1);
+    Socket_Close(Flag_SOCKET);
+  }
+
   GetDP_Return(0) ;
 }
 
@@ -178,7 +186,7 @@ void Init_GlobalVariables(void){
   Flag_CHECK = 0 ; Flag_XDATA = 0   ; Flag_RESTART = 0   ; Flag_BIN = 0  ; 
   Flag_LRES = 0  ; Flag_LPOS = 0    ; Flag_LIPOS = 0     ; Flag_PAR = 0; 
   Flag_LOG = 0   ; Flag_VERBOSE = 4 ; Flag_PROGRESS = 10 ; Flag_SPLIT = 0 ;
-  Flag_ORDER = -1. ; 
+  Flag_ORDER = -1. ; Flag_SOCKET = -1 ;
 
   Name_Resolution = Name_PostProcessing[0] = Name_PostOperation[0] = NULL ;
   Name_MshFile = Name_ResFile[0] = Name_AdaptFile = NULL ;
@@ -241,6 +249,16 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       else if (!strcmp(argv[i]+1, "bin"))    { Flag_BIN     = 1 ; i++ ; } 
       else if (!strcmp(argv[i]+1, "ascii"))  { Flag_BIN     = 0 ; i++ ; } 
       else if (!strcmp(argv[i]+1, "split"))  { Flag_SPLIT   = 1 ; i++ ; } 
+
+      else if (!strcmp(argv[i]+1, "socket")) {
+	i++ ;
+	if (i<argc && argv[i][0]!='-') { 
+	  Flag_SOCKET = Socket_Connect(argv[i]) ; i++ ; 
+	}
+	else {
+	  Msg(ERROR, "Missing socket name");
+	}
+      }
 
       else if (!strcmp(argv[i]+1, "1") || !strcmp(argv[i]+1, "2") ||
 	       !strcmp(argv[i]+1, "3") || !strcmp(argv[i]+1, "4") ||
@@ -479,6 +497,11 @@ void FinalizeAndExit(void){
 
   LinAlg_FinalizeSolver();
   LinAlg_Finalize();
+
+  if(Flag_SOCKET>0){ 
+    Socket_SendInt(Flag_SOCKET, -1);
+    Socket_Close(Flag_SOCKET);
+  }
 
   GetDP_Exit(1) ;
 }

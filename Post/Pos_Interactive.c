@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Interactive.c,v 1.13 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Pos_Interactive.c,v 1.14 2001-05-03 00:17:18 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -105,7 +105,7 @@ void  Interactive(void){
        !strcmp(myptr,"Quit") || !strcmp(myptr,"quit") || !strcmp(myptr,"q") ||
        !strcmp(myptr,"exit") || !strcmp(myptr,"Exit")) {
       unlink(GETDP_TMP_FILENAME);
-      exit(1) ;
+      FinalizeAndExit() ;
     }
 
     /* if there is something in the line */

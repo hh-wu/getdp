@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.6 2001-04-05 06:30:12 geuzaine Exp $
+@c $Id: getdp.texi,v 1.7 2001-05-03 00:17:19 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -5090,6 +5090,10 @@ Selects binary format for output files.
 @cindex @code{-log}
 Saves all processing history in a log file (the input file name with an
 appended @code{.log} extension).
+
+@item -socket @var{string}
+@cindex @code{-socket}
+Communicates through socket @var{string}.
 
 @item -check  
 @cindex @code{-check}

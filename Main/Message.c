@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.38 2001-04-10 15:04:00 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.39 2001-05-03 00:17:18 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -75,6 +75,7 @@ char help[] =
   "Output options:\n"
   "  -bin                      use binary format for output files\n"
   "  -log                      save processing history in log file\n"
+  "  -socket string            communicate through socket string\n"
   "Other options:\n"
   "  -check                    interactive check of problem structure\n"
   "  -v int                    set verbosity level (default: 4)\n"
@@ -166,6 +167,56 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
   char FileName[256], FileVersion[32], FunctionName[256], FileAuthor[32], FileDate[32];
   int  Line ;
 #endif
+  
+  char prefix[1000], sockmsg[1000];
+
+  if(Flag_SOCKET > 0){
+    vsprintf(sockmsg, fmt, args);
+    sprintf(prefix, "");
+    switch(level){
+    case CHECK :
+      sockmsg[strlen(sockmsg)-1] = '\0' ;
+      break;
+    case ERROR :
+    case BIGERROR :
+      sprintf(prefix, ERROR_STR); 
+      *abort = 1;
+      break;
+    case WARNING :
+      sprintf(prefix, WARNING_STR); 
+      break;
+    case OPERATION :
+      sprintf(prefix, OPERATION_STR); 
+      break;
+    case LOADING :
+      sprintf(prefix, LOADING_STR); 
+    case INFO :
+    case INFO1 :
+    case INFO2 :
+    case INFO3 :
+    case BIGINFO :
+      sprintf(prefix, INFO_STR); 
+      break;
+    case DEBUG :
+      return;
+    case SPARSKIT :
+      sprintf(prefix, SPARSKIT_STR); 
+      sockmsg[strlen(sockmsg)-1] = '\0' ;
+      break;
+    case PETSC :
+      sprintf(prefix, PETSC_STR);
+      sockmsg[strlen(sockmsg)-1] = '\0' ;
+      break;
+    case ITER :
+      sockmsg[strlen(sockmsg)-1] = '\0' ;
+      break;
+    }
+    strcat(prefix, sockmsg);
+    Socket_SendInt(Flag_SOCKET, 1);
+    Socket_SendString(Flag_SOCKET, prefix);
+    return;
+  }
+
 
   switch(level){
 
@@ -286,8 +337,14 @@ void GetResources(long *s, long *us, long *mem){
 void PrintResources(FILE *stream, char *fmt, long s, long us, long mem){
 
 #ifndef MSDOS
-  fprintf(stream, RESOURCES_STR) ;
-  fprintf(stream, "%scpu %ld.%ld s / mem %ld kb\n", fmt, s, us, mem);
+  char sockmsg[1000];
+  if(Flag_SOCKET > 0){
+    sprintf(sockmsg, RESOURCES_STR "%scpu %ld.%ld s / mem %ld kb\n", fmt, s, us, mem);
+  }
+  else{
+    fprintf(stream, RESOURCES_STR) ;
+    fprintf(stream, "%scpu %ld.%ld s / mem %ld kb\n", fmt, s, us, mem);
+  }
 #endif
 }
 
@@ -330,6 +387,7 @@ void Msg(int level, char *fmt, ...){
 /* ------------------------------------------------------------------------ */
 
 void Progress(int current, int final, char *label){
+  char sockmsg[100];
   static int ProgressIndex ;
 
   if(Current.RankCpu || !Flag_VERBOSE || !Flag_PROGRESS) return ;
@@ -339,11 +397,17 @@ void Progress(int current, int final, char *label){
     if(100/(double)final > Flag_PROGRESS) Flag_PROGRESS = 100/final+1 ;
   }
   if(100*current/(double)final >= ProgressIndex){
-    fprintf(stderr, "(%s%d %%)     \r", label, ProgressIndex) ;
+    if(Flag_SOCKET > 0){
+      sprintf(sockmsg, "(%s%d %%)", label, ProgressIndex) ;
+      Socket_SendInt(Flag_SOCKET, 10);
+      Socket_SendString(Flag_SOCKET, sockmsg);
+    }
+    else
+      fprintf(stderr, "(%s%d %%)     \r", label, ProgressIndex) ;
     ProgressIndex += Flag_PROGRESS ;
   }
   if(current >= final-1){
-    fprintf(stderr, "                        \r") ;
+    if(Flag_SOCKET < 0) fprintf(stderr, "                        \r") ;
   }
 
 }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Graph.c,v 1.9 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Graph.c,v 1.10 2001-05-03 00:17:18 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -97,8 +97,7 @@ void Graph_sort(unsigned long n, int ai[] , int aj [] ){
       aj[j M1]=c;
       jstack += 2;
       if (jstack > NSTACK) {
-	fprintf(stderr,"NSTACK too small in sort2.\n");
-	exit(1);
+	Msg(ERROR, "NSTACK too small in sort2");
       }
       if (ir-i+1 >= j-l) {
 	istack[jstack]=ir;

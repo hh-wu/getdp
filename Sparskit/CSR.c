@@ -1,8 +1,9 @@
-#define RCSID "$Id: CSR.c,v 1.5 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: CSR.c,v 1.6 2001-05-03 00:17:18 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "Solver.h"
+#include "Message.h"
 #include "Malloc.h"
 #include "nrutil.h"
 
@@ -92,8 +93,7 @@ void sort2(unsigned long n, double arr[], int ai[] , int aj [] ){
       aj[j M1]=c;
       jstack += 2;
       if (jstack > NSTACK) {
-	fprintf(stderr,"NSTACK too small in sort2.\n");
-	exit(1);
+	Msg(ERROR, "NSTACK too small in sort2");
       }
       if (ir-i+1 >= j-l) {
 	istack[jstack]=ir;

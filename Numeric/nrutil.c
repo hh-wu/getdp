@@ -1,4 +1,4 @@
-#define RCSID "$Id: nrutil.c,v 1.4 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: nrutil.c,v 1.5 2001-05-03 00:17:18 geuzaine Exp $"
 #include <stdio.h>
 #include <stddef.h>
 #include <stdlib.h>
@@ -15,12 +15,6 @@ void nrerror(char error_text[])
 /* Numerical Recipes standard error handler */
 {
   Msg(ERROR, "%s", error_text);
-  /*
-  fprintf(stderr,"Numerical Recipes run-time error...\n");
-  fprintf(stderr,"%s\n",error_text);
-  fprintf(stderr,"...now exiting to system...\n");
-  exit(1);
-  */
 }
 
 int *ivector(long nl, long nh){

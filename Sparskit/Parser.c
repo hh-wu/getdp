@@ -1,4 +1,4 @@
-#define RCSID "$Id: Parser.c,v 1.9 2001-02-24 16:20:29 geuzaine Exp $"
+#define RCSID "$Id: Parser.c,v 1.10 2001-05-03 00:17:18 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,6 +10,8 @@
 
 #define REEL    1
 #define ENTIER  2
+
+extern int Flag_SOCKET ;
 
 typedef struct {
   char *str;
@@ -264,8 +266,12 @@ void init_solver (Solver_Params *p , char *name){
       pI = &Tab_Params[i];
       switch(pI->typeinfo){
       case REEL :
-	printf ( "%25s ( %12.5f ): ",pI->str,pI->defaultfloat);
-	fgets (buff, 128, stdin);
+	if(Flag_SOCKET>0)
+	  strcpy(buff, "\n");
+	else{
+	  printf ( "%25s ( %12.5f ): ",pI->str,pI->defaultfloat);
+	  fgets (buff, 128, stdin);
+	}
 	if(!strcmp(buff,"\n")){
 	  fprintf(pSOLVER_PAR,"%25s %12.5E\n",pI->str,pI->defaultfloat);
 	  (pI->action)(p,pI->defaultint,pI->defaultfloat);
@@ -276,8 +282,12 @@ void init_solver (Solver_Params *p , char *name){
 	}
 	break;
       case ENTIER :
-	printf ( "%25s ( %12d ): ",pI->str,pI->defaultint);
-	fgets (buff, 128, stdin);
+	if(Flag_SOCKET>0)
+	  strcpy(buff, "\n");
+	else{
+	  printf ( "%25s ( %12d ): ",pI->str,pI->defaultint);
+	  fgets (buff, 128, stdin);
+	}
 	if(!strcmp(buff,"\n")){
 	  fprintf(pSOLVER_PAR,"%25s %12d\n",pI->str,pI->defaultint);
 	  (pI->action)(p,pI->defaultint,pI->defaultfloat);

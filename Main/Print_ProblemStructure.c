@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.18 2001-03-16 13:07:13 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.19 2001-05-03 00:17:18 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -170,7 +170,8 @@ void  Print_Group(struct Problem  * Problem) {
 
   Nbr = List_Nbr(Problem->Group) ;
 
-  Msg(CHECK, "Group {  /* nbr = %d */\n\n", Nbr) ;
+  Msg(CHECK, "Group {  /* nbr = %d */\n", Nbr) ;
+  Msg(CHECK, "\n") ;
 
   for (i = 0 ; i < Nbr ; i++) {
 
@@ -209,7 +210,8 @@ void  Print_Group(struct Problem  * Problem) {
     Msg(CHECK, " ] ;  /* Num %d */\n", i) ;
   }
 
-  Msg(CHECK, "\n}\n") ;
+  Msg(CHECK, "\n");
+  Msg(CHECK, "}\n") ;
 
   GetDP_End ;
 }
@@ -229,7 +231,8 @@ void  Print_Expression(struct Problem  * Problem) {
 
   Nbr = List_Nbr(Problem->Expression) ;
 
-  Msg(CHECK, "Function {  /* nbr = %d */\n\n", Nbr) ;
+  Msg(CHECK, "Function {  /* nbr = %d */\n", Nbr) ;
+  Msg(CHECK, "\n") ;
 
   for (i = 0 ; i < Nbr ; i++) {
     EX = (struct Expression*)List_Pointer(Problem->Expression, i) ;
@@ -268,7 +271,8 @@ void  Print_Expression(struct Problem  * Problem) {
     }
   }
 
-  Msg(CHECK, "\n}\n") ;
+  Msg(CHECK, "\n");
+  Msg(CHECK, "}\n") ;
 
   GetDP_End ;
 }
@@ -286,8 +290,9 @@ void  Print_Network(struct MultiConstraintPerRegion  * MCPR_P) {
 
   CA = MCPR_P->Active ;
 
-  Msg(CHECK, "NbrNode = %d, NbrBranch = %d\n\n",
+  Msg(CHECK, "NbrNode = %d, NbrBranch = %d\n",
       CA->Case.Network.NbrNode, CA->Case.Network.NbrBranch) ;
+  Msg(CHECK, "\n") ;
 
   for (i = 0 ; i < CA->Case.Network.NbrNode ; i++) {
     for (j = 0 ; j < CA->Case.Network.NbrBranch ; j++) {
@@ -318,7 +323,8 @@ void  Print_Constraint(struct Problem  * Problem) {
 
   Nbr = List_Nbr(Problem->Constraint) ;
 
-  Msg(CHECK, "Constraint {  /* nbr = %d */\n\n", Nbr) ;
+  Msg(CHECK, "Constraint {  /* nbr = %d */\n", Nbr) ;
+  Msg(CHECK, "\n") ;
 
   for (i = 0 ; i < Nbr ; i++) {
     Msg(CHECK, " /* Num : %d */\n", i) ;
@@ -384,10 +390,12 @@ void  Print_Constraint(struct Problem  * Problem) {
       }
     }
 
-    Msg(CHECK, "    }\n  }\n") ;
+    Msg(CHECK, "    }\n");
+    Msg(CHECK, "  }\n") ;
 
   }
-  Msg(CHECK, "\n}\n") ;
+  Msg(CHECK, "\n");
+  Msg(CHECK, "}\n") ;
 
   GetDP_End ;
 }
@@ -406,7 +414,8 @@ void  Print_JacobianMethod(struct Problem  * Problem) {
 
   Nbr = List_Nbr(Problem->JacobianMethod) ;
 
-  Msg(CHECK, "Jacobian {  /* nbr = %d */\n\n", Nbr) ;
+  Msg(CHECK, "Jacobian {  /* nbr = %d */\n", Nbr) ;
+  Msg(CHECK, "\n") ;
 
   for (i = 0 ; i < Nbr ; i++) {
     Msg(CHECK, " /* Num : %d */\n", i) ;
@@ -433,10 +442,12 @@ void  Print_JacobianMethod(struct Problem  * Problem) {
       }
       Msg(CHECK, " ; }\n") ;
     }
-    Msg(CHECK, "    }\n  }\n") ;
+    Msg(CHECK, "    }\n");
+    Msg(CHECK, "  }\n") ;
 
   }
-  Msg(CHECK, "\n}\n") ;
+  Msg(CHECK, "\n");
+  Msg(CHECK, "}\n") ;
 
   GetDP_End ;
 }
@@ -456,7 +467,8 @@ void  Print_IntegrationMethod (struct Problem  * Problem) {
 
   Nbrm = List_Nbr(Problem->IntegrationMethod) ;
 
-  Msg(CHECK, "Integration {  /* nbr = %d */\n\n", Nbrm) ;
+  Msg(CHECK, "Integration {  /* nbr = %d */\n", Nbrm) ;
+  Msg(CHECK, "\n") ;
 
   for (i = 0 ; i < Nbrm ; i++) {
     Msg(CHECK, " /* Num : %d */\n", i) ;
@@ -475,7 +487,8 @@ void  Print_IntegrationMethod (struct Problem  * Problem) {
 	  Get_StringForDefine(Integration_Type, IC->Type)) ;
       switch (IC->Type) {
       case GAUSS :
-	Msg(CHECK, "\n         Case {\n") ;
+	Msg(CHECK, "\n");
+	Msg(CHECK, "         Case {\n") ;
 
 	Nbrq = List_Nbr(IC->Case) ;
 	for (k = 0 ; k < Nbrq ; k++) {
@@ -484,15 +497,18 @@ void  Print_IntegrationMethod (struct Problem  * Problem) {
 	      Get_StringForDefine(Element_Type, Q->ElementType),
 	      Q->NumberOfPoints) ;
 	}
-	Msg(CHECK, "         }\n       }\n") ;  break ;
+	Msg(CHECK, "         }\n"); 
+	Msg(CHECK, "       }\n") ;  break ;
 	
       default :
 	Msg(CHECK, " }\n") ;  break ;
       }
     }
-    Msg(CHECK, "    }\n  }\n") ;
+    Msg(CHECK, "    }\n");
+    Msg(CHECK, "  }\n") ;
   }
-  Msg(CHECK, "\n}\n") ;
+  Msg(CHECK, "\n");
+  Msg(CHECK, "}\n") ;
 
   GetDP_End ;
 }
@@ -515,7 +531,8 @@ void  Print_FunctionSpace(struct Problem  * Problem) {
 
   Nbr0 = List_Nbr(Problem->FunctionSpace) ;
 
-  Msg(CHECK, "FunctionSpace {  /* nbr = %d */\n\n", Nbr0) ;
+  Msg(CHECK, "FunctionSpace {  /* nbr = %d */\n", Nbr0) ;
+  Msg(CHECK, "\n") ;
 
   for (i0=0 ; i0<Nbr0 ; i0++) {
 
@@ -643,7 +660,8 @@ void  Print_FunctionSpace(struct Problem  * Problem) {
     Msg(CHECK, "  }\n") ;
   }
 
-  Msg(CHECK, "\n}\n") ;
+  Msg(CHECK, "\n");
+  Msg(CHECK, "}\n") ;
 
   GetDP_End ;
 }
@@ -665,7 +683,8 @@ void  Print_Formulation(struct Problem  * Problem) {
 
   Nbr = List_Nbr(Problem->Formulation) ;
 
-  Msg(CHECK, "Formulation {  /* nbr = %d */\n\n", Nbr) ;
+  Msg(CHECK, "Formulation {  /* nbr = %d */\n", Nbr) ;
+  Msg(CHECK, "\n") ;
 
   for (i = 0 ; i < Nbr ; i++) {
     Msg(CHECK, " /* Num : %d */\n", i) ;
@@ -708,11 +727,12 @@ void  Print_Formulation(struct Problem  * Problem) {
       Msg(CHECK, " ;") ;
 
       if (DQ->Type == INTEGRALQUANTITY) {
-	Msg(CHECK, "\n        Integration %s ;",
+	Msg(CHECK, "\n");
+	Msg(CHECK, "        Integration %s ;\n",
 	    ((struct IntegrationMethod *)
 	     List_Pointer(Problem->IntegrationMethod, 
 			  DQ->IntegralQuantity.IntegrationMethodIndex))->Name) ;
-	Msg(CHECK, "\n        Jacobian %s ;",
+	Msg(CHECK, "        Jacobian %s ;",
 	    ((struct JacobianMethod *)
 	     List_Pointer(Problem->JacobianMethod, 
 			  DQ->IntegralQuantity.JacobianMethodIndex))->Name) ;
@@ -732,11 +752,11 @@ void  Print_Formulation(struct Problem  * Problem) {
 	Msg(CHECK, "                 In %s ;\n",
 	    ((struct Group *)
 	     List_Pointer(Problem->Group, FE->Case.LocalTerm.InIndex))->Name ) ;
-	Msg(CHECK, "                 Jacobian %s ; \n"
-	    "                 Integration %s ; }\n",
+	Msg(CHECK, "                 Jacobian %s ; \n",
 	    ((struct JacobianMethod *)
 	     List_Pointer(Problem->JacobianMethod, 
-			  FE->Case.LocalTerm.JacobianMethodIndex))->Name ,
+			  FE->Case.LocalTerm.JacobianMethodIndex))->Name );
+	Msg(CHECK, "                 Integration %s ; }\n",
 	    ((struct IntegrationMethod *)
 	     List_Pointer(Problem->IntegrationMethod, 
 			  FE->Case.LocalTerm.IntegrationMethodIndex))->Name ) ;
@@ -807,7 +827,8 @@ void  Print_Formulation(struct Problem  * Problem) {
     Msg(CHECK, "    }\n") ;
     Msg(CHECK, "  }\n") ;
   }
-  Msg(CHECK, "\n}\n") ;
+  Msg(CHECK, "\n");
+  Msg(CHECK, "}\n") ;
 
   GetDP_End ;
 }
@@ -853,7 +874,8 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
       break ;
 
     case OPERATION_TIMELOOPTHETA :
-      Msg(CHECK, "\n      TimeLoopTheta { "
+      Msg(CHECK, "\n");
+      Msg(CHECK, "      TimeLoopTheta { "
 	  "Time0 %.10g ; TimeMax %.10g ; DTime Exp[%s] ; Theta Exp[%s] ;",
 	  OPE->Case.TimeLoopTheta.Time0, OPE->Case.TimeLoopTheta.TimeMax,
 	  Get_ExpressionName(Problem,
@@ -865,7 +887,8 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
       break ;
 
     case OPERATION_ITERATIVELOOP :
-      Msg(CHECK, "\n      IterativeLoop { "
+      Msg(CHECK, "\n");
+      Msg(CHECK, "      IterativeLoop { "
 	  "NbrMaxIteration %d ; RelaxationFactor Exp[%s] ; Criterion %.10g ;",
 	  OPE->Case.IterativeLoop.NbrMaxIteration,
 	  Get_ExpressionName(Problem,
@@ -876,7 +899,8 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
       break ;
 
     case OPERATION_CHANGEOFCOORDINATES :
-      Msg(CHECK, "\n      ChangeOfCoordinates [  %s, Exp[%s] ] ;\n",
+      Msg(CHECK, "\n");
+      Msg(CHECK, "      ChangeOfCoordinates [  %s, Exp[%s] ] ;\n",
 	  ((struct Group *)
 	   List_Pointer(Problem->Group,
 			OPE->Case.ChangeOfCoordinates.GroupIndex))->Name,
@@ -905,7 +929,8 @@ void  Print_Resolution(struct Problem  * Problem) {
 
   Nbr = List_Nbr(Problem->Resolution) ;
 
-  Msg(CHECK, "Resolution {  /* nbr = %d */\n\n", Nbr) ;
+  Msg(CHECK, "Resolution {  /* nbr = %d */\n", Nbr) ;
+  Msg(CHECK, "\n") ;
 
   for (i = 0 ; i < Nbr ; i++) {
     Msg(CHECK, " /* Num : %d */\n", i) ;
@@ -954,7 +979,8 @@ void  Print_Resolution(struct Problem  * Problem) {
 
     Msg(CHECK, "  }\n") ;
   }
-  Msg(CHECK, "\n}\n") ;
+  Msg(CHECK, "\n"); 
+  Msg(CHECK, "}\n") ;
 
   GetDP_End ;
 }
@@ -975,7 +1001,8 @@ void  Print_PostProcessing(struct Problem  * Problem) {
 
   Nbr = List_Nbr(Problem->PostProcessing) ;
 
-  Msg(CHECK, "PostProcessing {  /* nbr = %d */\n\n", Nbr) ;
+  Msg(CHECK, "PostProcessing {  /* nbr = %d */\n", Nbr) ;
+  Msg(CHECK, "\n") ;
 
   for (i = 0 ; i < Nbr ; i++) {
     Msg(CHECK, " /* Num : %d */\n", i) ;
@@ -1031,7 +1058,8 @@ void  Print_PostProcessing(struct Problem  * Problem) {
     }
     Msg(CHECK, "  }\n") ;
   }
-  Msg(CHECK, "\n}\n") ;
+  Msg(CHECK, "\n}");
+  Msg(CHECK, "\n") ;
 
   GetDP_End ;
 }
@@ -1051,7 +1079,8 @@ void  Print_PostOperation(struct Problem  * Problem) {
 
   Nbr = List_Nbr(Problem->PostOperation) ;
 
-  Msg(CHECK, "PostOperation {  /* nbr = %d */\n\n", Nbr);
+  Msg(CHECK, "PostOperation {  /* nbr = %d */\n", Nbr);
+  Msg(CHECK, "\n") ;
 
   for (i = 0 ; i < Nbr ; i++) {
     PO = (struct PostOperation*)List_Pointer(Problem->PostOperation, i) ;
@@ -1135,9 +1164,11 @@ void  Print_PostOperation(struct Problem  * Problem) {
 	break ;
       }
     }
-    Msg(CHECK, "    }\n  }\n") ;
+    Msg(CHECK, "    }\n ");
+    Msg(CHECK, " }\n") ;
   }
-  Msg(CHECK, "\n}\n") ;
+  Msg(CHECK, "\n"); 
+  Msg(CHECK, "}\n") ;
 
   GetDP_End ;
 }
@@ -1200,6 +1231,10 @@ void  Print_ListResolution(int choose, struct Problem  * Problem) {
       for (i = 0 ; i < Nbr ; i++) {
 	RE = (struct Resolution*)List_Pointer(Problem->Resolution, i) ;
 	Msg(CHECK, "(%d) %s\n", i+1, RE->Name) ;
+	if(Flag_SOCKET > 0){
+	  Socket_SendInt(Flag_SOCKET, 101);
+	  Socket_SendString(Flag_SOCKET, RE->Name);
+	}
       }
       if(choose){
 	Msg(CHECK, "Choice: ") ;
@@ -1272,6 +1307,10 @@ void  Print_ListPostOperation(int choose, struct Problem  * Problem) {
       for (i = 0 ; i < Nbr ; i++) {
 	PO = (struct PostOperation*)List_Pointer(Problem->PostOperation, i) ;
 	Msg(CHECK, "(%d) %s\n", i+1, PO->Name) ;
+	if(Flag_SOCKET > 0){
+	  Socket_SendInt(Flag_SOCKET, 102);
+	  Socket_SendString(Flag_SOCKET, PO->Name);
+	}
       }
       if(choose){
 	Msg(CHECK, "Choice: ") ;

@@ -1,4 +1,6 @@
-$Id: VERSIONS,v 1.12 2001-04-05 06:30:12 geuzaine Exp $
+$Id: VERSIONS,v 1.13 2001-05-03 00:17:18 geuzaine Exp $
+
+0.82: Added communication socket for interactive use with Gmsh;
 
 0.81: Generalization of transformation jacobians (spherical and
 rectangular, with optional parameters); changed handling of missing

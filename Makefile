@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.54 2001-04-20 08:53:48 geuzaine Exp $
+# $Id: Makefile,v 1.55 2001-05-03 00:17:18 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -175,6 +175,14 @@ linux2W: initialtag
 
 
 ## Christophe
+
+dll:
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
+        do (cd $$i && $(MAKE) \
+           "C_FLAGS=-g -Wall -D_DLL" \
+           "F77_FLAGS=-g -Wall -D_DLL" \
+        ); done
+	ar ruvs getdp.a */*.o
 
 gnu:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \

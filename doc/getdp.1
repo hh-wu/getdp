@@ -1,4 +1,4 @@
-.\" $Id: getdp.1,v 1.20 2001-04-05 06:30:12 geuzaine Exp $
+.\" $Id: getdp.1,v 1.21 2001-05-03 00:17:19 geuzaine Exp $
 .\" ======================================================================
 .\"
 .\" This is the manual page for GetDP
@@ -81,25 +81,28 @@ from the default problem file name with the \fI.msh\fP extension
 appended.
 .TP 4
 .B \-split
-save processing results in separate files (one for each timestep).
+saves processing results in separate files (one for each timestep).
 .TP 4
 .B \-res \fIfilename\fP(s)
-load processing results from \fIfilename(s)\fP instead of from the
+loads processing results from \fIfilename(s)\fP instead of from the
 default problem file name with the \fI.res\fP extension appended.
 .TP 4
 .B \-name \fIstring\fP
-use \fIstring\fP as the default generic file name for input or output
+uses \fIstring\fP as the default generic file name for input or output
 of mesh, pre-processing and processing files.
 .TP 4
 .B \-adapt \fIfilename\fP(s)
-read adaptation constraints from \fIfilename(s)\fP.
+reads adaptation constraints from \fIfilename(s)\fP.
 .TP 4
 .B \-degree \fIfloat\fP
-specify maximum interpolation degree.
+specifies maximum interpolation degree.
 .TP 4
 .B \-log
 saves all processing history in a log file (the input file name with
 an appended \fI.log\fP extension).
+.TP 4
+.B \-socket \fIstring\fP
+communicates through socket \fIstring\fP.
 .TP 4
 .B \-check
 lets you check the problem structure interactively.
