@@ -170,7 +170,7 @@ void  MHTransform(struct Element * Element, struct QuantityStorage * QuantitySto
 
 /* F_BiotSavart */
 void  F_BiotSavart (F_ARG) ;
-
+void  F_Pocklington (F_ARG) ;
 
 #undef F_ARG
 
