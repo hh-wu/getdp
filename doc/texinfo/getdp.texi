@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.19 2001-07-22 15:22:40 geuzaine Exp $
+@c $Id: getdp.texi,v 1.20 2001-07-22 22:23:27 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -473,8 +473,11 @@ examples}.
 @cindex Numerical tools, overview
 
 @menu
-* Numerical tools as objects:: * Syntactic rules:: * Comments:: * Includes::
-* Which problems can GetDP actually solve?::
+* Numerical tools as objects::  
+* Syntactic rules::             
+* Comments::                    
+* Includes::                    
+* Which problems can GetDP actually solve?::  
 @end menu
 
 @c -------------------------------------------------------------------------
@@ -809,7 +812,6 @@ defined as:
 @tindex 2D
 @tindex 3D
 @tindex =
-@tindex @{@}
 
 @vindex @var{integer}
 @vindex @var{real}
@@ -1257,7 +1259,7 @@ syntax (@var{integer} indicates the position of the argument in the
 In many situations, identical parts of expressions are used more than
 once. If this is not a problem with constant expressions (since
 @var{expression-cst}s are evaluated only once during the analysis of the
-problem definition structure, cf. @ref{Constants}), it may introduce some
+problem definition structure, cf.@: @ref{Constants}), it may introduce some
 important overhead while evaluating complex @var{expression}s (which are
 evaluated at runtime, thanks to an internal stack mechanism). In order to
 circumvent this problem, the evaluation result of any part of an
@@ -1605,10 +1607,12 @@ and @ref{Function examples}, for some examples.
 @cindex Networks
 
 @tindex Constraint
+@tindex Name
+@tindex Type
+@tindex Case
+@tindex Region
+@tindex SubRegion
 @tindex TimeFunction
-@tindex Value
-@tindex NameOfResolution
-@tindex Branch
 
 @vindex @var{constraint-id}
 @vindex @var{constraint-type}
@@ -1704,22 +1708,27 @@ in @code{TimeFunction @var{expression}}.
 @cindex Hierarchical basis functions
 
 @tindex FunctionSpace
+@tindex Name
+@tindex Type
 @tindex BasisFunction
+@tindex NameOfCoef
+@tindex Function
 @tindex Quantity
 @tindex Formulation
 @tindex Group
 @tindex Resolution
 @tindex Support
 @tindex Entity
-@tindex NameOfCoef
 @tindex SubSpace
 @tindex NameOfBasisFunction
 @tindex GlobalQuantity
+@tindex Constraint
+@tindex EntityType
+@tindex EntitySubType
 @tindex NameOfConstraint
 
 @vindex @var{function-space-id}
 @vindex @var{function-space-type}
-@vindex @var{mesh-list}
 @vindex @var{basis-function-id}
 @vindex @var{basis-function-type}
 @vindex @var{coef-id}
@@ -1750,7 +1759,7 @@ The syntax for the definition of function spaces is:
 @example
 FunctionSpace @{
   @{ Name @var{function-space-id} <@{#@var{integer}@}>;
-    Type @var{function-space-type}; < Mesh @var{mesh-list}; >
+    Type @var{function-space-type};
     BasisFunction @{ 
      @{ Name @var{basis-function-id}; NameOfCoef @var{coef-id}; 
        Function @var{basis-function-type}
@@ -1790,9 +1799,6 @@ FunctionSpace @{
 
 @var{function-space-type}:   
   Scalar | Vector | Form0 | Form1 | @var{etc} 
-
-@var{mesh-list}:
-  @var{mesh-id} | @{ @var{mesh-id} <,@dots{}> @} 
 
 @var{basis-function-type}:
   BF_Node | BF_Edge | @var{etc} 
@@ -1855,6 +1861,9 @@ multiformulations.
 @cindex Axisymmetric, transformation
 
 @tindex Jacobian
+@tindex Name
+@tindex Case
+@tindex Region
 @tindex All
 
 @vindex @var{jacobian-id}
@@ -1917,9 +1926,13 @@ and must follow all the other cases.
 @cindex Gauss, integration
 
 @tindex Integration
+@tindex Name
 @tindex Criterion
+@tindex Case
+@tindex Type
 @tindex GeoElement
 @tindex NumberOfPoints
+@tindex Analytic
 
 @vindex @var{integration-id}
 @vindex @var{element-type}
@@ -1989,13 +2002,20 @@ Integration @{
 @cindex Symmetry, integral kernel
 
 @tindex Formulation
+@tindex Name
+@tindex Type
 @tindex Quantity
 @tindex NameOfSpace
-@tindex In
 @tindex Symmetry
+@tindex In
+@tindex Jacobian
+@tindex Integration
+@tindex IndexOfSystem
 @tindex Equation
 @tindex GlobalTerm
 @tindex GlobalEquation
+@tindex Network
+@tindex NameOfConstraint
 @tindex Node
 @tindex Loop
 
@@ -2084,6 +2104,11 @@ the formulations @code{@var{formulation-id}@{@var{i}@}},
 @var{function-space-id}@code{@{@}} of @code{Quantity} field and in
 @var{group-def}s of @code{Equation} field with @{@var{i}@}.
 @item
+@code{IndexOfSystem} permits to resolve ambiguous cases when several
+quantities belong to the same function space, but to different systems of
+equations. The @var{integer} parameter then specifies the index in the list
+of an @code{OriginSystem} command (@pxref{Resolution}).
+@item
 A @code{GlobalTerm} defines a term to be assembled in an equation associated
 with a global quantity.  This equation is a finite element equation if that
 global quantity is linked with local quantities.
@@ -2120,12 +2145,16 @@ matrix of the system.
 @cindex Complex-valued, system
 
 @tindex Resolution
+@tindex Name
 @tindex System
 @tindex NameOfFormulation
-@tindex DestinationSystem
+@tindex Type
 @tindex Frequency
+@tindex DestinationSystem
+@tindex OriginSystem
+@tindex NameOfMesh
+@tindex Solver
 @tindex Operation
-@tindex :
 
 @vindex @var{resolution-id}
 @vindex @var{system-id}
@@ -2153,7 +2182,8 @@ Resolution @{
         < Type @var{system-type}; >
         < Frequency @var{expression-cst-list-item} | 
           Frequency @{ @var{expression-cst-list} @}; >
-        < DestinationSystem @var{system-id}; > < OriginSystem @var{system-id}; >
+        < DestinationSystem @var{system-id}; > 
+        < OriginSystem @var{system-id}; | OriginSystem @{ @var{system-id} <,@dots{}> @}; >
         < NameOfMesh @var{expression-char} > < Solver @var{expression-char} > @} @dots{}
     @} 
     Operation @{ < @var{resolution-op}; > @dots{} @}
@@ -2193,6 +2223,20 @@ of one or several frequencies (@code{Frequency
 @}}). Complex systems of equations with no predefined list of frequencies
 (e.g.@: in modal analyses) can be explicitely defined with @code{Type
 Complex}.
+@item
+@code{NameOfMesh} permits to explicitely specify the mesh to be used for the
+construction of the system of equations.
+@item
+@code{Solver} permits to explicitely specify the name of the solver
+parameter file to use for the solving of the system of equations. This is
+ony valid if GetDP was compiled against the default solver library (it is
+the case if you downloaded your copy of GetDP from the internet).
+@item
+@code{DestinationSystem} permits to specify the destination system of a
+@code{TransferSolution} operation (@pxref{Types for Resolution}).
+@item
+@code{OriginSystem} permits to specify the systems from which ambiguous
+quantity definitions can be solved (@pxref{Formulation}).
 @end enumerate
 
 @xref{Types for Resolution}, for the complete list of options and
@@ -2210,9 +2254,13 @@ Complex}.
 @cindex Results, exploitation
 
 @tindex PostProcessing
+@tindex Name
 @tindex NameOfFormulation
+@tindex NameOfSystem
 @tindex Quantity
 @tindex Value
+@tindex Local
+@tindex Integral
 @tindex In
 @tindex Integration
 @tindex Jacobian
@@ -2298,7 +2346,9 @@ the @code{Quantity} field of @var{formulation-id} is associated.
 @cindex Format, output
 
 @tindex PostOperation
+@tindex Name
 @tindex NameOfPostProcessing
+@tindex Format
 @tindex Operation
 @tindex UsingPost
 @tindex Print
@@ -4145,7 +4195,7 @@ nodes, their edges, their global regions, @dots{}) is defined in the
 @code{FunctionSpace}s which use the @code{Constraint}.  In other words, a
 @code{Constraint} defines data but does not define the method to process
 them. A time dependent essential boundary condition on @code{Surf1} would be
-introduced as (cf. @ref{Function examples} for the definition of
+introduced as (cf.@: @ref{Function examples} for the definition of
 @code{TimeFct_Exp[]}):
 
 @example
@@ -5641,7 +5691,9 @@ the numbering of the equations given in the @file{.pre} file
 @chapter Bugs, versions and contributors
 
 @menu
-* Bugs:: * Version history:: * Contributors::
+* Bugs::                        
+* Version history::             
+* Contributors::                
 @end menu
 
 @c -------------------------------------------------------------------------
