@@ -4,7 +4,7 @@
 
 	* No more USE_DEBUG by default
 
-	* Fixed bugs in Pos_Format and Pos_Quantity
+	* Fixed bugs for post-processing of integral quantities
 
 2001-02-24  Christophe Geuzaine  <geuzaine@elap74.montefiore.ulg.ac.be>
 

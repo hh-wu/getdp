@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.4 2001-03-02 22:16:00 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.5 2001-03-03 12:11:09 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -3270,6 +3270,14 @@ DefineQuantityTerm :
 
       }
 
+      Pro_DefineQuantityIndex
+	(DefineQuantity_S.IntegralQuantity.WholeQuantity,
+	 -1,
+	 &DefineQuantity_S.IntegralQuantity.NbrQuantityIndex,
+	 &DefineQuantity_S.IntegralQuantity.QuantityIndexTable,
+	 &DefineQuantity_S.IntegralQuantity.QuantityTraceGroupIndexTable) ;
+      if(DefineQuantity_S.IntegralQuantity.NbrQuantityIndex > 1)
+	vyyerror("Integral Quantities are not ready yet for multiple {Quantity} fields");
 
     }
 

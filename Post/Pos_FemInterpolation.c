@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_FemInterpolation.c,v 1.10 2001-03-02 22:16:00 geuzaine Exp $"
+#define RCSID "$Id: Pos_FemInterpolation.c,v 1.11 2001-03-03 12:11:10 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -50,6 +50,7 @@ void  Pos_FemInterpolation(struct Element * Element,
   struct Value                     vBFxDof[NBR_MAX_BASISFUNCTIONS] ;
   struct GeoData                 * GeoData_P ;
   struct Element                   TheElement, * TheElement_P ;
+  struct QuantityStorage         * QS_P ;
 
   double  vBFu[NBR_MAX_BASISFUNCTIONS][MAX_DIM] ;
   double  Val_Dof, Val_Dof_r, Val_Dof_i ;
@@ -87,8 +88,7 @@ void  Pos_FemInterpolation(struct Element * Element,
   if(SubType_DefineQuantity != NODOF) {
 
     if(!QuantityStorage_P->FunctionSpace)
-      Msg(ERROR, "No function space for quantity: "
-	  "did you define an integral quantity without a Dof{}");
+      Msg(ERROR, "No available function space for quantity");
 
     if(!QuantityStorage_P->FunctionSpace->DofData)
       Msg(ERROR, "No available DofData to interpolate this Quantity");
@@ -237,7 +237,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 			   QuantityStorage_P->FunctionSpace,
 			   QuantityStorage_P,
 			   QuantityStorage_P->DefineQuantity->IndexInFunctionSpace) ;	  
-	  Nbr_Dof = QuantityStorage_P->NbrElementaryBasisFunction ;	  
+	  Nbr_Dof = QuantityStorage_P->NbrElementaryBasisFunction ;
 	  Get_FunctionValue(Nbr_Dof, (void (**)())xFunctionBF,
 			    QuantityStorage_P->DefineQuantity->IntegralQuantity.TypeOperatorDof,
 			    QuantityStorage_P, &IQA.Type_FormDof) ;
@@ -247,6 +247,15 @@ void  Pos_FemInterpolation(struct Element * Element,
 	  Nbr_Dof = 1 ; 
 	  xFunctionBF[0] = NULL ; /* for analytic integration tests */
 	  Type_Form = IQA.Type_FormDof = VECTOR ; /* form type unknown */
+
+	  for (j = 0 ; j < QuantityStorage_P->DefineQuantity->IntegralQuantity.NbrQuantityIndex ; j++) {
+	    QS_P = QuantityStorage_P0 + 
+	      QuantityStorage_P->DefineQuantity->IntegralQuantity.QuantityIndexTable[j] ;
+	    Get_DofOfElement(TheElement_P->ElementSource, 
+			     QS_P->FunctionSpace, 
+			     QS_P,
+			     QS_P->DefineQuantity->IndexInFunctionSpace) ;
+	  }
 	}
 	
 	Cal_InitIntegralQuantity (TheElement_P, &IQA, QuantityStorage_P);
@@ -404,7 +413,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	case FORM1S :  case FORM2S :
 	case VECTOR :  case VECTORP :
 	  for (k = 0 ; k < Current.NbrHar ; k++) {
-	    Val[MAX_DIM*k]   += vBFxDof[0].Val[MAX_DIM] ;
+	    Val[MAX_DIM*k]   += vBFxDof[0].Val[MAX_DIM*k] ;
 	    Val[MAX_DIM*k+1] += vBFxDof[0].Val[MAX_DIM*k+1] ;
 	    Val[MAX_DIM*k+2] += vBFxDof[0].Val[MAX_DIM*k+2] ;
 	  }
@@ -509,7 +518,6 @@ void  Pos_FemInterpolation(struct Element * Element,
     
   }  /* while (1) ... */
   
-
   if(UseNewGeo){
     GeoData_P = (struct GeoData *)List_Pointer(GeoData_L, GeoDataNum);
     Geo_SetCurrentGeoData(Current.GeoData = GeoData_P) ;

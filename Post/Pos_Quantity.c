@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.9 2001-03-02 22:16:00 geuzaine Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.10 2001-03-03 12:11:10 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -288,7 +288,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 
   GetDP_Begin("Pos_LocalOrIntegralQuantity");
 
-  /* Get the functionspace (except for IntegralQuantities without DoF)
+  /* Get the functionspaces
      Get the DoF for local quantities */
 
   for (i = 0 ; i < PostQuantityTerm_P->NbrQuantityIndex ; i++) {
@@ -309,20 +309,20 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 	  Get_DofOfElement(Element, FunctionSpace_P, QuantityStorage_P,
 			   DefineQuantity_P->IndexInFunctionSpace) ;
       }
-
-      if (Type_Quantity == INTEGRALQUANTITY &&
-	  DefineQuantity_P->IntegralQuantity.DefineQuantityIndexDof >= 0){
-	QuantityStorage_P->FunctionSpace = (struct FunctionSpace*)
-	  List_Pointer(Problem_S.FunctionSpace,
-		       DefineQuantity_P->FunctionSpaceIndex) ;
-	/* Get the function space for the associated local quantity */
-	Index_DefineQuantity = 
-	  DefineQuantity_P->IntegralQuantity.DefineQuantityIndexDof ;
-	DefineQuantity_P     = DefineQuantity_P0  + Index_DefineQuantity ;
-	QuantityStorage_P    = QuantityStorage_P0 + Index_DefineQuantity ;
-	QuantityStorage_P->FunctionSpace = (struct FunctionSpace*)
-	  List_Pointer(Problem_S.FunctionSpace,
-		       DefineQuantity_P->FunctionSpaceIndex) ;	    
+      else{ /* INTEGRALQUANTITY */
+	if(DefineQuantity_P->IntegralQuantity.DefineQuantityIndexDof >= 0)
+	  QuantityStorage_P->FunctionSpace = (struct FunctionSpace*)
+	    List_Pointer(Problem_S.FunctionSpace,
+			 DefineQuantity_P->FunctionSpaceIndex) ;
+	/* Get the function space for the associated local quantities */
+	for (j = 0 ; j < DefineQuantity_P->IntegralQuantity.NbrQuantityIndex ; j++) {
+	  Index_DefineQuantity = DefineQuantity_P->IntegralQuantity.QuantityIndexTable[j];
+	  DefineQuantity_P     = DefineQuantity_P0  + Index_DefineQuantity ;
+	  QuantityStorage_P    = QuantityStorage_P0 + Index_DefineQuantity ;
+	  QuantityStorage_P->FunctionSpace = (struct FunctionSpace*)
+	    List_Pointer(Problem_S.FunctionSpace,
+			 DefineQuantity_P->FunctionSpaceIndex) ;	    
+	}
       }
 
     }

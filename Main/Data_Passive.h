@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.25 2001-01-02 13:42:20 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.26 2001-03-03 12:11:09 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -365,8 +365,13 @@ struct Formulation {
 struct IntegralQuantity {
   List_T  *WholeQuantity;
   int      DofIndexInWholeQuantity ;
+
   int      TypeOperatorDof, DefineQuantityIndexDof ;
   int      DefineQuantityIndexNoDof ;
+
+  int      NbrQuantityIndex, * QuantityIndexTable ;
+  int    * QuantityTraceGroupIndexTable ;
+
   int      InIndex ;
   int      IntegrationMethodIndex, JacobianMethodIndex;
   int      Symmetry ;
