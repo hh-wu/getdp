@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.12 2001-07-26 07:07:50 geuzaine Exp $"
+#define RCSID "$Id: Matrix.c,v 1.13 2001-08-10 08:42:06 ledinh Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -313,7 +313,7 @@ void scaling_matrix (int scaling, Matrix *M){
       for (i = 0 ; i < M->N ; i++){
 
 	if (rowscal[i]){
-	  rowscal[i] = 1./sqrt(abs(rowscal[i])) ;
+	  rowscal[i] = 1./sqrt(fabs(rowscal[i])) ;
 	  /* printf("  %d %e \n", i, rowscal[i] ); */
 	} else {
 	  Msg(WARNING, "Diagonal scaling aborted because of zero diagonal element (%d)",i+1) ;
