@@ -1,0 +1,13 @@
+$Id: BUGS,v 1.4 2001-07-19 14:32:24 geuzaine Exp $
+
+Known problems in this release:
+
+* Arguments in nested expressions don't work. A workaround is to store
+  the arguments in registers (i.e. with '#1'-like commands).
+
+* There seems to be a problem when reading some binary '.res'
+  files. Some investigation is still needed.
+
+* Global quantities have to be defined on "single" regions,
+  i.e. regions of type aa = Region[num].
+
