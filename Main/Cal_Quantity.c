@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.17 2002-01-18 18:16:36 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.18 2003-02-07 10:17:56 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -13,6 +13,10 @@
 #include "Tools.h"
 
 int  fcmp_int2(const void * a, const void * b) ;
+
+void  Cal_SolidAngle(int Source, struct Element *Element,
+		     struct QuantityStorage * QuantityStorage,
+		     int Nbr_Dof, int Index, struct Value **Stack);
 
 static int Flag_WarningMissSolForDt = 0 ;
 
@@ -127,32 +131,32 @@ void Cal_WholeQuantity(struct Element * Element,
 
   /* Patrick: 
 
-     Pour l'angle solide, je ne voulais pas d'un operateur special 
-     agissant sur une qty, vu le manque de souplesse (et je voulais pouvoir 
-     faire reference a une qty autre que le Dof courant, dans le cas de qtes 
-     integrales). 
-     Considerer un vecteur local me parait limite (si on a besoin d'autres 
-     grandeurs pouvant dependre du Dof, ou de plusieurs grandeurs de ce type) 
+     Pour l'angle solide, je ne voulais pas d'un operateur special
+     agissant sur une qty, vu le manque de souplesse (et je voulais
+     pouvoir faire reference a une qty autre que le Dof courant, dans
+     le cas de qtes integrales).  Considerer un vecteur local me
+     parait limite (si on a besoin d'autres grandeurs pouvant dependre
+     du Dof, ou de plusieurs grandeurs de ce type)
 
-     -> La solution immediate pour etre plus general etait de 
-     considerer une pile de type Stack[MAX_STACK_SIZE][NBR_MAX_BASISFUNCTIONS] et de
-     reellement tout empiler dedans. J'ai choisi de garder le cas particulier
-     du DofValue, pour eviter (2*Nbr_Dof) memcopy inutiles (empiler le dof value 
-     et le desempiler).
+     -> La solution immediate pour etre plus general etait de
+     considerer une pile de type Stack[MAX_STACK_SIZE][NBR_MAX_BASISFUNCTIONS]
+     et de reellement tout empiler dedans. J'ai choisi de garder le
+     cas particulier du DofValue, pour eviter (2*Nbr_Dof) memcopy
+     inutiles (empiler le dof value et le desempiler).
 
      Ce qui n'est pas encore fait : 
      1) On ne peut pas appliquer de fonction sur un multi
      2) la recursion ne marche pas avec ce type de grandeurs
 
-     -> Une autre solution (meilleure) serait de garder une pile simple, mais ou une
-     Value pourrait etre multiple. Mais ca necessite de changer un petit peu le
-     traitement des arguments des fcts. Qu'en penses-tu ?
+     -> Une autre solution (meilleure) serait de garder une pile
+     simple, mais ou une Value pourrait etre multiple. Mais ca
+     necessite de changer un petit peu le traitement des arguments des
+     fcts. Qu'en penses-tu ?
 
-     De toute facons, l'indexage ne se fait plus par pointeurs, mais avec
-     un index explicite (c'est presque aussi efficace, et ca permet de detecter
-     facilement un stack overflow). (On pourrait d'ailleurs reallouer, ce qui 
-     serait plus elegant.)
-
+     De toute facons, l'indexage ne se fait plus par pointeurs, mais
+     avec un index explicite (c'est presque aussi efficace, et ca
+     permet de detecter facilement un stack overflow). (On pourrait
+     d'ailleurs reallouer, ce qui serait plus elegant.)
      */
 
   int     i_WQ, j, k, Flag_True, Index, DofIndex, Multi[MAX_STACK_SIZE] ;
@@ -163,10 +167,23 @@ void Cal_WholeQuantity(struct Element * Element,
   struct DofData         *Save_DofData ;
   struct Solution        *Solution_P0 ;
 
-  /* Should be Stack[NBR_MAX_BASISFUNCTION][MAX_STACK_SIZE] but this overflows the
-     stack for long recursive calls. 8 is still OK since the 'multi' feature is only
-     used for SolidAngle computation for now */
+  /* Should be Stack[NBR_MAX_BASISFUNCTION][MAX_STACK_SIZE] but this
+     overflows the stack for long recursive calls. 8 is still OK since
+     the 'multi' feature is only used for SolidAngle computation for
+     now */
+
+#undef HEAP
+  /* To measure the overhead induced by the allocation, just define
+     HEAP. Apparently, the (huge) performance hit is the same as the
+     one witnessed under Cygwin... So, does Cygwin play dirty tricks
+     with the stack??? This should REALLY be examined in detail. */
+#ifdef HEAP
+  struct Value *Stack[8];
+  for(j = 0; j < 8; j++) 
+    Stack[j] = (struct Value*)Malloc(MAX_STACK_SIZE*sizeof(struct Value));
+#else
   struct Value           Stack[8][MAX_STACK_SIZE] ;
+#endif
 
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
 
@@ -556,6 +573,11 @@ void Cal_WholeQuantity(struct Element * Element,
   }
 
   if (DofIndexInWholeQuantity < 0) Cal_CopyValue(&Stack[0][0], &DofValue[0]) ;
+
+#ifdef HEAP
+  for(j = 0; j < 8; j++)
+    Free(Stack[j]);
+#endif
 
   GetDP_End ;
 }

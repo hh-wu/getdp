@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_SolidAngle.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Cal_SolidAngle.c,v 1.6 2003-02-07 10:17:56 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -18,7 +18,7 @@
 void  Cal_SolidAngle(int Source, struct Element *Element,
 		     struct QuantityStorage *QuantityStorage,
 		     int Nbr_Dof, int Index,
-		     struct Value Stack[NBR_MAX_BASISFUNCTIONS][MAX_STACK_SIZE]){
+		     struct Value **Stack){
   
   struct Element     *Elt ;
   struct Geo_Element *GeoElement ;

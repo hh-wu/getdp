@@ -1,4 +1,4 @@
-/* $Id: Treatment_Formulation.h,v 1.10 2003-01-31 13:51:53 dular Exp $ */
+/* $Id: Treatment_Formulation.h,v 1.11 2003-02-07 10:17:56 geuzaine Exp $ */
 #ifndef _TREATMENT_FORMULATION_H_
 #define _TREATMENT_FORMULATION_H_
 
@@ -161,10 +161,5 @@ void  Get_ElementTrace (struct Element * Element, int InIndex) ;
 /*---------------------------------------------------------------------*/
 
 struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L) ;
-
-void  Cal_SolidAngle(int Source, struct Element *Element,
-		     struct QuantityStorage * QuantityStorage,
-		     int Nbr_Dof, int Index,
-		     struct Value Angles[NBR_MAX_BASISFUNCTIONS][MAX_STACK_SIZE]);
 
 #endif
