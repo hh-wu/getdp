@@ -1,4 +1,7 @@
-$Id: VERSIONS,v 1.1 2001-03-04 13:19:47 geuzaine Exp $
+$Id: VERSIONS,v 1.2 2001-03-07 15:31:15 geuzaine Exp $
+
+0.80: Fixed computation of time derivatives on first time step (in
+post-processing); Added tolerance in transformation jacobians;
 
 0.79: Various bug fixes (mainly for the post-processing of intergal
 quantities); Automatic treatment of degenerated cases in
