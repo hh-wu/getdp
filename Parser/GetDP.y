@@ -1,18 +1,19 @@
 %{
-/* $Id: GetDP.y,v 1.22 2001-07-21 18:37:56 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.23 2001-07-22 15:22:39 geuzaine Exp $ */
 
 /*
-  Modifs a faire (Patrick):
+  Modifs a faire
+
+  Patrick:
   - definir des structures avec valeurs par defaut, e.g. BasisFunction_D = ...
   (dans un fichier a part).
 
-  Autres:
-  - modif Affectation (etendue domaine definition) a indiquer dans getdp.texi
+  Christophe: 
+  - introduire les listes au sein des expressions (comme c'est fait
+  dans les expression-cst), afin de gerer les vecteurs, tenseurs,
+  etc., directement, et pas par l'intermediaire d'une fonction de
+  creation 
 
-  CG
-  Il faudrait inclure les listes (peut-etre recursives) au sein meme des
-  expressions, afin de gerer les vecteurs, tenseurs, etc., directement, et
-  pas par l'intermediaire d'une fonction de creation
 */
 
 #include <stdio.h>
@@ -92,7 +93,7 @@ extern struct PostSubOperation InteractivePostSubOperation_S ;
 extern int                     InteractiveCompute ;
 
 List_T  * ConstantTable_L, * ListDummy_L ;
-List_T  * ListOfInt_L, * ListOfTwoInt_L, * ListOfDouble_L, * ListOfDouble2_L ;
+List_T  * ListOfInt_L, * ListOfTwoInt_L ;
 List_T  * ListOfPointer_L, * ListOfPointer2_L, * ListOfChar_L ;
 List_T  * Current_BasisFunction_L, * Current_SubSpace_L, * Current_GlobalQuantity_L ;
 List_T  * Current_WholeQuantity_L, * Current_System_L ;
@@ -194,6 +195,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %type <i>  ArgumentsForFunction, RecursiveListOfQuantity
 %type <i>  PostQuantitySupport
 %type <d>  FExpr, OneFExpr
+%type <l>  MultiFExpr, ListOfFExpr, RecursiveListOfFExpr, ParametersForFunction
 %type <l>  RecursiveListOfRegion
 %type <l>  ListOfRegion, ListOfRegionOrAll, SuppListOfRegion, IRegion
 %type <l>  ConstraintCases, IntegrationCases, QuadratureCases, JacobianCases
@@ -319,8 +321,6 @@ Stats :
 	ListDummy_L     = List_Create( 1, 1, sizeof(int)) ; /* Do not delete */
 	ListOfInt_L     = List_Create(20, 10, sizeof(int)) ;
 	ListOfTwoInt_L  = List_Create(20, 10, sizeof(struct TwoInt)) ;
-	ListOfDouble_L  = List_Create(20, 10, sizeof(double)) ;
-	ListOfDouble2_L = List_Create(20, 10, sizeof(double)) ;
 	ListOfPointer_L = List_Create(10, 10, sizeof(void *)) ;
 	ListOfPointer2_L= List_Create(10, 10, sizeof(void *)) ;
 	ListOfChar_L    = List_Create(128, 128, sizeof(char)) ;
@@ -352,7 +352,6 @@ Stats :
     ProblemDefinitions
     { if (--YaccLevel == 0) {
 	List_Delete(ListOfInt_L) ; List_Delete(ListOfTwoInt_L) ;  
-	List_Delete(ListOfDouble_L) ; List_Delete(ListOfDouble2_L) ;
 	List_Delete(ListOfPointer_L) ; List_Delete(ListOfPointer2_L) ; 
 	List_Delete(ListOfChar_L) ;
 
@@ -770,21 +769,6 @@ IRegion :
       List_Reset(ListOfInt_L) ; 
       for(j=$1 ; ($1<$3)?(j<=$3):(j>=$3) ; ($1<$3)?j++:j--) 
 	List_Add(ListOfInt_L, &j) ;
-      $$ = ListOfInt_L ;
-    }
-
-  | tINT tDOTS '[' FExpr ']' tINT
-    { 
-      vyyerror("The syntax 'start:[incr]end' has been replaced by 'start:end:incr'");
-      Flag_MultipleIndex = 0 ;
-      List_Reset(ListOfInt_L) ; 
-      if(!$4 || ($1<$6 && $4<0) || ($1>$6 && $4>0)){
-	vyyerror("Wrong increment in '%d :[%d] %d'", $1, (int)$4, $6) ;
-	List_Add(ListOfInt_L, &($1)) ;
-      }
-      else
-	for(j=$1 ; ($4>0)?(j<=$6):(j>=$6) ; j+=(int)$4) 
-	  List_Add(ListOfInt_L, &j) ;
       $$ = ListOfInt_L ;
     }
 
@@ -1300,26 +1284,25 @@ WholeQuantity_Single :
 
 	  /* parameters */
 	  if (WholeQuantity_S.Case.Function.NbrParameters >= 0 &&
-	      WholeQuantity_S.Case.Function.NbrParameters !=
-	      List_Nbr(ListOfDouble_L)) {
+	      WholeQuantity_S.Case.Function.NbrParameters != List_Nbr($3)) {
 	    vyyerror("Wrong number of parameters for Function '%s' (%d instead of %d)", 
-		     $1, List_Nbr(ListOfDouble_L), WholeQuantity_S.Case.Function.NbrParameters) ;
+		     $1, List_Nbr($3), WholeQuantity_S.Case.Function.NbrParameters) ;
 	  }
-	  else if (WholeQuantity_S.Case.Function.NbrParameters == -2 &&
-		   (List_Nbr(ListOfDouble_L))%2 != 0) {
+	  else if (WholeQuantity_S.Case.Function.NbrParameters == -2 && List_Nbr($3)%2 != 0) {
 	    vyyerror("Wrong number of parameters for Function '%s' (%d is not even)",
-		     $1, List_Nbr(ListOfDouble_L)) ;
+		     $1, List_Nbr($3)) ;
 	  }
 	  else {
-	    WholeQuantity_S.Case.Function.NbrParameters = List_Nbr(ListOfDouble_L) ;
+	    WholeQuantity_S.Case.Function.NbrParameters = List_Nbr($3) ;
 	    if (WholeQuantity_S.Case.Function.NbrParameters > 0) {
 	      WholeQuantity_S.Case.Function.Para =
 		(double *)Malloc
 		(WholeQuantity_S.Case.Function.NbrParameters * sizeof(double)) ;
 	      for (i = 0 ; i < WholeQuantity_S.Case.Function.NbrParameters ; i++)
-		List_Read(ListOfDouble_L, i, &WholeQuantity_S.Case.Function.Para[i]) ;
+		List_Read($3, i, &WholeQuantity_S.Case.Function.Para[i]) ;
 	    }
 	  }
+
 	}
 
 	else {
@@ -1328,6 +1311,7 @@ WholeQuantity_Single :
       }
 
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+      List_Delete($3);
     }
 
   | tSTRING Quantity_Def
@@ -1548,16 +1532,17 @@ RecursiveListOfQuantity :
 ParametersForFunction :
 
     /* none */
-    { List_Reset(ListOfDouble_L) ; }
+    { $$ = NULL; }
 
   | '{' RecursiveListOfFExpr '}'
+    { $$ = $2; }
 
   | '{' tRegion '[' GroupRHS ']' '}'
     { /* Attention: provisoire. Note: Impossible a mettre dans MultiFExpr
          car conflit avec Affectation dans Group */
-      List_Reset(ListOfDouble_L) ;
+      $$ = List_Create(2, 1, sizeof(double)) ;
       Value = (double)Num_Group(&Group_S, "PA_Region", $4) ;
-      List_Add(ListOfDouble_L, &Value) ;
+      List_Add($$, &Value) ;
     }
 
   ;
@@ -1632,28 +1617,29 @@ JacobianCaseTerm :
 	Get_Define1NbrForString(Jacobian_Type, $2, &FlagError,
 				&JacobianCase_S.NbrParameters) ;
       if (!FlagError) {
-	if (JacobianCase_S.NbrParameters == -2 && (List_Nbr(ListOfDouble_L))%2 != 0)
+	if (JacobianCase_S.NbrParameters == -2 && (List_Nbr($3))%2 != 0)
 	  vyyerror("Wrong number of parameters for Jacobian '%s' (%d is not even)",
-		   $2, List_Nbr(ListOfDouble_L)) ;
+		   $2, List_Nbr($3)) ;
 	if (JacobianCase_S.NbrParameters < 0)
-	  JacobianCase_S.NbrParameters = List_Nbr(ListOfDouble_L);
-	if (List_Nbr(ListOfDouble_L) == JacobianCase_S.NbrParameters) {
+	  JacobianCase_S.NbrParameters = List_Nbr($3);
+	if (List_Nbr($3) == JacobianCase_S.NbrParameters) {
 	  if (JacobianCase_S.NbrParameters) {
 	    JacobianCase_S.Para =
 	      (double *)Malloc(JacobianCase_S.NbrParameters * sizeof(double)) ;
 	    for (i = 0 ; i < JacobianCase_S.NbrParameters ; i++)
-	      List_Read(ListOfDouble_L, i, &JacobianCase_S.Para[i]) ;
+	      List_Read($3, i, &JacobianCase_S.Para[i]) ;
 	  }
 	}
 	else
 	  vyyerror("Wrong number of parameters for Jacobian '%s' (%d instead of %d)", 
-		   $2, List_Nbr(ListOfDouble_L), JacobianCase_S.NbrParameters) ;
+		   $2, List_Nbr($3), JacobianCase_S.NbrParameters) ;
       }
       else{
 	vyyerror("Unknown type of Jacobian: %s", $2);
 	Get_Valid_SXD1N(Jacobian_Type);
       }
-      Free($2) ;
+      Free($2);
+      List_Delete($3);
     }
   ;
 
@@ -4053,12 +4039,7 @@ DefineSystemTerm :
     }
 
   | tFrequency ListOfFExpr tEND
-    { DefineSystem_S.FrequencyValue =
-	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
-      for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
-	List_Read(ListOfDouble_L, i, &Value) ;
-	List_Add(DefineSystem_S.FrequencyValue, &Value) ;
-      }
+    { DefineSystem_S.FrequencyValue = $2;
       DefineSystem_S.Type = VAL_COMPLEX ;
     }
 
@@ -4292,10 +4273,6 @@ OperationTerm :
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.SetFrequency.ExpressionIndex = $5 ;
-      
-      if(DefineSystem_S.FrequencyValue == NULL)
-	DefineSystem_S.FrequencyValue = 
-	  List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
     }
 
   | tUpdate '[' tSTRING ',' Expression ']' tEND
@@ -4344,12 +4321,7 @@ OperationTerm :
 	vyyerror("Unknown System: %s", $5) ;
       Free($5) ;
       Operation_P->Case.FourierTransform.DefineSystemIndex[1] = i ;
-      Operation_P->Case.FourierTransform.Frequency = 
-	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
-      for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
-	List_Read(ListOfDouble_L, i, &Value) ;
-	List_Add(Operation_P->Case.FourierTransform.Frequency, &Value) ;
-      }
+      Operation_P->Case.FourierTransform.Frequency = $7;
     }
 
   | tLanczos '[' tSTRING ',' FExpr ',' ListOfFExpr ',' FExpr ']' tEND
@@ -4363,12 +4335,13 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.Lanczos.Size = (int)$5 ;
       Operation_P->Case.Lanczos.Save = 
-	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(int)) ;
-      for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
-	List_Read(ListOfDouble_L, i, &Value) ;
+	List_Create(List_Nbr($7), 1, sizeof(int)) ;
+      for (i = 0 ; i < List_Nbr($7) ; i++) {
+	List_Read($7, i, &Value) ;
 	j = (int)Value ;
 	List_Add(Operation_P->Case.Lanczos.Save, &j) ;
       }
+      List_Delete($7);
       Operation_P->Case.Lanczos.Shift = $9 ;
     }
 
@@ -4509,20 +4482,22 @@ PrintOperationOption :
 
   | ',' tTimeStep ListOfFExpr
     { Operation_P->Case.Print.TimeStep = 
-	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(int)) ;
-      for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
-	List_Read(ListOfDouble_L,i,&d);	j = (int)d ;
+	List_Create(List_Nbr($3), 1, sizeof(int)) ;
+      for(i=0 ; i<List_Nbr($3) ; i++){
+	List_Read($3,i,&d);	j = (int)d ;
 	List_Add(Operation_P->Case.Print.TimeStep, &j);
       }
+      List_Delete($3);
     }
 
   | ',' ListOfFExpr
     { Operation_P->Case.Print.DofNumber = 
-	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(int)) ;
-      for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
-	List_Read(ListOfDouble_L, i, &Value) ; j = (int)Value ;
+	List_Create(List_Nbr($2), 1, sizeof(int)) ;
+      for (i = 0 ; i < List_Nbr($2) ; i++) {
+	List_Read($2, i, &Value) ; j = (int)Value ;
 	List_Add(Operation_P->Case.Print.DofNumber, &j) ;     
       }
+      List_Delete($2);
     }
   ;
 
@@ -5306,35 +5281,27 @@ PrintSubType :
     }
 
   | tOnSection '{' '{' RecursiveListOfFExpr '}'
-    {
-      PostSubOperation_S.SubType = PRINT_ONSECTION_2D ;
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
-      else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnSection.x[0]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnSection.y[0]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnSection.z[0]);
-      }
-    }
                    '{' RecursiveListOfFExpr '}'
-    {
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
-      else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnSection.x[1]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnSection.y[1]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnSection.z[1]);
-      }
-    }
                    '{' RecursiveListOfFExpr '}' '}'
     {
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
+      PostSubOperation_S.SubType = PRINT_ONSECTION_2D ;
+      if(List_Nbr($4)!=3 || List_Nbr($7)!=3 || List_Nbr($10)!=3)
+	vyyerror("Expected {3}{3}{3} coordinates, got {%d}{%d}{%d}", 
+		 List_Nbr($4), List_Nbr($7), List_Nbr($10));
       else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnSection.x[2]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnSection.y[2]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnSection.z[2]);
+	List_Read($4, 0, &PostSubOperation_S.Case.OnSection.x[0]);
+	List_Read($4, 1, &PostSubOperation_S.Case.OnSection.y[0]);
+	List_Read($4, 2, &PostSubOperation_S.Case.OnSection.z[0]);
+	List_Read($7, 0, &PostSubOperation_S.Case.OnSection.x[1]);
+	List_Read($7, 1, &PostSubOperation_S.Case.OnSection.y[1]);
+	List_Read($7, 2, &PostSubOperation_S.Case.OnSection.z[1]);
+	List_Read($10, 0, &PostSubOperation_S.Case.OnSection.x[2]);
+	List_Read($10, 1, &PostSubOperation_S.Case.OnSection.y[2]);
+	List_Read($10, 2, &PostSubOperation_S.Case.OnSection.z[2]);
       }
+      List_Delete($4);
+      List_Delete($7);
+      List_Delete($10);
     }
 
   | tOnGrid GroupRHS
@@ -5345,144 +5312,108 @@ PrintSubType :
     }
 
   | tOnGrid '{' Expression ',' Expression ',' Expression '}' 
-            '{' ListOfFExpr
+            '{' ListOfFExpr ','  ListOfFExpr '}'
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_PARAM ;
       PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[0] = $3 ;
       PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[1] = $5 ;
       PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[2] = $7 ;
-      PostSubOperation_S.Case.OnParamGrid.ParameterValue[0] =
-	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
-      for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
-	List_Read(ListOfDouble_L, i, &Value) ;
-	List_Add(PostSubOperation_S.Case.OnParamGrid.ParameterValue[0], &Value) ;
-      }
-    }
-    ','  ListOfFExpr '}'
-    {
-      PostSubOperation_S.Case.OnParamGrid.ParameterValue[1] =
-	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
-      for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
-	List_Read(ListOfDouble_L, i, &Value) ;
-	List_Add(PostSubOperation_S.Case.OnParamGrid.ParameterValue[1], &Value) ;
-      }
+      PostSubOperation_S.Case.OnParamGrid.ParameterValue[0] = $10 ;
+      PostSubOperation_S.Case.OnParamGrid.ParameterValue[1] = $12 ;
     }
 
   | tOnPoint '{' RecursiveListOfFExpr '}'
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_0D ;
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
+      if(List_Nbr($3)!=3)
+	vyyerror("Expected {3} coordinates, got {%d}", List_Nbr($3));
       else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnGrid.y[0]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnGrid.z[0]);
+	List_Read($3, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
+	List_Read($3, 1, &PostSubOperation_S.Case.OnGrid.y[0]);
+	List_Read($3, 2, &PostSubOperation_S.Case.OnGrid.z[0]);
       }
+      List_Delete($3);
     }
 
   | tOnLine '{' '{' RecursiveListOfFExpr '}'
-    {
-      PostSubOperation_S.SubType = PRINT_ONGRID_1D ;
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
-      else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnGrid.y[0]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnGrid.z[0]);
-      }
-    }
                 '{' RecursiveListOfFExpr '}' '}'  '{' FExpr '}'
     {
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
+      PostSubOperation_S.SubType = PRINT_ONGRID_1D ;
+      if(List_Nbr($4)!=3 || List_Nbr($7)!=3)
+	vyyerror("Expected {3}{3} coordinates, got {%d}{%d}", 
+		 List_Nbr($4), List_Nbr($7));
       else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnGrid.x[1]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnGrid.y[1]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnGrid.z[1]);
+	List_Read($4, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
+	List_Read($4, 1, &PostSubOperation_S.Case.OnGrid.y[0]);
+	List_Read($4, 2, &PostSubOperation_S.Case.OnGrid.z[0]);
+	List_Read($7, 0, &PostSubOperation_S.Case.OnGrid.x[1]);
+	List_Read($7, 1, &PostSubOperation_S.Case.OnGrid.y[1]);
+	List_Read($7, 2, &PostSubOperation_S.Case.OnGrid.z[1]);
       }
-      PostSubOperation_S.Case.OnGrid.n[0] = (int)$12 ;
+      PostSubOperation_S.Case.OnGrid.n[0] = (int)$11 ;
+      List_Delete($4);
+      List_Delete($7);
     }
 
   | tOnPlane '{' '{' RecursiveListOfFExpr '}'
-    {
-      PostSubOperation_S.SubType = PRINT_ONGRID_2D ;
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
-      else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnGrid.y[0]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnGrid.z[0]);
-      }
-    }
                  '{' RecursiveListOfFExpr '}'
-    {
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
-      else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnGrid.x[1]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnGrid.y[1]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnGrid.z[1]);
-      }
-    }
                  '{' RecursiveListOfFExpr '}' '}'  '{' FExpr ',' FExpr '}'
     {
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
+      PostSubOperation_S.SubType = PRINT_ONGRID_2D ;
+      if(List_Nbr($4)!=3 || List_Nbr($7)!=3 || List_Nbr($10)!=3)
+	vyyerror("Expected {3}{3}{3} coordinates, got {%d}{%d}{%d}", 
+		 List_Nbr($4), List_Nbr($7), List_Nbr($10));
       else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnGrid.x[2]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnGrid.y[2]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnGrid.z[2]);
+	List_Read($4, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
+	List_Read($4, 1, &PostSubOperation_S.Case.OnGrid.y[0]);
+	List_Read($4, 2, &PostSubOperation_S.Case.OnGrid.z[0]);
+	List_Read($7, 0, &PostSubOperation_S.Case.OnGrid.x[1]);
+	List_Read($7, 1, &PostSubOperation_S.Case.OnGrid.y[1]);
+	List_Read($7, 2, &PostSubOperation_S.Case.OnGrid.z[1]);
+	List_Read($10, 0, &PostSubOperation_S.Case.OnGrid.x[2]);
+	List_Read($10, 1, &PostSubOperation_S.Case.OnGrid.y[2]);
+	List_Read($10, 2, &PostSubOperation_S.Case.OnGrid.z[2]);
       }
-      PostSubOperation_S.Case.OnGrid.n[0] = (int)$16 ;
-      PostSubOperation_S.Case.OnGrid.n[1] = (int)$18 ;
+      PostSubOperation_S.Case.OnGrid.n[0] = (int)$14 ;
+      PostSubOperation_S.Case.OnGrid.n[1] = (int)$16 ;
+      List_Delete($4);
+      List_Delete($7);
+      List_Delete($10);
     }
 
   | tOnBox '{' '{' RecursiveListOfFExpr '}'
-    {
-      PostSubOperation_S.SubType = PRINT_ONGRID_3D ;
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
-      else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnGrid.y[0]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnGrid.z[0]);
-      }
-    }
                '{' RecursiveListOfFExpr '}'
-    {
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
-      else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnGrid.x[1]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnGrid.y[1]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnGrid.z[1]);
-      }
-    }
                '{' RecursiveListOfFExpr '}'
-    {
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
-      else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnGrid.x[2]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnGrid.y[2]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnGrid.z[2]);
-      }
-    }
                '{' RecursiveListOfFExpr '}' '}'  '{' FExpr ',' FExpr ',' FExpr '}'
     {
-      if(List_Nbr(ListOfDouble_L)!=3)
-	vyyerror("Expected three coordinates, got %d", List_Nbr(ListOfDouble_L));
+      PostSubOperation_S.SubType = PRINT_ONGRID_3D ;
+      if(List_Nbr($4)!=3 || List_Nbr($7)!=3 || List_Nbr($10)!=3 || List_Nbr($13)!=3)
+	vyyerror("Expected {3}{3}{3}{3} coordinates, got {%d}{%d}{%d}{%d}", 
+		 List_Nbr($4), List_Nbr($7), List_Nbr($10), List_Nbr($13));
       else{
-	List_Read(ListOfDouble_L, 0, &PostSubOperation_S.Case.OnGrid.x[3]);
-	List_Read(ListOfDouble_L, 1, &PostSubOperation_S.Case.OnGrid.y[3]);
-	List_Read(ListOfDouble_L, 2, &PostSubOperation_S.Case.OnGrid.z[3]);
+	List_Read($4, 0, &PostSubOperation_S.Case.OnGrid.x[0]);
+	List_Read($4, 1, &PostSubOperation_S.Case.OnGrid.y[0]);
+	List_Read($4, 2, &PostSubOperation_S.Case.OnGrid.z[0]);
+	List_Read($7, 0, &PostSubOperation_S.Case.OnGrid.x[1]);
+	List_Read($7, 1, &PostSubOperation_S.Case.OnGrid.y[1]);
+	List_Read($7, 2, &PostSubOperation_S.Case.OnGrid.z[1]);
+	List_Read($10, 0, &PostSubOperation_S.Case.OnGrid.x[2]);
+	List_Read($10, 1, &PostSubOperation_S.Case.OnGrid.y[2]);
+	List_Read($10, 2, &PostSubOperation_S.Case.OnGrid.z[2]);
+	List_Read($13, 0, &PostSubOperation_S.Case.OnGrid.x[3]);
+	List_Read($13, 1, &PostSubOperation_S.Case.OnGrid.y[3]);
+	List_Read($13, 2, &PostSubOperation_S.Case.OnGrid.z[3]);
       }
-      PostSubOperation_S.Case.OnGrid.n[0] = (int)$20 ;
-      PostSubOperation_S.Case.OnGrid.n[1] = (int)$22 ;
-      PostSubOperation_S.Case.OnGrid.n[2] = (int)$24 ;
+      PostSubOperation_S.Case.OnGrid.n[0] = (int)$17 ;
+      PostSubOperation_S.Case.OnGrid.n[1] = (int)$19 ;
+      PostSubOperation_S.Case.OnGrid.n[2] = (int)$21 ;
+      List_Delete($4);
+      List_Delete($7);
+      List_Delete($10);
+      List_Delete($13);
     }
 
-
+  /* should be generalized with a '{' RecursiveListOfFExpr '}' */
   | tOnRegion GroupRHS
     tWithArgument tSTRING '{' FExpr ',' FExpr '}'  '{' FExpr '}'
     {
@@ -5612,10 +5543,12 @@ PrintOption :
     }
   | ',' tTimeStep ListOfFExpr 
     { 
-      for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
-	List_Read(ListOfDouble_L,i,&d);	j = (int)d ;
+      for(i=0 ; i<List_Nbr($3) ; i++){
+	List_Read($3,i,&d);
+	j = (int)d ;
 	List_Add(PostSubOperation_S.TimeStep_L, &j);
       }
+      List_Delete($3);
     }
   | ',' tAdapt tSTRING
     { 
@@ -5644,10 +5577,11 @@ PrintOption :
     }
   | ',' tValue ListOfFExpr 
     { 
-      for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
-	List_Read(ListOfDouble_L,i,&d);	
+      for(i=0 ; i<List_Nbr($3) ; i++){
+	List_Read($3,i,&d);	
 	List_Add(PostSubOperation_S.Value_L, &d);
       }
+      List_Delete($3);
     }
   | ',' tIso FExpr
     { 
@@ -5656,10 +5590,11 @@ PrintOption :
   | ',' tIso '{' RecursiveListOfFExpr '}'
     { 
       PostSubOperation_S.Iso = -1 ;
-      for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
-	List_Read(ListOfDouble_L,i,&d);	
+      for(i=0 ; i<List_Nbr($4) ; i++){
+	List_Read($4,i,&d);	
 	List_Add(PostSubOperation_S.Iso_L, &d);
       }
+      List_Delete($4);
     }
   | ',' tNoNewLine
     { 
@@ -5667,10 +5602,11 @@ PrintOption :
     }
   | ',' tFrequency ListOfFExpr
     { 
-      for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
-	List_Read(ListOfDouble_L,i,&d);	
+      for(i=0 ; i<List_Nbr($3) ; i++){
+	List_Read($3,i,&d);	
 	List_Add(PostSubOperation_S.Frequency_L, &d);
       }
+      List_Delete($3);
     }
   ;
 
@@ -5734,18 +5670,14 @@ Affectation :
     tSTRING tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1 ; 
-      if(List_Nbr(ListOfDouble_L) == 1){
+      if(List_Nbr($3) == 1){
 	Constant_S.Type = VAR_FLOAT ;
-	List_Read(ListOfDouble_L, 0, &Constant_S.Value.Float) ;
+	List_Read($3, 0, &Constant_S.Value.Float) ;
+	List_Delete($3);
       }
       else{
 	Constant_S.Type = VAR_LISTOFFLOAT ;
-	Constant_S.Value.ListOfFloat =
-	  List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
-	for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++) {
-	  List_Read(ListOfDouble_L, i, &d) ;
-	  List_Add(Constant_S.Value.ListOfFloat, &d) ;
-	}
+	Constant_S.Value.ListOfFloat = $3;
       }
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
@@ -5880,86 +5812,104 @@ OneFExpr :
 ListOfFExpr :
 
     /* none */
-    { List_Reset(ListOfDouble_L) ; }
+    { $$ = NULL; }
 
   | FExpr
-    { List_Reset(ListOfDouble_L) ;  
-      List_Add(ListOfDouble_L, &($1)) ; 
+    { 
+      $$ = List_Create(1,1,sizeof(double)) ;  
+      List_Add($$, &($1)) ; 
     }
 
   | MultiFExpr  
-    { List_Reset(ListOfDouble_L) ; 
-      for(i=0 ; i<List_Nbr(ListOfDouble2_L) ; i++){
-	List_Read(ListOfDouble2_L, i, &Value) ;
-	List_Add(ListOfDouble_L, &Value) ;
-      }
-    }
+    { $$ = $1; }
 
   | '{' RecursiveListOfFExpr '}'
+    { $$ = $2; }
   ;
 
 
 RecursiveListOfFExpr :
 
     FExpr
-    { List_Reset(ListOfDouble_L) ;  List_Add(ListOfDouble_L, &($1)) ; }
-
-  | MultiFExpr
     { 
-      List_Reset(ListOfDouble_L) ; 
-      for(i=0 ; i<List_Nbr(ListOfDouble2_L) ; i++){
-	List_Read(ListOfDouble2_L, i, &Value) ;
-	List_Add(ListOfDouble_L, &Value) ;
-      }
+      $$ = List_Create(20,20,sizeof(double));
+      List_Add($$, &($1)) ; 
     }
 
+  | MultiFExpr
+    { $$ = $1; }
+
   | RecursiveListOfFExpr ',' FExpr
-    { List_Add(ListOfDouble_L, &($3)) ; }
+    { List_Add($$, &($3)) ; }
 
   | RecursiveListOfFExpr ',' MultiFExpr
-    {
-      for(i=0 ; i<List_Nbr(ListOfDouble2_L) ; i++){
-	List_Read(ListOfDouble2_L, i, &Value) ;
-	List_Add(ListOfDouble_L, &Value) ;
+    { 
+      for(i=0 ; i<List_Nbr($3) ; i++){
+	List_Read($3, i, &Value) ;
+	List_Add($$, &Value) ;
       }
+      List_Delete($3);
     }
   ;
 
 MultiFExpr :
 
     FExpr tDOTS FExpr
-    { List_Reset(ListOfDouble2_L) ; 
+    { $$ = List_Create(20,20,sizeof(double)) ; 
       for(d=$1 ; ($1<$3)?(d<=$3):(d>=$3) ; ($1<$3)?(d+=1.):(d-=1.)) 
-	List_Add(ListOfDouble2_L, &d) ;
+	List_Add($$, &d) ;
     }
 
-  | FExpr tDOTS '[' FExpr ']' FExpr
-    { vyyerror("The syntax 'start:[incr]end' has been replaced by 'start:end:incr'");
-      List_Reset(ListOfDouble2_L) ; 
-      if(!$4 || ($1<$6 && $4<0) || ($1>$6 && $4>0)){
-        vyyerror("Wrong increment in '%g :[%g] %g'", $1, $4, $6) ;
-	List_Add(ListOfDouble2_L, &($1)) ;
-      }
-      else 
-	for(d=$1 ; ($4>0)?(d<=$6):(d>=$6) ; d+=$4)
-	  List_Add(ListOfDouble2_L, &d) ;
-   }
-
   | FExpr tDOTS FExpr tDOTS FExpr
-    { List_Reset(ListOfDouble2_L) ; 
+    { $$ = List_Create(20,20,sizeof(double)) ; 
       if(!$5 || ($1<$3 && $5<0) || ($1>$3 && $5>0)){
 	vyyerror("Wrong increment in '%g : %g : %g'", $1, $3, $5) ;
-	List_Add(ListOfDouble2_L, &($1)) ;
+	List_Add($$, &($1)) ;
       }
       else
 	for(d=$1 ; ($5>0)?(d<=$3):(d>=$3) ; d+=$5) 
-	  List_Add(ListOfDouble2_L, &d) ;
+	  List_Add($$, &d) ;
     }
 
+  | tSTRING '{' '}' 
+    { $$ = List_Create(20,20,sizeof(double)) ; 
+      Constant_S.Name = $1 ;
+      if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+	vyyerror("Unknown Constant: %s", $1) ;
+      else
+	if (Constant_S.Type != VAR_LISTOFFLOAT)
+	  vyyerror("Multi value Constant needed: %s", $1) ;
+	else
+	  for(i=0 ; i<List_Nbr(Constant_S.Value.ListOfFloat) ; i++) {
+	    List_Read(Constant_S.Value.ListOfFloat, i, &d) ;
+	    List_Add($$, &d) ;
+	  }
+    }
+
+  | tSTRING '{' RecursiveListOfFExpr '}' 
+    { $$ = List_Create(20,20,sizeof(double)) ; 
+      Constant_S.Name = $1 ;
+      if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+	vyyerror("Unknown Constant: %s", $1) ;
+      else
+	if (Constant_S.Type != VAR_LISTOFFLOAT)
+	  vyyerror("Multi value Constant needed: %s", $1) ;
+	else
+	  for(i=0 ; i<List_Nbr($3) ; i++) {
+	    if(i < List_Nbr(Constant_S.Value.ListOfFloat)){
+	      List_Read(Constant_S.Value.ListOfFloat, i, &d) ;
+	      List_Add($$, &d) ;
+	    }
+	    else{
+	      d = 0.;
+	      List_Add($$, &d) ;
+	    }
+	  }
+    }
+
+  /* This a synonym for tSTRING '{' '}' */
   | tList '[' tSTRING ']'
- /* Too bad: "tSTRING '[' ']'" would conflict with Affectation in Group... */
-    {
-      List_Reset(ListOfDouble2_L) ;
+    { $$ = List_Create(20,20,sizeof(double)) ; 
       Constant_S.Name = $3 ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
 	vyyerror("Unknown Constant: %s", $3) ;
@@ -5969,13 +5919,12 @@ MultiFExpr :
 	else
 	  for(i=0 ; i<List_Nbr(Constant_S.Value.ListOfFloat) ; i++) {
 	    List_Read(Constant_S.Value.ListOfFloat, i, &d) ;
-	    List_Add(ListOfDouble2_L, &d) ;
+	    List_Add($$, &d) ;
 	  }
     }
 
   | tListAlt '[' tSTRING ',' tSTRING ']'
-    {
-      List_Reset(ListOfDouble2_L) ;
+    { $$ = List_Create(20,20,sizeof(double)) ; 
       Constant1_S.Name = $3 ; Constant2_S.Name = $5 ;
       if (!List_Query(ConstantTable_L, &Constant1_S, fcmp_Constant)) {
 	vyyerror("Unknown Constant: %s", $3) ;
@@ -6003,9 +5952,9 @@ MultiFExpr :
 	      else {
 		for(i=0 ; i<List_Nbr(Constant1_S.Value.ListOfFloat) ; i++) {
 		  List_Read(Constant1_S.Value.ListOfFloat, i, &d) ;
-		  List_Add(ListOfDouble2_L, &d) ;
+		  List_Add($$, &d) ;
 		  List_Read(Constant2_S.Value.ListOfFloat, i, &d) ;
-		  List_Add(ListOfDouble2_L, &d) ;
+		  List_Add($$, &d) ;
 		}
 	      }
 	    }

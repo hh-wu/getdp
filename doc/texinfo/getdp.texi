@@ -1,15 +1,10 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.18 2001-07-22 10:16:17 geuzaine Exp $
+@c $Id: getdp.texi,v 1.19 2001-07-22 15:22:40 geuzaine Exp $
 @c =========================================================================
 @c
-@c On devrait parler
-@c  - du mecanisme de selection du systeme pour le post (==1ere 
-@c    Quantity definie dans la formulation)
-@c
-@c
-@c
-@c
 @c This is the GetDP documentation texinfo source file
+@c
+@c Things to do -> "Ctrl+s todo:" 
 @c
 @c Indexing: @cindex = concept index, e.g. "Numerical tools, overview"
 @c           @vindex = (metasyntactic) variable index, e.g.  "constraint-type"
@@ -84,7 +79,7 @@ BELGIUM @*
 @c =========================================================================
 
 @iftex
-@global@let@bullet=-
+@c @global@let@bullet=-
 @global@let@sl=@it
 @global@setfont@indit@itshape{9}{1000}
 @c @global@let@linkcolor=@Orange
@@ -460,7 +455,7 @@ may start to use GetDP on your computer (@pxref{Running GetDP}), for
 example by solving the complete examples presented in @ref{Complete
 examples}. 
 
-@c Ready-to-use input files for these examples can be downloaded
+@c todo: Ready-to-use input files for these examples can be downloaded
 @c from the web site.
 
 
@@ -478,11 +473,8 @@ examples}.
 @cindex Numerical tools, overview
 
 @menu
-* Numerical tools as objects::  
-* Syntactic rules::             
-* Comments::                    
-* Includes::                    
-* Which problems can GetDP actually solve?::  
+* Numerical tools as objects:: * Syntactic rules:: * Comments:: * Includes::
+* Which problems can GetDP actually solve?::
 @end menu
 
 @c -------------------------------------------------------------------------
@@ -817,6 +809,7 @@ defined as:
 @tindex 2D
 @tindex 3D
 @tindex =
+@tindex @{@}
 
 @vindex @var{integer}
 @vindex @var{real}
@@ -861,6 +854,8 @@ List of constant expressions are defined as:
   @var{expression-cst} |
   @var{expression-cst} : @var{expression-cst} |
   @var{expression-cst} : @var{expression-cst} : @var{expression-cst} |
+  @var{constant-id} @{@} |
+  @var{constant-id} @{ @var{expression-cst-list} @} |
   List[ @var{constant-id} ] |
   ListAlt[ @var{constant-id}, @var{constant-id} ]
 @end example
@@ -872,11 +867,13 @@ containing the range of numbers comprised between the two
 @var{expression-cst}, but with a positive or negative incrementation step
 equal to the third @var{expression-cst}. The fourth and fifth cases permit
 to reference constant identifiers (@var{constant-id}s) of lists of constants
-(see below for the definition of constant identifiers). The arguments of
+and constant identifiers of sublists of constants (see below for the
+definition of constant identifiers) . The sixth case is a synonym for the
+fourth. The last case permits to create alternate lists: the arguments of
 @code{ListAlt} must be @var{constant-id}s of lists of constants of the same
 dimension. The result is an alternate list of these constants: first
 constant of argument 1, first constant of argument 2, second constant of
-argument 1, @dots{} These kinds of lists of constants are for example often
+argument 1, etc. These kinds of lists of constants are for example often
 used for function parameters (@pxref{Functions}).
 
 Contrary to a general @var{expression} which is evaluated at runtime (thanks
@@ -946,7 +943,7 @@ Character expressions can be defined, using these constant strings:
   StrCat[ @var{expression-char} , @var{expression-char} ]
 @end example
 
-@noindent The second case in this definition permits to concatenate two
+@noindent The third case in this definition permits to concatenate two
 character expressions.
 
 @c -------------------------------------------------------------------------
@@ -1065,11 +1062,11 @@ evaluated even if the first one is true.
 @item :
 The only ternary operator, constituted of @var{operator-ternary-left} and
 @var{operator-ternary-right} is defined as in the C or C++ programming
-languages. The ternary operator first evaluates its first argument (which
-must result in a scalar value), i.e.@: the @var{expression-cst} located
-before the @code{?}. If it is true (non-zero) the second argument (located
-between @code{?} and @code{:}) is evaluated and returned; otherwise the
-third argument (located after @code{:}) is evaluated and returned.
+languages. The ternary operator first evaluates its first argument (the
+@var{expression-cst} located before the @code{?}), which must result in a
+scalar value. If it is true (non-zero) the second argument (located between
+@code{?} and @code{:}) is evaluated and returned; otherwise the third
+argument (located after @code{:}) is evaluated and returned.
 @end table
 
 
@@ -2136,15 +2133,13 @@ matrix of the system.
 @vindex @var{formulation-list}
 @vindex @var{resolution-op}
 
-The operations available in a @code{Resolution} include: the generation
-of a linear system, its solving with various kinds of linear solvers,
-@c (namely SPARSKIT and PETSc)
-the saving of the solution or its transfer to another system, the
-definition of various time iterative methods, the construction of
-iterative loops for nonlinear problems (Newton-Raphson and fixed point
-methods), etc.  Multi-harmonic resolutions, coupled problems (e.g.@:
-magneto-thermal) or linked problems (e.g.@: pre-computations of source
-fields) are thus easily defined in GetDP.
+The operations available in a @code{Resolution} include: the generation of a
+linear system, its solving with various kinds of linear solvers, the saving
+of the solution or its transfer to another system, the definition of various
+time iterative methods, the construction of iterative loops for nonlinear
+problems (Newton-Raphson and fixed point methods), etc.  Multi-harmonic
+resolutions, coupled problems (e.g.@: magneto-thermal) or linked problems
+(e.g.@: pre-computations of source fields) are thus easily defined in GetDP.
 
 The @code{Resolution} object is characterized by a list of systems to
 build and their associated formulations, using time or frequency domain,
@@ -2278,6 +2273,10 @@ integral of @var{expression} over a whole region (being either
 @var{group-def} or a subset of @var{group-def}) has to be defined in the
 @code{PostOperation} with the @code{@var{post-quantity-id}[@var{group-def}]}
 command (@pxref{PostOperation}).
+@item
+If @code{NameOfSystem @var{system-id}} is not given, the system is
+automatically selected as the one to which the first quantity listed in
+the @code{Quantity} field of @var{formulation-id} is associated.
 @end enumerate
 
 @xref{Types for PostProcessing}, for the complete list of options and
@@ -2904,6 +2903,8 @@ Gets the Z coordinate.
 
 Gets X, Y and Z in a vector.
 
+@c todo:
+
 @c @item F_aX_bY_cZ
 @c @code{[]@{@var{expression-cst},@var{expression-cst},@var{expression-cst}@}}
 
@@ -3529,7 +3530,7 @@ the iterative correction @var{dx}) and the relative error to achieve. The
 optional parameter is a flag for testing purposes.
 
 
-@c  Patrick : la suite est-elle comprehensible ?
+@c  todo: Patrick, la suite est-elle comprehensible ?
 
 
 @c  @item IterativeTimeReduction
@@ -3755,6 +3756,12 @@ associated number of divisions equal to each @var{expression-cst} along the
 three generating directions. Each @var{expression-cst-list} must contain
 exactly three elements (the coordinates of the points).
 
+@c todo: OnRegion WithArgument
+@c Il faudrait en fait plutot ajouter WithArgument comme une option
+@c accessible partout, et retravailler le post en ce sens...
+@c en tout cas, iul faut changer la syntaxe de WithArgument pour utiliser
+@c uniquement une expression-cst-list, et non plus uniquement start, end, num.
+
 @end ftable
 
 @vindex @var{print-option}
@@ -3956,6 +3963,7 @@ c1 = Sin[2/3*3.1415] * 5000^2;
 c2 = -1/c1;
 @end example
 
+@c todo: ajouter un exemple de liste et de string
 
 @c -------------------------------------------------------------------------
 @c Group Examples
@@ -4172,7 +4180,7 @@ with an independent numbering of nodes: region @code{VoltageSource} is connected
 parallel with region @code{PrimaryCoil}, and region @code{SecondaryCoil} is 
 connected in parallel with region @code{Charge}.
 
-@c More examples to come here...
+@c todo: ajouter un vrai exemple de circuit
 
 @c -------------------------------------------------------------------------
 @c FunctionSpace Examples
@@ -4609,6 +4617,8 @@ kinds of elements.
 * Magnetodynamics::             
 * Other formulations::          
 @end menu
+
+@c todo: ajouter un vrai exemple de circuit (cf. constraint example)
 
 @c .........................................................................
 @c Electrostatic Scalar Potential Formulation
@@ -5239,8 +5249,11 @@ as in the electrostatic problem in @ref{Electrostatic problem}.
 
 GetDP has no graphical interface. It is a command-line driven program that
 reads a problem definition file once at the begining of the processing. This
-problem definition file is a regular ASCII file (@pxref{Numerical tools as
-objects}), hence created with whatever editor you like.
+problem definition file is a regular ASCII text file (@pxref{Numerical tools
+as objects}), hence created with whatever editor you like. Gmsh
+(@value{GMSH-WEB}) provides a simple front-end to GetDP, which enables to
+construct geometries, generate meshes, launch computations and visualize
+results with user-friendly graphical interface.
 
 If you just type the program name at your shell prompt (without any
 argument), you will get a short help on how to run GetDP. All GetDP
@@ -5589,7 +5602,9 @@ the numbering of the equations given in the @file{.pre} file
 @c Programming Comments
 @c =========================================================================
 
-@c CETTE SECTION DEVIENDRA UN CHAPITRE SI LES SOURCES SONT FOURNIES SUR LE WEB
+@c todo: ceci peut constituer une intro a un futur guide de programmation
+@c dans GetDP... Attendons un peu que les sources soit rendues publiques
+@c sous GPL :-)
 
 @c @node Programming comments, Syntactic rules, Working philosophy, Overview
 @c @chapter Programming comments
@@ -5626,9 +5641,7 @@ the numbering of the equations given in the @file{.pre} file
 @chapter Bugs, versions and contributors
 
 @menu
-* Bugs::                        
-* Version history::             
-* Contributors::                
+* Bugs:: * Version history:: * Contributors::
 @end menu
 
 @c -------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.30 2001-06-16 09:28:23 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.31 2001-07-22 15:22:39 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -504,7 +504,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       DofData_P = DofData_P0 + Operation_P->DefineSystemIndex ;
 
       if (DefineSystem_P->Type == VAL_COMPLEX){
-	List_Reset(DefineSystem_P->FrequencyValue);
+	if(DefineSystem_P->FrequencyValue)
+	  List_Reset(DefineSystem_P->FrequencyValue);
+	else
+	  DefineSystem_P->FrequencyValue = List_Create(1, 1, sizeof(double)) ;
 	/* Provisoire: une seule frequence */
 	Get_ValueOfExpressionByIndex(Operation_P->Case.SetFrequency.ExpressionIndex,
 				     NULL, 0., 0., 0., &Value) ;

@@ -1,13 +1,15 @@
-$Id: VERSIONS,v 1.21 2001-07-21 18:36:37 geuzaine Exp $
+$Id: VERSIONS,v 1.22 2001-07-22 15:22:40 geuzaine Exp $
 
 0.83: Fixed bugs in SaveSolutions[] and InitSolution[]; Fixed
 corrupted binary post-processing files in the harmonic case for the
 Gmsh format; Output files are now created relatively to the input file
 directory; Made solver options available on the command line; Added
 optional matrix scaling (Warning: the scaling definition in your old
-SOLVER.PAR files must be changed!); Generalized syntax for lists;
-Updated reference guide; Added a new short presentation on the web
-site;
+SOLVER.PAR files must be changed!); Generalized syntax for lists
+(start:[incr]end -> start:end:incr); Updated reference guide; Added a
+new short presentation on the web site; OnCut -> OnSection; New
+functional syntax for resolution operations; Many other small fixes
+and clean-ups;
 
 0.82: Added communication socket for interactive use with Gmsh;
 corrected (again) memory problem (leak + seg. fault) in time stepping
