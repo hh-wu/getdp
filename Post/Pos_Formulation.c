@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.29 2001-05-23 10:23:23 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.30 2001-05-30 18:10:57 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -33,8 +33,14 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   GetDP_Begin("Pos_Formulation");
 
   if (PostSubOperation_P->FileOut){
-    strcpy(FileName, Name_Path);
-    strcat(FileName, PostSubOperation_P->FileOut);
+    if(PostSubOperation_P->FileOut[0] == '/' || 
+       PostSubOperation_P->FileOut[0] == '\\'){
+      strcpy(FileName, PostSubOperation_P->FileOut);
+    }
+    else{
+      strcpy(FileName, Name_Path);
+      strcat(FileName, PostSubOperation_P->FileOut);
+    }
     if (!PostSubOperation_P->CatFile) {
       if((PostStream = fopen(FileName, "w")))
 	Msg(DIRECT, "          > '%s'", FileName) ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.7 2001-05-23 10:23:23 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.8 2001-05-30 18:10:57 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -79,13 +79,21 @@ void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName){
 
   strcpy(FileName, Name_Path);
 
-  if(SolverDataFileName)
-    strcat(FileName, SolverDataFileName);
-  else if (Name_SolverFile)
-    strcat(FileName, Name_SolverFile);
-  else 
+  if(SolverDataFileName){
+    if(SolverDataFileName[0] == '/' || SolverDataFileName[0] == '\\')
+      strcpy(FileName, SolverDataFileName);
+    else
+      strcat(FileName, SolverDataFileName);
+  }
+  else if (Name_SolverFile){
+    if(Name_SolverFile[0] == '/' || Name_SolverFile[0] == '\\')
+      strcpy(FileName, Name_SolverFile);
+    else
+      strcat(FileName, Name_SolverFile);
+  }
+  else
     strcat(FileName, Name_DefaultSolverFile);
-
+  
   init_solver(&Solver->Params, FileName) ;
 
   GetDP_End ;
