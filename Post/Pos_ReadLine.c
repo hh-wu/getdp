@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_ReadLine.c,v 1.9 2003-02-01 04:32:29 geuzaine Exp $"
+#define RCSID "$Id: Pos_ReadLine.c,v 1.10 2003-02-04 18:15:57 geuzaine Exp $"
 /*
  * Copyright (C) 1986 - 1993   Thomas Williams, Colin Kelley
  *
@@ -7,6 +7,10 @@
  * provided that the above copyright notice appear in all copies and 
  * that both that copyright notice and this permission notice appear 
  * in supporting documentation.
+ *
+ * Permission to modify the software is granted, but not the right to 	 
+ * distribute the modified code.  Modifications are to be distributed 	 
+ * as patches to released version.
  *
  * This software is provided "as is" without express or implied warranty.
  * 
@@ -20,7 +24,7 @@
  */
 
 /*
- * This is a heavily modified version for getdp
+ * This is a modified version for getdp
  */
 
 /* a small portable version of GNU's readline */
@@ -302,12 +306,42 @@ static void copy_line (char *line){
 }
 
 /* add line to the history */
-void add_history (char *line){
+void add_history(char *line){
   struct hist *entry;
-  entry =
-    (struct hist *) alloc ((unsigned long) sizeof (struct hist), "history");
-  entry->line = alloc ((unsigned long) (strlen (line) + 1), "history");
-  strcpy (entry->line, line);
+
+  entry = history;
+  while (entry != NULL) {
+    /* Don't store duplicate entries */
+    if (!strcmp(entry->line, line)) {
+      /* cmd lines are equal, relink entry that was found last */
+      if (entry->next == NULL) {
+	/* previous command repeated, no change */
+	return;
+      }
+      if (entry->prev == NULL) {
+	/* current cmd line equals the first in the history */
+	(entry->next)->prev = NULL;
+	history->next = entry;
+	entry->prev = history;
+	entry->next = NULL;
+	history = entry;
+	return;
+      }
+      /* bridge over entry's vacancy, then move it to the end */
+      (entry->prev)->next = entry->next;
+      (entry->next)->prev = entry->prev;
+      entry->prev = history;
+      history->next = entry;
+      entry->next = NULL;
+      history = entry;
+      return;
+    }
+    entry = entry->prev;
+  }
+  
+  entry = (struct hist *) alloc(sizeof(struct hist), "history");
+  entry->line = alloc((strlen(line) + 1), "history");
+  strcpy(entry->line, line);
 
   entry->prev = history;
   entry->next = NULL;
