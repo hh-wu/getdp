@@ -10,6 +10,6 @@ make install
 This requires the GNU Scientific Library (GSL) to be installed on your
 system. You can either use the --with-gsl-prefix configure option or
 set the GSL_DIR environment variable to specify a non-standard
-location. The GSL is available at http://sources.redhat.com/gsl/.
+location. The GSL is freely available from http://sources.redhat.com/gsl/.
 
 See the doc/ and demos/ directories for documentation and examples.
