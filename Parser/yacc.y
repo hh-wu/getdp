@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.13 2000-10-15 14:02:48 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.14 2000-10-16 21:02:16 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -5213,6 +5213,7 @@ PlotOptions :
       PostSubOperation_S.HarmonicToTime = 1 ;
       PostSubOperation_S.TimeStep_L = List_Create(10,10,sizeof(int)); ;
       PostSubOperation_S.Value_L = List_Create(10,10,sizeof(double)); ;
+      PostSubOperation_S.Iso = 0 ;
       PostSubOperation_S.Iso_L = List_Create(10,10,sizeof(double)); ;
       PostSubOperation_S.Sort = 0 ;
     }
@@ -5340,8 +5341,13 @@ PlotOption :
 	List_Add(PostSubOperation_S.Value_L, &d);
       }
     }
-  | ',' tIso ListOfDouble 
+  | ',' tIso FExpr
     { 
+      PostSubOperation_S.Iso = (int)$3;
+    }
+  | ',' tIso '{' RecursiveListOfDouble '}'
+    { 
+      PostSubOperation_S.Iso = -1 ;
       for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
 	List_Read(ListOfDouble_L,i,&d);	
 	List_Add(PostSubOperation_S.Iso_L, &d);

@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.10 2000-10-16 08:13:47 geuzaine Exp $ */
+/* $Id: Pos_Print.c,v 1.11 2000-10-16 21:02:16 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -7,10 +7,20 @@
 #include "Data_Passive.h"
 #include "Data_DefineE.h"
 #include "Data_Numeric.h"
+
 #include "Version.h"
 #include "CurrentData.h"
-#include "ualloc.h"
 #include "Magic.h"
+
+#include "Pos_Iso.h"
+#include "Pos_Print.h"
+#include "Pos_Element.h"
+
+#include "ualloc.h"
+
+#define NBR_MAX_ISO  200
+
+List_T *PostElement_L = NULL ;
 
 /* ------------------------------------------------------------------------ */
 /*  P r i n t _ P o s t F o r m a t / H e a d e r / F o o t e r             */
@@ -31,11 +41,20 @@ void  Print_PostFormat(int Format){
   }
 }
 
-void  Print_PostHeader(int Format, int NbTimeStep, int HarmonicToTime,
+void  Print_PostHeader(int Format, int Contour, 
+		       int NbTimeStep, int HarmonicToTime,
 		       int Type, int Order,
 		       struct PostQuantity  *NCPQ_P,
 		       struct PostQuantity  *CPQ_P){
+
   char name[MAX_STRING_LENGTH] ;
+
+  if(Contour){
+    if(!PostElement_L) 
+      PostElement_L = List_Create(20, 20, sizeof(struct PostElement*));
+    else
+      List_Reset(PostElement_L);
+  }
 
   if(NCPQ_P && CPQ_P) {
     strcpy(name, Order ? NCPQ_P->Name : CPQ_P->Name) ;
@@ -57,8 +76,7 @@ void  Print_PostHeader(int Format, int NbTimeStep, int HarmonicToTime,
     break ;
   case FORMAT_GNUPLOT :
     fprintf(PostStream, "# PostData '%s'\n", name);
-    fprintf(PostStream, 
-	    "# Type Num  X Y Z  N1 N2 N3  Values  <Values>...\n");
+    fprintf(PostStream, "# Type Num  X Y Z  N1 N2 N3  Values  <Values>...\n");
     break ;
   case FORMAT_ADAPT :
     fprintf(PostStream, "$Adapt /* %s */\n", name) ;
@@ -66,9 +84,58 @@ void  Print_PostHeader(int Format, int NbTimeStep, int HarmonicToTime,
   }
 }
 
-void  Print_PostFooter(int Format){
+void  Print_PostFooter(struct PostSubOperation *PSO_P){
+  List_T  * Iso_L[NBR_MAX_ISO] ;
+  double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0 ;
+  int       NbrIso = 0, IsoType = 0 ; 
+  int       iPost, iNode, iIso ;
+  struct PostElement *PE ;
 
-  switch(Format){
+  if(PSO_P->Iso){
+
+    for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){ 
+      PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
+      for (iNode = 0 ; iNode < PE->NbrNodes ; iNode++ ){
+	IsoMin = MIN(IsoMin, PE->Value[iNode].Val[0]) ;
+	IsoMax = MAX(IsoMax, PE->Value[iNode].Val[0]) ;
+      }
+    }
+    if((NbrIso = PSO_P->Iso) < 0)
+      NbrIso = List_Nbr(PSO_P->Iso_L) ;
+    if(NbrIso > NBR_MAX_ISO) 
+      Msg(ERROR, "Too Many Iso Values");
+    for(iIso = 0 ; iIso < NbrIso ; iIso++)
+      Iso_L[iIso] = List_Create(10, 10, sizeof(struct PostElement*)) ;
+
+    for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){ 
+      PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
+      for(iIso = 0 ; iIso < NbrIso ; iIso++){
+	if(PSO_P->Iso > 0){
+	  Cal_Iso(PE, Iso_L[iIso], IsoMin+iIso*(IsoMax-IsoMin)/(double)(NbrIso-1), 
+		  IsoMin, IsoMax) ;
+	}
+	else{
+	  List_Read(PSO_P->Iso_L, iIso, &IsoVal) ;
+	  Cal_Iso(PE, Iso_L[iIso], IsoVal, IsoMin, IsoMax) ;
+	}
+      }
+    }
+
+    for(iIso = 0 ; iIso < NbrIso ; iIso++){
+      for(iPost = 0 ; iPost < List_Nbr(Iso_L[iIso]) ; iPost++){
+	PE = *(struct PostElement**)List_Pointer(Iso_L[iIso], iPost) ;
+	Print_PostElement(PSO_P->Format, 0, 0, 
+			  Current.Time, 0, 1, 
+			  Current.NbrHar, PSO_P->HarmonicToTime, 
+			  NULL, PE);
+	Destroy_PostElement(PE) ;
+      }
+      List_Delete(Iso_L[iIso]) ;
+      fprintf(PostStream, "\n") ;
+    }
+  }
+
+  switch(PSO_P->Format){
   case FORMAT_GMSH :
     fprintf(PostStream, "};\n") ;
     break ;
@@ -548,9 +615,32 @@ void  Print_Adapt(double * Dummy){
 /*  P r i n t _ P o s t E l e m e n t                                       */
 /* ------------------------------------------------------------------------ */
 
-void  Print_PostElement(int Format, double Time, int TimeStep, int NbTimeStep, 
+void  Print_PostElement(int Format, int Contour, int Store, 
+			double Time, int TimeStep, int NbTimeStep, 
 			int NbHarmonic, int HarmonicToTime, double *Dummy,
 			struct PostElement * PE){
+
+  static int Warning_FirstHarmonic = 0 ;
+  struct PostElement *PE2 ;
+
+  if(Contour){
+    if(PE->Value[0].Type != SCALAR)
+      Msg(ERROR, "Non Scalar Element %d in Contour Creation", PE->Index);
+    if(NbTimeStep != 1)
+      Msg(ERROR, "Contour Creation not Allowed for Multiple Time Steps");
+    if(Current.NbrHar != 1 && !Warning_FirstHarmonic){
+      Msg(WARNING, "Contour Creation done only for First Harmonic");
+      Warning_FirstHarmonic = 1 ;
+    }
+    if(Store)
+      List_Add(PostElement_L, &PE) ;
+    else{
+      PE2 = PartialCopy_PostElement(PE) ;
+      List_Add(PostElement_L, &PE2) ;
+    }
+    return ;
+  }
+
   switch(Format){
   case FORMAT_GMSH :
     Print_Gmsh(TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,

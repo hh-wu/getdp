@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.10 2000-10-15 14:02:48 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.11 2000-10-16 21:02:15 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -792,7 +792,7 @@ struct PostSubOperation {
   int    PostQuantityIndex[2];  
   int    Type, SubType, CombinationType ;
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
-  int    Format, Adapt, Sort ;
+  int    Format, Adapt, Sort, Iso ;
   double Target ;
   List_T * HeaderChar_L, * HeaderTag_L ;
   List_T * FormatChar_L, * FormatTag_L ;

@@ -1,9 +1,11 @@
-/* $Id: Pos_Element.h,v 1.1 2000-10-16 12:33:02 geuzaine Exp $ */
+/* $Id: Pos_Element.h,v 1.2 2000-10-16 21:02:16 geuzaine Exp $ */
 #ifndef _POS_ELEMENT_H_
 #define _POS_ELEMENT_H_
 
 struct PostElement * Create_PostElement(int Index, int Type, int NbrNodes, int Depth);
 void Destroy_PostElement(struct PostElement * PostElement) ;
+struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement);
+
 void  Fill_PostElement(struct Geo_Element *GE, List_T *PostElement_L, 
 		       int Index, int Depth, int Skin, int DecomposeInSimplex) ;
 void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,

@@ -1,4 +1,4 @@
-/* $Id: Pos_Plot.c,v 1.2 2000-10-16 15:45:18 geuzaine Exp $ */
+/* $Id: Pos_Plot.c,v 1.3 2000-10-16 21:02:16 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -16,7 +16,6 @@
 #include "Pos_Formulation.h"
 #include "Pos_Quantity.h"
 #include "Pos_Element.h"
-#include "Pos_Iso.h"
 #include "Pos_Search.h"
 #include "Pos_Print.h"
 
@@ -80,8 +79,6 @@ struct CutEdge {
 /*  P o s _ P l o t O n R e g i o n                                         */
 /* ------------------------------------------------------------------------ */
 
-#define NBR_MAX_ISO  200
-
 List_T * SkinPostElement_L ;
 int      SkinDepth ;
 
@@ -103,7 +100,6 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   
   Tree_T  * PostElement_T, * NodexPostElement_T ;
   List_T  * PostElement_L, * PostElement2_L, * Region_L, * Tmp_L ;
-  List_T  * Iso_L[NBR_MAX_ISO] ;
 
   struct Element        Element ;
   struct PostElement  * PE, * PE2 ;
@@ -111,11 +107,9 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   struct IntxList       NxPE, * NxPE_P ;
 
   double  * Error, Dummy[5], d ;
-  double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0 ;
   int       ii, jj, kk, NbrGeo, iGeo, incGeo, NbrPost, iPost ;
   int       NbrTimeStep, iTime, NbrSmoothing, iNode ;
   int       Store = 0, DecomposeInSimplex = 0, Depth ;
-  int       NbrIso = 0, IsoType = 0 ; 
 
   /* Select the TimeSteps */
   
@@ -129,7 +123,8 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 
   NbrGeo = Geo_GetNbrGeoElements() ;
 
-  Print_PostHeader(PostSubOperation_P->Format, NbrTimeStep,
+  Print_PostHeader(PostSubOperation_P->Format, 
+		   PostSubOperation_P->Iso, NbrTimeStep,
 		   PostSubOperation_P->HarmonicToTime, 
 		   PostSubOperation_P->CombinationType, Order,
 		   NCPQ_P, CPQ_P);
@@ -167,21 +162,11 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   else
     NbrSmoothing = 0;
 
-  /* How many iso curves? */
-  if((IsoType = List_Nbr(PostSubOperation_P->Iso_L))){
-    List_Read(PostSubOperation_P->Iso_L, 0, &IsoVal) ;
-    if(IsoType == 1)
-      NbrIso = (int)IsoVal ;
-    else
-      NbrIso = IsoType ;
-    if(NbrIso > NBR_MAX_ISO) Msg(ERROR, "Too Many Iso Values");
-  }
-
   /* If we compute a skin, apply smoothing, sort the results, or
      perform adaption, we'll need to store all the PostElements */
 
   if(NbrSmoothing || PostSubOperation_P->Skin || PostSubOperation_P->Adapt ||
-     PostSubOperation_P->Sort || NbrIso)
+     PostSubOperation_P->Sort)
     Store = 1 ;
 
   /* Check if everything is OK for Adaption */
@@ -306,9 +291,10 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 	for (iTime = 0 ; iTime < NbrTimeStep ; iTime++){
 	  for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++)
 	    Cal_CopyValue(&CumulativeValues[iTime], &PE->Value[iNode]);
-	  Print_PostElement(PostSubOperation_P->Format, Current.Time, iTime, 
-			    NbrTimeStep, Current.NbrHar,
-			    PostSubOperation_P->HarmonicToTime, NULL, PE);
+	  Print_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+			    Current.Time, iTime, NbrTimeStep, 
+			    Current.NbrHar, PostSubOperation_P->HarmonicToTime,
+			    NULL, PE);
 	}
       }
       else{ /* There is some non-cumulative */
@@ -332,9 +318,10 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 				     &PE->Value[iNode], &CumulativeValues[iNode]) ;
 	    }
 	    if(!Store)
-	      Print_PostElement(PostSubOperation_P->Format, Current.Time, iTime, 
-				NbrTimeStep, Current.NbrHar, 
-				PostSubOperation_P->HarmonicToTime, NULL, PE);
+	      Print_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+				Current.Time, iTime, NbrTimeStep, 
+				Current.NbrHar, PostSubOperation_P->HarmonicToTime,
+				NULL, PE);
 	  }
 	}
 	else{ /* We work on the real mesh */
@@ -357,9 +344,10 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 				   &PE->Value[iNode], &CumulativeValues[iTime]) ;
 	    }      
 	    if(!Store)
-	      Print_PostElement(PostSubOperation_P->Format, Current.Time, iTime, 
-				NbrTimeStep, Current.NbrHar, 
-				PostSubOperation_P->HarmonicToTime, NULL, PE);
+	      Print_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+				Current.Time, iTime, NbrTimeStep,
+				Current.NbrHar, PostSubOperation_P->HarmonicToTime,
+				NULL, PE);
 	  }
 	}
       }
@@ -517,23 +505,6 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
     case SORT_BY_CONNECTIVITY : Sort_PostElement_Connectivity(PostElement_L) ; break ;
     }
 
-    /* Initialisations for Iso Computations */
-    if(NbrIso){
-      for(ii = 0 ; ii < NbrIso ; ii++)
-	Iso_L[ii] = List_Create(10, 10, sizeof(struct PostElement*)) ;
-      if(IsoType == 1){
-	for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
-	  PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
-	  if(PE->Value[0].Type != SCALAR)
-	    Msg(ERROR, "Iso Map Impossible for non Scalar Values") ;
-	  for (ii = 0 ; ii < PE->NbrNodes ; ii++ ){
-	    IsoMin = MIN(IsoMin, PE->Value[ii].Val[0]) ;
-	    IsoMax = MAX(IsoMax, PE->Value[ii].Val[0]) ;
-	  }
-	}
-      }
-    }
-
     Dummy[0] = Dummy[1] = Dummy[2] = Dummy[3] = Dummy[4] = 0. ;
 
     for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
@@ -569,39 +540,15 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 	Dummy[3] = -1. ;
       }
 
-      if(!IsoType)
-	Print_PostElement(PostSubOperation_P->Format, Current.Time, 0, 
-			  1, Current.NbrHar, 
-			  PostSubOperation_P->HarmonicToTime, Dummy, PE);
-      else if(IsoType == 1)
-	for(ii = 0 ; ii < NbrIso ; ii++)
-	  Cal_Iso(PE, Iso_L[ii], IsoMin+ii*(IsoMax-IsoMin)/(double)(NbrIso-1), 
-		  IsoMin, IsoMax) ;
-      else
-	for(ii = 0 ; ii < NbrIso ; ii++){
-	  List_Read(PostSubOperation_P->Iso_L, ii, &IsoVal) ;
-	  Cal_Iso(PE, Iso_L[ii], IsoVal, IsoMin, IsoMax) ;
-	}
-
+      Print_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+			Current.Time, 0, 1, 
+			Current.NbrHar, PostSubOperation_P->HarmonicToTime,
+			Dummy, PE);
       Destroy_PostElement(PE) ;
     }
   }
 
-  if(IsoType){
-    for(ii = 0 ; ii < NbrIso ; ii++){
-      for(iPost = 0 ; iPost < List_Nbr(Iso_L[ii]) ; iPost++){
-	PE = *(struct PostElement**)List_Pointer(Iso_L[ii], iPost) ;
-	Print_PostElement(PostSubOperation_P->Format, Current.Time, 0, 
-			  1, Current.NbrHar, 
-			  PostSubOperation_P->HarmonicToTime, Dummy, PE);
-	Destroy_PostElement(PE) ;
-      }
-      List_Delete(Iso_L[ii]) ;
-      fprintf(PostStream, "\n") ;
-    }
-  }
-  
-  Print_PostFooter(PostSubOperation_P->Format);
+  Print_PostFooter(PostSubOperation_P);
 
   List_Delete(PostElement_L);
 
@@ -657,38 +604,39 @@ void normvec(double *a){
 
 #define NBR_MAX_CUT 10
 
-#define LETS_PRINT_THE_RESULT								\
-  List_Reset(PE_L);									\
-  if(PostSubOperation_P->Depth < 2)							\
-    List_Add(PE_L, &PE) ;								\
-  else											\
-    Cut_PostElement(PE, Element.GeoElement, PE_L, PE->Index,				\
-		    PostSubOperation_P->Depth, 0, 1) ;				        \
-  for(iPost = 0 ; iPost < List_Nbr(PE_L) ; iPost++){					\
-    PE = *(struct PostElement **)List_Pointer(PE_L, iPost) ;				\
-    for(ts = 0 ; ts < NbTimeStep ; ts++){						\
-      Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, ts) ;			\
-      for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++){					\
-	if(NCPQ_P){									\
-	  Current.x = PE->x[iNode] ;							\
-	  Current.y = PE->y[iNode] ;							\
-	  Current.z = PE->z[iNode] ;							\
-	  Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,	        \
-		      &Element, PE->u[iNode], PE->v[iNode], PE->w[iNode],		\
-		      &PE->Value[iNode]);						\
-	  if(CPQ_P) 									\
-             Combine_PostQuantity(PostSubOperation_P->CombinationType, Order,		\
-				  &PE->Value[iNode], &CumulativeValues[ts]) ;		\
-	}										\
-	else										\
-	  Cal_CopyValue(&CumulativeValues[ts],&PE->Value[iNode]);			\
-      }											\
-      Print_PostElement(PostSubOperation_P->Format, Current.Time, ts, NbTimeStep,	\
-			Current.NbrHar, PostSubOperation_P->HarmonicToTime,		\
-			NULL, PE);							\
-    }											\
-  }											\
-  for(iPost = 0 ; iPost < List_Nbr(PE_L) ; iPost++)					\
+#define LETS_PRINT_THE_RESULT							\
+  List_Reset(PE_L);								\
+  if(PostSubOperation_P->Depth < 2)						\
+    List_Add(PE_L, &PE) ;							\
+  else										\
+    Cut_PostElement(PE, Element.GeoElement, PE_L, PE->Index,			\
+		    PostSubOperation_P->Depth, 0, 1) ;				\
+  for(iPost = 0 ; iPost < List_Nbr(PE_L) ; iPost++){				\
+    PE = *(struct PostElement **)List_Pointer(PE_L, iPost) ;			\
+    for(ts = 0 ; ts < NbTimeStep ; ts++){					\
+      Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, ts) ;		\
+      for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++){				\
+	if(NCPQ_P){								\
+	  Current.x = PE->x[iNode] ;						\
+	  Current.y = PE->y[iNode] ;						\
+	  Current.z = PE->z[iNode] ;						\
+	  Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,	\
+		      &Element, PE->u[iNode], PE->v[iNode], PE->w[iNode],	\
+		      &PE->Value[iNode]);					\
+	  if(CPQ_P)								\
+             Combine_PostQuantity(PostSubOperation_P->CombinationType, Order,	\
+				  &PE->Value[iNode], &CumulativeValues[ts]) ;	\
+	}									\
+	else									\
+	  Cal_CopyValue(&CumulativeValues[ts],&PE->Value[iNode]);		\
+      }										\
+      Print_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0, \
+			Current.Time, ts, NbTimeStep,				\
+			Current.NbrHar, PostSubOperation_P->HarmonicToTime,	\
+			NULL, PE);						\
+    }										\
+  }										\
+  for(iPost = 0 ; iPost < List_Nbr(PE_L) ; iPost++)				\
      Destroy_PostElement(*(struct PostElement **)List_Pointer(PE_L, iPost));
   
 
@@ -721,7 +669,8 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
     e[i].Value = (struct Value*) Malloc(NbTimeStep*sizeof(struct Value)) ;    
     
   Print_PostHeader(PostSubOperation_P->Format, 
-		   NbTimeStep, PostSubOperation_P->HarmonicToTime,
+		   PostSubOperation_P->Iso, NbTimeStep, 
+		   PostSubOperation_P->HarmonicToTime,
 		   PostSubOperation_P->CombinationType, Order,
 		   NCPQ_P, CPQ_P);
 
@@ -874,7 +823,7 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
       }
 
     }
-    Print_PostFooter(PostSubOperation_P->Format);
+    Print_PostFooter(PostSubOperation_P);
     break;
     
   default :
@@ -903,7 +852,8 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
  if(!NCPQ_P){									\
    for (ts = 0 ; ts < NbTimeStep ; ts++){					\
      PE->Value[0] = CumulativeValues[ts] ;					\
-     Print_PostElement(PSO_P->Format, Current.Time, ts, NbTimeStep,		\
+     Print_PostElement(PSO_P->Format, PSO_P->Iso, 0,				\
+		       Current.Time, ts, NbTimeStep,				\
                        Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE);	\
    }										\
  }										\
@@ -919,10 +869,11 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
      if(CPQ_P)									\
        Combine_PostQuantity(PSO_P->CombinationType, Order,			\
                             &PE->Value[0], &CumulativeValues[ts]) ;		\
-     Print_PostElement(PSO_P->Format, Current.Time, ts, NbTimeStep,		\
+     Print_PostElement(PSO_P->Format, PSO_P->Iso, 0, 				\
+                       Current.Time, ts, NbTimeStep,				\
                        Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE);	\
    }										\
- }										\
+ }
 
 #define ARRAY(i,j,k,t)						\
   Array[ (t) * Current.NbrHar * ((int)N[0]+1) * ((int)N[1]+1) +	\
@@ -970,7 +921,7 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
 
   int     i1, i2, i3, j, k, NbTimeStep, ts ;
   float  *Array ;
-  double  u, v, w, Length, Normal[4] = {0., 0., 0., 0.}, NbrIso ;
+  double  u, v, w, Length, Normal[4] = {0., 0., 0., 0.} ;
   double  X[4], Y[4], Z[4], S[4], N[4];
 
   Get_InitDofOfElement(&Element) ;
@@ -989,7 +940,8 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
 
   Init_SearchGrid(&Current.GeoData->Grid) ;
 
-  Print_PostHeader(PSO_P->Format, NbTimeStep, PSO_P->HarmonicToTime,
+  Print_PostHeader(PSO_P->Format, PSO_P->Iso, 
+		   NbTimeStep, PSO_P->HarmonicToTime,
 		   PSO_P->CombinationType, Order, NCPQ_P, CPQ_P);
 
   PE = Create_PostElement(0, POINT, 1, 0) ;
@@ -1062,51 +1014,47 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
     }
 
     if(PSO_P->Depth > 1){
-      if(List_Nbr(PSO_P->Iso_L) == 1){
-	List_Read(PSO_P->Iso_L, 0, &NbrIso) ;
-	Print_Contour2D(PSO_P->Format, Array, N, X, Y, Z, NbrIso);
-      }
-      else{
-	PE2 = Create_PostElement(0, TRIANGLE, 3, 0);
-	for (i1 = 0 ; i1 < N[0] ; i1++) {
-	  S[0] = (double)i1 / (double)(N[0] ? N[0] : 1) ;
-	  S[2] = (double)(i1+1) / (double)(N[0] ? N[0] : 1) ;
-	  for (i2 = 0 ; i2 < N[1] ; i2++) {
-	    S[1] = (double)i2 / (double)(N[1] ? N[1] : 1) ;
-	    S[3] = (double)(i2+1) / (double)(N[1] ? N[1] : 1) ;
-	    for (ts = 0 ; ts < NbTimeStep ; ts++){
-	      PE2->Value[0].Type = SCALAR ;
-	      PE2->x[0] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[1] ;
-	      PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[1] ;
-	      PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[1] ;	  
-	      for(k = 0 ; k < Current.NbrHar ; k++)
-		PE2->Value[0].Val[MAX_DIM*k] = ARRAY(i1,i2,k,ts) ;
-	      PE2->x[1] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[1] ;
-	      PE2->y[1] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[1] ;
-	      PE2->z[1] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[1] ;	  
-	      for(k = 0 ; k < Current.NbrHar ; k++)
-		PE2->Value[1].Val[MAX_DIM*k] = ARRAY(i1+1,i2,k,ts) ;
-	      PE2->x[2] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[3] ;
-	      PE2->y[2] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[3] ;
-	      PE2->z[2] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[3] ;	  
-	      for(k = 0 ; k < Current.NbrHar ; k++)
-		PE2->Value[2].Val[MAX_DIM*k] = ARRAY(i1,i2+1,k,ts) ;
-	      Print_PostElement(PSO_P->Format, Current.Time, ts, NbTimeStep,
-				Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE2);
-	    }
-	    PE2->x[0] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[3] ;
-	    PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[3] ;
-	    PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[3] ;	  
-	    for (ts = 0 ; ts < NbTimeStep ; ts++){
-	      for(k = 0 ; k < Current.NbrHar ; k++)
-		PE2->Value[0].Val[MAX_DIM*k] = ARRAY(i1+1,i2+1,k,ts) ;
-	      Print_PostElement(PSO_P->Format, Current.Time, ts, NbTimeStep,
-				Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE2);
-	    }
+      PE2 = Create_PostElement(0, TRIANGLE, 3, 0);
+      PE2->Value[0].Type = PE2->Value[1].Type = PE2->Value[2].Type = SCALAR ;
+      for (i1 = 0 ; i1 < N[0] ; i1++) {
+	S[0] = (double)i1 / (double)(N[0] ? N[0] : 1) ;
+	S[2] = (double)(i1+1) / (double)(N[0] ? N[0] : 1) ;
+	for (i2 = 0 ; i2 < N[1] ; i2++) {
+	  S[1] = (double)i2 / (double)(N[1] ? N[1] : 1) ;
+	  S[3] = (double)(i2+1) / (double)(N[1] ? N[1] : 1) ;
+	  for (ts = 0 ; ts < NbTimeStep ; ts++){
+	    PE2->x[0] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[1] ;
+	    PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[1] ;
+	    PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[1] ;	  
+	    for(k = 0 ; k < Current.NbrHar ; k++)
+	      PE2->Value[0].Val[MAX_DIM*k] = ARRAY(i1,i2,k,ts) ;
+	    PE2->x[1] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[1] ;
+	    PE2->y[1] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[1] ;
+	    PE2->z[1] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[1] ;	  
+	    for(k = 0 ; k < Current.NbrHar ; k++)
+	      PE2->Value[1].Val[MAX_DIM*k] = ARRAY(i1+1,i2,k,ts) ;
+	    PE2->x[2] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[3] ;
+	    PE2->y[2] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[3] ;
+	    PE2->z[2] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[3] ;	  
+	    for(k = 0 ; k < Current.NbrHar ; k++)
+	      PE2->Value[2].Val[MAX_DIM*k] = ARRAY(i1,i2+1,k,ts) ;
+	    Print_PostElement(PSO_P->Format, PSO_P->Iso, 0,
+			      Current.Time, ts, NbTimeStep,
+			      Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE2);
+	  }
+	  PE2->x[0] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[3] ;
+	  PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[3] ;
+	  PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[3] ;	  
+	  for (ts = 0 ; ts < NbTimeStep ; ts++){
+	    for(k = 0 ; k < Current.NbrHar ; k++)
+	      PE2->Value[0].Val[MAX_DIM*k] = ARRAY(i1+1,i2+1,k,ts) ;
+	    Print_PostElement(PSO_P->Format, PSO_P->Iso, 0,
+			      Current.Time, ts, NbTimeStep,
+			      Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE2);
 	  }
 	}
-	Destroy_PostElement(PE2) ;
       }
+      Destroy_PostElement(PE2) ;
       Free(Array) ;
     }
     break;
@@ -1166,7 +1114,7 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
 
   Destroy_PostElement(PE) ;
 
-  Print_PostFooter(PSO_P->Format);
+  Print_PostFooter(PSO_P);
 
   if(CPQ_P) Free(CumulativeValues);
 }

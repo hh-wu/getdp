@@ -1,4 +1,4 @@
-/* $Id: Pos_Element.c,v 1.4 2000-10-16 14:45:54 geuzaine Exp $ */
+/* $Id: Pos_Element.c,v 1.5 2000-10-16 21:02:16 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -24,14 +24,14 @@ struct PostElement * Create_PostElement(int Index, int Type,
   PostElement->Depth = Depth ;
   PostElement->NbrNodes = NbrNodes ;
   if(NbrNodes > 0){
-    PostElement->NumNodes= (int *) Malloc(NbrNodes * sizeof(int)) ;
-    PostElement->u= (double *) Malloc(NbrNodes * sizeof(double)) ;
-    PostElement->v= (double *) Malloc(NbrNodes * sizeof(double)) ;
-    PostElement->w= (double *) Malloc(NbrNodes * sizeof(double)) ;
-    PostElement->x= (double *) Malloc(NbrNodes * sizeof(double)) ;
-    PostElement->y= (double *) Malloc(NbrNodes * sizeof(double)) ;
-    PostElement->z= (double *) Malloc(NbrNodes * sizeof(double)) ;
-    PostElement->Value= (struct Value *) Malloc(NbrNodes * sizeof(struct Value)) ;
+    PostElement->NumNodes = (int *) Malloc(NbrNodes * sizeof(int)) ;
+    PostElement->u = (double *) Malloc(NbrNodes * sizeof(double)) ;
+    PostElement->v = (double *) Malloc(NbrNodes * sizeof(double)) ;
+    PostElement->w = (double *) Malloc(NbrNodes * sizeof(double)) ;
+    PostElement->x = (double *) Malloc(NbrNodes * sizeof(double)) ;
+    PostElement->y = (double *) Malloc(NbrNodes * sizeof(double)) ;
+    PostElement->z = (double *) Malloc(NbrNodes * sizeof(double)) ;
+    PostElement->Value = (struct Value *) Malloc(NbrNodes * sizeof(struct Value)) ;
   }
   return PostElement ;
 }
@@ -47,6 +47,32 @@ void Destroy_PostElement(struct PostElement * PostElement){
     Free(PostElement->Value) ;
   }
   Free(PostElement) ;
+}
+
+struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement){
+  struct PostElement * Copy ;
+  int i ;
+
+  Copy = (struct PostElement *) Malloc(sizeof(struct PostElement)) ;
+  Copy->Index = PostElement->Index ; 
+  Copy->Type = PostElement->Type ;
+  Copy->Depth = PostElement->Depth ;
+  Copy->NbrNodes = PostElement->NbrNodes ;
+  if(Copy->NbrNodes > 0){
+    Copy->NumNodes = NULL ;
+    Copy->u = Copy->v = Copy->w = NULL ;
+    Copy->x = (double *) Malloc(Copy->NbrNodes * sizeof(double)) ;
+    Copy->y = (double *) Malloc(Copy->NbrNodes * sizeof(double)) ;
+    Copy->z = (double *) Malloc(Copy->NbrNodes * sizeof(double)) ;
+    Copy->Value = (struct Value *) Malloc(Copy->NbrNodes * sizeof(struct Value)) ;
+    for(i = 0 ; i < Copy->NbrNodes ; i++){
+      Copy->x[i] = PostElement->x[i] ;
+      Copy->y[i] = PostElement->y[i] ;
+      Copy->z[i] = PostElement->z[i] ;
+      Cal_CopyValue(&PostElement->Value[i], &Copy->Value[i]);
+    }
+  }
+  return Copy ;
 }
 
 /* 2 PostElements never have the same barycenter unless they are identical */
