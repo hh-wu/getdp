@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.21 2000-11-16 18:36:19 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.22 2000-11-19 20:21:48 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -581,7 +581,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   GetDP_Begin("InWhichElement");
 
   ChainDim   = Dim ;
-  Projection = (ChainDim != GeoDim) ;
+  Projection = (ChainDim == _ALL) ? 0 : (ChainDim != GeoDim) ;
   
   if(!Projection && LastElement){
     if (PointInElement(LastElement, ExcludeRegion_L, x, y, z, u, v, w)){
@@ -626,7 +626,6 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
     PointElement_L = List_Create(10, 10, sizeof(PointElement));
 
     for (dim = lowdim ; dim <= highdim  ; dim++){
-
       for (i=0 ; i < List_Nbr(Brick_P->p[dim]) ; i++) {
 	Element->GeoElement = *(struct Geo_Element**)List_Pointer(Brick_P->p[dim], i) ;
 	Element->Num = Element->GeoElement->Num ;
@@ -636,9 +635,6 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 	ComputeElementBox(Element, &ElementBox) ;
 	if (PointInElementBox(ElementBox, x, y, z)){
 	  PointElementDistance(Element, x, y, z, &PointElement);
-	  Msg(INFO, "Element %d: distance = %g, project (x=%g y=%g z=%g)", 
-	      Element->Num, PointElement.d, PointElement.xp, 
-	      PointElement.yp, PointElement.zp);
 	  PointElement.ElementIndex = Geo_GetGeoElementIndex(Element->GeoElement);
 	  List_Add(PointElement_L, &PointElement);
 	}	
@@ -657,7 +653,9 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 			 PointElement.zp, u, v, w, NULL, -1);
       if(PointInRefElement(Element, *u, *v, *w)) {
 	LastElement = Element ;
-	Msg(INFO, "Selected Element %d (u=%g v=%g w=%g)", Element->Num,*u,*v,*w);
+	Msg(INFO, "Selected Element %d (d=%g, x=%g, y=%g, z=%g)",
+	    Element->Num, PointElement.d, 
+	    PointElement.xp, PointElement.yp, PointElement.zp);
 	GetDP_End;      
       }
     }
