@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.59 2004-01-22 14:13:46 sabarieg Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.60 2004-01-22 17:04:25 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -741,6 +741,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         DofData_P->CurrentSolution = (struct Solution*)
           List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;        
         DofData_P->CurrentSolution->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
+	RES0 = (int)Current.TimeStep ;
       }
       else{
         if (!DofData_P->Solutions)
