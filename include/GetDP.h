@@ -1,4 +1,4 @@
-/* $Id: GetDP.h,v 1.3 2000-10-30 09:48:16 geuzaine Exp $ */
+/* $Id: GetDP.h,v 1.4 2002-03-04 17:12:16 geuzaine Exp $ */
 #ifndef _GETDP_H_
 #define _GETDP_H_
 
@@ -6,6 +6,10 @@
    only if really necessary, since it will force the whole code to be
    rebuilt... */
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+#include <math.h>
 #include "Message.h"
 #include "Malloc.h"
 
