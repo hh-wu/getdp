@@ -1,4 +1,0 @@
-#!/bin/sh
-
-awk -f dat2xyz.awk $1.DAT | sort | uniq > $1.tmp
-awk -f xyz2geo.awk $1.tmp > $1.geo
