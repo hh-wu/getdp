@@ -30,7 +30,7 @@ public:
 
 class Patch{
 public:
-  typedef enum {SPLINE,FOURIER} PatchType;
+  enum PatchType {SPLINE,FOURIER};
 
   Patch(PatchType type, int _beg, int _end, 
 	double center, double eps, double rise);
