@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.51 2003-03-17 10:50:31 sabarieg Exp $ */
+/* $Id: Data_Passive.h,v 1.52 2003-03-18 01:10:14 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -1064,7 +1064,7 @@ struct CurrentData {
 
   struct  Element  * ElementSource ;
 
-  //  double  s, t ;
+  /* double  s, t ; */
 
   struct{
     int DivXYZIndex, SystemIndex ;

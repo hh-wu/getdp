@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.16 2003-03-17 11:22:41 sabarieg Exp $ */
+/* $Id: F_Function.h,v 1.17 2003-03-18 01:10:14 geuzaine Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -136,7 +136,7 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 			   double u, double v, double w,
 			   struct Value *ValueOut) ;
 void  F_MHToTime0 (int init, struct Value * A, struct Value * V, 
-		   int iTime, int NbrTimePoint, double * TimeMH) ;// OJO!!! int *init
+		   int iTime, int NbrTimePoint, double * TimeMH) ;/* OJO!!! int *init */
 void  MHTransform(struct Element * Element, struct QuantityStorage * QuantityStorage_P0,
 		  double u, double v, double w, struct Value *MH_Value,
 		  struct Expression * Expression_P, int NbrPoints);
