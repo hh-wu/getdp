@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.70 2004-04-15 02:17:01 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.71 2004-04-15 03:51:02 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -54,7 +54,7 @@ void FinalizeAndExit(void);
 /*  I n f o                                                                 */
 /* ------------------------------------------------------------------------ */
 
-char acronym[]   = "GetDP %s, a General environment for the treatment of Discrete Problems\n";
+char acronym[]   = "GetDP, a General environment for the treatment of Discrete Problems\n";
 char copyright[] = "Copyright (C) 1997-2004 Patrick Dular and Christophe Geuzaine\n";
 
 char version[]   = "Version      : %s\n";
@@ -120,7 +120,7 @@ void Info (int level, char *arg0){
   
   switch(level){
   case 0 :
-    fprintf(stderr, acronym, GETDP_VERSION);
+    fprintf(stderr, acronym);
     fprintf(stderr, copyright);
     fprintf(stderr, help, arg0);
     break;
