@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.12 2002-02-04 19:00:09 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.13 2003-01-24 23:00:31 geuzaine Exp $"
 
 /* Version commentée par A. Nicolet de Lanczos.c le 2001/11/29 */
 
@@ -651,7 +651,9 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     
     if (wr[i]>1e-20) 
       err[i] = Hes[LanSize+1][LanSize]*diag[LanSize]/wr[i];
-    
+    else
+      err[i] = 1.e99; /* a changer! */
+
     /* copy the current eigen vector in IMatrix */
     for(j=1 ; j<=LanSize ; j++) IMatrix[j][i]=diag[j];
     
@@ -739,8 +741,11 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
       /* Msg(BIGINFO, "------------------ estim %d = %g  ",ii,Hes[ii+1][ii]); */
       
     } /* fin du test de validite */
-    
-    else Msg(BIGINFO,"BAD! -> Eigenvalue %d = %g with error %g ", ii, wr[ii], err[ii]); 
+    else{
+
+      Msg(BIGINFO,"BAD! -> Eigenvalue %d = %g with error %g ", ii, wr[ii], err[ii]); 
+
+    }
     
   }    
   
