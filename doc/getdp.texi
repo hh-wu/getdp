@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.21 2000-09-26 16:53:59 geuzaine Exp $
+@c $Id: getdp.texi,v 1.22 2000-09-28 08:11:19 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -51,7 +51,7 @@
 
 @c new index for meta variables
 @defcodeindex mv
-@c merge function and type indices 
+@c merge function and type indexes 
 @syncodeindex fn vr
 
 @ifinfo
@@ -441,7 +441,7 @@ for objects} and directly go to @ref{Short examples}. This chapter gives
 simple examples of the problem definition syntax used to define the
 discrete problems. For each example, you should then go back to
 @ref{Objects}, and @ref{Types for objects}, and have a detailed view of
-the syntax of the objects appearing in it. Note that indices for many
+the syntax of the objects appearing in it. Note that indexes for many
 concepts and for all the syntax elements are available at the end of
 this manual.
 
