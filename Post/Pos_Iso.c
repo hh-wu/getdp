@@ -1,14 +1,13 @@
-/* $Id: Pos_Iso.c,v 1.11 2000-10-22 13:50:40 geuzaine Exp $ */
+static char *rcsid = "$Id: Pos_Iso.c,v 1.12 2000-10-30 01:05:47 geuzaine Exp $" ;
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Data_Active.h"
 #include "Data_Numeric.h"
 #include "CurrentData.h"
-#include "ualloc.h"
-
 #include "Pos_Iso.h"
 #include "Pos_Element.h"
 
@@ -19,6 +18,8 @@
 void Interpolate(double *X, double *Y, double *Z, 
 		 struct Value *Val, double V, int I1, int I2, 
 		 double *XI, double *YI ,double *ZI){
+
+  GetDP_Begin("Interpolate");
   
   if(Val[I1].Val[0] == Val[I2].Val[0]){
     *XI = X[I1]; 
@@ -30,11 +31,16 @@ void Interpolate(double *X, double *Y, double *Z,
     *YI= (V - Val[I1].Val[0])*(Y[I2]-Y[I1])/(Val[I2].Val[0]-Val[I1].Val[0]) + Y[I1];
     *ZI= (V - Val[I1].Val[0])*(Z[I2]-Z[I1])/(Val[I2].Val[0]-Val[I1].Val[0]) + Z[I1];
   }
+
+  GetDP_End ;
 }
 
 void Cal_IsoTetrahedron(double *X, double *Y, double *Z, struct Value *Val, 
 			double V, double Vmin, double Vmax,
 			double *Xp, double *Yp, double *Zp, int *nb){
+
+  GetDP_Begin("Cal_IsoTetrahedron");
+
   if(V != Vmax){
     *nb = 0;
     if((Val[0].Val[0] > V && Val[1].Val[0] <= V) || 
@@ -89,6 +95,8 @@ void Cal_IsoTetrahedron(double *X, double *Y, double *Z, struct Value *Val,
       Interpolate(X,Y,Z,Val,V,2,3,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
     }
   }
+
+  GetDP_End ;
 }
 
 
@@ -96,6 +104,8 @@ void Cal_IsoTriangle(double *X, double *Y, double *Z, struct Value *Val,
 		     double V, double Vmin, double Vmax,
 		     double *Xp, double *Yp, double *Zp, int *nb){
   
+  GetDP_Begin("Cal_IsoTriangle");
+
   if(V != Vmax){
     *nb = 0;
     if((Val[0].Val[0] > V && Val[1].Val[0] <= V) || 
@@ -127,11 +137,14 @@ void Cal_IsoTriangle(double *X, double *Y, double *Z, struct Value *Val,
     }
   }
 
+  GetDP_End ;
 }
 
 void Fill_Iso(struct PostElement *PE, int nb, int *index,
 	      double *x, double *y, double *z, double val){
   int i, k ;
+
+  GetDP_Begin("Fill_Iso");
 
   for (i = 0 ; i < nb ; i++){
     PE->x[i] = x[index[i]] ;
@@ -142,6 +155,8 @@ void Fill_Iso(struct PostElement *PE, int nb, int *index,
     for (k = 1 ; k < Current.NbrHar ; k++)
       PE->Value[i].Val[MAX_DIM*k] = 0. ;
   }
+
+  GetDP_End ;
 }
 
 void normvec(double *a);
@@ -153,6 +168,8 @@ void Cal_Iso(struct PostElement *PE, List_T *list,
   double x[5], y[5], z[5] ;
   double d1[3], d2[3], d3[3], a1, a2, a3 ;
   int    nb, index[5], index_default[] = {0,1,2,3} ;
+
+  GetDP_Begin("Cal_Iso");
 
   switch(PE->Type){
   case TRIANGLE :
@@ -226,4 +243,5 @@ void Cal_Iso(struct PostElement *PE, List_T *list,
     break ;
   }
 
+  GetDP_End ;
 }

@@ -1,6 +1,7 @@
-/* $Id: BF_Node.c,v 1.5 2000-10-03 15:51:23 geuzaine Exp $ */
+static char *rcsid = "$Id: BF_Node.c,v 1.6 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 
+#include "GetDP.h"
 #include "BF_Function.h"
 #include "Data_Numeric.h" /* DSQU */
 
@@ -14,6 +15,8 @@
 void  BF_Node(struct Element * Element, int NumNode, 
 	      double u, double v, double w,  double *s ) {
   double r;
+
+  GetDP_Begin("BF_Node");
 
   switch (Element->Type) {
   case POINT :
@@ -104,6 +107,7 @@ void  BF_Node(struct Element * Element, int NumNode,
     break;
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumNode
@@ -116,6 +120,8 @@ void  BF_Node(struct Element * Element, int NumNode,
 
 void  BF_GradNode(struct Element * Element, int NumNode, 
 		  double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_GradNode");
 
   switch (Element->Type) {
   case POINT :
@@ -249,6 +255,7 @@ void  BF_GradNode(struct Element * Element, int NumNode,
     break;
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumNode

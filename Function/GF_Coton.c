@@ -1,13 +1,13 @@
-/* $Id: GF_Coton.c,v 1.2 2000-09-07 18:47:23 geuzaine Exp $ */
+static char *rcsid = "$Id: GF_Coton.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h" 
 #include "Data_Active.h"
 #include "BF_Function.h"
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
-#include "SolverMisc_F.h"
+#include "Numeric_F.h"
 
 
 #define F_ARG2 								\

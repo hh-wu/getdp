@@ -1,15 +1,15 @@
-/* $Id: Cal_Quantity.c,v 1.5 2000-10-27 11:47:28 dular Exp $ */
+static char *rcsid = "$Id: Cal_Quantity.c,v 1.6 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Cal_Quantity.h"
 #include "Treatment_Formulation.h"
 #include "Get_Geometry.h"
 #include "Pos_Search.h"
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
-#include "outil.h"
+#include "Tools.h"
 
 int  fcmp_int2(const void * a, const void * b) ;
 
@@ -23,6 +23,8 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
 			    struct Value * Value) {
   int k ;
   struct ExpressionPerRegion  * ExpressionPerRegion_P ;
+
+  GetDP_Begin("Get_ValueOfExpression");
 
   switch (Expression_P->Type) {
 
@@ -75,6 +77,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
     break;
   }
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -85,9 +88,14 @@ void  Get_ValueOfExpressionByIndex(int Index_Expression,
 				   struct QuantityStorage * QuantityStorage_P0, 
 				   double u, double v, double w,
 				   struct Value * Value) {
+
+  GetDP_Begin("Get_ValueOfExpressionByIndex");
+
   Get_ValueOfExpression
     ((struct Expression *)List_Pointer(Problem_S.Expression, Index_Expression),
      QuantityStorage_P0,  u, v, w, Value) ;
+
+  GetDP_End ;
 }
 
 
@@ -157,6 +165,8 @@ void Cal_WholeQuantity(struct Element * Element,
   struct Value           Stack[8][MAX_STACK_SIZE] ;
 
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
+
+  GetDP_Begin("Cal_WholeQuantity");
 
   WholeQuantity_P0 = (struct WholeQuantity*)List_Pointer(WholeQuantity_L, 0) ;
 
@@ -528,6 +538,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
   if (DofIndexInWholeQuantity < 0) Cal_CopyValue(&Stack[0][0], &DofValue[0]) ;
 
+  GetDP_End ;
 }
 
 #undef CAST3V
@@ -546,7 +557,9 @@ void Cal_WholeQuantity(struct Element * Element,
 
 struct WholeQuantity* Purify_WholeQuantity(List_T * WQ_L) {
   
+  GetDP_Begin("Purify_WholeQuantity");
 
+  GetDP_End ;
 }
 */
 

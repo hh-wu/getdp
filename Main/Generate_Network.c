@@ -1,14 +1,11 @@
-/* $Id: Generate_Network.c,v 1.3 2000-09-28 22:14:39 geuzaine Exp $ */
+static char *rcsid = "$Id: Generate_Network.c,v 1.4 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
-#include "ualloc.h"
-
+#include "GetDP.h"
 #include "Data_Active.h"
 #include "Treatment_Formulation.h"
-#include "outil.h"
-
-
+#include "Tools.h"
 
 /* ------------------------------------------------------------------------ */
 /*  G e n e r a t e _ N e t w o r k                                         */
@@ -29,6 +26,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L) {
   int  * Flag_row, * Num_col, j_col1, j_col2 ;
   int  vi, vk, vsum ;
 
+  GetDP_Begin("Generate_Network");
 
   /* List of the Nodes of the Network */
 
@@ -137,5 +135,5 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L) {
       MatLoop[i][Num_col[n+j]] = (j == i)? 1 : 0 ;
   }
 
-  return Active ;
+  GetDP_Return(Active) ;
 }

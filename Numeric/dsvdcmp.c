@@ -1,4 +1,4 @@
-/* $Id: dsvdcmp.c,v 1.3 2000-10-27 22:06:52 geuzaine Exp $ */
+static char *rcsid = "$Id: dsvdcmp.c,v 1.4 2000-10-30 01:05:46 geuzaine Exp $" ;
 #include <math.h>
 
 #include "nrutil.h"

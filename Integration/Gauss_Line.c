@@ -1,13 +1,11 @@
-/* $Id: Gauss_Line.c,v 1.5 2000-10-24 07:04:28 geuzaine Exp $ */
+static char *rcsid = "$Id: Gauss_Line.c,v 1.6 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
-#include "Message.h"
+#include "GetDP.h"
 #include "Quadrature.h"
 #include "Gauss_Line.h"
-
-#include "ualloc.h"
 
 /* Gauss integration over a line */
 
@@ -17,6 +15,9 @@ double *glxl[MAX_LINE_POINTS], *glpl[MAX_LINE_POINTS];
 void Gauss_Line (int Nbr_Points, int Num,
 		 double *u, double *v, double *w, double *wght) {
   int i ;
+
+  GetDP_Begin("Gauss_Line");
+
   switch (Nbr_Points) {
 
   case  1 : *u = lx1 [Num] ; *v = 0. ; *w = 0. ; *wght = lp1 [Num] ; break ;
@@ -57,6 +58,7 @@ void Gauss_Line (int Nbr_Points, int Num,
     break ;
   }
 
+  GetDP_End ;
 }
 
 
@@ -65,6 +67,8 @@ void Gauss_Line (int Nbr_Points, int Num,
 void GaussLegendre(double x1, double x2, double x[], double w[], int n){
   int m,j,i;
   double z1,z,xm,xl,pp,p3,p2,p1;
+
+  GetDP_Begin("GaussLegendre");
 
   m=(n+1)/2;
   xm=0.5*(x2+x1);
@@ -88,6 +92,8 @@ void GaussLegendre(double x1, double x2, double x[], double w[], int n){
     w[i-1]=2.0*xl/((1.0-z*z)*pp*pp);
     w[n-i]=w[i-1];
   }
+
+  GetDP_End ;
 }
 
 #undef EPS

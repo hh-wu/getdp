@@ -1,8 +1,9 @@
-/* $Id: F_Analytic.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+static char *rcsid = "$Id: F_Analytic.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
 
+#include "GetDP.h"
 #include "Data_DefineE.h"
 #include "F_Function.h"
 #include "GeoData.h"
@@ -10,7 +11,6 @@
 #include "Numeric_F.h"
 #include "Get_Geometry.h"
 #include "Cal_Value.h" 
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
 
@@ -33,6 +33,8 @@ void  F_Sphere (F_ARG) {
   double  x, y, z ;
   double  sxr, sxi, syr, syi, szr, szi ; 
   double  mur, sigma, freq, r0, r1 ;
+
+  GetDP_Begin("F_Sphere");
 
   x = Current.x; y = Current.y; z = Current.z;
   
@@ -60,6 +62,8 @@ void  F_Sphere (F_ARG) {
   }
 
   V->Type = VECTOR ;
+
+  GetDP_End ;
 }
 
 
@@ -73,6 +77,8 @@ void  F_Cylinder (F_ARG) {
   double  valx[2], valy[2];
   double  bxr, bxi, byr, byi, phir, phii=0 ;
   double  mur, sigma, freq, b0, r0, r1 ;
+
+  GetDP_Begin("F_Cylinder");
 
   valx[0] = 0.0  ; valx[1] = 0.0 ;
   valy[0] = 0.0  ; valy[1] = 0.0 ;
@@ -105,6 +111,8 @@ void  F_Cylinder (F_ARG) {
   }
 
   V->Type = VECTOR ;
+
+  GetDP_End ;
 }
 
 

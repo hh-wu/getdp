@@ -1,12 +1,12 @@
-/* $Id: Matrix.c,v 1.6 2000-09-25 08:04:42 geuzaine Exp $ */
+static char *rcsid = "$Id: Matrix.c,v 1.7 2000-10-30 01:05:48 geuzaine Exp $" ;
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
-#include "ualloc.h"
 #include "Solver.h"
 #include "Solver_F.h"
 #include "Message.h"
+#include "Malloc.h"
 
 /* ------------------------------------------------------------------------ */
 /*  i n i t                                                                 */

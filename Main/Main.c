@@ -1,13 +1,12 @@
-/* $Id: Main.c,v 1.14 2000-10-22 13:52:05 geuzaine Exp $ */
+static char *rcsid = "$Id: Main.c,v 1.15 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 #include <signal.h>
 
-#include "Message.h"
+#include "GetDP.h"
 #include "Init_Problem.h"
-#include "ualloc.h"
 #include "LinAlg.h"
 #include "Magic.h"
 
@@ -18,6 +17,10 @@ char         yyname[MAX_FILE_NAME_LENGTH], yyincludename[MAX_FILE_NAME_LENGTH];
 int          yyparse(void) ;
 int          yyrestart(FILE*) ;
 void         Interactive(void);
+
+int   GetDP_CurrentStackIndex ;
+char *GetDP_CurrentFunction[GETDP_STACK_SIZE] ;
+char *GetDP_CurrentSourceFile[GETDP_STACK_SIZE] ;
 
 FILE   *PostStream, *LogStream, *PrintStream ;
 List_T *GeoData_L, *PreResolutionIndex_L ;
@@ -56,9 +59,12 @@ int  main(int argc, char *argv[]) {
   int   sargc, i ;
   char  ProName[MAX_FILE_NAME_LENGTH], LogName[MAX_FILE_NAME_LENGTH] ;
 
+  GetDP_CurrentStackIndex = 0;
+  GetDP_Begin("main");
+
   /* init MPI for multi-processor jobs */
 
-  gInitialize(&argc, &argv, &Current.NbrCpu, &Current.RankCpu);
+  LinAlg_Initialize(&argc, &argv, &Current.NbrCpu, &Current.RankCpu);
 
   /* no arguments on command line */
 
@@ -125,7 +131,7 @@ int  main(int argc, char *argv[]) {
 
   /* Solver init */
 
-  gInitializeSolver(&sargc, &sargv, &Current.NbrCpu, &Current.RankCpu) ;
+  LinAlg_InitializeSolver(&sargc, &sargv, &Current.NbrCpu, &Current.RankCpu) ;
 
   /* fill-in problem structure (read pro files) */
 
@@ -145,7 +151,7 @@ int  main(int argc, char *argv[]) {
 
   /* finalize the solver */
 
-  gFinalizeSolver() ;
+  LinAlg_FinalizeSolver() ;
 
   /* end */
   
@@ -155,9 +161,9 @@ int  main(int argc, char *argv[]) {
   
   /* finalize MPI job */
 
-  gFinalize() ;
+  LinAlg_Finalize() ;
 
-  return(0) ;
+  GetDP_Return(0) ;
 }
 
 #endif
@@ -168,6 +174,9 @@ int  main(int argc, char *argv[]) {
 /* ------------------------------------------------------------------------ */
 
 void Init_GlobalVariables(void){ 
+
+  GetDP_Begin("Init_GlobalVariables");
+
   Flag_PRE = 0   ; Flag_CAL = 0     ; Flag_POS = 0       ; Flag_IPOS = 0 ;  
   Flag_CHECK = 0 ; Flag_XDATA = 0   ; Flag_RESTART = 0   ; Flag_BIN = 0  ; 
   Flag_LRES = 0  ; Flag_LPOS = 0    ; Flag_LIPOS = 0     ; Flag_PAR = 0; 
@@ -178,6 +187,8 @@ void Init_GlobalVariables(void){
   Name_MshFile = Name_ResFile[0] = Name_AdaptFile = NULL ;
 
   PostStream = PrintStream = stdout ;
+
+  GetDP_End ;
 }  
 
 /* ------------------------------------------------------------------------ */
@@ -185,6 +196,9 @@ void Init_GlobalVariables(void){
 /* ------------------------------------------------------------------------ */
 
 void Init_ProblemStructure(void){ 
+
+  GetDP_Begin("Init_ProblemStructure");
+
   Problem_S.Expression        = NULL ;  
   Problem_S.Group             = NULL ;
   Problem_S.Constraint        = NULL ;
@@ -195,6 +209,8 @@ void Init_ProblemStructure(void){
   Problem_S.Resolution        = NULL ;  
   Problem_S.PostProcessing    = NULL ;  
   Problem_S.PostOperation     = NULL ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -205,7 +221,9 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 		char *NameProblem) {
   
   int  i, j, Flag_TmpLOG = 0, Flag_NameProblem = 0 ;
-  
+
+  GetDP_Begin("Get_Options");
+
   strcpy(NameProblem, "") ;  
   i = *sargc = 1 ;
 
@@ -417,7 +435,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 
   Flag_LOG = Flag_TmpLOG ;
 
-  return(0) ;
+  GetDP_Return(0) ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -425,9 +443,13 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 /* ------------------------------------------------------------------------ */
 
 void FinalizeAndExit(void){
-  gFinalizeSolver();
-  gFinalize();
-  exit(1);
+
+  GetDP_Begin("FinalizeAndExit");
+
+  LinAlg_FinalizeSolver();
+  LinAlg_Finalize();
+
+  GetDP_Exit(1) ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -438,6 +460,8 @@ void  Read_ProblemStructure (char * Name){
 
   char    String[2048], Last_yyname[MAX_FILE_NAME_LENGTH];
   int     Last_yylinenum, Last_yyincludenum, Last_ErrorLevel, i ;
+
+  GetDP_Begin("Read_ProblemStructure");
 
   Msg(LOADING, "Problem Definition '%s'", Name) ;
 
@@ -467,5 +491,7 @@ void  Read_ProblemStructure (char * Name){
 
   yylinenum = Last_yylinenum ; strcpy(yyname, Last_yyname) ;
   ErrorLevel = Last_ErrorLevel ; yyincludenum = Last_yyincludenum ;
+
+  GetDP_End ;
 }
 

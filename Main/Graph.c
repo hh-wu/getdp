@@ -1,17 +1,16 @@
-/* $Id: Graph.c,v 1.5 2000-09-07 18:47:26 geuzaine Exp $ */
+static char *rcsid = "$Id: Graph.c,v 1.6 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
 
-#include "Message.h"
+#include "GetDP.h"
 #include "Graph.h"
 #include "DofData.h"
+#include "Compat.h"
 
-#include "ualloc.h"
 #include "nrutil.h"
 
-#include "Compat.h"
 
 /*
   Si on est sur d'utiliser Metis tout le temps, on devrait definir 
@@ -22,7 +21,7 @@
 /*  private functions                                                       */
 /* ------------------------------------------------------------------------ */
 
-static int g_cmpij(int ai,int aj,int bi,int bj){
+static int Graph_cmpij(int ai,int aj,int bi,int bj){
   if(ai<bi) return -1;
   if(ai>bi) return 1;
   if(aj<bj) return -1;
@@ -36,10 +35,12 @@ static int g_cmpij(int ai,int aj,int bi,int bj){
 #define NSTACK     50
 #define M1        -1
 
-void g_sort(unsigned long n, int ai[] , int aj [] ){
+void Graph_sort(unsigned long n, int ai[] , int aj [] ){
   unsigned long i,ir=n,j,k,l=1;
   int *istack,jstack=0,tempi;
   int    b,c;
+
+  GetDP_Begin("Graph_sort");
     
   istack=ivector(1,NSTACK);
   for (;;) {
@@ -48,7 +49,7 @@ void g_sort(unsigned long n, int ai[] , int aj [] ){
 	b=ai[j M1];
 	c=aj[j M1];
 	for (i=j-1;i>=1;i--) {
-	  if (g_cmpij(ai[i M1],aj[i M1],b,c) <= 0) break;
+	  if (Graph_cmpij(ai[i M1],aj[i M1],b,c) <= 0) break;
 	  ai[i+1 M1]=ai[i M1];
 	  aj[i+1 M1]=aj[i M1];
 	}
@@ -57,7 +58,7 @@ void g_sort(unsigned long n, int ai[] , int aj [] ){
       }
       if (!jstack) {
 	free_ivector(istack,1,NSTACK);
-	return;
+	GetDP_End;
       }
       ir=istack[jstack];
       l=istack[jstack-1];
@@ -67,15 +68,15 @@ void g_sort(unsigned long n, int ai[] , int aj [] ){
       k=(l+ir) >> 1;
       SWAPI(ai[k M1],ai[l+1 M1])
       SWAPI(aj[k M1],aj[l+1 M1])
-      if (g_cmpij(ai[l+1 M1],aj[l+1 M1],ai[ir M1],aj[ir M1])>0){
+      if (Graph_cmpij(ai[l+1 M1],aj[l+1 M1],ai[ir M1],aj[ir M1])>0){
 	SWAPI(ai[l+1 M1],ai[ir M1])
 	SWAPI(aj[l+1 M1],aj[ir M1])
       }
-      if (g_cmpij(ai[l M1],aj[l M1],ai[ir M1],aj[ir M1])>0){
+      if (Graph_cmpij(ai[l M1],aj[l M1],ai[ir M1],aj[ir M1])>0){
 	SWAPI(ai[l M1],ai[ir M1])
 	SWAPI(aj[l M1],aj[ir M1])
       }
-      if (g_cmpij(ai[l+1 M1],aj[l+1 M1],ai[l M1],aj[l M1])>0){
+      if (Graph_cmpij(ai[l+1 M1],aj[l+1 M1],ai[l M1],aj[l M1])>0){
 	SWAPI(ai[l+1 M1],ai[l M1])
 	SWAPI(aj[l+1 M1],aj[l M1])
       }
@@ -84,8 +85,8 @@ void g_sort(unsigned long n, int ai[] , int aj [] ){
       b=ai[l M1];
       c=aj[l M1];
       for (;;) {
-	do i++; while (g_cmpij(ai[i M1],aj[i M1],b,c) < 0);
-	do j--; while (g_cmpij(ai[j M1],aj[j M1],b,c) > 0);
+	do i++; while (Graph_cmpij(ai[i M1],aj[i M1],b,c) < 0);
+	do j--; while (Graph_cmpij(ai[j M1],aj[j M1],b,c) > 0);
 	if (j < i) break;
 	SWAPI(ai[i M1],ai[j M1])
 	SWAPI(aj[i M1],aj[j M1])
@@ -111,6 +112,8 @@ void g_sort(unsigned long n, int ai[] , int aj [] ){
       }
     }
   }
+
+  GetDP_End ;
 }
 
 
@@ -120,8 +123,11 @@ void g_sort(unsigned long n, int ai[] , int aj [] ){
 #undef SWAPI
 #undef M1
 
-void g_ptr2i ( int n , int *ptr , int *jptr){
+void Graph_ptr2i ( int n , int *ptr , int *jptr){
   int i,iptr,iptr2;
+
+  GetDP_Begin("Graph_ptr2i");
+
   for(i=0;i<n;i++){
     iptr = jptr[i];
     while(iptr){
@@ -130,11 +136,15 @@ void g_ptr2i ( int n , int *ptr , int *jptr){
       iptr = iptr2;      
     }
   }
+
+  GetDP_End ;
 }
 
 
-void g_deblign ( int nz , int *ptr , int *jptr , int *ai){
+void Graph_deblign ( int nz , int *ptr , int *jptr , int *ai){
   int i,ilign;
+
+  GetDP_Begin("Graph_deblign");
 
   ilign = 1;
   jptr[0] = 1;
@@ -148,10 +158,14 @@ void g_deblign ( int nz , int *ptr , int *jptr , int *ai){
     }
   }
   ai[nz-1] = 0;
+
+  GetDP_End ;
 }
 
-void g_csr_format (gGraph *GG, int N){
+void Graph_csr_format (gGraph *GG, int N){
   int    i,*ptr,*jptr,*ai,n,iptr,iptr2;
+
+  GetDP_Begin("Graph_csr_format");
 
   ptr  = (int*)GG->ptr->array;
   jptr = (int*)GG->jptr->array;
@@ -165,18 +179,24 @@ void g_csr_format (gGraph *GG, int N){
       ptr[iptr2] = i+1;
     }
   }
-  g_sort(List_Nbr(GG->ai),ai,ptr);
-  g_deblign(List_Nbr(GG->ai),ptr,jptr,ai);
+  Graph_sort(List_Nbr(GG->ai),ai,ptr);
+  Graph_deblign(List_Nbr(GG->ai),ptr,jptr,ai);
   jptr[N]=List_Nbr(GG->ai)+1;
+
+  GetDP_End ;
 } 
 
 
-void g_restore_format (gGraph *GG){    
+void Graph_restore_format (gGraph *GG){    
   char *temp;
+
+  GetDP_Begin("Graph_restore_format");
 
   temp  = GG->ptr->array;
   GG->ptr->array = GG->ai->array;
   GG->ai->array = temp;
+
+  GetDP_End ;
 } 
 
 
@@ -187,17 +207,23 @@ void g_restore_format (gGraph *GG){
 void InitGraph (int NbLines, gGraph *G){
   int i, j=0;
 
-    G->ai   = List_Create (NbLines, NbLines, sizeof(int));
-    G->ptr  = List_Create (NbLines, NbLines, sizeof(int));
-    G->jptr = List_Create (NbLines+1, NbLines, sizeof(int)); 
-    /* '+1' indispensable: csr_format ecrit 'nnz+1' dans jptr[NbLine] */
-    for(i=0; i<NbLines; i++) List_Add (G->jptr, &j);
+  GetDP_Begin("InitGraph");
+
+  G->ai   = List_Create (NbLines, NbLines, sizeof(int));
+  G->ptr  = List_Create (NbLines, NbLines, sizeof(int));
+  G->jptr = List_Create (NbLines+1, NbLines, sizeof(int)); 
+  /* '+1' indispensable: csr_format ecrit 'nnz+1' dans jptr[NbLine] */
+  for(i=0; i<NbLines; i++) List_Add (G->jptr, &j);
+
+  GetDP_End ;
 }
 
 /* attention a la transposition ! */
 
 void AddEdgeInGraph (gGraph *G, int ic, int il){
   int     *ai, *pp, n, iptr, iptr2, jptr, *ptr, zero = 0;
+
+  GetDP_Begin("AddEdgeInGraph");
 
   il--;
   pp  = (int*) G->jptr->array;
@@ -211,7 +237,7 @@ void AddEdgeInGraph (gGraph *G, int ic, int il){
     iptr2 = iptr-1;
     jptr = ai[iptr2];
     if(jptr == ic){
-      return;
+      GetDP_End;
     }
     iptr = ptr[iptr2];
   }
@@ -227,6 +253,8 @@ void AddEdgeInGraph (gGraph *G, int ic, int il){
   n = List_Nbr(G->ai);
   if(!pp[il]) pp[il] = n;
   else ptr[iptr2] = n;
+
+  GetDP_End ;
 }
 
 
@@ -248,8 +276,10 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
   idxtype *xadj9, *adjncy9, *part9, *perm9, *iperm9;
   struct Dof  * Dof_P ;
 
-  g_csr_format (&DofData_P->Graph, List_Nbr(DofData_P->Graph.jptr));
-  g_restore_format (&DofData_P->Graph);
+  GetDP_Begin("PartitionGraph");
+
+  Graph_csr_format (&DofData_P->Graph, List_Nbr(DofData_P->Graph.jptr));
+  Graph_restore_format (&DofData_P->Graph);
   n9 = List_Nbr(DofData_P->Graph.jptr);
 
   /*
@@ -355,13 +385,20 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
   Free(iperm9);
   Free(xadj9);
   /* free le reste */
+
+  GetDP_End ;
 }
 
 
 #else
 
 void PartitionGraph(struct DofData * DofData_P, int NbPartition){
+
+  GetDP_Begin("PartitionGraph");
+
   Msg(ERROR, "Impossible to partition (GetDP was not compiled with -D_METIS)");
+
+  GetDP_End ;
 }
 
 #endif

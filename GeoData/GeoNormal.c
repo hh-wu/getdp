@@ -1,16 +1,14 @@
-/* $Id: GeoNormal.c,v 1.2 2000-09-07 18:47:24 geuzaine Exp $ */
+static char *rcsid = "$Id: GeoNormal.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Data_Passive.h"
 #include "Data_Numeric.h"
-
 #include "GeoData.h"
-
-#include "ualloc.h"
-#include "outil.h"
+#include "Tools.h"
 
 extern struct Problem    Problem_S ;
 extern struct GeoData  * CurrentGeoData ;
@@ -50,6 +48,8 @@ void Geo_CreateNodesXElements(int NumNode, int InIndex,
   struct Group            *Group_P ;
 
   int    i, j, tmp[MAX_NBR_NXE_INCIDENCE] ;
+
+  GetDP_Begin("Geo_CreateNodesXElements");
 
   Group_P = (struct Group*)List_Pointer(Problem_S.Group, InIndex);
 
@@ -94,12 +94,15 @@ void Geo_CreateNodesXElements(int NumNode, int InIndex,
     *NumElements = NXE.NumEntities ;
   }
 
+  GetDP_End ;
 }
 
 
 void Geo_CreateNormal(int Type, double *x, double *y, double *z, double *N) {
   double  x1x0, x2x0, y1y0, y2y0, z1z0, z2z0 ;
   double  nx, ny, nz, norm ;
+
+  GetDP_Begin("Geo_CreateNormal");
 
   switch (Type) {
 
@@ -133,6 +136,7 @@ void Geo_CreateNormal(int Type, double *x, double *y, double *z, double *N) {
     Msg(ERROR, "Normal Computation not done (yet) for Element Type %d", Type);
   }
 
+  GetDP_End ;
 }
 
 void Geo_CreateNormalOfElement(struct Geo_Element *GeoElement, double *Normal) {  
@@ -140,6 +144,8 @@ void Geo_CreateNormalOfElement(struct Geo_Element *GeoElement, double *Normal) {
   double  x [NBR_MAX_NODES_IN_ELEMENT] ;
   double  y [NBR_MAX_NODES_IN_ELEMENT] ;
   double  z [NBR_MAX_NODES_IN_ELEMENT] ;
+
+  GetDP_Begin("Geo_CreateNormalOfElement");
 
   EXV.Num = GeoElement->Num ;
 
@@ -153,6 +159,7 @@ void Geo_CreateNormalOfElement(struct Geo_Element *GeoElement, double *Normal) {
     Tree_Add(CurrentGeoData->Normals, &EXV);    
   }
 
+  GetDP_End ;
 }
 
 

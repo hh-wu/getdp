@@ -1,5 +1,5 @@
 %{
-/* $Id: lex.l,v 1.12 2000-10-27 11:47:28 dular Exp $ */
+/* $Id: lex.l,v 1.13 2000-10-30 01:05:46 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,7 +7,7 @@
 
 #include "Data_Passive.h"
 #include "Constant.h"
-#include "ualloc.h"
+#include "Malloc.h"
 #include "yacc.tab.h"
 
 extern long int  yylinenum ;

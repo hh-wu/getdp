@@ -1,8 +1,9 @@
-/* $Id: Cal_SolidAngle.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+static char *rcsid = "$Id: Cal_SolidAngle.c,v 1.3 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "GeoData.h"
 #include "Cal_Quantity.h"
 
@@ -27,6 +28,7 @@ void  Cal_SolidAngle(int Source, struct Element *Element,
   int    In, TypEnt, NumNode, NbrElements, *NumElements ;
   int    i, j ;
 
+  GetDP_Begin("Cal_SolidAngle");
 
   if(Nbr_Dof != QuantityStorage->NbrElementaryBasisFunction)
     Msg(ERROR, "Uncompatible Quantity (%s) in Solid Angle Computation",
@@ -48,7 +50,7 @@ void  Cal_SolidAngle(int Source, struct Element *Element,
       Stack[i][Index].Type = SCALAR ;
       Stack[i][Index].Val[0] = Elt->angle[i] ;
     }
-    return ;
+    GetDP_End ;
   }
 
 
@@ -128,5 +130,5 @@ void  Cal_SolidAngle(int Source, struct Element *Element,
     for(i=0 ; i<Nbr_Dof ; i++) Elt->angle[i] = Stack[i][Index].Val[0] ;
   }
 
-  
+  GetDP_End ;
 }

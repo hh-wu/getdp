@@ -1,7 +1,8 @@
-/* $Id: Cal_AssembleTerm.c,v 1.3 2000-10-27 11:47:28 dular Exp $ */
+static char *rcsid = "$Id: Cal_AssembleTerm.c,v 1.4 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "DofData.h"
 #include "Data_Numeric.h"
@@ -15,18 +16,20 @@ void  Cal_AssembleTerm_NoDt(struct Dof * Equ, struct Dof * Dof, double Val[]) {
   int     k ;
   double  tmp[2] ;
 
+  GetDP_Begin("Cal_AssembleTerm_NoDt");
+
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
     if (!Current.DofData->Flag_Init[1]) {
       Current.DofData->Flag_Init[1] = 1 ;
-      gCreateMatrix(&Current.DofData->M1, &Current.DofData->Solver, 
+      LinAlg_CreateMatrix(&Current.DofData->M1, &Current.DofData->Solver, 
 		    Current.DofData->NbrDof, Current.DofData->NbrDof,
 		    Current.DofData->NbrPart, Current.DofData->Part, 
 		    Current.DofData->Nnz) ;
-      gCreateVector(&Current.DofData->m1, &Current.DofData->Solver, 
+      LinAlg_CreateVector(&Current.DofData->m1, &Current.DofData->Solver, 
 		    Current.DofData->NbrDof, Current.DofData->NbrPart, 
 		    Current.DofData->Part) ;
-      gZeroMatrix(&Current.DofData->M1);
-      gZeroVector(&Current.DofData->m1);
+      LinAlg_ZeroMatrix(&Current.DofData->M1);
+      LinAlg_ZeroVector(&Current.DofData->m1);
     }
     for (k = 0 ; k < Current.NbrHar ; k += 2) 
       Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k], 
@@ -72,6 +75,8 @@ void  Cal_AssembleTerm_NoDt(struct Dof * Equ, struct Dof * Dof, double Val[]) {
 			  &Current.DofData->A, &Current.DofData->b) ;
     }
   }
+
+  GetDP_End ;
 }
 
 
@@ -83,18 +88,20 @@ void  Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[]) {
   int     k ;
   double  tmp[2] ;
 
+  GetDP_Begin("Cal_AssembleTerm_DtDof");
+
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
     if (!Current.DofData->Flag_Init[2]) {
       Current.DofData->Flag_Init[2] = 1 ;
-      gCreateMatrix(&Current.DofData->M2, &Current.DofData->Solver, 
+      LinAlg_CreateMatrix(&Current.DofData->M2, &Current.DofData->Solver, 
 		    Current.DofData->NbrDof, Current.DofData->NbrDof,
 		    Current.DofData->NbrPart, Current.DofData->Part, 
 		    Current.DofData->Nnz) ;
-      gCreateVector(&Current.DofData->m2, &Current.DofData->Solver, 
+      LinAlg_CreateVector(&Current.DofData->m2, &Current.DofData->Solver, 
 		    Current.DofData->NbrDof, Current.DofData->NbrPart,
 		    Current.DofData->Part) ;
-      gZeroMatrix(&Current.DofData->M2);
-      gZeroVector(&Current.DofData->m2);
+      LinAlg_ZeroMatrix(&Current.DofData->M2);
+      LinAlg_ZeroVector(&Current.DofData->m2);
     }
     for (k = 0 ; k < Current.NbrHar ; k += 2) 
       Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k], 
@@ -144,13 +151,18 @@ void  Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[]) {
     }
   }
 
-
+  GetDP_End ;
 }
 
 /* Attention ! !  Faux en non lineaire ! !  */
 
 void  Cal_AssembleTerm_Dt(struct Dof * Equ, struct Dof * Dof, double Val[]) {
+
+  GetDP_Begin("Cal_AssembleTerm_Dt");
+
   Cal_AssembleTerm_DtDof(Equ, Dof, Val) ;
+
+  GetDP_End ;
 }
 
 
@@ -163,18 +175,20 @@ void  Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
   int     k ;
   double  tmp[2] ;
 
+  GetDP_Begin("Cal_AssembleTerm_DtDtDof");
+
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
     if (!Current.DofData->Flag_Init[3]) {
       Current.DofData->Flag_Init[3] = 1 ;
-      gCreateMatrix(&Current.DofData->M3, &Current.DofData->Solver, 
+      LinAlg_CreateMatrix(&Current.DofData->M3, &Current.DofData->Solver, 
 		    Current.DofData->NbrDof, Current.DofData->NbrDof,
 		    Current.DofData->NbrPart, Current.DofData->Part, 
 		    Current.DofData->Nnz) ;
-      gCreateVector(&Current.DofData->m3, &Current.DofData->Solver, 
+      LinAlg_CreateVector(&Current.DofData->m3, &Current.DofData->Solver, 
 		    Current.DofData->NbrDof, Current.DofData->NbrPart,
 		    Current.DofData->Part) ;
-      gZeroMatrix(&Current.DofData->M3);
-      gZeroVector(&Current.DofData->m3);
+      LinAlg_ZeroMatrix(&Current.DofData->M3);
+      LinAlg_ZeroVector(&Current.DofData->m3);
     }
     for (k = 0 ; k < Current.NbrHar ; k += 2) 
       Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k], 
@@ -219,10 +233,17 @@ void  Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       }
     }
   }
+
+  GetDP_End ;
 }
 
 void  Cal_AssembleTerm_DtDt(struct Dof * Equ, struct Dof * Dof, double Val[]) {
+
+  GetDP_Begin("Cal_AssembleTerm_DtDt"); 
+  
   Cal_AssembleTerm_DtDtDof(Equ, Dof, Val);
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -231,6 +252,8 @@ void  Cal_AssembleTerm_DtDt(struct Dof * Equ, struct Dof * Dof, double Val[]) {
 
 void  Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
 
+  GetDP_Begin("Cal_AssembleTerm_JacNL");
+  
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
     Msg(ERROR, "JacNL not ready for Separate Assembly");
   }
@@ -252,8 +275,8 @@ void  Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
     }
   }
 
+  GetDP_End ;
 }
-
 
 
 
@@ -263,6 +286,8 @@ void  Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
 
 void  Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[]) {
   int     k ;
+
+  GetDP_Begin("Cal_AssembleTerm_NeverDt");
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
     Msg(ERROR, "NeverDt not ready for Separate Assembly");
@@ -286,4 +311,5 @@ void  Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
     }
   }
 
+  GetDP_End ;
 }

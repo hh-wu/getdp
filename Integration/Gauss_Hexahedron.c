@@ -1,18 +1,18 @@
-/* $Id: Gauss_Hexahedron.c,v 1.7 2000-09-25 12:54:09 geuzaine Exp $ */
+static char *rcsid = "$Id: Gauss_Hexahedron.c,v 1.8 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
-#include "Message.h"
+#include "GetDP.h"
 #include "Quadrature.h"
 #include "Gauss_Hexahedron.h"
-
-#include "ualloc.h"
 
 /* Gauss integration over a hexahedron */
 
 void  Gauss_Hexahedron (int Nbr_Points, int Num,
 			double *u, double *v, double *w, double *wght) {
+
+  GetDP_Begin("Gauss_Hexehedron");
 
   switch (Nbr_Points) {
 
@@ -35,6 +35,7 @@ void  Gauss_Hexahedron (int Nbr_Points, int Num,
 
   }
 
+  GetDP_End ;
 }
 
 /* Gauss-Legendre scheme to integrate over a hexahedron */
@@ -47,6 +48,8 @@ void  GaussLegendre_Hexahedron (int Nbr_Points, int Num,
 				double *u, double *v, double *w, double *wght) {
   int i,j,k,index=0,nb;
   double pt1,pt2,pt3,wt1,wt2,wt3,dum;
+
+  GetDP_Begin("GaussLegendre_Hexahedron");
   
 #ifdef MSDOS
   nb = (int)pow((double)Nbr_Points, 1./3.);
@@ -83,4 +86,6 @@ void  GaussLegendre_Hexahedron (int Nbr_Points, int Num,
 
   *u = glxhex[nb-1][Num] ; *v = glyhex[nb-1][Num] ; *w = glzhex[nb-1][Num] ; 
   *wght = glphex[nb-1][Num] ;
+
+  GetDP_End ;
 }

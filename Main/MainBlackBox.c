@@ -1,4 +1,4 @@
-/* $Id: MainBlackBox.c,v 1.3 2000-09-07 18:47:26 geuzaine Exp $ */
+static char *rcsid = "$Id: MainBlackBox.c,v 1.4 2000-10-30 01:05:45 geuzaine Exp $" ;
 
 /* 
    To create a special version of GetDP with a non-readable built-in formulation:
@@ -8,6 +8,8 @@
    4) define the program and resolution names
    5) rebuild with 'make box'
 */
+
+#include "GetDP.h"
 
 #define NAME_PROGRAM     "box-v2"
 #define NAME_TMPFILE     "box-v2.tmp"
@@ -22,6 +24,8 @@ int  main(int argc, char *argv[]) {
   FILE  *file ;
   char  *Name_TmpFile, buf[262144], str[MAX_STRING_LENGTH] ;
 
+  GetDP_Begin("main");
+
   if(argc != 3 && argc != 5) {
     fprintf(stderr, 
 	    "This is %s, version %s\n"
@@ -29,7 +33,7 @@ int  main(int argc, char *argv[]) {
 	    "Resolution:      %s file.msh file.grp\n"
 	    "Post-Processing: %s file.msh file.grp file.pos name\n",
 	    NAME_PROGRAM, NAME_VERSION, argv[0], argv[0]);
-    exit(1);
+    GetDP_Exit(1);
   }
 
   Init_GlobalVariables();
@@ -86,12 +90,13 @@ int  main(int argc, char *argv[]) {
   if (Problem_S.Expression) 
     Problem_Expression0 = (struct Expression*)List_Pointer(Problem_S.Expression, 0) ;
 
-  gInitializeSolver(NULL, NULL, &Current.NbrCpu, &Current.RankCpu) ;
+  LinAlg_InitializeSolver(NULL, NULL, &Current.NbrCpu, &Current.RankCpu) ;
   SolvingAnalyse(NAME_PROGRAM) ;
-  gFinalizeSolver() ;
+  LinAlg_FinalizeSolver() ;
 
   Msg(DIRECT, "E n d");
-  return(0) ;
+
+  GetDP_Return(0) ;
 }
 
 #undef NAME_PROGRAM

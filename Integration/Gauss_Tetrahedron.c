@@ -1,18 +1,19 @@
-/* $Id: Gauss_Tetrahedron.c,v 1.7 2000-09-25 12:54:09 geuzaine Exp $ */
+static char *rcsid = "$Id: Gauss_Tetrahedron.c,v 1.8 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
-#include "Message.h"
+#include "GetDP.h"
 #include "Quadrature.h"
 #include "Gauss_Tetrahedron.h"
 
-#include "ualloc.h"
 
 /* Gauss integration over a tetrahedron */
 
 void  Gauss_Tetrahedron (int Nbr_Points, int Num,
 			 double *u, double *v, double *w, double *wght) {
+
+  GetDP_Begin("Gauss_Tetrahedron");
 
   switch (Nbr_Points) {
 
@@ -50,6 +51,7 @@ void  Gauss_Tetrahedron (int Nbr_Points, int Num,
     break;
   }
 
+  GetDP_End ;
 }
 
 
@@ -62,18 +64,25 @@ double *glztet[MAX_LINE_POINTS], *glptet[MAX_LINE_POINTS];
 void hexToTet(double xi,double eta, double zeta,
 	      double *r, double *s, double *t, double *J) {
   double r1,rs1;
+
+  GetDP_Begin("hexToTet");
+
   *r = 0.5e0*(1.0e0+xi);
   r1 = 1.0e0-(*r);
   *s = 0.5e0*(1.0e0+eta)*r1;
   rs1 = 1.0e0-(*r)-(*s);
   *t = 0.5e0*(1.0e0+zeta)*rs1;
   *J = 0.125e0*r1*rs1;
+
+  GetDP_End ;
 }
 
 void  GaussLegendre_Tetrahedron (int Nbr_Points, int Num,
 				 double *u, double *v, double *w, double *wght) {
   int i,j,k,index=0,nb;
   double pt1,pt2,pt3,wt1,wt2,wt3,dJ,dum;
+
+  GetDP_Begin("GaussLegendre_Tetrahedron");
 
 #ifdef MSDOS
   nb = (int)pow((double)Nbr_Points, 1./3.);
@@ -110,4 +119,6 @@ void  GaussLegendre_Tetrahedron (int Nbr_Points, int Num,
 
   *u = glxtet[nb-1][Num] ; *v = glytet[nb-1][Num] ; *w = glztet[nb-1][Num] ;
   *wght = glptet[nb-1][Num] ;
+
+  GetDP_End ;
 }

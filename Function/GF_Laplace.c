@@ -1,9 +1,9 @@
-/* $Id: GF_Laplace.c,v 1.3 2000-09-25 08:04:42 geuzaine Exp $ */
+static char *rcsid = "$Id: GF_Laplace.c,v 1.4 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h" 
 #include "Data_Active.h"
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
 
@@ -24,6 +24,8 @@ extern int Flag_RemoveSingularity ;
 
 void  GF_Laplace (F_ARG) {
   double d ;
+
+  GetDP_Begin("GF_Laplace");
 
   if (Current.NbrHar != 1) Msg(ERROR, "Wrong Number of Harmonics in 'GF_Laplace'");
 
@@ -57,6 +59,8 @@ void  GF_Laplace (F_ARG) {
   }
 
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -68,6 +72,8 @@ void  GF_Laplace (F_ARG) {
 void GF_GradLaplace (F_ARG) {
 
   double xxs, yys, zzs, r ;
+
+  GetDP_Begin("GF_GradLaplace");
 
   switch((int)Fct->Para[0]){
   case _2D :
@@ -95,6 +101,8 @@ void GF_GradLaplace (F_ARG) {
   }
 
   V->Type = VECTOR ;
+
+  GetDP_End ;
 }
 
 
@@ -106,11 +114,13 @@ void GF_NPxGradLaplace (F_ARG) {
 
   double x1x0, x2x0, y1y0, y2y0, z1z0, z2z0, xxs, yys, zzs, a, b, c ;
 
+  GetDP_Begin("GF_NPxGradLaplace");
+
   V->Type = SCALAR ;
 
   if (Current.Element->Num == Current.ElementSource->Num) {
     V->Val[0] = 0. ;
-    return ;
+    GetDP_End ;
   }
 
   switch((int)Fct->Para[0]){      
@@ -144,6 +154,7 @@ void GF_NPxGradLaplace (F_ARG) {
     break;
   }
 
+  GetDP_End ;
 }
 
 
@@ -156,11 +167,13 @@ void GF_NSxGradLaplace (F_ARG) {
 
   double x1x0, x2x0, y1y0, y2y0, z1z0, z2z0, xxs, yys, zzs, a, b, c ;
 
+  GetDP_Begin("GF_NSxGradLaplace");
+
   V->Type = SCALAR ;
 
   if (Current.Element->Num == Current.ElementSource->Num) {
     V->Val[0] = 0. ;
-    return ;
+    GetDP_End ;
   }
 
   switch((int)Fct->Para[0]){      
@@ -194,6 +207,7 @@ void GF_NSxGradLaplace (F_ARG) {
     break;
   }
 
+  GetDP_End ;
 }
 
 
@@ -203,8 +217,11 @@ void GF_NSxGradLaplace (F_ARG) {
 
 void  GF_ApproximateLaplace (F_ARG) {
   
+  GetDP_Begin("GF_ApproxilateLaplace");
+
   Msg(ERROR, "The Approximate Integral Kernels can only be Integrated Analytically");
 
+  GetDP_End ;
 }
 
 #undef F_ARG

@@ -1,8 +1,9 @@
-/* $Id: Pos_Quantity.c,v 1.5 2000-10-23 15:53:30 dular Exp $ */
+static char *rcsid = "$Id: Pos_Quantity.c,v 1.6 2000-10-30 01:05:47 geuzaine Exp $" ;
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Pos_Formulation.h"
 #include "Pos_Quantity.h"
@@ -10,14 +11,10 @@
 #include "GeoData.h"
 #include "Cal_Quantity.h"
 #include "Get_Geometry.h"
-
 #include "Data_Passive.h"
 #include "Data_DefineE.h"
-
 #include "CurrentData.h"
-#include "outil.h"
-
-#include "ualloc.h"
+#include "Tools.h"
 
 
 /* ------------------------------------------------------------------------ */
@@ -36,6 +33,8 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 
   List_T   *InRegion_L ;
   int       i_PQT, Type_Quantity ;
+
+  GetDP_Begin("Cal_PostQuantity");
 
   /* mettre tout a zero: on ne connait pas a priori le type de retour */
   /* (default type and value returned if Type_Quantity == -1) */
@@ -103,6 +102,7 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
    
   }  /* for i_PQT ... */
 
+  GetDP_End ;
 }
 
 
@@ -126,11 +126,11 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 
   int  k, Index_DefineQuantity ;
 
-
   int    Nbr_Element, i_Element ;
   struct Element  Element ;
   int    Type_Quantity ;
 
+  GetDP_Begin("Pos_GlobalQuantity");
 
   if (PostQuantityTerm_P->EvaluationType == LOCAL &&
       List_Search(InRegion_L, &Current.Region, fcmp_int)) {
@@ -196,6 +196,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
     }  /* for i_Element ... */
   }  /* if INTEGRAL ... */
 
+  GetDP_End ;
 }
 
 
@@ -214,6 +215,7 @@ void Cal_PostCumulativeQuantity(List_T                 *Region_L,
   List_T *Support_L ;
   int i, NbrTimeStep ;
 
+  GetDP_Begin("Cal_PostCumulativeQuantity");
 
   Support_L = ((struct Group *)
 	       List_Pointer(Problem_S.Group, SupportIndex))->InitialList ;
@@ -230,6 +232,7 @@ void Cal_PostCumulativeQuantity(List_T                 *Region_L,
 		     Support_L, &Element, 0, 0, 0, &(*Values)[i]) ;
   }
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -238,12 +241,17 @@ void Cal_PostCumulativeQuantity(List_T                 *Region_L,
 
 void Combine_PostQuantity(int Type, int Order, 
 			  struct Value *V1, struct Value *V2){
+  
+  GetDP_Begin("Combine_PostQuantity");
+  
   switch(Type){
   case MULTIPLICATION : Cal_ProductValue(V1, V2, V1) ; break ;
   case ADDITION :       Cal_AddValue(V1, V2, V1) ; break ;
   case DIVISION :       Cal_DivideValue(Order?V1:V2, Order?V2:V1, V1) ; break;
   case SOUSTRACTION :   Cal_SubstractValue(Order?V1:V2, Order?V2:V1, V1) ; break;	
   }
+
+  GetDP_End ;
 }
 
 
@@ -278,6 +286,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
   void     (*Get_IntPoint) (int Nbr_Points, int Num,
 			    double * u, double * v, double * w, double * wght) ;
 
+  GetDP_Begin("Pos_LocalOrIntegralQuantity");
 
   /* Get the functionspace (except for IntegralQuantities without DoF)
      Get the DoF for local quantities */
@@ -457,4 +466,5 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
   Value->Type = TermValue.Type;
   Cal_AddValue(Value,&TermValue,Value);
 
+  GetDP_End ;
 }

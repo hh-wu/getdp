@@ -1,9 +1,9 @@
-/* $Id: CSR.c,v 1.3 2000-10-16 12:33:42 geuzaine Exp $ */
+static char *rcsid = "$Id: CSR.c,v 1.4 2000-10-30 01:05:48 geuzaine Exp $" ;
 #include <stdio.h>
 #include <stdlib.h>
 
 #include "Solver.h"
-#include "ualloc.h"
+#include "Malloc.h"
 #include "nrutil.h"
 
 #define SWAP(a,b)  temp=(a);(a)=(b);(b)=temp;

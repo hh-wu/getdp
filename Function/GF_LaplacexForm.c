@@ -1,14 +1,13 @@
-/* $Id: GF_LaplacexForm.c,v 1.2 2000-09-07 18:47:23 geuzaine Exp $ */
+static char *rcsid = "$Id: GF_LaplacexForm.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h" 
 #include "Data_Active.h"
 #include "BF_Function.h"
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
 #include "Data_DefineE.h"
-
 #include "Numeric_F.h"
 
 
@@ -37,6 +36,8 @@ void GF_LaplacexForm (F_ARG2) {
   int      Type_Int ;
   double   a, b, c, d, e, f, i1,  I1, r2 ;
   double   DetJ, valr, vali ;
+
+  GetDP_Begin("GF_LaplacexForm");
   
   switch ((int)Fct->Para[0]) {
     
@@ -213,6 +214,7 @@ void GF_LaplacexForm (F_ARG2) {
     
   }
   
+  GetDP_End ;
 }
 
 
@@ -228,6 +230,7 @@ void GF_GradLaplacexForm (F_ARG2) {
   double  a,b,c, a2, I1, I2 ;
   double  mx, my, valr, vali, DetJ ;
   
+  GetDP_Begin("GF_GradLaplacexForm");
 
   switch ((int)Fct->Para[0]) {
     
@@ -240,7 +243,7 @@ void GF_GradLaplacexForm (F_ARG2) {
       
       if (Element->Num == Element->ElementSource->Num) {
 	Val->Val[0] = Val->Val[1] = Val->Val[2] = 0. ;
-	return ;
+	GetDP_End ;
       }
       
       xxs = x - Element->ElementSource->x[0] ;
@@ -330,6 +333,8 @@ void GF_GradLaplacexForm (F_ARG2) {
 	(int)Fct->Para[0]);
     
   }
+
+  GetDP_End ;
 }
 
 
@@ -344,11 +349,13 @@ void GF_NPxGradLaplacexForm (F_ARG2) {
   int     Type_Int;
   double  a, b, c, d, m, n, Jp, i1, Is, I1 ;
 
+  GetDP_Begin("GF_NPxGradLaplacexForm");
+
   Val->Type = SCALAR ;
 
   if (Element->Num == Element->ElementSource->Num) {
     Val->Val[0] = 0.0 ;  
-    return ;
+    GetDP_End ;
   }
   
   switch ((int)Fct->Para[0]) {
@@ -418,7 +425,8 @@ void GF_NPxGradLaplacexForm (F_ARG2) {
     Msg(ERROR, "Unknown Dimension (%d) for 'GF_NPxGradLaplacexForm'",
 	(int)Fct->Para[0]);
   }
-  
+
+  GetDP_End ;
 }
 
 
@@ -429,8 +437,11 @@ void GF_NPxGradLaplacexForm (F_ARG2) {
 
 void GF_NSxGradLaplacexForm (F_ARG2) {
     
-    Msg(ERROR, "Not done: 'GF_NSxGradLaplacexForm'");
+  GetDP_Begin("GF_NSxGradLaplacexForm");
+
+  Msg(ERROR, "Not done: 'GF_NSxGradLaplacexForm'");
   
+  GetDP_End ;
 }
 
 
@@ -439,6 +450,8 @@ void GF_NSxGradLaplacexForm (F_ARG2) {
 /* ------------------------------------------------------------------------ */
 
 void GF_ApproximateLaplacexForm (F_ARG2) {
+
+  GetDP_Begin("GF_ApproxilateLaplacexForm");
 
   switch ((int)Fct->Para[1]) {
 
@@ -452,6 +465,7 @@ void GF_ApproximateLaplacexForm (F_ARG2) {
 
   }
 
+  GetDP_End ;
 }
 
 

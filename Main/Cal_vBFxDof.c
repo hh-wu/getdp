@@ -1,7 +1,8 @@
-/* $Id: Cal_vBFxDof.c,v 1.4 2000-10-27 11:47:28 dular Exp $ */
+static char *rcsid = "$Id: Cal_vBFxDof.c,v 1.5 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Cal_Quantity.h"
 #include "Get_Geometry.h"
@@ -34,7 +35,8 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
   int  i, j, Type_Dimension ;
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
 
-
+  GetDP_Begin("Cal_vBFxDof");
+  
   if(EquationTerm_P->Case.LocalTerm.Term.DofInTrace){
 
     E = Current.Element->ElementTrace ;
@@ -127,4 +129,5 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
        Nbr_Dof, vBFxDof) ;
   }
 
+  GetDP_End ;
 }

@@ -1,7 +1,8 @@
-/* $Id: Cal_AnalyticIntegration.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+static char *rcsid = "$Id: Cal_AnalyticIntegration.c,v 1.3 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "BF_Function.h"
 
@@ -14,11 +15,13 @@ double  Cal_AnalyticIntegration(struct Element * E,
 				int i, int j, double (*Cal_Productx)() ) {
   double DetJ ;
 
+  GetDP_Begin("Cal_AnalyticalIntegration");
+
   if ((E->Type != TRIANGLE) ||
       (BFEqu != (void (*)())BF_GradNode) || (BFDof != (void (*)())BF_GradNode) ) {
 
     Msg(ERROR, "Unknown Analytic Method for Integration") ;
-    return 0. ;
+    GetDP_Return(0.) ;
   }
 
 
@@ -30,68 +33,69 @@ double  Cal_AnalyticIntegration(struct Element * E,
   case 0 :
     switch (j) {
     case 0 :
-      return ((E->y[2]-E->y[1])*(E->y[2]-E->y[1]) + 
+      GetDP_Return( ((E->y[2]-E->y[1])*(E->y[2]-E->y[1]) + 
 	      (E->x[1]-E->x[2])*(E->x[1]-E->x[2])) * fabs(DetJ)
-	/ (2. * DetJ * DetJ) ;
+	/ (2. * DetJ * DetJ) ) ;
     case 1 :
-      return ((E->y[2]-E->y[1])*(E->y[0]-E->y[2]) + 
+      GetDP_Return( ((E->y[2]-E->y[1])*(E->y[0]-E->y[2]) + 
 	      (E->x[1]-E->x[2])*(E->x[2]-E->x[0])) * fabs(DetJ)
-	/ (2. * DetJ * DetJ) ;
+	/ (2. * DetJ * DetJ) ) ;
     case 2 :
-      return ((E->y[2]-E->y[1])*(E->y[1]-E->y[0]) + 
+      GetDP_Return( ((E->y[2]-E->y[1])*(E->y[1]-E->y[0]) + 
 	      (E->x[1]-E->x[2])*(E->x[0]-E->x[1])) * fabs(DetJ)
-	/ (2. * DetJ * DetJ) ;
+	/ (2. * DetJ * DetJ) ) ;
     default :
       Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");
-      return 0. ;
+      GetDP_Return(0.) ;
     }
     break;
     
   case 1 :
     switch (j) {
     case 0 :
-      return ((E->y[2]-E->y[1])*(E->y[0]-E->y[2]) + 
+      GetDP_Return( ((E->y[2]-E->y[1])*(E->y[0]-E->y[2]) + 
 	      (E->x[1]-E->x[2])*(E->x[2]-E->x[0])) * fabs(DetJ)
-	/ (2. * DetJ * DetJ) ;
+	/ (2. * DetJ * DetJ) ) ;
     case 1 :
-      return ((E->y[0]-E->y[2])*(E->y[0]-E->y[2]) + 
+      GetDP_Return( ((E->y[0]-E->y[2])*(E->y[0]-E->y[2]) + 
 	      (E->x[2]-E->x[0])*(E->x[2]-E->x[0])) * fabs(DetJ)
-	/ (2. * DetJ * DetJ) ;
+	/ (2. * DetJ * DetJ) ) ;
     case 2 :
-      return ((E->y[0]-E->y[2])*(E->y[1]-E->y[0]) + 
+      GetDP_Return( ((E->y[0]-E->y[2])*(E->y[1]-E->y[0]) + 
 	      (E->x[2]-E->x[0])*(E->x[0]-E->x[1])) * fabs(DetJ)
-	/ (2. * DetJ * DetJ) ;
+	/ (2. * DetJ * DetJ) ) ;
     default :
       Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");
-      return 0. ;
+      GetDP_Return(0.) ;
     }
     break;
     
   case 2 :
     switch (j) {
     case 0 :
-      return ((E->y[2]-E->y[1])*(E->y[1]-E->y[0]) + 
+      GetDP_Return( ((E->y[2]-E->y[1])*(E->y[1]-E->y[0]) + 
 	      (E->x[1]-E->x[2])*(E->x[0]-E->x[1])) * fabs(DetJ)
-	/ (2. * DetJ * DetJ) ;
+	/ (2. * DetJ * DetJ) ) ;
     case 1 :
-      return ((E->y[0]-E->y[2])*(E->y[1]-E->y[0]) + 
+      GetDP_Return( ((E->y[0]-E->y[2])*(E->y[1]-E->y[0]) + 
 	      (E->x[2]-E->x[0])*(E->x[0]-E->x[1])) * fabs(DetJ)
-	/ (2. * DetJ * DetJ) ;
+	/ (2. * DetJ * DetJ) ) ;
     case 2 :
-      return ((E->y[1]-E->y[0])*(E->y[1]-E->y[0]) + 
+      GetDP_Return( ((E->y[1]-E->y[0])*(E->y[1]-E->y[0]) + 
 	      (E->x[0]-E->x[1])*(E->x[0]-E->x[1])) * fabs(DetJ)
-	/ (2. * DetJ * DetJ) ;
+	/ (2. * DetJ * DetJ) ) ;
     default :
       Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");
-      return 0. ;
+      GetDP_Return(0.);
     }
     break;
 
   default :
     Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");
-    return 0. ;
+    GetDP_Return(0.) ;
     
   }
-  
+
+  GetDP_End ;
 }
 

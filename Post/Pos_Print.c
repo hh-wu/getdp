@@ -1,29 +1,25 @@
-/* $Id: Pos_Print.c,v 1.25 2000-10-27 22:08:31 geuzaine Exp $ */
+static char *rcsid = "$Id: Pos_Print.c,v 1.26 2000-10-30 01:05:47 geuzaine Exp $" ;
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Data_Passive.h"
 #include "Data_Numeric.h"
-
 #include "Treatment_Formulation.h"
 #include "Get_Geometry.h"
 #include "CurrentData.h"
 #include "Get_DofOfElement.h"
 #include "Cal_Quantity.h"
-
 #include "Pos_Formulation.h"
 #include "Pos_Quantity.h"
 #include "Pos_Element.h"
 #include "Pos_Search.h"
 #include "Pos_Print.h"
 #include "Pos_Format.h"
-
 #include "Adapt.h"
-
-#include "ualloc.h"
-#include "outil.h"
+#include "Tools.h"
 
 extern int  InteractiveInterrupt ;
 
@@ -90,11 +86,15 @@ int      SkinDepth ;
 
 void Cut_SkinPostElement(void *a, void *b){
   struct PostElement  * PE ;
+
+  GetDP_Begin("Cut_SkinPostElement");
   
   PE = *(struct PostElement**)a ;
 
   Cut_PostElement(PE, Geo_GetGeoElement(PE->Index), SkinPostElement_L, 
 		  PE->Index, SkinDepth, 0, 1) ;
+
+  GetDP_End ;
 }
 
 void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
@@ -116,6 +116,8 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   int       ii, jj, kk, NbrGeo, iGeo, incGeo, NbrPost=0, iPost ;
   int       NbrTimeStep, iTime, NbrSmoothing, iNode ;
   int       Store = 0, DecomposeInSimplex = 0, Depth ;
+
+  GetDP_Begin("Pos_PrintOnElementsOf");
 
   /* Select the TimeSteps */
   
@@ -569,6 +571,8 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
   if(CPQ_P) Free(CumulativeValues);
   if(PostSubOperation_P->Adapt) Free(Error) ;
+
+  GetDP_End ;
 }
 
 
@@ -579,7 +583,10 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
 double Plane(double a, double b, double c, double d, 
 	     double x, double y, double z){
-  return a*x+b*y+c*z+d;
+
+  GetDP_Begin("Plane");
+
+  GetDP_Return(a*x+b*y+c*z+d);
 }
 
 static double DIRX[3], DIRY[3], DIRZ[3], XCP, YCP ;
@@ -604,17 +611,27 @@ int fcmp_Angle (const void *a, const void *b){
 }
 
 void prodvec (double *a , double *b , double *c){
+
+  GetDP_Begin("prodvec");
+
   c[0] = a[1]*b[2]-a[2]*b[1];
   c[1] = a[2]*b[0]-a[0]*b[2];
   c[2] = a[0]*b[1]-a[1]*b[0];
+
+  GetDP_End ;
 }
 
 void normvec(double *a){
   double mod;
+
+  GetDP_Begin("normvec");
+
   mod = sqrt(SQU(a[0])+SQU(a[1])+SQU(a[2]));
   a[0]/=mod;
   a[1]/=mod;
   a[2]/=mod;
+
+  GetDP_End ;
 }
 
 #define NBR_MAX_CUT 10
@@ -672,6 +689,8 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
   int     iPost, iNode, iGeo, iTime, iCut, iEdge ;
   double  A, B, C, D, d1, d2, u, xcg, ycg, zcg ;
   double  x[3], y[3], z[3] ;
+
+  GetDP_Begin("Pos_PrintOnCut");
 
   if( !(NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
     NbTimeStep = List_Nbr(Current.DofData->Solutions);
@@ -852,6 +871,7 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
   if(CPQ_P) Free(CumulativeValues);
   for(iCut = 0 ; iCut < NBR_MAX_CUT ; iCut++) Free(e[iCut].Value) ;
 
+  GetDP_End ;
 }
 
 #undef NBR_MAX_CUT
@@ -941,6 +961,8 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
   double  u, v, w, Length, Normal[4] = {0., 0., 0., 0.} ;
   double  X[4], Y[4], Z[4], S[4], N[4];
 
+  GetDP_Begin("Pos_PrintOnGrid");
+
   Get_InitDofOfElement(&Element) ;
 
   if( !(NbTimeStep = List_Nbr(PSO_P->TimeStep_L)) ){
@@ -1003,7 +1025,8 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
     prodvec(S,N,Normal);
     Length = sqrt(DSQU(Normal[0])+DSQU(Normal[1])+DSQU(Normal[2]));
     if(!Length){
-      Msg(WARNING, "Bad Plane (Null Normal)"); return ;
+      Msg(WARNING, "Bad Plane (Null Normal)"); 
+      GetDP_End ;
     }
     Normal[0]/=Length ; Normal[1]/=Length ; Normal[2]/=Length ;
 
@@ -1134,6 +1157,8 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
   Format_PostFooter(PSO_P, 0);
 
   if(CPQ_P) Free(CumulativeValues);
+
+  GetDP_End ;
 }
 
 #undef LETS_PRINT_THE_RESULT
@@ -1160,6 +1185,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   int      i, j, NbTimeStep ;
   int      Nbr_Region, Num_Region ;
 
+  GetDP_Begin("Pos_PrintOnRegion");
 
   if( !(NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
     NbTimeStep = List_Nbr(Current.DofData->Solutions);
@@ -1238,6 +1264,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     }
   }
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1258,6 +1285,8 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
   List_T  *Region_L ;
   int      i, N, Num_Region ;
   double   X[2], S, x ;
+
+  GetDP_Begin("Pos_PrintWithArgument");
 
   if(CPQ_P)
     Msg(ERROR, "Cumulative PostQuantity in PrintWithArgument not Done") ;
@@ -1301,4 +1330,6 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
 		       Current.NbrHar, Current.Time, 0, 1) ;
   }
 
+  GetDP_End ;
 }
+

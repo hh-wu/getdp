@@ -1,16 +1,16 @@
-/* $Id: SolvingAnalyse.c,v 1.14 2000-09-29 09:53:39 geuzaine Exp $ */
+static char *rcsid = "$Id: SolvingAnalyse.c,v 1.15 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "GeoData.h"
 #include "DofData.h"
 #include "Init_Problem.h"
 #include "Cal_Quantity.h"
-#include "ualloc.h"
-#include "outil.h"
+#include "Tools.h"
 #include "Data_DefineE.h"
 #include "Data_Numeric.h"
 #include "Get_DofOfElement.h"
@@ -52,6 +52,8 @@ void  SolvingAnalyse (void) {
   int  i, j, k ;
   int  Num, Nbr_GeoData ;
   int  Nbr_PreResolution, Nbr_OtherSystem ;
+
+  GetDP_Begin("SolvingAnalyse");
 
   GeoData_L = List_Create( 1, 5, sizeof(struct GeoData)) ;
 
@@ -362,7 +364,7 @@ void  SolvingAnalyse (void) {
         Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, j) ;
         if(Dof_P->Type == DOF_SYMMETRICAL_INIT){
           Dof_P->Type = DOF_SYMMETRICAL ;
-          gZeroScalar(&Dof_P->Val) ;
+          LinAlg_ZeroScalar(&Dof_P->Val) ;
         }
       }
 
@@ -412,8 +414,9 @@ void  SolvingAnalyse (void) {
     Msg(DIRECT, "E n d   P o s t - P r o c e s s i n g");
   }
 
-
   List_Delete(DofData_L) ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -432,6 +435,8 @@ void  Treatment_Resolution(int ResolutionIndex,
   struct DefineSystem  * DefineSystem_P ;
   struct DofData         DofData_S ;
   int  i ;
+
+  GetDP_Begin("Treatment_Resolution");
 
   *Resolution_P = (struct Resolution*)List_Pointer(Problem_S.Resolution,
                                                    ResolutionIndex) ;
@@ -471,6 +476,8 @@ void  Treatment_Resolution(int ResolutionIndex,
   
   *DofData_P0 = (struct DofData*)List_Pointer(*DofData_L, 0) ;
   *GeoData_P0 = (struct GeoData*)List_Pointer(GeoData_L, 0) ;
+
+  GetDP_End ;
 }
 
 
@@ -481,6 +488,8 @@ void  Treatment_Resolution(int ResolutionIndex,
 void  Init_HarInDofData(struct DefineSystem * DefineSystem_P,
                         struct DofData * DofData_P) {
   int   j ;
+
+  GetDP_Begin("Init_HarInDofData");
 
   if (DefineSystem_P->Type == VAL_COMPLEX){
     if(!DefineSystem_P->FrequencyValue)
@@ -513,6 +522,7 @@ void  Init_HarInDofData(struct DefineSystem * DefineSystem_P,
     Msg(INFO, "System '%s' : Real", DefineSystem_P->Name) ;
   }
 
+  GetDP_End ;
 }
 
 
@@ -523,6 +533,8 @@ void  Init_HarInDofData(struct DefineSystem * DefineSystem_P,
 void  Init_PartInDofData(struct DofData * DofData_P, int NbrPart) {
   int i ;
 
+  GetDP_Begin("Init_PartInDofData");
+
   if(!DofData_P->Nnz)
     DofData_P->Nnz = (int*)Malloc(DofData_P->NbrDof * sizeof(int)) ;
 
@@ -532,6 +544,8 @@ void  Init_PartInDofData(struct DofData * DofData_P, int NbrPart) {
   DofData_P->NbrPart = 1;
   DofData_P->Part[0] = 1;
   DofData_P->Part[1] = DofData_P->NbrDof+1;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -543,6 +557,8 @@ double  * Get_TimeFunctionValues(struct DofData * DofData_P) {
   int     Nbr_Expression, Nbr_TimeFunction, i, Index ;
   double  * Values ;
   struct Value  Val_Expression ;
+
+  GetDP_Begin("Get_TimeFunctionValues");
 
   Nbr_Expression = List_Nbr(Problem_S.Expression) ;
   Values = (double *)Malloc((Nbr_Expression + 1) * sizeof(double)) ;
@@ -560,7 +576,7 @@ double  * Get_TimeFunctionValues(struct DofData * DofData_P) {
       Values[Index] = 1. ;
   }
 
-  return  Values ;
+  GetDP_Return(Values) ;
 }
 
 
@@ -574,6 +590,8 @@ void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
   struct DefineQuantity  *DefineQuantity_P;
   int i, j ;
 
+  GetDP_Begin("Init_DofDataInDefineQuantity");
+
   for(i = 0 ; i < List_Nbr(Formulation_P->DefineQuantity) ; i++){
     DefineQuantity_P = (struct DefineQuantity *)
       List_Pointer(Formulation_P->DefineQuantity, i);
@@ -586,8 +604,9 @@ void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
       List_Read(DefineSystem_P->OriginSystemIndex,DefineQuantity_P->DofDataIndex,&j) ;
       DefineQuantity_P->DofData = DofData_P0 + j ;
     }
-
   }
+
+  GetDP_End ;
 }
 
 
@@ -605,6 +624,8 @@ void Treatment_Preprocessing(int Nbr_DefineSystem,
   struct Formulation    * Formulation_P ;
 
   int i, k,  Nbr_Formulation, Index_Formulation;
+
+  GetDP_Begin("Treatment_Preprocessing");
 
   for (i = 0 ; i < Nbr_DefineSystem ; i++) {
     DefineSystem_P = DefineSystem_P0 + i ;
@@ -632,6 +653,7 @@ void Treatment_Preprocessing(int Nbr_DefineSystem,
 
   }
   
+  GetDP_End ;
 }
 
 
@@ -653,6 +675,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 
   int    Nbr_PostSubOperation, i_POP, i ;
 
+  GetDP_Begin("Treatment_PostOperation");
 
   if (!List_Nbr(PostProcessing_P->PostQuantity))
     Msg(ERROR, "No Quantity available for PostProcessing '%s'",
@@ -732,4 +755,6 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 
   }
 
+  GetDP_End ;
 }
+

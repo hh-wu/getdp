@@ -1,9 +1,9 @@
-/* $Id: Data_GeoData.h,v 1.7 2000-10-20 07:42:06 dular Exp $ */
+/* $Id: Data_GeoData.h,v 1.8 2000-10-30 01:05:44 geuzaine Exp $ */
 #ifndef _DATA_GEODATA_H_
 #define _DATA_GEODATA_H_
 
-#include "listman.h"
-#include "treeman.h"
+#include "List.h"
+#include "Tree.h"
 
 struct Grid{
   int     Init;

@@ -1,16 +1,15 @@
-/* $Id: Pos_Formulation.c,v 1.20 2000-10-20 07:42:07 dular Exp $ */
+static char *rcsid = "$Id: Pos_Formulation.c,v 1.21 2000-10-30 01:05:47 geuzaine Exp $" ;
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Data_Passive.h"
 #include "Data_Numeric.h"
-
 #include "Treatment_Formulation.h"
 #include "CurrentData.h"
 #include "Get_DofOfElement.h"
-
 #include "Pos_Formulation.h"
 #include "Pos_Print.h"
 #include "Pos_Format.h"
@@ -27,6 +26,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   struct PostQuantity   *NCPQ_P, *CPQ_P ;
   int                    Order ;
+
+  GetDP_Begin("Pos_Formulation");
 
   if (PostSubOperation_P->FileOut){
     if (!PostSubOperation_P->CatFile) {
@@ -95,6 +96,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   if (PostSubOperation_P->FileOut)  fclose(PostStream) ;
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -114,6 +116,8 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
   List_T   *QuantityStorage_L ;
   int       i ;
   
+  GetDP_Begin("Pos_FemFormulation");
+
   Get_InitDofOfElement(&Element) ;
 
   DefineQuantity_P0 = (struct DefineQuantity*)
@@ -186,6 +190,8 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
   if(InteractiveInterrupt) InteractiveInterrupt=0 ;
   
   List_Delete(QuantityStorage_L);
+
+  GetDP_End ;
 }
 
 
@@ -198,6 +204,8 @@ void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep) {
 
   int  Num_TimeStep, k, Num_Solution ;
 
+  GetDP_Begin("Pos_InitAllSolutions");
+
   List_Read(TimeStep_L, Index_TimeStep, &Num_TimeStep) ;
 
   for (k = 0 ; k < Current.NbrSystem ; k++)
@@ -208,4 +216,5 @@ void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep) {
 
   Current.Time = Current.DofData->CurrentSolution->Time ;
 
+  GetDP_End ;
 }

@@ -1,14 +1,14 @@
-/* $Id: F_Type.c,v 1.3 2000-10-27 11:47:28 dular Exp $ */
+static char *rcsid = "$Id: F_Type.c,v 1.4 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
 
+#include "GetDP.h" 
 #include "Data_DefineE.h"
 #include "F_Function.h"
 #include "GeoData.h"
 #include "Get_Geometry.h"
 #include "Cal_Value.h" 
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
 
@@ -34,6 +34,8 @@ void  F_Complex (F_ARG) {
      just has to be a multiple of 2). */
 
   int k ;
+
+  GetDP_Begin("F_Complex");
 
   switch(A->Type){
 
@@ -91,6 +93,8 @@ void  F_Complex (F_ARG) {
   }
 
   V->Type = A->Type ;
+
+  GetDP_End ;
 }
 
 
@@ -100,6 +104,8 @@ void  F_Complex (F_ARG) {
 
 void  F_Re (F_ARG) {
   int k ;
+
+  GetDP_Begin("F_Re");
 
   switch (A->Type) {
   case SCALAR :
@@ -167,6 +173,8 @@ void  F_Re (F_ARG) {
   }
   
   V->Type = A->Type ;
+
+  GetDP_End ;
 }
 
 
@@ -176,6 +184,8 @@ void  F_Re (F_ARG) {
 
 void  F_Im (F_ARG) {
   int k ;
+
+  GetDP_Begin("F_Im");
 
   switch (A->Type) {
   case SCALAR :
@@ -243,6 +253,8 @@ void  F_Im (F_ARG) {
   }
   
   V->Type = A->Type ;
+
+  GetDP_End ;
 }
 
 
@@ -252,6 +264,8 @@ void  F_Im (F_ARG) {
 
 void  F_Conj (F_ARG) {
   int k ;
+
+  GetDP_Begin("F_Conj");
 
   switch (A->Type) {
   case SCALAR :
@@ -319,6 +333,8 @@ void  F_Conj (F_ARG) {
   }
   
   V->Type = A->Type ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -327,6 +343,8 @@ void  F_Conj (F_ARG) {
 
 void  F_Vector (F_ARG) {
   int k ;
+
+  GetDP_Begin("F_Vector");
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR)
     Msg(ERROR, "Non Scalar Argument(s) for Function 'Vector'");
@@ -337,6 +355,8 @@ void  F_Vector (F_ARG) {
     V->Val[MAX_DIM*k+2] = (A+2)->Val[MAX_DIM*k] ;
   }
   V->Type = VECTOR ;
+
+  GetDP_End ;
 }
 
 
@@ -346,6 +366,8 @@ void  F_Vector (F_ARG) {
 
 void  F_Tensor (F_ARG) {
   int k ;
+
+  GetDP_Begin("F_Tensor");
 
   if(  (A)->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR ||
      (A+3)->Type != SCALAR || (A+4)->Type != SCALAR || (A+5)->Type != SCALAR ||
@@ -364,6 +386,8 @@ void  F_Tensor (F_ARG) {
     V->Val[MAX_DIM*k+8] = (A+8)->Val[MAX_DIM*k] ;
   }
   V->Type = TENSOR ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -372,6 +396,8 @@ void  F_Tensor (F_ARG) {
 
 void  F_TensorSym (F_ARG) {
   int k ;
+
+  GetDP_Begin("F_TensorSym");
 
   if(  (A)->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR ||
      (A+3)->Type != SCALAR || (A+4)->Type != SCALAR || (A+5)->Type != SCALAR )
@@ -386,6 +412,8 @@ void  F_TensorSym (F_ARG) {
     V->Val[MAX_DIM*k+5] = (A+5)->Val[MAX_DIM*k] ;
   }
   V->Type = TENSOR_SYM ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -394,6 +422,8 @@ void  F_TensorSym (F_ARG) {
 
 void  F_TensorDiag (F_ARG) {
   int k ;
+
+  GetDP_Begin("F_TensorDiag");
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR)
     Msg(ERROR, "Non Scalar Argument(s) for Function 'TensorDiag'");
@@ -404,6 +434,8 @@ void  F_TensorDiag (F_ARG) {
     V->Val[MAX_DIM*k+2] = (A+2)->Val[MAX_DIM*k] ;
   }
   V->Type = TENSOR_DIAG ;
+
+  GetDP_End ;
 }
 
 
@@ -413,6 +445,8 @@ void  F_TensorDiag (F_ARG) {
 
 void  F_TensorV (F_ARG) {
   int k ;
+
+  GetDP_Begin("F_TensorV");
 
   if((A)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR)
     Msg(ERROR, "Non Scalar Argument(s) for Function 'TensorV'");
@@ -429,6 +463,8 @@ void  F_TensorV (F_ARG) {
     V->Val[MAX_DIM*k+8] = (A+2)->Val[MAX_DIM*k+2] ;
   }
   V->Type = TENSOR ;
+
+  GetDP_End ;
 }
 
 
@@ -439,6 +475,8 @@ void  F_TensorV (F_ARG) {
 void  F_SquDyadicProduct (F_ARG) {
   int k ;
   double t11, t12, t13, t22, t23, t33 ;
+
+  GetDP_Begin("F_SquDyadicProduct");
 
   if (A->Type != VECTOR)
     Msg(ERROR, "Non Vector Argument for Function 'TensorDyadic'");
@@ -461,6 +499,8 @@ void  F_SquDyadicProduct (F_ARG) {
   }
 
   V->Type = TENSOR_SYM ;
+
+  GetDP_End ;
 }
 
 
@@ -471,13 +511,17 @@ void  F_SquDyadicProduct (F_ARG) {
 #define get_comp_vector(index,string)					\
   int k ;								\
 									\
+  GetDP_Begin("F_" string);						\
+									\
   if(A->Type != VECTOR)							\
     Msg(ERROR, "Non Vector Argument for Function '" string "'");	\
 									\
   for (k = 0 ; k < Current.NbrHar ; k++) {				\
     V->Val[MAX_DIM*k  ] = A->Val[MAX_DIM*k+index] ;			\
   }									\
-  V->Type = SCALAR ;
+  V->Type = SCALAR ;							\
+									\
+  GetDP_End ;
     
 void  F_CompX (F_ARG) { get_comp_vector(0,"CompX") }
 void  F_CompY (F_ARG) { get_comp_vector(1,"CompY") }
@@ -492,6 +536,9 @@ void  F_CompZ (F_ARG) { get_comp_vector(2,"CompZ") }
 
 #define get_comp_tensor(i,is,id,string)							\
   int k ;										\
+											\
+  GetDP_Begin("F_" string);								\
+											\
   switch(A->Type) {									\
   case TENSOR :										\
     for (k=0; k<Current.NbrHar; k++) V->Val[MAX_DIM*k] = A->Val[MAX_DIM*k+(i)] ;	\
@@ -509,8 +556,10 @@ void  F_CompZ (F_ARG) { get_comp_vector(2,"CompZ") }
     Msg(ERROR, "Non Tensor Argument for Function '" string "'");			\
     break;										\
   }											\
-  V->Type = SCALAR ;
-    
+  V->Type = SCALAR ;									\
+  											\
+  GetDP_End ;
+  
 void  F_CompXX (F_ARG) { get_comp_tensor(0,0, 0,"CompXX") }
 void  F_CompXY (F_ARG) { get_comp_tensor(1,1,-1,"CompXY") }
 void  F_CompXZ (F_ARG) { get_comp_tensor(2,2,-1,"CompXZ") }

@@ -1,6 +1,7 @@
-/* $Id: BF_Edge_2.c,v 1.1 2000-09-12 20:21:06 geuzaine Exp $ */
+static char *rcsid = "$Id: BF_Edge_2.c,v 1.2 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 
+#include "GetDP.h"
 #include "BF_Function.h"
 
 /* ------------------------------------------------------------------------ */
@@ -15,6 +16,8 @@
 
 void  BF_Edge_2E (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_Edge");
 
   switch (Element->Type) {
   case LINE :
@@ -68,6 +71,7 @@ void  BF_Edge_2E (struct Element * Element, int NumEntity,
     break ;
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumEntity
@@ -80,7 +84,12 @@ void  BF_Edge_2E (struct Element * Element, int NumEntity,
 
 void  BF_Edge_2F (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_Edge_2F");
+
   Msg(ERROR, "Should never be here") ;
+
+  GetDP_End ;
 }
 
 #undef WrongNumEntity
@@ -91,7 +100,12 @@ void  BF_Edge_2F (struct Element * Element, int NumEntity,
 
 void  BF_Edge_2V (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_Edge_2V");
+
   Msg(ERROR, "Should never be here") ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -105,8 +119,11 @@ void  BF_Edge_2V (struct Element * Element, int NumEntity,
 void  BF_CurlEdge_2E (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
 
+  GetDP_Begin("BF_CurlEdge_2E");
+
   s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; 
 
+  GetDP_End ;
 }
 
 /* ------- */
@@ -116,8 +133,11 @@ void  BF_CurlEdge_2E (struct Element * Element, int NumEntity,
 void  BF_CurlEdge_2F (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
 
+  GetDP_Begin("BF_CurlEdge_2F");
+
   s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; 
 
+  GetDP_End ;
 }
 
 /* -------- */
@@ -127,6 +147,9 @@ void  BF_CurlEdge_2F (struct Element * Element, int NumEntity,
 void  BF_CurlEdge_2V (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
 
+  GetDP_Begin("BF_CurlEdge_2V");
+
   s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; 
 
+  GetDP_End ;
 }

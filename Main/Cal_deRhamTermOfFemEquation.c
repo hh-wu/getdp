@@ -1,22 +1,20 @@
-/* $Id: Cal_deRhamTermOfFemEquation.c,v 1.5 2000-10-27 11:47:28 dular Exp $ */
+static char *rcsid = "$Id: Cal_deRhamTermOfFemEquation.c,v 1.6 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Cal_Quantity.h"
 #include "Get_DofOfElement.h"
 #include "Get_Geometry.h"
 #include "Get_Cells.h"
 #include "Pos_Search.h" /* xyz2uvw */
-
 #include "Data_Numeric.h"
 #include "Data_DefineE.h"
-
 #include "GeoData.h"
-
 #include "CurrentData.h"
-#include "outil.h"
+#include "Tools.h"
 
 /* ------------------------------------------------------------------------ */
 /*  C a l _ I n i t D e R h a m T e r m O f F e m E q u a t i o n           */
@@ -27,6 +25,8 @@ void  Cal_InitdeRhamTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 				      struct QuantityStorage  * QuantityStorageNoDof,
 				      struct Dof              * DofForNoDof_P) {
   struct FemLocalTermActive  * FI ;
+
+  GetDP_Begin("Cal_InitdeRhamTermOfFemEquation");
 
   FI = EquationTerm_P->Case.LocalTerm.Active ;
 
@@ -147,6 +147,7 @@ void  Cal_InitdeRhamTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 		     EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
   }
 
+  GetDP_End ;
 }
 
 
@@ -188,6 +189,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
   double (*Cell_Get_Jacobian)(struct Element*, MATRIX3x3*) ;
   void (*Get_IntPoint)(int,int,double*,double*,double*,double*);
 
+  GetDP_Begin("Cal_deRhamTermOfFemEquation");
 
   FI = EquationTerm_P->Case.LocalTerm.Active ;
 
@@ -204,7 +206,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
   if (!(Nbr_Equ = QuantityStorageEqu_P->NbrElementaryBasisFunction)) {
     if(Flag_VERBOSE > 2) 
       Msg(WARNING, "Cal_deRham: No equation to build in Element %d", Element->Num);
-    return ;
+    GetDP_End ;
   }
 
   /*  ----------------------------------------------------------------------  */
@@ -568,5 +570,6 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
 
   }  /* while (1) ... */
 
+  GetDP_End ;
 }
 

@@ -1,14 +1,16 @@
-/* $Id: Gauss_Prism.c,v 1.2 2000-09-07 18:47:24 geuzaine Exp $ */
+static char *rcsid = "$Id: Gauss_Prism.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "Message.h"
+#include "GetDP.h"
 #include "Gauss_Prism.h"
 
 /* Gauss integration over a prism */
 
 void  Gauss_Prism      (int Nbr_Points, int Num,
 			double *u, double *v, double *w, double *wght) {
+
+  GetDP_Begin("Gauss_Prism") ;
 
   switch (Nbr_Points) {
 
@@ -35,4 +37,5 @@ void  Gauss_Prism      (int Nbr_Points, int Num,
 
   }
 
+  GetDP_End ;
 }

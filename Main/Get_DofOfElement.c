@@ -1,15 +1,15 @@
-/* $Id: Get_DofOfElement.c,v 1.12 2000-10-27 14:56:25 geuzaine Exp $ */
+static char *rcsid = "$Id: Get_DofOfElement.c,v 1.13 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
 
+#include "GetDP.h"
 #include "Get_DofOfElement.h"
 #include "ExtendedGroup.h"
 #include "Cal_Quantity.h"
 #include "GeoData.h"
-
 #include "CurrentData.h"
-#include "outil.h"
+#include "Tools.h"
 
 struct BasisFunction    * BasisFunction_P ;
 int                     Nbr_ElementaryBF ;
@@ -20,11 +20,16 @@ struct Group            * GroupSupport_P, * GroupEntity_P ;
 /* ------------------------------------------------------------------------ */
 
 void  Get_InitDofOfElement(struct Element * Element) {
+
+  GetDP_Begin("Get_InitDofOfElement");
+
   Element->ElementTrace = NULL ;
   Element->NumLastElementForNodesCoordinates      = -1 ;
   Element->NumLastElementForGroupsOfEntities      = -1 ;
   Element->NumLastElementForSolidAngle            = -1 ;
   Element->NumLastElementForSortedNodesByFacet    = -1 ;
+
+  GetDP_End ;
 }
 
 
@@ -40,6 +45,8 @@ void  Get_DofOfElement(struct Element          * Element,
   struct BasisFunction  * BasisFunction_P0 ;
   int  Nbr_BasisFunction, Nbr_BasisFunctionAll, i_BFunction, StartingIndex, i ;
   int  * BasisFunctionIndex_P0 ;
+
+  GetDP_Begin("Get_DofOfElement");
 
   Current.Element = Element ;
   Nbr_ElementaryBF = 0 ;
@@ -185,6 +192,8 @@ void  Get_DofOfElement(struct Element          * Element,
   }  /* for i ... */
 
   QuantityStorage_P->NbrElementaryBasisFunction = Nbr_ElementaryBF ;
+
+  GetDP_End ;
 }
 
 
@@ -197,10 +206,12 @@ void  Get_GroupsOfElementaryEntitiesOfElement
   (struct Element * Element,
    int * StartingIndex, int Nbr_ElementaryEntities, int Num_ElementaryEntities[]) {
 
-/* external input/output :  GroupEntity_P     : In  */
+  /* external input/output :  GroupEntity_P     : In  */
 
   int            i, j, Num_Entity ;
   struct TwoInt  * Key_P ;
+
+  GetDP_Begin("Get_GroupsOfElementaryEntitiesOfElement");
 
   if (Element->NumLastElementForGroupsOfEntities != Element->Num) {
     Element->NumLastElementForGroupsOfEntities = Element->Num ;
@@ -228,7 +239,8 @@ void  Get_GroupsOfElementaryEntitiesOfElement
 	(Key_P->Int1 > 0)?  (i+1) : -(i+1) ;
     }
   }
-  return ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -237,10 +249,12 @@ void  Get_GroupsOfElementaryEntitiesOfElement
 
 void  Get_GroupsOfEdgesOnNodesOfElement(struct Element * Element,
 					int * StartingIndex) {
-/* external input/output :  GroupEntity_P     : In  */
+  /* external input/output :  GroupEntity_P     : In  */
 
   int  i, j, Num_Edge, * Num_Nodes, Num_Node ;
 
+  GetDP_Begin("Get_GroupsOfEdgesOnNodesOfElement");
+  
   if (Element->NumLastElementForGroupsOfEntities != Element->Num) {
     Element->NumLastElementForGroupsOfEntities = Element->Num ;
     Element->NbrGroupsOfEntities = 0 ;
@@ -283,7 +297,8 @@ void  Get_GroupsOfEdgesOnNodesOfElement(struct Element * Element,
 	(Element->GeoElement->NumEdges[i] > 0)? (i+1) : -(i+1) ;
     }
   }
-  return ;
+
+  GetDP_End ;
 }
 
 
@@ -293,6 +308,8 @@ void  Get_GroupsOfEdgesOnNodesOfElement(struct Element * Element,
 
 void  Get_RegionForElement(struct Element * Element, int * StartingIndex) {
 
+  GetDP_Begin("Get_RegionForElement");
+
   if (Element->NumLastElementForGroupsOfEntities != Element->Num) {
     Element->NumLastElementForGroupsOfEntities = Element->Num ;
     Element->NbrGroupsOfEntities = 0 ;
@@ -300,6 +317,8 @@ void  Get_RegionForElement(struct Element * Element, int * StartingIndex) {
 
   *StartingIndex = Element->NbrGroupsOfEntities ;
   Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Element->Region ;
+
+  GetDP_End ;
 }
 
 
@@ -311,6 +330,8 @@ void  Get_GlobalForElement(struct Element * Element, int * StartingIndex,
 			   struct BasisFunction * BasisFunction_P) {
 
   int Nbr_Global, i, * Num_Global ;
+
+  GetDP_Begin("Get_GlobalForElement");
 
   if (Element->NumLastElementForGroupsOfEntities != Element->Num) {
     Element->NumLastElementForGroupsOfEntities = Element->Num ;
@@ -333,7 +354,7 @@ void  Get_GlobalForElement(struct Element * Element, int * StartingIndex,
   if (TreatmentStatus == _PRE)
     Get_PreResolutionForGlobalBasisFunction(Nbr_Global, *StartingIndex, Element) ;
 
-  return ;
+  GetDP_End ;
 }
 
 
@@ -353,6 +374,8 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 
   int         k, i_Entity, CodeExist, Index_GeoElement ;
   struct Dof  * Dof_P ;
+
+  GetDP_Begin("Get_CodesOfElement");
 
   /*  1.  F o r   e a c h   e n t i t y   t o   w h i c h   a   b a s i s
           f u n c t i o n   c o u l d   b e   a s s o c i a t e d : 
@@ -425,6 +448,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
     
   }  /* for i_Entity ... */
 
+  GetDP_End ;
 }
 
 
@@ -441,6 +465,7 @@ void  Get_DofOfRegion(int  Num_Region,
   int  CodeExist, Num_BasisFunction, Num_AssociateBasisFunction ;
   struct Dof  * Dof_P ;
 
+  GetDP_Begin("Get_DofOfRegion");
 
   Nbr_ElementaryBF = 0 ;
 
@@ -497,7 +522,8 @@ void  Get_DofOfRegion(int  Num_Region,
   }  /* if REGIONLIST ... */
 
   QuantityStorage_P->NbrElementaryBasisFunction = Nbr_ElementaryBF ;
-  return ;
+
+  GetDP_End ;
 }
 
 
@@ -511,6 +537,8 @@ void  Get_PreResolutionForGlobalBasisFunction(int Nbr_Global, int StartingIndex,
   int i ;
   struct PreResolutionInfo  PreResolutionInfo_S ;
 
+  GetDP_Begin("Get_PreResolutionForGlobalBasisFunction");
+
   for (i = 0 ; i < Nbr_Global ; i++)
     if(List_ISearchSeq(PreResolutionIndex_L,
 		       &(Element->GlobalBasisFunction[StartingIndex + i]->
@@ -523,4 +551,7 @@ void  Get_PreResolutionForGlobalBasisFunction(int Nbr_Global, int StartingIndex,
 	  ((struct Resolution*)List_Pointer(Problem_S.Resolution,
 					    PreResolutionInfo_S.Index))->Name) ;
     }
+
+  GetDP_End ;
 }
+

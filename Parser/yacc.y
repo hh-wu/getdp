@@ -1,22 +1,20 @@
 %{
-/* $Id: yacc.y,v 1.23 2000-10-27 11:47:29 dular Exp $ */
 
-  /*
-    Modifs a faire (Patrick):
-     - definir des structures avec valeurs par defaut, e.g. BasisFunction_D = ...
-       (dans un fichier a part).
+static char *rcsid = "$Id: yacc.y,v 1.24 2000-10-30 01:05:47 geuzaine Exp $" ;
 
-    Autres:
-     - modif Affectation (etendue domaine definition) a indiquer dans getdp.texi
+/*
+  Modifs a faire (Patrick):
+  - definir des structures avec valeurs par defaut, e.g. BasisFunction_D = ...
+  (dans un fichier a part).
 
+  Autres:
+  - modif Affectation (etendue domaine definition) a indiquer dans getdp.texi
 
-
-    CG
-    Il faudrait inclure les listes (peut-etre recursives) au sein meme des
-    expressions, afin de gerer les vecteurs, tenseurs, etc., directement, et
-    pas par l'intermediaire d'une fonction de creation
-
-   */
+  CG
+  Il faudrait inclure les listes (peut-etre recursives) au sein meme des
+  expressions, afin de gerer les vecteurs, tenseurs, etc., directement, et
+  pas par l'intermediaire d'une fonction de creation
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,15 +30,12 @@
 #include "Data_Passive.h"
 #include "Data_Active.h"
 #include "Data_DefineE.h"
-
-#include "ualloc.h"
-#include "outil.h"
-
+#include "Malloc.h"
+#include "Tools.h"
 #include "Init_Problem.h"
 #include "BF_Function.h"
 #include "Quadrature.h"
 #include "Cal_Value.h"
-
 #include "Constant.h"
 #include "Magic.h"
 

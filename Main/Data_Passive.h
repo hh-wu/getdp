@@ -1,9 +1,8 @@
-/* $Id: Data_Passive.h,v 1.16 2000-10-27 11:47:28 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.17 2000-10-30 01:05:45 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
-#include "listman.h"
-#include "Message.h"
+#include "List.h"
 #include "Data_Element.h"
 
 #ifndef NULL

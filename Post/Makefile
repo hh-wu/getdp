@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2000-10-20 08:43:44 dular Exp $
+# $Id: Makefile,v 1.13 2000-10-30 01:05:47 geuzaine Exp $
 #
 # Makefile for 'libPost.a'
 # 
@@ -9,7 +9,7 @@ RANLIB  = /usr/bin/ranlib
 
 SOLVER = -D_SPARSKIT
 
-C_FLAGS = -g
+C_FLAGS = -g -DUSE_DEBUG
 
 LIB     = ../lib/libPost.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData\
@@ -56,76 +56,78 @@ nodepend:
 
 
 # DO NOT DELETE THIS LINE
-Pos_FemInterpolation.o: Pos_FemInterpolation.c \
-  ../Main/Treatment_Formulation.h ../Main/Data_Active.h \
-  ../Main/Data_Passive.h ../DataStr/listman.h ../Main/Message.h \
+Pos_FemInterpolation.o: Pos_FemInterpolation.c ../include/GetDP.h \
+  ../Main/Message.h ../DataStr/Malloc.h ../Main/Treatment_Formulation.h \
+  ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../DataStr/treeman.h ../DataStr/avl.h ../Main/Get_DofOfElement.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Get_DofOfElement.h \
   ../Main/Get_Geometry.h ../DofData/DofData.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
   Pos_Search.h ../Main/CurrentData.h ../include/Magic.h \
-  ../DataStr/outil.h
+  ../DataStr/Tools.h
 Pos_Interactive.o: Pos_Interactive.c ../Main/Treatment_Formulation.h \
-  ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/listman.h \
-  ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
+  ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
+  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   Pos_Formulation.h Pos_Interactive.h ../Main/CurrentData.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
   ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h
 Pos_ReadLine.o: Pos_ReadLine.c
 Pos_Formulation.o: Pos_Formulation.c ../Main/Data_Passive.h \
-  ../DataStr/listman.h ../Main/Message.h ../Main/Data_Element.h \
-  ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/treeman.h \
+  ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../Main/Message.h ../GeoData/Data_GeoData.h ../DataStr/Tree.h \
   ../DataStr/avl.h ../Main/Data_Numeric.h ../Main/Treatment_Formulation.h \
   ../Main/Data_Active.h ../Main/CurrentData.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../Main/Get_DofOfElement.h \
   Pos_Formulation.h Pos_Print.h Pos_Format.h
-Pos_Print.o: Pos_Print.c ../Main/Data_Passive.h ../DataStr/listman.h \
-  ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
-  ../Main/Data_Numeric.h ../Main/Treatment_Formulation.h \
-  ../Main/Data_Active.h ../Main/Get_Geometry.h ../Main/CurrentData.h \
+Pos_Print.o: Pos_Print.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Numeric.h \
+  ../Main/Treatment_Formulation.h ../Main/Data_Active.h \
+  ../Main/Get_Geometry.h ../Main/CurrentData.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Get_DofOfElement.h \
+  ../Main/Cal_Quantity.h ../Main/Cal_Value.h Pos_Formulation.h \
+  Pos_Quantity.h Pos_Element.h Pos_Search.h Pos_Print.h Pos_Format.h \
+  ../Numeric/Adapt.h ../DataStr/Tools.h
+Pos_Quantity.o: Pos_Quantity.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Treatment_Formulation.h \
+  ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../DataStr/Tree.h ../DataStr/avl.h Pos_Formulation.h Pos_Quantity.h \
+  ../Main/Get_DofOfElement.h ../Main/Cal_Quantity.h ../Main/Cal_Value.h \
+  ../Main/Get_Geometry.h ../Main/Data_DefineE.h ../Main/CurrentData.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
   ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
-  ../Main/Get_DofOfElement.h ../Main/Cal_Quantity.h ../Main/Cal_Value.h \
-  Pos_Formulation.h Pos_Quantity.h Pos_Element.h Pos_Search.h Pos_Print.h \
-  Pos_Format.h ../Numeric/Adapt.h ../DataStr/ualloc.h ../DataStr/outil.h
-Pos_Quantity.o: Pos_Quantity.c ../Main/Treatment_Formulation.h \
-  ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/listman.h \
-  ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
-  Pos_Formulation.h Pos_Quantity.h ../Main/Get_DofOfElement.h \
-  ../Main/Cal_Quantity.h ../Main/Cal_Value.h ../Main/Get_Geometry.h \
-  ../Main/Data_DefineE.h ../Main/CurrentData.h ../DofData/DofData.h \
+  ../DataStr/Tools.h
+Pos_Element.o: Pos_Element.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h \
+  ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/Data_Passive.h \
+  ../Main/Data_Element.h ../Main/Get_DofOfElement.h Pos_Element.h \
+  ../Main/Cal_Value.h
+Pos_Iso.o: Pos_Iso.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_Active.h ../Main/Data_Passive.h \
+  ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+  ../Main/Data_Numeric.h ../Main/CurrentData.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../DataStr/outil.h \
-  ../DataStr/ualloc.h
-Pos_Element.o: Pos_Element.c ../GeoData/GeoData.h ../Main/Message.h \
-  ../GeoData/Data_GeoData.h ../DataStr/listman.h ../DataStr/treeman.h \
-  ../DataStr/avl.h ../Main/Get_Geometry.h ../Main/Data_Active.h \
-  ../Main/Data_Passive.h ../Main/Data_Element.h \
-  ../Main/Get_DofOfElement.h Pos_Element.h ../Main/Cal_Value.h \
-  ../DataStr/ualloc.h
-Pos_Iso.o: Pos_Iso.c ../Main/Data_Active.h ../Main/Data_Passive.h \
-  ../DataStr/listman.h ../Main/Message.h ../Main/Data_Element.h \
-  ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/treeman.h \
-  ../DataStr/avl.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../DataStr/ualloc.h \
-  Pos_Iso.h Pos_Element.h
-Pos_Search.o: Pos_Search.c ../Main/Data_Active.h ../Main/Data_Passive.h \
-  ../DataStr/listman.h ../Main/Message.h ../Main/Data_Element.h \
-  ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/treeman.h \
-  ../DataStr/avl.h ../Main/Get_Geometry.h Pos_Search.h \
+  ../DofData/Data_DofData.h ../include/Magic.h Pos_Iso.h Pos_Element.h
+Pos_Search.o: Pos_Search.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_Active.h ../Main/Data_Passive.h \
+  ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+  ../Main/Get_Geometry.h Pos_Search.h ../Main/Get_DofOfElement.h \
   ../Main/CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h ../DataStr/outil.h ../Main/Data_Numeric.h
-Pos_Format.o: Pos_Format.c ../GeoData/GeoData.h ../Main/Message.h \
-  ../GeoData/Data_GeoData.h ../DataStr/listman.h ../DataStr/treeman.h \
-  ../DataStr/avl.h ../Main/Data_Passive.h ../Main/Data_Element.h \
-  ../Main/Data_DefineE.h ../Main/Data_Numeric.h ../include/Version.h \
-  ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h Pos_Iso.h Pos_Format.h \
-  Pos_Element.h ../DataStr/ualloc.h
+  ../include/Magic.h ../DataStr/Tools.h ../Main/Data_Numeric.h
+Pos_Format.o: Pos_Format.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h ../Main/Data_DefineE.h \
+  ../Main/Data_Numeric.h ../include/Version.h ../Main/CurrentData.h \
+  ../Main/Data_Active.h ../DofData/DofData.h ../DofData/LinAlg.h \
+  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+  ../include/Magic.h Pos_Iso.h Pos_Format.h Pos_Element.h

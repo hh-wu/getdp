@@ -1,19 +1,17 @@
-/* $Id: F_MultiHar */
+static char *rcsid = "$Id: F_MultiHar.c,v 1.2 2000-10-30 01:05:44 geuzaine Exp $";
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
 
+#include "GetDP.h" 
 #include "Data_DefineE.h"
 #include "F_Function.h"
 #include "GeoData.h"
 #include "Get_Geometry.h"
 #include "Cal_Value.h" 
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
-#include "outil.h"
-
-#include "ualloc.h" 
+#include "Tools.h"
 
 /* ------------------------------------------------------------------------ */
 /*  Warning: the pointers A and V can be identical. You must                */
@@ -47,8 +45,11 @@ void  F_MHToTime (F_ARG) {
   int  k ;
   double  tmp[3] ;
 
+  GetDP_Begin("F_MHToTime");
 
-  if (Current.NbrHar == 1)  return ;
+  if (Current.NbrHar == 1) {
+    GetDP_End ;
+  }
 
   if (MH_Init != Current.DofData) {
     Msg(ERROR, "Init not done for MultiHarmonics") ;
@@ -102,6 +103,7 @@ void  F_MHToTime (F_ARG) {
   
   V->Type = A->Type ;
 
+  GetDP_End ;
 }
 
 
@@ -113,6 +115,8 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
 
   int iPul, iTime, iHar, jHar ;
   double MaxPulsation = 0. , MinPulsation = 1.e99 ;
+
+  GetDP_Begin("MH_InitTimes");
 
   /* NbrTimePoint_M */
   for ( iPul = 0 ; iPul < NbrHar /2 ; iPul++ ) {
@@ -167,6 +171,7 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
 	PsiPsi_MH [ iTime ] [ iHar ] [ jHar ] = 
 	  w_MH [ iTime ] * Psi_MH [ iTime ] [ iHar ] * Psi_MH [ iTime ] [ jHar ] ;
     
+  GetDP_End ;
 }
 
 
@@ -185,6 +190,7 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
   int iTime, iHar, jHar, iDim, jDim ;
   struct Value  Value ;
 
+  GetDP_Begin("MH_TimeIntegration");
 
   if (MH_Init != Current.DofData) {
     MH_Init = Current.DofData ;
@@ -300,6 +306,7 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 
   } /* for iTime */
 
+  GetDP_End ;
 }
 
 
@@ -308,6 +315,7 @@ void  MH_Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * 
   int iHar, jHar, iDim, jDim ;
   struct Value  Value ;
 
+  GetDP_Begin("MH_Cal_ProductValue");
 
   for ( iHar = 0 ; iHar < Current.NbrHar ; iHar++ ) {
 
@@ -326,6 +334,7 @@ void  MH_Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * 
   Value.Type = VECTOR ;
   Cal_CopyValue(&Value, R) ;
 
+  GetDP_End ;
 }
 
 

@@ -1,8 +1,9 @@
-/* $Id: Cal_Value.c,v 1.8 2000-10-27 11:47:28 dular Exp $ */
+static char *rcsid = "$Id: Cal_Value.c,v 1.9 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
 
+#include "GetDP.h"
 #include "Data_Passive.h"
 #include "Data_DefineE.h"
 #include "Cal_Value.h"
@@ -35,26 +36,39 @@ static int TENSOR_SYM_MAP[]  = {0,1,2,1,3,4,2,4,5};
 static int TENSOR_DIAG_MAP[] = {0,-1,-1,-1,1,-1,-1,-1,2};
 
 void Cal_ComplexProduct(double V1[], double V2[], double P[]) {
+
+  GetDP_Begin("Cal_ComplexProduct");
+
   P[0]       = V1[0] * V2[0]       - V1[MAX_DIM] * V2[MAX_DIM] ;
   P[MAX_DIM] = V1[0] * V2[MAX_DIM] + V1[MAX_DIM] * V2[0] ;
+
+  GetDP_End ;
 }
 
 void Cal_ComplexDivision(double V1[], double V2[], double P[]) {
   double Mod2 ;
+  
+  GetDP_Begin("Cal_ComplexDivision");
 
   Mod2       = DSQU(V2[0]) + DSQU(V2[MAX_DIM]) ;
   if(!Mod2) Msg(ERROR, "Division by zero in 'Cal_ComplexDivision'");
   P[0]       = (  V1[0] * V2[0]       + V1[MAX_DIM] * V2[MAX_DIM]) / Mod2 ;
   P[MAX_DIM] = (- V1[0] * V2[MAX_DIM] + V1[MAX_DIM] * V2[0])       / Mod2 ;
+
+  GetDP_End ;
 }
 
 void Cal_ComplexInvert(double V1[], double P[]) {
   double Mod2 ;
 
+  GetDP_Begin("Cal_ComplexInvert");
+
   Mod2       = DSQU(V1[0]) + DSQU(V1[MAX_DIM]) ;
   if(!Mod2) Msg(ERROR, "Division by zero in 'Cal_ComplexInvert'");
   P[0]       =   V1[0]       / Mod2 ;
   P[MAX_DIM] = - V1[MAX_DIM] / Mod2 ;
+
+  GetDP_End ;
 }
 
 
@@ -65,6 +79,8 @@ void Cal_ComplexInvert(double V1[], double P[]) {
 void  Cal_CopyValue(struct Value * V1, struct Value * R) {
   int  k ;
 
+  GetDP_Begin("Cal_CopyValue");
+  
   if (V1->Type == SCALAR) {
     R->Type = SCALAR ;
     for (k = 0 ; k < Current.NbrHar ; k++)
@@ -104,13 +120,8 @@ void  Cal_CopyValue(struct Value * V1, struct Value * R) {
     }
   }
 
+  GetDP_End ;
 }
-
-void  Cal_CopyValueOld(struct Value * V1, struct Value * R) {
-  R->Type = V1->Type;
-  memcpy(R->Val, V1->Val, Current.NbrHar*MAX_DIM*sizeof(double));
-}
-
 
 /* ------------------------------------------------------------------------ 
    R <- 0 
@@ -122,7 +133,12 @@ static double VALUE_ZERO [NBR_MAX_HARMONIC * MAX_DIM] =
    0.,0.,0., 0.,0.,0.} ;
 
 void  Cal_ZeroValue(struct Value * R) {
+
+  GetDP_Begin("Cal_ZeroValue");
+
   memcpy(R->Val, VALUE_ZERO, Current.NbrHar*MAX_DIM*sizeof(double));
+
+  GetDP_End ;
 }
 
 
@@ -137,6 +153,8 @@ void  Cal_AddValue (struct Value * V1, struct Value * V2, struct Value * R) {
   int           i, k;
   int           i1,i2;
   struct Value  A;
+
+  GetDP_Begin("Cal_AddValue");
 
   if (V1->Type == SCALAR && V2->Type == SCALAR) {
     if (Current.NbrHar == 1) {
@@ -222,6 +240,8 @@ void  Cal_AddValue (struct Value * V1, struct Value * V2, struct Value * R) {
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 #undef ADD
@@ -234,6 +254,8 @@ void  Cal_AddValue (struct Value * V1, struct Value * V2, struct Value * R) {
 void  Cal_AddMultValue (struct Value * V1, struct Value * V2, double d, struct Value * R) {
   int k;
   struct Value A ;
+
+  GetDP_Begin("Cal_AddMultValue");
 
   A.Type = V2->Type ;
 
@@ -314,6 +336,8 @@ void  Cal_AddMultValue (struct Value * V1, struct Value * V2, double d, struct V
     break;
   }
   Cal_AddValue(V1,&A,R);
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ 
@@ -327,6 +351,8 @@ void  Cal_SubstractValue (struct Value * V1, struct Value * V2, struct Value * R
   int           i, k;
   int           i1, i2;
   struct Value  A;
+
+  GetDP_Begin("Cal_SubstractValue");
 
   if (V1->Type == SCALAR && V2->Type == SCALAR) {
     if (Current.NbrHar == 1) {
@@ -412,6 +438,8 @@ void  Cal_SubstractValue (struct Value * V1, struct Value * V2, struct Value * R
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 #undef SUB
@@ -436,6 +464,8 @@ void  Cal_SubstractValue (struct Value * V1, struct Value * V2, struct Value * R
 void  Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * R) {
   int k;
   
+  GetDP_Begin("Cal_ProductValue");
+
   if (V1->Type == SCALAR && V2->Type == SCALAR) {
     if (Current.NbrHar == 1) {
       R->Val[0] = V1->Val[0]*V2->Val[0];
@@ -741,6 +771,7 @@ void  Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * R) 
 	Get_StringForDefine(Field_Type, V2->Type));
   }
 
+  GetDP_End ;
 }
 
 #undef CMULT
@@ -762,6 +793,8 @@ void  Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * R) 
 void  Cal_DivideValue (struct Value * V1, struct Value * V2, struct Value * R) {
   int  k ;
   struct Value V3 ;
+
+  GetDP_Begin("Cal_DivideValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     if (Current.NbrHar == 1) {
@@ -846,6 +879,8 @@ void  Cal_DivideValue (struct Value * V1, struct Value * V2, struct Value * R) {
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 #undef CDIVI
@@ -857,6 +892,8 @@ void  Cal_DivideValue (struct Value * V1, struct Value * V2, struct Value * R) {
 
 void  Cal_ModuloValue (struct Value * V1, struct Value * V2, struct Value * R) {
   int k ;
+
+  GetDP_Begin("Cal_ModuloValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     for (k = 0 ; k < Current.NbrHar ; k += 2) {
@@ -884,6 +921,7 @@ void  Cal_ModuloValue (struct Value * V1, struct Value * V2, struct Value * R) {
 	Get_StringForDefine(Field_Type, V2->Type));
   }
 
+  GetDP_End ;
 }
 
 
@@ -893,6 +931,8 @@ void  Cal_ModuloValue (struct Value * V1, struct Value * V2, struct Value * R) {
 
 void  Cal_CrossProductValue (struct Value * V1, struct Value * V2, struct Value * R) {
   int k ;
+
+  GetDP_Begin("Cal_CrossProductValue");
 
   if ( (V1->Type == VECTOR) && (V2->Type == VECTOR) ) {
     if (Current.NbrHar == 1) {
@@ -929,6 +969,7 @@ void  Cal_CrossProductValue (struct Value * V1, struct Value * V2, struct Value 
 	Get_StringForDefine(Field_Type, V2->Type));
   }
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ 
@@ -938,6 +979,8 @@ void  Cal_CrossProductValue (struct Value * V1, struct Value * V2, struct Value 
 void  Cal_PowerValue (struct Value * V1, struct Value * V2, struct Value * R) {
   int    k;
   double arg, abs ;
+
+  GetDP_Begin("Cal_PowerValue");
 
   if ( V1->Type == SCALAR && V2->Type == SCALAR ){
 
@@ -980,6 +1023,7 @@ void  Cal_PowerValue (struct Value * V1, struct Value * V2, struct Value * R) {
 	Get_StringForDefine(Field_Type, V2->Type));
   }
 
+  GetDP_End ;
 }
 
 
@@ -990,6 +1034,8 @@ void  Cal_PowerValue (struct Value * V1, struct Value * V2, struct Value * R) {
 
 void  Cal_LessValue (struct Value * V1, struct Value * V2, struct Value * R) {
 
+  GetDP_Begin("Cal_LessValue");
+
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     R->Val[0] = (V1->Val[0] < V2->Val[0]) ;
     R->Type = SCALAR ;
@@ -999,6 +1045,8 @@ void  Cal_LessValue (struct Value * V1, struct Value * V2, struct Value * R) {
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 
@@ -1007,6 +1055,8 @@ void  Cal_LessValue (struct Value * V1, struct Value * V2, struct Value * R) {
    ------------------------------------------------------------------------ */
 
 void  Cal_LessOrEqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
+
+  GetDP_Begin("Cal_LessOrEqualValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     R->Val[0] = (V1->Val[0] <= V2->Val[0]) ;
@@ -1017,6 +1067,8 @@ void  Cal_LessOrEqualValue (struct Value * V1, struct Value * V2, struct Value *
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 
@@ -1025,6 +1077,8 @@ void  Cal_LessOrEqualValue (struct Value * V1, struct Value * V2, struct Value *
    ------------------------------------------------------------------------ */
 
 void  Cal_GreaterValue (struct Value * V1, struct Value * V2, struct Value * R) {
+
+  GetDP_Begin("Cal_GreaterValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     R->Val[0] = (V1->Val[0] > V2->Val[0]) ;
@@ -1035,6 +1089,8 @@ void  Cal_GreaterValue (struct Value * V1, struct Value * V2, struct Value * R) 
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 
@@ -1043,6 +1099,8 @@ void  Cal_GreaterValue (struct Value * V1, struct Value * V2, struct Value * R) 
    ------------------------------------------------------------------------ */
 
 void  Cal_GreaterOrEqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
+
+  GetDP_Begin("Cal_GreaterOrEqualValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     R->Val[0] = (V1->Val[0] >= V2->Val[0]) ;
@@ -1053,6 +1111,8 @@ void  Cal_GreaterOrEqualValue (struct Value * V1, struct Value * V2, struct Valu
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 
@@ -1061,6 +1121,8 @@ void  Cal_GreaterOrEqualValue (struct Value * V1, struct Value * V2, struct Valu
    ------------------------------------------------------------------------ */
 
 void  Cal_EqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
+
+  GetDP_Begin("Cal_EqualValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     R->Val[0] = (V1->Val[0] == V2->Val[0]) ;
@@ -1071,6 +1133,8 @@ void  Cal_EqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 
@@ -1079,6 +1143,8 @@ void  Cal_EqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
    ------------------------------------------------------------------------ */
 
 void  Cal_NotEqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
+
+  GetDP_Begin("Cal_NotEqualValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     R->Val[0] = (V1->Val[0] != V2->Val[0]) ;
@@ -1089,6 +1155,8 @@ void  Cal_NotEqualValue (struct Value * V1, struct Value * V2, struct Value * R)
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ 
@@ -1096,6 +1164,8 @@ void  Cal_NotEqualValue (struct Value * V1, struct Value * V2, struct Value * R)
    ------------------------------------------------------------------------ */
 
 void  Cal_ApproxEqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
+
+  GetDP_Begin("Cal_ApproxEqualValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     R->Val[0] = (fabs(V1->Val[0] - V2->Val[0]) < 1.e-10) ;
@@ -1106,6 +1176,8 @@ void  Cal_ApproxEqualValue (struct Value * V1, struct Value * V2, struct Value *
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ 
@@ -1113,6 +1185,8 @@ void  Cal_ApproxEqualValue (struct Value * V1, struct Value * V2, struct Value *
    ------------------------------------------------------------------------ */
 
 void  Cal_AndValue (struct Value * V1, struct Value * V2, struct Value * R) {
+
+  GetDP_Begin("Cal_AndValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     R->Val[0] = (V1->Val[0] && V2->Val[0]) ;
@@ -1123,6 +1197,8 @@ void  Cal_AndValue (struct Value * V1, struct Value * V2, struct Value * R) {
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 
@@ -1131,6 +1207,8 @@ void  Cal_AndValue (struct Value * V1, struct Value * V2, struct Value * R) {
    ------------------------------------------------------------------------ */
 
 void  Cal_OrValue (struct Value * V1, struct Value * V2, struct Value * R) {
+
+  GetDP_Begin("Cal_OrValue");
 
   if ( (V1->Type == SCALAR) && (V2->Type == SCALAR) ) {
     R->Val[0] = (V1->Val[0] || V2->Val[0]) ;
@@ -1141,6 +1219,8 @@ void  Cal_OrValue (struct Value * V1, struct Value * V2, struct Value * R) {
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
+
+  GetDP_End ;
 }
 
 
@@ -1150,6 +1230,8 @@ void  Cal_OrValue (struct Value * V1, struct Value * V2, struct Value * R) {
 
 void  Cal_NegValue (struct Value * R) {
   int k ;
+
+  GetDP_Begin("Cal_NegValue");
 
   switch(R->Type) {
   case SCALAR :
@@ -1192,6 +1274,8 @@ void  Cal_NegValue (struct Value * R) {
     Msg(ERROR, "Wrong Argument Type Quantity for Operator (-)");
     break;
   }
+
+  GetDP_End ;
 }
 
 
@@ -1201,6 +1285,8 @@ void  Cal_NegValue (struct Value * R) {
 
 void  Cal_NotValue (struct Value * R) {
 
+  GetDP_Begin("Cal_NotValue");
+
   if (R->Type == SCALAR){
     R->Val[0] = !R->Val[0] ;
   }
@@ -1208,6 +1294,8 @@ void  Cal_NotValue (struct Value * R) {
     Msg(ERROR, "Negation of non scalar quantity: ! %s",
 	Get_StringForDefine(Field_Type, R->Type));
   }
+
+  GetDP_End ;
 }
 
 
@@ -1217,6 +1305,8 @@ void  Cal_NotValue (struct Value * R) {
 
 void Cal_TransposeValue(struct Value *V1, struct Value *R){
   int     k;
+
+  GetDP_Begin("Cal_TransposeValue");
 
   switch(V1->Type){
 
@@ -1263,6 +1353,7 @@ void Cal_TransposeValue(struct Value *V1, struct Value *R){
     break;
   }  
   
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ 
@@ -1271,6 +1362,8 @@ void Cal_TransposeValue(struct Value *V1, struct Value *R){
 
 void Cal_TraceValue(struct Value *V1, struct Value *R){
   int     k;
+
+  GetDP_Begin("Cal_TraceValue");
 
   switch(V1->Type){
 
@@ -1320,7 +1413,8 @@ void Cal_TraceValue(struct Value *V1, struct Value *R){
     Msg(ERROR, "Wrong Argument Type in 'Cal_TraceValue'");
     break;
   }  
-  
+
+  GetDP_End ;  
 }
 
 /* ------------------------------------------------------------------------ 
@@ -1341,6 +1435,8 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R){
   int           k;
   double        t0,t1,t2,t3,t4,t5,t6,t7,t8;
   struct Value  A;
+
+  GetDP_Begin("Cal_RotateValue");
 
   switch(V2->Type){
 
@@ -1610,6 +1706,8 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R){
     Msg(ERROR, "Wrong Argument Type in 'Cal_RotateValue'");
     break;
   }
+
+  GetDP_End ;
 }
       
 #undef A0
@@ -1630,6 +1728,8 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R){
 
 void Cal_DetValue(struct Value *V1, struct Value *R){
   int     k;
+
+  GetDP_Begin("Cal_DetValue");
 
   R->Type = SCALAR;
   
@@ -1712,6 +1812,7 @@ void Cal_DetValue(struct Value *V1, struct Value *R){
     break;
   }  
   
+  GetDP_End ;
 }
 
 
@@ -1722,6 +1823,8 @@ void Cal_DetValue(struct Value *V1, struct Value *R){
 void Cal_InvertValue(struct Value *V1, struct Value *R){
   int            k;
   struct Value   Det,A;
+
+  GetDP_Begin("Cal_InvertValue");
 
   switch(V1->Type){
 
@@ -1866,7 +1969,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
     break;
   }
 
-
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------- */
@@ -1875,6 +1978,8 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
 
 void Print_Value(struct Value *A){
   int i,j,k,index ;
+
+  GetDP_Begin("Cal_PrintValue");
 
   switch(A->Type){
 
@@ -1935,6 +2040,7 @@ void Print_Value(struct Value *A){
 
   fprintf(PrintStream, " ");
 
+  GetDP_End ;
 }
 
 
@@ -1944,6 +2050,8 @@ void Print_Value(struct Value *A){
 
 void  Cal_SetHarmonicValue(struct Value *R) {
   int k ;
+
+  GetDP_Begin("Cal_SetHarmonicValue");
 
   switch(R->Type){
 
@@ -1970,5 +2078,7 @@ void  Cal_SetHarmonicValue(struct Value *R) {
   default :
     Msg(ERROR, "Unknown Type of Argument in function 'Cal_SetHarmonicValue'");
   }
+
+  GetDP_End ;
 }
 

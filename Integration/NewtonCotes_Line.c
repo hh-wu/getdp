@@ -1,4 +1,4 @@
-/* $Id: NewtonCotes_Line.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+static char *rcsid = "$Id: NewtonCotes_Line.c,v 1.3 2000-10-30 01:05:45 geuzaine Exp $" ;
 
 
 /* NewtonCotes integration over a line */

@@ -1,4 +1,4 @@
-/* $Id: ran3.c,v 1.2 2000-09-07 18:47:27 geuzaine Exp $ */
+static char *rcsid = "$Id: ran3.c,v 1.3 2000-10-30 01:05:46 geuzaine Exp $" ;
 #define MBIG 1000000000
 #define MSEED 161803398
 #define MZ 0

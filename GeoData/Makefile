@@ -1,11 +1,11 @@
-# $Id: Makefile,v 1.4 2000-09-08 09:51:11 geuzaine Exp $
+# $Id: Makefile,v 1.5 2000-10-30 01:05:44 geuzaine Exp $
 #
 # Makefile for "libGeoData.a"
 #
 
 .IGNORE:
 
-C_FLAGS = -g
+C_FLAGS = -g -DUSE_DEBUG
 RANLIB  = /usr/bin/ranlib
 
 LIB     = ../lib/libGeoData.a
@@ -45,19 +45,20 @@ nodepend:
 	$(RM) Makefile.new
 
 # DO NOT DELETE THIS LINE
-GeoData.o: GeoData.c GeoData.h ../Main/Message.h Data_GeoData.h \
- ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- ../Main/Data_Passive.h ../Main/Data_Element.h ../DataStr/ualloc.h \
- ../include/Magic.h
-GeoEntity.o: GeoEntity.c GeoData.h ../Main/Message.h Data_GeoData.h \
- ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- ../Main/Data_Passive.h ../Main/Data_Element.h GeoEntity.h \
- ../DataStr/ualloc.h ../DataStr/outil.h ../include/Magic.h
-GeoTree.o: GeoTree.c GeoData.h ../Main/Message.h Data_GeoData.h \
- ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
- ../Main/Data_Passive.h ../Main/Data_Element.h ../DataStr/ualloc.h \
- ../DataStr/outil.h
-GeoNormal.o: GeoNormal.c ../Main/Data_Passive.h ../DataStr/listman.h \
- ../Main/Message.h ../Main/Data_Element.h GeoData.h Data_GeoData.h \
- ../DataStr/treeman.h ../DataStr/avl.h ../Main/Data_Numeric.h \
- ../DataStr/ualloc.h ../DataStr/outil.h
+GeoData.o: GeoData.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
+  ../Main/Data_Element.h ../include/Magic.h
+GeoEntity.o: GeoEntity.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
+  ../Main/Data_Element.h GeoEntity.h ../include/Magic.h \
+  ../DataStr/Tools.h
+GeoTree.o: GeoTree.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
+  ../Main/Data_Element.h ../DataStr/Tools.h
+GeoNormal.o: GeoNormal.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
+  ../Main/Data_Element.h GeoData.h Data_GeoData.h ../DataStr/Tree.h \
+  ../DataStr/avl.h ../Main/Data_Numeric.h ../DataStr/Tools.h

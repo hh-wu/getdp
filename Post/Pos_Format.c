@@ -1,23 +1,20 @@
-/* $Id: Pos_Format.c,v 1.4 2000-10-26 14:37:54 dular Exp $ */
+static char *rcsid = "$Id: Pos_Format.c,v 1.5 2000-10-30 01:05:47 geuzaine Exp $" ;
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "GeoData.h"
 #include "Data_Passive.h"
 #include "Data_DefineE.h"
 #include "Data_Numeric.h"
-
 #include "Version.h"
 #include "CurrentData.h"
 #include "Magic.h"
-
 #include "Pos_Iso.h"
 #include "Pos_Format.h"
 #include "Pos_Element.h"
-
-#include "ualloc.h"
 
 #define NBR_MAX_ISO  200
 
@@ -28,6 +25,9 @@ List_T *PostElement_L = NULL ;
 /* ------------------------------------------------------------------------ */
 
 void  Format_PostFormat(int Format){
+  
+  GetDP_Begin("Format_PostFormat");
+
   switch(Format){
   case FORMAT_GMSH_NL :
     fprintf(PostStream, "$PostFormat /* GetDP v%g, %s */\n",
@@ -40,6 +40,8 @@ void  Format_PostFormat(int Format){
 	    GETDP_VERSION, Flag_BIN ? "binary" : "ascii") ;
     break ;
   }
+  
+  GetDP_End ;
 }
 
 void  Format_PostHeader(int Format, int Contour, 
@@ -49,6 +51,8 @@ void  Format_PostHeader(int Format, int Contour,
 			struct PostQuantity  *CPQ_P){
 
   char name[MAX_STRING_LENGTH] ;
+
+  GetDP_Begin("Format_PostHeader");
 
   if(Contour){
     if(!PostElement_L) 
@@ -83,6 +87,8 @@ void  Format_PostHeader(int Format, int Contour,
     fprintf(PostStream, "$Adapt /* %s */\n", name) ;
     break ;
   }
+
+  GetDP_End ;
 }
 
 void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
@@ -91,6 +97,8 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
   int       NbrIso = 0, DecomposeInSimplex = 0 ; 
   int       iPost, iNode, iIso ;
   struct PostElement *PE ;
+
+  GetDP_Begin("Format_PostFooter");
 
   if(PSO_P->Iso){
 
@@ -151,6 +159,8 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
     fprintf(PostStream, "$EndAdapt\n");
     break ;
   }
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -162,6 +172,8 @@ void  Format_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic,
 		  double *x, double *y, double *z, struct Value *Value){
   int     i,j,k;
   double  p;
+
+  GetDP_Begin("Format_Gmsh");
 
   switch (Value[0].Type) {
 
@@ -272,6 +284,8 @@ void  Format_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic,
     break;
     
   }
+
+  GetDP_End ;
 }
 
 #define POST_SCALAR_POINT           1
@@ -309,6 +323,8 @@ void  Format_NewGmsh(int TimeStep, int NbrTimeSteps, int NbrHarmonics,
   static double  *Tmp ;
   int    i,j,k ;
   double p ;
+
+  GetDP_Begin("Format_NewGmsh");
 
   if(TimeStep == 0){
 
@@ -417,29 +433,33 @@ void  Format_NewGmsh(int TimeStep, int NbrTimeSteps, int NbrHarmonics,
     fprintf(PostStream, "\n");
   }
 
+  GetDP_End ;
 }
 
 
 int Get_GmshElementType(int Type){
+
+  GetDP_Begin("Get_GmshElementType");
+
   switch(Type){
-  case POINT :         return 15 ; 
-  case LINE :	       return 1  ; 
-  case TRIANGLE :      return 2  ; 
-  case QUADRANGLE :    return 3  ; 
-  case TETRAHEDRON :   return 4  ;    
-  case HEXAHEDRON :    return 5  ; 
-  case PRISM :	       return 6  ; 
-  case PYRAMID :       return 7  ; 
-  case LINE_2 :	       return 8  ; 
-  case TRIANGLE_2 :    return 9  ; 
-  case QUADRANGLE_2 :  return 10 ; 
-  case TETRAHEDRON_2 : return 11 ;      
-  case HEXAHEDRON_2 :  return 12 ; 
-  case PRISM_2 :       return 13 ; 
-  case PYRAMID_2 :     return 14 ; 
+  case POINT :         GetDP_Return(15) ; 
+  case LINE :	       GetDP_Return(1)  ; 
+  case TRIANGLE :      GetDP_Return(2)  ; 
+  case QUADRANGLE :    GetDP_Return(3)  ; 
+  case TETRAHEDRON :   GetDP_Return(4)  ;    
+  case HEXAHEDRON :    GetDP_Return(5)  ; 
+  case PRISM :	       GetDP_Return(6)  ; 
+  case PYRAMID :       GetDP_Return(7)  ; 
+  case LINE_2 :	       GetDP_Return(8)  ; 
+  case TRIANGLE_2 :    GetDP_Return(9)  ; 
+  case QUADRANGLE_2 :  GetDP_Return(10) ; 
+  case TETRAHEDRON_2 : GetDP_Return(11) ;      
+  case HEXAHEDRON_2 :  GetDP_Return(12) ; 
+  case PRISM_2 :       GetDP_Return(13) ; 
+  case PYRAMID_2 :     GetDP_Return(14) ; 
   default : 
     Msg(ERROR, "Unknown Type in Get_GmshElementType") ;
-    return -1 ;
+    GetDP_Return(-1) ;
   }
 }
 
@@ -452,6 +472,8 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
   static double  * TmpValues ;
   int         i, j, k, t ;
   double      p ;
+
+  GetDP_Begin("Format_Gnuplot");
 
   if(TimeStep == 0){
     switch(Value->Type){
@@ -535,6 +557,7 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
     free(TmpValues);
   }
 
+  GetDP_End ;
 }
 
 void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
@@ -545,6 +568,8 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
   static int  Size ;
   int         i,j,k ;
   double      p ;
+
+  GetDP_Begin("Format_Tabular");
 
   if(TimeStep == 0){
     switch(Value->Type){
@@ -608,12 +633,18 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
     fprintf(PostStream, "\n");
   }
 
+  GetDP_End ;
 }
 
 void  Format_Adapt(double * Dummy){
+
+  GetDP_Begin("Format_Adapt");
+
   if(Dummy[4]) fprintf(PostStream, "%d\n", (int)Dummy[4]) ;
   fprintf(PostStream, "%d %g %g %g\n", 
 	  (int)Dummy[0], Dummy[1], Dummy[2], Dummy[3]);
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -628,6 +659,8 @@ void  Format_PostElement(int Format, int Contour, int Store,
   int Num_Element ;
   static int Warning_FirstHarmonic = 0 ;
   struct PostElement *PE2 ;
+
+  GetDP_Begin("Format_PostElement");
 
   Num_Element = Geo_GetGeoElement(PE->Index)->Num ;
 
@@ -646,7 +679,7 @@ void  Format_PostElement(int Format, int Contour, int Store,
       PE2 = PartialCopy_PostElement(PE) ;
       List_Add(PostElement_L, &PE2) ;
     }
-    return ;
+    GetDP_End ;
   }
 
   switch(Format){
@@ -677,6 +710,8 @@ void  Format_PostElement(int Format, int Contour, int Store,
   default :
     Msg(ERROR, "Unknown Format in Format_PostElement");
   }
+
+  GetDP_End ;
 }
 
 
@@ -688,6 +723,8 @@ void  Format_PostValue(int Format, struct Value * Value, int NbHarmonic, double 
 		       int Flag_PrintTime, int Flag_NewLine) {
 
   int  k ;
+
+  GetDP_Begin("Format_PostValue");
 
   if (Flag_PrintTime) fprintf(PostStream, "%.8g", Time) ;
 
@@ -729,4 +766,6 @@ void  Format_PostValue(int Format, struct Value * Value, int NbHarmonic, double 
     break ;
   }
   if (Flag_NewLine) fprintf(PostStream, "\n") ;
+
+  GetDP_End ;
 }

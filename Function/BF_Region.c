@@ -1,12 +1,11 @@
-/* $Id: BF_Region.c,v 1.3 2000-09-12 20:19:34 geuzaine Exp $ */
+static char *rcsid = "$Id: BF_Region.c,v 1.4 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 
+#include "GetDP.h"
 #include "BF_Function.h"
 #include "Get_DofOfElement.h"
 #include "CurrentData.h"
 #include "Treatment_Formulation.h"
-
-#include "ualloc.h"
 
 /* ------------------------------------------------------------------------ */
 /*  B F _ R e g i o n                                                       */
@@ -14,7 +13,12 @@
 
 void  BF_Region(struct Element * Element, int NumRegion, 
 		double u, double v, double w,  double *s ) {
+
+  GetDP_Begin("BF_Region");
+
   *s = 1. ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -23,17 +27,32 @@ void  BF_Region(struct Element * Element, int NumRegion,
 
 void  BF_RegionX(struct Element * Element, int NumRegion, 
 		 double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_RegionX");
+
   s[1] = s[2] = 0. ;  s[0] = 1. ;
+
+  GetDP_End ;
 }
 
 void  BF_RegionY(struct Element * Element, int NumRegion, 
 		 double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_RegionY");
+
   s[0] = s[2] = 0. ;  s[1] = 1. ;
+
+  GetDP_End ;
 }
 
 void  BF_RegionZ(struct Element * Element, int NumRegion, 
 		 double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_RegionZ");
+
   s[0] = s[1] = 0. ;  s[2] = 1. ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -43,13 +62,21 @@ void  BF_RegionZ(struct Element * Element, int NumRegion,
 void  BF_Zero(struct Element * Element, int Num,
 	      double u, double v, double w,  double *s ) {
 
+  GetDP_Begin("BF_Zero");
+
   s[0] = s[1] = s[2] = 0. ;
+
+  GetDP_End ;
 }
 
 void  BF_One(struct Element * Element, int Num,
 	     double u, double v, double w,  double *s ) {
 
+  GetDP_Begin("BF_One");
+
   s[0] = 1. ; s[1] = s[2] = 0. ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -65,6 +92,7 @@ void  BF_Global(struct Element * Element, int NumGlobal,
   
   void  BF_InitGlobal(struct GlobalBasisFunction * GlobalBasisFunction_P) ;
 
+  GetDP_Begin("BF_Global");
 
   GlobalBasisFunction_P = Element->GlobalBasisFunction[NumGlobal-1] ;
 
@@ -98,6 +126,8 @@ void  BF_Global(struct Element * Element, int NumGlobal,
   default :
     Msg(ERROR, "Bad Type for Global Basis Function") ;
   }
+
+  GetDP_End ;
 }
 
 
@@ -115,6 +145,7 @@ void  BF_dGlobal(struct Element * Element, int NumGlobal,
 
   void  BF_InitGlobal(struct GlobalBasisFunction * GlobalBasisFunction_P) ;
 
+  GetDP_Begin("BF_dGlobal");
 
   GlobalBasisFunction_P = Element->GlobalBasisFunction[NumGlobal-1] ;
 
@@ -148,6 +179,8 @@ void  BF_dGlobal(struct Element * Element, int NumGlobal,
   default :
     Msg(ERROR, "Bad Type for Global Basis Function") ;
   }
+
+  GetDP_End ;
 }
 
 
@@ -159,6 +192,8 @@ void  BF_InitGlobal(struct GlobalBasisFunction * GlobalBasisFunction_P) {
 
   struct QuantityStorage  * QuantityStorage_P ;
   struct Formulation      * Formulation_P ;
+
+  GetDP_Begin("BF_InitGlobal");
 
   QuantityStorage_P =
     GlobalBasisFunction_P->QuantityStorage = 
@@ -176,4 +211,6 @@ void  BF_InitGlobal(struct GlobalBasisFunction * GlobalBasisFunction_P) {
     List_Pointer(Problem_S.FunctionSpace,
 		 QuantityStorage_P->DefineQuantity->FunctionSpaceIndex) ;
   QuantityStorage_P->TypeQuantity = QuantityStorage_P->FunctionSpace->Type ;
+
+  GetDP_End ;
 }

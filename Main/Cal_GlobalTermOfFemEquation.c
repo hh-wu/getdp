@@ -1,16 +1,15 @@
-/* $Id: Cal_GlobalTermOfFemEquation.c,v 1.3 2000-10-27 11:47:28 dular Exp $ */
+static char *rcsid = "$Id: Cal_GlobalTermOfFemEquation.c,v 1.4 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Cal_Quantity.h"
 #include "Get_DofOfElement.h"
 #include "Get_Geometry.h"
-
 #include "GeoData.h"
-
 #include "CurrentData.h"
-#include "outil.h"
+#include "Tools.h"
 
 /* ------------------------------------------------------------------------ */
 /*  C a l _ G l o b a l T e r m O f F e m F o r m u l a t i o n             */
@@ -31,6 +30,7 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
 
   void (*Function_AssembleTerm)(struct Dof * Equ, struct Dof * Dof, double Val[]) ;
 
+  GetDP_Begin("Cal_GlobalTermOfFemEquation");
 
   Element.Num = NO_ELEMENT ;
 
@@ -74,4 +74,5 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
     (QuantityStorageEqu_P->BasisFunction[0].Dof,
      QuantityStorageDof_P->BasisFunction[0].Dof, Coefficient) ;
 
+  GetDP_End ;
 }

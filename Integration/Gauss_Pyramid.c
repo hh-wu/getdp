@@ -1,14 +1,16 @@
-/* $Id: Gauss_Pyramid.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+static char *rcsid = "$Id: Gauss_Pyramid.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "Message.h"
+#include "GetDP.h"
 #include "Gauss_Pyramid.h"
 
 /* Gauss integration over a pyramid */
 
 void  Gauss_Pyramid (int Nbr_Points, int Num,
 		     double *u, double *v, double *w, double *wght) {
+
+  GetDP_Begin("Gauss_Pyramid") ;
 
   switch (Nbr_Points) {
 
@@ -23,5 +25,6 @@ void  Gauss_Pyramid (int Nbr_Points, int Num,
 
   }
 
+  GetDP_End ;
 }
 

@@ -1,15 +1,14 @@
-/* $Id: Pre_TermOfFemEquation.c,v 1.4 2000-09-28 22:14:40 geuzaine Exp $ */
+static char *rcsid = "$Id: Pre_TermOfFemEquation.c,v 1.5 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Get_DofOfElement.h"
 #include "ExtendedGroup.h"
-
 #include "Data_Active.h"
 #include "DofData.h"
-
 #include "CurrentData.h"
-#include "outil.h"
+#include "Tools.h"
 
 /* ------------------------------------------------------------------------ */
 /*  P r e _ I n i t T e r m O f F e m F o r m u l a t i o n                 */
@@ -19,6 +18,8 @@ void  Pre_InitTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 				struct QuantityStorage  * QuantityStorage_P0) {
 
   struct DefineQuantity   * DefineQuantity_P ;
+
+  GetDP_Begin("Pre_InitTermOfFemEquation");
 
   if (EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexDof >= 0) {
     DefineQuantity_P =
@@ -34,6 +35,7 @@ void  Pre_InitTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
     Dof_AddFunctionSpaceIndex(DefineQuantity_P->FunctionSpaceIndex) ;
   }
 
+  GetDP_End ;
 }
 
 
@@ -47,6 +49,8 @@ void  Pre_TermOfFemEquation(struct Element          * Element,
 
   struct QuantityStorage  * QuantityStorageEqu_P, * QuantityStorageDof_P ;
   int  i ;
+
+  GetDP_Begin("Pre_TermOfFemEquation");
 
   QuantityStorageEqu_P = QuantityStorage_P0 +
     EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
@@ -141,6 +145,7 @@ void  Pre_TermOfFemEquation(struct Element          * Element,
       }
   }
 
+  GetDP_End ;
 }
 
 
@@ -152,6 +157,8 @@ void  Pre_InitGlobalTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 				      struct QuantityStorage  * QuantityStorage_P0) {
 
   struct DefineQuantity   * DefineQuantity_P ;
+
+  GetDP_Begin("Pre_InitGlobalTermOfFemEquation");
 
   if (EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexDof >= 0) {
     DefineQuantity_P =
@@ -167,6 +174,7 @@ void  Pre_InitGlobalTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
     Dof_AddFunctionSpaceIndex(DefineQuantity_P->FunctionSpaceIndex) ;
   }
 
+  GetDP_End ;
 }
 
 
@@ -179,6 +187,8 @@ void  Pre_GlobalTermOfFemEquation(int  Num_Region,
 				  struct QuantityStorage  * QuantityStorage_P0) {
 
   struct QuantityStorage  * QuantityStorageEqu_P, * QuantityStorageDof_P ;
+
+  GetDP_Begin("Pre_GlobalTermOfFemEquation");
 
   QuantityStorageEqu_P = QuantityStorage_P0 +
     EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexEqu ;
@@ -276,6 +286,8 @@ void  Pre_GlobalTermOfFemEquation(int  Num_Region,
     }
 
   }
+
+  GetDP_End ;
 }
 
 
@@ -309,7 +321,7 @@ void  Pre_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 			       struct DefineQuantity  * DefineQuantity_P0,
 			       struct QuantityStorage * QuantityStorage_P0) ;
 
-
+  GetDP_Begin("Pre_FemGlobalEquation");
 
   /* Liste des Regions auxquelles on associe des Equations de Type 'Network' */
 
@@ -340,8 +352,9 @@ void  Pre_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
     }
   }
   Nbr_EquAndDof = List_Nbr(RegionIndex_L) ;
-  if (!Nbr_EquAndDof)  return ;
-
+  if (!Nbr_EquAndDof){
+    GetDP_End ;
+  }
 
   /* Codes des Dof globaux pour Equ, DofNode, DofLoop */
 
@@ -382,6 +395,7 @@ void  Pre_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 
   List_Delete(RegionIndex_L) ;
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -394,6 +408,8 @@ void  Pre_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
   struct QuantityStorage  * QuantityStorage_P ;
   struct GlobalQuantity   * GlobalQuantity_P ;
   struct QuantityStorage  QuaSto_S ;
+
+  GetDP_Begin("Pre_FemGlobalEquation2");
 
   DefineQuantity_P  = DefineQuantity_P0  + Index_DefineQuantity ;
   QuantityStorage_P = QuantityStorage_P0 + Index_DefineQuantity ;
@@ -445,6 +461,7 @@ void  Pre_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
     }
   }
 
+  GetDP_End ;
 }
 
 

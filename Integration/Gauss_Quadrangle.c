@@ -1,18 +1,18 @@
-/* $Id: Gauss_Quadrangle.c,v 1.5 2000-09-07 18:47:25 geuzaine Exp $ */
+static char *rcsid = "$Id: Gauss_Quadrangle.c,v 1.6 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
-#include "Message.h"
+#include "GetDP.h"
 #include "Quadrature.h"
 #include "Gauss_Quadrangle.h"
-
-#include "ualloc.h"
 
 /* Classic Gauss Integration over a quadrangle */
 
 void  Gauss_Quadrangle (int Nbr_Points, int Num,
 			double *u, double *v, double *w, double *wght) {
+
+  GetDP_Begin("Gauss_Quadrangle");
 
   switch (Nbr_Points) {
   case  3 : *u= xq3 [Num] ; *v= yq3 [Num] ; *w= 0. ; *wght= pq3 [Num] ; break ;
@@ -24,6 +24,7 @@ void  Gauss_Quadrangle (int Nbr_Points, int Num,
     break;
   }
 
+  GetDP_End ;
 }
 
 /* Gauss-Legendre scheme to integrate over a quadrangle */
@@ -35,6 +36,8 @@ void  GaussLegendre_Quadrangle (int Nbr_Points, int Num,
 				double *u, double *v, double *w, double *wght) {
   int i,j,index=0,nb;
   double pt1,pt2,wt1,wt2,dum;
+
+  GetDP_Begin("GaussLegendre_Quadrangle");
 
   nb = (int)sqrt((double)Nbr_Points);
 
@@ -61,12 +64,16 @@ void  GaussLegendre_Quadrangle (int Nbr_Points, int Num,
   }
 
   *u = glxq[nb-1][Num] ; *v = glyq[nb-1][Num] ; *w = 0. ; *wght = glpq[nb-1][Num] ;
+
+  GetDP_End ;
 }
 
 /* Gauss Integration over a quadrangle with a 1/R singularity over node (-1,-1,0) */
 
 void  GaussSingularR_Quadrangle (int Nbr_Points, int Num,
 				 double *u, double *v, double *w, double *wght) {
+
+  GetDP_Begin("GaussSingularR_Quadrangle");
 
   switch (Nbr_Points) {
   case  1 : *u= xqs1 [Num] ; *v= yqs1 [Num] ; *w= 0. ; *wght= pqs1 [Num] ; break ;
@@ -78,5 +85,6 @@ void  GaussSingularR_Quadrangle (int Nbr_Points, int Num,
     break;
   }
 
+  GetDP_End ;
 }
 

@@ -1,18 +1,20 @@
-/* $Id: Gauss_Triangle.c,v 1.5 2000-09-07 18:47:25 geuzaine Exp $ */
+static char *rcsid = "$Id: Gauss_Triangle.c,v 1.6 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
-#include "Message.h"
+#include "GetDP.h"
 #include "Quadrature.h"
 #include "Gauss_Triangle.h"
 
-#include "ualloc.h"
 
 /* Classic Gauss Integration over a triangle */
 
 void  Gauss_Triangle (int Nbr_Points, int Num,
 		      double *u, double *v, double *w, double *wght) {
+
+  GetDP_Begin("Gauss_Triangle");
+
   switch (Nbr_Points) {
   case  1 : *u= xt1 [Num] ; *v= yt1 [Num] ; *w= 0. ; *wght= pt1 [Num] ; break ;
   case  3 : *u= xt3 [Num] ; *v= yt3 [Num] ; *w= 0. ; *wght= pt3 [Num] ; break ;
@@ -28,6 +30,7 @@ void  Gauss_Triangle (int Nbr_Points, int Num,
     break;
   }
 
+  GetDP_End ;
 }
 
 
@@ -38,16 +41,23 @@ double *glxt[MAX_LINE_POINTS], *glyt[MAX_LINE_POINTS], *glpt[MAX_LINE_POINTS];
 
 void quadToTri(double xi,double eta,double *r, double *s, double *J) {
   double r1;
+
+  GetDP_Begin("quadToTri");
+
   *r = 0.5e0*(1.0e0+xi);
   r1 = 1.0e0-(*r);
   *s = 0.5e0*(1.0e0+eta)*r1;
   *J = 0.25e0*r1;  
+
+  GetDP_End ;
 }
 
 void  GaussLegendre_Triangle (int Nbr_Points, int Num,
 			      double *u, double *v, double *w, double *wght) {
   int i,j,index=0,nb;
   double pt1,pt2,wt1,wt2,dJ,dum;
+
+  GetDP_Begin("GaussLegendre_Line");
 
   nb = (int)sqrt((double)Nbr_Points);
 
@@ -73,6 +83,8 @@ void  GaussLegendre_Triangle (int Nbr_Points, int Num,
   }
 
   *u = glxt[nb-1][Num] ; *v = glyt[nb-1][Num] ; *w = 0. ; *wght = glpt[nb-1][Num] ;
+
+  GetDP_End ;
 }
 
 
@@ -80,6 +92,8 @@ void  GaussLegendre_Triangle (int Nbr_Points, int Num,
 
 void  GaussSingularR_Triangle (int Nbr_Points, int Num,
 			       double *u, double *v, double *w, double *wght) {
+
+  GetDP_Begin("GaussSingularR_Triangle");
 
   switch (Nbr_Points) {
   case  1 : *u= xts1 [Num] ; *v= yts1 [Num] ; *w= 0. ; *wght= pts1 [Num] ; break ;
@@ -91,5 +105,6 @@ void  GaussSingularR_Triangle (int Nbr_Points, int Num,
     break;
   }
 
+  GetDP_End ;
 }
 

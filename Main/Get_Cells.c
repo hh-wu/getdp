@@ -1,8 +1,9 @@
-/* $Id: Get_Cells.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+static char *rcsid = "$Id: Get_Cells.c,v 1.3 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
 
+#include "GetDP.h"
 #include "Get_Geometry.h"
 #include "Get_Cells.h"
 
@@ -10,13 +11,14 @@
 #include "CurrentData.h"
 
 #include "Data_Numeric.h"
-#include "ualloc.h"
 
 
 void Get_BarycentricDivision(struct Element * Element, double Bary_Edge[][3], 
 			     double Bary_Facet[][3], double Bary_Volume[3]){
 
   int  i, j, *IM, *NumNodes, *NumEdges, Nbr_Edges, Nbr_Facets ;
+
+  GetDP_Begin("Get_BarycentricDivision");
 
   i = 0; IM = Geo_GetIM_Den(Element->GeoElement->Type, &Nbr_Edges) ;
   do{
@@ -58,6 +60,7 @@ void Get_BarycentricDivision(struct Element * Element, double Bary_Edge[][3],
     }
   }
 
+  GetDP_End ;
 }
 
 static struct Geo_Element deRhamGeoElement[20] ;
@@ -70,6 +73,8 @@ void Get_deRhamCells(struct Element *Element,
 
   double   Bary_Edge[12][3], Bary_Facet[6][3], Bary_Volume[3], *uvw, norm ;
   int      i ;
+
+  GetDP_Begin("Get_deRhamCells");
   
   *Nbr_Cells = QuantityStorage->NbrElementaryBasisFunction ;
 
@@ -295,7 +300,7 @@ void Get_deRhamCells(struct Element *Element,
     break;
   }
 
-
+  GetDP_End ;
 }
 
 
@@ -305,8 +310,9 @@ static struct Geo_Element IntegrationGeoElement[20] ;
 void Get_IntegrationCells(struct Element *Element, 
 			  double x, double y, double z,
 			  int *Nbr_Cells, struct Element Cells[]) {
-  
-  int      i, j ;
+  int  i, j ;
+
+  GetDP_Begin("Get_IntegrationCells");
   
   switch(Element->Type){
 
@@ -341,4 +347,5 @@ void Get_IntegrationCells(struct Element *Element,
 
   }
 
+  GetDP_End ;
 }

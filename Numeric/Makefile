@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.7 2000-09-09 07:29:41 geuzaine Exp $
+# $Id: Makefile,v 1.8 2000-10-30 01:05:46 geuzaine Exp $
 #
 # Makefile for 'libSolverMisc.a'
 #
@@ -7,7 +7,7 @@
 
 RANLIB  = /usr/bin/ranlib
 
-C_FLAGS = -g
+C_FLAGS = -g -DUSE_DEBUG
 F77_FLAGS = -g
 SOLVER  = -D_SPARSKIT
 
@@ -67,16 +67,16 @@ ran3.o: ran3.c
 hqr.o: hqr.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
 dsvdcmp.o: dsvdcmp.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
 hollowcyl.o: hollowcyl.c nrdefs.h ../Main/Data_Numeric.h
-Lanczos.o: Lanczos.c ../DofData/DofData.h ../DataStr/listman.h \
- ../DataStr/treeman.h ../DataStr/avl.h ../DofData/LinAlg.h \
- ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
- ../Main/Data_Numeric.h ../Main/CurrentData.h ../Main/Data_Active.h \
- ../Main/Data_Passive.h ../Main/Message.h ../Main/Data_Element.h \
- ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../include/Magic.h \
- nrutil.h ../DataStr/ualloc.h
-Adapt.o: Adapt.c ../Main/Data_Element.h ../GeoData/GeoData.h \
- ../Main/Message.h ../GeoData/Data_GeoData.h ../DataStr/listman.h \
- ../DataStr/treeman.h ../DataStr/avl.h Adapt.h nrutil.h nrdefs.h \
- ../Main/Data_Numeric.h
+Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
+  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+  ../Main/Data_Numeric.h ../Main/CurrentData.h ../Main/Data_Active.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../include/Magic.h nrutil.h
+Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h nrutil.h \
+  nrdefs.h ../Main/Data_Numeric.h
 brent.o: brent.c nrutil.h nrdefs.h ../Main/Data_Numeric.h
 mnbrak.o: mnbrak.c nrutil.h nrdefs.h ../Main/Data_Numeric.h

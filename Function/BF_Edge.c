@@ -1,6 +1,7 @@
-/* $Id: BF_Edge.c,v 1.3 2000-09-12 20:19:34 geuzaine Exp $ */
+static char *rcsid = "$Id: BF_Edge.c,v 1.4 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 
+#include "GetDP.h"
 #include "BF_Function.h"
 
 #define NoEdge  Msg(ERROR, "Missing Edge Entity in Element %d", Element->Num)
@@ -13,6 +14,8 @@
 
 void  BF_Edge    (struct Element * Element, int NumEdge, 
 		  double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_Edge");
 
   switch (Element->Type) {
   case LINE :
@@ -117,6 +120,7 @@ void  BF_Edge    (struct Element * Element, int NumEdge,
     s[0] = - s[0] ; s[1] = - s[1] ; s[2] = - s[2] ;
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumEdge
@@ -129,6 +133,8 @@ void  BF_Edge    (struct Element * Element, int NumEdge,
 
 void  BF_CurlEdge(struct Element * Element, int NumEdge, 
 		  double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_Edge");
 
   switch (Element->Type) {
   case LINE :
@@ -217,6 +223,7 @@ void  BF_CurlEdge(struct Element * Element, int NumEdge,
     s[0] = - s[0] ; s[1] = - s[1] ; s[2] = - s[2] ;
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumEdge

@@ -1,12 +1,12 @@
-/* $Id: Parser.c,v 1.5 2000-10-16 12:33:42 geuzaine Exp $ */
+static char *rcsid = "$Id: Parser.c,v 1.6 2000-10-30 01:05:48 geuzaine Exp $" ;
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
 #include "Solver.h"
-#include "ualloc.h"
 #include "Message.h"
+#include "Malloc.h"
 
 #define REEL    1
 #define ENTIER  2

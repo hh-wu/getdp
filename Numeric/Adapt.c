@@ -1,11 +1,11 @@
-/* $Id: Adapt.c,v 1.3 2000-09-07 18:47:27 geuzaine Exp $ */
+static char *rcsid = "$Id: Adapt.c,v 1.4 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 #include <time.h>
 
+#include "GetDP.h"
 #include "Data_Element.h"
 #include "Adapt.h"
-#include "Message.h"
 
 #include "nrutil.h"
 #include "nrdefs.h"
@@ -32,13 +32,15 @@ double fH1 (double l){
   int i;
   double val1 = 0.0, val2 = 0.0;
 
+  GetDP_Begin("fH1");
+
   for(i = 1 ; i <= NN ; i++)
     val1 += pow(2.*l*DSQR(ERR[i])*PP[i]/DIM, DIM/(2.*PP[i]+DIM));
 
   for(i = 1 ; i <= NN ; i++)
     val2 += DSQR(ERR[i]) * pow(2.*l*DSQR(ERR[i])*PP[i]/DIM, -2.*PP[i]/(2.*PP[i]+DIM));
 
-  return -(val1 + l * (val2 - DSQR(E0)));
+  GetDP_Return( -(val1 + l * (val2 - DSQR(E0))) );
 }
 
 /* h-type version 2 : minimize the error while keeping a given number
@@ -48,13 +50,15 @@ double fH2 (double l){
   int i;
   double val1 = 0.0, val2 = 0.0, qi;
 
+  GetDP_Begin("fH2");
+
   for(i = 1 ; i <= NN ; i++){
     qi = pow(DIM*l/(2.*PP[i]*DSQR(ERR[i])), -DIM/(DIM+2.*PP[i]));
     val1 += DSQR(ERR[i]) * pow(qi, -2.*PP[i]/DIM);
     val2 += qi;
   }
 
-  return -(val1 + l * (val2 - E0));
+  GetDP_Return( -(val1 + l * (val2 - E0)) );
 }
 
 /* p-type : minimize error by modifying the interpolation order vector */
@@ -62,6 +66,8 @@ double fH2 (double l){
 double fP1 (double l){
   int i;
   double val1 = 0.0, val2 = 0.0, qi, e;
+
+  GetDP_Begin("fP1");
 
   for(i = 1 ; i <= NN ; i++){
     e = ERR[i];
@@ -71,7 +77,7 @@ double fP1 (double l){
     val2 += pow(HH[i]/MINH, qi) * DSQR(e);
   }
 
-  return -(val1 + l * (val2 - DSQR(E0)));
+  GetDP_Return( -(val1 + l * (val2 - DSQR(E0))) );
 }
 
 
@@ -82,13 +88,16 @@ double fP1 (double l){
 double min1d (int method, double (*funct)(double), double *xmin){
   double xx, fx, fb, fa, bx, ax;
 
+  GetDP_Begin("min1d");
+
   switch(method){
   case H1: 
   case P1: ax=1.e-12; xx=1.e2; break;
   default: ax=1.e-15; xx=1.e-12; break;
   }    
   mnbrak(&ax,&xx,&bx,&fa,&fx,&fb,funct);
-  return brent(ax,xx,bx,funct,TOL,xmin);
+
+  GetDP_Return( brent(ax,xx,bx,funct,TOL,xmin) );
 }
 
 /* Adapt return the constraint (N0 ou e0) for the optimzed problem */
@@ -104,6 +113,8 @@ double Adapt (int N,        /* Number of elements */
   int i;
   double contr, pivrai, lambda, minf, qi, ri, pi, obj, obj2, minri, maxri;
   double errmin, errmax;
+
+  GetDP_Begin("Adapt");
 
   h[N+1] = 1.0;
   p[N+1] = 1.0;
@@ -195,5 +206,5 @@ double Adapt (int N,        /* Number of elements */
     Msg(ERROR, "Unknown Adaption Method");
   }
 
-  return contr;
+  GetDP_Return(contr) ;
 }

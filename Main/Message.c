@@ -1,14 +1,15 @@
-/* $Id: Message.c,v 1.15 2000-10-02 09:20:22 geuzaine Exp $ */
+static char *rcsid = "$Id: Message.c,v 1.16 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <signal.h>
 
 #ifndef MSDOS
 #include <sys/resource.h>
 #endif
 
+#include "GetDP.h"
 #include "CurrentData.h"
-#include "Message.h"
 #include "Version.h"
 #include "LinAlg.h"
 
@@ -81,6 +82,7 @@ char help[] =
   ;
 
 void Info (int level, char *arg0){
+  
   switch(level){
   case 0 :
     fprintf(stderr, acronym, GETDP_VERSION);
@@ -109,15 +111,7 @@ void Info (int level, char *arg0){
 
 void Signal (int sig_num){
 
-  switch (sig_num){
-  case SIGSEGV : 
-    Msg(ERROR, "Segmentation Violation (invalid memory reference)\n"
-	"----------------------------------------------------------------------\n"
-	"You have probably discovered a bug in GetDP...\n"
-	"You may e-mail the context in which it occurred to one of the authors.\n"
-	"Type 'getdp -info' to get feedback information.");
-    break;
-  case SIGINT : 
+  if(sig_num == SIGINT){
     if(!InteractiveLevel){
       if(Flag_VERBOSE > 1){
 	Msg(BIGINFO, "Switching to Low Verbosity Mode - Once more to Interrupt"); 
@@ -127,12 +121,22 @@ void Signal (int sig_num){
     }
     else
       InteractiveInterrupt = 1;
+    return;
+  }
+
+  switch (sig_num){
+  case SIGSEGV : 
+    Msg(ERROR, "Segmentation Violation (Invalid Memory Reference)\n"
+	"----------------------------------------------------------------------\n"
+	"You have discovered (yet another) a bug in GetDP...\n"
+	"You may e-mail the context in which it occurred to one of the authors.\n"
+	"Type 'getdp -info' to get feedback information");
     break;
   case SIGFPE : 
-    Msg(ERROR, "Floating point exception (division by zero?)"); 
+    Msg(ERROR, "Floating point exception (Division by Zero?)");
     break;
   default :
-    Msg(ERROR, "Unknown Signal"); 
+    Msg(ERROR, "Caught Unknown Signal");
     break;
   }
 }
@@ -142,8 +146,24 @@ void Signal (int sig_num){
 /*  M s g                                                                   */
 /* ------------------------------------------------------------------------ */
 
+void Get_GetDPContext(char *FileName, char *FunctionName){
+  int i = 5, j = 0 ;
+
+  while(i<strlen(GetDP_CurrentSourceFile[GetDP_CurrentStackIndex-1]) &&
+	GetDP_CurrentSourceFile[GetDP_CurrentStackIndex-1][i] != ',')
+    FileName[j++] = GetDP_CurrentSourceFile[GetDP_CurrentStackIndex-1][i++];
+  FileName[j] = '\0';
+  strcpy(FunctionName, GetDP_CurrentFunction[GetDP_CurrentStackIndex-1]);
+
+}
+
+
 void PrintMsg(FILE *stream, int level, int Verbosity, 
 	      va_list args, char *fmt, int *abort) {
+
+#ifdef USE_DEBUG
+  char FileName[256], FunctionName[256];
+#endif
 
   switch(level){
 
@@ -162,6 +182,11 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
     fprintf(stream, ERROR_STR); 
     vfprintf(stream, fmt, args); 
     fprintf(stream, "\n");
+#ifdef USE_DEBUG
+    fprintf(stream, WHITE_STR); 
+    Get_GetDPContext(FileName, FunctionName);
+    fprintf(stream, "(Error occured in '%s' function '%s')\n", FileName, FunctionName);
+#endif
     *abort = 1;
     break;
 
@@ -169,6 +194,11 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
     fprintf(stream, WARNING_STR); 
     vfprintf(stream, fmt,args); 
     fprintf(stream, "\n");
+#ifdef USE_DEBUG
+    Get_GetDPContext(FileName, FunctionName);
+    fprintf(stream, WHITE_STR); 
+    fprintf(stream, "(Warning occured in '%s' function '%s')\n", FileName, FunctionName);
+#endif
     break;
 
   case OPERATION :
@@ -236,6 +266,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
 void GetResources(long *s, long *us, long *mem){
 #ifndef MSDOS
   static struct rusage r;
+
   getrusage(RUSAGE_SELF,&r);
   *s   = (long)r.ru_utime.tv_sec ;
   *us  = (long)r.ru_utime.tv_usec ;
@@ -246,6 +277,7 @@ void GetResources(long *s, long *us, long *mem){
 }
 
 void PrintResources(FILE *stream, char *fmt, long s, long us, long mem){
+
 #ifndef MSDOS
   fprintf(stream, RESOURCES_STR) ;
   fprintf(stream, "%scpu %ld.%ld s / mem %ld kb\n", fmt, s, us, mem);

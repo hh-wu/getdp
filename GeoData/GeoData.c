@@ -1,13 +1,13 @@
-/* $Id: GeoData.c,v 1.13 2000-10-20 08:46:03 geuzaine Exp $ */
+static char *rcsid = "$Id: GeoData.c,v 1.14 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "GeoData.h"
 #include "Data_Passive.h"
 #include "Data_Element.h"
-#include "ualloc.h"
 #include "Magic.h"
 
 extern double Flag_ORDER ;
@@ -30,6 +30,8 @@ int  Geo_AddGeoData(List_T * GeoData_L,
 
   int  fcmp_GeoData_Name(const void *a, const void *b) ;
 
+  GetDP_Begin("Geo_AddGeoData");
+
   if (!Name_MshFile)  Name_MshFile = Name_DefaultMshFile ;
 
   if ((i = List_ISearchSeq(GeoData_L, Name_MshFile, fcmp_GeoData_Name)) < 0) {
@@ -51,7 +53,7 @@ int  Geo_AddGeoData(List_T * GeoData_L,
     List_Add(GeoData_L, &GeoData_S) ;
   }
 
-  return (i) ;
+  GetDP_Return(i) ;
 }
 
 int  fcmp_GeoData_Name(const void * a, const void * b) {
@@ -64,6 +66,8 @@ int  fcmp_GeoData_Name(const void * a, const void * b) {
 /* ------------------------------------------------------------------------ */
 
 void  Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name) {
+
+  GetDP_Begin("Geo_InitGeoData");
 
   GeoData_P->Num  = Num ;
   GeoData_P->Name = Name ;
@@ -87,6 +91,8 @@ void  Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name) {
   GeoData_P->Grid.Init = 0 ;
 
   GeoData_P->H = GeoData_P->P = NULL ;
+
+  GetDP_End ;
 }
 
 
@@ -95,7 +101,12 @@ void  Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name) {
 /* ------------------------------------------------------------------------ */
 
 void  Geo_SetCurrentGeoData(struct GeoData * GeoData_P) {
+
+  GetDP_Begin("Geo_SetCurrentGeoData");
+
   CurrentGeoData = GeoData_P ;
+
+  GetDP_End ;
 }
 
 
@@ -105,10 +116,13 @@ void  Geo_SetCurrentGeoData(struct GeoData * GeoData_P) {
 
 void  Geo_OpenFile(char * Name, char * Mode) {
 
+  GetDP_Begin("Geo_OpenFile");
+
   File_GEO = fopen(Name, Mode) ;
 
   if (!File_GEO) Msg(ERROR, "Unable to Open File '%s'", Name);
 
+  GetDP_End ;
 }
 
 
@@ -117,7 +131,12 @@ void  Geo_OpenFile(char * Name, char * Mode) {
 /* ------------------------------------------------------------------------ */
 
 void  Geo_CloseFile(void) {
+
+  GetDP_Begin("Geo_CloseFile");
+  
   fclose(File_GEO) ;
+
+  GetDP_End ;
 }
 
 
@@ -127,30 +146,32 @@ void  Geo_CloseFile(void) {
 
 int Geo_GetElementType(int Format, int Type){
 
+  GetDP_Begin("Geo_GetElementType");
+
   switch(Format){
   case FORMAT_GMSH :
     switch(Type){
-    case 15 : return POINT ;
-    case 1  : return LINE ;
-    case 2  : return TRIANGLE ;
-    case 3  : return QUADRANGLE ;
-    case 4  : return TETRAHEDRON ;      
-    case 5  : return HEXAHEDRON ;
-    case 6  : return PRISM ;
-    case 7  : return PYRAMID ;
-    case 8  : return LINE_2 ;
-    case 9  : return TRIANGLE_2 ;
-    case 10 : return QUADRANGLE_2 ;
-    case 11 : return TETRAHEDRON_2 ;      
-    case 12 : return HEXAHEDRON_2 ;
-    case 13 : return PRISM_2 ;
-    case 14 : return PYRAMID_2 ;
-    default : Msg(ERROR, "Unkown Element Type in Gmsh Format") ; return -1 ;
+    case 15 : GetDP_Return(POINT) ;
+    case 1  : GetDP_Return(LINE) ;
+    case 2  : GetDP_Return(TRIANGLE) ;
+    case 3  : GetDP_Return(QUADRANGLE) ;
+    case 4  : GetDP_Return(TETRAHEDRON) ;      
+    case 5  : GetDP_Return(HEXAHEDRON) ;
+    case 6  : GetDP_Return(PRISM) ;
+    case 7  : GetDP_Return(PYRAMID) ;
+    case 8  : GetDP_Return(LINE_2) ;
+    case 9  : GetDP_Return(TRIANGLE_2) ;
+    case 10 : GetDP_Return(QUADRANGLE_2) ;
+    case 11 : GetDP_Return(TETRAHEDRON_2) ;      
+    case 12 : GetDP_Return(HEXAHEDRON_2) ;
+    case 13 : GetDP_Return(PRISM_2) ;
+    case 14 : GetDP_Return(PYRAMID_2) ;
+    default : Msg(ERROR, "Unkown Element Type in Gmsh Format") ; GetDP_Return(-1) ;
     }
     break ;
   default :
     Msg(ERROR, "Unkown Mesh Format") ;
-    return -1 ;
+    GetDP_Return(-1) ;
   }
 
 }
@@ -161,6 +182,8 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
   struct Geo_Node     Geo_Node ;
   struct Geo_Element  Geo_Element ;
   char                String[MAX_STRING_LENGTH] ;
+
+  GetDP_Begin("Geo_ReadFile");
 
   while (1) {
 
@@ -222,6 +245,7 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
   }   /* while 1 ... */
 
+  GetDP_End ;
 }
 
 
@@ -231,6 +255,8 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
   int        Nbr, i, Index_GeoElement ;
   double     E, H, P, Max_Order = -1.0 ;
   char       String[MAX_STRING_LENGTH] ;
+
+  GetDP_Begin("Geo_ReadFileAdapt");
 
   Nbr = List_Nbr(GeoData_P->Elements) ;
 
@@ -277,6 +303,7 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
  
   Msg(INFO, "Maximum Interpolation Order = %g", Flag_ORDER) ;
 
+  GetDP_End ;
 }
 
 
@@ -299,7 +326,10 @@ int  fcmp_Nod(const void * a, const void * b) {
 /* ------------------------------------------------------------------------ */
 
 int  Geo_GetNbrGeoElements(void) {
-  return  List_Nbr(CurrentGeoData->Elements) ;
+
+  GetDP_Begin("Geo_GetNbrGeoElements");
+
+  GetDP_Return(List_Nbr(CurrentGeoData->Elements)) ;
 }
 
 
@@ -308,8 +338,11 @@ int  Geo_GetNbrGeoElements(void) {
 /* ------------------------------------------------------------------------ */
 
 struct Geo_Element  * Geo_GetGeoElement(int Index_Element) {
-  return
-    (struct Geo_Element *)List_Pointer(CurrentGeoData->Elements, Index_Element) ;
+
+  GetDP_Begin("Geo_GetGeoElement");
+
+  GetDP_Return((struct Geo_Element *)List_Pointer(CurrentGeoData->Elements, 
+						  Index_Element)) ;
 }
 
 
@@ -318,8 +351,11 @@ struct Geo_Element  * Geo_GetGeoElement(int Index_Element) {
 /* ------------------------------------------------------------------------ */
 
 int Geo_GetGeoElementIndex(struct Geo_Element * GeoElement) {
-  return
-    GeoElement - (struct Geo_Element*)List_Pointer(CurrentGeoData->Elements, 0) ;
+
+  GetDP_Begin("Geo_GetGeoElementIndex");
+
+  GetDP_Return(GeoElement - 
+	       (struct Geo_Element*)List_Pointer(CurrentGeoData->Elements, 0)) ;
 }
 
 
@@ -330,8 +366,12 @@ int Geo_GetGeoElementIndex(struct Geo_Element * GeoElement) {
 struct Geo_Element  * Geo_GetGeoElementOfNum(int Num_Element) {
   struct Geo_Element  elm ;
 
+  GetDP_Begin("Geo_GetGeoElementOfNum");
+
   elm.Num = Num_Element ;
-  return (struct Geo_Element*)List_PQuery(CurrentGeoData->Elements, &elm, fcmp_Elm) ;
+
+  GetDP_Return((struct Geo_Element*)List_PQuery(CurrentGeoData->Elements,
+						&elm, fcmp_Elm)) ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -339,7 +379,10 @@ struct Geo_Element  * Geo_GetGeoElementOfNum(int Num_Element) {
 /* ------------------------------------------------------------------------ */
 
 int  Geo_GetNbrGeoNodes(void) {
-  return  List_Nbr(CurrentGeoData->Nodes) ;
+
+  GetDP_Begin("Geo_GetNbrGeoNodes");
+
+  GetDP_Return(List_Nbr(CurrentGeoData->Nodes)) ;
 }
 
 
@@ -348,8 +391,11 @@ int  Geo_GetNbrGeoNodes(void) {
 /* ------------------------------------------------------------------------ */
 
 struct Geo_Node  * Geo_GetGeoNode(int Index_Node) {
-  return
-    (struct Geo_Node *)List_Pointer(CurrentGeoData->Nodes, Index_Node) ;
+
+  GetDP_Begin("Geo_GetGeoNode");
+
+  GetDP_Return((struct Geo_Node *)List_Pointer(CurrentGeoData->Nodes, 
+					       Index_Node)) ;
 }
 
 
@@ -360,8 +406,12 @@ struct Geo_Node  * Geo_GetGeoNode(int Index_Node) {
 struct Geo_Node  * Geo_GetGeoNodeOfNum(int Num_Node) {
   struct Geo_Node  node ;
 
+  GetDP_Begin("Geo_GetGeoNodeOfNum");
+
   node.Num = Num_Node ;
-  return (struct Geo_Node*)List_PQuery(CurrentGeoData->Nodes, &node, fcmp_Nod) ;
+
+  GetDP_Return((struct Geo_Node*)List_PQuery(CurrentGeoData->Nodes,
+					     &node, fcmp_Nod)) ;
 }
 
 
@@ -374,6 +424,8 @@ void Geo_GetNodesCoordinates(int Nbr_Node, int * Num_Node,
   int    i ;
   struct Geo_Node  Geo_Node, * Geo_Node_P ;
 
+  GetDP_Begin("Geo_GetNodesCoordinates");
+
   for (i = 0 ; i < Nbr_Node ; i++) {
     Geo_Node.Num = abs(Num_Node[i]) ;
 
@@ -383,6 +435,8 @@ void Geo_GetNodesCoordinates(int Nbr_Node, int * Num_Node,
     
     x[i] = Geo_Node_P->x ;  y[i] = Geo_Node_P->y ;  z[i] = Geo_Node_P->z ;
   }
+
+  GetDP_End ;
 }
 
 
@@ -395,6 +449,8 @@ void Geo_SetNodesCoordinates(int Nbr_Node, int * Num_Node,
   int    i ;
   struct Geo_Node  Geo_Node, * Geo_Node_P ;
 
+  GetDP_Begin("Geo_SetNodesCoordinates");
+
   for (i = 0 ; i < Nbr_Node ; i++) {
     Geo_Node.Num = abs(Num_Node[i]) ;
 
@@ -404,4 +460,7 @@ void Geo_SetNodesCoordinates(int Nbr_Node, int * Num_Node,
     
     Geo_Node_P->x = x[i] ;  Geo_Node_P->y = y[i] ;  Geo_Node_P->z = z[i] ;
   }
+
+  GetDP_End ;
 }
+

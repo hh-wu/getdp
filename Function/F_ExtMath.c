@@ -1,14 +1,14 @@
-/* $Id: F_ExtMath.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+static char *rcsid = "$Id: F_ExtMath.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
 
+#include "GetDP.h"
 #include "Data_DefineE.h"
 #include "F_Function.h"
 #include "GeoData.h"
 #include "Get_Geometry.h"
 #include "Cal_Value.h" 
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
 
@@ -29,6 +29,8 @@ void  F_Hypot (F_ARG) {
   int     k;
   double  tmp;
 
+  GetDP_Begin("F_Hypot");
+
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
     Msg(ERROR, "Non Scalar Argument(s) for Function 'Hypot'");
 
@@ -43,11 +45,15 @@ void  F_Hypot (F_ARG) {
     }
   }
   V->Type = SCALAR;
+
+  GetDP_End ;
 }
 
 
 void  F_TanhC2 (F_ARG) {
   double denom;
+
+  GetDP_Begin("F_TanhC2");
 
   if(A->Type != SCALAR) Msg(ERROR, "Non Scalar Arguments for Function 'TanhC2'");
   if(Current.NbrHar != 2) Msg(ERROR, "Function 'TanhC2' only valid for Complex"); 
@@ -56,6 +62,8 @@ void  F_TanhC2 (F_ARG) {
   V->Val[0]       = sinh(A->Val[0])*cosh(A->Val[0]) / denom ;
   V->Val[MAX_DIM] = sin(A->Val[0])*cos(A->Val[0]) / denom ;
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 
@@ -65,24 +73,36 @@ void  F_TanhC2 (F_ARG) {
 /* ------------------------------------------------------------------------ */
 
 void  F_Transpose (F_ARG) {
+
+  GetDP_Begin("F_Transpose");
+
   if(A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR)
     Msg(ERROR, "Wrong Type of Argument for Function 'Transpose'");
 
   Cal_TransposeValue(A,V);
+
+  GetDP_End ;
 }
 
 
 void  F_Trace (F_ARG) {
+
+  GetDP_Begin("F_Trace");
+
   if(A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR)
     Msg(ERROR, "Wrong Type of Argument for Function 'Trace'");
 
   Cal_TraceValue(A,V);
+
+  GetDP_End ;
 }
 
 
 void  F_RotateXYZ (F_ARG) {
   double  ca, sa, cb, sb, cc, sc ;
   struct  Value Rot ;
+
+  GetDP_Begin("F_RotateXYZ");
 
   if((A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR &&
       A->Type != VECTOR) ||
@@ -100,6 +120,8 @@ void  F_RotateXYZ (F_ARG) {
   Rot.Val[6] = -ca*sb*cc+sa*sc; Rot.Val[7] =  ca*sb*sc+sa*cc; Rot.Val[8] =  ca*cb;
 
   Cal_RotateValue(&Rot,A,V);
+
+  GetDP_End ;
 }
 
 
@@ -110,6 +132,8 @@ void  F_RotateXYZ (F_ARG) {
 
 void  F_Norm (F_ARG) {
   int k ;
+
+  GetDP_Begin("F_Norm");
 
   switch(A->Type) {
     
@@ -148,6 +172,8 @@ void  F_Norm (F_ARG) {
   }
 
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 
@@ -157,6 +183,8 @@ void  F_Norm (F_ARG) {
 
 void  F_SquNorm (F_ARG) {
   int k ;
+
+  GetDP_Begin("F_SquNorm");
 
   switch(A->Type) {
     
@@ -195,6 +223,8 @@ void  F_SquNorm (F_ARG) {
   }
 
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -204,6 +234,8 @@ void  F_SquNorm (F_ARG) {
 void  F_Unit (F_ARG) {
   int k ;
   double Norm ;
+
+  GetDP_Begin("F_Unit");
 
   switch(A->Type) {
     
@@ -268,6 +300,7 @@ void  F_Unit (F_ARG) {
     break;
   }
 
+  GetDP_End ;
 }
 
 
@@ -281,6 +314,9 @@ void  F_Unit (F_ARG) {
 /* cos ( w * $Time + phi ) */
 
 void  F_Cos_wt_p (F_ARG) {
+
+  GetDP_Begin("F_Cos_wt_p");
+
   if (Current.NbrHar == 1)
     V->Val[0] = cos(Fct->Para[0] * Current.Time + Fct->Para[1]) ;
   else if (Current.NbrHar == 2) {
@@ -291,11 +327,16 @@ void  F_Cos_wt_p (F_ARG) {
     Msg(ERROR,"Too many harmonics for Function 'Cos_wt_p'") ; 
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 /* sin ( w * $Time + phi ) */
 
 void  F_Sin_wt_p (F_ARG) {
+
+  GetDP_Begin("F_Sin_wt_p");
+
   if (Current.NbrHar == 1)
     V->Val[0] = sin(Fct->Para[0] * Current.Time + Fct->Para[1]) ;
   else if (Current.NbrHar == 2){
@@ -306,6 +347,8 @@ void  F_Sin_wt_p (F_ARG) {
     Msg(ERROR,"Too many harmonics for Function 'Sin_wt_p'") ; 
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 
@@ -314,6 +357,9 @@ void  F_Sin_wt_p (F_ARG) {
 /* ------------------------------------------------------------------------ */
 
 void  F_Period (F_ARG) {
+
+  GetDP_Begin("F_Period");
+
   if (Current.NbrHar == 1)
     V->Val[0] = fmod(A->Val[0], Fct->Para[0])
       + ((A->Val[0] < 0.)? Fct->Para[0] : 0.) ;
@@ -325,6 +371,8 @@ void  F_Period (F_ARG) {
     Msg(ERROR,"Function 'F_Period' not valid for Complex");
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 
@@ -335,6 +383,8 @@ void  F_Period (F_ARG) {
 void  F_Interval (F_ARG) {
   int     k;
   double  tmp;
+
+  GetDP_Begin("F_Interval");
 
   if (Current.NbrHar == 1) {
     V->Val[0] =
@@ -353,5 +403,7 @@ void  F_Interval (F_ARG) {
 
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 

@@ -1,32 +1,35 @@
-/* $Id: Pos_FemInterpolation.c,v 1.5 2000-10-23 15:53:30 dular Exp $ */
+static char *rcsid = "$Id: Pos_FemInterpolation.c,v 1.6 2000-10-30 01:05:47 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Get_DofOfElement.h"
 #include "Get_Geometry.h"
 #include "GeoData.h"
 #include "DofData.h"
 #include "Pos_Search.h"
-
 #include "CurrentData.h"
-#include "outil.h"
+#include "Tools.h"
 
 /* ------------------------------------------------------------------------ */
 /*  P o s _ F e m I n t e r p o l a t i o n                                 */
 /* ------------------------------------------------------------------------ */
 
 int SearchType(int type){
+
+  GetDP_Begin("SearchType");
+  
   switch(type){
-  case POINT       : return _ALL;
-  case LINE        : return _1D ;
+  case POINT       : GetDP_Return(_ALL) ;
+  case LINE        : GetDP_Return(_1D) ;
   case TRIANGLE    :
-  case QUADRANGLE  : return _2D ;
+  case QUADRANGLE  : GetDP_Return(_2D) ;
   case TETRAHEDRON :
   case HEXAHEDRON  :
   case PRISM       :
-  case PYRAMID     : return _3D ;
-  default          : Msg(ERROR, "Unknown Type in 'SearchType'"); return -1 ;
+  case PYRAMID     : GetDP_Return(_3D) ;
+  default          : Msg(ERROR, "Unknown Type in 'SearchType'"); GetDP_Return(-1) ;
   }
 }
 
@@ -55,6 +58,7 @@ void  Pos_FemInterpolation(struct Element * Element,
   int  i, j, k, Nbr_Dof ;
   int  GeoDataNum, UseNewGeo=0 ;
 
+  GetDP_Begin("Pos_FemInterpolation");
 
   /* -------------
      Quantity Type 
@@ -205,7 +209,7 @@ void  Pos_FemInterpolation(struct Element * Element,
       }
     }
     *Type_Value = SCALAR ;
-    return ;
+    GetDP_End ;
   }
   
 
@@ -507,5 +511,6 @@ void  Pos_FemInterpolation(struct Element * Element,
     Geo_SetCurrentGeoData(Current.GeoData = GeoData_P) ;
   }
 
+  GetDP_End ;
 }
 

@@ -1,21 +1,26 @@
-/* $Id: Print_ProblemStructure.c,v 1.9 2000-10-23 15:53:30 dular Exp $ */
+static char *rcsid = "$Id: Print_ProblemStructure.c,v 1.10 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <string.h>
 
+#include "GetDP.h"
 #include "Init_Problem.h"
 #include "Data_Active.h"
 #include "Data_DefineE.h"
 #include "Treatment_Formulation.h"
-#include "Message.h"
 
 char  * Get_ExpressionName(struct Problem * Problem, int Index) {
-  return  ((struct Expression *)List_Pointer(Problem->Expression, Index))->Name ;
+
+  GetDP_Begin("Get_ExpressionName");
+
+  GetDP_Return( ((struct Expression *)List_Pointer(Problem->Expression, Index))->Name );
 }
 
 void  Print_WholeQuantity(struct Problem  * Problem,
 			  List_T * WholeQuantity, List_T * DQ_L) {
   int    j, k ;
   struct WholeQuantity  * WQ ;
+
+  GetDP_Begin("Print_WholeQuantity");
 
   WQ = (struct WholeQuantity*)List_Pointer(WholeQuantity, 0) ;
 
@@ -147,6 +152,8 @@ void  Print_WholeQuantity(struct Problem  * Problem,
       break ;
     }
   }
+
+  GetDP_End ;
 }
 
 
@@ -157,6 +164,8 @@ void  Print_WholeQuantity(struct Problem  * Problem,
 void  Print_Group(struct Problem  * Problem) {
   int    i, Nbr, j ;
   struct Group *GR ;
+
+  GetDP_Begin("Print_Group");
 
   Nbr = List_Nbr(Problem->Group) ;
 
@@ -200,6 +209,8 @@ void  Print_Group(struct Problem  * Problem) {
   }
 
   Msg(CHECK, "\n}\n") ;
+
+  GetDP_End ;
 }
 
 
@@ -212,6 +223,8 @@ void  Print_Expression(struct Problem  * Problem) {
   int    i, Nbr, j ;
   struct Expression *EX ;  
   struct ExpressionPerRegion *EXPR ;
+
+  GetDP_Begin("Print_Expression");
 
   Nbr = List_Nbr(Problem->Expression) ;
 
@@ -256,6 +269,7 @@ void  Print_Expression(struct Problem  * Problem) {
 
   Msg(CHECK, "\n}\n") ;
 
+  GetDP_End ;
 }
 
 
@@ -266,6 +280,8 @@ void  Print_Expression(struct Problem  * Problem) {
 void  Print_Network(struct MultiConstraintPerRegion  * MCPR_P) {
   int    i, j ;
   struct ConstraintActive *CA ;
+
+  GetDP_Begin("Print_Network");
 
   CA = MCPR_P->Active ;
 
@@ -288,6 +304,7 @@ void  Print_Network(struct MultiConstraintPerRegion  * MCPR_P) {
     Msg(CHECK, "\n");
   }
 
+  GetDP_End ;
 }
 
 void  Print_Constraint(struct Problem  * Problem) {
@@ -295,6 +312,8 @@ void  Print_Constraint(struct Problem  * Problem) {
   struct Constraint *CO ; 
   struct ConstraintPerRegion *CPR ;
   struct MultiConstraintPerRegion MCPR_S ;
+
+  GetDP_Begin("Print_Constraint");
 
   Nbr = List_Nbr(Problem->Constraint) ;
 
@@ -368,6 +387,8 @@ void  Print_Constraint(struct Problem  * Problem) {
 
   }
   Msg(CHECK, "\n}\n") ;
+
+  GetDP_End ;
 }
 
 
@@ -379,6 +400,8 @@ void  Print_JacobianMethod(struct Problem  * Problem) {
   int    i, Nbr, j, Nbrj, k ;
   struct JacobianMethod *JM ; 
   struct JacobianCase *JC ;
+
+  GetDP_Begin("Print_JacobianMethod");
 
   Nbr = List_Nbr(Problem->JacobianMethod) ;
 
@@ -413,6 +436,8 @@ void  Print_JacobianMethod(struct Problem  * Problem) {
 
   }
   Msg(CHECK, "\n}\n") ;
+
+  GetDP_End ;
 }
 
 
@@ -425,6 +450,8 @@ void  Print_IntegrationMethod (struct Problem  * Problem) {
   struct IntegrationMethod *IM ;  
   struct IntegrationCase *IC ;
   struct Quadrature *Q ;
+
+  GetDP_Begin("Print_IntegrationMethod");
 
   Nbrm = List_Nbr(Problem->IntegrationMethod) ;
 
@@ -465,6 +492,8 @@ void  Print_IntegrationMethod (struct Problem  * Problem) {
     Msg(CHECK, "    }\n  }\n") ;
   }
   Msg(CHECK, "\n}\n") ;
+
+  GetDP_End ;
 }
 
 
@@ -480,6 +509,8 @@ void  Print_FunctionSpace(struct Problem  * Problem) {
   struct ConstraintInFS *CO ;
   List_T *BF_L, *SS_L, *GQ_L, *CO_L ;
   int    i0, i, Nbr0, Nbr, j, Nbrj ;
+
+  GetDP_Begin("Print_FunctionSpace");
 
   Nbr0 = List_Nbr(Problem->FunctionSpace) ;
 
@@ -601,6 +632,8 @@ void  Print_FunctionSpace(struct Problem  * Problem) {
   }
 
   Msg(CHECK, "\n}\n") ;
+
+  GetDP_End ;
 }
 
 
@@ -615,6 +648,8 @@ void  Print_Formulation(struct Problem  * Problem) {
   struct GlobalEquationTerm *GET ;
   List_T *DQ_L, *FE_L ;
   int    i, Nbr, j, Nbrj, k, Nbrk ;
+
+  GetDP_Begin("Print_Formulation");
 
   Nbr = List_Nbr(Problem->Formulation) ;
 
@@ -761,6 +796,8 @@ void  Print_Formulation(struct Problem  * Problem) {
     Msg(CHECK, "  }\n") ;
   }
   Msg(CHECK, "\n}\n") ;
+
+  GetDP_End ;
 }
 
 
@@ -772,6 +809,8 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 		      struct Problem * Problem) {
   struct Operation *OPE ;
   int    j, Nbrj ;
+
+  GetDP_Begin("Print_Operation");
 
   Msg(CHECK, "    Operation {") ;
 
@@ -839,6 +878,8 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
     }
   }
   Msg(CHECK, "  }\n") ;
+
+  GetDP_End ;
 }
 
 
@@ -847,6 +888,8 @@ void  Print_Resolution(struct Problem  * Problem) {
   struct DefineSystem *DS ;
   List_T *DS_L ;  
   int    i, Nbr, j, Nbrj, k ;
+
+  GetDP_Begin("Print_Resolution");
 
   Nbr = List_Nbr(Problem->Resolution) ;
 
@@ -900,6 +943,8 @@ void  Print_Resolution(struct Problem  * Problem) {
     Msg(CHECK, "  }\n") ;
   }
   Msg(CHECK, "\n}\n") ;
+
+  GetDP_End ;
 }
 
 
@@ -913,6 +958,8 @@ void  Print_PostProcessing(struct Problem  * Problem) {
   struct PostQuantity      * PQ ;
   struct PostQuantityTerm  * PQT ;
   int   i, Nbr, j, Nbrj, k, Nbrk ;
+
+  GetDP_Begin("Print_PostProcessing");
 
   Nbr = List_Nbr(Problem->PostProcessing) ;
 
@@ -973,6 +1020,8 @@ void  Print_PostProcessing(struct Problem  * Problem) {
     Msg(CHECK, "  }\n") ;
   }
   Msg(CHECK, "\n}\n") ;
+
+  GetDP_End ;
 }
 
 
@@ -985,6 +1034,8 @@ void  Print_PostOperation(struct Problem  * Problem) {
   struct PostOperation     *PO ;
   struct PostSubOperation  *PSO ;
   int   i, Nbr, k, Nbrk ;
+
+  GetDP_Begin("Print_PostOperation");
 
   Nbr = List_Nbr(Problem->PostOperation) ;
 
@@ -1076,6 +1127,7 @@ void  Print_PostOperation(struct Problem  * Problem) {
   }
   Msg(CHECK, "\n}\n") ;
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1084,6 +1136,8 @@ void  Print_PostOperation(struct Problem  * Problem) {
 
 void  Print_ProblemStructure(struct Problem  * Problem) {
   int  ichoice ;
+
+  GetDP_Begin("Print_ProblemStructure");
 
   while (1) {
     Msg(CHECK, "------------------------------------------------------------\n") ;
@@ -1107,9 +1161,11 @@ void  Print_ProblemStructure(struct Problem  * Problem) {
     case  8 : Print_Resolution        (Problem) ;  break ;
     case  9 : Print_PostProcessing    (Problem) ;  break ;
     case 10 : Print_PostOperation     (Problem) ;  break ;
-    default : Msg(CHECK, "E n d C h e c k i n g\n") ;  return ;
+    default : Msg(CHECK, "E n d C h e c k i n g\n") ;  GetDP_End ;
     }
   }
+
+  GetDP_End ;
 }
 
 
@@ -1120,6 +1176,8 @@ void  Print_ProblemStructure(struct Problem  * Problem) {
 void  Print_ListResolution(struct Problem  * Problem) {
   struct Resolution *RE ;
   int    i, Nbr ;
+
+  GetDP_Begin("Print_ListResolution");
 
   if((Nbr = List_Nbr(Problem->Resolution))){
     Msg(WARNING, "Missing Resolution Name") ;
@@ -1133,6 +1191,8 @@ void  Print_ListResolution(struct Problem  * Problem) {
     Msg(WARNING, "No Resolution Available") ;
 
   printf("\n") ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------- */
@@ -1142,6 +1202,8 @@ void  Print_ListResolution(struct Problem  * Problem) {
 void  Print_ListPostProcessing(struct Problem  * Problem) {
   struct PostProcessing *PP ;
   int    i, Nbr ;
+
+  GetDP_Begin("Print_ListPostProcessing");
 
   if((Nbr = List_Nbr(Problem->PostProcessing))){
     Msg(WARNING, "Missing PostProcessing Name") ;
@@ -1155,6 +1217,8 @@ void  Print_ListPostProcessing(struct Problem  * Problem) {
     Msg(WARNING, "No PostProcessing Available") ;
     
   printf("\n") ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------- */
@@ -1164,6 +1228,8 @@ void  Print_ListPostProcessing(struct Problem  * Problem) {
 void  Print_ListPostOperation(struct Problem  * Problem) {
   struct PostOperation *PO ;
   int    i, Nbr ;
+
+  GetDP_Begin("Print_ListPostOperation");
 
   if((Nbr = List_Nbr(Problem->PostOperation))){
     Msg(WARNING, "Missing PostOperation Name") ;
@@ -1177,5 +1243,7 @@ void  Print_ListPostOperation(struct Problem  * Problem) {
     Msg(WARNING, "No PostOperation Available");
     
   printf("\n") ;
+
+  GetDP_End ;
 }
 

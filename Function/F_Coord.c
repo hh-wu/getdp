@@ -1,14 +1,14 @@
-/* $Id: F_Coord.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+static char *rcsid = "$Id: F_Coord.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
 
+#include "GetDP.h"
 #include "Data_DefineE.h"
 #include "F_Function.h"
 #include "GeoData.h"
 #include "Get_Geometry.h"
 #include "Cal_Value.h" 
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
 
@@ -28,6 +28,8 @@
 void  F_CoordXYZ (F_ARG) {
   int     i, k ;
   double  X, Y, Z ;
+
+  GetDP_Begin("F_CoordXYZ");
 
   Get_NodesCoordinatesOfElement(Current.Element) ;
   Get_GeoElement(Current.Element, Current.u, Current.v, Current.w) ;
@@ -61,9 +63,11 @@ void  F_CoordXYZ (F_ARG) {
 /*  Get the X, Y or Z coordinate                                            */
 /* ------------------------------------------------------------------------ */
 
-#define get_1_coord(coord)						\
+#define get_1_coord(name,coord)						\
   int     i, k;								\
   double  tmp;								\
+									\
+  GetDP_Begin(name);							\
 									\
   Get_NodesCoordinatesOfElement(Current.Element) ;			\
   Get_GeoElement(Current.Element, Current.u, Current.v, Current.w) ;	\
@@ -72,20 +76,22 @@ void  F_CoordXYZ (F_ARG) {
   for (i = 0 ; i < Current.Element->GeoElement->NbrNodes ; i++) {	\
     tmp += Current.Element->coord[i] * Current.Element->n[i] ;		\
   }									\
-  if (Current.NbrHar == 1){ 						\
+  if (Current.NbrHar == 1){						\
     V->Val[0] = tmp ;							\
   }									\
   else {								\
     for (k = 0 ; k < Current.NbrHar ; k+=2) {				\
-      V->Val[MAX_DIM* k     ] = tmp ; 					\
-      V->Val[MAX_DIM*(k+1)  ] = 0. ; 					\
+      V->Val[MAX_DIM* k     ] = tmp ;					\
+      V->Val[MAX_DIM*(k+1)  ] = 0. ;					\
     }									\
   }									\
-  V->Type = SCALAR ;
+  V->Type = SCALAR ;							\
+									\
+  GetDP_End ;
 
-void  F_CoordX (F_ARG) { get_1_coord(x) }
-void  F_CoordY (F_ARG) { get_1_coord(y) }
-void  F_CoordZ (F_ARG) { get_1_coord(z) }
+void  F_CoordX (F_ARG) { get_1_coord("F_CoordX",x) }
+void  F_CoordY (F_ARG) { get_1_coord("F_CoordY",y) }
+void  F_CoordZ (F_ARG) { get_1_coord("F_CoordZ",z) }
 
 #undef get_1_coord
 
@@ -98,6 +104,8 @@ void  F_CoordZ (F_ARG) { get_1_coord(z) }
 void  F_aX_bY_cZ (F_ARG) {
   int     k ;
   double  X, Y, Z, tmp ;
+
+  GetDP_Begin("F_aX_bY_cZ");
 
   Geo_GetNodesCoordinates(1, &Current.NumEntity, &X, &Y, &Z) ;
 
@@ -112,6 +120,8 @@ void  F_aX_bY_cZ (F_ARG) {
     }
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 
@@ -122,6 +132,8 @@ void  F_aX_bY_cZ (F_ARG) {
 void  F_aX21_bY21_cZ21 (F_ARG) {
   int     k, * NumNodes ;
   double  X1, Y1, Z1, X2, Y2, Z2, tmp ;
+
+  GetDP_Begin("F_aX21_bY21_cZ21");
 
   NumNodes = Geo_GetNodesOfEdgeInElement (Current.Element->GeoElement, 
 					  Current.NumEntityInElement) ;
@@ -148,6 +160,8 @@ void  F_aX21_bY21_cZ21 (F_ARG) {
     }    
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 

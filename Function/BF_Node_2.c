@@ -1,6 +1,7 @@
-/* $Id: BF_Node_2.c,v 1.1 2000-09-12 20:21:06 geuzaine Exp $ */
+static char *rcsid = "$Id: BF_Node_2.c,v 1.2 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 
+#include "GetDP.h"
 #include "BF_Function.h"
 
 
@@ -16,6 +17,8 @@
 
 void  BF_Node_2E (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double *s ) {
+
+  GetDP_Begin("BF_Node_2E");
 
   switch (Element->Type) {
   case LINE :
@@ -73,6 +76,7 @@ void  BF_Node_2E (struct Element * Element, int NumEntity,
     break ;
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumEntity
@@ -84,6 +88,8 @@ void  BF_Node_2E (struct Element * Element, int NumEntity,
 
 void  BF_Node_2F (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double *s ) {
+
+  GetDP_Begin("BF_Node_2F");
 
   switch (Element->Type) {
 
@@ -120,6 +126,7 @@ void  BF_Node_2F (struct Element * Element, int NumEntity,
   if (Element->GeoElement->NumFacets[NumEntity-1] < 0) 
     *s = -*s ;
 
+  GetDP_End ;
 }
 
 /* -------- */
@@ -128,6 +135,8 @@ void  BF_Node_2F (struct Element * Element, int NumEntity,
 
 void  BF_Node_2V (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double *s ) {
+
+  GetDP_Begin("BF_Node_2V");
 
   switch (Element->Type) {
 
@@ -155,6 +164,7 @@ void  BF_Node_2V (struct Element * Element, int NumEntity,
     break ;
   }
   
+  GetDP_End ;
 }
 
 
@@ -170,6 +180,8 @@ void  BF_Node_2V (struct Element * Element, int NumEntity,
 
 void  BF_GradNode_2E (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_GradNode_2E");
 
   switch (Element->Type) {
   case LINE :
@@ -223,6 +235,7 @@ void  BF_GradNode_2E (struct Element * Element, int NumEntity,
     break ;
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumEntity
@@ -233,6 +246,8 @@ void  BF_GradNode_2E (struct Element * Element, int NumEntity,
 
 void  BF_GradNode_2F (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_GradNode_2F");
 
   switch (Element->Type) {
 
@@ -269,6 +284,7 @@ void  BF_GradNode_2F (struct Element * Element, int NumEntity,
     s[0] = - s[0] ; s[1] = - s[1] ; s[2] = - s[2] ;
   }
 
+  GetDP_End ;
 }
 
 /* -------- */
@@ -277,6 +293,8 @@ void  BF_GradNode_2F (struct Element * Element, int NumEntity,
 
 void  BF_GradNode_2V (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_GradNode_2V");
 
   switch (Element->Type) {
 
@@ -304,5 +322,6 @@ void  BF_GradNode_2V (struct Element * Element, int NumEntity,
     break ;
   }
 
+  GetDP_End ;
 }
 

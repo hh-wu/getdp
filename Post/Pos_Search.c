@@ -1,16 +1,16 @@
-/* $Id: Pos_Search.c,v 1.15 2000-10-27 09:52:23 geuzaine Exp $ */
+static char *rcsid = "$Id: Pos_Search.c,v 1.16 2000-10-30 01:05:48 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Data_Active.h"
 #include "Get_Geometry.h"
 #include "Pos_Search.h"
 #include "Get_DofOfElement.h"
-
 #include "CurrentData.h"
-#include "outil.h"
+#include "Tools.h"
 #include "Data_Numeric.h"
 
 static struct Element  * LastElement;
@@ -26,6 +26,8 @@ void ComputeElementBox(struct Element * Element,
   double XPolyConv, YPolyConv, Xmid, Ymid;
   double d, dxy, dxz, dyz;
   int    i;
+
+  GetDP_Begin("ComputeElementBox");
 
   ElementBox->Xmin = ElementBox->Xmax = Element->x[0];
   ElementBox->Ymin = ElementBox->Ymax = Element->y[0];
@@ -114,6 +116,8 @@ void ComputeElementBox(struct Element * Element,
     Msg(ERROR, "Unknown Element Type in 'ComputeElementBox'"); 
     break;
   }
+
+  GetDP_End ;
 }
 
 
@@ -123,12 +127,16 @@ void ComputeElementBox(struct Element * Element,
 
 int PointInElementBox(struct ElementBox ElementBox, double x, double y, double z) {
 
+  GetDP_Begin("PointInElementBox");
+
   if (x > ElementBox.Xmax || x < ElementBox.Xmin ||
       y > ElementBox.Ymax || y < ElementBox.Ymin ||
-      z > ElementBox.Zmax || z < ElementBox.Zmin)
-    return (0);
-  else
-    return (1);
+      z > ElementBox.Zmax || z < ElementBox.Zmin){
+    GetDP_Return(0);
+  }
+  else{
+    GetDP_Return(1);
+  }
 }
 
 #define ONE (1.0+1.e-12)
@@ -136,30 +144,46 @@ int PointInElementBox(struct ElementBox ElementBox, double x, double y, double z
 
 int PointInRefElement (struct Element * Element, double u, double v, double w){
   
+  GetDP_Begin("PointInRefElement");
+
   switch(Element->Type) {
   case LINE : case LINE_2 :
-    if (u<-ONE || u>ONE) return(0); 
-    return(1);
+    if (u<-ONE || u>ONE){ 
+      GetDP_Return(0); 
+    }
+    GetDP_Return(1);
   case TRIANGLE : case TRIANGLE_2 :
-    if (u<-ZERO || v<-ZERO || u>(ONE-v)) return(0); 
-    return(1);
+    if (u<-ZERO || v<-ZERO || u>(ONE-v)){
+      GetDP_Return(0); 
+    }
+    GetDP_Return(1);
   case QUADRANGLE : case QUADRANGLE_2 :
-    if (u<-ONE  || v<-ONE || u>ONE || v>ONE) return (0); 
-    return(1);
+    if (u<-ONE  || v<-ONE || u>ONE || v>ONE){
+      GetDP_Return (0);
+    }
+    GetDP_Return(1);
   case TETRAHEDRON : case TETRAHEDRON_2 :
-    if (u<-ZERO || v<-ZERO || w<-ZERO || u>(ONE-v-w)) return(0); 
-    return(1);
+    if (u<-ZERO || v<-ZERO || w<-ZERO || u>(ONE-v-w)){
+      GetDP_Return(0);
+    }
+    GetDP_Return(1);
   case HEXAHEDRON : case HEXAHEDRON_2 :
-    if (u<-ONE || v<-ONE || w<-ONE || u>ONE || v>ONE || w>ONE) return(0); 
-    return(1);
+    if (u<-ONE || v<-ONE || w<-ONE || u>ONE || v>ONE || w>ONE){
+      GetDP_Return(0);
+    }
+    GetDP_Return(1);
   case PRISM : case PRISM_2 :
-    if (w>ONE || w<-ONE || u<-ZERO || v<-ZERO || u>(ONE-v)) return(0); 
-    return(1);
+    if (w>ONE || w<-ONE || u<-ZERO || v<-ZERO || u>(ONE-v)){
+      GetDP_Return(0);
+    }
+    GetDP_Return(1);
   case PYRAMID : case PYRAMID_2 :
-    if (u<(w-ONE) || u>(ONE-w) || v<(w-ONE) || v>(ONE-w) || w<-ZERO || w>ONE) return(0); 
-    return(1);
+    if (u<(w-ONE) || u>(ONE-w) || v<(w-ONE) || v>(ONE-w) || w<-ZERO || w>ONE){
+      GetDP_Return(0);
+    }
+    GetDP_Return(1);
   default :
-    return(0);
+    GetDP_Return(0);
   }
 }
 
@@ -173,9 +197,12 @@ int PointInElement (struct Element * Element,
 
   struct ElementBox ElementBox ;
 
+  GetDP_Begin("PointInElement");
+
   if(ExcludeRegion_L)
-    if(List_Search(ExcludeRegion_L, &Element->GeoElement->Region, fcmp_int))
-      return(0);
+    if(List_Search(ExcludeRegion_L, &Element->GeoElement->Region, fcmp_int)){
+      GetDP_Return(0);
+    }
 
   Element->Num = Element->GeoElement->Num ;
   Element->Type = Element->GeoElement->Type ;
@@ -184,13 +211,17 @@ int PointInElement (struct Element * Element,
   Get_NodesCoordinatesOfElement(Element) ;
   ComputeElementBox(Element, &ElementBox);
 
-  if (!PointInElementBox(ElementBox, x, y, z)) return(0);
+  if (!PointInElementBox(ElementBox, x, y, z)){
+    GetDP_Return(0);
+  }
 
   xyz2uvwInAnElement(Element, x, y, z, u, v, w, NULL, -1);
 
-  if(!PointInRefElement(Element, *u, *v, *w)) return(0);
+  if(!PointInRefElement(Element, *u, *v, *w)){
+    GetDP_Return(0);
+  }
 
-  return(1);
+  GetDP_Return(1);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -208,9 +239,13 @@ void Init_SearchGrid(struct Grid * Grid) {
   int    Ix1, Ix2, Iy1, Iy2, Iz1, Iz2;
   int    i, j, k, index;
 
+  GetDP_Begin("Init_SearchGrid");
+
   LastElement = NULL;
 
-  if(Grid->Init) return;
+  if(Grid->Init){
+    GetDP_End;
+  }
 
   NbrGeoNodes = Geo_GetNbrGeoNodes();
   GeoNode = Geo_GetGeoNode(0);
@@ -390,6 +425,7 @@ void Init_SearchGrid(struct Grid * Grid) {
   }
 #endif
 
+  GetDP_End ;
 }
 
 
@@ -398,17 +434,30 @@ void Init_SearchGrid(struct Grid * Grid) {
 /* ------------------------------------------------------------------------ */
 
 void CrossProd (double a[3], double b[3], double c[3]){
+
+  GetDP_Begin("CrossProd");
+
   c[2] = a[0] * b[1] - a[1] * b[0];
   c[1] = - a[0] * b[2] + a[2] * b[0];
   c[0] = a[1] * b[2] - a[2] * b[1];
+
+  GetDP_End ;
 }
 
 void DotProd (double a[3], double b[3], double *c){
+
+  GetDP_Begin("DotProd");
+
   *c = a[0]*b[0] + a[1]*b[1] + a[2]*b[2]; 
+
+  GetDP_End ;
 }
 
 double Length (double a[3]){
-  return(sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]));
+
+  GetDP_Begin("Length");
+
+  GetDP_Return(sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]));
 }
 
 void PointElementDistance(struct Element *Element, double x, double y, double z, 
@@ -416,6 +465,8 @@ void PointElementDistance(struct Element *Element, double x, double y, double z,
 
   double  p0p1[3], a[3], a1[3], a2[3], p0p1xa[3];
   double  A, A1, A2, p0p1a, p0p1a1, p0p1a2;
+
+  GetDP_Begin("PointElementDistance");
 
   p0p1[0] = x - Element->x[0] ;
   p0p1[1] = y - Element->y[0] ;
@@ -472,6 +523,7 @@ void PointElementDistance(struct Element *Element, double x, double y, double z,
     break;
   }  
 
+  GetDP_End ;
 }
 
 int fcmp_PointElement(const void * a, const void * b) {
@@ -491,9 +543,11 @@ int InWhichBrick (struct Grid *pGrid, double X, double Y, double Z) {
 
   int    Ix,Iy,Iz;
 
+  GetDP_Begin("InWhichBrick");
+
   if(X > pGrid->Xmax || X < pGrid->Xmin || Y > pGrid->Ymax || 
      Y < pGrid->Ymin || Z > pGrid->Zmax || Z < pGrid->Zmin){
-    return(NO_BRICK);
+    GetDP_Return(NO_BRICK);
   }
 
   Ix = (int)((double)pGrid->Nx * (X-pGrid->Xmin) / (pGrid->Xmax-pGrid->Xmin)); 
@@ -507,7 +561,7 @@ int InWhichBrick (struct Grid *pGrid, double X, double Y, double Z) {
   if(Iy<0)Iy=0;
   if(Iz<0)Iz=0;
 
-  return Ix + Iy * pGrid->Nx + Iz * pGrid->Nx * pGrid->Ny;
+  GetDP_Return(Ix + Iy * pGrid->Nx + Iz * pGrid->Nx * pGrid->Ny) ;
 }
 
 void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
@@ -524,17 +578,21 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   struct PointElement   PointElement ;
   int                   i, dim, lowdim, highdim, Projection;  
 
+  GetDP_Begin("InWhichElement");
+
   ChainDim   = Dim ;
   Projection = (ChainDim == _1D || (ChainDim == _2D && GeoDim == _3D));
   
   if(!Projection && LastElement){
-    if (PointInElement(LastElement, ExcludeRegion_L, x, y, z, u, v, w)) return;
+    if (PointInElement(LastElement, ExcludeRegion_L, x, y, z, u, v, w)){
+      GetDP_End;
+    }
   }
 
   if ((i = InWhichBrick(&Grid, x, y, z)) == NO_BRICK) {
     Element->Num = NO_ELEMENT ;
     Element->Region = NO_REGION ;
-    return;
+    GetDP_End;
   }
   
   if (!(Brick_P = (struct Brick *)List_Pointer(Grid.Bricks, i)))
@@ -557,7 +615,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 	Element->GeoElement = *(struct Geo_Element**)List_Pointer(Brick_P->p[dim], i) ;
 	if (PointInElement(Element, ExcludeRegion_L, x, y, z, u, v, w)) {
 	  LastElement = Element;
-	  return;
+	  GetDP_End;
 	}
       }
     }
@@ -595,7 +653,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
       if(PointInRefElement(&PointElement.Element, *u, *v, *w)) {
 	Element = LastElement = &PointElement.Element;
 	Msg(INFO, "Selected Element %d (u=%g v=%g w=%g)\n", Element->Num,*u,*v,*w);
-	return;      
+	GetDP_End;      
       }
     }
     
@@ -603,6 +661,8 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 
   Element->Num = NO_ELEMENT ;
   Element->Region = NO_REGION ;
+
+  GetDP_End ;
 }
 
 
@@ -625,6 +685,8 @@ void xyz2uvwInAnElement (struct Element *Element,
   double   Error = 1.0 ;
   int      i, iter = 1 ;
   int      Type_Dimension, Type_Jacobian;
+
+  GetDP_Begin("xyz2uvwInAnElement");
 
   *u = *v = *w = 0.0;
 
@@ -695,6 +757,7 @@ void xyz2uvwInAnElement (struct Element *Element,
   Msg(INFO, "%d iterations in xyz2uvw", iter);
 #endif
 
+  GetDP_End ;
 }
 
 #undef NR_PRECISION

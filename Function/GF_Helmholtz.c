@@ -1,10 +1,10 @@
-/* $Id: GF_Helmholtz.c,v 1.2 2000-09-07 18:47:23 geuzaine Exp $ */
+static char *rcsid = "$Id: GF_Helmholtz.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h" 
 #include "Data_Active.h"
 #include "Cal_Value.h"
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
 
@@ -29,6 +29,8 @@
 void GF_Helmholtz (F_ARG) {
   double  r ;
 
+  GetDP_Begin("GF_Helmholtz");
+
   if(Current.NbrHar != 2){
     Msg(ERROR, "Wrong Number of Harmonics in 'GF_GradHelmholtz'");
   }
@@ -50,6 +52,7 @@ void GF_Helmholtz (F_ARG) {
     break;
   }
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -61,6 +64,8 @@ void GF_Helmholtz (F_ARG) {
 void GF_GradHelmholtz (F_ARG) {
   double  xxs, yys, zzs, r ;
   double  c1, c2, cr, ci ;
+
+  GetDP_Begin("GF_GradHelmholtz");
 
   if(Current.NbrHar != 2){
     Msg(ERROR, "Wrong Number of Harmonics in 'GF_GradHelmholtz'");
@@ -97,6 +102,7 @@ void GF_GradHelmholtz (F_ARG) {
     break;
   }
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -108,6 +114,8 @@ void GF_NPxGradHelmholtz (F_ARG) {
   double  x1x0, x2x0, y1y0, y2y0, z1z0, z2z0, xxs, yys, zzs ;
   double  nx, ny, nz, n, r ;
   double  cr, ci, ccr, cci ;
+
+  GetDP_Begin("GF_NPxHelmholtz");
 
   if(Current.NbrHar != 2){
     Msg(ERROR, "Wrong Number of Harmonics in 'GF_NPxGradHelmholtz'");
@@ -162,5 +170,5 @@ void GF_NPxGradHelmholtz (F_ARG) {
     break;
   }
   
-    
+  GetDP_End ;
 }

@@ -1,7 +1,8 @@
-/* $Id: Cal_IntegralQuantity.c,v 1.3 2000-09-07 18:47:25 geuzaine Exp $ */
+static char *rcsid = "$Id: Cal_IntegralQuantity.c,v 1.4 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Get_Geometry.h"
 #include "Get_Cells.h"
@@ -9,7 +10,7 @@
 #include "CurrentData.h"
 #include "Cal_Quantity.h"
 #include "Data_DefineE.h"
-#include "outil.h"
+#include "Tools.h"
 #include "Pos_Search.h" /* xyz2uvw */
 
 #undef __DEB 
@@ -35,6 +36,7 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
   int                 ElementSourceType, RelativeJacobianType ;
   int                 i,j ;
 
+  GetDP_Begin("Cal_InitIntegralQuantity");
 
   /* Get de Rham cells in the source element if necessary */
 
@@ -135,7 +137,8 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
   }
   
   IQA->Type_ValueDof = Get_ValueFromForm(IQA->Type_FormDof);
-  
+
+  GetDP_End ;
 }
 
 
@@ -163,6 +166,8 @@ void Apply_ConstantFactor(struct QuantityStorage * QuantityStorage_P,
 			  struct Value           * vBFxDof, 
 			  struct Value           * Val){
 
+  GetDP_Begin("Apply_Constanrfactor");
+
   switch(QuantityStorage_P->DefineQuantity->IntegralQuantity.CanonicalWholeQuantity){
   case CWQ_GF :
   case CWQ_GF_PSCA_DOF :
@@ -179,6 +184,7 @@ void Apply_ConstantFactor(struct QuantityStorage * QuantityStorage_P,
   default : Msg(ERROR, "Unknown Type of Canonical Whole Quantity");
   }
 
+  GetDP_End ;
 }
 
 extern int Flag_RemoveSingularity ;
@@ -197,6 +203,8 @@ void  Cal_IntegralQuantity (struct Element                 *Element,
   double         Factor, weight ;
   double         vBFu[NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   struct Element *ES ;
+
+  GetDP_Begin("Cal_IntegralQuantity");
 
   if(Nbr_deRhamCells && Nbr_deRhamCells != Nbr_Dof)
     Msg(ERROR, "Incompatible de Rham Approximation of Integral Quantity");
@@ -440,6 +448,7 @@ void  Cal_IntegralQuantity (struct Element                 *Element,
 
   }
 
+  GetDP_End ;
 }
 
 

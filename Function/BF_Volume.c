@@ -1,6 +1,7 @@
-/* $Id: BF_Volume.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+static char *rcsid = "$Id: BF_Volume.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 
+#include "GetDP.h"
 #include "BF_Function.h"
 
 
@@ -12,6 +13,8 @@
 
 void  BF_Volume  (struct Element * Element, int NumVolume,
 		  double u, double v, double w,  double *s ) {
+
+  GetDP_Begin("BF_Volume");
 
   switch (Element->Type) {
   case POINT :
@@ -68,6 +71,7 @@ void  BF_Volume  (struct Element * Element, int NumVolume,
     break ;
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumVolume

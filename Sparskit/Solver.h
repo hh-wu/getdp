@@ -1,8 +1,8 @@
-/* $Id: Solver.h,v 1.5 2000-10-06 14:23:27 geuzaine Exp $ */
+/* $Id: Solver.h,v 1.6 2000-10-30 01:05:48 geuzaine Exp $ */
 #ifndef _SOLVER_H_
 #define _SOLVER_H_
 
-#include "listman.h"
+#include "List.h"
 
 #define ELAP      1
 #define KUL       2

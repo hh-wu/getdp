@@ -1,4 +1,4 @@
-/* $Id: Pos_ReadLine.c,v 1.2 2000-09-07 18:47:28 geuzaine Exp $ */
+static char *rcsid = "$Id: Pos_ReadLine.c,v 1.3 2000-10-30 01:05:48 geuzaine Exp $" ;
 /* GNUPLOT - readline.c */
 
 /* WARNING: THIS IS A MODIFIED VERSION: see the 'getdp' tags */

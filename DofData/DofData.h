@@ -1,9 +1,9 @@
-/* $Id: DofData.h,v 1.3 2000-09-07 18:47:22 geuzaine Exp $ */
+/* $Id: DofData.h,v 1.4 2000-10-30 01:05:43 geuzaine Exp $ */
 #ifndef _DOFDATA_H_
 #define _DOFDATA_H_
 
-#include "listman.h"
-#include "treeman.h"
+#include "List.h"
+#include "Tree.h"
 
 #include "LinAlg.h"
 #include "Graph.h"

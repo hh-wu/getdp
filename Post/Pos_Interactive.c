@@ -1,9 +1,10 @@
-/* $Id: Pos_Interactive.c,v 1.11 2000-10-22 13:50:40 geuzaine Exp $ */
+static char *rcsid = "$Id: Pos_Interactive.c,v 1.12 2000-10-30 01:05:47 geuzaine Exp $" ;
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h> /* unlink */
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Pos_Formulation.h"
 #include "Pos_Interactive.h"
@@ -28,6 +29,8 @@ void  add_history(char *line);
 void  Pos_Interactive(struct Formulation *Formulation_P,
 		      struct PostProcessing *PostProcessing_P){
   char *myptr;
+
+  GetDP_Begin("Pos_Interactive");
 
   PostStream = stdout;
   InteractiveLevel = 1;
@@ -78,6 +81,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
   /* delete the tmp file */
   unlink(GETDP_TMP_FILENAME);
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -86,6 +90,8 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 
 void  Interactive(void){
   char *myptr;
+
+  GetDP_Begin("Interactive");
 
   InteractiveLevel = 1;
 
@@ -131,6 +137,7 @@ void  Interactive(void){
   /* delete the tmp file */
   unlink(GETDP_TMP_FILENAME);
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */

@@ -1,7 +1,8 @@
-/* $Id: Par_TermOfFemEquation.c,v 1.3 2000-09-07 18:47:26 geuzaine Exp $ */
+static char *rcsid = "$Id: Par_TermOfFemEquation.c,v 1.4 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Get_DofOfElement.h"
 #include "CurrentData.h"
@@ -15,20 +16,24 @@ void  Par_TermOfFemEquation (struct Element *Element,
   int Nbr_Equ, Nbr_Dof, Type_DefineQuantityDof;
   int i, j;
   
+  GetDP_Begin("Par_TermOfFemEquation");
+
   QuantityStorageEqu_P = QuantityStorage_P0 +
     EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu;
   
-  if (!(Nbr_Equ = QuantityStorageEqu_P->NbrElementaryBasisFunction))
-    return;
-  
+  if (!(Nbr_Equ = QuantityStorageEqu_P->NbrElementaryBasisFunction)){
+    GetDP_End;
+  }
+
   if (EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexDof >= 0) {
     QuantityStorageDof_P = QuantityStorage_P0 +
       EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexDof;
     Type_DefineQuantityDof = QuantityStorageDof_P->DefineQuantity->Type;
   }
-  else
-    return;
-  
+  else{
+    GetDP_End;
+  }
+
   switch (Type_DefineQuantityDof) {
   case LOCALQUANTITY:
     Nbr_Dof = QuantityStorageDof_P->NbrElementaryBasisFunction;
@@ -85,4 +90,7 @@ void  Par_TermOfFemEquation (struct Element *Element,
     
   } /* while (1) ... */
   
+  GetDP_End ;
 }
+
+

@@ -1,17 +1,16 @@
-/* $Id: Treatment_Formulation.c,v 1.3 2000-09-28 22:14:40 geuzaine Exp $ */
+static char *rcsid = "$Id: Treatment_Formulation.c,v 1.4 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Get_DofOfElement.h"
 #include "ExtendedGroup.h"
-
 #include "GeoData.h"
 #include "DofData.h"
-
 #include "CurrentData.h"
-#include "outil.h"
+#include "Tools.h"
 
 extern List_T  * GeoData_L ;
 
@@ -20,6 +19,8 @@ extern List_T  * GeoData_L ;
 /* ------------------------------------------------------------------------ */
 
 void  Treatment_Formulation(struct Formulation * Formulation_P) {
+
+  GetDP_Begin("Treatment_Formulation");
 
   switch (Formulation_P->Type) {
 
@@ -36,6 +37,7 @@ void  Treatment_Formulation(struct Formulation * Formulation_P) {
     break ;
   }
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -66,6 +68,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
   List_T  * InitialListInIndex_L ;
   int     Nbr_Region, i_Region, Num_Region ;
 
+  GetDP_Begin("Treatment_FemFormulation");
 
   /* --------------------------------------------------------------- */
   /* 0.  Initialization of an active zone (QuantityStorage) for each */
@@ -437,6 +440,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 
   List_Delete(FemLocalTermActive_L) ;  List_Delete(QuantityStorage_L) ;
 
+  GetDP_End ;
 }
 
 
@@ -476,6 +480,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 				      struct DefineQuantity  * DefineQuantity_P0,
 				      struct QuantityStorage * QuantityStorage_P0) ;
 
+  GetDP_Begin("Cal_FemGlobalEquation");
 
   /* Liste des Regions auxquelles on associe des Equations de Type 'Network' */
 
@@ -504,7 +509,9 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
     }
   }
   Nbr_EquAndDof = List_Nbr(RegionIndex_L) ;
-  if (!Nbr_EquAndDof)  return ;
+  if (!Nbr_EquAndDof){
+    GetDP_End ;
+  }
 
   DofGlobal_Equ_L     = List_Create(Nbr_EquAndDof, 1, sizeof(struct DofGlobal)) ;
   DofGlobal_DofNode_L = List_Create(Nbr_EquAndDof, 1, sizeof(struct DofGlobal)) ;
@@ -646,6 +653,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
   List_Delete(DofGlobal_DofNode_L) ;  List_Delete(DofGlobal_DofLoop_L) ;
   List_Delete(RegionIndex_L) ;
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -659,6 +667,8 @@ struct Dof * Cal_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
   struct GlobalQuantity   * GlobalQuantity_P ;
   struct QuantityStorage  QuaSto_S ;
 
+  GetDP_Begin("Cal_FemGlobalEquation2");
+
   DefineQuantity_P  = DefineQuantity_P0  + Index_DefineQuantity ;
   QuantityStorage_P = QuantityStorage_P0 + Index_DefineQuantity ;
   GlobalQuantity_P = (struct GlobalQuantity*)
@@ -667,12 +677,15 @@ struct Dof * Cal_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
   Get_DofOfRegion(Num_Region, GlobalQuantity_P,
 		  QuantityStorage_P->FunctionSpace, &QuaSto_S) ;
 
-  if (QuaSto_S.NbrElementaryBasisFunction == 1)
-    return QuaSto_S.BasisFunction[0].Dof ;
+  if (QuaSto_S.NbrElementaryBasisFunction == 1){
+    GetDP_Return(QuaSto_S.BasisFunction[0].Dof) ;
+  }
   else {
     Msg(ERROR, "Not 1 Dof associated with GlobalQuantity (Region #%d)",	Num_Region) ;
-    return NULL ;
+    GetDP_Return(NULL) ;
   }
+
+  GetDP_End ;
 }
 
 
@@ -682,5 +695,10 @@ struct Dof * Cal_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
 /* ------------------------------------------------------------------------ */
 
 void  Treatment_GlobalFormulation(struct Formulation * Formulation_P) {
+
+  GetDP_Begin("Treatment_GlobalFormulation");
+
   Msg(ERROR, "You should not be here!") ;
+
+  GetDP_End ;
 }

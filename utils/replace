@@ -1,8 +1,8 @@
-#!/usr/users50/geuzaine/BIN/bash -
+#!/bin/bash -
 
-for A in  *.c
+for A in $*
 do
-sed "s/\.\"/\"/g" $A > $A.XXX
-/bin/rm -f $A
-mv $A.XXX $A   
+echo modifying $A
+mv $A $A.old
+sed "s/LinAlg_Init/LinAlg_Initialize/g" $A.old  > $A
 done

@@ -1,15 +1,14 @@
-/* $Id: Pos_Element.c,v 1.8 2000-10-27 15:00:45 geuzaine Exp $ */
+static char *rcsid = "$Id: Pos_Element.c,v 1.9 2000-10-30 01:05:47 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "GeoData.h"
 #include "Get_Geometry.h"
 #include "Get_DofOfElement.h"
 #include "Data_Active.h"
 #include "Pos_Element.h"
 #include "Cal_Value.h"
-
-#include "ualloc.h"
 
 /* ------------------------------------------------------------------------ */
 /*  Create/Destroy/Compare                                                  */
@@ -18,6 +17,8 @@
 struct PostElement * Create_PostElement(int Index, int Type, 
 					int NbrNodes, int Depth){
   struct PostElement * PostElement ;
+
+  GetDP_Begin("Create_PostElement");
 
   PostElement = (struct PostElement *) Malloc(sizeof(struct PostElement)) ;
   PostElement->Index = Index ; 
@@ -34,10 +35,14 @@ struct PostElement * Create_PostElement(int Index, int Type,
     PostElement->z = (double *) Malloc(NbrNodes * sizeof(double)) ;
     PostElement->Value = (struct Value *) Malloc(NbrNodes * sizeof(struct Value)) ;
   }
-  return PostElement ;
+
+  GetDP_Return(PostElement) ;
 }
 
 void Destroy_PostElement(struct PostElement * PostElement){
+
+  GetDP_Begin("Destroy_PostElement");
+
   if(PostElement->NbrNodes > 0){
     Free(PostElement->u) ;
     Free(PostElement->v) ;
@@ -48,11 +53,15 @@ void Destroy_PostElement(struct PostElement * PostElement){
     Free(PostElement->Value) ;
   }
   Free(PostElement) ;
+
+  GetDP_End ;
 }
 
 struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement){
   struct PostElement * Copy ;
   int i ;
+
+  GetDP_Begin("PartialCopy_PostElement");
 
   Copy = (struct PostElement *) Malloc(sizeof(struct PostElement)) ;
   Copy->Index = PostElement->Index ; 
@@ -73,7 +82,8 @@ struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement){
       Cal_CopyValue(&PostElement->Value[i], &Copy->Value[i]);
     }
   }
-  return Copy ;
+
+  GetDP_Return(Copy) ;
 }
 
 /* 2 PostElements never have the same barycenter unless they are identical */
@@ -129,6 +139,8 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
   double  v01, v02, v03, v12, v13, v23 ;
   double  w01, w02, w03, w12, w13, w23 ;
   int     i, j, NbCut ;
+
+  GetDP_Begin("Cut_PostElement");
 
   /* Recursive division */
 
@@ -295,6 +307,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
     List_Add(PE_L, &PE);
   }
   
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -308,6 +321,8 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 		      int Index, int Depth, int Skin, int DecomposeInSimplex){
 
   struct PostElement * PE ;
+
+  GetDP_Begin("Fill_PostElement");
 
   if(!Depth){
 
@@ -1072,6 +1087,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 
   }
 
+  GetDP_End ;
 }
 
 #undef POS_CUT_FILL
@@ -1099,6 +1115,8 @@ int Compare_PostElement_Node(struct PostElement * PE1, int n1,
 void Sort_PostElement_Connectivity(List_T *PostElement_L){
   int ii, jj, start, end, iPost, NbrPost ;
   struct PostElement *PE, *PE2 ;
+
+  GetDP_Begin("Sort_PostElement_Connectivity");
 
   NbrPost = List_Nbr(PostElement_L) ;
 
@@ -1156,5 +1174,6 @@ void Sort_PostElement_Connectivity(List_T *PostElement_L){
   }
   List_Sort(PostElement_L, fcmp_PostElement_v0) ;
 
+  GetDP_End ;
 }
 

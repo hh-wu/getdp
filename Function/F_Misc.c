@@ -1,19 +1,17 @@
-/* $Id: F_Misc.c,v 1.2 2000-09-07 18:47:23 geuzaine Exp $ */
+static char *rcsid = "$Id: F_Misc.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
 
+#include "GetDP.h"
 #include "Data_DefineE.h"
 #include "F_Function.h"
 #include "GeoData.h"
 #include "Get_Geometry.h"
 #include "Cal_Value.h" 
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
-#include "outil.h"
-
-#include "ualloc.h" 
+#include "Tools.h"
 
 /* ------------------------------------------------------------------------ */
 /*  Warning: the pointers A and V can be identical. You must                */
@@ -30,9 +28,14 @@
 /* ------------------------------------------------------------------------ */
 
 void  F_Printf (F_ARG) {
+
+  GetDP_Begin("F_Printf");
+
   V = A ;  /* Attention: ne sert a rien!?! */
   Print_Value(A) ;
   printf("\n") ;
+
+  GetDP_End ;
 }
 
 
@@ -42,6 +45,8 @@ void  F_Printf (F_ARG) {
 
 void  F_Normal(F_ARG) {
   int  k ;
+
+  GetDP_Begin("F_Normal");
 
   Geo_CreateNormal(Current.Element->Type, 
 		   Current.Element->x, 
@@ -64,10 +69,13 @@ void  F_Normal(F_ARG) {
   }
   V->Type = VECTOR ;
 
+  GetDP_End ;
 }
 
 void  F_NormalSource(F_ARG) {
   int  k ;
+
+  GetDP_Begin("F_NormalSource");
 
   Geo_CreateNormal(Current.ElementSource->Type, 
 		   Current.ElementSource->x, 
@@ -90,12 +98,15 @@ void  F_NormalSource(F_ARG) {
   }
   V->Type = VECTOR ;
 
+  GetDP_End ;
 }
 
 
 void  F_Tangent(F_ARG) {
   int  k ;
   double  tx, ty, tz, norm ;
+
+  GetDP_Begin("F_Tangent");
 
   switch (Current.Element->Type) {
    
@@ -128,6 +139,7 @@ void  F_Tangent(F_ARG) {
   }
   V->Type = VECTOR ;
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -135,11 +147,16 @@ void  F_Tangent(F_ARG) {
 /* ------------------------------------------------------------------------ */
 
 void  F_CompElementNum (F_ARG) {
+
+  GetDP_Begin("F_CompElementNum");
+
   if(!Current.ElementSource) 
     Msg(ERROR, "Uninitialized Source Element in 'F_CompElementNum'");
 
   V->Type = SCALAR ;
   V->Val[0] = (Current.Element->Num == Current.ElementSource->Num) ;
+
+  GetDP_End ;
 }
 
 
@@ -156,6 +173,8 @@ void  F_SurfaceArea (F_ARG) {
   double  Val_Surface ;
   double  c11, c21, c12, c22, DetJac ;
   int     i ;
+
+  GetDP_Begin("F_SurfaceArea");
 
   if (!Fct->Active) {
     Fct->Active = (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
@@ -210,6 +229,8 @@ void  F_SurfaceArea (F_ARG) {
 
   V->Type = SCALAR ;
   V->Val[0] = Fct->Active->Case.SurfaceArea.Value ;
+
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -221,6 +242,8 @@ void  F_InterpolationLinear (F_ARG) {
   int     N, up, lo ;
   double  xp, yp, *x, *y, a ;
   struct FunctionActive  * D ;
+
+  GetDP_Begin("F_InterpolationLinear");
 
   if (!Fct->Active)  Fi_InitListXY (Fct, A, V) ;
 
@@ -248,6 +271,8 @@ void  F_InterpolationLinear (F_ARG) {
     Msg(ERROR,"Function 'Interpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 
@@ -256,6 +281,8 @@ void  F_dInterpolationLinear (F_ARG) {
   int     N, up, lo ;
   double  xp, dyp, *x, *y ;
   struct FunctionActive  * D ;
+
+  GetDP_Begin("F_dInterpolationLinear");
 
   if (!Fct->Active)  Fi_InitListXY (Fct, A, V) ;
 
@@ -281,6 +308,8 @@ void  F_dInterpolationLinear (F_ARG) {
     Msg(ERROR,"Function 'Interpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 
@@ -289,6 +318,8 @@ void  F_dInterpolationLinear2 (F_ARG) {
   int     N, up, lo ;
   double  xp,yp, *x, *y, a ;
   struct FunctionActive  * D ;
+
+  GetDP_Begin("F_dInterpolationLinear2");
 
   if (!Fct->Active) {
     Fi_InitListXY (Fct, A, V) ;
@@ -319,6 +350,8 @@ void  F_dInterpolationLinear2 (F_ARG) {
     Msg(ERROR,"Function 'Interpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 
@@ -328,6 +361,8 @@ void  F_InterpolationAkima (F_ARG) {
   int     N, up, lo ;
   double  xp, yp, *x, *y, a, a2, a3 ;
   struct FunctionActive  * D ;
+
+  GetDP_Begin("F_InterpolationAkima");
 
   if (!Fct->Active) {
     Fi_InitListXY (Fct, A, V) ;
@@ -361,6 +396,8 @@ void  F_InterpolationAkima (F_ARG) {
     Msg(ERROR,"Function 'Interpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 
@@ -369,6 +406,8 @@ void  F_dInterpolationAkima (F_ARG) {
   int     N, up, lo ;
   double  xp, dyp, *x, *y, a, a2 ;
   struct FunctionActive  * D ;
+
+  GetDP_Begin("F_dInterpolationAkima");
 
   if (!Fct->Active) {
     Fi_InitListXY (Fct, A, V) ;
@@ -400,6 +439,8 @@ void  F_dInterpolationAkima (F_ARG) {
     Msg(ERROR,"Function 'Interpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
 }
 
 
@@ -408,6 +449,8 @@ void  Fi_InitListXY (F_ARG) {
   int     i, N ;
   double  *x, *y ;
   struct FunctionActive  * D ;
+
+  GetDP_Begin("Fi_InitListXY");
 
   D = Fct->Active =
     (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
@@ -419,6 +462,8 @@ void  Fi_InitListXY (F_ARG) {
     x[i] = Fct->Para[i*2  ] ;
     y[i] = Fct->Para[i*2+1] ;
   }
+
+  GetDP_End ;
 }
 
 
@@ -427,6 +472,8 @@ void  Fi_InitListXY2 (F_ARG) {
   int     i, N ;
   double  *x, *y, *xc, *yc ;
   struct FunctionActive  * D ;
+
+  GetDP_Begin("Fi_InitListXY2");
 
   D = Fct->Active ;  N = D->Case.Interpolation.NbrPoint ;
   x = D->Case.Interpolation.x ;  y = D->Case.Interpolation.y ;
@@ -446,6 +493,8 @@ void  Fi_InitListXY2 (F_ARG) {
     yc[i] = (y[i]-y[i-1]) / (x[i]-x[i-1]) ;
     */
   }
+
+  GetDP_End ;
 }
 
 
@@ -454,6 +503,8 @@ void  Fi_InitAkima (F_ARG) {
   int     i, N ;
   double  *x, *y, *mi, *bi, *ci, *di, a ;
   struct FunctionActive  * D ;
+
+  GetDP_Begin("Fi_InitAkima");
 
   D = Fct->Active ;  N = D->Case.Interpolation.NbrPoint ;
   x = D->Case.Interpolation.x ;  y = D->Case.Interpolation.y ;
@@ -482,6 +533,8 @@ void  Fi_InitAkima (F_ARG) {
     ci[i] = ( 3.*mi[i] - 2.*bi[i] - bi[i+1] ) / a ;
     di[i] = ( bi[i] + bi[i+1] - 2.*mi[i] ) / (a*a) ;
   }
+
+  GetDP_End ;
 }
 
 

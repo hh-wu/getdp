@@ -1,17 +1,16 @@
-/* $Id: Get_FunctionValue.c,v 1.6 2000-10-16 12:33:42 geuzaine Exp $ */
+static char *rcsid = "$Id: Get_FunctionValue.c,v 1.7 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Cal_Quantity.h"
 #include "Get_Geometry.h"
-
 #include "GeoData.h"
-
 #include "CurrentData.h"
 #include "Data_Numeric.h"
-#include "outil.h"
+#include "Tools.h"
 
 
 /* ------------------------------------------------------------------------ */
@@ -19,20 +18,23 @@
 /* ------------------------------------------------------------------------ */
 
 int Get_ValueFromForm(int Form) {
+  
+  GetDP_Begin("Get_ValueFromForm");
+
   switch (Form) {
   case FORM0  :  
   case FORM3  : case FORM3P :  
   case SCALAR :
-    return SCALAR ;
+    GetDP_Return(SCALAR) ;
     
   case FORM1  : case FORM1P  : case FORM1S : 
   case FORM2  : case FORM2P  : case FORM2S :
   case VECTOR : case VECTORP :
-    return VECTOR ;
+    GetDP_Return(VECTOR) ;
 
   default :
     Msg(ERROR, "Unknown Form Type in 'Get_ValueFromForm'");
-    return -1 ;
+    GetDP_Return(-1) ;
   }
 }
 
@@ -50,6 +52,8 @@ struct IntegrationCase * Get_IntegrationCase (struct Element * Element,
 					      int     CriterionIndex) {
   struct Value Criterion ;
 
+  GetDP_Begin("Get_IntegrationCase");
+
   if (CriterionIndex >= 0){    
     Current.Element = Element ;
     Current.ElementSource = Element->ElementSource ;
@@ -66,7 +70,8 @@ struct IntegrationCase * Get_IntegrationCase (struct Element * Element,
     Criterion.Val[0] = 0;
   }
 
-  return (struct IntegrationCase*) List_Pointer(IntegrationCase_L, (int)Criterion.Val[0]);
+  GetDP_Return((struct IntegrationCase*) List_Pointer(IntegrationCase_L,
+						      (int)Criterion.Val[0])) ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -79,6 +84,8 @@ void  Get_FunctionValue(int Nbr_Function,
 			struct QuantityStorage  * QuantityStorage_P,
 			int * Type_Form) {
   int  i ;
+
+  GetDP_Begin("Get_FunctionValue");
 
   switch (Type_Operator) {
 
@@ -198,6 +205,7 @@ void  Get_FunctionValue(int Nbr_Function,
     break;
   }
 
+  GetDP_End ;
 }
 
 
@@ -208,6 +216,8 @@ void  Get_FunctionValue(int Nbr_Function,
 void  Get_InitFunctionValue(int Type_Operator,
 			    struct QuantityStorage  * QuantityStorage_P,
 			    int * Type_Form) {
+
+  GetDP_Begin("Get_InitFunctionValue");
 
   switch (Type_Operator) {
 
@@ -271,6 +281,7 @@ void  Get_InitFunctionValue(int Type_Operator,
     break;
   }
 
+  GetDP_End ;
 }
 
 
@@ -284,11 +295,13 @@ double Cal_InterpolationOrder(struct Element * Element,
   int i ;
   double Order = 0.0 ;
 
+  GetDP_Begin("Cal_InterpolationOrder");
+
   for(i = 0 ; i < QuantityStorage->NbrElementaryBasisFunction ; i++)
     if(QuantityStorage->BasisFunction[i].Dof->Type == DOF_SYMMETRICAL)
       Order = MAX(QuantityStorage->BasisFunction[i].BasisFunction->Order, Order) ;
 
-  return Order ;
+  GetDP_Return(Order) ;
 }
 
 
@@ -300,6 +313,8 @@ double Cal_MaxEdgeLength(struct Element * Element){
   int    i, *IM, *N, NbrEdges ;
   double l, lmax = 0.0 ;
   
+  GetDP_Begin("Cal_MaxEdgeLength");
+
   IM = Geo_GetIM_Den(Element->Type, &NbrEdges) ;
   for(i = 0 ; i < NbrEdges ; i++){
     N = IM + i * NBR_MAX_SUBENTITIES_IN_ELEMENT ;
@@ -309,5 +324,5 @@ double Cal_MaxEdgeLength(struct Element * Element){
     lmax = MAX(lmax, l) ;
   }
 
-  return lmax ;
+  GetDP_Return(lmax) ;
 }

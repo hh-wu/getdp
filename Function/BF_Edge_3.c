@@ -1,7 +1,8 @@
-/* $Id: BF_Edge_3.c,v 1.1 2000-09-12 20:21:06 geuzaine Exp $ */
+static char *rcsid = "$Id: BF_Edge_3.c,v 1.2 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "GetDP.h"
 #include "Data_Passive.h"
 #include "BF_Function.h"
 
@@ -14,6 +15,8 @@ int fcmp_Int2(const void * a, const void * b){
 
 int Get_FacetFunctionIndex(struct Element * Element, int NumEntity, int NumIndex){
   int    i, j, *NumNodes ;
+
+  GetDP_Begin("Get_FacetFunctionIndex");
 
   if(Element->NumLastElementForSortedNodesByFacet != Element->Num){
 
@@ -33,7 +36,7 @@ int Get_FacetFunctionIndex(struct Element * Element, int NumEntity, int NumIndex
     Element->NumLastElementForSortedNodesByFacet = Element->Num ;
   }
 
-  return Element->SortedNodesByFacet[NumEntity-1][NumIndex-1].Int1 ;
+  GetDP_Return(Element->SortedNodesByFacet[NumEntity-1][NumIndex-1].Int1) ;
 }
 
 
@@ -49,7 +52,12 @@ int Get_FacetFunctionIndex(struct Element * Element, int NumEntity, int NumIndex
 
 void  BF_Edge_3E (struct Element * Element, int NumEntity,
 		   double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_Edge_3E");
+
   Msg(ERROR, "Should never be here") ;
+
+  GetDP_End ;
 }
 
 #undef WrongNumEntity
@@ -62,6 +70,8 @@ void  BF_Edge_3E (struct Element * Element, int NumEntity,
 
 void  BF_Edge_3F (struct Element * Element, int NumEntity, int Index,
 		   double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_Edge_3F");
 
   switch (Element->Type) {
 
@@ -140,23 +150,39 @@ void  BF_Edge_3F (struct Element * Element, int NumEntity, int Index,
 
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumEntity
 
 void  BF_Edge_3F_a (struct Element * Element, int NumEntity, 
 		     double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_Edge_3F_a");
+
   BF_Edge_3F(Element, NumEntity, 1, u, v, w, s) ;
+
+  GetDP_End ;
 }
 
 void  BF_Edge_3F_b (struct Element * Element, int NumEntity, 
 		     double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_Edge_3F_b");
+
   BF_Edge_3F(Element, NumEntity, 2, u, v, w, s) ;
+
+  GetDP_End ;
 }
 
 void  BF_Edge_3F_c (struct Element * Element, int NumEntity, 
 		     double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_Edge_3F_c");
+
   BF_Edge_3F(Element, NumEntity, 3, u, v, w, s) ;
+
+  GetDP_End ;
 }
 
 /* -------- */
@@ -165,7 +191,12 @@ void  BF_Edge_3F_c (struct Element * Element, int NumEntity,
 
 void  BF_Edge_3V (struct Element * Element, int NumEntity,
 		   double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_Edge_3V");
+
   Msg(ERROR, "Should never be here") ;
+
+  GetDP_End ;
 }
 
 
@@ -182,7 +213,12 @@ void  BF_Edge_3V (struct Element * Element, int NumEntity,
 
 void  BF_CurlEdge_3E (struct Element * Element, int NumEntity,
 		   double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_CurlEdge_3E");
+
   Msg(ERROR, "Should never be here") ;
+
+  GetDP_End ;
 }
 
 #undef WrongNumEntity
@@ -195,6 +231,8 @@ void  BF_CurlEdge_3E (struct Element * Element, int NumEntity,
 
 void  BF_CurlEdge_3F (struct Element * Element, int NumEntity, int Index,
 		       double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_CurlEdge_3F");
 
   switch (Element->Type) {
 
@@ -273,23 +311,39 @@ void  BF_CurlEdge_3F (struct Element * Element, int NumEntity, int Index,
 
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumEntity
 
 void  BF_CurlEdge_3F_a (struct Element * Element, int NumEntity,
 			 double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_CurlEdge_3F_a");
+
   BF_CurlEdge_3F(Element, NumEntity, 1, u, v, w, s) ;
+
+  GetDP_End ;
 }
 
 void  BF_CurlEdge_3F_b (struct Element * Element, int NumEntity,
 			 double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_CurlEdge_3F_b");
+
   BF_CurlEdge_3F(Element, NumEntity, 2, u, v, w, s) ;
+
+  GetDP_End ;
 }
 
 void  BF_CurlEdge_3F_c (struct Element * Element, int NumEntity,
 			 double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_CurlEdge_3F_c");
+
   BF_CurlEdge_3F(Element, NumEntity, 3, u, v, w, s) ;
+
+  GetDP_End ;
 }
 
 /* -------- */
@@ -298,5 +352,10 @@ void  BF_CurlEdge_3F_c (struct Element * Element, int NumEntity,
 
 void  BF_CurlEdge_3V (struct Element * Element, int NumEntity,
 		   double u, double v, double w, double s[] ) {
+
+  GetDP_Begin("BF_CurlEdge_3V");
+
   Msg(ERROR, "Should never be here") ;
+
+  GetDP_End ;
 }

@@ -1,18 +1,15 @@
-/* $Id: GeoTree.c,v 1.3 2000-09-28 22:13:33 geuzaine Exp $ */
+static char *rcsid = "$Id: GeoTree.c,v 1.4 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "GeoData.h"
 #include "Data_Passive.h"
-
-#include "ualloc.h"
-#include "outil.h"
-
+#include "Tools.h"
 
 int  Tree_IndexToChange, Tree_NewIndex ;
-
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ G e n e r a t e E d g e s O f T r e e                           */
@@ -21,6 +18,8 @@ int  Tree_IndexToChange, Tree_NewIndex ;
 void  Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
 			      List_T ** ExtendedList) {
   Tree_T  * EntitiesInTree_T ;
+
+  GetDP_Begin("Geo_GenerateEdgesOfTree");
 
   *ExtendedList = List_Create( 2000, 2000, sizeof(int)) ;
 
@@ -34,6 +33,8 @@ void  Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
   Tree_Delete(EntitiesInTree_T) ;
 
   List_Sort(*ExtendedList, fcmp_int) ;
+
+  GetDP_End ;
 }
 
 
@@ -44,6 +45,8 @@ void  Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
 void  Geo_GenerateFacetsOfTree(List_T * InitialList, List_T * InitialSuppList,
 			       List_T ** ExtendedList) {
   Tree_T  * EntitiesInTree_T ;
+
+  GetDP_Begin("Geo_GenerateFacetsOfTree");
 
   *ExtendedList = List_Create( 2000, 2000, sizeof(int)) ;
 
@@ -57,6 +60,8 @@ void  Geo_GenerateFacetsOfTree(List_T * InitialList, List_T * InitialSuppList,
   Tree_Delete(EntitiesInTree_T) ;
 
   List_Sort(*ExtendedList, fcmp_int) ;
+
+  GetDP_End ;
 }
 
 
@@ -72,6 +77,8 @@ void  Geo_GenerateEdgesOfSubTree(List_T * InitialList, List_T * ExtendedList,
   int  i_Entity2, Num_Entity2, * D_Element, * Entity_P, Entity, Flag_Change ;
   struct EntityInTree  * EntitiesInTree_P[NBR_MAX_ENTITIES_IN_ELEMENT] ;
   struct EntityInTree  EntityInTree_S ;
+
+  GetDP_Begin("Geo_GenerateEdgesOfSubTree");
 
   Nbr_Element = Geo_GetNbrGeoElements() ;
   for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
@@ -127,6 +134,7 @@ void  Geo_GenerateEdgesOfSubTree(List_T * InitialList, List_T * ExtendedList,
 
   }   /* for i_Element ... */
 
+  GetDP_End ;
 }
 
 
@@ -143,6 +151,8 @@ void  Geo_GenerateFacetsOfSubTree(List_T * InitialList, List_T * ExtendedList,
   struct EntityInTree  * EntitiesInTree_P[NBR_MAX_ENTITIES_IN_ELEMENT] ;
   struct EntityInTree  EntityInTree_S ;
 
+  GetDP_Begin("Geo_GenerateFacetsOfSubTree");
+  
   Nbr_Element = Geo_GetNbrGeoElements() ;
   for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
     Geo_Element = Geo_GetGeoElement(i_Element) ;
@@ -200,12 +210,17 @@ void  Geo_GenerateFacetsOfSubTree(List_T * InitialList, List_T * ExtendedList,
 
   }   /* for i_Element ... */
 
+  GetDP_End ;
 }
 
 
 void  Geo_ChangeTreeIndex(void * a, void * b) {
 
+  GetDP_Begin("Geo_ChangeTreeIndex");
+
   if (((struct EntityInTree *)a)->Index == Tree_IndexToChange)
     ((struct EntityInTree *)a)->Index = Tree_NewIndex ;
+
+  GetDP_End ;
 }
 

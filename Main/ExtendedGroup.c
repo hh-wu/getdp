@@ -1,12 +1,13 @@
-/* $Id: ExtendedGroup.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+static char *rcsid = "$Id: ExtendedGroup.c,v 1.3 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdlib.h> /* pour int abs(int) */
 #include <stdio.h>
 
+#include "GetDP.h"
 #include "ExtendedGroup.h"
 #include "Data_DefineE.h"
 #include "CurrentData.h"
 #include "GeoData.h"
-#include "outil.h"
+#include "Tools.h"
 
 int  fcmp_int2(const void * a, const void * b) {
   static int result ;
@@ -28,6 +29,8 @@ int  fcmp_absint2(const void * a, const void * b) {
 
 int  Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag) {
 
+  GetDP_Begin("Check_IsEntityInExtendedGroup");
+
   switch (Group_P->FunctionType) {
 
   case NODESOF :  case EDGESOF :  case FACETSOF :  case VOLUMESOF :
@@ -35,7 +38,7 @@ int  Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
     if ((Group_P->InitialList && !Group_P->ExtendedList)  ||
 	(Group_P->InitialSuppList && !Group_P->ExtendedSuppList))
       Generate_ExtendedGroup(Group_P) ;
-    return
+    GetDP_Return
       (!Group_P->InitialList ||
        (List_Search(Group_P->ExtendedList, &Entity, fcmp_int))) &&
 	 (!Group_P->InitialSuppList ||
@@ -43,18 +46,20 @@ int  Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
 
   case ELEMENTSOF :  case EDGESOFTREEIN :  case FACETSOFTREEIN :
     if (!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
-    return List_Search(Group_P->ExtendedList, &Entity, fcmp_int ) ;
+    GetDP_Return( List_Search(Group_P->ExtendedList, &Entity, fcmp_int) ) ;
 
   case GROUPSOFNODESOF :  case GROUPSOFEDGESOF :  case REGION :  case GLOBAL :
-    return  (Flag)? List_Search(Group_P->InitialList, &Entity, fcmp_int) : 1 ;
+    GetDP_Return( (Flag)? List_Search(Group_P->InitialList, &Entity, fcmp_int) : 1 ) ;
 
   case GROUPSOFEDGESONNODESOF :
-    if (!Group_P->InitialSuppList)  return 1 ;
-    return (! List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int)) ;
+    if (!Group_P->InitialSuppList){
+      GetDP_Return(1) ;
+    }
+    GetDP_Return (! List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int)) ;
 
   default :
     Msg(ERROR, "Unknown Function Type for Group '%s'", Group_P->Name);
-    return -1 ;
+    GetDP_Return(-1) ;
   }
 }
 
@@ -64,6 +69,8 @@ int  Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
 /* ------------------------------------------------------------------------ */
 
 void  Generate_ExtendedGroup(struct Group * Group_P) {
+
+  GetDP_Begin("Generate_ExtendedGroup");
 
   Msg(INFO, "  Generate ExtendedGroup '%s' (%s)", Group_P->Name,
       Get_StringForDefine(FunctionForGroup_Type, Group_P->FunctionType)) ;
@@ -116,6 +123,8 @@ void  Generate_ExtendedGroup(struct Group * Group_P) {
     Msg(ERROR, "Unknown Function Type for Group '%s'", Group_P->Name) ;
     break;
   }
+
+  GetDP_End ;
 }
 
 
@@ -130,6 +139,8 @@ void  Generate_ElementaryEntities
   struct Geo_Element  * GeoElement ;
   int     Nbr_Element, i_Element, Num_Entity ;
   int     Nbr_Entity, i_Entity, * Num_Entities ;
+
+  GetDP_Begin("Generate_ElementaryEntities");
 
   if (InitialList != NULL) {
 
@@ -168,6 +179,8 @@ void  Generate_ElementaryEntities
     *ExtendedList = Tree2List(Entity_Tr) ;
     Tree_Delete(Entity_Tr) ;
   }
+
+  GetDP_End ;
 }
 
 
@@ -181,6 +194,8 @@ void  Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList) {
   struct Geo_Element  * GeoElement ;
   int     Nbr_Element, i_Element,  i_Entity ;
   struct TwoInt  Num_GroupOfNodes ;
+
+  GetDP_Begin("Generate_GroupsOfNodes");
 
   Entity_Tr = Tree_Create(sizeof (struct TwoInt), fcmp_int2) ;
 
@@ -205,6 +220,8 @@ void  Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList) {
   }
 
   *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
+
+  GetDP_End ;
 }
 
 
@@ -222,6 +239,8 @@ void  Generate_GroupsOfEdges(List_T * InitialList,
   struct TwoInt  Num_GroupOfEdges, * Key1_P, * Key2_P ;
   List_T  * ExtendedAuxList ;
   struct Group  * GroupForSupport_P ;
+
+  GetDP_Begin("Generate_GroupsOfEdges");
 
   Entity_Tr = Tree_Create(sizeof (struct TwoInt), fcmp_absint2) ;
 
@@ -284,6 +303,8 @@ void  Generate_GroupsOfEdges(List_T * InitialList,
 
     /* Msg(INFO, " (%d, %d)", Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2) ; */
   }
+
+  GetDP_End ;
 }
 
 
@@ -301,6 +322,8 @@ void  Generate_Elements(List_T * InitialList,
   int     k ;
   int     Nbr_Element, i_Element, i_Element2, Nbr_Node, i_Node, i_Node2 ;
   List_T  * ExtendedSuppList ;
+
+  GetDP_Begin("Generate_Elements");
 
   Nbr_Element = Geo_GetNbrGeoElements() ;
 
@@ -379,4 +402,6 @@ void  Generate_Elements(List_T * InitialList,
   }
 
   *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
+
+  GetDP_End ;
 }

@@ -1,4 +1,4 @@
-/* $Id: LinAlg_SPARSKIT.c,v 1.3 2000-09-07 18:47:22 geuzaine Exp $ */
+static char *rcsid = "$Id: LinAlg_SPARSKIT.c,v 1.4 2000-10-30 01:05:43 geuzaine Exp $" ;
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,22 +8,28 @@
 
 /* This is the interface library for the Default (SPARSKIT based) solver */
 
+#include "GetDP.h"
 #include "LinAlg.h"
-#include "Message.h"
-#include "ualloc.h"
 
 static char *Name_SolverFile=NULL, *Name_DefaultSolverFile="SOLVER.PAR" ;
 
 /* Init */
 
-void gInitialize(int* argc, char*** argv, int *NbrCpu, int *RankCpu){
+void LinAlg_Initialize(int* argc, char*** argv, int *NbrCpu, int *RankCpu){
+
+  GetDP_Begin("LinAlg_Initialize");
+
   *NbrCpu = 1 ;
   *RankCpu = 0 ;
+
+  GetDP_End ;
 }
-void gInitializeSolver(int* sargc, char*** sargv, int *NbrCpu, int *RankCpu){
+void LinAlg_InitializeSolver(int* sargc, char*** sargv, int *NbrCpu, int *RankCpu){
   int i=1, argc;
   char **argv;
  
+  GetDP_Begin("LinAlg_InitializeSolver");
+
   *NbrCpu = 1 ;
   *RankCpu = 0 ;
   argc = *sargc ;
@@ -44,213 +50,457 @@ void gInitializeSolver(int* sargc, char*** sargv, int *NbrCpu, int *RankCpu){
     else
       Msg(SPARSKIT, "Unknown Option: '%s'\n", argv[i++]) ; 
   }
+
+  GetDP_End ;
 }
 
 /* Finalize */
 
-void gFinalize(void){
+void LinAlg_Finalize(void){
 }
-void gFinalizeSolver(void){
+void LinAlg_FinalizeSolver(void){
 }
 
 /* Sequential */
 
-void gSequentialBegin(void){
+void LinAlg_SequentialBegin(void){
 }
-
-void gSequentialEnd(void){
+void LinAlg_SequentialEnd(void){
 }
 
 /* Create */
 
-void gCreateSolver(gSolver *Solver, char * SolverDataFileName){
+void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName){
+
+  GetDP_Begin("LinAlg_CreateSolver");
+
   init_solver(&Solver->Params,
 	      SolverDataFileName ? SolverDataFileName :
 	      (Name_SolverFile ? Name_SolverFile : Name_DefaultSolverFile)) ;
+
+  GetDP_End ;
 }
-void gCreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *Part){
+void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *Part){
+
+  GetDP_Begin("LinAlg_CreateVector");
+
   init_vector(n, &V->V) ;
   V->N = n ;
+
+  GetDP_End ;
 }
-void gCreateMatrix(gMatrix *M, gSolver *Solver, int n, int m, 
+void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m, 
 		   int NbrPart, int *Part, int *Nnz){
+
+  GetDP_Begin("LinAlg_CreateMatrix");
+
   init_matrix(n, &M->M, &Solver->Params) ;
+
+  GetDP_End ;
 }
 
 /* Destroy */
 
-void gDestroySolver(gSolver *Solver){
-  Msg(ERROR, "'gDestroySolver' not Implemented (yet)");
+void LinAlg_DestroySolver(gSolver *Solver){
+
+  GetDP_Begin("LinAlg_DestroySolver");
+
+  Msg(ERROR, "'LinAlg_DestroySolver' not Implemented (yet)");
+
+  GetDP_End ;
 }
-void gDestroyVector(gVector *V){
+void LinAlg_DestroyVector(gVector *V){
+
+  GetDP_Begin("LinAlg_DestroyVector");
+
   Free(V->V);
+
+  GetDP_End ;
 }
-void gDestroyMatrix(gMatrix *M){
-  Msg(ERROR, "'gDestroyMatrix' not Implemented (yet)");  
+void LinAlg_DestroyMatrix(gMatrix *M){
+
+  GetDP_Begin("LinAlg_DestroyMatrix");
+
+  Msg(ERROR, "'LinAlg_DestroyMatrix' not Implemented (yet)");  
+
+  GetDP_End ;
 }
 
 /* Copy */
 
-void gCopyScalar(gScalar *S1, gScalar *S2){
+void LinAlg_CopyScalar(gScalar *S1, gScalar *S2){
+
+  GetDP_Begin("LinAlg_CopyScalar");
+
   S2->d = S1->d ;
+
+  GetDP_End ;
 }
-void gCopyVector(gVector *V1, gVector *V2){
+void LinAlg_CopyVector(gVector *V1, gVector *V2){
+
+  GetDP_Begin("LinAlg_CopyVector");
+
   memcpy(V2->V, V1->V, V1->N*sizeof(double)) ;
+
+  GetDP_End ;
 }
-void gCopyMatrix(gMatrix *M1, gMatrix *M2){
-  Msg(ERROR, "'gCopyMatrix' not Implemented (yet)");  
+void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2){
+
+  GetDP_Begin("LinAlg_CopyMatrix");
+
+  Msg(ERROR, "'LinAlg_CopyMatrix' not Implemented (yet)");  
+
+  GetDP_End ;
 }
 
 /* Zero */
 
-void gZeroScalar(gScalar *S){
+void LinAlg_ZeroScalar(gScalar *S){
+
+  GetDP_Begin("LinAlg_ZeroScalar");
+
   S->d = 0. ;
+
+  GetDP_End ;
 }
-void gZeroVector(gVector *V){
+void LinAlg_ZeroVector(gVector *V){
+
+  GetDP_Begin("LinAlg_ZeroCopyVector");
+
   zero_vector(V->N, V->V) ;
+
+  GetDP_End ;
 }
-void gZeroMatrix(gMatrix *M){
+void LinAlg_ZeroMatrix(gMatrix *M){
   int i ;
+
+  GetDP_Begin("LinAlg_ZeroMatrix");
+
   zero_matrix(&M->M) ;
   /* la routine de produit matrice vecteur est buggee s'il
      existe des lignes sans aucun element dans la matrice... */
   for(i=0 ; i<M->M.N ; i++) add_matrix_double(&M->M, i+1, i+1, 0.0) ;
+
+  GetDP_End ;
 }
 
 /* Scan */
 
-void gScanScalar(FILE *file, gScalar *S){
+void LinAlg_ScanScalar(FILE *file, gScalar *S){
+
+  GetDP_Begin("LinAlg_ScanScalar");
+
   fscanf(file, "%lf", &S->d) ;
+
+  GetDP_End ;
 }
-void gScanVector(FILE *file, gVector *V) {
+void LinAlg_ScanVector(FILE *file, gVector *V) {
   int i ;
+
+  GetDP_Begin("LinAlg_ScanVector");
+
   for(i=0 ; i<V->N ; i++) fscanf(file, "%lf", &V->V[i]) ;
+
+  GetDP_End ;
 }
-void gScanMatrix(FILE *file, gMatrix *M){
-  Msg(ERROR, "'gScanMatrix' not Implemented (yet)");
+void LinAlg_ScanMatrix(FILE *file, gMatrix *M){
+
+  GetDP_Begin("LinAlg_ScanMatrix");
+
+  Msg(ERROR, "'LinAlg_ScanMatrix' not Implemented (yet)");
+
+  GetDP_End ;
 }
 
 /* Read */
 
-void gReadScalar(FILE *file, gScalar *S){
-  Msg(ERROR, "'gReadScalar' not Implemented (yet)");
+void LinAlg_ReadScalar(FILE *file, gScalar *S){
+
+  GetDP_Begin("LinAlg_ReadScalar");
+
+  Msg(ERROR, "'LinAlg_ReadScalar' not Implemented (yet)");
+
+  GetDP_End ;
 }
-void gReadVector(FILE *file, gVector *V) {
+void LinAlg_ReadVector(FILE *file, gVector *V) {
+
+  GetDP_Begin("LinAlg_ReadVector");
+
   fread(V->V, sizeof(double), V->N, file);
+
+  GetDP_End ;
 }
-void gReadMatrix(FILE *file, gMatrix *M){
-  Msg(ERROR, "'gReadMatrix' not Implemented (yet)");
+void LinAlg_ReadMatrix(FILE *file, gMatrix *M){
+
+  GetDP_Begin("LinAlg_ReadMatrix");
+
+  Msg(ERROR, "'LinAlg_ReadMatrix' not Implemented (yet)");
+
+  GetDP_End ;
 }
 
 /* Print */
 
-void gPrintScalar(FILE *file, gScalar *S){
+void LinAlg_PrintScalar(FILE *file, gScalar *S){
+
+  GetDP_Begin("LinAlg_PrintScalar");
+
   fprintf(file, "%.16g", S->d) ;
+
+  GetDP_End ;
 }
-void gPrintVector(FILE *file, gVector *V){
+void LinAlg_PrintVector(FILE *file, gVector *V){
+
+  GetDP_Begin("LinAlg_PrintVector");
+
   formatted_write_vector(file, V->N, V->V, KUL) ;
+
+  GetDP_End ;
 }
-void gPrintMatrix(FILE *file, gMatrix *M){
+void LinAlg_PrintMatrix(FILE *file, gMatrix *M){
+
+  GetDP_Begin("LinAlg_PrintMatrix");
+
   formatted_write_matrix(file, &M->M, KUL) ;
+
+  GetDP_End ;
 }
 
 /* Write */
 
-void gWriteScalar(FILE *file, gScalar *S){
-  Msg(ERROR, "'gWriteScalar' not Implemented (yet)");
+void LinAlg_WriteScalar(FILE *file, gScalar *S){
+
+  GetDP_Begin("LinAlg_WriteScalar");
+
+  Msg(ERROR, "'LinAlg_WriteScalar' not Implemented (yet)");
+
+  GetDP_End ;
 }
-void gWriteVector(FILE *file, gVector *V){
+void LinAlg_WriteVector(FILE *file, gVector *V){
+
+  GetDP_Begin("LinAlg_WriteVector");
+
   fwrite(V->V, sizeof(double), V->N, file);
   fprintf(file, "\n");
+
+  GetDP_End ;
 }
-void gWriteMatrix(FILE *file, gMatrix *M){
+void LinAlg_WriteMatrix(FILE *file, gMatrix *M){
+
+  GetDP_Begin("LinAlg_WriteMatrix");
+
   binary_write_matrix(&M->M, "A", ".mat") ;
+
+  GetDP_End ;
 }
 
 /* Get */
 
-void gGetVectorSize(gVector *V, int *i){
+void LinAlg_GetVectorSize(gVector *V, int *i){
+
+  GetDP_Begin("LinAlg_GetVectorSize");
+
   *i = V->N ;
+
+  GetDP_End ;
 }
-void gGetMatrixSize(gMatrix *M, int *i, int *j){
+void LinAlg_GetMatrixSize(gMatrix *M, int *i, int *j){
+
+  GetDP_Begin("LinAlg_GetMatrixSize");
+
   *i = *j = M->M.N ;
+
+  GetDP_End ;
 }
-void gGetDoubleInScalar(double *d, gScalar *S){
+void LinAlg_GetDoubleInScalar(double *d, gScalar *S){
+
+  GetDP_Begin("LinAlg_GetDoubleInScalar");
+
   *d = S->d ;
+
+  GetDP_End ;
 }
-void gGetComplexInScalar(double *d1, double *d2, gScalar *S){
-  Msg(ERROR, "'gGetComplexInScalar' not Available with this Solver");
+void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S){
+
+  GetDP_Begin("LinAlg_GetComplexInScalar");
+
+  Msg(ERROR, "'LinAlg_GetComplexInScalar' not Available with this Solver");
+
+  GetDP_End ;
 }
-void gGetScalarInVector(gScalar *S, gVector *V, int i){
+void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i){
+
+  GetDP_Begin("LinAlg_GetScalarInVector");
+
   S->d = V->V[i] ;
+
+  GetDP_End ;
 }
-void gGetDoubleInVector(double *d, gVector *V, int i){
+void LinAlg_GetDoubleInVector(double *d, gVector *V, int i){
+
+  GetDP_Begin("LinAlg_GetDoubleInVector");
+
   *d = V->V[i] ;
+
+  GetDP_End ;
 }
-void gGetAbsDoubleInVector(double *d, gVector *V, int i){
+void LinAlg_GetAbsDoubleInVector(double *d, gVector *V, int i){
+
+  GetDP_Begin("LinAlg_GetAbsDoubleInVector");
+
   *d = fabs(V->V[i]) ;
+
+  GetDP_End ;
 }
-void gGetComplexInVector(double *d1, double *d2, gVector *V, int i, int j){
+void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j){
+
+  GetDP_Begin("LinAlg_GetComplexInVector");
+
   *d1 = V->V[i] ;
   *d2 = V->V[j] ;
+
+  GetDP_End ;
 }
-void gGetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
-  Msg(ERROR, "'gGetScalarInMatrix' not Implemented (yet)");  
+void LinAlg_GetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
+
+  GetDP_Begin("LinAlg_GetScalarInMatrix");
+
+  Msg(ERROR, "'LinAlg_GetScalarInMatrix' not Implemented (yet)");  
+
+  GetDP_End ;
 }
-void gGetDoubleInMatrix(double *d, gMatrix *M, int i, int j){
-  Msg(ERROR, "'gGetScalarInMatrix' not Implemented (yet)");  
+void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j){
+
+  GetDP_Begin("LinAlg_GetDoubleInMatrix");
+
+  Msg(ERROR, "'LinAlg_GetScalarInMatrix' not Implemented (yet)");  
+
+  GetDP_End ;
 }
-void gGetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j, int k, int l){
-  Msg(ERROR, "'gGetScalarInMatrix' not Implemented (yet)");  
+void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j, int k, int l){
+
+  GetDP_Begin("LinAlg_GetComplexInMatrix");
+
+  Msg(ERROR, "'LinAlg_GetScalarInMatrix' not Implemented (yet)");  
+
+  GetDP_End ;
 }
 
 /* Set */
 
-void gSetScalar(gScalar *S, double *d){
+void LinAlg_SetScalar(gScalar *S, double *d){
+
+  GetDP_Begin("LinAlg_SetScalar");
+
   S->d = d[0] ;
+
+  GetDP_End ;
 }
-void gSetScalarInVector(gScalar *S, gVector *V, int i){
+void LinAlg_SetScalarInVector(gScalar *S, gVector *V, int i){
+
+  GetDP_Begin("LinAlg_SetScalarInVector");
+
   V->V[i] = S->d ;
+
+  GetDP_End ;
 }
-void gSetDoubleInVector(double d, gVector *V, int i){
+void LinAlg_SetDoubleInVector(double d, gVector *V, int i){
+
+  GetDP_Begin("LinAlg_SetDoubleInVector");
+
   V->V[i] = d ;
+
+  GetDP_End ;
 }
-void gSetComplexInVector(double d1, double d2, gVector *V, int i, int j){
+void LinAlg_SetComplexInVector(double d1, double d2, gVector *V, int i, int j){
+
+  GetDP_Begin("LinAlg_SetComplexInVector");
+
   V->V[i] = d1 ;
   V->V[j] = d2 ;
+
+  GetDP_End ;
 }
-void gSetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
-  Msg(ERROR, "'gSetScalarInMatrix' not Implemented (yet)");  
+void LinAlg_SetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
+
+  GetDP_Begin("LinAlg_SetScalarInMatrix");
+
+  Msg(ERROR, "'LinAlg_SetScalarInMatrix' not Implemented (yet)");  
+
+  GetDP_End ;
 }
-void gSetDoubleInMatrix(double d, gMatrix *M, int i, int j){
-  Msg(ERROR, "'gSetScalarInMatrix' not Implemented (yet)");  
+void LinAlg_SetDoubleInMatrix(double d, gMatrix *M, int i, int j){
+
+  GetDP_Begin("LinAlg_SetDoubleInMatrix");
+
+  Msg(ERROR, "'LinAlg_SetScalarInMatrix' not Implemented (yet)");  
+
+  GetDP_End ;
 }
-void gSetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l){
-  Msg(ERROR, "'gSetScalarInMatrix' not Implemented (yet)");  
+void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l){
+
+  GetDP_Begin("LinAlg_SetComplexInMatrix");
+
+  Msg(ERROR, "'LinAlg_SetScalarInMatrix' not Implemented (yet)");  
+
+  GetDP_End ;
 }
 
 /* Add */
 
-void gAddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
+void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
+
+  GetDP_Begin("LinAlg_AddScalarScalar");
+
   S3->d = S1->d + S2->d ;
+
+  GetDP_End ;
 }
-void gAddScalarInVector(gScalar *S, gVector *V, int i){
+void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i){
+
+  GetDP_Begin("LinAlg_AddScalarInVector");
+
   V->V[i] += S->d ;
+
+  GetDP_End ;
 }
-void gAddDoubleInVector(double d, gVector *V, int i){
+void LinAlg_AddDoubleInVector(double d, gVector *V, int i){
+
+  GetDP_Begin("LinAlg_AddDoubleInVector");
+
   V->V[i] += d ;
+
+  GetDP_End ;
 }
-void gAddComplexInVector(double d1, double d2, gVector *V, int i, int j){
+void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j){
+
+  GetDP_Begin("LinAlg_AddComplexInVector");
+
   V->V[i] += d1 ;
   V->V[j] += d2 ;
+
+  GetDP_End ;
 }
-void gAddScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
+void LinAlg_AddScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
+
+  GetDP_Begin("LinAlg_AddScalarInMatrix");
+
   add_matrix_double(&M->M, i+1, j+1, S->d) ;
+
+  GetDP_End ;
 }
-void gAddDoubleInMatrix(double d, gMatrix *M, int i, int j){
+void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j){
+
+  GetDP_Begin("LinAlg_AddDoubleInMatrix");
+
   add_matrix_double(&M->M, i+1, j+1, d) ;
+
+  GetDP_End ;
 }
-void gAddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l){
+void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l){
+
+  GetDP_Begin("LinAlg_AddComplexInMatrix");
+
   if(d1){
     add_matrix_double(&M->M, i+1, j+1, d1) ;
     add_matrix_double(&M->M, k+1, l+1, d1) ;
@@ -259,118 +509,225 @@ void gAddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, 
     add_matrix_double(&M->M, i+1, l+1, -d2) ;
     add_matrix_double(&M->M, k+1, j+1, d2) ;
   }
+
+  GetDP_End ;
 }
-void gAddVectorVector(gVector *V1, gVector *V2, gVector *V3){
+void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3){
+
+  GetDP_Begin("LinAlg_AddvectorVector");
+
   if(V3==V1)
     add_vector_vector(V1->N, V1->V, V2->V) ;
   else
-    Msg(ERROR, "'gAddVectorVector': Wrong Arguments");    
+    Msg(ERROR, "'LinAlg_AddVectorVector': Wrong Arguments");    
+
+  GetDP_End ;
 }
-void gAddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVector *V3){
+void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVector *V3){
+
+  GetDP_Begin("LinAlg_AddVectorProdVectorDouble");
+
   if(V3==V1)
     add_vector_prod_vector_double(V1->N, V1->V, V2->V, d) ;
   else
-    Msg(ERROR, "'gAddVectorProdVectorDouble': Wrong Arguments");    
+    Msg(ERROR, "'LinAlg_AddVectorProdVectorDouble': Wrong Arguments");    
+
+  GetDP_End ;
 }
-void gAddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
+void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
+
+  GetDP_Begin("LinAlg_AddMatrixMatrix");
+
   if(M3==M1)
     add_matrix_matrix(&M1->M, &M2->M) ;
   else
-    Msg(ERROR, "'gAddMatrixMatrix': Wrong Arguments");
+    Msg(ERROR, "'LinAlg_AddMatrixMatrix': Wrong Arguments");
+
+  GetDP_End ;
 }
-void gAddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatrix *M3){
+void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatrix *M3){
+
+  GetDP_Begin("LinAlg_AddMatrixProdMatrixDouble");
+
   if(M3==M1)
     add_matrix_prod_matrix_double(&M1->M, &M2->M, d) ;
   else
-    Msg(ERROR, "'gAddMatrixProdMatrixDouble': Wrong Arguments");
+    Msg(ERROR, "'LinAlg_AddMatrixProdMatrixDouble': Wrong Arguments");
+
+  GetDP_End ;
 }
 
 /* Sub */
 
-void gSubScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
+void LinAlg_SubScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
+
+  GetDP_Begin("LinAlg_SubScalarScalar");
+
   S3->d = S1->d - S2->d ;
+
+  GetDP_End ;
 }
-void gSubVectorVector(gVector *V1, gVector *V2, gVector *V3){
+void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3){
+
+  GetDP_Begin("LinAlg_SubVectorVector");
+
   if(V3==V1) 
     sub_vector_vector_1(V1->N, V1->V, V2->V) ;
   else if (V3==V2) 
     sub_vector_vector_2(V1->N, V1->V, V2->V) ;
   else
-    Msg(ERROR, "'gSubVectorVector': Wrong Arguments");  
+    Msg(ERROR, "'LinAlg_SubVectorVector': Wrong Arguments");  
+
+  GetDP_End ;
 }
-void gSubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
-  Msg(ERROR, "'gSubMatrixMatrix' not Implemented (yet)");  
+void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
+
+  GetDP_Begin("LinAlg_SubMatrixMatrix");
+
+  Msg(ERROR, "'LinAlg_SubMatrixMatrix' not Implemented (yet)");  
+
+  GetDP_End ;
 }
 
 /* Prod */
 
-void gProdScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
+void LinAlg_ProdScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
+
+  GetDP_Begin("LinAlg_ProdScalarScalar");
+
   S3->d = S1->d * S2->d ;
+
+  GetDP_End ;
 }
-void gProdScalarDouble(gScalar *S1, double d, gScalar *S2){
+void LinAlg_ProdScalarDouble(gScalar *S1, double d, gScalar *S2){
+
+  GetDP_Begin("LinAlg_ProdScalarDouble");
+
   S2->d = S1->d * d ;
+
+  GetDP_End ;
 }
-void gProdScalarComplex(gScalar *S, double d1, double d2, double *d3, double *d4){
+void LinAlg_ProdScalarComplex(gScalar *S, double d1, double d2, double *d3, double *d4){
+
+  GetDP_Begin("LinAlg_ProdScalarComplex");
+
   *d3 = S->d * d1 ;
   *d4 = S->d * d2 ;
+
+  GetDP_End ;
 }
-void gProdVectorScalar(gVector *V1, gScalar *S, gVector *V2){
-  Msg(ERROR, "'gProdVectorScalar' not Implemented (yet)");  
+void LinAlg_ProdVectorScalar(gVector *V1, gScalar *S, gVector *V2){
+
+  GetDP_Begin("LinAlg_ProdvectorScalar");
+
+  Msg(ERROR, "'LinAlg_ProdVectorScalar' not Implemented (yet)");  
+
+  GetDP_End ;
 }
-void gProdVectorDouble(gVector *V1, double d, gVector *V2){
+void LinAlg_ProdVectorDouble(gVector *V1, double d, gVector *V2){
+  
+  GetDP_Begin("LinAlg_ProdVectorDouble");
+
   if(V2==V1)
     prod_vector_double(V1->N, V1->V, d);
   else
-    Msg(ERROR, "'gProdVectorDouble': Wrong Arguments");
+    Msg(ERROR, "'LinAlg_ProdVectorDouble': Wrong Arguments");
+
+  GetDP_End ;
 }
-void gProdVectorComplex(gVector *V1, double d1, double d2, gVector *V2){
-  Msg(ERROR, "'gProdVectorComplex' not Implemented (yet)");
+void LinAlg_ProdVectorComplex(gVector *V1, double d1, double d2, gVector *V2){
+
+  GetDP_Begin("LinAlg_ProdVectorComplex");
+
+  Msg(ERROR, "'LinAlg_ProdVectorComplex' not Implemented (yet)");
+
+  GetDP_End ;
 }
-void gProdVectorVector(gVector *V1, gVector *V2, double *d){
+void LinAlg_ProdVectorVector(gVector *V1, gVector *V2, double *d){
+
+  GetDP_Begin("LinAlg_ProdVectorVector");
+
   prodsc_vector_vector (V1->N, V1->V, V2->V, d) ;
+
+  GetDP_End ;
 }
-void gProdMatrixVector(gMatrix *M, gVector *V1, gVector *V2){
+void LinAlg_ProdMatrixVector(gMatrix *M, gVector *V1, gVector *V2){
+
+  GetDP_Begin("LinAlg_ProdMatrixVector");
+
   if(V2==V1)
-    Msg(ERROR, "'gProdMatrixVector': Wrong Arguments");
+    Msg(ERROR, "'LinAlg_ProdMatrixVector': Wrong Arguments");
   else
     prod_matrix_vector(&M->M, V1->V, V2->V);
+
+  GetDP_End ;
 }
-void gProdMatrixScalar(gMatrix *M1, gScalar *S, gMatrix *M2){
+void LinAlg_ProdMatrixScalar(gMatrix *M1, gScalar *S, gMatrix *M2){
+
+  GetDP_Begin("LinAlg_ProdMatrixScalar");
+
   if(M2==M1)
     prod_matrix_double (&M1->M, S->d);
   else
-    Msg(ERROR, "'gProdMatrixScalar': Wrong Arguments");
+    Msg(ERROR, "'LinAlg_ProdMatrixScalar': Wrong Arguments");
+
+  GetDP_End ;
 }
-void gProdMatrixDouble(gMatrix *M1, double d, gMatrix *M2){
+void LinAlg_ProdMatrixDouble(gMatrix *M1, double d, gMatrix *M2){
+
+  GetDP_Begin("LinAlg_ProdMatrixDouble");
+
   if(M2==M1)
     prod_matrix_double (&M1->M, d);
   else
-    Msg(ERROR, "'gProdMatrixDouble': Wrong Arguments");
+    Msg(ERROR, "'LinAlg_ProdMatrixDouble': Wrong Arguments");
+
+  GetDP_End ;
 }
-void gProdMatrixComplex(gMatrix *M1, double d1, double d2, gMatrix *M2){
-  Msg(ERROR, "'gProdMatrixComplex' not Implemented (yet)");
+void LinAlg_ProdMatrixComplex(gMatrix *M1, double d1, double d2, gMatrix *M2){
+
+  GetDP_Begin("LinAlg_ProdMatrixComplex");
+
+  Msg(ERROR, "'LinAlg_ProdMatrixComplex' not Implemented (yet)");
+
+  GetDP_End ;
 }
 
 /* Div */
 
-void gDivScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
+void LinAlg_DivScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
+
+  GetDP_Begin("LinAlg_DivScalarScalar");
+
   S3->d = S1->d / S2->d ;
+
+  GetDP_End ;
 }
-void gDivScalarDouble(gScalar *S1, double d, gScalar *S2){
+void LinAlg_DivScalarDouble(gScalar *S1, double d, gScalar *S2){
+
+  GetDP_Begin("LinAlg_DivScalarDouble");
+
   S2->d = S1->d / d ;
+
+  GetDP_End ;
 }
 
 /* Assemble */
 
-void gAssembleMatrix(gMatrix *M){
+void LinAlg_AssembleMatrix(gMatrix *M){
 }
-void gAssembleVector(gVector *V){
+void LinAlg_AssembleVector(gVector *V){
 }
 
 /* Solve */
 
-void gSolve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
+void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
+
+  GetDP_Begin("LinAlg_Solve");
+
   solve_matrix(&A->M, &Solver->Params, B->V, X->V);
+
+  GetDP_End ;
 }
 
 #endif

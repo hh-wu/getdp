@@ -1,13 +1,14 @@
-/* $Id: Get_ElementSource.c,v 1.2 2000-09-07 18:47:26 geuzaine Exp $ */
+static char *rcsid = "$Id: Get_ElementSource.c,v 1.3 2000-10-30 01:05:45 geuzaine Exp $" ;
 #include <stdio.h>
 #include <math.h>
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "GeoData.h"
 #include "ExtendedGroup.h"
 #include "Get_Geometry.h"
 #include "CurrentData.h"
-#include "outil.h"
+#include "Tools.h"
 
 static int     Nbr_ElementSource, i_ElementSource ;
 static List_T *RegionSource_L ;
@@ -18,6 +19,8 @@ static struct  Element  ElementSource , ElementTrace;
 /* ------------------------------------------------------------------------ */
 
 void  Get_InitElementSource(struct Element *Element, int InIndex) {
+
+  GetDP_Begin("Get_InitElementSource");
 
   Element->ElementSource = &ElementSource ;
 
@@ -33,6 +36,7 @@ void  Get_InitElementSource(struct Element *Element, int InIndex) {
     Current.SourceIntegrationSupportIndex = InIndex ;
   }
 
+  GetDP_End ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -40,6 +44,8 @@ void  Get_InitElementSource(struct Element *Element, int InIndex) {
 /* ------------------------------------------------------------------------ */
 
 int  Get_NextElementSource(struct Element *ElementSource) {
+  
+  GetDP_Begin("Get_NextElementSource");
 
   while (++i_ElementSource < Nbr_ElementSource) {
 
@@ -49,10 +55,10 @@ int  Get_NextElementSource(struct Element *ElementSource) {
     if (List_Search(RegionSource_L, &ElementSource->Region, fcmp_int)) {
       ElementSource->Num  = ElementSource->GeoElement->Num ;
       ElementSource->Type = ElementSource->GeoElement->Type ;
-      return 1 ;
+      GetDP_Return(1) ;
     }
   }
-  return 0 ;
+  GetDP_Return(0) ;
 }
 
 
@@ -63,7 +69,9 @@ int  Get_NextElementSource(struct Element *ElementSource) {
 int  Get_ElementSourceInterpolation(struct Element *ElementSource, 
 				    struct PostSubOperation *PostSubOperation) {
 
-  return 0 ;
+  GetDP_Begin("Get_ElementSourceInterpolation");
+
+  GetDP_Return(0) ;
 
 }
 
@@ -76,6 +84,8 @@ int  Get_ElementSourceInterpolation(struct Element *ElementSource,
 void  Get_ElementTrace(struct Element *Element, int InIndex) {
   struct Group   * Group_P ;
   struct TwoInt  * Pair_P ;
+
+  GetDP_Begin("Get_ElementTrace");
 
   Element->ElementTrace = &ElementTrace ;
 
@@ -99,4 +109,6 @@ void  Get_ElementTrace(struct Element *Element, int InIndex) {
   /*
   Msg(INFO, "Element %d -> Trace %d", Element->Num, Element->ElementTrace->Num);
   */
+
+  GetDP_End ;
 }

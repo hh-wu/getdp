@@ -1,8 +1,8 @@
-/* $Id: Graph.h,v 1.2 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Graph.h,v 1.3 2000-10-30 01:05:45 geuzaine Exp $ */
 #ifndef _GRAPH_H_
 #define _GRAPH_H_
 
-#include "listman.h"
+#include "List.h"
 
 typedef struct {
   List_T  *jptr, *ai, *ptr;

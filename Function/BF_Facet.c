@@ -1,6 +1,7 @@
-/* $Id: BF_Facet.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+static char *rcsid = "$Id: BF_Facet.c,v 1.3 2000-10-30 01:05:44 geuzaine Exp $" ;
 #include <stdio.h>
 
+#include "GetDP.h"
 #include "BF_Function.h"
 
 #define NoFace   Msg(ERROR, "Missing Face Entity in Element %d", Element->Num)
@@ -14,6 +15,8 @@
 void  BF_Facet   (struct Element * Element, int NumFacet, 
 		  double u, double v, double w,  double s[] ) {
 
+  GetDP_Begin("BF_Facet");
+  
   switch (Element->Type) {
   case LINE :
     switch(NumFacet) {
@@ -129,6 +132,7 @@ void  BF_Facet   (struct Element * Element, int NumFacet,
     s[0] = - s[0] ; s[1] = - s[1] ; s[2] = - s[2] ;
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumFacet
@@ -141,6 +145,8 @@ void  BF_Facet   (struct Element * Element, int NumFacet,
 
 void  BF_DivFacet(struct Element * Element, int NumFacet, 
 		  double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_DivFacet");
 
   switch (Element->Type) {
   case LINE :
@@ -233,6 +239,7 @@ void  BF_DivFacet(struct Element * Element, int NumFacet,
     s[0] = - s[0] ; s[1] = - s[1] ; s[2] = - s[2] ;
   }
 
+  GetDP_End ;
 }
 
 #undef WrongNumFacet

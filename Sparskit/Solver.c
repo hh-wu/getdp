@@ -1,12 +1,12 @@
-/* $Id: Solver.c,v 1.4 2000-09-07 18:47:29 geuzaine Exp $ */
+static char *rcsid = "$Id: Solver.c,v 1.5 2000-10-30 01:05:48 geuzaine Exp $" ;
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
 
-#include "ualloc.h"
 #include "Solver.h"
 #include "Solver_F.h"
 #include "Message.h"
+#include "Malloc.h"
 
 #define _GETDP_FOR_BEGINNERS_
 

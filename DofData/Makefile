@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2000-09-08 09:51:11 geuzaine Exp $
+# $Id: Makefile,v 1.5 2000-10-30 01:05:43 geuzaine Exp $
 #
 # Makefile for "libDofData.a"
 #
@@ -9,7 +9,7 @@ RANLIB  = /usr/bin/ranlib
 
 SOLVER = -D_SPARSKIT
 
-C_FLAGS = -g
+C_FLAGS = -g -DUSE_DEBUG
 
 LIB     = ../lib/libDofData.a
 INCLUDE = -I. -I../include -I../DataStr -I../GeoData -I../Main -I../Sparskit
@@ -47,12 +47,13 @@ nodepend:
 	$(RM) Makefile.new
 
 # DO NOT DELETE THIS LINE
-DofData.o: DofData.c DofData.h ../DataStr/listman.h \
- ../DataStr/treeman.h ../DataStr/avl.h LinAlg.h ../Sparskit/Solver.h \
- ../Main/Graph.h Data_DofData.h ../Main/Message.h ../include/Version.h \
- ../DataStr/outil.h ../DataStr/ualloc.h ../include/Magic.h \
- ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
- ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h
-LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c LinAlg.h ../Sparskit/Solver.h \
- ../DataStr/listman.h ../Main/Message.h ../DataStr/ualloc.h
+DofData.o: DofData.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h DofData.h ../DataStr/List.h ../DataStr/Tree.h \
+  ../DataStr/avl.h LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
+  Data_DofData.h ../include/Version.h ../DataStr/Tools.h \
+  ../include/Magic.h ../Main/CurrentData.h ../Main/Data_Active.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h
+LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h
 LinAlg_PETSC.o: LinAlg_PETSC.c
