@@ -11,10 +11,31 @@ public:
   ScattererType type;
   double a, b;
 
-  void coord(double u, double *x);
-  void deriv(double u, double *x);
-  void criticalPoints(double t, List_T *pts);
-  void shadowingPoints(double k[3], List_T *pts);
+  void x(double theta, double *x);
+  void dx(double theta, double *dx);
+  void r(double theta, double *r);
+  void dr(double theta, double *dr);
+
+  void singularPoint(double t, List_T *pts);
+  void criticalPoints(double t, double k[3], List_T *pts);
+  void shadowingPoints(double t, double shift, double k[3], List_T *pts);
+  void printPoints(double t, List_T *pts);
 };
+
+class CPoint{
+public:
+  double val; // should of course be generalized in 2D/3D
+  int degree;
+  char *name(){
+    switch(degree){
+    case 1: return "singular";
+    case 2: return "critical";
+    case 3: return "shadowing";
+    default: return "unknown";
+    }
+  }
+};
+
+int fcmp_CPoint(const void * a, const void * b);
 
 #endif

@@ -1,12 +1,21 @@
-// $Id: Scatterer.cpp,v 1.3 2002-04-15 02:46:05 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.4 2002-04-23 00:46:10 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
 #include "Scatterer.h"
 
+int fcmp_CPoint(const void * a, const void * b) {
+  double cmp ;
+  
+  cmp = ((CPoint*)a)->val - ((CPoint*)b)->val ;
+  if      (cmp > 1.e-16)  return  1 ;
+  else if (cmp < -1.e-16) return -1 ;
+  else                    return  0 ;
+}
+
 // Parametric definition of the scatterers
 
-void Scatterer::coord(double u, double *x){
+void Scatterer::x(double u, double *x){
   switch(type){
   case CIRCLE :
     x[0] = cos(u); 
@@ -29,7 +38,7 @@ void Scatterer::coord(double u, double *x){
   }
 }
 
-void Scatterer::deriv(double u, double *x){ 
+void Scatterer::dx(double u, double *x){ 
   switch(type){
   case CIRCLE :
     x[0] = -sin(u); 
@@ -44,6 +53,17 @@ void Scatterer::deriv(double u, double *x){
   }
 }
 
+// Compute (hum!) the target point
+
+void Scatterer::singularPoint(double t0, List_T *pts){
+  CPoint pt;
+
+  pt.degree = 1;
+  pt.val = t0;
+  List_Insert(pts, &pt, fcmp_CPoint);
+}
+
+
 //  Compute all critical points (i.e. for which gradient of the total
 //  phase of the integral equation vanishes) in the case of a
 //  circle. They are given in closed form by, for an integer n:
@@ -51,28 +71,38 @@ void Scatterer::deriv(double u, double *x){
 //  0 <= t-t0 = Pi - 2*t0 + 4*n*PI <= 2*PI
 //  0 <= t-t0 = (PI-2*t0)/3 + 4/3*PI*n
 
-void Scatterer::criticalPoints(double t0, List_T *pts){
+void Scatterer::criticalPoints(double t0, double k[3], List_T *pts){
   int n;
-  double tmp;
+  CPoint pt;
+
+  pt.degree = 2;
 
   switch(type){
 
   case CIRCLE :
+    if(k[1] || k[2])
+      Msg(ERROR, "Critical point computation not done in the general case");
+
     for(n=-2 ; n<=2 ; n++){
-      tmp = PI-t0+4.*n*PI;
-      if((tmp-t0>=0) && (tmp-t0<=TWO_PI)){
-	while(tmp > TWO_PI) tmp-=TWO_PI;
-	List_Insert(pts, &tmp, fcmp_double);
+      pt.val = PI-t0+4.*n*PI;
+      if((pt.val-t0>=0) && (pt.val-t0<=TWO_PI)){
+	while(pt.val > TWO_PI) pt.val-=TWO_PI;
+	List_Insert(pts, &pt, fcmp_CPoint);
       }
-      tmp = (PI+t0)/3.+4./3.*n*PI;
-      if((tmp-t0>=0) && (tmp-t0<=TWO_PI)){
-	while(tmp > TWO_PI) tmp-=TWO_PI;
-	List_Insert(pts, &tmp, fcmp_double);
+      pt.val = (PI+t0)/3.+4./3.*n*PI;
+      if((pt.val-t0>=0) && (pt.val-t0<=TWO_PI)){
+	while(pt.val > TWO_PI) pt.val-=TWO_PI;
+	List_Insert(pts, &pt, fcmp_CPoint);
       }
     }
     break;
 
   default :
+    
+    //newt();
+    
+
+
     Msg(ERROR, "Unknown type of scatterer for critical point computation");
     break;
 
@@ -80,18 +110,26 @@ void Scatterer::criticalPoints(double t0, List_T *pts){
 }
 
 
-void Scatterer::shadowingPoints(double k[3], List_T *pts){
-  double tmp;
+void Scatterer::shadowingPoints(double t, double shift, double k[3], List_T *pts){
+  CPoint pt;
 
+  pt.degree = 3;
+   
   switch(type){
 
   case CIRCLE :
     if(k[1] || k[2])
       Msg(ERROR, "Shadowing point computation not done in the general case");
-    tmp = PI/2.;
-    List_Insert(pts, &tmp, fcmp_double);
-    tmp = 3*PI/2.;
-    List_Insert(pts, &tmp, fcmp_double);
+
+    //if(fabs(t-PI/2.) < 2*shift){
+      pt.val = PI/2. + shift ;
+      List_Insert(pts, &pt, fcmp_CPoint);
+      //}
+
+      //if(fabs(t-3*PI/2.) < 2*shift){
+      pt.val = 3*PI/2. - shift ;
+      List_Insert(pts, &pt, fcmp_CPoint);
+      //}
     break;
 
   default :
@@ -101,3 +139,27 @@ void Scatterer::shadowingPoints(double k[3], List_T *pts){
   }
 }
   
+
+void Scatterer::printPoints(double t, List_T *pts){
+  static int first=1;
+  static FILE *fp;
+  double coord[3];
+  CPoint pt;
+  int i;
+
+  if(first){
+    first = 0;
+    fp = fopen("points.pos", "w");
+    fprintf(fp, "View.PointSize = 10;\n");
+  }
+
+  fprintf(fp, "View \"target=%g\" {\n", t);
+  for(i=0; i<List_Nbr(pts); i++){
+    List_Read(pts,i,&pt);
+    x(pt.val,coord);
+    fprintf(fp, "SP(%g,%g,%g){%d};\n",coord[0],coord[1],coord[2],
+	    pt.degree);
+  }
+  fprintf(fp, "};\n");
+
+}
