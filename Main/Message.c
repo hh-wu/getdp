@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.24 2000-11-18 12:46:11 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.25 2000-11-19 20:21:24 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -136,7 +136,7 @@ void Signal (int sig_num){
     Msg(ERROR, "Floating Point Exception (Division by Zero?)");
     break;
   default :
-    Msg(ERROR, "Caught Unknown Signal");
+    Msg(ERROR, "Unknown Signal");
     break;
   }
 }
@@ -188,7 +188,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
     Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
 		     &Line, FunctionName);
     fprintf(stream, WHITE_STR); 
-    fprintf(stream, "In '%s' (V%s by %s on %s)\n", 
+    fprintf(stream, "File '%s' (V%s by %s on %s)\n", 
 	    FileName, FileVersion, FileAuthor, FileDate);
     fprintf(stream, WHITE_STR); 
     fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
@@ -206,15 +206,6 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
     fprintf(stream, WARNING_STR); 
     vfprintf(stream, fmt,args); 
     fprintf(stream, "\n");
-#ifdef USE_DEBUG
-    Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
-		     &Line, FunctionName);
-    fprintf(stream, WHITE_STR); 
-    fprintf(stream, "In '%s' (V%s by %s on %s)\n", 
-	    FileName, FileVersion, FileAuthor, FileDate);
-    fprintf(stream, WHITE_STR); 
-    fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
-#endif
     break;
 
   case OPERATION :
