@@ -1,4 +1,4 @@
-/* $Id: Init_Problem.h,v 1.5 2000-09-08 08:17:24 geuzaine Exp $ */
+/* $Id: Init_Problem.h,v 1.6 2001-03-07 11:09:08 dular Exp $ */
 #ifndef _INIT_PROBLEM_H_
 #define _INIT_PROBLEM_H_
 
@@ -38,6 +38,8 @@ void  Init_PartInDofData(struct DofData * DofData_P, int NbrPart) ;
 void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
 				   struct DofData      *DofData_P0,
 				   struct Formulation  *Formulation_P) ;
+void  Init_DofDataInFunctionSpace(int Nbr_DefineSystem,
+				  struct DofData *DofData_P0) ;
 
 void Treatment_Preprocessing(int Nbr_DefineSystem,
                              struct DofData        * DofData_P0,

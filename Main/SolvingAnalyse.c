@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.19 2001-03-06 08:46:59 dular Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.20 2001-03-07 11:09:08 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -27,6 +27,7 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition) ;
 /* ------------------------------------------------------------------------ */
 /*  S o l v i n g A n a l y s e                                             */
 /* ------------------------------------------------------------------------ */
+/*! Global analyse of a problem */
 
 void  SolvingAnalyse (void) {
 
@@ -45,11 +46,10 @@ void  SolvingAnalyse (void) {
   struct Dof            * Dof_P ;
   struct PostOperation  * PostOperation_P[NBR_MAX_POS] ;
   struct PostProcessing * PostProcessing_P[NBR_MAX_POS] ;
-  struct FunctionSpace  * FunctionSpace_P ;
   struct PreResolutionInfo  PreResolutionInfo_S ;
 
   double  d;
-  int  i, j, k ;
+  int  i, j ;
   int  Num, Nbr_GeoData ;
   int  Nbr_PreResolution, Nbr_OtherSystem ;
 
@@ -121,18 +121,8 @@ void  SolvingAnalyse (void) {
       for (j = 0 ; j < Nbr_DefineSystem2 ; j++)
         Dof_TransferDofTreeToList(DofData2_P0 + j) ;
 
-      /* Creation des liens entre FunctionSpace et DofData:
-         correspondance biunivoque entre FS et DD */
+      Init_DofDataInFunctionSpace(Nbr_DefineSystem2, DofData2_P0) ;
 
-      for (j = 0 ; j < Nbr_DefineSystem2 ; j++) {
-        DofData_P = DofData2_P0 + j ;
-        for (k = 0 ; k < List_Nbr(DofData_P->FunctionSpaceIndex) ; k++)
-          FunctionSpace_P = (struct FunctionSpace *)
-            List_Pointer(Problem_S.FunctionSpace,
-                         *((int *)List_Pointer(DofData_P->FunctionSpaceIndex, k))) ;
-        FunctionSpace_P->DofData = FunctionSpace_P->MainDofData = DofData_P ;
-      }
-      
       Current.TypeTime = TIME_STATIC  ; Current.Time = 0. ; Current.TimeStep = 0. ;
       Current.RelativeDifference = 0. ; Current.RelaxationFactor = 1. ;
 
@@ -223,17 +213,10 @@ void  SolvingAnalyse (void) {
     TreatmentStatus = _PAR ;
     Msg(DIRECT, "P a r t i t i o n n i n g . . .") ;
 
-    /* Creation des liens entre FunctionSpace et DofData:
-       correspondance biunivoque entre FS et DD */
+    Init_DofDataInFunctionSpace(Nbr_DefineSystem, DofData_P0) ;
 
     for (i = 0 ; i < Nbr_DefineSystem ; i++) {
       DofData_P = DofData_P0 + i ;
-      for (j = 0 ; j < List_Nbr(DofData_P->FunctionSpaceIndex) ; j++){
-        FunctionSpace_P = (struct FunctionSpace *)
-          List_Pointer(Problem_S.FunctionSpace,
-                       *((int *)List_Pointer(DofData_P->FunctionSpaceIndex, j))) ;
-        FunctionSpace_P->DofData = FunctionSpace_P->MainDofData = DofData_P ;
-      }
       InitGraph(DofData_P->NbrDof, &DofData_P->Graph);
     }
 
@@ -267,19 +250,8 @@ void  SolvingAnalyse (void) {
     TreatmentStatus = _CAL ;
     Msg(DIRECT, "P r o c e s s i n g . . .") ;
 
-    /* Creation des liens entre FunctionSpace et DofData:
-       correspondance biunivoque entre FS et DD */
+    Init_DofDataInFunctionSpace(Nbr_DefineSystem, DofData_P0) ;
 
-    for (i = 0 ; i < Nbr_DefineSystem ; i++) {
-      DofData_P = DofData_P0 + i ;
-      for (j = 0 ; j < List_Nbr(DofData_P->FunctionSpaceIndex) ; j++){
-        FunctionSpace_P = (struct FunctionSpace *)
-          List_Pointer(Problem_S.FunctionSpace,
-                       *((int *)List_Pointer(DofData_P->FunctionSpaceIndex, j))) ;
-        FunctionSpace_P->DofData = FunctionSpace_P->MainDofData = DofData_P ;
-      }
-    }
-    
     if(Flag_RESTART) {
       i = 0 ;
       while(Name_ResFile[i]){
@@ -332,7 +304,6 @@ void  SolvingAnalyse (void) {
       }
     }
     else{
-      i = 0 ;
       while(Name_PostOperation[i]){
 	if((Num = List_ISearchSeq(Problem_S.PostOperation, Name_PostOperation[i],
 				  fcmp_PostOperation_Name)) < 0)
@@ -375,30 +346,21 @@ void  SolvingAnalyse (void) {
         if (DofData_P->Solutions == NULL)
           DofData_P->Solutions = List_Create( 1, 1, sizeof(struct Solution)) ;
         Solution_S.Time = 0. ;  
+	Solution_S.SolutionExist = 0 ;
         List_Add(DofData_P->Solutions, &Solution_S) ;
         Nbr_Solution = 1 ;
       }
-      for (j = 0 ; j < Nbr_Solution ; j++) {
+      for (j = 0 ; j < Nbr_Solution ; j++) { /* Pas necessaire si Flag_CAL ! OK? */
         Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, j) ;
         Current.Time = Solution_P->Time ;
         Current.TimeStep = 0.;
         Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
-        if (j == 0)  DofData_P->CurrentSolution = Solution_P ;
-        /* A mieux gerer !!! */
       }
-      
-
-      /* Creation des liens entre FunctionSpace et DofData 
-         correspondance biunivoque entre FS et DD */
-
-      for (j = 0 ; j < List_Nbr(DofData_P->FunctionSpaceIndex) ; j++){
-        FunctionSpace_P = (struct FunctionSpace *)
-          List_Pointer(Problem_S.FunctionSpace,
-                       *((int *)List_Pointer(DofData_P->FunctionSpaceIndex, j))) ;
-        FunctionSpace_P->DofData = FunctionSpace_P->MainDofData = DofData_P ;
-      }
-
+      DofData_P->CurrentSolution = (Nbr_Solution)?
+	(struct Solution*)List_Pointer(DofData_P->Solutions, 0) : NULL ;
+      /* La solution courante est la 1ere. A mieux gerer ? */
     }
+    Init_DofDataInFunctionSpace(Nbr_DefineSystem, DofData_P0) ;
     
     Current.NbrSystem  = Nbr_DefineSystem ;  /* Attention: init for Dt[] */
     Current.DofData_P0 = DofData_P0 ;
@@ -422,6 +384,7 @@ void  SolvingAnalyse (void) {
 /* ------------------------------------------------------------------------ */
 /*  T r e a t m e n t _ R e s o l u t i o n                                 */
 /* ------------------------------------------------------------------------ */
+/*! For each DefineSystem: Init the associated DofData */
 
 void  Treatment_Resolution(int ResolutionIndex,
                            int * Nbr_DefineSystem, int * Nbr_OtherSystem,
@@ -483,6 +446,7 @@ void  Treatment_Resolution(int ResolutionIndex,
 /* ------------------------------------------------------------------------ */
 /*  I n i t _ H a r I n D o f D a t a                                       */
 /* ------------------------------------------------------------------------ */
+/*! For a DefineSystem: Fill harmonic data in the associated DofData */
 
 void  Init_HarInDofData(struct DefineSystem * DefineSystem_P,
                         struct DofData * DofData_P) {
@@ -528,6 +492,7 @@ void  Init_HarInDofData(struct DefineSystem * DefineSystem_P,
 /* ------------------------------------------------------------------------ */
 /*  I n i t _ P a r t I n D o f D a t a                                     */
 /* ------------------------------------------------------------------------ */
+/*! ... */
 
 void  Init_PartInDofData(struct DofData * DofData_P, int NbrPart) {
   int i ;
@@ -550,6 +515,7 @@ void  Init_PartInDofData(struct DofData * DofData_P, int NbrPart) {
 /* ------------------------------------------------------------------------ */
 /*  G e t _ T i m e F u n c t i o n V a l u e s                             */
 /* ------------------------------------------------------------------------ */
+/*! For a DofData: Fill the vector of the considered time function values */
 
 double  * Get_TimeFunctionValues(struct DofData * DofData_P) {
 
@@ -582,6 +548,7 @@ double  * Get_TimeFunctionValues(struct DofData * DofData_P) {
 /* ------------------------------------------------------------------------ */
 /*  I n i t _ D o f D a t a I n D e f i n e Q u a n t i t y                 */
 /* ------------------------------------------------------------------------ */
+/*! For setting the DofData of a DefineQuantity if explicitly specified */
 
 void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
                                    struct DofData      *DofData_P0,
@@ -595,13 +562,42 @@ void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
     DefineQuantity_P = (struct DefineQuantity *)
       List_Pointer(Formulation_P->DefineQuantity, i);
     
-    if(DefineQuantity_P->DofDataIndex >= 0){      
+    if(DefineQuantity_P->DofDataIndex >= 0){
       if(DefineQuantity_P->DofDataIndex >= List_Nbr(DefineSystem_P->OriginSystemIndex))
         Msg(ERROR, "Invalid System index (%d) in discrete Quantity (%s)",
             DefineQuantity_P->DofDataIndex, DefineQuantity_P->Name);
 
-      List_Read(DefineSystem_P->OriginSystemIndex,DefineQuantity_P->DofDataIndex,&j) ;
+      List_Read(DefineSystem_P->OriginSystemIndex, DefineQuantity_P->DofDataIndex, &j) ;
       DefineQuantity_P->DofData = DofData_P0 + j ;
+    }
+    else
+      DefineQuantity_P->DofData = NULL ;
+  }
+
+  GetDP_End ;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  I n i t _ D o f D a t a I n F u n c t i o n S p a c e                   */
+/* ------------------------------------------------------------------------ */
+/*! Links between FunctionSpace's and DofData's (one-to-one mapping) */
+
+void  Init_DofDataInFunctionSpace(int Nbr_DefineSystem,
+				  struct DofData *DofData_P0) {
+  struct DofData        * DofData_P ;
+  struct FunctionSpace  * FunctionSpace_P ;
+  int i, j ;
+
+  GetDP_Begin("Init_DofDataInFunctionSpace");
+
+  for (i = 0 ; i < Nbr_DefineSystem ; i++) {
+    DofData_P = DofData_P0 + i ;
+    for (j = 0 ; j < List_Nbr(DofData_P->FunctionSpaceIndex) ; j++){
+      FunctionSpace_P = (struct FunctionSpace *)
+	List_Pointer(Problem_S.FunctionSpace,
+		     *((int *)List_Pointer(DofData_P->FunctionSpaceIndex, j))) ;
+      FunctionSpace_P->DofData = FunctionSpace_P->MainDofData = DofData_P ;
     }
   }
 
@@ -612,6 +608,8 @@ void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
 /* ------------------------------------------------------------------------ */
 /*  T r e a t m e n t _ P r e p r o c e s s i n g                           */
 /* ------------------------------------------------------------------------ */
+/*! For each DefineSystem: 
+      For each Formulation: Definition of Dof's in associated DofData */
 
 void Treatment_Preprocessing(int Nbr_DefineSystem,
                              struct DofData        * DofData_P0,
@@ -659,6 +657,7 @@ void Treatment_Preprocessing(int Nbr_DefineSystem,
 /* ------------------------------------------------------------------------ */
 /*  T r e a t m e n t _ P o s t O p e r a t i o n                           */
 /* ------------------------------------------------------------------------ */
+/*! Prepare the treatment of a PostOperation. Then does it outside */
 
 void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 			      struct DofData        * DofData_P0,
@@ -670,7 +669,6 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   struct PostSubOperation  * PostSubOperation_P ;
   struct Formulation       * Formulation_P ;
   struct DefineSystem      * DefineSystem_P ;
-  struct FunctionSpace     * FunctionSpace_P ;
 
   int    Nbr_PostSubOperation, i_POP, i ;
 
@@ -684,8 +682,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
     List_Pointer(Problem_S.Formulation, PostProcessing_P->FormulationIndex) ;
 
   if (!List_Nbr(Formulation_P->DefineQuantity))
-    Msg(ERROR, "No discrete Quantity in Formulation '%s'",
-	Formulation_P->Name);
+    Msg(ERROR, "No discrete Quantity in Formulation '%s'", Formulation_P->Name);
 
   /* Choice of Current DofData */
 
@@ -697,18 +694,10 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 	  PostProcessing_P->NameOfSystem, PostProcessing_P->Name) ;
     
     Current.DofData = DofData_P0 + i;
-
     /* (Re)creation des liens entre FunctionSpace et DofData:
        seuls les FS n'intervenant pas dans le DD courant peuvent
        pointer vers un autre DD */
-    
-    for (i = 0 ; i < List_Nbr(Current.DofData->FunctionSpaceIndex) ; i++) {
-      FunctionSpace_P = (struct FunctionSpace *)
-	List_Pointer(Problem_S.FunctionSpace,
-		     *((int *)List_Pointer(Current.DofData->FunctionSpaceIndex, i))) ;
-      FunctionSpace_P->DofData = FunctionSpace_P->MainDofData = Current.DofData ;
-    }
-
+    Init_DofDataInFunctionSpace(1, Current.DofData) ;
   }
   else{
     for(i = 0 ; i < List_Nbr(Formulation_P->DefineQuantity) ; i++){
@@ -749,6 +738,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
       Msg(OPERATION, "PostOperation %d/%d ", i_POP+1, Nbr_PostSubOperation) ;      
       PostSubOperation_P = (struct PostSubOperation*)
 	List_Pointer(PostOperation_P->PostSubOperation, i_POP) ;
+
       Pos_Formulation(Formulation_P, PostProcessing_P, PostSubOperation_P) ;
     }
 
@@ -756,4 +746,3 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 
   GetDP_End ;
 }
-
