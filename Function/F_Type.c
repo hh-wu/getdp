@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Type.c,v 1.10 2002-01-18 19:47:57 geuzaine Exp $"
+#define RCSID "$Id: F_Type.c,v 1.11 2002-11-20 01:50:48 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -588,15 +588,23 @@ void  F_Cart2Sph (F_ARG) {
   if((A)->Type != VECTOR)
      Msg(ERROR, "Vector argument required for Function 'Cart2Sph'");
      
+  /* Warning! This is the physic's convention. For the math
+     convention, switch theta and phi. */
+
   theta = atan2( sqrt(SQU(A->Val[0])+ SQU(A->Val[1])) ,  A->Val[2] ) ;   
   phi = atan2( A->Val[1] , A->Val[0] ) ; 
     
+  /* r basis vector */
   V->Val[0] = sin(theta) * cos(phi) ; 
   V->Val[1] = sin(theta) * sin(phi) ; 
   V->Val[2] = cos(theta) ;
+
+  /* theta basis vector */
   V->Val[3] = cos(theta) * cos(phi) ; 
   V->Val[4] = cos(theta) * sin(phi) ; 
   V->Val[5] = - sin(theta) ; 
+
+  /* phi basis vector */
   V->Val[6] = - sin(phi) ; 
   V->Val[7] = cos(phi) ; 
   V->Val[8] = 0. ;
