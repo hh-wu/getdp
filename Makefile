@@ -172,6 +172,12 @@ gnu:
            "F77_FLAGS=-g -Wall" \
         ); done
 
+efence:
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
+        do (cd $$i && $(MAKE) \
+        ); done
+	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp-efence $(GETDP_SPARSKIT_LIBS) -lefence -lm
+
 profile:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE) \
