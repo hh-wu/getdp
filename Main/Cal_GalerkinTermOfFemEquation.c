@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.16 2003-01-26 07:31:28 geuzaine Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.17 2003-01-31 13:51:53 dular Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -208,6 +208,7 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
   case DTDTDOF_: FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDtDof; break;
   case JACNL_  : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_JacNL  ; break;
   case NEVERDT_: FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NeverDt; break;
+  case DTNL_   : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtNL   ; break;
   default      : Msg(ERROR, "Unknown type of Operator for Galerkin term (%d)", 
 		     EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
   }
@@ -241,10 +242,10 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   struct Value                vBFxDof[NBR_MAX_BASISFUNCTIONS], CoefPhys;
   struct Value                CanonicExpression_Equ, V1, V2 ;
 
-  int     Nbr_Equ, Nbr_Dof = 0 ;
+  int     Nbr_Equ, Nbr_Dof ;
   int     i, j, k, Type_Dimension, Nbr_IntPoints, i_IntPoint ;
 
-  double  weight, Factor = 0. ;
+  double  weight, Factor ;
   double  vBFuEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double  vBFxEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double  Ek [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_HARMONIC] ;

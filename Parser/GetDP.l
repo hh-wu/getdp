@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.16 2003-01-24 17:24:39 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.17 2003-01-31 13:51:53 dular Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -191,6 +191,7 @@ DtDt                         return tDtDt ;
 DtDtDof                      return tDtDtDof ;
 JacNL                        return tJacNL ;
 NeverDt                      return tNeverDt ;
+DtNL                         return tDtNL ;
 
 In                           return tIn ;
 GlobalTerm                   return tGlobalTerm ;
@@ -332,12 +333,7 @@ void  C_comments(void) {
 }
 
 void  CC_comments(void) {
-  int c;
-
-  while(1){
-    c = input();
-    if(c == '\n' || c == EOF) break;
-  }
+  while(input() != '\n'){ }
   yylinenum++ ; 
 }
 

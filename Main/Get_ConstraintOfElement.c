@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.23 2003-01-26 07:31:28 geuzaine Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.24 2003-01-31 13:51:53 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -665,7 +665,6 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
     Geo_GetNodesCoordinates( 1, &NodeXYZRef.NumNode,
 			     &Current.x, &Current.y, &Current.z) ;
-
     Get_ValueOfExpressionByIndex(Index_Coef, NULL, 0., 0., 0., &Value) ;
     TwoIntOneDouble.Double = Value.Val[0] ;
     if (Current.NbrHar == 1)
@@ -676,7 +675,8 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
     List_Add(Couples_L, &TwoIntOneDouble) ;
 
-    Msg(DEBUG2, "%d %d\n", NodeXYZ.NumNode, NodeXYZRef.NumNode) ;
+    Msg(DEBUG2, "%d %d : coef %e %e\n", NodeXYZ.NumNode, NodeXYZRef.NumNode, 
+	TwoIntOneDouble.Double, TwoIntOneDouble.Double2) ;
   }
 
   List_Delete(NodeXYZ_L) ;  List_Delete(NodeXYZRef_L) ;
@@ -925,7 +925,7 @@ void  Generate_ElementaryEntities_EdgeNN
   Tree_T  * Entity_Tr ;
   struct Geo_Element  * GeoElement ;
   int     Nbr_Element, i_Element ;
-  int     Nbr_Entity = 0, i_Entity, * Num_Entities = NULL;
+  int     Nbr_Entity, i_Entity, * Num_Entities ;
 
   struct EdgeNN  EdgeNN ;
   int  * Num_Nodes ;

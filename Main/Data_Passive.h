@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.49 2002-09-01 22:06:49 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.50 2003-01-31 13:51:53 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -536,6 +536,7 @@ struct GlobalEquationTerm {
 #define DTDTDOF_   4
 #define JACNL_    10
 #define NEVERDT_  11
+#define DTNL_     12
 
 /* Term.TypeOperator */
 #define NOOP       0

@@ -1,4 +1,4 @@
-/* $Id: Treatment_Formulation.h,v 1.9 2002-01-18 11:10:27 gyselinc Exp $ */
+/* $Id: Treatment_Formulation.h,v 1.10 2003-01-31 13:51:53 dular Exp $ */
 #ifndef _TREATMENT_FORMULATION_H_
 #define _TREATMENT_FORMULATION_H_
 
@@ -130,6 +130,7 @@ void  Cal_AssembleTerm_Dt     (struct Dof * Equ, struct Dof * Dof, double Val[])
 void  Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[]) ;
 void  Cal_AssembleTerm_DtDt   (struct Dof * Equ, struct Dof * Dof, double Val[]) ;
 void  Cal_AssembleTerm_JacNL  (struct Dof * Equ, struct Dof * Dof, double Val[]) ;
+void  Cal_AssembleTerm_DtNL   (struct Dof * Equ, struct Dof * Dof, double Val[]) ;
 
 /*---------------------------------------------------------------------*/
 

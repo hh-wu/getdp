@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.11 2002-01-18 18:11:06 geuzaine Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.12 2003-01-31 13:51:53 dular Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -187,6 +187,64 @@ void  Cal_AssembleTerm_Dt(struct Dof * Equ, struct Dof * Dof, double Val[]) {
   GetDP_Begin("Cal_AssembleTerm_Dt");
 
   Cal_AssembleTerm_DtDof(Equ, Dof, Val) ;
+
+  GetDP_End ;
+}
+
+
+/* En preparation ... */
+void  Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
+  int     k ;
+  double  tmp[2] ;
+
+  GetDP_Begin("Cal_AssembleTerm_DtNL");
+
+  if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
+    Msg(ERROR, "DtNL not ready for separate assembly");
+  }
+  else {
+    if (Current.NbrHar == 1) {
+      switch (Current.TypeTime) {
+      case TIME_STATIC :
+	if(!Warning_DtStatic){
+	  Msg(WARNING, "First order time derivative in static problem (discarded)");
+	  Warning_DtStatic = 1 ;
+	}
+	break;
+      case TIME_THETA :
+
+
+	tmp[0] = Val[0]/Current.DTime ;
+	Dof_AssembleInMat(Equ,  Dof, Current.NbrHar, tmp,
+			  &Current.DofData->A, &Current.DofData->b) ;
+	Dof_AssembleInVec(Equ,  Dof, Current.NbrHar, tmp,
+			  Current.DofData->CurrentSolution-1,
+			  &(Current.DofData->CurrentSolution-1)->x, 
+			  &Current.DofData->b) ;
+
+
+
+
+
+
+	break ;
+      case TIME_NEWMARK :
+	Msg(ERROR, "DtNL not ready for separate assembly with TimeLoopNewmark");
+	break ;
+      }
+    }
+    else {
+      Msg(ERROR, "DtNL not ready for separate assembly for Complex type");
+      /*
+      for (k = 0 ; k < Current.NbrHar ; k += 2) {
+	tmp[0] = -Val[k+1] * Current.DofData->Val_Pulsation[k/2] ;
+	tmp[1] =  Val[k] * Current.DofData->Val_Pulsation[k/2] ;
+	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, tmp,
+			  &Current.DofData->A, &Current.DofData->b) ;
+      }
+      */
+    }
+  }
 
   GetDP_End ;
 }

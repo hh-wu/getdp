@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.40 2003-01-29 20:05:04 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.41 2003-01-31 13:51:53 dular Exp $ */
 
 /*
   Modifs a faire
@@ -21,6 +21,13 @@
 #include <stdarg.h>
 #include <string.h>
 #include <math.h>
+
+/* bison est mal foutu */
+#ifndef __APPLE__
+#if !defined __cplusplus && !defined MSDOS && !defined _AIX && !defined __CYGWIN__
+#include <alloca.h> 
+#endif
+#endif /* __APPLE__ */
 
 #include "Data_Passive.h"
 #include "Data_Active.h"
@@ -250,7 +257,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token        tSymmetry
 %token    tEquation
 %token        tGalerkin tdeRham tGlobalTerm tGlobalEquation
-%token          tDt tDtDof tDtDt tDtDtDof  tJacNL  tNeverDt
+%token          tDt tDtDof tDtDt tDtDtDof  tJacNL  tNeverDt  tDtNL
 %token          tIn
 
 %token  tResolution
@@ -3909,6 +3916,7 @@ TermOperator :
   | tDtDtDof       { Type_TermOperator = DTDTDOF_ ; }
   | tJacNL         { Type_TermOperator = JACNL_   ; }
   | tNeverDt       { Type_TermOperator = NEVERDT_ ; }
+  | tDtNL          { Type_TermOperator = DTNL_    ; }
   ;
 
 
