@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.18 2002-02-27 16:38:14 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.19 2002-02-28 01:00:04 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -16,67 +16,9 @@ using namespace std;
 #include "Utils.h"
 #include "Bessel.h"
 #include "CriticalPoints.h"
+#include "Nystrom.h"
 
 #define EPSILON 1.e-14
-
-#define FULL_INTEGRATION     (1<<0)
-#define CRITICAL_INTEGRATION (1<<1)
-#define INTERACT1            (1<<2)
-#define INTERACT2            (1<<3)
-#define BUILD_MATRIX         (1<<4)
-#define ITER_SOLVE           (1<<5)
-
-// Function to integrate
-
-class Function{
-public:
-  int num_bf, which;
-
-  complex<double> val(double k[3], double tau, double xtau[3]){
-    double kr;
-    switch(which){
-    case 0 : // Alain
-    case 1 : // build matrix
-    case 2 : // iterative solver
-      kr = k[0]*xtau[0]+k[1]*xtau[1]+k[2]*xtau[2];
-      return (cos(kr)+I*sin(kr));
-    default :
-      return 1.;
-    }
-  }
-
-  complex<double> bf(double tau){
-    switch(which){
-    case 0 : // Alain
-      return cos(tau);
-    case 1 : // build matrix, global Fourier basis functions (num_bf=-N/2,...,N/2)
-      return (cos(num_bf*tau)+I*sin(num_bf*tau));
-    case 2 : // iterative solver
-      // eval series using data[], this should be done with a FFT
-      return (cos(num_bf*tau)+I*sin(num_bf*tau));
-    default :
-      return 1.;
-    }
-  }
-
-};
-
-// Parametric (in 0..2*PI) representation of the curve
-
-class Scatterer{
-public:
-  void val(double u, double *x){ 
-    x[0] = cos(u); 
-    x[1] = sin(u); 
-    x[2] = 0.; 
-  }
-  void der(double u, double *x){ 
-    x[0] = -sin(u); 
-    x[1] = cos(u); 
-    x[2] = 0.; 
-  }
-};
-
 
 // Partition of unity stuff
 
@@ -144,12 +86,12 @@ public:
   complex<double> M1(){
     return -2./(I*TWO_PI) * Bessel_j(0,kr) * d;
   }
-  complex<double> M2(double tau_orig, double epsilon){
+  complex<double> M2(double tau_orig, double jac){
     if(fabs(t-tau)>EPSILON)
       return M()-M1()*log(4.*SQU(sin((tau_orig-PI)/2.)));
     //return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
     else
-      return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*epsilon/PI*d))) * d;
+      return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d;
     //return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*d))) * d;
   }
 }; 
@@ -218,7 +160,63 @@ complex<double> Nystrom(int singular, double t, Function *func, double kvec[3],
       if(singular){ // combine special quadrature with trapezoidal
 	w = SpecialQuadratureWeightForLog(PI,tau_orig,n);
 	m1 = kern.M1();
-	m2 = kern.M2(tau_orig,part->epsilon);
+	m2 = kern.M2(tau_orig,part->epsilon/PI);
+	res += (w * m1 + PI/(double)n * m2) * f * pou;
+      }
+      else{ // simple trapezoidal
+	if(List_Nbr(part->subparts)){
+	  Partition *part2 = (Partition*)List_Pointer(part->subparts,0);
+	  double pou2 = part2->val(tau);
+	  pou -= pou2;
+	}
+	if(pou){
+	  m = kern.M();
+	  res += (PI/(double)n * m) * f * pou;
+	}
+      }
+    }
+  }
+    
+  return part->epsilon/PI * res;
+}
+
+// compute the tangency points (2) separate the integral in 2 parts,
+// and apply the following change of variables in each integral:
+//
+// 
+
+complex<double> NystromNew(int singular, double t, Function *func, double kvec[3], 
+			   int nbpts, Scatterer *scat, Partition *part){
+  complex<double> res=0., f, m, m1, m2;
+  double xt[3], dxt[3], xtau[3], dxtau[3], tau, tau_orig, pou, w;
+  int j, n = nbpts/2, chgofvars=1;
+  double k = NORM3(kvec);
+  GFHelmholtzParametric2D kern;
+
+  if(!nbpts) return 0.;
+
+  scat->val(t,xt);
+  scat->der(t,dxt);
+
+  for(j=0 ; j<=2*n-1 ; j++){
+    tau_orig = TWO_PI*j/(2.*n);
+    tau = (tau_orig-PI)*part->epsilon/PI+part->center;
+    
+    if(chgofvars){
+      
+    }
+
+
+    pou = part->val(tau);
+    if(pou){
+      scat->val(tau,xtau);
+      scat->der(tau,dxtau);
+      f = func->val(kvec,tau,xtau) * func->bf(tau);
+      kern.init(t,xt,dxt,tau,xtau,dxtau,k);
+      if(singular){ // combine special quadrature with trapezoidal
+	w = SpecialQuadratureWeightForLog(PI,tau_orig,n);
+	m1 = kern.M1();
+	m2 = kern.M2(tau_orig,part->epsilon/PI);
 	res += (w * m1 + PI/(double)n * m2) * f * pou;
       }
       else{ // simple trapezoidal
@@ -428,216 +426,5 @@ complex<double> Integrate(int typ, Function *f, Scatterer *scat,
   
   return res;
 
-}
-
-// Should we actually solve something, or just compute the forward map?
-
-void List_PrintMatlab(List_T *list){
-  complex<double> res;
-  printf("out = [\n");
-  for(int i=0; i<List_Nbr(list); i++){
-    List_Read(list, i, &res);
-    printf("%.15e + (%.15ei)\n", res.real(), res.imag());
-  }
-  printf("]\n");
-}
-
-void Solve(int typ, Function *f, Scatterer *scat, 
-	   double kv[3], int nbtarget, double t0, int nbpts, 
-	   double prescribed_eps, double rise){
-  gSolver Solver;
-  gMatrix A;
-  gVector b, x;
-  List_T *reslist=List_Create(nbtarget,20,sizeof(complex<double>));
-  complex<double> res;
-  double t, xt[3], kr, d1, d2;
-  int i, j, nbdof, localrange[2];
-
-  if(typ & BUILD_MATRIX){
-
-    if(!(nbtarget%2)) nbtarget++;
-
-    nbdof = gCOMPLEX_INCREMENT*nbtarget;
-
-    LinAlg_CreateSolver(&Solver, "solver.par") ;
-    LinAlg_CreateMatrix(&A, &Solver, nbdof, nbdof, 0, localrange, NULL) ;
-    LinAlg_CreateVector(&b, &Solver, nbdof, 1, NULL) ;
-    LinAlg_CreateVector(&x, &Solver, nbdof, 1, NULL) ;
-    LinAlg_ZeroMatrix(&A);
-    LinAlg_ZeroVector(&b);
-
-    Msg(INFO, "local range = %d %d", localrange[0], localrange[1]);
-
-    for(i=localrange[0] ; i<localrange[1] ; i++){
-      t = 2*PI*i/(double)nbtarget + t0;
-      Msg(INFO, "Computing target %d", i);
-      for(j=0 ; j<nbtarget ; j++){
-	f->num_bf = -nbtarget/2+j;
-	res = Integrate(typ, f, scat, kv, t, nbpts, prescribed_eps, rise); 
-	res *= (-I/2.);//warning
-	//Msg(INFO, "A[%d,%d]=%g+i%g  Fourier = %d", i,j,res.real(), res.imag(),f->num_bf);
-	if(gCOMPLEX_INCREMENT == 2)
-	  LinAlg_AddComplexInMatrix(res.real(), res.imag(), &A, 2*i, 2*j, 2*i+1, 2*j+1);
-	else
-	  LinAlg_AddComplexInMatrix(res.real(), res.imag(), &A, i, j, -1, -1);
-      }
-      //plane wave
-      scat->val(t,xt);
-      kr = kv[0]*xt[0]+kv[1]*xt[1]+kv[2]*xt[2];
-      res = cos(kr)+I*sin(kr);
-      res *= 2; //warning
-      res /= NORM3(kv);//warning
-      if(gCOMPLEX_INCREMENT == 2)
-	LinAlg_AddComplexInVector(res.real(), res.imag(), &b, 2*i, 2*i+1);
-      else
-	LinAlg_AddComplexInVector(res.real(), res.imag(), &b, i, -1);
-    }
-
-    LinAlg_AssembleMatrix(&A);
-    LinAlg_AssembleVector(&b);
-    LinAlg_Solve(&A, &b, &Solver, &x);
-
-    //Msg(INFO, "Print vector");
-    //LinAlg_PrintVector(stdout,&x);
-
-    // should do a scatter (gather) to get the full vector on one node
-    for(i=0 ; i<nbtarget ; i++){
-      if(gCOMPLEX_INCREMENT == 2)
-	LinAlg_GetComplexInVector(&d1, &d2, &x, 2*i, 2*i+1);
-      else
-	LinAlg_GetComplexInVector(&d1, &d2, &x, i, -1);
-      res = d1+I*d2;
-      List_Add(reslist, &res);
-    }
-    //List_PrintMatlab(reslist);
-
-
-    // the following should be done with a FFT
-    complex<double> phi; 
-    for(i=0 ; i<100 ; i++){
-      phi = 0.;
-      t = 2*PI*i/100.;
-      for(j=0 ; j<nbtarget ; j++){
-	f->num_bf = -nbtarget/2+j;
-	List_Read(reslist,j,&res);
-	phi += res * f->bf(t);
-      }
-      printf("%g %g\n", phi.real(), phi.imag());
-    }
-
-
-    LinAlg_DestroyMatrix(&A);
-    LinAlg_DestroyVector(&b);
-    LinAlg_DestroyVector(&x);
-    LinAlg_DestroySolver(&Solver);
-
-  }
-  else{
-    
-    for(i=0 ; i<nbtarget ; i++){
-      t = 2*PI*i/(double)nbtarget + t0;
-      res = Integrate(typ, f, scat, kv, t, nbpts, prescribed_eps, rise); 
-      Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
-      List_Add(reslist, &res);
-    }
-    List_PrintMatlab(reslist);
-
-  }
-
-  List_Delete(reslist);
-}
-
-// Main routine
-
-int main(int argc, char *argv[]){
-  double WaveNum[3]={1600.,0.,0.}, Epsilon=1., Rise=0.5, InitialTarget=0.;
-  int NbIntPts=10000, NbTargetPts=20;
-  int Type=0, sargc;
-  char **sargv=(char**)Malloc(256*sizeof(char**));
-  Scatterer scat;
-  Function f;
-
-  LinAlg_Initialize(&argc, &argv, &NBRCPU, &RANKCPU);
-
-  if(argc < 2){
-    Msg(INFO, "Usage: %s [-f|-c|-i1|-i2] options...", argv[0]);
-    LinAlg_FinalizeSolver() ;
-    LinAlg_Finalize() ;
-    exit(1);
-  }
-
-  sargv[0] = argv[0] ;
-  int i = sargc = 1;
-  while (i < argc) {
-    if (argv[i][0] == '-') {
-      if(Cmp(argv[i]+1, "full", 1)){ 
-	i++; Type |= FULL_INTEGRATION; Msg(INFO, "Full Nystrom integrator");
-      }
-      else if(Cmp(argv[i]+1, "critical", 1)){ 
-	i++; Type |= CRITICAL_INTEGRATION; Msg(INFO, "Critical point integrator");
-      }
-      else if(Cmp(argv[i]+1, "i1", 2)){ 
-	i++; Type |= INTERACT1; Msg(INFO, "Interactive integrator");
-      }
-      else if(Cmp(argv[i]+1, "i2", 2)){ 
-	i++; Type |= INTERACT2; Msg(INFO, "Interactive critical point integrator");
-      }
-      else if(Cmp(argv[i]+1, "build", 1)){ 
-	i++; Type |= BUILD_MATRIX; Msg(INFO, "Build matrix and solve system");
-      }
-      else if(Cmp(argv[i]+1, "iter", 2)){ 
-	i++; Type |= ITER_SOLVE; Msg(INFO, "Iterative solver");
-      }
-      else if(Cmp(argv[i]+1, "nbpts", 1)){ 
-	i++; NbIntPts = (int)GetNum(argc,argv,&i); 
-      }
-      else if(Cmp(argv[i]+1, "targets", 1)){ 
-	i++; NbTargetPts = (int)GetNum(argc,argv,&i); 
-      }
-      else if(Cmp(argv[i]+1, "zero", 1)){ 
-	i++; InitialTarget = GetNum(argc,argv,&i); 
-      }
-      else if(Cmp(argv[i]+1, "k", 1)){
-	i++; WaveNum[0] = GetNum(argc,argv,&i); 
-      }
-      else if(Cmp(argv[i]+1, "epsilon", 1)){
-	i++; Epsilon = GetNum(argc,argv,&i); 
-      }
-      else if(Cmp(argv[i]+1, "rise", 1)){
-	i++; Rise = GetNum(argc,argv,&i);
-      }
-      else if(Cmp(argv[i]+1, "verbose", 1)){ 
-	i++; Verbose = (int)GetNum(argc,argv,&i);
-      }
-      else{
-	Msg(INFO, "Passing unknown option '%s' to solver", argv[i]); 
-	sargv[sargc++] = argv[i++]; 
-      }
-    }
-    else{
-      Msg(INFO, "Passing unknown option '%s' to solver", argv[i]); 
-      sargv[sargc++] = argv[i++]; 
-    }
-  }
-
-  LinAlg_InitializeSolver(&sargc, &sargv, &NBRCPU, &RANKCPU) ;
-
-  Msg(INFO, "Options: -nbpts %d, -targets %d, -zero %g, -k %g, -eps %g, -rise %g", 
-      NbIntPts, NbTargetPts, InitialTarget, WaveNum[0], Epsilon, Rise);
-
-  if(Type & ITER_SOLVE)
-    f.which = 2;
-  else if(Type & BUILD_MATRIX)
-    f.which = 1;
-  else
-    f.which = 0;
-
-  Solve(Type, &f, &scat, WaveNum, NbTargetPts, InitialTarget, 
-	NbIntPts, Epsilon, Rise);
-
-  LinAlg_FinalizeSolver() ;
-  LinAlg_Finalize() ;
-  
-  return 0;
 }
 

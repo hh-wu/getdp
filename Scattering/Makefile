@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2002-02-27 16:38:14 geuzaine Exp $
+# $Id: Makefile,v 1.7 2002-02-28 01:00:04 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -7,13 +7,13 @@
 
 SOLVER   = -D_SPARSKIT
 
-#CXX     = icc -Kc++ -Kc++eh -O0 -xW # pentium 4 specific
 CXX      = c++ -g -Wall
+#CXX     = icc -Kc++ -O3 -xW # pentium 4 specific
 #CXX     = c++ -Wall -D_PETSC
 #include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables
 
-#F2C     = -lCEPCF90 -lF90 # Linux with intel compilers
 F2C     = -lg2c -lm # Linux gcc
+#F2C     = -lCEPCF90 -lF90 # Linux with intel compilers
 #F2C     = -lftn -lm # IRIX
 #F2C     = -lfor -lots -lUfor -lFutil -lm # DEC
 
@@ -28,7 +28,9 @@ INCLUDE = -I. -I../include -I../Main -I../DataStr -I../DofData -I../Function\
 CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER)\
           $(INCLUDE)
 
-SRC = Nystrom.cpp\
+SRC = Main.cpp\
+      Solve.cpp\
+      Nystrom.cpp\
       CriticalPoints.cpp\
       Bessel.cpp\
       Utils.cpp
