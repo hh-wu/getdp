@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.151 2004-03-05 18:18:03 geuzaine Exp $
+# $Id: Makefile,v 1.152 2004-03-05 18:37:37 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -133,7 +133,7 @@ package-unix:
 	mkdir getdp-${GETDP_RELEASE}
 	strip bin/getdp
 	cp bin/getdp getdp-${GETDP_RELEASE}
-	cp doc/getdp.1 doc/COPYING doc/VERSIONS doc/FAQ doc/CREDITS getdp-${GETDP_RELEASE}
+	cp doc/getdp.1 doc/LICENSE doc/VERSIONS doc/FAQ doc/CREDITS getdp-${GETDP_RELEASE}
 	cp -R demos getdp-${GETDP_RELEASE}
 	rm -rf getdp-${GETDP_RELEASE}/*/CVS
 	rm -f getdp-${GETDP_RELEASE}/*/*.pre
@@ -155,7 +155,7 @@ package-win:
 	cp doc/VERSIONS getdp-${GETDP_RELEASE}/VERSIONS.txt
 	cp doc/FAQ getdp-${GETDP_RELEASE}/FAQ.txt
 	cp doc/CREDITS getdp-${GETDP_RELEASE}/CREDITS.txt
-	cp doc/COPYING getdp-${GETDP_RELEASE}/COPYING.txt
+	cp doc/LICENSE getdp-${GETDP_RELEASE}/LICENSE.txt
 	cd utils && unix2dos ../getdp-${GETDP_RELEASE}/*.txt
 	cp -R demos getdp-${GETDP_RELEASE}
 	rm -rf getdp-${GETDP_RELEASE}/*/CVS
