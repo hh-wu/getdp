@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.14 2003-03-22 03:30:13 geuzaine Exp $"
+#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.15 2004-01-08 20:02:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -203,7 +203,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
     (struct Element * Element, int NumEntity, 
      double u, double v, double w, double Value[] ) ;
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
-  double (*Cell_Get_Jacobian)(struct Element*, MATRIX3x3*) ;
+  double (*Cell_Get_Jacobian)(struct Element*, MATRIX3x3*) = 0;
   void (*Get_IntPoint)(int,int,double*,double*,double*,double*);
 
   GetDP_Begin("Cal_deRhamTermOfFemEquation");

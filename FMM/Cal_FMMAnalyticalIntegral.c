@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_FMMAnalyticalIntegral.c,v 1.5 2003-03-23 05:54:17 geuzaine Exp $"
+#define RCSID "$Id: Cal_FMMAnalyticalIntegral.c,v 1.6 2004-01-08 20:02:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -39,7 +39,7 @@ void GF_FMMLaplacexForm( struct Element           * Element,
 
   int      i, j, id, NbrDir ;
   double   xs[MAX_NODES], ys[MAX_NODES] ;
-  double   r0, phi0, r1, phi1, p0, p1, d, phi, cphi, sphi, Re, Im, cte, R ;
+  double   r0, phi0=0., r1, phi1=0., p0, p1, d, phi=0., cphi, sphi, Re, Im, cte=0., R=0. ;
   double   ValRe = 1., ValIm = 0., Re2, Im2 ;
 
   GetDP_Begin("GF_FMMLaplacexForm");

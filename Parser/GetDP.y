@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.54 2003-11-20 09:29:36 dular Exp $ */
+/* $Id: GetDP.y,v 1.55 2004-01-08 20:02:31 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -89,7 +89,8 @@ void Pro_DefineQuantityIndex(List_T * WholeQuantity_L,int DefineQuantityIndexEqu
 			     int * NbrQuantityIndex, int ** QuantityIndexTable,
 			     int ** QuantityTraceGroupIndexTable) ;
 void Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) ;
-void Help(char *topic);
+void Help(char *topic) ;
+int  Print_ListOfDouble(char *format, List_T *list, char *buffer) ;
 
 char  *strsave(char *string) ;
 void  yyerror(char *s) ;
@@ -6313,7 +6314,7 @@ ParsedStrings :
               break ;
             }
 	    i++ ;
-	  } while(i<strlen($2)) ;
+	  } while(i<(int)strlen($2)) ;
 	  strncpy(tmp, &$2[j], i-j); 
 	  tmp[i-j] = '\0'; 
 	  k = Get_DefineForString(PostSubOperation_FormatTag, tmp, &FlagError) ;
@@ -6331,7 +6332,7 @@ ParsedStrings :
 	  List_Add(ListOfChar_L, &$2[i]);
 	  i++ ;
 	}
-      } while (i<strlen($2)) ;
+      } while (i<(int)strlen($2)) ;
       Free($2) ;
     }
 ;
@@ -6385,7 +6386,7 @@ Affectation :
 
   | tPrintf '(' tBIGSTR ',' RecursiveListOfFExpr ')' tEND
     {
-      i = PrintListOfDouble($3,$5,tmpstring);
+      i = Print_ListOfDouble($3,$5,tmpstring);
       if(i<0) 
 	vyyerror("Too few arguments in Printf");
       else if(i>0)
@@ -7052,7 +7053,7 @@ void  vyyerror (char *fmt, ...){
 }
 
 
-int PrintListOfDouble(char *format, List_T *list, char *buffer){
+int Print_ListOfDouble(char *format, List_T *list, char *buffer){
   int i, j, k;
   char tmp1[256], tmp2[256];
 

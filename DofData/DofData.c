@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.35 2003-11-08 05:56:54 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.36 2004-01-08 20:02:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -452,7 +452,7 @@ void  Dof_WriteFileRES0(char * Name_File, int Format) {
 
   LinAlg_SequentialBegin();
 
-  Dof_OpenFile(DOF_RES, Name_File, Format ? "wb" : "w") ;
+  Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "wb" : "w")) ;
   fprintf(File_RES, "$ResFormat /* GetDP v%d.%d.%d, %s */\n", 
 	  GETDP_MAJOR_VERSION, GETDP_MINOR_VERSION, GETDP_PATCH_VERSION, 
 	  Format ? "binary" : "ascii") ;
@@ -481,7 +481,7 @@ void  Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P, in
 
   LinAlg_SequentialBegin() ;
 
-  Dof_OpenFile(DOF_RES, Name_File, Format ? "ab" : "a") ;
+  Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "ab" : "a")) ;
 
   if(Current.RankCpu == 0){
     fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num) ;
@@ -527,7 +527,7 @@ void  Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 
   LinAlg_SequentialBegin() ;
 
-  Dof_OpenFile(DOF_RES, Name_File, Format ? "ab" : "a") ;
+  Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "ab" : "a")) ;
 
   if(Current.RankCpu == 0){
     fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num) ;

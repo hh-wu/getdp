@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GlobalTermOfFemEquation.c,v 1.7 2003-03-22 03:30:12 geuzaine Exp $"
+#define RCSID "$Id: Cal_GlobalTermOfFemEquation.c,v 1.8 2004-01-08 20:02:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -46,7 +46,7 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   int     k ;
   double  Coefficient [NBR_MAX_HARMONIC] ;
 
-  void (*Function_AssembleTerm)(struct Dof * Equ, struct Dof * Dof, double Val[]) ;
+  void (*Function_AssembleTerm)(struct Dof * Equ, struct Dof * Dof, double Val[]) = 0;
 
   GetDP_Begin("Cal_GlobalTermOfFemEquation");
 

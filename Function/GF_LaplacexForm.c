@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_LaplacexForm.c,v 1.14 2003-03-22 03:30:10 geuzaine Exp $"
+#define RCSID "$Id: GF_LaplacexForm.c,v 1.15 2004-01-08 20:02:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -53,12 +53,14 @@
 
 void GF_LaplacexForm (F_ARG2) {
   
-  double   xs[MAX_NODES], ys[MAX_NODES], zs[MAX_NODES], u[3], v[3], n[3], u2, v2, xl, yl, zl, zl_2 ;
+  double   xs[MAX_NODES], ys[MAX_NODES], zs[MAX_NODES], u[3], v[3], n[3];
+  double   u2=0., v2=0., xl=0., yl=0., zl=0., zl_2=0. ;
   double   Area, m0[3], m1[3], m2[3] ;
-  int      Type_Int, i, j = 1 ;
-  double   a, b, c, d, e, f, i1, I1 = 0., Iua, Iva, r2;
-  double   s0m, s0p, s1m, s1p, s2m, s2p, t00, t10, t20, t0m_2, t0p_2, t1p_2;
-  double   r00_2, r10_2, r20_2, r00, r10, r20, r0p, r0m, r1p, f20, f21, f22, B0, B1, B2 ;
+  int      Type_Int=0, i, j = 1 ;
+  double   a=0., b=0., c=0., d, e, f, i1, I1 = 0., Iua, Iva, r2;
+  double   s0m=0., s0p=0., s1m=0., s1p=0., s2m=0., s2p=0., t00, t10, t20, t0m_2, t0p_2, t1p_2;
+  double   r00_2=0., r10_2=0., r20_2=0., r00, r10, r20, r0p=0., r0m=0., r1p=0.;
+  double   f20=0., f21=0., f22=0., B0, B1, B2 ;
   double   f30, f31, f32, N10, N20, N30 ;
   double   DetJ, valr, vali ;
 
@@ -425,7 +427,7 @@ void GF_GradLaplacexForm (F_ARG2) {
   double  xxs, yys, r2, EPS ;
   double  a, b, c, a2, I1, I2 ;
 
-  double  mx, my, valr, vali, DetJ ;
+  double  mx=0., my=0., valr, vali, DetJ ;
   double  f0[3], f1[3], f2[3], N10, N20, N30 ;
   double  m0[3], m1[3], m2[3], s0[3], s1[3] ;
   double  umf2i, us0, us1, us2, vmf2i, vs0, vs1, vs2 ;
@@ -433,7 +435,7 @@ void GF_GradLaplacexForm (F_ARG2) {
   double  area, I[3], Iua[3], Iva[3] ;
   double  s0m, s0p, s1m, s1p, s2m, s2p, t00, t10, t20, t0m_2, t0p_2, t1p_2;
   double  r00_2, r10_2, r20_2,  r00, r10, r20, r0p, r0m, r1p, f20, f21, f22, B0, B1, B2, B ;
-  int Type_Int ;
+  int Type_Int=0 ;
 
   GetDP_Begin("GF_GradLaplacexForm");
 

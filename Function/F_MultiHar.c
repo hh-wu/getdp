@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.21 2003-03-22 03:30:10 geuzaine Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.22 2004-01-08 20:02:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -126,7 +126,7 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
 		     double ***H_P, double ****HH_P, double **t_P, double **w_P){
   int NbrHar, iPul, iTime, iHar, jHar, NbrPointsX ;
   double *Val_Pulsation, MaxPuls, MinPuls ;
-  double **H, ***HH, *t, *w ;
+  double **H, ***HH = 0, *t, *w ;
   struct MH_InitData MH_InitData_S, *MH_InitData_P ;
   
   GetDP_Begin("MH_Get_InitData(");
@@ -498,7 +498,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
      double u, double v, double w, double Value[] ) ;
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
   void (*Get_IntPoint)(int,int,double*,double*,double*,double*);
-  double (*Get_Product)(double*,double*,double*);
+  double (*Get_Product)(double*,double*,double*) = 0;
 
  
   GetDP_Begin("Cal_GalerkinTermOfFemEquation_MHJacNL");

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_FMM.c,v 1.6 2003-03-22 03:30:09 geuzaine Exp $"
+#define RCSID "$Id: Print_FMM.c,v 1.7 2004-01-08 20:02:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -246,8 +246,8 @@ void Print_FMMGroupInfo( char* FileName ){
   
   int i, j, NbrInSupport, NumElm, *NG, *FG, *Nd, NbrGroupsSrc, NbrGroupsObs ;
   int NbrDir, NbrHar, NbrCom, NbrElmsGroup, NbrNG, NbrFG ;
-  int NbrDof, NbrEqu, *NumDof, *NumEqu, NbrFMMEqu, iFMMEqu ;
-  double  StorageFMM, StorageFMMA, StorageFMMD, StorageFMMT, StorageDir, TotalMem ;
+  int NbrDof=0, NbrEqu=0, *NumDof, *NumEqu, NbrFMMEqu, iFMMEqu ;
+  double  StorageFMM=0., StorageFMMA, StorageFMMD, StorageFMMT, StorageDir=0., TotalMem ;
   int NbrMultLaplace2D, NbrMultLaplace3D, N ;
   int NbrDirMAX = 0, NbrDirAV = 0 ;
   struct FMMData *FMMDataObs_P0, *FMMDataSrc_P0 ;

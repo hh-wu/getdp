@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.14 2003-03-22 03:30:12 geuzaine Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.15 2004-01-08 20:02:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -50,9 +50,6 @@ void  Cal_AssembleTerm_MH_Moving(struct Dof * Equ, struct Dof * Dof, double Val[
 
   GetDP_End ;
 }
-
-
-
 
 /* ------------------------------------------------------------------------ */
 /*  No Time Derivative                                                      */
@@ -215,7 +212,6 @@ void  Cal_AssembleTerm_Dt(struct Dof * Equ, struct Dof * Dof, double Val[]) {
 
 /* En preparation ... */
 void  Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
-  int     k ;
   double  tmp[2] ;
 
   GetDP_Begin("Cal_AssembleTerm_DtNL");
@@ -233,8 +229,6 @@ void  Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
 	}
 	break;
       case TIME_THETA :
-
-
 	tmp[0] = Val[0]/Current.DTime ;
 	Dof_AssembleInMat(Equ,  Dof, Current.NbrHar, tmp,
 			  &Current.DofData->A, &Current.DofData->b) ;
@@ -242,12 +236,6 @@ void  Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
 			  Current.DofData->CurrentSolution-1,
 			  &(Current.DofData->CurrentSolution-1)->x, 
 			  &Current.DofData->b) ;
-
-
-
-
-
-
 	break ;
       case TIME_NEWMARK :
 	Msg(ERROR, "DtNL not ready for separate assembly with TimeLoopNewmark");

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Legendre.c,v 1.10 2003-03-22 03:30:15 geuzaine Exp $"
+#define RCSID "$Id: Legendre.c,v 1.11 2004-01-08 20:02:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -64,7 +64,7 @@ double Legendre(int l, int m, double x){
      Here the degree l and the order m are the integers
      satisfying -l<=m<=l, while x lies in the range -1<=x<=1 */
      
-  double fact, pll, pmm,  pmmp1, somx2, Cte ;
+  double fact, pll=0., pmm,  pmmp1, somx2, Cte ;
   int i, ll;
   
   GetDP_Begin("Legendre");

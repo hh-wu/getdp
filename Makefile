@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.148 2003-11-22 09:35:59 geuzaine Exp $
+# $Id: Makefile,v 1.149 2004-01-08 20:02:29 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -78,6 +78,7 @@ tags:
 	gtags
 	htags
 
+.PHONY: parser
 parser:
 	cd Parser && ${MAKE} parser
 
@@ -186,7 +187,7 @@ distrib-mac: clean all package-unix distrib-msg
 source-common:
 	rm -rf getdp-${GETDP_RELEASE}
 	tar zcvf getdp.tgz `ls README* configure *.in Makefile */Makefile\
-                            */*.[chylfF] */*.[ch]pp */*.opt *.spec` doc demos
+                            */*.[chylfF] */*.[ch]pp *.spec` doc demos
 	mkdir getdp-${GETDP_RELEASE}
 	cd getdp-${GETDP_RELEASE} && tar zxvf ../getdp.tgz
 	rm -f getdp.tgz

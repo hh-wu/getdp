@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.15 2003-03-22 03:30:19 geuzaine Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.16 2004-01-08 20:02:35 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -305,7 +305,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
   int       i, j, Type_Dimension ;
   int       CriterionIndex, Nbr_IntPoints, i_IntPoint ;
 
-  double   (*Get_Jacobian) (struct Element * Element, MATRIX3x3 * Jac) ;
+  double   (*Get_Jacobian) (struct Element * Element, MATRIX3x3 * Jac) = 0;
   void     (*Get_IntPoint) (int Nbr_Points, int Num,
 			    double * u, double * v, double * w, double * wght) ;
 

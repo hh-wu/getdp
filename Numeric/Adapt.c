@@ -1,4 +1,4 @@
-#define RCSID "$Id: Adapt.c,v 1.12 2003-03-22 03:30:14 geuzaine Exp $"
+#define RCSID "$Id: Adapt.c,v 1.13 2004-01-08 20:02:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -123,8 +123,8 @@ double Adapt (int N,        /* Number of elements */
 	      double e0     /* prescribed error or number of elements */
 	      ){
   int i;
-  double contr, pivrai, lambda, minf, qi, ri, pi, obj, obj2, minri, maxri;
-  double errmin, errmax;
+  double contr=0., pivrai, lambda, minf, qi, ri, pi, obj, obj2, minri=0., maxri=0.;
+  double errmin=0., errmax=0.;
 
   GetDP_Begin("Adapt");
 

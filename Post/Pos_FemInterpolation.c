@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_FemInterpolation.c,v 1.15 2003-03-22 03:30:18 geuzaine Exp $"
+#define RCSID "$Id: Pos_FemInterpolation.c,v 1.16 2004-01-08 20:02:35 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -62,7 +62,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 
   void (*xFunctionBF[NBR_MAX_BASISFUNCTIONS])
     (struct Element *, int, double, double, double, double []) ;
-  void (*xChangeOfCoordinates) () ;
+  void (*xChangeOfCoordinates) () = 0;
 
   struct IntegralQuantityActive    IQA ;
   struct Value                     vBFxDof[NBR_MAX_BASISFUNCTIONS] ;

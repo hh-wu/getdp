@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.5 2003-03-22 03:30:08 geuzaine Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.6 2004-01-08 20:02:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -79,7 +79,7 @@ void InitFMMmatrix( int i_Src, int i_Obs, struct FMMmat *FMMmat_P ){
 
 void Init_CurrentFMMData ( int Dimension, double k0 ){
 
-  int i, i_Phi, i_The, NbrDir, Val_ns ;
+  int i, i_Phi, i_The, NbrDir, Val_ns=0 ;
   
   GetDP_Begin("Init_CurrentFMMData") ;
 
@@ -567,7 +567,7 @@ int FMM_NbrSpectralDirections( double k0 ){
 
   int i, j, i_Support, NbrInSupport, NbrGroups, NbrElmsGroupi ;
   int NumElmj, NumElmjp ;
-  double D = 1., Daux, Centroidj[3], Centroidjp[3] ; 
+  double D = 1., Daux = 0., Centroidj[3], Centroidjp[3] ; 
   struct FMMData  *FMMData_P0 ;
   struct FMMGroup  FMMGroup_S ;
 
@@ -615,7 +615,7 @@ int FMM_NbrSpectralDirections( double k0 ){
 
 int FMM_SetTruncation( double Rsrc, double Robs, double D, int Dimension){
 
-  int NbrDir, i, j, k, exp ;
+  int NbrDir=0, i, j, k, exp ;
   double Precision ; 
 
   GetDP_Begin("FMM_SetTruncation");
