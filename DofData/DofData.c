@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.39 2004-04-15 02:17:01 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.40 2004-04-15 15:45:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -459,7 +459,7 @@ void  Dof_WriteFileRES0(char * Name_File, int Format) {
   Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "wb" : "w")) ;
   fprintf(File_RES, "$ResFormat /* GetDP %s, %s */\n", GETDP_VERSION, 
 	  Format ? "binary" : "ascii") ;
-  fprintf(File_RES, "%g %d\n", GETDP_VERSION, Format) ;
+  fprintf(File_RES, "1.0 %d\n", Format) ;
   fprintf(File_RES, "$EndResFormat\n") ;
   Dof_CloseFile(DOF_RES) ;
 
