@@ -1,4 +1,4 @@
-/* $Id: Pos_Search.c,v 1.13 2000-10-20 17:30:56 geuzaine Exp $ */
+/* $Id: Pos_Search.c,v 1.14 2000-10-27 09:34:15 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -7,6 +7,7 @@
 #include "Data_Active.h"
 #include "Get_Geometry.h"
 #include "Pos_Search.h"
+#include "Get_DofOfElement.h"
 
 #include "CurrentData.h"
 #include "outil.h"
@@ -331,6 +332,7 @@ void Init_SearchGrid(struct Grid * Grid) {
 
     if (Element.Region && Element.Type != POINT) {
 
+      Get_InitDofOfElement(&Element) ;
       Get_NodesCoordinatesOfElement(&Element) ;
       ComputeElementBox(&Element, &ElementBox);
 
