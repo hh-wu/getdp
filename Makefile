@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.146 2003-08-24 23:22:24 geuzaine Exp $
+# $Id: Makefile,v 1.147 2003-09-01 09:57:00 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -167,9 +167,21 @@ package-win:
 	cd getdp-${GETDP_RELEASE} && zip -r getdp-${GETDP_RELEASE}-Windows.zip *
 	mv getdp-${GETDP_RELEASE}/getdp-${GETDP_RELEASE}-Windows.zip .
 
-distrib-unix: clean all package-unix
+distrib-msg:
+	@echo "********************************************************************"
+	@echo "Remember to change -ltermcap, etc. to /usr/lib/libtermcap.a, etc. in"
+	@echo "./variables and relink if the list below contains non-standard"
+	@echo "dynamic libs and you want to distribute a portable binary:"
+	@echo "********************************************************************"
 
-distrib-win: clean all package-win
+distrib-unix: clean all package-unix distrib-msg
+	ldd bin/getdp
+
+distrib-win: clean all package-win distrib-msg
+	objdump -p bin/getdp.exe | grep DLL
+
+distrib-mac: clean all package-unix distrib-msg
+	otool -L bin/getdp
 
 source-common:
 	rm -rf getdp-${GETDP_RELEASE}
