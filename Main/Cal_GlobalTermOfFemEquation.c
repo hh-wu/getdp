@@ -1,4 +1,4 @@
-/* $Id: Cal_GlobalTermOfFemEquation.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Cal_GlobalTermOfFemEquation.c,v 1.3 2000-10-27 11:47:28 dular Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -32,7 +32,7 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   void (*Function_AssembleTerm)(struct Dof * Equ, struct Dof * Dof, double Val[]) ;
 
 
-  Element.Num = -1 ;
+  Element.Num = NO_ELEMENT ;
 
   switch (EquationTerm_P->Case.GlobalTerm.Term.TypeTimeDerivative) {
   case NODT_   : Function_AssembleTerm = Cal_AssembleTerm_NoDt    ; break ;
@@ -53,18 +53,12 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   }
   else {
     QuantityStorageDof_P = QuantityStorageNoDof ;
-    QuantityStorageDof_P->BasisFunction[0].Dof = DofForNoDof_P ;
     Dof_InitDofForNoDof(DofForNoDof_P, Current.NbrHar) ;
+    QuantityStorageDof_P->BasisFunction[0].Dof = DofForNoDof_P ;
   }
 
   vBFxDof[0].Type = SCALAR ;  vBFxDof[0].Val[0] = 1. ;
-  if (Current.NbrHar > 1) {
-    vBFxDof[0].Val[MAX_DIM] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2) {
-      vBFxDof[0].Val[MAX_DIM* k   ] = vBFxDof[0].Val[0] ;
-      vBFxDof[0].Val[MAX_DIM*(k+1)] = 0. ;
-    }
-  }
+  if(Current.NbrHar > 1) Cal_SetHarmonicValue(&vBFxDof[0]) ;
 
   Cal_WholeQuantity
     (Current.Element = &Element, QuantityStorage_P0,

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.29 2000-10-23 20:44:19 geuzaine Exp $
+# $Id: Makefile,v 1.30 2000-10-27 11:47:28 dular Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -152,6 +152,18 @@ getdp-petsc-simple:
 ## Patrick
 
 linux2:
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
+           "CC=gcc" \
+           "FC=g77" \
+           "C_FLAGS=-O3" \
+           "F77_FLAGS=-O1" \
+           "SOLVER=-D_SPARSKIT" \
+           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+        ); done
+	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
+#	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+
+linux2W:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=g77" \

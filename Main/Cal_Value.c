@@ -1,4 +1,4 @@
-/* $Id: Cal_Value.c,v 1.7 2000-10-03 15:51:28 geuzaine Exp $ */
+/* $Id: Cal_Value.c,v 1.8 2000-10-27 11:47:28 dular Exp $ */
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
@@ -8,6 +8,8 @@
 #include "Cal_Value.h"
 #include "CurrentData.h"
 #include "Data_Numeric.h"
+
+void  MH_Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * R) ;
 
 /* ------------------------------------------------------------------------ */
 /*  O p e r a t o r s   o n   V a l u e s                                   */
@@ -60,45 +62,45 @@ void Cal_ComplexInvert(double V1[], double P[]) {
    R <- V1 
    ------------------------------------------------------------------------ */
 
-void  Cal_CopyValue(struct Value * V1, struct Value * V2) {
+void  Cal_CopyValue(struct Value * V1, struct Value * R) {
   int  k ;
 
   if (V1->Type == SCALAR) {
-    V2->Type = SCALAR ;
+    R->Type = SCALAR ;
     for (k = 0 ; k < Current.NbrHar ; k++)
-      V2->Val[MAX_DIM*k  ] = V1->Val[MAX_DIM*k  ] ;
+      R->Val[MAX_DIM*k  ] = V1->Val[MAX_DIM*k  ] ;
   }
   else if (V1->Type == VECTOR || V1->Type == TENSOR_DIAG){
-    V2->Type = V1->Type ;
+    R->Type = V1->Type ;
     for (k = 0 ; k < Current.NbrHar ; k++) {
-      V2->Val[MAX_DIM*k  ] = V1->Val[MAX_DIM*k  ] ;
-      V2->Val[MAX_DIM*k+1] = V1->Val[MAX_DIM*k+1] ;
-      V2->Val[MAX_DIM*k+2] = V1->Val[MAX_DIM*k+2] ;
+      R->Val[MAX_DIM*k  ] = V1->Val[MAX_DIM*k  ] ;
+      R->Val[MAX_DIM*k+1] = V1->Val[MAX_DIM*k+1] ;
+      R->Val[MAX_DIM*k+2] = V1->Val[MAX_DIM*k+2] ;
     }
   }
   else if (V1->Type == TENSOR_SYM){
-    V2->Type = TENSOR_SYM ;
+    R->Type = TENSOR_SYM ;
     for (k = 0 ; k < Current.NbrHar ; k++) {
-      V2->Val[MAX_DIM*k  ] = V1->Val[MAX_DIM*k  ] ;
-      V2->Val[MAX_DIM*k+1] = V1->Val[MAX_DIM*k+1] ;
-      V2->Val[MAX_DIM*k+2] = V1->Val[MAX_DIM*k+2] ;
-      V2->Val[MAX_DIM*k+3] = V1->Val[MAX_DIM*k+3] ;
-      V2->Val[MAX_DIM*k+4] = V1->Val[MAX_DIM*k+4] ;
-      V2->Val[MAX_DIM*k+5] = V1->Val[MAX_DIM*k+5] ;
+      R->Val[MAX_DIM*k  ] = V1->Val[MAX_DIM*k  ] ;
+      R->Val[MAX_DIM*k+1] = V1->Val[MAX_DIM*k+1] ;
+      R->Val[MAX_DIM*k+2] = V1->Val[MAX_DIM*k+2] ;
+      R->Val[MAX_DIM*k+3] = V1->Val[MAX_DIM*k+3] ;
+      R->Val[MAX_DIM*k+4] = V1->Val[MAX_DIM*k+4] ;
+      R->Val[MAX_DIM*k+5] = V1->Val[MAX_DIM*k+5] ;
     }
   }
   else if (V1->Type == TENSOR){
-    V2->Type = TENSOR ;
+    R->Type = TENSOR ;
     for (k = 0 ; k < Current.NbrHar ; k++) {
-      V2->Val[MAX_DIM*k  ] = V1->Val[MAX_DIM*k  ] ;
-      V2->Val[MAX_DIM*k+1] = V1->Val[MAX_DIM*k+1] ;
-      V2->Val[MAX_DIM*k+2] = V1->Val[MAX_DIM*k+2] ;
-      V2->Val[MAX_DIM*k+3] = V1->Val[MAX_DIM*k+3] ;
-      V2->Val[MAX_DIM*k+4] = V1->Val[MAX_DIM*k+4] ;
-      V2->Val[MAX_DIM*k+5] = V1->Val[MAX_DIM*k+5] ;
-      V2->Val[MAX_DIM*k+6] = V1->Val[MAX_DIM*k+6] ;
-      V2->Val[MAX_DIM*k+7] = V1->Val[MAX_DIM*k+7] ;
-      V2->Val[MAX_DIM*k+8] = V1->Val[MAX_DIM*k+8] ;
+      R->Val[MAX_DIM*k  ] = V1->Val[MAX_DIM*k  ] ;
+      R->Val[MAX_DIM*k+1] = V1->Val[MAX_DIM*k+1] ;
+      R->Val[MAX_DIM*k+2] = V1->Val[MAX_DIM*k+2] ;
+      R->Val[MAX_DIM*k+3] = V1->Val[MAX_DIM*k+3] ;
+      R->Val[MAX_DIM*k+4] = V1->Val[MAX_DIM*k+4] ;
+      R->Val[MAX_DIM*k+5] = V1->Val[MAX_DIM*k+5] ;
+      R->Val[MAX_DIM*k+6] = V1->Val[MAX_DIM*k+6] ;
+      R->Val[MAX_DIM*k+7] = V1->Val[MAX_DIM*k+7] ;
+      R->Val[MAX_DIM*k+8] = V1->Val[MAX_DIM*k+8] ;
     }
   }
 
@@ -724,6 +726,11 @@ void  Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * R) 
       }
     }
     R->Type = TENSOR;
+  }
+
+  else if (V1->Type == TENSOR_MH && V2->Type == VECTOR) {
+    MH_Cal_ProductValue(V1, V2, R) ;
+    R->Type = VECTOR ;
   }
 
   /* a faire: differents tenseurs entre eux */

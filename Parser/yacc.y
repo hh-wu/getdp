@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.22 2000-10-23 15:53:30 dular Exp $ */
+/* $Id: yacc.y,v 1.23 2000-10-27 11:47:29 dular Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -217,7 +217,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil
 %token    tFmod tModulo tHypot 
-%token    tSolidAngle tTrace tOrder tCrossProduct
+%token    tSolidAngle tTrace tOrder tCrossProduct tMHTimeIntegration
 
 %token  tGroup tDefineGroup tAll tInSupport
 
@@ -1359,6 +1359,24 @@ WholeQuantity_Single :
     '[' WholeQuantityExpression ']'
     { WholeQuantity_S.Type = WQ_TIMEDERIVATIVE ;
       WholeQuantity_S.Case.TimeDerivative.WholeQuantity = $4 ;
+      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
+		&Current_WholeQuantity_L) ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+
+      if (Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
+	vyyerror("Dof definition out of context") ;
+    }
+
+  | tMHTimeIntegration
+    { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity ; }
+    '[' tINT ',' FExpr ',' WholeQuantityExpression ',' WholeQuantityExpression ']'
+    {
+      WholeQuantity_S.Type = WQ_MHTIMEINTEGRATION ;
+
+      WholeQuantity_S.Case.MHTimeIntegration.Type = $4 ;
+      WholeQuantity_S.Case.MHTimeIntegration.NbrTimePoint = (int)$6 ;
+      WholeQuantity_S.Case.MHTimeIntegration.WholeQuantityInit = $8 ;
+      WholeQuantity_S.Case.MHTimeIntegration.WholeQuantity = $10 ;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
 		&Current_WholeQuantity_L) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;

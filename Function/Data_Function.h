@@ -1,4 +1,4 @@
-/* $Id: Data_Function.h,v 1.8 2000-09-26 07:27:53 geuzaine Exp $ */
+/* $Id: Data_Function.h,v 1.9 2000-10-27 11:47:28 dular Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 
@@ -444,6 +444,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"TensorV"           , (CAST)F_TensorV          ,   0,   3 },
   {"TensorSym"         , (CAST)F_TensorSym        ,   0,   6 },
   {"TensorDiag"        , (CAST)F_TensorDiag       ,   0,   3 },
+  {"SquDyadicProduct"  , (CAST)F_SquDyadicProduct ,   0,   1 },
   {"CompX"             , (CAST)F_CompX            ,   0,   1 },
   {"CompY"             , (CAST)F_CompY            ,   0,   1 },
   {"CompZ"             , (CAST)F_CompZ            ,   0,   1 },
@@ -484,6 +485,12 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"dInterpolationLinear2" , (CAST)F_dInterpolationLinear2 ,  -2,   1 },
   {"InterpolationAkima"    , (CAST)F_InterpolationAkima    ,  -2,   1 },
   {"dInterpolationAkima"   , (CAST)F_dInterpolationAkima   ,  -2,   1 },
+
+
+  /* F_MultiHar */
+
+  {"MHToTime"          , (CAST)F_MHToTime         ,   0,   1 },
+  //  {"MHTimeIntegration" , (CAST)F_MHTimeIntegration,   0,   1 },
 
 
   /* F_Analytic */

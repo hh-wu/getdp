@@ -1,4 +1,4 @@
-/* $Id: F_Type.c,v 1.2 2000-09-07 18:47:23 geuzaine Exp $ */
+/* $Id: F_Type.c,v 1.3 2000-10-27 11:47:28 dular Exp $ */
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -429,6 +429,38 @@ void  F_TensorV (F_ARG) {
     V->Val[MAX_DIM*k+8] = (A+2)->Val[MAX_DIM*k+2] ;
   }
   V->Type = TENSOR ;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  Dyadic product                                                          */
+/* ------------------------------------------------------------------------ */
+
+void  F_SquDyadicProduct (F_ARG) {
+  int k ;
+  double t11, t12, t13, t22, t23, t33 ;
+
+  if (A->Type != VECTOR)
+    Msg(ERROR, "Non Vector Argument for Function 'TensorDyadic'");
+
+  t11 = SQU(A->Val[0]) ;  t22 = SQU(A->Val[1]) ;  t33 = SQU(A->Val[2]) ;
+  t12 = A->Val[0] * A->Val[1] ;  t13 = A->Val[0] * A->Val[2] ;
+  t23 = A->Val[1] * A->Val[2] ;
+
+  V->Val[0] = t11 ;  V->Val[1] = t12 ;  V->Val[2] = t13 ;
+  V->Val[3] = t22 ;  V->Val[4] = t23 ;  V->Val[5] = t33 ;
+
+  /* Attention : a revoir */
+  if (Current.NbrHar > 1) {
+    V->Val[MAX_DIM  ] = V->Val[MAX_DIM+1] = V->Val[MAX_DIM+2] =
+      V->Val[MAX_DIM+3] = V->Val[MAX_DIM+4] = V->Val[MAX_DIM+5] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k++) {
+      V->Val[MAX_DIM*k  ] = V->Val[MAX_DIM*k+1] = V->Val[MAX_DIM*k+2] =
+	V->Val[MAX_DIM*k+3] = V->Val[MAX_DIM*k+4] = V->Val[MAX_DIM*k+5] = 0. ;
+    }
+  }
+
+  V->Type = TENSOR_SYM ;
 }
 
 

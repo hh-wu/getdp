@@ -1,4 +1,4 @@
-/* $Id: F_Math.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+/* $Id: F_Math.c,v 1.3 2000-10-27 11:47:28 dular Exp $ */
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -28,20 +28,15 @@
 
 #define scalar_real_1_arg(func,string)					\
   int     k;								\
-  double  tmp;								\
 									\
   if(A->Type != SCALAR)							\
     Msg(ERROR, "Non Scalar Argument for Function '" string "'");	\
 									\
-  if (Current.NbrHar == 1){						\
-    V->Val[0] = func(A->Val[0]) ;					\
-  }									\
-  else {								\
-    tmp = func(A->Val[0]) ;						\
-    for (k = 0 ; k < Current.NbrHar ; k += 2) {				\
-      V->Val[MAX_DIM*k    ] = tmp ;					\
-      V->Val[MAX_DIM*(k+1)] = 0. ;					\
-    }									\
+  V->Val[0] = func(A->Val[0]) ;						\
+  if (Current.NbrHar != 1){						\
+    V->Val[MAX_DIM] = 0. ;						\
+    for (k = 2 ; k < Current.NbrHar ; k += 2)				\
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;			\
   }									\
   V->Type = SCALAR;
 
@@ -71,20 +66,15 @@ void  F_Ceil  (F_ARG) { scalar_real_1_arg (ceil, "Ceil")  }
 
 #define scalar_real_2_arg(func,string)					\
   int     k;								\
-  double  tmp;								\
 									\
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)			\
     Msg(ERROR, "Non Scalar Argument(s) for Function '" string "'");	\
 									\
-  if (Current.NbrHar == 1){						\
-    V->Val[0] = func(A->Val[0], (A+1)->Val[0]) ;			\
-  }									\
-  else {								\
-    tmp = func(A->Val[0], (A+1)->Val[0]) ;				\
-    for (k = 0 ; k < Current.NbrHar ; k += 2) {				\
-      V->Val[MAX_DIM* k   ] = tmp ;					\
-      V->Val[MAX_DIM*(k+1)] = 0. ;					\
-    }									\
+  V->Val[0] = func(A->Val[0], (A+1)->Val[0]) ;				\
+  if (Current.NbrHar != 1){						\
+    V->Val[MAX_DIM] = 0. ;						\
+    for (k = 2 ; k < Current.NbrHar ; k += 2)				\
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;			\
   }									\
   V->Type = SCALAR;
 

@@ -1,4 +1,4 @@
-/* $Id: Cal_Quantity.c,v 1.4 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: Cal_Quantity.c,v 1.5 2000-10-27 11:47:28 dular Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -439,6 +439,24 @@ void Cal_WholeQuantity(struct Element * Element,
 	Stack[0][Index+1].Type = SCALAR ;
 	Cal_ProductValue(&Stack[0][Index], &Stack[0][Index+1], &Stack[0][Index]) ;
       }
+      Multi[Index] = 0 ;
+      Index++ ;  
+      break ;
+
+    case WQ_MHTIMEINTEGRATION :
+      if (Current.NbrHar == 1)
+	Msg(ERROR, "MHTimeIntegration only valid in frequency domain") ;
+
+      Cal_WholeQuantity(Element, QuantityStorage_P0,
+			WholeQuantity_P->Case.MHTimeIntegration.WholeQuantityInit,
+			u, v, w, -1, 0, &Stack[0][Index]) ;
+
+      Fi_MHTimeIntegration(WholeQuantity_P->Case.MHTimeIntegration.Type,
+			   WholeQuantity_P->Case.MHTimeIntegration.NbrTimePoint,
+			   WholeQuantity_P->Case.MHTimeIntegration.WholeQuantity,
+			   Element, QuantityStorage_P0,
+			   u, v, w, &Stack[0][Index]) ;
+
       Multi[Index] = 0 ;
       Index++ ;  
       break ;

@@ -1,4 +1,4 @@
-/* $Id: Cal_AssembleTerm.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Cal_AssembleTerm.c,v 1.3 2000-10-27 11:47:28 dular Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -265,7 +265,7 @@ void  Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
   int     k ;
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Msg(ERROR, "JacNL not ready for Separate Assembly");
+    Msg(ERROR, "NeverDt not ready for Separate Assembly");
   }
   else{
     if (Current.NbrHar == 1) {

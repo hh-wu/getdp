@@ -1,4 +1,4 @@
-/* $Id: Cal_GalerkinTermOfFemEquation.c,v 1.5 2000-10-23 15:53:30 dular Exp $ */
+/* $Id: Cal_GalerkinTermOfFemEquation.c,v 1.6 2000-10-27 11:47:28 dular Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -41,6 +41,7 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
     FI->Type_DefineQuantityDof = NODOF ;
     FI->DofForNoDof_P = DofForNoDof_P ;
     Dof_InitDofForNoDof(DofForNoDof_P, Current.NbrHar) ;
+    QuantityStorageNoDof->BasisFunction[0].Dof = DofForNoDof_P ;
   }
 
   /* Warning: not correct if nonsymmetrical tensor in expression */
@@ -341,7 +342,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
         break ;
       }
 
-    }
+    } /* if INTEGRALQUANTITY */
 
 
     if (FI->SymmetricalMatrix)
@@ -425,7 +426,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	    vBFxEqu[i][2] = V2.Val[2];
 	  }
 
-	}
+	} /* for Nbr_Equ */
 	
 	/* Shape Functions (+ surrounding expression) */
 

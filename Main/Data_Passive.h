@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.15 2000-10-23 15:53:30 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.16 2000-10-27 11:47:28 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -24,7 +24,7 @@
 /* ------------------------------------------------------------------------ */
 
 #define MAX_DIM             9   /* second-rank tensor of order 3 : 3^2 = 9  */
-#define NBR_MAX_HARMONIC    2    
+#define NBR_MAX_HARMONIC    4
 
 struct Value {
   int     Type ;
@@ -295,6 +295,8 @@ struct GlobalBasisFunction {
 #define TENSOR_SYM  23
 #define TENSOR_DIAG 24
 
+#define TENSOR_MH   25
+
 /*  VECTOR  TENSOR_DIAG  TENSOR_SYM  TENSOR
     |0|     |0    |      |0 1 2|     |0 1 2|
     |1|     |  1  |      |s 3 4|     |3 4 5|
@@ -547,6 +549,8 @@ struct WholeQuantity {
              int FunctionSpaceIndexForType, NbrHar ; }            Cast ;
     struct { List_T *WholeQuantity ; 
              int InIndex, DofIndexInWholeQuantity ; }             Trace ;
+    struct { List_T *WholeQuantity, *WholeQuantityInit ; 
+             int Type, NbrTimePoint ; }                           MHTimeIntegration ;
   } Case ;
 
 } ;
@@ -571,6 +575,7 @@ struct WholeQuantity {
 #define WQ_SOLIDANGLE              16
 #define WQ_TRACE                   17
 #define WQ_ORDER                   18
+#define WQ_MHTIMEINTEGRATION       19
 
 /* TypeOperator */
 #define OP_PLUS           1

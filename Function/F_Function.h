@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+/* $Id: F_Function.h,v 1.3 2000-10-27 11:47:28 dular Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -59,6 +59,7 @@ void  F_Tensor          (F_ARG) ;
 void  F_TensorV         (F_ARG) ;
 void  F_TensorSym       (F_ARG) ;
 void  F_TensorDiag      (F_ARG) ;
+void  F_SquDyadicProduct(F_ARG) ;
 void  F_CompX           (F_ARG) ;
 void  F_CompY           (F_ARG) ;
 void  F_CompZ           (F_ARG) ;
@@ -102,6 +103,18 @@ void  F_dInterpolationAkima   (F_ARG) ;
 void  Fi_InitListXY     (F_ARG) ;
 void  Fi_InitListXY2    (F_ARG) ;
 void  Fi_InitAkima      (F_ARG) ;
+
+
+/* F_MultiHar */
+
+void  F_MHToTime           (F_ARG) ;
+
+void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
+			   List_T * WholeQuantity_L,
+			   struct Element * Element,
+			   struct QuantityStorage * QuantityStorage_P0,
+			   double u, double v, double w,
+			   struct Value *ValueOut) ;
 
 
 #undef F_ARG

@@ -1,4 +1,4 @@
-/* $Id: Cal_deRhamTermOfFemEquation.c,v 1.4 2000-10-23 15:53:30 dular Exp $ */
+/* $Id: Cal_deRhamTermOfFemEquation.c,v 1.5 2000-10-27 11:47:28 dular Exp $ */
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -48,6 +48,7 @@ void  Cal_InitdeRhamTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
     FI->Type_DefineQuantityDof = NODOF ;
     FI->DofForNoDof_P = DofForNoDof_P ;
     Dof_InitDofForNoDof(DofForNoDof_P, Current.NbrHar) ;
+    QuantityStorageNoDof->BasisFunction[0].Dof = DofForNoDof_P ;
   }
 
 

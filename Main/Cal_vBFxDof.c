@@ -1,4 +1,4 @@
-/* $Id: Cal_vBFxDof.c,v 1.3 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Cal_vBFxDof.c,v 1.4 2000-10-27 11:47:28 dular Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -89,8 +89,8 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
 			    vBFxDof) ;
       FI->Type_ValueDof = FI->Type_FormDof = vBFxDof[0].Type; /* now this type is correct */
       break ;
-    case NODOF :
-      QuantityStorageDof_P->BasisFunction[0].Dof = FI->DofForNoDof_P ;
+    case NODOF :  /* Supprimer le DofForNoDof_P de la structure dans Data_Active.h */
+      /*      QuantityStorageDof_P->BasisFunction[0].Dof = FI->DofForNoDof_P ; */
       break ;
     }
   }  
@@ -103,7 +103,7 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
     }
   }
   
-  /* Compute remaing factors in the term */
+  /* Compute remaining factors in the term */
   
   if (EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity == 
       CWQ_DOF) {
