@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.7 2000-11-03 08:31:31 dular Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.8 2000-11-03 10:42:36 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -173,7 +173,8 @@ void  Format_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic,
 		  int HarmonicToTime, int Type, int NbrNodes, 
 		  double *x, double *y, double *z, struct Value *Value){
   int     i,j,k;
-  double  p;
+  double      TimeMH ;
+  struct Value  TmpValue ;
 
   GetDP_Begin("Format_Gmsh");
 
@@ -195,28 +196,22 @@ void  Format_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic,
       fprintf(PostStream, "){");
     }
 
-    if(HarmonicToTime > 1){
-      if(NbHarmonic == 2){
-	for(k = 0 ; k < HarmonicToTime ; k++){
-	  p = TWO_PI * k / (HarmonicToTime-1);
-	  if(k || TimeStep) fprintf(PostStream, ",");
-	  for(i = 0 ; i < NbrNodes ; i++){
-	    if(i) fprintf(PostStream, ",");
-	    fprintf(PostStream, "%.8g", Value[i].Val[MAX_DIM*0] * cos(p) - 
-		                       Value[i].Val[MAX_DIM*1] * sin(p));
-	  }
-	}	
-      }
-      else{
-	Msg(ERROR, "HarmonicToTime Conversion expects 2 Harmonics");
-      }
-    }
-    else{
+    if (HarmonicToTime == 1) {
       for(k = 0 ; k < NbHarmonic ; k++) {
 	if(k || TimeStep) fprintf(PostStream, ",");
 	for(i = 0 ; i < NbrNodes ; i++){
 	  if(i) fprintf(PostStream, ",");
 	  fprintf(PostStream, "%.8g", Value[i].Val[MAX_DIM*k]);
+	}
+      }
+    }
+    else {
+      for(k = 0 ; k < HarmonicToTime ; k++){
+	if(k || TimeStep) fprintf(PostStream, ",");
+	for(i = 0 ; i < NbrNodes ; i++){
+	  if(i) fprintf(PostStream, ",");
+	  F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	  fprintf(PostStream, "%.8g", TmpValue.Val[0]);
 	}
       }
     }
@@ -242,26 +237,7 @@ void  Format_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic,
       fprintf(PostStream, "){");
     }
     
-    if(HarmonicToTime > 1){
-      if(NbHarmonic == 2){
-	for(k = 0 ; k < HarmonicToTime ; k++){
-	  p = TWO_PI * k / (HarmonicToTime-1);
-	  if(k || TimeStep) fprintf(PostStream, ",");
-	  for(i = 0 ; i < NbrNodes ; i++){
-	    if(i) fprintf(PostStream, ",");
-	    for(j = 0 ; j < 3 ; j++){
-	      if(j) fprintf(PostStream, ",");
-	      fprintf(PostStream, "%.8g", Value[i].Val[MAX_DIM*0+j] * cos(p) - 
-		                         Value[i].Val[MAX_DIM*1+j] * sin(p));
-	    }
-	  }
-	}	
-      }
-      else{
-	Msg(ERROR, "HarmonicToTime Conversion expects 2 Harmonics");
-      }
-    }
-    else{
+    if (HarmonicToTime == 1) {
       for(k = 0 ; k < NbHarmonic ; k++) {
 	if(k || TimeStep) fprintf(PostStream, ",");
 	for(i = 0 ; i < NbrNodes ; i++){
@@ -269,6 +245,19 @@ void  Format_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic,
 	  for(j = 0 ; j < 3 ; j++){
 	    if(j) fprintf(PostStream, ",");
 	    fprintf(PostStream, "%.8g", Value[i].Val[MAX_DIM*k+j]);
+	  }
+	}
+      }
+    }
+    else {
+      for(k = 0 ; k < HarmonicToTime ; k++){
+	if(k || TimeStep) fprintf(PostStream, ",");
+	for(i = 0 ; i < NbrNodes ; i++){
+	  if(i) fprintf(PostStream, ",");
+	  F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	  for(j = 0 ; j < 3 ; j++){
+	    if(j) fprintf(PostStream, ",");
+	    fprintf(PostStream, "%.8g", TmpValue.Val[j]);
 	  }
 	}
       }
@@ -324,7 +313,8 @@ void  Format_NewGmsh(int TimeStep, int NbrTimeSteps, int NbrHarmonics,
   static int      Index, OutSize, Type, Size ;
   static double  *Tmp ;
   int    i,j,k ;
-  double p ;
+  double      TimeMH ;
+  struct Value  TmpValue ;
 
   GetDP_Begin("Format_NewGmsh");
 
@@ -388,30 +378,7 @@ void  Format_NewGmsh(int TimeStep, int NbrTimeSteps, int NbrHarmonics,
     }
   }
 
-  if(HarmonicToTime > 1){
-    if(NbrHarmonics != 2){
-      Msg(ERROR, "HarmonicToTime Conversion expects 2 Harmonics");
-    }
-    for(k = 0 ; k < HarmonicToTime ; k++){
-      p = TWO_PI * k / (HarmonicToTime-1);
-      for(i = 0 ; i < NbrNodes ; i++){
-	for(j = 0 ; j < Size ; j++){
-	  if(Flag_BIN){
-	    Tmp[Index] = 
-	      Value[i].Val[        j] * cos(p) - 
-	      Value[i].Val[MAX_DIM+j] * sin(p);
-	    Index++ ;
-	  }
-	  else{
-	    fprintf(PostStream, "%.8g",
-		    Value[i].Val[        j] * cos(p) - 
-		    Value[i].Val[MAX_DIM+j] * sin(p));	    
-	  }
-	}
-      }
-    }
-  }    
-  else{
+  if (HarmonicToTime == 1) {
     for(k = 0 ; k < NbrHarmonics ; k++) {
       for(i = 0 ; i < NbrNodes ; i++){
 	for(j = 0 ; j < Size ; j++){
@@ -421,6 +388,22 @@ void  Format_NewGmsh(int TimeStep, int NbrTimeSteps, int NbrHarmonics,
 	  }
 	  else{
 	    fprintf(PostStream, "%.8g ", Value[i].Val[MAX_DIM*k+j]);
+	  }
+	}
+      }
+    }
+  }
+  else {
+    for(k = 0 ; k < HarmonicToTime ; k++){
+      for(i = 0 ; i < NbrNodes ; i++){
+	F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	for(j = 0 ; j < Size ; j++){
+	  if(Flag_BIN){
+	    Tmp[Index] = TmpValue.Val[j] ;
+	    Index++ ;
+	  }
+	  else{
+	    fprintf(PostStream, "%.8g", TmpValue.Val[j]);
 	  }
 	}
       }
@@ -472,8 +455,9 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 		     struct Value *Value){
   static int  Size, TmpIndex ;
   static double  * TmpValues ;
-  int         i, j, k, t ;
-  double      p ;
+  int         i, j, k, t, k2 ;
+  double      TimeMH ;
+  struct Value  TmpValue ;
 
   GetDP_Begin("Format_Gnuplot");
 
@@ -514,11 +498,39 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	fprintf(PostStream, " 0 0 0 ");
 
       for(t = 0 ; t < NbrTimeSteps ; t++){
-	
-	if(HarmonicToTime > 1){
-	  if(NbrHarmonics != 2){
-	    Msg(ERROR, "HarmonicToTime Conversion expects 2 Harmonics");
+
+	if (HarmonicToTime == 1) {
+	  for(k = 0 ; k < NbrHarmonics ; k++) {
+	    for(j = 0 ; j < Size ; j++){
+	      fprintf(PostStream, " %.8g", 
+		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
+			       + i*NbrHarmonics*Size
+			       + k*Size
+			       + j ]);
+	    }
+	    fprintf(PostStream, " ");
 	  }
+	  fprintf(PostStream, " ");
+	}
+	else {
+	  TmpValue.Type = Value->Type ;
+	  for(k = 0 ; k < HarmonicToTime ; k++){
+
+	    for(k2 = 0 ; k < NbrHarmonics ; k++)
+	      for(j = 0 ; j < Size ; j++)
+		TmpValue.Val[MAX_DIM*k2+j] =
+		  TmpValues[ t*NbrNodes*NbrHarmonics*Size
+			   + i*NbrHarmonics*Size
+			   + k2*Size
+			   + j ] ;
+
+	    F_MHToTime0(NULL, &TmpValue, &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	    for(j = 0 ; j < Size ; j++)
+	      fprintf(PostStream, "%.8g", TmpValue.Val[0]);
+	    fprintf(PostStream, " ");
+	  }
+
+	  /*
 	  for(k = 0 ; k < HarmonicToTime ; k++){
 	    p = TWO_PI * k / (HarmonicToTime-1);
 	    for(j = 0 ; j < Size ; j++){
@@ -534,22 +546,11 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	    }
 	    fprintf(PostStream, " ");
 	  }
+	  */
+
 	  fprintf(PostStream, " ");
 	}
-	else{
-	  for(k = 0 ; k < NbrHarmonics ; k++) {
-	    for(j = 0 ; j < Size ; j++){
-	      fprintf(PostStream, " %.8g", 
-		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
-			       + i*NbrHarmonics*Size
-			       + k*Size
-			       + j ]);
-	    }
-	    fprintf(PostStream, " ");
-	  }
-	  fprintf(PostStream, " ");
-	}
-	
+
       } /* for t */
       fprintf(PostStream, "\n");      
 
@@ -569,7 +570,8 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
 		     struct Value *Value){
   static int  Size ;
   int         i,j,k ;
-  double      p ;
+  double      TimeMH ;
+  struct Value  TmpValue ;
 
   GetDP_Begin("Format_Tabular");
 
@@ -600,26 +602,11 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
     for(i=0 ; i<NbrNodes ; i++)
       fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
     break ;
+  case FORMAT_HARMONICTOTIME_TABLE : /* Time not known jet */
+    break ;
   }
   
-  if(HarmonicToTime > 1){
-    if(NbrHarmonics != 2){
-      Msg(ERROR, "HarmonicToTime Conversion expects 2 Harmonics");
-    }
-    for(k = 0 ; k < HarmonicToTime ; k++){
-      p = TWO_PI * k / (HarmonicToTime-1);
-      for(i = 0 ; i < NbrNodes ; i++){
-	for(j = 0 ; j < Size ; j++){
-	  fprintf(PostStream, " %.8g",
-		  Value[i].Val[        j] * cos(p) -
-		  Value[i].Val[MAX_DIM+j] * sin(p));
-	}
-	fprintf(PostStream, " ");
-      }
-      fprintf(PostStream, " ");
-    }
-  }    
-  else{
+  if (HarmonicToTime == 1) {
     for(k = 0 ; k < NbrHarmonics ; k++) {
       for(i = 0 ; i < NbrNodes ; i++){
 	for(j = 0 ; j < Size ; j++){
@@ -630,10 +617,26 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
       fprintf(PostStream, " ");
     }
   }
-
-  if(TimeStep == NbrTimeSteps-1 || Format == FORMAT_TIME_TABLE){
-    fprintf(PostStream, "\n");
+  else {
+    for(k = 0 ; k < HarmonicToTime ; k++){
+      for(i = 0 ; i < NbrNodes ; i++){
+	F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	if (!i && Format == FORMAT_HARMONICTOTIME_TABLE) {
+	  fprintf(PostStream, "%d %.8g ", TimeStep, TimeMH);
+	  for(i=0 ; i<NbrNodes ; i++)
+	    fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
+	}
+	for(j = 0 ; j < Size ; j++)
+	  fprintf(PostStream, " %.8g", TmpValue.Val[j]) ;
+	fprintf(PostStream, " ");
+      }
+      if(Format == FORMAT_HARMONICTOTIME_TABLE)
+	fprintf(PostStream, "\n");
+    }
   }
+
+  if(TimeStep == NbrTimeSteps-1 || Format == FORMAT_TIME_TABLE)
+    fprintf(PostStream, "\n");
 
   GetDP_End ;
 }
@@ -702,6 +705,7 @@ void  Format_PostElement(int Format, int Contour, int Store,
     break ;
   case FORMAT_SPACE_TABLE :
   case FORMAT_TIME_TABLE :
+  case FORMAT_HARMONICTOTIME_TABLE :
     Format_Tabular(Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
 		   PE->Value) ;
@@ -728,7 +732,7 @@ void  Format_PostValue(int Format,
 
   static int  Size ;
   int  j, k ;
-  double p, TimeMH ;
+  double TimeMH ;
   struct Value  TmpValue, *TmpValues ;
 
   GetDP_Begin("Format_PostValue");
@@ -760,7 +764,8 @@ void  Format_PostValue(int Format,
     else {
       for(k = 0 ; k < HarmonicToTime ; k++) {
 	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
-	  F_MHToTime0(NULL, &TmpValues[iRegion], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	  F_MHToTime0(NULL, &TmpValues[iRegion], &TmpValue, 
+		      k, HarmonicToTime, &TimeMH) ;
 	  if (iRegion == 0)  fprintf(PostStream, "%.8g ", TimeMH) ;
 	  for(j = 0 ; j < Size ; j++)
 	    fprintf(PostStream, " %.8g", TmpValue.Val[j]) ;
