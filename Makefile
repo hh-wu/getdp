@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.158 2004-04-24 20:38:30 geuzaine Exp $
+# $Id: Makefile,v 1.159 2004-05-01 14:42:19 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -207,7 +207,7 @@ package-mac: package-unix
 
 package-rpm:
 	tar zcvf /usr/src/redhat/SOURCES/getdp-${GETDP_VERSION}.tar.gz ${GETDP_SOURCES}
-	rpmbuild -bb --define 'getdpversion ${GETDP_VERSION}' getdp.spec
+	rpmbuild -ba --define 'getdpversion ${GETDP_VERSION}' getdp.spec
 	cp /usr/src/redhat/RPMS/i386/getdp-${GETDP_VERSION}-?.i386.rpm .
 	cp /usr/src/redhat/BUILD/getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-${UNAME}.tgz .
 
