@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.117 2003-02-07 10:26:57 geuzaine Exp $
+# $Id: Makefile,v 1.118 2003-02-07 17:56:51 geuzaine Exp $
 
 include variables
 
@@ -148,8 +148,8 @@ package-windows:
 
 source:
 	rm -rf getdp-${GETDP_RELEASE}
-	tar zcvf getdp.tgz `ls Makefile */Makefile */*.[chylfF] */*.[ch]pp\
-                           */*.opt */*.spec` doc demos
+	tar zcvf getdp.tgz `ls configure *.in Makefile */Makefile */*.[chylfF] */*.[ch]pp\
+                            */*.opt */*.spec` doc demos
 	mkdir getdp-${GETDP_RELEASE}
 	cd getdp-${GETDP_RELEASE} && tar zxvf ../getdp.tgz
 	rm -f getdp.tgz
