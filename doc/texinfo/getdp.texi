@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.58 2004-01-22 17:05:33 geuzaine Exp $
+@c $Id: getdp.texi,v 1.59 2004-02-29 05:59:18 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 @c
@@ -60,8 +60,7 @@
 @ifinfo
 @dircategory Math
 @direntry
-* GetDP: (getdp).  a General environment for the treatment of Discrete
-Problems
+* GetDP: (getdp).  General finite element solver
 @end direntry
 @noindent
 This is edition @value{EDITION} (@today{}) of the @cite{GetDP Reference
@@ -334,8 +333,8 @@ Bugs, versions and credits
 
 @cindex Introduction
 
-GetDP (a General environment for the treatment of Discrete Problems) is a
-scientific software environment for the numerical solution of
+GetDP (a ``General environment for the treatment of Discrete Problems'') is
+a scientific software environment for the numerical solution of
 integro-differential equations, open to the coupling of physical problems
 (electromagnetic, thermal, mechanical, etc.) as well as of numerical methods
 (finite element method, integral methods, etc.). It can deal with such
