@@ -2496,7 +2496,8 @@ Square norm: @code{Norm[@var{expr}]^2}.
 
 @item Unit
 @code{[@var{expr}]}@*
-Normalization: @code{@var{expr}/Norm[@var{expr}]}.
+Normalization: @code{@var{expr}/Norm[@var{expr}]}. Returns 0 if the norm is
+smaller than 1.e-30.
 
 @item Transpose
 @code{[@var{expr}]}@*
