@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.10 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.11 2001-03-05 14:46:02 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -272,7 +272,7 @@ double  SphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
 
   R = HYPOT(CoorX, CoorY) ;
 
-  if ( (R > B) || (R < A) )
+  if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
     Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
 	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
 
@@ -315,7 +315,7 @@ double  SphFiniteShell2D (struct Element * Element, MATRIX3x3 * Jac) {
 
   R = HYPOT(CoorX, CoorY) ;
 
-  if ( (R > B) || (R < A) )
+  if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
     Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
 	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
 
@@ -365,7 +365,7 @@ double  SphShell3D (struct Element * Element, MATRIX3x3 * Jac) {
 
   R = sqrt( DSQU(CoorX) + DSQU(CoorY) + DSQU(CoorZ) ) ;
 
-  if ( (R > B) || (R < A) )
+  if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
     Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
 	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
 
@@ -402,7 +402,7 @@ double  PlpdX2D (struct Element * Element, MATRIX3x3 * Jac) {
 
   R = CoorX ;
 
-  if ( (R > B) || (R < A) )
+  if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
     Msg(ERROR, "Bad parameters for Jacobian VolPlpdX: "
 	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
 
