@@ -8,9 +8,6 @@
 
 /* This is the interface library for the PETSC solver */
 
-/* Encore assez experimental... Aucune desallocation 
-   n'est effectuee. */
-/* Mais si, mais si */
 #include "LinAlg.h"
 #include "Message.h"
 
@@ -37,8 +34,6 @@ void gInitializeSolver(int* argc, char*** argv, int *NbrCpu, int *RankCpu){
 /* Finalize */
 
 void gFinalize(void){
-  /* a retester --geuz*/
-
   int flag;
   MPI_Initialized(&flag);
   if(flag) MPI_Finalize();
@@ -169,27 +164,20 @@ void gScanScalar(FILE *file, gScalar *S){
 #endif
 }
 void gScanVector(FILE *file, gVector *V) {
-#if PETSC_USE_COMPLEX
   int i, n ;
   Scalar tmp ;
   double a, b ;  
   ierr = VecGetSize(V->V, &n); CHKERRA(ierr);
   for(i=0 ; i<n ; i++){
+#if PETSC_USE_COMPLEX
     fscanf(file, "%lf %lf", &a, &b) ;
     tmp = a + PETSC_i * b ;
-    ierr = VecSetValues(V->V, 1, &i, &tmp, INSERT_VALUES); CHKERRA(ierr);
-  }
 #else
-  int i, n ;
-  Scalar tmp ;
-  double a ;
-  ierr = VecGetSize(V->V, &n); CHKERRA(ierr);
-  for(i=0 ; i<n ; i++){
     fscanf(file, "%lf", &a) ;
     tmp = a ;
+#endif
     ierr = VecSetValues(V->V, 1, &i, &tmp, INSERT_VALUES); CHKERRA(ierr);
   }
-#endif
 }
 void gScanMatrix(FILE *file, gMatrix *M){
   Msg(ERROR, "'gScanMatrix' not Implemented (yet)");  
@@ -218,37 +206,6 @@ void gPrintScalar(FILE *file, gScalar *S){
   fprintf(file, "%.16g", S->s) ;
 #endif
 }
-
-
-/* 
-void gPrintVector(FILE *file, gVector *V){
-  int    i, n ;
-  Vec    seqvec;
-  IS     is;
-  VecScatter ctx;
-  Scalar *tmp ;
-  
-  ierr = VecGetSize(V->V, &n); CHKERRA(ierr);
-  ierr = VecCreateSeq(PETSC_COMM_SELF,n,&seqvec); 
-  ierr = ISCreateStride(PETSC_COMM_SELF,n,0,1,&is); CHKERRA(ierr);
-  ierr = VecScatterCreate(V->V,is,seqvec,is,&ctx); CHKERRA(ierr);
-  ierr = VecScatterBegin(V->V,seqvec,INSERT_VALUES,SCATTER_FORWARD,ctx); CHKERRA(ierr);
-  ierr = VecScatterEnd(V->V,seqvec,INSERT_VALUES,SCATTER_FORWARD,ctx); CHKERRA(ierr);
-  ierr = VecGetArray(seqvec, &tmp); CHKERRA(ierr);
-  
-  for (i=0 ; i<n ; i++){
-#if PETSC_USE_COMPLEX
-    ierr = PetscFPrintf(PETSC_COMM_WORLD, file, "%.16g %.16g\n", 
-			real(tmp[i]), imag(tmp[i])) ; CHKERRA(ierr);
-#else
-    ierr = PetscFPrintf(PETSC_COMM_WORLD, file, "%.16g\n", tmp[i]) ; CHKERRA(ierr);
-#endif
-  }
-  ierr = VecRestoreArray(seqvec, &tmp); CHKERRA(ierr);
-  ierr = VecDestroy(seqvec); CHKERRA(ierr);
-} 
-*/
-
 void gPrintVector(FILE *file, gVector *V){
   Scalar *tmp ;
   int     i, n ;
@@ -265,7 +222,6 @@ void gPrintVector(FILE *file, gVector *V){
   }
   fflush(file) ;
 } 
-
 void gPrintMatrix(FILE *file, gMatrix *M){
   Msg(ERROR, "'gPrintMatrix' not Implemented (yet)");  
 }
@@ -279,7 +235,7 @@ void gWriteVector(FILE *file, gVector *V){
   Scalar *tmp ;
   int n ;
 
-  ierr = VecGetSize(V->V, &n); CHKERRA(ierr);
+  ierr = VecGetLocalSize(V->V, &n); CHKERRA(ierr);
   ierr = VecGetArray(V->V, &tmp); CHKERRA(ierr);
   fwrite(tmp, sizeof(Scalar), n, file);
   fprintf(file, "\n");
