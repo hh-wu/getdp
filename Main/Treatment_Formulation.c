@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.10 2001-11-09 09:46:51 dular Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.11 2002-01-18 11:10:27 gyselinc Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -67,6 +67,9 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 
   List_T  * InitialListInIndex_L ;
   int     Nbr_Region, i_Region, Num_Region ;
+
+  extern struct Group * Generate_Group ;
+  extern double ** MH_Moving_Matrix ;
 
   GetDP_Begin("Treatment_FemFormulation");
 
@@ -183,6 +186,17 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
   Nbr_Element = Geo_GetNbrGeoElements() ;
 
   for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
+
+    if (Generate_Group) {
+      Element.Region = Geo_GetGeoElement(i_Element)->Region ;
+      while (i_Element < Nbr_Element && 
+	     !List_Search(Generate_Group->InitialList, 
+			  &Element.Region, fcmp_int) ) {
+	i_Element++ ;
+	if (i_Element < Nbr_Element) Element.Region = Geo_GetGeoElement(i_Element)->Region ;
+      }
+      if (i_Element == Nbr_Element) break ;
+    }
 
     Progress(i_Element, Nbr_Element, "") ;
 
@@ -322,6 +336,11 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 
   }  /* for i_Element ... */
 
+
+  if (MH_Moving_Matrix) {
+    List_Delete(FemLocalTermActive_L) ;  List_Delete(QuantityStorage_L) ;
+    GetDP_End ;
+  }
 
 
   /* ------------------------------------------------------ */

@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Laplace.c,v 1.5 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: GF_Laplace.c,v 1.6 2002-01-18 11:10:27 gyselinc Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -24,10 +24,11 @@ extern int Flag_RemoveSingularity ;
 
 void  GF_Laplace (F_ARG) {
   double d ;
+  int k ;
 
   GetDP_Begin("GF_Laplace");
 
-  if (Current.NbrHar != 1) Msg(ERROR, "Wrong Number of Harmonics in 'GF_Laplace'");
+  // if (Current.NbrHar != 1) Msg(ERROR, "Wrong Number of Harmonics in 'GF_Laplace'");
 
   switch((int)Fct->Para[0]){
 
@@ -59,6 +60,7 @@ void  GF_Laplace (F_ARG) {
   }
 
   V->Type = SCALAR ;
+  //for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ;
 
   GetDP_End ;
 }
@@ -72,6 +74,7 @@ void  GF_Laplace (F_ARG) {
 void GF_GradLaplace (F_ARG) {
 
   double xxs, yys, zzs, r ;
+  int k ;
 
   GetDP_Begin("GF_GradLaplace");
 
@@ -101,7 +104,13 @@ void GF_GradLaplace (F_ARG) {
   }
 
   V->Type = VECTOR ;
-
+  /*
+  for (k=2 ; k<Current.NbrHar ; k+=2) {
+    V->Val[k*MAX_DIM+0] = V->Val[0] ;
+    V->Val[k*MAX_DIM+1] = V->Val[1] ;
+    V->Val[k*MAX_DIM+2] = V->Val[2] ;
+  }
+  */
   GetDP_End ;
 }
 
@@ -113,6 +122,7 @@ void GF_GradLaplace (F_ARG) {
 void GF_NPxGradLaplace (F_ARG) {
 
   double x1x0, x2x0, y1y0, y2y0, z1z0, z2z0, xxs, yys, zzs, a, b, c ;
+  int k ;
 
   GetDP_Begin("GF_NPxGradLaplace");
 
@@ -154,6 +164,8 @@ void GF_NPxGradLaplace (F_ARG) {
     break;
   }
 
+  //for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ;
+
   GetDP_End ;
 }
 
@@ -166,6 +178,7 @@ void GF_NPxGradLaplace (F_ARG) {
 void GF_NSxGradLaplace (F_ARG) {
 
   double x1x0, x2x0, y1y0, y2y0, z1z0, z2z0, xxs, yys, zzs, a, b, c ;
+  int k ;
 
   GetDP_Begin("GF_NSxGradLaplace");
 
@@ -206,6 +219,8 @@ void GF_NSxGradLaplace (F_ARG) {
     Msg(ERROR, "Bad Parameter for 'GF_NSxGradLaplace' (%d)", (int)Fct->Para[0]);
     break;
   }
+
+  // for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ;
 
   GetDP_End ;
 }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.33 2002-01-03 10:22:38 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.34 2002-01-18 11:10:27 gyselinc Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -30,16 +30,23 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   int                    i, Order ;
   char                   FileName[MAX_FILE_NAME_LENGTH];
 
+  char  NameApp[100] ;
+  extern int Flag_Pos_TimeLoop ;
+
   GetDP_Begin("Pos_Formulation");
 
+  if (Flag_Pos_TimeLoop) sprintf(NameApp, "_%.0f.pos", (double)Current.TimeStep) ;
+ 
   if (PostSubOperation_P->FileOut){
     if(PostSubOperation_P->FileOut[0] == '/' || 
        PostSubOperation_P->FileOut[0] == '\\'){
       strcpy(FileName, PostSubOperation_P->FileOut);
+      if (Flag_Pos_TimeLoop) strcat(FileName, NameApp);
     }
     else{
       strcpy(FileName, Name_Path);
       strcat(FileName, PostSubOperation_P->FileOut);
+      if (Flag_Pos_TimeLoop) strcat(FileName, NameApp);
     }
     if (!PostSubOperation_P->CatFile) {
       if((PostStream = fopen(FileName, "w")))
@@ -58,7 +65,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     PostStream = stdout ;
   }
 
-  if (PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n") ;
+  if (PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n\n") ;
+/*  two blanks lines for -index in gnuplot  */
 
   Format_PostFormat(PostSubOperation_P->Format) ;
 

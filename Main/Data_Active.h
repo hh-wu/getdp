@@ -1,4 +1,4 @@
-/* $Id: Data_Active.h,v 1.8 2001-10-24 16:00:48 dular Exp $ */
+/* $Id: Data_Active.h,v 1.9 2002-01-18 11:10:27 gyselinc Exp $ */
 #ifndef _DATA_ACTIVE_H_
 #define _DATA_ACTIVE_H_
 
@@ -63,6 +63,12 @@ struct FemLocalTermActive {
   void   (*Function_AssembleTerm)();
 
   struct IntegralQuantityActive  IntegralQuantityActive ;
+
+
+  int MHJacNL, MHJacNL_Index, MHJacNL_NbrPointsX, MHJacNL_HarOffSet;
+  double MHJacNL_Factor;
+  double **MHJacNL_H, ***MHJacNL_HH, *MHJacNL_t, *MHJacNL_w;
+
 } ;
 
 

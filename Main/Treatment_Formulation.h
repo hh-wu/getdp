@@ -1,4 +1,4 @@
-/* $Id: Treatment_Formulation.h,v 1.8 2001-05-18 12:26:27 dular Exp $ */
+/* $Id: Treatment_Formulation.h,v 1.9 2002-01-18 11:10:27 gyselinc Exp $ */
 #ifndef _TREATMENT_FORMULATION_H_
 #define _TREATMENT_FORMULATION_H_
 
@@ -120,6 +120,8 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 		      struct PostProcessing * PostProcessing_P);
 
 /*---------------------------------------------------------------------*/
+
+void  Cal_AssembleTerm_MH_Moving(struct Dof * Equ, struct Dof * Dof, double Val[]) ;
 
 void  Cal_AssembleTerm_NoDt   (struct Dof * Equ, struct Dof * Dof, double Val[]) ;
 void  Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[]) ;

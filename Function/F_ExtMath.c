@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_ExtMath.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: F_ExtMath.c,v 1.6 2002-01-18 11:10:26 gyselinc Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -347,6 +347,30 @@ void  F_Sin_wt_p (F_ARG) {
     Msg(ERROR,"Too many harmonics for function 'Sin_wt_p'") ; 
   }
   V->Type = SCALAR ;
+
+  GetDP_End ;
+}
+
+
+void  F_Complex_MH (F_ARG) {
+  int NbrFreq, NbrComp, i ;
+  struct Value R;
+
+  GetDP_Begin("F_Complex_MH");
+
+  if (Current.NbrHar != 1)      /* parameters are not used */
+    F_Complex (Fct,A,V) ;
+  else {
+    NbrFreq = Fct->NbrParameters ;
+    NbrComp = Fct->NbrArguments ;
+    R.Type = A->Type ;
+    Cal_ZeroValue(&R);
+    for (i=0 ; i<MIN(NbrFreq,NbrComp/2) ; i++) {
+      Cal_AddMultValue (&R, A+2*i,    cos(TWO_PI*Fct->Para[i]*Current.Time), &R) ;
+      Cal_AddMultValue (&R, A+2*i+1, -sin(TWO_PI*Fct->Para[i]*Current.Time), &R) ;
+    }
+  }
+  Cal_CopyValue(&R,V);
 
   GetDP_End ;
 }

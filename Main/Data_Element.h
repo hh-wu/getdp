@@ -1,4 +1,4 @@
-/* $Id: Data_Element.h,v 1.6 2000-12-08 12:04:13 dular Exp $ */
+/* $Id: Data_Element.h,v 1.7 2002-01-18 11:10:27 gyselinc Exp $ */
 #ifndef _DATA_ELEMENT_H_
 #define _DATA_ELEMENT_H_
 
@@ -12,7 +12,7 @@
 
 #define NBR_MAX_BASISFUNCTIONS         60
 
-#define MAX_STACK_SIZE                 30
+#define MAX_STACK_SIZE                 40
 
 /* ------------------------------------------------------------------------ */
 /*  E l e m e n t                                                           */

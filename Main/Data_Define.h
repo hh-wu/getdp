@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.31 2001-08-26 12:13:14 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.32 2002-01-18 11:10:27 gyselinc Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -50,6 +50,7 @@ struct StringXDefine  FunctionForGroup_Type[] = {
   {"BoundaryOfDualNodesOf"    , BOUNDARYOFDUALNODESOF},
   {"BoundaryOfDualEdgesOf"    , BOUNDARYOFDUALEDGESOF},
   {"BoundaryOfDualFacetsOf"   , BOUNDARYOFDUALFACETSOF},
+  {"MovingBand2D"             , MOVINGBAND2D},
   {NULL                       , 0} 
 } ;
 
@@ -187,18 +188,20 @@ struct StringXDefine  DefineSystem_Type[] = {
 } ;
 
 struct StringXDefine  Operation_Type[] = {
-  {"Generate"             , OPERATION_GENERATE},
-  {"Solve"                , OPERATION_SOLVE},
-  {"GenerateJac"          , OPERATION_GENERATEJAC},
-  {"SolveJac"             , OPERATION_SOLVEJAC},
-  {"GenerateSeparate"     , OPERATION_GENERATESEPARATE},
-  {"InitSolution"         , OPERATION_INITSOLUTION},
-  {"SaveSolution"         , OPERATION_SAVESOLUTION},
-  {"SaveSolutions"        , OPERATION_SAVESOLUTIONS},
-  {"ReadSolution"         , OPERATION_READSOLUTION},
-  {"TransferSolution"     , OPERATION_TRANSFERSOLUTION},
-  {"TransferInitSolution" , OPERATION_TRANSFERINITSOLUTION},
-  {NULL                   , OPERATION_NONE}
+  {"Generate"               , OPERATION_GENERATE},
+  {"Solve"                  , OPERATION_SOLVE},
+  {"GenerateJac"            , OPERATION_GENERATEJAC},
+  {"SolveJac"               , OPERATION_SOLVEJAC},
+  {"GenerateSeparate"       , OPERATION_GENERATESEPARATE},
+  {"InitSolution"           , OPERATION_INITSOLUTION},
+  {"SaveSolution"           , OPERATION_SAVESOLUTION},
+  {"SaveSolutions"          , OPERATION_SAVESOLUTIONS},
+  {"ReadSolution"           , OPERATION_READSOLUTION},
+  {"TransferSolution"       , OPERATION_TRANSFERSOLUTION},
+  {"TransferInitSolution"   , OPERATION_TRANSFERINITSOLUTION},
+  {"SolveJac_AdaptRelax"    , OPERATION_SOLVEJACADAPTRELAX}, 
+  {"SaveSolutionExtendedMH" , OPERATION_SAVESOLUTIONEXTENDEDMH},
+  {NULL                     , OPERATION_NONE}
 } ;
 
 struct StringXDefine  ChangeOfState_Type[] = {

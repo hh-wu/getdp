@@ -1,4 +1,4 @@
-/* $Id: Data_Function.h,v 1.16 2001-11-22 15:38:36 ledinh Exp $ */
+/* $Id: Data_Function.h,v 1.17 2002-01-18 11:10:26 gyselinc Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 
@@ -460,6 +460,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   /* F_Type */
 
   {"Complex"           , (CAST)F_Complex          ,   0,  -2 },
+  {"Complex_MH"        , (CAST)F_Complex_MH       ,  -1,  -2 },
   {"Re"                , (CAST)F_Re               ,   0,   1 },
   {"Im"                , (CAST)F_Im               ,   0,   1 },
   {"Conj"              , (CAST)F_Conj             ,   0,   1 },
@@ -482,6 +483,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"CompZY"            , (CAST)F_CompZY           ,   0,   1 },
   {"CompZZ"            , (CAST)F_CompZZ           ,   0,   1 },
   {"Cart2Sph"          , (CAST)F_Cart2Sph         ,   0,   1 },
+  {"Cart2Cyl"          , (CAST)F_Cart2Cyl         ,   0,   1 },
   {"UnitVectorX"       , (CAST)F_UnitVectorX      ,   0,   0 },
   {"UnitVectorY"       , (CAST)F_UnitVectorY      ,   0,   0 },
   {"UnitVectorZ"       , (CAST)F_UnitVectorZ      ,   0,   0 },
@@ -521,8 +523,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
 
   /* F_MultiHar */
 
-  {"MHToTime"          , (CAST)F_MHToTime         ,   0,   1 },
-  /* {"MHTimeIntegration" , (CAST)F_MHTimeIntegration,   0,   1 }, */
+  {"MHToTime"          , (CAST)F_MHToTime         ,   0,   2 },
+  //{"MHToTime2"         , (CAST)F_MHToTime2        ,   0,   2 },
+
 
 
   /* F_Analytic */

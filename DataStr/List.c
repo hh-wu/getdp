@@ -1,4 +1,4 @@
-#define RCSID "$Id: List.c,v 1.11 2001-11-05 13:03:41 geuzaine Exp $"
+#define RCSID "$Id: List.c,v 1.12 2002-01-18 11:10:26 gyselinc Exp $"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -130,8 +130,9 @@ void List_Pop(List_T *liste)
 
 void *List_Pointer(List_T *liste, int index)
 {
+  int d =0;
   if ((index < 0) || (index >= liste->n))
-    Msg(ERROR, "Wrong list index (pointer)");
+    Msg(ERROR, "Wrong list index (pointer) %d", 1/d);
 
   liste->isorder = 0; /* getdp: a examiner... */
   return(&liste->array[index * liste->size]);

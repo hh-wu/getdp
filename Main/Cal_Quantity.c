@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.15 2001-07-21 19:52:39 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.16 2002-01-18 11:10:27 gyselinc Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -470,20 +470,18 @@ void Cal_WholeQuantity(struct Element * Element,
       Index++ ;  
       break ;
 
-    case WQ_MHTIMEINTEGRATION :
-      if (Current.NbrHar == 1)
-	Msg(ERROR, "MHTimeIntegration only valid in frequency domain") ;
+    case WQ_MHTRANSFORM :
+      if(Current.NbrHar == 1)
+	Msg(ERROR, 
+	    "MHTransform can only be used in complex (multi-harmonic) calculations") ;
 
-      Cal_WholeQuantity(Element, QuantityStorage_P0,
-			WholeQuantity_P->Case.MHTimeIntegration.WholeQuantityInit,
-			u, v, w, -1, 0, &Stack[0][Index]) ;
+      Cal_WholeQuantity(Element, QuantityStorage_P0, 
+			WholeQuantity_P->Case.MHTransform.WholeQuantity, 
+			u, v, w, -1, 0, &Stack[0][Index]) ; 
 
-      Fi_MHTimeIntegration(WholeQuantity_P->Case.MHTimeIntegration.Type,
-			   WholeQuantity_P->Case.MHTimeIntegration.NbrTimePoint,
-			   WholeQuantity_P->Case.MHTimeIntegration.WholeQuantity,
-			   Element, QuantityStorage_P0,
-			   u, v, w, &Stack[0][Index]) ;
-
+      MHTransform(Element, QuantityStorage_P0, u, v, w, &Stack[0][Index],
+		  Problem_Expression0 + WholeQuantity_P->Case.MHTransform.Index,
+		  WholeQuantity_P->Case.MHTransform.NbrPoints) ;
       Multi[Index] = 0 ;
       Index++ ;  
       break ;
@@ -494,7 +492,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
       Save_NbrHar = Current.NbrHar ;
       Save_DofData = Current.DofData ;
-
+         
       if (!WholeQuantity_P->Case.Cast.NbrHar){
 	Current.DofData = 	
 	  ((struct FunctionSpace *)
@@ -511,16 +509,10 @@ void Cal_WholeQuantity(struct Element * Element,
       Cal_WholeQuantity(Element, QuantityStorage_P0,
 			WholeQuantity_P->Case.Cast.WholeQuantity,
 			u, v, w, -1, 0, &Stack[0][Index]) ;
-      if (Current.NbrHar == 1 && Save_NbrHar > 1) {  /* a completer ... */
-	if (Stack[0][Index].Type == SCALAR) {
-	  Stack[0][Index].Val[MAX_DIM  ] =  0. ;
-	}
-	else {
-	  Stack[0][Index].Val[MAX_DIM  ] =  0. ;
-	  Stack[0][Index].Val[MAX_DIM+1] =  0. ;
-	  Stack[0][Index].Val[MAX_DIM+2] =  0. ;
-	}
-      }
+
+       if (Current.NbrHar < Save_NbrHar)  /* ne plus a completer ...?? */
+      	Cal_SetZeroHarmonicValue(&Stack[0][Index], Save_NbrHar) ;
+
       Current.NbrHar = Save_NbrHar ;
       Current.DofData = Save_DofData ;
       Multi[Index] = 0 ;
@@ -529,14 +521,24 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_SAVEVALUE :
       if(WholeQuantity_P->Case.SaveValue.Index > MAX_REGISTER_SIZE-1)
-	Msg(ERROR, "Register size exceeded (%d)", MAX_REGISTER_SIZE);
-      if (WholeQuantity_P->Case.SaveValue.Index >= 0)
-	Cal_CopyValue(&Stack[0][Index-1], 
-		      ValueSaved + WholeQuantity_P->Case.SaveValue.Index) ;
-      else  /* Attention: bricolage */
-	fprintf(stderr, "#0: %.16g %.16g %.16g\n", Stack[0][Index-1].Val[0],
-		Stack[0][Index-1].Val[1], Stack[0][Index-1].Val[2]) ;
+	Msg(ERROR, "Register Size Exceeded (%d)", MAX_REGISTER_SIZE);
+      //     if (WholeQuantity_P->Case.SaveValue.Index >= 0)
+      Cal_CopyValue(&Stack[0][Index-1], 
+		    ValueSaved + WholeQuantity_P->Case.SaveValue.Index) ;
       break ;
+
+   case WQ_SHOWVALUE :
+     if (Index-1 == DofIndex) {
+       for(j=0 ; j<Nbr_Dof ; j++){
+	 fprintf(stderr, "##%d Dof %d ", WholeQuantity_P->Case.ShowValue.Index, j+1);
+	 Show_Value(&DofValue[j]);
+      }
+     } else {
+       fprintf(stderr, "##%d ", WholeQuantity_P->Case.ShowValue.Index);
+       Show_Value(&Stack[0][Index-1]);
+     }
+     break ;
+
 
     case WQ_VALUESAVED :
       if(WholeQuantity_P->Case.ValueSaved.Index > MAX_REGISTER_SIZE-1)
@@ -579,4 +581,5 @@ struct WholeQuantity* Purify_WholeQuantity(List_T * WQ_L) {
   GetDP_End ;
 }
 */
+
 

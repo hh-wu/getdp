@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.10 2001-11-22 15:38:36 ledinh Exp $ */
+/* $Id: F_Function.h,v 1.11 2002-01-18 11:10:26 gyselinc Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -57,6 +57,7 @@ void  F_Interval        (F_ARG) ;
 /* F_Type */
 
 void  F_Complex         (F_ARG) ;
+void  F_Complex_MH      (F_ARG) ;
 void  F_Re              (F_ARG) ;
 void  F_Im              (F_ARG) ;
 void  F_Conj            (F_ARG) ;
@@ -79,6 +80,7 @@ void  F_CompZX          (F_ARG) ;
 void  F_CompZY          (F_ARG) ;
 void  F_CompZZ          (F_ARG) ;
 void  F_Cart2Sph        (F_ARG) ;
+void  F_Cart2Cyl        (F_ARG) ;
 void  F_UnitVectorX     (F_ARG) ;
 void  F_UnitVectorY     (F_ARG) ;
 void  F_UnitVectorZ     (F_ARG) ;
@@ -121,14 +123,16 @@ void  F_TransformPiezoT (F_ARG) ;  /* pour Tuan */
 /* F_MultiHar */
 
 void  F_MHToTime           (F_ARG) ;
+//void  F_MHToTime2          (F_ARG) ;
 
 void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
-			   List_T * WholeQuantity_L,
+			   List_T * WholeQuantity_L, int FreqOffSet,
 			   struct Element * Element,
 			   struct QuantityStorage * QuantityStorage_P0,
 			   double u, double v, double w,
 			   struct Value *ValueOut) ;
-void  F_MHToTime0 (F_ARG, int iTime, int NbrTimePoint, double * TimeMH) ;
+void  F_MHToTime0 (int init, struct Value * A, struct Value * V, 
+		   int iTime, int NbrTimePoint, double * TimeMH) ;
 
 
 #undef F_ARG

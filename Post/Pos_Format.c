@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.27 2001-11-01 09:54:20 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.28 2002-01-18 11:10:27 gyselinc Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -227,7 +227,7 @@ void  Format_GmshParsed(int TimeStep, int NbTimeStep, int NbHarmonic,
 			int HarmonicToTime, int Type, int NbrNodes, 
 			double *x, double *y, double *z, struct Value *Value){
   int     i,j,k;
-  double      TimeMH ;
+  double  TimeMH ;
   struct Value  TmpValue ;
 
   GetDP_Begin("Format_GmshParsed");
@@ -264,7 +264,7 @@ void  Format_GmshParsed(int TimeStep, int NbTimeStep, int NbHarmonic,
 	if(k || TimeStep) fprintf(PostStream, ",");
 	for(i = 0 ; i < NbrNodes ; i++){
 	  if(i) fprintf(PostStream, ",");
-	  F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	  F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	  fprintf(PostStream, "%.8g", TmpValue.Val[0]);
 	}
       }
@@ -308,7 +308,7 @@ void  Format_GmshParsed(int TimeStep, int NbTimeStep, int NbHarmonic,
 	if(k || TimeStep) fprintf(PostStream, ",");
 	for(i = 0 ; i < NbrNodes ; i++){
 	  if(i) fprintf(PostStream, ",");
-	  F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	  F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	  for(j = 0 ; j < 3 ; j++){
 	    if(j) fprintf(PostStream, ",");
 	    fprintf(PostStream, "%.8g", TmpValue.Val[j]);
@@ -389,7 +389,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       for(k = 0 ; k < HarmonicToTime ; k++){
 	List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);	
 	for(i = 0 ; i < NbrNodes ; i++){
-	  F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	  F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	  List_Add(Current_L, &TmpValue.Val[0]);
 	}
       }
@@ -419,7 +419,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       for(k = 0 ; k < HarmonicToTime ; k++){
 	List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);
 	for(i = 0 ; i < NbrNodes ; i++){
-	  F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	  F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	  for(j = 0 ; j < 3 ; j++)
 	    List_Add(Current_L, &TmpValue.Val[j]);
 	}
@@ -549,7 +549,7 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 			   + k2*Size
 			   + j ] ;
 
-	    F_MHToTime0(NULL, &TmpValue, &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	    F_MHToTime0(k, &TmpValue, &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	    for(j = 0 ; j < Size ; j++)
 	      fprintf(PostStream, "%.8g", TmpValue.Val[0]);
 	    fprintf(PostStream, " ");
@@ -626,7 +626,7 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
   else {
     for(k = 0 ; k < HarmonicToTime ; k++){
       for(i = 0 ; i < NbrNodes ; i++){
-	F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	if (!i && Format == FORMAT_TIME_TABLE) {
 	  fprintf(PostStream, "%d %.8g ", TimeStep, TimeMH);
 	  for(i=0 ; i<NbrNodes ; i++)
@@ -829,7 +829,7 @@ void  Format_PostValue(int Format,
     else {
       for(k = 0 ; k < HarmonicToTime ; k++) {
 	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
-	  F_MHToTime0(NULL, &TmpValues[iRegion], &TmpValue, 
+	  F_MHToTime0(k+iRegion, &TmpValues[iRegion], &TmpValue, 
 		      k, HarmonicToTime, &TimeMH) ;
 	  if (iRegion == 0)  fprintf(PostStream, "%.8g ", TimeMH) ;
 	  for(j = 0 ; j < Size ; j++)

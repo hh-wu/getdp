@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.28 2002-01-03 10:22:38 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.29 2002-01-18 11:10:27 gyselinc Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -209,7 +209,21 @@ void  Print_Group(struct Problem  * Problem) {
       }
     }
 
-    Msg(CHECK, " ] ;  /* Num %d */\n", i) ;
+    Msg(CHECK, " ]") ;
+
+    if (GR->Type == MOVINGBAND2D) {
+      Msg(CHECK, "  = MovingBand2D [ {");
+
+      for (j = 0 ; j < List_Nbr(GR->MovingBand2D->InitialList1) ; j++)
+	Msg(CHECK, " %d", *((int *)List_Pointer(GR->MovingBand2D->InitialList1, j)) ) ;
+      Msg(CHECK, " } , {") ;
+      for (j = 0 ; j < List_Nbr(GR->MovingBand2D->InitialList2) ; j++)
+	Msg(CHECK, " %d", *((int *)List_Pointer(GR->MovingBand2D->InitialList2, j)) ) ;
+      Msg(CHECK, " } ]") ;
+
+    }
+
+    Msg(CHECK, " ;  /* Num %d */\n", i) ;
   }
 
   Msg(CHECK, "\n");

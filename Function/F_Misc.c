@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.10 2001-11-22 15:47:24 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.11 2002-01-18 11:10:26 gyselinc Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -177,12 +177,12 @@ void  F_CompElementNum (F_ARG) {
 void  F_SurfaceArea (F_ARG) {
 
   struct Element  Element ;
-  List_T  * InitialList_L ;
+  List_T  * InitialList_L;
 
   int     Index_Region, Nbr_Element, i_Element ;
   double  Val_Surface ;
   double  c11, c21, c12, c22, DetJac ;
-  int     i ;
+  int     i, k ;
 
   GetDP_Begin("F_SurfaceArea");
 
@@ -191,8 +191,16 @@ void  F_SurfaceArea (F_ARG) {
 
     if (Fct->NbrParameters == 1) {
       Index_Region = (int)(Fct->Para[0]) ;
+
+      InitialList_L = List_Create(1,1,sizeof(int));
+      List_Reset(InitialList_L);
+      List_Add(InitialList_L,&Index_Region);
+
+
+      /*
       InitialList_L = ((struct Group *)
 		       List_Pointer(Problem_S.Group, Index_Region))->InitialList ;
+      */
     }
     else {
       Index_Region = -1 ;
@@ -240,6 +248,10 @@ void  F_SurfaceArea (F_ARG) {
   V->Type = SCALAR ;
   V->Val[0] = Fct->Active->Case.SurfaceArea.Value ;
 
+  for (k = 2 ; k < Current.NbrHar ; k += 2) 
+    V->Val[MAX_DIM* k] = V->Val[0] ;
+
+
   GetDP_End ;
 }
 
@@ -275,11 +287,11 @@ void  F_InterpolationLinear (F_ARG) {
     yp =  y[up] + ( xp - x[up] ) * a ;
   }
 
-  if (Current.NbrHar == 1)
+  //  if (Current.NbrHar == 1)
     V->Val[0] = yp ;
-  else {
-    Msg(ERROR,"Function 'Interpolation' not valid for Complex");
-  }
+    //else {
+    //Msg(ERROR,"Function 'Interpolation' not valid for Complex");
+    // }
   V->Type = SCALAR ;
 
   GetDP_End ;
@@ -312,12 +324,12 @@ void  F_dInterpolationLinear (F_ARG) {
     dyp = (y[up] - y[lo]) / (x[up] - x[lo]) ;
   }
 
-  if (Current.NbrHar == 1)
+  // if (Current.NbrHar == 1)
     V->Val[0] = dyp ;
-  else {
-    Msg(ERROR,"Function 'Interpolation' not valid for Complex");
-  }
-  V->Type = SCALAR ;
+    // else {
+    // Msg(ERROR,"Function 'Interpolation' not valid for Complex");
+    //}
+    V->Type = SCALAR ;
 
   GetDP_End ;
 }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.53 2001-11-29 11:28:55 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.54 2002-01-18 11:10:27 gyselinc Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -145,14 +145,24 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   int       NbrTimeStep, iTime, iNode ;
   int       Store = 0, DecomposeInSimplex = 0, Depth ;
 
+  extern int Flag_Pos_TimeLoop ;
+
   GetDP_Begin("Pos_PrintOnElementsOf");
 
   /* Select the TimeSteps */
   
-  if( !(NbrTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
+  if(Flag_Pos_TimeLoop || !(NbrTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
     NbrTimeStep = List_Nbr(Current.DofData->Solutions);
-    for(iTime = 0 ; iTime < NbrTimeStep ; iTime++)
+    for(iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
+      if (Flag_Pos_TimeLoop) { 
+	iTime = NbrTimeStep - 1;
+	NbrTimeStep = 1;
+	//if(!List_Nbr(PostSubOperation_P->TimeStep_L))
+	  List_Reset(PostSubOperation_P->TimeStep_L);
+      }
       List_Add(PostSubOperation_P->TimeStep_L, &iTime);
+
+    }
   }
 
   /* Print the header */
@@ -380,7 +390,12 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	  Get_NodesCoordinatesOfElement(&Element) ;
 	  
 	  for (iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
+
+
+
 	    Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
+
+
 	    for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++){
 	      Current.x = PE->x[iNode] ;
 	      Current.y = PE->y[iNode] ;
@@ -1152,7 +1167,8 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	}
 	if(!Flag_BIN) fprintf(PostStream, "\n");
       }
-      if(!Flag_BIN) fprintf(PostStream, "\n");
+      if(!Flag_BIN) fprintf(PostStream, "\n\n");
+/*  two blanks lines for -index in gnuplot  */
     }
     break;
 
@@ -1182,7 +1198,8 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	  fprintf(PostStream, "\n");
       }
       if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1])>1 && !Flag_BIN) 
-	fprintf(PostStream, "\n");
+	fprintf(PostStream, "\n\n");
+/*  two blanks lines for -index in gnuplot  */
     }
     break;
   }

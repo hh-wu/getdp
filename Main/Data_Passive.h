@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.44 2001-11-22 13:59:20 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.45 2002-01-18 11:10:27 gyselinc Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -28,8 +28,11 @@
    versions, until we do dynamic allocation. Otherwise, some
    postprocessing operations become almost impossible to perform in
    3D... */
+
+#define _MULTIHAR 1
+
 #ifdef _MULTIHAR
-#define NBR_MAX_HARMONIC    10
+#define NBR_MAX_HARMONIC    40
 #else
 #define NBR_MAX_HARMONIC    2   
 #endif
@@ -54,16 +57,31 @@ struct Problem {
 /*  G r o u p                                                               */
 /* ------------------------------------------------------------------------ */
 
+
+
+
 struct Group {
   char    * Name ;
   int     Num,  Type, FunctionType, SuppListType ;
   List_T  * InitialList , * InitialSuppList ;
   List_T  * ExtendedList, * ExtendedSuppList ;
+  struct  MovingBand2D * MovingBand2D ; 
+} ;
+
+
+struct MovingBand2D {
+  List_T  * InitialList1, * ExtendedList1, * InitialList2, * ExtendedList2;
+  int NbrNodes1, *NumNodes1, NbrNodes2, *NumNodes2 ;
+  double *x1, *y1, *z1, *x2, *y2, *z2, Area;
+  int  Period2, ntr1, ntr2, Closed1, Closed2;
+  int PhysNum, StartNumTr, StartIndexTr ;
+  int *b1_p1, *b1_p2, *b1_p3, *b2_p1, *b2_p2, *b2_p3;
 } ;
 
 /* Group.Type */
 #define REGIONLIST   1
 #define ELEMENTLIST  2
+#define MOVINGBAND2D 3
 
 /* Group.FunctionType */
 #define REGION                     1
@@ -92,6 +110,8 @@ struct Group {
 #define BOUNDARYOFDUALNODESOF     40
 #define BOUNDARYOFDUALEDGESOF     41
 #define BOUNDARYOFDUALFACETSOF    42
+
+
 
 /* Group.SuppListType */
 #define SUPPLIST_NONE              0
@@ -583,14 +603,16 @@ struct WholeQuantity {
     struct { int  Index ; }                                       Argument ;
     struct { List_T *WholeQuantity_True, *WholeQuantity_False ; } Test ;
     struct { int  Index ; }                                       SaveValue ;
+    struct { int  Index ; }                                       ShowValue ;
     struct { int  Index ; }                                       ValueSaved ;
     struct { int  TypeOperator ; void  (*Function)() ; }          Operator ; /* binary or unary */
     struct { List_T *WholeQuantity ; 
              int FunctionSpaceIndexForType, NbrHar ; }            Cast ;
     struct { List_T *WholeQuantity ; 
              int InIndex, DofIndexInWholeQuantity ; }             Trace ;
-    struct { List_T *WholeQuantity, *WholeQuantityInit ; 
-             int Type, NbrTimePoint ; }                           MHTimeIntegration ;
+    struct { List_T *WholeQuantity ; 
+             int Index, NbrPoints ; }                             MHTransform ;
+    struct { int Index, NbrPoints, FreqOffSet ; }                 MHJacNL ;
   } Case ;
 
 } ;
@@ -616,6 +638,10 @@ struct WholeQuantity {
 #define WQ_TRACE                   17
 #define WQ_ORDER                   18
 #define WQ_MHTIMEINTEGRATION       19
+#define WQ_MHTRANSFORM             199
+#define WQ_SHOWVALUE               20
+#define WQ_MHTIMEEVAL              211
+#define WQ_MHJACNL                 212
 
 /* TypeOperator */
 #define OP_PLUS           1
@@ -690,6 +716,11 @@ struct Operation {
       int     DefineSystemIndex[2] ; 
     } FourierTransform ;
     struct {
+      int     DefineSystemIndex[2] ;
+      double Period, Period_sofar ;
+      double * Scales;
+    } FourierTransform2 ;
+    struct {
       int     Size ; 
       List_T  * Save ;
       double  Shift ; 
@@ -734,8 +765,39 @@ struct Operation {
       int     GroupIndex, ExpressionIndex ;
     } ChangeOfCoordinates ;
     struct {
+      int    CheckAll ;
+      List_T * Factor_L ;
+    }SolveJac_AdaptRelax ;
+    struct {
+      int NbrFreq;
+      char    * ResFile ;
+    }SaveSolutionExtendedMH ;
+    struct {
       List_T *PostOperations ;
     } PostOperation ;
+    struct {
+      int     GroupIndex ;
+    } Init_MovingBand2D ;
+    struct {
+      int     GroupIndex ;
+    } Mesh_MovingBand2D ;
+    struct {
+      int     GroupIndex ;
+      double  Period ;
+      int     NbrStep ;
+      List_T  * Operation ;
+    } Generate_MH_Moving ;
+    struct {
+      int     GroupIndex ;
+    } Generate ;
+    struct {
+      int     GroupIndex ;
+      char    * MeshFileBase ;
+      char    * Format ;
+      int     ExprIndex ;
+    } SaveMesh ;
+
+
   } Case ;
 
 } ;
@@ -757,6 +819,7 @@ struct ChangeOfState {
 #define OPERATION_SOLVE                     2
 #define OPERATION_GENERATEJAC               3
 #define OPERATION_SOLVEJAC                  4
+#define OPERATION_SOLVEJACADAPTRELAX        888
 #define OPERATION_GENERATESEPARATE          5
 #define OPERATION_UPDATE                    6
 #define OPERATION_UPDATECONSTRAINT          7
@@ -765,6 +828,13 @@ struct ChangeOfState {
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11
+#define OPERATION_SAVESOLUTIONEXTENDEDMH  111
+#define OPERATION_INIT_MOVINGBAND2D       444
+#define OPERATION_MESH_MOVINGBAND2D       222
+#define OPERATION_GENERATE_MH_MOVING      999
+
+
+#define OPERATION_SAVEMESH                333
 #define OPERATION_READSOLUTION             12
 #define OPERATION_TRANSFERSOLUTION         13
 #define OPERATION_TRANSFERINITSOLUTION     14
@@ -774,6 +844,7 @@ struct ChangeOfState {
 #define OPERATION_SETFREQUENCY             21
 #define OPERATION_TEST                     22
 #define OPERATION_FOURIERTRANSFORM         23
+#define OPERATION_FOURIERTRANSFORM2       777
 #define OPERATION_BREAK                    24
 #define OPERATION_PRINT                    25
 #define OPERATION_WRITE                    26

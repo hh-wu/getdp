@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.31 2001-11-22 13:59:20 dular Exp $ */
+/* $Id: GetDP.y,v 1.32 2002-01-18 11:10:27 gyselinc Exp $ */
 
 /*
   Modifs a faire
@@ -215,14 +215,15 @@ struct PostSubOperation         PostSubOperation_S ;
 %token  tEND tDOTS
 %token  tStrCat
 %token  tInclude
-%token  tConstant tList tListAlt
+%token  tConstant tList tListAlt tLinSpace tLogSpace
 %token  tDefineConstant  tPi  t0D  t1D  t2D  t3D 
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil
 %token    tFmod tModulo tHypot 
-%token    tSolidAngle tTrace tOrder tCrossProduct tMHTimeIntegration
+%token    tSolidAngle tTrace tOrder tCrossProduct
+%token    tMHTransform tMHJacNL
 
-%token  tGroup tDefineGroup tAll tInSupport
+%token  tGroup tDefineGroup tAll tInSupport tMovingBand2D
 
 %token  tDefineFunction
 
@@ -262,8 +263,9 @@ struct PostSubOperation         PostSubOperation_S ;
 %token      tNameOfFormulation  tNameOfMesh  tFrequency  tSolver
 %token      tOriginSystem  tDestinationSystem 
 %token    tOperation  tOperationEnd
-%token      tSetTime tDTime tSetFrequency tFourierTransform tIf tElse
+%token      tSetTime tDTime tSetFrequency tFourierTransform tFourierTransformJ tIf tElse
 %token      tLanczos tPerturbation tUpdate tUpdateConstraint tBreak 
+
 %token      tTimeLoopTheta
 %token        tTime0  tTimeMax  tDTime  tTheta
 %token      tTimeLoopNewmark
@@ -273,6 +275,12 @@ struct PostSubOperation         PostSubOperation_S ;
 %token      tIterativeTimeReduction
 %token        tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tSystemCommand
+%token      tSolveJac_AdaptRelax 
+%token      tSaveSolutionExtendedMH
+%token      tInit_MovingBand2D tMesh_MovingBand2D tGenerate_MH_Moving 
+%token      tGenerateGroup tGenerateJacGroup
+%token      tSaveMesh
+
 
 %token  tPostProcessing
 %token      tNameOfSystem
@@ -309,7 +317,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %right   '!' UNARYPREC
 %right   '^'
 %left    '(' ')' '[' ']' '.'
-%left    '#' '$'
+%left    '#' '$' tSHOW
 /* ------------------------------------------------------------------ */
 
 %start Stats
@@ -514,9 +522,38 @@ Group :
 
   | tDefineGroup '[' DefineGroups ']' tEND
 
+  | MovingBand2DGroup 
+
   | Affectation
+  
   ;
 
+
+MovingBand2DGroup :
+
+  tSTRING '[' tINT ']' tDEF tMovingBand2D
+    { 
+      Group_S.InitialList = List_Create( 1, 1, sizeof(int)) ;
+      List_Add(Group_S.InitialList, &($3)) ;
+      Group_S.Type         = MOVINGBAND2D ;  
+      Group_S.FunctionType = REGION ;
+      Group_S.InitialSuppList = NULL ;
+      Group_S.SuppListType = SUPPLIST_NONE ;
+    }
+    '[' '#' ListOfRegion 
+    {
+      Group_S.MovingBand2D = (struct MovingBand2D *)Malloc(sizeof(struct MovingBand2D)) ;
+      Group_S.MovingBand2D->InitialList1 = $10 ; 
+      Group_S.MovingBand2D->ExtendedList1 = NULL ; 
+      Group_S.MovingBand2D->PhysNum = $3 ; 
+    }
+    ',' '#' ListOfRegion ',' FExpr ']' tEND
+    {
+      Group_S.MovingBand2D->InitialList2 = $14 ; 
+      Add_Group(&Group_S, $1, 0, 0) ;
+      Group_S.MovingBand2D->Period2 = (int)$16 ; 
+    } 
+  ;
 
 ReducedGroupRHS :
 
@@ -791,6 +828,9 @@ IRegion :
     { Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; List_Add($$ = ListOfInt_L, &($1)) ; }
 
+  | '@' RecursiveListOfFExpr '@'
+    { Flag_MultipleIndex = 0 ;
+      List_Reset(ListOfInt_L) ; j = (int)$2 ; List_Add($$ = ListOfInt_L, &j) ; }
   | tINT tDOTS FExpr
     { 
       Flag_MultipleIndex = 0 ;
@@ -1296,8 +1336,9 @@ WholeQuantity_Single :
 	      WholeQuantity_S.Type = WQ_BUILTINFUNCTION ;
 	    }
 	    else if (WholeQuantity_S.Case.Function.NbrArguments == -1  ||
-		     (WholeQuantity_S.Case.Function.NbrArguments == -2 &&
-		      ($2)%2 == 0)) {
+		     (WholeQuantity_S.Case.Function.NbrArguments == -2 )) { 
+		      // &&
+		      //   ($2)%2 == 0)) {
 	      WholeQuantity_S.Type = WQ_BUILTINFUNCTION ;
 	      WholeQuantity_S.Case.Function.NbrArguments = $2 ;
 	    }
@@ -1410,22 +1451,32 @@ WholeQuantity_Single :
 	vyyerror("Dof{} definition out of context") ;
     }
 
-  | tMHTimeIntegration
-    { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity ; }
-    '[' tINT ',' FExpr ',' WholeQuantityExpression ',' WholeQuantityExpression ']'
+  | tMHTransform '[' tSTRING '['  
+    { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity ; }   
+     WholeQuantityExpression ']' ']' '{' FExpr '}'
     {
-      WholeQuantity_S.Type = WQ_MHTIMEINTEGRATION ;
-
-      WholeQuantity_S.Case.MHTimeIntegration.Type = $4 ;
-      WholeQuantity_S.Case.MHTimeIntegration.NbrTimePoint = (int)$6 ;
-      WholeQuantity_S.Case.MHTimeIntegration.WholeQuantityInit = $8 ;
-      WholeQuantity_S.Case.MHTimeIntegration.WholeQuantity = $10 ;
-      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
-		&Current_WholeQuantity_L) ;
-      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
-
+      if ((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) < 0) 
+	vyyerror("Undefined function '%s' used in MHTransform", $3) ;
       if (Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
-	vyyerror("Dof{} definition out of context") ;
+	vyyerror("Dof{} definition cannot be used in MHTransform") ;
+      WholeQuantity_S.Type = WQ_MHTRANSFORM ; 
+      WholeQuantity_S.Case.MHTransform.Index = i ;
+      WholeQuantity_S.Case.MHTransform.WholeQuantity = $6 ;
+      WholeQuantity_S.Case.MHTransform.NbrPoints = (int)$10 ;
+      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L) ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+    }
+
+  | tMHJacNL '[' tSTRING ']' '{' FExpr ',' FExpr '}'
+    {
+      if ((i = List_ISearchSeq(Problem_S.Expression, $3,fcmp_Expression_Name)) < 0) 
+	vyyerror("Undefined function '%s' used in MHJacNL", $3) ;
+      WholeQuantity_S.Type = WQ_MHJACNL ; 
+      WholeQuantity_S.Case.MHJacNL.Index = i ;
+      WholeQuantity_S.Case.MHJacNL.NbrPoints = (int)$6 ;
+      WholeQuantity_S.Case.MHJacNL.FreqOffSet = (int)$8 ;
+      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L) ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
   | tSolidAngle '[' Quantity_Def ']'
@@ -1538,6 +1589,13 @@ WholeQuantity_Single :
     {
       WholeQuantity_S.Type = WQ_VALUESAVED ;
       WholeQuantity_S.Case.ValueSaved.Index = $2 - 1 ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+    }
+
+  | WholeQuantity_Single tSHOW tINT
+    {
+      WholeQuantity_S.Type = WQ_SHOWVALUE ;
+      WholeQuantity_S.Case.ShowValue.Index = $3 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
@@ -4200,6 +4258,9 @@ OperationTerm :
 	vyyerror("Unknown System: %s", $2) ;
       Free($2) ;
       Operation_P->DefineSystemIndex = i ;
+
+      if (Operation_P->Type == OPERATION_GENERATE || Operation_P->Type == OPERATION_GENERATEJAC)
+	Operation_P->Case.Generate.GroupIndex = -1 ;      
     }
 
   | tSetTime Expression tEND
@@ -4250,6 +4311,10 @@ OperationTerm :
 	vyyerror("Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
+
+      if (Operation_P->Type == OPERATION_GENERATE || Operation_P->Type == OPERATION_GENERATEJAC)
+	Operation_P->Case.Generate.GroupIndex = -1 ;      
+
     }
 
   | tSetTime '[' Expression ']' tEND
@@ -4346,6 +4411,25 @@ OperationTerm :
       Free($5) ;
       Operation_P->Case.FourierTransform.DefineSystemIndex[1] = i ;
       Operation_P->Case.FourierTransform.Frequency = $7;
+    }
+
+  | tFourierTransformJ '[' tSTRING ',' tSTRING ',' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_FOURIERTRANSFORM2 ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->Case.FourierTransform2.DefineSystemIndex[0] = i ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $5,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $5) ;
+      Free($5) ;
+      Operation_P->Case.FourierTransform2.DefineSystemIndex[1] = i ;
+      Operation_P->Case.FourierTransform2.Period = $7;
+      Operation_P->Case.FourierTransform2.Period_sofar = 0.;
+      Operation_P->Case.FourierTransform2.Scales = NULL;
     }
 
   | tLanczos '[' tSTRING ',' FExpr ',' ListOfFExpr ',' FExpr ']' tEND
@@ -4502,7 +4586,125 @@ OperationTerm :
       Operation_P->Case.SystemCommand = $3 ; 
     }
 
+  | tSolveJac_AdaptRelax '[' tSTRING ',' ListOfFExpr ',' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_SOLVEJACADAPTRELAX ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.SolveJac_AdaptRelax.CheckAll = (int)$7 ;
+      Operation_P->Case.SolveJac_AdaptRelax.Factor_L = $5 ; 
+    }
+
+  | tSaveSolutionExtendedMH '[' tSTRING ',' FExpr ',' CharExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_SAVESOLUTIONEXTENDEDMH ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.SaveSolutionExtendedMH.NbrFreq = $5 ;
+      Operation_P->Case.SaveSolutionExtendedMH.ResFile = $7 ;
+    }
+
+  | tInit_MovingBand2D  '{' tSTRING '}' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
+      if (( i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0) 
+	vyyerror("Unknown Group: %s", $3) ;
+      Operation_P->Type = OPERATION_INIT_MOVINGBAND2D ;
+      Operation_P->Case.Init_MovingBand2D.GroupIndex = i ;
+      Free($3) ;
+    }
+  | tMesh_MovingBand2D  '{' tSTRING '}' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
+      if (( i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0) 
+	vyyerror("Unknown Group: %s", $3) ;
+      Operation_P->Type = OPERATION_MESH_MOVINGBAND2D ;
+      Operation_P->Case.Mesh_MovingBand2D.GroupIndex = i ;
+      Free($3) ;
+    }
+  | tSaveMesh  '{' tSTRING ',' GroupRHS ',' CharExpr ',' CharExpr ',' Expression '}' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", $5) ;
+      Operation_P->Case.SaveMesh.MeshFileBase = $7 ;
+      Operation_P->Case.SaveMesh.Format = $9 ;
+      Operation_P->Case.SaveMesh.ExprIndex = $11 ;
+      Operation_P->Type = OPERATION_SAVEMESH ;
+    }
+  | tSaveMesh  '{' tSTRING ',' GroupRHS ',' CharExpr '}' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", $5) ;
+      Operation_P->Case.SaveMesh.MeshFileBase = $7 ;
+      Operation_P->Case.SaveMesh.Format = NULL ;
+      Operation_P->Type = OPERATION_SAVEMESH ;
+    }
+  | tGenerate_MH_Moving  '[' tSTRING ',' tSTRING ',' FExpr ',' FExpr ']' '{' Operation '}'  tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      if (( i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0) 
+	vyyerror("Unknown Group: %s", $5) ;
+      Free($5) ;
+      Operation_P->Type = OPERATION_GENERATE_MH_MOVING ;
+      Operation_P->Case.Generate_MH_Moving.GroupIndex = i ;
+      Operation_P->Case.Generate_MH_Moving.Period  = $7 ;
+      Operation_P->Case.Generate_MH_Moving.NbrStep = (int)$9 ;
+      Operation_P->Case.Generate_MH_Moving.Operation = $12 ;
+    }
+ | tGenerateGroup  '[' tSTRING ',' tSTRING ']'  tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      if (( i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0) 
+	vyyerror("Unknown Group: %s", $5) ;
+      Free($5) ;
+      Operation_P->Type = OPERATION_GENERATE ;
+      Operation_P->Case.Generate.GroupIndex = i ;
+    }
+ | tGenerateJacGroup  '[' tSTRING ',' tSTRING ']'  tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      if (( i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0) 
+	vyyerror("Unknown Group: %s", $5) ;
+      Free($5) ;
+      Operation_P->Type = OPERATION_GENERATEJAC ;
+      Operation_P->Case.Generate.GroupIndex = i ;
+    }
   ;
+
+
 
 PrintOperation :
     ListOfExpression
@@ -5946,7 +6148,8 @@ MultiFExpr :
 	vyyerror("Unknown Constant: %s", $1) ;
       else
 	if (Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror("Multi value Constant needed: %s", $1) ;
+	  //	  vyyerror("Multi value Constant needed: %s", $1) ;
+	  List_Add($$, &Constant_S.Value.Float) ;
 	else
 	  for(i=0 ; i<List_Nbr(Constant_S.Value.ListOfFloat) ; i++) {
 	    List_Read(Constant_S.Value.ListOfFloat, i, &d) ;
@@ -6028,6 +6231,23 @@ MultiFExpr :
 	    }
 	}
     }
+
+  | tLinSpace '[' FExpr ',' FExpr ',' FExpr ']'
+    { $$ = List_Create(20,20,sizeof(double)) ; 
+      for(i=0 ; i<(int)$7 ; i++) {
+	d = $3 + ($5-$3)*(double)i/($7-1) ;
+	List_Add($$, &d) ;
+      }
+    }
+
+  | tLogSpace '[' FExpr ',' FExpr ',' FExpr ']'
+    { $$ = List_Create(20,20,sizeof(double)) ;
+      for(i=0 ; i<(int)$7 ; i++) {
+	d = pow(10,$3 + ($5-$3)*(double)i/($7-1)) ;
+	List_Add($$, &d) ;
+      }
+    }
+
   ;
 
 CharExpr :
@@ -6105,6 +6325,7 @@ int  Add_Group(struct Group * Group_P, char * Name, int Flag_Plus, int Num_Index
   else  List_Write(Problem_S.Group, i, Group_P) ;
 
   return i ;
+
 }
 
 
@@ -6179,6 +6400,9 @@ void  Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) {
       Pair.Int2 = TraceGroupIndex ;
       List_Insert(ListOfTwoInt_L, &Pair, fcmp_int) ;
       break ;
+    case WQ_MHTRANSFORM  :
+      Pro_DefineQuantityIndex_1
+	((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity, TraceGroupIndex) ;
     case WQ_TIMEDERIVATIVE :
       Pro_DefineQuantityIndex_1
 	((WholeQuantity_P+i)->Case.TimeDerivative.WholeQuantity, TraceGroupIndex) ;

@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.11 2001-11-22 13:59:20 dular Exp $ */
+/* $Id: GetDP.l,v 1.12 2002-01-18 11:10:27 gyselinc Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,6 +71,7 @@ string     {alpha}({alpha}|{digit})*
 "<<"                         return tLESSLESS ;
 "..."                        return tDOTS ;
 ":"                          return tDOTS ;
+"##"                         return tSHOW ;
 
 StrCat                       return tStrCat ;
 
@@ -90,6 +91,8 @@ Group                        return tGroup ;
 DefineGroup                  return tDefineGroup ;
 All                          return tAll ;
 InSupport                    return tInSupport ;
+MovingBand2D                 return tMovingBand2D ;
+SaveMesh                     return tSaveMesh ;
 
 DefineFunction               return tDefineFunction ;
 DefineVariable               return tDefineConstant ;
@@ -123,7 +126,11 @@ CrossProduct                 return tCrossProduct ;
 SolidAngle                   return tSolidAngle ;
 Order                        return tOrder ;
 Trace                        return tTrace ;
-MHTimeIntegration            return tMHTimeIntegration ;
+LinSpace                     return tLinSpace ;
+LogSpace                     return tLogSpace ;
+
+MHTransform                  return tMHTransform;
+MHJacNL                      return tMHJacNL;
 
 Constraint                   return tConstraint ;
 Region                       return tRegion ;
@@ -205,8 +212,8 @@ SetFrequency                 return tSetFrequency ;
 Update                       return tUpdate ;
 UpdateConstraint             return tUpdateConstraint ;
 FourierTransform             return tFourierTransform ;
+FourierTransformJ            return tFourierTransformJ ;
 Lanczos                      return tLanczos ;
-Perturbation                 return tPerturbation ;
 If                           return tIf ;
 Else                         return tElse ;
 Test                         return tIf ;
@@ -225,9 +232,15 @@ IterativeTimeReduction       return tIterativeTimeReduction ;
 DivisionCoefficient          return tDivisionCoefficient ;
 ChangeOfState                return tChangeOfState ;
 ChangeOfCoordinates          return tChangeOfCoordinates ;
-ChangeOfValues               return tChangeOfValues ;
 SystemCommand                return tSystemCommand ;
 Break                        return tBreak ;
+SolveJac_AdaptRelax          return tSolveJac_AdaptRelax ;
+SaveSolutionExtendedMH       return tSaveSolutionExtendedMH ;
+Init_MovingBand2D            return tInit_MovingBand2D ;
+Mesh_MovingBand2D            return tMesh_MovingBand2D ;
+Generate_MH_Moving           return tGenerate_MH_Moving ;
+GenerateGroup                return tGenerateGroup ;
+GenerateJacGroup             return tGenerateJacGroup ;
 
 PostProcessing               return tPostProcessing ;
 NameOfSystem                 return tNameOfSystem ;

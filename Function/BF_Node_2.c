@@ -1,8 +1,10 @@
-#define RCSID "$Id: BF_Node_2.c,v 1.5 2001-06-14 16:02:48 dular Exp $"
+#define RCSID "$Id: BF_Node_2.c,v 1.6 2002-01-18 11:10:26 gyselinc Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
 #include "BF_Function.h"
+
+#define WrongElementType(A,B)  Msg(ERROR, "Basis function A cannot be associated with B !")
 
 
 /* ------------------------------------------------------------------------ */
@@ -99,11 +101,12 @@ void  BF_Node_2F (struct Element * Element, int NumEntity,
 
   switch (Element->Type) {
 
-  case LINE :
+ case LINE :
+    WrongElementType(Node_2F, LINE); break;
   case TRIANGLE :
-  case TETRAHEDRON :
-    Msg(ERROR, "You should never end up here!") ;
-    break;
+    WrongElementType(Node_2F, TRIANGLE); break;
+  case TETRAHEDRON :    
+    WrongElementType(Node_2F, TETRAHEDRON); break;  
     
   case QUADRANGLE :
     switch(NumEntity) {
@@ -147,11 +150,13 @@ void  BF_Node_2V (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
+    WrongElementType(BF_Node_2V, LINE); break;
   case TRIANGLE :
+    WrongElementType(BF_Node_2V, TRIANGLE); break;
   case QUADRANGLE :
+    WrongElementType(BF_Node_2V, QUADRANGLE); break;
   case TETRAHEDRON :
-    Msg(ERROR, "You should never end up here!") ;
-    break;
+    WrongElementType(BF_Node_2V, TETRAHEDRON); break;
 
   case HEXAHEDRON :
     switch(NumEntity) {
@@ -268,10 +273,12 @@ void  BF_GradNode_2F (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
+    WrongElementType(Node_2F, LINE); break;
   case TRIANGLE :
+    WrongElementType(Node_2F, TRIANGLE); break;
   case TETRAHEDRON :    
-    Msg(ERROR, "You should never end up here!") ;
-    break;
+    WrongElementType(Node_2F, TETRAHEDRON); break;
+  
 
   case QUADRANGLE :
     switch(NumEntity) {
@@ -314,12 +321,15 @@ void  BF_GradNode_2V (struct Element * Element, int NumEntity,
 
   switch (Element->Type) {
 
-  case LINE :
+   case LINE :
+    WrongElementType(BF_Node_2V, LINE); break;
   case TRIANGLE :
+    WrongElementType(BF_Node_2V, TRIANGLE); break;
   case QUADRANGLE :
+    WrongElementType(BF_Node_2V, QUADRANGLE); break;
   case TETRAHEDRON :
-    Msg(ERROR, "You should never end up here!") ;
-    break;
+    WrongElementType(BF_Node_2V, TETRAHEDRON); break; 
+
 
   case HEXAHEDRON :
     switch(NumEntity) {
@@ -340,4 +350,13 @@ void  BF_GradNode_2V (struct Element * Element, int NumEntity,
 
   GetDP_End ;
 }
+
+#undef WrongElementType
+
+
+
+
+
+
+
 

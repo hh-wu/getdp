@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.22 2001-03-27 19:19:58 dular Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.23 2002-01-18 11:10:27 gyselinc Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -53,6 +53,7 @@ void  SolvingAnalyse (void) {
   int  Num, Nbr_GeoData ;
   int  Nbr_PreResolution, Nbr_OtherSystem ;
 
+
   GetDP_Begin("SolvingAnalyse");
 
   GeoData_L = List_Create( 1, 5, sizeof(struct GeoData)) ;
@@ -60,6 +61,7 @@ void  SolvingAnalyse (void) {
   /* -------------------- */
   /* Treatment Resolution */
   /* -------------------- */
+
 
   if (Flag_PRE) {
     Nbr_OtherSystem = 0 ;
@@ -242,6 +244,7 @@ void  SolvingAnalyse (void) {
     Msg(DIRECT, "E n d   P a r t i t i o n n i n g");
   }
 
+
   /* ---------- */
   /* Processing */
   /* ---------- */
@@ -296,7 +299,7 @@ void  SolvingAnalyse (void) {
       while(Name_PostProcessing[i]){
 	if((Num = List_ISearchSeq(Problem_S.PostProcessing, Name_PostProcessing[i],
 				  fcmp_PostProcessing_Name)) < 0)
-	  Msg(ERROR, "Unknown PostProcessing") ;
+	  Msg(ERROR, "Unknown PostProcessing (%s)", Name_PostProcessing[i]) ;
 	PostProcessing_P[i] = (struct PostProcessing *)
 	  List_Pointer(Problem_S.PostProcessing, Num) ;
 	PostOperation_P[i] = NULL ;
@@ -307,7 +310,7 @@ void  SolvingAnalyse (void) {
       while(Name_PostOperation[i]){
 	if((Num = List_ISearchSeq(Problem_S.PostOperation, Name_PostOperation[i],
 				  fcmp_PostOperation_Name)) < 0)
-	  Msg(ERROR, "Unknown PostOperation") ;
+	  Msg(ERROR, "Unknown PostOperation (%s)", Name_PostOperation[i]) ;
 	PostOperation_P[i] = (struct PostOperation*)
 	  List_Pointer(Problem_S.PostOperation, Num) ;
 	PostProcessing_P[i] = (struct PostProcessing *)
@@ -750,3 +753,4 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 
   GetDP_End ;
 }
+

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.10 2001-11-19 18:30:36 geuzaine Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.11 2002-01-18 11:10:27 gyselinc Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -12,6 +12,12 @@
 #include "CurrentData.h"
 #include "Tools.h"
 
+
+void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
+					    struct EquationTerm     * EquationTerm_P,
+					    struct QuantityStorage  * QuantityStorage_P0) ;
+  
+
 /* ------------------------------------------------------------------------ */
 /*  C a l _ I n i t G a l e r k i n T e r m O f F e m E q u a t i o n       */
 /* ------------------------------------------------------------------------ */
@@ -21,6 +27,8 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
 					struct QuantityStorage  * QuantityStorageNoDof,
 					struct Dof              * DofForNoDof_P) {
   struct FemLocalTermActive  * FI ;
+
+  extern double ** MH_Moving_Matrix ;
 
   GetDP_Begin("Cal_InitGalerkinTermOfFemEquation");
 
@@ -198,6 +206,16 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
 		     EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
   }
 
+
+  if (MH_Moving_Matrix) {
+    //Msg (INFO, "AssembleTerm_MH_Moving") ;
+    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving ; 
+  }
+
+
+  /*  initialisation of MHJacNL-term (nonlinear multi-harmonics) if necessary */
+  Cal_InitGalerkinTermOfFemEquation_MHJacNL(EquationTerm_P);
+
   GetDP_End ;
 }
 
@@ -218,7 +236,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   struct Value                CanonicExpression_Equ, V1, V2 ;
 
   int     Nbr_Equ, Nbr_Dof ;
-  int     i, j, k,  Type_Dimension,  Nbr_IntPoints, i_IntPoint ;
+  int     i, j, k, Type_Dimension, Nbr_IntPoints, i_IntPoint ;
 
   double  weight, Factor ;
   double  vBFuEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
@@ -234,9 +252,22 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
   void (*Get_IntPoint)(int,int,double*,double*,double*,double*);
 
+  extern int Flag_RHS;  
+
   GetDP_Begin("Cal_GalerkinTermOfFemEquation");
 
   FI = EquationTerm_P->Case.LocalTerm.Active ;
+
+
+  /* treatment of MHJacNL-term in separate routine */ 
+  if (FI->MHJacNL) {  
+    /* if only the RHS of the system is to be calculated 
+       (in case of adaptive relaxation of the Newton-Raphson scheme)
+       the (expensive and redundant) calculation of this term can be skipped */ 
+    if (!Flag_RHS)  
+      Cal_GalerkinTermOfFemEquation_MHJacNL(Element, EquationTerm_P, QuantityStorage_P0) ;
+    GetDP_End ; 
+  }
 
   QuantityStorageEqu_P = FI->QuantityStorageEqu_P ;
   QuantityStorageDof_P = FI->QuantityStorageDof_P ;
@@ -456,8 +487,10 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	      Ek[i][j][k] += Factor *
 		((double (*)(double*, double*))
 		 FI->Cal_Productx) (vBFxEqu[i], &(vBFxDof[j].Val[MAX_DIM*k])) ;
-	
+
+
       }  /* for i_IntPoint ... */            
+
 
       break ; /* case GAUSS/NEWTONCOTES */
 
@@ -555,8 +588,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	 FI->Function_AssembleTerm)
 	  (QuantityStorageEqu_P->BasisFunction[i].Dof,
 	   QuantityStorageDof_P->BasisFunction[j].Dof,  Ek[i][j]) ;
-
-
+    
     /* Exit while(1) directly if not integral quantity */
 
     if (FI->Type_DefineQuantityDof != INTEGRALQUANTITY)  break ;
@@ -565,5 +597,4 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 
   GetDP_End ;
 }
-
 

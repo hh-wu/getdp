@@ -1,4 +1,4 @@
-/* $Id: GeoData.h,v 1.6 2000-10-20 07:42:06 dular Exp $ */
+/* $Id: GeoData.h,v 1.7 2002-01-18 11:10:27 gyselinc Exp $ */
 #ifndef _GEODATA_H_
 #define _GEODATA_H_
 
@@ -16,6 +16,8 @@ void  Geo_OpenFile(char * Name, char * Mode) ;
 void  Geo_CloseFile(void) ;
 void  Geo_ReadFile(struct GeoData * GeoData_P) ;
 void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) ;
+
+void  Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileName) ;
 
 int  Geo_GetNbrGeoElements(void) ;
 struct Geo_Element  * Geo_GetGeoElement(int Index_Element) ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.18 2001-12-12 12:55:22 geuzaine Exp $"
+#define RCSID "$Id: GeoData.c,v 1.19 2002-01-18 11:10:27 gyselinc Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -176,6 +176,99 @@ int Geo_GetElementType(int Format, int Type){
   }
 
 }
+
+int Geo_GetElementTypeInv(int Format, int Type){
+
+  GetDP_Begin("Geo_GetElementTypeInv");
+
+  switch(Format){
+  case FORMAT_GMSH :
+    switch(Type){
+    case POINT         : GetDP_Return(15) ;
+    case LINE          : GetDP_Return(1) ;
+    case TRIANGLE      : GetDP_Return(2) ;
+    case QUADRANGLE    : GetDP_Return(3) ;
+    case TETRAHEDRON   : GetDP_Return(4) ;      
+    case HEXAHEDRON    : GetDP_Return(5) ;
+    case PRISM         : GetDP_Return(6) ;
+    case PYRAMID       : GetDP_Return(7) ;
+    case LINE_2        : GetDP_Return(8) ;
+    case TRIANGLE_2    : GetDP_Return(9) ;
+    case QUADRANGLE_2  : GetDP_Return(10) ;
+    case TETRAHEDRON_2 : GetDP_Return(11) ;      
+    case HEXAHEDRON_2  : GetDP_Return(12) ;
+    case PRISM_2       : GetDP_Return(13) ;
+    case PYRAMID_2     : GetDP_Return(14) ;
+    default : Msg(ERROR, "Unkown type of Element in Gmsh format") ; GetDP_Return(-1) ;
+    }
+    break ;
+  default :
+    Msg(ERROR, "Unkown mesh format") ;
+    GetDP_Return(-1) ;
+  }
+
+}
+
+
+void  Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileName) {
+
+  FILE * file;
+  struct Geo_Node     Geo_Node ;
+  struct Geo_Node   * Geo_Node_P ;
+  struct Geo_Element  Geo_Element ;
+  struct GeoData GeoData ;
+  int i, j, Type, iDummy=0;
+  int  fcmp_int(const void * a, const void * b);
+
+  GetDP_Begin("Geo_SaveMesh");
+
+  GeoData.Nodes    = List_Create(1000, 1000, sizeof(struct Geo_Node)) ;
+  GeoData.Elements = List_Create(1000, 1000, sizeof(struct Geo_Node)) ;
+
+  for (i = 0 ; i < List_Nbr(GeoData_P->Elements) ; i++) {
+    List_Read(GeoData_P->Elements, i, &Geo_Element) ;
+    if (List_Search(InitialList, &Geo_Element.Region, fcmp_int) ) {
+      List_Add(GeoData.Elements, &Geo_Element) ;
+      for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
+	if (!List_Search(GeoData.Nodes, 
+	 		 Geo_Node_P = Geo_GetGeoNodeOfNum(Geo_Element.NumNodes[j]), fcmp_Nod) ) 
+	  List_Add(GeoData.Nodes, Geo_Node_P) ;
+    }
+  }
+ 
+  file = fopen(FileName,"w");
+  Msg(INFO,"Saving mesh in file \"%s\" (%d nodes, %d elements)", 
+      FileName, List_Nbr(GeoData.Nodes), List_Nbr(GeoData.Elements));
+
+  fprintf(file, "$NOD\n%d\n", List_Nbr(GeoData.Nodes));
+
+  for (i = 0 ; i < List_Nbr(GeoData.Nodes) ; i++) {
+    List_Read(GeoData.Nodes, i, &Geo_Node) ;
+    fprintf(file, "%d %lf %lf %lf \n",
+	   Geo_Node.Num, Geo_Node.x, Geo_Node.y, Geo_Node.z) ;
+  }
+
+  fprintf(file, "$ENDNOD\n$ELM\n%d\n", List_Nbr(GeoData.Elements));
+
+  for (i = 0 ; i < List_Nbr(GeoData.Elements) ; i++) {
+    List_Read(GeoData.Elements, i, &Geo_Element) ;
+    Type = Geo_GetElementTypeInv(FORMAT_GMSH, Geo_Element.Type) ;
+    fprintf(file, "%d %d %d %d %d ",
+	    Geo_Element.Num, Type, Geo_Element.Region,
+	    iDummy, Geo_Element.NbrNodes) ;
+    for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
+      fprintf(file, "%d ", Geo_Element.NumNodes[j]) ;
+    fprintf(file, "\n") ;
+  }
+    
+  fprintf(file, "$ENDELM\n");
+
+  fclose(file);
+  List_Delete(GeoData.Nodes);
+  List_Delete(GeoData.Elements);
+  GetDP_End ;
+}
+
 
 void  Geo_ReadFile(struct GeoData * GeoData_P) {
 

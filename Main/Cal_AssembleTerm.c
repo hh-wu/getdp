@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.9 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.10 2002-01-18 11:10:27 gyselinc Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -10,6 +10,28 @@
 
 static int Warning_DtStatic = 0 ;
 static int Warning_DtDtStatic = 0, Warning_DtDtFirstOrder = 0 ;
+
+
+void  Cal_AssembleTerm_MH_Moving(struct Dof * Equ, struct Dof * Dof, double Val[]) {
+  int     k, l ;
+  double  tmp ;
+  extern double ** MH_Moving_Matrix ; 
+
+  GetDP_Begin("Cal_AssembleTerm_MH_Moving");
+
+  for (k = 0 ; k < Current.NbrHar ; k++)
+    for (l = 0 ; l < Current.NbrHar ; l++) {
+      tmp = Val[0] * MH_Moving_Matrix[k][l] ;
+      // if (k==l)
+      Dof_AssembleInMat(Equ+k, Dof+l, 1, &tmp, 
+			&Current.DofData->A, &Current.DofData->b) ;
+    }
+
+  GetDP_End ;
+}
+
+
+
 
 /* ------------------------------------------------------------------------ */
 /*  No Time Derivative                                                      */

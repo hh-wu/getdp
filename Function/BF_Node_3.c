@@ -1,8 +1,10 @@
-#define RCSID "$Id: BF_Node_3.c,v 1.4 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: BF_Node_3.c,v 1.5 2002-01-18 11:10:26 gyselinc Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
 #include "BF_Function.h"
+
+#define WrongElementType(A,B)  Msg(ERROR, "Basis function A cannot be associated with B !")
 
 
 /* ------------------------------------------------------------------------ */
@@ -14,6 +16,8 @@
 /* ------- */
 
 #define WrongNumEntity   Msg(ERROR, "Wrong Edge number in 'BF_Node_3E'")
+
+
 
 void  BF_Node_3E (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double *s ) {
@@ -94,7 +98,7 @@ void  BF_Node_3F (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
-    Msg(ERROR, "You should never end up here!") ;
+    WrongNumEntity ;
     break;
 
   case TRIANGLE :
@@ -155,11 +159,14 @@ void  BF_Node_3V (struct Element * Element, int NumEntity,
   switch (Element->Type) {
     
   case LINE :
+    WrongElementType(BF_Node_3V, LINE); break;
   case TRIANGLE :
+    WrongElementType(BF_Node_3V, TRIANGLE); break;
   case QUADRANGLE :
+    WrongElementType(BF_Node_3V, QUADRANGLE); break;
   case TETRAHEDRON :
-    Msg(ERROR, "You should never end up here!") ;
-    break ;
+    WrongElementType(BF_Node_3V, TETRAHEDRON); break;
+
 
   case HEXAHEDRON :
     switch(NumEntity) {
@@ -299,7 +306,7 @@ void  BF_GradNode_3F (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
-    Msg(ERROR, "You should never end up here!") ;
+    WrongElementType(Node_3F, LINE);
     break ;
 
   case TRIANGLE :
@@ -359,11 +366,14 @@ void  BF_GradNode_3V (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
+    WrongElementType(BF_Node_3V, LINE); break;
   case TRIANGLE :
+    WrongElementType(BF_Node_3V, TRIANGLE); break;
   case QUADRANGLE :
+    WrongElementType(BF_Node_3V, QUADRANGLE); break;
   case TETRAHEDRON :
-    Msg(ERROR, "You should never end up here!") ;
-    break ;
+    WrongElementType(BF_Node_3V, TETRAHEDRON); break;
+
 
   case HEXAHEDRON :
     switch(NumEntity) {
@@ -385,3 +395,4 @@ void  BF_GradNode_3V (struct Element * Element, int NumEntity,
   GetDP_End ;
 }
 
+#undef WrongElementType

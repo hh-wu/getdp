@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.16 2002-01-03 10:22:38 geuzaine Exp $
+# $Id: Makefile,v 1.17 2002-01-18 11:10:27 gyselinc Exp $
 #
 # Makefile for 'libMain.a'
 # 
@@ -41,10 +41,12 @@ SRC = Main.c Message.c \
                 Cal_Value.c \
                 Cal_AssembleTerm.c \
                 Cal_SolidAngle.c \
+      MovingBand2D.c \
       Get_Define.c \
       Graph.c \
-      Print_ProblemStructure.c\
+      Print_ProblemStructure.c \
       GmshClient.c
+
 
 OBJ = $(SRC:.c=.o)
 
@@ -271,5 +273,22 @@ Print_ProblemStructure.o: Print_ProblemStructure.c ../include/GetDP.h \
   Data_DefineE.h Print_ProblemStructure.h Treatment_Formulation.h \
   CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h GmshClient.h
+  ../include/Magic.h ../DataStr/Tools.h
+MovingBand2D.o: ExtendedGroup.c ../include/GetDP.h Message.h \
+  ../DataStr/Malloc.h ExtendedGroup.h Data_Active.h Data_Passive.h \
+  ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+  Data_DefineE.h CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
+  ../Sparskit/Solver.h Graph.h ../DofData/Data_DofData.h 
 GmshClient.o: GmshClient.c Message.h
+
+
+
+
+
+
+
+
+
+
+
