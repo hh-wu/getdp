@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.57 2003-01-25 02:33:13 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.58 2003-01-26 07:02:42 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -40,10 +40,10 @@ void FinalizeAndExit(void);
 /* The Sparskit is under GNU license. If we mention it, we have to 
    make GetDP free sofware... */
 
-char acronym[]   = "GetDP %g, a General environment for the treatment of Discrete Problems\n";
+char acronym[]   = "GetDP %d.%d.%d, a General environment for the treatment of Discrete Problems\n";
 char copyright[] = "Copyright (c) 1997-2003 Patrick Dular and Christophe Geuzaine\n";
 
-char version[]   = "Version      : %g\n";
+char version[]   = "Version      : %d.%d.%d\n";
 char os[]        = "Build OS     : %s\n";
 char date[]      = "Build date   : %s\n";
 char host[]      = "Build host   : %s\n";
@@ -106,15 +106,18 @@ void Info (int level, char *arg0){
   
   switch(level){
   case 0 :
-    fprintf(stderr, acronym, GETDP_VERSION);
+    fprintf(stderr, acronym, 
+	    GETDP_MAJOR_VERSION, GETDP_MINOR_VERSION, GETDP_PATCH_VERSION);
     fprintf(stderr, copyright);
     fprintf(stderr, help, arg0);
     break;
   case 1:
-    fprintf(stderr, "%g\n", GETDP_VERSION);
+    fprintf(stderr, "%d.%d.%d\n",
+	    GETDP_MAJOR_VERSION, GETDP_MINOR_VERSION, GETDP_PATCH_VERSION);
     break;
   case 2:
-    fprintf(stderr, version, GETDP_VERSION);
+    fprintf(stderr, version,
+	    GETDP_MAJOR_VERSION, GETDP_MINOR_VERSION, GETDP_PATCH_VERSION);
     fprintf(stderr, os, GETDP_OS);
     fprintf(stderr, date, GETDP_DATE);
     fprintf(stderr, host, GETDP_HOST);
