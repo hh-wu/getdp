@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.49 2001-03-18 13:56:25 geuzaine Exp $
+# $Id: Makefile,v 1.50 2001-03-18 15:49:21 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -455,7 +455,7 @@ sgi: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	f77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+	f77 -mips3 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 	$(STRIP) $(GETDP_BIN_DIR)/getdp
 
 sgi64: tag
