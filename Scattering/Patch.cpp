@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.28 2002-08-19 08:00:51 geuzaine Exp $
+// $Id: Patch.cpp,v 1.29 2002-08-27 23:38:16 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -63,15 +63,14 @@ double Patch::changeOfVars(double s, int deriv){
   //return cv_shadow(s,deriv);
 }
 
-Patch::Patch(PatchType _type, int _beg, int _end, 
+Patch::Patch(PatchType _type, int _beg, int _nbdof, 
 	     double center, double eps, double rise){
   int i;
   double s;
 
   type = _type;
   beg = _beg;
-  end = _end;
-  nbdof = end-beg;
+  nbdof = _nbdof;
 
   nodes = new double[nbdof] ;
   jacs = new double[nbdof] ;
@@ -86,7 +85,7 @@ Patch::Patch(PatchType _type, int _beg, int _end,
     //s = PI/4.; // TEST!!!
     nodes[i] = changeOfVars(s,0);
     jacs[i] = changeOfVars(s,1);
-    //printf("node %.16g jac %.16g\n", nodes[i], jacs[i]);
+    printf("node %d : %.16g jac %.16g\n", i, nodes[i], jacs[i]);
   }
 
   if(type == SPLINE)
@@ -140,12 +139,12 @@ void Ctx::createMesh(Patch::PatchType patchtype){
     // change this when doing Fourier interpolation to have odd nb of
     // Fourier modes on each patch...
 
-    nbTargetPts = 500;
-    a = PI/8.;
-    p[0] = new Patch(patchtype,  0,               nbTargetPts/4-1,      0, PI/4+a/2., a); List_Add(scat.patches, p[0]);
-    p[1] = new Patch(patchtype,  nbTargetPts/4,   nbTargetPts/2-1,   PI/2, PI/4+a/2., a); List_Add(scat.patches, p[1]);
-    p[2] = new Patch(patchtype,  nbTargetPts/2, 3*nbTargetPts/4-1,     PI, PI/4+a/2., a); List_Add(scat.patches, p[2]);
-    p[3] = new Patch(patchtype,3*nbTargetPts/4,   nbTargetPts-1, 3*PI/2, PI/4+a/2., a); List_Add(scat.patches, p[3]);
+    nbTargetPts = 400;
+    a = PI/10.;
+    p[0] = new Patch(patchtype,  0,                nbTargetPts/4,      0, PI/4+a/2., a); List_Add(scat.patches, p[0]);
+    p[1] = new Patch(patchtype,  nbTargetPts/4,    nbTargetPts/4,   PI/2, PI/4+a/2., a); List_Add(scat.patches, p[1]);
+    p[2] = new Patch(patchtype, 2*(nbTargetPts/4), nbTargetPts/4,     PI, PI/4+a/2., a); List_Add(scat.patches, p[2]);
+    p[3] = new Patch(patchtype, 3*(nbTargetPts/4), nbTargetPts-3*(nbTargetPts/4),   3*PI/2, PI/4+a/2., a); List_Add(scat.patches, p[3]);
     
 #if 0
     a = 0.5;
@@ -210,7 +209,7 @@ void Ctx::createMesh(Patch::PatchType patchtype){
     p[0] = (Patch*)List_Pointer(scat.patches,i);
     for(int j=0; j<p[0]->nbdof; j++){
       scat.nodes[k++] = p[0]->nodes[j];
-      //printf("%d %g \n", k, p[0]->nodes[j]);
+      printf("%d %g \n", k, p[0]->nodes[j]);
     }
   }
 

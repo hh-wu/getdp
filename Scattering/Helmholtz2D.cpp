@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.12 2002-06-18 18:45:53 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.13 2002-08-27 23:38:16 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -30,39 +30,51 @@ void GFHelmholtzParametric2D::init(double _t, double _xt[3], double _dxt[3],
   d = sqrt(SQU(dxtau[0])+SQU(dxtau[1])) ;
 }
 
+// double layer
+
+Complex GFHelmholtzParametric2D::L(){
+  if(!kr){
+    Msg(WARNING, "kr=0 in L");
+    return 0.;
+  }
+  return 0.5 * I * k * (dxtau[1]*(xtau[0]-xt[0]) -
+			dxtau[0]*(xtau[1]-xt[1])) * Bessel_h(1,1,kr) / r;
+}
+
+Complex GFHelmholtzParametric2D::L1(){
+  return k/TWO_PI * (dxtau[1]*(xtau[0]-xt[0]) -
+		     dxtau[0]*(xtau[1]-xt[1])) * Bessel_h(1,1,kr) / r;
+}
+
+Complex GFHelmholtzParametric2D::L2(double t_pp, double tau_pp, double jac, double ddxt[3]){
+  if(fabs(t_pp-tau_pp) > EPSILON){
+    return L()-L1()*log(4.*SQU(sin((t_pp-tau_pp)/2.)));
+  }
+  else{
+    return (1./TWO_PI * (dxt[0]*ddxt[1]-dxt[1]*ddxt[0] / SQU(d*jac)) );
+  }
+}
+
+// single layer
+
 Complex GFHelmholtzParametric2D::M(){
   if(!kr){
     Msg(WARNING, "kr=0 in M");
     return 0.;
   }
-  return Bessel_h(1,0,kr) * d;
+  return I/2. * Bessel_h(1,0,kr) * d;
 }
 
 Complex GFHelmholtzParametric2D::M1(){
-  return -2./(I*TWO_PI) * Bessel_j(0,kr) * d;
+  return -1./TWO_PI * Bessel_j(0,kr) * d;
 }
 
 Complex GFHelmholtzParametric2D::M2(double t_pp, double tau_pp, double jac){
-  //  if(fabs(t-tau)>EPSILON)
-  //    return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
-  //  else
-  //    return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*d))) * d;
-
-
-  /*
-  if(fabs(t-tau) > EPSILON){
-    return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
-  }
-  else{
-    return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d;
-  }
-  */
-
   if(fabs(t_pp-tau_pp) > EPSILON){
     return M()-M1()*log(4.*SQU(sin((t_pp-tau_pp)/2.)));
   }
   else{
-    return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d
+    return (I/2. - EULER/PI - 1./TWO_PI * log(DSQU(k/2.*jac*d))) * d
       //+ 2. * log(jac) * M1(); // Colton and Kress chg of vars for corner
       ;
   }
@@ -86,7 +98,7 @@ double GFHelmholtzParametric2D::singLogQuadWeight(double t, double tau, int n){
 // Colton & Kress, p. 69) for
 //
 // I(t) = \int_{a-eps}^{a+eps} 
-//            H_0^(1)(k*r(t,tau))
+//          I/2 * H_0^(1)(k*r(t,tau))
 //          * \sqrt{x_1'(tau)^2+x_2'(tau)^2}
 //          * f(tau) * pou(tau) dtau 
 //
@@ -127,7 +139,8 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
   static int first = 1;
   static double *Weights;
 
-#undef TEST
+//#undef TEST
+#define TEST
 #ifdef TEST
   static FILE *fp;
   if(first) fp = fopen("debug","w");
@@ -172,7 +185,7 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
     pou = part->eval(tau);
 
-#ifdef TEST
+#ifdef TEST2
     fprintf(fp,"%.12g %.12g %.12g    %.12g %.12g %.12g    %.12g\n",
 	    t,t_p,t_pp,tau,tau_p,tau_pp,pou);
 #endif
@@ -229,6 +242,14 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 	  if(pou){
 	    m = kern.M();
 	    fact = (PI/(double)n * m) * ansatz * pou * jac;
+
+
+#ifdef TEST
+	    Complex ccc=m * ansatz * pou * jac;
+	    fprintf(fp,"%.12g   %.12g %.12g\n",
+		    tau, ccc.real(), ccc.imag());
+#endif
+
 	  }
 	  else
 	    fact = 0.;
@@ -259,8 +280,9 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 Complex NystromSimple(Ctx *ctx, int index, double t){
   GFHelmholtzParametric2D kern;
   Patch *p = (Patch*)List_Pointer(ctx->scat.patches,0);
-  Complex res=0., density, ansatz, w, m1, m2, fact;
-  double xt[3], dxt[3], xtau[3], dxtau[3], tau, sigma, s, k=NORM3(ctx->waveNum), jac=1.;
+  Complex res=0., density, ansatz, w, k1, k2, fact;
+  double xt[3], dxt[3], xtau[3], dxtau[3], ddxtau[3], tau, sigma, s;
+  double k=NORM3(ctx->waveNum), jac=1.;
   int j, n=ctx->nbTargetPts/2;
   static int first = 1;
 
@@ -297,9 +319,24 @@ Complex NystromSimple(Ctx *ctx, int index, double t){
       
       kern.init(t,xt,dxt,tau,xtau,dxtau,k);
       w = kern.singLogQuadWeight(s,sigma,n);
-      m1 = kern.M1();
-      m2 = kern.M2(s,sigma,jac);
-      fact = (w * m1 + PI/(double)n * m2) * ansatz * jac;
+
+      k1 = k2 = 0.;
+      if(ctx->type & FIRST_KIND_IE){
+	k1 = kern.M1();
+	k2 = kern.M2(s,sigma,jac);
+	if(ctx->type & SECOND_KIND_IE){
+	  double eta = 1;
+	  k1 *= I*eta;
+	  k2 *= I*eta;
+	}
+      }
+      if(ctx->type & SECOND_KIND_IE){
+	ctx->scat.ddx(tau,-1,ddxtau);
+	k1 += kern.L1();
+	k2 += kern.L2(s,sigma,jac,ddxtau);
+      }
+
+      fact = (w * k1 + PI/(double)n * k2) * ansatz * jac;
       
       if(ctx->type & STORE_OPERATOR)
 	List_Add(ctx->discreteMap, &fact);

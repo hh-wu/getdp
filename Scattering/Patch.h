@@ -32,13 +32,13 @@ class Patch{
 public:
   enum PatchType {SPLINE,FOURIER};
 
-  Patch(PatchType type, int _beg, int _end, 
+  Patch(PatchType type, int _beg, int _nbdof, 
 	double center, double eps, double rise);
   ~Patch();
   
   PatchType type;
   int nbdof;
-  int beg, end; // indices in global vector
+  int beg; // staring index in global vector
   Partition *part;
   double *nodes, *jacs;
   Complex *localVals;

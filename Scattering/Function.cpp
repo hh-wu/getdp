@@ -1,4 +1,4 @@
-// $Id: Function.cpp,v 1.17 2002-06-17 07:27:29 geuzaine Exp $
+// $Id: Function.cpp,v 1.18 2002-08-27 23:38:16 geuzaine Exp $
 
 #include "Utils.h"
 #include "Function.h"
@@ -13,6 +13,7 @@ double GetInInterval(double t, double t1, double t2){
       t -= TWO_PI;
     else 
       t += TWO_PI;
+    //printf("%g\n", t);
   }
   return t;
 }

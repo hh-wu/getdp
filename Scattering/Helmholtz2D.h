@@ -12,6 +12,9 @@ public:
   void init(double _t, double _xt[3], double _dxt[3], 
 	    double _tau, double _xtau[3], double _dxtau[3],
 	    double _k);
+  Complex L();
+  Complex L1();
+  Complex L2(double t_pp, double tau_pp, double jac, double ddxt[3]);
   Complex M();
   Complex M1();
   Complex M2(double t_pp, double tau_pp, double jac);

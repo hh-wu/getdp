@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -96,7 +95,7 @@ int main(){
   // create grid
   grid *gridInst = initGrid(bodyArray, nbIntervalsU, nbIntervalsV);
 
-  gridIntegrator *integrator = new gridIntegrator(gridInst, bodyArray,
+  gridIntegrator *integrator = new gridIntegrator(NULL, &bodyArray,
 						  waveNumber, "single", 0.0);
 
   printf("hehe\n");

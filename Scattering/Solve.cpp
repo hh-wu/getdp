@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.34 2002-06-20 16:24:47 geuzaine Exp $
+// $Id: Solve.cpp,v 1.35 2002-08-27 23:38:16 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -18,7 +18,7 @@ void Ctx::forwardMap(){
   f.type = Function::ANALYTIC; 
 
   for(i=0 ; i<nbTargetPts ; i++){
-    res = integrate(i); 
+    res = integrate(i);
     List_Add(reslist, &res);
   }
 
@@ -34,9 +34,11 @@ Complex Ctx::integrate(int index){
     t = getTarget(index);
     res = Integrate2D(this, index, t);
 
-    if(f.type == Function::ANALYTIC)
+    if(f.type == Function::ANALYTIC){
+      res *= 2./I;  // 2/I factor to be able to compare with Alain
       Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", 
 	  index+1, t, res.real(), res.imag());
+    }
   }
   else{
     //return Integrate3D(this, index);
@@ -214,26 +216,32 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   //Patch *p = (Patch*)List_Pointer(ctx->scat.patches,0);
   //for(i=0; i<p->nbdof; i++) p->localVals[i] /= p->jacs[i];
 
+  /*
+  char str[128];
+  sprintf(str, "x-%d",ctx->iterNum);
+  FILE *fp=fopen(str, "w");
+  //if(ctx->iterNum == 18)
+  LinAlg_PrintVector(fp,x);
+  fclose(fp);
+  */
+
   ctx->initializeInterpolation(x);
 
+  LinAlg_GetVectorSize(x,&i);
   LinAlg_GetLocalVectorRange(x,&beg,&end);
-  Msg(INFO, "A*x %d->%d", beg, end-1);
+  Msg(INFO, "A*x (N=%d: Part:%d->%d)", i, beg, end-1);
   
   ctx->iterNum++;
   ctx->discreteMapIndex=0;
 
   for(i=beg ; i<end ; i++){
-    res = (-I/2.) * ctx->integrate(i);
+    res = - ctx->integrate(i);
     LinAlg_SetComplexInVector(res, y, i);
   }
 
   // scale
   //for(i=0; i<p->nbdof; i++) p->localVals[i] *= p->jacs[i];
 
-
-  //if(ctx->iterNum == 18)
-  //LinAlg_PrintVector(stdout,x);
-   
   LinAlg_Barrier();
 }
 
@@ -291,7 +299,7 @@ void Ctx::postProcess(){
   coord[0] = 1;
   coord[1] = 0;
   coord[2] = 0;
-  vs = (-2./I) /2. * Evaluate2D(this, 1, coord); //????? /2
+  vs = -0.5 * Evaluate2D(this, 1, coord); //????? /2
   printf("farfield = %.15g + i* %.15g \n", vs.real(), vs.imag());
   return;
   */
@@ -308,7 +316,7 @@ void Ctx::postProcess(){
     coord[0] = cos(angle);
     coord[1] = sin(angle);
     coord[2] = 0;
-    vs = (-2./I) /2. * Evaluate2D(this, 1, coord); //????? /2
+    vs = -0.5 * Evaluate2D(this, 1, coord); //????? 0.5
     printf("%g %.15g %.15g\n", angle, vs.real(), vs.imag());
     fprintf(fp, "%.15e + (%.15ei)\n", vs.real(), vs.imag());
   }
@@ -353,7 +361,7 @@ void Ctx::postProcess(){
       coord[1] = ymin + j*(ymax-ymin)/(double)(nby-1) ;
       coord[2] = 0. ;
       //if(coord[0]*coord[0]+coord[1]*coord[1] > 1.){
-	vs = (-2./I) * Evaluate2D(this, 0, coord);
+	vs = -0.5 * Evaluate2D(this, 0, coord);
 	double kr = waveNum[0]*coord[0]+waveNum[1]*coord[1]+waveNum[2]*coord[2];
 	vi = cos(kr)+I*sin(kr);
       //}

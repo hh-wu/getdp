@@ -1,4 +1,4 @@
-// $Id: Bessel.cpp,v 1.9 2002-04-23 00:41:19 geuzaine Exp $
+// $Id: Bessel.cpp,v 1.10 2002-08-27 23:38:16 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -62,5 +62,8 @@ Complex Bessel_h(int type, int n, Complex x){
 
   zbesh_(&xr, &xi, &fnu, &kode, &type, &NB, &bhr, &bhi, &nz, &ierr) ;
   Bessel_error(ierr, "Bessel_h");
+
+  //printf("%.16g %.16g %.16g %.16g\n", xr, xi, bhr, bhi);
+
   return Complex(bhr,bhi);
 }

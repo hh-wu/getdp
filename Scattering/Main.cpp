@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.19 2002-06-17 08:13:52 geuzaine Exp $
+// $Id: Main.cpp,v 1.20 2002-08-27 23:38:16 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
@@ -6,7 +6,7 @@
 #include "Patch.h"
 
 int main(int argc, char *argv[]){
-  int sargc, spline=0;
+  int sargc, spline=0, kind=0;
   char **sargv=(char**)Malloc(256*sizeof(char**));
 
   LinAlg_Initialize(&argc, &argv, &NbCpu, &RankCpu);
@@ -145,6 +145,9 @@ int main(int argc, char *argv[]){
       else if(Cmp(argv[i]+1, "verbose", 1)){ 
 	i++; Verbose = (int)GetNum(argc,argv,&i);
       }
+      else if(Cmp(argv[i]+1, "kind", 2)){ 
+	i++; kind = (int)GetNum(argc,argv,&i);
+      }
       else{
 	Msg(INFO, "Passing unknown option '%s' to solver", argv[i]); 
 	sargv[sargc++] = argv[i++]; 
@@ -161,6 +164,24 @@ int main(int argc, char *argv[]){
 
   if(!ctx->nbIntPts2) ctx->nbIntPts2 = ctx->nbIntPts;
   if(!ctx->nbIntPts3) ctx->nbIntPts3 = ctx->nbIntPts;
+
+  // 1st/2nd kind integral equation
+  switch(kind){
+  case 0 :
+  case 1 :
+    ctx->type |= FIRST_KIND_IE;
+    Msg(INFO, "First kind integral equation");
+    break;
+  case 2 :
+    ctx->type |= SECOND_KIND_IE;
+    Msg(INFO, "Second kind integral equation");
+    break;
+  case 3 :
+    ctx->type |= FIRST_KIND_IE;
+    ctx->type |= SECOND_KIND_IE;
+    Msg(INFO, "Combined first/second kind integral equation");
+    break;
+  }
 
   Msg(INFO, "Options: -nbpts %d, -targets %d, -zero %g, -k [%g %g %g], -eps %g, -rise %g", 
       ctx->nbIntPts, ctx->nbTargetPts, ctx->initialTarget, 

@@ -16,6 +16,8 @@
 #define PATCHES              (1<<6)
 #define POST_PROCESS         (1<<7)
 #define REAL_COLTON_KRESS    (1<<8)
+#define FIRST_KIND_IE        (1<<9)
+#define SECOND_KIND_IE       (1<<10)
 
 // General context
 
