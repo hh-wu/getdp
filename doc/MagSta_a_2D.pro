@@ -96,10 +96,26 @@ Resolution @{
 PostProcessing @{
   @{ Name MagSta_a_2D ; NameOfFormulation Magnetostatics_a_2D ;
     PostQuantity @{
-      @{ Name a  ; Value @{ Local @{ [ @{a@} ]          ; In Domain_Mag ; @} @} @}
-      @{ Name az ; Value @{ Local @{ [ CompZ[@{a@}] ]   ; In Domain_Mag ; @} @} @}
-      @{ Name b  ; Value @{ Local @{ [ @{d a@} ]        ; In Domain_Mag ; @} @} @}
-      @{ Name h  ; Value @{ Local @{ [ nu[] * @{d a@} ] ; In Domain_Mag ; @} @} @}
+      @{ Name a  ; 
+        Value @{ 
+          Local @{ [ @{a@} ] ; In Domain_Mag ; Jacobian Vol ; @} 
+        @}
+      @}
+      @{ Name az ; 
+        Value @{ 
+          Local @{ [ CompZ[@{a@}] ] ; In Domain_Mag ; Jacobian Vol ; @}
+        @}
+      @}
+      @{ Name b  ; 
+        Value @{ 
+          Local @{ [ @{d a@} ] ; In Domain_Mag ; Jacobian Vol ; @}
+        @}
+      @}
+      @{ Name h  ; 
+        Value @{ 
+          Local @{ [ nu[] * @{d a@} ] ; In Domain_Mag ; Jacobian Vol ; @}
+        @}
+      @}
     @}
   @}
 @}

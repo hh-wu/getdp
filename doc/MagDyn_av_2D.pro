@@ -177,23 +177,42 @@ Resolution @{
 PostProcessing @{
   @{ Name MagDyn_av_2D ; NameOfFormulation Magnetodynamics_av_2D ;
     PostQuantity @{
-      @{ Name a ; Value @{ Local @{ [ @{a@} ]          ; In Domain_Mag ; @} @} @}
-      @{ Name az ; Value @{ Local @{ [ CompZ[@{a@}] ]  ; In Domain_Mag ; @} @} @}
-      @{ Name b ; Value @{ Local @{ [ @{d a@} ]        ; In Domain_Mag ; @} @} @}
-      @{ Name h ; Value @{ Local @{ [ nu[] * @{d a@} ] ; In Domain_Mag ; @} @} @}
+      @{ Name a ; 
+        Value @{ 
+          Local @{ [ @{a@} ] ; In Domain_Mag ; Jacobian Vol ; @} 
+        @} 
+      @}
+      @{ Name az ; 
+        Value @{ 
+          Local @{ [ CompZ[@{a@}] ] ; In Domain_Mag ; Jacobian Vol ; @}
+        @}
+      @}
+      @{ Name b ; 
+        Value @{ 
+          Local @{ [ @{d a@} ] ; In Domain_Mag ; Jacobian Vol ; @}
+        @}
+      @}
+      @{ Name h ; 
+        Value @{ 
+          Local @{ [ nu[] * @{d a@} ] ; In Domain_Mag ; Jacobian Vol ; @}
+        @}
+      @}
       @{ Name j ; 
         Value @{ 
-          Local @{ [ - sigma[]*(Dt[@{a@}]+@{ur@}) ] ; In DomainC_Mag ; @} 
+          Local @{ [ - sigma[]*(Dt[@{a@}]+@{ur@}) ] ; In DomainC_Mag ; 
+                  Jacobian Vol ; @} 
         @} 
       @}
       @{ Name jz ; 
         Value @{ 
-          Local @{ [ - sigma[]*CompZ[Dt[@{a@}]+@{ur@}] ] ; In DomainC_Mag ; @} 
+          Local @{ [ - sigma[]*CompZ[Dt[@{a@}]+@{ur@}] ] ; In DomainC_Mag ; 
+                  Jacobian Vol ; @} 
         @} 
       @}
       @{ Name roj2 ;
         Value @{ 
-          Local @{ [ sigma[]*SquNorm[Dt[@{a@}]+@{ur@}] ] ; In DomainC_Mag ; @} 
+          Local @{ [ sigma[]*SquNorm[Dt[@{a@}]+@{ur@}] ] ; In DomainC_Mag ; 
+                  Jacobian Vol ; @} 
         @} 
       @}
       @{ Name U ; Value @{ Local @{ [ @{U@} ] ; In DomainC_Mag ; @} @} @}
