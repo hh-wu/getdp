@@ -4,7 +4,7 @@
 #include "Scatterer.h"
 #include "Function.h"
 #include "LinAlg.h"
-#include "Complex.h"
+#include "List.h"
 
 #define FULL_INTEGRATION     (1<<0)
 #define STORE_OPERATOR       (1<<1)
@@ -17,14 +17,35 @@
 // General context
 
 typedef struct {
+  // global mode and options (forward map, iterative solver, etc.)
+  int type;
+
+  // global parameters
   double waveNum[3], epsilon, rise, initialTarget;
-  double *nodes;
-  int nbIntPts, nbTargetPts, type, nbdof;
-  int iterNum, currentTarget;
+
+  // location of unknowns (=merge of all patch nodes)
+  double *nodes; 
+  int nbTargetPts, nbdof; // nbdof = gCOMPLEX_INCREMENT*nbTargetPts
+
+  // - nb of integration points
+  // - nb of integration points for singular, critical and shadowing intervals
+  int nbIntPts, nbIntPts2, nbIntPts3; 
+
+  // current number of forward map and integration point
+  int iterNum, discreteMapIndex;
+
+  // the scatterer definition
   Scatterer scat;
+
+  // ansatz and interpolation stuff
   Function f;
+
+  // solver
   gSolver solver;
-  Complex *discreteMap;
+
+  // storage for operator at all integration points
+  List_T *discreteMap;
+
 } Ctx;
 
 #endif

@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.27 2002-04-12 22:36:30 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.28 2002-04-15 02:46:05 geuzaine Exp $
 
 #include "Utils.h"
 #include "Nystrom.h"
@@ -124,7 +124,7 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
     Weights = new double[nbpts];
 
   if((ctx->type & STORE_OPERATOR) && first)
-    ctx->discreteMap = new Complex[nbpts * ctx->nbTargetPts];
+    ctx->discreteMap = List_Create(nbpts, nbpts, sizeof(Complex));
 
   for(j=0 ; j<=2*n-1 ; j++){
     tau_pp = TWO_PI*j/(2.*n);
@@ -148,7 +148,7 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
       if((ctx->type & STORE_OPERATOR) && ctx->iterNum > 1){
 	
-	res += ctx->discreteMap[nbpts * ctx->currentTarget + j] * density;
+	res += *(Complex*)List_Pointer(ctx->discreteMap, ctx->discreteMapIndex) * density;
 
       }
       else{
@@ -180,11 +180,13 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 	}
 
 	if(ctx->type & STORE_OPERATOR)
-	  ctx->discreteMap[nbpts * ctx->currentTarget + j] = fact;
+	  List_Add(ctx->discreteMap, &fact);
 
 	res += fact * density;
 
       }
+
+      ctx->discreteMapIndex++;
 
     }
   }
@@ -226,9 +228,6 @@ Complex Integrate(Ctx *ctx, double t){
     return Nystrom(1,ctx,t,ctx->nbIntPts,&part);
 
   }
-
-  if(ctx->type & STORE_OPERATOR)
-    Msg(ERROR, "You can only store the operator if using the full Nystrom integrator");
 
   if(ctx->type & INTERACT1){ // interactive integration around one critical point
 
@@ -341,7 +340,8 @@ Complex Integrate(Ctx *ctx, double t){
 	scanf("%d", &nb);
       }
       else{
-	nb = (int)(2*s_eps/TWO_PI*ctx->nbIntPts); // change this
+	//nb = (int)(2*s_eps/TWO_PI*ctx->nbIntPts); // change this
+	nb = ctx->nbIntPts;
       }
       Msg(DEBUG, "  - singular int. : %d pts in [%g , %g]", nb, t-s_eps, t+s_eps);
       tmp = Nystrom(1,ctx,t,nb,&part);
@@ -358,7 +358,8 @@ Complex Integrate(Ctx *ctx, double t){
 	  scanf("%d", &nb);
 	}
 	else{
-	  nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->nbIntPts); // change this
+	  //nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->nbIntPts); // change this
+	  nb = (int)(sqrt(part.epsilon)/sqrt(ctx->epsilon) * ctx->nbIntPts2);
 	}
 	Msg(DEBUG, "  - critical int. in [%g,%g] \\ [%g,%g]",I.min,I.max,t-s_eps, t+s_eps);
 	tmp2 = Nystrom(0,ctx,t,nb,&part);
@@ -376,7 +377,8 @@ Complex Integrate(Ctx *ctx, double t){
 	scanf("%d", &nb);
       }
       else{
-	nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->nbIntPts);//change this
+	//nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->nbIntPts);//change this
+	nb = (int)(sqrt(part.epsilon)/sqrt(ctx->epsilon) * ctx->nbIntPts2);
       }
       Msg(DEBUG, "  - critical int.: %d pts in [%g , %g]", nb, I.min, I.max);
       tmp = Nystrom(0,ctx,t,nb,&part);

@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.14 2002-04-12 22:36:30 geuzaine Exp $
+// $Id: Solve.cpp,v 1.15 2002-04-15 02:46:05 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -36,7 +36,6 @@ void ForwardMap(Ctx *ctx){
 double GetTarget(int index, Ctx *ctx){
   if(index<0 || index>ctx->nbdof-1) 
     Msg(ERROR, "Target out of bounds");
-  ctx->currentTarget = index;
   return ctx->nodes[index];
 }
 
@@ -194,6 +193,7 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   Msg(INFO, "A*x %d->%d", beg, end-1);
   
   ctx->iterNum++;
+  ctx->discreteMapIndex=0;
 
   for(i=beg ; i<end ; i++){
     t = GetTarget(i,ctx);

@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.10 2002-04-12 22:36:30 geuzaine Exp $
+// $Id: Main.cpp,v 1.11 2002-04-15 02:46:05 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
     Msg(INFO, "  -spline : use cubic spline interpolation instead of Fourier series");
     Msg(INFO, "  -store : store discrete operator (to speed up iterations)");
     Msg(INFO, "  -kx, -ky : set wave number");
-    Msg(INFO, "  -nbpts : set number of integration points (meaning varies...)");
+    Msg(INFO, "  -nbpts, -n1, -n2, -n3 : set number of integration points (meaning varies...)");
     Msg(INFO, "  -targets : set number of target points/unknowns");
     Msg(INFO, "  -a, -b : set ellipse dimensions");
     Msg(INFO, "  -zero : set starting point for forward map targets");
@@ -50,6 +50,8 @@ int main(int argc, char *argv[]){
   ctx.rise = 0.5;
   ctx.initialTarget = 0.;
   ctx.nbIntPts = 100; //10000;
+  ctx.nbIntPts2 = 0;
+  ctx.nbIntPts3 = 0;
   ctx.nbTargetPts = 20;
   ctx.type = 0;
   ctx.scat.type = Scatterer::ELLIPSE;
@@ -92,6 +94,15 @@ int main(int argc, char *argv[]){
       }
       else if(Cmp(argv[i]+1, "nbpts", 1)){ 
 	i++; ctx.nbIntPts = (int)GetNum(argc,argv,&i); 
+      }
+      else if(Cmp(argv[i]+1, "n1", 2)){ 
+	i++; ctx.nbIntPts = (int)GetNum(argc,argv,&i); 
+      }
+      else if(Cmp(argv[i]+1, "n2", 2)){ 
+	i++; ctx.nbIntPts2 = (int)GetNum(argc,argv,&i); 
+      }
+      else if(Cmp(argv[i]+1, "n3", 2)){ 
+	i++; ctx.nbIntPts3 = (int)GetNum(argc,argv,&i); 
       }
       else if(Cmp(argv[i]+1, "targets", 1)){ 
 	i++; ctx.nbTargetPts = (int)GetNum(argc,argv,&i); 
@@ -142,6 +153,9 @@ int main(int argc, char *argv[]){
 
   if(ctx.scat.type == Scatterer::ELLIPSE)
     Msg(INFO, "Scatterer: ellipse [%g %g]", ctx.scat.a, ctx.scat.b);
+
+  if(!ctx.nbIntPts2) ctx.nbIntPts2 = ctx.nbIntPts;
+  if(!ctx.nbIntPts3) ctx.nbIntPts3 = ctx.nbIntPts;
 
   Msg(INFO, "Options: -nbpts %d, -targets %d, -zero %g, -k [%g %g %g], -eps %g, -rise %g", 
       ctx.nbIntPts, ctx.nbTargetPts, ctx.initialTarget, 

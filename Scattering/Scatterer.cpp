@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.2 2002-04-12 17:11:02 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.3 2002-04-15 02:46:05 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -18,6 +18,14 @@ void Scatterer::coord(double u, double *x){
     x[1] = b*sin(u); 
     x[2] = 0.; 
     break;
+    /*
+  case RECTANGLE :
+    if(u<TWO_PI/
+    x[0] = a*cos(u); 
+    x[1] = b*sin(u); 
+    x[2] = 0.; 
+    break;
+    */
   }
 }
 
