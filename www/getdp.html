@@ -1,0 +1,242 @@
+<!---BEGINSCRIPT#!/bin/sh
+
+BASEDIR=/usr/local/cgi-bin
+
+echo Content-type: text/html
+echo
+cat << EOM
+ENDSCRIPT--->
+
+<HTML>
+
+<!--- PLEASE DO NOT EDIT the BEGINSCRIPT and ENDSCRIPT comments --->
+
+<HEAD>
+
+<TITLE>GetDP homepage</TITLE>
+
+<meta name="description" content="GetDP (a General Environment for the
+Treatment of Discrete Problems) is a scientific computation software
+for the numerical solution of integro-differential equations, using
+finite element and integral type methods. The main feature of GetDP is
+the closeness between the input data defining discrete problems
+(written by the user in ASCII data files) and the symbolic
+mathematical expressions of these problems.">
+
+<meta name="keywords" content="free finite element software, free
+integral equation sofware, GetDP, getdp, free boundary element
+sofware, General Environment for the Treatment of Discrete Problems,
+partial differential equations, numerical methods, electromagnetism,
+electromagnetics, thermal, thermics, mechanical, mechanics, acoustics,
+couplings">
+
+<META name="Autor-Handle" content="Christophe.Geuzaine@advalvas.be">
+
+</HEAD>
+
+<BODY TEXT="#000000" BGCOLOR="#aaaaaa" LINK="#CC8800" VLINK="#CC8800" ALINK="#FFBB00" 
+ BACKGROUND="/images/background.gif">
+
+<!------------------------------------------------------------------>
+
+<table width="100%" border=0 cellspacing=10 cellpadding=5>
+
+<tr valign=bottom>
+
+  <td width="130" align="right" valign=top><font size=-2 face="Helvetica, Arial" color="#fffff">
+
+<!---BEGINSCRIPT
+EOM
+${BASEDIR}/n2l ${BASEDIR}/counter.getdp
+cat << EOM
+    page requests since September 18, 1998<p>
+ENDSCRIPT--->
+
+<!---BEGINMIRROR
+    This page is a mirror of <a href="/getdp/">/getdp/</a><p>
+ENDMIRROR--->
+
+<!---BEGINDATE$Date: 2001-02-06 21:21:29 $ENDDATE--->
+
+    &copy; 1998-2001 Dular, Geuzaine<p>
+
+  </font></td>
+
+  <td width="60">
+  </td>
+
+  <td><font face="Helvetica, Arial" >
+
+    <font size="+3"><b>GetDP</b></font><br>
+    <b>A General Environment for the Treatment of Discrete Problems</b>
+
+  </font></td>
+
+</tr>
+
+<!------------------------------------------------------------------>
+
+<tr valign=bottom>
+
+  <td><spacer type="vertical" size=20>
+  </td>
+
+</tr>
+
+<!------------------------------------------------------------------>
+
+<tr valign=top>
+
+  <td width="130" align="right">
+    <font color="#ffffff" face="Helvetica, Arial"><b>Description</b></font>
+  </td>
+
+  <td width="60"></td>
+
+  <td align="left" colspan=2><font face="Helvetica, Arial" size=-1>
+    GetDP is a scientific computation software for the numerical solution
+    of integro-differential equations, using finite element and integral
+    type methods.  
+
+    The main feature of GetDP is the closeness between the
+    input data defining discrete problems (written by the user in ASCII
+    data files) and the symbolic mathematical expressions of these
+    problems.
+  </font></td>
+
+</tr>
+
+<!------------------------------------------------------------------>
+
+<tr valign=top>
+
+  <td width="130" align="right">
+    <font color="#ffffff" face="Helvetica, Arial"><b>Documentation</b></font>
+  </td>
+
+  <td width="60">
+  </td>
+
+  <td align="left" colspan=2><font face="Helvetica, Arial" size=-1>
+    <a target="_top" href="/getdp/doc/getdp.html">Online</a>,
+    <a target="_top" href="/getdp/doc/getdp.ps">postscript</a>,
+    <a target="_top" href="/getdp/doc/getdp.pdf">pdf</a>,
+    <a target="_top" href="/getdp/doc/getdp-info.tgz">info</a>,
+    <a target="_top" href="/getdp/doc/getdp.1">man page</a>.
+<!---BEGINSCRIPT
+    <br>
+    <FORM METHOD=POST ACTION="/cgi-bin/htsearch">
+      Search online documentation:
+      <INPUT SIZE=30 NAME="words" VALUE="">
+      <INPUT TYPE=HIDDEN NAME="config" VALUE="htdig">
+      <INPUT TYPE=HIDDEN NAME="restrict" VALUE="http://www.geuz.org/getdp/">
+    </FORM>
+ENDSCRIPT--->
+  </font></td>
+
+</tr>
+
+<!------------------------------------------------------------------>
+
+<tr valign=top>
+
+  <td width="130" align="right">
+    <font color="#ffffff" face="Helvetica, Arial"><b>Download</b></font>
+  </td>
+
+  <td width="60">
+  </td>
+
+  <td align="left" colspan=2 bgcolor="#f0f0f0"><font face="Helvetica, Arial" size=-1>
+
+    Executable versions of GetDP are available for most of the classical
+    UNIX platforms and for Windows 95/98/NT.  These versions are free. The
+    only thing asked if you use GetDP is to
+    <a target="_top" href="/getdp/doc/getdp.bib">mention</a>
+    it in your work...  Answers to some frequently asked questions are
+    available <a target="_top" href="/getdp/doc/FAQ">here</a>.
+    Download version 0.77 (05 February 2001) below.
+    <p>
+    Red Hat package with documentation:
+    <ul>
+      <li><A href="/getdp/latest/getdp-0.77-1.i386.rpm">Linux (i386, glibc 2.1) RPM</A> 
+    </ul>
+    Executable tarball:
+    <ul>
+      <li><A href="/getdp/latest/getdp-Linux.tgz" >GetDP for Linux (i386, glibc 2.1)</A> 
+      <li><A href="/getdp/latest/getdp-win.tgz"   >GetDP for Windows 95/98/NT</A>
+      <li><A href="/getdp/latest/getdp-OSF1.tgz"  >GetDP for Digital Unix 4.0</A>
+      <li><A href="/getdp/latest/getdp-SunOS.tgz" >GetDP for Sun OS 5.5</A>
+      <li><A href="/getdp/latest/getdp-AIX.tgz"   >GetDP for IBM AIX</A>
+      <li><A href="/getdp/latest/getdp-IRIX.tgz"  >GetDP for IRIX 6.5</A>
+      <li><A href="/getdp/latest/getdp-HP-UX.tgz" >GetDP for HPUX 10.20</A>
+    </ul>
+
+    Example file:
+    <ul>
+      <li><A href="/getdp/latest/getdp-demo.tgz">GetDP sample example file</A>
+    </ul>
+
+  </font></td>
+
+</tr>
+
+<!------------------------------------------------------------------>
+
+<tr valign=top>
+
+  <td width="130" align="right">
+    <font color="#ffffff" face="Helvetica, Arial"><b>Authors</b></font>
+  </td>
+
+  <td width="60">
+  </td>
+
+  <td colspan=2 align="left"><font face="Helvetica, Arial" size=-1>
+
+    GetDP is developed by 
+    <a href="mailto:patrick.dular@ulg.ac.be">P. Dular</a> and 
+    <a href="mailto:Christophe.Geuzaine@ulg.ac.be">C. Geuzaine</a>, of the
+    <a target="_top" href="http://elap.montefiore.ulg.ac.be/">Department
+    of Electrical Engineering</a> (ELAP) of the 
+    <a target="_top" href="http://www.ulg.ac.be/">University of Liège</a>. 
+    Feel free to e-mail questions, comments or bugs!
+
+  </font></td>
+
+</tr>
+
+<!------------------------------------------------------------------>
+
+<tr valign=top>
+
+  <td width="130" align="right">
+    <font color="#ffffff" face="Helvetica, Arial"><b>Links</b></font>
+  </td>
+
+  <td width="60">
+  </td>
+
+  <td colspan=2 align="left"><font face="Helvetica, Arial" size=-1> 
+
+    <a target="_top" href="/gmsh/">Gmsh</a> is a three-dimensional meshing
+    tool (with pre- and post-processing facilities). Written in C/C++ and
+    using OpenGL, Gmsh can be a useful companion to GetDP for mesh generation
+    and postprocessing.
+
+  </font></td>
+
+</tr>
+
+<!------------------------------------------------------------------>
+
+</table>
+
+<p>
+
+</BODY>
+</HTML>
+
+<!---BEGINSCRIPT
+EOM
+ENDSCRIPT--->
