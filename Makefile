@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.34 2000-11-17 19:41:01 geuzaine Exp $
+# $Id: Makefile,v 1.35 2000-12-13 11:59:54 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -20,6 +20,7 @@
 #  'cvs -d :pserver:username@elap57.montefiore.ulg.ac.be:/usr/users57/cvs-master cmd'
 #  where * username is your username (you need an account on elap57)
 #        * 'cmd' is first 'login', then 'checkout getdp', and finally 'logout'
+#
 # ----------------------------------------------------------------------
 
 GETDP_RELEASE         = 0.77
@@ -293,6 +294,11 @@ tgzdoc:
 dem:
 	gtar zcvf getdp-demo.tgz $(GETDP_DEMO_DIR)
 
+compress_bin:
+	cd $(GETDP_BIN_DIR) && tar cvf getdp-$(GETDP_UNAME).tar getdp
+	gzip $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME).tar
+	mv $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME).tar.gz getdp-$(GETDP_UNAME).tgz
+
 # ----------------------------------------------------------------------
 # Black Box version (with embedded formulation and reduced interface)
 # ----------------------------------------------------------------------
@@ -333,21 +339,8 @@ dec: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
-
-linux-compat: tag
-	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
-           "CC=i386-glibc21-linux-gcc" \
-           "FC=i386-glibc21-linux-g77" \
-           "C_FLAGS=-O3 -DUSE_DEBUG" \
-           "C_PARSER_FLAGS=-O3" \
-           "F77_FLAGS=-O1" \
-           "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
-        ); done
-	i386-glibc21-linux-g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+	$(STRIP) $(GETDP_BIN_DIR)/getdp
 
 linux: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -359,8 +352,15 @@ linux: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+	$(STRIP) $(GETDP_BIN_DIR)/getdp
+
+rpm: src
+	mv $(GETDP_SRCRPM).tar.gz /usr/src/redhat/SOURCES
+	rpm -bb utils/getdp.spec
+	cp /usr/src/redhat/RPMS/i386/$(GETDP_SRCRPM)-1.i386.rpm .
+	cp /usr/src/redhat/BUILD/$(GETDP_SRCRPM)/bin/getdp .
+	gtar zcvf getdp-$(GETDP_UNAME).tgz getdp
 
 hp: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -374,9 +374,9 @@ hp: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT -D_UNDERSCORE" \
         ); done
-	fort77 +DAportable -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_MAIN_DIR)/Main.o \
+	fort77 +DAportable -o $(GETDP_BIN_DIR)/getdp $(GETDP_MAIN_DIR)/Main.o \
                $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+	$(STRIP) $(GETDP_BIN_DIR)/getdp
 
 sun: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -389,8 +389,8 @@ sun: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	$(FC) -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+	$(FC) -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+	$(STRIP) $(GETDP_BIN_DIR)/getdp
 
 ibm: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -403,8 +403,8 @@ ibm: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_UNDERSCORE" \
         ); done
-	$(FC) -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+	$(FC) -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+	$(STRIP) $(GETDP_BIN_DIR)/getdp
 
 cygwin: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -417,8 +417,8 @@ cygwin: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+	$(STRIP) $(GETDP_BIN_DIR)/getdp
 
 mingw:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -445,8 +445,8 @@ sgi: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	f77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+	f77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+	$(STRIP) $(GETDP_BIN_DIR)/getdp
 
 sgi64: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -459,7 +459,7 @@ sgi64: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	f77 -64 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+	f77 -64 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+	$(STRIP) $(GETDP_BIN_DIR)/getdp
 
 
