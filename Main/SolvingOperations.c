@@ -131,7 +131,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   double  MeanError, RelFactor_Modified ;
   int     Save_TypeTime ;
   double  Save_DTime ;
-  char    ResName[MAX_FILE_NAME_LENGTH], ResNum[5] = "00000" ;
+  char    ResName[MAX_FILE_NAME_LENGTH], ResNum[MAX_STRING_LENGTH] ;
   gScalar tmp ;
 
   struct Operation     * Operation_P ;
