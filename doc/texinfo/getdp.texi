@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.63 2004-04-26 03:05:06 geuzaine Exp $
+@c $Id: getdp.texi,v 1.64 2004-05-11 15:19:42 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 @c
@@ -3132,12 +3132,12 @@ To describe the node connections of branches in a network.
 
 @c todo: links
 @item Link
-To define links between degrees of freedom. This is not document yet.
+To define links between degrees of freedom. This is not documented yet.
 
 @c todo: linkcplx
 @item LinkCplx
 To define complex-valued links between degrees of freedom. This is not
-document yet.
+documented yet either.
 
 @end ftable
 
