@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.6 2000-10-30 09:23:51 dular Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.7 2000-10-31 16:30:16 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -27,7 +27,7 @@
 /*  M U L T I   H A R M O N I C  */
 
 struct DofData * MH_Init = NULL ;
-int NbrTimePoint_MH ;
+int NbrTimePoint_MH, NbrTimePointForSP_MH ;
 double *t_MH, *w_MH ; /* [ NBR_TIME_POINT ] */
 double **Psi_MH ; /* [ NBR_TIME_POINT ] [ NBR_HARMONIC ] */
 double ***PsiPsi_MH ; /* [ NBR_TIME_POINT ] [ NBR_HARMONIC ] [ NBR_HARMONIC ] */
@@ -101,16 +101,18 @@ void  F_MHToTime (F_ARG) {
 
 
 /* ------------------------------------------------------------------------ */
-/*  MH_InitTime                                                             */
+/*  MH_InitTimes                                                            */
 /* ------------------------------------------------------------------------ */
 
-void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmallestPeriod) {
+void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmallestPeriod, int Flag_Psi) {
 
   int iPul, iTime, iHar, jHar ;
   double MaxPulsation = 0. , MinPulsation = 1.e99 ;
 
 
   GetDP_Begin("MH_InitTimes");
+
+  NbrTimePointForSP_MH = NbrTimePointForSmallestPeriod ;
 
   /* NbrTimePoint_M */
 
@@ -121,7 +123,8 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
       MaxPulsation = Val_Pulsation [ iPul ] ;
   }
   NbrTimePoint_MH = 
-    (int)((double)MaxPulsation / (double)MinPulsation * (double)NbrTimePointForSmallestPeriod) ;
+    (int)rint((double)MaxPulsation / (double)MinPulsation 
+	      * (double)NbrTimePointForSmallestPeriod) ;
   printf ("MH_InitTime => NbrHar = %d  NbrTimePoint_MH = %d \n", NbrHar, NbrTimePoint_MH );
 
   /* Trapezoidal integration */
@@ -133,19 +136,26 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
   for (iTime=0 ; iTime<NbrTimePoint_MH ; iTime++)
     Psi_MH[iTime] = (double *)Malloc(sizeof(double)*NbrHar) ;
 
-  PsiPsi_MH = (double ***)Malloc(sizeof(double *)*NbrTimePoint_MH) ;
-  for (iTime=0 ; iTime<NbrTimePoint_MH ; iTime++) {
-    PsiPsi_MH[iTime] = (double **)Malloc(sizeof(double)*NbrHar) ;
-    for (iHar=0 ; iHar<NbrTimePoint_MH ; iHar++)
-      PsiPsi_MH[iTime][iHar] = (double *)Malloc(sizeof(double)*NbrHar) ;
+  if (!Flag_Psi) {
+    PsiPsi_MH = (double ***)Malloc(sizeof(double **)*NbrTimePoint_MH) ;
+    for (iTime=0 ; iTime<NbrTimePoint_MH ; iTime++) {
+      PsiPsi_MH[iTime] = (double **)Malloc(sizeof(double *)*NbrHar) ;
+      for (iHar=0 ; iHar<NbrHar ; iHar++)
+	PsiPsi_MH[iTime][iHar] = (double *)Malloc(sizeof(double)*NbrHar) ;
+    }
   }
 
   for ( iTime = 0 ; iTime < NbrTimePoint_MH ; iTime++ ) {
     t_MH [ iTime ] = (double)iTime / ( (double)NbrTimePoint_MH - 1. ) 
-                     / ( MinPulsation / TWO_PI ) ;
-    w_MH [ iTime ] = 2. / ( (double)NbrTimePoint_MH - 1.0 ) ;
+      / ( MinPulsation / TWO_PI ) ;
   } 
-  w_MH [ 0 ] = w_MH [ NbrTimePoint_MH - 1 ]  = 1. / ( (double)NbrTimePoint_MH - 1.) ;
+  
+  if (!Flag_Psi) {
+    for ( iTime = 0 ; iTime < NbrTimePoint_MH ; iTime++ ) {
+      w_MH [ iTime ] = 2. / ( (double)NbrTimePoint_MH - 1.0 ) ;
+    } 
+    w_MH [ 0 ] = w_MH [ NbrTimePoint_MH - 1 ]  = 1. / ( (double)NbrTimePoint_MH - 1.) ;
+  }
 
   for ( iTime = 0 ; iTime < NbrTimePoint_MH ; iTime++ ) {
     for ( iPul = 0 ; iPul < NbrHar /2 ; iPul++ ) {
@@ -160,12 +170,14 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
     }
   }
 
-  for ( iTime = 0 ; iTime < NbrTimePoint_MH ; iTime++ )
-    for ( iHar = 0 ; iHar < NbrHar ; iHar++ )
-      for ( jHar = 0 ; jHar < NbrHar ; jHar++ )
-	PsiPsi_MH [ iTime ] [ iHar ] [ jHar ] = 
-	  w_MH [ iTime ] * Psi_MH [ iTime ] [ iHar ] * Psi_MH [ iTime ] [ jHar ] ;
-    
+  if (!Flag_Psi) {
+    for ( iTime = 0 ; iTime < NbrTimePoint_MH ; iTime++ )
+      for ( iHar = 0 ; iHar < NbrHar ; iHar++ )
+	for ( jHar = 0 ; jHar < NbrHar ; jHar++ )
+	  PsiPsi_MH [ iTime ] [ iHar ] [ jHar ] = 
+	    w_MH [ iTime ] * Psi_MH [ iTime ] [ iHar ] * Psi_MH [ iTime ] [ jHar ] ;
+  }
+
   GetDP_End ;
 }
 
@@ -187,9 +199,10 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 
   GetDP_Begin("MH_TimeIntegration");
 
-  if (MH_Init != Current.DofData) {
+  if (MH_Init != Current.DofData ||
+      (MH_Init == Current.DofData && NbrTimePointForSP_MH != NbrTimePoint)) {
     MH_Init = Current.DofData ;
-    MH_InitTimes(Current.NbrHar, Current.DofData->Val_Pulsation, NbrTimePoint) ;
+    MH_InitTimes(Current.NbrHar, Current.DofData->Val_Pulsation, NbrTimePoint, 0) ;
   }
 
   for ( iTime = 0 ; iTime < NbrTimePoint_MH ; iTime++ ) {
@@ -228,6 +241,20 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 	}
 	break ;
       case TENSOR_SYM :
+	if (TypePsi == 1) {
+	  Msg(ERROR, "MHTimeIntegration: Type 1 (Tensor Psi) not allowed") ;
+	}
+	else {
+	  fprintf(stderr, " --> Tensor PsiPsi\n") ;
+	  for ( iHar = 0 ; iHar < Current.NbrHar ; iHar++ )
+	    for ( jHar = 0 ; jHar < Current.NbrHar ; jHar++ )
+	      for ( iDim = 0 ; iDim < 3 ; iDim++ )
+		for ( jDim = 0 ; jDim < 3 ; jDim++ )
+		  Matrix2_MH [ iHar*3 + iDim ] [ jHar*3 + jDim ] = 0. ;
+	  ValueOut->Type = TENSOR_MH ;
+	}
+	break ;
+      case TENSOR_DIAG :
 	if (TypePsi == 1) {
 	  Msg(ERROR, "MHTimeIntegration: Type 1 (Tensor Psi) not allowed") ;
 	}
@@ -292,6 +319,18 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 	  Matrix2_MH [iHar*3+1] [jHar*3+0] = Matrix2_MH [iHar*3+0] [jHar*3+1] ;
 	  Matrix2_MH [iHar*3+2] [jHar*3+0] = Matrix2_MH [iHar*3+0] [jHar*3+2] ;
 	  Matrix2_MH [iHar*3+2] [jHar*3+1] = Matrix2_MH [iHar*3+1] [jHar*3+2] ;
+	}
+      break ;
+
+    case TENSOR_DIAG :  /* if TypePsi == 2 */  /* Attention : a revoir */
+      for ( iHar = 0 ; iHar < Current.NbrHar ; iHar++ )
+	for ( jHar = 0 ; jHar < Current.NbrHar ; jHar++ ) {
+	  Matrix2_MH [iHar*3+0] [jHar*3+0] +=
+	    Value.Val[0] * PsiPsi_MH [ iTime ] [ iHar ] [ jHar ] ;
+	  Matrix2_MH [iHar*3+1] [jHar*3+1] +=
+	    Value.Val[1] * PsiPsi_MH [ iTime ] [ iHar ] [ jHar ] ;
+	  Matrix2_MH [iHar*3+2] [jHar*3+2] +=
+	    Value.Val[2] * PsiPsi_MH [ iTime ] [ iHar ] [ jHar ] ;
 	}
       break ;
 

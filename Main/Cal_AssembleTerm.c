@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.5 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.6 2000-10-31 16:30:58 dular Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -251,6 +251,7 @@ void  Cal_AssembleTerm_DtDt(struct Dof * Equ, struct Dof * Dof, double Val[]) {
 /* ------------------------------------------------------------------------ */
 
 void  Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
+  int     k ;
 
   GetDP_Begin("Cal_AssembleTerm_JacNL");
   
@@ -271,7 +272,9 @@ void  Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
       }
     }
     else {
-      Msg(ERROR, "JacNL not ready for Complex");
+      for (k = 0 ; k < Current.NbrHar ; k += 2) 
+	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k], 
+			  &Current.DofData->A, &Current.DofData->b) ;
     }
   }
 

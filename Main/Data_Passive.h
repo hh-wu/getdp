@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.17 2000-10-30 01:05:45 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.18 2000-10-31 16:30:58 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -23,7 +23,7 @@
 /* ------------------------------------------------------------------------ */
 
 #define MAX_DIM             9   /* second-rank tensor of order 3 : 3^2 = 9  */
-#define NBR_MAX_HARMONIC    4
+#define NBR_MAX_HARMONIC    10
 
 struct Value {
   int     Type ;
