@@ -32,9 +32,9 @@
 @setfilename   getdp.info
 @c variables
 @set EDITION   1.7
-@set VERSION   0.75
-@set DAY       20 
-@set MONTH     July 2000
+@set VERSION   0.76
+@set DAY       14 
+@set MONTH     August 2000
 @set COPYRIGHT @copyright{} 1997-2000 Patrick Dular, Christophe Geuzaine
 @set WEB-GETDP @uref{http://www.geuz.org/getdp/}
 @set WEB-GMSH  @uref{http://www.geuz.org/gmsh/}
@@ -816,7 +816,7 @@ The three constant types used in GetDP are @var{integer}, @var{real} and
 @var{string}.  These terminals have the same meaning and syntax as in
 the C or C++ programming languages. Besides general expressions
 (@var{expression}), purely constant expressions, denoted by the
-metasyntactic variable @var{expression-cst}, can also be defined:
+metasyntactic variable @var{expression-cst}, are also used:
 
 @example
 @var{expression-cst}:
@@ -830,10 +830,11 @@ metasyntactic variable @var{expression-cst}, can also be defined:
 
 Contrary to a general @var{expression} which is evaluated at runtime (thanks
 to an internal stack mechanism), an @var{expressions-cst} is completely
-evaluated during the syntactic analysis of the problem.  Definition of new
-constants or lists of constants with identifiers can be done outside any
-GetDP object or inside @code{Group}, @code{Function} and @code{Constraint}
-objects. The syntax for the definition of constants is the following:
+evaluated during the syntactic analysis of the problem (when GetDP reads the
+@file{.pro} file).  Definition of such constants or lists of constants with
+identifiers can be done outside any GetDP object or inside @code{Group},
+@code{Function} and @code{Constraint} objects. The syntax for the definition
+of constants is the following:
 
 @example
 DefineConstant [ 
@@ -2181,6 +2182,7 @@ defines the post-processings @code{@var{post-proces@-sing-id}@{@var{i}@}},
 @tindex UsingPost
 @tindex Plot
 @tindex Print
+@tindex Adapt
 
 @mvindex @var{post-operation-id}
 @mvindex @var{post-operation-op}
@@ -2216,7 +2218,8 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
 
 @var{post-operation-op}:
   Plot[ @var{post-quantity-id}, @var{plot-support} <,@var{plot-option}> @dots{} ] |
-  Print[ @var{post-quantity-id}, On @var{group-def} <,@var{print-option}> @dots{} ] | @var{etc}
+  Print[ @var{post-quantity-id}, On @var{group-def} <,@var{print-option}> @dots{} ] |
+  @var{etc}
 
 @var{plot-support}:
   OnRegion @var{group-def} | OnGrid @var{group-def} | @var{etc}
@@ -2234,8 +2237,8 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
 @noindent Note:
 @enumerate
 @item
-Both @code{PostOperation} syntaxes are equivalent. The second one is more concise.
-@c but the first one is more in the overall philosophy ;-)
+Both @code{PostOperation} syntaxes are equivalent.  The first one conforms to
+the overall interface, but the second one is more concise.
 @end enumerate
 
 @xref{Types for PostOperation}, for the complete list of options and
@@ -2397,67 +2400,67 @@ expressions (@var{expression-cst}, see @ref{Constants}).
 
 @item Exp 
 @code{[@var{expr}]}@*
-Exponential function: e^@var{expr}
+Exponential function: e^@var{expr}.
 
 @item Log
 @code{[@var{expr}]}@*
-Natural logarithm: ln(@var{expr}), @var{expr}>0
+Natural logarithm: ln(@var{expr}), @var{expr}>0.
 
 @item Log10
 @code{[@var{expr}]}@*
-Base 10 logarithm: log10(@var{expr}), @var{expr}>0
+Base 10 logarithm: log10(@var{expr}), @var{expr}>0.
 
 @item Sqrt 
 @code{[@var{expr}]}@*
-Square root, @var{expr}>=0
+Square root, @var{expr}>=0.
 
 @item Sin
 @code{[@var{expr}]}@*
-Sine of @var{expr}
+Sine of @var{expr}.
 
 @item Asin 
 @code{[@var{expr}]}@*
-Arc sine (inverse sine) of @var{expr} in [-Pi/2,Pi/2], @var{expr} in [-1,1]
+Arc sine (inverse sine) of @var{expr} in [-Pi/2,Pi/2], @var{expr} in [-1,1].
 
 @item Cos  
 @code{[@var{expr}]}@*
-Cosine of @var{expr}
+Cosine of @var{expr}.
 
 @item Acos 
 @code{[@var{expr}]}@*
-Arc cosine (inverse cosine) of @var{expr} in [0,Pi], @var{expr} in [-1,1]
+Arc cosine (inverse cosine) of @var{expr} in [0,Pi], @var{expr} in [-1,1].
 
 @item Tan  
 @code{[@var{expr}]}@*
-Tangent of @var{expr}
+Tangent of @var{expr}.
 
 @item Atan 
 @code{[@var{expr}]}@*
-Arc tangent (inverse tangent) of @var{expr} in [-Pi/2,Pi/2]
+Arc tangent (inverse tangent) of @var{expr} in [-Pi/2,Pi/2].
 
 @item Atan2
 @code{[@var{expr1},@var{expr2}]}@*
-Arc tangent (inverse tangent) of @var{expr1}/@var{expr2} in [-Pi,Pi]
+Arc tangent (inverse tangent) of @var{expr1}/@var{expr2} in [-Pi,Pi].
 
 @item Sinh 
 @code{[@var{expr}]}@*
-Hyperbolic sine of @var{expr}
+Hyperbolic sine of @var{expr}.
 
 @item Cosh 
 @code{[@var{expr}]}@*
-Hyperbolic cosine of @var{expr}
+Hyperbolic cosine of @var{expr}.
 
 @item Tanh 
 @code{[@var{expr}]}@*
-Hyperbolic tangent of @var{expr}
+Hyperbolic tangent of @var{expr}.
 
 @item Fabs 
 @code{[@var{expr}]}@*
-Absolute value of @var{expr}
+Absolute value of @var{expr}.
 
 @item Fmod
 @code{[@var{expr1},@var{expr2}]}@*
-Remainder of @var{expr1}/@var{expr2}, with the sign of @var{expr1}
+Remainder of @var{expr1}/@var{expr2}, with the sign of @var{expr1}.
 
 @end ftable
 
@@ -2476,32 +2479,32 @@ Remainder of @var{expr1}/@var{expr2}, with the sign of @var{expr1}
 @item Cross
 @code{[@var{expr1},@var{expr2}]}@*
 Cross product of @var{expr1} by @var{expr2}; @var{expr1} and @var{expr2}
-must be vectors
+must be vectors.
 
 @item Hypot
 @code{[@var{expr1},@var{expr2}]}@*
-@code{Sqrt[@var{expr1}^2+@var{expr2}^2]}
+@code{Sqrt[@var{expr1}^2+@var{expr2}^2]}.
 
 @item Norm
 @code{[@var{expr}]}@* 
 Absolute value if @var{expr} is a scalar; euclidian norm if @var{expr}
-is a vector
+is a vector.
 
 @item SquNorm
 @code{[@var{expr}]}@*
-Square norm: @code{Norm[@var{expr}]^2}
+Square norm: @code{Norm[@var{expr}]^2}.
 
 @item Unit
 @code{[@var{expr}]}@*
-Normalization: @code{@var{expr}/Norm[@var{expr}]}
+Normalization: @code{@var{expr}/Norm[@var{expr}]}.
 
 @item Transpose
 @code{[@var{expr}]}@*
-Transposition; @var{expr} must be a tensor
+Transposition; @var{expr} must be a tensor.
 
 @item TTrace
 @code{[@var{expr}]}@*
-Trace; @var{expr} must be a tensor
+Trace; @var{expr} must be a tensor.
 
 @c @item Rotate
 @c @code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4}]}@*
@@ -2509,16 +2512,16 @@ Trace; @var{expr} must be a tensor
 
 @item F_Cos_wt_p
 @code{[]@{@var{real1},@var{real2}@}}@*
-@code{Cos[@var{real1}*$Time+@var{real2}]}
+@code{Cos[@var{real1}*$Time+@var{real2}]}.
 
 @item F_Sin_wt_p
 @code{[]@{@var{real1},@var{real2}@}}@*
-@code{Sin[@var{real1}*$Time+@var{real2}]}
+@code{Sin[@var{real1}*$Time+@var{real2}]}.
 
 @item F_Period
 @code{[@var{expr}]@{@var{real}@}}@* 
 @code{Fmod[@var{expr},@var{real}] + (@var{expr}<0?@var{real}:0)}; the
-result is always in [0,@var{real}[
+result is always in [0,@var{real}[.
 
 @end ftable
 
@@ -2551,21 +2554,22 @@ The triplets of values given in the definitions below correspond to the
 
 @item Laplace
 @code{[]@{@var{int}@}}@*
-@code{r/2}, @code{1/(2*Pi)*ln(1/r)}, @code{1/(4*Pi*r)}
+@code{r/2}, @code{1/(2*Pi)*ln(1/r)}, @code{1/(4*Pi*r)}.
 
 @item GradLaplace
 @code{[]@{@var{int}@}}@*
 Gradient of @code{Laplace} relative to the destination point (@code{$X},
-@code{$Y}, @code{$Z})
+@code{$Y}, @code{$Z}).
 
 @item Helmholtz
-@code{[]@{@var{int}, @var{double}@}}@*
-@code{exp(j*k0*r)/(4*Pi*r)}, where @code{k0} is given by the double parameter
+@code{[]@{@var{int}, @var{real}@}}@*
+@code{exp(j*k0*r)/(4*Pi*r)}, where @code{k0} is given by the double parameter.
 
 @item GradHelmholtz
-@code{[]@{@var{int}, @var{double}@}}@*
+@code{[]@{@var{int}, @var{real}@}}@*
 Gradient of @code{Helmholtz} relative to the destination point (@code{$X},
-@code{$Y}, @code{$Z})
+@code{$Y}, @code{$Z}).
+
 @end ftable
 
 
@@ -2584,84 +2588,84 @@ Gradient of @code{Helmholtz} relative to the destination point (@code{$X},
 
 @item Complex
 @code{[@var{even-number-of-expr}] (even)}@*
-Create a (multi-harmonic) complex expression from an even number of
-real-valued expressions
+Creates a (multi-harmonic) complex expression from an even number of
+real-valued expressions.
 
 @item Re
 @code{[@var{expr}]}@*
-Take the real part of a complex-valued expression
+Takes the real part of a complex-valued expression.
 
 @item Im
 @code{[@var{expr}]}@*
-Take the imaginary part of a complex-valued expression
+Takes the imaginary part of a complex-valued expression.
 
 @item Vector
 @code{[@var{expr1},@var{expr2},@var{expr3}]}@*
-Create a vector from 3 scalars
+Creates a vector from 3 scalars.
 
 @item Tensor
 @code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4},@var{expr5},@var{expr6},@var{expr7},@var{expr8},@var{expr9}]}@*
-Create a second-rank tensor of order 3 from 9 scalars
+Creates a second-rank tensor of order 3 from 9 scalars.
 
 @item TensorV
 @code{[@var{expr1},@var{expr2},@var{expr3}]}@*
-Create a second-rank tensor of order 3 from 3 vectors
+Creates a second-rank tensor of order 3 from 3 vectors.
 
 @item TensorSym
 @code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4},@var{expr5},@var{expr6}]}@*
-Create a symmetrical second-rank tensor of order 3 from 6 scalars
+Creates a symmetrical second-rank tensor of order 3 from 6 scalars.
 
 @item TensorDiag
 @code{[@var{expr1},@var{expr2},@var{expr3}]}@*
-Create a diagonal second-rank tensor of order 3 from 3 scalars
+Creates a diagonal second-rank tensor of order 3 from 3 scalars.
 
 @item CompX
 @code{[@var{expr}]}@*
-Get the X component of a vector
+Gets the X component of a vector.
 
 @item CompY
 @code{[@var{expr}]}@*
-Get the Y component of a vector
+Gets the Y component of a vector.
 
 @item CompZ
 @code{[@var{expr}]}@*
-Get the Z component of a vector
+Gets the Z component of a vector.
 
 @item CompXX
 @code{[@var{expr}]}@*
-Get the XX component of a tensor
+Gets the XX component of a tensor.
 
 @item CompXY
 @code{[@var{expr}]}@*
-Get the XY component of a tensor
+Gets the XY component of a tensor.
 
 @item CompXZ
 @code{[@var{expr}]}@*
-Get the XZ component of a tensor
+Gets the XZ component of a tensor.
 
 @item CompYX
 @code{[@var{expr}]}@*
-Get the YX component of a tensor
+Gets the YX component of a tensor.
 
 @item CompYY
 @code{[@var{expr}]}@*
-Get the YY component of a tensor
+Gets the YY component of a tensor.
 
 @item CompYZ
 @code{[@var{expr}]}@*
-Get the YZ component of a tensor
+Gets the YZ component of a tensor.
 
 @item CompZX
 @code{[@var{expr}]}@*
-Get the ZX component of a tensor
+Gets the ZX component of a tensor.
 
 @item CompZY
 @code{[@var{expr}]}@*
-Get the ZY component of a tensor
+Gets the ZY component of a tensor.
 
 @item CompZZ
 @code{[@var{expr}]}@*
-Get the ZZ component of a tensor
+Gets the ZZ component of a tensor.
 
 @end ftable
 
@@ -2682,23 +2686,23 @@ Get the ZZ component of a tensor
 
 @item X
 @code{[]}@*
-Get the X coordinate
+Gets the X coordinate.
 
 @item Y
 @code{[]}@*
-Get the Y coordinate
+Gets the Y coordinate.
 
 @item Z
 @code{[]}@*
-Get the Z coordinate
+Gets the Z coordinate.
 
 @item XYZ
 @code{[]}@*
-Get X, Y and Z in a vector
+Gets X, Y and Z in a vector.
 
 @item F_aX_bY_cZ
 @code{[]@{@var{real1},@var{real2},@var{real3}@}}@*
-@code{@var{real1}*X[] + @var{real2}*Y[] + @var{real3}*Z[]}
+@code{@var{real1}*X[] + @var{real2}*Y[] + @var{real3}*Z[]}.
 
 @c a documenter 
 @c @item F_aX21_bY21_cZ21
@@ -2723,37 +2727,41 @@ Get X, Y and Z in a vector
 
 @item Printf
 @code{[@var{expr}]}@*
-Print the value of @var{expr} when evaluated
+Prints the value of @var{expr} when evaluated.
 
 @item Normal
 @code{[]}@*
-Compute the normal to the element
+Computes the normal to the element.
 
 @item NormalSource
 @code{[]}@* 
-Compute the normal to the source element (only valid in a quantity of
-Integral type)
+Computes the normal to the source element (only valid in a quantity of
+Integral type).
 
 @item F_CompElementNum
 @code{[]}@*
-Return 0 if the current element and the current source element are
-identical
+Returns 0 if the current element and the current source element are
+identical.
 
 @item InterpolationLinear
 @code{[]@{@var{even-number-of-real}@}}@*
-Linear interpolation of points
+Linear interpolation of points.
 
 @item dInterpolationLinear
 @code{[]@{@var{even-number-of-real}@}}@*
-Derivative of linear interpolation of points
+Derivative of linear interpolation of points.
 
 @item InterpolationAkima
 @code{[]@{@var{even-number-of-real}@}}@*
-Akima interpolation of points
+Akima interpolation of points.
 
 @item dInterpolationAkima
 @code{[]@{@var{even-number-of-real}@}}@*
-Derivative of Akima interpolation of points
+Derivative of Akima interpolation of points.
+
+@item Degree
+@code{[@var{discrete-quantity}]}@*
+Returns the interpolation degree of the @var{discrete-quantity}.
 
 @end ftable
 
@@ -3616,11 +3624,21 @@ Smooth the solution @var{integer} times.
 Converts a harmonic solution to a time-dependant one (with @var{integer}
 steps).
 @item Dimension @var{integer}
-Forces the dimension of the elements to consider in an element search.
+Forces the dimension of the elements to consider in an element
+search. Specifies the problem dimension during an adaption (h- or
+p-refinement).
 @item TimeStep @var{real-list}
 Output results for the specified time steps only.
 @item Format @var{post-operation-fmt}
 Output results in the specified format.
+@item Adapt @code{P1}|@code{H1}|@code{H2}
+Performs p- or h-refinement on the post-processing result, considered as an
+error map.
+@item Target @var{expression-cst} 
+Specifies the target for the optimizer during adaption.
+@item Value @var{real-list}
+Specifies acceptable output values for discrete optimization (e.g. the
+available interpolation degrees).
 @end vtable
 
 
@@ -3635,14 +3653,19 @@ Output results in the specified format.
 Post processing format readable by Gmsh. 
 @item Gnuplot
 @item Table
-Column-oriented output, e.g.@: suitable for Gnuplot, Excel, Caleida
-Graph, etc. The columns are: @var{element-type} @var{x-coords}
-@var{y-coords} @var{z-coords} < @var{double} @var{double} @var{double} >
-@var{values}.
+Column-oriented output, e.g.@: suitable for Gnuplot, Excel, Caleida Graph,
+etc. The columns are: @var{element-type} @var{x-coords} @var{y-coords}
+@var{z-coords} < @var{real} @var{real} @var{real} > @var{values}. The three
+optional @var{real} numbers preceding the @var{values} contain
+context-dependant information, depending on the type of plot: curvilinear
+abscissa for @code{OnLine} plots, normal to the plane for @code{OnPlane}
+plots, etc.
 @item TimeTable
 Time oriented column output, e.g.@: suitable for Gnuplot, Excel, Caleida
 Graph, etc. The columns are: @var{time-step} @var{time} @var{x-coords}
 @var{y-coords} @var{z-coords} @var{value}.
+@item Adaption
+Adaption map. Undocumented.
 @end vtable
 
 
@@ -5000,6 +5023,14 @@ Restarts processing of a transient problem interrupted before being complete.
 @item -solve @var{resolution-id}
 @cindex @code{-solve}
 Same as @code{-pre @var{resolution-id} -cal}.
+
+@item -adapt @var{file}
+@cindex @code{-adapt}
+Reads adaption constraints from file.
+
+@item -degree @var{real}
+@cindex @code{-degree}
+Specifies the maximum interpolation degree.
 
 @item -bin 
 @cindex @code{-bin}

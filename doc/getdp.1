@@ -5,7 +5,7 @@
 .\" Copyright (c) 1998-2000 C. Geuzaine, P. Dular
 .\" 
 .\" ======================================================================
-.TH GetDP 0.75 "29 July 2000"
+.TH GetDP 0.76 "14 August 2000"
 .UC 4
 .SH NAME
 GetDP \- a General environment for the treatment of Discrete Problems
@@ -82,6 +82,12 @@ save processing results in separate files (one for each timestep).
 .B \-res \fIfilename(s)\fP
 load processing results from \fIfilename(s)\fP instead of from the
 default problem file name with the \fI.res\fP extension appended.
+.TP 4
+.B \-adapt \fIfilename(s)\fP
+read adaption constraints from \fIfilename(s)\fP.
+.TP 4
+.B \-degree \fIfloat\fP
+specify maximum interpolation degree.
 .TP 4
 .B \-log
 saves all processing history in a log file (the input file name with
