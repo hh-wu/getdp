@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.44 2001-05-06 14:36:44 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.45 2001-05-18 07:06:51 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -120,7 +120,7 @@ void Signal (int sig_num){
 
   if(sig_num == SIGINT){
     if(!InteractiveLevel){
-      if(Flag_VERBOSE > 1){
+      if(TreatmentStatus == _CAL && Flag_VERBOSE > 1){
 	Msg(BIGINFO, "Switching to low verbosity mode"); 
 	Flag_VERBOSE = 1;
       }
