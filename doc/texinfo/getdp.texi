@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.55 2003-07-23 18:38:14 geuzaine Exp $
+@c $Id: getdp.texi,v 1.56 2003-07-23 18:44:25 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 @c
@@ -371,9 +371,8 @@ License}). Further information about this license is available from the GNU
 Project webpage @uref{http://www.gnu.org/copyleft/gpl-faq.html}.  Detailed
 copyright information can be found in @ref{Credits}.
 
-The source code and various pre-compiled versions of GetDP (for most of the
-classical UNIX platforms, for Windows and for Mac OS) can be downloaded from
-the web site @value{GETDP-WEB}.
+The source code and various pre-compiled versions of GetDP (for Unix,
+Windows and Mac OS) can be downloaded from the web site @value{GETDP-WEB}.
 
 If you use GetDP, we would appreciate that you mention it in your
 work. Published references, as well as the latest news about GetDP
