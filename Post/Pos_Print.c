@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.33 2000-11-25 23:09:38 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.34 2000-12-01 11:09:28 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1050,7 +1050,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	  LETS_PRINT_THE_RESULT ;
 	}
       }
-      if(PSO_P->Depth < 2) fprintf(PostStream, "\n");
+      if(PSO_P->Depth < 2 && !Flag_BIN) fprintf(PostStream, "\n");
     }
 
     if(PSO_P->Depth > 1){
@@ -1121,9 +1121,9 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	  Current.z = Z[0] + (Z[1]-Z[0])*S[0] + (Z[2]-Z[0])*S[1] + (Z[3]-Z[0])*S[2] ;
 	  LETS_PRINT_THE_RESULT ;
 	}
-	fprintf(PostStream, "\n");
+	if(!Flag_BIN) fprintf(PostStream, "\n");
       }
-      fprintf(PostStream, "\n");
+      if(!Flag_BIN) fprintf(PostStream, "\n");
     }
     break;
 
@@ -1147,7 +1147,8 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	Normal[2] = 0. ;
 	LETS_PRINT_THE_RESULT ;
       }
-      if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1])>1) fprintf(PostStream, "\n");
+      if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1])>1 && !Flag_BIN) 
+	fprintf(PostStream, "\n");
     }
     break;
   }

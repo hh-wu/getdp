@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.15 2000-11-27 16:27:43 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.16 2000-12-01 11:09:28 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -396,6 +396,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
     }
+    List_Put(TimeValue_L, TimeStep, &Time);
     if (HarmonicToTime == 1)
       for(k = 0 ; k < NbHarmonic ; k++)
 	for(i = 0 ; i < NbrNodes ; i++)
