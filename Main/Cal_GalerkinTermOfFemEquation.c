@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.12 2002-01-18 18:14:50 geuzaine Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.13 2002-01-18 19:47:57 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -12,7 +12,7 @@
 #include "CurrentData.h"
 #include "Tools.h"
 
-
+void  Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTerm_P) ;
 void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 					    struct EquationTerm     * EquationTerm_P,
 					    struct QuantityStorage  * QuantityStorage_P0) ;

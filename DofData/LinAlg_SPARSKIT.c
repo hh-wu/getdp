@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.14 2001-11-22 15:38:35 ledinh Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.15 2002-01-18 19:47:57 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -781,7 +781,7 @@ void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1){
 
   GetDP_Begin("LinAlg_GetColumnInMatrix");
 
-   get_column_in_matrix(&M->M, col, V1->V);
+  get_column_in_matrix(&M->M, col, V1->V);
 
   GetDP_End ;
 }

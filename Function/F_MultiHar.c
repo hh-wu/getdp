@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.14 2002-01-18 18:05:33 geuzaine Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.15 2002-01-18 19:47:57 geuzaine Exp $"
 
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
@@ -48,7 +48,9 @@ int NbrValues_Type (Type){
   case VECTOR : case TENSOR_DIAG : return 3 ; 
   case TENSOR_SYM : return 6 ;
   case TENSOR : return 9 ;
-  default : Msg(ERROR, "Unknown type in NbrValues_Type");
+  default :
+    Msg(ERROR, "Unknown type in NbrValues_Type");
+    return 0;
   }
 }
 
@@ -85,9 +87,9 @@ void  * Get_RealProductFunction_Type1xType2xType1 (int Type1, int Type2) {
     GetDP_Return((void *)Product_VECTORxSCALARxVECTOR) ;
   } else {
     Msg(ERROR, "Not allowed types in Get_RealProductFunction_Type1xType2xType1");
+    GetDP_Return(NULL) ;
   }
- 
-  GetDP_End ; 
+
 }
 
 
@@ -107,7 +109,7 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
 		     double ***H_P, double ****HH_P, double **t_P, double **w_P){
   int NbrHar, iPul, iTime, iHar, jHar, NbrPointsX ;
   double *Val_Pulsation, MaxPuls, MinPuls ;
-  double **H, ***HH, *t, *w, sum ;
+  double **H, ***HH, *t, *w ;
   struct MH_InitData MH_InitData_S, *MH_InitData_P ;
   
   GetDP_Begin("MH_Get_InitData(");
@@ -120,8 +122,8 @@ void MH_Get_InitData(int Case, int NbrPoints, int *NbrPointsX_P,
   if (MH_InitData_L == NULL)
     MH_InitData_L = List_Create(1, 1, sizeof(struct MH_InitData)) ; 
 
-  if (MH_InitData_P = (struct MH_InitData *)
-      List_PQuery(MH_InitData_L, &MH_InitData_S, fcmp_MH_InitData)){
+  if ((MH_InitData_P = (struct MH_InitData *)
+      List_PQuery(MH_InitData_L, &MH_InitData_S, fcmp_MH_InitData))){
     *H_P  = MH_InitData_P->H;
     *HH_P = MH_InitData_P->HH;
     *t_P  = MH_InitData_P->t;
@@ -234,7 +236,6 @@ void  F_MHToTime0 (int init, struct Value * A, struct Value * V,
 		   int iTime, int NbrPointsX, double * TimeMH) {
 
   static double **H, ***HH, *t, *weight;
-  double Values[MAX_DIM];
   int iVal, nVal, iHar;
 
   GetDP_Begin("F_MHToTime0");
@@ -317,7 +318,6 @@ void MHTransform(struct Element * Element, struct QuantityStorage * QuantityStor
   double **H, ***HH, *t, *weight ;
   int NbrHar;
   struct Value t_Value, MH_Value_Tr;
-  double Values[MAX_DIM];
   int NbrPointsX, iVal, nVal1, nVal2, iHar, iTime;
 
   MH_Get_InitData(1, NbrPoints, &NbrPointsX, &H, &HH, &t, &weight);
@@ -370,8 +370,8 @@ void  Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationT
 
   struct FemLocalTermActive  * FI ;
   List_T * WholeQuantity_L;
-  struct WholeQuantity   *WholeQuantity_P0, *WholeQuantity_P ;
-  int i_WQ, iHar, jHar, iTime ;
+  struct WholeQuantity   *WholeQuantity_P0 ;
+  int i_WQ ;
 
   GetDP_Begin("Cal_InitGalerkinTermOfFemEquation_MHJacNL");
 
@@ -462,15 +462,15 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   double  Val     [3*NBR_MAX_BASISFUNCTIONS];
 
   int     i, j, k, Type_Dimension,  Nbr_IntPoints, i_IntPoint ;
-  int     iTime, iDof, jDof, iHar, jHar, nVal1, nVal2, iVal1, iVal2, Type1, Type2;
-  double **H, ***HH, *t, *weight, Factor, plus, plus0, weightIntPoint;
-  int NbrPointsX, OffSet, iVal, nVal;
+  int     iTime, iDof, jDof, iHar, jHar, nVal1, nVal2, iVal1, iVal2, Type1;
+  double **H, ***HH, *weight, Factor, plus, plus0, weightIntPoint;
+  int NbrPointsX, OffSet;
   struct Expression * Expression_P;
   struct Dof * Dofi, *Dofj;
   struct Value t_Value;
   gMatrix * Jac;
 
-  double element, ele2, ref1, ref2, Eps = 1e-6, one=1.0 ;
+  double one=1.0 ;
   int iPul, ZeroHarmonic, DcHarmonic;
 
   double  E_MH [NBR_MAX_BASISFUNCTIONS][NBR_MAX_BASISFUNCTIONS] [NBR_MAX_HARMONIC][NBR_MAX_HARMONIC] ;

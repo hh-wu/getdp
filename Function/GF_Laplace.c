@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Laplace.c,v 1.7 2002-01-18 18:07:53 geuzaine Exp $"
+#define RCSID "$Id: GF_Laplace.c,v 1.8 2002-01-18 19:47:57 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -24,7 +24,6 @@ extern int Flag_RemoveSingularity ;
 
 void  GF_Laplace (F_ARG) {
   double d ;
-  int k ;
 
   GetDP_Begin("GF_Laplace");
 
@@ -60,7 +59,6 @@ void  GF_Laplace (F_ARG) {
   }
 
   V->Type = SCALAR ;
-  /* for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ; */
 
   GetDP_End ;
 }
@@ -74,7 +72,6 @@ void  GF_Laplace (F_ARG) {
 void GF_GradLaplace (F_ARG) {
 
   double xxs, yys, zzs, r ;
-  int k ;
 
   GetDP_Begin("GF_GradLaplace");
 
@@ -104,13 +101,7 @@ void GF_GradLaplace (F_ARG) {
   }
 
   V->Type = VECTOR ;
-  /*
-  for (k=2 ; k<Current.NbrHar ; k+=2) {
-    V->Val[k*MAX_DIM+0] = V->Val[0] ;
-    V->Val[k*MAX_DIM+1] = V->Val[1] ;
-    V->Val[k*MAX_DIM+2] = V->Val[2] ;
-  }
-  */
+
   GetDP_End ;
 }
 
@@ -122,7 +113,6 @@ void GF_GradLaplace (F_ARG) {
 void GF_NPxGradLaplace (F_ARG) {
 
   double x1x0, x2x0, y1y0, y2y0, z1z0, z2z0, xxs, yys, zzs, a, b, c ;
-  int k ;
 
   GetDP_Begin("GF_NPxGradLaplace");
 
@@ -164,8 +154,6 @@ void GF_NPxGradLaplace (F_ARG) {
     break;
   }
 
-  /* for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ; */
-
   GetDP_End ;
 }
 
@@ -178,7 +166,6 @@ void GF_NPxGradLaplace (F_ARG) {
 void GF_NSxGradLaplace (F_ARG) {
 
   double x1x0, x2x0, y1y0, y2y0, z1z0, z2z0, xxs, yys, zzs, a, b, c ;
-  int k ;
 
   GetDP_Begin("GF_NSxGradLaplace");
 
@@ -219,8 +206,6 @@ void GF_NSxGradLaplace (F_ARG) {
     Msg(ERROR, "Bad Parameter for 'GF_NSxGradLaplace' (%d)", (int)Fct->Para[0]);
     break;
   }
-
-  /* for (k=2 ; k<Current.NbrHar ; k+=2) V->Val[k] = V->Val[0] ; */
 
   GetDP_End ;
 }

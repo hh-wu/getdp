@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.12 2002-01-18 17:58:59 geuzaine Exp $ */
+/* $Id: F_Function.h,v 1.13 2002-01-18 19:47:57 geuzaine Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -123,7 +123,8 @@ void  F_TransformPiezoT (F_ARG) ;  /* pour Tuan */
 /* F_MultiHar */
 
 void  F_MHToTime           (F_ARG) ;
-/*void  F_MHToTime2          (F_ARG) ; */
+
+/* the following should go somewhere else... */
 
 void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 			   List_T * WholeQuantity_L, int FreqOffSet,
@@ -133,7 +134,9 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 			   struct Value *ValueOut) ;
 void  F_MHToTime0 (int init, struct Value * A, struct Value * V, 
 		   int iTime, int NbrTimePoint, double * TimeMH) ;
-
+void  MHTransform(struct Element * Element, struct QuantityStorage * QuantityStorage_P0,
+		  double u, double v, double w, struct Value *MH_Value,
+		  struct Expression * Expression_P, int NbrPoints);
 
 #undef F_ARG
 

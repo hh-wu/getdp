@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.40 2002-01-18 18:30:56 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.41 2002-01-18 19:47:57 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -17,7 +17,9 @@
 #include "CurrentData.h"
 #include "Magic.h"
 
-
+/*
+  All this stuff should reaaly go into appropriate header files...
+*/
 
 int  fcmp_DefineSystem_Name(const void * a, const void * b) ;
 int  fcmp_PostOperation_Name(const void * a, const void * b) ;
@@ -32,8 +34,6 @@ static int  Init_Update = 0 ; /* provisoire */
 
 void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double shift) ;
 
-
-
 int Flag_RHS = 0;
 
 struct Group * Generate_Group = NULL;
@@ -42,6 +42,8 @@ int Flag_Pos_TimeLoop = 0;
 
 double **MH_Moving_Matrix = NULL ; 
 
+void  Init_MovingBand2D (struct Group * Group_P);
+void  Mesh_MovingBand2D (struct Group * Group_P);
 void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
 			struct DofData * DofData_P, 
 			struct DofData * DofData_P0, 
@@ -166,12 +168,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   char    FileName[MAX_FILE_NAME_LENGTH];
   char    NameApp[MAX_FILE_NAME_LENGTH];
   gScalar tmp ;
-
   double * Scales, d1 ;
-  int ksol, NbrFreq, NbrSol ;
-
-  double Factor, SaveTime;
-  double SaveTime2;
+  int NbrSol ;
+  double SaveTime;
 
 
   struct Operation     * Operation_P ;
@@ -187,7 +186,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 
   /* adaptive relaxation */
-  gVector x_Save, dx_Save, b_Save;
+  gVector x_Save;
   int NbrSteps_relax;
   double  Norm, Cal_NormVector(gVector *);
   double Frelax, Frelax_Opt, Error_Prev;
@@ -202,13 +201,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   double hop[20][20] ;
   double DCfactor ;
 
-  void Dof_GetDof_Four(struct DofData * DofData_P, struct DofData * DofData2_P) ;
-
   int NbrHar1, NbrHar2, NbrDof1, NbrDof2 ;
-
   double dd ;
-
-  struct Dof * Dof2_P ;
   int NumDof ;
 
 
@@ -896,13 +890,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	    (int)Current.TimeStep) ;
 
 	Flag_Pos_TimeLoop = 1;
-	SaveTime2 = Current.Time ;
+	SaveTime = Current.Time ;
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopTheta.Operation, 
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
 	Flag_Pos_TimeLoop = 0;
-	Current.Time = SaveTime2 ;
+	Current.Time = SaveTime ;
 
       }
 
@@ -1473,34 +1467,20 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 }
 
 /* ------------------------------------------------------------------------ */
-/*  G e n e r a t e _ S y s t e m                                           */
+/*  R e G e n e r a t e _ S y s t e m                                       */
 /* ------------------------------------------------------------------------ */
-
-
-
 
 void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
 			struct DofData * DofData_P, 
 			struct DofData * DofData_P0, 
 			int Flag_Jac, int Flag_Separate) {
 
-  int    i, Nbr_Formulation, Index_Formulation, i_TimeStep ;
-  struct Solution        * Solution_P, Solution_S ;
+  int    i, Nbr_Formulation, Index_Formulation ;
   struct Formulation     * Formulation_P ;
-
-  FILE * file ;
 
   GetDP_Begin("Generate_System");
 
   LinAlg_ZeroMatrix(&Current.DofData->A) ;
-
-
-  /* file = fopen("hallo", "w");
-  LinAlg_PrintMatrix(file, &DofData_P->A) ;
-  i=0.;
-  i =1 /i;
-  */
-
   LinAlg_ZeroVector(&Current.DofData->b) ;
  
   Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;

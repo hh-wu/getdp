@@ -1,4 +1,4 @@
-/* $Id: Solver.h,v 1.9 2001-08-10 09:55:03 geuzaine Exp $ */
+/* $Id: Solver.h,v 1.10 2002-01-18 19:47:57 geuzaine Exp $ */
 #ifndef _SOLVER_H_
 #define _SOLVER_H_
 
@@ -145,6 +145,8 @@ void identity_matrix (Matrix *M);
 
 void scale_matrix (int scaling, Matrix *M);
 void scale_vector (int ROW_or_COLUMN, Matrix *M, double *V);
+
+void get_column_in_matrix (Matrix *M, int col, double *V);
 
 void formatted_write_matrix (FILE *pfile, Matrix *M, int style);
 void formatted_write_vector (FILE *pfile, int Nb, double *V, int style);

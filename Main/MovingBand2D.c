@@ -1,5 +1,6 @@
 #include <stdlib.h> /* pour int abs(int) */
 #include <stdio.h>
+#include <math.h>
 
 #include "GetDP.h"
 #include "ExtendedGroup.h"
@@ -29,12 +30,10 @@ struct MovingBand2D {
 struct ThreeInt { int  Int1, Int2, Int3 ; } ;  
 
 int  fcmp_int3(const void * a, const void * b) {
-  int result ;
   return  ((struct ThreeInt *)a)->Int1 - ((struct ThreeInt *)b)->Int1 ;
 }
 
 int  fcmp_int32(const void * a, const void * b) {
-  int result ;
   return  ((struct ThreeInt *)a)->Int2 - ((struct ThreeInt *)b)->Int2 ;
 }
 
@@ -271,10 +270,9 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
 void  Mesh_MovingBand2D (struct Group * Group_P) {
 
   struct MovingBand2D * MB ;
-  double area_moving_band ;
   struct  Geo_Element Geo_Element ;
   struct GeoData  * GeoData ;
-  int i, *n, ioff ;
+  int i, *n ;
 
   int * NumNodes1, * NumNodes2;
   int *b1_p1, *b1_p2, *b1_p3, *b2_p1, *b2_p2, *b2_p3;

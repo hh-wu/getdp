@@ -1,4 +1,4 @@
-/* $Id: DofData.h,v 1.9 2001-05-18 12:26:27 dular Exp $ */
+/* $Id: DofData.h,v 1.10 2002-01-18 19:47:57 geuzaine Exp $ */
 #ifndef _DOFDATA_H_
 #define _DOFDATA_H_
 
@@ -32,6 +32,8 @@ void  Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 		       double Val_Time, int Val_TimeStep) ;
 void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P, 
 		      int Read_DofData, double *Time, double *TimeStep) ;
+void  Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P, int Format,
+				int NbrH);
 
 void  Dof_TransferDofTreeToList(struct DofData * DofData_P) ;
 void  Dof_InitDofType(struct DofData * DofData_P) ;
