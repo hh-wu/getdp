@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.35 2001-01-17 14:42:50 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.36 2001-03-02 11:24:35 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -898,7 +898,10 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
    InWhichElement(Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension,	\
                   Current.x, Current.y, Current.z, &u, &v, &w) ;		\
    Current.Region = Element.Region ;						\
-   PE->Index = Geo_GetGeoElementIndex(Element.GeoElement) ;			\
+   if(Element.Num != NO_ELEMENT)						\
+     PE->Index = Geo_GetGeoElementIndex(Element.GeoElement) ;			\
+   else										\
+     PE->Index = NO_ELEMENT ;							\
    for (ts = 0 ; ts < NbTimeStep ; ts++) {					\
      Pos_InitAllSolutions(PSO_P->TimeStep_L, ts) ;				\
      Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,		\

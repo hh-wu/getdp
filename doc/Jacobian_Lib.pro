@@ -24,7 +24,7 @@ Group @{
   DefineVariable[ Val_Rint, Val_Rext ] ;
 @}
 
-JacobianMethod @{
+Jacobian @{
   @{ Name Vol ;
     Case @{ @{ Region DomainInf ;
              Jacobian VolSphShell @{Val_Rint, Val_Rext@} ; @}

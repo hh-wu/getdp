@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.29 2001-03-01 13:48:08 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.30 2001-03-02 11:24:35 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -316,7 +316,10 @@ void Msg(int level, char *fmt, ...){
       fflush(LogStream);
     }
     va_end (args);
-    if(abort) FinalizeAndExit();
+    if(abort){
+      Debug();
+      FinalizeAndExit();
+    }
   }
 }
 

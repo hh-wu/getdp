@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.19 2001-02-20 13:43:10 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.20 2001-03-02 11:24:35 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -668,7 +668,10 @@ void  Format_PostElement(int Format, int Contour, int Store,
 
   GetDP_Begin("Format_PostElement");
 
-  Num_Element = Geo_GetGeoElement(PE->Index)->Num ;
+  if(PE->Index != NO_ELEMENT)
+    Num_Element = Geo_GetGeoElement(PE->Index)->Num ;
+  else
+    Num_Element = 0 ;
 
   if(Contour){
     if(PE->Value[0].Type != SCALAR)
