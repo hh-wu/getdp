@@ -1,4 +1,4 @@
-/* $Id: Data_Function.h,v 1.15 2001-08-10 16:22:51 sabarieg Exp $ */
+/* $Id: Data_Function.h,v 1.16 2001-11-22 15:38:36 ledinh Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 
@@ -513,6 +513,10 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"dInterpolationLinear2" , (CAST)F_dInterpolationLinear2 ,  -2,   1 },
   {"InterpolationAkima"    , (CAST)F_InterpolationAkima    ,  -2,   1 },
   {"dInterpolationAkima"   , (CAST)F_dInterpolationAkima   ,  -2,   1 },
+  {"TransformTensor"       , (CAST)F_TransformTensor       ,   4,   4 }, /* pour Tuan */
+  {"TransformPerm"         , (CAST)F_TransformPerm         ,   3,   1 }, /* pour Tuan */
+  {"TransformPiezo"        , (CAST)F_TransformPiezo        ,   4,   2 }, /* pour Tuan */
+  {"TransformPiezoT"       , (CAST)F_TransformPiezoT       ,   4,   2 }, /* pour Tuan */
 
 
   /* F_MultiHar */

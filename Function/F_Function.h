@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.9 2001-09-06 09:49:11 geuzaine Exp $ */
+/* $Id: F_Function.h,v 1.10 2001-11-22 15:38:36 ledinh Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -113,7 +113,10 @@ void  F_dInterpolationAkima   (F_ARG) ;
 void  Fi_InitListXY     (F_ARG) ;
 void  Fi_InitListXY2    (F_ARG) ;
 void  Fi_InitAkima      (F_ARG) ;
-
+void  F_TransformTensor (F_ARG) ;  /* pour Tuan */
+void  F_TransformPerm   (F_ARG) ;  /* pour Tuan */
+void  F_TransformPiezo  (F_ARG) ;  /* pour Tuan */
+void  F_TransformPiezoT (F_ARG) ;  /* pour Tuan */
 
 /* F_MultiHar */
 
@@ -131,6 +134,8 @@ void  F_MHToTime0 (F_ARG, int iTime, int NbrTimePoint, double * TimeMH) ;
 #undef F_ARG
 
 #endif
+
+
 
 
 

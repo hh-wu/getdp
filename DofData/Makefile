@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2001-11-20 12:21:08 geuzaine Exp $
+# $Id: Makefile,v 1.10 2001-11-22 15:38:36 ledinh Exp $
 #
 # Makefile for "libDofData.a"
 #
@@ -48,14 +48,3 @@ nodepend:
 	$(RM) Makefile.new
 
 # DO NOT DELETE THIS LINE
-DofData.o: DofData.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h DofData.h ../DataStr/List.h ../DataStr/Tree.h \
-  ../DataStr/avl.h LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  Data_DofData.h ../include/Version.h ../DataStr/Tools.h \
-  ../include/Magic.h ../Main/CurrentData.h ../Main/Data_Active.h \
-  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h
-LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../include/Magic.h LinAlg.h ../Sparskit/Solver.h \
-  ../DataStr/List.h
-LinAlg_PETSC.o: LinAlg_PETSC.c
