@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.46 2001-07-27 17:19:56 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.47 2001-07-30 08:32:15 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1145,22 +1145,27 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
   case PRINT_ONGRID_PARAM :
     Normal[0] = Normal[1] = Normal[2] = 0.0 ;
     for (i1 = 0 ; i1 < List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[0]) ; i1++) {
-      List_Read(PSO_P->Case.OnParamGrid.ParameterValue[0], i1, &Current.s) ;
+      List_Read(PSO_P->Case.OnParamGrid.ParameterValue[0], i1, &Current.a) ;
       for (i2 = 0 ; i2 < List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1]) ; i2++) {
-	List_Read(PSO_P->Case.OnParamGrid.ParameterValue[1], i2, &Current.t) ;
-	Get_ValueOfExpressionByIndex(PSO_P->Case.OnParamGrid.ExpressionIndex[0],
-				     NULL, 0., 0., 0., &Value) ; 
-	Current.x = Value.Val[0];
-	Get_ValueOfExpressionByIndex(PSO_P->Case.OnParamGrid.ExpressionIndex[1],
-				     NULL, 0., 0., 0., &Value) ; 
-	Current.y = Value.Val[0];
-	Get_ValueOfExpressionByIndex(PSO_P->Case.OnParamGrid.ExpressionIndex[2],
-				     NULL, 0., 0., 0., &Value) ; 
-	Current.z = Value.Val[0];
-	Normal[0] = Current.s ;
-	Normal[1] = Current.t ;
-	Normal[2] = 0. ;
-	LETS_PRINT_THE_RESULT ;
+	List_Read(PSO_P->Case.OnParamGrid.ParameterValue[1], i2, &Current.b) ;
+	for (i3 = 0 ; i3 < List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[2]) ; i3++) {
+	  List_Read(PSO_P->Case.OnParamGrid.ParameterValue[2], i3, &Current.c) ;
+	  Get_ValueOfExpressionByIndex(PSO_P->Case.OnParamGrid.ExpressionIndex[0],
+				       NULL, 0., 0., 0., &Value) ; 
+	  Current.x = Value.Val[0];
+	  Get_ValueOfExpressionByIndex(PSO_P->Case.OnParamGrid.ExpressionIndex[1],
+				       NULL, 0., 0., 0., &Value) ; 
+	  Current.y = Value.Val[0];
+	  Get_ValueOfExpressionByIndex(PSO_P->Case.OnParamGrid.ExpressionIndex[2],
+				       NULL, 0., 0., 0., &Value) ; 
+	  Current.z = Value.Val[0];
+	  Normal[0] = Current.a ;
+	  Normal[1] = Current.b ;
+	  Normal[2] = Current.c ;
+	  LETS_PRINT_THE_RESULT ;
+	}
+	if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[2])>1 && !Flag_BIN) 
+	  fprintf(PostStream, "\n");
       }
       if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1])>1 && !Flag_BIN) 
 	fprintf(PostStream, "\n");

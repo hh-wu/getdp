@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.37 2001-07-27 17:19:55 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.38 2001-07-30 08:32:15 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -946,7 +946,7 @@ struct CurrentData {
   double  xs, ys, zs ;
   double  us, vs, ws ;
 
-  double  s, t ;
+  double  a, b, c ;
   double  xp, yp, zp ;
   double  ut, vt, wt ;
 

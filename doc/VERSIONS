@@ -1,8 +1,9 @@
-$Id: VERSIONS,v 1.26 2001-07-29 09:37:16 geuzaine Exp $
+$Id: VERSIONS,v 1.27 2001-07-30 08:32:15 geuzaine Exp $
 
 0.84: New ChangeOfCoordinate option in PostOperation; Fixed crash in
-InterpolationAkima; Improved interactive postprocessing (-ipos); Many
-other small fixes and clean-ups;
+InterpolationAkima; Improved interactive postprocessing (-ipos);
+Changed syntax of parametric OnGrid ($S, $T -> $A, $B, $C); Many other
+small fixes and clean-ups;
 
 0.83: Fixed bugs in SaveSolutions[] and InitSolution[]; Fixed
 corrupted binary post-processing files in the harmonic case for the

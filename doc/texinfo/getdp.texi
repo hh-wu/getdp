@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.27 2001-07-29 16:22:48 geuzaine Exp $
+@c $Id: getdp.texi,v 1.28 2001-07-30 08:32:15 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -1178,8 +1178,9 @@ the only functions allowed in a constant definition (see the definition of
 @tindex $YS
 @tindex $Z
 @tindex $ZS
-@tindex $S
-@tindex $T
+@tindex $A
+@tindex $B
+@tindex $C
 
 Current values are a special kind of arguments (@pxref{Arguments}) which
 return the current integer or floating point value of an internal GetDP
@@ -1203,7 +1204,7 @@ Value of the current (destination or source) X-coordinate.
 Value of the current (destination or source) Y-coordinate.
 @item $Z, $ZS
 Value of the current (destination or source) Z-coordinate.
-@item $S, $T
+@item $A, $B, $C
 Value of the current parametric coordinates used in the parametric
 @code{OnGrid} @code{PostOperation} (@pxref{Types for PostOperation}).
 @end table
@@ -3853,17 +3854,18 @@ performed.
 
 @item OnGrid
 @code{@{ @var{expression},  @var{expression},  @var{expression} @}}@*
-@code{@{ @var{expression-cst-list-item} | @{ @var{expression-cst-list} @} ,}@*
+@code{@{    @var{expression-cst-list-item} | @{ @var{expression-cst-list} @} ,}@*
+@code{@: @: @var{expression-cst-list-item} | @{ @var{expression-cst-list} @} ,}@*
 @code{@: @: @var{expression-cst-list-item} | @{ @var{expression-cst-list} @} @}}
 
 To compute a quantity on a parametric grid. The three @var{expression}s
 represent the three cartesian coordinates @var{x}, @var{y} and @var{z}, and
-can be functions of the current values @code{$S} and @code{$T}. The values
-for @code{$S} and @code{$T} are specified by each @var{expression-cst-list-item}
-or @var{expression-cst-list}. For example, @code{OnGrid @{Cos[$S], Sin[$S],
-0@} @{ 0:2*Pi:Pi/180@ , 0 @}} will compute the quantity on 360 points
-equally distributed on a circle in the z=0 plane, and centered on the
-origin.
+can be functions of the current values @code{$A}, @code{$B} and
+@code{$C}. The values for @code{$A}, @code{$B} and @code{$C} are specified
+by each @var{expression-cst-list-item} or @var{expression-cst-list}. For
+example, @code{OnGrid @{Cos[$A], Sin[$A], 0@} @{ 0:2*Pi:Pi/180@, 0, 0 @}} will
+compute the quantity on 360 points equally distributed on a circle in the
+z=0 plane, and centered on the origin.
 
 @item OnPoint
 @{ @var{expression-cst-list} @}
@@ -5269,7 +5271,7 @@ Print [ e, OnPoint @{0,0,1@} ];
 Print [ e, OnLine @{ @{0,0,1@} @{1,0,1@} @} @{125@} ];
 Print [ e, OnPlane @{ @{0,0,1@} @{1,0,1@} @{0,1,1@} @} @{125, 75@} ];
 Print [ e, OnBox @{ @{0,0,1@} @{1,0,1@} @{0,1,1@} @{0,0,2@} @} @{125, 75, 85@} ];
-Print [ e, OnGrid @{$S, $T, 1@} @{ 0:1:1/125@ , 0:1:1/75 @} ];
+Print [ e, OnGrid @{$A, $B, 1@} @{ 0:1:1/125@, 0:1:1/75, 0 @} ];
 Print [ e, OnGrid Domain2 ];
 @end example
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Interactive.c,v 1.21 2001-07-29 16:23:35 geuzaine Exp $"
+#define RCSID "$Id: Pos_Interactive.c,v 1.22 2001-07-30 08:32:15 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -176,7 +176,8 @@ void Help_Print(void){
 	 "    OnGlobal\n"
 	 "    OnSection    { {EXPR-CST-LIST} {EXPR-CST-LIST} {EXPR-CST-LIST} }\n"
 	 "    OnGrid       GROUP-DEF\n"
-	 "    OnGrid       {EXPR,EXPR,EXPR} { {EXPR-CST-LIST} , {EXPR-CST-LIST} }\n"
+	 "    OnGrid       {EXPR,EXPR,EXPR} { {EXPR-CST-LIST}, {EXPR-CST-LIST},\n"
+	 "                  {EXPR-CST-LIST} }\n"
 	 "    OnPoint      {EXPR-CST-LIST}\n"
 	 "    OnLine       { {EXPR-CST-LIST} {EXPR-CST-LIST} } {EXPR-CST}\n"
 	 "    OnPlane      { {EXPR-CST-LIST} {EXPR-CST-LIST} {EXPR-CST-LIST} }\n"

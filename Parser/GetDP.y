@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.26 2001-07-29 09:37:15 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.27 2001-07-30 08:32:15 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -5340,7 +5340,7 @@ PrintSubType :
     }
 
   | tOnGrid '{' Expression ',' Expression ',' Expression '}' 
-            '{' ListOfFExpr ','  ListOfFExpr '}'
+            '{' ListOfFExpr ','  ListOfFExpr ','  ListOfFExpr '}'
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_PARAM ;
       PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[0] = $3 ;
@@ -5348,6 +5348,7 @@ PrintSubType :
       PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[2] = $7 ;
       PostSubOperation_S.Case.OnParamGrid.ParameterValue[0] = $10 ;
       PostSubOperation_S.Case.OnParamGrid.ParameterValue[1] = $12 ;
+      PostSubOperation_S.Case.OnParamGrid.ParameterValue[2] = $14 ;
     }
 
   | tOnPoint '{' RecursiveListOfFExpr '}'

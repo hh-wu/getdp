@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.29 2001-07-29 09:37:15 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.30 2001-07-30 08:32:15 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -221,7 +221,7 @@ struct StringXPointer  Current_Value[] = {
   {"U"  , &Current.x}, {"V"  , &Current.y},  {"W"  , &Current.z},
   {"US" , &Current.xs},{"VS" , &Current.ys}, {"WS" , &Current.zs},
 
-  {"S"  , &Current.s} ,{"T"  , &Current.t}, 
+  {"A"  , &Current.a} ,{"B"  , &Current.b} , {"C"  , &Current.c}, 
 
   {"Val0" , &Current.Val[0]}, {"Val1" , &Current.Val[1]}, {"Val2" , &Current.Val[2]}, 
   {"Val3" , &Current.Val[3]}, {"Val4" , &Current.Val[4]}, {"Val5" , &Current.Val[5]}, 
