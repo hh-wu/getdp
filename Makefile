@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.100 2002-10-23 15:53:56 geuzaine Exp $
+# $Id: Makefile,v 1.101 2002-11-01 19:22:48 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -17,13 +17,13 @@
 #
 # ----------------------------------------------------------------------
 #  CVS access with passord:
-#  'cvs -d :pserver:username@elap57.montefiore.ulg.ac.be:/usr/users57/cvs-master cmd'
-#  where * username is your username (you need an account on elap57)
+#  'cvs -d :pserver:username@cvs.geuz.org:/usr/users57/cvs-master cmd'
+#  where * username is your username (you need an account on cvs.geuz.org)
 #        * 'cmd' is first 'login', then 'checkout getdp', and finally 'logout'
 #
 # ----------------------------------------------------------------------
 
-GETDP_RELEASE         = 0.85
+GETDP_RELEASE         = 0.86
 
 # ----------------------------------------------------------------------
 # General definitions 
@@ -320,6 +320,22 @@ bb:
 # ----------------------------------------------------------------------
 # "Ready to compile" rules for somes platforms
 # ----------------------------------------------------------------------
+
+#
+# Source distribution
+#
+source:
+	tar zcvf getdp.tgz `ls Makefile */Makefile */*.[chylfF] */*.[ch]pp\
+                           */*.opt */*.spec`\
+                           demos
+	mkdir getdp-$(GETDP_RELEASE)
+	cd getdp-$(GETDP_RELEASE) && tar zxvf ../getdp.tgz
+	rm -f getdp.tgz
+	cd getdp-$(GETDP_RELEASE) && rm -rf Scattering trash utils archives doc CVS */CVS */*/CVS
+#	cd getdp-$(GETDP_RELEASE) && zip -r getdp-$(GETDP_RELEASE)-source.zip *
+#	mv getdp-$(GETDP_RELEASE)/getdp-$(GETDP_RELEASE)-source.zip .
+	tar zcvf getdp-$(GETDP_RELEASE)-source.tgz getdp-$(GETDP_RELEASE)
+	rm -rf getdp-$(GETDP_RELEASE)
 
 #
 # Digital (Compaq) Tru64
@@ -657,19 +673,3 @@ link-petsc-scat-profile:
                -L$(FFTW_DIR)/lib -lfftw -lm
 petsc-scat-profile: compile-petsc-scat-profile link-petsc-scat-profile
 
-#
-# ACM Scattering
-#
-compile-acm-scat: initialtag
-	@for i in $(GETDP_STUFF_DIR) Scattering; do (cd $$i && $(MAKE) \
-           "CC=g++" \
-           "CXX=g++" \
-           "FC=g77" \
-           "C_FLAGS=-g -Wall" \
-           "F77_FLAGS=-g" \
-           "SOLVER=-D_ACM" \
-        ); done
-link-acm-scat:
-	${CLINKER} -o bin/hf2 lib/libScattering.a lib/libDofData.a\
-               lib/libNumeric.a lib/libDataStr.a lib/libAcmSolver.a
-acm-scat: compile-acm-scat link-acm-scat
