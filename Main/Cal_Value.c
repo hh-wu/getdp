@@ -915,7 +915,7 @@ void  Cal_CrossProductValue (struct Value * V1, struct Value * V2, struct Value 
   }
 
   else {
-    Msg(ERROR, "Cross product of non vector quantities: %s /\ %s",
+    Msg(ERROR, "Cross product of non vector quantities: %s /\\ %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
