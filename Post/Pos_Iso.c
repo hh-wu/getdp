@@ -1,4 +1,4 @@
-/* $Id: Pos_Iso.c,v 1.8 2000-10-19 11:24:21 dular Exp $ */
+/* $Id: Pos_Iso.c,v 1.9 2000-10-20 08:04:29 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -137,7 +137,7 @@ void Cal_Iso(struct PostElement *PE, List_T *list,
 
   switch(PE->Type){
   case TRIANGLE :
-    PE2 =  Create_PostElement(0, LINE, 2, 1) ;
+    PE2 =  Create_PostElement(PE->Index, LINE, 2, 1) ;
     Cal_IsoTriangle(PE->x, PE->y, PE->z, PE->Value, 
 		    val, vmin, vmax, PE2->x, PE2->y, PE2->z, &nb) ;
     if(nb > 1){
@@ -153,7 +153,7 @@ void Cal_Iso(struct PostElement *PE, List_T *list,
       Destroy_PostElement(PE2);
     break ;
   case TETRAHEDRON :
-    PE2 =  Create_PostElement(0, QUADRANGLE, 4, 1) ;
+    PE2 =  Create_PostElement(PE->Index, QUADRANGLE, 4, 1) ;
     Cal_IsoTetrahedron(PE->x, PE->y, PE->z, PE->Value, 
 		       val, vmin, vmax, PE2->x, PE2->y, PE2->z, &nb) ;
     if(nb > 2){

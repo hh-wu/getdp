@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.16 2000-10-20 07:42:07 dular Exp $ */
+/* $Id: Pos_Print.c,v 1.17 2000-10-20 08:04:29 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1150,7 +1150,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   struct Value   * CumulativeValues ;
   struct Value     Value ;
 
-  List_T  *Region_L, *Support_L ;
+  List_T  *Region_L ;
   int      i, j, NbTimeStep ;
   int      Nbr_Region, Num_Region ;
 
@@ -1217,7 +1217,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 	Current.Region = Element.Region = Num_Region ;
 	Current.x = Current.y = Current.z = 0. ;
 	Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0, 
-			 Support_L, &Element, 0., 0., 0., &Value) ;
+			 NULL, &Element, 0., 0., 0., &Value) ;
 
 	Format_PostValue(PostSubOperation_P->Format, &Value, 
 			 Current.NbrHar, Current.Time, 0, 0) ;
