@@ -1,10 +1,10 @@
-# $Id: Makefile,v 1.17 2003-03-12 23:45:23 geuzaine Exp $
+# $Id: Makefile,v 1.18 2003-03-17 19:53:16 geuzaine Exp $
 
 all:
 	chmod 644 *
 	cd texinfo && ${MAKE} all
 	gtar zcvf getdp-doc.tgz\
-          FAQ CONTRIBUTORS BUGS VERSIONS README.txt \
+          FAQ CONTRIBUTORS VERSIONS README.txt \
           getdp.bib texinfo/getdp.ps texinfo/getdp.pdf \
           texinfo/*.html texinfo/*.jpg \
           texinfo/getdp-info.tgz getdp.1 

@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.42 2003-03-17 19:22:33 geuzaine Exp $
+@c $Id: getdp.texi,v 1.43 2003-03-17 19:53:16 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -5891,11 +5891,8 @@ files that produce the bug (problem definition and mesh files). Don't forget
 to mention both the version of GetDP and the version of your operation
 system (@pxref{Running GetDP} to see how to get this information).
 
-Here is the list of open bugs for version @value{GETDP-VERSION}:
-
-@example
-@include ../BUGS
-@end example
+See the @file{TODO} file in the distribution to check what items we already
+know about.
 
 @c -------------------------------------------------------------------------
 @c Versions
