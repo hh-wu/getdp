@@ -1,4 +1,4 @@
-/* $Id: Pos_Interactive.c,v 1.5 2000-10-18 07:28:50 geuzaine Exp $ */
+/* $Id: Pos_Interactive.c,v 1.6 2000-10-18 09:21:03 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -17,10 +17,13 @@ extern struct  PostProcessing InteractivePostProcessing_S ;
 extern struct  PostSubOperation InteractivePostSubOperation_S ;
 extern FILE   *yyin;
 
-
 int   yyparse(void) ;
 char *readline(char *prompt);
 void  add_history(char *line);
+
+/* ------------------------------------------------------------------------ */
+/*  P o s _ I n t e r a c t i v e                                           */
+/* ------------------------------------------------------------------------ */
 
 void  Pos_Interactive(struct Formulation *Formulation_P,
 		      struct PostProcessing *PostProcessing_P){
@@ -79,6 +82,64 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 
 }
 
+/* ------------------------------------------------------------------------ */
+/*  I n t e r a c t i v e                                                   */
+/* ------------------------------------------------------------------------ */
+
+void  Interactive(void){
+  char *myptr;
+
+  InteractiveLevel = 1;
+
+  while (1) {
+
+    /* read input char until CR, LF, EOF, ^D */
+    myptr = readline (GETDP_PROMPT_STRING);
+
+    /* exit interactive if EOF, ^D, quit, q or exit */
+    if(!myptr || !strcmp(myptr,"quit") || !strcmp(myptr,"q") ||
+       !strcmp(myptr,"exit")){
+      unlink(GETDP_TMP_FILENAME);
+      exit(1) ;
+    }
+
+    /* if there is something in the line */
+    if(strlen(myptr)){
+
+      /* add the command in the stack */
+      add_history(myptr);
+
+      /* write it in the tmp file */
+      yyin = fopen(GETDP_TMP_FILENAME,"w");
+      fprintf(yyin,"%s;\n",myptr);
+      fclose(yyin);
+
+      /* parse the tmp file */
+      InteractiveCompute = InteractiveExit = ErrorLevel = 0;
+      yyin = fopen(GETDP_TMP_FILENAME,"r");
+      while(!feof(yyin)){
+	yyparse();
+      }
+      fclose(yyin);
+      
+      /* exit if Exit token read */
+      if(InteractiveExit) break;
+
+      /* compute something ... */
+    }
+
+  }
+
+  InteractiveLevel = 0;
+
+  /* delete the tmp file */
+  unlink(GETDP_TMP_FILENAME);
+
+}
+
+/* ------------------------------------------------------------------------ */
+/*  H e l p                                                                 */
+/* ------------------------------------------------------------------------ */
 
 #include <ctype.h>
 
@@ -179,7 +240,7 @@ void Help_Print(void){
   }
 }
 
-void Pos_InteractiveHelp(char *start){
+void Help(char *start){
   int  i ;
   char topic[200] ;
 

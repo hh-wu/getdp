@@ -189,7 +189,7 @@
 
 #line 1 "yacc.y"
 
-/* $Id: yacc.tab.c,v 1.15 2000-10-17 21:38:53 geuzaine Exp $ */
+/* $Id: yacc.tab.c,v 1.16 2000-10-18 09:21:02 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -267,7 +267,7 @@ void Pro_DefineQuantityIndex(List_T * WholeQuantity_L,int DefineQuantityIndexEqu
 			     int * NbrQuantityIndex, int ** QuantityIndexTable,
 			     int ** QuantityTraceGroupIndexTable) ;
 void Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) ;
-void Pos_InteractiveHelp(char *topic);
+void Help(char *topic);
 
 char  *strsave(char *string) ;
 void  yyerror(char *s) ;
@@ -2904,11 +2904,11 @@ case 20:
     break;}
 case 21:
 #line 433 "yacc.y"
-{ Pos_InteractiveHelp(NULL); ;
+{ Help(NULL); ;
     break;}
 case 22:
 #line 437 "yacc.y"
-{ Pos_InteractiveHelp(yyvsp[-1].c); ;
+{ Help(yyvsp[-1].c); ;
     break;}
 case 24:
 #line 441 "yacc.y"

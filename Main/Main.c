@@ -1,4 +1,4 @@
-/* $Id: Main.c,v 1.12 2000-10-02 09:20:22 geuzaine Exp $ */
+/* $Id: Main.c,v 1.13 2000-10-18 09:21:02 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -17,6 +17,7 @@ int          yycolnum=0, yyincludenum=0 ;
 char         yyname[MAX_FILE_NAME_LENGTH], yyincludename[MAX_FILE_NAME_LENGTH];
 int          yyparse(void) ;
 int          yyrestart(FILE*) ;
+void         Interactive(void);
 
 FILE   *PostStream, *LogStream, *PrintStream ;
 List_T *GeoData_L, *PreResolutionIndex_L ;
@@ -171,7 +172,7 @@ void Init_GlobalVariables(void){
   Flag_CHECK = 0 ; Flag_XDATA = 0   ; Flag_RESTART = 0   ; Flag_BIN = 0  ; 
   Flag_LRES = 0  ; Flag_LPOS = 0    ; Flag_LIPOS = 0     ; Flag_PAR = 0; 
   Flag_LOG = 0   ; Flag_VERBOSE = 4 ; Flag_PROGRESS = 10 ; Flag_SPLIT = 0 ;
-  Flag_ORDER = -1. ;
+  Flag_ORDER = -1. ; 
 
   Name_Resolution = Name_PostProcessing[0] = Name_PostOperation[0] = NULL ;
   Name_MshFile = Name_ResFile[0] = Name_AdaptFile = NULL ;
@@ -223,6 +224,10 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       else if (!strcmp(argv[i]+1, "bin"))    { Flag_BIN     = 1 ; i++ ; } 
       else if (!strcmp(argv[i]+1, "ascii"))  { Flag_BIN     = 0 ; i++ ; } 
       else if (!strcmp(argv[i]+1, "split"))  { Flag_SPLIT   = 1 ; i++ ; } 
+
+      else if (!strcmp(argv[i]+1, "i")) { 
+	Interactive();
+      } 
 
       else if (!strcmp(argv[i]+1, "restart")){ 
 	Flag_PRE = Flag_PAR = 0 ; Flag_CAL = Flag_RESTART = 1 ; i++ ;
