@@ -1,4 +1,4 @@
-// $Id: Function.cpp,v 1.6 2002-04-12 17:11:02 geuzaine Exp $
+// $Id: Function.cpp,v 1.7 2002-04-16 17:51:43 geuzaine Exp $
 
 #include "Utils.h"
 #include "Function.h"
@@ -68,7 +68,7 @@ Complex Function::density(double tau){
 	}
 	else{
 	  tau2 -= ap;
-	  val += p->fft->eval(tau2*TWO_PI/(bp-ap), p->fourierCoefs);
+	  val += p->fft->eval(tau2*TWO_PI/(bp-ap));
 	}
       }
     }

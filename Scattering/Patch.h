@@ -42,7 +42,7 @@ public:
   int beg, end; // indices in global vector
   Partition *part;
   double *nodes;
-  Complex *fourierCoefs, *localVals;
+  Complex *localVals;
   FFT *fft;
   Spline *spline;
   

@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.3 2002-04-12 23:34:30 geuzaine Exp $
+// $Id: Patch.cpp,v 1.4 2002-04-16 17:51:43 geuzaine Exp $
 
 #include "Main.h"
 #include "Utils.h"
@@ -13,12 +13,14 @@
 
 void Partition::init(double _center, double _epsilon, double _rise){
   center = _center;
-
   epsilon = _epsilon;
-  if(epsilon>PI) 
-    Msg(ERROR, "Epsilon is too large (%g > PI)", _epsilon);
 
-  crest = _epsilon-fabs(_rise);
+  if(epsilon>PI){
+    Msg(WARNING, "Epsilon too large (%g > PI), restricting to PI", epsilon);
+    epsilon = PI;
+  }
+
+  crest = epsilon-fabs(_rise);
   if(crest<0.) 
     Msg(ERROR, "Invalid rise (%g > epsilon)", _rise);
 
@@ -72,6 +74,7 @@ Patch::Patch(PatchType _type, int _beg, int _end,
 
     // experimental stuff to better resolve the shadowing point
     // e.g. q=3 for k=500
+    
     /*
     double q=5.;
     if(i<nbdof/2){
@@ -87,13 +90,10 @@ Patch::Patch(PatchType _type, int _beg, int _end,
   
   }
 
-  if(type == SPLINE){
+  if(type == SPLINE)
     spline = new Spline(nbdof,nodes);
-  }
-  else{
-    fourierCoefs = new Complex[nbdof];
+  else
     fft = new FFT(nbdof);
-  }
 
 }
 
@@ -105,7 +105,6 @@ Patch::~Patch(){
     delete spline;
   }
   else{
-    delete[] fourierCoefs;
     delete fft;
   }
 }

@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.15 2002-04-15 02:46:05 geuzaine Exp $
+// $Id: Solve.cpp,v 1.16 2002-04-16 17:51:43 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -147,7 +147,7 @@ void InitializeInterpolation(Ctx *ctx, gVector *x){
     if(p->type == Patch::SPLINE)
       p->spline->init(p->localVals);
     else
-      p->fft->forward(p->localVals,p->fourierCoefs);
+      p->fft->init(p->localVals);
 
   }
   else{
@@ -172,7 +172,7 @@ void InitializeInterpolation(Ctx *ctx, gVector *x){
       if(p->type == Patch::SPLINE)
 	p->spline->init(p->localVals);
       else
-	p->fft->forward(p->localVals,p->fourierCoefs);
+	p->fft->init(p->localVals);
     }
 
   }
