@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.27 2002-05-31 00:52:13 geuzaine Exp $
+// $Id: Solve.cpp,v 1.28 2002-06-12 00:21:42 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -73,7 +73,7 @@ void Ctx::computeRHS(gVector *b){
     kr = waveNum[0]*xt[0]+waveNum[1]*xt[1]+waveNum[2]*xt[2];
     res = 1.;
     //res = cos(kr)+I*sin(kr);
-    res *= 2 ; /// NORM3(waveNum); // warning!
+    res *= 2  / NORM3(waveNum); // warning!
     LinAlg_SetComplexInVector(res, b, i);
   }
   LinAlg_AssembleVector(b);
@@ -151,6 +151,15 @@ void Ctx::initializeInterpolation(gVector *x){
   int i, j;
   double t, pou, pou2;
   Patch *p, *p2;
+
+  if(type & REAL_COLTON_KRESS){
+    if(List_Nbr(scat.patches) != 1)
+      Msg(ERROR, "Multi-patch not implemented for classic Colton/Kress integrator");
+    p = (Patch*)List_Pointer(scat.patches,0);
+    for(j=0; j<p->nbdof; j++)
+      LinAlg_GetComplexInVector(&p->localVals[j],x,j+p->beg);
+    return;
+  }
 
   if(List_Nbr(scat.patches) == 1){
 
