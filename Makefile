@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.85 2002-03-06 19:41:25 geuzaine Exp $
+# $Id: Makefile,v 1.86 2002-03-08 18:59:28 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -594,6 +594,25 @@ link-p4-scat:
                lib/libSparskit.a lib/libNumeric.a lib/libDataStr.a\
                -lCEPCF90 -lF90 -lsvml
 p4: compile-p4 link-p4 link-p4-scat
+
+#
+# Linux Scattering
+#
+compile-scat: initialtag
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) Scattering; do (cd $$i && $(MAKE) \
+           "CC=g++" \
+           "CXX=g++" \
+           "FC=g77" \
+           "C_FLAGS=-g -Wall" \
+           "C_PARSER_FLAGS=-g" \
+           "F77_FLAGS=-g" \
+           "SOLVER=-D_SPARSKIT" \
+           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+        ); done
+link-scat:
+	g++ -o Scattering/hf lib/libScattering.a lib/libDofData.a\
+               lib/libSparskit.a lib/libNumeric.a lib/libDataStr.a -lg2c -lm
+scat: compile-scat link-scat
 
 #
 # PETSc Scattering

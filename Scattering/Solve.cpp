@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.6 2002-03-05 22:48:10 geuzaine Exp $
+// $Id: Solve.cpp,v 1.7 2002-03-08 18:59:28 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Complex.h"
@@ -8,8 +8,14 @@
 #include "Data_Numeric.h"
 #include "Solve.h"
 
-double GetTarget(int i, int nb, double start){
-  return 2*PI*i/(double)nb + start;
+double GetTarget(int i, Ctx *ctx){
+  int nb = ctx->NbTargetPts;
+  double start = ctx->InitialTarget;
+  double t;
+
+  t = 2*PI*i/(double)nb + start;
+  
+  return t;
 }
 
 void ComputeRHS(Ctx *ctx, gVector *b){
@@ -23,7 +29,7 @@ void ComputeRHS(Ctx *ctx, gVector *b){
   Msg(INFO, "RHS %d->%d", beg, end-1);
 
   for(i=beg ; i<end ; i++){
-    t = GetTarget(i,ctx->NbTargetPts,ctx->InitialTarget);
+    t = GetTarget(i,ctx);
     ctx->scat.Val(t,xt);
     kr = ctx->WaveNum[0]*xt[0]+ctx->WaveNum[1]*xt[1]+ctx->WaveNum[2]*xt[2];
     res = cos(kr)+I*sin(kr);
@@ -31,7 +37,6 @@ void ComputeRHS(Ctx *ctx, gVector *b){
     LinAlg_SetComplexInVector(res, b, i);
   }
   LinAlg_AssembleVector(b);
-  //LinAlg_PrintVector(stderr,b);
 }
 
 void PostProcess(Ctx *ctx, gVector *x){
@@ -49,6 +54,7 @@ void PostProcess(Ctx *ctx, gVector *x){
   
   for(i=0 ; i<100 ; i++){
     t = 2*PI*i/100.;
+    //ctx->f.chgvar(t,&t,&jac);
     res = ctx->f.bf(t);
     if(!RankCpu) fprintf(stdout, "%g %g %g\n", t, res.real(), res.imag());
   }
@@ -57,7 +63,7 @@ void PostProcess(Ctx *ctx, gVector *x){
 
 // Forward map computation only
 
-void ForwardSolve(Ctx *ctx){
+void ForwardMap(Ctx *ctx){
   List_T *reslist=List_Create(ctx->NbTargetPts,20,sizeof(Complex));
   Complex res;
   double t;
@@ -66,7 +72,7 @@ void ForwardSolve(Ctx *ctx){
   ctx->f.Type = Function::Test; 
 
   for(i=0 ; i<ctx->NbTargetPts ; i++){
-    t = GetTarget(i,ctx->NbTargetPts,ctx->InitialTarget);
+    t = GetTarget(i,ctx);
     res = Integrate(ctx, t); 
     Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
     List_Add(reslist, &res);
@@ -106,7 +112,7 @@ void BuildSolve(Ctx *ctx){
   Msg(INFO, "MAT %d->%d", beg, end-1);
   
   for(i=beg ; i<end ; i++){
-    t = GetTarget(i,ctx->NbTargetPts,ctx->InitialTarget);
+    t = GetTarget(i,ctx);
     Msg(INFO, "Assembling line %d", i);
     for(j=0 ; j<ctx->NbTargetPts ; j++){
       ctx->f.NumBF = -ctx->NbTargetPts/2+j;
@@ -144,7 +150,7 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   Msg(INFO, "A*x %d->%d", beg, end-1);
   
   for(i=beg ; i<end ; i++){
-    t = GetTarget(i,ctx->NbTargetPts,ctx->InitialTarget);
+    t = GetTarget(i,ctx);
     res = (-I/2.) * Integrate(ctx, t);
     LinAlg_SetComplexInVector(res, y, i);
   }

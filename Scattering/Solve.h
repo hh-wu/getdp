@@ -3,7 +3,7 @@
 
 #include "Nystrom.h"
 
-void ForwardSolve(Ctx *ctx);
+void ForwardMap(Ctx *ctx);
 void BuildSolve(Ctx *ctx);
 void IterSolve(Ctx *ctx);
 

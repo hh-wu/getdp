@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.23 2002-03-06 02:06:39 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.24 2002-03-08 18:59:28 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Complex.h"
@@ -86,7 +86,8 @@ public:
     else{
       //return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*d))) * d;
       return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d;
-      //return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d + 2. * log(jac) * M1() ;
+      //return (1. - 2.*EULER/(I*PI) - 2./(I*TWO_PI) * log(DSQU(k/2.*jac*d))) * d
+      //       + 2. * log(jac) * M1() ;
     }
   }
 }; 
@@ -114,15 +115,18 @@ double SpecialQuadratureWeightForLog(double t, double tau, int n){
 //          * f(tau) * pou(tau) dtau 
 //
 // where the integrand is 2*eps-periodic thanks to the partition of
-// unity (pou), centered on 'a==t'.
+// unity (pou), centered on a==t.
 //
-// Nystrom integrator given in Colton & Kress being only valid for a
-// 2*PI-periodic integrand, from 0 to 2*PI, the change of variables
+// (This integral can be optionnaly transformed into another if we
+// want to better resolve the shadowing points)
+//
+// The Nystrom integrator given in Colton & Kress being only valid for
+// a 2*PI-periodic integrand, from 0 to 2*PI, the change of variables
 // 
 // tau = (tau'-PI)*eps/PI+a
 // dtau = eps/PI*dtau'
 //
-// is applied, to give:
+// is finally applied, to give:
 //
 // I(t) = \int_{0}^{2*PI} 
 //            H_0^(1)(k*r(t,(tau'-PI)*eps/PI+a))
@@ -134,21 +138,11 @@ double SpecialQuadratureWeightForLog(double t, double tau, int n){
 // Colton & Kress. Warning: the jacobian eps/PI also appears in the
 // decomposition of the kernel.
 //
-// We also introduce an additional change of variables in order to
-// grade the mesh around the shadowing points:
-//
-// tau' = ...
-// dtau' = ...
-//
-// We thus get:
-//
-// I(t) = ...
-//
 
 Complex Nystrom(int singular, double t, Function *func, double kvec[3], 
 		int nbpts, Scatterer *scat, Partition *part){
   Complex res=0., f, m, m1, m2;
-  double xt[3], dxt[3], xtau[3], dxtau[3], tau, tau_orig, pou, w;
+  double xt[3], dxt[3], xtau[3], dxtau[3], tau, tau_p, tau_pp, pou, w;
   int j, n = nbpts/2;
   double k = NORM3(kvec), jac=1.;
   GFHelmholtzParametric2D kern;
@@ -159,34 +153,28 @@ Complex Nystrom(int singular, double t, Function *func, double kvec[3],
   scat->Der(t,dxt);
 
   for(j=0 ; j<=2*n-1 ; j++){
-    tau_orig = TWO_PI*j/(2.*n);
+    tau_pp = TWO_PI*j/(2.*n);
     jac = 1.;
 
-    double tau2 = tau_orig;
-    func->chgvar(tau_orig, &tau2, &jac);
-
-    tau = (tau2-PI)*part->epsilon/PI+part->center;
+    tau_p = (tau_pp-PI)*part->epsilon/PI+part->center;
     jac *= part->epsilon/PI ;
 
-    pou = part->val(tau);
+    pou = part->val(tau_p);
+
+    func->a = part->center-part->epsilon;
+    func->b = part->center+part->epsilon;
+    jac *= func->chgvar(tau_p, &tau);
+
     if(pou){
       scat->Val(tau,xtau);
       scat->Der(tau,dxtau);
-      f = func->val(kvec,tau,xtau) * func->bf(tau);
+      f = func->val(kvec,tau,xtau) * func->bf(tau_p);
       kern.init(t,xt,dxt,tau,xtau,dxtau,k);
       if(singular){ // combine special quadrature with trapezoidal
-	w = SpecialQuadratureWeightForLog(PI,tau_orig,n);
+	w = SpecialQuadratureWeightForLog(PI,tau_pp,n);
 	m1 = kern.M1();
-	m2 = kern.M2(tau_orig,jac);
+	m2 = kern.M2(tau_pp,jac);
 	res += (w * m1 + PI/(double)n * m2) * f * pou * jac;
-	/*
-	printf("m1=%g %g\n",m1.real(),m1.imag());
-	printf("m2=%g %g\n",m2.real(),m2.imag());
-	printf("w=%g\n",w);
-	printf("pou=%g\n",pou);
-	printf("f=%g %g\n",f.real(), f.imag());
-	printf("res=%g %g\n",res.real(), res.imag());
-	*/
       }
       else{ // simple trapezoidal
 	if(List_Nbr(part->subparts)){

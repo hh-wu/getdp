@@ -9,15 +9,14 @@ public:
   typedef enum {Test,Single,Vector} FunctionType;
   FunctionType Type;
   int NumBF, ChgOfVar;
+  double a, b;
   gVector *Sol;
 
   Complex val(double k[3], double tau, double xtau[3]);
   Complex bf(double tau);
-  void    chgvar(double u, double *t, double *jac);
+  double chgvar(double u, double *t);
+  double invchgvar(double t, double *u);
 };
 
-// prototypes
-
-void ChgVar(double u, double *t, double *jac);
 
 #endif

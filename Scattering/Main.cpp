@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.3 2002-03-06 02:06:39 geuzaine Exp $
+// $Id: Main.cpp,v 1.4 2002-03-08 18:59:28 geuzaine Exp $
 
 #include "GetDP.h"
 #include "LinAlg.h"
@@ -96,7 +96,7 @@ int main(int argc, char *argv[]){
 
   if(ctx.Type & ITER_SOLVE)         IterSolve(&ctx);
   else if(ctx.Type & BUILD_MATRIX)  BuildSolve(&ctx);
-  else                              ForwardSolve(&ctx);
+  else                              ForwardMap(&ctx);
 
   LinAlg_FinalizeSolver() ;
   LinAlg_Finalize() ;
