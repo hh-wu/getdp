@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.53 2003-06-21 07:26:16 sabarieg Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.54 2003-06-21 08:10:40 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -1542,7 +1542,21 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Operation_ChangeOfCoordinates
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break ;
+
+    case OPERATION_DEFORMEMESH :
+      Msg(OPERATION, "DeformeMesh[%s, %s, '%s']",
+	  ((struct DefineSystem *)
+	   List_Pointer(Resolution_P->DefineSystem, Operation_P->DefineSystemIndex))->Name, 
+	  Operation_P->Case.DeformeMesh.Quantity, Operation_P->Case.DeformeMesh.Name_MshFile) ;
+
+      if ((i = List_ISearchSeq(GeoData_L, Operation_P->Case.DeformeMesh.Name_MshFile, fcmp_GeoData_Name)) < 0)
+	Msg(ERROR,"DeformeMesh: Wrong NameOfMeshFile %s", Operation_P->Case.DeformeMesh.Name_MshFile );
+      Operation_P->Case.DeformeMesh.GeoDataIndex = i ;
       
+      Operation_DeformeMesh
+	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
+      break;
+
       /*  -->  P o s t O p e r a t i o n */ 
       /*  ------------------------------ */ 
 	      
