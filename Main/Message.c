@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.42 2001-05-04 14:58:46 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.43 2001-05-04 20:17:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -342,6 +342,8 @@ void PrintResources(FILE *stream, char *fmt, long s, long us, long mem){
   char sockmsg[1000];
   if(Flag_SOCKET > 0){
     sprintf(sockmsg, RESOURCES_STR "%scpu %ld.%ld s / mem %ld kb\n", fmt, s, us, mem);
+    Socket_SendInt(Flag_SOCKET, GETDP_INFO);
+    Socket_SendString(Flag_SOCKET, sockmsg);
   }
   else{
     fprintf(stream, RESOURCES_STR) ;
