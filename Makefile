@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.82 2002-03-04 17:13:15 geuzaine Exp $
+# $Id: Makefile,v 1.83 2002-03-06 09:08:16 trophime Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -82,7 +82,7 @@ GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-include ${PETSC_DIR}/bmake/common/base
+#include ${PETSC_DIR}/bmake/common/base
 
 # ----------------------------------------------------------------------
 # Rules for developpers
@@ -320,6 +320,20 @@ bb:
 # "Ready to compile" rules for somes platforms
 # ----------------------------------------------------------------------
 
+PETSc: tag
+	@for i in $(GETDP_STUFF_DIR); do (cd $$i && $(MAKE) \
+           "CC=$(CC)" \
+           "FC=$(FC)" \
+           "F77=$(FC)" \
+           "RANLIB=$(RANLIB)" \
+           "C_FLAGS=$(COPTFLAGS)" \
+           "C_PARSER_FLAGS=$(COPTFLAGS)" \
+           "F77_FLAGS=$(FOPTFLAGS)" \
+           "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE) -D_METIS $(METIS_INCLUDE)" \
+        ); done
+	$(CLINKER) -o $(GETDP_BIN_DIR)/getdp-petsc-$(PETSC_ARCH)-$(BOPT)\
+                      $(GETDP_PETSC_LIBS) $(METIS_LIB) $(PETSC_SLES_LIB)
+
 #
 # Digital (Compaq) Tru64
 #
@@ -532,6 +546,42 @@ link-petsc-simple:
                       $(GETDP_PETSC_LIBS) $(PETSC_SLES_LIB)
 petsc-simple: compile-petsc-simple link-petsc-simple
 
+#
+# MacOS
+#
+macos: tag
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
+           "CC=cc" \
+           "FC=fort77" \
+           "C_FLAGS=-O3 -D_BSD" \
+           "C_PARSER_FLAGS=-O3" \
+           "F77_FLAGS=-O1" \
+           "SOLVER=-D_SPARSKIT" \
+           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+        ); done
+	cc -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm -lf2c
+
+distrib-macos:
+	mkdir getdp-$(GETDP_RELEASE)
+	mkdir getdp-$(GETDP_RELEASE)/usr/
+	mkdir getdp-$(GETDP_RELEASE)/usr/local/
+	mkdir getdp-$(GETDP_RELEASE)/usr/local/bin
+	mkdir getdp-$(GETDP_RELEASE)/usr/local/getdp/
+	mkdir getdp-$(GETDP_RELEASE)/usr/local/man
+	mkdir getdp-$(GETDP_RELEASE)/usr/local/man/man1
+	mkdir getdp-$(GETDP_RELEASE)/usr/local/info
+	mkdir getdp-$(GETDP_RELEASE)/usr/local/getdp/demos
+	mkdir getdp-$(GETDP_RELEASE)/usr/local/getdp/doc
+	cp $(GETDP_BIN_DIR)/getdp getdp-$(GETDP_RELEASE)/usr/local/bin
+	cp doc/VERSIONS doc/FAQ doc/BUGS doc/CONTRIBUTORS getdp-$(GETDP_RELEASE)/usr/local/getdp/doc
+	cp -R demos getdp-$(GETDP_RELEASE)/usr/local/getdp/demos
+	cp doc/getdp.1 getdp-$(GETDP_RELEASE)/usr/local/man/man1
+	cp doc/getdp.info* getdp-$(GETDP_RELEASE)/usr/local/info
+	gzip getdp-$(GETDP_RELEASE)/usr/local/info/getdp.info*
+	gzip getdp-$(GETDP_RELEASE)/usr/local/man/man1/getdp.1
+	package getdp-$(GETDP_RELEASE) getdp.info -d /Users/christop -r ./Resources
+	rm -rf getdp-$(GETDP_RELEASE)	
+	
 #
 # Linux, Pentium 4 with Intel compiler
 #   -xW : generate code for P4 (this _really_ increases perf)
