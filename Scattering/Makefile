@@ -1,7 +1,14 @@
-# $Id: Makefile,v 1.27 2002-12-05 04:47:29 geuzaine Exp $
+# $Id: Makefile,v 1.28 2003-01-29 22:52:44 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
+
+# history of cvs tags:
+# scat_0_1 : scat-oscar+andy
+# scat_0_2 : scat-oscar+andy-v2
+# scat_0_3 : randy
+# scat_0_4 : oscar_ieee_aps_jun_2002
+# scat_0_5 : scat-combined-ok-old-version-final
 
 .IGNORE:
 
