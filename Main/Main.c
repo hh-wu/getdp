@@ -1,4 +1,4 @@
-/* $Id: Main.c,v 1.9 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Main.c,v 1.10 2000-09-26 11:33:06 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -34,7 +34,7 @@ int     Flag_PRE, Flag_PAR, Flag_CAL, Flag_POS, Flag_IPOS, Flag_XDATA;
 int     Flag_CHECK, Flag_LRES, Flag_LPOS, Flag_LIPOS; 
 int     Flag_RESTART, Flag_LOG, Flag_VERBOSE, Flag_BIN, Flag_PROGRESS ;
 int     Flag_SPLIT ;
-double  Flag_DEGREE ;
+double  Flag_ORDER ;
 char    Name_Generic[MAX_FILE_NAME_LENGTH] ;
 char   *Name_Resolution ;
 char   *Name_PostProcessing[NBR_MAX_POS], *Name_PostOperation[NBR_MAX_POS] ;
@@ -162,7 +162,7 @@ void Init_GlobalVariables(void){
   Flag_CHECK = 0 ; Flag_XDATA = 0   ; Flag_RESTART = 0   ; Flag_BIN = 0  ; 
   Flag_LRES = 0  ; Flag_LPOS = 0    ; Flag_LIPOS = 0     ; Flag_PAR = 0; 
   Flag_LOG = 0   ; Flag_VERBOSE = 4 ; Flag_PROGRESS = 10 ; Flag_SPLIT = 0 ;
-  Flag_DEGREE = -1. ;
+  Flag_ORDER = -1. ;
 
   Name_Resolution = Name_PostProcessing[0] = Name_PostOperation[0] = NULL ;
   Name_MshFile = Name_ResFile[0] = Name_AdaptFile = NULL ;
@@ -273,14 +273,14 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	}
       }
 
-      else if (!strcmp(argv[i]+1, "degree") ||
-	       !strcmp(argv[i]+1, "deg")) {
+      else if (!strcmp(argv[i]+1, "order") ||
+	       !strcmp(argv[i]+1, "ord")) {
 	i++ ;
 	if (i<argc && argv[i][0]!='-') { 
-	  Flag_DEGREE = atof(argv[i]) ; i++ ; 
+	  Flag_ORDER = atof(argv[i]) ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing Degree") ;
+	  Msg(ERROR, "Missing Interpolation Order") ;
 	}
       }
 

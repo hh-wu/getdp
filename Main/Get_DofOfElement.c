@@ -1,4 +1,4 @@
-/* $Id: Get_DofOfElement.c,v 1.8 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Get_DofOfElement.c,v 1.9 2000-09-26 11:33:06 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -80,12 +80,12 @@ void  Get_DofOfElement(struct Element          * Element,
       List_Pointer(Problem_S.Group, BasisFunction_P->SupportIndex) ;
 
     /*  If the BasisFunction exists for this kind of element
-	   the degree is lower or equal to the maximum degree allowed
+	   the interpolation order is lower or equal to the maximum order allowed
 	   the element is in the support of the BasisFunction */
 
     if ( ( BasisFunction_P->ElementType & Current.Element->Type ) 
 	 &&
-	 ( Flag_DEGREE < 0. || BasisFunction_P->Degree <= Flag_DEGREE )
+	 ( Flag_ORDER < 0. || BasisFunction_P->Order <= Flag_ORDER )
 	 &&
 	 ( (GroupSupport_P->Type == REGIONLIST  &&
 	    List_Search(GroupSupport_P->InitialList, &Element->Region, fcmp_int))
@@ -419,7 +419,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 	if(Current.GeoData->P && 
 	   Current.GeoData->P[Current.Element->GeoElement->Index+1] >= 0 &&
 	   Current.GeoData->P[Current.Element->GeoElement->Index+1] < 
-	   QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Degree){
+	   QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Order){
 	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = ASSIGN ;
 	  for (k = 0 ; k < Current.NbrHar ; k++)
 	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value[k] = 0. ;

@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.9 2000-09-25 09:32:40 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.10 2000-09-26 11:33:06 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -216,7 +216,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil
 %token    tFmod tModulo tHypot 
-%token    tSolidAngle tTrace tDegree tCrossProduct
+%token    tSolidAngle tTrace tOrder tCrossProduct
 
 %token  tGroup tDefineGroup tAll tInSupport
 
@@ -1375,8 +1375,8 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
-  | tDegree '[' Quantity_Def ']'
-    { WholeQuantity_S.Type = WQ_DEGREE ;
+  | tOrder '[' Quantity_Def ']'
+    { WholeQuantity_S.Type = WQ_ORDER ;
       WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
@@ -2321,7 +2321,7 @@ BasisFunctionTerm :
       Get_3Function2NbrForString
 	(BF_Function, $2, &FlagError,
 	 &BasisFunction_S.Function, &BasisFunction_S.dFunction, 
-	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Degree,
+	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Order,
 	 &BasisFunction_S.ElementType) ;
       if (FlagError)  vyyerror("Unknown Function for BasisFunction: %s %s", 
 			       $2, Get_Valid_SX3F2N(BF_Function)) ;
@@ -5782,7 +5782,7 @@ void  Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) {
     case WQ_OPERATORANDQUANTITY :
     case WQ_OPERATORANDQUANTITYEVAL :
     case WQ_SOLIDANGLE :
-    case WQ_DEGREE :
+    case WQ_ORDER :
       Pair.Int1 = (WholeQuantity_P+i)->Case.OperatorAndQuantity.Index ;
       Pair.Int2 = TraceGroupIndex ;
       List_Insert(ListOfTwoInt_L, &Pair, fcmp_int) ;

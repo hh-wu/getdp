@@ -1,4 +1,4 @@
-/* $Id: Cal_Quantity.c,v 1.3 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Cal_Quantity.c,v 1.4 2000-09-26 11:33:06 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -146,7 +146,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
   int     i_WQ, j, k, Flag_True, Index, DofIndex, Multi[MAX_STACK_SIZE] ;
   int     Save_NbrHar, Save_Region, Type_Dimension ;
-  double  Save_Time, X, Y, Z, Degree ;
+  double  Save_Time, X, Y, Z, Order ;
   
   struct WholeQuantity   *WholeQuantity_P0, *WholeQuantity_P ;
   struct DofData         *Save_DofData ;
@@ -188,11 +188,11 @@ void Cal_WholeQuantity(struct Element * Element,
       Index++ ;  
       break ;
 
-    case WQ_DEGREE : /* Degree[{qty}] */
-      Degree = Cal_InterpolationDegree
+    case WQ_ORDER : /* Order[{qty}] */
+      Order = Cal_InterpolationOrder
 	(Element, QuantityStorage_P0 + WholeQuantity_P->Case.OperatorAndQuantity.Index) ;
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
-	Stack[0][Index].Val[MAX_DIM* k   ] = Degree ;
+	Stack[0][Index].Val[MAX_DIM* k   ] = Order ;
 	Stack[0][Index].Val[MAX_DIM*(k+1)] = 0. ;
       }
       Stack[0][Index].Type = SCALAR ;

@@ -1,4 +1,4 @@
-/* $Id: Message.c,v 1.12 2000-09-21 14:52:04 geuzaine Exp $ */
+/* $Id: Message.c,v 1.13 2000-09-26 11:33:06 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
@@ -63,7 +63,7 @@ char help[] =
   "  -split                    save processing results in separate files\n"
   "  -res file(s)              load processing results from file(s)\n"
   "  -adapt file               read adaption constraints from file\n"
-  "  -degree float             restrict maximum interpolation degree\n"
+  "  -order float              restrict maximum interpolation order\n"
 #if _SPARSKIT
   "Linear solver options:\n"
   "  -solver file              specify parameter file (default: SOLVER.PAR)\n"

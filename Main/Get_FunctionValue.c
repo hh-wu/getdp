@@ -1,4 +1,4 @@
-/* $Id: Get_FunctionValue.c,v 1.4 2000-09-07 18:47:26 geuzaine Exp $ */
+/* $Id: Get_FunctionValue.c,v 1.5 2000-09-26 11:33:06 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -275,19 +275,19 @@ void  Get_InitFunctionValue(int Type_Operator,
 
 
 /* ------------------------------------------------------------------------ */
-/*  C a l _ I n t e r p o l a t i o n D e g r e e                           */
+/*  C a l _ I n t e r p o l a t i o n O r d e r                             */
 /* ------------------------------------------------------------------------ */
 
-double Cal_InterpolationDegree(struct Element * Element,
-			       struct QuantityStorage * QuantityStorage){
+double Cal_InterpolationOrder(struct Element * Element,
+			      struct QuantityStorage * QuantityStorage){
   int i ;
-  double Degree = 0.0 ;
+  double Order = 0.0 ;
 
   for(i = 0 ; i < QuantityStorage->NbrElementaryBasisFunction ; i++)
     if(QuantityStorage->BasisFunction[i].Dof->Type == DOF_SYMMETRICAL)
-      Degree = MAX(QuantityStorage->BasisFunction[i].BasisFunction->Degree, Degree) ;
+      Order = MAX(QuantityStorage->BasisFunction[i].BasisFunction->Order, Order) ;
 
-  return Degree ;
+  return Order ;
 }
 
 

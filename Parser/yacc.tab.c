@@ -41,7 +41,7 @@
 #define	tHypot	291
 #define	tSolidAngle	292
 #define	tTrace	293
-#define	tDegree	294
+#define	tOrder	294
 #define	tCrossProduct	295
 #define	tGroup	296
 #define	tDefineGroup	297
@@ -186,7 +186,7 @@
 
 #line 1 "yacc.y"
 
-/* $Id: yacc.tab.c,v 1.9 2000-09-25 09:32:39 geuzaine Exp $ */
+/* $Id: yacc.tab.c,v 1.10 2000-09-26 11:33:06 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -813,7 +813,7 @@ static const char * const yytname[] = {   "$","error","$undefined.","tINT","tFLO
 "tSTRING","tBIGSTR","tEND","tDOTS","tInclude","tConstant","tDefineConstant",
 "tPi","t0D","t1D","t2D","t3D","tExp","tLog","tLog10","tSqrt","tSin","tAsin",
 "tCos","tAcos","tTan","tAtan","tAtan2","tSinh","tCosh","tTanh","tFabs","tFloor",
-"tCeil","tFmod","tModulo","tHypot","tSolidAngle","tTrace","tDegree","tCrossProduct",
+"tCeil","tFmod","tModulo","tHypot","tSolidAngle","tTrace","tOrder","tCrossProduct",
 "tGroup","tDefineGroup","tAll","tInSupport","tDefineFunction","tList","tListAlt",
 "tConstraint","tRegion","tSubRegion","tRegionRef","tSubRegionRef","tFilter",
 "tCoefficient","tValue","tTimeFunction","tBranch","tNode","tLoop","tNameOfResolution",
@@ -3802,7 +3802,7 @@ case 114:
     break;}
 case 115:
 #line 1379 "yacc.y"
-{ WholeQuantity_S.Type = WQ_DEGREE ;
+{ WholeQuantity_S.Type = WQ_ORDER ;
       WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;
@@ -4685,7 +4685,7 @@ case 221:
       Get_3Function2NbrForString
 	(BF_Function, yyvsp[-2].c, &FlagError,
 	 &BasisFunction_S.Function, &BasisFunction_S.dFunction, 
-	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Degree,
+	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Order,
 	 &BasisFunction_S.ElementType) ;
       if (FlagError)  vyyerror("Unknown Function for BasisFunction: %s %s", 
 			       yyvsp[-2].c, Get_Valid_SX3F2N(BF_Function)) ;
@@ -8437,7 +8437,7 @@ void  Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) {
     case WQ_OPERATORANDQUANTITY :
     case WQ_OPERATORANDQUANTITYEVAL :
     case WQ_SOLIDANGLE :
-    case WQ_DEGREE :
+    case WQ_ORDER :
       Pair.Int1 = (WholeQuantity_P+i)->Case.OperatorAndQuantity.Index ;
       Pair.Int2 = TraceGroupIndex ;
       List_Insert(ListOfTwoInt_L, &Pair, fcmp_int) ;

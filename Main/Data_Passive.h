@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.6 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.7 2000-09-26 11:33:06 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -262,7 +262,7 @@ struct BasisFunction {
   void    (*dFunction)();
   void    (*dInvFunction)();
   int     SupportIndex, EntityIndex ;
-  double  Degree ;
+  double  Order ;
   int     ElementType ;
 } ;
 
@@ -570,7 +570,7 @@ struct WholeQuantity {
 #define WQ_VALUESAVED              15
 #define WQ_SOLIDANGLE              16
 #define WQ_TRACE                   17
-#define WQ_DEGREE                  18
+#define WQ_ORDER                   18
 
 /* TypeOperator */
 #define OP_PLUS           1

@@ -1,4 +1,4 @@
-/* $Id: CurrentData.h,v 1.6 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: CurrentData.h,v 1.7 2000-09-26 11:33:06 geuzaine Exp $ */
 #ifndef _CURRENT_DATA_H_
 #define _CURRENT_DATA_H_
 
@@ -15,7 +15,7 @@ extern int    Flag_XDATA ;
 extern int    Flag_CHECK, Flag_RESTART ;
 extern int    Flag_LOG, Flag_VERBOSE ;
 extern int    Flag_BIN, Flag_PROGRESS, Flag_SPLIT ;
-extern double Flag_DEGREE ;
+extern double Flag_ORDER ;
 
 extern char  Name_Generic[MAX_FILE_NAME_LENGTH] ;
 extern char *Name_Resolution ;

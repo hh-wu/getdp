@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.c,v 1.9 2000-09-07 18:47:28 geuzaine Exp $ */
+/* $Id: Pos_Formulation.c,v 1.10 2000-09-26 11:33:06 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -763,7 +763,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 	   Current.GeoData->H, Current.GeoData->P, 
 	   PostSubOperation_P->Target);
 
-    /* Clean up the degrees to fit to what's available */
+    /* Clean up the interpolation orders to fit to what's available */
     if(List_Nbr(PostSubOperation_P->Value_L)){
       for(iGeo = 0 ; iGeo < NbrGeo ; iGeo++){
 	for(jj = List_Nbr(PostSubOperation_P->Value_L)-1 ; jj >= 0  ; jj--){

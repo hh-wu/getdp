@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.19 2000-09-26 09:38:53 geuzaine Exp $
+@c $Id: getdp.texi,v 1.20 2000-09-26 11:33:06 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -2765,9 +2765,9 @@ Akima interpolation of points.
 @code{[]@{@var{even-number-of-real}@}}@*
 Derivative of Akima interpolation of points.
 
-@item Degree
+@item Order
 @code{[@var{discrete-quantity}]}@*
-Returns the interpolation degree of the @var{discrete-quantity}.
+Returns the interpolation order of the @var{discrete-quantity}.
 
 @end ftable
 
@@ -3644,7 +3644,7 @@ error map.
 Specifies the target for the optimizer during adaption.
 @item Value @var{real-list}
 Specifies acceptable output values for discrete optimization (e.g. the
-available interpolation degrees).
+available interpolation orders).
 @end vtable
 
 
@@ -3920,7 +3920,7 @@ element method.
 
 The most elementary function space is the nodal finite element space, 
 defined on a mesh of a domain @var{W} and denoted @i{S0(W)} 
-(associated finite elements can be of various geometries and degrees), 
+(associated finite elements can be of various geometries), 
 and associated with essential boundary conditions (Dirichlet conditions). 
 It contains 0-forms, i.e.@: scalar fields of potential type:
 
@@ -3982,7 +3982,7 @@ functions (associated with other geometrical entities, e.g.@: edges and facets) 
     BasisFunction @{
       @{ Name sn; NameOfCoef vn; Function BF_Node;
         Support Domain; Entity NodesOf[All]; @}
-      @{ Name s2; NameOfCoef v2; Function HBF_Node_2E;
+      @{ Name s2; NameOfCoef v2; Function BF_Node_2E;
         Support Domain; Entity EdgesOf[All]; @}
     @}
     @dots{}
@@ -5034,9 +5034,9 @@ Same as @code{-pre @var{resolution-id} -cal}.
 @cindex @code{-adapt}
 Reads adaption constraints from file.
 
-@item -degree @var{real}
-@cindex @code{-degree}
-Specifies the maximum interpolation degree.
+@item -order @var{real}
+@cindex @code{-order}
+Specifies the maximum interpolation order.
 
 @item -bin 
 @cindex @code{-bin}
@@ -5355,6 +5355,9 @@ integral quantity correction; separate iteration matrix generation;
 @b{0.73}: Eigen value problems (Lanczos); minor corrections;
 @item
 @b{0.74}: High order shape functions; lots of small bug fixes;
+@item
+@b{0.76}: Reorganized high order shape functions; Optimization of the
+post-processing (faster and less bloated); Lots of internal cleaning;
 @end itemize
 
 @c -------------------------------------------------------------------------

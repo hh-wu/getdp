@@ -40,7 +40,7 @@ typedef union {
 #define	tHypot	291
 #define	tSolidAngle	292
 #define	tTrace	293
-#define	tDegree	294
+#define	tOrder	294
 #define	tCrossProduct	295
 #define	tGroup	296
 #define	tDefineGroup	297

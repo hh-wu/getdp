@@ -1,4 +1,4 @@
-/* $Id: Treatment_Formulation.h,v 1.6 2000-09-08 08:17:24 geuzaine Exp $ */
+/* $Id: Treatment_Formulation.h,v 1.7 2000-09-26 11:33:06 geuzaine Exp $ */
 #ifndef _TREATMENT_FORMULATION_H_
 #define _TREATMENT_FORMULATION_H_
 
@@ -142,8 +142,8 @@ void  Get_FunctionValue(int Nbr_Function,
 			struct QuantityStorage  * QuantityStorage_P,
 			int * Type_Form) ;
 
-double Cal_InterpolationDegree(struct Element * Element,
-			       struct QuantityStorage * QuantityStorage);
+double Cal_InterpolationOrder(struct Element * Element,
+			      struct QuantityStorage * QuantityStorage);
 double Cal_MaxEdgeLength(struct Element * Element);
 
 void  Get_InitElementSource (struct Element * Element, int InIndex) ;

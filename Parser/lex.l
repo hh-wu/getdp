@@ -1,5 +1,5 @@
 %{
-/* $Id: lex.l,v 1.4 2000-09-07 18:47:27 geuzaine Exp $ */
+/* $Id: lex.l,v 1.5 2000-09-26 11:33:06 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -119,7 +119,7 @@ Hypot                        return tHypot ;
 Cross                        return tCrossProduct ;
 CrossProduct                 return tCrossProduct ;
 SolidAngle                   return tSolidAngle ;
-Degree                       return tDegree ;
+Order                        return tOrder ;
 Trace                        return tTrace ;
 
 Constraint                   return tConstraint ;
