@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.11 2002-04-15 02:46:05 geuzaine Exp $
+// $Id: Main.cpp,v 1.12 2002-04-26 20:18:54 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
@@ -69,6 +69,7 @@ int main(int argc, char *argv[]){
 	i++; char *str = GetString(argc,argv,&i);
 	if(!strncmp(str,"circle",1))       ctx.scat.type = Scatterer::CIRCLE;
 	else if(!strncmp(str,"ellipse",1)) ctx.scat.type = Scatterer::ELLIPSE;
+	else if(!strncmp(str,"drop",1))    ctx.scat.type = Scatterer::DROP;
 	else Msg(ERROR, "Unknown scatterer");
       }
       else if(Cmp(argv[i]+1, "spline", 2)){ 

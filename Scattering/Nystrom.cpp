@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.30 2002-04-23 00:45:16 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.31 2002-04-26 20:18:54 geuzaine Exp $
 
 #include "Utils.h"
 #include "Nystrom.h"
@@ -115,7 +115,7 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
   static int first = 1;
   static double *Weights;
 
-#define TEST
+#undef TEST
 #ifdef TEST
   static FILE *fp;
   if(first) fp = fopen("debug","w");
@@ -276,10 +276,16 @@ Complex Integrate(Ctx *ctx, double t){
 
   }
 
+  //double eps_shad = 1.; // k=1000;
+  //double eps_shad = 0.5; // k=10000;
+  //double eps_shad = 0.25; // k=100000;
+  //double eps_shad = 2*0.46; // k=320000;
+  double eps_shad = pow(ctx->epsilon,1./3.) ;
+
   // add target, critical and shadowing points in list
   ctx->scat.singularPoint(t,CritPts);
   ctx->scat.criticalPoints(t,ctx->waveNum,CritPts);
-  //ctx->scat.shadowingPoints(t,pow(ctx->epsilon,1./3.)/2.,ctx->waveNum,CritPts);
+  ctx->scat.shadowingPoints(t,eps_shad/2.,ctx->waveNum,CritPts);
   //ctx->scat.shadowingPoints(t,0.,ctx->waveNum,CritPts);
 
   List_Sort(CritPts, fcmp_CPoint);
@@ -298,7 +304,8 @@ Complex Integrate(Ctx *ctx, double t){
     else{
       if(pt.degree == 1) eps = s_eps = ctx->epsilon;
       else if(pt.degree == 2) eps = sqrt(ctx->epsilon);
-      else eps = pow(ctx->epsilon,1./3.)/2.;
+      //else eps = 1.3*pow(ctx->epsilon,1./2.) ;
+      else eps = eps_shad ;
     }
     I.min = pt.val-eps;
     I.max = pt.val+eps;

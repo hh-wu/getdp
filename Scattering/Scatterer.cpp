@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.4 2002-04-23 00:46:10 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.5 2002-04-26 20:18:54 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -13,7 +13,8 @@ int fcmp_CPoint(const void * a, const void * b) {
   else                    return  0 ;
 }
 
-// Parametric definition of the scatterers
+// Parametric definition of the scatterers. This is awfull c++, I
+// know, thanks :-)
 
 void Scatterer::x(double u, double *x){
   switch(type){
@@ -25,6 +26,11 @@ void Scatterer::x(double u, double *x){
   case ELLIPSE :
     x[0] = a*cos(u); 
     x[1] = b*sin(u); 
+    x[2] = 0.; 
+    break;
+  case DROP :
+    x[0] = 2.*sin(u/2.); 
+    x[1] = -sin(u); 
     x[2] = 0.; 
     break;
     /*
@@ -48,6 +54,11 @@ void Scatterer::dx(double u, double *x){
   case ELLIPSE :
     x[0] = -a*sin(u); 
     x[1] = b*cos(u); 
+    x[2] = 0.; 
+    break;
+  case DROP :
+    x[0] = cos(u/2.); 
+    x[1] = -cos(u); 
     x[2] = 0.; 
     break;
   }

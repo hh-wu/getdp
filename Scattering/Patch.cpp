@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.5 2002-04-23 00:45:16 geuzaine Exp $
+// $Id: Patch.cpp,v 1.6 2002-04-26 20:18:54 geuzaine Exp $
 
 #include "Main.h"
 #include "Utils.h"
@@ -16,7 +16,7 @@ void Partition::init(double _center, double _epsilon, double _rise){
   epsilon = _epsilon;
 
   if(epsilon>PI){
-    Msg(ERROR, "Epsilon too large (%g > PI), restricting to PI", epsilon);
+    Msg(WARNING, "Epsilon too large (%g > PI), restricting to PI", epsilon);
     epsilon = PI;
   }
 
