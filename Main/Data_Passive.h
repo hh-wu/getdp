@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.19 2000-11-03 08:31:31 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.20 2000-11-07 08:49:12 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -791,7 +791,7 @@ struct PostSubOperation {
   int    PostQuantityIndex[2], PostQuantitySupport[2] ;  
   int    Type, SubType, CombinationType ;
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
-  int    Format, Adapt, Sort, Iso ;
+  int    Format, Adapt, Sort, Iso, NoNewLine ;
   double Target ;
   List_T * HeaderChar_L, * HeaderTag_L ;
   List_T * FormatChar_L, * FormatTag_L ;
@@ -854,16 +854,17 @@ struct PostSubOperation {
 #define TAG_COMMAND     16
 
 /* PostSubOperation.Format */
-#define FORMAT_SPACE_TABLE    1
-#define FORMAT_TIME_TABLE     2
-#define FORMAT_ADAPT          3
-#define FORMAT_GMSH           10
-#define FORMAT_GMSH_NL        11
-#define FORMAT_UNV            12
-#define FORMAT_GREF           13
-#define FORMAT_MATLAB         14
-#define FORMAT_GNUPLOT        15
-#define FORMAT_HARMONICTOTIME_TABLE  16
+#define FORMAT_SPACE_TABLE            1
+#define FORMAT_TIME_TABLE             2
+#define FORMAT_HARMONICTOTIME_TABLE   3
+#define FORMAT_FREQUENCY_TABLE        4
+#define FORMAT_ADAPT                  9
+#define FORMAT_GMSH                  10
+#define FORMAT_GMSH_NL               11
+#define FORMAT_UNV                   12
+#define FORMAT_GREF                  13
+#define FORMAT_MATLAB                14
+#define FORMAT_GNUPLOT               15
 
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION      1

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.9 2000-11-06 23:03:23 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.10 2000-11-07 08:49:12 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -714,12 +714,12 @@ void  Format_PostElement(int Format, int Contour, int Store,
 
 void  Format_PostValue(int Format,
 		       double Time, int iRegion, int NbrRegion,
-		       int NbrHarmonics, int HarmonicToTime,
+		       int NbrHarmonics, int HarmonicToTime, int Flag_NoNewLine,
 		       struct Value * Value) {
 
   static int  Size ;
   int  j, k ;
-  double TimeMH ;
+  double TimeMH, Freq ;
   struct Value  TmpValue, *TmpValues ;
 
   GetDP_Begin("Format_PostValue");
@@ -740,15 +740,31 @@ void  Format_PostValue(int Format,
   if (iRegion == NbrRegion-1) {
 
     if (HarmonicToTime == 1) {
-      fprintf(PostStream, "%.8g ", Time) ;
+      switch (Format) {
+      case FORMAT_FREQUENCY_TABLE :
+	if (NbrHarmonics == 1)
+	  Msg(ERROR, "FrequencyTable Format not allowed") ;
+	break ;
+      default :
+	fprintf(PostStream, "%.8g ", Time) ;
+	break ;
+      }
       for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++)
-	for (k = 0 ; k < NbrHarmonics ; k++)
+	for (k = 0 ; k < NbrHarmonics ; k++) {
+	  if (Format == FORMAT_FREQUENCY_TABLE && !(k%2)) {
+	    Freq = Current.DofData->Val_Pulsation[0] / TWO_PI ;
+	    fprintf(PostStream, "%.8g ", Freq) ;
+	  }
 	  for(j = 0 ; j < Size ; j++)
 	    fprintf(PostStream, " %.8g", TmpValues[iRegion].Val[MAX_DIM*k+j]) ;
-      fprintf(PostStream, "\n") ;
+	}
+      if (Flag_NoNewLine)
+	fprintf(PostStream, "  ") ;
+      else
+	fprintf(PostStream, "\n") ;
     }
 
-    else {
+    else { /* FORMAT_HARMONICTOTIME_TABLE */
       for(k = 0 ; k < HarmonicToTime ; k++) {
 	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
 	  F_MHToTime0(NULL, &TmpValues[iRegion], &TmpValue, 

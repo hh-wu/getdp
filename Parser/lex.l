@@ -1,5 +1,5 @@
 %{
-/* $Id: lex.l,v 1.13 2000-10-30 01:05:46 geuzaine Exp $ */
+/* $Id: lex.l,v 1.14 2000-11-07 08:49:12 dular Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -71,6 +71,8 @@ string     {alpha}({alpha}|{digit})*
 "<<"                         return tLESSLESS ;
 "..."                        return tDOTS ;
 ":"                          return tDOTS ;
+
+StrCat                       return tStrCat ;
 
 Pi                           return tPi ;
 0D                           return t0D ;
@@ -256,6 +258,7 @@ Target                       return tTarget ;
 File                         return tFile ;
 Sort                         return tSort ;
 Iso                          return tIso ;
+NoNewLine                    return tNoNewLine ;
 
 Flag                         return tFlag ;
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.31 2000-11-03 08:31:31 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.32 2000-11-07 08:49:12 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1208,7 +1208,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     PQ_P = NCPQ_P ;  Support_L = NULL ;
   }
 
-#if 0
+  /*
   if(CPQ_P){
     Cal_PostCumulativeQuantity(NULL, PostSubOperation_P->PostQuantitySupport[Order],
 			       PostSubOperation_P->TimeStep_L,
@@ -1216,7 +1216,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 			       QuantityStorage_P0, &CumulativeValues);
   }
 
-  if (!NCPQ_P) { /* Only one Cumulative */
+  if (!NCPQ_P) { Only one Cumulative
     for (j = 0 ; j < NbrTimeStep ; j++) {
       Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, j) ;
       fprintf(PostStream, "%.8g", Current.Time) ;
@@ -1225,66 +1225,66 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     }
     fprintf(PostStream, "\n"); 
   }
-  else { /* There is one non-cumulative */
-#endif
-    /* Il vaut mieux supprimer cela ... ou plutot l'entendre comme cela : */
-    if (!Support_L &&
-	List_Nbr(NCPQ_P->PostQuantityTerm) &&
-	(
-	 ((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
-	 ->Type == LOCALQUANTITY &&
-	 ((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
-	 ->EvaluationType == LOCAL)
-	)
-      Msg(ERROR, "Print OnRegion not valid for PostQuantity '%s'", NCPQ_P->Name);
+  else {  There is one non-cumulative
+  */
+  /* Il vaut mieux supprimer cela ... ou plutot l'entendre comme cela : */
+  if (!Support_L &&
+      List_Nbr(NCPQ_P->PostQuantityTerm) &&
+      (
+       ((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
+       ->Type == LOCALQUANTITY &&
+       ((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
+       ->EvaluationType == LOCAL)
+      )
+    Msg(ERROR, "Print OnRegion not valid for PostQuantity '%s'", NCPQ_P->Name);
 
-    Region_L =  (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
-      ((struct Group *)
-       List_Pointer(Problem_S.Group, 
-		    PostSubOperation_P->Case.OnRegion.RegionIndex))->InitialList ;
-    if (Region_L) {
-      List_Sort(Region_L, fcmp_int) ;
-      Nbr_Region = List_Nbr(Region_L) ;
+  Region_L =  (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
+    ((struct Group *)
+     List_Pointer(Problem_S.Group, 
+		  PostSubOperation_P->Case.OnRegion.RegionIndex))->InitialList ;
+  if (Region_L) {
+    List_Sort(Region_L, fcmp_int) ;
+    Nbr_Region = List_Nbr(Region_L) ;
 
-      fprintf(PostStream, "# %s on", PQ_P->Name) ;
-      for(i = 0 ; i < Nbr_Region ; i++) {
+    fprintf(PostStream, "# %s on", PQ_P->Name) ;
+    for(i = 0 ; i < Nbr_Region ; i++) {
+      List_Read(Region_L, i, &Num_Region) ;
+      fprintf(PostStream, " %d", Num_Region) ;
+    }
+    fprintf(PostStream, "\n") ;
+  }
+  else
+    Nbr_Region = 1 ;
+
+  for (iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
+
+    Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
+
+    for(i = 0 ; i < Nbr_Region ; i++) {
+
+      if (Region_L) {
 	List_Read(Region_L, i, &Num_Region) ;
-	fprintf(PostStream, " %d", Num_Region) ;
+	Current.SubRegion = Num_Region ; /* Region being a GlobalQuantity Entity no */
       }
-      fprintf(PostStream, "\n") ;
+      else
+	Num_Region = NO_REGION ;
+
+      Element.GeoElement = NULL ;
+      Element.Num = NO_ELEMENT ;
+      Element.Type = -1 ;
+      Current.Region = Element.Region = Num_Region ;
+      Current.x = Current.y = Current.z = 0. ;
+      Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0, 
+		       Support_L, &Element, 0., 0., 0., &Value) ;
+
+      Format_PostValue(PostSubOperation_P->Format,
+		       Current.Time, i, Nbr_Region,
+		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
+		       PostSubOperation_P->NoNewLine,
+		       &Value) ;
     }
-    else
-      Nbr_Region = 1 ;
 
-    for (iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
-
-      Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
-
-      for(i = 0 ; i < Nbr_Region ; i++) {
-
-	if (Region_L) {
-	  List_Read(Region_L, i, &Num_Region) ;
-	  Current.SubRegion = Num_Region ; /* Region being a GlobalQuantity Entity no */
-	}
-	else
-	  Num_Region = NO_REGION ;
-
-	Element.GeoElement = NULL ;
-	Element.Num = NO_ELEMENT ;
-	Element.Type = -1 ;
-	Current.Region = Element.Region = Num_Region ;
-	Current.x = Current.y = Current.z = 0. ;
-	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0, 
-			 Support_L, &Element, 0., 0., 0., &Value) ;
-
-	Format_PostValue(PostSubOperation_P->Format,
-			 Current.Time, i, Nbr_Region,
-			 Current.NbrHar, PostSubOperation_P->HarmonicToTime,
-			 &Value) ;
-      }
-
-    }
-    /*  } */
+  }
 
   GetDP_End ;
 }
@@ -1349,6 +1349,7 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
       Format_PostValue(PostSubOperation_P->Format,
 		       x, 0, 1,
 		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
+		       PostSubOperation_P->NoNewLine,
 		       &Value) ;
   }
 

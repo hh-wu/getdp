@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.25 2000-10-30 01:34:49 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.26 2000-11-07 08:49:12 dular Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -205,6 +205,7 @@ struct PostSubOperation         PostSubOperation_S ;
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
+%token  tStrCat
 %token  tInclude
 %token  tConstant
 %token  tDefineConstant  tPi  t0D  t1D  t2D  t3D 
@@ -276,7 +277,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token        tWithArgument
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
-%token        tTarget tSort tIso
+%token        tTarget tSort tIso tNoNewLine
 
 %token  tFlag
 
@@ -5234,6 +5235,7 @@ PrintOptions :
       PostSubOperation_S.Iso = 0 ;
       PostSubOperation_S.Iso_L = List_Create(10,10,sizeof(double)); ;
       PostSubOperation_S.Sort = 0 ;
+      PostSubOperation_S.NoNewLine = 0 ;
     }
   | PrintOptions PrintOption 
   ;
@@ -5370,6 +5372,10 @@ PrintOption :
 	List_Read(ListOfDouble_L,i,&d);	
 	List_Add(PostSubOperation_S.Iso_L, &d);
       }
+    }
+  | ',' tNoNewLine
+    { 
+      PostSubOperation_S.NoNewLine = 1 ;
     }
   ;
 
@@ -5718,6 +5724,19 @@ CharExpr :
       }
       Free($1) ;
     }
+
+  | tStrCat '[' CharExpr ',' CharExpr ']'
+    {
+      $$ = (char *)Malloc((strlen($3)+strlen($5)+1)*sizeof(char)) ;
+      strcpy($$, $3) ;  strcat($$, $5) ;
+    }
+/*
+  | CharExpr '+' CharExpr
+    {
+      $$ = (char *)Malloc((strlen($1)+strlen($3)+1)*sizeof(char)) ;
+      strcpy($$, $1) ;  strcat($$, $3) ;
+    }
+*/
   ;
 
 
