@@ -2,24 +2,26 @@
 #define _MESSAGE_H_
 
 #include <stdarg.h>
-                           /* output if verbosity */ 
+
+/*      Message level            displayed if '-v' */ 
 #define DIRECT       0      /*   >= 2              */
 #define ERROR        1      /*   >= 0 (always)     */
-#define WARNING      2      /*   >= 0 (always)     */
-#define OPERATION    3      /*   >= 2              */
-#define INFO         4      /*   >= 3              */
-#define INFO1        5      /*   >= 3              */
-#define INFO2        6      /*   >= 3              */
-#define INFO3        7      /*   >= 3              */
-#define BIGINFO      8      /*   >= 1              */
-#define SPARSKIT     9      /*   >= 3              */
-#define PETSC        10     /*   >= 3              */
-#define ITER         11     /*   >= 4              */
-#define DEBUG        12     /*   == 99             */
-#define LOADING      13     /*   >= 2              */
-#define RESOURCES    14     /*   >= 4              */
-#define SUMMARY      15     /*   >= 1              */
-#define CHECK        16     /*   >= 0 (always)     */
+#define BIGERROR     2      /*   >= 0 (always)     */
+#define WARNING      3      /*   >= 0 (always)     */
+#define OPERATION    4      /*   >= 2              */
+#define INFO         5      /*   >= 3              */
+#define INFO1        6      /*   >= 3              */
+#define INFO2        7      /*   >= 3              */
+#define INFO3        8      /*   >= 3              */
+#define BIGINFO      9      /*   >= 1              */
+#define SPARSKIT     10     /*   >= 3              */
+#define PETSC        11     /*   >= 3              */
+#define ITER         12     /*   >= 4              */
+#define DEBUG        13     /*   == 99             */
+#define LOADING      14     /*   >= 2              */
+#define RESOURCES    15     /*   >= 4              */
+#define SUMMARY      16     /*   >= 1              */
+#define CHECK        17     /*   >= 0 (always)     */
 
 #define WHITE_STR     "            "
 #define ERROR_STR     "Error     : "

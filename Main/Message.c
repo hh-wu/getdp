@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.21 2000-11-07 15:43:08 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.22 2000-11-08 09:04:53 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -117,7 +117,7 @@ void Signal (int sig_num){
 	Msg(BIGINFO, "Switching to Low Verbosity Mode - Once more to Interrupt"); 
 	Flag_VERBOSE = 1;
       }
-      else Msg(ERROR, "Interrupt (generated from terminal special char)"); 
+      else Msg(ERROR, "Interrupt (Generated from Terminal Special Character)"); 
     }
     else
       InteractiveInterrupt = 1;
@@ -126,14 +126,10 @@ void Signal (int sig_num){
 
   switch (sig_num){
   case SIGSEGV : 
-    Msg(ERROR, "Segmentation Violation (Invalid Memory Reference)\n"
-	"----------------------------------------------------------------------\n"
-	"You have discovered (yet another) a bug in GetDP...\n"
-	"You may e-mail the context in which it occurred to one of the authors.\n"
-	"Type 'getdp -info' to get feedback information");
+    Msg(BIGERROR, "Segmentation Violation (Invalid Memory Reference)");
     break;
   case SIGFPE : 
-    Msg(ERROR, "Floating point exception (Division by Zero?)");
+    Msg(ERROR, "Floating Point Exception (Division by Zero?)");
     break;
   default :
     Msg(ERROR, "Caught Unknown Signal");
@@ -180,6 +176,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
     break;
 
   case ERROR :
+  case BIGERROR :
     fprintf(stream, ERROR_STR); 
     vfprintf(stream, fmt, args); 
     fprintf(stream, "\n");
@@ -192,6 +189,12 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
     fprintf(stream, WHITE_STR); 
     fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
 #endif
+    if(level == BIGERROR){
+      fprintf(stream, WHITE_STR "------------------------------------------------------\n");
+      fprintf(stream, WHITE_STR "You have discovered a bug in GetDP. You may e-mail the\n");
+      fprintf(stream, WHITE_STR "context in which it occurred to one of the authors:\n");
+      fprintf(stream, WHITE_STR "type 'getdp -info' to get feedback information\n");
+    }
     *abort = 1;
     break;
 
