@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Iso.c,v 1.16 2003-03-22 03:30:19 geuzaine Exp $"
+#define RCSID "$Id: Pos_Iso.c,v 1.17 2003-03-25 16:38:02 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -57,59 +57,30 @@ void Cal_IsoTetrahedron(double *X, double *Y, double *Z, struct Value *Val,
 
   GetDP_Begin("Cal_IsoTetrahedron");
 
-  if(V != Vmax){
-    *nb = 0;
-    if((Val[0].Val[0] > V && Val[1].Val[0] <= V) || 
-       (Val[1].Val[0] > V && Val[0].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,0,1,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[0].Val[0] > V && Val[2].Val[0] <= V) ||
-       (Val[2].Val[0] > V && Val[0].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,0,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[0].Val[0] > V && Val[3].Val[0] <= V) ||
-       (Val[3].Val[0] > V && Val[0].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,0,3,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[1].Val[0] > V && Val[2].Val[0] <= V) ||
-       (Val[2].Val[0] > V && Val[1].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,1,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[1].Val[0] > V && Val[3].Val[0] <= V) ||
-       (Val[3].Val[0] > V && Val[1].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,1,3,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[2].Val[0] > V && Val[3].Val[0] <= V) ||
-       (Val[3].Val[0] > V && Val[2].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,2,3,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
+  *nb = 0;
+  if((Val[0].Val[0] >= V && Val[1].Val[0] <= V) || 
+     (Val[1].Val[0] >= V && Val[0].Val[0] <= V)){
+    Interpolate(X,Y,Z,Val,V,0,1,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
   }
-  else{
-    *nb=0;
-    if((Val[0].Val[0] < V && Val[1].Val[0] <= V) ||
-       (Val[1].Val[0] < V && Val[0].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,0,1,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[0].Val[0] < V && Val[2].Val[0] <= V) ||
-       (Val[2].Val[0] < V && Val[0].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,0,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[0].Val[0] < V && Val[3].Val[0] <= V) ||
-       (Val[3].Val[0] < V && Val[0].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,0,3,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[1].Val[0] < V && Val[2].Val[0] <= V) ||
-       (Val[2].Val[0] < V && Val[1].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,1,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[1].Val[0] < V && Val[3].Val[0] <= V) ||
-       (Val[3].Val[0] < V && Val[1].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,1,3,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[2].Val[0] < V && Val[3].Val[0] <= V) ||
-       (Val[3].Val[0] < V && Val[2].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,2,3,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
+  if((Val[0].Val[0] >= V && Val[2].Val[0] <= V) ||
+     (Val[2].Val[0] >= V && Val[0].Val[0] <= V)){
+    Interpolate(X,Y,Z,Val,V,0,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
+  }
+  if((Val[0].Val[0] >= V && Val[3].Val[0] <= V) ||
+     (Val[3].Val[0] >= V && Val[0].Val[0] <= V)){
+    Interpolate(X,Y,Z,Val,V,0,3,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
+  }
+  if((Val[1].Val[0] >= V && Val[2].Val[0] <= V) ||
+     (Val[2].Val[0] >= V && Val[1].Val[0] <= V)){
+    Interpolate(X,Y,Z,Val,V,1,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
+  }
+  if((Val[1].Val[0] >= V && Val[3].Val[0] <= V) ||
+     (Val[3].Val[0] >= V && Val[1].Val[0] <= V)){
+    Interpolate(X,Y,Z,Val,V,1,3,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
+  }
+  if((Val[2].Val[0] >= V && Val[3].Val[0] <= V) ||
+     (Val[3].Val[0] >= V && Val[2].Val[0] <= V)){
+    Interpolate(X,Y,Z,Val,V,2,3,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
   }
 
   GetDP_End ;
@@ -122,35 +93,18 @@ void Cal_IsoTriangle(double *X, double *Y, double *Z, struct Value *Val,
   
   GetDP_Begin("Cal_IsoTriangle");
 
-  if(V != Vmax){
-    *nb = 0;
-    if((Val[0].Val[0] > V && Val[1].Val[0] <= V) || 
-       (Val[1].Val[0] > V && Val[0].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,0,1,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[0].Val[0] > V && Val[2].Val[0] <= V) ||
-       (Val[2].Val[0] > V && Val[0].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,0,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[1].Val[0] > V && Val[2].Val[0] <= V) ||
-       (Val[2].Val[0] > V && Val[1].Val[0] <= V)){
-      Interpolate(X,Y,Z,Val,V,1,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
+  *nb = 0;
+  if((Val[0].Val[0] >= V && Val[1].Val[0] <= V) || 
+     (Val[1].Val[0] >= V && Val[0].Val[0] <= V)){
+    Interpolate(X,Y,Z,Val,V,0,1,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
   }
-  else{
-    *nb = 0;
-    if((Val[0].Val[0] < V && Val[1].Val[0] >= V) ||
-       (Val[1].Val[0] < V && Val[0].Val[0] >= V)){
-      Interpolate(X,Y,Z,Val,V,0,1,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
-    if((Val[0].Val[0] < V && Val[2].Val[0] >= V) || 
-       (Val[2].Val[0] < V && Val[0].Val[0] >= V)){
-      Interpolate(X,Y,Z,Val,V,0,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }       
-    if((Val[1].Val[0] < V && Val[2].Val[0] >= V) || 
-       (Val[2].Val[0] < V && Val[1].Val[0] >= V)){
-      Interpolate(X,Y,Z,Val,V,1,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
-    }
+  if((Val[0].Val[0] >= V && Val[2].Val[0] <= V) ||
+     (Val[2].Val[0] >= V && Val[0].Val[0] <= V)){
+    Interpolate(X,Y,Z,Val,V,0,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
+  }
+  if((Val[1].Val[0] >= V && Val[2].Val[0] <= V) ||
+     (Val[2].Val[0] >= V && Val[1].Val[0] <= V)){
+    Interpolate(X,Y,Z,Val,V,1,2,&Xp[*nb],&Yp[*nb],&Zp[*nb]); (*nb)++;
   }
 
   GetDP_End ;
