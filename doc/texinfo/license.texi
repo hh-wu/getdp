@@ -1,4 +1,13 @@
+
+@cindex GNU General Public License
+
+@center GNU General Public License
+
+@sp 1
+
 @center Version 2, June 1991
+
+@sp 1
 
 @c This file is intended to be included in another file.
 

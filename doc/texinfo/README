@@ -18,3 +18,5 @@ the interactive info          make info          Texinfo
 (GNU project-like) 
 documentation
 
+a plain text version of       make txt           Texinfo
+the doc

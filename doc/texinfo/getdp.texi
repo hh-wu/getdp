@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.57 2004-01-19 16:51:30 geuzaine Exp $
+@c $Id: getdp.texi,v 1.58 2004-01-22 17:05:33 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 @c
@@ -34,20 +34,6 @@
 @c Before release, run C-u C-c C-u C-a in GNU Emacs
 @c This updates all node pointers and menus
 @c 
-@c info  : makeinfo getdp.texi
-@c dvi   : texi2dvi getdp.texi
-@c ps    : dvips getdp.dvi -o
-@c pdf   : texi2pdf getdp.texi
-@c html  : texi2html -init_file getdp.t2h getdp.texi
-@c nroff : texi2roff getdp.texi
-@c
-@c =========================================================================
-@c
-@c For commercial releases, set the COMMERCIAL flag (uncomment the following
-@c line). This will prevent all references to "free software" and the like...
-@c
-@c @set COMMERCIAL
-@c
 @c =========================================================================
 @c %**start of header
 @setfilename        getdp.info
@@ -180,7 +166,7 @@ Reference Manual}, for GetDP @value{GETDP-VERSION}.
 * Bugs and versions::           
 * Tips and tricks::             Some tips to make your life easier with GetDP.
 * Gmsh examples::               Sample Gmsh input files.
-* GNU General Public License::  Copy of the GNU GPL.
+* License::                     Complete copy of the license.
 * Concept index::               Index of concepts.
 * Metasyntactic variable index::  Index of metasyntactic variables used in this manual.
 * Syntax index::                Index of reserved keywords in the GetDP language.
@@ -331,55 +317,13 @@ Bugs, versions and credits
 @c Copying Conditions
 @c =========================================================================
 
-@ifclear COMMERCIAL
-
 @node Copying conditions, Introduction, Top, Top
 @unnumbered Copying conditions
 
 @cindex Copyright
-@cindex Web site
-@cindex Internet address
-@cindex Download
+@cindex License
 
-GetDP is ``free software''; this means that everyone is free to use it and
-to redistribute it on a free basis. GetDP is not in the public domain; it is
-copyrighted and there are restrictions on its distribution, but these
-restrictions are designed to permit everything that a good cooperating
-citizen would want to do.  What is not allowed is to try to prevent others
-from further sharing any version of GetDP that they might get from you.
-
-Specifically, we want to make sure that you have the right to give away
-copies of GetDP, that you receive source code or else can get it if you want
-it, that you can change GetDP or use pieces of GetDP in new free programs,
-and that you know you can do these things.
-
-To make sure that everyone has such rights, we have to forbid you to deprive
-anyone else of these rights.  For example, if you distribute copies of
-GetDP, you must give the recipients all the rights that you have.  You must
-make sure that they, too, receive or can get the source code.  And you must
-tell them their rights.
-
-Also, for our own protection, we must make certain that everyone finds out
-that there is no warranty for GetDP.  If GetDP is modified by someone else
-and passed on, we want their recipients to know that what they have is not
-what we distributed, so that any problems introduced by others will not
-reflect on our reputation.
-
-The precise conditions of the license for GetDP are found in the General
-Public License that accompanies the source code (@pxref{GNU General Public
-License}). Further information about this license is available from the GNU
-Project webpage @uref{http://www.gnu.org/copyleft/gpl-faq.html}.  Detailed
-copyright information can be found in @ref{Credits}.
-
-The source code and various pre-compiled versions of GetDP (for Unix,
-Windows and Mac OS) can be downloaded from the web site @value{GETDP-WEB}.
-
-If you use GetDP, we would appreciate that you mention it in your
-work. Published references, as well as the latest news about GetDP
-developments and download information, are always available on
-@value{GETDP-WEB}.
-
-@end ifclear
+@include copying.texi
 
 @c =========================================================================
 @c Introduction
@@ -5884,8 +5828,6 @@ the numbering of the equations given in the @file{.pre} file
 @c Bugs, versions and credits
 @c =========================================================================
 
-@ifclear COMMERCIAL
-
 @node Bugs and versions, Tips and tricks, File formats, Top
 @chapter Bugs, versions and credits
 
@@ -5945,8 +5887,6 @@ already know about.
 
 @verbatiminclude ../CREDITS
 
-@end ifclear
-
 @c =========================================================================
 @c Tips ans Tricks
 @c =========================================================================
@@ -6000,7 +5940,7 @@ available PostOperations.
 @c Gmsh Examples
 @c =========================================================================
 
-@node Gmsh examples, GNU General Public License, Tips and tricks, Top
+@node Gmsh examples, License, Tips and tricks, Top
 @appendix Gmsh examples
 
 @cindex Gmsh, examples
@@ -6027,19 +5967,16 @@ examples of @ref{Complete examples}.
 @c GNU GPL
 @c =========================================================================
 
-@ifclear COMMERCIAL
+@node  License, Concept index, Gmsh examples, Top
+@appendix License
 
-@node  GNU General Public License, Concept index, Gmsh examples, Top
-@appendix GNU General Public License
-@include gpl.texi
-
-@end ifclear
+@include license.texi
 
 @c =========================================================================
 @c Concept Index (cindex)
 @c =========================================================================
 
-@node Concept index, Metasyntactic variable index, GNU General Public License, Top
+@node Concept index, Metasyntactic variable index, License, Top
 @unnumbered Concept index
 
 @cindex Index, concepts
