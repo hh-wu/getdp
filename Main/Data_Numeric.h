@@ -1,4 +1,4 @@
-/* $Id: Data_Numeric.h,v 1.3 2000-10-20 17:07:39 geuzaine Exp $ */
+/* $Id: Data_Numeric.h,v 1.4 2002-02-09 01:16:44 geuzaine Exp $ */
 #ifndef _DATA_NUMERIC_H_
 #define _DATA_NUMERIC_H_
 
@@ -19,5 +19,6 @@
 #define TWO_PI             6.2831853071795865
 #define ONE_OVER_TWO_PI    1.5915494309189534E-01
 #define ONE_OVER_FOUR_PI   7.9577471545947668E-02
+#define EULER              0.5772156649015329
 
 #endif
