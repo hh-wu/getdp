@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.15 2000-11-17 12:22:41 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.16 2000-11-21 16:47:17 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -303,6 +303,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Solution_S.Time = Current.Time ;
         Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
 
+	Solution_S.SolutionExist = 1 ;
         LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
 			    DofData_P->NbrPart, DofData_P->Part) ;
 
@@ -372,7 +373,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       for(i=0 ; i<List_Nbr(DofData_P->Solutions) ; i++){
 	DofData_P->CurrentSolution = (struct Solution*)
 	  List_Pointer(DofData_P->Solutions, i) ;
-	if (!DofData_P->CurrentSolution->TimeFunctionValues)
+	if (!DofData_P->CurrentSolution->SolutionExist)
 	  Msg(ERROR, "SaveSolutions: Solution #%d doesn't exist anymore", i) ;
 	Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, 
 			 DofData_P->CurrentSolution->Time, i) ;
@@ -428,6 +429,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Solution_S.TimeStep = (int)Current.TimeStep ;
 	Solution_S.Time = Current.Time ;
 	Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData2_P) ;
+	Solution_S.SolutionExist = 1 ;
         LinAlg_CreateVector(&Solution_S.x, &DofData2_P->Solver, DofData2_P->NbrDof,
 			    DofData2_P->NbrPart, DofData2_P->Part) ;
 	LinAlg_ZeroVector(&Solution_S.x) ;
@@ -549,7 +551,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			   List_Nbr(Current.DofData->Solutions)-2);
 	    LinAlg_DestroyVector(&Solution_P->x);
 	    Free(Solution_P->TimeFunctionValues) ;
-	    Solution_P->TimeFunctionValues = NULL ;
+	    Solution_P->SolutionExist = 0 ;
 	  }
 	}
 
@@ -610,7 +612,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			   List_Nbr(Current.DofData->Solutions)-3);
 	    LinAlg_DestroyVector(&Solution_P->x);
 	    Free(Solution_P->TimeFunctionValues) ;
-	    Solution_P->TimeFunctionValues = NULL ;
+	    Solution_P->SolutionExist = 0 ;
 	  }
 	}
 
@@ -701,6 +703,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  List_Read(Operation_P->Case.FourierTransform.Frequency, i, &d) ;
 	  Solution_S.TimeStep = i ;
 	  Solution_S.Time = TWO_PI * d;
+	  Solution_S.SolutionExist = 1 ;
 	  LinAlg_CreateVector(&Solution_S.x, &DofData2_P->Solver, DofData2_P->NbrDof,
 			      DofData2_P->NbrPart, DofData2_P->Part) ;
 	  LinAlg_ZeroVector(&Solution_S.x) ;
@@ -908,6 +911,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     Solution_S.TimeStep = (int)Current.TimeStep ;
     Solution_S.Time = Current.Time ;
     Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
+    Solution_S.SolutionExist = 1 ;
     LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
 			DofData_P->NbrPart, DofData_P->Part) ;
     if (List_Nbr(DofData_P->Solutions)) {
@@ -1173,6 +1177,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
     Solution_S.TimeFunctionValues = (double *)Malloc(sizeof(double)) ;
     Solution_S.TimeFunctionValues[0] = Value.Val[0] ;
     
+    Solution_S.SolutionExist = 1 ;
     LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
 			DofData_P->NbrPart, DofData_P->Part) ;
     LinAlg_ZeroVector(&Solution_S.x) ;
@@ -1439,7 +1444,7 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 			 List_Nbr(Current.DofData->Solutions)-1) ;
 	  LinAlg_DestroyVector(&Solution_P->x) ;
 	  Free(Solution_P->TimeFunctionValues) ;
-	  Solution_P->TimeFunctionValues = NULL ;
+	  Solution_P->SolutionExist = 0 ;
 	  List_Pop(Current.DofData->Solutions) ;  /* Attention: a changer ! */
 	}
 
@@ -1546,7 +1551,7 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 		   List_Nbr(Current.DofData->Solutions)-1) ;
     LinAlg_DestroyVector(&Solution_P->x) ;
     Free(Solution_P->TimeFunctionValues) ;
-    Solution_P->TimeFunctionValues = NULL ;
+    Solution_P->SolutionExist = 0 ;
     List_Pop(Current.DofData->Solutions) ;  /* Attention: a changer ! */
 
     Treatment_Operation(Resolution_P,
