@@ -90,8 +90,10 @@ struct FMMmat{
   int NbrCom ;        /* 1 or 3 for scalar or vector Green function */
   double Pulsation ;
   List_T  *NumDof ;   /* items = list of int (NumDof), one for each FMM-group of source GetDP-group */  
-  List_T  *NumDofi ;  /* items = list of int (NumDof), one for each FMM-group of source GetDP-group, Complex system */  
-  List_T  *NumEqu ;   /* items = list of int (NumDof), one for each FMM-group of observation GetDP-group */
+  List_T  *NumDofr ;   /* For renumbering */  
+  List_T  *NumDofi ;  /* items = list of int (NumDof), one for each FMM-group of source GetDP-group, Complex system */
+  List_T  *NumEqu ;   /* items = list of int (NumDof), one for each FMM-group of observation GetDP-group */  
+  List_T  *NumEqur ;   /* For renumbering */
   List_T  *NumEqui;   /* items = list of int (NumDof), one for each FMM-group of observation GetDP-group, Complex system */
   List_T * NG_L ;     
   List_T * FG_L ;
