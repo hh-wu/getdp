@@ -216,7 +216,7 @@ void  SolvingAnalyse (void) {
   /* Partitionning */
   /* ------------- */
 
-  if (Flag_PAR) {
+  if (Flag_PAR > 1) {
     TreatmentStatus = _PAR ;
     Msg(DIRECT, "P a r t i t i o n n i n g . . .") ;
 
