@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.44 2001-03-03 08:40:13 geuzaine Exp $
+# $Id: Makefile,v 1.45 2001-03-03 08:48:37 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -356,7 +356,7 @@ linux: tag
            "FC=g77" \
            "C_FLAGS=-O3" \
            "C_PARSER_FLAGS=-O3" \
-           "F77_FLAGS=-O3" \
+           "F77_FLAGS=-O1" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
