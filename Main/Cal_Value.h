@@ -1,12 +1,14 @@
-/* $Id: Cal_Value.h,v 1.3 2001-08-04 03:33:36 geuzaine Exp $ */
+/* $Id: Cal_Value.h,v 1.4 2001-08-08 14:52:44 sabarieg Exp $ */
 #ifndef _CAL_VALUE_H_
 #define _CAL_VALUE_H_
 
 
 void  Cal_CopyValue           (struct Value *V1, struct Value *R);
+void  Cal_CopyValueArray      (struct Value *V1, struct Value *R, int Nbr_Values);
 void  Cal_ZeroValue           (struct Value *V1);
 
 void  Cal_AddValue            (struct Value *V1, struct Value *V2, struct Value *R) ;
+void  Cal_AddValueArray       (struct Value *V1, struct Value *V2, struct Value *R, int Nbr_Values);
 void  Cal_SubstractValue      (struct Value *V1, struct Value *V2, struct Value *R) ;
 void  Cal_ProductValue        (struct Value *V1, struct Value *V2, struct Value *R) ;
 void  Cal_DivideValue         (struct Value *V1, struct Value *V2, struct Value *R) ;
@@ -32,10 +34,10 @@ void  Cal_NegValue            (struct Value *V1) ;
 void  Cal_NotValue            (struct Value *V1) ;
 
 void  Cal_SetHarmonicValue    (struct Value *R) ;
-
+void  Cal_MultValue           (struct Value * V1, double d, struct Value * R) ;
 void  Cal_AddMultValue        (struct Value *V1, struct Value *V2, double d, struct Value *R) ;
+void  Cal_AddMultValueArray   (struct Value *V1, struct Value *V2, double d, struct Value *R,int Nbr_Values) ;
 void  Cal_AddMultValue2       (struct Value *V1, double d1, struct Value *V2, double d2) ;
-
 void  Cal_ComplexProduct  (double V1[], double V2[], double P[]);
 void  Cal_ComplexDivision (double V1[], double V2[], double P[]);
 void  Cal_ComplexInvert   (double V1[], double P[]);
@@ -44,5 +46,10 @@ void  Cal_ComplexInvert   (double V1[], double P[]);
 /* Debug */
 
 void  Print_Value (struct Value *A);
+
+/* From struct Value to array of doubles */
+
+void  Cal_ValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values);
+
 
 #endif

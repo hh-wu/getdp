@@ -1,4 +1,4 @@
-/* $Id: Data_Function.h,v 1.13 2001-03-01 14:44:56 sabarieg Exp $ */
+/* $Id: Data_Function.h,v 1.14 2001-08-08 14:47:54 sabarieg Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 
@@ -525,7 +525,11 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
 
   {"F_Sphere"          , (CAST)F_Sphere           ,   6,   0 },
   {"F_Cylinder"        , (CAST)F_Cylinder         ,   7,   0 },
-
+ 
+  {"JFIE_ZPolAnalyticOnCyl",      (CAST)F_JFIE_ZPolCyl     ,   4,   1 },
+  {"JFIE_TransZPolAnalyticOnCyl", (CAST)F_JFIE_TransZPolCyl,   3,   1 },
+  {"JFIE_OnSphCutTheta",          (CAST)F_JFIE_SphTheta,       4,   1 },
+  {"JFIE_OnSphCutPhi",            (CAST)F_JFIE_SphPhi,         4,   1 },
 
   /* GF_XXX : Green Functions */
 
@@ -538,7 +542,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Helmholtz"         , (CAST)GF_Helmholtz        ,   2,   0 },
   {"GradHelmholtz"     , (CAST)GF_GradHelmholtz    ,   2,   0 },
   {"NPxGradHelmholtz"  , (CAST)GF_NPxGradHelmholtz ,   2,   0 },
-
+  {"NSxGradHelmholtz"  , (CAST)GF_NSxGradHelmholtz ,   2,   0 },
 
   {NULL                , NULL                      ,   0,   0 } 
 
@@ -560,6 +564,8 @@ struct FunctionXFunction  GF_Function[] = {
   {(CAST)GF_NSxGradLaplace  , (CAST)GF_NSxGradLaplacexForm } ,
 
   {(CAST)GF_ApproximateLaplace  , (CAST)GF_ApproximateLaplacexForm  } ,
+
+  {(CAST)GF_Helmholtz         , (CAST)GF_HelmholtzxForm        } ,
 
   {NULL                    , NULL }  
 
