@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_GroupOfEntities.c,v 1.8 2000-12-08 12:04:13 dular Exp $"
+#define RCSID "$Id: BF_GroupOfEntities.c,v 1.9 2001-08-10 08:34:48 ledinh Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* abs */
 #include <math.h>
@@ -376,7 +376,9 @@ void  BF_GroupOfNodesZ_D2(struct Element * Element, int NumNode,
   BF_GradGroupOfNodes(Element, NumNode, u, v, w, su) ;
   ChangeOfCoord_Form1(Element, su, s) ;
 
-  s[2] = s[0] ; s[0] = 0 ;
+  s[2] = s[0] ; 
+  s[0] = 0 ;
 
   GetDP_End ;
 }
+
