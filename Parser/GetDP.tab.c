@@ -1,201 +1,200 @@
 
 /*  A Bison parser, made from GetDP.y
- by  GNU Bison version 1.25
-  */
+    by GNU Bison version 1.28  */
 
 #define YYBISON 1  /* Identify Bison output.  */
 
-#define	tINT	258
-#define	tFLOAT	259
-#define	tSTRING	260
-#define	tBIGSTR	261
-#define	tEND	262
-#define	tDOTS	263
-#define	tStrCat	264
-#define	tInclude	265
-#define	tConstant	266
-#define	tDefineConstant	267
-#define	tPi	268
-#define	t0D	269
-#define	t1D	270
-#define	t2D	271
-#define	t3D	272
-#define	tExp	273
-#define	tLog	274
-#define	tLog10	275
-#define	tSqrt	276
-#define	tSin	277
-#define	tAsin	278
-#define	tCos	279
-#define	tAcos	280
-#define	tTan	281
-#define	tAtan	282
-#define	tAtan2	283
-#define	tSinh	284
-#define	tCosh	285
-#define	tTanh	286
-#define	tFabs	287
-#define	tFloor	288
-#define	tCeil	289
-#define	tFmod	290
-#define	tModulo	291
-#define	tHypot	292
-#define	tSolidAngle	293
-#define	tTrace	294
-#define	tOrder	295
-#define	tCrossProduct	296
-#define	tMHTimeIntegration	297
-#define	tGroup	298
-#define	tDefineGroup	299
-#define	tAll	300
-#define	tInSupport	301
-#define	tDefineFunction	302
-#define	tList	303
-#define	tListAlt	304
-#define	tConstraint	305
-#define	tRegion	306
-#define	tSubRegion	307
-#define	tRegionRef	308
-#define	tSubRegionRef	309
-#define	tFilter	310
-#define	tCoefficient	311
-#define	tValue	312
-#define	tTimeFunction	313
-#define	tBranch	314
-#define	tNode	315
-#define	tLoop	316
-#define	tNameOfResolution	317
-#define	tJacobian	318
-#define	tCase	319
-#define	tIntegration	320
-#define	tType	321
-#define	tSubType	322
-#define	tCriterion	323
-#define	tGeoElement	324
-#define	tNumberOfPoints	325
-#define	tMaxNumberOfPoints	326
-#define	tNumberOfDivisions	327
-#define	tMaxNumberOfDivisions	328
-#define	tStoppingCriterion	329
-#define	tFunctionSpace	330
-#define	tName	331
-#define	tBasisFunction	332
-#define	tNameOfCoef	333
-#define	tFunction	334
-#define	tdFunction	335
-#define	tSubFunction	336
-#define	tSupport	337
-#define	tEntity	338
-#define	tSubSpace	339
-#define	tNameOfBasisFunction	340
-#define	tGlobalQuantity	341
-#define	tEntityType	342
-#define	tEntitySubType	343
-#define	tNameOfConstraint	344
-#define	tFormulation	345
-#define	tQuantity	346
-#define	tNameOfSpace	347
-#define	tIndexOfSystem	348
-#define	tSymmetry	349
-#define	tEquation	350
-#define	tGalerkin	351
-#define	tdeRham	352
-#define	tGlobalTerm	353
-#define	tGlobalEquation	354
-#define	tDt	355
-#define	tDtDof	356
-#define	tDtDt	357
-#define	tDtDtDof	358
-#define	tJacNL	359
-#define	tNeverDt	360
-#define	tIn	361
-#define	tResolution	362
-#define	tDefineSystem	363
-#define	tNameOfFormulation	364
-#define	tNameOfMesh	365
-#define	tFrequency	366
-#define	tSolver	367
-#define	tOriginSystem	368
-#define	tDestinationSystem	369
-#define	tOperation	370
-#define	tOperationEnd	371
-#define	tSetTime	372
-#define	tDTime	373
-#define	tSetFrequency	374
-#define	tFourierTransform	375
-#define	tIf	376
-#define	tElse	377
-#define	tLanczos	378
-#define	tUpdate	379
-#define	tTimeLoopTheta	380
-#define	tTime0	381
-#define	tTimeMax	382
-#define	tTheta	383
-#define	tTimeLoopNewmark	384
-#define	tBeta	385
-#define	tGamma	386
-#define	tIterativeLoop	387
-#define	tNbrMaxIteration	388
-#define	tRelaxationFactor	389
-#define	tIterativeTimeReduction	390
-#define	tDivisionCoefficient	391
-#define	tChangeOfState	392
-#define	tChangeOfCoordinates	393
-#define	tSystemCommand	394
-#define	tPostProcessing	395
-#define	tNameOfSystem	396
-#define	tPostOperation	397
-#define	tNameOfPostProcessing	398
-#define	tUsingPost	399
-#define	tAppend	400
-#define	tPlot	401
-#define	tPrint	402
-#define	tWrite	403
-#define	tAdapt	404
-#define	tOnGlobal	405
-#define	tOnRegion	406
-#define	tOnElementsOf	407
-#define	tOnGrid	408
-#define	tOnCut	409
-#define	tOnPoint	410
-#define	tOnLine	411
-#define	tOnPlane	412
-#define	tOnBox	413
-#define	tWithArgument	414
-#define	tFile	415
-#define	tDepth	416
-#define	tDimension	417
-#define	tTimeStep	418
-#define	tHarmonicToTime	419
-#define	tFormat	420
-#define	tHeader	421
-#define	tFooter	422
-#define	tSkin	423
-#define	tSmoothing	424
-#define	tTarget	425
-#define	tSort	426
-#define	tIso	427
-#define	tNoNewLine	428
-#define	tFlag	429
-#define	tBreak	430
-#define	tHelp	431
-#define	tCpu	432
-#define	tDEF	433
-#define	tOR	434
-#define	tAND	435
-#define	tEQUAL	436
-#define	tNOTEQUAL	437
-#define	tAPPROXEQUAL	438
-#define	tLESSOREQUAL	439
-#define	tGREATEROREQUAL	440
-#define	tLESSLESS	441
-#define	tGREATERGREATER	442
-#define	tCROSSPRODUCT	443
-#define	UNARYPREC	444
+#define	tINT	257
+#define	tFLOAT	258
+#define	tSTRING	259
+#define	tBIGSTR	260
+#define	tEND	261
+#define	tDOTS	262
+#define	tStrCat	263
+#define	tInclude	264
+#define	tConstant	265
+#define	tDefineConstant	266
+#define	tPi	267
+#define	t0D	268
+#define	t1D	269
+#define	t2D	270
+#define	t3D	271
+#define	tExp	272
+#define	tLog	273
+#define	tLog10	274
+#define	tSqrt	275
+#define	tSin	276
+#define	tAsin	277
+#define	tCos	278
+#define	tAcos	279
+#define	tTan	280
+#define	tAtan	281
+#define	tAtan2	282
+#define	tSinh	283
+#define	tCosh	284
+#define	tTanh	285
+#define	tFabs	286
+#define	tFloor	287
+#define	tCeil	288
+#define	tFmod	289
+#define	tModulo	290
+#define	tHypot	291
+#define	tSolidAngle	292
+#define	tTrace	293
+#define	tOrder	294
+#define	tCrossProduct	295
+#define	tMHTimeIntegration	296
+#define	tGroup	297
+#define	tDefineGroup	298
+#define	tAll	299
+#define	tInSupport	300
+#define	tDefineFunction	301
+#define	tList	302
+#define	tListAlt	303
+#define	tConstraint	304
+#define	tRegion	305
+#define	tSubRegion	306
+#define	tRegionRef	307
+#define	tSubRegionRef	308
+#define	tFilter	309
+#define	tCoefficient	310
+#define	tValue	311
+#define	tTimeFunction	312
+#define	tBranch	313
+#define	tNode	314
+#define	tLoop	315
+#define	tNameOfResolution	316
+#define	tJacobian	317
+#define	tCase	318
+#define	tIntegration	319
+#define	tType	320
+#define	tSubType	321
+#define	tCriterion	322
+#define	tGeoElement	323
+#define	tNumberOfPoints	324
+#define	tMaxNumberOfPoints	325
+#define	tNumberOfDivisions	326
+#define	tMaxNumberOfDivisions	327
+#define	tStoppingCriterion	328
+#define	tFunctionSpace	329
+#define	tName	330
+#define	tBasisFunction	331
+#define	tNameOfCoef	332
+#define	tFunction	333
+#define	tdFunction	334
+#define	tSubFunction	335
+#define	tSupport	336
+#define	tEntity	337
+#define	tSubSpace	338
+#define	tNameOfBasisFunction	339
+#define	tGlobalQuantity	340
+#define	tEntityType	341
+#define	tEntitySubType	342
+#define	tNameOfConstraint	343
+#define	tFormulation	344
+#define	tQuantity	345
+#define	tNameOfSpace	346
+#define	tIndexOfSystem	347
+#define	tSymmetry	348
+#define	tEquation	349
+#define	tGalerkin	350
+#define	tdeRham	351
+#define	tGlobalTerm	352
+#define	tGlobalEquation	353
+#define	tDt	354
+#define	tDtDof	355
+#define	tDtDt	356
+#define	tDtDtDof	357
+#define	tJacNL	358
+#define	tNeverDt	359
+#define	tIn	360
+#define	tResolution	361
+#define	tDefineSystem	362
+#define	tNameOfFormulation	363
+#define	tNameOfMesh	364
+#define	tFrequency	365
+#define	tSolver	366
+#define	tOriginSystem	367
+#define	tDestinationSystem	368
+#define	tOperation	369
+#define	tOperationEnd	370
+#define	tSetTime	371
+#define	tDTime	372
+#define	tSetFrequency	373
+#define	tFourierTransform	374
+#define	tIf	375
+#define	tElse	376
+#define	tLanczos	377
+#define	tUpdate	378
+#define	tTimeLoopTheta	379
+#define	tTime0	380
+#define	tTimeMax	381
+#define	tTheta	382
+#define	tTimeLoopNewmark	383
+#define	tBeta	384
+#define	tGamma	385
+#define	tIterativeLoop	386
+#define	tNbrMaxIteration	387
+#define	tRelaxationFactor	388
+#define	tIterativeTimeReduction	389
+#define	tDivisionCoefficient	390
+#define	tChangeOfState	391
+#define	tChangeOfCoordinates	392
+#define	tSystemCommand	393
+#define	tPostProcessing	394
+#define	tNameOfSystem	395
+#define	tPostOperation	396
+#define	tNameOfPostProcessing	397
+#define	tUsingPost	398
+#define	tAppend	399
+#define	tPlot	400
+#define	tPrint	401
+#define	tWrite	402
+#define	tAdapt	403
+#define	tOnGlobal	404
+#define	tOnRegion	405
+#define	tOnElementsOf	406
+#define	tOnGrid	407
+#define	tOnCut	408
+#define	tOnPoint	409
+#define	tOnLine	410
+#define	tOnPlane	411
+#define	tOnBox	412
+#define	tWithArgument	413
+#define	tFile	414
+#define	tDepth	415
+#define	tDimension	416
+#define	tTimeStep	417
+#define	tHarmonicToTime	418
+#define	tFormat	419
+#define	tHeader	420
+#define	tFooter	421
+#define	tSkin	422
+#define	tSmoothing	423
+#define	tTarget	424
+#define	tSort	425
+#define	tIso	426
+#define	tNoNewLine	427
+#define	tFlag	428
+#define	tBreak	429
+#define	tHelp	430
+#define	tCpu	431
+#define	tDEF	432
+#define	tOR	433
+#define	tAND	434
+#define	tEQUAL	435
+#define	tNOTEQUAL	436
+#define	tAPPROXEQUAL	437
+#define	tLESSOREQUAL	438
+#define	tGREATEROREQUAL	439
+#define	tLESSLESS	440
+#define	tGREATERGREATER	441
+#define	tCROSSPRODUCT	442
+#define	UNARYPREC	443
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.1 2000-12-11 15:51:38 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.2 2000-12-26 20:49:20 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -391,7 +390,7 @@ typedef union {
 #define	YYFLAG		-32768
 #define	YYNTBASE	210
 
-#define YYTRANSLATE(x) ((unsigned)(x) <= 444 ? yytranslate[x] : 395)
+#define YYTRANSLATE(x) ((unsigned)(x) <= 443 ? yytranslate[x] : 395)
 
 static const short yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -419,26 +418,26 @@ static const short yytranslate[] = {     0,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
      2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
-     2,     2,     2,     2,     2,     1,     2,     3,     4,     5,
-     6,     7,     8,     9,    10,    11,    12,    13,    14,    15,
-    16,    17,    18,    19,    20,    21,    22,    23,    24,    25,
-    26,    27,    28,    29,    30,    31,    32,    33,    34,    35,
-    36,    37,    38,    39,    40,    41,    42,    43,    44,    45,
-    46,    47,    48,    49,    50,    51,    52,    53,    54,    55,
-    56,    57,    58,    59,    60,    61,    62,    63,    64,    65,
-    66,    67,    68,    69,    70,    71,    72,    73,    74,    75,
-    76,    77,    78,    79,    80,    81,    82,    83,    84,    85,
-    86,    87,    88,    89,    90,    91,    92,    93,    94,    95,
-    96,    97,    98,    99,   100,   101,   102,   103,   104,   105,
-   106,   107,   108,   109,   110,   111,   112,   113,   114,   115,
-   116,   117,   118,   119,   120,   121,   122,   123,   124,   125,
-   126,   127,   128,   129,   130,   131,   132,   133,   134,   135,
-   136,   137,   138,   139,   140,   141,   142,   143,   144,   145,
-   146,   147,   148,   149,   150,   151,   152,   153,   154,   155,
-   156,   157,   158,   159,   160,   161,   162,   163,   164,   165,
-   166,   167,   168,   169,   170,   171,   172,   173,   174,   175,
-   176,   177,   178,   180,   181,   182,   183,   184,   186,   188,
-   189,   190,   196,   198
+     2,     2,     2,     2,     2,     1,     3,     4,     5,     6,
+     7,     8,     9,    10,    11,    12,    13,    14,    15,    16,
+    17,    18,    19,    20,    21,    22,    23,    24,    25,    26,
+    27,    28,    29,    30,    31,    32,    33,    34,    35,    36,
+    37,    38,    39,    40,    41,    42,    43,    44,    45,    46,
+    47,    48,    49,    50,    51,    52,    53,    54,    55,    56,
+    57,    58,    59,    60,    61,    62,    63,    64,    65,    66,
+    67,    68,    69,    70,    71,    72,    73,    74,    75,    76,
+    77,    78,    79,    80,    81,    82,    83,    84,    85,    86,
+    87,    88,    89,    90,    91,    92,    93,    94,    95,    96,
+    97,    98,    99,   100,   101,   102,   103,   104,   105,   106,
+   107,   108,   109,   110,   111,   112,   113,   114,   115,   116,
+   117,   118,   119,   120,   121,   122,   123,   124,   125,   126,
+   127,   128,   129,   130,   131,   132,   133,   134,   135,   136,
+   137,   138,   139,   140,   141,   142,   143,   144,   145,   146,
+   147,   148,   149,   150,   151,   152,   153,   154,   155,   156,
+   157,   158,   159,   160,   161,   162,   163,   164,   165,   166,
+   167,   168,   169,   170,   171,   172,   173,   174,   175,   176,
+   177,   178,   180,   181,   182,   183,   184,   186,   188,   189,
+   190,   196,   198
 };
 
 #if YYDEBUG != 0
@@ -2478,7 +2477,8 @@ static const short yycheck[] = {    24,
    196,    -1,    -1,   199
 };
 /* -*-C-*-  Note some compilers choke on comments on `#line' lines.  */
-#line 3 "/usr/local/share/bison.simple"
+#line 3 "/usr/lib/bison.simple"
+/* This file comes from bison-1.28.  */
 
 /* Skeleton output parser for bison,
    Copyright (C) 1984, 1989, 1990 Free Software Foundation, Inc.
@@ -2495,46 +2495,66 @@ static const short yycheck[] = {    24,
 
    You should have received a copy of the GNU General Public License
    along with this program; if not, write to the Free Software
-   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.  */
+   Foundation, Inc., 59 Temple Place - Suite 330,
+   Boston, MA 02111-1307, USA.  */
 
 /* As a special exception, when this file is copied by Bison into a
    Bison output file, you may use that output file without restriction.
    This special exception was added by the Free Software Foundation
    in version 1.24 of Bison.  */
 
-#ifndef alloca
-#ifdef __GNUC__
-#define alloca __builtin_alloca
-#else /* not GNU C.  */
-#if (!defined (__STDC__) && defined (sparc)) || defined (__sparc__) || defined (__sparc) || defined (__sgi)
-#include <alloca.h>
-#else /* not sparc */
-#if defined (MSDOS) && !defined (__TURBOC__)
-#include <malloc.h>
-#else /* not MSDOS, or __TURBOC__ */
-#if defined(_AIX)
-#include <malloc.h>
- #pragma alloca
-#else /* not MSDOS, __TURBOC__, or _AIX */
-#ifdef __hpux
-#ifdef __cplusplus
-extern "C" {
-void *alloca (unsigned int);
-};
-#else /* not __cplusplus */
-void *alloca ();
-#endif /* not __cplusplus */
-#endif /* __hpux */
-#endif /* not _AIX */
-#endif /* not MSDOS, or __TURBOC__ */
-#endif /* not sparc.  */
-#endif /* not GNU C.  */
-#endif /* alloca not defined.  */
-
 /* This is the parser code that is written into each bison parser
   when the %semantic_parser declaration is not specified in the grammar.
   It was written by Richard Stallman by simplifying the hairy parser
   used when %semantic_parser is specified.  */
+
+#ifndef YYSTACK_USE_ALLOCA
+#ifdef alloca
+#define YYSTACK_USE_ALLOCA
+#else /* alloca not defined */
+#ifdef __GNUC__
+#define YYSTACK_USE_ALLOCA
+#define alloca __builtin_alloca
+#else /* not GNU C.  */
+#if (!defined (__STDC__) && defined (sparc)) || defined (__sparc__) || defined (__sparc) || defined (__sgi) || (defined (__sun) && defined (__i386))
+#define YYSTACK_USE_ALLOCA
+#include <alloca.h>
+#else /* not sparc */
+/* We think this test detects Watcom and Microsoft C.  */
+/* This used to test MSDOS, but that is a bad idea
+   since that symbol is in the user namespace.  */
+#if (defined (_MSDOS) || defined (_MSDOS_)) && !defined (__TURBOC__)
+#if 0 /* No need for malloc.h, which pollutes the namespace;
+	 instead, just don't use alloca.  */
+#include <malloc.h>
+#endif
+#else /* not MSDOS, or __TURBOC__ */
+#if defined(_AIX)
+/* I don't know what this was needed for, but it pollutes the namespace.
+   So I turned it off.   rms, 2 May 1997.  */
+/* #include <malloc.h>  */
+ #pragma alloca
+#define YYSTACK_USE_ALLOCA
+#else /* not MSDOS, or __TURBOC__, or _AIX */
+#if 0
+#ifdef __hpux /* haible@ilog.fr says this works for HPUX 9.05 and up,
+		 and on HPUX 10.  Eventually we can turn this on.  */
+#define YYSTACK_USE_ALLOCA
+#define alloca __builtin_alloca
+#endif /* __hpux */
+#endif
+#endif /* not _AIX */
+#endif /* not MSDOS, or __TURBOC__ */
+#endif /* not sparc */
+#endif /* not GNU C */
+#endif /* alloca not defined */
+#endif /* YYSTACK_USE_ALLOCA not defined */
+
+#ifdef YYSTACK_USE_ALLOCA
+#define YYSTACK_ALLOC alloca
+#else
+#define YYSTACK_ALLOC malloc
+#endif
 
 /* Note: there must be only one dollar sign in this file.
    It is replaced by the list of actions, each action
@@ -2544,8 +2564,8 @@ void *alloca ();
 #define yyclearin	(yychar = YYEMPTY)
 #define YYEMPTY		-2
 #define YYEOF		0
-#define YYACCEPT	return(0)
-#define YYABORT 	return(1)
+#define YYACCEPT	goto yyacceptlab
+#define YYABORT 	goto yyabortlab
 #define YYERROR		goto yyerrlab1
 /* Like YYERROR except do call yyerror.
    This remains here temporarily to ease the
@@ -2626,12 +2646,12 @@ int yydebug;			/*  nonzero means print parse trace	*/
 #ifndef YYMAXDEPTH
 #define YYMAXDEPTH 10000
 #endif
-
-/* Prevent warning if -Wstrict-prototypes.  */
-#ifdef __GNUC__
-int yyparse (void);
-#endif
 
+/* Define __yy_memcpy.  Note that the size argument
+   should be passed with type unsigned int, because that is what the non-GCC
+   definitions require.  With GCC, __builtin_memcpy takes an arg
+   of type size_t, but it can handle unsigned int.  */
+
 #if __GNUC__ > 1		/* GNU C and GNU C++ define this.  */
 #define __yy_memcpy(TO,FROM,COUNT)	__builtin_memcpy(TO,FROM,COUNT)
 #else				/* not GNU C or C++ */
@@ -2643,7 +2663,7 @@ static void
 __yy_memcpy (to, from, count)
      char *to;
      char *from;
-     int count;
+     unsigned int count;
 {
   register char *f = from;
   register char *t = to;
@@ -2658,10 +2678,10 @@ __yy_memcpy (to, from, count)
 /* This is the most reliable way to avoid incompatibilities
    in available built-in functions on various systems.  */
 static void
-__yy_memcpy (char *to, char *from, int count)
+__yy_memcpy (char *to, char *from, unsigned int count)
 {
-  register char *f = from;
   register char *t = to;
+  register char *f = from;
   register int i = count;
 
   while (i-- > 0)
@@ -2671,7 +2691,7 @@ __yy_memcpy (char *to, char *from, int count)
 #endif
 #endif
 
-#line 196 "/usr/local/share/bison.simple"
+#line 217 "/usr/lib/bison.simple"
 
 /* The user can define YYPARSE_PARAM as the name of an argument to be passed
    into yyparse.  The argument should have type void *.
@@ -2691,6 +2711,15 @@ __yy_memcpy (char *to, char *from, int count)
 #define YYPARSE_PARAM_ARG
 #define YYPARSE_PARAM_DECL
 #endif /* not YYPARSE_PARAM */
+
+/* Prevent warning if -Wstrict-prototypes.  */
+#ifdef __GNUC__
+#ifdef YYPARSE_PARAM
+int yyparse (void *);
+#else
+int yyparse (void);
+#endif
+#endif
 
 int
 yyparse(YYPARSE_PARAM_ARG)
@@ -2720,6 +2749,7 @@ yyparse(YYPARSE_PARAM_ARG)
 #endif
 
   int yystacksize = YYINITDEPTH;
+  int yyfree_stacks = 0;
 
 #ifdef YYPURE
   int yychar;
@@ -2804,18 +2834,32 @@ yynewstate:
       if (yystacksize >= YYMAXDEPTH)
 	{
 	  yyerror("parser stack overflow");
+	  if (yyfree_stacks)
+	    {
+	      free (yyss);
+	      free (yyvs);
+#ifdef YYLSP_NEEDED
+	      free (yyls);
+#endif
+	    }
 	  return 2;
 	}
       yystacksize *= 2;
       if (yystacksize > YYMAXDEPTH)
 	yystacksize = YYMAXDEPTH;
-      yyss = (short *) alloca (yystacksize * sizeof (*yyssp));
-      __yy_memcpy ((char *)yyss, (char *)yyss1, size * sizeof (*yyssp));
-      yyvs = (YYSTYPE *) alloca (yystacksize * sizeof (*yyvsp));
-      __yy_memcpy ((char *)yyvs, (char *)yyvs1, size * sizeof (*yyvsp));
+#ifndef YYSTACK_USE_ALLOCA
+      yyfree_stacks = 1;
+#endif
+      yyss = (short *) YYSTACK_ALLOC (yystacksize * sizeof (*yyssp));
+      __yy_memcpy ((char *)yyss, (char *)yyss1,
+		   size * (unsigned int) sizeof (*yyssp));
+      yyvs = (YYSTYPE *) YYSTACK_ALLOC (yystacksize * sizeof (*yyvsp));
+      __yy_memcpy ((char *)yyvs, (char *)yyvs1,
+		   size * (unsigned int) sizeof (*yyvsp));
 #ifdef YYLSP_NEEDED
-      yyls = (YYLTYPE *) alloca (yystacksize * sizeof (*yylsp));
-      __yy_memcpy ((char *)yyls, (char *)yyls1, size * sizeof (*yylsp));
+      yyls = (YYLTYPE *) YYSTACK_ALLOC (yystacksize * sizeof (*yylsp));
+      __yy_memcpy ((char *)yyls, (char *)yyls1,
+		   size * (unsigned int) sizeof (*yylsp));
 #endif
 #endif /* no yyoverflow */
 
@@ -8490,7 +8534,7 @@ case 625:
     break;}
 }
    /* the action file gets copied in in place of this dollarsign */
-#line 498 "/usr/local/share/bison.simple"
+#line 543 "/usr/lib/bison.simple"
 
   yyvsp -= yylen;
   yyssp -= yylen;
@@ -8685,6 +8729,30 @@ yyerrhandle:
 
   yystate = yyn;
   goto yynewstate;
+
+ yyacceptlab:
+  /* YYACCEPT comes here.  */
+  if (yyfree_stacks)
+    {
+      free (yyss);
+      free (yyvs);
+#ifdef YYLSP_NEEDED
+      free (yyls);
+#endif
+    }
+  return 0;
+
+ yyabortlab:
+  /* YYABORT comes here.  */
+  if (yyfree_stacks)
+    {
+      free (yyss);
+      free (yyvs);
+#ifdef YYLSP_NEEDED
+      free (yyls);
+#endif
+    }
+  return 1;
 }
 #line 5832 "GetDP.y"
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.17 2000-12-13 12:00:16 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.18 2000-12-26 20:49:21 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -45,9 +45,9 @@ void  Format_PostFormat(int Format){
   switch(Format){
   case FORMAT_GMSH :
     if(Flag_BIN){/* bricolage */
-      fprintf(PostStream, "$PostFormat /* Gmsh 0.995, %s */\n",
+      fprintf(PostStream, "$PostFormat /* Gmsh 1.0, %s */\n",
 	      Flag_BIN ? "binary" : "ascii") ;
-      fprintf(PostStream, "0.995 %d\n", Flag_BIN) ;
+      fprintf(PostStream, "1.0 %d %d\n", Flag_BIN, sizeof(double)) ;
       fprintf(PostStream, "$EndPostFormat\n") ;
     }
     break ;
