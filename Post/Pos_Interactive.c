@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Interactive.c,v 1.19 2001-07-29 09:37:16 geuzaine Exp $"
+#define RCSID "$Id: Pos_Interactive.c,v 1.20 2001-07-29 12:34:44 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -60,7 +60,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 	  myptr = Print_PostSubOperation(&Problem_S,PostProcessing_P,
 					 (struct PostSubOperation *)
 					 List_Pointer(PostOperation_P->PostSubOperation, j));
-	  add_history(myptr);
+	  if(strlen(myptr)) add_history(myptr);
 	  Free(myptr);
 	}
       }
@@ -69,10 +69,10 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 
   while (1) {
 
-    InteractiveCompute = ErrorLevel = 0;
-
     /* read input char until CR, LF, EOF, ^D */
     myptr = readline (GETDP_PROMPT_STRING);
+
+    InteractiveCompute = ErrorLevel = 0;
 
     /* exit interactive if EOF or ^D */
     if(!myptr) break;
@@ -87,7 +87,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
       /* add the command in the stack */
       add_history(myptr);
 
-      /* parse some simple stuff here (in order to not consume too
+      /* parse some simple stuff here (in order not to consume too
          many keywords in GetDP.l) */
       
       if(!strcmp(myptr,"q") || /* exit interactive if q, quit, exit */
@@ -96,7 +96,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
 	Free(myptr);
 	break;
       }
-      else if(!strcmp(myptr,"h")){ /* simple help if h; complex help -> parser */
+      else if(!strcmp(myptr,"h") || !strcmp(myptr,"help")){ /* simple help */
 	Help(NULL);
       }
       else if(!strcmp(myptr,"c") || !strcmp(myptr,"p")){ /* simple check */
@@ -117,10 +117,13 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
       }
       else if(strlen(myptr) > 4 &&
 	      (!strncmp(myptr,"log ",4) || !strncmp(myptr,"Log ",4))){ /* log to file */
-	if(!(yyin = fopen(&myptr[4],"w")))
-	   Msg(ERROR, "Unable to open file '%s'", &myptr[4]);
-	save_history(10000, yyin);
-	fclose(yyin);
+	if(!(yyin = fopen(&myptr[4],"w"))){
+	   Msg(WARNING, "Unable to open file '%s'", &myptr[4]);
+	}
+	else{
+	  save_history(10000, yyin);
+	  fclose(yyin);
+	}
       }
       else{ /* getdp command */
 	/* write it in the tmp file */
@@ -178,11 +181,14 @@ void Help_Print(void){
 	 "    OnPlane      { {EXPR-CST-LIST} {EXPR-CST-LIST} {EXPR-CST-LIST} }\n"
 	 "                  {EXPR-CST,EXPR-CST}\n"
 	 "    OnBox        { {EXPR-CST-LIST} {EXPR-CST-LIST} {EXPR-CST-LIST}\n"
-	 "                  {EXPR-CST-LIST} } {N1,N2,N3}\n"
+	 "                  {EXPR-CST-LIST} } {EXPR-CST,EXPR-CST,EXPR-CST}\n"
 	 " \n"
 	 " Check the user's manual (section 'Types for PostOperation') for the\n"
 	 " detailed description of each operation as well as the list of\n"
-	 " available OPTIONS.\n");
+	 " available OPTIONS.\n"
+	 " \n"
+	 " It is possible to interrupt the current Print operation by typing\n"
+	 " <Ctrl-C>.\n");
   /*
   char topic[128] ;
   while(1){
@@ -252,9 +258,9 @@ void Help(char *start){
 	   " \n"
 	   " Just type any operation after the 'getdp>' prompt and press\n"
 	   " <return> to execute it. A list of pertinent operations for this\n"
-	   " interactive session is already preladed in the command line\n"
-	   " history and is available by pressing the <up> and <down> keyboard\n"
-	   " arrows.\n"
+	   " interactive session is already preloaded in the command line\n"
+	   " history. You can browse this history by pressing the <up> and\n"
+	   " <down> keyboard arrows.\n"
 	   " \n"
 	   " Editing capabilities similar to those of Emacs are offered while\n"
 	   " the command line is entered. A line beginning with a '!' is\n"

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.24 2001-07-29 09:37:15 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.25 2001-07-29 12:34:44 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1189,6 +1189,12 @@ char * Print_PostSubOperation(struct Problem *Problem,
 	       List_Pointer(Problem->Group,
 			    PSO->Case.OnRegion.RegionIndex))->Name ) ;
       break ;
+    case PRINT_ONGRID :
+      sprintf(tmp, ", OnGrid %s",
+	      ((struct Group *)
+	       List_Pointer(Problem->Group,
+			    PSO->Case.OnRegion.RegionIndex))->Name ) ;
+      break ;
     case PRINT_ONGRID_0D :
       sprintf(tmp, ", OnPoint {%.10g,%.10g,%.10g}",
 	      PSO->Case.OnGrid.x[0], PSO->Case.OnGrid.y[0],
@@ -1211,6 +1217,10 @@ char * Print_PostSubOperation(struct Problem *Problem,
 	      PSO->Case.OnGrid.x[2], PSO->Case.OnGrid.y[2],
 	      PSO->Case.OnGrid.z[2],
 	      PSO->Case.OnGrid.n[0], PSO->Case.OnGrid.n[1]) ;
+      break ;
+    default : /* parametric grid, ... */
+      strcpy(out, "");
+      return out;
       break ;
     }
     strcat(out,tmp);
@@ -1290,7 +1300,7 @@ char * Print_PostSubOperation(struct Problem *Problem,
     strcat(out,tmp);
   }
 
-  sprintf(tmp, " ]") ;
+  sprintf(tmp, "]") ;
   strcat(out,tmp);
 
   return out;
