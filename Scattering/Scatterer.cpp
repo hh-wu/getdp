@@ -1,8 +1,9 @@
-// $Id: Scatterer.cpp,v 1.7 2002-05-01 00:27:39 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.8 2002-05-02 01:13:02 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
 #include "Scatterer.h"
+#include "Function.h"
 
 int fcmp_CPoint(const void * a, const void * b) {
   double cmp ;
@@ -83,6 +84,8 @@ void newt (double x[], int n, int *check, void (*vecfunc) (int, double[], double
 static Scatterer *TheScat;
 
 void phaseGradient(int n, double *in, double *out){
+  out[1] = cos(10*in[1]); return;
+
   double theta0 = TheScat->targetPoint, theta = in[1];
   double r0, dr0, r, dr, phip;
 
@@ -94,12 +97,15 @@ void phaseGradient(int n, double *in, double *out){
     dr*cos(theta) - r*sin(theta) ;
 
   out[1] = phip;
+
+  //printf("in=%g   out=%g\n", in[1], out[1]);
+
 }
 
 void Scatterer::criticalPoints(double t0, double k[3], List_T *pts){
   int i, n, check;
   CPoint pt;
-  double theta[2];
+  double tmp[2], theta;
 
   pt.degree = 2;
 
@@ -132,20 +138,20 @@ void Scatterer::criticalPoints(double t0, double k[3], List_T *pts){
   default :
     // store the critical points during the first gmres iteration
 
-    theta[1] = 0.;
+    theta = 0.;
     targetPoint = t0;
 
     TheScat = this;
 
-    for(i=0; i<100; i++){
-      newt(theta, 1, &check, phaseGradient);
+    for(i=0; i<1000; i++){
+      tmp[1] = theta;
+      newt(tmp, 1, &check, phaseGradient);
 
-      extern double *fvec;
+      tmp[1] = GetInInterval(tmp[1], 0., TWO_PI);
 
-      //printf("theta = %g check = %d val = %g\n", theta[1], check, fvec[1]);
-      printf("theta = %g check = %d\n", theta[1], check);
+      printf("theta = %g sol = %.16g check = %d\n", theta, tmp[1], check);
 
-      theta[1] += TWO_PI/100.;
+      theta += TWO_PI/1000.;
     }
     Msg(ERROR, "Unknown type of scatterer for critical point computation");
     break;
