@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.10 2004-03-05 18:18:03 geuzaine Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.11 2004-04-15 02:17:01 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -734,11 +734,11 @@ int FMM_SetTruncationOLD( double Rmax, double D, int Dimension){
   Precision = Current.FMM.Precision ;
 
   if (Dimension == _2D){
-    NbrDir =  floor(-log(Precision)/log(D/Rmax)) ; /* Truncation parameter */
+    NbrDir =  (int)floor(-log(Precision)/log(D/Rmax)) ; /* Truncation parameter */
     if (NbrDir > 15){ if (Flag_FMM == 1) Msg(WARNING,"NbrDir = %d changed to 15 for memory requirements", NbrDir) ; NbrDir = 15 ;}
   }
   else{
-    NbrDir =  floor(-log(Precision)/log(2*D/Rmax)) ;
+    NbrDir =  (int)floor(-log(Precision)/log(2*D/Rmax)) ;
     if (NbrDir > 20){ if (Flag_FMM == 1) Msg(WARNING,"NbrDir = %d changed to 20 for memory requirements", NbrDir) ; NbrDir = 20 ;}
   }
  

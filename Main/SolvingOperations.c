@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.61 2004-02-04 14:59:31 gyselinc Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.62 2004-04-15 02:17:02 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -1190,11 +1190,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      col_new = NumDof_MH_moving[j]+l-1 ;
 	      
 	      /* LinAlg_GetDoubleInMatrix(&d, &DofData_P->A_MH_moving, i, j) ; */
-	      
+#if defined(HAVE_SPARSKIT)
 	      d = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+row_old]; 
 	      aii = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*row_old+row_old]; 
 	      ajj = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+col_old]; 
-
+#else
+	      Msg(ERROR, "This operation only OK with Sparskit");
+#endif
 	      /*  
 	      printf ("i %d  Entity %d Har %d  ||  i %d  Entity %d Har %d  ||  aij %e \n",
 		      i, Dof_MH_moving[i]->Entity, k, 
@@ -1216,7 +1218,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	}
       }
       printf("Matrix converted : nnz in MH_moving %d \n", nnz__);
+#if defined(HAVE_SPARSKIT)
       Free(DofData_P->A_MH_moving.M.F.a);
+#endif
       Current.DTime = 0.;
       Msg(RESOURCES, "");
       DofData_P->DummyDof = DummyDof ;

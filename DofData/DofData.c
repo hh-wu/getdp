@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.38 2004-01-26 20:36:43 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.39 2004-04-15 02:17:01 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -457,8 +457,7 @@ void  Dof_WriteFileRES0(char * Name_File, int Format) {
   LinAlg_SequentialBegin();
 
   Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "wb" : "w")) ;
-  fprintf(File_RES, "$ResFormat /* GetDP v%d.%d.%d, %s */\n", 
-	  GETDP_MAJOR_VERSION, GETDP_MINOR_VERSION, GETDP_PATCH_VERSION, 
+  fprintf(File_RES, "$ResFormat /* GetDP %s, %s */\n", GETDP_VERSION, 
 	  Format ? "binary" : "ascii") ;
   fprintf(File_RES, "%g %d\n", GETDP_VERSION, Format) ;
   fprintf(File_RES, "$EndResFormat\n") ;

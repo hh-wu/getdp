@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.153 2004-03-07 02:37:30 geuzaine Exp $
+# $Id: Makefile,v 1.154 2004-04-15 02:17:01 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -24,12 +24,15 @@ include variables
 GETDP_MAJOR_VERSION = 1
 GETDP_MINOR_VERSION = 0
 GETDP_PATCH_VERSION = 0
+GETDP_EXTRA_VERSION =
+
+GETDP_VERSION = ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}
+
+GETDP_SHORT_LICENSE = "GNU General Public License"
 
 GETDP_VERSION_FILE = include/GetDPVersion.h
-GETDP_RELEASE = ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION}
-GETDP_ARCHIVE = archives/getdp-`date "+%Y.%m.%d"`
-GETDP_SRCRPM = getdp-${GETDP_RELEASE}
-
+GETDP_DATE = `date "+%Y%m%d"`
+GETDP_ARCHIVE = archives/getdp-${GETDP_DATE}
 GETDP_SOURCES = `find . \( ! -name "*.tar*" -a ! -name "*.tgz" \
                         -a ! -name "*.o"    -a ! -name "*.a"   -a ! -name "*.cut"   \
                         -a ! -name "*.pos"  -a ! -name "*.pre" -a ! -name "*.res" \
@@ -63,13 +66,13 @@ tag:
 	echo "#define GETDP_MAJOR_VERSION ${GETDP_MAJOR_VERSION}" >  ${GETDP_VERSION_FILE}
 	echo "#define GETDP_MINOR_VERSION ${GETDP_MINOR_VERSION}" >> ${GETDP_VERSION_FILE}
 	echo "#define GETDP_PATCH_VERSION ${GETDP_PATCH_VERSION}" >> ${GETDP_VERSION_FILE}
-	echo "#define GETDP_VERSION  ((double)GETDP_MAJOR_VERSION + \\" >> ${GETDP_VERSION_FILE}
-	echo "                 0.01 * (double)GETDP_MINOR_VERSION + \\" >> ${GETDP_VERSION_FILE}
-	echo "               0.0001 * (double)GETDP_PATCH_VERSION)"     >> ${GETDP_VERSION_FILE}
+	echo "#define GETDP_EXTRA_VERSION \"${GETDP_EXTRA_VERSION}\"" >> ${GETDP_VERSION_FILE}
+	echo "#define GETDP_VERSION  \"${GETDP_VERSION}\"" >> ${GETDP_VERSION_FILE}
 	echo "#define GETDP_DATE     \"`date`\""      >> ${GETDP_VERSION_FILE}
 	echo "#define GETDP_HOST     \"`hostname`\""  >> ${GETDP_VERSION_FILE}
 	echo "#define GETDP_PACKAGER \"`whoami`\""    >> ${GETDP_VERSION_FILE}
 	echo "#define GETDP_OS       \"`uname -sr`\"" >> ${GETDP_VERSION_FILE}
+	echo "#define GETDP_SHORT_LICENSE \"${GETDP_SHORT_LICENSE}\"" >> ${GETDP_VERSION_FILE}
 
 initialtag:
 	@if [ ! -r ${GETDP_VERSION_FILE} ]; then ${MAKE} tag ; fi
@@ -97,7 +100,7 @@ clean:
 .PHONY: doc
 doc:
 	cd doc/texinfo && ${MAKE} all
-	cd doc && tar zcvf ../getdp-${GETDP_RELEASE}-doc.tgz\
+	cd doc && tar zcvf ../getdp-${GETDP_VERSION}-doc.tgz\
           FAQ CREDITS VERSIONS README.win32 getdp.1\
           texinfo/getdp.ps texinfo/getdp.pdf texinfo/getdp.txt\
           texinfo/*.html texinfo/*.jpg texinfo/getdp-info.tgz
@@ -129,44 +132,44 @@ tgzdoc:
 	gzip getdp-texi.tar
 
 package-unix:
-	rm -rf getdp-${GETDP_RELEASE}
-	mkdir getdp-${GETDP_RELEASE}
+	rm -rf getdp-${GETDP_VERSION}
+	mkdir getdp-${GETDP_VERSION}
 	strip bin/getdp
-	cp bin/getdp getdp-${GETDP_RELEASE}
-	cp doc/getdp.1 doc/LICENSE doc/VERSIONS doc/FAQ doc/CREDITS getdp-${GETDP_RELEASE}
-	cp -R demos getdp-${GETDP_RELEASE}
-	rm -rf getdp-${GETDP_RELEASE}/*/CVS
-	rm -f getdp-${GETDP_RELEASE}/*/*.pre
-	rm -f getdp-${GETDP_RELEASE}/*/*.res
-	rm -f getdp-${GETDP_RELEASE}/*/*.pos
-	rm -f getdp-${GETDP_RELEASE}/*/*.cut
-	rm -f getdp-${GETDP_RELEASE}/*/*~
-	tar cvf getdp-${GETDP_RELEASE}-${UNAME}.tar getdp-${GETDP_RELEASE}
-	gzip getdp-${GETDP_RELEASE}-${UNAME}.tar
-	mv getdp-${GETDP_RELEASE}-${UNAME}.tar.gz getdp-${GETDP_RELEASE}-${UNAME}.tgz
+	cp bin/getdp getdp-${GETDP_VERSION}
+	cp doc/getdp.1 doc/LICENSE doc/VERSIONS doc/FAQ doc/CREDITS getdp-${GETDP_VERSION}
+	cp -R demos getdp-${GETDP_VERSION}
+	rm -rf getdp-${GETDP_VERSION}/*/CVS
+	rm -f getdp-${GETDP_VERSION}/*/*.pre
+	rm -f getdp-${GETDP_VERSION}/*/*.res
+	rm -f getdp-${GETDP_VERSION}/*/*.pos
+	rm -f getdp-${GETDP_VERSION}/*/*.cut
+	rm -f getdp-${GETDP_VERSION}/*/*~
+	tar cvf getdp-${GETDP_VERSION}-${UNAME}.tar getdp-${GETDP_VERSION}
+	gzip getdp-${GETDP_VERSION}-${UNAME}.tar
+	mv getdp-${GETDP_VERSION}-${UNAME}.tar.gz getdp-${GETDP_VERSION}-${UNAME}.tgz
 
 package-win:
-	rm -rf getdp-${GETDP_RELEASE}
-	mkdir getdp-${GETDP_RELEASE}
+	rm -rf getdp-${GETDP_VERSION}
+	mkdir getdp-${GETDP_VERSION}
 	strip bin/getdp.exe
-	cp /usr/bin/cygwin1.dll getdp-${GETDP_RELEASE}
-	cp bin/getdp.exe getdp-${GETDP_RELEASE}
-	cp doc/README.win32 getdp-${GETDP_RELEASE}/README.txt
-	cp doc/VERSIONS getdp-${GETDP_RELEASE}/VERSIONS.txt
-	cp doc/FAQ getdp-${GETDP_RELEASE}/FAQ.txt
-	cp doc/CREDITS getdp-${GETDP_RELEASE}/CREDITS.txt
-	cp doc/LICENSE getdp-${GETDP_RELEASE}/LICENSE.txt
-	cd utils && unix2dos ../getdp-${GETDP_RELEASE}/*.txt
-	cp -R demos getdp-${GETDP_RELEASE}
-	rm -rf getdp-${GETDP_RELEASE}/*/CVS
-	rm -f getdp-${GETDP_RELEASE}/*/*.pre
-	rm -f getdp-${GETDP_RELEASE}/*/*.res
-	rm -f getdp-${GETDP_RELEASE}/*/*.pos
-	rm -f getdp-${GETDP_RELEASE}/*/*.cut
-	rm -f getdp-${GETDP_RELEASE}/*/*~
-	cd utils && unix2dos ../getdp-${GETDP_RELEASE}/demos/*
-	cd getdp-${GETDP_RELEASE} && zip -r getdp-${GETDP_RELEASE}-Windows.zip *
-	mv getdp-${GETDP_RELEASE}/getdp-${GETDP_RELEASE}-Windows.zip .
+	cp /usr/bin/cygwin1.dll getdp-${GETDP_VERSION}
+	cp bin/getdp.exe getdp-${GETDP_VERSION}
+	cp doc/README.win32 getdp-${GETDP_VERSION}/README.txt
+	cp doc/VERSIONS getdp-${GETDP_VERSION}/VERSIONS.txt
+	cp doc/FAQ getdp-${GETDP_VERSION}/FAQ.txt
+	cp doc/CREDITS getdp-${GETDP_VERSION}/CREDITS.txt
+	cp doc/LICENSE getdp-${GETDP_VERSION}/LICENSE.txt
+	cd utils && unix2dos ../getdp-${GETDP_VERSION}/*.txt
+	cp -R demos getdp-${GETDP_VERSION}
+	rm -rf getdp-${GETDP_VERSION}/*/CVS
+	rm -f getdp-${GETDP_VERSION}/*/*.pre
+	rm -f getdp-${GETDP_VERSION}/*/*.res
+	rm -f getdp-${GETDP_VERSION}/*/*.pos
+	rm -f getdp-${GETDP_VERSION}/*/*.cut
+	rm -f getdp-${GETDP_VERSION}/*/*~
+	cd utils && unix2dos ../getdp-${GETDP_VERSION}/demos/*
+	cd getdp-${GETDP_VERSION} && zip -r getdp-${GETDP_VERSION}-Windows.zip *
+	mv getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-Windows.zip .
 
 distrib-msg:
 	@echo "********************************************************************"
@@ -182,38 +185,41 @@ distrib-win: clean all package-win distrib-msg
 	objdump -p bin/getdp.exe | grep DLL
 
 distrib-mac: clean all package-unix distrib-msg
-	mv getdp-${GETDP_RELEASE}-${UNAME}.tgz getdp-${GETDP_RELEASE}-MacOSX.tgz
+	mv getdp-${GETDP_VERSION}-${UNAME}.tgz getdp-${GETDP_VERSION}-MacOSX.tgz
 	otool -L bin/getdp
 
 source-common:
-	rm -rf getdp-${GETDP_RELEASE}
+	rm -rf getdp-${GETDP_VERSION}
 	tar zcvf getdp.tgz `ls README* configure *.in Makefile */Makefile\
                             */*.[chylfF] */*.[ch]pp *.spec` doc demos
-	mkdir getdp-${GETDP_RELEASE}
-	cd getdp-${GETDP_RELEASE} && tar zxvf ../getdp.tgz
+	mkdir getdp-${GETDP_VERSION}
+	cd getdp-${GETDP_VERSION} && tar zxvf ../getdp.tgz
 	rm -f getdp.tgz
-	cd getdp-${GETDP_RELEASE}/demos && ${MAKE} clean
-	cd getdp-${GETDP_RELEASE}/doc && ${MAKE} clean
+	cd getdp-${GETDP_VERSION}/demos && ${MAKE} clean
+	cd getdp-${GETDP_VERSION}/doc && ${MAKE} clean
 
 source: source-common
-	cd getdp-${GETDP_RELEASE} && rm -rf NR Scattering utils doc/slides\
+	cd getdp-${GETDP_VERSION} && rm -rf NR Scattering utils doc/slides\
                                             ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
-	tar zcvf getdp-${GETDP_RELEASE}-source.tgz getdp-${GETDP_RELEASE}
+	tar zcvf getdp-${GETDP_VERSION}-source.tgz getdp-${GETDP_VERSION}
 
-source-nightly: source
-	rm -rf getdp-${GETDP_RELEASE}
-	mv getdp-${GETDP_RELEASE}-source.tgz getdp-nightly-source.tgz
+source-nightly:
+	mv -f Makefile Makefile.nightly
+	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION = \"-nightly-${GETDP_DATE}\"/g"\
+          Makefile.nightly > Makefile
+	make source
+	mv -f Makefile.nightly Makefile
 
 source-commercial: source-common
-	cd getdp-${GETDP_RELEASE} && rm -rf Scattering utils doc/slides\
+	cd getdp-${GETDP_VERSION} && rm -rf Scattering utils doc/slides\
                                             ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
-	tar zcvf getdp-${GETDP_RELEASE}-source-commercial.tgz getdp-${GETDP_RELEASE}
+	tar zcvf getdp-${GETDP_VERSION}-source-commercial.tgz getdp-${GETDP_VERSION}
 
 rpm:
-	tar zcvf /usr/src/redhat/SOURCES/${GETDP_SRCRPM}.tar.gz ${GETDP_SOURCES}
-	rpmbuild -bb --define 'getdpversion ${GETDP_RELEASE}' getdp.spec
-	cp /usr/src/redhat/RPMS/i386/${GETDP_SRCRPM}-1.i386.rpm .
-	cp /usr/src/redhat/BUILD/${GETDP_SRCRPM}/getdp-${GETDP_RELEASE}-${UNAME}.tgz .
+	tar zcvf /usr/src/redhat/SOURCES/getdp-${GETDP_VERSION}.tar.gz ${GETDP_SOURCES}
+	rpmbuild -bb --define 'getdpversion ${GETDP_VERSION}' getdp.spec
+	cp /usr/src/redhat/RPMS/i386/getdp-${GETDP_VERSION}-?.i386.rpm .
+	cp /usr/src/redhat/BUILD/getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-${UNAME}.tgz .
 
 blackbox: initialtag
 	@for i in ${GETDP_DIRS}; \

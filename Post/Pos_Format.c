@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.35 2004-01-19 16:51:25 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.36 2004-04-15 02:17:02 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -75,8 +75,7 @@ void  Format_PostFormat(int Format){
     }
     break ;
   case FORMAT_GNUPLOT :
-    fprintf(PostStream, "# GetDP v%d.%d.%d, %s\n",
-	    GETDP_MAJOR_VERSION, GETDP_MINOR_VERSION, GETDP_PATCH_VERSION,
+    fprintf(PostStream, "# GetDP %s, %s\n", GETDP_VERSION, 
 	    Flag_BIN ? "binary" : "ascii") ;
     break ;
   }

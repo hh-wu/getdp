@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.69 2004-03-05 19:25:36 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.70 2004-04-15 02:17:01 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -38,7 +38,7 @@
 #include "LinAlg.h"
 #include "GmshClient.h"
 
-#if !defined(GETDP_MAJOR_VERSION)
+#if !defined(GETDP_EXTRA_VERSION)
 #error 
 #error include/GetDPVersion.h is not up-to-date. 
 #error Please run 'make tag'.
@@ -54,10 +54,10 @@ void FinalizeAndExit(void);
 /*  I n f o                                                                 */
 /* ------------------------------------------------------------------------ */
 
-char acronym[]   = "GetDP %d.%d.%d, a General environment for the treatment of Discrete Problems\n";
+char acronym[]   = "GetDP %s, a General environment for the treatment of Discrete Problems\n";
 char copyright[] = "Copyright (C) 1997-2004 Patrick Dular and Christophe Geuzaine\n";
 
-char version[]   = "Version      : %d.%d.%d\n";
+char version[]   = "Version      : %s\n";
 char os[]        = "Build OS     : %s\n";
 char date[]      = "Build date   : %s\n";
 char host[]      = "Build host   : %s\n";
@@ -120,18 +120,15 @@ void Info (int level, char *arg0){
   
   switch(level){
   case 0 :
-    fprintf(stderr, acronym, 
-	    GETDP_MAJOR_VERSION, GETDP_MINOR_VERSION, GETDP_PATCH_VERSION);
+    fprintf(stderr, acronym, GETDP_VERSION);
     fprintf(stderr, copyright);
     fprintf(stderr, help, arg0);
     break;
   case 1:
-    fprintf(stderr, "%d.%d.%d\n",
-	    GETDP_MAJOR_VERSION, GETDP_MINOR_VERSION, GETDP_PATCH_VERSION);
+    fprintf(stderr, "%s\n", GETDP_VERSION);
     break;
   case 2:
-    fprintf(stderr, version,
-	    GETDP_MAJOR_VERSION, GETDP_MINOR_VERSION, GETDP_PATCH_VERSION);
+    fprintf(stderr, version, GETDP_VERSION);
     fprintf(stderr, os, GETDP_OS);
     fprintf(stderr, date, GETDP_DATE);
     fprintf(stderr, host, GETDP_HOST);

@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.33 2004-03-05 18:18:03 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.34 2004-04-15 02:17:01 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -813,6 +813,14 @@ void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
   GetDP_End ;
 }
 
+void LinAlg_DummyVector(gVector *V){
+
+  GetDP_Begin("LinAlg_DummyVector");
+
+  Msg(ERROR, "'LinAlg_DummyVector' not yet implemented");  
+
+  GetDP_End ;
+}
 
 void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i){
 
