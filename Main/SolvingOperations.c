@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.27 2001-05-30 18:10:57 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.28 2001-06-02 07:00:47 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -940,10 +940,10 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     DofData_P->CurrentSolution = (struct Solution*)
       List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
   }
-  else if (Solution_P != DofData_P->CurrentSolution) {
+  else if (Solution_P != DofData_P->CurrentSolution && !Flag_Separate) {
     Msg(ERROR, "Incompatible time") ;
   }
-  
+
   if(Flag_Separate){
     for(i=0 ; i<List_Nbr(DofData_P->TimeFunctionIndex) ; i++)
       if(*(int*)List_Pointer(DofData_P->TimeFunctionIndex, i) > 0)
