@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.4 2002-03-08 18:59:28 geuzaine Exp $
+// $Id: Main.cpp,v 1.5 2002-03-08 23:02:30 geuzaine Exp $
 
 #include "GetDP.h"
 #include "LinAlg.h"
@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
 	i++; ctx.Type |= FULL_INTEGRATION; Msg(INFO, "Full Nystrom integrator");
       }
       else if(Cmp(argv[i]+1, "critical", 1)){ 
-	i++; ctx.Type |= CRITICAL_INTEGRATION; Msg(INFO, "Critical point integrator");
+	i++; Msg(INFO, "Critical point integrator");
       }
       else if(Cmp(argv[i]+1, "i1", 2)){ 
 	i++; ctx.Type |= INTERACT1; Msg(INFO, "Interactive integrator");

@@ -6,7 +6,6 @@
 #include "Function.h"
 
 #define FULL_INTEGRATION     (1<<0)
-#define CRITICAL_INTEGRATION (1<<1)
 #define INTERACT1            (1<<2)
 #define INTERACT2            (1<<3)
 #define BUILD_MATRIX         (1<<4)
