@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.15 2001-06-27 16:42:34 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.16 2001-08-09 19:28:56 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -481,7 +481,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * Couples_L) {
 
   int  Nbr_Entity, i, Nbr_EntityRef, Flag_Filter ;
-
+  double TOL=Current.GeoData->CharacteristicLength * 1.e-6;
   struct TwoIntOneDouble  TwoIntOneDouble ;
   struct NodeXYZ  NodeXYZ, NodeXYZRef ;
   List_T  * NodeXYZ_L, * NodeXYZRef_L ;
@@ -600,9 +600,9 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     List_Read(NodeXYZRef_L, i, &NodeXYZRef) ;
 
     /* Attention: tolerance !!! */
-    if ((fabs(NodeXYZ.x-NodeXYZRef.x) > 1.e-12) ||
-	(fabs(NodeXYZ.y-NodeXYZRef.y) > 1.e-12) ||
-	(fabs(NodeXYZ.z-NodeXYZRef.z) > 1.e-12))
+    if ((fabs(NodeXYZ.x-NodeXYZRef.x) > TOL) ||
+	(fabs(NodeXYZ.y-NodeXYZRef.y) > TOL) ||
+	(fabs(NodeXYZ.z-NodeXYZRef.z) > TOL))
       Msg(ERROR, "Constraint Link: bad correspondance of Nodes (%d, %d)"
 	  " (%e %e %e)",
 	  NodeXYZ.NumNode, NodeXYZRef.NumNode,
@@ -637,10 +637,8 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   GetDP_End ;
 }
 
-#define TOL 1.e-12   /* Attention: tolerance !!! */
-
 int fcmp_XYZ(const void * a, const void * b) {
-  double Result ;
+  double Result, TOL=Current.GeoData->CharacteristicLength * 1.e-6 ;
 
   if (fabs(Result = ((struct NodeXYZ *)a)->x - ((struct NodeXYZ *)b)->x) > TOL)
     return (Result > 0.)? 1 : -1 ;
@@ -650,8 +648,6 @@ int fcmp_XYZ(const void * a, const void * b) {
     return (Result > 0.)? 1 : -1 ;
   return 0 ;
 }
-
-#undef TOL
 
 /*  G e n e r a t e _ L i n k E d g e s  */
 
