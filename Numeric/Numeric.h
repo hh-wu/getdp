@@ -1,6 +1,6 @@
-/* $Id: Numeric.h,v 1.2 2000-09-07 18:47:27 geuzaine Exp $ */
-#ifndef SOLVER_MISC_H
-#define SOLVER_MISC_H
+/* $Id: Numeric.h,v 1.3 2000-10-21 12:18:30 geuzaine Exp $ */
+#ifndef _NUMERIC_H_
+#define _NUMERIC_H_
 
 #include "nrutil.h"
 
