@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.22 2003-02-13 18:57:53 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.23 2003-02-13 21:30:05 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -140,19 +140,21 @@ void Cal_WholeQuantity(struct Element * Element,
   struct WholeQuantity   *WholeQuantity_P0, *WholeQuantity_P ;
   struct DofData         *Save_DofData ;
   struct Solution        *Solution_P0 ;
+  double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
 
 #define USE_STATIC_STACK
 
-#if !defined(USE_STATIC_STACK)
-
-  struct Value Stack[8][MAX_STACK_SIZE] ;
-
-#else
-
+#if defined(USE_STATIC_STACK)
   struct Value **Stack;
   static struct Value ***StaticStack;
   static int RecursionIndex = -1, first = 1;
+#else
+  struct Value Stack[8][MAX_STACK_SIZE] ;
+#endif
 
+  GetDP_Begin("Cal_WholeQuantity");
+
+#if defined(USE_STATIC_STACK)
   if(first){
     StaticStack = (struct Value***)Malloc(MAX_RECURSION*sizeof(struct Value**));
     for(j = 0; j < MAX_RECURSION; j++){
@@ -168,12 +170,7 @@ void Cal_WholeQuantity(struct Element * Element,
     Msg(ERROR, "Recursion problem in Cal_WholeQuantity (%d outside [0,%d])", 
 	RecursionIndex, MAX_RECURSION);
   Stack = StaticStack[RecursionIndex];
-
 #endif
-
-  double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
-
-  GetDP_Begin("Cal_WholeQuantity");
 
   WholeQuantity_P0 = (struct WholeQuantity*)List_Pointer(WholeQuantity_L, 0) ;
 
