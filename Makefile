@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.97 2002-08-17 23:09:33 geuzaine Exp $
+# $Id: Makefile,v 1.98 2002-09-01 22:17:17 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -83,7 +83,7 @@ GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-include ${PETSC_DIR}/bmake/common/base
+# include ${PETSC_DIR}/bmake/common/base
 
 # ----------------------------------------------------------------------
 # Rules for developpers
