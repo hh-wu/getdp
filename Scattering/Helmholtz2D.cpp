@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.11 2002-06-17 07:27:29 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.12 2002-06-18 18:45:53 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -188,6 +188,12 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
       if((ctx->type & STORE_OPERATOR) && ctx->iterNum > 1){
 	
 	res += *(Complex*)List_Pointer(ctx->discreteMap, ctx->discreteMapIndex) * density;
+
+	static int printinfo=1;
+	if(printinfo){
+	  Msg(INFO, "===> %d evaluations per iteration", List_Nbr(ctx->discreteMap));
+	  printinfo=0;
+	}
 
       }
       else{

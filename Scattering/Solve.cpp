@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.32 2002-06-17 07:41:01 geuzaine Exp $
+// $Id: Solve.cpp,v 1.33 2002-06-18 18:45:53 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -275,7 +275,7 @@ void Ctx::postProcess(){
   FILE *fp;
   Complex vi, vs;
   double k = NORM3(waveNum);
-  double coord[3], angle;
+  double coord[3], angle, r, dr, ddr;
 
   if(scat.dim() != 2) Msg(ERROR, "Postpro not ready for 3D");
 
@@ -297,14 +297,38 @@ void Ctx::postProcess(){
   */
 
   // far field polar plot
-  
-  for(angle=0.; angle<TWO_PI; angle+=TWO_PI/1000.){
+  sprintf(fn, "far.m");
+  if(!(fp = fopen(fn, "w")))
+    Msg(ERROR, "Could not open .m file");
+
+#define NBP 1000
+
+  fprintf(fp, "far=[\n");
+  for(angle=0.; angle<TWO_PI; angle+=TWO_PI/NBP){
     coord[0] = cos(angle);
     coord[1] = sin(angle);
     coord[2] = 0;
     vs = (-2./I) /2. * Evaluate2D(this, 1, coord); //????? /2
-    printf("%g %.15g %.15g \n", angle, vs.real(), vs.imag());
+    printf("%g %.15g %.15g\n", angle, vs.real(), vs.imag());
+    fprintf(fp, "%.15e + (%.15ei)\n", vs.real(), vs.imag());
   }
+  fprintf(fp, "];\n");
+
+  fprintf(fp, "angle=[\n");
+  for(angle=0.; angle<TWO_PI; angle+=TWO_PI/NBP){
+    fprintf(fp, "%g\n", angle);
+  }
+  fprintf(fp, "];\n");
+
+  fprintf(fp, "scat=[\n");
+  for(angle=0.; angle<TWO_PI; angle+=TWO_PI/NBP){
+    double xx[3];
+    scat.x(angle,0,xx);
+    fprintf(fp, "%g %g\n", xx[0], xx[1]);
+  }
+  fprintf(fp, "];\n");
+
+  fclose(fp);
   return;
 
 
