@@ -1,4 +1,4 @@
-#define RCSID "$Id: Adapt.c,v 1.6 2000-11-15 09:28:26 dular Exp $"
+#define RCSID "$Id: Adapt.c,v 1.7 2000-11-15 20:13:55 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -33,11 +33,10 @@ double fH1 (double l){
 
   GetDP_Begin("fH1");
 
-  for(i = 1 ; i <= NN ; i++)
+  for(i = 1 ; i <= NN ; i++){
     val1 += pow(2.*l*DSQR(ERR[i])*PP[i]/DIM, DIM/(2.*PP[i]+DIM));
-
-  for(i = 1 ; i <= NN ; i++)
     val2 += DSQR(ERR[i]) * pow(2.*l*DSQR(ERR[i])*PP[i]/DIM, -2.*PP[i]/(2.*PP[i]+DIM));
+  }
 
   GetDP_Return( -(val1 + l * (val2 - DSQR(E0))) );
 }
