@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Helmholtz.c,v 1.8 2001-08-10 09:49:18 geuzaine Exp $"
+#define RCSID "$Id: GF_Helmholtz.c,v 1.9 2002-02-01 17:30:02 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -218,11 +218,8 @@ void GF_NSxGradHelmholtz (F_ARG) {
     yys  = Current.y-Current.ys ;
     r = sqrt(SQU(xxs)+SQU(yys)) ;
     
-    if(Current.Element->Num == NO_ELEMENT)
-      Current.Element = Current.ElementSource ;
- 
-    ny = - Current.Element->x[1] + Current.Element->x[0] ;
-    nx = Current.Element->y[1] - Current.Element->y[0] ; 
+    ny = - Current.ElementSource->x[1] + Current.ElementSource->x[0] ;
+    nx = Current.ElementSource->y[1] - Current.ElementSource->y[0] ; 
     n = sqrt(SQU(nx)+SQU(ny)) ;      
     nx = nx / n ;
     ny = ny / n ;
@@ -247,12 +244,12 @@ void GF_NSxGradHelmholtz (F_ARG) {
     
     if (!r) Cal_ZeroValue(V);
     else {
-      x1x0 = Current.Element->x[1] - Current.Element->x[0] ;
-      y1y0 = Current.Element->y[1] - Current.Element->y[0] ;
-      z1z0 = Current.Element->z[1] - Current.Element->z[0] ;
-      x2x0 = Current.Element->x[2] - Current.Element->x[0] ; 
-      y2y0 = Current.Element->y[2] - Current.Element->y[0] ;
-      z2z0 = Current.Element->z[2] - Current.Element->z[0] ;
+      x1x0 = Current.ElementSource->x[1] - Current.ElementSource->x[0] ;
+      y1y0 = Current.ElementSource->y[1] - Current.ElementSource->y[0] ;
+      z1z0 = Current.ElementSource->z[1] - Current.ElementSource->z[0] ;
+      x2x0 = Current.ElementSource->x[2] - Current.ElementSource->x[0] ; 
+      y2y0 = Current.ElementSource->y[2] - Current.ElementSource->y[0] ;
+      z2z0 = Current.ElementSource->z[2] - Current.ElementSource->z[0] ;
       nx = y1y0 * z2z0 - z1z0 * y2y0 ;
       ny = z1z0 * x2x0 - x1x0 * z2z0 ;
       nz = x1x0 * y2y0 - y1y0 * x2x0 ;
