@@ -743,7 +743,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
       Element.Region = Element.GeoElement->Region ;
       Get_NodesCoordinatesOfElement(&Element) ;
     
-      Current.GeoData->H[iGeo+1] = Get_ElementSize(&Element) ;
+      Current.GeoData->H[iGeo+1] = Cal_MaxEdgeLength(&Element) ;
       Current.GeoData->P[iGeo+1] = 1. ;
       Error[iGeo+1] = PostSubOperation_P->Target ;
     }
