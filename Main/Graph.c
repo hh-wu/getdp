@@ -245,7 +245,7 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
   int  *ia, *ja, *ia_N, *ja_N, trente=30, zero=0, trenteetun=31, trentedeux=32; */
 
   idxtype *xadj9, *adjncy9, *part9, *perm9, *iperm9;
-  struct Dof            * Dof_P ;
+  struct Dof  * Dof_P ;
 
   g_csr_format (&DofData_P->Graph, List_Nbr(DofData_P->Graph.jptr));
   g_restore_format (&DofData_P->Graph);
@@ -281,9 +281,9 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
     METIS_PartGraphRecursive( &n9, xadj9, adjncy9, NULL, NULL, 
 			      &wgtflag9, &numflag9, &NbPartition, options9, &edgecut9, part9);
     Msg(PETSC, "METIS Partitionning done. Edgecut : %d ", edgecut9) ;
+    Free(adjncy9);
     part_P  = (int*) Malloc( (NbPartition) * sizeof(int));
     cptr_P  = (int*) Malloc( (NbPartition) * sizeof(int));
-    start_P = (int*) Malloc( (NbPartition) * sizeof(int));
     for ( i = 1 ; i <= NbPartition ; i++ ) {
       part_P[i-1] = 0; /* Taille de la partition */
       cptr_P[i-1] = 0;
@@ -292,6 +292,7 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
       part_P[part9[i-1]-1]++;
       iperm9[i-1] = 0;
     }
+    start_P = (int*) Malloc( (NbPartition) * sizeof(int));
     start_P[0] = 0;
     for ( i = 2 ; i <= NbPartition ; i++ ) start_P[i-1] = start_P[i-1-1]+part_P[i-1-1];
     for ( i = 1 ; i <= n9 ; i++ ) {
@@ -299,15 +300,16 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
       iperm9[i-1] = start_P[part9[i-1]-1]+cptr_P[part9[i-1]-1];
       perm9[iperm9[i-1]-1] = i;
     }
-    for ( i = 1 ; i <= NbPartition ; i++ ) {
+    Free(part9);
+    Free(cptr_P);
+    DofData_P->NbrPart = NbPartition ;
+    for (i=1 ; i <= NbPartition ; i++) {
+      DofData_P->Part[i-1] = start_P[i-1]+1  ;
       Msg(PETSC, "Length Part %d = %d ",i,part_P[i-1]);
     }
-
-    DofData_P->NbrPart = NbPartition ;
-    for (i=1 ; i <= NbPartition ; i++)
-      DofData_P->Part[i-1] = start_P[i-1]+1  ;
     DofData_P->Part[NbPartition] = DofData_P->NbrDof+1 ;
-
+    Free(part_P);
+    Free(start_P);
     /* 
   }
     */
@@ -345,16 +347,12 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
       break;
     }
   }
-
-  
-  /* a faire */
-  for(i = 0 ; i<DofData_P->NbrDof ; i++){
-    DofData_P->Nnz[i] = 40 ;
-    DofData_P->Nnz[i] = 40 ;
+  for(i = 1 ; i<=DofData_P->NbrDof ; i++){
+    DofData_P->Nnz[i-1] = xadj9[perm9[i-1]-1+1] - xadj9[perm9[i-1]-1] + 1 ;
   }
-
   Free(perm9);
   Free(iperm9);
+  Free(xadj9);
   /* free le reste */
 }
 
@@ -366,12 +364,4 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
 }
 
 #endif
-
-
-
-
-
-
-
-
 

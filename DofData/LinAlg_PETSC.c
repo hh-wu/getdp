@@ -12,13 +12,12 @@
 #include "Message.h"
 
 /* Pour tester assemblage sans faire d'appel a PETSc
-
 #define VecSetValues dummyvec
 #define MatSetValues dummymat
-int dummyvec( Vec, int, int *, Scalar *, int ) {
+int dummyvec( Vec aa, int bb, int * cc, Scalar * dd , int ee ) {
   return 0;
 }
-int dummymat( Mat, int, int *, int, int * , Scalar *, int ) {
+int dummymat( Mat aa, int bb, int * cc, int dd, int * ee, Scalar * ff, int gg ) {
   return 0; 
 }
 */
@@ -608,7 +607,7 @@ void gAssembleVector(gVector *V){
 /* Solve */
 
 void gSolve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
-  int its ;
+  int its, RankCpu ;
 
   /* Should be done only once */
   ierr = SLESCreate(PETSC_COMM_WORLD, &Solver->sles); CHKERRA(ierr);
@@ -620,7 +619,8 @@ void gSolve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
 
   /* Todo everytime */
   ierr = SLESSolve(Solver->sles, B->V, X->V, &its); CHKERRA(ierr); 
-  Msg(PETSC, "%d Iterations", its) ;
+  MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
+  if (!RankCpu) Msg(PETSC, "%d Iterations", its) ;
 }
 
 #endif
