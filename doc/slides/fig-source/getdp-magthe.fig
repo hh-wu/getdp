@@ -51,10 +51,10 @@ Single
 	0 0 3.00 180.00 180.00
 	 2528 4868 2850 5250 3361 5367
 	 0.000 -1.000 0.000
-4 1 0 50 0 0 10 0.0000 6 135 1080 4500 5400 \\textsf{Thermal problem}\001
-4 1 0 50 0 0 10 0.0000 6 135 1230 2625 3750 \\textsf{Joule power density}\001
-4 1 0 50 0 0 10 0.0000 6 135 1425 2700 4725 \\textsf{Thermal source density}\001
-4 1 0 50 0 0 10 0.0000 6 135 1245 4500 4200 \\textsf{Nonlinear problems}\001
-4 1 0 50 0 0 10 0.0000 6 135 1110 6375 4725 \\textsf{Temperature field}\001
-4 1 0 50 0 0 10 0.0000 6 135 1815 6375 3750 \\textsf{Electrical physical properties}\001
+4 1 0 50 0 0 10 0.0000 6 135 1635 4500 5400 \\textsf{Thermal problem}\001
+4 1 0 50 0 0 10 0.0000 6 135 1785 2625 3750 \\textsf{Joule power density}\001
+4 1 0 50 0 0 10 0.0000 6 135 1980 2700 4725 \\textsf{Thermal source density}\001
+4 1 0 50 0 0 10 0.0000 6 135 1800 4500 4200 \\textsf{Nonlinear problems}\001
+4 1 0 50 0 0 10 0.0000 6 135 1665 6375 4725 \\textsf{Temperature field}\001
 4 1 0 50 0 0 10 0.0000 6 135 2175 4500 3075 \\textsf{Magnetodynamic problem}\001
+4 1 0 50 0 0 10 0.0000 6 135 2250 6375 3750 \\textsf{Electric physical properties}\001

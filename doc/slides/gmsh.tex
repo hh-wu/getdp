@@ -1,4 +1,4 @@
-% $Id: gmsh.tex,v 1.12 2001-06-15 12:21:46 geuzaine Exp $
+% $Id: gmsh.tex,v 1.13 2001-06-17 21:07:00 geuzaine Exp $
 
 % ---------------------------------------------------------------------------
 \part{Gmsh}
@@ -58,10 +58,10 @@ solver step!
 
 \begin{slide}
 
-Bottom-to-top definition:
+``Bottom-to-top'' definition:
 \begin{slideitemize}
 \item \emph{Points}
-\item Oriented \emph{curves} (segments, circles, ellipsis, splines, etc.)
+\item Oriented \emph{curves} (segments, circles, ellipses, splines, etc.)
 \item Oriented \emph{surfaces} (plane, ruled, etc.)
 \item \emph{Volumes}
 \end{slideitemize}
@@ -89,20 +89,20 @@ etc.)
 \item \emph{Unstructured} (Delaunay triangles/tetrahedra)
 \begin{enumerate}
 \item 
-mesh of a box including the convex polygon/polyhedron resulting from
+Mesh of a box including the convex polygon/polyhedron resulting from
 curves/surfaces discretization
 \item
-initial mesh by insertion of curves/surfaces nodes by the Bowyer algorithm
+Initial mesh by insertion of curves/surfaces nodes by the Bowyer algorithm
 \item 
-boundary restoration to force presence of all edges/faces
+Boundary restoration to force presence of all edges/faces
 \item 
-suppression of unwanted triangles/tetrahedra
+Suppression of unwanted triangles/tetrahedra
 \item
-new node insertions by the Bowyer algorithm until the characteristic size of
+New node insertions by the Bowyer algorithm until the characteristic size of
 each simplex $\leq$ characteristic length field evaluated at the center of
 its circumscribed circle/sphere.
 \item
-mesh post-processing and quality enforcement by node relocation and edge
+Mesh post-processing and quality enforcement by node relocation and edge
 swapping
 \end{enumerate}
 \end{slideitemize}
@@ -119,7 +119,7 @@ swapping
 \emph{Batch}:
 \begin{slideitemize}
 \item Advanced users
-\item No graphical overhead
+\item No graphic overhead
 \item Easily scriptable
 \end{slideitemize}
 For complex problems
@@ -169,8 +169,8 @@ shell scripts (Perl, Python, ...), other programming languages (C, C++, ...)
 \item \emph{Scalar} views displayed by iso-value curves or color maps
 \item \emph{Vector} and \emph{tensor} views displayed with 3D arrows or
 displacement maps
-\item Interactive \emph{functions} include offsets, elevation, interactive
-color map modification, range clamping, interactive animation, etc.
+\item Interactive \emph{functions} including offsets, elevation, interactive
+color map and range modification, interactive animation, etc.
 \item All functions are \emph{scriptable} (animation, movement, ...)
 \item Various \emph{output formats} (bitmap or vector)
 \item \emph{Modular} (plug-in mechanism)

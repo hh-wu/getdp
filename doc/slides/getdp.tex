@@ -1,4 +1,4 @@
-% $Id: getdp.tex,v 1.14 2001-06-15 12:21:46 geuzaine Exp $
+% $Id: getdp.tex,v 1.15 2001-06-17 21:07:00 geuzaine Exp $
 
 \newcommand{\smallgetdp}[1]
    {\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{#1}}}}
@@ -391,8 +391,8 @@ Quantity \{
 
 \mybox{colbox}{11\semcm}{
   \begin{slideitemize}
-  \item Evaluation of post-processing quantities (e.g.\ maps, cuts, local or
-  global evaluation, ...)
+  \item Evaluation of post-processing quantities (e.g.\ maps, sections,
+  local or global evaluation, ...)
   \item Operations on post-processing quantities (sorting, smoothing,
   adaptation, ...) 
   \item Various output formats (e.g.\ space or time oriented, text, binary,
@@ -403,7 +403,7 @@ Quantity \{
 \bigskip
 \begin{syntax}
 Print[ Induction, OnElementsOf Omega, File "b.pos", Format Gmsh ] ;
-Print[ Induction, OnLine \{\{0,0,0\}\{1,0,0\}\} \{100\}, File "b.cut" ] ;
+Print[ Induction, OnLine \{\{0,0,0\}\{1,0,0\}\} \{100\}, File "b.txt" ] ;
 \end{syntax}
 
 \end{slide}

@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.10 2001-06-13 13:06:50 geuzaine Exp $
+@c $Id: getdp.texi,v 1.11 2001-06-17 21:07:00 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -3570,9 +3570,9 @@ processing stage.
 
 To compute global quantities associated with regions.
 
-@item OnCut
+@item OnSection
 @{ @var{vector-of-reals} @var{vector-of-reals} @}
-@itemx OnCut
+@itemx OnSection
 @{ @var{vector-of-reals} @var{vector-of-reals} @var{vector-of-reals} @}
 
 To compute a quantity on a cut of the mesh, i.e.@: on the intersections

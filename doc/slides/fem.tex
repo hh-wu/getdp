@@ -1,4 +1,4 @@
-% $Id: fem.tex,v 1.8 2001-06-15 12:34:35 geuzaine Exp $
+% $Id: fem.tex,v 1.9 2001-06-17 21:07:00 geuzaine Exp $
 
 % ---------------------------------------------------------------------------
 \part{Introduction}
@@ -51,7 +51,7 @@ piezoelectricity, noise and vibrations)
 \item \emph{Performance} (both floating point and visualization) of low end PCs is
 exploding
 \item Basic \emph{theory} of classic numerical methods (finite differences,
-finite volumes, finite elements, integral methods) is well known, and future
+finite volumes, finite elements, integral methods) is well-known, and current
 developments don't change the fundamental principles anymore
 \end{slideitemize}
 
@@ -64,7 +64,7 @@ developments don't change the fundamental principles anymore
 \begin{slide}
 
 \begin{slideitemize}
-\item 1960s for mechanical problems (very large \emph{application range}
+\item The 1960s for mechanical problems (very large \emph{application range}
 since the 1980s)
 \item Strong \emph{mathematical foundations} (convergence, unicity)
 \item Generalizations/re-interpretations (vanishing boundaries between finite
@@ -75,9 +75,9 @@ differences, finite elements and finite volumes, ...) call for a
 But FEM is not the magic/universal tool:
 \begin{slideitemize}
 \item Many conflicting/\emph{antinomic} issues (continuous vs. discontinuous
-interpolation, conform vs. non conform meshes, implicit vs. explicit time
-integration, ...)
-\item Generality always has a price (i.e.\ \emph{efficiency} trade-off)
+interpolation, conforming vs. non-conforming meshes, implicit vs. explicit
+time integration, ...)
+\item Generality always has an impact on \emph{efficiency}
 \end{slideitemize}
 
 \end{slide}
@@ -86,10 +86,10 @@ integration, ...)
 
 Based on a double \emph{discretization}:
 \begin{slideitemize}
-\item ``replace'' the function spaces to which the fields belong (e.g.\
+\item ``Replace'' the function spaces to which the fields belong (e.g.\
 $\Hone{\Omega}$, $\Hcurl{\Omega}$, $\Hdiv{\Omega}$ or $\Ltwo{\Omega}$) by
 \emph{finite dimensional subspaces}
-\item ``replace'' the domains on which these subspaces are defined by a
+\item ``Replace'' the domains on which these subspaces are defined by a
 union of elementary geometrical elements of simple shapes (a ``\emph{mesh}''
 or ``grid'')
 \end{slideitemize}
@@ -150,18 +150,18 @@ W(\Omega) \subset V(\Omega)
 \begin{slide}
 
 \begin{slideitemize}
-\item ``\emph{nodal}'' elements for ``0-forms'' (\emph{continuous} scalar
+\item ``\emph{Nodal}'' elements for ``0-forms'' (\emph{continuous} scalar
 fields like scalar potentials, temperature, pressure, ...)
 
-\item ``\emph{edge}'' elements for ``1-forms'' (vector fields with
+\item ``\emph{Edge}'' elements for ``1-forms'' (vector fields with
 \emph{continuous tangential components} across material interfaces, like
 electric and magnetic fields, magnetic vector potential, ...)
 
-\item ``\emph{facet}'' elements for ``2-forms'' (vector fields with
+\item ``\emph{Facet}'' elements for ``2-forms'' (vector fields with
 \emph{continuous normal components} across material interfaces, like
 magnetic flux density, current density, ...)
 
-\item ``\emph{volume}'' elements for ``3-forms'' (\emph{piece-wise
+\item ``\emph{Volume}'' elements for ``3-forms'' (\emph{piece-wise
 continuous} scalar fields like charge density, heat source density, ...)
 
 \end{slideitemize}
@@ -201,6 +201,7 @@ Knowledge of asymptotic \emph{error convergence}
 \item
 Availability of an error \emph{approximation} (if the exact value is known,
 so is the exact solution!)
+% the exact solution is also known!)
 \end{slideitemize}
 
 Goal: generate the best discrete function space possible 
