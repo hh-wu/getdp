@@ -457,6 +457,7 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 
       if(Read){
 	Solution_S.Time = Val_Time ;
+	Solution_S.TimeStep = Val_TimeStep ;
 	gCreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
 		      DofData_P->NbrPart, DofData_P->Part) ;
 	Format ? 
