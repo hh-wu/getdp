@@ -1,3 +1,86 @@
+% $Id: gmsh.tex,v 1.2 2001-06-13 11:16:34 geuzaine Exp $
+
+\chapter{}
+
+\begin{slide}
+
+\slidepagestyle{reduced}
+
+\begin{center}
+\bigtitle{Solver integration, or computational methods in practice with
+Gmsh}\\
+\bigskip\bigskip
+\begin{minipage}{0.5\textwidth}\center
+\mediumtitle{Christophe Geuzaine}\\
+\bigskip
+\smalltitle{Dept. of Electrical Engineering}\\
+\smalltitle{Montefiore Institute B28, Sart Tilman}\\
+\smalltitle{University of Liège}\\
+\smalltitle{B-4000 Liège (BELGIUM)}
+\end{minipage}%
+\begin{minipage}{0.5\textwidth}\center
+\mediumtitle{Jean-François Remacle}\\
+\bigskip
+\smalltitle{Scientific Computation Research Center}\\
+\smalltitle{Rensselaer Polytechnic Insitute}\\
+\smalltitle{CII 110 8th Street}\\
+\smalltitle{Troy, New York 12180-3590 (USA)}
+\end{minipage}
+\end{center}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+\part{Solver integration}
+% ---------------------------------------------------------------------------
+
+\chapter{FEM in practice}
+
+\begin{slide}
+
+Four steps
+
+\begin{slideitemize}
+\item Geometry
+\item Mesh
+\item Solver
+\item Post-processing
+\end{slideitemize}
+
+And most of time is usually not spent on Solver... {\large\color{colwarn}\frownie}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Batch vs. interactive processing}
+
+\begin{slide}
+
+GetDP has no graphical interface 
+
+Command line
+
+Integration into higher level optimization toolboxes:
+\begin{slideitemize}
+\item High level: Matlab, Mathematica, shell scripts (Perl, Python, ...),
+other programming languages (C, C++, ...)  $\rightarrow$ \emph{system call}
+\item Medium level: shell scripts (Perl, Python, ...), other programming
+languages (C, C++, ...) $\rightarrow$ \emph{UNIX sockets}
+\item Low level: programming languages (C, C++, Fortran) $\rightarrow$
+\emph{source code}
+\end{slideitemize}
+
+
+Example: Gmsh
+
+\end{slide}
+
+
+%\input{gmsh.tex}
+
+
+
 % ---------------------------------------------------------------------------
 
 
