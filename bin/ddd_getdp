@@ -1,0 +1,11 @@
+ddd /usr/users53/geuzaine/SOURCES/getdp/bin/getdp \
+  --directory /usr/users53/geuzaine/SOURCES/getdp/Main \
+  --directory /usr/users53/geuzaine/SOURCES/getdp/Post \
+  --directory /usr/users53/geuzaine/SOURCES/getdp/Function \
+  --directory /usr/users53/geuzaine/SOURCES/getdp/GeoData \
+  --directory /usr/users53/geuzaine/SOURCES/getdp/DofData \
+  --directory /usr/users53/geuzaine/SOURCES/getdp/DataStr \
+  --directory /usr/users53/geuzaine/SOURCES/getdp/Sparskit \
+  --directory /usr/users53/geuzaine/SOURCES/getdp/Integration
+
+

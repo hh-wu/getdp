@@ -1,0 +1,5456 @@
+\input texinfo.tex    @c -*-texinfo-*-
+@c =========================================================================
+@c
+@c This is the GetDP documentation texinfo source file
+@c
+@c Indexing : @cindex  == concepts
+@c            @tindex  == syntax ossature
+@c            @mvindex == metasyntactic variables
+@c           /@vindex  == types to use in the different objects
+@c           \@findex  == functions 
+@c
+@c Before release, run C-u C-c C-u C-a in GNU Emacs
+@c This updates all node pointers and menus
+@c 
+@c info  : makeinfo getdp.texi
+@c dvi   : texi2dvi getdp.texi
+@c ps    : dvips getdp.dvi -o
+@c pdf   : texi2pdf getdp.texi
+@c html  : texi2html -expandinfo -split_chapter getdp.texi
+@c nroff : texi2roff getdp.texi
+@c
+@c =========================================================================
+@c %**start of header
+@setfilename getdp.info
+@set EDITION 1.7
+@set VERSION 0.75
+@set UPDATED 23 June 2000
+@set UPDATE-MONTH June 2000
+@set COPYRIGHT @copyright{} 1997-2000 Patrick Dular, Christophe Geuzaine
+@set WEB @uref{http://www.geuz.org/getdp/}
+@set WEB-GMSH @uref{http://www.geuz.org/gmsh/}
+@settitle GetDP @value{VERSION}
+@footnotestyle separate
+@c recto : on / recto-verso : odd
+@setchapternewpage odd
+@paragraphindent 0
+@c @afourpaper
+@finalout
+@defcodeindex mv
+@c %**end of header
+
+@c merge function and type indices 
+@syncodeindex fn vr
+
+@ifinfo
+@dircategory Math
+@direntry
+* GetDP: (getdp).       a General environment for the treatment of Discrete Problems
+@end direntry
+@noindent
+This is Edition @value{EDITION}, last updated @value{UPDATED}, of the
+@cite{GetDP Manual}, for GetDP, a General environment for the Treatment
+of Discrete Problems, Version @value{VERSION}.
+@noindent
+Copyright @value{COPYRIGHT}
+@noindent
+University of Li@`ege @*
+Department of Electrical Engineering @*
+Institut d'@'Electricit@'e Montefiore @*
+Sart Tilman Campus, Building B28 @*
+B-4000 Li@`ege @*
+BELGIUM @*
+@end ifinfo
+
+@iftex
+@global@let@bullet=-
+@global@let@sl=@it
+@global@setfont@indit@itshape{9}{1000}
+@global@let@linkcolor=@Blue
+@parskip=5pt
+@end iftex
+
+@c =========================================================================
+@c Title page
+@c =========================================================================
+
+@shorttitlepage GetDP
+@titlepage
+@title GetDP Manual
+@subtitle The documentation for GetDP, Version  @value{VERSION}
+@subtitle A General environment for the treatment of Discrete Problems
+@subtitle 
+@subtitle Edition @value{EDITION}, @value{UPDATE-MONTH}
+
+@author Patrick Dular
+@author Christophe Geuzaine
+
+@page
+@vskip 0pt plus 1filll
+Copyright @value{COPYRIGHT}
+@sp 1
+University of Li@`ege @*
+Department of Electrical Engineering @*
+Institut d'@'Electricit@'e Montefiore @*
+Sart Tilman Campus, Building B28 @*
+B-4000 Li@`ege @*
+BELGIUM
+@sp 1
+This document was prepared with Texinfo (@uref{http://texinfo.org}). The source
+of this document as well as several formatted versions (info, postscript, pdf,
+html) are available at @value{WEB}.
+@end titlepage
+
+@c =========================================================================
+@c Table of contents
+@c =========================================================================
+@c  this doesn't work with older makeinfo/texi2dvi
+@c @summarycontents
+@c @contents
+
+@c =========================================================================
+@c Top node
+@c =========================================================================
+
+@c @ifnottex
+@ifinfo
+@node Top, Copying, (dir), (dir)
+@top GetDP
+
+GetDP is a scientific computation software for the numerical solution of
+integro-differential equations, using finite element and integral type
+methods.
+
+This is Edition @value{EDITION} of the @cite{GetDP Manual}, last updated
+@value{UPDATED} for GetDP Version @value{VERSION}.
+@end ifinfo
+@c @end ifnottex
+
+
+@c =========================================================================
+@c Master menu
+@c =========================================================================
+
+@menu
+* Copying::                     Copyright and copying conditions
+* Introduction::                Basic presentation
+* Overview::                    Problem resolution philosophy
+* Expressions::                 The expression mechanism
+* Objects::                     Definition of all GetDP objects
+* Types for objects::           Definition of all types for objects
+* Short examples::              Simple object examples
+* Complete examples::           Some complete examples
+* Running GetDP::               How to run GetDP on your operating system
+* File formats::                Input and output file formats
+* Versions and credits::        Versions history and contributors
+* Tips::                        Tips to improve the efficiency
+* Gmsh examples::               Sample Gmsh input files
+* Concept index::               Main concepts
+* Syntax index::                Reserved keywords
+* Variable index::              Metasyntactic variables
+* Type index::                  Available types for objects
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Introduction
+
+* Research::                    
+* Education::                   
+* Industry::                    
+* Reading Guidelines::          
+
+General Overview
+
+* Tools::                       
+* Syntax::                      
+* Comments::                    
+* Includes::                    
+* Possibilities::               
+
+Expressions 
+
+* Expression definition::       
+* Constants::                   
+* Operators::                   
+* Functions::                   
+* Current values::              
+* Arguments::                   
+* Fields::                      
+
+Definition
+
+* Operators::                   
+* Constants::                   
+* Functions::                   
+* Current values::              
+* Fields::                      
+
+Operators
+
+* Operator types::              
+* Evaluation order::            
+
+Objects
+
+* Group::                       
+* Function::                    
+* Constraint::                  
+* FunctionSpace::               
+* Jacobian::                    
+* Integration::                 
+* Formulation::                 
+* Resolution::                  
+* PostProcessing::              
+* PostOperation::               
+
+Types for Objects
+
+* Types for Group::             
+* Types for Function::          
+* Types for Constraint::        
+* Types for FunctionSpace::     
+* Types for Jacobian::          
+* Types for Integration::       
+* Types for Formulation::       
+* Types for Resolution::        
+* Types for PostProcessing::    
+* Types for PostOperation::     
+
+Types for @code{Function}
+
+* Math functions::              
+* Extended math functions::     
+* Green functions::             
+* Type functions::              
+* Coordinate functions::        
+* Miscellaneous functions::     
+
+Short Examples
+
+* Constant expression examples::  
+* Group examples::              
+* Function examples::           
+* Constraint examples::         
+* FunctionSpace examples::      
+* Jacobian examples::           
+* Integration examples::        
+* Formulation examples::        
+* Resolution examples::         
+* PostProcessing examples::     
+* PostOperation examples::      
+
+@code{FunctionSpace} Examples
+
+* Conform space::               
+* High order space::            
+* Global values::               
+* Curl-conform space::          
+* Gauge condition::             
+* Coupled spaces::              
+* Multiply connected domains::  
+
+@code{Formulation} Examples
+
+* Electrostatics::              
+* Electrostatics 2::            
+* Magnetostatics::              
+* Magnetodynamics::             
+* Other formulations::          
+
+@code{Resolution} Examples
+
+* Static resolution::           
+* Frequency domain resolution::  
+* Time domain resolution::      
+* Nonlinear resolution::        
+* Nonlinear formulations::      
+
+@code{PostOperation} Examples
+
+* Maps::                        
+* Cuts::                        
+* Prints::                      
+
+Complete Examples
+
+* Electrostatic problem::       
+* Magnetostatic problem::       
+* Magnetodynamic problem::      
+
+File Formats
+
+* Input file format::           
+* Output file format::          
+
+Output File Format
+
+* File pre::                    
+* File res::                    
+* Post-processing files::       
+
+Versions and Credits
+
+* Versions::                    
+* Bugs::                        
+* Contributors::                
+
+@end detailmenu
+@end menu
+
+@c =========================================================================
+@c Copying Conditions
+@c =========================================================================
+
+@node Copying, Introduction, Top, Top
+@unnumbered Copying Conditions
+
+@cindex Copyright
+@cindex Web site
+@cindex Internet address
+@cindex Download
+@cindex Platforms
+
+Executable versions of GetDP can be downloaded for most of the classical
+UNIX platforms (SUN, DEC, IBM, HP, SGI and Linux) and for Windows 95/98/NT
+from the web site @value{WEB} (no source distribution is available for
+the moment). The executable versions of GetDP are free; the only thing
+asked if you use GetDP is to mention it in your work. Published
+references, as well as the latest news about GetDP developments and
+download information, are always available on the web site.
+
+
+@c =========================================================================
+@c Introduction
+@c =========================================================================
+
+@node Introduction, Overview, Copying, Top
+@unnumbered Introduction
+
+@cindex Introduction
+
+GetDP (a General environment for the treatment of Discrete Problems) is
+a scientific software environment for the numerical solution of
+integro-differential equations, open to the coupling of physical
+problems (electromagnetic, thermal, mechanical, etc) as well as of
+numerical methods (finite element method, integral methods, etc). It can
+deal with such problems of various dimensions (1D, 2D or 3D) and time
+states (static, transient or harmonic).
+
+The main feature of GetDP is the closeness between its internal
+structure (written in C), the organization of data defining discrete
+problems (written by the user in ASCII data files) and the symbolic
+mathematical expressions of these problems. Its aim is to be welcoming
+and of easy use for both development and application levels: it consists
+of a working environment in which the definition of any problem
+makes use of a limited number of objects, which makes the environment
+structured and concise. It therefore gives researchers advanced
+developing tools and a large freedom in adding new functionalities.
+
+The modeling tools provided by GetDP can be tackled at various levels of
+complexity: this opens the software to a wide range of activities, such
+as research, collaboration, education, training and industrial studies.
+
+@menu
+* Research::                    
+* Education::                   
+* Industry::                    
+* Reading Guidelines::          
+@end menu
+
+@c -------------------------------------------------------------------------
+@c Research and Collaboration Activities
+@c -------------------------------------------------------------------------
+
+@node Research, Education, Introduction, Introduction
+@heading Research and Collaboration Activities
+
+The internal structure of the software is very close to the structure
+used to define discrete problems in the input data files. As a result, a
+unicity and conciseness of both development and application levels is
+obtained without any interface between these, which facilitates work of
+any kind---particularly validations.  GetDP enables to rapidly develop
+tools for the comparison of methods and the exchange of solutions
+between research teams, which is one of the main aims of collaboration.
+Moreover, after a short training, GetDP could be used by teams as a basis
+to their own developments, while keeping a large freedom in these.
+
+@c -------------------------------------------------------------------------
+@c Education and Training Activities
+@c -------------------------------------------------------------------------
+
+@node Education, Industry, Research, Introduction
+@heading Education and Training Activities
+
+The software environment consists of modeling tools applicable to
+various physical problems. Education and training can therefore be
+offered in various domains and at different levels.  The closeness
+between the definition of discrete problems and their symbolic
+mathematical expressions entails that the theory and mathematical bases
+of numerical methods, which are essential to anyone who wants to tackle
+the solving of discrete problems, can be directly followed by their
+practical applications. These applications can be evolutive, in the
+sense that the offered tools are of various levels of
+complexity. Everyone can tackle, step by step, depending on his
+apprenticeship level, tools adapted to the solving of more and more
+complex problems, as well as various methods for the solving of the same
+problem.
+
+@c -------------------------------------------------------------------------
+@c Industrial studies
+@c -------------------------------------------------------------------------
+
+@node Industry, Reading Guidelines, Education, Introduction
+@heading Industrial Studies
+
+The treatment of industrial problems can also be facilitated because
+GetDP is adapted to the study of a wide range of physical problems using
+various numerical methods. In particular, adapted made-to-measure and
+ready-to-use software could be rapidly developed for given problems.
+
+
+@c -------------------------------------------------------------------------
+@c How to Read this Manual?
+@c -------------------------------------------------------------------------
+
+@node Reading Guidelines,  , Industry, Introduction
+@heading How to Read this Manual?
+
+@cindex Reading, guidelines
+
+After reading @ref{Overview}, and @ref{Expressions}, which depict the
+general concepts and the way to construct simple expressions in GetDP,
+you can safely (in a first reading) skip @ref{Objects} and @ref{Types
+for objects} and directly go to @ref{Short examples}. This chapter gives
+simple examples of the problem definition syntax used to define the
+discrete problems. For each example, you should then go back to
+@ref{Objects}, and @ref{Types for objects}, and have a detailed view of
+the syntax of the objects appearing in it. Note that indices for many
+concepts and for all the syntax elements are available at the end of
+this manual.
+
+Once the examples presented in @ref{Short examples}, are understood, you
+may start to use GetDP on your computer (@pxref{Running GetDP}), for
+example by solving the complete examples presented in @ref{Complete
+examples}. Ready-to-use input files for these examples can be downloaded
+from the web site.
+
+
+
+@c =========================================================================
+@c General Overview
+@c =========================================================================
+
+@node Overview, Expressions, Introduction, Top
+@chapter General Overview
+
+@cindex Overview
+@cindex Objects, overview
+@cindex Tools, overview
+@cindex Numerical tools, overview
+
+@menu
+* Tools::                       
+* Syntax::                      
+* Comments::                    
+* Includes::                    
+* Possibilities::               
+@end menu
+
+@c -------------------------------------------------------------------------
+@c Numerical Tools as Objects
+@c -------------------------------------------------------------------------
+
+@node Tools, Syntax, Overview, Overview
+@section Numerical Tools as Objects
+
+@cindex Objects, dependencies
+@cindex Dependencies, objects
+@cindex Chaining, objects
+@cindex Tools, order of definition
+@cindex Philosophy, general
+@cindex Processing cycle
+
+An assembly of computational tools (or objects) in GetDP leads to a
+problem definition structure, which is a transcription of the
+mathematical expression of the problem, and forms a text data file: the
+equations describing a phenomenon, written in a mathematical form
+adapted to a chosen numerical method, directly constitute data for
+GetDP. The following table summarizes the names of all GetDP objects (in
+the first column), along with their respective dependencies (in the
+second column):
+
+@sp 1
+@example
+Group           @var{---}
+Function        Group
+Constraint      Group, Function, (Resolution)
+FunctionSpace   Group, Constraint, (Formulation), (Resolution)
+Jacobian        Group
+Integration     @var{---}
+Formulation     Group, Function, (Constraint), FunctionSpace,
+                Jacobian, Integration
+Resolution      Function, Formulation
+PostProcessing  Group, Function, (Jacobian), (Integration), 
+                Formulation, (Resolution)
+PostOperation   PostProcessing
+@end example
+@sp 1
+
+The resolution of a discrete problem with GetDP requires the definition,
+in a text data file, of the objects listed in this table. The gathering
+of all the objects constitutes the problem definition structure, which
+is a copy of the formal mathematical formulation of the problem. Reading
+the table from top to bottom pictures the working philosophy and the
+chaining of operations peculiar to GetDP, from mesh generation to
+results visualization.
+
+The computational tools which are at the center of a problem definition
+structure are formulations (@code{Formulation}) and function spaces
+(@code{FunctionSpace}). Formulations define systems of equations that
+have to be built and solved, while function spaces contain all the
+quantities, i.e.@: functions, fields of vectors or covectors, known or
+not, involved in formulations. 
+
+Each object of a problem definition structure must be defined before being
+referred to by others. A chaining which always respects this property is the
+following: it first contains the objects defining particular data of a
+problem, such as geometry, physical characteristics and boundary conditions
+(i.e.@: @code{Group}, @code{Function} and @code{Constraint}) followed by
+those defining a resolution method, such as unknowns, equations and related
+objects (i.e.@: @code{Jacobian}, @code{Integration}, @code{FunctionSpace},
+@code{Formulation}, @code{Resolution} and @code{PostProcessing}).  The
+processing cycle ends with the presentation of the results (i.e.@: lists of
+numbers in various formats), defined in @code{PostOperation} fields.  This
+decomposition points out the possibility of building black boxes, containing
+objects of the second group, adapted to treatments of defined problems.
+
+
+@c -------------------------------------------------------------------------
+@c Syntactic Rules Used in this Document
+@c -------------------------------------------------------------------------
+
+@node Syntax, Comments, Tools, Overview
+@section Syntactic Rules Used in this Document
+
+@cindex Syntax, rules
+@cindex Rules, syntactic
+@cindex Document syntax
+
+@tindex @var{etc}
+@tindex @dots{}
+@tindex <, >
+@tindex |
+@tindex :
+
+Here are the rules we tried to follow writing this user's guide. Note that
+Metasyntactic variable definitions stay valid throughout all the manual (and
+not only in the sections where the definitions appear). @xref{Variable index},
+for an index of all metasyntactic variables.
+
+@enumerate
+@item 
+Keywords and literal symbols are printed like @code{this}.
+@item 
+Metasyntactic variables (i.e.@: pieces of text that are not part of the
+syntax, but stand for other pieces of text) are printed like @var{this}.
+@item 
+A colon @code{:} after a metasyntactic variable separates the variable
+from its definition.
+@item 
+Optional rules are enclosed in @code{<} @code{>} pairs.
+@item 
+Multiple choices are separated by @code{|}.
+@item 
+Three dots @dots{} indicate a possible repetition of the preceding rule.
+@item 
+For conciseness, the notation @code{@var{rule} <, @var{rule} > @dots{}}
+is replaced by @code{@var{rule} <,@dots{}>}.
+@item 
+The @var{etc} symbol replaces nonlisted rules.
+@end enumerate
+
+@c -------------------------------------------------------------------------
+@c Comments
+@c -------------------------------------------------------------------------
+
+@node Comments, Includes, Syntax, Overview
+@section Comments
+
+@cindex Comments
+@cindex File, comment
+
+@tindex /*, */
+@tindex //
+
+Both C and C++ style comments are supported and can be used in the input
+data file to comment out selected regions of text:
+
+@enumerate
+@item 
+the text region comprised between @code{/*} and @code{*/} pairs is ignored.
+@item
+the rest of a line after a double slash @code{//} is ignored;
+@end enumerate
+
+These commands won't have the described effects inside double quotes
+(used to specify file names) or inside GetDP keywords.
+
+@c -------------------------------------------------------------------------
+@c Includes
+@c -------------------------------------------------------------------------
+
+@node Includes, Possibilities, Comments, Overview
+@section Includes
+
+@cindex Includes
+@cindex File, include
+
+@tindex Include
+@tindex #include
+
+Files can be included by placing one of the following commands
+(@var{string} represents a file name) on a separate line out of any
+GetDP object.  Any text placed after an include command on the same line
+is ignored.
+
+@example
+@code{Include "@var{string}"} 
+@code{#include "@var{string}"} 
+@end example
+
+@c -------------------------------------------------------------------------
+@c Which Problems can GetDP actually solve?
+@c -------------------------------------------------------------------------
+
+@node Possibilities,  , Includes, Overview
+@section Which Problems can GetDP Actually Solve?
+
+@cindex Scope of GetDP
+@cindex Future developments
+@cindex Developments, future
+@cindex Physical problems
+@cindex Method of Moments
+@cindex Finite Element Method
+@cindex Integral Equation Method
+@cindex Boundary Element Method
+@cindex Finite Difference Method
+@cindex Finite Volume Method
+@cindex Electromagnetism
+@cindex Mechanics
+@cindex Thermics
+
+All the preceding explanations can seem very (too) general.  Which are
+the problems that GetDP can actually solve? To answer this question,
+here is a list of models and methods that we have considered and coupled
+together until now:
+
+@table @asis
+@item Physical models
+magnetic problems (magnetostatics, magnetodynamics)@*
+electric problems (electrostatics, electrokinetics, electrodynamics)@*
+electromagnetic wave problems@*
+lumped electric circuits@*
+thermal problems
+@item Numerical methods
+finite element method@*
+boundary element method@*
+volumic integral methods
+@item Geometrical models
+one-dimensional models (1D)@*
+two-dimensional models (2D), plane and axisymmetric@*
+three-dimensional models (3D)
+@item Time states
+static states@*
+sinusoidal and harmonic states@*
+transient states
+@end table
+
+As can be guessed from the preceding list, GetDP has been initially
+developed in the field of computational electromagnetics, which fully
+uses all of the offered coupling features. We believe that this does not
+interfere with the wished generality of the software because a
+particular modeling forms a problem definition structure which is
+totally external to the software: GetDP offers computational tools; the
+user freely applies them to define and solve his problem. Problems and
+methods that are under development include:
+
+@table @asis
+@item Physical models
+mechanical problems (rigid body movement, elasticity)
+@item Numerical methods
+finite volume method@*
+time domain finite difference method
+@end table
+
+
+
+
+@c =========================================================================
+@c Expressions
+@c =========================================================================
+
+@node Expressions, Objects, Overview, Top
+@chapter Expressions 
+
+@c -------------------------------------------------------------------------
+@c Definition
+@c -------------------------------------------------------------------------
+
+@menu
+* Expression definition::       
+* Constants::                   
+* Operators::                   
+* Functions::                   
+* Current values::              
+* Arguments::                   
+* Fields::                      
+@end menu
+
+@node Expression definition, Constants, Expressions, Expressions
+@section Definition
+
+@cindex Expression, definition
+
+@mvindex @var{expression}
+@mvindex @var{integer}
+@mvindex @var{real}
+
+Expressions are the basic tool of GetDP. They cover a wide range of
+functional expressions, from constants to formal expressions containing
+functions (built-in or user-defined, depending on space and time, etc),
+arguments, discrete quantities and their associated differential
+operators, etc. Note that `white space' (spaces, tabs, new line
+characters) is ignored inside expressions.
+
+Expressions are denoted by the metasyntactic variable @var{expression}
+(remember the definition of the syntactic rules in @ref{Syntax}):
+
+@example
+@var{expression}:
+  @var{integer} |
+  @var{real} |
+  @var{constant-id} |
+  @var{operator-unary} @var{expression} |
+  @var{expression} @var{operator-binary} @var{expression} |
+  @var{expression} ? @var{expression} : @var{expression} |
+  @var{built-in-function-id} [ < @var{argument-list} > ] < @{ @var{parameter-list} @} > |
+  @var{function-id} [ < @var{argument-list} > ] |
+  @var{current-value} |
+  @var{argument} |
+  @var{discrete-quantity} 
+@end example
+
+@noindent The following sections introduce the quantities that can appear in
+expressions, i.e.@: constant terminals (@var{integer}, @var{real}) and
+constant expression identifiers (@var{constant-id}), operators
+(@var{operator-unary}, @var{operator-binary}, @code{?:}), built-in or
+user-defined functions (@var{built-in-function-id}, @var{function-id}),
+current values (@var{current-value}), arguments (@var{argument}) and
+fields (@var{discrete-quantity}).
+
+@menu
+* Operators::                   
+* Constants::                   
+* Functions::                   
+* Current values::              
+* Fields::                      
+@end menu
+
+@c -------------------------------------------------------------------------
+@c Constants
+@c -------------------------------------------------------------------------
+
+@node Constants, Operators, Expression definition, Expressions
+@section Constants
+
+@cindex Constant, definition
+@cindex Constant, evaluation
+@cindex Evaluation mechanism
+@cindex Integer numbers
+@cindex Real numbers
+@cindex Floating point numbers
+@cindex Numbers, real
+@cindex Numbers, integer
+@cindex String
+
+@tindex DefineConstant
+@tindex ListAlt
+@tindex Pi
+@tindex 0D
+@tindex 1D
+@tindex 2D
+@tindex 3D
+@tindex =
+
+@mvindex @var{integer}
+@mvindex @var{real}
+@mvindex @var{string}
+@mvindex @var{expression-cst}
+@mvindex @var{constant-id}
+@mvindex @var{expression-cst-list}
+
+
+The three constant types used in GetDP are @var{integer}, @var{real} and
+@var{string}.  These terminals have the same meaning and syntax as in
+the C or C++ programming languages. Besides general expressions
+(@var{expression}), purely constant expressions, denoted by the
+metasyntactic variable @var{expression-cst}, can also be defined:
+
+@example
+@var{expression-cst}:
+  @var{integer} |
+  @var{real} |
+  @var{constant-id} |
+  @var{operator-unary} @var{expression-cst} |
+  @var{expression-cst} @var{operator-binary} @var{expression-cst} |
+  @var{math-function-id} [ < @var{expression-cst} <,@dots{}> > ]
+@end example
+
+Contrary to a general @var{expression} which is evaluated at runtime (thanks
+to an internal stack mechanism), an @var{expressions-cst} is completely
+evaluated during the syntactic analysis of the problem.  Definition of new
+constants or lists of constants with identifiers can be done outside any
+GetDP object or inside @code{Group}, @code{Function} and @code{Constraint}
+objects. The syntax for the definition of constants is the following:
+
+@example
+DefineConstant [ 
+  @var{constant-id} < = @var{expression-cst} > <,@dots{}> 
+]; |
+@var{constant-id} = @var{expression-cst} | @var{expression-cst-list};
+@end example
+
+@noindent with
+
+@example
+@var{constant-id}:
+  @var{string}
+
+@var{expression-cst-list}:
+  @{ @var{expression-cst} <,@dots{}> @} |
+  ListAlt [ @var{constant-id} , @var{constant-id} ]
+@end example
+
+@noindent Notes:
+@enumerate
+@item
+Five constants are predefined in GetDP: @code{Pi} (3.1415926535897932),
+@code{0D} (0), @code{1D} (1), @code{2D} (2) and @code{3D} (3).
+@item
+The affectation in @code{DefineConstant} (zero if no
+@var{expression-cst} is given) is performed only if @var{constant-id}
+has not been defined yet. This kind of explicit default definition
+mechanism is used several times in GetDP. It is most useful for use with
+ready-to-use problem definition structures, which make use of a large
+number of generic constants, functions or groups. When exploiting only a
+part of a complex problem definition structure, the default definition
+mechanism allows to only define the quantities of interest, the others
+being assigned a default value (that will not be used during the
+processing, but that avoids the error messages produced when references
+to undefined quantities are made).
+@item
+@var{constant-id}'s of lists of constants (@var{expression-cst-list}) are
+used for function parameters (@pxref{Functions}).
+@item
+The arguments of @code{ListAlt} must be @var{constant-id}'s of lists of
+constants of the same dimension. The result is an alternate list of
+these constants: first constant of argument 1, first constant of
+argument 2, second constant of argument 1, @dots{}
+@end enumerate
+
+@xref{Constant expression examples}, for some examples. 
+
+@c -------------------------------------------------------------------------
+@c Operators
+@c -------------------------------------------------------------------------
+
+@node Operators, Functions, Constants, Expressions
+@section Operators
+
+@menu
+* Operator types::              
+* Evaluation order::            
+@end menu
+
+@c .........................................................................
+@c Types
+@c .........................................................................
+
+@node Operator types, Evaluation order, Operators, Operators
+@subsection Operator Types
+
+The operators in GetDP are similar to the corresponding operators
+in the C programming language, except that all operators accept
+@var{expression} type arguments. 
+
+@cindex Operators, definition
+@cindex Unary operators
+@cindex Binary operators
+@cindex Ternary operators
+
+@mvindex @var{operator-unary}
+@mvindex @var{operator-binary}
+@mvindex @var{operator-ternary}
+
+@tindex -
+@tindex !
+@tindex +
+@tindex -
+@tindex *
+@tindex *^
+@tindex /
+@tindex ^
+@tindex %
+@tindex >
+@tindex <
+@tindex >=
+@tindex <=
+@tindex ==
+@tindex !=
+@tindex ||
+@tindex &&
+@tindex ?:
+
+
+@noindent
+@var{operator-unary}:
+@table @code
+@item -
+Unary minus
+@item !
+Logical not
+@end table
+
+@noindent
+@var{operator-binary}:
+@table @code
+@item ^
+Exponentiation. Evaluation of the second argument must result in a
+floating point value.
+@item *
+Multiplication
+@item *^
+Cross-multiplication. Evaluation of both arguments must result in 
+vectors.
+@item /
+Division
+@item %
+Modulo
+@item +
+Addition
+@item -
+Subtraction
+@item ==
+Equality
+@item !=
+Inequality
+@item >
+Greater. Evaluation of both arguments must result in floating point
+values.
+@item >=
+Greater or equality. Evaluation of both arguments must result in
+floating point values.
+@item <
+Less. Evaluation of both arguments must result in floating point values.
+@item <=
+Less or equality. Evaluation of both arguments must result in floating
+point values.
+@item &&
+Logical and. Evaluation of both arguments must result in floating point
+values. The logical and implies evaluation of both arguments. That is,
+the second operand of @code{&&} is evaluated even if the first is false.
+@item ||
+Logical or. Evaluation of both arguments must result in floating point
+values. The logical or implies evaluation of both arguments.  That is,
+the second operand of @code{||} is evaluated even if the first is true.
+@end table
+
+@noindent
+@var{operator-ternary}:
+@table @code
+@item ?:
+Ternary operation. Evaluation of the first argument must result in an
+integer value. The ternary operator first evaluates its first
+argument. If it is true (non-zero) the second argument is evaluated and
+returned; otherwise the third argument is evaluated and returned.
+@end table
+
+
+@c .........................................................................
+@c Evaluation
+@c .........................................................................
+
+@node Evaluation order,  , Operator types, Operators
+@subsection Evaluation Order
+
+@cindex Evaluation, order
+@cindex Order of evaluation
+@cindex Operation, priorities
+@cindex Priorities, operations
+
+@tindex ()
+
+The evaluation priorities are summarized below (from stronger to weaker,
+i.e.@: @code{^} has the highest evaluation priority). Parentheses
+@code{()} may be used anywhere to change the order of evaluation.
+
+@table @code
+@item ^
+@item - (unary), ! 
+@item *^
+@item *, /, %
+@item +, - 
+@item <, >, <=, >=
+@item !=, ==
+@item &&, ||
+@item ?:
+@end table
+
+
+@c -------------------------------------------------------------------------
+@c Functions
+@c -------------------------------------------------------------------------
+
+@node Functions, Current values, Operators, Expressions
+@section Functions
+
+@cindex Function, definition
+@cindex Built-in functions
+@cindex Piecewise functions
+@cindex Arguments
+@cindex Parameters
+
+@mvindex @var{built-in-function-id}
+@mvindex @var{argument-list}
+@mvindex @var{parameter-list}
+
+@tindex List
+
+
+Two types of functions coexist in GetDP: user-defined functions
+(@var{function-id}, see @ref{Function}) and built-in functions
+(@var{built-in-function-id}, defined in this section). 
+
+Both types of functions are always followed by a pair of brackets
+@code{[]}, that can possibly contain arguments. This makes it simple to
+distinguish a @var{function-id} or a @var{built-in-function-id} from a
+@var{constant-id}. As shown below, built-in functions might also have
+parameters, given between braces (@code{@{@}}):
+
+@example
+@var{built-in-function-id} [ < @var{argument-list} > ] < @{ @var{parameter-list} @} >
+@end example
+
+@noindent with
+
+@example
+@var{built-in-function-id}:
+  @var{math-function-id} |
+  @var{extended-math-function-id} |
+  @var{green-function-id} |
+  @var{type-function-id} |
+  @var{coord-function-id} |
+  @var{misc-function-id}
+
+@var{argument-list}:
+  @var{expression} <,@dots{}>
+
+@var{parameter-list}:
+  @var{expression-cst} <,@dots{}> |
+  List[@var{constant-id}]
+@end example
+
+@noindent Notes:
+@enumerate
+@item
+All possible values for @var{built-in-function-id} are listed in
+@ref{Types for Function}.  
+@item 
+Classical mathematical functions (@pxref{Math functions}) are
+the only functions allowed in a constant definition (@pxref{Constants}).
+@item
+@var{constant-id} in @code{List[]} of @var{parameter-list} must refer 
+to a list of constants (@var{expression-cst-list}).
+@end enumerate
+
+
+@c -------------------------------------------------------------------------
+@c Current Values
+@c -------------------------------------------------------------------------
+
+@node Current values, Arguments, Functions, Expressions
+@section Current Values
+
+@cindex Current values
+@cindex Values, current
+
+@tindex $@var{string}
+
+Current values are highly optimized functions which return the current
+integer or floating point value of an internal variable.
+
+@table @code
+@item $Time
+Value of the current time. This value is set to zero for non time dependent 
+analyses.
+@item $DTime
+Value of the current time increment used in a time stepping algorithm.
+@item $Theta
+Current theta value in a theta time stepping algorithm.
+@item $TimeStep
+Number of the current time step in a time stepping algorithm.
+@item $Iteration
+Number of the current nonlinear iteration in a nonlinear loop.
+@item $X, $XS
+Value of the current (destination or source) X-coordinate.
+@item $Y, $YS
+Value of the current (destination or source) Y-coordinate.
+@item $Z, $ZS
+Value of the current (destination or source) Z-coordinate.
+@end table
+
+@noindent Note:
+@enumerate
+@item
+The current X, Y and Z coordinates refer to the `physical world'
+coordinates, i.e.@: coordinates in which the mesh is expressed.
+@end enumerate
+
+
+@c -------------------------------------------------------------------------
+@c Arguments
+@c -------------------------------------------------------------------------
+
+@node Arguments, Fields, Current values, Expressions
+@section Arguments
+
+@cindex Arguments, definition
+
+@mvindex @var{argument}
+
+@tindex #@var{integer}
+@tindex $@var{integer}
+
+
+Function arguments can be used in expressions and have the following
+syntax (@var{integer} indicates the number of the argument in the
+@var{argument-list} of the function):
+
+@example
+@var{argument}:
+  $@var{integer}
+@end example
+
+@xref{Function}, and @ref{Function examples}, for more details.
+
+
+@c -------------------------------------------------------------------------
+@c Fields
+@c -------------------------------------------------------------------------
+
+@node Fields,  , Arguments, Expressions
+@section Fields
+
+@cindex Fields
+@cindex Operators, differential
+@cindex Differential operators
+@cindex Discrete quantities
+@cindex Quantities, discrete
+@cindex Interpolation
+@cindex Gradient
+@cindex Curl
+@cindex Divergence
+@cindex Exterior derivative
+@cindex Derivative, exterior
+
+@mvindex @var{discrete-quantity}
+@mvindex @var{discrete-quantity-type}
+@mvindex @var{operator-type}
+@mvindex @var{quantity-id}
+
+
+A discretized quantity (defined in a function space, cf.@:
+@ref{FunctionSpace}) is represented between braces @code{@{@}}, and can
+only appear in well defined expressions of @code{Formulation}
+(@pxref{Formulation}) and @code{PostProcessing} (@pxref{PostProcessing})
+objects:
+
+@example
+@var{discrete-quantity}:
+  < @var{discrete-quantity-type} > @{ < @var{operator-type} > @var{quantity-id} @}
+@end example
+
+@noindent with 
+
+@example
+@var{quantity-id}:
+  @var{string}
+@end example
+
+@noindent
+@var{discrete-quantity-type}:
+@vtable @code
+@item Dof
+defines a vector of discrete quantities (vector of
+@code{D}egrees @code{o}f @code{f}reedom), to be used only in
+@code{Equation} terms of formulations to define (elementary) matrices.
+Roughly said, the @code{Dof} symbol in front of a discrete quantity
+indicates that this quantity is an unknown quantity, and should
+therefore not be considered as already computed (thus leading to a
+simple evaluation).
+@item BF
+indicates that only a basis function will be used 
+(only valid with basis functions associated with regions).
+@end vtable
+
+@noindent
+@var{operator-type}:
+@vtable @code
+@item d
+Exterior derivative (d): applied to a @var{p}-form, gives a (@var{p+1})-form.
+@item Grad
+Gradient: applied to a scalar field, gives a vector.
+@item Curl
+@itemx Rot
+Curl: applied to a vector field, gives a vector.
+@item Div
+Divergence (div): applied to a vector field, gives a scalar.
+@item dInv
+d^(-1): applied to a p-form, gives a (p-1)-form.
+@item GradInv
+Inverse grad: applied to a gradient field, gives a scalar.
+@item CurlInv
+@itemx RotInv
+Inverse curl: applied to a curl field, gives a vector.
+@item DivInv
+Inverse div: applied to a divergence field.
+@end vtable
+
+
+@noindent Note:
+@enumerate
+@item
+While the operators @code{Grad}, @code{Curl} and @code{Div} can be applied 
+respectively to 0, 1 and 2-forms, the exterior derivative operator @code{d} 
+is usually preferred with such fields.
+@end enumerate
+
+
+@c =========================================================================
+@c Objects
+@c =========================================================================
+
+@node Objects, Types for objects, Expressions, Top
+@chapter Objects
+
+@cindex Objects, definition
+
+@menu
+* Group::                       
+* Function::                    
+* Constraint::                  
+* FunctionSpace::               
+* Jacobian::                    
+* Integration::                 
+* Formulation::                 
+* Resolution::                  
+* PostProcessing::              
+* PostOperation::               
+@end menu
+
+
+@c -------------------------------------------------------------------------
+@c Group
+@c -------------------------------------------------------------------------
+
+@node Group, Function, Objects, Objects
+@section @code{Group}: Defining Topological Entities
+
+@cindex Mesh
+@cindex Grid
+@cindex Discretized Geometry
+@cindex Group, definition
+@cindex Topology
+@cindex Entities, topological
+@cindex Region groups
+@cindex Function groups
+@cindex Tree
+
+@tindex Group
+@tindex DefineGroup
+@tindex =
+
+@mvindex @var{group-id}
+@mvindex @var{group-def}
+@mvindex @var{group-type}
+@mvindex @var{group-list}
+@mvindex @var{group-sub-type}
+@mvindex @var{group-item}
+
+Meshes (grids) constitute the input data of GetDP. All that is needed by
+GetDP as a mesh is a file containing a list of nodes (with their
+coordinates) and a list of geometrical elements with, for each one, a number
+characterizing its geometrical type (i.e.@: line, triangle, quadrangle,
+tetrahedron, hexahedron, prism, etc), a number characterizing the physical
+region to which it belongs and the list of its nodes. This minimal input set
+can be easily extracted from most of the classical mesh file
+formats. @xref{Input file format}.
+
+Groups of geometrical entities of various types can be considered and
+are used in many objects. There are region groups, of which the entities
+are regions, and function groups, with nodes, edges, facets, volumes,
+groups of nodes, edges of tree, facets of tree, @dots{} of
+regions:
+
+@itemize @bullet
+@item
+Amongst region groups, elementary and global groups can be
+distinguished: elementary groups are relative to single regions (e.g.@:
+physical regions in which piecewise defined functions or constraints can
+be defined) while global groups are relative to sets of regions for
+which given treatments have to be performed (e.g.@: domain of
+integration, support of a function space, etc). 
+@item
+Groups of function type contain lists of entities built on some region
+groups (e.g.@: nodes for nodal elements, edges for edge elements, edges
+of tree for gauge conditions, groups of nodes for floating potentials,
+elements on one side of a surface for cuts, etc).
+@end itemize
+
+A definition of initially empty groups can be done thanks to a
+@code{DefineGroup} command, so that their identifiers exist and can be
+referred to in other objects, even if these groups are not explicitly
+defined. This procedure is similar to the procedure introduced for
+constants in @ref{Constants} (cf. the note at the end of the section).
+
+The syntax for the definition of groups is:
+
+@example
+Group @{
+  < DefineGroup [ 
+      @var{group-id} <@{@var{integer}@}> <,@dots{}> 
+    ]; > @dots{}
+  < @var{group-id} <@{<#>@var{integer}@}> = @var{group-def}; > @dots{}
+@}
+@end example
+
+@noindent with
+
+@example
+@var{group-id}:
+  @var{string}
+
+@var{group-def}:
+  @var{group-type} [ @var{group-list} < , @var{group-sub-type} @var{group-list} > ] |
+  @var{group-id} <@{<@var{integer}>@}> |
+  #@var{group-list}
+
+@var{group-type}: 
+  Region | Global | NodesOf | EdgesOf | @var{etc}
+
+@var{group-list}:
+  All | @var{group-item} | @{ @var{group-item} <,@dots{}> @}
+
+@var{group-item}:
+  @var{integer} | @var{group-id} <@{<@var{integer}>@}> |
+  @var{integer} '@dots{}' @var{integer}
+
+@var{group-sub-type}: 
+  Not | StartingOn | OnOneSideOf | @var{etc}
+@end example
+
+@noindent Notes:
+@enumerate
+@item
+@var{integer} as a @var{group-item} is the only interface with the mesh data,
+that are geometrical elements and their nodes; with each element is
+associated a region number, being this @var{integer}, 
+and a geometrical type (@pxref{Input file format}).
+@item
+@var{group-item} '@var{i1} '@dots{}' @var{in}' replaces the list of consecutive
+@var{integers} '@var{i1}, @var{i1+1}, @dots{}, @var{in-1}, @var{in}'.
+@item
+Array of groups: @code{DefineGroup[@var{group-id}@{@var{n}@}]} defines
+the empty groups @code{@var{group-id}@{@var{i}@}}, @var{i}=1, @dots{}, n.
+Such a definition is optional, i.e.@: each
+@code{@var{group-id}@{@var{i}@}} can be defined separately, in any order.
+@item
+Multidefinition: @code{@var{group-id}@{#@var{n}@} = @var{group-def}}
+defines the groups @code{@var{group-id}@{@var{i}@}},
+@var{i}=1, @dots{}, @var{n}, by replacing for each @var{i} any
+@code{@var{group-id}@{@}} in @var{group-def} with
+@code{@var{group-id}@{@var{i}@}}.
+@item
+@code{#@var{group-list}} is an abbreviation of @code{Region[@var{group-list}]}.
+@end enumerate
+
+@xref{Types for Group}, for the complete list of options and @ref{Group
+examples}, for some examples.
+
+
+@c -------------------------------------------------------------------------
+@c Function
+@c -------------------------------------------------------------------------
+
+@node Function, Constraint, Group, Objects
+@section @code{Function}: Defining Global and Piecewise Expressions
+
+@cindex Function, definition
+@cindex Piecewise functions
+@cindex User-defined functions
+
+@tindex Function
+@tindex DefineFunction
+@tindex =
+
+@mvindex @var{function-id}
+
+A function can be global in space or piecewise defined in region
+groups. A physical characteristic is an example of a piecewise defined
+function (e.g.@: magnetic permeability, electric conductivity, etc) and
+can be simply a constant, for linear materials, or a function of one or
+several arguments for nonlinear materials. Such functions can of course
+depend on space coordinates or time, which can be needed to express
+complex constraints.
+
+A definition of initially empty functions can be done so that their
+identifiers exist and can be referred to (but cannot used) in other
+objects. The syntax for the definition of functions is:
+
+@example
+Function @{
+  < DefineFunction [ 
+      @var{function-id} <,@dots{}>
+    ]; > @dots{}
+  < @var{function-id} [ < @var{group-def} > ] = @var{expression}; > @dots{}
+@}
+@end example
+
+@noindent with
+
+@example
+@var{function-id}:
+  @var{string}
+@end example
+
+@noindent Note:
+@enumerate
+@item
+The optional @var{group-def} in brackets must be of @code{Region} type.
+@end enumerate
+
+
+@xref{Types for Function}, for the complete list of built-in functions
+and @ref{Function examples}, for some examples.
+
+
+@c -------------------------------------------------------------------------
+@c Constraint
+@c -------------------------------------------------------------------------
+
+@node Constraint, FunctionSpace, Function, Objects
+@section @code{Constraint}: Specifying Constraints on Function Spaces and Formulations
+
+@cindex Constraint, definition
+@cindex Circuit equations
+@cindex Boundary conditions
+@cindex Networks
+
+@tindex Constraint
+@tindex TimeFunction
+@tindex Value
+@tindex NameOfResolution
+@tindex Branch
+
+@mvindex @var{constraint-id}
+@mvindex @var{constraint-type}
+@mvindex @var{constraint-val}
+@mvindex @var{constraint-case-id}
+@mvindex @var{constraint-case-val}
+
+Constraints can be referred to in @code{FunctionSpace} objects to be
+used for boundary conditions, to impose global quantities or to
+initialize quantities.  These constraints can be expressed with
+functions or be imposed by the pre-resolution of another discrete
+problem. Other constraints can also be defined, e.g.@: constraints of
+network type for the definition of circuit connections, to be used in 
+@code{Formulation} objects.
+
+The syntax for the definition of constraints is:
+
+@example
+Constraint @{
+  @{ Name @var{constraint-id} <@{#@var{integer}@}>; Type @var{constraint-type};
+    Case @{
+      @{ Region @var{group-def}; < Type @var{constraint-type}; >
+        < SubRegion @var{group-def}; > < TimeFunction @var{expression}; > 
+        @var{constraint-val}; @} @dots{}
+    @} 
+  | Case @var{constraint-case-id} @{ 
+      @{ Region @var{group-def}; < Type @var{constraint-type}; >
+        @var{constraint-case-val}; @} @dots{}
+    @} @dots{}
+  @} @dots{}
+@}
+@end example
+
+@noindent with
+
+@example
+@var{constraint-id}:
+@var{constraint-case-id}:
+  @var{string}
+
+@var{constraint-type}: 
+  Assign | Init | Network | @var{etc}
+
+@var{constraint-val}:
+  Value @var{expression} | NameOfResolution @var{resolution-id} | @var{etc}
+
+@var{constraint-case-val}:
+  Branch @{ @var{integer} , @var{integer} @} | @var{etc}
+@end example
+
+@noindent Notes:
+@enumerate
+@item
+Multidefinition: @code{Name @var{constraint-id}@{#@var{n}@}} defines
+the constraints @code{@var{constraint-id}@{@var{i}@}},
+@var{i}=1, @dots{}, @var{n}, replacing for each @var{i} any
+@code{@var{group-id}@{@}} in @var{group-def}'s of @code{Case}
+fields with @var{group-id}@{@var{i}@}.
+@item
+The constraint type @var{constraint-type} defined out of the @code{Case} fields 
+is applied to all the cases of the constraint, unless other types are 
+explicitly given in these cases. 
+The default type is @code{Assign}.
+@item
+The region type @code{Region @var{group-def}} will be the main @var{group-list} 
+argument of the @var{group-def} to be built for the constraints of 
+@code{FunctionSpace}'s. The optional region type @code{SubRegion @var{group-def}} 
+will be the argument of the associated @var{group-sub-type}.
+@item
+@var{expression} in @code{Value} of @var{constraint-val} cannot be time
+dependent (@code{$Time}) because it is evaluated only once during the
+pre-processing (for efficiency reasons).  Time dependences must be
+defined in @code{TimeFunction @var{expression}}.
+@end enumerate
+
+@xref{Types for Constraint}, for the complete list of options and
+@ref{Constraint examples}, for some examples.
+
+
+@c -------------------------------------------------------------------------
+@c FunctionSpace
+@c -------------------------------------------------------------------------
+
+@node FunctionSpace, Jacobian, Constraint, Objects
+@section @code{FunctionSpace}: Building Function Spaces
+
+@cindex Function space, definition
+@cindex Discrete function spaces
+@cindex Spaces, discrete
+@cindex Approximation spaces
+@cindex Basis Functions
+@cindex Interpolation
+@cindex Hierarchical basis functions
+
+@tindex FunctionSpace
+@tindex BasisFunction
+@tindex Quantity
+@tindex Formulation
+@tindex Group
+@tindex Resolution
+@tindex Support
+@tindex Entity
+@tindex NameOfCoef
+@tindex SubSpace
+@tindex NameOfBasisFunction
+@tindex GlobalQuantity
+@tindex NameOfConstraint
+
+@mvindex @var{function-space-id}
+@mvindex @var{function-space-type}
+@mvindex @var{mesh-list}
+@mvindex @var{basis-function-id}
+@mvindex @var{basis-function-type}
+@mvindex @var{coef-id}
+@mvindex @var{quantity-id}
+@mvindex @var{sub-space-id}
+@mvindex @var{basis-function-list}
+@mvindex @var{global-quantity-id}
+@mvindex @var{global-quantity-type}
+
+A @code{FunctionSpace} is characterized by the type of its interpolated
+fields, one or several basis functions and optional constraints (in
+space and time). Subspaces of a function space can be defined (e.g.@:
+for the use with hierarchical elements), as well as direct associations of
+global quantities (e.g.@: floating potential, electric charge, current,
+voltage, magnetomotive force, etc).
+
+A key point is that basis functions are defined by any number of subsets
+of functions, being added. Each subset is characterized by associated
+built-in functions for evaluation, a support of definition and a set of
+associated supporting geometrical entities (e.g.@: nodes, edges, facets,
+volumes, groups of nodes, edges incident to a node, etc). The freedom in
+defining various kinds of basis functions associated with different
+geometrical entities, to interpolate a field permits to build
+made-to-measure function spaces adapted to a wide variety of field
+approximations (@pxref{FunctionSpace examples}).
+
+@c j'aimerais bien qu'on change le Entity @var{group-type} NameOfConstraint
+@c @var{constraint-id} dans les contraintes : c'est le seul endroit ou on a ce
+@c genre de syntaxe... --> J'ai justement l'intention de changer cela... et
+@c aussi d'eliminer la definition des contraintes dans les FS...
+@c ==> Je commence bientot cela ... C'est fait... Super !
+@c (ca peut continuer longtemps ;-)
+@c La prochaine fois, je supprime ces commentaires...
+
+The syntax for the definition of function spaces is:
+
+@example
+FunctionSpace @{
+  @{ Name @var{function-space-id} <@{#@var{integer}@}>;
+    Type @var{function-space-type}; < Mesh @var{mesh-list}; >
+    BasisFunction @{ 
+     @{ Name @var{basis-function-id}; NameOfCoef @var{coef-id}; 
+       Function @var{basis-function-type}
+         < @{ Quantity @var{quantity-id};
+             Formulation @var{formulation-id} @{#@var{integer}@}; 
+             Group @var{group-def}; Resolution @var{resolution-id} @{@} @} > ;
+       Support @var{group-def}; Entity @var{group-def}; @} @dots{}
+    @}
+  < SubSpace @{ 
+     @{ Name @var{sub-space-id}; 
+       NameOfBasisFunction @var{basis-function-list}; @} @dots{}
+    @} >
+  < GlobalQuantity @{ 
+     @{ Name @var{global-quantity-id}; Type @var{global-quantity-type}; 
+       NameOfCoef @var{coef-id}; @} @dots{}
+    @} >
+  < Constraint @{ 
+     @{ NameOfCoef @var{coef-id};
+       EntityType @var{group-type}; < EntitySubType @var{group-sub-type}; >
+       NameOfConstraint @var{constraint-id} <@{@}>; @} @dots{}
+    @} >
+  @} @dots{}
+@}
+@end example
+
+@noindent with
+
+@example
+@var{function-space-id}: @var{basis-function-id}:
+@var{coef-id}: @var{sub-space-id}: @var{global-quantity-id}: 
+@var{quantity-id}: @var{formulation-id}: @var{resolution-id}:
+  @var{string}
+
+@var{function-space-type}:   
+  Scalar | Vector | Form0 | Form1 | @var{etc} 
+
+@var{mesh-list}:
+  @var{mesh-id} | @{ @var{mesh-id} <,@dots{}> @} 
+
+@var{basis-function-type}:
+  BF_Node | BF_Edge | @var{etc} 
+
+@var{basis-function-list}:
+  @var{basis-function-id} | @{ @var{basis-function-id} <,@dots{}> @} 
+
+@var{global-quantity-type}:
+  AliasOf | AssociatedWith
+
+@end example
+
+@noindent Notes:
+@enumerate
+@item
+Multidefinition: @code{Name @var{function-space-id}@{#@var{n}@}} defines
+the function spaces @code{@var{function-space-id}@{@var{i}@}},
+@var{i}=1, @dots{}, @var{n}, replacing for each @var{i} any @code{@{@}} in
+@var{group-def}'s of @code{BasisFunction} field and in 
+@var{constraint-id}@code{@{@}} of @code{Constraint} field with @{@var{i}@}.
+@item
+When the definition region of a function type group used as an @code{Entity} of 
+a @code{BasisFunction} is the same as that of the associated @code{Support}, 
+it is replaced by @code{All} for more efficient treatments during the 
+computation process (this prevents the construction and the analysis of a list 
+of geometrical entities).
+@item
+Piecewise defined basis functions: the same @code{Name} for several 
+@code{BasisFunction} fields enables to define piecewise basis functions;
+distinct @code{NameOfCoef}'s must be defined for those fields.
+@item
+Constraint: a constraint is associated with geometrical entities defined by 
+an automatically created @code{Group} of type @var{group-type}, 
+using the @code{Region} defined in a @code{Constraint} object as its main 
+argument, and the optional @code{SubRegion} in the same object as a 
+@var{group-sub-type} argument.
+@item
+Function: a global basis function (@code{BF_Global} or
+@code{BF_dGlobal}) needs parameters, i.e.@: it is given by the quantity
+(@var{quantity-id}) pre-computed from multiresolutions performed on
+multiformulations.
+@end enumerate
+
+@xref{Types for FunctionSpace}, for the complete list of options and
+@ref{FunctionSpace examples}, for some examples.
+
+
+@c -------------------------------------------------------------------------
+@c Jacobian
+@c -------------------------------------------------------------------------
+
+@node Jacobian, Integration, FunctionSpace, Objects
+@section @code{Jacobian}: Defining Jacobian Methods
+
+@cindex Jacobian, definition
+@cindex Transformations, geometric
+@cindex Geometric transformations
+@cindex Coordinate change
+@cindex Change of coordinates
+@cindex Axisymmetric, transformation
+
+@tindex Jacobian
+@tindex All
+
+@mvindex @var{jacobian-id}
+@mvindex @var{jacobian-type}
+@mvindex @var{jacobian-arg}
+
+Jacobian methods can be referred to in @code{Formulation} and
+@code{PostProcessing} objects to be used in the computation of integral
+terms and for changes of coordinates. They are based on @code{Group}
+objects and define the geometrical transformations applied to the
+reference elements (i.e.@: lines, triangles, quadrangles, tetrahedra,
+prisms, hexahedra, etc). Besides the classical lineic, surfacic and
+volumic Jacobians, the @code{Jacobian} object allows the construction of
+various transformation methods (e.g.@: infinite transformations for
+unbounded domains) thanks to dedicated jabobian methods.
+
+The syntax for the definition of Jacobian methods is:
+
+@example
+Jacobian @{
+  @{ Name @var{jacobian-id};
+    Case @{ 
+      @{ Region @var{group-def} | All; 
+        Jacobian @var{jacobian-type} < @var{jacobian-arg} >; @} @dots{}
+    @} 
+  @} @dots{}
+@}
+@end example
+
+@noindent with
+
+@example
+@var{jacobian-id}:
+  @var{string}
+
+@var{jacobian-type}:
+  Vol | Sur | VolAxi | @var{etc}
+
+@var{jacobian-arg}:
+  @{ @var{expression-cst} <,@dots{}> @}
+@end example
+
+
+@noindent Note:
+@enumerate
+@item
+The default case of a @code{Jacobian} object is defined by @code{Region All} 
+and must follow all the other cases.
+@end enumerate
+
+@xref{Types for Jacobian}, for the complete list of options and
+@ref{Jacobian examples}, for some examples.
+
+@c -------------------------------------------------------------------------
+@c Integration
+@c -------------------------------------------------------------------------
+
+@node Integration, Formulation, Jacobian, Objects
+@section @code{Integration}: Defining Integration Methods
+
+@cindex Integration, definition
+@cindex Analytical integration
+@cindex Numerical integration
+@cindex Gauss, integration
+
+@tindex Integration
+@tindex Criterion
+@tindex GeoElement
+@tindex NumberOfPoints
+
+@mvindex @var{integration-id}
+@mvindex @var{numerical-integration-type}
+@mvindex @var{element-type}
+@mvindex @var{integration-type}
+
+Various numerical or analytical integration methods can be referred to in
+@code{Formulation} and @code{PostProcessing} objects to be used in the
+computation of integral terms, each with a set of particular options (number of
+integration points for quadrature methods---which can be linked to an error
+criterion for adaptative methods, definition of transformations for singular
+integrations, etc). Moreover, the choice can be made between several
+integration methods according to a criterion (e.g.@: on the proximity between
+the source and computation points in integral formulations).
+
+The syntax for the definition of integration methods is:
+
+@example
+Integration @{
+  @{ Name @var{integration-id}; < Criterion @var{expression}; >
+    Case @{ 
+    < @{ Type @var{numerical-integration-type}; 
+        Case @{ 
+          @{ GeoElement @var{element-type}; NumberOfPoints @var{integer} @} @dots{} 
+        @} 
+      @} @dots{} >
+    < @{ Type @var{integration-type}; @} @dots{} >
+    @} 
+  @} @dots{} 
+@}
+@end example
+
+@noindent with
+
+@example
+@var{integration-id}:
+  @var{string}
+
+@var{integration-type}:
+  Analytic | @var{etc}
+
+@var{numerical-integration-type}:
+  Gauss | @var{etc}
+
+@var{element-type}:
+  Line | Triangle | Tetrahedron @var{etc} 
+@end example
+
+@xref{Types for Integration}, for the complete list of options and
+@ref{Integration examples}, for some examples.
+
+@c -------------------------------------------------------------------------
+@c Formulation
+@c -------------------------------------------------------------------------
+
+@node Formulation, Resolution, Integration, Objects
+@section @code{Formulation}: Building Equations
+
+@cindex Formulation, definition
+@cindex Equations
+@cindex Time derivative
+@cindex Derivative, time
+@cindex Elementary matrices
+@cindex Matrices, elementary
+@cindex Local quantity
+@cindex Global quantity
+@cindex Integral quantity
+@cindex Quantity, local
+@cindex Quantity, global
+@cindex Quantity, integral
+@cindex Symmetry, integral kernel
+
+@tindex Formulation
+@tindex Quantity
+@tindex NameOfSpace
+@tindex In
+@tindex Symmetry
+@tindex Equation
+@tindex GlobalTerm
+@tindex GlobalEquation
+@tindex Node
+@tindex Loop
+
+@mvindex @var{formulation-id}
+@mvindex @var{formulation-type}
+@mvindex @var{quantity-id}
+@mvindex @var{local-term-type}
+@mvindex @var{quantity-type}
+@mvindex @var{term-op-type}
+
+The @code{Formulation} tool permits to deal with volume, surface and
+line integrals with many kinds of densities to integrate, written in a
+form that is similar to their symbolic expressions (it uses the same
+@var{expression} syntax as elsewhere in GetDP), which therefore permits
+to take directly into account various kinds of elementary matrices
+(e.g.@: with scalar or cross products, anisotropies, nonlinearities, time
+derivatives, various test functions, etc). In case nonlinear physical
+characteristics are considered, arguments are used for associated
+functions. In that way, many formulations can be directly written in the
+data file, as they are written symbolically. Fields involved in each
+formulation are declared as belonging to beforehand defined function
+spaces. The decoupling between formulations and function spaces allows
+to maintain a generality in both their definitions.
+
+A @code{Formulation} is characterized by its type, the involved
+quantities (of local, global or integral type) and a list of equation
+terms. Global equations can also be considered, e.g.@: for the coupling
+with network relations.
+
+The syntax for the definition of formulations is:
+
+@example
+Formulation @{
+  @{ Name @var{formulation-id} <@{#@var{integer}@}>; Type @var{formulation-type}; 
+    Quantity @{ 
+      @{ Name @var{quantity-id}; Type @var{quantity-type}; 
+        NameOfSpace @var{function-space-id} <@{@}>
+                  < [ @var{sub-space-id} | @var{global-quantity-id} ] >; @} @dots{}
+        < Symmetry @var{expression-cst}; >
+        < [ @var{expression} ]; In @var{group-def};
+        Jacobian @var{jacobian-id}; Integration @var{integration-id}; >
+        < IndexOfSystem @var{int}; >
+    @}
+    Equation @{ 
+     < @var{local-term-type} 
+         @{ < @var{term-op-type} > [ @var{expression} , @var{expression} ]; 
+           In @var{group-def}; Jacobian @var{jacobian-id};
+           Integration @var{integration-id}; @} > @dots{}
+     < GlobalTerm 
+         @{ < @var{term-op-type} > [ @var{expression} , @var{expression} ]; 
+           In @var{group-def}; @} > @dots{}
+     < GlobalEquation 
+         @{ Type Network; NameOfConstraint @var{constraint-id};
+           @{ Node @var{expression}; Loop @var{expression}; Equation @var{expression};
+             In @var{group-def}; @} @dots{}
+         @} > @dots{}
+    @}
+  @} @dots{}
+@}
+@end example
+
+@noindent with
+
+@example
+@var{formulation-id}:
+@var{quantity-id}:
+  @var{string}
+
+@var{formulation-type}:
+  FemEquation | @var{etc}
+
+@var{local-term-type}:
+  Galerkin | deRham
+
+@var{quantity-type}:
+  Local | Global | Integral
+
+@var{term-op-type}:
+  Dt | DtDt | JacNL | @var{etc}
+@end example
+
+@noindent Note:
+@enumerate
+@item
+Multidefinition: @code{Name @var{formulation-id}@{#@var{n}@}} defines
+the formulations @code{@var{formulation-id}@{@var{i}@}},
+@var{i}=1, @dots{}, @var{n}, replacing for each @var{i} any @code{@{@}} in
+@var{function-space-id}@code{@{@}} of @code{Quantity} field and in
+@var{group-def}'s of @code{Equation} field with @{@var{i}@}.
+@end enumerate
+
+@xref{Types for Formulation}, for the complete list of options and
+@ref{Formulation examples}, for some examples.
+
+
+@c -------------------------------------------------------------------------
+@c Resolution
+@c -------------------------------------------------------------------------
+
+@node Resolution, PostProcessing, Formulation, Objects
+@section @code{Resolution}: Solving Systems of Equations
+
+@cindex Resolution, definition
+@cindex Linear system solving
+@cindex Nonlinear system solving
+@cindex Iterative loop
+@cindex Relaxation factor
+@cindex Newton, nonlinear scheme
+@cindex Picard, nonlinear scheme
+@cindex Newmark, time scheme
+@cindex Theta, time scheme
+@cindex Solving, system
+@cindex Time stepping
+@cindex Time, discretization
+@cindex Frequency
+@cindex System, definition
+@cindex Complex-valued, system
+
+@tindex Resolution
+@tindex System
+@tindex NameOfFormulation
+@tindex DestinationSystem
+@tindex Frequency
+@tindex Operation
+@tindex :
+
+@mvindex @var{resolution-id}
+@mvindex @var{system-id}
+@mvindex @var{formulation-list}
+@mvindex @var{real-list}
+@mvindex @var{resolution-op}
+@mvindex @var{time-loop-theta-arg}
+@mvindex @var{time-loop-newmark-arg}
+@mvindex @var{iterative-loop-arg}
+@mvindex @var{iterative-time-reduction-arg}
+@mvindex @var{change-of-state-arg}
+@mvindex @var{change-of-state-type}
+
+The operations available in a @code{Resolution} comprise: the generation
+of a linear system, its solving with various kinds of linear solvers,
+@c (namely SPARSKIT and PETSc)
+the saving of the solution or its transfer to another system, the
+definition of various time iterative methods, the construction of
+iterative loops for nonlinear problems (Newton-Raphson and fixed point
+methods), etc.  Multi-harmonic resolutions, coupled problems (e.g.@:
+magneto-thermal) or chained problems (e.g.@: pre-computations of source
+fields) are thus easily defined in GetDP.
+
+The @code{Resolution} object is characterized by a list of systems to
+build and their associated formulations, using time or frequency domain,
+and a list of possibly recursive elementary operations:
+
+@example
+Resolution @{
+  @{ Name @var{resolution-id} <@{#@var{integer}@}>; 
+    System @{ 
+      @{ Name @var{system-id}; NameOfFormulation @var{formulation-list}; 
+        < Frequency @var{real-list}; > < DestinationSystem @var{system-id}; > 
+        < OriginSystem  @var{system-id}; > 
+        < NameOfMesh "@var{string}" > < Solver "@var{string}" > @} @dots{}
+    @} 
+    Operation @{ < @var{resolution-op}; > @dots{} @}
+  @} @dots{}
+@}
+@end example
+
+@noindent with
+
+@example
+@var{resolution-id}:
+@var{system-id}:
+  @var{string}
+
+@var{formulation-list}:
+  @var{formulation-id} <@{@}> < [ @var{mesh-id} ] > |
+  @{ @var{formulation-id} <@{@}> < [ @var{mesh-id}] > <,@dots{}> @}
+
+@var{real-list}:
+  @var{expression-cst} | @{ @var{expression-cst} <,@dots{}> @} |
+  @var{expression-cst}:<[@var{expression-cst}]> @var{expression-cst}
+
+@var{resolution-op}:
+  Generate @var{system-id} | Solve @var{system-id} | @var{etc}
+@end example
+
+@noindent Notes:
+@enumerate
+@item
+Multidefinition: @code{Name @var{resolution-id}@{#@var{n}@}} defines the
+resolutions @code{@var{resolution-id}@{@var{i}@}}, @var{i}=1, @dots{}, @var{n},
+replacing for each @var{i} any @code{@{@}} in
+@var{formulation-id}@code{@{@}} of @code{System} field with @{@var{i}@}.
+@item
+The default type for a system of equations considers the time domain analysis. 
+The frequency domain analysis is defined through the definition of one or 
+several frequencies (@code{Frequency @var{real-list}}).
+@end enumerate
+
+@xref{Types for Resolution}, for the complete list of options and
+@ref{Resolution examples}, for some examples.
+
+@c -------------------------------------------------------------------------
+@c PostProcessing
+@c -------------------------------------------------------------------------
+
+@node PostProcessing, PostOperation, Resolution, Objects
+@section @code{PostProcessing}: Exploiting Computational Results
+
+@cindex Post-processing, definition
+@cindex Quantity, post-processing
+@cindex Results, exploitation
+
+@tindex PostProcessing
+@tindex NameOfFormulation
+@tindex PostQuantity
+@tindex Value
+@tindex In
+@tindex Integration
+@tindex Jacobian
+
+@mvindex @var{post-processing-id}
+@mvindex @var{post-quantity-id}
+@mvindex @var{post-quantity-type}
+@mvindex @var{post-value}
+@mvindex @var{local-value}
+@mvindex @var{integral-value}
+
+The @code{PostProcessing} object is based on the quantities defined in a
+@code{Formulation} and permits the construction (thanks to the
+@var{expression} syntax) of any useful piecewise defined quantity of
+interest:
+
+@example
+PostProcessing @{
+  @{ Name @var{post-processing-id} <@{#@var{integer}@}>; 
+    NameOfFormulation @var{formulation-id} <@{@}> < [ @var{mesh-id} ] >; 
+    PostQuantity @{
+      @{ Name @var{post-quantity-id}; Type @var{post-quantity-type}; 
+        Value @{ @var{post-value} @dots{} @} @} @dots{}
+    @}
+  @} @dots{}
+@}
+@end example
+
+@noindent with
+
+@example
+@var{post-processing-id}:
+@var{post-quantity-id}:
+  @var{string}
+
+@var{post-quantity-type}:
+  NonCumulative | Cumulative
+
+@var{post-value}:
+  Local @{ @var{local-value} @} | Integral @{ @var{integral-value} @}
+
+@var{local-value}:
+  [ @var{expression} ]; In @var{group-def};
+
+@var{integral-value}:
+  [ @var{expression} ]; In @var{group-def}; 
+  Integration @var{integration-id}; Jacobian @var{jacobian-id};
+@end example
+
+@noindent Note:
+@enumerate
+@item
+Multidefinition: @code{Name @var{post-processing-id}@{#@var{n}@}}
+defines the post-processings @code{@var{post-proces@-sing-id}@{@var{i}@}},
+@var{i}=1, @dots{}, @var{n}, replacing for each @var{i} any @code{@{@}} in
+@var{formulation-id}@code{@{@}} with @{@var{i}@}.
+@end enumerate
+
+@xref{Types for PostProcessing}, for the complete list of options and
+@ref{PostProcessing examples}, for some examples.
+
+
+@c -------------------------------------------------------------------------
+@c PostOperation
+@c -------------------------------------------------------------------------
+
+@node PostOperation,  , PostProcessing, Objects
+@section @code{PostOperation}: Exporting Results
+
+@cindex Post-operation, definition
+@cindex Exporting results
+@cindex Results, export
+@cindex Cuts
+@cindex Maps
+@cindex Format, output
+
+@tindex PostOperation
+@tindex NameOfPostProcessing
+@tindex Operation
+@tindex UsingPost
+@tindex Plot
+@tindex Print
+
+@mvindex @var{post-operation-id}
+@mvindex @var{post-operation-op}
+@mvindex @var{post-operation-fmt}
+@mvindex @var{plot-support}
+@mvindex @var{plot-option}
+@mvindex @var{print-option}
+
+The @code{PostOperation} is the bridge between results obtained with
+GetDP and the external world. It defines several elementary operations
+on @code{PostProcessing} quantities (e.g.@: plot on a region, cut on a
+user-defined plane, etc), and outputs the results in several file
+formats.
+
+@example
+PostOperation @{
+  @{ Name @var{post-operation-id}; NameOfPostProcessing @var{post-processing-id}; 
+    < Format @var{post-operation-fmt}; >
+    Operation @{ < @var{post-operation-op}; > @dots{} @}
+  @} @dots{}
+@}
+|
+PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
+    < @var{post-operation-op}; > @dots{}
+@} @dots{}
+@end example
+
+@noindent with
+
+@example
+@var{post-operation-id}:
+  @var{string}
+
+@var{post-operation-op}:
+  Plot[ @var{post-quantity-id}, @var{plot-support} <,@var{plot-option}> @dots{} ] |
+  Print[ @var{post-quantity-id}, On @var{group-def} <,@var{print-option}> @dots{} ] | @var{etc}
+
+@var{plot-support}:
+  OnRegion @var{group-def} | OnGrid @var{group-def} | @var{etc}
+
+@var{plot-option}:
+  File < '>' > "@var{string}" | Format @var{post-operation-fmt} | @var{etc}
+
+@var{print-option}:
+  File < '>' > "@var{string}" | @var{etc}
+
+@var{post-operation-fmt}:
+  Table | TimeTable | "@var{string}" | @var{etc}
+@end example
+
+@noindent Note:
+@enumerate
+@item
+Both @code{PostOperation} syntaxes are equivalent. The second one is more concise.
+@c but the first one is more in the overall philosophy ;-)
+@end enumerate
+
+@xref{Types for PostOperation}, for the complete list of options and
+@ref{PostOperation examples}, for some examples.
+
+
+@c =========================================================================
+@c Types for Objects
+@c =========================================================================
+
+@node Types for objects, Short examples, Objects, Top
+@chapter Types for Objects
+
+@cindex Types, definition
+@cindex Objects, types
+
+@menu
+* Types for Group::             
+* Types for Function::          
+* Types for Constraint::        
+* Types for FunctionSpace::     
+* Types for Jacobian::          
+* Types for Integration::       
+* Types for Formulation::       
+* Types for Resolution::        
+* Types for PostProcessing::    
+* Types for PostOperation::     
+@end menu
+
+@c -------------------------------------------------------------------------
+@c Group
+@c -------------------------------------------------------------------------
+
+@node Types for Group, Types for Function, Types for objects, Types for objects
+@section Types for @code{Group}
+
+@cindex Group, types
+
+@mvindex @var{group-type}
+
+@noindent Types in
+
+@example
+@var{group-type} [ @var{R1} < , @var{group-sub-type} @var{R2} > ]
+@end example
+
+@noindent
+@code{@var{group-type} < @var{group-sub-type} >}:
+
+@vtable @code
+@item Region
+Regions in @var{R1}.
+
+@item Global
+Regions in @var{R1} 
+(variant of @code{Region} used with global @code{BasisFunction}'s 
+@code{BF_Global} and @code{BF_dGlobal}).
+
+@item NodesOf
+Nodes of elements of @var{R1} 
+
+< @code{Not}: but not those of @var{R2} >.
+
+@item EdgesOf
+Edges of elements of @var{R1} 
+
+< @code{Not}: but not those of @var{R2} >.
+
+@item FacetsOf
+Facets of elements of @var{R1} 
+
+< @code{Not}: but not those of @var{R2} >.
+
+@item VolumesOf
+Volumes of elements of @var{R1} 
+
+< @code{Not}: but not those of @var{R2} >.
+
+@item ElementsOf
+Elements of regions in @var{R1} 
+
+< @code{OnOneSideOf}: only elements on one side of @var{R2}) >.
+
+@item GroupsOfNodesOf
+Groups of nodes of elements of @var{R1} 
+(a group is associated with each region).
+
+@item GroupsOfEdgesOf
+Groups of edges of elements of @var{R1} 
+(a group is associated with each region).
+
+< @code{InSupport}: in a support @var{R2} being a group of type @code{ElementOf}, 
+i.e.@: containing elements >.
+
+@item GroupsOfEdgesOnNodesOf
+Groups of edges incident to nodes of elements of @var{R1} 
+(a group is associated with each node).
+
+< @code{Not}: but not those of @var{R2}) >.
+
+@item EdgesOfTreeIn
+Edges of a tree of edges of @var{R1}
+
+< @code{StartingOn}: a complete tree is first built on @var{R2} >.
+
+@item FacetsOfTreeIn
+Facets of a tree of facets of @var{R1}
+
+< @code{StartingOn}: a complete tree is first built on @var{R2} >.
+
+@item DualNodesOf
+Dual nodes of elements of @var{R1}.
+
+@item DualEdgesOf
+Dual edges of elements of @var{R1}.
+
+@item DualFacetsOf
+Dual facets of elements of @var{R1}.
+
+@item DualVolumesOf
+Dual volumes of elements of @var{R1}.
+
+@end vtable
+
+
+@c -------------------------------------------------------------------------
+@c Function
+@c -------------------------------------------------------------------------
+
+@node Types for Function, Types for Constraint, Types for Group, Types for objects
+@section Types for @code{Function}
+
+@menu
+* Math functions::              
+* Extended math functions::     
+* Green functions::             
+* Type functions::              
+* Coordinate functions::        
+* Miscellaneous functions::     
+@end menu
+
+@c .........................................................................
+@c Math functions
+@c .........................................................................
+
+@node Math functions, Extended math functions, Types for Function, Types for Function
+@subsection Math Functions
+
+@mvindex @var{math-function-id}
+
+The following functions are the equivalent of the functions of the C
+math library. Application of these functions always return real-valued
+expressions. These are the only functions allowed in constant
+expressions (@var{expression-cst}, see @ref{Constants}).
+
+@noindent
+@var{math-function-id}:
+@ftable @code
+
+@item Exp 
+@code{[@var{expr}]}@*
+Exponential function: e^@var{expr}
+
+@item Log
+@code{[@var{expr}]}@*
+Natural logarithm: ln(@var{expr}), @var{expr}>0
+
+@item Log10
+@code{[@var{expr}]}@*
+Base 10 logarithm: log10(@var{expr}), @var{expr}>0
+
+@item Sqrt 
+@code{[@var{expr}]}@*
+Square root, @var{expr}>=0
+
+@item Sin
+@code{[@var{expr}]}@*
+Sine of @var{expr}
+
+@item Asin 
+@code{[@var{expr}]}@*
+Arc sine (inverse sine) of @var{expr} in [-Pi/2,Pi/2], @var{expr} in [-1,1]
+
+@item Cos  
+@code{[@var{expr}]}@*
+Cosine of @var{expr}
+
+@item Acos 
+@code{[@var{expr}]}@*
+Arc cosine (inverse cosine) of @var{expr} in [0,Pi], @var{expr} in [-1,1]
+
+@item Tan  
+@code{[@var{expr}]}@*
+Tangent of @var{expr}
+
+@item Atan 
+@code{[@var{expr}]}@*
+Arc tangent (inverse tangent) of @var{expr} in [-Pi/2,Pi/2]
+
+@item Atan2
+@code{[@var{expr1},@var{expr2}]}@*
+Arc tangent (inverse tangent) of @var{expr1}/@var{expr2} in [-Pi,Pi]
+
+@item Sinh 
+@code{[@var{expr}]}@*
+Hyperbolic sine of @var{expr}
+
+@item Cosh 
+@code{[@var{expr}]}@*
+Hyperbolic cosine of @var{expr}
+
+@item Tanh 
+@code{[@var{expr}]}@*
+Hyperbolic tangent of @var{expr}
+
+@item Fabs 
+@code{[@var{expr}]}@*
+Absolute value of @var{expr}
+
+@item Fmod
+@code{[@var{expr1},@var{expr2}]}@*
+Remainder of @var{expr1}/@var{expr2}, with the sign of @var{expr1}
+
+@end ftable
+
+@c .........................................................................
+@c Extended Math
+@c .........................................................................
+
+@node Extended math functions, Green functions, Math functions, Types for Function
+@subsection Extended Math Functions
+
+@mvindex @var{extended-math-function-id}
+
+@noindent
+@var{extended-math-function-id}:
+@ftable @code
+@item Cross
+@code{[@var{expr1},@var{expr2}]}@*
+Cross product of @var{expr1} by @var{expr2}; @var{expr1} and @var{expr2}
+must be vectors
+
+@item Hypot
+@code{[@var{expr1},@var{expr2}]}@*
+@code{Sqrt[@var{expr1}^2+@var{expr2}^2]}
+
+@item Norm
+@code{[@var{expr}]}@* 
+Absolute value if @var{expr} is a scalar; euclidian norm if @var{expr}
+is a vector
+
+@item SquNorm
+@code{[@var{expr}]}@*
+Square norm: @code{Norm[@var{expr}]^2}
+
+@item Unit
+@code{[@var{expr}]}@*
+Normalization: @code{@var{expr}/Norm[@var{expr}]}
+
+@item Transpose
+@code{[@var{expr}]}@*
+Transposition; @var{expr} must be a tensor
+
+@item TTrace
+@code{[@var{expr}]}@*
+Trace; @var{expr} must be a tensor
+
+@c @item Rotate
+@c @code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4}]}@*
+@c Rotation of a tensor
+
+@item F_Cos_wt_p
+@code{[]@{@var{real1},@var{real2}@}}@*
+@code{Cos[@var{real1}*$Time+@var{real2}]}
+
+@item F_Sin_wt_p
+@code{[]@{@var{real1},@var{real2}@}}@*
+@code{Sin[@var{real1}*$Time+@var{real2}]}
+
+@item F_Period
+@code{[@var{expr}]@{@var{real}@}}@* 
+@code{Fmod[@var{expr},@var{real}] + (@var{expr}<0?@var{real}:0)}; the
+result is always in [0,@var{real}[
+
+@end ftable
+
+@c .........................................................................
+@c Green functions
+@c .........................................................................
+
+@node Green functions, Type functions, Extended math functions, Types for Function
+@subsection Green Functions
+
+@mvindex @var{green-function-id}
+
+The Green functions are only used in integral quantities
+(@pxref{Formulation}). The integer parameter represents the dimension of
+the problem:
+@itemize @bullet
+@item @code{1D}:
+@code{r = $X-$XS}
+@item @code{2D}:
+@code{r = Sqrt[($X-$XS)^2+($Y-$YS)^2]}
+@item @code{3D}:
+@code{r = Sqrt[($X-$XS)^2+($Y-$YS)^2+($Z-$ZS)^2]}
+@end itemize
+The triplets of values given in the definitions below correspond to the
+@code{1D}, @code{2D} and @code{3D} cases.
+
+@noindent
+@var{green-function-id}:
+@ftable @code
+
+@item Laplace
+@code{[]@{@var{int}@}}@*
+@code{r/2}, @code{1/(2*Pi)*ln(1/r)}, @code{1/(4*Pi*r)}
+
+@item GradLaplace
+@code{[]@{@var{int}@}}@*
+Gradient of @code{Laplace} relative to the destination point (@code{$X},
+@code{$Y}, @code{$Z})
+
+@item Helmholtz
+@code{[]@{@var{int}, @var{double}@}}@*
+@code{exp(j*k0*r)/(4*Pi*r)}, where @code{k0} is given by the double parameter
+
+@item GradHelmholtz
+@code{[]@{@var{int}, @var{double}@}}@*
+Gradient of @code{Helmholtz} relative to the destination point (@code{$X},
+@code{$Y}, @code{$Z})
+@end ftable
+
+
+@c .........................................................................
+@c Type
+@c .........................................................................
+
+@node Type functions, Coordinate functions, Green functions, Types for Function
+@subsection Type Manipulation Functions
+
+@mvindex @var{type-function-id}
+
+@noindent
+@var{type-function-id}:
+@ftable @code
+
+@item Complex
+@code{[@var{even-number-of-expr}] (even)}@*
+Create a (multi-harmonic) complex expression from an even number of
+real-valued expressions
+
+@item Re
+@code{[@var{expr}]}@*
+Take the real part of a complex-valued expression
+
+@item Im
+@code{[@var{expr}]}@*
+Take the imaginary part of a complex-valued expression
+
+@item Vector
+@code{[@var{expr1},@var{expr2},@var{expr3}]}@*
+Create a vector from 3 scalars
+
+@item Tensor
+@code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4},@var{expr5},@var{expr6},@var{expr7},@var{expr8},@var{expr9}]}@*
+Create a second-rank tensor of order 3 from 9 scalars
+
+@item TensorV
+@code{[@var{expr1},@var{expr2},@var{expr3}]}@*
+Create a second-rank tensor of order 3 from 3 vectors
+
+@item TensorSym
+@code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4},@var{expr5},@var{expr6}]}@*
+Create a symmetrical second-rank tensor of order 3 from 6 scalars
+
+@item TensorDiag
+@code{[@var{expr1},@var{expr2},@var{expr3}]}@*
+Create a diagonal second-rank tensor of order 3 from 3 scalars
+
+@item CompX
+@code{[@var{expr}]}@*
+Get the X component of a vector
+
+@item CompY
+@code{[@var{expr}]}@*
+Get the Y component of a vector
+
+@item CompZ
+@code{[@var{expr}]}@*
+Get the Z component of a vector
+
+@item CompXX
+@code{[@var{expr}]}@*
+Get the XX component of a tensor
+
+@item CompXY
+@code{[@var{expr}]}@*
+Get the XY component of a tensor
+
+@item CompXZ
+@code{[@var{expr}]}@*
+Get the XZ component of a tensor
+
+@item CompYX
+@code{[@var{expr}]}@*
+Get the YX component of a tensor
+
+@item CompYY
+@code{[@var{expr}]}@*
+Get the YY component of a tensor
+
+@item CompYZ
+@code{[@var{expr}]}@*
+Get the YZ component of a tensor
+
+@item CompZX
+@code{[@var{expr}]}@*
+Get the ZX component of a tensor
+
+@item CompZY
+@code{[@var{expr}]}@*
+Get the ZY component of a tensor
+
+@item CompZZ
+@code{[@var{expr}]}@*
+Get the ZZ component of a tensor
+
+@end ftable
+
+
+@c .........................................................................
+@c Coord
+@c .........................................................................
+
+@node Coordinate functions, Miscellaneous functions, Type functions, Types for Function
+@subsection Coordinate functions
+
+@mvindex @var{coord-function-id}
+
+
+@noindent
+@var{coord-function-id}:
+@ftable @code
+
+@item X
+@code{[]}@*
+Get the X coordinate
+
+@item Y
+@code{[]}@*
+Get the Y coordinate
+
+@item Z
+@code{[]}@*
+Get the Z coordinate
+
+@item XYZ
+@code{[]}@*
+Get X, Y and Z in a vector
+
+@item F_aX_bY_cZ
+@code{[]@{@var{real1},@var{real2},@var{real3}@}}@*
+@code{@var{real1}*X[] + @var{real2}*Y[] + @var{real3}*Z[]}
+
+@c a documenter 
+@c @item F_aX21_bY21_cZ21
+@c @code{[]@{@var{real1},@var{real2},@var{real3}@}}@*
+
+@end ftable
+
+
+
+@c .........................................................................
+@c Misc
+@c .........................................................................
+
+@node Miscellaneous functions,  , Coordinate functions, Types for Function
+@subsection Miscellaneous Functions
+
+@mvindex @var{misc-function-id}
+
+@noindent
+@var{misc-function-id}:
+@ftable @code
+
+@item Printf
+@code{[@var{expr}]}@*
+Print the value of @var{expr} when evaluated
+
+@item Normal
+@code{[]}@*
+Compute the normal to the element
+
+@item NormalSource
+@code{[]}@* 
+Compute the normal to the source element (only valid in a quantity of
+Integral type)
+
+@item F_CompElementNum
+@code{[]}@*
+Return 0 if the current element and the current source element are
+identical
+
+@item InterpolationLinear
+@code{[]@{@var{even-number-of-real}@}}@*
+Linear interpolation of points
+
+@item dInterpolationLinear
+@code{[]@{@var{even-number-of-real}@}}@*
+Derivative of linear interpolation of points
+
+@item InterpolationAkima
+@code{[]@{@var{even-number-of-real}@}}@*
+Akima interpolation of points
+
+@item dInterpolationAkima
+@code{[]@{@var{even-number-of-real}@}}@*
+Derivative of Akima interpolation of points
+
+@end ftable
+
+
+@c -------------------------------------------------------------------------
+@c Constraint
+@c -------------------------------------------------------------------------
+
+@node Types for Constraint, Types for FunctionSpace, Types for Function, Types for objects
+@section Types for @code{Constraint}
+
+@cindex Constraint, types
+
+@mvindex @var{constraint-type}
+
+@noindent
+@var{constraint-type}:
+
+@vtable @code
+
+@item Assign
+To assign a value (e.g.@: for boundary condition).
+
+@item Init
+To give an initial value (e.g.@: initial value in a time analysis).
+
+@item AssignFromResolution
+To assign a value to be computed by a pre-resolution.
+
+@item InitFromResolution
+To give an initial value to be computed by a pre-resolution.
+
+@item Network
+To describe the node connections of branches in a network.
+
+@end vtable
+
+@c -------------------------------------------------------------------------
+@c FunctionSpace
+@c -------------------------------------------------------------------------
+
+@node Types for FunctionSpace, Types for Jacobian, Types for Constraint, Types for objects
+@section Types for @code{FunctionSpace}
+
+@cindex Function space, types
+
+@mvindex @var{function-space-type}
+@mvindex @var{basis-function-type}
+@mvindex @var{global-quantity-type}
+
+@noindent
+@var{function-space-type}:
+
+@vtable @code
+
+@item Form0
+0-form, i.e.@: scalar field of potential type.
+
+@item Form1
+1-form, i.e.@: curl-conform field (associated with a curl).
+
+@item Form2
+2-form, i.e.@: div-conform field (associated with a divergence).
+
+@item Form3
+3-form, i.e.@: scalar field of density type.
+
+@item Form1P
+1-form perpendicular to the 2D plane, i.e.@:  perpendicular curl-conform 
+field (associated with a curl).
+
+@item Form2P
+2-form in the 2D plane, i.e.@: parallel div-conform field 
+(associated with a divergence).
+
+@item Scalar
+Scalar field.
+
+@item Vector
+Vector field.
+
+@end vtable
+
+
+@noindent
+@var{basis-function-type}:
+
+@vtable @code
+
+@item BF_Node
+Nodal function (on @code{NodesOf}, value @code{Form0}).
+@item BF_Edge
+Edge function (on @code{EdgesOf}, value @code{Form1}).
+@item BF_Facet
+Facet function (on @code{FacetsOf}, value @code{Form2}).
+@item BF_Volume
+Volume function (on @code{VolumesOf}, value @code{Form3}).
+
+@item BF_GradNode
+Gradient of nodal function 
+(on @code{NodesOf}, value @code{Form1}).
+@item BF_CurlEdge
+Curl of edge function 
+(on @code{EdgesOf}, value @code{Form2}).
+@item BF_DivFacet
+Divergence of facet function 
+(on @code{FacetsOf}, value @code{Form3}).
+
+@item BF_GroupOfNodes
+Sum of nodal functions 
+(on @code{GroupsOfNodesOf}, value @code{Form0}).
+@item BF_GradGroupOfNodes
+Gradient of sum of nodal functions 
+(on @code{GroupsOfNodesOf}, value @code{Form1}).
+
+@item BF_GroupOfEdges
+Sum of edge functions 
+(on @code{GroupsOfEdgesOf}, value @code{Form1}).
+@item BF_CurlGroupOfEdges
+Curl of sum of edge functions 
+(on @code{GroupsOfEdgesOf}, value @code{Form2}).
+
+@item BF_PerpendicularEdge
+1-form (0, 0, @code{BF_Node}) (on @code{NodesOf}, value @code{Form1P}).
+@item BF_CurlPerpendicularEdge
+Curl of 1-form (0, 0, @code{BF_Node}) (on @code{NodesOf}, value @code{Form2P}).
+
+@item BF_GroupOfPerpendicularEdge
+Sum of 1-forms (0, 0, @code{BF_Node}) (on @code{NodesOf}, value @code{Form1P}).
+@item BF_CurlGroupOfPerpendicularEdge
+Curl of sum of 1-forms (0, 0, @code{BF_Node}) (on @code{NodesOf}, 
+value @code{Form2P}).
+
+@item BF_PerpendicularFacet
+2-form (90 degree rotation of @code{BF_Edge}) 
+(on @code{EdgesOf}, value @code{Form2P}).
+@item BF_DivPerpendicularFacet
+Div of 2-form (90 degree rotation of @code{BF_Edge}) 
+(on @code{EdgesOf}, value @code{Form3}).
+
+@item BF_Region
+Unit value 1 (on @code{Region}, value @code{Scalar}).
+@item BF_RegionX
+Unit vector (1, 0, 0) (on @code{Region}, value @code{Vector}).
+@item BF_RegionY
+Unit vector (0, 1, 0) (on @code{Region}, value @code{Vector}).
+@item BF_RegionZ
+Unit vector (0, 0, 1) (on @code{Region}, value @code{Vector}).
+
+@item BF_Global
+Global pre-computed quantity 
+(on @code{Global}, value depends on parameters).
+@item BF_dGlobal
+Exterior derivative of global pre-computed quantity 
+(on @code{Global}, value depends on parameters).
+
+@item BF_NodeX
+Vector (@code{BF_Node}, 0, 0) 
+(on @code{NodesOf}, value @code{Vector}).
+@item BF_NodeY
+Vector (0, @code{BF_Node}, 0) 
+(on @code{NodesOf}, value @code{Vector}).
+@item BF_NodeZ
+Vector (0, 0, @code{BF_Node}) 
+(on @code{NodesOf}, value @code{Vector}).
+
+@item BF_Zero
+Zero value 0 (on all regions, value @code{Scalar}).
+@item BF_One
+Unit value 1 (on all regions, value @code{Scalar}).
+
+@end vtable
+
+
+@noindent
+@var{global-quantity-type}:
+
+@vtable @code
+
+@item AliasOf
+Another name for a name of coefficient of basis function.
+
+@item AssociatedWith
+A global quantity associated with a name of coefficient of basis function, 
+and therefore with this basis function.
+
+@end vtable
+
+
+@c -------------------------------------------------------------------------
+@c Jacobian
+@c -------------------------------------------------------------------------
+
+@node Types for Jacobian, Types for Integration, Types for FunctionSpace, Types for objects
+@section Types for @code{Jacobian}
+
+@cindex Jacobian, types
+
+@mvindex @var{jacobian-type}
+
+@noindent
+@var{jacobian-type}:
+
+@vtable @code
+
+@item Vol
+Volume Jacobian, for @var{n}-D regions in @var{n}-D geometries, 
+@var{n} = 1, 2 or 3.
+
+@item Sur
+Surface Jacobian, for (@var{n}-1)-D regions in @var{n}-D geometries, 
+@var{n} = 1, 2 or 3.
+
+@item Lin
+Line Jacobian, for (@var{n}-2)-D regions in @var{n}-D geometries, 
+@var{n} = 2 or 3.
+
+
+@item VolAxi
+Axisymmetrical volume Jacobian (1st type: @math{r}), 
+for 2-D regions in axisymmetrical geometries.
+
+@item SurAxi
+Axisymmetrical surface Jacobian (1st type: @math{r}), 
+for 1-D regions in axisymmetrical geometries.
+
+@item VolAxiSqu
+Axisymmetrical volume Jacobian (2nd type: @math{r^2}), 
+for 2-D regions in axisymmetrical geometries.
+
+
+@item VolSphShell
+Volume Jacobian with spherical shell transformation, 
+for @var{n}-D regions in @var{n}-D geometries, @var{n} = 2 or 3.
+
+@i{Parameters} (#2): @var{radius-internal}, @var{radius-external}.
+
+
+@item VolAxiSphShell
+Same as @code{VolAxi}, but with spherical shell transformation.
+
+@i{Parameters} (#2): @var{radius-internal}, @var{radius-external}.
+
+@item VolAxiSquSphShell
+Same as @code{VolAxiSqu}, but with spherical shell transformation.
+
+@i{Parameters} (#2): @var{radius-internal}, @var{radius-external}.
+
+@end vtable
+
+
+@c -------------------------------------------------------------------------
+@c Integration
+@c -------------------------------------------------------------------------
+
+@node Types for Integration, Types for Formulation, Types for Jacobian, Types for objects
+@section Types for @code{Integration}
+
+@cindex Integration, types
+
+@mvindex @var{integration-type}
+@mvindex @var{numerical-integration-type}
+@mvindex @var{element-type}
+
+@noindent
+@var{integration-type}:
+
+@vtable @code
+
+@item Analytic
+Analytic integration.
+
+@end vtable
+
+
+@noindent
+@var{numerical-integration-type}:
+
+@vtable @code
+
+@item Gauss
+Numerical Gauss integration.
+@i{Parameters} (#1): @code{NumberOfPoints}.
+
+@end vtable
+
+
+@noindent
+@var{element-type}:
+
+@vtable @code
+
+@item Line
+Line (2 nodes, 1 edge, 1 volume) (#1).
+
+@item Triangle
+Triangle (3 nodes, 3 edges, 1 facet, 1 volume) (#2).
+
+@item Quadrangle
+Quadrangle (4 nodes, 4 edges, 1 facet, 1 volume) (#3).
+
+@item Tetrahedron
+Tetrahedron (4 nodes, 6 edges, 4 facets, 1 volume) (#4).
+
+@item Hexahedron
+Hexahedron (8 nodes, 12 edges, 6 facets, 1 volume) (#5).
+
+@item Prism
+Prism (6 nodes, 9 edges, 5 facets, 1 volume) (#6).
+
+@item Pyramid
+Pyramid (5 nodes, 8 edges, 6 facets, 1 volume) (#7).
+
+@item Point
+Point (1 node) (#15).
+
+@end vtable
+
+@noindent Note:
+@enumerate
+@item
+@var{n} in (#@var{n}) is the type number of the element 
+(@pxref{Input file format}).
+@end enumerate
+
+
+@c -------------------------------------------------------------------------
+@c Formulation
+@c -------------------------------------------------------------------------
+
+@node Types for Formulation, Types for Resolution, Types for Integration, Types for objects
+@section Types for @code{Formulation}
+
+@cindex Formulation, types
+
+@mvindex @var{formulation-type}
+@mvindex @var{local-term-type}
+@mvindex @var{quantity-type}
+@mvindex @var{term-op-type}
+
+
+@noindent
+@var{formulation-type}:
+
+@vtable @code
+
+@item FemEquation
+Finite element method formulation (all method moments, integral methods).
+
+@end vtable
+
+
+@noindent
+@var{local-term-type}:
+
+@vtable @code
+
+@item Galerkin
+Integral of Galerkin type.
+@item deRham
+deRham projection (collocation).
+
+@end vtable
+
+
+@noindent
+@var{Other types of @code{Equation}'s}:
+
+@vtable @code
+
+@item GlobalTerm
+Global term to be assembled in an equation associated with a global quantity. 
+This equation is a finite element equation if that global quantity is linked with 
+local quantities.
+
+@item GlobalEquation
+Global equations to be assembled in the matrix of the system.
+
+@end vtable
+
+
+@noindent
+@var{quantity-type}:
+
+@vtable @code
+
+@item Local
+Local quantity defining a field in a function space.
+In case a subspace is considered, its identifier has to be given in the brackets
+following the @code{NameOfSpace @var{function-space-id}}.
+
+@item Global
+Global quantity defining a global quantity from a function space. 
+The identifier of this quantity has to be given in the brackets following the 
+@code{NameOfSpace @var{function-space-id}}.
+
+@item Integral
+Integral quantity obtained by the integration of a
+@code{LocalQuantity} before its use in an @code{Equation} term.
+@end vtable
+
+
+@noindent
+@var{term-op-type}:
+
+@vtable @code
+
+@item Dt
+Time derivative applied to the whole term of the equation.
+@item DtDof
+Time derivative applied only to the @code{Dof@{@}} term of the equation.
+
+@item DtDt
+Time derivative of 2nd order applied to the whole term of the equation.
+@item DtDtDof
+Time derivative of 2nd order applied only to the @code{Dof@{@}} term of the 
+equation.
+
+@item JacNL
+Jacobian term to be assembled in the Jacobian matrix for nonlinear analysis.
+
+@item NeverDt
+No time scheme applied to the term 
+(e.g.@: Theta is always 1 even if a theta scheme is applied).
+
+@end vtable
+
+
+
+
+@c -------------------------------------------------------------------------
+@c Resolution
+@c -------------------------------------------------------------------------
+
+@node Types for Resolution, Types for PostProcessing, Types for Formulation, Types for objects
+@section Types for @code{Resolution}
+
+@cindex Resolution, types
+
+@mvindex @var{resolution-op}
+@mvindex @var{time-loop-theta-arg}
+@mvindex @var{time-loop-newmark-arg}
+@mvindex @var{iterative-loop-arg}
+@mvindex @var{iterative-time-reduction-arg}
+@mvindex @var{change-of-state-arg}
+@mvindex @var{change-of-state-type}
+
+
+@noindent
+@var{resolution-op}:
+
+@vtable @code
+
+@item Generate
+@var{system-id}
+
+Generate a system of equations.
+
+@item Solve
+@var{system-id}
+
+Solve a system of equations.
+
+@item GenerateJac
+@var{system-id}
+
+Generate a system of equations using a jacobian matrix (of which the unknowns
+are corrections @var{dx} of the current solution @var{x}).
+
+@item SolveJac
+@var{system-id}
+
+Solve a system of equations using a jacobian matrix (of which the unknowns
+are corrections @var{dx} of the current solution @var{x}). 
+Then, compute the relative error @var{dx}/@var{x}.
+
+@item GenerateSeparate
+@var{system-id}
+
+Generate all iteration matrices separately; to be used with
+@code{Update} to create the actual system to solve. This is only useful
+in linear transient problems with one single excitation.
+
+@item Update
+@var{system-id} , @var{expression}
+
+Update the system of equations from iteration matrices built separately
+with @code{GenerateSeparate} with @var{expression}
+
+@item InitSolution
+@var{system-id}
+
+Initialize a solution to zero (default) or to the values given in a 
+@code{Constraint} of @code{Init} type.
+
+@item SaveSolution
+@var{system-id}
+
+Save the solution of a system of equations.
+
+@item TransferSolution
+@var{system-id}
+
+Transfer a solution @dots{}
+
+@item SetTime
+@var{expression}
+
+Change the current time.
+
+@item TimeLoopTheta
+@{ @var{time-loop-theta-arg}; @}
+
+Time loop of a theta scheme.
+
+@item TimeLoopNewmark
+@{ @var{time-loop-newmark-arg}; @}
+
+Newmark scheme.
+
+@item IterativeLoop
+@{ @var{iterative-loop-arg}; @}
+
+Iterative loop for nonlinear analysis.
+
+@item IterativeTimeReduction
+@{ @var{iterative-time-reduction-arg}; @}
+
+Iterative reduction of time interval to delimit variations of solutions 
+(e.g.@: used in types of nonlinear analyses).
+
+@end vtable
+
+
+@noindent
+@var{time-loop-theta-arg}:
+
+@vtable @code
+
+@item Time0
+@var{expression-cst}
+
+Initial time.
+
+@item TimeMax
+@var{expression-cst}
+
+End time.
+
+@item DTime
+@var{expression}
+
+Time step.
+
+@item Theta
+@var{expression}
+
+Theta value for theta scheme analyses 
+(e.g.@: 1 for implicit Euler, 0.5 for Crank-Nicholson).
+
+@end vtable
+
+@noindent
+@var{time-loop-newmark-arg}:
+
+@vtable @code
+
+@item Time0
+@var{expression-cst}
+
+Initial time.
+
+@item TimeMax
+@var{expression-cst}
+
+End time.
+
+@item DTime
+@var{expression}
+
+Time step.
+
+@item Beta
+@var{expression}
+
+Beta parameter
+
+@item Gamma
+@var{expression}
+
+Gamma parameter
+
+@end vtable
+
+@noindent
+@var{iterative-loop-arg}:
+
+@vtable @code
+
+@item NbrMaxIteration
+@var{integer}
+
+Maximum number of iterations (if no convergence).
+
+@item RelaxationFactor
+@var{expression}
+
+Relaxation factor (multiplies the iterative correction @var{dx}).
+
+@item Criterion
+@var{expression-cst}
+
+Relative error to achieve.
+
+@end vtable
+
+
+@noindent
+@var{iterative-time-reduction-arg}:
+
+@vtable @code
+
+@item NbrMaxIteration
+@var{integer}
+
+Maximum number of iterations (if no convergence).
+
+@item DivisionCoefficient
+@var{expression-cst}
+
+Division coefficient of the time interval (usually 2 for dichotomy).
+
+@item Criterion
+@var{expression-cst}
+
+Dimension of the time interval to achieve before stopping divisions.
+
+@item Flag
+@var{integer}
+
+Option for test. [To be explained later.]
+
+@item System
+@var{system-id}
+
+System containing the quantities to test.
+
+@item ChangeOfState
+@{ @{ @var{change-of-state-arg} @} @dots{} @}
+
+Tests to perform.
+
+@item Operation
+@{ < @var{resolution-op}; > @dots{} @}
+
+Operations to perform at each step.
+
+@item OperationEnd
+@{ < @var{resolution-op}; > @dots{} @}
+
+Operations to perform after the last iteration (when leaving the loop).
+
+@end vtable
+
+@noindent
+@var{change-of-state-arg}:
+
+@vtable @code
+
+@item Type
+@var{change-of-state-type}
+
+Type of change of state analysis.
+
+@item Quantity
+@var{quantity-id}
+@itemx In
+@var{group-def}
+
+Global quantity to analyse.
+
+@item Criterion
+@var{expression-cst}
+
+Relative error accepted.
+
+@item Function
+@var{expression}
+
+Reference function.
+
+@end vtable
+
+@noindent
+@var{change-of-state-type}:
+
+@vtable @code
+
+@item ChangeSign
+Test of change of sign of quantities.
+
+@item ChangeLevel
+Test of change of level of quantities.
+
+@item ChangeReference
+Compare quantities to reference functions (e.g.@: for regulation).
+
+@item ChangeReference2
+Compare quantities to reference functions (e.g.@: for regulation).
+
+@end vtable
+
+
+@c -------------------------------------------------------------------------
+@c PostProcessing
+@c -------------------------------------------------------------------------
+
+@node Types for PostProcessing, Types for PostOperation, Types for Resolution, Types for objects
+@section Types for @code{PostProcessing}
+
+@cindex Post-processing, types
+
+@mvindex @var{post-quantity-type}
+@mvindex @var{post-value}
+
+
+@noindent
+@var{post-quantity-type}:
+
+@vtable @code
+
+@item NonCumulative
+Is the default.
+
+@item Cumulative
+Sums all computed values.
+
+@end vtable
+
+
+@noindent
+@var{post-value}:
+
+@vtable @code
+
+@item Local
+@{ @var{local-value} @}
+
+To compute a local quantity.
+@item Integral
+@{ @var{integral-value} @}
+
+To integrate the expression.
+
+@end vtable
+
+
+@c -------------------------------------------------------------------------
+@c PostOperation
+@c -------------------------------------------------------------------------
+
+@node Types for PostOperation,  , Types for PostProcessing, Types for objects
+@section Types for @code{PostOperation}
+
+@cindex Post-operation, types
+
+@mvindex @var{plot-support}
+
+@noindent
+@var{vector-of-reals}:
+  @{ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} @}
+
+@noindent
+@var{vector-of-expressions}:
+  @{ @var{expression}, @var{expression}, @var{expression} @}
+
+
+@noindent
+@var{plot-support}:
+
+@vtable @code
+
+@item OnRegion
+@var{group-def}
+
+To compute a local quantity on elements belonging to the current mesh,
+of groups of region type, where the solution was computed during the
+processing stage.
+
+To compute global quantities associated with regions.
+
+@item OnCut
+@{ @var{vector-of-reals} @var{vector-of-reals} @}
+@itemx OnCut
+@{ @var{vector-of-reals} @var{vector-of-reals} @var{vector-of-reals} @}
+
+To compute a quantity on a cut of the mesh, i.e.@: on the intersections
+of the mesh with a cutting entity (a line or a plane, specified by two
+or three points).
+
+@item OnGrid
+@var{group-def}
+
+To compute a quantity in elements of a mesh (support for a solution that
+differs from the real support of the solution, i.e.@: reinterpolation).
+
+@item OnGrid
+@{ @var{vector-of-expressions} @} @{ @var{real-list}, @var{real-list} @}
+
+To compute a quantity on a parametric grid. The three expressions in
+@var{vector-of-expressions} can be functions of current values @code{$s}
+and @code{$t}, which values are given by each @var{real-list}.
+
+@item OnPoint
+@var{vector-of-reals}
+
+To compute a quantity at a point.
+
+@item OnLine
+@{ @var{vector-of-reals} @var{vector-of-reals} @} @{ @var{integer} @}
+
+To compute a quantity along a line (given by its two end points), with
+associated number of divisions. The interpolation points on the line are
+equidistant.
+
+@item OnPlane
+@{ @var{vector-of-reals} @var{vector-of-reals} @var{vector-of-reals} @} @{ @var{integer}, @var{integer} @}
+
+To compute a quantity on a plane (specified by three points), with
+associated number of divisions. 
+
+@item OnBox
+@{ @var{vector-of-reals} @var{vector-of-reals} @var{vector-of-reals} @var{vector-of-reals} @} 
+
+@{ @var{integer}, @var{integer}, @var{integer} @}
+
+To compute a quantity in a box (specified by four points), with
+associated number of divisions.
+
+@end vtable
+
+@mvindex @var{plot-option}
+
+@noindent
+@var{plot-option}:
+
+@vtable @code
+@item File "@var{string}"
+Outputs the result in a file named @var{string}. 
+@item File > "@var{string}"
+Appends the result to a file named @var{string}. 
+@item Depth @var{integer}
+Recursive division of the elements if @var{integer}>0, derefinement if
+@var{integer}<0.
+@item Skin
+Computes the result on the boundary of the region. 
+@item Smoothing @var{integer}
+Smooth the solution @var{integer} times.
+@item HarmonicToTime @var{integer}
+Converts a harmonic solution to a time-dependant one (with @var{integer}
+steps).
+@item Dimension @var{integer}
+Forces the dimension of the elements to consider in an element search.
+@item TimeStep @var{real-list}
+Output results for the specified time steps only.
+@item Format @var{post-operation-fmt}
+Output results in the specified format.
+@end vtable
+
+
+
+@mvindex @var{post-operation-fmt}
+
+@noindent
+@var{post-operation-fmt}:
+
+@vtable @code
+@item Gmsh
+Post processing format readable by Gmsh. 
+@item Gnuplot
+@item Table
+Column-oriented output, e.g.@: suitable for Gnuplot, Excel, Caleida
+Graph, etc. The column are: @var{element-type} @var{x-coords}
+@var{y-coords} @var{z-coords} < @var{double} @var{double} @var{double} >
+@var{values}.
+@item TimeTable
+Time oriented column output, e.g.@: suitable for Gnuplot, Excel, Caleida
+Graph, etc. The column are: @var{time-step} @var{time} @var{x-coords}
+@var{y-coords} @var{z-coords} @var{value}.
+@end vtable
+
+
+@c =========================================================================
+@c Short Examples
+@c =========================================================================
+
+@node Short examples, Complete examples, Types for objects, Top
+@chapter Short Examples
+
+@cindex Short examples
+@cindex Examples, short
+
+@menu
+* Constant expression examples::  
+* Group examples::              
+* Function examples::           
+* Constraint examples::         
+* FunctionSpace examples::      
+* Jacobian examples::           
+* Integration examples::        
+* Formulation examples::        
+* Resolution examples::         
+* PostProcessing examples::     
+* PostOperation examples::      
+@end menu
+
+@c -------------------------------------------------------------------------
+@c Constant Expression Examples
+@c -------------------------------------------------------------------------
+
+@node Constant expression examples, Group examples, Short examples, Short examples
+@section Constant Expression Examples
+
+The simplest constant expression consists of an @var{integer} or a
+@var{real} number as in
+
+@example
+21
+-3
+@end example
+
+@noindent or
+
+@example
+-3.1415
+27e3
+-290.53e-12
+@end example
+
+@noindent
+Using operators and the classic math functions, @var{constant-id}'s can
+be defined:
+
+@example
+c1 = Sin[2/3*3.1415] * 5000^2 ;
+c2 = -1/c1 ;
+@end example
+
+
+@c -------------------------------------------------------------------------
+@c Group Examples
+@c -------------------------------------------------------------------------
+
+@node Group examples, Function examples, Constant expression examples, Short examples
+@section @code{Group} Examples
+
+@cindex Group, examples
+
+Let us assume that some elements in the input mesh are associated with the
+region numbers 1000, 2000 and 3000. In the definitions
+
+@example
+Group @{
+  Air = Region[1000]; Core = Region[2000]; Inductor = Region[3000];
+  NonConductingDomain = Region[@{Air, Core@}];
+  ConductingDomain    = Region[@{Inductor@}];
+@}
+@end example
+
+@noindent
+@code{Air}, @code{Core}, @code{Inductor} are identifiers of elementary
+region groups while @code{NonConductingDom@-ain} and
+@code{ConductingDomain} are global region groups.
+
+Groups of function type contain lists of entities built on the region groups 
+appearing in their arguments. For example,
+
+@example
+NodesOf[NonConductingDomain]
+@end example
+
+@noindent
+represents the group of nodes of geometrical elements belonging to the regions 
+in @code{NonConduc@-tingDomain} and 
+
+@example
+EdgesOf[DomainC, Not SkinDomainC]
+@end example
+
+@noindent
+represents the group of edges of geometrical elements belonging to the regions 
+in @code{DomainC} but not to those of @code{SkinDomainC}.
+
+
+@c -------------------------------------------------------------------------
+@c Function Examples
+@c -------------------------------------------------------------------------
+
+@node Function examples, Constraint examples, Group examples, Short examples
+@section @code{Function} Examples
+
+@cindex Function, examples
+
+A physical characteristic is a piecewise defined function. The magnetic
+permeability @code{mu[]} can for example be defined in the considered
+regions by
+
+@example
+Function @{
+  mu[Air] = 4.e-7*Pi; 
+  mu[Core] = 1000.*4.e-7*Pi;
+@}
+@end example
+
+@noindent
+A nonlinear characteristic can be defined through an @var{expression} 
+with arguments, e.g.
+
+@example
+Function @{
+  mu0 = 4.e-7*Pi;
+  a1 = 1000.; b1 = 100.; // Constants
+  mu[NonlinearCore] = mu0 + 1./(a1+b1*Norm[$1]^6);
+@}
+@end example
+
+@noindent
+where function @code{mu[]} in region @code{NonLinearCore} has one argument 
+@code{$1} which has to be the magnetic flux density @var{b} = curl @var{a}. 
+This function is actually called when writing the equations of a formulation, 
+which enables to directly extend it to a nonlinear form by adding only the 
+necessary arguments, e.g.@: by writing @code{nu[@{Curl a@}]} instead of 
+@code{nu[]} in @code{Equation} terms (@pxref{Formulation examples}).
+
+A function can also be time dependent, e.g.
+
+@example
+Function @{
+  Freq = 50.; Phase = 30./180.*Pi; // Constants
+  TimeFct_Sin[] = Sin [ 2.*Pi*Freq * $Time + Phase ];
+  TimeFct_Exp[] = Exp [ - $Time / 0.0119 ];
+  TimeFct_ExtSin[] = F_Sin_wt_p [] @{2.*Pi*Freq, Phase@};
+@}
+@end example
+
+@noindent
+Note that @code{TimeFct_ExtSin[]} is an extended math function equivalent to
+@code{TimeFct_Sin[]}.  It is usually used in harmonic analyses for implicit
+definitions of phasors.
+
+@c -------------------------------------------------------------------------
+@c Constraint Examples
+@c -------------------------------------------------------------------------
+
+@node Constraint examples, FunctionSpace examples, Function examples, Short examples
+@section @code{Constraint} Examples
+
+@cindex Constraint, examples
+
+Constraints are referred to in @code{FunctionSpace}'s and are usually used 
+for boundary conditions (@code{Assign} type). 
+For example, essential conditions on two surface regions, 
+@code{Surf0} and @code{Surf1}, will be first defined by
+
+@example
+Constraint @{
+  @{ Name DirichletBoundaryCondition1; Type Assign;
+    Case @{
+      @{ Region Surf0; Value 0.; @}
+      @{ Region Surf1; Value 1.; @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+The way the @code{Value}'s are associated with @code{Region}'s (with their nodes,
+their edges, their global regions, @dots{}) is defined in the 
+@code{FunctionSpace}'s which use the @code{Constraint}.
+In other words, a @code{Constraint} defines data but does not define the method
+to process them.
+
+Other constraints can be referred to in @code{Formulation}'s. It is the case of 
+those defining electrical circuits connections (@code{Network} type), e.g.@:
+
+@example
+Constraint @{
+  @{ Name ElectricalCircuit; Type Network; 
+    Case Circuit1 @{
+      @{ Region VoltageSource; Branch @{1,2@}; @}
+      @{ Region PrimaryCoil; Branch @{1,2@}; @}
+    @}
+    Case Circuit2 @{
+      @{ Region SecondaryCoil; Branch @{1,2@}; @}
+      @{ Region Charge; Branch @{1,2@}; @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+which defines two non-connected circuits (@code{Circuit1} and @code{Circuit2}),
+with independent numbering of nodes: region @code{VoltageSource} is connected in
+parallel with region @code{PrimaryCoil}, and region @code{SecondaryCoil} is 
+connected in parallel with region @code{Charge}.
+
+@c -------------------------------------------------------------------------
+@c FunctionSpace Examples
+@c -------------------------------------------------------------------------
+
+@node FunctionSpace examples, Jacobian examples, Constraint examples, Short examples
+@section @code{FunctionSpace} Examples
+
+@cindex Function space, examples
+
+Various discrete function spaces can be defined in the frame of the finite 
+element method. 
+
+@menu
+* Conform space::               
+* High order space::            
+* Global values::               
+* Curl-conform space::          
+* Gauge condition::             
+* Coupled spaces::              
+* Multiply connected domains::  
+@end menu
+
+@c .........................................................................
+@c Nodal Finite Element Spaces
+@c .........................................................................
+
+@node Conform space, High order space, FunctionSpace examples, FunctionSpace examples
+@subsection Nodal Finite Element Spaces
+
+The most elementary function space is the nodal finite element space, 
+defined on a mesh of a domain @var{W} and denoted @i{S0(W)} 
+(associated finite elements can be of various geometries and degrees), 
+and associated with essential boundary conditions (Dirichlet conditions). 
+It contains 0-forms, i.e.@: scalar fields of potential type:
+
+@tex
+$$ v = \sum_{n\in N} v_n s_n \quad v\in S^0(W) $$
+@end tex
+@ifnottex
+@var{v} = Sum [ @var{vn} * @var{sn} ,  for all @var{n} in @var{N} ] ,  
+@var{v} in @i{S0(W)}
+@end ifnottex
+
+@noindent
+where @var{N} is the set of nodes of @var{W}, @var{sn} is the nodal basis function 
+associated with node @var{n} and @var{vn} is the value of @var{v} at node @var{n}. 
+It is defined by
+
+@example
+FunctionSpace @{
+  @{ Name Hgrad_v; Type Form0;
+    BasisFunction @{
+      @{ Name sn; NameOfCoef vn; Function BF_Node;
+        Support Domain; Entity NodesOf[All]; @}
+    @}
+    Constraint @{
+      @{ NameOfCoef vn; EntityType NodesOf;
+        NameOfConstraint DirichletBoundaryCondition1; @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+Function @code{sn} is the built-in basis function BF_Node associated with 
+all nodes (@code{NodesOf}) in the mesh of @var{W} (@code{Domain}). Previously 
+defined @code{Constraint DirichletBoundaryCondition1} 
+(@pxref{Constraint examples}) is used as boundary conditions. 
+
+In the example above, @code{Entity NodesOf[All]} is preferred to 
+@code{Entity NodesOf[Domain]}. 
+In this way, the list of all the nodes of @code{Domain} will not have to be 
+generated. All the nodes of each geometrical element in @code{Support Domain}
+will be directly taken into account.
+
+
+@c .........................................................................
+@c High Order Nodal Finite Element Space
+@c .........................................................................
+
+@node High order space, Global values, Conform space, FunctionSpace examples
+@subsection High Order Nodal Finite Element Space
+
+Higher order finite elements can be directly taken into account by @code{BF_Node}. 
+Hierarchical finite elements for 0-forms can be used by simply adding other basis 
+functions (associated with other geometrical entities, e.g.@: edges and facets) to 
+@code{BasisFunction}, e.g.@:
+
+@example
+    @dots{}
+    BasisFunction @{
+      @{ Name sn; NameOfCoef vn; Function BF_Node;
+        Support Domain; Entity NodesOf[All]; @}
+      @{ Name s2; NameOfCoef v2; Function HBF_Node_2E;
+        Support Domain; Entity EdgesOf[All]; @}
+    @}
+    @dots{}
+@end example
+
+@c .........................................................................
+@c Nodal Finite Element Space with Floating Potentials
+@c .........................................................................
+
+@node Global values, Curl-conform space, High order space, FunctionSpace examples
+@subsection Nodal Finite Element Space with Floating Potentials
+
+A scalar potential with floating values @var{vf} on certain boundaries @var{Gf}, 
+@var{f} in @var{Cf}, e.g.@: for electrostatic problems, can be expressed as
+
+@tex
+$$ v = \sum_{n\in N_v} v_n s_n + \sum_{f\in C_f} v_f s_f    \quad v\in S^0(W)  $$
+@end tex
+@ifnottex
+@var{v} = Sum [ @var{vn} * @var{sn} ,  for all @var{n} in @var{Nv} ] + Sum [ @var{vf} * @var{sf} ,  for all @var{f} in @var{Cf} ] ,
+@var{v} in @i{S0(W)}
+@end ifnottex
+
+@noindent
+where @var{Nv} is the set of inner nodes of @var{W} and each function @var{sf} 
+is associated with the group of nodes of boundary @var{Gf}, @var{f} in @var{Cf} 
+(@code{SkinDomainC}); @var{sf} is the sum of the nodal basis functions 
+of all the nodes of @var{Cf}. Its function space is defined by
+
+@example
+FunctionSpace @{
+  @{ Name Hgrad_v_floating; Type Form0;
+    BasisFunction @{
+      @{ Name sn; NameOfCoef vn; Function BF_Node;
+        Support Domain; Entity NodesOf[All, Not SkinDomainC]; @}
+      @{ Name sf; NameOfCoef vf; Function BF_GroupOfNodes; 
+        Support Domain; Entity GroupsOfNodesOf[SkinDomainC]; @}
+    @}
+    GlobalQuantity @{
+      @{ Name GlobalElectricPotential; Type AliasOf; NameOfCoef vf; @}
+      @{ Name GlobalElectricCharge; Type AssociatedWith; 
+        NameOfCoef vf; @}
+    @}
+    Constraint @{ @dots{} @}
+  @}
+@}
+@end example
+
+@noindent
+Two global quantities have been associated with this space: the electric
+potential @code{Global@-ElectricPotential}, being an alias of
+coefficient @code{vf}, and the electric charge
+@code{GlobalElec@-tricCharge}, being associated with coefficient
+@code{vf}.
+
+@c .........................................................................
+@c Edge Finite Element Space
+@c .........................................................................
+
+@node Curl-conform space, Gauge condition, Global values, FunctionSpace examples
+@subsection Edge Finite Element Space
+
+Another space is the edge finite element space, denoted @i{S1(W)}, 
+containing 1-forms, i.e.@: curl-conform fields:
+
+@tex
+$$ {\bf h} = \sum_{e\in E} h_e {\bf s}_e   \quad{\bf h}\in S^1(W)  $$
+@end tex
+@ifnottex
+@var{h} = Sum [ @var{he} * @var{se} ,  for all @var{e} in @var{E} ] ,
+@var{h} in @i{S1(W)}
+@end ifnottex
+
+@noindent
+where @var{E} is the set of edges of @var{W}, @var{se} is the edge basis 
+function for edge @var{e} and @var{he} is the circulation of @var{h} along 
+edge @var{e}. It is defined by
+
+@example
+FunctionSpace @{
+  @{ Name Hcurl_h; Type Form1;
+    BasisFunction @{
+      @{ Name se; NameOfCoef he; Function BF_Edge;
+        Support Domain; Entity EdgesOf[All]; @}
+    @}
+    Constraint @{ @dots{} @}
+  @}
+@}
+@end example
+
+@c .........................................................................
+@c Edge Finite Element Space with Gauge Condition
+@c .........................................................................
+
+@node Gauge condition, Coupled spaces, Curl-conform space, FunctionSpace examples
+@subsection Edge Finite Element Space with Gauge Condition
+
+A 1-form function space containing vector potentials can be associated
+with a gauge condition, which can be defined as a constraint, e.g.@: a
+zero value is fixed for all circulations along edges of a tree
+(@code{EdgesOfTreeIn}) built in the mesh (@code{Domain}), having to be
+complete on certain boundaries (@code{StartingOn Surf}):
+
+@example
+Constraint @{
+  @{ Name GaugeCondition_a_Mag_3D; Type Assign;
+    Case @{
+      @{ Region Domain; SubRegion Surf; Value 0.; @}
+    @}
+  @}
+@}
+
+FunctionSpace @{
+  @{ Name Hcurl_a_Gauge; Type Form1;
+    BasisFunction @{
+      @{ Name se; NameOfCoef ae; Function BF_Edge;
+        Support Domain; Entity EdgesOf[All]; @}
+    @}
+    Constraint @{
+      @{ NameOfCoef ae;
+        EntityType EdgesOfTreeIn; EntitySubType StartingOn;
+        NameOfConstraint GaugeCondition_a_Mag_3D; @}
+      @dots{}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+The same gauge could also be defined in the BasisFunction field itself, by 
+limiting the set of entities supporting the unknowns: 
+@code{Entity EdgesOf[All]} would then be replaced by 
+@code{Entity EdgesOfTreeIn[Domain, StartingOn Surf]}.
+
+@c .........................................................................
+@c Coupled Edge and Nodal Finite Element Spaces
+@c .........................................................................
+
+@node Coupled spaces, Multiply connected domains, Gauge condition, FunctionSpace examples
+@subsection Coupled Edge and Nodal Finite Element Spaces
+
+A 1-form function space, containing curl free fields in certain regions @var{WcC} 
+(@code{DomainCC}) of @var{W}, which are the complementary part of @var{Wc} 
+(@code{DomainC}) in @var{W}, can be explicitly characterized by
+
+
+@tex
+$$ {\bf h} = \sum_{k\in E_c} h_k {\bf s}_k + \sum_{n\in N_c^C} \phi_n {\bf v}_n  \quad{\bf h}\in S^1(W)  $$
+@end tex
+@ifnottex
+@var{h} = Sum [ @var{hk} * @var{sk} ,  for all @var{e} in @var{Ec} ] + Sum [ @var{phin} * @var{vn} ,  for all @var{n} in @var{NcC} ] ,
+@var{h} in @i{S1(W)}
+@end ifnottex
+
+@noindent
+where @var{Ec} is the set of inner edges of @var{W}, @var{NcC} is the set of 
+nodes inside @var{WcC} and on its boundary @var{dWcC}, @var{sk} is an edge 
+basis function and @var{vn} is a vector nodal function. Such a space, coupling 
+a vector field with a scalar potential, can be defined by
+
+@example
+FunctionSpace @{
+  @{ Name Hcurl_hphi; Type Form1;
+    BasisFunction @{
+      @{ Name sk; NameOfCoef hk; Function BF_Edge; 
+        Support DomainC; Entity EdgesOf[All, Not SkinDomainC]; @}
+
+      @{ Name vn; NameOfCoef phin; Function BF_GradNode; 
+        Support DomainCC; Entity NodesOf[All]; @}
+      @{ Name vn; NameOfCoef phic; Function BF_GroupOfEdges; 
+        Support DomainC; Entity GroupsOfEdgesOnNodesOf[SkinDomainC];@}
+    @}
+    Constraint @{
+      @{ NameOfCoef hk;
+        EntityType EdgesOf; NameOfConstraint MagneticField; @}
+
+      @{ NameOfCoef phin;
+        EntityType NodesOf; NameOfConstraint MagneticScalarPotential; @}
+      @{ NameOfCoef phic;
+        EntityType NodesOf; NameOfConstraint MagneticScalarPotential; @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+This example points out the definition of a piecewise defined basis function, e.g.@:
+function @code{vn} being defined with @code{BF_GradNode} in @code{DomainCC} and 
+@code{BF_GroupOfEdges} in @code{DomainC}. This leads to an easy coupling
+between these regions.
+
+
+@c .........................................................................
+@c Coupled Edge and Nodal Finite Element Spaces for Multiply Connected Domains
+@c .........................................................................
+
+@node Multiply connected domains,  , Coupled spaces, FunctionSpace examples
+@subsection Coupled Edge and Nodal Finite Element Spaces for Multiply Connected Domains
+
+In case a multiply connected domain @var{WcC} is considered, basis functions 
+associated with cuts (@code{SurfaceCut}) have to be added to the previous 
+basis functions, which gives the function space below:
+
+@example
+Group @{
+  _TransitionLayer_SkinDomainC_ =
+    ElementsOf[SkinDomainC, OnOneSideOf SurfaceCut];
+@}
+
+FunctionSpace @{
+  @{ Name Hcurl_hphi; Type Form1;
+    BasisFunction @{
+
+      @dots{} @var{same as above} @dots{}
+
+      @{ Name sc; NameOfCoef Ic; Function BF_GradGroupOfNodes;
+        Support ElementsOf[DomainCC, OnOneSideOf SurfaceCut];
+        Entity GroupsOfNodesOf[SurfaceCut]; @}
+      @{ Name sc; NameOfCoef Icc; Function BF_GroupOfEdges;
+        Support DomainC;
+        Entity GroupsOfEdgesOf
+                 [SurfaceCut,
+                  InSupport _TransitionLayer_SkinDomainC_]; @}
+    @}
+    GlobalQuantity @{
+      @{ Name I; Type AliasOf       ; NameOfCoef Ic; @}
+      @{ Name U; Type AssociatedWith; NameOfCoef Ic; @}
+    @}
+    Constraint @{
+
+      @dots{} @var{same as above} @dots{}
+
+      @{ NameOfCoef Ic;
+        EntityType GroupsOfNodesOf; NameOfConstraint Current; @}
+      @{ NameOfCoef Icc;
+        EntityType GroupsOfNodesOf; NameOfConstraint Current; @}
+      @{ NameOfCoef U;
+        EntityType GroupsOfNodesOf; NameOfConstraint Voltage; @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+Global quantities associated with the cuts, i.e.@: currents and voltages 
+if @var{h} is the magnetic field, have been also defined.
+
+
+@c -------------------------------------------------------------------------
+@c Jacobian Examples
+@c -------------------------------------------------------------------------
+
+@node Jacobian examples, Integration examples, FunctionSpace examples, Short examples
+@section @code{Jacobian} Examples
+
+@cindex Jacobian, examples
+
+
+A simple Jacobian method is for volume transformations (of @var{n}-D 
+regions in @var{n}-D geometries; @var{n} = 1, 2 or 3), 
+e.g.@: in region @code{Domain},
+
+@example
+Jacobian @{
+  @{ Name Vol;
+    Case @{
+      @{ Region Domain; Jacobian Vol; @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+@code{Jacobian VolAxi} would define a volume Jacobian for axisymmetrical problems.
+
+A Jacobian method can also be piecewise defined, in @code{DomainInf}, where an 
+infinite geometrical transformation has to be done using two constant parameters 
+(inner and outer radius of a spherical shell), and in all other regions 
+(@code{All}, being the default); in each case, a volume Jacobian is used. 
+This method is defined by:
+
+@example
+Jacobian @{
+  @{ Name Vol;
+    Case @{
+      @{ Region DomainInf; Jacobian VolSphShell @{Val_Rint, Val_Rext@}; @}
+      @{ Region All; Jacobian Vol; @}
+    @}
+  @}
+@}
+@end example
+
+@c -------------------------------------------------------------------------
+@c Integration Examples
+@c -------------------------------------------------------------------------
+
+@node Integration examples, Formulation examples, Jacobian examples, Short examples
+@section @code{Integration} Examples
+
+@cindex Integration, examples
+
+
+A usually used numerical integration method is the @code{Gauss} integration,
+with a number of integration points (@code{NumberOfPoints}) depending on 
+geometrical element types (@code{GeoElement}), i.e.
+
+@example
+Integration @{
+  @{ Name Int_1;
+    Case @{ @{Type Gauss;
+            Case @{ @{ GeoElement Triangle   ; NumberOfPoints 4; @}
+                   @{ GeoElement Quadrangle ; NumberOfPoints 4; @}
+                   @{ GeoElement Tetrahedron; NumberOfPoints 4; @}
+                   @{ GeoElement Hexahedron ; NumberOfPoints 6; @}
+                   @{ GeoElement Prism      ; NumberOfPoints 9; @} @}
+           @}
+         @}
+  @}
+@}
+@end example
+
+@noindent
+The method above is valid either for 2D or 3D problems, for different 
+kinds of elements.
+
+@c -------------------------------------------------------------------------
+@c Formulation Examples
+@c -------------------------------------------------------------------------
+
+@node Formulation examples, Resolution examples, Integration examples, Short examples
+@section @code{Formulation} Examples
+
+@cindex Formulation, examples
+
+@menu
+* Electrostatics::              
+* Electrostatics 2::            
+* Magnetostatics::              
+* Magnetodynamics::             
+* Other formulations::          
+@end menu
+
+@c .........................................................................
+@c Electrostatic Scalar Potential Formulation
+@c .........................................................................
+
+@node Electrostatics, Electrostatics 2, Formulation examples, Formulation examples
+@subsection Electrostatic Scalar Potential Formulation
+
+@cindex Electrostatic formulation
+@cindex Formulation, electrostatics
+@cindex Nodal function space, example
+
+An electrostatic formulation using an electric scalar potential @var{v}, i.e.
+
+@tex
+$$ (\epsilon\,{\rm grad}\,v, {\rm grad}\,v')_W = 0 \quad\forall v'\in S^0(W)  $$
+@end tex
+@ifnottex
+( epsr grad @var{v} , grad @var{vp} ) @var{W} = 0 ,  for all @var{vp} in @i{S0(W)} ,
+@end ifnottex
+
+@noindent
+is expressed by
+
+@example
+Formulation @{
+  @{ Name Electrostatics_v; Type FemEquation;
+    Quantity @{
+      @{ Name v; Type Local; NameOfSpace Hgrad_v; @}
+    @}
+    Equation @{ 
+      Galerkin @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
+                 In Domain; Jacobian Vol; Integration Int_1; @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+The density of the @code{Galerkin} term is a copy of the symbolic form of 
+the formulation: product of a relative permittivity function @code{epsr[]} 
+with a vector of degrees of freedom (@code{Dof@{.@}}); 
+the scalar product of this with the gradient of test function 
+@code{v} results in a symmetrical matrix.
+
+@noindent
+Note that another @code{Quantity} could be defined for test functions, e.g.@:
+@code{vp} defined by @code{@{ Name vp; Type Local; NameOfSpace Hgrad_v; @}}.
+Nevertheless, its use would result in the computation of a full matrix and
+consequently in a loss of efficiency.
+
+@c .........................................................................
+@c Electrostatic Scalar Potential Formulation with Floating Potentials and Electric Charges
+@c .........................................................................
+
+@node Electrostatics 2, Magnetostatics, Electrostatics, Formulation examples
+@subsection Electrostatic Scalar Potential Formulation with Floating Potentials and Electric Charges
+
+@cindex Floating potential, example
+@cindex Global quantity, example
+
+An extension of the formulation above can be made to take floating
+potentials and electrical charges into account (these being defined in
+@code{FunctionSpace Hgrad_v_floating}), i.e.
+
+@example
+Formulation @{
+  @{ Name Electrostatics_v_floating; Type FemEquation;
+    Quantity @{
+      @{ Name v; Type Local; NameOfSpace Hgrad_v_floating; @}
+      @{ Name V; Type Global; 
+        NameOfSpace Hgrad_v_floating [GlobalElectricPotential]; @}
+      @{ Name Q; Type Global; 
+        NameOfSpace Hgrad_v_floating [GlobalElectricCharge]; @}
+    @}
+    Equation @{ 
+      Galerkin @{ [ epsr[] * Dof@{Grad v@} , @{Grad v@} ];
+                 In Domain; Jacobian Vol; Integration Int_1; @}
+      GlobalTerm @{ [ - Dof@{Q@}/eps0 , @{V@} ]; In SkinDomainC; @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+with the predefinition @code{Function @{ eps0 = 8.854187818e-12; @}}.
+
+@c .........................................................................
+@c Magnetostatic 3D Vector Potential Formulation
+@c .........................................................................
+
+@node Magnetostatics, Magnetodynamics, Electrostatics 2, Formulation examples
+@subsection Magnetostatic 3D Vector Potential Formulation
+
+@cindex Edge element space, example
+
+A magnetostatic 3D vector potential formulation
+
+@tex
+$$ (\nu\,{\rm curl}\,{\bf a}, {\rm curl}\,{\bf a}')_W = 
+({\bf j}_s , {\bf a}')_{W_s}  \quad\forall{\bf a}'\in S^1(W), {\rm\ with\ gauge\ condition} $$
+@end tex
+@ifnottex
+( @var{nu} curl @var{a} , curl @var{ap} ) @var{W} - 
+( @var{js} , @var{ap} ) @var{Ws} = 0 ,  
+for all @var{ap} in @i{S1(W)} with gauge condition ,
+@end ifnottex
+
+@noindent
+with a source current density @var{js} in inductors @var{Ws}, is expressed by
+
+@example
+Formulation @{
+  @{ Name Magnetostatics_a_3D; Type FemEquation;
+    Quantity @{
+      @{ Name a; Type Local; NameOfSpace Hcurl_a_Gauge; @}
+    @}
+    Equation @{ 
+      Galerkin @{ [ nu[] * Dof@{Curl a@} , @{Curl a@} ];
+                 In Domain; Jacobian Vol; Integration Int_1; @}
+      Galerkin @{ [ - SourceCurrentDensity[] , @{a@} ];
+                 In DomainWithSourceCurrentDensity;
+                 Jacobian Vol; Integration Int_1; @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+Note that @var{js} is here given by a function @code{SourceCurrentDensity[]}, 
+but could also be given by data computed from another problem, 
+e.g.@: from an electrokinetic problem (coupling of formulations) or 
+from a fully fixed function space (constraints fixing the density; which is 
+usually more efficient in time domain analyses).
+
+@c .........................................................................
+@c Magnetodynamic 3D or 2D Magnetic Field and Magnetic Scalar Potential Formulation
+@c .........................................................................
+
+@node Magnetodynamics, Other formulations, Magnetostatics, Formulation examples
+@subsection Magnetodynamic 3D or 2D Magnetic Field and Magnetic Scalar Potential Formulation
+
+A magnetodynamic 3D or 2D @var{h-phi} formulation, i.e.@: coupling the magnetic 
+field @var{h} with a magnetic scalar potential @var{phi},
+
+@tex
+$$ \partial_t (\mu\,{\bf h}, {\bf h}')_W + 
+   (\rho\,{\rm curl}\,{\bf h}, {\rm curl}\,{\bf h}')_{W_c} = 0
+   \quad\forall{\bf h}'\in S^1(W) $$
+@end tex
+@ifnottex
+Dt ( @var{mu} @var{h} , @var{hp} ) @var{W} + 
+( @var{ro} curl @var{h} , curl @var{hp} ) @var{Wc} = 0 ,  
+for all @var{hp} in @i{S1(W)} ,
+@end ifnottex
+
+@noindent
+can be expressed by
+
+
+@example
+Formulation @{
+  @{ Name Magnetodynamics_hphi; Type FemEquation;
+    Quantity @{
+      @{ Name h; Type Local; NameOfSpace Hcurl_hphi; @}
+    @}
+    Equation @{ 
+      Galerkin @{ Dt [ mu[] * Dof@{h@} , @{h@} ];
+                 In Domain; Jacobian Vol; Integration Int_1; @}
+      Galerkin @{ [ rho[] * Dof@{Curl h@} , @{Curl h@} ];
+                 In DomainC; Jacobian Vol; Integration Int_1; @}
+    @}
+  @}
+@}
+@end example
+
+@c .........................................................................
+@c Nonlinearities, Mixed Formulations, ...
+@c .........................................................................
+
+@node Other formulations,  , Magnetodynamics, Formulation examples
+@subsection Nonlinearities, Mixed Formulations, ...
+
+In case nonlinear physical characteristics are considered, arguments are
+used for associated functions, e.g.@: @code{mu[@{h@}]}. Several test
+functions can be considered in an @code{Equation} field.  Consequently,
+mixed formulations can be defined.
+
+
+@c -------------------------------------------------------------------------
+@c Resolution Examples
+@c -------------------------------------------------------------------------
+
+@node Resolution examples, PostProcessing examples, Formulation examples, Short examples
+@section @code{Resolution} Examples
+
+@cindex Resolution, examples
+
+@menu
+* Static resolution::           
+* Frequency domain resolution::  
+* Time domain resolution::      
+* Nonlinear resolution::        
+* Nonlinear formulations::      
+@end menu
+
+@c .........................................................................
+@c Static Resolution (Electrostatic Problem)
+@c .........................................................................
+
+@node Static resolution, Frequency domain resolution, Resolution examples, Resolution examples
+@subsection Static Resolution (Electrostatic Problem)
+
+A static resolution, e.g.@: for the electrostatic formulation 
+(@pxref{Formulation examples}), can be defined by
+
+@example
+Resolution @{
+  @{ Name Electrostatics_v;
+    System @{
+      @{ Name Sys_Ele; NameOfFormulation Electrostatics_v; @}
+    @}
+    Operation @{ 
+      Generate Sys_Ele; Solve Sys_Ele; SaveSolution Sys_Ele; 
+    @}
+  @}
+@}
+@end example
+
+@noindent
+The generation (@code{Generate}) of the matrix of the system @code{Sys_Ele} 
+will be done with formulation @code{Electrostatics_v}, followed by its 
+solving (@code{Solve}) and the saving of solution (@code{SaveSolution}).
+
+@c .........................................................................
+@c Frequency Domain Resolution (Magnetodynamic Problem)
+@c .........................................................................
+
+@node Frequency domain resolution, Time domain resolution, Static resolution, Resolution examples
+@subsection Frequency Domain Resolution (Magnetodynamic Problem)
+
+A frequency domain resolution, e.g.@: for the magnetodynamic @var{h-phi} 
+formulation (@pxref{Formulation examples}), is given by
+
+@example
+Resolution @{
+  @{ Name Magnetodynamics_hphi;
+    System @{
+      @{ Name Sys_Mag; NameOfFormulation Magnetodynamics_hphi;
+        Frequency Freq; @}
+    @}
+    Operation @{
+      Generate Sys_Mag; Solve Sys_Mag; SaveSolution Sys_Mag;
+    @}
+  @}
+@}
+@end example
+
+@noindent
+preceded by the definition of constant @code{Freq}, e.g.@:
+
+@example
+Function @{
+  Freq = 50.;
+@}
+@end example
+
+@c .........................................................................
+@c Time Domain Resolution (Magnetodynamic Problem)
+@c .........................................................................
+
+@node Time domain resolution, Nonlinear resolution, Frequency domain resolution, Resolution examples
+@subsection Time Domain Resolution (Magnetodynamic Problem)
+
+A time domain resolution, e.g.@: for the same magnetodynamic @var{h-phi} 
+formulation (@pxref{Formulation examples}), is given by
+
+@example
+Resolution @{
+  @{ Name Magnetodynamics_hphi_Time;
+    System @{
+      @{ Name Sys_Mag; NameOfFormulation Magnetodynamics_hphi; @}
+    @}
+    Operation @{
+      InitSolution Sys_Mag; SaveSolution Sys_Mag;
+      TimeLoopTheta @{ Time0 Mag_Time0; TimeMax Mag_TimeMax;
+                      DTime Mag_DTime[]; Theta Mag_Theta[];
+                      Operation @{ Generate Sys_Mag; Solve Sys_Mag;
+                                  SaveSolution Sys_Mag; @} @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+If, e.g.@: the @code{Resolution} above is preceded by the constant and function 
+definitions below
+
+@example
+Function @{
+  Tc = 10.e-3;
+  Mag_Time0 = 0.; Mag_TimeMax = 2.*Tc; Mag_DTime[] = Tc/20.;
+  Mag_Theta[] = 1./2.;
+@}
+@end example
+
+@noindent
+the performed time analysis will be a Crank-Nicolson scheme (theta-scheme 
+with @code{Theta = 0.5}) with initial time 0 ms, end time 20 ms and 
+time step 1 ms.
+
+@c .........................................................................
+@c Nonlinear Time Domain Resolution (Magnetodynamic Problem)
+@c .........................................................................
+
+@node Nonlinear resolution, Nonlinear formulations, Time domain resolution, Resolution examples
+@subsection Nonlinear Time Domain Resolution (Magnetodynamic Problem)
+
+In case a nonlinear problem is solved, an iterative loop has to be defined 
+in an appropriate level of recursive @code{Operation} field, e.g.@: for
+the magnetodynamic problem above,
+
+@example
+@dots{}
+    Operation @{
+      InitSolution Sys_Mag;  SaveSolution Sys_Mag;
+
+      TimeLoopTheta @{
+        Time0 Mag_Time0; TimeMax Mag_TimeMax;
+        DTime Mag_DTime[]; Theta Mag_Theta[];
+        Operation @{
+
+          IterativeLoop @{
+            NbrMaxIteration NL_NbrMax; Criterion NL_Eps;
+            RelaxationFactor NL_Relax;
+            Operation @{ GenerateJac Sys_Mag; SolveJac Sys_Mag; @}
+          @}
+
+          SaveSolution Sys_Mag;
+        @}
+      @}
+@dots{}
+@end example
+
+@noindent
+preceded by constant definitions, e.g.@:
+
+@example
+Function @{
+  NL_Eps = 1.e-4; NL_Relax = 1.; NL_NbrMax = 80;
+@}
+@end example
+
+
+
+@c .........................................................................
+@c Nonlinear Formulations
+@c .........................................................................
+
+@node Nonlinear formulations,  , Nonlinear resolution, Resolution examples
+@subsection Nonlinear Formulations
+
+A coupled problem, e.g.@: magnetodynamic (in frequency domain; 
+@code{Frequency Freq}) - thermal (in time domain) coupling, with temperature 
+dependent characteristics (e.g.@: @code{rho[@{T@}]}, ...), can be defined by:
+
+@example
+Resolution @{
+  @{ Name MagnetoThermalCoupling_hphi_T;
+    System @{
+      @{ Name Sys_Mag; NameOfFormulation Magnetodynamics_hphi; 
+        Frequency Freq; @}
+      @{ Name Sys_The; NameOfFormulation Thermal_T; @}
+    @}
+    Operation @{
+      InitSolution Sys_Mag; InitSolution Sys_The;
+
+      IterativeLoop @{
+        NbrMaxIteration NL_NbrMax; Criterion NL_Eps;
+        RelaxationFactor NL_Relax;
+        Operation @{ GenerateJac Sys_Mag; SolveJac Sys_Mag; 
+                    GenerateJac Sys_The; SolveJac Sys_The; @}
+      @}
+      SaveSolution Sys_Mag; SaveSolution Sys_The;
+    @}
+  @}
+@}
+@end example
+
+@noindent
+Two systems of equations, @code{Sys_Mag} and @code{Sys_The}, will be solved 
+iterativelly until convergence (@code{Criterion}), using a relaxation factor 
+(@code{RelaxationFactor}).
+
+
+It can be seen through these examples that many resolutions can be chained or 
+nested directly by the user, which gives a great freedom for coupled problems.
+
+
+@c -------------------------------------------------------------------------
+@c PostProcessing Examples
+@c -------------------------------------------------------------------------
+
+@node PostProcessing examples, PostOperation examples, Resolution examples, Short examples
+@section @code{PostProcessing} Examples
+
+@cindex Post-processing, examples
+
+The quantities to be post-computed based on a solution of a resolution 
+are defined e.g.@: for the electrostatic problem (@pxref{Formulation examples}; 
+@pxref{Resolution examples}), for the solution associated with formulation 
+@code{Electrostatics_v}, by
+
+@example
+PostProcessing @{
+  @{ Name EleSta_v; NameOfFormulation Electrostatics_v;
+    PostQuantity @{
+      @{ Name v; Value @{ Term @{ [ @{v@} ]; In Domain; @} @} @}
+      @{ Name e; Value @{ Term @{ [ -@{Grad v@} ]; In Domain; @} @} @}
+      @{ Name d; Value @{ Term @{ [ -eps0*epsr[] *@{Grad v@} ];
+                                  In Domain; @} @} @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+with the predefinition @code{Function @{ eps0 = 8.854187818e-12; @}}.
+The electric scalar potential @var{v} (@code{v}), the electric field
+@var{e} (@code{e}) and the electric flux density @var{d} (@code{d}) can
+all be computed from the solution. They are all defined in region
+@code{Domain}.
+
+The quantities for the solution associated with formulation 
+@code{Electrostatics_v_float@-ing} are defined by
+
+@example
+PostProcessing @{
+  @{ Name EleSta_vf; NameOfFormulation Electrostatics_v_floating;
+    PostQuantity @{
+
+      @dots{} @var{same as above} @dots{}
+
+      @{ Name Q ; Value @{ Term @{ [ @{Q@} ] ; In SkinDomainC ; @} @} @}
+      @{ Name V ; Value @{ Term @{ [ @{V@} ] ; In SkinDomainC ; @} @} @}
+    @}
+  @}
+@}
+@end example
+
+@noindent
+which points out the way to define post-quantities based on global quantities.
+
+
+@c -------------------------------------------------------------------------
+@c PostOperation Examples
+@c -------------------------------------------------------------------------
+
+@node PostOperation examples,  , PostProcessing examples, Short examples
+@section @code{PostOperation} Examples
+
+@cindex Post-operation, examples
+
+@menu
+* Maps::                        
+* Cuts::                        
+* Prints::                      
+@end menu
+
+@c .........................................................................
+@c Maps of Fields
+@c .........................................................................
+
+@node Maps, Cuts, PostOperation examples, PostOperation examples
+@subsection Maps of Fields
+
+@example
+PostOperation Map_v_e UsingPost EleSta_v @{
+  Plot [ v, OnRegion Domain, File "map_v.pos" ];
+  Plot [ e, OnRegion Domain, File "map_e.pos" ];
+@}
+@end example
+
+@c .........................................................................
+@c Cuts of Fields
+@c .........................................................................
+
+@node Cuts, Prints, Maps, PostOperation examples
+@subsection Cuts of Fields
+
+@example
+e = 1.e-7;
+
+PostOperation Cut_e UsingPost EleSta_v @{
+  Plot [ e, OnLine @{ @{e,e,0@} @{10.e-3,e,0@} @} @{1000@}, File "cut_e.cut" ];
+@}
+@end example
+
+@c .........................................................................
+@c Printing of Global Quantities
+@c .........................................................................
+
+@node Prints,  , Cuts, PostOperation examples
+@subsection Printing of Global Quantities
+
+@example
+PostOperation Val_V_Q UsingPost EleSta_vf @{
+  Print [ V, OnRegion SkinDomainC ];
+  Print [ Q, OnRegion SkinDomainC ];
+@}
+@end example
+
+@c =========================================================================
+@c Complete Examples
+@c =========================================================================
+
+@node Complete examples, Running GetDP, Short examples, Top
+@chapter Complete Examples
+
+@cindex Complete examples
+@cindex Examples, complete
+
+@menu
+* Electrostatic problem::       
+* Magnetostatic problem::       
+* Magnetodynamic problem::      
+@end menu
+
+@c -------------------------------------------------------------------------
+@c Electrostatic Problem
+@c -------------------------------------------------------------------------
+
+@node Electrostatic problem, Magnetostatic problem, Complete examples, Complete examples
+@section Electrostatic Problem
+
+
+An elementary electrostatic problem is first considered.  The
+formulation used is an electric scalar potential formulation (file
+@file{EleSta_v.pro}, including files @file{Jacobian_Lib.pro} and
+@file{Integration_Lib.pro}).  It is applied to a microstrip line (file
+@file{mStrip.pro}), of which the geometry is defined in the file
+@file{mStrip.geo}: see @ref{Gmsh examples}. The geometry is two-dimensional;
+one half of the structure is considered by symmetry.
+
+@image{Strip,,}
+
+The structure of the following files points out the separation of the
+data describing the particular problem and the method used to solve it,
+and therefore how it is possible to build black boxes adapted to well
+defined categories of problems. The files are commented
+(@pxref{Comments}) and can be run without any modification.
+
+@include mStrip.pro
+@include EleSta_v.pro
+@include Jacobian_Lib.pro
+@include Integration_Lib.pro
+
+
+@page
+
+@c -------------------------------------------------------------------------
+@c Magnetostatic Problem
+@c -------------------------------------------------------------------------
+
+@node Magnetostatic problem, Magnetodynamic problem, Electrostatic problem, Complete examples
+@section Magnetostatic Problem
+
+A magnetostatic problem is considered.  The formulation used is a 2D
+magnetic vector potential formulation (see file @file{MagSta_a_2D.pro}).
+It is applied to a core-inductor system (file @file{CoreSta.pro}), of
+which the geometry is defined in file @file{Core.geo} (@pxref{Gmsh
+examples}).  The geometry is two-dimensional; one fourth of the
+structure is considered by symmetry.
+
+@image{Core,,}
+
+The jacobian and integration methods used are the same as for the
+electrostatic problem presented in @ref{Electrostatic problem}.
+
+@include CoreSta.pro
+@include MagSta_a_2D.pro
+
+@page
+
+@c -------------------------------------------------------------------------
+@c Magnetodynamic Problem
+@c -------------------------------------------------------------------------
+
+@node Magnetodynamic problem,  , Magnetostatic problem, Complete examples
+@section Magnetodynamic Problem
+
+
+A magnetodynamic problem is considered.  The formulation used is a
+two-dimensional a-v formulation (see file @file{MagDyn_av_2D.pro},
+including files @file{Jacobian_Lib.pro} and @file{In@-tegration_Lib.pro}
+already given in previous section).  It is applied to a core-inductor
+system (defined in file @file{CoreMassive.pro}), of which the geometry
+has already been defined in file @file{Core.geo} (giving file
+@file{Core.msh} with Gmsh; @pxref{Input file format}).
+
+The jacobian and integration methods used are defined in the same file
+as for the electrostatic problem in @ref{Electrostatic problem}.
+
+@include CoreMassive.pro
+@include MagDyn_av_2D.pro
+
+
+@c =========================================================================
+@c Running GetDP
+@c =========================================================================
+
+@node Running GetDP, File formats, Complete examples, Top
+@chapter Running GetDP
+
+@cindex Operating system
+@cindex Platforms
+@cindex Command line options
+@cindex Options, command line
+@cindex Running GetDP
+
+GetDP has no graphical interface. It is a command-line driven program
+that reads a problem definition file once at the begining of the
+processing. This problem definition file is a regular ASCII file
+(@pxref{Tools}), hence created with whatever editor you like.
+
+If you just type the program name at your shell prompt (without any
+argument), you will get a short help on how to run GetDP. All GetDP
+calls look like
+
+@example
+getdp @var{filename} @var{options} 
+@end example
+
+@noindent
+where @var{filename} is an ASCII file containing the problem definition,
+i.e.@: the structures this user's guide teached you to create. This file
+can include other files (@pxref{Includes}), so that only one problem
+definition file should always be given on the command line. The input
+files containing the problem definition structure are usually given the
+@file{.pro} extension (if so, there is no need to specify the extension
+on the command line). The name of this file (without the extension) is
+used as a basis for the creation of intermediate files during the
+pre-processing and the processing stages.
+
+The @var{options} are a combination of the following commands (in any
+order):
+
+@table @code
+@item -pre @var{resolution-id}
+Performs the pre-processing associated with the resolution
+@var{resolution-id}. In the pre-processing stage, GetDP creates the
+geometric database (from the mesh file), identifies the degrees of
+freedom (the unknowns) of the problem and sets up the constraints on
+these degrees of freedom. The pre-processing creates a file with a
+@file{.pre} extension. If @var{resolution-id} is omitted, the list of
+available choices is displayed.
+
+@item -cal
+Performs the processing. This requires that a pre-processing has been
+performed previously, or a that a @code{-pre} option is given on the
+same command line. The performed resolution is the one given as an
+argument to the @code{-pre} option. In the processing stage, GetDP
+executes all the commands given in the @code{Operation} field of the
+selected @code{Resolution} object (such as matrix assemblies, system
+resolutions, ...).
+
+@item -pos @var{post-operation-id}
+Performs the operations in the @var{PostOperation} selected by
+@var{post-operation-id}. This requires that a processing has been
+performed previously, or that a @code{-cal} option is given on the same
+command line. If @var{post-operation-id} is omitted, the list of
+available choices is displayed.
+
+@item -ipos @var{post-processing-id}
+Enters an interactive post-processing mode, enabling you to enter
+@code{PostOperation}-like commands manually. These commands are based on
+the @var{PostProcessing} object selected by @var{post-processing-id}.
+If @var{post-processing-id} is omitted, the list of available choices is
+displayed.
+
+@item -msh @var{filename}
+Reads the mesh database (in @code{.msh} format) from @var{filename}
+(@pxref{File formats}) instead of in the default problem file name (with
+the @file{.msh} extension appended).
+
+@item -res @var{filename}
+Undocumented.
+
+@item -restart
+Restarts processing of a transient problem interrupted before being complete.
+
+@item -solve @var{resolution-id}
+Same as @code{-pre @var{resolution-id} -cal}.
+
+@item -bin 
+Selects binary format for output files.
+
+@item -log
+Saves all processing history in a log file (the input file name with an
+appended @code{.log} extension).
+
+@item -check  
+Lets you check the problem structure interactively. 
+
+@item -v @var{int}
+Sets the verbosity level. A value of 0 means that no information will be
+displayed during processing.
+
+@item -p @var{int}
+Sets the progress update rate. This controls the refreshment rate of the
+counter indicating the progress of the current computation.
+
+@item -version
+Displays version information.
+
+@item -help
+Displays a message listing basic usage and available options.
+
+@end table
+
+@c =========================================================================
+@c File Formats
+@c =========================================================================
+
+@node File formats, Versions and credits, Running GetDP, Top
+@chapter File Formats
+
+@menu
+* Input file format::           
+* Output file format::          
+@end menu
+
+@c -------------------------------------------------------------------------
+@c Input File Format
+@c -------------------------------------------------------------------------
+
+@node Input file format, Output file format, File formats, File formats
+@section Input File Format
+
+@cindex Input file format
+@cindex Gmsh, file format
+@cindex Mesh, file format
+@cindex File, mesh
+@cindex File, @file{.msh}
+@cindex @file{.msh} file
+
+
+The native mesh format read by GetDP is the mesh format produced by Gmsh
+(@value{WEB-GMSH}). The file is divided in two sections, defining the
+nodes and the elements in the mesh.
+
+@example
+$NOD
+@var{number-of-nodes}
+@var{node-number} @var{x-coord} @var{y-coord} @var{z-coord}
+@dots{}
+$ENDNOD
+$ELM
+@var{number-of-elements}
+@var{elm-number} @var{elm-type} @var{elm-region} @var{unused} @var{number-of-nodes} @var{node-numbers}
+@dots{}
+$ENDELM
+@end example
+
+@noindent
+All the syntactic variables stand for integers except @var{x-coord},
+@var{y-coord} and @var{z-coord} which stand for floating point values.
+The @var{elm-type} value defines the geometrical type for the element:
+
+@noindent
+@var{elm-type}:
+
+@table @code
+@item 1
+Line (2 nodes, 1 edge).
+@item 2
+Triangle (3 nodes, 3 edges).
+@item 3
+Quadrangle (4 nodes, 4 edges).
+@item 4
+Tetrahedron (4 nodes, 6 edges, 4 facets).
+@item 5
+Hexahedron (8 nodes, 12 edges, 6 facets).
+@item 6
+Prism (6 nodes, 9 edges, 5 facets).
+@item 7
+Pyramid (5 nodes, 8 edges, 6 facets).
+@item 15
+Point (1 nodes).
+@end table
+
+@c -------------------------------------------------------------------------
+@c Output File Format
+@c -------------------------------------------------------------------------
+
+@node Output file format,  , Input file format, File formats
+@section Output File Format
+
+@cindex Output file format
+
+@menu
+* File pre::                    
+* File res::                    
+* Post-processing files::       
+@end menu
+
+
+@c .........................................................................
+@c File .pre
+@c .........................................................................
+
+@node File pre, File res, Output file format, Output file format
+@subsection File @file{.pre}
+
+@cindex File, pre-processing
+@cindex @file{.pre} file
+@cindex File, @file{.pre}
+
+The @file{.pre} file is generated by the pre-processing stage. It
+contains all the information about the degrees of freedom to be
+considered during the processing stage for a given resolution (i.e.@:
+unknowns, fixed values, initial values, etc).
+
+@example
+$Resolution /* '@var{resolution-id}' */
+@var{main-resolution-number} @var{number-of-dofdata}
+$EndResolution
+$DofData /* #@var{dofdata-number} */
+@var{resolution-number} @var{system-number}
+@var{number-of-function-spaces} @var{function-space-number} @dots{}
+@var{number-of-time-functions} @var{time-function-number} @dots{}
+@var{number-of-any-dof} @var{number-of-dof}
+@var{dof-basis-function-number} @var{dof-entity} @var{dof-harmonic} @var{dof-type} @var{dof-data}
+@dots{}
+$EndDofData
+@dots{}
+@end example
+
+@noindent
+with
+
+@example
+@var{dof-data}:
+  @var{equation-number}
+    (@var{dof-type}: 1; @var{unknown}) |
+  @var{dof-value} @var{dof-time-function-number}
+    (@var{dof-type}: 2; @var{fixed value}) |
+  @var{dof-associate-dof-number} @var{dof-value} @var{dof-time-function-number}
+    (@var{dof-type}: 3; @var{associated degree of freedom}) |
+  @var{equation-number} @var{dof-value}
+    (@var{dof-type}: 5; @var{initial value for an unknown})
+
+@end example
+
+
+@noindent Notes:
+@enumerate
+@item
+There is one @code{$DofData} field for each system of equations considered in 
+the resolution (including those considered in pre-resolutions).
+@item
+The @var{dofdata-number} of a @code{$DofData} field is determined by the order 
+of this field in the @file{.pre} file.
+@item
+@var{number-of-dof} is the dimension of the considered system of equations, while 
+@var{number-of-any-dof} is the total number of degrees of freedom before 
+the application of constraints.
+@item
+Each degree of freedom is coded with three integer values, which are the 
+associated basis function, entity and harmonic numbers, i.e.@:
+@var{dof-basis-function-number}, @var{dof-entity} and @var{dof-harmonic}.
+@end enumerate
+
+
+@c .........................................................................
+@c File .res
+@c .........................................................................
+
+@node File res, Post-processing files, File pre, Output file format
+@subsection File @file{.res}
+
+@cindex File, result
+@cindex @file{.res} file
+@cindex File, @file{.res}
+
+The @file{.res} file is generated by the processing stage. It contains
+the solution of the problem (or a part of it in case of program
+interruption).
+
+@example
+$ResFormat /* GetDP v@var{getdp-version-number}, @var{string-for-format} */
+@var{getdp-version-number} @var{file-res-format}
+$EndResFormat
+$Solution  /* DofData #@var{dofdata-number} */
+@var{dofdata-number} @var{time-value} @var{time-step-number}
+@var{solution-value}
+@dots{}
+$EndSolution
+@dots{}
+@end example
+
+
+@noindent Notes:
+@enumerate
+@item
+A @code{$Solution} field contains the solution associated with a 
+@code{$DofData} field.
+@item
+There is one @code{$Solution} field for each time step, of which the time is 
+@var{time-value} (0 for non time dependent analyses).
+@item
+The order of the @var{solution-value}'s in a @code{$Solution} field follows 
+the numbering of the equations given in the @file{.pre} file 
+(one floating point value for each degree of freedom).
+@end enumerate
+
+
+@c .........................................................................
+@c Post-processing files
+@c .........................................................................
+
+@node Post-processing files,  , File res, Output file format
+@subsection Post-processing Files
+
+@cindex File, post-processing
+
+Undocumented.
+
+
+
+@c =========================================================================
+@c Programming Comments
+@c =========================================================================
+
+@c CETTE SECTION DEVIENDRA UN CHAPITRE SI LES SOURCES SONT FOURNIES SUR LE WEB
+
+@c @node Programming comments, Syntactic rules, Working philosophy, Overview
+@c @chapter Programming Comments
+
+@c @cindex Programming comments
+@c @cindex Language
+@c @cindex C
+@c @cindex C++
+@c @cindex @code{lex}
+@c @cindex @code{flex}
+@c @cindex @code{yacc}
+@c @cindex @code{bison}
+
+@c The analysis of the syntax is performed by Lex and Yacc, the software
+@c being written in C. C permits the manipulation of data structures and
+@c function pointers in ways that Fortran simply does not allow. ANSI C is
+@c a complete standard that all modern C compilers support, and the
+@c language is identical on all machines. It would be natural and
+@c reasonable to have coded GetDP in C++; we have opted to use C instead,
+@c since C++ is still evolving and compilers on different machines still
+@c present differences on advanced features. Using C function pointers to
+@c provide data encapsulation and polymorphism has allowed us to get many
+@c of the advantages of C++ without using such a large and more complicated
+@c language.
+
+
+@c =========================================================================
+@c Versions and Credits
+@c =========================================================================
+
+@node Versions and credits, Tips, File formats, Top
+@chapter Versions and Credits
+
+@menu
+* Versions::                    
+* Bugs::                        
+* Contributors::                
+@end menu
+
+@c -------------------------------------------------------------------------
+@c Versions
+@c -------------------------------------------------------------------------
+
+@node Versions, Bugs, Versions and credits, Versions and credits
+@section Version History
+
+@cindex Versions
+@cindex History, versions
+@cindex Changelog
+
+@itemize @bullet
+@item
+@b{0.3}: First distributed version;
+@item 
+@b{0.6}: Second order time derivatives; Newton nonlinear scheme; Newmark
+time stepping scheme; global quantity syntax; interactive
+post-processing; tensors; integral quantities; post-processing
+facilities;
+@item
+@b{0.7}: constraint syntax; fourier transform; unary minus correction; complex
+integral quantity correction; separate iteration matrix generation;
+@item
+@b{0.73}: Eigen value problems (Lanczos); minor corrections;
+@item
+@b{0.74}: High order shape functions; lots of small bug fixes;
+@end itemize
+
+@c -------------------------------------------------------------------------
+@c Bugs
+@c -------------------------------------------------------------------------
+
+@node Bugs, Contributors, Versions, Versions and credits
+@section Bugs
+
+@cindex Known bugs
+@cindex Bugs, known
+@cindex Bugs, reporting
+@cindex Reporting bugs
+@cindex Authors, e-mail
+@cindex E-mail, authors
+
+If you think you have found a bug in GetDP, please report it by
+electronic mail to @email{Patrick.Dular@@ulg.ac.be} or
+@email{Christophe.Geuzaine@@ulg.ac.be}.  Send as precise a description
+of the problem as you can, including sample input files that produce the
+bug (problem definition and mesh files). Don't forget to mention both
+the versions of GetDP and of your operation system (@pxref{Running
+GetDP} to see how to get this information).
+
+Here is a list of known bugs:
+
+@itemize @bullet
+@item
+Arguments in nested expressions don't work. This is a *BIG* bug.
+@end itemize
+
+
+@c -------------------------------------------------------------------------
+@c Contributors
+@c -------------------------------------------------------------------------
+
+@node Contributors,  , Bugs, Versions and credits
+@section Contributors
+
+@cindex Acknowledgments
+@cindex Contributors, list
+@cindex Credits 
+
+@itemize @bullet
+@item
+M. Ume: code for lists and trees (listman.c, treeman.c). 
+@item
+J.-F. Remacle: initial version of default solver; ideas for
+Pos_Search.c, Pos_Fill.c and for the three-dimensional cutting
+algorithm.
+@item 
+F. Henrotte: special axisymetric jacobians; ideas about many others
+things.
+@item 
+B. Meys: concepts for the Newmark time stepping scheme.
+@item
+T. Tarhasaari: ideas for de Rham maps and dual meshes.
+@item
+D. Colignon: code for infinite jacobians, parallelization.
+@item
+Unknown: avl tree code
+@item
+@dots{}
+@end itemize
+
+And many thanks to all the users whose feedback permitted many
+improvements and bug correction...
+
+
+@c =========================================================================
+@c Tips ans Tricks
+@c =========================================================================
+
+@node Tips, Gmsh examples, Versions and credits, Top
+@appendix Tips and Tricks
+
+@cindex Tips
+@cindex Tricks
+@cindex Efficiency, tips
+
+@itemize @bullet
+@item
+Use emacs to edit your files, and load the C++ mode. This permits
+automatic syntax highlighting and easy indentation. Automatic loading of
+the C++ mode for @file{.pro} files can be done by adding the following
+command in your @code{.emacs} file: @code{(setq auto-mode-alist (append
+'(("\\.pro$" . c++-mode)) auto-mode-alist))}.
+@item
+Define integration and Jacobian method in separate files, reusable
+(@pxref{Includes}) in all your problem definition structures. Define
+meshes, groups, functions and constraints in one file dependent of the
+geometrical model, and functions spaces, formulations, resolutions and
+post-processings in files independent of the geometrical model.
+@item
+Use @code{All} as soon as you can in the definition of topological
+entities used as @code{Entity} of @code{BasisFunction}'s. 
+This will prevent GetDP of constructing unnecessary lists of entities.
+@item
+Intentionnally misspelling an object type in the problem definition
+structure will produce an error message listing all available types in
+the particular context.
+@end itemize
+
+
+@c =========================================================================
+@c Gmsh Examples
+@c =========================================================================
+
+@node Gmsh examples, Concept index, Tips, Top
+@appendix Gmsh Examples
+
+@cindex Gmsh, examples
+@cindex Mesh, examples
+
+Gmsh is a three-dimensional meshing tool (with pre- and post-processing
+facilities). Written in C/C++ and using OpenGL, Gmsh is available for
+most of the classical UNIX platforms (SUN, DEC, IBM, HP and Linux) and
+for Windows 95/98/NT. Gmsh can be downloaded from @value{WEB-GMSH}.
+
+This appendix reproduces verbatim the input files needed by Gmsh to
+produce the mesh files @file{mStrip.msh} and @file{Core.msh} used in the
+examples of @ref{Complete examples}. 
+
+@include mStrip.geo
+@include Core.geo
+
+
+@c =========================================================================
+@c Concept Index
+@c =========================================================================
+
+@node Concept index, Syntax index, Gmsh examples, Top
+@unnumbered Concept Index
+
+@cindex Index, concepts
+@cindex Concepts, index
+
+@printindex cp
+
+@c =========================================================================
+@c Syntax Index
+@c =========================================================================
+
+@node Syntax index, Variable index, Concept index, Top
+@unnumbered Syntax Index
+
+@cindex Index, syntax
+@cindex Syntax, index
+@cindex Keywords, index
+
+@printindex tp
+
+@c =========================================================================
+@c Variable Index
+@c =========================================================================
+
+@node Variable index, Type index, Syntax index, Top
+@unnumbered Variable Index
+
+@cindex Index, metasyntactic variables
+@cindex Variables, index
+@cindex Metasyntactic variables, index
+
+@printindex mv
+
+@c =========================================================================
+@c Type Index
+@c =========================================================================
+
+@node Type index,  , Variable index, Top
+@unnumbered Type Index
+
+@cindex Index, types for objects
+@cindex Types for objects, index
+
+@printindex vr
+
+@summarycontents
+@contents
+@bye
