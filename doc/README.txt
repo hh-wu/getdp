@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.8 2001-05-18 08:09:04 geuzaine Exp $
+$Id: README.txt,v 1.9 2001-07-27 08:10:01 geuzaine Exp $
 
 For Windows versions of GetDP only:
 ===================================
@@ -18,11 +18,12 @@ simultaneously.
 
 GetDP has no graphical interface. It is a command-line driven program
 that reads a problem definition file once at the beginning of the
-processing. To launch GetDP on Windows, you have to first open a DOS
-command shell. The problem definition files are regular ASCII files:
-you can thus create them with whatever editor you like (e.g. Notepad,
-Wordpad or Emacs). Note that precompiled versions of Emacs for Windows
-are available at ftp://ftp.gnu.org/gnu/windows/emacs/.
+processing. To launch GetDP on Windows without the graphical front-end
+provided by Gmsh, you have to first open a DOS command shell. The
+problem definition files are regular ASCII text files: you can thus
+create them with whatever editor you like (e.g. Notepad, Wordpad or
+Emacs). Note that precompiled versions of Emacs for Windows are
+available at ftp://ftp.gnu.org/gnu/windows/emacs/.
 
 If you regularly use GetDP with the DOS shell, you will soon want a
 more capable shell (with cut-and-paste possibilities, complete
@@ -45,12 +46,12 @@ Instead of launching the DOS command shell, you should now launch
 cygwin, and enjoy the particular taste of the Unix way of life under
 Windows!
 
-3) Using Gmsh as a graphical front end to GetDP:
+3) Using Gmsh as a graphical front-end to GetDP:
 
 Gmsh (http://www.geuz.org/gmsh/) is an automatic three-dimensional
 finite element mesh generator, primarily Delaunay, with built-in pre-
 and post-processing facilities. Gmsh can also be used as a graphical
-front end to GetDP. The default behaviour of Gmsh is to look for GetDP
+front-end to GetDP. The default behaviour of Gmsh is to look for GetDP
 in the same directory as the Gmsh executable (i.e. you should copy
 getdp.exe in the same directory as gmsh.exe).
 
