@@ -1,4 +1,4 @@
-/* $Id: Data_Function.h,v 1.6 2000-09-12 20:19:34 geuzaine Exp $ */
+/* $Id: Data_Function.h,v 1.7 2000-09-18 16:22:06 geuzaine Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 
@@ -347,7 +347,7 @@ struct StringX3Function2Nbr  BF_Function[] = {
   {"BF_Volume", (CAST)BF_Volume, (CAST)BF_Volume, (CAST)BF_Zero, 0., ALL },
 
 
-  /* (H^0)^3 Basis Functions */
+  /* (H^1)^3 Basis Functions */
 
   {"BF_NodeX" , (CAST)BF_NodeX , (CAST)BF_CurlNodeX , (CAST)BF_DivNodeX , 1. , ALL },
   {"BF_NodeY" , (CAST)BF_NodeY , (CAST)BF_CurlNodeY , (CAST)BF_DivNodeY , 1. , ALL },
