@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.7 2000-11-03 08:31:31 dular Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.8 2000-11-19 20:21:12 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -7,6 +7,9 @@
 #include "DofData.h"
 #include "Data_Numeric.h"
 #include "CurrentData.h"
+
+static int Warning_DtStatic = 0 ;
+static int Warning_DtDtStatic = 0, Warning_DtDtFirstOrder = 0 ;
 
 /* ------------------------------------------------------------------------ */
 /*  No Time Derivative                                                      */
@@ -111,9 +114,10 @@ void  Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[]) {
     if (Current.NbrHar == 1) {
       switch (Current.TypeTime) {
       case TIME_STATIC :
-	/*
-	Msg(ERROR, "First Order Time Derivative in Static Problem");
-	*/
+	if(!Warning_DtStatic){
+	  Msg(WARNING, "First Order Time Derivative in Static Problem (Discarded)");
+	  Warning_DtStatic = 1 ;
+	}
 	break;
       case TIME_THETA :
 	tmp[0] = Val[0]/Current.DTime ;
@@ -198,14 +202,16 @@ void  Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
     if (Current.NbrHar == 1) {
       switch (Current.TypeTime) {
       case TIME_STATIC :
-	/*
-	Msg(ERROR, "Second Order Time Derivative in Static Problem");
-	*/
+	if(!Warning_DtDtStatic){
+	  Msg(WARNING, "Second Order Time Derivative in Static Problem (Discarded)");
+	  Warning_DtDtStatic = 1 ;
+	}
 	break;
       case TIME_THETA :
-	/*
-	Msg(ERROR, "Second Order Time Derivative with Theta Time Integration");
-	*/
+	if(!Warning_DtDtFirstOrder){
+	  Msg(WARNING, "Second Order Time Derivative in First Order Time Scheme (Discarded)");
+	  Warning_DtDtFirstOrder = 1 ;
+	}
 	break;
       case TIME_NEWMARK :
 	tmp[0] = Val[0]/DSQU(Current.DTime) ;
