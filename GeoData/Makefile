@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.3 2000-09-07 18:47:24 geuzaine Exp $
+# $Id: Makefile,v 1.4 2000-09-08 09:51:11 geuzaine Exp $
 #
 # Makefile for "libGeoData.a"
 #
@@ -9,7 +9,7 @@ C_FLAGS = -g
 RANLIB  = /usr/bin/ranlib
 
 LIB     = ../lib/libGeoData.a
-INCLUDE = -I../include
+INCLUDE = -I. -I../include -I../DataStr -I../Main
 
 CFLAGS = $(C_FLAGS) $(OS_FLAGS) $(INCLUDE)
 
@@ -45,38 +45,19 @@ nodepend:
 	$(RM) Makefile.new
 
 # DO NOT DELETE THIS LINE
-GeoData.o: GeoData.c GeoData.h ../include/Message.h \
- ../include/../Main/Message.h Data_GeoData.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- ../include/Data_Element.h ../include/../Main/Data_Element.h \
- ../include/GeoData.h ../include/../GeoData/GeoData.h \
- ../include/ualloc.h ../include/../DataStr/ualloc.h ../include/Magic.h
-GeoEntity.o: GeoEntity.c GeoData.h ../include/Message.h \
- ../include/../Main/Message.h Data_GeoData.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- ../include/Data_Passive.h ../include/../Main/Data_Passive.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h GeoEntity.h ../include/ualloc.h \
- ../include/../DataStr/ualloc.h ../include/outil.h \
- ../include/../DataStr/outil.h ../include/Magic.h
-GeoTree.o: GeoTree.c GeoData.h ../include/Message.h \
- ../include/../Main/Message.h Data_GeoData.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- ../include/Data_Passive.h ../include/../Main/Data_Passive.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/ualloc.h \
- ../include/../DataStr/ualloc.h ../include/outil.h \
- ../include/../DataStr/outil.h
-GeoNormal.o: GeoNormal.c ../include/Data_Passive.h \
- ../include/../Main/Data_Passive.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/../Main/Message.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/Message.h \
- ../include/../GeoData/Data_GeoData.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h GeoData.h \
- ../include/ualloc.h ../include/../DataStr/ualloc.h ../include/outil.h \
- ../include/../DataStr/outil.h
+GeoData.o: GeoData.c GeoData.h ../Main/Message.h Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
+ ../Main/Data_Passive.h ../Main/Data_Element.h ../DataStr/ualloc.h \
+ ../include/Magic.h
+GeoEntity.o: GeoEntity.c GeoData.h ../Main/Message.h Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
+ ../Main/Data_Passive.h ../Main/Data_Element.h GeoEntity.h \
+ ../DataStr/ualloc.h ../DataStr/outil.h ../include/Magic.h
+GeoTree.o: GeoTree.c GeoData.h ../Main/Message.h Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
+ ../Main/Data_Passive.h ../Main/Data_Element.h ../DataStr/ualloc.h \
+ ../DataStr/outil.h
+GeoNormal.o: GeoNormal.c ../Main/Data_Passive.h ../DataStr/listman.h \
+ ../Main/Message.h ../Main/Data_Element.h GeoData.h Data_GeoData.h \
+ ../DataStr/treeman.h ../DataStr/avl.h ../Main/Data_Numeric.h \
+ ../DataStr/ualloc.h ../DataStr/outil.h

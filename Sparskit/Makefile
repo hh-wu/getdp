@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2000-09-07 18:47:29 geuzaine Exp $
+# $Id: Makefile,v 1.3 2000-09-08 09:51:11 geuzaine Exp $
 #
 #  Makefile for 'libSparskit.a'
 #
@@ -9,11 +9,10 @@ C_FLAGS   = -g
 F77_FLAGS = -O3
 RANLIB    = /usr/bin/ranlib
 
-# SOLVER_FLAGS = -D_SPARSKIT -D_ILU_FLOAT 
 SOLVER_FLAGS = -D_SPARSKIT
 
 LIB      = ../lib/libSparskit.a
-INCLUDE  = -I../include
+INCLUDE  = -I. -I../include -I../DataStr -I../Main -I../Numeric
 
 CFLAGS = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(INCLUDE)
 FFLAGS = $(F77_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(INCLUDE)
@@ -70,18 +69,11 @@ nodepend:
 	$(RM) Makefile.new
 
 # DO NOT DELETE THIS LINE
-Solver.o: Solver.c ../include/ualloc.h ../include/../DataStr/ualloc.h \
- Solver.h ../include/listman.h ../include/../DataStr/listman.h \
- Solver_F.h ../include/Compat.h ../include/Message.h \
- ../include/../Main/Message.h
-Matrix.o: Matrix.c ../include/ualloc.h ../include/../DataStr/ualloc.h \
- Solver.h ../include/listman.h ../include/../DataStr/listman.h \
- Solver_F.h ../include/Compat.h ../include/Message.h \
- ../include/../Main/Message.h
-Parser.o: Parser.c Solver.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/ualloc.h \
- ../include/../DataStr/ualloc.h
-CSR.o: CSR.c Solver.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/ualloc.h \
- ../include/../DataStr/ualloc.h ../include/nrutil.h \
- ../include/../Numeric/nrutil.h
+Solver.o: Solver.c ../DataStr/ualloc.h Solver.h ../DataStr/listman.h \
+ Solver_F.h ../include/Compat.h ../Main/Message.h
+Matrix.o: Matrix.c ../DataStr/ualloc.h Solver.h ../DataStr/listman.h \
+ Solver_F.h ../include/Compat.h ../Main/Message.h
+Parser.o: Parser.c Solver.h ../DataStr/listman.h ../DataStr/ualloc.h \
+ ../Main/Message.h
+CSR.o: CSR.c Solver.h ../DataStr/listman.h ../DataStr/ualloc.h \
+ ../Numeric/nrutil.h

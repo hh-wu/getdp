@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2000-09-07 18:47:25 geuzaine Exp $
+# $Id: Makefile,v 1.5 2000-09-08 09:51:11 geuzaine Exp $
 #
 # Makefile for "libIntegration.a"
 #
@@ -9,7 +9,7 @@ C_FLAGS = -g
 RANLIB  = /usr/bin/ranlib
 
 LIB     = ../lib/libIntegration.a
-INCLUDE = -I../include 
+INCLUDE = -I. -I../include -I../DataStr -I../Main
 
 CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(INCLUDE)
 
@@ -52,23 +52,16 @@ nodepend:
 
 # DO NOT DELETE THIS LINE
 Gauss_Point.o: Gauss_Point.c
-Gauss_Line.o: Gauss_Line.c ../include/Message.h \
- ../include/../Main/Message.h Gauss_Line.h
-Gauss_Triangle.o: Gauss_Triangle.c ../include/Message.h \
- ../include/../Main/Message.h Quadrature.h Gauss_Triangle.h \
- ../include/ualloc.h ../include/../DataStr/ualloc.h
-Gauss_Quadrangle.o: Gauss_Quadrangle.c ../include/Message.h \
- ../include/../Main/Message.h Quadrature.h Gauss_Quadrangle.h \
- ../include/ualloc.h ../include/../DataStr/ualloc.h
-Gauss_Tetrahedron.o: Gauss_Tetrahedron.c ../include/Message.h \
- ../include/../Main/Message.h Quadrature.h Gauss_Tetrahedron.h \
- ../include/ualloc.h ../include/../DataStr/ualloc.h
-Gauss_Hexahedron.o: Gauss_Hexahedron.c ../include/Message.h \
- ../include/../Main/Message.h Quadrature.h Gauss_Hexahedron.h \
- ../include/ualloc.h ../include/../DataStr/ualloc.h
-Gauss_Prism.o: Gauss_Prism.c ../include/Message.h \
- ../include/../Main/Message.h Gauss_Prism.h
-Gauss_Pyramid.o: Gauss_Pyramid.c ../include/Message.h \
- ../include/../Main/Message.h Gauss_Pyramid.h
+Gauss_Line.o: Gauss_Line.c ../Main/Message.h Gauss_Line.h
+Gauss_Triangle.o: Gauss_Triangle.c ../Main/Message.h Quadrature.h \
+ Gauss_Triangle.h ../DataStr/ualloc.h
+Gauss_Quadrangle.o: Gauss_Quadrangle.c ../Main/Message.h Quadrature.h \
+ Gauss_Quadrangle.h ../DataStr/ualloc.h
+Gauss_Tetrahedron.o: Gauss_Tetrahedron.c ../Main/Message.h \
+ Quadrature.h Gauss_Tetrahedron.h ../DataStr/ualloc.h
+Gauss_Hexahedron.o: Gauss_Hexahedron.c ../Main/Message.h Quadrature.h \
+ Gauss_Hexahedron.h ../DataStr/ualloc.h
+Gauss_Prism.o: Gauss_Prism.c ../Main/Message.h Gauss_Prism.h
+Gauss_Pyramid.o: Gauss_Pyramid.c ../Main/Message.h Gauss_Pyramid.h
 NewtonCotes_Line.o: NewtonCotes_Line.c
 NewtonCotes_Quadrangle.o: NewtonCotes_Quadrangle.c

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2000-09-07 18:47:23 geuzaine Exp $
+# $Id: Makefile,v 1.5 2000-09-08 09:51:11 geuzaine Exp $
 #
 # Makefile for "libFunction.a"
 #
@@ -9,7 +9,8 @@ C_FLAGS = -g
 RANLIB  = /usr/bin/ranlib
 
 LIB     = ../lib/libFunction.a
-INCLUDE = -I../include
+INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData -I../Main\
+          -I../Numeric -I../Sparskit
 
 SOLVER = -D_SPARSKIT
 
@@ -65,265 +66,128 @@ nodepend:
 
 
 # DO NOT DELETE THIS LINE
-F_Analytic.o: F_Analytic.c ../include/Data_DefineE.h \
- ../include/../Main/Data_DefineE.h F_Function.h \
- ../include/Data_Active.h ../include/../Main/Data_Active.h \
- ../include/../Main/Data_Passive.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/../Main/Message.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/Message.h \
- ../include/../GeoData/Data_GeoData.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- ../include/Numeric.h ../include/../Numeric/Numeric.h \
- ../include/../Numeric/nrutil.h ../include/Numeric_F.h \
- ../include/../Numeric/Numeric_F.h ../include/Compat.h \
- ../include/Get_Geometry.h ../include/../Main/Get_Geometry.h \
- ../include/Cal_Value.h ../include/../Main/Cal_Value.h \
- ../include/CurrentData.h ../include/../Main/CurrentData.h \
- ../include/DofData.h ../include/../DofData/DofData.h \
- ../include/../DofData/LinAlg.h ../include/Solver.h \
- ../include/../Sparskit/Solver.h ../include/Graph.h \
- ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Magic.h ../include/Data_Numeric.h \
- ../include/../Main/Data_Numeric.h
-F_Coord.o: F_Coord.c ../include/Data_DefineE.h \
- ../include/../Main/Data_DefineE.h F_Function.h \
- ../include/Data_Active.h ../include/../Main/Data_Active.h \
- ../include/../Main/Data_Passive.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/../Main/Message.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/Message.h \
- ../include/../GeoData/Data_GeoData.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- ../include/Get_Geometry.h ../include/../Main/Get_Geometry.h \
- ../include/Cal_Value.h ../include/../Main/Cal_Value.h \
- ../include/CurrentData.h ../include/../Main/CurrentData.h \
- ../include/DofData.h ../include/../DofData/DofData.h \
- ../include/../DofData/LinAlg.h ../include/Solver.h \
- ../include/../Sparskit/Solver.h ../include/Graph.h \
- ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Magic.h ../include/Data_Numeric.h \
- ../include/../Main/Data_Numeric.h
-F_Math.o: F_Math.c ../include/Data_DefineE.h \
- ../include/../Main/Data_DefineE.h F_Function.h \
- ../include/Data_Active.h ../include/../Main/Data_Active.h \
- ../include/../Main/Data_Passive.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/../Main/Message.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/Message.h \
- ../include/../GeoData/Data_GeoData.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- ../include/Get_Geometry.h ../include/../Main/Get_Geometry.h \
- ../include/Cal_Value.h ../include/../Main/Cal_Value.h \
- ../include/CurrentData.h ../include/../Main/CurrentData.h \
- ../include/DofData.h ../include/../DofData/DofData.h \
- ../include/../DofData/LinAlg.h ../include/Solver.h \
- ../include/../Sparskit/Solver.h ../include/Graph.h \
- ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Magic.h ../include/Data_Numeric.h \
- ../include/../Main/Data_Numeric.h
-F_ExtMath.o: F_ExtMath.c ../include/Data_DefineE.h \
- ../include/../Main/Data_DefineE.h F_Function.h \
- ../include/Data_Active.h ../include/../Main/Data_Active.h \
- ../include/../Main/Data_Passive.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/../Main/Message.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/Message.h \
- ../include/../GeoData/Data_GeoData.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- ../include/Get_Geometry.h ../include/../Main/Get_Geometry.h \
- ../include/Cal_Value.h ../include/../Main/Cal_Value.h \
- ../include/CurrentData.h ../include/../Main/CurrentData.h \
- ../include/DofData.h ../include/../DofData/DofData.h \
- ../include/../DofData/LinAlg.h ../include/Solver.h \
- ../include/../Sparskit/Solver.h ../include/Graph.h \
- ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Magic.h ../include/Data_Numeric.h \
- ../include/../Main/Data_Numeric.h
-F_Misc.o: F_Misc.c ../include/Data_DefineE.h \
- ../include/../Main/Data_DefineE.h F_Function.h \
- ../include/Data_Active.h ../include/../Main/Data_Active.h \
- ../include/../Main/Data_Passive.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/../Main/Message.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/Message.h \
- ../include/../GeoData/Data_GeoData.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- ../include/Get_Geometry.h ../include/../Main/Get_Geometry.h \
- ../include/Cal_Value.h ../include/../Main/Cal_Value.h \
- ../include/CurrentData.h ../include/../Main/CurrentData.h \
- ../include/DofData.h ../include/../DofData/DofData.h \
- ../include/../DofData/LinAlg.h ../include/Solver.h \
- ../include/../Sparskit/Solver.h ../include/Graph.h \
- ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Magic.h ../include/Data_Numeric.h \
- ../include/../Main/Data_Numeric.h ../include/outil.h \
- ../include/../DataStr/outil.h ../include/ualloc.h \
- ../include/../DataStr/ualloc.h
-F_Type.o: F_Type.c ../include/Data_DefineE.h \
- ../include/../Main/Data_DefineE.h F_Function.h \
- ../include/Data_Active.h ../include/../Main/Data_Active.h \
- ../include/../Main/Data_Passive.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/../Main/Message.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/Message.h \
- ../include/../GeoData/Data_GeoData.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- ../include/Get_Geometry.h ../include/../Main/Get_Geometry.h \
- ../include/Cal_Value.h ../include/../Main/Cal_Value.h \
- ../include/CurrentData.h ../include/../Main/CurrentData.h \
- ../include/DofData.h ../include/../DofData/DofData.h \
- ../include/../DofData/LinAlg.h ../include/Solver.h \
- ../include/../Sparskit/Solver.h ../include/Graph.h \
- ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Magic.h ../include/Data_Numeric.h \
- ../include/../Main/Data_Numeric.h
-BF_Node.o: BF_Node.c BF_Function.h ../include/Message.h \
- ../include/../Main/Message.h ../include/Data_Element.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/../GeoData/Data_GeoData.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h HBF_Function.h ../include/Data_Numeric.h \
- ../include/../Main/Data_Numeric.h ../include/Get_Geometry.h \
- ../include/../Main/Get_Geometry.h ../include/../Main/Data_Active.h \
- ../include/../Main/Data_Passive.h
-BF_Edge.o: BF_Edge.c BF_Function.h ../include/Message.h \
- ../include/../Main/Message.h ../include/Data_Element.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/../GeoData/Data_GeoData.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h HBF_Function.h
-BF_Facet.o: BF_Facet.c BF_Function.h ../include/Message.h \
- ../include/../Main/Message.h ../include/Data_Element.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/../GeoData/Data_GeoData.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h HBF_Function.h
-BF_Volume.o: BF_Volume.c BF_Function.h ../include/Message.h \
- ../include/../Main/Message.h ../include/Data_Element.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/../GeoData/Data_GeoData.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h HBF_Function.h
-BF_GroupOfEntities.o: BF_GroupOfEntities.c BF_Function.h \
- ../include/Message.h ../include/../Main/Message.h \
- ../include/Data_Element.h ../include/../Main/Data_Element.h \
- ../include/GeoData.h ../include/../GeoData/GeoData.h \
- ../include/../GeoData/Data_GeoData.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- HBF_Function.h ../include/Get_Geometry.h \
- ../include/../Main/Get_Geometry.h ../include/../Main/Data_Active.h \
- ../include/../Main/Data_Passive.h
-BF_Region.o: BF_Region.c BF_Function.h ../include/Message.h \
- ../include/../Main/Message.h ../include/Data_Element.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/../GeoData/Data_GeoData.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h HBF_Function.h \
- ../include/Get_DofOfElement.h ../include/../Main/Get_DofOfElement.h \
- ../include/../Main/Data_Active.h ../include/../Main/Data_Passive.h \
- ../include/CurrentData.h ../include/../Main/CurrentData.h \
- ../include/DofData.h ../include/../DofData/DofData.h \
- ../include/../DofData/LinAlg.h ../include/Solver.h \
- ../include/../Sparskit/Solver.h ../include/Graph.h \
- ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Magic.h ../include/Treatment_Formulation.h \
- ../include/../Main/Treatment_Formulation.h ../include/ualloc.h \
- ../include/../DataStr/ualloc.h
-HBF_Node_2.o: HBF_Node_2.c BF_Function.h ../include/Message.h \
- ../include/../Main/Message.h ../include/Data_Element.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/../GeoData/Data_GeoData.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h HBF_Function.h
-HBF_Node_3.o: HBF_Node_3.c BF_Function.h ../include/Message.h \
- ../include/../Main/Message.h ../include/Data_Element.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/../GeoData/Data_GeoData.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h HBF_Function.h
-HBF_Edge_2.o: HBF_Edge_2.c BF_Function.h ../include/Message.h \
- ../include/../Main/Message.h ../include/Data_Element.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/../GeoData/Data_GeoData.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h HBF_Function.h
-HBF_Edge_3.o: HBF_Edge_3.c ../include/Data_Passive.h \
- ../include/../Main/Data_Passive.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/../Main/Message.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/Message.h \
- ../include/../GeoData/Data_GeoData.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- BF_Function.h ../include/Data_Element.h HBF_Function.h
-HBF_Edge_4.o: HBF_Edge_4.c BF_Function.h ../include/Message.h \
- ../include/../Main/Message.h ../include/Data_Element.h \
- ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/../GeoData/Data_GeoData.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h HBF_Function.h
-HBF_GroupOfEntities_2.o: HBF_GroupOfEntities_2.c BF_Function.h \
- ../include/Message.h ../include/../Main/Message.h \
- ../include/Data_Element.h ../include/../Main/Data_Element.h \
- ../include/GeoData.h ../include/../GeoData/GeoData.h \
- ../include/../GeoData/Data_GeoData.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
+F_Analytic.o: F_Analytic.c ../Main/Data_DefineE.h F_Function.h \
+ ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/listman.h \
+ ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
+ ../Numeric/Numeric.h ../Numeric/nrutil.h ../Numeric/Numeric_F.h \
+ ../include/Compat.h ../Main/Get_Geometry.h ../Main/Cal_Value.h \
+ ../Main/CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
+ ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+ ../include/Magic.h ../Main/Data_Numeric.h
+F_Coord.o: F_Coord.c ../Main/Data_DefineE.h F_Function.h \
+ ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/listman.h \
+ ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
+ ../Main/Get_Geometry.h ../Main/Cal_Value.h ../Main/CurrentData.h \
+ ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+ ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
+ ../Main/Data_Numeric.h
+F_Math.o: F_Math.c ../Main/Data_DefineE.h F_Function.h \
+ ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/listman.h \
+ ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
+ ../Main/Get_Geometry.h ../Main/Cal_Value.h ../Main/CurrentData.h \
+ ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+ ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
+ ../Main/Data_Numeric.h
+F_ExtMath.o: F_ExtMath.c ../Main/Data_DefineE.h F_Function.h \
+ ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/listman.h \
+ ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
+ ../Main/Get_Geometry.h ../Main/Cal_Value.h ../Main/CurrentData.h \
+ ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+ ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
+ ../Main/Data_Numeric.h
+F_Misc.o: F_Misc.c ../Main/Data_DefineE.h F_Function.h \
+ ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/listman.h \
+ ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
+ ../Main/Get_Geometry.h ../Main/Cal_Value.h ../Main/CurrentData.h \
+ ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+ ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
+ ../Main/Data_Numeric.h ../DataStr/outil.h ../DataStr/ualloc.h
+F_Type.o: F_Type.c ../Main/Data_DefineE.h F_Function.h \
+ ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/listman.h \
+ ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
+ ../Main/Get_Geometry.h ../Main/Cal_Value.h ../Main/CurrentData.h \
+ ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+ ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
+ ../Main/Data_Numeric.h
+BF_Node.o: BF_Node.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
+ HBF_Function.h ../Main/Data_Numeric.h ../Main/Get_Geometry.h \
+ ../Main/Data_Active.h ../Main/Data_Passive.h
+BF_Edge.o: BF_Edge.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
  HBF_Function.h
-GF_Laplace.o: GF_Laplace.c ../include/Data_Active.h \
- ../include/../Main/Data_Active.h ../include/../Main/Data_Passive.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/../Main/Message.h ../include/../Main/Data_Element.h \
- ../include/GeoData.h ../include/../GeoData/GeoData.h \
- ../include/Message.h ../include/../GeoData/Data_GeoData.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h ../include/CurrentData.h \
- ../include/../Main/CurrentData.h ../include/DofData.h \
- ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
- ../include/Solver.h ../include/../Sparskit/Solver.h \
- ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h ../include/Magic.h \
- ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h
-GF_LaplacexForm.o: GF_LaplacexForm.c ../include/Data_Active.h \
- ../include/../Main/Data_Active.h ../include/../Main/Data_Passive.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/../Main/Message.h ../include/../Main/Data_Element.h \
- ../include/GeoData.h ../include/../GeoData/GeoData.h \
- ../include/Message.h ../include/../GeoData/Data_GeoData.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h BF_Function.h ../include/Data_Element.h \
- HBF_Function.h ../include/CurrentData.h \
- ../include/../Main/CurrentData.h ../include/DofData.h \
- ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
- ../include/Solver.h ../include/../Sparskit/Solver.h \
- ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h ../include/Magic.h \
- ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h \
- ../include/Data_DefineE.h ../include/../Main/Data_DefineE.h \
- ../include/Numeric_F.h ../include/../Numeric/Numeric_F.h \
- ../include/Compat.h
-GF_Helmholtz.o: GF_Helmholtz.c ../include/Data_Active.h \
- ../include/../Main/Data_Active.h ../include/../Main/Data_Passive.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/../Main/Message.h ../include/../Main/Data_Element.h \
- ../include/GeoData.h ../include/../GeoData/GeoData.h \
- ../include/Message.h ../include/../GeoData/Data_GeoData.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h ../include/Cal_Value.h \
- ../include/../Main/Cal_Value.h ../include/CurrentData.h \
- ../include/../Main/CurrentData.h ../include/DofData.h \
- ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
- ../include/Solver.h ../include/../Sparskit/Solver.h \
- ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h ../include/Magic.h \
- ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h
+BF_Facet.o: BF_Facet.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
+ HBF_Function.h
+BF_Volume.o: BF_Volume.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
+ HBF_Function.h
+BF_GroupOfEntities.o: BF_GroupOfEntities.c BF_Function.h \
+ ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../DataStr/listman.h ../DataStr/treeman.h \
+ ../DataStr/avl.h HBF_Function.h ../Main/Get_Geometry.h \
+ ../Main/Data_Active.h ../Main/Data_Passive.h
+BF_Region.o: BF_Region.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
+ HBF_Function.h ../Main/Get_DofOfElement.h ../Main/Data_Active.h \
+ ../Main/Data_Passive.h ../Main/CurrentData.h ../DofData/DofData.h \
+ ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
+ ../DofData/Data_DofData.h ../include/Magic.h \
+ ../Main/Treatment_Formulation.h ../DataStr/ualloc.h
+HBF_Node_2.o: HBF_Node_2.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
+ HBF_Function.h
+HBF_Node_3.o: HBF_Node_3.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
+ HBF_Function.h
+HBF_Edge_2.o: HBF_Edge_2.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
+ HBF_Function.h
+HBF_Edge_3.o: HBF_Edge_3.c ../Main/Data_Passive.h ../DataStr/listman.h \
+ ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../DataStr/treeman.h ../DataStr/avl.h \
+ BF_Function.h HBF_Function.h
+HBF_Edge_4.o: HBF_Edge_4.c BF_Function.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/listman.h ../DataStr/treeman.h ../DataStr/avl.h \
+ HBF_Function.h
+HBF_GroupOfEntities_2.o: HBF_GroupOfEntities_2.c BF_Function.h \
+ ../Main/Message.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+ ../GeoData/Data_GeoData.h ../DataStr/listman.h ../DataStr/treeman.h \
+ ../DataStr/avl.h HBF_Function.h
+GF_Laplace.o: GF_Laplace.c ../Main/Data_Active.h \
+ ../Main/Data_Passive.h ../DataStr/listman.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/treeman.h ../DataStr/avl.h ../Main/CurrentData.h \
+ ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+ ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
+ ../Main/Data_Numeric.h
+GF_LaplacexForm.o: GF_LaplacexForm.c ../Main/Data_Active.h \
+ ../Main/Data_Passive.h ../DataStr/listman.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/treeman.h ../DataStr/avl.h BF_Function.h HBF_Function.h \
+ ../Main/CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
+ ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+ ../include/Magic.h ../Main/Data_Numeric.h ../Main/Data_DefineE.h \
+ ../Numeric/Numeric_F.h ../include/Compat.h
+GF_Helmholtz.o: GF_Helmholtz.c ../Main/Data_Active.h \
+ ../Main/Data_Passive.h ../DataStr/listman.h ../Main/Message.h \
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+ ../DataStr/treeman.h ../DataStr/avl.h ../Main/Cal_Value.h \
+ ../Main/CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
+ ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+ ../include/Magic.h ../Main/Data_Numeric.h
