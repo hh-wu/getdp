@@ -60,7 +60,7 @@ default:\
 #---------------------------------------------------------------------
 common:\
 	:skip=GetDP.tab.h,GetDP.tab.c,GetDP.yy.c,pvpii.c,utils/,trash/,\
-              Gmsh.tab.cpp,Gmsh.tab.cpp.h,Gmsh.yy.cpp,\
+              Gmsh.tab.cpp,Gmsh.tab.cpp.h,Gmsh.yy.cpp,Motif/\
               CVS/,HTML/:\
 	:format=standard:
 #
