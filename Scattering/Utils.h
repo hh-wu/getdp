@@ -4,4 +4,6 @@
 int Cmp(char *str1, char *str2, int min);
 double GetNum(int argc, char *argv[], int *i);
 
+extern int Verbose;
+
 #endif

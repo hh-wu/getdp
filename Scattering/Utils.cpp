@@ -1,4 +1,4 @@
-// $Id: Utils.cpp,v 1.3 2002-02-11 23:08:49 geuzaine Exp $
+// $Id: Utils.cpp,v 1.4 2002-02-22 22:14:14 geuzaine Exp $
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -14,18 +14,23 @@
 
 // move this to trash after merge with getdp
 
+int Flag_SOCKET=0;
+char *Name_Path=NULL;
+int Verbose = 2;
+
 void Msg(int level, char *fmt, ...){
   va_list  args;
   extern int Verbose;
   switch(level){
   case ERROR: fprintf(stderr, "Error: "); break;
   case WARNING: fprintf(stderr, "Warning: "); break;
+  case SPARSKIT: fprintf(stderr, "Sparskit: "); break;
   case DEBUG: if(Verbose<2) return;
   case INFO: if(Verbose<1) return;
   }
   va_start (args, fmt);
   vfprintf(stderr, fmt, args); 
-  fprintf(stderr, "\n");
+  if(level!=SPARSKIT) fprintf(stderr, "\n");
   fflush(stderr);
   va_end (args);
   if(level == ERROR) exit(1);
@@ -39,7 +44,7 @@ int Cmp(char *str1, char *str2, int min){
 }
 
 double GetNum(int argc, char *argv[], int *i){
-  if (*i<argc && argv[*i][0]!='-') { 
+  if (*i<argc && argv[*i][0]!='-') { //how to treat negative number?
     return atof(argv[(*i)++]); 
   }
   else{ 

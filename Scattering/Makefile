@@ -1,11 +1,14 @@
-# $Id: Makefile,v 1.3 2002-02-10 23:05:59 geuzaine Exp $
+# $Id: Makefile,v 1.4 2002-02-22 22:14:14 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
 
 .IGNORE:
 
-CXX     = c++ -Wall
+CXX     = c++ -Wall -D_SPARSKIT
+#CXX     = c++ -Wall -D_PETSC
+#include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables
+
 AR      = ar ruvs
 RM      = rm
 RANLIB  = ranlib
@@ -34,10 +37,14 @@ OBJ = $(SRC:.cpp=.o)
 $(LIB): $(OBJ)
 	$(AR) $(LIB) $(OBJ) 
 	$(RANLIB) $(LIB)
-	$(CXX) $(C_FLAGS) -o hf -L../lib -lScattering -lNumeric -lDataStr $(F2C) -lm
+	make exe
 
 .cpp.o:
 	$(CXX) $(CFLAGS) -c $<
+
+exe:
+	$(CXX) $(C_FLAGS) -o hf -L../lib -lScattering -lDofData\
+               -lSparskit -lNumeric -lDataStr $(F2C) -lm
 
 clean:
 	$(RM) $(RMFLAGS) *.o
@@ -54,3 +61,17 @@ depend:
 	$(RM) $(RMFLAGS) Makefile.new
 
 # DO NOT DELETE THIS LINE
+Nystrom.o: Nystrom.cpp ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Numeric/Amos_F.h ../include/Compat.h \
+  ../Main/Data_Numeric.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+  ../DataStr/List.h ../DataStr/Tools.h ../DataStr/Tree.h ../DataStr/avl.h \
+  Utils.h Bessel.h CriticalPoints.h
+CriticalPoints.o: CriticalPoints.cpp ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_Numeric.h ../DataStr/Tools.h \
+  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h
+Bessel.o: Bessel.cpp ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Numeric/Amos_F.h ../include/Compat.h
+Utils.o: Utils.cpp ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Numeric/Amos_F.h ../include/Compat.h \
+  ../Main/Data_Numeric.h ../DataStr/Tools.h ../DataStr/List.h \
+  ../DataStr/Tree.h ../DataStr/avl.h Bessel.h CriticalPoints.h
