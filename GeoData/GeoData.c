@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.23 2003-03-22 03:30:10 geuzaine Exp $"
+#define RCSID "$Id: GeoData.c,v 1.24 2003-12-12 02:45:02 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -226,6 +226,30 @@ int Geo_GetElementTypeInv(int Format, int Type){
 
 }
 
+int Geo_GetNbNodesPerElement(int Type){
+
+  GetDP_Begin("Geo_GetElementNumNodes");
+
+  switch(Type){
+  case POINT         : GetDP_Return(1) ;
+  case LINE          : GetDP_Return(2) ;
+  case TRIANGLE      : GetDP_Return(3) ;
+  case QUADRANGLE    : GetDP_Return(4) ;
+  case TETRAHEDRON   : GetDP_Return(4) ;      
+  case HEXAHEDRON    : GetDP_Return(8) ;
+  case PRISM         : GetDP_Return(6) ;
+  case PYRAMID       : GetDP_Return(5) ;
+  case LINE_2        : GetDP_Return(3) ;
+  case TRIANGLE_2    : GetDP_Return(6) ;
+  case QUADRANGLE_2  : GetDP_Return(8) ;
+  case TETRAHEDRON_2 : GetDP_Return(10) ;      
+  case HEXAHEDRON_2  : GetDP_Return(20) ;
+  case PRISM_2       : GetDP_Return(15) ;
+  case PYRAMID_2     : GetDP_Return(13) ;
+  default : Msg(ERROR, "Unkown type of Element") ; GetDP_Return(-1) ;
+  }
+
+}
 
 void  Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileName) {
 
@@ -289,7 +313,8 @@ void  Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * File
 
 void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
-  int                 Nbr, i, j, Type, iDummy ;
+  int                 Nbr, i, j, Type, iDummy, Format, Size, NbTags ;
+  double              Version = 1.0 ;
   struct Geo_Node     Geo_Node ;
   struct Geo_Element  Geo_Element ;
   char                String[MAX_STRING_LENGTH] ;
@@ -305,9 +330,23 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
     
     if (feof(File_GEO))  break ;
 
-    /*  N O E  */
+    /*  F O R M A T  */
 
-    if (!strncmp(&String[1], "NO", 2)) { /* $NOE or $NOD */
+    if(!strncmp(&String[1], "MeshFormat", 10)) {
+
+      fscanf(File_GEO, "%lf %d %d\n", &Version, &Format, &Size);
+      if(Version != 2.0){
+	Msg(ERROR, "Unknown mesh file version (%g)", Version);
+	return;
+      }
+
+    }
+
+    /*  N O D E S  */
+
+    else if (!strncmp(&String[1], "NOE", 3) ||
+	     !strncmp(&String[1], "NOD", 3) ||
+	     !strncmp(&String[1], "Nodes", 5)) {
 
       fscanf(File_GEO, "%d", &Nbr) ;
       if (GeoData_P->Nodes == NULL)
@@ -359,9 +398,10 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 	GeoData_P->CharacteristicLength = 1.;
     }
 
-    /*  E L M  */
+    /*  E L E M E N T S  */
 
-    else if (!strncmp(&String[1], "ELM", 3)) {
+    else if (!strncmp(&String[1], "ELM", 3) ||
+	     !strncmp(&String[1], "Elements", 8)) {
 
       fscanf(File_GEO, "%d", &Nbr) ;
       if (GeoData_P->Elements == NULL)
@@ -372,12 +412,25 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
       Geo_Element.NumEdges = Geo_Element.NumFacets = NULL ;
 
       for (i = 0 ; i < Nbr ; i++) {
-	fscanf(File_GEO, "%d %d %d %d %d",
-	       &Geo_Element.Num, &Type, &Geo_Element.Region,
-	       &iDummy, &Geo_Element.NbrNodes) ;
-
+	if(Version == 1.0){
+	  fscanf(File_GEO, "%d %d %d %d %d",
+		 &Geo_Element.Num, &Type, &Geo_Element.Region,
+		 &iDummy, &Geo_Element.NbrNodes) ;
+	  Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
+	}
+	else{
+	  fscanf(File_GEO, "%d %d %d", &Geo_Element.Num, &Type, &NbTags);
+	  Geo_Element.Region = 1;
+	  for(j = 0; j < NbTags; j++){
+	    fscanf(File_GEO, "%d", &iDummy);
+	    if(j == 0)
+	      Geo_Element.Region = iDummy;
+	    /* ignore any other tags for now */
+	  }
+	  Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
+	  Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
+	}
 	Geo_Element.FMMGroup = Geo_Element.Region ;
-	Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
 	Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
 	for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
 	  fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) ;
