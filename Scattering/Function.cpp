@@ -1,4 +1,4 @@
-// $Id: Function.cpp,v 1.7 2002-04-16 17:51:43 geuzaine Exp $
+// $Id: Function.cpp,v 1.8 2002-04-23 00:47:27 geuzaine Exp $
 
 #include "Utils.h"
 #include "Function.h"
@@ -31,6 +31,7 @@ Complex Function::ansatz(double k[3], double xt[3], double xtau[3]){
 
   case ANALYTIC : // Alain
     kr = k[0]*xtau[0]+k[1]*xtau[1]+k[2]*xtau[2];
+    //kr = k[0]*(xtau[0]-xt[0]) + k[1]*(xtau[1]-xt[1]) + k[2]*(xtau[2]-xt[2]) ;
     return (cos(kr)+I*sin(kr));
 
   case INTERPOLATED : // iterative solver
@@ -51,8 +52,8 @@ Complex Function::density(double tau){
     
   case ANALYTIC : // comparison with Alain/Oscar
 
-    return cos(tau);
-    //return 1.;
+    //return cos(tau);
+    return 1.;
 
   case INTERPOLATED : // cubic splines or Fourier (off-grid!)
 
