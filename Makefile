@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.130 2003-03-17 19:22:33 geuzaine Exp $
+# $Id: Makefile,v 1.131 2003-03-17 19:54:04 geuzaine Exp $
 
 include variables
 
@@ -112,7 +112,7 @@ package-unix:
 	mkdir getdp-${GETDP_RELEASE}
 	strip bin/getdp
 	cp bin/getdp getdp-${GETDP_RELEASE}
-	cp doc/VERSIONS doc/FAQ doc/BUGS doc/CONTRIBUTORS getdp-${GETDP_RELEASE}
+	cp doc/VERSIONS doc/FAQ doc/CONTRIBUTORS getdp-${GETDP_RELEASE}
 	cp -R demos getdp-${GETDP_RELEASE}
 	rm -rf getdp-${GETDP_RELEASE}/*/CVS
 	rm -f getdp-${GETDP_RELEASE}/*/*.pre
