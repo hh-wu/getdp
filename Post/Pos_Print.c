@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.50 2001-08-10 07:19:36 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.51 2001-10-12 11:32:23 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1428,7 +1428,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P) {
       case EDGESOFTREEIN :
 	if(!GeoElement->NbrEdges) Geo_CreateEdgesOfElement(GeoElement) ;
 	for(i=0 ; i<GeoElement->NbrEdges ; i++){
-	  if(List_Query(Group_P->ExtendedList, &GeoElement->NumEdges[i], fcmp_absint)){
+	  if(List_Search(Group_P->ExtendedList, &GeoElement->NumEdges[i], fcmp_absint)){
 	    NumNodes = Geo_GetNodesOfEdgeInElement(GeoElement, i) ;
 	    SL->Index = iGeo;
 	    SL->x[0] = x[abs(NumNodes[0])-1]; SL->x[1] = x[abs(NumNodes[1])-1];
