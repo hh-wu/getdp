@@ -78,12 +78,16 @@ void  Get_DofOfElement(struct Element          * Element,
       List_Pointer(Problem_S.Group, BasisFunction_P->SupportIndex) ;
 
     /*  2.  I f   t h e   e l e m e n t   i s   i n   t h e   s u p p o r t   o f   
-	    t h e   B a s i s F u n c t i o n : */
-    if ((GroupSupport_P->Type == REGIONLIST  &&
-	 List_Search(GroupSupport_P->InitialList, &Element->Region, fcmp_int))
-	||
-	(GroupSupport_P->Type == ELEMENTLIST  &&
-	 Check_IsEntityInExtendedGroup(GroupSupport_P, Element->Num, 0)) )  {
+	    t h e   B a s i s F u n c t i o n   a n d
+	    I f   t h e   B a s i s F u n c t i o n   e x i s t s   f o r   t h i s
+	    k i n d   o f   e l e m e n t   */
+    if ( ( BasisFunction_P->ElementType & Current.Element->Type ) 
+	 &&
+	 ( (GroupSupport_P->Type == REGIONLIST  &&
+	    List_Search(GroupSupport_P->InitialList, &Element->Region, fcmp_int))
+	   ||
+	   (GroupSupport_P->Type == ELEMENTLIST  &&
+	    Check_IsEntityInExtendedGroup(GroupSupport_P, Element->Num, 0)) ) ) {
 
       GroupEntity_P = (struct Group*)
 	List_Pointer(Problem_S.Group, BasisFunction_P->EntityIndex) ;
@@ -403,11 +407,12 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 	= BasisFunction_P ;
 
       if (TreatmentStatus == _PRE){ /* Associated Contraints? */
-	/* in Function Spaces... */
+	/* in the FunctionSpace... */
 	Treatment_ConstraintForElement(FunctionSpace_P, QuantityStorage_P,
 				       Num_Entity, i_Entity,
 				       i_BFunction, TypeConstraint) ;
-	/* or due to p-refinement */
+
+	/* ...due to P-refinement */
 	if( ( Current.GeoData->P && 
 	      Current.GeoData->P[Current.Element->GeoElement->Index+1] >= 0 &&
 	      Current.GeoData->P[Current.Element->GeoElement->Index+1] < 

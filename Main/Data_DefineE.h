@@ -14,12 +14,13 @@ struct StringXPointer {
   void *Pointer ;
 } ;
 
-struct StringX3Function1Nbr {
+struct StringX3Function2Nbr {
   char *string ;
   void (*Function1)() ; 
   void (*Function2)() ; 
   void (*Function3)() ;
-  double Nbr ;
+  double Nbr1 ;
+  int Nbr2 ;
 } ;
 
 struct DefineXFunction {
@@ -69,7 +70,7 @@ extern struct DefineXFunction  FunctionForGaussLegendre[] ;
 extern struct DefineXFunction  FunctionForSingularGauss[] ;
 extern struct DefineXFunction  FunctionForNewtonCotes[] ;
 
-extern struct StringX3Function1Nbr BF_Function[] ;
+extern struct StringX3Function2Nbr BF_Function[] ;
 extern struct StringXFunction2Nbr  F_Function[] ;
 extern struct FunctionXFunction    GF_Function[] ;
 
@@ -85,14 +86,14 @@ char *Get_StringForPointer(struct StringXPointer SXF[], void * Pointer) ;
 void  Get_PointerForString(struct StringXPointer SXF[], char * string,
 			   int * FlagError, void **Pointer) ;
 
-char *Get_StringFor3Function1Nbr(struct StringX3Function1Nbr SXF[], 
+char *Get_StringFor3Function2Nbr(struct StringX3Function2Nbr SXF[], 
 				 void (*Function1)()) ;
-void  Get_3Function1NbrForString(struct StringX3Function1Nbr SXF[], char * string,
+void  Get_3Function2NbrForString(struct StringX3Function2Nbr SXF[], char * string,
 				 int * FlagError,
 				 void (**Function1)(), 
 				 void (**Function2)(), 
 				 void (**Function3)(),
-				 double * Nbr) ;
+				 double * Nbr1, int * Nbr2) ;
 
 void Get_FunctionForDefine(struct DefineXFunction DXF[], int define,
 			   int * FlagError, void (**Function)()) ;
@@ -111,5 +112,5 @@ char *Get_StringForFunction2Nbr(struct StringXFunction2Nbr SXF[], void (*Functio
 char*  Get_Valid_SXD   (struct StringXDefine        V[]);
 char*  Get_Valid_SXD1N (struct StringXDefine1Nbr    V[]);
 char*  Get_Valid_SXP   (struct StringXPointer       V[]);
-char*  Get_Valid_SX3F  (struct StringX3Function1Nbr V[]);
+char*  Get_Valid_SX3F2N(struct StringX3Function2Nbr V[]);
 char*  Get_Valid_SXF2N (struct StringXFunction2Nbr  V[]);

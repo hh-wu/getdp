@@ -262,6 +262,7 @@ struct BasisFunction {
   void    (*dInvFunction)();
   int     SupportIndex, EntityIndex ;
   double  Degree ;
+  int     ElementType ;
 } ;
 
 struct GlobalBasisFunction {
