@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.23 2002-06-17 08:11:11 geuzaine Exp $
+// $Id: Patch.cpp,v 1.24 2002-06-17 17:29:16 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -55,11 +55,11 @@ double Partition::eval(double t){
 // Patches
 
 double Patch::changeOfVars(double s, int deriv){
-  //return cv_none(s,deriv);
+  return cv_none(s,deriv);
   //return cv_leonid(s,deriv);
   //return cv_boyd(s,deriv);
   //return cv_colton(s,deriv);
-  return cv_doubleboyd(s,deriv);
+  //return cv_doubleboyd(s,deriv);
   //return cv_shadow(s,deriv);
 }
 
