@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.34 2000-12-01 11:09:28 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.35 2001-01-17 14:42:50 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1247,12 +1247,14 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     List_Sort(Region_L, fcmp_int) ;
     Nbr_Region = List_Nbr(Region_L) ;
 
-    fprintf(PostStream, "# %s on", PQ_P->Name) ;
-    for(i = 0 ; i < Nbr_Region ; i++) {
-      List_Read(Region_L, i, &Num_Region) ;
-      fprintf(PostStream, " %d", Num_Region) ;
+    if (PostSubOperation_P->Format != FORMAT_SPACE_TABLE) {
+      fprintf(PostStream, "# %s on", PQ_P->Name) ;
+      for(i = 0 ; i < Nbr_Region ; i++) {
+	List_Read(Region_L, i, &Num_Region) ;
+	fprintf(PostStream, " %d", Num_Region) ;
+      }
+      fprintf(PostStream, "\n") ;
     }
-    fprintf(PostStream, "\n") ;
   }
   else
     Nbr_Region = 1 ;
