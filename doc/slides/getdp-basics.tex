@@ -1,0 +1,253 @@
+% $Id: getdp-basics.tex,v 1.1 2001-06-09 11:14:35 geuzaine Exp $
+
+% ---------------------------------------------------------------------------
+
+\chapter{}
+
+\begin{slide}
+
+\slidepagestyle{reduced}
+
+\begin{center}
+\bigtitle{A general software environment for the treatment of discrete problems}\\
+\bigtitle{(GetDP)}\\
+\bigskip\bigskip
+\medtitle{Patrick Dular, Christophe Geuzaine}\\
+\bigskip
+\medtitle{Deptartment of Electrical Engineering}\\
+\medtitle{Montefiore Institute B28, Sart Tilman Campus}\\
+\medtitle{University of Liège}\\
+\medtitle{B-4000 Liège (BELGIUM)}
+\end{center}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+\part{GetDP}
+% ---------------------------------------------------------------------------
+
+\chapter{An environment open to various couplings}
+
+\begin{slide}
+
+Any coupling between 
+\begin{slideitemize}
+\item \emph{Physical} problems (electromagnetic, thermal, mechanical, ...)
+\item \emph{Numerical} methods (finite element methods, integral methods, ...)
+\item \emph{Geometries} (1D, 2D, 2D axi, 3D)
+\item \emph{Time} states (static, harmonic, transient)
+\end{slideitemize}
+
+How?
+\begin{slideitemize}
+\item Clear \emph{mathematical} definitions/structure
+\item Directly transcribed into 10 interdependent \emph{objects}
+\end{slideitemize}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Definition of discrete problems}
+
+\begin{slide}
+
+\begin{slideitemize}
+\item Copy of formal mathematical expression of problems 
+\item ASCII \emph{Text} file (``\code{.pro} file'')
+\end{slideitemize}
+
+\begin{center}
+\scalebox{0.54}{\input{fig/getdp-struct.tex}}
+\end{center}
+
+\end{slide}
+
+\begin{slide}
+
+\begin{center}
+Particular data of a problem\\
+\medskip
+\scalebox{0.54}{\input{fig/getdp-struct-box.tex}}\\
+\medskip
+Method of resolution (``black box'')
+\end{center}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-group.tex}}}
+
+\chapter{\code{Group}: defining topological entities}
+
+\begin{slide}
+
+\mybox{colbox}{11\semcm}{
+  \begin{slideitemize}
+  \item Regions
+  \item Functions on Regions (nodes, edges, edges of tree, ...)
+  \end{slideitemize}
+}
+
+Example:
+
+\begin{syntax}
+Air = Region[1]; Core = Region[2];
+    = ;
+\end{syntax}
+
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-function.tex}}}
+
+\chapter{\code{Function}: defining expressions}
+
+\begin{slide}
+
+\mybox{colbox}{11\semcm}{
+  \begin{slideitemize}
+  \item Physical characteristics
+  \item Time functions
+  \item Various other functions (natural contraints, ...)
+  \end{slideitemize}
+}
+
+Example:
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-constraint.tex}}}
+
+\chapter{\code{Constraint}: specifying constraints}
+
+\begin{slide}
+
+\mybox{colbox}{11\semcm}{
+  \begin{slideitemize}
+  \item Boundary conditions (classical, connection)
+  \item Initial conditions
+  \item Topology of circuits with lumped elements
+  \item Other constraints (on local and global quantities)
+  \end{slideitemize}
+}
+
+Example:
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-functionspace.tex}}}
+
+\chapter{\code{FunctionSpace}: building function spaces}
+
+\begin{slide}
+
+
+
+Example:
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-jacobian.tex}}}
+
+\chapter{\code{Jacobian}: defining jacobian methods}
+
+\begin{slide}
+
+
+Example:
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-integration.tex}}}
+
+\chapter{\code{Integration}: defining integration methods}
+
+\begin{slide}
+
+
+
+Example:
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-formulation.tex}}}
+
+\chapter{\code{Formulation}: building equations}
+
+\begin{slide}
+
+
+
+Example:
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-resolution.tex}}}
+
+\chapter{\code{Resolution}: solving systems of equations}
+
+\begin{slide}
+
+
+Example:
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-postprocessing.tex}}}
+
+\chapter{\code{PostProcessing}: exploiting computational results}
+
+\begin{slide}
+
+
+
+Example:
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{fig/getdp-struct-postoperation.tex}}}
+
+\chapter{\code{PostOperation}: exporting results}
+
+\begin{slide}
+
+
+
+Example:
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\background{}{}{}
+

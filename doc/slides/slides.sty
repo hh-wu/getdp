@@ -1,0 +1,185 @@
+%
+% LaTeX2e/seminar style sheet for the layout of GetDP-related slides
+%
+% $Id: slides.sty,v 1.1 2001-06-09 11:14:36 geuzaine Exp $
+%
+
+% -------------------------------------------------------------------
+% Include some packages, handle pdf
+% -------------------------------------------------------------------
+
+\input{seminar.bug}
+
+\RequirePackage{fancybox,amsmath,amsfonts,amssymb,pifont,bbm}
+\RequirePackage{semcolor,color}
+\RequirePackage[latin1]{inputenc}
+\RequirePackage{alltt}
+
+\ifx\pdfoutput\undefined
+  \RequirePackage{graphicx}
+  \renewcommand{\printlandscape}{\special{landscape}}
+\else
+  \RequirePackage[pdftex]{graphicx}
+  \pdfcompresslevel=9
+  \pdfinfo {
+    /Author (GetDP documentation)
+  } 
+  \pdfcatalog {
+    /PageMode /UseNone
+  }
+  \pdfpagewidth=0.5\paperheight
+  \pdfpageheight=0.5\paperwidth
+\fi
+
+% -------------------------------------------------------------------
+% Define some generic colors
+% -------------------------------------------------------------------
+
+\definecolor{coltitle}{rgb}{0.,0.2,0.7}
+\definecolor{colbottom}{rgb}{0.4,0.4,0.4}
+\definecolor{colbullet}{rgb}{0.,0.2,0.7}
+\definecolor{colpos}{rgb}{0,0.6,0}
+\definecolor{colwarn}{rgb}{1,0,0}
+\definecolor{colbox}{rgb}{1,1,0}
+
+% -------------------------------------------------------------------
+% (Re)define some font-related commands
+% -------------------------------------------------------------------
+
+\renewcommand{\sfdefault}{phv} %{rm}
+\renewcommand{\emph}[1]{{\color{colpos}#1}}
+\newcommand{\code}[1]{\upshape\texttt{#1}}
+\newcommand{\var}[1]{{\normalfont\itshape#1}}
+\newenvironment{syntax}
+ {\small\list{}{\setlength{\rightmargin}{0mm}\setlength{\leftmargin}{\parindent}}%
+  \item\relax\begin{alltt}}
+ {\end{alltt}\endlist}
+\newcommand{\myarrow}{{\color{colbullet}\ding{237}}\hspace{.2em}}
+\newcommand{\enhance}[2][1]{{\hspace{#1\semcm}\myarrow {\color{colpos} #2}}}
+\newcommand{\itempos}{{\color{colpos}\Pisymbol{psy}{197}}}
+\newcommand{\itemneg}{${\color{colwarn}\circleddash}$}
+
+% -------------------------------------------------------------------
+% Seminar definitions
+% -------------------------------------------------------------------
+
+\def\slideleftmargin{1in}
+\def\sliderightmargin{1in}
+\def\slidetopmargin{1.2in}
+\def\slidebottommargin{0.8in}
+\setslidelength{\unitlength}{1cm}
+\slidesmag{4}
+\slideframe{none}
+\rotateheaderstrue
+\centerslidestrue
+
+% -------------------------------------------------------------------
+% Personal macros for titles, parts, chapters, ...
+% -------------------------------------------------------------------
+
+\newcounter{chapterstart}
+\setcounter{chapterstart}{1}
+\newcounter{chapterslide}
+\setcounter{chapterslide}{1}
+
+\def\mytalktitle{}
+\def\talk#1{%
+ \global\def\mytalktitle{#1}%
+ \sffamily%
+ \def\topstring{\makebox[\textwidth][l]{%
+    \rule[-1em]{\textwidth}{.1\semcm}\hspace*{-\textwidth}%
+    \textbf{\hfill\color{coltitle}\sffamily\Large%
+            \mychaptertitle\hfill%
+            \ifnum \c@slide>\c@chapterstart%
+              \addtocounter{chapterslide}{1}%
+              \makebox[0ex][r]{(\thechapterslide)}\fi%
+            }%
+    }%
+ }
+ \def\bottomstring{\color{colbottom}\sffamily\tiny\mytalktitle\hfill%
+                   \sffamily\tiny\myparttitle~\theslide}%
+ \newpagestyle{common}{\topstring}{\bottomstring}%
+ \newpagestyle{reduced}{\topstring}{}%
+ \slidepagestyle{common}%
+ \slideframe*{mybackground}%
+}
+
+\def\myparttitle{}
+\def\part#1{\global\def\myparttitle{#1}\setcounter{slide}{0}}
+
+\def\mychaptertitle{}
+\def\chapter#1{\global\def\mychaptertitle{#1}%
+               \setcounter{chapterstart}{\c@slide}\addtocounter{chapterstart}{1}%
+               \setcounter{chapterslide}{1}}
+
+\def\bigtitle#1{\textbf{\Large\sffamily\color{coltitle} #1}}
+\def\medtitle#1{\textmd{\small\sffamily\color{colbottom} #1}}
+
+% -------------------------------------------------------------------
+% New figure environments
+% -------------------------------------------------------------------
+
+\newlength{\ltwofig}\setlength{\ltwofig}{9\semcm}
+\newcommand{\slidefig}[4]{
+  \begin{center}
+  \begin{tabular}{c@{\hspace{2\semcm}}c}
+  \includegraphics[angle=-90,width=\ltwofig,clip]{#1} &
+  \includegraphics[angle=-90,width=\ltwofig,clip]{#3} \\
+  \parbox[t]{\ltwofig}{\center\scriptsize #2} &
+  \parbox[t]{\ltwofig}{\center\scriptsize #4}
+  \end{tabular}
+  \end{center}}%
+
+\newlength{\lfourfig}\setlength{\lfourfig}{7.75\semcm}
+\newcommand{\slidefigs}[3]{
+  \begin{center}
+  \begin{tabular}{c@{\hspace{2\semcm}}c}
+  \includegraphics[angle=-90,width=\ltwofig,clip]{#1} &
+  \includegraphics[angle=-90,width=\ltwofig,clip]{#3} \\
+  \multicolumn{2}{c}{\scriptsize #2}
+  \end{tabular}
+  \end{center}}%
+
+
+% -------------------------------------------------------------------
+% New Itemize and box command
+% -------------------------------------------------------------------
+
+\newcommand{\slideitem}{${\color{colbullet}\bullet}$}
+\newenvironment{slideitemize}%
+ {\begin{list}{\slideitem}{%
+	 \setlength{\partopsep}{0em}%
+	 \setlength{\parsep}{.5em}%
+	 \setlength{\labelsep}{.5em}%
+         \setlength{\leftmargin}{1em}%
+	 \setlength{\labelwidth}{2em}%
+	 \setlength{\itemsep}{0em}%
+	 \setlength{\listparindent}{0pt}}}%
+ {\end{list}}
+
+\def\boxeditems#1#2{\parbox[t]{#1}{%
+  \vspace*{-1.2\baselineskip}%
+  \begin{itemize}{#2}\end{itemize}}}
+
+\newcommand{\mybox}[3]{\colorbox{#1}{\parbox{#2}{#3}}}
+
+% -------------------------------------------------------------------
+% Background
+% -------------------------------------------------------------------
+
+\def\background#1#2#3{%
+  \global\def\mybackgroundx{#1}%
+  \global\def\mybackgroundy{#2}%
+  \global\def\mybackgroundimage{#3}%
+}
+\newslideframe{mybackground}{%
+  \ifx\mybackgroundimage\undefined
+    \boxput{\rput(0,0){}}{#1}
+  \else
+    \boxput
+     {\rput(\mybackgroundx,\mybackgroundy){\mybackgroundimage}}
+     {#1}%
+  \fi
+}
+
+

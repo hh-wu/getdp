@@ -1,0 +1,154 @@
+% $Id: christophe.tex,v 1.1 2001-06-09 11:14:35 geuzaine Exp $
+
+\documentclass[a4]{seminar}
+
+\usepackage{slides}
+
+\graphicspath{{.}{fig/}}
+
+\begin{document}
+
+\talk{CNRS Grenoble June 20, 2001}
+
+% ---------------------------------------------------------------------------
+
+\begin{slide}
+
+\slidepagestyle{reduced}
+
+\begin{center}
+\bigtitle{Benefits of an open software environment for the modeling of
+          coupled electromagnetic problems}\\
+\bigskip\bigskip
+\medtitle{Christophe Geuzaine}\\
+\bigskip
+\medtitle{Deptartment of Electrical Engineering}\\
+\medtitle{Montefiore Institute B28, Sart Tilman Campus}\\
+\medtitle{University of Liège}\\
+\medtitle{B-4000 Liège (BELGIUM)}
+\end{center}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+\part{Introduction}
+% ---------------------------------------------------------------------------
+
+\chapter{Coupled electromagnetic problems?}
+
+\begin{slide}
+
+Maxwell's equations, with...
+
+\begin{slideitemize}
+\item Electric and electronic \emph{circuit} coupling (Power electronic supplies)
+\item \emph{Mechanical} coupling (force calculation, magnetostriction,
+piezoelectricity, noise and vibrations)
+\item \emph{Thermal} coupling (thermal losses, induction heating, dielectric heating)
+\item \emph{Fluid} dynamics coupling (charged particules, magnetohydrodynamics)
+\end{slideitemize}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Computational methods?}
+
+\begin{slide}
+
+\begin{slideitemize}
+\item \emph{Analytic} models are difficult/impossible to apply to complex/coupled problems
+\item Basic \emph{theory} of classic numerical methods (Finite differences, finite
+volumes, finite elements, integral methods) is now well known, and future
+developments don't change the fundamental principles anymore
+\item \emph{Performance} (both floating point and visualization) of low end PCs is
+exploding
+\end{slideitemize}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Finite element method (FEM)}
+
+\begin{slide}
+
+\begin{slideitemize}
+\item 1960s for mechanical problems (very large \emph{application range} since 1980s)
+\item Strong \emph{mathematical foundations} (convergence, unicity)
+\item Generalizations/reinterpretations (vanishing boundaries between FEM,
+FDM, FVM, ...) call for a \emph{single sofware implementation}
+\end{slideitemize}
+
+But not a magic tool:
+\begin{slideitemize}
+\item Many conflicting/\emph{antinomic} issues (continuous
+vs. discontinuous, conform vs. non conform meshes, implicit vs. explicit,
+...)
+\item Generality always has a price (\emph{efficiency} tradeoff)
+\end{slideitemize}
+
+\end{slide}
+
+\begin{slide}
+
+Double discretization:
+
+1) geometry: mesh finite number of elementary elements which... tri, qua, ...
+
+2) function spaces: finite dimension spaces, local support basis
+   functions...
+
+Weak formulation: ...
+
+Galerkin if basis functions=test functions.
+
+\end{slide}
+
+\begin{slide}
+
+Example: magnetostatics
+
+...
+
+\end{slide}
+
+\begin{slide}
+
+In practice?
+
+\begin{slideitemize}
+\item Geometry (CAD)
+\item Mesh
+\item Solver: our focus today - GetDP: next slides
+\item Post-processing
+\end{slideitemize}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\input{getdp-basics.tex}
+%\input{gmsh.tex}
+
+% ---------------------------------------------------------------------------
+\part{Collaboration}
+% ---------------------------------------------------------------------------
+
+\chapter{Possible collaboration topics}
+
+\begin{slide}
+
+\begin{slideitemize}
+\item Error estimation
+\item Optimization
+\end{slideitemize}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+\part{Conclusion}
+% ---------------------------------------------------------------------------
+
+\end{document}
+
