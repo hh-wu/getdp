@@ -1,4 +1,4 @@
-% $Id: examples.tex,v 1.7 2001-06-15 10:57:23 geuzaine Exp $
+% $Id: examples.tex,v 1.8 2001-06-16 05:50:41 geuzaine Exp $
 
 %
 % WARNING:
@@ -34,7 +34,6 @@
 \chapter{Magnetostatics}
 
 \ifnum\bigpictures=1
-\ifx\pdfoutput\undefined
 
 \begin{slide}
 
@@ -48,7 +47,6 @@
 
 \end{slide}
 
-\fi
 \fi
 
 \begin{slide}
@@ -125,9 +123,10 @@ NB: gauge for $\vec{a}$, ...
 \end{slide}
 
 \ifnum\bigpictures=1
-\ifx\pdfoutput\undefined
+
 \background{7\semcm}{0\semcm}{\includegraphics[width=0.38\textwidth]{getdp-picts/ind1}}
-\fi\fi
+
+\fi
 
 \begin{slide}
 
@@ -506,7 +505,6 @@ Resolution \{ \CC{Mag freq + The time}
 \background{}{}{}
 
 \ifnum\bigpictures=1
-\ifx\pdfoutput\undefined
 
 \chapter{Other examples...}
 
@@ -531,11 +529,7 @@ cristals, electromagnetic shielding, dielectric heating, ...
 
 \end{center}
 
-
-
 \end{slide}
 
-\else
+\fi
 
-\fi
-\fi
