@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.29 2001-06-02 07:07:43 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.30 2001-06-16 09:28:23 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -18,6 +18,7 @@
 #include "Magic.h"
 
 int  fcmp_DefineSystem_Name(const void * a, const void * b) ;
+int  fcmp_PostOperation_Name(const void * a, const void * b) ;
 
 void  Cal_SolutionError(gVector * dx, gVector * x, int diff, double * MeanError) ;
 void  Cal_SolutionErrorX(int Nbr, double * dx, double * x, double * MeanError) ;
@@ -141,6 +142,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   double  MeanError, RelFactor_Modified ;
   int     Save_TypeTime ;
   double  Save_DTime ;
+  char    *str;
   char    ResName[MAX_FILE_NAME_LENGTH], ResNum[MAX_STRING_LENGTH] ;
   char    FileName[MAX_FILE_NAME_LENGTH];
   gScalar tmp ;
@@ -149,6 +151,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   struct DefineSystem  * DefineSystem_P ;
   struct DofData       * DofData_P, * DofData2_P ;
   struct Solution      * Solution_P, Solution_S ;
+  struct PostOperation  * PostOperation_P ;
+  struct PostProcessing * PostProcessing_P ;
   struct Dof           Dof, * Dof_P ;
   struct Value         Value ;
 
@@ -848,6 +852,29 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break ;
 
+      /*  -->  P o s t O p e r a t i o n  */
+      /*  ------------------------------  */
+
+    case OPERATION_POSTOPERATION :
+      Msg(OPERATION, "PostOperation") ;
+
+      for(i=0 ; i<List_Nbr(Operation_P->Case.PostOperation.PostOperations); i++){
+	str = *(char**)List_Pointer(Operation_P->Case.PostOperation.PostOperations, i);
+	if((j = List_ISearchSeq(Problem_S.PostOperation, str, fcmp_PostOperation_Name)) < 0){
+	  Msg(WARNING, "Unknown PostOperation '%s'", str) ;
+	}
+	else{
+	  PostOperation_P = (struct PostOperation*)
+	    List_Pointer(Problem_S.PostOperation, j) ;
+	  PostProcessing_P = (struct PostProcessing *)
+	    List_Pointer(Problem_S.PostProcessing, PostOperation_P->PostProcessingIndex) ;
+	  Treatment_PostOperation
+	    (Resolution_P, DofData_P0, 
+	     (struct DefineSystem*)List_Pointer(Resolution_P->DefineSystem, 0),
+	     GeoData_P0, PostProcessing_P, PostOperation_P) ;
+	}
+      }
+      break ;
 
 
       /*  -->  O t h e r                              */

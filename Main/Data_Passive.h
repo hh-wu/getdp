@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.33 2001-05-18 12:26:27 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.34 2001-06-16 09:28:23 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -717,6 +717,9 @@ struct Operation {
     struct {
       int     GroupIndex, ExpressionIndex ;
     } ChangeOfCoordinates ;
+    struct {
+      List_T *PostOperations ;
+    } PostOperation ;
   } Case ;
 
 } ;
@@ -768,6 +771,8 @@ struct ChangeOfState {
 #define OPERATION_CHANGEOFCOORDINATES      40
 
 #define OPERATION_SYSTEMCOMMAND            50
+
+#define OPERATION_POSTOPERATION            60
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

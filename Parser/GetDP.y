@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.15 2001-05-18 12:26:27 dular Exp $ */
+/* $Id: GetDP.y,v 1.16 2001-06-16 09:29:22 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -4424,6 +4424,16 @@ OperationTerm :
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
 	Num_Group(&Group_S, "OP_ChgCoord", $3) ;
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = $5 ; 
+    }
+
+  | tPostOperation '[' tSTRING ']' tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_POSTOPERATION ;
+      Operation_P->Case.PostOperation.PostOperations =
+	List_Create(1,1,sizeof(char*));
+      List_Add(Operation_P->Case.PostOperation.PostOperations, &$3);
     }
 
   | tSystemCommand tBIGSTR tEND
