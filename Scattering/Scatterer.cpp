@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.23 2002-06-22 00:40:04 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.24 2002-09-05 00:10:32 geuzaine Exp $
 
 #include "Utils.h"
 #include "Scatterer.h"
@@ -91,6 +91,36 @@ void Scatterer::ddx(double u, double v, double *x){
   case KITE :
     x[0] = -cos(u) - 4*0.65*cos(2*u);
     x[1] = -1.5*sin(u); 
+    x[2] = 0.; 
+    break;
+  }
+}
+
+void Scatterer::n(double u, double v, double *x){ 
+  double tmp[3], arclength;
+
+  u = GetInInterval(u, 0., TWO_PI);
+  
+  dx(u, v, tmp);
+  arclength=sqrt(tmp[0]*tmp[0]+tmp[1]*tmp[1]);
+
+  switch(type){
+  case CIRCLE :
+    x[0] = cos(u); 
+    x[1] = sin(u); 
+    x[2] = 0.; 
+    break;
+  case ELLIPSE :
+    Msg(ERROR, "Not done");
+    break;
+  case DROP :
+    x[0] = cos(u)/arclength;
+    x[1] = -cos(u/2.)/arclength; 
+    x[2] = 0.; 
+    break;
+  case KITE :
+    x[0] = 1.5*cos(u)/arclength;
+    x[1] = (sin(u)+1.3*sin(2*u))/arclength; 
     x[2] = 0.; 
     break;
   }

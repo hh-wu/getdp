@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.14 2002-08-30 23:43:21 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.15 2002-09-05 00:10:32 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -32,13 +32,17 @@ void GFHelmholtzParametric2D::init(double _t, double _xt[3], double _dxt[3],
 
 // double layer
 
+// valid only for circle: need to change the normal derivative of the
+// Green's function to the target point for general scatterers
+
 Complex GFHelmholtzParametric2D::L(){
   if(!kr){
     Msg(WARNING, "kr=0 in L");
     return 0.;
   }
   return 0.5 * I * k * (dxtau[1]*(xtau[0]-xt[0]) -
-			dxtau[0]*(xtau[1]-xt[1])) * Bessel_h(1,1,kr) / r;
+  			dxtau[0]*(xtau[1]-xt[1])) * Bessel_h(1,1,kr) / r;
+  //return 0.5 * I * k * fabs(sin((t-tau)/2.)) * Bessel_h(1,1,kr);
 }
 
 Complex GFHelmholtzParametric2D::L1(){
@@ -46,7 +50,8 @@ Complex GFHelmholtzParametric2D::L1(){
     return 0.;
   }
   return k/TWO_PI * (dxtau[1]*(xtau[0]-xt[0]) -
-		     dxtau[0]*(xtau[1]-xt[1])) * Bessel_j(1,kr) / r;
+  		     dxtau[0]*(xtau[1]-xt[1])) * Bessel_j(1,kr) / r;
+  //return k/TWO_PI * fabs(sin((t-tau)/2.)) * Bessel_j(1,kr);
 }
 
 Complex GFHelmholtzParametric2D::L2(double t_pp, double tau_pp, double jac, double ddxt[3]){
@@ -54,7 +59,7 @@ Complex GFHelmholtzParametric2D::L2(double t_pp, double tau_pp, double jac, doub
     return L()-L1()*log(4.*SQU(sin((t_pp-tau_pp)/2.)));
   }
   else{
-    return (1./TWO_PI * (dxt[0]*ddxt[1]-dxt[1]*ddxt[0] / SQU(d*jac)) );
+    return 1./TWO_PI * (dxt[0]*ddxt[1]-dxt[1]*ddxt[0]) / SQU(d*jac);
   }
 }
 
@@ -132,8 +137,8 @@ double GFHelmholtzParametric2D::singLogQuadWeight(double t, double tau, int n){
 
 Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
-  Complex res=0., density, ansatz, m, m1, m2, fact;
-  double xt[3], dxt[3], xtau[3], dxtau[3];
+  Complex res=0., density, ansatz, k1, k2, fact;
+  double xt[3], dxt[3], xtau[3], dxtau[3], ddxtau[3];
   double tau, tau_p, tau_pp, t_p, t_pp, pou, w;
   double tau_p_min, tau_p_max;
   int j, n = nbpts/2;
@@ -141,13 +146,6 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
   GFHelmholtzParametric2D kern;
   static int first = 1;
   static double *Weights;
-
-//#undef TEST
-#define TEST
-#ifdef TEST
-  static FILE *fp;
-  if(first) fp = fopen("debug","w");
-#endif
 
   if(!nbpts) return 0.;
 
@@ -188,11 +186,6 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
     pou = part->eval(tau);
 
-#ifdef TEST2
-    fprintf(fp,"%.12g %.12g %.12g    %.12g %.12g %.12g    %.12g\n",
-	    t,t_p,t_pp,tau,tau_p,tau_pp,pou);
-#endif
-
     if(singular && 
        (first || (ctx->f.applyChgVar && !(ctx->type & STORE_OPERATOR))))
       Weights[j] = kern.singLogQuadWeight(t_pp,tau_pp,n);
@@ -231,9 +224,24 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 	  // combine special quadrature with trapezoidal
 	  if(!jac) Msg(ERROR, "Jac==0!");
 	  w = Weights[j]; // kern.singLogQuadWeight(PI,tau_pp,n);
-	  m1 = kern.M1();
-	  m2 = kern.M2(t_pp,tau_pp,jac);
-	  fact = (w * m1 + PI/(double)n * m2) * ansatz * pou * jac;
+
+	  k1 = k2 = 0.;
+	  if(ctx->type & FIRST_KIND_IE){
+	    k1 = kern.M1();
+	    k2 = kern.M2(t_pp,tau_pp,jac);
+	    if(ctx->type & SECOND_KIND_IE){
+	      double eta = 0.3; // TO CHANGE
+	      k1 *= I*eta;
+	      k2 *= I*eta;
+	    }
+	  }
+	  if(ctx->type & SECOND_KIND_IE){
+	    ctx->scat.ddx(tau,-1,ddxtau);
+	    k1 += kern.L1();
+	    k2 += kern.L2(t_pp,tau_pp,jac,ddxtau);
+	  }
+
+	  fact = (w * k1 + PI/(double)n * k2) * ansatz * pou * jac;
 	}
 	else{
 	  // simple trapezoidal
@@ -243,20 +251,21 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 	    pou -= pou2;
 	  }
 	  if(pou){
-	    m = kern.M();
-	    fact = (PI/(double)n * m) * ansatz * pou * jac;
-
-
-#ifdef TEST
-	    Complex ccc=m * ansatz * pou * jac;
-	    fprintf(fp,"%.12g   %.12g %.12g\n",
-		    tau, ccc.real(), ccc.imag());
-#endif
-
+	    k1 = 0.;
+	    if(ctx->type & FIRST_KIND_IE){
+	      k1 = kern.M();
+	      if(ctx->type & SECOND_KIND_IE){
+		double eta = 0.3; // TO CHANGE
+		k1 *= I*eta;
+	      }
+	    }
+	    if(ctx->type & SECOND_KIND_IE){
+	      k1 += kern.L(); 
+	    }
+	    fact = (PI/(double)n * k1) * ansatz * pou * jac;
 	  }
 	  else
 	    fact = 0.;
-
 	}
 
 	if(ctx->type & STORE_OPERATOR)
@@ -273,10 +282,6 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
   if(singular && first) first = 0;
 
-#ifdef TEST
-  fprintf(fp,"\n\n");
-#endif
-  
   return res;
 }
 
@@ -613,6 +618,9 @@ Complex Evaluate2D(Ctx *ctx, int farfield, double x[3]){
     n = ctx->nbTargetPts/2;
   else
     n = ctx->nbIntPts/2;
+
+  if(ctx->type & SECOND_KIND_IE)
+    Msg(ERROR, "Post-pro not ready for 2nd kind equation");
 
   for(j=0 ; j<=2*n-1 ; j++){
     tau = TWO_PI*j/(2.*n);

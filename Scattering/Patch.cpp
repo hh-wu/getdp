@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.29 2002-08-27 23:38:16 geuzaine Exp $
+// $Id: Patch.cpp,v 1.30 2002-09-05 00:10:32 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -139,7 +139,7 @@ void Ctx::createMesh(Patch::PatchType patchtype){
     // change this when doing Fourier interpolation to have odd nb of
     // Fourier modes on each patch...
 
-    nbTargetPts = 400;
+    nbTargetPts = 500;
     a = PI/10.;
     p[0] = new Patch(patchtype,  0,                nbTargetPts/4,      0, PI/4+a/2., a); List_Add(scat.patches, p[0]);
     p[1] = new Patch(patchtype,  nbTargetPts/4,    nbTargetPts/4,   PI/2, PI/4+a/2., a); List_Add(scat.patches, p[1]);

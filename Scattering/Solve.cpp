@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.37 2002-08-30 23:43:21 geuzaine Exp $
+// $Id: Solve.cpp,v 1.38 2002-09-05 00:10:32 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -53,7 +53,7 @@ double Ctx::getTarget(int index){
 
 void Ctx::computeRHS(gVector *b){
   int i, beg, end;
-  double t, xt[3], kr;
+  double t, xt[3], nt[3], kr;
   Complex res;
 
   LinAlg_GetLocalVectorRange(b,&beg,&end);
@@ -65,9 +65,15 @@ void Ctx::computeRHS(gVector *b){
     t = getTarget(i);
     scat.x(t,-1,xt);
     kr = waveNum[0]*xt[0]+waveNum[1]*xt[1]+waveNum[2]*xt[2];
-    res = 1.;
-    //res = cos(kr)+I*sin(kr);
-    res *= 2 / NORM3(waveNum); // warning!
+    if(type & FIRST_KIND_IE){
+      //res = cos(kr)+I*sin(kr); // standard case (set ansatz=1 in Function.cpp)
+      res = 1.; // HF case with ansatz
+    }
+    else{
+      scat.n(t,-1,nt);
+      res = I*(nt[0]*waveNum[0]+nt[1]*waveNum[1]) ;// second kind IE (RHS=du^inc/dn)
+    }
+    res *= 2 / NORM3(waveNum); // warning: normalization
     LinAlg_SetComplexInVector(res, b, i);
   }
   LinAlg_AssembleVector(b);

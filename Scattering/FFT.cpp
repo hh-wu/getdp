@@ -1,4 +1,4 @@
-// $Id: FFT.cpp,v 1.12 2002-08-27 23:38:16 geuzaine Exp $
+// $Id: FFT.cpp,v 1.13 2002-09-05 00:10:32 geuzaine Exp $
 
 #include "Utils.h"
 #include "FFT.h"
@@ -8,7 +8,7 @@
 
 // packing order for F: [0,1...n/2-1,-n/2,...,-1]
 
-#if 1 // Slow DFT
+#if 0 // Slow DFT
 
 FFT::FFT(int n, Patch *patch){
   N = Nexp = n;
@@ -79,7 +79,7 @@ FFT::FFT(int n, Patch *patch){
   int i;
 
   N = n;
-  expansionFactor = 1600;
+  expansionFactor = 16;
   Nexp = expansionFactor*N;
 
   forwardPlan = fftw_create_plan(N,FFTW_FORWARD,FFTW_ESTIMATE);
