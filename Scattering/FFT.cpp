@@ -1,4 +1,4 @@
-// $Id: FFT.cpp,v 1.9 2002-06-17 07:27:29 geuzaine Exp $
+// $Id: FFT.cpp,v 1.10 2002-06-17 08:11:11 geuzaine Exp $
 
 #include "Utils.h"
 #include "FFT.h"
@@ -131,7 +131,7 @@ void FFT::forward(Complex *f, Complex *F){
 
   fftw_one(forwardPlan,tmp1,tmp2);
 
-  // padding with zeros in the exanded case
+  // padding with zeros in the expanded case
   // [0,  1...N/2-1,0,...0,  0,...0,-N/2,...,-1]
 
   for(i=0; i<Nexp; i++){
@@ -195,22 +195,19 @@ void FFT::init(Complex *f){
 }
 
 Complex FFT::eval(double t){
-  /* this works
-  int i, j;
   Complex sum;
 
+#if DIRECT_EVAL // just for testing...
+  int i, j;
   sum = 0.;
   for(i=0 ; i<Nexp ; i++){
     if(i<=Nexp/2) j = i;
     else j = -Nexp+i;
     sum += (cos(j*t)+I*sin(j*t)) * fourierCoefs[i] / (double)Nexp;
   }
-
-  return sum;
-  */
-
-  Complex sum;
+#else
   sum = spline->eval(t);
+#endif
 
 #if DEBUG_FFT
   printf("eval(%.16g) = %.16g %.16g\n", t, sum.real(), sum.imag());
