@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.10 2000-11-06 09:18:27 geuzaine Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.11 2001-02-06 21:48:27 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -365,8 +365,8 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePointSP,
 	  for ( jHar = 0 ; jHar < Current.NbrHar ; jHar++ ) {
 	    for ( iDim = 0 ; iDim < 3 ; iDim++ ){
 	      for ( jDim = 0 ; jDim < 3 ; jDim++ ){
-		//		printf ("+++ %d %d %d %d %f \n",iHar,jHar,iDim,jDim,
-		// Matrix2_MH [iHar*3+iDim] [jHar*3+jDim] );
+		/*		printf ("+++ %d %d %d %d %f \n",iHar,jHar,iDim,jDim,
+				Matrix2_MH [iHar*3+iDim] [jHar*3+jDim] );*/
 	      }
 	    }
 	  }
@@ -387,7 +387,7 @@ void  MH_Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * 
 
   GetDP_Begin("MH_Cal_ProductValue");
 
-  // printf(" Begin H_Cal_ProductValue \n");
+  /* printf(" Begin H_Cal_ProductValue \n"); */
 
   for ( iHar = 0 ; iHar < Current.NbrHar ; iHar++ ) {
 

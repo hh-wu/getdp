@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.7 2001-01-02 13:42:20 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.8 2001-02-06 21:48:27 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -294,7 +294,7 @@ double  SphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
 
 double  SphFiniteShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   int  i ;
-  double  CoorX, CoorY, A, B, C, R, thetax,thetay,thetaxy, XR, YR, f;
+  double  CoorX, CoorY, A, B, C, R, thetax,thetay,thetaxy, f;
   double  fac, fac1, fac2, term1, term2;
   double  DetJac ;
 
