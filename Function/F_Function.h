@@ -150,7 +150,6 @@ void  F_dbdh_Jiles      (F_ARG) ;  /* pour Johan */
 void  F_h_Jiles         (F_ARG) ;  /* pour Johan */
 void  F_b_Jiles         (F_ARG) ;  /* pour Johan */
 
-
 /* F_MultiHar */
 
 void  F_MHToTime           (F_ARG) ;
@@ -172,6 +171,11 @@ void  MHTransform(struct Element * Element, struct QuantityStorage * QuantitySto
 /* F_BiotSavart */
 void  F_BiotSavart (F_ARG) ;
 void  F_Pocklington (F_ARG) ;
+
+/* F_DiscreteGeometry */
+
+void  F_DGF             (F_ARG) ;
+
 
 #undef F_ARG
 

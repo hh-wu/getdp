@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.28 2004-10-27 12:59:14 dular Exp $
+# $Id: Makefile,v 1.29 2004-11-17 13:23:26 dular Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -37,6 +37,7 @@ SRC = F_Analytic.c \
       F_Type.c \
       F_MultiHar.c \
       F_Jiles.c \
+      F_DiscreteGeometry.c \
       BF_Node.c \
       BF_Node_2.c \
       BF_Node_3.c \
@@ -123,6 +124,15 @@ F_Misc.o: F_Misc.c ../include/GetDP.h ../Main/Message.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
   ../DataStr/Tools.h
+F_Interpolation.o: F_Interpolation.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
+  ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Get_Geometry.h \
+  ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
+  ../DataStr/Tools.h
 F_Type.o: F_Type.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
@@ -150,6 +160,15 @@ F_Jiles.o: F_Jiles.c ../include/GetDP.h ../Main/Message.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
   ../DataStr/Tools.h
+F_DiscreteGeometry.o: F_DiscreteGeometry.c ../include/GetDP.h \
+  ../Main/Message.h ../DataStr/Malloc.h ../Main/Data_DefineE.h \
+  F_Function.h ../Main/Data_Active.h ../Main/Data_Passive.h \
+  ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+  ../Main/Get_Geometry.h ../Main/Cal_Value.h ../Main/CurrentData.h \
+  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
+  ../Numeric/Numeric.h ../DataStr/Tools.h
 BF_Node.o: BF_Node.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h BF_Function.h ../Main/Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/List.h \
