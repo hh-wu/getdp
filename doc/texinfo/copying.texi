@@ -37,9 +37,9 @@ The source code and various pre-compiled versions of GetDP (for Unix,
 Windows and Mac OS) can be downloaded from the web site @value{GETDP-WEB}.
 
 If you use GetDP, we would appreciate that you mention it in your
-work. References, as well as the latest news about GetDP development, are
-always available on @value{GETDP-WEB}. Please send all GetDP-related
-questions to the public GetDP mailing list at @email{getdp@@geuz.org}.
+work. References and the latest news about GetDP are always available on
+@value{GETDP-WEB}. Please send all GetDP-related questions to the public
+GetDP mailing list at @email{getdp@@geuz.org}.
 
 @sp 2
 

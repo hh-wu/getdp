@@ -4,9 +4,12 @@
    This file defines the problem dependent data structures for the
    microstrip problem.
    
-   To compute the solution: getdp mStrip -solve EleSta_v
-   To compute post-results: getdp mStrip -pos Map
-                         or getdp mStrip -pos Cut
+   To compute the solution: 
+       getdp mStrip -solve EleSta_v
+
+   To compute post-results:
+       getdp mStrip -pos Map
+    or getdp mStrip -pos Cut
    ------------------------------------------------------------------- */
 
 Group {

@@ -4,9 +4,12 @@
    This file defines the problem dependent data structures for the
    dynamic core-inductor problem.
    
-   To compute the solution: getdp CoreMassive -msh Core.msh -solve MagDyn_av_2D
-   To compute post-results: getdp CoreMassive -msh Core.msh -pos Map_a
-                         or getdp CoreMassive -msh Core.msh -pos U_av
+   To compute the solution: 
+        getdp CoreMassive -msh Core.msh -solve MagDyn_av_2D
+
+   To compute post-results: 
+        getdp CoreMassive -msh Core.msh -pos Map_a
+        getdp CoreMassive -msh Core.msh -pos U_av
    ------------------------------------------------------------------- */
 
 Group {
@@ -21,7 +24,7 @@ Group {
   Val_Rext = 250.e-3;
 
   DomainCC_Mag = Region[ {Air, AirInf} ];
-  DomainC_Mag  = Region[ {Ind, Core} ]; // Massive inductor and conducting core
+  DomainC_Mag  = Region[ {Ind, Core} ]; // Massive inductor + conducting core
   DomainB_Mag  = Region[ {} ];
   DomainS_Mag  = Region[ {} ];
   DomainInf    = Region[ {AirInf} ];

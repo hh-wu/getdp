@@ -4,8 +4,11 @@
    This file defines the problem dependent data structures for the
    static core-inductor problem.
    
-   To compute the solution: getdp CoreSta -msh Core.msh -solve MagSta_a_2D
-   To compute post-results: getdp CoreSta -msh Core.msh -pos Map_a
+   To compute the solution: 
+       getdp CoreSta -msh Core.msh -solve MagSta_a_2D
+
+   To compute post-results: 
+       getdp CoreSta -msh Core.msh -pos Map_a
    ------------------------------------------------------------------- */
 
 Group {
