@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.25 2003-02-15 01:01:45 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.26 2003-02-18 22:37:13 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -611,7 +611,7 @@ List_T * Purify_WholeQuantity(List_T * WQ_L) {
      everytime using the stack...
   */
 
-  GetDP_End ;
+  GetDP_Return(NULL) ;
 }
 
 
