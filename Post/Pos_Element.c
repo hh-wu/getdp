@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.13 2001-08-09 19:29:21 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.14 2001-08-15 10:12:02 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -678,7 +678,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 
       }
     }
-    else { /* Skin */
+    else { /* Skin: facets oriented with normals pointing outwards */
       
       switch(GE->Type){
 	
@@ -775,22 +775,22 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	
       case HEXAHEDRON :
 	if(DecomposeInSimplex){
-	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 2 4 */
+	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 4 2 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[1] ;
-	  PE->NumNodes[2] = GE->NumNodes[3] ;
+	  PE->NumNodes[1] = GE->NumNodes[3] ;
+	  PE->NumNodes[2] = GE->NumNodes[1] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] =-1. ; 	      
-	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] =-1. ; 	      
 	  POS_CUT_SKIN;
 	
-	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 2 3 4 */
+	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 2 4 3 */
 	  PE->NumNodes[0] = GE->NumNodes[1] ;
-	  PE->NumNodes[1] = GE->NumNodes[2] ;
-	  PE->NumNodes[2] = GE->NumNodes[3] ;
+	  PE->NumNodes[1] = GE->NumNodes[3] ;
+	  PE->NumNodes[2] = GE->NumNodes[2] ;
 	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] =-1. ; 	      
-	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ; 	      
-	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] =-1. ; 	     
+	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] =-1. ; 	     
+	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ; 	      
 	  POS_CUT_SKIN;
 	
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 5 6 8 */
@@ -829,40 +829,40 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
 	  POS_CUT_SKIN;
 	  
-	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 2 6 3 */
+	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 2 3 6 */
 	  PE->NumNodes[0] = GE->NumNodes[1] ;
-	  PE->NumNodes[1] = GE->NumNodes[5] ;
-	  PE->NumNodes[2] = GE->NumNodes[2] ;
+	  PE->NumNodes[1] = GE->NumNodes[2] ;
+	  PE->NumNodes[2] = GE->NumNodes[5] ;
 	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
-	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
 	  
-	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 6 7 3 */
+	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 6 3 7 */
 	  PE->NumNodes[0] = GE->NumNodes[5] ;
-	  PE->NumNodes[1] = GE->NumNodes[6] ;
-	  PE->NumNodes[2] = GE->NumNodes[2] ;
+	  PE->NumNodes[1] = GE->NumNodes[2] ;
+	  PE->NumNodes[2] = GE->NumNodes[6] ;
 	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 1. ;
-	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 1. ;
-	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
 	
-	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 5 6 1 */
+	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 5 1 6 */
 	  PE->NumNodes[0] = GE->NumNodes[4] ;
-	  PE->NumNodes[1] = GE->NumNodes[5] ;
-	  PE->NumNodes[2] = GE->NumNodes[0] ;
+	  PE->NumNodes[1] = GE->NumNodes[0] ;
+	  PE->NumNodes[2] = GE->NumNodes[5] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 1. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
-	  PE->u[2] =-1. ; PE->v[2] =-1. ; PE->w[2] =-1. ;
+	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
+	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
 	
-	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 6 2 1 */
+	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 6 1 2 */
 	  PE->NumNodes[0] = GE->NumNodes[5] ;
-	  PE->NumNodes[1] = GE->NumNodes[1] ;
-	  PE->NumNodes[2] = GE->NumNodes[0] ;
+	  PE->NumNodes[1] = GE->NumNodes[0] ;
+	  PE->NumNodes[2] = GE->NumNodes[1] ;
 	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 1. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
-	  PE->u[2] =-1. ; PE->v[2] =-1. ; PE->w[2] =-1. ;
+	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
+	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] =-1. ;
 	  POS_CUT_SKIN;
 	  
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 8 7 4 */
@@ -917,12 +917,12 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] =-1. ;
 	  POS_CUT_SKIN;
 
-	  PE = Create_PostElement(Index, QUADRANGLE, 4, 1) ; /* nodes 1 3 7 6 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
+	  PE = Create_PostElement(Index, QUADRANGLE, 4, 1) ; /* nodes 2 3 7 6 */
+	  PE->NumNodes[0] = GE->NumNodes[1] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
 	  PE->NumNodes[2] = GE->NumNodes[6] ;
 	  PE->NumNodes[4] = GE->NumNodes[5] ;
-	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
+	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
 	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
 	  PE->u[3] = 1. ; PE->v[3] =-1. ; PE->w[3] = 1. ;
@@ -953,13 +953,13 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	break ;
 
       case PRISM :
-	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 2 3 */
+	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 3 2 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
-	PE->NumNodes[1] = GE->NumNodes[1] ;
-	PE->NumNodes[2] = GE->NumNodes[2] ;
+	PE->NumNodes[1] = GE->NumNodes[2] ;
+	PE->NumNodes[2] = GE->NumNodes[1] ;
 	PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
-	PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] =-1. ;
-	PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+	PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+	PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] =-1. ;
 	POS_CUT_SKIN;
 	
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 4 5 6 */
@@ -981,22 +981,22 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
 	
-	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 4 5 */
+	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 5 4 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[3] ;
-	  PE->NumNodes[2] = GE->NumNodes[4] ;
+	  PE->NumNodes[1] = GE->NumNodes[4] ;
+	  PE->NumNodes[2] = GE->NumNodes[3] ;
 	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
-	  PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 1. ;
-	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 1. ;
+	  PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
 	  
-	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 3 6 */
+	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 6 3 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[2] ;
-	  PE->NumNodes[2] = GE->NumNodes[5] ;
+	  PE->NumNodes[1] = GE->NumNodes[5] ;
+	  PE->NumNodes[2] = GE->NumNodes[2] ;
 	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
-	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
-	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
+	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 1. ;
+	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
 	  POS_CUT_SKIN;
 	  
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 4 6 */
@@ -1017,13 +1017,13 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
 	
-	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 3 5 6 */
+	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 3 6 5 */
 	  PE->NumNodes[0] = GE->NumNodes[2] ;
-	  PE->NumNodes[1] = GE->NumNodes[4] ;
-	  PE->NumNodes[2] = GE->NumNodes[5] ;
+	  PE->NumNodes[1] = GE->NumNodes[5] ;
+	  PE->NumNodes[2] = GE->NumNodes[4] ;
 	  PE->u[0] = 0. ; PE->v[0] = 1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 1. ;
-	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 1. ;      
+	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 1. ;      
+	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
 	}
 	else{
