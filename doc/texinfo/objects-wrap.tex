@@ -1,0 +1,16 @@
+% dvips -E objects-wrap -o objects-wrap.eps
+
+\documentclass[12pt]{article}
+
+\RequirePackage[latin1]{inputenc}
+\usepackage{graphicx, color}
+\newcommand{\code}[1]{\upshape\texttt{#1}}
+\newcommand{\var}[1]{{\normalfont\itshape#1}}
+\pagestyle{empty}
+\thispagestyle{empty}
+
+\begin{document}
+
+\input{getdp.tex}
+
+\end{document}
