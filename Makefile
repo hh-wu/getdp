@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.36 2001-01-31 13:53:07 geuzaine Exp $
+# $Id: Makefile,v 1.37 2001-02-02 15:32:39 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -420,7 +420,7 @@ cygwin: tag
 	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 	$(STRIP) $(GETDP_BIN_DIR)/getdp
 
-mingw:
+mingw: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc -mno-cygwin -I/mingw/include" \
            "FC=g77 -mno-cygwin -I/mingw/include" \
