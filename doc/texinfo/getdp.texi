@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.26 2001-07-27 17:19:56 geuzaine Exp $
+@c $Id: getdp.texi,v 1.27 2001-07-29 16:22:48 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -1394,6 +1394,13 @@ is usually preferred with such fields.
 @chapter Objects
 
 @cindex Objects, definition
+
+This chapter presents the formal definition of the ten GetDP objects
+mentioned in @ref{Overview}. To be concise, all the possible parameters for
+these objects are not given here (cf.@: the @var{etc} syntactic rule defined
+in @ref{Syntactic rules}). Please refer to @ref{Types for objects}, for
+this.
+
 
 @menu
 * Group::                       
@@ -4026,24 +4033,37 @@ the current values of the cartesian coordinates @code{$X}, @code{$Y} and
 
 @item Gmsh
 @itemx GmshParsed
-Gmsh output. See the documentation of Gmsh for a description of the file
-formats.
+Gmsh output. See the documentation of Gmsh (@value{GMSH-WEB}) for a
+description of the file formats.
 
 @item Table
-@itemx Gnuplot
-Column-oriented output, e.g.@: suitable for Gnuplot, Excel, Caleida Graph,
-etc. The columns are: @var{element-type} @var{element-index} @var{x-coord}
-@var{y-coord} @var{z-coord} <@var{x-coord} @var{y-coord} @var{z-coord}>
-@dots{} @var{real} @var{real} @var{real} @var{values}. The three @var{real}
-numbers preceding the @var{values} contain context-dependent information,
-depending on the type of plot: curvilinear abscissa for @code{OnLine} plots,
-normal to the plane for @code{OnPlane} plots, etc.
+Space oriented column output, e.g.@: suitable for Gnuplot, Excel, Caleida
+Graph, etc. The columns are: @var{element-type} @var{element-index}
+@var{x-coord} @var{y-coord} @var{z-coord} <@var{x-coord} @var{y-coord}
+@var{z-coord}> @dots{} @var{real} @var{real} @var{real} @var{values}. The
+three @var{real} numbers preceding the @var{values} contain
+context-dependent information, depending on the type of plot: curvilinear
+abscissa for @code{OnLine} plots, normal to the plane for @code{OnPlane}
+plots, parametric coordinates for parametric @code{OnGrid} plots, etc.
 
 @item TimeTable
 Time oriented column output, e.g.@: suitable for Gnuplot, Excel, Caleida
 Graph, etc. The columns are: @var{time-step} @var{time} @var{x-coord}
 @var{y-coord} @var{z-coord} <@var{x-coord} @var{y-coord} @var{z-coord}>
 @dots{} @var{value}.
+
+@item Gnuplot
+Space oriented column output similar to the @code{Table} format, except that
+a new line is created for each node of each element, with a repetition of
+the first node if the number of nodes in the element is greater than 2. This
+permits to draw unstructured meshes and nice three-dimensional elevation
+plots in Gnuplot. The columns are: @var{element-type} @var{element-index}
+@var{x-coord} @var{y-coord} @var{z-coord} @var{real} @var{real} @var{real}
+@var{values}. The three @var{real} numbers preceding the @var{values}
+contain context-dependent information, depending on the type of plot:
+curvilinear abscissa for @code{OnLine} plots, normal to the plane for
+@code{OnPlane} plots, parametric coordinates for parametric @code{OnGrid}
+plots, etc.
 
 @item Adaptation
 Adaptation map, suitable for the GetDP @code{-adapt} command line option.
@@ -5556,6 +5576,11 @@ Displays a message listing basic usage and available options.
 
 @node File formats, Bugs and versions, Running GetDP, Top
 @chapter File formats
+
+This chapter describes the file formats that cannot be modified by the
+user. The format of the problem definition structure is explained in
+@ref{Objects}, and @ref{Types for objects}. The format of the
+post-processing files is explained in @ref{Types for PostOperation}.
 
 @menu
 * Input file format::           
