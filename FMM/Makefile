@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2004-03-05 18:18:03 geuzaine Exp $
+# $Id: Makefile,v 1.9 2005-02-06 00:34:57 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -65,11 +65,11 @@ FMM_CalDTAmatrices.o: FMM_CalDTAmatrices.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h ../Main/Treatment_Formulation.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../DataStr/Tree.h ../DataStr/avl.h ../Main/CurrentData.h \
-  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
-  ../Main/Get_Geometry.h ../Main/Get_DofOfElement.h \
-  ../Main/Data_DefineE.h ../Main/Cal_Value.h ../Main/Cal_Quantity.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Cal_Quantity.h \
+  ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Get_Geometry.h \
+  ../Main/Get_DofOfElement.h ../Main/Data_DefineE.h \
   ../Function/GF_Function.h ../DataStr/Tools.h Data_FMM.h \
   Cal_FMMAnalyticalIntegral.h F_FMM_DTA.h
 FMM_Operations.o: FMM_Operations.c ../include/GetDP.h ../Main/Message.h \
