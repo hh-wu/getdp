@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.28 2000-10-23 10:51:28 geuzaine Exp $
+# $Id: Makefile,v 1.29 2000-10-23 20:44:19 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -322,10 +322,23 @@ dec: tag
 	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
 	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
 
-linux: tag
+linux-compat: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=i386-glibc21-linux-gcc" \
            "FC=i386-glibc21-linux-g77" \
+           "C_FLAGS=-O3" \
+           "C_PARSER_FLAGS=-O3" \
+           "F77_FLAGS=-O1" \
+           "SOLVER=-D_SPARSKIT" \
+           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+        ); done
+	i386-glibc21-linux-g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
+	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+
+linux: tag
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
+           "CC=gcc" \
+           "FC=g77" \
            "C_FLAGS=-O3" \
            "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
