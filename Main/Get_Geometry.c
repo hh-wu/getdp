@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.30 2003-04-28 03:54:32 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.31 2003-11-20 09:29:36 dular Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -455,7 +455,7 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
   }
 
   if ( (fabs(R) > fabs(B) + 1.e-12*fabs(B)) || 
-       (fabs(R) < fabs(A) - 1.e-12*fabs(A)) )
+       (fabs(R) < fabs(A) - 1.e-2*fabs(A)) )
     Msg(ERROR, "Bad parameters for transformation Jacobian: %g not in [%g,%g]", R, A, B) ;
 
   if (B == R) {

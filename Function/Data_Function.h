@@ -490,10 +490,10 @@ struct StringX3Function2Nbr  BF_Function[] = {
   {"BF_Zero", (CAST)BF_Zero, (CAST)BF_Zero, (CAST)BF_Zero, 0., ALL },
   {"BF_One",  (CAST)BF_One,  (CAST)BF_One,  (CAST)BF_One,  0., ALL },
 
-  {"BF_Region"  , (CAST)BF_Region   , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
-  {"BF_RegionX" , (CAST)BF_RegionX  , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
-  {"BF_RegionY" , (CAST)BF_RegionY  , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
-  {"BF_RegionZ" , (CAST)BF_RegionZ  , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
+  {"BF_Region"  , (CAST)BF_Region   , (CAST)BF_dRegion  , (CAST)BF_Zero , 0. , ALL },
+  {"BF_RegionX" , (CAST)BF_RegionX  , (CAST)BF_dRegionX , (CAST)BF_Zero , 0. , ALL },
+  {"BF_RegionY" , (CAST)BF_RegionY  , (CAST)BF_dRegionY , (CAST)BF_Zero , 0. , ALL },
+  {"BF_RegionZ" , (CAST)BF_RegionZ  , (CAST)BF_dRegionZ , (CAST)BF_Zero , 0. , ALL },
 
   {"BF_Global"  , (CAST)BF_Global   , (CAST)BF_dGlobal , (CAST)BF_Zero , 0. , ALL },
   {"BF_dGlobal" , (CAST)BF_dGlobal  , (CAST)BF_Zero    , (CAST)BF_Global, 0. , ALL },

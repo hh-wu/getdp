@@ -346,7 +346,7 @@ struct BasisFunction {
   void    (*Function)();
   void    (*dFunction)();
   void    (*dInvFunction)();
-  List_T  * SubFunction ;
+  List_T  * SubFunction, * SubdFunction ;
   int     SupportIndex, EntityIndex ;
   double  Order ;
   int     ElementType ;

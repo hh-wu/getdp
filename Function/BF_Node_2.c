@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node_2.c,v 1.8 2003-03-22 03:30:09 geuzaine Exp $"
+#define RCSID "$Id: BF_Node_2.c,v 1.9 2003-11-20 09:29:36 dular Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -64,7 +64,7 @@ void  BF_Node_2E (struct Element * Element, int NumEntity,
     case 2  : *s = 0.0625 * (1.-u)*(1.-u) * (1.-v*v) ; break ;
     case 3  : *s = 0.0625 * (1.+u)*(1.+u) * (1.-v*v) ; break ;
     case 4  : *s = 0.0625 * (1.-u*u) * (1.+v)*(1.+v) ; break ;
-      /*
+      /* faux
     case 1  : *s = 0.0625 * (1.-u*u) * (1.-v*v) ; break ;
     case 2  : *s = 0.0625 * (1.-u)*(1.-u) * (1.-v*v) ; break ;
     case 3  : *s = 0.0625 * (1.+u)*(1.+u) * (1.+v)*(1.+v) ; break ;

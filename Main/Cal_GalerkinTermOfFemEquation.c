@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.20 2003-03-22 03:30:12 geuzaine Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.21 2003-11-20 09:29:36 dular Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -34,6 +34,7 @@
 #include "CurrentData.h"
 #include "Tools.h"
 #include "F_FMM.h"
+
 
 void  Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTerm_P) ;
 void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
@@ -189,7 +190,7 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
   
   /*  G e t   C h a n g e O f C o o r d i n a t e s   */
   /*  ----------------------------------------------  */
-  
+
   FI->xChangeOfCoordinatesEqu = 
     (void (*)())Get_ChangeOfCoordinates(FI->Flag_ChangeCoord, FI->Type_FormEqu) ;
 
@@ -508,7 +509,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	Cal_vBFxDof(EquationTerm_P, FI, 
 		    QuantityStorage_P0, QuantityStorageDof_P,
 		    Nbr_Dof, xFunctionBFDof, vBFxEqu, vBFxDof);
-		
+
 	Factor = (FI->Flag_ChangeCoord) ? weight * fabs(Element->DetJac) : weight ;
 
 	/* Product and assembly in elementary submatrix             (k?-1.:1.)*   */

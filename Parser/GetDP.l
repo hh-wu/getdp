@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.23 2003-08-29 14:50:20 gyselinc Exp $ */
+/* $Id: GetDP.l,v 1.24 2003-11-20 09:29:36 dular Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -199,6 +199,7 @@ NameOfCoef                   return tNameOfCoef ;
 Function                     return tFunction ;
 dFunction                    return tdFunction ;
 SubFunction                  return tSubFunction ;
+SubdFunction                 return tSubdFunction ;
 Support                      return tSupport ;
 Entity                       return tEntity ;
 SubSpace                     return tSubSpace ;

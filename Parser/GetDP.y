@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.53 2003-08-29 14:50:20 gyselinc Exp $ */
+/* $Id: GetDP.y,v 1.54 2003-11-20 09:29:36 dular Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -273,7 +273,7 @@ time_t date_info;
 %token  tFunctionSpace
 %token    tName
 %token    tBasisFunction
-%token      tNameOfCoef  tFunction  tdFunction  tSubFunction  tSupport  tEntity
+%token      tNameOfCoef  tFunction  tdFunction  tSubFunction tSubdFunction  tSupport  tEntity
 %token    tSubSpace  tNameOfBasisFunction
 %token    tGlobalQuantity
 %token      tEntityType tEntitySubType tNameOfConstraint
@@ -2496,6 +2496,7 @@ BasisFunction :
       BasisFunction_S.dFunction = NULL ;
       BasisFunction_S.dInvFunction = NULL ;
       BasisFunction_S.SubFunction = NULL ; 
+      BasisFunction_S.SubdFunction = NULL ; 
       BasisFunction_S.SupportIndex = -1 ; 
       BasisFunction_S.EntityIndex  = -1 ;
     }
@@ -2556,6 +2557,11 @@ BasisFunctionTerm :
   | tSubFunction ListOfExpression tEND
     {
       BasisFunction_S.SubFunction = List_Copy(ListOfInt_L); 
+    }
+
+  | tSubdFunction ListOfExpression tEND
+    {
+      BasisFunction_S.SubdFunction = List_Copy(ListOfInt_L); 
     }
 
   | tSupport GroupRHS tEND

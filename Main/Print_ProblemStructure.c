@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.33 2003-06-21 07:16:40 sabarieg Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.34 2003-11-20 09:29:36 dular Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -603,6 +603,17 @@ void  Print_FunctionSpace(struct Problem  * Problem) {
 		((struct Expression *)
 		 List_Pointer(Problem->Expression, 
 			      *((int *)List_Pointer(BF->SubFunction, j))))->Name) ;
+	  Msg(CHECK, " } ;\n") ;
+	}
+
+	if (BF->SubdFunction) {
+	  Msg(CHECK, "      SubdFunction {") ;
+	  Nbrj = List_Nbr(BF->SubdFunction) ;
+	  for (j=0 ; j<Nbrj ; j++)
+	    Msg(CHECK, " %s",
+		((struct Expression *)
+		 List_Pointer(Problem->Expression, 
+			      *((int *)List_Pointer(BF->SubdFunction, j))))->Name) ;
 	  Msg(CHECK, " } ;\n") ;
 	}
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_DofOfElement.c,v 1.20 2003-03-22 03:30:13 geuzaine Exp $"
+#define RCSID "$Id: Get_DofOfElement.c,v 1.21 2003-11-20 09:29:36 dular Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -271,6 +271,9 @@ void  Get_GroupsOfElementaryEntitiesOfElement
 	    Element->NumSubFunction[1][j+i_SF] = i_SF ;
 	    Element->NumSubFunction[0][j+i_SF] =
 	      *((int *)List_Pointer(BasisFunction_P->SubFunction, i_SF)) ;
+	    if (BasisFunction_P->SubdFunction)
+	      Element->NumSubFunction[2][j+i_SF] =
+		*((int *)List_Pointer(BasisFunction_P->SubdFunction, i_SF)) ;
 	    Element->NumGroupsOfEntities[j+i_SF] = Key_P->Int2 ;
 	    Element->NbrEntitiesInGroups[Element->NbrGroupsOfEntities++] = 0 ;
 	  }
@@ -375,6 +378,9 @@ void  Get_RegionForElement(struct Element * Element, int * StartingIndex,
       Element->NumSubFunction[1][Element->NbrGroupsOfEntities] = i_SF ; /* Index SF */
       Element->NumSubFunction[0][Element->NbrGroupsOfEntities] =
 	*((int *)List_Pointer(BasisFunction_P->SubFunction, i_SF)) ; /* Index Expression */
+      if (BasisFunction_P->SubdFunction)
+	Element->NumSubFunction[2][Element->NbrGroupsOfEntities] =
+	  *((int *)List_Pointer(BasisFunction_P->SubdFunction, i_SF)) ; /* Index Expression */
       Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Element->Region ;
     }
   }

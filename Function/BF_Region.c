@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Region.c,v 1.9 2003-03-22 03:30:09 geuzaine Exp $"
+#define RCSID "$Id: BF_Region.c,v 1.10 2003-11-20 09:29:36 dular Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -47,6 +47,21 @@ void  BF_Region(struct Element * Element, int NumRegion,
   GetDP_End ;
 }
 
+void  BF_dRegion(struct Element * Element, int NumRegion, 
+		 double u, double v, double w,  double *s ) {
+
+  GetDP_Begin("BF_dRegion");
+
+  *s = 1. ;
+
+  if (Element->NumSubFunction[0][NumRegion-1] >= 0)
+    BF_SubFunction(Element, Element->NumSubFunction[2][NumRegion-1], 1, s) ;
+  else
+    *s = 0. ;
+
+  GetDP_End ;
+}
+
 /* ------------------------------------------------------------------------ */
 /*  B F _ R e g i o n X ,  Y ,  Z                                           */
 /* ------------------------------------------------------------------------ */
@@ -86,6 +101,56 @@ void  BF_RegionZ(struct Element * Element, int NumRegion,
 
   if (Element->NumSubFunction[0][NumRegion-1] >= 0)
     BF_SubFunction(Element, Element->NumSubFunction[0][NumRegion-1], 3, s) ;
+
+  GetDP_End ;
+}
+
+
+void  BF_dRegionX(struct Element * Element, int NumRegion, 
+		  double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_dRegionX");
+
+  s[1] = s[2] = 0. ;  s[0] = 1. ; /* Patrick (a finaliser) */
+
+  if (Element->NumSubFunction[0][NumRegion-1] >= 0)
+    BF_SubFunction(Element, Element->NumSubFunction[2][NumRegion-1], 3, s) ;
+  else
+    s[0] = 0. ;
+
+  GetDP_End ;
+}
+
+void  BF_dRegionY(struct Element * Element, int NumRegion, 
+		  double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_dRegionY");
+
+  s[0] = s[2] = 0. ;  s[1] = 1. ; /* Patrick (a finaliser) */
+
+  if (Element->NumSubFunction[0][NumRegion-1] >= 0)
+    BF_SubFunction(Element, Element->NumSubFunction[2][NumRegion-1], 3, s) ;
+  else
+    s[1] = 0. ;
+
+  GetDP_End ;
+}
+
+void  BF_dRegionZ(struct Element * Element, int NumRegion, 
+		  double u, double v, double w,  double s[] ) {
+
+  GetDP_Begin("BF_dRegionZ");
+
+  /* Patrick (a finaliser)
+  s[0] = s[1] = 0. ;  s[2] = 1. ;
+  */
+  s[0] = s[2] = 0. ;  s[1] = -1. ;
+
+
+  if (Element->NumSubFunction[0][NumRegion-1] >= 0)
+    BF_SubFunction(Element, Element->NumSubFunction[2][NumRegion-1], 3, s) ;
+  else
+    s[1] = 0. ;
 
   GetDP_End ;
 }

@@ -292,6 +292,11 @@ void  BF_Region(BF_ARG) ;
 void  BF_RegionX(BF_ARG) ;
 void  BF_RegionY(BF_ARG) ;
 void  BF_RegionZ(BF_ARG) ;
+
+void  BF_dRegion(BF_ARG) ;
+void  BF_dRegionX(BF_ARG) ;
+void  BF_dRegionY(BF_ARG) ;
+void  BF_dRegionZ(BF_ARG) ;
   	       
 void  BF_Global(BF_ARG) ;
 void  BF_dGlobal(BF_ARG) ;
