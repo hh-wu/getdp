@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.15 2002-09-05 00:10:32 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.16 2002-09-11 00:55:37 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -225,20 +225,21 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 	  if(!jac) Msg(ERROR, "Jac==0!");
 	  w = Weights[j]; // kern.singLogQuadWeight(PI,tau_pp,n);
 
-	  k1 = k2 = 0.;
-	  if(ctx->type & FIRST_KIND_IE){
+	  if((ctx->type & FIRST_KIND_IE) && (ctx->type & SECOND_KIND_IE)){
+	    ctx->scat.ddx(tau,-1,ddxtau);
+	    k1 = ctx->couplingCoef * kern.M1()
+	      + (1.-ctx->couplingCoef) * kern.L1();
+	    k2 = ctx->couplingCoef * kern.M2(t_pp,tau_pp,jac) 
+	      + (1.-ctx->couplingCoef) *  kern.L2(t_pp,tau_pp,jac,ddxtau);
+	  }
+	  else if(ctx->type & FIRST_KIND_IE){
 	    k1 = kern.M1();
 	    k2 = kern.M2(t_pp,tau_pp,jac);
-	    if(ctx->type & SECOND_KIND_IE){
-	      double eta = 0.3; // TO CHANGE
-	      k1 *= I*eta;
-	      k2 *= I*eta;
-	    }
 	  }
-	  if(ctx->type & SECOND_KIND_IE){
+	  else{
 	    ctx->scat.ddx(tau,-1,ddxtau);
-	    k1 += kern.L1();
-	    k2 += kern.L2(t_pp,tau_pp,jac,ddxtau);
+	    k1 = kern.L1();
+	    k2 = kern.L2(t_pp,tau_pp,jac,ddxtau);
 	  }
 
 	  fact = (w * k1 + PI/(double)n * k2) * ansatz * pou * jac;
@@ -251,17 +252,18 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 	    pou -= pou2;
 	  }
 	  if(pou){
-	    k1 = 0.;
-	    if(ctx->type & FIRST_KIND_IE){
+
+	    if((ctx->type & FIRST_KIND_IE) && (ctx->type & SECOND_KIND_IE)){
+	      k1 = ctx->couplingCoef * kern.M()
+		+ (1.-ctx->couplingCoef) * kern.L();
+	    }
+	    else if(ctx->type & FIRST_KIND_IE){
 	      k1 = kern.M();
-	      if(ctx->type & SECOND_KIND_IE){
-		double eta = 0.3; // TO CHANGE
-		k1 *= I*eta;
-	      }
 	    }
-	    if(ctx->type & SECOND_KIND_IE){
-	      k1 += kern.L(); 
+	    else {
+	      k1 = kern.L(); 
 	    }
+
 	    fact = (PI/(double)n * k1) * ansatz * pou * jac;
 	  }
 	  else
@@ -328,20 +330,21 @@ Complex NystromSimple(Ctx *ctx, int index, double t){
       kern.init(t,xt,dxt,tau,xtau,dxtau,k);
       w = kern.singLogQuadWeight(s,sigma,n);
 
-      k1 = k2 = 0.;
-      if(ctx->type & FIRST_KIND_IE){
+      if((ctx->type & FIRST_KIND_IE) && (ctx->type & SECOND_KIND_IE)){
+	ctx->scat.ddx(tau,-1,ddxtau);
+	k1 = ctx->couplingCoef * kern.M1() 
+	  + (1.-ctx->couplingCoef) * kern.L1();
+	k2 = ctx->couplingCoef * kern.M2(s,sigma,jac)
+	  + (1.-ctx->couplingCoef) * kern.L2(s,sigma,jac,ddxtau);
+      }
+      else if(ctx->type & FIRST_KIND_IE){
 	k1 = kern.M1();
 	k2 = kern.M2(s,sigma,jac);
-	if(ctx->type & SECOND_KIND_IE){
-	  double eta = 0.3; // TO CHANGE
-	  k1 *= I*eta;
-	  k2 *= I*eta;
-	}
       }
-      if(ctx->type & SECOND_KIND_IE){
+      else{
 	ctx->scat.ddx(tau,-1,ddxtau);
-	k1 += kern.L1();
-	k2 += kern.L2(s,sigma,jac,ddxtau);
+	k1 = kern.L1();
+	k2 = kern.L2(s,sigma,jac,ddxtau);
       }
 
       fact = (w * k1 + PI/(double)n * k2) * ansatz * jac;

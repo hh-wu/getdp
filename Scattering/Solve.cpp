@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.38 2002-09-05 00:10:32 geuzaine Exp $
+// $Id: Solve.cpp,v 1.39 2002-09-11 00:55:37 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -65,14 +65,21 @@ void Ctx::computeRHS(gVector *b){
     t = getTarget(i);
     scat.x(t,-1,xt);
     kr = waveNum[0]*xt[0]+waveNum[1]*xt[1]+waveNum[2]*xt[2];
-    if(type & FIRST_KIND_IE){
+
+    if((type & FIRST_KIND_IE) && (type & SECOND_KIND_IE)){ // combined
+      scat.n(t,-1,nt);
+      res = couplingCoef * 1.
+	- (1.-couplingCoef) * I*(nt[0]*waveNum[0]+nt[1]*waveNum[1]);
+    }
+    else if(type & FIRST_KIND_IE){ // 1st kind
       //res = cos(kr)+I*sin(kr); // standard case (set ansatz=1 in Function.cpp)
       res = 1.; // HF case with ansatz
     }
-    else{
+    else{ // 2nd kind
       scat.n(t,-1,nt);
-      res = I*(nt[0]*waveNum[0]+nt[1]*waveNum[1]) ;// second kind IE (RHS=du^inc/dn)
+      res = - I*(nt[0]*waveNum[0]+nt[1]*waveNum[1]) ;// second kind IE (RHS=du^inc/dn)
     }
+
     res *= 2 / NORM3(waveNum); // warning: normalization
     LinAlg_SetComplexInVector(res, b, i);
   }
@@ -124,6 +131,7 @@ void Ctx::saveSolution(gVector *x){
   fprintf(fp, "a = %g;\n", scat.a);
   fprintf(fp, "b = %g;\n", scat.b);
 
+  
   fprintf(fp, "mu = [\n");
   for(i=0; i<nbdof; i++){
     Complex tmp;
@@ -138,6 +146,7 @@ void Ctx::saveSolution(gVector *x){
   }
   fprintf(fp, "]\n");
   
+
   fclose(fp);
 
   return;
@@ -241,7 +250,7 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
 
     if(ctx->type & SECOND_KIND_IE){
       LinAlg_GetComplexInVector(&tmp,x,i);
-      res += tmp;
+      res += (1.-ctx->couplingCoef)*tmp;
     }
 
     LinAlg_SetComplexInVector(res, y, i);

@@ -28,6 +28,7 @@ public:
 
   // global parameters
   double waveNum[3], epsilon, rise, initialTarget;
+  Complex couplingCoef;
 
   // number of unknowns
   int nbTargetPts, nbdof; // nbdof = gCOMPLEX_INCREMENT*nbTargetPts

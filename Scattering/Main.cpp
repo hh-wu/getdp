@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.20 2002-08-27 23:38:16 geuzaine Exp $
+// $Id: Main.cpp,v 1.21 2002-09-11 00:55:37 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
@@ -8,6 +8,8 @@
 int main(int argc, char *argv[]){
   int sargc, spline=0, kind=0;
   char **sargv=(char**)Malloc(256*sizeof(char**));
+  double diameter;
+  Complex eta=-1;
 
   LinAlg_Initialize(&argc, &argv, &NbCpu, &RankCpu);
 
@@ -148,6 +150,9 @@ int main(int argc, char *argv[]){
       else if(Cmp(argv[i]+1, "kind", 2)){ 
 	i++; kind = (int)GetNum(argc,argv,&i);
       }
+      else if(Cmp(argv[i]+1, "eta", 2)){ 
+	i++; eta = GetNum(argc,argv,&i);
+      }
       else{
 	Msg(INFO, "Passing unknown option '%s' to solver", argv[i]); 
 	sargv[sargc++] = argv[i++]; 
@@ -179,7 +184,12 @@ int main(int argc, char *argv[]){
   case 3 :
     ctx->type |= FIRST_KIND_IE;
     ctx->type |= SECOND_KIND_IE;
-    Msg(INFO, "Combined first/second kind integral equation");
+    diameter = 2 * MAX(ctx->scat.a, ctx->scat.b);
+    if(eta == -1.) // automatic, cf. Oscar/Leonid's paper
+      eta = I*MAX(3.,diameter/TWO_PI*NORM3(ctx->waveNum));
+    ctx->couplingCoef = eta/(1.+eta);
+    Msg(INFO, "Combined first/second kind integral equation: eta=%g+i*%g, alpha=%g+i*%g",
+	eta.real(), eta.imag(), ctx->couplingCoef.real(), ctx->couplingCoef.imag());
     break;
   }
 

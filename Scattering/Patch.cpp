@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.30 2002-09-05 00:10:32 geuzaine Exp $
+// $Id: Patch.cpp,v 1.31 2002-09-11 00:55:37 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -85,7 +85,7 @@ Patch::Patch(PatchType _type, int _beg, int _nbdof,
     //s = PI/4.; // TEST!!!
     nodes[i] = changeOfVars(s,0);
     jacs[i] = changeOfVars(s,1);
-    printf("node %d : %.16g jac %.16g\n", i, nodes[i], jacs[i]);
+    //printf("node %d : %.16g jac %.16g\n", i, nodes[i], jacs[i]);
   }
 
   if(type == SPLINE)
@@ -209,7 +209,7 @@ void Ctx::createMesh(Patch::PatchType patchtype){
     p[0] = (Patch*)List_Pointer(scat.patches,i);
     for(int j=0; j<p[0]->nbdof; j++){
       scat.nodes[k++] = p[0]->nodes[j];
-      printf("%d %g \n", k, p[0]->nodes[j]);
+      //printf("%d %g \n", k, p[0]->nodes[j]);
     }
   }
 
