@@ -1,10 +1,11 @@
 
 This directory contains some LaTeX material for GetDP-related
-presentations. You will need LaTeX and the seminar package to be
-installed on your system to compile the various files.
+presentations. You will need LaTeX and the seminar package installed
+on your system in order to compile the various files.
 
-* To create a full presentation, make a copy of 'christophe.tex' and
-  edit it to match your needs. Then compile it with the command 
+* To create a full presentation, make a copy of 'christophe.tex' or
+  'slides-web.tex' and edit it to match your needs. Then compile it
+  with the command
 
   latex file
 
@@ -27,4 +28,22 @@ installed on your system to compile the various files.
   or
 
   psnup -r -4 file.ps | lpr
+
+* To produce pdf output, type
+
+  pdflatex file
+
+* To compile the web (html) presentation, type
+
+  latex slides-web
+  pdflatex slides-web
+  dvips slides-web -o
+
+  Then open The Gimp and use the Geuzaine/ps2gif script (you need to
+  have ps2gif.scm installed in the ~/.gimp-1.2/scripts/ directory) to
+  generate the 'gif/getdp-*.gif' files. Finally, compile makehtml.c 
+  (e.g. with 'cc -o makehtml makehtml.c') and type
+
+  cd gif
+  ../makehtml *.gif
 

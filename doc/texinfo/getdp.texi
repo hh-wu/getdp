@@ -1,5 +1,5 @@
-\input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.13 2001-07-19 14:30:49 geuzaine Exp $
+\input texinfo.tex @c -*-texinfo-*-
+@c $Id: getdp.texi,v 1.14 2001-07-20 16:51:52 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -300,7 +300,7 @@ Short examples
 @code{PostOperation} examples
 
 * Maps::                        
-* Cuts::                        
+* Sections::                    
 * Prints::                      
 
 Complete examples
@@ -779,12 +779,13 @@ Expressions are denoted by the metasyntactic variable @var{expression}
 
 @noindent The following sections introduce the quantities that can appear in
 expressions, i.e.@: constant terminals (@var{integer}, @var{real}) and
-constant expression identifiers (@var{constant-id}), operators
-(@var{operator-unary}, @var{operator-binary}, @code{operator-ternary-left},
-@code{operator-ternary-right}), built-in or user-defined functions
-(@var{built-in-function-id}, @var{function-id}), current values
-(@var{current-value}), arguments (@var{argument}) and discrete fields
-(@var{quantity}). List of expressions are defined as:
+constant expression identifiers (@var{constant-id}), discretized fields
+(@var{quantity}), arguments (@var{argument}), current values
+(@var{current-value}), operators (@var{operator-unary},
+@var{operator-binary}, @var{operator-ternary-left},
+@var{operator-ternary-right}) and built-in or user-defined functions
+(@var{built-in-function-id}, @var{function-id}). List of expressions are
+defined as:
 
 @example
 @var{expression-list}: 
@@ -846,6 +847,8 @@ metasyntactic variable @var{expression-cst}, are also used:
   @var{constant-id} |
   @var{operator-unary} @var{expression-cst} |
   @var{expression-cst} @var{operator-binary} @var{expression-cst} |
+  @var{expression-cst} @var{operator-ternary-left} @var{expression-cst} @var{operator-ternary-right} 
+      @var{expression-cst} |
   @var{math-function-id} [ < @var{expression-cst-list} > ]
 @end example
 
@@ -858,11 +861,12 @@ List of constant expressions (@var{expression-cst-list}) are defined as:
   @var{expression-cst} : @var{expression-cst} : @var{expression-cst} <,@var{expression-cst}>
 @end example
 
-The second definition permits to create a list containing the range of
-numbers comprised between the two @var{expression-cst}, incremented by a
-step of 1. The third definition also permits to create a list containing the
-range of numbers comprised between the two @var{expression-cst}, but with
-the incrementation step equal to the third @var{expression-cst}.
+The second case in this definition permits to create a list containing the
+range of numbers comprised between the two @var{expression-cst}, with a unit
+incrementation step. The third case also permits to create a list containing
+the range of numbers comprised between the two @var{expression-cst}, but
+with a positive or negative incrementation step equal to the third
+@var{expression-cst}.
 
 Contrary to a general @var{expression} which is evaluated at runtime (thanks
 to an internal stack mechanism), an @var{expression-cst} is completely
@@ -935,9 +939,9 @@ argument 2, second constant of argument 1, @dots{}
 @node Operator types, Evaluation order, Operators, Operators
 @subsection Operator types
 
-The operators in GetDP are similar to the corresponding operators
-in the C programming language, except that all operators accept
-@var{expression} type arguments. 
+The operators in GetDP are similar to the corresponding operators in the C
+pr C++ programming languages, except that all operators accept
+@var{expression} or @var{expression-cst} type arguments.
 
 @cindex Operators, definition
 @cindex Unary operators
@@ -973,53 +977,53 @@ in the C programming language, except that all operators accept
 @var{operator-unary}:
 @table @code
 @item -
-Unary minus
+Unary minus.
 @item !
-Logical not
+Logical not.
 @end table
 
 @noindent
 @var{operator-binary}:
 @table @code
 @item ^
-Exponentiation. The evaluation of the second argument must result in a
-floating point value.
+Exponentiation. The evaluation of the both arguments must result in a scalar
+value.
 @item *
-Multiplication
+Multiplication or scalar product, depending on the type of the arguments. 
 @item /\
 Cross-multiplication. The evaluation of both arguments must result in 
 vectors.
 @item /
-Division
+Division.
 @item %
-Modulo
+Modulo. The evaluation of the second argument must result in a scalar value.
 @item +
-Addition
+Addition.
 @item -
-Subtraction
+Subtraction.
 @item ==
-Equality
+Equality.
 @item !=
-Inequality
+Inequality.
 @item >
-Greater. The evaluation of both arguments must result in floating point
-values.
+Greater. The evaluation of both arguments must result in scalar values.
 @item >=
 Greater or equality. The evaluation of both arguments must result in
-floating point values.
+scalar values.
 @item <
-Less. The evaluation of both arguments must result in floating point values.
+Less. The evaluation of both arguments must result in scalar values.
 @item <=
-Less or equality. The evaluation of both arguments must result in floating
-point values.
+Less or equality. The evaluation of both arguments must result in scalar values.
 @item &&
-Logical and. The evaluation of both arguments must result in floating point
-values. The logical and implies the evaluation of both arguments. That is,
-the second operand of @code{&&} is evaluated even if the first one is false.
+Logical and. The evaluation of both arguments must result in scalar
+values. Warning: the logical and always (unlike in C or C++) implies the
+evaluation of both arguments. That is, the second operand of @code{&&} is
+evaluated even if the first one is false.
 @item ||
 Logical or. The evaluation of both arguments must result in floating point
-values. The logical or implies the evaluation of both arguments.  That is,
-the second operand of @code{||} is evaluated even if the first one is true.
+values. Warning: the logical or always (unlike in C or C++) implies the
+evaluation of both arguments.  That is, the second operand of @code{||} is
+evaluated even if the first one is true.
 @end table
 
 @noindent
@@ -1032,11 +1036,11 @@ the second operand of @code{||} is evaluated even if the first one is true.
 @item :
 The only ternary operator, constituted of @var{operator-ternary-left} and
 @var{operator-ternary-right} is defined as in the C or C++ programming
-languages. It first evaluates its first argument, i.e.@: the
-@var{expression-cst} located before the @code{?}. If it is true (non-zero)
-the second argument (located between @code{?} and @code{:}) is evaluated and
-returned; otherwise the third argument (located after @code{:}) is evaluated
-and returned.
+languages. The ternary operator first evaluates its first argument (which
+must result in a scalar value), i.e.@: the @var{expression-cst} located
+before the @code{?}. If it is true (non-zero) the second argument (located
+between @code{?} and @code{:}) is evaluated and returned; otherwise the
+third argument (located after @code{:}) is evaluated and returned.
 @end table
 
 
@@ -1097,7 +1101,8 @@ Both types of functions are always followed by a pair of brackets
 @code{[]} that can possibly contain arguments. This makes it simple to
 distinguish a @var{function-id} or a @var{built-in-function-id} from a
 @var{constant-id}. As shown below, built-in functions might also have
-parameters, given between braces (@code{@{@}}):
+parameters, given between braces (@code{@{@}}), and which are completely
+evaluated during the analysis of the syntax (not at runtime):
 
 @example
 @var{built-in-function-id} [ < @var{expression-list} > ] 
@@ -1142,8 +1147,9 @@ the only functions allowed in a constant definition (@pxref{Constants}).
 
 @tindex $@var{string}
 
-Current values are highly optimized functions which return the current
-integer or floating point value of an internal variable.
+Current values are a special kind of arguments (@pxref{Arguments}) which
+return the current integer or floating point value of an internal GetDP
+variable.
 
 @table @code
 @item $Time
@@ -1228,8 +1234,8 @@ syntax (@var{integer} indicates the number of the argument in the
 @vindex @var{quantity-operator}
 
 A discretized quantity (defined in a function space, cf.@:
-@ref{FunctionSpace}) is represented between braces @code{@{@}}, and can
-only appear in well-defined expressions of @code{Formulation}
+@ref{FunctionSpace}) is represented between braces @code{@{@}}, and can only
+appear in well-defined expressions in @code{Formulation}
 (@pxref{Formulation}) and @code{PostProcessing} (@pxref{PostProcessing})
 objects:
 
@@ -1240,25 +1246,27 @@ objects:
 
 @noindent with 
 
-@noindent
-@var{quantity-id}: @var{string}
+@example
+@var{quantity-id}:
+  @var{string}
+@end example
+
+@noindent and
 
 @noindent
 @var{quantity-dof}:
 @ftable @code
 
 @item Dof
-defines a vector of discrete quantities (vector of
-@code{D}egrees @code{o}f @code{f}reedom), to be used only in
-@code{Equation} terms of formulations to define (elementary) matrices.
-Roughly said, the @code{Dof} symbol in front of a discrete quantity
-indicates that this quantity is an unknown quantity, and should
-therefore not be considered as already computed (thus leading to a
-simple evaluation).
+defines a vector of discrete quantities (vector of @code{D}egrees @code{o}f
+@code{f}reedom), to be used only in @code{Equation} terms of formulations to
+define (elementary) matrices.  Roughly said, the @code{Dof} symbol in front
+of a discrete quantity indicates that this quantity is an unknown quantity,
+and should therefore not be considered as already computed.
 
 @item BF
-indicates that only a basis function will be used 
-(only valid with basis functions associated with regions).
+indicates that only a basis function will be used (only valid with basis
+functions associated with regions).
 
 @end ftable
 
@@ -1361,35 +1369,31 @@ coordinates) and a list of geometrical elements with, for each one, a number
 characterizing its geometrical type (i.e.@: line, triangle, quadrangle,
 tetrahedron, hexahedron, prism, etc.), a number characterizing the physical
 region to which it belongs and the list of its nodes. This minimal input set
-can be easily extracted from most of the classical mesh file
-formats. @xref{Input file format}.
+can should be easy to extract from most of the classical mesh file
+formats (@pxref{Input file format}).
 
-Groups of geometrical entities of various types can be considered and
-are used in many objects. There are region groups, of which the entities
-are regions, and function groups, with nodes, edges, facets, volumes,
-groups of nodes, edges of tree, facets of tree, @dots{} of
-regions:
+Groups of geometrical entities of various types can be considered and are
+used in many objects. There are region groups, of which the entities are
+regions, and function groups, with nodes, edges, facets, volumes, groups of
+nodes, edges of tree, facets of tree, @dots{} of regions.
 
-@itemize @bullet
-@item
-Amongst region groups, elementary and global groups can be
-distinguished: elementary groups are relative to single regions (e.g.@:
-physical regions in which piecewise defined functions or constraints can
-be defined) while global groups are relative to sets of regions for
-which given treatments have to be performed (e.g.@: domain of
-integration, support of a function space, etc.). 
-@item
+Amongst region groups, elementary and global groups can be distinguished:
+elementary groups are relative to single regions (e.g.@: physical regions in
+which piecewise defined functions or constraints can be defined) while
+global groups are relative to sets of regions for which given treatments
+have to be performed (e.g.@: domain of integration, support of a function
+space, etc.).
+
 Groups of function type contain lists of entities built on some region
-groups (e.g.@: nodes for nodal elements, edges for edge elements, edges
-of tree for gauge conditions, groups of nodes for floating potentials,
-elements on one side of a surface for cuts, etc.).
-@end itemize
+groups (e.g.@: nodes for nodal elements, edges for edge elements, edges of
+tree for gauge conditions, groups of nodes for floating potentials, elements
+on one side of a surface for cuts, etc.).
 
 A definition of initially empty groups can be obtained thanks to a
 @code{DefineGroup} command, so that their identifiers exist and can be
 referred to in other objects, even if these groups are not explicitly
-defined. This procedure is similar to the procedure introduced for
-constants in @ref{Constants} (cf. the note at the end of the section).
+defined. This procedure is similar to the @code{DefineConstant} procedure
+introduced for constants in @ref{Constants}.
 
 The syntax for the definition of groups is:
 
@@ -1435,9 +1439,8 @@ Group @{
 associated a region number, being this @var{integer}, and a geometrical type
 (@pxref{Input file format}). Ranges of integers can be specified in the same
 way as ranges of constant expressions in a @var{expression-cst-list}
-(@pxref{Constants}): @code{@var{i1}:@var{in}} replaces the list of
-consecutive @var{integers} @{ @code{@var{i1}, @var{i1+1}, @dots{}, @var{in-1},
-@var{in}} @}.
+(@pxref{Constants}). For example, @code{@var{i}:@var{j}} replaces the list
+of consecutive integers @var{i}, @var{i}+1, @dots{}, @var{j}-1, @var{j}.
 @item
 Array of groups: @code{DefineGroup[@var{group-id}@{@var{n}@}]} defines
 the empty groups @code{@var{group-id}@{@var{i}@}}, @var{i}=1, @dots{}, n.
@@ -1482,9 +1485,10 @@ several arguments for nonlinear materials. Such functions can of course
 depend on space coordinates or time, which can be needed to express
 complex constraints.
 
-A definition of initially empty functions can be made so that their
-identifiers exist and can be referred to (but cannot be used) in other
-objects. The syntax for the definition of functions is:
+A definition of initially empty functions can be made thanks to the
+@code{DefineFunction} command, so that their identifiers exist and can be
+referred to (but cannot be used) in other objects. The syntax for the
+definition of functions is:
 
 @example
 Function @{
@@ -1503,7 +1507,10 @@ Function @{
 @noindent Note:
 @enumerate
 @item
-The optional @var{group-def} in brackets must be of @code{Region} type.
+The optional @var{group-def} in brackets must be of @code{Region} type, and
+indicates on which region the (piecewise) function is defined. Warning: it
+is thus incorrect to write @code{f[reg1]=1; g[reg2]=f[]+1;} since the
+domains of definition of @code{f[]} and @code{g[]} don't match.
 @end enumerate
 
 
@@ -1654,15 +1661,15 @@ for the use with hierarchical elements), as well as direct associations of
 global quantities (e.g.@: floating potential, electric charge, current,
 voltage, magnetomotive force, etc.).
 
-A key point is that basis functions are defined by any number of subsets
-of functions, being added. Each subset is characterized by associated
-built-in functions for evaluation, a support of definition and a set of
-associated supporting geometrical entities (e.g.@: nodes, edges, facets,
-volumes, groups of nodes, edges incident to a node, etc.). The freedom in
-defining various kinds of basis functions associated with different
-geometrical entities, to interpolate a field permits to build
-made-to-measure function spaces adapted to a wide variety of field
-approximations (@pxref{FunctionSpace examples}).
+A key point is that basis functions are defined by any number of subsets of
+functions, being added. Each subset is characterized by associated built-in
+functions for evaluation, a support of definition and a set of associated
+supporting geometrical entities (e.g.@: nodes, edges, facets, volumes,
+groups of nodes, edges incident to a node, etc.). The freedom in defining
+various kinds of basis functions associated with different geometrical
+entities to interpolate a field permits to build made-to-measure function
+spaces adapted to a wide variety of field approximations
+(@pxref{FunctionSpace examples}).
 
 The syntax for the definition of function spaces is:
 
@@ -1955,11 +1962,11 @@ Formulation @{
     Quantity @{ 
       @{ Name @var{quantity-id}; Type @var{quantity-type}; 
         NameOfSpace @var{function-space-id} <@{@}>
-                  < [ @var{sub-space-id} | @var{global-quantity-id} ] >; @} @dots{}
+                  < [ @var{sub-space-id} | @var{global-quantity-id} ] >;
         < Symmetry @var{expression-cst}; >
         < [ @var{expression} ]; In @var{group-def};
-        Jacobian @var{jacobian-id}; Integration @var{integration-id}; >
-        < IndexOfSystem @var{integer}; >
+          Jacobian @var{jacobian-id}; Integration @var{integration-id}; >
+        < IndexOfSystem @var{integer}; >  @} @dots{}
     @}
     Equation @{ 
      < @var{local-term-type} 
@@ -2045,6 +2052,7 @@ the formulations @code{@var{formulation-id}@{@var{i}@}},
 
 @vindex @var{resolution-id}
 @vindex @var{system-id}
+@vindex @var{system-type}
 @vindex @var{formulation-list}
 @vindex @var{resolution-op}
 
@@ -2067,6 +2075,7 @@ Resolution @{
   @{ Name @var{resolution-id} <@{#@var{integer}@}>; 
     System @{ 
       @{ Name @var{system-id}; NameOfFormulation @var{formulation-list}; 
+        < Type @var{system-type}; >
         < Frequency @var{expression-cst} | Frequency @{ @var{expression-cst-list} @}; >
         < DestinationSystem @var{system-id}; > < OriginSystem @var{system-id}; >
         < NameOfMesh "@var{string}" > < Solver "@var{string}" > @} @dots{}
@@ -2087,6 +2096,9 @@ Resolution @{
   @var{formulation-id} <@{@}> < [ @var{mesh-id} ] > |
   @{ @var{formulation-id} <@{@}> < [ @var{mesh-id}] > <,@dots{}> @}
 
+@var{system-type}:
+  Real | Complex
+
 @var{resolution-op}:
   Generate[@var{system-id}] | Solve[@var{system-id}] | @var{etc}
 @end example
@@ -2102,7 +2114,9 @@ resolutions @code{@var{resolution-id}@{@var{i}@}}, @var{i}=1, @dots{},
 The default type for a system of equations considers the time domain
 analysis.  The frequency domain analysis is defined through the definition
 of one or several frequencies (@code{Frequency @var{expression-cst} |
-Frequency @{ @var{expression-cst-list} @}}).
+Frequency @{ @var{expression-cst-list} @}}). Complex systems of equations
+with no predefined list of frequencies (e.g.@: in modal analyses) can be
+explicitely defined with @code{Type Complex}.
 @end enumerate
 
 @xref{Types for Resolution}, for the complete list of options and
@@ -2144,8 +2158,7 @@ PostProcessing @{
   @{ Name @var{post-processing-id} <@{#@var{integer}@}>; 
     NameOfFormulation @var{formulation-id} <@{@}> < [ @var{mesh-id} ] >; 
     Quantity @{
-      @{ Name @var{post-quantity-id};
-        Value @{ @var{post-value} @dots{} @} @} @dots{}
+      @{ Name @var{post-quantity-id}; Value @{ @var{post-value} @dots{} @} @} @dots{}
     @}
   @} @dots{}
 @}
@@ -2176,6 +2189,14 @@ Multidefinition: @code{Name @var{post-processing-id}@{#@var{n}@}}
 defines the post-processings @code{@var{post-proces@-sing-id}@{@var{i}@}},
 @var{i}=1, @dots{}, @var{n}, replacing for each @var{i} any @code{@{@}} in
 @var{formulation-id}@code{@{@}} with @{@var{i}@}.
+@item
+The quantity defined with @var{integral-value} is piecewise defined over the
+elements of the mesh of @var{group-def}, and takes, in each element, the
+value of the integration of @var{expression} over this element. The global
+integral of @var{expression} over a whole region (being either
+@var{group-def} or a subset of @var{group-def}) will be defined in the
+@code{PostOperation} with the @code{@var{post-quantity-id}[@var{group-def}]}
+command (@pxref{PostOperation}).
 @end enumerate
 
 @xref{Types for PostProcessing}, for the complete list of options and
@@ -2192,7 +2213,7 @@ defines the post-processings @code{@var{post-proces@-sing-id}@{@var{i}@}},
 @cindex Post-operation, definition
 @cindex Exporting results
 @cindex Results, export
-@cindex Cuts
+@cindex Sections
 @cindex Maps
 @cindex Format, output
 
@@ -2208,11 +2229,10 @@ defines the post-processings @code{@var{post-proces@-sing-id}@{@var{i}@}},
 @vindex @var{print-support}
 @vindex @var{print-option}
 
-The @code{PostOperation} is the bridge between results obtained with
-GetDP and the external world. It defines several elementary operations
-on @code{PostProcessing} quantities (e.g.@: plot on a region, cut on a
-user-defined plane, etc.), and outputs the results in several file
-formats.
+The @code{PostOperation} is the bridge between results obtained with GetDP
+and the external world. It defines several elementary operations on
+@code{PostProcessing} quantities (e.g.@: plot on a region, section on a
+user-defined plane, etc.), and outputs the results in several file formats.
 
 @example
 PostOperation @{
@@ -2220,10 +2240,9 @@ PostOperation @{
     < Format @var{post-operation-fmt}; >
     Operation @{ < @var{post-operation-op}; > @dots{} @}
   @} @dots{}
-@}
-|
+@} |
 PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
-    < @var{post-operation-op}; > @dots{}
+  < @var{post-operation-op}; > @dots{}
 @} @dots{}
 @end example
 
@@ -2234,14 +2253,22 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
   @var{string}
 
 @var{post-operation-op}:
-  Print[ @var{post-quantity-id} <[@var{group-def}]>, @var{print-support} <,@var{print-option}> @dots{} ] |
+  Print[ @var{post-quantity-term}, @var{print-support} <,@var{print-option}> @dots{} ] |
   @var{etc}
 
+@var{post-quantity-term}:
+  @var{post-quantity-id} <[@var{group-def}]> |
+  @var{post-quantity-id} @var{post-quantity-op} @var{post-quantity-id}[@var{group-def}] |
+  @var{post-quantity-id}[@var{group-def}] @var{post-quantity-op} @var{post-quantity-id}
+
+@var{post-quantity-op}:
+  + | - | * | /
+
 @var{print-support}:
-  OnRegion @var{group-def} | OnElementsOf @var{group-def} | @var{etc}
+  OnElementsOf @var{group-def} | OnRegion @var{group-def} | OnGlobal | @var{etc}
 
 @var{print-option}:
-  File < '>' > "@var{string}" | Format @var{post-operation-fmt} | @var{etc}
+  File "@var{string}" | Format @var{post-operation-fmt} | @var{etc}
 
 @var{post-operation-fmt}:
   Table | TimeTable | @var{etc}
@@ -2252,6 +2279,13 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
 @item
 Both @code{PostOperation} syntaxes are equivalent.  The first one conforms to
 the overall interface, but the second one is more concise.
+@item The optional argument @code{[@var{group-def}]} of the
+@var{post-quantity-id} can only be used when this quantity has been defined
+as an @var{integral-value} (@pxref{PostProcessing}). In this case, the sum
+of all elementary integrals is performed over the region @var{group-def}.
+@item The @var{post-quantity-op} to allow the (simple) combination of
+space-dependant quantities (@var{post-quantity-id}) with global integral
+quantities (@var{post-quantity-id}[@var{group-def}]).
 @end enumerate
 
 @xref{Types for PostOperation}, for the complete list of options and
@@ -3605,7 +3639,7 @@ processing stage.
 To compute global quantities associated with regions.
 
 @item OnGlobal
-To compute global integral quantities, with no associated region.
+To compute evaluate global integral quantities, with no associated region.
 
 @item OnSection
 @{ @var{expression-cst-vector} @var{expression-cst-vector} @var{expression-cst-vector} @}
@@ -4904,16 +4938,16 @@ which points out the way to define post-quantities based on global quantities.
 
 @menu
 * Maps::                        
-* Cuts::                        
+* Sections::                    
 * Prints::                      
 @end menu
 
 @c .........................................................................
-@c Maps of Fields
+@c Maps
 @c .........................................................................
 
-@node Maps, Cuts, PostOperation examples, PostOperation examples
-@subsection Maps of fields
+@node Maps, Sections, PostOperation examples, PostOperation examples
+@subsection Maps
 
 @example
 PostOperation Map_v_e UsingPost EleSta_v @{
@@ -4923,26 +4957,26 @@ PostOperation Map_v_e UsingPost EleSta_v @{
 @end example
 
 @c .........................................................................
-@c Cuts of Fields
+@c Sections
 @c .........................................................................
 
-@node Cuts, Prints, Maps, PostOperation examples
-@subsection Cuts of fields
+@node Sections, Prints, Maps, PostOperation examples
+@subsection Sections
 
 @example
 e = 1.e-7;
 
 PostOperation Cut_e UsingPost EleSta_v @{
-  Print [ e, OnLine @{ @{e,e,0@} @{10.e-3,e,0@} @} @{1000@}, File "cut_e.cut" ];
+  Print [ e, OnLine @{ @{e,e,0@} @{10.e-3,e,0@} @} @{1000@}, File "sec_e" ];
 @}
 @end example
 
 @c .........................................................................
-@c Printing of Global Quantities
+@c Evaluation of Global Quantities
 @c .........................................................................
 
-@node Prints,  , Cuts, PostOperation examples
-@subsection Printing of global quantities
+@node Prints,  , Sections, PostOperation examples
+@subsection Evaluation of global quantities
 
 @example
 PostOperation Val_V_Q UsingPost EleSta_vf @{

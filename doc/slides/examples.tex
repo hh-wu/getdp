@@ -1,4 +1,4 @@
-% $Id: examples.tex,v 1.12 2001-07-18 09:09:51 geuzaine Exp $
+% $Id: examples.tex,v 1.13 2001-07-20 16:51:52 geuzaine Exp $
 
 %
 % WARNING:
@@ -8,7 +8,7 @@
 %
 
 % ---------------------------------------------------------------------------
-\part{GetDP/Gmsh examples}
+\part{Examples}
 % ---------------------------------------------------------------------------
 
 \begin{slide}
@@ -501,7 +501,7 @@ j=\|\Curl{\vec{h}}\|
 
 \end{slide}
 
-\begin{slide}[1.05\slidewidth,\slideheight]
+\begin{slide}[1.02\slidewidth,\slideheight]
 
 \mybox{colbox}{0.98\textwidth}{
 \begin{center}
@@ -518,7 +518,7 @@ Resolutions
 Resolution \{ \CC{magnetodynamic freq + thermal static}
   \{ Name Magnetothermal_h_T;
     System \{
-      \{ Name Mag; NameOfFormulation MagDyn_h; Type Complex; Frequency 50; \}
+      \{ Name Mag; NameOfFormulation MagDyn_h; Frequency 50; \}
       \{ Name The; NameOfFormulation The_T \}
     \}
     Operation \{

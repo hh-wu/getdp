@@ -1,4 +1,4 @@
-% $Id: getdp.tex,v 1.18 2001-07-18 09:09:51 geuzaine Exp $
+% $Id: getdp.tex,v 1.19 2001-07-20 16:51:52 geuzaine Exp $
 
 \newcommand{\smallgetdp}[1]
    {\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{#1}}}}
@@ -112,7 +112,7 @@ Nodes = NodesOf[Omega]; \CC{function group}
 
 \mybox{colbox}{11\semcm}{
   \begin{slideitemize}
-  \item Piece-wise definitions
+  \item Piecewise definitions
   \item Physical characteristics
   \item Time functions
   \item Various other functions (natural constraints, ...)
@@ -248,7 +248,7 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.01]; \CC{current val.}
 \bigskip
 \begin{syntax}
 \{ Name Jacobian1;
-  Case \{ \CC{piece-wise defined on groups}
+  Case \{ \CC{piecewise defined on groups}
     \{ Region OmegaInf; Jacobian VolSphShell\{Rint, Rext\}; \}
     \{ Region OmegaAxi; Jacobian VolAxi; \}
     \{ Region All; Jacobian Vol; \}
@@ -365,7 +365,7 @@ Operation\{\\
 \mybox{colbox}{11\semcm}{
   \begin{slideitemize}
   \item ``Front-end'' to computational data
-  \item Piece-wise definition of any quantity of interest
+  \item Piecewise definition of any quantity of interest
   \item Local or integral evaluation
   \end{slideitemize}
 }
