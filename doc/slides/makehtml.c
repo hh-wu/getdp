@@ -1,4 +1,4 @@
-/* $Id: makehtml.c,v 1.1 2001-07-20 16:52:56 geuzaine Exp $ 
+/* $Id: makehtml.c,v 1.2 2001-07-24 11:36:06 geuzaine Exp $ 
    
    Generate a HTML slide show from a set of image files
 */
@@ -61,7 +61,7 @@ int  main(int argc, char *argv[]) {
 	  "<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\" LINK=\"#0000FF\" VLINK=\"#800080\" ALINK=\"#FF0000\">\n"
 	  "<CENTER>\n"
 	  "<A HREF=\"%s\">[ Home ]</A>\n"
-	  "<p>",
+	  "<P>\n",
 	  TITLE, HOME);
 
   for(i=0 ; i<nbfiles ; i++)
@@ -70,7 +70,7 @@ int  main(int argc, char *argv[]) {
 	    out[i], TITLE, i+1, nbfiles);
 
   fprintf(file, 
-	  "<P>"
+	  "<P>\n"
 	  "[<A HREF=\"%s\"> Postscript version </A>]<br>\n"
 	  "[<A HREF=\"%s\"> PDF version </A>]<br>\n"
 	  "<BR>\n"
@@ -131,10 +131,9 @@ int  main(int argc, char *argv[]) {
 	      out[i+1], out[nbfiles-1]);
     
     fprintf(file, 
-	    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<A HREF=\"http://www.geuz.org/getdp/\">[ Home ]</A>\n");
-
-    fprintf(file, 
-	    "<p>\n"
+	    "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n"
+	    "<A HREF=\"http://www.geuz.org/getdp/\">[ Home ]</A>\n"
+	    "<P>\n"
 	    "<IMG SRC=\"%s\">\n"
 	    "</CENTER>\n"
 	    "</BODY>\n"

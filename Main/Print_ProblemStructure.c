@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.21 2001-05-04 14:58:46 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.22 2001-07-24 11:36:06 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -846,8 +846,6 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 
   GetDP_Begin("Print_Operation");
 
-  Msg(CHECK, "    Operation {") ;
-
   Nbrj = List_Nbr(Operation_L) ;
 
   for (j=0 ; j<Nbrj ; j++) {
@@ -860,48 +858,112 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
     case OPERATION_GENERATEJAC :
     case OPERATION_SOLVEJAC :
     case OPERATION_GENERATESEPARATE :
-    case OPERATION_UPDATE :
+    case OPERATION_UPDATECONSTRAINT :
     case OPERATION_INITSOLUTION :
     case OPERATION_SAVESOLUTION :
     case OPERATION_SAVESOLUTIONS :
     case OPERATION_READSOLUTION :
     case OPERATION_TRANSFERSOLUTION :
     case OPERATION_TRANSFERINITSOLUTION :
-
-      Msg(CHECK, " %s %s ;",
+      Msg(CHECK, "      %s[%s] ;\n",
 	  Get_StringForDefine(Operation_Type, OPE->Type),
 	  ((struct DefineSystem *)
 	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name) ;
       break ;
 
+   case OPERATION_UPDATE :
+      Msg(CHECK, "      Update [ %s, Exp[%s] ] ;\n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+	  Get_ExpressionName(Problem,
+			     OPE->Case.Update.ExpressionIndex)) ;
+      break ;
+
+   case OPERATION_FOURIERTRANSFORM :
+      Msg(CHECK, "      FourierTransform [ %s, %s, {...} ] ;\n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->Case.FourierTransform.DefineSystemIndex[0]))->Name,
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->Case.FourierTransform.DefineSystemIndex[1]))->Name);
+      break ;
+
     case OPERATION_TIMELOOPTHETA :
-      Msg(CHECK, "\n");
-      Msg(CHECK, "      TimeLoopTheta { "
-	  "Time0 %.10g ; TimeMax %.10g ; DTime Exp[%s] ; Theta Exp[%s] ;",
+      Msg(CHECK, "      TimeLoopTheta[ %.10g, %.10g, Exp[%s], Exp[%s] ] {\n",
 	  OPE->Case.TimeLoopTheta.Time0, OPE->Case.TimeLoopTheta.TimeMax,
 	  Get_ExpressionName(Problem,
 			     OPE->Case.TimeLoopTheta.DTimeIndex),
 	  Get_ExpressionName(Problem,
 			     OPE->Case.TimeLoopTheta.ThetaIndex)) ;
       Print_Operation(RE, OPE->Case.TimeLoopTheta.Operation, Problem) ;
-      Msg(CHECK, " }") ;
+      Msg(CHECK, "      }\n") ;
+      break ;
+
+    case OPERATION_TIMELOOPNEWMARK :
+      Msg(CHECK, "      TimeLoopNewmark[ %.10g, %.10g, Exp[%s], %.10g, %.10g ] {\n",
+	  OPE->Case.TimeLoopNewmark.Time0, OPE->Case.TimeLoopNewmark.TimeMax,
+	  Get_ExpressionName(Problem,
+			     OPE->Case.TimeLoopNewmark.DTimeIndex),
+	  OPE->Case.TimeLoopNewmark.Beta, OPE->Case.TimeLoopNewmark.Gamma);
+      Print_Operation(RE, OPE->Case.TimeLoopNewmark.Operation, Problem) ;
+      Msg(CHECK, "      }\n") ;
       break ;
 
     case OPERATION_ITERATIVELOOP :
-      Msg(CHECK, "\n");
-      Msg(CHECK, "      IterativeLoop { "
-	  "NbrMaxIteration %d ; RelaxationFactor Exp[%s] ; Criterion %.10g ;",
+      Msg(CHECK, "      IterativeLoop [ %d, Exp[%s], %.10g ] {\n",
 	  OPE->Case.IterativeLoop.NbrMaxIteration,
 	  Get_ExpressionName(Problem,
 			     OPE->Case.IterativeLoop.RelaxationFactorIndex),
 	  OPE->Case.IterativeLoop.Criterion) ;
       Print_Operation(RE, OPE->Case.IterativeLoop.Operation, Problem) ;
-      Msg(CHECK, " }") ;
+      Msg(CHECK, "      }\n") ;
+      break ;
+
+    case OPERATION_LANCZOS :
+      Msg(CHECK, "      Lanczos [ %s, %d, { ... } , %.10g ] ;\n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+	  OPE->Case.Lanczos.Size,
+	  OPE->Case.Lanczos.Shift);
+      break ;
+
+    case OPERATION_SETTIME :
+      Msg(CHECK, "      SetTime [ Exp[%s] ] ;\n",
+	  Get_ExpressionName(Problem,
+			     OPE->Case.SetTimeIndex)) ;
+      break ;
+
+    case OPERATION_SETFREQUENCY :
+      Msg(CHECK, "      SetFrequency [ %s, Exp[%s] ] ;\n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+	  Get_ExpressionName(Problem,
+			     OPE->Case.SetFrequency.ExpressionIndex)) ;
+      break ;
+
+    case OPERATION_BREAK :
+      Msg(CHECK, "      Break ;\n");
+      break ;
+
+    case OPERATION_SYSTEMCOMMAND :
+      Msg(CHECK, "      SystemCommand \" %s \" ;\n",
+	  OPE->Case.SystemCommand);
+      break ;
+
+    case OPERATION_TEST :
+      Msg(CHECK, "      If [ Exp[%s] ] {\n",
+	  Get_ExpressionName(Problem,
+			     OPE->Case.Test.ExpressionIndex)) ;
+      Print_Operation(RE, OPE->Case.Test.Operation_True, Problem) ;
+      Msg(CHECK, "      }\n") ;
+      if(OPE->Case.Test.Operation_False){
+	Msg(CHECK, "      Else {\n");
+	Print_Operation(RE, OPE->Case.Test.Operation_False, Problem) ;
+	Msg(CHECK, "      }\n") ;
+      }
       break ;
 
     case OPERATION_CHANGEOFCOORDINATES :
-      Msg(CHECK, "\n");
-      Msg(CHECK, "      ChangeOfCoordinates [  %s, Exp[%s] ] ;\n",
+      Msg(CHECK, "      ChangeOfCoordinates [ %s, Exp[%s] ] ;\n",
 	  ((struct Group *)
 	   List_Pointer(Problem->Group,
 			OPE->Case.ChangeOfCoordinates.GroupIndex))->Name,
@@ -910,11 +972,10 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
       break ;
 
     default :
-      Msg(CHECK, " ??? ;") ;
+      Msg(CHECK, "      ??? ;\n") ;
       break ;
     }
   }
-  Msg(CHECK, "  }\n") ;
 
   GetDP_End ;
 }
@@ -976,8 +1037,9 @@ void  Print_Resolution(struct Problem  * Problem) {
     }
     Msg(CHECK, "    }\n") ;
 
+    Msg(CHECK, "    Operation {\n") ;
     Print_Operation(RE, RE->Operation, Problem) ;
-
+    Msg(CHECK, "    }\n") ;
     Msg(CHECK, "  }\n") ;
   }
   Msg(CHECK, "\n"); 

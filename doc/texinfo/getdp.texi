@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.21 2001-07-23 13:58:12 geuzaine Exp $
+@c $Id: getdp.texi,v 1.22 2001-07-24 11:36:06 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -5305,7 +5305,7 @@ as in the electrostatic problem in @ref{Electrostatic problem}.
 @cindex Running GetDP
 
 GetDP has no graphical interface@footnote{If you are looking for a graphical
-front-end to GetDP, you may consider using Gmsh (available on
+front-end to GetDP, you may consider using Gmsh (available at
 @value{GMSH-WEB}). Gmsh permits to construct geometries, generate meshes,
 launch computations and visualize results directly from within a
 user-friendly graphical interface. The file formats used by Gmsh for mesh

@@ -17,6 +17,14 @@ Matrix_Storage : Disk Write or Read in internal format
     - 2  read matrix (sparse) 
     - default : 0
 
+Scaling : Scale system 
+    - 0  no 
+    - 1  on basis of diagonal elements  (no loss of possible symmetry) 
+    - 2  on basis of inf. norm  of first rows and then columns  (asymmetric) 
+    - 3  on basis of norm 1     of first rows and then columns  (asymmetric) 
+    - 4  on basis of norm 2     of first rows and then columns  (asymmetric) 
+    - default : 0
+
 Renumbering_Technique : 
     - 0  No renumbering 
     - 1  Reverse Cuthill-Mc Kee 
@@ -32,7 +40,7 @@ Preconditioner :
     - 6  ILU0     simple ILU(0) preconditioning                             
     - 7  MILU0    MILU(0) preconditioning                                   
     - 8  DIAGONAL                                                           
-    - default : 1 
+    - default : 2 
 
 Preconditioner_Position : 
     - 0  No Preconditioner 
@@ -46,7 +54,7 @@ Nb_Fill :
       of L and U (except diagonal element) 
     - ILUK : each element whose fill-in level is greater than NB_FILL 
       is dropped. 
-    - default : 10
+    - default : 20
 
 Permutation_Tolerance : Tolerance for column permutation in ILUTP/ILUDP. 
     At stage i, columns i and j are permuted if 
@@ -90,7 +98,7 @@ Algorithm :
     - default : 8
 
 Krylov_Size : Krylov subspace size 
-    - default : 20
+    - default : 40
 
 IC_Acceleration : IC accelerator
     - default :  1.00000E+00 
@@ -104,28 +112,29 @@ Iterative_Improvement : Iterative improvement of the solution obtained by a LU
     - default : 0
 
 Nb_Iter_Max : Maximum number of iterations 
-    - default : 10000 
+    - default : 1000 
 
 Stopping_Test : Target residual 
-    - default :  1.00000E-08 
+    - default :  1.00000E-10 
 
 */
 
             Matrix_Format            1
           Matrix_Printing            0
            Matrix_Storage            0
+                  Scaling            0
     Renumbering_Technique            1
-           Preconditioner            1
+           Preconditioner            2
   Preconditioner_Position            2
-                  Nb_Fill           10
+                  Nb_Fill           20
     Permutation_Tolerance  5.00000E-02
        Dropping_Tolerance  0.00000E+00
     Diagonal_Compensation  0.00000E+00
                Re_Use_ILU            0
                 Algorithm            8
-              Krylov_Size           20
+              Krylov_Size           40
           IC_Acceleration  1.00000E+00
                 Re_Use_LU            0
     Iterative_Improvement            0
-              Nb_Iter_Max        10000
-            Stopping_Test  1.00000E-08
+              Nb_Iter_Max         1000
+            Stopping_Test  1.00000E-10
