@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.13 2001-03-13 13:04:44 lefevre Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.14 2001-03-13 14:17:58 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -147,19 +147,6 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
-  case JACOBIAN_VOL_SPH_FINITE_SHELL :
-
-    switch (Type_Element) {
-
-    case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
-      *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolSphFiniteShell2D) ;
-
-    default : 
-      Msg(ERROR, "Unknown Jacobian VolSphShell for Element Type (%s)", 
-	  Get_StringForDefine(Element_Type, Type_Element));
-    }
-
   case JACOBIAN_VOL_AXI_SPH_SHELL :
 
     switch (Type_Element) {
@@ -270,140 +257,6 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 /*  G e o m e t r i c a l   T r a n s f o r m a t i o n s                   */
 /* ------------------------------------------------------------------------ */
 
-double  SphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
-  int  i ;
-  double  CoorX, CoorY, A, B, R, theta, XR, YR, f ;
-  double  DetJac ;
-
-  GetDP_Begin("SphShell2D");
-
-  Jac->c11 = 0. ;  Jac->c12 = 0. ;  Jac->c13 = 0. ;
-  Jac->c21 = 0. ;  Jac->c22 = 0. ;  Jac->c23 = 0. ;
-  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
-
-  CoorX = CoorY = 0. ;
-  for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) {
-    CoorX += Element->x[i] * Element->n[i] ;
-    CoorY += Element->y[i] * Element->n[i] ;
-  }
-
-  A = Element->JacobianCase->Para[0] ;  B = Element->JacobianCase->Para[1] ;
-
-  R = HYPOT(CoorX, CoorY) ;
-
-  if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
-    Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
-	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
-
-  if (B == R) {
-    Jac->c11  = 1. ; Jac->c22  = 1. ; GetDP_Return(1.) ;
-  }
-
-  f  = (A*(B-A)) / (R*(B-R)) ;
-  theta = (B-2.*R) / (B-R) ;
-  XR = CoorX/R ; YR = CoorY/R ;
-
-  Jac->c11  = f * (1.- XR*XR * theta) ;  Jac->c12  = - f * XR*YR * theta ;
-  Jac->c21  = Jac->c12 ;                 Jac->c22  = f * (1.- YR*YR * theta) ;
-
-  DetJac = f*f*( 1.-theta) ;
-
-  GetDP_Return(DetJac) ;
-}
-
-double  SphFiniteShell2D (struct Element * Element, MATRIX3x3 * Jac) {
-  int  i ;
-  double  CoorX, CoorY, A, B, C, R, thetax,thetay,thetaxy, f;
-  double  fac, fac1, fac2, term1, term2;
-  double  DetJac ;
-
-  GetDP_Begin("SphFiniteShell2D");
-
-  Jac->c11 = 0. ;  Jac->c12 = 0. ;  Jac->c13 = 0. ;
-  Jac->c21 = 0. ;  Jac->c22 = 0. ;  Jac->c23 = 0. ;
-  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
-
-  CoorX = CoorY = 0. ;
-  for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) {
-    CoorX += Element->x[i] * Element->n[i] ;
-    CoorY += Element->y[i] * Element->n[i] ;
-  }
-
-  A = Element->JacobianCase->Para[0] ;  B = Element->JacobianCase->Para[1] ;
-  C = Element->JacobianCase->Para[2] ;
-
-  R = HYPOT(CoorX, CoorY) ;
-
-  if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
-    Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
-	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
-
-  if (B == R) {
-    Jac->c11  = 1. ; Jac->c22  = 1. ; GetDP_Return(1.) ;
-  }
-
-  fac     = A*(A - B);
-  fac1    = fac*C;
-  term1   = fac*R;
-  term2   = R*(CoorX*CoorX - CoorY*CoorY);
-  fac2    = - A*A + A*B + (C-1)*(B - R)*R;
-  f       = 1./(R*fac2*fac2);
-
-  thetax  = fac1*(term1 - (C-1)*(B*CoorY*CoorY + term2));
-  thetay  = fac1*(term1 - (C-1)*(B*CoorX*CoorX - term2));
-  thetaxy = fac1*(C-1)*(B - 2*R)*CoorX*CoorY;
-  
-  Jac->c11  = f * thetax  ;    Jac->c12  = f * thetaxy  ;
-  Jac->c21  = Jac->c12 ;       Jac->c22  = f * thetay  ;
-
- /* DetJac = (pow(A,2)*pow(A - B,2)* pow(C,2)* (pow(A,2) - A*B - 
-           (-1 + C)*pow(R,2))*(pow(A,2)*R - A*B*R + 
-           (-1 + C)*(pow(R,3) - B*(pow(CoorX,2) + pow(CoorY,2)))))*R*f*f;
- */
-  DetJac = (thetax * thetay - thetaxy * thetaxy) * f * f;
-
-  GetDP_Return(DetJac) ;
-}
-
-
-double  SphShell3D (struct Element * Element, MATRIX3x3 * Jac) {
-  int  i ;
-  double  CoorX, CoorY, CoorZ, A, B, R, theta, XR, YR, ZR, f ;
-  double  DetJac ;
-
-  GetDP_Begin("SphShell3D");
-
-  CoorX = CoorY = CoorZ = 0. ;
-  for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) {
-    CoorX += Element->x[i] * Element->n[i] ;
-    CoorY += Element->y[i] * Element->n[i] ;
-    CoorZ += Element->z[i] * Element->n[i] ;
-  }
-
-  A = Element->JacobianCase->Para[0] ;  B = Element->JacobianCase->Para[1] ;
-
-  R = sqrt( DSQU(CoorX) + DSQU(CoorY) + DSQU(CoorZ) ) ;
-
-  if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
-    Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
-	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
-
-  f  = (A*(B-A)) / (R*(B-R)) ;
-  theta = - f * (B-2.*R) / (B-R) ;
-  XR = CoorX/R ; YR = CoorY/R ; ZR = CoorZ/R ;
-
-  Jac->c11  = f + DSQU(XR) * theta ;  Jac->c21  = XR*YR * theta ;
-  Jac->c31  = XR*ZR * theta ;
-  Jac->c12  = Jac->c21             ;  Jac->c22  = f + DSQU(YR) * theta ;
-  Jac->c32  = YR*ZR * theta ;
-  Jac->c13  = Jac->c31             ;  Jac->c23  = Jac->c32 ;
-  Jac->c33  = f + DSQU(ZR) * theta ;
-
-  DetJac = f * f / (B/R -1.) ;
-
-  GetDP_Return(DetJac) ;
-}
-
 double  PlpdX2D (struct Element * Element, MATRIX3x3 * Jac) {
   int  i ;
   double  CoorX, CoorY, A, B, R, theta, f ;
@@ -442,124 +295,93 @@ double  PlpdX2D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Return(DetJac) ;
 }
 
-/* La transformation en coque : essai de programmation generale  3d */
-/*pour les transfo spherique et parallelipedique                    */
-/*  Transformation                                                  */
-
-double puissance(double x, double y) {
-  if ( y == 2.0 ) return (x*x);
-  if ( y == 1.0 ) return (x);
-  if ( y == 0.5 ) return (sqrt(x));
-  return (pow(x,y));
+double power(double x, double y) {
+  if (y == 1.0) return (x);
+  else if (y == 2.0) return (x*x);
+  else if (y == 0.5) return (sqrt(x));
+  else return (pow(x,y));
 }
 
 double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 * Jac) {
-  int     i,Linearite,direc ;
-  double  X,Y,Z;
-  double  p=1.0,L=0.0;
-  double  Cx=0.0,Cy=0.0,Cz=0.0, A, B, R, theta, XR, YR, ZR, f, dRdx, dRdy, dRdz ;
+  int     i, Axis = 0 ;
+  double  X = 0., Y = 0., Z = 0. ;
+  double  p = 1., L= 0. ;
+  double  Cx = 0., Cy = 0., Cz = 0., A, B, R ;
+  double  theta, XR, YR, ZR, f, dRdx, dRdy, dRdz ;
   double  DetJac ;
 
-/*
-A    = rayon interieur
-B    = rayon exterieur  
-Cx   = Coord x du centre
-Cy   = Coord y du centre
-Cz   = Coord z du centre
-direc= direction of the transformation
-p    = exposant
-1/L  = f(B)
-*/
+  /*
+    A          = interior radius
+    B          = exterior radius
+    Cx, Cy, Cz = coord of centre
+    Axis       = direction of the transformation
+    p          = exponant
+    1/L        = f(B)
+  */
+
   GetDP_Begin("Transformation");
 
-  X = Y = Z = 0. ;
   for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++) {
     X += Element->x[i] * Element->n[i] ;
     Y += Element->y[i] * Element->n[i] ;
     Z += Element->z[i] * Element->n[i] ;
   }
 
-      A = Element->JacobianCase->Para[0] ;  B = Element->JacobianCase->Para[1] ;
-  direc = Element->JacobianCase->Para[2] ; Cx = Element->JacobianCase->Para[3] ;  
-     Cy = Element->JacobianCase->Para[4] ; Cz = Element->JacobianCase->Para[5] ;
-/*      p = Element->JacobianCase->Para[5] ;  L = Element->JacobianCase->Para[7] ;*/
-     Linearite = 3.0 ;     
-
-  switch(Linearite) {
-  case 1:
-    R = sqrt( DSQU(X-Cx) + DSQU(Y-Cy) + DSQU(Z-Cz) ) ;
-
-    if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
-      Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
-	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
-
-    dRdx = (X-Cx)/R ; dRdy = (Y-Cy)/R ; dRdz = (Z-Cz)/R ;
-    f  = (A*(B-A)) / (R*(B-R)) ;
-    p  = 1.0 ;
-    break ;
-
-  case 2:
-    R = sqrt( DSQU(X-Cx) + DSQU(Y-Cy) + DSQU(Z-Cz) ) ;
-    B = (B*B-A*A*L)/(B-A*L);
-
-    if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
-      Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
-	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
-
-    dRdx = (X-Cx)/R ; dRdy = (Y-Cy)/R ; dRdz = (Z-Cz)/R ;
-    f  = puissance ( (A*(B-A)) / (R*(B-R)),p) ;
-    break ; 
-
-  case 3:
-    switch(direc) {
-    case 1:
-      R = X-Cx ; dRdx =1.0 ; dRdy =0.0 ;  dRdz =0.0 ;
-      break;
-
-    case 2:
-      R = Y-Cy ; dRdx =0.0 ; dRdy =1.0 ;  dRdz =0.0 ;
-      break;
-
-    case 3:
-      R = Z-Cz ; dRdx =0.0 ; dRdy =0.0 ;  dRdz =1.0 ; 
-      break;
+  if(Element->JacobianCase->NbrParameters >= 2){
+    A = Element->JacobianCase->Para[0] ;  
+    B = Element->JacobianCase->Para[1] ;
+  }
+  if(Type == JACOBIAN_RECT){
+    if(Element->JacobianCase->NbrParameters >= 3)
+      Axis = Element->JacobianCase->Para[2] ; 
+    if(Element->JacobianCase->NbrParameters >= 6){
+      Cx = Element->JacobianCase->Para[3] ;  
+      Cy = Element->JacobianCase->Para[4] ; 
+      Cz = Element->JacobianCase->Para[5] ;
     }
-    if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
-      Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
-	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
-    
-    f  = (A*(B-A)) / (R*(B-R)) ;
-    p  = 1.0 ;
-    break ; 
+    if(Element->JacobianCase->NbrParameters >= 7)
+      p = Element->JacobianCase->Para[6] ;
+    if(Element->JacobianCase->NbrParameters >= 8)
+      L = Element->JacobianCase->Para[7] ;
+  }
+  else if(Type == JACOBIAN_SPH){
+    if(Element->JacobianCase->NbrParameters >= 5){
+      Cx = Element->JacobianCase->Para[2] ;  
+      Cy = Element->JacobianCase->Para[3] ; 
+      Cz = Element->JacobianCase->Para[4] ;
+    }
+    if(Element->JacobianCase->NbrParameters >= 6)
+      p = Element->JacobianCase->Para[5] ;
+    if(Element->JacobianCase->NbrParameters >= 7)
+      L = Element->JacobianCase->Para[6] ;
+  }
+  else
+    Msg(ERROR, "Unknown type of transformation");
 
-  case 4:
-    switch(direc) {
-    case 1:
-      R = X-Cx ; dRdx =1.0 ; dRdy =0.0 ;  dRdz =0.0 ;
-      break;
+  if(L) B = (B*B-A*A*L)/(B-A*L);
 
-    case 2:
-      R = Y-Cy ; dRdx =0.0 ; dRdy =1.0 ;  dRdz =0.0 ;
-      break;
-
-    case 3:
-      R = Z-Cz ; dRdx =0.0 ; dRdy =0.0 ;  dRdz =1.0 ; 
-      break;
-    }    
-    B = (B*B-A*A*L)/(B-A*L);
-    R = fabs(R);
-
-    
-    f  = puissance ( (A*(B-A)) / (R*(B-R)),p) ;
-    break ; 
-
-  default:
-    Msg(ERROR, "Bad parallelipedic transformation ") ;
-
+  if(Type == JACOBIAN_SPH){
+    R    = sqrt( DSQU(X-Cx) + DSQU(Y-Cy) + DSQU(Z-Cz) ) ;
+    dRdx = (X-Cx)/R ; 
+    dRdy = (Y-Cy)/R ; 
+    dRdz = (Z-Cz)/R ;
+  }
+  else{
+    switch(Axis) {
+    case 1: R = fabs(X-Cx) ; dRdx =1.0 ; dRdy =0.0 ; dRdz =0.0 ; break;
+    case 2: R = fabs(Y-Cy) ; dRdx =0.0 ; dRdy =1.0 ; dRdz =0.0 ; break;
+    case 3: R = fabs(Z-Cz) ; dRdx =0.0 ; dRdy =0.0 ; dRdz =1.0 ; break;
+    }
   }
 
+  if ( (R > B+1.e-12*B) || (R < A-1.e-12*A) )
+    Msg(ERROR, "Bad parameters for transformation Jacobian: %g not in [%g,%g]", R, A, B) ;
+
+  f     = power((A*(B-A))/(R*(B-R)), p) ;
   theta = p * (B-2.*R) / (B-R) ;
-  XR = (X-Cx)/R ; YR = (Y-Cy)/R ; ZR = (Z-Cz)/R ;
+  XR    = (X-Cx)/R ;
+  YR    = (Y-Cy)/R ;
+  ZR    = (Z-Cz)/R ;
 
   Jac->c11  = f * (1.0 - theta * XR * dRdx) ; 
   Jac->c12  = f * (    - theta * XR * dRdy) ;
@@ -704,7 +526,7 @@ double  JacobianVolSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Begin("JacobianVolSphShell2D");
 
   DetJac1 = JacobianVol2D (Element, &Jac1) ;
-  DetJac2 = SphShell2D    (Element, &Jac2) ;
+  DetJac2 = Transformation(_2D, JACOBIAN_SPH, Element, &Jac2) ;
 
   Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
 
@@ -722,25 +544,7 @@ double  JacobianVolRectShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Begin("JacobianVolRectShell2D");
 
   DetJac1 = JacobianVol2D (Element, &Jac1) ;
-  DetJac2 = Transformation (_2D, 0, Element, &Jac2) ;
-
-  Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
-
-                                    Jac->c13 = 0. ;
-                                    Jac->c23 = 0. ;
-  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
-
-  GetDP_Return(DetJac1 * DetJac2) ;
-}
-
-double  JacobianVolSphFiniteShell2D (struct Element * Element, MATRIX3x3 * Jac) {
-  MATRIX3x3  Jac1, Jac2 ;
-  double     DetJac1, DetJac2 ;
-
-  GetDP_Begin("JacobianVolSphFiniteShell2D");
-
-  DetJac1 = JacobianVol2D    (Element, &Jac1) ;
-  DetJac2 = SphFiniteShell2D (Element, &Jac2) ;
+  DetJac2 = Transformation (_2D, JACOBIAN_RECT, Element, &Jac2) ;
 
   Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
 
@@ -758,7 +562,7 @@ double  JacobianVolAxiSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Begin("JacobianVolAxiSphShell2D");
 
   DetJac1 = JacobianVolAxi2D  (Element, &Jac1) ;
-  DetJac2 = SphShell2D        (Element, &Jac2) ;
+  DetJac2 = Transformation    (_2D, JACOBIAN_SPH, Element, &Jac2) ;
 
   Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
 
@@ -776,7 +580,7 @@ double  JacobianVolAxiSquSphShell2D (struct Element * Element, MATRIX3x3 * Jac) 
   GetDP_Begin("JacobianVolAxiSquSphShell2D");
 
   DetJac1 = JacobianVolAxiSqu2D(Element, &Jac1) ;
-  DetJac2 = SphShell2D         (Element, &Jac2) ;
+  DetJac2 = Transformation     (_2D, JACOBIAN_SPH, Element, &Jac2) ;
 
   Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
 
@@ -861,7 +665,7 @@ double  JacobianVolSphShell3D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Begin("JacobianVolShell3D");
 
   DetJac1 = JacobianVol3D (Element, &Jac1) ;
-  DetJac2 = SphShell3D    (Element, &Jac2) ;
+  DetJac2 = Transformation(_3D, JACOBIAN_SPH, Element, &Jac2) ;
 
   Get_ProductMatrix( _3D, &Jac1, &Jac2, Jac) ;
 
@@ -875,7 +679,7 @@ double  JacobianVolRectShell3D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Begin("JacobianVolRectShell3D");
 
   DetJac1 = JacobianVol3D (Element, &Jac1) ;
-  DetJac2 = Transformation (_3D, 0, Element, &Jac2) ;
+  DetJac2 = Transformation (_3D, JACOBIAN_RECT, Element, &Jac2) ;
 
   Get_ProductMatrix( _3D, &Jac1, &Jac2, Jac) ;
 
@@ -928,7 +732,7 @@ double  JacobianSurSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Begin("JacobianSurSphShell2D");
 
   DetJac1 = JacobianSur2D (Element, &Jac1) ;
-  DetJac2 = SphShell2D    (Element, &Jac2) ;
+  DetJac2 = Transformation(_2D, JACOBIAN_SPH, Element, &Jac2) ;
 
   Get_ProductMatrix( _3D, &Jac1, &Jac2, Jac) ;
 

@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.28 2001-03-13 12:48:26 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.29 2001-03-13 14:17:58 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -210,6 +210,24 @@ struct JacobianCase {
 #define JACOBIAN_VOL_PLPD_X              90
 
 #define JACOBIAN_VOL_AXI_PLPD_X          100
+
+
+/* type of transformation */
+#define JACOBIAN_SPH                     0
+#define JACOBIAN_RECT                    1
+
+/* All the preceding definitions should be changed to something like:
+#define JACOBIAN_POINT    (1<<0)
+#define JACOBIAN_LINE     (1<<1)
+#define JACOBIAN_SURFACE  (1<<2)
+#define JACOBIAN_VOLUME   (1<<3)
+#define JACOBIAN_AXI      (1<<4)
+#define JACOBIAN_SQUARED  (1<<5)
+#define JACOBIAN_SPHERE   (1<<6)
+#define JACOBIAN_RECT     (1<<7)
+and the calls should be made with  JACOBIAN_VOLUME | JACOBIAN_AXI, etc.
+But I have to change the de Rham stuff first.
+*/
 
 /* ------------------------------------------------------------------------ */
 /*  I n t e g r a t i o n   M e t h o d                                     */
