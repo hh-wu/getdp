@@ -1,4 +1,4 @@
-/* $Id: LinAlg.h,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
+/* $Id: LinAlg.h,v 1.3 2000-10-24 08:52:06 colignon Exp $ */
 #ifndef _LINALG_H_
 #define _LINALG_H_
 
@@ -31,7 +31,7 @@ typedef struct { Solver_Params Params ; } gSolver ;
 
 #elif _PETSC
 
-#include "sles.h"
+#include "petscsles.h"
 #if PETSC_USE_COMPLEX
 #define gSCALAR_SIZE 2
 #define gCOMPLEX_INCREMENT 1
