@@ -1,8 +1,9 @@
-/* $Id: Data_Numeric.h,v 1.4 2002-02-09 01:16:44 geuzaine Exp $ */
+/* $Id: Data_Numeric.h,v 1.5 2002-03-13 17:41:30 sabarieg Exp $ */
 #ifndef _DATA_NUMERIC_H_
 #define _DATA_NUMERIC_H_
 
 #define THESIGN(a) ((a)>=0 ? 1 : -1)
+#define THEABS(a)  ((a)>=0 ? a : -a)
 #define SQU(a)     ((a)*(a)) 
 #define CUB(a)     ((a)*(a)*(a)) 
 #define MIN(a,b)   ((a)<(b) ? (a) : (b))
