@@ -1,4 +1,4 @@
-/* $Id: Solver.h,v 1.4 2000-09-07 18:47:29 geuzaine Exp $ */
+/* $Id: Solver.h,v 1.5 2000-10-06 14:23:27 geuzaine Exp $ */
 #ifndef _SOLVER_H_
 #define _SOLVER_H_
 
@@ -79,6 +79,7 @@ typedef struct {
   int    Matrix_Format;
   int    Matrix_Printing;
   int    Matrix_Storage;
+  int    Scaling ;
   int    Renumbering_Technique;
   int    Preconditioner;
   int    Preconditioner_Position;

@@ -1,4 +1,4 @@
-/* $Id: Parser.c,v 1.3 2000-09-07 18:47:29 geuzaine Exp $ */
+/* $Id: Parser.c,v 1.4 2000-10-06 14:23:27 geuzaine Exp $ */
 #include <stdio.h>
 #include <strings.h>
 #include <stdlib.h>
@@ -10,8 +10,6 @@
 
 #define REEL    1
 #define ENTIER  2
-
-void Commentaires (FILE *out);
 
 typedef struct {
   char *str;
@@ -26,7 +24,9 @@ int compInfoSolver(const void *a, const void *b){
   return(strcmp(((InfoSolver*)a)->str, ((InfoSolver*)b)->str));
 }
 
-/*********************************************************************/
+/* ------------------------------------------------------------------------ */
+/*  C o m m e n t s                                                         */
+/* ------------------------------------------------------------------------ */
 
 static char comALGORITHM[] = 
 "\n%s : \n\
@@ -44,7 +44,7 @@ static char comALGORITHM[] =
     - 12 PGMRES   Alternative version of GMRES          \n\
     - default : %d\n";
 
-char comPRECONDITIONER[] = 
+static char comPRECONDITIONER[] = 
 "\n%s : \n\
     - 0  NONE     No Factorization\n\
     - 1  ILUT     Incomplete LU factorization with dual truncation strategy \n\
@@ -71,7 +71,7 @@ static char comRENUMBERING_TECHNIQUE[] =
     - 1  Reverse Cuthill-Mc Kee \n\
     - default : %d \n";
 
-char comNB_ITER_MAX[] = 
+static char comNB_ITER_MAX[] = 
 "\n%s : Maximum number of iterations \n\
     - default : %d \n";
 
@@ -107,7 +107,7 @@ static char comKRYLOV_SIZE[] =
 "\n%s : Krylov subspace size \n\
     - default : %d\n";
 
-char comSTOPPING_TEST[] = 
+static char comSTOPPING_TEST[] = 
 "\n%s : Target residual \n\
     - default : %12.5E \n";
 
@@ -115,7 +115,7 @@ static char comIC_ACCELERATION[] =
 "\n%s : IC accelerator\n\
     - default : %12.5E \n";
 
-char comITERATIVE_IMPROVEMENT[] =  
+static char comITERATIVE_IMPROVEMENT[] =  
 "\n%s : Iterative improvement of the solution obtained by a LU \n\
     - default : %d\n";
 
@@ -136,13 +136,13 @@ static char comPERMUTATION_TOLERANCE[] =
     - 0.001 -> 0.1  classical \n\
     - default : %12.5E\n";
 
-char comRE_USE_LU[] =  
+static char comRE_USE_LU[] =  
 "\n%s : Reuse LU decomposition\n\
     - 0  no \n\
     - 1  yes \n\
     - default : %d\n";
 
-char comRE_USE_ILU[] =  
+static char comRE_USE_ILU[] =  
 "\n%s : Reuse ILU decomposition (and renumbering if any)\n\
     - 0  no \n\
     - 1  yes \n\
@@ -155,8 +155,15 @@ static char comDIAGONAL_COMPENSATION[] =
       1  ~ MILU with threshold. \n\
     - default : %12.5E\n";
 
+static char comSCALING[] = 
+"\n%s : Scale the system by the reciprocal of the diagonal before resolution \n\
+    - 0  no \n\
+    - 1  yes \n\
+    - default : %d\n";
 
-/*********************************************************************/
+/* ------------------------------------------------------------------------ */
+/*  A c t i o n s                                                           */
+/* ------------------------------------------------------------------------ */
 
 #define act_ARGS     Solver_Params *p, int i, double d
 
@@ -178,15 +185,20 @@ void actDROPPING_TOLERANCE      (act_ARGS){ p->Dropping_Tolerance = d; }
 void actPERMUTATION_TOLERANCE   (act_ARGS){ p->Permutation_Tolerance = d; }
 void actRE_USE_ILU              (act_ARGS){ p->Re_Use_ILU = i; }
 void actDIAGONAL_COMPENSATION   (act_ARGS){ p->Diagonal_Compensation = d; }
+void actSCALING                 (act_ARGS){ p->Scaling = i; }
 
-/*********************************************************************/
 
+
+/* ------------------------------------------------------------------------ */
+/*  P a r a m e t e r s   w i t h   d e f a u l t   v a l u e s             */
+/* ------------------------------------------------------------------------ */
 
 static InfoSolver Tab_Params[] = 
 {
   {"Matrix_Format",           ENTIER, 1,     0.,    comMATRIX_FORMAT,           actMATRIX_FORMAT},
   {"Matrix_Printing",         ENTIER, 0,     0.,    comMATRIX_PRINTING,         actMATRIX_PRINTING},
   {"Matrix_Storage",          ENTIER, 0,     0.,    comMATRIX_STORAGE,          actMATRIX_STORAGE},
+  {"Scaling",                 ENTIER, 1,     0.,    comSCALING,                 actSCALING},
   {"Renumbering_Technique",   ENTIER, 1,     0.,    comRENUMBERING_TECHNIQUE,   actRENUMBERING_TECHNIQUE},
   {"Preconditioner",          ENTIER, 1,     0.,    comPRECONDITIONER,          actPRECONDITIONER},
   {"Preconditioner_Position", ENTIER, 2,     0.,    comPRECONDITIONER_POSITION, actPRECONDITIONER_POSITION},
@@ -204,7 +216,30 @@ static InfoSolver Tab_Params[] =
   {"Stopping_Test",           REEL,   0,     1.e-8, comSTOPPING_TEST,           actSTOPPING_TEST}
 };
 
+
+/* ------------------------------------------------------------------------ */
+/*  i n i t _ s o l v e r                                                   */
+/* ------------------------------------------------------------------------ */
+
 #define NbInfosSolver (int)(sizeof(Tab_Params)/sizeof(Tab_Params[0]))
+
+void Commentaires (FILE *out){
+  int i;
+  InfoSolver *pI;
+
+  for(i=0;i<NbInfosSolver;i++){
+    pI = &Tab_Params[i];
+    switch(pI->typeinfo){
+    case REEL :
+      fprintf(out,pI->com,pI->str,pI->defaultfloat);
+      break;
+    case ENTIER :
+      fprintf(out,pI->com,pI->str,pI->defaultint);
+      break;
+    }
+  }
+  fprintf(out,"\n");
+}
 
 void init_solver (Solver_Params *p , char *name){
 
@@ -298,20 +333,3 @@ void init_solver (Solver_Params *p , char *name){
 }
 
 
-void Commentaires (FILE *out){
-  int i;
-  InfoSolver *pI;
-
-  for(i=0;i<NbInfosSolver;i++){
-    pI = &Tab_Params[i];
-    switch(pI->typeinfo){
-    case REEL :
-      fprintf(out,pI->com,pI->str,pI->defaultfloat);
-      break;
-    case ENTIER :
-      fprintf(out,pI->com,pI->str,pI->defaultint);
-      break;
-    }
-  }
-  fprintf(out,"\n");
-}
