@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.c,v 1.12 2000-09-29 09:53:39 geuzaine Exp $ */
+/* $Id: Pos_Formulation.c,v 1.13 2000-09-29 14:07:49 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -345,8 +345,9 @@ int fcmp_PostElement_Index(const void *a, const void *b){
   return (*(struct PostElement**)a)->Index - (*(struct PostElement**)b)->Index;
 }  
 
-int fcmp_PostElement_u(const void *a, const void *b){
-  return (int)((*(struct PostElement**)b)->u[0] - (*(struct PostElement**)a)->u[0]);
+int fcmp_PostElement_absu(const void *a, const void *b){
+  return (int)( fabs((*(struct PostElement**)b)->u[0]) - 
+		fabs((*(struct PostElement**)a)->u[0]) );
 }  
 
 int fcmp_IntxList(const void * a, const void * b) {
@@ -417,7 +418,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   double  * Error, Dummy[5], d ;
   int       ii, jj, kk, NbrGeo, iGeo, incGeo, NbrPost, iPost ;
   int       NbrTimeStep, iTime, NbrSmoothing, iNode ;
-  int       Store = 0, DecomposeInSimplex = 0, Depth ;
+  int       Store = 0, DecomposeInSimplex = 0, Depth, start, end ;
 
 
   /* Select the TimeSteps */
@@ -823,32 +824,34 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
       for(ii = 0 ; ii < NbrPost ; ii++){
 	PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
 	if(PE->u[0]){
+	  if(PE->u[0] > 0){
+	    start = 0 ; end = 1 ;
+	  }
+	  else{
+	    start = 1 ; end = 0 ;
+	  }
 	  for(jj = 0 ; jj < NbrPost ; jj++){
 	    if(jj != ii){
 	      PE2 = *(struct PostElement**)List_Pointer(PostElement_L, jj);
 	      if(!PE2->u[0]){
-		if(Compare_PostElementNode(PE2, 0, PE, 1)){
-		  PE2->u[0] = 1. ;
-		  PE2->Index = PE->Index + 1 ;
-		  iPost++ ;
+		if(Compare_PostElementNode(PE, end, PE2, 0)){
+		  PE2->u[0] = 1. ; PE2->Index = PE->Index + 1 ; iPost++ ;
 		}
-		else if (Compare_PostElementNode(PE2, 1, PE, 0)){
-		  PE2->u[0] = 1. ;
-		  PE2->Index = PE->Index - 1 ;
-		  iPost++ ;
+		else if (Compare_PostElementNode(PE, start, PE2, 0)){
+		  PE2->u[0] = -1. ; PE2->Index = PE->Index -1  ; iPost++ ;
 		}
-		else if (Compare_PostElementNode(PE2, 0, PE, 0) ||
-			 Compare_PostElementNode(PE2, 1, PE, 1)){
-		  PE2->u[0] = 1. ;
-		  PE2->Index = PE->Index  ;
-		  iPost++ ;
+		else if (Compare_PostElementNode(PE, start, PE2, 1)){
+		  PE2->u[0] = 1. ; PE2->Index = PE->Index - 1 ; iPost++ ;
+		}
+		else if (Compare_PostElementNode(PE, end, PE2, 1)){
+		  PE2->u[0] = -1. ; PE2->Index = PE->Index + 1 ; iPost++ ;
 		}
 	      }
 	    }
 	  }
 	}
       }
-      List_Sort(PostElement_L, fcmp_PostElement_u) ;
+      List_Sort(PostElement_L, fcmp_PostElement_absu) ;
     }
     List_Sort(PostElement_L, fcmp_PostElement_Index) ;
     break ;
