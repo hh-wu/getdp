@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.28 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.29 2002-09-01 22:06:51 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -29,11 +29,17 @@ List_T *PostElement_L = NULL ;
 List_T *TimeValue_L = NULL ;
 
 int     Gmsh_StartNewView = 0 ;
-int     NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT, NbSS, NbVS, NbTS ;
+int     NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT;
+int     NbSQ, NbVQ, NbTQ, NbSS, NbVS, NbTS, NbSH, NbVH, NbTH;
+int     NbSI, NbVI, NbTI, NbSY, NbVY, NbTY;
 List_T *SP = NULL, *VP = NULL, *TP = NULL;
 List_T *SL = NULL, *VL = NULL, *TL = NULL;
 List_T *ST = NULL, *VT = NULL, *TT = NULL;
+List_T *SQ = NULL, *VQ = NULL, *TQ = NULL;
 List_T *SS = NULL, *VS = NULL, *TS = NULL;
+List_T *SH = NULL, *VH = NULL, *TH = NULL;
+List_T *SI = NULL, *VI = NULL, *TI = NULL;
+List_T *SY = NULL, *VY = NULL, *TY = NULL;
 
 /* ------------------------------------------------------------------------ */
 /*  F o r m a t _ P o s t F o r m a t / H e a d e r / F o o t e r           */
@@ -46,9 +52,9 @@ void  Format_PostFormat(int Format){
   switch(Format){
   case FORMAT_GMSH :
     if(Flag_BIN){/* bricolage */
-      fprintf(PostStream, "$PostFormat /* Gmsh 1.0, %s */\n",
+      fprintf(PostStream, "$PostFormat /* Gmsh 1.2, %s */\n",
 	      Flag_BIN ? "binary" : "ascii") ;
-      fprintf(PostStream, "1.0 %d %d\n", Flag_BIN, sizeof(double)) ;
+      fprintf(PostStream, "1.2 %d %d\n", Flag_BIN, sizeof(double)) ;
       fprintf(PostStream, "$EndPostFormat\n") ;
     }
     break ;
@@ -118,16 +124,13 @@ void  Format_PostHeader(int Format, int Contour,
 void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
   List_T  * Iso_L[NBR_MAX_ISO] ;
   double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0 ;
-  int       NbrIso = 0, DecomposeInSimplex = 0 ; 
+  int       NbrIso = 0 ; 
   int       iPost, iNode, iIso, f, One=1 ;
   struct PostElement *PE ;
 
   GetDP_Begin("Format_PostFooter");
 
   if(PSO_P->Iso){
-
-    if(PSO_P->Format == FORMAT_GMSH || PSO_P->Format == FORMAT_GMSH_PARSED)
-      DecomposeInSimplex = 1 ;
 
     for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){ 
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
@@ -154,11 +157,11 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
       for(iIso = 0 ; iIso < NbrIso ; iIso++){
 	if(PSO_P->Iso > 0){
 	  Cal_Iso(PE, Iso_L[iIso], IsoMin+iIso*(IsoMax-IsoMin)/(double)(NbrIso-1), 
-		  IsoMin, IsoMax, DecomposeInSimplex) ;
+		  IsoMin, IsoMax, PSO_P->DecomposeInSimplex) ;
 	}
 	else{
 	  List_Read(PSO_P->Iso_L, iIso, &IsoVal) ;
-	  Cal_Iso(PE, Iso_L[iIso], IsoVal, IsoMin, IsoMax, DecomposeInSimplex) ;
+	  Cal_Iso(PE, Iso_L[iIso], IsoVal, IsoMin, IsoMax, PSO_P->DecomposeInSimplex) ;
 	}
       }
       if(!Store) Destroy_PostElement(PE);
@@ -186,10 +189,12 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
     break ;
   case FORMAT_GMSH :
     if(Flag_BIN){ /* bricolage */
-      fprintf(PostStream, "%d %d %d %d %d %d %d %d %d %d %d %d %d\n", 
+      fprintf(PostStream, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d "
+	      "%d %d %d %d %d %d %d %d %d 0 0 0 0\n",
 	      List_Nbr(TimeValue_L),
-	      NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, 
-	      NbST, NbVT, NbTT, NbSS, NbVS, NbTS);
+	      NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT, 
+	      NbSQ, NbVQ, NbTQ, NbSS, NbVS, NbTS, NbSH, NbVH, NbTH,
+	      NbSI, NbVI, NbTI, NbSY, NbVY, NbTY);
       if(Flag_BIN){
 	f = LIST_FORMAT_BINARY;
 	fwrite(&One, sizeof(int), 1, PostStream);
@@ -199,11 +204,21 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
       }
       List_WriteToFile(TimeValue_L, PostStream, f); 
       List_WriteToFile(SP, PostStream, f); List_WriteToFile(VP, PostStream, f);
-      List_WriteToFile(TP, PostStream, f); List_WriteToFile(SL, PostStream, f);
-      List_WriteToFile(VL, PostStream, f); List_WriteToFile(TL, PostStream, f);
+      List_WriteToFile(TP, PostStream, f); 
+      List_WriteToFile(SL, PostStream, f); List_WriteToFile(VL, PostStream, f); 
+      List_WriteToFile(TL, PostStream, f);
       List_WriteToFile(ST, PostStream, f); List_WriteToFile(VT, PostStream, f);
-      List_WriteToFile(TT, PostStream, f); List_WriteToFile(SS, PostStream, f);
-      List_WriteToFile(VS, PostStream, f); List_WriteToFile(TS, PostStream, f);
+      List_WriteToFile(TT, PostStream, f); 
+      List_WriteToFile(SQ, PostStream, f); List_WriteToFile(VQ, PostStream, f);
+      List_WriteToFile(TQ, PostStream, f); 
+      List_WriteToFile(SS, PostStream, f); List_WriteToFile(VS, PostStream, f);
+      List_WriteToFile(TS, PostStream, f);
+      List_WriteToFile(SH, PostStream, f); List_WriteToFile(VH, PostStream, f);
+      List_WriteToFile(TH, PostStream, f);
+      List_WriteToFile(SI, PostStream, f); List_WriteToFile(VI, PostStream, f);
+      List_WriteToFile(TI, PostStream, f);
+      List_WriteToFile(SY, PostStream, f); List_WriteToFile(VY, PostStream, f);
+      List_WriteToFile(TY, PostStream, f);
       fprintf(PostStream, "\n");
       fprintf(PostStream, "$EndView\n");
     }
@@ -241,7 +256,11 @@ void  Format_GmshParsed(int TimeStep, int NbTimeStep, int NbHarmonic,
       case POINT       : fprintf(PostStream, "SP("); break;
       case LINE        : fprintf(PostStream, "SL("); break;
       case TRIANGLE    : fprintf(PostStream, "ST("); break;
+      case QUADRANGLE  : fprintf(PostStream, "SQ("); break;
       case TETRAHEDRON : fprintf(PostStream, "SS("); break;
+      case HEXAHEDRON  : fprintf(PostStream, "SH("); break;
+      case PRISM       : fprintf(PostStream, "SI("); break;
+      case PYRAMID     : fprintf(PostStream, "SY("); break;
       }    
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -282,7 +301,11 @@ void  Format_GmshParsed(int TimeStep, int NbTimeStep, int NbHarmonic,
       case POINT       : fprintf(PostStream, "VP("); break;
       case LINE        : fprintf(PostStream, "VL("); break;
       case TRIANGLE    : fprintf(PostStream, "VT("); break;
+      case QUADRANGLE  : fprintf(PostStream, "VQ("); break;
       case TETRAHEDRON : fprintf(PostStream, "VS("); break;
+      case HEXAHEDRON  : fprintf(PostStream, "VH("); break;
+      case PRISM       : fprintf(PostStream, "VI("); break;
+      case PYRAMID     : fprintf(PostStream, "VY("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -347,7 +370,9 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
   if(Gmsh_StartNewView){
     Gmsh_StartNewView = 0 ;
     NbSP = NbVP = NbTP = NbSL = NbVL = NbTL = 0;
-    NbST = NbVT = NbTT = NbSS = NbVS = NbTS = 0;
+    NbST = NbVT = NbTT = NbSQ = NbVQ = NbTQ = 0;
+    NbSS = NbVS = NbTS = NbSH = NbVH = NbTH = 0;
+    NbSI = NbVI = NbTI = NbSY = NbVY = NbTY = 0;
     if(!SP) SP = List_Create(100,1000,sizeof(double)); else List_Reset(SP);
     if(!VP) VP = List_Create(100,1000,sizeof(double)); else List_Reset(VP);
     if(!TP) TP = List_Create(100,1000,sizeof(double)); else List_Reset(TP);
@@ -357,9 +382,21 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
     if(!ST) ST = List_Create(100,1000,sizeof(double)); else List_Reset(ST);
     if(!VT) VT = List_Create(100,1000,sizeof(double)); else List_Reset(VT);
     if(!TT) TT = List_Create(100,1000,sizeof(double)); else List_Reset(TT);
+    if(!SQ) SQ = List_Create(100,1000,sizeof(double)); else List_Reset(SQ);
+    if(!VQ) VQ = List_Create(100,1000,sizeof(double)); else List_Reset(VQ);
+    if(!TQ) TQ = List_Create(100,1000,sizeof(double)); else List_Reset(TQ);
     if(!SS) SS = List_Create(100,1000,sizeof(double)); else List_Reset(SS);
     if(!VS) VS = List_Create(100,1000,sizeof(double)); else List_Reset(VS);
     if(!TS) TS = List_Create(100,1000,sizeof(double)); else List_Reset(TS);
+    if(!SH) SH = List_Create(100,1000,sizeof(double)); else List_Reset(SH);
+    if(!VH) VH = List_Create(100,1000,sizeof(double)); else List_Reset(VH);
+    if(!TH) TH = List_Create(100,1000,sizeof(double)); else List_Reset(TH);
+    if(!SI) SI = List_Create(100,1000,sizeof(double)); else List_Reset(SI);
+    if(!VI) VI = List_Create(100,1000,sizeof(double)); else List_Reset(VI);
+    if(!TI) TI = List_Create(100,1000,sizeof(double)); else List_Reset(TI);
+    if(!SY) SY = List_Create(100,1000,sizeof(double)); else List_Reset(SY);
+    if(!VY) VY = List_Create(100,1000,sizeof(double)); else List_Reset(VY);
+    if(!TY) TY = List_Create(100,1000,sizeof(double)); else List_Reset(TY);
     if(!TimeValue_L) TimeValue_L = List_Create(100,1000,sizeof(double));
     else List_Reset(TimeValue_L);
   }
@@ -373,7 +410,11 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       case POINT       : Current_L = SP ; NbSP++ ; break ;
       case LINE        : Current_L = SL ; NbSL++ ; break ;
       case TRIANGLE    : Current_L = ST ; NbST++ ; break ;
+      case QUADRANGLE  : Current_L = SQ ; NbSQ++ ; break ;
       case TETRAHEDRON : Current_L = SS ; NbSS++ ; break ;
+      case HEXAHEDRON  : Current_L = SH ; NbSH++ ; break ;
+      case PRISM       : Current_L = SI ; NbSI++ ; break ;
+      case PYRAMID     : Current_L = SY ; NbSY++ ; break ;
       }
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
@@ -402,7 +443,11 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       case POINT       : Current_L = VP ; NbVP++ ; break ;
       case LINE        : Current_L = VL ; NbVL++ ; break ;
       case TRIANGLE    : Current_L = VT ; NbVT++ ; break ;
+      case QUADRANGLE  : Current_L = VQ ; NbVQ++ ; break ;
       case TETRAHEDRON : Current_L = VS ; NbVS++ ; break ;
+      case HEXAHEDRON  : Current_L = VH ; NbVH++ ; break ;
+      case PRISM       : Current_L = VI ; NbVI++ ; break ;
+      case PYRAMID     : Current_L = VY ; NbVY++ ; break ;
       }
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);

@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.14 2002-02-01 17:31:00 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.15 2002-09-01 22:06:49 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -281,6 +281,7 @@ File                         return tFile ;
 Sort                         return tSort ;
 Iso                          return tIso ;
 NoNewLine                    return tNoNewLine ;
+DecomposeInSimplex           return tDecomposeInSimplex ;
 
 Flag                         return tFlag ;
 

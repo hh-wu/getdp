@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.56 2002-02-01 17:31:01 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.57 2002-09-01 22:06:51 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -218,9 +218,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
   /* Check if we should decompose all PostElements to simplices */
 
-  if(!PostSubOperation_P->Skin && 
-     (PostSubOperation_P->Format == FORMAT_GMSH || 
-      PostSubOperation_P->Format == FORMAT_GMSH_PARSED))
+  if(!PostSubOperation_P->Skin && PostSubOperation_P->DecomposeInSimplex)
     DecomposeInSimplex = 1 ;
 
   /* Check for de-refinement */
@@ -261,8 +259,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
     if(PostSubOperation_P->Skin){
 
-      if(PostSubOperation_P->Format == FORMAT_GMSH || 
-	 PostSubOperation_P->Format == FORMAT_GMSH_PARSED)
+      if(PostSubOperation_P->DecomposeInSimplex)
 	PostElement_T = Tree_Create(sizeof(struct PostElement *), fcmp_PostElement_heterog);
       else
 	PostElement_T = Tree_Create(sizeof(struct PostElement *), fcmp_PostElement);
@@ -280,8 +277,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       }
 
       /* only decompose in simplices (triangles!) now */
-      if(PostSubOperation_P->Format == FORMAT_GMSH || 
-	 PostSubOperation_P->Format == FORMAT_GMSH_PARSED){
+      if(PostSubOperation_P->DecomposeInSimplex){
 	List_Reset(PostElement_L);
 	SkinPostElement_L = PostElement_L ;
 	Tree_Action(PostElement_T, Decompose_SkinPostElement);

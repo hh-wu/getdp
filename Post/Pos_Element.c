@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.17 2001-11-29 11:28:55 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.18 2002-09-01 22:06:50 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -315,7 +315,8 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
       break ;
 
     default :
-      Msg(ERROR, "Recursive division not implemented for Hexahedra, Prisms and Pyramids") ;
+      Msg(ERROR, "Recursive division not implemented for Quadrangles, Hexahedra, "
+	  "Prisms and Pyramids") ;
     }
     
     for(i = 0 ; i < NbCut ; i++){

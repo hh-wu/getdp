@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.37 2002-03-06 09:14:37 trophime Exp $ */
+/* $Id: GetDP.y,v 1.38 2002-09-01 22:06:50 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -295,7 +295,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token        tWithArgument
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
-%token        tTarget tSort tIso tNoNewLine tChangeOfValues 
+%token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
 
 %token  tFlag
 
@@ -592,7 +592,7 @@ ReducedGroupRHS :
       Group_S.SuppListType = SUPPLIST_NONE ;  Group_S.InitialSuppList = NULL ;
       $$ = -1 ;
     }
-
+  ;
 
 GroupRHS :
 
@@ -5523,7 +5523,7 @@ PostQuantitySupport :
     { $$ = -1 ; }
   | '[' GroupRHS ']'
     { $$ = Num_Group(&Group_S, "PO_Support", $2) ; }
-
+  ;
 
 PrintSubType :
 
@@ -5720,6 +5720,7 @@ PrintOptions :
       PostSubOperation_S.Iso_L = List_Create(10,10,sizeof(double)); ;
       PostSubOperation_S.Sort = 0 ;
       PostSubOperation_S.NoNewLine = 0 ;
+      PostSubOperation_S.DecomposeInSimplex = 0 ;
       PostSubOperation_S.ChangeOfCoordinates[0] = -1 ;
       PostSubOperation_S.ChangeOfCoordinates[1] = -1 ;
       PostSubOperation_S.ChangeOfCoordinates[2] = -1 ;
@@ -5872,6 +5873,10 @@ PrintOption :
     { 
       PostSubOperation_S.NoNewLine = 1 ;
     }
+  | ',' tDecomposeInSimplex
+    { 
+      PostSubOperation_S.DecomposeInSimplex = 1 ;
+    }
   | ',' tFrequency ListOfFExpr
     { 
       for(i=0 ; i<List_Nbr($3) ; i++){
@@ -6022,6 +6027,7 @@ NameForFunction :
   | tModulo  { $$ = "Modulo"; }
   | tHypot   { $$ = "Hypot";  }
   | tSTRING  { $$ = $1;       }
+  ;
 
 FExpr :
     OneFExpr                         { $$ = $1 ;          }

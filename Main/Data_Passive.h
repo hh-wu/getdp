@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.48 2002-02-22 12:12:53 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.49 2002-09-01 22:06:49 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -920,7 +920,7 @@ struct PostSubOperation {
   int    PostQuantityIndex[2], PostQuantitySupport[2] ;  
   int    Type, SubType, CombinationType ;
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
-  int    Format, Adapt, Sort, Iso, NoNewLine ;
+  int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex ;
   int    ChangeOfCoordinates[3] ; 
   char   * String ;
   double Target, Val ;
