@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.48 2001-03-10 23:54:03 geuzaine Exp $
+# $Id: Makefile,v 1.49 2001-03-18 13:56:25 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -449,9 +449,9 @@ sgi: tag
            "CC=cc" \
            "FC=f77" \
            "RANLIB=ls" \
-           "C_FLAGS=-O3 -mips4" \
-           "C_PARSER_FLAGS=-g -mips4 " \
-           "F77_FLAGS=-O3 -mips4" \
+           "C_FLAGS=-O3 -mips3" \
+           "C_PARSER_FLAGS=-g -mips3" \
+           "F77_FLAGS=-O3 -mips3" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
