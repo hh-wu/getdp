@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.19 2002-06-11 00:04:21 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.20 2002-06-13 06:13:23 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -361,7 +361,7 @@ void Scatterer::criticalPoints(int nbnodes, double k[3]){
 	if(fabs(theta-theta0)>1*TOL_LOOSE){
 	  //newt(tmp, 1, &check, phaseGradient, fdjac);
 	  //newt(tmp, 1, &check, phaseGradient, phaseGradientDiff);
-	  check = mnewt(200, tmp, 1, 1.e-6, 1.e-4);
+	  check = mnewt(200, tmp, 1, 1.e-12, 1.e-12);
 	  if(!check){
 	    tmp[1] = GetInInterval(tmp[1], 0., TWO_PI);
 	    List_Insert(criticalPointsList[i_node], &tmp[1], fcmp_double_loose);
@@ -456,4 +456,7 @@ void Scatterer::printPoints(double t, List_T *pts){
   free_dvector(fvec,1,n);
   free_dmatrix(fjac,1,n,1,n);
 
+
+  fflush(fp);
+  fflush(fp2);
 }
