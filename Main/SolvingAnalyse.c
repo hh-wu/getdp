@@ -51,20 +51,7 @@ void  SolvingAnalyse (void) {
   int  Num_PostProcessing, Num_PostOperation, Nbr_GeoData ;
   int  Nbr_PreResolution, Nbr_OtherSystem ;
 
-  /* ----------------------------- */
-  /* Default Geometric Data Base   */
-  /* ----------------------------- */
-
-  if (!Name_MshFile) {
-    Name_MshFile = (char*) Malloc((strlen(Name_Generic)+5)*sizeof(char)) ;
-    strcpy(Name_MshFile, Name_Generic) ;
-    strcat(Name_MshFile, ".msh") ;
-  }
   GeoData_L = List_Create( 1, 5, sizeof(struct GeoData)) ;
-  /* 
-  Geo_AddGeoData(GeoData_L, Name_MshFile, NULL) ;
-  GeoData_P0 = (struct GeoData *)List_Pointer(GeoData_L, 0) ;
-  */
 
   /* -------------------- */
   /* Treatment Resolution */

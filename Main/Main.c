@@ -85,10 +85,18 @@ int  main(int argc, char *argv[]) {
   /* default .res file */
 
   if(!Name_ResFile[0]){
-    Name_ResFile[0] = (char*)Malloc((strlen(Name_Generic)+4)*sizeof(char)) ;
+    Name_ResFile[0] = (char*)Malloc((strlen(Name_Generic)+5)*sizeof(char)) ;
     strcpy(Name_ResFile[0], Name_Generic) ;
     strcat(Name_ResFile[0], ".res") ;
     Name_ResFile[1] = NULL ;
+  }
+
+  /* default .msh file */
+
+  if (!Name_MshFile) {
+    Name_MshFile = (char*) Malloc((strlen(Name_Generic)+5)*sizeof(char)) ;
+    strcpy(Name_MshFile, Name_Generic) ;
+    strcat(Name_MshFile, ".msh") ;
   }
 
   /* log file */
