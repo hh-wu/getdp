@@ -1,4 +1,4 @@
-/* $Id: Cal_deRhamTermOfFemEquation.c,v 1.3 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Cal_deRhamTermOfFemEquation.c,v 1.4 2000-10-23 15:53:30 dular Exp $ */
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -67,7 +67,7 @@ void  Cal_InitdeRhamTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
       ((struct IntegrationMethod *)
        List_Pointer(Problem_S.IntegrationMethod,
 		    FI->QuantityStorageDof_P->DefineQuantity->
-		    IntegralQuantity.IntegrationMethodIndex)) ->Method ;
+		    IntegralQuantity.IntegrationMethodIndex)) ->IntegrationCase ;
     FI->IntegralQuantityActive.CriterionIndex =
       ((struct IntegrationMethod *)
        List_Pointer(Problem_S.IntegrationMethod,
@@ -78,7 +78,7 @@ void  Cal_InitdeRhamTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
       ((struct JacobianMethod *)
        List_Pointer(Problem_S.JacobianMethod,
 		    FI->QuantityStorageDof_P->DefineQuantity->
-		    IntegralQuantity.JacobianMethodIndex)) ->JacobianPerRegion ;
+		    IntegralQuantity.JacobianMethodIndex)) ->JacobianCase ;
     break ;
   case NODOF :
     FI->Type_FormDof = SCALAR ;
@@ -94,13 +94,13 @@ void  Cal_InitdeRhamTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
     ((struct IntegrationMethod *)
      List_Pointer(Problem_S.IntegrationMethod,
 		  EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))
-      ->Method ;
+    ->IntegrationCase ;
 
   FI->CriterionIndex = 
     ((struct IntegrationMethod *)
      List_Pointer(Problem_S.IntegrationMethod,
 		  EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))
-      ->CriterionIndex ;
+    ->CriterionIndex ;
 
 
   /*  G e t   J a c o b i a n   M e t h o d   */
@@ -110,7 +110,7 @@ void  Cal_InitdeRhamTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
     ((struct JacobianMethod *)
      List_Pointer(Problem_S.JacobianMethod,
 		  EquationTerm_P->Case.LocalTerm.JacobianMethodIndex))
-      ->JacobianPerRegion ;
+      ->JacobianCase ;
 
   FI->JacobianCase_P0 =
     (FI->NbrJacobianCase = List_Nbr(FI->JacobianCase_L)) ?

@@ -1,4 +1,4 @@
-/* $Id: Pos_Quantity.c,v 1.4 2000-10-20 08:43:45 dular Exp $ */
+/* $Id: Pos_Quantity.c,v 1.5 2000-10-23 15:53:30 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -327,7 +327,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 	((struct JacobianMethod *)
 	 List_Pointer(Problem_S.JacobianMethod, 
 		      PostQuantityTerm_P->JacobianMethodIndex))
-	->JacobianPerRegion ;
+	->JacobianCase ;
       JacobianCase_P0 = (struct JacobianCase*)List_Pointer(JacobianCase_L, 0);
 
       i = 0 ;
@@ -385,7 +385,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
       IntegrationCase_L = 
 	((struct IntegrationMethod *)
 	 List_Pointer(Problem_S.IntegrationMethod, 
-		      PostQuantityTerm_P->IntegrationMethodIndex))->Method ;
+		      PostQuantityTerm_P->IntegrationMethodIndex))->IntegrationCase ;
 
       CriterionIndex = 
 	((struct IntegrationMethod *)

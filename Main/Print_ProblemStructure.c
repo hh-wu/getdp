@@ -1,4 +1,4 @@
-/* $Id: Print_ProblemStructure.c,v 1.8 2000-10-20 10:59:01 dular Exp $ */
+/* $Id: Print_ProblemStructure.c,v 1.9 2000-10-23 15:53:30 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 
@@ -390,9 +390,9 @@ void  Print_JacobianMethod(struct Problem  * Problem) {
     Msg(CHECK, "  { Name %s ;\n", JM->Name) ;
 
     Msg(CHECK, "    Case {\n") ;
-    Nbrj = List_Nbr(JM->JacobianPerRegion) ;
+    Nbrj = List_Nbr(JM->JacobianCase) ;
     for (j = 0 ; j < Nbrj ; j++) {
-      JC = (struct JacobianCase*)List_Pointer(JM->JacobianPerRegion, j) ;
+      JC = (struct JacobianCase*)List_Pointer(JM->JacobianCase, j) ;
 
       Msg(CHECK, "      { Region ") ;
       if (JC->RegionIndex >= 0)
@@ -438,11 +438,11 @@ void  Print_IntegrationMethod (struct Problem  * Problem) {
       Msg(CHECK, "    Criterion Exp[%s] ; \n", 
 	  Get_ExpressionName(Problem, IM->CriterionIndex));
 
-    Nbrc = List_Nbr(IM->Method) ;
+    Nbrc = List_Nbr(IM->IntegrationCase) ;
     Msg(CHECK, "    Case {") ;
     Msg(CHECK, "   /* nbr = %d */\n", Nbrc) ;
     for (j = 0 ; j < Nbrc ; j++) {
-      IC = (struct IntegrationCase*)List_Pointer(IM->Method, j) ;
+      IC = (struct IntegrationCase*)List_Pointer(IM->IntegrationCase, j) ;
       Msg(CHECK, "       { Type %s ;",
 	  Get_StringForDefine(Integration_Type, IC->Type)) ;
       switch (IC->Type) {

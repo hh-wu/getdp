@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.14 2000-10-20 07:42:06 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.15 2000-10-23 15:53:30 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -168,7 +168,7 @@ struct MultiConstraintPerRegion {
 
 struct JacobianMethod {
   char    * Name ;
-  List_T  * JacobianPerRegion ;
+  List_T  * JacobianCase ;
 } ;
 
 struct JacobianCase {
@@ -176,7 +176,7 @@ struct JacobianCase {
   int  NbrParameters ;  double  * Para ;
 } ;
 
-/* JacobianPerRegion.TypeJacobian */
+/* JacobianCase.TypeJacobian */
 /* WARNING! The numbering is important (boundary operator -> -1) */
 
 #define JACOBIAN_PNT                  0
@@ -212,7 +212,7 @@ struct JacobianCase {
 
 struct IntegrationMethod {
   char    *Name ;
-  List_T  *Method ;
+  List_T  *IntegrationCase ;
   int      CriterionIndex ;
 } ;
 

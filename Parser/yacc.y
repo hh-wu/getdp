@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.21 2000-10-22 13:52:06 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.22 2000-10-23 15:53:30 dular Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -1556,7 +1556,7 @@ JacobianMethods :
 JacobianMethod :
 
     /* none */
-    { JacobianMethod_S.Name = NULL ; JacobianMethod_S.JacobianPerRegion = NULL ; }
+    { JacobianMethod_S.Name = NULL ; JacobianMethod_S.JacobianCase = NULL ; }
 
   | JacobianMethod  JacobianMethodTerm
   ;
@@ -1570,7 +1570,7 @@ JacobianMethodTerm :
       JacobianMethod_S.Name = $2 ; }
 
   | tCase '{' JacobianCases '}'
-    { JacobianMethod_S.JacobianPerRegion = $3 ; }
+    { JacobianMethod_S.JacobianCase = $3 ; }
   ;
 
 
@@ -1649,7 +1649,7 @@ IntegrationMethod :
     /* none */
     { 
       IntegrationMethod_S.Name = NULL ; 
-      IntegrationMethod_S.Method = NULL ; 
+      IntegrationMethod_S.IntegrationCase = NULL ; 
       IntegrationMethod_S.CriterionIndex = -1 ;
     }
 
@@ -1670,7 +1670,7 @@ IntegrationMethodTerm :
     { IntegrationMethod_S.CriterionIndex = $2 ;  }
 
   | tCase '{' IntegrationCases '}'
-    { IntegrationMethod_S.Method = $3 ; }
+    { IntegrationMethod_S.IntegrationCase = $3 ; }
   ;
 
 

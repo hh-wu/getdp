@@ -189,7 +189,7 @@
 
 #line 1 "yacc.y"
 
-/* $Id: yacc.tab.c,v 1.23 2000-10-22 13:52:05 geuzaine Exp $ */
+/* $Id: yacc.tab.c,v 1.24 2000-10-23 15:53:30 dular Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -4089,7 +4089,7 @@ case 137:
     break;}
 case 138:
 #line 1559 "yacc.y"
-{ JacobianMethod_S.Name = NULL ; JacobianMethod_S.JacobianPerRegion = NULL ; ;
+{ JacobianMethod_S.Name = NULL ; JacobianMethod_S.JacobianCase = NULL ; ;
     break;}
 case 140:
 #line 1568 "yacc.y"
@@ -4099,7 +4099,7 @@ case 140:
     break;}
 case 141:
 #line 1573 "yacc.y"
-{ JacobianMethod_S.JacobianPerRegion = yyvsp[-1].l ; ;
+{ JacobianMethod_S.JacobianCase = yyvsp[-1].l ; ;
     break;}
 case 142:
 #line 1580 "yacc.y"
@@ -4161,7 +4161,7 @@ case 151:
 #line 1650 "yacc.y"
 { 
       IntegrationMethod_S.Name = NULL ; 
-      IntegrationMethod_S.Method = NULL ; 
+      IntegrationMethod_S.IntegrationCase = NULL ; 
       IntegrationMethod_S.CriterionIndex = -1 ;
     ;
     break;}
@@ -4179,7 +4179,7 @@ case 154:
     break;}
 case 155:
 #line 1673 "yacc.y"
-{ IntegrationMethod_S.Method = yyvsp[-1].l ; ;
+{ IntegrationMethod_S.IntegrationCase = yyvsp[-1].l ; ;
     break;}
 case 156:
 #line 1680 "yacc.y"

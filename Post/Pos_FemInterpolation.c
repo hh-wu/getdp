@@ -1,4 +1,4 @@
-/* $Id: Pos_FemInterpolation.c,v 1.4 2000-10-20 10:58:26 dular Exp $ */
+/* $Id: Pos_FemInterpolation.c,v 1.5 2000-10-23 15:53:30 dular Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -158,7 +158,7 @@ void  Pos_FemInterpolation(struct Element * Element,
       ((struct IntegrationMethod *)
        List_Pointer(Problem_S.IntegrationMethod,
 		    QuantityStorage_P->DefineQuantity->
-		    IntegralQuantity.IntegrationMethodIndex)) ->Method ;
+		    IntegralQuantity.IntegrationMethodIndex)) ->IntegrationCase ;
     IQA.CriterionIndex =
       ((struct IntegrationMethod *)
        List_Pointer(Problem_S.IntegrationMethod,
@@ -168,7 +168,7 @@ void  Pos_FemInterpolation(struct Element * Element,
       ((struct JacobianMethod *)
        List_Pointer(Problem_S.JacobianMethod,
 		    QuantityStorage_P->DefineQuantity->
-		    IntegralQuantity.JacobianMethodIndex)) ->JacobianPerRegion ;
+		    IntegralQuantity.JacobianMethodIndex)) ->JacobianCase ;
 
     xChangeOfCoordinates = (void (*)())Get_ChangeOfCoordinates(0, Type_Form) ;
   }
