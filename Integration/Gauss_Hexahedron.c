@@ -1,4 +1,4 @@
-/* $Id: Gauss_Hexahedron.c,v 1.6 2000-09-25 12:09:25 geuzaine Exp $ */
+/* $Id: Gauss_Hexahedron.c,v 1.7 2000-09-25 12:54:09 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -48,7 +48,7 @@ void  GaussLegendre_Hexahedron (int Nbr_Points, int Num,
   int i,j,k,index=0,nb;
   double pt1,pt2,pt3,wt1,wt2,wt3,dum;
   
-#ifdef DOS
+#ifdef MSDOS
   nb = (int)pow((double)Nbr_Points, 1./3.);
 #else
   nb = (int)cbrt((double)Nbr_Points);

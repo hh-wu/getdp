@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.18 2000-09-25 12:09:25 geuzaine Exp $
+# $Id: Makefile,v 1.19 2000-09-25 12:54:09 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -285,7 +285,7 @@ bb:
 # ----------------------------------------------------------------------
 
 dem:
-	gtar zcvf getdp-demos.tar.gz $(GETDP_DEMO_DIR)
+	gtar zcvf getdp-demo.tgz $(GETDP_DEMO_DIR)
 
 help: versions
 
