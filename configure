@@ -1209,7 +1209,7 @@ if test "${with_gsl_prefix+set}" = set; then
   withval="$with_gsl_prefix"
   GSL_PREFIX=$withval
 else
-  GSL_PREFIX="no"
+  GSL_PREFIX="${GSL_DIR}"
 fi;
 
 # Check whether --with-petsc-prefix or --without-petsc-prefix was given.
@@ -1217,7 +1217,7 @@ if test "${with_petsc_prefix+set}" = set; then
   withval="$with_petsc_prefix"
   PETSC_PREFIX=$withval
 else
-  PETSC_PREFIX="no"
+  PETSC_PREFIX="${PETSC_DIR}"
 fi;
 
 # Check whether --with-bopt or --without-bopt was given.
@@ -1231,7 +1231,7 @@ if test "${with_metis_prefix+set}" = set; then
   withval="$with_metis_prefix"
   METIS_PREFIX=$withval
 else
-  METIS_PREFIX="no"
+  METIS_PREFIX="${METIS_DIR}"
 fi;
 
 # Check whether --with-fftw-prefix or --without-fftw-prefix was given.
@@ -1239,7 +1239,7 @@ if test "${with_fftw_prefix+set}" = set; then
   withval="$with_fftw_prefix"
   FFTW_PREFIX=$withval
 else
-  FFTW_PREFIX="no"
+  FFTW_PREFIX="${FFTW_DIR}"
 fi;
 
 # Check whether --enable-petsc or --disable-petsc was given.
@@ -2263,12 +2263,12 @@ if test "x$enable_petsc" = "xyes"; then
   SOLVER='-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
-  if test x${PETSC_PREFIX} != "xno"; then
-    PETSC_DIR=${PETSC_PREFIX}
+  if test "x${PETSC_PREFIX}" != "x"; then
+    PETSC_DIR="${PETSC_PREFIX}"
   fi
   PETSC_ARCH=`${PETSC_DIR}/bin/petscarch`
-  if test x${BOPT} = "x"; then
-     BOPT=g_complex
+  if test "x${BOPT}" = "x"; then
+     BOPT="g_complex"
   fi
 else
   GETDP_DIRS="${GETDP_DIRS} Sparskit"
@@ -2358,8 +2358,8 @@ fi
 
 
 
-if test x${METIS_PREFIX} != "xno"; then
-  METIS_DIR=${METIS_PREFIX}
+if test "x${METIS_PREFIX}" != "x"; then
+  METIS_DIR="${METIS_PREFIX}"
 fi
 
 
@@ -2689,7 +2689,7 @@ echo "$as_me: error: Configure could not find the library archiver" >&2;}
 fi
 
 
-if test x${GSL_PREFIX} = "xno"; then
+if test "x${GSL_PREFIX}" = "x"; then
   LDFLAGS="-lgslcblas"
 else
   LDFLAGS="-L${GSL_PREFIX}/lib -lgslcblas"
@@ -2756,7 +2756,7 @@ else
   GSL="no"
 fi
 
-if test x${GSL_PREFIX} = "xno"; then
+if test "x${GSL_PREFIX}" = "x"; then
   GSL_LIBS="-lgsl -lgslcblas"
 else
   GSL_LIBS="-L${GSL_PREFIX}/lib -lgsl -lgslcblas"
@@ -3145,8 +3145,8 @@ fi
 done
 
 
-if test x${FFTW_PREFIX} != "xno"; then
-  FFTW_DIR=${FFTW_PREFIX}
+if test "x${FFTW_PREFIX}" != "x"; then
+  FFTW_DIR="${FFTW_PREFIX}"
 fi
 CPPFLAGS="-I${FFTW_DIR}/include"
 if test "${ac_cv_header_fftw_h+set}" = set; then
@@ -4162,7 +4162,7 @@ echo "- Solver: Sparskit ($SOLVER)"
 fi
 echo "*******************************************************************"
 
-if test x${GSL} = "xno"; then
+if test "x${GSL}" = "xno"; then
   echo "*******************************************************************"
   echo "Configure could not find the GNU Scientific Library (GSL):"
   echo "- if it is installed in a non-standard location, please run"
