@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.132 2003-03-18 01:37:52 geuzaine Exp $
+# $Id: Makefile,v 1.133 2003-03-18 01:50:17 geuzaine Exp $
 
 include variables
 
@@ -130,7 +130,7 @@ package-windows:
 	strip bin/getdp.exe
 	cp /usr/bin/cygwin1.dll getdp-${GETDP_RELEASE}
 	cp bin/getdp.exe getdp-${GETDP_RELEASE}
-	cp doc/README.txt getdp-${GETDP_RELEASE}
+	cp doc/README.win32 getdp-${GETDP_RELEASE}/README.txt
 	cp doc/VERSIONS getdp-${GETDP_RELEASE}/VERSIONS.txt
 	cp doc/FAQ getdp-${GETDP_RELEASE}/FAQ.txt
 	cp doc/CONTRIBUTORS getdp-${GETDP_RELEASE}/CONTRIBUTORS.txt

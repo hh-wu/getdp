@@ -1,3 +1,4 @@
+$Id: README.devel,v 1.2 2003-03-18 01:50:17 geuzaine Exp $
 
 Some easy rules to make the code easy to read/debug/maintain:
 - enable full warnings for your compiler (e.g. gcc -Wall)
