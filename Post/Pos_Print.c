@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.29 2000-10-30 10:19:30 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.30 2000-10-30 10:25:24 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1178,7 +1178,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 			struct PostSubOperation  *PostSubOperation_P) {
 
   struct Element   Element ;
-  //  struct Value   * CumulativeValues ;
+  /*  struct Value   * CumulativeValues ; */
   struct Value     Value ;
   struct PostQuantity  *PQ_P ;
 
@@ -1284,7 +1284,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
       fprintf(PostStream, "\n"); 
     }
-    //  }
+    /*  } */
 
   GetDP_End ;
 }
