@@ -1,6 +1,5 @@
 %{
-
-static char *rcsid = "$Id: yacc.y,v 1.24 2000-10-30 01:05:47 geuzaine Exp $" ;
+/* $Id: yacc.y,v 1.25 2000-10-30 01:34:49 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
