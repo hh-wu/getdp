@@ -1,4 +1,4 @@
-% $Id: examples.tex,v 1.11 2001-07-17 23:27:44 geuzaine Exp $
+% $Id: examples.tex,v 1.12 2001-07-18 09:09:51 geuzaine Exp $
 
 %
 % WARNING:
@@ -38,11 +38,11 @@
 \begin{slide}
 
 \begin{center}
-\includegraphics[width=0.38\textwidth]{getdp-picts/ind1}%
-\includegraphics[width=0.38\textwidth]{getdp-picts/ind2}
+\includegraphics[width=0.37\textwidth]{getdp-picts/ind1}%
+\includegraphics[width=0.37\textwidth]{getdp-picts/ind2}
 
-\includegraphics[width=0.38\textwidth]{getdp-picts/ind3}%
-\includegraphics[width=0.38\textwidth]{getdp-picts/ind4}
+\includegraphics[width=0.37\textwidth]{getdp-picts/ind3}%
+\includegraphics[width=0.37\textwidth]{getdp-picts/ind4}
 \end{center}
 
 \end{slide}
@@ -51,7 +51,7 @@
 
 \begin{slide}
 
-\mybox{colbox}{\textwidth}{
+\mybox{colbox}{0.98\textwidth}{
 \begin{equation*}
 \Curl{\vec{h}} = \vec{j} ,\quad
 \Div{\vec{b}} = 0 \quad\text{and}\quad
@@ -99,7 +99,7 @@
 
 \begin{slide}
 
-\mybox{colbox}{\textwidth}{
+\mybox{colbox}{0.98\textwidth}{
 \begin{center}
 \emph{Vector potential} formulation
 \begin{equation*}
@@ -165,8 +165,8 @@ FunctionSpace \{
     \}
     Constraint \{ \CC{essential constraint + gauge (unicity)}
       \{ NameOfCoef ae;  EntityType EdgesOf; NameOfConstraint a; \}
-      \{ NameOfCoef ae;  EntityType EdgesOfTreeIn; EntitySubType StartingOn;
-        NameOfConstraint Gauge; \}
+      \{ NameOfCoef ae;  EntityType EdgesOfTreeIn;
+        EntitySubType StartingOn; NameOfConstraint Gauge; \}
     \}
   \}
 \}
@@ -252,7 +252,7 @@ New resolution:
 
 \begin{slide}
 
-\mybox{colbox}{\textwidth}{
+\mybox{colbox}{0.98\textwidth}{
 \begin{center}
 \emph{Magnetic field conforming} formulation
 \begin{equation*}
@@ -303,7 +303,7 @@ Formulation \{
   \{ Name MagSta_phi; Type FemEquation;
     Quantity \{
       \{ Name phi; Type Local; NameOfSpace H1; \}
-      \{ Name hs; Type Local; NameOfSpace Hcurl_s; \}  \CC{a little patience...}
+      \{ Name hs; Type Local; NameOfSpace Hcurl_s; \} \CC{patience...}
     \}
     Equation \{
       Galerkin \{ [ mu[] * \{hs\} , \{Grad phi\} ];
@@ -318,7 +318,7 @@ Formulation \{
 
 \end{slide}
 
-\begin{slide}
+\begin{slide}[1.05\slidewidth,\slideheight]
 
 \begin{smallsyntax}
 FunctionSpace \{
@@ -332,9 +332,9 @@ FunctionSpace \{
         Support Inductor; Entity ...; \}
     \}
     Constraint \{
-      \{ NameOfCoef he; EntityType EdgesOfTreeIn; EntitySubType StartingOn;
-        NameOfConstraint Gauge; \}
-      \{ NameOfCoef Ic;  EntityType GroupsOfNodesOf; NameOfConstraint I; \}
+      \{ NameOfCoef he; EntityType EdgesOfTreeIn;
+        EntitySubType StartingOn; NameOfConstraint Gauge; \}
+      \{ NameOfCoef Ic; EntityType GroupsOfNodesOf; NameOfConstraint I; \}
       \{ NameOfCoef Icc; EntityType GroupsOfNodesOf; NameOfConstraint I; \}
     \}
   \}
@@ -393,7 +393,7 @@ Formulation \{
 
 \begin{slide}
 
-\mybox{colbox}{\textwidth}{
+\mybox{colbox}{0.98\textwidth}{
 \begin{center}
 Magnetodynamic formulations
 \end{center}
@@ -425,7 +425,7 @@ Magnetodynamic formulations
 
 \begin{slide}
 
-\mybox{colbox}{\textwidth}{
+\mybox{colbox}{0.98\textwidth}{
 \begin{center}
 Thermal formulation
 \end{center}
@@ -455,7 +455,7 @@ Thermal formulation
 
 \begin{slide}
 
-\mybox{colbox}{\textwidth}{
+\mybox{colbox}{0.98\textwidth}{
 \begin{center}
 Movement of regions
 \end{center}
@@ -481,7 +481,7 @@ $\vec{j}=\sigma(\vec{e}+\pvec{\vec{v}}{\vec{b}})$)
 
 \begin{slide}
 
-\mybox{colbox}{\textwidth}{
+\mybox{colbox}{0.98\textwidth}{
 \begin{center}
 Magneto-thermal coupling
 \end{center}
@@ -501,9 +501,9 @@ j=\|\Curl{\vec{h}}\|
 
 \end{slide}
 
-\begin{slide}
+\begin{slide}[1.05\slidewidth,\slideheight]
 
-\mybox{colbox}{\textwidth}{
+\mybox{colbox}{0.98\textwidth}{
 \begin{center}
 Resolutions
 \end{center}
@@ -518,19 +518,16 @@ Resolutions
 Resolution \{ \CC{magnetodynamic freq + thermal static}
   \{ Name Magnetothermal_h_T;
     System \{
-      \{ Name Mag; NameOfFormulation MagDyn_h; 
-                  Type Complex; Frequency 50; \}
+      \{ Name Mag; NameOfFormulation MagDyn_h; Type Complex; Frequency 50; \}
       \{ Name The; NameOfFormulation The_T \}
     \}
     Operation \{
       IterativeLoop[16,1.e-4,1] \{ \CC{max_its, stop, relax}
-        GenerateJac[Mag]; SolveJac[Mag];
-        GenerateJac[The]; SolveJac[The];
+        GenerateJac[Mag]; SolveJac[Mag]; GenerateJac[The]; SolveJac[The];
       \}
       SaveSolution[Mag]; SaveSolution[The];
     \}
-  \}
-\}
+  \} \}
 \end{smallsyntax}
 
 \end{slide}

@@ -1,4 +1,4 @@
-% $Id: getdp.tex,v 1.17 2001-07-17 23:27:44 geuzaine Exp $
+% $Id: getdp.tex,v 1.18 2001-07-18 09:09:51 geuzaine Exp $
 
 \newcommand{\smallgetdp}[1]
    {\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{#1}}}}
@@ -112,6 +112,7 @@ Nodes = NodesOf[Omega]; \CC{function group}
 
 \mybox{colbox}{11\semcm}{
   \begin{slideitemize}
+  \item Piece-wise definitions
   \item Physical characteristics
   \item Time functions
   \item Various other functions (natural constraints, ...)
@@ -123,7 +124,7 @@ Nodes = NodesOf[Omega]; \CC{function group}
 mu0 = 4.e-7*Pi; f = 50; \CC{constants}
 mu[Air] = mu0; 
 mu[Core] = mu0 + 1/(100+100*$1^6); \CC{argument ($1 <- b)}
-TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
+TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.01]; \CC{current val.}
 \end{syntax}
 
 \end{slide}
@@ -187,7 +188,7 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 
 \begin{slide}
 
-\mybox{colbox}{11\semcm}{
+\mybox{colbox}{11.7\semcm}{
   \begin{slideitemize}
   \item Various quantity types (0, 1, 2, 3-forms, scalar, vector)
   \item Various basis functions (associated with nodes, edges, facets,
@@ -372,9 +373,9 @@ Operation\{\\
 \bigskip
 \begin{syntax}
 Quantity \{
-  \{ Name FluxDensity;
+  \{ Name B;
     Value \{ Local \{ [ -mu[]*\{Grad phi\} ]; In Omega; \}
-            Local \{ [ -\{dGreen\} ]; In BEM; \} \}
+            Local \{ [ -\{dGreen\} ]; In Gamma; \} \}
 \}
 \end{syntax}
 
@@ -402,8 +403,8 @@ Quantity \{
 
 \bigskip
 \begin{syntax}
-Print[ FluxDensity, OnElementsOf Omega, File "b.pos", Format Gmsh ];
-Print[ FluxDensity, OnLine \{\{0,0,0\}\{1,0,0\}\} \{100\}, File "b.txt" ];
+Print[ B, OnElementsOf Omega, File "b.pos", Format Gmsh ];
+Print[ B, OnLine \{\{0,0,0\}\{1,0,0\}\} \{100\}, File "b.txt" ];
 \end{syntax}
 
 \end{slide}

@@ -1,4 +1,4 @@
-% $Id: talks.sty,v 1.8 2001-06-22 06:52:40 geuzaine Exp $
+% $Id: talks.sty,v 1.9 2001-07-18 09:09:51 geuzaine Exp $
 %
 % LaTeX2e/seminar style sheet for the layout of GetDP-related slides
 %
@@ -12,7 +12,7 @@
 \RequirePackage{fancybox,amsmath,amsfonts,amssymb,pifont,bbm}
 \RequirePackage{semcolor,color}
 \RequirePackage[latin1]{inputenc}
-\RequirePackage{alltt,wasysym}
+\RequirePackage{alltt} %wasysym
 \RequirePackage[all]{xy}
 
 \ifx\pdfoutput\undefined
@@ -32,6 +32,7 @@
 \fi
 
 \graphicspath{{.}{fig/}{../../../}}
+\sloppy
 
 % -------------------------------------------------------------------
 % Define some generic colors
@@ -204,7 +205,7 @@
   \vspace*{-1.2\baselineskip}%
   \begin{itemize}{#2}\end{itemize}}}
 
-\newcommand{\mybox}[3]{\colorbox{#1}{\parbox{#2}{#3}}}
+\newcommand{\mybox}[3]{\colorbox{#1}{\parbox{#2}{\raggedright#3}}}
 
 % -------------------------------------------------------------------
 % Background
