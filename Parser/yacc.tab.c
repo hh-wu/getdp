@@ -192,7 +192,7 @@
 
 #line 1 "yacc.y"
 
-/* $Id: yacc.tab.c,v 1.30 2000-11-07 08:49:12 dular Exp $ */
+/* $Id: yacc.tab.c,v 1.31 2000-11-07 12:45:04 dular Exp $ */
 
 /*
   Modifs a faire (Patrick):
