@@ -1,12 +1,13 @@
 Summary: A General environment for the treatment of Discrete Problems
 Name: getdp
-Version: 0.84
-Source: getdp-0.84.tar.gz
+# Version: 1.0
+Version: %{getdpversion}
+Source: getdp-%{version}.tar.gz
 Release: 1
 Copyright: distributable
 Group: Applications/Engineering
 URL: http://www.geuz.org/getdp/
-Packager: Christophe.Geuzaine@AdValvas.be
+Packager: geuz@geuz.org
 Prereq: /sbin/install-info
 Buildroot: /var/tmp/%{name}-buildroot
 

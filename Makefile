@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.71 2002-01-19 00:33:42 geuzaine Exp $
+# $Id: Makefile,v 1.72 2002-01-19 00:39:20 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -352,7 +352,7 @@ linux: compile-linux link-linux
 distrib-linux : tag clean linux distrib
 rpm: fulltgz
 	mv $(GETDP_SRCRPM).tar.gz /usr/src/redhat/SOURCES
-	rpm -bb utils/getdp.spec
+	rpm -bb --define 'getdpversion $(GETDP_RELEASE)' utils/getdp.spec
 	cp /usr/src/redhat/RPMS/i386/$(GETDP_SRCRPM)-1.i386.rpm .
 	cp /usr/src/redhat/BUILD/$(GETDP_SRCRPM)/getdp-$(GETDP_RELEASE)-$(GETDP_UNAME).tgz .
 
