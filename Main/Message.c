@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.43 2001-05-04 20:17:20 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.44 2001-05-06 14:36:44 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -164,161 +164,65 @@ void Get_GetDPContext(char *FileName, char *FileVersion, char *FileDate,
 void PrintMsg(FILE *stream, int level, int Verbosity, 
 	      va_list args, char *fmt, int *abort) {
 
+  int  verb, nl;
+  char *str, prefix[1000], sockmsg[1000];
+
 #ifdef USE_DEBUG
   char FileName[256], FileVersion[32], FunctionName[256], FileAuthor[32], FileDate[32];
   int  Line ;
 #endif
   
-  char prefix[1000], sockmsg[1000];
-
-  if(Flag_SOCKET > 0){
-    vsprintf(sockmsg, fmt, args);
-    strcpy(prefix, "");
-    switch(level){
-    case CHECK :
-      sockmsg[strlen(sockmsg)-1] = '\0' ;
-      break;
-    case ERROR :
-    case BIGERROR :
-      sprintf(prefix, ERROR_STR); 
-      *abort = 1;
-      break;
-    case WARNING :
-      sprintf(prefix, WARNING_STR); 
-      break;
-    case OPERATION :
-      sprintf(prefix, OPERATION_STR); 
-      break;
-    case LOADING :
-      sprintf(prefix, LOADING_STR); 
-      break;
-    case INFO :
-    case INFO1 :
-    case INFO2 :
-    case INFO3 :
-    case BIGINFO :
-      sprintf(prefix, INFO_STR); 
-      break;
-    case DEBUG :
-      return;
-    case SPARSKIT :
-      sprintf(prefix, SPARSKIT_STR); 
-      sockmsg[strlen(sockmsg)-1] = '\0' ;
-      break;
-    case PETSC :
-      sprintf(prefix, PETSC_STR);
-      sockmsg[strlen(sockmsg)-1] = '\0' ;
-      break;
-    case ITER :
-      sockmsg[strlen(sockmsg)-1] = '\0' ;
-      break;
-    }
-    strcat(prefix, sockmsg);
-    Socket_SendInt(Flag_SOCKET, GETDP_INFO);
-    Socket_SendString(Flag_SOCKET, prefix);
-    return;
+  switch(level){
+  case CHECK     : verb = 0; nl = 0; str = NULL; break;
+  case ERROR     : /* fall-through */
+  case BIGERROR  : verb = 0; nl = 1; str = ERROR_STR; *abort = 1; break;
+  case WARNING   : verb = 0; nl = 1; str = WARNING_STR; break;
+  case OPERATION : verb = 2; nl = 1; str = OPERATION_STR; break;
+  case LOADING   : verb = 2; nl = 1; str = LOADING_STR; break;
+  case INFO      : verb = 3; nl = 1; str = INFO_STR; break;
+  case INFO1     : verb = 3; nl = 0; str = INFO_STR; break;
+  case INFO2     : verb = 3; nl = 0; str = NULL; break;
+  case INFO3     : verb = 3; nl = 1; str = NULL; break;
+  case BIGINFO   : verb = 1; nl = 1; str = BIGINFO_STR; break;
+  case DEBUG     : verb =99; nl = 0; str = NULL; break;
+  case SPARSKIT  : verb = 3; nl = 0; str = SPARSKIT_STR; break;
+  case PETSC     : verb = 3; nl = 1; str = PETSC_STR; break;
+  case ITER      : verb = 4; nl = 0; str = NULL; break;
+  case DIRECT    : /* fall-through */
+  default        : verb = 1; nl = 1; str = NULL; break;
   }
 
+  if(Verbosity >= verb || stream == LogStream){
 
-  switch(level){
-
-  case CHECK :
-    vfprintf(stream, fmt, args); 
-    break;
-
-  case DIRECT :
-    if(Verbosity > 0 || stream == LogStream){
+    if(Flag_SOCKET > 0 && stream != LogStream){
+      if(str) strcpy(prefix, str); else strcpy(prefix, "");
+      vsprintf(sockmsg, fmt, args);
+      if(!nl) sockmsg[strlen(sockmsg)-1] = '\0' ;
+      strcat(prefix, sockmsg);
+      Socket_SendInt(Flag_SOCKET, GETDP_INFO);
+      Socket_SendString(Flag_SOCKET, prefix);
+    }
+    else{
+      if(str) fprintf(stream, str); 
       vfprintf(stream, fmt, args); 
-      fprintf(stream, "\n");
-    }
-    break;
-
-  case ERROR :
-  case BIGERROR :
-    fprintf(stream, ERROR_STR); 
-    vfprintf(stream, fmt, args); 
-    fprintf(stream, "\n");
-    if(level == BIGERROR){
+      if(nl) fprintf(stream, "\n");
+      if(level == BIGERROR){
 #ifdef USE_DEBUG
-      Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
-		       &Line, FunctionName);
-      fprintf(stream, WHITE_STR); 
-      fprintf(stream, "File '%s' (V%s by %s on %s)\n", 
-	      FileName, FileVersion, FileAuthor, FileDate);
-      fprintf(stream, WHITE_STR); 
-      fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
+	Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
+			 &Line, FunctionName);
+	fprintf(stream, WHITE_STR); 
+	fprintf(stream, "File '%s' (V%s by %s on %s)\n", 
+		FileName, FileVersion, FileAuthor, FileDate);
+	fprintf(stream, WHITE_STR); 
+	fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
 #endif
-      fprintf(stream, WHITE_STR "------------------------------------------------------\n");
-      fprintf(stream, WHITE_STR "You have discovered a bug in GetDP! You may report it\n");
-      fprintf(stream, WHITE_STR "by e-mail (together with any helpful data permitting to\n");
-      fprintf(stream, WHITE_STR "reproduce it) to <getdp@geuz.org>\n");
+	fprintf(stream, WHITE_STR "------------------------------------------------------\n");
+	fprintf(stream, WHITE_STR "You have discovered a bug in GetDP! You may report it\n");
+	fprintf(stream, WHITE_STR "by e-mail (together with any helpful data permitting to\n");
+	fprintf(stream, WHITE_STR "reproduce it) to <getdp@geuz.org>\n");
+      }
     }
-    *abort = 1;
-    break;
 
-  case WARNING :
-    fprintf(stream, WARNING_STR); 
-    vfprintf(stream, fmt,args); 
-    fprintf(stream, "\n");
-    break;
-
-  case OPERATION :
-    if(Verbosity > 1 || stream == LogStream){
-      fprintf(stream, OPERATION_STR); 
-      vfprintf(stream, fmt, args);
-      fprintf(stream, "\n");
-    }
-    break;
-
-  case LOADING :
-    if(Verbosity > 1 || stream == LogStream){
-      fprintf(stream, LOADING_STR); 
-      vfprintf(stream, fmt, args);
-      fprintf(stream, "\n");
-    }
-    break;
-
-  case INFO :
-  case INFO1 :
-  case INFO2 :
-  case INFO3 :
-    if(Verbosity > 2 || stream == LogStream){
-      if(level == INFO || level == INFO1) fprintf(stream, INFO_STR); 
-      vfprintf(stream, fmt, args);
-      if(level == INFO || level == INFO3) fprintf(stream, "\n");
-    }
-    break;
-
-  case BIGINFO :
-    if(Verbosity > 0 || stream == LogStream){
-      fprintf(stream, BIGINFO_STR); 
-      vfprintf(stream, fmt, args);
-      fprintf(stream, "\n");
-    }
-    break;
-
-  case DEBUG :
-    if(Verbosity == 99) vfprintf(stream, fmt, args);
-    break;
-
-  case SPARSKIT :
-    if(Verbosity > 2 || stream == LogStream){
-      fprintf(stream, SPARSKIT_STR); 
-      vfprintf(stream, fmt, args);
-    }
-    break;
-
-  case PETSC :
-    if(Verbosity > 2 || stream == LogStream){
-      fprintf(stream, PETSC_STR); 
-      vfprintf(stream, fmt, args);
-      fprintf(stream, "\n");
-    }
-    break;
-
-  case ITER :
-    if(Flag_VERBOSE > 3 || stream == LogStream) vfprintf(stream, fmt, args);
-    break;
   }
 
 }

@@ -1,29 +1,30 @@
-/* $Id: Message.h,v 1.10 2001-05-04 11:52:02 geuzaine Exp $ */
+/* $Id: Message.h,v 1.11 2001-05-06 14:36:44 geuzaine Exp $ */
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
 #include <stdarg.h>
 
-/* Message         level      displayed if '-v'    */ 
-#define DIRECT       0      /*   >= 2              */
-#define ERROR        1      /*   >= 0 (always)     */
-#define GERROR       ERROR  /*   Gmsh compat.      */
-#define BIGERROR     2      /*   >= 0 (always)     */
-#define WARNING      3      /*   >= 0 (always)     */
-#define OPERATION    4      /*   >= 2              */
-#define INFO         5      /*   >= 3              */
-#define INFO1        6      /*   >= 3              */
-#define INFO2        7      /*   >= 3              */
-#define INFO3        8      /*   >= 3              */
-#define BIGINFO      9      /*   >= 1              */
-#define SPARSKIT     10     /*   >= 3              */
-#define PETSC        11     /*   >= 3              */
-#define ITER         12     /*   >= 4              */
-#define DEBUG        13     /*   == 99             */
-#define LOADING      14     /*   >= 2              */
-#define RESOURCES    15     /*   >= 4              */
-#define SUMMARY      16     /*   >= 1              */
-#define CHECK        17     /*   >= 0 (always)     */
+/* Message levels */ 
+
+#define DIRECT       0
+#define ERROR        1
+#define GERROR       ERROR
+#define BIGERROR     2
+#define WARNING      3
+#define OPERATION    4
+#define INFO         5
+#define INFO1        6
+#define INFO2        7
+#define INFO3        8
+#define BIGINFO      9
+#define SPARSKIT     10
+#define PETSC        11
+#define ITER         12
+#define DEBUG        13
+#define LOADING      14
+#define RESOURCES    15
+#define SUMMARY      16
+#define CHECK        17
 
 #define WHITE_INDENT  12
 #define WHITE_STR     "            "
