@@ -238,10 +238,10 @@ EXTERN_C_END
 void PartitionGraph(struct DofData * DofData_P, int NbPartition){
 
   int  i;
-  int  n9, wgtflag9, numflag9, options9[5], options8[8];
+  int  n9, wgtflag9, numflag9, options9[5];
   int  edgecut9;
   int  *part_P, *cptr_P, *start_P;
-  /*  int  kd, kf, kk, cptr;
+  /*  int  kd, kf, kk, cptr, options8[8] ; 
   int  *ia, *ja, *ia_N, *ja_N, trente=30, zero=0, trenteetun=31, trentedeux=32; */
 
   idxtype *xadj9, *adjncy9, *part9, *perm9, *iperm9;

@@ -381,7 +381,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       }
 
       else {
-	Msg(INFO, "Passing Option to Solver: '%s'", argv[i]) ; 
+	/*  Msg(INFO, "Passing Option to Solver: '%s'", argv[i]) ; */
 	sargv[(*sargc)++] = argv[i++]; 
       }
       
@@ -393,7 +393,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	strcpy(NameProblem, argv[i++]) ; 
       }
       else{
-	Msg(INFO, "Passing Option to Solver: '%s'", argv[i]) ;
+	/* Msg(INFO, "Passing Option to Solver: '%s'", argv[i]) ; */
 	sargv[(*sargc)++] = argv[i++]; 
       }
     }
