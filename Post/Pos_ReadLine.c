@@ -1,12 +1,6 @@
 /* GNUPLOT - readline.c */
 
-/* WARNING: MODIFIED VERSION 
-   
-   by C. Geuzaine (see 'geuz') 
-   
-   -> C++ 
-   
-*/
+/* WARNING: THIS IS A MODIFIED VERSION: see the 'getdp' tags */
 
 /*
  * Copyright (C) 1986 - 1993   Thomas Williams, Colin Kelley
@@ -68,7 +62,7 @@
 
 #include <stdio.h>
 
-/* geuz */
+/* getdp */
 #include <stdlib.h>
 #include <malloc.h>
 #include <string.h>
@@ -132,7 +126,7 @@ static struct termio orig_termio, rl_termio;
 #endif /* SGTTY */
 
 /* ULTRIX defines VRPRNT instead of VREPRINT */
-/* bugged on IRIX geuz
+/* bugged on IRIX getdp
 #ifdef VRPRNT
 #define VREPRINT VRPRNT
 #endif
@@ -266,13 +260,14 @@ user_puts(char *str){
 /* This function provides a centralized non-destructive backspace capability */
 /* M. Castro */
 
-/* geuz */
+/* getdp */
 void 
 backspace()
 {
 	user_putc(BACKSPACE);
 }
 
+/* getdp */
 extern int InteractiveInterrupt ;
 
 char *
@@ -295,7 +290,7 @@ readline(char *prompt){
 	/* get characters */
 	for(;;) {
 
-	  /* geuz */
+	  /* getdp */
 	  if(InteractiveInterrupt){
 	    InteractiveInterrupt = 0;
 	    putc('\n',stderr);
