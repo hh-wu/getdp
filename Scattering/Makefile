@@ -1,18 +1,19 @@
-# $Id: Makefile,v 1.5 2002-02-25 22:06:37 geuzaine Exp $
+# $Id: Makefile,v 1.6 2002-02-27 16:38:14 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
 
 .IGNORE:
 
-CXX     = icc -Kc++ -Kc++eh -O0 -xW -D_SPARSKIT # pentium 4 specific
-#CXX     = c++ -O3 -march=i686 -D_SPARSKIT
-#CXX     = c++ -g -Wall -D_SPARSKIT
+SOLVER   = -D_SPARSKIT
+
+#CXX     = icc -Kc++ -Kc++eh -O0 -xW # pentium 4 specific
+CXX      = c++ -g -Wall
 #CXX     = c++ -Wall -D_PETSC
 #include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables
 
-F2C     = -lCEPCF90 -lF90 # Linux with intel compilers
-#F2C     = -lg2c -lm # Linux gcc
+#F2C     = -lCEPCF90 -lF90 # Linux with intel compilers
+F2C     = -lg2c -lm # Linux gcc
 #F2C     = -lftn -lm # IRIX
 #F2C     = -lfor -lots -lUfor -lFutil -lm # DEC
 
@@ -39,7 +40,6 @@ OBJ = $(SRC:.cpp=.o)
 $(LIB): $(OBJ)
 	$(AR) $(LIB) $(OBJ) 
 	$(RANLIB) $(LIB)
-	make exe
 
 .cpp.o:
 	$(CXX) $(CFLAGS) -c $<

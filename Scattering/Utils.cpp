@@ -1,4 +1,4 @@
-// $Id: Utils.cpp,v 1.4 2002-02-22 22:14:14 geuzaine Exp $
+// $Id: Utils.cpp,v 1.5 2002-02-27 16:38:15 geuzaine Exp $
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -18,6 +18,8 @@ int Flag_SOCKET=0;
 char *Name_Path=NULL;
 int Verbose = 2;
 
+int NBRCPU, RANKCPU;
+
 void Msg(int level, char *fmt, ...){
   va_list  args;
   extern int Verbose;
@@ -28,6 +30,7 @@ void Msg(int level, char *fmt, ...){
   case DEBUG: if(Verbose<2) return;
   case INFO: if(Verbose<1) return;
   }
+  if(NBRCPU>1) fprintf(stderr, "CPU#%d: ", RANKCPU);
   va_start (args, fmt);
   vfprintf(stderr, fmt, args); 
   if(level!=SPARSKIT) fprintf(stderr, "\n");

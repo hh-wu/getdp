@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.17 2002-02-23 00:43:34 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.18 2002-02-27 16:38:14 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -24,6 +24,7 @@ using namespace std;
 #define INTERACT1            (1<<2)
 #define INTERACT2            (1<<3)
 #define BUILD_MATRIX         (1<<4)
+#define ITER_SOLVE           (1<<5)
 
 // Function to integrate
 
@@ -35,7 +36,8 @@ public:
     double kr;
     switch(which){
     case 0 : // Alain
-    case 1 : // hf test
+    case 1 : // build matrix
+    case 2 : // iterative solver
       kr = k[0]*xtau[0]+k[1]*xtau[1]+k[2]*xtau[2];
       return (cos(kr)+I*sin(kr));
     default :
@@ -47,7 +49,10 @@ public:
     switch(which){
     case 0 : // Alain
       return cos(tau);
-    case 1 : // global Fourier basis functions (num_bf=-N/2,...,N/2)
+    case 1 : // build matrix, global Fourier basis functions (num_bf=-N/2,...,N/2)
+      return (cos(num_bf*tau)+I*sin(num_bf*tau));
+    case 2 : // iterative solver
+      // eval series using data[], this should be done with a FFT
       return (cos(num_bf*tau)+I*sin(num_bf*tau));
     default :
       return 1.;
@@ -446,28 +451,35 @@ void Solve(int typ, Function *f, Scatterer *scat,
   List_T *reslist=List_Create(nbtarget,20,sizeof(complex<double>));
   complex<double> res;
   double t, xt[3], kr, d1, d2;
-  int i, j, nbdof;
+  int i, j, nbdof, localrange[2];
 
   if(typ & BUILD_MATRIX){
+
     if(!(nbtarget%2)) nbtarget++;
 
-    nbdof = 2*nbtarget; //this will change for petsc complex
+    nbdof = gCOMPLEX_INCREMENT*nbtarget;
 
     LinAlg_CreateSolver(&Solver, "solver.par") ;
-    LinAlg_CreateMatrix(&A, &Solver, nbdof, nbdof, 1, NULL, NULL) ;
+    LinAlg_CreateMatrix(&A, &Solver, nbdof, nbdof, 0, localrange, NULL) ;
     LinAlg_CreateVector(&b, &Solver, nbdof, 1, NULL) ;
     LinAlg_CreateVector(&x, &Solver, nbdof, 1, NULL) ;
     LinAlg_ZeroMatrix(&A);
     LinAlg_ZeroVector(&b);
 
-    for(i=0 ; i<nbtarget ; i++){
+    Msg(INFO, "local range = %d %d", localrange[0], localrange[1]);
+
+    for(i=localrange[0] ; i<localrange[1] ; i++){
       t = 2*PI*i/(double)nbtarget + t0;
+      Msg(INFO, "Computing target %d", i);
       for(j=0 ; j<nbtarget ; j++){
 	f->num_bf = -nbtarget/2+j;
 	res = Integrate(typ, f, scat, kv, t, nbpts, prescribed_eps, rise); 
 	res *= (-I/2.);//warning
-	Msg(INFO, "A[%d,%d]=%g+i%g  Fourier = %d", i,j,res.real(), res.imag(),f->num_bf);
-	LinAlg_AddComplexInMatrix(res.real(), res.imag(), &A, 2*i, 2*j, 2*i+1, 2*j+1);
+	//Msg(INFO, "A[%d,%d]=%g+i%g  Fourier = %d", i,j,res.real(), res.imag(),f->num_bf);
+	if(gCOMPLEX_INCREMENT == 2)
+	  LinAlg_AddComplexInMatrix(res.real(), res.imag(), &A, 2*i, 2*j, 2*i+1, 2*j+1);
+	else
+	  LinAlg_AddComplexInMatrix(res.real(), res.imag(), &A, i, j, -1, -1);
       }
       //plane wave
       scat->val(t,xt);
@@ -475,19 +487,33 @@ void Solve(int typ, Function *f, Scatterer *scat,
       res = cos(kr)+I*sin(kr);
       res *= 2; //warning
       res /= NORM3(kv);//warning
-      LinAlg_AddComplexInVector(res.real(), res.imag(), &b, 2*i, 2*i+1);
+      if(gCOMPLEX_INCREMENT == 2)
+	LinAlg_AddComplexInVector(res.real(), res.imag(), &b, 2*i, 2*i+1);
+      else
+	LinAlg_AddComplexInVector(res.real(), res.imag(), &b, i, -1);
     }
-    //LinAlg_PrintMatrix(stdout,&A);
+
+    LinAlg_AssembleMatrix(&A);
+    LinAlg_AssembleVector(&b);
     LinAlg_Solve(&A, &b, &Solver, &x);
+
+    //Msg(INFO, "Print vector");
     //LinAlg_PrintVector(stdout,&x);
+
+    // should do a scatter (gather) to get the full vector on one node
     for(i=0 ; i<nbtarget ; i++){
-      LinAlg_GetComplexInVector(&d1, &d2, &x, 2*i, 2*i+1);
+      if(gCOMPLEX_INCREMENT == 2)
+	LinAlg_GetComplexInVector(&d1, &d2, &x, 2*i, 2*i+1);
+      else
+	LinAlg_GetComplexInVector(&d1, &d2, &x, i, -1);
       res = d1+I*d2;
       List_Add(reslist, &res);
     }
     //List_PrintMatlab(reslist);
 
-    complex<double> phi;
+
+    // the following should be done with a FFT
+    complex<double> phi; 
     for(i=0 ; i<100 ; i++){
       phi = 0.;
       t = 2*PI*i/100.;
@@ -498,6 +524,7 @@ void Solve(int typ, Function *f, Scatterer *scat,
       }
       printf("%g %g\n", phi.real(), phi.imag());
     }
+
 
     LinAlg_DestroyMatrix(&A);
     LinAlg_DestroyVector(&b);
@@ -525,20 +552,22 @@ void Solve(int typ, Function *f, Scatterer *scat,
 int main(int argc, char *argv[]){
   double WaveNum[3]={1600.,0.,0.}, Epsilon=1., Rise=0.5, InitialTarget=0.;
   int NbIntPts=10000, NbTargetPts=20;
-  int Type=0, NbProcs, Proc, dumc=0;
-  char **dumv;
+  int Type=0, sargc;
+  char **sargv=(char**)Malloc(256*sizeof(char**));
   Scatterer scat;
   Function f;
 
-  LinAlg_Initialize(&argc, &argv, &NbProcs, &Proc);
-  LinAlg_InitializeSolver(&dumc, &dumv, &NbProcs, &Proc) ;
+  LinAlg_Initialize(&argc, &argv, &NBRCPU, &RANKCPU);
 
   if(argc < 2){
     Msg(INFO, "Usage: %s [-f|-c|-i1|-i2] options...", argv[0]);
+    LinAlg_FinalizeSolver() ;
+    LinAlg_Finalize() ;
     exit(1);
   }
 
-  int i = 1;
+  sargv[0] = argv[0] ;
+  int i = sargc = 1;
   while (i < argc) {
     if (argv[i][0] == '-') {
       if(Cmp(argv[i]+1, "full", 1)){ 
@@ -555,6 +584,9 @@ int main(int argc, char *argv[]){
       }
       else if(Cmp(argv[i]+1, "build", 1)){ 
 	i++; Type |= BUILD_MATRIX; Msg(INFO, "Build matrix and solve system");
+      }
+      else if(Cmp(argv[i]+1, "iter", 2)){ 
+	i++; Type |= ITER_SOLVE; Msg(INFO, "Iterative solver");
       }
       else if(Cmp(argv[i]+1, "nbpts", 1)){ 
 	i++; NbIntPts = (int)GetNum(argc,argv,&i); 
@@ -578,15 +610,24 @@ int main(int argc, char *argv[]){
 	i++; Verbose = (int)GetNum(argc,argv,&i);
       }
       else{
-	Msg(ERROR, "Unknown or ambiguous option"); 
+	Msg(INFO, "Passing unknown option '%s' to solver", argv[i]); 
+	sargv[sargc++] = argv[i++]; 
       }
     }
+    else{
+      Msg(INFO, "Passing unknown option '%s' to solver", argv[i]); 
+      sargv[sargc++] = argv[i++]; 
+    }
   }
+
+  LinAlg_InitializeSolver(&sargc, &sargv, &NBRCPU, &RANKCPU) ;
 
   Msg(INFO, "Options: -nbpts %d, -targets %d, -zero %g, -k %g, -eps %g, -rise %g", 
       NbIntPts, NbTargetPts, InitialTarget, WaveNum[0], Epsilon, Rise);
 
-  if(Type & BUILD_MATRIX)
+  if(Type & ITER_SOLVE)
+    f.which = 2;
+  else if(Type & BUILD_MATRIX)
     f.which = 1;
   else
     f.which = 0;

@@ -1,11 +1,11 @@
-# $Id: Makefile,v 1.78 2002-02-25 22:06:37 geuzaine Exp $
+# $Id: Makefile,v 1.79 2002-02-27 16:38:14 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
 #  Optional packages: 
 #    * flex and bison to rebuild the parser
 #    * cygwin to build on Windows 9x/NT (http://www.cygwin.com) 
-#    * PETSc 2.0.29 (you have to define the PETSC_DIR and PETSC_ARCH variables)
+#    * PETSc 2.1.1 (you have to define the PETSC_DIR and PETSC_ARCH variables)
 #    * METIS 4.0 (you have to define the METIS_DIR variable)
 #
 # ----------------------------------------------------------------------
@@ -77,12 +77,12 @@ GETDP_SPARSKIT_LIBS   = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
 # PETSc definitions
 # ----------------------------------------------------------------------
 
-BOPT                  = g
+BOPT                  = g_complex
 GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
                         -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-#include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
+include ${PETSC_DIR}/bmake/common/base
 
 # ----------------------------------------------------------------------
 # Rules for developpers
@@ -213,7 +213,7 @@ nodepend:
         done
 
 clean:
-	for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) $(GETDP_LIB_DIR) $(GETDP_DOC_DIR); \
+	for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) $(GETDP_LIB_DIR) $(GETDP_DOC_DIR) Scattering; \
         do (cd $$i && $(MAKE) clean \
            "RM=rm" \
            "RMFLAGS=-f" \
@@ -556,3 +556,22 @@ link-p4:
                lib/libNumeric.a lib/libSparskit.a lib/libDataStr.a\
                -lCEPCF90 -lF90
 p4: compile-p4 link-p4
+
+#
+# PETSc Scattering
+#
+compile-petsc-scat:
+	@for i in $(GETDP_STUFF_DIR) Scattering; do (cd $$i && $(MAKE) \
+           "CC=$(CC)" \
+           "CXX=$(CC)" \
+           "FC=$(FC)" \
+           "F77=$(FC)" \
+           "RANLIB=$(RANLIB)" \
+           "C_FLAGS=$(COPTFLAGS)" \
+           "F77_FLAGS=$(FOPTFLAGS)" \
+           "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
+        ); done
+link-petsc-scat:
+	${CLINKER} -o Scattering/hf lib/libScattering.a lib/libDofData.a\
+               lib/libNumeric.a lib/libDataStr.a $(PETSC_SLES_LIB)
+petsc-scat: compile-petsc-scat link-petsc-scat
