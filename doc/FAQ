@@ -1,5 +1,5 @@
 
-GETDP FREQUENTLY ASKED QUESTIONS ($Date: 2001-09-06 09:20:30 $)
+GETDP FREQUENTLY ASKED QUESTIONS ($Date: 2001-09-06 09:25:54 $)
 
 1. GENERAL
 ==========
@@ -70,3 +70,4 @@ directly loadable by Gmsh.
 Edit the 'solver.par' file in the current working directory. You can
 also remove the file: GetDP will give you the opportunity to create it
 dynamically next time you perform a linear system solving.
+

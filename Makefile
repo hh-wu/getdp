@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.66 2001-09-06 09:02:32 geuzaine Exp $
+# $Id: Makefile,v 1.67 2001-09-06 09:23:27 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -336,8 +336,8 @@ distrib-win:
 	rm -f ../getdp-distrib/*/*.cut
 	rm -f ../getdp-distrib/*/*~
 	cd utils && unix2dos ../../getdp-distrib/demos/*
-	cd ../getdp-distrib && zip -r getdp-$(GMSH_RELEASE)-Windows.zip *
-	mv ../getdp-distrib/getdp-$(GMSH_RELEASE)-Windows.zip .
+	cd ../getdp-distrib && zip -r getdp-$(GETDP_RELEASE)-Windows.zip *
+	mv ../getdp-distrib/getdp-$(GETDP_RELEASE)-Windows.zip .
 	rm -rf ../getdp-distrib/*.txt
 	rm -rf ../getdp-distrib/demos
 
