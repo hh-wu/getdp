@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.7 2002-05-03 01:26:29 geuzaine Exp $
+// $Id: Patch.cpp,v 1.8 2002-05-04 01:42:46 geuzaine Exp $
 
 #include "Main.h"
 #include "Utils.h"
@@ -87,7 +87,12 @@ Patch::Patch(PatchType _type, int _beg, int _end,
     }
     printf("%.16g\n", nodes[i]);
     */
-  
+
+    /*
+    double q=5.;
+    nodes[i] = 2*atan(q*tan(nodes[i]/2.)) ;
+    */
+
   }
 
   if(type == SPLINE)

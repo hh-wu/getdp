@@ -1,4 +1,4 @@
-// $Id: Newton.cpp,v 1.3 2002-05-02 22:44:18 geuzaine Exp $
+// $Id: Newton.cpp,v 1.4 2002-05-04 01:42:46 geuzaine Exp $
 
 #include <math.h>
 
@@ -40,10 +40,13 @@ fmin (double x[])
         free_ivector(indx,1,n);return;}
 
 void
-newt (double x[], int n, int *check, void (*vecfunc) (int, double[], double[]))
+newt (double x[], int n, int *check, 
+      void (*vecfunc) (int, double[], double[]),
+      void (*vecjac) (int n, double[], double[], double **,
+		      void (*vecfunc) (int, double[], double[])))
 {
-  void fdjac (int n, double x[], double fvec[], double **df,
-	      void (*vecfunc) (int, double[], double[]));
+  //void fdjac (int n, double x[], double fvec[], double **df,
+  //	      void (*vecfunc) (int, double[], double[]));
   double fmin (double x[]);
   void lnsrch (int n, double xold[], double fold, double g[], double p[],
 	       double x[], double *f, double stpmax, int *check,
@@ -72,7 +75,8 @@ newt (double x[], int n, int *check, void (*vecfunc) (int, double[], double[]))
     sum += SQR (x[i]);
   stpmax = STPMX * MAX (sqrt (sum), (double) n);
   for (its = 1; its <= MAXITS; its++) {
-    fdjac (n, x, fvec, fjac, vecfunc);
+    //fdjac (n, x, fvec, fjac, vecfunc);
+    vecjac (n, x, fvec, fjac, vecfunc);
     for (i = 1; i <= n; i++) {
       for (sum = 0.0, j = 1; j <= n; j++)
 	sum += fjac[j][i] * fvec[j];

@@ -16,7 +16,10 @@ public:
 
   void x(double theta, double *x); // x=x(theta), y=y(theta)
   void dx(double theta, double *dx); // dx=d x/d theta, dy=d y/d theta
-  void polar(double theta, double *r, double *dr); // r=sqrt(x^2+y^2), dr=d r/d theta
+  void ddx(double theta, double *ddx); // ddx=d^2 x/d theta^2, dy=d^2 y/d theta^2
+
+  // r=sqrt(x^2+y^2), dr=d r/d theta, ddr=d^2 r/d theta^2
+  void polar(double theta, double *r, double *dr, double *ddr); 
 
   void singularPoint(double t, List_T *pts);
   void criticalPoints(int index, List_T *pts);

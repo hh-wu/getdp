@@ -1,4 +1,4 @@
-// $Id: Function.cpp,v 1.9 2002-05-03 01:26:29 geuzaine Exp $
+// $Id: Function.cpp,v 1.10 2002-05-04 01:42:46 geuzaine Exp $
 
 #include "Utils.h"
 #include "Function.h"
@@ -37,6 +37,7 @@ Complex Function::ansatz(double k[3], double xt[3], double xtau[3]){
 
   case INTERPOLATED : // iterative solver
     kr = k[0]*(xtau[0]-xt[0]) + k[1]*(xtau[1]-xt[1]) + k[2]*(xtau[2]-xt[2]) ;
+    //return 1; 
     return (cos(kr)+I*sin(kr));
 
   default :
