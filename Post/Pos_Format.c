@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.16 2000-12-01 11:09:28 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.17 2000-12-13 12:00:16 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -134,10 +134,16 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
 	IsoMax = MAX(IsoMax, PE->Value[iNode].Val[0]) ;
       }
     }
+
     if((NbrIso = PSO_P->Iso) < 0)
       NbrIso = List_Nbr(PSO_P->Iso_L) ;
     if(NbrIso > NBR_MAX_ISO) 
       Msg(ERROR, "Too Many Iso Values");
+
+    if(PSO_P->Format == FORMAT_GNUPLOT)
+      fprintf(PostStream, "# NbIso = %d, Min = %g, Max = %g\n",
+	      NbrIso, IsoMin, IsoMax) ;
+
     for(iIso = 0 ; iIso < NbrIso ; iIso++)
       Iso_L[iIso] = List_Create(10, 10, sizeof(struct PostElement*)) ;
 
