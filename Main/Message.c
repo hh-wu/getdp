@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.65 2003-03-22 03:30:13 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.66 2003-03-23 18:28:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -337,11 +337,10 @@ void CheckResources(void){
 
   getrlimit(RLIMIT_STACK, &r);
 
-  /* Try to get at least 1Mb of stack. Running with too small a stack
-     will crash getdp in the recursive calls (mainly
-     Cal_WholeQuantity) */
+  /* Try to get at least 1 MB of stack. Running with too small a stack
+     causes getdp to crash in the recursive calls (mainly Cal_WholeQuantity) */
   if(r.rlim_cur < 1024*1024){
-    Msg(INFO, "Process stack size < 1 Mb. Fixing...");
+    Msg(INFO, "Increasing process stack size (%d kB < 1 MB)", r.rlim_cur/1024);
     r.rlim_cur = r.rlim_max;
     setrlimit(RLIMIT_STACK, &r);
   }
