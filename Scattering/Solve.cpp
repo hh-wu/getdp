@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.7 2002-03-08 18:59:28 geuzaine Exp $
+// $Id: Solve.cpp,v 1.8 2002-03-20 23:03:51 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Complex.h"
@@ -14,7 +14,7 @@ double GetTarget(int i, Ctx *ctx){
   double t;
 
   t = 2*PI*i/(double)nb + start;
-  
+  //ctx->f.chgvar(t,&t);
   return t;
 }
 
@@ -54,7 +54,7 @@ void PostProcess(Ctx *ctx, gVector *x){
   
   for(i=0 ; i<100 ; i++){
     t = 2*PI*i/100.;
-    //ctx->f.chgvar(t,&t,&jac);
+    //ctx->f.chgvar(t,&t);
     res = ctx->f.bf(t);
     if(!RankCpu) fprintf(stdout, "%g %g %g\n", t, res.real(), res.imag());
   }

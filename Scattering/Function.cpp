@@ -1,4 +1,4 @@
-// $Id: Function.cpp,v 1.4 2002-03-08 18:59:28 geuzaine Exp $
+// $Id: Function.cpp,v 1.5 2002-03-20 23:06:38 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Data_Numeric.h"
@@ -31,8 +31,16 @@ double Function::chgvar(double u, double *t){
   switch(ChgOfVar){
 
   case 1 : // test
-    *t = PI*cos(u/2);
-    jac = -PI*sin(u/2);
+    if(u>=-PI && u<PI){
+      *t = PI*cos((u-PI)/2.);
+      jac = -PI*sin((u-PI)/2.)/2.;
+      if(*t < a) *t += 2*PI;
+    }
+    else{
+      *t = PI*cos((u+PI)/2.) + 2.*PI;
+      jac = -PI*sin((u+PI)/2.)/2.;
+      if(*t > b) *t -= 2*PI;
+    }
     break;
 
   case 11 : // based on leonid's [-1,1]->[-1,1] mapping
@@ -102,6 +110,7 @@ Complex Function::bf(double tau){
     // comparision with Alain/Oscar
 
     return cos(tau);
+    //return 1.;
     
   case Single : 
     // build matrix, global Fourier basis functions (NumBF=-N/2,...,N/2)

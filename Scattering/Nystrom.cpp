@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.24 2002-03-08 18:59:28 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.25 2002-03-20 23:07:42 geuzaine Exp $
 
 #include "GetDP.h"
 #include "Complex.h"
@@ -79,7 +79,8 @@ public:
     return -2./(I*TWO_PI) * Bessel_j(0,kr) * d;
   }
   Complex M2(double tau_orig, double jac){
-    if(fabs(t-tau)>EPSILON){
+    if(fabs(tau_orig-PI)>EPSILON){
+    //if(fabs(t-tau)>EPSILON){
       //return M()-M1()*log(4.*SQU(sin((t-tau)/2.)));
       return M()-M1()*log(4.*SQU(sin((tau_orig-PI)/2.)));
     }
@@ -98,6 +99,7 @@ public:
 double SpecialQuadratureWeightForLog(double t, double tau, int n){
   int m;
   double w=0., tmp;
+  // we should store these weights (is hash on n and tau enough?)
   for(m=1 ; m<=n-1 ; m++){
     w += cos(m*(t-tau))/m;
   }
@@ -168,7 +170,7 @@ Complex Nystrom(int singular, double t, Function *func, double kvec[3],
     if(pou){
       scat->Val(tau,xtau);
       scat->Der(tau,dxtau);
-      f = func->val(kvec,tau,xtau) * func->bf(tau_p);
+      f = func->val(kvec,tau,xtau) * func->bf(tau_p); //tau
       kern.init(t,xt,dxt,tau,xtau,dxtau,k);
       if(singular){ // combine special quadrature with trapezoidal
 	w = SpecialQuadratureWeightForLog(PI,tau_pp,n);
