@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.9 2001-03-27 18:23:59 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.10 2001-03-27 19:00:58 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -1624,6 +1624,11 @@ JacobianCaseTerm :
 	Get_Define1NbrForString(Jacobian_Type, $2, &FlagError,
 				&JacobianCase_S.NbrParameters) ;
       if (!FlagError) {
+	if (JacobianCase_S.NbrParameters == -2 && (List_Nbr(ListOfDouble_L))%2 != 0)
+	  vyyerror("Wrong number of parameters for Jacobian '%s' (%d is not even)",
+		   $2, List_Nbr(ListOfDouble_L)) ;
+	if (JacobianCase_S.NbrParameters < 0)
+	  JacobianCase_S.NbrParameters = List_Nbr(ListOfDouble_L);
 	if (List_Nbr(ListOfDouble_L) == JacobianCase_S.NbrParameters) {
 	  if (JacobianCase_S.NbrParameters) {
 	    JacobianCase_S.Para =
@@ -1632,10 +1637,9 @@ JacobianCaseTerm :
 	      List_Read(ListOfDouble_L, i, &JacobianCase_S.Para[i]) ;
 	  }
 	}
-	else {
+	else
 	  vyyerror("Wrong number of parameters for Jacobian '%s' (%d instead of %d)", 
 		   $2, List_Nbr(ListOfDouble_L), JacobianCase_S.NbrParameters) ;
-	}
       }
       else  vyyerror("Unknown type of Jacobian: %s %s", 
 		     $2, Get_Valid_SXD1N(Jacobian_Type)) ;
@@ -2081,8 +2085,7 @@ ConstraintCaseTerm :
 
   | tRegionRef GroupRHS tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK ||
-	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
+      if (ConstraintPerRegion_S.Type == CST_LINK) {
 	ConstraintPerRegion_S.Case.Link.RegionRefIndex =
 	  Num_Group(&Group_S, "CO_RegionRef", $2) ;
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex = -1 ;
@@ -2098,30 +2101,26 @@ ConstraintCaseTerm :
     }
   | tSubRegionRef GroupRHS tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK ||
-	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
+      if (ConstraintPerRegion_S.Type == CST_LINK)
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex =
 	  Num_Group(&Group_S, "CO_RegionRef", $2) ;
       else  vyyerror("SubRegionRef incompatible with Type") ;
     }
   | tFunction Expression tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK ||
-	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
+      if (ConstraintPerRegion_S.Type == CST_LINK)
 	ConstraintPerRegion_S.Case.Link.FunctionIndex = $2 ;
       else  vyyerror("Function incompatible with Type") ;
     }
   | tCoefficient Expression tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK ||
-	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
+      if (ConstraintPerRegion_S.Type == CST_LINK)
 	ConstraintPerRegion_S.Case.Link.CoefIndex = $2 ;
       else  vyyerror("Coefficient incompatible with Type") ;
     }
   | tFilter Expression tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK ||
-	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
+      if (ConstraintPerRegion_S.Type == CST_LINK) {
 	ConstraintPerRegion_S.Case.Link.FilterIndex  = $2 ;
 	ConstraintPerRegion_S.Case.Link.FilterIndex2 = -1 ;
       }
@@ -2129,8 +2128,7 @@ ConstraintCaseTerm :
     }
   | tFunction '[' Expression ',' Expression ']' tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK ||
-	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
+      if (ConstraintPerRegion_S.Type == CST_LINK) {
 	ConstraintPerRegion_S.Case.Link.FunctionIndex  = $3 ;
 	ConstraintPerRegion_S.Case.Link.FunctionIndex2 = $5 ;
       }
@@ -2138,8 +2136,7 @@ ConstraintCaseTerm :
     }
   | tCoefficient '[' Expression ',' Expression ']' tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK ||
-	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
+      if (ConstraintPerRegion_S.Type == CST_LINK) {
 	ConstraintPerRegion_S.Case.Link.CoefIndex  = $3 ;
 	ConstraintPerRegion_S.Case.Link.CoefIndex2 = $5 ;
       }
@@ -2147,8 +2144,7 @@ ConstraintCaseTerm :
     }
   | tFilter '[' Expression ',' Expression ']' tEND
     {
-      if (ConstraintPerRegion_S.Type == CST_LINK ||
-	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
+      if (ConstraintPerRegion_S.Type == CST_LINK) {
 	ConstraintPerRegion_S.Case.Link.FilterIndex  = $3 ;
 	ConstraintPerRegion_S.Case.Link.FilterIndex2 = $5 ;
       }

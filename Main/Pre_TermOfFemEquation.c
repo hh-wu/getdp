@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pre_TermOfFemEquation.c,v 1.8 2001-03-27 18:23:59 geuzaine Exp $"
+#define RCSID "$Id: Pre_TermOfFemEquation.c,v 1.9 2001-03-27 18:58:36 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -94,11 +94,10 @@ void  Pre_TermOfFemEquation(struct Element          * Element,
 	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar);
 	break;
       case CST_LINK:
-      case CST_LINKCPLX:
 	Dof_DefineLinkDof
 	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar,
-	   QuantityStorageEqu_P->BasisFunction[i].Value,
+	   QuantityStorageEqu_P->BasisFunction[i].Coef,
 	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity_Link) ;
 	break;
       }
@@ -137,11 +136,10 @@ void  Pre_TermOfFemEquation(struct Element          * Element,
 	   QuantityStorageDof_P->BasisFunction[i].CodeEntity, Current.NbrHar);
 	break;
       case CST_LINK:
-      case CST_LINKCPLX:
 	Dof_DefineLinkDof
 	  (QuantityStorageDof_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageDof_P->BasisFunction[i].CodeEntity, Current.NbrHar,
-	   QuantityStorageDof_P->BasisFunction[i].Value,
+	   QuantityStorageDof_P->BasisFunction[i].Coef,
 	   QuantityStorageDof_P->BasisFunction[i].CodeEntity_Link) ;
 	break;
       }
@@ -232,11 +230,10 @@ void  Pre_GlobalTermOfFemEquation(int  Num_Region,
 	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar);
       break;
     case CST_LINK:
-    case CST_LINKCPLX:
       Dof_DefineLinkDof
 	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
 	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
-	 QuantityStorageEqu_P->BasisFunction[0].Value,
+	 QuantityStorageEqu_P->BasisFunction[0].Coef,
 	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity_Link) ;
       break;
     }
@@ -279,11 +276,10 @@ void  Pre_GlobalTermOfFemEquation(int  Num_Region,
 	   QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar);
 	break;
       case CST_LINK:
-      case CST_LINKCPLX:
 	Dof_DefineLinkDof
 	  (QuantityStorageDof_P->BasisFunction[0].CodeBasisFunction,
 	   QuantityStorageDof_P->BasisFunction[0].CodeEntity, Current.NbrHar,
-	   QuantityStorageDof_P->BasisFunction[0].Value,
+	   QuantityStorageDof_P->BasisFunction[0].Coef,
 	   QuantityStorageDof_P->BasisFunction[0].CodeEntity_Link) ;
 	break;
       }
@@ -456,11 +452,10 @@ void  Pre_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
 	 QuaSto_S.BasisFunction[0].CodeEntity, Current.NbrHar);
       break;
     case CST_LINK:
-    case CST_LINKCPLX:
       Dof_DefineLinkDof
 	(QuaSto_S.BasisFunction[0].CodeBasisFunction,
 	 QuaSto_S.BasisFunction[0].CodeEntity, Current.NbrHar,
-	 QuaSto_S.BasisFunction[0].Value,
+	 QuaSto_S.BasisFunction[0].Coef,
 	 QuaSto_S.BasisFunction[0].CodeEntity_Link) ;
       break;
     }
@@ -468,3 +463,5 @@ void  Pre_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
 
   GetDP_End ;
 }
+
+

@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.30 2001-03-27 18:23:59 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.31 2001-03-27 18:58:36 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -159,7 +159,6 @@ struct MultiConstraintPerRegion {
 #define INITFROMRESOLUTION    4
 #define NETWORK               5
 #define CST_LINK              6
-#define CST_LINKCPLX          7
 
 
 /* ------------------------------------------------------------------------ */
@@ -193,19 +192,42 @@ struct JacobianCase {
 #define JACOBIAN_SUR_SPH_SHELL           30
 #define JACOBIAN_VOL_SPH_SHELL           31
 
-#define JACOBIAN_VOL_AXI_SPH_SHELL       40
+#define JACOBIAN_SUR_AXI_SPH_SHELL       40
+#define JACOBIAN_VOL_AXI_SPH_SHELL       41
 
-#define JACOBIAN_VOL_AXI_SQU_SPH_SHELL   50
+#define JACOBIAN_SUR_AXI_SQU_SPH_SHELL   50
+#define JACOBIAN_VOL_AXI_SQU_SPH_SHELL   51
 
-#define JACOBIAN_VOL_PLPD_X              60
-#define JACOBIAN_VOL_PLPD_Y              61
-#define JACOBIAN_VOL_PLPD_Z              62
-#define JACOBIAN_VOL_AXI_PLPD_X          63
-#define JACOBIAN_VOL_AXI_PLPD_Y          64
-#define JACOBIAN_VOL_AXI_PLPD_Z          65
+#define JACOBIAN_SUR_RECT_SHELL          60
+#define JACOBIAN_VOL_RECT_SHELL          61
 
-#define JACOBIAN_VOL_SPH_FINITE_SHELL    70
+#define JACOBIAN_SUR_AXI_RECT_SHELL      70
+#define JACOBIAN_VOL_AXI_RECT_SHELL      71
 
+#define JACOBIAN_SUR_AXI_SQU_RECT_SHELL  80
+#define JACOBIAN_VOL_AXI_SQU_RECT_SHELL  81
+
+#define JACOBIAN_VOL_PLPD_X              90
+
+#define JACOBIAN_VOL_AXI_PLPD_X          100
+
+
+/* type of transformation */
+#define JACOBIAN_SPH                     0
+#define JACOBIAN_RECT                    1
+
+/* All the preceding definitions should be changed to something like:
+#define JACOBIAN_POINT    (1<<0)
+#define JACOBIAN_LINE     (1<<1)
+#define JACOBIAN_SURFACE  (1<<2)
+#define JACOBIAN_VOLUME   (1<<3)
+#define JACOBIAN_AXI      (1<<4)
+#define JACOBIAN_SQUARED  (1<<5)
+#define JACOBIAN_SPHERE   (1<<6)
+#define JACOBIAN_RECT     (1<<7)
+and the calls should be made with  JACOBIAN_VOLUME | JACOBIAN_AXI, etc.
+But I have to change the de Rham stuff first.
+*/
 
 /* ------------------------------------------------------------------------ */
 /*  I n t e g r a t i o n   M e t h o d                                     */

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.10 2001-03-27 18:23:59 geuzaine Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.11 2001-03-27 18:58:36 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -50,7 +50,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	
     case ASSIGN :                case INIT :
     case ASSIGNFROMRESOLUTION :  case INITFROMRESOLUTION :
-    case CST_LINK : case CST_LINKCPLX :
+    case CST_LINK :
 	
       switch(Constraint_P->QuantityType) {
 
@@ -88,14 +88,13 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		 TimeFunctionIndex) ;
 	    }
-	    else if (ConstraintPerRegion_P->Type == CST_LINK ||
-		     ConstraintPerRegion_P->Type == CST_LINKCPLX) {
+	    else if (ConstraintPerRegion_P->Type == CST_LINK) {
 	      Get_LinkForConstraint
 		(Constraint_P,
 		 abs(Num_Entity[i_Entity]),
 		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		 CodeEntity_Link,
-		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value) ;
+		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Coef) ;
 	      if (abs(Num_Entity[i_Entity]) ==
 		  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		  CodeEntity_Link)
@@ -138,8 +137,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		 TimeFunctionIndex) ;
 	    }
-	    else if (ConstraintPerRegion_P->Type == CST_LINK ||
-		     ConstraintPerRegion_P->Type == CST_LINKCPLX) {
+	    else if (ConstraintPerRegion_P->Type == CST_LINK) {
 	      Msg(ERROR, "CST_LINK for GlobalQuantity not done yet") ;
 	    }
 	    else {
@@ -334,12 +332,12 @@ void  Get_PreResolutionForConstraint(struct ConstraintInFS * Constraint_P,
 /*  G e t _ L i n k F o r C o n s t r a i n t   &   C o                     */
 /* ------------------------------------------------------------------------ */
 
-struct TwoIntOneDouble { int  Int1, Int2 ; double Double, Double2 ; } ;
+struct TwoIntOneDouble { int  Int1, Int2 ; double Double ; } ;
 
 
 void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
 			    int Num_Entity,
-			    int * CodeEntity_Link, double Value[]) {
+			    int * CodeEntity_Link, double * Coef) {
 
   struct TwoIntOneDouble  * TwoIntOneDouble_P ;
 
@@ -356,13 +354,8 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
   if (!TwoIntOneDouble_P)  Msg(ERROR, "Constraint Link: bad definition") ;
 
   *CodeEntity_Link = abs(TwoIntOneDouble_P->Int2) ;
-  Value[0] = TwoIntOneDouble_P->Double ;
-  if (TwoIntOneDouble_P->Int1 < 0)  Value[0] *= -1. ;
-
-  if (Current.NbrHar == 2) { /* LinkCplx */
-    Value[MAX_DIM] = TwoIntOneDouble_P->Double2 ;
-    if (TwoIntOneDouble_P->Int1 < 0)  Value[MAX_DIM] *= -1. ;
-  }
+  *Coef = TwoIntOneDouble_P->Double ;
+  if (TwoIntOneDouble_P->Int1 < 0)  *Coef *= -1. ;
 
   GetDP_End ;
 }
@@ -371,7 +364,7 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
 /* Data... */
 
 struct NodeXYZ { int NumNode ; double x, y, z ; } ;
-struct EdgeNN { int NumEdge ; int Node1, Node2 ; double Coef, Coef2 ; } ;
+struct EdgeNN { int NumEdge ; int Node1, Node2 ; double Coef ; } ;
 void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * ExtendedList_L, List_T * ExtendedSuppList_L,
 			 struct Group * RegionRef_P, struct Group * SubRegionRef_P,
@@ -591,11 +584,6 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     Get_ValueOfExpressionByIndex(Index_Coef, NULL, 0., 0., 0., &Value) ;
     TwoIntOneDouble.Double = Value.Val[0] ;
 
-    if (Current.NbrHar == 2) /* LinkCplx */
-      TwoIntOneDouble.Double2 = Value.Val[MAX_DIM] ;
-    else
-      TwoIntOneDouble.Double2 = 0. ;
-
     List_Add(Couples_L, &TwoIntOneDouble) ;
 
     Msg(BIGINFO, "%d %d", NodeXYZ.NumNode, NodeXYZRef.NumNode) ;
@@ -743,7 +731,6 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 	Msg(ERROR, "Constraint Link: Bad Coefficient for Edges") ;
 
       EdgeNN.Coef = TwoIntOneDouble_P->Double ;
-      EdgeNN.Coef2 = TwoIntOneDouble_P->Double2 ; /* LinkCplx */
 
       if (EdgeNN.Node2 < EdgeNN.Node1) {
 	Save_Num = EdgeNN.Node2 ;
@@ -818,7 +805,6 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     TwoIntOneDouble.Int1 = EdgeNN.NumEdge ;
     TwoIntOneDouble.Int2 = EdgeNNRef.NumEdge ;
     TwoIntOneDouble.Double = EdgeNN.Coef ;
-    TwoIntOneDouble.Double2 = EdgeNN.Coef2 ; /* LinkCplx */
 
     List_Add(Couples_L, &TwoIntOneDouble) ;
   }
