@@ -1,4 +1,4 @@
-/* $Id: Get_DofOfElement.c,v 1.11 2000-10-20 07:42:07 dular Exp $ */
+/* $Id: Get_DofOfElement.c,v 1.12 2000-10-27 14:56:25 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -365,7 +365,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
     case _CAL :  
     case _POS :
       if(!FunctionSpace_P->DofData)
-	Msg(ERROR, "Null DofData in FunctionSpace '%s'. No Unknowns?",
+	Msg(ERROR, "Empty DofData in FunctionSpace '%s' (No Unknowns?)",
 	    FunctionSpace_P->Name);
 
       CodeExist =
@@ -464,6 +464,10 @@ void  Get_DofOfRegion(int  Num_Region,
 
     switch (TreatmentStatus) {
     case _CAL :  case _POS :
+      if(!FunctionSpace_P->DofData)
+	Msg(ERROR, "Empty DofData in FunctionSpace '%s' (No Unknowns?)",
+	    FunctionSpace_P->Name);
+
       CodeExist =
 	((Dof_P = Dof_GetDofStruct(FunctionSpace_P->DofData,
 				   Num_BasisFunction, Num_Region, 0)) != NULL) ;
