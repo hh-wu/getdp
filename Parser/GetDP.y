@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.30 2001-10-25 07:06:36 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.31 2001-11-22 13:59:20 dular Exp $ */
 
 /*
   Modifs a faire
@@ -263,7 +263,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token      tOriginSystem  tDestinationSystem 
 %token    tOperation  tOperationEnd
 %token      tSetTime tDTime tSetFrequency tFourierTransform tIf tElse
-%token      tLanczos tUpdate tUpdateConstraint tBreak 
+%token      tLanczos tPerturbation tUpdate tUpdateConstraint tBreak 
 %token      tTimeLoopTheta
 %token        tTime0  tTimeMax  tDTime  tTheta
 %token      tTimeLoopNewmark
@@ -4367,6 +4367,39 @@ OperationTerm :
       }
       List_Delete($7);
       Operation_P->Case.Lanczos.Shift = $9 ;
+    }
+
+  | tPerturbation '[' tSTRING ',' tSTRING ',' tSTRING ','
+    FExpr ',' ListOfFExpr ',' FExpr ',' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_PERTURBATION ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $5,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $5) ;
+      Free($5) ;
+      Operation_P->Case.Perturbation.DefineSystemIndex2 = i ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $7,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $7) ;
+      Free($7) ;
+      Operation_P->Case.Perturbation.DefineSystemIndex3 = i ;
+      Operation_P->Case.Perturbation.Size = (int)$9 ;
+      Operation_P->Case.Perturbation.Save = 
+	List_Create(List_Nbr($11), 1, sizeof(int)) ;
+      for (i = 0 ; i < List_Nbr($11) ; i++) {
+	List_Read($11, i, &Value) ;
+	j = (int)Value ;
+	List_Add(Operation_P->Case.Perturbation.Save, &j) ;
+      }
+      List_Delete($11);
+      Operation_P->Case.Perturbation.Shift = $13 ;
+      Operation_P->Case.Perturbation.PertFreq = (int)$15 ;
     }
 
 

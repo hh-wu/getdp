@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.43 2001-11-19 17:48:36 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.44 2001-11-22 13:59:20 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -695,6 +695,13 @@ struct Operation {
       double  Shift ; 
     } Lanczos ;
     struct {
+      int     Size ; 
+      List_T  * Save ;
+      double  Shift ;
+      int     PertFreq ;
+      int  DefineSystemIndex2, DefineSystemIndex3 ;
+    } Perturbation ;
+    struct {
       double  Time0, TimeMax ;
       int     DTimeIndex, ThetaIndex ;
       List_T  * Operation ;
@@ -754,6 +761,7 @@ struct ChangeOfState {
 #define OPERATION_UPDATE                    6
 #define OPERATION_UPDATECONSTRAINT          7
 #define OPERATION_LANCZOS                   8
+#define OPERATION_PERTURBATION              9
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11

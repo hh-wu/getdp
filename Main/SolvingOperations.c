@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.37 2001-10-24 16:00:48 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.38 2001-11-22 13:59:20 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -258,6 +258,25 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       Lanczos(DofData_P, Operation_P->Case.Lanczos.Size, 
 	      Operation_P->Case.Lanczos.Save, Operation_P->Case.Lanczos.Shift) ;
+      Flag_CPU = 1 ;
+      break ;
+
+      /*  -->  Perturbation                           */
+      /*  ------------------------------------------  */
+
+    case OPERATION_PERTURBATION :
+      Init_OperationOnSystem("Perturbation",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+      /*
+      Perturbation(DofData_P,
+		   DofData_P0+Operation_P->Case.Perturbation.DefineSystemIndex2,
+		   DofData_P0+Operation_P->Case.Perturbation.DefineSystemIndex3,
+		   Operation_P->Case.Perturbation.Size, 
+	           Operation_P->Case.Perturbation.Save,
+		   Operation_P->Case.Perturbation.Shift,
+		   Operation_P->Case.Perturbation.PertFreq) ;
+      */
       Flag_CPU = 1 ;
       break ;
 

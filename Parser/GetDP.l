@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.10 2001-10-25 07:06:36 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.11 2001-11-22 13:59:20 dular Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -206,6 +206,7 @@ Update                       return tUpdate ;
 UpdateConstraint             return tUpdateConstraint ;
 FourierTransform             return tFourierTransform ;
 Lanczos                      return tLanczos ;
+Perturbation                 return tPerturbation ;
 If                           return tIf ;
 Else                         return tElse ;
 Test                         return tIf ;
