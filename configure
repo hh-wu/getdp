@@ -3799,6 +3799,9 @@ fi
 case "${UNAME}" in
   MINGW*)
         ;;
+  Darwin*)
+        GETDP_LIBS="${GETDP_LIBS} -lcc_dynamic -lm"
+    ;;
   *)
     GETDP_LIBS="${GETDP_LIBS} -lm"
     ;;
