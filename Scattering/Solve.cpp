@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.30 2002-06-14 00:11:15 geuzaine Exp $
+// $Id: Solve.cpp,v 1.31 2002-06-15 17:39:47 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -211,7 +211,8 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   LinAlg_GetMatrixContext(A,(void **)(&ctx));
 
   // unscale
-  //p->localVals[j] *= p->jacs[j];
+  //Patch *p = (Patch*)List_Pointer(ctx->scat.patches,0);
+  //for(i=0; i<p->nbdof; i++) p->localVals[i] /= p->jacs[i];
 
   ctx->initializeInterpolation(x);
 
@@ -227,7 +228,7 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   }
 
   // scale
-  //p->localVals[j] *= p->jacs[j];
+  //for(i=0; i<p->nbdof; i++) p->localVals[i] *= p->jacs[i];
 
 
   //if(ctx->iterNum == 18)
@@ -274,7 +275,7 @@ void Ctx::postProcess(){
   FILE *fp;
   Complex vi, vs;
   double k = NORM3(waveNum);
-  double coord[3];
+  double coord[3], angle;
 
   if(scat.dim() != 2) Msg(ERROR, "Postpro not ready for 3D");
 
@@ -286,17 +287,30 @@ void Ctx::postProcess(){
   initializeInterpolation(&x);
 
   // compute far field
-  
+  /*  
   coord[0] = 1;
   coord[1] = 0;
   coord[2] = 0;
   vs = (-2./I) /2. * Evaluate2D(this, 1, coord); //????? /2
   printf("farfield = %.15g + i* %.15g \n", vs.real(), vs.imag());
   return;
-  
+  */
 
-  double xmin = -2*PI, xmax = 2*PI, ymin = -2*PI, ymax = 2*PI;
-  //double xmin = -2., xmax = 2., ymin = 0., ymax = 2.;
+  // far field polar plot
+  
+  for(angle=0.; angle<TWO_PI; angle+=TWO_PI/1000.){
+    coord[0] = cos(angle);
+    coord[1] = sin(angle);
+    coord[2] = 0;
+    vs = (-2./I) /2. * Evaluate2D(this, 1, coord); //????? /2
+    printf("%g %.15g %.15g \n", angle, vs.real(), vs.imag());
+  }
+  return;
+
+
+  double xmin = -PI, xmax = PI, ymin = -PI, ymax = PI;
+  //double xmin = -2*PI, xmax = 2*PI, ymin = -2*PI, ymax = 2*PI;
+  //double xmin = -0.5, xmax = 0., ymin = 0., ymax = .5;
 
   int nbx = (int)((xmax-xmin)/TWO_PI*10*k);
   int nby = (int)((ymax-ymin)/TWO_PI*10*k);

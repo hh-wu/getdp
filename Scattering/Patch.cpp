@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.19 2002-06-14 00:11:15 geuzaine Exp $
+// $Id: Patch.cpp,v 1.20 2002-06-15 17:39:47 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -68,7 +68,7 @@ Patch::Patch(PatchType _type, int _beg, int _end,
   part = new Partition();
   part->init(center,eps,rise);
 
-#if 0
+#if 1
   // mesh that does *not* comprise the origin
   double h = 2.*eps/(double)(nbdof);
   for(i=0; i<nbdof; i++){

@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.9 2002-06-14 03:16:20 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.10 2002-06-15 17:39:47 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -547,6 +547,14 @@ Complex Integrate2D(Ctx *ctx, int index, double t){
 }
 
 // Post-process solution
+
+Complex Evaluate2DOnMesh(Ctx *ctx, int farfield, double x[3]){
+
+}
+
+Complex Evaluate2DInterpolate(Ctx *ctx, int farfield, double x[3]){
+
+}
 
 Complex Evaluate2D(Ctx *ctx, int farfield, double x[3]){
   int j, n;
