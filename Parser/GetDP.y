@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.1 2000-12-11 15:51:38 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.2 2001-02-02 15:47:28 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -22,7 +22,7 @@
 #include <math.h>
 
 /* bison est mal foutu */
-#if !defined __cplusplus && !defined MSDOS && !defined _AIX
+#if !defined __cplusplus && !defined MSDOS && !defined _AIX && !defined __CYGWIN__
 #include <alloca.h> 
 #endif
 

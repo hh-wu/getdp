@@ -194,7 +194,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.2 2000-12-26 20:49:20 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.3 2001-02-02 15:47:28 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -217,7 +217,7 @@
 #include <math.h>
 
 /* bison est mal foutu */
-#if !defined __cplusplus && !defined MSDOS && !defined _AIX
+#if !defined __cplusplus && !defined MSDOS && !defined _AIX && !defined __CYGWIN__
 #include <alloca.h> 
 #endif
 

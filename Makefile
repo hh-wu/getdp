@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.37 2001-02-02 15:32:39 geuzaine Exp $
+# $Id: Makefile,v 1.38 2001-02-02 15:51:00 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -417,8 +417,8 @@ cygwin: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp
+	g77 -o $(GETDP_BIN_DIR)/getdp.exe $(GETDP_SPARSKIT_LIBS) -lm
+	$(STRIP) $(GETDP_BIN_DIR)/getdp.exe
 
 mingw: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
