@@ -1,4 +1,4 @@
-/* $Id: Cal_Value.c,v 1.6 2000-10-03 13:56:05 geuzaine Exp $ */
+/* $Id: Cal_Value.c,v 1.7 2000-10-03 15:51:28 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
@@ -584,7 +584,7 @@ void  Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * R) 
   
   
   else if ( (V1->Type == TENSOR_DIAG && V2->Type == VECTOR) ||
-	    (V2->Type == TENSOR_DIAG && V1->Type == VECTOR) ) {
+	    (V2->Type == TENSOR_DIAG && V1->Type == VECTOR) ) { /* WARNING WARNING! */
     if (Current.NbrHar == 1) {
       R->Val[0] = V1->Val[0]*V2->Val[0];      
       R->Val[1] = V1->Val[1]*V2->Val[1];      
