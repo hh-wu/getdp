@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2000-09-09 07:29:41 geuzaine Exp $
+# $Id: Makefile,v 1.7 2000-10-15 14:02:48 geuzaine Exp $
 #
 # Makefile for 'libPost.a'
 # 
@@ -22,6 +22,7 @@ SRC = Pos_FemInterpolation.c \
         Pos_Print.c \
         Pos_Element.c \
         Pos_Fill.c \
+        Pos_Iso.c \
         Pos_Search.c \
       Pos_Interactive.c \
         Pos_ReadLine.c

@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.h,v 1.4 2000-09-28 22:16:35 geuzaine Exp $ */
+/* $Id: Pos_Formulation.h,v 1.5 2000-10-15 14:02:48 geuzaine Exp $ */
 #ifndef _POS_FORMULATION_H_
 #define _POS_FORMULATION_H_
 
@@ -90,5 +90,7 @@ void  Print_PostValue(int Format, struct Value * Value, int NbHarmonic, double T
 		      int Flag_PrintTime, int Flag_NewLine) ;
 
 
+void Cal_Iso(struct PostElement *PE, List_T *list, 
+	     double val, double vmin, double vmax) ;
 
 #endif

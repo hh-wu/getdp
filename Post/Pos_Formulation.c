@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.c,v 1.15 2000-10-02 14:08:05 geuzaine Exp $ */
+/* $Id: Pos_Formulation.c,v 1.16 2000-10-15 14:02:48 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -19,6 +19,7 @@
 #include "Data_Numeric.h"
 #include "ualloc.h"
 #include "outil.h"
+#include "Magic.h"
 
 extern int  InteractiveInterrupt ;
 
@@ -389,6 +390,69 @@ void Destroy_PostElement(struct PostElement * PostElement){
   Free(PostElement) ;
 }
 
+
+void Sort_PostElementByConnectivity(List_T *PostElement_L){
+  int ii, jj, start, end, iPost, NbrPost ;
+  struct PostElement *PE, *PE2 ;
+
+  NbrPost = List_Nbr(PostElement_L) ;
+
+  /* 
+     u[0] = 1 if the element is in the ordered list, with natural orientation
+           -1 if the element is in the ordered list, but with opposite orientation 
+            0 if the element is not in the list
+     v[0] = relative index (to the first element) in the ordered list
+  */
+
+  for(ii = 0 ; ii < NbrPost ; ii++){
+    PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
+    if(PE->NbrNodes != 2)
+      Msg(ERROR, "Connectivity Sorting Impossible for %d-Noded Elements",
+	  PE->NbrNodes) ;
+    PE->u[0] = 0. ;
+  }
+
+  PE = *(struct PostElement**)List_Pointer(PostElement_L, 0);
+  PE->u[0] = 1. ; PE->v[0] = 0. ;
+
+  iPost = 1 ;
+  while(iPost < NbrPost){
+    for(ii = 0 ; ii < NbrPost ; ii++){
+      PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
+      if(PE->u[0]){
+	if(PE->u[0] > 0){
+	  start = 0 ; end = 1 ;
+	}
+	else{
+	  start = 1 ; end = 0 ;
+	}
+	for(jj = 0 ; jj < NbrPost ; jj++){
+	  if(jj != ii){
+	    PE2 = *(struct PostElement**)List_Pointer(PostElement_L, jj);
+	    if(!PE2->u[0]){
+	      if(Compare_PostElementNode(PE, end, PE2, 0)){
+		PE2->u[0] = 1. ; PE2->v[0] = PE->v[0] + 1. ; iPost++ ;
+	      }
+	      else if (Compare_PostElementNode(PE, start, PE2, 0)){
+		PE2->u[0] = -1. ; PE2->v[0] = PE->v[0] - 1.  ; iPost++ ;
+	      }
+	      else if (Compare_PostElementNode(PE, start, PE2, 1)){
+		PE2->u[0] = 1. ; PE2->v[0] = PE->v[0] - 1. ; iPost++ ;
+	      }
+	      else if (Compare_PostElementNode(PE, end, PE2, 1)){
+		PE2->u[0] = -1. ; PE2->v[0] = PE->v[0] + 1. ; iPost++ ;
+	      }
+	    }
+	  }
+	}
+      }
+    }
+    List_Sort(PostElement_L, fcmp_PostElement_absu0) ;
+  }
+  List_Sort(PostElement_L, fcmp_PostElement_v0) ;
+
+}
+
 List_T * SkinPostElement_L ;
 int      SkinDepth ;
 
@@ -401,6 +465,8 @@ void Cut_SkinPostElement(void *a, void *b){
 		     PE->Index, SkinDepth, 0, 1) ;
 }
 
+#define NBR_MAX_ISO  200
+
 void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 		       struct PostQuantity     *CPQ_P,
 		       int                      Order,
@@ -410,6 +476,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   
   Tree_T  * PostElement_T, * NodexPostElement_T ;
   List_T  * PostElement_L, * PostElement2_L, * Region_L, * Tmp_L ;
+  List_T  * Iso_L[NBR_MAX_ISO] ;
 
   struct Element        Element ;
   struct PostElement  * PE, * PE2 ;
@@ -417,10 +484,11 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   struct IntxList       NxPE, * NxPE_P ;
 
   double  * Error, Dummy[5], d ;
+  double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0 ;
   int       ii, jj, kk, NbrGeo, iGeo, incGeo, NbrPost, iPost ;
   int       NbrTimeStep, iTime, NbrSmoothing, iNode ;
-  int       Store = 0, DecomposeInSimplex = 0, Depth, start, end ;
-
+  int       Store = 0, DecomposeInSimplex = 0, Depth ;
+  int       NbrIso = 0, IsoType = 0 ; 
 
   /* Select the TimeSteps */
   
@@ -472,11 +540,21 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   else
     NbrSmoothing = 0;
 
+  /* How many iso curves? */
+  if((IsoType = List_Nbr(PostSubOperation_P->Iso_L))){
+    List_Read(PostSubOperation_P->Iso_L, 0, &IsoVal) ;
+    if(IsoType == 1)
+      NbrIso = (int)IsoVal ;
+    else
+      NbrIso = IsoType ;
+    if(NbrIso > NBR_MAX_ISO) Msg(ERROR, "Too Many Iso Values");
+  }
+
   /* If we compute a skin, apply smoothing, sort the results, or
      perform adaption, we'll need to store all the PostElements */
 
   if(NbrSmoothing || PostSubOperation_P->Skin || PostSubOperation_P->Adapt ||
-     PostSubOperation_P->Sort)
+     PostSubOperation_P->Sort || NbrIso)
     Store = 1 ;
 
   /* Check if everything is OK for Adaption */
@@ -803,73 +881,34 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 
   /* Sort the elements */
 
-  switch(PostSubOperation_P->Sort){
-
-  case SORT_BY_POSITION : 
-    List_Sort(PostElement_L, fcmp_PostElement) ;
-    break ;
-
-  case SORT_BY_CONNECTIVITY :
-    /* 
-       u[0] = 1 if the element is in the ordered list, with natural orientation
-             -1 if the element is in the ordered list, but with opposite orientation 
-              0 if the element is not in the list
-       v[0] = relative index (to the first element) in the ordered list
-     */
-    for(ii = 0 ; ii < NbrPost ; ii++){
-      PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
-      if(PE->NbrNodes != 2)
-	Msg(ERROR, "Connectivity Sorting Impossible for %d-Noded Elements",
-	    PE->NbrNodes) ;
-      PE->u[0] = 0. ;
+  if(!NbrIso && !InteractiveInterrupt){
+    switch(PostSubOperation_P->Sort){
+    case SORT_BY_POSITION : List_Sort(PostElement_L, fcmp_PostElement) ; break ;
+    case SORT_BY_CONNECTIVITY : Sort_PostElementByConnectivity(PostElement_L) ; break ;
+    default : break ;
     }
-
-    PE = *(struct PostElement**)List_Pointer(PostElement_L, 0);
-    PE->u[0] = 1. ; PE->v[0] = 0. ;
-
-    iPost = 1 ;
-    while(iPost < NbrPost){
-      for(ii = 0 ; ii < NbrPost ; ii++){
-	PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
-	if(PE->u[0]){
-	  if(PE->u[0] > 0){
-	    start = 0 ; end = 1 ;
-	  }
-	  else{
-	    start = 1 ; end = 0 ;
-	  }
-	  for(jj = 0 ; jj < NbrPost ; jj++){
-	    if(jj != ii){
-	      PE2 = *(struct PostElement**)List_Pointer(PostElement_L, jj);
-	      if(!PE2->u[0]){
-		if(Compare_PostElementNode(PE, end, PE2, 0)){
-		  PE2->u[0] = 1. ; PE2->v[0] = PE->v[0] + 1. ; iPost++ ;
-		}
-		else if (Compare_PostElementNode(PE, start, PE2, 0)){
-		  PE2->u[0] = -1. ; PE2->v[0] = PE->v[0] - 1.  ; iPost++ ;
-		}
-		else if (Compare_PostElementNode(PE, start, PE2, 1)){
-		  PE2->u[0] = 1. ; PE2->v[0] = PE->v[0] - 1. ; iPost++ ;
-		}
-		else if (Compare_PostElementNode(PE, end, PE2, 1)){
-		  PE2->u[0] = -1. ; PE2->v[0] = PE->v[0] + 1. ; iPost++ ;
-		}
-	      }
-	    }
-	  }
-	}
-      }
-      List_Sort(PostElement_L, fcmp_PostElement_absu0) ;
-    }
-    List_Sort(PostElement_L, fcmp_PostElement_v0) ;
-    break ;
-  default :
-    break ;
   }
 
   /* Print everything if we are in Store mode */
 
   if(Store && !InteractiveInterrupt){
+
+    /* Initialisations for Iso Computations */
+    if(NbrIso){
+      for(ii = 0 ; ii < NbrIso ; ii++)
+	Iso_L[ii] = List_Create(10, 10, sizeof(struct PostElement*)) ;
+      if(IsoType == 1){
+	for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
+	  PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
+	  if(PE->Value[0].Type != SCALAR)
+	    Msg(ERROR, "Iso Map Impossible for non Scalar Values") ;
+	  for (ii = 0 ; ii < PE->NbrNodes ; ii++ ){
+	    IsoMin = MIN(IsoMin, PE->Value[ii].Val[0]) ;
+	    IsoMax = MAX(IsoMax, PE->Value[ii].Val[0]) ;
+	  }
+	}
+      }
+    }
 
     Dummy[0] = Dummy[1] = Dummy[2] = Dummy[3] = Dummy[4] = 0. ;
 
@@ -905,10 +944,37 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 	Dummy[2] = PE->v[0] ;
       }
 
-      Print_PostElement(PostSubOperation_P->Format, Current.Time, 0, 
-			1, Current.NbrHar, 
-			PostSubOperation_P->HarmonicToTime, Dummy, PE);
+      if(!IsoType)
+	Print_PostElement(PostSubOperation_P->Format, Current.Time, 0, 
+			  1, Current.NbrHar, 
+			  PostSubOperation_P->HarmonicToTime, Dummy, PE);
+      else if(IsoType == 1)
+	for(ii = 0 ; ii < NbrIso ; ii++)
+	  Cal_Iso(PE, Iso_L[ii], IsoMin+ii*(IsoMax-IsoMin)/(double)(NbrIso-1), 
+		  IsoMin, IsoMax) ;
+      else
+	for(ii = 0 ; ii < NbrIso ; ii++){
+	  List_Read(PostSubOperation_P->Iso_L, ii, &IsoVal) ;
+	  Cal_Iso(PE, Iso_L[ii], IsoVal, IsoMin, IsoMax) ;
+	}
+
       Destroy_PostElement(PE) ;
+    }
+  }
+
+  if(IsoType){
+    for(ii = 0 ; ii < NbrIso ; ii++){
+      if(PostSubOperation_P->Sort == SORT_BY_CONNECTIVITY)
+	Sort_PostElementByConnectivity(Iso_L[ii]) ;
+      for(iPost = 0 ; iPost < List_Nbr(Iso_L[ii]) ; iPost++){
+	PE = *(struct PostElement**)List_Pointer(Iso_L[ii], iPost) ;
+	Print_PostElement(PostSubOperation_P->Format, Current.Time, 0, 
+			  1, Current.NbrHar, 
+			  PostSubOperation_P->HarmonicToTime, Dummy, PE);
+	Destroy_PostElement(PE) ;
+      }
+      List_Delete(Iso_L[ii]) ;
+      fprintf(PostStream, "\n") ;
     }
   }
   

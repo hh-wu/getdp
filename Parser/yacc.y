@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.12 2000-10-06 15:24:54 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.13 2000-10-15 14:02:48 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -280,7 +280,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token        tWithArgument
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
-%token        tTarget tSort
+%token        tTarget tSort tIso
 
 %token  tFlag
 
@@ -5213,6 +5213,7 @@ PlotOptions :
       PostSubOperation_S.HarmonicToTime = 1 ;
       PostSubOperation_S.TimeStep_L = List_Create(10,10,sizeof(int)); ;
       PostSubOperation_S.Value_L = List_Create(10,10,sizeof(double)); ;
+      PostSubOperation_S.Iso_L = List_Create(10,10,sizeof(double)); ;
       PostSubOperation_S.Sort = 0 ;
     }
   | PlotOptions PlotOption 
@@ -5337,6 +5338,13 @@ PlotOption :
       for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
 	List_Read(ListOfDouble_L,i,&d);	
 	List_Add(PostSubOperation_S.Value_L, &d);
+      }
+    }
+  | ',' tIso ListOfDouble 
+    { 
+      for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
+	List_Read(ListOfDouble_L,i,&d);	
+	List_Add(PostSubOperation_S.Iso_L, &d);
       }
     }
   ;
