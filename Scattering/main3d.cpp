@@ -5,6 +5,7 @@
 #include "sphere3D.h"
 #include "grid.h"
 #include "gridIntegrator.h"
+#include "log.h"
 
 #define MAX(a,b)   ((a)>(b) ? (a) : (b))
 #define TWO_PI     6.2831853071795865
@@ -132,8 +133,8 @@ grid *initGrid(valarray<T> &bodyArray, int nbIntervalsU, int nbIntervalsV){
 	gridInst->u[i][index] = u[j][k];
 	gridInst->v[i][index] = v[j][k];
 
-	gridInst->densities[i][index] = 0.;
-	gridInst->scalarData[i][j][k] = 0.;
+	gridInst->densities[i][index] = 1.;
+	gridInst->scalarData[i][j][k] = gridInst->densities[i][index] * gridInst->pou[i][index];
       }
     }
 
@@ -171,9 +172,17 @@ void printGrid(grid *g){
 }
 
 int main(){
+  int i, j, k;
   double radius = 1.0, waveNumber = 1.0, gamma = MAX(3,1./TWO_PI*waveNumber);
-  int nbIntervalsU = 10, nbIntervalsV = 10;
+  int nbIntervalsU = 3, nbIntervalsV = 3;
+  patch3D *patch;
+  complex<double> value;
+  logger log;
 
+  log.setLevel(ERROR|INFORMATION|TIMING|DEBUG);
+  //log.setLevel(ERROR|INFORMATION);
+  log.setFilename("-");
+  
   // create patches
   valarray<patch3D*> bodyArray(6);
   bodyArray[0] = new spherePatch(radius,0.0+0.001234     ,0.0               );
@@ -190,6 +199,12 @@ int main(){
 
   gridIntegrator *integrator = new gridIntegrator(gridInst, &bodyArray, waveNumber,
 						  "both", gamma, "no");
+
+  for(i=0 ; i<gridInst->densities.size() ; i++){ // loop on patches
+    for(j=0 ; j<gridInst->densities[i].size() ; j++){ // loop on target points
+      value = integrator->integrateTargetPointOnGrid(i,j);
+    }
+  }
 
   printf("hehe\n");
   
