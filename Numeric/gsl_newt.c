@@ -1,4 +1,4 @@
-#define RCSID "$Id: gsl_newt.c,v 1.6 2004-01-19 16:51:19 geuzaine Exp $"
+#define RCSID "$Id: gsl_newt.c,v 1.7 2004-03-08 16:32:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -25,9 +25,10 @@
 
 /* This implements a Newton method using the GSL. */
 
+#include "GetDP.h"
+
 #if defined(HAVE_GSL)
 
-#include "GetDP.h"
 #include "Numeric.h"
 
 #include <gsl/gsl_math.h>

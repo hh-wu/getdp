@@ -1,4 +1,4 @@
-#define RCSID "$Id: gsl_brent.c,v 1.3 2004-01-19 16:51:19 geuzaine Exp $"
+#define RCSID "$Id: gsl_brent.c,v 1.4 2004-03-08 16:32:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -20,9 +20,10 @@
  * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
+#include "GetDP.h"
+
 #if defined(HAVE_GSL)
 
-#include "GetDP.h"
 #include "Numeric.h"
 
 #include <gsl/gsl_errno.h>
