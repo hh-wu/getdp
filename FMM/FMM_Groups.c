@@ -1,7 +1,9 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.3 2003-03-17 19:22:33 geuzaine Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.4 2003-03-18 14:55:22 geuzaine Exp $"
 
-
+#include "GetDP.h"
+#include "Numeric.h"
 #include "Data_DefineE.h"
+#include "CurrentData.h"
 #include "Tools.h"
 #include "Quadrature.h"
 #include "Treatment_Formulation.h"

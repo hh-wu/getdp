@@ -1,19 +1,8 @@
-/* $Id: F_FMM_DTA.h,v 1.1 2003-03-17 16:13:09 sabarieg Exp $ */
-
+/* $Id: F_FMM_DTA.h,v 1.2 2003-03-18 14:55:22 geuzaine Exp $ */
 #ifndef _F_FMM_DTA
 #define _F_FMM_DTA
 
-#include <stdio.h>
-#include <math.h>
-
-#include "GetDP.h"
-#include "Get_DofOfElement.h"
-#include "Get_Geometry.h"
-#include "GeoData.h"
-#include "CurrentData.h"
-#include "Tools.h"
-
-#include "Data_FMM.h"
+#include "Data_Active.h"
 
 void  GF_FMMTranslationValue() ;      
 void  GF_FMMTranslationValueAdaptive() ;

@@ -1,7 +1,4 @@
-#define RCSID "$Id: FMM_Operations.c,v 1.3 2003-03-18 00:55:26 geuzaine Exp $"
-
-#include <math.h>
-#include <malloc.h>
+#define RCSID "$Id: FMM_Operations.c,v 1.4 2003-03-18 14:55:22 geuzaine Exp $"
 
 #include "GetDP.h"
 #include "Numeric.h"
@@ -10,8 +7,6 @@
 #include "CurrentData.h"
 #include "Cal_Value.h"
 #include "Data_FMM.h"
-
-
 
 /* ------------------------------------------------------------------------- */
 /*  FMM matrix vector product                                                */

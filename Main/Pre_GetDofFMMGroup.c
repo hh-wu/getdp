@@ -1,9 +1,9 @@
-#define RCSID "$Id: Pre_GetDofFMMGroup.c,v 1.1 2003-03-17 10:50:32 sabarieg Exp $"
+#define RCSID "$Id: Pre_GetDofFMMGroup.c,v 1.2 2003-03-18 14:55:23 geuzaine Exp $"
 
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
 #include "Get_DofOfElement.h"
 #include "CurrentData.h"
-#include "Graph.h"
 #include "Tools.h"
 #include "F_FMM.h"
 
@@ -41,16 +41,22 @@ void  Pre_GetDofFMMGroup (struct Formulation * Formulation_P,
       FMMSource = EquationTerm_P->Case.LocalTerm.FMMSource ;
       DifBasisFunctionForEquDof = 1 ;
 
-      QuantityStorageDof_P = QuantityStorage_P0 + EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexDof ;
-      QuantityStorageEqu_P = QuantityStorage_P0 + EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
+      QuantityStorageDof_P = QuantityStorage_P0 + 
+	EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexDof ;
+      QuantityStorageEqu_P = QuantityStorage_P0 + 
+	EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
       
       FMMmat_P = FMMmat_P0 + EquationTerm_P->Case.LocalTerm.iFMMEqu ;
 
       FMMmat_P->EquTermIndex = i_EquTerm ;
-      FMMmat_P->FunctionSpaceIndexDof = QuantityStorageDof_P->DefineQuantity->FunctionSpaceIndex ;
-      FMMmat_P->FunctionSpaceIndexEqu = QuantityStorageEqu_P->DefineQuantity->FunctionSpaceIndex ;
-      FMMmat_P->TypeTimeDerivative = EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative ;
-      if (FMMmat_P->TypeTimeDerivative != NODT_) FMMmat_P->Pulsation = Current.DofData->Val_Pulsation[0] ;
+      FMMmat_P->FunctionSpaceIndexDof = 
+	QuantityStorageDof_P->DefineQuantity->FunctionSpaceIndex ;
+      FMMmat_P->FunctionSpaceIndexEqu = 
+	QuantityStorageEqu_P->DefineQuantity->FunctionSpaceIndex ;
+      FMMmat_P->TypeTimeDerivative = 
+	EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative ;
+      if (FMMmat_P->TypeTimeDerivative != NODT_)
+	FMMmat_P->Pulsation = Current.DofData->Val_Pulsation[0] ;
 
 
       if (QuantityStorageEqu_P->DefineQuantity->FunctionSpaceIndex 
@@ -101,8 +107,10 @@ void  Pre_GetDofFMMGroup (struct Formulation * Formulation_P,
 	  for (iEqu = 0; iEqu < Nbr_Equ; iEqu++)
 	    if (QuantityStorageEqu_P->BasisFunction[iEqu].Dof->Type == DOF_UNKNOWN)
 	      if ( List_PQuery( NumEqui,
-				&QuantityStorageEqu_P->BasisFunction[iEqu].Dof->Case.Unknown.NumDof, fcmp_int) == NULL )
-		List_Add ( NumEqui, &QuantityStorageEqu_P->BasisFunction[iEqu].Dof->Case.Unknown.NumDof ) ;	     
+				&QuantityStorageEqu_P->BasisFunction[iEqu].Dof->
+				Case.Unknown.NumDof, fcmp_int) == NULL )
+		List_Add ( NumEqui, &QuantityStorageEqu_P->BasisFunction[iEqu].Dof->
+			   Case.Unknown.NumDof ) ;	     
 	  List_Sort(NumEqui, fcmp_int ) ;	
 	  
 	}/* Loop on Elements in Group Observation */
@@ -111,7 +119,8 @@ void  Pre_GetDofFMMGroup (struct Formulation * Formulation_P,
       }/* Loop in Group Observation */
      
       if ((FMMSource != FMMObservation) || DifBasisFunctionForEquDof ){
-	Msg(INFO, "NON SYMMETRIC Galerkin Term %d TypeTimeDerivative %d",  i_EquTerm,  FMMmat_P->TypeTimeDerivative) ;
+	Msg(INFO, "NON SYMMETRIC Galerkin Term %d TypeTimeDerivative %d",
+	    i_EquTerm,  FMMmat_P->TypeTimeDerivative) ;
 
 	List_Read(Problem_S.FMMGroup, FMMSource, &FMMGroup_S ) ;   
 	Nbr_GroupSrc = List_Nbr(FMMGroup_S.List ) ;
@@ -150,8 +159,10 @@ void  Pre_GetDofFMMGroup (struct Formulation * Formulation_P,
 	    for (jDof = 0; jDof < Nbr_Dof; jDof++)
 	      if (QuantityStorageDof_P->BasisFunction[jDof].Dof->Type == DOF_UNKNOWN)
 		if ( List_PQuery( NumDofi,
-				  &QuantityStorageDof_P->BasisFunction[jDof].Dof->Case.Unknown.NumDof, fcmp_int) == NULL )
-		  List_Add ( NumDofi, &QuantityStorageDof_P->BasisFunction[jDof].Dof->Case.Unknown.NumDof ) ;
+				  &QuantityStorageDof_P->BasisFunction[jDof].Dof->
+				  Case.Unknown.NumDof, fcmp_int) == NULL )
+		  List_Add ( NumDofi, &QuantityStorageDof_P->BasisFunction[jDof].Dof->
+			     Case.Unknown.NumDof ) ;
 	      
 	    List_Sort(NumDofi, fcmp_int ) ;
 	    
@@ -162,7 +173,8 @@ void  Pre_GetDofFMMGroup (struct Formulation * Formulation_P,
 	
       }/* FMMObservation != FMMSource || DifBasisForEquDof*/  
       else{
-	Msg(INFO, "SYMMETRIC Galerkin Term %d TypeTimeDerivative %d",  i_EquTerm, FMMmat_P->TypeTimeDerivative ) ;
+	Msg(INFO, "SYMMETRIC Galerkin Term %d TypeTimeDerivative %d", 
+	    i_EquTerm, FMMmat_P->TypeTimeDerivative ) ;
 	(FMMmat_P->NumDof) =  (FMMmat_P->NumEqu) ;
       }
 

@@ -1,11 +1,4 @@
-#define RCSID "$Id: Print_FMM.c,v 1.4 2003-03-18 00:55:26 geuzaine Exp $"
-
-#include <math.h>
-#include <malloc.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#define RCSID "$Id: Print_FMM.c,v 1.5 2003-03-18 14:55:22 geuzaine Exp $"
 
 #include "GetDP.h"
 #include "GeoData.h"
@@ -15,7 +8,6 @@
 #include "Tools.h"
 #include "ExtendedGroup.h"
 #include "Data_FMM.h"
-
 
 int Get_GmshElementType(int Type) ;
 

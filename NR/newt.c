@@ -7,7 +7,7 @@
 #define TOLX 1.0e-7
 #define STPMX 100.0
 
-/* This file has been modified for inclusion in GetDP (float->double) */
+/* This file has been modified for inclusion in GetDP (float->double, fmin->ffmin) */
 
 int nn;
 double *fvec;
@@ -21,7 +21,7 @@ void newt(double x[], int n, int *check,
 {
 	void fdjac(int n, double x[], double fvec[], double **df,
 		void (*vecfunc)(int, double [], double []));
-	double fmin(double x[]);
+	double ffmin(double x[]);
 	void lnsrch(int n, double xold[], double fold, double g[], double p[], double x[],
 		 double *f, double stpmax, int *check, double (*func)(double []));
 	void lubksb(double **a, int n, int *indx, double b[]);
@@ -37,7 +37,7 @@ void newt(double x[], int n, int *check,
 	fvec=dvector(1,n);
 	nn=n;
 	nrfuncv=vecfunc;
-	f=fmin(x);
+	f=ffmin(x);
 	test=0.0;
 	for (i=1;i<=n;i++)
 		if (fabs(fvec[i]) > test) test=fabs(fvec[i]);
@@ -55,7 +55,7 @@ void newt(double x[], int n, int *check,
 		for (i=1;i<=n;i++) p[i] = -fvec[i];
 		ludcmp(fjac,n,indx,&d);
 		lubksb(fjac,n,indx,p);
-		lnsrch(n,xold,fold,g,p,x,&f,stpmax,check,fmin);
+		lnsrch(n,xold,fold,g,p,x,&f,stpmax,check,ffmin);
 		test=0.0;
 		for (i=1;i<=n;i++)
 			if (fabs(fvec[i]) > test) test=fabs(fvec[i]);

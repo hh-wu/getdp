@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.26 2003-03-18 01:10:14 geuzaine Exp $
+# $Id: Makefile,v 1.27 2003-03-18 14:55:22 geuzaine Exp $
 
 include ../variables
 
@@ -91,8 +91,7 @@ SolvingOperations.o: SolvingOperations.c ../include/GetDP.h Message.h \
   ../DofData/Data_DofData.h Init_Problem.h Cal_Quantity.h Cal_Value.h \
   ../DataStr/Tools.h Data_DefineE.h ../Numeric/Numeric.h \
   Get_DofOfElement.h CurrentData.h ../include/Magic.h ../FMM/F_FMM.h \
-  ../FMM/Data_FMM.h ../FMM/F_FMMOperations.h ../FMM/F_FMM_DTA.h \
-  Get_Geometry.h
+  ../FMM/Data_FMM.h ../FMM/F_FMMOperations.h ../FMM/F_FMM_DTA.h
 Treatment_Formulation.o: Treatment_Formulation.c ../include/GetDP.h \
   Message.h ../DataStr/Malloc.h Treatment_Formulation.h Data_Active.h \
   Data_Passive.h ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
@@ -100,8 +99,7 @@ Treatment_Formulation.o: Treatment_Formulation.c ../include/GetDP.h \
   Get_DofOfElement.h ExtendedGroup.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
   ../DofData/Data_DofData.h CurrentData.h ../include/Magic.h \
-  ../DataStr/Tools.h ../FMM/F_FMM.h ../Numeric/Numeric.h \
-  ../FMM/Data_FMM.h ../FMM/F_FMM_DTA.h Get_Geometry.h \
+  ../DataStr/Tools.h ../FMM/F_FMM.h ../FMM/Data_FMM.h ../FMM/F_FMM_DTA.h \
   Pre_GetDofFMMGroup.h
 Get_DofOfElement.o: Get_DofOfElement.c ../include/GetDP.h Message.h \
   ../DataStr/Malloc.h Get_DofOfElement.h Data_Active.h Data_Passive.h \
@@ -179,7 +177,7 @@ Cal_GalerkinTermOfFemEquation.o: Cal_GalerkinTermOfFemEquation.c \
   Get_DofOfElement.h Get_Geometry.h Data_DefineE.h CurrentData.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../DataStr/Tools.h \
-  ../FMM/F_FMM.h ../Numeric/Numeric.h ../FMM/Data_FMM.h
+  ../FMM/F_FMM.h ../FMM/Data_FMM.h
 Cal_deRhamTermOfFemEquation.o: Cal_deRhamTermOfFemEquation.c \
   ../include/GetDP.h Message.h ../DataStr/Malloc.h \
   Treatment_Formulation.h Data_Active.h Data_Passive.h ../DataStr/List.h \
@@ -259,11 +257,10 @@ Get_Define.o: Get_Define.c ../include/GetDP.h Message.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Function/BF_Function.h \
   ../Integration/Quadrature.h Data_Define.h Data_DefineE.h \
   ../Function/Data_Function.h ../Function/F_Function.h \
-  ../Function/GF_Function.h ../FMM/F_FMM.h ../Numeric/Numeric.h \
-  CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h ../FMM/Data_FMM.h Cal_Quantity.h Cal_Value.h \
-  ../Numeric/Adapt.h
+  ../Function/GF_Function.h ../FMM/F_FMM.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
+  ../DofData/Data_DofData.h ../FMM/Data_FMM.h Cal_Quantity.h Cal_Value.h \
+  CurrentData.h ../include/Magic.h ../Numeric/Adapt.h
 Graph.o: Graph.c ../include/GetDP.h Message.h ../DataStr/Malloc.h Graph.h \
   ../DataStr/List.h ../DofData/DofData.h ../DataStr/Tree.h \
   ../DataStr/avl.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
@@ -277,11 +274,11 @@ Print_ProblemStructure.o: Print_ProblemStructure.c ../include/GetDP.h \
   ../Sparskit/Solver.h Graph.h ../DofData/Data_DofData.h \
   ../include/Magic.h GmshClient.h
 GmshClient.o: GmshClient.c
-Pre_GetDofFMMGroup.o: Pre_GetDofFMMGroup.c Treatment_Formulation.h \
-  Data_Active.h Data_Passive.h ../DataStr/List.h Data_Element.h \
-  ../GeoData/GeoData.h Message.h ../GeoData/Data_GeoData.h \
-  ../DataStr/Tree.h ../DataStr/avl.h Get_DofOfElement.h CurrentData.h \
-  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
+Pre_GetDofFMMGroup.o: Pre_GetDofFMMGroup.c ../include/GetDP.h Message.h \
+  ../DataStr/Malloc.h Treatment_Formulation.h Data_Active.h \
+  Data_Passive.h ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+  Get_DofOfElement.h CurrentData.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../DataStr/Tools.h \
-  ../FMM/F_FMM.h ../include/GetDP.h ../DataStr/Malloc.h \
-  ../Numeric/Numeric.h ../FMM/Data_FMM.h
+  ../FMM/F_FMM.h ../FMM/Data_FMM.h

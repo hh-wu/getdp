@@ -7,7 +7,7 @@ extern int nn;
 extern double *fvec;
 extern void (*nrfuncv)(int n, double v[], double f[]);
 
-double fmin(double x[])
+double ffmin(double x[])
 {
 	int i;
 	double sum;

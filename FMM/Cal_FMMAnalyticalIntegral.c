@@ -1,10 +1,9 @@
-#define RCSID "$Id: Cal_FMMAnalyticalIntegral.c,v 1.2 2003-03-17 18:41:58 geuzaine Exp $"
-
-#include <stdio.h>
-#include <math.h>
+#define RCSID "$Id: Cal_FMMAnalyticalIntegral.c,v 1.3 2003-03-18 14:55:22 geuzaine Exp $"
 
 #include "GetDP.h"
 #include "CurrentData.h"
+#include "Numeric.h"
+#include "Tools.h"
 #include "Cal_FMMAnalyticalIntegral.h"
 
 
@@ -50,7 +49,8 @@ void GF_FMMLaplacexForm( struct Element           * Element,
 	  phi1 = atan2(ys[1] - Current.FMM.Ygc, xs[1] - Current.FMM.Xgc) ; 
 	}
 	else{
-	  /* Watch out: the analytical integration with NPxGradLaplace is solo posible for Aggregation */
+	  /* Watch out: the analytical integration with NPxGradLaplace 
+	     is solo posible for Aggregation */
 	  phi = atan2(-ys[1]+ys[0], -xs[1]+xs[0]) ;
 	  phi0 = atan2(-ys[0] + Current.FMM.Ygc, -xs[0] + Current.FMM.Xgc) ;    
 	  phi1 = atan2(-ys[1] + Current.FMM.Ygc, -xs[1] + Current.FMM.Xgc) ; 
@@ -73,7 +73,8 @@ void GF_FMMLaplacexForm( struct Element           * Element,
       for (j = 0 ; j < Nbr_Dof ; j++) {
 	if(QuantityStorage_P->BasisFunction[j].Dof->Type == DOF_UNKNOWN){
 	  i = List_ISearch(NumDof_L, 
-			   &QuantityStorage_P->BasisFunction[j].Dof->Case.Unknown.NumDof, fcmp_int) ;
+			   &QuantityStorage_P->BasisFunction[j].Dof->Case.Unknown.NumDof,
+			   fcmp_int) ;
 	  if (i != -1){
 	    p0 = p1 = cte*R/d ;
 	    for (id = 0 ; id < NbrDir ; id++){

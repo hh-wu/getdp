@@ -1,11 +1,17 @@
-#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.2 2003-03-17 18:41:58 geuzaine Exp $"
+#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.3 2003-03-18 14:55:22 geuzaine Exp $"
 
-
+#include "GetDP.h"
 #include "Treatment_Formulation.h"
+#include "CurrentData.h"
+#include "Get_Geometry.h"
+#include "Get_DofOfElement.h"
+#include "DofData.h"
 #include "Data_DefineE.h"
 #include "Cal_Value.h"
 #include "Cal_Quantity.h"
 #include "GF_Function.h"
+#include "Tools.h"
+#include "Data_FMM.h"
 #include "Cal_FMMAnalyticalIntegral.h"
 #include "F_FMM_DTA.h"
 
@@ -47,9 +53,11 @@ void GF_FMMTranslationValue ( ){
     FMMObs = (FMMmat_P0+iEqu)->Obs ;
     GFx = (FMMmat_P0+iEqu)->GFx ;
 
-    N = (GFx->NbrParameters==2) ? Nd : (((int)GFx->Para[0] == _2D) ? Nd*Nd : (2*Nd-1)*(2*Nd+1)) ; 
+    N = (GFx->NbrParameters==2) ? Nd : 
+      (((int)GFx->Para[0] == _2D) ? Nd*Nd : (2*Nd-1)*(2*Nd+1)) ; 
 
-    jEqu = 0 ; while( jEqu<iEqu && ((FMMmat_P0+jEqu)->Src != FMMSrc || (FMMmat_P0+jEqu)->Obs != FMMObs)) jEqu ++ ;
+    jEqu = 0 ; while( jEqu<iEqu && ((FMMmat_P0+jEqu)->Src != FMMSrc ||
+				    (FMMmat_P0+jEqu)->Obs != FMMObs)) jEqu ++ ;
     if (jEqu < iEqu && GFx->NbrParameters == 1 && GFx->Para[0] != _2D  )
       (FMMmat_P0 + iEqu)->T = (FMMmat_P0 + jEqu)->T ;
     else {
@@ -148,7 +156,8 @@ void GF_FMMTranslationValueAdaptive( ){
 
     GFx = (FMMmat_P0+iEqu)->GFx ;
 
-    jEqu = 0 ; while( jEqu<iEqu && ((FMMmat_P0+jEqu)->Src != FMMSrc || (FMMmat_P0+jEqu)->Obs != FMMObs)) jEqu ++ ;
+    jEqu = 0 ; while( jEqu<iEqu && ((FMMmat_P0+jEqu)->Src != FMMSrc ||
+				    (FMMmat_P0+jEqu)->Obs != FMMObs)) jEqu ++ ;
     if ( jEqu < iEqu  && GFx->NbrParameters == 1 && GFx->Para[0] != _2D ){
       (FMMmat_P0 + iEqu)->T = (FMMmat_P0 + jEqu)->T ;
     }
@@ -296,7 +305,8 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
     QuantityStorageDof_P = FI->QuantityStorageDof_P ;
 
     if( EquationTerm_P->Case.LocalTerm.FMMIntegrationMethodIndex == -1 )
-      EquationTerm_P->Case.LocalTerm.FMMIntegrationMethodIndex = EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex ;
+      EquationTerm_P->Case.LocalTerm.FMMIntegrationMethodIndex = 
+	EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex ;
 
     FMMIntegrationCaseEqu_L = 
       ((struct IntegrationMethod *)
@@ -342,7 +352,8 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 	Element.Num    = Element.GeoElement->Num ;
 	Element.Type   = Element.GeoElement->Type ;
 	Current.Region = Element.Region = Element.GeoElement->Region ;
-	if (Element.GeoElement->FMMGroup != i_Group) Msg(ERROR, "Element.GeoElement->FMMGroup != i_Group");
+	if (Element.GeoElement->FMMGroup != i_Group) 
+	  Msg(ERROR, "Element.GeoElement->FMMGroup != i_Group");
 	Element.FMMGroup = i_Group ;
 
 	
@@ -431,7 +442,8 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 
 	    Current.FMM.Flag_GF = DISAGGREGATION ;
 	    ((CASTF2V)QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM.Fct)
-	      (&QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM, GFValue, GFValue ) ;
+	      (&QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM,
+	       GFValue, GFValue ) ;
 	    
 	    Cal_ZeroValue(&TermFct);
 	    Cal_TermsforDisaggregation( EquationTerm_P, QuantityStorage_P0, &TermFct ) ;
@@ -473,7 +485,8 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 		  Cal_ProductValue(&vBFxEquV, &GFValue[i_FMM], &BFGFValue[i_FMM]);
 	   
 		j = List_ISearch(NumEqu_L, 
-				 &QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof, fcmp_int) ;
+				 &QuantityStorageEqu_P->BasisFunction[i].Dof->
+				 Case.Unknown.NumDof, fcmp_int) ;
 		
 		if (j != -1) Cal_AddValueArray2DoubleArray(BFGFValue, Disagg_M[j], NbrDir) ; 
 		else  Msg(ERROR, "Wrong NumEqu %d for Disagg",
@@ -605,7 +618,8 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 
     QuantityStorageDof_P = FI->QuantityStorageDof_P ;
 
-    if( FI->QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FMMIntegrationMethodIndex == -1 )
+    if( FI->QuantityStorageDof_P->DefineQuantity->
+	IntegralQuantity.FMMIntegrationMethodIndex == -1 )
       FI->QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FMMIntegrationMethodIndex =
 	FI->QuantityStorageDof_P->DefineQuantity->IntegralQuantity.IntegrationMethodIndex ;
 
@@ -652,7 +666,8 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 	Element.Num    = Element.GeoElement->Num ;
 	Element.Type   = Element.GeoElement->Type ;
 	Current.Region = Element.Region = Element.GeoElement->Region ;
-	if (Element.GeoElement->FMMGroup != i_Group) Msg(ERROR, "Element.GeoElement->FMMGroup != i_Group");
+	if (Element.GeoElement->FMMGroup != i_Group)
+	  Msg(ERROR, "Element.GeoElement->FMMGroup != i_Group");
 	Element.FMMGroup = i_Group ;
 	
 	Current.Element = &Element ;
@@ -707,7 +722,8 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 		Get_StringForDefine(Element_Type, Element.Type),
 		((struct IntegrationMethod *)
 		 List_Pointer(Problem_S.IntegrationMethod,
-			      FI->QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FMMIntegrationMethodIndex))->Name);
+			      FI->QuantityStorageDof_P->DefineQuantity->
+			      IntegralQuantity.FMMIntegrationMethodIndex))->Name);
 	  
 	  Nbr_IntPoints = Quadrature_P->NumberOfPoints ;
 	  Get_IntPoint  = (void(*)(int,int,double*,double*,double*,double*))
@@ -741,7 +757,8 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 	    
 	    Current.FMM.Flag_GF = AGGREGATION ;	
 	    ((CASTF2V)QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM.Fct)
-	      (&QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM, GFValue, GFValue ) ;
+	      (&QuantityStorageDof_P->DefineQuantity->IntegralQuantity.FunctionForFMM,
+	       GFValue, GFValue ) ;
 	    
 	    for (i = 0 ; i < Nbr_Dof ; i++) {
 	      if (QuantityStorageDof_P->BasisFunction[i].Dof->Type == DOF_UNKNOWN){
@@ -767,7 +784,8 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 		  ((CAST3V)FunctionProd)(&vBFxDofV, &GFValue[i_FMM], &BFGFValue[i_FMM]) ;
 		
 		j = List_ISearch(NumDof_L, 
-				 &QuantityStorageDof_P->BasisFunction[i].Dof->Case.Unknown.NumDof, fcmp_int) ;
+				 &QuantityStorageDof_P->BasisFunction[i].Dof->
+				 Case.Unknown.NumDof, fcmp_int) ;
 		
 		if (j != -1) Cal_AddValueArray2DoubleArray(BFGFValue, Aggreg_M[j], NbrDir) ; 
 		else  Msg(ERROR, "Wrong NumEqu %d for Aggreg",
@@ -789,7 +807,8 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 	  
 	  Cal_ZeroValue(&Val0);
 	  Cal_TermsforAggregation( QuantityStorageDof_P, Val0, &FunctionProd );
-	  GF_FMMLaplacexForm( &Element, QuantityStorageDof_P, Nbr_Dof, (void (*)())xFunctionBFDof, NumDof_L, Val0, Aggreg_M );
+	  GF_FMMLaplacexForm( &Element, QuantityStorageDof_P, Nbr_Dof, 
+			      (void (*)())xFunctionBFDof, NumDof_L, Val0, Aggreg_M );
 	  break;
 	}/*switch Integration_Case */	 
 	
@@ -820,8 +839,8 @@ void Cal_TermsforAggregation( struct QuantityStorage * QuantityStorageDof_P,
   GetDP_Begin("Cal_TermsForAggregation") ;
 
 
-  WholeQuantity_P0 =
-		(struct WholeQuantity*)List_Pointer(QuantityStorageDof_P->DefineQuantity->IntegralQuantity.WholeQuantity, 0) ;
+  WholeQuantity_P0 = (struct WholeQuantity*)
+    List_Pointer(QuantityStorageDof_P->DefineQuantity->IntegralQuantity.WholeQuantity, 0) ;
 
   switch(QuantityStorageDof_P->DefineQuantity->IntegralQuantity.CanonicalWholeQuantity){
   case CWQ_GF :
@@ -872,7 +891,4 @@ void Cal_TermsforAggregation( struct QuantityStorage * QuantityStorageDof_P,
 
 #undef CAST3V 
 #undef CASTF2V
-
-
-
 

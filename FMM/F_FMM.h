@@ -1,21 +1,10 @@
-/* $Id: F_FMM.h,v 1.2 2003-03-18 00:55:26 geuzaine Exp $ */
+/* $Id: F_FMM.h,v 1.3 2003-03-18 14:55:22 geuzaine Exp $ */
 #ifndef _F_FMM_H_ 
 #define _F_FMM_H_
 
-#include <stdio.h>
-#include <malloc.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-
-#include "GetDP.h"
-#include "GeoData.h"
-#include "Numeric.h"
-#include "Data_Passive.h"
-#include "CurrentData.h"
-
+#include "DofData.h"
+#include "Data_Element.h"
 #include "Data_FMM.h"
-
 
 /* ------------------------------------------------------------------------- */ 
 /*  GroupsFMM                                                                */ 
