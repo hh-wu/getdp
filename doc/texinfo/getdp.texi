@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.52 2003-04-18 23:03:29 geuzaine Exp $
+@c $Id: getdp.texi,v 1.53 2003-04-18 23:07:11 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 @c
@@ -116,7 +116,7 @@ BELGIUM @*
 
 @title GetDP Reference Manual
 
-@subtitle The documentation for GetDP, Version @value{GETDP-VERSION}
+@subtitle The documentation for GetDP @value{GETDP-VERSION}
 @subtitle A General environment for the treatment of Discrete Problems
 @subtitle 
 @subtitle Edition @value{EDITION} (@today{})
