@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.14 2001-08-15 10:12:02 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.15 2001-08-28 15:10:36 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -120,7 +120,7 @@ struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement){
 
 int fcmp_PostElement(const void *a, const void *b){
   struct PostElement *PE1, *PE2 ;
-  double s1, s2, TOL=Current.GeoData->CharacteristicLength * 1.e-6 ;
+  double s1, s2, TOL=Current.GeoData->CharacteristicLength * 1.e-12 ;
   int i;
 
   PE1 = *(struct PostElement**)a; PE2 = *(struct PostElement**)b;
@@ -142,7 +142,7 @@ int fcmp_PostElement(const void *a, const void *b){
 
 int fcmp_PostElement_heterog(const void *a, const void *b){
   struct PostElement *PE1, *PE2 ;
-  double s1, s2, TOL=Current.GeoData->CharacteristicLength * 1.e-6 ;
+  double s1, s2, TOL=Current.GeoData->CharacteristicLength * 1.e-12 ;
   int i;
 
   PE1 = *(struct PostElement**)a; PE2 = *(struct PostElement**)b;
