@@ -1,5 +1,23 @@
-# $Id: Makefile,v 1.17 2003-03-17 18:41:59 geuzaine Exp $
-
+# $Id: Makefile,v 1.18 2003-03-22 03:30:12 geuzaine Exp $
+#
+# Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+# 
+# Please report all bugs and problems to "getdp@geuz.org".
 
 include ../variables
 
@@ -14,9 +32,7 @@ SRC = Gauss_Point.c \
       Gauss_Tetrahedron.c \
       Gauss_Hexahedron.c \
       Gauss_Prism.c \
-      Gauss_Pyramid.c \
-      NewtonCotes_Line.c \
-      NewtonCotes_Quadrangle.c 
+      Gauss_Pyramid.c
 
 OBJ = ${SRC:.c=.o}
 
@@ -58,5 +74,3 @@ Gauss_Prism.o: Gauss_Prism.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Gauss_Prism.h
 Gauss_Pyramid.o: Gauss_Pyramid.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Gauss_Pyramid.h
-NewtonCotes_Line.o: NewtonCotes_Line.c
-NewtonCotes_Quadrangle.o: NewtonCotes_Quadrangle.c

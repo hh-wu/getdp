@@ -1,5 +1,30 @@
-/* $Id: Data_Define.h,v 1.33 2003-03-17 10:50:31 sabarieg Exp $ */
-#ifndef _DADA_DEFINE_H_
+/*
+ * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
+ *
+ * Please report all bugs and problems to "getdp@geuz.org".
+ *
+ * Contributor(s):
+ *   David Colignon
+ *   Johan Gyselinck
+ *   Ruth Sabariego
+ */
+
+#ifndef _DATA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
 #include "Data_DefineE.h"
@@ -91,8 +116,6 @@ struct StringXDefine1Nbr  Jacobian_Type[] = {
 struct StringXDefine  Integration_Type[] = {
   {"Gauss"                 , GAUSS},
   {"GaussLegendre"         , GAUSSLEGENDRE},
-  {"NewtonCotes"           , NEWTONCOTES},
-  {"Patterson"             , PATTERSON},
   {"Analytic"              , ANALYTIC},
   {NULL                    , GAUSS}
 } ;
@@ -319,12 +342,6 @@ struct DefineXFunction  FunctionForSingularGauss[] = {
   {TRIANGLE       , (CAST)GaussSingularR_Triangle},
   {QUADRANGLE     , (CAST)GaussSingularR_Quadrangle},
   {0              , (CAST)GaussSingularR_Triangle}
-} ;
-
-struct DefineXFunction  FunctionForNewtonCotes[] = {
-  {LINE           , (CAST)NewtonCotes_Line},
-  {QUADRANGLE     , (CAST)NewtonCotes_Quadrangle},
-  {0              , NULL} 
 } ;
 
 struct DefineXFunction  FunctionForGaussLegendre[] = {

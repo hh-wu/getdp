@@ -1,4 +1,3 @@
-/* $Id: fakecomplex.h,v 1.1 2002-02-07 17:19:05 geuzaine Exp $ */
 #ifndef _FAKECOMPLEX_H_
 #define _FAKECOMPLEX_H_
 
@@ -23,6 +22,5 @@ complex Cprodr(double a, complex b);
 void    Cisum(complex *a, complex b);
 void    Cisub(complex *a, complex b);
 void    Ciprod(complex *a, complex b);
+
 #endif
-
-

@@ -1,7 +1,3 @@
-/* $Id: avl.h,v 1.3 2000-11-21 16:05:54 geuzaine Exp $ */
-#ifndef _AVL_H_
-#define _AVL_H_
-
 /*
  * avl package
  *
@@ -26,6 +22,12 @@
  * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN 
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+
+#ifndef _AVL_H_
+#define _AVL_H_
+
+/* This version was modified for inclusion in GetDP (64 bit arch
+   compliance) */
 
 typedef struct avl_node_struct avl_node;
 struct avl_node_struct {
@@ -71,7 +73,8 @@ int avl_lookup(avl_tree *tree, void *key, void **value_p);
 int avl_insert(avl_tree *tree, void *key, void *value);
 int avl_delete(avl_tree *tree, void **key_p, void **value_p);
 void avl_foreach(avl_tree *tree, void (*func)(void *key, void *value), int direction);
-void avl_free_table(avl_tree *tree, void (*key_free)(void *key), void (*value_free)(void *value));
+void avl_free_table(avl_tree *tree, void (*key_free)(void *key),
+		    void (*value_free)(void *value));
 int avl_count(avl_tree *tree);
 int avl_check_tree(avl_tree *tree);
 int avl_extremum(avl_tree *tree, int side, void **value_p);

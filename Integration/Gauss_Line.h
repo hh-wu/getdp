@@ -1,10 +1,27 @@
-/* $Id: Gauss_Line.h,v 1.4 2000-09-07 18:47:24 geuzaine Exp $ */
-/* 
-   GAUSS LINE
+/*
+ * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
+ *
+ * Please report all bugs and problems to "getdp@geuz.org".
+ */
 
-   Please change the MAX_LINE_POINTS in Quadrature.h if you extend this list, 
-   in order for the Gauss-Legendre rules to be automatically updated.
-*/
+/* Please change the MAX_LINE_POINTS in Quadrature.h if you extend
+   this list, in order for the Gauss-Legendre rules to be
+   automatically updated. */
 
 /* 1 integration point */
 

@@ -1,5 +1,6 @@
-/* $Id: fakecomplex.c,v 1.1 2002-02-07 17:19:05 geuzaine Exp $ */
-#include "complex.h"
+/* $Id: fakecomplex.c,v 1.2 2003-03-22 03:30:23 geuzaine Exp $ */
+
+#include "fakecomplex.h"
 
 void cotofl(complex a, double b , double c)
 {

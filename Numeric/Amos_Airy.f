@@ -1,5 +1,5 @@
       subroutine zairy(zr, zi, id, kode, air, aii, nz, ierr)
-c     geuz for g77
+c     modified for g77
       EXTERNAL zsqrt
       EXTERNAL zexp
 c     Airy function,bessel functions of order one third
@@ -372,7 +372,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zbiry(zr, zi, id, kode, bir, bii, ierr)
-c     geuz for g77
+c     modified for g77
       EXTERNAL zsqrt
 c     Airy function,bessel functions of order one third
 c     Author  Amos, Donald E., Sandia National Laboratories

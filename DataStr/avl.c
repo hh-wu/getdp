@@ -1,9 +1,4 @@
-#define RCSID "$Id: avl.c,v 1.5 2000-11-21 16:05:54 geuzaine Exp $"
-
-/*
- * This is a modified version of the avl package
- */
-
+#define RCSID "$Id: avl.c,v 1.6 2003-03-22 03:30:07 geuzaine Exp $"
 /*
  * avl package
  *
@@ -28,6 +23,9 @@
  * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN 
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
+
+/* This version was modified for inclusion in GetDP (64 bit arch
+   compliance) */
 
 #include <stdio.h>
 
@@ -353,7 +351,8 @@ int avl_extremum(avl_tree *tree, int side, void **value_p)
     return 0;
 }
 
-static void free_entry(avl_node *node, void (*key_free)(void *key), void (*value_free)(void *value))
+static void free_entry(avl_node *node, void (*key_free)(void *key), 
+		       void (*value_free)(void *value))
 {
     if (node != NIL(avl_node)) {
 	free_entry(node->left, key_free, value_free);
@@ -364,7 +363,8 @@ static void free_entry(avl_node *node, void (*key_free)(void *key), void (*value
     }
 }
     
-void avl_free_table(avl_tree *tree, void (*key_free)(void *key), void (*value_free)(void *value))
+void avl_free_table(avl_tree *tree, void (*key_free)(void *key), 
+		    void (*value_free)(void *value))
 {
     free_entry(tree->root, key_free, value_free);
     FREE(tree);

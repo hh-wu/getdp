@@ -1,12 +1,26 @@
-/* $Id: Gauss_Pyramid.h,v 1.5 2003-02-13 19:42:17 geuzaine Exp $ */
-/* 
-   GAUSS PYRAMID 
-
-   ref.: Coulomb et al., IEEE tr.mag. 32(3) May 1996, p.1395 
-         2 plans // a la base quadrangulaire, 4 points par plan 
-	 suffisant pour integrer exactement nodal degre 2
-	 cf. ../utils/pyram.c
-*/
+/*
+ * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
+ *
+ * Please report all bugs and problems to "getdp@geuz.org".
+ *
+ * Contributor(s):
+ *   Christophe Trophime
+ */
 
 #if defined(NEW_PYRAMIDS)
 
@@ -34,7 +48,13 @@ double ppyr8[8] = {0.02519647051995625,0.02519647051995625,
 
 #else
 
-/* 8 integration points from Coulomb */
+/* 8 integration points from Coulomb et al., IEEE tr.mag. 32(3) May
+   1996, p.1395
+
+   2 plans // a la base quadrangulaire, 4 points par plan suffisant
+   pour integrer exactement nodal degre 2
+
+   cf. ../utils/pyram.c */
 
 double upyr8[8] = {0.2631840555694285,-0.2631840555694285,
 		   0.2631840555694285,-0.2631840555694285,

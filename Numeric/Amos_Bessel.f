@@ -1272,7 +1272,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zasyi(zr, zi, fnu, kode, n, yr, yi, nz, rl, tol, elim,
      * alim)
-c     geuz for g77
+c     modified for g77
       EXTERNAL zsqrt
       EXTERNAL zexp
 c     Refer to  zbesi,zbesk
@@ -1552,7 +1552,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zbknu(zr, zi, fnu, kode, n, yr, yi, nz, tol, elim,
      * alim)
-c     geuz for g77
+c     modified for g77
       EXTERNAL zsqrt
       EXTERNAL zexp
       EXTERNAL zlog
@@ -2334,7 +2334,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zmlri(zr, zi, fnu, kode, n, yr, yi, nz, tol)
-c     geuz for g77
+c     modified for g77
       EXTERNAL zexp
       EXTERNAL zlog
 c     Refer to  zbesi,zbesk
@@ -2543,7 +2543,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zseri(zr, zi, fnu, kode, n, yr, yi, nz, tol, elim,
      * alim)
-c     geuz for g77
+c     modified for g77
       EXTERNAL zlog
 c     Refer to  zbesi,zbesk
 c

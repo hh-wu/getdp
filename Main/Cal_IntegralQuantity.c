@@ -1,7 +1,27 @@
-#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.9 2003-03-17 18:41:59 geuzaine Exp $"
-
-#include <stdio.h>
-#include <math.h>
+#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.10 2003-03-22 03:30:12 geuzaine Exp $"
+/*
+ * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
+ *
+ * Please report all bugs and problems to "getdp@geuz.org".
+ *
+ * Contributor(s):
+ *   Ruth Sabariego
+ */
 
 #include "GetDP.h"
 #include "Treatment_Formulation.h"
@@ -66,7 +86,6 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
     /* Numerical Integration */
   case GAUSS :
   case GAUSSLEGENDRE :
-  case NEWTONCOTES :
     Quadrature_P = (struct Quadrature*)
       List_PQuery(IQA->IntegrationCase_P->Case, &ElementSourceType, fcmp_int) ;
 
@@ -138,20 +157,6 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
 }
 
 
-#define DEBUG_PRINT									\
-    Msg(DEBUG, "Elt %d (%g,%g)(%g,%g)(%g,%g), EltSource %d (%g,%g)(%g,%g)(%g,%g)\n",	\
-	Element->Num,									\
-	Element->x[0],Element->y[0],							\
-	Element->x[1],Element->y[1],							\
-	Element->x[2],Element->y[2],							\
-	Element->ElementSource->Num,							\
-	Element->ElementSource->x[0],Element->ElementSource->y[0],			\
-	Element->ElementSource->x[1],Element->ElementSource->y[1],			\
-	Element->ElementSource->x[2],Element->ElementSource->y[2]);			\
-    Msg(DEBUG, "IntTermVal = %g %g %g\n",						\
-	vBFxDof[0].Val[0],vBFxDof[1].Val[0],vBFxDof[2].Val[0])
-
-
 /* ----------------------------------------------------------------------------- */
 /*  A p p l y _ C o n s t a n t F a c t o r                                      */
 /* ----------------------------------------------------------------------------- */
@@ -221,7 +226,7 @@ void  Cal_NumericalIntegralQuantity (struct Element                 *Element,
   GetDP_Begin("Cal_NumericalIntegralQuantity") ;
 
   /* This routine is valid for all QUADRATURE cases:
-     GAUSS, GAUSSLEGENDRE, NEWTONCOTES               */
+     GAUSS, GAUSSLEGENDRE */
 
   if(Nbr_deRhamCells && Nbr_deRhamCells != Nbr_Dof)
     Msg(ERROR, "Incompatible de Rham approximation of Integral Quantity");
@@ -444,40 +449,7 @@ void  Cal_AnalyticIntegralQuantity  (struct Element                 *Element,
   default:
     Msg(ERROR, "Unknown type of symmetry in Integral Quantity");
     break;
-    }
+  }
   
   GetDP_End ;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,6 +1,4 @@
-#define RCSID "$Id: pvpii.c,v 1.1 2002-11-01 19:25:08 geuzaine Exp $"
-
-/usr/users52/meys/asmodee/...
+/* Benoit Meys /usr/users52/meys/asmodee/... */
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,20 +1,39 @@
 %{
-/* $Id: GetDP.y,v 1.44 2003-03-17 18:42:01 geuzaine Exp $ */
-
+/* $Id: GetDP.y,v 1.45 2003-03-22 03:30:16 geuzaine Exp $ */
 /*
-  Modifs a faire
+ * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
+ *
+ * Please report all bugs and problems to "getdp@geuz.org".
+ *
+ * Contributor(s):
+ *   Ruth Sabariego
+ *   Johan Gyselinck
+ */
 
-  Patrick:
-  - definir des structures avec valeurs par defaut, e.g. BasisFunction_D = ...
-  (dans un fichier a part).
+/* Modifs a faire:
 
-  Christophe: 
-  - introduire les listes au sein des expressions (comme c'est fait
-  dans les expression-cst), afin de gerer les vecteurs, tenseurs,
-  etc., directement, et pas par l'intermediaire d'une fonction de
-  creation 
+   Patrick: definir des structures avec valeurs par defaut,
+   e.g. BasisFunction_D = ...  (dans un fichier a part).
 
-*/
+   Christophe: introduire les listes au sein des expressions (comme
+   c'est fait dans les expression-cst), afin de gerer les vecteurs,
+   tenseurs, etc., directement, et pas par l'intermediaire d'une
+   fonction de creation. */
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -1869,11 +1888,6 @@ QuadratureCaseTerm :
 	case GAUSSLEGENDRE :
 	  Get_FunctionForDefine
 	    (FunctionForGaussLegendre, QuadratureCase_S.ElementType,
-	     &FlagError, (void (**)())&QuadratureCase_S.Function) ;
-	  break ;
-	case NEWTONCOTES : 
-	  Get_FunctionForDefine
-	    (FunctionForNewtonCotes, QuadratureCase_S.ElementType,
 	     &FlagError, (void (**)())&QuadratureCase_S.Function) ;
 	  break ;
 	default : 

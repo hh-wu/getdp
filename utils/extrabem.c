@@ -1,6 +1,6 @@
-/* $Id: extrabem.c,v 1.3 2002-02-07 17:19:05 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
+
 #include "fakecomplex.h"
 
 /*
@@ -349,6 +349,3 @@ void main(int argc, char *argv[]){
 
   printf("\necarre_max max=%g, intsph_e=%g\n", ecarre_max, intsphe);  
 }
-
-
-

@@ -570,7 +570,7 @@ c
 c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zkscl(zrr,zri,fnu,n,yr,yi,nz,rzr,rzi,ascle,tol,elim)
-c     geuz for g77
+c     modified for g77
       EXTERNAL zlog
 c     refer to  zbesk
 c
@@ -882,7 +882,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zs1s2(zrr, zri, s1r, s1i, s2r, s2i, nz, ascle, alim,
      * iuf)
-c     geuz for g77
+c     modified for g77
       EXTERNAL zexp
       EXTERNAL zlog
 c     Refer to  zbesk,zairy
@@ -1025,7 +1025,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zunhj(zr, zi, fnu, ipmtr, tol, phir, phii, argr, argi,
      * zeta1r, zeta1i, zeta2r, zeta2i, asumr, asumi, bsumr, bsumi)
-c     geuz for g77
+c     modified for g77
       EXTERNAL zsqrt
       EXTERNAL zlog
 c     refer to  zbesi,zbesk
@@ -2205,7 +2205,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zunik(zrr, zri, fnu, ikflg, ipmtr, tol, init, phir,
      * phii, zeta1r, zeta1i, zeta2r, zeta2i, sumr, sumi, cwrkr, cwrki)
-c     geuz for g77
+c     modified for g77
       EXTERNAL zsqrt
       EXTERNAL zlog
 c     Refer to  zbesi,zbesk
@@ -3350,7 +3350,7 @@ c-----------------------------------------------------------------------
 c-----------------------------------------------------------------------
       subroutine zuoik(zr, zi, fnu, kode, ikflg, n, yr, yi, nuf, tol,
      * elim, alim)
-c     geuz for g77
+c     modified for g77
       EXTERNAL zlog
 c     refer to  zbesi,zbesk,zbesh
 c

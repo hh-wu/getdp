@@ -1,8 +1,27 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.20 2003-03-18 00:55:27 geuzaine Exp $"
-
-#include <stdio.h>
-#include <stdlib.h> /* pour int abs(int) */
-#include <math.h>
+#define RCSID "$Id: F_MultiHar.c,v 1.21 2003-03-22 03:30:10 geuzaine Exp $"
+/*
+ * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
+ *
+ * Please report all bugs and problems to "getdp@geuz.org".
+ *
+ * Contributor(s):
+ *   Johan Gyselinck
+ */
 
 #include "GetDP.h" 
 #include "Data_DefineE.h"
@@ -10,9 +29,7 @@
 #include "GeoData.h"
 #include "Get_Geometry.h"
 #include "Cal_Value.h" 
-
 #include "Treatment_Formulation.h"
-
 #include "Cal_Quantity.h" 
 #include "CurrentData.h"
 #include "Numeric.h"
@@ -740,18 +757,3 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
 
 #undef OFFSET
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

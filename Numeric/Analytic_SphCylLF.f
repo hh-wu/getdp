@@ -1,4 +1,24 @@
-c $Id: Analytic_SphCylLF.f,v 1.1 2002-02-04 19:00:09 geuzaine Exp $
+c $Id: Analytic_SphCylLF.f,v 1.2 2003-03-22 03:30:15 geuzaine Exp $
+c
+c Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+c
+c This program is free software; you can redistribute it and/or modify
+c it under the terms of the GNU General Public License as published by
+c the Free Software Foundation; either version 2 of the License, or
+c (at your option) any later version.
+c
+c This program is distributed in the hope that it will be useful,
+c but WITHOUT ANY WARRANTY; without even the implied warranty of
+c MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+c GNU General Public License for more details.
+c
+c You should have received a copy of the GNU General Public License
+c along with this program; if not, write to the Free Software
+c Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+c USA.
+c
+c Please report all bugs and problems to "getdp@geuz.org".
+c
 c -- cbessjo (bessel spherique d'ordre 0)
 
       FUNCTION cbessj0(z)
@@ -35,9 +55,6 @@ c -- cbessj2 (bessel spherique d'ordre 2)
       RETURN
       END
 
-
-
-c $Id: Analytic_SphCylLF.f,v 1.1 2002-02-04 19:00:09 geuzaine Exp $
 c     -------------------------------------------------------
 c     Probleme du cylindre (solution analytique)
 c     Calcul de l'induction
@@ -148,7 +165,7 @@ c     ----- statique
       
       return
       end
-c $Id: Analytic_SphCylLF.f,v 1.1 2002-02-04 19:00:09 geuzaine Exp $
+
 c     -------------------------------------------------------
 c     Probleme de la sphere (solution analytique) 
 c     Calcul de l'induction 

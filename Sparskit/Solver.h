@@ -1,4 +1,30 @@
-/* $Id: Solver.h,v 1.11 2003-03-17 11:30:21 sabarieg Exp $ */
+/*
+ * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
+ *
+ * Please report all bugs and problems to "getdp@geuz.org".
+ *
+ * Contributor(s):
+ *   Jean-Francois Remacle
+ *   Benoit Meys
+ *   Johan Gyselinck
+ *   Ruth Sabariego
+ */
+
 #ifndef _SOLVER_H_
 #define _SOLVER_H_
 
@@ -176,37 +202,4 @@ void restore_format (Sparse_Matrix *M);
 void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x);
 void print_parametres (Solver_Params *p);
 
-/* MatVector.c*/
-void MatrixVectorProd (int n, double *x, double *y, double *a, int *ja, int *ia) ;
-void MatrixTVectorProd (int n, double *x, double *y, double *a, int *ja, int *ia) ;
-void LUsol(int n, double *y, double *x, scalar *alu, int *jlu, int *ju) ;
-void LUTsol(int n, double *y, double *x, scalar *alu, int *jlu, int *ju) ;
-
-
 #endif
-
-/*
-
-Pour le futur ? non...
-
-typedef struct {
-  List_T  *a, *ja, *ia, *ptr;
-}DynamicMatrix;
-
-typedef struct {
-  double  *a;
-  int     *ja, ia;
-}StaticMatrix;
-
-struct matrix{
-  int   F, N, NNZ;
-  int  *permr, *permp, *rpermr;
-  union {
-    DynamicMatrix S;
-    StaticMatrix  F;
-  } M;
-  struct matrix *LU;
-};
-
-typedef matrix Matrix;
-*/

@@ -1,5 +1,3 @@
-/* $Id: circum.c,v 1.2 2000-09-07 18:47:31 geuzaine Exp $ */
-
 /* CircumCircles */
 
 int Solve_Sys3x3 (double mat[3][3], double b[3], double res[3], double *det){

@@ -12,4 +12,7 @@ system. You can either use the --with-gsl-prefix configure option or
 set the GSL_DIR environment variable to specify a non-standard
 location. The GSL is freely available from http://sources.redhat.com/gsl/.
 
+GetDP is distributed under the terms of the GNU General Public
+License. See doc/COPYING for more information.
+
 See the doc/ and demos/ directories for documentation and examples.

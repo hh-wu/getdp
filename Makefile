@@ -1,4 +1,23 @@
-# $Id: Makefile,v 1.133 2003-03-18 01:50:17 geuzaine Exp $
+# $Id: Makefile,v 1.134 2003-03-22 03:30:07 geuzaine Exp $
+#
+# Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+# USA.
+# 
+# Please report all bugs and problems to "getdp@geuz.org".
 
 include variables
 
@@ -85,7 +104,7 @@ doc-pdf:
 	cp doc/texinfo/getdp.pdf doc/
 
 purge:
-	for i in . lib include doc archives ${GETDP_DIRS}; \
+	for i in . lib include doc demos utils archives ${GETDP_DIRS}; \
         do (cd $$i && rm -f *~ *~~ \#*\#); done
 
 tgz:
@@ -146,7 +165,11 @@ package-windows:
 	cd getdp-${GETDP_RELEASE} && zip -r getdp-${GETDP_RELEASE}-Windows.zip *
 	mv getdp-${GETDP_RELEASE}/getdp-${GETDP_RELEASE}-Windows.zip .
 
-source:
+distrib-unix: clean all package-unix
+
+distrib-windows: clean all package-windows
+
+source-common:
 	rm -rf getdp-${GETDP_RELEASE}
 	tar zcvf getdp.tgz `ls README* configure *.in Makefile */Makefile\
                             */*.[chylfF] */*.[ch]pp */*.opt */*.spec` doc demos
@@ -155,13 +178,16 @@ source:
 	rm -f getdp.tgz
 	cd getdp-${GETDP_RELEASE}/demos && ${MAKE} clean
 	cd getdp-${GETDP_RELEASE}/doc && ${MAKE} clean
-	cd getdp-${GETDP_RELEASE} && rm -rf Scattering trash utils doc/slides\
+
+source: source-common
+	cd getdp-${GETDP_RELEASE} && rm -rf NR Scattering utils doc/slides\
                                             ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
 	tar zcvf getdp-${GETDP_RELEASE}-source.tgz getdp-${GETDP_RELEASE}
 
-distrib-unix: clean all package-unix
-
-distrib-windows: clean all package-windows
+source-nonfree: source-common
+	cd getdp-${GETDP_RELEASE} && rm -rf utils doc/slides\
+                                            ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
+	tar zcvf getdp-${GETDP_RELEASE}-source.tgz getdp-${GETDP_RELEASE}
 
 rpmold:
 	tar zcvf /usr/src/redhat/SOURCES/${GETDP_SRCRPM}.tar.gz ${GETDP_SOURCES}

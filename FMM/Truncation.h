@@ -1,7 +1,28 @@
-/* $Id: Truncation.h,v 1.1 2003-03-17 16:13:10 sabarieg Exp $ */
-/* 
-   FMM truncation number for 2D & 3D Laplace Expansions
-*/
+/*
+ * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * USA.
+ *
+ * Please report all bugs and problems to "getdp@geuz.org".
+ *
+ * Contributor(s):
+ *   Ruth Sabariego
+ */
+
+/* FMM truncation number for 2D & 3D Laplace Expansions */
 
 /* 1e-3 precision */
 
@@ -129,10 +150,3 @@ int t3D1e_9[49] = {7, 9,11,13,15,17,20,
 		   14,15,16,17,19,21,24,
 		   17,18,19,20,22,24,27,
 		   19,20,21,22,25,27,31};
-
-
-
-
-
-
-
