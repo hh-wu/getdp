@@ -12,9 +12,6 @@ html:
 	./texi2html -init_file getdp.t2h getdp.texi
 
 html2:
-	Texi2html -init_file getdp.t2h getdp.texi
-
-html3:
 	makeinfo --html getdp.texi
 
 info:
@@ -27,7 +24,8 @@ install-info:
 infoz:
 	gtar zcvf getdp-info.tgz getdp.info*
 
-doc: ps pdf html info
+all: ps pdf html info
+
 
 clean:
 	$(RM) $(RMFLAGS) *.cp* *.fn* *.ky* *.pg* *.tp* *.vr* *.mv* \
