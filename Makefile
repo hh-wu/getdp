@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.128 2003-02-26 03:29:24 geuzaine Exp $
+# $Id: Makefile,v 1.129 2003-02-26 05:54:58 geuzaine Exp $
 
 include variables
 
@@ -33,10 +33,10 @@ install: variables
 	-cp doc/getdp.1 ${mandir}/man1
 
 variables: configure
-	@echo "*******************************************************************"
+	@echo "********************************************************************"
 	@echo "Please configure GetDP by running ./configure"
 	@echo "For help, type ./configure --help"
-	@echo "*******************************************************************"
+	@echo "********************************************************************"
 	@exit 1
 
 tag:

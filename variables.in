@@ -6,9 +6,9 @@ CC=@CC@
 F77=@F77@
 LINKER=@LINKER@
 
-# Base compiler flags
-C_FLAGS=@C_FLAGS@ ${GSL_INCLUDE} 
-C_PARSER_FLAGS=@C_PARSER_FLAGS@ ${GSL_INCLUDE} 
+# Compiler flags
+C_FLAGS=@C_FLAGS@
+C_PARSER_FLAGS=@C_PARSER_FLAGS@
 F77_FLAGS=@F77_FLAGS@
 
 # GetDP subdirectories and libraries
@@ -30,12 +30,8 @@ METIS_DIR=@METIS_DIR@
 # FFTW path
 FFTW_DIR=@FFTW_DIR@
 
-# GSL include and library path
-GSL_INCLUDE=@GSL_INCLUDE@
-GSL_LIBS=@GSL_LIBS@
-
 # How you create a static library on this machine
-AR=@AR@ ruvs
+AR=@AR@
 RANLIB=@RANLIB@
 
 # The extension to use for executables...

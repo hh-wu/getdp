@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.18 2003-02-17 01:53:50 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.19 2003-02-26 05:54:58 geuzaine Exp $"
 dnl
 dnl Copyright (C) 1997-2003 by P. Dular and C. Geuzaine
 dnl
@@ -56,16 +56,19 @@ AC_ARG_ENABLE(debug,
 AC_ARG_ENABLE(purewin32,
               AC_HELP_STRING([--enable-purewin32],
                              [don't depend on Cygwin on Windows (default=no)]))
+AC_ARG_ENABLE(gsl,
+              AC_HELP_STRING([--enable-gsl],
+                             [use GSL as numerical toolkit (default=yes)]))
 
 dnl Get the operating system and version number
 UNAME=`uname`
 UVERSION=`uname -r | sed -e '1,$s/[[^0-9]]//g'`
 
 dnl Treat special cases (MingW doesn't provide any output when uname is run)
-if test "x$UNAME" = "x"; then
+if test "x${UNAME}" = "x"; then
   uname="MINGW"
 fi
-case "$UNAME" in
+case "${UNAME}" in
   IRIX64*)
     UNAME="IRIX"
     ;;
@@ -76,19 +79,31 @@ case "$UNAME" in
     ;;
 esac
 
-AC_SUBST(UNAME)
-
 dnl Check for default compilers
 AC_PROG_CC
 AC_PROG_F77
 
 dnl Set default compiler flags
-C_FLAGS="$CFLAGS"
-C_PARSER_FLAGS="$CFLAGS"
-F77_FLAGS="$FFLAGS"
+C_FLAGS="${CFLAGS}"
+C_PARSER_FLAGS="${CFLAGS}"
+F77_FLAGS="${FFLAGS}"
+
+dnl Check for various programs
+AC_PROG_CPP
+AC_PROG_RANLIB
+AC_PATH_PROG(AR, ar)
+
+dnl Check for standard math library
+AC_CHECK_LIB(m,main)
 
 dnl See if we need a .exe extension on executables
 AC_EXEEXT
+
+dnl How to build static libraries?
+if test "x${AR}" = "x:"; then
+  AC_MSG_ERROR(Could not find the library archiver, aborting.)
+fi
+AR="${AR} ruvs"
 
 dnl Set default subdirectories and libraries
 GETDP_DIRS="Main Parser Post Function Integration GeoData DofData Numeric DataStr"
@@ -112,10 +127,9 @@ if test "x$enable_petsc" = "xyes"; then
 else
 
   GETDP_DIRS="${GETDP_DIRS} Sparskit"
-  GETDP_LIBS="${GETDP_LIBS} -lm"
   SOLVER='-D_SPARSKIT -D_ILU_FLOAT'
   LINKER='${F77}'
-  case "$UNAME" in
+  case "${UNAME}" in
     IRIX*)
       dnl Build portable code between 32 and 64 bit machines
       CC="cc"
@@ -146,7 +160,7 @@ else
       F77_FLAGS="+O2 +DAportable"
       SOLVER="-D_SPARSKIT -D_ILU_FLOAT -D_UNDERSCORE"
       LINKER="f77 +DAportable"
-      GETDP_LIBS="Main/Main.o ${GETDP_LIBS} -lm"
+      GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
       ;;
     OSF1*)
       CC="cc"
@@ -157,7 +171,7 @@ else
       LINKER="f77 -nofor_main"
       ;;
     SunOS*)
-      GETDP_LIBS="${GETDP_LIBS} -lsocket -lm"
+      GETDP_LIBS="${GETDP_LIBS} -lsocket"
       ;;
     AIX*)
       CC="cc"
@@ -174,96 +188,120 @@ else
       C_FLAGS="-g -O3 -DMSDOS"
       F77_FLAGS="-g -O1 -DMSDOS"
       dnl '-lm' is removed on purpose!
-      GETDP_LIBS="${GETDP_LIBS}"
       ;;
   esac
 
 fi
 
-dnl Do we trace the function calls in getdp?
-if test "x$enable_debug" = "xyes"; then
-  C_FLAGS="$C_FLAGS -DGETDP_USE_DEBUG_STACK"
+dnl Check for GSL
+if test "x$enable_gsl" != "xno"; then
+  if test "x${GSL_PREFIX}" != "x"; then
+    LDFLAGS="-L${GSL_PREFIX}/lib ${LDFLAGS}"
+  fi
+  AC_CHECK_LIB(gslcblas,main)
+  AC_CHECK_LIB(gsl,main,GSL="yes",GSL="no")
+  if test "x${GSL}" = "xyes"; then
+    C_FLAGS="${C_FLAGS} -DHAVE_GSL"
+    if test "x${GSL_PREFIX}" = "x"; then
+      GETDP_LIBS="${GETDP_LIBS} -lgsl -lgslcblas"
+    else
+      GETDP_LIBS="${GETDP_LIBS} -L${GSL_PREFIX}/lib -lgsl -lgslcblas"
+      C_FLAGS="${C_FLAGS} -I${GSL_PREFIX}/include"
+    fi
+  fi
+fi
+if test "x${GSL}" != "xyes"; then
+  dnl Check if non-free numerical recipes routines are in the tree
+dnl FIXME:
+dnl  AC_CHECK_FILE(./NR/dsvdcmp.c,NR="yes",NR="no")
+  AC_CHECK_FILE(./Numeric/dsvdcmp.c,NR="yes",NR="no")
+  if test "x${NR}" = "xyes"; then
+    echo "********************************************************************"
+    echo "You are building a non-free version of GetDP, using code copyright"
+    echo "(C) 1986-92 Numerical Recipes Software J!0."
+    echo "To use the GSL instead, run configure again with the --enable-gsl"
+    echo "option."
+    echo "********************************************************************"
+dnl FIXME:
+dnl    GETDP_DIRS="${GETDP_DIRS} NR"
+dnl    GETDP_LIBS="${GETDP_LIBS} -lNR"
+  else
+    echo "********************************************************************"
+    echo "This is the free version of GetDP and configure could not find"
+    echo "the GNU Scientific Library (GSL) on your system:"
+    echo "- if it is installed in a non-standard location, please run"
+    echo "  configure again with the --with-gsl-prefix option"
+    echo "- if it is not installed on your system, you can download it from"
+    echo "  http://sources.redhat.com/gsl/"
+    echo ""
+    echo "IMPORTANT NOTE: You need to install GSL version 1.2 or above. All"
+    echo "versions <= 1.1.1 have a bug in the singular value decomposition"
+    echo "algorithm that may cause GetDP to hang during execution."
+    echo "********************************************************************"
+    AC_MSG_ERROR()
+  fi
 fi
 
-AC_SUBST(C_FLAGS)
-AC_SUBST(C_PARSER_FLAGS)
-AC_SUBST(F77_FLAGS)
-AC_SUBST(LINKER)
-AC_SUBST(GETDP_LIBS)
-AC_SUBST(GETDP_DIRS)
-AC_SUBST(SOLVER)
-AC_SUBST(PETSC_INCLUDE_MAKEFILE)
-AC_SUBST(PETSC_DIR)
-AC_SUBST(PETSC_ARCH)
-AC_SUBST(BOPT)
+dnl Do we trace the function calls in getdp?
+if test "x$enable_debug" = "xyes"; then
+  C_FLAGS="${C_FLAGS} -DGETDP_USE_DEBUG_STACK"
+fi
+
+dnl Finish link line
+case "${UNAME}" in
+  MINGW*)
+    dnl '-lm' is removed on purpose!
+    ;;
+  *)
+    GETDP_LIBS="${GETDP_LIBS} -lm"    
+    ;;
+esac
 
 dnl Check for METIS
 if test "x${METIS_PREFIX}" != "x"; then
   METIS_DIR="${METIS_PREFIX}"	
 fi
-AC_SUBST(METIS_DIR)
 
-dnl Check for various programs
-AC_PROG_CPP
-AC_PROG_RANLIB
-AC_PATH_PROG(AR, ar)
-if test "x${AR}" = "x:"; then
-  AC_MSG_ERROR(Configure could not find the library archiver, aborting.)
-fi
-AC_SUBST(AR)
-
-dnl Check for GSL
-if test "x${GSL_PREFIX}" = "x"; then
-  LDFLAGS="-lgslcblas"
-else
-  LDFLAGS="-L${GSL_PREFIX}/lib -lgslcblas"
-fi
-AC_CHECK_LIB(gsl,gsl_vector_alloc,GSL="yes",GSL="no")
-if test "x${GSL_PREFIX}" = "x"; then
-  GSL_LIBS="-lgsl -lgslcblas"
-else
-  GSL_LIBS="-L${GSL_PREFIX}/lib -lgsl -lgslcblas"
-  GSL_INCLUDE="-I${GSL_PREFIX}/include"
-fi
-AC_SUBST(GSL_LIBS)
-AC_SUBST(GSL_INCLUDE)
-
-dnl Check for header files
-AC_HEADER_STDC
-AC_CHECK_HEADERS(sys/time.h sys/resource.h)
-
-dnl Check for FFTW
+dnl Check for FFTW (not used in public release)
 if test "x${FFTW_PREFIX}" != "x"; then
   FFTW_DIR="${FFTW_PREFIX}"	
 fi
 CPPFLAGS="-I${FFTW_DIR}/include"
 AC_CHECK_HEADER(fftw.h,FFTW="yes",FFTW="no")
 LDFLAGS="-L${FFTW_DIR}/lib -lm"
-AC_CHECK_LIB(fftw,fftw_create_plan,FFTW="yes",FFTW="no")
-AC_SUBST(FFTW_DIR)
+AC_CHECK_LIB(fftw,main,FFTW="yes",FFTW="no")
+
+dnl Check for header files
+AC_HEADER_STDC
+AC_CHECK_HEADERS(sys/time.h sys/resource.h)
 
 dnl Write output
+AC_SUBST(UNAME)
+AC_SUBST(C_FLAGS)
+AC_SUBST(C_PARSER_FLAGS)
+AC_SUBST(F77_FLAGS)
+AC_SUBST(SOLVER)
+AC_SUBST(LINKER)
+AC_SUBST(GETDP_DIRS)
+AC_SUBST(GETDP_LIBS)
+AC_SUBST(AR)
+AC_SUBST(PETSC_INCLUDE_MAKEFILE)
+AC_SUBST(PETSC_DIR)
+AC_SUBST(PETSC_ARCH)
+AC_SUBST(BOPT)
+AC_SUBST(METIS_DIR)
+AC_SUBST(FFTW_DIR)
 AC_OUTPUT(variables)
 
 dnl Print some information
-echo "*******************************************************************"
+echo "********************************************************************"
 echo "GetDP is configured for"
-echo "- Operating system: $UNAME"
+echo "- OS        : $UNAME"
+echo "- C FLAGS   : $C_FLAGS"
+echo "- F77 FLAGS : $F77_FLAGS"
+echo "- SOLVER    : $SOLVER"
 if test "x$enable_petsc" = "xyes"; then
-echo "- Solver: PETSc (BOPT=$BOPT, PETSC_DIR=$PETSC_DIR)"
-else
-echo "- Solver: Sparskit ($SOLVER)"
+echo "- PETSC_DIR : $PETSC_DIR"
+echo "- BOPT      : $BOPT"
 fi
-echo "*******************************************************************"
-
-dnl Don't print the warning at the moment, since we don't use the GSL yet
-dnl if test "x${GSL}" = "xno"; then
-dnl   echo "*******************************************************************"
-dnl   echo "Configure could not find the GNU Scientific Library (GSL):"
-dnl   echo "- if it is installed in a non-standard location, please run"
-dnl   echo "  ./configure again with the --with-gsl-prefix option"
-dnl   echo "- if it is not installed on your system, you can download it from"
-dnl   echo "  http://sources.redhat.com/gsl/"
-dnl   echo "*******************************************************************"
-dnl fi
-
+echo "********************************************************************"
