@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.12 2001-03-20 18:59:56 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.13 2001-05-21 09:31:56 dular Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -526,7 +526,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	Cal_CopyValue(&Stack[0][Index-1], 
 		      ValueSaved + WholeQuantity_P->Case.SaveValue.Index) ;
       else  /* Attention: bricolage */
-	fprintf(stderr, " %e %e %e\n", Stack[0][Index-1].Val[0],
+	fprintf(stderr, "#0: %.16g %.16g %.16g\n", Stack[0][Index-1].Val[0],
 		Stack[0][Index-1].Val[1], Stack[0][Index-1].Val[2]) ;
       break ;
 
