@@ -1,4 +1,4 @@
-/* $Id: LinAlg_PETSC.c,v 1.10 2000-09-07 18:47:22 geuzaine Exp $ */
+/* $Id: LinAlg_PETSC.c,v 1.11 2000-10-03 08:18:44 colignon Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -12,7 +12,8 @@
 #include "LinAlg.h"
 #include "Message.h"
 
-/* Pour tester assemblage sans faire d'appel a PETSc
+/* Pour tester assemblage sans faire d'appel a PETSc */
+
 #define VecSetValues dummyvec
 #define MatSetValues dummymat
 int dummyvec( Vec aa, int bb, int * cc, Scalar * dd , int ee ) {
@@ -21,7 +22,6 @@ int dummyvec( Vec aa, int bb, int * cc, Scalar * dd , int ee ) {
 int dummymat( Mat aa, int bb, int * cc, int dd, int * ee, Scalar * ff, int gg ) {
   return 0; 
 }
-*/
 
 static int  ierr, i_Start, i_End ;
 static int  SolverInitialized=0 ;
