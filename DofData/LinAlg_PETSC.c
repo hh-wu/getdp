@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.28 2003-03-17 19:22:33 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.29 2003-03-18 05:42:21 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -14,14 +14,12 @@
 #include "F_FMMOperations.h"
 #include "SafeIO.h"
 
-
 extern int Flag_FMM ;
 
 /* error checking, petsc-style */
 
 #define MYCHECK(ierr) CHKERRABORT(PETSC_COMM_WORLD,ierr)
-static int  ierr, i_Start, i_End ;
-static int  SolverInitialized=0 ;
+static int  ierr, SolverInitialized=0 ;
 
 /* stuff for matrix-free matrices */
 
