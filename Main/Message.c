@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.37 2001-03-19 19:15:07 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.38 2001-04-10 15:04:00 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -196,9 +196,9 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
 #endif
       fprintf(stream, WHITE_STR "------------------------------------------------------\n");
-      fprintf(stream, WHITE_STR "You have discovered a bug in GetDP. You may e-mail the\n");
-      fprintf(stream, WHITE_STR "context in which it occurred to one of the authors:\n");
-      fprintf(stream, WHITE_STR "type 'getdp -info' to get feedback information\n");
+      fprintf(stream, WHITE_STR "You have discovered a bug in GetDP! You may report it\n");
+      fprintf(stream, WHITE_STR "by e-mail (together with any helpful data permitting to\n");
+      fprintf(stream, WHITE_STR "reproduce it) to <getdp@geuz.org>\n");
     }
     *abort = 1;
     break;

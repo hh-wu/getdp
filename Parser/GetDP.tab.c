@@ -194,7 +194,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.14 2001-03-27 19:19:58 dular Exp $ */
+/* $Id: GetDP.tab.c,v 1.15 2001-04-10 15:04:00 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
