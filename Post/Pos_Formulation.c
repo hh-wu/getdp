@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.c,v 1.14 2000-10-01 06:51:10 geuzaine Exp $ */
+/* $Id: Pos_Formulation.c,v 1.15 2000-10-02 14:08:05 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -902,6 +902,7 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 	Dummy[1] = Dummy[0] + sqrt(DSQU(PE->x[1]-PE->x[0])+
 				   DSQU(PE->y[1]-PE->y[0])+
 				   DSQU(PE->z[1]-PE->z[0])) ;
+	Dummy[2] = PE->v[0] ;
       }
 
       Print_PostElement(PostSubOperation_P->Format, Current.Time, 0, 
