@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.24 2002-01-18 17:43:04 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.25 2002-01-23 22:00:59 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -1131,11 +1131,13 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
     case DOF_LINKCPLX :
       if(NbrHar==1)
-	Msg(ERROR,"Situation impossible (Dof, Dof_AssembleInMat)!!!") ;
+	Msg(ERROR,"LinkCplx only valid for Complex systems") ;
       else{
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef - Val[1] * Dof_P->Case.Link.Coef2 ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef + Val[0] * Dof_P->Case.Link.Coef2 ;
       }
+      if(Dof_P->Case.Link.Dof->Type == DOF_LINKCPLX)
+	Msg(WARNING, "Dof LinkCplx of Dof LinkCplx!");
       Dof_AssembleInMat(Equ_P, Dof_P->Case.Link.Dof, NbrHar, valtmp, Mat, Vec) ;
       break ;
 
@@ -1164,11 +1166,13 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
   case DOF_LINKCPLX :
     if(NbrHar==1)
-      Msg(ERROR,"Situation impossible (Equ, Dof_AssembleInMat)!!!") ;
-    else{
-      valtmp[0] = Val[0] * Equ_P->Case.Link.Coef - Val[1] * Equ_P->Case.Link.Coef2 ;
-      valtmp[1] = Val[1] * Equ_P->Case.Link.Coef + Val[0] * Equ_P->Case.Link.Coef2 ;
+      Msg(ERROR,"LinkCplx only valid for Complex systems") ;
+    else{ /* Warning: conjugate! */
+      valtmp[0] = Val[0] * Equ_P->Case.Link.Coef + Val[1] * Equ_P->Case.Link.Coef2 ;
+      valtmp[1] = Val[1] * Equ_P->Case.Link.Coef - Val[0] * Equ_P->Case.Link.Coef2 ;
     }
+    if(Equ_P->Case.Link.Dof->Type == DOF_LINKCPLX)
+      Msg(WARNING, "Equ LinkCplx of Equ LinkCplx!");
     Dof_AssembleInMat(Equ_P->Case.Link.Dof, Dof_P, NbrHar, valtmp, Mat, Vec) ;
     break ;
 
@@ -1261,7 +1265,7 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
     case DOF_LINKCPLX :
       if(NbrHar==1)
-	Msg(ERROR,"Situation impossible (Dof, Dof_AssembleInVec)!!!") ;
+	Msg(ERROR,"LinkCplx only valid for Complex systems") ;
       else{
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef - Val[1] * Dof_P->Case.Link.Coef2 ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef + Val[0] * Dof_P->Case.Link.Coef2 ;
@@ -1295,10 +1299,10 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
   case DOF_LINKCPLX :
     if(NbrHar==1)
-      Msg(ERROR,"Situation impossible (Equ, Dof_AssembleInVec)!!!") ;
-    else{
-      valtmp[0] = Val[0] * Equ_P->Case.Link.Coef - Val[1] * Equ_P->Case.Link.Coef2 ;
-      valtmp[1] = Val[1] * Equ_P->Case.Link.Coef + Val[0] * Equ_P->Case.Link.Coef2 ;
+      Msg(ERROR,"LinkCplx only valid for Complex systems") ;
+    else{ /* Warning: Conjugate! */
+      valtmp[0] = Val[0] * Equ_P->Case.Link.Coef + Val[1] * Equ_P->Case.Link.Coef2 ;
+      valtmp[1] = Val[1] * Equ_P->Case.Link.Coef - Val[0] * Equ_P->Case.Link.Coef2 ;
     }
     Dof_AssembleInVec(Equ_P->Case.Link.Dof, Dof_P, NbrHar, 
 		      valtmp, OtherSolution, Vec0, Vec) ;
