@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.23 2001-03-06 08:46:59 dular Exp $"
+#define RCSID "$Id: Main.c,v 1.24 2001-03-06 09:03:39 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -468,9 +468,9 @@ void  Read_ProblemStructure (char * Name){
   AbsPath[i+1] = '\0';
   strcat(AbsPath, Name);
 
-  Msg(LOADING, "Problem Definition '%s'", AbsPath) ;
+  Msg(LOADING, "Problem definition '%s'", AbsPath) ;
 
-  if(!(yyin = fopen(AbsPath, "r"))) Msg(ERROR, "Unable to Open File '%s'", AbsPath);
+  if(!(yyin = fopen(AbsPath, "r"))) Msg(ERROR, "Unable to open file '%s'", AbsPath);
 
   ErrorLevel = 0 ;  yylinenum = 1 ; yyincludenum=0 ; strcpy(yyname, AbsPath) ;
 
