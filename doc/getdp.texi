@@ -3628,12 +3628,12 @@ Post processing format readable by Gmsh.
 @item Gnuplot
 @item Table
 Column-oriented output, e.g.@: suitable for Gnuplot, Excel, Caleida
-Graph, etc. The column are: @var{element-type} @var{x-coords}
+Graph, etc. The columns are: @var{element-type} @var{x-coords}
 @var{y-coords} @var{z-coords} < @var{double} @var{double} @var{double} >
 @var{values}.
 @item TimeTable
 Time oriented column output, e.g.@: suitable for Gnuplot, Excel, Caleida
-Graph, etc. The column are: @var{time-step} @var{time} @var{x-coords}
+Graph, etc. The columns are: @var{time-step} @var{time} @var{x-coords}
 @var{y-coords} @var{z-coords} @var{value}.
 @end vtable
 
@@ -5096,9 +5096,9 @@ Hexahedron (8 nodes, 12 edges, 6 facets).
 @item 6
 Prism (6 nodes, 9 edges, 5 facets).
 @item 7
-Pyramid (5 nodes, 8 edges, 6 facets).
+Pyramid (5 nodes, 8 edges, 5 facets).
 @item 15
-Point (1 nodes).
+Point (1 node).
 @end table
 
 @c -------------------------------------------------------------------------
