@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.39 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.40 2002-01-18 18:30:56 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -414,7 +414,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			  DofData_P->NbrPart, DofData_P->Part) ;
       LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &x_Save);
 
-      Flag_RHS = 1;  // MHJacNL-terms don't contribute to the RHS and residu, and are thus disregarded 
+      Flag_RHS = 1;  
+      /* MHJacNL-terms don't contribute to the RHS and residu, and are thus disregarded */
 
       Error_Prev = 1e99 ;
 
@@ -429,7 +430,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
 	LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
 					 Frelax, &DofData_P->CurrentSolution->x);
-	//printf("XXX");ShowVector(&DofData_P->CurrentSolution->x);
+	/* printf("XXX");ShowVector(&DofData_P->CurrentSolution->x); */
 
 	/* calculate residual with trial solution */
 	ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, 0, 0) ;
@@ -449,7 +450,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Msg(INFO, " => optimal relaxation factor = %f", Frelax_Opt) ;
 
-      // solution = x + Frelax_Opt * dx
+      /*  solution = x + Frelax_Opt * dx */
       LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
       LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
 				       Frelax_Opt, &DofData_P->CurrentSolution->x);
@@ -636,8 +637,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	    MH_Moving_Matrix[k][l] = DCfactor / (double)Operation_P->Case.Generate_MH_Moving.NbrStep *
 	      ( fmod(k,2) ? -sin(Val_Pulsation[k/2]*Current.Time) : cos(Val_Pulsation[k/2]*Current.Time) ) *
 	      ( fmod(l,2) ? -sin(Val_Pulsation[l/2]*Current.Time) : cos(Val_Pulsation[l/2]*Current.Time) ) ;
-	    //printf(" k %d l %d %e \n", k, l,
-	    //   MH_Moving_Matrix[k][l] /2. * (double)Operation_P->Case.Generate_MH_Moving.NbrStep);
+	    /* printf(" k %d l %d %e \n", k, l,
+	       MH_Moving_Matrix[k][l] /2. * 
+	       (double)Operation_P->Case.Generate_MH_Moving.NbrStep);
+	    */
 	    
 	    hop[k][l] += MH_Moving_Matrix[k][l] ;
 	  }
@@ -1492,10 +1495,11 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
   LinAlg_ZeroMatrix(&Current.DofData->A) ;
 
 
-  //  file = fopen("hallo", "w");
-  //LinAlg_PrintMatrix(file, &DofData_P->A) ;
-  //i=0.;
-  //i =1 /i;
+  /* file = fopen("hallo", "w");
+  LinAlg_PrintMatrix(file, &DofData_P->A) ;
+  i=0.;
+  i =1 /i;
+  */
 
   LinAlg_ZeroVector(&Current.DofData->b) ;
  
@@ -1513,8 +1517,9 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
 
   LinAlg_AssembleMatrix(&DofData_P->A) ;
   LinAlg_AssembleVector(&DofData_P->b) ;
-  // LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-  //if(!i) Msg(WARNING, "Generated system is of dimension zero");
+  /* LinAlg_GetVectorSize(&DofData_P->b, &i) ;
+     if(!i) Msg(WARNING, "Generated system is of dimension zero");
+  */
   
   
   GetDP_End ;
@@ -1951,12 +1956,12 @@ double  Cal_NormVector(gVector *x) {
   for (i=0 ; i<n ; i++) {
     LinAlg_GetAbsDoubleInVector(&valx, x, i) ; 
     sum += valx ;
-    // printf("%e sum = %e \n", valx ,sum );
+    /* printf("%e sum = %e \n", valx ,sum ); */
   }
-  //printf("\n");
+  /* printf("\n"); */
   sum /= (double)n ;
 
-  //  printf("sum = %e \n",sum);
+  /* printf("sum = %e \n",sum); */
 
   GetDP_Return(sum);
 }

@@ -66,7 +66,8 @@ void  Contour_MovingBand2D(List_T * InitialList, List_T ** ExtendedList,
   LeftNode = Nodes[0] ; LeftInt = 0;
   ThreeInt->Int2 = 0; ThreeInt->Int3 = 1;
 
-  // printf("i %d   Int2 %d Int3 %d  node1/2 %d %d \n", i, ThreeInt->Int2, ThreeInt->Int3, Nodes[0], Nodes[1]);
+  /* printf("i %d   Int2 %d Int3 %d  node1/2 %d %d \n", 
+     i, ThreeInt->Int2, ThreeInt->Int3, Nodes[0], Nodes[1]); */
 
   for (i = 1 ; i < List_Nbr(*ExtendedList) ; i++) {
     for (i_El = 1 ; i_El < List_Nbr(*ExtendedList) ; i_El++) {
@@ -221,9 +222,10 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
 
   printf("+++++++++++++++++++++++++++++++++++++++++++++++++ %d \n",d2);
 
-
-  //b1_t2[0] = imindist;  //   printf("imindist = %d\n",imindist);
-  // printf("x =%f y= %f\n", x2[imindist],y2[imindist]);
+  /*
+  b1_t2[0] = imindist; printf("imindist = %d\n",imindist);
+  printf("x =%f y= %f\n", x2[imindist],y2[imindist]);
+  */
   *area_moving_band = 
         fabs( (x2[imindist]-x1[0])*(y1[1]-y1[0])-(x1[1]-x1[0])*(y2[imindist]-y1[0]) )/2.;
   itry1 = 1; itry3 = 2 ;
@@ -232,11 +234,12 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
   n1 = 0; n2 = 0;
   b1_p1[n1] = 0; b1_p2[n1] = 1; b1_p3[n1] = itry2;  
   n1++;
-  //  for (i = 0 ; i < nth1 + nth2 - 3  ; i++ ){
+  /*  for (i = 0 ; i < nth1 + nth2 - 3  ; i++ ){ */
   for (i = 1 ; i < ntr1 + ntr2  ; i++ ){
-    // printf("i %d ,itry1 %d ,itry2 %d ,itry3 %d ,itry4 %d\n",
-    //	     i,itry1,itry2,itry3,itry4);
-    //scanf("%d",&idum);
+    /* printf("i %d ,itry1 %d ,itry2 %d ,itry3 %d ,itry4 %d\n",
+    	     i,itry1,itry2,itry3,itry4);
+    scanf("%d",&idum);
+    */
     if ( (Delauny_1234_MB (x1[itry1], y1[itry1], x2[itry2], y2[itry2],
 			   x1[itry3], y1[itry3], x2[itry4], y2[itry4], &area_tr1, &area_tr2) == 1) &&
 	  itry1 < nth1 && itry1 ){      
@@ -253,7 +256,7 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
     }
   }
   if(n1 != ntr1 || n2 != ntr2){
-    //  if(n1 != nth1-1 || n2 != nth2-1){
+    /*  if(n1 != nth1-1 || n2 != nth2-1){ */
         Msg(ERROR, "Meshing of 2D moving band failed!!! \n"); 
   }
   GetDP_End ;
@@ -312,7 +315,7 @@ void  Mesh_MovingBand2D (struct Group * Group_P) {
       n[0] = NumNodes1[b1_p1[i]] ; n[1] = NumNodes1[b1_p2[i]] ; n[2] = NumNodes2[b1_p3[i]] ; 
       List_Put(GeoData->Elements, index, &Geo_Element) ;
     }
-    //printf("Tr1 %d : %d %d %d \n",MB->StartNumTr+i, n[0], n[1], n[2]);  
+    /* printf("Tr1 %d : %d %d %d \n",MB->StartNumTr+i, n[0], n[1], n[2]);*/
   }	
   
   for (i = 0 ; i < MB->ntr2  ; i++){ 
@@ -326,7 +329,7 @@ void  Mesh_MovingBand2D (struct Group * Group_P) {
       n[0] = NumNodes2[b2_p1[i]] ; n[1] = NumNodes2[b2_p2[i]] ; n[2] = NumNodes1[b2_p3[i]] ; 
       List_Put(GeoData->Elements, index, &Geo_Element) ;
     }
-    //printf("Tr2 %d : %d %d %d \n",MB->StartNumTr+MB->ntr1+i, n[0], n[1], n[2]);  
+    /* printf("Tr2 %d : %d %d %d \n",MB->StartNumTr+MB->ntr1+i, n[0], n[1], n[2]); */
   }	
 
   Msg(INFO, "Moving band meshed (area = %e)", MB->Area);
