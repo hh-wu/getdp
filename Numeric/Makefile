@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.13 2001-11-20 12:21:08 geuzaine Exp $
+# $Id: Makefile,v 1.14 2001-11-21 17:10:03 sabarieg Exp $
 #
 # Makefile for 'libSolverMisc.a'
 #
@@ -38,7 +38,10 @@ FSRC =  clt2d.f \
         bessel.f \
 	AiryAmos.f\
 	BesselAmos.f \
-	LibAmos.f
+	LibAmos.f \
+	r1mach.f \
+	d1mach.f \
+	i1mach.f
 
 COBJ  = $(CSRC:.c=.o)
 FOBJ  = $(FSRC:.f=.o)
