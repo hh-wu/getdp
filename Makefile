@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.156 2004-04-15 05:34:36 geuzaine Exp $
+# $Id: Makefile,v 1.157 2004-04-15 05:57:24 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -32,7 +32,6 @@ GETDP_SHORT_LICENSE = "GNU General Public License"
 
 GETDP_VERSION_FILE = include/GetDPVersion.h
 GETDP_DATE = `date "+%Y%m%d"`
-GETDP_ARCHIVE = archives/getdp-${GETDP_DATE}
 GETDP_SOURCES = `find . \( ! -name "*.tar*" -a ! -name "*.tgz" \
                         -a ! -name "*.o"    -a ! -name "*.a"   -a ! -name "*.cut"   \
                         -a ! -name "*.pos"  -a ! -name "*.pre" -a ! -name "*.res" \
@@ -47,6 +46,22 @@ compile: variables initialtag
 link: variables
 	${LINKER} -o bin/getdp ${GETDP_LIBS}
 
+blackbox: variables initialtag
+	@for i in ${GETDP_DIRS}; \
+        do (cd $$i && ${MAKE} \
+           "C_FLAGS=${C_FLAGS} -DHAVE_BLACKBOX" \
+        ); done
+	${LINKER} -o bin/getdp-box ${GETDP_LIBS}
+
+compile-hf: variables initialtag
+	@for i in Scattering DofData Numeric DataStr NR; do (cd $$i && ${MAKE}); done
+
+link-hf: variables
+	${CLINKER} -o bin/hf lib/libScattering.a lib/libDofData.a lib/libNumeric.a\
+          lib/libDataStr.a lib/libNR.a ${PETSC_SLES_LIB} -L${FFTW_DIR}/lib -lfftw -lm
+
+hf: compile-hf link-hf
+
 install: variables
 	-mkdir -p ${bindir}
 	-cp bin/getdp${EXEEXT} ${bindir}
@@ -60,26 +75,6 @@ variables: configure
 	@echo "For help, type ./configure --help"
 	@echo "********************************************************************"
 	@exit 1
-
-source-common:
-	rm -rf getdp-${GETDP_VERSION}
-	tar zcvf getdp.tgz `ls README* configure *.in Makefile */Makefile\
-                            */*.[chylfF] */*.[ch]pp *.spec` doc demos
-	mkdir getdp-${GETDP_VERSION}
-	cd getdp-${GETDP_VERSION} && tar zxvf ../getdp.tgz
-	rm -f getdp.tgz
-	cd getdp-${GETDP_VERSION}/demos && ${MAKE} clean
-	cd getdp-${GETDP_VERSION}/doc && ${MAKE} clean
-
-source: source-common
-	cd getdp-${GETDP_VERSION} && rm -rf NR Scattering utils doc/slides\
-                                            ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
-	tar zcvf getdp-${GETDP_VERSION}-source.tgz getdp-${GETDP_VERSION}
-
-source-commercial: source-common
-	cd getdp-${GETDP_VERSION} && rm -rf Scattering utils doc/slides\
-                                            ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
-	tar zcvf getdp-${GETDP_VERSION}-source-commercial.tgz getdp-${GETDP_VERSION}
 
 .PHONY: parser
 parser:
@@ -136,13 +131,29 @@ etags:
 	etags `find . \( -name "*.cpp" -o -name "*.c" -o -name "*.h"\
                       -o -name "*.y" -o -name "*.l" \)`
 
-tgz:
-	if (test -f ${GETDP_ARCHIVE}.tar.gz); \
-	  then mv -f ${GETDP_ARCHIVE}.tar.gz ${GETDP_ARCHIVE}.tar.gz~; \
-	fi
-	tar cvf ${GETDP_ARCHIVE}.tar ${GETDP_SOURCES}
-	gzip ${GETDP_ARCHIVE}.tar
-	chmod 640 ${GETDP_ARCHIVE}.tar.gz
+# Rules to package the sources
+
+source-common:
+	rm -rf getdp-${GETDP_VERSION}
+	tar zcvf getdp.tgz `ls README* configure *.in Makefile */Makefile\
+                            */*.[chylfF] */*.[ch]pp *.spec` doc demos
+	mkdir getdp-${GETDP_VERSION}
+	cd getdp-${GETDP_VERSION} && tar zxvf ../getdp.tgz
+	rm -f getdp.tgz
+	cd getdp-${GETDP_VERSION}/demos && ${MAKE} clean
+	cd getdp-${GETDP_VERSION}/doc && ${MAKE} clean
+
+source: source-common
+	cd getdp-${GETDP_VERSION} && rm -rf NR Scattering utils doc/slides\
+                                            ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
+	tar zcvf getdp-${GETDP_VERSION}-source.tgz getdp-${GETDP_VERSION}
+
+source-commercial: source-common
+	cd getdp-${GETDP_VERSION} && rm -rf Scattering utils doc/slides\
+                                            ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
+	tar zcvf getdp-${GETDP_VERSION}-source-commercial.tgz getdp-${GETDP_VERSION}
+
+# Rules to package the binaries
 
 package-unix:
 	rm -rf getdp-${GETDP_VERSION}
@@ -187,27 +198,11 @@ package-win:
 package-mac: package-unix
 	mv getdp-${GETDP_VERSION}-${UNAME}.tgz getdp-${GETDP_VERSION}-MacOSX.tgz
 
-rpm:
+package-rpm:
 	tar zcvf /usr/src/redhat/SOURCES/getdp-${GETDP_VERSION}.tar.gz ${GETDP_SOURCES}
 	rpmbuild -bb --define 'getdpversion ${GETDP_VERSION}' getdp.spec
 	cp /usr/src/redhat/RPMS/i386/getdp-${GETDP_VERSION}-?.i386.rpm .
 	cp /usr/src/redhat/BUILD/getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-${UNAME}.tgz .
-
-blackbox: initialtag
-	@for i in ${GETDP_DIRS}; \
-        do (cd $$i && ${MAKE} \
-           "C_FLAGS=${C_FLAGS} -DHAVE_BLACKBOX" \
-        ); done
-	${LINKER} -o bin/getdp-box ${GETDP_LIBS}
-
-compile-hf: initialtag
-	@for i in Scattering DofData Numeric DataStr NR; do (cd $$i && ${MAKE}); done
-
-link-hf:
-	${CLINKER} -o bin/hf lib/libScattering.a lib/libDofData.a lib/libNumeric.a\
-          lib/libDataStr.a lib/libNR.a  ${PETSC_SLES_LIB} -L${FFTW_DIR}/lib -lfftw -lm
-
-hf: compile-hf link-hf
 
 # Rules to distribute official releases
 
@@ -240,6 +235,11 @@ distrib-mac: clean
 	make package-mac
 	make distrib-post
 	otool -L bin/getdp
+
+distrib-rpm:
+	make distrib-pre
+	make package-rpm
+	make distrib-post
 
 distrib-source:
 	make distrib-pre
