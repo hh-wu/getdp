@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Operations.c,v 1.9 2004-09-18 18:03:00 geuzaine Exp $"
+#define RCSID "$Id: FMM_Operations.c,v 1.10 2005-02-06 01:11:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -59,11 +59,11 @@ void FMM_NoRenumbering( ){
 
   int  NbrFMMEqu, iFMMEqu, iG, NbrGroupSrc, NbrGroupObs ;
   struct FMMmat *FMMmat_P0, *FMMmat_P ;
-  int  iDof, NbrDof, NumDof, NumDofr, *NumDof_A ;
-  int  iEqu, NbrEqu, NumEqu, NumEqur, *NumEqu_A ;
+  int  iDof, NbrDof, NumDof, *NumDof_A ;
+  int  iEqu, NbrEqu, NumEqu, *NumEqu_A ;
   int  NbrHar, NumDofi, NumEqui, Flag_Iter = 0 ;
 
-  List_T *NumDof_L, *NumDofr_L, *NumEqu_L , *NumEqur_L;
+  List_T *NumDof_L, *NumEqu_L ;
   List_T *NumDofi_L, *NumEqui_L ;
 
 
@@ -181,11 +181,12 @@ void FMM_Renumbering( int N, int *permr, int *permp){
 	List_Read(FMMmat_P->NumDofr, iG, &NumDofr_L ) ;
       
 
-      if( NbrHar == 2)
+      if(NbrHar == 2){
 	if(!Flag_Renum)
 	  NumDofi_L = List_Create(NbrDof, 1, sizeof(int)) ;
         else
 	  List_Read(FMMmat_P->NumDofi, iG, &NumDofi_L ) ;
+      }
 
       for (iDof = 0 ; iDof < NbrDof ; iDof++){
 	NumDof  = NumDof_A[iDof] - 1 ;
@@ -211,11 +212,12 @@ void FMM_Renumbering( int N, int *permr, int *permp){
       else 
 	List_Write(FMMmat_P->NumDofr, iG, &NumDofr_L ) ;
 
-      if(NbrHar == 2)  
+      if(NbrHar == 2){
 	if(!Flag_Renum)
 	  List_Add(FMMmat_P->NumDofi, &NumDofi_L ) ;
 	else 
 	  List_Write(FMMmat_P->NumDofi, iG, &NumDofi_L ) ;
+      }
     }
 
     Flag_Renum = 0 ;
@@ -240,11 +242,12 @@ void FMM_Renumbering( int N, int *permr, int *permp){
 	else
 	  List_Read(FMMmat_P->NumEqur, iG, &NumEqur_L ) ;
 
-	if(NbrHar == 2)
+	if(NbrHar == 2){
 	  if(!Flag_Renum)
 	    NumEqui_L = List_Create(NbrEqu,  1, sizeof(int)) ;
 	  else
 	    List_Read(FMMmat_P->NumEqui, iG, &NumEqui_L ) ;
+	}
 
 	for (iEqu = 0 ; iEqu < NbrEqu ; iEqu++){
 	  NumEqu = NumEqu_A[iEqu] - 1 ;
@@ -270,11 +273,12 @@ void FMM_Renumbering( int N, int *permr, int *permp){
 	else
 	  List_Write(FMMmat_P->NumEqur, iG, &NumEqur_L ) ;
 
-	if(NbrHar == 2)  
+	if(NbrHar == 2){
 	  if(!Flag_Renum)
 	    List_Add(FMMmat_P->NumEqui, &NumEqui_L ) ;
 	  else
 	    List_Write(FMMmat_P->NumEqui, iG, &NumEqui_L ) ;
+	}
       }
     }
     else{ 
@@ -324,15 +328,16 @@ void FMM_RenumberingOLD( int N, int *permr, int *permp){
     else Flag_Renum = 1 ;
 
     for (iG = 0 ; iG < NbrGroupSrc ; iG++){
-      List_Read(FMMmat_P->NumDof, iG, &NumDof_L ) ;
+      List_Read(FMMmat_P->NumDof, iG, &NumDof_L) ;
       NbrDof = List_Nbr( NumDof_L);   
       NumDof_A = (int*)(NumDof_L->array) ;
 
-      if( NbrHar == 2)
+      if(NbrHar == 2){
 	if(!Flag_Renum)
 	  NumDofi_L = List_Create(NbrDof,  1, sizeof(int)) ;
         else
 	  List_Read(FMMmat_P->NumDofi, iG, &NumDofi_L ) ;
+      }
 
       for (iDof = 0 ; iDof < NbrDof ; iDof++){
 	NumDof  = NumDof_A[iDof] - 1 ;
@@ -349,11 +354,12 @@ void FMM_RenumberingOLD( int N, int *permr, int *permp){
 	}
       }
       List_Write(FMMmat_P->NumDof, iG, &NumDof_L ) ;
-      if(NbrHar == 2)  
+      if(NbrHar == 2){
 	if(!Flag_Renum)
 	  List_Add(FMMmat_P->NumDofi, &NumDofi_L ) ;
 	else 
 	  List_Write(FMMmat_P->NumDofi, iG, &NumDofi_L ) ;
+      }
     }
  
     Flag_Renum = 0 ;
@@ -370,11 +376,12 @@ void FMM_RenumberingOLD( int N, int *permr, int *permp){
 	NbrEqu = List_Nbr( NumEqu_L);   
 	NumEqu_A = (int*)(NumEqu_L->array) ;
 
-	if(NbrHar == 2)
+	if(NbrHar == 2){
 	  if(!Flag_Renum)
 	    NumEqui_L = List_Create(NbrEqu,  1, sizeof(int)) ;
 	  else
 	    List_Read(FMMmat_P->NumEqui, iG, &NumEqui_L ) ;
+	}
 
 	for (iEqu = 0 ; iEqu < NbrEqu ; iEqu++){
 	  NumEqu = NumEqu_A[iEqu] - 1 ;
@@ -393,11 +400,12 @@ void FMM_RenumberingOLD( int N, int *permr, int *permp){
 
 	List_Write(FMMmat_P->NumEqu, iG, &NumEqu_L ) ;
 
-	if(NbrHar == 2)  
+	if(NbrHar == 2){
 	  if(!Flag_Renum)
 	    List_Add(FMMmat_P->NumEqui, &NumEqui_L ) ;
 	  else
 	    List_Write(FMMmat_P->NumEqui, iG, &NumEqui_L ) ;
+	}
       }
     }
     else 
@@ -759,11 +767,11 @@ void FMMProd_AllLaplace2D(struct FMMmat *FMMmat_P, double *x, double *y ){
   /* WARNING: Aggregation and Disaggregation matrices must be SCALAR */
   int  NbrGroupSrc, NbrDir ;
   int  NbrFG, *NumFG, *Nd_A ;
-  int  iDof, NbrDof, NumDof, NumDofprev, *NumDof_A, *NumDofprev_A ;
+  int  iDof, NbrDof, NumDof, NumDofprev, *NumDof_A, *NumDofprev_A = NULL;
   int  iEqu, NbrEqu, NumEqu, *NumEqu_A ;
   int  iG1, iG2, iDir, iDir2, iR, iHar, NbrHar,TypeTimeDerivative ;
   double  **Ag_M, *Ag_V, AgJRe[NBR_MAX_DIR], AgJIm[NBR_MAX_DIR], ***T, *TG1G2, **Disag_M, *Disag_V ;
-  double Treal, Timag, TARe[NBR_MAX_DIR], TAIm[NBR_MAX_DIR], w, *x_prev ; 
+  double Treal, Timag, TARe[NBR_MAX_DIR], TAIm[NBR_MAX_DIR], w, *x_prev = NULL; 
 
   List_T *FG_L, *Nd_L, *NumDof_L, *NumDofprev_L, *NumEqu_L ;
 
@@ -885,12 +893,12 @@ void FMMProd_AllLaplace3D(struct FMMmat *FMMmat_P, double *x, double *y ){
   /* Aggregation and Disaggregation matrices SCALAR */
   int  NbrGroupSrc, NbrDir ;
   int  NbrFG,  *NumFG, *Nd_A ; 
-  int  iDof, NbrDof, NumDof, NumDofprev, *NumDof_A, *NumDofprev_A ;
+  int  iDof, NbrDof, NumDof, NumDofprev, *NumDof_A, *NumDofprev_A = NULL;
   int  iEqu, NbrEqu, NumEqu, *NumEqu_A ;
   int  iG1, iG2, iDir, iDir2, iR, iHar, NbrHar, l, m, j, k ;
   int  TypeTimeDerivative ;
   double  **Ag_M, *Ag_V, AgJRe[NBR_MAX_DIR], AgJIm[NBR_MAX_DIR], ***T, *TG1G2, **Disag_M, *Disag_V ;
-  double Treal, Timag, TARe[NBR_MAX_DIR], TAIm[NBR_MAX_DIR], w, *x_prev ; 
+  double Treal, Timag, TARe[NBR_MAX_DIR], TAIm[NBR_MAX_DIR], w, *x_prev = NULL ; 
   List_T *FG_L, *Nd_L, *NumDof_L, *NumDofprev_L, *NumEqu_L ;
 
 
@@ -983,19 +991,19 @@ void FMMProd_AllLaplace3D(struct FMMmat *FMMmat_P, double *x, double *y ){
 	    if (l==m) {l++;m=-l;} else m++;
 	  }/* iDir NbrDir */
 
-	  if ( (TypeTimeDerivative == NODT_) ||  (TypeTimeDerivative == DT_ && NbrHar == 1) )
+	  if ( (TypeTimeDerivative == NODT_) ||  (TypeTimeDerivative == DT_ && NbrHar == 1) ){
 	    if(iHar == 0)
 	      List_Read(FMMmat_P->NumEqur, NumFG[iG2], &NumEqu_L ) ; 
 	    else
 	      List_Read(FMMmat_P->NumEqui, NumFG[iG2], &NumEqu_L ) ;  
+	  }
 	  
-	  
-	  if (TypeTimeDerivative == DT_ && NbrHar == 2)
+	  if (TypeTimeDerivative == DT_ && NbrHar == 2){
 	    if (iHar == 0)
 	      List_Read(FMMmat_P->NumEqui, NumFG[iG2], &NumEqu_L ) ;
 	    else
 	      List_Read(FMMmat_P->NumEqur, NumFG[iG2], &NumEqu_L ) ;
-	  
+	  }
 
 	  NbrEqu = List_Nbr( NumEqu_L ) ;
 	  NumEqu_A = (int*)(NumEqu_L->array) ;

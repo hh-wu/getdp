@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.37 2004-09-09 11:25:31 dular Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.38 2005-02-06 01:11:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -70,7 +70,7 @@ void  Format_PostFormat(int Format){
     if(Flag_BIN){/* bricolage */
       fprintf(PostStream, "$PostFormat /* Gmsh 1.2, %s */\n",
 	      Flag_BIN ? "binary" : "ascii") ;
-      fprintf(PostStream, "1.2 %d %d\n", Flag_BIN, sizeof(double)) ;
+      fprintf(PostStream, "1.2 %d %d\n", Flag_BIN, (int)sizeof(double)) ;
       fprintf(PostStream, "$EndPostFormat\n") ;
     }
     break ;
@@ -935,8 +935,6 @@ void  Format_OO1(int Format, double Time, int TimeStep, int NbrTimeSteps,
 		 struct Value *Value){
   static int  Size ;
   int         i,j,k ;
-  double      TimeMH ;
-  struct Value  TmpValue ;
 
   GetDP_Begin("Format_OO1");
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.31 2004-11-10 09:58:20 dular Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.32 2005-02-06 01:11:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -582,10 +582,8 @@ void Cal_WholeQuantity(struct Element * Element,
 
 	for (k = 0 ; k < Current.NbrSystem ; k++){
 
-
 	  numSolution = (Current.DofData_P0+k)->CurrentSolution
 	    - (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0) ;
-
 
 	  /* Not the correct test in Post !!!
 	  if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){
@@ -621,6 +619,10 @@ void Cal_WholeQuantity(struct Element * Element,
 	*/
 
 	for (k = 0 ; k < Current.NbrSystem ; k++){
+
+	  numSolution = (Current.DofData_P0+k)->CurrentSolution
+	    - (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0) ;
+
 	  if(numSolution - ntime >=0){
 	    /*
 	  if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){
