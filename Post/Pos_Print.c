@@ -348,6 +348,29 @@ void  Print_NewGmsh(int TimeStep, int NbrTimeSteps, int NbrHarmonics,
 }
 
 
+int Get_GmshElementType(int Type){
+  switch(Type){
+  case POINT :         return 15 ; 
+  case LINE :	       return 1  ; 
+  case TRIANGLE :      return 2  ; 
+  case QUADRANGLE :    return 3  ; 
+  case TETRAHEDRON :   return 4  ;    
+  case HEXAHEDRON :    return 5  ; 
+  case PRISM :	       return 6  ; 
+  case PYRAMID :       return 7  ; 
+  case LINE_2 :	       return 8  ; 
+  case TRIANGLE_2 :    return 9  ; 
+  case QUADRANGLE_2 :  return 10 ; 
+  case TETRAHEDRON_2 : return 11 ;      
+  case HEXAHEDRON_2 :  return 12 ; 
+  case PRISM_2 :       return 13 ; 
+  case PYRAMID_2 :     return 14 ; 
+  default : 
+    Msg(ERROR, "Unknown Type in Get_GmshElementType") ;
+    return -1 ;
+  }
+}
+
 void  Print_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
 		    int NbrHarmonics, int HarmonicToTime, int ElementType, int NbrNodes,
 		    double *x, double *y, double *z, double *Normal, struct Value *Value){
@@ -369,7 +392,7 @@ void  Print_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
   case FORMAT_GNUPLOT :
   case FORMAT_SPACE_TABLE :
     if(TimeStep == 0){
-      fprintf(PostStream, "%d ", ElementType);
+      fprintf(PostStream, "%d ", Get_GmshElementType(ElementType));
       for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", x[i]);
       for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", y[i]);
       for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", z[i]);
