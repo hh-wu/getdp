@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.20 2000-09-26 11:33:06 geuzaine Exp $
+@c $Id: getdp.texi,v 1.21 2000-09-26 16:53:59 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -78,8 +78,8 @@ BELGIUM @*
 @global@let@bullet=-
 @global@let@sl=@it
 @global@setfont@indit@itshape{9}{1000}
-@global@let@linkcolor=@Orange
-@parskip=5pt
+@c @global@let@linkcolor=@Orange
+@c @parskip=5pt
 @end iftex
 
 @c =========================================================================

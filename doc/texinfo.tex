@@ -3,9 +3,9 @@
 % Load plain if necessary, i.e., if running under initex.
 \expandafter\ifx\csname fmtname\endcsname\relax\input plain\fi
 %
-\def\texinfoversion{1999-09-25.10}
+\def\texinfoversion{2000-09-06.09}
 %
-% Copyright (C) 1985, 86, 88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99
+% Copyright (C) 1985, 86, 88, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 2000
 % Free Software Foundation, Inc.
 %
 % This texinfo.tex file is free software; you can redistribute it and/or
@@ -214,6 +214,9 @@
     \normalturnoffactive  % \ in index entries must not stay \, e.g., if
                    % the page break happens to be in the middle of an example.
     \shipout\vbox{%
+      % Do this early so pdf references go to the beginning of the page.
+      \ifpdfmakepagedest \pdfmkdest{\the\pageno} \fi
+      %
       \ifcropmarks \vbox to \outervsize\bgroup
         \hsize = \outerhsize
         \vskip-\topandbottommargin
@@ -242,8 +245,6 @@
         \vskip 2\baselineskip
         \unvbox\footlinebox
       \fi
-      %
-      \ifpdfmakepagedest \pdfmkdest{\the\pageno} \fi
       %
       \ifcropmarks
           \egroup % end of \vbox\bgroup
@@ -891,7 +892,7 @@ where each line of input produces a line of output.}
     \fi}
   \def\pdfmkdest#1{\pdfdest name{#1@} xyz}
   \def\pdfmkpgn#1{#1@}
-  \let\linkcolor = \Cyan
+  \let\linkcolor = \Blue  % was Cyan, but that seems light?
   \def\endlink{\Black\pdfendlink}
   % Adding outlines to PDF; macros for calculating structure of outlines
   % come from Petr Olsak
@@ -906,7 +907,8 @@ where each line of input produces a line of output.}
       \closein 1 
       \indexnofonts
       \def\tt{}
-      % thanh's hack / proper braces in bookmarks  
+      \let\_ = \normalunderscore
+      % Thanh's hack / proper braces in bookmarks  
       \edef\mylbrace{\iftrue \string{\else}\fi}\let\{=\mylbrace
       \edef\myrbrace{\iffalse{\else\string}\fi}\let\}=\myrbrace
       %
@@ -1670,7 +1672,10 @@ where each line of input produces a line of output.}
 }
 
 % Subroutines used in generating headings
-% Produces Day Month Year style of output.
+% This produces Day Month Year style of output.
+% Only define if not already defined, in case a txi-??.tex file has set
+% up a different format (e.g., txi-cs.tex does this).
+\ifx\today\undefined
 \def\today{%
   \number\day\space
   \ifcase\month
@@ -1679,6 +1684,7 @@ where each line of input produces a line of output.}
   \or\putwordMSep\or\putwordMOct\or\putwordMNov\or\putwordMDec
   \fi
   \space\number\year}
+\fi
 
 % @settitle line...  specifies the title of the document, for headings.
 % It generates no output of its own.
@@ -3149,7 +3155,6 @@ width0pt\relax} \fi
   %
   % Double the \vsize as well.  (We don't need a separate register here,
   % since nobody clobbers \vsize.)
-  \advance\vsize by -\ht\partialpage
   \vsize = 2\vsize
 }
 
@@ -3163,6 +3168,7 @@ width0pt\relax} \fi
   % previous page.
   \dimen@ = \vsize
   \divide\dimen@ by 2
+  \advance\dimen@ by -\ht\partialpage
   %
   % box0 will be the left-hand column, box2 the right.
   \setbox0=\vsplit255 to\dimen@ \setbox2=\vsplit255 to\dimen@
@@ -3170,15 +3176,18 @@ width0pt\relax} \fi
   \unvbox255
   \penalty\outputpenalty
 }
+%
+% Re-output the contents of the output page -- any previous material,
+% followed by the two boxes we just split, in box0 and box2.
 \def\pagesofar{%
-  % Re-output the contents of the output page -- any previous material,
-  % followed by the two boxes we just split, in box0 and box2.
   \unvbox\partialpage
   %
   \hsize = \doublecolumnhsize
   \wd0=\hsize \wd2=\hsize
   \hbox to\pagewidth{\box0\hfil\box2}%
 }
+% 
+% All done with double columns.
 \def\enddoublecolumns{%
   \output = {%
     % Split the last of the double-column material.  Leave it on the
@@ -3203,8 +3212,9 @@ width0pt\relax} \fi
   % \endgroup where \vsize got restored).
   \pagegoal = \vsize
 }
+%
+% Called at the end of the double column material.
 \def\balancecolumns{%
-  % Called at the end of the double column material.
   \setbox0 = \vbox{\unvbox255}% like \box255 but more efficient, see p.120.
   \dimen@ = \ht0
   \advance\dimen@ by \topskip
@@ -4710,7 +4720,8 @@ width0pt\relax} \fi
 \def\deftypeivarheader#1#2#3{%
   \dosubind{vr}{\code{#3}}{\putwordof\ \code{#1}}% entry in variable index
   \begingroup
-    \defname{#3}{\putwordInstanceVariableof\ \code{#1}}%
+    \defname{\defheaderxcond#2\relax$$$#3}
+            {\putwordInstanceVariableof\ \code{#1}}%
     \defvarargs{#3}%
   \endgroup
 }
@@ -5794,7 +5805,7 @@ should work if nowhere else does.}
 % Use @afourwide to print on European A4 paper in wide format.
 \def\afourwide{%
   \afourpaper
-  \internalpagesizes{9.5in}{6.5in}{\hoffset}{\normaloffset}{\bindingoffset}{7mm}%
+  \internalpagesizes{6.5in}{9.5in}{\hoffset}{\normaloffset}{\bindingoffset}{7mm}%
   %
   \globaldefs = 0
 }
