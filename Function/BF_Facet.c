@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Facet.c,v 1.7 2002-03-06 09:24:48 trophime Exp $"
+#define RCSID "$Id: BF_Facet.c,v 1.8 2003-02-10 10:59:52 dular Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -20,36 +20,103 @@ void  BF_Facet   (struct Element * Element, int NumFacet,
   switch (Element->Type) {
   case LINE :
     switch(NumFacet) {
+    case 1  : s[0] =  1. ; s[1] =  0. ; s[2] =  0.   ; break ;
     default : WrongNumFacet ;
     }
     break ;
 
   case TRIANGLE :
     switch(NumFacet) {
+    case 1  : s[0] = 0. ; s[1] = 0. ; s[2] = 2.  ; break ;
     default : WrongNumFacet ;
     }
     break ;
 
   case QUADRANGLE :
     switch(NumFacet) {
+    case 2  : s[0] = -0.25 * (1. - v) ; s[1] =  0.               ;
+              s[2] =  0.              ; break ;
+    case 1  : s[0] =  0.              ; s[1] =  0.25 * (1. - u) ;
+              s[2] =  0.              ; break ;
+    case 4  : s[0] =  0.              ; s[1] = -0.25 * (1. + u) ;
+              s[2] =  0.              ; break ;
+    case 3  : s[0] =  0.25 * (1. + v) ; s[1] =  0.              ;
+              s[2] =  0.              ; break ;
+/*
+    case 1  : s[0] =  0.25 * (1. - v) ; s[1] =  0.              ;
+              s[2] =  0.              ; break ;
+    case 2  : s[0] =  0.              ; s[1] =  0.25 * (1. - u) ;
+              s[2] =  0.              ; break ;
+    case 3  : s[0] =  0.              ; s[1] =  0.25 * (1. + u) ;
+              s[2] =  0.              ; break ;
+    case 4  : s[0] = -0.25 * (1. + v) ; s[1] =  0.              ;
+              s[2] =  0.              ; break ;
+*/
     default : WrongNumFacet ;
     }
     break ;
 
   case TETRAHEDRON :
     switch(NumFacet) {
+    case 1  : s[0] = 1. - v - w ; s[1] = u          ; s[2] = u          ; break ;
+    case 2  : s[0] = v          ; s[1] = 1. - u - w ; s[2] = v          ; break ;
+    case 3  : s[0] = w          ; s[1] = w          ; s[2] = 1. - u - v ; break ;
+    case 4  : s[0] =    - v     ; s[1] =      u     ; s[2] = 0.         ; break ;
+    case 5  : s[0] =        - w ; s[1] = 0.         ; s[2] = u          ; break ;
+    case 6  : s[0] = 0.         ; s[1] =        - w ; s[2] = v          ; break ;
     default : WrongNumFacet ;
     }
     break ;
 
   case HEXAHEDRON :
     switch(NumFacet) {
+    case 1  : s[0] =  0.125 * (1. - v) * (1. - w) ; s[1] =  0. ; s[2] =  0. ; break ;
+    case 6  : s[0] = -0.125 * (1. + v) * (1. - w) ; s[1] =  0. ; s[2] =  0. ; break ;
+    case 9  : s[0] =  0.125 * (1. - v) * (1. + w) ; s[1] =  0. ; s[2] =  0. ; break ;
+    case 12 : s[0] = -0.125 * (1. + v) * (1. + w) ; s[1] =  0. ; s[2] =  0. ; break ;
+
+    case 2  : s[0] =  0. ; s[1] =  0.125 * (1. - u) * (1. - w) ; s[2] =  0. ; break ;
+    case 4  : s[0] =  0. ; s[1] =  0.125 * (1. + u) * (1. - w) ; s[2] =  0. ; break ;
+    case 10 : s[0] =  0. ; s[1] =  0.125 * (1. - u) * (1. + w) ; s[2] =  0. ; break ;
+    case 11 : s[0] =  0. ; s[1] =  0.125 * (1. + u) * (1. + w) ; s[2] =  0. ; break ;
+
+    case 3  : s[0] =  0. ; s[1] =  0. ; s[2] =  0.125 * (1. - u) * (1. - v) ; break ;
+    case 5  : s[0] =  0. ; s[1] =  0. ; s[2] =  0.125 * (1. + u) * (1. - v) ; break ;
+    case 7  : s[0] =  0. ; s[1] =  0. ; s[2] =  0.125 * (1. + u) * (1. + v) ; break ;
+    case 8  : s[0] =  0. ; s[1] =  0. ; s[2] =  0.125 * (1. - u) * (1. + v) ; break ;
     default : WrongNumFacet ;
     }
     break ;
 
   case PRISM :
     switch(NumFacet) {
+    case 1  : s[0] =  0.5 * (1. - v) * (1. - w) ;
+              s[1] =  0.5 *       u  * (1. - w) ;
+              s[2] =  0.                        ; break ;
+    case 2  : s[0] =  0.5 *       v  * (1. - w) ;
+              s[1] =  0.5 * (1. - u) * (1. - w) ;
+              s[2] =  0.                        ; break ;
+    case 3  : s[0] =  0.                        ;
+              s[1] =  0.                        ;
+              s[2] =  0.5 * (1. - u - v)        ; break ;
+    case 4  : s[0] = -0.5 *       v  * (1. - w) ;
+              s[1] =  0.5 *       u  * (1. - w) ;
+              s[2] =  0.                        ; break ;
+    case 5  : s[0] =  0.                        ;
+              s[1] =  0.                        ;
+              s[2] =  0.5 *       u             ; break ;
+    case 6  : s[0] =  0.                        ;
+              s[1] =  0.                        ;
+              s[2] =  0.5 *           v         ; break ;
+    case 7  : s[0] =  0.5 * (1. - v) * (1. + w) ;
+              s[1] =  0.5 *       u  * (1. + w) ;
+              s[2] =  0.                        ; break ;
+    case 8  : s[0] =  0.5 *       v  * (1. + w) ;
+              s[1] =  0.5 * (1. - u) * (1. + w) ;
+              s[2] =  0.                        ; break ;
+    case 9  : s[0] = -0.5 *       v  * (1. + w) ;
+              s[1] =  0.5 *       u  * (1. + w) ;
+              s[2] =  0.                        ; break ;
     default : WrongNumFacet ;
     }
     break ;
