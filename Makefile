@@ -2,24 +2,17 @@
 #  Makefile for GetDP
 #
 #  Optional packages: 
-#    * flex + bison to rebuild the parser
-#    * PETSc (2.0.28). The PETSC_DIR and PETSC_ARCH variables 
-#      must be defined 
-#    * METIS (4.0). The METIS_DIR variable must be defined 
-#    * for Windows 95/98/NT : cygwin 
-#        - to obtain a classical cygwin executable (which requires the 
-#          cygwin1.dll at runtime), you should install the 'full.exe'
-#          package (http://sourceware.cygnus.com/cygwin/) and a recent 
-#          version of gcc : gcc-XXX-cyg-XXX.tar.gz
-#          (ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/).
-#          Then 'make cygwin'
-#        - To build a stand alone executable, you should install the 
-#          same packages, plus the mingw includes and libraries 
-#          gcc-XXX-mingw-extra.tar.gz
-#          (ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/)
-#          and compile with 'make no-cygwin' 
-#      To check the final dependendies: objdump -p getdp-win | grep DLL
+#    * parser: flex and bison
+#    * Windows 95/98/NT: cygwin (http://sourceware.cygnus.com/cygwin/) 
+#    * PETSc: 2.0.28 (PETSC_DIR and PETSC_ARCH variables must be defined)
+#    * METIS: 4.0 (the METIS_DIR variable must be defined)
 #
+#
+#   To build a stand alone executable, you should cygwin plus the mingw
+#   includes and libraries gcc-XXX-mingw-extra.tar.gz
+#   (ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/)
+#   and compile with 'make no-cygwin' .
+#   To check the final dependendies: objdump -p getdp-win | grep DLL#
 # ----------------------------------------------------------------------
 
 GETDP_RELEASE         = 0.76
@@ -293,7 +286,7 @@ versions:
 	@echo "  sun          SunOS with gcc "
 	@echo "  ibm          AIX without ILU_FLOAT "
 	@echo "  cygwin       Windows with cygwin1.dll "
-	@echo "  no-cygwin    Windows stand alone "
+	@echo "  win          Windows stand alone "
 	@echo "  sgi          SGI with -mips4 "
 	@echo "======================================================== "
 	@echo " "
@@ -389,10 +382,11 @@ cygwin: tag
 	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
 	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
 
-no-cygwin: tag
+mingw: tag
+	export PATH=/cygnus/gcc-2.95.2/bin:$PATH
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
-           "CC=gcc -mno-cygwin -I/cygnus/mingw/include" \
-           "FC=g77 -mno-cygwin -I/cygnus/mingw/include" \
+           "CC=gcc -I/cygnus/gcc-2.95.2/include" \
+           "FC=g77 -I/cygnus/gcc-2.95.2/include" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
@@ -400,9 +394,9 @@ no-cygwin: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)\
-            -mno-cygwin -L/cygnus/mingw/lib $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+	g77 -o $(GETDP_BIN_DIR)/getdp-mingw\
+            -L/cygnus/gcc-2.95.2/lib $(GETDP_SPARSKIT_LIBS) -lm
+	$(STRIP) $(GETDP_BIN_DIR)/getdp-mingw
 
 sgi: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
