@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Facet.c,v 1.9 2003-02-10 11:02:42 dular Exp $"
+#define RCSID "$Id: BF_Facet.c,v 1.10 2003-02-13 19:42:17 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -121,6 +121,7 @@ void  BF_Facet   (struct Element * Element, int NumFacet,
     }
     break ;
 
+#if defined(NEW_PYRAMIDS)
   case PYRAMID :
     if ( w == 1){
       switch(NumFacet) {
@@ -152,6 +153,7 @@ void  BF_Facet   (struct Element * Element, int NumFacet,
       }
     }
     break ;
+#endif
     
   default :
     Msg(ERROR, "Unkown type of Element in BF_Facet");
@@ -260,11 +262,13 @@ void  BF_DivFacet(struct Element * Element, int NumFacet,
     }
     break ;
 
+#if defined(NEW_PYRAMIDS)
   case PYRAMID :
     switch(NumFacet) {
     default : WrongNumFacet ;
     }
     break ;
+#endif
     
   default :
     Msg(ERROR, "Unkown type of Element in BF_DivFacet");

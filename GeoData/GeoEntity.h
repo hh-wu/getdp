@@ -1,4 +1,4 @@
-/* $Id: GeoEntity.h,v 1.7 2002-03-06 09:24:48 trophime Exp $ */
+/* $Id: GeoEntity.h,v 1.8 2003-02-13 19:42:17 geuzaine Exp $ */
 #ifndef _GEO_ENTITY_H_
 #define _GEO_ENTITY_H_
 
@@ -306,6 +306,9 @@ static int  Dfn_Prism [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
   = { { 1, 2, 5, 4, 0}, { 1, 3, 2, 0}, { 1, 4, 6, 3, 0},
       { 2, 3, 6, 5, 0}, { 4, 5, 6, 0} } ;
 
+
+#if defined(NEW_PYRAMIDS)
+
 /* ------------------------------------------------------------------------
    PYRAMID        edge 1: nodes 1 -> 2
      v                 2:       2 -> 3 
@@ -364,5 +367,64 @@ static int  Dfn_Pyramid [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
   = { { 1, 2, 5, 0}, { 1, 5, 4, 0}, { 2, 3, 5, 0},
       { 3, 4, 5, 0}, { 1, 4, 3, 2, 0} } ;
 
+#else
+
+/* ------------------------------------------------------------------------
+   PYRAMID        edge 1: nodes 1 -> 2
+        v              2:       1 -> 4 
+        |              3:       1 -> 5
+        |              4:       2 -> 3
+    4---|---3          5:       2 -> 5
+    | \ |  /|          6:       3 -> 4
+    |  \ -/-|---u      7:       3 -> 5
+    |  / 5\ |          8:       4 -> 5
+    1/----\-2              
+           \      facet 1: edges  1  5 -3       nodes 1 2 5
+            \           2:        2 -6 -4 -1          1 4 3 2
+             w          3:        3 -8 -2             1 5 4
+                        4:        4  7 -5             2 3 5
+                        5:        6  8 -7             3 4 5
+
+   ------------------------------------------------------------------------ */
+
+static int  NbrNodes_Pyramid  = 5 ;  
+static int  NbrEdges_Pyramid  = 8 ;  
+static int  NbrFacets_Pyramid = 5 ;
+
+static double  Nodes_Pyramid [][3]
+  = { {-1., -1., 0.} , { 1., -1., 0.} , 
+      { 1.,  1., 0.} , {-1.,  1., 0.} , 
+      { 0.,  0., 1.}  } ;
+
+static int  Den_Pyramid [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, -2, 0}, { 1, -4, 0}, { 1, -5, 0}, { 2, -3, 0}, 
+      { 2, -5, 0}, { 3, -4, 0}, { 3, -5, 0}, { 4, -5, 0} } ;
+
+static int  Den_Pyramid_Xp []
+  = { -1, 1, 0, 0, 0,
+      -1, 0, 0, 1, 0,
+      -1, 0, 0, 0, 1,
+       0,-1, 1, 0, 0,
+       0,-1, 0, 0, 1,
+       0, 0,-1, 1, 0,
+       0, 0,-1, 0, 1,
+       0, 0, 0,-1, 1 };
+
+static int  Dfe_Pyramid [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, 5, -3, 0}, { 2, -6, -4, -1, 0}, { 3, -8, -2, 0},
+      { 4, 7, -5, 0}, { 6, 8, -7, 0} } ;
+
+static int  Dfe_Pyramid_Xp []
+  = {  1, 0,-1, 0, 1, 0, 0, 0,
+      -1, 1, 0,-1, 0,-1, 0, 0,
+       0,-1, 1, 0, 0, 0, 0,-1,
+       0, 0, 0, 1,-1, 0, 1, 0,
+       0, 0, 0, 0, 0, 1,-1, 1 };
+
+static int  Dfn_Pyramid [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, 2, 5, 0}, { 1, 4, 3, 2, 0}, { 1, 5, 4, 0},
+      { 2, 3, 5, 0}, { 3, 4, 5, 0} } ;
+
+#endif
 
 #endif

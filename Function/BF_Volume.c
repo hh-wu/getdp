@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Volume.c,v 1.6 2002-03-06 09:24:48 trophime Exp $"
+#define RCSID "$Id: BF_Volume.c,v 1.7 2003-02-13 19:42:17 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -66,12 +66,14 @@ void  BF_Volume  (struct Element * Element, int NumVolume,
     }
     break ;
 
+#if defined(NEW_PYRAMIDS)
   case PYRAMID :
     switch(NumVolume) {
     case 1  : *s = 3. ; break ;
     default : WrongNumVolume ;
     }
     break ;
+#endif
 
   default :
     Msg(ERROR, "Unkown type of Element in BF_Volume");

@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Edge.c,v 1.7 2002-03-06 09:24:48 trophime Exp $"
+#define RCSID "$Id: BF_Edge.c,v 1.8 2003-02-13 19:42:17 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -112,6 +112,7 @@ void  BF_Edge    (struct Element * Element, int NumEdge,
     }
     break ;
 
+#if defined(NEW_PYRAMIDS)
   case PYRAMID :
     r  = 0. ;
     ru = 0. ;
@@ -153,6 +154,7 @@ void  BF_Edge    (struct Element * Element, int NumEdge,
     default : WrongNumEdge ;
     }
     break ;
+#endif
 
   default :
     Msg(ERROR, "Unkown type of Element in BF_Edge");
@@ -257,6 +259,7 @@ void  BF_CurlEdge(struct Element * Element, int NumEdge,
     }
     break ;
 
+#if defined(NEW_PYRAMIDS)
   case PYRAMID :
     if ( w == 1){
       switch(NumEdge) {
@@ -288,6 +291,7 @@ void  BF_CurlEdge(struct Element * Element, int NumEdge,
       }
     }
     break ;
+#endif
 
   default :
     Msg(ERROR, "Unkown type of Element in BF_CurlEdge");

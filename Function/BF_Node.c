@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node.c,v 1.9 2002-03-06 09:24:48 trophime Exp $"
+#define RCSID "$Id: BF_Node.c,v 1.10 2003-02-13 19:42:17 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -90,18 +90,7 @@ void  BF_Node(struct Element * Element, int NumNode,
     break ;
 
   case PYRAMID :
-/***
-    if(w != 1. && NumNode != 5) r = u*v*w / (1.-w) ;
-    else                        r = 0. ;
-    switch(NumNode) {
-    case 1  : *s = 0.25 * ((1.-u) * (1.-v) - w + r); break ;
-    case 2  : *s = 0.25 * ((1.+u) * (1.-v) - w - r); break ;
-    case 3  : *s = 0.25 * ((1.+u) * (1.+v) - w + r); break ;
-    case 4  : *s = 0.25 * ((1.-u) * (1.+v) - w - r); break ;
-    case 5  : *s = w                               ; break ;
-    default : WrongNumNode ;
-    }
-***/
+#if defined(NEW_PYRAMIDS)
     if(w != 1. && NumNode != 5) r = u*v / (1.-w) ;
     else                        r = 0. ;
     switch(NumNode) {
@@ -112,6 +101,18 @@ void  BF_Node(struct Element * Element, int NumNode,
     case 5  : *s =                  w ; break ;
     default : WrongNumNode ;
     }
+#else
+    if(w != 1. && NumNode != 5) r = u*v*w / (1.-w) ;
+    else                        r = 0. ;
+    switch(NumNode) {
+    case 1  : *s = 0.25 * ((1.-u) * (1.-v) - w + r); break ;
+    case 2  : *s = 0.25 * ((1.+u) * (1.-v) - w - r); break ;
+    case 3  : *s = 0.25 * ((1.+u) * (1.+v) - w + r); break ;
+    case 4  : *s = 0.25 * ((1.-u) * (1.+v) - w - r); break ;
+    case 5  : *s = w                               ; break ;
+    default : WrongNumNode ;
+    }
+#endif
     break ;
 
   default :
@@ -235,33 +236,7 @@ void  BF_GradNode(struct Element * Element, int NumNode,
     break ;
 
   case PYRAMID :
-/***
-    if(w == 1. && NumNode != 5) {
-      s[0] =  0.25 ; 
-      s[1] =  0.25 ;
-      s[2] = -0.25 ; 
-    }
-    else{
-      switch(NumNode) {
-      case 1  : s[0] = 0.25 * ( -(1.-v) + v*w/(1.-w) ) ;            
-	        s[1] = 0.25 * ( -(1.-u) + u*w/(1.-w) ) ;            
-      	        s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
-      case 2  : s[0] = 0.25 * (  (1.-v) + v*w/(1.-w) ) ;            
-	        s[1] = 0.25 * ( -(1.+u) + u*w/(1.-w) ) ;            
-	        s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
-      case 3  : s[0] = 0.25 * (  (1.+v) + v*w/(1.-w) ) ; 
-                s[1] = 0.25 * (  (1.+u) + u*w/(1.-w) ) ;
-                s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
-      case 4  : s[0] = 0.25 * ( -(1.+v) + v*w/(1.-w) ) ;
-                s[1] = 0.25 * (  (1.-u) + u*w/(1.-w) ) ;
-                s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
-      case 5  : s[0] = 0. ; 
-                s[1] = 0. ;
-                s[2] = 1. ; break ;
-      default : WrongNumNode ;
-      }
-    }
-***/
+#if defined(NEW_PYRAMIDS)
     if(w == 1.) {
       s[0] =  0. ; 
       s[1] =  0. ;
@@ -296,6 +271,33 @@ void  BF_GradNode(struct Element * Element, int NumNode,
       default : WrongNumNode ;
       }
     }
+#else
+    if(w == 1. && NumNode != 5) {
+      s[0] =  0.25 ; 
+      s[1] =  0.25 ;
+      s[2] = -0.25 ; 
+    }
+    else{
+      switch(NumNode) {
+      case 1  : s[0] = 0.25 * ( -(1.-v) + v*w/(1.-w) ) ;            
+	        s[1] = 0.25 * ( -(1.-u) + u*w/(1.-w) ) ;            
+      	        s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
+      case 2  : s[0] = 0.25 * (  (1.-v) + v*w/(1.-w) ) ;            
+	        s[1] = 0.25 * ( -(1.+u) + u*w/(1.-w) ) ;            
+	        s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
+      case 3  : s[0] = 0.25 * (  (1.+v) + v*w/(1.-w) ) ; 
+                s[1] = 0.25 * (  (1.+u) + u*w/(1.-w) ) ;
+                s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
+      case 4  : s[0] = 0.25 * ( -(1.+v) + v*w/(1.-w) ) ;
+                s[1] = 0.25 * (  (1.-u) + u*w/(1.-w) ) ;
+                s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
+      case 5  : s[0] = 0. ; 
+                s[1] = 0. ;
+                s[2] = 1. ; break ;
+      default : WrongNumNode ;
+      }
+    }
+#endif
     break ;
 
   default :
