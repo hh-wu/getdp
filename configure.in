@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.17 2003-02-15 23:25:50 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.18 2003-02-17 01:53:50 geuzaine Exp $"
 dnl
 dnl Copyright (C) 1997-2003 by P. Dular and C. Geuzaine
 dnl
@@ -229,6 +229,7 @@ AC_SUBST(GSL_LIBS)
 AC_SUBST(GSL_INCLUDE)
 
 dnl Check for header files
+AC_HEADER_STDC
 AC_CHECK_HEADERS(sys/time.h sys/resource.h)
 
 dnl Check for FFTW
