@@ -8,6 +8,7 @@ $T2H_USE_ISO = 0;
 $T2H_SHOW_MENU = 0;
 $T2H_NUMBER_SECTIONS = 0;
 $T2H_SPLIT = 'chapter';
+$T2H_SPLIT_INDEX = 1000;
 $T2H_LANG = 'en';
 
 

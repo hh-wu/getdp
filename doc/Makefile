@@ -20,14 +20,14 @@ html3:
 info:
 	makeinfo getdp.texi
 
+install-info:
+	cp getdp.info* /usr/local/info/
+	install-info getdp.info /usr/local/info/dir
+
 infoz:
 	gtar zcvf getdp-info.tgz getdp.info*
 
 doc: ps pdf html info
-
-install:
-	cp getdp.info* /usr/local/info/
-	install-info getdp.info /usr/local/info/dir
 
 clean:
 	$(RM) $(RMFLAGS) *.cp* *.fn* *.ky* *.pg* *.tp* *.vr* *.mv* \

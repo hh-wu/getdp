@@ -16,7 +16,7 @@
 @c dvi   : texi2dvi getdp.texi
 @c ps    : dvips getdp.dvi -o
 @c pdf   : texi2pdf getdp.texi
-@c html  : texi2html -expandinfo -split_chapter getdp.texi
+@c html  : texi2html -init_file getdp.t2h getdp.texi
 @c nroff : texi2roff getdp.texi
 @c
 @c =========================================================================
@@ -66,7 +66,7 @@ BELGIUM @*
 @global@let@bullet=-
 @global@let@sl=@it
 @global@setfont@indit@itshape{9}{1000}
-@global@let@linkcolor=@Blue
+@global@let@linkcolor=@Orange
 @parskip=5pt
 @end iftex
 
