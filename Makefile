@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.135 2003-03-23 05:54:17 geuzaine Exp $
+# $Id: Makefile,v 1.136 2003-03-23 06:08:49 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -180,14 +180,14 @@ source-common:
 	cd getdp-${GETDP_RELEASE}/doc && ${MAKE} clean
 
 source: source-common
-	cd getdp-${GETDP_RELEASE} && rm -rf NR Scattering utils doc/slides\
+	cd getdp-${GETDP_RELEASE} && rm -rf NR Scattering trash utils doc/slides\
                                             ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
 	tar zcvf getdp-${GETDP_RELEASE}-source.tgz getdp-${GETDP_RELEASE}
 
 source-nonfree: source-common
-	cd getdp-${GETDP_RELEASE} && rm -rf utils doc/slides\
+	cd getdp-${GETDP_RELEASE} && rm -rf Scattering trash utils doc/slides\
                                             ${GETDP_VERSION_FILE} CVS */CVS */*/CVS
-	tar zcvf getdp-${GETDP_RELEASE}-source.tgz getdp-${GETDP_RELEASE}
+	tar zcvf getdp-${GETDP_RELEASE}-source-nonfree.tgz getdp-${GETDP_RELEASE}
 
 rpmold:
 	tar zcvf /usr/src/redhat/SOURCES/${GETDP_SRCRPM}.tar.gz ${GETDP_SOURCES}
