@@ -1,3 +1,4 @@
+c $Id: flu.f,v 1.2 2000-09-07 18:56:37 geuzaine Exp $
 C==============================================================================
 C
 C     RESOLUTION DE SYSTEMES LINEAIRES PAR METHODE DE GAUSS COMPACTE

@@ -1,3 +1,4 @@
+c $Id: ilut.F,v 1.2 2000-09-07 18:56:37 geuzaine Exp $
 c----------------------------------------------------------------------c
 c The file has been renamed from ilut.f to ilut.F to permit            c
 c preprocessing by 'cpp'                                               c

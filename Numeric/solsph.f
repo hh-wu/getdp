@@ -1,3 +1,4 @@
+c $Id: solsph.f,v 1.2 2000-09-07 18:56:37 geuzaine Exp $
 c     -------------------------------------------------------
 c     Probleme de la sphere (solution analytique) 
 c     Calcul de l'induction 
