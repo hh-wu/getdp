@@ -1,6 +1,7 @@
-$Date: 2003-02-11 18:24:23 $
+$Date: 2003-02-12 20:40:25 $
 
-0.87: Face basis functions were mistakenly removed in 0.86.
+0.87: Face basis functions were mistakenly removed in 0.86; New build
+system based on autoconf; 
 
 0.86: Updated Gmsh output format; many small bug fixes;
 
