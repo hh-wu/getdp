@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.6 2000-10-31 16:30:58 dular Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.7 2000-11-03 08:31:31 dular Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -274,7 +274,7 @@ void  Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) 
 	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k], 
-			  &Current.DofData->A, &Current.DofData->b) ;
+			  &Current.DofData->Jac, NULL) ;
     }
   }
 

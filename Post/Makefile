@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.13 2000-10-30 01:05:47 geuzaine Exp $
+# $Id: Makefile,v 1.14 2000-11-03 08:31:31 dular Exp $
 #
 # Makefile for 'libPost.a'
 # 
@@ -13,7 +13,7 @@ C_FLAGS = -g -DUSE_DEBUG
 
 LIB     = ../lib/libPost.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData\
-          -I../Main -I../Numeric -I../Sparskit
+          -I../Main -I../Numeric -I../Sparskit -I../Function
 
 CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER) $(INCLUDE) 
 
@@ -65,22 +65,24 @@ Pos_FemInterpolation.o: Pos_FemInterpolation.c ../include/GetDP.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
   Pos_Search.h ../Main/CurrentData.h ../include/Magic.h \
   ../DataStr/Tools.h
-Pos_Interactive.o: Pos_Interactive.c ../Main/Treatment_Formulation.h \
+Pos_Interactive.o: Pos_Interactive.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Treatment_Formulation.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
-  ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
-  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  Pos_Formulation.h Pos_Interactive.h ../Main/CurrentData.h \
-  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../DataStr/Tree.h ../DataStr/avl.h Pos_Formulation.h Pos_Interactive.h \
+  ../Main/CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
+  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+  ../include/Magic.h
 Pos_ReadLine.o: Pos_ReadLine.c
-Pos_Formulation.o: Pos_Formulation.c ../Main/Data_Passive.h \
-  ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../Main/Message.h ../GeoData/Data_GeoData.h ../DataStr/Tree.h \
-  ../DataStr/avl.h ../Main/Data_Numeric.h ../Main/Treatment_Formulation.h \
-  ../Main/Data_Active.h ../Main/CurrentData.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Get_DofOfElement.h \
-  Pos_Formulation.h Pos_Print.h Pos_Format.h
+Pos_Formulation.o: Pos_Formulation.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Numeric.h \
+  ../Main/Treatment_Formulation.h ../Main/Data_Active.h \
+  ../Main/CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
+  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Main/Get_DofOfElement.h Pos_Formulation.h \
+  Pos_Print.h Pos_Format.h
 Pos_Print.o: Pos_Print.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
@@ -130,4 +132,5 @@ Pos_Format.o: Pos_Format.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Data_Numeric.h ../include/Version.h ../Main/CurrentData.h \
   ../Main/Data_Active.h ../DofData/DofData.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h Pos_Iso.h Pos_Format.h Pos_Element.h
+  ../include/Magic.h Pos_Iso.h Pos_Format.h Pos_Element.h \
+  ../Function/F_Function.h ../Main/Cal_Value.h

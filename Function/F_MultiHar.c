@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.7 2000-10-31 16:30:16 dular Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.8 2000-11-03 08:31:31 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -107,7 +107,7 @@ void  F_MHToTime (F_ARG) {
 void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmallestPeriod, int Flag_Psi) {
 
   int iPul, iTime, iHar, jHar ;
-  double MaxPulsation = 0. , MinPulsation = 1.e99 ;
+  double MaxPulsation, MinPulsation ;
 
 
   GetDP_Begin("MH_InitTimes");
@@ -116,6 +116,7 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
 
   /* NbrTimePoint_M */
 
+  MaxPulsation = 0. ; MinPulsation = 1.e99 ;
   for ( iPul = 0 ; iPul < NbrHar /2 ; iPul++ ) {
     if ( Val_Pulsation [ iPul ] &&  Val_Pulsation [ iPul ] < MinPulsation )
       MinPulsation = Val_Pulsation [ iPul ] ;
@@ -128,9 +129,6 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
   printf ("MH_InitTime => NbrHar = %d  NbrTimePoint_MH = %d \n", NbrHar, NbrTimePoint_MH );
 
   /* Trapezoidal integration */
-
-  t_MH = (double *)Malloc(sizeof(double)*NbrTimePoint_MH) ;
-  w_MH = (double *)Malloc(sizeof(double)*NbrTimePoint_MH) ;
 
   Psi_MH = (double **)Malloc(sizeof(double *)*NbrTimePoint_MH) ;
   for (iTime=0 ; iTime<NbrTimePoint_MH ; iTime++)
@@ -145,12 +143,14 @@ void  MH_InitTimes(int NbrHar, double Val_Pulsation[], int NbrTimePointForSmalle
     }
   }
 
+  t_MH = (double *)Malloc(sizeof(double)*NbrTimePoint_MH) ;
   for ( iTime = 0 ; iTime < NbrTimePoint_MH ; iTime++ ) {
     t_MH [ iTime ] = (double)iTime / ( (double)NbrTimePoint_MH - 1. ) 
       / ( MinPulsation / TWO_PI ) ;
   } 
-  
+
   if (!Flag_Psi) {
+    w_MH = (double *)Malloc(sizeof(double)*NbrTimePoint_MH) ;
     for ( iTime = 0 ; iTime < NbrTimePoint_MH ; iTime++ ) {
       w_MH [ iTime ] = 2. / ( (double)NbrTimePoint_MH - 1.0 ) ;
     } 
@@ -367,6 +367,34 @@ void  MH_Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * 
 
   Value.Type = VECTOR ;
   Cal_CopyValue(&Value, R) ;
+
+  GetDP_End ;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  F_MHToTime0                                                             */
+/* ------------------------------------------------------------------------ */
+
+void  F_MHToTime0 (F_ARG, int iTime, int NbrTimePoint, double * TimeMH) {
+
+
+  GetDP_Begin("F_MHToTime0");
+
+  if (Current.NbrHar == 1) {
+    GetDP_End ;
+  }
+
+  if (MH_Init != Current.DofData ||
+      (MH_Init == Current.DofData && NbrTimePointForSP_MH != NbrTimePoint)) {
+    MH_Init = Current.DofData ;
+    MH_InitTimes(Current.NbrHar, Current.DofData->Val_Pulsation, NbrTimePoint, 1) ;
+  }
+
+  Current_iTime = iTime ;
+  *TimeMH = t_MH[iTime] ;
+
+  F_MHToTime(NULL, A, V) ;
 
   GetDP_End ;
 }

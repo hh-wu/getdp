@@ -1,4 +1,4 @@
-/* $Id: Pos_Format.h,v 1.2 2000-10-22 13:50:40 geuzaine Exp $ */
+/* $Id: Pos_Format.h,v 1.3 2000-11-03 08:31:31 dular Exp $ */
 #ifndef _POS_FORMAT_H_
 #define _POS_FORMAT_H_
 
@@ -14,10 +14,12 @@ void  Format_PostFooter(struct PostSubOperation * PSO_P, int Store) ;
 
 void  Format_PostElement(int Format, int Contour, int Store,
 			 double Time, int TimeStep, int NbTimeStep, 
-			 int NbHarmonics, int HarmonicToTime,
+			 int NbrHarmonics, int HarmonicToTime,
 			 double *Dummy, struct PostElement *PE);
 
-void  Format_PostValue(int Format, struct Value * Value, int NbHarmonic, double Time, 
-		       int Flag_PrintTime, int Flag_NewLine) ;
+void  Format_PostValue(int Format,
+		       double Time, int iRegion, int NbrRegion,
+		       int NbrHarmonics, int HarmonicToTime,
+		       struct Value * Value) ;
 
 #endif

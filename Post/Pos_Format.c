@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.6 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.7 2000-11-03 08:31:31 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -15,6 +15,8 @@
 #include "Pos_Iso.h"
 #include "Pos_Format.h"
 #include "Pos_Element.h"
+#include "F_Function.h"
+#include "Cal_Value.h"
 
 #define NBR_MAX_ISO  200
 
@@ -479,8 +481,8 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
     switch(Value->Type){
     case SCALAR      : Size = 1 ; break ;
     case VECTOR      : Size = 3 ; break ;
-    case TENSOR_DIAG : 
-    case TENSOR_SYM  : 
+    case TENSOR_DIAG : Size = 3 ; break ;
+    case TENSOR_SYM  : Size = 6 ; break ;
     case TENSOR      : Size = 9 ; break ;
     }
     TmpValues = (double*) Malloc(NbrTimeSteps*NbrNodes*NbrHarmonics*Size*sizeof(double));
@@ -494,22 +496,22 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 
   if(TimeStep == NbrTimeSteps-1){
 
-    for(i = 0 ; i < NbrNodes ; i++){
+    for(i = 0 ; i < NbrNodes ; i++){ /* New line for each node */
 
-      fprintf(PostStream, "%d %d  ", Get_GmshElementType(ElementType), NumElement);
-      fprintf(PostStream, "%.8g %.8g %.8g  ", x[i], y[i], z[i]);
+      fprintf(PostStream, "%d %d ", Get_GmshElementType(ElementType), NumElement);
+      fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
       if(Dummy){
 	if(Dummy[3]<0){
 	  if(!i)
-	    fprintf(PostStream, "%.8g %.8g 0  ", Dummy[0], Dummy[2]);
+	    fprintf(PostStream, " %.8g %.8g 0 ", Dummy[0], Dummy[2]);
 	  else
-	    fprintf(PostStream, "%.8g %.8g 0  ", Dummy[1], Dummy[2]);
+	    fprintf(PostStream, " %.8g %.8g 0 ", Dummy[1], Dummy[2]);
 	}
 	else
-	  fprintf(PostStream, "%.8g %.8g %.8g  ", Dummy[0], Dummy[1], Dummy[2]);
+	  fprintf(PostStream, " %.8g %.8g %.8g ", Dummy[0], Dummy[1], Dummy[2]);
       }
       else
-	fprintf(PostStream, "0 0 0  ");
+	fprintf(PostStream, " 0 0 0 ");
 
       for(t = 0 ; t < NbrTimeSteps ; t++){
 	
@@ -520,7 +522,7 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	  for(k = 0 ; k < HarmonicToTime ; k++){
 	    p = TWO_PI * k / (HarmonicToTime-1);
 	    for(j = 0 ; j < Size ; j++){
-	      fprintf(PostStream, "%.8g ",
+	      fprintf(PostStream, " %.8g",
 		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
 			       + i*NbrHarmonics*Size
 			       + 0*Size
@@ -537,7 +539,7 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	else{
 	  for(k = 0 ; k < NbrHarmonics ; k++) {
 	    for(j = 0 ; j < Size ; j++){
-	      fprintf(PostStream, "%.8g ", 
+	      fprintf(PostStream, " %.8g", 
 		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
 			       + i*NbrHarmonics*Size
 			       + k*Size
@@ -548,13 +550,13 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	  fprintf(PostStream, " ");
 	}
 	
-      }
+      } /* for t */
       fprintf(PostStream, "\n");      
 
-    }
+    } /* for i */
     if(NbrNodes > 1) fprintf(PostStream, "\n");
 
-    free(TmpValues);
+    Free(TmpValues);
   }
 
   GetDP_End ;
@@ -575,8 +577,8 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
     switch(Value->Type){
     case SCALAR      : Size = 1 ; break ;
     case VECTOR      : Size = 3 ; break ;
-    case TENSOR_DIAG : 
-    case TENSOR_SYM  : 
+    case TENSOR_DIAG : Size = 3 ; break ;
+    case TENSOR_SYM  : Size = 6 ; break ;
     case TENSOR      : Size = 9 ; break ;
     }
   }
@@ -584,19 +586,19 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
   switch(Format){
   case FORMAT_SPACE_TABLE :
     if(TimeStep == 0){
-      fprintf(PostStream, "%d %d  ", Get_GmshElementType(ElementType), NumElement);
+      fprintf(PostStream, "%d %d ", Get_GmshElementType(ElementType), NumElement);
       for(i=0 ; i<NbrNodes ; i++)
-	fprintf(PostStream, "%.8g %.8g %.8g  ", x[i], y[i], z[i]);
+	fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
       if(Dummy) 
-	fprintf(PostStream, "%.8g %.8g %.8g  ", Dummy[0], Dummy[1],  Dummy[2]);
+	fprintf(PostStream, " %.8g %.8g %.8g ", Dummy[0], Dummy[1],  Dummy[2]);
       else
-	fprintf(PostStream, "0 0 0  ");
+	fprintf(PostStream, " 0 0 0 ");
     }
     break ;
   case FORMAT_TIME_TABLE :
-    fprintf(PostStream, "%d %.8g  ", TimeStep, Time);
-    for(i=0 ; i<NbrNodes ; i++) 
-      fprintf(PostStream, "%.8g %.8g %.8g  ", x[i], y[i], z[i]);
+    fprintf(PostStream, "%d %.8g ", TimeStep, Time);
+    for(i=0 ; i<NbrNodes ; i++)
+      fprintf(PostStream, " %.8g %.8g %.8g ", x[i], y[i], z[i]);
     break ;
   }
   
@@ -608,7 +610,7 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
       p = TWO_PI * k / (HarmonicToTime-1);
       for(i = 0 ; i < NbrNodes ; i++){
 	for(j = 0 ; j < Size ; j++){
-	  fprintf(PostStream, "%.8g ",
+	  fprintf(PostStream, " %.8g",
 		  Value[i].Val[        j] * cos(p) -
 		  Value[i].Val[MAX_DIM+j] * sin(p));
 	}
@@ -621,7 +623,7 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
     for(k = 0 ; k < NbrHarmonics ; k++) {
       for(i = 0 ; i < NbrNodes ; i++){
 	for(j = 0 ; j < Size ; j++){
-	  fprintf(PostStream, "%.8g ", Value[i].Val[MAX_DIM*k+j]);
+	  fprintf(PostStream, " %.8g", Value[i].Val[MAX_DIM*k+j]);
 	}
 	fprintf(PostStream, " ");
       }
@@ -653,7 +655,7 @@ void  Format_Adapt(double * Dummy){
 
 void  Format_PostElement(int Format, int Contour, int Store, 
 			 double Time, int TimeStep, int NbTimeStep, 
-			 int NbHarmonic, int HarmonicToTime, double *Dummy,
+			 int NbrHarmonics, int HarmonicToTime, double *Dummy,
 			 struct PostElement * PE){
 
   int Num_Element ;
@@ -684,23 +686,23 @@ void  Format_PostElement(int Format, int Contour, int Store,
 
   switch(Format){
   case FORMAT_GMSH :
-    Format_Gmsh(TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
+    Format_Gmsh(TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
 		PE->Value) ;
     break ;
   case FORMAT_GMSH_NL :
-    Format_NewGmsh(TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
+    Format_NewGmsh(TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		   PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
 		   PE->Value) ;
     break ;
   case FORMAT_GNUPLOT :
-    Format_Gnuplot(Format, Time, TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
+    Format_Gnuplot(Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
 		   PE->Value) ;
     break ;
   case FORMAT_SPACE_TABLE :
   case FORMAT_TIME_TABLE :
-    Format_Tabular(Format, Time, TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
+    Format_Tabular(Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
 		   PE->Value) ;
     break ;
@@ -719,53 +721,56 @@ void  Format_PostElement(int Format, int Contour, int Store,
 /*  F o r m a t _ P o s t V a l u e                                         */
 /* ------------------------------------------------------------------------ */
 
-void  Format_PostValue(int Format, struct Value * Value, int NbHarmonic, double Time, 
-		       int Flag_PrintTime, int Flag_NewLine) {
+void  Format_PostValue(int Format,
+		       double Time, int iRegion, int NbrRegion,
+		       int NbrHarmonics, int HarmonicToTime,
+		       struct Value * Value) {
 
-  int  k ;
+  static int  Size ;
+  int  j, k ;
+  double p, TimeMH ;
+  struct Value  TmpValue, *TmpValues ;
 
   GetDP_Begin("Format_PostValue");
 
-  if (Flag_PrintTime) fprintf(PostStream, "%.8g", Time) ;
+  if(iRegion == 0){
+    switch(Value->Type){
+    case SCALAR      : Size = 1 ; break ;
+    case VECTOR      : Size = 3 ; break ;
+    case TENSOR_DIAG : Size = 3 ; break ;
+    case TENSOR_SYM  : Size = 6 ; break ;
+    case TENSOR      : Size = 9 ; break ;
+    }
+    TmpValues = (struct Value*) Malloc(NbrRegion*sizeof(struct Value)) ;
+   }
 
-  switch (Value->Type) {
-  case SCALAR :
-    for (k = 0 ; k < NbHarmonic ; k++)
-      fprintf(PostStream, " %.8g", Value->Val[MAX_DIM*k]) ;
-    break ;
-  case VECTOR :
-  case TENSOR_DIAG :
-    for (k = 0 ; k < NbHarmonic ; k++)
-      fprintf(PostStream, " %.8g %.8g %.8g",
-	      Value->Val[MAX_DIM*k  ], 
-	      Value->Val[MAX_DIM*k+1],
-	      Value->Val[MAX_DIM*k+2]) ;
-    break ;
-  case TENSOR_SYM :
-    for (k = 0 ; k < NbHarmonic ; k++)
-      fprintf(PostStream, " %.8g %.8g %.8g %.8g %.8g %.8g",
-	      Value->Val[MAX_DIM*k  ], 
-	      Value->Val[MAX_DIM*k+1],
-	      Value->Val[MAX_DIM*k+2],
-	      Value->Val[MAX_DIM*k+3],
-	      Value->Val[MAX_DIM*k+4],
-	      Value->Val[MAX_DIM*k+5]) ;
-    break ;
-  case TENSOR :
-    for (k = 0 ; k < NbHarmonic ; k++)
-      fprintf(PostStream, " %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g %.8g",
-	      Value->Val[MAX_DIM*k  ], 
-	      Value->Val[MAX_DIM*k+1],
-	      Value->Val[MAX_DIM*k+2],
-	      Value->Val[MAX_DIM*k+3],
-	      Value->Val[MAX_DIM*k+4],
-	      Value->Val[MAX_DIM*k+5],
-	      Value->Val[MAX_DIM*k+6],
-	      Value->Val[MAX_DIM*k+7],
-	      Value->Val[MAX_DIM*k+8]) ;
-    break ;
+  Cal_CopyValue(Value, &TmpValues[iRegion]) ;
+
+  if (iRegion == NbrRegion-1) {
+
+    if (HarmonicToTime == 1) {
+      fprintf(PostStream, "%.8g ", Time) ;
+      for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++)
+	for (k = 0 ; k < NbrHarmonics ; k++)
+	  for(j = 0 ; j < Size ; j++)
+	    fprintf(PostStream, " %.8g", TmpValues[iRegion].Val[MAX_DIM*k+j]) ;
+      fprintf(PostStream, "\n") ;
+    }
+
+    else {
+      for(k = 0 ; k < HarmonicToTime ; k++) {
+	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
+	  F_MHToTime0(NULL, &TmpValues[iRegion], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	  if (iRegion == 0)  fprintf(PostStream, "%.8g ", TimeMH) ;
+	  for(j = 0 ; j < Size ; j++)
+	    fprintf(PostStream, " %.8g", TmpValue.Val[j]) ;
+	}
+	fprintf(PostStream, "\n") ;
+      }
+    }
+
+    Free(TmpValues) ;
   }
-  if (Flag_NewLine) fprintf(PostStream, "\n") ;
 
   GetDP_End ;
 }

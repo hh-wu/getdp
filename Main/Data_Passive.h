@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.18 2000-10-31 16:30:58 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.19 2000-11-03 08:31:31 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -863,6 +863,7 @@ struct PostSubOperation {
 #define FORMAT_GREF           13
 #define FORMAT_MATLAB         14
 #define FORMAT_GNUPLOT        15
+#define FORMAT_HARMONICTOTIME_TABLE  16
 
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION      1

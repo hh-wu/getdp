@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.30 2000-10-30 10:25:24 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.31 2000-11-03 08:31:31 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1183,14 +1183,15 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   struct PostQuantity  *PQ_P ;
 
   List_T  *Region_L, *Support_L ;
-  int      i, j, NbTimeStep ;
+  int      i, iTime, NbrTimeStep ;
   int      Nbr_Region, Num_Region ;
 
   GetDP_Begin("Pos_PrintOnRegion");
 
-  if( !(NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
-    NbTimeStep = List_Nbr(Current.DofData->Solutions);
-    for(i = 0 ; i < NbTimeStep ; i++) List_Add(PostSubOperation_P->TimeStep_L, &i);
+  if( !(NbrTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
+    NbrTimeStep = List_Nbr(Current.DofData->Solutions);
+    for(iTime = 0 ; iTime < NbrTimeStep ; iTime++)
+      List_Add(PostSubOperation_P->TimeStep_L, &iTime);
   }
 
   if (CPQ_P && NCPQ_P)
@@ -1216,7 +1217,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   }
 
   if (!NCPQ_P) { /* Only one Cumulative */
-    for (j = 0 ; j < NbTimeStep ; j++) {
+    for (j = 0 ; j < NbrTimeStep ; j++) {
       Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, j) ;
       fprintf(PostStream, "%.8g", Current.Time) ;
       Format_PostValue(PostSubOperation_P->Format, &CumulativeValues[j],
@@ -1255,11 +1256,9 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     else
       Nbr_Region = 1 ;
 
-    for (j = 0 ; j < NbTimeStep ; j++) {
+    for (iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
 
-      Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, j) ;
-
-      fprintf(PostStream, "%.8g", Current.Time) ;
+      Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
 
       for(i = 0 ; i < Nbr_Region ; i++) {
 
@@ -1278,11 +1277,12 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0, 
 			 Support_L, &Element, 0., 0., 0., &Value) ;
 
-	Format_PostValue(PostSubOperation_P->Format, &Value, 
-			 Current.NbrHar, Current.Time, 0, 0) ;
+	Format_PostValue(PostSubOperation_P->Format,
+			 Current.Time, i, Nbr_Region,
+			 Current.NbrHar, PostSubOperation_P->HarmonicToTime,
+			 &Value) ;
       }
 
-      fprintf(PostStream, "\n"); 
     }
     /*  } */
 
@@ -1337,8 +1337,6 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
       x = X[0] + (X[1] - X[0]) * S ;
       Expression_P->Case.Constant = x ;
 
-      fprintf(PostStream, "%.8g", x) ;
-
       Element.GeoElement = NULL ;
       Element.Num = NO_ELEMENT ;
       Element.Type = -1 ;
@@ -1348,10 +1346,11 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
       Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0, 
 		       NULL, &Element, 0., 0., 0., &Value) ;
 
-      Format_PostValue(PostSubOperation_P->Format, &Value, 
-		       Current.NbrHar, Current.Time, 0, 1) ;
+      Format_PostValue(PostSubOperation_P->Format,
+		       x, 0, 1,
+		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
+		       &Value) ;
   }
 
   GetDP_End ;
 }
-

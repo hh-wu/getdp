@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.9 2000-10-20 07:42:06 dular Exp $ */
+/* $Id: Data_Define.h,v 1.10 2000-11-03 08:31:31 dular Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -234,14 +234,15 @@ struct StringXDefine  PostSubOperation_CombinationType[] = {
 } ;
 
 struct StringXDefine  PostSubOperation_Format[] = {
-  {"Table"         , FORMAT_SPACE_TABLE }, 
-  {"TimeTable"     , FORMAT_TIME_TABLE }, 
-  {"Gmsh"          , FORMAT_GMSH},
-  {"GmshNL"        , FORMAT_GMSH_NL},
-  {"Gnuplot"       , FORMAT_GNUPLOT }, 
-  {"Matlab"        , FORMAT_MATLAB }, 
-  {"Adaption"      , FORMAT_ADAPT }, 
-  {NULL            , FORMAT_GMSH}
+  {"Table"               , FORMAT_SPACE_TABLE }, 
+  {"TimeTable"           , FORMAT_TIME_TABLE }, 
+  {"Gmsh"                , FORMAT_GMSH},
+  {"GmshNL"              , FORMAT_GMSH_NL},
+  {"Gnuplot"             , FORMAT_GNUPLOT }, 
+  {"Matlab"              , FORMAT_MATLAB }, 
+  {"Adaption"            , FORMAT_ADAPT }, 
+  {"HarmonicToTimeTable" , FORMAT_HARMONICTOTIME_TABLE }, 
+  {NULL                  , FORMAT_GMSH}
 } ;
 
 struct StringXDefine  PostSubOperation_FormatTag[] = {

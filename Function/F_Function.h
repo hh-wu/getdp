@@ -1,4 +1,4 @@
-/* $Id: F_Function.h,v 1.3 2000-10-27 11:47:28 dular Exp $ */
+/* $Id: F_Function.h,v 1.4 2000-11-03 08:31:31 dular Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 
@@ -115,6 +115,7 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 			   struct QuantityStorage * QuantityStorage_P0,
 			   double u, double v, double w,
 			   struct Value *ValueOut) ;
+void  F_MHToTime0 (F_ARG, int iTime, int NbrTimePoint, double * TimeMH) ;
 
 
 #undef F_ARG
