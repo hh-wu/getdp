@@ -18,7 +18,7 @@
 
       cvs -d :pserver:NAME@139.165.160.57:/usr/users57/cvs-master CMD
 
-      where NAME is your username on 139.165.10.57, and where CMD is
+      where NAME is your username on 139.165.160.57, and where CMD is
       first 'login' (you will be prompted for a password), and then
       'checkout getdp'. When this is done, you can use 'logout' to
       exit.
