@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_BiotSavart.c,v 1.3 2003-03-22 03:30:10 geuzaine Exp $"
+#define RCSID "$Id: F_BiotSavart.c,v 1.4 2003-06-19 08:38:20 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -55,6 +55,18 @@ void  F_BiotSavart (F_ARG) {
   V->Type = VECTOR ;
 
   switch((int)Fct->Para[0]){
+  case _2D :
+    xxs = Current.x-Current.xs ; 
+    yys = Current.y-Current.ys ; 
+    
+    r = SQU(xxs)+SQU(yys) ;
+    if(!r) Msg(ERROR, "1/0 in 'F_BiotSavart'") ;
+     
+    V->Val[0] = ONE_OVER_TWO_PI * xxs / r ;
+    V->Val[1] = ONE_OVER_TWO_PI * yys / r ;
+    V->Val[2] = 0. ;
+    V->Val[MAX_DIM    ] = V->Val[MAX_DIM + 1] = V->Val[MAX_DIM + 2] = 0. ;
+    break;
 
   case _3D :
     xxs = Current.x-Current.xs ;
@@ -68,12 +80,10 @@ void  F_BiotSavart (F_ARG) {
     V->Val[0] = ONE_OVER_FOUR_PI * xxs/ CUB(r) ;
     V->Val[1] = ONE_OVER_FOUR_PI * yys/ CUB(r) ;
     V->Val[2] = ONE_OVER_FOUR_PI * zzs/ CUB(r) ;
-    
     V->Val[MAX_DIM] =  V->Val[MAX_DIM + 1 ] = V->Val[MAX_DIM + 2 ] =0. ; 
-    
     break;
   default:
-    Msg(ERROR, "Bad dimension for Biot Savart");  
+    Msg(ERROR, "Bad dimension for BiotSavart");  
     break;
   }
 
