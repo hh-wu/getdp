@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.10 2003-02-12 02:26:45 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.11 2003-02-12 17:13:43 geuzaine Exp $"
 dnl
 dnl Machine independent configuration script for GetDP.
 dnl
@@ -120,24 +120,24 @@ else
   SOLVER='-D_SPARSKIT -D_ILU_FLOAT'
   LINKER='${F77}'
   case "$UNAME" in
-#    IRIX*)
-#      CC="cc"
-#      F77="f77"
-#      C_FLAGS="-O3 -n32 -mips3"
-#      C_PARSER_FLAGS="-g -n32 -mips3"
-#      F77_FLAGS="-O3 -n32 -mips3"
-#      SOLVER="-D_SPARSKIT"
-#      LINKER="f77 -n32 -mips3"
-#      ;;
-#    IRIX64*)
-#      CC="cc"
-#      F77="f77"
-#      C_FLAGS="-O3 -mips4 -64"
-#      C_PARSER_FLAGS="-g -mips4 -64"
-#      F77_FLAGS="-O3 -mips4 -64"
-#      SOLVER="-D_SPARSKIT -D_ILU_FLOAT"
-#      LINKER="f77 -64"
-#      ;;
+dnl    IRIX*)
+dnl      CC="cc"
+dnl      F77="f77"
+dnl      C_FLAGS="-O3 -n32 -mips3"
+dnl      C_PARSER_FLAGS="-g -n32 -mips3"
+dnl      F77_FLAGS="-O3 -n32 -mips3"
+dnl      SOLVER="-D_SPARSKIT"
+dnl      LINKER="f77 -n32 -mips3"
+dnl      ;;
+dnl    IRIX64*)
+dnl      CC="cc"
+dnl      F77="f77"
+dnl      C_FLAGS="-O3 -mips4 -64"
+dnl      C_PARSER_FLAGS="-g -mips4 -64"
+dnl      F77_FLAGS="-O3 -mips4 -64"
+dnl      SOLVER="-D_SPARSKIT -D_ILU_FLOAT"
+dnl      LINKER="f77 -64"
+dnl      ;;
     HP-UX*)
       CC="cc"
       F77="f77"
@@ -257,13 +257,14 @@ echo "- Solver: Sparskit ($SOLVER)"
 fi
 echo "*******************************************************************"
 
-if test "x${GSL}" = "xno"; then
-  echo "*******************************************************************"
-  echo "Configure could not find the GNU Scientific Library (GSL):"
-  echo "- if it is installed in a non-standard location, please run"
-  echo "  ./configure again with the --with-gsl-prefix option"
-  echo "- if it is not installed on your system, you can download it from"
-  echo "  http://sources.redhat.com/gsl/"
-  echo "*******************************************************************"
-fi
+dnl Don't print the warning at the moment, since we don't use the GSL yet
+dnl if test "x${GSL}" = "xno"; then
+dnl   echo "*******************************************************************"
+dnl   echo "Configure could not find the GNU Scientific Library (GSL):"
+dnl   echo "- if it is installed in a non-standard location, please run"
+dnl   echo "  ./configure again with the --with-gsl-prefix option"
+dnl   echo "- if it is not installed on your system, you can download it from"
+dnl   echo "  http://sources.redhat.com/gsl/"
+dnl   echo "*******************************************************************"
+dnl fi
 

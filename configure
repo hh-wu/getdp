@@ -2279,24 +2279,6 @@ else
   SOLVER='-D_SPARSKIT -D_ILU_FLOAT'
   LINKER='${F77}'
   case "$UNAME" in
-#    IRIX*)
-#      CC="cc"
-#      F77="f77"
-#      C_FLAGS="-O3 -n32 -mips3"
-#      C_PARSER_FLAGS="-g -n32 -mips3"
-#      F77_FLAGS="-O3 -n32 -mips3"
-#      SOLVER="-D_SPARSKIT"
-#      LINKER="f77 -n32 -mips3"
-#      ;;
-#    IRIX64*)
-#      CC="cc"
-#      F77="f77"
-#      C_FLAGS="-O3 -mips4 -64"
-#      C_PARSER_FLAGS="-g -mips4 -64"
-#      F77_FLAGS="-O3 -mips4 -64"
-#      SOLVER="-D_SPARSKIT -D_ILU_FLOAT"
-#      LINKER="f77 -64"
-#      ;;
     HP-UX*)
       CC="cc"
       F77="f77"
@@ -4094,13 +4076,4 @@ echo "- Solver: Sparskit ($SOLVER)"
 fi
 echo "*******************************************************************"
 
-if test "x${GSL}" = "xno"; then
-  echo "*******************************************************************"
-  echo "Configure could not find the GNU Scientific Library (GSL):"
-  echo "- if it is installed in a non-standard location, please run"
-  echo "  ./configure again with the --with-gsl-prefix option"
-  echo "- if it is not installed on your system, you can download it from"
-  echo "  http://sources.redhat.com/gsl/"
-  echo "*******************************************************************"
-fi
 
