@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.23 2001-05-06 12:37:55 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.24 2001-05-07 06:25:00 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -311,8 +311,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			    DofData_P->NbrPart, DofData_P->Part) ;
 
 	/* The last solution, if any, initializes the current one.
-	   Otherwise nul solution is used. 
-	   a revoir qd les conditions initiales seront mieux traitees */
+	   Otherwise a null solution is used. 
+	   a revoir qd les conditions initiales multiples seront mieux traitees */
 	if (List_Nbr(DofData_P->Solutions)) {
 	  LinAlg_CopyVector(&((struct Solution *)
 			      List_Pointer(DofData_P->Solutions,
@@ -1190,7 +1190,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
     if(!Init_Update){
       Init_Update = 1;
 
-      /* bidouillage provisoire : a revoir qd les conditions initiales
+      /* bidouillage provisoire : a revoir qd les conditions initiales multiples
          seront mieux traitees */
       Current.Time -= Current.DTime ;
       Current.TimeStep -= 1. ;
@@ -1237,7 +1237,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
     if(!Init_Update){
       Init_Update = 1;
 
-      /* bidouillage provisoire : a revoir qd les conditions initiales
+      /* bidouillage provisoire : a revoir qd les conditions initiales multiples
          seront mieux traitees */
       Current.Time -= Current.DTime ;
       Current.TimeStep -= 1. ;

@@ -1,4 +1,10 @@
-$Id: BUGS,v 1.1 2001-03-04 13:19:47 geuzaine Exp $
+$Id: BUGS,v 1.2 2001-05-07 06:25:00 geuzaine Exp $
 
-* Arguments in nested expressions don't work. This is a *BIG* bug.
+Known problems in this release:
+
+* Arguments in nested expressions don't work. A workaround is to store
+  the arguments in registers (i.e. with '#1'-like commands).
+
+* There seems to be a problem when reading some binary '.res'
+  files. Some investigation needed.
 
