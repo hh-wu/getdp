@@ -87,6 +87,7 @@ void  HBF_Node_3F (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
+    *s = 0. ;
     break;
 
   case TRIANGLE :
@@ -129,11 +130,6 @@ void  HBF_Node_3F (struct Element * Element, int NumEntity,
     break ;
   }
 
-
-  /* necessary in 3D */
-  if (Element->GeoElement->NumFacets[NumEntity-1] < 0) 
-    *s = -*s ;
-
 }
 
 #undef WrongNumEntity
@@ -152,6 +148,7 @@ void  HBF_Node_3V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
+    *s = 0. ;
     break ;
 
   case HEXAHEDRON :
@@ -286,6 +283,7 @@ void  HBF_GradNode_3F (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
+    s[0] = s[1] = s[2] = 0. ;
     break ;
 
   case TRIANGLE :
@@ -303,17 +301,13 @@ void  HBF_GradNode_3F (struct Element * Element, int NumEntity,
 
   case TETRAHEDRON :
     switch(NumEntity) {
-    case 1  : s[0] = v-2.0*u*v-v*v-v*w ; s[1] = u-u*u-2.0*u*v-u*w ; 
-              s[2] = -u*v              ; break ;
-    case 2  : s[0] = w-2.0*u*w-v*w-w*w ; s[1] = -u*w ;
-              s[2] = u-u*u-u*v-2.0*u*w ; break ;
-    case 3  : s[0] =  -v*w             ; s[1] = w-u*w-2.0*v*w-w*w ;
-              s[2] = v-u*v-v*v-2.0*v*w ; break ;
-    case 4  : s[0] = v*w               ; s[1] = u*w ;
-              s[2] = u*v               ; break ;
+    case 1  : s[0] = w-2.0*u*w-v*w-w*w ; s[1] = -u*w ; s[2] = u-u*u-u*v-2.0*u*w ; break ;
+    case 2  : s[0] = v-2.0*u*v-v*v-v*w ; s[1] = u-u*u-2.0*u*v-u*w ; s[2] = -u*v ; break ;
+    case 3  : s[0] = -v*w ; s[1] = w-u*w-2.0*v*w-w*w ; s[2] = v-u*v-v*v-2.0*v*w ; break ;
+    case 4  : s[0] = v*w ; s[1] = u*w ; s[2] = u*v ; break ;
     default : WrongNumEntity ;
     }
-
+    break ;
 
   case HEXAHEDRON :
     switch(NumEntity) {
@@ -330,10 +324,6 @@ void  HBF_GradNode_3F (struct Element * Element, int NumEntity,
   default :
     Msg(ERROR, "Unkown Element Type in HBF_GradNode_3F");
     break ;
-  }
-
-  if (Element->GeoElement->NumFacets[NumEntity-1] < 0) {
-    s[0] = - s[0] ; s[1] = - s[1] ; s[2] = - s[2] ;
   }
 
 }
@@ -353,6 +343,7 @@ void  HBF_GradNode_3V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
+    s[0] = s[1] = s[2] = 0. ;
     break ;
 
   case HEXAHEDRON :

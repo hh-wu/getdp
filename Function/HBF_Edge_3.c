@@ -16,20 +16,27 @@ int fcmp_Int2(const void * a, const void * b){
 }
 
 int Get_FacetFunctionIndex(struct Element * Element, int NumEntity, int NumIndex){
-  int    i, *NumNodes ;
-  struct TwoInt LocalGlobal[NBR_MAX_SUBENTITIES_IN_ELEMENT] ;
+  int    i, j, *NumNodes ;
 
-  NumNodes = Geo_GetNodesOfFacetInElement(Element->GeoElement, NumEntity-1);
+  if(Element->NumLastElementForSortedNodesByFacet != Element->Num){
 
-  i = 0 ;
-  while(NumNodes[i]){
-    LocalGlobal[i].Int1 = NumNodes[i] ;
-    LocalGlobal[i].Int2 = Element->GeoElement->NumNodes[NumNodes[i]-1] ;
-    i++ ;
+    for(i = 0 ; i < Element->GeoElement->NbrFacets ; i++){
+
+      NumNodes = Geo_GetNodesOfFacetInElement(Element->GeoElement, i);
+      j = 0 ;
+      while(NumNodes[j]){
+	Element->SortedNodesByFacet[i][j].Int1 = NumNodes[j] ;
+	Element->SortedNodesByFacet[i][j].Int2 = 
+	  Element->GeoElement->NumNodes[NumNodes[j]-1] ;
+	j++ ;
+      }
+      qsort(Element->SortedNodesByFacet[i], j, sizeof(struct TwoInt), fcmp_Int2);
+    }
+
+    Element->NumLastElementForSortedNodesByFacet = Element->Num ;
   }
-  qsort(LocalGlobal, i, sizeof(struct TwoInt), fcmp_Int2);
 
-  return LocalGlobal[NumIndex-1].Int1 ;
+  return Element->SortedNodesByFacet[NumEntity-1][NumIndex-1].Int1 ;
 }
 
 

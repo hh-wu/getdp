@@ -83,7 +83,8 @@ F_Analytic.o: F_Analytic.c ../include/Data_DefineE.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h
+ ../include/Magic.h ../include/Data_Numeric.h \
+ ../include/../Main/Data_Numeric.h
 F_Coord.o: F_Coord.c ../include/Data_DefineE.h \
  ../include/../Main/Data_DefineE.h F_Function.h \
  ../include/Data_Active.h ../include/../Main/Data_Active.h \
@@ -100,7 +101,8 @@ F_Coord.o: F_Coord.c ../include/Data_DefineE.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h
+ ../include/Magic.h ../include/Data_Numeric.h \
+ ../include/../Main/Data_Numeric.h
 F_Math.o: F_Math.c ../include/Data_DefineE.h \
  ../include/../Main/Data_DefineE.h F_Function.h \
  ../include/Data_Active.h ../include/../Main/Data_Active.h \
@@ -117,7 +119,8 @@ F_Math.o: F_Math.c ../include/Data_DefineE.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h
+ ../include/Magic.h ../include/Data_Numeric.h \
+ ../include/../Main/Data_Numeric.h
 F_ExtMath.o: F_ExtMath.c ../include/Data_DefineE.h \
  ../include/../Main/Data_DefineE.h F_Function.h \
  ../include/Data_Active.h ../include/../Main/Data_Active.h \
@@ -134,7 +137,8 @@ F_ExtMath.o: F_ExtMath.c ../include/Data_DefineE.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h
+ ../include/Magic.h ../include/Data_Numeric.h \
+ ../include/../Main/Data_Numeric.h
 F_Misc.o: F_Misc.c ../include/Data_DefineE.h \
  ../include/../Main/Data_DefineE.h F_Function.h \
  ../include/Data_Active.h ../include/../Main/Data_Active.h \
@@ -151,8 +155,9 @@ F_Misc.o: F_Misc.c ../include/Data_DefineE.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h \
- ../include/outil.h ../include/../DataStr/outil.h ../include/ualloc.h \
+ ../include/Magic.h ../include/Data_Numeric.h \
+ ../include/../Main/Data_Numeric.h ../include/outil.h \
+ ../include/../DataStr/outil.h ../include/ualloc.h \
  ../include/../DataStr/ualloc.h
 F_Type.o: F_Type.c ../include/Data_DefineE.h \
  ../include/../Main/Data_DefineE.h F_Function.h \
@@ -170,7 +175,8 @@ F_Type.o: F_Type.c ../include/Data_DefineE.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h
+ ../include/Magic.h ../include/Data_Numeric.h \
+ ../include/../Main/Data_Numeric.h
 BF_Node.o: BF_Node.c BF_Function.h ../include/Message.h \
  ../include/../Main/Message.h ../include/Data_Element.h \
  ../include/../Main/Data_Element.h ../include/GeoData.h \
@@ -226,7 +232,7 @@ BF_Region.o: BF_Region.c BF_Function.h ../include/Message.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Treatment_Formulation.h \
+ ../include/Magic.h ../include/Treatment_Formulation.h \
  ../include/../Main/Treatment_Formulation.h ../include/ualloc.h \
  ../include/../DataStr/ualloc.h
 HBF_Node_2.o: HBF_Node_2.c BF_Function.h ../include/Message.h \
@@ -250,13 +256,14 @@ HBF_Edge_2.o: HBF_Edge_2.c BF_Function.h ../include/Message.h \
  ../include/listman.h ../include/../DataStr/listman.h \
  ../include/treeman.h ../include/../DataStr/treeman.h \
  ../include/../DataStr/avl.h HBF_Function.h
-HBF_Edge_3.o: HBF_Edge_3.c BF_Function.h ../include/Message.h \
- ../include/../Main/Message.h ../include/Data_Element.h \
+HBF_Edge_3.o: HBF_Edge_3.c ../include/Data_Passive.h \
+ ../include/../Main/Data_Passive.h ../include/listman.h \
+ ../include/../DataStr/listman.h ../include/../Main/Message.h \
  ../include/../Main/Data_Element.h ../include/GeoData.h \
- ../include/../GeoData/GeoData.h ../include/../GeoData/Data_GeoData.h \
- ../include/listman.h ../include/../DataStr/listman.h \
- ../include/treeman.h ../include/../DataStr/treeman.h \
- ../include/../DataStr/avl.h HBF_Function.h
+ ../include/../GeoData/GeoData.h ../include/Message.h \
+ ../include/../GeoData/Data_GeoData.h ../include/treeman.h \
+ ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
+ BF_Function.h ../include/Data_Element.h HBF_Function.h
 HBF_Edge_4.o: HBF_Edge_4.c BF_Function.h ../include/Message.h \
  ../include/../Main/Message.h ../include/Data_Element.h \
  ../include/../Main/Data_Element.h ../include/GeoData.h \
@@ -284,8 +291,8 @@ GF_Laplace.o: GF_Laplace.c ../include/Data_Active.h \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h ../include/Data_Numeric.h \
- ../include/../Main/Data_Numeric.h
+ ../include/../DofData/Data_DofData.h ../include/Magic.h \
+ ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h
 GF_LaplacexForm.o: GF_LaplacexForm.c ../include/Data_Active.h \
  ../include/../Main/Data_Active.h ../include/../Main/Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h \
@@ -299,10 +306,11 @@ GF_LaplacexForm.o: GF_LaplacexForm.c ../include/Data_Active.h \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h ../include/Data_Numeric.h \
- ../include/../Main/Data_Numeric.h ../include/Data_DefineE.h \
- ../include/../Main/Data_DefineE.h ../include/Numeric_F.h \
- ../include/../Numeric/Numeric_F.h ../include/Compat.h
+ ../include/../DofData/Data_DofData.h ../include/Magic.h \
+ ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h \
+ ../include/Data_DefineE.h ../include/../Main/Data_DefineE.h \
+ ../include/Numeric_F.h ../include/../Numeric/Numeric_F.h \
+ ../include/Compat.h
 GF_Helmholtz.o: GF_Helmholtz.c ../include/Data_Active.h \
  ../include/../Main/Data_Active.h ../include/../Main/Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h \
@@ -316,5 +324,5 @@ GF_Helmholtz.o: GF_Helmholtz.c ../include/Data_Active.h \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h ../include/Data_Numeric.h \
- ../include/../Main/Data_Numeric.h
+ ../include/../DofData/Data_DofData.h ../include/Magic.h \
+ ../include/Data_Numeric.h ../include/../Main/Data_Numeric.h

@@ -89,6 +89,7 @@ void  HBF_Node_2F (struct Element * Element, int NumEntity,
   case LINE :
   case TRIANGLE :
   case TETRAHEDRON :
+    *s = 0. ;
     break;
     
   case QUADRANGLE :
@@ -133,6 +134,7 @@ void  HBF_Node_2V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
+    *s = 0. ;
     break;
 
   case HEXAHEDRON :
@@ -236,6 +238,7 @@ void  HBF_GradNode_2F (struct Element * Element, int NumEntity,
   case LINE :
   case TRIANGLE :
   case TETRAHEDRON :
+    s[0] = s[1] = s[2] = 0. ;
     break;
 
   case QUADRANGLE :
@@ -280,6 +283,7 @@ void  HBF_GradNode_2V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
+    s[0] = s[1] = s[2] = 0. ;
     break;
 
   case HEXAHEDRON :
