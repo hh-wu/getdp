@@ -1,4 +1,4 @@
-% $Id: cnrs-2001.tex,v 1.4 2001-06-14 14:48:32 geuzaine Exp $
+% $Id: cnrs-2001.tex,v 1.5 2001-06-14 15:31:14 geuzaine Exp $
 
 \documentclass[a4]{seminar}
 
@@ -30,12 +30,29 @@
 
 \end{slide}
 
+% Summary: With its strong mathematical foundations, the finite element
+% method is an invaluable tool for the modeling of complex coupled
+% physical problems that cannot be solved by analytical methods. Indeed,
+% automatic mesh generation and mixed finite elements have tremendously
+% widened its range of application, and call for a more general software
+% implementation.
+% The presentation will focus on such a generalization, called GetDP,
+% which is freely available on the Internet for research in collaboration.
+% After an overview of the general working philosophy of the software, the
+% benefits it may bring for the modeling of magnetic problems (taking
+% thermal, mechanical and circuit couplings into account) will be
+% highlighted thanks to a couple of examples. Topics which could be
+% studied in collaboration will then be presented, such as error
+% estimation or the use of the software as a black box in higher level
+% optimization packages.
+
 % ---------------------------------------------------------------------------
 
 \input{fem.tex}
 \input{getdp.tex}
-\input{gmsh.tex}
 \input{examples.tex}
+\input{gmsh.tex}
+
 
 % ---------------------------------------------------------------------------
 
@@ -44,24 +61,8 @@
 \slidepagestyle{none}
 
 \begin{center}
-\bigtitle{Perspectives and conclusions}
+\bigtitle{Conclusions}
 \end{center}
-
-\end{slide}
-
-% ---------------------------------------------------------------------------
-\part{Collaborations}
-% ---------------------------------------------------------------------------
-
-\chapter{Possible collaboration topics}
-
-\begin{slide}
-
-\begin{slideitemize}
-\item Error estimation
-\item Optimization
-solver integration into higher level toolboxes (visualization, optimization, etc.)
-\end{slideitemize}
 
 \end{slide}
 
@@ -74,14 +75,12 @@ solver integration into higher level toolboxes (visualization, optimization, etc
 \begin{slide}
 
 \begin{slideitemize}
-\item Structured, concise and open software environment
-\begin{itemize}\small
-\item Numerical modelling of physical problems (but no physics inside the code!)
-\item Open for adding new functionalities in a progressive way
-\item User-friendly language for the definition of methods and problems
-\item Interactive use possible through Gmsh or home-grown application
-\item Convenient for research, application or teaching
-\item Shared for collaboration (freely available on the Internet,
+\item Structured and concise software environment
+\begin{itemize}
+\item Numerical modelling of physical problems (but \emph{no physics inside the code}!)
+\item User-friendly \emph{language for the definition of methods and problems}
+\item Convenient for \emph{research}, \emph{application} or \emph{teaching}
+\item Shared for collaboration (\emph{freely available} on the Internet,
 documentation, mailing lists)
 \end{itemize}
 \end{slideitemize}
@@ -92,12 +91,19 @@ documentation, mailing lists)
 
 \begin{slideitemize}
 \item Adapted for stage-by-stage use
-\begin{itemize}\small
-\item from 1D to 3D models
-\item from linear to nonlinear problems
-\item from static to dynamic problems
-\item from single physical or numerical models to coupled ones
+\begin{itemize}
+\item \emph{from 1D to 3D} models
+\item \emph{from linear to nonlinear} problems
+\item \emph{from static to dynamic} problems
+\item \emph{from single} physical or numerical \emph{models to coupled} ones
 \end{itemize}
+\item Open to new developments
+\begin{itemize}
+\item Open for adding \emph{new functionalities} in a progressive way
+\item \emph{Interactive use} possible through Gmsh or home-made application
+\item \emph{Integration} into higher level optimization packages
+\end{itemize}
+
 \end{slideitemize}
 
 \end{slide}
