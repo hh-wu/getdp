@@ -75,8 +75,15 @@ post-processing operations manually. If \fBpost-processing-id\fR is
 omitted, the list of available choices is displayed.
 .TP 4
 .B \-msh filename
-reads the mesh database from \fBfilename\fR instead of in the default
-problem file name (with the \fI.msh\fR extension appended).
+reads the mesh database from \fBfilename\fR instead of from the default
+problem file name with the \fI.msh\fR extension appended.
+.TP 4
+.B \-split
+save processing results in separate files (one for each timestep).
+.TP 4
+.B \-res filename(s)
+load processing results from \fBfilename(s)\fR instead of from the
+default problem file name with the \fI.res\fR extension appended.
 .TP 4
 .B \-log
 saves all processing history in a log file (the input file name with

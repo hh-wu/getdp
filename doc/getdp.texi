@@ -4959,8 +4959,11 @@ Reads the mesh database (in @code{.msh} format) from @var{filename}
 (@pxref{File formats}) instead of in the default problem file name (with
 the @file{.msh} extension appended).
 
-@item -res @var{filename}
-Undocumented.
+@item -split
+save processing results in separate files (one for each timestep).
+
+@item -res @var{filename} @dots{}
+load processing results from file(s).
 
 @item -restart
 Restarts processing of a transient problem interrupted before being complete.
