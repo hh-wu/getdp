@@ -1,4 +1,4 @@
-#define RCSID "$Id: Legendre.c,v 1.6 2003-03-06 22:28:08 geuzaine Exp $"
+#define RCSID "$Id: Legendre.c,v 1.7 2003-03-06 22:28:48 geuzaine Exp $"
 
 #include <stdio.h>
 #include <math.h>
@@ -37,7 +37,7 @@ double BinomialCoef( double n, double m ){
   GetDP_Begin("BinomialCoef") ;
 
   if (m==0 || n==m) GetDP_Return(1.) ;
-  for(i = n ; i > (int)m ; i--)
+  for(i = (int)n ; i > m ; i--)
     B *= (double)i/(double)(i-m);
 
   GetDP_Return(B);
