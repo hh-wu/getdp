@@ -1,9 +1,9 @@
-$Id: VERSIONS,v 1.4 2001-03-08 19:15:35 geuzaine Exp $
+$Id: VERSIONS,v 1.5 2001-03-08 21:06:23 geuzaine Exp $
 
 0.80: Fixed computation of time derivatives on first time step (in
-post-processing); Added tolerance in transformation jacobians;
-Corrected bug with parsing of DOS files (skipping ^M characters);
-Automatic memory reallocation in ILUK;
+post-processing); Added tolerance in transformation jacobians; Fixed
+parsing of DOS files (skipping ^M characters); Automatic memory
+reallocation in ILUD|K;
 
 0.79: Various bug fixes (mainly for the post-processing of intergal
 quantities); Automatic treatment of degenerated cases in

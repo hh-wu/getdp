@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.35 2001-03-08 16:10:55 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.36 2001-03-08 21:06:23 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -28,12 +28,12 @@ char acronym[]   = "GetDP %g, a General environment for the treatment of Discret
 char copyright[] = "Copyright (c) 1997-2001 Patrick Dular and Christophe Geuzaine\n";
 
 char version[]   = "Version          : %g\n";
-char os[]        = "Operating System : %s\n";
-char date[]      = "Build Date       : %s\n";
-char host[]      = "Build Host       : %s\n";
+char os[]        = "Operating system : %s\n";
+char date[]      = "Build date       : %s\n";
+char host[]      = "Build host       : %s\n";
 char packager[]  = "Packager         : %s\n";
-char url[]       = "Web Site         : http://www.geuz.org/getdp/\n";
-char email[]     = "Mailing List     : getdp@geuz.org\n";
+char url[]       = "Web site         : http://www.geuz.org/getdp/\n";
+char email[]     = "Mailing list     : getdp@geuz.org\n";
 
 #ifdef _SPARSKIT
 #ifdef _ILU_FLOAT
