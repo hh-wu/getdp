@@ -1,4 +1,4 @@
-// $Id: Utils.cpp,v 1.9 2002-10-03 18:09:37 geuzaine Exp $
+// $Id: Utils.cpp,v 1.10 2003-03-18 01:37:52 geuzaine Exp $
 
 #include "Utils.h"
 
@@ -9,6 +9,8 @@ int Flag_SOCKET=0;
 char *Name_Path=NULL;
 int Verbose = 2;
 int NbCpu, RankCpu;
+int Flag_FMM = 0;
+void FMM_MatVectorProd(double *, double *){;}
 
 // temporary replacement for Message.c
 

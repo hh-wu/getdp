@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.131 2003-03-17 19:54:04 geuzaine Exp $
+# $Id: Makefile,v 1.132 2003-03-18 01:37:52 geuzaine Exp $
 
 include variables
 
@@ -194,5 +194,6 @@ compile-scat: initialtag
         ); done
 link-scat:
 	${CLINKER} -o bin/hf lib/libScattering.a lib/libDofData.a lib/libNumeric.a\
-                   lib/libDataStr.a ${PETSC_SLES_LIB} -L${FFTW_PREFIX}/lib -lfftw -lm
+                   lib/libDataStr.a lib/libNR.a  ${PETSC_SLES_LIB}\
+                   -L${FFTW_PREFIX}/lib -lfftw -lm
 scat: compile-scat link-scat
