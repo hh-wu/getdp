@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.74 2002-01-19 01:18:35 geuzaine Exp $
+# $Id: Makefile,v 1.75 2002-01-23 16:48:47 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -257,6 +257,9 @@ fulltgz:
 
 zip:
 	zip $(GETDP_ARCHIVE).zip $(GETDP_SOURCES)
+
+minizip:
+	tar jcvf getdp.tar.bz2 `ls Makefile */Makefile */*.[cfFhyl]`
 
 tgzdoc:
 	tar cvf getdp-texi.tar $(GETDP_DOC_DIR)
