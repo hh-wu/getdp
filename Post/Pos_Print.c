@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.32 2000-11-07 08:49:12 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.33 2000-11-25 23:09:38 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -192,7 +192,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   /* Check if we should decompose all PostElements to simplices */
 
   if(PostSubOperation_P->Format == FORMAT_GMSH || 
-     PostSubOperation_P->Format == FORMAT_GMSH_NL)
+     PostSubOperation_P->Format == FORMAT_GMSH_PARSED)
     DecomposeInSimplex = 1 ;
 
   /* Check for de-refinement */

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.11 2000-11-22 09:57:13 dular Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.12 2000-11-25 23:09:38 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -21,6 +21,14 @@
 #define NBR_MAX_ISO  200
 
 List_T *PostElement_L = NULL ;
+List_T *TimeValue_L = NULL ;
+
+int     Gmsh_StartNewView = 0 ;
+int     NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT, NbSS, NbVS, NbTS ;
+List_T *SP = NULL, *VP = NULL, *TP = NULL;
+List_T *SL = NULL, *VL = NULL, *TL = NULL;
+List_T *ST = NULL, *VT = NULL, *TT = NULL;
+List_T *SS = NULL, *VS = NULL, *TS = NULL;
 
 /* ------------------------------------------------------------------------ */
 /*  F o r m a t _ P o s t F o r m a t / H e a d e r / F o o t e r           */
@@ -31,10 +39,10 @@ void  Format_PostFormat(int Format){
   GetDP_Begin("Format_PostFormat");
 
   switch(Format){
-  case FORMAT_GMSH_NL :
-    fprintf(PostStream, "$PostFormat /* GetDP v%g, %s */\n",
-	    GETDP_VERSION, Flag_BIN ? "binary" : "ascii") ;
-    fprintf(PostStream, "%g %d\n", GETDP_VERSION, Flag_BIN) ;
+  case FORMAT_GMSH :
+    fprintf(PostStream, "$PostFormat /* Gmsh 0.995, %s */\n",
+	    Flag_BIN ? "binary" : "ascii") ;
+    fprintf(PostStream, "0.995 %d\n", Flag_BIN) ;
     fprintf(PostStream, "$EndPostFormat\n") ;
     break ;
   case FORMAT_GNUPLOT :
@@ -74,12 +82,13 @@ void  Format_PostHeader(int Format, int Contour,
     strcpy(name, CPQ_P->Name) ;
 
   switch(Format){
-  case FORMAT_GMSH :
+  case FORMAT_GMSH_PARSED :
     fprintf(PostStream, "View \"%s\" {\n", name) ;
     break ;
-  case FORMAT_GMSH_NL :
-    fprintf(PostStream, "$PostData /* %s */\n", name);
-    fprintf(PostStream, "%s %d\n", name, NbTimeStep*HarmonicToTime);
+  case FORMAT_GMSH :
+    fprintf(PostStream, "$View /* %s */\n", name);
+    fprintf(PostStream, "%s ", name);
+    Gmsh_StartNewView = 1 ;
     break ;
   case FORMAT_GNUPLOT :
     fprintf(PostStream, "# PostData '%s'\n", name);
@@ -97,14 +106,14 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
   List_T  * Iso_L[NBR_MAX_ISO] ;
   double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0 ;
   int       NbrIso = 0, DecomposeInSimplex = 0 ; 
-  int       iPost, iNode, iIso ;
+  int       iPost, iNode, iIso, i, f ;
   struct PostElement *PE ;
 
   GetDP_Begin("Format_PostFooter");
 
   if(PSO_P->Iso){
 
-    if(PSO_P->Format == FORMAT_GMSH || PSO_P->Format == FORMAT_GMSH_NL)
+    if(PSO_P->Format == FORMAT_GMSH || PSO_P->Format == FORMAT_GMSH_PARSED)
       DecomposeInSimplex = 1 ;
 
     for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){ 
@@ -146,16 +155,29 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
 	Destroy_PostElement(PE) ;
       }
       List_Delete(Iso_L[iIso]) ;
-      fprintf(PostStream, "\n") ;
+      if(PSO_P->Format == FORMAT_GNUPLOT) fprintf(PostStream, "\n") ;
     }
   }
 
   switch(PSO_P->Format){
-  case FORMAT_GMSH :
+  case FORMAT_GMSH_PARSED :
     fprintf(PostStream, "};\n") ;
     break ;
-  case FORMAT_GMSH_NL :
-    fprintf(PostStream, "0\n$EndPostData\n");
+  case FORMAT_GMSH :
+    fprintf(PostStream, "%d %d %d %d %d %d %d %d %d %d %d %d %d\n", 
+	    List_Nbr(TimeValue_L),
+	    NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, 
+	    NbST, NbVT, NbTT, NbSS, NbVS, NbTS);
+    f = Flag_BIN ? LIST_FORMAT_BINARY : LIST_FORMAT_ASCII ;
+    List_WriteToFile(TimeValue_L, PostStream, f); 
+    List_WriteToFile(SP, PostStream, f); List_WriteToFile(VP, PostStream, f);
+    List_WriteToFile(TP, PostStream, f); List_WriteToFile(SL, PostStream, f);
+    List_WriteToFile(VL, PostStream, f); List_WriteToFile(TL, PostStream, f);
+    List_WriteToFile(ST, PostStream, f); List_WriteToFile(VT, PostStream, f);
+    List_WriteToFile(TT, PostStream, f); List_WriteToFile(SS, PostStream, f);
+    List_WriteToFile(VS, PostStream, f); List_WriteToFile(TS, PostStream, f);
+    if(Flag_BIN) fprintf(PostStream, "\n");
+    fprintf(PostStream, "$EndView\n");
     break ;
   case FORMAT_ADAPT :
     fprintf(PostStream, "$EndAdapt\n");
@@ -166,17 +188,17 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
 }
 
 /* ------------------------------------------------------------------------ */
-/*  F o r m a t _ X X X                                                     */
+/*  F o r m a t _ G m s h P a r s e d                                       */
 /* ------------------------------------------------------------------------ */
 
-void  Format_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic, 
-		  int HarmonicToTime, int Type, int NbrNodes, 
-		  double *x, double *y, double *z, struct Value *Value){
+void  Format_GmshParsed(int TimeStep, int NbTimeStep, int NbHarmonic, 
+			int HarmonicToTime, int Type, int NbrNodes, 
+			double *x, double *y, double *z, struct Value *Value){
   int     i,j,k;
   double      TimeMH ;
   struct Value  TmpValue ;
 
-  GetDP_Begin("Format_Gmsh");
+  GetDP_Begin("Format_GmshParsed");
 
   switch (Value[0].Type) {
 
@@ -279,148 +301,107 @@ void  Format_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic,
   GetDP_End ;
 }
 
-#define POST_SCALAR_POINT           1
-#define POST_SCALAR_LINE            2
-#define POST_SCALAR_TRIANGLE        3
-#define POST_SCALAR_QUADRANGLE      4
-#define POST_SCALAR_TETRAHEDRON     5
-#define POST_SCALAR_HEXAHEDRON      6
-#define POST_SCALAR_PRISM           7
-#define POST_SCALAR_PYRAMID         8
 
-#define POST_VECTOR_POINT           11
-#define POST_VECTOR_LINE            12
-#define POST_VECTOR_TRIANGLE        13
-#define POST_VECTOR_QUADRANGLE      14
-#define POST_VECTOR_TETRAHEDRON     15
-#define POST_VECTOR_HEXAHEDRON      16
-#define POST_VECTOR_PRISM           17
-#define POST_VECTOR_PYRAMID         18
-
-#define POST_TENSOR_POINT           21
-#define POST_TENSOR_LINE            22
-#define POST_TENSOR_TRIANGLE        23
-#define POST_TENSOR_QUADRANGLE      24
-#define POST_TENSOR_TETRAHEDRON     25
-#define POST_TENSOR_HEXAHEDRON      26
-#define POST_TENSOR_PRISM           27
-#define POST_TENSOR_PYRAMID         28
-
-void  Format_NewGmsh(int TimeStep, int NbrTimeSteps, int NbrHarmonics, 
-		     int HarmonicToTime, int ElementType, int NbrNodes,
-		     double *x, double *y, double *z, struct Value *Value){
-
-  static int      Index, OutSize, Type, Size ;
-  static double  *Tmp ;
-  int    i,j,k ;
-  double      TimeMH ;
+void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic, 
+		  int HarmonicToTime, int Type, int NbrNodes, 
+		  double *x, double *y, double *z, struct Value *Value){
+  int           i,j,k;
+  double        TimeMH ;
   struct Value  TmpValue ;
+  List_T       *Current_L ;
 
-  GetDP_Begin("Format_NewGmsh");
+  GetDP_Begin("Format_Gmsh");
 
-  if(TimeStep == 0){
-
-    switch(ElementType){
-    case POINT :
-      switch(Value->Type){
-      case SCALAR      : Type = POST_SCALAR_POINT ; Size = 1 ; break ;
-      case VECTOR      : Type = POST_VECTOR_POINT ; Size = 3 ; break ;
-      case TENSOR_DIAG : 
-      case TENSOR_SYM  : 
-      case TENSOR      : Type = POST_TENSOR_POINT ; Size = 9 ; break ;
-      }
-      break ;
-    case LINE :
-      switch(Value->Type){
-      case SCALAR      : Type = POST_SCALAR_LINE ; Size = 1 ; break ;
-      case VECTOR      : Type = POST_VECTOR_LINE ; Size = 3 ; break ;
-      case TENSOR_DIAG : 
-      case TENSOR_SYM  : 
-      case TENSOR      : Type = POST_TENSOR_LINE ; Size = 9 ; break ;
-      }
-      break ;
-    case TRIANGLE :
-      switch(Value->Type){
-      case SCALAR      : Type = POST_SCALAR_TRIANGLE ; Size = 1 ; break ;
-      case VECTOR      : Type = POST_VECTOR_TRIANGLE ; Size = 3 ; break ;
-      case TENSOR_DIAG : 
-      case TENSOR_SYM  : 
-      case TENSOR      : Type = POST_TENSOR_TRIANGLE ; Size = 9 ; break ;
-      }
-      break ;
-    case TETRAHEDRON :
-      switch(Value->Type){
-      case SCALAR      : Type = POST_SCALAR_TETRAHEDRON ; Size = 1 ; break ;
-      case VECTOR      : Type = POST_VECTOR_TETRAHEDRON ; Size = 3 ; break ;
-      case TENSOR_DIAG : 
-      case TENSOR_SYM  : 
-      case TENSOR      : Type = POST_TENSOR_TETRAHEDRON ; Size = 9 ; break ;
-      }
-      break ;
-    default :
-      Msg(ERROR, "Unkbown Type of Element in Format_NewGmshPostElement") ;
-      break ;
-    }
-
-    fprintf(PostStream, "%d\n", Type);
-    OutSize = Size * NbrNodes * NbrTimeSteps * NbrHarmonics * HarmonicToTime ;
-    if(Flag_BIN){
-      fwrite(x, sizeof(double), NbrNodes, PostStream);
-      fwrite(y, sizeof(double), NbrNodes, PostStream);
-      fwrite(z, sizeof(double), NbrNodes, PostStream);
-      Tmp = (double*)Malloc(OutSize*sizeof(double));
-      Index = 0 ;
-    }
-    else{
-      for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", x[i]);
-      for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", y[i]);
-      for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", z[i]);
-    }
+  if(Gmsh_StartNewView){
+    Gmsh_StartNewView = 0 ;
+    NbSP = NbVP = NbTP = NbSL = NbVL = NbTL = 0;
+    NbST = NbVT = NbTT = NbSS = NbVS = NbTS = 0;
+    if(!SP) SP = List_Create(100,1000,sizeof(double)); else List_Reset(SP);
+    if(!VP) VP = List_Create(100,1000,sizeof(double)); else List_Reset(VP);
+    if(!TP) TP = List_Create(100,1000,sizeof(double)); else List_Reset(TP);
+    if(!SL) SL = List_Create(100,1000,sizeof(double)); else List_Reset(SL);
+    if(!VL) VL = List_Create(100,1000,sizeof(double)); else List_Reset(VL);
+    if(!TL) TL = List_Create(100,1000,sizeof(double)); else List_Reset(TL);
+    if(!ST) ST = List_Create(100,1000,sizeof(double)); else List_Reset(ST);
+    if(!VT) VT = List_Create(100,1000,sizeof(double)); else List_Reset(VT);
+    if(!TT) TT = List_Create(100,1000,sizeof(double)); else List_Reset(TT);
+    if(!SS) SS = List_Create(100,1000,sizeof(double)); else List_Reset(SS);
+    if(!VS) VS = List_Create(100,1000,sizeof(double)); else List_Reset(VS);
+    if(!TS) TS = List_Create(100,1000,sizeof(double)); else List_Reset(TS);
+    if(!TimeValue_L) TimeValue_L = List_Create(100,1000,sizeof(double));
+    else List_Reset(TimeValue_L);
   }
 
-  if (HarmonicToTime == 1) {
-    for(k = 0 ; k < NbrHarmonics ; k++) {
-      for(i = 0 ; i < NbrNodes ; i++){
-	for(j = 0 ; j < Size ; j++){
-	  if(Flag_BIN){
-	    Tmp[Index] = Value[i].Val[MAX_DIM*k+j] ;
-	    Index++ ;
-	  }
-	  else{
-	    fprintf(PostStream, "%.8g ", Value[i].Val[MAX_DIM*k+j]);
-	  }
+  switch (Value[0].Type) {
+
+  case SCALAR :
+
+    if(TimeStep == 0){
+      switch(Type){
+      case POINT       : Current_L = SP ; NbSP++ ; break ;
+      case LINE        : Current_L = SL ; NbSL++ ; break ;
+      case TRIANGLE    : Current_L = ST ; NbST++ ; break ;
+      case TETRAHEDRON : Current_L = SS ; NbSS++ ; break ;
+      }    
+      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
+      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
+      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
+    }
+    List_Put(TimeValue_L, TimeStep, &Time);
+    if (HarmonicToTime == 1)
+      for(k = 0 ; k < NbHarmonic ; k++)
+	for(i = 0 ; i < NbrNodes ; i++)
+	  List_Add(Current_L, &Value[i].Val[MAX_DIM*k]);
+    else
+      for(k = 0 ; k < HarmonicToTime ; k++)
+	for(i = 0 ; i < NbrNodes ; i++){
+	  F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	  List_Add(Current_L, &TmpValue.Val[0]);
 	}
-      }
-    }
-  }
-  else {
-    for(k = 0 ; k < HarmonicToTime ; k++){
-      for(i = 0 ; i < NbrNodes ; i++){
-	F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
-	for(j = 0 ; j < Size ; j++){
-	  if(Flag_BIN){
-	    Tmp[Index] = TmpValue.Val[j] ;
-	    Index++ ;
-	  }
-	  else{
-	    fprintf(PostStream, "%.8g", TmpValue.Val[j]);
-	  }
-	}
-      }
-    }
-  }
 
-  if(TimeStep == NbrTimeSteps-1){
-    if(Flag_BIN) {
-      fwrite(Tmp, sizeof(double), OutSize, PostStream);
-      Free(Tmp);
+    break ;
+
+  case VECTOR :
+
+    if(TimeStep == 0){
+      switch(Type){
+      case POINT       : Current_L = VP ; NbVP++ ; break ;
+      case LINE        : Current_L = VL ; NbVL++ ; break ;
+      case TRIANGLE    : Current_L = VT ; NbVT++ ; break ;
+      case TETRAHEDRON : Current_L = VS ; NbVS++ ; break ;
+      }    
+      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
+      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
+      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
     }
-    fprintf(PostStream, "\n");
+    if (HarmonicToTime == 1)
+      for(k = 0 ; k < NbHarmonic ; k++)
+	for(i = 0 ; i < NbrNodes ; i++)
+	  for(j = 0 ; j < 3 ; j++)
+	    List_Add(Current_L, &Value[i].Val[MAX_DIM*k+j]);
+    else
+      for(k = 0 ; k < HarmonicToTime ; k++)
+	for(i = 0 ; i < NbrNodes ; i++){
+	  F_MHToTime0(NULL, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	  for(j = 0 ; j < 3 ; j++)
+	    List_Add(Current_L, &TmpValue.Val[j]);
+	}
+    break ;
+
+  case TENSOR_DIAG :
+  case TENSOR_SYM :
+  case TENSOR :
+    Msg(ERROR, "Gmsh Format not done for Tensors");
+    break;
+    
   }
 
   GetDP_End ;
 }
 
+/* ------------------------------------------------------------------------ */
+/*  F o r m a t _ G n u p l o t                                             */
+/* ------------------------------------------------------------------------ */
 
 int Get_GmshElementType(int Type){
 
@@ -550,6 +531,10 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
   GetDP_End ;
 }
 
+/* ------------------------------------------------------------------------ */
+/*  F o r m a t _ T a b u l a r                                             */
+/* ------------------------------------------------------------------------ */
+
 void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
 		     int NbrHarmonics, int HarmonicToTime, 
 		     int ElementType, int NumElement, int NbrNodes,
@@ -675,15 +660,15 @@ void  Format_PostElement(int Format, int Contour, int Store,
   }
 
   switch(Format){
+  case FORMAT_GMSH_PARSED :
+    Format_GmshParsed(TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
+		      PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
+		      PE->Value) ;
+    break ;
   case FORMAT_GMSH :
-    Format_Gmsh(TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
+    Format_Gmsh(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
 		PE->Value) ;
-    break ;
-  case FORMAT_GMSH_NL :
-    Format_NewGmsh(TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-		   PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
-		   PE->Value) ;
     break ;
   case FORMAT_GNUPLOT :
     Format_Gnuplot(Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,

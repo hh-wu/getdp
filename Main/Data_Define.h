@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.12 2000-11-13 16:57:22 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.13 2000-11-25 23:09:38 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -240,7 +240,7 @@ struct StringXDefine  PostSubOperation_Format[] = {
   {"FrequencyTable"      , FORMAT_FREQUENCY_TABLE }, 
   {"HarmonicToTimeTable" , FORMAT_HARMONICTOTIME_TABLE }, 
   {"Gmsh"                , FORMAT_GMSH},
-  {"GmshNL"              , FORMAT_GMSH_NL},
+  {"GmshParsed"          , FORMAT_GMSH_PARSED},
   {"Gnuplot"             , FORMAT_GNUPLOT }, 
   {"Matlab"              , FORMAT_MATLAB }, 
   {"Adaption"            , FORMAT_ADAPT }, 

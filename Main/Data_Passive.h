@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.21 2000-11-16 14:04:01 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.22 2000-11-25 23:09:38 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -860,7 +860,7 @@ struct PostSubOperation {
 #define FORMAT_FREQUENCY_TABLE        4
 #define FORMAT_ADAPT                  9
 #define FORMAT_GMSH                  10
-#define FORMAT_GMSH_NL               11
+#define FORMAT_GMSH_PARSED           11
 #define FORMAT_UNV                   12
 #define FORMAT_GREF                  13
 #define FORMAT_MATLAB                14
