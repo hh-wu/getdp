@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.36 2002-08-29 00:10:40 geuzaine Exp $
+// $Id: Solve.cpp,v 1.37 2002-08-30 23:43:21 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -204,7 +204,7 @@ void Ctx::initializeInterpolation(gVector *x){
 void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   Ctx *ctx;
   int i, beg, end;
-  Complex res;
+  Complex res, tmp;
 
   LinAlg_GetMatrixContext(A,(void **)(&ctx));
 
@@ -232,6 +232,12 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
 
   for(i=beg ; i<end ; i++){
     res = - ctx->integrate(i);
+
+    if(ctx->type & SECOND_KIND_IE){
+      LinAlg_GetComplexInVector(&tmp,x,i);
+      res += tmp;
+    }
+
     LinAlg_SetComplexInVector(res, y, i);
   }
 

@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.13 2002-08-27 23:38:16 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.14 2002-08-30 23:43:21 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -42,8 +42,11 @@ Complex GFHelmholtzParametric2D::L(){
 }
 
 Complex GFHelmholtzParametric2D::L1(){
+  if(!kr){
+    return 0.;
+  }
   return k/TWO_PI * (dxtau[1]*(xtau[0]-xt[0]) -
-		     dxtau[0]*(xtau[1]-xt[1])) * Bessel_h(1,1,kr) / r;
+		     dxtau[0]*(xtau[1]-xt[1])) * Bessel_j(1,kr) / r;
 }
 
 Complex GFHelmholtzParametric2D::L2(double t_pp, double tau_pp, double jac, double ddxt[3]){
@@ -325,7 +328,7 @@ Complex NystromSimple(Ctx *ctx, int index, double t){
 	k1 = kern.M1();
 	k2 = kern.M2(s,sigma,jac);
 	if(ctx->type & SECOND_KIND_IE){
-	  double eta = 1;
+	  double eta = 0.3; // TO CHANGE
 	  k1 *= I*eta;
 	  k2 *= I*eta;
 	}
