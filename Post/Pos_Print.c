@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.38 2001-03-05 09:16:37 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.39 2001-03-16 13:17:19 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -753,7 +753,8 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
       Element.Type       = Element.GeoElement->Type ;
       Current.Region = Element.Region = Element.GeoElement->Region ;
 
-      if(PostSubOperation_P->Dimension == _ALL ||
+      if((PostSubOperation_P->Dimension == _ALL &&
+	  (Element.GeoElement->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID|TRIANGLE|QUADRANGLE))) ||
 	 (PostSubOperation_P->Dimension == _3D && 
 	  (Element.GeoElement->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID))) ||
 	 (PostSubOperation_P->Dimension == _2D && 
