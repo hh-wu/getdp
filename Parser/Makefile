@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.17 2003-03-22 03:30:18 geuzaine Exp $
+# $Id: Makefile,v 1.18 2003-06-21 07:17:51 sabarieg Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -60,14 +60,14 @@ nodepend:
 
 # DO NOT DELETE THIS LINE
 GetDP.yy.o: GetDP.yy.c ../Main/Data_Passive.h ../DataStr/List.h \
-  ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
-  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h Constant.h \
-  ../DataStr/Malloc.h GetDP.tab.h
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
+ ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+ Constant.h ../DataStr/Malloc.h GetDP.tab.h
 GetDP.tab.o: GetDP.tab.c ../Main/Data_Passive.h ../DataStr/List.h \
-  ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
-  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../Main/Data_Active.h ../Main/Data_DefineE.h ../DataStr/Malloc.h \
-  ../DataStr/Tools.h ../Main/Init_Problem.h \
-  ../Main/Print_ProblemStructure.h ../Function/BF_Function.h \
-  ../Integration/Quadrature.h ../Main/Cal_Value.h Constant.h \
-  ../include/Magic.h
+ ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
+ ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
+ ../Main/Data_Active.h ../Main/Data_DefineE.h ../DataStr/Malloc.h \
+ ../DataStr/Tools.h ../Main/Init_Problem.h \
+ ../Main/Print_ProblemStructure.h ../Function/BF_Function.h \
+ ../Integration/Quadrature.h ../Main/Cal_Value.h Constant.h \
+ ../include/Magic.h

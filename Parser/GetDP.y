@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.50 2003-06-04 22:05:12 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.51 2003-06-21 07:17:51 sabarieg Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -41,6 +41,15 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+
+#ifndef __APPLE__
+#if !defined __cplusplus && !defined MSDOS && !defined _AIX && !defined __CYGWIN__
+
+#include <alloca.h> 
+#endif
+#endif /* __APPLE__ */
+
+
 
 #include "Data_Passive.h"
 #include "Data_Active.h"
@@ -311,7 +320,7 @@ time_t date_info;
 %token      tInit_MovingBand2D tMesh_MovingBand2D tGenerate_MH_Moving 
 %token      tGenerateGroup tGenerateJacGroup
 %token      tSaveMesh
-
+%token      tDeformeMesh
 
 %token  tPostProcessing
 %token      tNameOfSystem
@@ -421,7 +430,9 @@ Stats :
 	List_Delete(ListOfEquationTerm) ;
       }
     }
+
   ; 
+
 
 /* ------------------------------------------------------------------------ */
 /*  P r o b l e m                                                           */
@@ -3458,12 +3469,12 @@ DefineQuantityTerm :
 	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PSCA_EXP ;
 	  if((WholeQuantity_P+2)->Case.Operator.TypeOperator == OP_CROSSPRODUCT)
 	    DefineQuantity_S.IntegralQuantity.CanonicalWholeQuantity = CWQ_GF_PVEC_EXP ;
-	  
+	  /*
 	  DefineQuantity_S.IntegralQuantity.FunctionForCanonical.NbrParameters =
 	    (WholeQuantity_P+0)->Case.Function.NbrParameters ;
 	  DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Para =
 	    (WholeQuantity_P+0)->Case.Function.Para ;	 
-	    
+	  */
 	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.Fct =
 	    (WholeQuantity_P+0)->Case.Function.Fct ;
 	  DefineQuantity_S.IntegralQuantity.FunctionForFMM.NbrParameters =
@@ -3481,7 +3492,6 @@ DefineQuantityTerm :
 				  (WholeQuantity_P+1)->Case.Function.Fct,
 				  &FlagError,
 				  &DefineQuantity_S.IntegralQuantity.FunctionForCanonical.Fct) ;
-
 	  if (!FlagError){
 	    DefineQuantity_S.IntegralQuantity.FunctionForCanonical.NbrParameters =
 	      (WholeQuantity_P+1)->Case.Function.NbrParameters ;
@@ -4653,6 +4663,22 @@ OperationTerm :
       Operation_P->Case.GenerateFMMGroups.FlagDTA = $11;      
     }
 
+  | tGenerateFMMGroups '[' tSTRING ',' Expression ',' Expression ',' Expression ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_GENERATEFMMGROUPS ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.GenerateFMMGroups.DivXYZIndex = $5;      
+      Operation_P->Case.GenerateFMMGroups.Dfar = $7;
+      Operation_P->Case.GenerateFMMGroups.Precision = $9;
+      Operation_P->Case.GenerateFMMGroups.FlagDTA = -1;      
+    }
+
+
   | tGenerateOnly '[' tSTRING ',' ListOfFExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -4709,7 +4735,7 @@ OperationTerm :
   | tUpdateConstraint '[' tSTRING ',' GroupRHS ',' tSTRING ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
+    Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $3) ;
@@ -4987,6 +5013,36 @@ OperationTerm :
       Operation_P->Case.SaveMesh.Format = NULL ;
       Operation_P->Type = OPERATION_SAVEMESH ;
     }
+
+  | tDeformeMesh  '{' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr ',' tFLOAT '}' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.DeformeMesh.Quantity = $5 ;
+      Operation_P->Case.DeformeMesh.Name_MshFile = $8 ;
+      Operation_P->Case.DeformeMesh.GeoDataIndex = -1 ;
+      Operation_P->Case.DeformeMesh.Factor = $10 ;
+      Operation_P->Type = OPERATION_DEFORMEMESH ;
+    }
+  | tDeformeMesh  '{' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr '}' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.DeformeMesh.Quantity = $5 ;
+      Operation_P->Case.DeformeMesh.Name_MshFile = $8 ;
+      Operation_P->Case.DeformeMesh.GeoDataIndex = -1 ;
+      Operation_P->Case.DeformeMesh.Factor = 1 ;
+      Operation_P->Type = OPERATION_DEFORMEMESH ;
+    }
+
   | tGenerate_MH_Moving  '[' tSTRING ',' tSTRING ',' FExpr ',' FExpr ']' '{' Operation '}'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    

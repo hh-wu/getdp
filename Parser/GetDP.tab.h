@@ -1,237 +1,229 @@
-#ifndef BISON_GETDP_TAB_H
-# define BISON_GETDP_TAB_H
-
-#ifndef YYSTYPE
 typedef union {
   char    *c ;
   int     i ;
   double  d ;
   List_T  *l ;
   struct TwoInt t ;
-} yystype;
-# define YYSTYPE yystype
-# define YYSTYPE_IS_TRIVIAL 1
-#endif
-# define	tINT	257
-# define	tFLOAT	258
-# define	tSTRING	259
-# define	tBIGSTR	260
-# define	tEND	261
-# define	tDOTS	262
-# define	tStrCat	263
-# define	tFor	264
-# define	tEndFor	265
-# define	tInclude	266
-# define	tConstant	267
-# define	tList	268
-# define	tListAlt	269
-# define	tLinSpace	270
-# define	tLogSpace	271
-# define	tDefineConstant	272
-# define	tPi	273
-# define	t0D	274
-# define	t1D	275
-# define	t2D	276
-# define	t3D	277
-# define	tExp	278
-# define	tLog	279
-# define	tLog10	280
-# define	tSqrt	281
-# define	tSin	282
-# define	tAsin	283
-# define	tCos	284
-# define	tAcos	285
-# define	tTan	286
-# define	tAtan	287
-# define	tAtan2	288
-# define	tSinh	289
-# define	tCosh	290
-# define	tTanh	291
-# define	tFabs	292
-# define	tFloor	293
-# define	tCeil	294
-# define	tFmod	295
-# define	tModulo	296
-# define	tHypot	297
-# define	tSolidAngle	298
-# define	tTrace	299
-# define	tOrder	300
-# define	tCrossProduct	301
-# define	tMHTransform	302
-# define	tMHJacNL	303
-# define	tGroup	304
-# define	tDefineGroup	305
-# define	tAll	306
-# define	tInSupport	307
-# define	tMovingBand2D	308
-# define	tDefineFunction	309
-# define	tConstraint	310
-# define	tRegion	311
-# define	tSubRegion	312
-# define	tRegionRef	313
-# define	tSubRegionRef	314
-# define	tFilter	315
-# define	tCoefficient	316
-# define	tValue	317
-# define	tTimeFunction	318
-# define	tBranch	319
-# define	tNode	320
-# define	tLoop	321
-# define	tNameOfResolution	322
-# define	tJacobian	323
-# define	tCase	324
-# define	tIntegration	325
-# define	tFMMIntegration	326
-# define	tMatrix	327
-# define	tType	328
-# define	tSubType	329
-# define	tCriterion	330
-# define	tGeoElement	331
-# define	tNumberOfPoints	332
-# define	tMaxNumberOfPoints	333
-# define	tNumberOfDivisions	334
-# define	tMaxNumberOfDivisions	335
-# define	tStoppingCriterion	336
-# define	tFunctionSpace	337
-# define	tName	338
-# define	tBasisFunction	339
-# define	tNameOfCoef	340
-# define	tFunction	341
-# define	tdFunction	342
-# define	tSubFunction	343
-# define	tSupport	344
-# define	tEntity	345
-# define	tSubSpace	346
-# define	tNameOfBasisFunction	347
-# define	tGlobalQuantity	348
-# define	tEntityType	349
-# define	tEntitySubType	350
-# define	tNameOfConstraint	351
-# define	tFormulation	352
-# define	tQuantity	353
-# define	tNameOfSpace	354
-# define	tIndexOfSystem	355
-# define	tSymmetry	356
-# define	tEquation	357
-# define	tGalerkin	358
-# define	tdeRham	359
-# define	tGlobalTerm	360
-# define	tGlobalEquation	361
-# define	tDt	362
-# define	tDtDof	363
-# define	tDtDt	364
-# define	tDtDtDof	365
-# define	tJacNL	366
-# define	tNeverDt	367
-# define	tDtNL	368
-# define	tIn	369
-# define	tResolution	370
-# define	tDefineSystem	371
-# define	tNameOfFormulation	372
-# define	tNameOfMesh	373
-# define	tFrequency	374
-# define	tSolver	375
-# define	tOriginSystem	376
-# define	tDestinationSystem	377
-# define	tOperation	378
-# define	tOperationEnd	379
-# define	tSetTime	380
-# define	tDTime	381
-# define	tSetFrequency	382
-# define	tFourierTransform	383
-# define	tFourierTransformJ	384
-# define	tIf	385
-# define	tElse	386
-# define	tLanczos	387
-# define	tPerturbation	388
-# define	tUpdate	389
-# define	tUpdateConstraint	390
-# define	tBreak	391
-# define	tTimeLoopTheta	392
-# define	tTime0	393
-# define	tTimeMax	394
-# define	tTheta	395
-# define	tTimeLoopNewmark	396
-# define	tBeta	397
-# define	tGamma	398
-# define	tIterativeLoop	399
-# define	tNbrMaxIteration	400
-# define	tRelaxationFactor	401
-# define	tIterativeTimeReduction	402
-# define	tDivisionCoefficient	403
-# define	tChangeOfState	404
-# define	tChangeOfCoordinates	405
-# define	tSystemCommand	406
-# define	tGenerateFMMGroups	407
-# define	tGenerateOnly	408
-# define	tGenerateOnlyJac	409
-# define	tSolveJac_AdaptRelax	410
-# define	tSaveSolutionExtendedMH	411
-# define	tInit_MovingBand2D	412
-# define	tMesh_MovingBand2D	413
-# define	tGenerate_MH_Moving	414
-# define	tGenerateGroup	415
-# define	tGenerateJacGroup	416
-# define	tSaveMesh	417
-# define	tPostProcessing	418
-# define	tNameOfSystem	419
-# define	tPostOperation	420
-# define	tNameOfPostProcessing	421
-# define	tUsingPost	422
-# define	tAppend	423
-# define	tPlot	424
-# define	tPrint	425
-# define	tPrintGroup	426
-# define	tEcho	427
-# define	tWrite	428
-# define	tAdapt	429
-# define	tOnGlobal	430
-# define	tOnRegion	431
-# define	tOnElementsOf	432
-# define	tOnGrid	433
-# define	tOnSection	434
-# define	tOnPoint	435
-# define	tOnLine	436
-# define	tOnPlane	437
-# define	tOnBox	438
-# define	tWithArgument	439
-# define	tFile	440
-# define	tDepth	441
-# define	tDimension	442
-# define	tTimeStep	443
-# define	tHarmonicToTime	444
-# define	tFormat	445
-# define	tHeader	446
-# define	tFooter	447
-# define	tSkin	448
-# define	tSmoothing	449
-# define	tTarget	450
-# define	tSort	451
-# define	tIso	452
-# define	tNoNewLine	453
-# define	tDecomposeInSimplex	454
-# define	tChangeOfValues	455
-# define	tStr	456
-# define	tDate	457
-# define	tFlag	458
-# define	tHelp	459
-# define	tCpu	460
-# define	tCheck	461
-# define	tDEF	462
-# define	tOR	463
-# define	tAND	464
-# define	tEQUAL	465
-# define	tNOTEQUAL	466
-# define	tAPPROXEQUAL	467
-# define	tLESSOREQUAL	468
-# define	tGREATEROREQUAL	469
-# define	tLESSLESS	470
-# define	tGREATERGREATER	471
-# define	tCROSSPRODUCT	472
-# define	UNARYPREC	473
-# define	tSHOW	474
+} YYSTYPE;
+#define	tINT	258
+#define	tFLOAT	259
+#define	tSTRING	260
+#define	tBIGSTR	261
+#define	tEND	262
+#define	tDOTS	263
+#define	tStrCat	264
+#define	tFor	265
+#define	tEndFor	266
+#define	tInclude	267
+#define	tConstant	268
+#define	tList	269
+#define	tListAlt	270
+#define	tLinSpace	271
+#define	tLogSpace	272
+#define	tDefineConstant	273
+#define	tPi	274
+#define	t0D	275
+#define	t1D	276
+#define	t2D	277
+#define	t3D	278
+#define	tExp	279
+#define	tLog	280
+#define	tLog10	281
+#define	tSqrt	282
+#define	tSin	283
+#define	tAsin	284
+#define	tCos	285
+#define	tAcos	286
+#define	tTan	287
+#define	tAtan	288
+#define	tAtan2	289
+#define	tSinh	290
+#define	tCosh	291
+#define	tTanh	292
+#define	tFabs	293
+#define	tFloor	294
+#define	tCeil	295
+#define	tFmod	296
+#define	tModulo	297
+#define	tHypot	298
+#define	tSolidAngle	299
+#define	tTrace	300
+#define	tOrder	301
+#define	tCrossProduct	302
+#define	tMHTransform	303
+#define	tMHJacNL	304
+#define	tGroup	305
+#define	tDefineGroup	306
+#define	tAll	307
+#define	tInSupport	308
+#define	tMovingBand2D	309
+#define	tDefineFunction	310
+#define	tConstraint	311
+#define	tRegion	312
+#define	tSubRegion	313
+#define	tRegionRef	314
+#define	tSubRegionRef	315
+#define	tFilter	316
+#define	tCoefficient	317
+#define	tValue	318
+#define	tTimeFunction	319
+#define	tBranch	320
+#define	tNode	321
+#define	tLoop	322
+#define	tNameOfResolution	323
+#define	tJacobian	324
+#define	tCase	325
+#define	tIntegration	326
+#define	tFMMIntegration	327
+#define	tMatrix	328
+#define	tType	329
+#define	tSubType	330
+#define	tCriterion	331
+#define	tGeoElement	332
+#define	tNumberOfPoints	333
+#define	tMaxNumberOfPoints	334
+#define	tNumberOfDivisions	335
+#define	tMaxNumberOfDivisions	336
+#define	tStoppingCriterion	337
+#define	tFunctionSpace	338
+#define	tName	339
+#define	tBasisFunction	340
+#define	tNameOfCoef	341
+#define	tFunction	342
+#define	tdFunction	343
+#define	tSubFunction	344
+#define	tSupport	345
+#define	tEntity	346
+#define	tSubSpace	347
+#define	tNameOfBasisFunction	348
+#define	tGlobalQuantity	349
+#define	tEntityType	350
+#define	tEntitySubType	351
+#define	tNameOfConstraint	352
+#define	tFormulation	353
+#define	tQuantity	354
+#define	tNameOfSpace	355
+#define	tIndexOfSystem	356
+#define	tSymmetry	357
+#define	tEquation	358
+#define	tGalerkin	359
+#define	tdeRham	360
+#define	tGlobalTerm	361
+#define	tGlobalEquation	362
+#define	tDt	363
+#define	tDtDof	364
+#define	tDtDt	365
+#define	tDtDtDof	366
+#define	tJacNL	367
+#define	tNeverDt	368
+#define	tDtNL	369
+#define	tIn	370
+#define	tResolution	371
+#define	tDefineSystem	372
+#define	tNameOfFormulation	373
+#define	tNameOfMesh	374
+#define	tFrequency	375
+#define	tSolver	376
+#define	tOriginSystem	377
+#define	tDestinationSystem	378
+#define	tOperation	379
+#define	tOperationEnd	380
+#define	tSetTime	381
+#define	tDTime	382
+#define	tSetFrequency	383
+#define	tFourierTransform	384
+#define	tFourierTransformJ	385
+#define	tIf	386
+#define	tElse	387
+#define	tLanczos	388
+#define	tPerturbation	389
+#define	tUpdate	390
+#define	tUpdateConstraint	391
+#define	tBreak	392
+#define	tTimeLoopTheta	393
+#define	tTime0	394
+#define	tTimeMax	395
+#define	tTheta	396
+#define	tTimeLoopNewmark	397
+#define	tBeta	398
+#define	tGamma	399
+#define	tIterativeLoop	400
+#define	tNbrMaxIteration	401
+#define	tRelaxationFactor	402
+#define	tIterativeTimeReduction	403
+#define	tDivisionCoefficient	404
+#define	tChangeOfState	405
+#define	tChangeOfCoordinates	406
+#define	tSystemCommand	407
+#define	tGenerateFMMGroups	408
+#define	tGenerateOnly	409
+#define	tGenerateOnlyJac	410
+#define	tSolveJac_AdaptRelax	411
+#define	tSaveSolutionExtendedMH	412
+#define	tInit_MovingBand2D	413
+#define	tMesh_MovingBand2D	414
+#define	tGenerate_MH_Moving	415
+#define	tGenerateGroup	416
+#define	tGenerateJacGroup	417
+#define	tSaveMesh	418
+#define	tDeformeMesh	419
+#define	tPostProcessing	420
+#define	tNameOfSystem	421
+#define	tPostOperation	422
+#define	tNameOfPostProcessing	423
+#define	tUsingPost	424
+#define	tAppend	425
+#define	tPlot	426
+#define	tPrint	427
+#define	tPrintGroup	428
+#define	tEcho	429
+#define	tWrite	430
+#define	tAdapt	431
+#define	tOnGlobal	432
+#define	tOnRegion	433
+#define	tOnElementsOf	434
+#define	tOnGrid	435
+#define	tOnSection	436
+#define	tOnPoint	437
+#define	tOnLine	438
+#define	tOnPlane	439
+#define	tOnBox	440
+#define	tWithArgument	441
+#define	tFile	442
+#define	tDepth	443
+#define	tDimension	444
+#define	tTimeStep	445
+#define	tHarmonicToTime	446
+#define	tFormat	447
+#define	tHeader	448
+#define	tFooter	449
+#define	tSkin	450
+#define	tSmoothing	451
+#define	tTarget	452
+#define	tSort	453
+#define	tIso	454
+#define	tNoNewLine	455
+#define	tDecomposeInSimplex	456
+#define	tChangeOfValues	457
+#define	tStr	458
+#define	tDate	459
+#define	tFlag	460
+#define	tHelp	461
+#define	tCpu	462
+#define	tCheck	463
+#define	tDEF	464
+#define	tOR	465
+#define	tAND	466
+#define	tEQUAL	467
+#define	tNOTEQUAL	468
+#define	tAPPROXEQUAL	469
+#define	tLESSOREQUAL	470
+#define	tGREATEROREQUAL	471
+#define	tLESSLESS	472
+#define	tGREATERGREATER	473
+#define	tCROSSPRODUCT	474
+#define	UNARYPREC	475
+#define	tSHOW	476
 
 
 extern YYSTYPE yylval;
-
-#endif /* not BISON_GETDP_TAB_H */

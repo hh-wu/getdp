@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.51 2003-06-21 07:05:22 sabarieg Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.52 2003-06-21 07:14:11 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -2858,3 +2858,86 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 
   GetDP_End ;
 }
+
+
+void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
+                            struct Operation   * Operation_P, 
+                            struct DofData     * DofData_P0,
+                            struct GeoData     * GeoData_P0) {
+
+  int  i, Nbr_Node, Num_Node, NumBF_X, NumBF_Y, NumBF_Z ;
+  double Value ;
+
+  struct DefineSystem * DS ;
+  struct Formulation  * FO ;
+  struct DefineQuantity  * DQ_P ;
+  struct FunctionSpace   * FunctionSpace_P ;
+  struct DofData     * DofData_P ;
+  
+
+  GetDP_Begin("Operation_DeformeMesh");
+
+  DS = (struct DefineSystem*)List_Pointer(Resolution_P->DefineSystem, Operation_P->DefineSystemIndex) ;
+
+  if( List_Nbr(DS->FormulationIndex) > 1 )
+    Msg(ERROR, "DeformeMesh: Only one formulation must be associated to the system %s", DS->Name) ;
+  
+  FO = (struct Formulation *) List_Pointer(Problem_S.Formulation,*((int *)List_Pointer(DS->FormulationIndex, 0))) ;
+  
+  if((i = List_ISearchSeq(FO->DefineQuantity, Operation_P->Case.DeformeMesh.Quantity, fcmp_DefineQuantity_Name)) < 0)
+    Msg(ERROR, "Unknown Quantity '%s' in Formulation %s",
+              Operation_P->Case.DeformeMesh.Quantity, FO->Name ) ;
+  DQ_P = (struct DefineQuantity *) List_Pointer(FO->DefineQuantity, i) ;
+
+  
+  DofData_P = DofData_P0 + Operation_P->DefineSystemIndex ;
+
+  FunctionSpace_P = (struct FunctionSpace*)List_Pointer(Problem_S.FunctionSpace,
+                                                        DQ_P->FunctionSpaceIndex) ;
+ 
+  for(i = 0 ; i < List_Nbr(FunctionSpace_P->BasisFunction); i++){
+    if( (void(*)())((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Function == (void(*)())BF_NodeX )
+      NumBF_X = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Num;
+    
+    if( (void(*)())((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Function == (void(*)())BF_NodeY )
+      NumBF_Y = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Num;
+
+    if( (void(*)())((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Function == (void(*)())BF_NodeZ )
+      NumBF_Z = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,i))->Num;
+  }
+  
+
+  for(i = 0 ; i < List_Nbr(FunctionSpace_P->DofData->DofList) ; i++){
+    Dof_GetRealDofValue
+      (FunctionSpace_P->DofData,
+       ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i )) , &Value) ;
+    
+    Num_Node = ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->Entity ;
+
+    /* The mesh associated to the mechanical system is the reference, it does not change */
+    Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + DofData_P->GeoDataIndex) ;
+    Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
+
+
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType != NumBF_X &&
+        ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType != NumBF_Y &&
+        ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType != NumBF_Z )
+      Msg(ERROR,"Bad BasisFunction for DeformeMesh");
+
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_X)
+      Current.x +=  Operation_P->Case.DeformeMesh.Factor * Value ; 
+     
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Y)
+      Current.y +=  Operation_P->Case.DeformeMesh.Factor * Value ;
+    
+    if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_Z)
+      Current.z +=  Operation_P->Case.DeformeMesh.Factor * Value ;
+
+    /* The mesh associated to the electrostatic system varies */
+    Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex) ;    
+    Geo_SetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
+  }
+
+  GetDP_End ;
+}
+

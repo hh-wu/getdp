@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.32 2003-03-22 03:30:14 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.33 2003-06-21 07:16:40 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -1011,6 +1011,13 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 			OPE->Case.ChangeOfCoordinates.GroupIndex))->Name,
 	  Get_ExpressionName(Problem,
 			     OPE->Case.ChangeOfCoordinates.ExpressionIndex)) ;
+      break ;
+
+    case OPERATION_DEFORMEMESH :
+      Msg(CHECK, "      DeformeMesh [%s, %s,  '%s'] ; \n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name, OPE->Case.DeformeMesh.Quantity,
+	  OPE->Case.DeformeMesh.Name_MshFile) ;
       break ;
 
     default :
