@@ -1,4 +1,4 @@
-/* $Id: GeoData.c,v 1.12 2000-10-20 07:42:06 dular Exp $ */
+/* $Id: GeoData.c,v 1.13 2000-10-20 08:46:03 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -44,6 +44,7 @@ int  Geo_AddGeoData(List_T * GeoData_L,
     if (Name_AdaptFile) {
       Msg(LOADING,"Adaption Data '%s'", Name_AdaptFile) ;
       Geo_OpenFile(Name_AdaptFile, "r") ;
+      Geo_SetCurrentGeoData(&GeoData_S) ;
       Geo_ReadFileAdapt(&GeoData_S) ;
       Geo_CloseFile() ;
     }
