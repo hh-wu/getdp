@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.24 2000-10-26 16:28:18 dular Exp $ */
+/* $Id: Pos_Print.c,v 1.25 2000-10-27 22:08:31 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1011,7 +1011,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 
     if(PSO_P->Depth > 1)
       Array = (float*)
-	Malloc(NbTimeStep*Current.NbrHar*(N[0]+1)*(N[1]+1)*sizeof(float)) ;
+	Malloc(NbTimeStep*Current.NbrHar*(int)((N[0]+1)*(N[1]+1))*sizeof(float)) ;
     
     for (i1 = 0 ; i1 <= N[0] ; i1++) {
       S[0] = (double)i1 / (double)(N[0] ? N[0] : 1) ;
