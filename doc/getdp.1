@@ -1,4 +1,4 @@
-.\" $Id: getdp.1,v 1.14 2001-02-18 20:01:55 geuzaine Exp $
+.\" $Id: getdp.1,v 1.15 2001-03-01 13:48:08 geuzaine Exp $
 .\" ======================================================================
 .\"
 .\" This is the manual page for GetDP
@@ -6,7 +6,7 @@
 .\" Copyright (c) 1998-2000 P. Dular, C. Geuzaine
 .\" 
 .\" ======================================================================
-.TH GetDP 1 "05 February 2001" "Version 0.77" "GetDP Manual Pages"
+.TH GetDP 1 "01 March 2001" "Version 0.78" "GetDP Manual Pages"
 .UC 4
 .\" ======================================================================
 .SH NAME
@@ -71,13 +71,14 @@ same command line. If \fIpost-operation-id\fP is omitted, the list of
 available choices is displayed.
 .TP 4
 .B \-ipos \fIpost-processing-id\fP(s)
-enters an interactive post-processing mode, enabling to enter
+enters an interactive post-processing mode, permitting to enter
 post-processing operations manually. If no \fIpost-processing-id\fP(s)
 is (are) given, the list of available choices is displayed.
 .TP 4
 .B \-msh \fIfilename\fP
-reads the mesh database from \fIfilename\fP instead of from the default
-problem file name with the \fI.msh\fP extension appended.
+reads the mesh database from \fIfilename\fP rather than reading it
+from the default problem file name with the \fI.msh\fP extension
+appended.
 .TP 4
 .B \-split
 save processing results in separate files (one for each timestep).
@@ -87,7 +88,7 @@ load processing results from \fIfilename(s)\fP instead of from the
 default problem file name with the \fI.res\fP extension appended.
 .TP 4
 .B \-adapt \fIfilename\fP(s)
-read adaption constraints from \fIfilename(s)\fP.
+read adaptation constraints from \fIfilename(s)\fP.
 .TP 4
 .B \-degree \fIfloat\fP
 specify maximum interpolation degree.
@@ -101,7 +102,7 @@ lets you check the problem structure interactively.
 .TP 4
 .B \-v \fIint\fP
 sets the verbosity level. A value of 0 means that no information will
-be displayed during processing. Higher values increase the amount of
+be displayed during the processing. Higher values increase the amount of
 information displayed during processing.
 .TP 4
 .B \-p \fIint\fP
@@ -109,10 +110,10 @@ sets the progress update rate. This controls the refreshment rate of
 the counter indicating the progress of the current computation.
 .TP 4
 .B \-info
-displays version information.
+displays the version information.
 .TP 4
 .B \-version
-displays version number.
+displays the version number.
 .TP 4
 .B \-help
 displays a message listing basic usage and available options.
@@ -128,7 +129,7 @@ Texinfo documentation (\fBinfo getdp\fP)
 .PP
 GetDP web site: \fIhttp://www.geuz.org/getdp/\fP
 .PP
-GetDP example files in \fI/usr/doc/getdp-0.77/\fR
+GetDP example files in \fI/usr/doc/getdp-0.78/\fR
 .PP
 Gmsh (a three-dimensional mesh generator with built-in pre- and
 post-processing facilities) web site: \fIhttp://www.geuz.org/gmsh/\fP

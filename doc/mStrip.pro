@@ -23,7 +23,7 @@ Group @{
   SurfInf = Region[130];
 
   /* We can then define a global group (used in "EleSta_v.pro",
-     the file containing the functions spaces and formulations) */
+     the file containing the function spaces and formulations) */
 
   DomainCC_Ele = Region[@{Air, Diel1@}] ;
 
@@ -55,7 +55,7 @@ Constraint @{
 @}
 
 /* The formulation used and its tools, considered as being 
-   in a black blox, can now be included */
+   in a black box, can now be included */
 
 Include "Jacobian_Lib.pro"
 Include "Integration_Lib.pro"
