@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.45 2003-03-22 03:30:16 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.46 2003-03-22 08:30:31 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -4466,7 +4466,9 @@ OperationTerm :
       Free($2) ;
       Operation_P->DefineSystemIndex = i ;
 
-      if (Operation_P->Type == OPERATION_GENERATE || Operation_P->Type == OPERATION_GENERATEJAC)
+      if (Operation_P->Type == OPERATION_GENERATE || 
+	  Operation_P->Type == OPERATION_GENERATEJAC ||
+	  Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1 ;      
     }
 
@@ -4519,7 +4521,9 @@ OperationTerm :
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
 
-      if (Operation_P->Type == OPERATION_GENERATE || Operation_P->Type == OPERATION_GENERATEJAC)
+      if (Operation_P->Type == OPERATION_GENERATE || 
+	  Operation_P->Type == OPERATION_GENERATEJAC ||
+	  Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1 ;
     }
 

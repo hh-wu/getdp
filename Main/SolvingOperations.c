@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.48 2003-03-22 03:30:14 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.49 2003-03-22 08:30:31 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -390,7 +390,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if (Operation_P->Case.Generate.GroupIndex >= 0) Generate_Group = NULL ;
 
       Flag_CPU = 1 ;
-
       break ;
 
 
@@ -405,9 +404,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if (Operation_P->Case.Generate.GroupIndex >= 0) 
 	Generate_Group = (struct Group *) List_Pointer(Problem_S.Group, 
 						       Operation_P->Case.Generate.GroupIndex) ;
-      Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
-      Current.TypeAssembly = ASSEMBLY_SEPARATE ;
+      /* Johan? */
+      /* Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ; */
 
+      Current.TypeAssembly = ASSEMBLY_SEPARATE ;
       Init_Update = 0 ; /* modif... ! */
       DofData_P->Flag_Init[1] = 0 ;
       DofData_P->Flag_Init[2] = 0 ;
@@ -415,6 +415,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Init_SystemData(DofData_P, Flag_Jac) ;
       Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 1) ;
+
+      if (Operation_P->Case.Generate.GroupIndex >= 0) Generate_Group = NULL ;
       Flag_CPU = 1 ;
       break ;
 
