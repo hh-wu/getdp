@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_BiotSavart.c,v 1.5 2004-01-19 16:51:14 geuzaine Exp $"
+#define RCSID "$Id: F_BiotSavart.c,v 1.6 2004-05-12 09:44:07 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -91,5 +91,38 @@ void  F_BiotSavart (F_ARG) {
   GetDP_End ;
 }
 
+
+void  F_Pocklington (F_ARG) {
+
+  double r, xxs, yys, zzs ;
+  double k , kr, cte, a, re, im ;
+
+  GetDP_Begin("F_Pocklington");
+
+  V->Type = SCALAR ;
+
+  k = Fct->Para[0] ;
+  a = Fct->Para[1] ;
+
+  xxs = Current.x-Current.xs ;
+  yys = Current.y-Current.ys ;
+  zzs = Current.z-Current.zs ;
+
+  r = sqrt(SQU(xxs)+SQU(yys)+SQU(zzs)+ a*a ) ;
+  
+  if(!r) Msg(ERROR, "1/0 in 'F_Pocklington'") ;
+    
+  kr = k*r ;
+  cte = ONE_OVER_FOUR_PI/(r*r*r*r*r);
+  re = 2*SQU(r)-3*SQU(a) + SQU(kr*a);
+  im = kr * (2*SQU(r)-3*SQU(a)) ;
+ 
+  V->Val[0] = cte * (cos(kr)* re + sin(kr)*im) ;
+  V->Val[MAX_DIM] = cte * (-sin(kr) * re + cos(kr)*im) ;
+  
+  GetDP_End ;
+
+}
+  
 #undef F_ARG
 
