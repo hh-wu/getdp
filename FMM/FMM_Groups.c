@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.11 2004-04-15 02:17:01 geuzaine Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.12 2004-04-24 16:21:45 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -304,14 +304,15 @@ void Get_GroupNeighbours( int i_FMMEqu ){
 	d = sqrt(SQU((FMMDataGObs_P0+j)->Xgc-XSrc) + SQU((FMMDataGObs_P0+j)->Ygc-YSrc) +
 		 SQU((FMMDataGObs_P0+j)->Zgc-ZSrc)) ;
        
-	//Dfar = Current.FMM.far * (FMMDataGSrc_P0+i)->Rmax *2 ;
+	/* Dfar = Current.FMM.far * (FMMDataGSrc_P0+i)->Rmax *2 ; */
 	Dfar = Current.FMM.far ;
 	if(d < Dfar)
 	  List_Add(NGi, &j) ;
 	else{ 
 	  List_Add(FGi, &j) ;
 	  Ndir = FMM_SetTruncationOLD((FMMDataGSrc_P0+i)->Rmax, d, Current.FMM.Dimension) ;
-	  //Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax, d, Current.FMM.Dimension) ;
+	  /* Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax, 
+	                              d, Current.FMM.Dimension) ; */
 	  List_Add(Ndi, &Ndir) ;
 	  if (!Flag_Far) Flag_Far = 1;
 	} 
@@ -503,7 +504,7 @@ void ReGenerate_FMMGroupNeighbours(int Flag_FMMDA){
 	NGi = List_Create(5,  2, sizeof(int)) ;
 	FGi = List_Create(10, 2, sizeof(int)) ;
 	Ndi = List_Create(10, 2, sizeof(int)) ;
-	//Dfar = Current.FMM.far * (FMMDataGSrc_P0+i)->Rmax *2 ;
+	/* Dfar = Current.FMM.far * (FMMDataGSrc_P0+i)->Rmax *2 ; */
 	
 	for ( j = 0 ; j < NbrGroupObs; j++){
 	  d = sqrt(SQU((FMMDataGObs_P0+j)->Xgc-XSrc) + SQU((FMMDataGObs_P0+j)->Ygc-YSrc) +
@@ -513,7 +514,8 @@ void ReGenerate_FMMGroupNeighbours(int Flag_FMMDA){
 	  else {
 	    List_Add(FGi, &j) ;
 
-	    //Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax, d, Current.FMM.Dimension) ;
+	    /* Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax,
+	                                d, Current.FMM.Dimension) ; */
 	    Ndir = FMM_SetTruncationOLD((FMMDataGSrc_P0+i)->Rmax, d, Current.FMM.Dimension) ;
 	    List_Add(Ndi, &Ndir) ;
 	  }
@@ -1282,7 +1284,7 @@ void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){
 
 	if(DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.NbrParameters == 2)
 	  k0 = DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[1] ;/* Helmoltz Case */
-	//DIM = (int)DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[0] ;
+	/* DIM = (int)DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[0] ; */
 
 	if( List_PQuery(InIndex, &EquationTerm_P->Case.LocalTerm.InIndex, fcmp_int) == NULL ){
 	  List_Add( InIndex, &EquationTerm_P->Case.LocalTerm.InIndex ) ;

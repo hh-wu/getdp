@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.60 2004-03-08 08:12:05 dular Exp $ */
+/* $Id: GetDP.y,v 1.61 2004-04-24 16:21:46 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -1662,7 +1662,7 @@ WholeQuantity_Single :
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("DofValue : Unknown System: %s", $3) ;
-      //Free($3) ;
+      /* Free($3) ; */
       WholeQuantity_S.Case.DofValue.DefineSystemIndex = i ;
       WholeQuantity_S.Type = WQ_DOFVALUE ;
       WholeQuantity_S.Case.DofValue.SystemName = $3 ;
@@ -2165,11 +2165,9 @@ ConstraintCaseTerm :
 
   | tRegion GroupRHS tEND
     { 
-      if (!Nbr_Index)
-	{
+      if (!Nbr_Index){
 	ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, "CO_Region", $2) ;
-	//printf("index  %d \n", ConstraintPerRegion_S.RegionIndex );
-	}
+      }
       else {
 	List_Reset(ListOfRegionIndex) ;
 	if ($2 >= 0) {
@@ -3333,7 +3331,7 @@ DefineQuantityTerm :
       }
     }
     IndexInFunctionSpace tEND
-    { // attention : doit disparaitre.  
+    { /* attention : doit disparaitre. */
       if (DefineQuantity_S.FunctionSpaceIndex >= 0) {
 	if (DefineQuantity_S.Type == GLOBALQUANTITY &&
 	    !DefineQuantity_S.IndexInFunctionSpace) {
@@ -7265,7 +7263,7 @@ struct Value *  Add_PostSave(char * Name) {
   else {
     PostSave_S.Value = (struct Value *)(((struct PostSave *)
 					 List_Pointer(Problem_S.PostSave,i))->Value) ;
-    //List_Write(Problem_S.PostSave, i, &PostSave_S) ;
+    /* List_Write(Problem_S.PostSave, i, &PostSave_S) ; */
     printf("PostSave 22 %p\n",  PostSave_S.Value) ;
   }
 
