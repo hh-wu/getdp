@@ -13,9 +13,6 @@ void LinAlg_AddComplexInVector(Complex c, gVector *v, int i);
 void LinAlg_SetComplexInVector(Complex c, gVector *v, int i);
 void LinAlg_GetComplexInVector(Complex *c, gVector *v, int i);
 void LinAlg_AddComplexInMatrix(Complex c, gMatrix *m, int i, int j);
-void LinAlg_GetMatrixContext(gMatrix *A, void **ctx);
-void LinAlg_CreateMatrixShell(gMatrix *A, gSolver *Solver, int nbdof, int nbdof, void *ctx, 
-			      void (*myMult)(gMatrix *A, gVector *x, gVector *y));
 void LinAlg_ReduceSum(Complex *loc, Complex *glo);
 
 #include "List.h"
