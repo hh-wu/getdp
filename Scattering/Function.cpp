@@ -1,4 +1,4 @@
-// $Id: Function.cpp,v 1.15 2002-06-12 00:24:10 geuzaine Exp $
+// $Id: Function.cpp,v 1.16 2002-06-13 00:11:57 geuzaine Exp $
 
 #include "Utils.h"
 #include "Function.h"
@@ -70,6 +70,7 @@ Complex Function::density(Scatterer *scat, double tau){
   case ANALYTIC : // comparison with Alain/Oscar
     
     return cos(tau);
+    //return 1./sqrt(tau);
     //return 1.;
 
   case INTERPOLATED : // cubic splines or Fourier (off-grid!)
@@ -189,6 +190,13 @@ double dwds(double s, int p){
   
   return res;
 }
+
+// Boyd's tan/atan chg of vars
+
+
+
+
+// wrapper
 
 double Function::chgVar(double u, double *t){
   double jac;

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.17 2002-05-30 17:08:23 geuzaine Exp $
+# $Id: Makefile,v 1.18 2002-06-13 00:11:57 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -32,8 +32,8 @@ PY_INCLUDES= -I/usr/include/python2.1\
              -I$(HOME)/LOCAL/include/python2.1/Numeric/\
              -I$(HOME)/SOURCES/mathToolkit/lib
 
-CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER)\
-          $(INCLUDE) $(PY_INCLUDES)
+#CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER) $(INCLUDE) $(PY_INCLUDES)
+CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER) $(INCLUDE)
 
 SRC = Main.cpp\
       Solve.cpp\

@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.28 2002-06-12 00:21:42 geuzaine Exp $
+// $Id: Solve.cpp,v 1.29 2002-06-13 00:11:57 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -214,6 +214,9 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
 
   LinAlg_GetMatrixContext(A,(void **)(&ctx));
 
+  // unscale
+  //p->localVals[j] *= p->jacs[j];
+
   ctx->initializeInterpolation(x);
 
   LinAlg_GetLocalVectorRange(x,&beg,&end);
@@ -226,6 +229,10 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
     res = (-I/2.) * ctx->integrate(i);
     LinAlg_SetComplexInVector(res, y, i);
   }
+
+  // scale
+  //p->localVals[j] *= p->jacs[j];
+
 
   //if(ctx->iterNum == 18)
   //LinAlg_PrintVector(stdout,x);

@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.17 2002-06-12 00:22:34 geuzaine Exp $
+// $Id: Patch.cpp,v 1.18 2002-06-13 00:11:57 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -68,8 +68,8 @@ Patch::Patch(PatchType _type, int _beg, int _end,
   part = new Partition();
   part->init(center,eps,rise);
 
-#if 1
-  // mesh that does *not* comrise the origin
+#if 0
+  // mesh that does *not* comprise the origin
   double h = 2.*eps/(double)(nbdof);
   for(i=0; i<nbdof; i++){
     nodes[i] = center-eps + i*h + h/2.;
@@ -133,6 +133,7 @@ Patch::Patch(PatchType _type, int _beg, int _end,
     */
 
     // colton&kress chg of vars
+    /*
     extern double w(double s, int p);
     extern double dwds(double s, int p);
     double s=nodes[i];
@@ -140,6 +141,7 @@ Patch::Patch(PatchType _type, int _beg, int _end,
     jacs[i] = dwds(s,8);
 
     printf("node %.16g jac %.16g\n", nodes[i], jacs[i]);
+    */
   }
 #endif
 
