@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.41 2002-01-03 10:22:38 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.42 2002-01-03 14:01:59 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -274,8 +274,10 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	    Msg(ERROR, "Couldn't create socket %s", argv[i]);
 	  else if(Flag_SOCKET == -2)
 	    Msg(ERROR, "Couldn't connect to socket %s", argv[i]);
-	  sprintf(pid, "%d", getpid());
-	  Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_START, pid);
+	  else{
+	    sprintf(pid, "%d", getpid());
+	    Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_START, pid);
+	  }
 	  i++ ; 
 	}
 	else {
