@@ -1,4 +1,4 @@
-/* $Id: Message.c,v 1.13 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: Message.c,v 1.14 2000-10-01 06:50:28 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
@@ -229,25 +229,24 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
 
 }
 
-#ifdef MSDOS
+
 void GetResources(long *s, long *us, long *mem){
-  *s   = -1 ;
-  *us  = -1 ;
-  *mem = -1 ;
-}
-#else
-void GetResources(long *s, long *us, long *mem){
+#ifndef MSDOS
   static struct rusage r;
   getrusage(RUSAGE_SELF,&r);
   *s   = (long)r.ru_utime.tv_sec ;
   *us  = (long)r.ru_utime.tv_usec ;
   *mem = (long)r.ru_maxrss ;
-}
+#else
+  *s = *us = *mem = 0 ;
 #endif
+}
 
 void PrintResources(FILE *stream, char *fmt, long s, long us, long mem){
+#ifndef MSDOS
   fprintf(stream, RESOURCES_STR) ;
   fprintf(stream, "%scpu %ld.%ld s / mem %ld kb\n", fmt, s, us, mem);
+#endif
 }
 
 
