@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.17 2001-03-18 10:41:48 geuzaine Exp $"
+#define RCSID "$Id: GeoData.c,v 1.18 2001-12-12 12:55:22 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -242,7 +242,11 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 	GeoData_P->Dimension = _0D;
       
       GeoData_P->CharacteristicLength = 
-	sqrt(SQU(GeoData_P->Xmin) + SQU(GeoData_P->Ymin) + SQU(GeoData_P->Zmin));
+	sqrt(SQU(GeoData_P->Xmax - GeoData_P->Xmin) + 
+	     SQU(GeoData_P->Ymax - GeoData_P->Ymin) + 
+	     SQU(GeoData_P->Zmax - GeoData_P->Zmin));
+      if(!GeoData_P->CharacteristicLength) 
+	GeoData_P->CharacteristicLength = 1.;
     }
 
     /*  E L M  */
