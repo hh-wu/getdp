@@ -916,7 +916,7 @@ Function :
       if ( (i = List_ISearchSeq
 	    (Problem_S.Expression, $1, fcmp_Expression_Name)) >= 0 ) {
 	if (((struct Expression *)List_Pointer(Problem_S.Expression, i))->Type ==
-	    UNDEFINED) {
+	    UNDEFINED_EXP) {
 	  Free(((struct Expression *)List_Pointer(Problem_S.Expression, i))->Name) ;
 	  List_Read (Problem_S.Expression, $5, &Expression_S) ;
 	  List_Write(Problem_S.Expression,  i, &Expression_S) ;
@@ -946,7 +946,7 @@ Function :
       }
       else {
 	Expression_P = (struct Expression*)List_Pointer(Problem_S.Expression, i) ;
-	if (Expression_P->Type == UNDEFINED) {
+	if (Expression_P->Type == UNDEFINED_EXP) {
 	  Expression_P->Type = PIECEWISEFUNCTION ;
 	  Expression_P->Case.PieceWiseFunction.ExpressionPerRegion =
 	    List_Create( 5, 5, sizeof(struct ExpressionPerRegion)) ;
@@ -986,7 +986,7 @@ DefineFunctions :
     {
       if ( (i = List_ISearchSeq
 	    (Problem_S.Expression, $3, fcmp_Expression_Name)) < 0 ) {
-	Expression_S.Type = UNDEFINED ;
+	Expression_S.Type = UNDEFINED_EXP ;
 	Add_Expression(&Expression_S, $3, 0) ;
       }
       else  Free($3) ;
