@@ -1,10 +1,10 @@
-// $Id: Nystrom.cpp,v 1.29 2002-04-16 17:51:43 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.30 2002-04-23 00:45:16 geuzaine Exp $
 
 #include "Utils.h"
 #include "Nystrom.h"
 #include "Complex.h"
-#include "Tools.h"
 #include "Bessel.h"
+#include "Scatterer.h"
 #include "Patch.h"
 
 #define EPSILON 1.e-14
@@ -115,10 +115,17 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
   static int first = 1;
   static double *Weights;
 
+#define TEST
+#ifdef TEST
+  static FILE *fp;
+  if(first) fp = fopen("debug","w");
+#endif
+
+
   if(!nbpts) return 0.;
 
-  ctx->scat.coord(t,xt);
-  ctx->scat.deriv(t,dxt);
+  ctx->scat.x(t,xt);
+  ctx->scat.dx(t,dxt);
 
   if(singular && first) 
     Weights = new double[nbpts];
@@ -153,8 +160,8 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
       }
       else{
 
-	ctx->scat.coord(tau,xtau);
-	ctx->scat.deriv(tau,dxtau);
+	ctx->scat.x(tau,xtau);
+	ctx->scat.dx(tau,dxtau);
 
 	ansatz = ctx->f.ansatz(ctx->waveNum,xt,xtau);
 
@@ -177,6 +184,12 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 	  }
 	  else
 	    fact = 0.;
+
+#ifdef TEST
+	  Complex xx=fact*density;
+	  fprintf(fp,"%.12g %.12g %.12g\n",tau,xx.real(),xx.imag());
+#endif
+
 	}
 
 	if(ctx->type & STORE_OPERATOR)
@@ -192,6 +205,10 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
   }
 
   if(singular && first) first = 0;
+
+#ifdef TEST
+  fprintf(fp,"\n");
+#endif
   
   return res;
 }
@@ -199,7 +216,7 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 // Stuff for interval comparison
 
 typedef struct{
-  int num;
+  int singular;
   double min, max;
 } Interval;
 
@@ -214,12 +231,17 @@ int fcmp_Interval(const void * a, const void * b) {
 
 Complex Integrate(Ctx *ctx, double t){
   Partition part, part2;
+  CPoint pt;
   Interval I, *pI;
-  static List_T *CritPts=List_Create(10,10,sizeof(double));
-  static List_T *Intervals=List_Create(10,10,sizeof(Interval));
   Complex res, tmp, tmp2;
-  double d, eps, s_eps=0.;
-  int j, nb, s_index, i_index;
+  double eps, s_eps=0.;
+  int j, nb, i_index;
+
+  static List_T *CritPts=List_Create(10,10,sizeof(CPoint));
+  static List_T *Intervals=List_Create(10,10,sizeof(Interval));
+
+  List_Reset(CritPts);
+  List_Reset(Intervals);
 
   if(ctx->type & FULL_INTEGRATION){ // full Nystrom integrator
 
@@ -231,64 +253,58 @@ Complex Integrate(Ctx *ctx, double t){
 
   if(ctx->type & INTERACT1){ // interactive integration around one critical point
 
-    // compute critical points
-    List_Reset(CritPts);
-    ctx->scat.criticalPoints(t,CritPts);
-
-    // add target in crit pts list
-    List_Insert(CritPts, &t, fcmp_double);
-    s_index = List_ISearch(CritPts, &t, fcmp_double);
-
+    // add singular and  critical points in list
+    ctx->scat.singularPoint(t,CritPts);
+    ctx->scat.criticalPoints(t,ctx->waveNum,CritPts);
+    List_Sort(CritPts, fcmp_CPoint);
+  
     // around which point should we integrate?
     printf("Target = %g\n", t);
     for(j=0 ; j<List_Nbr(CritPts) ; j++) {
-      List_Read(CritPts,j,&d);
-      printf("%d (%s) = %g\n", j, (j==s_index)?"sing":"crit", d);
+      List_Read(CritPts,j,&pt);
+      printf("%d (%s) = %g\n", j, pt.name(), pt.val);
     }
     printf("Pt num to integrate around? "); scanf("%d", &i_index);
     printf("Epsilon? "); scanf("%lf", &eps);
     printf("Rise? "); scanf("%lf", &ctx->rise);
     printf("Number of integration points? "); scanf("%d", &nb);
-    List_Read(CritPts, i_index, &d);
-    j = (s_index==i_index);
-    Msg(DEBUG, "%s int. : %d pts in [%g , %g]", j ? "Sing." : "Crit.", nb, d-eps, d+eps);
+    List_Read(CritPts, i_index, &pt);
+    Msg(DEBUG, "%s int. : %d pts in [%g , %g]", pt.name(), nb, pt.val-eps, pt.val+eps);
 
-    part.init(d,eps,ctx->rise);
-    return Nystrom(j,ctx,t,nb,&part);
+    part.init(pt.val,eps,ctx->rise);
+    return Nystrom((pt.degree==1),ctx,t,nb,&part);
 
   }
 
-  // compute critical points
-  List_Reset(CritPts);
-  ctx->scat.criticalPoints(t,CritPts);
+  // add target, critical and shadowing points in list
+  ctx->scat.singularPoint(t,CritPts);
+  ctx->scat.criticalPoints(t,ctx->waveNum,CritPts);
+  //ctx->scat.shadowingPoints(t,pow(ctx->epsilon,1./3.)/2.,ctx->waveNum,CritPts);
+  //ctx->scat.shadowingPoints(t,0.,ctx->waveNum,CritPts);
 
-  // add shadowing points in crit pts list
-  ctx->scat.shadowingPoints(ctx->waveNum,CritPts);
+  List_Sort(CritPts, fcmp_CPoint);
 
-  // add target in crit pts list
-  List_Insert(CritPts, &t, fcmp_double);
-  s_index = List_ISearch(CritPts, &t, fcmp_double);
+  ctx->scat.printPoints(t,CritPts);
 
   // merge all overlapping pous in an interval list
-  List_Reset(Intervals);
   for(j=0 ; j<List_Nbr(CritPts) ; j++) {
-    List_Read(CritPts,j,&d);
-    I.num = j;
+    List_Read(CritPts,j,&pt);
+    I.singular = (pt.degree==1);
     if(ctx->type == INTERACT2){
-      printf("Epsilon for t=%g?\n", d); 
+      printf("Epsilon for t=%g?\n", pt.val); 
       scanf("%lf", &eps);
-      if(j == s_index) s_eps = eps;
+      if(pt.degree == 1) s_eps = eps;
     }
     else{
-      if(j == s_index) eps = s_eps = ctx->epsilon;
-      else eps = sqrt(ctx->epsilon);
+      if(pt.degree == 1) eps = s_eps = ctx->epsilon;
+      else if(pt.degree == 2) eps = sqrt(ctx->epsilon);
+      else eps = pow(ctx->epsilon,1./3.)/2.;
     }
-    I.min = d-eps;
-    I.max = d+eps;
-    Msg(DEBUG, "  - %s pt %d = %.15e -> [%g,%g]", 
-	(j == s_index) ? "target" : "crit.", j, d, I.min, I.max);
+    I.min = pt.val-eps;
+    I.max = pt.val+eps;
+    Msg(DEBUG, "  - %s pt %d = %.15e -> [%g,%g]", pt.name(), j, pt.val, I.min, I.max);
     if((pI = (Interval*)List_PQuery(Intervals, &I, fcmp_Interval))){
-      if(j == s_index) pI->num = s_index;
+      if(I.singular) pI->singular = 1;
       pI->min = MIN(pI->min, I.min);
       pI->max = MAX(pI->max, I.max);
     }
@@ -310,10 +326,10 @@ Complex Integrate(Ctx *ctx, double t){
       Msg(DEBUG, "  ! Flipping last interval");
       I.min -= TWO_PI;
       I.max -= TWO_PI;
-      if(s_index==I.num) t-=TWO_PI;
+      if(I.singular) t-=TWO_PI;
       List_PSuppress(Intervals, List_Nbr(Intervals)-1);
       if((pI = (Interval*)List_PQuery(Intervals, &I, fcmp_Interval))){
-	if(s_index==I.num) pI->num = s_index;
+	if(I.singular) pI->singular = 1;
 	pI->min = MIN(pI->min, I.min);
 	pI->max = MAX(pI->max, I.max);
       }
@@ -333,7 +349,7 @@ Complex Integrate(Ctx *ctx, double t){
   for(j=0 ; j<List_Nbr(Intervals) ; j++) {
     List_Read(Intervals, j, &I);
     
-    if(I.num==s_index){
+    if(I.singular){
       part.init(t,s_eps,ctx->rise);
       if(ctx->type & INTERACT2){
 	printf("Nb int. pts for singular part.? "); 
@@ -359,7 +375,13 @@ Complex Integrate(Ctx *ctx, double t){
 	}
 	else{
 	  //nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->nbIntPts); // change this
-	  nb = (int)(sqrt(part.epsilon)/sqrt(ctx->epsilon) * ctx->nbIntPts2);
+	  
+	  // this is not correct. we should have a multilevel strategy:
+	  // if degree 1 embedded in degree 2 -> nbpts=...
+	  //                      in degree 3 ->
+	  // if degree 2 in degree 3, etc.
+
+	  nb = (int)(part.epsilon/sqrt(ctx->epsilon) * ctx->nbIntPts2);
 	}
 	Msg(DEBUG, "  - critical int. in [%g,%g] \\ [%g,%g]",I.min,I.max,t-s_eps, t+s_eps);
 	tmp2 = Nystrom(0,ctx,t,nb,&part);
@@ -378,7 +400,10 @@ Complex Integrate(Ctx *ctx, double t){
       }
       else{
 	//nb = (int)(2*sqrt(part.epsilon)/TWO_PI*ctx->nbIntPts);//change this
-	nb = (int)(sqrt(part.epsilon)/sqrt(ctx->epsilon) * ctx->nbIntPts2);
+
+	// same remark as above...
+
+	nb = (int)(part.epsilon/sqrt(ctx->epsilon) * ctx->nbIntPts2);
       }
       Msg(DEBUG, "  - critical int.: %d pts in [%g , %g]", nb, I.min, I.max);
       tmp = Nystrom(0,ctx,t,nb,&part);
@@ -402,8 +427,8 @@ Complex Evaluate(Ctx *ctx, double x[3]){
 
   for(j=0 ; j<=2*n-1 ; j++){
     tau = TWO_PI*j/(2.*n);
-    ctx->scat.coord(tau,xtau);
-    ctx->scat.deriv(tau,dxtau);
+    ctx->scat.x(tau,xtau);
+    ctx->scat.dx(tau,dxtau);
 
     ctx->f.type = Function::ANALYTIC; 
     f = ctx->f.ansatz(ctx->waveNum,NULL,xtau);
