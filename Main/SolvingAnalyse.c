@@ -27,14 +27,14 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition) ;
 /*  S o l v i n g A n a l y s e                                             */
 /* ------------------------------------------------------------------------ */
 
-void  SolvingAnalyse (char * NameGene) {
+void  SolvingAnalyse (void) {
 
   struct Resolution     * Resolution_P     , * Resolution2_P ;
   struct DefineSystem   * DefineSystem_P0  , * DefineSystem2_P0, * DefineSystem_P ;
   struct Solution       * Solution_P       , Solution_S ;
   struct GeoData        * GeoData_P0 ;
   struct DofData        * DofData_P0       , * DofData2_P0 ;
-  List_T                * DofData_L        , * DofData2_L,  * GeoData_L ;
+  List_T                * DofData_L        , * DofData2_L ;
 
   int                     Num_Resolution   ,   Num_Resolution2 ;
   int                     Nbr_DefineSystem ,   Nbr_DefineSystem2 ;
@@ -42,30 +42,17 @@ void  SolvingAnalyse (char * NameGene) {
 
   struct DofData        * DofData_P ;
   struct Dof            * Dof_P ;
-  struct PostOperation  * PostOperation_P ;
+  struct PostOperation  * PostOperation_P[NBR_MAX_POS] ;
+  struct PostProcessing * PostProcessing_P[NBR_MAX_POS] ;
   struct FunctionSpace  * FunctionSpace_P ;
   struct PreResolutionInfo  PreResolutionInfo_S ;
 
   double  d;
   int  i, j, k ;
-  int  Num_PostProcessing, Num_PostOperation, Nbr_GeoData ;
+  int  Num, Nbr_GeoData ;
   int  Nbr_PreResolution, Nbr_OtherSystem ;
 
-  Current.Name = NameGene ;
-
-  /* ----------------------------- */
-  /* Creating Geometric Data Bases */
-  /* ----------------------------- */
-
-  if (!Name_MshFile) {
-    Name_MshFile = (char*) Malloc((strlen(NameGene)+5)*sizeof(char)) ;
-    strcpy(Name_MshFile, NameGene) ;
-    strcat(Name_MshFile, ".msh") ;
-  }
   GeoData_L = List_Create( 1, 5, sizeof(struct GeoData)) ;
-  Geo_AddGeoData(GeoData_L, Name_MshFile, NULL) ;
-  GeoData_P0 = (struct GeoData *)List_Pointer(GeoData_L, 0) ;
-
 
   /* -------------------- */
   /* Treatment Resolution */
@@ -80,7 +67,7 @@ void  SolvingAnalyse (char * NameGene) {
       Msg(ERROR, "Missing Resolution");
   }
   else if (Flag_PAR || Flag_CAL || Flag_POS) {
-    Dof_OpenFile(DOF_PRE, NameGene,"r") ;
+    Dof_OpenFile(DOF_PRE, Name_Generic,"r") ;
     Dof_ReadFilePRE0(&Num_Resolution, &Nbr_DefineSystem) ;
     Nbr_OtherSystem = Nbr_DefineSystem ;
   }
@@ -146,8 +133,6 @@ void  SolvingAnalyse (char * NameGene) {
       Current.TypeTime = TIME_STATIC  ; Current.Time = 0. ; Current.TimeStep = 0. ;
       Current.RelativeDifference = 0. ; Current.RelaxationFactor = 1. ;
 
-      /* Dof_OpenFile(DOF_RES, NameGene, "w+") ; */
-      
       TreatmentStatus = _CAL ;
 
       Current.NbrSystem  = Nbr_DefineSystem2 ;  /* Attention: init for Dt[] */
@@ -156,8 +141,6 @@ void  SolvingAnalyse (char * NameGene) {
       Treatment_Operation(Resolution2_P, Resolution2_P->Operation, 
                           DofData2_P0, GeoData_P0, Resolution_P, DofData_P0) ;
       
-      /* Dof_CloseFile(DOF_RES) ; */
-
       if (PreResolutionInfo_S.Type == PR_GLOBALBASISFUNCTION) {
         for (j = 0 ; j < Nbr_DefineSystem2 ; j++) {
           DofData_P = DofData2_P0 + j ;
@@ -173,7 +156,7 @@ void  SolvingAnalyse (char * NameGene) {
           i+1, Nbr_PreResolution) ;
     }
     
-    Dof_OpenFile(DOF_PRE, NameGene, "w+") ;
+    Dof_OpenFile(DOF_PRE, Name_Generic, "w+") ;
     Dof_WriteFilePRE0(Num_Resolution, Resolution_P->Name, Nbr_DefineSystem) ;
 
     for (i = 0 ; i < Nbr_DefineSystem ; i++){
@@ -200,7 +183,7 @@ void  SolvingAnalyse (char * NameGene) {
     if(Flag_PAR > NBR_MAX_PARTITION)
       Msg(ERROR, "Too Many Partitions");
 
-    Msg(LOADING,"Pre-Processing Data '%s.pre'", NameGene) ;
+    Msg(LOADING,"Pre-Processing Data '%s.pre'", Name_Generic) ;
 
     for(i = 0 ; i < Nbr_DefineSystem ; i++)
       Dof_ReadFilePRE(DofData_P0 + i) ;
@@ -212,26 +195,28 @@ void  SolvingAnalyse (char * NameGene) {
                                                         DofData_P->ResolutionIndex))
                       ->DefineSystem), DofData_P->SystemIndex) ;
       DofData_P->GeoDataIndex =
-	Geo_AddGeoData(GeoData_L, DefineSystem_P->MeshName, Name_MshFile) ;
+	Geo_AddGeoData(GeoData_L, DefineSystem_P->MeshName, Name_MshFile,
+		       DefineSystem_P->AdaptName, Name_AdaptFile) ;
       Init_HarInDofData(DefineSystem_P, DofData_P) ;
     }
     Nbr_DefineSystem = List_Nbr(DofData_L) ;  /* New Value ... */
 
     Nbr_GeoData = List_Nbr(GeoData_L) ;
+    
     Geo_ReadFilePRE(GeoData_P0, Nbr_GeoData, Problem_S.Group) ;
 
     Dof_CloseFile(DOF_PRE) ;
 
   }  
 
-  Msg(RESOURCES, "");
+  Msg(SUMMARY, "");
   Msg(DIRECT, "E n d   P r e - P r o c e s s i n g");
 
   /* ------------- */
   /* Partitionning */
   /* ------------- */
 
-  if (Flag_PAR) {
+  if (Flag_PAR > 1) {
     TreatmentStatus = _PAR ;
     Msg(DIRECT, "P a r t i t i o n n i n g . . .") ;
 
@@ -251,7 +236,7 @@ void  SolvingAnalyse (char * NameGene) {
 
     Treatment_Preprocessing(Nbr_DefineSystem, DofData_P0, DefineSystem_P0, GeoData_P0) ;
 
-    Dof_OpenFile(DOF_PRE, NameGene, "w") ;
+    Dof_OpenFile(DOF_PRE, Name_Generic, "w") ;
 
     Dof_WriteFilePRE0(Num_Resolution, Resolution_P->Name, Nbr_DefineSystem) ;
 
@@ -267,7 +252,7 @@ void  SolvingAnalyse (char * NameGene) {
 
     Dof_CloseFile(DOF_PRE) ;
 
-    Msg(RESOURCES, "");
+    Msg(SUMMARY, "");
     Msg(DIRECT, "E n d   P a r t i t i o n n i n g");
   }
 
@@ -293,16 +278,18 @@ void  SolvingAnalyse (char * NameGene) {
     }
     
     if(Flag_RESTART) {
-      Msg(LOADING, "Processing Data '%s.res'", NameGene) ;
-      Dof_OpenFile(DOF_RES, NameGene, "r");
-      Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeStep) ;
-      /* Dof_FlushFile(DOF_RES); */
-      Dof_CloseFile(DOF_RES);
+      i = 0 ;
+      while(Name_ResFile[i]){
+	Msg(LOADING, "Processing Data '%s'", Name_ResFile[i]) ;
+	Dof_OpenFile(DOF_RES, Name_ResFile[i], "r");
+	Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeStep) ;
+	Dof_CloseFile(DOF_RES);
+	i++ ;
+      }
       Msg(BIGINFO, "Restarting Computation at Time=%g s (TimeStep %g)", 
 	  Current.Time, Current.TimeStep) ;
     }
     else{
-      /* Dof_OpenFile(DOF_RES, NameGene,"w+"); */
       Current.Time = Current.TimeStep = 0. ;
     }
 
@@ -317,8 +304,6 @@ void  SolvingAnalyse (char * NameGene) {
     Treatment_Operation(Resolution_P, Resolution_P->Operation, 
                         DofData_P0, GeoData_P0, NULL, NULL) ;
 
-    /* Dof_CloseFile(DOF_RES) ; */
-
     Msg(SUMMARY, "");
     Msg(DIRECT, "E n d   P r o c e s s i n g");
   }
@@ -331,33 +316,42 @@ void  SolvingAnalyse (char * NameGene) {
     TreatmentStatus = _POS ;
     Msg(DIRECT, "P o s t - P r o c e s s i n g . . .") ;
 
+    i = 0 ;
     if(Flag_IPOS){
-      Num_PostProcessing =
-        List_ISearchSeq(Problem_S.PostProcessing, Name_PostProcessing,
-                        fcmp_PostProcessing_Name) ;
-      if (Num_PostProcessing < 0)
-        Msg(ERROR, "Unknown PostProcessing") ;
-      List_Read(Problem_S.PostProcessing, Num_PostProcessing, &PostProcessing_S) ;
-      PostOperation_P = NULL ;
+      while(Name_PostProcessing[i]){
+	if((Num = List_ISearchSeq(Problem_S.PostProcessing, Name_PostProcessing[i],
+				  fcmp_PostProcessing_Name)) < 0)
+	  Msg(ERROR, "Unknown PostProcessing") ;
+	PostProcessing_P[i] = (struct PostProcessing *)
+	  List_Pointer(Problem_S.PostProcessing, Num) ;
+	PostOperation_P[i] = NULL ;
+	i++ ;
+      }
     }
     else{
-      Num_PostOperation =
-        List_ISearchSeq(Problem_S.PostOperation, Name_PostOperation,
-                        fcmp_PostOperation_Name) ;
-      if (Num_PostOperation < 0)
-        Msg(ERROR, "Unknown PostOperation") ;
-
-      PostOperation_P = (struct PostOperation*)
-        List_Pointer(Problem_S.PostOperation, Num_PostOperation) ;
-      List_Read(Problem_S.PostProcessing,PostOperation_P->PostProcessingIndex,
-                &PostProcessing_S) ;
+      i = 0 ;
+      while(Name_PostOperation[i]){
+	if((Num = List_ISearchSeq(Problem_S.PostOperation, Name_PostOperation[i],
+				  fcmp_PostOperation_Name)) < 0)
+	  Msg(ERROR, "Unknown PostOperation") ;
+	PostOperation_P[i] = (struct PostOperation*)
+	  List_Pointer(Problem_S.PostOperation, Num) ;
+	PostProcessing_P[i] = (struct PostProcessing *)
+	  List_Pointer(Problem_S.PostProcessing, PostOperation_P[i]->PostProcessingIndex) ;
+	i++ ;
+      }
     }
+    PostProcessing_P[i] = NULL ;
 
     if (!Flag_CAL) {
-      Msg(LOADING, "Processing Data '%s.res'", NameGene) ;
-      Dof_OpenFile(DOF_RES, NameGene, "r");
-      Dof_ReadFileRES(DofData_L, NULL, -1, &d, &d) ;
-      Dof_CloseFile(DOF_RES) ;
+      i = 0 ;
+      while(Name_ResFile[i]){
+	Msg(LOADING, "Processing Data '%s'", Name_ResFile[i]) ;
+	Dof_OpenFile(DOF_RES, Name_ResFile[i], "r");
+	Dof_ReadFileRES(DofData_L, NULL, -1, &d, &d) ;
+	Dof_CloseFile(DOF_RES) ;
+	i++ ;
+      }
     }
 
     for (i = 0 ; i < Nbr_DefineSystem ; i++) {
@@ -406,10 +400,14 @@ void  SolvingAnalyse (char * NameGene) {
     Current.NbrSystem  = Nbr_DefineSystem ;  /* Attention: init for Dt[] */
     Current.DofData_P0 = DofData_P0 ;
     
-    Treatment_PostOperation(Resolution_P, DofData_P0, DefineSystem_P0, GeoData_P0,
-                            PostOperation_P) ;
+    i = 0 ;
+    while(PostProcessing_P[i]){
+      Treatment_PostOperation(Resolution_P, DofData_P0, DefineSystem_P0, GeoData_P0,
+			      PostProcessing_P[i], PostOperation_P[i]) ;
+      i++ ;
+    }
 
-    Msg(RESOURCES, "");
+    Msg(SUMMARY, "");
     Msg(DIRECT, "E n d   P o s t - P r o c e s s i n g");
   }
 
@@ -459,7 +457,8 @@ void  Treatment_Resolution(int ResolutionIndex,
     Dof_InitDofData(&DofData_S, i, ResolutionIndex, i,
 		    DefineSystem_P->SolverDataFileName) ;
     DofData_S.GeoDataIndex =
-      Geo_AddGeoData(GeoData_L, DefineSystem_P->MeshName, Name_MshFile) ;
+      Geo_AddGeoData(GeoData_L, DefineSystem_P->MeshName, Name_MshFile,
+		     DefineSystem_P->AdaptName, Name_AdaptFile) ;
     Init_HarInDofData(DefineSystem_P, &DofData_S) ;
     List_Add(*DofData_L, &DofData_S) ;
   }
@@ -527,7 +526,7 @@ void  Init_PartInDofData(struct DofData * DofData_P, int NbrPart) {
     DofData_P->Nnz = (int*)Malloc(DofData_P->NbrDof * sizeof(int)) ;
 
   for(i = 0 ; i < DofData_P->NbrDof ; i++)
-    DofData_P->Nnz[i] = 30;
+    DofData_P->Nnz[i] = 40;
 
   DofData_P->NbrPart = 1;
   DofData_P->Part[0] = 1;
@@ -627,6 +626,9 @@ void Treatment_Preprocessing(int Nbr_DefineSystem,
       Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);
       Treatment_Formulation(Formulation_P) ;
     }
+    
+    Dof_NumberSymmetricalDof() ;
+
   }
   
 }
@@ -640,6 +642,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 			      struct DofData        * DofData_P0,
 			      struct DefineSystem   * DefineSystem_P0,
 			      struct GeoData        * GeoData_P0,
+			      struct PostProcessing * PostProcessing_P,
 			      struct PostOperation  * PostOperation_P) {
 
   struct PostSubOperation  * PostSubOperation_P ;
@@ -650,12 +653,12 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   int    Nbr_PostSubOperation, i_POP, i ;
 
 
-  if (!List_Nbr(PostProcessing_S.PostQuantity))
+  if (!List_Nbr(PostProcessing_P->PostQuantity))
     Msg(ERROR, "No Quantity available for PostProcessing '%s'",
-	PostProcessing_S.Name) ;
+	PostProcessing_P->Name) ;
 
   Formulation_P = (struct Formulation *)
-    List_Pointer(Problem_S.Formulation, PostProcessing_S.FormulationIndex) ;
+    List_Pointer(Problem_S.Formulation, PostProcessing_P->FormulationIndex) ;
 
   if (!List_Nbr(Formulation_P->DefineQuantity))
     Msg(ERROR, "No DefineQuantity exists for Formulation '%s'",
@@ -663,12 +666,12 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 
   /* Choice of Current DofData */
 
-  if(PostProcessing_S.NameOfSystem){
+  if(PostProcessing_P->NameOfSystem){
     if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
-			     PostProcessing_S.NameOfSystem,
+			     PostProcessing_P->NameOfSystem,
 			     fcmp_DefineSystem_Name)) < 0)
       Msg(ERROR, "Unknown NameOfSystem (%s) in PostProcessing (%s)", 
-	  PostProcessing_S.NameOfSystem, PostProcessing_S.Name) ;
+	  PostProcessing_P->NameOfSystem, PostProcessing_P->Name) ;
     
     Current.DofData = DofData_P0 + i;
 
@@ -706,14 +709,14 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 			GeoData_P0 + Current.DofData->GeoDataIndex) ;
 
   Msg(INFO, "Selected PostProcessing '%s' (System '%s', Mesh '%s')",
-      PostProcessing_S.Name, DefineSystem_P->Name, 
+      PostProcessing_P->Name, DefineSystem_P->Name, 
       Current.GeoData->Name);
 
   Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);
   
   if(Flag_IPOS){
 
-    Pos_Interactive(Formulation_P);
+    Pos_Interactive(Formulation_P, PostProcessing_P);
 
   }
   else{
@@ -723,7 +726,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
       Msg(OPERATION, "PostOperation %d/%d ", i_POP+1, Nbr_PostSubOperation) ;      
       PostSubOperation_P = (struct PostSubOperation*)
 	List_Pointer(PostOperation_P->PostSubOperation, i_POP) ;
-      Pos_Formulation(Formulation_P, PostSubOperation_P) ;
+      Pos_Formulation(Formulation_P, PostProcessing_P, PostSubOperation_P) ;
     }
 
   }

@@ -243,7 +243,7 @@ void  Print_Expression(struct Problem  * Problem) {
 	Msg(CHECK, "  DefineFunction[ %s ] ;\n", EX->Name) ;
       break ;
 
-    case UNDEFINED :
+    case UNDEFINED_EXP :
       Msg(CHECK, "  DefineFunction[ %s ] ;\n", EX->Name) ;
       break ;
 
@@ -503,7 +503,7 @@ void  Print_FunctionSpace(struct Problem  * Problem) {
 	Msg(CHECK, "    /* GlobalNum : %d */\n", BF->Num) ;
 	Msg(CHECK, "      Name %s ; NameOfCoef %s ; Function %s ;\n",
 	    BF->Name, BF->NameOfCoef,
-	    Get_StringFor3Function(BF_Function, BF->Function)) ;
+	    Get_StringFor3Function2Nbr(BF_Function, BF->Function)) ;
 
 	Msg(CHECK, "      Support %s ;", 
 	    (BF->SupportIndex >=0)?

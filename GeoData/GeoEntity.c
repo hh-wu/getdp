@@ -10,6 +10,7 @@
 
 #include "ualloc.h"
 #include "outil.h"
+#include "Magic.h"
 
 extern FILE            * File_PRE ;
 extern struct GeoData  * CurrentGeoData ;
@@ -64,6 +65,17 @@ int  * Geo_GetNodesOfEdgeInElement(struct Geo_Element * Geo_Element, int Num_Edg
 }
 
 /* ------------------------------------------------------------------------ */
+/*  G e o _ G e t N o d e s O f F a c e t I n E l e m e n t                 */
+/* ------------------------------------------------------------------------ */
+
+int  * Geo_GetNodesOfFacetInElement(struct Geo_Element * Geo_Element, int Num_Facet) {
+  int  Nbr_Entities2 ;
+
+  return  Geo_GetIM_Dfn(Geo_Element->Type, &Nbr_Entities2) + 
+            Num_Facet * NBR_MAX_SUBENTITIES_IN_ELEMENT ;
+}
+
+/* ------------------------------------------------------------------------ */
 /*  G e o _ C r e a t e F a c e t s O f E l e m e n t                       */
 /* ------------------------------------------------------------------------ */
 
@@ -85,23 +97,16 @@ void  Geo_CreateFacetsOfElement(struct Geo_Element * Geo_Element) {
 /*  G e o _ G e t I M _ D e n                                               */
 /* ------------------------------------------------------------------------ */
 
-int  * Geo_GetIM_Den(int Type_Element, int * Nbr_Entities2) {
+int  * Geo_GetIM_Den(int Type_Element, int * Nbe) {
   switch (Type_Element) {
-  case LINE :
-    *Nbr_Entities2 = NbrEdges_Line        ;  return  *Den_Line ;
-  case TRIANGLE :
-    *Nbr_Entities2 = NbrEdges_Triangle    ;  return  *Den_Triangle ;
-  case QUADRANGLE :
-    *Nbr_Entities2 = NbrEdges_Quadrangle  ;  return  *Den_Quadrangle ;
-  case TETRAHEDRON :
-    *Nbr_Entities2 = NbrEdges_Tetrahedron ;  return  *Den_Tetrahedron ;
-  case HEXAHEDRON :
-    *Nbr_Entities2 = NbrEdges_Hexahedron  ;  return  *Den_Hexahedron ;
-  case PRISM :
-    *Nbr_Entities2 = NbrEdges_Prism       ;  return  *Den_Prism ;
-  case PYRAMID :
-    *Nbr_Entities2 = NbrEdges_Pyramid     ;  return  *Den_Pyramid ;
-  default :
+  case LINE :        *Nbe = NbrEdges_Line        ; return *Den_Line ;
+  case TRIANGLE :    *Nbe = NbrEdges_Triangle    ; return *Den_Triangle ;
+  case QUADRANGLE :  *Nbe = NbrEdges_Quadrangle  ; return *Den_Quadrangle ;
+  case TETRAHEDRON : *Nbe = NbrEdges_Tetrahedron ; return *Den_Tetrahedron ;
+  case HEXAHEDRON :  *Nbe = NbrEdges_Hexahedron  ; return *Den_Hexahedron ;
+  case PRISM :       *Nbe = NbrEdges_Prism       ; return *Den_Prism ;
+  case PYRAMID :     *Nbe = NbrEdges_Pyramid     ; return *Den_Pyramid ;
+  default : 
     Msg(ERROR, "Unknown incidence matrix for element type %d", Type_Element);
     return NULL ;
   }
@@ -112,22 +117,34 @@ int  * Geo_GetIM_Den(int Type_Element, int * Nbr_Entities2) {
 /*  G e o _ G e t I M _ D f e                                               */
 /* ------------------------------------------------------------------------ */
 
-int  * Geo_GetIM_Dfe(int Type_Element, int * Nbr_Entities2) {
+int  * Geo_GetIM_Dfe(int Type_Element, int * Nbf) {
   switch (Type_Element) {
-  case LINE :
-    *Nbr_Entities2 = NbrFacets_Line        ;  return NULL ;
-  case TRIANGLE :
-    *Nbr_Entities2 = NbrFacets_Triangle    ;  return *Dfe_Triangle ;
-  case QUADRANGLE :
-    *Nbr_Entities2 = NbrFacets_Quadrangle  ;  return *Dfe_Quadrangle ;
-  case TETRAHEDRON :
-    *Nbr_Entities2 = NbrFacets_Tetrahedron ;  return *Dfe_Tetrahedron ;
-  case HEXAHEDRON :
-    *Nbr_Entities2 = NbrFacets_Hexahedron  ;  return *Dfe_Hexahedron ;
-  case PRISM :
-    *Nbr_Entities2 = NbrFacets_Prism       ;  return *Dfe_Prism ;
-  case PYRAMID :
-    *Nbr_Entities2 = NbrFacets_Pyramid     ;  return *Dfe_Pyramid ;
+  case LINE :        *Nbf = NbrFacets_Line        ; return NULL ;
+  case TRIANGLE :    *Nbf = NbrFacets_Triangle    ; return *Dfe_Triangle ;
+  case QUADRANGLE :  *Nbf = NbrFacets_Quadrangle  ; return *Dfe_Quadrangle ;
+  case TETRAHEDRON : *Nbf = NbrFacets_Tetrahedron ; return *Dfe_Tetrahedron ;
+  case HEXAHEDRON :  *Nbf = NbrFacets_Hexahedron  ; return *Dfe_Hexahedron ;
+  case PRISM :       *Nbf = NbrFacets_Prism       ; return *Dfe_Prism ;
+  case PYRAMID :     *Nbf = NbrFacets_Pyramid     ; return *Dfe_Pyramid ;
+  default :
+    Msg(ERROR, "Unknown incidence matrix for element type %d", Type_Element);
+    return NULL ;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/*  G e o _ G e t I M _ D f n                                               */
+/* ------------------------------------------------------------------------ */
+
+int  * Geo_GetIM_Dfn(int Type_Element, int * Nbf) {
+  switch (Type_Element) {
+  case LINE :       *Nbf = NbrFacets_Line        ; return  NULL ;
+  case TRIANGLE :   *Nbf = NbrFacets_Triangle    ; return  *Dfn_Triangle ;
+  case QUADRANGLE : *Nbf = NbrFacets_Quadrangle  ; return  *Dfn_Quadrangle ;
+  case TETRAHEDRON :*Nbf = NbrFacets_Tetrahedron ; return  *Dfn_Tetrahedron ;
+  case HEXAHEDRON : *Nbf = NbrFacets_Hexahedron  ; return  *Dfn_Hexahedron ;
+  case PRISM :	    *Nbf = NbrFacets_Prism       ; return  *Dfn_Prism ;
+  case PYRAMID :    *Nbf = NbrFacets_Pyramid     ; return  *Dfn_Pyramid ;
   default :
     Msg(ERROR, "Unknown incidence matrix for element type %d", Type_Element);
     return NULL ;
@@ -138,28 +155,28 @@ int  * Geo_GetIM_Dfe(int Type_Element, int * Nbr_Entities2) {
 /*  G e o _ G e t I M _ D e n _ X p                                         */
 /* ------------------------------------------------------------------------ */
 
-int * Geo_GetIM_Den_Xp(int Type_Element, int * nbe, int * nbn) {
+int * Geo_GetIM_Den_Xp(int Type_Element, int * Nbe, int * Nbn) {
   switch (Type_Element) {
   case LINE :
-    *nbe = NbrEdges_Line ; *nbn = NbrNodes_Line ; 
+    *Nbe = NbrEdges_Line ; *Nbn = NbrNodes_Line ; 
     return Den_Line_Xp ;
   case TRIANGLE :
-    *nbe = NbrEdges_Triangle ; *nbn = NbrNodes_Triangle ; 
+    *Nbe = NbrEdges_Triangle ; *Nbn = NbrNodes_Triangle ; 
     return Den_Triangle_Xp ;
   case QUADRANGLE :
-    *nbe = NbrEdges_Quadrangle ; *nbn = NbrNodes_Quadrangle ; 
+    *Nbe = NbrEdges_Quadrangle ; *Nbn = NbrNodes_Quadrangle ; 
     return Den_Quadrangle_Xp ;
   case TETRAHEDRON :
-    *nbe = NbrEdges_Tetrahedron ; *nbn = NbrNodes_Tetrahedron ; 
+    *Nbe = NbrEdges_Tetrahedron ; *Nbn = NbrNodes_Tetrahedron ; 
     return Den_Tetrahedron_Xp ;
   case HEXAHEDRON :
-    *nbe = NbrEdges_Hexahedron ; *nbn = NbrNodes_Hexahedron ; 
+    *Nbe = NbrEdges_Hexahedron ; *Nbn = NbrNodes_Hexahedron ; 
     return Den_Hexahedron_Xp ;
   case PRISM :
-    *nbe = NbrEdges_Prism ; *nbn = NbrNodes_Prism ; 
+    *Nbe = NbrEdges_Prism ; *Nbn = NbrNodes_Prism ; 
     return Den_Prism_Xp ;
   case PYRAMID :
-    *nbe = NbrEdges_Pyramid ; *nbn = NbrNodes_Pyramid ; 
+    *Nbe = NbrEdges_Pyramid ; *Nbn = NbrNodes_Pyramid ; 
     return Den_Pyramid_Xp ;
   default :
     Msg(ERROR, "Unknown incidence matrix for element type %d", Type_Element);
@@ -397,7 +414,7 @@ void  Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
   struct Group        * Group_P ;
   int   i, Index_Element, Nbr_Entities, j, Index_Group, Num_Entity ;
   int   GeoDataIndex ;
-  char  String[256] ;
+  char  String[MAX_STRING_LENGTH] ;
 
   for(GeoDataIndex = 0 ; GeoDataIndex < NbrGeoData ; GeoDataIndex++){    
     if(!(GeoData_P0 + GeoDataIndex)->Elements){
@@ -409,7 +426,7 @@ void  Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
   while (1) {
 
     do { 
-      fgets(String, 256, File_PRE) ; 
+      fgets(String, MAX_STRING_LENGTH, File_PRE) ; 
       if (feof(File_PRE))  break ;
     } while (String[0] != '$') ;  
 
@@ -473,7 +490,7 @@ void  Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
     }
 
     do {
-      fgets(String, 256, File_PRE) ;
+      fgets(String, MAX_STRING_LENGTH, File_PRE) ;
       if (feof(File_PRE)) Msg(ERROR, "Prematured End of File");
     } while (String[0] != '$') ;
 
@@ -494,3 +511,4 @@ void  Geo_AddGroupForPRE(int Num) {
 
   List_Add(CurrentGeoData->GroupForPRE, &Num) ;
 }
+

@@ -5,7 +5,8 @@
 #include "Data_GeoData.h"
 
 int  Geo_AddGeoData(List_T * GeoData_L,
-		    char * Name_MshFile, char * Name_DefaultMshFile) ;
+		    char * Name_MshFile, char * Name_DefaultMshFile,
+		    char * Name_AdaptFile, char * Name_DefaultAdaptFile) ;
 void  Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name) ;
 
 void  Geo_SetCurrentGeoData(struct GeoData * GeoData_P) ;
@@ -13,6 +14,7 @@ void  Geo_SetCurrentGeoData(struct GeoData * GeoData_P) ;
 void  Geo_OpenFile(char * Name, char * Mode) ;
 void  Geo_CloseFile(void) ;
 void  Geo_ReadFile(struct GeoData * GeoData_P) ;
+void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) ;
 
 int  Geo_GetNbrGeoElements(void) ;
 struct Geo_Element  * Geo_GetGeoElement(int Index_Element) ;
@@ -33,11 +35,13 @@ double * Geo_GetBarycenter_uvw(int Type) ;
 void  Geo_CreateEdgesOfElement(struct Geo_Element * Geo_Element) ;
 int  * Geo_GetNodesOfEdgeInElement(struct Geo_Element * Geo_Element, int Num_Edge) ;
 void  Geo_CreateFacetsOfElement(struct Geo_Element * Geo_Element) ;
+int  * Geo_GetNodesOfFacetInElement(struct Geo_Element * Geo_Element, int Num_Facet) ;
 
-int  * Geo_GetIM_Den(int Type_Element, int * Nbr_Entities2) ;
-int  * Geo_GetIM_Dfe(int Type_Element, int * Nbr_Entities2) ;
-int  * Geo_GetIM_Den_Xp(int Type_Element, int *nbe, int *nbn) ;
-int  * Geo_GetIM_Dfe_Xp(int Type_Element, int *nbf, int *nbe) ;
+int  * Geo_GetIM_Den(int Type_Element, int * Nbe) ;
+int  * Geo_GetIM_Dfe(int Type_Element, int * Nbf) ;
+int  * Geo_GetIM_Dfn(int Type_Element, int * Nbf) ;
+int  * Geo_GetIM_Den_Xp(int Type_Element, int *Nbe, int *Nbn) ;
+int  * Geo_GetIM_Dfe_Xp(int Type_Element, int *Nbf, int *Nbe) ;
 
 void  Geo_CreateEntitiesOfElement
   (int Nbr_Entities2, int * D_Element,

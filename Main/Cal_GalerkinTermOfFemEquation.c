@@ -357,7 +357,8 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
     /*  Q U A D R A T U R E                    */
     /*  -------------------------------------  */
 
-    case GAUSS       :  
+    case GAUSS :  
+    case GAUSSLEGENDRE :
     case NEWTONCOTES :
 
       Quadrature_P = (struct Quadrature*)
@@ -434,7 +435,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 
 	Factor = (FI->Flag_ChangeCoord) ? weight * fabs(Element->DetJac) : weight ;
 
-	/* Product and assembly in elementary submatrix             (k?-1.:1.)*   */
+       	/* Product and assembly in elementary submatrix             (k?-1.:1.)*   */
 	
 	if (FI->SymmetricalMatrix)
 	  for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j <= i ; j++)

@@ -13,8 +13,8 @@ set caca = "$<"
 if ("$caca" == "y") then
   set liste = `find . \( -mtime -$1 -a ! -type d -a ! -name "*.o" -a ! -name "*.a" -a ! -name "*.bak" -a ! -name "*.tar*" -a ! -name "*~" -a ! -name "getdp" -a ! -name "getdp-*" \)`
   set date = `date "+%d.%m.%y-%Hh%M"`
-  tar cvf modifs-$date.tar $liste
-  gzip modifs-$date.tar
+  tar cvf modifs-getdp-$date.tar $liste
+  gzip modifs-getdp-$date.tar
 else if ("$caca" == "s") then
   set liste = `find . \( -mtime -$1 -a ! -type d -a ! -name "*.o" -a ! -name "*.a" -a ! -name "*.bak" -a ! -name "*.tar*" -a ! -name "*~" -a ! -name "getdp" -a ! -name "getdp-*" \)`
   ls -al $liste

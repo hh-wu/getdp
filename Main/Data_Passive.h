@@ -114,7 +114,7 @@ struct ExpressionPerRegion {
 } ;
 
 /* Expression.Type */
-#define UNDEFINED             0
+#define UNDEFINED_EXP         0
 #define CONSTANT              1
 #define WHOLEQUANTITY         2
 #define PIECEWISEFUNCTION     3
@@ -225,6 +225,7 @@ struct IntegrationCase {
 #define GAUSS                  2
 #define NEWTONCOTES            3
 #define PATTERSON              4
+#define GAUSSLEGENDRE          5
 
 /* IntegrationCase.SubType */
 #define STANDARD               1
@@ -260,6 +261,8 @@ struct BasisFunction {
   void    (*dFunction)();
   void    (*dInvFunction)();
   int     SupportIndex, EntityIndex ;
+  double  Degree ;
+  int     ElementType ;
 } ;
 
 struct GlobalBasisFunction {
@@ -566,6 +569,7 @@ struct WholeQuantity {
 #define WQ_VALUESAVED              15
 #define WQ_SOLIDANGLE              16
 #define WQ_TRACE                   17
+#define WQ_DEGREE                  18
 
 /* TypeOperator */
 #define OP_PLUS           1
@@ -610,7 +614,7 @@ struct DefineSystem {
   List_T  * FormulationIndex, * FrequencyValue ;
   char    * SolverDataFileName ;
 
-  char    * MeshName ;
+  char    * MeshName, * AdaptName ;
   List_T  * OriginSystemIndex ;
   char    * DestinationSystemName ;
   int     DestinationSystemIndex ;
@@ -784,12 +788,13 @@ struct PostSubOperation {
   int    PostQuantityIndex[2];  
   int    Type, SubType, CombinationType ;
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
-  int    Format ;
+  int    Format, Adapt ;
+  double Target ;
   List_T * HeaderChar_L, * HeaderTag_L ;
   List_T * FormatChar_L, * FormatTag_L ;
   List_T * FooterChar_L, * FooterTag_L ;
   char   * FileOut ;
-  List_T * TimeStep_L ;
+  List_T * TimeStep_L, * Value_L ;
   union {
     struct { int RegionIndex ; } OnRegion ;
     struct { double x[4], y[4], z[4] ; int n[3] ; } OnGrid ;
@@ -847,18 +852,13 @@ struct PostSubOperation {
 /* PostSubOperation.Format */
 #define FORMAT_SPACE_TABLE    1
 #define FORMAT_TIME_TABLE     2
+#define FORMAT_ADAPT          3
 #define FORMAT_GMSH           10
 #define FORMAT_GMSH_NL        11
 #define FORMAT_UNV            12
 #define FORMAT_GREF           13
 #define FORMAT_MATLAB         14
 #define FORMAT_GNUPLOT        15
-
-/* ------------------------------------------------------------------------ */
-/*  ...                                                                     */
-/* ------------------------------------------------------------------------ */
-
-struct TwoInt { int  Int1, Int2 ; } ;
 
 /* ------------------------------------------------------------------------ */
 /*  C u r r e n t D a t a                                                   */

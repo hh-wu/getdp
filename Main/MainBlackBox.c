@@ -19,7 +19,7 @@ char BlackBoxProString[] =
 
 int  main(int argc, char *argv[]) {
   FILE  *file ;
-  char  *Name_TmpFile, buf[262144], str[256] ;
+  char  *Name_TmpFile, buf[262144], str[MAX_STRING_LENGTH] ;
 
   if(argc != 3 && argc != 5) {
     fprintf(stderr, 
@@ -54,7 +54,7 @@ int  main(int argc, char *argv[]) {
   file = fopen(argv[2], "r");
   if(!file) Msg(ERROR, "Unable to Open File '%s'", argv[2]);
   do { 
-    fgets(str, 256, file) ; 
+    fgets(str, MAX_STRING_LENGTH, file) ; 
     if (feof(file)) break ;
     strcat(buf, str);
   } while (1) ;
@@ -66,7 +66,7 @@ int  main(int argc, char *argv[]) {
     file = fopen(argv[3], "r");
     if(!file) Msg(ERROR, "Unable to Open File '%s'", argv[3]);
     do { 
-      fgets(str, 256, file) ; 
+      fgets(str, MAX_STRING_LENGTH, file) ; 
       if (feof(file)) break ;
       strcat(buf, str);
     } while (1) ;

@@ -2,7 +2,6 @@
 
 #include "BF_Function.h"
 
-/* ATTENTION: RESTRUCTURATION PAS ENCORE FAITE */
 
 /* ------------------------------------------------------------------------ */
 /*  H B F _ E d g e _ 4                                                     */
@@ -12,6 +11,8 @@
 /*  Edges  */
 /* ------- */
 
+#define WrongNumEntity   Msg(ERROR, "Wrong Edge Number in 'HBF_Edge_4E'")
+
 void  HBF_Edge_4E (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double s[] ) {
 
@@ -19,7 +20,7 @@ void  HBF_Edge_4E (struct Element * Element, int NumEntity,
   case LINE :
     switch(NumEntity) {
     case 1  : s[0] = u*u ; s[1] = 0. ; s[2] = 0. ; break ;
-    default : s[0] = 0.  ; s[1] = 0. ; s[2] = 0. ; break ;
+    default : WrongNumEntity ;
     }
     break ;
 
@@ -37,16 +38,13 @@ void  HBF_Edge_4E (struct Element * Element, int NumEntity,
               s[1] = u*u-2.0*u*v ; 
 	      s[2] = 0. ; 
 	      break ;
-    default : s[0] = 0. ; 
-              s[1] = 0. ; 
-	      s[2] = 0. ; 
-	      break ;
+    default : WrongNumEntity ;
     }
     break ;
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : s[0] =  0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    default : Msg(ERROR, "HBF_Edge_4E not ready for QUADRANGLE");
     }
     break ;
 
@@ -76,55 +74,60 @@ void  HBF_Edge_4E (struct Element * Element, int NumEntity,
               s[1] = 2.0*v*w-w*w;
 	      s[2] = v*v-2.0*v*w;
 	      break ;
-    default : s[0] = 0. ; 
-              s[1] = 0. ; 
-	      s[2] = 0. ; 
-	      break ;
+    default : WrongNumEntity ;
     }
     break ;
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    default : Msg(ERROR, "HBF_Edge_4E not ready for HEXAHEDRON");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    default : Msg(ERROR, "HBF_Edge_4E not ready for PRISM");
     }
     break ;
 
-  case 0 :
-    s[0] = 0. ; s[1] = 0. ; s[2] = 0. ;
+  default :
+    Msg(ERROR, "Unkown Element Type in HBF_Edge_4E");
     break ;
-
-    default :
-      break ;
   }
 
-  return ;
+  if (Element->GeoElement->NumEdges[NumEntity-1] < 0) {
+    s[0] = - s[0] ; s[1] = - s[1] ; s[2] = - s[2] ;
+  }
+
 }
+
+#undef WrongNumEntity
 
 /* -------- */
 /*  Facets  */
 /* -------- */
+
+#define WrongNumEntity   Msg(ERROR, "Wrong Face Number in 'HBF_Edge_4F'")
 
 void  HBF_Edge_4F (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double s[] ) {
 
   switch (Element->Type) {
 
+  case LINE :
+    Msg(ERROR, "You Should Never be Here (HBF_Edge_4F)");
+    break;
+
   case TRIANGLE :
     switch(NumEntity) {
     case 1  : s[0] = v-2.0*u*v-v*v ; s[1] = u-u*u-2.0*u*v ; s[2] = 0. ; break ;
-    default : s[0] = 0.            ; s[1] = 0.            ; s[2] = 0. ; break ;
+    default : WrongNumEntity ;
     }
     break ;
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : s[0] =  0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    default : Msg(ERROR, "HBF_Edge_4F not ready for QUADRANGLE");
     }
     break ;
 
@@ -146,35 +149,31 @@ void  HBF_Edge_4F (struct Element * Element, int NumEntity,
               s[1] = u*w ;
               s[2] = u*v ;
 	      break ;
-    default : s[0] = 0. ; 
-              s[1] = 0. ; 
-              s[2] = 0. ; 
-	      break ;
+    default : WrongNumEntity ;
     }
     break ;
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    default : Msg(ERROR, "HBF_Edge_4F not ready for QUADRANGLE");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    default : Msg(ERROR, "HBF_Edge_4F not ready for PRISM");
     }
     break ;
 
-  case 0 :
-    s[0] = 0. ; s[1] = 0. ; s[2] = 0. ;
+  default :
+    Msg(ERROR, "Unkown Element Type in HBF_Edge_4F");
     break ;
 
-    default :
-      break ;
   }
 
-  return ;
 }
+
+#undef WrongNumEntity
 
 
 /* ------------------------------------------------------------------------ */
@@ -188,47 +187,8 @@ void  HBF_Edge_4F (struct Element * Element, int NumEntity,
 void  HBF_CurlEdge_4E (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
 
-  switch (Element->Type) {
-  case LINE :
-    switch(NumEntity) {
-    default : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-    }
-    break ;
+  s[0] = 0. ; s[1] = 0. ; s[2] = 0. ;
 
-  case TRIANGLE :
-    s[0] = 0. ; s[1] = 0. ; s[2] =  0. ; 
-    break ;
-
-  case QUADRANGLE :
-    switch(NumEntity) {
-    default : s[0] = 0. ; s[1] = 0. ; s[2] =  0. ; break ;
-    }
-    break ;
-
-  case TETRAHEDRON :
-    s[0] = 0. ; s[1] = 0. ; s[2] =  0. ; 
-    break ;
-
-  case HEXAHEDRON :
-    switch(NumEntity) {
-    default : s[0] = 0.  ; s[1] = 0. ; s[2] = 0. ; break ;
-    }
-    break ;
-
-  case PRISM :
-    switch(NumEntity) {
-    default : s[0] = 0. ; s[1] = 0. ; s[2] =  0. ; break ;
-    }
-    break ;
-
-  case 0 :
-    s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-
-  default :
-    break ;
-  }
-
-  return ;
 }
 
 /* -------- */
@@ -238,47 +198,7 @@ void  HBF_CurlEdge_4E (struct Element * Element, int NumEntity,
 void  HBF_CurlEdge_4F (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
 
-  switch (Element->Type) {
-  case LINE :
-    switch(NumEntity) {
-    default : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-    }
-    break ;
-
-  case TRIANGLE :
-    s[0] = 0. ; s[1] = 0. ; s[2] =  0. ; 
-    break ;
-
-  case QUADRANGLE :
-    switch(NumEntity) {
-    default : s[0] = 0. ; s[1] = 0. ; s[2] =  0. ; break ;
-    }
-    break ;
-
-  case TETRAHEDRON :
-    s[0] = 0. ; s[1] = 0. ; s[2] =  0. ; 
-    break ;
-
-  case HEXAHEDRON :
-    switch(NumEntity) {
-    default : s[0] = 0.  ; s[1] = 0. ; s[2] = 0. ; break ;
-    }
-    break ;
-
-  case PRISM :
-    switch(NumEntity) {
-    default : s[0] = 0. ; s[1] = 0. ; s[2] =  0. ; break ;
-    }
-    break ;
-
-  case 0 :
-    s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-
-  default :
-    break ;
-  }
-
-  return ;
+  s[0] = 0. ; s[1] = 0. ; s[2] = 0. ;
 }
 
 
@@ -296,8 +216,6 @@ void  HBF_PerpendicularFacet_4E (struct Element * Element, int NumEntity,
 
   HBF_Edge_4E (Element, NumEntity, u, v, w, s) ;
   ss = s[0] ;  s[0] = -s[1] ;  s[1] = ss ;
-
-  return ;
 }
 
 /* -------- */
@@ -310,8 +228,6 @@ void  HBF_PerpendicularFacet_4F (struct Element * Element, int NumEntity,
 
   HBF_Edge_4F (Element, NumEntity, u, v, w, s) ;
   ss = s[0] ;  s[0] = -s[1] ;  s[1] = ss ;
-
-  return ;
 }
 
 
@@ -328,8 +244,6 @@ void  HBF_DivPerpendicularFacet_4E (struct Element * Element, int NumEntity,
 
   HBF_CurlEdge_4E (Element, NumEntity, u, v, w, s) ;
   s[0] = -s[2] ; s[2] = 0. ;
-
-  return ;
 }
 
 /* -------- */
@@ -341,7 +255,5 @@ void  HBF_DivPerpendicularFacet_4F (struct Element * Element, int NumEntity,
 
   HBF_CurlEdge_4F (Element, NumEntity, u, v, w, s) ;
   s[0] = -s[2] ; s[2] = 0. ;
-
-  return ;
 }
 

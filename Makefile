@@ -2,25 +2,20 @@
 #  Makefile for GetDP
 #
 #  Optional packages: 
-#    * flex + bison to rebuild the parser
-#    * PETSc (2.0.28). The PETSC_DIR and PETSC_ARCH variables 
-#      must be defined 
-#    * METIS (4.0). The METIS_DIR variable must be defined 
-#    * for Windows 95/98/NT : cygwin 
-#        - to obtain a classical cygwin executable (which requires the 
-#          cygwin1.dll at runtime), you should install the 'full.exe'
-#          package (http://sourceware.cygnus.com/cygwin/) and a recent 
-#          version of gcc : gcc-XXX-cyg-XXX.tar.gz
-#          (ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/).
-#          Then 'make cygwin'
-#        - To build a stand alone executable, you should install the 
-#          same packages, plus the mingw includes and libraries 
-#          gcc-XXX-mingw-extra.tar.gz
-#          (ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/)
-#          and compile with 'make no-cygwin' 
-#      To check the final dependendies: objdump -p getdp-win | grep DLL
+#    * parser: flex and bison
+#    * Windows 95/98/NT: cygwin (http://sourceware.cygnus.com/cygwin/) 
+#    * PETSc: 2.0.28 (PETSC_DIR and PETSC_ARCH variables must be defined)
+#    * METIS: 4.0 (the METIS_DIR variable must be defined)
 #
+#
+#   To build a stand alone executable, you should cygwin plus the mingw
+#   includes and libraries gcc-XXX-mingw-extra.tar.gz
+#   (ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/)
+#   and compile with 'make no-cygwin' .
+#   To check the final dependendies: objdump -p getdp-win | grep DLL#
 # ----------------------------------------------------------------------
+
+GETDP_RELEASE         = 0.76
 
 # ----------------------------------------------------------------------
 # General definitions 
@@ -36,8 +31,8 @@ STRIP                 = strip
 # ----------------------------------------------------------------------
 
 GETDP_DIR             = .
-GETDP_STUFF_DIR       = Main Parser Post Function Integration GeoData DofData\
-                        Numeric DataStr 
+GETDP_STUFF_DIR       = Main Parser Post Function Integration GeoData\
+                        DofData Numeric DataStr
 GETDP_LIB_DIR         = lib
 GETDP_BIN_DIR         = bin
 GETDP_DOC_DIR         = doc
@@ -67,7 +62,7 @@ METIS_LIB             = $(METIS_DIR)/libmetis.a
 
 SPARSKIT_DIR          = Sparskit
 GETDP_SPARSKIT_LIBS   = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
-                        -lIntegration -lGeoData -lDofData\
+                        -lIntegration -lGeoData -lDofData \
                         -lNumeric -lSparskit -lDataStr
 
 # ----------------------------------------------------------------------
@@ -76,10 +71,10 @@ GETDP_SPARSKIT_LIBS   = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
 
 BOPT                  = g
 GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
-                        -lIntegration -lGeoData -lDofData\
+                        -lIntegration -lGeoData -lDofData \
                         -lNumeric -lDataStr
 
-include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
+#include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/base_variables
 
 # ----------------------------------------------------------------------
 # Rules for developpers
@@ -170,6 +165,12 @@ gnu:
            "F77_FLAGS=-g -Wall" \
         ); done
 
+efence:
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
+        do (cd $$i && $(MAKE) \
+        ); done
+	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp-efence $(GETDP_SPARSKIT_LIBS) -lefence -lm
+
 profile:
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE) \
@@ -201,7 +202,7 @@ parser:
 
 tag:
 	$(RM) $(RMFLAGS) $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_VERSION 0.75" \
+	echo "#define GETDP_VERSION $(GETDP_RELEASE)" \
              > $(GETDP_INCLUDE_DIR)/Version.h
 	echo "#define GETDP_BUILD \"`date` on `hostname` (`logname`)\"" \
              >> $(GETDP_INCLUDE_DIR)/Version.h
@@ -245,6 +246,9 @@ tgz:
 	gzip $(GETDP_ARCHIVE).tar
 	chmod 640 $(GETDP_ARCHIVE).tar.gz
 
+zip:
+	zip $(GETDP_ARCHIVE).zip $(GETDP_SOURCES)
+
 tgzdoc:
 	tar cvf getdp-texi.tar $(GETDP_DOC_DIR)
 	gzip getdp-texi.tar
@@ -285,7 +289,7 @@ versions:
 	@echo "  sun          SunOS with gcc "
 	@echo "  ibm          AIX without ILU_FLOAT "
 	@echo "  cygwin       Windows with cygwin1.dll "
-	@echo "  no-cygwin    Windows stand alone "
+	@echo "  win          Windows stand alone "
 	@echo "  sgi          SGI with -mips4 "
 	@echo "======================================================== "
 	@echo " "
@@ -297,6 +301,7 @@ PETSc: tag
            "F77=$(FC)" \
            "RANLIB=$(RANLIB)" \
            "C_FLAGS=$(COPTFLAGS)" \
+           "C_PARSER_FLAGS=$(COPTFLAGS)" \
            "F77_FLAGS=$(FOPTFLAGS)" \
            "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE) -D_METIS $(METIS_INCLUDE)" \
         ); done
@@ -308,6 +313,7 @@ dec: tag
            "CC=cc" \
            "FC=f77" \
            "C_FLAGS=-O3" \
+           "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O3" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
@@ -320,6 +326,7 @@ linux: tag
            "CC=gcc" \
            "FC=g77" \
            "C_FLAGS=-O3" \
+           "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
@@ -333,6 +340,7 @@ hp: tag
            "FC=f77" \
            "RANLIB=ls" \
            "C_FLAGS=+O2 +Onolimit -Ae +DAportable" \
+           "C_PARSER_FLAGS=+O1 -Ae +DAportable" \
            "F77_FLAGS=+O2 +DAportable" \
            "OS_FLAGS=-D_HP" \
            "SOLVER=-D_SPARSKIT" \
@@ -348,6 +356,7 @@ sun: tag
            "FC=f77" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
+           "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O3" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
@@ -361,6 +370,7 @@ ibm: tag
            "FC=f77" \
            "RANLIB=ls" \
            "C_FLAGS=-O2" \
+           "C_PARSER_FLAGS=-O1" \
            "F77_FLAGS=-O2" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_UNDERSCORE" \
@@ -374,6 +384,7 @@ cygwin: tag
            "FC=g77" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
+           "C_PARSER_FLAGS=-O1" \
            "F77_FLAGS=-O1" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
@@ -381,20 +392,33 @@ cygwin: tag
 	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
 	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
 
-no-cygwin: tag
+win: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
-           "CC=gcc -mno-cygwin -I/cygnus/mingw/include" \
-           "FC=g77 -mno-cygwin -I/cygnus/mingw/include" \
+           "CC=gcc -mno-cygwin" \
+           "FC=g77 -mno-cygwin" \
+           "RANLIB=ls" \
+           "C_FLAGS=-g" \
+           "C_PARSER_FLAGS=-g" \
+           "F77_FLAGS=-g" \
+           "OS_FLAGS=-DMSDOS" \
+           "SOLVER=-D_SPARSKIT" \
+           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+        ); done
+	g77 -mno-cygwin -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+
+mingw:
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
+           "CC=gcc" \
+           "FC=g77" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
+           "C_PARSER_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
            "OS_FLAGS=-DMSDOS" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)\
-            -mno-cygwin -L/cygnus/mingw/lib $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
+	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 
 sgi: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -402,6 +426,7 @@ sgi: tag
            "FC=f77" \
            "RANLIB=ls" \
            "C_FLAGS=-O3 -mips4" \
+           "C_PARSER_FLAGS=-g -mips4 " \
            "F77_FLAGS=-O3 -mips4" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \

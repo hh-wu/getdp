@@ -65,6 +65,7 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
   /* shape functions, integral quantity or dummy */
 
   if (!FI->SymmetricalMatrix) {	  
+
     switch (FI->Type_DefineQuantityDof) {
     case LOCALQUANTITY :
       for (j = 0 ; j < Nbr_Dof ; j++) {

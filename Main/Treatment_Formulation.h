@@ -98,6 +98,7 @@ double  Cal_AnalyticIntegration(struct Element * Element,
 /*---------------------------------------------------------------------*/
 
 void  Pos_Formulation(struct Formulation * Formulation_P,
+		      struct PostProcessing * PostProcessing_P,
 		      struct PostSubOperation * PostSubOperation_P) ;
 void  Pos_FemInterpolation (struct Element          * Element,
 			    struct QuantityStorage  * QuantityStorage_P0,
@@ -107,7 +108,8 @@ void  Pos_FemInterpolation (struct Element          * Element,
 			    double x, double y, double z, 
 			    double Val[], int * Type_FormDof,
 			    int Flag_ChangeOfCoordinates) ;
-void  Pos_Interactive(struct Formulation *Formulation_P);
+void  Pos_Interactive(struct Formulation *Formulation_P,
+		      struct PostProcessing * PostProcessing_P);
 
 /*---------------------------------------------------------------------*/
 
@@ -135,6 +137,10 @@ void  Get_FunctionValue(int Nbr_Function,
 			int Type_Operator,
 			struct QuantityStorage  * QuantityStorage_P,
 			int * Type_Form) ;
+
+double Cal_InterpolationDegree(struct Element * Element,
+			       struct QuantityStorage * QuantityStorage);
+double Cal_MaxEdgeLength(struct Element * Element);
 
 void  Get_InitElementSource (struct Element * Element, int InIndex) ;
 int   Get_NextElementSource (struct Element * ElementSource) ;

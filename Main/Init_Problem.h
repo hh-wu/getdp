@@ -17,7 +17,7 @@ void  Print_ListResolution(struct Problem  * Problem) ;
 void  Print_ListPostOperation(struct Problem  * Problem) ;
 void  Print_ListPostProcessing(struct Problem  * Problem) ;
 
-void  SolvingAnalyse(char * NameGene) ;
+void  SolvingAnalyse(void) ;
 
 void  Treatment_Resolution(int ResolutionIndex,
 			   int * Nbr_DefineSystem, int * Nbr_OtherSystem,
@@ -72,6 +72,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 			      struct DofData        * DofData_P0,
 			      struct DefineSystem   * DefineSystem_P0,
 			      struct GeoData        * GeoData_P0,
+			      struct PostProcessing * PostProcessing_P,
 			      struct PostOperation  * PostOperation_P) ;
 
 void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,

@@ -26,19 +26,19 @@ char version[]   = "Version : %g\n";
 char os[]        = "OS      : %s\n";
 char build[]     = "Build   : %s\n";
 char email[]     = "E-mail  : Patrick.Dular@ulg.ac.be, Christophe.Geuzaine@ulg.ac.be\n";
-char url[]       = "URL     : http://www.montefiore.ulg.ac.be/~geuzaine/getdp.html\n";
+char url[]       = "URL     : http://www.geuz.org/getdp/\n";
 
 #ifdef _SPARSKIT
 #ifdef _ILU_FLOAT
-char solver[]    = "Solver  : Default, real arithmetic, single precision preconditioning\n";
+char solver[]    = "Solver  : Default (real arithmetic, single precision preconditioning)\n";
 #else
-char solver[]    = "Solver  : Default, real arithmetic\n";
+char solver[]    = "Solver  : Default (real arithmetic)\n";
 #endif
 #else
 #ifdef PETSC_USE_COMPLEX
-char solver[]    = "Solver  : PETSc, complex arithmetic\n";
+char solver[]    = "Solver  : PETSc (complex arithmetic)\n";
 #else
-char solver[]    = "Solver  : PETSc, real arithmetic\n";
+char solver[]    = "Solver  : PETSc (real arithmetic)\n";
 #endif
 #endif
 
@@ -52,27 +52,31 @@ char help[] =
   "Usage: mpirun [MPI options] %s [file] [options] [PETSc options]\n"
 #endif
   "Processing options:\n"
-  "  -pre 'Resolution'        pre-processing\n"
-  "  -cal                     processing\n"
-  "  -pos 'PostOperation'     post-processing\n"
-  "  -ipos 'PostProcessing'   interactive post-processing\n"
-  "  -msh file                read mesh (in msh format) from file\n"
-  "  -res file                load result file from file\n"
-  "  -restart                 resume processing from where it stopped\n"
-  "  -solve 'Resolution'      same as -pre 'Resolution' -cal\n"
+  "  -pre 'Resolution'         pre-processing\n"
+  "  -cal                      processing\n"
+  "  -pos 'PostOperation(s)'   post-processing\n"
+  "  -ipos 'PostProcessing(s)' interactive post-processing\n"
+  "  -msh file                 read mesh (in msh format) from file\n"
+  "  -restart                  resume processing from where it stopped\n"
+  "  -solve 'Resolution'       same as -pre 'Resolution' -cal\n"
+  "  -split                    save processing results in separate files\n"
+  "  -res file(s)              load processing results from file(s)\n"
+  "  -adapt file               read adaption constraints from file\n"
+  "  -degree float             specify maximum interpolation degree\n"
 #if _SPARSKIT
   "Linear solver options:\n"
-  "  -solver file             specify parameter file (default: SOLVER.PAR)\n"
+  "  -solver file              specify parameter file (default: SOLVER.PAR)\n"
 #endif
   "Output options:\n"
-  "  -bin                     use binary format for output files\n"
-  "  -log                     save processing history in log file\n"
+  "  -bin                      use binary format for output files\n"
+  "  -log                      save processing history in log file\n"
   "Other options:\n"
-  "  -check                   interactive check of problem structure\n"
-  "  -v int                   set verbosity level (default: 4)\n"
-  "  -p int                   set progress update (default: 10)\n"
-  "  -version                 show version information\n"
-  "  -help                    show this message\n"
+  "  -check                    interactive check of problem structure\n"
+  "  -v int                    set verbosity level (default: 4)\n"
+  "  -p int                    set progress update (default: 10)\n"
+  "  -info                     show version information\n"
+  "  -version                  show version number\n"
+  "  -help                     show this message\n"
   ;
 
 void Info (int level, char *arg0){
@@ -83,6 +87,9 @@ void Info (int level, char *arg0){
     fprintf(stderr, help, arg0);
     break;
   case 1:
+    fprintf(stderr, "%g\n", GETDP_VERSION);
+    break;
+  case 2:
     fprintf(stderr, version, GETDP_VERSION);
     fprintf(stderr, os, GETDP_OS);
     fprintf(stderr, build, GETDP_BUILD);
@@ -107,7 +114,7 @@ void Signal (int sig_num){
 	"----------------------------------------------------------------------\n"
 	"You have probably discovered a bug in GetDP...\n"
 	"You may e-mail the context in which it occurred to one of the authors.\n"
-	"Type 'getdp -version' to get feedback information.");
+	"Type 'getdp -info' to get feedback information.");
     break;
   case SIGINT : 
     if(!InteractiveLevel){

@@ -1,6 +1,14 @@
 \input texinfo.tex    @c -*-texinfo-*-
 @c =========================================================================
 @c
+@c On devrait parler
+@c  - de Equation == en fait EquationTerm
+@c  - du mecanisme de selection du systeme pour le post (==1ere 
+@c    Quantity definie dans la formulation)
+@c
+@c
+@c
+@c
 @c This is the GetDP documentation texinfo source file
 @c
 @c Indexing : @cindex  == concepts
@@ -16,29 +24,32 @@
 @c dvi   : texi2dvi getdp.texi
 @c ps    : dvips getdp.dvi -o
 @c pdf   : texi2pdf getdp.texi
-@c html  : texi2html -expandinfo -split_chapter getdp.texi
+@c html  : texi2html -init_file getdp.t2h getdp.texi
 @c nroff : texi2roff getdp.texi
 @c
 @c =========================================================================
 @c %**start of header
-@setfilename getdp.info
-@set EDITION 1.7
-@set VERSION 0.75
-@set UPDATED 23 June 2000
-@set UPDATE-MONTH June 2000
+@setfilename   getdp.info
+@c variables
+@set EDITION   1.7
+@set VERSION   0.76
+@set DAY       14 
+@set MONTH     August 2000
 @set COPYRIGHT @copyright{} 1997-2000 Patrick Dular, Christophe Geuzaine
-@set WEB @uref{http://www.geuz.org/getdp/}
-@set WEB-GMSH @uref{http://www.geuz.org/gmsh/}
+@set WEB-GETDP @uref{http://www.geuz.org/getdp/}
+@set WEB-GMSH  @uref{http://www.geuz.org/gmsh/}
+@c title
 @settitle GetDP @value{VERSION}
 @footnotestyle separate
-@c recto : on / recto-verso : odd
+@c recto-verso (recto -> on)
 @setchapternewpage odd
 @paragraphindent 0
 @c @afourpaper
 @finalout
-@defcodeindex mv
 @c %**end of header
 
+@c new index for meta variables
+@defcodeindex mv
 @c merge function and type indices 
 @syncodeindex fn vr
 
@@ -48,7 +59,7 @@
 * GetDP: (getdp).       a General environment for the treatment of Discrete Problems
 @end direntry
 @noindent
-This is Edition @value{EDITION}, last updated @value{UPDATED}, of the
+This is Edition @value{EDITION}, last updated @value{DAY} @value{MONTH}, of the
 @cite{GetDP Manual}, for GetDP, a General environment for the Treatment
 of Discrete Problems, Version @value{VERSION}.
 @noindent
@@ -66,7 +77,7 @@ BELGIUM @*
 @global@let@bullet=-
 @global@let@sl=@it
 @global@setfont@indit@itshape{9}{1000}
-@global@let@linkcolor=@Blue
+@global@let@linkcolor=@Orange
 @parskip=5pt
 @end iftex
 
@@ -75,12 +86,15 @@ BELGIUM @*
 @c =========================================================================
 
 @shorttitlepage GetDP
+
 @titlepage
+
 @title GetDP Manual
+
 @subtitle The documentation for GetDP, Version  @value{VERSION}
 @subtitle A General environment for the treatment of Discrete Problems
 @subtitle 
-@subtitle Edition @value{EDITION}, @value{UPDATE-MONTH}
+@subtitle Edition @value{EDITION}, @value{MONTH}
 
 @author Patrick Dular
 @author Christophe Geuzaine
@@ -96,36 +110,33 @@ Sart Tilman Campus, Building B28 @*
 B-4000 Li@`ege @*
 BELGIUM
 @sp 1
-This document was prepared with Texinfo (@uref{http://texinfo.org}). The source
-of this document as well as several formatted versions (info, postscript, pdf,
-html) are available at @value{WEB}.
+This manual was prepared with Texinfo (@uref{http://texinfo.org}). The source
+of the document as well as several formatted versions (info, postscript, pdf,
+html) are available at @value{WEB-GETDP}.
+
 @end titlepage
 
 @c =========================================================================
 @c Table of contents
 @c =========================================================================
-@c  this doesn't work with older makeinfo/texi2dvi
-@c @summarycontents
-@c @contents
+
+@summarycontents
+@contents
 
 @c =========================================================================
 @c Top node
 @c =========================================================================
 
-@c @ifnottex
 @ifinfo
 @node Top, Copying, (dir), (dir)
 @top GetDP
-
 GetDP is a scientific computation software for the numerical solution of
 integro-differential equations, using finite element and integral type
 methods.
 
 This is Edition @value{EDITION} of the @cite{GetDP Manual}, last updated
-@value{UPDATED} for GetDP Version @value{VERSION}.
+@value{DAY} @value{MONTH} for GetDP Version @value{VERSION}.
 @end ifinfo
-@c @end ifnottex
-
 
 @c =========================================================================
 @c Master menu
@@ -313,7 +324,7 @@ Versions and Credits
 
 Executable versions of GetDP can be downloaded for most of the classical
 UNIX platforms (SUN, DEC, IBM, HP, SGI and Linux) and for Windows 95/98/NT
-from the web site @value{WEB} (no source distribution is available for
+from the web site @value{WEB-GETDP} (no source distribution is available for
 the moment). The executable versions of GetDP are free; the only thing
 asked if you use GetDP is to mention it in your work. Published
 references, as well as the latest news about GetDP developments and
@@ -640,18 +651,11 @@ is ignored.
 @cindex Mechanics
 @cindex Thermics
 
-All the preceding explanations can seem very (too) general.  Which are
-the problems that GetDP can actually solve? To answer this question,
-here is a list of models and methods that we have considered and coupled
-together until now:
+All the preceding explanations can seem very (too) general.  Which are the
+problems that GetDP can actually solve? To answer this question, here is a
+list of methods that we have considered and coupled together until now:
 
 @table @asis
-@item Physical models
-magnetic problems (magnetostatics, magnetodynamics)@*
-electric problems (electrostatics, electrokinetics, electrodynamics)@*
-electromagnetic wave problems@*
-lumped electric circuits@*
-thermal problems
 @item Numerical methods
 finite element method@*
 boundary element method@*
@@ -664,6 +668,23 @@ three-dimensional models (3D)
 static states@*
 sinusoidal and harmonic states@*
 transient states
+@end table
+
+These methods were successfully applied to build coupled physical models
+including:
+
+@table @asis
+@item magnetic problems
+magnetostatics@*
+magnetodynamics@*
+@item electric problems
+electrostatics@*
+electrokinetics@*
+electrodynamics@*
+@item electromagnetic wave problems
+@item acoustic wave problems
+@item lumped electric circuits
+@item thermal problems
 @end table
 
 As can be guessed from the preceding list, GetDP has been initially
@@ -795,7 +816,7 @@ The three constant types used in GetDP are @var{integer}, @var{real} and
 @var{string}.  These terminals have the same meaning and syntax as in
 the C or C++ programming languages. Besides general expressions
 (@var{expression}), purely constant expressions, denoted by the
-metasyntactic variable @var{expression-cst}, can also be defined:
+metasyntactic variable @var{expression-cst}, are also used:
 
 @example
 @var{expression-cst}:
@@ -809,10 +830,11 @@ metasyntactic variable @var{expression-cst}, can also be defined:
 
 Contrary to a general @var{expression} which is evaluated at runtime (thanks
 to an internal stack mechanism), an @var{expressions-cst} is completely
-evaluated during the syntactic analysis of the problem.  Definition of new
-constants or lists of constants with identifiers can be done outside any
-GetDP object or inside @code{Group}, @code{Function} and @code{Constraint}
-objects. The syntax for the definition of constants is the following:
+evaluated during the syntactic analysis of the problem (when GetDP reads the
+@file{.pro} file).  Definition of such constants or lists of constants with
+identifiers can be done outside any GetDP object or inside @code{Group},
+@code{Function} and @code{Constraint} objects. The syntax for the definition
+of constants is the following:
 
 @example
 DefineConstant [ 
@@ -2160,6 +2182,7 @@ defines the post-processings @code{@var{post-proces@-sing-id}@{@var{i}@}},
 @tindex UsingPost
 @tindex Plot
 @tindex Print
+@tindex Adapt
 
 @mvindex @var{post-operation-id}
 @mvindex @var{post-operation-op}
@@ -2195,7 +2218,8 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
 
 @var{post-operation-op}:
   Plot[ @var{post-quantity-id}, @var{plot-support} <,@var{plot-option}> @dots{} ] |
-  Print[ @var{post-quantity-id}, On @var{group-def} <,@var{print-option}> @dots{} ] | @var{etc}
+  Print[ @var{post-quantity-id}, On @var{group-def} <,@var{print-option}> @dots{} ] |
+  @var{etc}
 
 @var{plot-support}:
   OnRegion @var{group-def} | OnGrid @var{group-def} | @var{etc}
@@ -2213,8 +2237,8 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
 @noindent Note:
 @enumerate
 @item
-Both @code{PostOperation} syntaxes are equivalent. The second one is more concise.
-@c but the first one is more in the overall philosophy ;-)
+Both @code{PostOperation} syntaxes are equivalent.  The first one conforms to
+the overall interface, but the second one is more concise.
 @end enumerate
 
 @xref{Types for PostOperation}, for the complete list of options and
@@ -2376,67 +2400,67 @@ expressions (@var{expression-cst}, see @ref{Constants}).
 
 @item Exp 
 @code{[@var{expr}]}@*
-Exponential function: e^@var{expr}
+Exponential function: e^@var{expr}.
 
 @item Log
 @code{[@var{expr}]}@*
-Natural logarithm: ln(@var{expr}), @var{expr}>0
+Natural logarithm: ln(@var{expr}), @var{expr}>0.
 
 @item Log10
 @code{[@var{expr}]}@*
-Base 10 logarithm: log10(@var{expr}), @var{expr}>0
+Base 10 logarithm: log10(@var{expr}), @var{expr}>0.
 
 @item Sqrt 
 @code{[@var{expr}]}@*
-Square root, @var{expr}>=0
+Square root, @var{expr}>=0.
 
 @item Sin
 @code{[@var{expr}]}@*
-Sine of @var{expr}
+Sine of @var{expr}.
 
 @item Asin 
 @code{[@var{expr}]}@*
-Arc sine (inverse sine) of @var{expr} in [-Pi/2,Pi/2], @var{expr} in [-1,1]
+Arc sine (inverse sine) of @var{expr} in [-Pi/2,Pi/2], @var{expr} in [-1,1].
 
 @item Cos  
 @code{[@var{expr}]}@*
-Cosine of @var{expr}
+Cosine of @var{expr}.
 
 @item Acos 
 @code{[@var{expr}]}@*
-Arc cosine (inverse cosine) of @var{expr} in [0,Pi], @var{expr} in [-1,1]
+Arc cosine (inverse cosine) of @var{expr} in [0,Pi], @var{expr} in [-1,1].
 
 @item Tan  
 @code{[@var{expr}]}@*
-Tangent of @var{expr}
+Tangent of @var{expr}.
 
 @item Atan 
 @code{[@var{expr}]}@*
-Arc tangent (inverse tangent) of @var{expr} in [-Pi/2,Pi/2]
+Arc tangent (inverse tangent) of @var{expr} in [-Pi/2,Pi/2].
 
 @item Atan2
 @code{[@var{expr1},@var{expr2}]}@*
-Arc tangent (inverse tangent) of @var{expr1}/@var{expr2} in [-Pi,Pi]
+Arc tangent (inverse tangent) of @var{expr1}/@var{expr2} in [-Pi,Pi].
 
 @item Sinh 
 @code{[@var{expr}]}@*
-Hyperbolic sine of @var{expr}
+Hyperbolic sine of @var{expr}.
 
 @item Cosh 
 @code{[@var{expr}]}@*
-Hyperbolic cosine of @var{expr}
+Hyperbolic cosine of @var{expr}.
 
 @item Tanh 
 @code{[@var{expr}]}@*
-Hyperbolic tangent of @var{expr}
+Hyperbolic tangent of @var{expr}.
 
 @item Fabs 
 @code{[@var{expr}]}@*
-Absolute value of @var{expr}
+Absolute value of @var{expr}.
 
 @item Fmod
 @code{[@var{expr1},@var{expr2}]}@*
-Remainder of @var{expr1}/@var{expr2}, with the sign of @var{expr1}
+Remainder of @var{expr1}/@var{expr2}, with the sign of @var{expr1}.
 
 @end ftable
 
@@ -2455,32 +2479,32 @@ Remainder of @var{expr1}/@var{expr2}, with the sign of @var{expr1}
 @item Cross
 @code{[@var{expr1},@var{expr2}]}@*
 Cross product of @var{expr1} by @var{expr2}; @var{expr1} and @var{expr2}
-must be vectors
+must be vectors.
 
 @item Hypot
 @code{[@var{expr1},@var{expr2}]}@*
-@code{Sqrt[@var{expr1}^2+@var{expr2}^2]}
+@code{Sqrt[@var{expr1}^2+@var{expr2}^2]}.
 
 @item Norm
 @code{[@var{expr}]}@* 
 Absolute value if @var{expr} is a scalar; euclidian norm if @var{expr}
-is a vector
+is a vector.
 
 @item SquNorm
 @code{[@var{expr}]}@*
-Square norm: @code{Norm[@var{expr}]^2}
+Square norm: @code{Norm[@var{expr}]^2}.
 
 @item Unit
 @code{[@var{expr}]}@*
-Normalization: @code{@var{expr}/Norm[@var{expr}]}
+Normalization: @code{@var{expr}/Norm[@var{expr}]}.
 
 @item Transpose
 @code{[@var{expr}]}@*
-Transposition; @var{expr} must be a tensor
+Transposition; @var{expr} must be a tensor.
 
 @item TTrace
 @code{[@var{expr}]}@*
-Trace; @var{expr} must be a tensor
+Trace; @var{expr} must be a tensor.
 
 @c @item Rotate
 @c @code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4}]}@*
@@ -2488,16 +2512,16 @@ Trace; @var{expr} must be a tensor
 
 @item F_Cos_wt_p
 @code{[]@{@var{real1},@var{real2}@}}@*
-@code{Cos[@var{real1}*$Time+@var{real2}]}
+@code{Cos[@var{real1}*$Time+@var{real2}]}.
 
 @item F_Sin_wt_p
 @code{[]@{@var{real1},@var{real2}@}}@*
-@code{Sin[@var{real1}*$Time+@var{real2}]}
+@code{Sin[@var{real1}*$Time+@var{real2}]}.
 
 @item F_Period
 @code{[@var{expr}]@{@var{real}@}}@* 
 @code{Fmod[@var{expr},@var{real}] + (@var{expr}<0?@var{real}:0)}; the
-result is always in [0,@var{real}[
+result is always in [0,@var{real}[.
 
 @end ftable
 
@@ -2530,21 +2554,22 @@ The triplets of values given in the definitions below correspond to the
 
 @item Laplace
 @code{[]@{@var{int}@}}@*
-@code{r/2}, @code{1/(2*Pi)*ln(1/r)}, @code{1/(4*Pi*r)}
+@code{r/2}, @code{1/(2*Pi)*ln(1/r)}, @code{1/(4*Pi*r)}.
 
 @item GradLaplace
 @code{[]@{@var{int}@}}@*
 Gradient of @code{Laplace} relative to the destination point (@code{$X},
-@code{$Y}, @code{$Z})
+@code{$Y}, @code{$Z}).
 
 @item Helmholtz
-@code{[]@{@var{int}, @var{double}@}}@*
-@code{exp(j*k0*r)/(4*Pi*r)}, where @code{k0} is given by the double parameter
+@code{[]@{@var{int}, @var{real}@}}@*
+@code{exp(j*k0*r)/(4*Pi*r)}, where @code{k0} is given by the double parameter.
 
 @item GradHelmholtz
-@code{[]@{@var{int}, @var{double}@}}@*
+@code{[]@{@var{int}, @var{real}@}}@*
 Gradient of @code{Helmholtz} relative to the destination point (@code{$X},
-@code{$Y}, @code{$Z})
+@code{$Y}, @code{$Z}).
+
 @end ftable
 
 
@@ -2563,84 +2588,84 @@ Gradient of @code{Helmholtz} relative to the destination point (@code{$X},
 
 @item Complex
 @code{[@var{even-number-of-expr}] (even)}@*
-Create a (multi-harmonic) complex expression from an even number of
-real-valued expressions
+Creates a (multi-harmonic) complex expression from an even number of
+real-valued expressions.
 
 @item Re
 @code{[@var{expr}]}@*
-Take the real part of a complex-valued expression
+Takes the real part of a complex-valued expression.
 
 @item Im
 @code{[@var{expr}]}@*
-Take the imaginary part of a complex-valued expression
+Takes the imaginary part of a complex-valued expression.
 
 @item Vector
 @code{[@var{expr1},@var{expr2},@var{expr3}]}@*
-Create a vector from 3 scalars
+Creates a vector from 3 scalars.
 
 @item Tensor
 @code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4},@var{expr5},@var{expr6},@var{expr7},@var{expr8},@var{expr9}]}@*
-Create a second-rank tensor of order 3 from 9 scalars
+Creates a second-rank tensor of order 3 from 9 scalars.
 
 @item TensorV
 @code{[@var{expr1},@var{expr2},@var{expr3}]}@*
-Create a second-rank tensor of order 3 from 3 vectors
+Creates a second-rank tensor of order 3 from 3 vectors.
 
 @item TensorSym
 @code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4},@var{expr5},@var{expr6}]}@*
-Create a symmetrical second-rank tensor of order 3 from 6 scalars
+Creates a symmetrical second-rank tensor of order 3 from 6 scalars.
 
 @item TensorDiag
 @code{[@var{expr1},@var{expr2},@var{expr3}]}@*
-Create a diagonal second-rank tensor of order 3 from 3 scalars
+Creates a diagonal second-rank tensor of order 3 from 3 scalars.
 
 @item CompX
 @code{[@var{expr}]}@*
-Get the X component of a vector
+Gets the X component of a vector.
 
 @item CompY
 @code{[@var{expr}]}@*
-Get the Y component of a vector
+Gets the Y component of a vector.
 
 @item CompZ
 @code{[@var{expr}]}@*
-Get the Z component of a vector
+Gets the Z component of a vector.
 
 @item CompXX
 @code{[@var{expr}]}@*
-Get the XX component of a tensor
+Gets the XX component of a tensor.
 
 @item CompXY
 @code{[@var{expr}]}@*
-Get the XY component of a tensor
+Gets the XY component of a tensor.
 
 @item CompXZ
 @code{[@var{expr}]}@*
-Get the XZ component of a tensor
+Gets the XZ component of a tensor.
 
 @item CompYX
 @code{[@var{expr}]}@*
-Get the YX component of a tensor
+Gets the YX component of a tensor.
 
 @item CompYY
 @code{[@var{expr}]}@*
-Get the YY component of a tensor
+Gets the YY component of a tensor.
 
 @item CompYZ
 @code{[@var{expr}]}@*
-Get the YZ component of a tensor
+Gets the YZ component of a tensor.
 
 @item CompZX
 @code{[@var{expr}]}@*
-Get the ZX component of a tensor
+Gets the ZX component of a tensor.
 
 @item CompZY
 @code{[@var{expr}]}@*
-Get the ZY component of a tensor
+Gets the ZY component of a tensor.
 
 @item CompZZ
 @code{[@var{expr}]}@*
-Get the ZZ component of a tensor
+Gets the ZZ component of a tensor.
 
 @end ftable
 
@@ -2661,23 +2686,23 @@ Get the ZZ component of a tensor
 
 @item X
 @code{[]}@*
-Get the X coordinate
+Gets the X coordinate.
 
 @item Y
 @code{[]}@*
-Get the Y coordinate
+Gets the Y coordinate.
 
 @item Z
 @code{[]}@*
-Get the Z coordinate
+Gets the Z coordinate.
 
 @item XYZ
 @code{[]}@*
-Get X, Y and Z in a vector
+Gets X, Y and Z in a vector.
 
 @item F_aX_bY_cZ
 @code{[]@{@var{real1},@var{real2},@var{real3}@}}@*
-@code{@var{real1}*X[] + @var{real2}*Y[] + @var{real3}*Z[]}
+@code{@var{real1}*X[] + @var{real2}*Y[] + @var{real3}*Z[]}.
 
 @c a documenter 
 @c @item F_aX21_bY21_cZ21
@@ -2702,37 +2727,41 @@ Get X, Y and Z in a vector
 
 @item Printf
 @code{[@var{expr}]}@*
-Print the value of @var{expr} when evaluated
+Prints the value of @var{expr} when evaluated.
 
 @item Normal
 @code{[]}@*
-Compute the normal to the element
+Computes the normal to the element.
 
 @item NormalSource
 @code{[]}@* 
-Compute the normal to the source element (only valid in a quantity of
-Integral type)
+Computes the normal to the source element (only valid in a quantity of
+Integral type).
 
 @item F_CompElementNum
 @code{[]}@*
-Return 0 if the current element and the current source element are
-identical
+Returns 0 if the current element and the current source element are
+identical.
 
 @item InterpolationLinear
 @code{[]@{@var{even-number-of-real}@}}@*
-Linear interpolation of points
+Linear interpolation of points.
 
 @item dInterpolationLinear
 @code{[]@{@var{even-number-of-real}@}}@*
-Derivative of linear interpolation of points
+Derivative of linear interpolation of points.
 
 @item InterpolationAkima
 @code{[]@{@var{even-number-of-real}@}}@*
-Akima interpolation of points
+Akima interpolation of points.
 
 @item dInterpolationAkima
 @code{[]@{@var{even-number-of-real}@}}@*
-Derivative of Akima interpolation of points
+Derivative of Akima interpolation of points.
+
+@item Degree
+@code{[@var{discrete-quantity}]}@*
+Returns the interpolation degree of the @var{discrete-quantity}.
 
 @end ftable
 
@@ -3595,11 +3624,21 @@ Smooth the solution @var{integer} times.
 Converts a harmonic solution to a time-dependant one (with @var{integer}
 steps).
 @item Dimension @var{integer}
-Forces the dimension of the elements to consider in an element search.
+Forces the dimension of the elements to consider in an element
+search. Specifies the problem dimension during an adaption (h- or
+p-refinement).
 @item TimeStep @var{real-list}
 Output results for the specified time steps only.
 @item Format @var{post-operation-fmt}
 Output results in the specified format.
+@item Adapt @code{P1}|@code{H1}|@code{H2}
+Performs p- or h-refinement on the post-processing result, considered as an
+error map.
+@item Target @var{expression-cst} 
+Specifies the target for the optimizer during adaption.
+@item Value @var{real-list}
+Specifies acceptable output values for discrete optimization (e.g. the
+available interpolation degrees).
 @end vtable
 
 
@@ -3614,14 +3653,19 @@ Output results in the specified format.
 Post processing format readable by Gmsh. 
 @item Gnuplot
 @item Table
-Column-oriented output, e.g.@: suitable for Gnuplot, Excel, Caleida
-Graph, etc. The column are: @var{element-type} @var{x-coords}
-@var{y-coords} @var{z-coords} < @var{double} @var{double} @var{double} >
-@var{values}.
+Column-oriented output, e.g.@: suitable for Gnuplot, Excel, Caleida Graph,
+etc. The columns are: @var{element-type} @var{x-coords} @var{y-coords}
+@var{z-coords} < @var{real} @var{real} @var{real} > @var{values}. The three
+optional @var{real} numbers preceding the @var{values} contain
+context-dependant information, depending on the type of plot: curvilinear
+abscissa for @code{OnLine} plots, normal to the plane for @code{OnPlane}
+plots, etc.
 @item TimeTable
 Time oriented column output, e.g.@: suitable for Gnuplot, Excel, Caleida
-Graph, etc. The column are: @var{time-step} @var{time} @var{x-coords}
+Graph, etc. The columns are: @var{time-step} @var{time} @var{x-coords}
 @var{y-coords} @var{z-coords} @var{value}.
+@item Adaption
+Adaption map. Undocumented.
 @end vtable
 
 
@@ -4909,7 +4953,7 @@ getdp @var{filename} @var{options}
 
 @noindent
 where @var{filename} is an ASCII file containing the problem definition,
-i.e.@: the structures this user's guide teached you to create. This file
+i.e.@: the structures this user's guide taught you to create. This file
 can include other files (@pxref{Includes}), so that only one problem
 definition file should always be given on the command line. The input
 files containing the problem definition structure are usually given the
@@ -4923,6 +4967,7 @@ order):
 
 @table @code
 @item -pre @var{resolution-id}
+@cindex @code{-pre}
 Performs the pre-processing associated with the resolution
 @var{resolution-id}. In the pre-processing stage, GetDP creates the
 geometric database (from the mesh file), identifies the degrees of
@@ -4932,6 +4977,7 @@ these degrees of freedom. The pre-processing creates a file with a
 available choices is displayed.
 
 @item -cal
+@cindex @code{-cal}
 Performs the processing. This requires that a pre-processing has been
 performed previously, or a that a @code{-pre} option is given on the
 same command line. The performed resolution is the one given as an
@@ -4940,56 +4986,85 @@ executes all the commands given in the @code{Operation} field of the
 selected @code{Resolution} object (such as matrix assemblies, system
 resolutions, ...).
 
-@item -pos @var{post-operation-id}
-Performs the operations in the @var{PostOperation} selected by
-@var{post-operation-id}. This requires that a processing has been
+@item -pos @var{post-operation-id} @dots{}
+@cindex @code{-pos}
+Performs the operations in the @var{PostOperation}(s) selected by the
+@var{post-operation-id}(s). This requires that a processing has been
 performed previously, or that a @code{-cal} option is given on the same
-command line. If @var{post-operation-id} is omitted, the list of
-available choices is displayed.
+command line. If @var{post-operation-id} is omitted, the list of available
+choices is displayed.
 
-@item -ipos @var{post-processing-id}
+@item -ipos @var{post-processing-id} @dots{}
+@cindex @code{-ipos}
 Enters an interactive post-processing mode, enabling you to enter
-@code{PostOperation}-like commands manually. These commands are based on
-the @var{PostProcessing} object selected by @var{post-processing-id}.
+@code{PostOperation}-like commands manually. These commands are based on the
+@var{PostProcessing} object(s) selected by the @var{post-processing-id}(s).
 If @var{post-processing-id} is omitted, the list of available choices is
 displayed.
 
 @item -msh @var{filename}
+@cindex @code{-msh}
 Reads the mesh database (in @code{.msh} format) from @var{filename}
 (@pxref{File formats}) instead of in the default problem file name (with
 the @file{.msh} extension appended).
 
-@item -res @var{filename}
-Undocumented.
+@item -split
+@cindex @code{-split}
+save processing results in separate files (one for each timestep).
+
+@item -res @var{filename} @dots{}
+@cindex @code{-res}
+load processing results from file(s).
 
 @item -restart
+@cindex @code{-restart}
 Restarts processing of a transient problem interrupted before being complete.
 
 @item -solve @var{resolution-id}
+@cindex @code{-solve}
 Same as @code{-pre @var{resolution-id} -cal}.
 
+@item -adapt @var{file}
+@cindex @code{-adapt}
+Reads adaption constraints from file.
+
+@item -degree @var{real}
+@cindex @code{-degree}
+Specifies the maximum interpolation degree.
+
 @item -bin 
+@cindex @code{-bin}
 Selects binary format for output files.
 
 @item -log
+@cindex @code{-log}
 Saves all processing history in a log file (the input file name with an
 appended @code{.log} extension).
 
 @item -check  
+@cindex @code{-check}
 Lets you check the problem structure interactively. 
 
 @item -v @var{int}
+@cindex @code{-v}
 Sets the verbosity level. A value of 0 means that no information will be
 displayed during processing.
 
 @item -p @var{int}
+@cindex @code{-p}
 Sets the progress update rate. This controls the refreshment rate of the
 counter indicating the progress of the current computation.
 
-@item -version
+@item -info
+@cindex @code{-info}
 Displays version information.
 
+@item -version
+@cindex @code{-version}
+Displays version number.
+
 @item -help
+@cindex @code{-help}
 Displays a message listing basic usage and available options.
 
 @end table
@@ -5060,9 +5135,9 @@ Hexahedron (8 nodes, 12 edges, 6 facets).
 @item 6
 Prism (6 nodes, 9 edges, 5 facets).
 @item 7
-Pyramid (5 nodes, 8 edges, 6 facets).
+Pyramid (5 nodes, 8 edges, 5 facets).
 @item 15
-Point (1 nodes).
+Point (1 node).
 @end table
 
 @c -------------------------------------------------------------------------
@@ -5451,6 +5526,8 @@ examples of @ref{Complete examples}.
 
 @printindex vr
 
-@summarycontents
-@contents
+@c mis au debut
+@c @summarycontents
+@c @contents
+
 @bye

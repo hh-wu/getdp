@@ -7,6 +7,7 @@
 #include "Version.h"
 #include "outil.h"
 #include "ualloc.h"
+#include "Magic.h"
 
 #include "CurrentData.h"
 
@@ -83,12 +84,12 @@ void  Dof_SetCurrentDofData(struct DofData * DofData_P) {
 /* ------------------------------------------------------------------------ */
 
 void  Dof_OpenFile(int Type, char * Name, char * Mode) {
-  char  * Extension, FileName[256] ;
+  char  * Extension, FileName[MAX_FILE_NAME_LENGTH] ;
   FILE  * File_X ;
 
   switch (Type) {
   case DOF_PRE :  Extension = ".pre" ;  break ;
-  case DOF_RES :  Extension = ".res" ;  break ;
+  case DOF_RES :  Extension = ""     ;  break ;
   case DOF_TMP :  Extension = ""     ;  break ;
   default      :  Extension = ".pre" ;  break ;
   }
@@ -149,10 +150,10 @@ void  Dof_WriteFilePRE0(int Num_Resolution, char * Name_Resolution,
 /* ------------------------------------------------------------------------ */
 
 void  Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData) {
-  char  String[256] ;
+  char  String[MAX_STRING_LENGTH] ;
 
   do { 
-    fgets(String, 256, File_PRE) ; 
+    fgets(String, MAX_STRING_LENGTH, File_PRE) ; 
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
@@ -163,7 +164,7 @@ void  Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData) {
   }
 
   do {
-    fgets(String, 256, File_PRE) ;
+    fgets(String, MAX_STRING_LENGTH, File_PRE) ;
     if (feof(File_PRE)) Msg(ERROR, "Prematured End of File");
   } while (String[0] != '$') ;
 }
@@ -185,8 +186,7 @@ void  Dof_WriteFilePRE(struct DofData * DofData_P) {
   fprintf(File_PRE, "%d %d\n",
 	  DofData_P->ResolutionIndex, DofData_P->SystemIndex) ;
 
-  Nbr_Index =
-    (DofData_P->FunctionSpaceIndex)? List_Nbr(DofData_P->FunctionSpaceIndex) : 0 ;
+  Nbr_Index = List_Nbr(DofData_P->FunctionSpaceIndex) ;
   fprintf(File_PRE, "%d", Nbr_Index) ;
   for (i = 0 ; i < Nbr_Index ; i++)
     fprintf(File_PRE, " %d",
@@ -239,7 +239,7 @@ void  Dof_WriteDofPRE(void * a, void * b) {
   switch (Dof_P->Type) {
   case DOF_SYMMETRICAL :
     fprintf(File_PRE, "%d %d\n", Dof_P->Case.Symmetrical.NumDof,
-	    Nnz[Dof_P->Case.Symmetrical.NumDof]) ;
+	    Nnz[Dof_P->Case.Symmetrical.NumDof-1]) ;
     break ;
   case DOF_ASSOCIATE :
     fprintf(File_PRE, "%d ", Dof_P->Case.FixedAssociate.NumDof) ;
@@ -256,7 +256,7 @@ void  Dof_WriteDofPRE(void * a, void * b) {
   case DOF_SYMMETRICAL_INIT :
     fprintf(File_PRE, "%d ", Dof_P->Case.Symmetrical.NumDof) ;
     gPrintScalar(File_PRE, &Dof_P->Val);
-    fprintf(File_PRE, " %d\n", Nnz[Dof_P->Case.Symmetrical.NumDof]) ;
+    fprintf(File_PRE, " %d\n", Nnz[Dof_P->Case.Symmetrical.NumDof-1]) ;
     break ;
   case DOF_LINK :
     fprintf(File_PRE, "%.16g %d\n",
@@ -274,10 +274,10 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
 
   int         i, Nbr_Index, Int ;
   struct Dof  Dof ;
-  char        String[256] ;
+  char        String[MAX_STRING_LENGTH] ;
 
   do { 
-    fgets(String, 256, File_PRE) ; 
+    fgets(String, MAX_STRING_LENGTH, File_PRE) ; 
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
@@ -321,7 +321,7 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
       switch (Dof.Type) {
       case DOF_SYMMETRICAL :
 	fscanf(File_PRE, "%d", &Dof.Case.Symmetrical.NumDof) ;
-	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Symmetrical.NumDof]) ;
+	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Symmetrical.NumDof-1]) ;
 	break ;
       case DOF_ASSOCIATE :
 	fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.NumDof) ;
@@ -338,7 +338,7 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
       case DOF_SYMMETRICAL_INIT :
 	fscanf(File_PRE, "%d", &Dof.Case.Symmetrical.NumDof) ;
 	gScanScalar(File_PRE, &Dof.Val) ;
-	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Symmetrical.NumDof]) ;
+	fscanf(File_PRE, "%d", &DofData_P->Nnz[Dof.Case.Symmetrical.NumDof-1]) ;
 	break ;
       case DOF_LINK :
 	fscanf(File_PRE, "%lf %d",
@@ -352,7 +352,7 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
   }
 
   do {
-    fgets(String, 256, File_PRE) ;
+    fgets(String, MAX_STRING_LENGTH, File_PRE) ;
     if (feof(File_PRE)) Msg(ERROR, "Prematured End of File");
   } while (String[0] != '$') ;
 
@@ -364,21 +364,16 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
 /*  D o f _ W r i t e F i l e R E S 0                                       */
 /* ------------------------------------------------------------------------ */
 
-static int RES0 = 0 ;
-
 void  Dof_WriteFileRES0(char * Name_File, int Format) {
 
   gSequentialBegin();
 
-  if(!RES0){
-    Dof_OpenFile(DOF_RES, Name_File, "w") ;
-    RES0 = 1 ;
-    fprintf(File_RES, "$ResFormat /* GetDP v%g, %s */\n", 
-	     GETDP_VERSION, Format ? "binary" : "ascii") ;
-    fprintf(File_RES, "%g %d\n", GETDP_VERSION, Format) ;
-    fprintf(File_RES, "$EndResFormat\n") ;
-    Dof_CloseFile(DOF_RES) ;
-  }
+  Dof_OpenFile(DOF_RES, Name_File, "w") ;
+  fprintf(File_RES, "$ResFormat /* GetDP v%g, %s */\n", 
+	  GETDP_VERSION, Format ? "binary" : "ascii") ;
+  fprintf(File_RES, "%g %d\n", GETDP_VERSION, Format) ;
+  fprintf(File_RES, "$EndResFormat\n") ;
+  Dof_CloseFile(DOF_RES) ;
 
   gSequentialEnd();
 }
@@ -426,12 +421,12 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
   double          Val_Time, Version ;
   struct DofData  * DofData_P ;
   struct Solution Solution_S ;
-  char            String[256] ;
+  char            String[MAX_STRING_LENGTH] ;
 
   while (1) {
 
     do { 
-      fgets(String, 256, File_RES) ; 
+      fgets(String, MAX_STRING_LENGTH, File_RES) ; 
       if (feof(File_RES))  break ;
     } while (String[0] != '$') ;  
 
@@ -462,6 +457,7 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 
       if(Read){
 	Solution_S.Time = Val_Time ;
+	Solution_S.TimeStep = Val_TimeStep ;
 	gCreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
 		      DofData_P->NbrPart, DofData_P->Part) ;
 	Format ? 
@@ -474,7 +470,7 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
     }
 
     do {
-      fgets(String, 256, File_RES) ;
+      fgets(String, MAX_STRING_LENGTH, File_RES) ;
       if (feof(File_RES)) Msg(ERROR,"Prematured End of File");
     } while (String[0] != '$') ;
 
@@ -592,19 +588,26 @@ void  Dof_AddPulsation(struct DofData * DofData_P, double Val_Pulsation) {
 
 void  Dof_DefineAssignFixedDof(int D1, int D2, int NbrHar, double *Val, 
 			       int Index_TimeFunction) {
-  struct Dof  Dof ;
+  struct Dof  Dof, * Dof_P ;
   int         k ;
 
   Dof.NumType = D1 ;  Dof.Entity = D2 ;  
   
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
-    if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
+    if (!(Dof_P = (struct Dof *)Tree_PQuery(CurrentDofData->DofTree, &Dof))) {
       Dof.Type = DOF_FIXED ;
       gSetScalar(&Dof.Val, &Val[k]) ;
       Dof.Case.FixedAssociate.TimeFunctionIndex = Index_TimeFunction + 1 ;
       Dof_AddTimeFunctionIndex(Index_TimeFunction + 1) ;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
+    }
+    else if(Dof_P->Type == DOF_SYMMETRICAL) {
+      /* Msg(INFO, "Overriding Symmetrical DoF with Fixed DoF"); */
+      Dof_P->Type = DOF_FIXED ;
+      gSetScalar(&Dof_P->Val, &Val[k]) ;
+      Dof_P->Case.FixedAssociate.TimeFunctionIndex = Index_TimeFunction + 1 ;
+      Dof_AddTimeFunctionIndex(Index_TimeFunction + 1) ;
     }
   }
 }
@@ -712,12 +715,32 @@ void  Dof_DefineSymmetricalDof(int D1, int D2, int NbrHar) {
     Dof.Harmonic = k ;
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_SYMMETRICAL ;
-      Dof.Case.Symmetrical.NumDof = ++(CurrentDofData->NbrDof) ;
+      Dof.Case.Symmetrical.NumDof = -1 ;
+      /* Dof.Case.Symmetrical.NumDof = ++(CurrentDofData->NbrDof) ; */
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
   }
 
 }
+
+void NumberSymmetricalDof (void *a, void *b) {
+  struct Dof * Dof_P ;
+  
+  Dof_P = (struct Dof *)a ;
+  
+  if(Dof_P->Type == DOF_SYMMETRICAL && Dof_P->Case.Symmetrical.NumDof == -1)
+    Dof_P->Case.Symmetrical.NumDof = ++(CurrentDofData->NbrDof) ;
+}
+
+void  Dof_NumberSymmetricalDof(void) {
+
+  if(CurrentDofData->DofTree)
+    Tree_Action(CurrentDofData->DofTree, NumberSymmetricalDof) ;
+  else
+    List_Action(CurrentDofData->DofList, NumberSymmetricalDof) ;
+
+}
+
 
 /* ------------------------------------------------------------------------ */
 /*  D o f _ D e f i n e A s s o c i a t e D o f                             */

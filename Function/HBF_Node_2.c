@@ -89,6 +89,7 @@ void  HBF_Node_2F (struct Element * Element, int NumEntity,
   case LINE :
   case TRIANGLE :
   case TETRAHEDRON :
+    Msg(ERROR, "You Should Never be Here (HBF_Node_2F)");
     break;
     
   case QUADRANGLE :
@@ -133,6 +134,7 @@ void  HBF_Node_2V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
+    Msg(ERROR, "You Should Never be Here (HBF_Node_2V)");
     break;
 
   case HEXAHEDRON :
@@ -235,7 +237,8 @@ void  HBF_GradNode_2F (struct Element * Element, int NumEntity,
 
   case LINE :
   case TRIANGLE :
-  case TETRAHEDRON :
+  case TETRAHEDRON :    
+    Msg(ERROR, "You Should Never be Here (HBF_GradNode_2F)");
     break;
 
   case QUADRANGLE :
@@ -280,6 +283,7 @@ void  HBF_GradNode_2V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
+    Msg(ERROR, "You Should Never be Here (HBF_GradNode_2V)");
     break;
 
   case HEXAHEDRON :

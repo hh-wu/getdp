@@ -3,20 +3,20 @@
 
 #include <stdarg.h>
                            /* output if verbosity */ 
-#define DIRECT      0      /*   >= 2              */
-#define ERROR       1      /*   >= 0 (always)     */
-#define WARNING     2      /*   >= 0 (always)     */
-#define OPERATION   3      /*   >= 2              */
-#define INFO        4      /*   >= 3              */
-#define BIGINFO     6      /*   >= 1              */
-#define SPARSKIT    7      /*   >= 3              */
-#define PETSC       8      /*   >= 3              */
-#define ITER        9      /*   >= 4              */
-#define DEBUG       10     /*   == 99             */
-#define LOADING     11     /*   >= 2              */
-#define RESOURCES   12     /*   >= 4              */
-#define SUMMARY     13     /*   >= 1              */
-#define CHECK       14     /*   >= 0 (always)     */
+#define DIRECT       0      /*   >= 2              */
+#define ERROR        1      /*   >= 0 (always)     */
+#define WARNING      2      /*   >= 0 (always)     */
+#define OPERATION    3      /*   >= 2              */
+#define INFO         4      /*   >= 3              */
+#define BIGINFO      6      /*   >= 1              */
+#define SPARSKIT     7      /*   >= 3              */
+#define PETSC        8      /*   >= 3              */
+#define ITER         9      /*   >= 4              */
+#define DEBUG        10     /*   == 99             */
+#define LOADING      11     /*   >= 2              */
+#define RESOURCES    12     /*   >= 4              */
+#define SUMMARY      13     /*   >= 1              */
+#define CHECK        14     /*   >= 0 (always)     */
 
 #define ERROR_STR     "Error     : "
 #define WARNING_STR   "Warning   : "

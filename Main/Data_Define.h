@@ -5,6 +5,7 @@
 #include "Data_Function.h"
 #include "Cal_Quantity.h"
 #include "CurrentData.h"
+#include "Adapt.h"
 
 #define CAST  void(*)()
 
@@ -22,7 +23,9 @@ struct StringXDefine  Mesh_Format[] = {
 struct StringXDefine  Field_Type[] = {
   {"Form0"  , FORM0 }, {"Form1"  , FORM1 }, {"Form2"   , FORM2  }, {"Form3"  , FORM3 },
   {"Form0P" , FORM0P}, {"Form1P" , FORM1P}, {"Form2P"  , FORM2P }, {"Form3P" , FORM3P},
+  {"Form0S" , FORM0S}, {"Form1S" , FORM1S}, {"Form2S"  , FORM2S }, {"Form3S" , FORM3S},
   {"Scalar" , SCALAR}, {"Vector" , VECTOR}, {"VectorP" , VECTORP},
+  {"Tensor" , TENSOR}, {"TensorSym" , TENSOR_SYM}, {"TensorDiag" , TENSOR_DIAG},
   {NULL     , FORM0}
 } ;
 
@@ -80,6 +83,7 @@ struct StringXDefine1Nbr  Jacobian_Type[] = {
 
 struct StringXDefine  Integration_Type[] = {
   {"Gauss"                 , GAUSS},
+  {"GaussLegendre"         , GAUSSLEGENDRE},
   {"NewtonCotes"           , NEWTONCOTES},
   {"Patterson"             , PATTERSON},
   {"Analytic"              , ANALYTIC},
@@ -205,10 +209,10 @@ struct StringXPointer  Current_Value[] = {
 
   {"X"  , &Current.x}, {"Y"  , &Current.y},  {"Z"  , &Current.z},
   {"XS" , &Current.xs},{"YS" , &Current.ys}, {"ZS" , &Current.zs},
+  {"XP" , &Current.xp},{"YP" , &Current.yp}, {"ZP" , &Current.zp},
   {"U"  , &Current.x}, {"V"  , &Current.y},  {"W"  , &Current.z},
   {"US" , &Current.xs},{"VS" , &Current.ys}, {"WS" , &Current.zs},
   {"S"  , &Current.s} ,{"T"  , &Current.t}, 
-  {"XP" , &Current.xp},{"YP" , &Current.yp}, {"ZP" , &Current.zp},
 
   {NULL       , NULL}
 } ;
@@ -235,12 +239,13 @@ struct StringXDefine  PostSubOperation_CombinationType[] = {
 } ;
 
 struct StringXDefine  PostSubOperation_Format[] = {
-  {"table"         , FORMAT_SPACE_TABLE }, {"Table"         , FORMAT_SPACE_TABLE }, 
-  {"timetable"     , FORMAT_TIME_TABLE },  {"TimeTable"     , FORMAT_TIME_TABLE }, 
-  {"gmsh"          , FORMAT_GMSH},         {"Gmsh"          , FORMAT_GMSH},
-  {"gmshnl"        , FORMAT_GMSH_NL},      {"GmshNL"        , FORMAT_GMSH_NL},
-  {"gnuplot"       , FORMAT_GNUPLOT },     {"Gnuplot"       , FORMAT_GNUPLOT }, 
-  {"matlab"        , FORMAT_MATLAB },      {"Matlab"        , FORMAT_MATLAB }, 
+  {"Table"         , FORMAT_SPACE_TABLE }, 
+  {"TimeTable"     , FORMAT_TIME_TABLE }, 
+  {"Gmsh"          , FORMAT_GMSH},
+  {"GmshNL"        , FORMAT_GMSH_NL},
+  {"Gnuplot"       , FORMAT_GNUPLOT }, 
+  {"Matlab"        , FORMAT_MATLAB }, 
+  {"Adaption"      , FORMAT_ADAPT }, 
   {NULL            , FORMAT_GMSH}
 } ;
 
@@ -264,6 +269,13 @@ struct StringXDefine  PostSubOperation_FormatTag[] = {
   {NULL       , 0}
 } ;
 
+struct StringXDefine  Adaption_Type[] = {
+  {"P1"     , P1},
+  {"H1"     , H1},
+  {"H2"     , H2},
+  {NULL     , P1}
+} ;
+
 /* ------------------------------------------------------------------------ */
 /*  Types (int) and their assigned functions                                */
 /* ------------------------------------------------------------------------ */
@@ -281,9 +293,9 @@ struct DefineXFunction  FunctionForGauss[] = {
 } ;
 
 struct DefineXFunction  FunctionForSingularGauss[] = {
-  {TRIANGLE       , (CAST)Gauss_Triangle_Singular},
-  {QUADRANGLE     , (CAST)Gauss_Quadrangle_Singular},
-  {0              , (CAST)Gauss_Triangle_Singular}
+  {TRIANGLE       , (CAST)GaussSingularR_Triangle},
+  {QUADRANGLE     , (CAST)GaussSingularR_Quadrangle},
+  {0              , (CAST)GaussSingularR_Triangle}
 } ;
 
 struct DefineXFunction  FunctionForNewtonCotes[] = {
@@ -292,6 +304,15 @@ struct DefineXFunction  FunctionForNewtonCotes[] = {
   {0              , NULL} 
 } ;
 
+struct DefineXFunction  FunctionForGaussLegendre[] = {
+  {POINT          , (CAST)Gauss_Point},
+  {LINE           , (CAST)Gauss_Line},
+  {TRIANGLE       , (CAST)GaussLegendre_Triangle},
+  {QUADRANGLE     , (CAST)GaussLegendre_Quadrangle},
+  {TETRAHEDRON    , (CAST)GaussLegendre_Tetrahedron},
+  {HEXAHEDRON     , (CAST)GaussLegendre_Hexahedron},
+  {0              , (CAST)GaussLegendre_Triangle}
+} ;
 
 /* ------------------------------------------------------------------------ */
 

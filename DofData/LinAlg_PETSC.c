@@ -8,11 +8,20 @@
 
 /* This is the interface library for the PETSC solver */
 
-/* Encore assez experimental... Aucune desallocation 
-   n'est effectuee. */
-
 #include "LinAlg.h"
 #include "Message.h"
+
+/* Pour tester assemblage sans faire d'appel a PETSc
+
+#define VecSetValues dummyvec
+#define MatSetValues dummymat
+int dummyvec( Vec, int, int *, Scalar *, int ) {
+  return 0;
+}
+int dummymat( Mat, int, int *, int, int * , Scalar *, int ) {
+  return 0; 
+}
+*/
 
 static int  ierr, its, i_Start, i_End ;
 static int  SolverInitialized=0 ;
@@ -167,27 +176,20 @@ void gScanScalar(FILE *file, gScalar *S){
 #endif
 }
 void gScanVector(FILE *file, gVector *V) {
-#if PETSC_USE_COMPLEX
   int i, n ;
   Scalar tmp ;
   double a, b ;  
   ierr = VecGetSize(V->V, &n); CHKERRA(ierr);
   for(i=0 ; i<n ; i++){
+#if PETSC_USE_COMPLEX
     fscanf(file, "%lf %lf", &a, &b) ;
     tmp = a + PETSC_i * b ;
-    ierr = VecSetValues(V->V, 1, &i, &tmp, INSERT_VALUES); CHKERRA(ierr);
-  }
 #else
-  int i, n ;
-  Scalar tmp ;
-  double a ;
-  ierr = VecGetSize(V->V, &n); CHKERRA(ierr);
-  for(i=0 ; i<n ; i++){
     fscanf(file, "%lf", &a) ;
     tmp = a ;
+#endif
     ierr = VecSetValues(V->V, 1, &i, &tmp, INSERT_VALUES); CHKERRA(ierr);
   }
-#endif
 }
 void gScanMatrix(FILE *file, gMatrix *M){
   Msg(ERROR, "'gScanMatrix' not Implemented (yet)");  
@@ -216,37 +218,6 @@ void gPrintScalar(FILE *file, gScalar *S){
   fprintf(file, "%.16g", S->s) ;
 #endif
 }
-
-
-/* 
-void gPrintVector(FILE *file, gVector *V){
-  int    i, n ;
-  Vec    seqvec;
-  IS     is;
-  VecScatter ctx;
-  Scalar *tmp ;
-  
-  ierr = VecGetSize(V->V, &n); CHKERRA(ierr);
-  ierr = VecCreateSeq(PETSC_COMM_SELF,n,&seqvec); 
-  ierr = ISCreateStride(PETSC_COMM_SELF,n,0,1,&is); CHKERRA(ierr);
-  ierr = VecScatterCreate(V->V,is,seqvec,is,&ctx); CHKERRA(ierr);
-  ierr = VecScatterBegin(V->V,seqvec,INSERT_VALUES,SCATTER_FORWARD,ctx); CHKERRA(ierr);
-  ierr = VecScatterEnd(V->V,seqvec,INSERT_VALUES,SCATTER_FORWARD,ctx); CHKERRA(ierr);
-  ierr = VecGetArray(seqvec, &tmp); CHKERRA(ierr);
-  
-  for (i=0 ; i<n ; i++){
-#if PETSC_USE_COMPLEX
-    ierr = PetscFPrintf(PETSC_COMM_WORLD, file, "%.16g %.16g\n", 
-			real(tmp[i]), imag(tmp[i])) ; CHKERRA(ierr);
-#else
-    ierr = PetscFPrintf(PETSC_COMM_WORLD, file, "%.16g\n", tmp[i]) ; CHKERRA(ierr);
-#endif
-  }
-  ierr = VecRestoreArray(seqvec, &tmp); CHKERRA(ierr);
-  ierr = VecDestroy(seqvec); CHKERRA(ierr);
-} 
-*/
-
 void gPrintVector(FILE *file, gVector *V){
   Scalar *tmp ;
   int     i, n ;
@@ -263,7 +234,6 @@ void gPrintVector(FILE *file, gVector *V){
   }
   fflush(file) ;
 } 
-
 void gPrintMatrix(FILE *file, gMatrix *M){
   Msg(ERROR, "'gPrintMatrix' not Implemented (yet)");  
 }
@@ -277,7 +247,7 @@ void gWriteVector(FILE *file, gVector *V){
   Scalar *tmp ;
   int n ;
 
-  ierr = VecGetSize(V->V, &n); CHKERRA(ierr);
+  ierr = VecGetLocalSize(V->V, &n); CHKERRA(ierr);
   ierr = VecGetArray(V->V, &tmp); CHKERRA(ierr);
   fwrite(tmp, sizeof(Scalar), n, file);
   fprintf(file, "\n");
@@ -417,9 +387,12 @@ void gAddDoubleInVector(double d, gVector *V, int i){
 void gAddComplexInVector(double d1, double d2, gVector *V, int i, int j){
   Scalar tmp ;
 #if PETSC_USE_COMPLEX
-  tmp = d1 + PETSC_i * d2 ;
-  ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); CHKERRA(ierr);
+  if (i_Start <= i && i < i_End){
+    tmp = d1 + PETSC_i * d2 ;
+    ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); CHKERRA(ierr);
+  }
 #else
+  if (!i_Start) Msg(ERROR, "AddComplexInMatrix not Ready for Complex on Multi CPU");
   tmp = d1 ;
   ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); CHKERRA(ierr);
   tmp = d2 ;

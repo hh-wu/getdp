@@ -4,14 +4,12 @@
 #include "listman.h"
 #include "treeman.h"
 
-struct Grid {
-  int       Init;
-  int       Nx, Ny, Nz ;
-  double    Xmin, Xmax ;
-  double    Ymin, Ymax ;
-  double    Zmin, Zmax ;
-  List_T   *ListAll, *List1D, *List2D, *List3D ;
-} ; 
+struct Grid{
+  int     Init;
+  List_T  * Bricks;
+  double  Xmin, Xmax, Ymin, Ymax, Zmin, Zmax;
+  int     Nx, Ny, Nz;
+};
 
 struct GeoData {
   int     Num ;
@@ -27,6 +25,8 @@ struct GeoData {
   List_T  * GroupForPRE ;
 
   struct Grid Grid;
+
+  double  * H, * P ;
 } ;
 
 struct Geo_Node {
@@ -35,7 +35,7 @@ struct Geo_Node {
 } ;
 
 struct Geo_Element {
-  int  Num ;
+  int  Num, Index ;
   int  Type, Region ;
   int  NbrNodes , * NumNodes ;
   int  NbrEdges , * NumEdges ;

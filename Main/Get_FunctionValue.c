@@ -8,6 +8,7 @@
 #include "GeoData.h"
 
 #include "CurrentData.h"
+#include "Data_Numeric.h"
 #include "outil.h"
 
 
@@ -270,3 +271,41 @@ void  Get_InitFunctionValue(int Type_Operator,
 
 }
 
+
+
+/* ------------------------------------------------------------------------ */
+/*  C a l _ I n t e r p o l a t i o n D e g r e e                           */
+/* ------------------------------------------------------------------------ */
+
+double Cal_InterpolationDegree(struct Element * Element,
+			       struct QuantityStorage * QuantityStorage){
+  int i ;
+  double Degree = 0.0 ;
+
+  for(i = 0 ; i < QuantityStorage->NbrElementaryBasisFunction ; i++)
+    if(QuantityStorage->BasisFunction[i].Dof->Type == DOF_SYMMETRICAL)
+      Degree = MAX(QuantityStorage->BasisFunction[i].BasisFunction->Degree, Degree) ;
+
+  return Degree ;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  C a l _ M a x E d g e L e n g t h                                       */
+/* ------------------------------------------------------------------------ */
+
+double Cal_MaxEdgeLength(struct Element * Element){
+  int    i, *IM, *N, NbrEdges ;
+  double l, lmax = 0.0 ;
+  
+  IM = Geo_GetIM_Den(Element->Type, &NbrEdges) ;
+  for(i = 0 ; i < NbrEdges ; i++){
+    N = IM + i * NBR_MAX_SUBENTITIES_IN_ELEMENT ;
+    l = sqrt(SQU(Element->x[abs(N[1])-1]-Element->x[abs(N[0])-1]) +
+	     SQU(Element->y[abs(N[1])-1]-Element->y[abs(N[0])-1]) +
+	     SQU(Element->z[abs(N[1])-1]-Element->z[abs(N[0])-1])) ;
+    lmax = MAX(lmax, l) ;
+  }
+
+  return lmax ;
+}

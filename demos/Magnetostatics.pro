@@ -33,7 +33,7 @@
 
 
 
-JacobianMethod {
+Jacobian {
   { Name JVol ;
     Case { 
       { Region Domain_Inf ; Jacobian VolSphShell{Val_Rint, Val_Rext} ; }
@@ -43,7 +43,7 @@ JacobianMethod {
 }
 
 
-IntegrationMethod {
+Integration {
   { Name I1 ;
     Case { 
       { Type Gauss ;
@@ -145,7 +145,7 @@ FunctionSpace {
 
 Formulation {
   { Name MagSta_a ; Type FemEquation ;
-    DefineQuantity {
+    Quantity {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
     }
     Equation {

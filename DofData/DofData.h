@@ -49,6 +49,8 @@ void  Dof_DefineSymmetricalDof(int D1, int D2, int NbrHar) ;
 void  Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar) ;
 void  Dof_DefineSymmetricalDofFromSolveOrInitDof(struct DofData ** DofData_P) ;
 
+void  Dof_NumberSymmetricalDof(void) ;
+
 void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar, double * Val,
 			gMatrix * Mat, gVector * Vec) ;
 void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar, double * Val,

@@ -41,8 +41,9 @@
 #include "Cal_Value.h"
 
 #include "Constant.h"
+#include "Magic.h"
 
-char  tmp[256] ;
+char  tmp[MAX_STRING_LENGTH] ;
 
 
 void  Check_NameOfStructNotExist(char * Struct, List_T * List_L, void * data,
@@ -84,13 +85,13 @@ int   yylex();
 
 extern FILE            *yyin ;
 extern long int         yylinenum ;
-extern char             yyname[256], yyincludename[256] ;
+extern char             yyname[MAX_FILE_NAME_LENGTH], yyincludename[MAX_FILE_NAME_LENGTH] ;
 extern int              yycolnum, yyincludenum ;
 extern char            *yytext ;
 
 extern int                     ErrorLevel, InteractiveLevel ;
 extern struct Problem          Problem_S ;
-extern struct PostProcessing   PostProcessing_S ;
+extern struct PostProcessing   InteractivePostProcessing_S ;
 extern struct PostSubOperation InteractivePostSubOperation_S ;
 extern int                     InteractiveCompute, InteractiveExit ;
 
@@ -169,11 +170,13 @@ struct DefineSystem             DefineSystem_S ;
 struct Operation                Operation_S, * Operation_P ;
 struct ChangeOfState            ChangeOfState_S ;
 
+struct PostProcessing         PostProcessing_S ;
 struct PostQuantity             PostQuantity_S ;
 struct PostQuantityTerm           PostQuantityTerm_S ;
 
 struct PostOperation          PostOperation_S ;
 struct PostSubOperation         PostSubOperation_S ;
+
 %}
 
 /* ------------------------------------------------------------------ */
@@ -212,7 +215,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil
 %token    tFmod tModulo tHypot 
-%token    tSolidAngle tTrace tCrossProduct
+%token    tSolidAngle tTrace tDegree tCrossProduct
 
 %token  tGroup tDefineGroup tAll tInSupport
 
@@ -271,11 +274,12 @@ struct PostSubOperation         PostSubOperation_S ;
 
 %token  tPostOperation  
 %token    tNameOfPostProcessing tUsingPost tAppend
-%token      tPlot tPrint tWrite 
+%token      tPlot tPrint tWrite tAdapt
 %token        tOnRegion tOnGrid tOnCut tOnPoint tOnLine tOnPlane tOnBox
 %token        tWithArgument
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
+%token        tTarget
 
 %token  tFlag
 
@@ -444,9 +448,12 @@ Interactive :
       PostOperation_S.AppendString = NULL ;  
       PostOperation_S.Format = FORMAT_GMSH ;  
       PostOperation_S.PostProcessingIndex = -1 ; 
+      PostSubOperation_S.Format = -1 ;
     }
     PostSubOperation
     {
+      if(PostSubOperation_S.Format<0)
+	PostSubOperation_S.Format = PostOperation_S.Format ;
       InteractivePostSubOperation_S = PostSubOperation_S ;
       InteractiveCompute = 1;
     }
@@ -916,7 +923,7 @@ Function :
       if ( (i = List_ISearchSeq
 	    (Problem_S.Expression, $1, fcmp_Expression_Name)) >= 0 ) {
 	if (((struct Expression *)List_Pointer(Problem_S.Expression, i))->Type ==
-	    UNDEFINED) {
+	    UNDEFINED_EXP) {
 	  Free(((struct Expression *)List_Pointer(Problem_S.Expression, i))->Name) ;
 	  List_Read (Problem_S.Expression, $5, &Expression_S) ;
 	  List_Write(Problem_S.Expression,  i, &Expression_S) ;
@@ -946,7 +953,7 @@ Function :
       }
       else {
 	Expression_P = (struct Expression*)List_Pointer(Problem_S.Expression, i) ;
-	if (Expression_P->Type == UNDEFINED) {
+	if (Expression_P->Type == UNDEFINED_EXP) {
 	  Expression_P->Type = PIECEWISEFUNCTION ;
 	  Expression_P->Case.PieceWiseFunction.ExpressionPerRegion =
 	    List_Create( 5, 5, sizeof(struct ExpressionPerRegion)) ;
@@ -986,7 +993,7 @@ DefineFunctions :
     {
       if ( (i = List_ISearchSeq
 	    (Problem_S.Expression, $3, fcmp_Expression_Name)) < 0 ) {
-	Expression_S.Type = UNDEFINED ;
+	Expression_S.Type = UNDEFINED_EXP ;
 	Add_Expression(&Expression_S, $3, 0) ;
       }
       else  Free($3) ;
@@ -1361,12 +1368,15 @@ WholeQuantity_Single :
 	yyerror("Dof definition out of context") ;
     }
 
-  | tSolidAngle '[' '{' tSTRING '}' ']'
+  | tSolidAngle '[' Quantity_Def ']'
     { WholeQuantity_S.Type = WQ_SOLIDANGLE ;
-      if ((WholeQuantity_S.Case.OperatorAndQuantity.Index = 
-	   List_ISearchSeq(Formulation_S.DefineQuantity, $4,
-			   fcmp_DefineQuantity_Name)) < 0)
-	vyyerror("Unknown DefineQuantity: %s", $4) ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+    }
+
+  | tDegree '[' Quantity_Def ']'
+    { WholeQuantity_S.Type = WQ_DEGREE ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
@@ -1753,6 +1763,11 @@ QuadratureCaseTerm :
 	case GAUSS :
 	  Get_FunctionForDefine
 	    (FunctionForGauss, QuadratureCase_S.ElementType,
+	     &FlagError, (void (**)())&QuadratureCase_S.Function) ;
+	  break ;
+	case GAUSSLEGENDRE :
+	  Get_FunctionForDefine
+	    (FunctionForGaussLegendre, QuadratureCase_S.ElementType,
 	     &FlagError, (void (**)())&QuadratureCase_S.Function) ;
 	  break ;
 	case NEWTONCOTES : 
@@ -2302,12 +2317,13 @@ BasisFunctionTerm :
 
   | tFunction tSTRING OptionalParametersForBasisFunction tEND
     {
-      Get_3FunctionForString
+      Get_3Function2NbrForString
 	(BF_Function, $2, &FlagError,
 	 &BasisFunction_S.Function, &BasisFunction_S.dFunction, 
-	 &BasisFunction_S.dInvFunction) ;
+	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Degree,
+	 &BasisFunction_S.ElementType) ;
       if (FlagError)  vyyerror("Unknown Function for BasisFunction: %s %s", 
-			       $2, Get_Valid_SX3F(BF_Function)) ;
+			       $2, Get_Valid_SX3F2N(BF_Function)) ;
       Free($2) ;
     }
 
@@ -3836,6 +3852,7 @@ DefineSystem :
       DefineSystem_S.Type = VAL_REAL ;
       DefineSystem_S.FormulationIndex = NULL ;
       DefineSystem_S.MeshName = NULL ;
+      DefineSystem_S.AdaptName = NULL ;
       DefineSystem_S.FrequencyValue = NULL ;
       DefineSystem_S.SolverDataFileName = NULL ;
       DefineSystem_S.OriginSystemIndex = NULL ;
@@ -4905,7 +4922,7 @@ PostOperationTerm :
 	vyyerror("Unknown PostProcessing: %s", $2) ;
       else {
 	PostOperation_S.PostProcessingIndex = i ;
-	List_Read(Problem_S.PostProcessing, i, &PostProcessing_S) ;
+	List_Read(Problem_S.PostProcessing, i, &InteractivePostProcessing_S) ;
       }
       Free($2) ;
     }
@@ -4941,7 +4958,7 @@ SeparatePostOperation :
 	vyyerror("Unknown PostProcessing: %s", $4) ;
       else {
 	PostOperation_S.PostProcessingIndex = i ;
-	List_Read(Problem_S.PostProcessing, i, &PostProcessing_S) ;
+	List_Read(Problem_S.PostProcessing, i, &InteractivePostProcessing_S) ;
 	if (!Problem_S.PostOperation)
 	  Problem_S.PostOperation = List_Create(5, 5, sizeof (struct PostOperation)) ;
 	PostOperation_S.Name = $2 ;
@@ -5017,7 +5034,7 @@ PostQuantitiesToPlot :
 
     tSTRING ','
     {
-      if ((i = List_ISearchSeq(PostProcessing_S.PostQuantity, $1, 
+      if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1, 
 			       fcmp_PostQuantity_Name)) < 0)
 	vyyerror("Unknown PostQuantity: %s", $1) ;
       PostSubOperation_S.PostQuantityIndex[0] = i ;
@@ -5027,18 +5044,19 @@ PostQuantitiesToPlot :
 
  |  tSTRING Combination tSTRING ','
     {
-      if ((i = List_ISearchSeq(PostProcessing_S.PostQuantity, $1, 
+      if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1, 
 			       fcmp_PostQuantity_Name)) < 0)
 	vyyerror("Unknown PostQuantity: %s", $1) ;
       PostSubOperation_S.PostQuantityIndex[0] = i ;
 
-      if ((j = List_ISearchSeq(PostProcessing_S.PostQuantity, $3, 
+      if ((j = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $3, 
 			       fcmp_PostQuantity_Name)) < 0)
 	vyyerror("Unknown PostQuantity: %s", $3) ;
       PostSubOperation_S.PostQuantityIndex[1] = j ;
 
-      if((k=((struct PostQuantity*)List_Pointer(PostProcessing_S.PostQuantity, i))->Type) == 
-	 ((struct PostQuantity*)List_Pointer(PostProcessing_S.PostQuantity, j))->Type){
+      if((k=((struct PostQuantity*)
+	     List_Pointer(InteractivePostProcessing_S.PostQuantity, i))->Type) == 
+	 ((struct PostQuantity*)List_Pointer(InteractivePostProcessing_S.PostQuantity, j))->Type){
 	vyyerror("PostQuantities '%s' and '%s' should not be of same type (%s)", 
 		 $1, $3, Get_StringForDefine(PostQuantity_Type, k)) ;
       }      
@@ -5182,8 +5200,11 @@ PlotOptions :
       PostSubOperation_S.Smoothing = 0 ; 
       PostSubOperation_S.Skin = 0 ; 
       PostSubOperation_S.Dimension = _ALL ;
+      PostSubOperation_S.Adapt = 0 ;
+      PostSubOperation_S.Target = -1. ;
       PostSubOperation_S.HarmonicToTime = 1 ;
       PostSubOperation_S.TimeStep_L = List_Create(10,10,sizeof(int)); ;
+      PostSubOperation_S.Value_L = List_Create(10,10,sizeof(double)); ;
     }
   | PlotOptions PlotOption 
   ;
@@ -5211,13 +5232,21 @@ PlotOption :
       PostSubOperation_S.CatFile = 2 ; 
     }
   | ',' tDepth FExpr  
-    { PostSubOperation_S.Depth = (int)$3 ; }
+    { 
+      PostSubOperation_S.Depth = (int)$3 ; 
+    }
   | ',' tSkin   
-    { PostSubOperation_S.Skin = 1 ; }
+    { 
+      PostSubOperation_S.Skin = 1 ; 
+    }
   | ',' tSmoothing FExpr  
-    { PostSubOperation_S.Smoothing = (int)$3 ; }
+    {
+      PostSubOperation_S.Smoothing = (int)$3 ; 
+    }
   | ',' tHarmonicToTime FExpr
-    { PostSubOperation_S.HarmonicToTime = (int)$3 ; }
+    {
+      PostSubOperation_S.HarmonicToTime = (int)$3 ; 
+    }
   | ',' tFormat tSTRING
     { 
       PostSubOperation_S.Format =
@@ -5269,6 +5298,28 @@ PlotOption :
       for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
 	List_Read(ListOfDouble_L,i,&d);	j = (int)d ;
 	List_Add(PostSubOperation_S.TimeStep_L, &j);
+      }
+    }
+  | ',' tAdapt tSTRING
+    { 
+      PostSubOperation_S.Adapt = 
+	Get_DefineForString(Adaption_Type, $3, &FlagError) ;
+      if(FlagError)
+	vyyerror("Unknown Adaption Method: %s %s", $3, 
+		 Get_Valid_SXD(Adaption_Type)) ;
+    }
+  | ',' tTarget FExpr
+    { 
+      if($3 >= 0. && $3 < 3.)
+	PostSubOperation_S.Target = $3 ;
+      else
+	vyyerror("Bad Target") ;
+    }
+  | ',' tValue ListOfDouble 
+    { 
+      for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
+	List_Read(ListOfDouble_L,i,&d);	
+	List_Add(PostSubOperation_S.Value_L, &d);
       }
     }
   ;
@@ -5729,6 +5780,8 @@ void  Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) {
     switch ((WholeQuantity_P+i)->Type) {
     case WQ_OPERATORANDQUANTITY :
     case WQ_OPERATORANDQUANTITYEVAL :
+    case WQ_SOLIDANGLE :
+    case WQ_DEGREE :
       Pair.Int1 = (WholeQuantity_P+i)->Case.OperatorAndQuantity.Index ;
       Pair.Int2 = TraceGroupIndex ;
       List_Insert(ListOfTwoInt_L, &Pair, fcmp_int) ;
