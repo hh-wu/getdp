@@ -385,11 +385,23 @@ cygwin: tag
 	g77 -o $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME) $(GETDP_SPARSKIT_LIBS) -lm
 	$(STRIP) $(GETDP_BIN_DIR)/getdp-$(GETDP_UNAME)
 
-mingw: tag
-	export PATH=/cygnus/gcc-2.95.2/bin:$PATH
+win: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
-           "CC=gcc -I/cygnus/gcc-2.95.2/include" \
-           "FC=g77 -I/cygnus/gcc-2.95.2/include" \
+           "CC=gcc -mno-cygwin" \
+           "FC=g77 -mno-cygwin" \
+           "RANLIB=ls" \
+           "C_FLAGS=-g" \
+           "F77_FLAGS=-g" \
+           "OS_FLAGS=-DMSDOS" \
+           "SOLVER=-D_SPARSKIT" \
+           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+        ); done
+	g77 -mno-cygwin -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+
+mingw:
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
+           "CC=gcc" \
+           "FC=g77" \
            "RANLIB=ls" \
            "C_FLAGS=-O3" \
            "F77_FLAGS=-O1" \
@@ -397,9 +409,7 @@ mingw: tag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-	g77 -o $(GETDP_BIN_DIR)/getdp-mingw\
-            -L/cygnus/gcc-2.95.2/lib $(GETDP_SPARSKIT_LIBS) -lm
-	$(STRIP) $(GETDP_BIN_DIR)/getdp-mingw
+	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 
 sgi: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
