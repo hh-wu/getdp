@@ -711,15 +711,18 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Msg(ERROR, "Unable to Open File '%s'", Operation_P->Case.Print.FileOut) ;
 	Msg(OPERATION, "Print -> '%s'", Operation_P->Case.Print.FileOut) ;
       }
-      else
+      else{
+	PrintStream = stdout ;
 	Msg(OPERATION, "Print") ;
-      
+      }
+
       if(Operation_P->Case.Print.Expression){
 	for(i=0 ; i<List_Nbr(Operation_P->Case.Print.Expression) ; i++){
 	  j = *(int*)List_Pointer(Operation_P->Case.Print.Expression, i) ;
 	  Get_ValueOfExpressionByIndex(j, NULL, 0., 0., 0., &Value) ;
 	  Print_Value(&Value) ;
 	}
+	fprintf(PrintStream, "\n") ;
       }
       else if (Operation_P->Case.Print.DofNumber){
 	DofData_P = DofData_P0 + Operation_P->DefineSystemIndex ;
@@ -757,6 +760,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  else Msg(WARNING, "Wrong Number of Dof to Print (%d is out of [0,%d])",
 		   j, DofData_P->NbrDof-1);
 	}
+	fprintf(PrintStream, "\n") ;
       }
       else{
 	DofData_P = DofData_P0 + Operation_P->DefineSystemIndex ;
@@ -766,11 +770,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	}
 	else{
 	  gPrintMatrix(PrintStream, &DofData_P->A) ;
+	  fprintf(PrintStream, "\n") ;
 	  gPrintVector(PrintStream, &DofData_P->b) ;
 	}
       }
 
-      fprintf(PrintStream, "\n") ;
       fflush(PrintStream);
       if(Operation_P->Case.Print.FileOut){ 
 	fclose(PrintStream);

@@ -147,11 +147,10 @@ void gPrintScalar(FILE *file, gScalar *S){
   fprintf(file, "%.16g", S->d) ;
 }
 void gPrintVector(FILE *file, gVector *V){
-  int i ;
-  for(i=0 ; i<V->N ; i++) fprintf(file, "%.16g\n", V->V[i]) ;
+  formatted_write_vector(file, V->N, V->V, KUL) ;
 }
 void gPrintMatrix(FILE *file, gMatrix *M){
-  formatted_write_matrix(&M->M, "A", ".mat", KUL) ;
+  formatted_write_matrix(file, &M->M, KUL) ;
 }
 
 /* Write */
