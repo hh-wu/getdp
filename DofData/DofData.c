@@ -1,4 +1,4 @@
-/* $Id: DofData.c,v 1.8 2000-09-07 18:47:22 geuzaine Exp $ */
+/* $Id: DofData.c,v 1.9 2000-09-28 22:13:33 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -549,7 +549,7 @@ void  Dof_AddFunctionSpaceIndex(int Index_FunctionSpace) {
   if (List_PQuery
       (CurrentDofData->FunctionSpaceIndex, &Index_FunctionSpace, fcmp_int) == NULL) {
     List_Add(CurrentDofData->FunctionSpaceIndex, &Index_FunctionSpace) ;
-    List_Tri(CurrentDofData->FunctionSpaceIndex, fcmp_int) ;
+    List_Sort(CurrentDofData->FunctionSpaceIndex, fcmp_int) ;
   }
 }
 
@@ -562,7 +562,7 @@ void  Dof_AddTimeFunctionIndex(int Index_TimeFunction) {
   if (List_PQuery
       (CurrentDofData->TimeFunctionIndex, &Index_TimeFunction, fcmp_int) == NULL) {
     List_Add(CurrentDofData->TimeFunctionIndex, &Index_TimeFunction) ;
-    List_Tri(CurrentDofData->TimeFunctionIndex, fcmp_int) ;
+    List_Sort(CurrentDofData->TimeFunctionIndex, fcmp_int) ;
   }
 }
 
@@ -578,7 +578,7 @@ void  Dof_AddPulsation(struct DofData * DofData_P, double Val_Pulsation) {
   if (List_PQuery
       (DofData_P->Pulsation, &Val_Pulsation, fcmp_double) == NULL) {
     List_Add(DofData_P->Pulsation, &Val_Pulsation) ;
-    List_Tri(DofData_P->Pulsation, fcmp_double) ;
+    List_Sort(DofData_P->Pulsation, fcmp_double) ;
   }
 }
 

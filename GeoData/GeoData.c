@@ -1,4 +1,4 @@
-/* $Id: GeoData.c,v 1.10 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: GeoData.c,v 1.11 2000-09-28 22:13:33 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -210,7 +210,7 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 	List_Add(GeoData_P->Elements, &Geo_Element) ;
       }
 
-      List_Tri(GeoData_P->Elements, fcmp_Elm) ;
+      List_Sort(GeoData_P->Elements, fcmp_Elm) ;
       
       for (i = 0 ; i < List_Nbr(GeoData_P->Elements) ; i++)
 	((struct Geo_Element *) List_Pointer(GeoData_P->Elements, i))->Index = i ;

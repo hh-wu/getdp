@@ -1,4 +1,4 @@
-/* $Id: GeoTree.c,v 1.2 2000-09-07 18:47:24 geuzaine Exp $ */
+/* $Id: GeoTree.c,v 1.3 2000-09-28 22:13:33 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -33,7 +33,7 @@ void  Geo_GenerateEdgesOfTree(List_T * InitialList, List_T * InitialSuppList,
 
   Tree_Delete(EntitiesInTree_T) ;
 
-  List_Tri(*ExtendedList, fcmp_int) ;
+  List_Sort(*ExtendedList, fcmp_int) ;
 }
 
 
@@ -56,7 +56,7 @@ void  Geo_GenerateFacetsOfTree(List_T * InitialList, List_T * InitialSuppList,
 
   Tree_Delete(EntitiesInTree_T) ;
 
-  List_Tri(*ExtendedList, fcmp_int) ;
+  List_Sort(*ExtendedList, fcmp_int) ;
 }
 
 
