@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.18 2003-02-07 10:17:56 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.19 2003-02-07 19:22:57 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -296,7 +296,7 @@ void Cal_WholeQuantity(struct Element * Element,
     case WQ_SOLIDANGLE : /* SolidAngle[{qty}] */
       Cal_SolidAngle(0, Element, QuantityStorage_P0 +
 		     WholeQuantity_P->Case.OperatorAndQuantity.Index, 
-		     Nbr_Dof, Index, Stack);
+		     Nbr_Dof, Index, (struct Value **)Stack);
       Multi[Index] = 1 ;
       Index++ ;
       break ;
