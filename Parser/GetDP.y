@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.18 2001-06-27 13:18:09 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.19 2001-07-12 15:56:28 dular Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -5190,7 +5190,7 @@ PostSubOperation :
     {
       PostSubOperation_S.Type = POP_PRINT ;
     }
-
+/* 1 shift/reduce conflict !!!!!!!!
   | tGroup '[' GroupRHS 
     {
       PostSubOperation_S.Type = POP_GROUP ;
@@ -5200,7 +5200,7 @@ PostSubOperation :
     {
       PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, "PO_Group", $7) ;
     }
-
+*/
   ;
 
 PostQuantitiesToPrint :
