@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.42 2001-06-17 21:04:46 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.43 2001-06-27 13:18:10 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -135,7 +135,8 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 		    PostSubOperation_P->Iso, NbrTimeStep,
 		    PostSubOperation_P->HarmonicToTime, 
 		    PostSubOperation_P->CombinationType, Order,
-		    NCPQ_P, CPQ_P);
+		    NCPQ_P?NCPQ_P->Name:NULL,
+		    CPQ_P?CPQ_P->Name:NULL);
   
   /* Get the region */
   
@@ -707,7 +708,8 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 		    PostSubOperation_P->Iso, NbTimeStep, 
 		    PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, Order,
-		    NCPQ_P, CPQ_P);
+		    NCPQ_P?NCPQ_P->Name:NULL,
+		    CPQ_P?CPQ_P->Name:NULL);
 
   if(CPQ_P){
     Cal_PostCumulativeQuantity(NULL,
@@ -988,7 +990,9 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 
   Format_PostHeader(PSO_P->Format, PSO_P->Iso, 
 		    NbTimeStep, PSO_P->HarmonicToTime,
-		    PSO_P->CombinationType, Order, NCPQ_P, CPQ_P);
+		    PSO_P->CombinationType, Order,
+		    NCPQ_P?NCPQ_P->Name:NULL,
+		    CPQ_P?CPQ_P->Name:NULL);
 
   PE = Create_PostElement(0, POINT, 1, 0) ;
 
@@ -1362,6 +1366,90 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
 		       PostSubOperation_P->NoNewLine,
 		       &Value) ;
   }
+
+  GetDP_End ;
+}
+
+/* ------------------------------------------------------------------------ */
+/*  P o s _ P r i n t G r o u p                                             */
+/* ------------------------------------------------------------------------ */
+
+void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P) {
+
+  struct Group        *Group_P;
+  struct Geo_Element  *GeoElement;
+  struct PostElement  *SL;
+  List_T              *Region_L;
+  int                  i, j, NbrGeo, iGeo, *NumNodes;
+  double               x [NBR_MAX_NODES_IN_ELEMENT] ;
+  double               y [NBR_MAX_NODES_IN_ELEMENT] ;
+  double               z [NBR_MAX_NODES_IN_ELEMENT] ;
+
+  GetDP_Begin("Pos_PrintGroup");
+
+  NbrGeo = Geo_GetNbrGeoElements() ;
+
+  Format_PostHeader(PostSubOperation_P->Format, 
+		    PostSubOperation_P->Iso, 1,
+		    PostSubOperation_P->HarmonicToTime, 
+		    PostSubOperation_P->CombinationType, 0,
+		    NULL, NULL);
+  
+  Region_L = ((struct Group *)
+	      List_Pointer(Problem_S.Group, 
+			   PostSubOperation_P->Case.Group.GroupIndex))->InitialList ;
+  Group_P = (struct Group *)
+    List_Pointer(Problem_S.Group, 
+		 PostSubOperation_P->Case.Group.ExtendedGroupIndex);
+
+  SL = Create_PostElement(0, LINE, 2, 1) ;
+
+  if(!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
+
+  for(iGeo = 0 ; iGeo < NbrGeo ; iGeo++) {
+    
+    if(InteractiveInterrupt) break;
+    
+    Progress(iGeo, NbrGeo, "Compute: ") ;
+
+    GeoElement = Geo_GetGeoElement(iGeo) ;
+    if(List_Search(Region_L, &GeoElement->Region, fcmp_int)){
+
+      Geo_GetNodesCoordinates
+	(GeoElement->NbrNodes, GeoElement->NumNodes, x, y, z) ;
+
+      switch (Group_P->FunctionType) {
+
+      case EDGESOFTREEIN :
+	if(!GeoElement->NbrEdges) Geo_CreateEdgesOfElement(GeoElement) ;
+	for(i=0 ; i<GeoElement->NbrEdges ; i++){
+	  if(List_Query(Group_P->ExtendedList, &GeoElement->NumEdges[i], fcmp_absint)){
+	    NumNodes = Geo_GetNodesOfEdgeInElement(GeoElement, i) ;
+	    SL->Index = iGeo;
+	    SL->x[0] = x[abs(NumNodes[0])-1]; SL->x[1] = x[abs(NumNodes[1])-1];
+	    SL->y[0] = y[abs(NumNodes[0])-1]; SL->y[1] = y[abs(NumNodes[1])-1];
+	    SL->z[0] = z[abs(NumNodes[0])-1]; SL->z[1] = z[abs(NumNodes[1])-1];
+	    SL->Value[0].Type = SL->Value[1].Type = SCALAR ;
+	    SL->Value[0].Val[0] = SL->Value[1].Val[0] = GeoElement->NumEdges[i];
+	    Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+			       0, 0, 1, 1, 1, NULL, SL);
+	  }
+	}
+	break ;
+
+      default :
+	Msg(ERROR, "Print function not implemented for this kind of Group");
+	break ;
+
+      }
+
+    }
+
+  }
+
+  Destroy_PostElement(SL) ;
+
+  Format_PostFooter(PostSubOperation_P, 0);
 
   GetDP_End ;
 }

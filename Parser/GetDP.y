@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.17 2001-06-17 21:04:46 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.18 2001-06-27 13:18:09 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -5189,6 +5189,16 @@ PostSubOperation :
   | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_PRINT ;
+    }
+
+  | tGroup '[' GroupRHS 
+    {
+      PostSubOperation_S.Type = POP_GROUP ;
+      PostSubOperation_S.Case.Group.ExtendedGroupIndex = Num_Group(&Group_S, "PO_Group", $3) ;
+    }
+    ',' tIn GroupRHS PrintOptions ']' tEND
+    {
+      PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, "PO_Group", $7) ;
     }
 
   ;

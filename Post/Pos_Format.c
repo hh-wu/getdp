@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.21 2001-03-03 19:21:22 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.22 2001-06-27 13:18:10 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -63,8 +63,7 @@ void  Format_PostFormat(int Format){
 void  Format_PostHeader(int Format, int Contour, 
 			int NbTimeStep, int HarmonicToTime,
 			int Type, int Order,
-			struct PostQuantity  *NCPQ_P,
-			struct PostQuantity  *CPQ_P){
+			char *Name1, char *Name2){
 
   char name[MAX_STRING_LENGTH] ;
 
@@ -77,15 +76,17 @@ void  Format_PostHeader(int Format, int Contour,
       List_Reset(PostElement_L);
   }
 
-  if(NCPQ_P && CPQ_P) {
-    strcpy(name, Order ? NCPQ_P->Name : CPQ_P->Name) ;
+  if(Name1 && Name2) {
+    strcpy(name, Order ? Name1 : Name2) ;
     strcat(name, Get_StringForDefine(PostSubOperation_CombinationType, Type)) ;
-    strcat(name, Order ? CPQ_P->Name : NCPQ_P->Name) ;
+    strcat(name, Order ? Name2 : Name1) ;
   }
-  else if(NCPQ_P)
-    strcpy(name, NCPQ_P->Name) ;
+  else if(Name1)
+    strcpy(name, Name1) ;
+  else if(Name2)
+    strcpy(name, Name2) ;
   else
-    strcpy(name, CPQ_P->Name) ;
+    strcpy(name, "unnamed");
 
   switch(Format){
   case FORMAT_GMSH_PARSED :

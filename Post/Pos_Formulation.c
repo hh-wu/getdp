@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.31 2001-06-17 21:04:46 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.32 2001-06-27 13:18:10 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -170,7 +170,7 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
   QuantityStorage_P0 = (struct QuantityStorage*)List_Pointer(QuantityStorage_L, 0) ;
 
   switch (PostSubOperation_P->Type) {
-    
+
   case POP_PRINT :
     switch (PostSubOperation_P->SubType) {
     case PRINT_ONREGION :
@@ -197,13 +197,17 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
       break ;
     case PRINT_WITHARGUMENT :
       Pos_PrintWithArgument(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
-			    QuantityStorage_P0, PostSubOperation_P) ; 
+			    QuantityStorage_P0, PostSubOperation_P) ;
       break ;
     default :
       Msg(ERROR, "Unknown Operation type for Print"); 
       break;
     }    
     break ;    
+
+  case POP_GROUP :
+    Pos_PrintGroup(PostSubOperation_P);
+    break;
 
   default :
     Msg(ERROR, "Unknown PostSubOperation type") ;

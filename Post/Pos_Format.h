@@ -1,4 +1,4 @@
-/* $Id: Pos_Format.h,v 1.4 2000-11-07 08:49:12 dular Exp $ */
+/* $Id: Pos_Format.h,v 1.5 2001-06-27 13:18:10 geuzaine Exp $ */
 #ifndef _POS_FORMAT_H_
 #define _POS_FORMAT_H_
 
@@ -6,9 +6,7 @@ void  Format_PostFormat(int Format) ;
 
 void  Format_PostHeader(int Format, int Contour, 
 			int NbTimeStep, int HarmonicToTime,
-			int Type, int Order, 
-			struct PostQuantity  *NCPQ_P,
-			struct PostQuantity  *CPQ_P) ;
+			int Type, int Order, char *Name1, char *Name2) ;
 
 void  Format_PostFooter(struct PostSubOperation * PSO_P, int Store) ;
 
