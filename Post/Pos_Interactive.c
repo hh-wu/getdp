@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Interactive.c,v 1.15 2001-05-04 14:58:46 geuzaine Exp $"
+#define RCSID "$Id: Pos_Interactive.c,v 1.16 2001-06-05 08:21:58 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -54,19 +54,28 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
       /* add the command in the stack */
       add_history(myptr);
 
-      /* write it in the tmp file */
-      yyin = fopen(GETDP_TMP_FILENAME,"w");
-      fprintf(yyin,"%s;\n",myptr);
-      fclose(yyin);
+      if(myptr[0] == '!'){ /* system call preceded by '!' */
+	
+	system(&myptr[1]);
 
-      /* parse the tmp file */
-      InteractiveCompute = ErrorLevel = 0;
-      yyin = fopen(GETDP_TMP_FILENAME,"r");
-      while(!feof(yyin)){
-	yyparse();
       }
-      fclose(yyin);
-      
+      else{ /* getdp command */
+
+	/* write it in the tmp file */
+	yyin = fopen(GETDP_TMP_FILENAME,"w");
+	fprintf(yyin,"%s;\n",myptr);
+	fclose(yyin);
+	
+	/* parse the tmp file */
+	InteractiveCompute = ErrorLevel = 0;
+	yyin = fopen(GETDP_TMP_FILENAME,"r");
+	while(!feof(yyin)){
+	  yyparse();
+	}
+	fclose(yyin);
+	
+      }
+
       /* compute something */
       if(!ErrorLevel && InteractiveCompute){
 	InteractiveInterrupt = 0;
@@ -115,20 +124,28 @@ void  Interactive(void){
       /* add the command in the stack */
       add_history(myptr);
 
-      /* write it in the tmp file */
-      yyin = fopen(GETDP_TMP_FILENAME,"w");
-      fprintf(yyin,"%s;\n",myptr);
-      fclose(yyin);
+      if(myptr[0] == '!'){ /* system call preceded by '!' */
+	
+	system(&myptr[1]);
 
-      /* parse the tmp file */
-      InteractiveCompute = ErrorLevel = 0;
-      yyin = fopen(GETDP_TMP_FILENAME,"r");
-      while(!feof(yyin)){
-	yyparse();
       }
-      fclose(yyin);
-      
-      /* compute something ... */
+      else{ /* getdp command */
+
+	/* write it in the tmp file */
+	yyin = fopen(GETDP_TMP_FILENAME,"w");
+	fprintf(yyin,"%s;\n",myptr);
+	fclose(yyin);
+	
+	/* parse the tmp file */
+	InteractiveCompute = ErrorLevel = 0;
+	yyin = fopen(GETDP_TMP_FILENAME,"r");
+	while(!feof(yyin)){
+	  yyparse();
+	}
+	fclose(yyin);
+
+      }
+
     }
 
   }
