@@ -1,23 +1,12 @@
-# $Id: Makefile,v 1.17 2003-02-07 02:39:02 geuzaine Exp $
-#
-# Makefile for 'libSolverMisc.a'
-#
+# $Id: Makefile,v 1.18 2003-02-07 10:26:58 geuzaine Exp $
 
-.IGNORE:
-
-C_FLAGS = -g
-F77_FLAGS = -g
-RANLIB  = ranlib
-AR      = ar ruvs
-
-SOLVER  = -D_SPARSKIT
+include ../variables
 
 LIB     = ../lib/libNumeric.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData\
           -I../Main -I../Sparskit
-
-CFLAGS  = $(C_FLAGS) $(SOLVER) $(INCLUDE) 
-FFLAGS  = $(F77_FLAGS) $(INCLUDE)
+CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE} 
+FFLAGS  = ${F77_FLAGS} ${INCLUDE}
 
 CSRC =  nrutil.c \
         ran3.c \
@@ -38,32 +27,29 @@ FSRC =  Integration_CLT2D.f \
 	Amos_Lib.f \
 	Amos_Mach.f
 
-COBJ  = $(CSRC:.c=.o)
-FOBJ  = $(FSRC:.f=.o)
+COBJ  = ${CSRC:.c=.o}
+FOBJ  = ${FSRC:.f=.o}
 
-$(LIB): $(COBJ) $(FOBJ)
-	$(AR) $(LIB) $(COBJ) $(FOBJ)
-	$(RANLIB) $(LIB)
+${LIB}: ${COBJ} ${FOBJ}
+	${AR} ${LIB} ${COBJ} ${FOBJ}
+	${RANLIB} ${LIB}
 
 clean:
-	$(RM) $(RMFLAGS) *.o
-
-lint:
-	lint $(CFLAGS) $(CSRC)
+	rm -f *.o
 
 depend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile && \
-	$(CC) -MM $(CFLAGS) ${CSRC} \
+	${CC} -MM ${CFLAGS} ${CSRC} \
 	) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
+	rm -f Makefile.new
 
 nodepend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
+	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
 nrutil.o: nrutil.c ../Main/Message.h

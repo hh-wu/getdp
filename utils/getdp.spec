@@ -32,7 +32,7 @@ problems.
 %setup -c -q
 
 %build
-make distrib-linux
+make distrib-unix
 make doc-pdf
 make doc-info
 rm -rf CVS */CVS */*/CVS
@@ -40,15 +40,15 @@ rm -rf CVS */CVS */*/CVS
 %install
 rm -rf $RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/usr/bin
-mkdir -p $RPM_BUILD_ROOT/usr/man/man1
-mkdir -p $RPM_BUILD_ROOT/usr/info
+mkdir -p $RPM_BUILD_ROOT/usr/share/man/man1
+mkdir -p $RPM_BUILD_ROOT/usr/share/info
 
 install -m 755 bin/getdp $RPM_BUILD_ROOT/usr/bin/getdp
-install -m 644 doc/getdp.1 $RPM_BUILD_ROOT/usr/man/man1/getdp.1
-install -m 644 doc/texinfo/getdp.info* $RPM_BUILD_ROOT/usr/info/
+install -m 644 doc/getdp.1 $RPM_BUILD_ROOT/usr/share/man/man1/getdp.1
+install -m 644 doc/texinfo/getdp.info* $RPM_BUILD_ROOT/usr/share/info/
 
 %post
-/sbin/install-info /usr/info/getdp.info /usr/info/dir
+/sbin/install-info /usr/share/info/getdp.info /usr/share/info/dir
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -57,5 +57,5 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %doc doc/getdp.pdf doc/VERSIONS doc/FAQ doc/BUGS doc/CONTRIBUTORS demos
 /usr/bin/getdp
-/usr/man/man1/getdp*
-/usr/info/getdp*
+/usr/share/man/man1/getdp*
+/usr/share/info/getdp*

@@ -1,22 +1,11 @@
-# $Id: Makefile,v 1.12 2003-02-07 02:39:03 geuzaine Exp $
-#
-# Makefile for 'libSparskit.a'
-#
+# $Id: Makefile,v 1.13 2003-02-07 10:26:59 geuzaine Exp $
 
-.IGNORE:
-
-C_FLAGS   = -O3
-F77_FLAGS = -O3
-RANLIB    = ranlib
-AR        = ar ruvs
-
-SOLVER   = -D_SPARSKIT
+include ../variables
 
 LIB      = ../lib/libSparskit.a
 INCLUDE  = -I. -I../include -I../DataStr -I../Main -I../Numeric
-
-CFLAGS = $(C_FLAGS) $(SOLVER) $(INCLUDE)
-FFLAGS = $(F77_FLAGS) $(SOLVER) $(INCLUDE)
+CFLAGS = ${C_FLAGS} ${SOLVER} ${INCLUDE}
+FFLAGS = ${F77_FLAGS} ${SOLVER} ${INCLUDE}
 
 CSRC =  Solver.c \
         Matrix.c \
@@ -36,38 +25,35 @@ FSRC1 = blas1.f \
 
 FSRC2 = ilut.F 
 
-FOBJ1 = $(FSRC1:.f=.o)
-FOBJ2 = $(FSRC2:.F=.o)
-COBJ  = $(CSRC:.c=.o)
+FOBJ1 = ${FSRC1:.f=.o}
+FOBJ2 = ${FSRC2:.F=.o}
+COBJ  = ${CSRC:.c=.o}
 
 .SUFFIXES: .o .c .f .F
 
-$(LIB): $(COBJ) $(FOBJ1) $(FOBJ2)
-	$(AR) $(LIB) $(COBJ) $(FOBJ1) $(FOBJ2)
-	$(RANLIB) $(LIB)
+${LIB}: ${COBJ} ${FOBJ1} ${FOBJ2}
+	${AR} ${LIB} ${COBJ} ${FOBJ1} ${FOBJ2}
+	${RANLIB} ${LIB}
 
 .F.o:
-	$(FC) $(FFLAGS) -c $<
+	${FC} ${FFLAGS} -c $<
 
 clean:
-	$(RM) $(RMFLAGS) *.o
-
-lint:
-	lint $(CFLAGS) $(CSRC)
+	rm -f *.o
 
 depend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile && \
-	$(CC) -MM $(CFLAGS) ${CSRC} \
+	${CC} -MM ${CFLAGS} ${CSRC} \
 	) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
+	rm -f Makefile.new
 
 nodepend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
+	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
 Solver.o: Solver.c Solver.h ../DataStr/List.h Solver_F.h \

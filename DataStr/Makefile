@@ -1,18 +1,10 @@
-# $Id: Makefile,v 1.8 2003-02-07 02:39:02 geuzaine Exp $
-#
-# Makefile for "libDataStr.a"
-#
+# $Id: Makefile,v 1.9 2003-02-07 10:26:57 geuzaine Exp $
 
-.IGNORE:
+include ../variables
 
-C_FLAGS  = -O3
-RANLIB   = ranlib
-AR       = ar ruvs
-
-LIB      = ../lib/libDataStr.a
-INCLUDE  = -I. -I../include -I../Main
-
-CFLAGS = $(C_FLAGS) $(INCLUDE)
+LIB     = ../lib/libDataStr.a
+INCLUDE = -I. -I../include -I../Main
+CFLAGS  = ${C_FLAGS} ${INCLUDE}
 
 SRC = List.c \
       Malloc.c \
@@ -20,31 +12,28 @@ SRC = List.c \
       avl.c \
       Tools.c
 
-OBJ = $(SRC:.c=.o)
+OBJ = ${SRC:.c=.o}
 
-$(LIB): $(OBJ)
-	$(AR) $(LIB) $(OBJ)
-	$(RANLIB) $(LIB)
+${LIB}: ${OBJ}
+	${AR} ${LIB} ${OBJ}
+	${RANLIB} ${LIB}
 
 clean:
-	$(RM) $(RMFLAGS) *.o
-
-lint:
-	lint $(CFLAGS) $(SRC)
+	rm -f *.o
 
 depend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile && \
-	$(CC) -MM $(CFLAGS) ${SRC} \
+	${CC} -MM ${CFLAGS} ${SRC} \
 	) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
+	rm -f Makefile.new
 
 nodepend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
+	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
 List.o: List.c Malloc.h List.h ../Main/Message.h

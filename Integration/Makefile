@@ -1,18 +1,10 @@
-# $Id: Makefile,v 1.14 2003-02-07 02:39:02 geuzaine Exp $
-#
-# Makefile for "libIntegration.a"
-#
+# $Id: Makefile,v 1.15 2003-02-07 10:26:57 geuzaine Exp $
 
-.IGNORE:
-
-C_FLAGS = -g
-RANLIB  = ranlib
-AR      = ar ruvs
+include ../variables
 
 LIB     = ../lib/libIntegration.a
 INCLUDE = -I. -I../include -I../DataStr -I../Main
-
-CFLAGS  = $(C_FLAGS) $(INCLUDE)
+CFLAGS  = ${C_FLAGS} ${INCLUDE}
 
 SRC = Gauss_Point.c \
       Gauss_Line.c \
@@ -25,31 +17,28 @@ SRC = Gauss_Point.c \
       NewtonCotes_Line.c \
       NewtonCotes_Quadrangle.c 
 
-OBJ = $(SRC:.c=.o)
+OBJ = ${SRC:.c=.o}
 
-$(LIB): $(OBJ)
-	$(AR) $(LIB) $(OBJ)
-	$(RANLIB) $(LIB)
+${LIB}: ${OBJ}
+	${AR} ${LIB} ${OBJ}
+	${RANLIB} ${LIB}
 
 clean:
-	$(RM) $(RMFLAGS) *.o
-
-lint:
-	lint $(CFLAGS) $(SRC)
+	rm -f *.o
 
 depend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile && \
-	$(CC) -MM $(CFLAGS) ${SRC} \
+	${CC} -MM ${CFLAGS} ${SRC} \
 	) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
+	rm -f Makefile.new
 
 nodepend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
+	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
 Gauss_Point.o: Gauss_Point.c ../include/GetDP.h ../Main/Message.h \

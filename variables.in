@@ -1,0 +1,42 @@
+# OS
+UNAME=@UNAME@
+
+# The names of the C and Fortran compilers
+CC=@CC@
+FC=@F77@
+
+# Base compiler flags
+C_FLAGS=@C_FLAGS@ ${GSL_INCLUDE} 
+C_PARSER_FLAGS=@C_PARSER_FLAGS@ ${GSL_INCLUDE} 
+F77_FLAGS=@F77_FLAGS@
+
+# GetDP libraries to compile
+GETDP_DIRS=@GETDP_DIRS@
+
+# Which solver should we use
+SOLVER=@SOLVER@
+SOLVER_FLAGS=@SOLVER_FLAGS@
+
+# How to link getdp
+LINKER=@LINKER@
+LINKER_LIBS=@LINKER_LIBS@
+
+# PETSc stuff
+PETSC_DIR=@PETSC_DIR@
+PETSC_ARCH=@PETSC_ARCH@
+BOPT=@BOPT@
+@PETSC_INCLUDE_MAKEFILE@
+
+# The METIS variables
+METIS_DIR=@METIS_DIR@
+
+# The fftw path
+FFTW_DIR=@FFTW_DIR@
+
+# The gsl include path and libraries
+GSL_INCLUDE=@GSL_INCLUDE@
+GSL_LIBS=@GSL_LIBS@
+
+# How you create a static library on this machine
+AR=@AR@ ruvs
+RANLIB=@RANLIB@

@@ -1,21 +1,11 @@
-# $Id: Makefile,v 1.20 2003-02-07 02:39:02 geuzaine Exp $
-#
-# Makefile for 'libMain.a'
-# 
+# $Id: Makefile,v 1.21 2003-02-07 10:26:57 geuzaine Exp $
 
-.IGNORE:
-
-C_FLAGS = -g
-RANLIB  = ranlib
-AR      = ar ruvs
-
-SOLVER  = -D_SPARSKIT
+include ../variables
 
 LIB     = ../lib/libMain.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../Function\
           -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit
-
-CFLAGS  = $(C_FLAGS) $(SOLVER) $(INCLUDE)
+CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
 SRC = Main.c Message.c \
         SolvingAnalyse.c SolvingOperations.c \
@@ -46,32 +36,28 @@ SRC = Main.c Message.c \
       Print_ProblemStructure.c \
       GmshClient.c
 
+OBJ = ${SRC:.c=.o}
 
-OBJ = $(SRC:.c=.o)
-
-$(LIB): $(OBJ)
-	$(AR) $(LIB) $(OBJ)
-	$(RANLIB) $(LIB)
+${LIB}: ${OBJ}
+	${AR} ${LIB} ${OBJ}
+	${RANLIB} ${LIB}
 
 clean:
-	$(RM) $(RMFLAGS) *.o
-
-lint:
-	lint $(CFLAGS) $(SRC)
+	rm -f *.o
 
 depend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile && \
-	$(CC) -MM $(CFLAGS) ${SRC} \
+	${CC} -MM ${CFLAGS} ${SRC} \
 	) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
+	rm -f Makefile.new
 
 nodepend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
+	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
 Main.o: Main.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \

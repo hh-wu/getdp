@@ -1,7 +1,4 @@
-# $Id: Makefile,v 1.29 2003-02-07 02:46:34 geuzaine Exp $
-#
-# Makefile for "libScattering.a"
-#
+# $Id: Makefile,v 1.30 2003-02-07 10:26:58 geuzaine Exp $
 
 # history of cvs tags:
 # scat_0_1 : scat-oscar+andy
@@ -10,14 +7,10 @@
 # scat_0_4 : oscar_ieee_aps_jun_2002
 # scat_0_5 : scat-combined-ok-old-version-final
 
-.IGNORE:
-
-SOLVER   = -D_SPARSKIT
-
 C_FLAGS = -g -O3
 #C_FLAGS = -g -O3 -Wall
 #C_FLAGS = -g -Wall -D_PETSC
-#include $(PETSC_DIR)/bmake/$(PETSC_ARCH)/variables
+#include ${PETSC_DIR}/bmake/${PETSC_ARCH}/variables
 #C_FLAGS = -O3 -tpp7 -xW  # pentium 4 specific
 
 CXX      = c++
@@ -29,15 +22,14 @@ F2C     = -lg2c -lm # Linux gcc
 #F2C     = -lfor -lots -lUfor -lFutil -lm # DEC
 
 AR      = ar ruvs
-RM      = rm
 RANLIB  = ranlib
 
 LIB     = ../lib/libScattering.a
 INCLUDE = -I. -I../include -I../Main -I../DataStr -I../DofData -I../Function\
           -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit\
-          -I$(FFTW_PREFIX)/include
+          -I${FFTW_PREFIX}/include
 
-CFLAGS  = $(C_FLAGS) $(SOLVER) $(INCLUDE)
+CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
 SRC = Main.cpp\
       Solve.cpp\
@@ -52,34 +44,31 @@ SRC = Main.cpp\
       ChangeOfVars.cpp\
       Utils.cpp
 
-OBJ = $(SRC:.cpp=.o)
+OBJ = ${SRC:.cpp=.o}
 
 .SUFFIXES: .o .cpp
 
-$(LIB): $(OBJ)
-	$(AR) $(LIB) $(OBJ) 
-	$(RANLIB) $(LIB)
+${LIB}: ${OBJ}
+	${AR} ${LIB} ${OBJ} 
+	${RANLIB} ${LIB}
 
 .cpp.o:
-	$(CXX) $(CFLAGS) -c $<
+	${CXX} ${CFLAGS} -c $<
 
 exe:
-	$(CXX) $(C_FLAGS) -o hf ../lib/libScattering.a ../lib/libDofData.a\
-               ../lib/libSparskit.a ../lib/libNumeric.a ../lib/libDataStr.a $(F2C)
+	${CXX} ${C_FLAGS} -o hf ../lib/libScattering.a ../lib/libDofData.a\
+               ../lib/libSparskit.a ../lib/libNumeric.a ../lib/libDataStr.a ${F2C}
 
 clean:
-	$(RM) $(RMFLAGS) *.o
-
-lint:
-	$(LINT) $(CFLAGS) $(SRC)
+	rm -f *.o
 
 depend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile && \
-	$(CXX) -MM $(CFLAGS) ${SRC} \
+	${CXX} -MM ${CFLAGS} ${SRC} \
 	) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) $(RMFLAGS) Makefile.new
+	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
 Main.o: Main.cpp Utils.h ../include/GetDP.h ../Main/Message.h \

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2002-01-21 19:07:41 geuzaine Exp $
+# $Id: Makefile,v 1.5 2003-02-07 10:27:00 geuzaine Exp $
 
 dvi:
 	texi2dvi getdp.texi 
@@ -30,7 +30,7 @@ infoz: info
 all: ps pdf html infoz
 
 clean:
-	$(RM) $(RMFLAGS) *.cp* *.fn* *.ky* *.pg* *.tp* *.vr* *.mv* \
+	rm -f *.cp* *.fn* *.ky* *.pg* *.tp* *.vr* *.mv* \
                          *.log *.toc *.aux *.dvi *.html \
                          getdp.ps getdp.pdf getdp.info* \
                          getdp-info.tgz getdp-doc.tgz

@@ -1,21 +1,11 @@
-# $Id: Makefile,v 1.17 2003-02-07 02:39:02 geuzaine Exp $
-#
-# Makefile for "libFunction.a"
-#
+# $Id: Makefile,v 1.18 2003-02-07 10:26:57 geuzaine Exp $
 
-.IGNORE:
-
-C_FLAGS = -g
-RANLIB  = ranlib
-AR      = ar ruvs
+include ../variables
 
 LIB     = ../lib/libFunction.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData -I../Main\
           -I../Numeric -I../Sparskit -I../Integration
-
-SOLVER = -D_SPARSKIT
-
-CFLAGS  = $(C_FLAGS) $(SOLVER) $(INCLUDE)
+CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
 SRC = F_Analytic.c \
       F_Coord.c \
@@ -42,32 +32,28 @@ SRC = F_Analytic.c \
       GF_Helmholtz.c \
       GF_HelmholtzxForm.c 
 
-OBJ = $(SRC:.c=.o)
+OBJ = ${SRC:.c=.o}
 
-$(LIB): $(OBJ)
-	$(AR) $(LIB) $(OBJ)
-	$(RANLIB) $(LIB)
+${LIB}: ${OBJ}
+	${AR} ${LIB} ${OBJ}
+	${RANLIB} ${LIB}
 
 clean:
-	$(RM) $(RMFLAGS) *.o
-
-lint:
-	lint $(CFLAGS) $(SRC)
+	rm -f *.o
 
 depend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile && \
-	$(CC) -MM $(CFLAGS) ${SRC} \
+	${CC} -MM ${CFLAGS} ${SRC} \
 	) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
+	rm -f Makefile.new
 
 nodepend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
-	$(RM) Makefile.new
-
+	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
 F_Analytic.o: F_Analytic.c ../include/GetDP.h ../Main/Message.h \

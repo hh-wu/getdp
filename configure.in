@@ -1,0 +1,227 @@
+dnl "$Id: configure.in,v 1.1 2003-02-07 10:26:57 geuzaine Exp $"
+dnl
+dnl Machine independent configuration script for GetDP.
+dnl
+dnl Process this file with autoconf to produce a configure script.
+dnl
+dnl Copyright (C) 1997-2003 by P. Dular and C. Geuzaine
+dnl
+dnl This program is free software; you can redistribute it and/or modify
+dnl it under the terms of the GNU General Public License as published by
+dnl the Free Software Foundation; either version 2 of the License, or
+dnl (at your option) any later version.
+dnl
+dnl This program is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+dnl GNU General Public License for more details.
+dnl
+dnl You should have received a copy of the GNU General Public License
+dnl along with this program; if not, write to the Free Software
+dnl Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+dnl USA.
+dnl 
+dnl Please report all bugs and problems to "getdp@geuz.org".
+
+dnl Check that this is the getdp source tree
+AC_INIT(Parser/GetDP.y)
+
+dnl Parse --with command-line options
+AC_ARG_WITH(gsl-prefix,
+  [  --with-gsl-prefix=PFX   prefix where GSL is installed (optional)],
+  [GSL_PREFIX=$withval],)
+AC_ARG_WITH(petsc-prefix,
+  [  --with-petsc-prefix=PFX prefix where PETSc is installed (optional)],
+  [PETSC_PREFIX=$withval],[PETSC_PREFIX="no"])
+AC_ARG_WITH(metis-prefix,
+  [  --with-metis-prefix=PFX prefix where METIS is installed (optional)],
+  [METIS_PREFIX=$withval],[METIS_PREFIX="no"])
+AC_ARG_WITH(bopt,
+  [  --with-bopt=PFX         BOPT option to use with PETSC (optional)],
+  [BOPT=$withval],)
+AC_ARG_WITH(fftw-prefix,
+  [  --with-fftw-prefix=PFX  prefix where fftw is installed (optional)],
+  [FFTW_PREFIX=$withval],[FFTW_PREFIX="no"])
+
+dnl Parse --enable command line options
+AC_ARG_ENABLE(petsc,
+  [  --enable-petsc          use PETSc as linear solver [default=no]])
+
+dnl Get the operating system and version number
+UNAME=`uname`
+UVERSION=`uname -r | sed -e '1,$s/[[^0-9]]//g'`
+if test x${UNAME} = xIRIX64; then
+  UNAME="IRIX"
+fi
+AC_SUBST(UNAME)
+
+dnl Check for default compilers
+AC_PROG_CC
+AC_PROG_F77
+
+dnl Set default flags
+C_FLAGS="$CFLAGS"
+C_PARSER_FLAGS="$CFLAGS"
+F77_FLAGS="$FFLAGS"
+
+dnl Modify the above defaults and specify the linker
+GETDP_DIRS='Main Parser Post Function Integration GeoData DofData Numeric DataStr'
+if test x$enable_petsc = xyes; then
+  SOLVER='-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
+  LINKER='${CLINKER}'
+  LINKER_LIBS='${GETDP_PETSC_LIBS} ${PETSC_SLES_LIB} -lm'
+  PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
+else
+  SOLVER='-D_SPARSKIT -D_ILU_FLOAT'
+  LINKER='${FC}'
+  LINKER_LIBS='${GETDP_SPARSKIT_LIBS} -lm'
+  GETDP_DIRS="${GETDP_DIRS} Sparskit"
+  case "$UNAME" in
+    IRIX*)
+      CC="cc"
+      F77="f77"
+      C_FLAGS="-O3 -n32 -mips3"
+      C_PARSER_FLAGS="-g -n32 -mips3"
+      F77_FLAGS="-O3 -n32 -mips3"
+      SOLVER="-D_SPARSKIT"
+      LINKER="f77 -n32 -mips3"
+      ;;
+#    IRIX64*)
+#      CC="cc"
+#      F77="f77"
+#      C_FLAGS="-O3 -mips4 -64"
+#      C_PARSER_FLAGS="-g -mips4 -64"
+#      F77_FLAGS="-O3 -mips4 -64"
+#      SOLVER="-D_SPARSKIT -D_ILU_FLOAT"
+#      LINKER="f77 -64"
+#      ;;
+    HP-UX*)
+      CC="cc"
+      F77="f77"
+      C_FLAGS="+O2 +Onolimit -Ae +DAportable"
+      C_PARSER_FLAGS="+O1 -Ae +DAportable"
+      F77_FLAGS="+O2 +DAportable"
+      SOLVER="-D_SPARSKIT -D_ILU_FLOAT -D_UNDERSCORE"
+      LINKER="f77 +DAportable"
+      LINKER_LIBS='Main/Main.o ${GETDP_SPARSKIT_LIBS} -lm'
+      ;;
+    OSF1*)
+      CC="cc"
+      F77="f77"
+      LINKER="f77 -nofor_main"
+      ;;
+    SunOS*)
+      LINKER_LIBS='${GETDP_SPARSKIT_LIBS} -lsocket -lm'
+      ;;
+    AIX*)
+      CC="cc"
+      F77="f77"
+      C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+      SOLVER="-D_SPARSKIT -D_UNDERSCORE"
+      LINKER="f77"
+      ;;
+    CYGWIN*)
+      LINKER="g77 -Wl,--stack,8388608"
+      ;;
+    MINGW*)
+      CC="gcc -mno-cygwin"
+      F77="g77 -mno-cygwin"
+      C_FLAGS="-g -O3 -DMSDOS"
+      F77_FLAGS="-g -O1 -DMSDOS"
+      LINKER="g77 -Wl,--stack,8388608"
+      LINKER_LIBS='${GETDP_SPARSKIT_LIBS}'
+      ;;
+    *)
+      ;;
+  esac
+fi
+AC_SUBST(C_FLAGS)
+AC_SUBST(C_PARSER_FLAGS)
+AC_SUBST(F77_FLAGS)
+AC_SUBST(LINKER)
+AC_SUBST(LINKER_LIBS)
+AC_SUBST(GETDP_DIRS)
+AC_SUBST(SOLVER)
+AC_SUBST(SOLVER_FLAGS)
+AC_SUBST(PETSC_INCLUDE_MAKEFILE)
+
+dnl Check for remaining PETSc variables
+if test x${PETSC_PREFIX} != "xno"; then
+  PETSC_DIR=${PETSC_PREFIX}	
+fi
+PETSC_ARCH=`${PETSC_DIR}/bin/petscarch`
+if test x${BOPT} = "x"; then
+   BOPT=g_complex
+fi
+AC_SUBST(PETSC_DIR)
+AC_SUBST(PETSC_ARCH)
+AC_SUBST(BOPT)
+
+dnl Check for METIS
+if test x${METIS_PREFIX} != "xno"; then
+  METIS_DIR=${METIS_PREFIX}	
+fi
+AC_SUBST(METIS_DIR)
+
+dnl Check for various programs
+AC_PROG_CPP
+AC_PROG_RANLIB
+AC_PATH_PROG(AR, ar)
+if test "x${AR}" = "x:"; then
+  AC_MSG_ERROR(Configure could not find the library archiver, aborting.)
+fi
+AC_SUBST(AR)
+
+dnl Check for GSL
+if test x${GSL_PREFIX} = "x"; then
+  LDFLAGS="-lgslcblas"
+else
+  LDFLAGS="-L${GSL_PREFIX}/lib -lgslcblas"
+fi
+AC_CHECK_LIB(gsl,gsl_linalg_SV_decomp,GSL="yes",GSL="no")
+if test x${GSL_PREFIX} = "x"; then
+  GSL_LIBS="-lgsl -lgslcblas"
+else
+  GSL_LIBS="-L${GSL_PREFIX}/lib -lgsl -lgslcblas"
+  GSL_INCLUDE="-I${GSL_PREFIX}/include"
+fi
+AC_SUBST(GSL_LIBS)
+AC_SUBST(GSL_INCLUDE)
+
+dnl Check for math library
+AC_CHECK_LIB(m, sin)
+
+dnl Check for header files
+AC_CHECK_HEADERS(sys/time.h sys/resource.h)
+
+dnl Check for FFTW
+if test x${FFTW_PREFIX} != "xno"; then
+  FFTW_DIR=${FFTW_PREFIX}	
+fi
+CPPFLAGS="-I${FFTW_DIR}/include"
+AC_CHECK_HEADER(fftw.h,FFTW="yes",FFTW="no")
+LDFLAGS="-L${FFTW_DIR}/lib -lm"
+AC_CHECK_LIB(fftw,fftw_create_plan,FFTW="yes",FFTW="no")
+AC_SUBST(FFTW_DIR)
+
+dnl Write output
+AC_OUTPUT(variables)
+
+dnl Print some information
+echo "*******************************************************************"
+if test x$enable_petsc = xyes; then
+  echo "GetDP is configured with PETSc as linear solver"
+else
+  echo "GetDP is configured with Sparskit as linear solver"
+fi
+echo "*******************************************************************"
+
+if test x${GSL} = "xno"; then
+  echo "*******************************************************************"
+  echo "The GNU Scientific Libray (GSL) is required to compile the"
+  echo "free version of getdp. You can specify a particular location"
+  echo "for configure to look for the GSL with the --with-gsl-prefix"
+  echo "option. The GSL can be downloaded at http://sources.redhat.com/gsl/"
+  echo "*******************************************************************"
+fi
+
