@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.34 2001-03-04 13:19:47 geuzaine Exp $
+@c $Id: getdp.texi,v 1.35 2001-03-05 11:36:16 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -164,7 +164,7 @@ updated @value{DAY} @value{MONTH} for GetDP Version @value{VERSION}.
 * Complete examples::           Some complete examples
 * Running GetDP::               How to run GetDP on your operating system
 * File formats::                Input and output file formats
-* Versions and credits::        Versions history and contributors
+* Bugs and versions::           
 * Tips and tricks::             
 * Gmsh examples::               Sample Gmsh input files
 * Concept index::               Main concepts
@@ -311,10 +311,10 @@ Output file format
 * File res::                    
 * Post-processing files::       
 
-Versions and credits
+Bugs, versions and contributors
 
-* Version history::             
 * Bugs::                        
+* Version history::             
 * Contributors::                
 
 @end detailmenu
@@ -5087,7 +5087,7 @@ Displays a message listing basic usage and available options.
 @c File Formats
 @c =========================================================================
 
-@node File formats, Versions and credits, Running GetDP, Top
+@node File formats, Bugs and versions, Running GetDP, Top
 @chapter File formats
 
 @menu
@@ -5332,8 +5332,8 @@ Undocumented.
 @chapter Bugs, versions and contributors
 
 @menu
-* Version history::             
 * Bugs::                        
+* Version history::             
 * Contributors::                
 @end menu
 
@@ -5341,7 +5341,7 @@ Undocumented.
 @c Bugs
 @c -------------------------------------------------------------------------
 
-@node Bugs, Contributors, Version history, Versions and credits
+@node Bugs, Version history, Bugs and versions, Bugs and versions
 @section Bugs
 
 @cindex Known bugs
@@ -5366,7 +5366,7 @@ included in the distribution of GetDP.
 @c Versions
 @c -------------------------------------------------------------------------
 
-@node Version history, Bugs, Versions and credits, Versions and credits
+@node Version history, Contributors, Bugs, Bugs and versions
 @section Version history
 
 @cindex Versions
@@ -5379,7 +5379,7 @@ See the @file{VERSIONS} file included in the distribution of GetDP.
 @c Contributors
 @c -------------------------------------------------------------------------
 
-@node Contributors,  , Bugs, Versions and credits
+@node Contributors,  , Version history, Bugs and versions
 @section Contributors
 
 @cindex Acknowledgments
@@ -5392,7 +5392,7 @@ See the @file{CONTRIBUTORS} file included in the distribution of GetDP.
 @c Tips ans Tricks
 @c =========================================================================
 
-@node Tips and tricks, Gmsh examples, Versions and credits, Top
+@node Tips and tricks, Gmsh examples, Bugs and versions, Top
 @appendix Tips and tricks
 
 @cindex Tips
