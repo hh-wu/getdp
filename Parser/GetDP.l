@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.15 2002-09-01 22:06:49 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.16 2003-01-24 17:24:39 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -332,7 +332,12 @@ void  C_comments(void) {
 }
 
 void  CC_comments(void) {
-  while(input() != '\n'){ }
+  int c;
+
+  while(1){
+    c = input();
+    if(c == '\n' || c == EOF) break;
+  }
   yylinenum++ ; 
 }
 
