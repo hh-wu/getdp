@@ -1,4 +1,4 @@
-$Id: CONTRIBUTORS,v 1.2 2001-03-04 13:19:47 geuzaine Exp $
+$Id: CONTRIBUTORS,v 1.3 2001-03-04 16:25:45 geuzaine Exp $
 
 GetDP is copyright (c) 1997-2001 by
 
@@ -10,7 +10,6 @@ Significant parts of the code have been contributed by
     David Colignon <david.colignon@ulg.ac.be>
     Johan Gyselinck <johan.gyselinck@ulg.ac.be>
     Jean-François Remacle <remacle@scorec.rpi.edu>
-    Ruth Sabariego <ruth.sabariego@student.ulg.ac.be>
     Marc Umé <Marc.Ume@digitalgraphics.be>
 
 Special thanks to the following folks who have greatly contributed by
@@ -34,10 +33,11 @@ please accept our humble appologies.
     Uwe Pahner <uwe.pahner@esat.kuleuven.ac.be>
     Georgia Psoni and Robert Struijs <gpsoni@free.fr> 
     Ahmed Rassili <a.rassili@ulg.ac.be>
+    Ruth Sabariego <ruth.sabariego@student.ulg.ac.be>
     Timo Tarhasaari <timo.tarhasaari@tut.fi>
     Hervé Tortel <tortel@loe.u-3mrs.fr>
     Christophe Trophime <trophime@labs.polycnrs-gre.fr>
 
 Finally, thanks to all of you who sent e-mail showing interrest. This
-has motivated us a lot to make the code free sofware and to continue
-improving it.
+has motivated us a lot to release the code as free software and to
+continue to improve it.
