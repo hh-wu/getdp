@@ -30,7 +30,8 @@ struct PostElement * NodeCopy_PostElement(struct PostElement *PostElement);
 struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement);
 
 void  Fill_PostElement(struct Geo_Element *GE, List_T *PostElement_L, 
-		       int Index, int Depth, int Skin, int DecomposeInSimplex) ;
+		       int Index, int Depth, int Skin, List_T * EvaluationPoints_L,
+		       int DecomposeInSimplex) ;
 void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 		     List_T * PE_L, int Index, int Depth, int Skin,
 		     int DecomposeInSimplex) ;

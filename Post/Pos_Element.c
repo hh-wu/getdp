@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.24 2004-01-19 16:51:24 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.25 2004-03-08 08:12:05 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -369,9 +369,11 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 #define POS_CUT_SKIN  Cut_PostElement(PE, GE, PE_L, Index, Depth, 1, DecomposeInSimplex)
 
 void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L, 
-		      int Index, int Depth, int Skin, int DecomposeInSimplex){
+		      int Index, int Depth, int Skin, List_T * EvaluationPoints_L,
+		      int DecomposeInSimplex){
 
   struct PostElement * PE ;
+  int Nbr_EP, i_EP;
 
   GetDP_Begin("Fill_PostElement");
 
@@ -449,15 +451,26 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  POS_CUT_FILL;
 	}
 	else{
-	  PE = Create_PostElement(Index, QUADRANGLE, 4, 1) ; /* nodes 1 2 3 4 */
-	  PE->NumNodes[0] = GE->NumNodes[0] ;
-	  PE->NumNodes[1] = GE->NumNodes[1] ;
-	  PE->NumNodes[2] = GE->NumNodes[2] ;
-	  PE->NumNodes[3] = GE->NumNodes[3] ;
-	  PE->u[0] = -1. ; PE->v[0] = -1. ; PE->w[0] = 0. ;
-	  PE->u[1] =  1. ; PE->v[1] = -1. ; PE->w[1] = 0. ;
-	  PE->u[2] =  1. ; PE->v[2] =  1. ; PE->w[2] = 0. ;
-	  PE->u[3] = -1. ; PE->v[3] =  1. ; PE->w[3] = 0. ;
+	  if (!EvaluationPoints_L) {
+	    PE = Create_PostElement(Index, QUADRANGLE, 4, 1) ; /* nodes 1 2 3 4 */
+	    PE->NumNodes[0] = GE->NumNodes[0] ;
+	    PE->NumNodes[1] = GE->NumNodes[1] ;
+	    PE->NumNodes[2] = GE->NumNodes[2] ;
+	    PE->NumNodes[3] = GE->NumNodes[3] ;
+	    PE->u[0] = -1. ; PE->v[0] = -1. ; PE->w[0] = 0. ;
+	    PE->u[1] =  1. ; PE->v[1] = -1. ; PE->w[1] = 0. ;
+	    PE->u[2] =  1. ; PE->v[2] =  1. ; PE->w[2] = 0. ;
+	    PE->u[3] = -1. ; PE->v[3] =  1. ; PE->w[3] = 0. ;
+	  }
+	  else { /* Only for Quadrangles now, to be extended... */
+	    Nbr_EP = List_Nbr(EvaluationPoints_L)/3;
+	    PE = Create_PostElement(Index, QUADRANGLE, Nbr_EP, 1) ;
+	    for (i_EP=0 ; i_EP<Nbr_EP ; i_EP++) {
+	      List_Read(EvaluationPoints_L, i_EP*3+0, &PE->u[i_EP]);
+	      List_Read(EvaluationPoints_L, i_EP*3+1, &PE->v[i_EP]);
+	      List_Read(EvaluationPoints_L, i_EP*3+2, &PE->w[i_EP]);
+	    }
+	  }
 	  POS_CUT_FILL ; 
 	}
 	break ;

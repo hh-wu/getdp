@@ -1025,6 +1025,7 @@ struct PostSubOperation {
   char   * FileOut ;
   List_T * TimeStep_L, * Value_L, * Iso_L, * Frequency_L ;
   List_T * ChangeOfValues ;
+  List_T * EvaluationPoints ;
   struct Value * Save ;
   union {
     struct { int RegionIndex ; } OnRegion ;

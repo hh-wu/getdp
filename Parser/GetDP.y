@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.59 2004-02-04 14:59:32 gyselinc Exp $ */
+/* $Id: GetDP.y,v 1.60 2004-03-08 08:12:05 dular Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -339,7 +339,7 @@ char   buff[128];
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
-%token        tFrequencyLegend 
+%token        tFrequencyLegend tEvaluationPoints
 %token        tStr, tDate
 
 /* ------------------------------------------------------------------ */
@@ -6311,6 +6311,7 @@ PrintOptions :
       PostSubOperation_S.ChangeOfCoordinates[2] = -1 ;
       PostSubOperation_S.ChangeOfValues = NULL ;
       PostSubOperation_S.FrequencyLegend[0] = -1 ;
+      PostSubOperation_S.EvaluationPoints = NULL ;
     }
   | PrintOptions PrintOption 
   ;
@@ -6489,6 +6490,15 @@ PrintOption :
       PostSubOperation_S.FrequencyLegend[2] = $8 ;
     }
 
+  | ',' tEvaluationPoints '{' RecursiveListOfFExpr '}'
+    { 
+      if(List_Nbr($4)%3 != 0)
+	vyyerror("Expected 3n coordinates, got %d", 
+		 List_Nbr($4));
+      else {
+	PostSubOperation_S.EvaluationPoints = $4 ;
+      }
+    }
 
   ;
 

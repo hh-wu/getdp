@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.62 2004-01-19 16:51:25 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.63 2004-03-08 08:12:05 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -268,6 +268,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       if(List_Search(Region_L, &Element.GeoElement->Region, fcmp_int)){
 	Fill_PostElement(Element.GeoElement, PostElement_L, iGeo,
 			 Depth, PostSubOperation_P->Skin,
+			 PostSubOperation_P->EvaluationPoints,
 			 DecomposeInSimplex) ;
       }
     }
@@ -330,6 +331,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       if(List_Search(Region_L, &Element.GeoElement->Region, fcmp_int)){
 	Fill_PostElement(Element.GeoElement, PostElement_L, iGeo,
 			 PostSubOperation_P->Depth, PostSubOperation_P->Skin,
+			 PostSubOperation_P->EvaluationPoints,
 			 DecomposeInSimplex) ;
       }
     }
@@ -396,7 +398,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	  Element.Type = Element.GeoElement->Type ;
 	  Current.Region = Element.Region = Element.GeoElement->Region ;
 	  Get_NodesCoordinatesOfElement(&Element) ;
-	  
+
 	  for (iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
 
 
