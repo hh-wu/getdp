@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.46 2002-01-18 18:22:13 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.47 2002-02-01 17:31:00 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -936,12 +936,14 @@ struct PostSubOperation {
     struct { double x[3], y[3], z[3] ; } OnSection ;
     struct { int RegionIndex, ArgumentIndex ; double x[2] ; int n ; } WithArgument ;
     struct { int ExtendedGroupIndex, GroupIndex ; } Group ;
+    char *EchoString;
   } Case ;
 } ;
 
 /* PostOperation.Type */
 #define POP_PRINT         1
 #define POP_GROUP         2
+#define POP_ECHO          3
 
 /* PostOperation.SubType */
 #define PRINT_ONREGION        1

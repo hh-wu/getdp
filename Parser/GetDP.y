@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.33 2002-01-19 00:57:45 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.34 2002-02-01 17:31:01 geuzaine Exp $ */
 
 /*
   Modifs a faire
@@ -287,7 +287,7 @@ struct PostSubOperation         PostSubOperation_S ;
 
 %token  tPostOperation  
 %token    tNameOfPostProcessing tUsingPost tAppend
-%token      tPlot tPrint tPrintGroup tWrite tAdapt
+%token      tPlot tPrint tPrintGroup tEcho tWrite tAdapt
 %token        tOnGlobal tOnRegion tOnElementsOf
 %token        tOnGrid tOnSection tOnPoint tOnLine tOnPlane tOnBox
 %token        tWithArgument
@@ -5457,6 +5457,11 @@ PostSubOperation :
     ',' tIn GroupRHS PrintOptions ']' tEND
     {
       PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, "PO_Group", $7) ;
+    }
+  | tEcho '[' tBIGSTR PrintOptions ']' tEND
+    {
+      PostSubOperation_S.Type = POP_ECHO ;
+      PostSubOperation_S.Case.EchoString = $3 ;
     }
   ;
 

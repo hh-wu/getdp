@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.55 2002-01-18 17:36:02 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.56 2002-02-01 17:31:01 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -995,7 +995,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
   int     i1, i2, i3, j, k, NbTimeStep, ts ;
   float  *Array=NULL ;
   double  u, v, w, Length, Normal[4] = {0., 0., 0., 0.} ;
-  double  X[4], Y[4], Z[4], S[4], N[4];
+  double  X[4], Y[4], Z[4], S[4], N[4], tmp[3];
 
   GetDP_Begin("Pos_PrintOnGrid");
 
@@ -1100,22 +1100,21 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	for (i2 = 0 ; i2 < N[1] ; i2++) {
 	  S[1] = (double)i2 / (double)(N[1] ? N[1] : 1) ;
 	  S[3] = (double)(i2+1) / (double)(N[1] ? N[1] : 1) ;
+	  PE2->x[0] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[1] ;
+	  PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[1] ;
+	  PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[1] ;	  
+	  PE2->x[1] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[1] ;
+	  PE2->y[1] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[1] ;
+	  PE2->z[1] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[1] ;	  
+	  PE2->x[2] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[3] ;
+	  PE2->y[2] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[3] ;
+	  PE2->z[2] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[3] ;	  
 	  for (ts = 0 ; ts < NbTimeStep ; ts++){
-	    PE2->x[0] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[1] ;
-	    PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[1] ;
-	    PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[1] ;	  
-	    for(k = 0 ; k < Current.NbrHar ; k++)
+	    for(k = 0 ; k < Current.NbrHar ; k++){
 	      PE2->Value[0].Val[MAX_DIM*k] = ARRAY(i1,i2,k,ts) ;
-	    PE2->x[1] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[1] ;
-	    PE2->y[1] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[1] ;
-	    PE2->z[1] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[1] ;	  
-	    for(k = 0 ; k < Current.NbrHar ; k++)
 	      PE2->Value[1].Val[MAX_DIM*k] = ARRAY(i1+1,i2,k,ts) ;
-	    PE2->x[2] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[3] ;
-	    PE2->y[2] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[3] ;
-	    PE2->z[2] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[3] ;	  
-	    for(k = 0 ; k < Current.NbrHar ; k++)
 	      PE2->Value[2].Val[MAX_DIM*k] = ARRAY(i1,i2+1,k,ts) ;
+	    }
 	    Format_PostElement(PSO_P->Format, PSO_P->Iso, 0,
 			       Current.Time, ts, NbTimeStep,
 			       Current.NbrHar, PSO_P->HarmonicToTime, 
@@ -1126,9 +1125,15 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	  PE2->x[0] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[3] ;
 	  PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[3] ;
 	  PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[3] ;	  
+	  tmp[0] = PE2->x[1]; PE2->x[1] = PE2->x[2]; PE2->x[2] = tmp[0];
+	  tmp[1] = PE2->y[1]; PE2->y[1] = PE2->y[2]; PE2->y[2] = tmp[1];
+	  tmp[2] = PE2->z[1]; PE2->z[1] = PE2->z[2]; PE2->z[2] = tmp[2];
 	  for (ts = 0 ; ts < NbTimeStep ; ts++){
-	    for(k = 0 ; k < Current.NbrHar ; k++)
+	    for(k = 0 ; k < Current.NbrHar ; k++){
 	      PE2->Value[0].Val[MAX_DIM*k] = ARRAY(i1+1,i2+1,k,ts) ;
+	      PE2->Value[1].Val[MAX_DIM*k] = ARRAY(i1,i2+1,k,ts) ;
+	      PE2->Value[2].Val[MAX_DIM*k] = ARRAY(i1+1,i2,k,ts) ;
+	    }
 	    Format_PostElement(PSO_P->Format, PSO_P->Iso, 0,
 			       Current.Time, ts, NbTimeStep,
 			       Current.NbrHar, PSO_P->HarmonicToTime, 
@@ -1173,7 +1178,6 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
     break;
 
   case PRINT_ONGRID_PARAM :
-    Normal[0] = Normal[1] = Normal[2] = 0.0 ;
     for (i1 = 0 ; i1 < List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[0]) ; i1++) {
       List_Read(PSO_P->Case.OnParamGrid.ParameterValue[0], i1, &Current.a) ;
       for (i2 = 0 ; i2 < List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1]) ; i2++) {
