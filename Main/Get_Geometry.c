@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.11 2001-03-05 14:46:02 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.12 2001-03-13 08:47:18 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -125,6 +125,25 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
 
     default : 
       Msg(ERROR, "Unknown Jacobian VolSphShell for Element Type (%s)", 
+	  Get_StringForDefine(Element_Type, Type_Element));
+    }
+
+  case JACOBIAN_VOL_RECT_SHELL :
+
+    switch (Type_Element) {
+
+    case TRIANGLE    : case TRIANGLE_2   :  
+    case QUADRANGLE  : case QUADRANGLE_2 : 
+      *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolRectShell2D) ;
+
+    case TETRAHEDRON : case TETRAHEDRON_2 :  
+    case HEXAHEDRON  : case HEXAHEDRON_2  :  
+    case PRISM       : case PRISM_2       : 
+    case PYRAMID     : case PYRAMID_2     : 
+      *Type_Dimension = _3D ; GetDP_Return((void *)JacobianVolRectShell3D) ;
+
+    default : 
+      Msg(ERROR, "Unknown Jacobian VolRectShell for Element Type (%s)", 
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -551,6 +570,24 @@ double  JacobianVolSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
 
   DetJac1 = JacobianVol2D (Element, &Jac1) ;
   DetJac2 = SphShell2D    (Element, &Jac2) ;
+
+  Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
+
+                                    Jac->c13 = 0. ;
+                                    Jac->c23 = 0. ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
+
+  GetDP_Return(DetJac1 * DetJac2) ;
+}
+
+double  JacobianVolRectShell2D (struct Element * Element, MATRIX3x3 * Jac) {
+  MATRIX3x3  Jac1, Jac2 ;
+  double     DetJac1, DetJac2 ;
+
+  GetDP_Begin("JacobianVolRectShell2D");
+
+  DetJac1 = JacobianVol2D (Element, &Jac1) ;
+  DetJac2 = Transformation (_2D, 0, Element, &Jac2) ;
 
   Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
 

@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.16 2001-03-04 10:26:49 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.17 2001-03-13 08:47:18 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -70,12 +70,12 @@ struct StringXDefine1Nbr  Jacobian_Type[] = {
   {"VolSphFiniteShell" , JACOBIAN_VOL_SPH_FINITE_SHELL  , 3} ,
   {"VolAxiSphShell"    , JACOBIAN_VOL_AXI_SPH_SHELL     , 2} ,
   {"VolAxiSquSphShell" , JACOBIAN_VOL_AXI_SQU_SPH_SHELL , 2} ,
-  {"VolPlpdX"          , JACOBIAN_VOL_PLPD_X            , 2} ,
-  {"VolPlpdY"          , JACOBIAN_VOL_PLPD_Y            , 2} ,
-  {"VolPlpdZ"          , JACOBIAN_VOL_PLPD_Z            , 2} ,
-  {"VolAxiPlpdX"       , JACOBIAN_VOL_AXI_PLPD_X        , 2} ,
-  {"VolAxiPlpdY"       , JACOBIAN_VOL_AXI_PLPD_Y        , 2} ,
-  {"VolAxiPlpdZ"       , JACOBIAN_VOL_AXI_PLPD_Z        , 2} ,
+
+  {"VolRectShell"      , JACOBIAN_VOL_RECT_SHELL        , 6} ,
+  {"VolAxiRectShell"   , JACOBIAN_VOL_AXI_RECT_SHELL    , 6} ,
+
+  {"VolPlpdX"          , JACOBIAN_VOL_PLPD              , 2} ,
+  {"VolAxiPlpdX"       , JACOBIAN_VOL_AXI_PLPD          , 2} ,
   {"Sur"               , JACOBIAN_SUR                   , 0} ,
   {"SurAxi"            , JACOBIAN_SUR_AXI               , 0} ,
   {"SurSphShell"       , JACOBIAN_SUR_SPH_SHELL         , 2} ,
