@@ -10,6 +10,7 @@ URL: http://www.geuz.org/getdp/
 Packager: geuz@geuz.org
 Prereq: /sbin/install-info
 Buildroot: /var/tmp/%{name}-buildroot
+Prefix: /usr
 
 %description 
 GetDP is a scientific software environment for the numerical solution
