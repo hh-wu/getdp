@@ -1,4 +1,4 @@
-#define RCSID "$Id: Legendre.c,v 1.3 2002-03-11 11:09:44 sabarieg Exp $"
+#define RCSID "$Id: Legendre.c,v 1.4 2003-01-23 01:28:12 geuzaine Exp $"
 
 #include <stdio.h>
 #include <math.h>
@@ -185,7 +185,7 @@ void SphericalHarmonics(int l, int m, double Theta, double Phi, double Yl_m[]){
 
   GetDP_Begin("SphericalHarmonics");
   
-  cn = sqrt((2*l+1)*ONE_OVER_FOUR_PI) ; //Normalization Factor
+  cn = sqrt((2*l+1)*ONE_OVER_FOUR_PI) ; /* Normalization Factor */
   am = THESIGN(m)*m ; 
 
   F= sqrt(Factorial((double)(l-am))/ Factorial((double)(l+am))) ;

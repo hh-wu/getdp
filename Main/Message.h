@@ -1,4 +1,4 @@
-/* $Id: Message.h,v 1.14 2002-10-03 18:11:38 geuzaine Exp $ */
+/* $Id: Message.h,v 1.15 2003-01-23 01:28:12 geuzaine Exp $ */
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
@@ -8,7 +8,7 @@
 
 #define DIRECT       0
 #define ERROR        1
-#define GERROR         1 // for Windows/Gmsh compatibility
+#define GERROR         1 /* for Windows/Gmsh compatibility */
 #define BIGERROR     2
 #define WARNING      3
 #define OPERATION    4
@@ -21,7 +21,7 @@
 #define PETSC        11
 #define ITER         12
 #define DEBUG        13
-#define GDEBUG          13 // for Windows/Gmsh compatibility
+#define GDEBUG          13 /* for Windows/Gmsh compatibility */
 #define DEBUG2       14
 #define LOADING      15
 #define RESOURCES    16

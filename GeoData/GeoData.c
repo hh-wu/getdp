@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.19 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: GeoData.c,v 1.20 2003-01-23 01:28:12 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -244,7 +244,7 @@ void  Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * File
 
   for (i = 0 ; i < List_Nbr(GeoData.Nodes) ; i++) {
     List_Read(GeoData.Nodes, i, &Geo_Node) ;
-    fprintf(file, "%d %lf %lf %lf \n",
+    fprintf(file, "%d %.16g %.16g %.16g\n",
 	   Geo_Node.Num, Geo_Node.x, Geo_Node.y, Geo_Node.z) ;
   }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_LaplacexForm.c,v 1.10 2002-11-19 17:10:16 geuzaine Exp $"
+#define RCSID "$Id: GF_LaplacexForm.c,v 1.11 2003-01-23 01:28:12 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -809,9 +809,9 @@ void GF_NPxGradLaplacexForm (F_ARG2) {
       Geo_CreateNormal(Element->Type,
 		       Element->x,Element->y,Element->z, N);
 
-      // printf("Normal %e %e %e\n",N[0],N[1],N[2]);
+      /* printf("Normal %e %e %e\n",N[0],N[1],N[2]); */
       GF_GradLaplacexForm(Element, Fct, xFunctionBF, NumEntity, x, y, z, &ValGrad) ;
-      //printf("ValGrad %e %e %e\n", ValGrad.Val[0],ValGrad.Val[0], ValGrad.Val[0]);
+      /* printf("ValGrad %e %e %e\n", ValGrad.Val[0],ValGrad.Val[0], ValGrad.Val[0]); */
       Val->Val[0] = N[0]*ValGrad.Val[0] + N[1]*ValGrad.Val[1] + N[2]*ValGrad.Val[2] ;
       break ;
     default :

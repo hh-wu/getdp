@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.23 2002-04-12 17:09:15 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.24 2003-01-23 01:28:12 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -211,7 +211,7 @@ void LinAlg_CreateMatrixShell(gMatrix *A, gSolver *Solver, int n, int m, void *m
 			      void (*myMult)(gMatrix *A, gVector *x, gVector *y)){
   GetDP_Begin("LinAlg_CreateMatrixShell");
 
-  petscCtx *ctx=(petscCtx*)Malloc(sizeof(petscCtx)); //memory leak! to change...
+  petscCtx *ctx=(petscCtx*)Malloc(sizeof(petscCtx)); /* memory leak! to change... */
   ctx->ctx = myCtx;
   ctx->fct = myMult;
   MatCreateShell(PETSC_COMM_WORLD,n,m,PETSC_DETERMINE,
