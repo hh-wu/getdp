@@ -254,6 +254,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       gAddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
 		       &DofData_P->CurrentSolution->x) ;
+
       Flag_CPU = 1 ;
       break ;
 
@@ -869,6 +870,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     DofData_P->Solutions = List_Create(20, 20, sizeof(struct Solution)) ;
 
   i_TimeStep = (int)Current.TimeStep ;
+  
   if (!(Solution_P = (struct Solution*)
 	/*
 	List_PQuery(DofData_P->Solutions, &Current.Time, fcmp_double))) {
