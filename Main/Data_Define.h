@@ -282,9 +282,9 @@ struct DefineXFunction  FunctionForGauss[] = {
 } ;
 
 struct DefineXFunction  FunctionForSingularGauss[] = {
-  {TRIANGLE       , (CAST)Gauss_Triangle_Singular},
-  {QUADRANGLE     , (CAST)Gauss_Quadrangle_Singular},
-  {0              , (CAST)Gauss_Triangle_Singular}
+  {TRIANGLE       , (CAST)GaussSingularR_Triangle},
+  {QUADRANGLE     , (CAST)GaussSingularR_Quadrangle},
+  {0              , (CAST)GaussSingularR_Triangle}
 } ;
 
 struct DefineXFunction  FunctionForNewtonCotes[] = {
