@@ -360,7 +360,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     /*  ------------------------------------------  */
 
     case OPERATION_READSOLUTION :
-      Msg(ERROR, "I suppressed this for the moment -- Christophe") ;
+      Msg(ERROR, "ReadSolution is not currently  available") ;
       /*
       Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
