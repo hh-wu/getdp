@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.27 2001-02-07 07:45:16 geuzaine Exp $
+@c $Id: getdp.texi,v 1.28 2001-02-07 16:01:38 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -31,9 +31,9 @@
 @c =========================================================================
 @c %**start of header
 @setfilename   getdp.info
-@set EDITION   1.9
+@set EDITION   2.0
 @set VERSION   0.77
-@set DAY       05
+@set DAY       07
 @set MONTH     February 2001
 @set COPYRIGHT @copyright{} 1997-2001 Patrick Dular, Christophe Geuzaine
 @set WEB-GETDP @uref{http://www.geuz.org/getdp/}
@@ -4750,9 +4750,9 @@ are defined e.g.@: for the electrostatic problem (@pxref{Formulation examples};
 PostProcessing @{
   @{ Name EleSta_v; NameOfFormulation Electrostatics_v;
     PostQuantity @{
-      @{ Name v; Value @{ Term @{ [ @{v@} ]; In Domain; @} @} @}
-      @{ Name e; Value @{ Term @{ [ -@{Grad v@} ]; In Domain; @} @} @}
-      @{ Name d; Value @{ Term @{ [ -eps0*epsr[] *@{Grad v@} ];
+      @{ Name v; Value @{ Local @{ [ @{v@} ]; In Domain; @} @} @}
+      @{ Name e; Value @{ Local @{ [ -@{Grad v@} ]; In Domain; @} @} @}
+      @{ Name d; Value @{ Local @{ [ -eps0*epsr[] *@{Grad v@} ];
                                   In Domain; @} @} @}
     @}
   @}
@@ -4776,8 +4776,8 @@ PostProcessing @{
 
       @dots{} @var{same as above} @dots{}
 
-      @{ Name Q ; Value @{ Term @{ [ @{Q@} ] ; In SkinDomainC ; @} @} @}
-      @{ Name V ; Value @{ Term @{ [ @{V@} ] ; In SkinDomainC ; @} @} @}
+      @{ Name Q ; Value @{ Local @{ [ @{Q@} ] ; In SkinDomainC ; @} @} @}
+      @{ Name V ; Value @{ Local @{ [ @{V@} ] ; In SkinDomainC ; @} @} @}
     @}
   @}
 @}
