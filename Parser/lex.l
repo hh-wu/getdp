@@ -1,5 +1,5 @@
 %{
-/* $Id: lex.l,v 1.5 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: lex.l,v 1.6 2000-09-28 22:09:21 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -249,6 +249,7 @@ HarmonicToTime               return tHarmonicToTime ;
 TimeStep                     return tTimeStep ;
 Target                       return tTarget ;
 File                         return tFile ;
+Sort                         return tSort ;
 
 Flag                         return tFlag ;
 

@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.10 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.11 2000-09-28 22:09:22 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -280,7 +280,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token        tWithArgument
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
-%token        tTarget
+%token        tTarget tSort
 
 %token  tFlag
 
@@ -2358,11 +2358,11 @@ BasisFunctionTerm :
 	if ($2 >= 0) {
 	  BasisFunction_S.EntityIndex = $2 ;
 	  if (Group_S.InitialList)
-	    List_Tri(Group_S.InitialList, fcmp_int) ;  /* Necessaire pour Global... */
+	    List_Sort(Group_S.InitialList, fcmp_int) ;  /* Necessaire pour Global... */
 	}
 	else if ($2 == -1) {
 	  if (Group_S.InitialList)
-	    List_Tri(Group_S.InitialList, fcmp_int) ;  /* Necessaire pour Global... */
+	    List_Sort(Group_S.InitialList, fcmp_int) ;  /* Necessaire pour Global... */
 	  BasisFunction_S.EntityIndex = Add_Group(&Group_S, "BF_Entity", 1, 0) ;
 	}
 	else  vyyerror("Bad Group Right Hand Side") ;
@@ -2463,7 +2463,7 @@ OptionalParametersForBasisFunction :
 	  }
 	}
       }
-      List_Tri(BasisFunction_S.GlobalBasisFunction, fcmp_int) ;
+      List_Sort(BasisFunction_S.GlobalBasisFunction, fcmp_int) ;
 
 
       for (k = 0 ; k < $7 ; k++) {
@@ -5206,6 +5206,7 @@ PlotOptions :
       PostSubOperation_S.HarmonicToTime = 1 ;
       PostSubOperation_S.TimeStep_L = List_Create(10,10,sizeof(int)); ;
       PostSubOperation_S.Value_L = List_Create(10,10,sizeof(double)); ;
+      PostSubOperation_S.Sort = 0 ;
     }
   | PlotOptions PlotOption 
   ;
@@ -5306,8 +5307,16 @@ PlotOption :
       PostSubOperation_S.Adapt = 
 	Get_DefineForString(Adaption_Type, $3, &FlagError) ;
       if(FlagError)
-	vyyerror("Unknown Adaption Method: %s %s", $3, 
+	vyyerror("Unknown Adaption Method: %s %s", $3,
 		 Get_Valid_SXD(Adaption_Type)) ;
+    }
+  | ',' tSort tSTRING
+    { 
+      PostSubOperation_S.Sort = 
+	Get_DefineForString(Sort_Type, $3, &FlagError) ;
+      if(FlagError)
+	vyyerror("Unknown Sort Method: %s %s", $3,
+		 Get_Valid_SXD(Sort_Type)) ;
     }
   | ',' tTarget FExpr
     { 
@@ -5801,7 +5810,7 @@ void  Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) {
 	 (WholeQuantity_P+i)->Case.Trace.InIndex) ;
       break ;
     }
-  List_Tri(ListOfTwoInt_L, fcmp_int) ;
+  List_Sort(ListOfTwoInt_L, fcmp_int) ;
 }
 
 void  Pro_DefineQuantityIndex(List_T * WholeQuantity_L,
