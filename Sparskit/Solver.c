@@ -454,14 +454,15 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     w[M->N+i] = sol[i] - 1.0 ;
     w[i] -= rhs[i] ;
   }      
-  
+
+ 
   Msg(SPARSKIT, "%d Iterations / Residual: %g\n", ipar[7], dnrm2_(&M->N,w,&un));
   /*
   Msg(ITER, "Conv. Rate: %g, |Res|: %g, |Err|: %g\n", 
       fpar[7], dnrm2_(&M->N,w,&un), dnrm2_(&M->N,&w[M->N],&un));
   */
   Free(w);
-  
+
   /* Inverse renumbering */
   
   for (i=0;i<M->N;i++) {
