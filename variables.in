@@ -3,7 +3,7 @@ UNAME=@UNAME@
 
 # The names of the C and Fortran compilers and linker
 CC=@CC@
-FC=@F77@
+F77=@F77@
 LINKER=@LINKER@
 
 # Base compiler flags

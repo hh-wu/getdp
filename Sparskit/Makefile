@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.13 2003-02-07 10:26:59 geuzaine Exp $
+# $Id: Makefile,v 1.14 2003-02-12 02:26:45 geuzaine Exp $
 
 include ../variables
 
@@ -36,7 +36,10 @@ ${LIB}: ${COBJ} ${FOBJ1} ${FOBJ2}
 	${RANLIB} ${LIB}
 
 .F.o:
-	${FC} ${FFLAGS} -c $<
+	${F77} ${FFLAGS} -c $<
+
+.f.o:
+	${F77} ${FFLAGS} -c $<
 
 clean:
 	rm -f *.o

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.124 2003-02-11 18:24:23 geuzaine Exp $
+# $Id: Makefile,v 1.125 2003-02-12 02:26:45 geuzaine Exp $
 
 include variables
 
@@ -183,7 +183,6 @@ compile-scat: initialtag
 	@for i in ${GETDP_DIRS} Scattering; do (cd $$i && ${MAKE} \
            "CC=${CC}" \
            "CXX=${CXX}" \
-           "FC=${FC}" \
            "F77=${F77}" \
            "RANLIB=${RANLIB}" \
            "C_FLAGS=${COPTFLAGS} -I${FFTW_PREFIX}/include -Wall -Wno-uninitialized" \

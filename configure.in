@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.9 2003-02-11 08:02:57 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.10 2003-02-12 02:26:45 geuzaine Exp $"
 dnl
 dnl Machine independent configuration script for GetDP.
 dnl
@@ -100,6 +100,7 @@ GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDo
 
 dnl Modify the above defaults and specify the linker
 if test "x$enable_petsc" = "xyes"; then
+
   GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr ${PETSC_SLES_LIB} -lm'
   SOLVER='-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
@@ -111,16 +112,14 @@ if test "x$enable_petsc" = "xyes"; then
   if test "x${BOPT}" = "x"; then
      BOPT="g_complex"
   fi
+
 else
+
   GETDP_DIRS="${GETDP_DIRS} Sparskit"
   GETDP_LIBS="${GETDP_LIBS} -lm"
   SOLVER='-D_SPARSKIT -D_ILU_FLOAT'
-  LINKER='${FC}'
+  LINKER='${F77}'
   case "$UNAME" in
-    IRIX*)
-      CC="cc"
-      F77="f77"
-      ;;
 #    IRIX*)
 #      CC="cc"
 #      F77="f77"
@@ -179,11 +178,11 @@ else
       dnl '-lm' is removed on purpose!
       GETDP_LIBS="${GETDP_LIBS}"
       ;;
-    *)
-      ;;
   esac
+
 fi
 
+dnl Do we trace the function calls in getdp?
 if test "x$enable_debug" = "xyes"; then
   C_FLAGS="$C_FLAGS -DGETDP_USE_DEBUG_STACK"
 fi
@@ -230,9 +229,6 @@ else
 fi
 AC_SUBST(GSL_LIBS)
 AC_SUBST(GSL_INCLUDE)
-
-dnl Check for math library
-AC_CHECK_LIB(m, sin)
 
 dnl Check for header files
 AC_CHECK_HEADERS(sys/time.h sys/resource.h)
