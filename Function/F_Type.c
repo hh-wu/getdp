@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Type.c,v 1.6 2000-11-24 13:38:43 dular Exp $"
+#define RCSID "$Id: F_Type.c,v 1.7 2001-03-01 14:50:03 sabarieg Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -573,6 +573,61 @@ void  F_CompZZ (F_ARG) { get_comp_tensor(8,5, 2,"CompZZ") }
 #undef get_comp_tensor
 
 
+
+
+/* ------------------------------------------------------------------------ */
+/*  Get Tensor for transformation of vector                                 */ 
+/*  from cartesian to spherical coordinate system                           */
+/* ------------------------------------------------------------------------ */
+
+void  F_Cart2Sph (F_ARG) {
+  int k ;
+  double theta, phi ;
+
+  GetDP_Begin("F_Cart2Sph");
+  
+  if((A)->Type != VECTOR)
+     Msg(ERROR, "Vector argument required for Function 'Cart2Sph'");
+     
+  theta = atan2( sqrt(SQU(A->Val[0])+ SQU(A->Val[1])) ,  A->Val[2] ) ;   
+  phi = atan2( A->Val[1] , A->Val[0] ) ; 
+    
+  V->Val[0] = sin(theta) * cos(phi) ; 
+  V->Val[1] = sin(theta) * sin(phi) ; 
+  V->Val[2] = cos(theta) ;
+  V->Val[3] = cos(theta) * cos(phi) ; 
+  V->Val[4] = cos(theta) * sin(phi) ; 
+  V->Val[5] = - sin(theta) ; 
+  V->Val[6] = - sin(phi) ; 
+  V->Val[7] = cos(phi) ; 
+  V->Val[8] = 0. ;
+    
+  for (k = 0 ; k < Current.NbrHar ; k+=2) {
+    V->Val[MAX_DIM*k  ] = V->Val[0] ;
+    V->Val[MAX_DIM*k+1] = V->Val[1] ;
+    V->Val[MAX_DIM*k+2] = V->Val[2] ;
+    V->Val[MAX_DIM*k+3] = V->Val[3] ;
+    V->Val[MAX_DIM*k+4] = V->Val[4] ;
+    V->Val[MAX_DIM*k+5] = V->Val[5] ;
+    V->Val[MAX_DIM*k+6] = V->Val[6] ;
+    V->Val[MAX_DIM*k+7] = V->Val[7] ;
+    V->Val[MAX_DIM*k+8] = V->Val[8] ;
+    V->Val[MAX_DIM*(k+1)  ] = 0. ;
+    V->Val[MAX_DIM*(k+1)+1] = 0. ;
+    V->Val[MAX_DIM*(k+1)+2] = 0. ;
+    V->Val[MAX_DIM*(k+1)+3] = 0. ;
+    V->Val[MAX_DIM*(k+1)+4] = 0. ;
+    V->Val[MAX_DIM*(k+1)+5] = 0. ;
+    V->Val[MAX_DIM*(k+1)+6] = 0. ;
+    V->Val[MAX_DIM*(k+1)+7] = 0. ;
+    V->Val[MAX_DIM*(k+1)+8] = 0. ;
+  }
+  V->Type = TENSOR ;
+
+  GetDP_End ;
+}
+
+
 /* ------------------------------------------------------------------------ */
 /*  U n i t V e c t o r X, Y, Z                                             */
 /* ------------------------------------------------------------------------ */
@@ -623,3 +678,4 @@ void  F_UnitVectorZ (F_ARG) {
 }
 
 #undef F_ARG
+
