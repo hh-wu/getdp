@@ -246,6 +246,9 @@ tgz:
 	gzip $(GETDP_ARCHIVE).tar
 	chmod 640 $(GETDP_ARCHIVE).tar.gz
 
+zip:
+	zip $(GETDP_ARCHIVE).zip $(GETDP_SOURCES)
+
 tgzdoc:
 	tar cvf getdp-texi.tar $(GETDP_DOC_DIR)
 	gzip getdp-texi.tar
