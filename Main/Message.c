@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.63 2003-02-14 07:30:12 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.64 2003-03-21 19:36:47 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -253,6 +253,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
 
   }
 
+  fflush(stream);
 }
 
 void GetResources(long *s, long *us, long *mem){
@@ -282,7 +283,6 @@ void PrintResources(FILE *stream, char *fmt, long s, long us, long mem){
 #endif
 }
 
-
 void Msg(int level, char *fmt, ...){
   va_list  args;
   int      abort = 0;
@@ -305,7 +305,6 @@ void Msg(int level, char *fmt, ...){
     PrintMsg(stderr,level, Flag_VERBOSE, args, fmt, &abort) ;
     if(Flag_LOG) {
       PrintMsg(LogStream, level, Flag_VERBOSE, args, fmt, &abort) ;
-      fflush(LogStream);
     }
     va_end (args);
     if(abort){
@@ -313,6 +312,23 @@ void Msg(int level, char *fmt, ...){
       FinalizeAndExit();
     }
   }
+}
+
+void CheckResources(void){
+#if !defined(MSDOS)
+  static struct rlimit r;
+
+  getrlimit(RLIMIT_STACK, &r);
+
+  /* Try to get at least 1Mb of stack. Running with too small a stack
+     will crash getdp in the recursive calls (mainly
+     Cal_WholeQuantity) */
+  if(r.rlim_cur < 1024*1024){
+    Msg(INFO, "Process stack size < 1 Mb. Fixing...");
+    r.rlim_cur = r.rlim_max;
+    setrlimit(RLIMIT_STACK, &r);
+  }
+#endif
 }
 
 

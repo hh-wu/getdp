@@ -1,4 +1,4 @@
-/* $Id: Message.h,v 1.15 2003-01-23 01:28:12 geuzaine Exp $ */
+/* $Id: Message.h,v 1.16 2003-03-21 19:36:47 geuzaine Exp $ */
 #ifndef _MESSAGE_H_
 #define _MESSAGE_H_
 
@@ -46,5 +46,6 @@ void Signal(int signum);
 void Msg(int level, char *fmt, ...);
 void Progress(int current, int final, char *label);
 void Debug(void);
+void CheckResources(void);
 
 #endif

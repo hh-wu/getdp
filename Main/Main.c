@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.45 2003-03-17 18:42:00 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.46 2003-03-21 19:36:47 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -85,8 +85,6 @@ int  main(int argc, char *argv[]) {
 
   sargv = (char**)Malloc(256*sizeof(char**));
 
- 
-
   Init_GlobalVariables() ;
   Get_Options(argc, argv, &sargc, sargv, Name_ProFile, Name_Generic, Name_Path) ;
 
@@ -137,11 +135,14 @@ int  main(int argc, char *argv[]) {
 
   LinAlg_InitializeSolver(&sargc, &sargv, &Current.NbrCpu, &Current.RankCpu) ;
 
-
   /* fill-in problem structure (read pro files) */
 
   Init_ProblemStructure();
   Read_ProblemStructure(Name_ProFile) ;
+
+  /* check available resources (stack size, etc.) */
+
+  CheckResources();
 
   /* process */
 
