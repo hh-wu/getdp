@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.20 2000-11-16 18:29:32 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.21 2000-11-16 18:36:19 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -581,11 +581,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   GetDP_Begin("InWhichElement");
 
   ChainDim   = Dim ;
-  Projection = 
-    ChainDim == _0D || 
-    (ChainDim == _1D && GeoDim == _2D) ||
-    (ChainDim == _1D && GeoDim == _3D) ||
-    (ChainDim == _2D && GeoDim == _3D) ;
+  Projection = (ChainDim != GeoDim) ;
   
   if(!Projection && LastElement){
     if (PointInElement(LastElement, ExcludeRegion_L, x, y, z, u, v, w)){
