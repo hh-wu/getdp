@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.8 2002-02-12 00:21:40 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.9 2002-02-12 02:16:16 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -26,7 +26,6 @@ class Function{
 public:
   complex<double> val(double k[3], double tau, double xtau[3]){
     double kr = k[0]*xtau[0]+k[1]*xtau[1]+k[2]*xtau[2];
-    // f = cos(tau) * e(ikr)
     return cos(tau) * (cos(kr)+I*sin(kr));
   }
 };
@@ -217,11 +216,6 @@ int fcmp_Interval(const void * a, const void * b) {
   else if(i1->min > i2->max) return 1;
   else return 0;
 }
-int fcmp_IntervalNum(const void * a, const void * b) {
-  Interval *i1 = (Interval*)a, *i2 = (Interval*)b;
-  return (i1->num - i2->num);
-}
-
 
 // Outer integration loop on target points
 
