@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.21 2001-03-04 13:20:28 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.22 2001-03-05 17:29:37 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -451,7 +451,7 @@ void FinalizeAndExit(void){
 
 void  Read_ProblemStructure (char * Name){
 
-  char    String[2048], Last_yyname[MAX_FILE_NAME_LENGTH];
+  char    AbsPath[2048], Last_yyname[MAX_FILE_NAME_LENGTH];
   int     Last_yylinenum, Last_yyincludenum, Last_ErrorLevel, i ;
 
   GetDP_Begin("Read_ProblemStructure");
@@ -461,17 +461,17 @@ void  Read_ProblemStructure (char * Name){
   Last_ErrorLevel = ErrorLevel ; 
   Last_yyincludenum = yyincludenum ;
 
-  strcpy(String, yyname);
+  strcpy(AbsPath, yyname);
   i = strlen(yyname)-1 ;
   while(i >= 0 && yyname[i] != '/' && yyname[i] != '\\') i-- ;
-  String[i+1] = '\0';
-  strcat(String, Name);
+  AbsPath[i+1] = '\0';
+  strcat(AbsPath, Name);
 
-  Msg(LOADING, "Problem definition '%s'", String) ;
+  Msg(LOADING, "Problem Definition '%s'", AbsPath) ;
 
-  if(!(yyin = fopen(String, "r"))) Msg(ERROR, "Unable to open file '%s'", String);
+  if(!(yyin = fopen(AbsPath, "r"))) Msg(ERROR, "Unable to Open File '%s'", AbsPath);
 
-  ErrorLevel = 0 ;  yylinenum = 1 ; yyincludenum=0 ; strcpy(yyname, String) ;
+  ErrorLevel = 0 ;  yylinenum = 1 ; yyincludenum=0 ; strcpy(yyname, AbsPath) ;
 
   yyrestart(yyin); yyparse(); fclose(yyin);
 
@@ -482,7 +482,7 @@ void  Read_ProblemStructure (char * Name){
     
     yyin = fopen(yyname, "r");
     yyrestart(yyin);
-    for(i=0;i<yylinenum;i++) fgets(String, MAX_STRING_LENGTH, yyin);
+    for(i=0;i<yylinenum;i++) fgets(AbsPath, MAX_STRING_LENGTH, yyin);
     yylinenum++ ;
     yyparse(); fclose(yyin);
     if(ErrorLevel) FinalizeAndExit();
