@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.107 2003-01-25 01:39:03 geuzaine Exp $
+# $Id: Makefile,v 1.108 2003-01-25 02:35:08 geuzaine Exp $
 
 # ----------------------------------------------------------------------
 #  Optional packages: 
@@ -348,7 +348,7 @@ compile-osf1: initialtag
 link-osf1:
 	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 osf1: compile-osf1 link-osf1
-distrib-osf1: tag clean osf1 distrib
+distrib-osf1: clean tag osf1 distrib
 
 #
 # Linux
@@ -366,7 +366,7 @@ compile-linux: initialtag
 link-linux:
 	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 linux: compile-linux link-linux
-distrib-linux : tag clean linux distrib
+distrib-linux : clean tag linux distrib
 rpm: fulltgz
 	mv $(GETDP_SRCRPM).tar.gz /usr/src/redhat/SOURCES
 	rpm -bb --define 'getdpversion $(GETDP_RELEASE)' utils/getdp.spec
@@ -392,7 +392,7 @@ link-hpux:
 	fort77 +DAportable -o $(GETDP_BIN_DIR)/getdp $(GETDP_MAIN_DIR)/Main.o \
                $(GETDP_SPARSKIT_LIBS) -lm
 hpux: compile-hpux link-hpux
-distrib-hpux: tag clean hpux distrib
+distrib-hpux: clean tag hpux distrib
 
 #
 # Sun SunOS
@@ -411,7 +411,7 @@ compile-sunos: initialtag
 link-sunos:
 	$(FC) -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lsocket -lm
 sunos: compile-sunos link-sunos
-distrib-sunos: tag clean sunos distrib
+distrib-sunos: clean tag sunos distrib
 
 #
 # IBM AIX
@@ -430,7 +430,7 @@ compile-aix: initialtag
 link-aix:
 	$(FC) -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 aix: compile-aix link-aix
-distrib-aix: tag clean aix distrib
+distrib-aix: clean tag aix distrib
 
 #
 # Cygwin (recent versions of Cygwin limit the size of the stack to a
@@ -451,7 +451,7 @@ compile-cygwin: initialtag
 link-cygwin:
 	g77 -Wl,--stack,8388608 -o $(GETDP_BIN_DIR)/getdp.exe $(GETDP_SPARSKIT_LIBS) -lm
 cygwin: compile-cygwin link-cygwin
-distrib-cygwin: tag clean cygwin distrib-win
+distrib-cygwin: clean tag cygwin distrib-win
 
 #
 # Mingw
@@ -489,7 +489,7 @@ compile-irix: initialtag
 link-irix:
 	f77 -n32 -mips3 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 irix: compile-irix link-irix
-distrib-irix: tag clean irix distrib
+distrib-irix: clean tag irix distrib
 
 #
 # SGI Irix (64 bits)
@@ -562,7 +562,7 @@ compile-macosx: initialtag
 link-macosx:
 	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 macosx: compile-macosx link-macosx
-distrib-macosx: tag clean macosx distrib
+distrib-macosx: clean tag macosx distrib
 
 #
 # Linux, Pentium 4 with Intel compiler
