@@ -2269,6 +2269,9 @@ else
     OSF1*)
       CC="cc"
       F77="f77"
+      C_FLAGS="-O3"
+      C_PARSER_FLAGS="-O1"
+      F77_FLAGS="-O3"
       LINKER="f77 -nofor_main"
       ;;
     SunOS*)

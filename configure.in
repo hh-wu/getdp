@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.1 2003-02-07 10:26:57 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.2 2003-02-07 10:52:14 geuzaine Exp $"
 dnl
 dnl Machine independent configuration script for GetDP.
 dnl
@@ -108,6 +108,9 @@ else
     OSF1*)
       CC="cc"
       F77="f77"
+      C_FLAGS="-O3"
+      C_PARSER_FLAGS="-O1"
+      F77_FLAGS="-O3"
       LINKER="f77 -nofor_main"
       ;;
     SunOS*)
