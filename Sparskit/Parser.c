@@ -1,6 +1,6 @@
-/* $Id: Parser.c,v 1.4 2000-10-06 14:23:27 geuzaine Exp $ */
+/* $Id: Parser.c,v 1.5 2000-10-16 12:33:42 geuzaine Exp $ */
 #include <stdio.h>
-#include <strings.h>
+#include <string.h>
 #include <stdlib.h>
 #include <math.h>
 

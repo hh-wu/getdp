@@ -1,6 +1,7 @@
-/* $Id: Get_FunctionValue.c,v 1.5 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: Get_FunctionValue.c,v 1.6 2000-10-16 12:33:42 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h> /* abs */
 
 #include "Treatment_Formulation.h"
 #include "Cal_Quantity.h"
