@@ -1,4 +1,4 @@
-#define RCSID "$Id: Parser.c,v 1.8 2001-02-19 16:40:40 geuzaine Exp $"
+#define RCSID "$Id: Parser.c,v 1.9 2001-02-24 16:20:29 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -202,7 +202,7 @@ static InfoSolver Tab_Params[] =
   {"Renumbering_Technique",   ENTIER, 1,     0.,    comRENUMBERING_TECHNIQUE,   actRENUMBERING_TECHNIQUE},
   {"Preconditioner",          ENTIER, 2,     0.,    comPRECONDITIONER,          actPRECONDITIONER},
   {"Preconditioner_Position", ENTIER, 2,     0.,    comPRECONDITIONER_POSITION, actPRECONDITIONER_POSITION},
-  {"Nb_Fill",                 ENTIER, 50,    0.,    comNB_FILL,                 actNB_FILL},
+  {"Nb_Fill",                 ENTIER, 20,    0.,    comNB_FILL,                 actNB_FILL},
   {"Permutation_Tolerance",   REEL,   0,     5.e-2, comPERMUTATION_TOLERANCE,   actPERMUTATION_TOLERANCE},
   {"Dropping_Tolerance",      REEL,   0,     0.,    comDROPPING_TOLERANCE,      actDROPPING_TOLERANCE},    
   {"Diagonal_Compensation",   REEL,   0,     0.,    comDIAGONAL_COMPENSATION,   actDIAGONAL_COMPENSATION},    

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.8 2000-10-30 08:44:06 colignon Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.9 2001-02-24 16:20:28 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -219,11 +219,12 @@ void Cal_WholeQuantity(struct Element * Element,
 	X = Stack[0][Index  ].Val[0] ;
 	Y = Stack[0][Index+1].Val[0] ;
 	Z = Stack[0][Index+2].Val[0] ;
+	Msg(DEBUG, "Quantity eval at %g %g %g", X, Y, Z);
 	Pos_FemInterpolation
 	  (Element,
 	   QuantityStorage_P0,
 	   QuantityStorage_P0 + WholeQuantity_P->Case.OperatorAndQuantity.Index,
-	   QUANTITY_SIMPLE,
+	   WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity,
 	   WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, 1,
 	   u, v, w, X, Y, Z, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
 	Multi[Index] = 0 ;

@@ -194,7 +194,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.3 2001-02-02 15:47:28 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.4 2001-02-24 16:20:28 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -352,7 +352,7 @@ struct ConstraintInFS           ConstraintInFS_S ;
 struct Formulation            Formulation_S ;
 struct DefineQuantity           DefineQuantity_S ;
 struct EquationTerm             EquationTerm_S ;
-struct WholeQuantity            WholeQuantity_S, *WholeQuantity_P ;
+struct WholeQuantity            WholeQuantity_S, *WholeQuantity_P, *ttt ;
 
 struct GlobalEquationTerm       GlobalEquationTerm_S ;
 
@@ -375,6 +375,7 @@ typedef union {
   int     i ;
   double  d ;
   List_T  *l ;
+  struct TwoInt t ;
 } YYSTYPE;
 #include <stdio.h>
 
@@ -756,69 +757,69 @@ static const short yyrhs[] = {    -1,
 
 #if YYDEBUG != 0
 static const short yyrline[] = { 0,
-   313,   350,   388,   391,   394,   397,   400,   401,   402,   403,
-   404,   405,   406,   407,   408,   410,   412,   414,   419,   428,
-   432,   435,   438,   441,   443,   451,   465,   468,   469,   472,
-   477,   480,   482,   485,   487,   491,   499,   510,   519,   528,
-   535,   570,   575,   585,   588,   602,   607,   610,   659,   671,
-   697,   702,   717,   735,   756,   762,   771,   785,   819,   832,
-   852,   856,   866,   883,   883,   886,   892,   895,   898,   908,
-   911,   914,   918,   938,   982,   986,   989,  1006,  1015,  1022,
-  1025,  1031,  1037,  1044,  1048,  1061,  1076,  1090,  1096,  1102,
-  1108,  1114,  1120,  1126,  1132,  1138,  1144,  1150,  1156,  1162,
-  1168,  1174,  1180,  1186,  1193,  1199,  1201,  1210,  1214,  1220,
-  1298,  1332,  1342,  1355,  1357,  1368,  1370,  1386,  1392,  1398,
-  1400,  1429,  1453,  1464,  1470,  1477,  1483,  1494,  1508,  1511,
-  1512,  1515,  1518,  1521,  1526,  1528,  1535,  1560,  1567,  1572,
-  1577,  1581,  1588,  1593,  1598,  1603,  1609,  1613,  1618,  1621,
-  1650,  1658,  1663,  1672,  1676,  1685,  1688,  1693,  1698,  1703,
-  1711,  1715,  1726,  1735,  1740,  1745,  1750,  1762,  1766,  1821,
-  1824,  1827,  1830,  1833,  1842,  1849,  1852,  1874,  1877,  1887,
-  1891,  1899,  1906,  1914,  1917,  1937,  1954,  1976,  1986,  1990,
-  2001,  2025,  2050,  2055,  2063,  2071,  2081,  2097,  2104,  2110,
-  2116,  2124,  2132,  2140,  2158,  2166,  2169,  2192,  2196,  2205,
-  2209,  2217,  2224,  2232,  2235,  2238,  2241,  2246,  2264,  2311,
-  2327,  2331,  2336,  2341,  2346,  2358,  2374,  2383,  2407,  2462,
-  2466,  2470,  2479,  2543,  2549,  2554,  2559,  2563,  2570,  2573,
-  2578,  2596,  2601,  2605,  2622,  2636,  2641,  2645,  2658,  2664,
-  2671,  2678,  2682,  2689,  2698,  2709,  2726,  2798,  2810,  2814,
-  2834,  2848,  2851,  2854,  2898,  2905,  2908,  2930,  2934,  2942,
-  2946,  2954,  2961,  2970,  2972,  2977,  2992,  3008,  3025,  3029,
-  3034,  3038,  3041,  3050,  3089,  3113,  3118,  3124,  3274,  3279,
-  3288,  3297,  3302,  3305,  3343,  3360,  3386,  3391,  3394,  3397,
-  3402,  3410,  3413,  3424,  3434,  3446,  3455,  3458,  3462,  3464,
-  3466,  3472,  3490,  3494,  3505,  3566,  3612,  3636,  3645,  3657,
-  3674,  3678,  3712,  3721,  3775,  3791,  3794,  3795,  3796,  3797,
-  3798,  3799,  3803,  3819,  3835,  3842,  3845,  3866,  3870,  3878,
-  3882,  3891,  3898,  3901,  3903,  3908,  3924,  3941,  3956,  3960,
-  3965,  3973,  3976,  3981,  3986,  3991,  4001,  4008,  4047,  4052,
-  4057,  4067,  4079,  4083,  4088,  4099,  4108,  4115,  4135,  4142,
-  4148,  4154,  4160,  4168,  4184,  4191,  4197,  4208,  4219,  4235,
-  4247,  4269,  4290,  4303,  4317,  4324,  4326,  4333,  4335,  4345,
-  4355,  4365,  4375,  4381,  4384,  4388,  4397,  4408,  4420,  4424,
-  4430,  4434,  4438,  4443,  4452,  4465,  4469,  4475,  4479,  4483,
-  4487,  4492,  4501,  4513,  4516,  4522,  4526,  4530,  4535,  4544,
-  4559,  4562,  4568,  4572,  4576,  4581,  4591,  4597,  4603,  4612,
-  4616,  4620,  4634,  4637,  4648,  4677,  4680,  4683,  4691,  4705,
-  4713,  4716,  4737,  4740,  4751,  4754,  4762,  4770,  4816,  4821,
-  4826,  4830,  4834,  4841,  4845,  4849,  4854,  4860,  4866,  4878,
-  4889,  4892,  4900,  4928,  4938,  4938,  4944,  4953,  4969,  4977,
-  4980,  4985,  4988,  4997,  5000,  5008,  5020,  5030,  5035,  5040,
-  5058,  5067,  5071,  5076,  5084,  5092,  5099,  5113,  5135,  5138,
-  5139,  5140,  5143,  5147,  5151,  5159,  5166,  5173,  5189,  5196,
-  5210,  5220,  5228,  5241,  5259,  5283,  5303,  5322,  5325,  5333,
-  5340,  5347,  5351,  5355,  5359,  5363,  5372,  5377,  5382,  5402,
-  5409,  5416,  5424,  5432,  5439,  5446,  5450,  5458,  5462,  5473,
-  5480,  5526,  5532,  5536,  5541,  5546,  5549,  5550,  5554,  5559,
-  5568,  5571,  5580,  5588,  5605,  5613,  5619,  5631,  5675,  5679,
-  5682,  5688,  5694,  5705,  5707,  5708,  5709,  5710,  5711,  5712,
-  5713,  5714,  5715,  5716,  5717,  5718,  5719,  5720,  5721,  5722,
-  5723,  5724,  5725,  5726,  5728,  5730,  5731,  5732,  5733,  5734,
-  5735,  5736,  5737,  5738,  5739,  5740,  5741,  5742,  5743,  5744,
-  5745,  5746,  5747,  5748,  5749,  5750,  5751,  5752,  5753,  5754,
-  5755,  5756,  5757,  5758,  5759,  5760,  5761,  5762,  5763,  5764,
-  5765,  5766,  5767,  5768,  5771,  5774,  5775,  5776,  5777,  5778,
-  5779,  5780,  5797,  5802,  5817
+   315,   352,   390,   393,   396,   399,   402,   403,   404,   405,
+   406,   407,   408,   409,   410,   412,   414,   416,   421,   430,
+   434,   437,   440,   443,   445,   453,   467,   470,   471,   474,
+   479,   482,   484,   487,   489,   493,   501,   512,   521,   530,
+   537,   572,   577,   587,   590,   604,   609,   612,   661,   673,
+   699,   704,   719,   737,   758,   764,   773,   787,   821,   834,
+   854,   858,   868,   885,   885,   888,   894,   897,   900,   910,
+   913,   916,   920,   940,   984,   988,   991,  1008,  1017,  1024,
+  1027,  1033,  1039,  1046,  1050,  1063,  1078,  1092,  1098,  1104,
+  1110,  1116,  1122,  1128,  1134,  1140,  1146,  1152,  1158,  1164,
+  1170,  1176,  1182,  1188,  1195,  1201,  1203,  1212,  1216,  1222,
+  1300,  1333,  1342,  1354,  1356,  1367,  1369,  1385,  1391,  1397,
+  1399,  1428,  1452,  1463,  1469,  1476,  1482,  1493,  1507,  1510,
+  1511,  1514,  1517,  1520,  1525,  1527,  1534,  1559,  1566,  1571,
+  1576,  1580,  1587,  1592,  1597,  1602,  1608,  1612,  1617,  1620,
+  1649,  1657,  1662,  1671,  1675,  1684,  1687,  1692,  1697,  1702,
+  1710,  1714,  1725,  1734,  1739,  1744,  1749,  1761,  1765,  1820,
+  1823,  1826,  1829,  1832,  1841,  1848,  1851,  1873,  1876,  1886,
+  1890,  1898,  1905,  1913,  1916,  1936,  1953,  1975,  1985,  1989,
+  2000,  2024,  2049,  2054,  2062,  2070,  2080,  2096,  2103,  2109,
+  2115,  2123,  2131,  2139,  2157,  2165,  2168,  2191,  2195,  2204,
+  2208,  2216,  2223,  2231,  2234,  2237,  2240,  2245,  2263,  2310,
+  2326,  2330,  2335,  2340,  2345,  2357,  2373,  2382,  2406,  2461,
+  2465,  2469,  2478,  2542,  2548,  2553,  2558,  2562,  2569,  2572,
+  2577,  2595,  2600,  2604,  2621,  2635,  2640,  2644,  2657,  2663,
+  2670,  2677,  2681,  2688,  2697,  2708,  2725,  2797,  2809,  2813,
+  2833,  2847,  2850,  2853,  2897,  2904,  2907,  2929,  2933,  2941,
+  2945,  2953,  2960,  2969,  2971,  2976,  2991,  3007,  3024,  3028,
+  3033,  3037,  3040,  3049,  3088,  3112,  3117,  3123,  3273,  3278,
+  3287,  3296,  3301,  3304,  3342,  3359,  3385,  3390,  3393,  3396,
+  3401,  3409,  3412,  3423,  3433,  3445,  3454,  3457,  3461,  3463,
+  3465,  3471,  3489,  3493,  3504,  3565,  3611,  3635,  3644,  3656,
+  3673,  3677,  3711,  3720,  3774,  3790,  3793,  3794,  3795,  3796,
+  3797,  3798,  3802,  3824,  3846,  3853,  3856,  3877,  3881,  3889,
+  3893,  3902,  3909,  3912,  3914,  3919,  3935,  3952,  3967,  3971,
+  3976,  3984,  3987,  3992,  3997,  4002,  4012,  4019,  4058,  4063,
+  4068,  4078,  4090,  4094,  4099,  4110,  4119,  4126,  4146,  4153,
+  4159,  4165,  4171,  4179,  4195,  4202,  4208,  4219,  4230,  4246,
+  4258,  4280,  4301,  4314,  4328,  4335,  4337,  4344,  4346,  4356,
+  4366,  4376,  4386,  4392,  4395,  4399,  4408,  4419,  4431,  4435,
+  4441,  4445,  4449,  4454,  4463,  4476,  4480,  4486,  4490,  4494,
+  4498,  4503,  4512,  4524,  4527,  4533,  4537,  4541,  4546,  4555,
+  4570,  4573,  4579,  4583,  4587,  4592,  4602,  4608,  4614,  4623,
+  4627,  4631,  4645,  4648,  4659,  4688,  4691,  4694,  4702,  4716,
+  4724,  4727,  4748,  4751,  4762,  4765,  4773,  4781,  4827,  4832,
+  4837,  4841,  4845,  4852,  4856,  4860,  4865,  4871,  4877,  4889,
+  4900,  4903,  4911,  4939,  4949,  4949,  4955,  4964,  4980,  4988,
+  4991,  4996,  4999,  5008,  5011,  5019,  5031,  5041,  5046,  5051,
+  5069,  5078,  5082,  5087,  5095,  5103,  5110,  5124,  5146,  5149,
+  5150,  5151,  5154,  5158,  5162,  5170,  5177,  5184,  5200,  5207,
+  5221,  5231,  5239,  5252,  5270,  5294,  5314,  5333,  5336,  5344,
+  5351,  5358,  5362,  5366,  5370,  5374,  5383,  5388,  5393,  5413,
+  5420,  5427,  5435,  5443,  5450,  5457,  5461,  5469,  5473,  5484,
+  5491,  5537,  5543,  5547,  5552,  5557,  5560,  5561,  5565,  5570,
+  5579,  5582,  5591,  5599,  5616,  5624,  5630,  5642,  5686,  5690,
+  5693,  5699,  5705,  5716,  5718,  5719,  5720,  5721,  5722,  5723,
+  5724,  5725,  5726,  5727,  5728,  5729,  5730,  5731,  5732,  5733,
+  5734,  5735,  5736,  5737,  5739,  5741,  5742,  5743,  5744,  5745,
+  5746,  5747,  5748,  5749,  5750,  5751,  5752,  5753,  5754,  5755,
+  5756,  5757,  5758,  5759,  5760,  5761,  5762,  5763,  5764,  5765,
+  5766,  5767,  5768,  5769,  5770,  5771,  5772,  5773,  5774,  5775,
+  5776,  5777,  5778,  5779,  5782,  5785,  5786,  5787,  5788,  5789,
+  5790,  5791,  5808,  5813,  5828
 };
 #endif
 
@@ -3020,7 +3021,7 @@ yyreduce:
   switch (yyn) {
 
 case 1:
-#line 314 "GetDP.y"
+#line 316 "GetDP.y"
 { if (++YaccLevel == 1) {
 	ConstantTable_L = List_Create(20, 10, sizeof(struct Constant)) ;
 	ListDummy_L     = List_Create( 1, 1, sizeof(int)) ; /* Do not delete */
@@ -3058,7 +3059,7 @@ case 1:
     ;
     break;}
 case 2:
-#line 350 "GetDP.y"
+#line 352 "GetDP.y"
 { if (--YaccLevel == 0) {
 	List_Delete(ListOfInt_L) ; List_Delete(ListOfTwoInt_L) ;  
 	List_Delete(ListOfDouble_L) ; List_Delete(ListOfDouble2_L) ;
@@ -3092,33 +3093,33 @@ case 2:
     ;
     break;}
 case 4:
-#line 392 "GetDP.y"
+#line 394 "GetDP.y"
 { Formulation_S.DefineQuantity = NULL ; Nbr_Index = 0 ; ;
     break;}
 case 18:
-#line 415 "GetDP.y"
+#line 417 "GetDP.y"
 {            
       strcpy(yyincludename, yyvsp[0].c); yyincludenum++ ; return(0);
     ;
     break;}
 case 20:
-#line 430 "GetDP.y"
+#line 432 "GetDP.y"
 { Help(NULL); ;
     break;}
 case 21:
-#line 433 "GetDP.y"
+#line 435 "GetDP.y"
 { Help(yyvsp[-1].c); ;
     break;}
 case 22:
-#line 436 "GetDP.y"
+#line 438 "GetDP.y"
 { Free(yyvsp[-2].c); Help(yyvsp[-1].c); ;
     break;}
 case 23:
-#line 439 "GetDP.y"
+#line 441 "GetDP.y"
 { Free(yyvsp[-3].c); Free(yyvsp[-2].c); Help(yyvsp[-1].c); ;
     break;}
 case 25:
-#line 443 "GetDP.y"
+#line 445 "GetDP.y"
 {
       PostOperation_S.Name = NULL ;  
       PostOperation_S.AppendString = NULL ;  
@@ -3128,7 +3129,7 @@ case 25:
     ;
     break;}
 case 26:
-#line 451 "GetDP.y"
+#line 453 "GetDP.y"
 {
       if(PostSubOperation_S.Format<0)
 	PostSubOperation_S.Format = PostOperation_S.Format ;
@@ -3137,34 +3138,34 @@ case 26:
     ;
     break;}
 case 28:
-#line 468 "GetDP.y"
+#line 470 "GetDP.y"
 { Nbr_Index = 0 ; ;
     break;}
 case 30:
-#line 475 "GetDP.y"
+#line 477 "GetDP.y"
 { Add_Group(&Group_S, yyvsp[-3].c, 0, 0) ; ;
     break;}
 case 31:
-#line 478 "GetDP.y"
+#line 480 "GetDP.y"
 { Add_Group(&Group_S, yyvsp[-4].c, 2, yyvsp[-3].i) ; ;
     break;}
 case 32:
-#line 481 "GetDP.y"
+#line 483 "GetDP.y"
 { Nbr_Index = yyvsp[-1].i ; ;
     break;}
 case 33:
-#line 483 "GetDP.y"
+#line 485 "GetDP.y"
 { Add_Group_Index(&Group_S, yyvsp[-5].c, 2) ; ;
     break;}
 case 36:
-#line 494 "GetDP.y"
+#line 496 "GetDP.y"
 {
       Flag_MultipleIndex = 0 ;  /* Init ... */
       ListOfInitialList2_L = ListOfInitialList_L ;  /* Init pour ListOfRegion */
     ;
     break;}
 case 37:
-#line 499 "GetDP.y"
+#line 501 "GetDP.y"
 {
       Group_S.FunctionType = yyvsp[-3].i ;
       switch (Group_S.FunctionType) {
@@ -3178,7 +3179,7 @@ case 37:
     ;
     break;}
 case 38:
-#line 511 "GetDP.y"
+#line 513 "GetDP.y"
 {
       Group_S.SuppListType = Type_SuppList ;
       if (!Nbr_Index)  Group_S.InitialSuppList = yyvsp[-1].l ;
@@ -3187,7 +3188,7 @@ case 38:
     ;
     break;}
 case 39:
-#line 520 "GetDP.y"
+#line 522 "GetDP.y"
 {
       Group_S.FunctionType = REGION ;  Group_S.Type = REGIONLIST  ;
       Group_S.InitialList = yyvsp[0].l ;
@@ -3196,13 +3197,13 @@ case 39:
     ;
     break;}
 case 40:
-#line 531 "GetDP.y"
+#line 533 "GetDP.y"
 {
       yyval.i = yyvsp[0].i ;
     ;
     break;}
 case 41:
-#line 536 "GetDP.y"
+#line 538 "GetDP.y"
 {
       if (!Flag_MultipleIndex) {
 	if ( !strcmp(yyvsp[-1].c, "All") ) {
@@ -3236,11 +3237,11 @@ case 41:
     ;
     break;}
 case 42:
-#line 573 "GetDP.y"
+#line 575 "GetDP.y"
 { yyval.i = REGION ; ;
     break;}
 case 43:
-#line 576 "GetDP.y"
+#line 578 "GetDP.y"
 { yyval.i = Get_DefineForString(FunctionForGroup_Type, yyvsp[0].c, &FlagError) ;
       if (FlagError)  
 	vyyerror("Unknown Type of Function for Group: %s %s", 
@@ -3249,11 +3250,11 @@ case 43:
     ;
     break;}
 case 44:
-#line 587 "GetDP.y"
+#line 589 "GetDP.y"
 { yyval.l = yyvsp[0].l ; ;
     break;}
 case 45:
-#line 589 "GetDP.y"
+#line 591 "GetDP.y"
 { 
       if (!Nbr_Index)
 	yyval.l = NULL ;
@@ -3266,15 +3267,15 @@ case 45:
     ;
     break;}
 case 46:
-#line 605 "GetDP.y"
+#line 607 "GetDP.y"
 { Type_SuppList = SUPPLIST_NONE ;  yyval.l = NULL ; ;
     break;}
 case 47:
-#line 608 "GetDP.y"
+#line 610 "GetDP.y"
 { Type_SuppList = yyvsp[-1].i ; yyval.l = yyvsp[0].l ; ;
     break;}
 case 48:
-#line 611 "GetDP.y"
+#line 613 "GetDP.y"
 {
       Type_SuppList = SUPPLIST_INSUPPORT ;
       if (!Flag_MultipleIndex) {
@@ -3323,7 +3324,7 @@ case 48:
     ;
     break;}
 case 49:
-#line 662 "GetDP.y"
+#line 664 "GetDP.y"
 { yyval.i = Get_DefineForString(FunctionForGroup_SuppList, yyvsp[0].c, &FlagError) ;
       if (FlagError)  
 	vyyerror("Unknown Type of Supplementary Region: %s %s", 
@@ -3332,7 +3333,7 @@ case 49:
     ;
     break;}
 case 50:
-#line 674 "GetDP.y"
+#line 676 "GetDP.y"
 {
       if (!Nbr_Index) {
 	yyval.l = List_Create(((List_Nbr(yyvsp[0].l) > 0)? List_Nbr(yyvsp[0].l) : 1), 5, sizeof(int)) ;
@@ -3357,11 +3358,11 @@ case 50:
     ;
     break;}
 case 51:
-#line 698 "GetDP.y"
+#line 700 "GetDP.y"
 { yyval.l = yyvsp[-1].l ; ;
     break;}
 case 52:
-#line 705 "GetDP.y"
+#line 707 "GetDP.y"
 {
       if (!Nbr_Index)
 	yyval.l = List_Create( 5, 5, sizeof(int)) ;
@@ -3375,7 +3376,7 @@ case 52:
     ;
     break;}
 case 53:
-#line 718 "GetDP.y"
+#line 720 "GetDP.y"
 { yyval.l = yyvsp[-2].l ;
       if (!Nbr_Index)
 	for (i = 0 ; i < List_Nbr(yyvsp[0].l) ; i++)
@@ -3394,7 +3395,7 @@ case 53:
     ;
     break;}
 case 54:
-#line 736 "GetDP.y"
+#line 738 "GetDP.y"
 { yyval.l = yyvsp[-3].l ;
       if (!Nbr_Index)
 	for (i = 0 ; i < List_Nbr(yyvsp[0].l) ; i++)
@@ -3414,12 +3415,12 @@ case 54:
     ;
     break;}
 case 55:
-#line 759 "GetDP.y"
+#line 761 "GetDP.y"
 { Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; List_Add(yyval.l = ListOfInt_L, &(yyvsp[0].i)) ; ;
     break;}
 case 56:
-#line 763 "GetDP.y"
+#line 765 "GetDP.y"
 { 
       Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; 
@@ -3429,7 +3430,7 @@ case 56:
     ;
     break;}
 case 57:
-#line 772 "GetDP.y"
+#line 774 "GetDP.y"
 { 
       Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; 
@@ -3444,7 +3445,7 @@ case 57:
     ;
     break;}
 case 58:
-#line 786 "GetDP.y"
+#line 788 "GetDP.y"
 {
       Flag_MultipleIndex = 0 ;
       if ( (i = List_ISearchSeq(Problem_S.Group, yyvsp[0].c, fcmp_Group_Name)) < 0 ) {
@@ -3479,7 +3480,7 @@ case 58:
     ;
     break;}
 case 59:
-#line 820 "GetDP.y"
+#line 822 "GetDP.y"
 {
       Flag_MultipleIndex = 0 ;
       sprintf(StringAux1, "%s_%d_", yyvsp[-3].c, (int)yyvsp[-1].d) ;
@@ -3493,7 +3494,7 @@ case 59:
     ;
     break;}
 case 60:
-#line 833 "GetDP.y"
+#line 835 "GetDP.y"
 {
       Flag_MultipleIndex = 1 ;
       List_Reset(ListOfInitialList0_L) ;
@@ -3512,7 +3513,7 @@ case 60:
     ;
     break;}
 case 62:
-#line 857 "GetDP.y"
+#line 859 "GetDP.y"
 { if ( (i = List_ISearchSeq(Problem_S.Group, yyvsp[0].c, fcmp_Group_Name)) < 0 ) {
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = ListDummy_L ;
@@ -3523,7 +3524,7 @@ case 62:
     ;
     break;}
 case 63:
-#line 867 "GetDP.y"
+#line 869 "GetDP.y"
 { 
       for (k = 0 ; k < (int)yyvsp[-1].d ; k++) {
 	sprintf(StringAux1, "%s_%d_", yyvsp[-3].c, k+1) ;
@@ -3539,23 +3540,23 @@ case 63:
     ;
     break;}
 case 66:
-#line 889 "GetDP.y"
+#line 891 "GetDP.y"
 { yyval.i = (int)yyvsp[-1].d ; ;
     break;}
 case 67:
-#line 894 "GetDP.y"
+#line 896 "GetDP.y"
 { Flag_MultipleIndex = 0 ; ;
     break;}
 case 68:
-#line 895 "GetDP.y"
+#line 897 "GetDP.y"
 { Flag_MultipleIndex = 1 ; ;
     break;}
 case 69:
-#line 900 "GetDP.y"
+#line 902 "GetDP.y"
 { yyval.i = (int)yyvsp[-1].d ; ;
     break;}
 case 73:
-#line 919 "GetDP.y"
+#line 921 "GetDP.y"
 {
       if ( (i = List_ISearchSeq
 	    (Problem_S.Expression, yyvsp[-5].c, fcmp_Expression_Name)) >= 0 ) {
@@ -3576,7 +3577,7 @@ case 73:
     ;
     break;}
 case 74:
-#line 939 "GetDP.y"
+#line 941 "GetDP.y"
 {
       if ( (i = List_ISearchSeq
 	    (Problem_S.Expression, yyvsp[-6].c, fcmp_Expression_Name)) < 0 ) {
@@ -3621,7 +3622,7 @@ case 74:
     ;
     break;}
 case 77:
-#line 990 "GetDP.y"
+#line 992 "GetDP.y"
 {
       if ( (i = List_ISearchSeq
 	    (Problem_S.Expression, yyvsp[0].c, fcmp_Expression_Name)) < 0 ) {
@@ -3632,42 +3633,42 @@ case 77:
     ;
     break;}
 case 78:
-#line 1010 "GetDP.y"
+#line 1012 "GetDP.y"
 { Expression_S.Type = CONSTANT ;  Expression_S.Case.Constant = yyvsp[-1].d ;
       yyval.i = Add_Expression(&Expression_S, "Exp_Cst", 1) ;
     ;
     break;}
 case 79:
-#line 1016 "GetDP.y"
+#line 1018 "GetDP.y"
 { if((i = List_ISearchSeq(Problem_S.Expression, yyvsp[-1].c, fcmp_Expression_Name)) < 0)
 	vyyerror("Unknown Name of Expression: %s", yyvsp[-1].c) ;
       Free(yyvsp[-1].c) ;  yyval.i = i ;
     ;
     break;}
 case 80:
-#line 1022 "GetDP.y"
+#line 1024 "GetDP.y"
 { Current_DofIndexInWholeQuantity = -2 ;  
       List_Reset(ListOfPointer_L) ; List_Reset(ListOfPointer2_L) ; ;
     break;}
 case 81:
-#line 1025 "GetDP.y"
+#line 1027 "GetDP.y"
 { Expression_S.Type = WHOLEQUANTITY ;  Expression_S.Case.WholeQuantity = yyvsp[0].l ;
       yyval.i = Add_Expression(&Expression_S, "Exp_Fct", 1) ; ;
     break;}
 case 82:
-#line 1033 "GetDP.y"
+#line 1035 "GetDP.y"
 { Current_WholeQuantity_L = List_Create( 5, 5, sizeof(struct WholeQuantity)) ;
       List_Add(ListOfPointer_L, &Current_WholeQuantity_L) ;
     ;
     break;}
 case 83:
-#line 1037 "GetDP.y"
+#line 1039 "GetDP.y"
 { yyval.l = *((List_T **)List_Pointer(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1)) ;
       List_Pop(ListOfPointer_L) ;
     ;
     break;}
 case 85:
-#line 1049 "GetDP.y"
+#line 1051 "GetDP.y"
 {
       WholeQuantity_S.Type = WQ_TEST ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
@@ -3682,7 +3683,7 @@ case 85:
     ;
     break;}
 case 86:
-#line 1062 "GetDP.y"
+#line 1064 "GetDP.y"
 {
       WholeQuantity_P = 
 	*((struct WholeQuantity**)
@@ -3698,7 +3699,7 @@ case 86:
     ;
     break;}
 case 87:
-#line 1076 "GetDP.y"
+#line 1078 "GetDP.y"
 {
       WholeQuantity_P = 
 	*((struct WholeQuantity**)
@@ -3714,7 +3715,7 @@ case 87:
     ;
     break;}
 case 88:
-#line 1091 "GetDP.y"
+#line 1093 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_TIME ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ProductValue ;
@@ -3722,7 +3723,7 @@ case 88:
     ;
     break;}
 case 89:
-#line 1097 "GetDP.y"
+#line 1099 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_CrossProductValue ;
@@ -3730,7 +3731,7 @@ case 89:
     ;
     break;}
 case 90:
-#line 1103 "GetDP.y"
+#line 1105 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_CROSSPRODUCT ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_CrossProductValue ;
@@ -3738,7 +3739,7 @@ case 90:
     ;
     break;}
 case 91:
-#line 1109 "GetDP.y"
+#line 1111 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_DIVIDE ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_DivideValue ;
@@ -3746,7 +3747,7 @@ case 91:
     ;
     break;}
 case 92:
-#line 1115 "GetDP.y"
+#line 1117 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_PLUS ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_AddValue ;
@@ -3754,7 +3755,7 @@ case 92:
     ;
     break;}
 case 93:
-#line 1121 "GetDP.y"
+#line 1123 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MINUS ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_SubstractValue ;
@@ -3762,7 +3763,7 @@ case 93:
     ;
     break;}
 case 94:
-#line 1127 "GetDP.y"
+#line 1129 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_MODULO ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ModuloValue ;
@@ -3770,7 +3771,7 @@ case 94:
     ;
     break;}
 case 95:
-#line 1133 "GetDP.y"
+#line 1135 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_POWER ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_PowerValue ;
@@ -3778,7 +3779,7 @@ case 95:
     ;
     break;}
 case 96:
-#line 1139 "GetDP.y"
+#line 1141 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESS ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_LessValue ;
@@ -3786,7 +3787,7 @@ case 96:
     ;
     break;}
 case 97:
-#line 1145 "GetDP.y"
+#line 1147 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATER ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_GreaterValue ;
@@ -3794,7 +3795,7 @@ case 97:
     ;
     break;}
 case 98:
-#line 1151 "GetDP.y"
+#line 1153 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_LESSOREQUAL ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_LessOrEqualValue ;
@@ -3802,7 +3803,7 @@ case 98:
     ;
     break;}
 case 99:
-#line 1157 "GetDP.y"
+#line 1159 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_GREATEROREQUAL ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_GreaterOrEqualValue ;
@@ -3810,7 +3811,7 @@ case 99:
     ;
     break;}
 case 100:
-#line 1163 "GetDP.y"
+#line 1165 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_EQUAL ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_EqualValue ;
@@ -3818,7 +3819,7 @@ case 100:
     ;
     break;}
 case 101:
-#line 1169 "GetDP.y"
+#line 1171 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOTEQUAL ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NotEqualValue ;
@@ -3826,7 +3827,7 @@ case 101:
     ;
     break;}
 case 102:
-#line 1175 "GetDP.y"
+#line 1177 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_APPROXEQUAL ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_ApproxEqualValue ;
@@ -3834,7 +3835,7 @@ case 102:
     ;
     break;}
 case 103:
-#line 1181 "GetDP.y"
+#line 1183 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_AND ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_AndValue ;
@@ -3842,7 +3843,7 @@ case 103:
     ;
     break;}
 case 104:
-#line 1187 "GetDP.y"
+#line 1189 "GetDP.y"
 { WholeQuantity_S.Type = WQ_BINARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_OR ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_OrValue ;
@@ -3850,28 +3851,28 @@ case 104:
     ;
     break;}
 case 105:
-#line 1194 "GetDP.y"
+#line 1196 "GetDP.y"
 { WholeQuantity_S.Type = WQ_UNARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NEG ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NegValue ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ; ;
     break;}
 case 107:
-#line 1202 "GetDP.y"
+#line 1204 "GetDP.y"
 { WholeQuantity_S.Type = WQ_UNARYOPERATOR ;
       WholeQuantity_S.Case.Operator.TypeOperator = OP_NOT ;
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NotValue ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ; ;
     break;}
 case 109:
-#line 1215 "GetDP.y"
+#line 1217 "GetDP.y"
 { WholeQuantity_S.Type = WQ_CONSTANT ;
       WholeQuantity_S.Case.Constant = yyvsp[0].d ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;
     break;}
 case 110:
-#line 1221 "GetDP.y"
+#line 1223 "GetDP.y"
 {
 
       /* Expression */
@@ -3950,7 +3951,7 @@ case 110:
     ;
     break;}
 case 111:
-#line 1299 "GetDP.y"
+#line 1301 "GetDP.y"
 { WholeQuantity_S.Type = WQ_OPERATORANDQUANTITY ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = 0 ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity =
@@ -3959,9 +3960,8 @@ case 111:
 	vyyerror("Unknown Type for Quantity: %s %s", 
 		 yyvsp[-1].c, Get_Valid_SXD(QuantityFromFS_Type)) ;
       Free(yyvsp[-1].c) ;
-      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator =
-	Quantity_TypeOperator ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = yyvsp[0].t.Int1 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = yyvsp[0].t.Int2 ;
 
       switch(WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity) {
       case QUANTITY_DOF :
@@ -3985,13 +3985,12 @@ case 111:
     ;
     break;}
 case 112:
-#line 1333 "GetDP.y"
+#line 1334 "GetDP.y"
 { WholeQuantity_S.Type = WQ_OPERATORANDQUANTITY ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = 0 ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity = QUANTITY_SIMPLE ;
-      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator =
-	Quantity_TypeOperator ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = yyvsp[0].t.Int1 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = yyvsp[0].t.Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;
     break;}
@@ -4003,18 +4002,17 @@ case 113:
       WholeQuantity_S.Type = WQ_OPERATORANDQUANTITYEVAL ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = yyvsp[0].i ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity = QUANTITY_SIMPLE ;
-      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator =
-	Quantity_TypeOperator ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = yyvsp[-1].t.Int1 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = yyvsp[-1].t.Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;
     break;}
 case 114:
-#line 1356 "GetDP.y"
+#line 1355 "GetDP.y"
 { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity ; ;
     break;}
 case 115:
-#line 1358 "GetDP.y"
+#line 1357 "GetDP.y"
 { WholeQuantity_S.Type = WQ_TIMEDERIVATIVE ;
       WholeQuantity_S.Case.TimeDerivative.WholeQuantity = yyvsp[-1].l ;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
@@ -4026,11 +4024,11 @@ case 115:
     ;
     break;}
 case 116:
-#line 1369 "GetDP.y"
+#line 1368 "GetDP.y"
 { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity ; ;
     break;}
 case 117:
-#line 1371 "GetDP.y"
+#line 1370 "GetDP.y"
 {
       WholeQuantity_S.Type = WQ_MHTIMEINTEGRATION ;
 
@@ -4047,25 +4045,25 @@ case 117:
     ;
     break;}
 case 118:
-#line 1387 "GetDP.y"
+#line 1386 "GetDP.y"
 { WholeQuantity_S.Type = WQ_SOLIDANGLE ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = yyvsp[-1].t.Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;
     break;}
 case 119:
-#line 1393 "GetDP.y"
+#line 1392 "GetDP.y"
 { WholeQuantity_S.Type = WQ_ORDER ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = yyvsp[-1].t.Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;
     break;}
 case 120:
-#line 1399 "GetDP.y"
+#line 1398 "GetDP.y"
 { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity ; ;
     break;}
 case 121:
-#line 1401 "GetDP.y"
+#line 1400 "GetDP.y"
 { WholeQuantity_S.Type = WQ_TRACE ;
       WholeQuantity_S.Case.Trace.WholeQuantity = yyvsp[-3].l ;
       WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, "WQ_Trace_In", yyvsp[-1].i) ;
@@ -4095,7 +4093,7 @@ case 121:
     ;
     break;}
 case 122:
-#line 1430 "GetDP.y"
+#line 1429 "GetDP.y"
 { WholeQuantity_S.Type = WQ_CAST ;
       WholeQuantity_S.Case.Cast.WholeQuantity = yyvsp[-1].l ;
 
@@ -4120,7 +4118,7 @@ case 122:
     ;
     break;}
 case 123:
-#line 1454 "GetDP.y"
+#line 1453 "GetDP.y"
 { WholeQuantity_S.Type = WQ_CURRENTVALUE ;
       Get_PointerForString(Current_Value, yyvsp[0].c, &FlagError,
 			   (void **)&WholeQuantity_S.Case.CurrentValue.Value) ;
@@ -4131,7 +4129,7 @@ case 123:
     ;
     break;}
 case 124:
-#line 1465 "GetDP.y"
+#line 1464 "GetDP.y"
 { WholeQuantity_S.Type = WQ_CURRENTVALUE ;
       Get_PointerForString(Current_Value, "TimeStep", &FlagError,
 			   (void **)&WholeQuantity_S.Case.CurrentValue.Value) ;
@@ -4139,7 +4137,7 @@ case 124:
     ;
     break;}
 case 125:
-#line 1471 "GetDP.y"
+#line 1470 "GetDP.y"
 { WholeQuantity_S.Type = WQ_CURRENTVALUE ;
       Get_PointerForString(Current_Value, "DTime", &FlagError,
 			   (void **)&WholeQuantity_S.Case.CurrentValue.Value) ;
@@ -4147,14 +4145,14 @@ case 125:
     ;
     break;}
 case 126:
-#line 1478 "GetDP.y"
+#line 1477 "GetDP.y"
 { WholeQuantity_S.Type = WQ_ARGUMENT ;
       WholeQuantity_S.Case.Argument.Index = yyvsp[0].i ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;
     break;}
 case 127:
-#line 1484 "GetDP.y"
+#line 1483 "GetDP.y"
 {
       WholeQuantity_S.Type = WQ_SAVEVALUE ;
       WholeQuantity_S.Case.SaveValue.Index = yyvsp[0].i - 1 ;
@@ -4166,7 +4164,7 @@ case 127:
     ;
     break;}
 case 128:
-#line 1495 "GetDP.y"
+#line 1494 "GetDP.y"
 {
       WholeQuantity_S.Type = WQ_VALUESAVED ;
       WholeQuantity_S.Case.ValueSaved.Index = yyvsp[0].i - 1 ;
@@ -4178,31 +4176,31 @@ case 128:
     ;
     break;}
 case 129:
-#line 1510 "GetDP.y"
+#line 1509 "GetDP.y"
 { yyval.i = -1 ; ;
     break;}
 case 130:
-#line 1511 "GetDP.y"
+#line 1510 "GetDP.y"
 { yyval.i = 0 ; ;
     break;}
 case 131:
-#line 1512 "GetDP.y"
+#line 1511 "GetDP.y"
 { yyval.i = yyvsp[-1].i ; ;
     break;}
 case 132:
-#line 1517 "GetDP.y"
+#line 1516 "GetDP.y"
 { yyval.i = 1 ; ;
     break;}
 case 133:
-#line 1518 "GetDP.y"
+#line 1517 "GetDP.y"
 { yyval.i = yyvsp[-2].i + 1 ; ;
     break;}
 case 134:
-#line 1524 "GetDP.y"
+#line 1523 "GetDP.y"
 { List_Reset(ListOfDouble_L) ; ;
     break;}
 case 136:
-#line 1529 "GetDP.y"
+#line 1528 "GetDP.y"
 { /* Attention: provisoire */
       List_Reset(ListOfDouble_L) ;
       Value = (double)Num_Group(&Group_S, "PA_Region", yyvsp[-2].i) ;
@@ -4210,7 +4208,7 @@ case 136:
     ;
     break;}
 case 137:
-#line 1536 "GetDP.y"
+#line 1535 "GetDP.y"
 {
       Constant_S.Name = yyvsp[-2].c ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
@@ -4231,53 +4229,53 @@ case 137:
     ;
     break;}
 case 138:
-#line 1563 "GetDP.y"
+#line 1562 "GetDP.y"
 { if (!Problem_S.JacobianMethod)
 	Problem_S.JacobianMethod = 
 	  List_Create(5, 5, sizeof (struct JacobianMethod) ) ;
     ;
     break;}
 case 139:
-#line 1568 "GetDP.y"
+#line 1567 "GetDP.y"
 { List_Add(Problem_S.JacobianMethod, &JacobianMethod_S) ; ;
     break;}
 case 140:
-#line 1575 "GetDP.y"
+#line 1574 "GetDP.y"
 { JacobianMethod_S.Name = NULL ; JacobianMethod_S.JacobianCase = NULL ; ;
     break;}
 case 142:
-#line 1584 "GetDP.y"
+#line 1583 "GetDP.y"
 { Check_NameOfStructNotExist("JacobianMethod", Problem_S.JacobianMethod,
 				 yyvsp[-1].c, fcmp_JacobianMethod_Name) ;
       JacobianMethod_S.Name = yyvsp[-1].c ; ;
     break;}
 case 143:
-#line 1589 "GetDP.y"
+#line 1588 "GetDP.y"
 { JacobianMethod_S.JacobianCase = yyvsp[-1].l ; ;
     break;}
 case 144:
-#line 1596 "GetDP.y"
+#line 1595 "GetDP.y"
 { yyval.l = List_Create(5, 5, sizeof (struct JacobianCase)) ; ;
     break;}
 case 145:
-#line 1599 "GetDP.y"
+#line 1598 "GetDP.y"
 { List_Add(yyval.l = yyvsp[-3].l, &JacobianCase_S) ; ;
     break;}
 case 146:
-#line 1606 "GetDP.y"
+#line 1605 "GetDP.y"
 { JacobianCase_S.RegionIndex = -1 ;
       JacobianCase_S.TypeJacobian = JACOBIAN_VOL ; ;
     break;}
 case 148:
-#line 1616 "GetDP.y"
+#line 1615 "GetDP.y"
 { JacobianCase_S.RegionIndex = Num_Group(&Group_S, "JA_Region", yyvsp[-1].i) ; ;
     break;}
 case 149:
-#line 1619 "GetDP.y"
+#line 1618 "GetDP.y"
 { JacobianCase_S.RegionIndex = -1 ; ;
     break;}
 case 150:
-#line 1622 "GetDP.y"
+#line 1621 "GetDP.y"
 { JacobianCase_S.TypeJacobian =
 	Get_Define1NbrForString(Jacobian_Type, yyvsp[-2].c, &FlagError,
 				&JacobianCase_S.NbrParameters) ;
@@ -4301,18 +4299,18 @@ case 150:
     ;
     break;}
 case 151:
-#line 1653 "GetDP.y"
+#line 1652 "GetDP.y"
 { if (!Problem_S.IntegrationMethod)
 	Problem_S.IntegrationMethod = 
 	  List_Create(5, 5, sizeof(struct IntegrationMethod)) ;
     ;
     break;}
 case 152:
-#line 1659 "GetDP.y"
+#line 1658 "GetDP.y"
 { List_Add(Problem_S.IntegrationMethod, &IntegrationMethod_S) ; ;
     break;}
 case 153:
-#line 1666 "GetDP.y"
+#line 1665 "GetDP.y"
 { 
       IntegrationMethod_S.Name = NULL ; 
       IntegrationMethod_S.IntegrationCase = NULL ; 
@@ -4320,7 +4318,7 @@ case 153:
     ;
     break;}
 case 155:
-#line 1679 "GetDP.y"
+#line 1678 "GetDP.y"
 { 
       Check_NameOfStructNotExist("IntegrationMethod", Problem_S.IntegrationMethod,
 				 yyvsp[-1].c, fcmp_IntegrationMethod_Name) ;
@@ -4328,30 +4326,30 @@ case 155:
     ;
     break;}
 case 156:
-#line 1686 "GetDP.y"
+#line 1685 "GetDP.y"
 { IntegrationMethod_S.CriterionIndex = yyvsp[-1].i ;  ;
     break;}
 case 157:
-#line 1689 "GetDP.y"
+#line 1688 "GetDP.y"
 { IntegrationMethod_S.IntegrationCase = yyvsp[-1].l ; ;
     break;}
 case 158:
-#line 1696 "GetDP.y"
+#line 1695 "GetDP.y"
 { yyval.l = List_Create(5, 5, sizeof (struct IntegrationCase)) ; ;
     break;}
 case 159:
-#line 1699 "GetDP.y"
+#line 1698 "GetDP.y"
 { List_Add(yyval.l = yyvsp[-3].l, &IntegrationCase_S) ; ;
     break;}
 case 160:
-#line 1706 "GetDP.y"
+#line 1705 "GetDP.y"
 { 
       IntegrationCase_S.Type = GAUSS ; 
       IntegrationCase_S.SubType = STANDARD ; 
     ;
     break;}
 case 162:
-#line 1718 "GetDP.y"
+#line 1717 "GetDP.y"
 { IntegrationCase_S.Type =
 	Get_DefineForString(Integration_Type, yyvsp[-1].c, &FlagError) ;
       if (FlagError)  
@@ -4361,7 +4359,7 @@ case 162:
     ;
     break;}
 case 163:
-#line 1727 "GetDP.y"
+#line 1726 "GetDP.y"
 { IntegrationCase_S.SubType =
 	Get_DefineForString(Integration_SubType, yyvsp[-1].c, &FlagError) ;
       if (FlagError)  
@@ -4371,19 +4369,19 @@ case 163:
     ;
     break;}
 case 164:
-#line 1736 "GetDP.y"
+#line 1735 "GetDP.y"
 { IntegrationCase_S.Case = yyvsp[-1].l ; ;
     break;}
 case 165:
-#line 1743 "GetDP.y"
+#line 1742 "GetDP.y"
 { yyval.l = List_Create(5, 5, sizeof (struct Quadrature)) ; ;
     break;}
 case 166:
-#line 1746 "GetDP.y"
+#line 1745 "GetDP.y"
 { List_Add(yyval.l = yyvsp[-3].l, &QuadratureCase_S) ; ;
     break;}
 case 167:
-#line 1753 "GetDP.y"
+#line 1752 "GetDP.y"
 { QuadratureCase_S.ElementType = TRIANGLE ; 
       QuadratureCase_S.NumberOfPoints = 4 ;
       QuadratureCase_S.MaxNumberOfPoints = 4 ;
@@ -4394,7 +4392,7 @@ case 167:
     ;
     break;}
 case 169:
-#line 1769 "GetDP.y"
+#line 1768 "GetDP.y"
 { QuadratureCase_S.ElementType = Get_DefineForString(Element_Type, yyvsp[-1].c, &FlagError) ;
       if (FlagError)  
 	vyyerror("Unknown Type of Element: %s %s", 
@@ -4448,33 +4446,33 @@ case 169:
     ;
     break;}
 case 170:
-#line 1822 "GetDP.y"
+#line 1821 "GetDP.y"
 { QuadratureCase_S.NumberOfPoints = (int)yyvsp[-1].d ; ;
     break;}
 case 171:
-#line 1825 "GetDP.y"
+#line 1824 "GetDP.y"
 { QuadratureCase_S.MaxNumberOfPoints = (int)yyvsp[-1].d ; ;
     break;}
 case 172:
-#line 1828 "GetDP.y"
+#line 1827 "GetDP.y"
 { QuadratureCase_S.NumberOfDivisions = (int)yyvsp[-1].d ; ;
     break;}
 case 173:
-#line 1831 "GetDP.y"
+#line 1830 "GetDP.y"
 { QuadratureCase_S.MaxNumberOfDivisions = (int)yyvsp[-1].d ; ;
     break;}
 case 174:
-#line 1834 "GetDP.y"
+#line 1833 "GetDP.y"
 { QuadratureCase_S.StoppingCriterion = yyvsp[-1].d ; ;
     break;}
 case 175:
-#line 1845 "GetDP.y"
+#line 1844 "GetDP.y"
 { if (!Problem_S.Constraint)
 	Problem_S.Constraint = List_Create(20, 20, sizeof (struct Constraint) ) ;
     ;
     break;}
 case 177:
-#line 1855 "GetDP.y"
+#line 1854 "GetDP.y"
 {
       if (!Nbr_Index)
 	List_Add(Problem_S.Constraint, &Constraint_S) ;
@@ -4495,7 +4493,7 @@ case 177:
     ;
     break;}
 case 179:
-#line 1880 "GetDP.y"
+#line 1879 "GetDP.y"
 { Constraint_S.Name = NULL ;  
       Constraint_S.Type = ASSIGN ;
       Constraint_S.ConstraintPerRegion = NULL ;
@@ -4504,14 +4502,14 @@ case 179:
     ;
     break;}
 case 181:
-#line 1894 "GetDP.y"
+#line 1893 "GetDP.y"
 { Nbr_Index = 0 ;
       Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, yyvsp[-1].c,
 				 fcmp_Constraint_Name) ;
       Constraint_S.Name = yyvsp[-1].c ; ;
     break;}
 case 182:
-#line 1900 "GetDP.y"
+#line 1899 "GetDP.y"
 { Nbr_Index = yyvsp[-1].i ;
       sprintf(StringAux1, "%s_%d_", yyvsp[-2].c, 1) ;
       Check_NameOfStructNotExist("Constraint", Problem_S.Constraint,
@@ -4519,7 +4517,7 @@ case 182:
       Constraint_S.Name = yyvsp[-2].c ; ;
     break;}
 case 183:
-#line 1907 "GetDP.y"
+#line 1906 "GetDP.y"
 { Constraint_S.Type = Get_DefineForString(Constraint_Type, yyvsp[-1].c, &FlagError) ;
       if (FlagError)  
 	vyyerror("Unknown Type of Constraint: %s %s",
@@ -4528,11 +4526,11 @@ case 183:
     ;
     break;}
 case 184:
-#line 1915 "GetDP.y"
+#line 1914 "GetDP.y"
 { Constraint_S.ConstraintPerRegion = yyvsp[-1].l ; ;
     break;}
 case 185:
-#line 1918 "GetDP.y"
+#line 1917 "GetDP.y"
 {
       if (!Nbr_Index) {
 	if (!Constraint_S.MultiConstraintPerRegion)
@@ -4551,7 +4549,7 @@ case 185:
     ;
     break;}
 case 186:
-#line 1940 "GetDP.y"
+#line 1939 "GetDP.y"
 {
       if (!Nbr_Index)
 	yyval.l = List_Create(6, 6, sizeof (struct ConstraintPerRegion)) ;
@@ -4567,7 +4565,7 @@ case 186:
     ;
     break;}
 case 187:
-#line 1955 "GetDP.y"
+#line 1954 "GetDP.y"
 {
       if (!Nbr_Index)
 	List_Add(yyval.l = yyvsp[-3].l, &ConstraintPerRegion_S) ;
@@ -4588,7 +4586,7 @@ case 187:
     ;
     break;}
 case 188:
-#line 1979 "GetDP.y"
+#line 1978 "GetDP.y"
 { 
       ConstraintPerRegion_S.Type = Constraint_S.Type ;
       ConstraintPerRegion_S.RegionIndex = -1 ;
@@ -4597,7 +4595,7 @@ case 188:
     ;
     break;}
 case 190:
-#line 1993 "GetDP.y"
+#line 1992 "GetDP.y"
 { ConstraintPerRegion_S.Type = 
 	Get_DefineForString(Constraint_Type, yyvsp[-1].c, &FlagError) ;
       if (FlagError)
@@ -4607,7 +4605,7 @@ case 190:
     ;
     break;}
 case 191:
-#line 2002 "GetDP.y"
+#line 2001 "GetDP.y"
 { 
       if (!Nbr_Index)
 	ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, "CO_Region", yyvsp[-1].i) ;
@@ -4632,7 +4630,7 @@ case 191:
     ;
     break;}
 case 192:
-#line 2026 "GetDP.y"
+#line 2025 "GetDP.y"
 { 
       if (!Nbr_Index)
 	ConstraintPerRegion_S.SubRegionIndex =
@@ -4658,13 +4656,13 @@ case 192:
     ;
     break;}
 case 193:
-#line 2051 "GetDP.y"
+#line 2050 "GetDP.y"
 {
       ConstraintPerRegion_S.TimeFunctionIndex = yyvsp[-1].i ;
     ;
     break;}
 case 194:
-#line 2056 "GetDP.y"
+#line 2055 "GetDP.y"
 { 
       if (ConstraintPerRegion_S.Type == ASSIGN ||
 	  ConstraintPerRegion_S.Type == INIT)
@@ -4673,7 +4671,7 @@ case 194:
     ;
     break;}
 case 195:
-#line 2064 "GetDP.y"
+#line 2063 "GetDP.y"
 {
       if (ConstraintPerRegion_S.Type == ASSIGNFROMRESOLUTION ||
 	  ConstraintPerRegion_S.Type == INITFROMRESOLUTION)
@@ -4682,7 +4680,7 @@ case 195:
     ;
     break;}
 case 196:
-#line 2072 "GetDP.y"
+#line 2071 "GetDP.y"
 {
       if (ConstraintPerRegion_S.Type == NETWORK) {
 	ConstraintPerRegion_S.Case.Network.Node1 = yyvsp[-4].i ;
@@ -4692,7 +4690,7 @@ case 196:
     ;
     break;}
 case 197:
-#line 2082 "GetDP.y"
+#line 2081 "GetDP.y"
 {
       if (ConstraintPerRegion_S.Type == CST_LINK) {
 	ConstraintPerRegion_S.Case.Link.RegionRefIndex =
@@ -4710,7 +4708,7 @@ case 197:
     ;
     break;}
 case 198:
-#line 2098 "GetDP.y"
+#line 2097 "GetDP.y"
 {
       if (ConstraintPerRegion_S.Type == CST_LINK)
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex =
@@ -4719,7 +4717,7 @@ case 198:
     ;
     break;}
 case 199:
-#line 2105 "GetDP.y"
+#line 2104 "GetDP.y"
 {
       if (ConstraintPerRegion_S.Type == CST_LINK)
 	ConstraintPerRegion_S.Case.Link.FunctionIndex = yyvsp[-1].i ;
@@ -4727,7 +4725,7 @@ case 199:
     ;
     break;}
 case 200:
-#line 2111 "GetDP.y"
+#line 2110 "GetDP.y"
 {
       if (ConstraintPerRegion_S.Type == CST_LINK)
 	ConstraintPerRegion_S.Case.Link.CoefIndex = yyvsp[-1].i ;
@@ -4735,7 +4733,7 @@ case 200:
     ;
     break;}
 case 201:
-#line 2117 "GetDP.y"
+#line 2116 "GetDP.y"
 {
       if (ConstraintPerRegion_S.Type == CST_LINK) {
 	ConstraintPerRegion_S.Case.Link.FilterIndex  = yyvsp[-1].i ;
@@ -4745,7 +4743,7 @@ case 201:
     ;
     break;}
 case 202:
-#line 2125 "GetDP.y"
+#line 2124 "GetDP.y"
 {
       if (ConstraintPerRegion_S.Type == CST_LINK) {
 	ConstraintPerRegion_S.Case.Link.FunctionIndex  = yyvsp[-4].i ;
@@ -4755,7 +4753,7 @@ case 202:
     ;
     break;}
 case 203:
-#line 2133 "GetDP.y"
+#line 2132 "GetDP.y"
 {
       if (ConstraintPerRegion_S.Type == CST_LINK) {
 	ConstraintPerRegion_S.Case.Link.CoefIndex  = yyvsp[-4].i ;
@@ -4765,7 +4763,7 @@ case 203:
     ;
     break;}
 case 204:
-#line 2141 "GetDP.y"
+#line 2140 "GetDP.y"
 {
       if (ConstraintPerRegion_S.Type == CST_LINK) {
 	ConstraintPerRegion_S.Case.Link.FilterIndex  = yyvsp[-4].i ;
@@ -4775,14 +4773,14 @@ case 204:
     ;
     break;}
 case 205:
-#line 2161 "GetDP.y"
+#line 2160 "GetDP.y"
 { if (!Problem_S.FunctionSpace)
 	Problem_S.FunctionSpace = 
 	  List_Create(10, 5, sizeof (struct FunctionSpace) ) ;
     ;
     break;}
 case 207:
-#line 2172 "GetDP.y"
+#line 2171 "GetDP.y"
 {
       if (!Nbr_Index)
 	List_Add(Problem_S.FunctionSpace, &FunctionSpace_S) ;
@@ -4804,7 +4802,7 @@ case 207:
     ;
     break;}
 case 209:
-#line 2199 "GetDP.y"
+#line 2198 "GetDP.y"
 { FunctionSpace_S.Name = NULL ; FunctionSpace_S.Type = FORM0 ;
       FunctionSpace_S.BasisFunction = FunctionSpace_S.SubSpace =
 	FunctionSpace_S.GlobalQuantity = FunctionSpace_S.Constraint = NULL ;
@@ -4812,14 +4810,14 @@ case 209:
     ;
     break;}
 case 211:
-#line 2212 "GetDP.y"
+#line 2211 "GetDP.y"
 { Nbr_Index = 0 ;
       Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
 				 yyvsp[-1].c, fcmp_FunctionSpace_Name) ;
       FunctionSpace_S.Name = yyvsp[-1].c ; ;
     break;}
 case 212:
-#line 2218 "GetDP.y"
+#line 2217 "GetDP.y"
 { Nbr_Index = yyvsp[-1].i ;
       sprintf(StringAux1, "%s_%d_", yyvsp[-2].c, 1) ;
       Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
@@ -4827,7 +4825,7 @@ case 212:
       FunctionSpace_S.Name = yyvsp[-2].c ; ;
     break;}
 case 213:
-#line 2225 "GetDP.y"
+#line 2224 "GetDP.y"
 { FunctionSpace_S.Type = Get_DefineForString(Field_Type, yyvsp[-1].c, &FlagError) ;
       if (FlagError)  
 	vyyerror("Unknown Type of FunctionSpace: %s %s", 
@@ -4836,23 +4834,23 @@ case 213:
     ;
     break;}
 case 214:
-#line 2233 "GetDP.y"
+#line 2232 "GetDP.y"
 { FunctionSpace_S.BasisFunction  = yyvsp[-1].l ; ;
     break;}
 case 215:
-#line 2236 "GetDP.y"
+#line 2235 "GetDP.y"
 { FunctionSpace_S.SubSpace       = yyvsp[-1].l ; ;
     break;}
 case 216:
-#line 2239 "GetDP.y"
+#line 2238 "GetDP.y"
 { FunctionSpace_S.GlobalQuantity = yyvsp[-1].l ; ;
     break;}
 case 217:
-#line 2242 "GetDP.y"
+#line 2241 "GetDP.y"
 { FunctionSpace_S.Constraint     = yyvsp[-1].l ; ;
     break;}
 case 218:
-#line 2249 "GetDP.y"
+#line 2248 "GetDP.y"
 {
       if (!Nbr_Index)
 	yyval.l = Current_BasisFunction_L =
@@ -4869,7 +4867,7 @@ case 218:
     ;
     break;}
 case 219:
-#line 2265 "GetDP.y"
+#line 2264 "GetDP.y"
 {
       if (!Nbr_Index) {
 	if ( (i = List_ISearchSeq(yyvsp[-3].l, BasisFunction_S.Name, 
@@ -4915,7 +4913,7 @@ case 219:
     ;
     break;}
 case 220:
-#line 2314 "GetDP.y"
+#line 2313 "GetDP.y"
 { 
       BasisFunction_S.Name = NULL ; 
       BasisFunction_S.NameOfCoef = NULL ;
@@ -4930,23 +4928,23 @@ case 220:
     ;
     break;}
 case 222:
-#line 2334 "GetDP.y"
+#line 2333 "GetDP.y"
 { BasisFunction_S.Name = yyvsp[-1].c ; ;
     break;}
 case 223:
-#line 2337 "GetDP.y"
+#line 2336 "GetDP.y"
 { Check_NameOfStructNotExist("NameOfCoef", Current_BasisFunction_L,
 				 yyvsp[-1].c, fcmp_BasisFunction_NameOfCoef) ;
       BasisFunction_S.NameOfCoef = yyvsp[-1].c ; BasisFunction_S.Dimension = 1 ; ;
     break;}
 case 224:
-#line 2342 "GetDP.y"
+#line 2341 "GetDP.y"
 { Check_NameOfStructNotExist("NameOfCoef", Current_BasisFunction_L,
 				 yyvsp[-2].c, fcmp_BasisFunction_NameOfCoef) ;
       BasisFunction_S.NameOfCoef = yyvsp[-2].c ; BasisFunction_S.Dimension = yyvsp[-1].i ; ;
     break;}
 case 225:
-#line 2347 "GetDP.y"
+#line 2346 "GetDP.y"
 {
       Get_3Function2NbrForString
 	(BF_Function, yyvsp[-2].c, &FlagError,
@@ -4959,7 +4957,7 @@ case 225:
     ;
     break;}
 case 226:
-#line 2359 "GetDP.y"
+#line 2358 "GetDP.y"
 {
       Get_3Function2NbrForString
 	(BF_Function, yyvsp[-4].c, &FlagError,
@@ -4976,7 +4974,7 @@ case 226:
     ;
     break;}
 case 227:
-#line 2375 "GetDP.y"
+#line 2374 "GetDP.y"
 { BasisFunction_S.SubFunction =
 	List_Create(List_Nbr(ListOfInt_L), 1, sizeof(int)) ;
       for (i = 0 ; i < List_Nbr(ListOfInt_L) ; i++) {
@@ -4986,7 +4984,7 @@ case 227:
     ;
     break;}
 case 228:
-#line 2384 "GetDP.y"
+#line 2383 "GetDP.y"
 {
       if (!Nbr_Index)
 	BasisFunction_S.SupportIndex = Num_Group(&Group_S, "BF_Support", yyvsp[-1].i) ;
@@ -5011,7 +5009,7 @@ case 228:
     ;
     break;}
 case 229:
-#line 2408 "GetDP.y"
+#line 2407 "GetDP.y"
 {
       if (!Nbr_Index) {
 	if (yyvsp[-1].i >= 0) {
@@ -5065,11 +5063,11 @@ case 229:
     ;
     break;}
 case 231:
-#line 2468 "GetDP.y"
+#line 2467 "GetDP.y"
 { Save_Nbr_Index = Nbr_Index ; Nbr_Index = yyvsp[-1].i ; ;
     break;}
 case 232:
-#line 2471 "GetDP.y"
+#line 2470 "GetDP.y"
 {
       Nbr_Index = Save_Nbr_Index ;
       BasisFunction_S.GlobalBasisFunction =
@@ -5079,7 +5077,7 @@ case 232:
     ;
     break;}
 case 233:
-#line 2480 "GetDP.y"
+#line 2479 "GetDP.y"
 {
       if (!Flag_MultipleIndex)
 	vyyerror("Multiple Resolution needed for Multiple Formulation: %s {}", yyvsp[-12].c) ;
@@ -5142,34 +5140,34 @@ case 233:
     ;
     break;}
 case 234:
-#line 2546 "GetDP.y"
+#line 2545 "GetDP.y"
 { yyval.l = Current_SubSpace_L =
 	List_Create(6, 6, sizeof (struct SubSpace)) ; ;
     break;}
 case 235:
-#line 2550 "GetDP.y"
+#line 2549 "GetDP.y"
 { List_Add(yyval.l = yyvsp[-3].l, &SubSpace_S) ; ;
     break;}
 case 236:
-#line 2557 "GetDP.y"
+#line 2556 "GetDP.y"
 { SubSpace_S.Name = NULL ; SubSpace_S.BasisFunction  = NULL ; ;
     break;}
 case 238:
-#line 2566 "GetDP.y"
+#line 2565 "GetDP.y"
 { Check_NameOfStructNotExist("SubSpace", Current_SubSpace_L,
 				 yyvsp[-1].c, fcmp_SubSpace_Name) ;
       SubSpace_S.Name = yyvsp[-1].c ; ;
     break;}
 case 239:
-#line 2571 "GetDP.y"
+#line 2570 "GetDP.y"
 { SubSpace_S.BasisFunction = yyvsp[-1].l ; ;
     break;}
 case 240:
-#line 2574 "GetDP.y"
+#line 2573 "GetDP.y"
 { SubSpace_S.BasisFunction = yyvsp[-1].l ; ;
     break;}
 case 241:
-#line 2581 "GetDP.y"
+#line 2580 "GetDP.y"
 {
       yyval.l = List_Create(1, 1, sizeof(int)) ;
       if ((i = List_ISearchSeq(Current_BasisFunction_L,
@@ -5186,15 +5184,15 @@ case 241:
     ;
     break;}
 case 242:
-#line 2597 "GetDP.y"
+#line 2596 "GetDP.y"
 { yyval.l = yyvsp[-1].l ; ;
     break;}
 case 243:
-#line 2603 "GetDP.y"
+#line 2602 "GetDP.y"
 { yyval.l = List_Create(5, 5, sizeof(int)) ; ;
     break;}
 case 244:
-#line 2606 "GetDP.y"
+#line 2605 "GetDP.y"
 {
       if ((i = List_ISearchSeq(Current_BasisFunction_L,
 			       yyvsp[0].c, fcmp_BasisFunction_Name)) < 0)
@@ -5210,7 +5208,7 @@ case 244:
     ;
     break;}
 case 245:
-#line 2625 "GetDP.y"
+#line 2624 "GetDP.y"
 {
       yyval.l = List_Create(1, 1, sizeof(int)) ;
       if ((i = List_ISearchSeq(Current_BasisFunction_L,
@@ -5223,15 +5221,15 @@ case 245:
     ;
     break;}
 case 246:
-#line 2637 "GetDP.y"
+#line 2636 "GetDP.y"
 { yyval.l = yyvsp[-1].l ; ;
     break;}
 case 247:
-#line 2643 "GetDP.y"
+#line 2642 "GetDP.y"
 { yyval.l = List_Create(5, 5, sizeof(int)) ; ;
     break;}
 case 248:
-#line 2646 "GetDP.y"
+#line 2645 "GetDP.y"
 {
       if ((i = List_ISearchSeq(Current_BasisFunction_L,
 			       yyvsp[0].c, fcmp_BasisFunction_NameOfCoef)) < 0)
@@ -5243,30 +5241,30 @@ case 248:
     ;
     break;}
 case 249:
-#line 2661 "GetDP.y"
+#line 2660 "GetDP.y"
 { yyval.l = Current_GlobalQuantity_L =
 	List_Create(6, 6, sizeof (struct GlobalQuantity)) ; ;
     break;}
 case 250:
-#line 2665 "GetDP.y"
+#line 2664 "GetDP.y"
 { GlobalQuantity_S.Num = Num_BasisFunction++ ;
       List_Add(yyval.l = yyvsp[-3].l, &GlobalQuantity_S) ;
     ;
     break;}
 case 251:
-#line 2674 "GetDP.y"
+#line 2673 "GetDP.y"
 { GlobalQuantity_S.Name = NULL ; GlobalQuantity_S.Num  = 0 ;
       GlobalQuantity_S.Type = ALIASOF ; GlobalQuantity_S.ReferenceIndex = -1 ;
     ;
     break;}
 case 253:
-#line 2685 "GetDP.y"
+#line 2684 "GetDP.y"
 { Check_NameOfStructNotExist("GlobalQuantity", Current_GlobalQuantity_L,
 				 yyvsp[-1].c, fcmp_GlobalQuantity_Name) ;
       GlobalQuantity_S.Name = yyvsp[-1].c ; ;
     break;}
 case 254:
-#line 2690 "GetDP.y"
+#line 2689 "GetDP.y"
 { GlobalQuantity_S.Type =
 	Get_DefineForString(GlobalQuantity_Type, yyvsp[-1].c, &FlagError) ;
       if (FlagError)  
@@ -5276,7 +5274,7 @@ case 254:
     ;
     break;}
 case 255:
-#line 2699 "GetDP.y"
+#line 2698 "GetDP.y"
 { if ((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, yyvsp[-1].c, 
 			       fcmp_BasisFunction_NameOfCoef)) < 0) 
 	vyyerror("Unknown NameOfCoef: %s", yyvsp[-1].c) ;
@@ -5286,7 +5284,7 @@ case 255:
     ;
     break;}
 case 256:
-#line 2712 "GetDP.y"
+#line 2711 "GetDP.y"
 {
       if (!Nbr_Index)
 	yyval.l = List_Create(6, 6, sizeof (struct ConstraintInFS)) ;
@@ -5302,7 +5300,7 @@ case 256:
     ;
     break;}
 case 257:
-#line 2727 "GetDP.y"
+#line 2726 "GetDP.y"
 {
       Group_S.FunctionType = Type_Function ;
       Group_S.SuppListType = Type_SuppList ;
@@ -5373,7 +5371,7 @@ case 257:
     ;
     break;}
 case 258:
-#line 2801 "GetDP.y"
+#line 2800 "GetDP.y"
 { 
       ConstraintInFS_S.QuantityType = LOCALQUANTITY ;
       ConstraintInFS_S.ReferenceIndex = -1 ; ConstraintInFS_S.EntityIndex = -1 ;
@@ -5384,7 +5382,7 @@ case 258:
     ;
     break;}
 case 260:
-#line 2817 "GetDP.y"
+#line 2816 "GetDP.y"
 { if ((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, yyvsp[-1].c, 
 			       fcmp_BasisFunction_NameOfCoef)) < 0) {
 	if ((i = List_ISearchSeq(FunctionSpace_S.GlobalQuantity, yyvsp[-1].c,
@@ -5403,7 +5401,7 @@ case 260:
     ;
     break;}
 case 261:
-#line 2835 "GetDP.y"
+#line 2834 "GetDP.y"
 {
       if (!Nbr_Index) {
 	Type_Function = yyvsp[-3].i ;
@@ -5418,15 +5416,15 @@ case 261:
     ;
     break;}
 case 262:
-#line 2849 "GetDP.y"
+#line 2848 "GetDP.y"
 { Type_Function = yyvsp[-1].i ; ;
     break;}
 case 263:
-#line 2852 "GetDP.y"
+#line 2851 "GetDP.y"
 { Type_SuppList = yyvsp[-1].i ; ;
     break;}
 case 264:
-#line 2855 "GetDP.y"
+#line 2854 "GetDP.y"
 {
       if (!Nbr_Index) {
 	if (!Flag_MultipleIndex) {
@@ -5465,13 +5463,13 @@ case 264:
     ;
     break;}
 case 265:
-#line 2901 "GetDP.y"
+#line 2900 "GetDP.y"
 { if (!Problem_S.Formulation)
 	Problem_S.Formulation = List_Create(10, 5, sizeof (struct Formulation)) ;
     ;
     break;}
 case 267:
-#line 2911 "GetDP.y"
+#line 2910 "GetDP.y"
 {
       if (!Nbr_Index)
 	List_Add(Problem_S.Formulation, &Formulation_S) ;
@@ -5492,21 +5490,21 @@ case 267:
     ;
     break;}
 case 269:
-#line 2937 "GetDP.y"
+#line 2936 "GetDP.y"
 { Formulation_S.Name = NULL ; Formulation_S.Type = FEMEQUATION ;
       Formulation_S.DefineQuantity = NULL ; Formulation_S.Equation = NULL ;
       Nbr_Index = 0 ;
     ;
     break;}
 case 271:
-#line 2949 "GetDP.y"
+#line 2948 "GetDP.y"
 { Nbr_Index = 0 ;
       Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
 				 yyvsp[-1].c, fcmp_Formulation_Name) ;
       Formulation_S.Name = yyvsp[-1].c ; ;
     break;}
 case 272:
-#line 2955 "GetDP.y"
+#line 2954 "GetDP.y"
 { Nbr_Index = yyvsp[-1].i ;
       sprintf(StringAux1, "%s_%d_", yyvsp[-2].c, 1) ;
       Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
@@ -5514,7 +5512,7 @@ case 272:
       Formulation_S.Name = yyvsp[-2].c ; ;
     break;}
 case 273:
-#line 2962 "GetDP.y"
+#line 2961 "GetDP.y"
 { Formulation_S.Type =
 	Get_DefineForString(Formulation_Type, yyvsp[-1].c, &FlagError) ;
       if (FlagError)  
@@ -5524,11 +5522,11 @@ case 273:
     ;
     break;}
 case 275:
-#line 2973 "GetDP.y"
+#line 2972 "GetDP.y"
 { Formulation_S.Equation = yyvsp[-1].l ; ;
     break;}
 case 276:
-#line 2979 "GetDP.y"
+#line 2978 "GetDP.y"
 {
       if (!Nbr_Index)
 	Formulation_S.DefineQuantity = List_Create(6, 6, sizeof (struct DefineQuantity)) ;
@@ -5543,7 +5541,7 @@ case 276:
     ;
     break;}
 case 277:
-#line 2993 "GetDP.y"
+#line 2992 "GetDP.y"
 {
       if (!Nbr_Index)
 	List_Add(Formulation_S.DefineQuantity, &DefineQuantity_S) ;
@@ -5558,7 +5556,7 @@ case 277:
     ;
     break;}
 case 278:
-#line 3011 "GetDP.y"
+#line 3010 "GetDP.y"
 { DefineQuantity_S.Name = NULL ;
       DefineQuantity_S.Type = LOCALQUANTITY ;
       DefineQuantity_S.IndexInFunctionSpace = NULL ;
@@ -5574,19 +5572,19 @@ case 278:
     ;
     break;}
 case 280:
-#line 3032 "GetDP.y"
+#line 3031 "GetDP.y"
 { DefineQuantity_S.Name = yyvsp[-1].c ; ;
     break;}
 case 281:
-#line 3035 "GetDP.y"
+#line 3034 "GetDP.y"
 { DefineQuantity_S.Type = GLOBALQUANTITY ; ;
     break;}
 case 282:
-#line 3039 "GetDP.y"
+#line 3038 "GetDP.y"
 { DefineQuantity_S.Type = INTEGRALQUANTITY ; ;
     break;}
 case 283:
-#line 3042 "GetDP.y"
+#line 3041 "GetDP.y"
 { DefineQuantity_S.Type =
 	Get_DefineForString(DefineQuantity_Type, yyvsp[-1].c, &FlagError) ;
       if (FlagError)  
@@ -5596,7 +5594,7 @@ case 283:
     ;
     break;}
 case 284:
-#line 3051 "GetDP.y"
+#line 3050 "GetDP.y"
 {
       if (!Nbr_Index) {
 	if (!Flag_MultipleIndex){
@@ -5637,7 +5635,7 @@ case 284:
     ;
     break;}
 case 285:
-#line 3090 "GetDP.y"
+#line 3089 "GetDP.y"
 { /* attention : doit disparaitre.  */
       if (DefineQuantity_S.FunctionSpaceIndex >= 0) {
 	if (DefineQuantity_S.Type == GLOBALQUANTITY &&
@@ -5662,13 +5660,13 @@ case 285:
     ;
     break;}
 case 286:
-#line 3114 "GetDP.y"
+#line 3113 "GetDP.y"
 { 
       DefineQuantity_S.DofDataIndex = yyvsp[-1].i ; 
     ;
     break;}
 case 287:
-#line 3119 "GetDP.y"
+#line 3118 "GetDP.y"
 { 
       Current_DofIndexInWholeQuantity = -1 ;
       Current_NoDofIndexInWholeQuantity = -1 ;
@@ -5676,7 +5674,7 @@ case 287:
     ;
     break;}
 case 288:
-#line 3125 "GetDP.y"
+#line 3124 "GetDP.y"
 { 
       DefineQuantity_S.IntegralQuantity.WholeQuantity = yyvsp[-2].l ;
       DefineQuantity_S.IntegralQuantity.DofIndexInWholeQuantity = 
@@ -5827,13 +5825,13 @@ case 288:
     ;
     break;}
 case 289:
-#line 3275 "GetDP.y"
+#line 3274 "GetDP.y"
 {
       DefineQuantity_S.IntegralQuantity.InIndex = Num_Group(&Group_S, "IQ_In", yyvsp[-1].i) ;
     ;
     break;}
 case 290:
-#line 3280 "GetDP.y"
+#line 3279 "GetDP.y"
 { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, yyvsp[-1].c,
 			       fcmp_IntegrationMethod_Name)) < 0)
 	vyyerror("Unknown IntegrationMethod: %s", yyvsp[-1].c) ;
@@ -5843,7 +5841,7 @@ case 290:
     ;
     break;}
 case 291:
-#line 3289 "GetDP.y"
+#line 3288 "GetDP.y"
 { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, yyvsp[-1].c,
 			       fcmp_JacobianMethod_Name)) < 0)
 	vyyerror("Unknown JacobianMethod: %s", yyvsp[-1].c) ;
@@ -5853,11 +5851,11 @@ case 291:
     ;
     break;}
 case 292:
-#line 3298 "GetDP.y"
+#line 3297 "GetDP.y"
 { DefineQuantity_S.IntegralQuantity.Symmetry = yyvsp[-1].i ; ;
     break;}
 case 294:
-#line 3306 "GetDP.y"
+#line 3305 "GetDP.y"
 {
       if (DefineQuantity_S.FunctionSpaceIndex >= 0) {
 	if (DefineQuantity_S.Type == LOCALQUANTITY) {
@@ -5894,7 +5892,7 @@ case 294:
     ;
     break;}
 case 295:
-#line 3346 "GetDP.y"
+#line 3345 "GetDP.y"
 {
       if (!Nbr_Index)
 	yyval.l = List_Create(6, 6, sizeof(struct EquationTerm)) ;
@@ -5910,7 +5908,7 @@ case 295:
     ;
     break;}
 case 296:
-#line 3361 "GetDP.y"
+#line 3360 "GetDP.y"
 {
       if (!Nbr_Index)
 	List_Add(yyval.l = yyvsp[-1].l, &EquationTerm_S) ;
@@ -5935,23 +5933,23 @@ case 296:
     ;
     break;}
 case 297:
-#line 3389 "GetDP.y"
+#line 3388 "GetDP.y"
 { EquationTerm_S.Type = GALERKIN ; ;
     break;}
 case 298:
-#line 3392 "GetDP.y"
+#line 3391 "GetDP.y"
 { EquationTerm_S.Type = DERHAM ; ;
     break;}
 case 299:
-#line 3395 "GetDP.y"
+#line 3394 "GetDP.y"
 { EquationTerm_S.Type = GLOBALTERM ; ;
     break;}
 case 300:
-#line 3398 "GetDP.y"
+#line 3397 "GetDP.y"
 { EquationTerm_S.Type = GLOBALEQUATION ; ;
     break;}
 case 301:
-#line 3405 "GetDP.y"
+#line 3404 "GetDP.y"
 {
       EquationTerm_S.Case.GlobalEquation.Type = NETWORK ;
       EquationTerm_S.Case.GlobalEquation.ConstraintIndex = -1 ;
@@ -5959,7 +5957,7 @@ case 301:
     ;
     break;}
 case 303:
-#line 3416 "GetDP.y"
+#line 3415 "GetDP.y"
 { EquationTerm_S.Case.GlobalEquation.Type =
 	Get_DefineForString(Constraint_Type, yyvsp[-1].c, &FlagError) ;
       if (FlagError)  
@@ -5969,7 +5967,7 @@ case 303:
     ;
     break;}
 case 304:
-#line 3425 "GetDP.y"
+#line 3424 "GetDP.y"
 {
       if ((i = List_ISearchSeq(Problem_S.Constraint, yyvsp[-1].c,
 			       fcmp_Constraint_Name)) >= 0)
@@ -5980,7 +5978,7 @@ case 304:
     ;
     break;}
 case 305:
-#line 3435 "GetDP.y"
+#line 3434 "GetDP.y"
 {
       if (!EquationTerm_S.Case.GlobalEquation.GlobalEquationTerm)
 	EquationTerm_S.Case.GlobalEquation.GlobalEquationTerm =
@@ -5990,7 +5988,7 @@ case 305:
     ;
     break;}
 case 306:
-#line 3449 "GetDP.y"
+#line 3448 "GetDP.y"
 {
       GlobalEquationTerm_S.DefineQuantityIndexNode = -1 ;
       GlobalEquationTerm_S.DefineQuantityIndexLoop = -1 ;
@@ -5999,23 +5997,23 @@ case 306:
     ;
     break;}
 case 308:
-#line 3461 "GetDP.y"
-{ GlobalEquationTerm_S.DefineQuantityIndexNode = Quantity_Index ; ;
+#line 3460 "GetDP.y"
+{ GlobalEquationTerm_S.DefineQuantityIndexNode = yyvsp[-1].t.Int2 ; ;
     break;}
 case 309:
-#line 3463 "GetDP.y"
-{ GlobalEquationTerm_S.DefineQuantityIndexLoop = Quantity_Index ; ;
+#line 3462 "GetDP.y"
+{ GlobalEquationTerm_S.DefineQuantityIndexLoop = yyvsp[-1].t.Int2 ; ;
     break;}
 case 310:
-#line 3465 "GetDP.y"
-{ GlobalEquationTerm_S.DefineQuantityIndexEqu  = Quantity_Index ; ;
+#line 3464 "GetDP.y"
+{ GlobalEquationTerm_S.DefineQuantityIndexEqu  = yyvsp[-1].t.Int2 ; ;
     break;}
 case 311:
-#line 3467 "GetDP.y"
+#line 3466 "GetDP.y"
 { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, "FO_In", yyvsp[-1].i) ; ;
     break;}
 case 312:
-#line 3475 "GetDP.y"
+#line 3474 "GetDP.y"
 { EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = NODT_ ;
       EquationTerm_S.Case.LocalTerm.Term.TypeOperatorEqu = NOOP ;
       EquationTerm_S.Case.LocalTerm.Term.TypeOperatorDof = NOOP ;
@@ -6032,7 +6030,7 @@ case 312:
     ;
     break;}
 case 314:
-#line 3497 "GetDP.y"
+#line 3496 "GetDP.y"
 {
       EquationTerm_S.Case.LocalTerm.Term.TypeTimeDerivative = Type_TermOperator ;
       Current_DofIndexInWholeQuantity = -1 ;
@@ -6041,7 +6039,7 @@ case 314:
     ;
     break;}
 case 315:
-#line 3505 "GetDP.y"
+#line 3504 "GetDP.y"
 { EquationTerm_S.Case.LocalTerm.Term.WholeQuantity = yyvsp[0].l ;
 
       EquationTerm_S.Case.LocalTerm.Term.DofIndexInWholeQuantity =
@@ -6104,7 +6102,7 @@ case 315:
     ;
     break;}
 case 316:
-#line 3567 "GetDP.y"
+#line 3566 "GetDP.y"
 { 
       EquationTerm_S.Case.LocalTerm.Term.TypeOperatorEqu = Quantity_TypeOperator ;
       EquationTerm_S.Case.LocalTerm.Term.DefineQuantityIndexEqu = Quantity_Index ;
@@ -6151,7 +6149,7 @@ case 316:
     ;
     break;}
 case 317:
-#line 3613 "GetDP.y"
+#line 3612 "GetDP.y"
 {
       if (!Nbr_Index)
 	EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, "FO_In", yyvsp[-1].i) ;
@@ -6176,7 +6174,7 @@ case 317:
     ;
     break;}
 case 318:
-#line 3637 "GetDP.y"
+#line 3636 "GetDP.y"
 { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, yyvsp[-1].c,
 			       fcmp_JacobianMethod_Name)) < 0)
 	vyyerror("Unknown JacobianMethod: %s",yyvsp[-1].c) ;
@@ -6186,7 +6184,7 @@ case 318:
     ;
     break;}
 case 319:
-#line 3646 "GetDP.y"
+#line 3645 "GetDP.y"
 { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, yyvsp[-1].c,
 			       fcmp_IntegrationMethod_Name)) < 0)
 	vyyerror("Unknown IntegrationMethod: %s", yyvsp[-1].c) ;
@@ -6196,7 +6194,7 @@ case 319:
     ;
     break;}
 case 320:
-#line 3660 "GetDP.y"
+#line 3659 "GetDP.y"
 { EquationTerm_S.Case.GlobalTerm.TypeTimeDerivative = NODT_ ;
       EquationTerm_S.Case.GlobalTerm.DefineQuantityIndex = -1 ;
 
@@ -6212,7 +6210,7 @@ case 320:
     ;
     break;}
 case 322:
-#line 3689 "GetDP.y"
+#line 3688 "GetDP.y"
 {
       if (!Nbr_Index)
 	EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, "FO_In", yyvsp[-1].i) ;
@@ -6237,7 +6235,7 @@ case 322:
     ;
     break;}
 case 323:
-#line 3713 "GetDP.y"
+#line 3712 "GetDP.y"
 { 
       EquationTerm_S.Case.GlobalTerm.Term.TypeTimeDerivative = Type_TermOperator ;
       Current_DofIndexInWholeQuantity = -1 ;
@@ -6246,7 +6244,7 @@ case 323:
     ;
     break;}
 case 324:
-#line 3721 "GetDP.y"
+#line 3720 "GetDP.y"
 { EquationTerm_S.Case.GlobalTerm.Term.WholeQuantity = yyvsp[0].l ;
 
       EquationTerm_S.Case.GlobalTerm.Term.DofIndexInWholeQuantity =
@@ -6302,9 +6300,9 @@ case 324:
     ;
     break;}
 case 325:
-#line 3776 "GetDP.y"
-{ EquationTerm_S.Case.GlobalTerm.Term.TypeOperatorEqu = Quantity_TypeOperator ;
-      EquationTerm_S.Case.GlobalTerm.Term.DefineQuantityIndexEqu = Quantity_Index ;
+#line 3775 "GetDP.y"
+{ EquationTerm_S.Case.GlobalTerm.Term.TypeOperatorEqu = yyvsp[-2].t.Int1 ;
+      EquationTerm_S.Case.GlobalTerm.Term.DefineQuantityIndexEqu = yyvsp[-2].t.Int2 ;
 
       Pro_DefineQuantityIndex
 	(EquationTerm_S.Case.GlobalTerm.Term.WholeQuantity,
@@ -6315,36 +6313,36 @@ case 325:
     ;
     break;}
 case 326:
-#line 3793 "GetDP.y"
+#line 3792 "GetDP.y"
 { Type_TermOperator = NODT_    ; ;
     break;}
 case 327:
-#line 3794 "GetDP.y"
+#line 3793 "GetDP.y"
 { Type_TermOperator = DT_      ; ;
     break;}
 case 328:
-#line 3795 "GetDP.y"
+#line 3794 "GetDP.y"
 { Type_TermOperator = DTDOF_   ; ;
     break;}
 case 329:
-#line 3796 "GetDP.y"
+#line 3795 "GetDP.y"
 { Type_TermOperator = DTDT_    ; ;
     break;}
 case 330:
-#line 3797 "GetDP.y"
+#line 3796 "GetDP.y"
 { Type_TermOperator = DTDTDOF_ ; ;
     break;}
 case 331:
-#line 3798 "GetDP.y"
+#line 3797 "GetDP.y"
 { Type_TermOperator = JACNL_   ; ;
     break;}
 case 332:
-#line 3799 "GetDP.y"
+#line 3798 "GetDP.y"
 { Type_TermOperator = NEVERDT_ ; ;
     break;}
 case 333:
-#line 3806 "GetDP.y"
-{ Quantity_TypeOperator = Get_DefineForString(Operator_Type, yyvsp[-2].c, &FlagError) ;
+#line 3805 "GetDP.y"
+{ yyval.t.Int1 = Get_DefineForString(Operator_Type, yyvsp[-2].c, &FlagError) ;
       if (FlagError) 
 	vyyerror("Unknown Operator: %s %s", 
 		 yyvsp[-2].c, Get_Valid_SXD(Operator_Type)) ;
@@ -6353,29 +6351,41 @@ case 333:
       if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, yyvsp[-1].c,
 			       fcmp_DefineQuantity_Name)) < 0)
 	vyyerror("Unknown DefineQuantity: %s", yyvsp[-1].c) ;
-      Quantity_Index = i ;
+      yyval.t.Int2 = i ;
+
+      /* the following should be suppressed as soon as the test
+         function part in the formulations is correctly treated */
+      Quantity_TypeOperator = yyval.t.Int1 ;
+      Quantity_Index = yyval.t.Int2 ;
+
       Free(yyvsp[-1].c) ;
     ;
     break;}
 case 334:
-#line 3820 "GetDP.y"
-{ Quantity_TypeOperator = NOOP ;
+#line 3825 "GetDP.y"
+{ yyval.t.Int1 = NOOP ;
 
       if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, yyvsp[-1].c,
 			       fcmp_DefineQuantity_Name)) < 0)
 	vyyerror("Unknown DefineQuantity: %s", yyvsp[-1].c) ;
-      Quantity_Index = i ;
+      yyval.t.Int2 = i ;
+
+      /* the following should be suppressed as soon as the test
+         function part in the formulations is correctly treated */
+      Quantity_TypeOperator = yyval.t.Int1 ;
+      Quantity_Index = yyval.t.Int2 ;
+
       Free(yyvsp[-1].c) ;
     ;
     break;}
 case 335:
-#line 3838 "GetDP.y"
+#line 3849 "GetDP.y"
 { if (!Problem_S.Resolution)
 	Problem_S.Resolution = List_Create(10, 5, sizeof (struct Resolution)) ;
     ;
     break;}
 case 337:
-#line 3848 "GetDP.y"
+#line 3859 "GetDP.y"
 {
       if (!Nbr_Index)
 	List_Add(Problem_S.Resolution, &Resolution_S) ;
@@ -6395,14 +6405,14 @@ case 337:
     ;
     break;}
 case 339:
-#line 3873 "GetDP.y"
+#line 3884 "GetDP.y"
 { Resolution_S.Name = NULL ; Resolution_S.DefineSystem = NULL ;
       Resolution_S.Operation = NULL ;
       Nbr_Index = 0 ;
     ;
     break;}
 case 341:
-#line 3885 "GetDP.y"
+#line 3896 "GetDP.y"
 { Nbr_Index = 0 ;
       Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
 				 yyvsp[-1].c, fcmp_Resolution_Name) ;
@@ -6410,7 +6420,7 @@ case 341:
     ;
     break;}
 case 342:
-#line 3892 "GetDP.y"
+#line 3903 "GetDP.y"
 { Nbr_Index = yyvsp[-1].i ;
       sprintf(StringAux1, "%s_%d_", yyvsp[-2].c, 1) ;
       Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
@@ -6418,19 +6428,19 @@ case 342:
       Resolution_S.Name = yyvsp[-2].c ; ;
     break;}
 case 343:
-#line 3899 "GetDP.y"
+#line 3910 "GetDP.y"
 { Resolution_S.DefineSystem = yyvsp[-1].l ; ;
     break;}
 case 344:
-#line 3902 "GetDP.y"
+#line 3913 "GetDP.y"
 { Operation_L = List_Create( 5, 5, sizeof(struct Operation)) ; ;
     break;}
 case 345:
-#line 3904 "GetDP.y"
+#line 3915 "GetDP.y"
 { Resolution_S.Operation = yyvsp[-1].l ;  List_Delete(Operation_L) ; ;
     break;}
 case 346:
-#line 3910 "GetDP.y"
+#line 3921 "GetDP.y"
 {
       if (!Nbr_Index)
 	yyval.l = Current_System_L = List_Create(6, 6, sizeof (struct DefineSystem)) ;
@@ -6446,7 +6456,7 @@ case 346:
     ;
     break;}
 case 347:
-#line 3925 "GetDP.y"
+#line 3936 "GetDP.y"
 {
       if (!Nbr_Index)
 	List_Add(yyval.l = Current_System_L = yyvsp[-3].l, &DefineSystem_S) ;
@@ -6462,7 +6472,7 @@ case 347:
     ;
     break;}
 case 348:
-#line 3944 "GetDP.y"
+#line 3955 "GetDP.y"
 { DefineSystem_S.Name = NULL ;  
       DefineSystem_S.Type = VAL_REAL ;
       DefineSystem_S.FormulationIndex = NULL ;
@@ -6476,11 +6486,11 @@ case 348:
     ;
     break;}
 case 350:
-#line 3963 "GetDP.y"
+#line 3974 "GetDP.y"
 { DefineSystem_S.Name = yyvsp[-1].c ; ;
     break;}
 case 351:
-#line 3966 "GetDP.y"
+#line 3977 "GetDP.y"
 { DefineSystem_S.Type = Get_DefineForString(DefineSystem_Type, yyvsp[-1].c, &FlagError) ;
       if (FlagError)  
 	vyyerror("Unknown Type of DefineSystem: %s %s", 
@@ -6489,29 +6499,29 @@ case 351:
     ;
     break;}
 case 352:
-#line 3974 "GetDP.y"
+#line 3985 "GetDP.y"
 { DefineSystem_S.FormulationIndex = yyvsp[-1].l ; ;
     break;}
 case 353:
-#line 3977 "GetDP.y"
+#line 3988 "GetDP.y"
 {
       DefineSystem_S.MeshName = yyvsp[-1].c ;
     ;
     break;}
 case 354:
-#line 3982 "GetDP.y"
+#line 3993 "GetDP.y"
 { 
       DefineSystem_S.OriginSystemIndex = yyvsp[-1].l ;
     ;
     break;}
 case 355:
-#line 3987 "GetDP.y"
+#line 3998 "GetDP.y"
 { 
       DefineSystem_S.DestinationSystemName = yyvsp[-1].c ; 
     ;
     break;}
 case 356:
-#line 3992 "GetDP.y"
+#line 4003 "GetDP.y"
 { DefineSystem_S.FrequencyValue =
 	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
       for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
@@ -6522,13 +6532,13 @@ case 356:
     ;
     break;}
 case 357:
-#line 4002 "GetDP.y"
+#line 4013 "GetDP.y"
 {
       DefineSystem_S.SolverDataFileName = yyvsp[-1].c ;
     ;
     break;}
 case 358:
-#line 4011 "GetDP.y"
+#line 4022 "GetDP.y"
 {
       if (!Nbr_Index) {
 	yyval.l = List_Create(1, 1, sizeof(int)) ;
@@ -6566,15 +6576,15 @@ case 358:
     ;
     break;}
 case 359:
-#line 4048 "GetDP.y"
+#line 4059 "GetDP.y"
 { yyval.l = yyvsp[-1].l ; ;
     break;}
 case 360:
-#line 4055 "GetDP.y"
+#line 4066 "GetDP.y"
 { yyval.l = List_Create(2, 2, sizeof(int)) ; ;
     break;}
 case 361:
-#line 4058 "GetDP.y"
+#line 4069 "GetDP.y"
 {
       if ((i = List_ISearchSeq(Problem_S.Formulation, yyvsp[0].c, fcmp_Formulation_Name)) < 0)
 	vyyerror("Unknown Formulation: %s", yyvsp[0].c) ;
@@ -6584,7 +6594,7 @@ case 361:
     ;
     break;}
 case 362:
-#line 4070 "GetDP.y"
+#line 4081 "GetDP.y"
 {
       yyval.l = List_Create(1, 1, sizeof(int)) ;
       if ((i = List_ISearchSeq(Current_System_L, yyvsp[0].c, fcmp_DefineSystem_Name)) < 0)
@@ -6595,15 +6605,15 @@ case 362:
     ;
     break;}
 case 363:
-#line 4080 "GetDP.y"
+#line 4091 "GetDP.y"
 { yyval.l = yyvsp[-1].l ;  ;
     break;}
 case 364:
-#line 4086 "GetDP.y"
+#line 4097 "GetDP.y"
 { yyval.l = List_Create(2, 2, sizeof(int)) ; ;
     break;}
 case 365:
-#line 4089 "GetDP.y"
+#line 4100 "GetDP.y"
 {
       if ((i = List_ISearchSeq(Current_System_L, yyvsp[0].c, fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown DefineSystem: %s", yyvsp[0].c) ;
@@ -6613,7 +6623,7 @@ case 365:
     ;
     break;}
 case 366:
-#line 4101 "GetDP.y"
+#line 4112 "GetDP.y"
 { 
       yyval.l = List_Create(6, 6, sizeof (struct Operation)) ;
       Operation_S.Type = OPERATION_NONE ; 
@@ -6622,14 +6632,14 @@ case 366:
     ;
     break;}
 case 367:
-#line 4109 "GetDP.y"
+#line 4120 "GetDP.y"
 { 
       List_Add(yyval.l = yyvsp[-1].l, (struct Operation*)
 	       List_Pointer(Operation_L, List_Nbr(Operation_L)-1)) ; 
     ;
     break;}
 case 368:
-#line 4120 "GetDP.y"
+#line 4131 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = Get_DefineForString(Operation_Type, yyvsp[-2].c, &FlagError) ;
@@ -6646,7 +6656,7 @@ case 368:
     ;
     break;}
 case 369:
-#line 4136 "GetDP.y"
+#line 4147 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SETTIME ;
@@ -6654,35 +6664,35 @@ case 369:
     ;
     break;}
 case 370:
-#line 4143 "GetDP.y"
+#line 4154 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_TIMELOOPTHETA ;
     ;
     break;}
 case 371:
-#line 4149 "GetDP.y"
+#line 4160 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_TIMELOOPNEWMARK ;
     ;
     break;}
 case 372:
-#line 4155 "GetDP.y"
+#line 4166 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_ITERATIVELOOP ;
     ;
     break;}
 case 373:
-#line 4161 "GetDP.y"
+#line 4172 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_ITERATIVETIMEREDUCTION ;
     ;
     break;}
 case 374:
-#line 4169 "GetDP.y"
+#line 4180 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = Get_DefineForString(Operation_Type, yyvsp[-4].c, &FlagError) ;
@@ -6699,7 +6709,7 @@ case 374:
     ;
     break;}
 case 375:
-#line 4185 "GetDP.y"
+#line 4196 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SETTIME ;
@@ -6707,14 +6717,14 @@ case 375:
     ;
     break;}
 case 376:
-#line 4192 "GetDP.y"
+#line 4203 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_BREAK ;
     ;
     break;}
 case 377:
-#line 4198 "GetDP.y"
+#line 4209 "GetDP.y"
 { 
       List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
@@ -6726,7 +6736,7 @@ case 377:
     ;
     break;}
 case 378:
-#line 4209 "GetDP.y"
+#line 4220 "GetDP.y"
 { 
       List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
@@ -6738,7 +6748,7 @@ case 378:
     ;
     break;}
 case 379:
-#line 4220 "GetDP.y"
+#line 4231 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SETFREQUENCY ;
@@ -6755,7 +6765,7 @@ case 379:
     ;
     break;}
 case 380:
-#line 4236 "GetDP.y"
+#line 4247 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_UPDATE ;
@@ -6768,7 +6778,7 @@ case 380:
     ;
     break;}
 case 381:
-#line 4248 "GetDP.y"
+#line 4259 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_FOURIERTRANSFORM ;
@@ -6791,7 +6801,7 @@ case 381:
     ;
     break;}
 case 382:
-#line 4270 "GetDP.y"
+#line 4281 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_LANCZOS ;
@@ -6812,7 +6822,7 @@ case 382:
     ;
     break;}
 case 383:
-#line 4292 "GetDP.y"
+#line 4303 "GetDP.y"
 { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -6825,7 +6835,7 @@ case 383:
     ;
     break;}
 case 384:
-#line 4305 "GetDP.y"
+#line 4316 "GetDP.y"
 { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -6839,7 +6849,7 @@ case 384:
     ;
     break;}
 case 385:
-#line 4318 "GetDP.y"
+#line 4329 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_PRINT ;
@@ -6848,7 +6858,7 @@ case 385:
     ;
     break;}
 case 387:
-#line 4327 "GetDP.y"
+#line 4338 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_WRITE ;
@@ -6857,7 +6867,7 @@ case 387:
     ;
     break;}
 case 389:
-#line 4336 "GetDP.y"
+#line 4347 "GetDP.y"
 {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -6868,7 +6878,7 @@ case 389:
     ;
     break;}
 case 390:
-#line 4346 "GetDP.y"
+#line 4357 "GetDP.y"
 {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -6877,7 +6887,7 @@ case 390:
     ;
     break;}
 case 391:
-#line 4357 "GetDP.y"
+#line 4368 "GetDP.y"
 { Operation_P->Case.Print.Expression = 
 	List_Create(List_Nbr(ListOfInt_L), 1, sizeof(int)) ;
       for (i = 0 ; i < List_Nbr(ListOfInt_L) ; i++) {
@@ -6887,7 +6897,7 @@ case 391:
     ;
     break;}
 case 392:
-#line 4366 "GetDP.y"
+#line 4377 "GetDP.y"
 { if ((i = List_ISearchSeq(Resolution_S.DefineSystem, yyvsp[0].c,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown DefineSystem: %s", yyvsp[0].c) ;
@@ -6896,7 +6906,7 @@ case 392:
     ;
     break;}
 case 393:
-#line 4376 "GetDP.y"
+#line 4387 "GetDP.y"
 {
       Operation_P->Case.Print.FileOut = NULL ; 
       Operation_P->Case.Print.TimeStep = NULL ; 
@@ -6904,11 +6914,11 @@ case 393:
     ;
     break;}
 case 395:
-#line 4386 "GetDP.y"
+#line 4397 "GetDP.y"
 { Operation_P->Case.Print.FileOut = yyvsp[0].c ; ;
     break;}
 case 396:
-#line 4389 "GetDP.y"
+#line 4400 "GetDP.y"
 { Operation_P->Case.Print.TimeStep = 
 	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(int)) ;
       for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
@@ -6918,7 +6928,7 @@ case 396:
     ;
     break;}
 case 397:
-#line 4398 "GetDP.y"
+#line 4409 "GetDP.y"
 { Operation_P->Case.Print.DofNumber = 
 	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(int)) ;
       for (i = 0 ; i < List_Nbr(ListOfDouble_L) ; i++) {
@@ -6928,7 +6938,7 @@ case 397:
     ;
     break;}
 case 398:
-#line 4411 "GetDP.y"
+#line 4422 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.TimeLoopTheta.Time0   = 0. ;
@@ -6939,31 +6949,31 @@ case 398:
     ;
     break;}
 case 400:
-#line 4427 "GetDP.y"
+#line 4438 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.TimeLoopTheta.Time0   = yyvsp[-1].d ; ;
     break;}
 case 401:
-#line 4431 "GetDP.y"
+#line 4442 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.TimeLoopTheta.TimeMax = yyvsp[-1].d ; ;
     break;}
 case 402:
-#line 4435 "GetDP.y"
+#line 4446 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.TimeLoopTheta.DTimeIndex = yyvsp[-1].i ; ;
     break;}
 case 403:
-#line 4439 "GetDP.y"
+#line 4450 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.TimeLoopTheta.ThetaIndex = yyvsp[-1].i ; ;
     break;}
 case 404:
-#line 4444 "GetDP.y"
+#line 4455 "GetDP.y"
 { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -6971,7 +6981,7 @@ case 404:
     ;
     break;}
 case 405:
-#line 4455 "GetDP.y"
+#line 4466 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.TimeLoopNewmark.Time0   = 0. ;
@@ -6983,37 +6993,37 @@ case 405:
     ;
     break;}
 case 407:
-#line 4472 "GetDP.y"
+#line 4483 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.TimeLoopNewmark.Time0   = yyvsp[-1].d ; ;
     break;}
 case 408:
-#line 4476 "GetDP.y"
+#line 4487 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.TimeLoopNewmark.TimeMax = yyvsp[-1].d ; ;
     break;}
 case 409:
-#line 4480 "GetDP.y"
+#line 4491 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.TimeLoopNewmark.DTimeIndex = yyvsp[-1].i ; ;
     break;}
 case 410:
-#line 4484 "GetDP.y"
+#line 4495 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.TimeLoopNewmark.Beta   = yyvsp[-1].d ; ;
     break;}
 case 411:
-#line 4488 "GetDP.y"
+#line 4499 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.TimeLoopNewmark.Gamma   = yyvsp[-1].d ; ;
     break;}
 case 412:
-#line 4493 "GetDP.y"
+#line 4504 "GetDP.y"
 { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -7021,7 +7031,7 @@ case 412:
     ;
     break;}
 case 413:
-#line 4504 "GetDP.y"
+#line 4515 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeLoop.NbrMaxIteration  = 20 ;
@@ -7032,31 +7042,31 @@ case 413:
     ;
     break;}
 case 415:
-#line 4519 "GetDP.y"
+#line 4530 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)yyvsp[-1].d ; ;
     break;}
 case 416:
-#line 4523 "GetDP.y"
+#line 4534 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeLoop.RelaxationFactorIndex = yyvsp[-1].i ; ;
     break;}
 case 417:
-#line 4527 "GetDP.y"
+#line 4538 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeLoop.Criterion = yyvsp[-1].d ; ;
     break;}
 case 418:
-#line 4531 "GetDP.y"
+#line 4542 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeLoop.Flag = (int)yyvsp[-1].d ; ;
     break;}
 case 419:
-#line 4536 "GetDP.y"
+#line 4547 "GetDP.y"
 { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -7064,7 +7074,7 @@ case 419:
     ;
     break;}
 case 420:
-#line 4547 "GetDP.y"
+#line 4558 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeTimeReduction.NbrMaxIteration     = 20 ;
@@ -7078,31 +7088,31 @@ case 420:
     ;
     break;}
 case 422:
-#line 4565 "GetDP.y"
+#line 4576 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeTimeReduction.NbrMaxIteration = (int)yyvsp[-1].d ; ;
     break;}
 case 423:
-#line 4569 "GetDP.y"
+#line 4580 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeTimeReduction.DivisionCoefficient = yyvsp[-1].d ; ;
     break;}
 case 424:
-#line 4573 "GetDP.y"
+#line 4584 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeTimeReduction.Criterion = yyvsp[-1].d ; ;
     break;}
 case 425:
-#line 4577 "GetDP.y"
+#line 4588 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeTimeReduction.Flag = (int)yyvsp[-1].d ; ;
     break;}
 case 426:
-#line 4582 "GetDP.y"
+#line 4593 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, yyvsp[-1].c,
@@ -7113,14 +7123,14 @@ case 426:
     ;
     break;}
 case 427:
-#line 4592 "GetDP.y"
+#line 4603 "GetDP.y"
 { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeTimeReduction.ChangeOfState = yyvsp[-1].l ;
     ;
     break;}
 case 428:
-#line 4598 "GetDP.y"
+#line 4609 "GetDP.y"
 { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -7128,7 +7138,7 @@ case 428:
     ;
     break;}
 case 429:
-#line 4604 "GetDP.y"
+#line 4615 "GetDP.y"
 { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -7136,15 +7146,15 @@ case 429:
     ;
     break;}
 case 430:
-#line 4614 "GetDP.y"
+#line 4625 "GetDP.y"
 { yyval.l = List_Create(3, 3, sizeof (struct ChangeOfState)) ; ;
     break;}
 case 431:
-#line 4617 "GetDP.y"
+#line 4628 "GetDP.y"
 { List_Add(yyval.l = yyvsp[-3].l, &ChangeOfState_S) ; ;
     break;}
 case 432:
-#line 4622 "GetDP.y"
+#line 4633 "GetDP.y"
 {
       ChangeOfState_S.Type = CHANGEOFSTATE_CHANGESIGN ;
       ChangeOfState_S.QuantityIndex       = -1 ;
@@ -7158,7 +7168,7 @@ case 432:
     ;
     break;}
 case 434:
-#line 4640 "GetDP.y"
+#line 4651 "GetDP.y"
 { ChangeOfState_S.Type =
 	Get_DefineForString(ChangeOfState_Type, yyvsp[-1].c, &FlagError) ;
       if (FlagError)  
@@ -7168,7 +7178,7 @@ case 434:
     ;
     break;}
 case 435:
-#line 4649 "GetDP.y"
+#line 4660 "GetDP.y"
 {
       if (Current_System >= 0) {
 	ListOfInt_Lnew =
@@ -7198,15 +7208,15 @@ case 435:
     ;
     break;}
 case 436:
-#line 4678 "GetDP.y"
+#line 4689 "GetDP.y"
 { ChangeOfState_S.InIndex = Num_Group(&Group_S, "OP_In", yyvsp[-1].i) ; ;
     break;}
 case 437:
-#line 4681 "GetDP.y"
+#line 4692 "GetDP.y"
 { ChangeOfState_S.Criterion = yyvsp[-1].d ; ;
     break;}
 case 438:
-#line 4684 "GetDP.y"
+#line 4695 "GetDP.y"
 { 
       if (ChangeOfState_S.ExpressionIndex < 0)
 	ChangeOfState_S.ExpressionIndex = yyvsp[-1].i ;
@@ -7215,7 +7225,7 @@ case 438:
     ;
     break;}
 case 439:
-#line 4692 "GetDP.y"
+#line 4703 "GetDP.y"
 {
       if((i = List_ISearchSeq(Problem_S.Expression, yyvsp[-1].c, fcmp_Expression_Name)) < 0)
 	vyyerror("Unknown Name of Expression for Flag: %s", yyvsp[-1].c) ;
@@ -7224,7 +7234,7 @@ case 439:
     ;
     break;}
 case 440:
-#line 4707 "GetDP.y"
+#line 4718 "GetDP.y"
 { 
       if (!Problem_S.PostProcessing)
 	Problem_S.PostProcessing = 
@@ -7232,7 +7242,7 @@ case 440:
     ;
     break;}
 case 442:
-#line 4719 "GetDP.y"
+#line 4730 "GetDP.y"
 {
       if (!Nbr_Index)
 	List_Add(Problem_S.PostProcessing, &PostProcessing_S) ;
@@ -7252,7 +7262,7 @@ case 442:
     ;
     break;}
 case 444:
-#line 4742 "GetDP.y"
+#line 4753 "GetDP.y"
 { 
       PostProcessing_S.Name = NULL ;  
       PostProcessing_S.FormulationIndex = -1 ; 
@@ -7263,7 +7273,7 @@ case 444:
     ;
     break;}
 case 446:
-#line 4756 "GetDP.y"
+#line 4767 "GetDP.y"
 { Nbr_Index = 0 ;
       Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
 				 yyvsp[-1].c, fcmp_PostProcessing_Name) ;
@@ -7271,7 +7281,7 @@ case 446:
     ;
     break;}
 case 447:
-#line 4763 "GetDP.y"
+#line 4774 "GetDP.y"
 { Nbr_Index = yyvsp[-1].i ;
       sprintf(StringAux1, "%s_%d_", yyvsp[-2].c, 1) ;
       Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
@@ -7280,7 +7290,7 @@ case 447:
     ;
     break;}
 case 448:
-#line 4771 "GetDP.y"
+#line 4782 "GetDP.y"
 { 
       if (!Nbr_Index) {
 	if (!Flag_MultipleIndex){
@@ -7327,51 +7337,51 @@ case 448:
     ;
     break;}
 case 449:
-#line 4817 "GetDP.y"
+#line 4828 "GetDP.y"
 { 
       PostProcessing_S.NameOfSystem = yyvsp[-1].c ;
     ;
     break;}
 case 450:
-#line 4822 "GetDP.y"
+#line 4833 "GetDP.y"
 { PostProcessing_S.PostQuantity = yyvsp[-1].l ; ;
     break;}
 case 451:
-#line 4828 "GetDP.y"
+#line 4839 "GetDP.y"
 { yyval.l = List_Create(5, 5, sizeof (struct PostQuantity)) ; ;
     break;}
 case 452:
-#line 4831 "GetDP.y"
+#line 4842 "GetDP.y"
 { List_Add(yyval.l = yyvsp[-3].l, &PostQuantity_S) ; ;
     break;}
 case 453:
-#line 4836 "GetDP.y"
+#line 4847 "GetDP.y"
 { 
       PostQuantity_S.Name = NULL ;  
       PostQuantity_S.PostQuantityTerm = NULL ; 
     ;
     break;}
 case 455:
-#line 4847 "GetDP.y"
+#line 4858 "GetDP.y"
 { PostQuantity_S.Name = yyvsp[-1].c ; ;
     break;}
 case 456:
-#line 4850 "GetDP.y"
+#line 4861 "GetDP.y"
 { PostQuantity_S.PostQuantityTerm = yyvsp[-1].l ; ;
     break;}
 case 457:
-#line 4856 "GetDP.y"
+#line 4867 "GetDP.y"
 { yyval.l = List_Create(5, 5, sizeof (struct PostQuantityTerm)) ; ;
     break;}
 case 458:
-#line 4861 "GetDP.y"
+#line 4872 "GetDP.y"
 { 
       PostQuantityTerm_S.EvaluationType = INTEGRAL ;
       List_Add(yyval.l = yyvsp[-4].l, &PostQuantityTerm_S) ; 
     ;
     break;}
 case 459:
-#line 4867 "GetDP.y"
+#line 4878 "GetDP.y"
 { 
       PostQuantityTerm_S.EvaluationType =
 	Get_DefineForString(PostQuantityTerm_EvaluationType, yyvsp[-3].c, &FlagError) ;
@@ -7383,7 +7393,7 @@ case 459:
     ;
     break;}
 case 460:
-#line 4880 "GetDP.y"
+#line 4891 "GetDP.y"
 { 
       PostQuantityTerm_S.Type = 0 ;
       PostQuantityTerm_S.TypeTimeDerivative = NODT_ ;
@@ -7394,7 +7404,7 @@ case 460:
     ;
     break;}
 case 462:
-#line 4894 "GetDP.y"
+#line 4905 "GetDP.y"
 { 
       PostQuantityTerm_S.TypeTimeDerivative = Type_TermOperator ;
       Current_DofIndexInWholeQuantity = -2 ;
@@ -7402,7 +7412,7 @@ case 462:
     ;
     break;}
 case 463:
-#line 4901 "GetDP.y"
+#line 4912 "GetDP.y"
 { PostQuantityTerm_S.WholeQuantity = yyvsp[-2].l ;
 
       Pro_DefineQuantityIndex
@@ -7431,7 +7441,7 @@ case 463:
     ;
     break;}
 case 464:
-#line 4929 "GetDP.y"
+#line 4940 "GetDP.y"
 { /* force the Type */
      PostQuantityTerm_S.Type =
        Get_DefineForString(DefineQuantity_Type, yyvsp[-1].c, &FlagError) ;
@@ -7442,18 +7452,18 @@ case 464:
    ;
     break;}
 case 465:
-#line 4938 "GetDP.y"
+#line 4949 "GetDP.y"
 { Save_Nbr_Index = Nbr_Index ; Nbr_Index = 0 ; ;
     break;}
 case 466:
-#line 4939 "GetDP.y"
+#line 4950 "GetDP.y"
 { 
       Nbr_Index = Save_Nbr_Index ;
       PostQuantityTerm_S.InIndex = Num_Group(&Group_S, "PQ_In", yyvsp[-1].i) ;
    ;
     break;}
 case 467:
-#line 4945 "GetDP.y"
+#line 4956 "GetDP.y"
 { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, yyvsp[-1].c,
 			       fcmp_JacobianMethod_Name)) < 0)
 	vyyerror("Unknown JacobianMethod: %s",yyvsp[-1].c) ;
@@ -7463,7 +7473,7 @@ case 467:
     ;
     break;}
 case 468:
-#line 4954 "GetDP.y"
+#line 4965 "GetDP.y"
 { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, yyvsp[-1].c,
 			       fcmp_IntegrationMethod_Name)) < 0)
 	vyyerror("Unknown IntegrationMethod: %s",yyvsp[-1].c) ;
@@ -7473,7 +7483,7 @@ case 468:
     ;
     break;}
 case 469:
-#line 4971 "GetDP.y"
+#line 4982 "GetDP.y"
 { 
       if (!Problem_S.PostOperation)
 	Problem_S.PostOperation = 
@@ -7481,11 +7491,11 @@ case 469:
     ;
     break;}
 case 471:
-#line 4983 "GetDP.y"
+#line 4994 "GetDP.y"
 { List_Add(Problem_S.PostOperation, &PostOperation_S) ; ;
     break;}
 case 473:
-#line 4990 "GetDP.y"
+#line 5001 "GetDP.y"
 { 
       PostOperation_S.Name = NULL ;  
       PostOperation_S.AppendString = NULL ;  
@@ -7494,7 +7504,7 @@ case 473:
     ;
     break;}
 case 475:
-#line 5002 "GetDP.y"
+#line 5013 "GetDP.y"
 { 
       Check_NameOfStructNotExist("PostOperation", Problem_S.PostOperation,
 				 yyvsp[-1].c, fcmp_PostOperation_Name) ;
@@ -7502,7 +7512,7 @@ case 475:
     ;
     break;}
 case 476:
-#line 5009 "GetDP.y"
+#line 5020 "GetDP.y"
 { 
       if ((i = List_ISearchSeq(Problem_S.PostProcessing, yyvsp[-1].c,
 			       fcmp_PostProcessing_Name)) < 0)
@@ -7515,7 +7525,7 @@ case 476:
     ;
     break;}
 case 477:
-#line 5021 "GetDP.y"
+#line 5032 "GetDP.y"
 { 
       PostOperation_S.Format =
 	Get_DefineForString(PostSubOperation_Format, yyvsp[-1].c, &FlagError) ;
@@ -7526,17 +7536,17 @@ case 477:
     ;
     break;}
 case 478:
-#line 5031 "GetDP.y"
+#line 5042 "GetDP.y"
 { 
       PostOperation_S.AppendString = yyvsp[-1].c ;
     ;
     break;}
 case 479:
-#line 5036 "GetDP.y"
+#line 5047 "GetDP.y"
 { PostOperation_S.PostSubOperation = yyvsp[-1].l ; ;
     break;}
 case 480:
-#line 5042 "GetDP.y"
+#line 5053 "GetDP.y"
 {
       PostOperation_S.PostProcessingIndex = -1 ;
       PostOperation_S.AppendString = NULL ;  
@@ -7555,7 +7565,7 @@ case 480:
     ;
     break;}
 case 481:
-#line 5059 "GetDP.y"
+#line 5070 "GetDP.y"
 {
       PostOperation_S.PostSubOperation = yyvsp[-1].l ;
       if (PostOperation_S.PostProcessingIndex >= 0)
@@ -7563,17 +7573,17 @@ case 481:
     ;
     break;}
 case 482:
-#line 5069 "GetDP.y"
+#line 5080 "GetDP.y"
 { yyval.l = List_Create(5, 5, sizeof (struct PostSubOperation)) ; ;
     break;}
 case 483:
-#line 5072 "GetDP.y"
+#line 5083 "GetDP.y"
 {
       PostSubOperation_S.Format = -1 ;
     ;
     break;}
 case 484:
-#line 5076 "GetDP.y"
+#line 5087 "GetDP.y"
 { 
       if(PostSubOperation_S.Format<0)
 	PostSubOperation_S.Format = PostOperation_S.Format ;
@@ -7581,20 +7591,20 @@ case 484:
     ;
     break;}
 case 485:
-#line 5087 "GetDP.y"
+#line 5098 "GetDP.y"
 {
       vyyerror("Plot has been superseded by Print "
 	       "(Plot OnRegion becomes Print OnElementsOf)") ;
     ;
     break;}
 case 486:
-#line 5093 "GetDP.y"
+#line 5104 "GetDP.y"
 {
       PostSubOperation_S.Type = POP_PRINT ;
     ;
     break;}
 case 487:
-#line 5102 "GetDP.y"
+#line 5113 "GetDP.y"
 {
       if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, yyvsp[-2].c, 
 			       fcmp_PostQuantity_Name)) < 0)
@@ -7607,7 +7617,7 @@ case 487:
     ;
     break;}
 case 488:
-#line 5114 "GetDP.y"
+#line 5125 "GetDP.y"
 {
       if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, yyvsp[-5].c, 
 			       fcmp_PostQuantity_Name)) < 0)
@@ -7629,38 +7639,38 @@ case 488:
     ;
     break;}
 case 489:
-#line 5137 "GetDP.y"
+#line 5148 "GetDP.y"
 { PostSubOperation_S.CombinationType = MULTIPLICATION ; ;
     break;}
 case 490:
-#line 5138 "GetDP.y"
+#line 5149 "GetDP.y"
 { PostSubOperation_S.CombinationType = DIVISION ; ;
     break;}
 case 491:
-#line 5139 "GetDP.y"
+#line 5150 "GetDP.y"
 { PostSubOperation_S.CombinationType = ADDITION ; ;
     break;}
 case 492:
-#line 5140 "GetDP.y"
+#line 5151 "GetDP.y"
 { PostSubOperation_S.CombinationType = SOUSTRACTION ; ;
     break;}
 case 493:
-#line 5146 "GetDP.y"
+#line 5157 "GetDP.y"
 { yyval.i = -1 ; ;
     break;}
 case 494:
-#line 5148 "GetDP.y"
+#line 5159 "GetDP.y"
 { yyval.i = Num_Group(&Group_S, "PO_Support", yyvsp[-1].i) ; ;
     break;}
 case 495:
-#line 5154 "GetDP.y"
+#line 5165 "GetDP.y"
 {
       PostSubOperation_S.SubType = PRINT_ONREGION ;
       PostSubOperation_S.Case.OnRegion.RegionIndex = -1 ;
     ;
     break;}
 case 496:
-#line 5160 "GetDP.y"
+#line 5171 "GetDP.y"
 {
       PostSubOperation_S.SubType = PRINT_ONREGION ;
       PostSubOperation_S.Case.OnRegion.RegionIndex = 
@@ -7668,7 +7678,7 @@ case 496:
     ;
     break;}
 case 497:
-#line 5167 "GetDP.y"
+#line 5178 "GetDP.y"
 {
       PostSubOperation_S.SubType = PRINT_ONELEMENTSOF ;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
@@ -7676,7 +7686,7 @@ case 497:
     ;
     break;}
 case 498:
-#line 5176 "GetDP.y"
+#line 5187 "GetDP.y"
 {
       PostSubOperation_S.SubType = PRINT_ONCUT_2D ;
       PostSubOperation_S.Case.OnCut.x[0] = yyvsp[-20].d ;
@@ -7691,7 +7701,7 @@ case 498:
     ;
     break;}
 case 499:
-#line 5190 "GetDP.y"
+#line 5201 "GetDP.y"
 {
       PostSubOperation_S.SubType = PRINT_ONGRID ;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
@@ -7699,7 +7709,7 @@ case 499:
     ;
     break;}
 case 500:
-#line 5198 "GetDP.y"
+#line 5209 "GetDP.y"
 {
       PostSubOperation_S.SubType = PRINT_ONGRID_PARAM ;
       PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[0] = yyvsp[-7].i ;
@@ -7714,7 +7724,7 @@ case 500:
     ;
     break;}
 case 501:
-#line 5211 "GetDP.y"
+#line 5222 "GetDP.y"
 {
       PostSubOperation_S.Case.OnParamGrid.ParameterValue[1] =
 	List_Create(List_Nbr(ListOfDouble_L), 1, sizeof(double)) ;
@@ -7725,7 +7735,7 @@ case 501:
     ;
     break;}
 case 502:
-#line 5221 "GetDP.y"
+#line 5232 "GetDP.y"
 {
       PostSubOperation_S.SubType = PRINT_ONGRID_0D ;
       PostSubOperation_S.Case.OnGrid.x[0] = yyvsp[-5].d ;
@@ -7734,7 +7744,7 @@ case 502:
     ;
     break;}
 case 503:
-#line 5230 "GetDP.y"
+#line 5241 "GetDP.y"
 {
       PostSubOperation_S.SubType = PRINT_ONGRID_1D ;
       PostSubOperation_S.Case.OnGrid.x[0] = yyvsp[-16].d ;
@@ -7747,7 +7757,7 @@ case 503:
     ;
     break;}
 case 504:
-#line 5244 "GetDP.y"
+#line 5255 "GetDP.y"
 {
       PostSubOperation_S.SubType = PRINT_ONGRID_2D ;
       PostSubOperation_S.Case.OnGrid.x[0] = yyvsp[-25].d ;
@@ -7764,7 +7774,7 @@ case 504:
     ;
     break;}
 case 505:
-#line 5263 "GetDP.y"
+#line 5274 "GetDP.y"
 {
       PostSubOperation_S.SubType = PRINT_ONGRID_3D ;
       PostSubOperation_S.Case.OnGrid.x[0] = yyvsp[-34].d ;
@@ -7785,7 +7795,7 @@ case 505:
     ;
     break;}
 case 506:
-#line 5285 "GetDP.y"
+#line 5296 "GetDP.y"
 {
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT ;
 
@@ -7803,7 +7813,7 @@ case 506:
     ;
     break;}
 case 507:
-#line 5305 "GetDP.y"
+#line 5316 "GetDP.y"
 { 
       PostSubOperation_S.FileOut = NULL ; 
       PostSubOperation_S.Depth = 1 ; 
@@ -7823,7 +7833,7 @@ case 507:
     ;
     break;}
 case 509:
-#line 5327 "GetDP.y"
+#line 5338 "GetDP.y"
 { 
       PostSubOperation_S.FileOut = yyvsp[0].c ; 
       if(PostOperation_S.AppendString) 
@@ -7832,7 +7842,7 @@ case 509:
     ;
     break;}
 case 510:
-#line 5334 "GetDP.y"
+#line 5345 "GetDP.y"
 { 
       PostSubOperation_S.FileOut = yyvsp[0].c ; 
       if(PostOperation_S.AppendString) 
@@ -7841,7 +7851,7 @@ case 510:
     ;
     break;}
 case 511:
-#line 5341 "GetDP.y"
+#line 5352 "GetDP.y"
 { 
       PostSubOperation_S.FileOut = yyvsp[0].c ; 
       if(PostOperation_S.AppendString) 
@@ -7850,31 +7860,31 @@ case 511:
     ;
     break;}
 case 512:
-#line 5348 "GetDP.y"
+#line 5359 "GetDP.y"
 { 
       PostSubOperation_S.Depth = (int)yyvsp[0].d ; 
     ;
     break;}
 case 513:
-#line 5352 "GetDP.y"
+#line 5363 "GetDP.y"
 { 
       PostSubOperation_S.Skin = 1 ; 
     ;
     break;}
 case 514:
-#line 5356 "GetDP.y"
+#line 5367 "GetDP.y"
 {
       PostSubOperation_S.Smoothing = (int)yyvsp[0].d ; 
     ;
     break;}
 case 515:
-#line 5360 "GetDP.y"
+#line 5371 "GetDP.y"
 {
       PostSubOperation_S.HarmonicToTime = (int)yyvsp[0].d ; 
     ;
     break;}
 case 516:
-#line 5364 "GetDP.y"
+#line 5375 "GetDP.y"
 { 
       PostSubOperation_S.Format =
 	Get_DefineForString(PostSubOperation_Format, yyvsp[0].c, &FlagError) ;
@@ -7885,21 +7895,21 @@ case 516:
     ;
     break;}
 case 517:
-#line 5373 "GetDP.y"
+#line 5384 "GetDP.y"
 {
       PostSubOperation_S.HeaderChar_L = List_Copy(ListOfChar_L) ;
       PostSubOperation_S.HeaderTag_L  = List_Copy(ListOfInt_L) ;
     ;
     break;}
 case 518:
-#line 5378 "GetDP.y"
+#line 5389 "GetDP.y"
 {
       PostSubOperation_S.FooterChar_L = List_Copy(ListOfChar_L) ;
       PostSubOperation_S.FooterTag_L  = List_Copy(ListOfInt_L) ;
     ;
     break;}
 case 519:
-#line 5383 "GetDP.y"
+#line 5394 "GetDP.y"
 {
       PostSubOperation_S.FormatChar_L = List_Copy(ListOfChar_L) ;
       PostSubOperation_S.FormatTag_L  = List_Copy(ListOfInt_L) ;
@@ -7921,7 +7931,7 @@ case 519:
     ;
     break;}
 case 520:
-#line 5403 "GetDP.y"
+#line 5414 "GetDP.y"
 { 
       if((int)yyvsp[0].d >= 1 && (int)yyvsp[0].d <= 3)
 	PostSubOperation_S.Dimension = (int)yyvsp[0].d ;
@@ -7930,7 +7940,7 @@ case 520:
     ;
     break;}
 case 521:
-#line 5410 "GetDP.y"
+#line 5421 "GetDP.y"
 { 
       for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
 	List_Read(ListOfDouble_L,i,&d);	j = (int)d ;
@@ -7939,7 +7949,7 @@ case 521:
     ;
     break;}
 case 522:
-#line 5417 "GetDP.y"
+#line 5428 "GetDP.y"
 { 
       PostSubOperation_S.Adapt = 
 	Get_DefineForString(Adaption_Type, yyvsp[0].c, &FlagError) ;
@@ -7949,7 +7959,7 @@ case 522:
     ;
     break;}
 case 523:
-#line 5425 "GetDP.y"
+#line 5436 "GetDP.y"
 { 
       PostSubOperation_S.Sort = 
 	Get_DefineForString(Sort_Type, yyvsp[0].c, &FlagError) ;
@@ -7959,7 +7969,7 @@ case 523:
     ;
     break;}
 case 524:
-#line 5433 "GetDP.y"
+#line 5444 "GetDP.y"
 { 
       if(yyvsp[0].d >= 0. && yyvsp[0].d < 3.)
 	PostSubOperation_S.Target = yyvsp[0].d ;
@@ -7968,7 +7978,7 @@ case 524:
     ;
     break;}
 case 525:
-#line 5440 "GetDP.y"
+#line 5451 "GetDP.y"
 { 
       for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
 	List_Read(ListOfDouble_L,i,&d);	
@@ -7977,13 +7987,13 @@ case 525:
     ;
     break;}
 case 526:
-#line 5447 "GetDP.y"
+#line 5458 "GetDP.y"
 { 
       PostSubOperation_S.Iso = (int)yyvsp[0].d;
     ;
     break;}
 case 527:
-#line 5451 "GetDP.y"
+#line 5462 "GetDP.y"
 { 
       PostSubOperation_S.Iso = -1 ;
       for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
@@ -7993,13 +8003,13 @@ case 527:
     ;
     break;}
 case 528:
-#line 5459 "GetDP.y"
+#line 5470 "GetDP.y"
 { 
       PostSubOperation_S.NoNewLine = 1 ;
     ;
     break;}
 case 529:
-#line 5463 "GetDP.y"
+#line 5474 "GetDP.y"
 { 
       for(i=0 ; i<List_Nbr(ListOfDouble_L) ; i++){
 	List_Read(ListOfDouble_L,i,&d);	
@@ -8008,14 +8018,14 @@ case 529:
     ;
     break;}
 case 530:
-#line 5475 "GetDP.y"
+#line 5486 "GetDP.y"
 {
       List_Reset(ListOfChar_L);
       List_Reset(ListOfInt_L);
     ;
     break;}
 case 531:
-#line 5481 "GetDP.y"
+#line 5492 "GetDP.y"
 {
       i = 0 ;
       do{
@@ -8056,31 +8066,31 @@ case 531:
     ;
     break;}
 case 532:
-#line 5528 "GetDP.y"
+#line 5539 "GetDP.y"
 { List_Reset(ListOfInt_L) ; ;
     break;}
 case 534:
-#line 5539 "GetDP.y"
+#line 5550 "GetDP.y"
 { List_Reset(ListOfInt_L) ;  List_Add(ListOfInt_L, &(yyvsp[0].i)) ; ;
     break;}
 case 535:
-#line 5542 "GetDP.y"
+#line 5553 "GetDP.y"
 { List_Add(ListOfInt_L, &(yyvsp[0].i)) ; ;
     break;}
 case 536:
-#line 5548 "GetDP.y"
+#line 5559 "GetDP.y"
 { List_Reset(ListOfDouble_L) ; ;
     break;}
 case 537:
-#line 5549 "GetDP.y"
+#line 5560 "GetDP.y"
 { List_Reset(ListOfDouble_L) ;  List_Add(ListOfDouble_L, &(yyvsp[0].d)) ; ;
     break;}
 case 539:
-#line 5557 "GetDP.y"
+#line 5568 "GetDP.y"
 { List_Reset(ListOfDouble_L) ;  List_Add(ListOfDouble_L, &(yyvsp[0].d)) ; ;
     break;}
 case 540:
-#line 5560 "GetDP.y"
+#line 5571 "GetDP.y"
 { 
       List_Reset(ListOfDouble_L) ; 
       for(i=0 ; i<List_Nbr(ListOfDouble2_L) ; i++){
@@ -8090,11 +8100,11 @@ case 540:
     ;
     break;}
 case 541:
-#line 5569 "GetDP.y"
+#line 5580 "GetDP.y"
 { List_Add(ListOfDouble_L, &(yyvsp[0].d)) ; ;
     break;}
 case 542:
-#line 5572 "GetDP.y"
+#line 5583 "GetDP.y"
 {
       for(i=0 ; i<List_Nbr(ListOfDouble2_L) ; i++){
 	List_Read(ListOfDouble2_L, i, &Value) ;
@@ -8103,14 +8113,14 @@ case 542:
     ;
     break;}
 case 543:
-#line 5583 "GetDP.y"
+#line 5594 "GetDP.y"
 { List_Reset(ListOfDouble2_L) ; 
       for(d=yyvsp[-2].d ; (yyvsp[-2].d<yyvsp[0].d)?(d<=yyvsp[0].d):(d>=yyvsp[0].d) ; (yyvsp[-2].d<yyvsp[0].d)?(d+=1.):(d-=1.)) 
 	List_Add(ListOfDouble2_L, &d) ;
     ;
     break;}
 case 544:
-#line 5589 "GetDP.y"
+#line 5600 "GetDP.y"
 { List_Reset(ListOfDouble2_L) ; 
       if(!yyvsp[-2].d || (yyvsp[-5].d<yyvsp[0].d && yyvsp[-2].d<0) || (yyvsp[-5].d>yyvsp[0].d && yyvsp[-2].d>0)){
         vyyerror("Wrong Increment in '%g :[%g] %g'", yyvsp[-5].d, yyvsp[-2].d, yyvsp[0].d) ;
@@ -8122,21 +8132,21 @@ case 544:
    ;
     break;}
 case 545:
-#line 5608 "GetDP.y"
+#line 5619 "GetDP.y"
 { Constant_S.Name = yyvsp[-3].c ; Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = yyvsp[-1].d ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;
     break;}
 case 546:
-#line 5614 "GetDP.y"
+#line 5625 "GetDP.y"
 { Constant_S.Name = yyvsp[-3].c ; Constant_S.Type = VAR_CHAR ;
       Constant_S.Value.Char = yyvsp[-1].c ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;
     break;}
 case 547:
-#line 5620 "GetDP.y"
+#line 5631 "GetDP.y"
 {
       Constant_S.Name = yyvsp[-5].c ; Constant_S.Type = VAR_LISTOFFLOAT ;
       Constant_S.Value.ListOfFloat =
@@ -8149,7 +8159,7 @@ case 547:
     ;
     break;}
 case 548:
-#line 5632 "GetDP.y"
+#line 5643 "GetDP.y"
 {
       Constant_S.Name = yyvsp[-8].c ; Constant_S.Type = VAR_LISTOFFLOAT ;
 
@@ -8194,7 +8204,7 @@ case 548:
     ;
     break;}
 case 551:
-#line 5683 "GetDP.y"
+#line 5694 "GetDP.y"
 { Constant_S.Name = yyvsp[0].c ; Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = 0. ;
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
@@ -8202,7 +8212,7 @@ case 551:
     ;
     break;}
 case 552:
-#line 5689 "GetDP.y"
+#line 5700 "GetDP.y"
 { Constant_S.Name = yyvsp[-2].c ; Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = yyvsp[0].d ;
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
@@ -8210,7 +8220,7 @@ case 552:
     ;
     break;}
 case 553:
-#line 5695 "GetDP.y"
+#line 5706 "GetDP.y"
 { Constant_S.Name = yyvsp[-2].c ; Constant_S.Type = VAR_CHAR ;
       Constant_S.Value.Char = yyvsp[0].c ;
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
@@ -8218,279 +8228,279 @@ case 553:
     ;
     break;}
 case 554:
-#line 5706 "GetDP.y"
+#line 5717 "GetDP.y"
 { yyval.c = "Exp";    ;
     break;}
 case 555:
-#line 5707 "GetDP.y"
+#line 5718 "GetDP.y"
 { yyval.c = "Log";    ;
     break;}
 case 556:
-#line 5708 "GetDP.y"
+#line 5719 "GetDP.y"
 { yyval.c = "Log10";  ;
     break;}
 case 557:
-#line 5709 "GetDP.y"
+#line 5720 "GetDP.y"
 { yyval.c = "Sqrt";   ;
     break;}
 case 558:
-#line 5710 "GetDP.y"
+#line 5721 "GetDP.y"
 { yyval.c = "Sin";    ;
     break;}
 case 559:
-#line 5711 "GetDP.y"
+#line 5722 "GetDP.y"
 { yyval.c = "Asin";   ;
     break;}
 case 560:
-#line 5712 "GetDP.y"
+#line 5723 "GetDP.y"
 { yyval.c = "Cos";    ;
     break;}
 case 561:
-#line 5713 "GetDP.y"
+#line 5724 "GetDP.y"
 { yyval.c = "Acos";   ;
     break;}
 case 562:
-#line 5714 "GetDP.y"
+#line 5725 "GetDP.y"
 { yyval.c = "Tan";    ;
     break;}
 case 563:
-#line 5715 "GetDP.y"
+#line 5726 "GetDP.y"
 { yyval.c = "Atan";   ;
     break;}
 case 564:
-#line 5716 "GetDP.y"
+#line 5727 "GetDP.y"
 { yyval.c = "Atan2";  ;
     break;}
 case 565:
-#line 5717 "GetDP.y"
+#line 5728 "GetDP.y"
 { yyval.c = "Sinh";   ;
     break;}
 case 566:
-#line 5718 "GetDP.y"
+#line 5729 "GetDP.y"
 { yyval.c = "Cosh";   ;
     break;}
 case 567:
-#line 5719 "GetDP.y"
+#line 5730 "GetDP.y"
 { yyval.c = "Tanh";   ;
     break;}
 case 568:
-#line 5720 "GetDP.y"
+#line 5731 "GetDP.y"
 { yyval.c = "Fabs";   ;
     break;}
 case 569:
-#line 5721 "GetDP.y"
+#line 5732 "GetDP.y"
 { yyval.c = "Floor";  ;
     break;}
 case 570:
-#line 5722 "GetDP.y"
+#line 5733 "GetDP.y"
 { yyval.c = "Ceil";   ;
     break;}
 case 571:
-#line 5723 "GetDP.y"
+#line 5734 "GetDP.y"
 { yyval.c = "Fmod";   ;
     break;}
 case 572:
-#line 5724 "GetDP.y"
+#line 5735 "GetDP.y"
 { yyval.c = "Modulo"; ;
     break;}
 case 573:
-#line 5725 "GetDP.y"
+#line 5736 "GetDP.y"
 { yyval.c = "Hypot";  ;
     break;}
 case 574:
-#line 5726 "GetDP.y"
+#line 5737 "GetDP.y"
 { yyval.c = yyvsp[0].c;       ;
     break;}
 case 575:
-#line 5729 "GetDP.y"
+#line 5740 "GetDP.y"
 { yyval.d = yyvsp[0].d ;          ;
     break;}
 case 576:
-#line 5730 "GetDP.y"
+#line 5741 "GetDP.y"
 { yyval.d = yyvsp[-1].d ;          ;
     break;}
 case 577:
-#line 5731 "GetDP.y"
+#line 5742 "GetDP.y"
 { yyval.d = -yyvsp[0].d ;         ;
     break;}
 case 578:
-#line 5732 "GetDP.y"
+#line 5743 "GetDP.y"
 { yyval.d = !yyvsp[0].d ;         ;
     break;}
 case 579:
-#line 5733 "GetDP.y"
+#line 5744 "GetDP.y"
 { yyval.d = yyvsp[-2].d - yyvsp[0].d ;     ;
     break;}
 case 580:
-#line 5734 "GetDP.y"
+#line 5745 "GetDP.y"
 { yyval.d = yyvsp[-2].d + yyvsp[0].d ;     ;
     break;}
 case 581:
-#line 5735 "GetDP.y"
+#line 5746 "GetDP.y"
 { yyval.d = yyvsp[-2].d * yyvsp[0].d ;     ;
     break;}
 case 582:
-#line 5736 "GetDP.y"
+#line 5747 "GetDP.y"
 { yyval.d = yyvsp[-2].d / yyvsp[0].d ;     ;
     break;}
 case 583:
-#line 5737 "GetDP.y"
+#line 5748 "GetDP.y"
 { yyval.d = (int)yyvsp[-2].d % (int)yyvsp[0].d ;  ;
     break;}
 case 584:
-#line 5738 "GetDP.y"
+#line 5749 "GetDP.y"
 { yyval.d = pow(yyvsp[-2].d,yyvsp[0].d) ;  ;
     break;}
 case 585:
-#line 5739 "GetDP.y"
+#line 5750 "GetDP.y"
 { yyval.d = yyvsp[-2].d < yyvsp[0].d ;     ;
     break;}
 case 586:
-#line 5740 "GetDP.y"
+#line 5751 "GetDP.y"
 { yyval.d = yyvsp[-2].d > yyvsp[0].d ;     ;
     break;}
 case 587:
-#line 5741 "GetDP.y"
+#line 5752 "GetDP.y"
 { yyval.d = yyvsp[-2].d <= yyvsp[0].d ;    ;
     break;}
 case 588:
-#line 5742 "GetDP.y"
+#line 5753 "GetDP.y"
 { yyval.d = yyvsp[-2].d >= yyvsp[0].d ;    ;
     break;}
 case 589:
-#line 5743 "GetDP.y"
+#line 5754 "GetDP.y"
 { yyval.d = yyvsp[-2].d == yyvsp[0].d ;    ;
     break;}
 case 590:
-#line 5744 "GetDP.y"
+#line 5755 "GetDP.y"
 { yyval.d = yyvsp[-2].d != yyvsp[0].d ;    ;
     break;}
 case 591:
-#line 5745 "GetDP.y"
+#line 5756 "GetDP.y"
 { yyval.d = yyvsp[-2].d && yyvsp[0].d ;    ;
     break;}
 case 592:
-#line 5746 "GetDP.y"
+#line 5757 "GetDP.y"
 { yyval.d = yyvsp[-2].d || yyvsp[0].d ;    ;
     break;}
 case 593:
-#line 5747 "GetDP.y"
+#line 5758 "GetDP.y"
 { yyval.d = exp(yyvsp[-1].d);      ;
     break;}
 case 594:
-#line 5748 "GetDP.y"
+#line 5759 "GetDP.y"
 { yyval.d = log(yyvsp[-1].d);      ;
     break;}
 case 595:
-#line 5749 "GetDP.y"
+#line 5760 "GetDP.y"
 { yyval.d = log10(yyvsp[-1].d);    ;
     break;}
 case 596:
-#line 5750 "GetDP.y"
+#line 5761 "GetDP.y"
 { yyval.d = sqrt(yyvsp[-1].d);     ;
     break;}
 case 597:
-#line 5751 "GetDP.y"
+#line 5762 "GetDP.y"
 { yyval.d = sin(yyvsp[-1].d);      ;
     break;}
 case 598:
-#line 5752 "GetDP.y"
+#line 5763 "GetDP.y"
 { yyval.d = asin(yyvsp[-1].d);     ;
     break;}
 case 599:
-#line 5753 "GetDP.y"
+#line 5764 "GetDP.y"
 { yyval.d = cos(yyvsp[-1].d);      ;
     break;}
 case 600:
-#line 5754 "GetDP.y"
+#line 5765 "GetDP.y"
 { yyval.d = acos(yyvsp[-1].d);     ;
     break;}
 case 601:
-#line 5755 "GetDP.y"
+#line 5766 "GetDP.y"
 { yyval.d = tan(yyvsp[-1].d);      ;
     break;}
 case 602:
-#line 5756 "GetDP.y"
+#line 5767 "GetDP.y"
 { yyval.d = atan(yyvsp[-1].d);     ;
     break;}
 case 603:
-#line 5757 "GetDP.y"
+#line 5768 "GetDP.y"
 { yyval.d = atan2(yyvsp[-3].d,yyvsp[-1].d); ;
     break;}
 case 604:
-#line 5758 "GetDP.y"
+#line 5769 "GetDP.y"
 { yyval.d = sinh(yyvsp[-1].d);     ;
     break;}
 case 605:
-#line 5759 "GetDP.y"
+#line 5770 "GetDP.y"
 { yyval.d = cosh(yyvsp[-1].d);     ;
     break;}
 case 606:
-#line 5760 "GetDP.y"
+#line 5771 "GetDP.y"
 { yyval.d = tanh(yyvsp[-1].d);     ;
     break;}
 case 607:
-#line 5761 "GetDP.y"
+#line 5772 "GetDP.y"
 { yyval.d = fabs(yyvsp[-1].d);     ;
     break;}
 case 608:
-#line 5762 "GetDP.y"
+#line 5773 "GetDP.y"
 { yyval.d = floor(yyvsp[-1].d);    ;
     break;}
 case 609:
-#line 5763 "GetDP.y"
+#line 5774 "GetDP.y"
 { yyval.d = ceil(yyvsp[-1].d);     ;
     break;}
 case 610:
-#line 5764 "GetDP.y"
+#line 5775 "GetDP.y"
 { yyval.d = fmod(yyvsp[-3].d,yyvsp[-1].d);  ;
     break;}
 case 611:
-#line 5765 "GetDP.y"
+#line 5776 "GetDP.y"
 { yyval.d = fmod(yyvsp[-3].d,yyvsp[-1].d);  ;
     break;}
 case 612:
-#line 5766 "GetDP.y"
+#line 5777 "GetDP.y"
 { yyval.d = sqrt(yyvsp[-3].d*yyvsp[-3].d+yyvsp[-1].d*yyvsp[-1].d);  ;
     break;}
 case 613:
-#line 5767 "GetDP.y"
+#line 5778 "GetDP.y"
 { yyval.d = yyvsp[-4].d? yyvsp[-2].d : yyvsp[0].d ; ;
     break;}
 case 614:
-#line 5768 "GetDP.y"
+#line 5779 "GetDP.y"
 { fprintf(stderr, "Value (line %ld) --> %.16g\n", yylinenum, yyvsp[-1].d); ;
     break;}
 case 615:
-#line 5773 "GetDP.y"
+#line 5784 "GetDP.y"
 { yyval.d = yyvsp[0].d ; ;
     break;}
 case 616:
-#line 5774 "GetDP.y"
+#line 5785 "GetDP.y"
 { yyval.d = (double)yyvsp[0].i ; ;
     break;}
 case 617:
-#line 5775 "GetDP.y"
+#line 5786 "GetDP.y"
 { yyval.d = 3.1415926535897932 ; ;
     break;}
 case 618:
-#line 5776 "GetDP.y"
+#line 5787 "GetDP.y"
 { yyval.d = (double)_0D ; ;
     break;}
 case 619:
-#line 5777 "GetDP.y"
+#line 5788 "GetDP.y"
 { yyval.d = (double)_1D ; ;
     break;}
 case 620:
-#line 5778 "GetDP.y"
+#line 5789 "GetDP.y"
 { yyval.d = (double)_2D ; ;
     break;}
 case 621:
-#line 5779 "GetDP.y"
+#line 5790 "GetDP.y"
 { yyval.d = (double)_3D ; ;
     break;}
 case 622:
-#line 5781 "GetDP.y"
+#line 5792 "GetDP.y"
 { Constant_S.Name = yyvsp[0].c ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	vyyerror("Unknown Constant: %s", yyvsp[0].c) ;  yyval.d = 0. ;
@@ -8506,11 +8516,11 @@ case 622:
     ;
     break;}
 case 623:
-#line 5800 "GetDP.y"
+#line 5811 "GetDP.y"
 { yyval.c = yyvsp[0].c ; ;
     break;}
 case 624:
-#line 5803 "GetDP.y"
+#line 5814 "GetDP.y"
 { Constant_S.Name = yyvsp[0].c ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	vyyerror("Unknown Constant: %s", yyvsp[0].c) ;  yyval.c = NULL ;
@@ -8526,7 +8536,7 @@ case 624:
     ;
     break;}
 case 625:
-#line 5818 "GetDP.y"
+#line 5829 "GetDP.y"
 {
       yyval.c = (char *)Malloc((strlen(yyvsp[-3].c)+strlen(yyvsp[-1].c)+1)*sizeof(char)) ;
       strcpy(yyval.c, yyvsp[-3].c) ;  strcat(yyval.c, yyvsp[-1].c) ;
@@ -8754,7 +8764,7 @@ yyerrhandle:
     }
   return 1;
 }
-#line 5832 "GetDP.y"
+#line 5843 "GetDP.y"
 
 
 

@@ -1,0 +1,7 @@
+2001-02-24  Christophe Geuzaine  <geuzaine@elap74.montefiore.ulg.ac.be>
+
+	* Fixed bug for WQ_OPERATORANDQUANTITYEVAL in parser + other
+	potential recursion problems
+
+	* Created this ChangeLog
+

@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.16 2000-11-21 16:47:17 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.17 2001-02-24 16:20:28 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -384,25 +384,22 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_READSOLUTION :
-      Msg(ERROR, "ReadSolution is not currently  available") ;
-      /*
-	Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-	&DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
-	if(!Name_ResFile)
-	Msg(ERROR, "No Result File loaded for ReadSolution '%s'", DefineSystem_P->Name);
-
-	Dof_OpenFile(DOF_TMP, Name_ResFile, "r+");
+      Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+      i = 0 ;
+      while(Name_ResFile[i]){
+	Msg(LOADING, "Processing Data '%s'", Name_ResFile[i]) ;
+	Dof_OpenFile(DOF_TMP, Name_ResFile[i], "r");
 	Dof_ReadFileRES(NULL, DofData_P, DofData_P->Num, &Current.Time, &Current.TimeStep) ;
-	Dof_CloseFile(DOF_TMP) ;
-
-	if(!List_Nbr(DofData_P->Solutions))
-	Msg(ERROR, "No Valid Data in '%s' for ReadSolution '%s'",
-	Name_ResFile, DefineSystem_P->Name);
+	Dof_CloseFile(DOF_TMP);
+	i++ ;
+      }
+      if(!List_Nbr(DofData_P->Solutions))
+	Msg(ERROR, "No Valid Data Found for ReadSolution '%s'", DefineSystem_P->Name);
 	
-	DofData_P->CurrentSolution = (struct Solution*)
+      DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;	
-	DofData_P->CurrentSolution->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
-      */
+      DofData_P->CurrentSolution->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
       break ;
 
       /*  -->  T r a n s f e r S o l u t i o n        */

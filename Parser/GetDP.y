@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.2 2001-02-02 15:47:28 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.3 2001-02-24 16:20:28 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -157,7 +157,7 @@ struct ConstraintInFS           ConstraintInFS_S ;
 struct Formulation            Formulation_S ;
 struct DefineQuantity           DefineQuantity_S ;
 struct EquationTerm             EquationTerm_S ;
-struct WholeQuantity            WholeQuantity_S, *WholeQuantity_P ;
+struct WholeQuantity            WholeQuantity_S, *WholeQuantity_P, *ttt ;
 
 struct GlobalEquationTerm       GlobalEquationTerm_S ;
 
@@ -181,6 +181,7 @@ struct PostSubOperation         PostSubOperation_S ;
   int     i ;
   double  d ;
   List_T  *l ;
+  struct TwoInt t ;
 }
 
 %token <i> tINT
@@ -204,6 +205,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %type <l>  ListOfSystem, RecursiveListOfSystem
 %type <l>  PostQuantities, SubPostQuantities, PostSubOperations
 %type <c>  NameForFunction, CharExpr
+%type <t>  Quantity_Def
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
@@ -1304,9 +1306,8 @@ WholeQuantity_Single :
 	vyyerror("Unknown Type for Quantity: %s %s", 
 		 $1, Get_Valid_SXD(QuantityFromFS_Type)) ;
       Free($1) ;
-      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator =
-	Quantity_TypeOperator ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = $2.Int1 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = $2.Int2 ;
 
       switch(WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity) {
       case QUANTITY_DOF :
@@ -1333,9 +1334,8 @@ WholeQuantity_Single :
     { WholeQuantity_S.Type = WQ_OPERATORANDQUANTITY ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = 0 ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity = QUANTITY_SIMPLE ;
-      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator =
-	Quantity_TypeOperator ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = $1.Int1 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = $1.Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
@@ -1346,9 +1346,8 @@ WholeQuantity_Single :
       WholeQuantity_S.Type = WQ_OPERATORANDQUANTITYEVAL ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = $2 ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity = QUANTITY_SIMPLE ;
-      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator =
-	Quantity_TypeOperator ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = $1.Int1 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = $1.Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
@@ -1385,13 +1384,13 @@ WholeQuantity_Single :
 
   | tSolidAngle '[' Quantity_Def ']'
     { WholeQuantity_S.Type = WQ_SOLIDANGLE ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = $3.Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
   | tOrder '[' Quantity_Def ']'
     { WholeQuantity_S.Type = WQ_ORDER ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = Quantity_Index ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = $3.Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
@@ -3458,11 +3457,11 @@ GlobalEquationTermTerm :
 GlobalEquationTermTermTerm :
 
     tNode Quantity_Def  tEND
-    { GlobalEquationTerm_S.DefineQuantityIndexNode = Quantity_Index ; }
+    { GlobalEquationTerm_S.DefineQuantityIndexNode = $2.Int2 ; }
   | tLoop Quantity_Def  tEND
-    { GlobalEquationTerm_S.DefineQuantityIndexLoop = Quantity_Index ; }
+    { GlobalEquationTerm_S.DefineQuantityIndexLoop = $2.Int2 ; }
   | tEquation Quantity_Def  tEND
-    { GlobalEquationTerm_S.DefineQuantityIndexEqu  = Quantity_Index ; }
+    { GlobalEquationTerm_S.DefineQuantityIndexEqu  = $2.Int2 ; }
   | tIn GroupRHS tEND
     { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, "FO_In", $2) ; }
   ;
@@ -3683,7 +3682,7 @@ GlobalTermTerm :
     }
 
     '{' Quantity_Def  ']' tEND
-    { EquationTerm_S.Case.GlobalTerm.DefineQuantityIndex = Quantity_Index ; }
+    { EquationTerm_S.Case.GlobalTerm.DefineQuantityIndex = $2.Int2 ; }
 */
     tIn GroupRHS tEND
     {
@@ -3773,8 +3772,8 @@ GlobalTermTerm :
     }
 
     ','  Quantity_Def  ']' tEND
-    { EquationTerm_S.Case.GlobalTerm.Term.TypeOperatorEqu = Quantity_TypeOperator ;
-      EquationTerm_S.Case.GlobalTerm.Term.DefineQuantityIndexEqu = Quantity_Index ;
+    { EquationTerm_S.Case.GlobalTerm.Term.TypeOperatorEqu = $7.Int1 ;
+      EquationTerm_S.Case.GlobalTerm.Term.DefineQuantityIndexEqu = $7.Int2 ;
 
       Pro_DefineQuantityIndex
 	(EquationTerm_S.Case.GlobalTerm.Term.WholeQuantity,
@@ -3803,7 +3802,7 @@ TermOperator :
 Quantity_Def :
 
     '{' tSTRING tSTRING '}'
-    { Quantity_TypeOperator = Get_DefineForString(Operator_Type, $2, &FlagError) ;
+    { $$.Int1 = Get_DefineForString(Operator_Type, $2, &FlagError) ;
       if (FlagError) 
 	vyyerror("Unknown Operator: %s %s", 
 		 $2, Get_Valid_SXD(Operator_Type)) ;
@@ -3812,17 +3811,29 @@ Quantity_Def :
       if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, $3,
 			       fcmp_DefineQuantity_Name)) < 0)
 	vyyerror("Unknown DefineQuantity: %s", $3) ;
-      Quantity_Index = i ;
+      $$.Int2 = i ;
+
+      /* the following should be suppressed as soon as the test
+         function part in the formulations is correctly treated */
+      Quantity_TypeOperator = $$.Int1 ;
+      Quantity_Index = $$.Int2 ;
+
       Free($3) ;
     }
 
   | '{' tSTRING '}'
-    { Quantity_TypeOperator = NOOP ;
+    { $$.Int1 = NOOP ;
 
       if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, $2,
 			       fcmp_DefineQuantity_Name)) < 0)
 	vyyerror("Unknown DefineQuantity: %s", $2) ;
-      Quantity_Index = i ;
+      $$.Int2 = i ;
+
+      /* the following should be suppressed as soon as the test
+         function part in the formulations is correctly treated */
+      Quantity_TypeOperator = $$.Int1 ;
+      Quantity_Index = $$.Int2 ;
+
       Free($2) ;
     }
   ;  

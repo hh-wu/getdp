@@ -3,6 +3,7 @@ typedef union {
   int     i ;
   double  d ;
   List_T  *l ;
+  struct TwoInt t ;
 } YYSTYPE;
 #define	tINT	257
 #define	tFLOAT	258

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_FemInterpolation.c,v 1.8 2000-11-16 17:27:38 dular Exp $"
+#define RCSID "$Id: Pos_FemInterpolation.c,v 1.9 2001-02-24 16:20:29 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -90,7 +90,7 @@ void  Pos_FemInterpolation(struct Element * Element,
       Msg(ERROR, "No available DofData to interpolate this Quantity");
 
     GeoDataNum = QuantityStorage_P->FunctionSpace->DofData->GeoDataIndex;
-    UseNewGeo = GeoDataNum != Current.GeoData->Num ;
+    UseNewGeo = (GeoDataNum != Current.GeoData->Num) ;
 
     if(UseXYZ || UseNewGeo){
       if(UseNewGeo){
