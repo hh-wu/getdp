@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.22 2001-05-03 08:41:43 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.23 2001-07-20 15:21:41 dular Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -376,7 +376,7 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
 
   if(Type == JACOBIAN_RECT){
     if(Element->JacobianCase->NbrParameters >= 3)
-      Axis = Element->JacobianCase->Para[2] ; 
+      Axis = (int)Element->JacobianCase->Para[2] ; 
     if(Element->JacobianCase->NbrParameters >= 6){
       Cx = Element->JacobianCase->Para[3] ;  
       Cy = Element->JacobianCase->Para[4] ; 
