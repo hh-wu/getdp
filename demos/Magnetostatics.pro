@@ -105,10 +105,10 @@ Resolution {
 PostProcessing {
   { Name MagSta_phi ; NameOfFormulation MagSta_phi ;
     Quantity {
-      { Name b   ; Value { Local { [ - mu[] * {d phi} ] ; In Domain ; } 
-                           Local { [ - mu[] * hc[] ]    ; In Domain_M ; } } }
-      { Name h   ; Value { Local { [ - {d phi} ]        ; In Domain ; } } }
-      { Name phi ; Value { Local { [ {phi} ]            ; In Domain ; } } }
+      { Name b   ; Value { Local { [ - mu[] * {d phi} ] ; In Domain ; Jacobian JVol ; } 
+                           Local { [ - mu[] * hc[] ]    ; In Domain_M ; Jacobian JVol ; } } }
+      { Name h   ; Value { Local { [ - {d phi} ]        ; In Domain ; Jacobian JVol ; } } }
+      { Name phi ; Value { Local { [ {phi} ]            ; In Domain ; Jacobian JVol ; } } }
     }
   }
 }
@@ -167,11 +167,11 @@ Resolution {
 PostProcessing {
   { Name MagSta_a ; NameOfFormulation MagSta_a ;
     Quantity {
-      { Name a ; Value { Local { [ CompZ[{a}] ]   ; In Domain ; } } }
-      { Name b ; Value { Local { [ {d a} ]        ; In Domain ; } } }
-      { Name a ; Value { Local { [ {a} ]          ; In Domain ; } } }
-      { Name h ; Value { Local { [ nu[] * {d a} ] ; In Domain ; } 
-                         Local { [ hc[] ]         ; In Domain_M ; } } }
+      { Name a ; Value { Local { [ CompZ[{a}] ]   ; In Domain ; Jacobian JVol ; } } }
+      { Name b ; Value { Local { [ {d a} ]        ; In Domain ; Jacobian JVol ; } } }
+      { Name a ; Value { Local { [ {a} ]          ; In Domain ; Jacobian JVol ; } } }
+      { Name h ; Value { Local { [ nu[] * {d a} ] ; In Domain ; Jacobian JVol ; } 
+                         Local { [ hc[] ]         ; In Domain_M ; Jacobian JVol ; } } }
     }
   }
 }
