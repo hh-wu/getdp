@@ -1,4 +1,4 @@
-/* $Id: GF_Laplace.c,v 1.2 2000-09-07 18:47:23 geuzaine Exp $ */
+/* $Id: GF_Laplace.c,v 1.3 2000-09-25 08:04:42 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -40,7 +40,7 @@ void  GF_Laplace (F_ARG) {
     break;
 
   case _3D : /* 1/(4*Pi*r) */
-    if(0){//Flag_RemoveSingularity){
+    if(0){/* Flag_RemoveSingularity */
       printf("  ->removed in %d %d \n", Current.Element->Num, Current.ElementSource->Num);
       V->Val[0] = ONE_OVER_FOUR_PI ;
     }

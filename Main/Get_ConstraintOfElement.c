@@ -1,4 +1,4 @@
-/* $Id: Get_ConstraintOfElement.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
+/* $Id: Get_ConstraintOfElement.c,v 1.3 2000-09-25 08:04:42 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -557,7 +557,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     List_Read(NodeXYZ_L, i, &NodeXYZ) ;
     List_Read(NodeXYZRef_L, i, &NodeXYZRef) ;
 
-  // Attention: tolerance !!!
+    /* Attention: tolerance !!! */
     if ((fabs(NodeXYZ.x-NodeXYZRef.x) > 1.e-12) ||
 	(fabs(NodeXYZ.y-NodeXYZRef.y) > 1.e-12) ||
 	(fabs(NodeXYZ.z-NodeXYZRef.z) > 1.e-12))
@@ -587,7 +587,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
 int fcmp_XYZ(const void * a, const void * b) {
   double Result ;
-  // Attention: tolerance !!!
+  /* Attention: tolerance !!! */
   if (fabs(Result = ((struct NodeXYZ *)a)->x - ((struct NodeXYZ *)b)->x) > 1.e-12)
     return (Result > 0.)? 1 : -1 ;
   if (fabs(Result = ((struct NodeXYZ *)a)->y - ((struct NodeXYZ *)b)->y) > 1.e-12)
