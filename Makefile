@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.16 2000-09-24 21:50:30 geuzaine Exp $
+# $Id: Makefile,v 1.17 2000-09-25 09:32:47 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -385,7 +385,7 @@ ibm: tag
            "FC=f77" \
            "RANLIB=ls" \
            "C_FLAGS=-O2" \
-           "C_PARSER_FLAGS=-O1" \
+           "C_PARSER_FLAGS=-O2" \
            "F77_FLAGS=-O2" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_UNDERSCORE" \

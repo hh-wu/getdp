@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2000-09-25 08:42:58 geuzaine Exp $
+# $Id: Makefile,v 1.10 2000-09-25 09:32:47 geuzaine Exp $
 
 dvi:
 	texi2dvi getdp.texi 
@@ -22,10 +22,15 @@ install-info:
 	cp getdp.info* /usr/local/info/
 	install-info getdp.info /usr/local/info/dir
 
-infoz:
+infoz: info
 	gtar zcvf getdp-info.tgz getdp.info*
 
 all: ps pdf html infoz
+	gtar zcvf getdp-doc.tgz\
+          FAQ getdp.bib \
+          getdp.ps getdp.pdf \
+          *.html *.jpg \
+          getdp-info.tgz getdp.1 
 
 
 clean:
