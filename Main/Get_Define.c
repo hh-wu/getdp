@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Define.c,v 1.6 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Get_Define.c,v 1.7 2001-05-03 08:41:43 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -180,16 +180,20 @@ char * Get_StringForFunction2Nbr
 
 static char Valid[5000];
 
-#define GV(Get_Valid_X)		        	\
+#define GV(Get_Valid_X)				\
   int  i = 0;					\
   GetDP_Begin(Get_Valid_X);			\
-  strcpy(Valid,"\nValid Choices are: ");	\
+  Msg(DIRECT,"Valid Choices are:");		\
   while (V[i].string != NULL){			\
-    if(i) strcat(Valid,", ");			\
-    if(!(i%4)) strcat(Valid,"\n   ");		\
-    strcat(Valid, V[i].string);			\
+    if(!(i%4)){					\
+      if(i) Msg(DIRECT,"  %s", Valid);		\
+      strcpy(Valid, V[i].string);		\
+    }						\
+    else strcat(Valid, V[i].string);		\
+    strcat(Valid, " ");				\
     i++ ;					\
   }						\
+  Msg(DIRECT,"  %s", Valid);			\
   GetDP_Return(Valid)
 
 char*  Get_Valid_SXD   (struct StringXDefine V[]) { GV("Get_Valid_SXD"); }

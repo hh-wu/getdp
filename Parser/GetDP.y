@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.12 2001-05-03 01:00:58 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.13 2001-05-03 08:41:43 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -577,9 +577,10 @@ FunctionForGroup :
 
   | tSTRING
     { $$ = Get_DefineForString(FunctionForGroup_Type, $1, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of Function for Group: %s %s", 
-		 $1, Get_Valid_SXD(FunctionForGroup_Type));
+      if (FlagError){
+	vyyerror("Unknown type of Function for Group: %s", $1);
+	Get_Valid_SXD(FunctionForGroup_Type);
+      }
       Free($1) ;
     }
   ;
@@ -663,9 +664,10 @@ SuppListTypeForGroup :
 
     tSTRING
     { $$ = Get_DefineForString(FunctionForGroup_SuppList, $1, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of Supplementary Region: %s %s", 
-		 $1, Get_Valid_SXD(FunctionForGroup_SuppList)) ;
+      if (FlagError){
+	vyyerror("Unknown type of Supplementary Region: %s", $1);
+	Get_Valid_SXD(FunctionForGroup_SuppList);
+      }
       Free($1) ;
     }
   ;
@@ -1313,9 +1315,10 @@ WholeQuantity_Single :
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = 0 ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity =
 	Get_DefineForString(QuantityFromFS_Type, $1, &FlagError) ;
-      if (FlagError) 
-	vyyerror("Unknown type of discrete Quantity: %s %s", 
-		 $1, Get_Valid_SXD(QuantityFromFS_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of discrete Quantity: %s", $1);
+	Get_Valid_SXD(QuantityFromFS_Type) ;
+      }
       Free($1) ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = $2.Int1 ;
       WholeQuantity_S.Case.OperatorAndQuantity.Index = $2.Int2 ;
@@ -1464,8 +1467,10 @@ WholeQuantity_Single :
     { WholeQuantity_S.Type = WQ_CURRENTVALUE ;
       Get_PointerForString(Current_Value, $2, &FlagError,
 			   (void **)&WholeQuantity_S.Case.CurrentValue.Value) ;
-      if (FlagError) 
-	vyyerror("Unknown current value: $%s %s", $2, Get_Valid_SXP(Current_Value)) ;
+      if (FlagError){
+	vyyerror("Unknown current value: $%s", $2);
+	Get_Valid_SXP(Current_Value);
+      }
       Free($2) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
@@ -1642,8 +1647,10 @@ JacobianCaseTerm :
 	  vyyerror("Wrong number of parameters for Jacobian '%s' (%d instead of %d)", 
 		   $2, List_Nbr(ListOfDouble_L), JacobianCase_S.NbrParameters) ;
       }
-      else  vyyerror("Unknown type of Jacobian: %s %s", 
-		     $2, Get_Valid_SXD1N(Jacobian_Type)) ;
+      else{
+	vyyerror("Unknown type of Jacobian: %s", $2);
+	Get_Valid_SXD1N(Jacobian_Type);
+      }
       Free($2) ;
     }
   ;
@@ -1723,18 +1730,20 @@ IntegrationCaseTerm :
     tType tSTRING tEND
     { IntegrationCase_S.Type =
 	Get_DefineForString(Integration_Type, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of Integration method: %s %s", 
-		 $2, Get_Valid_SXD(Integration_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of Integration method: %s", $2);
+	Get_Valid_SXD(Integration_Type);
+      }
       Free($2) ;
     }
 
   | tSubType tSTRING tEND
     { IntegrationCase_S.SubType =
 	Get_DefineForString(Integration_SubType, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown subtype of Integration method: %s %s", 
-		 $2, Get_Valid_SXD(Integration_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown subtype of Integration method: %s", $2);
+	Get_Valid_SXD(Integration_Type);
+      }
       Free($2) ;
     }
 
@@ -1773,9 +1782,10 @@ QuadratureCaseTerm :
 
     tGeoElement tSTRING tEND
     { QuadratureCase_S.ElementType = Get_DefineForString(Element_Type, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of Element: %s %s", 
-		 $2, Get_Valid_SXD(Element_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of Element: %s", $2);
+	Get_Valid_SXD(Element_Type);
+      }
 
       switch(IntegrationCase_S.SubType) {
 
@@ -1911,9 +1921,10 @@ ConstraintTerm :
 
   | tType tSTRING tEND
     { Constraint_S.Type = Get_DefineForString(Constraint_Type, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of Constraint: %s %s",
-		 $2, Get_Valid_SXD(Constraint_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of Constraint: %s", $2);
+	Get_Valid_SXD(Constraint_Type);
+      }
       Free($2) ;
     }
 
@@ -1998,9 +2009,10 @@ ConstraintCaseTerm :
     tType tSTRING tEND
     { ConstraintPerRegion_S.Type = 
 	Get_DefineForString(Constraint_Type, $2, &FlagError) ;
-      if (FlagError)
-	vyyerror("Unknown type of Constraint: %s %s",
-		 $2, Get_Valid_SXD(Constraint_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of Constraint: %s", $2);
+	Get_Valid_SXD(Constraint_Type);
+      }
       Free($2) ;
     }
 
@@ -2237,9 +2249,10 @@ FunctionSpaceTerm :
 
   | tType tSTRING tEND
     { FunctionSpace_S.Type = Get_DefineForString(Field_Type, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of FunctionSpace: %s %s", 
-		 $2, Get_Valid_SXD(Field_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of FunctionSpace: %s", $2);
+	Get_Valid_SXD(Field_Type);
+      }
       Free($2) ;
     }
 
@@ -2364,8 +2377,10 @@ BasisFunctionTerm :
 	 &BasisFunction_S.Function, &BasisFunction_S.dFunction, 
 	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Order,
 	 &BasisFunction_S.ElementType) ;
-      if (FlagError)  vyyerror("Unknown Function for BasisFunction: %s %s", 
-			       $2, Get_Valid_SX3F2N(BF_Function)) ;
+      if (FlagError){
+	vyyerror("Unknown Function for BasisFunction: %s", $2);
+	Get_Valid_SX3F2N(BF_Function);
+      }
       Free($2) ;
     }
 
@@ -2374,14 +2389,18 @@ BasisFunctionTerm :
       Get_3Function2NbrForString
 	(BF_Function, $3, &FlagError,
 	 &BasisFunction_S.dFunction, &FunctionDummy, &FunctionDummy, &d, &i) ;
-      if (FlagError)  vyyerror("Unknown dFunction (1) for BasisFunction: %s %s", 
-			       $3, Get_Valid_SX3F2N(BF_Function)) ;
+      if (FlagError){
+	vyyerror("Unknown dFunction (1) for BasisFunction: %s", $3);
+	Get_Valid_SX3F2N(BF_Function);
+      }
       Free($3) ;
       Get_3Function2NbrForString
 	(BF_Function, $5, &FlagError,
 	 &BasisFunction_S.dInvFunction, &FunctionDummy, &FunctionDummy, &d, &i) ;
-      if (FlagError)  vyyerror("Unknown dFunction (2) for BasisFunction: %s %s", 
-			       $5, Get_Valid_SX3F2N(BF_Function)) ;
+      if (FlagError){
+	vyyerror("Unknown dFunction (2) for BasisFunction: %s", $5);
+	Get_Valid_SX3F2N(BF_Function);
+      }
       Free($5) ;
     }
 
@@ -2703,9 +2722,10 @@ GlobalQuantityTerm :
   | tType tSTRING tEND
     { GlobalQuantity_S.Type =
 	Get_DefineForString(GlobalQuantity_Type, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of GlobalQuantity: %s %s", 
-		 $2, Get_Valid_SXD(GlobalQuantity_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of GlobalQuantity: %s", $2);
+	Get_Valid_SXD(GlobalQuantity_Type);
+      }
       Free($2) ;
     }
 
@@ -2975,9 +2995,10 @@ FormulationTerm :
   | tType tSTRING tEND
     { Formulation_S.Type =
 	Get_DefineForString(Formulation_Type, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of Formulation: %s %s", 
-		 $2, Get_Valid_SXD(Formulation_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of Formulation: %s", $2);
+	Get_Valid_SXD(Formulation_Type);
+      }
       Free($2) ;
     }
 
@@ -3055,9 +3076,10 @@ DefineQuantityTerm :
   | tType tSTRING tEND
     { DefineQuantity_S.Type =
 	Get_DefineForString(DefineQuantity_Type, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of Quantity: %s %s", 
-		 $2, Get_Valid_SXD(DefineQuantity_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of Quantity: %s", $2);
+	Get_Valid_SXD(DefineQuantity_Type);
+      }
       Free($2) ;
     }
 
@@ -3440,9 +3462,10 @@ GlobalEquationTerm :
     tType tSTRING tEND
     { EquationTerm_S.Case.GlobalEquation.Type =
 	Get_DefineForString(Constraint_Type, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of GlobalEquation: %s %s", 
-		 $2, Get_Valid_SXD(Constraint_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of GlobalEquation: %s", $2);
+	Get_Valid_SXD(Constraint_Type);
+      }
       Free($2) ;
     }
 
@@ -3829,9 +3852,10 @@ Quantity_Def :
 
     '{' tSTRING tSTRING '}'
     { $$.Int1 = Get_DefineForString(Operator_Type, $2, &FlagError) ;
-      if (FlagError) 
-	vyyerror("Unknown Operator for discrete Quantity: %s %s", 
-		 $2, Get_Valid_SXD(Operator_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown Operator for discrete Quantity: %s", $2);
+	Get_Valid_SXD(Operator_Type);
+      }
       Free($2) ;
 
       if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, $3,
@@ -4001,9 +4025,10 @@ DefineSystemTerm :
 
   | tType tSTRING tEND
     { DefineSystem_S.Type = Get_DefineForString(DefineSystem_Type, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of System: %s %s", 
-		 $2, Get_Valid_SXD(DefineSystem_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of System: %s", $2);
+	Get_Valid_SXD(DefineSystem_Type);
+      }
       Free($2) ;
     }
 
@@ -4157,9 +4182,10 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = Get_DefineForString(Operation_Type, $1, &FlagError) ;
-      if (FlagError) 
-	vyyerror("Unknown type of Operation: %s %s", 
-		 $1, Get_Valid_SXD(Operation_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of Operation: %s", $1);
+	Get_Valid_SXD(Operation_Type);
+      }
       Free($1) ;
 
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $2,
@@ -4206,9 +4232,10 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = Get_DefineForString(Operation_Type, $1, &FlagError) ;
-      if (FlagError) 
-	vyyerror("Unknown type of Operation: %s %s", 
-		 $1, Get_Valid_SXD(Operation_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of Operation: %s", $1);
+	Get_Valid_SXD(Operation_Type);
+      }
       Free($1) ;
       
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
@@ -4676,9 +4703,10 @@ ChangeOfStateTerm :
     tType tSTRING tEND
     { ChangeOfState_S.Type =
 	Get_DefineForString(ChangeOfState_Type, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown type of ChangeOfState: %s %s", 
-		 $2, Get_Valid_SXD(ChangeOfState_Type)) ;
+      if (FlagError){
+	vyyerror("Unknown type of ChangeOfState: %s", $2);
+	Get_Valid_SXD(ChangeOfState_Type);
+      }
       Free($2) ;
     }
 
@@ -4904,9 +4932,10 @@ SubPostQuantities :
     { 
       PostQuantityTerm_S.EvaluationType =
 	Get_DefineForString(PostQuantityTerm_EvaluationType, $2, &FlagError) ;
-      if (FlagError)  
-	vyyerror("Unknown EvaluationType for PostQuantityTerm: %s %s",
-		 $2, Get_Valid_SXD(PostQuantityTerm_EvaluationType)) ;
+      if (FlagError){
+	vyyerror("Unknown EvaluationType for PostQuantityTerm: %s", $2);
+	Get_Valid_SXD(PostQuantityTerm_EvaluationType);
+      }
       Free($2) ;
       List_Add($$ = $1, &PostQuantityTerm_S) ; 
     }
@@ -4966,9 +4995,10 @@ SubPostQuantityTerm :
    { /* force the Type */
      PostQuantityTerm_S.Type =
        Get_DefineForString(DefineQuantity_Type, $2, &FlagError) ;
-     if (FlagError) 
-       vyyerror("Unknown type of Operation: %s %s", 
-		$2, Get_Valid_SXD(DefineQuantity_Type)) ;
+     if (FlagError){
+       vyyerror("Unknown type of Operation: %s", $2);
+       Get_Valid_SXD(DefineQuantity_Type);
+     }
      Free($2) ;
    }
 
@@ -5058,9 +5088,10 @@ PostOperationTerm :
     { 
       PostOperation_S.Format =
 	Get_DefineForString(PostSubOperation_Format, $2, &FlagError) ;
-      if (FlagError) 
-	vyyerror("Unknown PostProcessing Format: %s %s", $2, 
-		 Get_Valid_SXD(PostSubOperation_Format)) ;
+      if (FlagError){
+	vyyerror("Unknown PostProcessing Format: %s", $2);
+	Get_Valid_SXD(PostSubOperation_Format);
+      }
       Free($2) ;
     }
 
@@ -5400,9 +5431,10 @@ PrintOption :
     { 
       PostSubOperation_S.Format =
 	Get_DefineForString(PostSubOperation_Format, $3, &FlagError) ;
-      if (FlagError) 
-	vyyerror("Unknown PostProcessing Format: %s %s", $3, 
-		 Get_Valid_SXD(PostSubOperation_Format)) ;
+      if (FlagError){
+	vyyerror("Unknown PostProcessing Format: %s", $3);
+	Get_Valid_SXD(PostSubOperation_Format);
+      }
       Free($3) ;
     }
   | ',' tHeader ParsedStrings
@@ -5453,17 +5485,19 @@ PrintOption :
     { 
       PostSubOperation_S.Adapt = 
 	Get_DefineForString(Adaption_Type, $3, &FlagError) ;
-      if(FlagError)
-	vyyerror("Unknown Adaptation method: %s %s", $3,
-		 Get_Valid_SXD(Adaption_Type)) ;
+      if(FlagError){
+	vyyerror("Unknown Adaptation method: %s", $3);
+	Get_Valid_SXD(Adaption_Type);
+      }
     }
   | ',' tSort tSTRING
     { 
       PostSubOperation_S.Sort = 
 	Get_DefineForString(Sort_Type, $3, &FlagError) ;
-      if(FlagError)
-	vyyerror("Unknown Sort method: %s %s", $3,
-		 Get_Valid_SXD(Sort_Type)) ;
+      if(FlagError){
+	vyyerror("Unknown Sort method: %s", $3);
+	Get_Valid_SXD(Sort_Type);
+      }
     }
   | ',' tTarget FExpr
     { 
@@ -5535,9 +5569,9 @@ ParsedStrings :
 	  strncpy(tmp, &$2[j], i-j); 
 	  tmp[i-j] = '\0'; 
 	  k = Get_DefineForString(PostSubOperation_FormatTag, tmp, &FlagError) ;
-	  if (FlagError) {
-	    vyyerror("Unknown Tag in Format: %s %s", tmp, 
-		     Get_Valid_SXD(PostSubOperation_FormatTag)) ;
+	  if (FlagError){
+	    vyyerror("Unknown Tag in Format: %s", tmp);
+	    Get_Valid_SXD(PostSubOperation_FormatTag) ;
 	  }
 	  else {
 	    l = List_Nbr(ListOfChar_L) ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Triangle.c,v 1.8 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Triangle.c,v 1.9 2001-05-03 08:41:43 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -25,8 +25,8 @@ void  Gauss_Triangle (int Nbr_Points, int Num,
   case 13 : *u= xt13[Num] ; *v= yt13[Num] ; *w= 0. ; *wght= pt13[Num] ; break ;
   case 16 : *u= xt16[Num] ; *v= yt16[Num] ; *w= 0. ; *wght= pt16[Num] ; break ;
   default : 
-    Msg(ERROR, "Wrong number of Gauss points for Triangle\n"
-	       "Valid choices: 1, 3, 4, 6, 7, 12, 13, 16");
+    Msg(DIRECT, ERROR_STR "Wrong number of Gauss points for Triangle");
+    Msg(ERROR, "Valid choices: 1, 3, 4, 6, 7, 12, 13, 16");
     break;
   }
 
@@ -100,8 +100,8 @@ void  GaussSingularR_Triangle (int Nbr_Points, int Num,
   case  3 : *u= xts3 [Num] ; *v= yts3 [Num] ; *w= 0. ; *wght= pts3 [Num] ; break ;
   case  4 : *u= xts4 [Num] ; *v= yts4 [Num] ; *w= 0. ; *wght= pts4 [Num] ; break ;
   default : 
-    Msg(ERROR, "Wrong number of (modified) Gauss points for Triangle\n"
-	       "Valid choices: 1, 3, 4");
+    Msg(DIRECT, ERROR_STR "Wrong number of (modified) Gauss points for Triangle");
+    Msg(ERROR, "Valid choices: 1, 3, 4");
     break;
   }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.21 2001-04-11 08:16:34 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.22 2001-05-03 08:41:43 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -386,9 +386,10 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
       p = Element->JacobianCase->Para[6] ;
     if(Element->JacobianCase->NbrParameters >= 8)
       L = Element->JacobianCase->Para[7] ;
-    if(Element->JacobianCase->NbrParameters >= 9)
-      Msg(ERROR, "Too many parameters for rectangular transformation Jacobian\n"
-	  "Valid parameters: Radius1 Radius2 Axis CenterX CenterY CenterZ Power 1/Infinity");
+    if(Element->JacobianCase->NbrParameters >= 9){
+      Msg(DIRECT, ERROR_STR "Too many parameters for rectangular transformation Jacobian");
+      Msg(ERROR, "Valid parameters: Radius1 Radius2 Axis CenterX CenterY CenterZ Power 1/Infinity");
+    }
   }
   else if(Type == JACOBIAN_SPH){
     if(Element->JacobianCase->NbrParameters >= 5){
@@ -400,9 +401,10 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
       p = Element->JacobianCase->Para[5] ;
     if(Element->JacobianCase->NbrParameters >= 7)
       L = Element->JacobianCase->Para[6] ;
-    if(Element->JacobianCase->NbrParameters >= 8)
-      Msg(ERROR, "Too many parameters for spherical transformation Jacobian\n"
-	  "Valid parameters: Radius1 Radius2 CenterX CenterY CenterZ Power 1/Infinity");
+    if(Element->JacobianCase->NbrParameters >= 8){
+      Msg(DIRECT, ERROR_STR "Too many parameters for spherical transformation Jacobian");
+      Msg(ERROR, "Valid parameters: Radius1 Radius2 CenterX CenterY CenterZ Power 1/Infinity");
+    }
   }
   else
     Msg(ERROR, "Unknown type of transformation Jacobian");

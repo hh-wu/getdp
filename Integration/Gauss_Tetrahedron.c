@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Tetrahedron.c,v 1.10 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Tetrahedron.c,v 1.11 2001-05-03 08:41:43 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -46,8 +46,8 @@ void  Gauss_Tetrahedron (int Nbr_Points, int Num,
     *wght = ptet29[Num] ; break ;
 
   default : 
-    Msg(ERROR, "Wrong number of Gauss Points for Tetrahedron\n"
-	       "Valid choices: 1, 4, 5, 15, 16, 17, 29");
+    Msg(DIRECT, ERROR_STR "Wrong number of Gauss Points for Tetrahedron");
+    Msg(ERROR, "Valid choices: 1, 4, 5, 15, 16, 17, 29");
     break;
   }
 

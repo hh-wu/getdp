@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Hexahedron.c,v 1.10 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Hexahedron.c,v 1.11 2001-05-03 08:41:43 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -29,8 +29,8 @@ void  Gauss_Hexahedron (int Nbr_Points, int Num,
     *wght = phex77[Num] ; break ;
 
   default : 
-    Msg(ERROR, "Wrong number of Gauss points for Hexahedron\n"
-	       "Valid choices: 6, 34, 77");
+    Msg(DIRECT, ERROR_STR "Wrong number of Gauss points for Hexahedron");
+    Msg(ERROR, "Valid choices: 6, 34, 77");
     break;
 
   }

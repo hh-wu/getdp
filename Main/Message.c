@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.39 2001-05-03 00:17:18 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.40 2001-05-03 08:41:43 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -190,6 +190,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       break;
     case LOADING :
       sprintf(prefix, LOADING_STR); 
+      break;
     case INFO :
     case INFO1 :
     case INFO2 :
