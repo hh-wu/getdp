@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.19 2002-03-04 17:11:39 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.20 2003-02-10 19:20:52 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -11,6 +11,7 @@
 #include "GetDP.h"
 #include "Magic.h"
 #include "LinAlg.h"
+#include "SafeIO.h"
 
 extern char  Name_Path[MAX_FILE_NAME_LENGTH] ;
 static char *Name_SolverFile=NULL, *Name_DefaultSolverFile="solver.par" ;
@@ -338,7 +339,7 @@ void LinAlg_WriteVector(FILE *file, gVector *V){
 
   GetDP_Begin("LinAlg_WriteVector");
 
-  fwrite(V->V, sizeof(double), V->N, file);
+  safe_fwrite(V->V, sizeof(double), V->N, file);
   fprintf(file, "\n");
 
   GetDP_End ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: List.c,v 1.14 2002-01-19 01:08:11 geuzaine Exp $"
+#define RCSID "$Id: List.c,v 1.15 2003-02-10 19:20:52 geuzaine Exp $"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -8,6 +8,7 @@
 #include "Malloc.h"
 #include "List.h"
 #include "Message.h"
+#include "SafeIO.h"
 
 static char *startptr;
 
@@ -422,7 +423,7 @@ void List_WriteToFile(List_T *liste, FILE *file, int format){
       Msg(GERROR, "Bad type of data to write list to file (size = %d)", liste->size);
     break;
   case LIST_FORMAT_BINARY :
-    fwrite(liste->array, liste->size, n, file);
+    safe_fwrite(liste->array, liste->size, n, file);
     break;
   default :
     Msg(GERROR, "Unknown list format");

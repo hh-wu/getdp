@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2003-02-07 10:26:57 geuzaine Exp $
+# $Id: Makefile,v 1.10 2003-02-10 19:20:52 geuzaine Exp $
 
 include ../variables
 
@@ -8,6 +8,7 @@ CFLAGS  = ${C_FLAGS} ${INCLUDE}
 
 SRC = List.c \
       Malloc.c \
+      SafeIO.c \
       Tree.c \
       avl.c \
       Tools.c
@@ -36,8 +37,9 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-List.o: List.c Malloc.h List.h ../Main/Message.h
+List.o: List.c Malloc.h List.h ../Main/Message.h SafeIO.h
 Malloc.o: Malloc.c Malloc.h ../Main/Message.h
+SafeIO.o: SafeIO.c SafeIO.h ../Main/Message.h
 Tree.o: Tree.c Malloc.h Tree.h avl.h
 avl.o: avl.c avl.h Malloc.h
 Tools.o: Tools.c Tools.h List.h Tree.h avl.h

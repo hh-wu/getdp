@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.25 2003-02-07 10:18:54 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.26 2003-02-10 19:20:52 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -11,6 +11,7 @@
 
 #include "GetDP.h"
 #include "LinAlg.h"
+#include "SafeIO.h"
 
 /* error checking, petsc-style */
 
@@ -451,7 +452,7 @@ void LinAlg_WriteVector(FILE *file, gVector *V){
 
   ierr = VecGetLocalSize(V->V, &n); MYCHECK(ierr);
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
-  fwrite(tmp, sizeof(PetscScalar), n, file);
+  safe_fwrite(tmp, sizeof(PetscScalar), n, file);
   fprintf(file, "\n");
   ierr = VecRestoreArray(V->V, &tmp); MYCHECK(ierr);
 

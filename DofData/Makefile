@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.16 2003-02-07 10:26:57 geuzaine Exp $
+# $Id: Makefile,v 1.17 2003-02-10 19:20:52 geuzaine Exp $
 
 include ../variables
 
@@ -43,5 +43,5 @@ DofData.o: DofData.c ../include/GetDP.h ../Main/Message.h \
   ../GeoData/Data_GeoData.h
 LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../include/Magic.h LinAlg.h ../Sparskit/Solver.h \
-  ../DataStr/List.h
-LinAlg_PETSC.o: LinAlg_PETSC.c
+  ../DataStr/List.h ../DataStr/SafeIO.h
+LinAlg_PETSC.o: LinAlg_PETSC.c ../DataStr/SafeIO.h
