@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.119 2003-02-07 19:16:24 geuzaine Exp $
+# $Id: Makefile,v 1.120 2003-02-07 19:45:49 geuzaine Exp $
 
 include variables
 
@@ -168,10 +168,9 @@ rpm:
 blackbox: initialtag
 	@for i in ${GETDP_DIRS}; \
         do (cd $$i && ${MAKE} \
-           "C_FLAGS=-g -D_BLACKBOX" \
-           "F77_FLAGS=-g" \
+           "C_FLAGS=${C_FLAGS} -D_BLACKBOX" \
         ); done
-	${FC} -nofor_main -o bin/getdp-box ${GETDP_LIBS}
+	${LINKER} -o bin/getdp-box ${GETDP_LIBS}
 
 compile-scat: initialtag
 	@for i in ${GETDP_DIRS} Scattering; do (cd $$i && ${MAKE} \

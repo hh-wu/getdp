@@ -1,12 +1,10 @@
-#define RCSID "$Id: MainBlackBox.c,v 1.9 2001-05-23 10:23:23 geuzaine Exp $"
-
 /* 
    To create a special version of GetDP with a non-readable built-in formulation:
    1) suppress all formulation lines commented with '//'
    2) suppress all new line chars (emacs: M-% ^Q^J  )
    3) copy the long resulting char line in BlackBoxProString[]
    4) define the program and resolution names
-   5) rebuild with 'make box'
+   5) rebuild with 'make blackbox'
 */
 
 #include "GetDP.h"
@@ -46,7 +44,7 @@ int  main(int argc, char *argv[]) {
   }
   if(argc==5){
     Flag_PRE = 0 ; Flag_CAL = 0 ; Flag_POS = 1 ; 
-    Name_PostOperation = argv[4]; 
+    Name_PostOperation[0] = argv[4]; 
   }
   Flag_VERBOSE = 2 ;
 
@@ -93,7 +91,7 @@ int  main(int argc, char *argv[]) {
     Problem_Expression0 = (struct Expression*)List_Pointer(Problem_S.Expression, 0) ;
 
   LinAlg_InitializeSolver(NULL, NULL, &Current.NbrCpu, &Current.RankCpu) ;
-  SolvingAnalyse(NAME_PROGRAM) ;
+  SolvingAnalyse() ;
   LinAlg_FinalizeSolver() ;
 
   Msg(DIRECT, "E n d");
