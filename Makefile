@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.106 2003-01-24 23:04:09 geuzaine Exp $
+# $Id: Makefile,v 1.107 2003-01-25 01:39:03 geuzaine Exp $
 
 # ----------------------------------------------------------------------
 #  Optional packages: 
@@ -333,9 +333,9 @@ source:
 	tar zcvf getdp-$(GETDP_RELEASE)-source.tgz getdp-$(GETDP_RELEASE)
 
 #
-# Digital (Compaq) Tru64
+# Digital (Compaq) OSF1/Tru64
 #
-compile-dec: initialtag
+compile-osf1: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
@@ -345,10 +345,10 @@ compile-dec: initialtag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-link-dec:
+link-osf1:
 	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
-dec: compile-dec link-dec
-distrib-dec: tag clean dec distrib
+osf1: compile-osf1 link-osf1
+distrib-osf1: tag clean osf1 distrib
 
 #
 # Linux
@@ -376,7 +376,7 @@ rpm: fulltgz
 #
 # HP-UX
 #
-compile-hp: initialtag
+compile-hpux: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
@@ -388,16 +388,16 @@ compile-hp: initialtag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT -D_UNDERSCORE" \
         ); done
-link-hp:
+link-hpux:
 	fort77 +DAportable -o $(GETDP_BIN_DIR)/getdp $(GETDP_MAIN_DIR)/Main.o \
                $(GETDP_SPARSKIT_LIBS) -lm
-hp: compile-hp link-hp
-distrib-hp: tag clean hp distrib
+hpux: compile-hpux link-hpux
+distrib-hpux: tag clean hpux distrib
 
 #
 # Sun SunOS
 #
-compile-sun: initialtag
+compile-sunos: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=f77" \
@@ -408,15 +408,15 @@ compile-sun: initialtag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-link-sun:
+link-sunos:
 	$(FC) -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lsocket -lm
-sun: compile-sun link-sun
-distrib-sun: tag clean sun distrib
+sunos: compile-sunos link-sunos
+distrib-sunos: tag clean sunos distrib
 
 #
 # IBM AIX
 #
-compile-ibm: initialtag
+compile-aix: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
@@ -427,10 +427,10 @@ compile-ibm: initialtag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_UNDERSCORE" \
         ); done
-link-ibm:
+link-aix:
 	$(FC) -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
-ibm: compile-ibm link-ibm
-distrib-ibm: tag clean ibm distrib
+aix: compile-aix link-aix
+distrib-aix: tag clean aix distrib
 
 #
 # Cygwin (recent versions of Cygwin limit the size of the stack to a
@@ -475,7 +475,7 @@ mingw: compile-mingw link-mingw
 #
 # SGI Irix (32 bits, portable) - ILU_FLOAT does NOT work with -mips3. Why ?
 #
-compile-sgi: initialtag
+compile-irix: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
@@ -486,15 +486,15 @@ compile-sgi: initialtag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=" \
         ); done
-link-sgi:
+link-irix:
 	f77 -n32 -mips3 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
-sgi: compile-sgi link-sgi
-distrib-sgi: tag clean sgi distrib
+irix: compile-irix link-irix
+distrib-irix: tag clean irix distrib
 
 #
 # SGI Irix (64 bits)
 #
-compile-sgi64: initialtag
+compile-irix64: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
@@ -505,9 +505,9 @@ compile-sgi64: initialtag
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
-link-sgi64:
+link-irix64:
 	f77 -64 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
-sgi64: compile-sgi64 link-sgi64
+irix64: compile-irix64 link-irix64
 
 #
 # PETSc with Metis
