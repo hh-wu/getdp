@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.6 2002-02-11 23:08:49 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.7 2002-02-12 00:07:23 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -238,7 +238,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
   case FULL :
     for(i=0 ; i<nbtarget ; i++){
       t = 2*PI*i/(double)nbtarget;
-      // stupid POU around t, equal to 1 everywhere in [t-PI,t+PI]
+      // stupid pou around t, equal to 1 everywhere in [t-PI,t+PI]
       part.init(t,PI,0.);
       res = Nystrom(1,t,f,kv,nbpts,scat,&part);
       Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
@@ -250,19 +250,18 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
     Intervals = List_Create(10,10,sizeof(Interval));
    
     for(i=0 ; i<nbtarget ; i++){
+      t = 2*PI*i/(double)nbtarget;
+
       List_Reset(CritPts);
       List_Reset(Intervals);
 
-      t = 2*PI*i/(double)nbtarget;
       CriticalPointsCircle(t,CritPts);
 
       // add target in crit pts list
-
       List_Insert(CritPts, &t, fcmp_double);
       sindex = List_ISearch(CritPts, &t, fcmp_double);
 
       // merge all overlapping pous in an interval list
-
       for(j=0 ; j<List_Nbr(CritPts) ; j++) {
 	List_Read(CritPts,j,&d);
 	I.num = j;
@@ -291,17 +290,24 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
       }
 
       // insure periodicity
-      /*
-      List_Read(Intervals, 0, &I);
-      pI = (Interval*)List_Pointer(Intervals, List_Nbr(Intervals)-1);
-      if(I.min < 0 && pI->max > TWO_PI){
-	printf("************ NOT DONE YET\n");
-	List_PSuppress(Intervals, 0);
-	if(I.num==sindex) pI->num = sindex;
-	pI->min = MIN(pI->min,I.min+TWO_PI);
-	pI->max = MAX(pI->max,I.max+TWO_PI);
+      if(List_Nbr(Intervals)>1){
+	List_Read(Intervals, List_Nbr(Intervals)-1, &I);
+	if(I.max > TWO_PI){
+	  Msg(WARNING, "Flipping interval :-)");
+	  I.min -= TWO_PI;
+	  I.max -= TWO_PI;
+	  if(sindex==I.num) t-=TWO_PI;
+	  List_PSuppress(Intervals, List_Nbr(Intervals)-1);
+	  if((pI = (Interval*)List_PQuery(Intervals, &I, fcmp_Interval))){
+	    if(sindex==I.num) pI->num = sindex;
+	    pI->min = MIN(pI->min, I.min);
+	    pI->max = MAX(pI->max, I.max);
+	  }
+	  else{
+	    List_Add(Intervals, &I);
+	  }
+	}
       }
-      */
 
       for(j=0 ; j<List_Nbr(Intervals) ; j++) {
 	List_Read(Intervals, j, &I);
@@ -350,7 +356,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	res += tmp;
       }
 
-      Msg(DEBUG, "------------------------------------------------------------------------");      
+      Msg(DEBUG, "------------------------------------------------------------------------");
       Msg(INFO, "I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
       Msg(DEBUG, "------------------------------------------------------------------------");
 
