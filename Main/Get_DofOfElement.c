@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_DofOfElement.c,v 1.14 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Get_DofOfElement.c,v 1.15 2000-11-24 13:37:03 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -12,7 +12,7 @@
 #include "Tools.h"
 
 struct BasisFunction    * BasisFunction_P ;
-int                     Nbr_ElementaryBF ;
+int                     Nbr_ElementaryBF, Flag_SubSpace ;
 struct Group            * GroupSupport_P, * GroupEntity_P ;
 
 /* ------------------------------------------------------------------------ */
@@ -57,9 +57,12 @@ void  Get_DofOfElement(struct Element          * Element,
   BasisFunction_P0 = (Nbr_BasisFunctionAll) ? 
     (struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction, 0) : NULL ;
 
-  if (!BasisFunctionIndex_L)
+  if (!BasisFunctionIndex_L) {
+    Flag_SubSpace = 0 ;
     Nbr_BasisFunction = Nbr_BasisFunctionAll ;
+  }
   else {
+    Flag_SubSpace = 1 ;
     Nbr_BasisFunction = List_Nbr(BasisFunctionIndex_L) ;
     BasisFunctionIndex_P0 = (Nbr_BasisFunction) ? 
       (int*)List_Pointer(BasisFunctionIndex_L, 0) : NULL ;
@@ -80,7 +83,7 @@ void  Get_DofOfElement(struct Element          * Element,
 
   for (i = 0 ; i < Nbr_BasisFunction ; i++) {
 
-    i_BFunction = (!BasisFunctionIndex_L)? i : BasisFunctionIndex_P0[i] ;
+    i_BFunction = (!Flag_SubSpace)? i : BasisFunctionIndex_P0[i] ;
 
     BasisFunction_P = BasisFunction_P0 + i_BFunction ;
     GroupSupport_P = (struct Group*)
@@ -396,6 +399,10 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 	  Dof_GetDofStruct(FunctionSpace_P->DofData,
 			   BasisFunction_P->Num, abs(Num_Entity[i_Entity]), 0))
 	 != NULL) ;
+      if (Flag_SubSpace && CodeExist && TreatmentStatus != _POS)
+	CodeExist =
+	  Check_IsEntityInExtendedGroup(GroupEntity_P, abs(Num_Entity[i_Entity]), 0) ;
+      /* ... parce que le code n'existe peut etre pas quand sous-espace ! */
       break ;
 
     case _PRE :
