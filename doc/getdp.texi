@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.26 2001-02-06 21:08:27 geuzaine Exp $
+@c $Id: getdp.texi,v 1.27 2001-02-07 07:45:16 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -2222,7 +2222,7 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
   @var{string}
 
 @var{post-operation-op}:
-  Print[ @var{post-quantity-id}, @var{print-suupport} <,@var{print-option}> @dots{} ] |
+  Print[ @var{post-quantity-id}, @var{print-support} <,@var{print-option}> @dots{} ] |
   @var{etc}
 
 @var{print-support}:
