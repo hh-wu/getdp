@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Coord.c,v 1.7 2001-03-05 11:01:43 sabarieg Exp $"
+#define RCSID "$Id: F_Coord.c,v 1.8 2001-03-05 11:10:21 sabarieg Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -31,7 +31,7 @@ void  F_CoordXYZ (F_ARG) {
 
   GetDP_Begin("F_CoordXYZ");
 
-  if(Current.Element == NO_ELEMENT){
+  if(Current.Element->Num == NO_ELEMENT){
      X = Current.x ;
      Y = Current.y ;
      Z = Current.z ;
@@ -78,10 +78,8 @@ void  F_CoordXYZ (F_ARG) {
 										\
   GetDP_Begin(name);								\
 										\
-  if(Current.Element == NO_ELEMENT){						\
-     X = Current.x ;								\
-     Y = Current.y ;								\
-     Z = Current.z ;								\
+  if(Current.Element->Num == NO_ELEMENT){					\
+     tmp = Current.coord ;							\
   }										\
   else{										\
     Get_NodesCoordinatesOfElement(Current.Element) ;				\
