@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.42 2001-10-25 07:06:36 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.43 2001-11-19 17:48:36 geuzaine Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -853,7 +853,7 @@ struct PostSubOperation {
   union {
     struct { int RegionIndex ; } OnRegion ;
     struct { double x[4], y[4], z[4] ; int n[3] ; } OnGrid ;
-    struct { int ExpressionIndex[3] ; List_T * ParameterValue[2] ; } OnParamGrid ;
+    struct { int ExpressionIndex[3] ; List_T * ParameterValue[3] ; } OnParamGrid ;
     struct { double x[3], y[3], z[3] ; } OnSection ;
     struct { int RegionIndex, ArgumentIndex ; double x[2] ; int n ; } WithArgument ;
     struct { int ExtendedGroupIndex, GroupIndex ; } Group ;
