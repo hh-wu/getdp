@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.12 2000-10-30 09:04:05 dular Exp $"
+#define RCSID "$Id: DofData.c,v 1.13 2000-11-13 09:37:08 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -576,9 +576,19 @@ void  Dof_InitDofType(struct DofData * DofData_P) {
       Dof_P->Case.Link.Dof =
 	Dof_GetDofStruct(DofData_P, Dof_P->NumType,
 			 Dof_P->Case.Link.EntityRef, Dof_P->Harmonic) ;
+      if (Dof_P->Case.Link.Dof == NULL) {
+	Dof_P->Case.Link.Dof = /* Attention: bricolage ... */
+	  Dof_GetDofStruct(DofData_P, Dof_P->NumType-1,
+			   Dof_P->Case.Link.EntityRef, Dof_P->Harmonic) ;
+	if (Dof_P->Case.Link.Dof == NULL)
+	  Msg(ERROR,"Wrong Link Constraint: Reference Dof does not exist (%d %d %d)",
+	      Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
+      }
+      /*
       if (Dof_P->Case.Link.Dof == NULL)
 	Msg(ERROR,"Wrong Link Constraint: Reference Dof does not exist (%d %d %d)",
 	    Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
+      */
       break ;
     default :
       break ;

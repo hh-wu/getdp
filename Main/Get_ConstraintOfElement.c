@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.6 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.7 2000-11-13 09:37:08 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -355,7 +355,7 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
 
   *CodeEntity_Link = abs(TwoIntOneDouble_P->Int2) ;
   *Coef = TwoIntOneDouble_P->Double ;
-  if (TwoIntOneDouble_P->Int2 < 0)  *Coef *= -1. ;
+  if (TwoIntOneDouble_P->Int1 < 0)  *Coef *= -1. ;
 
   GetDP_End ;
 }
@@ -371,7 +371,8 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 int Index_Filter, int Index_Function, int Index_Coef,
 			 List_T * Couples_L) ;
 void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
-			 struct Group * Group_P, struct Group * RegionRef_P,
+			 struct Group * Group_P,
+			 struct Group * RegionRef_P, struct Group * SubRegionRef_P,
 			 List_T * Couples_L) ;
 int fcmp_XYZ(const void * a, const void * b) ;
 int fcmp_NN(const void * a, const void * b) ;
@@ -424,7 +425,8 @@ struct ConstraintActive * Generate_Link(struct ConstraintInFS * Constraint_P) {
 		       Active->Case.Link.Couples) ;
     break ;
   case EDGESOF :
-    Generate_LinkEdges(Constraint_P, Group_P, RegionRef_P,
+    Generate_LinkEdges(Constraint_P, Group_P,
+		       RegionRef_P, SubRegionRef_P,
 		       Active->Case.Link.Couples) ;
     break ;
   case FACETSOF :
@@ -611,7 +613,8 @@ int fcmp_XYZ(const void * a, const void * b) {
 /*  G e n e r a t e _ L i n k E d g e s  */
 
 void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
-			 struct Group * Group_P, struct Group * RegionRef_P,
+			 struct Group * Group_P,
+			 struct Group * RegionRef_P, struct Group * SubRegionRef_P,
 			 List_T * Couples_L) {
 
   int  Nbr_Entity, Nbr_EntityRef ;
@@ -621,7 +624,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 
   struct EdgeNN  EdgeNN, EdgeNNRef ;
   List_T  * EdgeNN_L, * EdgeNNRef_L ;
-  List_T  * ExtendedListRef_L ;
+  List_T  * ExtendedListRef_L, * ExtendedSuppListRef_L ;
 
   int  i ;
   struct TwoIntOneDouble *TwoIntOneDouble_P, *TwoIntOneDouble2_P, TwoIntOneDouble ;
@@ -670,89 +673,116 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 
   /* Couples of edges */
 
+  Msg(INFO, "== Couples of edges ==") ;
+
   /* Edges with Constraint */
 
   Nbr_Entity = List_Nbr(Group_P->ExtendedList) ;
 
   Generate_ElementaryEntities_EdgeNN
     (Group_P->InitialList, &ExtendedList_L, EDGESOF) ;
+  if (Group_P->InitialSuppList)
+    Generate_ElementaryEntities_EdgeNN
+      (Group_P->InitialSuppList, &ExtendedSuppListRef_L, EDGESOF) ;
+  else
+    ExtendedSuppListRef_L = NULL ;
 
-  EdgeNN_L = ExtendedList_L ;
+  /*  EdgeNN_L = ExtendedList_L ; */
+  EdgeNN_L = List_Create(Nbr_Entity, 1, sizeof(struct EdgeNN)) ;
 
-  if (Nbr_Entity != List_Nbr(EdgeNN_L))  Msg(ERROR, "Constraint Link: strange...") ;
+  /*  if (Nbr_Entity != List_Nbr(EdgeNN_L))  Msg(ERROR, "Constraint Link: strange...") ; */
+  if (Nbr_Entity != List_Nbr(ExtendedList_L))  Msg(ERROR, "Constraint Link: strange...") ;
 
   for (i = 0 ; i < Nbr_Entity ; i++) {
-    List_Read(EdgeNN_L, i, &EdgeNN) ;
+    List_Read(ExtendedList_L, i, &EdgeNN) ;
+    if (!(ExtendedSuppListRef_L &&
+	  List_Search(ExtendedSuppListRef_L, &EdgeNN.NumEdge, fcmp_int))) {
 
-    if (EdgeNN.Node2 < EdgeNN.Node1) {
-      Save_Num = EdgeNN.Node2 ;
-      EdgeNN.Node2 = EdgeNN.Node1 ;  EdgeNN.Node1 = Save_Num ;
-      List_Write(EdgeNN_L, i, &EdgeNN) ;
-    }
-
-    /* -- */
-    Msg(BIGINFO, "Other %d: a%d, n%d - n%d",
-	    i, EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2) ;
-
-    TwoIntOneDouble_P = (struct TwoIntOneDouble *)
-      List_PQuery(CouplesOfNodes_L, &EdgeNN.Node1, fcmp_int) ;
-    TwoIntOneDouble2_P = (struct TwoIntOneDouble *)
-      List_PQuery(CouplesOfNodes_L, &EdgeNN.Node2, fcmp_int) ;
-
-    if (!(TwoIntOneDouble_P && TwoIntOneDouble2_P)) {
-      if (Flag_Filter) {
-	TwoIntOneDouble_P = (struct TwoIntOneDouble *)
-	  List_PQuery(CouplesOfNodes2_L, &EdgeNN.Node1, fcmp_int) ;
-	TwoIntOneDouble2_P = (struct TwoIntOneDouble *)
-	  List_PQuery(CouplesOfNodes2_L, &EdgeNN.Node2, fcmp_int) ;
+      if (EdgeNN.Node2 < EdgeNN.Node1) {
+	Save_Num = EdgeNN.Node2 ;
+	EdgeNN.Node2 = EdgeNN.Node1 ;  EdgeNN.Node1 = Save_Num ;
+	/*	List_Write(EdgeNN_L, i, &EdgeNN) ; */
       }
-      else  Msg(ERROR, "Constraint Link: bad correspondance for edges") ;
-    }
+      List_Add(EdgeNN_L, &EdgeNN) ;
 
-    EdgeNN.Node1 = TwoIntOneDouble_P->Int2 ;
-    EdgeNN.Node2 = TwoIntOneDouble2_P->Int2 ;
-
-    if (fabs(TwoIntOneDouble_P->Double - TwoIntOneDouble2_P->Double) > 1.e-18)
-      Msg(ERROR, "Constraint Link: Bad Coefficient for Edges") ;
-
-    EdgeNN.Coef = TwoIntOneDouble_P->Double ;
-
-    if (EdgeNN.Node2 < EdgeNN.Node1) {
-      Save_Num = EdgeNN.Node2 ;
-      EdgeNN.Node2 = EdgeNN.Node1 ;  EdgeNN.Node1 = Save_Num ;
-      EdgeNN.NumEdge *= -1 ;
-    }
-    List_Write(EdgeNN_L, i, &EdgeNN) ;
     /* -- */
-    Msg(BIGINFO, "                         -->  a%d, n%d - n%d",
-	    EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2) ;
+      Msg(BIGINFO, "Other %d: a%d, n%d - n%d",
+	  i, EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2) ;
 
+      TwoIntOneDouble_P = (struct TwoIntOneDouble *)
+	List_PQuery(CouplesOfNodes_L, &EdgeNN.Node1, fcmp_int) ;
+      TwoIntOneDouble2_P = (struct TwoIntOneDouble *)
+	List_PQuery(CouplesOfNodes_L, &EdgeNN.Node2, fcmp_int) ;
+
+      if (!(TwoIntOneDouble_P && TwoIntOneDouble2_P)) {
+	if (Flag_Filter) {
+	  TwoIntOneDouble_P = (struct TwoIntOneDouble *)
+	    List_PQuery(CouplesOfNodes2_L, &EdgeNN.Node1, fcmp_int) ;
+	  TwoIntOneDouble2_P = (struct TwoIntOneDouble *)
+	    List_PQuery(CouplesOfNodes2_L, &EdgeNN.Node2, fcmp_int) ;
+	}
+	else  Msg(ERROR, "Constraint Link: bad correspondance for edges") ;
+      }
+
+      EdgeNN.Node1 = TwoIntOneDouble_P->Int2 ;
+      EdgeNN.Node2 = TwoIntOneDouble2_P->Int2 ;
+
+      if (fabs(TwoIntOneDouble_P->Double - TwoIntOneDouble2_P->Double) > 1.e-18)
+	Msg(ERROR, "Constraint Link: Bad Coefficient for Edges") ;
+
+      EdgeNN.Coef = TwoIntOneDouble_P->Double ;
+
+      if (EdgeNN.Node2 < EdgeNN.Node1) {
+	Save_Num = EdgeNN.Node2 ;
+	EdgeNN.Node2 = EdgeNN.Node1 ;  EdgeNN.Node1 = Save_Num ;
+	EdgeNN.NumEdge *= -1 ;
+      }
+      /*      List_Write(EdgeNN_L, i, &EdgeNN) ; */
+      List_Write(EdgeNN_L, List_Nbr(EdgeNN_L)-1, &EdgeNN) ;
+      /* -- */
+      Msg(BIGINFO, "                         -->  a%d, n%d - n%d",
+	  EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2) ;
+
+    }
   }
+  Nbr_Entity = List_Nbr(EdgeNN_L) ;
 
   /* Edges of reference (Link) */
 
   Generate_ElementaryEntities_EdgeNN
     (RegionRef_P->InitialList, &ExtendedListRef_L, EDGESOF) ;
+  if (SubRegionRef_P)
+    Generate_ElementaryEntities_EdgeNN
+      (SubRegionRef_P->InitialList, &ExtendedSuppListRef_L, EDGESOF) ;
+  else
+    ExtendedSuppListRef_L = NULL ;
 
   Nbr_EntityRef = List_Nbr(ExtendedListRef_L) ;
+
+  /*  EdgeNNRef_L = ExtendedListRef_L ; */
+  EdgeNNRef_L = List_Create(Nbr_EntityRef, 1, sizeof(struct EdgeNN)) ;
+
+  for (i = 0 ; i < Nbr_EntityRef ; i++) {
+    List_Read(ExtendedListRef_L, i, &EdgeNNRef.NumEdge) ;
+    if (!(ExtendedSuppListRef_L &&
+	  List_Search(ExtendedSuppListRef_L, &EdgeNNRef.NumEdge, fcmp_int))) {
+      if (EdgeNNRef.Node2 < EdgeNNRef.Node1) {
+	Save_Num = EdgeNNRef.Node2 ;
+	EdgeNNRef.Node2 = EdgeNNRef.Node1 ;  EdgeNNRef.Node1 = Save_Num ;
+	/*	List_Write(EdgeNNRef_L, i, &EdgeNNRef) ; */
+      }
+      List_Add(EdgeNNRef_L, &EdgeNNRef) ;
+
+      /* -- */
+      Msg(BIGINFO, "Ref   %d: a%d, n%d - n%d",
+	  i, EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
+    }
+  }
+  Nbr_EntityRef = List_Nbr(EdgeNNRef_L) ;
+
   if (Nbr_EntityRef != Nbr_Entity)
     Msg(ERROR, "Constraint Link: bad correspondance of number of Edges (%d, %d)",
 	Nbr_Entity, Nbr_EntityRef) ;
-
-  EdgeNNRef_L = ExtendedListRef_L ;
-
-  for (i = 0 ; i < Nbr_Entity ; i++) {
-    List_Read(ExtendedListRef_L, i, &EdgeNNRef.NumEdge) ;
-
-    if (EdgeNNRef.Node2 < EdgeNNRef.Node1) {
-      Save_Num = EdgeNNRef.Node2 ;
-      EdgeNNRef.Node2 = EdgeNNRef.Node1 ;  EdgeNNRef.Node1 = Save_Num ;
-      List_Write(EdgeNNRef_L, i, &EdgeNNRef) ;
-    }
-    /* -- */
-    Msg(BIGINFO, "Ref   %d: a%d, n%d - n%d",
-	    i, EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
-  }
 
   List_Sort(EdgeNN_L   , fcmp_NN) ;
   List_Sort(EdgeNNRef_L, fcmp_NN) ;
@@ -762,9 +792,9 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     List_Read(EdgeNNRef_L, i, &EdgeNNRef) ;
 
     Msg(BIGINFO, "%d: a%d, n%d - n%d (%.16g) / a%d, n%d - n%d",
-	    i, 
-	    EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2, EdgeNN.Coef,
-	    EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
+	i, 
+	EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2, EdgeNN.Coef,
+	EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
 
 
     if (EdgeNN.Node1 != EdgeNNRef.Node1 ||
