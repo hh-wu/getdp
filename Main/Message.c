@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.62 2003-02-14 06:18:24 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.63 2003-02-14 07:30:12 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -6,11 +6,11 @@
 
 #include <sys/time.h>
 
-#ifndef MSDOS
+#if !defined(MSDOS)
 #include <sys/resource.h>
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__)
 #define RUSAGE_SELF      0
 #define RUSAGE_CHILDREN -1
 #endif
@@ -21,7 +21,7 @@
 #include "LinAlg.h"
 #include "GmshClient.h"
 
-#ifndef GETDP_MAJOR_VERSION
+#if !defined(GETDP_MAJOR_VERSION)
 #error 
 #error include/GetDPVersion.h is not up-to-date. 
 #error Please run 'make tag'.
@@ -48,14 +48,14 @@ char packager[]  = "Packager     : %s\n";
 char url[]       = "Web site     : http://www.geuz.org/getdp/\n";
 char email[]     = "Mailing list : getdp@geuz.org\n";
 
-#ifdef _SPARSKIT
-#ifdef _ILU_FLOAT
+#if defined(_SPARSKIT)
+#if defined(_ILU_FLOAT)
 char solver[]    = "Solver       : Sparskit (real arithmetic, single precision preconditioning)\n";
 #else
 char solver[]    = "Solver       : Sparskit (real arithmetic)\n";
 #endif
 #else
-#ifdef PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
 char solver[]    = "Solver       : PETSc (complex arithmetic)\n";
 #else
 char solver[]    = "Solver       : PETSc (real arithmetic)\n";
@@ -63,7 +63,7 @@ char solver[]    = "Solver       : PETSc (real arithmetic)\n";
 #endif
 
 char help[] = 
-#if _SPARSKIT
+#if defined(_SPARSKIT)
   "Usage: %s [file] [options]\n"
 #else
   "Usage: mpirun [MPI options] %s [file] [options] [PETSc options]\n"
@@ -81,7 +81,7 @@ char help[] =
   "  -name string              use string as generic file name\n"
   "  -adapt file               read adaptation constraints from file\n"
   "  -order num                restrict maximum interpolation order\n"
-#if _SPARSKIT
+#if defined(_SPARSKIT)
   "Linear solver options:\n"
   "  -solver file              specify parameter file (default: solver.par)\n"
   "  -'Parameter' num          override value of solver parameter 'Parameter'\n"
@@ -169,7 +169,7 @@ void Signal (int sig_num){
 /* ------------------------------------------------------------------------ */
 
 void Print_GetDPContext(FILE *stream){
-#ifdef GETDP_USE_DEBUG_STACK
+#if defined(GETDP_USE_DEBUG_STACK)
   char FileName[256], FileVersion[256], FunctionName[256], FileAuthor[256];
   char Dum[256], FileDate[256];
   int  i, Line ;
@@ -256,7 +256,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
 }
 
 void GetResources(long *s, long *us, long *mem){
-#ifndef MSDOS
+#if !defined(MSDOS)
   static struct rusage r;
 
   getrusage(RUSAGE_SELF,&r);
@@ -269,8 +269,7 @@ void GetResources(long *s, long *us, long *mem){
 }
 
 void PrintResources(FILE *stream, char *fmt, long s, long us, long mem){
-
-#ifndef MSDOS
+#if !defined(MSDOS)
   char sockmsg[1000];
   if(Flag_SOCKET > 0){
     sprintf(sockmsg, RESOURCES_STR "%scpu %ld.%ld s / mem %ld kb\n", fmt, s, us, mem);

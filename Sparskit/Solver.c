@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.19 2002-02-04 19:00:48 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.20 2003-02-14 07:30:12 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -8,14 +8,11 @@
 #include "Message.h"
 #include "Malloc.h"
 
-#define _GETDP_FOR_BEGINNERS_
-
 /* ------------------------------------------------------------------------ */
 /*  S o l v e _ m a t r i x                                                 */
 /* ------------------------------------------------------------------------ */
 
 void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
-
   FILE    *pf;
   double   fpar[17];
   double  *a, *w, *rhs, *sol, *dx;
@@ -32,8 +29,6 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     return;
   }
 
-
-#ifdef  _GETDP_FOR_BEGINNERS_
   for(i=0 ; i<M->N ; i++){
     if(b[i] != 0.) break;
     if(i == M->N-1) {
@@ -44,7 +39,6 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       */
     }
   }
-#endif
 
   if(M->T == DENSE){
 
@@ -117,19 +111,17 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
 
   if(p->Scaling != NONE){
     Msg(SPARSKIT, "Scaling system of equations\n") ;
-
     scale_matrix (p->Scaling, M) ;
     scale_vector (ROW, M, b) ;    
-  } else 
+  }
+  else{
     Msg(SPARSKIT, "No scaling of system of equations\n") ;
+  }
 
-
-#ifdef  _GETDP_FOR_BEGINNERS_
   for (i=1; i<M->N; i++) {
     if(ia[i]-ia[i-1] <= 0)
       Msg(ERROR, "Zero row in matrix");
   }
-#endif
 
   rhs = (double*) Malloc(M->N * sizeof(double));
   sol = (double*) Calloc(M->N, sizeof(double));
@@ -208,7 +200,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     
     if (p->Re_Use_ILU) M->ILU_Exists = 1;
     
-#ifdef _ILU_FLOAT
+#if defined(_ILU_FLOAT)
 #define ILUSTORAGE "Float"
 #else
 #define ILUSTORAGE "Double"
