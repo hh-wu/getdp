@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.7 2002-02-12 00:07:23 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.8 2002-02-12 00:21:40 geuzaine Exp $
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -71,6 +71,8 @@ public:
   void init(double _center, double _epsilon, double _rise){
     center = _center;
     epsilon = _epsilon;
+    if(epsilon>PI)
+      Msg(ERROR, "Epsilon is too large (%g > PI)", _epsilon);
     crest = _epsilon-fabs(_rise);
     if(crest<0.) 
       Msg(ERROR, "Invalid rise (%g > epsilon)", _rise);
@@ -284,6 +286,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
 	  List_Add(Intervals, &I);
 	}
       }
+
       for(j=0 ; j<List_Nbr(Intervals) ; j++) {
 	List_Read(Intervals, j, &I);
 	Msg(DEBUG, "  * [%g , %g]", I.min, I.max);
@@ -293,7 +296,7 @@ void Integrate(Analysis typ, Function *f, Scatterer *scat,
       if(List_Nbr(Intervals)>1){
 	List_Read(Intervals, List_Nbr(Intervals)-1, &I);
 	if(I.max > TWO_PI){
-	  Msg(WARNING, "Flipping interval :-)");
+	  Msg(DEBUG, "  ! Flipping last interval");
 	  I.min -= TWO_PI;
 	  I.max -= TWO_PI;
 	  if(sindex==I.num) t-=TWO_PI;
