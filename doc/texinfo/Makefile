@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2001-07-19 14:30:49 geuzaine Exp $
+# $Id: Makefile,v 1.3 2001-07-31 08:18:40 geuzaine Exp $
 
 dvi:
 	texi2dvi getdp.texi 
@@ -11,6 +11,7 @@ pdf:
 
 html:
 	./texi2html -init_file getdp.t2h getdp.texi
+	ln -s getdp.html index.html
 
 html2:
 	makeinfo --html getdp.texi
