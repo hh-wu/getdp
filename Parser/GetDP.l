@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.27 2004-03-08 08:12:04 dular Exp $ */
+/* $Id: GetDP.l,v 1.28 2004-10-27 12:59:15 dular Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -129,6 +129,7 @@ DefineConstant               return tDefineConstant ;
 
 List                         return tList ;
 ListAlt                      return tListAlt ;
+ListFromFile                 return tListFromFile ;
 
 Exp                          return tExp ;
 Log                          return tLog ;

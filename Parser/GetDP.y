@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.62 2004-05-11 07:56:22 sabarieg Exp $ */
+/* $Id: GetDP.y,v 1.63 2004-10-27 12:59:16 dular Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -211,6 +211,8 @@ time_t date_info;
 
 char   buff[128];
 
+FILE* File;
+double _value;
 
 %}
 
@@ -253,7 +255,7 @@ char   buff[128];
 %token  tFor tEndFor tIf tElse tEndIf
 %token  tFlag tHelp tCpu tCheck
 %token  tInclude
-%token  tConstant tList tListAlt tLinSpace tLogSpace
+%token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
 %token  tDefineConstant  tPi  t0D  t1D  t2D  t3D 
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil
@@ -6698,6 +6700,17 @@ Affectation :
   | String__Index tDEF StrCat tEND
     { Constant_S.Name = $1 ; Constant_S.Type = VAR_CHAR ;
       Constant_S.Value.Char = $3 ;
+      List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
+    }
+
+  | String__Index tDEF tListFromFile '[' CharExpr ']' tEND
+    { Constant_S.Name = $1 ; Constant_S.Type = VAR_LISTOFFLOAT ;
+      if (!(File = fopen($5, "r"))) Msg(ERROR, "Unable to open file '%s'", $5);
+      Constant_S.Value.ListOfFloat = List_Create(100,100,sizeof(double));
+      while (!feof(File))
+	if (fscanf(File, "%lf", &_value) != EOF)
+	  List_Add(Constant_S.Value.ListOfFloat, &_value) ;
+      fclose(File) ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
 

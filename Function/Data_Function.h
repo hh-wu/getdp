@@ -623,6 +623,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"dInterpolationLinear2" , (CAST)F_dInterpolationLinear2 ,  -2,   1 },
   {"InterpolationAkima"    , (CAST)F_InterpolationAkima    ,  -2,   1 },
   {"dInterpolationAkima"   , (CAST)F_dInterpolationAkima   ,  -2,   1 },
+
+  {"InterpolationMatrix"   , (CAST)F_InterpolationMatrix   ,  -1,   1 },
+
   {"TransformTensor"       , (CAST)F_TransformTensor       ,   4,   4 }, /* pour Tuan */
   {"TransformPerm"         , (CAST)F_TransformPerm         ,   3,   1 }, /* pour Tuan */
   {"TransformPiezo"        , (CAST)F_TransformPiezo        ,   4,   2 }, /* pour Tuan */

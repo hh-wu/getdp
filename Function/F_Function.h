@@ -135,6 +135,7 @@ void  F_dInterpolationLinear  (F_ARG) ;
 void  F_dInterpolationLinear2 (F_ARG) ;
 void  F_InterpolationAkima    (F_ARG) ;
 void  F_dInterpolationAkima   (F_ARG) ;
+void  F_InterpolationMatrix   (F_ARG) ;
 
 void  Fi_InitListXY     (F_ARG) ;
 void  Fi_InitListXY2    (F_ARG) ;

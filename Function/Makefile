@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.27 2004-03-05 18:18:04 geuzaine Exp $
+# $Id: Makefile,v 1.28 2004-10-27 12:59:14 dular Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -33,6 +33,7 @@ SRC = F_Analytic.c \
       F_Math.c \
       F_ExtMath.c \
       F_Misc.c \
+      F_Interpolation.c \
       F_Type.c \
       F_MultiHar.c \
       F_Jiles.c \

@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Interpolation.c,v 1.1 2004-10-27 12:43:40 dular Exp $"
+#define RCSID "$Id: F_Interpolation.c,v 1.2 2004-10-27 12:59:14 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -362,7 +362,8 @@ void  F_InterpolationMatrix (F_ARG) {
   Matrix = Fct->Para+2;
 
   xp = A->Val[0] ;
-
+ 
+  fprintf(stderr, "\n");
   for (i = 0 ; i < NbrLines ; i++) {
     fprintf(stderr, "  Line %d :", i);
     for (j = 0 ; j < NbrColumns ; j++) {
