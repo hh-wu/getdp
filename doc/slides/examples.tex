@@ -1,4 +1,4 @@
-% $Id: examples.tex,v 1.6 2001-06-15 08:17:13 geuzaine Exp $
+% $Id: examples.tex,v 1.7 2001-06-15 10:57:23 geuzaine Exp $
 
 %
 % WARNING:
@@ -348,10 +348,157 @@ FunctionSpace \{
 
 % ---------------------------------------------------------------------------
 
-\chapter{Magneto-thermal coupling}
+\chapter{Magneto-thermal coupling: step by step}
 
 \begin{slide}
-....
+
+\begin{center}
+\scalebox{0.8}{\input{fig/getdp-magthe.tex}}
+\end{center}
+
+\end{slide}
+
+\begin{slide}
+
+\mybox{colbox}{\textwidth}{
+\begin{center}
+Magnetodynamic formulations
+\end{center}
+\begin{slideitemize}
+\item Adapted function spaces for the fields and potentials involved
+\item Boundary conditions
+\item Electric circuit coupling, prescribed currents or voltages
+\item Nonlinear magnetic characteristics
+\end{slideitemize}
+}
+
+\parbox{0.1\textwidth}{e.g.}\parbox{0.9\textwidth}{
+\begin{gather*}
+\ivol[_{\Omega}]{\mu^{-1}\Curl{\vec{a}}}{\Curl{\vec{a}'}} +
+\ivol[_{\Omega_c}]{\sigma\partial_t\vec{a}}{\vec{a}'} +
+\ivol[_{\Omega_c}]{\sigma\Grad{v}}{\vec{a}'} = 
+0, \\
+\forall \vec{a}'\in\Hcurl[_0]{\Omega}
+\end{gather*}
+\begin{equation*}
+\partial_t\ivol[_{\Omega}]{\mu\vec{h}}{\vec{h}'} +
+\ivol[_{\Omega_c}]{\sigma^{-1}\Curl{\vec{h}}}{\Curl{\vec{h}'}} =
+0, \quad
+\forall \vec{h}'\in\Hcurl[_0]{\Omega}
+\end{equation*}
+}
+
+\end{slide}
+
+\begin{slide}
+
+\mybox{colbox}{\textwidth}{
+\begin{center}
+Thermal formulation
+\end{center}
+\begin{slideitemize}
+\item E.g.\ temperature $T$ formulation
+\item Essential boundary conditions for $T$
+\item Natural boundary conditions for convection and radiation heat flows
+\item Nonlinear thermal characteristics
+\end{slideitemize}
+}
+
+\begin{gather*}
+\ivol[_\Omega]                 {\kappa\,\Grad{T}}        {\Grad{T'}}   -
+\ivol[_\Omega]             {\rho c_p\,\partial_t T}         {T'}       +
+\ivol[_\Omega]                      {p_q}                   {T'}   \\ +
+\isur[_{\Gamma_{\text{conv}}}]    {\eta(T-T_0)}                {T'}       +
+\isur[_{\Gamma_{\text{rad}}}]{\epsilon\sigma_s(T^4-T_0^4)}  {T'}     = 0  \,, 
+\quad\forall T'\in \Hone[_0]{\Omega}
+\end{gather*}
+
+% $\sigma$ is Botltzmann's constant
+% $\epsilon$ is the emissivity
+% $\eta$ is the convection coefficient (2.5->5)
+% $T_0$ is the temperature of the materials surrounding the steel part
+
+\end{slide}
+
+\begin{slide}
+
+\mybox{colbox}{\textwidth}{
+\begin{center}
+Movement of regions
+\end{center}
+\begin{slideitemize}
+\item Addition of transport term (e.g.\ modified Ohm law:
+$\vec{j}=\sigma(\vec{e}+\pvec{\vec{v}}{\vec{b}})$)
+\end{slideitemize}
+}
+
+\parbox{0.1\textwidth}{e.g.}\parbox{0.9\textwidth}{
+\begin{gather*}
+-\ivol[_{\Omega_v}]{ \sigma \pvec{\vec{v}} {\Curl{\vec{a}}} } {\vec{a}'}\\
+-\ivol[_{\Omega_v}]{ \mu    \pvec{\vec{v}} {\vec{h}}        } {\Curl{\vec{h}'}}
+\end{gather*}
+}
+\parbox{0.1\textwidth}{e.g.}\parbox{0.9\textwidth}{
+\begin{equation*}
+-\ivol[_{\Omega_v}]{\rho c_p\psca{\vec{v}}{\Grad{T}}}{T'}
+\end{equation*}
+}
+
+\end{slide}
+
+\begin{slide}
+
+\mybox{colbox}{\textwidth}{
+\begin{center}
+Magneto-thermal coupling
+\end{center}
+\begin{slideitemize}
+\item Heat source term $p_q=\frac{1}{2}\sigma^{-1}j^2$
+\item Temperature dependent electric and magnetic characteristics $\mu(T)$ and
+$\sigma(T)$
+\end{slideitemize}
+}
+
+\parbox{0.1\textwidth}{e.g.}\parbox{0.9\textwidth}{
+\begin{gather*}
+j=\sigma\|\partial_t\vec{a}+\Grad{v}\|\\
+j=\|\Curl{\vec{h}}\|
+\end{gather*}
+}
+
+\end{slide}
+
+\begin{slide}
+
+\mybox{colbox}{\textwidth}{
+\begin{center}
+Resolutions
+\end{center}
+\begin{slideitemize}
+\item Magnetodynamic resolution in time or frequency domain
+\item Thermal resolution in steady state or in time domain
+\end{slideitemize}
+}
+
+
+\begin{smallsyntax}
+Resolution \{ \CC{Mag freq + The time}
+  \{ Name Magnetothermal_h_T;
+    System \{
+      \{ Name Mag; NameOfFormulation MagDyn_h; Frequency 50; \}
+      \{ Name The; NameOfFormulation The_T \}
+    \}
+    Operation \{
+      InitSolution The;
+      IterativeLoop \{
+        NbrMaxIteration 16; RelaxationFactor 1; Criterion 1.e-4;
+        Operation \{ GenerateJac Mag; SolveJac Mag; 
+                    GenerateJac The; SolveJac The; \} \}
+      SaveSolution Mag; SaveSolution The; \}
+\} \}
+\end{smallsyntax}
+
+
 \end{slide}
 
 % ---------------------------------------------------------------------------
@@ -373,8 +520,6 @@ FunctionSpace \{
 \includegraphics[angle=-90,width=\textwidth]{getdp-picts/line220kv}
 \includegraphics[height=\textheight]{getdp-picts/magnet}
 \includegraphics[height=\textheight]{getdp-picts/motoras}
-\includegraphics[width=\textwidth]{getdp-picts/f16a}
-\includegraphics[width=\textwidth]{getdp-picts/f16b}
 
 \hspace*{-0.2\textwidth}%
 \includegraphics[width=0.5\textwidth]{getdp-picts/p20induc2}\hspace*{-0.2\textwidth}
