@@ -1,4 +1,6 @@
-$Date: 2003-01-24 23:04:09 $
+$Date: 2003-02-11 18:24:23 $
+
+0.87: Face basis functions were mistakenly removed in 0.86.
 
 0.86: Updated Gmsh output format; many small bug fixes;
 
