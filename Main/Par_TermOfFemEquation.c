@@ -1,4 +1,4 @@
-#define RCSID "$Id: Par_TermOfFemEquation.c,v 1.7 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Par_TermOfFemEquation.c,v 1.8 2003-01-26 07:31:29 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -13,7 +13,7 @@ void  Par_TermOfFemEquation (struct Element *Element,
 			     struct QuantityStorage *QuantityStorage_P0){
   
   struct QuantityStorage *QuantityStorageEqu_P, *QuantityStorageDof_P;
-  int Nbr_Equ, Nbr_Dof, Type_DefineQuantityDof;
+  int Nbr_Equ, Nbr_Dof = 0, Type_DefineQuantityDof;
   int i, j;
   
   GetDP_Begin("Par_TermOfFemEquation");

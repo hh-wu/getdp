@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.41 2002-01-18 19:47:57 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.42 2003-01-26 07:31:29 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -189,7 +189,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   gVector x_Save;
   int NbrSteps_relax;
   double  Norm, Cal_NormVector(gVector *);
-  double Frelax, Frelax_Opt, Error_Prev;
+  double Frelax, Frelax_Opt = 1., Error_Prev;
   int istep;
   void ShowVector(gVector *);
 
@@ -2197,8 +2197,8 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 				int Type_Analyse, int * Type_ChangeOfState,
 				int * FlagIndex, int Flag_First) {
 
-  List_T  *Region_L ;
-  int      i, Nbr_Region, Num_Region ;
+  List_T  *Region_L = NULL;
+  int      i, Nbr_Region = 0, Num_Region ;
   int      Nbr_ChangeOfState, i_COS ;
 
   struct ChangeOfState     *ChangeOfState_P ;
@@ -2520,7 +2520,7 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 
   int  i, Nbr_Node, Num_Node ;
 
-  double x, y;
+  double x = 0., y = 0.;
   
   struct Value  Value ;
   struct Group  * Group_P ;

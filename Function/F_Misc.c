@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.13 2002-10-15 19:23:19 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.14 2003-01-26 07:31:28 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -176,7 +176,7 @@ void  F_CompElementNum (F_ARG) {
 
 void F_ElementVol (F_ARG) {
   int k;
-  double Vol;
+  double Vol = 0.;
   MATRIX3x3 Jac;
 
   /* It would be more efficient to compute the volumes directly from
@@ -311,7 +311,7 @@ void  F_SurfaceArea (F_ARG) {
 void  F_InterpolationLinear (F_ARG) {
 
   int     N, up, lo ;
-  double  xp, yp, *x, *y, a ;
+  double  xp, yp = 0., *x, *y, a ;
   struct FunctionActive  * D ;
 
   GetDP_Begin("F_InterpolationLinear");
@@ -346,7 +346,7 @@ void  F_InterpolationLinear (F_ARG) {
 void  F_dInterpolationLinear (F_ARG) {
 
   int     N, up, lo ;
-  double  xp, dyp, *x, *y ;
+  double  xp, dyp = 0., *x, *y ;
   struct FunctionActive  * D ;
 
   GetDP_Begin("F_dInterpolationLinear");
@@ -379,7 +379,7 @@ void  F_dInterpolationLinear (F_ARG) {
 void  F_dInterpolationLinear2 (F_ARG) {
 
   int     N, up, lo ;
-  double  xp,yp, *x, *y, a ;
+  double  xp, yp = 0., *x, *y, a ;
   struct FunctionActive  * D ;
 
   GetDP_Begin("F_dInterpolationLinear2");
@@ -422,7 +422,7 @@ void  F_dInterpolationLinear2 (F_ARG) {
 void  F_InterpolationAkima (F_ARG) {
 
   int     N, up, lo ;
-  double  xp, yp, *x, *y, a, a2, a3 ;
+  double  xp, yp = 0., *x, *y, a, a2, a3 ;
   struct FunctionActive  * D ;
 
   GetDP_Begin("F_InterpolationAkima");
@@ -467,7 +467,7 @@ void  F_InterpolationAkima (F_ARG) {
 void  F_dInterpolationAkima (F_ARG) {
 
   int     N, up, lo ;
-  double  xp, dyp, *x, *y, a, a2 ;
+  double  xp, dyp = 0., *x, *y, a, a2 ;
   struct FunctionActive  * D ;
 
   GetDP_Begin("F_dInterpolationAkima");
@@ -608,8 +608,8 @@ void  Fi_InitAkima (F_ARG) {
 
 void ludcmp1(double **a, int n, int *indx, double *d)
 {
-  int i,imax,j,k;
-  float big,dum,sum,temp;
+  int i, imax = 0, j, k;
+  float big, dum, sum, temp;
   double *vv;
 
   vv=dvector(0,n-1);
@@ -856,8 +856,8 @@ void T_Strain(double **T, int n, double alpha, double beta, double gamma)
 
 void  F_TransformTensor (F_ARG) {
 
-  int    ident, i, j, k, ii,jj, *indx, N=6 ;
-  double **T_T,**T_S,**C,**C_trformed,**a,**y,d,*col,alpha,beta,Gamma;
+  int    ident, i, j, k, ii = 0, jj = 0, *indx, N = 6 ;
+  double **T_T, **T_S, **C, **C_trformed, **a, **y, d, *col, alpha, beta, Gamma;
 
   GetDP_Begin("F_TransformTensor");
 
@@ -1113,7 +1113,7 @@ void  F_TransformPerm (F_ARG) {
 
 void  F_TransformPiezo (F_ARG) {
 
-  int    ident, i, j, k, ii, jj, N=6 ;
+  int    ident, i, j, k, ii = 0, jj = 0, N = 6 ;
   double **T_eps, **T_S, **e, **e_trformed, **a, **y, alpha, beta, Gamma;
 
   GetDP_Begin("F_TransformPiezo");
@@ -1231,7 +1231,7 @@ void  F_TransformPiezo (F_ARG) {
 
 void  F_TransformPiezoT (F_ARG) {
 
-  int    ident, i, j, k,*indx, ii,jj, N=6 ;
+  int    ident, i, j, k,*indx, ii = 0, jj = 0, N=6 ;
   double **T_eps, **T_T, **e, **eT, **eT_trformed, d, *col, **a, **y, alpha, beta, Gamma;
 
   GetDP_Begin("F_TransformCij");

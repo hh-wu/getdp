@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.23 2002-01-18 11:10:27 gyselinc Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.24 2003-01-26 07:31:29 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -50,7 +50,7 @@ void  SolvingAnalyse (void) {
 
   double  d;
   int  i, j ;
-  int  Num, Nbr_GeoData ;
+  int  Num, Nbr_GeoData = 0;
   int  Nbr_PreResolution, Nbr_OtherSystem ;
 
 

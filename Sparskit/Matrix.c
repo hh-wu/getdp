@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.16 2001-11-22 15:39:57 ledinh Exp $"
+#define RCSID "$Id: Matrix.c,v 1.17 2003-01-26 07:31:30 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -287,7 +287,7 @@ void prodsc_vector_vector (int Nb, double *U, double *V, double *prosca){
 
 void scale_matrix (int scaling, Matrix *M){
   int     i, *ai, *jptr ;
-  double  *a, *rowscal, *colscal;
+  double  *a, *rowscal = NULL, *colscal = NULL;
   int job0=0, job1=1,  ioff=0, len, *idiag, norm ;
 
 
@@ -385,7 +385,7 @@ void scale_matrix (int scaling, Matrix *M){
 
 
 void scale_vector (int ROW_or_COLUMN, Matrix *M, double *V){
-  double *scal;
+  double *scal = NULL;
   int i;
 
   if (!M->scaled) return ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.24 2001-11-19 17:06:27 sabarieg Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.25 2003-01-26 07:31:29 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -346,8 +346,8 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
   int     i, Axis = 0 ;
   double  X = 0., Y = 0., Z = 0. ;
   double  p = 1., L= 0. ;
-  double  Cx = 0., Cy = 0., Cz = 0., A, B, R ;
-  double  theta, XR, YR, ZR, f, dRdx, dRdy, dRdz ;
+  double  Cx = 0., Cy = 0., Cz = 0., A = 0., B = 0., R = 0. ;
+  double  theta, XR, YR, ZR, f, dRdx = 0., dRdy = 0., dRdz = 0. ;
   double  DetJac ;
 
   /*

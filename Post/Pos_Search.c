@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.28 2001-11-19 17:11:27 sabarieg Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.29 2003-01-26 07:31:30 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -550,7 +550,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   struct ElementBox     ElementBox;
   struct Brick        * Brick_P ;
   struct PointElement   PointElement ;
-  int                   i, dim, lowdim, highdim, Projection;  
+  int                   i, dim, lowdim = 0, highdim = 0, Projection;  
 
   GetDP_Begin("InWhichElement");
 
@@ -661,7 +661,7 @@ void xyz2uvwInAnElement (struct Element *Element,
   double   u_new, v_new, w_new;
   double   Error = 1.0 ;
   int      i, iter = 1 ;
-  int      Type_Dimension, Type_Jacobian;
+  int      Type_Dimension, Type_Jacobian = JACOBIAN_VOL ;
 
   GetDP_Begin("xyz2uvwInAnElement");
 

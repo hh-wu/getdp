@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Value.c,v 1.17 2002-01-18 18:18:31 geuzaine Exp $"
+#define RCSID "$Id: Cal_Value.c,v 1.18 2003-01-26 07:31:28 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
@@ -2547,7 +2547,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
 /* ------------------------------------------------------- */
 
 void Print_Value(struct Value *A){
-  int i,j,k,index ;
+  int i, j, k, index = 0;
 
   GetDP_Begin("Cal_PrintValue");
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: ExtendedGroup.c,v 1.6 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: ExtendedGroup.c,v 1.7 2003-01-26 07:31:28 geuzaine Exp $"
 #include <stdlib.h> /* pour int abs(int) */
 #include <stdio.h>
 
@@ -138,7 +138,7 @@ void  Generate_ElementaryEntities
   Tree_T  * Entity_Tr ;
   struct Geo_Element  * GeoElement ;
   int     Nbr_Element, i_Element, Num_Entity ;
-  int     Nbr_Entity, i_Entity, * Num_Entities ;
+  int     Nbr_Entity = 0, i_Entity, * Num_Entities = NULL;
 
   GetDP_Begin("Generate_ElementaryEntities");
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.15 2002-09-05 03:04:59 geuzaine Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.16 2003-01-26 07:31:28 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -241,10 +241,10 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   struct Value                vBFxDof[NBR_MAX_BASISFUNCTIONS], CoefPhys;
   struct Value                CanonicExpression_Equ, V1, V2 ;
 
-  int     Nbr_Equ, Nbr_Dof ;
+  int     Nbr_Equ, Nbr_Dof = 0 ;
   int     i, j, k, Type_Dimension, Nbr_IntPoints, i_IntPoint ;
 
-  double  weight, Factor ;
+  double  weight, Factor = 0. ;
   double  vBFuEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double  vBFxEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double  Ek [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_HARMONIC] ;

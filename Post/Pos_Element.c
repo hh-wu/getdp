@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.18 2002-09-01 22:06:50 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.19 2003-01-26 07:31:29 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -189,7 +189,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
   double  u01, u02, u03, u12, u13, u23 ;
   double  v01, v02, v03, v12, v13, v23 ;
   double  w01, w02, w03, w12, w13, w23 ;
-  int     i, j, NbCut ;
+  int     i, j, NbCut = 0 ;
 
   GetDP_Begin("Cut_PostElement");
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.30 2003-01-24 23:04:09 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.31 2003-01-26 07:31:28 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -245,10 +245,11 @@ void  Dof_WriteFilePRE(struct DofData * DofData_P) {
   if (DofData_P->DofTree)
     Tree_Action(DofData_P->DofTree, Dof_WriteDofPRE) ;
   else {
-    if (DofData_P->NbrAnyDof)
+    if (DofData_P->NbrAnyDof){
       Dof_P0 = (struct Dof *)List_Pointer(DofData_P->DofList, 0) ;
-    for (i = 0 ; i < DofData_P->NbrAnyDof ; i++)
-      Dof_WriteDofPRE(Dof_P0 + i, NULL) ;
+      for (i = 0 ; i < DofData_P->NbrAnyDof ; i++)
+	Dof_WriteDofPRE(Dof_P0 + i, NULL) ;
+    }
   }
   fprintf(File_PRE, "$EndDofData\n") ;
   fflush(File_PRE) ;
@@ -526,7 +527,7 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 
   int             Num_DofData, Val_TimeStep, Format=0, Read ;
   double          Val_Time, Version ;
-  struct DofData  * DofData_P ;
+  struct DofData  * DofData_P = NULL ;
   struct Solution Solution_S ;
   char            String[MAX_STRING_LENGTH] ;
 
@@ -635,8 +636,11 @@ void  Dof_InitDofType(struct DofData * DofData_P) {
 
   GetDP_Begin("Dof_InitDofType");
 
-  if (DofData_P->NbrAnyDof)
-    Dof_P0 = (struct Dof *)List_Pointer(DofData_P->DofList, 0) ;
+  if (!DofData_P->NbrAnyDof){
+    GetDP_End;
+  }
+
+  Dof_P0 = (struct Dof *)List_Pointer(DofData_P->DofList, 0) ;
 
   for (i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
     Dof_P = Dof_P0 + i ;
@@ -1339,8 +1343,11 @@ void  Dof_TransferSolutionToConstraint(struct DofData * DofData_P) {
 
   GetDP_Begin("Dof_TransferSolutionToConstraint");
 
-  if (DofData_P->NbrAnyDof)
-    Dof_P0 = (struct Dof *)List_Pointer(DofData_P->DofList, 0) ;
+  if (!DofData_P->NbrAnyDof){
+    GetDP_End;
+  }
+
+  Dof_P0 = (struct Dof *)List_Pointer(DofData_P->DofList, 0) ;
 
   for (i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
     Dof_P = Dof_P0 + i ;

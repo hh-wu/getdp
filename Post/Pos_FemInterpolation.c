@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_FemInterpolation.c,v 1.12 2001-03-03 19:21:22 geuzaine Exp $"
+#define RCSID "$Id: Pos_FemInterpolation.c,v 1.13 2003-01-26 07:31:29 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -56,8 +56,8 @@ void  Pos_FemInterpolation(struct Element * Element,
   double  Val_Dof, Val_Dof_r, Val_Dof_i ;
 
   int  Type_DefineQuantity, SubType_DefineQuantity, Type_Form  ;
-  int  i, j, k, Nbr_Dof ;
-  int  GeoDataNum, UseNewGeo=0 ;
+  int  i, j, k, Nbr_Dof = 0 ;
+  int  GeoDataNum = 0, UseNewGeo = 0 ;
 
   GetDP_Begin("Pos_FemInterpolation");
 

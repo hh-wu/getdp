@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_DofOfElement.c,v 1.18 2001-05-18 12:26:27 dular Exp $"
+#define RCSID "$Id: Get_DofOfElement.c,v 1.19 2003-01-26 07:31:29 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -44,7 +44,7 @@ void  Get_DofOfElement(struct Element          * Element,
 
   struct BasisFunction  * BasisFunction_P0 ;
   int  Nbr_BasisFunction, Nbr_BasisFunctionAll, i_BFunction, StartingIndex, i ;
-  int  * BasisFunctionIndex_P0 ;
+  int  * BasisFunctionIndex_P0 = NULL ;
 
   GetDP_Begin("Get_DofOfElement");
 
@@ -416,8 +416,8 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
      GroupSupport_P    : In
      GroupEntity_P     : In  */
 
-  int         i_Entity, CodeExist, Code_BasisFunction ;
-  struct Dof  * Dof_P ;
+  int         i_Entity, CodeExist = 0, Code_BasisFunction ;
+  struct Dof  * Dof_P = NULL;
 
   GetDP_Begin("Get_CodesOfElement");
 
@@ -500,8 +500,8 @@ void  Get_DofOfRegion(int  Num_Region,
 		      struct FunctionSpace    * FunctionSpace_P,
 		      struct QuantityStorage  * QuantityStorage_P) {
 
-  int  CodeExist, Num_BasisFunction, Num_AssociateBasisFunction ;
-  struct Dof  * Dof_P ;
+  int  CodeExist = 0, Num_BasisFunction, Num_AssociateBasisFunction ;
+  struct Dof  * Dof_P = NULL;
 
   GetDP_Begin("Get_DofOfRegion");
 
