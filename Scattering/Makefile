@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.32 2003-03-18 01:37:52 geuzaine Exp $
+# $Id: Makefile,v 1.33 2003-05-05 23:02:52 geuzaine Exp $
 
 # history of cvs tags:
 # scat_0_1 : scat-oscar+andy
@@ -7,19 +7,20 @@
 # scat_0_4 : oscar_ieee_aps_jun_2002
 # scat_0_5 : scat-combined-ok-old-version-final
 
-C_FLAGS = -g -O3
-#C_FLAGS = -g -O3 -Wall
-#C_FLAGS = -g -Wall -D_PETSC
-#include ${PETSC_DIR}/bmake/${PETSC_ARCH}/variables
-#C_FLAGS = -O3 -tpp7 -xW  # pentium 4 specific
-
-CXX      = c++
 #CXX     = icpc
-
-F2C     = -lg2c -lm # Linux gcc
+#C_FLAGS = -O3 -tpp7 -xW  # pentium 4 specific
+#F2C     = -lg2c -lm # Linux gcc
 #F2C     = -lCEPCF90 -lF90 # Linux with intel compilers
 #F2C     = -lftn -lm # IRIX
 #F2C     = -lfor -lots -lUfor -lFutil -lm # DEC
+
+include ../variables
+
+LIB     = ../lib/libScattering.a
+INCLUDE = -I. -I../include -I../Main -I../DataStr -I../DofData -I../Function\
+          -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit\
+          -I../NR -I${FFTW_DIR}/include
+CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
 AR      = ar ruvs
 RANLIB  = ranlib
@@ -27,7 +28,7 @@ RANLIB  = ranlib
 LIB     = ../lib/libScattering.a
 INCLUDE = -I. -I../include -I../Main -I../DataStr -I../DofData -I../Function\
           -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit\
-          -I../NR -I${FFTW_PREFIX}/include
+          -I../NR -I${FFTW_DIR}/include
 
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
@@ -54,10 +55,6 @@ ${LIB}: ${OBJ}
 
 .cpp.o:
 	${CXX} ${CFLAGS} -c $<
-
-exe:
-	${CXX} ${C_FLAGS} -o hf ../lib/libScattering.a ../lib/libDofData.a\
-               ../lib/libSparskit.a ../lib/libNumeric.a ../lib/libDataStr.a ${F2C}
 
 clean:
 	rm -f *.o

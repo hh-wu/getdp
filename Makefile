@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.139 2003-04-28 03:54:32 geuzaine Exp $
+# $Id: Makefile,v 1.140 2003-05-05 23:02:52 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -212,18 +212,9 @@ blackbox: initialtag
         ); done
 	${LINKER} -o bin/getdp-box ${GETDP_LIBS}
 
-compile-scat: initialtag
-	@for i in ${GETDP_DIRS} Scattering; do (cd $$i && ${MAKE} \
-           "CC=${CC}" \
-           "CXX=${CXX}" \
-           "F77=${F77}" \
-           "RANLIB=${RANLIB}" \
-           "C_FLAGS=${COPTFLAGS} -I${FFTW_PREFIX}/include -Wall -Wno-uninitialized" \
-           "F77_FLAGS=${FOPTFLAGS}" \
-           "SOLVER=-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}" \
-        ); done
-link-scat:
+compile-hf: initialtag
+	@for i in Scattering DofData Numeric DataStr NR; do (cd $$i && ${MAKE}); done
+link-hf:
 	${CLINKER} -o bin/hf lib/libScattering.a lib/libDofData.a lib/libNumeric.a\
-                   lib/libDataStr.a lib/libNR.a  ${PETSC_SLES_LIB}\
-                   -L${FFTW_PREFIX}/lib -lfftw -lm
-scat: compile-scat link-scat
+          lib/libDataStr.a lib/libNR.a  ${PETSC_SLES_LIB} -L${FFTW_DIR}/lib -lfftw -lm
+hf: compile-hf link-hf

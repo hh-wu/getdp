@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.30 2003-03-22 03:30:08 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.31 2003-05-05 23:02:52 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -1194,7 +1194,7 @@ static int ii = 0;
 int LinAlg_ApplyFMM(void *ptr, Vec xin, Vec xout){
  
   static Vec DTAxi ;
-  PetscScalar *tmpV, tmp, one = 1.0,mone = -1.0 ;
+  PetscScalar *tmpV, tmp, mone = -1.0 ;
   double *x, *y ;
   int i, n;
 
@@ -1284,7 +1284,7 @@ void LinAlg_AddFMMDTAx( Vec xin, Vec xout ){
   for(i = 0 ; i < n ; i++) x[i] = V[i] ;
 #endif
   
-  FMM_MatVectorProd( x, y ) ;// y contains the DTAxi values
+  FMM_MatVectorProd( x, y ) ; /* y contains the DTAxi values */
   
   for (i = 0; i < n ; i++){
 #if PETSC_USE_COMPLEX   
@@ -1309,8 +1309,9 @@ void LinAlg_AddFMMDTAx( Vec xin, Vec xout ){
 
 int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
 
-  Vec      x, rhs, DTAxi, Residual, t, v ;
-  PetscScalar *tmpV, tmp, mone = -1.0, one = 1.0, zero = 0.0 ;
+  Vec      x, rhs, DTAxi;
+  /* Vec      Residual, t, v ; */
+  PetscScalar *tmpV, tmp, mone = -1.0, zero = 0.0 ;
   double *x_it, *y_it ;
   int i, n;
 
@@ -1355,15 +1356,17 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
   ierr = VecAYPX(&mone, DTAxi, rhs);MYCHECK(ierr);
   ierr = KSPSetRhs(ksp, rhs); MYCHECK(ierr);
 
-  //ierr = VecAssemblyEnd(rhs); MYCHECK(ierr);
+  /* ierr = VecAssemblyEnd(rhs); MYCHECK(ierr); */
   ierr = VecDestroy(DTAxi); MYCHECK(ierr);
 
-  //ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d rhs vector:\n",it);CHKERRQ(ierr);
-  //ierr = VecView(rhs,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
+  /*
+  ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d rhs vector:\n",it);CHKERRQ(ierr);
+  ierr = VecView(rhs,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
 
-  //ierr = VecDuplicate(x, &t) ;MYCHECK(ierr);ierr = VecSet(&zero,t);MYCHECK(ierr); 
-  //ierr = VecDuplicate(x, &v) ;MYCHECK(ierr);ierr = VecSet(&zero,v);MYCHECK(ierr);  
-  //ierr = KSPBuildResidual(ksp, t, v, &Residual);
+  ierr = VecDuplicate(x, &t) ;MYCHECK(ierr);ierr = VecSet(&zero,t);MYCHECK(ierr); 
+  ierr = VecDuplicate(x, &v) ;MYCHECK(ierr);ierr = VecSet(&zero,v);MYCHECK(ierr);  
+  ierr = KSPBuildResidual(ksp, t, v, &Residual);
+  */
 
   ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d KSP Residual norm %14.12e \n",it,rnorm);CHKERRQ(ierr);
 
@@ -1386,11 +1389,13 @@ void LinAlg_FMMMatVectorProd(gVector *V1, gVector *V2){
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
 
+  int its, RankCpu ;
+
+  /*
   Vec diag, x, r, t,v,residual ;
-  int its, RankCpu ;  
   int i,n ;
   PetscScalar *tmpV ;
-
+  */
 
   GetDP_Begin("LinAlg_Solve");
 
@@ -1427,18 +1432,22 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   
   if (Flag_FMM){
     ierr = SLESGetPC(Solver->sles, &Solver->pc); MYCHECK(ierr);
-    //ierr = PCSetType(Solver->pc,PCNONE);MYCHECK(ierr);
-    //ierr = PCSetType(Solver->pc,PCSHELL);MYCHECK(ierr);
+    /*
+    ierr = PCSetType(Solver->pc,PCNONE);MYCHECK(ierr);
+    ierr = PCSetType(Solver->pc,PCSHELL);MYCHECK(ierr);
+    */
     ierr = SLESGetKSP(Solver->sles, &Solver->ksp); MYCHECK(ierr);
  
-    // put this for example in ~/.petscrc
-    //ierr = KSPSetTolerances(Solver->ksp,1.e-9,PETSC_DEFAULT,PETSC_DEFAULT, 1000);MYCHECK(ierr);
-    //ierr = KSPGMRESSetRestart(Solver->ksp, 30);MYCHECK(ierr);
-   
-    //ierr = PCShellSetName(Solver->pc,"FMM");MYCHECK(ierr);
-    //ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM, PETSC_NULL);MYCHECK(ierr) ;
+    /* put this for example in ~/.petscrc:
+    ierr = KSPSetTolerances(Solver->ksp,1.e-9,PETSC_DEFAULT,PETSC_DEFAULT, 1000);MYCHECK(ierr);
+    ierr = KSPGMRESSetRestart(Solver->ksp, 30);MYCHECK(ierr);
+    */   
 
-    //ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0);MYCHECK(ierr) ;    
+    /*
+    ierr = PCShellSetName(Solver->pc,"FMM");MYCHECK(ierr);
+    ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM, PETSC_NULL);MYCHECK(ierr) ;
+    ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0);MYCHECK(ierr) ;    
+    */
   }
 
   ierr = SLESSolve(Solver->sles, B->V, X->V, &its); MYCHECK(ierr);

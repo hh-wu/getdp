@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.33 2002-10-03 18:08:27 geuzaine Exp $
+// $Id: Patch.cpp,v 1.34 2003-05-05 23:02:52 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -219,7 +219,8 @@ void Ctx::createMesh(Patch::PatchType patchtype){
   }
 
   // precompute critical points for the mesh
-  if(!(type & FULL_INTEGRATION))
+  if(!(type & FULL_INTEGRATION || type & REAL_COLTON_KRESS)){
     scat.criticalPoints(nbTargetPts,waveNum);
+  }
 
 }

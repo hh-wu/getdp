@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.22 2002-10-03 18:08:27 geuzaine Exp $
+// $Id: Main.cpp,v 1.23 2003-05-05 23:02:52 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
@@ -14,9 +14,10 @@ int main(int argc, char *argv[]){
   LinAlg_Initialize(&argc, &argv, &NbCpu, &RankCpu);
 
   if(argc < 2){
-    Msg(INFO, "Usage: %s [-f|-c|-i1|-i2] options...", argv[0]);
+    Msg(INFO, "Usage: %s [-f|-c|-ck|-i1|-i2] options...", argv[0]);
     Msg(INFO, "  -full : full Nystrom integrator");
     Msg(INFO, "  -critical : critical point integrator");
+    Msg(INFO, "  -ck : Colton and Kress integrator");
     Msg(INFO, "  -i1 : interactive integrator around 1 critical point");
     Msg(INFO, "  -i2 : complete interactive integrator");
     Msg(INFO, "Options:");
@@ -33,6 +34,8 @@ int main(int argc, char *argv[]){
     Msg(INFO, "  -rise : set rise for partitions of unity");
     Msg(INFO, "  -patches : use multiple patches");
     Msg(INFO, "  -verbose : set output message verbosity");
+    Msg(INFO, "  -kind : set IE type");
+    Msg(INFO, "  -eta : set coupling coef.");
     Msg(INFO, "Note:");
     Msg(INFO, "  all options and arguments may be abbreviated as long as the");
     Msg(INFO, "  abbreviations are not ambiguous");
@@ -55,7 +58,7 @@ int main(int argc, char *argv[]){
   ctx->nbIntPts3 = 0;
   ctx->nbTargetPts = 20;
   ctx->type = 0;
-  ctx->scat.type = Scatterer::ELLIPSE;
+  ctx->scat.type = Scatterer::CIRCLE;
   ctx->scat.a = 1.;
   ctx->scat.b = 1.;
   ctx->f.applyChgVar = 0;
