@@ -65,6 +65,7 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
     /* Numerical Integration */
 
   case GAUSS :
+  case GAUSSLEGENDRE :
   case NEWTONCOTES :
     Quadrature_P = (struct Quadrature*)
       List_PQuery(IQA->IntegrationCase_P->Case, &ElementSourceType, fcmp_int) ;
@@ -218,6 +219,7 @@ void  Cal_IntegralQuantity (struct Element                 *Element,
   /*  -------------------------------------  */
   
   case GAUSS :
+  case GAUSSLEGENDRE :
   case NEWTONCOTES :
 
     if(Nbr_deRhamCells)

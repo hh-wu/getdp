@@ -80,6 +80,7 @@ struct StringXDefine1Nbr  Jacobian_Type[] = {
 
 struct StringXDefine  Integration_Type[] = {
   {"Gauss"                 , GAUSS},
+  {"GaussLegendre"         , GAUSSLEGENDRE},
   {"NewtonCotes"           , NEWTONCOTES},
   {"Patterson"             , PATTERSON},
   {"Analytic"              , ANALYTIC},
@@ -292,6 +293,13 @@ struct DefineXFunction  FunctionForNewtonCotes[] = {
   {0              , NULL} 
 } ;
 
+struct DefineXFunction  FunctionForGaussLegendre[] = {
+  {TRIANGLE       , (CAST)GaussLegendre_Triangle},
+  {QUADRANGLE     , (CAST)GaussLegendre_Quadrangle},
+  {TETRAHEDRON    , (CAST)GaussLegendre_Tetrahedron},
+  {HEXAHEDRON     , (CAST)GaussLegendre_Hexahedron},
+  {0              , (CAST)GaussLegendre_Triangle}
+} ;
 
 /* ------------------------------------------------------------------------ */
 

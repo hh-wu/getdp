@@ -225,6 +225,7 @@ struct IntegrationCase {
 #define GAUSS                  2
 #define NEWTONCOTES            3
 #define PATTERSON              4
+#define GAUSSLEGENDRE          5
 
 /* IntegrationCase.SubType */
 #define STANDARD               1

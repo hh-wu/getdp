@@ -4,7 +4,7 @@
 
 .IGNORE:
 
-C_FLAGS = -O3
+C_FLAGS = -g
 RANLIB  = /usr/bin/ranlib
 
 LIB     = ../lib/libIntegration.a

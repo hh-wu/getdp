@@ -1755,6 +1755,11 @@ QuadratureCaseTerm :
 	    (FunctionForGauss, QuadratureCase_S.ElementType,
 	     &FlagError, (void (**)())&QuadratureCase_S.Function) ;
 	  break ;
+	case GAUSSLEGENDRE :
+	  Get_FunctionForDefine
+	    (FunctionForGaussLegendre, QuadratureCase_S.ElementType,
+	     &FlagError, (void (**)())&QuadratureCase_S.Function) ;
+	  break ;
 	case NEWTONCOTES : 
 	  Get_FunctionForDefine
 	    (FunctionForNewtonCotes, QuadratureCase_S.ElementType,
