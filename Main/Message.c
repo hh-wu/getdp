@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.54 2003-01-23 19:02:56 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.55 2003-01-24 23:04:09 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -16,10 +16,18 @@
 #endif /* __APPLE__ */
 
 #include "GetDP.h"
+#include "GetDPVersion.h"
 #include "CurrentData.h"
-#include "Version.h"
 #include "LinAlg.h"
 #include "GmshClient.h"
+
+#ifndef GETDP_MAJOR_VERSION
+#error 
+#error include/GetDPVersion.h is not up-to-date. 
+#error Please run 'make tag'.
+#error
+#endif
+
 
 extern int     InteractiveLevel, InteractiveInterrupt ;
 
@@ -219,25 +227,24 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       }
       Gmsh_SendString(Flag_SOCKET, gmshlevel, prefix);
     }
-    else{
-      if(str) fprintf(stream, str); 
-      vfprintf(stream, fmt, args); 
-      if(nl) fprintf(stream, "\n");
-      if(level == BIGERROR){
+
+    if(str) fprintf(stream, str); 
+    vfprintf(stream, fmt, args); 
+    if(nl) fprintf(stream, "\n");
+    if(level == BIGERROR){
 #ifdef USE_DEBUG
-	Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
-			 &Line, FunctionName);
-	fprintf(stream, WHITE_STR); 
-	fprintf(stream, "File '%s' (V%s by %s on %s)\n", 
-		FileName, FileVersion, FileAuthor, FileDate);
-	fprintf(stream, WHITE_STR); 
-	fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
+      Get_GetDPContext(FileName, FileVersion, FileDate, FileAuthor, 
+		       &Line, FunctionName);
+      fprintf(stream, WHITE_STR); 
+      fprintf(stream, "File '%s' (V%s by %s on %s)\n", 
+	      FileName, FileVersion, FileAuthor, FileDate);
+      fprintf(stream, WHITE_STR); 
+      fprintf(stream, "Function '%s' (L%d)\n", FunctionName, Line);
 #endif
-	fprintf(stream, WHITE_STR "------------------------------------------------------\n");
-	fprintf(stream, WHITE_STR "You have discovered a bug in GetDP! You may report it\n");
-	fprintf(stream, WHITE_STR "by e-mail (together with any helpful data permitting to\n");
-	fprintf(stream, WHITE_STR "reproduce it) to <getdp@geuz.org>\n");
-      }
+      fprintf(stream, WHITE_STR "------------------------------------------------------\n");
+      fprintf(stream, WHITE_STR "You have discovered a bug in GetDP! You may report it\n");
+      fprintf(stream, WHITE_STR "by e-mail (together with any helpful data permitting to\n");
+      fprintf(stream, WHITE_STR "reproduce it) to <getdp@geuz.org>\n");
     }
 
   }

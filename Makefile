@@ -1,87 +1,82 @@
-# $Id: Makefile,v 1.105 2002-12-03 02:03:32 geuzaine Exp $
+# $Id: Makefile,v 1.106 2003-01-24 23:04:09 geuzaine Exp $
+
 # ----------------------------------------------------------------------
-#  Makefile for GetDP
-#
 #  Optional packages: 
 #    * flex and bison to rebuild the parser
-#    * cygwin to build on Windows 9x/NT (http://www.cygwin.com) 
+#    * cygwin to build on Windows (http://www.cygwin.com) 
 #    * PETSc 2.1.X (you have to define the PETSC_DIR and PETSC_ARCH variables)
 #    * METIS 4.0 (you have to define the METIS_DIR variable)
-#
 # ----------------------------------------------------------------------
 #  To build a stand alone executable on Windows, you should install, 
 #  in addition to cygwin, the mingw-extra includes and libraries (see
 #  ftp://ftp.xraylith.wisc.edu/pub/khan/gnu-win32/cygwin/*extra*) in
 #  the /mingw directory, and then compile with 'make mingw'.
 #  To check the final dependendies: 'objdump -p getdp-win | grep DLL'
-#
 # ----------------------------------------------------------------------
-#  CVS access with passord:
-#  'cvs -d :pserver:username@cvs.geuz.org:/usr/users57/cvs-master cmd'
-#  where * username is your username (you need an account on cvs.geuz.org)
-#        * 'cmd' is first 'login', then 'checkout getdp', and finally 'logout'
-#
+#  cvs access with passord:
+#  1) define CVS_RHS=ssh in your shell
+#  2) cvs -d username@cvs.geuz.org:/cvsroot checkout getdp
 # ----------------------------------------------------------------------
 
-GETDP_RELEASE         = 0.86
+GETDP_MAJOR_VERSION = 0
+GETDP_MINOR_VERSION = 86
+GETDP_PATCH_VERSION = 0
 
-# ----------------------------------------------------------------------
-# General definitions 
-# ----------------------------------------------------------------------
-
-MAKE                  = make
-RM                    = rm
-RMFLAGS               = -f
-STRIP                 = strip
+MAKE = make
+RM = rm
+RMFLAGS = -f
+STRIP = strip
 
 # ----------------------------------------------------------------------
 # GetDP definitions
 # ----------------------------------------------------------------------
 
-GETDP_DIR             = .
-GETDP_STUFF_DIR       = Main Parser Post Function Integration GeoData\
-                        DofData Numeric DataStr
-GETDP_LIB_DIR         = lib
-GETDP_BIN_DIR         = bin
-GETDP_DOC_DIR         = doc/texinfo
-GETDP_INCLUDE_DIR     = include
-GETDP_ARCHIVE_DIR     = archives
-GETDP_MAIN_DIR        = Main
-GETDP_PARSER_DIR      = Parser
-GETDP_ARCHIVE         = $(GETDP_ARCHIVE_DIR)/getdp-`date "+%Y.%m.%d"`
-GETDP_SRCRPM          = getdp-$(GETDP_RELEASE)
-GETDP_SOURCES         = `find . \( ! -name "*.tar*" -a ! -name "*.tgz" \
-                         -a ! -name "*.o"    -a ! -name "*.a"   -a ! -name "*.cut"   \
-                         -a ! -name "*.pos"  -a ! -name "*.pre" -a ! -name "*.res" \
-                         -a ! -name "*.bak"  -a ! -name "getdp" -a ! -name "getdp-*" \
-                         -a ! -type d       \)`
-GETDP_UNAME           = `uname`
+GETDP_DIR = .
+GETDP_STUFF_DIR = Main Parser Post Function Integration GeoData\
+                  DofData Numeric DataStr
+GETDP_LIB_DIR = lib
+GETDP_BIN_DIR = bin
+GETDP_DOC_DIR = doc/texinfo
+GETDP_INCLUDE_DIR = include
+GETDP_ARCHIVE_DIR = archives
+GETDP_MAIN_DIR = Main
+GETDP_PARSER_DIR = Parser
+GETDP_VERSION_FILE = include/GetDPVersion.h
+GETDP_RELEASE = $(GETDP_MAJOR_VERSION).$(GETDP_MINOR_VERSION).$(GETDP_PATCH_VERSION)
+GETDP_ARCHIVE = $(GETDP_ARCHIVE_DIR)/getdp-`date "+%Y.%m.%d"`
+GETDP_SRCRPM = getdp-$(GETDP_RELEASE)
+GETDP_SOURCES = `find . \( ! -name "*.tar*" -a ! -name "*.tgz" \
+                        -a ! -name "*.o"    -a ! -name "*.a"   -a ! -name "*.cut"   \
+                        -a ! -name "*.pos"  -a ! -name "*.pre" -a ! -name "*.res" \
+                        -a ! -name "*.bak"  -a ! -name "getdp" -a ! -name "getdp-*" \
+                        -a ! -type d       \)`
+GETDP_UNAME = `uname`
 
 # ----------------------------------------------------------------------
 # Metis definitions
 # ----------------------------------------------------------------------
 
-METIS_INCLUDE         = -I$(METIS_DIR)/Lib
-METIS_LIB             = $(METIS_DIR)/libmetis.a
+METIS_INCLUDE = -I$(METIS_DIR)/Lib
+METIS_LIB = $(METIS_DIR)/libmetis.a
 
 # ----------------------------------------------------------------------
 # Sparskit definitions
 # ----------------------------------------------------------------------
 
-SPARSKIT_DIR          = Sparskit
-GETDP_SPARSKIT_LIBS   = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
-                        -lIntegration -lGeoData -lDofData \
-                        -lNumeric -lSparskit -lDataStr
+SPARSKIT_DIR = Sparskit
+GETDP_SPARSKIT_LIBS = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
+                      -lIntegration -lGeoData -lDofData \
+                      -lNumeric -lSparskit -lDataStr
 
 # ----------------------------------------------------------------------
 # PETSc definitions
 # ----------------------------------------------------------------------
 
-BOPT                  = O_complex
-#BOPT                  = g_complex
-GETDP_PETSC_LIBS      = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
-                        -lIntegration -lGeoData -lDofData \
-                        -lNumeric -lDataStr
+BOPT = O_complex
+#BOPT = g_complex
+GETDP_PETSC_LIBS = -L$(GETDP_LIB_DIR) -lMain -lParser -lPost -lFunction\
+                   -lIntegration -lGeoData -lDofData \
+                   -lNumeric -lDataStr
 
 #include ${PETSC_DIR}/bmake/common/variables
 
@@ -99,7 +94,7 @@ default: initialtag
 getdp:
 	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 
-opti:
+opti: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE) \
            "C_FLAGS=-O3" \
@@ -107,7 +102,7 @@ opti:
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
 
-debug:
+debug: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE) \
            "C_FLAGS=-g -DUSE_DEBUG" \
@@ -115,8 +110,7 @@ debug:
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
 
-
-## Patrick
+# Patrick
 
 linux2: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
@@ -141,22 +135,22 @@ linux2W: initialtag
 	g77 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 
 
-## Christophe
+# Christophe
 
-gnu:
+gnu: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE) \
            "C_FLAGS=-g -Wall" \
            "F77_FLAGS=-g -Wall" \
         ); done
 
-efence:
+efence: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE) \
         ); done
 	$(FC) -nofor_main -o $(GETDP_BIN_DIR)/getdp-efence $(GETDP_SPARSKIT_LIBS) -lefence -lm
 
-profile:
+profile: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE) \
            "C_FLAGS=-O3 -pg" \
@@ -186,16 +180,20 @@ parser:
 	cd $(GETDP_PARSER_DIR) && $(MAKE) parser
 
 tag:
-	$(RM) $(RMFLAGS) $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_VERSION  $(GETDP_RELEASE)" > $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_DATE     \"`date`\""      >> $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_HOST     \"`hostname`\""  >> $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_PACKAGER \"`whoami`\""    >> $(GETDP_INCLUDE_DIR)/Version.h
-	echo "#define GETDP_OS       \"`uname -sr`\"" >> $(GETDP_INCLUDE_DIR)/Version.h
-	touch $(GETDP_INCLUDE_DIR)/Version.h
+	$(RM) $(RMFLAGS) $(GETDP_VERSION_FILE)
+	echo "#define GETDP_MAJOR_VERSION $(GETDP_MAJOR_VERSION)" >  $(GETDP_VERSION_FILE)
+	echo "#define GETDP_MINOR_VERSION $(GETDP_MINOR_VERSION)" >> $(GETDP_VERSION_FILE)
+	echo "#define GETDP_PATCH_VERSION $(GETDP_PATCH_VERSION)" >> $(GETDP_VERSION_FILE)
+	echo "#define GETDP_VERSION  ((double)GETDP_MAJOR_VERSION + \\" >> $(GETDP_VERSION_FILE)
+	echo "                 0.01 * (double)GETDP_MINOR_VERSION + \\" >> $(GETDP_VERSION_FILE)
+	echo "               0.0001 * (double)GETDP_PATCH_VERSION)"     >> $(GETDP_VERSION_FILE)
+	echo "#define GETDP_DATE     \"`date`\""      >> $(GETDP_VERSION_FILE)
+	echo "#define GETDP_HOST     \"`hostname`\""  >> $(GETDP_VERSION_FILE)
+	echo "#define GETDP_PACKAGER \"`whoami`\""    >> $(GETDP_VERSION_FILE)
+	echo "#define GETDP_OS       \"`uname -sr`\"" >> $(GETDP_VERSION_FILE)
 
 initialtag:
-	@if [ ! -r $(GETDP_INCLUDE_DIR)/Version.h ]; then \
+	@if [ ! -r $(GETDP_VERSION_FILE) ]; then \
         $(MAKE) tag ; \
         fi
 
@@ -215,11 +213,8 @@ nodepend:
 
 clean:
 	for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) $(GETDP_LIB_DIR) $(GETDP_DOC_DIR); \
-        do (cd $$i && $(MAKE) clean \
-           "RM=rm" \
-           "RMFLAGS=-f" \
-        ); \
-        done
+        do (cd $$i && $(MAKE) clean "RM=rm" "RMFLAGS=-f" ); done
+	$(RM) $(RMFLAGS) $(GETDP_VERSION_FILE)
 
 cleanlib:
 	cd $(GETDP_LIB_DIR) && $(MAKE) clean "RM=rm" "RMFLAGS=-f"
@@ -309,7 +304,7 @@ distrib-win:
 # Black Box version (with embedded formulation and reduced interface)
 # ----------------------------------------------------------------------
 
-bb:
+bb: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); \
         do (cd $$i && $(MAKE) \
            "C_FLAGS=-g -D_BLACKBOX" \
@@ -331,7 +326,8 @@ source:
 	mkdir getdp-$(GETDP_RELEASE)
 	cd getdp-$(GETDP_RELEASE) && tar zxvf ../getdp.tgz
 	rm -f getdp.tgz
-	cd getdp-$(GETDP_RELEASE) && rm -rf Scattering trash utils doc/slides CVS */CVS */*/CVS
+	cd getdp-$(GETDP_RELEASE) && rm -rf Scattering trash utils doc/slides\
+                                            $(GETDP_VERSION_FILE) CVS */CVS */*/CVS
 #	cd getdp-$(GETDP_RELEASE) && zip -r getdp-$(GETDP_RELEASE)-source.zip *
 #	mv getdp-$(GETDP_RELEASE)/getdp-$(GETDP_RELEASE)-source.zip .
 	tar zcvf getdp-$(GETDP_RELEASE)-source.tgz getdp-$(GETDP_RELEASE)
@@ -361,9 +357,9 @@ compile-linux: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=g77" \
-           "C_FLAGS=-O3" \
-           "C_PARSER_FLAGS=-O3" \
-           "F77_FLAGS=-O1" \
+           "C_FLAGS=-O3 -Wall -Wno-uninitialized" \
+           "C_PARSER_FLAGS=-O3 -Wall -Wno-uninitialized" \
+           "F77_FLAGS=-O1 -Wall -Wno-uninitialized" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
@@ -446,9 +442,9 @@ compile-cygwin: initialtag
            "CC=gcc" \
            "FC=g77" \
            "RANLIB=ls" \
-           "C_FLAGS=-O3" \
-           "C_PARSER_FLAGS=-O1" \
-           "F77_FLAGS=-O1" \
+           "C_FLAGS=-O3 -Wall -Wno-uninitialized" \
+           "C_PARSER_FLAGS=-O1 -Wall -Wno-uninitialized" \
+           "F77_FLAGS=-O1 -Wall -Wno-uninitialized" \
            "SOLVER=-D_SPARSKIT" \
            "SOLVER_FLAGS=-D_ILU_FLOAT" \
         ); done
@@ -535,7 +531,7 @@ petsc: compile-petsc link-petsc
 #
 # PETSc without Metis
 #
-compile-petsc-simple:
+compile-petsc-simple: initialtag
 	@for i in $(GETDP_STUFF_DIR); do (cd $$i && $(MAKE) \
            "CC=$(CC)" \
            "FC=$(FC)" \
@@ -553,7 +549,7 @@ petsc-simple: compile-petsc-simple link-petsc-simple
 #
 # MacOS X
 #
-compile-macosx:
+compile-macosx: initialtag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=gcc" \
            "FC=g77" \

@@ -1,18 +1,16 @@
-$Id: README.txt,v 1.9 2001-07-27 08:10:01 geuzaine Exp $
+$Id: README.txt,v 1.10 2003-01-24 23:04:09 geuzaine Exp $
 
 For Windows versions of GetDP only:
 ===================================
 
 1) About cygwin1.dll:
 
-If you plan to use other programs than GetDP which depend on the
-cygwin1.dll library (e.g. Gmsh, http://www.geuz.org/gmsh/), you
-should keep only one version of the library on your system. For this
-purpose, you should move the file cygwin1.dll from this directory to
-the Windows system directory (usually C:\Windows\System\) and suppress
-all other versions of cygwin1.dll. Failing to do so may result in
-incorrect behaviour of applications sharing the library and running
-simultaneously.
+If you plan to use other programs than GetDP that depend on the
+cygwin1.dll library, you should keep only one version of the library
+on your system (i.e., move cygwin1.dll to the Windows system
+directory--usually C:\Windows\System\--and suppress all other versions
+of cygwin1.dll). Failing to do so may result in an incorrect behaviour
+of applications sharing the library and running simultaneously.
 
 2) About command-line programs:
 
@@ -31,27 +29,23 @@ history, customizable scroll bars, arbitrary geometry specification,
 file name completion, wildcards, scripting, etc.). We recommend to use
 the cygwin tools:
 
-1. Go to http://sources.redhat.com/cygwin/
+1. Go to http://www.cygwin.com/
 2. Download and execute setup.exe
 3. Answer all questions until the installation is complete. Please
-   note that a complete installation can use quite much disk space
-   (approx. 150 Mb). To get a minimal working installation (approx. 15
-   Mb), just deselect undesired packages (e.g. C, C++ and Fortran
-   compilers, TeTeX, Perl, networking, etc.) during the installation.
+   note that a complete installation can use quite much disk space. To
+   get a minimal working installation (approx. 10 Mb), just deselect
+   undesired packages (e.g. C, C++ and Fortran compilers, TeTeX, Perl,
+   networking, etc.) during the installation.
 4. Edit the file 'C:\cygwin\cygwin.bat' and replace the line starting
-   with 'bash' by 'rxvt -sl 1000 -e \cygwin\bin\bash --login'
+   with 'bash' with 'rxvt -sl 1000 -e ./bash --login -i'
 5. Remove the cygwin1.dll file from the GetDP distribution
 
-Instead of launching the DOS command shell, you should now launch
-cygwin, and enjoy the particular taste of the Unix way of life under
-Windows!
+Instead of launching the DOS command shell, you can now launch cygwin,
+and enjoy the particular taste of the Unix way of life under Windows!
 
 3) Using Gmsh as a graphical front-end to GetDP:
 
-Gmsh (http://www.geuz.org/gmsh/) is an automatic three-dimensional
-finite element mesh generator, primarily Delaunay, with built-in pre-
-and post-processing facilities. Gmsh can also be used as a graphical
-front-end to GetDP. The default behaviour of Gmsh is to look for GetDP
-in the same directory as the Gmsh executable (i.e. you should copy
-getdp.exe in the same directory as gmsh.exe).
+Gmsh (http://www.geuz.org/gmsh/) is a 3D CAD, mesh and post-processing
+program that can be used as a graphical front-end to GetDP. Just go to
+Gmsh's solver module and click on 'GetDP', et voila!
 

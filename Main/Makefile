@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.17 2002-01-18 11:10:27 gyselinc Exp $
+# $Id: Makefile,v 1.18 2003-01-24 23:04:09 geuzaine Exp $
 #
 # Makefile for 'libMain.a'
 # 
@@ -85,7 +85,7 @@ Message.o: Message.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \
   Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../include/Version.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../include/GetDPVersion.h \
   GmshClient.h
 SolvingAnalyse.o: SolvingAnalyse.c ../include/GetDP.h Message.h \
   ../DataStr/Malloc.h Treatment_Formulation.h Data_Active.h \

@@ -1,15 +1,15 @@
-#define RCSID "$Id: Pos_Format.c,v 1.30 2002-12-04 17:21:35 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.31 2003-01-24 23:04:09 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
 
 #include "GetDP.h"
+#include "GetDPVersion.h"
 #include "GeoData.h"
 #include "Data_Passive.h"
 #include "Data_DefineE.h"
 #include "Data_Numeric.h"
-#include "Version.h"
 #include "CurrentData.h"
 #include "Magic.h"
 #include "Pos_Iso.h"
@@ -59,8 +59,9 @@ void  Format_PostFormat(int Format){
     }
     break ;
   case FORMAT_GNUPLOT :
-    fprintf(PostStream, "# GetDP v%g, %s\n",
-	    GETDP_VERSION, Flag_BIN ? "binary" : "ascii") ;
+    fprintf(PostStream, "# GetDP v%d.%d.%d, %s\n",
+	    GETDP_MAJOR_VERSION, GETDP_MINOR_VERSION, GETDP_PATCH_VERSION,
+	    Flag_BIN ? "binary" : "ascii") ;
     break ;
   }
   

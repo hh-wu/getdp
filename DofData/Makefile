@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2002-11-01 19:28:28 geuzaine Exp $
+# $Id: Makefile,v 1.13 2003-01-24 23:04:09 geuzaine Exp $
 #
 # Makefile for "libDofData.a"
 #
@@ -51,7 +51,7 @@ nodepend:
 DofData.o: DofData.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h DofData.h ../DataStr/List.h ../DataStr/Tree.h \
   ../DataStr/avl.h LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  Data_DofData.h ../include/Version.h ../DataStr/Tools.h \
+  Data_DofData.h ../include/GetDPVersion.h ../DataStr/Tools.h \
   ../include/Magic.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h

@@ -1,11 +1,11 @@
-#define RCSID "$Id: DofData.c,v 1.29 2003-01-23 10:11:28 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.30 2003-01-24 23:04:09 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "GetDP.h"
+#include "GetDPVersion.h"
 #include "DofData.h"
-#include "Version.h"
 #include "Tools.h"
 #include "Magic.h"
 #include "CurrentData.h"
@@ -422,8 +422,9 @@ void  Dof_WriteFileRES0(char * Name_File, int Format) {
   LinAlg_SequentialBegin();
 
   Dof_OpenFile(DOF_RES, Name_File, "w") ;
-  fprintf(File_RES, "$ResFormat /* GetDP v%g, %s */\n", 
-	  GETDP_VERSION, Format ? "binary" : "ascii") ;
+  fprintf(File_RES, "$ResFormat /* GetDP v%d.%d.%d, %s */\n", 
+	  GETDP_MAJOR_VERSION, GETDP_MINOR_VERSION, GETDP_PATCH_VERSION, 
+	  Format ? "binary" : "ascii") ;
   fprintf(File_RES, "%g %d\n", GETDP_VERSION, Format) ;
   fprintf(File_RES, "$EndResFormat\n") ;
   Dof_CloseFile(DOF_RES) ;
