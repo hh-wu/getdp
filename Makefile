@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.73 2002-01-19 01:01:53 geuzaine Exp $
+# $Id: Makefile,v 1.74 2002-01-19 01:18:35 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -280,6 +280,7 @@ distrib:
 	rm -rf getdp-$(GETDP_RELEASE)
 
 distrib-win:
+	$(STRIP) $(GETDP_BIN_DIR)/getdp.exe
 	cp $(GETDP_BIN_DIR)/getdp.exe ../getdp-distrib
 	cp doc/README.txt ../getdp-distrib
 	cp doc/VERSIONS ../getdp-distrib/VERSIONS.txt
