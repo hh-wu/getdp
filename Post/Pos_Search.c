@@ -1,4 +1,4 @@
-/* $Id: Pos_Search.c,v 1.12 2000-10-19 11:24:21 dular Exp $ */
+/* $Id: Pos_Search.c,v 1.13 2000-10-20 17:30:56 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -576,9 +576,9 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 	ComputeElementBox(Element, &ElementBox) ;
 	if (PointInElementBox(ElementBox, x, y, z)){
 	  PointElementDistance(Element, x, y, z, &PointElement);
-	  printf("elm %d : dist = %f (project = %f %f %f )\n", 
-		 Element->Num, PointElement.d, PointElement.xp, 
-		 PointElement.yp, PointElement.zp);
+	  Msg(INFO, "Element %d: distance = %g, project (x=%g y=%g z=%g)\n", 
+	      Element->Num, PointElement.d, PointElement.xp, 
+	      PointElement.yp, PointElement.zp);
 	  PointElement.Element = *Element;
 	  List_Add(PointElement_L, &PointElement);
 	}	
@@ -592,7 +592,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 			 PointElement.zp, u, v, w, NULL, -1);
       if(PointInRefElement(&PointElement.Element, *u, *v, *w)) {
 	Element = LastElement = &PointElement.Element;
-	printf("elm chosen : %d (u=%f v=%f w=%f)\n", Element->Num,*u,*v,*w);
+	Msg(INFO, "Selected Element %d (u=%g v=%g w=%g)\n", Element->Num,*u,*v,*w);
 	return;      
       }
     }
