@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.21 2000-10-22 13:50:40 geuzaine Exp $ */
+/* $Id: Pos_Print.c,v 1.22 2000-10-24 10:28:07 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -1183,6 +1183,11 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     fprintf(PostStream, "\n"); 
   }
   else { /* There is one non-cumulative */
+
+    if (List_Nbr(NCPQ_P->PostQuantityTerm) &&
+	((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
+	->Type != GLOBALQUANTITY)
+      Msg(ERROR, "Print OnRegion not valid for PostQuantity '%s'", NCPQ_P->Name);
 
     Region_L =  (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
       ((struct Group *)
