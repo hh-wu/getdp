@@ -66,7 +66,6 @@
 */
 
 extern  int       InteractiveInterrupt ;
-extern  List_T  * GeoData_L ;
 
 /* ------------------------------------------------------------------------ */
 /*  P o s _ F o r m u l a t i o n                                           */
@@ -331,6 +330,67 @@ int fcmp_PostElement(const void *a, const void *b){
 }  
 
 #undef TOL
+
+/****** this should dissapear *********/
+
+struct NumxList{
+  int       Num ;
+  List_T  * List ;
+} ;
+
+int fcmp_NumxList(const void * a, const void * b) {
+  return  ((struct NumxList *)a)->Num - ((struct NumxList *)b)->Num ;
+}
+
+void Invert_MappingLists (List_T * List1, List_T * List2) {
+  
+  struct NumxList   TmpMap1, TmpMap2 ;
+  struct NumxList * TmpMap;
+  List_T          * TmpList;
+
+  int i, j, Entity, CurrentEntity;
+
+  TmpList = List_Create(10*List_Nbr(List1), 100, sizeof(int));
+
+  for(i=0 ; i<List_Nbr(List1) ; i++){
+    List_Read(List1, i, &TmpMap1);
+    for(j=0 ; j<List_Nbr(TmpMap1.List) ; j++){
+      List_Read(TmpMap1.List, j, &Entity);
+      List_Add(TmpList, &Entity);
+    }
+  }
+    
+  List_Tri(TmpList, fcmp_int);
+
+  List_Read(TmpList, 0, &CurrentEntity);
+  TmpMap1.Num = CurrentEntity;
+  TmpMap1.List = List_Create(10, 10, sizeof(int));
+  List_Add(List2, &TmpMap1);
+  for(i=1 ; i<List_Nbr(TmpList) ; i++){
+    List_Read(TmpList, i, &Entity);
+    if (Entity != CurrentEntity) {
+      CurrentEntity = Entity;
+      TmpMap1.Num = CurrentEntity;
+      TmpMap1.List = List_Create(10, 10, sizeof(int));
+      List_Add(List2, &TmpMap1);
+    }
+  }
+  
+  for(i=0 ; i<List_Nbr(List1) ; i++){
+    List_Read(List1, i, &TmpMap1);
+    for(j=0 ; j<List_Nbr(TmpMap1.List) ; j++){
+      List_Read(TmpMap1.List, j, &Entity);
+      TmpMap2.Num = Entity;
+      if ((TmpMap = (struct NumxList*)List_PQuery(List2, &TmpMap2, fcmp_NumxList)) != NULL) {	
+	List_Add(TmpMap->List, &TmpMap1.Num);
+      }
+    }
+  }
+
+  List_Delete(TmpList);
+}
+/****** END this should dissapear ********/
+
 
 void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 		       struct PostQuantity     *CPQ_P,

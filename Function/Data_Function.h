@@ -83,43 +83,72 @@ struct StringX3Function  BF_Function[] = {
                            (CAST)BF_Zero , 
                            (CAST)BF_GroupOfEdges },
 
-  /* Hierarchical Basis Functions */
-
-  /* Order 1 */
+  /* Nodal Hierarchical Basis Functions */
 
   {"HBF_Node_1N"       , (CAST)BF_Node     , (CAST)BF_GradNode , (CAST)BF_Zero },
-  {"HBF_Edge_1E"       , (CAST)BF_Edge     , (CAST)BF_CurlEdge , (CAST)BF_Zero },
-
-  {"HBF_GradNode_1N"   , (CAST)BF_GradNode , (CAST)BF_Zero     , (CAST)BF_Node },
-  {"HBF_CurlEdge_1E"   , (CAST)BF_CurlEdge , (CAST)BF_Zero     , (CAST)BF_Edge },
-
-  /* Order 2 */
-
   {"HBF_Node_2E"       , (CAST)HBF_Node_2E     , (CAST)HBF_GradNode_2E , (CAST)BF_Zero }, 
   {"HBF_Node_2F"       , (CAST)HBF_Node_2F     , (CAST)HBF_GradNode_2F , (CAST)BF_Zero }, 
   {"HBF_Node_2V"       , (CAST)HBF_Node_2V     , (CAST)HBF_GradNode_2V , (CAST)BF_Zero }, 
-  {"HBF_Edge_2E"       , (CAST)HBF_Edge_2E     , (CAST)HBF_CurlEdge_2E , (CAST)BF_Zero }, 
-					    			   
+  {"HBF_Node_3E"       , (CAST)HBF_Node_3E       , (CAST)HBF_GradNode_3E   , (CAST)BF_Zero}, 
+  {"HBF_Node_3F"       , (CAST)HBF_Node_3F       , (CAST)HBF_GradNode_3F   , (CAST)BF_Zero}, 
+  {"HBF_Node_3V"       , (CAST)HBF_Node_3V       , (CAST)HBF_GradNode_3V   , (CAST)BF_Zero}, 
+
+  {"HBF_GradNode_1N"   , (CAST)BF_GradNode , (CAST)BF_Zero     , (CAST)BF_Node },
   {"HBF_GradNode_2E"   , (CAST)HBF_GradNode_2E , (CAST)BF_Zero         , (CAST)HBF_Node_2E},
   {"HBF_GradNode_2F"   , (CAST)HBF_GradNode_2F , (CAST)BF_Zero         , (CAST)HBF_Node_2F},
   {"HBF_GradNode_2V"   , (CAST)HBF_GradNode_2V , (CAST)BF_Zero         , (CAST)HBF_Node_2V},
-  {"HBF_CurlEdge_2E"   , (CAST)HBF_CurlEdge_2E , (CAST)BF_Zero         , (CAST)HBF_Edge_2E},
+  {"HBF_GradNode_3E"   , (CAST)HBF_GradNode_3E   , (CAST)BF_Zero  , (CAST)HBF_Node_3E},
+  {"HBF_GradNode_3F"   , (CAST)HBF_GradNode_3F   , (CAST)BF_Zero  , (CAST)HBF_Node_3F},
+  {"HBF_GradNode_3V"   , (CAST)HBF_GradNode_3V   , (CAST)BF_Zero  , (CAST)HBF_Node_3V},
 
   {"HBF_PerpendicularEdge_2E", (CAST)HBF_PerpendicularEdge_2E,
                                (CAST)HBF_CurlPerpendicularEdge_2E, 
                                (CAST)BF_Zero }, 
-
   {"HBF_CurlPerpendicularEdge_2E", (CAST)HBF_CurlPerpendicularEdge_2E, 
                                    (CAST)BF_Zero,
                                    (CAST)HBF_PerpendicularEdge_2E },
+  {"HBF_PerpendicularEdge_3E", (CAST)HBF_PerpendicularEdge_3E,
+                               (CAST)HBF_CurlPerpendicularEdge_3E, 
+                               (CAST)BF_Zero }, 
+  {"HBF_CurlPerpendicularEdge_3E", (CAST)HBF_CurlPerpendicularEdge_3E, 
+                                   (CAST)BF_Zero,
+                                   (CAST)HBF_PerpendicularEdge_3E },
+  {"HBF_PerpendicularEdge_3F", (CAST)HBF_PerpendicularEdge_3F,
+                               (CAST)HBF_CurlPerpendicularEdge_3F, 
+                               (CAST)BF_Zero }, 
+  {"HBF_CurlPerpendicularEdge_3F", (CAST)HBF_CurlPerpendicularEdge_3F, 
+                                   (CAST)BF_Zero,
+                                   (CAST)HBF_PerpendicularEdge_3F },
+
+
+  /* Edge Hierarchical Basis Functions */
+
+  {"HBF_Edge_1E"       , (CAST)BF_Edge           , (CAST)BF_CurlEdge       , (CAST)BF_Zero },
+  {"HBF_Edge_2E"       , (CAST)HBF_Edge_2E       , (CAST)HBF_CurlEdge_2E   , (CAST)BF_Zero }, 
+  {"HBF_Edge_3F_a"     , (CAST)HBF_Edge_3F_a     , (CAST)HBF_CurlEdge_3F_a , (CAST)BF_Zero}, 
+  {"HBF_Edge_3F_b"     , (CAST)HBF_Edge_3F_b     , (CAST)HBF_CurlEdge_3F_b , (CAST)BF_Zero}, 
+  {"HBF_Edge_3F_c"     , (CAST)HBF_Edge_3F_c     , (CAST)HBF_CurlEdge_3F_c , (CAST)BF_Zero}, 
+  {"HBF_Edge_4E"       , (CAST)HBF_Edge_4E       , (CAST)HBF_CurlEdge_4E   , (CAST)BF_Zero}, 
+  {"HBF_Edge_4F"       , (CAST)HBF_Edge_4F       , (CAST)HBF_CurlEdge_4F   , (CAST)BF_Zero}, 
+
+  {"HBF_CurlEdge_1E"   , (CAST)BF_CurlEdge       , (CAST)BF_Zero  , (CAST)BF_Edge },
+  {"HBF_CurlEdge_2E"   , (CAST)HBF_CurlEdge_2E   , (CAST)BF_Zero  , (CAST)HBF_Edge_2E},
+  {"HBF_CurlEdge_3F_a" , (CAST)HBF_CurlEdge_3F_a , (CAST)BF_Zero  , (CAST)HBF_Edge_3F_a},
+  {"HBF_CurlEdge_3F_b" , (CAST)HBF_CurlEdge_3F_b , (CAST)BF_Zero  , (CAST)HBF_Edge_3F_b},
+  {"HBF_CurlEdge_3F_c" , (CAST)HBF_CurlEdge_3F_c , (CAST)BF_Zero  , (CAST)HBF_Edge_3F_c},
+  {"HBF_CurlEdge_4E"   , (CAST)HBF_CurlEdge_4E   , (CAST)BF_Zero  , (CAST)HBF_Edge_4E},
+  {"HBF_CurlEdge_4F"   , (CAST)HBF_CurlEdge_4F   , (CAST)BF_Zero  , (CAST)HBF_Edge_4F},
 
   {"HBF_PerpendicularFacet_2E", (CAST)HBF_PerpendicularFacet_2E,
-                               (CAST)HBF_DivPerpendicularFacet_2E, 
-                               (CAST)BF_Zero }, 
+                                (CAST)HBF_DivPerpendicularFacet_2E, 
+                                (CAST)BF_Zero }, 
 
   {"HBF_DivPerpendicularFacet_2E", (CAST)HBF_DivPerpendicularFacet_2E, 
                                    (CAST)BF_Zero,
                                    (CAST)HBF_PerpendicularFacet_2E },
+
+  /* Group Of Entities Hierarchical Basis Functions */
+
 
   {"HBF_GroupOfNodes_2E"    , (CAST)HBF_GroupOfNodes_2E, 
                               (CAST)HBF_GradGroupOfNodes_2E, 
@@ -152,49 +181,6 @@ struct StringX3Function  BF_Function[] = {
   {"HBF_CurlGroupOfEdges_2E", (CAST)BF_CurlGroupOfEdges, 
                               (CAST)BF_Zero, 
                               (CAST)HBF_GroupOfEdges_2E},
-
-  /* Order 3 */
-
-  {"HBF_Node_3E"       , (CAST)HBF_Node_3E       , (CAST)HBF_GradNode_3E   , (CAST)BF_Zero}, 
-  {"HBF_Node_3F"       , (CAST)HBF_Node_3F       , (CAST)HBF_GradNode_3F   , (CAST)BF_Zero}, 
-  {"HBF_Node_3V"       , (CAST)HBF_Node_3V       , (CAST)HBF_GradNode_3V   , (CAST)BF_Zero}, 
-  {"HBF_Edge_3E"       , (CAST)HBF_Edge_3E       , (CAST)HBF_CurlEdge_3E   , (CAST)BF_Zero}, 
-  {"HBF_Edge_3F_a"     , (CAST)HBF_Edge_3F_a     , (CAST)HBF_CurlEdge_3F_a , (CAST)BF_Zero}, 
-  {"HBF_Edge_3F_b"     , (CAST)HBF_Edge_3F_b     , (CAST)HBF_CurlEdge_3F_b , (CAST)BF_Zero}, 
-
-  {"HBF_GradNode_3E"   , (CAST)HBF_GradNode_3E   , (CAST)BF_Zero  , (CAST)HBF_Node_3E},
-  {"HBF_GradNode_3F"   , (CAST)HBF_GradNode_3F   , (CAST)BF_Zero  , (CAST)HBF_Node_3F},
-  {"HBF_GradNode_3V"   , (CAST)HBF_GradNode_3V   , (CAST)BF_Zero  , (CAST)HBF_Node_3V},
-  {"HBF_CurlEdge_3E"   , (CAST)HBF_CurlEdge_3E   , (CAST)BF_Zero  , (CAST)HBF_Edge_3E},
-  {"HBF_CurlEdge_3F_a" , (CAST)HBF_CurlEdge_3F_a , (CAST)BF_Zero  , (CAST)HBF_Edge_3F_a},
-  {"HBF_CurlEdge_3F_b" , (CAST)HBF_CurlEdge_3F_b , (CAST)BF_Zero  , (CAST)HBF_Edge_3F_b},
-
-
-
-  {"HBF_PerpendicularEdge_3E", (CAST)HBF_PerpendicularEdge_3E,
-                               (CAST)HBF_CurlPerpendicularEdge_3E, 
-                               (CAST)BF_Zero }, 
-
-  {"HBF_CurlPerpendicularEdge_3E", (CAST)HBF_CurlPerpendicularEdge_3E, 
-                                   (CAST)BF_Zero,
-                                   (CAST)HBF_PerpendicularEdge_3E },
-
-  {"HBF_PerpendicularEdge_3F", (CAST)HBF_PerpendicularEdge_3F,
-                               (CAST)HBF_CurlPerpendicularEdge_3F, 
-                               (CAST)BF_Zero }, 
-
-  {"HBF_CurlPerpendicularEdge_3F", (CAST)HBF_CurlPerpendicularEdge_3F, 
-                                   (CAST)BF_Zero,
-                                   (CAST)HBF_PerpendicularEdge_3F },
-
-
-  /* Order 4 */
-
-  {"HBF_Edge_4E"       , (CAST)HBF_Edge_4E       , (CAST)HBF_CurlEdge_4E   , (CAST)BF_Zero}, 
-  {"HBF_Edge_4F"       , (CAST)HBF_Edge_4F       , (CAST)HBF_CurlEdge_4F   , (CAST)BF_Zero}, 
-
-  {"HBF_CurlEdge_4E"   , (CAST)HBF_CurlEdge_4E   , (CAST)BF_Zero           , (CAST)HBF_Edge_4E},
-  {"HBF_CurlEdge_4F"   , (CAST)HBF_CurlEdge_4F   , (CAST)BF_Zero           , (CAST)HBF_Edge_4F},
 
   {NULL                , NULL              , NULL              , NULL }
 } ;

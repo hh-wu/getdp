@@ -243,7 +243,7 @@ void  Print_Expression(struct Problem  * Problem) {
 	Msg(CHECK, "  DefineFunction[ %s ] ;\n", EX->Name) ;
       break ;
 
-    case UNDEFINED :
+    case UNDEFINED_EXP :
       Msg(CHECK, "  DefineFunction[ %s ] ;\n", EX->Name) ;
       break ;
 

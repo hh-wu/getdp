@@ -9,6 +9,7 @@
 #include "Version.h"
 #include "CurrentData.h"
 #include "ualloc.h"
+#include "Magic.h"
 
 /* ------------------------------------------------------------------------ */
 /*  P r i n t _ P o s t F o r m a t / H e a d e r / F o o t e r             */
@@ -35,7 +36,7 @@ void  Print_PostHeader(int Format, int NbTimeStep, int HarmonicToTime,
 		       int Type, int Order,
 		       struct PostQuantity  *NCPQ_P,
 		       struct PostQuantity  *CPQ_P){
-  char name[256] ;
+  char name[MAX_STRING_LENGTH] ;
 
   if(NCPQ_P && CPQ_P) {
     strcpy(name, Order ? NCPQ_P->Name : CPQ_P->Name) ;

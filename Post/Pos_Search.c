@@ -11,9 +11,179 @@
 #include "outil.h"
 #include "Data_Numeric.h"
 
-static struct ElementBox    ElementBox;
-static struct Element     * LastElement;
-static int                  GeoDim, ChainDim;
+static struct Element  * LastElement;
+static int GeoDim, ChainDim;
+
+/* ------------------------------------------------------------------------ */
+/*  C o m p u t e E l e m e n t B o x                                       */
+/* ------------------------------------------------------------------------ */
+
+int ComputeElementBox(struct Element * Element,
+		      struct ElementBox * ElementBox) {
+
+  double XPolyConv, YPolyConv, Xmid, Ymid;
+  double d, dxy, dxz, dyz;
+  int    i;
+
+  ElementBox->Xmin = ElementBox->Xmax = Element->x[0];
+  ElementBox->Ymin = ElementBox->Ymax = Element->y[0];
+  ElementBox->Zmin = ElementBox->Zmax = Element->z[0];
+
+  switch(Element->Type){
+    
+  case LINE        : 
+  case TRIANGLE    : case QUADRANGLE :
+  case TETRAHEDRON : case HEXAHEDRON : 
+  case PRISM       : case PYRAMID    :   
+    for (i = 1 ; i < Element->GeoElement->NbrNodes ; i++) {
+      ElementBox->Xmin = MIN(ElementBox->Xmin, Element->x[i]);
+      ElementBox->Xmax = MAX(ElementBox->Xmax, Element->x[i]);
+      ElementBox->Ymin = MIN(ElementBox->Ymin, Element->y[i]);
+      ElementBox->Ymax = MAX(ElementBox->Ymax, Element->y[i]);
+      ElementBox->Zmin = MIN(ElementBox->Zmin, Element->z[i]);
+      ElementBox->Zmax = MAX(ElementBox->Zmax, Element->z[i]);
+    }
+
+    if( (ChainDim == _1D && Element->Type == LINE) ||
+	(ChainDim == _2D && (Element->Type == TRIANGLE || Element->Type == QUADRANGLE)) ){
+      
+      dxy = (ElementBox->Xmax-ElementBox->Xmin)-(ElementBox->Ymax-ElementBox->Ymin);
+      dxz = (ElementBox->Xmax-ElementBox->Xmin)-(ElementBox->Zmax-ElementBox->Zmin);
+      dyz = (ElementBox->Ymax-ElementBox->Ymin)-(ElementBox->Zmax-ElementBox->Zmin);
+
+      if(dxy >= 0 && dxz >= 0){
+	ElementBox->Ymin -= dxy/2. ; ElementBox->Ymax += dxy/2. ;
+	ElementBox->Zmin -= dxz/2. ; ElementBox->Zmax += dxz/2. ;
+      }
+      else if(dxy <= 0 && dyz >= 0){
+	ElementBox->Xmin += dxy/2. ; ElementBox->Xmax -= dxy/2. ;
+	ElementBox->Zmin -= dyz/2. ; ElementBox->Zmax += dyz/2. ;
+      }
+      else if(dxz <= 0 && dyz <= 0){
+	ElementBox->Xmin += dxz/2. ; ElementBox->Xmax -= dxz/2. ;
+	ElementBox->Ymin += dyz/2. ; ElementBox->Ymax -= dyz/2. ;	
+      }
+      
+      d = ElementBox->Xmax - ElementBox->Xmin ;
+
+      ElementBox->Xmin -= d/10. ; ElementBox->Xmax += d/10.;
+      ElementBox->Ymin -= d/10. ; ElementBox->Ymax += d/10.;
+      ElementBox->Zmin -= d/10. ; ElementBox->Zmax += d/10.;
+    }
+    break;
+
+  case LINE_2      :
+  case TRIANGLE_2  : case QUADRANGLE_2 :
+    for (i = 1 ; i < Element->GeoElement->NbrNodes ; i++) {
+      if(Element->z[i] != 0.0)
+	Msg(ERROR, "2nd order ComputeElementBox not done for the 3D case");
+      if (i % 2 == 0) {
+	XPolyConv = Element->x[i];
+	YPolyConv = Element->y[i];
+      } 
+      else {
+	if ((Element->GeoElement->NbrNodes == 6) && (i == 5)) {
+	  Xmid = 0.5 * (Element->x[0] + Element->x[4]);
+	  Ymid = 0.5 * (Element->y[0] + Element->y[4]);
+	} 
+	else if ((Element->GeoElement->NbrNodes == 9) && (i == 7)) {
+	  Xmid = 0.5 * (Element->x[0] + Element->x[6]);
+	  Ymid = 0.5 * (Element->y[0] + Element->y[6]);
+	} 
+	else if ((Element->GeoElement->NbrNodes == 9) && (i == 8)) {
+	  Xmid = Element->x[i];
+	  Ymid = Element->y[i];
+	} 
+	else {
+	  Xmid = 0.5 * (Element->x[i-1] + Element->x[i+1]);
+	  Ymid = 0.5 * (Element->y[i-1] + Element->y[i+1]);
+	}
+	XPolyConv = Xmid + 2.* (Element->x[i] - Xmid);
+	YPolyConv = Ymid + 2.* (Element->y[i] - Ymid);
+      }
+      ElementBox->Xmin = MIN(ElementBox->Xmin, XPolyConv);
+      ElementBox->Xmax = MAX(ElementBox->Xmax, XPolyConv);
+      ElementBox->Ymin = MIN(ElementBox->Ymin, YPolyConv);
+      ElementBox->Ymax = MAX(ElementBox->Ymax, YPolyConv);
+    }
+    break;
+
+  default :    
+    Msg(ERROR, "Unknown Element Type in 'ComputeElementBox'"); 
+    break;
+  }
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  P o i n t I n X X X                                                     */
+/* ------------------------------------------------------------------------ */
+
+int PointInElementBox(struct ElementBox ElementBox, double x, double y, double z) {
+
+  if (x > ElementBox.Xmax || x < ElementBox.Xmin ||
+      y > ElementBox.Ymax || y < ElementBox.Ymin ||
+      z > ElementBox.Zmax || z < ElementBox.Zmin)
+    return (0);
+  else
+    return (1);
+}
+
+int PointInRefElement (struct Element * Element, double u, double v, double w){
+  
+  switch(Element->Type) {
+  case LINE : case LINE_2 :
+    if (u<-1. || u>1.) return(0); 
+    return(1);
+  case TRIANGLE : case TRIANGLE_2 :
+    if (u<0. || v<0. || u>(1.-v)) return(0); 
+    return(1);
+  case QUADRANGLE : case QUADRANGLE_2 :
+    if (u<-1.  || v<-1. || u>1. || v>1.) return (0); 
+    return(1);
+  case TETRAHEDRON : case TETRAHEDRON_2 :
+    if (u<0. || v<0. || w<0. || u>(1.-v-w)) return(0); 
+    return(1);
+  case HEXAHEDRON : case HEXAHEDRON_2 :
+    if (u<-1. || v<-1. || w<-1. || u>1. || v>1. || w>1.) return(0); 
+    return(1);
+  case PRISM : case PRISM_2 :
+    if (w>1. || w<-1. || u<0. || v<0. || u>(1.-v)) return(0); 
+    return(1);
+  case PYRAMID : case PYRAMID_2 :
+    if (u<(w-1.) || u>(1.-w) || v<(w-1.) || v>(1.-w) || w<0. || w>1.) return(0); 
+    return(1);
+  default :
+    return(0);
+  }
+}
+
+int PointInElement (struct Element * Element,
+		    List_T *ExcludeRegion_L,
+		    double  x, double  y, double  z, 
+		    double *u, double *v, double *w) {
+
+  struct ElementBox ElementBox ;
+
+  if(ExcludeRegion_L)
+    if(List_Search(ExcludeRegion_L, &Element->GeoElement->Region, fcmp_int))
+      return(0);
+
+  Element->Num = Element->GeoElement->Num ;
+  Element->Type = Element->GeoElement->Type ;
+  Element->Region = Element->GeoElement->Region ;    
+
+  Get_NodesCoordinatesOfElement(Element) ;
+  ComputeElementBox(Element, &ElementBox);
+
+  if (!PointInElementBox(ElementBox, x, y, z)) return(0);
+
+  xyz2uvwInAnElement(Element, x, y, z, u, v, w, NULL, -1);
+
+  if(!PointInRefElement(Element, *u, *v, *w)) return(0);
+
+  return(1);
+}
 
 /* ------------------------------------------------------------------------ */
 /*  I n i t _ S e a r c h G r i d                                           */
@@ -21,15 +191,14 @@ static int                  GeoDim, ChainDim;
 
 void Init_SearchGrid(struct Grid * Grid) {
 
-  struct Element   Element;
-  struct Geo_Node *GeoNode;
-
-  struct NumxList  InvMap;
-  List_T          *InvListAll, *InvList1D, *InvList2D,*InvList3D;
-  
-  double           NbrBricks;
-  int              NbrGeoNodes, NbrGeoElements;
-  int              i;
+  struct Element      Element;
+  struct ElementBox   ElementBox;
+  struct Geo_Node    *GeoNode;
+  struct Brick        Brick, *Brick_P;
+  double Xc, Yc, Zc ;
+  int    NbrGeoNodes, NbrGeoElements, iElm;
+  int    Ix1, Ix2, Iy1, Iy2, Iz1, Iz2;
+  int    i, j, k, index;
 
   LastElement = NULL;
 
@@ -51,42 +220,104 @@ void Init_SearchGrid(struct Grid * Grid) {
     Grid->Zmax = MAX(Grid->Zmax, GeoNode->z); 
   }
 
-  NbrGeoElements = Geo_GetNbrGeoElements();
-  NbrBricks      = (double)NbrGeoElements / 3.;
+#define NBB  20
+#define FACT 0.1
 
-  if(Grid->Zmin == Grid->Zmax){	  
-    Grid->Nx = Grid->Ny = MIN(250, (int)(sqrt(NbrBricks)+1.));
-    Grid->Nz = 1; Grid->Zmin = 0.0; Grid->Zmax = 1.0;
-    GeoDim = _2D;
-  }
-  else{
-    Grid->Nx = Grid->Ny = Grid->Nz = MIN(40, (int)(pow(NbrBricks, 0.333)+1.));
+  if(Grid->Xmin != Grid->Xmax && Grid->Ymin != Grid->Ymax && Grid->Zmin != Grid->Zmax){
     GeoDim = _3D;
+
+    Grid->Nx = Grid->Ny = Grid->Nz = NBB;
+
+    Xc = Grid->Xmax-Grid->Xmin; Yc = Grid->Ymax-Grid->Ymin; Zc = Grid->Zmax-Grid->Zmin;
+
+    Grid->Xmin -= FACT * Xc ; Grid->Ymin -= FACT * Yc ; Grid->Zmin -= FACT * Zc ;
+    Grid->Xmax += FACT * Xc ; Grid->Ymax += FACT * Yc ; Grid->Zmax += FACT * Zc ;
+  }
+
+  else if(Grid->Xmin != Grid->Xmax && Grid->Ymin != Grid->Ymax){
+    GeoDim = _2D;
+
+    Grid->Nx = Grid->Ny = NBB ; Grid->Nz = 1 ;
+
+    Xc = Grid->Xmax-Grid->Xmin; Yc = Grid->Ymax-Grid->Ymin;
+
+    Grid->Xmin -= FACT * Xc ; Grid->Ymin -= FACT * Xc ; Grid->Zmin -= 1. ;
+    Grid->Xmax += FACT * Xc ; Grid->Ymax += FACT * Xc ; Grid->Zmax += 1. ;
+  }
+  else if(Grid->Xmin != Grid->Xmax && Grid->Zmin != Grid->Zmax){
+    GeoDim = _2D;
+
+    Grid->Nx = Grid->Nz = NBB ; Grid->Ny = 1 ;
+
+    Xc = Grid->Xmax-Grid->Xmin; Zc = Grid->Zmax-Grid->Zmin;
+
+    Grid->Xmin -= FACT * Xc ; Grid->Ymin -= 1. ; Grid->Zmin -= FACT * Zc ;
+    Grid->Xmax += FACT * Xc ; Grid->Ymax += 1. ; Grid->Zmax += FACT * Zc ;
+  }
+  else if(Grid->Ymin != Grid->Ymax && Grid->Zmin != Grid->Zmax){
+    GeoDim = _2D;
+
+    Grid->Nx = 1 ; Grid->Ny = Grid->Nz = NBB ;
+
+    Yc = Grid->Ymax-Grid->Ymin; Zc = Grid->Zmax-Grid->Zmin;
+
+    Grid->Xmin -= 1. ; Grid->Ymin -= FACT * Yc ; Grid->Zmin -= FACT * Zc ;
+    Grid->Xmax += 1. ; Grid->Ymax += FACT * Yc ; Grid->Zmax += FACT * Zc ;
+  }
+
+  else if(Grid->Xmin != Grid->Xmax){
+    GeoDim = _1D;
+
+    Grid->Nx = NBB ; Grid->Ny = Grid->Nz = 1 ;
+
+    Xc = Grid->Xmax-Grid->Xmin;
+
+    Grid->Xmin -= FACT * Xc ; Grid->Ymin -= 1. ; Grid->Zmin -= 1. ;
+    Grid->Xmax += FACT * Xc ; Grid->Ymax += 1. ; Grid->Zmax += 1. ;
+  }
+  else if(Grid->Ymin != Grid->Ymax){
+    GeoDim = _1D;
+
+    Grid->Nx = Grid->Nz = 1 ; Grid->Ny = NBB ;
+
+    Yc = Grid->Ymax-Grid->Ymin;
+
+    Grid->Xmin -= 1. ; Grid->Ymin -= FACT * Yc ; Grid->Zmin -= 1. ;
+    Grid->Xmax += 1. ; Grid->Ymax += FACT * Yc ; Grid->Zmax += 1. ;
+  }
+  else if(Grid->Zmin != Grid->Zmax){
+    GeoDim = _1D;
+
+    Grid->Nx = Grid->Ny = 1 ; Grid->Nz = NBB ;
+
+    Zc = Grid->Zmax-Grid->Zmin;
+
+    Grid->Xmin -= 1. ; Grid->Ymin -= 1. ; Grid->Zmin -= FACT * Zc ;
+    Grid->Xmax += 1. ; Grid->Ymax += 1. ; Grid->Zmax += FACT * Zc ;
+  }
+
+  else{
+    GeoDim = _0D;
+
+    Grid->Nx = Grid->Ny = Grid->Nz = 1;
+
+    Grid->Xmin -= 1. ; Grid->Ymin -= 1. ; Grid->Zmin -= 1. ;
+    Grid->Xmax += 1. ; Grid->Ymax += 1. ; Grid->Zmax += 1. ;
   }
 
   Msg(INFO, "Initializing Grid (%d,%d,%d)", Grid->Nx, Grid->Ny, Grid->Nz);
 
-  Grid->ListAll = List_Create(Grid->Nx*Grid->Ny*Grid->Nz, 1, sizeof(struct NumxList));
-  Grid->List1D  = List_Create(Grid->Nx*Grid->Ny*Grid->Nz, 1, sizeof(struct NumxList));
-  Grid->List2D  = List_Create(Grid->Nx*Grid->Ny*Grid->Nz, 1, sizeof(struct NumxList));
-  Grid->List3D  = List_Create(Grid->Nx*Grid->Ny*Grid->Nz, 1, sizeof(struct NumxList));
+  Grid->Bricks = List_Create(Grid->Nx * Grid->Ny * Grid->Nz, 10, sizeof(Brick));
+  for(i = 0; i < Grid->Nx * Grid->Ny * Grid->Nz ; i++){
+    for(j = 0 ; j < 3 ; j++) Brick.p[j] = List_Create(2, 2, sizeof(struct Geo_Element*));
+    List_Add(Grid->Bricks, &Brick);
+  }
 
-  InvListAll = List_Create(NbrGeoElements, 1, sizeof(struct NumxList));
-  InvList1D  = List_Create(NbrGeoElements, 1, sizeof(struct NumxList));
-  InvList2D  = List_Create(NbrGeoElements, 1, sizeof(struct NumxList));
-  InvList3D  = List_Create(NbrGeoElements, 1, sizeof(struct NumxList));
+  NbrGeoElements = Geo_GetNbrGeoElements();
 
-  InvMap.Num  = NO_ELEMENT ;
-  InvMap.List = AllBricks(*Grid); 
+  for (iElm=0 ; iElm < NbrGeoElements ; iElm++ ){ 
 
-  List_Add(InvListAll, &InvMap);
-  List_Add(InvList1D, &InvMap);
-  List_Add(InvList2D, &InvMap);
-  List_Add(InvList3D, &InvMap);
-
-  for (i=0 ; i < NbrGeoElements ; i++ ){ 
-
-    Element.GeoElement = Geo_GetGeoElement(i) ;
+    Element.GeoElement = Geo_GetGeoElement(iElm) ;
     Element.Num        = Element.GeoElement->Num ;
     Element.Type       = Element.GeoElement->Type ;
     Current.Region = Element.Region = Element.GeoElement->Region ;
@@ -94,42 +325,62 @@ void Init_SearchGrid(struct Grid * Grid) {
     if (Element.Region && Element.Type != POINT) {
 
       Get_NodesCoordinatesOfElement(&Element) ;
-      InvMap.Num = Element.Num;
-      PointInElementBox(&Element, 0., 0., 0.);
+      ComputeElementBox(&Element, &ElementBox);
 
-      InvMap.List = AllBricksForAnElementBox(*Grid); 
+      Ix1 = (int)((double)Grid->Nx*(ElementBox.Xmin-Grid->Xmin)/(Grid->Xmax-Grid->Xmin)); 
+      Ix2 = (int)((double)Grid->Nx*(ElementBox.Xmax-Grid->Xmin)/(Grid->Xmax-Grid->Xmin)); 
+      Iy1 = (int)((double)Grid->Ny*(ElementBox.Ymin-Grid->Ymin)/(Grid->Ymax-Grid->Ymin)); 
+      Iy2 = (int)((double)Grid->Ny*(ElementBox.Ymax-Grid->Ymin)/(Grid->Ymax-Grid->Ymin)); 
+      Iz1 = (int)((double)Grid->Nz*(ElementBox.Zmin-Grid->Zmin)/(Grid->Zmax-Grid->Zmin)); 
+      Iz2 = (int)((double)Grid->Nz*(ElementBox.Zmax-Grid->Zmin)/(Grid->Zmax-Grid->Zmin)); 
+  
+      Ix1 = MAX(Ix1, 0);
+      Ix2 = MIN(Ix2, Grid->Nx-1);
+      Iy1 = MAX(Iy1, 0);
+      Iy2 = MIN(Iy2, Grid->Ny-1);
+      Iz1 = MAX(Iz1, 0);
+      Iz2 = MIN(Iz2, Grid->Nz-1);
 
-      List_Add(InvListAll, &InvMap);
-
-      switch(Element.Type){
-      case LINE        : case LINE_2        : 
-	List_Add(InvList1D, &InvMap); 
-	break;
-      case TRIANGLE    : case TRIANGLE_2    : 
-      case QUADRANGLE  : case QUADRANGLE_2  : 
-	List_Add(InvList2D, &InvMap); 
-	break;
-      case TETRAHEDRON : case TETRAHEDRON_2 :
-      case HEXAHEDRON  : case HEXAHEDRON_2  :
-      case PRISM       : case PRISM_2       :
-      case PYRAMID     : case PYRAMID_2     :
-	List_Add(InvList3D, &InvMap); 
-	break;
+      for(i = Ix1 ; i <= Ix2 ; i++){
+	for(j = Iy1 ; j <= Iy2 ; j++){
+	  for(k = Iz1 ; k <= Iz2 ; k++){
+	    index = i + j * Grid->Nx + k * Grid->Nx * Grid->Ny;
+	    Brick_P = (struct Brick*)List_Pointer(Grid->Bricks, index);
+	    switch(Element.GeoElement->Type){
+	    case LINE : case LINE_2 : 
+	      List_Add(Brick_P->p[0], &Element.GeoElement); 
+	      break;
+	    case TRIANGLE :	case TRIANGLE_2 :
+	    case QUADRANGLE : case QUADRANGLE_2 :
+	      List_Add(Brick_P->p[1], &Element.GeoElement); 
+	      break;
+	    case TETRAHEDRON : case TETRAHEDRON_2 : 
+	    case HEXAHEDRON : case HEXAHEDRON_2 : 
+	    case PRISM : case PRISM_2 :
+	    case PYRAMID : case PYRAMID_2 :
+	      List_Add(Brick_P->p[2], &Element.GeoElement); 
+	      break;
+	    }
+	  }
+	}
       }
     }
   }
 
-  Invert_MappingLists(InvListAll, Grid->ListAll);
-  Invert_MappingLists(InvList1D, Grid->List1D);
-  Invert_MappingLists(InvList2D, Grid->List2D);
-  Invert_MappingLists(InvList3D, Grid->List3D);
-
-  List_Delete(InvListAll);
-  List_Delete(InvList1D);
-  List_Delete(InvList2D);
-  List_Delete(InvList3D);
-
   Grid->Init = 1;    
+
+#if 0
+  for (i=0 ; i<List_Nbr(Grid->Bricks) ; i++) {
+    Brick_P = (struct Brick *)List_Pointer(Grid->Bricks, i) ;
+    printf("BRICK %d : ", i) ;
+    for (j=0 ; j<List_Nbr(Brick_P->p[2]) ; j++) {
+      Element.GeoElement = *(struct Geo_Element **)List_Pointer(Brick_P->p[2], j) ;
+      printf("%d ", Element.GeoElement->Num) ;
+    }
+    printf("\n");
+  }
+#endif
+
 }
 
 
@@ -223,13 +474,31 @@ int fcmp_PointElement(const void * a, const void * b) {
   else return 0;
 }
 
-
 /* ------------------------------------------------------------------------ */
-/*  I n W i c h E l e m e n t                                               */
+/*  I n W h i c h   X X X                                                   */
 /* ------------------------------------------------------------------------ */
 
-int fcmp_NumxList(const void * a, const void * b) {
-  return  ((struct NumxList *)a)->Num - ((struct NumxList *)b)->Num ;
+int InWhichBrick (struct Grid *pGrid, double X, double Y, double Z) {
+
+  int    Ix,Iy,Iz,index;
+
+  if(X > pGrid->Xmax || X < pGrid->Xmin || Y > pGrid->Ymax || 
+     Y < pGrid->Ymin || Z > pGrid->Zmax || Z < pGrid->Zmin){
+    return(NO_BRICK);
+  }
+
+  Ix = (int)((double)pGrid->Nx * (X-pGrid->Xmin) / (pGrid->Xmax-pGrid->Xmin)); 
+  Iy = (int)((double)pGrid->Ny * (Y-pGrid->Ymin) / (pGrid->Ymax-pGrid->Ymin)); 
+  Iz = (int)((double)pGrid->Nz * (Z-pGrid->Zmin) / (pGrid->Zmax-pGrid->Zmin)); 
+  Ix = MIN(Ix,pGrid->Nx-1);
+  Iy = MIN(Iy,pGrid->Ny-1);
+  Iz = MIN(Iz,pGrid->Nz-1);
+
+  if(Ix<0)Ix=0;
+  if(Iy<0)Iy=0;
+  if(Iz<0)Iz=0;
+
+  return index = Ix + Iy * pGrid->Nx + Iz * pGrid->Nx * pGrid->Ny;
 }
 
 void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
@@ -240,62 +509,74 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   /* Note: Il est garanti en sortie que les fcts de forme geometriques sont 
      initialisees en u,v,w */
  
-  List_T              *Brick_L, *PointElement_L;
-  struct NumxList      Brick, *Brick_P ;
+  List_T              *PointElement_L;
+  struct ElementBox    ElementBox;
+  struct Brick         Brick, *Brick_P ;
   struct PointElement  PointElement ;
-  int                  BoxNum, Projection, i ;  
+  int                  i, j, dim, lowdim, highdim, Projection;  
 
   ChainDim   = Dim ;
   Projection = (ChainDim == _1D || (ChainDim == _2D && GeoDim == _3D));
   
   if(!Projection && LastElement){
-    if (PointInElement(LastElement, -1, ExcludeRegion_L, x, y, z, u, v, w)) return;
+    if (PointInElement(LastElement, ExcludeRegion_L, x, y, z, u, v, w)) return;
   }
 
-  if ((Brick.Num = InWhichBrick(Grid, x, y, z)) == NO_BRICK) {
+  if ((i = InWhichBrick(&Grid, x, y, z)) == NO_BRICK) {
     Element->Num = NO_ELEMENT ;
     Element->Region = NO_REGION ;
     return;
   }
+  
+  if (!(Brick_P = (struct Brick *)List_Pointer(Grid.Bricks, i)))
+    Msg(ERROR, "Brick %d not found in Grid", i) ;
 
   switch(ChainDim){
-  case _ALL : Brick_L = Grid.ListAll; break;
-  case _1D  : Brick_L = Grid.List1D;  break;
-  case _2D  : Brick_L = Grid.List2D;  break;
-  case _3D  : Brick_L = Grid.List3D;  break;    
+  case _ALL : lowdim = 0 ; highdim = 3 ; break;
+  case _1D  : lowdim = 0 ; highdim = 1 ; break;
+  case _2D  : lowdim = 1 ; highdim = 2 ; break;
+  case _3D  : lowdim = 2 ; highdim = 3 ; break;    
   default   : 
     Msg(ERROR, "Unknown Chain Dimension %d", ChainDim);
     break;
   } 
-  
-  if (!(Brick_P = (struct NumxList *)List_PQuery(Brick_L, &Brick, fcmp_NumxList)))
-    Msg(ERROR, "Brick %d not found in Grid", Brick.Num) ;
 
-  if(Projection){
+  if(!Projection){
 
+    for(dim = highdim ; dim > lowdim ; dim--) {
+      for (i=0 ; i < List_Nbr(Brick_P->p[dim-1]) ; i++) {
+	Element->GeoElement = *(struct Geo_Element**)List_Pointer(Brick_P->p[dim-1], i) ;
+	if (PointInElement(Element, ExcludeRegion_L, x, y, z, u, v, w)) {
+	  LastElement = Element;
+	  return;
+	}
+      }
+    }
+
+  }
+  else{
+    
     PointElement_L = List_Create(10, 10, sizeof(PointElement));
 
-    for (i=0 ; i < List_Nbr(Brick_P->List) ; i++) {
-      if ((BoxNum = *(int *)List_Pointer(Brick_P->List, i)) != NO_ELEMENT){
-	Element->GeoElement = Geo_GetGeoElementOfNum(BoxNum) ;
+    for (dim = lowdim ; dim < highdim  ; dim++){
+
+      for (i=0 ; i < List_Nbr(Brick_P->p[dim-1]) ; i++) {
+	Element->GeoElement = *(struct Geo_Element**)List_Pointer(Brick_P->p[dim-1], i) ;
 	Element->Num = Element->GeoElement->Num ;
 	Element->Type = Element->GeoElement->Type ;
 	Element->Region = Element->GeoElement->Region ;
 	Get_NodesCoordinatesOfElement(Element) ;
-
-	if (PointInElementBox(Element, x, y, z)){	  
+	ComputeElementBox(Element, &ElementBox) ;
+	if (PointInElementBox(ElementBox, x, y, z)){
 	  PointElementDistance(Element, x, y, z, &PointElement);
-
 	  printf("elm %d : dist = %f (project = %f %f %f )\n", 
 		 Element->Num, PointElement.d, PointElement.xp, 
 		 PointElement.yp, PointElement.zp);
-
 	  PointElement.Element = *Element;
 	  List_Add(PointElement_L, &PointElement);
 	}	
       }
     }
-
     List_Tri(PointElement_L, fcmp_PointElement);
     
     for(i=0 ; i<List_Nbr(PointElement_L) ; i++){
@@ -304,305 +585,17 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 			 PointElement.zp, u, v, w, NULL, -1);
       if(PointInRefElement(&PointElement.Element, *u, *v, *w)) {
 	Element = LastElement = &PointElement.Element;
-
 	printf("elm chosen : %d (u=%f v=%f w=%f)\n", Element->Num,*u,*v,*w);
-
 	return;      
       }
     }
     
   }
-    
-  else{
 
-    for (i=0 ; i < List_Nbr(Brick_P->List) ; i++) {
-      if ((BoxNum = *(int *)List_Pointer(Brick_P->List, i)) != NO_ELEMENT){
-	if (PointInElement(Element, BoxNum, ExcludeRegion_L, x, y, z, u, v, w)) {
-	  LastElement = Element;
-	  return;
-	}
-      }
-    }
-
-  }
-  
   Element->Num = NO_ELEMENT ;
   Element->Region = NO_REGION ;
 }
 
-/* ------------------------------------------------------------------------ */
-/*  I n W i c h B r i c k                                                   */
-/* ------------------------------------------------------------------------ */
-
-int InWhichBrick (struct Grid Grid, double x, double y, double z) {
-
-  int Ix, Iy, Iz;
-  
-  if (x > Grid.Xmax || x < Grid.Xmin || 
-      y > Grid.Ymax || y < Grid.Ymin || 
-      z > Grid.Zmax || z < Grid.Zmin) 
-    return(NO_BRICK);
-  
-  Ix = (int) ((double)Grid.Nx * (x - Grid.Xmin) / (Grid.Xmax - Grid.Xmin)); 
-  Iy = (int) ((double)Grid.Ny * (y - Grid.Ymin) / (Grid.Ymax - Grid.Ymin)); 
-  Iz = (int) ((double)Grid.Nz * (z - Grid.Zmin) / (Grid.Zmax - Grid.Zmin)); 
-
-  Ix = (Ix < Grid.Nx) ? Ix : Grid.Nx-1;
-  Iy = (Iy < Grid.Ny) ? Iy : Grid.Ny-1;
-  Iz = (Iz < Grid.Nz) ? Iz : Grid.Nz-1;
-
-  return(1 + Ix + Iy*Grid.Nx + Iz*Grid.Nx*Grid.Ny);
-}
-
-/* ------------------------------------------------------------------------ */
-/*  P o i n t I n E l e m e n t                                             */
-/* ------------------------------------------------------------------------ */
-
-int PointInElement (struct Element * Element, int iElement, 
-		    List_T *ExcludeRegion_L,
-		    double  x, double  y, double  z, 
-		    double *u, double *v, double *w) {
-  
-  if(iElement != -1){
-    Element->GeoElement = Geo_GetGeoElementOfNum(iElement) ;
-    if(ExcludeRegion_L)
-      if(List_Search(ExcludeRegion_L, &Element->GeoElement->Region, fcmp_int))
-	return(0);
-    Element->Num = Element->GeoElement->Num ;
-    Element->Type = Element->GeoElement->Type ;
-    Element->Region = Element->GeoElement->Region ;    
-    Get_NodesCoordinatesOfElement(Element) ;
-  }
-
-  if (!PointInElementBox(Element, x, y, z)) return(0);
-
-  xyz2uvwInAnElement(Element, x, y, z, u, v, w, NULL, -1);
-
-  if(!PointInRefElement(Element, *u, *v, *w)) return(0);
-
-  return(1);
- 
-}
-
-/* ------------------------------------------------------------------------ */
-/*  P o i n t I n E l e m e n t B o x                                       */
-/* ------------------------------------------------------------------------ */
-
-int PointInElementBox(struct Element * Element, double x, double y, double z) {
-
-  double XPolyConv, YPolyConv, Xmid, Ymid;
-  double d, dxy, dxz, dyz;
-  int    i;
-
-  switch(Element->Type){
-    
-  case LINE        : 
-  case TRIANGLE    : case QUADRANGLE :
-  case TETRAHEDRON : case HEXAHEDRON : 
-  case PRISM       : case PYRAMID    :   
-
-    ElementBox.Xmin = ElementBox.Xmax = Element->x[0];
-    ElementBox.Ymin = ElementBox.Ymax = Element->y[0];
-    ElementBox.Zmin = ElementBox.Zmax = Element->z[0];
-    for (i = 1 ; i < Element->GeoElement->NbrNodes ; i++) {
-      ElementBox.Xmin = MIN(ElementBox.Xmin, Element->x[i]);
-      ElementBox.Xmax = MAX(ElementBox.Xmax, Element->x[i]);
-      ElementBox.Ymin = MIN(ElementBox.Ymin, Element->y[i]);
-      ElementBox.Ymax = MAX(ElementBox.Ymax, Element->y[i]);
-      ElementBox.Zmin = MIN(ElementBox.Zmin, Element->z[i]);
-      ElementBox.Zmax = MAX(ElementBox.Zmax, Element->z[i]);
-    }
-
-    if( (ChainDim == _1D && Element->Type == LINE) ||
-	(ChainDim == _2D && (Element->Type == TRIANGLE || Element->Type == QUADRANGLE)) ){
-	
-      dxy = (ElementBox.Xmax-ElementBox.Xmin)-(ElementBox.Ymax-ElementBox.Ymin);
-      dxz = (ElementBox.Xmax-ElementBox.Xmin)-(ElementBox.Zmax-ElementBox.Zmin);
-      dyz = (ElementBox.Ymax-ElementBox.Ymin)-(ElementBox.Zmax-ElementBox.Zmin);
-
-      if(dxy >= 0 && dxz >= 0){
-	ElementBox.Ymin -= dxy/2. ; ElementBox.Ymax += dxy/2. ;
-	ElementBox.Zmin -= dxz/2. ; ElementBox.Zmax += dxz/2. ;
-      }
-      else if(dxy <= 0 && dyz >= 0){
-	ElementBox.Xmin += dxy/2. ; ElementBox.Xmax -= dxy/2. ;
-	ElementBox.Zmin -= dyz/2. ; ElementBox.Zmax += dyz/2. ;
-      }
-      else if(dxz <= 0 && dyz <= 0){
-	ElementBox.Xmin += dxz/2. ; ElementBox.Xmax -= dxz/2. ;
-	ElementBox.Ymin += dyz/2. ; ElementBox.Ymax -= dyz/2. ;	
-      }
-      
-      d = ElementBox.Xmax - ElementBox.Xmin ;
-
-      ElementBox.Xmin -= d/10. ; ElementBox.Xmax += d/10.;
-      ElementBox.Ymin -= d/10. ; ElementBox.Ymax += d/10.;
-      ElementBox.Zmin -= d/10. ; ElementBox.Zmax += d/10.;
-    }
-
-    if (x > ElementBox.Xmax || x < ElementBox.Xmin ||
-	y > ElementBox.Ymax || y < ElementBox.Ymin ||
-	z > ElementBox.Zmax || z < ElementBox.Zmin)
-      return (0);
-    else
-      return (1);
-
-  case LINE_2      :
-  case TRIANGLE_2  : case QUADRANGLE_2 :
-
-    ElementBox.Xmin = ElementBox.Xmax = Element->x[0];
-    ElementBox.Ymin = ElementBox.Ymax = Element->y[0];
-    ElementBox.Zmin = 0.0;
-    ElementBox.Zmax = 0.0;
-    
-    for (i = 1 ; i < Element->GeoElement->NbrNodes ; i++) {
-      
-      if(Element->z[i] != 0.0)
-	Msg(ERROR, "2nd order PointInElementBox not done for the 3D case");
-
-      if (i % 2 == 0) {
-	XPolyConv = Element->x[i];
-	YPolyConv = Element->y[i];
-      } 
-      else {
-	if ((Element->GeoElement->NbrNodes == 6) && (i == 5)) {
-	  Xmid = 0.5 * (Element->x[0] + Element->x[4]);
-	  Ymid = 0.5 * (Element->y[0] + Element->y[4]);
-	} 
-	else if ((Element->GeoElement->NbrNodes == 9) && (i == 7)) {
-	  Xmid = 0.5 * (Element->x[0] + Element->x[6]);
-	  Ymid = 0.5 * (Element->y[0] + Element->y[6]);
-	} 
-	else if ((Element->GeoElement->NbrNodes == 9) && (i == 8)) {
-	  Xmid = Element->x[i];
-	  Ymid = Element->y[i];
-	} 
-	else {
-	  Xmid = 0.5 * (Element->x[i-1] + Element->x[i+1]);
-	  Ymid = 0.5 * (Element->y[i-1] + Element->y[i+1]);
-	}
-	XPolyConv = Xmid + 2.* (Element->x[i] - Xmid);
-	YPolyConv = Ymid + 2.* (Element->y[i] - Ymid);
-      }
-      ElementBox.Xmin = MIN(ElementBox.Xmin, XPolyConv);
-      ElementBox.Xmax = MAX(ElementBox.Xmax, XPolyConv);
-      ElementBox.Ymin = MIN(ElementBox.Ymin, YPolyConv);
-      ElementBox.Ymax = MAX(ElementBox.Ymax, YPolyConv);
-    }
-    if (x > ElementBox.Xmax || x < ElementBox.Xmin ||
-	y > ElementBox.Ymax || y < ElementBox.Ymin) 
-      return (0);
-    else
-      return (1);
-
-  case TETRAHEDRON_2 : case HEXAHEDRON_2 :
-  case PRISM_2       : case PYRAMID_2    :
-    Msg(ERROR, "PointInElementBox not done for the 3D case");
-    return (-1) ;
-
-  case POINT :
-    return (0) ;
-
-  default :    
-    Msg(ERROR, "Unknown Element Type in 'PointInElementBox'"); 
-    return (-1) ;
-  }
-}
-
-
-/* ------------------------------------------------------------------------ */
-/*  P o i n t I n R e f E l e m e n t                                       */
-/* ------------------------------------------------------------------------ */
-
-int PointInRefElement (struct Element * Element, double u, double v, double w){
-  
-  switch(Element->Type) {
-  case LINE : case LINE_2 :
-    if (u<-1. || u>1.) return(0); 
-    return(1);
-  case TRIANGLE : case TRIANGLE_2 :
-    if (u<0. || v<0. || u>(1.-v)) return(0); 
-    return(1);
-  case QUADRANGLE : case QUADRANGLE_2 :
-    if (u<-1.  || v<-1. || u>1. || v>1.) return (0); 
-    return(1);
-  case TETRAHEDRON : case TETRAHEDRON_2 :
-    if (u<0. || v<0. || w<0. || u>(1.-v-w)) return(0); 
-    return(1);
-  case HEXAHEDRON : case HEXAHEDRON_2 :
-    if (u<-1. || v<-1. || w<-1. || u>1. || v>1. || w>1.) return(0); 
-    return(1);
-  case PRISM : case PRISM_2 :
-    if (w>1. || w<-1. || u<0. || v<0. || u>(1.-v)) return(0); 
-    return(1);
-  case PYRAMID : case PYRAMID_2 :
-    if (u<(w-1.) || u>(1.-w) || v<(w-1.) || v>(1.-w) || w<0. || w>1.) return(0); 
-    return(1);
-  default :
-    return(0);
-  }
-
-}
-
-/* ------------------------------------------------------------------------ */
-/*  A l l B r i c k s                                                       */
-/* ------------------------------------------------------------------------ */
-
-List_T * AllBricks (struct Grid Grid) {
-  List_T  * List;
-  int       i, NbrBricks;
-
-  NbrBricks = Grid.Nx * Grid.Ny * Grid.Nz ;
-
-  List = List_Create(NbrBricks, 1, sizeof(int));
-  for (i=1 ; i<=NbrBricks ; i++){
-    List_Add(List, &i);
-  }
-  return(List);
-
-}
-
-/* ------------------------------------------------------------------------ */
-/*  A l l B r i c k s F o r A n E l e m e n t B o x                         */
-/* ------------------------------------------------------------------------ */
-
-List_T * AllBricksForAnElementBox (struct Grid Grid){  
-  List_T  * List;
-  int       Ix1, Ix2, Iy1, Iy2, Iz1, Iz2;
-  int       i, j, k, Num;
-
-  Ix1 = (int) ((double)Grid.Nx * (ElementBox.Xmin - Grid.Xmin) / 
-	       (Grid.Xmax - Grid.Xmin)); 
-  Ix2 = (int) ((double)Grid.Nx * (ElementBox.Xmax - Grid.Xmin) / 
-	       (Grid.Xmax - Grid.Xmin)); 
-  Iy1 = (int) ((double)Grid.Ny * (ElementBox.Ymin - Grid.Ymin) / 
-	       (Grid.Ymax - Grid.Ymin)); 
-  Iy2 = (int) ((double)Grid.Ny * (ElementBox.Ymax - Grid.Ymin) / 
-	       (Grid.Ymax - Grid.Ymin)); 
-  Iz1 = (int) ((double)Grid.Nz * (ElementBox.Zmin - Grid.Zmin) / 
-	       (Grid.Zmax - Grid.Zmin)); 
-  Iz2 = (int) ((double)Grid.Nz * (ElementBox.Zmax - Grid.Zmin) / 
-	       (Grid.Zmax - Grid.Zmin));
-
-  Ix1 = (Ix1 < Grid.Nx) ? Ix1 : Grid.Nx-1;
-  Ix2 = (Ix2 < Grid.Nx) ? Ix2 : Grid.Nx-1;
-  Iy1 = (Iy1 < Grid.Ny) ? Iy1 : Grid.Ny-1;
-  Iy2 = (Iy2 < Grid.Ny) ? Iy2 : Grid.Ny-1;
-  Iz1 = (Iz1 < Grid.Nz) ? Iz1 : Grid.Nz-1;
-  Iz2 = (Iz2 < Grid.Nz) ? Iz2 : Grid.Nz-1;
-
-  List = List_Create((Ix2-Ix1+1)*(Iy2-Iy1+1)*(Iz2-Iz1+1), 1, sizeof(int));
-  for (i=Ix1 ; i<=Ix2 ; i++){
-    for (j=Iy1 ; j<=Iy2 ; j++){
-      for (k=Iz1 ; k<=Iz2 ; k++){
-	Num = 1 + i + j*Grid.Nx + k*Grid.Nx*Grid.Ny ;
-	List_Add(List, &Num);
-      }
-    }
-  }
-  return(List);
-
-}
 
 
 /* ------------------------------------------------------------------------ */
@@ -689,80 +682,12 @@ void xyz2uvwInAnElement (struct Element *Element,
   if(iter == NR_MAX_ITER) 
     Msg(WARNING, "Maximum Number of Iterations Exceeded in xyz2uvwInAnElement") ;
 
-  /* Msg(INFO, "%d iterations in xyz2uvw", iter); */
+#if 0
+  Msg(INFO, "%d iterations in xyz2uvw", iter);
+#endif
 
 }
 
 #undef NR_PRECISION
 #undef NR_MAX_ITER
   
-
-/* ------------------------------------------------------------------------ */
-/*  I n v e r t _ M a p p i n g L i s t s                                   */
-/* ------------------------------------------------------------------------ */
-
-void Invert_MappingLists (List_T * List1, List_T * List2) {
-  
-  struct NumxList   TmpMap1, TmpMap2 ;
-  struct NumxList * TmpMap;
-  List_T          * TmpList;
-
-  int i, j, Entity, CurrentEntity;
-
-  TmpList = List_Create(10*List_Nbr(List1), 100, sizeof(int));
-
-  for(i=0 ; i<List_Nbr(List1) ; i++){
-    List_Read(List1, i, &TmpMap1);
-    for(j=0 ; j<List_Nbr(TmpMap1.List) ; j++){
-      List_Read(TmpMap1.List, j, &Entity);
-      List_Add(TmpList, &Entity);
-    }
-  }
-    
-  List_Tri(TmpList, fcmp_int);
-
-  List_Read(TmpList, 0, &CurrentEntity);
-  TmpMap1.Num = CurrentEntity;
-  TmpMap1.List = List_Create(10, 10, sizeof(int));
-  List_Add(List2, &TmpMap1);
-  for(i=1 ; i<List_Nbr(TmpList) ; i++){
-    List_Read(TmpList, i, &Entity);
-    if (Entity != CurrentEntity) {
-      CurrentEntity = Entity;
-      TmpMap1.Num = CurrentEntity;
-      TmpMap1.List = List_Create(10, 10, sizeof(int));
-      List_Add(List2, &TmpMap1);
-    }
-  }
-  
-  for(i=0 ; i<List_Nbr(List1) ; i++){
-    List_Read(List1, i, &TmpMap1);
-    for(j=0 ; j<List_Nbr(TmpMap1.List) ; j++){
-      List_Read(TmpMap1.List, j, &Entity);
-      TmpMap2.Num = Entity;
-      if ((TmpMap = (struct NumxList*)List_PQuery(List2, &TmpMap2, fcmp_NumxList)) != NULL) {	
-	List_Add(TmpMap->List, &TmpMap1.Num);
-      }
-    }
-  }
-
-  List_Delete(TmpList);
-
-}
-
-/* ------------------------------------------------------------------------ */
-/*  P r i n t _ M a p p i n g L i s t                                       */
-/* ------------------------------------------------------------------------ */
-
-void Print_MappingList (List_T * List) {
-  int i,j;
-  
-  for(i=0;i<List_Nbr(List);i++){
-    printf("%d --> ", ((struct NumxList *)List_Pointer(List,i))->Num);
-    for(j=0;j<List_Nbr(((struct NumxList *)List_Pointer(List,i))->List);j++){
-      printf("%d ", (*(int *)List_Pointer( ((struct NumxList *)List_Pointer(List,i))->List ,j) ));
-    }
-    printf("\n");
-  }
-}
-
