@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Helmholtz.c,v 1.7 2001-08-09 14:55:15 sabarieg Exp $"
+#define RCSID "$Id: GF_Helmholtz.c,v 1.8 2001-08-10 09:49:18 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -29,7 +29,7 @@
 
 void GF_Helmholtz (F_ARG) {
  
-  double  r, phi_r, phi ;
+  double  r ;
   
   GetDP_Begin("GF_Helmholtz");
 
