@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_DofOfElement.c,v 1.15 2000-11-24 13:37:03 dular Exp $"
+#define RCSID "$Id: Get_DofOfElement.c,v 1.16 2000-12-08 12:04:13 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -112,7 +112,7 @@ void  Get_DofOfElement(struct Element          * Element,
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->GeoElement->NbrNodes, Element->GeoElement->NumNodes,
-	   0,  i_BFunction, NODESOF) ;
+	   0,  i_BFunction, NODESOF, NULL) ;
 	break ;
 
       case EDGESOF :  case EDGESOFTREEIN :
@@ -121,7 +121,7 @@ void  Get_DofOfElement(struct Element          * Element,
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->GeoElement->NbrEdges, Element->GeoElement->NumEdges,
-	   0,  i_BFunction, EDGESOF) ;
+	   0,  i_BFunction, EDGESOF, NULL) ;
 	break ;
 
       case FACETSOF :  case FACETSOFTREEIN :
@@ -132,23 +132,24 @@ void  Get_DofOfElement(struct Element          * Element,
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->GeoElement->NbrFacets, Element->GeoElement->NumFacets,
-	   0,  i_BFunction, FACETSOF) ;
+	   0,  i_BFunction, FACETSOF, NULL) ;
 	break ;
 
       case VOLUMESOF :
 	Get_CodesOfElement(FunctionSpace_P, QuantityStorage_P,
 			   1, &Element->GeoElement->Num,
-			   0,  i_BFunction, VOLUMESOF) ;
+			   0,  i_BFunction, VOLUMESOF, NULL) ;
 	break ;
 
       case GROUPSOFNODESOF :
 	Get_GroupsOfElementaryEntitiesOfElement
 	  (Element, &StartingIndex,
-	   Element->GeoElement->NbrNodes, Element->GeoElement->NumNodes) ;
+	   Element->GeoElement->NbrNodes, Element->GeoElement->NumNodes,
+	   BasisFunction_P) ;
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
-	   StartingIndex,  i_BFunction, GROUPSOFNODESOF) ;
+	   StartingIndex,  i_BFunction, GROUPSOFNODESOF, Element->NumSubFunction[1]) ;
 	break ;
 
       case GROUPSOFEDGESONNODESOF :
@@ -158,7 +159,7 @@ void  Get_DofOfElement(struct Element          * Element,
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
-	   StartingIndex,  i_BFunction, GROUPSOFEDGESONNODESOF) ;
+	   StartingIndex,  i_BFunction, GROUPSOFEDGESONNODESOF, NULL) ;
 	break ;
 
       case GROUPSOFEDGESOF :
@@ -166,19 +167,20 @@ void  Get_DofOfElement(struct Element          * Element,
 	  Geo_CreateEdgesOfElement(Element->GeoElement) ;
 	Get_GroupsOfElementaryEntitiesOfElement
 	  (Element, &StartingIndex,
-	   Element->GeoElement->NbrEdges, Element->GeoElement->NumEdges) ;
+	   Element->GeoElement->NbrEdges, Element->GeoElement->NumEdges,
+	   BasisFunction_P) ;
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
-	   StartingIndex,  i_BFunction, GROUPSOFEDGESOF) ;
+	   StartingIndex,  i_BFunction, GROUPSOFEDGESOF, NULL) ;
 	break ;
 
       case REGION :
-	Get_RegionForElement(Element, &StartingIndex) ;
+	Get_RegionForElement(Element, &StartingIndex, BasisFunction_P) ;
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
-	   StartingIndex,  i_BFunction, REGION) ;
+	   StartingIndex,  i_BFunction, REGION, Element->NumSubFunction[1]) ;
 	break ;
 
       case GLOBAL :
@@ -186,7 +188,7 @@ void  Get_DofOfElement(struct Element          * Element,
 	Get_CodesOfElement
 	  (FunctionSpace_P, QuantityStorage_P,
 	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
-	   StartingIndex,  i_BFunction, GLOBAL) ;
+	   StartingIndex,  i_BFunction, GLOBAL, NULL) ;
 	break ;
       }
 
@@ -207,11 +209,12 @@ void  Get_DofOfElement(struct Element          * Element,
 
 void  Get_GroupsOfElementaryEntitiesOfElement
   (struct Element * Element,
-   int * StartingIndex, int Nbr_ElementaryEntities, int Num_ElementaryEntities[]) {
+   int * StartingIndex, int Nbr_ElementaryEntities, int Num_ElementaryEntities[],
+   struct BasisFunction * BasisFunction_P) {
 
   /* external input/output :  GroupEntity_P     : In  */
 
-  int            i, j, Num_Entity ;
+  int            i, j, Num_Entity, Nbr_SubFunction, i_SF ;
   struct TwoInt  * Key_P ;
 
   GetDP_Begin("Get_GroupsOfElementaryEntitiesOfElement");
@@ -233,14 +236,34 @@ void  Get_GroupsOfElementaryEntitiesOfElement
       while ((j < Element->NbrGroupsOfEntities) &&
 	     (Element->NumGroupsOfEntities[j] != Key_P->Int2))  j++ ;
 
-      if (j == Element->NbrGroupsOfEntities) {
-	Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Key_P->Int2 ;
-	Element->NbrEntitiesInGroups[j] = 0 ;
+      if (!BasisFunction_P->SubFunction) {
+	if (j == Element->NbrGroupsOfEntities) {
+	  Element->NumSubFunction[1][j] = 0 ;
+	  Element->NumSubFunction[0][j] = -1 ;
+	  Element->NumGroupsOfEntities[j] = Key_P->Int2 ;
+	  Element->NbrEntitiesInGroups[Element->NbrGroupsOfEntities++] = 0 ;
+	}
+	Element->NumEntitiesInGroups[j][Element->NbrEntitiesInGroups[j]++] =
+	  (Key_P->Int1 > 0)?  (i+1) : -(i+1) ;
+      }
+      else { /* For SubFunctions (basis functions for a global function) */
+	Nbr_SubFunction = List_Nbr(BasisFunction_P->SubFunction) ;
+
+	if (j == Element->NbrGroupsOfEntities) {
+	  for (i_SF = 0 ; i_SF < Nbr_SubFunction ; i_SF++) {
+	    Element->NumSubFunction[1][j+i_SF] = i_SF ;
+	    Element->NumSubFunction[0][j+i_SF] =
+	      *((int *)List_Pointer(BasisFunction_P->SubFunction, i_SF)) ;
+	    Element->NumGroupsOfEntities[j+i_SF] = Key_P->Int2 ;
+	    Element->NbrEntitiesInGroups[Element->NbrGroupsOfEntities++] = 0 ;
+	  }
+	}
+	for (i_SF = 0 ; i_SF < Nbr_SubFunction ; i_SF++)
+	  Element->NumEntitiesInGroups[j+i_SF][Element->NbrEntitiesInGroups[j+i_SF]++] =
+	    (Key_P->Int1 > 0)?  (i+1) : -(i+1) ;
       }
 
-      Element->NumEntitiesInGroups[j][Element->NbrEntitiesInGroups[j]++] =
-	(Key_P->Int1 > 0)?  (i+1) : -(i+1) ;
-    }
+    } /* if Key_P */
   }
 
   GetDP_End ;
@@ -309,7 +332,10 @@ void  Get_GroupsOfEdgesOnNodesOfElement(struct Element * Element,
 /*  G e t _ R e g i o n F o r E l e m e n t                                 */
 /* ------------------------------------------------------------------------ */
 
-void  Get_RegionForElement(struct Element * Element, int * StartingIndex) {
+void  Get_RegionForElement(struct Element * Element, int * StartingIndex,
+			   struct BasisFunction * BasisFunction_P) {
+
+  int Nbr_SubFunction, i_SF ;
 
   GetDP_Begin("Get_RegionForElement");
 
@@ -319,7 +345,22 @@ void  Get_RegionForElement(struct Element * Element, int * StartingIndex) {
   }
 
   *StartingIndex = Element->NbrGroupsOfEntities ;
-  Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Element->Region ;
+
+  if (!BasisFunction_P->SubFunction) {
+    Element->NumSubFunction[1][Element->NbrGroupsOfEntities] = 0 ;
+    Element->NumSubFunction[0][Element->NbrGroupsOfEntities] = -1 ;
+    Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Element->Region ;
+  }
+  else { /* For SubFunctions (basis functions for a global function) */
+    Nbr_SubFunction = List_Nbr(BasisFunction_P->SubFunction) ;
+
+    for (i_SF = 0 ; i_SF < Nbr_SubFunction ; i_SF++) {
+      Element->NumSubFunction[1][Element->NbrGroupsOfEntities] = i_SF ; /* Index SF */
+      Element->NumSubFunction[0][Element->NbrGroupsOfEntities] =
+	*((int *)List_Pointer(BasisFunction_P->SubFunction, i_SF)) ; /* Index Expression */
+      Element->NumGroupsOfEntities[Element->NbrGroupsOfEntities++] = Element->Region ;
+    }
+  }
 
   GetDP_End ;
 }
@@ -369,13 +410,13 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 			 struct QuantityStorage  * QuantityStorage_P,
 			 int Nbr_Entity, int Num_Entity[],
 			 int StartingIndex,
-			 int i_BFunction, int TypeConstraint) {
+			 int i_BFunction, int TypeConstraint, int * Num_SubFunction) {
 
 /* external input/output :
      GroupSupport_P    : In
      GroupEntity_P     : In  */
 
-  int         k, i_Entity, CodeExist, Index_GeoElement ;
+  int         k, i_Entity, CodeExist, Index_GeoElement, Code_BasisFunction ;
   struct Dof  * Dof_P ;
 
   GetDP_Begin("Get_CodesOfElement");
@@ -386,9 +427,12 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 
   for (i_Entity = StartingIndex ; i_Entity < Nbr_Entity ; i_Entity++) {
 
+    Code_BasisFunction =
+      BasisFunction_P->Num + (Num_SubFunction? Num_SubFunction[i_Entity] : 0) ;
+
     switch (TreatmentStatus) {
-    case _PAR :  
-    case _CAL :  
+    case _PAR :
+    case _CAL :
     case _POS :
       if(!FunctionSpace_P->DofData)
 	Msg(ERROR, "Empty DofData in FunctionSpace '%s' (No Unknowns?)",
@@ -397,7 +441,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
       CodeExist =
 	((Dof_P =
 	  Dof_GetDofStruct(FunctionSpace_P->DofData,
-			   BasisFunction_P->Num, abs(Num_Entity[i_Entity]), 0))
+			   Code_BasisFunction, abs(Num_Entity[i_Entity]), 0))
 	 != NULL) ;
       if (Flag_SubSpace && CodeExist && TreatmentStatus != _POS)
 	CodeExist =
@@ -423,7 +467,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
       QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].NumEntityInElement
 	= i_Entity ;
       QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].CodeBasisFunction
-	= BasisFunction_P->Num ;
+	= Code_BasisFunction ;
       QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].CodeEntity
 	= abs(Num_Entity[i_Entity]) ;
       QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction

@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.29 2000-12-06 14:26:05 dular Exp $ */
+/* $Id: yacc.y,v 1.30 2000-12-08 12:04:13 dular Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -237,7 +237,7 @@ struct PostSubOperation         PostSubOperation_S ;
 %token  tFunctionSpace
 %token    tName
 %token    tBasisFunction
-%token      tNameOfCoef  tFunction  tdFunction  tSupport  tEntity
+%token      tNameOfCoef  tFunction  tdFunction  tSubFunction  tSupport  tEntity
 %token    tSubSpace  tNameOfBasisFunction
 %token    tGlobalQuantity
 %token      tEntityType tEntitySubType tNameOfConstraint
@@ -2264,8 +2264,14 @@ BasisFunctions :
     {
       if (!Nbr_Index) {
 	if ( (i = List_ISearchSeq($1, BasisFunction_S.Name, 
-				  fcmp_BasisFunction_Name)) < 0 )
+				  fcmp_BasisFunction_Name)) < 0 ) {
+	  /*
 	  BasisFunction_S.Num = Num_BasisFunction++ ;
+	  */
+	  BasisFunction_S.Num = Num_BasisFunction ;
+	  Num_BasisFunction += (BasisFunction_S.SubFunction)?
+	    List_Nbr(BasisFunction_S.SubFunction) : 1 ;
+	}
 	else  /* BasisFunction definie par morceaux => meme Num */
 	  BasisFunction_S.Num = ((struct BasisFunction *)List_Pointer($1, i))->Num ;
 	
@@ -2280,8 +2286,14 @@ BasisFunctions :
 
 	    if ( (i = List_ISearchSeq(FunctionSpace_S.BasisFunction,
 				      BasisFunction_S.Name, 
-				      fcmp_BasisFunction_Name)) < 0 )
+				      fcmp_BasisFunction_Name)) < 0 ) {
+	      /*
 	      BasisFunction_S.Num = Num_BasisFunction++ ;
+	      */
+	      BasisFunction_S.Num = Num_BasisFunction ;
+	      Num_BasisFunction += (BasisFunction_S.SubFunction)?
+		List_Nbr(BasisFunction_S.SubFunction) : 1 ;
+	    }
 	    else  /* BasisFunction definie par morceaux => meme Num */
 	      BasisFunction_S.Num =
 		((struct BasisFunction *)
@@ -2306,6 +2318,7 @@ BasisFunction :
       BasisFunction_S.Function = NULL ; 
       BasisFunction_S.dFunction = NULL ;
       BasisFunction_S.dInvFunction = NULL ;
+      BasisFunction_S.SubFunction = NULL ; 
       BasisFunction_S.SupportIndex = -1 ; 
       BasisFunction_S.EntityIndex  = -1 ;
     }
@@ -2355,6 +2368,15 @@ BasisFunctionTerm :
       if (FlagError)  vyyerror("Unknown dFunction (2) for BasisFunction: %s %s", 
 			       $5, Get_Valid_SX3F2N(BF_Function)) ;
       Free($5) ;
+    }
+
+  | tSubFunction ListOfExpression tEND
+    { BasisFunction_S.SubFunction =
+	List_Create(List_Nbr(ListOfInt_L), 1, sizeof(int)) ;
+      for (i = 0 ; i < List_Nbr(ListOfInt_L) ; i++) {
+	List_Read(ListOfInt_L, i, &j) ; 
+	List_Add(BasisFunction_S.SubFunction, &j) ;
+      }
     }
 
   | tSupport GroupRHS tEND
@@ -2515,6 +2537,7 @@ OptionalParametersForBasisFunction :
       Free($3) ; Free($6) ; Free($15) ;
     }
   ;
+
 
 SubSpaces :
 

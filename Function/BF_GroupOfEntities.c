@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_GroupOfEntities.c,v 1.7 2000-12-06 14:26:04 dular Exp $"
+#define RCSID "$Id: BF_GroupOfEntities.c,v 1.8 2000-12-08 12:04:13 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* abs */
 #include <math.h>
@@ -11,6 +11,8 @@
   struct Element * Element, int NumGroup, 	\
   double u, double v, double w,  double *s 
 
+void  BF_SubFunction(struct Element * Element, int NumExpression,
+		     int Dim, double s[] ) ;
 
 /* ------------------------------------------------------------------------ */
 /*  B F _ G r o u p O f N o d e s                                           */
@@ -28,6 +30,9 @@
       (Element, Element->NumEntitiesInGroups[NumGroup-1][i], u, v, w, &val) ;	\
     *s += val ;									\
   }										\
+										\
+  if (Element->NumSubFunction[0][NumGroup-1] >= 0)				\
+    BF_SubFunction(Element, Element->NumSubFunction[0][NumGroup-1], 1, s) ;	\
 										\
   GetDP_End 
 
@@ -58,6 +63,9 @@ void  BF_GroupOfNodes_3V(ARGS) { BF("BF_GroupOfNodes_3V",BF_Node_3V) ; }
     s[0] += val[0] ; s[1] += val[1] ; s[2] += val[2] ;				\
   }										\
 										\
+  if (Element->NumSubFunction[0][NumGroup-1] >= 0)				\
+    BF_SubFunction(Element, Element->NumSubFunction[0][NumGroup-1], 3, s) ;	\
+										\
   GetDP_End 
 
 void  BF_GradGroupOfNodes   (ARGS) { BF("BF_GradGroupOfNodes",BF_GradNode) ; }
@@ -87,6 +95,9 @@ void  BF_GradGroupOfNodes_3V(ARGS) { BF("BF_GradGroupOfNodes_3V",BF_GradNode_3V)
     s[2] += val ;								\
   }										\
 										\
+  if (Element->NumSubFunction[0][NumGroup-1] >= 0)				\
+    BF_SubFunction(Element, Element->NumSubFunction[0][NumGroup-1], 3, s) ;	\
+										\
   GetDP_End
 
 void  BF_GroupOfPerpendicularEdges   (ARGS){ BF("BF_GroupOfPerpendicularEdges",BF_Node) ; }
@@ -115,6 +126,9 @@ void  BF_GroupOfPerpendicularEdges_3V(ARGS){ BF("BF_GroupOfPerpendicularEdges_3V
       (Element, Element->NumEntitiesInGroups[NumGroup-1][i], u, v, w, val) ;	\
     s[0] += val[1] ; s[1] += -val[0] ;						\
   }										\
+										\
+  if (Element->NumSubFunction[0][NumGroup-1] >= 0)				\
+    BF_SubFunction(Element, Element->NumSubFunction[0][NumGroup-1], 3, s) ;	\
 										\
   GetDP_End
 

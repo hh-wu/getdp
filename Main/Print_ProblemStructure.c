@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.12 2000-11-24 13:37:25 dular Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.13 2000-12-08 12:04:13 dular Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -536,6 +536,17 @@ void  Print_FunctionSpace(struct Problem  * Problem) {
 	Msg(CHECK, "      Name %s ; NameOfCoef %s ; Function %s ;\n",
 	    BF->Name, BF->NameOfCoef,
 	    Get_StringFor3Function2Nbr(BF_Function, BF->Function)) ;
+
+	if (BF->SubFunction) {
+	  Msg(CHECK, "      SubFunction {") ;
+	  Nbrj = List_Nbr(BF->SubFunction) ;
+	  for (j=0 ; j<Nbrj ; j++)
+	    Msg(CHECK, " %s",
+		((struct Expression *)
+		 List_Pointer(Problem->Expression, 
+			      *((int *)List_Pointer(BF->SubFunction, j))))->Name) ;
+	  Msg(CHECK, " } ;\n") ;
+	}
 
 	Msg(CHECK, "      Support %s ;", 
 	    (BF->SupportIndex >=0)?

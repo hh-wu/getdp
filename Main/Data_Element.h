@@ -1,4 +1,4 @@
-/* $Id: Data_Element.h,v 1.5 2000-10-02 08:20:31 geuzaine Exp $ */
+/* $Id: Data_Element.h,v 1.6 2000-12-08 12:04:13 dular Exp $ */
 #ifndef _DATA_ELEMENT_H_
 #define _DATA_ELEMENT_H_
 
@@ -60,6 +60,7 @@ struct Element {
   int       NbrEntitiesInGroups  [NBR_MAX_GROUPS_IN_ELEMENT] ;
   int       NumEntitiesInGroups  [NBR_MAX_GROUPS_IN_ELEMENT]
                                  [NBR_MAX_ENTITIES_IN_ELEMENT] ;
+  int       NumSubFunction       [2][NBR_MAX_GROUPS_IN_ELEMENT] ;
 
   struct GlobalBasisFunction  * GlobalBasisFunction [NBR_MAX_GROUPS_IN_ELEMENT] ;
 } ;

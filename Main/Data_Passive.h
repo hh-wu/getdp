@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.23 2000-12-06 14:26:05 dular Exp $ */
+/* $Id: Data_Passive.h,v 1.24 2000-12-08 12:04:13 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -260,6 +260,7 @@ struct BasisFunction {
   void    (*Function)();
   void    (*dFunction)();
   void    (*dInvFunction)();
+  List_T  * SubFunction ;
   int     SupportIndex, EntityIndex ;
   double  Order ;
   int     ElementType ;

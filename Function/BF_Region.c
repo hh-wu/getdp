@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Region.c,v 1.5 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: BF_Region.c,v 1.6 2000-12-08 12:04:13 dular Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -6,6 +6,9 @@
 #include "Get_DofOfElement.h"
 #include "CurrentData.h"
 #include "Treatment_Formulation.h"
+
+void  BF_SubFunction(struct Element * Element, int NumExpression,
+		     int Dim, double s[] ) ;
 
 /* ------------------------------------------------------------------------ */
 /*  B F _ R e g i o n                                                       */
@@ -17,6 +20,9 @@ void  BF_Region(struct Element * Element, int NumRegion,
   GetDP_Begin("BF_Region");
 
   *s = 1. ;
+
+  if (Element->NumSubFunction[0][NumRegion-1] >= 0)
+    BF_SubFunction(Element, Element->NumSubFunction[0][NumRegion-1], 1, s) ;
 
   GetDP_End ;
 }
@@ -32,6 +38,9 @@ void  BF_RegionX(struct Element * Element, int NumRegion,
 
   s[1] = s[2] = 0. ;  s[0] = 1. ;
 
+  if (Element->NumSubFunction[0][NumRegion-1] >= 0)
+    BF_SubFunction(Element, Element->NumSubFunction[0][NumRegion-1], 3, s) ;
+
   GetDP_End ;
 }
 
@@ -42,6 +51,9 @@ void  BF_RegionY(struct Element * Element, int NumRegion,
 
   s[0] = s[2] = 0. ;  s[1] = 1. ;
 
+  if (Element->NumSubFunction[0][NumRegion-1] >= 0)
+    BF_SubFunction(Element, Element->NumSubFunction[0][NumRegion-1], 3, s) ;
+
   GetDP_End ;
 }
 
@@ -51,6 +63,9 @@ void  BF_RegionZ(struct Element * Element, int NumRegion,
   GetDP_Begin("BF_RegionZ");
 
   s[0] = s[1] = 0. ;  s[2] = 1. ;
+
+  if (Element->NumSubFunction[0][NumRegion-1] >= 0)
+    BF_SubFunction(Element, Element->NumSubFunction[0][NumRegion-1], 3, s) ;
 
   GetDP_End ;
 }
@@ -211,6 +226,35 @@ void  BF_InitGlobal(struct GlobalBasisFunction * GlobalBasisFunction_P) {
     List_Pointer(Problem_S.FunctionSpace,
 		 QuantityStorage_P->DefineQuantity->FunctionSpaceIndex) ;
   QuantityStorage_P->TypeQuantity = QuantityStorage_P->FunctionSpace->Type ;
+
+  GetDP_End ;
+}
+
+
+
+/* ------------------------------------------------------------------------ */
+/*  B F _ S u b F u n c t i o n                                             */
+/* ------------------------------------------------------------------------ */
+
+void  BF_SubFunction(struct Element * Element, int NumExpression,
+		     int Dim, double s[] ) {
+
+  struct Value  Value ;
+
+  GetDP_Begin("BF_SubFunction");
+
+  Get_ValueOfExpressionByIndex(NumExpression, NULL, 0., 0., 0., &Value) ;
+
+  switch (Dim) {
+  case 1 :
+    *s *= Value.Val[0] ;
+    break ;
+  case 3 :
+    s[0] *= Value.Val[0] ;
+    s[1] *= Value.Val[0] ;
+    s[2] *= Value.Val[0] ;
+    break ;
+  }
 
   GetDP_End ;
 }

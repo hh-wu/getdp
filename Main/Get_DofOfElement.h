@@ -1,4 +1,4 @@
-/* $Id: Get_DofOfElement.h,v 1.3 2000-09-08 08:17:24 geuzaine Exp $ */
+/* $Id: Get_DofOfElement.h,v 1.4 2000-12-08 12:04:13 dular Exp $ */
 #ifndef _GET_DOF_OF_ELEMENT_H_
 #define _GET_DOF_OF_ELEMENT_H_
 
@@ -17,10 +17,12 @@ void  Get_DofOfElement(struct Element          * Element,
 
 void  Get_GroupsOfElementaryEntitiesOfElement
   (struct Element * Element,
-   int * StartingIndex, int Nbr_ElementaryEntities, int Num_ElementaryEntities[]) ;
+   int * StartingIndex, int Nbr_ElementaryEntities, int Num_ElementaryEntities[],
+   struct BasisFunction * BasisFunction_P) ;
 void  Get_GroupsOfEdgesOnNodesOfElement    (struct Element * Element,
 					    int * StartingIndex) ;
-void  Get_RegionForElement(struct Element * Element, int * StartingIndex) ;
+void  Get_RegionForElement(struct Element * Element, int * StartingIndex,
+			   struct BasisFunction * BasisFunction_P) ;
 void  Get_GlobalForElement(struct Element * Element, int * StartingIndex,
 			   struct BasisFunction * BasisFunction_P) ;
 
@@ -28,7 +30,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 			 struct QuantityStorage  * QuantityStorage_P,
 			 int Nbr_Entity, int Num_Entity[], 
 			 int StartingIndex,
-			 int i_BFunction, int TypeConstraint) ;
+			 int i_BFunction, int TypeConstraint, int * Num_SubFunction) ;
 
 void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 				     struct QuantityStorage  * QuantityStorage_P,
