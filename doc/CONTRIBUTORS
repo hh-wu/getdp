@@ -1,6 +1,6 @@
-$Id: CONTRIBUTORS,v 1.10 2001-07-19 14:32:24 geuzaine Exp $
+$Id: CONTRIBUTORS,v 1.11 2002-01-21 18:48:42 geuzaine Exp $
 
-GetDP is copyright (c) 1997-2001 by
+GetDP is copyright (c) 1997-2002 by
 
     Patrick Dular <patrick.dular@@ulg.ac.be> and
     Christophe Geuzaine <christophe.geuzaine@@ulg.ac.be>
@@ -9,7 +9,9 @@ Parts of the code have been contributed by
 
     David Colignon <david.colignon@@ulg.ac.be>
     Johan Gyselinck <johan.gyselinck@@ulg.ac.be>
+    Tuan Ledinh <tuan.ledinh@@student.ulg.ac.be>
     Patrick Lef`evre <P.Lefevre@@ulg.ac.be>
+    Andr'e Nicolet <andre.nicolet@@fresnel.fr>
     Jean-Fran,cois Remacle <remacle@@scorec.rpi.edu>
     Ruth Sabariego <ruth.sabariego@@student.ulg.ac.be>
     Timo Tarhasaari <timo.tarhasaari@@tut.fi>
@@ -32,9 +34,7 @@ will be added to the list!
     Fran,cois Henrotte <fhenrott@@esat.kuleuven.ac.be>
     Daniel Kedzierski <kedzierski@@uol.com.br>
     Samuel Kvasnica <kvasnica@@iaee.tuwien.ac.at> 
-    Tuan Ledinh <tuan.ledinh@@student.ulg.ac.be>
     Beno^it Meys <bmeys@@techspace-aero.be>
-    Andr'e Nicolet <andre.nicolet@@fresnel.fr>
     Uwe Pahner <uwe.pahner@@esat.kuleuven.ac.be>
     Georgia Psoni and Robert Struijs <gpsoni@@free.fr> 
     Ahmed Rassili <a.rassili@@ulg.ac.be>
