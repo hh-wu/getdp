@@ -1,5 +1,5 @@
 %{
-/* $Id: yacc.y,v 1.8 2000-09-07 18:47:28 geuzaine Exp $ */
+/* $Id: yacc.y,v 1.9 2000-09-25 09:32:40 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):
@@ -25,7 +25,7 @@
 #include <math.h>
 
 /* bison est mal foutu */
-#if !defined MSDOS && !defined __cplusplus
+#if !defined __cplusplus && !defined MSDOS && !defined _AIX
 #include <alloca.h> 
 #endif
 
