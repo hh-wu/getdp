@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.31 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.32 2001-03-04 10:26:49 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -25,7 +25,7 @@ void FinalizeAndExit(void);
    make GetDP free sofware... */
 
 char acronym[]   = "GetDP %g, a General environment for the treatment of Discrete Problems\n";
-char copyright[] = "Copyright (C) 1997-2001 Patrick Dular and Christophe Geuzaine\n";
+char copyright[] = "Copyright (c) 1997-2001 Patrick Dular and Christophe Geuzaine\n";
 
 char version[]   = "Version          : %g\n";
 char os[]        = "Operating System : %s\n";

@@ -1,4 +1,4 @@
-#define RCSID "$Id: MainBlackBox.c,v 1.7 2001-03-03 19:21:21 geuzaine Exp $"
+#define RCSID "$Id: MainBlackBox.c,v 1.8 2001-03-04 10:26:49 geuzaine Exp $"
 
 /* 
    To create a special version of GetDP with a non-readable built-in formulation:
@@ -28,7 +28,7 @@ int  main(int argc, char *argv[]) {
 
   if(argc != 3 && argc != 5) {
     fprintf(stderr, 
-	    "This is %s (version %s), copyright (C) ELAP/ULg\n"
+	    "This is %s (version %s), copyright (c) ELAP-ULg\n"
 	    "Resolution: %s file.msh file.grp\n"
 	    "Post-Processing: %s file.msh file.grp file.pos name\n",
 	    NAME_PROGRAM, NAME_VERSION, argv[0], argv[0]);

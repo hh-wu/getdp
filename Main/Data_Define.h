@@ -1,4 +1,4 @@
-/* $Id: Data_Define.h,v 1.15 2001-01-02 13:42:20 geuzaine Exp $ */
+/* $Id: Data_Define.h,v 1.16 2001-03-04 10:26:49 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 
@@ -245,7 +245,7 @@ struct StringXDefine  PostSubOperation_Format[] = {
   {"GmshParsed"          , FORMAT_GMSH_PARSED},
   {"Gnuplot"             , FORMAT_GNUPLOT }, 
   {"Matlab"              , FORMAT_MATLAB }, 
-  {"Adaption"            , FORMAT_ADAPT }, 
+  {"Adaptation"          , FORMAT_ADAPT }, 
   {NULL                  , FORMAT_GMSH}
 } ;
 

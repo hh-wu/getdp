@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2000-09-25 09:32:47 geuzaine Exp $
+# $Id: Makefile,v 1.11 2001-03-04 10:28:56 geuzaine Exp $
 
 dvi:
 	texi2dvi getdp.texi 
@@ -27,7 +27,7 @@ infoz: info
 
 all: ps pdf html infoz
 	gtar zcvf getdp-doc.tgz\
-          FAQ getdp.bib \
+          FAQ CONTRIBUTORS ChangeLog getdp.bib \
           getdp.ps getdp.pdf \
           *.html *.jpg \
           getdp-info.tgz getdp.1 

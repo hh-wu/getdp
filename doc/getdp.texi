@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.32 2001-03-03 20:03:34 geuzaine Exp $
+@c $Id: getdp.texi,v 1.33 2001-03-04 10:26:49 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -21,6 +21,8 @@
 @c Before release, run C-u C-c C-u C-a in GNU Emacs
 @c This updates all node pointers and menus
 @c 
+@c (to sort the contributors alphabetically: C-u 2 M-x sort-fields)
+@c
 @c info  : makeinfo getdp.texi
 @c dvi   : texi2dvi getdp.texi
 @c ps    : dvips getdp.dvi -o
