@@ -1,0 +1,169 @@
+% $Id: fem.tex,v 1.1 2001-06-13 16:00:44 geuzaine Exp $
+
+% ---------------------------------------------------------------------------
+
+\chapter{}
+
+\begin{slide}
+
+\slidepagestyle{reduced}
+
+\begin{center}
+\bigtitle{Introduction --- finite element methods}
+\ifthenelse{\boolean{fulltitle}}{
+\bigskip\bigskip
+\mediumtitle{Christophe Geuzaine}\\
+\bigskip
+\smalltitle{Department of Electrical Engineering}\\
+\smalltitle{Montefiore Institute B28, Sart Tilman Campus}\\
+\smalltitle{University of Liège}\\
+\smalltitle{B-4000 Liège (BELGIUM)}}{}
+\end{center}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+\part{Introduction}
+% ---------------------------------------------------------------------------
+
+\chapter{Coupled electromagnetic problems?}
+
+\begin{slide}
+
+Maxwell's equations, coupled with...
+
+\begin{slideitemize}
+\item Electric and electronic \emph{circuits} (power electronic supplies)
+\item \emph{Mechanical} phenomena (force calculation, magnetostriction,
+piezoelectricity, noise and vibrations)
+\item \emph{Thermal} phenomena (thermal losses, induction heating, dielectric heating)
+\item \emph{Fluid} dynamics (charged particules, magnetohydrodynamics)
+\end{slideitemize}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Computational methods?}
+
+\begin{slide}
+
+\begin{slideitemize}
+\item \emph{Analytic} models are difficult/impossible to apply to complex/coupled problems
+\item \emph{Performance} (both floating point and visualization) of low end PCs is
+exploding
+\item Basic \emph{theory} of classic numerical methods (finite differences, finite
+volumes, finite elements, integral methods) is now well known, and future
+developments don't change the fundamental principles anymore
+\end{slideitemize}
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
+
+\chapter{Finite element method (FEM)}
+
+\begin{slide}
+
+\begin{slideitemize}
+\item 1960s for mechanical problems (very large \emph{application range} since 1980s)
+\item Strong \emph{mathematical foundations} (convergence, unicity)
+\item Generalizations/reinterpretations (vanishing boundaries between finite
+differences, finite elements and finite volumes, ...) call for a
+\emph{single sofware implementation}
+\end{slideitemize}
+
+But FEM is not the magic/universal tool:
+\begin{slideitemize}
+\item Many conflicting/\emph{antinomic} issues (continuous
+vs. discontinuous, conform vs. non conform meshes, implicit vs. explicit,
+...)
+\item Generality always has a price (i.e.\ \emph{efficiency} trade-off)
+\end{slideitemize}
+
+\end{slide}
+
+\begin{slide}
+
+Based on a double \emph{discretization}: ``replace'' the
+\begin{slideitemize}
+\item function spaces to which the field belong (e.g.\ $\Hone{\Omega}$,
+$\Hcurl{\Omega}$, $\Hdiv{\Omega}$ and $\Ltwo{\Omega}$) by \emph{finite
+dimensional function spaces}
+\item domains on which these subspaces are defined by a union of elementary
+geometrical elements of simple shapes (a ``\emph{mesh}'' or ``grid'')
+\end{slideitemize}
+
+\bigskip
+
+\mybox{colbox}{\textwidth}{
+\begin{center}
+FEM\\ $\Updownarrow$\\ the finite dimensional subspaces are built so that
+their bases are piecewise defined on the mesh
+\end{center}
+}
+
+\end{slide}
+
+\begin{slide}
+
+One way to obtain a consistent Galerkin FEM formulation:
+\begin{slideitemize}
+\item Write a \emph{weak formulation} of the problem:
+
+\begin{equation*}
+\begin{cases}
+L u = f \text{ in } \Omega \\
+B u = g \text{ in } \Gamma 
+\end{cases}
+\Rightarrow\quad
+\ivol[_\Omega]{u}{L^* v} - 
+\ivol[_\Omega]{f}{v} + 
+\int\limits_\Gamma Q_g(v) \, ds , 
+\quad\forall v \in V(\Omega) 
+\end{equation*}
+
+% $L$ is a differential operator of order $n$ defined on $\Omega$
+% 
+% L^* is the adjoint of L:
+%
+% \ivol[_\Omega]{L u}{v} - \ivol[_\Omega]{u}{L^* v} = \int\limits_\Gamma Q(u,v) ds ,
+%
+% $Q$ is a bilinear function of $u$ and $v$ and in their derivatives up
+% to the order $n-1$
+%
+% $Q_g$ is a linear form in $v$ which depends of $g$
+
+\item Discretize with \emph{Whitney/mixed} elements $w_i$:
+\begin{equation*}
+\bar{u}, \bar{v} \in W(\Omega) , \quad
+W(\Omega) = \text{span}\{w_i\} , \quad
+W(\Omega) \subset V(\Omega)
+\end{equation*}
+
+% \bar{u} = \sum_{i} u_i w_i 
+
+\end{slideitemize}
+
+\end{slide}
+
+\begin{slide}
+
+\begin{slideitemize}
+\item ``\emph{nodal}'' elements for ``0-forms'' (\emph{continuous} scalar
+fields like scalar potentials, temperature, pressure, ...)
+
+\item ``\emph{edge}'' elements for ``1-forms'' (vector fields with
+\emph{continuous tangential components} across material interfaces, like
+electric and magnetic fields, magnetic vector potential, ...)
+
+\item ``\emph{face}'' elements for ``2-forms'' (vector fields with
+\emph{continuous normal components} across material interfaces, like
+magnetic flux density, current density, ...)
+
+\item ``\emph{volume}'' elements for ``3-forms'' (\emph{piecewise
+continuous} scalar fields like charge density, heat source density, ...)
+
+\end{slideitemize}
+
+\end{slide}

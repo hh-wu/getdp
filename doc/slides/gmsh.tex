@@ -1,4 +1,4 @@
-% $Id: gmsh.tex,v 1.4 2001-06-13 12:31:44 geuzaine Exp $
+% $Id: gmsh.tex,v 1.5 2001-06-13 16:00:29 geuzaine Exp $
 
 \chapter{}
 
@@ -7,7 +7,8 @@
 \slidepagestyle{reduced}
 
 \begin{center}
-\bigtitle{Solver integration --- Gmsh}\\
+\bigtitle{Gmsh --- Geometry, mesh, solver integration
+and visualization}\\
 \ifthenelse{\boolean{fulltitle}}{
 \bigskip\bigskip
 \begin{minipage}{0.5\textwidth}\center
@@ -31,145 +32,146 @@
 \end{slide}
 
 % ---------------------------------------------------------------------------
-\part{Solver integration}
+\part{Gmsh}
 % ---------------------------------------------------------------------------
 
-\chapter{FEM in practice}
+\chapter{Finite element methods in practice}
 
 \begin{slide}
 
-Four steps
-
+Four main steps:
 \begin{slideitemize}
-\item Geometry
-\item Mesh
-\item Solver
-\item Post-processing
+\item \emph{Geometry}: CAD sofware
+\item \emph{Mesh}: structured or unstructed mesh generator
+\item \emph{Solver}: GetDP :-)
+\item \emph{Post-processing}: various visualization tools (2D and 3D)
 \end{slideitemize}
 
-And most of time is usually not spent on Solver... {\large\color{colwarn}\frownie}
+Most of the time spent solving a problem is \emph{not} in the solver step!
 
 \end{slide}
 
 % ---------------------------------------------------------------------------
-
-\chapter{Batch vs. interactive processing}
-
-\begin{slide}
-
-GetDP has no graphical interface 
-
-Command line
-
-Integration into higher level optimization toolboxes:
-\begin{slideitemize}
-\item High level: Matlab, Mathematica, shell scripts (Perl, Python, ...),
-other programming languages (C, C++, ...)  $\rightarrow$ \emph{system call}
-\item Medium level: shell scripts (Perl, Python, ...), other programming
-languages (C, C++, ...) $\rightarrow$ \emph{UNIX sockets}
-\item Low level: programming languages (C, C++, Fortran) $\rightarrow$
-\emph{source code}
-\end{slideitemize}
-
-
-Example: Gmsh
-
-\end{slide}
-
-
-%\input{gmsh.tex}
-
-
-
-% ---------------------------------------------------------------------------
-
 
 \background{7\semcm}{4.2\semcm}
            {\scalebox{0.3}{\input{fig/gmsh-geo.tex}}}
 
+\chapter{Geometry description}
+
 \begin{slide}
 
-Geometry:
+Constructive:
+
+
+Parametric (scriptable):
+
+
 
 \end{slide}
+
+% ---------------------------------------------------------------------------
 
 \background{7\semcm}{4.2\semcm}
            {\scalebox{0.3}{\input{fig/gmsh-mesh.tex}}}
 
-\begin{slide}
-
-Mesh:
-
-\end{slide}
-
-\background{7\semcm}{4.2\semcm}
-           {\scalebox{0.3}{\input{fig/gmsh-solver.tex}}}
+\chapter{Mesh generation}
 
 \begin{slide}
-
-Solver:
-
-\end{slide}
-
-\background{7\semcm}{4.2\semcm}
-           {\scalebox{0.3}{\input{fig/gmsh-postpro.tex}}}
-
-\begin{slide}
-
-Post-Processing:
-
-\end{slide}
-
-
-
-\begin{slide}
-
-\part{Introduction}
-\chapter{Implicit FETD}
-
-Finite Element Method + Newmark time integration
-
-\enhance{Microwave cavities [Dibben \& Metaxas, 94] [Lee \& Sacks, 95]}
-
-\enhance{Emitting antennas}
-
-\bigskip
 
 \begin{slideitemize}
-
-\renewcommand{\slideitem}{\itempos}
-
-\item Unconditionally stable
-
-\smallskip
-
-\item Locally refined, unstructured meshes
-
-\medskip
-
-\renewcommand{\slideitem}{\itemneg}
-
-\item Memory requirements
-
-\smallskip
-
-\item Computer time requirements
-
+\item \emph{Structured} (transfinite, elliptic, hyperbolic)
+\item \emph{Unstructured} (Delaunay triangles/tetrahedra)
+\begin{enumerate}
+\item 
+mesh of a box including the convex polygon/polyhedron resulting from
+curves/surfaces discretization
+\item
+initial mesh by insertion of curves/surfaces nodes by the Bowyer algorithm
+\item 
+boundary restoration to force presence of all edges/faces
+\item 
+suppression of undesired triangles/tetrahedra
+\item
+new node insertions by the Bowyer algorithm until the characteristic size of
+each simplex $\leq$ characteristic length field evaluated at the center of
+its circumscribed circle/sphere.
+\item
+mesh post-processing and quality enforcement by node relocation and edge
+swapping
+\end{enumerate}
 \end{slideitemize}
 
 \end{slide}
 
 % ---------------------------------------------------------------------------
 
+\background{7\semcm}{4.2\semcm}
+           {\scalebox{0.3}{\input{fig/gmsh-solver.tex}}}
+
+\chapter{Solver integration}
+
 \begin{slide}
 
-\chapter{Almost empty}
+\begin{minipage}{0.45\textwidth}
+\emph{Batch}:
+\begin{slideitemize}
+\item Advanced users
+\item No graphical overhead
+\item Easily scriptable
+\end{slideitemize}
+$\rightarrow$ for heavy problems
+\end{minipage}%
+\begin{minipage}{0.1\textwidth}
+vs.
+\end{minipage}%
+\begin{minipage}{0.45\textwidth}
+\emph{Interactive}:
+\begin{slideitemize}
+\item Smoother learning curve
+\item Better integration
+\item Faster for testing
+\end{slideitemize}
+$\rightarrow$ for testing/learning
+\end{minipage}%
 
-Almost empty...
+\end{slide}
+
+\begin{slide}
+
+Example: integration of GetDP into higher level toolboxes (visualization,
+optimization, etc.):
+\begin{slideitemize}
+\item \emph{High level}: Commercial applications (Matlab, Mathematica, ...),
+shell scripts (bash, Perl, Python, ...), other programming languages (C,
+C++, ...) 
+
+$\rightarrow$ \emph{system calls}
+\item \emph{Medium level}: Home-grown applications (Gmsh, ...), shell scripts
+(Perl, Python, ...), other programming languages (C, C++, ...) 
+
+$\rightarrow$ \emph{sockets}
+\item \emph{Low level}: programming languages (C, C++, ...) 
+
+$\rightarrow$ \emph{source code}
+\end{slideitemize}
 
 \end{slide}
 
 % ---------------------------------------------------------------------------
 
+\background{7\semcm}{4.2\semcm}
+           {\scalebox{0.3}{\input{fig/gmsh-postpro.tex}}}
 
+\chapter{Post-processing}
+
+\begin{slide}
+
+Scriptable:
+
+Modular:
+
+
+\end{slide}
+
+% ---------------------------------------------------------------------------
 
