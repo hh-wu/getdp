@@ -1,4 +1,4 @@
-/* $Id: GmshClient.c,v 1.8 2004-05-06 19:08:35 geuzaine Exp $ */
+/* $Id: GmshClient.c,v 1.9 2004-05-22 02:47:18 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2004 C. Geuzaine, J.-F. Remacle
  *
@@ -94,6 +94,7 @@ int Gmsh_Connect(char *sockname)
 
   /* create socket */
   sock = socket(PF_UNIX, SOCK_STREAM, 0);
+
   if(sock < 0)
     return -1;  /* Error: Couldn't create socket */
 
@@ -104,6 +105,7 @@ int Gmsh_Connect(char *sockname)
   for(tries = 0; tries < 5; tries++) {
     if(connect(sock, (struct sockaddr *)&addr, len) >= 0)
       return sock;
+    Socket_Idle(0.1);
   }
 
   return -2;    /* Error: Couldn't connect */
