@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.22 2001-07-24 11:36:06 geuzaine Exp $
+@c $Id: getdp.texi,v 1.23 2001-07-25 13:05:50 geuzaine Exp $
 @c =========================================================================
 @c
 @c This is the GetDP documentation texinfo source file
@@ -3069,6 +3069,10 @@ To give an initial value to be computed by a pre-resolution.
 @item Network
 To describe the node connections of branches in a network.
 
+@c todo: links
+@item Link
+To define links between degrees of freedom. This is not document yet.
+
 @end ftable
 
 @c -------------------------------------------------------------------------
@@ -3524,9 +3528,10 @@ which the unknowns are corrections @var{dx} of the current solution
 @code{[@var{system-id}]}
 
 Generate iteration matrices separately for system @var{system-id}. It is
-destined to be used with @code{Update}, in order to create the actual system
-to solve. This is only useful in linear transient problems with one single
-excitation.
+destined to be used with @code{Update} in order to create more efficiently
+the actual system to solve (this is only useful in linear transient problems
+with one single excitation) or with @code{Lanczos} in order to generate the
+matrices of a (generalized) eigen value problem.
 
 @item Update
 @code{[@var{system-id}, @var{expression}]}
@@ -3534,6 +3539,13 @@ excitation.
 Update the system of equations @var{system-id} (built from iteration
 matrices generated separately with @code{GenerateSeparate}) with
 @var{expression}
+
+@c todo: is this ok? what about UpdateConstrain[@var{system-id}]?
+@c  @item UpdateConstraint
+@c  @code{[@var{system-id}, @var{group-id}, @var{constraint-type}]}
+
+@c  Update the constraint of type @var{constraint-type} acting on @var{group-id}
+@c  during the processing.
 
 @item InitSolution
 @code{[@var{system-id}]}
@@ -3546,11 +3558,28 @@ values given in a @code{Constraint} of @code{Init} type.
 
 Save the solution of the system of equations @var{system-id}.
 
+@item SaveSolutions
+@code{[@var{system-id}]}
+
+Save all the solutions available for the system of equations
+@var{system-id}. This should be used with algorithms that generate more than
+one solution at once, e.g.@: @code{Lanczos} or @code{FourierTransform}.
+
 @item TransferSolution
 @code{[@var{system-id}]}
 
-Transfer the solution of system @var{system-id} to the system of equations
-defined with a @code{DestinationSystem} command.
+Transfer the solution of system @var{system-id}, as an @code{Assign}
+constraint, to the system of equations defined with a
+@code{DestinationSystem} command. This is used with the
+@code{AssignFromResolution} constraint type (@pxref{Types for Constraint}).
+
+@item TransferInitSolution
+@code{[@var{system-id}]}
+
+Transfer the solution of system @var{system-id}, as an @code{Init}
+constraint, to the system of equations defined with a
+@code{DestinationSystem} command. This is used with the
+@code{InitFromResolution} constraint type (@pxref{Types for Constraint}).
 
 @item SetTime
 @code{[@var{expression}]}
@@ -3562,9 +3591,60 @@ Change the current time.
 
 Change the frequency of system @var{system-id}.
 
+@item SystemCommand
+@code{[@var{expression-char}]}
+
+Execute the system command given by @var{expression-char}.
+
+@item If
+@code{[@var{expression}] @{ @var{resolution-op} @}} 
+
+If @var{expression} is true (nonzero), perform the operations in
+@var{resolution-op}.
+
+@item If
+@code{[@var{expression}] @{ @var{resolution-op} @}} 
+@itemx Else
+@code{@{ @var{resolution-op} @}} 
+
+If @var{expression} is true (nonzero), perform the operations in the first
+@var{resolution-op}, else perform the operations in the second
+@var{resolution-op}.
+
+@item Print
+@code{[ @var{system-id} <, File @var{expression-char} > <, @{ @var{expression-cst-list} @} >}@*
+@code{<, TimeStep @{ @var{expression-cst-list} @} >]}
+
+Print the system @var{system-id}. If the @var{expression-cst-list} is given,
+print only the values of the degrees of freedom given in that list.
+If the @code{TimeStep} option is present, limit the printing to the selected
+time steps.
+
+@item Print
+@code{[ @{ @var{expression-list} @}, < File @var{expression-char} > ]}
+
+Print the current values of the expressions listed in @var{expression-list}.
+
+@item Lanczos
+@code{[@var{system-id}, @var{expression-cst}, @{ @var{expression-cst-list} @} , @var{expression-cst}]}
+
+Eigen value computation by the Lanczos algorithm. The parameters are: the
+system (which has to be generated with @code{GenerateSeparate[]}), the size
+of the Lanczos space, the indices of the eigen values/vectors to store, the
+spectral shift.
+
+@item FourierTransform
+@code{[@var{system-id}, @var{system-id}, @{ @var{expression-cst-list} @}]}
+
+On-the-fly computation of a discrete Fourier transform. The parameters are:
+the (time domain) system, the destination system in which the result of the
+Fourier tranform is to be saved (it should be declared with @code{Type
+Complex}), the list of frequencies to consider in the discrete Fourier
+transform. 
+
 @item TimeLoopTheta
 @code{[@var{expression-cst},@var{expression-cst},@var{expression},@var{expression-cst}]}
-@{ @var{resolution-op} @}
+@code{@{ @var{resolution-op} @}}
 
 Time loop of a theta scheme. The parameters are: the initial time, the end
 time, the time step and the theta parameter (e.g.@: 1 for implicit

@@ -20,6 +20,6 @@ A. You can specify a format in all post-processing operations. Currently
    software. 'Gmsh' outputs post-processing views directly loadable by Gmsh.
 
 Q. How do I change the linear solver used by GetDP?
-A. Edit the SOLVER.PAR file which was created the first time GetDP was run
+A. Edit the 'solver.par' file which was created the first time GetDP was run
    in the current directory.
 
