@@ -1,4 +1,4 @@
-/* $Id: Data_GeoData.h,v 1.8 2000-10-30 01:05:44 geuzaine Exp $ */
+/* $Id: Data_GeoData.h,v 1.9 2001-03-18 10:41:48 geuzaine Exp $ */
 #ifndef _DATA_GEODATA_H_
 #define _DATA_GEODATA_H_
 
@@ -24,6 +24,9 @@ struct GeoData {
   Tree_T  * Normals ;
 
   List_T  * GroupForPRE ;
+
+  double  Xmin, Xmax, Ymin, Ymax, Zmin, Zmax ;
+  double  Dimension, CharacteristicLength ;
 
   struct Grid Grid;
 

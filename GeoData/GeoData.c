@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.16 2001-03-03 19:21:20 geuzaine Exp $"
+#define RCSID "$Id: GeoData.c,v 1.17 2001-03-18 10:41:48 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -8,6 +8,7 @@
 #include "GeoData.h"
 #include "Data_Passive.h"
 #include "Data_Element.h"
+#include "Data_Numeric.h"
 #include "Magic.h"
 
 extern double Flag_ORDER ;
@@ -206,7 +207,42 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 	fscanf(File_GEO, "%d %lf %lf %lf",
 	       &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z) ;
 	List_Add(GeoData_P->Nodes, &Geo_Node) ;
+	if(!i){
+	  GeoData_P->Xmin = GeoData_P->Xmax = Geo_Node.x;
+	  GeoData_P->Ymin = GeoData_P->Ymax = Geo_Node.y;
+	  GeoData_P->Zmin = GeoData_P->Zmax = Geo_Node.z; 
+	}
+	else{
+	  GeoData_P->Xmin = MIN(GeoData_P->Xmin, Geo_Node.x);
+	  GeoData_P->Xmax = MAX(GeoData_P->Xmax, Geo_Node.x);
+	  GeoData_P->Ymin = MIN(GeoData_P->Ymin, Geo_Node.y);
+	  GeoData_P->Ymax = MAX(GeoData_P->Ymax, Geo_Node.y);
+	  GeoData_P->Zmin = MIN(GeoData_P->Zmin, Geo_Node.z); 
+	  GeoData_P->Zmax = MAX(GeoData_P->Zmax, Geo_Node.z); 
+	}
       }
+
+      if(GeoData_P->Xmin != GeoData_P->Xmax && 
+	 GeoData_P->Ymin != GeoData_P->Ymax && 
+	 GeoData_P->Zmin != GeoData_P->Zmax)
+	GeoData_P->Dimension = _3D;
+      else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Ymin != GeoData_P->Ymax)
+	GeoData_P->Dimension = _2D;
+      else if(GeoData_P->Xmin != GeoData_P->Xmax && GeoData_P->Zmin != GeoData_P->Zmax)
+	GeoData_P->Dimension = _2D;
+      else if(GeoData_P->Ymin != GeoData_P->Ymax && GeoData_P->Zmin != GeoData_P->Zmax)
+	GeoData_P->Dimension = _2D;
+      else if(GeoData_P->Xmin != GeoData_P->Xmax)
+	GeoData_P->Dimension = _1D;
+      else if(GeoData_P->Ymin != GeoData_P->Ymax)
+	GeoData_P->Dimension = _1D;
+      else if(GeoData_P->Zmin != GeoData_P->Zmax)
+	GeoData_P->Dimension = _1D;
+      else
+	GeoData_P->Dimension = _0D;
+      
+      GeoData_P->CharacteristicLength = 
+	sqrt(SQU(GeoData_P->Xmin) + SQU(GeoData_P->Ymin) + SQU(GeoData_P->Zmin));
     }
 
     /*  E L M  */

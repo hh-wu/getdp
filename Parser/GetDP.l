@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.4 2001-03-09 08:02:18 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.5 2001-03-18 10:41:48 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -123,7 +123,7 @@ CrossProduct                 return tCrossProduct ;
 SolidAngle                   return tSolidAngle ;
 Order                        return tOrder ;
 Trace                        return tTrace ;
-MHTimeIntegration           return tMHTimeIntegration ;
+MHTimeIntegration            return tMHTimeIntegration ;
 
 Constraint                   return tConstraint ;
 Region                       return tRegion ;
@@ -301,7 +301,7 @@ void  C_comments(void) {
     while((c = input()) != '*'){ 
       if(c == '\n') yylinenum++ ; 
       if(c == EOF) {
-        fprintf(stderr, "Error: End of File in Commented Region\n") ;
+        fprintf(stderr, "Error: End of file in commented region\n") ;
         exit(1);
       }
     } 

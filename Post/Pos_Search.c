@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.24 2001-03-16 18:05:46 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.25 2001-03-18 10:41:48 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -14,7 +14,7 @@
 #include "Data_Numeric.h"
 
 static struct Element  * LastElement;
-static int GeoDim = -1, ChainDim = -1;
+static int ChainDim = -1;
 
 /* ------------------------------------------------------------------------ */
 /*  C o m p u t e E l e m e n t B o x                                       */
@@ -247,28 +247,17 @@ void Init_SearchGrid(struct Grid * Grid) {
     GetDP_End;
   }
 
-  NbrGeoNodes = Geo_GetNbrGeoNodes();
-  GeoNode = Geo_GetGeoNode(0);
-  Grid->Xmin = Grid->Xmax = GeoNode->x;
-  Grid->Ymin = Grid->Ymax = GeoNode->y;
-  Grid->Zmin = Grid->Zmax = GeoNode->z; 
-
-  for (i = 1 ; i < NbrGeoNodes ; i++) {
-    GeoNode = Geo_GetGeoNode(i);
-    Grid->Xmin = MIN(Grid->Xmin, GeoNode->x);
-    Grid->Xmax = MAX(Grid->Xmax, GeoNode->x);
-    Grid->Ymin = MIN(Grid->Ymin, GeoNode->y);
-    Grid->Ymax = MAX(Grid->Ymax, GeoNode->y);
-    Grid->Zmin = MIN(Grid->Zmin, GeoNode->z); 
-    Grid->Zmax = MAX(Grid->Zmax, GeoNode->z); 
-  }
+  Grid->Xmin = Current.GeoData->Xmin;
+  Grid->Xmax = Current.GeoData->Xmax;
+  Grid->Ymin = Current.GeoData->Ymin;
+  Grid->Ymax = Current.GeoData->Ymax;
+  Grid->Zmin = Current.GeoData->Zmin; 
+  Grid->Zmax = Current.GeoData->Zmax; 
 
 #define NBB  20
 #define FACT 0.1
 
   if(Grid->Xmin != Grid->Xmax && Grid->Ymin != Grid->Ymax && Grid->Zmin != Grid->Zmax){
-    GeoDim = _3D;
-
     Grid->Nx = Grid->Ny = Grid->Nz = NBB;
 
     Xc = Grid->Xmax-Grid->Xmin; Yc = Grid->Ymax-Grid->Ymin; Zc = Grid->Zmax-Grid->Zmin;
@@ -278,8 +267,6 @@ void Init_SearchGrid(struct Grid * Grid) {
   }
 
   else if(Grid->Xmin != Grid->Xmax && Grid->Ymin != Grid->Ymax){
-    GeoDim = _2D;
-
     Grid->Nx = Grid->Ny = NBB ; Grid->Nz = 1 ;
 
     Xc = Grid->Xmax-Grid->Xmin; Yc = Grid->Ymax-Grid->Ymin;
@@ -288,8 +275,6 @@ void Init_SearchGrid(struct Grid * Grid) {
     Grid->Xmax += FACT * Xc ; Grid->Ymax += FACT * Xc ; Grid->Zmax += 1. ;
   }
   else if(Grid->Xmin != Grid->Xmax && Grid->Zmin != Grid->Zmax){
-    GeoDim = _2D;
-
     Grid->Nx = Grid->Nz = NBB ; Grid->Ny = 1 ;
 
     Xc = Grid->Xmax-Grid->Xmin; Zc = Grid->Zmax-Grid->Zmin;
@@ -298,8 +283,6 @@ void Init_SearchGrid(struct Grid * Grid) {
     Grid->Xmax += FACT * Xc ; Grid->Ymax += 1. ; Grid->Zmax += FACT * Zc ;
   }
   else if(Grid->Ymin != Grid->Ymax && Grid->Zmin != Grid->Zmax){
-    GeoDim = _2D;
-
     Grid->Nx = 1 ; Grid->Ny = Grid->Nz = NBB ;
 
     Yc = Grid->Ymax-Grid->Ymin; Zc = Grid->Zmax-Grid->Zmin;
@@ -309,8 +292,6 @@ void Init_SearchGrid(struct Grid * Grid) {
   }
 
   else if(Grid->Xmin != Grid->Xmax){
-    GeoDim = _1D;
-
     Grid->Nx = NBB ; Grid->Ny = Grid->Nz = 1 ;
 
     Xc = Grid->Xmax-Grid->Xmin;
@@ -319,8 +300,6 @@ void Init_SearchGrid(struct Grid * Grid) {
     Grid->Xmax += FACT * Xc ; Grid->Ymax += 1. ; Grid->Zmax += 1. ;
   }
   else if(Grid->Ymin != Grid->Ymax){
-    GeoDim = _1D;
-
     Grid->Nx = Grid->Nz = 1 ; Grid->Ny = NBB ;
 
     Yc = Grid->Ymax-Grid->Ymin;
@@ -329,8 +308,6 @@ void Init_SearchGrid(struct Grid * Grid) {
     Grid->Xmax += 1. ; Grid->Ymax += FACT * Yc ; Grid->Zmax += 1. ;
   }
   else if(Grid->Zmin != Grid->Zmax){
-    GeoDim = _1D;
-
     Grid->Nx = Grid->Ny = 1 ; Grid->Nz = NBB ;
 
     Zc = Grid->Zmax-Grid->Zmin;
@@ -340,8 +317,6 @@ void Init_SearchGrid(struct Grid * Grid) {
   }
 
   else{
-    GeoDim = _0D;
-
     Grid->Nx = Grid->Ny = Grid->Nz = 1;
 
     Grid->Xmin -= 1. ; Grid->Ymin -= 1. ; Grid->Zmin -= 1. ;
@@ -581,7 +556,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   GetDP_Begin("InWhichElement");
 
   ChainDim   = Dim ;
-  Projection = (ChainDim == _ALL) ? 0 : (ChainDim != GeoDim) ;
+  Projection = (ChainDim == _ALL) ? 0 : (ChainDim != Current.GeoData->Dimension) ;
   
   if(!Projection && LastElement){
     if (PointInElement(LastElement, ExcludeRegion_L, x, y, z, u, v, w)){
@@ -694,10 +669,10 @@ void xyz2uvwInAnElement (struct Element *Element,
   *u = *v = *w = 0.0;
 
   if(!Get_Jacobian){
-    if (ChainDim == _1D && GeoDim == _3D) 
+    if (ChainDim == _1D && Current.GeoData->Dimension == _3D) 
       Type_Jacobian = JACOBIAN_LIN;
-    else if((ChainDim == _1D && GeoDim == _2D) ||
-	    (ChainDim == _2D && GeoDim == _3D)) 
+    else if((ChainDim == _1D && Current.GeoData->Dimension == _2D) ||
+	    (ChainDim == _2D && Current.GeoData->Dimension == _3D)) 
       Type_Jacobian = JACOBIAN_SUR;
     else 
       Type_Jacobian = JACOBIAN_VOL;
@@ -782,31 +757,6 @@ void xyz2uvwInAnElementSimple (struct Element *Element,
   else
     ChainDim = 0;
 
-  if(GeoDim < 0){
-    NbrGeoNodes = Geo_GetNbrGeoNodes();
-    GeoNode = Geo_GetGeoNode(0);
-    Xmin = Xmax = GeoNode->x;
-    Ymin = Ymax = GeoNode->y;
-    Zmin = Zmax = GeoNode->z; 
-    for (i = 1 ; i < NbrGeoNodes ; i++) {
-      GeoNode = Geo_GetGeoNode(i);
-      Xmin = MIN(Xmin, GeoNode->x);
-      Xmax = MAX(Xmax, GeoNode->x);
-      Ymin = MIN(Ymin, GeoNode->y);
-      Ymax = MAX(Ymax, GeoNode->y);
-      Zmin = MIN(Zmin, GeoNode->z); 
-      Zmax = MAX(Zmax, GeoNode->z); 
-    }
-    if(Xmin != Xmax && Ymin != Ymax && Zmin != Zmax) GeoDim = _3D;
-    else if(Xmin != Xmax && Ymin != Ymax) GeoDim = _2D;
-    else if(Xmin != Xmax && Zmin != Zmax) GeoDim = _2D;
-    else if(Ymin != Ymax && Zmin != Zmax) GeoDim = _2D;
-    else if(Xmin != Xmax) GeoDim = _1D;
-    else if(Ymin != Ymax) GeoDim = _1D;
-    else if(Zmin != Zmax) GeoDim = _1D;
-    else GeoDim = _0D;
-  }
-  
   xyz2uvwInAnElement (Element, x, y, z, u, v, w, NULL, -1);
 
 }
