@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.103 2002-11-10 19:29:38 geuzaine Exp $
+# $Id: Makefile,v 1.104 2002-11-20 02:18:37 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -214,7 +214,7 @@ nodepend:
         done
 
 clean:
-	for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) $(GETDP_LIB_DIR) $(GETDP_DOC_DIR) Scattering; \
+	for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR) $(GETDP_LIB_DIR) $(GETDP_DOC_DIR); \
         do (cd $$i && $(MAKE) clean \
            "RM=rm" \
            "RMFLAGS=-f" \
@@ -325,17 +325,16 @@ bb:
 # Source distribution
 #
 source:
+	rm -rf getdp-$(GETDP_RELEASE)
 	tar zcvf getdp.tgz `ls Makefile */Makefile */*.[chylfF] */*.[ch]pp\
-                           */*.opt */*.spec`\
-                           demos
+                           */*.opt */*.spec` doc demos
 	mkdir getdp-$(GETDP_RELEASE)
 	cd getdp-$(GETDP_RELEASE) && tar zxvf ../getdp.tgz
 	rm -f getdp.tgz
-	cd getdp-$(GETDP_RELEASE) && rm -rf Scattering trash utils archives doc CVS */CVS */*/CVS
+	cd getdp-$(GETDP_RELEASE) && rm -rf Scattering trash utils doc/slides CVS */CVS */*/CVS
 #	cd getdp-$(GETDP_RELEASE) && zip -r getdp-$(GETDP_RELEASE)-source.zip *
 #	mv getdp-$(GETDP_RELEASE)/getdp-$(GETDP_RELEASE)-source.zip .
 	tar zcvf getdp-$(GETDP_RELEASE)-source.tgz getdp-$(GETDP_RELEASE)
-	rm -rf getdp-$(GETDP_RELEASE)
 
 #
 # Digital (Compaq) Tru64
