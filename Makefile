@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.77 2002-02-09 00:56:28 geuzaine Exp $
+# $Id: Makefile,v 1.78 2002-02-25 22:06:37 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -532,3 +532,27 @@ link-petsc-simple:
                       $(GETDP_PETSC_LIBS) $(PETSC_SLES_LIB)
 petsc-simple: compile-petsc-simple link-petsc-simple
 
+#
+# Linux, Pentium 4 with Intel compiler
+#   -xW : generate code for P4 (this _really_ increases perf)
+#
+# !!! Don't optimize : the floating point precision gets lost, even with "-mp" 
+# (maintain floating point precision) 
+#
+compile-p4: initialtag
+	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
+           "CC=icc -Kc++ -Kc++eh" \
+           "FC=ifc -w90 -w" \
+           "C_FLAGS=-O0 -xW" \
+           "C_PARSER_FLAGS=-O0 -xW" \
+           "F77_FLAGS=-O0 -xW" \
+           "SOLVER=-D_SPARSKIT" \
+           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+        ); done
+link-p4:
+	icc -Kc++ -o $(GETDP_BIN_DIR)/getdp\
+               lib/libMain.a lib/libParser.a lib/libPost.a lib/libFunction.a\
+               lib/libIntegration.a lib/libGeoData.a lib/libDofData.a\
+               lib/libNumeric.a lib/libSparskit.a lib/libDataStr.a\
+               -lCEPCF90 -lF90
+p4: compile-p4 link-p4
