@@ -4,7 +4,7 @@ Name: getdp
 Version: %{getdpversion}
 Source: getdp-%{version}.tar.gz
 Release: 1
-Copyright: distributable
+Copyright: GPL
 Group: Applications/Engineering
 URL: http://www.geuz.org/getdp/
 Packager: geuz@geuz.org
