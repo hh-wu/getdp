@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.8 2001-03-08 19:13:03 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.9 2001-03-19 19:16:34 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -213,16 +213,16 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       nnz_ilu = 2 * (M->N+1) * (p->Nb_Fill+1); break;
       
     case ILUD  : Msg(SPARSKIT, "ILUD (%s)\n", ILUSTORAGE);    
-      nnz_ilu = List_Nbr(M->S.a); break;  /* first guess */
+      /* first guess */
+      nnz_ilu = List_Nbr(M->S.a); break;
       
     case ILUDP : Msg(SPARSKIT, "ILUDP (%s)\n", ILUSTORAGE);
-      nnz_ilu = List_Nbr(M->S.a); break ; /* first guess */
+      /* first guess */
+      nnz_ilu = List_Nbr(M->S.a); break ;
       
     case ILUK  : Msg(SPARSKIT, "ILU%d (%s)\n", p->Nb_Fill, ILUSTORAGE);    
-      if(!p->Nb_Fill)
-	nnz_ilu = List_Nbr(M->S.a) + (M->N+1);
-      else
-	nnz_ilu = p->Nb_Fill * List_Nbr(M->S.a); /* first guess */
+      /* exact for nbfill=0, first guess otherwise */
+      nnz_ilu = (p->Nb_Fill+1) * List_Nbr(M->S.a) + (M->N+1);
       break;
       
     case ILU0  : Msg(SPARSKIT, "ILU0 (%s)\n", ILUSTORAGE);    
@@ -333,10 +333,12 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
 	break;
       case -2 : /* Matrix L in ILU overflows work array 'al' */
       case -3 : /* Matrix U in ILU overflows work array 'alu' */
-	Msg(INFO, "Reallocating ILU");
-	nnz_ilu *= 2 ;
-	M->S.alu = (scalar*) Realloc(M->S.alu, nnz_ilu * sizeof(scalar));
-	M->S.jlu = (int*) Realloc(M->S.jlu, nnz_ilu * sizeof(int));
+	nnz_ilu += nnz_ilu/2 ;
+	Msg(INFO, "Reallocating ILU (NZ: %d)", nnz_ilu);
+	Free(M->S.alu) ;
+	M->S.alu = (scalar*) Malloc(nnz_ilu * sizeof(scalar));
+	Free(M->S.jlu) ;
+	M->S.jlu = (int*) Malloc(nnz_ilu * sizeof(int));
 	break;
       case -4 :
 	Msg(ERROR, "Illegal value of nb_fill in ILU");
