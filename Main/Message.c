@@ -30,15 +30,15 @@ char url[]       = "URL     : http://www.geuz.org/getdp/\n";
 
 #ifdef _SPARSKIT
 #ifdef _ILU_FLOAT
-char solver[]    = "Solver  : Default, real arithmetic, single precision preconditioning\n";
+char solver[]    = "Solver  : Default (real arithmetic, single precision preconditioning)\n";
 #else
-char solver[]    = "Solver  : Default, real arithmetic\n";
+char solver[]    = "Solver  : Default (real arithmetic)\n";
 #endif
 #else
 #ifdef PETSC_USE_COMPLEX
-char solver[]    = "Solver  : PETSc, complex arithmetic\n";
+char solver[]    = "Solver  : PETSc (complex arithmetic)\n";
 #else
-char solver[]    = "Solver  : PETSc, real arithmetic\n";
+char solver[]    = "Solver  : PETSc (real arithmetic)\n";
 #endif
 #endif
 
@@ -61,6 +61,8 @@ char help[] =
   "  -solve 'Resolution'      same as -pre 'Resolution' -cal\n"
   "  -split                   save processing results in separate files\n"
   "  -res file(s)             load processing results from file(s)\n"
+  "  -adapt file              read adaption constraints from file\n"
+  "  -degree float            specify maximum interpolation degree\n"
 #if _SPARSKIT
   "Linear solver options:\n"
   "  -solver file             specify parameter file (default: SOLVER.PAR)\n"

@@ -332,7 +332,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       else{
 	strcat(ResName, "-") ;
 	sprintf(ResNum, "%d.res", (int)Current.TimeStep) ;
-	for(i = 0 ; i < 5+4-strlen(ResNum) ; i++) strcat(ResName, "0") ;
+	for(i = 0 ; i < 5+4-(int)strlen(ResNum) ; i++) strcat(ResName, "0") ;
 	strcat(ResName, ResNum) ;
 	if(RES0 != (int)Current.TimeStep){
 	  Dof_WriteFileRES0(ResName, Flag_BIN) ;

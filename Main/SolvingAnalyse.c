@@ -194,7 +194,8 @@ void  SolvingAnalyse (void) {
                                                         DofData_P->ResolutionIndex))
                       ->DefineSystem), DofData_P->SystemIndex) ;
       DofData_P->GeoDataIndex =
-	Geo_AddGeoData(GeoData_L, DefineSystem_P->MeshName, Name_MshFile) ;
+	Geo_AddGeoData(GeoData_L, DefineSystem_P->MeshName, Name_MshFile,
+		       DefineSystem_P->AdaptName, Name_AdaptFile) ;
       Init_HarInDofData(DefineSystem_P, DofData_P) ;
     }
     Nbr_DefineSystem = List_Nbr(DofData_L) ;  /* New Value ... */
@@ -446,7 +447,8 @@ void  Treatment_Resolution(int ResolutionIndex,
     Dof_InitDofData(&DofData_S, i, ResolutionIndex, i,
 		    DefineSystem_P->SolverDataFileName) ;
     DofData_S.GeoDataIndex =
-      Geo_AddGeoData(GeoData_L, DefineSystem_P->MeshName, Name_MshFile) ;
+      Geo_AddGeoData(GeoData_L, DefineSystem_P->MeshName, Name_MshFile,
+		     DefineSystem_P->AdaptName, Name_AdaptFile) ;
     Init_HarInDofData(DefineSystem_P, &DofData_S) ;
     List_Add(*DofData_L, &DofData_S) ;
   }

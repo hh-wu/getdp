@@ -14,11 +14,12 @@ struct StringXPointer {
   void *Pointer ;
 } ;
 
-struct StringX3Function {
+struct StringX3Function1Nbr {
   char *string ;
   void (*Function1)() ; 
   void (*Function2)() ; 
   void (*Function3)() ;
+  double Nbr ;
 } ;
 
 struct DefineXFunction {
@@ -59,6 +60,7 @@ extern struct StringXDefine  PostQuantityTerm_EvaluationType[];
 extern struct StringXDefine  PostSubOperation_CombinationType[];
 extern struct StringXDefine  PostSubOperation_Format[];
 extern struct StringXDefine  PostSubOperation_FormatTag[];
+extern struct StringXDefine  Adaption_Type[];
 
 extern struct StringXPointer Current_Value[] ;
 
@@ -67,7 +69,7 @@ extern struct DefineXFunction  FunctionForGaussLegendre[] ;
 extern struct DefineXFunction  FunctionForSingularGauss[] ;
 extern struct DefineXFunction  FunctionForNewtonCotes[] ;
 
-extern struct StringX3Function     BF_Function[] ;
+extern struct StringX3Function1Nbr BF_Function[] ;
 extern struct StringXFunction2Nbr  F_Function[] ;
 extern struct FunctionXFunction    GF_Function[] ;
 
@@ -83,13 +85,14 @@ char *Get_StringForPointer(struct StringXPointer SXF[], void * Pointer) ;
 void  Get_PointerForString(struct StringXPointer SXF[], char * string,
 			   int * FlagError, void **Pointer) ;
 
-char *Get_StringFor3Function(struct StringX3Function SXF[], 
-			     void (*Function1)()) ;
-void  Get_3FunctionForString(struct StringX3Function SXF[], char * string,
-			     int * FlagError,
-			     void (**Function1)(), 
-			     void (**Function2)(), 
-			     void (**Function3)()) ;
+char *Get_StringFor3Function1Nbr(struct StringX3Function1Nbr SXF[], 
+				 void (*Function1)()) ;
+void  Get_3Function1NbrForString(struct StringX3Function1Nbr SXF[], char * string,
+				 int * FlagError,
+				 void (**Function1)(), 
+				 void (**Function2)(), 
+				 void (**Function3)(),
+				 double * Nbr) ;
 
 void Get_FunctionForDefine(struct DefineXFunction DXF[], int define,
 			   int * FlagError, void (**Function)()) ;
@@ -105,8 +108,8 @@ void  Get_FunctionForFunction(struct FunctionXFunction  FXF[], void (*Function1)
 char *Get_StringForFunction2Nbr(struct StringXFunction2Nbr SXF[], void (*Function)()) ;
 
 
-char*  Get_Valid_SXD   (struct StringXDefine       V[]);
-char*  Get_Valid_SXD1N (struct StringXDefine1Nbr   V[]);
-char*  Get_Valid_SXP   (struct StringXPointer      V[]);
-char*  Get_Valid_SX3F  (struct StringX3Function    V[]);
-char*  Get_Valid_SXF2N (struct StringXFunction2Nbr V[]);
+char*  Get_Valid_SXD   (struct StringXDefine        V[]);
+char*  Get_Valid_SXD1N (struct StringXDefine1Nbr    V[]);
+char*  Get_Valid_SXP   (struct StringXPointer       V[]);
+char*  Get_Valid_SX3F  (struct StringX3Function1Nbr V[]);
+char*  Get_Valid_SXF2N (struct StringXFunction2Nbr  V[]);

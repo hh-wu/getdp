@@ -5,6 +5,7 @@
 #include "Data_Function.h"
 #include "Cal_Quantity.h"
 #include "CurrentData.h"
+#include "Adapt.h"
 
 #define CAST  void(*)()
 
@@ -206,10 +207,10 @@ struct StringXPointer  Current_Value[] = {
 
   {"X"  , &Current.x}, {"Y"  , &Current.y},  {"Z"  , &Current.z},
   {"XS" , &Current.xs},{"YS" , &Current.ys}, {"ZS" , &Current.zs},
+  {"XP" , &Current.xp},{"YP" , &Current.yp}, {"ZP" , &Current.zp},
   {"U"  , &Current.x}, {"V"  , &Current.y},  {"W"  , &Current.z},
   {"US" , &Current.xs},{"VS" , &Current.ys}, {"WS" , &Current.zs},
   {"S"  , &Current.s} ,{"T"  , &Current.t}, 
-  {"XP" , &Current.xp},{"YP" , &Current.yp}, {"ZP" , &Current.zp},
 
   {NULL       , NULL}
 } ;
@@ -236,12 +237,13 @@ struct StringXDefine  PostSubOperation_CombinationType[] = {
 } ;
 
 struct StringXDefine  PostSubOperation_Format[] = {
-  {"table"         , FORMAT_SPACE_TABLE }, {"Table"         , FORMAT_SPACE_TABLE }, 
-  {"timetable"     , FORMAT_TIME_TABLE },  {"TimeTable"     , FORMAT_TIME_TABLE }, 
-  {"gmsh"          , FORMAT_GMSH},         {"Gmsh"          , FORMAT_GMSH},
-  {"gmshnl"        , FORMAT_GMSH_NL},      {"GmshNL"        , FORMAT_GMSH_NL},
-  {"gnuplot"       , FORMAT_GNUPLOT },     {"Gnuplot"       , FORMAT_GNUPLOT }, 
-  {"matlab"        , FORMAT_MATLAB },      {"Matlab"        , FORMAT_MATLAB }, 
+  {"Table"         , FORMAT_SPACE_TABLE }, 
+  {"TimeTable"     , FORMAT_TIME_TABLE }, 
+  {"Gmsh"          , FORMAT_GMSH},
+  {"GmshNL"        , FORMAT_GMSH_NL},
+  {"Gnuplot"       , FORMAT_GNUPLOT }, 
+  {"Matlab"        , FORMAT_MATLAB }, 
+  {"Adaption"      , FORMAT_ADAPT }, 
   {NULL            , FORMAT_GMSH}
 } ;
 
@@ -263,6 +265,13 @@ struct StringXDefine  PostSubOperation_FormatTag[] = {
   {"Normal"   , TAG_NORMAL},
   {"Command"  , TAG_COMMAND},
   {NULL       , 0}
+} ;
+
+struct StringXDefine  Adaption_Type[] = {
+  {"P1"     , P1},
+  {"H1"     , H1},
+  {"H2"     , H2},
+  {NULL     , P1}
 } ;
 
 /* ------------------------------------------------------------------------ */

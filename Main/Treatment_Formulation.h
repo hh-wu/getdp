@@ -136,6 +136,9 @@ void  Get_FunctionValue(int Nbr_Function,
 			struct QuantityStorage  * QuantityStorage_P,
 			int * Type_Form) ;
 
+double Cal_InterpolationDegree(struct Element * Element,
+			       struct QuantityStorage * QuantityStorage);
+
 void  Get_InitElementSource (struct Element * Element, int InIndex) ;
 int   Get_NextElementSource (struct Element * ElementSource) ;
 

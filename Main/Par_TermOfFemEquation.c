@@ -11,7 +11,6 @@ void  Par_TermOfFemEquation (struct Element *Element,
 			     struct QuantityStorage *QuantityStorage_P0){
   
   struct QuantityStorage *QuantityStorageEqu_P, *QuantityStorageDof_P;
-  struct g_Graph *graphe;
   int Nbr_Equ, Nbr_Dof, Type_DefineQuantityDof;
   int i, j;
   

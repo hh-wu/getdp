@@ -33,9 +33,10 @@ int     Flag_PRE, Flag_PAR, Flag_CAL, Flag_POS, Flag_IPOS, Flag_XDATA;
 int     Flag_CHECK, Flag_LRES, Flag_LPOS, Flag_LIPOS; 
 int     Flag_RESTART, Flag_LOG, Flag_VERBOSE, Flag_BIN, Flag_PROGRESS ;
 int     Flag_SPLIT ;
+double  Flag_DEGREE ;
 char    Name_Generic[MAX_FILE_NAME_LENGTH] ;
 char   *Name_Resolution, *Name_PostProcessing, *Name_PostOperation ;
-char   *Name_MshFile, *Name_ResFile[MAX_RES_FILES] ;
+char   *Name_MshFile, *Name_ResFile[MAX_RES_FILES], *Name_AdaptFile ;
 
 int Flag_RemoveSingularity = 0;
 
@@ -159,9 +160,10 @@ void Init_GlobalVariables(void){
   Flag_CHECK = 0 ; Flag_XDATA = 0   ; Flag_RESTART = 0   ; Flag_BIN = 0  ; 
   Flag_LRES = 0  ; Flag_LPOS = 0    ; Flag_LIPOS = 0     ; Flag_PAR = 0; 
   Flag_LOG = 0   ; Flag_VERBOSE = 4 ; Flag_PROGRESS = 10 ; Flag_SPLIT = 0 ;
+  Flag_DEGREE = -1. ;
 
   Name_Resolution = Name_PostProcessing = Name_PostOperation = NULL ;
-  Name_MshFile = Name_ResFile[0] = NULL ;
+  Name_MshFile = Name_ResFile[0] = Name_AdaptFile = NULL ;
 
   PostStream = PrintStream = stdout ;
 }  
@@ -254,7 +256,6 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 
       else if (!strcmp(argv[i]+1, "pre")) {
 	i++ ;
-
 	if(Flag_PRE == 1){
 	  Msg(ERROR, 
 	      "This syntax is not valid any more.\n" 
@@ -262,7 +263,6 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	      "New syntax: 'getdp -pre <Resolution name>'\n"
 	      "Type 'getdp -help' for more info.");
 	}
-
 	if (i<argc && argv[i][0]!='-') { 
 	  Flag_PRE = 1 ; Name_Resolution = argv[i] ; i++ ; 
 	}
@@ -271,11 +271,21 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	}
       }
 
+      else if (!strcmp(argv[i]+1, "degree") ||
+	       !strcmp(argv[i]+1, "deg")) {
+	i++ ;
+	if (i<argc && argv[i][0]!='-') { 
+	  Flag_DEGREE = atof(argv[i]) ; i++ ; 
+	}
+	else {
+	  Msg(ERROR, "Missing Degree") ;
+	}
+      }
+
       else if (!strcmp(argv[i]+1, "partition") ||
 	       !strcmp(argv[i]+1, "part") ||
 	       !strcmp(argv[i]+1, "par")) {
 	i++ ;
-
 	if (i<argc && argv[i][0]!='-') { 
 	  Flag_PAR = atoi(argv[i]) ; i++ ; 
 	}
@@ -324,6 +334,17 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	i++ ;
 	if (i<argc && argv[i][0]!='-') { 
 	  Name_MshFile = argv[i] ; i++ ; 
+	}
+	else {
+	  Msg(ERROR, "Missing File Name");
+	}
+      }
+
+      else if (!strcmp(argv[i]+1, "adapt") ||
+	       !strcmp(argv[i]+1, "ada")) {
+	i++ ;
+	if (i<argc && argv[i][0]!='-') { 
+	  Name_AdaptFile = argv[i] ; i++ ; 
 	}
 	else {
 	  Msg(ERROR, "Missing File Name");

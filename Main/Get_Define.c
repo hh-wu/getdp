@@ -39,13 +39,14 @@ void Get_PointerForString(struct StringXPointer SXF[], char * string,
   *FlagError = (SXF[i].string == NULL)? 1 : 0 ;
 }
 
-void Get_3FunctionForString(struct StringX3Function SXF[], char * string,
-			    int * FlagError, void (**Function1)(),
-			    void (**Function2)(), void (**Function3)()) {
+void Get_3Function1NbrForString(struct StringX3Function1Nbr SXF[], char * string,
+				int * FlagError, void (**Function1)(),
+				void (**Function2)(), void (**Function3)(),
+				double * Nbr) {
   int  i = 0 ;
   while ((SXF[i].string != NULL) && (strcmp(SXF[i].string, string)))  i++ ;
   *Function1 = SXF[i].Function1 ;  *Function2 = SXF[i].Function2 ;
-  *Function3 = SXF[i].Function3 ;
+  *Function3 = SXF[i].Function3 ;  *Nbr = SXF[i].Nbr ;
   *FlagError = (SXF[i].string == NULL)? 1 : 0 ;
 }
 
@@ -101,7 +102,7 @@ char * Get_StringForPointer(struct StringXPointer SXF[], void * Pointer) {
 }
 
 
-char * Get_StringFor3Function(struct StringX3Function SXF[], void (*Function1)()) {
+char * Get_StringFor3Function1Nbr(struct StringX3Function1Nbr SXF[], void (*Function1)()) {
   int  i = 0 ;  char * string ;
   while ((SXF[i].string != NULL) && (SXF[i].Function1 != Function1))  i++ ;
   if (SXF[i].string != NULL)  string = SXF[i].string ;  else  string = "?" ;
@@ -135,10 +136,10 @@ static char Valid[5000];
   }						\
   return Valid ;
 
-char*  Get_Valid_SXD   (struct StringXDefine V[])       { GET_VALID }
-char*  Get_Valid_SXD1N (struct StringXDefine1Nbr V[])   { GET_VALID }
-char*  Get_Valid_SXP   (struct StringXPointer V[])      { GET_VALID }
-char*  Get_Valid_SX3F  (struct StringX3Function V[])    { GET_VALID }
-char*  Get_Valid_SXF2N (struct StringXFunction2Nbr V[]) { GET_VALID }
+char*  Get_Valid_SXD   (struct StringXDefine V[])        { GET_VALID }
+char*  Get_Valid_SXD1N (struct StringXDefine1Nbr V[])    { GET_VALID }
+char*  Get_Valid_SXP   (struct StringXPointer V[])       { GET_VALID }
+char*  Get_Valid_SX3F  (struct StringX3Function1Nbr V[]) { GET_VALID }
+char*  Get_Valid_SXF2N (struct StringXFunction2Nbr V[])  { GET_VALID }
 
 #undef GET_VALID

@@ -118,10 +118,9 @@ struct GlobalQuantityStorage {
 
 struct PostElement {    
   int              Index, Type, Depth;
-  int              NbrNodes, NumNodes[4];
-  double           u[4],v[4],w[4];
-  double           x[4],y[4],z[4];
-  struct Value     Value[4];
+  int              NbrNodes, * NumNodes;
+  double           * u, * v, * w, * x, * y, * z;
+  struct Value     * Value;
 } ;
 
 /* -------------------------------------------------*/

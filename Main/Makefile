@@ -89,7 +89,7 @@ Message.o: Message.c CurrentData.h Data_Active.h Data_Passive.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/Version.h ../include/LinAlg.h
+ ../include/Magic.h ../include/Version.h ../include/LinAlg.h
 SolvingAnalyse.o: SolvingAnalyse.c Treatment_Formulation.h \
  Data_Active.h Data_Passive.h ../include/listman.h \
  ../include/../DataStr/listman.h Message.h Data_Element.h \
@@ -104,7 +104,7 @@ SolvingAnalyse.o: SolvingAnalyse.c Treatment_Formulation.h \
  Init_Problem.h ../include/Data_GeoData.h Cal_Quantity.h Cal_Value.h \
  ../include/ualloc.h ../include/../DataStr/ualloc.h ../include/outil.h \
  ../include/../DataStr/outil.h Data_DefineE.h Data_Numeric.h \
- Get_DofOfElement.h CurrentData.h Graph.h
+ Get_DofOfElement.h CurrentData.h ../include/Magic.h Graph.h
 SolvingOperations.o: SolvingOperations.c Treatment_Formulation.h \
  Data_Active.h Data_Passive.h ../include/listman.h \
  ../include/../DataStr/listman.h Message.h Data_Element.h \
@@ -119,7 +119,7 @@ SolvingOperations.o: SolvingOperations.c Treatment_Formulation.h \
  Init_Problem.h ../include/Data_GeoData.h Cal_Quantity.h Cal_Value.h \
  ../include/ualloc.h ../include/../DataStr/ualloc.h ../include/outil.h \
  ../include/../DataStr/outil.h Data_DefineE.h Data_Numeric.h \
- Get_DofOfElement.h CurrentData.h
+ Get_DofOfElement.h CurrentData.h ../include/Magic.h
 Treatment_Formulation.o: Treatment_Formulation.c \
  Treatment_Formulation.h Data_Active.h Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h Message.h \
@@ -131,8 +131,8 @@ Treatment_Formulation.o: Treatment_Formulation.c \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h CurrentData.h ../include/outil.h \
- ../include/../DataStr/outil.h
+ ../include/../DofData/Data_DofData.h CurrentData.h ../include/Magic.h \
+ ../include/outil.h ../include/../DataStr/outil.h
 Get_DofOfElement.o: Get_DofOfElement.c Get_DofOfElement.h \
  Data_Active.h Data_Passive.h ../include/listman.h \
  ../include/../DataStr/listman.h Message.h Data_Element.h \
@@ -145,7 +145,7 @@ Get_DofOfElement.o: Get_DofOfElement.c Get_DofOfElement.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/outil.h ../include/../DataStr/outil.h
+ ../include/Magic.h ../include/outil.h ../include/../DataStr/outil.h
 Get_ConstraintOfElement.o: Get_ConstraintOfElement.c \
  Get_DofOfElement.h Data_Active.h Data_Passive.h ../include/listman.h \
  ../include/../DataStr/listman.h Message.h Data_Element.h \
@@ -158,8 +158,8 @@ Get_ConstraintOfElement.o: Get_ConstraintOfElement.c \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/ualloc.h ../include/../DataStr/ualloc.h ../include/outil.h \
- ../include/../DataStr/outil.h
+ ../include/Magic.h ../include/ualloc.h ../include/../DataStr/ualloc.h \
+ ../include/outil.h ../include/../DataStr/outil.h
 Get_FunctionValue.o: Get_FunctionValue.c Treatment_Formulation.h \
  Data_Active.h Data_Passive.h ../include/listman.h \
  ../include/../DataStr/listman.h Message.h Data_Element.h \
@@ -172,7 +172,8 @@ Get_FunctionValue.o: Get_FunctionValue.c Treatment_Formulation.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/outil.h ../include/../DataStr/outil.h
+ ../include/Magic.h Data_Numeric.h ../include/outil.h \
+ ../include/../DataStr/outil.h
 Get_Geometry.o: Get_Geometry.c Get_Geometry.h Data_Active.h \
  Data_Passive.h ../include/listman.h ../include/../DataStr/listman.h \
  Message.h Data_Element.h ../include/GeoData.h \
@@ -197,8 +198,8 @@ Get_ElementSource.o: Get_ElementSource.c Treatment_Formulation.h \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h ../include/outil.h \
- ../include/../DataStr/outil.h
+ ../include/../DofData/Data_DofData.h ../include/Magic.h \
+ ../include/outil.h ../include/../DataStr/outil.h
 Get_Cells.o: Get_Cells.c Get_Geometry.h Data_Active.h Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h Message.h \
  Data_Element.h ../include/GeoData.h ../include/../GeoData/GeoData.h \
@@ -209,8 +210,8 @@ Get_Cells.o: Get_Cells.c Get_Geometry.h Data_Active.h Data_Passive.h \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h Data_Numeric.h \
- ../include/ualloc.h ../include/../DataStr/ualloc.h
+ ../include/../DofData/Data_DofData.h ../include/Magic.h \
+ Data_Numeric.h ../include/ualloc.h ../include/../DataStr/ualloc.h
 ExtendedGroup.o: ExtendedGroup.c ExtendedGroup.h Data_Active.h \
  Data_Passive.h ../include/listman.h ../include/../DataStr/listman.h \
  Message.h Data_Element.h ../include/GeoData.h \
@@ -222,7 +223,7 @@ ExtendedGroup.o: ExtendedGroup.c ExtendedGroup.h Data_Active.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/outil.h ../include/../DataStr/outil.h
+ ../include/Magic.h ../include/outil.h ../include/../DataStr/outil.h
 Pre_TermOfFemEquation.o: Pre_TermOfFemEquation.c \
  Treatment_Formulation.h Data_Active.h Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h Message.h \
@@ -234,8 +235,8 @@ Pre_TermOfFemEquation.o: Pre_TermOfFemEquation.c \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h CurrentData.h ../include/outil.h \
- ../include/../DataStr/outil.h
+ ../include/../DofData/Data_DofData.h CurrentData.h ../include/Magic.h \
+ ../include/outil.h ../include/../DataStr/outil.h
 Generate_Network.o: Generate_Network.c ../include/ualloc.h \
  ../include/../DataStr/ualloc.h Data_Active.h Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h Message.h \
@@ -256,7 +257,7 @@ Par_TermOfFemEquation.o: Par_TermOfFemEquation.c \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h Graph.h
+ ../include/../DofData/Data_DofData.h ../include/Magic.h Graph.h
 Cal_GalerkinTermOfFemEquation.o: Cal_GalerkinTermOfFemEquation.c \
  Treatment_Formulation.h Data_Active.h Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h Message.h \
@@ -269,8 +270,8 @@ Cal_GalerkinTermOfFemEquation.o: Cal_GalerkinTermOfFemEquation.c \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h ../include/outil.h \
- ../include/../DataStr/outil.h
+ ../include/../DofData/Data_DofData.h ../include/Magic.h \
+ ../include/outil.h ../include/../DataStr/outil.h
 Cal_deRhamTermOfFemEquation.o: Cal_deRhamTermOfFemEquation.c \
  Treatment_Formulation.h Data_Active.h Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h Message.h \
@@ -284,8 +285,8 @@ Cal_deRhamTermOfFemEquation.o: Cal_deRhamTermOfFemEquation.c \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h ../include/outil.h \
- ../include/../DataStr/outil.h
+ ../include/../DofData/Data_DofData.h ../include/Magic.h \
+ ../include/outil.h ../include/../DataStr/outil.h
 Cal_GlobalTermOfFemEquation.o: Cal_GlobalTermOfFemEquation.c \
  Treatment_Formulation.h Data_Active.h Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h Message.h \
@@ -298,7 +299,7 @@ Cal_GlobalTermOfFemEquation.o: Cal_GlobalTermOfFemEquation.c \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- ../include/outil.h ../include/../DataStr/outil.h
+ ../include/Magic.h ../include/outil.h ../include/../DataStr/outil.h
 Cal_vBFxDof.o: Cal_vBFxDof.c Treatment_Formulation.h Data_Active.h \
  Data_Passive.h ../include/listman.h ../include/../DataStr/listman.h \
  Message.h Data_Element.h ../include/GeoData.h \
@@ -311,7 +312,7 @@ Cal_vBFxDof.o: Cal_vBFxDof.c Treatment_Formulation.h Data_Active.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- Data_DefineE.h
+ ../include/Magic.h Data_DefineE.h
 Cal_IntegralQuantity.o: Cal_IntegralQuantity.c Treatment_Formulation.h \
  Data_Active.h Data_Passive.h ../include/listman.h \
  ../include/../DataStr/listman.h Message.h Data_Element.h \
@@ -327,9 +328,9 @@ Cal_IntegralQuantity.o: Cal_IntegralQuantity.c Treatment_Formulation.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- Cal_Quantity.h Cal_Value.h Data_DefineE.h ../include/outil.h \
- ../include/../DataStr/outil.h ../include/Pos_Search.h \
- ../include/../Post/Pos_Search.h
+ ../include/Magic.h Cal_Quantity.h Cal_Value.h Data_DefineE.h \
+ ../include/outil.h ../include/../DataStr/outil.h \
+ ../include/Pos_Search.h ../include/../Post/Pos_Search.h
 Cal_AnalyticIntegration.o: Cal_AnalyticIntegration.c \
  Treatment_Formulation.h Data_Active.h Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h Message.h \
@@ -352,8 +353,8 @@ Cal_Quantity.o: Cal_Quantity.c Cal_Quantity.h Data_Active.h \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h Data_Numeric.h \
- ../include/outil.h ../include/../DataStr/outil.h
+ ../include/../DofData/Data_DofData.h ../include/Magic.h \
+ Data_Numeric.h ../include/outil.h ../include/../DataStr/outil.h
 Cal_Value.o: Cal_Value.c Data_Passive.h ../include/listman.h \
  ../include/../DataStr/listman.h Message.h Data_Element.h \
  ../include/GeoData.h ../include/../GeoData/GeoData.h \
@@ -364,7 +365,8 @@ Cal_Value.o: Cal_Value.c Data_Passive.h ../include/listman.h \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h Data_Numeric.h
+ ../include/../DofData/Data_DofData.h ../include/Magic.h \
+ Data_Numeric.h
 Cal_AssembleTerm.o: Cal_AssembleTerm.c Treatment_Formulation.h \
  Data_Active.h Data_Passive.h ../include/listman.h \
  ../include/../DataStr/listman.h Message.h Data_Element.h \
@@ -376,7 +378,7 @@ Cal_AssembleTerm.o: Cal_AssembleTerm.c Treatment_Formulation.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- Data_Numeric.h CurrentData.h
+ Data_Numeric.h CurrentData.h ../include/Magic.h
 Cal_SolidAngle.o: Cal_SolidAngle.c ../include/GeoData.h \
  ../include/../GeoData/GeoData.h ../include/Message.h \
  ../include/../Main/Message.h ../include/../GeoData/Data_GeoData.h \
@@ -388,7 +390,7 @@ Cal_SolidAngle.o: Cal_SolidAngle.c ../include/GeoData.h \
  ../include/../DofData/LinAlg.h ../include/Solver.h \
  ../include/../Sparskit/Solver.h ../include/Graph.h \
  ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- Data_Numeric.h
+ ../include/Magic.h Data_Numeric.h
 Get_Define.o: Get_Define.c Data_Active.h Data_Passive.h \
  ../include/listman.h ../include/../DataStr/listman.h Message.h \
  Data_Element.h ../include/GeoData.h ../include/../GeoData/GeoData.h \
@@ -406,20 +408,8 @@ Get_Define.o: Get_Define.c Data_Active.h Data_Passive.h \
  ../include/../DofData/DofData.h ../include/../DofData/LinAlg.h \
  ../include/Solver.h ../include/../Sparskit/Solver.h \
  ../include/Graph.h ../include/../Main/Graph.h \
- ../include/../DofData/Data_DofData.h
-Lanczos.o: Lanczos.c ../include/DofData.h \
- ../include/../DofData/DofData.h ../include/listman.h \
- ../include/../DataStr/listman.h ../include/treeman.h \
- ../include/../DataStr/treeman.h ../include/../DataStr/avl.h \
- ../include/../DofData/LinAlg.h ../include/Solver.h \
- ../include/../Sparskit/Solver.h ../include/Graph.h \
- ../include/../Main/Graph.h ../include/../DofData/Data_DofData.h \
- Data_Numeric.h CurrentData.h Data_Active.h Data_Passive.h Message.h \
- Data_Element.h ../include/GeoData.h ../include/../GeoData/GeoData.h \
- ../include/Message.h ../include/../Main/Message.h \
- ../include/../GeoData/Data_GeoData.h ../include/nrutil.h \
- ../include/../Numeric/nrutil.h ../include/ualloc.h \
- ../include/../DataStr/ualloc.h
+ ../include/../DofData/Data_DofData.h ../include/Magic.h \
+ ../include/Adapt.h ../include/../Numeric/Adapt.h
 Graph.o: Graph.c Message.h Graph.h ../include/listman.h \
  ../include/../DataStr/listman.h ../include/DofData.h \
  ../include/../DofData/DofData.h ../include/treeman.h \

@@ -23,6 +23,7 @@ void  Get_InitDofOfElement(struct Element * Element) {
   Element->NumLastElementForNodesCoordinates      = -1 ;
   Element->NumLastElementForGroupsOfEntities      = -1 ;
   Element->NumLastElementForSolidAngle            = -1 ;
+  Element->NumLastElementForSortedNodesByFacet    = -1 ;
 }
 
 
@@ -352,7 +353,8 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
      GroupSupport_P    : In
      GroupEntity_P     : In  */
 
-  int         i_Entity, CodeExist ;
+  int         k, i_Entity, i_GeoElement, CodeExist ;
+  double      Degree ;
   struct Dof  * Dof_P ;
 
   /*  1.  F o r   e a c h   e n t i t y   t o   w h i c h   a   b a s i s
@@ -400,10 +402,24 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
       QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction
 	= BasisFunction_P ;
 
-      if (TreatmentStatus == _PRE)  /* Contrainte associee ? */
+      if (TreatmentStatus == _PRE){ /* Associated Contraints? */
+	/* in Function Spaces... */
 	Treatment_ConstraintForElement(FunctionSpace_P, QuantityStorage_P,
 				       Num_Entity, i_Entity,
 				       i_BFunction, TypeConstraint) ;
+	/* or due to p-refinement */
+	i_GeoElement = Geo_GetIndexOfGeoElementOfNum(Current.Element->Num) ;
+	Degree = QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Degree ;
+	if( ( Current.GeoData->P && Current.GeoData->P[i_GeoElement+1] >= 0 &&
+	      Degree > Current.GeoData->P[i_GeoElement+1] ) ||
+	    ( Flag_DEGREE >= 0. && Degree > Flag_DEGREE ) ){
+	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = ASSIGN ;
+	  for (k = 0 ; k < Current.NbrHar ; k++)
+	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value[k] = 0. ;
+	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].TimeFunctionIndex = 0 ;
+	}
+      }
+
       Nbr_ElementaryBF++ ;
       
     }  /* if CodeExist ... */

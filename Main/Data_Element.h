@@ -17,6 +17,9 @@
 /*  E l e m e n t                                                           */
 /* ------------------------------------------------------------------------ */
 
+struct TwoInt { int  Int1, Int2 ; } ;
+struct IntxList { int Int ; List_T * List ; } ;
+
 struct Matrix3x3 {
   double  c11, c12, c13 ;
   double  c21, c22, c23 ;
@@ -38,6 +41,9 @@ struct Element {
 
   int       NumLastElementForSolidAngle ;
   double    angle [NBR_MAX_NODES_IN_ELEMENT] ;
+
+  int       NumLastElementForSortedNodesByFacet ;
+  struct TwoInt  SortedNodesByFacet [6][NBR_MAX_SUBENTITIES_IN_ELEMENT] ;
 
   double    n    [NBR_MAX_NODES_IN_ELEMENT] ;
   double    dndu [NBR_MAX_NODES_IN_ELEMENT] [3] ;
