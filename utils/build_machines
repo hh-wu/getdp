@@ -10,4 +10,4 @@ Where to change the version number?
  Makfile
  doc/texinfo/getdp.texi
  doc/VERSIONS
- www/getdp.html
+ doc/getdp.html
