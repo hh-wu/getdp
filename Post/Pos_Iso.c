@@ -1,4 +1,4 @@
-/* $Id: Pos_Iso.c,v 1.4 2000-10-16 08:14:47 geuzaine Exp $ */
+/* $Id: Pos_Iso.c,v 1.5 2000-10-16 12:32:04 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -7,7 +7,8 @@
 #include "Data_Active.h"
 #include "ualloc.h"
 
-#include "Pos_Formulation.h"
+#include "Pos_Element.h"
+#include "Pos_Print.h"
 
 /* ------------------------------------------------------------------------ */
 /*  C o n t o u r G r i d                                                   */
@@ -375,12 +376,12 @@ static int plot_label_wierd (char *lbl_str, float xk, float yk, float xm, float 
  * Return:  1 = ok
  *          0 = error  (interval==0.0 or out of memory)
  */
-int ContourGrid( float g[], int nr, int nc,
-		 float interval, float lowlimit, float highlimit,
-		 float base, int ContFontFactorX, int ContFontFactorY,
-		 float vx1[], float vy1[], float vv1[], int maxv1, int *numv1,
-		 float vx2[], float vy2[], float vv2[], int maxv2, int *numv2,
-		 float vx3[], float vy3[], float vv3[], int maxv3, int *numv3 )
+int contour( float g[], int nr, int nc,
+	     float interval, float lowlimit, float highlimit,
+	     float base, int ContFontFactorX, int ContFontFactorY,
+	     float vx1[], float vy1[], float vv1[], int maxv1, int *numv1,
+	     float vx2[], float vy2[], float vv2[], int maxv2, int *numv2,
+	     float vx3[], float vy3[], float vv3[], int maxv3, int *numv3 )
 {
    register int ir, ic;
    int nrm, ncm, idash, nbvert, ivert;
@@ -948,24 +949,26 @@ int ContourGrid( float g[], int nr, int nc,
 /*  C o n t o u r G r i d                                                   */
 /* ------------------------------------------------------------------------ */
 
-/*
-  Compute contours on a 2D structured grid  [0,nr][0,nc]
-*/
-
-#if 0
-int main(void){
-
-  float slicedata[] = 
-  {
-  };
+void Print_Contour2D(int Format, float *Array, double *N, 
+		     double *X, double *Y, double *Z, double NbrIso){
 
   float *vr1, *vc1, *vv1, *vr2, *vc2, *vv2, *vr3, *vc3, *vv3 ; 
-  float interval = 1, low = -3, high = 2, base ;
-  int factx, facty ;
-  int nr = 69, nc = 50, contourok ;
+  float interval, low = 1.e200, high = -1.e200, base ;
+  int factx, facty, contourok ;
   int max_cont_verts, numv1, numv2, numv3 ;
+  int i, nr, nc ;
+  struct PostElement *PE ;
 
-  int i ;
+  nr = N[0] + 1 ;
+  nc = N[1] + 1 ;
+
+  for(i = 0 ; i < nr*nc ; i++){
+    low = MIN2(low, Array[i]) ;
+    high = MAX2(high, Array[i]) ;
+  }
+
+  base = low ;
+  interval = (high-low) / NbrIso ;
 
   max_cont_verts = 4 * (nr-1) * (nc-1) * fabs((high-low)/interval) + .5;
   
@@ -981,74 +984,55 @@ int main(void){
   vc3 = (float *) Malloc(sizeof(float)*max_cont_verts/2);
   vv3 = (float *) Malloc(sizeof(float)*max_cont_verts/2);
 
-  base = low ;
   factx = 0 ;
   facty = 0 ;
-  contourok =
-    contour( slicedata, nr, nc, interval, low, high, base,
-	     factx, facty,
-             vr1, vc1, vv1, max_cont_verts, &numv1,
-             vr2, vc2, vv2, max_cont_verts/2, &numv2,
-             vr3, vc3, vv3, max_cont_verts/2, &numv3);
 
-#if 0
-  for (i = 0 ; i<numv1 ; i++){
-    if(vv1)
-      printf(" %f %f    %f\n", vr1[i], vc1[i], vv1[i]) ;
-    else
-      printf(" %f %f\n", vr1[i], vc1[i]) ;
-    if(i%2) printf("\n");
+  contourok = contour(Array, nr, nc, 
+		      interval, low, high, base,
+		      factx, facty,
+		      vr1, vc1, vv1, max_cont_verts, &numv1,
+		      vr2, vc2, vv2, max_cont_verts/2, &numv2,
+		      vr3, vc3, vv3, max_cont_verts/2, &numv3);
+  
+  if(!contourok) return ;
+
+  PE = Create_PostElement(0, LINE, 2, 0) ;
+
+  for (i = 0 ; i < numv1 ; i+=2){
+    PE->x[0] = X[0] + (X[1] - X[0]) * vr1[i]/N[0]  + (X[2] - X[0]) * vc1[i]/N[1] ;
+    PE->y[0] = Y[0] + (Y[1] - Y[0]) * vr1[i]/N[0]  + (Y[2] - Y[0]) * vc1[i]/N[1] ;
+    PE->z[0] = Z[0] + (Z[1] - Z[0]) * vr1[i]/N[0]  + (Z[2] - Z[0]) * vc1[i]/N[1] ;
+    PE->x[1] = X[0] + (X[1] - X[0]) * vr1[i+1]/N[0]  + (X[2] - X[0]) * vc1[i+1]/N[1] ;
+    PE->y[1] = Y[0] + (Y[1] - Y[0]) * vr1[i+1]/N[0]  + (Y[2] - Y[0]) * vc1[i+1]/N[1] ;
+    PE->z[1] = Z[0] + (Z[1] - Z[0]) * vr1[i+1]/N[0]  + (Z[2] - Z[0]) * vc1[i+1]/N[1] ;
+    PE->Value[0].Type = SCALAR ;
+    PE->Value[0].Val[0] = vv1[i] ;
+    PE->Value[1].Type = SCALAR ;
+    PE->Value[1].Val[0] = vv1[i+1] ;
+    Print_PostElement(Format, 0, 0, 1, 1, 0, NULL, PE);
   }
 
-  /*
-    for (i = 0 ; i<numv2 ; i++){
-    printf(" %f %f \n", vr2[i], vc2[i]) ;
-    if(i%2) printf("\n");
-   }
-  */
-
-  for (i = 0 ; i<numv3 ; i++){
-    if(vv3)
-      printf(" %f %f    %f\n", vr3[i], vc3[i], vv3[i]) ;
-    else
-      printf(" %f %f\n", vr3[i], vc3[i]) ;
-    if(i%2) printf("\n");
+  for (i = 0 ; i < numv3 ; i+=2){
+    PE->x[0] = X[0] + (X[1] - X[0]) * vr3[i]/N[0]  + (X[2] - X[0]) * vc3[i]/N[1] ;
+    PE->y[0] = Y[0] + (Y[1] - Y[0]) * vr3[i]/N[0]  + (Y[2] - Y[0]) * vc3[i]/N[1] ;
+    PE->z[0] = Z[0] + (Z[1] - Z[0]) * vr3[i]/N[0]  + (Z[2] - Z[0]) * vc3[i]/N[1] ;
+    PE->x[1] = X[0] + (X[1] - X[0]) * vr3[i+1]/N[0]  + (X[2] - X[0]) * vc3[i+1]/N[1] ;
+    PE->y[1] = Y[0] + (Y[1] - Y[0]) * vr3[i+1]/N[0]  + (Y[2] - Y[0]) * vc3[i+1]/N[1] ;
+    PE->z[1] = Z[0] + (Z[1] - Z[0]) * vr3[i+1]/N[0]  + (Z[2] - Z[0]) * vc3[i+1]/N[1] ;
+    PE->Value[0].Type = SCALAR ;
+    PE->Value[0].Val[0] = vv3[i] ;
+    PE->Value[1].Type = SCALAR ;
+    PE->Value[1].Val[0] = vv3[i+1] ;
+    Print_PostElement(Format, 0, 0, 1, 1, 0, NULL, PE);
   }
 
-#endif
+  Destroy_PostElement(PE) ;
 
-  printf("View \"test\" {\n") ;
-
-  for (i = 0 ; i<numv1 ; i++){
-    if(!(i%2)) 
-      printf("SL(%f,%f,0,", vr1[i], vc1[i]) ;
-    else
-      printf("%f,%f,0){%f,%f}; \n", vr1[i], vc1[i], vv1[i], vv1[i]) ;
-  }
-
-  for (i = 0 ; i<numv3 ; i++){
-    if(!(i%2)) 
-      printf("SL(%f,%f,0,", vr3[i], vc3[i]) ;
-    else
-      printf("%f,%f,0){%f,%f}; \n", vr3[i], vc3[i], vv3[i], vv3[i]) ;
-  }
-
-  printf("};\n") ;
-
-  Free(vr1) ;
-  Free(vc1) ;
-  Free(vv1) ;
-  Free(vr2) ;
-  Free(vc2) ;
-  Free(vv2) ;
-  Free(vr3) ;
-  Free(vc3) ;
-  Free(vv3) ;
-
+  Free(vr1) ; Free(vc1) ; Free(vv1) ;
+  Free(vr2) ; Free(vc2) ; Free(vv2) ;
+  Free(vr3) ; Free(vc3) ; Free(vv3) ;
 
 }
-
-#endif
 
 
 
