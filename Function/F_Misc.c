@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.18 2003-04-28 03:54:32 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.19 2003-07-18 15:45:20 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2003 P. Dular, C. Geuzaine
  *
@@ -650,85 +650,8 @@ void  F_TransformPiezoT (F_ARG) {
 
 #else
 
-/* LU decomposition */
-
-#define TINY 1.0e-20;     /*pour Tuan*/
-
-void ludcmp1(double **a, int n, int *indx, double *d)
-{
-  int i, imax = 0, j, k;
-  float big, dum, sum, temp;
-  double *vv;
-
-  vv=dvector(0,n-1);
-  *d=1.0;
-  for (i=0;i<n;i++) {
-    big=0.0;
-    for (j=0;j<n;j++)
-      if ((temp=fabs(a[i][j])) > big) big=temp;
-      if (big == 0.0) nrerror("Singular matrix in routine ludcmp");
-      vv[i]=1.0/big;
-    }
-  for (j=0;j<n;j++) {
-    for (i=0;i<j;i++) {
-      sum=a[i][j];
-      for (k=0;k<i;k++) sum -= a[i][k]*a[k][j];
-      a[i][j]=sum;
-    }
-    big=0.0;
-    for (i=j;i<n;i++) {
-      sum=a[i][j];
-      for (k=0;k<j;k++)
-	sum -= a[i][k]*a[k][j];
-      a[i][j]=sum;
-      if ( (dum=vv[i]*fabs(sum)) >= big) {
-	big=dum;
-	imax=i;
-      }
-    }
-    if (j != imax) {
-      for (k=0;k<n;k++) {
-	dum=a[imax][k];
-	a[imax][k]=a[j][k];
-	a[j][k]=dum;
-      }
-      *d = -(*d);
-      vv[imax]=vv[j];
-    }
-    indx[j]=imax;
-    if (a[j][j] == 0.0) a[j][j]=TINY;
-    if (j != n-1) {
-      dum=1.0/(a[j][j]);
-      for (i=j+1;i<n;i++) a[i][j] *= dum;
-    }
-  }
-  free_dvector(vv,0,n-1);
-}
-
-#undef TINY
-
-/* Forward substitution and backsubstitution */
-
-void lubksb1(double **a, int n, int *indx, double b[])
-{
-  int i,ii=0 ,ip,j;
-  double sum;
-
-  for (i=1 ;i<=n;i++) {
-    ip=indx[i-1];
-    sum=b[ip];
-    b[ip]=b[i-1];
-    if (ii) 
-      for (j=ii;j<=i-1;j++) sum -= a[i-1][j-1]*b[j-1];
-      else if (sum) ii=i; 
-      b[i-1]=sum;        
-  }
-  for (i=n-1;i>=0;i--) {
-    sum=b[i];
-    for (j=i+1;j<n;j++) sum -= a[i][j]*b[j];
-    b[i]=sum/a[i][i];
-  }
-}
+void ludcmp1(double **a, int n, int *indx, double *d);
+void lubksb1(double **a, int n, int *indx, double b[]);
 
 /* Calculate the transformation stress tensor taking into account only one rotation 
    alpha/beta/gamma around the axis z/y/x respectively */

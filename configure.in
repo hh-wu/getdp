@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.26 2003-04-28 05:26:08 geuzaine Exp $
+dnl $Id: configure.in,v 1.27 2003-07-18 15:45:20 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 dnl
@@ -56,10 +56,9 @@ AC_ARG_ENABLE(debug,
 AC_ARG_ENABLE(purewin32,
               AC_HELP_STRING([--enable-purewin32],
                              [don't depend on Cygwin on Windows (default=no)]))
-dnl FIXME: change default to yes as soon as GSL integration is complete
 AC_ARG_ENABLE(gsl,
               AC_HELP_STRING([--enable-gsl],
-                             [use GSL as numerical toolkit (default=no)]))
+                             [use GSL as numerical toolkit (default=yes)]))
 
 dnl Get the operating system and version number
 UNAME=`uname`
@@ -196,9 +195,7 @@ else
 fi
 
 dnl Check for GSL
-dnl FIXME: change this as soon as GSL integration is complete
-dnl if test "x$enable_gsl" != "xno"; then
-if test "x$enable_gsl" = "xyes"; then
+if test "x$enable_gsl" != "xno"; then
   if test "x${GSL_PREFIX}" != "x"; then
     LDFLAGS="-L${GSL_PREFIX}/lib ${LDFLAGS}"
   fi

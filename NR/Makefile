@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2003-03-22 03:30:14 geuzaine Exp $
+# $Id: Makefile,v 1.6 2003-07-18 15:45:20 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -32,8 +32,8 @@ CSRC =  brent.c\
         fmin.c\
         hqr.c\
         lnsrch.c\
-        lubksb.c\
-        ludcmp.c\
+        lubksb.c lubksb1.c\
+        ludcmp.c ludcmp1.c\
         mnbrak.c\
         newt.c\
         nrutil.c\

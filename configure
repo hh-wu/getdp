@@ -833,7 +833,7 @@ Optional Features:
   --enable-petsc          use PETSc linear solvers (default=no)
   --enable-debug          build debug stack frame (default=no)
   --enable-purewin32      don't depend on Cygwin on Windows (default=no)
-  --enable-gsl            use GSL as numerical toolkit (default=no)
+  --enable-gsl            use GSL as numerical toolkit (default=yes)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -2731,7 +2731,7 @@ else
 
 fi
 
-if test "x$enable_gsl" = "xyes"; then
+if test "x$enable_gsl" != "xno"; then
   if test "x${GSL_PREFIX}" != "x"; then
     LDFLAGS="-L${GSL_PREFIX}/lib ${LDFLAGS}"
   fi
