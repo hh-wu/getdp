@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.13 2003-01-24 23:00:31 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.14 2003-02-13 02:32:48 geuzaine Exp $"
 
 /* Version commentée par A. Nicolet de Lanczos.c le 2001/11/29 */
 
@@ -670,7 +670,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     }
     
     /* test de validite de la valeur propre */
-    Msg(BIGINFO, "Eigenvalue %d = %g (f = %g)", ii, wi[ii], sqrt(wi[ii])/TWO_PI);
+    Msg(BIGINFO, "Eigenvalue %d = %.16g (f = %.16g)", ii, wi[ii], sqrt(wi[ii])/TWO_PI);
 
     /* if error smaller than required precision and non pathological eigenvalue ! */
     if ((err[ii] < eigenpar.prec ) && (wr[ii]>0.)) { 
