@@ -354,6 +354,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       }
 
       else if (!strcmp(argv[i]+1, "adapt") ||
+	       !strcmp(argv[i]+1, "adap") ||
 	       !strcmp(argv[i]+1, "ada")) {
 	i++ ;
 	if (i<argc && argv[i][0]!='-') { 

@@ -43,7 +43,7 @@ void  Get_DofOfElement(struct Element          * Element,
   Current.Element = Element ;
   Nbr_ElementaryBF = 0 ;
 
-  /* 0.1  S u b S p a c e s  */
+  /* Get the SubSpace */
 
   Nbr_BasisFunctionAll = List_Nbr(FunctionSpace_P->BasisFunction) ;
   BasisFunction_P0 = (Nbr_BasisFunctionAll) ? 
@@ -57,7 +57,7 @@ void  Get_DofOfElement(struct Element          * Element,
       (int*)List_Pointer(BasisFunctionIndex_L, 0) : NULL ;
   }
 
-  /*  0.2  E x p l i c i t   D o f D a t a   S p e c i f i c a t i o n */
+  /* Set the DofData if explicitely specified */
   
   switch (TreatmentStatus) {
   case _CAL :  case _POS :
@@ -68,7 +68,8 @@ void  Get_DofOfElement(struct Element          * Element,
     break;
   }
 
-  /*  1.  F o r   e a c h   s u b s e t   o f   B a s i s   F u n c t i o n s */
+  /*  For each subset of Basis Functions */
+
   for (i = 0 ; i < Nbr_BasisFunction ; i++) {
 
     i_BFunction = (!BasisFunctionIndex_L)? i : BasisFunctionIndex_P0[i] ;
@@ -77,11 +78,13 @@ void  Get_DofOfElement(struct Element          * Element,
     GroupSupport_P = (struct Group*)
       List_Pointer(Problem_S.Group, BasisFunction_P->SupportIndex) ;
 
-    /*  2.  I f   t h e   e l e m e n t   i s   i n   t h e   s u p p o r t   o f   
-	    t h e   B a s i s F u n c t i o n   a n d
-	    I f   t h e   B a s i s F u n c t i o n   e x i s t s   f o r   t h i s
-	    k i n d   o f   e l e m e n t   */
+    /*  If the BasisFunction exists for this kind of element
+	   the degree is lower or equal to the maximum degree allowed
+	   the element is in the support of the BasisFunction */
+
     if ( ( BasisFunction_P->ElementType & Current.Element->Type ) 
+	 &&
+	 ( Flag_DEGREE < 0. || BasisFunction_P->Degree <= Flag_DEGREE )
 	 &&
 	 ( (GroupSupport_P->Type == REGIONLIST  &&
 	    List_Search(GroupSupport_P->InitialList, &Element->Region, fcmp_int))
@@ -411,13 +414,11 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 				       Num_Entity, i_Entity,
 				       i_BFunction, TypeConstraint) ;
 
-	/* ...due to P-refinement */
-	if( ( Current.GeoData->P && 
-	      Current.GeoData->P[Current.Element->GeoElement->Index+1] >= 0 &&
-	      Current.GeoData->P[Current.Element->GeoElement->Index+1] < 
-	      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Degree ) ||
-	    ( Flag_DEGREE >= 0. && Flag_DEGREE <
-	      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Degree ) ){
+	/* ... or due to P-refinement */
+	if(Current.GeoData->P && 
+	   Current.GeoData->P[Current.Element->GeoElement->Index+1] >= 0 &&
+	   Current.GeoData->P[Current.Element->GeoElement->Index+1] < 
+	   QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Degree){
 	  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = ASSIGN ;
 	  for (k = 0 ; k < Current.NbrHar ; k++)
 	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value[k] = 0. ;
