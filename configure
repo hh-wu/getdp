@@ -2720,14 +2720,13 @@ else
       C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
       F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
       SOLVER="-D_SPARSKIT -D_UNDERSCORE"
-      LINKER="f77"
       ;;
     MINGW*)
       CC="gcc -mno-cygwin"
       F77="g77 -mno-cygwin"
       C_FLAGS="-g -O3 -DMSDOS"
       F77_FLAGS="-g -O1 -DMSDOS"
-            ;;
+      ;;
   esac
 
 fi

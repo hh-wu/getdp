@@ -1,4 +1,4 @@
-dnl "$Id: configure.in,v 1.20 2003-03-01 20:46:28 geuzaine Exp $"
+dnl "$Id: configure.in,v 1.21 2003-03-13 02:13:37 geuzaine Exp $"
 dnl
 dnl Copyright (C) 1997-2003 by P. Dular and C. Geuzaine
 dnl
@@ -183,14 +183,12 @@ else
       C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
       F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
       SOLVER="-D_SPARSKIT -D_UNDERSCORE"
-      LINKER="f77"
       ;;
     MINGW*)
       CC="gcc -mno-cygwin"
       F77="g77 -mno-cygwin"
       C_FLAGS="-g -O3 -DMSDOS"
       F77_FLAGS="-g -O1 -DMSDOS"
-      dnl '-lm' is removed on purpose!
       ;;
   esac
 
