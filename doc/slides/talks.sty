@@ -1,4 +1,4 @@
-% $Id: talks.sty,v 1.10 2001-08-26 14:18:17 geuzaine Exp $
+% $Id: talks.sty,v 1.11 2001-08-27 10:46:58 geuzaine Exp $
 %
 % LaTeX2e/seminar style sheet for the layout of GetDP-related slides
 %
@@ -133,6 +133,10 @@
   \endgroup
 }
 
+\newcommand{\writeemptytitle}{
+  \immediate\write\@secfile{-}
+}
+
 \def\mytalktitle{}
 \def\talk#1{%
  \global\def\mytalktitle{#1}%
@@ -152,8 +156,8 @@
                    \sffamily\tiny\myparttitle~\theslide}%
  \newpagestyle{full}{\topstring}{\bottomstring\writetitle}%
  \newpagestyle{top}{\topstring}{\writetitle}%
- \newpagestyle{bottom}{\toprule}{\bottomstring\writetitle}%
- \newpagestyle{none}{\toprule}{\writetitle}%
+ \newpagestyle{bottom}{\toprule}{\bottomstring\writeemptytitle}%
+ \newpagestyle{none}{\toprule}{\writeemptytitle}%
  \slidepagestyle{full}%
  \slideframe*{mybackground}%
 }
