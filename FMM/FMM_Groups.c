@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.7 2004-01-19 16:51:12 geuzaine Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.8 2004-01-22 14:13:46 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -64,6 +64,7 @@ void InitFMMmatrix( int i_Src, int i_Obs, struct FMMmat *FMMmat_P ){
   FMMmat_P->NbrCom = 0 ;
 
   FMMmat_P->NumDof = FMMmat_P->NumEqu = NULL ;
+  FMMmat_P->NumDofr = FMMmat_P->NumEqur = NULL ; /* For Renumbering */
   FMMmat_P->NumDofi = FMMmat_P->NumEqui = NULL ; /* Necessary for renumbering when complex system*/
  
   FMMmat_P->NG_L = FMMmat_P->FG_L = NULL ;
@@ -77,11 +78,14 @@ void InitFMMmatrix( int i_Src, int i_Obs, struct FMMmat *FMMmat_P ){
 }
 
 
-void Init_CurrentFMMData ( int Dimension, double k0 ){
+void Init_CurrentFMMData ( double k0 ){
 
-  int i, i_Phi, i_The, NbrDir, Val_ns=0 ;
+  int i, i_Phi, i_The, NbrDir, Val_ns=0, Dimension ;
   
   GetDP_Begin("Init_CurrentFMMData") ;
+
+
+  Dimension = Current.FMM.Dimension ;
 
   if (k0 < 0){
     NbrDir = Current.FMM.NbrDir ;
@@ -218,7 +222,7 @@ double Geo_GetRmaxInFMMGroup( struct FMMData *FMMData_P){
 
 
 
-void Get_GroupNeighbours( int i_FMMEqu, int Dimension ){
+void Get_GroupNeighbours( int i_FMMEqu ){
 
   int i_Obs, i_Src, Ndir ;
   int NbrGroupObs, NbrGroupSrc, i, j, Flag_Far = 0 ;
@@ -300,13 +304,14 @@ void Get_GroupNeighbours( int i_FMMEqu, int Dimension ){
 	d = sqrt(SQU((FMMDataGObs_P0+j)->Xgc-XSrc) + SQU((FMMDataGObs_P0+j)->Ygc-YSrc) +
 		 SQU((FMMDataGObs_P0+j)->Zgc-ZSrc)) ;
        
-	Dfar = Current.FMM.far;
+	//Dfar = Current.FMM.far * (FMMDataGSrc_P0+i)->Rmax *2 ;
+	Dfar = Current.FMM.far ;
 	if(d < Dfar)
 	  List_Add(NGi, &j) ;
 	else{ 
 	  List_Add(FGi, &j) ;
-	  Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax, d, Dimension) ;
-	  
+	  Ndir = FMM_SetTruncationOLD((FMMDataGSrc_P0+i)->Rmax, d, Current.FMM.Dimension) ;
+	  //Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax, d, Current.FMM.Dimension) ;
 	  List_Add(Ndi, &Ndir) ;
 	  if (!Flag_Far) Flag_Far = 1;
 	} 
@@ -390,15 +395,17 @@ void ReSet_FMMGroupCenters( ){
 }
 
 
-void ReGenerate_FMMGroupNeighbours( ){
+void ReGenerate_FMMGroupNeighbours(int Flag_FMMDA){
 
-  int i_Obs, i_Src, Ndir ;
-  int NbrGroupObs, NbrGroupSrc, i, j, NbrFMMEqu, i_FMMEqu  ;
+  int i_Obs, i_Src, Ndir, FMMSrc,FMMObs ;
+  int NbrGroupObs, NbrGroupSrc, i, j, NbrFMMEqu, i_FMMEqu, i_Group  ;
+  int  Nbr_DofList, Nbr_EquList ;
   double d, XSrc, YSrc, ZSrc, Dfar ;
+  double **Mat =NULL, **Aggreg_M, **Disagg_M ;
   struct FMMData      *FMMDataGObs_P0, *FMMDataGSrc_P0 ;
   struct FMMGroup      FMMGroup_S ;
   struct FMMmat       *FMMmat_P, *FMMmat_P0 ;
-  List_T *NGi, *FGi, *Ndi ;
+  List_T *NGi, *FGi, *Ndi, * NumDof_L, * NumEqu_L ;
 
 
   GetDP_Begin("ReGenerate_FMMGroupNeighbours");
@@ -414,6 +421,36 @@ void ReGenerate_FMMGroupNeighbours( ){
     List_Reset(FMMmat_P->NG_L);
     List_Reset(FMMmat_P->FG_L);
     List_Reset(FMMmat_P->Nd_L);
+    
+    if(Flag_FMMDA){
+      FMMSrc = (FMMmat_P0+i_FMMEqu)->Src ;
+      List_Read(Problem_S.FMMGroup, FMMSrc, &FMMGroup_S ) ;   
+      NbrGroupSrc  = List_Nbr(FMMGroup_S.List ) ;
+      for ( i_Group = 0 ; i_Group < NbrGroupSrc ; i_Group++ ) {
+	List_Read(FMMmat_P->A_L, i_Group, &Aggreg_M) ;
+	List_Read(FMMmat_P->NumDof, i_Group, &NumDof_L) ;
+	Nbr_DofList = List_Nbr(NumDof_L) ;
+	for (j = 0 ; j < Nbr_DofList ; j++)
+	  Free(Aggreg_M[j]) ;
+	Free(Aggreg_M);
+      }
+
+      FMMObs = (FMMmat_P0+i_FMMEqu)->Obs ;
+      List_Read(Problem_S.FMMGroup, FMMObs, &FMMGroup_S ) ;   
+      NbrGroupObs  = List_Nbr(FMMGroup_S.List ) ;
+
+      for ( i_Group = 0 ; i_Group < NbrGroupObs ; i_Group++ ) {
+	List_Read(FMMmat_P->D_L, i_Group, &Disagg_M) ;
+	List_Read(FMMmat_P->NumEqu, i_Group, &NumEqu_L) ;
+	Nbr_EquList = List_Nbr(NumEqu_L) ;
+	for (j = 0 ; j < Nbr_EquList ; j++)
+	  Free(Disagg_M[j]);
+	Free(Disagg_M);
+      }
+      List_Reset(FMMmat_P->A_L);
+      List_Reset(FMMmat_P->D_L);
+    }
+
   }
   
   for (i_FMMEqu = 0 ; i_FMMEqu < NbrFMMEqu ; i_FMMEqu++){
@@ -432,7 +469,13 @@ void ReGenerate_FMMGroupNeighbours( ){
       if (i_Src != i_Obs){
 	List_Read(Problem_S.FMMGroup, i_Obs, &FMMGroup_S) ;
 	NbrGroupObs = List_Nbr(FMMGroup_S.List) ;
-      }     
+      }   
+      
+      if(Flag_FMMDA){
+	for(i = 0 ; i < NbrGroupSrc ; i++) List_Add(FMMmat_P->A_L, &Mat) ;
+	for(i = 0 ; i < NbrGroupObs ; i++) List_Add(FMMmat_P->D_L, &Mat) ;
+      }
+      
     }
     else{
       List_Read(Problem_S.FMMGroup, i_Src, &FMMGroup_S) ;
@@ -445,6 +488,13 @@ void ReGenerate_FMMGroupNeighbours( ){
 	FMMDataGObs_P0 = (struct FMMData*)List_Pointer(FMMGroup_S.List, 0) ;
       }
 
+      
+      if(Flag_FMMDA){
+      for(i = 0 ; i < NbrGroupSrc ; i++) List_Add(FMMmat_P->A_L, &Mat) ;
+      for(i = 0 ; i < NbrGroupObs ; i++) List_Add(FMMmat_P->D_L, &Mat) ;
+      }
+      
+
       for ( i = 0 ; i < NbrGroupSrc; i++){
 	XSrc = (FMMDataGSrc_P0+i)->Xgc ;
 	YSrc = (FMMDataGSrc_P0+i)->Ygc ;
@@ -453,7 +503,8 @@ void ReGenerate_FMMGroupNeighbours( ){
 	NGi = List_Create(5,  2, sizeof(int)) ;
 	FGi = List_Create(10, 2, sizeof(int)) ;
 	Ndi = List_Create(10, 2, sizeof(int)) ;
-
+	//Dfar = Current.FMM.far * (FMMDataGSrc_P0+i)->Rmax *2 ;
+	
 	for ( j = 0 ; j < NbrGroupObs; j++){
 	  d = sqrt(SQU((FMMDataGObs_P0+j)->Xgc-XSrc) + SQU((FMMDataGObs_P0+j)->Ygc-YSrc) +
 		   SQU((FMMDataGObs_P0+j)->Zgc-ZSrc)) ;
@@ -462,7 +513,8 @@ void ReGenerate_FMMGroupNeighbours( ){
 	  else {
 	    List_Add(FGi, &j) ;
 
-	    Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax, d, _2D) ;
+	    //Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax, d, Current.FMM.Dimension) ;
+	    Ndir = FMM_SetTruncationOLD((FMMDataGSrc_P0+i)->Rmax, d, Current.FMM.Dimension) ;
 	    List_Add(Ndi, &Ndir) ;
 	  }
 	}/* NbrGroupObs */
@@ -671,6 +723,36 @@ int FMM_SetTruncation( double Rsrc, double Robs, double D, int Dimension){
 }
 
 
+int FMM_SetTruncationOLD( double Rmax, double D, int Dimension){
+
+  int NbrDir ;
+  double Precision ; 
+
+  GetDP_Begin("FMM_SetTruncation");
+
+ /* Rmax == Radius of the circle/sphere enclosing the FMM group */  
+  Precision = Current.FMM.Precision ;
+
+  if (Dimension == _2D){
+    NbrDir =  floor(-log(Precision)/log(D/Rmax)) ; /* Truncation parameter */
+    if (NbrDir > 15){ if (Flag_FMM == 1) Msg(WARNING,"NbrDir = %d changed to 15 for memory requirements", NbrDir) ; NbrDir = 15 ;}
+  }
+  else{
+    NbrDir =  floor(-log(Precision)/log(2*D/Rmax)) ;
+    if (NbrDir > 20){ if (Flag_FMM == 1) Msg(WARNING,"NbrDir = %d changed to 20 for memory requirements", NbrDir) ; NbrDir = 20 ;}
+  }
+ 
+
+  if (Flag_FMM == 2)  
+    NbrDir = (NbrDir > Current.FMM.NbrDir) ? Current.FMM.NbrDir : NbrDir ; 
+  else
+    Current.FMM.NbrDir = (NbrDir>Current.FMM.NbrDir) ? NbrDir : Current.FMM.NbrDir ;
+  
+  GetDP_Return(NbrDir);
+}
+
+
+
 int  NeighbouringGroups( int FMMGroupEObs, int FMMGroupESrc ){
 
   int iFMMEqu, NbrFMMEqu, FMMObs, FMMSrc, NbrNG=0, i, *NG ;
@@ -851,7 +933,8 @@ void  Geo_CreateFMMGroup( int InSupport, struct GeoData *GeoData_P, double k0 ){
 	}
 	if(FoundHome)break;
       }
-      if(!FoundHome && (Current.Region == (Elements_P0+iElm)->Region)) Msg(WARNING,"Element %d has not been assigned to a FMMGroup", iElm);
+      if(!FoundHome && (Current.Region == (Elements_P0+iElm)->Region)) 
+	Msg(WARNING,"Element %d has not been assigned to a FMMGroup", iElm);
     }/* Elms NbrElms */ 
 
     NbrFMMGroupsInRegion = 0;
@@ -900,7 +983,268 @@ void  Geo_CreateFMMGroup( int InSupport, struct GeoData *GeoData_P, double k0 ){
 
   GetDP_End ;
 }
+
+
+
   
+void  Geo_CreateMultilevelFMMGroup( int InSupport, struct GeoData *GeoData_P, double k0 ){
+
+  int NbrGroupsInSupport, iGroup, NbrFMMGroupsInRegion ;
+  int NbrElms, NbrElmsInRegion, NbrElmsInSupport ;
+  int j, k, l, m, FoundHome, iFMMGroup, iElm, iFMMParentGroup ;
+  int ***NbrElmsDiv, ****ElmsDiv, ***NbrGrsDiv, ****GrsDiv, Dimension ;
+  double  Xmax, Xmin, Ymax, Ymin, Zmax, Zmin, l0 ;
+  int NbrDivX, NbrDivY, NbrDivZ;
+  int NbrDivX0 = 1, NbrDivY0 = 1, NbrDivZ0 = 1, NbrDivX1 = 1, NbrDivY1 = 1, NbrDivZ1 = 1  ;
+  double  x1, x2, y1, y2, z1, z2, Centroid[3], tol ;
+  struct Value DivXYZ ;
+  struct Geo_Element *Elements_P0 ;
+  struct FMMData FMMData_S ;
+  struct FMMData FMMParentData_S ;
+  struct FMMGroup FMMGroup_S ;
+  struct FMMGroup FMMParentGroup_S ;
+
+  List_T * FMMGroup_L ;  
+  List_T * FMMParentGroup_L ;  
+
+
+  GetDP_Begin("Geo_CreateMultilevelFMMGroup");
+
+  Dimension = (int)GeoData_P->Dimension ;    
+
+  tol = 1e-6;
+
+  NbrElms = List_Nbr(GeoData_P->Elements) ;
+  Elements_P0 =  (struct Geo_Element*)List_Pointer(GeoData_P->Elements, 0) ;
+
+  FMMGroup_L = List_Create (10, 10, sizeof(struct FMMData)) ; 
+  FMMParentGroup_L = List_Create (10, 10, sizeof(struct FMMData)) ;   
+
+  NbrElmsInSupport = 0 ;  
+  NbrGroupsInSupport = List_Nbr(((struct Group *) List_Pointer(Problem_S.Group, InSupport))->InitialList ); 
+
+  iFMMGroup = 0 ;
+  iFMMParentGroup = 0 ;
+  
+  for (iGroup = 0 ; iGroup < NbrGroupsInSupport ; iGroup++){
+    List_Read(((struct Group *) List_Pointer(Problem_S.Group, InSupport))->InitialList, iGroup, &Current.Region) ;    
+    Get_ValueOfExpressionByIndex(Current.FMM.DivXYZIndex, NULL, 0., 0., 0., &DivXYZ) ;
+    NbrDivX0 = (int)DivXYZ.Val[0] ;
+    NbrDivY0 = (int)DivXYZ.Val[1] ;
+    NbrDivZ0 = (int)DivXYZ.Val[2] ;
+
+    NbrDivX1 = (int)DivXYZ.Val[MAX_DIM] ;
+    NbrDivY1 = (int)DivXYZ.Val[MAX_DIM+1] ;
+    NbrDivZ1 = (int)DivXYZ.Val[MAX_DIM+2] ;
+
+    Msg(INFO,"Div. Parents -> Region = %d DivX0 = %d  DivY0 = %d  DivZ0 = %d", Current.Region, NbrDivX0, NbrDivY0, NbrDivZ0) ; 
+    Msg(INFO,"Div. Children -> DivX1 = %d  DivY1 = %d  DivZ1 = %d", NbrDivX1, NbrDivY1, NbrDivZ1) ; 
+    
+    NbrElmsInRegion = 0 ; 
+    Xmax = Ymax = Zmax = Xmin = Ymin = Zmin = 0. ;
+
+    for(iElm = 0 ; iElm < NbrElms ; iElm++){
+      if((Elements_P0+iElm)->Region == Current.Region){
+	NbrElmsInRegion++ ; 
+	Geo_SetXYZMinMaxInElement((Elements_P0+iElm)->Num, &Xmin, &Ymin, &Zmin, &Xmax, &Ymax, &Zmax ) ;      
+      }      
+    }
+
+    NbrElmsInSupport += NbrElmsInRegion ; 
+
+    NbrElmsDiv = (int ***)Malloc(NbrDivX*sizeof(int**));
+    for (j = 0 ; j < NbrDivX ; j++){
+      NbrElmsDiv[j] = (int **)Calloc(NbrDivY, sizeof(int*));
+      for (k = 0 ; k < NbrDivY ; k++)
+	NbrElmsDiv[j][k] = (int *)Calloc(NbrDivZ, sizeof(int));
+    }
+    
+    ElmsDiv = (int ****)Malloc(NbrDivX*sizeof(int***));
+    for (j = 0 ; j < NbrDivX ; j++){
+      ElmsDiv[j] = (int ***)Malloc(NbrDivY*sizeof(int**)); 
+      for (k = 0 ; k < NbrDivY ; k++){
+	ElmsDiv[j][k] = (int **)Malloc(NbrDivZ*sizeof(int*));
+	for (l = 0 ; l < NbrDivZ ; l++)
+	  ElmsDiv[j][k][l] = (int *)Malloc(sizeof(int));
+      }
+    }
+
+
+    NbrGrsDiv = (int ***)Malloc(NbrDivX0*sizeof(int**));
+    for (j = 0 ; j < NbrDivX0 ; j++){
+      NbrGrsDiv[j] = (int **)Calloc(NbrDivY0, sizeof(int*));
+      for (k = 0 ; k < NbrDivY0 ; k++)
+	NbrGrsDiv[j][k] = (int *)Calloc(NbrDivZ0, sizeof(int));
+    }
+
+
+    GrsDiv = (int ****)Malloc(NbrDivX0*sizeof(int***));
+    for (j = 0 ; j < NbrDivX0 ; j++){
+      GrsDiv[j] = (int ***)Malloc(NbrDivY0*sizeof(int**)); 
+      for (k = 0 ; k < NbrDivY0 ; k++){
+	GrsDiv[j][k] = (int **)Malloc(NbrDivZ0*sizeof(int*));
+	for (l = 0 ; l < NbrDivZ0 ; l++)
+	  GrsDiv[j][k][l] = (int *)Malloc(sizeof(int));
+      }
+    }
+
+
+    NbrDivX = NbrDivX0 * NbrDivX1 ;
+    NbrDivY = NbrDivY0 * NbrDivY1 ;
+    NbrDivZ = NbrDivZ0 * NbrDivZ1 ;
+
+    for (iElm = 0 ; iElm < NbrElms ; iElm++){ 
+      FoundHome = 0;
+      
+      for (j = 0 ; j < NbrDivX ; j++){
+	for (k = 0 ; k < NbrDivY ; k++){
+	  for (l = 0 ; l < NbrDivZ ; l++){
+	    x1 = -tol+Xmin +(double)j*(Xmax-Xmin)/(double)NbrDivX;
+	    x2 =  tol+Xmin +(double)(j+1)*(Xmax-Xmin)/(double)NbrDivX;
+	    y1 = -tol+Ymin +(double)k*(Ymax-Ymin)/(double)NbrDivY;
+	    y2 =  tol+Ymin +(double)(k+1)*(Ymax-Ymin)/(double)NbrDivY;
+	    z1 = -tol+Zmin +(double)l*(Zmax-Zmin)/(double)NbrDivZ;
+	    z2 =  tol+Zmin +(double)(l+1)*(Zmax-Zmin)/(double)NbrDivZ;
+
+	    if( Current.Region == (Elements_P0+iElm)->Region ){
+	      Geo_SetCentroidCoordinates((Elements_P0+iElm)->Num, Centroid);
+	      
+	      if (x1 <= Centroid[0] && Centroid[0] <= x2 &&
+		  y1 <= Centroid[1] && Centroid[1] <= y2 &&
+		  z1 <= Centroid[2] && Centroid[2] <= z2 ){
+		if(!NbrElmsDiv[j][k][l]){
+		  NbrElmsDiv[j][k][l] = 1;
+		  ElmsDiv[j][k][l][0] = iElm ;
+		} else {
+		  NbrElmsDiv[j][k][l] += 1;
+		  ElmsDiv[j][k][l] = (int *)realloc(ElmsDiv[j][k][l], NbrElmsDiv[j][k][l]*sizeof(int));
+		  ElmsDiv[j][k][l][NbrElmsDiv[j][k][l]-1] = iElm;	    
+		}
+		FoundHome = 1; break;
+	      }
+	    }/* if Region */
+	    if(FoundHome)break;
+	  }
+	  if(FoundHome)break;
+	}
+	if(FoundHome)break;
+      }
+      if(!FoundHome && (Current.Region == (Elements_P0+iElm)->Region)) 
+	Msg(WARNING,"Element %d has not been assigned to a FMMGroup", iElm);
+    }/* Elms NbrElms */ 
+
+
+    NbrFMMGroupsInRegion = 0;
+    for (j = 0 ; j < NbrDivX ; j++)
+      for (k = 0 ; k < NbrDivY ; k++)
+	for (l = 0 ; l < NbrDivZ ; l++)
+	  if(NbrElmsDiv[j][k][l]){
+	    Geo_InitFMMData(&FMMData_S) ;
+	    FMMData_S.Element = List_Create(NbrElmsDiv[j][k][l], 1, sizeof(int)) ;
+	    for(m = 0 ; m < NbrElmsDiv[j][k][l] ; m++){
+	      List_Add(FMMData_S.Element, &(Elements_P0 + ElmsDiv[j][k][l][m])->Num) ;
+	      Geo_SetCentroidCoordinates((Elements_P0+ElmsDiv[j][k][l][m])->Num, Centroid) ;
+
+	      FMMData_S.Xgc += Centroid[0] ;
+	      FMMData_S.Ygc += Centroid[1] ;
+	      FMMData_S.Zgc += Centroid[2] ;
+	      
+	      (Elements_P0 + ElmsDiv[j][k][l][m])->FMMGroup = iFMMGroup ;
+	    }	
+	    
+	    FMMData_S.Group = iFMMGroup;  
+	    FMMData_S.Xgc /= NbrElmsDiv[j][k][l];
+	    FMMData_S.Ygc /= NbrElmsDiv[j][k][l];
+	    FMMData_S.Zgc /= NbrElmsDiv[j][k][l];
+
+	    List_Add(FMMGroup_L, &FMMData_S) ;
+	    
+	    iFMMGroup +=1 ;
+	    NbrFMMGroupsInRegion += 1 ;
+	  }/* if( NbrElmsDiv[j][k][l] ) */ 
+  
+    Free(NbrElmsDiv);
+    Free(ElmsDiv); 
+
+    Msg(INFO,"SupportIndex = %d  Region = %d  NbrElmsInRegion = %d  NbrFMMGroupsInRegion = %d",
+	InSupport, Current.Region, NbrElmsInRegion, NbrFMMGroupsInRegion) ;
+  }/* iGroup NbrGroupInSuppport*/
+  
+  Msg(INFO,"SupportIndex = %d  NbrElmsInSupport = %d  NbrFMMGroupsInSupport = %d",
+      InSupport, NbrElmsInSupport, iFMMGroup) ; 
+
+  for (iFMMGroup = 0 ; iFMMGroup < List_Nbr(FMMGroup_L) ; iFMMGroup++){       
+    FoundHome = 0;
+    List_Read(FMMGroup_L, iFMMGroup, &FMMData_S); 
+    for (j = 0 ; j < NbrDivX0 ; j++){
+      for (k = 0 ; k < NbrDivY0 ; k++){
+	for (l = 0 ; l < NbrDivZ0 ; l++){
+	  x1 = -tol+Xmin +(double)j*(Xmax-Xmin)/(double)NbrDivX0;
+	  x2 =  tol+Xmin +(double)(j+1)*(Xmax-Xmin)/(double)NbrDivX0;
+	  y1 = -tol+Ymin +(double)k*(Ymax-Ymin)/(double)NbrDivY0;
+	  y2 =  tol+Ymin +(double)(k+1)*(Ymax-Ymin)/(double)NbrDivY0;
+	  z1 = -tol+Zmin +(double)l*(Zmax-Zmin)/(double)NbrDivZ0;
+	  z2 =  tol+Zmin +(double)(l+1)*(Zmax-Zmin)/(double)NbrDivZ0;
+	  
+	  if (x1 <=  FMMData_S.Xgc && FMMData_S.Xgc <= x2 &&
+	      y1 <=  FMMData_S.Ygc && FMMData_S.Ygc <= y2 &&
+	      z1 <=  FMMData_S.Zgc && FMMData_S.Zgc <= z2 ){
+	    if(!NbrGrsDiv[j][k][l]){
+	      NbrGrsDiv[j][k][l] = 1;
+	      GrsDiv[j][k][l][0] = iFMMGroup ;
+	    }
+	    else {
+	      NbrGrsDiv[j][k][l] += 1;
+	      GrsDiv[j][k][l] = (int *)realloc(GrsDiv[j][k][l], NbrGrsDiv[j][k][l]*sizeof(int));
+	      GrsDiv[j][k][l][NbrGrsDiv[j][k][l]-1] = iFMMGroup;
+	    }
+	    FoundHome = 1; break;
+	  }	    
+	  if(FoundHome)break;
+	}
+	if(FoundHome)break;
+      }
+      if(FoundHome)break;
+    }
+  } /* Grs in List_Nbr(FMMGroup_L) */ 
+  
+  for (j = 0 ; j < NbrDivX0 ; j++)
+    for (k = 0 ; k < NbrDivY0 ; k++)
+      for (l = 0 ; l < NbrDivZ0 ; l++)
+	if(NbrGrsDiv[j][k][l]){
+	  Geo_InitFMMData(&FMMParentData_S) ;
+	  FMMParentData_S.Element = List_Create(NbrGrsDiv[j][k][l], 1, sizeof(struct FMMData)) ;
+	  for(m = 0 ; m < NbrGrsDiv[j][k][l] ; m++){
+	    List_Read(FMMGroup_L, GrsDiv[j][k][l][m], &FMMData_S); 
+	    List_Add(FMMParentData_S.Element, &FMMData_S) ;
+	    
+	    FMMParentData_S.Xgc +=  FMMData_S.Xgc ;
+	    FMMParentData_S.Ygc +=  FMMData_S.Ygc ;
+	    FMMParentData_S.Zgc +=  FMMData_S.Zgc ;   
+	  }	
+	  
+	  FMMParentData_S.Group = iFMMParentGroup;  
+	  FMMParentData_S.Xgc /= NbrGrsDiv[j][k][l];
+	  FMMParentData_S.Ygc /= NbrGrsDiv[j][k][l];
+	  FMMParentData_S.Zgc /= NbrGrsDiv[j][k][l];
+	  
+	  List_Add(FMMParentGroup_L, &FMMParentData_S) ;
+	  
+	  iFMMParentGroup +=1 ;
+	}/* if( NbrGrsDiv[j][k][l] ) */
+  
+  
+  Free(NbrGrsDiv);
+  Free(GrsDiv);
+  
+  List_Reset(FMMGroup_L);
+  
+  FMMGroup_S.InIndex = InSupport ;
+  FMMGroup_S.List = FMMParentGroup_L ;
+  List_Add(Problem_S.FMMGroup, &FMMGroup_S ); 
+  
+  GetDP_End ;
+}
 
 
 void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){
@@ -925,6 +1269,8 @@ void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){
   Problem_S.FMMGroup = List_Create (1, 1, sizeof(struct FMMGroup)) ;
 
   Current.DofData->FMM_Matrix = NULL ;
+
+  Current.FMM.Dimension = DIM = (int)((GeoData_P)->Dimension) ;
   
   for (i_EquTerm = 0 ; i_EquTerm < Nbr_EquationTerm ; i_EquTerm++) {
     EquationTerm_P = EquationTerm_P0 + i_EquTerm ;
@@ -937,7 +1283,7 @@ void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){
 
 	if(DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.NbrParameters == 2)
 	  k0 = DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[1] ;/* Helmoltz Case */
-	DIM = (int)DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[0] ;
+	//DIM = (int)DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[0] ;
 
 	if( List_PQuery(InIndex, &EquationTerm_P->Case.LocalTerm.InIndex, fcmp_int) == NULL ){
 	  List_Add( InIndex, &EquationTerm_P->Case.LocalTerm.InIndex ) ;
@@ -947,7 +1293,9 @@ void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){
 	if( List_PQuery(InIndex, &DefineQuantityDof_P->IntegralQuantity.InIndex, fcmp_int) == NULL ){
 	  List_Add( InIndex, &DefineQuantityDof_P->IntegralQuantity.InIndex ) ;
 	  Geo_CreateFMMGroup( DefineQuantityDof_P->IntegralQuantity.InIndex, GeoData_P, k0 ) ;
-	}	
+	}
+
+	
 
 	if (Current.DofData->FMM_Matrix == NULL)
 	  Current.DofData->FMM_Matrix = List_Create(1, 1, sizeof(struct FMMmat)) ;
@@ -961,7 +1309,7 @@ void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){
 	List_Add( Current.DofData->FMM_Matrix, &FMMmat_S) ;
  	EquationTerm_P->Case.LocalTerm.iFMMEqu = List_Nbr(Current.DofData->FMM_Matrix)-1 ;
 	
-	Get_GroupNeighbours( EquationTerm_P->Case.LocalTerm.iFMMEqu, DIM ) ;
+	Get_GroupNeighbours( EquationTerm_P->Case.LocalTerm.iFMMEqu) ;
 
 	FMMmat_P = (struct FMMmat*)List_Pointer(Current.DofData->FMM_Matrix, EquationTerm_P->Case.LocalTerm.iFMMEqu) ;
 
@@ -979,8 +1327,8 @@ void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){
     }/* If Galerkin */
   }/* Equation_Term */
 
-  
-  Init_CurrentFMMData ((int)((GeoData_P)->Dimension), k0 ) ;
+    
+  Init_CurrentFMMData ( k0 ) ;
   List_Delete(InIndex);
 
   GetDP_End ; 

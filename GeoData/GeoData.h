@@ -53,6 +53,13 @@ void Geo_GetNodesCoordinates(int Nbr_Node, int * Num_Node,
 void Geo_SetNodesCoordinates(int Nbr_Node, int * Num_Node,
 			     double * x, double * y, double * z) ;
 
+void Geo_SetNodesCoordinatesX(int Nbr_Node, int * Num_Node,
+			     double * x) ;
+void Geo_SetNodesCoordinatesY(int Nbr_Node, int * Num_Node,
+			     double * y) ;
+void Geo_SetNodesCoordinatesZ(int Nbr_Node, int * Num_Node,
+			     double * z) ;
+
 double * Geo_GetNodes_uvw(int Type, int *nbn) ;
 double * Geo_GetBarycenter_uvw(int Type) ;
 

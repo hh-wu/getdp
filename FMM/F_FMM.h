@@ -35,17 +35,17 @@
 
 void   Geo_InitFMMData( struct FMMData *FMMData_P ) ;
 void   InitFMMmatrix( int i_Src, int i_Obs, struct FMMmat *FMMmat_P ) ;
-void   Init_CurrentFMMData ( int Dimension, double k0 ) ;
+void   Init_CurrentFMMData ( double k0 ) ;
 
 void   Get_RmaxGroups(int i_Obs, int i_Src) ;
 double Geo_GetRmaxInFMMGroup( struct FMMData *FMMData_P) ;
 
-void   Get_GroupNeighbours( int i_FMMEqu, int Dimension ) ;
+void   Get_GroupNeighbours( int i_FMMEqu ) ;
 
 void   Geo_SetCentroidCoordinates( int Num, double Centroid[3] ) ;
 
 void   ReSet_FMMGroupCenters( ) ;
-void   ReGenerate_FMMGroupNeighbours( ) ;
+void   ReGenerate_FMMGroupNeighbours(int Flag_FMMDA) ;
 
 void   Geo_SetXYZmaxInElement(int Num, double *Xmax, double *Ymax, double *Zmax) ;
 double Geo_SetMaxEdgeLength( int Num ) ;
@@ -53,12 +53,14 @@ double Geo_GetMaxDistance2Elms(int Numi, int Numj) ;
 
 int    FMM_NbrSpectralDirections( double k0 ) ;
 int    FMM_SetTruncation(double Rsrc, double Robs, double D, int Dimension) ;
+int    FMM_SetTruncationOLD( double Rmax, double D, int Dimension);
 
 int    NeighbouringGroups( int FMMGroupEObs, int FMMGroupESrc ) ;
 int    Get_NextElementSourceNeighbour( struct Element *ElementSource ) ;
 int    Get_NextElementSourceInGroup(struct Element *ElementSource) ;
 
 void   Geo_CreateFMMGroup( int InSupport, struct GeoData *GeoData_P, double k0 ) ;
+void   Geo_CreateMultilevelFMMGroup( int InSupport, struct GeoData *GeoData_P, double k0 ) ;
 void   Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ) ;
 
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.25 2004-01-19 16:51:15 geuzaine Exp $"
+#define RCSID "$Id: GeoData.c,v 1.26 2004-01-22 14:13:46 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -669,5 +669,63 @@ void Geo_SetNodesCoordinates(int Nbr_Node, int * Num_Node,
 }
 
 
+void Geo_SetNodesCoordinatesX(int Nbr_Node, int * Num_Node,
+			     double *x) {
+  int    i ;
+  struct Geo_Node  Geo_Node, * Geo_Node_P ;
+
+  GetDP_Begin("Geo_SetNodesCoordinatesX");
+
+  for (i = 0 ; i < Nbr_Node ; i++) {
+    Geo_Node.Num = abs(Num_Node[i]) ;
+
+    if(!(Geo_Node_P = (struct Geo_Node*)
+	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
+      Msg(ERROR, "Node %d does not exist", Geo_Node.Num) ;
+    
+    Geo_Node_P->x = x[i] ;
+  }
+
+  GetDP_End ;
+}
 
 
+void Geo_SetNodesCoordinatesY(int Nbr_Node, int * Num_Node,
+			     double *y) {
+  int    i ;
+  struct Geo_Node  Geo_Node, * Geo_Node_P ;
+
+  GetDP_Begin("Geo_SetNodesCoordinatesY");
+
+  for (i = 0 ; i < Nbr_Node ; i++) {
+    Geo_Node.Num = abs(Num_Node[i]) ;
+
+    if(!(Geo_Node_P = (struct Geo_Node*)
+	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
+      Msg(ERROR, "Node %d does not exist", Geo_Node.Num) ;
+    
+    Geo_Node_P->y = y[i] ;
+  }
+
+  GetDP_End ;
+}
+
+void Geo_SetNodesCoordinatesZ(int Nbr_Node, int * Num_Node,
+			     double *z) {
+  int    i ;
+  struct Geo_Node  Geo_Node, * Geo_Node_P ;
+
+  GetDP_Begin("Geo_SetNodesCoordinatesZ");
+
+  for (i = 0 ; i < Nbr_Node ; i++) {
+    Geo_Node.Num = abs(Num_Node[i]) ;
+
+    if(!(Geo_Node_P = (struct Geo_Node*)
+	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
+      Msg(ERROR, "Node %d does not exist", Geo_Node.Num) ;
+    
+    Geo_Node_P->z = z[i] ;
+  }
+
+  GetDP_End ;
+}
