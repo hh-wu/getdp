@@ -833,7 +833,7 @@ Optional Features:
   --enable-petsc          use PETSc linear solvers (default=no)
   --enable-debug          build debug stack frame (default=no)
   --enable-purewin32      don't depend on Cygwin on Windows (default=no)
-  --enable-gsl            use GSL as numerical toolkit (default=yes)
+  --enable-gsl            use GSL as numerical toolkit (default=no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -2731,7 +2731,7 @@ else
 
 fi
 
-if test "x$enable_gsl" != "xno"; then
+if test "x$enable_gsl" = "xyes"; then
   if test "x${GSL_PREFIX}" != "x"; then
     LDFLAGS="-L${GSL_PREFIX}/lib ${LDFLAGS}"
   fi
@@ -2890,6 +2890,8 @@ fi
     echo "To use the GSL instead, run configure again with the --enable-gsl"
     echo "option."
     echo "********************************************************************"
+    GETDP_DIRS="${GETDP_DIRS} NR"
+    GETDP_LIBS="${GETDP_LIBS} -lNR"
   else
     echo "********************************************************************"
     echo "This is the free version of GetDP and configure could not find"
@@ -2908,9 +2910,6 @@ echo "$as_me: error: Could not find GSL, aborting." >&2;}
    { (exit 1); exit 1; }; }
   fi
 fi
-
-GETDP_DIRS="${GETDP_DIRS} NR"
-GETDP_LIBS="${GETDP_LIBS} -lNR"
 
 if test "x$enable_debug" = "xyes"; then
   C_FLAGS="${C_FLAGS} -DGETDP_USE_DEBUG_STACK"
