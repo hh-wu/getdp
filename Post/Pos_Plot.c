@@ -1,4 +1,4 @@
-/* $Id: Pos_Plot.c,v 1.1 2000-10-16 12:32:04 geuzaine Exp $ */
+/* $Id: Pos_Plot.c,v 1.2 2000-10-16 15:45:18 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -924,28 +924,38 @@ void  Pos_PlotOnCut(struct PostQuantity     *NCPQ_P,
    }										\
  }										\
 
+#define ARRAY(i,j,k,t)						\
+  Array[ (t) * Current.NbrHar * ((int)N[0]+1) * ((int)N[1]+1) +	\
+         (k) * ((int)N[0]+1) * ((int)N[1]+1) + 			\
+         (j) * ((int)N[0]+1) +					\
+         (i) ]
 
-#define LETS_STORE_THE_RESULT								\
- if(!NCPQ_P){										\
-   if(CumulativeValues[0].Type != SCALAR)						\
-     Msg(ERROR, "Plot OnGrid not done for non scalar fields");				\
-   else											\
-     Array[i1*((int)N[0]+1)+i2] = CumulativeValues[0].Val[0] ; 				\
- }											\
- else{											\
-   InWhichElement(Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension,		\
-                  Current.x, Current.y, Current.z, &u, &v, &w) ;			\
-   Current.Region = Element.Region ;							\
-   Pos_InitAllSolutions(PSO_P->TimeStep_L, 0) ;						\
-   Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,			\
-                    &Element, u, v, w, &PE->Value[0]);					\
-   if(PE->Value[0].Type != SCALAR)							\
-     Msg(ERROR, "Plot OnGrid not done for non scalar fields");				\
-   if(CPQ_P)										\
-     Combine_PostQuantity(PSO_P->CombinationType, Order,				\
-                          &PE->Value[0], &CumulativeValues[0]) ;			\
-   Array[i1*((int)N[0]+1)+i2] = PE->Value[0].Val[0] ; 					\
- }										
+#define LETS_STORE_THE_RESULT							\
+ if(!NCPQ_P){									\
+   if(CumulativeValues[0].Type != SCALAR)					\
+     Msg(ERROR, "Plot OnPlane not ready for non scalar fields with Depth > 1");	\
+   else										\
+     for (ts = 0 ; ts < NbTimeStep ; ts++)					\
+       for(k = 0 ; k < Current.NbrHar ; k++)					\
+         ARRAY(i1,i2,k,ts) = (float)CumulativeValues[ts].Val[MAX_DIM*k] ;	\
+ }										\
+ else{										\
+   InWhichElement(Current.GeoData->Grid, NULL, &Element, PSO_P->Dimension,	\
+                  Current.x, Current.y, Current.z, &u, &v, &w) ;		\
+   Current.Region = Element.Region ;						\
+   for (ts = 0 ; ts < NbTimeStep ; ts++) {					\
+     Pos_InitAllSolutions(PSO_P->TimeStep_L, ts) ;				\
+     Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,		\
+                      &Element, u, v, w, &PE->Value[0]);			\
+     if(PE->Value[0].Type != SCALAR)						\
+       Msg(ERROR, "Plot OnPlane not ready for non scalar fields with Depth > 1");\
+     if(CPQ_P)									\
+       Combine_PostQuantity(PSO_P->CombinationType, Order,			\
+                            &PE->Value[0], &CumulativeValues[ts]) ;		\
+     for(k = 0 ; k < Current.NbrHar ; k++)					\
+       ARRAY(i1,i2,k,ts) = (float)PE->Value[0].Val[MAX_DIM*k] ;			\
+   }										\
+ }
 
 void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
 		     struct PostQuantity     *CPQ_P,
@@ -958,7 +968,7 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
   struct Value       * CumulativeValues, Value ;
   struct PostElement * PE , * PE2 ;
 
-  int     i1, i2, i3, j, NbTimeStep, ts ;
+  int     i1, i2, i3, j, k, NbTimeStep, ts ;
   float  *Array ;
   double  u, v, w, Length, Normal[4] = {0., 0., 0., 0.}, NbrIso ;
   double  X[4], Y[4], Z[4], S[4], N[4];
@@ -969,9 +979,6 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
     NbTimeStep = List_Nbr(Current.DofData->Solutions);
     for(j = 0 ; j < NbTimeStep ; j++) List_Add(PSO_P->TimeStep_L, &j);
   }
-
-  if(NbTimeStep > 1 && PSO_P->Depth > 1)
-    Msg(ERROR, "Plot OnGrid with Depth>1 not implemented if #TimeSteps > 1");
 
   if(CPQ_P){    
     CumulativeValues = (struct Value*) Malloc(NbTimeStep*sizeof(struct Value)) ;    
@@ -1034,7 +1041,8 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
     N[0] = PSO_P->Case.OnGrid.n[0] ; N[1] = PSO_P->Case.OnGrid.n[1] ;
 
     if(PSO_P->Depth > 1)
-      Array = (float*)Malloc((N[0]+1)*(N[1]+1)*sizeof(float)) ;
+      Array = (float*)
+	Malloc(NbTimeStep*Current.NbrHar*(N[0]+1)*(N[1]+1)*sizeof(float)) ;
     
     for (i1 = 0 ; i1 <= N[0] ; i1++) {
       S[0] = (double)i1 / (double)(N[0] ? N[0] : 1) ;
@@ -1066,27 +1074,35 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
 	  for (i2 = 0 ; i2 < N[1] ; i2++) {
 	    S[1] = (double)i2 / (double)(N[1] ? N[1] : 1) ;
 	    S[3] = (double)(i2+1) / (double)(N[1] ? N[1] : 1) ;
-	    PE2->Value[0].Type = SCALAR ;
-	    PE2->x[0] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[1] ;
-	    PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[1] ;
-	    PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[1] ;	  
-	    PE2->Value[0].Val[0] = Array[i1*((int)N[0]+1)+i2] ;
-	    PE2->x[1] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[1] ;
-	    PE2->y[1] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[1] ;
-	    PE2->z[1] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[1] ;	  
-	    PE2->Value[1].Val[0] = Array[(i1+1)*((int)N[0]+1)+i2] ;
-	    PE2->x[2] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[3] ;
-	    PE2->y[2] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[3] ;
-	    PE2->z[2] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[3] ;	  
-	    PE2->Value[2].Val[0] = Array[i1*((int)N[0]+1)+(i2+1)] ;
-	    Print_PostElement(PSO_P->Format, Current.Time, 0, 1,
-			      Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE2);
+	    for (ts = 0 ; ts < NbTimeStep ; ts++){
+	      PE2->Value[0].Type = SCALAR ;
+	      PE2->x[0] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[1] ;
+	      PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[1] ;
+	      PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[1] ;	  
+	      for(k = 0 ; k < Current.NbrHar ; k++)
+		PE2->Value[0].Val[MAX_DIM*k] = ARRAY(i1,i2,k,ts) ;
+	      PE2->x[1] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[1] ;
+	      PE2->y[1] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[1] ;
+	      PE2->z[1] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[1] ;	  
+	      for(k = 0 ; k < Current.NbrHar ; k++)
+		PE2->Value[1].Val[MAX_DIM*k] = ARRAY(i1+1,i2,k,ts) ;
+	      PE2->x[2] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[3] ;
+	      PE2->y[2] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[3] ;
+	      PE2->z[2] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[3] ;	  
+	      for(k = 0 ; k < Current.NbrHar ; k++)
+		PE2->Value[2].Val[MAX_DIM*k] = ARRAY(i1,i2+1,k,ts) ;
+	      Print_PostElement(PSO_P->Format, Current.Time, ts, NbTimeStep,
+				Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE2);
+	    }
 	    PE2->x[0] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[3] ;
 	    PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[3] ;
 	    PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[3] ;	  
-	    PE2->Value[0].Val[0] = Array[(i1+1)*((int)N[0]+1)+(i2+1)] ;
-	    Print_PostElement(PSO_P->Format, Current.Time, 0, 1,
-			      Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE2);
+	    for (ts = 0 ; ts < NbTimeStep ; ts++){
+	      for(k = 0 ; k < Current.NbrHar ; k++)
+		PE2->Value[0].Val[MAX_DIM*k] = ARRAY(i1+1,i2+1,k,ts) ;
+	      Print_PostElement(PSO_P->Format, Current.Time, ts, NbTimeStep,
+				Current.NbrHar, PSO_P->HarmonicToTime, Normal, PE2);
+	    }
 	  }
 	}
 	Destroy_PostElement(PE2) ;
@@ -1156,8 +1172,8 @@ void  Pos_PlotOnGrid(struct PostQuantity     *NCPQ_P,
 }
 
 #undef LETS_PRINT_THE_RESULT
-
-
+#undef LETS_STORE_THE_RESULT
+#undef ARRAY
 
 
 /* ------------------------------------------------------------------------ */
