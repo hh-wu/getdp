@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.14 2001-03-04 13:20:28 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.15 2001-03-13 22:25:33 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 
@@ -7,6 +7,7 @@
 #include "Data_Active.h"
 #include "Data_DefineE.h"
 #include "Treatment_Formulation.h"
+#include "CurrentData.h"
 
 char  * Get_ExpressionName(struct Problem * Problem, int Index) {
 
@@ -1186,22 +1187,33 @@ void  Print_ProblemStructure(struct Problem  * Problem) {
 
 void  Print_ListResolution(struct Problem  * Problem) {
   struct Resolution *RE ;
-  int    i, Nbr ;
+  int    i, Nbr, ichoice = 0 ;
 
   GetDP_Begin("Print_ListResolution");
 
   if((Nbr = List_Nbr(Problem->Resolution))){
-    Msg(WARNING, "Missing Resolution name") ;
-    printf("\nAvailable choices:\n");
-    for (i = 0 ; i < Nbr ; i++) {
-      RE = (struct Resolution*)List_Pointer(Problem->Resolution, i) ;
-      printf("Resolution (%d/%d) : %s\n", i+1, Nbr, RE->Name) ;
+    if(Flag_LRES < 0){
+      ichoice = - Flag_LRES ;
     }
+    else{
+      Msg(WARNING, "Missing Resolution name") ;
+      for (i = 0 ; i < Nbr ; i++) {
+	RE = (struct Resolution*)List_Pointer(Problem->Resolution, i) ;
+	Msg(CHECK, "(%d) %s\n", i+1, RE->Name) ;
+      }
+      Msg(CHECK, "Choice: ") ;
+      scanf("%d", &ichoice) ;
+    }
+    if(ichoice > 0 && ichoice < Nbr+1){
+      Flag_PRE = Flag_CAL = 1 ; 
+      RE = (struct Resolution*)List_Pointer(Problem->Resolution, ichoice-1) ;
+      Name_Resolution = RE->Name ; 
+    }
+    else
+      Msg(ERROR, "Unknown Resolution") ;
   }
   else
     Msg(WARNING, "No Resolution available") ;
-
-  printf("\n") ;
 
   GetDP_End ;
 }
@@ -1212,22 +1224,29 @@ void  Print_ListResolution(struct Problem  * Problem) {
 
 void  Print_ListPostProcessing(struct Problem  * Problem) {
   struct PostProcessing *PP ;
-  int    i, Nbr ;
+  int    i, Nbr, ichoice = 0 ;
 
   GetDP_Begin("Print_ListPostProcessing");
 
   if((Nbr = List_Nbr(Problem->PostProcessing))){
     Msg(WARNING, "Missing PostProcessing name") ;
-    printf("\nAvailable choices:\n") ;
     for (i = 0 ; i < Nbr ; i++) {
       PP = (struct PostProcessing*)List_Pointer(Problem->PostProcessing, i) ;
-      printf("PostProcessing (%d/%d) : %s\n", i+1, Nbr, PP->Name) ;
+      Msg(CHECK, "(%d) %s\n", i+1, PP->Name) ;
     }
+    Msg(CHECK, "Choice: ") ;
+    scanf("%d", &ichoice) ;
+    if(ichoice > 0 && ichoice < Nbr+1){
+      Flag_POS = Flag_IPOS = 1 ;
+      PP = (struct PostProcessing*)List_Pointer(Problem->PostProcessing, ichoice-1) ;
+      Name_PostProcessing[0] = PP->Name ;
+      Name_PostProcessing[1] = NULL ;
+    }
+    else
+      Msg(ERROR, "Unknown PostProcessing") ;
   }
   else
     Msg(WARNING, "No PostProcessing available") ;
-    
-  printf("\n") ;
 
   GetDP_End ;
 }
@@ -1238,23 +1257,35 @@ void  Print_ListPostProcessing(struct Problem  * Problem) {
 
 void  Print_ListPostOperation(struct Problem  * Problem) {
   struct PostOperation *PO ;
-  int    i, Nbr ;
+  int    i, Nbr, ichoice = 0 ;
 
   GetDP_Begin("Print_ListPostOperation");
 
   if((Nbr = List_Nbr(Problem->PostOperation))){
-    Msg(WARNING, "Missing PostOperation name") ;
-    printf("\nAvailable choices:\n") ;
-    for (i = 0 ; i < Nbr ; i++) {
-      PO = (struct PostOperation*)List_Pointer(Problem->PostOperation, i) ;
-      printf("PostOperation (%d/%d) : %s\n", i+1, Nbr, PO->Name) ;
+    if(Flag_LPOS < 0){
+      ichoice = - Flag_LPOS ;
     }
+    else{
+      Msg(WARNING, "Missing PostOperation name") ;
+      for (i = 0 ; i < Nbr ; i++) {
+	PO = (struct PostOperation*)List_Pointer(Problem->PostOperation, i) ;
+	Msg(CHECK, "(%d) %s\n", i+1, PO->Name) ;
+      }
+      Msg(CHECK, "Choice: ") ;
+      scanf("%d", &ichoice) ;
+    }
+    if(ichoice > 0 && ichoice < Nbr+1){
+      Flag_POS = 1 ;
+      PO = (struct PostOperation*)List_Pointer(Problem->PostOperation, ichoice-1) ;
+      Name_PostOperation[0] = PO->Name ;
+      Name_PostOperation[1] = NULL ;
+    }
+    else
+      Msg(ERROR, "Unknown PostOperation") ;
   }
   else
     Msg(WARNING, "No PostOperation available");
     
-  printf("\n") ;
-
   GetDP_End ;
 }
 

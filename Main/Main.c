@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.25 2001-03-11 08:16:01 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.26 2001-03-13 22:25:33 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -244,6 +244,16 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
       else if (!strcmp(argv[i]+1, "ascii"))  { Flag_BIN     = 0 ; i++ ; } 
       else if (!strcmp(argv[i]+1, "split"))  { Flag_SPLIT   = 1 ; i++ ; } 
 
+      else if (!strcmp(argv[i]+1, "1") || !strcmp(argv[i]+1, "2") ||
+	       !strcmp(argv[i]+1, "3") || !strcmp(argv[i]+1, "4") ||
+	       !strcmp(argv[i]+1, "5") || !strcmp(argv[i]+1, "6") ||
+	       !strcmp(argv[i]+1, "7") || !strcmp(argv[i]+1, "8") ||
+	       !strcmp(argv[i]+1, "9")) {
+	if(Flag_LRES) Flag_LPOS = -atoi(argv[i]+1) ;
+	else Flag_LRES = -atoi(argv[i]+1) ;
+	i++ ;
+      }
+
       else if (!strcmp(argv[i]+1, "i")) { 
 	Interactive();
       } 
@@ -329,7 +339,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Flag_PRE = Flag_CAL = 1 ; Name_Resolution = argv[i] ; i++ ; 
 	}
 	else { 
-	  Flag_LRES = 1 ; i++ ;
+	  Flag_LRES = 1 ;
 	}
       }
 
@@ -342,7 +352,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	    Msg(ERROR, "Too many PostOperations");
 	}
 	if(!j){
-	  Flag_LPOS = 1 ; i++ ; 
+	  Flag_LPOS = 1 ;
 	}
 	else{
 	  Flag_POS = 1 ;
@@ -360,7 +370,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	    Msg(ERROR, "Too many PostProcessings");
 	}
 	if(!j){
-	  Flag_LIPOS = 1 ; i++ ; 
+	  Flag_LIPOS = 1 ;
 	}
 	else{
 	  Flag_IPOS = Flag_POS = 1 ;

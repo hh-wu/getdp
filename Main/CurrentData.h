@@ -1,4 +1,4 @@
-/* $Id: CurrentData.h,v 1.7 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: CurrentData.h,v 1.8 2001-03-13 22:25:33 geuzaine Exp $ */
 #ifndef _CURRENT_DATA_H_
 #define _CURRENT_DATA_H_
 
@@ -11,7 +11,7 @@
 extern struct Problem          Problem_S ;
 
 extern int    Flag_PRE, Flag_PAR, Flag_CAL, Flag_POS, Flag_IPOS ;
-extern int    Flag_XDATA ;
+extern int    Flag_XDATA, Flag_LRES, Flag_LPOS ;
 extern int    Flag_CHECK, Flag_RESTART ;
 extern int    Flag_LOG, Flag_VERBOSE ;
 extern int    Flag_BIN, Flag_PROGRESS, Flag_SPLIT ;
