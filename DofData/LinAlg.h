@@ -1,3 +1,4 @@
+/* $Id: LinAlg.h,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
 #ifndef _LINALG_H_
 #define _LINALG_H_
 

@@ -1,3 +1,4 @@
+/* $Id: Data_Function.h,v 1.5 2000-09-07 18:47:22 geuzaine Exp $ */
 #ifndef _DADA_FUNCTION_H_
 #define _DATA_FUNCTION_H_
 

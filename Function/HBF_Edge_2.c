@@ -1,3 +1,4 @@
+/* $Id: HBF_Edge_2.c,v 1.3 2000-09-07 18:47:23 geuzaine Exp $ */
 #include <stdio.h>
 
 #include "BF_Function.h"

@@ -1,3 +1,4 @@
+/* $Id: listman.c,v 1.2 2000-09-07 18:47:21 geuzaine Exp $ */
 /* Original author: Marc UME */
 
 #include <stdlib.h>

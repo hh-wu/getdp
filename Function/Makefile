@@ -1,3 +1,4 @@
+# $Id: Makefile,v 1.4 2000-09-07 18:47:23 geuzaine Exp $
 #
 # Makefile for "libFunction.a"
 #

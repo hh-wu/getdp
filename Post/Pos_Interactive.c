@@ -1,3 +1,4 @@
+/* $Id: Pos_Interactive.c,v 1.3 2000-09-07 18:47:28 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>

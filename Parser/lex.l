@@ -1,4 +1,5 @@
 %{
+/* $Id: lex.l,v 1.4 2000-09-07 18:47:27 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

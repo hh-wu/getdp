@@ -1,3 +1,4 @@
+/* $Id: Gauss_Hexahedron.c,v 1.5 2000-09-07 18:47:24 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>

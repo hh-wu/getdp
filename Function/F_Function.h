@@ -1,3 +1,4 @@
+/* $Id: F_Function.h,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
 #ifndef _MISCELLANEOUS_H_
 #define _MISCELLANEOUS_H_
 

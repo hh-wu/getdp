@@ -1,3 +1,4 @@
+/* $Id: Cal_AnalyticIntegration.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 

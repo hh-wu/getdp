@@ -1,3 +1,4 @@
+/* $Id: Message.c,v 1.10 2000-09-07 18:47:26 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>

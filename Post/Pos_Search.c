@@ -1,3 +1,4 @@
+/* $Id: Pos_Search.c,v 1.8 2000-09-07 18:47:29 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

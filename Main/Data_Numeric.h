@@ -1,3 +1,4 @@
+/* $Id: Data_Numeric.h,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
 #ifndef _DATA_NUMERIC_H_
 #define _DATA_NUMERIC_H_
 

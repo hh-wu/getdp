@@ -1,3 +1,4 @@
+/* $Id: GeoEntity.c,v 1.5 2000-09-07 18:47:23 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

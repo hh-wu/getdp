@@ -1,3 +1,4 @@
+/* $Id: Data_DefineE.h,v 1.5 2000-09-07 18:47:25 geuzaine Exp $ */
 
 struct StringXDefine {
   char *string ; 

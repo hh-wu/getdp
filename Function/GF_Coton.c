@@ -1,3 +1,4 @@
+/* $Id: GF_Coton.c,v 1.2 2000-09-07 18:47:23 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 

@@ -1,3 +1,4 @@
+/* $Id: Quadrature.h,v 1.4 2000-09-07 18:47:25 geuzaine Exp $ */
 
 #define MAX_LINE_POINTS 20
 

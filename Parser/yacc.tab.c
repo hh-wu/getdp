@@ -1,3 +1,4 @@
+/* $Id: yacc.tab.c,v 1.8 2000-09-07 18:47:27 geuzaine Exp $ */
 
 /*  A Bison parser, made from yacc.y
  by  GNU Bison version 1.25

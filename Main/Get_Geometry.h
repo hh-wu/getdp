@@ -1,3 +1,4 @@
+/* $Id: Get_Geometry.h,v 1.2 2000-09-07 18:47:26 geuzaine Exp $ */
 #include "Data_Active.h"
 
 

@@ -1,3 +1,4 @@
+# $Id: Makefile,v 1.4 2000-09-07 18:47:28 geuzaine Exp $
 #
 #  Makefile for 'libPost.a'
 # 

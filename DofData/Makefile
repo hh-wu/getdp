@@ -1,3 +1,4 @@
+# $Id: Makefile,v 1.3 2000-09-07 18:47:22 geuzaine Exp $
 #
 # Makefile for "libDofData.a"
 #

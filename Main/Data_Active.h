@@ -1,3 +1,4 @@
+/* $Id: Data_Active.h,v 1.3 2000-09-07 18:47:25 geuzaine Exp $ */
 #ifndef _DATA_ACTIVE_H_
 #define _DATA_ACTIVE_H_
 

@@ -1,3 +1,4 @@
+/* $Id: F_Type.c,v 1.2 2000-09-07 18:47:23 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>

@@ -1,3 +1,4 @@
+/* $Id: Pos_ReadLine.c,v 1.2 2000-09-07 18:47:28 geuzaine Exp $ */
 /* GNUPLOT - readline.c */
 
 /* WARNING: THIS IS A MODIFIED VERSION: see the 'getdp' tags */

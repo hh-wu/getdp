@@ -1,3 +1,4 @@
+/* $Id: lu.c,v 1.2 2000-09-07 18:47:31 geuzaine Exp $ */
 /* Decomposition LU incomplete en vue de trouver la */
 /* matrice d'incidence mailles-branches a partir de */
 /* celle noeuds-branches.                           */

@@ -1,3 +1,4 @@
+/* $Id: GeoEntity.h,v 1.5 2000-09-07 18:47:24 geuzaine Exp $ */
 
 /* Incidence Matrices : Den (EdgesXNodes), Dfe (FacetsXEdges) */
 /* Xp stands for 'expanded' (used in discrete operators)      */

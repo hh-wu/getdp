@@ -1,3 +1,4 @@
+/* $Id: HBF_Function.h,v 1.3 2000-09-07 18:47:23 geuzaine Exp $ */
 
 #define HBF_ARG  struct Element * Element, int NumEntity, \
                  double u, double v, double w,  double Value[]

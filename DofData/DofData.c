@@ -1,3 +1,4 @@
+/* $Id: DofData.c,v 1.8 2000-09-07 18:47:22 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

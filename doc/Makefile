@@ -1,3 +1,4 @@
+# $Id: Makefile,v 1.7 2000-09-07 18:47:29 geuzaine Exp $
 
 dvi:
 	texi2dvi getdp.texi 

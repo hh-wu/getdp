@@ -1,3 +1,4 @@
+/* $Id: ran3.c,v 1.2 2000-09-07 18:47:27 geuzaine Exp $ */
 #define MBIG 1000000000
 #define MSEED 161803398
 #define MZ 0

@@ -1,3 +1,4 @@
+/* $Id: Get_DofOfElement.c,v 1.8 2000-09-07 18:47:26 geuzaine Exp $ */
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>

@@ -1,3 +1,4 @@
+/* $Id: Magic.h,v 1.3 2000-09-07 18:47:30 geuzaine Exp $ */
 #ifndef _MAGIC_H_
 #define _MAGIC_H_
 

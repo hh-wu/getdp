@@ -1,3 +1,4 @@
+/* $Id: HBF_Node_3.c,v 1.4 2000-09-07 18:47:23 geuzaine Exp $ */
 #include <stdio.h>
 
 #include "BF_Function.h"

@@ -1,3 +1,4 @@
+/* $Id: outil.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
 #include <stdlib.h>
 #include <math.h>
 #include "outil.h"

@@ -1,3 +1,4 @@
+/* $Id: Data_Define.h,v 1.7 2000-09-07 18:47:25 geuzaine Exp $ */
 #ifndef _DADA_DEFINE_H_
 #define _DATA_DEFINE_H_
 

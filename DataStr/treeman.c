@@ -1,3 +1,4 @@
+/* $Id: treeman.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
 /* Auteur: Marc UME  **  Date: 17/03/94  ** 
    Commentaire: Gestionnaire d'arbres balances */
 

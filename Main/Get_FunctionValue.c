@@ -1,3 +1,4 @@
+/* $Id: Get_FunctionValue.c,v 1.4 2000-09-07 18:47:26 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 

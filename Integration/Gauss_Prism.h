@@ -1,3 +1,4 @@
+/* $Id: Gauss_Prism.h,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
 /* 
    GAUSS PRISM 
 */

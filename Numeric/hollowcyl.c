@@ -1,3 +1,4 @@
+/* $Id: hollowcyl.c,v 1.2 2000-09-07 18:47:27 geuzaine Exp $ */
 /* Solution analytique de l'induction magnetique dans le cas
    d'un cylindre creux de rayon interne r0 et de rayon externe r1.
    Le champ applique est dirige selon la direction horizontale de

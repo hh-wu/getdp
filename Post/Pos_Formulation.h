@@ -1,3 +1,4 @@
+/* $Id: Pos_Formulation.h,v 1.3 2000-09-07 18:47:28 geuzaine Exp $ */
 #ifndef _POS_FORMULATION_H_
 #define _POS_FORMULATION_H_
 

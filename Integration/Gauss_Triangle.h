@@ -1,3 +1,4 @@
+/* $Id: Gauss_Triangle.h,v 1.6 2000-09-07 18:47:25 geuzaine Exp $ */
 /* 
    GAUSS TRIANGLE
 */

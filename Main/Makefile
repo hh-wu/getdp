@@ -1,3 +1,4 @@
+# $Id: Makefile,v 1.5 2000-09-07 18:47:26 geuzaine Exp $
 #
 #  Makefile for 'libMain.a'
 # 

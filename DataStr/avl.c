@@ -1,3 +1,4 @@
+/* $Id: avl.c,v 1.2 2000-09-07 18:47:21 geuzaine Exp $ */
 #include <stdio.h>
 #include "avl.h"
 #include "ualloc.h"

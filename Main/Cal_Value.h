@@ -1,3 +1,4 @@
+/* $Id: Cal_Value.h,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
 #ifndef _CAL_VALUE_H_
 #define _CAL_VALUE_H_
 

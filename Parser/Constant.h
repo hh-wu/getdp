@@ -1,3 +1,4 @@
+/* $Id: Constant.h,v 1.2 2000-09-07 18:47:27 geuzaine Exp $ */
 #ifndef _CONSTANT_H_
 #define _CONSTANT_H_
 

@@ -1,3 +1,4 @@
+/* $Id: Data_GeoData.h,v 1.6 2000-09-07 18:47:23 geuzaine Exp $ */
 #ifndef _DATA_GEODATA_H_
 #define _DATA_GEODATA_H_
 

@@ -1,3 +1,4 @@
+/* $Id: MainBlackBox.c,v 1.3 2000-09-07 18:47:26 geuzaine Exp $ */
 
 /* 
    To create a special version of GetDP with a non-readable built-in formulation:

@@ -1,3 +1,4 @@
+/* $Id: Data_DofData.h,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
 #ifndef _DATA_DOFDATA_H_
 #define _DATA_DOFDATA_H_
 

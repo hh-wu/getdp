@@ -1,3 +1,4 @@
+/* $Id: yacc.tab.h,v 1.4 2000-09-07 18:47:28 geuzaine Exp $ */
 typedef union {
   char    *c ;
   int     i ;

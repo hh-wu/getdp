@@ -1,3 +1,4 @@
+/* $Id: Graph.h,v 1.2 2000-09-07 18:47:26 geuzaine Exp $ */
 #ifndef _GRAPH_H_
 #define _GRAPH_H_
 

@@ -1,3 +1,4 @@
+/* $Id: Pos_Search.h,v 1.4 2000-09-07 18:47:29 geuzaine Exp $ */
 #ifndef _POS_SEARCH_H_
 #define _POS_SEARCH_H_
 

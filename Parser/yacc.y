@@ -1,4 +1,5 @@
 %{
+/* $Id: yacc.y,v 1.8 2000-09-07 18:47:28 geuzaine Exp $ */
 
   /*
     Modifs a faire (Patrick):

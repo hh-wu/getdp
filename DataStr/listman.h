@@ -1,3 +1,4 @@
+/* $Id: listman.h,v 1.2 2000-09-07 18:47:21 geuzaine Exp $ */
 #ifndef _LISTMAN_H_
 #define _LISTMAN_H_
 

@@ -1,3 +1,4 @@
+/* $Id: Gauss_Prism.c,v 1.2 2000-09-07 18:47:24 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 

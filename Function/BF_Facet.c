@@ -1,3 +1,4 @@
+/* $Id: BF_Facet.c,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
 #include <stdio.h>
 
 #include "BF_Function.h"

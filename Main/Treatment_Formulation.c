@@ -1,3 +1,4 @@
+/* $Id: Treatment_Formulation.c,v 1.2 2000-09-07 18:47:27 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>

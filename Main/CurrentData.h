@@ -1,3 +1,4 @@
+/* $Id: CurrentData.h,v 1.6 2000-09-07 18:47:25 geuzaine Exp $ */
 #ifndef _CURRENT_DATA_H_
 #define _CURRENT_DATA_H_
 

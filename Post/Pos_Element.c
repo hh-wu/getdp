@@ -1,3 +1,4 @@
+/* $Id: Pos_Element.c,v 1.2 2000-09-07 18:47:28 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <math.h>

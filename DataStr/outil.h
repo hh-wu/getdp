@@ -1,3 +1,4 @@
+/* $Id: outil.h,v 1.2 2000-09-07 18:47:22 geuzaine Exp $ */
 #ifndef _OUTIL_H_
 #define _OUTIL_H_
 

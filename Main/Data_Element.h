@@ -1,3 +1,4 @@
+/* $Id: Data_Element.h,v 1.4 2000-09-07 18:47:25 geuzaine Exp $ */
 #ifndef _DATA_ELEMENT_H_
 #define _DATA_ELEMENT_H_
 

@@ -1,3 +1,4 @@
+/* $Id: Main.c,v 1.9 2000-09-07 18:47:26 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

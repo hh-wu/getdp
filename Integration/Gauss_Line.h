@@ -1,3 +1,4 @@
+/* $Id: Gauss_Line.h,v 1.4 2000-09-07 18:47:24 geuzaine Exp $ */
 /* 
    GAUSS LINE
 

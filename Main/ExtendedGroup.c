@@ -1,3 +1,4 @@
+/* $Id: ExtendedGroup.c,v 1.2 2000-09-07 18:47:25 geuzaine Exp $ */
 #include <stdlib.h> /* pour int abs(int) */
 #include <stdio.h>
 
