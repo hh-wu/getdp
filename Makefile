@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.50 2001-03-18 15:49:21 geuzaine Exp $
+# $Id: Makefile,v 1.51 2001-03-19 17:07:13 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -444,18 +444,19 @@ mingw: tag
 	g77 -o $(GETDP_BIN_DIR)/getdp.exe\
             -mno-cygwin -L/mingw/lib $(GETDP_SPARSKIT_LIBS) -lm
 
+# Warning: ILU_FLOAT does NOT work with -mips3. Why ?
 sgi: tag
 	@for i in $(GETDP_STUFF_DIR) $(SPARSKIT_DIR); do (cd $$i && $(MAKE) \
            "CC=cc" \
            "FC=f77" \
            "RANLIB=ls" \
-           "C_FLAGS=-O3 -mips3" \
-           "C_PARSER_FLAGS=-g -mips3" \
-           "F77_FLAGS=-O3 -mips3" \
+           "C_FLAGS=-O3 -n32 -mips3" \
+           "C_PARSER_FLAGS=-g -n32 -mips3" \
+           "F77_FLAGS=-O3 -n32 -mips3" \
            "SOLVER=-D_SPARSKIT" \
-           "SOLVER_FLAGS=-D_ILU_FLOAT" \
+           "SOLVER_FLAGS=" \
         ); done
-	f77 -mips3 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
+	f77 -n32 -mips3 -o $(GETDP_BIN_DIR)/getdp $(GETDP_SPARSKIT_LIBS) -lm
 	$(STRIP) $(GETDP_BIN_DIR)/getdp
 
 sgi64: tag
