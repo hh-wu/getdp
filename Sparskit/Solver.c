@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.7 2001-03-03 19:21:22 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.8 2001-03-08 19:13:03 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -24,6 +24,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   int     *ja, *ia, *jw, *mask, *levels;
   int      its, end, do_permute=0;
   int      zero=0, un=1, deux=2, six=6, douze=12, trente=30, trente_et_un=31;
+  int      reallocate;
 
   if (!M->N) {
     Msg(WARNING, "No equations in linear system");
@@ -212,13 +213,17 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       nnz_ilu = 2 * (M->N+1) * (p->Nb_Fill+1); break;
       
     case ILUD  : Msg(SPARSKIT, "ILUD (%s)\n", ILUSTORAGE);    
-      nnz_ilu = 10 * List_Nbr(M->S.a); break;
+      nnz_ilu = List_Nbr(M->S.a); break;  /* first guess */
       
     case ILUDP : Msg(SPARSKIT, "ILUDP (%s)\n", ILUSTORAGE);
-      nnz_ilu = 40 * List_Nbr(M->S.a); break ;
+      nnz_ilu = List_Nbr(M->S.a); break ; /* first guess */
       
     case ILUK  : Msg(SPARSKIT, "ILU%d (%s)\n", p->Nb_Fill, ILUSTORAGE);    
-      nnz_ilu = (p->Nb_Fill + 11) * List_Nbr(M->S.a); break; /* a pouf*/
+      if(!p->Nb_Fill)
+	nnz_ilu = List_Nbr(M->S.a) + (M->N+1);
+      else
+	nnz_ilu = p->Nb_Fill * List_Nbr(M->S.a); /* first guess */
+      break;
       
     case ILU0  : Msg(SPARSKIT, "ILU0 (%s)\n", ILUSTORAGE);    
       nnz_ilu = List_Nbr(M->S.a) + (M->N+1); break;
@@ -260,70 +265,92 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       M->S.jlu = (int*) Malloc(nnz_ilu * sizeof(int));
       M->S.ju  = (int*) Malloc((M->N+1) * sizeof(int));
     }
+
+    reallocate = 1;
+
+    while(reallocate){
     
-    switch(p->Preconditioner){
-    case ILUT :
-      w  = (double*) Malloc((M->N+1) * sizeof(double));
-      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-      ilut_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance,
-	    M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, w, jw, &ierr);    
-      Free(w); Free(jw); break;
-      
-    case ILUTP :
-      w  = (double*) Malloc((M->N+1) * sizeof(double));
-      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-      ilutp_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance, 
-	     &p->Permutation_Tolerance, &M->N, M->S.alu, M->S.jlu, 
-	     M->S.ju, &nnz_ilu, w, jw, M->S.permp, &ierr);    
-      Free(jw); Free(w); break;
-      
-    case ILUD :
-      w  = (double*) Malloc((M->N+1) * sizeof(double));
-      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-      ilud_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
-	    &p->Dropping_Tolerance, M->S.alu, M->S.jlu, 
-	    M->S.ju, &nnz_ilu, w, jw, &ierr);    
-      Free(w); Free(jw); break;
-      
-    case ILUDP :
-      w     = (double*) Malloc((M->N+1) * sizeof(double));
-      jw    = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-      iludp_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
-	     &p->Dropping_Tolerance, &p->Permutation_Tolerance, 
-	     &M->N, M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, 
-	     w, jw, M->S.permp, &ierr);    
-      Free(jw); Free(w); break;
-      
-    case ILUK :    
-      levels = (int*) Malloc(nnz_ilu * sizeof(int));
-      w      = (double*) Malloc((M->N+1) * sizeof(double));
-      jw     = (int*) Malloc(3 * (M->N+1) * sizeof(int));
-      iluk_(&M->N, a, ja, ia, &p->Nb_Fill, 
-	    M->S.alu, M->S.jlu, M->S.ju, 
-	    levels, &nnz_ilu, w, jw, &ierr);    
-      Free(levels); Free(w); Free(jw); break;
-      
-    case ILU0 :
-      jw = (int*) Malloc((M->N+1) * sizeof(int));    
-      ilu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
-      Free(jw); break;
-      
-    case MILU0 :
-      jw = (int*) Malloc((M->N+1) * sizeof(int));    
-      milu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
-      Free(jw); break;      
-      
-    }
+      switch(p->Preconditioner){
+      case ILUT :
+	w  = (double*) Malloc((M->N+1) * sizeof(double));
+	jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+	ilut_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance,
+	      M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, w, jw, &ierr);    
+	Free(w); Free(jw); break;
+	
+      case ILUTP :
+	w  = (double*) Malloc((M->N+1) * sizeof(double));
+	jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+	ilutp_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance, 
+	       &p->Permutation_Tolerance, &M->N, M->S.alu, M->S.jlu, 
+	       M->S.ju, &nnz_ilu, w, jw, M->S.permp, &ierr);    
+	Free(jw); Free(w); break;
+	
+      case ILUD :
+	w  = (double*) Malloc((M->N+1) * sizeof(double));
+	jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+	ilud_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
+	      &p->Dropping_Tolerance, M->S.alu, M->S.jlu, 
+	      M->S.ju, &nnz_ilu, w, jw, &ierr);    
+	Free(w); Free(jw); break;
+	
+      case ILUDP :
+	w     = (double*) Malloc((M->N+1) * sizeof(double));
+	jw    = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+	iludp_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
+	       &p->Dropping_Tolerance, &p->Permutation_Tolerance, 
+	       &M->N, M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, 
+	       w, jw, M->S.permp, &ierr);    
+	Free(jw); Free(w); break;
+	
+      case ILUK :    
+	levels = (int*) Malloc(nnz_ilu * sizeof(int));
+	w      = (double*) Malloc((M->N+1) * sizeof(double));
+	jw     = (int*) Malloc(3 * (M->N+1) * sizeof(int));
+	iluk_(&M->N, a, ja, ia, &p->Nb_Fill, 
+	      M->S.alu, M->S.jlu, M->S.ju, 
+	      levels, &nnz_ilu, w, jw, &ierr);    
+	Free(levels); Free(w); Free(jw); break;
+	
+      case ILU0 :
+	jw = (int*) Malloc((M->N+1) * sizeof(int));    
+	ilu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
+	Free(jw); break;
+	
+      case MILU0 :
+	jw = (int*) Malloc((M->N+1) * sizeof(int));    
+	milu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
+	Free(jw); break;      
+	
+      }
     
-    switch (ierr){
-    case  0 : break;
-    case -1 : Msg(ERROR, "Input matrix may be wrong");break;
-    case -2 : Msg(ERROR, "Matrix L in ILU overflows work array 'al'");break;
-    case -3 : Msg(ERROR, "Matrix U in ILU overflows work array 'alu'");break;
-    case -4 : Msg(ERROR, "Illegal value of nb_fill in ILU");break;
-    case -5 : Msg(ERROR, "Zero row encountered in ILU");break;
-    default : Msg(ERROR, "Zero pivot on line %d in ILU",ierr);break;
+      switch (ierr){
+      case  0 : 
+	reallocate = 0;
+	break;
+      case -1 :
+	Msg(ERROR, "Input matrix may be wrong");
+	break;
+      case -2 : /* Matrix L in ILU overflows work array 'al' */
+      case -3 : /* Matrix U in ILU overflows work array 'alu' */
+	Msg(INFO, "Reallocating ILU");
+	nnz_ilu *= 2 ;
+	M->S.alu = (scalar*) Realloc(M->S.alu, nnz_ilu * sizeof(scalar));
+	M->S.jlu = (int*) Realloc(M->S.jlu, nnz_ilu * sizeof(int));
+	break;
+      case -4 :
+	Msg(ERROR, "Illegal value of nb_fill in ILU");
+	break;
+      case -5 :
+	Msg(ERROR, "Zero row encountered in ILU");
+	break;
+      default :
+	Msg(ERROR, "Zero pivot on line %d in ILU",ierr);
+	break;
+      }
+
     }
+
     
     if(p->Preconditioner != NONE)
       print_matrix_info_MSR(M->N, M->S.alu, M->S.jlu);
