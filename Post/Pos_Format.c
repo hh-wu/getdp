@@ -1,4 +1,4 @@
-/* $Id: Pos_Format.c,v 1.3 2000-10-22 13:50:40 geuzaine Exp $ */
+/* $Id: Pos_Format.c,v 1.4 2000-10-26 14:37:54 dular Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -449,9 +449,9 @@ void  Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 		     double *x, double *y, double *z, double *Dummy,
 		     struct Value *Value){
   static int  Size, TmpIndex ;
+  static double  * TmpValues ;
   int         i, j, k, t ;
   double      p ;
-  double    * TmpValues ;
 
   if(TimeStep == 0){
     switch(Value->Type){
