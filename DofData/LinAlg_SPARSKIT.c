@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.22 2003-03-17 18:41:58 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.23 2003-03-17 19:22:33 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -814,6 +814,7 @@ void LinAlg_AssembleVector(gVector *V){
 }
 
 /* FMM */
+
 void LinAlg_FMMMatVectorProd(gVector *V1, gVector *V2){
 
   GetDP_Begin("LinAlg_MatVectorProdVector");

@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.2 2003-03-17 18:41:58 geuzaine Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.3 2003-03-17 19:22:33 geuzaine Exp $"
 
 
 #include "Data_DefineE.h"
@@ -582,7 +582,7 @@ int FMM_NbrSpectralDirections( double k0 ){
   
   Msg(INFO,"D_FMM = %.8f", D);
   
-  GetDP_Return( ceil( k0*D+5.*log(k0*D+PI) ) );
+  GetDP_Return( (int)ceil( k0*D+5.*log(k0*D+PI) ) );
 }
 
 
@@ -596,10 +596,10 @@ int FMM_SetTruncation( double Rsrc, double Robs, double D, int Dimension){
   GetDP_Begin("FMM_SetTruncation");
 
   Precision = Current.FMM.Precision ;
-  exp =  -floor(log10(Precision)) ;
+  exp = - (int)floor(log10(Precision)) ;
 
-  i = floor(Rsrc/D/0.05)-1 ; 
-  j = floor(Robs/D/0.05)-1 ;
+  i = (int)floor(Rsrc/D/0.05)-1 ; 
+  j = (int)floor(Robs/D/0.05)-1 ;
   if (i<0) i = 0 ;
   if (j<0) j = 0 ;
   k = ((i + j * 7)>48)?48: i+j*7 ;
@@ -755,9 +755,9 @@ void  Geo_CreateFMMGroup( int InSupport, struct GeoData *GeoData_P, double k0 ){
   for (iGroup = 0 ; iGroup < NbrGroupsInSupport ; iGroup++){
     List_Read(((struct Group *) List_Pointer(Problem_S.Group, InSupport))->InitialList, iGroup, &Current.Region) ;    
     Get_ValueOfExpressionByIndex(Current.FMM.DivXYZIndex, NULL, 0., 0., 0., &DivXYZ) ;
-    NbrDivX = DivXYZ.Val[0] ;
-    NbrDivY = DivXYZ.Val[1] ;
-    NbrDivZ = DivXYZ.Val[2] ;
+    NbrDivX = (int)DivXYZ.Val[0] ;
+    NbrDivY = (int)DivXYZ.Val[1] ;
+    NbrDivZ = (int)DivXYZ.Val[2] ;
   
     Msg(INFO,"Region = %d DivX = %d  DivY = %d  DivZ = %d", Current.Region, NbrDivX, NbrDivY, NbrDivZ) ; 
     
@@ -912,7 +912,7 @@ void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){
 
 	if(DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.NbrParameters == 2)
 	  k0 = DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[1] ;/* Helmoltz Case */
-	DIM = DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[0] ;
+	DIM = (int)DefineQuantityDof_P->IntegralQuantity.FunctionForFMM.Para[0] ;
 
 	if( List_PQuery(InIndex, &EquationTerm_P->Case.LocalTerm.InIndex, fcmp_int) == NULL ){
 	  List_Add( InIndex, &EquationTerm_P->Case.LocalTerm.InIndex ) ;

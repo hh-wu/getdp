@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_FMM.c,v 1.2 2003-03-17 18:41:58 geuzaine Exp $"
+#define RCSID "$Id: Print_FMM.c,v 1.3 2003-03-17 19:22:33 geuzaine Exp $"
 
 #include <math.h>
 #include <malloc.h>
@@ -250,7 +250,7 @@ void Print_FMMGroupInfo( char* FileName ){
  
   NbrDir = Current.FMM.NbrDir ;
   N = (NbrDir-1)*(NbrDir+1);
-  NbrHar = 2. ;
+  NbrHar = 2 ;
   NbrCom = Current.FMM.NbrCom ;
   NbrFMMEqu = List_Nbr(Current.DofData->FMM_Matrix) ;
   NbrInSupport = List_Nbr(Problem_S.FMMGroup) ;

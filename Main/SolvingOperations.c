@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.45 2003-03-17 18:42:00 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.46 2003-03-17 19:22:33 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -296,7 +296,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
      
       Get_ValueOfExpressionByIndex(Operation_P->Case.GenerateFMMGroups.FlagDTA,
 				   NULL, 0., 0., 0., &Value) ; /* DTA matrix, testing option */
-      Flag_DTA = Value.Val[0] ;
+      Flag_DTA = (int)Value.Val[0] ;
       Current.FMM.NbrDir = 0 ;
       Get_InFMMGroupList( Index_Formulation, GeoData_P0+DofData_P->GeoDataIndex );
       

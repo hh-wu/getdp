@@ -1,4 +1,4 @@
-/* $Id: LinAlg.h,v 1.10 2003-03-17 10:56:19 sabarieg Exp $ */
+/* $Id: LinAlg.h,v 1.11 2003-03-17 19:22:33 geuzaine Exp $ */
 #ifndef _LINALG_H_
 #define _LINALG_H_
 
@@ -197,10 +197,7 @@ void LinAlg_AssembleVector(gVector *V);
 
 /* FMM */
 void LinAlg_FMMMatVectorProd(gVector *V1, gVector *V2);
-#if _PETSC
-int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy) ;
-void LinAlg_AddFMMDTAx( Vec xin, Vec xout ) ;
-#endif
+
 /* Solve */
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X);

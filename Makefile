@@ -1,9 +1,9 @@
-# $Id: Makefile,v 1.129 2003-02-26 05:54:58 geuzaine Exp $
+# $Id: Makefile,v 1.130 2003-03-17 19:22:33 geuzaine Exp $
 
 include variables
 
 GETDP_MAJOR_VERSION = 0
-GETDP_MINOR_VERSION = 87
+GETDP_MINOR_VERSION = 88
 GETDP_PATCH_VERSION = 0
 
 GETDP_VERSION_FILE = include/GetDPVersion.h

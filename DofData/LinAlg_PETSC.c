@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.27 2003-03-17 10:56:19 sabarieg Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.28 2003-03-17 19:22:33 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
@@ -451,7 +451,7 @@ void LinAlg_PrintMatrix(FILE *file, gMatrix *M){
   GetDP_Begin("LinAlg_PrintMatrix");
   
   /*
-  ierr = MatView(M->M,VIEWER_STDOUT_WORLD); MYCHECK(ierr);
+  ierr = MatView(M->M,PETSC_VIEWER_STDOUT_WORLD); MYCHECK(ierr);
   */
 
   GetDP_End ;
@@ -700,15 +700,15 @@ void LinAlg_SetScalar(gScalar *S, double *d){
 }
 
 void LinAlg_SetVector(gVector *V, double *v){
-  Scalar tmp ;
+  PetscScalar tmp ;
   int i, n;
 
   GetDP_Begin("LinAlg_SetVector");
 
-  ierr = VecGetLocalSize(V->V, &n);  CHKERRA(ierr) ;
+  ierr = VecGetLocalSize(V->V, &n);  MYCHECK(ierr) ;
   for (i=0;i<n;i++){
     tmp = v[i]; 
-    ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); CHKERRA(ierr);
+    ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); MYCHECK(ierr);
   }
 
   GetDP_End ;
@@ -1172,24 +1172,25 @@ void LinAlg_AssembleVector(gVector *V){
 
 /* FMM interface routine */
 
-extern int ii = 0;
+static int ii = 0;
+
 int LinAlg_ApplyFMM(void *ptr, Vec xin, Vec xout){
  
   static Vec DTAxi ;
-  Scalar *tmpV, tmp, one = 1.0,mone = -1.0 ;
+  PetscScalar *tmpV, tmp, one = 1.0,mone = -1.0 ;
   double *x, *y ;
   int i, n;
 
   GetDP_Begin("LinAlg_ApplyFMM") ;
 
-  ierr = VecCopy(xin, xout) ; CHKERRA(ierr) ;
-  ierr = VecDuplicate(xin, &DTAxi); CHKERRA(ierr) ;
+  ierr = VecCopy(xin, xout) ; MYCHECK(ierr) ;
+  ierr = VecDuplicate(xin, &DTAxi); MYCHECK(ierr) ;
 
   ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d xin vector:\n",ii);CHKERRQ(ierr);
-  ierr = VecView(xin,VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
+  ierr = VecView(xin,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
 
-  ierr = VecGetLocalSize(xin, &n);  CHKERRA(ierr) ;
-  ierr = VecGetArray(xin, &tmpV);  CHKERRA(ierr) ;
+  ierr = VecGetLocalSize(xin, &n);  MYCHECK(ierr) ;
+  ierr = VecGetArray(xin, &tmpV);  MYCHECK(ierr) ;
  
   if (!(ii%2)){    
 #if PETSC_USE_COMPLEX
@@ -1214,22 +1215,22 @@ int LinAlg_ApplyFMM(void *ptr, Vec xin, Vec xout){
 #else     
       tmp = y[i] ;
 #endif
-      VecSetValue(DTAxi, i, tmp, INSERT_VALUES);
+      VecSetValues(DTAxi, 1, &i, &tmp, INSERT_VALUES);
     }    
   }
   else{
-     ierr = VecAXPY(&mone,DTAxi, xout);  CHKERRA(ierr) ;    
+     ierr = VecAXPY(&mone,DTAxi, xout);  MYCHECK(ierr) ;    
  }
 
 /*    ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d DTAxi vector:\n",ii);CHKERRQ(ierr); */
-/*    ierr = VecView(DTAxi,VIEWER_STDOUT_WORLD);CHKERRQ(ierr); */
+/*    ierr = VecView(DTAxi,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr); */
 
 /*    ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d xout vector:\n",ii);CHKERRQ(ierr); */
-/*    ierr = VecView(xout,VIEWER_STDOUT_WORLD);CHKERRQ(ierr); */
+/*    ierr = VecView(xout,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr); */
 
-  ierr = VecRestoreArray(xin, &tmpV); CHKERRA(ierr);
-  ierr = VecAssemblyEnd(xin); CHKERRA(ierr);
-  ierr = VecAssemblyEnd(xout); CHKERRA(ierr);
+  ierr = VecRestoreArray(xin, &tmpV); MYCHECK(ierr);
+  ierr = VecAssemblyEnd(xin); MYCHECK(ierr);
+  ierr = VecAssemblyEnd(xout); MYCHECK(ierr);
   Free(x);
   Free(y);
  
@@ -1243,15 +1244,15 @@ int LinAlg_ApplyFMM(void *ptr, Vec xin, Vec xout){
 
 void LinAlg_AddFMMDTAx( Vec xin, Vec xout ){
 
-  Scalar *V, tmp ;
+  PetscScalar *V, tmp ;
   double *x, *y ;
   int i, n ;
 
   GetDP_Begin("LinAlg_AddFMMDTAx") ;
 
-  ierr = VecGetLocalSize(xin, &n);  CHKERRA(ierr) ;
-  ierr = VecGetArray(xin, &V);  CHKERRA(ierr) ;
-  ierr = VecRestoreArray(xin, &V); CHKERRA(ierr);
+  ierr = VecGetLocalSize(xin, &n);  MYCHECK(ierr) ;
+  ierr = VecGetArray(xin, &V);  MYCHECK(ierr) ;
+  ierr = VecRestoreArray(xin, &V); MYCHECK(ierr);
 
 #if PETSC_USE_COMPLEX
   x   = (double*)Malloc(2*n*sizeof(double));
@@ -1274,12 +1275,12 @@ void LinAlg_AddFMMDTAx( Vec xin, Vec xout ){
 #else     
     tmp = y[i] ;
 #endif
-    VecSetValue(xout, i, tmp, ADD_VALUES);
+    ierr = VecSetValues(xout, 1, &i, &tmp, ADD_VALUES); MYCHECK(ierr);
   }    
 
-  ierr = VecRestoreArray(xin, &V); CHKERRA(ierr) ;
-  ierr = VecAssemblyEnd(xin); CHKERRA(ierr) ;
-  ierr = VecAssemblyEnd(xout); CHKERRA(ierr) ;
+  ierr = VecRestoreArray(xin, &V); MYCHECK(ierr) ;
+  ierr = VecAssemblyEnd(xin); MYCHECK(ierr) ;
+  ierr = VecAssemblyEnd(xout); MYCHECK(ierr) ;
   Free(x);
   Free(y);
  
@@ -1292,7 +1293,7 @@ void LinAlg_AddFMMDTAx( Vec xin, Vec xout ){
 int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
 
   Vec      x, rhs, DTAxi, Residual, t, v ;
-  Scalar *tmpV, tmp, mone = -1.0, one = 1.0, zero = 0.0 ;
+  PetscScalar *tmpV, tmp, mone = -1.0, one = 1.0, zero = 0.0 ;
   double *x_it, *y_it ;
   int i, n;
 
@@ -1302,11 +1303,11 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
 
  ierr = KSPBuildSolution(ksp,PETSC_NULL, &x); CHKERRQ(ierr) ;
 
- ierr = VecDuplicate(x, &DTAxi); CHKERRA(ierr);
- ierr = VecSet(&zero,DTAxi) ; CHKERRA(ierr);
+ ierr = VecDuplicate(x, &DTAxi); MYCHECK(ierr);
+ ierr = VecSet(&zero,DTAxi) ; MYCHECK(ierr);
 
- ierr = VecGetLocalSize(x, &n);  CHKERRA(ierr) ;
- ierr = VecGetArray(x, &tmpV);  CHKERRA(ierr) ;
+ ierr = VecGetLocalSize(x, &n);  MYCHECK(ierr) ;
+ ierr = VecGetArray(x, &tmpV);  MYCHECK(ierr) ;
   
 #if PETSC_USE_COMPLEX
   x_it   = (double*)Malloc(2*n*sizeof(double));
@@ -1320,7 +1321,7 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
   y_it   = (double*)Calloc(n, sizeof(double)) ;
   for(i = 0 ; i < n ; i++) x_it[i] = tmpV[i] ;
 #endif
-  ierr = VecRestoreArray(x, &tmpV); CHKERRA(ierr);
+  ierr = VecRestoreArray(x, &tmpV); MYCHECK(ierr);
 
   FMM_MatVectorProd( x_it, y_it ) ;
 
@@ -1330,21 +1331,21 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
 #else     
     tmp = y_it[i] ;
 #endif
-    VecSetValue(DTAxi, i, tmp, INSERT_VALUES);
+    ierr = VecSetValues(DTAxi, 1, &i, &tmp, INSERT_VALUES); MYCHECK(ierr);
   }
 
-  ierr = KSPGetRhs(ksp, &rhs); CHKERRA(ierr) ;
-  ierr = VecAYPX(&mone, DTAxi, rhs);CHKERRA(ierr);
-  ierr = KSPSetRhs(ksp, rhs); CHKERRA(ierr);
+  ierr = KSPGetRhs(ksp, &rhs); MYCHECK(ierr) ;
+  ierr = VecAYPX(&mone, DTAxi, rhs);MYCHECK(ierr);
+  ierr = KSPSetRhs(ksp, rhs); MYCHECK(ierr);
 
-  //ierr = VecAssemblyEnd(rhs); CHKERRA(ierr);
-  ierr = VecDestroy(DTAxi); CHKERRA(ierr);
+  //ierr = VecAssemblyEnd(rhs); MYCHECK(ierr);
+  ierr = VecDestroy(DTAxi); MYCHECK(ierr);
 
   //ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d rhs vector:\n",it);CHKERRQ(ierr);
-  //ierr = VecView(rhs,VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
+  //ierr = VecView(rhs,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
 
-  //ierr = VecDuplicate(x, &t) ;CHKERRA(ierr);ierr = VecSet(&zero,t);CHKERRA(ierr); 
-  //ierr = VecDuplicate(x, &v) ;CHKERRA(ierr);ierr = VecSet(&zero,v);CHKERRA(ierr);  
+  //ierr = VecDuplicate(x, &t) ;MYCHECK(ierr);ierr = VecSet(&zero,t);MYCHECK(ierr); 
+  //ierr = VecDuplicate(x, &v) ;MYCHECK(ierr);ierr = VecSet(&zero,v);MYCHECK(ierr);  
   //ierr = KSPBuildResidual(ksp, t, v, &Residual);
 
   ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d KSP Residual norm %14.12e \n",it,rnorm);CHKERRQ(ierr);
@@ -1353,7 +1354,16 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
 }
 
 
+/* FMM */
 
+void LinAlg_FMMMatVectorProd(gVector *V1, gVector *V2){
+
+  GetDP_Begin("LinAlg_MatVectorProdVector");
+
+  Msg(ERROR, "'LinAlg_FMMMatVectorProd' not yet implemented");  
+
+  GetDP_End ;
+}
 
 /* Solve */
 
@@ -1362,7 +1372,7 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   Vec diag, x, r, t,v,residual ;
   int its, RankCpu ;  
   int i,n ;
-  Scalar *tmpV ;
+  PetscScalar *tmpV ;
 
 
   GetDP_Begin("LinAlg_Solve");
@@ -1399,23 +1409,24 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
 
   
   if (Flag_FMM){
-    ierr = SLESGetPC(Solver->sles, &Solver->pc); CHKERRA(ierr);
-    //ierr = PCSetType(Solver->pc,PCNONE);CHKERRA(ierr);
-    //ierr = PCSetType(Solver->pc,PCSHELL);CHKERRA(ierr);
-    ierr = SLESGetKSP(Solver->sles, &Solver->ksp); CHKERRA(ierr);
+    ierr = SLESGetPC(Solver->sles, &Solver->pc); MYCHECK(ierr);
+    //ierr = PCSetType(Solver->pc,PCNONE);MYCHECK(ierr);
+    //ierr = PCSetType(Solver->pc,PCSHELL);MYCHECK(ierr);
+    ierr = SLESGetKSP(Solver->sles, &Solver->ksp); MYCHECK(ierr);
  
-    ierr = KSPSetTolerances(Solver->ksp,1.e-9,PETSC_DEFAULT,PETSC_DEFAULT, 1000);CHKERRA(ierr);
-    ierr = KSPGMRESSetRestart(Solver->ksp, 30);CHKERRA(ierr);
+    // put this for example in ~/.petscrc
+    //ierr = KSPSetTolerances(Solver->ksp,1.e-9,PETSC_DEFAULT,PETSC_DEFAULT, 1000);MYCHECK(ierr);
+    //ierr = KSPGMRESSetRestart(Solver->ksp, 30);MYCHECK(ierr);
    
-    //ierr = PCShellSetName(Solver->pc,"FMM");CHKERRA(ierr);
-    //ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM, PETSC_NULL);CHKERRA(ierr) ;
+    //ierr = PCShellSetName(Solver->pc,"FMM");MYCHECK(ierr);
+    //ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM, PETSC_NULL);MYCHECK(ierr) ;
 
-    //ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0);CHKERRA(ierr) ;    
+    //ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0);MYCHECK(ierr) ;    
   }
 
-  ierr = SLESSolve(Solver->sles, B->V, X->V, &its); CHKERRA(ierr);
+  ierr = SLESSolve(Solver->sles, B->V, X->V, &its); MYCHECK(ierr);
 
-  ierr = SLESView(Solver->sles,VIEWER_STDOUT_WORLD);CHKERRA(ierr); 
+  ierr = SLESView(Solver->sles,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
 
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
@@ -1430,11 +1441,3 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
 }
 
 #endif
-
-
-
-
-
-
-
-
