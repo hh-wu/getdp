@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.27 2002-01-24 00:09:52 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.28 2003-01-23 08:24:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -1391,7 +1391,8 @@ gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P) {
     break ;
 
   case DOF_LINKCPLX :
-    /* Attetion! Trop tot pour traitement ... parties reelle et imag. necessaires */
+    /* Warning! Trop tot pour traitement ... parties reelle et imag. necessaires */
+    Msg(ERROR, "Cannot call Dof_GetDofValue for LinkCplx");
     break ;
 
   default :
@@ -1421,18 +1422,32 @@ void Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P,
   GetDP_Begin("Dof_GetComplexDofValue");
 
   if(gSCALAR_SIZE == 1){
-    tmp1 = Dof_GetDofValue(DofData_P, Dof_P) ; LinAlg_GetDoubleInScalar(d1, &tmp1) ;
-    tmp2 = Dof_GetDofValue(DofData_P, Dof_P+1) ; LinAlg_GetDoubleInScalar(d2, &tmp2) ;
-
     if (Dof_P->Type == DOF_LINKCPLX) { /* LinkCplx */ /* Ne peut etre fait qu'ici */
+      tmp1 = Dof_GetDofValue(DofData_P, Dof_P->Case.Link.Dof) ;
+      tmp2 = Dof_GetDofValue(DofData_P, (Dof_P+1)->Case.Link.Dof) ;
+      LinAlg_GetDoubleInScalar(d1, &tmp1) ;
+      LinAlg_GetDoubleInScalar(d2, &tmp2) ;
       valtmp[0] = Dof_P->Case.Link.Coef*(*d1) - Dof_P->Case.Link.Coef2*(*d2) ;
       valtmp[1] = Dof_P->Case.Link.Coef*(*d2) + Dof_P->Case.Link.Coef2*(*d1) ;
-      *d1 = valtmp[0] ; *d2 = valtmp[1] ; 
+      *d1 = valtmp[0] ;
+      *d2 = valtmp[1] ; 
     }
-
+    else{
+      tmp1 = Dof_GetDofValue(DofData_P, Dof_P) ;
+      tmp2 = Dof_GetDofValue(DofData_P, Dof_P+1) ;
+      LinAlg_GetDoubleInScalar(d1, &tmp1) ;
+      LinAlg_GetDoubleInScalar(d2, &tmp2) ;
+    }
   }
   else{
-    tmp1 = Dof_GetDofValue(DofData_P, Dof_P) ; LinAlg_GetComplexInScalar(d1, d2, &tmp1) ;
+    if (Dof_P->Type == DOF_LINKCPLX) { /* LinkCplx */ /* Ne peut etre fait qu'ici */
+      tmp1 = Dof_GetDofValue(DofData_P, Dof_P->Case.Link.Dof) ; 
+      LinAlg_GetComplexInScalar(d1, d2, &tmp1) ;
+    }
+    else{
+      tmp1 = Dof_GetDofValue(DofData_P, Dof_P) ; 
+      LinAlg_GetComplexInScalar(d1, d2, &tmp1) ;
+    }
   }
 
   GetDP_End ;
