@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.27 2002-08-17 23:09:25 geuzaine Exp $
+// $Id: Patch.cpp,v 1.28 2002-08-19 08:00:51 geuzaine Exp $
 
 #include "Context.h"
 #include "Utils.h"
@@ -140,12 +140,12 @@ void Ctx::createMesh(Patch::PatchType patchtype){
     // change this when doing Fourier interpolation to have odd nb of
     // Fourier modes on each patch...
 
-    nbTargetPts = 512;
-    a = 0;
-    p[0] = new Patch(patchtype,   0, 128,      0, PI/8+a, a); List_Add(scat.patches, p[0]);
-    p[1] = new Patch(patchtype, 128, 256,   PI/2, PI/8+a, a); List_Add(scat.patches, p[1]);
-    p[2] = new Patch(patchtype, 256, 384,     PI, PI/8+a, a); List_Add(scat.patches, p[2]);
-    p[3] = new Patch(patchtype, 384, 512, 3*PI/2, PI/8+a, a); List_Add(scat.patches, p[3]);
+    nbTargetPts = 500;
+    a = PI/8.;
+    p[0] = new Patch(patchtype,  0,               nbTargetPts/4-1,      0, PI/4+a/2., a); List_Add(scat.patches, p[0]);
+    p[1] = new Patch(patchtype,  nbTargetPts/4,   nbTargetPts/2-1,   PI/2, PI/4+a/2., a); List_Add(scat.patches, p[1]);
+    p[2] = new Patch(patchtype,  nbTargetPts/2, 3*nbTargetPts/4-1,     PI, PI/4+a/2., a); List_Add(scat.patches, p[2]);
+    p[3] = new Patch(patchtype,3*nbTargetPts/4,   nbTargetPts-1, 3*PI/2, PI/4+a/2., a); List_Add(scat.patches, p[3]);
     
 #if 0
     a = 0.5;
@@ -208,8 +208,10 @@ void Ctx::createMesh(Patch::PatchType patchtype){
   int k = 0;
   for(i=0; i<List_Nbr(scat.patches); i++){
     p[0] = (Patch*)List_Pointer(scat.patches,i);
-    for(int j=0; j<p[0]->nbdof; j++)
+    for(int j=0; j<p[0]->nbdof; j++){
       scat.nodes[k++] = p[0]->nodes[j];
+      //printf("%d %g \n", k, p[0]->nodes[j]);
+    }
   }
 
   // precompute critical points for the mesh
