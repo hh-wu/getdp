@@ -1,10 +1,11 @@
-# $Id: Makefile,v 1.17 2003-02-10 19:20:52 geuzaine Exp $
+# $Id: Makefile,v 1.18 2003-03-17 10:56:20 sabarieg Exp $
 
 include ../variables
 
 LIB     = ../lib/libDofData.a
-INCLUDE = -I. -I../include -I../DataStr -I../GeoData -I../Main -I../Sparskit
+INCLUDE = -I. -I../include -I../DataStr -I../GeoData -I../Main -I../Sparskit -I../FMM
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
+
 
 SRC = DofData.c \
       LinAlg_SPARSKIT.c \
@@ -45,3 +46,4 @@ LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../include/Magic.h LinAlg.h ../Sparskit/Solver.h \
   ../DataStr/List.h ../DataStr/SafeIO.h
 LinAlg_PETSC.o: LinAlg_PETSC.c ../DataStr/SafeIO.h
+

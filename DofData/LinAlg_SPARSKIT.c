@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.20 2003-02-10 19:20:52 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.21 2003-03-17 10:56:20 sabarieg Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -810,6 +810,16 @@ void LinAlg_DivScalarDouble(gScalar *S1, double d, gScalar *S2){
 void LinAlg_AssembleMatrix(gMatrix *M){
 }
 void LinAlg_AssembleVector(gVector *V){
+}
+
+/* FMM */
+void LinAlg_FMMMatVectorProd(gVector *V1, gVector *V2){
+
+  GetDP_Begin("LinAlg_MatVectorProdVector");
+
+  FMM_MatVectorProd(V1->V, V2->V) ;
+
+  GetDP_End ;
 }
 
 /* Solve */

@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.31 2003-01-26 07:31:28 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.32 2003-03-17 10:56:19 sabarieg Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -63,6 +63,16 @@ void  Dof_InitDofData(struct DofData * DofData_P, int Num,
   DofData_P->Flag_Init[1] = 0 ;
   DofData_P->Flag_Init[2] = 0 ;
   DofData_P->Flag_Init[3] = 0 ;
+
+  DofData_P->Flag_Only = 0 ;
+  DofData_P->Flag_InitOnly[0] = 0 ;
+  DofData_P->Flag_InitOnly[1] = 0 ;
+  DofData_P->Flag_InitOnly[2] = 0 ;
+
+
+  DofData_P->OnlyTheseMatrices = NULL;
+
+
   DofData_P->Solutions = NULL ;
 
   GetDP_End ;
@@ -1348,6 +1358,7 @@ void  Dof_TransferSolutionToConstraint(struct DofData * DofData_P) {
   }
 
   Dof_P0 = (struct Dof *)List_Pointer(DofData_P->DofList, 0) ;
+
 
   for (i = 0 ; i < DofData_P->NbrAnyDof ; i++) {
     Dof_P = Dof_P0 + i ;

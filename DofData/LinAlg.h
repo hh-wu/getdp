@@ -1,4 +1,4 @@
-/* $Id: LinAlg.h,v 1.9 2003-01-28 06:25:11 geuzaine Exp $ */
+/* $Id: LinAlg.h,v 1.10 2003-03-17 10:56:19 sabarieg Exp $ */
 #ifndef _LINALG_H_
 #define _LINALG_H_
 
@@ -16,7 +16,7 @@ should
 
 2) rebuild all GetDP libraries
 
-3) link the LinAlg_XXX and the solver libary with all other GetDP
+3) link the LinAlg_XXX and the solver library with all other GetDP
    libraries
 
 */
@@ -143,6 +143,7 @@ void LinAlg_GetMatrixContext(gMatrix *A, void **myCtx);
 /* Set */
 
 void LinAlg_SetScalar(gScalar *S, double *d);
+void LinAlg_SetVector(gVector *V, double *v);
 void LinAlg_SetScalarInVector(gScalar *S, gVector *V, int i);
 void LinAlg_SetDoubleInVector(double d, gVector *V, int i);
 void LinAlg_SetComplexInVector(double d1, double d2, gVector *V, int i, int j);
@@ -194,6 +195,12 @@ void LinAlg_DivScalarDouble(gScalar *S1, double d, gScalar *S2);
 void LinAlg_AssembleMatrix(gMatrix *M);
 void LinAlg_AssembleVector(gVector *V);
 
+/* FMM */
+void LinAlg_FMMMatVectorProd(gVector *V1, gVector *V2);
+#if _PETSC
+int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy) ;
+void LinAlg_AddFMMDTAx( Vec xin, Vec xout ) ;
+#endif
 /* Solve */
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X);
