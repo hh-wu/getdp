@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.9 2002-04-12 17:11:02 geuzaine Exp $
+// $Id: Solve.cpp,v 1.10 2002-04-12 17:55:33 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -40,7 +40,7 @@ void ReadSolution(Ctx *ctx, gVector *x){
   char fn[256];
   FILE *fp;
 
-  sprintf(fn, "hf_k%g.res", NORM3(ctx->waveNum));
+  sprintf(fn, "hf.res");
   if(!(fp = fopen(fn, "r")))
     Msg(ERROR, "Could not open res file");
   
@@ -60,7 +60,7 @@ void SaveSolution(Ctx *ctx, gVector *x){
   char fn[256];
   FILE *fp;
 
-  sprintf(fn, "hf_k%g.res", NORM3(ctx->waveNum));
+  sprintf(fn, "hf.res");
   if(!(fp = fopen(fn, "w")))
     Msg(ERROR, "Could not open res file");
   

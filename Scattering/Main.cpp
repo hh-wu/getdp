@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.6 2002-04-12 17:11:02 geuzaine Exp $
+// $Id: Main.cpp,v 1.7 2002-04-12 17:55:33 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
@@ -15,6 +15,27 @@ int main(int argc, char *argv[]){
 
   if(argc < 2){
     Msg(INFO, "Usage: %s [-f|-c|-i1|-i2] options...", argv[0]);
+    Msg(INFO, "  -full : full Nystrom integrator");
+    Msg(INFO, "  -critical : critical point integrator");
+    Msg(INFO, "  -i1 : interactive integrator around 1 critical point");
+    Msg(INFO, "  -i2 : complete interactive integrator");
+    Msg(INFO, "Options:");
+    Msg(INFO, "  -iter : solve the problem (iteratively) instead of computing the forward map");
+    Msg(INFO, "  -scatterer circle|ellipse : choose scatterer");
+    Msg(INFO, "  -spline : use cubic spline interpolation instead of Fourier series");
+    Msg(INFO, "  -kx, -ky : set wave number");
+    Msg(INFO, "  -nbpts : set number of integration points (meaning varies...)");
+    Msg(INFO, "  -targets : set number of integration points (meaning varies...)");
+    Msg(INFO, "  -a, -b : set ellipse dimensions");
+    Msg(INFO, "  -zero : set staring point for forward map targets");
+    Msg(INFO, "  -epsilon : set base epsilon for critical point integrator");
+    Msg(INFO, "  -rise : set rise for partitions of unity");
+    Msg(INFO, "  -patches : use multiples patches");
+    Msg(INFO, "  -verbose : set output message verbosity");
+    Msg(INFO, "Note:");
+    Msg(INFO, "  all options and arguments may be abbreviated as long as the");
+    Msg(INFO, "  abbreviations are not ambiguous");
+
     LinAlg_FinalizeSolver() ;
     LinAlg_Finalize() ;
     exit(1);
@@ -30,8 +51,8 @@ int main(int argc, char *argv[]){
   ctx.nbIntPts = 100; //10000;
   ctx.nbTargetPts = 20;
   ctx.type = 0;
-  ctx.scat.type = Scatterer::CIRCLE;
-  ctx.scat.a = 2.;
+  ctx.scat.type = Scatterer::ELLIPSE;
+  ctx.scat.a = 1.;
   ctx.scat.b = 1.;
   ctx.f.applyChgVar = 0;
 
@@ -41,19 +62,10 @@ int main(int argc, char *argv[]){
   while (i < argc) {
     if (argv[i][0] == '-') {
       if(Cmp(argv[i]+1, "scatterer", 1)){ 
-	i++; 
-	char *str = GetString(argc,argv,&i);
-	if(!strncmp(str,"circle",1)){
-	  ctx.scat.type = Scatterer::CIRCLE;
-	  Msg(INFO, "Scatterer: circle");
-	}
-	else if(!strncmp(str,"ellipse",1)){
-	  ctx.scat.type = Scatterer::ELLIPSE;
-	  Msg(INFO, "Scatterer: ellipse");
-	}
-	else{
-	  Msg(ERROR, "Unknown scatterer");
-	}
+	i++; char *str = GetString(argc,argv,&i);
+	if(!strncmp(str,"circle",1))       ctx.scat.type = Scatterer::CIRCLE;
+	else if(!strncmp(str,"ellipse",1)) ctx.scat.type = Scatterer::ELLIPSE;
+	else Msg(ERROR, "Unknown scatterer");
       }
       else if(Cmp(argv[i]+1, "spline", 2)){ 
 	i++; spline=1; Msg(INFO, "Interpolation: cubic splines");
@@ -122,6 +134,9 @@ int main(int argc, char *argv[]){
       sargv[sargc++] = argv[i++]; 
     }
   }
+
+  if(ctx.scat.type == Scatterer::ELLIPSE)
+    Msg(INFO, "Scatterer: ellipse [%g %g]", ctx.scat.a, ctx.scat.b);
 
   Msg(INFO, "Options: -nbpts %d, -targets %d, -zero %g, -k [%g %g %g], -eps %g, -rise %g", 
       ctx.nbIntPts, ctx.nbTargetPts, ctx.initialTarget, 

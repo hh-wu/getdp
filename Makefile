@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.89 2002-04-12 17:15:59 bruno Exp $
+# $Id: Makefile,v 1.90 2002-04-12 17:55:33 geuzaine Exp $
 # ----------------------------------------------------------------------
 #  Makefile for GetDP
 #
@@ -624,7 +624,7 @@ compile-petsc-scat: initialtag
            "FC=$(FC)" \
            "F77=$(FC)" \
            "RANLIB=$(RANLIB)" \
-           "C_FLAGS=$(COPTFLAGS) -I$(FFTW_DIR)/include -Wall" \
+           "C_FLAGS=$(COPTFLAGS) -I$(FFTW_DIR)/include -Wall -Wno-uninitialized" \
            "F77_FLAGS=$(FOPTFLAGS)" \
            "SOLVER=-D_PETSC $(PETSCFLAGS) $(PETSC_INCLUDE)" \
         ); done
