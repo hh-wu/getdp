@@ -1,4 +1,4 @@
-/* $Id: Pos_FemInterpolation.c,v 1.3 2000-09-07 18:47:28 geuzaine Exp $ */
+/* $Id: Pos_FemInterpolation.c,v 1.4 2000-10-20 10:58:26 dular Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -199,7 +199,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	else {
 	  Dof_GetComplexDofValue
 	    (QuantityStorage_P->FunctionSpace->DofData,
-	     QuantityStorage_P->BasisFunction[0].Dof + k*gCOMPLEX_INCREMENT,
+	     QuantityStorage_P->BasisFunction[0].Dof + k/2*gCOMPLEX_INCREMENT,
 	     &Val[MAX_DIM*k], &Val[MAX_DIM*(k+1)]) ;
 	}
       }
@@ -294,7 +294,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	      else {
 		Dof_GetComplexDofValue
 		  (QuantityStorage_P->FunctionSpace->DofData,
-		   QuantityStorage_P->BasisFunction[j].Dof + k*gCOMPLEX_INCREMENT,
+		   QuantityStorage_P->BasisFunction[j].Dof + k/2*gCOMPLEX_INCREMENT,
 		   &Val_Dof_r, &Val_Dof_i) ;
 	      }
 	      Val[MAX_DIM*k]     += vBFxDof[j].Val[0] * Val_Dof_r ;
@@ -334,7 +334,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	      else {
 		Dof_GetComplexDofValue
 		  (QuantityStorage_P->FunctionSpace->DofData,
-		   QuantityStorage_P->BasisFunction[j].Dof + k*gCOMPLEX_INCREMENT,
+		   QuantityStorage_P->BasisFunction[j].Dof + k/2*gCOMPLEX_INCREMENT,
 		   &Val_Dof_r, &Val_Dof_i) ;
 	      }
 	      Val[MAX_DIM*k  ]     += vBFxDof[j].Val[0] * Val_Dof_r ;
@@ -428,7 +428,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	      for (k = 0 ; k < Current.NbrHar ; k+=2) {
 		Dof_GetComplexDofValue
 		  (QuantityStorage_P->FunctionSpace->DofData,
-		   QuantityStorage_P->BasisFunction[j].Dof + k*gCOMPLEX_INCREMENT,
+		   QuantityStorage_P->BasisFunction[j].Dof + k/2*gCOMPLEX_INCREMENT,
 		   &Val_Dof_r, &Val_Dof_i) ;
 		Val[MAX_DIM*k]     += 
 		  vBFxDof[j].Val[MAX_DIM*k]     * Val_Dof_r -
@@ -461,7 +461,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	      for (k = 0 ; k < Current.NbrHar ; k+=2) {
 		Dof_GetComplexDofValue
 		  (QuantityStorage_P->FunctionSpace->DofData,
-		   QuantityStorage_P->BasisFunction[j].Dof + k*gCOMPLEX_INCREMENT,
+		   QuantityStorage_P->BasisFunction[j].Dof + k/2*gCOMPLEX_INCREMENT,
 		   &Val_Dof_r, &Val_Dof_i) ;
 		Val[MAX_DIM*k]     += 
 		  vBFxDof[j].Val[MAX_DIM*k]     * Val_Dof_r -
