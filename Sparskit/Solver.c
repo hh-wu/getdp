@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.17 2002-01-18 17:33:28 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.18 2002-02-01 17:27:23 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -529,14 +529,8 @@ reallocate :
     }          
   }
 
-  if(M->T == DENSE){
-    Free(ia) ;
-    Free(ja) ;
-  }
-
   if(p->Scaling)
     scale_vector (COLUMN, M, x) ;
-
 
 }
 
