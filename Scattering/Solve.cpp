@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.41 2002-10-03 18:09:37 geuzaine Exp $
+// $Id: Solve.cpp,v 1.42 2003-02-13 19:40:56 geuzaine Exp $
 
 #include "Utils.h"
 #include "Context.h"
@@ -81,6 +81,9 @@ void Ctx::computeRHS(gVector *b){
     }
 
     res *= 2 / NORM3(waveNum); // warning: normalization
+
+    //printf("rhs: %g %g\n", res.real(), res.imag());
+
     LinAlg_SetComplexInVector(res, b, i);
   }
   LinAlg_AssembleVector(b);
