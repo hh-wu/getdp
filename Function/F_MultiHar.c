@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.5 2000-10-30 08:59:26 gyselinc Exp $";
+#define RCSID "$Id: F_MultiHar.c,v 1.6 2000-10-30 09:23:51 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
