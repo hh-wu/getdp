@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.121 2003-02-09 05:37:51 geuzaine Exp $
+# $Id: Makefile,v 1.122 2003-02-09 18:46:06 geuzaine Exp $
 
 include variables
 
@@ -24,6 +24,13 @@ compile: variables initialtag
 
 link: variables
 	${LINKER} -o bin/getdp ${GETDP_LIBS}
+
+install: variables
+	-mkdir -p ${bindir}
+	-cp bin/getdp${EXEEXT} ${bindir}
+	-chmod 755 ${bindir}/getdp${EXEEXT}
+	-mkdir -p ${mandir}/man1
+	-cp doc/getdp.1 ${mandir}/man1
 
 variables: configure
 	@echo "*******************************************************************"

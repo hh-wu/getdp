@@ -830,17 +830,18 @@ if test -n "$ac_init_help"; then
 Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
-  --enable-petsc          use PETSc linear solvers
-  --enable-debug          build debug stack frame
+  --enable-petsc          use PETSc linear solvers (default=no)
+  --enable-debug          build debug stack frame (default=no)
+  --enable-purewin32      don't depend on Cygwin on Windows (default=no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-gsl-prefix=PFX   prefix where GSL is installed
   --with-petsc-prefix=PFX prefix where PETSc is installed
+  --with-bopt=PFX         BOPT option to use with PETSc
   --with-metis-prefix=PFX prefix where METIS is installed
-  --with-bopt=PFX         BOPT option to use with PETSC
-  --with-fftw-prefix=PFX  prefix where FFTW is installed
+  --with-fftw-prefix=PFX  prefix where FFTw is installed
 
 Some influential environment variables:
   CC          C compiler command
@@ -1207,6 +1208,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test "${with_gsl_prefix+set}" = set; then
   withval="$with_gsl_prefix"
   GSL_PREFIX=$withval
+else
+  GSL_PREFIX="no"
 fi;
 
 # Check whether --with-petsc-prefix or --without-petsc-prefix was given.
@@ -1217,18 +1220,18 @@ else
   PETSC_PREFIX="no"
 fi;
 
+# Check whether --with-bopt or --without-bopt was given.
+if test "${with_bopt+set}" = set; then
+  withval="$with_bopt"
+  BOPT=$withval
+fi;
+
 # Check whether --with-metis-prefix or --without-metis-prefix was given.
 if test "${with_metis_prefix+set}" = set; then
   withval="$with_metis_prefix"
   METIS_PREFIX=$withval
 else
   METIS_PREFIX="no"
-fi;
-
-# Check whether --with-bopt or --without-bopt was given.
-if test "${with_bopt+set}" = set; then
-  withval="$with_bopt"
-  BOPT=$withval
 fi;
 
 # Check whether --with-fftw-prefix or --without-fftw-prefix was given.
@@ -1249,12 +1252,30 @@ if test "${enable_debug+set}" = set; then
   enableval="$enable_debug"
 
 fi;
+# Check whether --enable-purewin32 or --disable-purewin32 was given.
+if test "${enable_purewin32+set}" = set; then
+  enableval="$enable_purewin32"
+
+fi;
 
 UNAME=`uname`
 UVERSION=`uname -r | sed -e '1,$s/[^0-9]//g'`
-if test x${UNAME} = xIRIX64; then
-  UNAME="IRIX"
+
+if test "x$UNAME" = "x"; then
+  uname="MINGW"
 fi
+
+case "$UNAME" in
+  IRIX64*)
+    UNAME="IRIX"
+    ;;
+  CYGWIN*)
+    if test "x$enable_purewin32" = "xyes"; then
+      UNAME=MINGW
+    fi
+    ;;
+esac
+
 
 
 ac_ext=c
@@ -2107,7 +2128,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2110:" \
+echo "$as_me:2131:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -2232,10 +2253,12 @@ C_FLAGS="$CFLAGS"
 C_PARSER_FLAGS="$CFLAGS"
 F77_FLAGS="$FFLAGS"
 
+
+
 GETDP_DIRS="Main Parser Post Function Integration GeoData DofData Numeric DataStr"
 GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr"
 
-if test x$enable_petsc = xyes; then
+if test "x$enable_petsc" = "xyes"; then
   GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr ${PETSC_SLES_LIB} -lm'
   SOLVER='-D_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
@@ -2312,14 +2335,14 @@ else
       C_FLAGS="-g -O3 -DMSDOS"
       F77_FLAGS="-g -O1 -DMSDOS"
       LINKER="g77 -Wl,--stack,8388608"
-      GETDP_LIBS="${GETDP_LIBS}"
+            GETDP_LIBS="${GETDP_LIBS}"
       ;;
     *)
       ;;
   esac
 fi
 
-if test x$enable_debug = xyes; then
+if test "x$enable_debug" = "xyes"; then
   C_FLAGS="$C_FLAGS -DGETDP_USE_DEBUG_STACK"
 fi
 
@@ -2666,7 +2689,7 @@ echo "$as_me: error: Configure could not find the library archiver" >&2;}
 fi
 
 
-if test x${GSL_PREFIX} = "x"; then
+if test x${GSL_PREFIX} = "xno"; then
   LDFLAGS="-lgslcblas"
 else
   LDFLAGS="-L${GSL_PREFIX}/lib -lgslcblas"
@@ -2733,7 +2756,7 @@ else
   GSL="no"
 fi
 
-if test x${GSL_PREFIX} = "x"; then
+if test x${GSL_PREFIX} = "xno"; then
   GSL_LIBS="-lgsl -lgslcblas"
 else
   GSL_LIBS="-L${GSL_PREFIX}/lib -lgsl -lgslcblas"
@@ -4132,7 +4155,7 @@ fi
 echo "*******************************************************************"
 echo "GetDP is configured for"
 echo "- Operating system: $UNAME"
-if test x$enable_petsc = xyes; then
+if test "x$enable_petsc" = "xyes"; then
 echo "- Solver: PETSc (BOPT=$BOPT, PETSC_DIR=$PETSC_DIR)"
 else
 echo "- Solver: Sparskit ($SOLVER)"
