@@ -1,4 +1,4 @@
-% $Id: examples.tex,v 1.10 2001-06-17 21:07:00 geuzaine Exp $
+% $Id: examples.tex,v 1.11 2001-07-17 23:27:44 geuzaine Exp $
 
 %
 % WARNING:
@@ -132,7 +132,7 @@ NB: gauge for $\vec{a}$, ...
 
 \begin{smallsyntax}
 Group \{
-  Core = 1; Inductor = 2; SkinInductor = 3, Air = 4;
+  Core = #1; Inductor = #2; SkinInductor = #3, Air = #4;
   Omega = Region[\{Core, Inductor, Air\}];
 \}
 Function \{
@@ -164,9 +164,9 @@ FunctionSpace \{
         Entity EdgesOf[All]; \} \CC{associated with the edges of the mesh}
     \}
     Constraint \{ \CC{essential constraint + gauge (unicity)}
-      \{ NameOfCoef ae;  EntityType EdgesOf ; NameOfConstraint a; \}
-      \{ NameOfCoef ae;  EntityType EdgesOfTreeIn ; EntitySubType StartingOn;
-        NameOfConstraint Gauge ; \}
+      \{ NameOfCoef ae;  EntityType EdgesOf; NameOfConstraint a; \}
+      \{ NameOfCoef ae;  EntityType EdgesOfTreeIn; EntitySubType StartingOn;
+        NameOfConstraint Gauge; \}
     \}
   \}
 \}
@@ -180,7 +180,7 @@ FunctionSpace \{
 Formulation \{
   \{ Name MagSta_a; Type FemEquation;
     Quantity \{ 
-      \{ Name a ; Type Local; NameOfSpace Hcurl; \}
+      \{ Name a; Type Local; NameOfSpace Hcurl; \}
     \}
     Equation \{
       Galerkin \{ [ 1/mu[] * Dof\{Curl a\} , \{Curl a\} ]; 
@@ -202,7 +202,7 @@ Resolution \{
     System \{
       \{ Name A; NameOfFormulation MagSta_a; \}
     \}
-    Operation \{ Generate A; Solve A; SaveSolution A; \}
+    Operation \{ Generate[A]; Solve[A]; SaveSolution[A]; \}
   \}
 \}
 PostProcessing \{
@@ -236,7 +236,7 @@ New resolution:
     \}
     Operation \{ 
       InitSolution[A]
-      TimeLoopTheta[0,20/50,0.1/50,1]\{
+      TimeLoopTheta[0,20/50,0.1/50,1] \{ \CC{tmin,tmax,dt,theta}
         Generate[A]; Solve[A]; SaveSolution[A];
       \}
     \}
@@ -349,7 +349,7 @@ FunctionSpace \{
 
 \begin{smallsyntax}
 Formulation \{
-  \{ Name MagSta_hs ; Type FemEquation;
+  \{ Name MagSta_hs; Type FemEquation;
     Quantity \{
       \{ Name hs; Type Local; NameOfSpace Hcurl_hs; \}
     \}
@@ -513,19 +513,22 @@ Resolutions
 \end{slideitemize}
 }
 
+% NbrMaxIteration 16; RelaxationFactor 1; Criterion 1.e-4;
 \begin{smallsyntax}
 Resolution \{ \CC{magnetodynamic freq + thermal static}
   \{ Name Magnetothermal_h_T;
     System \{
-      \{ Name Mag; NameOfFormulation MagDyn_h; Frequency 50; \}
+      \{ Name Mag; NameOfFormulation MagDyn_h; 
+                  Type Complex; Frequency 50; \}
       \{ Name The; NameOfFormulation The_T \}
     \}
     Operation \{
-      IterativeLoop \{
-        NbrMaxIteration 16; RelaxationFactor 1; Criterion 1.e-4;
-        Operation \{ GenerateJac Mag; SolveJac Mag; 
-                    GenerateJac The; SolveJac The; \} \}
-      SaveSolution Mag; SaveSolution The; \}
+      IterativeLoop[16,1.e-4,1] \{ \CC{max_its, stop, relax}
+        GenerateJac[Mag]; SolveJac[Mag];
+        GenerateJac[The]; SolveJac[The];
+      \}
+      SaveSolution[Mag]; SaveSolution[The];
+    \}
   \}
 \}
 \end{smallsyntax}

@@ -27,73 +27,74 @@
    Physical constants :
    ------------------                                               */
 
-   eps0 = 8.854187818e-12 ;
+   eps0 = 8.854187818e-12;
 
 Group @{
-  DefineGroup[ Domain_Ele, DomainCC_Ele, DomainC_Ele ] ;
+  DefineGroup[ Domain_Ele, DomainCC_Ele, DomainC_Ele ];
 @}
 
 Function @{
-  DefineFunction[ epsr ] ;
+  DefineFunction[ epsr ];
 @}
 
 FunctionSpace @{
-  @{ Name Hgrad_v_Ele ; Type Form0 ;
+  @{ Name Hgrad_v_Ele; Type Form0;
     BasisFunction @{
       // v = v  s   ,  for all nodes
       //      n  n
-      @{ Name sn ; NameOfCoef vn ; Function BF_Node ;
-        Support DomainCC_Ele ; Entity NodesOf[ All ] ; @}
+      @{ Name sn; NameOfCoef vn; Function BF_Node;
+        Support DomainCC_Ele; Entity NodesOf[ All ]; @}
     @}
     Constraint @{
-      @{ NameOfCoef vn ; EntityType NodesOf ; 
-        NameOfConstraint ElectricScalarPotential ; @}
+      @{ NameOfCoef vn; EntityType NodesOf; 
+        NameOfConstraint ElectricScalarPotential; @}
     @}
   @}
 @}
 
 
 Formulation @{
-  @{ Name Electrostatics_v ; Type FemEquation ;
+  @{ Name Electrostatics_v; Type FemEquation;
     Quantity @{
-      @{ Name v ; Type Local ; NameOfSpace Hgrad_v_Ele ; @}
+      @{ Name v; Type Local; NameOfSpace Hgrad_v_Ele; @}
     @}
     Equation @{
-      Galerkin @{ [ epsr[] * Dof@{d v@} , @{d v@} ] ; In DomainCC_Ele ; 
-                 Jacobian Vol ; Integration GradGrad ; @}
+      Galerkin @{ [ epsr[] * Dof@{d v@} , @{d v@} ]; In DomainCC_Ele; 
+                 Jacobian Vol; Integration GradGrad; @}
     @}
   @}
 @}
 
 
 Resolution @{
-  @{ Name EleSta_v ;
+  @{ Name EleSta_v;
     System @{
-      @{ Name Sys_Ele ; NameOfFormulation Electrostatics_v ; @}
+      @{ Name Sys_Ele; NameOfFormulation Electrostatics_v; @}
     @}
     Operation @{ 
-      Generate Sys_Ele ; Solve Sys_Ele ; SaveSolution Sys_Ele ; 
+      Generate[Sys_Ele]; Solve[Sys_Ele]; SaveSolution[Sys_Ele];
     @}
   @}
 @}
 
 
 PostProcessing @{
-  @{ Name EleSta_v ; NameOfFormulation Electrostatics_v ;
+  @{ Name EleSta_v; NameOfFormulation Electrostatics_v;
     Quantity @{
-      @{ Name v ; 
+      @{ Name v; 
         Value @{ 
-          Local @{ [ @{v@} ] ; In DomainCC_Ele ; Jacobian Vol ; @} 
+          Local @{ [ @{v@} ]; In DomainCC_Ele; Jacobian Vol; @} 
         @}
       @}
-      @{ Name e ; 
+      @{ Name e; 
         Value @{ 
-          Local @{ [ -@{d v@} ] ; In DomainCC_Ele ; Jacobian Vol ; @}
+          Local @{ [ -@{d v@} ]; In DomainCC_Ele; Jacobian Vol; @}
         @}
       @}
-      @{ Name d ; 
+      @{ Name d; 
         Value @{ 
-          Local @{ [ -eps0*epsr[] * @{d v@} ] ; In DomainCC_Ele ; Jacobian Vol ; @} 
+          Local @{ [ -eps0*epsr[] * @{d v@} ]; In DomainCC_Ele; 
+                                             Jacobian Vol; @} 
         @} 
       @}
     @}

@@ -27,38 +27,38 @@
 */
 
 Group @{
-  DefineGroup[ Domain_Mag, DomainS_Mag ] ;
+  DefineGroup[ Domain_Mag, DomainS_Mag ];
 @}
 
 Function @{
-  DefineFunction[ nu ] ;
+  DefineFunction[ nu ];
 @}
 
 FunctionSpace @{
 
   // Magnetic vector potential a (b = curl a)
-  @{ Name Hcurl_a_Mag_2D ; Type Form1P ;
+  @{ Name Hcurl_a_Mag_2D; Type Form1P;
     BasisFunction @{
       // a = a  s
       //      e  e
-      @{ Name se ; NameOfCoef ae ; Function BF_PerpendicularEdge ;
-        Support Domain_Mag ; Entity NodesOf[ All ] ; @}
+      @{ Name se; NameOfCoef ae; Function BF_PerpendicularEdge;
+        Support Domain_Mag; Entity NodesOf[ All ]; @}
     @}
     Constraint @{
-      @{ NameOfCoef ae ; EntityType NodesOf ;
-        NameOfConstraint MagneticVectorPotential_2D ; @}
+      @{ NameOfCoef ae; EntityType NodesOf;
+        NameOfConstraint MagneticVectorPotential_2D; @}
     @}
   @}
 
   // Source current density js (fully fixed space)
-  @{ Name Hregion_j_Mag_2D ; Type Vector ;
+  @{ Name Hregion_j_Mag_2D; Type Vector;
     BasisFunction @{
-      @{ Name sr ; NameOfCoef jsr ; Function BF_RegionZ ;
-        Support DomainS_Mag ; Entity DomainS_Mag ; @}
+      @{ Name sr; NameOfCoef jsr; Function BF_RegionZ;
+        Support DomainS_Mag; Entity DomainS_Mag; @}
     @}
     Constraint @{
-      @{ NameOfCoef jsr ; EntityType Region ;
-        NameOfConstraint SourceCurrentDensityZ ; @}
+      @{ NameOfCoef jsr; EntityType Region;
+        NameOfConstraint SourceCurrentDensityZ; @}
     @}
   @}
 
@@ -66,54 +66,54 @@ FunctionSpace @{
 
 
 Formulation @{
-  @{ Name Magnetostatics_a_2D ; Type FemEquation ;
+  @{ Name Magnetostatics_a_2D; Type FemEquation;
     Quantity @{
-      @{ Name a  ; Type Local ; NameOfSpace Hcurl_a_Mag_2D ; @}
-      @{ Name js ; Type Local ; NameOfSpace Hregion_j_Mag_2D ; @}
+      @{ Name a ; Type Local; NameOfSpace Hcurl_a_Mag_2D; @}
+      @{ Name js; Type Local; NameOfSpace Hregion_j_Mag_2D; @}
     @}
     Equation @{
-      Galerkin @{ [ nu[] * Dof@{d a@} , @{d a@} ]  ; In Domain_Mag ;
-                 Jacobian Vol ; Integration CurlCurl ; @}
-      Galerkin @{ [ - Dof@{js@} , @{a@} ] ; In DomainS_Mag ;
-                 Jacobian Vol ; Integration CurlCurl ; @}
+      Galerkin @{ [ nu[] * Dof@{d a@} , @{d a@} ] ; In Domain_Mag;
+                 Jacobian Vol; Integration CurlCurl; @}
+      Galerkin @{ [ - Dof@{js@} , @{a@} ]; In DomainS_Mag;
+                 Jacobian Vol; Integration CurlCurl; @}
     @}
   @}
 @}
 
 
 Resolution @{
-  @{ Name MagSta_a_2D ;
+  @{ Name MagSta_a_2D;
     System @{
-      @{ Name Sys_Mag ; NameOfFormulation Magnetostatics_a_2D ; @}
+      @{ Name Sys_Mag; NameOfFormulation Magnetostatics_a_2D; @}
     @}
     Operation @{
-      Generate Sys_Mag ; Solve Sys_Mag ; SaveSolution Sys_Mag ;
+      Generate[Sys_Mag]; Solve[Sys_Mag]; SaveSolution[Sys_Mag];
     @}
   @}
 @}
 
 
 PostProcessing @{
-  @{ Name MagSta_a_2D ; NameOfFormulation Magnetostatics_a_2D ;
+  @{ Name MagSta_a_2D; NameOfFormulation Magnetostatics_a_2D;
     Quantity @{
-      @{ Name a  ; 
+      @{ Name a ; 
         Value @{ 
-          Local @{ [ @{a@} ] ; In Domain_Mag ; Jacobian Vol ; @} 
+          Local @{ [ @{a@} ]; In Domain_Mag; Jacobian Vol; @} 
         @}
       @}
-      @{ Name az ; 
+      @{ Name az; 
         Value @{ 
-          Local @{ [ CompZ[@{a@}] ] ; In Domain_Mag ; Jacobian Vol ; @}
+          Local @{ [ CompZ[@{a@}] ]; In Domain_Mag; Jacobian Vol; @}
         @}
       @}
-      @{ Name b  ; 
+      @{ Name b ; 
         Value @{ 
-          Local @{ [ @{d a@} ] ; In Domain_Mag ; Jacobian Vol ; @}
+          Local @{ [ @{d a@} ]; In Domain_Mag; Jacobian Vol; @}
         @}
       @}
-      @{ Name h  ; 
+      @{ Name h ; 
         Value @{ 
-          Local @{ [ nu[] * @{d a@} ] ; In Domain_Mag ; Jacobian Vol ; @}
+          Local @{ [ nu[] * @{d a@} ]; In Domain_Mag; Jacobian Vol; @}
         @}
       @}
     @}

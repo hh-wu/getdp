@@ -1,4 +1,4 @@
-% $Id: getdp.tex,v 1.16 2001-06-18 09:49:15 geuzaine Exp $
+% $Id: getdp.tex,v 1.17 2001-07-17 23:27:44 geuzaine Exp $
 
 \newcommand{\smallgetdp}[1]
    {\background{7\semcm}{4.2\semcm}{\scalebox{0.3}{\input{#1}}}}
@@ -192,7 +192,7 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
   \item Various quantity types (0, 1, 2, 3-forms, scalar, vector)
   \item Various basis functions (associated with nodes, edges, facets,
   volumes) of various orders
-  \item Coupling of fields and potentials ($T$-$\Omega$, $\vec{h}$-$\phi$,
+  \item Coupling of fields and potentials ($\vec{t}$-$\omega$, $\vec{h}$-$\phi$,
   $\vec{a}$-$v$, ...)
   \item Definition of global quantities (fluxes, circulations: current,
   voltage, m.m.f., ...)
@@ -209,18 +209,18 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 \begin{slide}
 
 \begin{syntax}
-\{ Name H1 ; Type Form0 ; \CC{discrete function space for H1}
+\{ Name H1; Type Form0; \CC{discrete function space for H1}
   BasisFunction \{
-    \{ Name wi ; NameOfCoef fi ; Function BF_Node ; \CC{order 1}
-      Support Omega ; Entity NodesOf[ All ] ; \}
-    \{ Name wi2 ; NameOfCoef fi2 ; Function BF_Node_2E ;  \CC{order 2}
-      Support Omega ; Entity EdgesOf[ All ] ; \}
+    \{ Name wi; NameOfCoef fi; Function BF_Node; \CC{order 1}
+      Support Omega; Entity NodesOf[All]; \}
+    \{ Name wi2; NameOfCoef fi2; Function BF_Node_2E;  \CC{order 2}
+      Support Omega; Entity EdgesOf[All]; \}
   \}
   Constraint \{
-    \{ NameOfCoef fi ; \CC{cf. 'Constraint'}
-      EntityType NodesOf ; NameOfConstraint Dirichlet ; \}
-    \{ NameOfCoef fi2 ;
-      EntityType EdgesOf ; NameOfConstraint Dirichlet2 ; \}
+    \{ NameOfCoef fi; \CC{cf. 'Constraint'}
+      EntityType NodesOf; NameOfConstraint Dirichlet; \}
+    \{ NameOfCoef fi2;
+      EntityType EdgesOf; NameOfConstraint Dirichlet2; \}
   \}
 \}
 \end{syntax}
@@ -246,11 +246,11 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 
 \bigskip
 \begin{syntax}
-\{ Name Jacobian1 ;
+\{ Name Jacobian1;
   Case \{ \CC{piece-wise defined on groups}
-    \{ Region OmegaInf; Jacobian VolSphShell \{Rint, Rext\}; \}
+    \{ Region OmegaInf; Jacobian VolSphShell\{Rint, Rext\}; \}
     \{ Region OmegaAxi; Jacobian VolAxi; \}
-    \{ Region All; Jacobian Vol ; \}
+    \{ Region All; Jacobian Vol; \}
   \}
 \}
 \end{syntax}
@@ -277,12 +277,12 @@ TimeFct[] = Cos[2*Pi*f*$Time] * Exp[-$Time/0.012]; \CC{current value}
 \bigskip
 \bigskip
 \begin{syntax}
-\{ Name Integration1 ; Criterion Test[]; \CC{combination of methods}
+\{ Name Integration1; Criterion Test[]; \CC{combination of methods}
   Case \{ 
-    \{ Type Gauss ;
-      Case \{ \{ GeoElement Triangle ; NumberOfPoints 12; \}
+    \{ Type Gauss;
+      Case \{ \{ GeoElement Triangle; NumberOfPoints 12; \}
              \{ GeoElement Tetrahedron; NumberOfPoints 15; \} \} \}
-    \{ Type Analytic ; \}
+    \{ Type Analytic; \}
   \} 
 \}
 \end{syntax}
@@ -315,8 +315,8 @@ Equation \{
 \end{syntax}
 
 \rput(0.8\textwidth,6\semcm)
-     {$\partial_t^2\ivol{\epsilon\vec{e}}{\vec{e}} + 
-       \ivol{\mu^{-1}\Curl{\vec{e}}}{\Curl{\vec{e}}'}=0$}
+     {$\partial_t^2\ivol{\epsilon\vec{e}}{\vec{e}'} + 
+       \ivol{\mu^{-1}\Curl{\vec{e}}}{\Curl{\vec{e}'}}=0$}
 
 \end{slide}
 
@@ -372,7 +372,7 @@ Operation\{\\
 \bigskip
 \begin{syntax}
 Quantity \{
-  \{ Name Induction;
+  \{ Name FluxDensity;
     Value \{ Local \{ [ -mu[]*\{Grad phi\} ]; In Omega; \}
             Local \{ [ -\{dGreen\} ]; In BEM; \} \}
 \}
@@ -402,8 +402,8 @@ Quantity \{
 
 \bigskip
 \begin{syntax}
-Print[ Induction, OnElementsOf Omega, File "b.pos", Format Gmsh ] ;
-Print[ Induction, OnLine \{\{0,0,0\}\{1,0,0\}\} \{100\}, File "b.txt" ] ;
+Print[ FluxDensity, OnElementsOf Omega, File "b.pos", Format Gmsh ];
+Print[ FluxDensity, OnLine \{\{0,0,0\}\{1,0,0\}\} \{100\}, File "b.txt" ];
 \end{syntax}
 
 \end{slide}

@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.11 2001-06-17 21:07:00 geuzaine Exp $
+@c $Id: getdp.texi,v 1.12 2001-07-17 23:27:45 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -33,10 +33,10 @@
 @c =========================================================================
 @c %**start of header
 @setfilename   getdp.info
-@set EDITION   2.4
-@set VERSION   0.81
-@set DAY       18
-@set MONTH     March 2001
+@set EDITION   2.5
+@set VERSION   0.83
+@set DAY       17
+@set MONTH     July 2001
 @set COPYRIGHT @copyright{} 1997-2001 Patrick Dular, Christophe Geuzaine
 @set WEB-GETDP @uref{http://www.geuz.org/getdp/}
 @set WEB-GMSH  @uref{http://www.geuz.org/gmsh/}
@@ -309,7 +309,6 @@ Output file format
 
 * File pre::                    
 * File res::                    
-* Post-processing files::       
 
 Bugs, versions and contributors
 
@@ -740,9 +739,10 @@ time domain finite difference method
 
 @cindex Expression, definition
 
-@mvindex @var{expression}
 @mvindex @var{integer}
 @mvindex @var{real}
+@mvindex @var{expression}
+@mvindex @var{expression-list}
 
 Expressions are the basic tool of GetDP. They cover a wide range of
 functional expressions, from constants to formal expressions containing
@@ -762,8 +762,9 @@ Expressions are denoted by the metasyntactic variable @var{expression}
   @var{operator-unary} @var{expression} |
   @var{expression} @var{operator-binary} @var{expression} |
   @var{expression} ? @var{expression} : @var{expression} |
-  @var{built-in-function-id} [ < @var{argument-list} > ] < @{ @var{parameter-list} @} > |
-  @var{function-id} [ < @var{argument-list} > ] |
+  @var{built-in-function-id} [ < @var{expression-list} > ] 
+                 < @{ @var{expression-cst-list} | List[@var{constant-id}] @} > |
+  @var{function-id} [ < @var{expression-list} > ] |
   @var{current-value} |
   @var{argument} |
   @var{discrete-quantity} 
@@ -774,8 +775,13 @@ expressions, i.e.@: constant terminals (@var{integer}, @var{real}) and
 constant expression identifiers (@var{constant-id}), operators
 (@var{operator-unary}, @var{operator-binary}, @code{?:}), built-in or
 user-defined functions (@var{built-in-function-id}, @var{function-id}),
-current values (@var{current-value}), arguments (@var{argument}) and
-fields (@var{discrete-quantity}).
+current values (@var{current-value}), arguments (@var{argument}) and fields
+(@var{discrete-quantity}). List of expressions are defined as:
+
+@example
+@var{expression-list}: 
+  @var{expression} <,@dots{}>
+@end example
 
 @menu
 * Operators::                   
@@ -814,10 +820,9 @@ fields (@var{discrete-quantity}).
 @mvindex @var{integer}
 @mvindex @var{real}
 @mvindex @var{string}
-@mvindex @var{expression-cst}
 @mvindex @var{constant-id}
+@mvindex @var{expression-cst}
 @mvindex @var{expression-cst-list}
-
 
 The three constant types used in GetDP are @var{integer}, @var{real} and
 @var{string}.  These terminals have the same meaning and syntax as in
@@ -832,22 +837,26 @@ metasyntactic variable @var{expression-cst}, are also used:
   @var{constant-id} |
   @var{operator-unary} @var{expression-cst} |
   @var{expression-cst} @var{operator-binary} @var{expression-cst} |
-  @var{math-function-id} [ < @var{expression-cst} <,@dots{}> > ]
+  @var{math-function-id} [ < @var{expression-cst-list} > ]
+@end example
+
+@noindent where @var{expression-cst-list} is defined as:
+
+@example
+@var{expression-cst-list}:
+  @var{expression-cst} <,@dots{}>
 @end example
 
 Contrary to a general @var{expression} which is evaluated at runtime (thanks
 to an internal stack mechanism), an @var{expression-cst} is completely
 evaluated during the syntactic analysis of the problem (when GetDP reads the
 @file{.pro} file). The definition of such constants or lists of constants
-with identifiers can be made outside any GetDP object or inside
-@code{Group}, @code{Function} and @code{Constraint} objects. The syntax for
-the definition of constants is the following:
+with identifiers can be made outside or inside any GetDP object. The syntax
+for the definition of constants is:
 
 @example
-DefineConstant [ 
-  @var{constant-id} < = @var{expression-cst} > <,@dots{}> 
-]; |
-@var{constant-id} = @var{expression-cst} | @var{expression-cst-list};
+DefineConstant [ @var{constant-id} < = @var{expression-cst} > <,@dots{}> ]; |
+@var{constant-id} = @var{constant-def};
 @end example
 
 @noindent with
@@ -856,9 +865,10 @@ DefineConstant [
 @var{constant-id}:
   @var{string}
 
-@var{expression-cst-list}:
-  @{ @var{expression-cst} <,@dots{}> @} |
-  ListAlt [ @var{constant-id} , @var{constant-id} ]
+@var{constant-def}:
+  @var{expression-cst} |
+  @{ @var{expression-cst-list} @} 
+  ListAlt [ @var{constant-id}, @var{constant-id} ]
 @end example
 
 @noindent Notes:
@@ -1050,8 +1060,6 @@ i.e.@: @code{^} has the highest evaluation priority). Parentheses
 @cindex Parameters
 
 @mvindex @var{built-in-function-id}
-@mvindex @var{argument-list}
-@mvindex @var{parameter-list}
 
 @tindex List
 
@@ -1067,7 +1075,8 @@ distinguish a @var{function-id} or a @var{built-in-function-id} from a
 parameters, given between braces (@code{@{@}}):
 
 @example
-@var{built-in-function-id} [ < @var{argument-list} > ] < @{ @var{parameter-list} @} >
+@var{built-in-function-id} [ < @var{expression-list} > ] 
+               < @{ @var{expression-cst-list} | List[@var{constant-id}] @} >
 @end example
 
 @noindent with
@@ -1080,13 +1089,6 @@ parameters, given between braces (@code{@{@}}):
   @var{type-function-id} |
   @var{coord-function-id} |
   @var{misc-function-id}
-
-@var{argument-list}:
-  @var{expression} <,@dots{}>
-
-@var{parameter-list}:
-  @var{expression-cst} <,@dots{}> |
-  List[@var{constant-id}]
 @end example
 
 @noindent Notes:
@@ -1098,8 +1100,8 @@ All possible values for @var{built-in-function-id} are listed in
 Classical mathematical functions (@pxref{Math functions}) are
 the only functions allowed in a constant definition (@pxref{Constants}).
 @item
-@var{constant-id} in @code{List[]} of @var{parameter-list} must refer 
-to a list of constants (@var{expression-cst-list}).
+@var{constant-id} in @code{List[]} must refer to a list of constants
+(@var{expression-cst-list}).
 @end enumerate
 
 
@@ -1163,7 +1165,7 @@ coordinates, i.e.@: coordinates in which the mesh is expressed.
 
 Function arguments can be used in expressions and have the following
 syntax (@var{integer} indicates the number of the argument in the
-@var{argument-list} of the function):
+@var{expression-list} of the function):
 
 @example
 @var{argument}:
@@ -1356,9 +1358,7 @@ The syntax for the definition of groups is:
 
 @example
 Group @{
-  < DefineGroup [ 
-      @var{group-id} <@{@var{integer}@}> <,@dots{}> 
-    ]; > @dots{}
+  < DefineGroup [ @var{group-id} <@{@var{integer}@}> <,@dots{}> ]; > @dots{}
   < @var{group-id} <@{<#>@var{integer}@}> = @var{group-def}; > @dots{}
 @}
 @end example
@@ -1370,7 +1370,7 @@ Group @{
   @var{string}
 
 @var{group-def}:
-  @var{group-type} [ @var{group-list} < , @var{group-sub-type} @var{group-list} > ] |
+  @var{group-type} [ @var{group-list} <, @var{group-sub-type} @var{group-list} > ] |
   @var{group-id} <@{<@var{integer}>@}> |
   #@var{group-list}
 
@@ -1448,9 +1448,7 @@ objects. The syntax for the definition of functions is:
 
 @example
 Function @{
-  < DefineFunction [ 
-      @var{function-id} <,@dots{}>
-    ]; > @dots{}
+  < DefineFunction [ @var{function-id} <,@dots{}> ]; > @dots{}
   < @var{function-id} [ < @var{group-def} > ] = @var{expression}; > @dots{}
 @}
 @end example
@@ -1537,7 +1535,7 @@ Constraint @{
   Value @var{expression} | NameOfResolution @var{resolution-id} | @var{etc}
 
 @var{constraint-case-val}:
-  Branch @{ @var{integer} , @var{integer} @} | @var{etc}
+  Branch @{ @var{integer}, @var{integer} @} | @var{etc}
 @end example
 
 @noindent Notes:
@@ -1646,7 +1644,7 @@ FunctionSpace @{
        Function @var{basis-function-type}
          < @{ Quantity @var{quantity-id};
              Formulation @var{formulation-id} @{#@var{integer}@}; 
-             Group @var{group-def}; Resolution @var{resolution-id} @{@} @} > ;
+             Group @var{group-def}; Resolution @var{resolution-id} @{@} @} >;
        Support @var{group-def}; Entity @var{group-def}; @} @dots{}
     @}
   < SubSpace @{ 
@@ -1669,9 +1667,14 @@ FunctionSpace @{
 @noindent with
 
 @example
-@var{function-space-id}: @var{basis-function-id}:
-@var{coef-id}: @var{sub-space-id}: @var{global-quantity-id}: 
-@var{quantity-id}: @var{formulation-id}: @var{resolution-id}:
+@var{function-space-id}: 
+@var{basis-function-id}:
+@var{coef-id}:
+@var{sub-space-id}:
+@var{global-quantity-id}: 
+@var{quantity-id}:
+@var{formulation-id}:
+@var{resolution-id}:
   @var{string}
 
 @var{function-space-type}:   
@@ -1833,7 +1836,7 @@ Integration @{
     Case @{ 
     < @{ Type @var{numerical-integration-type}; 
         Case @{ 
-          @{ GeoElement @var{element-type}; NumberOfPoints @var{integer} @} @dots{} 
+          @{ GeoElement @var{element-type}; NumberOfPoints @var{expression-cst} @} @dots{} 
         @} 
       @} @dots{} >
     < @{ Type @var{integration-type}; @} @dots{} >
@@ -1931,15 +1934,15 @@ Formulation @{
         < Symmetry @var{expression-cst}; >
         < [ @var{expression} ]; In @var{group-def};
         Jacobian @var{jacobian-id}; Integration @var{integration-id}; >
-        < IndexOfSystem @var{int}; >
+        < IndexOfSystem @var{integer}; >
     @}
     Equation @{ 
      < @var{local-term-type} 
-         @{ < @var{term-op-type} > [ @var{expression} , @var{expression} ]; 
+         @{ < @var{term-op-type} > [ @var{expression}, @var{expression} ]; 
            In @var{group-def}; Jacobian @var{jacobian-id};
            Integration @var{integration-id}; @} > @dots{}
      < GlobalTerm 
-         @{ < @var{term-op-type} > [ @var{expression} , @var{expression} ]; 
+         @{ < @var{term-op-type} > [ @var{expression}, @var{expression} ]; 
            In @var{group-def}; @} > @dots{}
      < GlobalEquation 
          @{ Type Network; NameOfConstraint @var{constraint-id};
@@ -2019,14 +2022,7 @@ the formulations @code{@var{formulation-id}@{@var{i}@}},
 @mvindex @var{resolution-id}
 @mvindex @var{system-id}
 @mvindex @var{formulation-list}
-@mvindex @var{real-list}
 @mvindex @var{resolution-op}
-@mvindex @var{time-loop-theta-arg}
-@mvindex @var{time-loop-newmark-arg}
-@mvindex @var{iterative-loop-arg}
-@mvindex @var{iterative-time-reduction-arg}
-@mvindex @var{change-of-state-arg}
-@mvindex @var{change-of-state-type}
 
 The operations available in a @code{Resolution} include: the generation
 of a linear system, its solving with various kinds of linear solvers,
@@ -2047,8 +2043,8 @@ Resolution @{
   @{ Name @var{resolution-id} <@{#@var{integer}@}>; 
     System @{ 
       @{ Name @var{system-id}; NameOfFormulation @var{formulation-list}; 
-        < Frequency @var{real-list}; > < DestinationSystem @var{system-id}; > 
-        < OriginSystem  @var{system-id}; > 
+        < Frequency @var{expression-cst} | Frequency @{ @var{expression-cst-list} @}; >
+        < DestinationSystem @var{system-id}; > < OriginSystem @var{system-id}; >
         < NameOfMesh "@var{string}" > < Solver "@var{string}" > @} @dots{}
     @} 
     Operation @{ < @var{resolution-op}; > @dots{} @}
@@ -2067,12 +2063,8 @@ Resolution @{
   @var{formulation-id} <@{@}> < [ @var{mesh-id} ] > |
   @{ @var{formulation-id} <@{@}> < [ @var{mesh-id}] > <,@dots{}> @}
 
-@var{real-list}:
-  @var{expression-cst} | @{ @var{expression-cst} <,@dots{}> @} |
-  @var{expression-cst}:<[@var{expression-cst}]> @var{expression-cst}
-
 @var{resolution-op}:
-  Generate @var{system-id} | Solve @var{system-id} | @var{etc}
+  Generate[@var{system-id}] | Solve[@var{system-id}] | @var{etc}
 @end example
 
 @noindent Notes:
@@ -2083,9 +2075,10 @@ resolutions @code{@var{resolution-id}@{@var{i}@}}, @var{i}=1, @dots{}, @var{n},
 replacing for each @var{i} any @code{@{@}} in
 @var{formulation-id}@code{@{@}} of @code{System} field with @{@var{i}@}.
 @item
-The default type for a system of equations considers the time domain analysis. 
-The frequency domain analysis is defined through the definition of one or 
-several frequencies (@code{Frequency @var{real-list}}).
+The default type for a system of equations considers the time domain
+analysis.  The frequency domain analysis is defined through the definition
+of one or several frequencies (@code{Frequency @var{expression-cst} |
+Frequency @{ @var{expression-cst-list} @}}).
 @end enumerate
 
 @xref{Types for Resolution}, for the complete list of options and
@@ -2278,7 +2271,7 @@ the overall interface, but the second one is more concise.
 @noindent Types in
 
 @example
-@var{group-type} [ @var{R1} < , @var{group-sub-type} @var{R2} > ]
+@var{group-type} [ @var{R1} <, @var{group-sub-type} @var{R2} > ]
 @end example
 
 @noindent
@@ -2395,68 +2388,70 @@ expressions (@var{expression-cst}, see @ref{Constants}).
 @ftable @code
 
 @item Exp 
-@code{[@var{expr}]}@*
-Exponential function: e^@var{expr}.
+@code{[@var{expression}]}@*
+Exponential function: e^@var{expression}.
 
 @item Log
-@code{[@var{expr}]}@*
-Natural logarithm: ln(@var{expr}), @var{expr}>0.
+@code{[@var{expression}]}@*
+Natural logarithm: ln(@var{expression}), @var{expression}>0.
 
 @item Log10
-@code{[@var{expr}]}@*
-Base 10 logarithm: log10(@var{expr}), @var{expr}>0.
+@code{[@var{expression}]}@*
+Base 10 logarithm: log10(@var{expression}), @var{expression}>0.
 
 @item Sqrt 
-@code{[@var{expr}]}@*
-Square root, @var{expr}>=0.
+@code{[@var{expression}]}@*
+Square root, @var{expression}>=0.
 
 @item Sin
-@code{[@var{expr}]}@*
-Sine of @var{expr}.
+@code{[@var{expression}]}@*
+Sine of @var{expression}.
 
 @item Asin 
-@code{[@var{expr}]}@*
-Arc sine (inverse sine) of @var{expr} in [-Pi/2,Pi/2], @var{expr} in [-1,1].
+@code{[@var{expression}]}@*
+Arc sine (inverse sine) of @var{expression} in [-Pi/2,Pi/2], @var{expression} in [-1,1].
 
 @item Cos  
-@code{[@var{expr}]}@*
-Cosine of @var{expr}.
+@code{[@var{expression}]}@*
+Cosine of @var{expression}.
 
 @item Acos 
-@code{[@var{expr}]}@*
-Arc cosine (inverse cosine) of @var{expr} in [0,Pi], @var{expr} in [-1,1].
+@code{[@var{expression}]}@*
+Arc cosine (inverse cosine) of @var{expression} in [0,Pi], @var{expression} in [-1,1].
 
 @item Tan  
-@code{[@var{expr}]}@*
-Tangent of @var{expr}.
+@code{[@var{expression}]}@*
+Tangent of @var{expression}.
 
 @item Atan 
-@code{[@var{expr}]}@*
-Arc tangent (inverse tangent) of @var{expr} in [-Pi/2,Pi/2].
+@code{[@var{expression}]}@*
+Arc tangent (inverse tangent) of @var{expression} in [-Pi/2,Pi/2].
 
 @item Atan2
-@code{[@var{expr1},@var{expr2}]}@*
-Arc tangent (inverse tangent) of @var{expr1}/@var{expr2} in [-Pi,Pi].
+@code{[@var{expression},@var{expression}]}@*
+Arc tangent (inverse tangent) of the first @var{expression} divided by the
+second, in [-Pi,Pi].
 
 @item Sinh 
-@code{[@var{expr}]}@*
-Hyperbolic sine of @var{expr}.
+@code{[@var{expression}]}@*
+Hyperbolic sine of @var{expression}.
 
 @item Cosh 
-@code{[@var{expr}]}@*
-Hyperbolic cosine of @var{expr}.
+@code{[@var{expression}]}@*
+Hyperbolic cosine of @var{expression}.
 
 @item Tanh 
-@code{[@var{expr}]}@*
-Hyperbolic tangent of @var{expr}.
+@code{[@var{expression}]}@*
+Hyperbolic tangent of @var{expression}.
 
 @item Fabs 
-@code{[@var{expr}]}@*
-Absolute value of @var{expr}.
+@code{[@var{expression}]}@*
+Absolute value of @var{expression}.
 
 @item Fmod
-@code{[@var{expr1},@var{expr2}]}@*
-Remainder of @var{expr1}/@var{expr2}, with the sign of @var{expr1}.
+@code{[@var{expression},@var{expression}]}@*
+Remainder of the division of the first @var{expression} by the second, with
+the sign of the first.
 
 @end ftable
 
@@ -2473,52 +2468,57 @@ Remainder of @var{expr1}/@var{expr2}, with the sign of @var{expr1}.
 @var{extended-math-function-id}:
 @ftable @code
 @item Cross
-@code{[@var{expr1},@var{expr2}]}@*
-Cross product of @var{expr1} by @var{expr2}; @var{expr1} and @var{expr2}
-must be vectors.
+@code{[@var{expression},@var{expression}]}@*
+Cross product of the two arguments; @var{expression} must a vector.
 
 @item Hypot
-@code{[@var{expr1},@var{expr2}]}@*
-@code{Sqrt[@var{expr1}^2+@var{expr2}^2]}.
+@code{[@var{expression},@var{expression}]}@*
+Square root of the sum of the squares of its arguments.
 
 @item Norm
-@code{[@var{expr}]}@* 
-Absolute value if @var{expr} is a scalar; euclidian norm if @var{expr}
+@code{[@var{expression}]}@* 
+Absolute value if @var{expression} is a scalar; euclidian norm if @var{expression}
 is a vector.
 
 @item SquNorm
-@code{[@var{expr}]}@*
-Square norm: @code{Norm[@var{expr}]^2}.
+@code{[@var{expression}]}@*
+Square norm: @code{Norm[@var{expression}]^2}.
 
 @item Unit
-@code{[@var{expr}]}@*
-Normalization: @code{@var{expr}/Norm[@var{expr}]}. Returns 0 if the norm is
+@code{[@var{expression}]}@*
+Normalization: @code{@var{expression}/Norm[@var{expression}]}. Returns 0 if the norm is
 smaller than 1.e-30.
 
 @item Transpose
-@code{[@var{expr}]}@*
-Transposition; @var{expr} must be a tensor.
+@code{[@var{expression}]}@*
+Transposition; @var{expression} must be a tensor.
 
 @item TTrace
-@code{[@var{expr}]}@*
-Trace; @var{expr} must be a tensor.
-
-@c @item Rotate
-@c @code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4}]}@*
-@c Rotation of a tensor
+@code{[@var{expression}]}@*
+Trace; @var{expression} must be a tensor.
 
 @item F_Cos_wt_p
-@code{[]@{@var{real1},@var{real2}@}}@*
-@code{Cos[@var{real1}*$Time+@var{real2}]}.
+@code{[]@{@var{expression-cst},@var{expression-cst}@}}@*
+The first parameter represents the angular frequency and the second
+represents the phase. If the type of the current system is @code{Real},
+@code{F_Cos_wt_p[]@{w,p@}} is identical to @code{Cos[w*$Time+p]}. If the
+type of the current system is @code{Complex}, it is identical to
+@code{Complex[Cos[w],Sin[w]]}.
 
 @item F_Sin_wt_p
-@code{[]@{@var{real1},@var{real2}@}}@*
-@code{Sin[@var{real1}*$Time+@var{real2}]}.
+@code{[]@{@var{expression-cst},@var{expression-cst}@}}@*
+The first parameter represents the angular frequency and the second
+represents the phase. If the type of the current system is @code{Real},
+@code{F_Sin_wt_p[]@{w,p@}} is identical to @code{Sin[w*$Time+p]}. If the
+type of the current system is @code{Complex}, it is identical to
+@code{Complex[Sin[w],-Cos[w]]}.
 
 @item F_Period
-@code{[@var{expr}]@{@var{real}@}}@* 
-@code{Fmod[@var{expr},@var{real}] + (@var{expr}<0?@var{real}:0)}; the
-result is always in [0,@var{real}[.
+@code{[@var{expression}]@{@var{expression-cst}@}}@* 
+@code{Fmod[@var{expression},@var{expression-cst}]} 
+@code{+}
+@code{(@var{expression}<0 ? @var{expression-cst} : 0)};
+the result is always in [0,@var{expression-cst}[.
 
 @end ftable
 
@@ -2532,8 +2532,8 @@ result is always in [0,@var{real}[.
 @mvindex @var{green-function-id}
 
 The Green functions are only used in integral quantities
-(@pxref{Formulation}). The integer parameter represents the dimension of
-the problem:
+(@pxref{Formulation}). The first parameter represents the dimension of the
+problem:
 @itemize @bullet
 @item @code{1D}:
 @code{r = $X-$XS}
@@ -2550,20 +2550,20 @@ The triplets of values given in the definitions below correspond to the
 @ftable @code
 
 @item Laplace
-@code{[]@{@var{int}@}}@*
+@code{[]@{@var{expression-cst}@}}@*
 @code{r/2}, @code{1/(2*Pi)*ln(1/r)}, @code{1/(4*Pi*r)}.
 
 @item GradLaplace
-@code{[]@{@var{int}@}}@*
+@code{[]@{@var{expression-cst}@}}@*
 Gradient of @code{Laplace} relative to the destination point (@code{$X},
 @code{$Y}, @code{$Z}).
 
 @item Helmholtz
-@code{[]@{@var{int}, @var{real}@}}@*
-@code{exp(j*k0*r)/(4*Pi*r)}, where @code{k0} is given by the double parameter.
+@code{[]@{@var{expression-cst}, @var{expression-cst}@}}@*
+@code{exp(j*k0*r)/(4*Pi*r)}, where @code{k0} is given by the second parameter.
 
 @item GradHelmholtz
-@code{[]@{@var{int}, @var{real}@}}@*
+@code{[]@{@var{expression-cst}, @var{expression-cst}@}}@*
 Gradient of @code{Helmholtz} relative to the destination point (@code{$X},
 @code{$Y}, @code{$Z}).
 
@@ -2584,84 +2584,86 @@ Gradient of @code{Helmholtz} relative to the destination point (@code{$X},
 @ftable @code
 
 @item Complex
-@code{[@var{even-number-of-expr}] (even)}@*
-Creates a (multi-harmonic) complex expression from an even number of
-real-valued expressions.
+@code{[@var{expression-list}]}@*
+Creates a (multi-harmonic) complex expression from an number of
+real-valued expressions. The number of expressions in @var{expression-list}
+must be even.
 
 @item Re
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Takes the real part of a complex-valued expression.
 
 @item Im
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Takes the imaginary part of a complex-valued expression.
 
 @item Vector
-@code{[@var{expr1},@var{expr2},@var{expr3}]}@*
+@code{[@var{expression},@var{expression},@var{expression}]}@*
 Creates a vector from 3 scalars.
 
 @item Tensor
-@code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4},@var{expr5},@var{expr6},@var{expr7},@var{expr8},@var{expr9}]}@*
+@code{[@var{expression},@var{expression},@var{expression},@var{expression},@var{expression},@var{expression},}@*
+@code{@var{expression},@var{expression},@var{expression}]}@*
 Creates a second-rank tensor of order 3 from 9 scalars.
 
 @item TensorV
-@code{[@var{expr1},@var{expr2},@var{expr3}]}@*
+@code{[@var{expression},@var{expression},@var{expression}]}@*
 Creates a second-rank tensor of order 3 from 3 vectors.
 
 @item TensorSym
-@code{[@var{expr1},@var{expr2},@var{expr3},@var{expr4},@var{expr5},@var{expr6}]}@*
+@code{[@var{expression},@var{expression},@var{expression},@var{expression},@var{expression},@var{expression}]}@*
 Creates a symmetrical second-rank tensor of order 3 from 6 scalars.
 
 @item TensorDiag
-@code{[@var{expr1},@var{expr2},@var{expr3}]}@*
+@code{[@var{expression},@var{expression},@var{expression}]}@*
 Creates a diagonal second-rank tensor of order 3 from 3 scalars.
 
 @item CompX
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the X component of a vector.
 
 @item CompY
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the Y component of a vector.
 
 @item CompZ
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the Z component of a vector.
 
 @item CompXX
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the XX component of a tensor.
 
 @item CompXY
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the XY component of a tensor.
 
 @item CompXZ
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the XZ component of a tensor.
 
 @item CompYX
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the YX component of a tensor.
 
 @item CompYY
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the YY component of a tensor.
 
 @item CompYZ
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the YZ component of a tensor.
 
 @item CompZX
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the ZX component of a tensor.
 
 @item CompZY
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the ZY component of a tensor.
 
 @item CompZZ
-@code{[@var{expr}]}@*
+@code{[@var{expression}]}@*
 Gets the ZZ component of a tensor.
 
 @end ftable
@@ -2697,13 +2699,11 @@ Gets the Z coordinate.
 @code{[]}@*
 Gets X, Y and Z in a vector.
 
-@item F_aX_bY_cZ
-@code{[]@{@var{real1},@var{real2},@var{real3}@}}@*
-@code{@var{real1}*X[] + @var{real2}*Y[] + @var{real3}*Z[]}.
+@c @item F_aX_bY_cZ
+@c @code{[]@{@var{expression-cst},@var{expression-cst},@var{expression-cst}@}}@*
 
-@c a documenter 
 @c @item F_aX21_bY21_cZ21
-@c @code{[]@{@var{real1},@var{real2},@var{real3}@}}@*
+@c @code{[]@{@var{expression-cst},@var{expression-cst},@var{expression-cst}@}}@*
 
 @end ftable
 
@@ -2723,8 +2723,8 @@ Gets X, Y and Z in a vector.
 @ftable @code
 
 @item Printf
-@code{[@var{expr}]}@*
-Prints the value of @var{expr} when evaluated.
+@code{[@var{expression}]}@*
+Prints the value of @var{expression} when evaluated.
 
 @item Normal
 @code{[]}@*
@@ -2741,20 +2741,24 @@ Returns 0 if the current element and the current source element are
 identical.
 
 @item InterpolationLinear
-@code{[]@{@var{even-number-of-real}@}}@*
-Linear interpolation of points.
+@code{[]@{@var{expression-cst-list}@}}@*
+Linear interpolation of points. The number of constant expressions in
+@var{expression-cst-list} must be even.
 
 @item dInterpolationLinear
-@code{[]@{@var{even-number-of-real}@}}@*
-Derivative of linear interpolation of points.
+@code{[]@{@var{expression-cst-list}@}}@*
+Derivative of linear interpolation of points. The number of constant
+expressions in @var{expression-cst-list} must be even.
 
 @item InterpolationAkima
-@code{[]@{@var{even-number-of-real}@}}@*
-Akima interpolation of points.
+@code{[]@{@var{expression-cst-list}@}}@*
+Akima interpolation of points. The number of constant expressions in
+@var{expression-cst-list} must be even.
 
 @item dInterpolationAkima
-@code{[]@{@var{even-number-of-real}@}}@*
-Derivative of Akima interpolation of points.
+@code{[]@{@var{expression-cst-list}@}}@*
+Derivative of Akima interpolation of points. The number of constant
+expressions in @var{expression-cst-list} must be even.
 
 @item Order
 @code{[@var{discrete-quantity}]}@*
@@ -3231,13 +3235,6 @@ No time scheme applied to the term
 @cindex Resolution, types
 
 @mvindex @var{resolution-op}
-@mvindex @var{time-loop-theta-arg}
-@mvindex @var{time-loop-newmark-arg}
-@mvindex @var{iterative-loop-arg}
-@mvindex @var{iterative-time-reduction-arg}
-@mvindex @var{change-of-state-arg}
-@mvindex @var{change-of-state-type}
-
 
 @noindent
 @var{resolution-op}:
@@ -3245,76 +3242,94 @@ No time scheme applied to the term
 @vtable @code
 
 @item Generate
-@var{system-id}
+@code{[@var{system-id}]}
 
-Generate a system of equations.
+Generate the system of equations @var{system-id}.
 
 @item Solve
-@var{system-id}
+@code{[@var{system-id}]}
 
-Solve a system of equations.
+Solve the system of equations @var{system-id}.
 
 @item GenerateJac
-@var{system-id}
+@code{[@var{system-id}]}
 
-Generate a system of equations using a jacobian matrix (of which the unknowns
-are corrections @var{dx} of the current solution @var{x}).
+Generate the system of equations @var{system-id} using a jacobian matrix (of
+which the unknowns are corrections @var{dx} of the current solution
+@var{x}).
 
 @item SolveJac
-@var{system-id}
+@code{[@var{system-id}]}
 
-Solve a system of equations using a jacobian matrix (of which the unknowns
-are corrections @var{dx} of the current solution @var{x}). 
-Then, compute the relative error @var{dx}/@var{x}.
+Solve the system of equations @var{system-id} using a jacobian matrix (of
+which the unknowns are corrections @var{dx} of the current solution
+@var{x}). Then, compute the relative error @var{dx}/@var{x}.
 
 @item GenerateSeparate
-@var{system-id}
+@code{[@var{system-id}]}
 
-Generate all iteration matrices separately; to be used with
-@code{Update} to create the actual system to solve. This is only useful
-in linear transient problems with one single excitation.
+Generate iteration matrices separately for system @var{system-id}. It is
+destined to be used with @code{Update}, in order to create the actual system
+to solve. This is only useful in linear transient problems with one single
+excitation.
 
 @item Update
-@var{system-id} , @var{expression}
+@code{[@var{system-id}, @var{expression}]}
 
-Update the system of equations from iteration matrices built separately
-with @code{GenerateSeparate} with @var{expression}
+Update the system of equations @var{system-id} (built from iteration
+matrices generated separately with @code{GenerateSeparate}) with
+@var{expression}
 
 @item InitSolution
-@var{system-id}
+@code{[@var{system-id}]}
 
-Initialize a solution to zero (default) or to the values given in a 
-@code{Constraint} of @code{Init} type.
+Initialize the solution of @var{system-id} to zero (default) or to the
+values given in a @code{Constraint} of @code{Init} type.
 
 @item SaveSolution
-@var{system-id}
+@code{[@var{system-id}]}
 
-Save the solution of a system of equations.
+Save the solution of the system of equations @var{system-id}.
 
 @item TransferSolution
-@var{system-id}
+@code{[@var{system-id}]}
 
-Transfer a solution @dots{}
+Transfer the solution of system @var{system-id} to the system of equations
+defined with a @code{DestinationSystem} command.
 
 @item SetTime
-@var{expression}
+@code{[@var{expression}]}
 
 Change the current time.
 
-@item TimeLoopTheta
-@{ @var{time-loop-theta-arg}; @}
+@item SetFrequency
+@code{[@var{system-id}, @var{expression}]}
 
-Time loop of a theta scheme.
+Change the frequency of system @var{system-id}.
+
+@item TimeLoopTheta
+@code{[@var{expression-cst},@var{expression-cst},@var{expression},@var{expression-cst}]}
+@{ @var{resolution-op} @}
+
+Time loop of a theta scheme. The parameters are: the initial time, the end
+time, the time step and the theta parameter (e.g.@: 1 for implicit
+Euler, 0.5 for Crank-Nicholson).
 
 @item TimeLoopNewmark
-@{ @var{time-loop-newmark-arg}; @}
+@code{[@var{expression-cst},@var{expression-cst},@var{expression},@var{expression-cst},@var{expression-cst}]}@*
+@{ @var{resolution-op} @}
 
-Newmark scheme.
+Time loop of a Newmark scheme. The parameters are: the initial time, the end
+time, the time step, the beta and the gamma parameter.
 
 @item IterativeLoop
-@{ @var{iterative-loop-arg}; @}
+@code{[@var{expression-cst},@var{expression},@var{expression-cst}<,@var{expression-cst}>]}
+@{ @var{resolution-op} @}
 
-Iterative loop for nonlinear analysis.
+Iterative loop for nonlinear analysis. The parameters are: the maximum
+number of iterations (if no convergence), the relaxation factor (multiplies
+the iterative correction @var{dx}) and the relative error to achieve. The
+optional parameter is a flag for testing purposes.
 
 @item IterativeTimeReduction
 @{ @var{iterative-time-reduction-arg}; @}
@@ -3326,95 +3341,12 @@ Iterative reduction of time interval to delimit variations of solutions
 
 
 @noindent
-@var{time-loop-theta-arg}:
-
-@vtable @code
-
-@item Time0
-@var{expression-cst}
-
-Initial time.
-
-@item TimeMax
-@var{expression-cst}
-
-End time.
-
-@item DTime
-@var{expression}
-
-Time step.
-
-@item Theta
-@var{expression}
-
-Theta value for theta scheme analyses 
-(e.g.@: 1 for implicit Euler, 0.5 for Crank-Nicholson).
-
-@end vtable
-
-@noindent
-@var{time-loop-newmark-arg}:
-
-@vtable @code
-
-@item Time0
-@var{expression-cst}
-
-Initial time.
-
-@item TimeMax
-@var{expression-cst}
-
-End time.
-
-@item DTime
-@var{expression}
-
-Time step.
-
-@item Beta
-@var{expression}
-
-Beta parameter
-
-@item Gamma
-@var{expression}
-
-Gamma parameter
-
-@end vtable
-
-@noindent
-@var{iterative-loop-arg}:
-
-@vtable @code
-
-@item NbrMaxIteration
-@var{integer}
-
-Maximum number of iterations (if no convergence).
-
-@item RelaxationFactor
-@var{expression}
-
-Relaxation factor (multiplies the iterative correction @var{dx}).
-
-@item Criterion
-@var{expression-cst}
-
-Relative error to achieve.
-
-@end vtable
-
-
-@noindent
 @var{iterative-time-reduction-arg}:
 
 @vtable @code
 
 @item NbrMaxIteration
-@var{integer}
+@var{expression-cst}
 
 Maximum number of iterations (if no convergence).
 
@@ -3429,7 +3361,7 @@ Division coefficient of the time interval (usually 2 for dichotomy).
 Dimension of the time interval to achieve before stopping divisions.
 
 @item Flag
-@var{integer}
+@var{expression-cst}
 
 Option for test. [To be explained later.]
 
@@ -3545,13 +3477,12 @@ To integrate the expression.
 @mvindex @var{print-support}
 
 @noindent
-@var{vector-of-reals}:
+@var{expression-cst-vector}:
   @{ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} @}
 
 @noindent
-@var{vector-of-expressions}:
+@var{expression-vector}:
   @{ @var{expression}, @var{expression}, @var{expression} @}
-
 
 @noindent
 @var{print-support}:
@@ -3570,14 +3501,12 @@ processing stage.
 
 To compute global quantities associated with regions.
 
-@item OnSection
-@{ @var{vector-of-reals} @var{vector-of-reals} @}
 @itemx OnSection
-@{ @var{vector-of-reals} @var{vector-of-reals} @var{vector-of-reals} @}
+@{ @var{expression-cst-vector} @var{expression-cst-vector} @var{expression-cst-vector} @}
 
-To compute a quantity on a cut of the mesh, i.e.@: on the intersections
-of the mesh with a cutting entity (a line or a plane, specified by two
-or three points).
+To compute a quantity on a section of the mesh defined by three points
+(i.e.@: on the intersection of the mesh with a cutting a plane, specified by
+three points).
 
 @item OnGrid
 @var{group-def}
@@ -3586,34 +3515,34 @@ To compute a quantity in elements of a mesh (support for a solution that
 differs from the real support of the solution, i.e.@: reinterpolation).
 
 @item OnGrid
-@{ @var{vector-of-expressions} @} @{ @var{real-list}, @var{real-list} @}
+@{ @var{expression-vector} @} @{ @{@var{expression-cst-list}@}, @{@var{expression-cst-list}@} @}
 
 To compute a quantity on a parametric grid. The three expressions in
-@var{vector-of-expressions} can be functions of current values @code{$s}
-and @code{$t}, whose values are given by each @var{real-list}.
+@var{expression-vector} can be functions of current values @code{$s}
+and @code{$t}, whose values are given by each @var{expression-cst-list}.
 
 @item OnPoint
-@var{vector-of-reals}
+@var{expression-cst-vector}
 
 To compute a quantity at a point.
 
 @item OnLine
-@{ @var{vector-of-reals} @var{vector-of-reals} @} @{ @var{integer} @}
+@{ @var{expression-cst-vector} @var{expression-cst-vector} @} @{ @var{expression-cst} @}
 
 To compute a quantity along a line (given by its two end points), with an
 associated number of divisions. The interpolation points on the line are
 equidistant.
 
 @item OnPlane
-@{ @var{vector-of-reals} @var{vector-of-reals} @var{vector-of-reals} @} @{ @var{integer}, @var{integer} @}
+@{ @var{expression-cst-vector} @var{expression-cst-vector} @var{expression-cst-vector} @}@*
+@{ @var{expression-cst}, @var{expression-cst} @}
 
 To compute a quantity on a plane (specified by three points), with an
 associated number of divisions.
 
 @item OnBox
-@{ @var{vector-of-reals} @var{vector-of-reals} @var{vector-of-reals} @var{vector-of-reals} @} 
-
-@{ @var{integer}, @var{integer}, @var{integer} @}
+@{ @var{expression-cst-vector} @var{expression-cst-vector} @var{expression-cst-vector}@*
+ @var{expression-cst-vector} @} @{ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} @}
 
 To compute a quantity in a box (specified by four points), with an
 associated number of divisions.
@@ -3630,21 +3559,23 @@ associated number of divisions.
 Outputs the result in a file named @var{string}. 
 @item File > "@var{string}"
 Appends the result to a file named @var{string}. 
-@item Depth @var{integer}
-Recursive division of the elements if @var{integer}>0, derefinement if
-@var{integer}<0.
+@item Depth @var{expression-cst}
+Recursive division of the elements if @var{expression-cst} is greater than
+zero, derefinement if @var{expression-cst} is smaller than zero. If
+@var{expression-cst} is equal to zero, evaluation at the barycenter of the
+elements.
 @item Skin
 Computes the result on the boundary of the region. 
-@item Smoothing @var{integer}
-Smoothes the solution @var{integer} times.
-@item HarmonicToTime @var{integer}
-Converts a harmonic solution into a time-dependent one (with @var{integer}
+@item Smoothing @var{expression-cst}
+Smoothes the solution @var{expression-cst} times.
+@item HarmonicToTime @var{expression-cst}
+Converts a harmonic solution into a time-dependent one (with @var{expression-cst}
 steps).
-@item Dimension @var{integer}
+@item Dimension @var{expression-cst}
 Forces the dimension of the elements to consider in an element
 search. Specifies the problem dimension during an adaptation (h- or
 p-refinement).
-@item TimeStep @var{real-list}
+@item TimeStep @var{expression-cst} | TimeStep @{ @var{expression-cst-list} @}
 Outputs results for the specified time steps only.
 @item Format @var{post-operation-fmt}
 Outputs results in the specified format.
@@ -3653,18 +3584,18 @@ Performs p- or h-refinement on the post-processing result, considered as an
 error map.
 @item Target @var{expression-cst} 
 Specifies the target for the optimizer during adaptation.
-@item Value @var{real-list}
+@item Value @var{expression-cst} | Value @{ @var{expression-cst-list} @}
 Specifies acceptable output values for discrete optimization (e.g. the
 available interpolation orders).
 @item Sort Position|Connection
 Sorts the output by position (x, y, z) or by connection (for @code{LINE}
 elements only).
-@item Iso @var{integer}
-Outputs directly contour prints (with @var{integer} values) instead of
+@item Iso @var{expression-cst}
+Outputs directly contour prints (with @var{expression-cst} values) instead of
 elementary values.
-@item Iso @var{real-list}
+@item Iso @{ @var{expression-cst-list} @}
 Outputs directly contour prints for the values specified in the
-@var{real-list} instead of elementary values.
+@var{expression-cst-list} instead of elementary values.
 @end vtable
 
 
@@ -3676,7 +3607,8 @@ Outputs directly contour prints for the values specified in the
 
 @vtable @code
 @item Gmsh
-Post processing format readable by Gmsh. 
+Gmsh output. See the documentation of Gmsh for a description of the file
+format.
 @item Gnuplot
 @item Table
 Column-oriented output, e.g.@: suitable for Gnuplot, Excel, Caleida Graph,
@@ -3748,8 +3680,8 @@ Using operators and the classic math functions, @var{constant-id}s can
 be defined:
 
 @example
-c1 = Sin[2/3*3.1415] * 5000^2 ;
-c2 = -1/c1 ;
+c1 = Sin[2/3*3.1415] * 5000^2;
+c2 = -1/c1;
 @end example
 
 
@@ -3949,7 +3881,7 @@ It contains 0-forms, i.e.@: scalar fields of potential type:
 $$ v = \sum_{n\in N} v_n s_n \quad v\in S^0(W) $$
 @end tex
 @ifnottex
-@var{v} = Sum [ @var{vn} * @var{sn} ,  for all @var{n} in @var{N} ] ,  
+@var{v} = Sum [ @var{vn} * @var{sn},  for all @var{n} in @var{N} ],  
 @var{v} in @i{S0(W)}
 @end ifnottex
 
@@ -4023,7 +3955,7 @@ A scalar potential with floating values @var{vf} on certain boundaries @var{Gf},
 $$ v = \sum_{n\in N_v} v_n s_n + \sum_{f\in C_f} v_f s_f    \quad v\in S^0(W)  $$
 @end tex
 @ifnottex
-@var{v} = Sum [ @var{vn} * @var{sn} ,  for all @var{n} in @var{Nv} ] + Sum [ @var{vf} * @var{sf} ,  for all @var{f} in @var{Cf} ] ,
+@var{v} = Sum [ @var{vn} * @var{sn},  for all @var{n} in @var{Nv} ] + Sum [ @var{vf} * @var{sf},  for all @var{f} in @var{Cf} ],
 @var{v} in @i{S0(W)}
 @end ifnottex
 
@@ -4073,7 +4005,7 @@ containing 1-forms, i.e.@: curl-conform fields:
 $$ {\bf h} = \sum_{e\in E} h_e {\bf s}_e   \quad{\bf h}\in S^1(W)  $$
 @end tex
 @ifnottex
-@var{h} = Sum [ @var{he} * @var{se} ,  for all @var{e} in @var{E} ] ,
+@var{h} = Sum [ @var{he} * @var{se},  for all @var{e} in @var{E} ],
 @var{h} in @i{S1(W)}
 @end ifnottex
 
@@ -4154,7 +4086,7 @@ A 1-form function space, containing curl free fields in certain regions @var{WcC
 $$ {\bf h} = \sum_{k\in E_c} h_k {\bf s}_k + \sum_{n\in N_c^C} \phi_n {\bf v}_n  \quad{\bf h}\in S^1(W)  $$
 @end tex
 @ifnottex
-@var{h} = Sum [ @var{hk} * @var{sk} ,  for all @var{e} in @var{Ec} ] + Sum [ @var{phin} * @var{vn} ,  for all @var{n} in @var{NcC} ] ,
+@var{h} = Sum [ @var{hk} * @var{sk},  for all @var{e} in @var{Ec} ] + Sum [ @var{phin} * @var{vn},  for all @var{n} in @var{NcC} ],
 @var{h} in @i{S1(W)}
 @end ifnottex
 
@@ -4363,7 +4295,7 @@ An electrostatic formulation using an electric scalar potential @var{v}, i.e.
 $$ (\epsilon\,{\rm grad}\,v, {\rm grad}\,v')_W = 0 \quad\forall v'\in S^0(W)  $$
 @end tex
 @ifnottex
-( epsr grad @var{v} , grad @var{vp} ) @var{W} = 0 ,  for all @var{vp} in @i{S0(W)} ,
+( epsr grad @var{v}, grad @var{vp} ) @var{W} = 0,  for all @var{vp} in @i{S0(W)},
 @end ifnottex
 
 @noindent
@@ -4449,8 +4381,8 @@ $$ (\nu\,{\rm curl}\,{\bf a}, {\rm curl}\,{\bf a}')_W =
 @end tex
 @ifnottex
 ( @var{nu} curl @var{a} , curl @var{ap} ) @var{W} - 
-( @var{js} , @var{ap} ) @var{Ws} = 0 ,  
-for all @var{ap} in @i{S1(W)} with gauge condition ,
+( @var{js} , @var{ap} ) @var{Ws} = 0,
+for all @var{ap} in @i{S1(W)} with gauge condition,
 @end ifnottex
 
 @noindent
@@ -4497,8 +4429,8 @@ $$ \partial_t (\mu\,{\bf h}, {\bf h}')_W +
 @end tex
 @ifnottex
 Dt ( @var{mu} @var{h} , @var{hp} ) @var{W} + 
-( @var{ro} curl @var{h} , curl @var{hp} ) @var{Wc} = 0 ,  
-for all @var{hp} in @i{S1(W)} ,
+( @var{ro} curl @var{h} , curl @var{hp} ) @var{Wc} = 0,  
+for all @var{hp} in @i{S1(W)},
 @end ifnottex
 
 @noindent
@@ -4568,7 +4500,7 @@ Resolution @{
       @{ Name Sys_Ele; NameOfFormulation Electrostatics_v; @}
     @}
     Operation @{ 
-      Generate Sys_Ele; Solve Sys_Ele; SaveSolution Sys_Ele; 
+      Generate[Sys_Ele]; Solve[Sys_Ele]; SaveSolution[Sys_Ele];
     @}
   @}
 @}
@@ -4597,7 +4529,7 @@ Resolution @{
         Frequency Freq; @}
     @}
     Operation @{
-      Generate Sys_Mag; Solve Sys_Mag; SaveSolution Sys_Mag;
+      Generate[Sys_Mag]; Solve[Sys_Mag]; SaveSolution[Sys_Mag];
     @}
   @}
 @}
@@ -4629,11 +4561,10 @@ Resolution @{
       @{ Name Sys_Mag; NameOfFormulation Magnetodynamics_hphi; @}
     @}
     Operation @{
-      InitSolution Sys_Mag; SaveSolution Sys_Mag;
-      TimeLoopTheta @{ Time0 Mag_Time0; TimeMax Mag_TimeMax;
-                      DTime Mag_DTime[]; Theta Mag_Theta[];
-                      Operation @{ Generate Sys_Mag; Solve Sys_Mag;
-                                  SaveSolution Sys_Mag; @} @}
+      InitSolution[Sys_Mag]; SaveSolution[Sys_Mag];
+      TimeLoopTheta[Mag_Time0, Mag_TimeMax, Mag_DTime[], Mag_Theta[]] @{
+        Generate[Sys_Mag]; Solve[Sys_Mag]; SaveSolution[Sys_Mag]; 
+      @}
     @}
   @}
 @}
@@ -4670,22 +4601,14 @@ the magnetodynamic problem above,
 @example
 @dots{}
     Operation @{
-      InitSolution Sys_Mag;  SaveSolution Sys_Mag;
-
-      TimeLoopTheta @{
-        Time0 Mag_Time0; TimeMax Mag_TimeMax;
-        DTime Mag_DTime[]; Theta Mag_Theta[];
-        Operation @{
-
-          IterativeLoop @{
-            NbrMaxIteration NL_NbrMax; Criterion NL_Eps;
-            RelaxationFactor NL_Relax;
-            Operation @{ GenerateJac Sys_Mag; SolveJac Sys_Mag; @}
-          @}
-
-          SaveSolution Sys_Mag;
+      InitSolution[Sys_Mag]; SaveSolution[Sys_Mag];
+      TimeLoopTheta[Mag_Time0, Mag_TimeMax, Mag_DTime[], Mag_Theta[]] @{
+        IterativeLoop[NL_NbrMax, NL_Eps, NL_Relax] @{
+          GenerateJac[Sys_Mag]; SolveJac[Sys_Mag]; 
         @}
+        SaveSolution[Sys_Mag];
       @}
+    @}
 @dots{}
 @end example
 
@@ -4720,15 +4643,12 @@ Resolution @{
       @{ Name Sys_The; NameOfFormulation Thermal_T; @}
     @}
     Operation @{
-      InitSolution Sys_Mag; InitSolution Sys_The;
-
-      IterativeLoop @{
-        NbrMaxIteration NL_NbrMax; Criterion NL_Eps;
-        RelaxationFactor NL_Relax;
-        Operation @{ GenerateJac Sys_Mag; SolveJac Sys_Mag; 
-                    GenerateJac Sys_The; SolveJac Sys_The; @}
+      InitSolution[Sys_Mag]; InitSolution[Sys_The];
+      IterativeLoop[NL_NbrMax, NL_Eps, NL_Relax] @{
+        GenerateJac[Sys_Mag]; SolveJac[Sys_Mag];
+        GenerateJac[Sys_The]; SolveJac[Sys_The];
       @}
-      SaveSolution Sys_Mag; SaveSolution Sys_The;
+      SaveSolution[Sys_Mag]; SaveSolution[Sys_The];
     @}
   @}
 @}
@@ -4788,8 +4708,8 @@ PostProcessing @{
 
       @dots{} @var{same as above} @dots{}
 
-      @{ Name Q ; Value @{ Local @{ [ @{Q@} ] ; In SkinDomainC ; @} @} @}
-      @{ Name V ; Value @{ Local @{ [ @{V@} ] ; In SkinDomainC ; @} @} @}
+      @{ Name Q; Value @{ Local @{ [ @{Q@} ]; In SkinDomainC; @} @} @}
+      @{ Name V; Value @{ Local @{ [ @{V@} ]; In SkinDomainC; @} @} @}
     @}
   @}
 @}
@@ -4938,11 +4858,11 @@ electrostatic problem presented in @ref{Electrostatic problem}.
 
 
 A magnetodynamic problem is considered.  The formulation is a
-two-dimensional a-v formulation (see file @file{MagDyn_av_2D.pro}, including
-files @file{Jacobian_Lib.pro} and @file{In@-tegration_Lib.pro} already given
-in the previous section).  It is applied to a core-inductor system (defined in
-file @file{CoreMassive.pro}), of which the geometry has already been defined
-in file @file{Core.geo} (giving file @file{Core.msh} with Gmsh; @pxref{Input
+two-dimensional a-v formulation (see file @file{MagDyn_av_2D.pro}, which
+includes the same jacobian and integration library files as in the previous
+section).  It is applied to a core-inductor system (defined in file
+@file{CoreMassive.pro}), of which the geometry has already been defined in
+file @file{Core.geo} (giving file @file{Core.msh} with Gmsh; @pxref{Input
 file format}).
 
 The jacobian and integration methods used are defined in the same file
@@ -5023,8 +4943,8 @@ choices is displayed.
 
 @item -ipos @var{post-processing-id} @dots{}
 @cindex @code{-ipos}
-Enters an interactive post-processing mode, permetting to enter
-@code{PostOperation}-like commands manually. These commands are based on the
+Enters an interactive post-processing mode, permetting to manually type
+@code{PostOperation}-like commands. These commands are based on the
 @var{PostProcessing} object(s) selected by the @var{post-processing-id}(s).
 If @var{post-processing-id} is omitted, the list of available choices is
 displayed.
@@ -5081,12 +5001,12 @@ Communicates through socket @var{string}.
 @cindex @code{-check}
 Lets you check the problem structure interactively. 
 
-@item -v @var{int}
+@item -v @var{integer}
 @cindex @code{-v}
 Sets the verbosity level. A value of 0 means that no information will be
 displayed during the processing.
 
-@item -p @var{int}
+@item -p @var{integer}
 @cindex @code{-p}
 Sets the progress update rate. This controls the refreshment rate of the
 counter indicating the progress of the current computation.
@@ -5188,7 +5108,6 @@ Point (1 node).
 @menu
 * File pre::                    
 * File res::                    
-* Post-processing files::       
 @end menu
 
 
@@ -5263,7 +5182,7 @@ associated basis function, entity and harmonic numbers, i.e.@:
 @c File .res
 @c .........................................................................
 
-@node File res, Post-processing files, File pre, Output file format
+@node File res,  , File pre, Output file format
 @subsection File @file{.res}
 
 @cindex File, result
@@ -5300,19 +5219,6 @@ The order of the @var{solution-value}s in a @code{$Solution} field follows
 the numbering of the equations given in the @file{.pre} file 
 (one floating point value for each degree of freedom).
 @end enumerate
-
-
-@c .........................................................................
-@c Post-processing files
-@c .........................................................................
-
-@node Post-processing files,  , File res, Output file format
-@subsection Post-processing files
-
-@cindex File, post-processing
-
-Undocumented.
-
 
 
 @c =========================================================================
