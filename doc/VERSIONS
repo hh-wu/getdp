@@ -1,9 +1,12 @@
-$Date: 2004-01-19 17:04:37 $
+$Date: 2004-03-08 06:55:51 $
 
-0.91: Merged Johan's branch;
+1.0: New license (GNU GPL); added support for latest Gmsh mesh file
+format; more code cleanup;
 
-0.90: Use GNU readline if available; upgraded to latest Gmsh
-post-processing format; never released;
+0.91: Merged moving band and multi-harmonic code; new loops and
+conditionals in the parser; removed old readline code (just use GNU
+readline if available); upgraded to latest Gmsh post-processing
+format; various small enhancements and bug fixes;
 
 0.89: Code cleanup;
 
