@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.3 2000-10-30 01:29:47 geuzaine Exp $";
+#define RCSID "$Id: F_MultiHar.c,v 1.4 2000-10-30 08:44:06 colignon Exp $";
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -9,6 +9,7 @@
 #include "GeoData.h"
 #include "Get_Geometry.h"
 #include "Cal_Value.h" 
+#include "Cal_Quantity.h" 
 #include "CurrentData.h"
 #include "Data_Numeric.h"
 #include "Tools.h"

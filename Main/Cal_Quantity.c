@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.7 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.8 2000-10-30 08:44:06 colignon Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -7,6 +7,7 @@
 #include "Treatment_Formulation.h"
 #include "Get_Geometry.h"
 #include "Pos_Search.h"
+#include "F_Function.h"
 #include "CurrentData.h"
 #include "Data_Numeric.h"
 #include "Tools.h"
