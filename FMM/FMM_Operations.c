@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Operations.c,v 1.7 2004-05-11 08:01:20 sabarieg Exp $"
+#define RCSID "$Id: FMM_Operations.c,v 1.8 2004-05-11 15:31:03 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -130,9 +130,9 @@ void FMM_NoRenumbering( ){
 	else
 	  FMMmat_P->NumEqui = FMMmat_P->NumDofi ;
 
-      }//Flag_iter
-    }//NbrHar
-  }//iFMMEqu
+      }/* Flag_iter */
+    }/* NbrHar */
+  }/* iFMMEqu */
 
  GetDP_End;
 
@@ -305,8 +305,10 @@ void FMM_RenumberingOLD( int N, int *permr, int *permp){
 
   GetDP_Begin("FMM_Renumbering");
 
-  //For using together with InverseRenumbering, the NumDof and NumEqu are changed and for a second iteration
-  //they must be the original ones. The Renumbering is done properly but not the InverseRenumbering
+  /* For using together with InverseRenumbering, the NumDof and NumEqu
+     are changed and for a second iteration they must be the original
+     ones. The Renumbering is done properly but not the
+     InverseRenumbering */
 
   NbrHar = Current.NbrHar;
  
@@ -419,7 +421,7 @@ void FMM_InverseRenumbering( int *rpermr){
 
   GetDP_Begin("FMM_InverseRenumbering");
 
-  //This function does not work properly! To revise...
+  /* This function does not work properly! To revise... */
 
   NbrFMMEqu = List_Nbr(Current.DofData->FMM_Matrix) ;
   FMMmat_P0 = (struct FMMmat*)List_Pointer(Current.DofData->FMM_Matrix, 0 ) ;

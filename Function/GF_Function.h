@@ -40,6 +40,7 @@ void  GF_Helmholtz                   (ARG1) ;
 void  GF_GradHelmholtz               (ARG1) ;
 void  GF_NSxGradHelmholtz            (ARG1) ;
 void  GF_NPxGradHelmholtz            (ARG1) ;
+void  GF_HelmholtzThinWire           (ARG1) ;
 
 #undef ARG1
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.13 2004-05-11 07:57:14 sabarieg Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.14 2004-05-11 15:31:03 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -314,7 +314,8 @@ void Get_GroupNeighbours( int i_FMMEqu ){
 
 	  if(Current.FMM.Precision != 0){
 	    Ndir = FMM_SetTruncationOLD((FMMDataGSrc_P0+i)->Rmax, d, Current.FMM.Dimension) ;
-	    //Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax, d, Current.FMM.Dimension) ;
+	    /* Ndir = FMM_SetTruncation((FMMDataGSrc_P0+i)->Rmax,(FMMDataGObs_P0+j)->Rmax,
+	       d, Current.FMM.Dimension) ; */
 	    List_Add(Ndi, &Ndir) ;
 	  }
 
@@ -841,7 +842,7 @@ void  Geo_CreateFMMGroup( int InSupport, struct GeoData *GeoData_P, double k0 ){
 
   GetDP_Begin("Geo_CreateFMMGroup");
 
-  //Dimension = (int)GeoData_P->Dimension ;    
+  /* Dimension = (int)GeoData_P->Dimension ; */
   Dimension = Current.FMM.Dimension ;    
 
   tol = 1e-6;
@@ -1276,7 +1277,7 @@ void Get_InFMMGroupList( int Index_Formulation, struct GeoData *GeoData_P ){
 
   Current.DofData->FMM_Matrix = NULL ;
 
-  //Current.FMM.Dimension = DIM = (int)((GeoData_P)->Dimension) ;
+  /* Current.FMM.Dimension = DIM = (int)((GeoData_P)->Dimension) ; */
   
   for (i_EquTerm = 0 ; i_EquTerm < Nbr_EquationTerm ; i_EquTerm++) {
     EquationTerm_P = EquationTerm_P0 + i_EquTerm ;
