@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.11 2002-04-12 17:11:02 geuzaine Exp $
+# $Id: Makefile,v 1.12 2002-04-12 17:58:38 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -90,14 +90,14 @@ Nystrom.o: Nystrom.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
 Function.o: Function.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h Function.h Complex.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h Patch.h \
-  FFT.h Spline.h
+  FFT.h Spline.h Main.h Scatterer.h
 Scatterer.o: Scatterer.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h ../DataStr/Tools.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Scatterer.h
-Patch.o: Patch.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Main/Data_Numeric.h Patch.h ../DataStr/List.h \
-  Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h FFT.h Spline.h \
-  Function.h
+Patch.o: Patch.cpp Main.h Scatterer.h ../DataStr/List.h Function.h \
+  Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h Utils.h \
+  ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
+  ../Main/Data_Numeric.h Patch.h FFT.h Spline.h
 Complex.o: Complex.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h Complex.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h

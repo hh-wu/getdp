@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.7 2002-04-12 17:55:33 geuzaine Exp $
+// $Id: Main.cpp,v 1.8 2002-04-12 17:58:38 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]){
     Msg(INFO, "  -spline : use cubic spline interpolation instead of Fourier series");
     Msg(INFO, "  -kx, -ky : set wave number");
     Msg(INFO, "  -nbpts : set number of integration points (meaning varies...)");
-    Msg(INFO, "  -targets : set number of integration points (meaning varies...)");
+    Msg(INFO, "  -targets : set number of target points/unknowns");
     Msg(INFO, "  -a, -b : set ellipse dimensions");
     Msg(INFO, "  -zero : set staring point for forward map targets");
     Msg(INFO, "  -epsilon : set base epsilon for critical point integrator");
