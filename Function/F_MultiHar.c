@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.15 2002-01-18 19:47:57 geuzaine Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.16 2002-01-18 20:14:48 geuzaine Exp $"
 
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
@@ -265,7 +265,7 @@ void  F_MHToTime0 (int init, struct Value * A, struct Value * V,
 void  F_MHToTime (struct Function * Fct, struct Value * A, struct Value * V) {
   int iHar, iVal, nVal ;
   double time, H[NBR_MAX_HARMONIC];
-  struct Value * Vtemp;
+  struct Value Vtemp;
 
   GetDP_Begin("F_MHToTime");
 
@@ -291,16 +291,16 @@ void  F_MHToTime (struct Function * Fct, struct Value * A, struct Value * V) {
 
   for (iVal = 0 ; iVal < MAX_DIM ; iVal++)
     for (iHar = 0 ; iHar < Current.NbrHar ; iHar++)
-      Vtemp->Val[iHar*MAX_DIM+iVal] = 0.;
+      Vtemp.Val[iHar*MAX_DIM+iVal] = 0.;
   
   for (iVal = 0 ; iVal < nVal ; iVal++)
     for (iHar = 0 ; iHar < Current.NbrHar ; iHar++)
-      Vtemp->Val[iVal] += H[iHar] * A->Val[iHar*MAX_DIM+iVal] ;
+      Vtemp.Val[iVal] += H[iHar] * A->Val[iHar*MAX_DIM+iVal] ;
   
   V->Type = A->Type ;
   for (iVal = 0 ; iVal < MAX_DIM ; iVal++)
     for (iHar = 0 ; iHar < Current.NbrHar ; iHar++)
-      V->Val[iHar*MAX_DIM+iVal] = Vtemp->Val[iHar*MAX_DIM+iVal] ;
+      V->Val[iHar*MAX_DIM+iVal] = Vtemp.Val[iHar*MAX_DIM+iVal] ;
 
   GetDP_End ;
 }
@@ -567,7 +567,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
   Expression_P = Problem_Expression0 + FI->MHJacNL_Index;
   OffSet       = FI->MHJacNL_HarOffSet;
   Factor       = FI->MHJacNL_Factor;
-  weight       = FI->MHJacNL_w;
+  weight       = FI->MHJacNL_w; /* never used... */
 
 
   /*  ------------------------------------------------------------------------  */

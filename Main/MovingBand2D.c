@@ -93,18 +93,18 @@ void  Contour_MovingBand2D(List_T * InitialList, List_T ** ExtendedList,
 
   ThreeInt = (struct ThreeInt *)List_Pointer(*ExtendedList, 0) ;
   if (ThreeInt->Int3 == 1) {
-    (int *)(*NumNodes)[0] = (int *)(Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[0];
-    (int *)(*NumNodes)[1] = (int *)(Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[1];
+    (*NumNodes)[0] = (Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[0];
+    (*NumNodes)[1] = (Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[1];
   } else {
-    (int *)(*NumNodes)[0] = (int *)(Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[1];
-    (int *)(*NumNodes)[1] = (int *)(Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[0];
+    (*NumNodes)[0] = (Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[1];
+    (*NumNodes)[1] = (Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[0];
   }
   for (i_El = 1 ; i_El < List_Nbr(*ExtendedList) ; i_El++) {
     ThreeInt = (struct ThreeInt *)List_Pointer(*ExtendedList, i_El) ;
     if (ThreeInt->Int3 == 1) {
-      (int *)(*NumNodes)[i_El+1] = (int *)(Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[1];
+      (*NumNodes)[i_El+1] = (Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[1];
     } else {
-      (int *)(*NumNodes)[i_El+1] = (int *)(Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[0];
+      (*NumNodes)[i_El+1] = (Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[0];
     }
   }    
 
