@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Prism.c,v 1.4 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Prism.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -31,7 +31,7 @@ void  Gauss_Prism      (int Nbr_Points, int Num,
     *wght = ppri42[Num] ; break ;
     
   default : 
-    Msg(ERROR, "Wrong Number of Integration Points in Gauss_Prism\n"
+    Msg(ERROR, "Wrong number of Gauss points for Prism\n"
 	       "Valid choices: 6, 9, 21, 42");
     break;
 

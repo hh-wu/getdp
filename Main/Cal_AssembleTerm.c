@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.8 2000-11-19 20:21:12 geuzaine Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.9 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -115,7 +115,7 @@ void  Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[]) {
       switch (Current.TypeTime) {
       case TIME_STATIC :
 	if(!Warning_DtStatic){
-	  Msg(WARNING, "First Order Time Derivative in Static Problem (Discarded)");
+	  Msg(WARNING, "First order time derivative in static problem (discarded)");
 	  Warning_DtStatic = 1 ;
 	}
 	break;
@@ -203,13 +203,13 @@ void  Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       switch (Current.TypeTime) {
       case TIME_STATIC :
 	if(!Warning_DtDtStatic){
-	  Msg(WARNING, "Second Order Time Derivative in Static Problem (Discarded)");
+	  Msg(WARNING, "Second order time derivative in static problem (discarded)");
 	  Warning_DtDtStatic = 1 ;
 	}
 	break;
       case TIME_THETA :
 	if(!Warning_DtDtFirstOrder){
-	  Msg(WARNING, "Second Order Time Derivative in First Order Time Scheme (Discarded)");
+	  Msg(WARNING, "Second order time derivative in first order time scheme (discarded)");
 	  Warning_DtDtFirstOrder = 1 ;
 	}
 	break;
@@ -262,7 +262,7 @@ void  Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
   GetDP_Begin("Cal_AssembleTerm_JacNL");
   
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Msg(ERROR, "JacNL not ready for Separate Assembly");
+    Msg(ERROR, "JacNL not ready for separate assembly");
   }
   else{
     if (Current.NbrHar == 1) {
@@ -299,7 +299,7 @@ void  Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
   GetDP_Begin("Cal_AssembleTerm_NeverDt");
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Msg(ERROR, "NeverDt not ready for Separate Assembly");
+    Msg(ERROR, "NeverDt not ready for separate assembly");
   }
   else{
     if (Current.NbrHar == 1) {

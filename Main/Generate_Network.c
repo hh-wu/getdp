@@ -1,4 +1,4 @@
-#define RCSID "$Id: Generate_Network.c,v 1.5 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Generate_Network.c,v 1.6 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -100,7 +100,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L) {
 	  for (l=0 ; l<Nbr_Branch ; l++){
 	    if      (vk - vi == 0)  MatA[k][l] -= MatA[i][l] ;
 	    else if (vk + vi == 0)  MatA[k][l] += MatA[i][l] ;
-	    else                    Msg(ERROR, "Error: Bad Network") ;
+	    else                    Msg(ERROR, "Bad network") ;
 	  }
 	}
       }
@@ -108,7 +108,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L) {
     else {
       if (j_col2 < Nbr_Branch)
 	Num_col[j_col2++] = j ;  /* Column for the complementary part of the matrix */
-      else  Msg(ERROR, "Error: Bad Network") ;
+      else  Msg(ERROR, "Bad network") ;
     }
   }
   

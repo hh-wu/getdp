@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.23 2000-11-16 14:04:02 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.24 2001-03-03 19:21:22 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -35,13 +35,13 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       if((PostStream = fopen(PostSubOperation_P->FileOut, "w")))
 	Msg(DIRECT, "          > '%s'", PostSubOperation_P->FileOut) ;
       else
-	Msg(ERROR, "Unable to Open File '%s'", PostSubOperation_P->FileOut) ;
+	Msg(ERROR, "Unable to open file '%s'", PostSubOperation_P->FileOut) ;
     }
     else {
       if((PostStream = fopen(PostSubOperation_P->FileOut, "a")))
 	Msg(DIRECT, "         >> '%s'", PostSubOperation_P->FileOut) ;
       else
-	Msg(ERROR, "Unable to Open File '%s'", PostSubOperation_P->FileOut) ;
+	Msg(ERROR, "Unable to open file '%s'", PostSubOperation_P->FileOut) ;
     }
   }
   else{
@@ -77,7 +77,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   if(List_Nbr(PostSubOperation_P->Frequency_L)){
     if(List_Nbr(PostSubOperation_P->Frequency_L) > List_Nbr(Current.DofData->Pulsation))
-      Msg(ERROR, "Too Many Frequencies Specified in PostOperation");
+      Msg(ERROR, "Too many frequencies specified in PostOperation");
     for(i = 0 ; i < List_Nbr(PostSubOperation_P->Frequency_L) ; i++){
       Pulsation = *((double *)List_Pointer(PostSubOperation_P->Frequency_L, i)) * TWO_PI ;
       List_Write(Current.DofData->Pulsation, i, &Pulsation) ;
@@ -182,13 +182,13 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
 			    QuantityStorage_P0, PostSubOperation_P) ; 
       break ;
     default :
-      Msg(ERROR, "Unknown Operation Type for Print"); 
+      Msg(ERROR, "Unknown Operation type for Print"); 
       break;
     }    
     break ;    
 
   default :
-    Msg(ERROR, "Unknown PostSubOperation Type") ;
+    Msg(ERROR, "Unknown PostSubOperation type") ;
     break;
   }
 

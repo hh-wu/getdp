@@ -1,4 +1,4 @@
-#define RCSID "$Id: Adapt.c,v 1.7 2000-11-15 20:13:55 geuzaine Exp $"
+#define RCSID "$Id: Adapt.c,v 1.8 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -201,7 +201,7 @@ double Adapt (int N,        /* Number of elements */
     break;
 
   default :
-    Msg(ERROR, "Unknown Adaption Method");
+    Msg(ERROR, "Unknown adaptation method");
   }
 
   GetDP_Return(contr) ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.4 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -46,11 +46,11 @@ void  F_Sphere (F_ARG) {
       solsph_(&x,&y,&z,&sxr,&sxi,&syr,&syi,&szr,&szi,&mur,&sigma,&freq,&r1);  
     }
     else {
-      Msg(ERROR, "pas encore fait...");
+      Msg(ERROR, "Not done ...");
     }
   }
   else{  /* sphere creuse */
-    Msg(ERROR, "pas encore fait...");
+    Msg(ERROR, "Not done ...");
   }
 
   if (Current.NbrHar == 1) {

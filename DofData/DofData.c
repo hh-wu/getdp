@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.13 2000-11-13 09:37:08 dular Exp $"
+#define RCSID "$Id: DofData.c,v 1.14 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -107,7 +107,7 @@ void  Dof_OpenFile(int Type, char * Name, char * Mode) {
   strcpy(FileName, Name) ; strcat(FileName, Extension) ;
 
   if (!(File_X = fopen(FileName, Mode)))
-    Msg(ERROR,"Unable to Open File '%s'", FileName) ;
+    Msg(ERROR,"Unable to open file '%s'", FileName) ;
 
   switch (Type) {
   case DOF_PRE :  File_PRE = File_X ;  break ;
@@ -184,7 +184,7 @@ void  Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData) {
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
-  if (feof(File_PRE)) Msg(ERROR, "$Resolution Field not Found in File");
+  if (feof(File_PRE)) Msg(ERROR, "$Resolution field not found in file");
 
   if (!strncmp(&String[1], "Resolution", 10)) {
     fscanf(File_PRE, "%d %d", Num_Resolution, Nbr_DofData) ;
@@ -192,7 +192,7 @@ void  Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData) {
 
   do {
     fgets(String, MAX_STRING_LENGTH, File_PRE) ;
-    if (feof(File_PRE)) Msg(ERROR, "Prematured End of File");
+    if (feof(File_PRE)) Msg(ERROR, "Prematured end of file");
   } while (String[0] != '$') ;
 
   GetDP_End ;
@@ -320,7 +320,7 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
-  if (feof(File_PRE)) Msg(ERROR, "$DofData Field not Found in File");
+  if (feof(File_PRE)) Msg(ERROR, "$DofData field not found in file");
 
   if (!strncmp(&String[1], "DofData", 7)) {
 
@@ -392,7 +392,7 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
 
   do {
     fgets(String, MAX_STRING_LENGTH, File_PRE) ;
-    if (feof(File_PRE)) Msg(ERROR, "Prematured End of File");
+    if (feof(File_PRE)) Msg(ERROR, "Prematured end of file");
   } while (String[0] != '$') ;
 
   Dof_InitDofType(DofData_P) ;
@@ -521,7 +521,7 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 
     do {
       fgets(String, MAX_STRING_LENGTH, File_RES) ;
-      if (feof(File_RES)) Msg(ERROR,"Prematured End of File");
+      if (feof(File_RES)) Msg(ERROR,"Prematured end of file");
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -581,12 +581,12 @@ void  Dof_InitDofType(struct DofData * DofData_P) {
 	  Dof_GetDofStruct(DofData_P, Dof_P->NumType-1,
 			   Dof_P->Case.Link.EntityRef, Dof_P->Harmonic) ;
 	if (Dof_P->Case.Link.Dof == NULL)
-	  Msg(ERROR,"Wrong Link Constraint: Reference Dof does not exist (%d %d %d)",
+	  Msg(ERROR,"Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
 	      Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
       }
       /*
       if (Dof_P->Case.Link.Dof == NULL)
-	Msg(ERROR,"Wrong Link Constraint: Reference Dof does not exist (%d %d %d)",
+	Msg(ERROR,"Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
 	    Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
       */
       break ;
@@ -686,7 +686,8 @@ void  Dof_DefineAssignFixedDof(int D1, int D2, int NbrHar, double *Val,
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
     else if(Dof_P->Type == DOF_UNKNOWN) {
-      /* Msg(INFO, "Overriding Unknown DoF with Fixed DoF"); */
+      if(Flag_VERBOSE == 10)
+	Msg(INFO, "Overriding unknown Dof with fixed Dof");
       Dof_P->Type = DOF_FIXED ;
       LinAlg_SetScalar(&Dof_P->Val, &Val[k]) ;
       Dof_P->Case.FixedAssociate.TimeFunctionIndex = Index_TimeFunction + 1 ;
@@ -1004,12 +1005,12 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
     case DOF_FIXED_SOLVE :  case DOF_FIXEDWITHASSOCIATE_SOLVE :
       Msg(ERROR,"Wrong Constraints: "
-	  "Dof Waiting to be Fixed by a Resolution Remaining");
+	  "remaining Dof(s) waiting to be fixed by a Resolution");
       break;
 
     case DOF_UNKNOWN_INIT :
       Msg(ERROR,"Wrong Initial Constraints: "
-	  "Dof with Non-fixed Initial Condition Remaining");
+	  "remaining Dof(s) with non-fixed initial conditions");
       break;
     }
 
@@ -1095,7 +1096,7 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 				    (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Unknown.NumDof-1):-1) ;
 	}
 	else{
-	  Msg(ERROR, "AssembleInVec with NbrHar > 1 not finished") ;
+	  Msg(ERROR, "Assemby in vectors with more than one harmonic not yet implemented") ;
 	}
       }
       break ;
@@ -1113,12 +1114,12 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
     case DOF_FIXED_SOLVE :  case DOF_FIXEDWITHASSOCIATE_SOLVE :
       Msg(ERROR,"Wrong Constraints: "
-	  "Dof Waiting to be Fixed by a Resolution Remaining");
+	  "remaining Dof(s) waiting to be fixed by a Resolution");
       break;
 
     case DOF_UNKNOWN_INIT :
       Msg(ERROR,"Wrong Initial Constraints: "
-	  "Dof with Non-fixed Initial Condition Remaining");
+	  "remaining Dof(s) with non-fixed initial conditions");
       break;
     }
     break ;

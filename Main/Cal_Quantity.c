@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.9 2001-02-24 16:20:28 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.10 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -60,7 +60,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
       }
       else {
 	if(Current.Region == NO_REGION)
-	  Msg(ERROR, "Function '%s' undefined in Expressions without Support",
+	  Msg(ERROR, "Function '%s' undefined in expressions without support",
 	      Expression_P->Name);
 	else
 	  Msg(ERROR, "Function '%s' undefined in Region %d",
@@ -176,7 +176,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
   for (i_WQ = 0 ; i_WQ < List_Nbr(WholeQuantity_L) ; i_WQ++) {
 
-    if(Index >= MAX_STACK_SIZE) Msg(ERROR, "Stack Size Exceeded (%d)", MAX_STACK_SIZE);
+    if(Index >= MAX_STACK_SIZE) Msg(ERROR, "Stack size exceeded (%d)", MAX_STACK_SIZE);
 
     WholeQuantity_P = WholeQuantity_P0 + i_WQ ;
 
@@ -214,12 +214,11 @@ void Cal_WholeQuantity(struct Element * Element,
     case WQ_OPERATORANDQUANTITYEVAL : /* {op qty}[x,y,z] {op qty}[x,y,z,t]*/
       if (i_WQ != DofIndexInWholeQuantity || TreatmentStatus == _POS){
 	if ((k = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments) != 3) 
-	  Msg(ERROR, "Explicit Time Quantity Evaluation not done (yet)");
+	  Msg(ERROR, "Explicit time evaluation not done (yet)");
 	Index -= k ;
 	X = Stack[0][Index  ].Val[0] ;
 	Y = Stack[0][Index+1].Val[0] ;
 	Z = Stack[0][Index+2].Val[0] ;
-	Msg(DEBUG, "Quantity eval at %g %g %g", X, Y, Z);
 	Pos_FemInterpolation
 	  (Element,
 	   QuantityStorage_P0,
@@ -231,7 +230,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	Index++ ;
       }
       else{
-	Msg(ERROR, "Explicit Dof{} Evaluation out of Context");
+	Msg(ERROR, "Explicit Dof{} evaluation out of context");
       }
       break ;
 
@@ -239,7 +238,7 @@ void Cal_WholeQuantity(struct Element * Element,
       Save_Region = Current.Region ; 
 
       if(!Element->ElementTrace)
-	Msg(ERROR, "The trace Operator should act on a Quantity...");
+	Msg(ERROR, "The trace operator should act on a discrete Quantity");
       
       Current.Region = Element->ElementTrace->Region ;
       
@@ -421,7 +420,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	  if (List_Nbr((Current.DofData_P0+k)->Solutions) > 1)
 	    ((Current.DofData_P0+k)->CurrentSolution) -- ;
 	  else
-	    Msg(WARNING, "Missing Solution for Time Derivative Computation");
+	    Msg(WARNING, "Missing solution for time derivative computation");
 
 	Save_Time = Current.Time ;
 	Current.Time = Current.DofData->CurrentSolution->Time ;
@@ -514,7 +513,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_SAVEVALUE :
       if(WholeQuantity_P->Case.SaveValue.Index > MAX_REGISTER_SIZE-1)
-	Msg(ERROR, "Register Size Exceeded (%d)", MAX_REGISTER_SIZE);
+	Msg(ERROR, "Register size exceeded (%d)", MAX_REGISTER_SIZE);
       if (WholeQuantity_P->Case.SaveValue.Index >= 0)
 	Cal_CopyValue(&Stack[0][Index-1], 
 		      ValueSaved + WholeQuantity_P->Case.SaveValue.Index) ;
@@ -525,7 +524,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_VALUESAVED :
       if(WholeQuantity_P->Case.ValueSaved.Index > MAX_REGISTER_SIZE-1)
-	Msg(ERROR, "Register Size Exceeded (%d)", MAX_REGISTER_SIZE);
+	Msg(ERROR, "Register size exceeded (%d)", MAX_REGISTER_SIZE);
       Cal_CopyValue(ValueSaved + WholeQuantity_P->Case.ValueSaved.Index, 
 		    &Stack[0][Index]) ;
       Multi[Index] = 0 ;

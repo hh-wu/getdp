@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GlobalTermOfFemEquation.c,v 1.5 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Cal_GlobalTermOfFemEquation.c,v 1.6 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -41,7 +41,7 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   case DTDTDOF_:
   case DTDT_   : Function_AssembleTerm = Cal_AssembleTerm_DtDtDof ; break ;
   case NEVERDT_: Function_AssembleTerm = Cal_AssembleTerm_NeverDt ; break ;
-  default      : Msg(ERROR, "Unknown Type of Operator for Global Term")    ; break ;
+  default      : Msg(ERROR, "Unknown type of operator for Global term")    ; break ;
   }
 
   QuantityStorageEqu_P = QuantityStorage_P0 +

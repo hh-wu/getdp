@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Type.c,v 1.7 2001-03-01 14:50:03 sabarieg Exp $"
+#define RCSID "$Id: F_Type.c,v 1.8 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -42,7 +42,7 @@ void  F_Complex (F_ARG) {
   case SCALAR :
     for (k = 0 ; k < Current.NbrHar ; k++) {
       if((A+k)->Type != A->Type) 
-	Msg(ERROR, "Mixed Type of Arguments in function 'Complex'");
+	Msg(ERROR, "Mixed type of arguments in function 'Complex'");
       V->Val[MAX_DIM*k] = (A+k)->Val[0] ;
     }
     break;
@@ -51,7 +51,7 @@ void  F_Complex (F_ARG) {
   case TENSOR_DIAG :
     for (k = 0 ; k < Current.NbrHar ; k++) {
       if((A+k)->Type != A->Type)
-	Msg(ERROR, "Mixed Type of Arguments in function 'Complex'");
+	Msg(ERROR, "Mixed type of arguments in function 'Complex'");
       V->Val[MAX_DIM*k  ] = (A+k)->Val[0] ; 
       V->Val[MAX_DIM*k+1] = (A+k)->Val[1] ;
       V->Val[MAX_DIM*k+2] = (A+k)->Val[2] ;
@@ -61,7 +61,7 @@ void  F_Complex (F_ARG) {
   case TENSOR_SYM :
     for (k = 0 ; k < Current.NbrHar ; k++) {
       if((A+k)->Type != A->Type)
-	Msg(ERROR, "Mixed Type of Arguments in function 'Complex'");
+	Msg(ERROR, "Mixed type of arguments in function 'Complex'");
       V->Val[MAX_DIM*k  ] = (A+k)->Val[0] ; 
       V->Val[MAX_DIM*k+1] = (A+k)->Val[1] ;
       V->Val[MAX_DIM*k+2] = (A+k)->Val[2] ;
@@ -74,7 +74,7 @@ void  F_Complex (F_ARG) {
   case TENSOR :
     for (k = 0 ; k < Current.NbrHar ; k++) {
       if((A+k)->Type != A->Type)
-	Msg(ERROR, "Mixed Type of Arguments in function 'Complex'");
+	Msg(ERROR, "Mixed type of arguments in function 'Complex'");
       V->Val[MAX_DIM*k  ] = (A+k)->Val[0] ; 
       V->Val[MAX_DIM*k+1] = (A+k)->Val[1] ;
       V->Val[MAX_DIM*k+2] = (A+k)->Val[2] ;
@@ -88,7 +88,7 @@ void  F_Complex (F_ARG) {
     break;
 
   default :
-    Msg(ERROR, "Unknown Type of Arguments in function 'Complex'");
+    Msg(ERROR, "Unknown type of arguments in function 'Complex'");
     break;
   }
 
@@ -168,7 +168,7 @@ void  F_Re (F_ARG) {
     break;
 
   default :
-    Msg(ERROR, "Unknown Type of Arguments in function 'Re'");
+    Msg(ERROR, "Unknown type of arguments in function 'Re'");
     break;
   }
   
@@ -248,7 +248,7 @@ void  F_Im (F_ARG) {
     break;
 
   default :
-    Msg(ERROR, "Unknown Type of Arguments in function 'Re'");
+    Msg(ERROR, "Unknown type of arguments in function 'Re'");
     break;
   }
   
@@ -328,7 +328,7 @@ void  F_Conj (F_ARG) {
     break;
 
   default :
-    Msg(ERROR, "Unknown Type of Arguments in function 'Conj'");
+    Msg(ERROR, "Unknown type of arguments in function 'Conj'");
     break;
   }
   
@@ -347,7 +347,7 @@ void  F_Vector (F_ARG) {
   GetDP_Begin("F_Vector");
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR)
-    Msg(ERROR, "Non Scalar Argument(s) for Function 'Vector'");
+    Msg(ERROR, "Non scalar argument(s) for function 'Vector'");
 
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] = (A  )->Val[MAX_DIM*k] ;
@@ -372,7 +372,7 @@ void  F_Tensor (F_ARG) {
   if(  (A)->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR ||
      (A+3)->Type != SCALAR || (A+4)->Type != SCALAR || (A+5)->Type != SCALAR ||
      (A+6)->Type != SCALAR || (A+7)->Type != SCALAR || (A+8)->Type != SCALAR )
-    Msg(ERROR, "Non Scalar Argument(s) for Function 'Tensor'");
+    Msg(ERROR, "Non scalar argument(s) for function 'Tensor'");
 
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] = (A  )->Val[MAX_DIM*k] ;
@@ -401,7 +401,7 @@ void  F_TensorSym (F_ARG) {
 
   if(  (A)->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR ||
      (A+3)->Type != SCALAR || (A+4)->Type != SCALAR || (A+5)->Type != SCALAR )
-    Msg(ERROR, "Non Scalar Argument(s) for Function 'TensorSym'");
+    Msg(ERROR, "Non scalar argument(s) for function 'TensorSym'");
 
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] = (A  )->Val[MAX_DIM*k] ;
@@ -426,7 +426,7 @@ void  F_TensorDiag (F_ARG) {
   GetDP_Begin("F_TensorDiag");
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR)
-    Msg(ERROR, "Non Scalar Argument(s) for Function 'TensorDiag'");
+    Msg(ERROR, "Non scalar argument(s) for function 'TensorDiag'");
 
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] =     A->Val[MAX_DIM*k] ;
@@ -449,7 +449,7 @@ void  F_TensorV (F_ARG) {
   GetDP_Begin("F_TensorV");
 
   if((A)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR)
-    Msg(ERROR, "Non Scalar Argument(s) for Function 'TensorV'");
+    Msg(ERROR, "Non scalar argument(s) for function 'TensorV'");
 
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] = (A  )->Val[MAX_DIM*k  ] ;
@@ -479,7 +479,7 @@ void  F_SquDyadicProduct (F_ARG) {
   GetDP_Begin("F_SquDyadicProduct");
 
   if (A->Type != VECTOR)
-    Msg(ERROR, "Non Vector Argument for Function 'TensorDyadic'");
+    Msg(ERROR, "Non vector argument for function 'TensorDyadic'");
 
   t11 = SQU(A->Val[0]) ;  t22 = SQU(A->Val[1]) ;  t33 = SQU(A->Val[2]) ;
   t12 = A->Val[0] * A->Val[1] ;  t13 = A->Val[0] * A->Val[2] ;
@@ -514,7 +514,7 @@ void  F_SquDyadicProduct (F_ARG) {
   GetDP_Begin("F_" string);						\
 									\
   if(A->Type != VECTOR)							\
-    Msg(ERROR, "Non Vector Argument for Function '" string "'");	\
+    Msg(ERROR, "Non vector argument for function '" string "'");	\
 									\
   for (k = 0 ; k < Current.NbrHar ; k++) {				\
     V->Val[MAX_DIM*k  ] = A->Val[MAX_DIM*k+index] ;			\
@@ -553,7 +553,7 @@ void  F_CompZ (F_ARG) { get_comp_vector(2,"CompZ") }
       for (k=0; k<Current.NbrHar; k++) V->Val[MAX_DIM*k] = 0.;				\
     break ;										\
   default :										\
-    Msg(ERROR, "Non Tensor Argument for Function '" string "'");			\
+    Msg(ERROR, "Non tensor argument for function '" string "'");			\
     break;										\
   }											\
   V->Type = SCALAR ;									\

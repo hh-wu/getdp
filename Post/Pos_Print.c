@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.36 2001-03-02 11:24:35 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.37 2001-03-03 19:21:22 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -163,9 +163,9 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   
   if(PostSubOperation_P->Smoothing){
     if(PostSubOperation_P->Depth > 1)
-      Msg(ERROR, "Smoothing not Allowed with Depth > 1"); 
+      Msg(ERROR, "Smoothing not allowed with Depth > 1"); 
     if(NbrTimeStep > 1)
-      Msg(ERROR, "Smoothing not Allowed with More than One Time Step"); 
+      Msg(ERROR, "Smoothing not allowed with more than one time step"); 
     NbrSmoothing = PostSubOperation_P->Smoothing ;
   }
   else
@@ -182,11 +182,11 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
   if(PostSubOperation_P->Adapt){
     if(PostSubOperation_P->Dimension == _ALL)
-      Msg(ERROR, "You have to specify a Dimension for the Adaption (2 or 3)");
+      Msg(ERROR, "You have to specify a Dimension for the adaptation (2 or 3)");
     if(PostSubOperation_P->Target < 0.)
-      Msg(ERROR, "You have to specify a Target for the Adaption (e.g. 0.01)");
+      Msg(ERROR, "You have to specify a Target for the adaptation (e.g. 0.01)");
     if(NbrTimeStep > 1)
-      Msg(ERROR, "Adaption not Ready with More than One Time Step"); 
+      Msg(ERROR, "Adaption not ready with more than one time step"); 
   }
 
   /* Check if we should decompose all PostElements to simplices */
@@ -720,7 +720,7 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
   switch(PostSubOperation_P->SubType) {
 
   case PRINT_ONCUT_1D :
-    Msg(ERROR, "Print on 1D Cuts not Done: Use Print OnLine instead");
+    Msg(ERROR, "Print on 1D cuts not done (use Print OnLine instead)");
     break;
 
   case PRINT_ONCUT_2D :
@@ -863,7 +863,7 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
     break;
     
   default :
-    Msg(ERROR, "Unknown Operation in Print OnCut");
+    Msg(ERROR, "Unknown operation in Print OnCut");
     break;
   }
 
@@ -924,7 +924,7 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
 #define LETS_STORE_THE_RESULT								\
  if(!NCPQ_P){										\
    if(CumulativeValues[0].Type != SCALAR)						\
-     Msg(ERROR, "Print OnPlane is not Designed for Non Scalar Plots with Depth > 1");	\
+     Msg(ERROR, "Print OnPlane is not designed for non scalar values with Depth > 1");	\
    else											\
      for (ts = 0 ; ts < NbTimeStep ; ts++)						\
        for(k = 0 ; k < Current.NbrHar ; k++)						\
@@ -939,7 +939,7 @@ void  Pos_PrintOnCut(struct PostQuantity     *NCPQ_P,
      Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,			\
                       NULL, &Element, u, v, w, &PE->Value[0]);				\
      if(PE->Value[0].Type != SCALAR)							\
-       Msg(ERROR, "Print OnPlane is not Designed for Non Scalar Plots with Depth > 1");	\
+       Msg(ERROR, "Print OnPlane is not designed for non scalar values with Depth > 1");\
      if(CPQ_P)										\
        Combine_PostQuantity(PSO_P->CombinationType, Order,				\
                             &PE->Value[0], &CumulativeValues[ts]) ;			\
@@ -1028,7 +1028,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
     prodvec(S,N,Normal);
     Length = sqrt(DSQU(Normal[0])+DSQU(Normal[1])+DSQU(Normal[2]));
     if(!Length){
-      Msg(WARNING, "Bad Plane (Null Normal)"); 
+      Msg(WARNING, "Bad plane (null normal)"); 
       GetDP_End ;
     }
     Normal[0]/=Length ; Normal[1]/=Length ; Normal[2]/=Length ;
@@ -1199,7 +1199,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   }
 
   if (CPQ_P && NCPQ_P)
-    Msg(ERROR, "Only one PostQuantity allowed in PostOperation") ;
+    Msg(ERROR, "Only one PostProcessing Quantity allowed in PostOperation") ;
 
   if (CPQ_P) {
     PQ_P = CPQ_P ;
@@ -1240,7 +1240,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
        ((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
        ->EvaluationType == LOCAL)
       )
-    Msg(ERROR, "Print OnRegion not valid for PostQuantity '%s'", NCPQ_P->Name);
+    Msg(ERROR, "Print OnRegion not valid for PostProcessing Quantity '%s'", NCPQ_P->Name);
 
   Region_L =  (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
     ((struct Group *)
@@ -1317,7 +1317,7 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
   GetDP_Begin("Pos_PrintWithArgument");
 
   if(CPQ_P)
-    Msg(ERROR, "Cumulative PostQuantity in PrintWithArgument not Done") ;
+    Msg(ERROR, "Cumulative PostProcessing Quantity in PrintWithArgument not done") ;
 
   X[0] = PostSubOperation_P->Case.WithArgument.x[0] ;
   X[1] = PostSubOperation_P->Case.WithArgument.x[1] ;

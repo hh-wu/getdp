@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.8 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.9 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -66,7 +66,7 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
       break ;
     case INTEGRALQUANTITY :
       if(EquationTerm_P->Case.LocalTerm.Term.TypeOperatorDof != NOOP){
-	Msg(ERROR, "No Operator can act on an Integral Quantity");
+	Msg(ERROR, "No operator can act on an Integral Quantity");
       }
       FI->Type_FormDof = VECTOR ; /* we don't know the type a priori */
       FI->IntegralQuantityActive.IntegrationCase_L =
@@ -180,7 +180,7 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
   case SCALAR  :
     FI->Cal_Productx = (double (*)())Cal_Product1 ; break ;
   default      : 
-    Msg(ERROR, "Unknown Type of Form (%d)", FI->Type_FormEqu);
+    Msg(ERROR, "Unknown type of Form (%d)", FI->Type_FormEqu);
   }
 
   /*  G e t   F u n c t i o n _ A s s e m b l e T e r m  */
@@ -194,7 +194,7 @@ void  Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P
   case DTDTDOF_: FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDtDof; break;
   case JACNL_  : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_JacNL  ; break;
   case NEVERDT_: FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NeverDt; break;
-  default      : Msg(ERROR, "Unknown Type of Operator for Galerkin Term (%d)", 
+  default      : Msg(ERROR, "Unknown type of Operator for Galerkin term (%d)", 
 		     EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
   }
 
@@ -372,7 +372,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
 
       if(!Quadrature_P)
-	Msg(ERROR, "Unknown Type of Element (%s) for IntegrationMethod (%s)",
+	Msg(ERROR, "Unknown type of Element (%s) for Integration method (%s)",
 	    Get_StringForDefine(Element_Type, Element->Type),
 	    ((struct IntegrationMethod *)
 	     List_Pointer(Problem_S.IntegrationMethod,
@@ -424,7 +424,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	    switch(EquationTerm_P->Case.LocalTerm.Term.OperatorTypeForCanonical_Equ){
 	    case OP_TIME : Cal_ProductValue (&CanonicExpression_Equ,&V1,&V2); break;
 	    case OP_CROSSPRODUCT : Cal_CrossProductValue (&CanonicExpression_Equ,&V1,&V2); break;
-	    default : Msg(ERROR, "Unknown Operation in Equation Quantity");
+	    default : Msg(ERROR, "Unknown operation in Equation");
 	    }
 	    vBFxEqu[i][0] = V2.Val[0];
 	    vBFxEqu[i][1] = V2.Val[1];
@@ -503,7 +503,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 		 FI->Cal_Productx) ;
 	  break;
 	default :
-	  Msg(ERROR, "Exterior Analytical Integration not implemented");
+	  Msg(ERROR, "Exterior analytical integration not implemented");
 	  break;
 	}
       }
@@ -511,7 +511,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       break ; /* case ANALYTIC */
 
     default :
-      Msg(ERROR, "Unknown Type of IntegrationMethod (%s)",
+      Msg(ERROR, "Unknown type of Integration method (%s)",
 	  ((struct IntegrationMethod *)
 	   List_Pointer(Problem_S.IntegrationMethod,
 			EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))->Name);

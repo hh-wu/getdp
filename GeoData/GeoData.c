@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.15 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: GeoData.c,v 1.16 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -35,7 +35,7 @@ int  Geo_AddGeoData(List_T * GeoData_L,
   if (!Name_MshFile)  Name_MshFile = Name_DefaultMshFile ;
 
   if ((i = List_ISearchSeq(GeoData_L, Name_MshFile, fcmp_GeoData_Name)) < 0) {
-    Msg(LOADING,"Geometric Data '%s'", Name_MshFile) ;
+    Msg(LOADING,"Geometric data '%s'", Name_MshFile) ;
     i = List_Nbr(GeoData_L) ;
     Geo_InitGeoData(&GeoData_S, i, Name_MshFile) ;
     Geo_OpenFile(Name_MshFile, "r") ;
@@ -44,7 +44,7 @@ int  Geo_AddGeoData(List_T * GeoData_L,
 
     if (!Name_AdaptFile) Name_AdaptFile = Name_DefaultAdaptFile ;
     if (Name_AdaptFile) {
-      Msg(LOADING,"Adaption Data '%s'", Name_AdaptFile) ;
+      Msg(LOADING,"Adaptation data '%s'", Name_AdaptFile) ;
       Geo_OpenFile(Name_AdaptFile, "r") ;
       Geo_SetCurrentGeoData(&GeoData_S) ;
       Geo_ReadFileAdapt(&GeoData_S) ;
@@ -120,7 +120,7 @@ void  Geo_OpenFile(char * Name, char * Mode) {
 
   File_GEO = fopen(Name, Mode) ;
 
-  if (!File_GEO) Msg(ERROR, "Unable to Open File '%s'", Name);
+  if (!File_GEO) Msg(ERROR, "Unable to open file '%s'", Name);
 
   GetDP_End ;
 }
@@ -166,11 +166,11 @@ int Geo_GetElementType(int Format, int Type){
     case 12 : GetDP_Return(HEXAHEDRON_2) ;
     case 13 : GetDP_Return(PRISM_2) ;
     case 14 : GetDP_Return(PYRAMID_2) ;
-    default : Msg(ERROR, "Unkown Element Type in Gmsh Format") ; GetDP_Return(-1) ;
+    default : Msg(ERROR, "Unkown type of Element in Gmsh format") ; GetDP_Return(-1) ;
     }
     break ;
   default :
-    Msg(ERROR, "Unkown Mesh Format") ;
+    Msg(ERROR, "Unkown mesh format") ;
     GetDP_Return(-1) ;
   }
 
@@ -240,7 +240,7 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
     do {
       fgets(String, MAX_STRING_LENGTH, File_GEO) ;
-      if (feof(File_GEO)) Msg(ERROR, "Prematured End of File");
+      if (feof(File_GEO)) Msg(ERROR, "Prematured end of file");
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -284,7 +284,7 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
 	fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) ;
 	if(!(Geo_Element_P = (struct Geo_Element *)
 	     List_PQuery(GeoData_P->Elements, &Geo_Element, fcmp_Elm)))
-	  Msg(ERROR, "Element %d Not Found in Database", Geo_Element.Num) ;
+	  Msg(ERROR, "Element %d not found in database", Geo_Element.Num) ;
 	Index_GeoElement = Geo_GetGeoElementIndex(Geo_Element_P) ;
 	GeoData_P->H[Index_GeoElement+1] = H ;
 	GeoData_P->P[Index_GeoElement+1] = P ;
@@ -294,14 +294,14 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
 
     do {
       fgets(String, MAX_STRING_LENGTH, File_GEO) ;
-      if (feof(File_GEO)) Msg(ERROR, "Prematured End of File");
+      if (feof(File_GEO)) Msg(ERROR, "Prematured end of file");
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
 
   if(Flag_ORDER < 0) Flag_ORDER = Max_Order ;
  
-  Msg(INFO, "Maximum Interpolation Order = %g", Flag_ORDER) ;
+  Msg(INFO, "Maximum interpolation order = %g", Flag_ORDER) ;
 
   GetDP_End ;
 }

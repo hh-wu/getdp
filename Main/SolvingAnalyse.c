@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.17 2000-10-30 09:04:05 dular Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.18 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -181,12 +181,12 @@ void  SolvingAnalyse (void) {
   else if (Flag_PAR || Flag_CAL || Flag_POS) {
     
     if(Flag_PAR && (Flag_CAL || Flag_POS))
-      Msg(ERROR, "Please Partition Independently of -cal or -pos");
+      Msg(ERROR, "Please partition independently of -cal or -pos");
       
     if(Flag_PAR > NBR_MAX_PARTITION)
-      Msg(ERROR, "Too Many Partitions");
+      Msg(ERROR, "Too many partitions");
 
-    Msg(LOADING,"Pre-Processing Data '%s.pre'", Name_Generic) ;
+    Msg(LOADING,"Pre-Processing data '%s.pre'", Name_Generic) ;
 
     for(i = 0 ; i < Nbr_DefineSystem ; i++)
       Dof_ReadFilePRE(DofData_P0 + i) ;
@@ -283,13 +283,13 @@ void  SolvingAnalyse (void) {
     if(Flag_RESTART) {
       i = 0 ;
       while(Name_ResFile[i]){
-	Msg(LOADING, "Processing Data '%s'", Name_ResFile[i]) ;
+	Msg(LOADING, "Processing data '%s'", Name_ResFile[i]) ;
 	Dof_OpenFile(DOF_RES, Name_ResFile[i], "r");
 	Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeStep) ;
 	Dof_CloseFile(DOF_RES);
 	i++ ;
       }
-      Msg(BIGINFO, "Restarting Computation at Time=%g s (TimeStep %g)", 
+      Msg(BIGINFO, "Restarting computation (time = %g) s (TimeStep %g)", 
 	  Current.Time, Current.TimeStep) ;
     }
     else{
@@ -349,7 +349,7 @@ void  SolvingAnalyse (void) {
     if (!Flag_CAL) {
       i = 0 ;
       while(Name_ResFile[i]){
-	Msg(LOADING, "Processing Data '%s'", Name_ResFile[i]) ;
+	Msg(LOADING, "Processing data '%s'", Name_ResFile[i]) ;
 	Dof_OpenFile(DOF_RES, Name_ResFile[i], "r");
 	Dof_ReadFileRES(DofData_L, NULL, -1, &d, &d) ;
 	Dof_CloseFile(DOF_RES) ;
@@ -445,7 +445,7 @@ void  Treatment_Resolution(int ResolutionIndex,
   
   *Nbr_DefineSystem = List_Nbr((*Resolution_P)->DefineSystem) ;
   if (!*Nbr_DefineSystem)
-    Msg(ERROR, "No DefineSystem exists for Resolution '%s'",
+    Msg(ERROR, "No System exists for Resolution '%s'",
         (*Resolution_P)->Name) ;
   
   if (*Nbr_OtherSystem)  *Nbr_OtherSystem -= *Nbr_DefineSystem ;
@@ -598,7 +598,7 @@ void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
     
     if(DefineQuantity_P->DofDataIndex >= 0){      
       if(DefineQuantity_P->DofDataIndex >= List_Nbr(DefineSystem_P->OriginSystemIndex))
-        Msg(ERROR, "Invalid IndexOfSystem (%d) in DefineQuantity (%s)",
+        Msg(ERROR, "Invalid System index (%d) in discrete Quantity (%s)",
             DefineQuantity_P->DofDataIndex, DefineQuantity_P->Name);
 
       List_Read(DefineSystem_P->OriginSystemIndex,DefineQuantity_P->DofDataIndex,&j) ;
@@ -685,7 +685,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
     List_Pointer(Problem_S.Formulation, PostProcessing_P->FormulationIndex) ;
 
   if (!List_Nbr(Formulation_P->DefineQuantity))
-    Msg(ERROR, "No DefineQuantity exists for Formulation '%s'",
+    Msg(ERROR, "No discrete Quantity in Formulation '%s'",
 	Formulation_P->Name);
 
   /* Choice of Current DofData */
@@ -694,7 +694,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
     if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
 			     PostProcessing_P->NameOfSystem,
 			     fcmp_DefineSystem_Name)) < 0)
-      Msg(ERROR, "Unknown NameOfSystem (%s) in PostProcessing (%s)", 
+      Msg(ERROR, "Unknown System name (%s) in PostProcessing (%s)", 
 	  PostProcessing_P->NameOfSystem, PostProcessing_P->Name) ;
     
     Current.DofData = DofData_P0 + i;
@@ -724,7 +724,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   }
 
   if(!Current.DofData)
-    Msg(ERROR, "Incompatible PostProcessing with Resolution");
+    Msg(ERROR, "PostProcessing not compatible with Resolution");
 
   DefineSystem_P = DefineSystem_P0 + Current.DofData->Num ;
   Current.NbrHar = Current.DofData->NbrHar ;

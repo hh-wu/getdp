@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.8 2000-11-16 17:27:38 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.9 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -138,7 +138,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		 TimeFunctionIndex) ;
 	    }
 	    else if (ConstraintPerRegion_P->Type == CST_LINK) {
-	      Msg(ERROR, "CST_LINK for GlobalQuantity not done yet\n") ;
+	      Msg(ERROR, "CST_LINK for GlobalQuantity not done yet") ;
 	    }
 	    else {
 	      Get_PreResolutionForConstraint
@@ -151,7 +151,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	break ; /* GLOBALQUANTITY */
 
       default :
-	Msg(ERROR, "Unknown Type of Quantity in Constraint of type Fixed");
+	Msg(ERROR, "Unknown type of Quantity in Constraint of type Fixed");
 	break;
 
       }
@@ -159,7 +159,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
       break ;  /* ASSIGN || INIT || ASSIGNFROMRESOLUTION || INITFROMRESOLUTION */
 
     default :
-      Msg(ERROR, "Unknown Type of Constraint");
+      Msg(ERROR, "Unknown type of Constraint");
       break;
 
     }
@@ -351,7 +351,7 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
   TwoIntOneDouble_P = (struct TwoIntOneDouble *)
     List_PQuery(Constraint_P->Active.Active->Case.Link.Couples,
 		&Num_Entity, fcmp_absint) ;
-  if (!TwoIntOneDouble_P)  Msg(ERROR, "Constraint Link: Bad definition") ;
+  if (!TwoIntOneDouble_P)  Msg(ERROR, "Constraint Link: bad definition") ;
 
   *CodeEntity_Link = abs(TwoIntOneDouble_P->Int2) ;
   *Coef = TwoIntOneDouble_P->Double ;

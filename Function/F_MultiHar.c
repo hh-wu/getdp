@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.11 2001-02-06 21:48:27 geuzaine Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.12 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -91,7 +91,7 @@ void  F_MHToTime (F_ARG) {
     break;
 
   default :
-    Msg(ERROR, "Unknown Type of Arguments in function 'MHToTime'");
+    Msg(ERROR, "Unknown type of arguments in function 'MHToTime'");
     break;
   }
   
@@ -286,7 +286,7 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePointSP,
 	}
 	break ;
       default :
-	Msg(ERROR, "Bad type of WholeQuantity in MHTimeIntegration") ;
+	Msg(ERROR, "Bad type of Quantity in MHTimeIntegration") ;
       }
     }
 
@@ -352,7 +352,7 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePointSP,
       break ;
 
     default :
-      Msg(ERROR, "Bad type of WholeQuantity in MHTimeIntegration") ;
+      Msg(ERROR, "Bad type of Quantity in MHTimeIntegration") ;
     }
 
   } /* for iTime */

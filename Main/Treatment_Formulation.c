@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.7 2000-11-24 13:37:25 dular Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.8 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -33,7 +33,7 @@ void  Treatment_Formulation(struct Formulation * Formulation_P) {
     break ;
 
   default :
-    Msg(ERROR, "Unknown Type for Formulation '%s'", Formulation_P->Name) ;
+    Msg(ERROR, "Unknown type for Formulation '%s'", Formulation_P->Name) ;
     break ;
   }
 
@@ -76,10 +76,10 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
   /* --------------------------------------------------------------- */
 
   if (!(Nbr_EquationTerm = List_Nbr(Formulation_P->Equation)))
-    Msg(ERROR, "No Equation in Formulation '%s'", Formulation_P->Name);
+    Msg(ERROR, "No equation in Formulation '%s'", Formulation_P->Name);
   
   if (!(Nbr_DefineQuantity = List_Nbr(Formulation_P->DefineQuantity)))
-    Msg(ERROR, "No DefineQuantity for Formulation '%s'", Formulation_P->Name);
+    Msg(ERROR, "No Quantity in Formulation '%s'", Formulation_P->Name);
 
   DefineQuantity_P0 = (struct DefineQuantity*)
     List_Pointer(Formulation_P->DefineQuantity, 0) ;
@@ -168,7 +168,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
       break ;
 
     default :
-      Msg(ERROR, "Unknown Type of Equation Term") ;
+      Msg(ERROR, "Unknown type of equation term") ;
       break ;
     }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Line.c,v 1.7 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Line.c,v 1.8 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -44,7 +44,7 @@ void Gauss_Line (int Nbr_Points, int Num,
     if(Nbr_Points <= MAX_LINE_POINTS){
       if(gll[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) gll[i] = 0 ;
       if(!gll[Nbr_Points-1]){
-	Msg(INFO, "Computing Gauss-Legendre %d for Line", Nbr_Points);
+	Msg(INFO, "Computing GaussLegendre %d for Line", Nbr_Points);
 	glxl[Nbr_Points-1] = (double*)Malloc(Nbr_Points*sizeof(double));
 	glpl[Nbr_Points-1] = (double*)Malloc(Nbr_Points*sizeof(double));
 	GaussLegendre(-1., 1., glxl[Nbr_Points-1], glpl[Nbr_Points-1], Nbr_Points);
@@ -53,7 +53,7 @@ void Gauss_Line (int Nbr_Points, int Num,
       *u = glxl[Nbr_Points-1][Num] ; *v = *w = 0. ; *wght = glpl[Nbr_Points-1][Num] ;
     }
     else
-      Msg(ERROR, "Maximum Number of Integration Points Exceeded (%d > %d)",
+      Msg(ERROR, "Maximum number of integration points exceeded (%d > %d)",
 	  Nbr_Points, MAX_LINE_POINTS) ;
     break ;
   }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoNormal.c,v 1.4 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: GeoNormal.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -55,7 +55,7 @@ void Geo_CreateNodesXElements(int NumNode, int InIndex,
 
   if(InIndex != RegionIndexForNXE){
     RegionIndexForNXE = InIndex ;
-    Msg(INFO, "  Generate NodesXElements Information for Region '%s'", Group_P->Name);
+    Msg(INFO, "  Generate NodesXElements information for Region '%s'", Group_P->Name);
     if(CurrentGeoData->NodesXElements)
       Tree_Delete(CurrentGeoData->NodesXElements);
     CurrentGeoData->NodesXElements = 
@@ -133,7 +133,7 @@ void Geo_CreateNormal(int Type, double *x, double *y, double *z, double *N) {
     break ;
     
   default :
-    Msg(ERROR, "Normal Computation not done (yet) for Element Type %d", Type);
+    Msg(ERROR, "Normal computation not done (yet) for Element Type %d", Type);
   }
 
   GetDP_End ;

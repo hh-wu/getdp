@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Math.c,v 1.5 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: F_Math.c,v 1.6 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -32,7 +32,7 @@
   GetDP_Begin("F_" string);						\
 									\
   if(A->Type != SCALAR)							\
-    Msg(ERROR, "Non Scalar Argument for Function '" string "'");	\
+    Msg(ERROR, "Non scalar argument for function '" string "'");	\
 									\
   V->Val[0] = func(A->Val[0]) ;						\
   if (Current.NbrHar != 1){						\
@@ -74,7 +74,7 @@ void  F_Ceil  (F_ARG) { scalar_real_1_arg (ceil, "Ceil")  }
   GetDP_Begin("F_" string);						\
 									\
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)			\
-    Msg(ERROR, "Non Scalar Argument(s) for Function '" string "'");	\
+    Msg(ERROR, "Non scalar argument(s) for function '" string "'");	\
 									\
   V->Val[0] = func(A->Val[0], (A+1)->Val[0]) ;				\
   if (Current.NbrHar != 1){						\

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Iso.c,v 1.13 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Pos_Iso.c,v 1.14 2001-03-03 19:21:22 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -239,7 +239,7 @@ void Cal_Iso(struct PostElement *PE, List_T *list,
     }
     break ;
   default :
-    Msg(ERROR, "Iso Computation not Done for this Type of Element");
+    Msg(ERROR, "Iso computation not done for this type of element");
     break ;
   }
 

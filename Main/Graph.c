@@ -1,4 +1,4 @@
-#define RCSID "$Id: Graph.c,v 1.8 2000-11-10 16:05:32 colignon Exp $"
+#define RCSID "$Id: Graph.c,v 1.9 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -311,7 +311,7 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
     part9 = (idxtype*) Malloc( n9 * sizeof(idxtype));
     METIS_PartGraphRecursive( &n9, xadj9, adjncy9, NULL, NULL, 
 			      &wgtflag9, &numflag9, &NbPartition, options9, &edgecut9, part9);
-    Msg(PETSC, "METIS Partitionning done. Edgecut : %d ", edgecut9) ;
+    Msg(PETSC, "METIS partitionning done (edgecut = %d)", edgecut9) ;
     Free(adjncy9);
     part_P  = (int*) Malloc( (NbPartition) * sizeof(int));
     cptr_P  = (int*) Malloc( (NbPartition) * sizeof(int));
@@ -336,7 +336,7 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
     DofData_P->NbrPart = NbPartition ;
     for (i=1 ; i <= NbPartition ; i++) {
       DofData_P->Part[i-1] = start_P[i-1]+1  ;
-      Msg(PETSC, "Length Part %d = %d ",i,part_P[i-1]);
+      Msg(PETSC, "Partition %d: length = %d ",i,part_P[i-1]);
     }
     DofData_P->Part[NbPartition] = DofData_P->NbrDof+1 ;
     Free(part_P);
@@ -374,7 +374,7 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
     case DOF_FIXEDWITHASSOCIATE :
       break;
     default :
-      Msg(ERROR,"Strange stuff in Partitioning");
+      Msg(ERROR,"Strange stuff in partitioning");
       break;
     }
   }

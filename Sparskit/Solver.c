@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.6 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.7 2001-03-03 19:21:22 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -69,7 +69,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       return ;
     }
 
-    Msg(SPARSKIT, "Dense to Sparse Matrix Conversion\n") ;
+    Msg(SPARSKIT, "Dense to sparse matrix conversion\n") ;
 
     nnz = M->N * M->N ;
 
@@ -114,7 +114,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
 #ifdef  _GETDP_FOR_BEGINNERS_
   for (i=1; i<M->N; i++) {
     if(ia[i]-ia[i-1] <= 0)
-      Msg(ERROR, "Zero Row Encountered in Matrix");
+      Msg(ERROR, "Zero row in matrix");
   }
 #endif
 
@@ -135,10 +135,10 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     } 
     switch (p->Renumbering_Technique){ 	
     case NONE:
-      Msg(SPARSKIT, "No Renumbering\n");
+      Msg(SPARSKIT, "No renumbering\n");
       break;	
     case RCMK: 
-      Msg(SPARSKIT, "RCMK algebraic Renumbering\n");	
+      Msg(SPARSKIT, "RCMK algebraic renumbering\n");	
       if(!M->ILU_Exists){
 	M->S.a_rcmk  = (double*) Malloc(nnz * sizeof(double));
 	M->S.ia_rcmk = (int*) Malloc((M->N + 1) * sizeof(int));
@@ -154,7 +154,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       Free(w); Free(mask); Free(levels);
       break; 	
     default :
-      Msg(ERROR, "Unknown Renumbering Technique");
+      Msg(ERROR, "Unknown renumbering technique");
       break;
     }
     print_matrix_info_CSR(M->N, ia, ja);    
@@ -181,7 +181,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   }
   
   if (p->Matrix_Printing == 1 || p->Matrix_Printing == 3) {
-    Msg(SPARSKIT, "Matrix Printing\n");
+    Msg(SPARSKIT, "Matrix printing\n");
     skit_(&M->N, a, ja, ia, &douze, &douze, &ierr); 
     pf = fopen("fort.13","w");
     for (i=0 ; i<M->N ; i++) fprintf(pf, "%d %22.15E\n", i+1, b[i]);
@@ -227,7 +227,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       nnz_ilu = List_Nbr(M->S.a) + (M->N+1); break;
       
     case DIAGONAL : 
-      Msg(SPARSKIT, "Diagonal Scaling (%s)\n", ILUSTORAGE);
+      Msg(SPARSKIT, "Diagonal scaling (%s)\n", ILUSTORAGE);
       M->S.alu = (scalar*) Malloc((M->N+1) * sizeof(scalar));
       M->S.jlu = (int*) Malloc((M->N+1) * sizeof(int));
       M->S.ju  = (int*) Malloc((M->N+1) * sizeof(int));
@@ -251,7 +251,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       break ;
 
     default :
-      Msg(ERROR, "Unknown Incomplete Factorization Method");
+      Msg(ERROR, "Unknown ILU method");
       break;
     }
     
@@ -317,19 +317,19 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     
     switch (ierr){
     case  0 : break;
-    case -1 : Msg(ERROR, "ILU: Input matrix may be wrong");break;
-    case -2 : Msg(ERROR, "ILU: Matrix L overflows work array 'al'");break;
-    case -3 : Msg(ERROR, "ILU: Matrix U overflows work array 'alu'");break;
-    case -4 : Msg(ERROR, "ILU: Illegal value of nb_fill");break;
-    case -5 : Msg(ERROR, "ILU: Zero row encountered");break;
-    default : Msg(ERROR, "ILU: Zero pivot on line %d",ierr);break;
+    case -1 : Msg(ERROR, "Input matrix may be wrong");break;
+    case -2 : Msg(ERROR, "Matrix L in ILU overflows work array 'al'");break;
+    case -3 : Msg(ERROR, "Matrix U in ILU overflows work array 'alu'");break;
+    case -4 : Msg(ERROR, "Illegal value of nb_fill in ILU");break;
+    case -5 : Msg(ERROR, "Zero row encountered in ILU");break;
+    default : Msg(ERROR, "Zero pivot on line %d in ILU",ierr);break;
     }
     
     if(p->Preconditioner != NONE)
       print_matrix_info_MSR(M->N, M->S.alu, M->S.jlu);
     
     if(p->Matrix_Printing == 2 || p->Matrix_Printing == 3){
-      Msg(SPARSKIT, "ILU Printing\n");
+      Msg(SPARSKIT, "ILU printing\n");
       psplot_(&M->N, M->S.jlu, M->S.jlu, &trente_et_un, &deux);      
     }      
   
@@ -379,7 +379,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
                  ipar[4] = M->N + (ipar[5]+1) * (2*M->N+4); break;
   case PGMRES  : Msg(SPARSKIT, "Alternative Generalized Minimum RESidual (GMRES)\n");
                  ipar[4] = (M->N+4) * (ipar[5]+2) + (ipar[5]+1) * ipar[5]/2; break;
-  default      : Msg(ERROR, "Unknown Algorithm for Sparse Matrix Solver"); break;
+  default      : Msg(ERROR, "Unknown algorithm for sparse matrix solver"); break;
   }
   
   w = (double*) Malloc(ipar[4] * sizeof(double));
@@ -436,7 +436,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       case -3 : 
 	Msg(WARNING, "Iterative solver is facing a break-down"); end = 1; break;
       default : 
-	Msg(WARNING, "Iterative solver terminated. code = %d", ipar[1]); end = 1; break;
+	Msg(WARNING, "Iterative solver terminated (code = %d)", ipar[1]); end = 1; break;
       }
       
     }

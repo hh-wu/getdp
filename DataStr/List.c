@@ -1,4 +1,4 @@
-#define RCSID "$Id: List.c,v 1.8 2000-12-26 20:49:20 geuzaine Exp $"
+#define RCSID "$Id: List.c,v 1.9 2001-03-03 19:21:19 geuzaine Exp $"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -97,14 +97,14 @@ int List_Replace(List_T *liste, void *data,
 void List_Read(List_T *liste, int index, void *data)
 {
   if ((index < 0) || (index >= liste->n))
-    Msg(ERROR, "Wrong List Index in List_Read");
+    Msg(ERROR, "Wrong list index (read)");
   memcpy(data,&liste->array[index * liste->size],liste->size);
 }
 
 void List_Write(List_T *liste, int index, void *data)
 {
   if ((index < 0) || (index >= liste->n))
-    Msg(ERROR, "Wrong List Index in List_Write");
+    Msg(ERROR, "Wrong list index (write)");
   liste->isorder = 0;
   memcpy(&liste->array[index * liste->size],data,liste->size);
 }
@@ -112,7 +112,7 @@ void List_Write(List_T *liste, int index, void *data)
 void List_Put(List_T *liste, int index, void *data)
 {
   if (index < 0)
-    Msg(ERROR, "Wrong List Index in List_Put");
+    Msg(ERROR, "Wrong list index (put)");
 
   if (index >= liste->n) {
     liste->n = index + 1;
@@ -131,7 +131,7 @@ void List_Pop(List_T *liste)
 void *List_Pointer(List_T *liste, int index)
 {
   if ((index < 0) || (index >= liste->n))
-    Msg(ERROR, "Wrong List Index in List_Pointer");
+    Msg(ERROR, "Wrong list index (pointer)");
 
   liste->isorder = 0; /* getdp: a examiner... */
   return(&liste->array[index * liste->size]);
@@ -140,7 +140,7 @@ void *List_Pointer(List_T *liste, int index)
 void *List_Pointer_NoChange(List_T *liste, int index)
 {
   if ((index < 0) || (index >= liste->n))
-    Msg(ERROR, "Wrong List Index in List_Pointer_NoChange");
+    Msg(ERROR, "Wrong list index (pointer)");
 
   return(&liste->array[index * liste->size]);
 }
@@ -375,7 +375,7 @@ List_T *List_CreateFromFile(int n, int size, FILE *file, int format, int swap){
     else if(size == sizeof(int))
       for(i=0;i<n;i++) fscanf(file, "%d", (int*)&liste->array[i*size]) ;
     else{
-      Msg(ERROR, "Unknown Type of Data to Create List From");
+      Msg(ERROR, "Bad type of data to create list from (size = %d)", size);
       return NULL;
     }
     return liste;
@@ -384,7 +384,7 @@ List_T *List_CreateFromFile(int n, int size, FILE *file, int format, int swap){
     if(swap) swap_bytes(liste->array, size, n);
     return liste;
   default :
-    Msg(ERROR, "Unknown List Format");
+    Msg(ERROR, "Unknown list format");
     return NULL;
   }
 
@@ -404,13 +404,13 @@ void List_WriteToFile(List_T *liste, FILE *file, int format){
     else if(liste->size == sizeof(int))
       for(i=0;i<n;i++) fprintf(file, "%d ", *((int*)&liste->array[i*liste->size])) ;
     else
-      Msg(ERROR, "Unknown Type of Data to Write List to File");
+      Msg(ERROR, "Bad type of data to write list to file (size = %d)", liste->size);
     fprintf(file, "\n");
     break;
   case LIST_FORMAT_BINARY :
     fwrite(liste->array, liste->size, n, file);
     break;
   default :
-    Msg(ERROR, "Unknown List Format");
+    Msg(ERROR, "Unknown list format");
   }
 }

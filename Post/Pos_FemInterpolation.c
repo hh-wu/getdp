@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_FemInterpolation.c,v 1.11 2001-03-03 12:11:10 geuzaine Exp $"
+#define RCSID "$Id: Pos_FemInterpolation.c,v 1.12 2001-03-03 19:21:22 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -91,7 +91,7 @@ void  Pos_FemInterpolation(struct Element * Element,
       Msg(ERROR, "No available function space for quantity");
 
     if(!QuantityStorage_P->FunctionSpace->DofData)
-      Msg(ERROR, "No available DofData to interpolate this Quantity");
+      Msg(ERROR, "No available data to interpolate quantity");
 
     GeoDataNum = QuantityStorage_P->FunctionSpace->DofData->GeoDataIndex;
     UseNewGeo = (GeoDataNum != Current.GeoData->Num) ;
@@ -143,7 +143,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	 Type_Form) ;
     }
     else {
-      Msg(WARNING, "No Element Found in Mesh for LocalQuantity Interpolation");
+      Msg(WARNING, "No element found in mesh for LocalQuantity interpolation");
       Nbr_Dof = 0 ;
       Type_Form = VECTOR ;
     }
@@ -156,7 +156,7 @@ void  Pos_FemInterpolation(struct Element * Element,
   else if (Type_DefineQuantity == INTEGRALQUANTITY) {
 
     if(Type_Operator != NOOP){
-      Msg(ERROR, "No Operator can act on an Integral Quantity");
+      Msg(ERROR, "Operator acting on Integral Quantity");
     }
     Type_Form = VECTOR ;
     Get_InitElementSource(TheElement_P,
@@ -367,7 +367,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	break ;
 	
       default :
-	Msg(ERROR, "Unknown Form Type in 'Pos_FemInterpolation'");
+	Msg(ERROR, "Unknown Form type in 'Pos_FemInterpolation'");
 	break;
       }
       
@@ -421,7 +421,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	  break ;
 	  
 	default :
-	  Msg(ERROR, "Unknown Form Type in 'Pos_FemInterpolation'");
+	  Msg(ERROR, "Unknown Form type in 'Pos_FemInterpolation'");
 	  break;
 	}
 	
@@ -505,7 +505,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	  break ;
 	  
 	default :
-	  Msg(ERROR, "Unknown Form Type in 'Pos_FemInterpolation'");
+	  Msg(ERROR, "Unknown Form type in 'Pos_FemInterpolation'");
 	  break;
 	}
 	

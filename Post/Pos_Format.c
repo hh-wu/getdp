@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.20 2001-03-02 11:24:35 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.21 2001-03-03 19:21:22 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -138,7 +138,7 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
     if((NbrIso = PSO_P->Iso) < 0)
       NbrIso = List_Nbr(PSO_P->Iso_L) ;
     if(NbrIso > NBR_MAX_ISO) 
-      Msg(ERROR, "Too Many Iso Values");
+      Msg(ERROR, "Too many Iso values");
 
     if(PSO_P->Format == FORMAT_GNUPLOT)
       fprintf(PostStream, "# NbIso = %d, Min = %g, Max = %g\n",
@@ -321,7 +321,7 @@ void  Format_GmshParsed(int TimeStep, int NbTimeStep, int NbHarmonic,
   case TENSOR_DIAG :
   case TENSOR_SYM :
   case TENSOR :
-    Msg(ERROR, "Format_PostElement not done for Tensors");
+    Msg(ERROR, "Gmsh parsed format not done for Tensors");
     break;
     
   }
@@ -420,7 +420,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
   case TENSOR_DIAG :
   case TENSOR_SYM :
   case TENSOR :
-    Msg(ERROR, "Gmsh Format not done for Tensors");
+    Msg(ERROR, "Gmsh format not done for Tensors");
     break;
     
   }
@@ -453,7 +453,7 @@ int Get_GmshElementType(int Type){
   case PRISM_2 :       GetDP_Return(13) ; 
   case PYRAMID_2 :     GetDP_Return(14) ; 
   default : 
-    Msg(ERROR, "Unknown Type in Get_GmshElementType") ;
+    Msg(ERROR, "Unknown type of element in Gmsh format") ;
     GetDP_Return(-1) ;
   }
 }
@@ -675,11 +675,11 @@ void  Format_PostElement(int Format, int Contour, int Store,
 
   if(Contour){
     if(PE->Value[0].Type != SCALAR)
-      Msg(ERROR, "Non Scalar Element %d in Contour Creation", Num_Element);
+      Msg(ERROR, "Non scalar Element %d in contour creation", Num_Element);
     if(NbTimeStep != 1)
-      Msg(ERROR, "Contour Creation not Allowed for Multiple Time Steps");
+      Msg(ERROR, "Contour creation not allowed for multiple time steps");
     if(Current.NbrHar != 1 && !Warning_FirstHarmonic){
-      Msg(WARNING, "Contour Creation done only for First Harmonic: Please use Re[] or Im[]");
+      Msg(WARNING, "Contour creation done only for first harmonic (use Re[] or Im[])");
       Warning_FirstHarmonic = 1 ;
     }
     if(Store)
@@ -725,7 +725,7 @@ void  Format_PostElement(int Format, int Contour, int Store,
     Format_Adapt(Dummy) ;
     break ;
   default :
-    Msg(ERROR, "Unknown Format in Format_PostElement");
+    Msg(ERROR, "Unknown format in Format_PostElement");
   }
 
   GetDP_End ;
@@ -767,7 +767,7 @@ void  Format_PostValue(int Format,
       switch (Format) {
       case FORMAT_FREQUENCY_TABLE :
 	if (NbrHarmonics == 1)
-	  Msg(ERROR, "FrequencyTable Format not allowed") ;
+	  Msg(ERROR, "FrequencyTable format not allowed (only one harmonic)") ;
 	break ;
       default :
 	fprintf(PostStream, "%.8g ", Time) ;

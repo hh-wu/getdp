@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.30 2001-03-02 11:24:35 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.31 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -118,10 +118,10 @@ void Signal (int sig_num){
   if(sig_num == SIGINT){
     if(!InteractiveLevel){
       if(Flag_VERBOSE > 1){
-	Msg(BIGINFO, "Switching to Low Verbosity Mode - Once more to Interrupt"); 
+	Msg(BIGINFO, "Switching to low verbosity mode"); 
 	Flag_VERBOSE = 1;
       }
-      else Msg(ERROR, "Interrupt (Generated from Terminal Special Character)"); 
+      else Msg(ERROR, "Interrupt (generated from terminal special character)"); 
     }
     else
       InteractiveInterrupt = 1;
@@ -130,13 +130,13 @@ void Signal (int sig_num){
 
   switch (sig_num){
   case SIGSEGV : 
-    Msg(BIGERROR, "Segmentation Violation (Invalid Memory Reference)");
+    Msg(BIGERROR, "Segmentation violation (invalid memory reference)");
     break;
   case SIGFPE : 
-    Msg(BIGERROR, "Floating Point Exception (Division by Zero?)");
+    Msg(BIGERROR, "Floating point exception (division by zero?)");
     break;
   default :
-    Msg(ERROR, "Unknown Signal");
+    Msg(ERROR, "Unknown signal");
     break;
   }
 }

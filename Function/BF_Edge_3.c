@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Edge_3.c,v 1.3 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: BF_Edge_3.c,v 1.4 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -48,14 +48,14 @@ int Get_FacetFunctionIndex(struct Element * Element, int NumEntity, int NumIndex
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Edge Number in 'BF_Edge_3E'")
+#define WrongNumEntity   Msg(ERROR, "Wrong Edge number in 'BF_Edge_3E'")
 
 void  BF_Edge_3E (struct Element * Element, int NumEntity,
 		   double u, double v, double w, double s[] ) {
 
   GetDP_Begin("BF_Edge_3E");
 
-  Msg(ERROR, "Should never be here") ;
+  Msg(ERROR, "You should never end up here!") ;
 
   GetDP_End ;
 }
@@ -66,7 +66,7 @@ void  BF_Edge_3E (struct Element * Element, int NumEntity,
 /*  Facets  */
 /* -------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Facet Number in 'BF_Edge_3F'")
+#define WrongNumEntity   Msg(ERROR, "Wrong Face number in 'BF_Edge_3F'")
 
 void  BF_Edge_3F (struct Element * Element, int NumEntity, int Index,
 		   double u, double v, double w, double s[] ) {
@@ -76,7 +76,7 @@ void  BF_Edge_3F (struct Element * Element, int NumEntity, int Index,
   switch (Element->Type) {
 
   case LINE :
-    Msg(ERROR, "You Should Never be Here (BF_Edge_3F)");
+    Msg(ERROR, "You should never end up here!") ;
     break;
 
   case TRIANGLE :
@@ -145,7 +145,7 @@ void  BF_Edge_3F (struct Element * Element, int NumEntity, int Index,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_Edge_3F");
+    Msg(ERROR, "Unkown type of Element in BF_Edge_3F");
     break ;
 
   }
@@ -194,7 +194,7 @@ void  BF_Edge_3V (struct Element * Element, int NumEntity,
 
   GetDP_Begin("BF_Edge_3V");
 
-  Msg(ERROR, "Should never be here") ;
+  Msg(ERROR, "You should never end up here!") ;
 
   GetDP_End ;
 }
@@ -209,14 +209,14 @@ void  BF_Edge_3V (struct Element * Element, int NumEntity,
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Edge Number in 'BF_CurlEdge_3E'")
+#define WrongNumEntity   Msg(ERROR, "Wrong Edge number in 'BF_CurlEdge_3E'")
 
 void  BF_CurlEdge_3E (struct Element * Element, int NumEntity,
 		   double u, double v, double w, double s[] ) {
 
   GetDP_Begin("BF_CurlEdge_3E");
 
-  Msg(ERROR, "Should never be here") ;
+  Msg(ERROR, "You should never end up here!") ;
 
   GetDP_End ;
 }
@@ -227,7 +227,7 @@ void  BF_CurlEdge_3E (struct Element * Element, int NumEntity,
 /*  Facets  */
 /* -------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Facet Number in 'BF_CurlEdge_3F'")
+#define WrongNumEntity   Msg(ERROR, "Wrong Face number in 'BF_CurlEdge_3F'")
 
 void  BF_CurlEdge_3F (struct Element * Element, int NumEntity, int Index,
 		       double u, double v, double w, double s[] ) {
@@ -237,7 +237,7 @@ void  BF_CurlEdge_3F (struct Element * Element, int NumEntity, int Index,
   switch (Element->Type) {
 
   case LINE :
-    Msg(ERROR, "You Should Never be Here (BF_CurlEdge_3F)");
+    Msg(ERROR, "You should never end up here!") ;
     break;
 
   case TRIANGLE :
@@ -306,7 +306,7 @@ void  BF_CurlEdge_3F (struct Element * Element, int NumEntity, int Index,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_CurlEdge_3F");
+    Msg(ERROR, "Unkown type of Element in BF_CurlEdge_3F");
     break ;
 
   }
@@ -355,7 +355,7 @@ void  BF_CurlEdge_3V (struct Element * Element, int NumEntity,
 
   GetDP_Begin("BF_CurlEdge_3V");
 
-  Msg(ERROR, "Should never be here") ;
+  Msg(ERROR, "You should never end up here!") ;
 
   GetDP_End ;
 }

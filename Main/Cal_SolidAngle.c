@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_SolidAngle.c,v 1.4 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Cal_SolidAngle.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -31,7 +31,7 @@ void  Cal_SolidAngle(int Source, struct Element *Element,
   GetDP_Begin("Cal_SolidAngle");
 
   if(Nbr_Dof != QuantityStorage->NbrElementaryBasisFunction)
-    Msg(ERROR, "Uncompatible Quantity (%s) in Solid Angle Computation",
+    Msg(ERROR, "Uncompatible Quantity (%s) in SolidAngle computation",
 	QuantityStorage->DefineQuantity->Name);
 
 
@@ -83,13 +83,13 @@ void  Cal_SolidAngle(int Source, struct Element *Element,
       Geo_CreateNodesXElements(NumNode, In, &NbrElements, &NumElements) ;
 
       if(NbrElements != 2)
-	Msg(ERROR, "Solid Angle not done for incidence != 2 (%d)", NbrElements);
+	Msg(ERROR, "SolidAngle not done for incidence != 2 (%d)", NbrElements);
 
       GeoNode2 = Geo_GetGeoNodeOfNum(NumNode) ;
       GeoElement = Geo_GetGeoElementOfNum(abs(NumElements[0])) ;
 
       if(GeoElement->Type != LINE)
-	Msg(ERROR, "Solid Angle not done for Element Type != LINE (%d)", GeoElement->Type);
+	Msg(ERROR, "SolidAngle not done for Elements other than LINE");
       
       if(NumElements[0]>0){
 	GeoNode1 = Geo_GetGeoNodeOfNum(GeoElement->NumNodes[0]) ;

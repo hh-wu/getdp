@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Hexahedron.c,v 1.9 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Hexahedron.c,v 1.10 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -29,7 +29,7 @@ void  Gauss_Hexahedron (int Nbr_Points, int Num,
     *wght = phex77[Num] ; break ;
 
   default : 
-    Msg(ERROR, "Wrong Number of Integration Points in Gauss_Hexahedron\n"
+    Msg(ERROR, "Wrong number of Gauss points for Hexahedron\n"
 	       "Valid choices: 6, 34, 77");
     break;
 
@@ -58,7 +58,7 @@ void  GaussLegendre_Hexahedron (int Nbr_Points, int Num,
 #endif
   
   if(nb*nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
-    Msg(ERROR, "Number of Points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
+    Msg(ERROR, "Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
   
   if(glhex[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) glhex[i] = 0 ;
     

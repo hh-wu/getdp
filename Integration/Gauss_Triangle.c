@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Triangle.c,v 1.7 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Triangle.c,v 1.8 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -25,7 +25,7 @@ void  Gauss_Triangle (int Nbr_Points, int Num,
   case 13 : *u= xt13[Num] ; *v= yt13[Num] ; *w= 0. ; *wght= pt13[Num] ; break ;
   case 16 : *u= xt16[Num] ; *v= yt16[Num] ; *w= 0. ; *wght= pt16[Num] ; break ;
   default : 
-    Msg(ERROR, "Wrong Number of Integration Points in Gauss_Triangle\n"
+    Msg(ERROR, "Wrong number of Gauss points for Triangle\n"
 	       "Valid choices: 1, 3, 4, 6, 7, 12, 13, 16");
     break;
   }
@@ -62,12 +62,12 @@ void  GaussLegendre_Triangle (int Nbr_Points, int Num,
   nb = (int)sqrt((double)Nbr_Points);
 
   if(nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
-    Msg(ERROR, "Number of Points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
+    Msg(ERROR, "Number of points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
 
   if(glt[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) glt[i] = 0 ;
 
   if(!glt[nb-1]){
-    Msg(INFO, "Computing Degenerate Gauss-Legendre %dX%d for Triangle", nb, nb);
+    Msg(INFO, "Computing degenerate GaussLegendre %dX%d for Triangle", nb, nb);
     glxt[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
     glyt[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
     glpt[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
@@ -100,7 +100,7 @@ void  GaussSingularR_Triangle (int Nbr_Points, int Num,
   case  3 : *u= xts3 [Num] ; *v= yts3 [Num] ; *w= 0. ; *wght= pts3 [Num] ; break ;
   case  4 : *u= xts4 [Num] ; *v= yts4 [Num] ; *w= 0. ; *wght= pts4 [Num] ; break ;
   default : 
-    Msg(ERROR, "Wrong Number of Integration Points in GaussSingularR_Triangle\n"
+    Msg(ERROR, "Wrong number of (modified) Gauss points for Triangle\n"
 	       "Valid choices: 1, 3, 4");
     break;
   }

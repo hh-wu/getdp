@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.17 2001-02-24 16:20:28 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.18 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -65,7 +65,7 @@ void  Init_OperationOnSystem(struct Resolution   * Resolution_P,
       if ((i = List_ISearchSeq(Resolution2_P->DefineSystem, 
 			       (*DefineSystem_P)->DestinationSystemName,
 			       fcmp_DefineSystem_Name)) < 0)
-	Msg(ERROR, "Unknown DestinationSystem (%s) in DefineSystem (%s)", 
+	Msg(ERROR, "Unknown DestinationSystem (%s) in System (%s)", 
 	    (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
       (*DefineSystem_P)->DestinationSystemIndex = i ;      
       Dof_DefineUnknownDofFromSolveOrInitDof(DofData_P) ;
@@ -74,7 +74,7 @@ void  Init_OperationOnSystem(struct Resolution   * Resolution_P,
       if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
 			       (*DefineSystem_P)->DestinationSystemName,
 			       fcmp_DefineSystem_Name)) < 0)
-	Msg(ERROR, "Unknown DestinationSystem (%s) in DefineSystem (%s)", 
+	Msg(ERROR, "Unknown DestinationSystem (%s) in System (%s)", 
 	    (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
       (*DefineSystem_P)->DestinationSystemIndex = i ;      
     }
@@ -249,7 +249,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_Solve(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
       Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
-      Msg(BIGINFO, "Mean Error: %.3e", MeanError) ;
+      Msg(BIGINFO, "Mean error: %.3e", MeanError) ;
 
       Current.RelativeDifference += MeanError ;
 
@@ -262,10 +262,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         else {
           RelFactor_Modified = Current.RelaxationFactor /
             (MeanError / Current.RelativeDifferenceOld) ;
-          Msg(INFO, "RelFactor Modified = %g", RelFactor_Modified) ;
+          Msg(INFO, "RelFactor modified = %g", RelFactor_Modified) ;
           LinAlg_ProdVectorDouble(&DofData_P->dx, RelFactor_Modified, &DofData_P->dx) ;
           Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
-          Msg(BIGINFO, "Mean Error: %.3e", MeanError) ;
+          Msg(BIGINFO, "Mean error: %.3e", MeanError) ;
         }
       }
 
@@ -285,7 +285,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if(Flag_RESTART){
         if (!DofData_P->Solutions)
-          Msg(ERROR, "No Solution to Restart the Computation");
+          Msg(ERROR, "No solution to restart the computation");
 
         for(i=0 ; i<DofData_P->NbrAnyDof ; i++){
           Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
@@ -374,7 +374,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	DofData_P->CurrentSolution = (struct Solution*)
 	  List_Pointer(DofData_P->Solutions, i) ;
 	if (!DofData_P->CurrentSolution->SolutionExist)
-	  Msg(ERROR, "SaveSolutions: Solution #%d doesn't exist anymore", i) ;
+	  Msg(ERROR, "SaveSolutions: solution #%d doesn't exist anymore", i) ;
 	Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, 
 			 DofData_P->CurrentSolution->Time, i) ;
       }
@@ -388,14 +388,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       i = 0 ;
       while(Name_ResFile[i]){
-	Msg(LOADING, "Processing Data '%s'", Name_ResFile[i]) ;
+	Msg(LOADING, "Processing data '%s'", Name_ResFile[i]) ;
 	Dof_OpenFile(DOF_TMP, Name_ResFile[i], "r");
 	Dof_ReadFileRES(NULL, DofData_P, DofData_P->Num, &Current.Time, &Current.TimeStep) ;
 	Dof_CloseFile(DOF_TMP);
 	i++ ;
       }
       if(!List_Nbr(DofData_P->Solutions))
-	Msg(ERROR, "No Valid Data Found for ReadSolution '%s'", DefineSystem_P->Name);
+	Msg(ERROR, "No valid data found for ReadSolution '%s'", DefineSystem_P->Name);
 	
       DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;	
@@ -445,11 +445,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 		Dof_P->Type = DOF_UNKNOWN ;
 	      }
 	      else{
-		Msg(WARNING, "Unknown DoF in TransferSolution") ;
+		Msg(WARNING, "Unknown Dof in TransferSolution") ;
 	      }
 	    }
 	    else{
-	      Msg(WARNING, "Trying to transfer a non symmetrical DoF");
+	      Msg(WARNING, "Trying to transfer a non symmetrical Dof");
 	    }
 	  }
 
@@ -693,7 +693,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       
       if(!DofData2_P->Solutions){
 	if(DofData2_P->NbrDof != gCOMPLEX_INCREMENT * DofData_P->NbrDof)
-	  Msg(ERROR, "Uncompatible System Definitions for FourierTransform") ;
+	  Msg(ERROR, "Uncompatible System definitions for FourierTransform") ;
 	k = List_Nbr(Operation_P->Case.FourierTransform.Frequency) ;
 	DofData2_P->Solutions = List_Create(k, 1, sizeof(struct Solution)) ;	
 	for(i=0 ; i<k ; i++){
@@ -729,7 +729,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_PRINT : 
       if(Operation_P->Case.Print.FileOut){
 	if(!(PrintStream = fopen(Operation_P->Case.Print.FileOut, "a")))
-	  Msg(ERROR, "Unable to Open File '%s'", Operation_P->Case.Print.FileOut) ;
+	  Msg(ERROR, "Unable to open file '%s'", Operation_P->Case.Print.FileOut) ;
 	Msg(OPERATION, "Print -> '%s'", Operation_P->Case.Print.FileOut) ;
       }
       else{
@@ -764,7 +764,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 		    fprintf(PrintStream, " ") ;
 		  }
 		}
-	        else Msg(WARNING, "Print of Dof out of TimeStep Range [0,%d]",
+	        else Msg(WARNING, "Print of Dof out of TimeStep range [0,%d]",
 			 List_Nbr(DofData_P->Solutions)-1);
 	      }
 	    else{
@@ -778,7 +778,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      }
 	    }
 	  }
-	  else Msg(WARNING, "Wrong Number of Dof to Print (%d is out of [0,%d])",
+	  else Msg(WARNING, "Wrong number of Dof to Print (%d is out of [0,%d])",
 		   j, DofData_P->NbrDof-1);
 	}
 	fprintf(PrintStream, "\n") ;
@@ -925,7 +925,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
   }
   else if (Solution_P != DofData_P->CurrentSolution) {
-    Msg(ERROR, "Incompatible Time") ;
+    Msg(ERROR, "Incompatible time") ;
   }
   
   if(Flag_Separate){
@@ -973,7 +973,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     LinAlg_AssembleMatrix(&DofData_P->A) ;
     LinAlg_AssembleVector(&DofData_P->b) ;
     LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-    if(!i) Msg(WARNING, "Generated System is of Dimension Zero");
+    if(!i) Msg(WARNING, "Generated system is of dimension zero");
   }
 
   GetDP_End ;
@@ -1157,7 +1157,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
   GetDP_Begin("Update_System");
 
   if (!DofData_P->Solutions)
-    Msg(ERROR, "No Initialized Solution Available for Update") ;
+    Msg(ERROR, "No initialized solution available for update") ;
 
   i_TimeStep = (int)Current.TimeStep ;
   if (!(Solution_P = (struct Solution*)
@@ -1183,14 +1183,14 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
       List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
   }
   else if (Solution_P != DofData_P->CurrentSolution) {
-    Msg(ERROR, "Incompatible Time") ;
+    Msg(ERROR, "Incompatible time") ;
   }
   
   switch (Current.TypeTime) {
   case TIME_THETA :
 
     if(!DofData_P->Flag_Init[1] && !DofData_P->Flag_Init[2])
-      Msg(ERROR, "No System Available for Update") ;
+      Msg(ERROR, "No system available for update") ;
 
     if(!Init_Update){
       Init_Update = 1;
@@ -1226,7 +1226,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
   case TIME_NEWMARK :
 
     if(!DofData_P->Flag_Init[1] && !DofData_P->Flag_Init[2] && !DofData_P->Flag_Init[3])
-      Msg(ERROR, "No System Available for Update") ;
+      Msg(ERROR, "No system available for update") ;
 
     if(!Init_Update){
       Init_Update = 1;
@@ -1269,11 +1269,11 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
     break ;
 
   default :
-    Msg(ERROR, "Wrong Type of Analysis for Update") ;
+    Msg(ERROR, "Wrong type of analysis for update") ;
   }
 
   LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-  if(!i) Msg(ERROR, "Generated System is of Dimension Zero");
+  if(!i) Msg(ERROR, "Generated system is of dimension zero");
 
   GetDP_End ;
 }
@@ -1905,7 +1905,7 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 		 Operation_P->Case.ChangeOfCoordinates.GroupIndex) ;
   if (!Group_P->ExtendedList)  Generate_ExtendedGroup(Group_P) ;
   if (Group_P->FunctionType != NODESOF)
-    Msg(ERROR, "ChangeOfCoordinates: Group must be of NodesOf Function Type") ;
+    Msg(ERROR, "ChangeOfCoordinates: Group must be of NodesOf function type") ;
 
   Nbr_Node = List_Nbr(Group_P->ExtendedList) ;
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_DofOfElement.c,v 1.16 2000-12-08 12:04:13 dular Exp $"
+#define RCSID "$Id: Get_DofOfElement.c,v 1.17 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -435,7 +435,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
     case _CAL :
     case _POS :
       if(!FunctionSpace_P->DofData)
-	Msg(ERROR, "Empty DofData in FunctionSpace '%s' (No Unknowns?)",
+	Msg(ERROR, "Empty DofData in FunctionSpace '%s' (no unknowns?)",
 	    FunctionSpace_P->Name);
 
       CodeExist =
@@ -541,7 +541,7 @@ void  Get_DofOfRegion(int  Num_Region,
     switch (TreatmentStatus) {
     case _CAL :  case _POS :
       if(!FunctionSpace_P->DofData)
-	Msg(ERROR, "Empty DofData in FunctionSpace '%s' (No Unknowns?)",
+	Msg(ERROR, "Empty DofData in FunctionSpace '%s' (no unknowns?)",
 	    FunctionSpace_P->Name);
 
       CodeExist =

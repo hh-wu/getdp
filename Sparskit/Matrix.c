@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.9 2000-10-30 09:04:06 dular Exp $"
+#define RCSID "$Id: Matrix.c,v 1.10 2001-03-03 19:21:22 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -42,7 +42,7 @@ void init_matrix (int NbLines, Matrix *M, Solver_Params *p){
     M->F.a    = (double*) Malloc (NbLines * NbLines * sizeof(double));
     break;
   default :
-    Msg(ERROR, "Unknown type of Matrix Storage Format: %d", M->T);
+    Msg(ERROR, "Unknown type of matrix storage format: %d", M->T);
     break;
   }
 }
@@ -523,12 +523,12 @@ void formatted_write_matrix (FILE *pfile, Matrix *M, int style){
       break;
     
     default : 
-      Msg(ERROR, "Unknown Printing Style for Formatted Matrix Output");
+      Msg(ERROR, "Unknown print style for formatted matrix output");
     }
     break ;
     
   default :
-    Msg(ERROR, "Unknown Matrix Format for Formatted Matrix Output");
+    Msg(ERROR, "Unknown matrix format for formatted matrix output");
 
   }
 }

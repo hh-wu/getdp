@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.10 2001-03-03 12:11:10 geuzaine Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.11 2001-03-03 19:21:22 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -389,7 +389,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
       Msg(ERROR, "No element in which to integrate");
 
     if(PostQuantityTerm_P->IntegrationMethodIndex < 0)
-      Msg(ERROR, "Missing Integration Method in PostQuantity '%s'", 
+      Msg(ERROR, "Missing Integration method in PostProcesssing Quantity '%s'", 
 	  PostQuantity_P->Name);
     
     IntegrationCase_L = 
@@ -408,15 +408,15 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 					    CriterionIndex) ;
     
     if(IntegrationCase_P->Type != GAUSS && IntegrationCase_P->Type != NEWTONCOTES)
-      Msg(ERROR, "Only Numerical Integration is Available "
+      Msg(ERROR, "Only numerical integration is available "
 	  "in Integral PostQuantities");
     
     Quadrature_P = (struct Quadrature*)
       List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
     
     if(!Quadrature_P)
-      Msg(ERROR, "Unknown Type of Element (%s) for IntegrationMethod (%s) "
-	  " in PostQuantity (%s)", 
+      Msg(ERROR, "Unknown type of Element (%s) for Integration method (%s) "
+	  " in PostProcessing Quantity (%s)", 
 	  Get_StringForDefine(Element_Type, Element->Type),
 	  ((struct IntegrationMethod *)
 	   List_Pointer(Problem_S.IntegrationMethod,
@@ -440,7 +440,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 			  &Element->Jac, &Element->InvJac) ;	  
       }
       else{
-	Msg(WARNING, "Null Jacobian Determinant in 'Cal_PostQuantity'");
+	Msg(WARNING, "Zero determinant in 'Cal_PostQuantity'");
       }
       Current.x = Current.y = Current.z = 0. ;
       if (Type_Quantity == INTEGRALQUANTITY){

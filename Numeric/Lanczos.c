@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.5 2000-11-07 12:44:45 dular Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.6 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -62,7 +62,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   GetDP_Begin("Lanczos");
 
   if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
-    Msg(ERROR, "No System Available for Lanczos: Check 'DtDt' and 'GenerateSeparate'") ;
+    Msg(ERROR, "No System available for Lanczos: check 'DtDt' and 'GenerateSeparate'") ;
 
   NbrDof = DofData_P->NbrDof ;
 
@@ -93,7 +93,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   LinAlg_ProdVectorVector(b, &Lan[0], &dum);
   LinAlg_ProdVectorDouble(&Lan[0], 1./sqrt(dum), &Lan[0]); /* Lan[0] is built */
 
-  Msg(BIGINFO, "Lanczos Iteration 1/%d", LanSize);
+  Msg(BIGINFO, "Lanczos iteration 1/%d", LanSize);
 
   LinAlg_ProdMatrixVector(M, &Lan[0], b); /* b = M * Lan[0] */   
   LinAlg_Solve(K, b, &DofData_P->Solver, &Lan[1]); /* Lan[1] = K^-1 * b */  
@@ -116,7 +116,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 
   for (i=Restart ; i<=LanSize ; i++){
     
-    Msg(BIGINFO, "Lanczos Iteration %d/%d", i, LanSize);
+    Msg(BIGINFO, "Lanczos iteration %d/%d", i, LanSize);
 
     LinAlg_Solve(K, b, &DofData_P->Solver, &Lan[i]);
     
@@ -148,7 +148,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     /* print_lanczos_to_file (i,NbrDof,Hes,Lan,shift,Name); */
 
     for(k=1 ; k<=i ; k++)
-      Msg(INFO, "Lanczos Eigen Value %d = %g (%g) %g",k, 
+      Msg(INFO, "Lanczos eigenvalue %d = %g (%g) %g",k, 
 	  shift+1.0/wr[k], sqrt(shift+1.0/wr[k])/TWO_PI, wi[k]);
     
     /* store the real eigen values */
@@ -160,7 +160,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 
   }
 
-  Msg(INFO, "Final Eigen Values/Vectors Computation");
+  Msg(INFO, "Final eigenvalue/eigenvector Computation");
 
   /* eigen value computation of the final Hes matrix */
 
@@ -190,11 +190,11 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     List_Read(LanSave, i, &ii) ;
 
     if(ii<1 || ii>LanSize){
-      Msg(WARNING, "Eigen Value Index Out of Range") ;
+      Msg(WARNING, "Eigenvalue index out of range") ;
       break ;
     }
 
-    Msg(BIGINFO, "Eigen Value %d = %g (f = %g)", ii, wi[ii], sqrt(wi[ii])/TWO_PI);
+    Msg(BIGINFO, "Eigenvalue %d = %g (f = %g)", ii, wi[ii], sqrt(wi[ii])/TWO_PI);
 
     if(i != 0){
       LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, NbrDof,

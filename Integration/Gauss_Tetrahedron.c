@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Tetrahedron.c,v 1.9 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Tetrahedron.c,v 1.10 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -46,7 +46,7 @@ void  Gauss_Tetrahedron (int Nbr_Points, int Num,
     *wght = ptet29[Num] ; break ;
 
   default : 
-    Msg(ERROR, "Wrong Number of Integration Points in Gauss_Tetrahedron\n"
+    Msg(ERROR, "Wrong number of Gauss Points for Tetrahedron\n"
 	       "Valid choices: 1, 4, 5, 15, 16, 17, 29");
     break;
   }
@@ -91,12 +91,12 @@ void  GaussLegendre_Tetrahedron (int Nbr_Points, int Num,
 #endif
 
   if(nb*nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
-    Msg(ERROR, "Number of Points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
+    Msg(ERROR, "Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
 
   if(gltet[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) gltet[i] = 0 ;
 
   if(!gltet[nb-1]){
-    Msg(INFO, "Computing Degenerate Gauss-Legendre %dX%dX%d for Tetrahedron", 
+    Msg(INFO, "Computing degenerate GaussLegendre %dX%dX%d for Tetrahedron", 
 	nb, nb, nb);
     glxtet[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
     glytet[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.10 2000-10-30 01:29:49 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.11 2001-03-03 19:21:22 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -149,7 +149,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
     switch(PE->Type){
 
     case POINT :
-      Msg(ERROR, "Impossible to Divide a Point Recursively");
+      Msg(ERROR, "Impossible to divide a Point recursively");
       break;
       
     case LINE :
@@ -264,7 +264,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
       break ;
 
     default :
-      Msg(ERROR, "Recursive Division not Implemented for Hexahedra, Prisms and Pyramids") ;
+      Msg(ERROR, "Recursive division not implemented for Hexahedra, Prisms and Pyramids") ;
     }
     
     for(i = 0 ; i < NbCut ; i++){
@@ -1130,7 +1130,7 @@ void Sort_PostElement_Connectivity(List_T *PostElement_L){
   for(ii = 0 ; ii < NbrPost ; ii++){
     PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
     if(PE->NbrNodes != 2)
-      Msg(ERROR, "Connectivity Sorting Impossible for %d-Noded Elements",
+      Msg(ERROR, "Connectivity sorting impossible for %d-noded elements",
 	  PE->NbrNodes) ;
     PE->u[0] = 0. ;
   }

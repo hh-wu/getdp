@@ -1,4 +1,4 @@
-#define RCSID "$Id: MainBlackBox.c,v 1.6 2001-02-07 07:45:16 geuzaine Exp $"
+#define RCSID "$Id: MainBlackBox.c,v 1.7 2001-03-03 19:21:21 geuzaine Exp $"
 
 /* 
    To create a special version of GetDP with a non-readable built-in formulation:
@@ -56,7 +56,7 @@ int  main(int argc, char *argv[]) {
   signal(SIGFPE,  Signal); 
 
   file = fopen(argv[2], "r");
-  if(!file) Msg(ERROR, "Unable to Open File '%s'", argv[2]);
+  if(!file) Msg(ERROR, "Unable to open file '%s'", argv[2]);
   do { 
     fgets(str, MAX_STRING_LENGTH, file) ; 
     if (feof(file)) break ;
@@ -68,7 +68,7 @@ int  main(int argc, char *argv[]) {
 
   if(argc==5){
     file = fopen(argv[3], "r");
-    if(!file) Msg(ERROR, "Unable to Open File '%s'", argv[3]);
+    if(!file) Msg(ERROR, "Unable to open file '%s'", argv[3]);
     do { 
       fgets(str, MAX_STRING_LENGTH, file) ; 
       if (feof(file)) break ;
@@ -78,7 +78,7 @@ int  main(int argc, char *argv[]) {
   }
   
   file = fopen(Name_TmpFile, "w");
-  if(!file) Msg(ERROR, "Unable to Open File '%s'", Name_TmpFile);
+  if(!file) Msg(ERROR, "Unable to open file '%s'", Name_TmpFile);
   fprintf(file, buf);
   fclose(file);
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AnalyticIntegration.c,v 1.4 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Cal_AnalyticIntegration.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -20,7 +20,7 @@ double  Cal_AnalyticIntegration(struct Element * E,
   if ((E->Type != TRIANGLE) ||
       (BFEqu != (void (*)())BF_GradNode) || (BFDof != (void (*)())BF_GradNode) ) {
 
-    Msg(ERROR, "Unknown Analytic Method for Integration") ;
+    Msg(ERROR, "Unknown analytic method for integration") ;
     GetDP_Return(0.) ;
   }
 

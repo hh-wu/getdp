@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node.c,v 1.7 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: BF_Node.c,v 1.8 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -10,7 +10,7 @@
 /*  B F _ N o d e                                                           */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumNode   Msg(ERROR, "Wrong Node Number in 'BF_Node'")
+#define WrongNumNode   Msg(ERROR, "Wrong Node number in 'BF_Node'")
 
 void  BF_Node(struct Element * Element, int NumNode, 
 	      double u, double v, double w,  double *s ) {
@@ -103,7 +103,7 @@ void  BF_Node(struct Element * Element, int NumNode,
     break ;
 
   default :
-    Msg(ERROR, "Unknown Element Type in BF_Node");
+    Msg(ERROR, "Unknown type of Element in BF_Node");
     break;
   }
 
@@ -116,7 +116,7 @@ void  BF_Node(struct Element * Element, int NumNode,
 /*  B F _ G r a d N o d e                                                   */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumNode   Msg(ERROR, "Wrong Node Number in 'BF_GradNode'")
+#define WrongNumNode   Msg(ERROR, "Wrong Node number in 'BF_GradNode'")
 
 void  BF_GradNode(struct Element * Element, int NumNode, 
 		  double u, double v, double w,  double s[] ) {
@@ -251,7 +251,7 @@ void  BF_GradNode(struct Element * Element, int NumNode,
     break ;
 
   default :
-    Msg(ERROR, "Unknown Element Type in BF_GradNode");
+    Msg(ERROR, "Unknown type of Element in BF_GradNode");
     break;
   }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Cells.c,v 1.4 2000-10-30 01:29:48 geuzaine Exp $"
+#define RCSID "$Id: Get_Cells.c,v 1.5 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h> /* abs */
@@ -190,7 +190,7 @@ void Get_deRhamCells(struct Element *Element,
       break;
 
     default :
-      Msg(ERROR, "Unknown Element Type for DualNodesOf");
+      Msg(ERROR, "Unknown Element type for DualNodesOf");
       break;
 
     }
@@ -233,7 +233,7 @@ void Get_deRhamCells(struct Element *Element,
       break;
 
     default :
-      Msg(ERROR, "Unknown Element Type for DualEdgesOf");
+      Msg(ERROR, "Unknown Element type for DualEdgesOf");
       break;
 
     }
@@ -241,7 +241,7 @@ void Get_deRhamCells(struct Element *Element,
 
   case DUALFACETSOF :
   case DUALVOLUMESOF :
-    Msg(ERROR, "de Rham Map on DualFacetsOf and DualVolumesOf not Done") ;
+    Msg(ERROR, "de Rham Map on DualFacetsOf and DualVolumesOf not done") ;
     break ;
 
 
@@ -285,18 +285,18 @@ void Get_deRhamCells(struct Element *Element,
       break;
 
     default :
-      Msg(ERROR, "Unknown Element Type for BoundaryOfDualNodesOf");
+      Msg(ERROR, "Unknown Element type for BoundaryOfDualNodesOf");
       break;
 
     }
     break;
 
   case BOUNDARYOFDUALEDGESOF :
-    Msg(ERROR, "de Rham Map on BoundaryOfDualEdgesOf not Done") ;
+    Msg(ERROR, "de Rham Map on BoundaryOfDualEdgesOf not done") ;
     break;
 
   default:
-    Msg(ERROR, "Unknown Type of Entity in de Rham Map");
+    Msg(ERROR, "Unknown type of Entity in de Rham Map");
     break;
   }
 
@@ -342,7 +342,7 @@ void Get_IntegrationCells(struct Element *Element,
     break;
 
   default :
-    Msg(ERROR, "Unknown Element Type for Get_IntegrationCells");
+    Msg(ERROR, "Unknown Element type for Get_IntegrationCells");
     break;
 
   }

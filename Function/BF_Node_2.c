@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node_2.c,v 1.3 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: BF_Node_2.c,v 1.4 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -13,7 +13,7 @@
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Edge Number in 'BF_Node_2E'")
+#define WrongNumEntity   Msg(ERROR, "Wrong Edge number in 'BF_Node_2E'")
 
 void  BF_Node_2E (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double *s ) {
@@ -72,7 +72,7 @@ void  BF_Node_2E (struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_Node_2E");
+    Msg(ERROR, "Unkown type of Element in BF_Node_2E");
     break ;
   }
 
@@ -96,7 +96,7 @@ void  BF_Node_2F (struct Element * Element, int NumEntity,
   case LINE :
   case TRIANGLE :
   case TETRAHEDRON :
-    Msg(ERROR, "You Should Never be Here (BF_Node_2F)");
+    Msg(ERROR, "You should never end up here!") ;
     break;
     
   case QUADRANGLE :
@@ -144,7 +144,7 @@ void  BF_Node_2V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
-    Msg(ERROR, "You Should Never be Here (BF_Node_2V)");
+    Msg(ERROR, "You should never end up here!") ;
     break;
 
   case HEXAHEDRON :
@@ -160,7 +160,7 @@ void  BF_Node_2V (struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_Node_2V");
+    Msg(ERROR, "Unkown type of Element in BF_Node_2V");
     break ;
   }
   
@@ -176,7 +176,7 @@ void  BF_Node_2V (struct Element * Element, int NumEntity,
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Edge Number in 'BF_GradNode_2E'")
+#define WrongNumEntity   Msg(ERROR, "Wrong Edge number in 'BF_GradNode_2E'")
 
 void  BF_GradNode_2E (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
@@ -231,7 +231,7 @@ void  BF_GradNode_2E (struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_GradNode_2E");
+    Msg(ERROR, "Unkown type of Element in BF_GradNode_2E");
     break ;
   }
 
@@ -254,7 +254,7 @@ void  BF_GradNode_2F (struct Element * Element, int NumEntity,
   case LINE :
   case TRIANGLE :
   case TETRAHEDRON :    
-    Msg(ERROR, "You Should Never be Here (BF_GradNode_2F)");
+    Msg(ERROR, "You should never end up here!") ;
     break;
 
   case QUADRANGLE :
@@ -276,7 +276,7 @@ void  BF_GradNode_2F (struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_GradNode_2F");
+    Msg(ERROR, "Unkown type of Element in BF_GradNode_2F");
     break ;
   }
 
@@ -302,7 +302,7 @@ void  BF_GradNode_2V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
-    Msg(ERROR, "You Should Never be Here (BF_GradNode_2V)");
+    Msg(ERROR, "You should never end up here!") ;
     break;
 
   case HEXAHEDRON :
@@ -318,7 +318,7 @@ void  BF_GradNode_2V (struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_GradNode_2V");
+    Msg(ERROR, "Unkown type of Element in BF_GradNode_2V");
     break ;
   }
 

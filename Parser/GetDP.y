@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.5 2001-03-03 12:11:09 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.6 2001-03-03 19:21:21 geuzaine Exp $ */
 
 /*
   Modifs a faire (Patrick):
@@ -577,7 +577,7 @@ FunctionForGroup :
   | tSTRING
     { $$ = Get_DefineForString(FunctionForGroup_Type, $1, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of Function for Group: %s %s", 
+	vyyerror("Unknown type of Function for Group: %s %s", 
 		 $1, Get_Valid_SXD(FunctionForGroup_Type));
       Free($1) ;
     }
@@ -663,7 +663,7 @@ SuppListTypeForGroup :
     tSTRING
     { $$ = Get_DefineForString(FunctionForGroup_SuppList, $1, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of Supplementary Region: %s %s", 
+	vyyerror("Unknown type of Supplementary Region: %s %s", 
 		 $1, Get_Valid_SXD(FunctionForGroup_SuppList)) ;
       Free($1) ;
     }
@@ -775,11 +775,25 @@ IRegion :
       Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; 
       if(!$4 || ($1<$6 && $4<0) || ($1>$6 && $4>0)){
-	vyyerror("Wrong Increment in '%d :[%d] %d'", $1, (int)$4, $6) ;
+	vyyerror("Wrong increment in '%d :[%d] %d'", $1, (int)$4, $6) ;
 	List_Add(ListOfInt_L, &($1)) ;
       }
       else
 	for(j=$1 ; ($4>0)?(j<=$6):(j>=$6) ; j+=(int)$4) 
+	  List_Add(ListOfInt_L, &j) ;
+      $$ = ListOfInt_L ;
+    }
+
+  | tINT tDOTS tINT tDOTS FExpr
+    { 
+      Flag_MultipleIndex = 0 ;
+      List_Reset(ListOfInt_L) ; 
+      if(!$5 || ($1<$3 && $5<0) || ($1>$3 && $5>0)){
+	vyyerror("Wrong increment in '%d : %d : %d'", $1, $3, (int)$5) ;
+	List_Add(ListOfInt_L, &($1)) ;
+      }
+      else
+	for(j=$1 ; ($5>0)?(j<=$3):(j>=$3) ; j+=(int)$5) 
 	  List_Add(ListOfInt_L, &j) ;
       $$ = ListOfInt_L ;
     }
@@ -970,7 +984,7 @@ Function :
 
 	  if (List_Search(Expression_P->Case.PieceWiseFunction.ExpressionPerRegion,
 			  &ExpressionPerRegion_S.RegionIndex, fcmp_int))
-	    vyyerror("Redefinition of Piece-wise Function: %s [%d]",
+	    vyyerror("Redefinition of piece-wise Function: %s [%d]",
 		     Expression_P->Name, ExpressionPerRegion_S.RegionIndex) ;
 	  else
 	    List_Add(Expression_P->Case.PieceWiseFunction.ExpressionPerRegion,
@@ -978,7 +992,7 @@ Function :
 	}
 	if ($3 == -1) { List_Delete(Group_S.InitialList) ; }
       }
-      else  vyyerror("Bad Group Right Hand Side") ;
+      else  vyyerror("Bad Group right hand side") ;
     }
 
   | Affectation
@@ -1016,7 +1030,7 @@ Expression :
   /* reutilisation de fonctions deja definies en amont */
   | tFunction '[' tSTRING ']'
     { if((i = List_ISearchSeq(Problem_S.Expression, $3, fcmp_Expression_Name)) < 0)
-	vyyerror("Unknown Name of Expression: %s", $3) ;
+	vyyerror("Unknown name of Expression: %s", $3) ;
       Free($3) ;  $$ = i ;
     }
 
@@ -1228,7 +1242,7 @@ WholeQuantity_Single :
 	WholeQuantity_S.Type = WQ_EXPRESSION ;
 	WholeQuantity_S.Case.Expression.Index = i ;
 	WholeQuantity_S.Case.Expression.NbrArguments = $2 ;
-	if ($2 < 0)  vyyerror("Uncompatible Argument for Function: %s", $1) ;
+	if ($2 < 0)  vyyerror("Uncompatible argument for Function: %s", $1) ;
       }
 
       /* Built in functions */
@@ -1270,7 +1284,7 @@ WholeQuantity_Single :
 	  }
 	  else if (WholeQuantity_S.Case.Function.NbrParameters == -2 &&
 		   (List_Nbr(ListOfDouble_L))%2 != 0) {
-	    vyyerror("Wrong number of parameters for Function '%s' (%d instead of even number)",
+	    vyyerror("Wrong number of parameters for Function '%s' (%d is not even)",
 		     $1, List_Nbr(ListOfDouble_L)) ;
 	  }
 	  else {
@@ -1287,10 +1301,6 @@ WholeQuantity_Single :
 
 	else {
 	  vyyerror("Unknown Function: %s", $1) ;
-	  /*
-	  vyyerror("Unknown Function: %s %s\n   (or any user-defined function)", 
-		   $1, Get_Valid_SXF2N(F_Function)) ;
-		   */
 	}
       }
 
@@ -1303,7 +1313,7 @@ WholeQuantity_Single :
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity =
 	Get_DefineForString(QuantityFromFS_Type, $1, &FlagError) ;
       if (FlagError) 
-	vyyerror("Unknown Type for Quantity: %s %s", 
+	vyyerror("Unknown type of discrete Quantity: %s %s", 
 		 $1, Get_Valid_SXD(QuantityFromFS_Type)) ;
       Free($1) ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = $2.Int1 ;
@@ -1314,17 +1324,17 @@ WholeQuantity_Single :
 	if (Current_DofIndexInWholeQuantity == -1)
 	  Current_DofIndexInWholeQuantity = List_Nbr(Current_WholeQuantity_L) ;
 	else if (Current_DofIndexInWholeQuantity == -2)
-	  vyyerror("Dof Definition out of Context") ;
+	  vyyerror("Dof{} definition out of context") ;
 	else
-	  vyyerror("More than one Dof Definition in Expression") ;
+	  vyyerror("More than one Dof definition in Expression") ;
 	break ;
       case QUANTITY_NODOF :
 	if (Current_DofIndexInWholeQuantity == -2)
-	  vyyerror("NoDof Definition out of Context") ;
+	  vyyerror("NoDof definition out of context") ;
 	else if (Current_NoDofIndexInWholeQuantity == -1)
 	  Current_NoDofIndexInWholeQuantity = List_Nbr(Current_WholeQuantity_L) ;
 	else
-	  vyyerror("More than one NoDof Definition in Expression") ;
+	  vyyerror("More than one NoDof definition in Expression") ;
 	break ;
       }
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
@@ -1342,7 +1352,7 @@ WholeQuantity_Single :
   | Quantity_Def ArgumentsForFunction
     { 
       if($2!=3 && $2!=4) 
-	vyyerror("Wrong number of arguments for Quantity Evaluation (%d)", $2) ;
+	vyyerror("Wrong number of arguments for discrete quantity evaluation (%d)", $2) ;
       WholeQuantity_S.Type = WQ_OPERATORANDQUANTITYEVAL ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = $2 ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity = QUANTITY_SIMPLE ;
@@ -1361,7 +1371,7 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
 
       if (Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
-	vyyerror("Dof definition out of context") ;
+	vyyerror("Dof{} definition out of context") ;
     }
 
   | tMHTimeIntegration
@@ -1379,7 +1389,7 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
 
       if (Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
-	vyyerror("Dof definition out of context") ;
+	vyyerror("Dof{} definition out of context") ;
     }
 
   | tSolidAngle '[' Quantity_Def ']'
@@ -1402,7 +1412,7 @@ WholeQuantity_Single :
       WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, "WQ_Trace_In", $6) ;
 
       if(Group_S.Type != ELEMENTLIST || Group_S.SuppListType != SUPPLIST_CONNECTEDTO)
-	vyyerror("Group for Trace should be of Type 'ElementsOf[., ConnectedTo .]'");
+	vyyerror("Group for Trace should be of Type 'ElementsOf[x, ConnectedTo y]'");
 
       WholeQuantity_S.Case.Trace.DofIndexInWholeQuantity = -1 ;
       if (Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity){
@@ -1417,7 +1427,7 @@ WholeQuantity_Single :
 	    }
 	}
 	if(Current_DofIndexInWholeQuantity != -4)
-	  vyyerror("Dof Definition out of Context (in Trace Operator)");
+	  vyyerror("Dof{} definition out of context in Trace operator");
       }
 
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
@@ -1454,7 +1464,7 @@ WholeQuantity_Single :
       Get_PointerForString(Current_Value, $2, &FlagError,
 			   (void **)&WholeQuantity_S.Case.CurrentValue.Value) ;
       if (FlagError) 
-	vyyerror("Unknown Current Value: $%s %s", $2, Get_Valid_SXP(Current_Value)) ;
+	vyyerror("Unknown current value: $%s %s", $2, Get_Valid_SXP(Current_Value)) ;
       Free($2) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
@@ -1483,10 +1493,6 @@ WholeQuantity_Single :
     {
       WholeQuantity_S.Type = WQ_SAVEVALUE ;
       WholeQuantity_S.Case.SaveValue.Index = $3 - 1 ;
-      /*
-      if ($3 <= 0 || $3 > 6)  
-	vyyerror("Index of SaveValue out of order: %d", $3) ;
-      */
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
@@ -1494,10 +1500,6 @@ WholeQuantity_Single :
     {
       WholeQuantity_S.Type = WQ_VALUESAVED ;
       WholeQuantity_S.Case.ValueSaved.Index = $2 - 1 ;
-      /*
-      if ($2 <= 0 || $2 > 6)  
-	vyyerror("Index of SaveValue out of order: %d", $2) ;
-      */
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
@@ -1635,7 +1637,7 @@ JacobianCaseTerm :
 		   $2, List_Nbr(ListOfDouble_L), JacobianCase_S.NbrParameters) ;
 	}
       }
-      else  vyyerror("Unknown Type of Jacobian: %s %s", 
+      else  vyyerror("Unknown type of Jacobian: %s %s", 
 		     $2, Get_Valid_SXD1N(Jacobian_Type)) ;
       Free($2) ;
     }
@@ -1717,7 +1719,7 @@ IntegrationCaseTerm :
     { IntegrationCase_S.Type =
 	Get_DefineForString(Integration_Type, $2, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of IntegrationMethod: %s %s", 
+	vyyerror("Unknown type of Integration method: %s %s", 
 		 $2, Get_Valid_SXD(Integration_Type)) ;
       Free($2) ;
     }
@@ -1726,7 +1728,7 @@ IntegrationCaseTerm :
     { IntegrationCase_S.SubType =
 	Get_DefineForString(Integration_SubType, $2, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown SubType for IntegrationMethod: %s %s", 
+	vyyerror("Unknown subtype of Integration method: %s %s", 
 		 $2, Get_Valid_SXD(Integration_Type)) ;
       Free($2) ;
     }
@@ -1767,7 +1769,7 @@ QuadratureCaseTerm :
     tGeoElement tSTRING tEND
     { QuadratureCase_S.ElementType = Get_DefineForString(Element_Type, $2, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of Element: %s %s", 
+	vyyerror("Unknown type of Element: %s %s", 
 		 $2, Get_Valid_SXD(Element_Type)) ;
 
       switch(IntegrationCase_S.SubType) {
@@ -1790,7 +1792,7 @@ QuadratureCaseTerm :
 	     &FlagError, (void (**)())&QuadratureCase_S.Function) ;
 	  break ;
 	default : 
-	  vyyerror("Incompatible Type of Integration Method") ;
+	  vyyerror("Incompatible type of Integration method") ;
 	  break ;
 	}
 	break ;
@@ -1803,17 +1805,17 @@ QuadratureCaseTerm :
 	     &FlagError, (void (**)())&QuadratureCase_S.Function) ;
 	  break ;
 	default : 
-	  vyyerror("Incompatible Type of Integration Method") ;
+	  vyyerror("Incompatible type of Integration method") ;
 	  break ;
 	}
 	break ;
 
       default :
-	vyyerror("Incompatible Type of Integration Method") ;
+	vyyerror("Incompatible type of Integration method") ;
 	break ;
       }
 
-      if (FlagError)  vyyerror("Bad Type of Integration for Element: %s", $2) ;
+      if (FlagError)  vyyerror("Bad type of Integration method for Element: %s", $2) ;
       Free($2) ;
     }
 
@@ -1905,7 +1907,7 @@ ConstraintTerm :
   | tType tSTRING tEND
     { Constraint_S.Type = Get_DefineForString(Constraint_Type, $2, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of Constraint: %s %s",
+	vyyerror("Unknown type of Constraint: %s %s",
 		 $2, Get_Valid_SXD(Constraint_Type)) ;
       Free($2) ;
     }
@@ -1992,7 +1994,7 @@ ConstraintCaseTerm :
     { ConstraintPerRegion_S.Type = 
 	Get_DefineForString(Constraint_Type, $2, &FlagError) ;
       if (FlagError)
-	vyyerror("Unknown Type of Constraint: %s %s",
+	vyyerror("Unknown type of Constraint: %s %s",
 		 $2, Get_Valid_SXD(Constraint_Type)) ;
       Free($2) ;
     }
@@ -2017,7 +2019,7 @@ ConstraintCaseTerm :
 	    List_Add(ListOfRegionIndex, &i) ;
 	  }
 	}
-	else  vyyerror("Bad Group Right Hand Side") ;
+	else  vyyerror("Bad Group right hand side") ;
       }
     }
 
@@ -2042,7 +2044,7 @@ ConstraintCaseTerm :
 	    List_Add(ListOfSubRegionIndex, &i) ;
 	  }
 	}
-	else  vyyerror("Bad Group Right Hand Side") ;
+	else  vyyerror("Bad Group right hand side") ;
       }
     }
 
@@ -2223,7 +2225,7 @@ FunctionSpaceTerm :
   | tType tSTRING tEND
     { FunctionSpace_S.Type = Get_DefineForString(Field_Type, $2, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of FunctionSpace: %s %s", 
+	vyyerror("Unknown type of FunctionSpace: %s %s", 
 		 $2, Get_Valid_SXD(Field_Type)) ;
       Free($2) ;
     }
@@ -2399,7 +2401,7 @@ BasisFunctionTerm :
 	    List_Add(ListOfSupportIndex, &i) ;
 	  }
 	}
-	else  vyyerror("Bad Group Right Hand Side") ;
+	else  vyyerror("Bad Group right hand side") ;
       }
     }
 
@@ -2416,7 +2418,7 @@ BasisFunctionTerm :
 	    List_Sort(Group_S.InitialList, fcmp_int) ;  /* Necessaire pour Global... */
 	  BasisFunction_S.EntityIndex = Add_Group(&Group_S, "BF_Entity", 1, 0) ;
 	}
-	else  vyyerror("Bad Group Right Hand Side") ;
+	else  vyyerror("Bad Group right hand side") ;
 
 	if (BasisFunction_S.GlobalBasisFunction) {
 	  if (Group_S.FunctionType == GLOBAL) {
@@ -2452,7 +2454,7 @@ BasisFunctionTerm :
 	    List_Add(ListOfEntityIndex, &i) ;
 	  }
 	}
-	else  vyyerror("Bad Group Right Hand Side") ;
+	else  vyyerror("Bad Group right hand side") ;
       }
     }
   ;
@@ -2472,13 +2474,13 @@ OptionalParametersForBasisFunction :
       BasisFunction_S.GlobalBasisFunction =
 	List_Create($7, 1, sizeof(struct GlobalBasisFunction)) ;
       if (!Flag_MultipleIndex)
-	vyyerror("Multiple Group needed for Multiple Formulation: %s {}", $6) ;
+	vyyerror("Multiple Group needed for multiple Formulation: %s {}", $6) ;
     }
 
     tResolution tSTRING MultipleIndex tEND '}'
     {
       if (!Flag_MultipleIndex)
-	vyyerror("Multiple Resolution needed for Multiple Formulation: %s {}", $6) ;
+	vyyerror("Multiple Resolution needed for multiple Formulation: %s {}", $6) ;
 
       for (k = 0 ; k < $7 ; k++) {
 
@@ -2492,7 +2494,7 @@ OptionalParametersForBasisFunction :
 	  GlobalBasisFunction_S.EntityIndex = -1 ;
 	}
 	else
-	  vyyerror("Only 1 Region needed in Group: %s", Group_S.Name) ;
+	  vyyerror("Only one Region needed in Group: %s", Group_S.Name) ;
 
 	sprintf(StringAux1, "%s_%d_", $6, k+1) ;
 	if ((i = List_ISearchSeq(Problem_S.Formulation, StringAux1,
@@ -2523,7 +2525,7 @@ OptionalParametersForBasisFunction :
 		  GlobalBasisFunction_S.FormulationIndex, &Formulation_S) ;
 	if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, $3, 
 				 fcmp_DefineQuantity_Name)) < 0) {
-	  vyyerror("Unknown DefineQuantity %s in Formulation %s", $3,
+	  vyyerror("Unknown Quantity '%s' in Formulation '%s'", $3,
 		   Formulation_S.Name) ;
 	  break ;
 	}
@@ -2689,7 +2691,7 @@ GlobalQuantityTerm :
     { GlobalQuantity_S.Type =
 	Get_DefineForString(GlobalQuantity_Type, $2, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of GlobalQuantity: %s %s", 
+	vyyerror("Unknown type of GlobalQuantity: %s %s", 
 		 $2, Get_Valid_SXD(GlobalQuantity_Type)) ;
       Free($2) ;
     }
@@ -2961,7 +2963,7 @@ FormulationTerm :
     { Formulation_S.Type =
 	Get_DefineForString(Formulation_Type, $2, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of Formulation: %s %s", 
+	vyyerror("Unknown type of Formulation: %s %s", 
 		 $2, Get_Valid_SXD(Formulation_Type)) ;
       Free($2) ;
     }
@@ -3041,7 +3043,7 @@ DefineQuantityTerm :
     { DefineQuantity_S.Type =
 	Get_DefineForString(DefineQuantity_Type, $2, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of DefineQuantity: %s %s", 
+	vyyerror("Unknown type of Quantity: %s %s", 
 		 $2, Get_Valid_SXD(DefineQuantity_Type)) ;
       Free($2) ;
     }
@@ -3277,7 +3279,7 @@ DefineQuantityTerm :
 	 &DefineQuantity_S.IntegralQuantity.QuantityIndexTable,
 	 &DefineQuantity_S.IntegralQuantity.QuantityTraceGroupIndexTable) ;
       if(DefineQuantity_S.IntegralQuantity.NbrQuantityIndex > 1)
-	vyyerror("Integral Quantities are not ready yet for multiple {Quantity} fields");
+	vyyerror("More than one LocalQuantity in IntegralQuantity");
 
     }
 
@@ -3289,7 +3291,7 @@ DefineQuantityTerm :
   | tIntegration tSTRING tEND
     { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, $2,
 			       fcmp_IntegrationMethod_Name)) < 0)
-	vyyerror("Unknown IntegrationMethod: %s", $2) ;
+	vyyerror("Unknown Integration method: %s", $2) ;
       else
 	DefineQuantity_S.IntegralQuantity.IntegrationMethodIndex = i ;
       Free($2) ;
@@ -3298,7 +3300,7 @@ DefineQuantityTerm :
   | tJacobian tSTRING tEND
     { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, $2,
 			       fcmp_JacobianMethod_Name)) < 0)
-	vyyerror("Unknown JacobianMethod: %s", $2) ;
+	vyyerror("Unknown Jacobian method: %s", $2) ;
       else
 	DefineQuantity_S.IntegralQuantity.JacobianMethodIndex = i ;
       Free($2) ;
@@ -3381,7 +3383,7 @@ Equations :
 	      List_Read(ListOfSupportIndex, k,
 			&EquationTerm_S.Case.GlobalTerm.InIndex) ;
 	    else if (EquationTerm_S.Type == GLOBALEQUATION)  /* Attention: Pas fait ! */
-	      vyyerror("Multiple GlobalEquation not yet implemented in yacc ...") ; 
+	      vyyerror("Multiple GlobalEquation not yet implemented in parser ...") ; 
 
 	    List_Read(ListOfEquationTerm, k, &Formulation_S.Equation) ;
 
@@ -3426,7 +3428,7 @@ GlobalEquationTerm :
     { EquationTerm_S.Case.GlobalEquation.Type =
 	Get_DefineForString(Constraint_Type, $2, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of GlobalEquation: %s %s", 
+	vyyerror("Unknown type of GlobalEquation: %s %s", 
 		 $2, Get_Valid_SXD(Constraint_Type)) ;
       Free($2) ;
     }
@@ -3583,7 +3585,7 @@ LocalTermTerm  :
 
       if (List_Nbr($7) == 1){
 	if ((WholeQuantity_P+0)->Type != WQ_OPERATORANDQUANTITY)
-	  vyyerror("Missing DefineQuantity in Equation");
+	  vyyerror("Missing Quantity in Equation");
       }
       else if (List_Nbr($7) == 3 &&
 	       ( (WholeQuantity_P+0)->Type == WQ_EXPRESSION &&
@@ -3597,7 +3599,7 @@ LocalTermTerm  :
 	  (WholeQuantity_P+2)->Case.Operator.TypeOperator ;
       }
       else{
-	vyyerror("Unrecognized Quantity Structure in Equation");
+	vyyerror("Unrecognized quantity structure in Equation");
       }
 
       Pro_DefineQuantityIndex
@@ -3639,14 +3641,14 @@ LocalTermTerm  :
 	    List_Add(ListOfSupportIndex, &i) ;
 	  }
 	}
-	else  vyyerror("Bad Group Right Hand Side") ;
+	else  vyyerror("Bad Group right hand side") ;
       }
     }
 
   | tJacobian tSTRING tEND
     { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, $2,
 			       fcmp_JacobianMethod_Name)) < 0)
-	vyyerror("Unknown JacobianMethod: %s",$2) ;
+	vyyerror("Unknown Jacobian method: %s",$2) ;
       else
 	EquationTerm_S.Case.LocalTerm.JacobianMethodIndex = i ;
       Free($2) ;
@@ -3655,7 +3657,7 @@ LocalTermTerm  :
   | tIntegration tSTRING tEND
     { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, $2,
 			       fcmp_IntegrationMethod_Name)) < 0)
-	vyyerror("Unknown IntegrationMethod: %s", $2) ;
+	vyyerror("Unknown Integration method: %s", $2) ;
       else
 	EquationTerm_S.Case.LocalTerm.IntegrationMethodIndex = i ;
       Free($2) ;
@@ -3715,7 +3717,7 @@ GlobalTermTerm :
 	    List_Add(ListOfSupportIndex, &i) ;
 	  }
 	}
-	else  vyyerror("Bad Group Right Hand Side") ;
+	else  vyyerror("Bad Group right hand side") ;
       }
     }
 
@@ -3815,13 +3817,13 @@ Quantity_Def :
     '{' tSTRING tSTRING '}'
     { $$.Int1 = Get_DefineForString(Operator_Type, $2, &FlagError) ;
       if (FlagError) 
-	vyyerror("Unknown Operator: %s %s", 
+	vyyerror("Unknown Operator for discrete Quantity: %s %s", 
 		 $2, Get_Valid_SXD(Operator_Type)) ;
       Free($2) ;
 
       if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, $3,
 			       fcmp_DefineQuantity_Name)) < 0)
-	vyyerror("Unknown DefineQuantity: %s", $3) ;
+	vyyerror("Unknown discrete Quantity: %s", $3) ;
       $$.Int2 = i ;
 
       /* the following should be suppressed as soon as the test
@@ -3837,7 +3839,7 @@ Quantity_Def :
 
       if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, $2,
 			       fcmp_DefineQuantity_Name)) < 0)
-	vyyerror("Unknown DefineQuantity: %s", $2) ;
+	vyyerror("Unknown discrete Quantity: %s", $2) ;
       $$.Int2 = i ;
 
       /* the following should be suppressed as soon as the test
@@ -3987,7 +3989,7 @@ DefineSystemTerm :
   | tType tSTRING tEND
     { DefineSystem_S.Type = Get_DefineForString(DefineSystem_Type, $2, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of DefineSystem: %s %s", 
+	vyyerror("Unknown type of System: %s %s", 
 		 $2, Get_Valid_SXD(DefineSystem_Type)) ;
       Free($2) ;
     }
@@ -4092,7 +4094,7 @@ ListOfSystem :
     {
       $$ = List_Create(1, 1, sizeof(int)) ;
       if ((i = List_ISearchSeq(Current_System_L, $1, fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown DefineSystem: %s", $1) ;
+	vyyerror("Unknown System: %s", $1) ;
       else  
 	List_Add($$, &i) ;
       Free($1) ;
@@ -4110,7 +4112,7 @@ RecursiveListOfSystem :
   | RecursiveListOfSystem Comma tSTRING
     {
       if ((i = List_ISearchSeq(Current_System_L, $3, fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown DefineSystem: %s", $3) ;
+	vyyerror("Unknown System: %s", $3) ;
       else  
 	List_Add($1, &i) ;
       $$ = $1 ; Free($3) ;
@@ -4143,13 +4145,13 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = Get_DefineForString(Operation_Type, $1, &FlagError) ;
       if (FlagError) 
-	vyyerror("Unknown Type of Operation: %s %s", 
+	vyyerror("Unknown type of Operation: %s %s", 
 		 $1, Get_Valid_SXD(Operation_Type)) ;
       Free($1) ;
 
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $2,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown DefineSystem: %s", $2) ;
+	vyyerror("Unknown System: %s", $2) ;
       Free($2) ;
       Operation_P->DefineSystemIndex = i ;
     }
@@ -4192,13 +4194,13 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = Get_DefineForString(Operation_Type, $1, &FlagError) ;
       if (FlagError) 
-	vyyerror("Unknown Type of Operation: %s %s", 
+	vyyerror("Unknown type of Operation: %s %s", 
 		 $1, Get_Valid_SXD(Operation_Type)) ;
       Free($1) ;
       
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown DefineSystem: %s", $3) ;
+	vyyerror("Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
     }
@@ -4244,7 +4246,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_SETFREQUENCY ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown DefineSystem: %s", $3) ;
+	vyyerror("Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.SetFrequency.ExpressionIndex = $5 ;
@@ -4260,7 +4262,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_UPDATE ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown DefineSystem: %s", $3) ;
+	vyyerror("Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.Update.ExpressionIndex = $5 ;
@@ -4272,12 +4274,12 @@ OperationTerm :
       Operation_P->Type = OPERATION_FOURIERTRANSFORM ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown DefineSystem: %s", $3) ;
+	vyyerror("Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->Case.FourierTransform.DefineSystemIndex[0] = i ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $5,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown DefineSystem: %s", $5) ;
+	vyyerror("Unknown System: %s", $5) ;
       Free($5) ;
       Operation_P->Case.FourierTransform.DefineSystemIndex[1] = i ;
       Operation_P->Case.FourierTransform.Frequency = 
@@ -4294,7 +4296,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_LANCZOS ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown DefineSystem: %s", $3) ;
+	vyyerror("Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.Lanczos.Size = (int)$5 ;
@@ -4387,7 +4389,7 @@ PrintOperation :
   | tSTRING
     { if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $1,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown DefineSystem: %s", $1) ;
+	vyyerror("Unknown System: %s", $1) ;
       Free($1) ;
       Operation_P->DefineSystemIndex = i ;
     }
@@ -4605,7 +4607,7 @@ IterativeTimeReductionTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $2,
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown DefineSystem: %s", $2) ;
+	vyyerror("Unknown System: %s", $2) ;
       Free($2) ;
       Current_System = Operation_P->DefineSystemIndex = i ;
     }
@@ -4662,7 +4664,7 @@ ChangeOfStateTerm :
     { ChangeOfState_S.Type =
 	Get_DefineForString(ChangeOfState_Type, $2, &FlagError) ;
       if (FlagError)  
-	vyyerror("Unknown Type of ChangeOfState: %s %s", 
+	vyyerror("Unknown type of ChangeOfState: %s %s", 
 		 $2, Get_Valid_SXD(ChangeOfState_Type)) ;
       Free($2) ;
     }
@@ -4689,7 +4691,7 @@ ChangeOfStateTerm :
 	  ChangeOfState_S.QuantityIndex = i ;
 	}
 	else
-	  vyyerror("Unknown DefineQuantity: %s", $2) ;
+	  vyyerror("Unknown discrete Quantity: %s", $2) ;
       }
       else
 	vyyerror("System undefined for Quantity: %s", $2) ;
@@ -4713,7 +4715,7 @@ ChangeOfStateTerm :
   | tFlag tSTRING tEND
     {
       if((i = List_ISearchSeq(Problem_S.Expression, $2, fcmp_Expression_Name)) < 0)
-	vyyerror("Unknown Name of Expression for Flag: %s", $2) ;
+	vyyerror("Unknown name of expression for Flag: %s", $2) ;
       Free($2) ;
       ChangeOfState_S.FlagIndex = i ;
     }
@@ -4940,7 +4942,7 @@ SubPostQuantityTerm :
 	  if (PostQuantityTerm_S.Type == 0)
 	    PostQuantityTerm_S.Type = j ;
 	  else if (PostQuantityTerm_S.Type != j)	  
-	    vyyerror("Mixed quantity types in term: %d != %d", PostQuantityTerm_S.Type, j) ;
+	    yyerror("Mixed discrete Quantity types in term (should be split in separate terms)") ;
 	}
 	if (PostQuantityTerm_S.Type == 0)  PostQuantityTerm_S.Type = LOCALQUANTITY ;
       }
@@ -4952,7 +4954,7 @@ SubPostQuantityTerm :
      PostQuantityTerm_S.Type =
        Get_DefineForString(DefineQuantity_Type, $2, &FlagError) ;
      if (FlagError) 
-       vyyerror("Unknown Type of Operation: %s %s", 
+       vyyerror("Unknown type of Operation: %s %s", 
 		$2, Get_Valid_SXD(DefineQuantity_Type)) ;
      Free($2) ;
    }
@@ -4966,7 +4968,7 @@ SubPostQuantityTerm :
   | tJacobian tSTRING tEND
     { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, $2,
 			       fcmp_JacobianMethod_Name)) < 0)
-	vyyerror("Unknown JacobianMethod: %s",$2) ;
+	vyyerror("Unknown Jacobian method: %s",$2) ;
       else
 	PostQuantityTerm_S.JacobianMethodIndex = i ;
       Free($2) ;
@@ -4975,7 +4977,7 @@ SubPostQuantityTerm :
   | tIntegration tSTRING tEND
     { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, $2,
 			       fcmp_IntegrationMethod_Name)) < 0)
-	vyyerror("Unknown IntegrationMethod: %s",$2) ;
+	vyyerror("Unknown Integration method: %s",$2) ;
       else
 	PostQuantityTerm_S.IntegrationMethodIndex = i ;
       Free($2) ;
@@ -5044,7 +5046,7 @@ PostOperationTerm :
       PostOperation_S.Format =
 	Get_DefineForString(PostSubOperation_Format, $2, &FlagError) ;
       if (FlagError) 
-	vyyerror("Unknown Post-Processing Format: %s %s", $2, 
+	vyyerror("Unknown PostProcessing Format: %s %s", $2, 
 		 Get_Valid_SXD(PostSubOperation_Format)) ;
       Free($2) ;
     }
@@ -5107,8 +5109,7 @@ PostSubOperation :
 
     tPlot '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
-      vyyerror("Plot has been superseded by Print "
-	       "(Plot OnRegion becomes Print OnElementsOf)") ;
+      vyyerror("Plot has been superseded by Print (Plot OnRegion becomes Print OnElementsOf)") ;
     }
 
   | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
@@ -5124,7 +5125,7 @@ PostQuantitiesToPrint :
     {
       if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1, 
 			       fcmp_PostQuantity_Name)) < 0)
-	vyyerror("Unknown PostQuantity: %s", $1) ;
+	vyyerror("Unknown PostProcessing Quantity: %s", $1) ;
       PostSubOperation_S.PostQuantityIndex[0] = i ;
       PostSubOperation_S.PostQuantityIndex[1] = -1 ;
       PostSubOperation_S.PostQuantitySupport[0] = $2 ;
@@ -5136,18 +5137,18 @@ PostQuantitiesToPrint :
     {
       if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $1, 
 			       fcmp_PostQuantity_Name)) < 0)
-	vyyerror("Unknown PostQuantity: %s", $1) ;
+	vyyerror("Unknown PostProcessing Quantity: %s", $1) ;
       PostSubOperation_S.PostQuantityIndex[0] = i ;
       PostSubOperation_S.PostQuantitySupport[0] = $2 ;
 
       if ((j = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, $4, 
 			       fcmp_PostQuantity_Name)) < 0)
-	vyyerror("Unknown PostQuantity: %s", $4) ;
+	vyyerror("Unknown PostProcessing Quantity: %s", $4) ;
       PostSubOperation_S.PostQuantityIndex[1] = j ;
       PostSubOperation_S.PostQuantitySupport[1] = $5 ;
 
       if (($2<0 && $5<0) || ($2>=0 && $5>=0)) {
-	vyyerror("PostQuantities '%s' and '%s' should not be of same type (%s)", 
+	vyyerror("Postprocessing Quantities '%s' and '%s' of same type (%s)", 
 		 $1, $4, ($2>0)? "with Support":"without Support") ;
       }      
       Free($1) ; Free($4) ;
@@ -5387,7 +5388,7 @@ PrintOption :
       PostSubOperation_S.Format =
 	Get_DefineForString(PostSubOperation_Format, $3, &FlagError) ;
       if (FlagError) 
-	vyyerror("Unknown Post-Processing Format: %s %s", $3, 
+	vyyerror("Unknown PostProcessing Format: %s %s", $3, 
 		 Get_Valid_SXD(PostSubOperation_Format)) ;
       Free($3) ;
     }
@@ -5426,7 +5427,7 @@ PrintOption :
       if((int)$3 >= 1 && (int)$3 <= 3)
 	PostSubOperation_S.Dimension = (int)$3 ;
       else
-	vyyerror("Bad Dimension in Print") ;  	
+	vyyerror("Wrong Dimension in Print") ;  	
     }
   | ',' tTimeStep ListOfDouble 
     { 
@@ -5440,7 +5441,7 @@ PrintOption :
       PostSubOperation_S.Adapt = 
 	Get_DefineForString(Adaption_Type, $3, &FlagError) ;
       if(FlagError)
-	vyyerror("Unknown Adaption Method: %s %s", $3,
+	vyyerror("Unknown Adaptation method: %s %s", $3,
 		 Get_Valid_SXD(Adaption_Type)) ;
     }
   | ',' tSort tSTRING
@@ -5448,7 +5449,7 @@ PrintOption :
       PostSubOperation_S.Sort = 
 	Get_DefineForString(Sort_Type, $3, &FlagError) ;
       if(FlagError)
-	vyyerror("Unknown Sort Method: %s %s", $3,
+	vyyerror("Unknown Sort method: %s %s", $3,
 		 Get_Valid_SXD(Sort_Type)) ;
     }
   | ',' tTarget FExpr
@@ -5456,7 +5457,7 @@ PrintOption :
       if($3 >= 0. && $3 < 3.)
 	PostSubOperation_S.Target = $3 ;
       else
-	vyyerror("Bad Target") ;
+	vyyerror("Bad Target value") ;
     }
   | ',' tValue ListOfDouble 
     { 
@@ -5610,13 +5611,24 @@ DottedFExpr :
   | FExpr tDOTS '[' FExpr ']' FExpr
    { List_Reset(ListOfDouble2_L) ; 
       if(!$4 || ($1<$6 && $4<0) || ($1>$6 && $4>0)){
-        vyyerror("Wrong Increment in '%g :[%g] %g'", $1, $4, $6) ;
+        vyyerror("Wrong increment in '%g :[%g] %g'", $1, $4, $6) ;
 	List_Add(ListOfDouble2_L, &($1)) ;
       }
       else 
 	for(d=$1 ; ($4>0)?(d<=$6):(d>=$6) ; d+=$4)
 	  List_Add(ListOfDouble2_L, &d) ;
    }
+
+  | FExpr tDOTS FExpr tDOTS FExpr
+    { List_Reset(ListOfDouble2_L) ; 
+      if(!$5 || ($1<$3 && $5<0) || ($1>$3 && $5>0)){
+	vyyerror("Wrong increment in '%g : %g : %g'", $1, $3, $5) ;
+	List_Add(ListOfDouble2_L, &($1)) ;
+      }
+      else
+	for(d=$1 ; ($5>0)?(d<=$3):(d>=$3) ; d+=$5) 
+	  List_Add(ListOfDouble2_L, &d) ;
+    }
   ;
 
 
@@ -5830,7 +5842,7 @@ CharExpr :
 	if (Constant_S.Type == VAR_CHAR)
 	  $$ = Constant_S.Value.Char ;
 	else {
-	  vyyerror("Char Constant needed: %s", $1) ;  $$ = NULL ;
+	  vyyerror("String Constant needed: %s", $1) ;  $$ = NULL ;
 	}
       }
       Free($1) ;
@@ -5898,7 +5910,7 @@ int  Num_Group(struct Group * Group_P, char * Name, int Num_Group) {
 
   if      (Num_Group >= 0)   /* OK */ ;
   else if (Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, 1, 0) ;
-  else                       vyyerror("Bad Group Right Hand Side") ;
+  else                       vyyerror("Bad Group right hand side") ;
 
   return Num_Group ;
 }

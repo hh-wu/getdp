@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.5 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.6 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -42,13 +42,13 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv, int *NbrCpu, int *RankCp
 	if (i<argc && argv[i][0]!='-')
 	  Name_SolverFile = argv[i++] ;
 	else
-	  Msg(ERROR, "Missing File Name");
+	  Msg(ERROR, "Missing file name");
       }
       else
-	Msg(SPARSKIT, "Unknown Option: '%s'\n", argv[i++]) ; 
+	Msg(SPARSKIT, "Unknown option: '%s'\n", argv[i++]) ; 
     }
     else
-      Msg(SPARSKIT, "Unknown Option: '%s'\n", argv[i++]) ; 
+      Msg(SPARSKIT, "Unknown option: '%s'\n", argv[i++]) ; 
   }
 
   GetDP_End ;
@@ -105,7 +105,7 @@ void LinAlg_DestroySolver(gSolver *Solver){
 
   GetDP_Begin("LinAlg_DestroySolver");
 
-  Msg(ERROR, "'LinAlg_DestroySolver' not Implemented (yet)");
+  Msg(ERROR, "'LinAlg_DestroySolver' not yet implemented");
 
   GetDP_End ;
 }
@@ -121,7 +121,7 @@ void LinAlg_DestroyMatrix(gMatrix *M){
 
   GetDP_Begin("LinAlg_DestroyMatrix");
 
-  Msg(ERROR, "'LinAlg_DestroyMatrix' not Implemented (yet)");  
+  Msg(ERROR, "'LinAlg_DestroyMatrix' not yet implemented");  
 
   GetDP_End ;
 }
@@ -148,7 +148,7 @@ void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2){
 
   GetDP_Begin("LinAlg_CopyMatrix");
 
-  Msg(ERROR, "'LinAlg_CopyMatrix' not Implemented (yet)");  
+  Msg(ERROR, "'LinAlg_CopyMatrix' not yet implemented");  
 
   GetDP_End ;
 }
@@ -207,7 +207,7 @@ void LinAlg_ScanMatrix(FILE *file, gMatrix *M){
 
   GetDP_Begin("LinAlg_ScanMatrix");
 
-  Msg(ERROR, "'LinAlg_ScanMatrix' not Implemented (yet)");
+  Msg(ERROR, "'LinAlg_ScanMatrix' not yet implemented");
 
   GetDP_End ;
 }
@@ -218,7 +218,7 @@ void LinAlg_ReadScalar(FILE *file, gScalar *S){
 
   GetDP_Begin("LinAlg_ReadScalar");
 
-  Msg(ERROR, "'LinAlg_ReadScalar' not Implemented (yet)");
+  Msg(ERROR, "'LinAlg_ReadScalar' not yet implemented");
 
   GetDP_End ;
 }
@@ -234,7 +234,7 @@ void LinAlg_ReadMatrix(FILE *file, gMatrix *M){
 
   GetDP_Begin("LinAlg_ReadMatrix");
 
-  Msg(ERROR, "'LinAlg_ReadMatrix' not Implemented (yet)");
+  Msg(ERROR, "'LinAlg_ReadMatrix' not yet implemented");
 
   GetDP_End ;
 }
@@ -272,7 +272,7 @@ void LinAlg_WriteScalar(FILE *file, gScalar *S){
 
   GetDP_Begin("LinAlg_WriteScalar");
 
-  Msg(ERROR, "'LinAlg_WriteScalar' not Implemented (yet)");
+  Msg(ERROR, "'LinAlg_WriteScalar' not yet implemented");
 
   GetDP_End ;
 }
@@ -324,7 +324,7 @@ void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S){
 
   GetDP_Begin("LinAlg_GetComplexInScalar");
 
-  Msg(ERROR, "'LinAlg_GetComplexInScalar' not Available with this Solver");
+  Msg(ERROR, "'LinAlg_GetComplexInScalar' not available with this Solver");
 
   GetDP_End ;
 }
@@ -365,7 +365,7 @@ void LinAlg_GetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
 
   GetDP_Begin("LinAlg_GetScalarInMatrix");
 
-  Msg(ERROR, "'LinAlg_GetScalarInMatrix' not Implemented (yet)");  
+  Msg(ERROR, "'LinAlg_GetScalarInMatrix' not yet implemented");  
 
   GetDP_End ;
 }
@@ -373,7 +373,7 @@ void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j){
 
   GetDP_Begin("LinAlg_GetDoubleInMatrix");
 
-  Msg(ERROR, "'LinAlg_GetScalarInMatrix' not Implemented (yet)");  
+  Msg(ERROR, "'LinAlg_GetScalarInMatrix' not yet implemented");  
 
   GetDP_End ;
 }
@@ -381,7 +381,7 @@ void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j,
 
   GetDP_Begin("LinAlg_GetComplexInMatrix");
 
-  Msg(ERROR, "'LinAlg_GetScalarInMatrix' not Implemented (yet)");  
+  Msg(ERROR, "'LinAlg_GetScalarInMatrix' not yet implemented");  
 
   GetDP_End ;
 }
@@ -425,7 +425,7 @@ void LinAlg_SetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j){
 
   GetDP_Begin("LinAlg_SetScalarInMatrix");
 
-  Msg(ERROR, "'LinAlg_SetScalarInMatrix' not Implemented (yet)");  
+  Msg(ERROR, "'LinAlg_SetScalarInMatrix' not yet implemented");  
 
   GetDP_End ;
 }
@@ -433,7 +433,7 @@ void LinAlg_SetDoubleInMatrix(double d, gMatrix *M, int i, int j){
 
   GetDP_Begin("LinAlg_SetDoubleInMatrix");
 
-  Msg(ERROR, "'LinAlg_SetScalarInMatrix' not Implemented (yet)");  
+  Msg(ERROR, "'LinAlg_SetScalarInMatrix' not yet implemented");  
 
   GetDP_End ;
 }
@@ -441,7 +441,7 @@ void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, i
 
   GetDP_Begin("LinAlg_SetComplexInMatrix");
 
-  Msg(ERROR, "'LinAlg_SetScalarInMatrix' not Implemented (yet)");  
+  Msg(ERROR, "'LinAlg_SetScalarInMatrix' not yet implemented");  
 
   GetDP_End ;
 }
@@ -519,7 +519,7 @@ void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3){
   if(V3==V1)
     add_vector_vector(V1->N, V1->V, V2->V) ;
   else
-    Msg(ERROR, "'LinAlg_AddVectorVector': Wrong Arguments");    
+    Msg(ERROR, "Wrong arguments in 'LinAlg_AddVectorVector'");
 
   GetDP_End ;
 }
@@ -530,7 +530,7 @@ void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVecto
   if(V3==V1)
     add_vector_prod_vector_double(V1->N, V1->V, V2->V, d) ;
   else
-    Msg(ERROR, "'LinAlg_AddVectorProdVectorDouble': Wrong Arguments");    
+    Msg(ERROR, "Wrong arguments in 'LinAlg_AddVectorProdVectorDouble'");
 
   GetDP_End ;
 }
@@ -541,7 +541,7 @@ void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
   if(M3==M1)
     add_matrix_matrix(&M1->M, &M2->M) ;
   else
-    Msg(ERROR, "'LinAlg_AddMatrixMatrix': Wrong Arguments");
+    Msg(ERROR, "Wrong arguments in 'LinAlg_AddMatrixMatrix'");
 
   GetDP_End ;
 }
@@ -552,7 +552,7 @@ void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatri
   if(M3==M1)
     add_matrix_prod_matrix_double(&M1->M, &M2->M, d) ;
   else
-    Msg(ERROR, "'LinAlg_AddMatrixProdMatrixDouble': Wrong Arguments");
+    Msg(ERROR, "Wrong arguments in 'LinAlg_AddMatrixProdMatrixDouble'");
 
   GetDP_End ;
 }
@@ -576,7 +576,7 @@ void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3){
   else if (V3==V2) 
     sub_vector_vector_2(V1->N, V1->V, V2->V) ;
   else
-    Msg(ERROR, "'LinAlg_SubVectorVector': Wrong Arguments");  
+    Msg(ERROR, "Wrong arguments in 'LinAlg_SubVectorVector'");  
 
   GetDP_End ;
 }
@@ -584,7 +584,7 @@ void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
 
   GetDP_Begin("LinAlg_SubMatrixMatrix");
 
-  Msg(ERROR, "'LinAlg_SubMatrixMatrix' not Implemented (yet)");  
+  Msg(ERROR, "'LinAlg_SubMatrixMatrix' not yet implemented");  
 
   GetDP_End ;
 }
@@ -620,7 +620,7 @@ void LinAlg_ProdVectorScalar(gVector *V1, gScalar *S, gVector *V2){
 
   GetDP_Begin("LinAlg_ProdvectorScalar");
 
-  Msg(ERROR, "'LinAlg_ProdVectorScalar' not Implemented (yet)");  
+  Msg(ERROR, "'LinAlg_ProdVectorScalar' not yet implemented");  
 
   GetDP_End ;
 }
@@ -631,7 +631,7 @@ void LinAlg_ProdVectorDouble(gVector *V1, double d, gVector *V2){
   if(V2==V1)
     prod_vector_double(V1->N, V1->V, d);
   else
-    Msg(ERROR, "'LinAlg_ProdVectorDouble': Wrong Arguments");
+    Msg(ERROR, "Wrong arguments in 'LinAlg_ProdVectorDouble'");
 
   GetDP_End ;
 }
@@ -639,7 +639,7 @@ void LinAlg_ProdVectorComplex(gVector *V1, double d1, double d2, gVector *V2){
 
   GetDP_Begin("LinAlg_ProdVectorComplex");
 
-  Msg(ERROR, "'LinAlg_ProdVectorComplex' not Implemented (yet)");
+  Msg(ERROR, "'LinAlg_ProdVectorComplex' not yet implemented");
 
   GetDP_End ;
 }
@@ -656,7 +656,7 @@ void LinAlg_ProdMatrixVector(gMatrix *M, gVector *V1, gVector *V2){
   GetDP_Begin("LinAlg_ProdMatrixVector");
 
   if(V2==V1)
-    Msg(ERROR, "'LinAlg_ProdMatrixVector': Wrong Arguments");
+    Msg(ERROR, "Wrong arguments in 'LinAlg_ProdMatrixVector'");
   else
     prod_matrix_vector(&M->M, V1->V, V2->V);
 
@@ -669,7 +669,7 @@ void LinAlg_ProdMatrixScalar(gMatrix *M1, gScalar *S, gMatrix *M2){
   if(M2==M1)
     prod_matrix_double (&M1->M, S->d);
   else
-    Msg(ERROR, "'LinAlg_ProdMatrixScalar': Wrong Arguments");
+    Msg(ERROR, "Wrong arguments in 'LinAlg_ProdMatrixScalar'");
 
   GetDP_End ;
 }
@@ -680,7 +680,7 @@ void LinAlg_ProdMatrixDouble(gMatrix *M1, double d, gMatrix *M2){
   if(M2==M1)
     prod_matrix_double (&M1->M, d);
   else
-    Msg(ERROR, "'LinAlg_ProdMatrixDouble': Wrong Arguments");
+    Msg(ERROR, "Wrong arguments in 'LinAlg_ProdMatrixDouble'");
 
   GetDP_End ;
 }
@@ -688,7 +688,7 @@ void LinAlg_ProdMatrixComplex(gMatrix *M1, double d1, double d2, gMatrix *M2){
 
   GetDP_Begin("LinAlg_ProdMatrixComplex");
 
-  Msg(ERROR, "'LinAlg_ProdMatrixComplex' not Implemented (yet)");
+  Msg(ERROR, "'LinAlg_ProdMatrixComplex' not yet implemented");
 
   GetDP_End ;
 }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoEntity.c,v 1.7 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: GeoEntity.c,v 1.8 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -34,7 +34,7 @@ double * Geo_GetNodes_uvw(int Type, int *nbn){
   case PRISM       : *nbn = NbrNodes_Prism ;       GetDP_Return(*Nodes_Prism) ;
   case PYRAMID     : *nbn = NbrNodes_Pyramid ;     GetDP_Return(*Nodes_Pyramid) ;
   default : 
-    Msg(ERROR, "Unknown Element Type in Geo_GetNodes_uvw") ; GetDP_Return(NULL) ;
+    Msg(ERROR, "Unknown type of Element in Geo_GetNodes_uvw") ; GetDP_Return(NULL) ;
   }
 }
 
@@ -527,7 +527,7 @@ void  Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
     do {
       fgets(String, MAX_STRING_LENGTH, File_PRE) ;
-      if (feof(File_PRE)) Msg(ERROR, "Prematured End of File");
+      if (feof(File_PRE)) Msg(ERROR, "Prematured end of file");
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */

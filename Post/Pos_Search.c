@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.22 2000-11-19 20:21:48 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.23 2001-03-03 19:21:22 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -80,7 +80,7 @@ void ComputeElementBox(struct Element * Element,
   case TRIANGLE_2  : case QUADRANGLE_2 :
     for (i = 1 ; i < Element->GeoElement->NbrNodes ; i++) {
       if(Element->z[i] != 0.0)
-	Msg(ERROR, "2nd order ComputeElementBox not done for the 3D case");
+	Msg(ERROR, "Second order boxes not done for the 3D case");
       if (i % 2 == 0) {
 	XPolyConv = Element->x[i];
 	YPolyConv = Element->y[i];
@@ -113,7 +113,7 @@ void ComputeElementBox(struct Element * Element,
     break;
 
   default :    
-    Msg(ERROR, "Unknown Element Type in 'ComputeElementBox'"); 
+    Msg(ERROR, "Unknown type of Element in 'ComputeElementBox'"); 
     break;
   }
 
@@ -348,7 +348,7 @@ void Init_SearchGrid(struct Grid * Grid) {
     Grid->Xmax += 1. ; Grid->Ymax += 1. ; Grid->Zmax += 1. ;
   }
 
-  Msg(INFO, "Initializing Grid (%d,%d,%d)", Grid->Nx, Grid->Ny, Grid->Nz);
+  Msg(INFO, "Initializing rapid search grid %dx%dx%d", Grid->Nx, Grid->Ny, Grid->Nz);
 
   Grid->Bricks = List_Create(Grid->Nx * Grid->Ny * Grid->Nz, 10, sizeof(Brick));
   for(i = 0; i < Grid->Nx * Grid->Ny * Grid->Nz ; i++){
@@ -519,7 +519,7 @@ void PointElementDistance(struct Element *Element, double x, double y, double z,
     break;
 
   default :
-    Msg(ERROR, "Unknown Element Type %d in PointElementDistance", Element->Type);
+    Msg(ERROR, "Unknown type of Element in PointElementDistance");
     break;
   }  
 
@@ -604,7 +604,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   case _2D  : lowdim = 1 ; highdim = 1 ; break;
   case _3D  : lowdim = 2 ; highdim = 2 ; break;    
   default   : 
-    Msg(ERROR, "Unknown Chain Dimension %d", ChainDim);
+    Msg(ERROR, "Unknown chain dimension %d", ChainDim);
     break;
   } 
 
@@ -748,13 +748,13 @@ void xyz2uvwInAnElement (struct Element *Element,
       *w = w_new;
     }
     else{
-      Msg(WARNING, "Zero Determinant in xyz2uvwInAnElement") ;
+      Msg(WARNING, "Zero determinant in 'xyz2uvwInAnElement'") ;
       break;
     }
   }
 
   if(iter == NR_MAX_ITER) 
-    Msg(WARNING, "Maximum Number of Iterations Exceeded in xyz2uvwInAnElement") ;
+    Msg(WARNING, "Maximum number of iterations exceeded in xyz2uvwInAnElement") ;
 
 #if 0
   Msg(INFO, "%d iterations in xyz2uvw", iter);

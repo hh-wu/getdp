@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Edge.c,v 1.5 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: BF_Edge.c,v 1.6 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -10,7 +10,7 @@
 /*  B F _ E d g e                                                           */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumEdge   Msg(ERROR, "Wrong Edge Number in 'BF_Edge'")
+#define WrongNumEdge   Msg(ERROR, "Wrong Edge number in 'BF_Edge'")
 
 void  BF_Edge    (struct Element * Element, int NumEdge, 
 		  double u, double v, double w,  double s[] ) {
@@ -110,7 +110,7 @@ void  BF_Edge    (struct Element * Element, int NumEdge,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_Edge");
+    Msg(ERROR, "Unkown type of Element in BF_Edge");
     break;
   }
 
@@ -129,7 +129,7 @@ void  BF_Edge    (struct Element * Element, int NumEdge,
 /*  B F _ C u r l E d g e                                                   */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumEdge   Msg(ERROR, "Wrong Edge Number in 'BF_CurlEdge'")
+#define WrongNumEdge   Msg(ERROR, "Wrong Edge number in 'BF_CurlEdge'")
 
 void  BF_CurlEdge(struct Element * Element, int NumEdge, 
 		  double u, double v, double w,  double s[] ) {
@@ -213,7 +213,7 @@ void  BF_CurlEdge(struct Element * Element, int NumEdge,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_CurlEdge");
+    Msg(ERROR, "Unkown type of Element in BF_CurlEdge");
     break;
   }
 

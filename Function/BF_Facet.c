@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Facet.c,v 1.4 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: BF_Facet.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -10,7 +10,7 @@
 /*  B F _ F a c e t                                                         */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumFacet   Msg(ERROR, "Wrong Facet Number in 'BF_Facet'")
+#define WrongNumFacet   Msg(ERROR, "Wrong Facet number in 'BF_Facet'")
 
 void  BF_Facet   (struct Element * Element, int NumFacet, 
 		  double u, double v, double w,  double s[] ) {
@@ -122,7 +122,7 @@ void  BF_Facet   (struct Element * Element, int NumFacet,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_Facet");
+    Msg(ERROR, "Unkown type of Element in BF_Facet");
     break;
   }
 
@@ -141,7 +141,7 @@ void  BF_Facet   (struct Element * Element, int NumFacet,
 /*  B F _ D i v F a c e t                                                   */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumFacet   Msg(ERROR, "Wrong Facet Number in 'BF_DivFacet'")
+#define WrongNumFacet   Msg(ERROR, "Wrong Facet number in 'BF_DivFacet'")
 
 void  BF_DivFacet(struct Element * Element, int NumFacet, 
 		  double u, double v, double w,  double s[] ) {
@@ -229,7 +229,7 @@ void  BF_DivFacet(struct Element * Element, int NumFacet,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_DivFacet");
+    Msg(ERROR, "Unkown type of Element in BF_DivFacet");
     break ;
   }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_ExtMath.c,v 1.4 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: F_ExtMath.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -32,7 +32,7 @@ void  F_Hypot (F_ARG) {
   GetDP_Begin("F_Hypot");
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
-    Msg(ERROR, "Non Scalar Argument(s) for Function 'Hypot'");
+    Msg(ERROR, "Non scalar argument(s) for function 'Hypot'");
 
   if (Current.NbrHar == 1){ 
     V->Val[0] = sqrt(A->Val[0]*A->Val[0]+(A+1)->Val[0]*(A+1)->Val[0]) ;
@@ -55,7 +55,7 @@ void  F_TanhC2 (F_ARG) {
 
   GetDP_Begin("F_TanhC2");
 
-  if(A->Type != SCALAR) Msg(ERROR, "Non Scalar Arguments for Function 'TanhC2'");
+  if(A->Type != SCALAR) Msg(ERROR, "Non scalar arguments for function 'TanhC2'");
   if(Current.NbrHar != 2) Msg(ERROR, "Function 'TanhC2' only valid for Complex"); 
 
   denom = DSQU(cosh(A->Val[0])*cos(A->Val[0])) + DSQU(sinh(A->Val[0])*sin(A->Val[0]));
@@ -77,7 +77,7 @@ void  F_Transpose (F_ARG) {
   GetDP_Begin("F_Transpose");
 
   if(A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR)
-    Msg(ERROR, "Wrong Type of Argument for Function 'Transpose'");
+    Msg(ERROR, "Wrong type of argument for function 'Transpose'");
 
   Cal_TransposeValue(A,V);
 
@@ -90,7 +90,7 @@ void  F_Trace (F_ARG) {
   GetDP_Begin("F_Trace");
 
   if(A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR)
-    Msg(ERROR, "Wrong Type of Argument for Function 'Trace'");
+    Msg(ERROR, "Wrong type of argument for function 'Trace'");
 
   Cal_TraceValue(A,V);
 
@@ -107,7 +107,7 @@ void  F_RotateXYZ (F_ARG) {
   if((A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR &&
       A->Type != VECTOR) ||
      (A+1)->Type != SCALAR || (A+2)->Type != SCALAR || (A+3)->Type != SCALAR)
-    Msg(ERROR, "Wrong Type of Argument(s) for Function 'Rotate'");
+    Msg(ERROR, "Wrong type of argument(s) for function 'Rotate'");
 
   ca = cos((A+1)->Val[0]) ; sa = sin((A+1)->Val[0]) ;
   cb = cos((A+2)->Val[0]) ; sb = sin((A+2)->Val[0]) ;
@@ -167,7 +167,7 @@ void  F_Norm (F_ARG) {
     break ;
 
   default :
-    Msg(ERROR, "Wrong Type of Argument in function 'Norm'");
+    Msg(ERROR, "Wrong type of argument for function 'Norm'");
     break;
   }
 
@@ -218,7 +218,7 @@ void  F_SquNorm (F_ARG) {
     break ;
 
   default :
-    Msg(ERROR, "Wrong Type of Argument in function 'SquNorm'");
+    Msg(ERROR, "Wrong type of argument for function 'SquNorm'");
     break;
   }
 
@@ -296,7 +296,7 @@ void  F_Unit (F_ARG) {
     break ;
 
   default :
-    Msg(ERROR, "Wrong Type of Argument in function 'Unit'");
+    Msg(ERROR, "Wrong type of argument for function 'Unit'");
     break;
   }
 
@@ -324,7 +324,7 @@ void  F_Cos_wt_p (F_ARG) {
     V->Val[MAX_DIM] = sin(Fct->Para[1]) ;
   }
   else {
-    Msg(ERROR,"Too many harmonics for Function 'Cos_wt_p'") ; 
+    Msg(ERROR,"Too many harmonics for function 'Cos_wt_p'") ; 
   }
   V->Type = SCALAR ;
 
@@ -344,7 +344,7 @@ void  F_Sin_wt_p (F_ARG) {
     V->Val[MAX_DIM] = -cos(Fct->Para[1]) ;
   }
   else {
-    Msg(ERROR,"Too many harmonics for Function 'Sin_wt_p'") ; 
+    Msg(ERROR,"Too many harmonics for function 'Sin_wt_p'") ; 
   }
   V->Type = SCALAR ;
 

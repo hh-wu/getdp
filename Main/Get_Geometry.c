@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.9 2001-03-03 08:40:13 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.10 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -79,7 +79,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _3D ; GetDP_Return((void *)JacobianVol3D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianVol for Element Type (%s)", 
+      Msg(ERROR, "Unknown Jacobian Vol for Element Type (%s)", 
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -92,7 +92,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxi2D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianVolAxi for Element Type (%s)",
+      Msg(ERROR, "Unknown Jacobian VolAxi for Element Type (%s)",
 	  Get_StringForDefine(Element_Type, Type_Element)); 
     }
     
@@ -105,7 +105,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiSqu2D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianVolAxiSqu for Element Type (%s)",
+      Msg(ERROR, "Unknown Jacobian VolAxiSqu for Element Type (%s)",
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -124,7 +124,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _3D ; GetDP_Return((void *)JacobianVolSphShell3D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianVolSphShell for Element Type (%s)", 
+      Msg(ERROR, "Unknown Jacobian VolSphShell for Element Type (%s)", 
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -137,7 +137,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolSphFiniteShell2D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianVolSphShell for Element Type (%s)", 
+      Msg(ERROR, "Unknown Jacobian VolSphShell for Element Type (%s)", 
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -150,7 +150,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiSphShell2D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianVolAxiSphShell for Element Type (%s)",
+      Msg(ERROR, "Unknown Jacobian VolAxiSphShell for Element Type (%s)",
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -163,7 +163,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiPlpdX2D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianVolAxiPlpdX for Element Type (%s)",
+      Msg(ERROR, "Unknown Jacobian VolAxiPlpdX for Element Type (%s)",
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -176,7 +176,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiSquSphShell2D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianVolAxiSquSphShell for Element Type (%s)",
+      Msg(ERROR, "Unknown Jacobian VolAxiSquSphShell for Element Type (%s)",
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -195,7 +195,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _3D ; GetDP_Return((void *)JacobianSur3D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianSur for element Type (%s)",
+      Msg(ERROR, "Unknown Jacobian Sur for element Type (%s)",
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -207,7 +207,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianSurSphShell2D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianSurSphShell for element Type (%s)",
+      Msg(ERROR, "Unknown Jacobian SurSphShell for element Type (%s)",
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -219,7 +219,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianSurAxi2D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianSurAxi for Element Type (%s)",
+      Msg(ERROR, "Unknown Jacobian SurAxi for Element Type (%s)",
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -234,7 +234,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _3D ; GetDP_Return((void *)JacobianLin3D) ;
 
     default : 
-      Msg(ERROR, "Unknown JacobianLin for Element Type (%s)",
+      Msg(ERROR, "Unknown Jacobian Lin for Element Type (%s)",
 	  Get_StringForDefine(Element_Type, Type_Element));
     }
 
@@ -273,7 +273,7 @@ double  SphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   R = HYPOT(CoorX, CoorY) ;
 
   if ( (R > B) || (R < A) )
-    Msg(ERROR, "Bad parameters for JacobianVolSphShell: "
+    Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
 	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
 
   if (B == R) {
@@ -316,7 +316,7 @@ double  SphFiniteShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   R = HYPOT(CoorX, CoorY) ;
 
   if ( (R > B) || (R < A) )
-    Msg(ERROR, "Bad parameters for JacobianVolSphShell: "
+    Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
 	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
 
   if (B == R) {
@@ -366,7 +366,7 @@ double  SphShell3D (struct Element * Element, MATRIX3x3 * Jac) {
   R = sqrt( DSQU(CoorX) + DSQU(CoorY) + DSQU(CoorZ) ) ;
 
   if ( (R > B) || (R < A) )
-    Msg(ERROR, "Bad parameters for JacobianVolSphShell: "
+    Msg(ERROR, "Bad parameters for Jacobian VolSphShell: "
 	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
 
   f  = (A*(B-A)) / (R*(B-R)) ;
@@ -403,7 +403,7 @@ double  PlpdX2D (struct Element * Element, MATRIX3x3 * Jac) {
   R = CoorX ;
 
   if ( (R > B) || (R < A) )
-    Msg(ERROR, "Bad parameters for JacobianVolPlpdX: "
+    Msg(ERROR, "Bad parameters for Jacobian VolPlpdX: "
 	       "Rint=%g, Rext=%g, R=%g", A, B, R) ;
 
   if (B == R) {
@@ -884,7 +884,7 @@ void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
 
     case TRIANGLE   : case TRIANGLE_2   : 
     case QUADRANGLE : case QUADRANGLE_2 :
-      if(!DetMat) Msg(ERROR, "Null Determinant in 'Get_InverseMatrix'");
+      if(!DetMat) Msg(ERROR, "Null determinant in 'Get_InverseMatrix'");
       InvMat->c11 =   Mat->c22 * Mat->c33 / DetMat ;
       InvMat->c21 = - Mat->c21 * Mat->c33 / DetMat ;
       InvMat->c12 = - Mat->c12 * Mat->c33 / DetMat ;
@@ -908,7 +908,7 @@ void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
     case HEXAHEDRON  : case HEXAHEDRON_2  : 
     case PRISM       : case PRISM_2       :
     case PYRAMID     : case PYRAMID_2     :
-      if(!DetMat) Msg(ERROR, "Null Determinant in 'Get_InverseMatrix'");
+      if(!DetMat) Msg(ERROR, "Null determinant in 'Get_InverseMatrix'");
       InvMat->c11 =  ( Mat->c22 * Mat->c33 - Mat->c23 * Mat->c32 ) / DetMat ;
       InvMat->c21 = -( Mat->c21 * Mat->c33 - Mat->c23 * Mat->c31 ) / DetMat ;
       InvMat->c31 =  ( Mat->c21 * Mat->c32 - Mat->c22 * Mat->c31 ) / DetMat ;
@@ -928,7 +928,7 @@ void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
     break;
 
   default :
-    Msg(ERROR, "Wrong Dimension in 'Get_InverseMatrix'");
+    Msg(ERROR, "Wrong dimension in 'Get_InverseMatrix'");
     break ;
 
   }
@@ -1017,7 +1017,7 @@ void *Get_ChangeOfCoordinates(int Flag_ChangeCoord, int Type_Form) {
 		 (void *)ChangeOfCoord_No123) ;
 
   default :
-    Msg(ERROR, "Unknown Type of Field (%s)",
+    Msg(ERROR, "Unknown type of field (%s)",
 	Get_StringForDefine(Field_Type, Type_Form)) ; 
     GetDP_Return(NULL) ;
   }
@@ -1067,7 +1067,7 @@ void  ChangeOfCoord_Form2(struct Element * Element,
 
   GetDP_Begin("ChangeOfCoord_Form2");
 
-  if(!Element->DetJac) Msg(ERROR, "Null Determinant in 'ChangeOfCoord_Form2'");
+  if(!Element->DetJac) Msg(ERROR, "Null determinant in 'ChangeOfCoord_Form2'");
 
   vBFx[0] = (vBFu[0] * Element->Jac.c11 + vBFu[1] * Element->Jac.c21
 	     + vBFu[2] * Element->Jac.c31) / Element->DetJac ;
@@ -1084,7 +1084,7 @@ void  ChangeOfCoord_Form3(struct Element * Element,
 
   GetDP_Begin("ChangeOfCoord_Form3");
 
-  if(!Element->DetJac) Msg(ERROR, "Null Determinant in 'ChangeOfCoord_Form3'");
+  if(!Element->DetJac) Msg(ERROR, "Null determinant in 'ChangeOfCoord_Form3'");
 
   vBFx[0] = vBFu[0] / Element->DetJac ;
 
@@ -1111,7 +1111,7 @@ void  ChangeOfCoord_Form2P(struct Element * Element,
 
   GetDP_Begin("ChangeOfCoord_Form2P");
 
-  if(!Element->DetJac) Msg(ERROR, "Null Determinant in 'ChangeOfCoord_Form2P'");
+  if(!Element->DetJac) Msg(ERROR, "Null determinant in 'ChangeOfCoord_Form2P'");
 
   vBFx[0] = (vBFu[0] * Element->Jac.c11 + vBFu[1] * Element->Jac.c21)
     / Element->DetJac ;
@@ -1128,7 +1128,7 @@ void  ChangeOfCoord_Form1S(struct Element * Element,
 
   GetDP_Begin("ChangeOfCoord_Form1S");
 
-  if(!Element->DetJac) Msg(ERROR, "Null Determinant in 'ChangeOfCoord_Form1S'");
+  if(!Element->DetJac) Msg(ERROR, "Null determinant in 'ChangeOfCoord_Form1S'");
 
   vBFx[0] = 0. ;  
   vBFx[1] = 0. ;

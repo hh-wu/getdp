@@ -1,4 +1,4 @@
-#define RCSID "$Id: Par_TermOfFemEquation.c,v 1.6 2000-10-30 09:04:05 dular Exp $"
+#define RCSID "$Id: Par_TermOfFemEquation.c,v 1.7 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -43,7 +43,7 @@ void  Par_TermOfFemEquation (struct Element *Element,
 			   QuantityStorageDof_P->DefineQuantity->IntegralQuantity.InIndex);
     break;
   default:
-    Msg (ERROR, "Should never be here!");
+    Msg (ERROR, "You should never be here!");
   }
 
   /* Loop on source elements (> 1 only if integral quantity) */

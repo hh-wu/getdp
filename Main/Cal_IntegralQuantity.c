@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.5 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.6 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -74,7 +74,7 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
       List_PQuery(IQA->IntegrationCase_P->Case, &ElementSourceType, fcmp_int) ;
 
     if(!Quadrature_P)
-      Msg(ERROR, "Unknown Type of Element (%s) for IntegrationMethod (%s)",
+      Msg(ERROR, "Unknown type of Element (%s) for Integration method (%s)",
 	  Get_StringForDefine(Element_Type, ElementSourceType),
 	  ((struct IntegrationMethod *)
 	   List_Pointer(Problem_S.IntegrationMethod,
@@ -106,7 +106,7 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
 
 
     if(QuantityStorage_P->DefineQuantity->IntegralQuantity.Symmetry)
-      Msg(ERROR, "Symmetries of Integral Kernels not ready with numerical integration");
+      Msg(ERROR, "Symmetries of integral kernels not ready with numerical integration");
     break;
 
 
@@ -123,13 +123,13 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
       break ;
     case CWQ_GF_PVEC_DOF :
     case CWQ_EXP_TIME_GF_PVEC_DOF :
-    default : Msg(ERROR, "Unrecognized IntegralQuantity to integrate analytically");
+    default : Msg(ERROR, "Unrecognized Integral Quantity to integrate analytically");
     }
     break ;
 
     
   default :
-    Msg(ERROR, "Unknown Type of IntegrationMethod (%s) for IntegralQuantity", 
+    Msg(ERROR, "Unknown type of Integration method (%s) for Integral Quantity", 
 	((struct IntegrationMethod *)
 	 List_Pointer(Problem_S.IntegrationMethod,
 		      QuantityStorage_P->DefineQuantity->IntegralQuantity.
@@ -181,7 +181,7 @@ void Apply_ConstantFactor(struct QuantityStorage * QuantityStorage_P,
   case CWQ_GF_PVEC_EXP :
     Cal_CrossProductValue(vBFxDof, Val, vBFxDof);
     break;
-  default : Msg(ERROR, "Unknown Type of Canonical Whole Quantity");
+  default : Msg(ERROR, "Unknown type of canonical Integral Quantity");
   }
 
   GetDP_End ;
@@ -207,7 +207,7 @@ void  Cal_IntegralQuantity (struct Element                 *Element,
   GetDP_Begin("Cal_IntegralQuantity");
 
   if(Nbr_deRhamCells && Nbr_deRhamCells != Nbr_Dof)
-    Msg(ERROR, "Incompatible de Rham Approximation of Integral Quantity");
+    Msg(ERROR, "Incompatible de Rham approximation of Integral Quantity");
   
   if (Element->Num != NO_ELEMENT) {
     Current.x = Current.y = Current.z = 0. ;
@@ -232,7 +232,7 @@ void  Cal_IntegralQuantity (struct Element                 *Element,
   case NEWTONCOTES :
 
     if(Nbr_deRhamCells)
-      Msg(ERROR, "de Rham Approximation of Integral Kernels not done (yet) with Gauss");
+      Msg(ERROR, "de Rham approximation of integral kernels not done (yet) with Gauss");
 
     if(IQA->IntegrationCase_P->SubType == SINGULAR){
       Flag_RemoveSingularity = 1;
@@ -362,7 +362,7 @@ void  Cal_IntegralQuantity (struct Element                 *Element,
       break ;
     case CWQ_GF_PVEC_DOF :
     case CWQ_EXP_TIME_GF_PVEC_DOF :
-      Msg(ERROR, "Vector product of GF_Function and DoF not done for analytic integration");
+      Msg(ERROR, "Vector product of GF_Function and Dof{} not done for analytic integration");
       break ;
     case CWQ_GF_PSCA_EXP :
     case CWQ_GF_PVEC_EXP :
@@ -376,7 +376,7 @@ void  Cal_IntegralQuantity (struct Element                 *Element,
 			    NULL, 0., 0., 0., &Val0) ;      
       Current.Region = Element->Region ;
       break ;
-    default : Msg(ERROR, "Unknown Type of Canonical Whole Quantity");
+    default : Msg(ERROR, "Unknown type of canonical Integral Quantity");
     }
 
     for (j = 0 ; j < Nbr_Dof ; j++) {
@@ -440,7 +440,7 @@ void  Cal_IntegralQuantity (struct Element                 *Element,
       break;
 
     default:
-      Msg(ERROR, "Unknown Type of Symmetry in IntegralQuantity");
+      Msg(ERROR, "Unknown type of symmetry in Integral Quantity");
       break;
     }
 

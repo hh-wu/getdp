@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.19 2001-02-05 20:31:17 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.20 2001-03-03 19:21:21 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -78,7 +78,7 @@ int  main(int argc, char *argv[]) {
   Get_Options(argc, argv, &sargc, sargv, ProName) ;
 
   if(sargc > 1){
-    Msg(INFO1, "Passing Unused Options to Solver: '") ;
+    Msg(INFO1, "Passing unused options to solver: '") ;
     for(i = 1 ; i < sargc ; i++) {
       if(i != 1) Msg(INFO2, " ") ; 
       Msg(INFO2, "%s", sargv[i]) ;
@@ -125,7 +125,7 @@ int  main(int argc, char *argv[]) {
     strcat(LogName, ".log") ;
     if(!(LogStream = fopen(LogName, "w+"))){
       Flag_LOG = 0;
-      Msg(WARNING, "Unable to Open File '%s'", LogName) ;
+      Msg(WARNING, "Unable to open file '%s'", LogName) ;
     }
   }
 
@@ -258,7 +258,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Flag_VERBOSE = atoi(argv[i]) ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing Number");
+	  Msg(ERROR, "Missing number");
 	}
       } 
 
@@ -284,7 +284,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Flag_PROGRESS = atoi(argv[i]) ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing Number");
+	  Msg(ERROR, "Missing number");
 	}
       } 
 
@@ -312,7 +312,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Flag_ORDER = atof(argv[i]) ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing Interpolation Order") ;
+	  Msg(ERROR, "Missing interpolation order") ;
 	}
       }
 
@@ -324,7 +324,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Flag_PAR = atoi(argv[i]) ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing Number of Partitions") ;
+	  Msg(ERROR, "Missing number of partitions") ;
 	}
       }
 
@@ -345,7 +345,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	while (i<argc && argv[i][0]!='-') { 
 	  Name_PostOperation[j] = argv[i] ; i++ ; j++ ;
 	  if(j == NBR_MAX_POS)
-	    Msg(ERROR, "Too Many PostOperations");
+	    Msg(ERROR, "Too many PostOperations");
 	}
 	if(!j){
 	  Flag_LPOS = 1 ; i++ ; 
@@ -363,7 +363,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	while (i<argc && argv[i][0]!='-') { 
 	  Name_PostProcessing[j] = argv[i] ; i++ ; j++ ;
 	  if(j == NBR_MAX_POS)
-	    Msg(ERROR, "Too Many PostOperations");
+	    Msg(ERROR, "Too many PostProcessings");
 	}
 	if(!j){
 	  Flag_LIPOS = 1 ; i++ ; 
@@ -382,7 +382,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Name_MshFile = argv[i] ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing File Name");
+	  Msg(ERROR, "Missing file name");
 	}
       }
 
@@ -394,7 +394,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Name_AdaptFile = argv[i] ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing File Name");
+	  Msg(ERROR, "Missing file name");
 	}
       }
 
@@ -403,10 +403,10 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	while (i<argc && argv[i][0]!='-') { 
 	  Name_ResFile[j] = argv[i] ; i++ ; j++ ;
 	  if(j == NBR_MAX_RES)
-	    Msg(ERROR, "Too Many '.res' Files");
+	    Msg(ERROR, "Too many '.res' files");
 	}
 	if(!j)
-	  Msg(ERROR, "Missing File Name");
+	  Msg(ERROR, "Missing file name");
 	else{
 	  Flag_SPLIT = 1 ;
 	  Name_ResFile[j] = NULL ;
@@ -431,7 +431,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
     
   }
   
-  if(!strlen(NameProblem)) Msg(ERROR, "Missing Input File Name");
+  if(!strlen(NameProblem)) Msg(ERROR, "Missing input file name");
 
   Flag_LOG = Flag_TmpLOG ;
 
@@ -474,9 +474,9 @@ void  Read_ProblemStructure (char * Name){
   String[i+1] = '\0';
   strcat(String, Name);
 
-  Msg(LOADING, "Problem Definition '%s'", String) ;
+  Msg(LOADING, "Problem definition '%s'", String) ;
 
-  if(!(yyin = fopen(String, "r"))) Msg(ERROR, "Unable to Open File '%s'", String);
+  if(!(yyin = fopen(String, "r"))) Msg(ERROR, "Unable to open file '%s'", String);
 
   ErrorLevel = 0 ;  yylinenum = 1 ; yyincludenum=0 ; strcpy(yyname, String) ;
 

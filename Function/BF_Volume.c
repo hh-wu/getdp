@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Volume.c,v 1.4 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: BF_Volume.c,v 1.5 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -9,7 +9,7 @@
 /*  B F _ V o l u m e                                                       */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumVolume   Msg(ERROR, "Wrong Volume Number in 'BF_Volume'")
+#define WrongNumVolume   Msg(ERROR, "Wrong Volume number in 'BF_Volume'")
 
 void  BF_Volume  (struct Element * Element, int NumVolume,
 		  double u, double v, double w,  double *s ) {
@@ -67,7 +67,7 @@ void  BF_Volume  (struct Element * Element, int NumVolume,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_Volume");
+    Msg(ERROR, "Unkown type of Element in BF_Volume");
     break ;
   }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node_3.c,v 1.3 2000-10-30 01:29:46 geuzaine Exp $"
+#define RCSID "$Id: BF_Node_3.c,v 1.4 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 
 #include "GetDP.h"
@@ -13,7 +13,7 @@
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Edge Number in 'BF_Node_3E'")
+#define WrongNumEntity   Msg(ERROR, "Wrong Edge number in 'BF_Node_3E'")
 
 void  BF_Node_3E (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double *s ) {
@@ -68,7 +68,7 @@ void  BF_Node_3E (struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_Node_3E");
+    Msg(ERROR, "Unkown type of Element in BF_Node_3E");
     break ;
   }
 
@@ -84,7 +84,7 @@ void  BF_Node_3E (struct Element * Element, int NumEntity,
 /*  Facets  */
 /* -------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Facet Number in 'BF_Node_3F'")
+#define WrongNumEntity   Msg(ERROR, "Wrong Face number in 'BF_Node_3F'")
 
 void  BF_Node_3F (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double *s ) {
@@ -94,7 +94,7 @@ void  BF_Node_3F (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
-    Msg(ERROR, "You Should Never be Here (BF_Node_3F)");
+    Msg(ERROR, "You should never end up here!") ;
     break;
 
   case TRIANGLE :
@@ -158,7 +158,7 @@ void  BF_Node_3V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
-    Msg(ERROR, "You Should Never be Here (BF_Node_3V)");
+    Msg(ERROR, "You should never end up here!") ;
     break ;
 
   case HEXAHEDRON :
@@ -174,7 +174,7 @@ void  BF_Node_3V (struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_Node_3V");
+    Msg(ERROR, "Unkown type of Element in BF_Node_3V");
     break ;
   }
 
@@ -190,7 +190,7 @@ void  BF_Node_3V (struct Element * Element, int NumEntity,
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Edge Number in 'BF_GradNode_3E'")
+#define WrongNumEntity   Msg(ERROR, "Wrong Edge number in 'BF_GradNode_3E'")
 
 void  BF_GradNode_3E (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
@@ -272,7 +272,7 @@ void  BF_GradNode_3E (struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_GradNode_3E");
+    Msg(ERROR, "Unkown type of Element in BF_GradNode_3E");
     break ;
   }
 
@@ -289,7 +289,7 @@ void  BF_GradNode_3E (struct Element * Element, int NumEntity,
 /*  Facets  */
 /* -------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Facet Number in 'BF_GradNode_3F'")
+#define WrongNumEntity   Msg(ERROR, "Wrong Face number in 'BF_GradNode_3F'")
 
 void  BF_GradNode_3F (struct Element * Element, int NumEntity, 
 		       double u, double v, double w,  double s[] ) {
@@ -299,7 +299,7 @@ void  BF_GradNode_3F (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
-    Msg(ERROR, "You Should Never be Here (BF_GradNode_3F)");
+    Msg(ERROR, "You should never end up here!") ;
     break ;
 
   case TRIANGLE :
@@ -338,7 +338,7 @@ void  BF_GradNode_3F (struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_GradNode_3F");
+    Msg(ERROR, "Unkown type of Element in BF_GradNode_3F");
     break ;
   }
 
@@ -362,7 +362,7 @@ void  BF_GradNode_3V (struct Element * Element, int NumEntity,
   case TRIANGLE :
   case QUADRANGLE :
   case TETRAHEDRON :
-    Msg(ERROR, "You Should Never be Here (BF_GradNode_3V)");
+    Msg(ERROR, "You should never end up here!") ;
     break ;
 
   case HEXAHEDRON :
@@ -378,7 +378,7 @@ void  BF_GradNode_3V (struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg(ERROR, "Unkown Element Type in BF_GradNode_3V");
+    Msg(ERROR, "Unkown type of Element in BF_GradNode_3V");
     break ;
   }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: ExtendedGroup.c,v 1.5 2000-11-16 17:27:38 dular Exp $"
+#define RCSID "$Id: ExtendedGroup.c,v 1.6 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdlib.h> /* pour int abs(int) */
 #include <stdio.h>
 
@@ -58,7 +58,7 @@ int  Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
     GetDP_Return (! List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int)) ;
 
   default :
-    Msg(ERROR, "Unknown Function Type for Group '%s'", Group_P->Name);
+    Msg(ERROR, "Unknown function type for Group '%s'", Group_P->Name);
     GetDP_Return(-1) ;
   }
 }
@@ -120,7 +120,7 @@ void  Generate_ExtendedGroup(struct Group * Group_P) {
     break ;
 
   default :
-    Msg(ERROR, "Unknown Function Type for Group '%s'", Group_P->Name) ;
+    Msg(ERROR, "Unknown function type for Group '%s'", Group_P->Name) ;
     break;
   }
 

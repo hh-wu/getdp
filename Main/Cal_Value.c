@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Value.c,v 1.10 2000-10-30 01:29:47 geuzaine Exp $"
+#define RCSID "$Id: Cal_Value.c,v 1.11 2001-03-03 19:21:20 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 #include <string.h> /* memcpy */
@@ -332,7 +332,7 @@ void  Cal_AddMultValue (struct Value * V1, struct Value * V2, double d, struct V
     }
     break;        
   default :
-    Msg(ERROR, "Wrong Argument Type Quantity for 'Cal_AddMultValue'");
+    Msg(ERROR, "Wrong argument type for 'Cal_AddMultValue'");
     break;
   }
   Cal_AddValue(V1,&A,R);
@@ -1004,7 +1004,6 @@ void  Cal_PowerValue (struct Value * V1, struct Value * V2, struct Value * R) {
 	R->Val[0] = pow(V1->Val[0],V2->Val[0]) ;
       }
       else{
-	/* Msg(WARNING, "Power > 2 not tested for Complex"); */
 	for (k = 0 ; k < Current.NbrHar ; k+=2) {
 	  abs = pow(sqrt(DSQU(V1->Val[MAX_DIM*k])+DSQU(V1->Val[MAX_DIM*(k+1)])), 
 		    V2->Val[0]) ;
@@ -1271,7 +1270,7 @@ void  Cal_NegValue (struct Value * R) {
     }
     break;
   default :
-    Msg(ERROR, "Wrong Argument Type Quantity for Operator (-)");
+    Msg(ERROR, "Wrong argument type for Operator (-)");
     break;
   }
 
@@ -1349,7 +1348,7 @@ void Cal_TransposeValue(struct Value *V1, struct Value *R){
     break;    
     
   default:
-    Msg(ERROR, "Wrong Argument Type in 'Cal_TransposeValue'");
+    Msg(ERROR, "Wrong argument in 'Cal_TransposeValue'");
     break;
   }  
   
@@ -1410,7 +1409,7 @@ void Cal_TraceValue(struct Value *V1, struct Value *R){
     break;
     
   default:
-    Msg(ERROR, "Wrong Argument Type in 'Cal_TraceValue'");
+    Msg(ERROR, "Wrong argument type in 'Cal_TraceValue'");
     break;
   }  
 
@@ -1703,7 +1702,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R){
 #undef COMPLEX_COMPUTE_A
     
   default :
-    Msg(ERROR, "Wrong Argument Type in 'Cal_RotateValue'");
+    Msg(ERROR, "Wrong argument type in 'Cal_RotateValue'");
     break;
   }
 
@@ -1808,7 +1807,7 @@ void Cal_DetValue(struct Value *V1, struct Value *R){
     break;    
     
   default:
-    Msg(ERROR, "Wrong Argument Type in 'Cal_DetValue'");
+    Msg(ERROR, "Wrong argument type in 'Cal_DetValue'");
     break;
   }  
   
@@ -1854,7 +1853,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
 	R->Val[2] = 1./V1->Val[2];
       }
       else{
-	Msg(ERROR, "Null Determinant in 'Cal_InvertValue'");
+	Msg(ERROR, "Null determinant in 'Cal_InvertValue'");
       }
     }
     else{
@@ -1870,7 +1869,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
     Cal_DetValue(V1,&Det);
 
     if(!Det.Val[0]){
-      Msg(ERROR, "Null Determinant in 'Cal_InvertValue'");
+      Msg(ERROR, "Null determinant in 'Cal_InvertValue'");
     }
 
     if(Current.NbrHar==1){      
@@ -1919,7 +1918,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
     Cal_DetValue(V1,&Det);
 
     if(!Det.Val[0]){
-      Msg(ERROR, "Null Determinant in 'Cal_InvertValue'");
+      Msg(ERROR, "Null determinant in 'Cal_InvertValue'");
     }
 
     if(Current.NbrHar==1){      
@@ -1965,7 +1964,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
     break;
 
   default :
-    Msg(ERROR, "Wrong Type of Argument in 'Cal_InvertValue'");
+    Msg(ERROR, "Wrong type of argument in 'Cal_InvertValue'");
     break;
   }
 
@@ -2034,7 +2033,7 @@ void Print_Value(struct Value *A){
     break;
 
   default :
-    Msg(ERROR, "Unknown Type of Argument in function 'Printf'");
+    Msg(ERROR, "Unknown type of argument in function 'Printf'");
     break;
   }
 
@@ -2076,7 +2075,7 @@ void  Cal_SetHarmonicValue(struct Value *R) {
     break;
     
   default :
-    Msg(ERROR, "Unknown Type of Argument in function 'Cal_SetHarmonicValue'");
+    Msg(ERROR, "Unknown type of argument in function 'Cal_SetHarmonicValue'");
   }
 
   GetDP_End ;
