@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.26 2001-03-19 10:51:57 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.27 2001-10-24 16:01:20 dular Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -67,7 +67,7 @@ void ComputeElementBox(struct Element * Element,
 	ElementBox->Xmin += dxz/2. ; ElementBox->Xmax -= dxz/2. ;
 	ElementBox->Ymin += dyz/2. ; ElementBox->Ymax -= dyz/2. ;	
       }
-      
+
       d = ElementBox->Xmax - ElementBox->Xmin ;
 
       ElementBox->Xmin -= d/10. ; ElementBox->Xmax += d/10.;
