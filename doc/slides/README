@@ -1,0 +1,29 @@
+
+* To create a full presentation, make a copy of 'christophe.tex' and
+  edit it to match your needs. Then compile it with 
+
+  latex file
+
+* To compile only the slides relative to getdp, gmsh, the fem
+  introduction or the examples, type
+
+  latex wrapper
+
+  and answer the questions
+
+* To generate a postscript file 'file.ps' from the dvi file
+  'file.dvi', type
+
+  dvips file -o
+
+* To print 2 or 4 slides per page, type
+
+  psnup -2 file.ps | lpr
+
+  or
+
+  psnup -r -4 file.ps | lpr
+
+
+
+Christophe
