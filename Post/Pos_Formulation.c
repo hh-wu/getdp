@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.c,v 1.10 2000-09-26 11:33:06 geuzaine Exp $ */
+/* $Id: Pos_Formulation.c,v 1.11 2000-09-28 22:16:35 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -303,7 +303,7 @@ void Combine_PostQuantity(int Type, int Order,
 /* 2 PostElements never have the same barycenter unless they are identical */
 
 #define TOL 1.e-08  /* should be relative... */
-
+ 
 int fcmp_PostElement(const void *a, const void *b){
   struct PostElement *PE1, *PE2 ;
   double s1, s2 ;
@@ -327,6 +327,23 @@ int fcmp_PostElement(const void *a, const void *b){
 }  
 
 #undef TOL
+
+#define TOL 1.e-12  /* should be relative... */
+
+int Compare_PostElementNode(struct PostElement * PE1, int n1,
+			     struct PostElement * PE2, int n2){
+  if ( (fabs(PE1->x[n1] - PE2->x[n2]) < TOL) &&
+       (fabs(PE1->y[n1] - PE2->y[n2]) < TOL) &&
+       (fabs(PE1->z[n1] - PE2->z[n2]) < TOL) )
+    return 1 ;
+  return 0 ;
+}
+
+#undef TOL
+ 
+int fcmp_PostElement_Index(const void *a, const void *b){
+  return (*(struct PostElement**)a)->Index - (*(struct PostElement**)b)->Index;
+}  
 
 int fcmp_IntxList(const void * a, const void * b) {
   return  ((struct IntxList *)a)->Int - ((struct IntxList *)b)->Int ;
@@ -449,10 +466,11 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
   else
     NbrSmoothing = 0;
 
-  /* If we compute a skin, apply smoothing or perform adaption, we'll
-     need to store all the PostElements */
+  /* If we compute a skin, apply smoothing, sort the results, or
+     perform adaption, we'll need to store all the PostElements */
 
-  if(NbrSmoothing || PostSubOperation_P->Skin || PostSubOperation_P->Adapt)
+  if(NbrSmoothing || PostSubOperation_P->Skin || PostSubOperation_P->Adapt ||
+     PostSubOperation_P->Sort)
     Store = 1 ;
 
   /* Check if everything is OK for Adaption */
@@ -775,6 +793,38 @@ void  Pos_PlotOnRegion(struct PostQuantity     *NCPQ_P,
 	}
       }
     }
+  }
+
+  /* Sort the elements */
+
+  switch(PostSubOperation_P->Sort){
+  case SORT_BY_POSITION : 
+    List_Sort(PostElement_L, fcmp_PostElement) ;
+    break ;
+  case SORT_BY_CONNECTIVITY :
+    for(ii = 0 ; ii < NbrPost ; ii++){
+      PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
+      if(PE->NbrNodes != 2)
+	Msg(ERROR, "Connectivity Sorting Impossible for %d-Noded Elements",
+	    PE->NbrNodes) ;
+      PE->Index = 0 ;
+    }
+    for(ii = 0 ; ii < NbrPost ; ii++){
+      PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
+      if(!ii || PE->Index){
+	for(jj = 1 ; jj < NbrPost ; jj++){
+	  PE2 = *(struct PostElement**)List_Pointer(PostElement_L, jj);
+	  if(!PE2->Index){
+	    if(Compare_PostElementNode(PE2, 0, PE, 1)) PE2->Index = PE->Index + 1 ;
+	    else if (Compare_PostElementNode(PE2, 1, PE, 0)) PE2->Index = PE->Index - 1 ;
+	  }
+	}
+      }
+    }
+    List_Sort(PostElement_L, fcmp_PostElement_Index) ;
+    break ;
+  default :
+    break ;
   }
 
   /* Print evrything if we are in Store mode */
@@ -1321,7 +1371,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 	      List_Pointer(Problem_S.Group, 
 			   PostSubOperation_P->Case.OnRegion.RegionIndex))
     ->InitialList ;
-  List_Tri(Region_L, fcmp_int) ;
+  List_Sort(Region_L, fcmp_int) ;
   /*
   if (PostSubOperation_P->InIndex >= 0) {
     SubRegion_L =

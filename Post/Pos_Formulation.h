@@ -1,4 +1,4 @@
-/* $Id: Pos_Formulation.h,v 1.3 2000-09-07 18:47:28 geuzaine Exp $ */
+/* $Id: Pos_Formulation.h,v 1.4 2000-09-28 22:16:35 geuzaine Exp $ */
 #ifndef _POS_FORMULATION_H_
 #define _POS_FORMULATION_H_
 
@@ -12,6 +12,9 @@ struct CutEdge {
 
 struct PostElement * Create_PostElement(int Index, int Type, int NbrNodes, int Depth);
 void Destroy_PostElement(struct PostElement * PostElement) ;
+
+int fcmp_PostElement (const void *a, const void *b);
+int fcmp_PostElementConnection (const void *a, const void *b);
 
 void  Pos_FemFormulation(struct Formulation      * Formulation_P,
 			 struct PostQuantity     * LocalPQ,

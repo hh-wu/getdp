@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.5 2000-09-07 18:47:28 geuzaine Exp $ */
+/* $Id: Pos_Print.c,v 1.6 2000-09-28 22:16:35 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -87,7 +87,7 @@ void  Print_PostFooter(int Format){
 /* ------------------------------------------------------------------------ */
 
 void  Print_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic, 
-		 int HarmonicToTime, int Type, int NbrNodes, 
+		 int HarmonicToTime, int Type, int Index, int NbrNodes, 
 		 double *x, double *y, double *z, struct Value *Value){
   int     i,j,k;
   double  p;
@@ -231,7 +231,7 @@ void  Print_Gmsh(int TimeStep, int NbTimeStep, int NbHarmonic,
 #define POST_TENSOR_PYRAMID         28
 
 void  Print_NewGmsh(int TimeStep, int NbrTimeSteps, int NbrHarmonics, 
-		    int HarmonicToTime, int ElementType, int NbrNodes,
+		    int HarmonicToTime, int ElementType, int ElementIndex, int NbrNodes,
 		    double *x, double *y, double *z, struct Value *Value){
 
   static int      Index, OutSize, Type, Size ;
@@ -373,8 +373,10 @@ int Get_GmshElementType(int Type){
 }
 
 void  Print_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
-		    int NbrHarmonics, int HarmonicToTime, int ElementType, int NbrNodes,
-		    double *x, double *y, double *z, double *Normal, struct Value *Value){
+		    int NbrHarmonics, int HarmonicToTime, 
+		    int ElementType, int Index, int NbrNodes,
+		    double *x, double *y, double *z, double *Dummy,
+		    struct Value *Value){
   static int  Size ;
   int         i,j,k ;
   double      p ;
@@ -393,19 +395,19 @@ void  Print_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
   case FORMAT_GNUPLOT :
   case FORMAT_SPACE_TABLE :
     if(TimeStep == 0){
-      fprintf(PostStream, "%d ", Get_GmshElementType(ElementType));
-      for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", x[i]);
-      for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", y[i]);
-      for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", z[i]);
-      if(Normal) 
-	fprintf(PostStream, "%.8g %.8g %.8g ", Normal[0], Normal[1],  Normal[2]);
+      fprintf(PostStream, "%d %d ", Get_GmshElementType(ElementType), Index);
+      for(i=0 ; i<NbrNodes ; i++)
+	fprintf(PostStream, "%.8g %.8g %.8g ", x[i], y[i], z[i]);
+      if(Dummy) 
+	fprintf(PostStream, "%.8g %.8g %.8g ", Dummy[0], Dummy[1],  Dummy[2]);
+      else
+	fprintf(PostStream, "0 0 0 ");
     }
     break ;
   case FORMAT_TIME_TABLE :
     fprintf(PostStream, "%d %.8g ", TimeStep, Time);
-    for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", x[i]);
-    for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", y[i]);
-    for(i=0 ; i<NbrNodes ; i++) fprintf(PostStream, "%.8g ", z[i]);
+    for(i=0 ; i<NbrNodes ; i++) 
+      fprintf(PostStream, "%.8g %.8g %.8g ", x[i], y[i], z[i]);
     break ;
   }
   
@@ -418,8 +420,8 @@ void  Print_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
       for(i = 0 ; i < NbrNodes ; i++){
 	for(j = 0 ; j < Size ; j++){
 	  fprintf(PostStream, "%.8g",
-		  Value[i].Val[        j] * cos(p) - 
-		  Value[i].Val[MAX_DIM+j] * sin(p));	    
+		  Value[i].Val[        j] * cos(p) -
+		  Value[i].Val[MAX_DIM+j] * sin(p));
 	}
       }
     }
@@ -456,17 +458,17 @@ void  Print_PostElement(int Format, double Time, int TimeStep, int NbTimeStep,
   switch(Format){
   case FORMAT_GMSH :
     Print_Gmsh(TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
-	       PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, PE->Value) ;
+	       PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, PE->Value) ;
     break ;
   case FORMAT_GMSH_NL :
     Print_NewGmsh(TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
-		  PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, PE->Value) ;
+		  PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, PE->Value) ;
     break ;
   case FORMAT_GNUPLOT :
   case FORMAT_SPACE_TABLE :
   case FORMAT_TIME_TABLE :
     Print_Tabular(Format, Time, TimeStep, NbTimeStep, NbHarmonic, HarmonicToTime,
-		  PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, PE->Value) ;
+		  PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, PE->Value) ;
     break ;
   case FORMAT_ADAPT:
     Print_Adapt(Dummy) ;
