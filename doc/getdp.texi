@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.30 2001-03-01 14:04:33 geuzaine Exp $
+@c $Id: getdp.texi,v 1.31 2001-03-01 14:46:57 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -5369,6 +5369,7 @@ post-processing (faster and less bloated); Lots of internal cleaning;
 favour of @code{Print}; @code{Plot OnRegion} becomes @code{Print
 OnElementsOf}); Changed table oriented post-processing formats; New binary
 formats; New error diagnostics;
+@item
 @b{0.78}: Various bug fixes;
 @end itemize
 
