@@ -1,4 +1,4 @@
-#define RCSID "$Id: Legendre.c,v 1.7 2003-03-06 22:28:48 geuzaine Exp $"
+#define RCSID "$Id: Legendre.c,v 1.8 2003-03-17 11:26:07 sabarieg Exp $"
 
 #include <stdio.h>
 #include <math.h>
@@ -16,8 +16,6 @@ double Factorial( double n ){
   if ( n < 0 ) Msg(ERROR, "Factorial(n): n must be a positive integer") ;
   if ( n == 0 ) GetDP_Return(1.) ;
   if ( n <= 2 ) GetDP_Return(n) ;
-
-  if ( n > 170 ) Msg(ERROR, "Floating point exception: Factorial( n > 170 )") ;
 
   F = n ;
   while ( n > 2 ){ n-- ; F *= n ; }
@@ -118,6 +116,36 @@ void LegendreRecursive(int l, int m, double x, double P[]){
 }
 
 
+void LegendreRecursiveM(int l, double x, double P[]){
+  /* Computes recursively a (l+1)-terms sequence of the associated Legendre polynomial P_l^m(x).
+     x lies in the range -1<=x<=1, l = invariable, -l<=m<=l */
+  int m ;
+  double Pl_m, Plm1_m ;
+
+  GetDP_Begin("LegendreRecursiveM");
+
+  if (fabs(x) == 1.)
+    for(m = -l ; m <= l ; m ++) 
+      P[l+m] = (m==0) ? pow(THESIGN(x),(double)l) : 0. ;    
+  else{
+    if (l==0){
+      P[0] = Legendre(0, 0, x) ;
+      GetDP_End ;
+    }
+    P[0] = Plm1_m = Legendre(l, -l, x) ;
+    P[1] =  Pl_m =  Legendre(l, -l+1, x) ;    
+    if (l >= 1)
+      for(m = -l+1 ; m < l ; m ++){     
+	P[l+m+1] = -2*m*x*Pl_m/sqrt(1-x*x) + (m*(m-1)-l*(l+1))*Plm1_m ; 
+	Plm1_m = Pl_m ;
+	Pl_m =  P[l+m+1];
+      }
+    else GetDP_End ;
+  }
+  
+  GetDP_End ;
+}
+
 
 double dLegendre (int l, int m, double x){
   /* Computes the derivative of the associated Legendre polynomial P_l^m(x) */
@@ -127,11 +155,13 @@ double dLegendre (int l, int m, double x){
   GetDP_Begin("dLegendre");
   
   if ( THEABS(m) > l || fabs(x) > 1.)
-    Msg(ERROR, "Bad arguments for dLegendre: -l<=m<=l (integers), -1<=x<=1. Current values: l %d m %d x %.8g", l, m, x) ;
+    Msg(ERROR,
+	"Bad arguments for dLegendre: -l<=m<=l (integers), -1<=x<=1. Current values: l %d m %d x %.8g", l, m, x) ;
   
   if (fabs(x)==1.) dpl = 0.;
   else    
-    dpl = ((l+m)*(l-m+1)*sqrt(1-x*x)* ((THEABS((m-1))>l) ? 0.:Legendre(l, m-1, x)) + m*x* Legendre (l,m,x))/(1-x*x);
+    dpl = ((l+m)*(l-m+1)*sqrt(1-x*x)*((THEABS((m-1))>l) ? 0. :
+	  Legendre(l, m-1, x)) + m*x* Legendre (l,m,x))/(1-x*x);
   
   GetDP_Return(dpl);
 
