@@ -1,4 +1,4 @@
-// $Id: Helmholtz2D.cpp,v 1.3 2002-05-31 00:52:13 geuzaine Exp $
+// $Id: Helmholtz2D.cpp,v 1.4 2002-05-31 23:07:02 geuzaine Exp $
 
 #include "Utils.h"
 #include "Helmholtz2D.h"
@@ -120,7 +120,6 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
   static FILE *fp;
   if(first) fp = fopen("debug","w");
 #endif
-
 
   if(!nbpts) return 0.;
 

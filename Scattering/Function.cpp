@@ -1,4 +1,4 @@
-// $Id: Function.cpp,v 1.12 2002-05-23 00:50:32 geuzaine Exp $
+// $Id: Function.cpp,v 1.13 2002-05-31 23:07:02 geuzaine Exp $
 
 #include "Utils.h"
 #include "Function.h"
@@ -70,6 +70,7 @@ Complex Function::density(Scatterer *scat, double tau){
 	  val += p->spline->eval(tau2);
 	}
 	else{
+	  // FIXME: this is OK only if there is not change of variables
 	  tau2 -= ap;
 	  val += p->fft->eval(tau2*TWO_PI/(bp-ap));
 	}
