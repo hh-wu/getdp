@@ -1,4 +1,4 @@
-$Id: README.txt,v 1.4 2001-03-10 18:06:00 geuzaine Exp $
+$Id: README.txt,v 1.5 2001-03-10 20:01:29 geuzaine Exp $
 
 For Windows versions of GetDP only:
 ===================================
@@ -42,7 +42,7 @@ use the cygwin tools:
    C:\cygwin\
 6. Launch cygwin, and type 'cd /; tar zxvf rxvt-*'
 7. Edit the file 'C:\cygwin\cygwin.bat' and replace the line starting
-   with 'bash' with 'rxvt -sl 1000 -e \cygwin\bin\bash --login'
+   with 'bash' by 'rxvt -sl 1000 -e \cygwin\bin\bash --login'
 8. Remove the cygwin1.dll file from the GetDP distribution
 
 Instead of launching the DOS command shell, you should now launch
