@@ -1,11 +1,11 @@
-// $Id: FFT.cpp,v 1.4 2002-05-09 00:50:29 geuzaine Exp $
+// $Id: FFT.cpp,v 1.5 2002-05-11 00:50:46 geuzaine Exp $
 
 #include "Utils.h"
 #include "FFT.h"
 
 // packing order for F: [0,1...n/2-1,-n/2,...,-1]
 
-#if 1 // Slow DFT
+#if 0 // Slow DFT
 
 FFT::FFT(int n){
   N = Nexp = n;
@@ -131,12 +131,11 @@ void FFT::backward(Complex *F, Complex *f){
 void FFT::init(Complex *f){
   forward(f,fourierCoefs);
   backward(fourierCoefs,expandedVals);
-  // initialize cubic interpolation of expandedVals
+  spline->init(expandedVals);
 }
 
 Complex FFT::eval(double t){
-  // eval spline...
-  return 1.;
+  return spline->eval(t);
 }
 
 #endif
