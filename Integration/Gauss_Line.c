@@ -1,4 +1,4 @@
-/* $Id: Gauss_Line.c,v 1.4 2000-10-21 12:17:56 geuzaine Exp $ */
+/* $Id: Gauss_Line.c,v 1.5 2000-10-24 07:04:28 geuzaine Exp $ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -6,6 +6,8 @@
 #include "Message.h"
 #include "Quadrature.h"
 #include "Gauss_Line.h"
+
+#include "ualloc.h"
 
 /* Gauss integration over a line */
 
