@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.36 2004-04-15 02:17:02 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.37 2004-09-09 11:25:31 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -918,6 +918,69 @@ void  Format_PostValue(int Format,
 
     Free(TmpValues) ;
   }
+
+  GetDP_End ;
+}
+
+
+
+/* ------------------------------------------------------------------------ */
+/*  F o r m a t _ O O 1                                                     */
+/* ------------------------------------------------------------------------ */
+
+void  Format_OO1(int Format, double Time, int TimeStep, int NbrTimeSteps,
+		 int NbrHarmonics, int HarmonicToTime, 
+		 int ElementType, int NumElement, int NbrNodes,
+		 double *x, double *y, double *z, double *Dummy,
+		 struct Value *Value){
+  static int  Size ;
+  int         i,j,k ;
+  double      TimeMH ;
+  struct Value  TmpValue ;
+
+  GetDP_Begin("Format_OO1");
+
+  if(TimeStep == 0){
+    switch(Value->Type){
+    case SCALAR      : Size = 1 ; break ;
+    case VECTOR      : Size = 3 ; break ;
+    case TENSOR_DIAG : Size = 3 ; break ;
+    case TENSOR_SYM  : Size = 6 ; break ;
+    case TENSOR      : Size = 9 ; break ;
+    }
+  }
+
+  if(Format == FORMAT_SPACE_TABLE){
+    if(TimeStep == 0){
+      fprintf(PostStream, "%d %d ", Get_GmshElementType(ElementType), NumElement);
+      for(i=0 ; i<NbrNodes ; i++)
+	fprintf(PostStream, " %.16g %.16g %.16g ", x[i], y[i], z[i]);
+      if(Dummy) 
+	fprintf(PostStream, " %.16g %.16g %.16g ", Dummy[0], Dummy[1],  Dummy[2]);
+      else
+	fprintf(PostStream, " 0 0 0 ");
+    }
+  }
+
+  if (HarmonicToTime == 1) {
+    if(Format == FORMAT_TIME_TABLE){
+      fprintf(PostStream, "%d %.16g ", TimeStep, Time);
+      for(i=0 ; i<NbrNodes ; i++)
+	fprintf(PostStream, " %.16g %.16g %.16g ", x[i], y[i], z[i]);
+    }
+    for(k = 0 ; k < NbrHarmonics ; k++) {
+      for(i = 0 ; i < NbrNodes ; i++){
+	for(j = 0 ; j < Size ; j++){
+	  fprintf(PostStream, " %.16g", Value[i].Val[MAX_DIM*k+j]);
+	}
+	fprintf(PostStream, " ");
+      }
+      fprintf(PostStream, " ");
+    }
+  }
+
+  if(TimeStep == NbrTimeSteps-1 || Format == FORMAT_TIME_TABLE)
+    fprintf(PostStream, "\n");
 
   GetDP_End ;
 }
