@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.49 2001-08-09 19:29:21 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.50 2001-08-10 07:19:36 geuzaine Exp $"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -11,6 +11,7 @@
 #include "Get_Geometry.h"
 #include "CurrentData.h"
 #include "Get_DofOfElement.h"
+#include "ExtendedGroup.h"
 #include "Cal_Quantity.h"
 #include "Pos_Formulation.h"
 #include "Pos_Quantity.h"
@@ -22,36 +23,6 @@
 #include "Tools.h"
 
 extern int  InteractiveInterrupt ;
-
-struct CutEdge {
-  int     nbc ;
-  double  x[2],y[2],z[2] ;  
-  double  xc,yc,zc ;
-  double  uc,vc,wc ;
-  struct  Value  *Value ;
-} ;
-
-struct xyzv{
-  double x,y,z;
-  struct Value v;
-  /*int nbvals; for time domain -> malloc Value *v... */
-  int nboccurences;
-};
-
-int fcmp_xyzv(const void * a, const void * b) {
-  struct xyzv *p1, *p2;
-  double TOL=Current.GeoData->CharacteristicLength * 1.e-6;
-  p1 = (struct xyzv*)a;
-  p2 = (struct xyzv*)b;
-  if(p1->x - p2->x > TOL) return 1;
-  if(p1->x - p2->x <-TOL) return -1;
-  if(p1->y - p2->y > TOL) return 1;
-  if(p1->y - p2->y <-TOL) return -1;
-  if(p1->z - p2->z > TOL) return 1;
-  if(p1->z - p2->z <-TOL) return -1;
-  return 0;
-}
-
 
 /*
   Print OnElementsOf
@@ -87,15 +58,43 @@ int fcmp_xyzv(const void * a, const void * b) {
 
 */
 
-
 /* ------------------------------------------------------------------------ */
 /*  P o s _ P r i n t O n E l e m e n t s O f                               */
 /* ------------------------------------------------------------------------ */
 
-List_T * SkinPostElement_L ;
-int      SkinDepth ;
+struct CutEdge {
+  int     nbc ;
+  double  x[2],y[2],z[2] ;  
+  double  xc,yc,zc ;
+  double  uc,vc,wc ;
+  struct  Value  *Value ;
+} ;
 
-void Cut_SkinPostElement(void *a, void *b){
+struct xyzv{
+  double x,y,z;
+  struct Value v;
+  /*int nbvals; for time domain -> malloc Value *v... */
+  int nboccurences;
+};
+
+static int fcmp_xyzv(const void * a, const void * b) {
+  struct xyzv *p1, *p2;
+  double TOL=Current.GeoData->CharacteristicLength * 1.e-6;
+  p1 = (struct xyzv*)a;
+  p2 = (struct xyzv*)b;
+  if(p1->x - p2->x > TOL) return 1;
+  if(p1->x - p2->x <-TOL) return -1;
+  if(p1->y - p2->y > TOL) return 1;
+  if(p1->y - p2->y <-TOL) return -1;
+  if(p1->z - p2->z > TOL) return 1;
+  if(p1->z - p2->z <-TOL) return -1;
+  return 0;
+}
+
+static List_T * SkinPostElement_L ;
+static int      SkinDepth ;
+
+static void Cut_SkinPostElement(void *a, void *b){
   struct PostElement  * PE ;
 
   PE = *(struct PostElement**)a ;
@@ -104,7 +103,7 @@ void Cut_SkinPostElement(void *a, void *b){
 		  PE->Index, SkinDepth, 0, 1) ;
 }
 
-void Decompose_SkinPostElement(void *a, void *b){
+static void Decompose_SkinPostElement(void *a, void *b){
   struct PostElement  * PE, * PE2 ;
 
   PE = *(struct PostElement**)a ;
@@ -133,8 +132,8 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 			    struct QuantityStorage  *QuantityStorage_P0,
 			    struct PostSubOperation *PostSubOperation_P) {
 
-  Tree_T  * PostElement_T, * NodexPostElement_T ;
-  List_T  * PostElement_L, * Region_L, * Tmp_L ;
+  Tree_T  * PostElement_T ;
+  List_T  * PostElement_L, * Region_L ;
 
   struct Element        Element ;
   struct PostElement  * PE ;
@@ -142,7 +141,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   struct xyzv           xyzv, *xyzv_P ;
   Tree_T              * xyzv_T ;
   double  * Error=NULL, Dummy[5], d, x1, x2 ;
-  int       ii, jj, kk, NbrGeo, iGeo, incGeo, NbrPost=0, iPost ;
+  int       jj, NbrGeo, iGeo, incGeo, NbrPost=0, iPost ;
   int       NbrTimeStep, iTime, iNode ;
   int       Store = 0, DecomposeInSimplex = 0, Depth ;
 
