@@ -1,4 +1,4 @@
-/* $Id: makehtml.c,v 1.3 2001-08-26 14:18:17 geuzaine Exp $ 
+/* $Id: makehtml.c,v 1.4 2001-10-12 20:02:05 geuzaine Exp $ 
    
    Generate a HTML slide show from a set of image files
 */
@@ -69,6 +69,7 @@ int  main(int argc, char *argv[]) {
 	  "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\">\n"
 	  "<HEAD>\n"
 	  "<TITLE>%s - index</TITLE>\n"
+	  "<LINK href=\"/general.css\" rel=\"stylesheet\">\n"
 	  "</HEAD>\n"
 	  "<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\" LINK=\"#0000FF\" VLINK=\"#800080\" ALINK=\"#FF0000\">\n"
 	  "<CENTER>\n"
