@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.21 2003-04-15 05:17:29 geuzaine Exp $
+# $Id: Makefile,v 1.22 2003-06-21 01:01:34 geuzaine Exp $
 #
 # Copyright (C) 1997-2003 P. Dular, C. Geuzaine
 #
@@ -28,6 +28,6 @@ all:
           texinfo/getdp-info.tgz getdp.1 
 
 clean:
-	rm -f getdp.ps getdp.pdf getdp.info*
+	rm -f *~ .*~ getdp.ps getdp.pdf getdp.info*
 	cd texinfo && ${MAKE} clean
 	cd slides && ${MAKE} clean
