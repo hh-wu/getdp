@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_DofOfElement.c,v 1.22 2004-01-19 16:51:17 geuzaine Exp $"
+#define RCSID "$Id: Get_DofOfElement.c,v 1.23 2004-10-01 11:35:03 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -232,7 +232,8 @@ void  Get_GroupsOfElementaryEntitiesOfElement
   /* external input/output :  GroupEntity_P     : In  */
 
   int            i, j, Num_Entity, Nbr_SubFunction, i_SF ;
-  struct TwoInt  * Key_P ;
+  struct TwoInt  * Key_P, Key ;
+  int iFirst;
 
   GetDP_Begin("Get_GroupsOfElementaryEntitiesOfElement");
 
@@ -247,8 +248,18 @@ void  Get_GroupsOfElementaryEntitiesOfElement
 
   for (i = 0 ; i < Nbr_ElementaryEntities ; i++) {
     Num_Entity = abs(Num_ElementaryEntities[i]) ;
+
+    /*
     if ((Key_P = (struct TwoInt*)List_PQuery(GroupEntity_P->ExtendedList, 
 					     &Num_Entity, fcmp_absint ))) {
+    */
+    iFirst = 1;
+    Key.Int1 = Num_Entity;
+    Key_P = &Key;
+    while (List_LQuery(GroupEntity_P->ExtendedList, &Key, fcmp_absint, iFirst)) {
+      iFirst = 0;
+
+
       j = *StartingIndex ;
       while ((j < Element->NbrGroupsOfEntities) &&
 	     (Element->NumGroupsOfEntities[j] != Key_P->Int2))  j++ ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: ExtendedGroup.c,v 1.10 2004-01-19 16:51:17 geuzaine Exp $"
+#define RCSID "$Id: ExtendedGroup.c,v 1.11 2004-10-01 11:35:03 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -290,6 +290,20 @@ void  Generate_GroupsOfEdges(List_T * InitialList,
 	  Num_Node = GeoElement->NumNodes[abs(Num_Nodes[1])-1] ;
 	  Key2_P = (struct TwoInt*)List_PQuery(ExtendedAuxList, &Num_Node, fcmp_int) ;
 
+	  if (Key1_P && (!Key2_P || (Key2_P->Int2 != Key1_P->Int2))) {
+	    Num_GroupOfEdges.Int1 = - GeoElement->NumEdges[i_Entity] ;
+	    Num_GroupOfEdges.Int2 = Key1_P->Int2 ;
+	    if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
+	      Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
+	  }
+	  if (Key2_P && (!Key1_P || (Key1_P->Int2 != Key2_P->Int2))) {
+	    Num_GroupOfEdges.Int1 = GeoElement->NumEdges[i_Entity] ;
+	    Num_GroupOfEdges.Int2 = Key2_P->Int2 ;
+	    if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
+	      Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
+	  }
+
+	  /*
 	  if (Key1_P && !Key2_P) {
 	    Num_GroupOfEdges.Int1 = - GeoElement->NumEdges[i_Entity] ;
 	    Num_GroupOfEdges.Int2 = Key1_P->Int2 ;
@@ -302,6 +316,30 @@ void  Generate_GroupsOfEdges(List_T * InitialList,
 	    if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
 	      Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
 	  }
+
+	  else {
+	    if (Key1_P && Key2_P && Key1_P->Int2 != Key2_P->Int2) {
+
+	      Num_GroupOfEdges.Int1 = - GeoElement->NumEdges[i_Entity] ;
+	      Num_GroupOfEdges.Int2 = Key1_P->Int2 ;
+	      if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
+		{
+		Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
+		fprintf(stderr, "ADD 1 <========= %d %d %d\n", GeoElement->NumNodes[abs(Num_Nodes[0])-1], Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2);
+		}
+
+	      Num_GroupOfEdges.Int1 = GeoElement->NumEdges[i_Entity] ;
+	      Num_GroupOfEdges.Int2 = Key2_P->Int2 ;
+	      if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
+		{
+		Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
+		fprintf(stderr, "ADD 2 <========= %d %d %d \n", GeoElement->NumNodes[abs(Num_Nodes[1])-1], Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2);
+		}
+
+	    }
+	  }
+	  */
+
 	}
       }
 
