@@ -176,7 +176,7 @@ Resolution @{
 
 PostProcessing @{
   @{ Name MagDyn_av_2D ; NameOfFormulation Magnetodynamics_av_2D ;
-    PostQuantity @{
+    Quantity @{
       @{ Name a ; 
         Value @{ 
           Local @{ [ @{a@} ] ; In Domain_Mag ; Jacobian Vol ; @} 

@@ -80,12 +80,20 @@ Resolution @{
 
 PostProcessing @{
   @{ Name EleSta_v ; NameOfFormulation Electrostatics_v ;
-    PostQuantity @{
-      @{ Name v ; Value @{ Local @{ [ @{v@} ] ; In DomainCC_Ele ; @} @} @}
-      @{ Name e ; Value @{ Local @{ [ -@{d v@} ] ; In DomainCC_Ele ; @} @} @}
+    Quantity @{
+      @{ Name v ; 
+        Value @{ 
+          Local @{ [ @{v@} ] ; In DomainCC_Ele ; Jacobian Vol ; @} 
+        @}
+      @}
+      @{ Name e ; 
+        Value @{ 
+          Local @{ [ -@{d v@} ] ; In DomainCC_Ele ; Jacobian Vol ; @}
+        @}
+      @}
       @{ Name d ; 
         Value @{ 
-          Local @{ [ -eps0*epsr[] * @{d v@} ] ; In DomainCC_Ele ; @} 
+          Local @{ [ -eps0*epsr[] * @{d v@} ] ; In DomainCC_Ele ; Jacobian Vol ; @} 
         @} 
       @}
     @}

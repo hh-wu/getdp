@@ -1,5 +1,5 @@
 \input texinfo.tex    @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.1 2001-03-07 09:02:09 geuzaine Exp $
+@c $Id: getdp.texi,v 1.2 2001-03-10 23:54:03 geuzaine Exp $
 @c =========================================================================
 @c
 @c On devrait parler
@@ -33,9 +33,9 @@
 @c =========================================================================
 @c %**start of header
 @setfilename   getdp.info
-@set EDITION   2.1
-@set VERSION   0.79
-@set DAY       05
+@set EDITION   2.2
+@set VERSION   0.80
+@set DAY       10
 @set MONTH     March 2001
 @set COPYRIGHT @copyright{} 1997-2001 Patrick Dular, Christophe Geuzaine
 @set WEB-GETDP @uref{http://www.geuz.org/getdp/}
@@ -2105,7 +2105,7 @@ several frequencies (@code{Frequency @var{real-list}}).
 
 @tindex PostProcessing
 @tindex NameOfFormulation
-@tindex PostQuantity
+@tindex Quantity
 @tindex Value
 @tindex In
 @tindex Integration
@@ -2127,7 +2127,7 @@ interest:
 PostProcessing @{
   @{ Name @var{post-processing-id} <@{#@var{integer}@}>; 
     NameOfFormulation @var{formulation-id} <@{@}> < [ @var{mesh-id} ] >; 
-    PostQuantity @{
+    Quantity @{
       @{ Name @var{post-quantity-id}; Type @var{post-quantity-type}; 
         Value @{ @var{post-value} @dots{} @} @} @dots{}
     @}
@@ -2149,7 +2149,7 @@ PostProcessing @{
   Local @{ @var{local-value} @} | Integral @{ @var{integral-value} @}
 
 @var{local-value}:
-  [ @var{expression} ]; In @var{group-def};
+  [ @var{expression} ]; In @var{group-def}; < Jacobian @var{jacobian-id} >
 
 @var{integral-value}:
   [ @var{expression} ]; In @var{group-def}; 
@@ -4748,7 +4748,7 @@ formulation @code{Electrostatics_v}, by
 @example
 PostProcessing @{
   @{ Name EleSta_v; NameOfFormulation Electrostatics_v;
-    PostQuantity @{
+    Quantity @{
       @{ Name v; Value @{ Local @{ [ @{v@} ]; In Domain; @} @} @}
       @{ Name e; Value @{ Local @{ [ -@{Grad v@} ]; In Domain; @} @} @}
       @{ Name d; Value @{ Local @{ [ -eps0*epsr[] *@{Grad v@} ];
@@ -4771,7 +4771,7 @@ The quantities for the solution associated with the formulation
 @example
 PostProcessing @{
   @{ Name EleSta_vf; NameOfFormulation Electrostatics_v_floating;
-    PostQuantity @{
+    Quantity @{
 
       @dots{} @var{same as above} @dots{}
 
@@ -5352,12 +5352,11 @@ Undocumented.
 @cindex E-mail, authors
 
 If you think you have found a bug in GetDP, you can report it by electronic
-mail to @email{Patrick.Dular@@ulg.ac.be} or
-@email{Christophe.Geuzaine@@ulg.ac.be}.  Please send as precise a
-description of the problem as you can, including sample input files that
-produce the bug (problem definition and mesh files). Don't forget to mention
-both the version of GetDP and the version of your operation system
-(@pxref{Running GetDP} to see how to get this information).
+mail to the GetDP mailing list at @email{getdp@@geuz.org}.  Please send as
+precise a description of the problem as you can, including sample input
+files that produce the bug (problem definition and mesh files). Don't forget
+to mention both the version of GetDP and the version of your operation
+system (@pxref{Running GetDP} to see how to get this information).
 
 The current list of open bugs is available in the @file{BUGS} file
 included in the distribution of GetDP.

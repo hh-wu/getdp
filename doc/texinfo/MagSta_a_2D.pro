@@ -95,7 +95,7 @@ Resolution @{
 
 PostProcessing @{
   @{ Name MagSta_a_2D ; NameOfFormulation Magnetostatics_a_2D ;
-    PostQuantity @{
+    Quantity @{
       @{ Name a  ; 
         Value @{ 
           Local @{ [ @{a@} ] ; In Domain_Mag ; Jacobian Vol ; @} 
