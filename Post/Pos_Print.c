@@ -1,4 +1,4 @@
-/* $Id: Pos_Print.c,v 1.6 2000-09-28 22:16:35 geuzaine Exp $ */
+/* $Id: Pos_Print.c,v 1.7 2000-09-29 14:08:28 geuzaine Exp $ */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -59,7 +59,8 @@ void  Print_PostHeader(int Format, int NbTimeStep, int HarmonicToTime,
     fprintf(PostStream, "%s %d\n", name, NbTimeStep*HarmonicToTime);
     break ;
   case FORMAT_GNUPLOT :
-    fprintf(PostStream, "# PostData /* %s */\n", name);
+    fprintf(PostStream, "# PostData '%s'\n", name);
+    fprintf(PostStream, "# Type Index X Y Z < X Y Z > ... N1 N2 N3 Values <Values> ...\n");
     break ;
   case FORMAT_ADAPT :
     fprintf(PostStream, "$Adapt /* %s */\n", name) ;
