@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.21 2003-02-13 18:41:07 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.22 2003-02-13 18:57:53 geuzaine Exp $"
 #include <stdio.h>
 #include <math.h>
 
@@ -166,7 +166,7 @@ void Cal_WholeQuantity(struct Element * Element,
   RecursionIndex++;
   if(RecursionIndex < 0 || RecursionIndex >= MAX_RECURSION) 
     Msg(ERROR, "Recursion problem in Cal_WholeQuantity (%d outside [0,%d])", 
-	MAX_RECURSION);
+	RecursionIndex, MAX_RECURSION);
   Stack = StaticStack[RecursionIndex];
 
 #endif
