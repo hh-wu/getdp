@@ -1,4 +1,4 @@
-/* $Id: Pos_Search.h,v 1.4 2000-09-07 18:47:29 geuzaine Exp $ */
+/* $Id: Pos_Search.h,v 1.5 2000-11-16 17:26:49 geuzaine Exp $ */
 #ifndef _POS_SEARCH_H_
 #define _POS_SEARCH_H_
 
@@ -15,7 +15,7 @@ struct ElementBox {
 struct PointElement {
   double d;
   double xp, yp, zp;
-  struct Element Element;
+  int ElementIndex;
 } ;
 
 void Init_SearchGrid (struct Grid * Grid) ;

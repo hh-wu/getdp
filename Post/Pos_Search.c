@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.18 2000-10-30 11:03:56 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.19 2000-11-16 17:26:49 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -639,7 +639,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
 	  Msg(INFO, "Element %d: distance = %g, project (x=%g y=%g z=%g)", 
 	      Element->Num, PointElement.d, PointElement.xp, 
 	      PointElement.yp, PointElement.zp);
-	  PointElement.Element = *Element;
+	  PointElement.ElementIndex = Geo_GetGeoElementIndex(Element->GeoElement);
 	  List_Add(PointElement_L, &PointElement);
 	}	
       }
@@ -647,11 +647,16 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
     List_Sort(PointElement_L, fcmp_PointElement);
     
     for(i=0 ; i<List_Nbr(PointElement_L) ; i++){
-      List_Read(PointElement_L, i, &PointElement);
-      xyz2uvwInAnElement(&PointElement.Element, PointElement.xp, PointElement.yp, 
+      PointElement = *(struct PointElement*)List_Pointer(PointElement_L, i);
+      Element->GeoElement = Geo_GetGeoElement(PointElement.ElementIndex);
+      Element->Num = Element->GeoElement->Num ;
+      Element->Type = Element->GeoElement->Type ;
+      Element->Region = Element->GeoElement->Region ;
+      Get_NodesCoordinatesOfElement(Element) ;
+      xyz2uvwInAnElement(Element, PointElement.xp, PointElement.yp, 
 			 PointElement.zp, u, v, w, NULL, -1);
-      if(PointInRefElement(&PointElement.Element, *u, *v, *w)) {
-	Element = LastElement = &PointElement.Element;
+      if(PointInRefElement(Element, *u, *v, *w)) {
+	LastElement = Element ;
 	Msg(INFO, "Selected Element %d (u=%g v=%g w=%g)", Element->Num,*u,*v,*w);
 	GetDP_End;      
       }
