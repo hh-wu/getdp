@@ -33,14 +33,15 @@
 @c title
 @settitle GetDP @value{VERSION}
 @footnotestyle separate
-@c recto : on / recto-verso : odd
+@c recto-verso (recto -> on)
 @setchapternewpage odd
 @paragraphindent 0
 @c @afourpaper
 @finalout
-@defcodeindex mv
 @c %**end of header
 
+@c new index for meta variables
+@defcodeindex mv
 @c merge function and type indices 
 @syncodeindex fn vr
 
@@ -101,8 +102,8 @@ Sart Tilman Campus, Building B28 @*
 B-4000 Li@`ege @*
 BELGIUM
 @sp 1
-This document was prepared with Texinfo (@uref{http://texinfo.org}). The source
-of this document as well as several formatted versions (info, postscript, pdf,
+This manual was prepared with Texinfo (@uref{http://texinfo.org}). The source
+of the document as well as several formatted versions (info, postscript, pdf,
 html) are available at @value{WEB-GETDP}.
 
 @end titlepage
@@ -110,9 +111,9 @@ html) are available at @value{WEB-GETDP}.
 @c =========================================================================
 @c Table of contents
 @c =========================================================================
-@c  this doesn't work with older makeinfo/texi2dvi
-@c @summarycontents
-@c @contents
+
+@summarycontents
+@contents
 
 @c =========================================================================
 @c Top node
@@ -642,18 +643,11 @@ is ignored.
 @cindex Mechanics
 @cindex Thermics
 
-All the preceding explanations can seem very (too) general.  Which are
-the problems that GetDP can actually solve? To answer this question,
-here is a list of models and methods that we have considered and coupled
-together until now:
+All the preceding explanations can seem very (too) general.  Which are the
+problems that GetDP can actually solve? To answer this question, here is a
+list of methods that we have considered and coupled together until now:
 
 @table @asis
-@item Physical models
-magnetic problems (magnetostatics, magnetodynamics)@*
-electric problems (electrostatics, electrokinetics, electrodynamics)@*
-electromagnetic wave problems@*
-lumped electric circuits@*
-thermal problems
 @item Numerical methods
 finite element method@*
 boundary element method@*
@@ -666,6 +660,23 @@ three-dimensional models (3D)
 static states@*
 sinusoidal and harmonic states@*
 transient states
+@end table
+
+These methods were successfully applied to build coupled physical models
+including:
+
+@table @asis
+@item magnetic problems
+magnetostatics@*
+magnetodynamics@*
+@item electric problems
+electrostatics@*
+electrokinetics@*
+electrodynamics@*
+@item electromagnetic wave problems
+@item acoustic wave problems
+@item lumped electric circuits
+@item thermal problems
 @end table
 
 As can be guessed from the preceding list, GetDP has been initially
@@ -5476,6 +5487,8 @@ examples of @ref{Complete examples}.
 
 @printindex vr
 
-@summarycontents
-@contents
+@c mis au debut
+@c @summarycontents
+@c @contents
+
 @bye

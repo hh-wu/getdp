@@ -5,7 +5,7 @@
 .\" Copyright (c) 1998-2000 C. Geuzaine, P. Dular
 .\" 
 .\" ======================================================================
-.TH GetDP 0.75 "28 May 2000"
+.TH GetDP 0.75 "29 July 2000"
 .UC 4
 .SH NAME
 GetDP \- a General environment for the treatment of Discrete Problems
@@ -13,24 +13,22 @@ GetDP \- a General environment for the treatment of Discrete Problems
 .B getdp file [option(s)]
 .br
 .SH DESCRIPTION
-\fIGetDP\fR is a scientific computation software for the numerical
+\fIGetDP\fP is a scientific computation software for the numerical
 solution of integro-differential equations, using finite element and
-integral type methods.
-.PP
-\fIGetDP\fR is command-line driven, has no graphical interface, and
-works by reading user-written ASCII files containing the discrete
-problems definitions, expressed in a way close to their mathematical
-formulations.
+integral type methods. \fIGetDP\fP is command-line driven, has no
+graphical interface, and works by reading user-written ASCII files
+containing the discrete problems definitions, expressed in a way close
+to their mathematical formulations.
 .br
 .SH WARNING
 This man page does not describe the syntax of the ASCII input files:
 you should refer to the info documentation for this (e.g. with \fBinfo
-getdp\fR). Various versions of the Texinfo manual (html, postscript,
+getdp\fP). Various versions of the Texinfo manual (html, postscript,
 pdf) are available at
-\fIhttp://www.geuz.org/getdp/\fR.
+\fIhttp://www.geuz.org/getdp/\fP.
 .SH OPTIONS
-\fIGetDP\fR accepts many arguments on the command line. Here is a
-description of the most common ones:
+Here is a description of the most common arguments accepted by
+\fIGetDP\fP on the command line:
 .PP
 .TP 4
 .B file
@@ -38,66 +36,66 @@ is an ASCII file containing the problem definition, i.e.  the
 structures the Texinfo documentation will teach you to create. This
 file can include other files, so that only one problem definition file
 should always be given on the command line. The input files containing
-the problem definition structure are usually given the \fI.pro\fR
+the problem definition structure are usually given the \fI.pro\fP
 extension (if so, there is no need to specify the extension on the
 command line). The name of this file (without the extension) is used
 as a basis for the creation of intermediate files during the
 pre-processing and the processing stages.
 .TP 4
-.B \-pre resolution-id
+.B \-pre \fIresolution-id\fP
 performs the pre-processing associated with the resolution called
-\fBresolution-id\fR. In the pre-processing stage, \fIGetDP\fR creates
+\fIresolution-id\fP. In the pre-processing stage, \fIGetDP\fP creates
 the geometric database (from the mesh file), identifies the degrees of
 freedom (the unknowns) of the problem and sets up the constraints on
 these degrees of freedom. The pre-processing creates a file with 
-a \fI.pre\fR extension. If \fBresolution-id\fR is omitted, the list of
+a \fI.pre\fP extension. If \fIresolution-id\fP is omitted, the list of
 available choices is displayed.
 .TP 4
 .B \-cal
 performs the processing. This requires that a pre-processing has been
-performed previously, or that a \fB\-pre\fR option is given on the
+performed previously, or that a \fB\-pre\fP option is given on the
 same command line. The performed resolution is the one given as an
-argument to the \fB\-pre\fR option. In the processing stage,
-\fIGetDP\fR executes all the operations of the selected resolution
+argument to the \fB\-pre\fP option. In the processing stage,
+\fIGetDP\fP executes all the operations of the selected resolution
 (such as matrix assemblies, system resolutions, ...). The processing
-creates a file with a \fI.res\fR extension.
+creates a file with a \fI.res\fP extension.
 .TP 4
-.B \-pos post-operation-id
+.B \-pos \fIpost-operation-id\fP
 performs the post-processing operations selected by
-\fBpost-operation-id\fR. This requires that a processing has been
-performed previously, or that a \fI\-cal\fR option is given on the
-same command line. If \fBpost-operation-id\fR is omitted, the list of
+\fIpost-operation-id\fP. This requires that a processing has been
+performed previously, or that a \fB\-cal\fP option is given on the
+same command line. If \fIpost-operation-id\fP is omitted, the list of
 available choices is displayed.
 .TP 4
-.B \-ipos post-processing-id
+.B \-ipos \fIpost-processing-id\fP
 enters an interactive post-processing mode, enabling you to enter
-post-processing operations manually. If \fBpost-processing-id\fR is
+post-processing operations manually. If \fIpost-processing-id\fP is
 omitted, the list of available choices is displayed.
 .TP 4
-.B \-msh filename
-reads the mesh database from \fBfilename\fR instead of from the default
-problem file name with the \fI.msh\fR extension appended.
+.B \-msh \fIfilename\fP
+reads the mesh database from \fIfilename\fP instead of from the default
+problem file name with the \fI.msh\fP extension appended.
 .TP 4
 .B \-split
 save processing results in separate files (one for each timestep).
 .TP 4
-.B \-res filename(s)
-load processing results from \fBfilename(s)\fR instead of from the
-default problem file name with the \fI.res\fR extension appended.
+.B \-res \fIfilename(s)\fP
+load processing results from \fIfilename(s)\fP instead of from the
+default problem file name with the \fI.res\fP extension appended.
 .TP 4
 .B \-log
 saves all processing history in a log file (the input file name with
-an appended \fI.log\fR extension).
+an appended \fI.log\fP extension).
 .TP 4
 .B \-check
 lets you check the problem structure interactively.
 .TP 4
-.B \-v int
+.B \-v \fIint\fP
 sets the verbosity level. A value of 0 means that no information will
 be displayed during processing. Higher values increase the amount of
 information displayed during processing.
 .TP 4
-.B \-p int
+.B \-p \fIint\fP
 sets the progress update rate. This controls the refreshment rate of
 the counter indicating the progress of the current computation.
 .TP 4
@@ -115,11 +113,9 @@ Christophe Geuzaine (Christope.Geuzaine@ulg.ac.be) and Patrick Dular
 (Patrick.Dular@ulg.ac.be). Many additions by many other people (see
 the info file for a comprehensive list of collaborators).
 .SH SEE ALSO
-Texinfo documentation (\fBinfo getdp\fR)
+Texinfo documentation (\fBinfo getdp\fP)
 .PP
-GetDP internet site:
-\fIhttp://www.geuz.org/getdp/\fR
+GetDP web site: \fIhttp://www.geuz.org/getdp/\fP
 .PP
 Gmsh (a three-dimensional mesh generator with built-in pre- and
-post-processing facilities) internet site:
-\fIhttp://www.geuz.org/gmsh/\fR
+post-processing facilities) web site: \fIhttp://www.geuz.org/gmsh/\fP
