@@ -1,4 +1,4 @@
-/* $Id: Pos_Element.c,v 1.7 2000-10-20 08:43:44 dular Exp $ */
+/* $Id: Pos_Element.c,v 1.8 2000-10-27 15:00:45 geuzaine Exp $ */
 #include <stdio.h>
 #include <math.h>
 
@@ -151,7 +151,6 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
       
       C[1] = PE ;
       C[1]->u[0] = u01      ; C[1]->v[0] = v01      ; C[1]->w[0] = w01      ;
-   /* C[1]->u[1] = PE->u[1] ; C[1]->v[1] = PE->v[1] ; C[1]->w[1] = PE->w[1] ; */
       
       NbCut = 2 ;
       break;
