@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_DofOfElement.c,v 1.23 2004-10-01 11:35:03 dular Exp $"
+#define RCSID "$Id: Get_DofOfElement.c,v 1.24 2004-10-27 12:58:12 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -258,7 +258,6 @@ void  Get_GroupsOfElementaryEntitiesOfElement
     Key_P = &Key;
     while (List_LQuery(GroupEntity_P->ExtendedList, &Key, fcmp_absint, iFirst)) {
       iFirst = 0;
-
 
       j = *StartingIndex ;
       while ((j < Element->NbrGroupsOfEntities) &&
