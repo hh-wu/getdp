@@ -1,4 +1,4 @@
-// $Id: Patch.cpp,v 1.1 2002-04-12 17:11:02 geuzaine Exp $
+// $Id: Patch.cpp,v 1.2 2002-04-12 22:36:30 geuzaine Exp $
 
 #include "Main.h"
 #include "Utils.h"
@@ -70,8 +70,10 @@ Patch::Patch(PatchType _type, int _beg, int _end,
   for(i=0; i<nbdof; i++){
     nodes[i] = center-eps + i*h;
 
+    // experimental stuff to better resolve the shadowing point
+    // e.g. q=3 for k=500
     /*
-    double q = 3.;
+    double q=3.;
     if(i<nbdof/2){
       nodes[i] = atan(q*tan(nodes[i])) ;
       if(i>nbdof/4) nodes[i] += PI;

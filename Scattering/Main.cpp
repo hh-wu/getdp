@@ -1,4 +1,4 @@
-// $Id: Main.cpp,v 1.9 2002-04-12 18:40:36 geuzaine Exp $
+// $Id: Main.cpp,v 1.10 2002-04-12 22:36:30 geuzaine Exp $
 
 #include "Utils.h"
 #include "LinAlg.h"
@@ -23,6 +23,7 @@ int main(int argc, char *argv[]){
     Msg(INFO, "  -iter : solve the problem (iteratively) instead of computing the forward map");
     Msg(INFO, "  -scatterer circle|ellipse : choose scatterer");
     Msg(INFO, "  -spline : use cubic spline interpolation instead of Fourier series");
+    Msg(INFO, "  -store : store discrete operator (to speed up iterations)");
     Msg(INFO, "  -kx, -ky : set wave number");
     Msg(INFO, "  -nbpts : set number of integration points (meaning varies...)");
     Msg(INFO, "  -targets : set number of target points/unknowns");
@@ -55,13 +56,14 @@ int main(int argc, char *argv[]){
   ctx.scat.a = 1.;
   ctx.scat.b = 1.;
   ctx.f.applyChgVar = 0;
+  ctx.iterNum = 0;
 
   // get actual parameters on the command lines
   sargv[0] = argv[0] ;
   int i = sargc = 1;
   while (i < argc) {
     if (argv[i][0] == '-') {
-      if(Cmp(argv[i]+1, "scatterer", 1)){ 
+      if(Cmp(argv[i]+1, "scatterer", 2)){ 
 	i++; char *str = GetString(argc,argv,&i);
 	if(!strncmp(str,"circle",1))       ctx.scat.type = Scatterer::CIRCLE;
 	else if(!strncmp(str,"ellipse",1)) ctx.scat.type = Scatterer::ELLIPSE;
@@ -84,6 +86,9 @@ int main(int argc, char *argv[]){
       }
       else if(Cmp(argv[i]+1, "iter", 2)){ 
 	i++; ctx.type |= ITER_SOLVE; Msg(INFO, "Solver: iterative");
+      }
+      else if(Cmp(argv[i]+1, "store", 2)){ 
+	i++; ctx.type |= STORE_OPERATOR; Msg(INFO, "Solver: store discrete operator");
       }
       else if(Cmp(argv[i]+1, "nbpts", 1)){ 
 	i++; ctx.nbIntPts = (int)GetNum(argc,argv,&i); 

@@ -1,4 +1,4 @@
-// $Id: Solve.cpp,v 1.13 2002-04-12 20:53:53 geuzaine Exp $
+// $Id: Solve.cpp,v 1.14 2002-04-12 22:36:30 geuzaine Exp $
 
 #include "Utils.h"
 #include "Complex.h"
@@ -36,6 +36,7 @@ void ForwardMap(Ctx *ctx){
 double GetTarget(int index, Ctx *ctx){
   if(index<0 || index>ctx->nbdof-1) 
     Msg(ERROR, "Target out of bounds");
+  ctx->currentTarget = index;
   return ctx->nodes[index];
 }
 
@@ -192,6 +193,8 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   LinAlg_GetLocalVectorRange(x,&beg,&end);
   Msg(INFO, "A*x %d->%d", beg, end-1);
   
+  ctx->iterNum++;
+
   for(i=beg ; i<end ; i++){
     t = GetTarget(i,ctx);
     res = (-I/2.) * Integrate(ctx, t);

@@ -1,4 +1,4 @@
-// $Id: Nystrom.cpp,v 1.26 2002-04-12 17:11:02 geuzaine Exp $
+// $Id: Nystrom.cpp,v 1.27 2002-04-12 22:36:30 geuzaine Exp $
 
 #include "Utils.h"
 #include "Nystrom.h"
@@ -107,7 +107,7 @@ double GFHelmholtzParametric2D::singLogQuadWeight(double t, double tau, int n){
 
 Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
-  Complex res=0., f, m, m1, m2;
+  Complex res=0., density, ansatz, m, m1, m2, fact;
   double xt[3], dxt[3], xtau[3], dxtau[3], tau, tau_p, tau_pp, pou, w;
   int j, n = nbpts/2;
   double k = NORM3(ctx->waveNum), jac=1.;
@@ -122,6 +122,9 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
 
   if(singular && first) 
     Weights = new double[nbpts];
+
+  if((ctx->type & STORE_OPERATOR) && first)
+    ctx->discreteMap = new Complex[nbpts * ctx->nbTargetPts];
 
   for(j=0 ; j<=2*n-1 ; j++){
     tau_pp = TWO_PI*j/(2.*n);
@@ -140,30 +143,49 @@ Complex Nystrom(int singular, Ctx *ctx, double t, int nbpts, Partition *part){
       Weights[j] = kern.singLogQuadWeight(PI,tau_pp,n);
    
     if(pou){
-      ctx->scat.coord(tau,xtau);
-      ctx->scat.deriv(tau,dxtau);
 
-      f = ctx->f.ansatz(ctx->waveNum,xt,xtau) * ctx->f.density(tau_p); //tau
+      density = ctx->f.density(tau_p); //tau
 
-      kern.init(t,xt,dxt,tau,xtau,dxtau,k);
-      if(singular){ // combine special quadrature with trapezoidal
-	//w = kern.singLogQuadWeight(PI,tau_pp,n);
-	w = Weights[j];
-	m1 = kern.M1();
-	m2 = kern.M2(tau_pp,jac);
-	res += (w * m1 + PI/(double)n * m2) * f * pou * jac;
+      if((ctx->type & STORE_OPERATOR) && ctx->iterNum > 1){
+	
+	res += ctx->discreteMap[nbpts * ctx->currentTarget + j] * density;
+
       }
-      else{ // simple trapezoidal
-	if(List_Nbr(part->subParts)){
-	  Partition *part2 = (Partition*)List_Pointer(part->subParts,0);
-	  double pou2 = part2->eval(tau);
-	  pou -= pou2;
+      else{
+
+	ctx->scat.coord(tau,xtau);
+	ctx->scat.deriv(tau,dxtau);
+
+	ansatz = ctx->f.ansatz(ctx->waveNum,xt,xtau);
+
+	kern.init(t,xt,dxt,tau,xtau,dxtau,k);
+	if(singular){ // combine special quadrature with trapezoidal
+	  w = Weights[j]; // kern.singLogQuadWeight(PI,tau_pp,n);
+	  m1 = kern.M1();
+	  m2 = kern.M2(tau_pp,jac);
+	  fact = (w * m1 + PI/(double)n * m2) * ansatz * pou * jac;
 	}
-	if(pou){
-	  m = kern.M();
-	  res += (PI/(double)n * m) * f * pou * jac;
+	else{ // simple trapezoidal
+	  if(List_Nbr(part->subParts)){
+	    Partition *part2 = (Partition*)List_Pointer(part->subParts,0);
+	    double pou2 = part2->eval(tau);
+	    pou -= pou2;
+	  }
+	  if(pou){
+	    m = kern.M();
+	    fact = (PI/(double)n * m) * ansatz * pou * jac;
+	  }
+	  else
+	    fact = 0.;
 	}
+
+	if(ctx->type & STORE_OPERATOR)
+	  ctx->discreteMap[nbpts * ctx->currentTarget + j] = fact;
+
+	res += fact * density;
+
       }
+
     }
   }
 
@@ -204,6 +226,9 @@ Complex Integrate(Ctx *ctx, double t){
     return Nystrom(1,ctx,t,ctx->nbIntPts,&part);
 
   }
+
+  if(ctx->type & STORE_OPERATOR)
+    Msg(ERROR, "You can only store the operator if using the full Nystrom integrator");
 
   if(ctx->type & INTERACT1){ // interactive integration around one critical point
 
