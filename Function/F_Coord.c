@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Coord.c,v 1.11 2001-11-19 17:05:18 sabarieg Exp $"
+#define RCSID "$Id: F_Coord.c,v 1.12 2002-02-22 12:12:53 dular Exp $"
 #include <stdio.h>
 #include <stdlib.h> /* pour int abs(int) */
 #include <math.h>
@@ -159,8 +159,13 @@ void  F_aX21_bY21_cZ21 (F_ARG) {
   X2 = Current.Element->x[abs(NumNodes[1])-1] ;
   Y2 = Current.Element->y[abs(NumNodes[1])-1] ;
   Z2 = Current.Element->z[abs(NumNodes[1])-1] ;
-
+  /*
   tmp = Fct->Para[0] * (X2-X1) + Fct->Para[1] * (Y2-Y1) + Fct->Para[2] * (Z2-Z1) ;
+  */
+  /*
+  tmp = (X2+X1) * (Y2-Y1)/2. ;
+  */
+  tmp = - (Y2+Y1) * (X2-X1)/2. ;
 
   if (Current.Element->GeoElement->NumEdges[Current.NumEntityInElement] < 0)
     tmp *= -1. ;

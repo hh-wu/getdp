@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.35 2002-02-07 17:19:04 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.36 2002-02-22 12:12:53 dular Exp $ */
 
 /*
   Modifs a faire
@@ -2933,7 +2933,7 @@ ConstraintInFSTerm :
       }
       Free($2) ;
     }
-/* Attention: doit disparaitre */
+/* Attention: doit disparaitre
   | tEntity FunctionForGroup tNameOfConstraint tSTRING tEND
     {
       if (!Nbr_Index) {
@@ -2947,7 +2947,7 @@ ConstraintInFSTerm :
       }
       Free($4) ;
     }
-
+*/
   | tEntityType FunctionForGroup tEND
     { Type_Function = $2 ; }
 
@@ -5448,6 +5448,12 @@ PostSubOperation :
   | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_PRINT ;
+    }
+  | tPrint '[' tBIGSTR ',' FExpr PrintOptions ']' tEND
+    {
+      PostSubOperation_S.Type = POP_PRINTVAL ;
+      PostSubOperation_S.String = $3 ;
+      PostSubOperation_S.Val = $5 ;
     }
   | tPrintGroup '[' GroupRHS 
     {

@@ -1,4 +1,4 @@
-/* $Id: Data_Passive.h,v 1.47 2002-02-01 17:31:00 geuzaine Exp $ */
+/* $Id: Data_Passive.h,v 1.48 2002-02-22 12:12:53 dular Exp $ */
 #ifndef _DATA_PASSIVE_H_
 #define _DATA_PASSIVE_H_
 
@@ -922,7 +922,8 @@ struct PostSubOperation {
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
   int    Format, Adapt, Sort, Iso, NoNewLine ;
   int    ChangeOfCoordinates[3] ; 
-  double Target ;
+  char   * String ;
+  double Target, Val ;
   List_T * HeaderChar_L, * HeaderTag_L ;
   List_T * FormatChar_L, * FormatTag_L ;
   List_T * FooterChar_L, * FooterTag_L ;
@@ -944,6 +945,7 @@ struct PostSubOperation {
 #define POP_PRINT         1
 #define POP_GROUP         2
 #define POP_ECHO          3
+#define POP_PRINTVAL      4
 
 /* PostOperation.SubType */
 #define PRINT_ONREGION        1
