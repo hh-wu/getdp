@@ -65,7 +65,7 @@ void  GaussLegendre_Triangle (int Nbr_Points, int Num,
       for(j=0; j < nb; j++) {
 	Gauss_Line(nb, j, &pt2, &dum, &dum, &wt2);
 	quadToTri(pt1, pt2, &glxt[nb-1][index], &glyt[nb-1][index], &dJ);
-	glpt[nb-1][index++] = dJ*wt1*wt2*2.0;
+	glpt[nb-1][index++] = dJ*wt1*wt2;
       }
     }
     glt[nb-1] = 1;

@@ -96,7 +96,7 @@ void  GaussLegendre_Tetrahedron (int Nbr_Points, int Num,
 	  Gauss_Line(nb, k, &pt3, &dum, &dum, &wt3);
 	  hexToTet(pt1, pt2, pt3, &glxtet[nb-1][index], &glytet[nb-1][index], 
 		   &glztet[nb-1][index], &dJ);
-	  glptet[nb-1][index++] = dJ*wt1*wt2*wt3*6.0;
+	  glptet[nb-1][index++] = dJ*wt1*wt2*wt3;
 	}
       }
     }
