@@ -5,7 +5,6 @@
 #include "Complex.h"
 #include "FFT.h"
 #include "Spline.h"
-#include "Main.h"
 
 // Partition of unity
 
@@ -52,11 +51,6 @@ public:
     }
   }
 };
-
-// prototypes
-
-void Create_Mesh(Ctx *ctx, Patch::PatchType type);
-
 
 #endif
 

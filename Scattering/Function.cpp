@@ -1,4 +1,4 @@
-// $Id: Function.cpp,v 1.11 2002-05-14 01:15:46 geuzaine Exp $
+// $Id: Function.cpp,v 1.12 2002-05-23 00:50:32 geuzaine Exp $
 
 #include "Utils.h"
 #include "Function.h"
@@ -54,8 +54,8 @@ Complex Function::density(Scatterer *scat, double tau){
     
   case ANALYTIC : // comparison with Alain/Oscar
 
-    //return cos(tau);
-    return 1.;
+    return cos(tau);
+    //return 1.;
 
   case INTERPOLATED : // cubic splines or Fourier (off-grid!)
 

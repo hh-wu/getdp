@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.13 2002-04-23 00:42:08 geuzaine Exp $
+# $Id: Makefile,v 1.14 2002-05-23 00:50:32 geuzaine Exp $
 #
 # Makefile for "libScattering.a"
 #
@@ -28,13 +28,16 @@ LIB     = ../lib/libScattering.a
 INCLUDE = -I. -I../include -I../Main -I../DataStr -I../DofData -I../Function\
           -I../GeoData -I../Integration -I../Numeric -I../Post -I../Sparskit\
           -I$(FFTW_DIR)/include
+PY_INCLUDES= -I/usr/include/python2.1\
+             -I$(HOME)/LOCAL/lib/python2.1/site-packages/Numeric/\
+             -I$(HOME)/SOURCES/mathToolkit/lib
 
 CFLAGS  = $(C_FLAGS) $(OS_FLAGS) $(SOLVER_FLAGS) $(SOLVER)\
           $(INCLUDE)
 
 SRC = Main.cpp\
       Solve.cpp\
-      Nystrom.cpp\
+      Helmholtz2D.cpp\
       Function.cpp\
       Scatterer.cpp\
       Patch.cpp\
@@ -77,28 +80,29 @@ depend:
 # DO NOT DELETE THIS LINE
 Main.o: Main.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../DataStr/List.h Main.h Scatterer.h Function.h \
-  Complex.h Solve.h Patch.h FFT.h Spline.h
+  ../Sparskit/Solver.h ../DataStr/List.h Context.h Scatterer.h Function.h \
+  Complex.h Patch.h FFT.h Spline.h
 Solve.o: Solve.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Main/Data_Numeric.h Complex.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h Solve.h \
-  Main.h Scatterer.h Function.h Patch.h FFT.h Spline.h Nystrom.h
-Nystrom.o: Nystrom.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../Main/Data_Numeric.h Nystrom.h Main.h Scatterer.h \
+  ../DataStr/Malloc.h ../Main/Data_Numeric.h Context.h Scatterer.h \
   ../DataStr/List.h Function.h Complex.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../DataStr/Tools.h ../DataStr/Tree.h \
-  ../DataStr/avl.h Bessel.h Patch.h FFT.h Spline.h
+  ../Sparskit/Solver.h Patch.h FFT.h Spline.h Helmholtz2D.h
+Helmholtz2D.o: Helmholtz2D.cpp Utils.h ../include/GetDP.h \
+  ../Main/Message.h ../DataStr/Malloc.h ../Main/Data_Numeric.h \
+  Helmholtz2D.h Context.h Scatterer.h ../DataStr/List.h Function.h \
+  Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h Patch.h FFT.h \
+  Spline.h Bessel.h
 Function.o: Function.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h Function.h Complex.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h Patch.h \
-  FFT.h Spline.h Main.h Scatterer.h
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h Scatterer.h \
+  Patch.h FFT.h Spline.h
 Scatterer.o: Scatterer.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h ../DataStr/Tools.h \
-  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Scatterer.h
-Patch.o: Patch.cpp Main.h Scatterer.h ../DataStr/List.h Function.h \
-  Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h Utils.h \
-  ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
-  ../Main/Data_Numeric.h Patch.h FFT.h Spline.h
+  ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Scatterer.h \
+  Function.h Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h Newton.h
+Patch.o: Patch.cpp Context.h Scatterer.h ../DataStr/List.h Function.h \
+  Complex.h ../DofData/LinAlg.h ../Sparskit/Solver.h Patch.h FFT.h \
+  Spline.h Utils.h ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_Numeric.h
 Complex.o: Complex.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h Complex.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h
@@ -108,9 +112,11 @@ Bessel.o: Bessel.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../Numeric/Amos_F.h ../include/Compat.h
 FFT.o: FFT.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h FFT.h Complex.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h Spline.h
 Spline.o: Spline.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h Spline.h Complex.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../DataStr/List.h
+Newton.o: Newton.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_Numeric.h ../Numeric/nrutil.h
 Utils.o: Utils.cpp Utils.h ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Numeric.h

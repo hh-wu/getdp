@@ -1,4 +1,4 @@
-// $Id: Scatterer.cpp,v 1.13 2002-05-21 23:13:15 geuzaine Exp $
+// $Id: Scatterer.cpp,v 1.14 2002-05-23 00:50:32 geuzaine Exp $
 
 #include "Utils.h"
 #include "Tools.h"
@@ -29,7 +29,17 @@ int fcmp_double_loose(const void *a, const void *b){
 // Parametric definition of the scatterers. This is awfull c++, I
 // know, thanks :-)
 
-void Scatterer::x(double u, double *x){
+int Scatterer::dim(){
+  switch(type){
+  case CIRCLE :
+  case ELLIPSE :
+  case DROP :
+  case KITE : return 2;
+  default : return 3;
+  }
+}
+
+void Scatterer::x(double u, double v, double *x){
   switch(type){
   case CIRCLE :
     x[0] = cos(u); 
@@ -54,7 +64,7 @@ void Scatterer::x(double u, double *x){
   }
 }
 
-void Scatterer::dx(double u, double *x){ 
+void Scatterer::dx(double u, double v, double *x){ 
   switch(type){
   case CIRCLE :
     x[0] = -sin(u); 
@@ -79,7 +89,7 @@ void Scatterer::dx(double u, double *x){
   }
 }
 
-void Scatterer::ddx(double u, double *x){ 
+void Scatterer::ddx(double u, double v, double *x){ 
   switch(type){
   case CIRCLE :
     x[0] = -cos(u); 
@@ -107,7 +117,7 @@ void Scatterer::ddx(double u, double *x){
 void Scatterer::polar(double u, double *r, double *dr, double *ddr){
   double r2, cart[3], dcart[3], ddcart[3];
 
-  x(u,cart);
+  x(u,-1,cart);
   r2 = SQU(cart[0])+SQU(cart[1]);
   *r = sqrt(r2);
 
@@ -117,10 +127,10 @@ void Scatterer::polar(double u, double *r, double *dr, double *ddr){
     return;
   }
 
-  dx(u,dcart);
+  dx(u,-1,dcart);
   *dr = (cart[0]*dcart[0]+cart[1]*dcart[1]) / *r;
 
-  ddx(u,ddcart);
+  ddx(u,-1,ddcart);
   *ddr = - *dr / r2 + 
     (SQU(dcart[0]) + cart[0]*ddcart[0] + SQU(dcart[1]) + cart[1]*ddcart[1]) / *r ;
 }
@@ -299,7 +309,7 @@ void Scatterer::printPoints(double t, List_T *pts){
   fprintf(fp, "View \"target=%g\" {\n", t);
   for(i=0; i<List_Nbr(pts); i++){
     List_Read(pts,i,&pt);
-    x(pt.val,coord);
+    x(pt.val,-1,coord);
     fprintf(fp, "SP(%g,%g,%g){%d};\n",coord[0],coord[1],coord[2],
 	    pt.degree);
   }

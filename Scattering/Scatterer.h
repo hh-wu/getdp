@@ -7,16 +7,18 @@
 
 class Scatterer{
 public:
-  typedef enum {CIRCLE,ELLIPSE,DROP,KITE} ScattererType;
+  enum ScattererType {CIRCLE,ELLIPSE,DROP,KITE} ;
   ScattererType type;
   double a, b;
   List_T *patches;
   double *nodes; // merge of all patch nodes
   List_T **criticalPointsList;
 
-  void x(double theta, double *x); // x=x(theta), y=y(theta)
-  void dx(double theta, double *dx); // dx=d x/d theta, dy=d y/d theta
-  void ddx(double theta, double *ddx); // ddx=d^2 x/d theta^2, dy=d^2 y/d theta^2
+  int dim(); // 2 or 3
+
+  void x(double u, double v, double *x); // x=x(u), y=y(u)
+  void dx(double u, double v, double *dx); // dx=d x/d u, dy=d y/d u
+  void ddx(double u, double v, double *ddx); // ddx=d^2 x/d u^2, dy=d^2 y/d u^2
 
   // r=sqrt(x^2+y^2), dr=d r/d theta, ddr=d^2 r/d theta^2
   void polar(double theta, double *r, double *dr, double *ddr); 

@@ -1,29 +1,24 @@
-// $Id: Solve.cpp,v 1.22 2002-05-21 23:13:15 geuzaine Exp $
+// $Id: Solve.cpp,v 1.23 2002-05-23 00:50:32 geuzaine Exp $
 
 #include "Utils.h"
+#include "Context.h"
 #include "Complex.h"
 #include "LinAlg.h"
 #include "List.h"
-#include "Solve.h"
 #include "Patch.h"
-#include "Nystrom.h"
+#include "Helmholtz2D.h"
 
+// Forward map computation
 
-// Forward map computation only
-
-void ForwardMap(Ctx *ctx){
-  List_T *reslist=List_Create(ctx->nbTargetPts,20,sizeof(Complex));
+void Ctx::ForwardMap(){
+  List_T *reslist=List_Create(nbTargetPts,20,sizeof(Complex));
   Complex res;
-  double t;
   int i;
 
-  ctx->f.type = Function::ANALYTIC; 
+  f.type = Function::ANALYTIC; 
 
-  for(i=0 ; i<ctx->nbTargetPts ; i++){
-    //t = GetTarget(i,ctx);
-    t = 2*PI*i/(double)ctx->nbTargetPts + ctx->initialTarget;
-    res = Integrate(ctx, i, t); 
-    Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", i+1, t, res.real(), res.imag());
+  for(i=0 ; i<nbTargetPts ; i++){
+    res = Integrate(i); 
     List_Add(reslist, &res);
   }
 
@@ -31,15 +26,38 @@ void ForwardMap(Ctx *ctx){
   List_Delete(reslist);
 }
 
-// Iterative solver
+Complex Ctx::Integrate(int index){
+  double t;
+  Complex res;
 
-double GetTarget(int index, Ctx *ctx){
-  if(index<0 || index>ctx->nbdof-1) 
-    Msg(ERROR, "Target out of bounds");
-  return ctx->scat.nodes[index];
+  if(scat.dim() == 2){
+    if(f.type == Function::ANALYTIC){
+      t = initialTarget + TWO_PI*index/(double)nbTargetPts;
+      res = Integrate2D(this, index, t);
+      Msg(INFO, "==> I(%d: %.7e) = %' '.15e %+.15e * i", 
+	  index+1, t, res.real(), res.imag());
+    }
+    else{
+      t = GetTarget(index);
+      res = Integrate2D(this, index, t);
+    }
+  }
+  else{
+    //return Integrate3D(this, index);
+  }
+
+  return res;
 }
 
-void ComputeRHS(Ctx *ctx, gVector *b){
+// Iterative solver
+
+double Ctx::GetTarget(int index){
+  if(index<0 || index>nbdof-1) 
+    Msg(ERROR, "Target out of bounds");
+  return scat.nodes[index];
+}
+
+void Ctx::ComputeRHS(gVector *b){
   int i, beg, end;
   double t, xt[3], kr;
   Complex res;
@@ -50,18 +68,18 @@ void ComputeRHS(Ctx *ctx, gVector *b){
   Msg(INFO, "RHS %d->%d", beg, end-1);
 
   for(i=beg ; i<end ; i++){
-    t = GetTarget(i,ctx);
-    ctx->scat.x(t,xt);
-    kr = ctx->waveNum[0]*xt[0]+ctx->waveNum[1]*xt[1]+ctx->waveNum[2]*xt[2];
+    t = GetTarget(i);
+    scat.x(t,-1,xt);
+    kr = waveNum[0]*xt[0]+waveNum[1]*xt[1]+waveNum[2]*xt[2];
     res = 1.;
     //res = cos(kr)+I*sin(kr);
-    res *= 2 / NORM3(ctx->waveNum); // warning!
+    res *= 2 / NORM3(waveNum); // warning!
     LinAlg_SetComplexInVector(res, b, i);
   }
   LinAlg_AssembleVector(b);
 }
 
-void ReadSolution(Ctx *ctx, gVector *x){
+void Ctx::ReadSolution(gVector *x){
   int i;
   char fn[256];
   FILE *fp;
@@ -70,7 +88,7 @@ void ReadSolution(Ctx *ctx, gVector *x){
   if(!(fp = fopen(fn, "r")))
     Msg(ERROR, "Could not open res file");
   
-  for(i=0; i<ctx->nbdof; i++){
+  for(i=0; i<nbdof; i++){
     Complex tmp;
     double d1, d2, d3;
     fscanf(fp, "%lf %lf %lf\n",&d1,&d2,&d3);
@@ -81,7 +99,7 @@ void ReadSolution(Ctx *ctx, gVector *x){
   fclose(fp);
 }
 
-void SaveSolution(Ctx *ctx, gVector *x){
+void Ctx::SaveSolution(gVector *x){
   int i;
   char fn[256];
   FILE *fp;
@@ -90,10 +108,10 @@ void SaveSolution(Ctx *ctx, gVector *x){
   if(!(fp = fopen(fn, "w")))
     Msg(ERROR, "Could not open res file");
   
-  for(i=0; i<ctx->nbdof; i++){
+  for(i=0; i<nbdof; i++){
     Complex tmp;
     LinAlg_GetComplexInVector(&tmp,x,i);
-    fprintf(fp, "%.16g %.16g %.16g\n",ctx->scat.nodes[i],(double)tmp.real(),(double)tmp.imag());
+    fprintf(fp, "%.16g %.16g %.16g\n",scat.nodes[i],(double)tmp.real(),(double)tmp.imag());
   }
   
   fclose(fp);
@@ -102,12 +120,12 @@ void SaveSolution(Ctx *ctx, gVector *x){
   if(!(fp = fopen(fn, "w")))
     Msg(ERROR, "Could not open matlab file");
   
-  fprintf(fp, "k = [%g %g];\n", ctx->waveNum[0], ctx->waveNum[1]);
-  fprintf(fp, "a = %g;\n", ctx->scat.a);
-  fprintf(fp, "b = %g;\n", ctx->scat.b);
+  fprintf(fp, "k = [%g %g %g];\n", waveNum[0], waveNum[1], waveNum[2]);
+  fprintf(fp, "a = %g;\n", scat.a);
+  fprintf(fp, "b = %g;\n", scat.b);
 
   fprintf(fp, "mu = [\n");
-  for(i=0; i<ctx->nbdof; i++){
+  for(i=0; i<nbdof; i++){
     Complex tmp;
     LinAlg_GetComplexInVector(&tmp,x,i);
     fprintf(fp, "%.15e + (%.15ei)\n", tmp.real(), tmp.imag());
@@ -115,8 +133,8 @@ void SaveSolution(Ctx *ctx, gVector *x){
   fprintf(fp, "]\n");
 
   fprintf(fp, "angle = [\n");
-  for(i=0; i<ctx->nbdof; i++){
-    fprintf(fp, "%.15e\n", ctx->scat.nodes[i]);
+  for(i=0; i<nbdof; i++){
+    fprintf(fp, "%.15e\n", scat.nodes[i]);
   }
   fprintf(fp, "]\n");
   
@@ -129,14 +147,14 @@ void SaveSolution(Ctx *ctx, gVector *x){
   LinAlg_SequentialEnd() ;
 }
 
-void InitializeInterpolation(Ctx *ctx, gVector *x){
+void Ctx::InitializeInterpolation(gVector *x){
   int i, j;
   double t, pou, pou2;
   Patch *p, *p2;
 
-  if(List_Nbr(ctx->scat.patches) == 1){
+  if(List_Nbr(scat.patches) == 1){
 
-    p = (Patch*)List_Pointer(ctx->scat.patches,0);
+    p = (Patch*)List_Pointer(scat.patches,0);
     for(j=0; j<p->nbdof; j++){
       LinAlg_GetComplexInVector(&p->localVals[j],x,j+p->beg);
       t = p->nodes[j];
@@ -153,13 +171,13 @@ void InitializeInterpolation(Ctx *ctx, gVector *x){
   }
   else{
 
-    for(i=0; i<List_Nbr(ctx->scat.patches); i++){
-      p = (Patch*)List_Pointer(ctx->scat.patches,i);
+    for(i=0; i<List_Nbr(scat.patches); i++){
+      p = (Patch*)List_Pointer(scat.patches,i);
       for(j=0; j<p->nbdof; j++){
 	if(j<p->nbdof/2)
-	  p2 = (Patch*)List_Pointer(ctx->scat.patches,(i==0)?List_Nbr(ctx->scat.patches)-1:i-1);
+	  p2 = (Patch*)List_Pointer(scat.patches,(i==0)?List_Nbr(scat.patches)-1:i-1);
 	else
-	  p2 = (Patch*)List_Pointer(ctx->scat.patches,(i==List_Nbr(ctx->scat.patches)-1)?0:i+1);
+	  p2 = (Patch*)List_Pointer(scat.patches,(i==List_Nbr(scat.patches)-1)?0:i+1);
 	
 	LinAlg_GetComplexInVector(&p->localVals[j],x,j+p->beg);
 	t = p->nodes[j];
@@ -183,12 +201,11 @@ void InitializeInterpolation(Ctx *ctx, gVector *x){
 void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   Ctx *ctx;
   int i, beg, end;
-  double t;
   Complex res;
 
   LinAlg_GetMatrixContext(A,(void **)(&ctx));
 
-  InitializeInterpolation(ctx, x);
+  ctx->InitializeInterpolation(x);
 
   LinAlg_GetLocalVectorRange(x,&beg,&end);
   Msg(INFO, "A*x %d->%d", beg, end-1);
@@ -197,8 +214,7 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   ctx->discreteMapIndex=0;
 
   for(i=beg ; i<end ; i++){
-    t = GetTarget(i,ctx);
-    res = (-I/2.) * Integrate(ctx, i, t);
+    res = (-I/2.) * ctx->Integrate(i);
     LinAlg_SetComplexInVector(res, y, i);
   }
 
@@ -208,30 +224,30 @@ void MatrixFreeMatMult(gMatrix *A, gVector *x, gVector *y){
   LinAlg_Barrier();
 }
 
-void IterSolve(Ctx *ctx){
+void Ctx::IterSolve(){
   gVector b, x;
   gMatrix A;
 
-  ctx->f.type = Function::INTERPOLATED; 
+  f.type = Function::INTERPOLATED; 
 
-  LinAlg_CreateVector(&b, &ctx->solver, ctx->nbdof, 1, NULL);
-  LinAlg_CreateVector(&x, &ctx->solver, ctx->nbdof, 1, NULL);
+  LinAlg_CreateVector(&b, &solver, nbdof, 1, NULL);
+  LinAlg_CreateVector(&x, &solver, nbdof, 1, NULL);
   LinAlg_ZeroVector(&x);
-  LinAlg_CreateMatrixShell(&A, &ctx->solver, ctx->nbdof, ctx->nbdof, 
-			   (void*)ctx, MatrixFreeMatMult);
+  LinAlg_CreateMatrixShell(&A, &solver, nbdof, nbdof, 
+			   (void*)this, MatrixFreeMatMult);
 
-  ComputeRHS(ctx,&b);
+  ComputeRHS(&b);
 
   // set initial solution (change also LinAlg_PETSC!)
-  //    for(int i=0; i<ctx->nbTargetPts; i++){
-  //      double t = GetTarget(i,ctx);
+  //    for(int i=0; i<nbTargetPts; i++){
+  //      double t = GetTarget(i);
   //      Complex res = cos(t);
   //      VecSetValues(x.V,1, &i, &res, INSERT_VALUES);
   //    }
 
-  LinAlg_Solve(&A, &b, &ctx->solver, &x);
+  LinAlg_Solve(&A, &b, &solver, &x);
 
-  SaveSolution(ctx,&x);
+  SaveSolution(&x);
 
   LinAlg_DestroyMatrix(&A);
   LinAlg_DestroyVector(&b);
@@ -239,27 +255,29 @@ void IterSolve(Ctx *ctx){
 }
 
 
-void PostProcess(Ctx *ctx){
+void Ctx::PostProcess(){
   gVector x;
   int i, j;
   char fn[256];
   FILE *fp;
   Complex vi, vs;
-  double k = NORM3(ctx->waveNum);
+  double k = NORM3(waveNum);
   double coord[3];
 
-  LinAlg_CreateVector(&x, &ctx->solver, ctx->nbdof, 1, NULL);
-  ReadSolution(ctx,&x);
+  if(scat.dim() != 2) Msg(ERROR, "Postpro not ready for 3D");
+
+  LinAlg_CreateVector(&x, &solver, nbdof, 1, NULL);
+  ReadSolution(&x);
 
   LinAlg_PrintVector(stderr, &x);
 
-  InitializeInterpolation(ctx,&x);
+  InitializeInterpolation(&x);
 
   // compute far field
   coord[0] = 1;
   coord[0] = 0;
   coord[0] = 0;
-  vs = (-2./I) * Evaluate(ctx, 1, coord);
+  vs = (-2./I) * Evaluate2D(this, 1, coord);
   printf("FAR FIELD = %g %g \n", vs.real(), vs.imag());
 
   return;
@@ -282,8 +300,8 @@ void PostProcess(Ctx *ctx){
       coord[1] = ymin + j*(ymax-ymin)/(double)(nby-1) ;
       coord[2] = 0. ;
       if(coord[0]*coord[0]+coord[1]*coord[1] > 1.){
-	vs = (-2./I) * Evaluate(ctx, 0, coord);
-	double kr = ctx->waveNum[0]*coord[0]+ctx->waveNum[1]*coord[1]+ctx->waveNum[2]*coord[2];
+	vs = (-2./I) * Evaluate2D(this, 0, coord);
+	double kr = waveNum[0]*coord[0]+waveNum[1]*coord[1]+waveNum[2]*coord[2];
 	vi = cos(kr)+I*sin(kr);
       }
       else{
