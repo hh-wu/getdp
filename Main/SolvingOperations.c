@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.33 2001-07-26 14:43:59 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.34 2001-07-28 13:54:00 geuzaine Exp $"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -81,7 +81,7 @@ void  Init_OperationOnSystem(struct Resolution   * Resolution_P,
     }
   }
 
-  Msg(OPERATION, "%s '%s'",
+  Msg(OPERATION, "%s[%s]",
       Get_StringForDefine(Operation_Type, Operation_P->Type),
       (*DefineSystem_P)->Name) ;
 
@@ -100,7 +100,7 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac) {
 
   GetDP_Begin("Init_SystemData");
 
-  if (DofData_P->Flag_Init[0] == 0) {
+  if (DofData_P->Flag_Init[0] < 1) {
     DofData_P->Flag_Init[0] = 1 ;
     LinAlg_CreateSolver(&DofData_P->Solver, DofData_P->SolverDataFileName) ;
     LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver,
@@ -109,7 +109,7 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac) {
     LinAlg_CreateVector(&DofData_P->b, &DofData_P->Solver, DofData_P->NbrDof,
 			DofData_P->NbrPart, DofData_P->Part) ;
   }
-  if (DofData_P->Flag_Init[0] == 1 && Flag_Jac) {
+  if (DofData_P->Flag_Init[0] < 2 && Flag_Jac) {
     DofData_P->Flag_Init[0] = 2 ;
     LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
 			DofData_P->NbrDof, DofData_P->NbrDof,
@@ -262,6 +262,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_Jac = 1 ;
       Init_OperationOnSystem(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+
+      if(DofData_P->Flag_Init[0] < 2)
+	Msg(ERROR, "Jacobian system not initialized (missing GenerateJac?)");
 
       LinAlg_AddMatrixMatrix(&DofData_P->Jac, &DofData_P->A, &DofData_P->Jac) ;
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
@@ -419,7 +422,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	i++ ;
       }
       if(!List_Nbr(DofData_P->Solutions))
-	Msg(ERROR, "No valid data found for ReadSolution '%s'", DefineSystem_P->Name);
+	Msg(ERROR, "No valid data found for ReadSolution[%s]", DefineSystem_P->Name);
 	
       DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;	
@@ -520,7 +523,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Init_HarInDofData(DefineSystem_P, DofData_P) ;
       }
       else
-	Msg(ERROR, "Invalid 'SetFrequency' for real system '%s'", DefineSystem_P->Name) ;
+	Msg(ERROR, "Invalid SetFrequency for real system '%s'", DefineSystem_P->Name) ;
       break;
 
       /*  -->  T i m e L o o p T h e t a              */
@@ -1245,7 +1248,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
   case TIME_THETA :
 
     if(!DofData_P->Flag_Init[1] && !DofData_P->Flag_Init[2])
-      Msg(ERROR, "No system available for update") ;
+      Msg(ERROR, "No system available for Update") ;
 
     if(!Init_Update){
       Init_Update = 1;
@@ -1292,7 +1295,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
   case TIME_NEWMARK :
 
     if(!DofData_P->Flag_Init[1] && !DofData_P->Flag_Init[2] && !DofData_P->Flag_Init[3])
-      Msg(ERROR, "No system available for update") ;
+      Msg(ERROR, "No system available for Update") ;
 
     if(!Init_Update){
       Init_Update = 1;
