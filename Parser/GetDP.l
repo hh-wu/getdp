@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.29 2004-11-10 09:58:20 dular Exp $ */
+/* $Id: GetDP.l,v 1.30 2005-04-13 17:08:09 dular Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -218,6 +218,7 @@ Symmetry                     return tSymmetry ;
 Equation                     return tEquation ;
 Galerkin                     return tGalerkin ;
 deRham                       return tdeRham ;
+DiscreteGeometry             return tDiscreteGeometry ;
 
 Dt                           return tDt ;
 DtDof                        return tDtDof ;

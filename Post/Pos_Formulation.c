@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.43 2004-11-10 09:57:34 dular Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.44 2005-04-13 17:08:08 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -91,27 +91,29 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   Format_PostFormat(PostSubOperation_P->Format) ;
 
-  if (PostSubOperation_P->PostQuantitySupport[0] < 0) { /* Noncumulative */
-    NCPQ_P = 
-      (struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
-					   PostSubOperation_P->PostQuantityIndex[0]) ;
-    CPQ_P = 
-      (PostSubOperation_P->PostQuantityIndex[1] >= 0) ?
-      (struct PostQuantity *)List_Pointer(PostProcessing_P->PostQuantity, 
-					  PostSubOperation_P->PostQuantityIndex[1]) :
-      NULL ;
-    Order = 1 ;
-  }
-  else {
-    CPQ_P = 
-      (struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
-					   PostSubOperation_P->PostQuantityIndex[0]) ;
-    NCPQ_P = 
-      (PostSubOperation_P->PostQuantityIndex[1] >= 0) ?
-      (struct PostQuantity *)List_Pointer(PostProcessing_P->PostQuantity, 
-					  PostSubOperation_P->PostQuantityIndex[1]) :
-      NULL ;
-    Order = 0 ;
+  if (PostSubOperation_P->PostQuantityIndex[0] >= 0) {
+    if (PostSubOperation_P->PostQuantitySupport[0] < 0) { /* Noncumulative */
+      NCPQ_P = 
+	(struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
+					     PostSubOperation_P->PostQuantityIndex[0]) ;
+      CPQ_P = 
+	(PostSubOperation_P->PostQuantityIndex[1] >= 0) ?
+	(struct PostQuantity *)List_Pointer(PostProcessing_P->PostQuantity, 
+					    PostSubOperation_P->PostQuantityIndex[1]) :
+	NULL ;
+      Order = 1 ;
+    }
+    else {
+      CPQ_P = 
+	(struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
+					     PostSubOperation_P->PostQuantityIndex[0]) ;
+      NCPQ_P = 
+	(PostSubOperation_P->PostQuantityIndex[1] >= 0) ?
+	(struct PostQuantity *)List_Pointer(PostProcessing_P->PostQuantity, 
+					    PostSubOperation_P->PostQuantityIndex[1]) :
+	NULL ;
+      Order = 0 ;
+    }
   }
 
   if(List_Nbr(PostSubOperation_P->Frequency_L)){

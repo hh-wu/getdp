@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.64 2004-11-10 09:58:21 dular Exp $ */
+/* $Id: GetDP.y,v 1.65 2005-04-13 17:08:10 dular Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -296,7 +296,7 @@ double _value;
 %token        tNameOfSpace tIndexOfSystem 
 %token        tSymmetry
 %token    tEquation
-%token        tGalerkin tdeRham tGlobalTerm tGlobalEquation
+%token        tGalerkin tdeRham tGlobalTerm tGlobalEquation tDiscreteGeometry
 %token          tDt tDtDof tDtDt tDtDtDof  tJacNL  tNeverDt  tDtNL  tAtAnteriorTimeStep
 %token          tIn
 %token          tFull_Matrix
@@ -3839,6 +3839,9 @@ EquationTerm :
 
   | tGlobalEquation  '{' GlobalEquation '}'
     { EquationTerm_S.Type = GLOBALEQUATION ; }
+
+  | tDiscreteGeometry  '{' LocalTerm '}'
+    { EquationTerm_S.Type = DISCRETEGEOMETRY ; }
   ;
 
 
@@ -6058,18 +6061,21 @@ PostSubOperation :
       PostSubOperation_S.Type = POP_PRINTVAL ;
       PostSubOperation_S.String = $3 ;
       PostSubOperation_S.Val = $5 ;
+      PostSubOperation_S.PostQuantityIndex[0] = -1 ;
     }
   | tPrint '[' tBIGSTR ',' tStr '[' CharExpr ']' PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_PRINTVALSTR ;
       PostSubOperation_S.String = $3 ;
       PostSubOperation_S.String2 = $7 ;
+      PostSubOperation_S.PostQuantityIndex[0] = -1 ;
     }
 
   | tPrintGroup '[' GroupRHS 
     {
       PostSubOperation_S.Type = POP_GROUP ;
       PostSubOperation_S.Case.Group.ExtendedGroupIndex = Num_Group(&Group_S, "PO_Group", $3) ;
+      PostSubOperation_S.PostQuantityIndex[0] = -1 ;
     }
     ',' tIn GroupRHS PrintOptions ']' tEND
     {
