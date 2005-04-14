@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.65 2005-04-13 17:08:10 dular Exp $ */
+/* $Id: GetDP.y,v 1.66 2005-04-14 07:36:49 dular Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -3839,9 +3839,10 @@ EquationTerm :
 
   | tGlobalEquation  '{' GlobalEquation '}'
     { EquationTerm_S.Type = GLOBALEQUATION ; }
-
+/*
   | tDiscreteGeometry  '{' LocalTerm '}'
     { EquationTerm_S.Type = DISCRETEGEOMETRY ; }
+*/
   ;
 
 
