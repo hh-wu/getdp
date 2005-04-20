@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Region.c,v 1.11 2004-01-19 16:51:14 geuzaine Exp $"
+#define RCSID "$Id: BF_Region.c,v 1.12 2005-04-20 06:44:52 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -189,6 +189,7 @@ void  BF_Global(struct Element * Element, int NumGlobal,
   struct Value  Value ;
   struct GlobalBasisFunction  * GlobalBasisFunction_P ;
   struct QuantityStorage  * QuantityStorage_P ;
+  int Save_NbrHar;
   
   void  BF_InitGlobal(struct GlobalBasisFunction * GlobalBasisFunction_P) ;
 
@@ -209,12 +210,15 @@ void  BF_Global(struct Element * Element, int NumGlobal,
        QuantityStorage_P->DefineQuantity->IndexInFunctionSpace) ;
   }
 
+  Save_NbrHar = Current.NbrHar;
+  Current.NbrHar = 1; /* for real basis function */
   Pos_FemInterpolation
     (Element,
      NULL,
      GlobalBasisFunction_P->QuantityStorage,
      QUANTITY_SIMPLE, NOOP, 0,
      u, v, w, 0., 0., 0.,  Value.Val, &Value.Type, 0) ;
+  Current.NbrHar = Save_NbrHar;
 
   switch (Value.Type) {
   case SCALAR :
@@ -242,6 +246,7 @@ void  BF_dGlobal(struct Element * Element, int NumGlobal,
 
   struct GlobalBasisFunction  * GlobalBasisFunction_P ;
   struct QuantityStorage  * QuantityStorage_P ;
+  int Save_NbrHar;
 
   void  BF_InitGlobal(struct GlobalBasisFunction * GlobalBasisFunction_P) ;
 
@@ -262,12 +267,15 @@ void  BF_dGlobal(struct Element * Element, int NumGlobal,
        QuantityStorage_P->DefineQuantity->IndexInFunctionSpace) ;
   }
 
+  Save_NbrHar = Current.NbrHar;
+  Current.NbrHar = 1; /* for real basis function */
   Pos_FemInterpolation
     (Element,
      NULL,
      GlobalBasisFunction_P->QuantityStorage,
      QUANTITY_SIMPLE, EXTDER, 0,
      u, v, w, 0., 0., 0.,  Value.Val, &Value.Type, 0) ;
+  Current.NbrHar = Save_NbrHar;
 
   switch (Value.Type) {
   case SCALAR :
