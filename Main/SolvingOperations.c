@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.65 2005-03-18 13:56:12 sabarieg Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.66 2005-05-02 13:38:21 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -3220,7 +3220,7 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 
       Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
 
-      if (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex >= 0 &&
+      if (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 >= 0 &&
 	  Num_Node == Operation_P->Case.ChangeOfCoordinates.NumNode) { 
 	x = Current.x ;
 	y = Current.y ;
