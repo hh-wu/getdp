@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.39 2004-11-03 01:12:28 geuzaine Exp $
+dnl $Id: configure.in,v 1.40 2005-05-16 02:32:19 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -206,6 +206,10 @@ else
       C_FLAGS="-g -O3 -DMSDOS"
       F77_FLAGS="-g -O1 -DMSDOS"
       ;;
+    Darwin*)
+      LINKER="gcc"
+      GETDP_LIBS="${GETDP_LIBS} -lg2c"
+      ;;
   esac
 
 fi
@@ -336,10 +340,6 @@ dnl Finish link line
 case "${UNAME}" in
   MINGW*)
     dnl '-lm' is removed on purpose!
-    ;;
-  Darwin*)
-    dnl Had to add this to fix link on Panther (10.3)... Is it a bug?
-    GETDP_LIBS="${GETDP_LIBS} -lcc_dynamic -lm"
     ;;
   *)
     GETDP_LIBS="${GETDP_LIBS} -lm"    
