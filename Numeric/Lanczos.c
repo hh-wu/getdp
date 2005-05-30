@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.21 2004-07-03 06:19:46 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.22 2005-05-30 00:40:24 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -208,7 +208,7 @@ void freematrix(double **a, int nrow){
   Free(a);
 }
 
-double gsl_random(int isover){ /* uniform random numbers in range [0.0, 1.0) */
+double gsl_random(){ /* uniform random numbers in range [0.0, 1.0) */
   double u;
   static const gsl_rng_type *T = NULL;
   static gsl_rng *r;
@@ -218,10 +218,9 @@ double gsl_random(int isover){ /* uniform random numbers in range [0.0, 1.0) */
     T = gsl_rng_default;
     r = gsl_rng_alloc(T);
   }
-  else if (isover > 0) { /* finalize */
-    gsl_rng_free(r);
-    return 0.0;
-  }
+
+  /* we never free this: gsl_rng_free(r); */
+
   u = gsl_rng_uniform(r);
   return u;
 }
@@ -480,8 +479,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
      d'Arnoldi a l'aide de Tchebychev */
 #if defined(HAVE_GSL)
   for (i = 0; i < NbrDof; i++)
-    LinAlg_SetDoubleInVector(gsl_random(0), &Lan[0], i);
-  gsl_random(1); /* finish it */
+    LinAlg_SetDoubleInVector(gsl_random(), &Lan[0], i);
 #else
   for (i=0 ; i<NbrDof ; i++) 
     LinAlg_SetDoubleInVector(ran3(&mun), &Lan[0], i) ;
