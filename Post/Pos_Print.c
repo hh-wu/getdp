@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.63 2004-03-08 08:12:05 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.64 2005-06-03 14:58:53 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -401,10 +401,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
 	  for (iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
 
-
-
 	    Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
-
 
 	    for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++){
 	      Current.x = PE->x[iNode] ;
@@ -417,6 +414,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	      Combine_PostQuantity(PostSubOperation_P->CombinationType, Order,
 				   &PE->Value[iNode], &CumulativeValues[iTime]) ;
 	    }      
+
 	    if(!Store)
 	      Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
 				 Current.Time, iTime, NbrTimeStep,
@@ -1345,6 +1343,10 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       Current.x = Current.y = Current.z = 0. ;
       Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0, 
 		       Support_L, &Element, 0., 0., 0., &Value) ;
+
+      if (PostSubOperation_P->StoreInRegister >= 0) {
+	Cal_StoreInRegister(&Value, PostSubOperation_P->StoreInRegister) ;
+      }
 
       Format_PostValue(PostSubOperation_P->Format,
 		       Current.Time, i, Nbr_Region,

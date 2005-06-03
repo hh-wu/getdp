@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.30 2005-04-13 17:08:09 dular Exp $ */
+/* $Id: GetDP.l,v 1.31 2005-06-03 14:58:52 dular Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -327,6 +327,7 @@ Iso                          return tIso ;
 NoNewLine                    return tNoNewLine ;
 FrequencyLegend              return tFrequencyLegend ;
 EvaluationPoints             return tEvaluationPoints ;
+Store                        return tStore ;
 
 If                           return tIf ;
 Else                         return tElse ;

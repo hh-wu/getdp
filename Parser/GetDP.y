@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.66 2005-04-14 07:36:49 dular Exp $ */
+/* $Id: GetDP.y,v 1.67 2005-06-03 14:58:53 dular Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -341,7 +341,7 @@ double _value;
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
-%token        tFrequencyLegend tEvaluationPoints
+%token        tFrequencyLegend tEvaluationPoints tStore
 %token        tStr, tDate
 
 /* ------------------------------------------------------------------ */
@@ -5343,7 +5343,6 @@ PrintOperationOption :
       }
       List_Delete($2);
     }
-  ;
 
 
 /* ------ the following should disapear with the new syntax ------------- */
@@ -6349,6 +6348,7 @@ PrintOptions :
       PostSubOperation_S.ChangeOfValues = NULL ;
       PostSubOperation_S.FrequencyLegend[0] = -1 ;
       PostSubOperation_S.EvaluationPoints = NULL ;
+      PostSubOperation_S.StoreInRegister = -1 ;
     }
   | PrintOptions PrintOption 
   ;
@@ -6535,6 +6535,11 @@ PrintOption :
       else {
 	PostSubOperation_S.EvaluationPoints = $4 ;
       }
+    }
+
+  | ',' tStore tINT
+    {
+      PostSubOperation_S.StoreInRegister = $3 - 1 ;
     }
 
   ;

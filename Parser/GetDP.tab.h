@@ -250,21 +250,22 @@
      tChangeOfValues = 476,
      tFrequencyLegend = 477,
      tEvaluationPoints = 478,
-     tStr = 479,
-     tDate = 480,
-     tDEF = 481,
-     tOR = 482,
-     tAND = 483,
-     tAPPROXEQUAL = 484,
-     tNOTEQUAL = 485,
-     tEQUAL = 486,
-     tGREATERGREATER = 487,
-     tLESSLESS = 488,
-     tGREATEROREQUAL = 489,
-     tLESSOREQUAL = 490,
-     tCROSSPRODUCT = 491,
-     UNARYPREC = 492,
-     tSHOW = 493
+     tStore = 479,
+     tStr = 480,
+     tDate = 481,
+     tDEF = 482,
+     tOR = 483,
+     tAND = 484,
+     tAPPROXEQUAL = 485,
+     tNOTEQUAL = 486,
+     tEQUAL = 487,
+     tGREATERGREATER = 488,
+     tLESSLESS = 489,
+     tGREATEROREQUAL = 490,
+     tLESSOREQUAL = 491,
+     tCROSSPRODUCT = 492,
+     UNARYPREC = 493,
+     tSHOW = 494
    };
 #endif
 #define tINT 258
@@ -488,21 +489,22 @@
 #define tChangeOfValues 476
 #define tFrequencyLegend 477
 #define tEvaluationPoints 478
-#define tStr 479
-#define tDate 480
-#define tDEF 481
-#define tOR 482
-#define tAND 483
-#define tAPPROXEQUAL 484
-#define tNOTEQUAL 485
-#define tEQUAL 486
-#define tGREATERGREATER 487
-#define tLESSLESS 488
-#define tGREATEROREQUAL 489
-#define tLESSOREQUAL 490
-#define tCROSSPRODUCT 491
-#define UNARYPREC 492
-#define tSHOW 493
+#define tStore 479
+#define tStr 480
+#define tDate 481
+#define tDEF 482
+#define tOR 483
+#define tAND 484
+#define tAPPROXEQUAL 485
+#define tNOTEQUAL 486
+#define tEQUAL 487
+#define tGREATERGREATER 488
+#define tLESSLESS 489
+#define tGREATEROREQUAL 490
+#define tLESSOREQUAL 491
+#define tCROSSPRODUCT 492
+#define UNARYPREC 493
+#define tSHOW 494
 
 
 
@@ -517,7 +519,7 @@ typedef union YYSTYPE {
   struct TwoInt t ;
 } YYSTYPE;
 /* Line 1252 of yacc.c.  */
-#line 521 "GetDP.tab.h"
+#line 523 "GetDP.tab.h"
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1

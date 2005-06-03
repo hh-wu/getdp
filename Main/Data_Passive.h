@@ -1018,6 +1018,7 @@ struct PostSubOperation {
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
   int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex ;
   int    ChangeOfCoordinates[3] ; 
+  int    StoreInRegister ;
   double FrequencyLegend[3] ;
   char   * String, * String2 ;
   double Target, Val ;

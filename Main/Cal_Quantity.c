@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.32 2005-02-06 01:11:30 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.33 2005-06-03 14:58:52 dular Exp $"
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -149,6 +149,8 @@ void  Get_ValueOfExpressionByIndex(int Index_Expression,
    change the way we deal with function arguments.
 */
 
+static struct Value ValueSaved[MAX_REGISTER_SIZE] ;  
+
 void Cal_WholeQuantity(struct Element * Element,
 		       struct QuantityStorage * QuantityStorage_P0,
 		       List_T * WholeQuantity_L,
@@ -158,7 +160,6 @@ void Cal_WholeQuantity(struct Element * Element,
 
   static int Flag_WarningMissSolForDt = 0 ;
   static int Flag_WarningMissSolForTime_ntime = 0 ;
-  static struct Value ValueSaved[MAX_REGISTER_SIZE] ;  
 
   int     i_WQ, j, k, Flag_True, Index, DofIndex, Multi[MAX_STACK_SIZE] ;
   int     Save_NbrHar, Save_Region, Type_Dimension, ntime, numSolution ;
@@ -769,3 +770,6 @@ List_T * Purify_WholeQuantity(List_T * WQ_L) {
 }
 
 
+void Cal_StoreInRegister(struct  Value  *Value, int RegisterIndex ) {
+  Cal_CopyValue(Value, ValueSaved + RegisterIndex) ;
+}

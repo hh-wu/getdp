@@ -41,4 +41,6 @@ void  Cal_WholeQuantity(struct Element * Element,
 			double u, double v, double w, 
 			int Index_Dof, int Nbr_Dof, struct Value DofValue[]) ;
 
+void Cal_StoreInRegister(struct  Value  *Value, int RegisterIndex ) ;
+
 #endif
