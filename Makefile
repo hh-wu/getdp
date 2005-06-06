@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.168 2005-06-03 14:58:52 dular Exp $
+# $Id: Makefile,v 1.169 2005-06-06 15:07:35 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -24,7 +24,7 @@ include variables
 GETDP_MAJOR_VERSION = 1
 GETDP_MINOR_VERSION = 0
 GETDP_PATCH_VERSION = 2
-GETDP_EXTRA_VERSION =
+GETDP_EXTRA_VERSION = "-cvs"
 
 GETDP_VERSION = ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}
 
@@ -193,7 +193,7 @@ package-win:
 	rm -f getdp-${GETDP_VERSION}/*/*.pos
 	rm -f getdp-${GETDP_VERSION}/*/*.cut
 	rm -f getdp-${GETDP_VERSION}/*/*~
-#	cd utils/misc && unix2dos.bash ../../getdp-${GETDP_VERSION}/demos/*
+	cd utils/misc && unix2dos.bash ../../getdp-${GETDP_VERSION}/demos/*
 	cd getdp-${GETDP_VERSION} && zip -r getdp-${GETDP_VERSION}-Windows.zip *
 	mv getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-Windows.zip .
 
