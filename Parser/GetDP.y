@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.67 2005-06-03 14:58:53 dular Exp $ */
+/* $Id: GetDP.y,v 1.68 2005-06-16 20:19:57 dular Exp $ */
 /*
  * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
  *
@@ -1597,6 +1597,8 @@ WholeQuantity_Single :
 			       fcmp_DefineQuantity_Name)) < 0) {
 	if (!strcmp($2, "Real"))
 	  WholeQuantity_S.Case.Cast.NbrHar = 1 ;
+	else if (!strcmp($2, "Complex"))
+	  WholeQuantity_S.Case.Cast.NbrHar = 2 ;
 	else
 	  vyyerror("Unknown Cast: %s", $2) ;
       }
