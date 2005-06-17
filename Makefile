@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.169 2005-06-06 15:07:35 geuzaine Exp $
+# $Id: Makefile,v 1.170 2005-06-17 15:42:10 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -185,7 +185,7 @@ package-win:
 	cp doc/FAQ getdp-${GETDP_VERSION}/FAQ.txt
 	cp doc/CREDITS getdp-${GETDP_VERSION}/CREDITS.txt
 	cp doc/LICENSE getdp-${GETDP_VERSION}/LICENSE.txt
-	cd utils/misc && unix2dos.bash ../../getdp-${GETDP_VERSION}/*.txt
+	cd utils/misc && ./unix2dos.bash ../../getdp-${GETDP_VERSION}/*.txt
 	cp -R demos getdp-${GETDP_VERSION}
 	rm -rf getdp-${GETDP_VERSION}/*/CVS
 	rm -f getdp-${GETDP_VERSION}/*/*.pre
@@ -193,7 +193,7 @@ package-win:
 	rm -f getdp-${GETDP_VERSION}/*/*.pos
 	rm -f getdp-${GETDP_VERSION}/*/*.cut
 	rm -f getdp-${GETDP_VERSION}/*/*~
-	cd utils/misc && unix2dos.bash ../../getdp-${GETDP_VERSION}/demos/*
+	cd utils/misc && ./unix2dos.bash ../../getdp-${GETDP_VERSION}/demos/*
 	cd getdp-${GETDP_VERSION} && zip -r getdp-${GETDP_VERSION}-Windows.zip *
 	mv getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-Windows.zip .
 
