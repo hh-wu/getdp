@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.66 2004-10-24 01:58:05 geuzaine Exp $
+@c $Id: getdp.texi,v 1.67 2005-06-17 15:50:26 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 @c
@@ -4640,12 +4640,6 @@ FunctionSpace @{
   @}
 @}
 @end example
-
-@noindent
-The same gauge could also be defined in the BasisFunction field itself, by 
-limiting the set of entities supporting the unknowns: 
-@code{Entity EdgesOf[All]} would then be replaced by 
-@code{Entity EdgesOfTreeIn[Domain, StartingOn Surf]}.
 
 @c .........................................................................
 @c Coupled Edge and Nodal Finite Element Spaces
