@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.40 2005-05-16 02:32:19 geuzaine Exp $
+dnl $Id: configure.in,v 1.41 2005-06-20 18:32:50 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -83,9 +83,6 @@ if test "x${UNAME}" = "x"; then
   uname="MINGW"
 fi
 case "${UNAME}" in
-  IRIX64*)
-    UNAME="IRIX"
-    ;;
   CYGWIN*)
     if test "x$enable_purewin32" = "xyes"; then
       UNAME=MINGW
@@ -150,54 +147,42 @@ else
   LINKER='${F77}'
   case "${UNAME}" in
     IRIX*)
-      dnl Build portable code between 32 and 64 bit machines
-      CC="cc"
-      F77="f77"
-      C_FLAGS="-O3 -n32 -mips3"
-      C_PARSER_FLAGS="-g -n32 -mips3"
-      dnl Warning: -O3 crashes Sparskit
-      F77_FLAGS="-O2 -n32 -mips3"
-      dnl Warning: -DHAVE_ILU_FLOAT crashes Sparskit
-      SOLVER="-DHAVE_SPARSKIT"
-      LINKER="f77 -n32 -mips3"
-      ;;
-    IRIX64*)
-      dnl Never used at the moment: we force IRIX
-      CC="cc"
-      F77="f77"
-      C_FLAGS="-O3 -mips4 -64"
-      C_PARSER_FLAGS="-g -mips4 -64"
-      F77_FLAGS="-O3 -mips4 -64"
-      SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
-      LINKER="f77 -64"
+      dnl options for native SGI compiler
+      if test "x${CC}" = "xcc"; then
+        dnl add "-mips3 -n32" to all flags for portable 32 bit exe
+        dnl -DHAVE_ILU_FLOAT crashes Sparskit
+        SOLVER="-DHAVE_SPARSKIT"
+      fi
       ;;
     HP-UX*)
-      CC="cc"
-      F77="f77"
-      C_FLAGS="+O2 +Onolimit -Ae +DAportable"
-      C_PARSER_FLAGS="+O1 -Ae +DAportable"
-      F77_FLAGS="+O2 +DAportable"
-      SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT -DHAVE_UNDERSCORE"
-      LINKER="f77 +DAportable"
-      GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
+      dnl options for native HP compiler
+      if test "x${CC}" = "xcc"; then
+        C_FLAGS="+O2 +Onolimit -Ae +DAportable"
+        C_PARSER_FLAGS="+O1 -Ae +DAportable"
+        F77_FLAGS="+O2 +DAportable"
+        LINKER="f77 +DAportable"
+        GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
+      fi
+      SOLVER="-DHAVE_UNDERSCORE ${SOLVER}"
       ;;
     OSF1*)
-      CC="cc"
-      F77="f77"
-      C_FLAGS="-O3"
-      C_PARSER_FLAGS="-O1"
-      F77_FLAGS="-O3"
-      LINKER="f77 -nofor_main"
+      dnl options for native DEC compiler
+      if test "x${CC}" = "xcc"; then
+        C_PARSER_FLAGS="-O1"
+        F77_FLAGS="-O3"
+        LINKER="f77 -nofor_main"
+      fi
       ;;
     SunOS*)
       GETDP_LIBS="${GETDP_LIBS} -lsocket"
       ;;
     AIX*)
-      CC="cc"
-      F77="f77"
-      C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
-      C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
-      F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+      dnl options for native AIX compiler
+      if test "x${CC}" = "xcc"; then
+        C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+        C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
+        F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+      fi
       SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
       ;;
     MINGW*)

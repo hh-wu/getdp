@@ -1411,9 +1411,6 @@ if test "x${UNAME}" = "x"; then
   uname="MINGW"
 fi
 case "${UNAME}" in
-  IRIX64*)
-    UNAME="IRIX"
-    ;;
   CYGWIN*)
     if test "x$enable_purewin32" = "xyes"; then
       UNAME=MINGW
@@ -2443,7 +2440,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2446:" \
+echo "$as_me:2443:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3056,50 +3053,36 @@ else
   LINKER='${F77}'
   case "${UNAME}" in
     IRIX*)
-            CC="cc"
-      F77="f77"
-      C_FLAGS="-O3 -n32 -mips3"
-      C_PARSER_FLAGS="-g -n32 -mips3"
-            F77_FLAGS="-O2 -n32 -mips3"
-            SOLVER="-DHAVE_SPARSKIT"
-      LINKER="f77 -n32 -mips3"
-      ;;
-    IRIX64*)
-            CC="cc"
-      F77="f77"
-      C_FLAGS="-O3 -mips4 -64"
-      C_PARSER_FLAGS="-g -mips4 -64"
-      F77_FLAGS="-O3 -mips4 -64"
-      SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
-      LINKER="f77 -64"
+            if test "x${CC}" = "xcc"; then
+                        SOLVER="-DHAVE_SPARSKIT"
+      fi
       ;;
     HP-UX*)
-      CC="cc"
-      F77="f77"
-      C_FLAGS="+O2 +Onolimit -Ae +DAportable"
-      C_PARSER_FLAGS="+O1 -Ae +DAportable"
-      F77_FLAGS="+O2 +DAportable"
-      SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT -DHAVE_UNDERSCORE"
-      LINKER="f77 +DAportable"
-      GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
+            if test "x${CC}" = "xcc"; then
+        C_FLAGS="+O2 +Onolimit -Ae +DAportable"
+        C_PARSER_FLAGS="+O1 -Ae +DAportable"
+        F77_FLAGS="+O2 +DAportable"
+        LINKER="f77 +DAportable"
+        GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
+      fi
+      SOLVER="-DHAVE_UNDERSCORE ${SOLVER}"
       ;;
     OSF1*)
-      CC="cc"
-      F77="f77"
-      C_FLAGS="-O3"
-      C_PARSER_FLAGS="-O1"
-      F77_FLAGS="-O3"
-      LINKER="f77 -nofor_main"
+            if test "x${CC}" = "xcc"; then
+        C_PARSER_FLAGS="-O1"
+        F77_FLAGS="-O3"
+        LINKER="f77 -nofor_main"
+      fi
       ;;
     SunOS*)
       GETDP_LIBS="${GETDP_LIBS} -lsocket"
       ;;
     AIX*)
-      CC="cc"
-      F77="f77"
-      C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
-      C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
-      F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+            if test "x${CC}" = "xcc"; then
+        C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+        C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
+        F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+      fi
       SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
       ;;
     MINGW*)
