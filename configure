@@ -3061,6 +3061,8 @@ else
             if test "x${CC}" = "xcc"; then
         C_FLAGS="+O2 +Onolimit -Ae +DAportable"
         C_PARSER_FLAGS="+O1 -Ae +DAportable"
+      fi
+      if test "x${F77}" = "xf77"; then
         F77_FLAGS="+O2 +DAportable"
         LINKER="f77 +DAportable"
         GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
@@ -3070,7 +3072,8 @@ else
     OSF1*)
             if test "x${CC}" = "xcc"; then
         C_PARSER_FLAGS="-O1"
-        F77_FLAGS="-O3"
+      fi
+      if test "x${F77}" = "xf77"; then
         LINKER="f77 -nofor_main"
       fi
       ;;
@@ -3081,6 +3084,8 @@ else
             if test "x${CC}" = "xcc"; then
         C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
         C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
+      fi
+      if test "x${F77}" = "xf77"; then
         F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
       fi
       SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
