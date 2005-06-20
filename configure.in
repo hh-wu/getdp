@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.42 2005-06-20 18:49:47 geuzaine Exp $
+dnl $Id: configure.in,v 1.43 2005-06-20 20:30:54 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -164,8 +164,8 @@ else
         F77_FLAGS="+O2 +DAportable"
         LINKER="f77 +DAportable"
         GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
+        SOLVER="-DHAVE_UNDERSCORE ${SOLVER}"
       fi
-      SOLVER="-DHAVE_UNDERSCORE ${SOLVER}"
       ;;
     OSF1*)
       dnl options for native DEC compiler
@@ -187,8 +187,8 @@ else
       fi
       if test "x${F77}" = "xf77"; then
         F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+        SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
       fi
-      SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
       ;;
     MINGW*)
       CC="gcc -mno-cygwin"
@@ -361,13 +361,14 @@ AC_OUTPUT(variables)
 dnl Print some information
 echo "********************************************************************"
 echo "GetDP is configured for"
-echo "- OS        : $UNAME"
-echo "- C FLAGS   : $C_FLAGS"
-echo "- F77 FLAGS : $F77_FLAGS"
-echo "- SOLVER    : $SOLVER"
+echo "- OS               : $UNAME"
+echo "- C compiler       : $CC $C_FLAGS"
+echo "- Fortran compiler : $F77 $F77_FLAGS"
+echo "- Linker           : $LINKER"
+echo "- Solver           : $SOLVER"
 if test "x$enable_petsc" = "xyes"; then
-echo "- PETSC_DIR : $PETSC_DIR"
-echo "- PETSC_ARCH: $PETSC_ARCH"
-echo "- BOPT      : $BOPT"
+echo "- PETSC_DIR        : $PETSC_DIR"
+echo "- PETSC_ARCH       : $PETSC_ARCH"
+echo "- BOPT             : $BOPT"
 fi
 echo "********************************************************************"

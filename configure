@@ -3066,8 +3066,8 @@ else
         F77_FLAGS="+O2 +DAportable"
         LINKER="f77 +DAportable"
         GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
+        SOLVER="-DHAVE_UNDERSCORE ${SOLVER}"
       fi
-      SOLVER="-DHAVE_UNDERSCORE ${SOLVER}"
       ;;
     OSF1*)
             if test "x${CC}" = "xcc"; then
@@ -3087,8 +3087,8 @@ else
       fi
       if test "x${F77}" = "xf77"; then
         F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+        SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
       fi
-      SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
       ;;
     MINGW*)
       CC="gcc -mno-cygwin"
@@ -5629,13 +5629,14 @@ fi
 
 echo "********************************************************************"
 echo "GetDP is configured for"
-echo "- OS        : $UNAME"
-echo "- C FLAGS   : $C_FLAGS"
-echo "- F77 FLAGS : $F77_FLAGS"
-echo "- SOLVER    : $SOLVER"
+echo "- OS               : $UNAME"
+echo "- C compiler       : $CC $C_FLAGS"
+echo "- Fortran compiler : $F77 $F77_FLAGS"
+echo "- Linker           : $LINKER"
+echo "- Solver           : $SOLVER"
 if test "x$enable_petsc" = "xyes"; then
-echo "- PETSC_DIR : $PETSC_DIR"
-echo "- PETSC_ARCH: $PETSC_ARCH"
-echo "- BOPT      : $BOPT"
+echo "- PETSC_DIR        : $PETSC_DIR"
+echo "- PETSC_ARCH       : $PETSC_ARCH"
+echo "- BOPT             : $BOPT"
 fi
 echo "********************************************************************"
