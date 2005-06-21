@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.67 2005-06-17 15:50:26 geuzaine Exp $
+@c $Id: getdp.texi,v 1.68 2005-06-21 22:50:26 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 @c
@@ -5306,7 +5306,7 @@ field on the elements of the region @code{Domain} are defined as:
 
 @example
 PostOperation @{
-  @{ Name Map_v_e; NameOfPostprocessing EleSta_v ;
+  @{ Name Map_v_e; NameOfPostProcessing EleSta_v ;
      Operation @{
        Print [ v, OnElementsOf Domain, File "map_v.pos" ];
        Print [ e, OnElementsOf Domain, File "map_e.pos" ];
@@ -5359,7 +5359,7 @@ the region @code{SkinDomainC} can be displayed with:
 
 @example
 PostOperation @{
-  @{ Name Val_V_Q; NameOfPostprocessing EleSta_vf ;
+  @{ Name Val_V_Q; NameOfPostProcessing EleSta_vf ;
      Operation @{
        Print [ V, OnRegion SkinDomainC ];
        Print [ Q, OnRegion SkinDomainC ];
