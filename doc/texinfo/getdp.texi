@@ -1,7 +1,7 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.68 2005-06-21 22:50:26 geuzaine Exp $
+@c $Id: getdp.texi,v 1.69 2005-06-23 01:45:07 geuzaine Exp $
 @c
-@c Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+@c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
 @c This program is free software; you can redistribute it and/or modify
 @c it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@
 @set GETDP-VERSION  1.0
 @set GETDP-WEB      @uref{http://www.geuz.org/getdp/}
 @set GMSH-WEB       @uref{http://www.geuz.org/gmsh/}
-@set COPYRIGHT      @copyright{} 1997-2004 Patrick Dular, Christophe Geuzaine
+@set COPYRIGHT      @copyright{} 1997-2005 Patrick Dular, Christophe Geuzaine
 @c
 @settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate

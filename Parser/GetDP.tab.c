@@ -536,9 +536,9 @@
 /* Copy the first part of user declarations.  */
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.75 2005-06-16 20:19:56 dular Exp $ */
+/* $Id: GetDP.tab.c,v 1.76 2005-06-23 01:45:03 geuzaine Exp $ */
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

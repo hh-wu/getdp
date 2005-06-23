@@ -1,6 +1,6 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.66 2005-05-02 13:38:21 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.67 2005-06-23 01:45:01 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

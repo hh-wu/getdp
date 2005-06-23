@@ -1,6 +1,6 @@
-#define RCSID "$Id: BF_Perpendicular.c,v 1.7 2004-05-11 08:06:11 sabarieg Exp $"
+#define RCSID "$Id: BF_Perpendicular.c,v 1.8 2005-06-23 01:45:00 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

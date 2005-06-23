@@ -1,6 +1,6 @@
-#define RCSID "$Id: ExtendedGroup.c,v 1.11 2004-10-01 11:35:03 dular Exp $"
+#define RCSID "$Id: ExtendedGroup.c,v 1.12 2005-06-23 01:45:01 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

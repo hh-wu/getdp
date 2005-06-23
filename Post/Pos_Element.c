@@ -1,6 +1,6 @@
-#define RCSID "$Id: Pos_Element.c,v 1.25 2004-03-08 08:12:05 dular Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.26 2005-06-23 01:45:06 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

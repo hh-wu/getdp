@@ -1,6 +1,6 @@
-#define RCSID "$Id: F_BiotSavart.c,v 1.6 2004-05-12 09:44:07 sabarieg Exp $"
+#define RCSID "$Id: F_BiotSavart.c,v 1.7 2005-06-23 01:45:00 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

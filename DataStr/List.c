@@ -1,6 +1,6 @@
-#define RCSID "$Id: List.c,v 1.19 2005-01-01 18:46:23 geuzaine Exp $"
+#define RCSID "$Id: List.c,v 1.20 2005-06-23 01:45:00 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

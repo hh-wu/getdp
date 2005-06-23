@@ -1,6 +1,6 @@
-#define RCSID "$Id: BF_Region.c,v 1.12 2005-04-20 06:44:52 dular Exp $"
+#define RCSID "$Id: BF_Region.c,v 1.13 2005-06-23 01:45:00 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

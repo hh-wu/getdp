@@ -1,6 +1,6 @@
-#define RCSID "$Id: Get_ElementSource.c,v 1.10 2004-01-19 16:51:17 geuzaine Exp $"
+#define RCSID "$Id: Get_ElementSource.c,v 1.11 2005-06-23 01:45:01 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

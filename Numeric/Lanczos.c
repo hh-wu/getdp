@@ -1,6 +1,6 @@
-#define RCSID "$Id: Lanczos.c,v 1.22 2005-05-30 00:40:24 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.23 2005-06-23 01:45:02 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

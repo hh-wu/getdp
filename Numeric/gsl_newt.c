@@ -1,6 +1,6 @@
-#define RCSID "$Id: gsl_newt.c,v 1.7 2004-03-08 16:32:29 geuzaine Exp $"
+#define RCSID "$Id: gsl_newt.c,v 1.8 2005-06-23 01:45:02 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

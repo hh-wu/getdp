@@ -1,7 +1,7 @@
 %{
-/* $Id: GetDP.l,v 1.31 2005-06-03 14:58:52 dular Exp $ */
+/* $Id: GetDP.l,v 1.32 2005-06-23 01:45:37 geuzaine Exp $ */
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

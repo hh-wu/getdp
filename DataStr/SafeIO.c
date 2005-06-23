@@ -1,6 +1,6 @@
-#define RCSID "$Id: SafeIO.c,v 1.3 2004-01-19 16:51:12 geuzaine Exp $"
+#define RCSID "$Id: SafeIO.c,v 1.4 2005-06-23 01:45:00 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2004 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
