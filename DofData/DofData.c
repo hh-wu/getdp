@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.41 2005-06-23 01:45:00 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.42 2005-06-24 06:31:55 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -31,11 +31,6 @@
 #include "Magic.h"
 #include "CurrentData.h"
 #include "Numeric.h"
-
-
-/* Il reste qques cas a terminer dans les routines d'assemblage en complexe
-   -> cf. "not finished" 
-*/
 
 FILE  * File_PRE, * File_RES, * File_TMP ;
 
