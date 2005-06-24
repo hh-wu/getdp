@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.23 2005-06-23 01:45:02 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.24 2005-06-24 17:43:15 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -236,17 +236,21 @@ void hqr(double **hin, int nhess, double *wrout, double *wiout){
 
 #else
 
+#include "Compat.h"
+
 #if defined(HAVE_UNDERSCORE)
 #define dhseqr_ dhseqr
 #endif
 
+EXTERN_C_BEGIN
 void dhseqr_(char *JOB, char *COMPZ, int *N, int *ILO, int *IHI, double *H, 
-	     int *LDH, double WR[], double WI[], double Z[][], int *LDZ,
+	     int *LDH, double *WR, double *WI, double **Z, int *LDZ,
 	     double *WORK, int *LWORK, int *IRET);
+EXTERN_C_END
 
 void hqr(double **hin, int nhess, double *wrout, double *wiout){
   int n, ilo, ihi, ldh, ldz, lwork, info, i, j, k;
-  double *h, *wr, *wi, *work, dummy[1][1];
+  double *h, *wr, *wi, *work, **dummy;
   char job[] = "E", compz[] = "N";
   
   n = nhess;
