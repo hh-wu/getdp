@@ -55,10 +55,10 @@ typedef struct { Solver_Params Params ; } gSolver ;
 
 #include "petsc.h"
 
-#if ((PETSC_VERSION_MAJOR==2)&&(PETSC_VERSION_MINOR>=2))
-  #include "petscksp.h"
-#else
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
   #include "petscsles.h"
+#else
+  #include "petscksp.h"
 #endif
 
 #if PETSC_USE_COMPLEX
@@ -72,10 +72,10 @@ typedef struct { PetscScalar s ; }               gScalar ;
 typedef struct { Mat M ; }                       gMatrix ;
 typedef struct { Vec V ; }                       gVector ;
 
-#if ((PETSC_VERSION_MAJOR==2)&&(PETSC_VERSION_MINOR>=2))
-  typedef struct { KSP ksp ; PC pc ; } gSolver ;
-#else
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
   typedef struct { SLES sles ; PC pc ; KSP ksp ; } gSolver ;
+#else
+  typedef struct { KSP ksp ; PC pc ; } gSolver ;
 #endif
 
 #else

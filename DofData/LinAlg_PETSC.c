@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.39 2005-06-24 05:27:55 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.40 2005-06-24 06:08:55 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -25,7 +25,19 @@
  *   Jose Geraldo A. Brito Neto
  */
 
-/* This is the interface library for the PETSC solver */
+/* 
+   This is the interface library for the PETSC solver
+
+   Options for PETSc can be provided on the command line, or in the file
+   ~/.petscrc. Here are some useful options:
+
+   -ksp_gmres_restart 100
+   -ksp_rtol 1.e-8
+   -ksp_monitor
+   -pc_type ilu
+   -pc_ilu_levels 6
+   -pc_ilu_mat_ordering_type rcm
+*/
 
 #include "GetDP.h"
 
@@ -41,7 +53,7 @@ extern int Flag_FMM ;
 /* error checking, petsc-style */
 
 #define MYCHECK(ierr) CHKERRABORT(PETSC_COMM_WORLD,ierr)
-static int  ierr, SolverInitialized=0 ;
+static int  ierr, SolverInitialized = 0 ;
 
 /* stuff for matrix-free matrices */
 
@@ -151,13 +163,13 @@ void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName){
 }
 
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *Part){
-#ifdef _METIS
+#if defined(_METIS)
   int NbrCpu, RankCpu;
 #endif
 
   GetDP_Begin("LinAlg_CreateVector");
 
-#ifdef _METIS
+#if defined(_METIS)
   MPI_Comm_size(MPI_COMM_WORLD, &NbrCpu);
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
   if(NbrPart != NbrCpu){
@@ -167,19 +179,15 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *P
     ierr = VecSetFromOptions(V->V); MYCHECK(ierr);
   }
   else{
-    ierr = VecCreateMPI(PETSC_COMM_WORLD, 
-			Part[RankCpu+1]-Part[RankCpu], 
-			n, 
-			&V->V); MYCHECK(ierr);
+    ierr = VecCreateMPI(PETSC_COMM_WORLD, Part[RankCpu+1]-Part[RankCpu], 
+			n, &V->V); MYCHECK(ierr);
   }
 #else
-  ierr = VecCreate(PETSC_COMM_WORLD, &V->V); MYCHECK(ierr);
-  ierr = VecSetSizes(V->V, PETSC_DECIDE, n); MYCHECK(ierr);
-
   /*
   ierr = VecCreateSeq(PETSC_COMM_WORLD, n, &V->V); MYCHECK(ierr);
   */
-
+  ierr = VecCreate(PETSC_COMM_WORLD, &V->V); MYCHECK(ierr);
+  ierr = VecSetSizes(V->V, PETSC_DECIDE, n); MYCHECK(ierr);
   ierr = VecSetFromOptions(V->V); MYCHECK(ierr);
 #endif
 
@@ -189,13 +197,13 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *P
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m, 
 			 int NbrPart, int *Part, int *Nnz){
 
-#ifdef _METIS
+#if defined(_METIS)
   int NbrCpu, RankCpu, i_Start, i_End;
 #endif
 
   GetDP_Begin("LinAlg_CreateMatrix");
 
-#ifdef _METIS
+#if defined(_METIS)
   MPI_Comm_size(PETSC_COMM_WORLD, &NbrCpu);
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
@@ -210,33 +218,24 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
 			 1, &Nnz[i_Start], 
 			 &M->M); MYCHECK(ierr); 
 #else
-  /* dense */
-  /*
+  /* 
+  - dense:
   ierr = MatCreateMPIDense(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m, 
 			   PETSC_NULL, &M->M); MYCHECK(ierr); 
-  */
-  
-  /* "dense sparse" */
-  /*
+  - "dense sparse":
   ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m, 
                          n, PETSC_NULL, m, PETSC_NULL, &M->M); MYCHECK(ierr); 
-  */
-  /* normal sparse */
-
+  - normal sparse:
   ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m, 
                          50, PETSC_NULL, 50, PETSC_NULL, &M->M); MYCHECK(ierr); 
-  
-
-  /* sequential sparse */
-  /*
+  - sequential sparse:
   ierr = MatCreateSeqAIJ(PETSC_COMM_SELF, n, m, 20, PETSC_NULL, &M->M); MYCHECK(ierr);
+  - rowbs format, for blocksolve:
+  ierr = MatCreateMPIRowbs(PETSC_COMM_WORLD, PETSC_DECIDE, n, 50, 
+                           PETSC_NULL, &M->M); MYCHECK(ierr);
   */
-
-  /* rowbs format, for blocksolve */
-  /*
-  ierr = MatCreateMPIRowbs(PETSC_COMM_WORLD, PETSC_DECIDE, n, 50, PETSC_NULL, &M->M);
-  */
-
+  ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m, 
+                         50, PETSC_NULL, 50, PETSC_NULL, &M->M); MYCHECK(ierr); 
 #endif
 
   GetDP_End ;
@@ -246,7 +245,7 @@ void LinAlg_CreateMatrixShell(gMatrix *A, gSolver *Solver, int n, int m, void *m
 			      void (*myMult)(gMatrix *A, gVector *x, gVector *y)){
   GetDP_Begin("LinAlg_CreateMatrixShell");
 
-  petscCtx *ctx=(petscCtx*)Malloc(sizeof(petscCtx)); /* memory leak! to change... */
+  petscCtx *ctx = (petscCtx*)Malloc(sizeof(petscCtx)); /* memory leak! to change... */
   ctx->ctx = myCtx;
   ctx->fct = myMult;
   MatCreateShell(PETSC_COMM_WORLD,n,m,PETSC_DETERMINE,
@@ -471,9 +470,7 @@ void LinAlg_PrintMatrix(FILE *file, gMatrix *M){
 
   GetDP_Begin("LinAlg_PrintMatrix");
   
-  /*
   ierr = MatView(M->M,PETSC_VIEWER_STDOUT_WORLD); MYCHECK(ierr);
-  */
 
   GetDP_End ;
 }
@@ -891,7 +888,7 @@ void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, i
 }
 
 void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3){
-  PetscScalar tmp=1.0 ;
+  PetscScalar tmp = 1.0 ;
 
   GetDP_Begin("LinAlg_AddVectorVector");
 
@@ -908,8 +905,7 @@ void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3){
 }
 
 void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVector *V3){
-  PetscScalar tmp ;
-  tmp = d ;
+  PetscScalar tmp = d;
 
   GetDP_Begin("LinAlg_AddvectorProdVectorDouble");
 
@@ -926,7 +922,7 @@ void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVecto
 }
 
 void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
-  PetscScalar tmp=1.0 ;
+  PetscScalar tmp = 1.0 ;
 
   GetDP_Begin("LinAlg_AddMatrixMatrix");
 
@@ -943,8 +939,7 @@ void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
 }
 
 void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatrix *M3){
-  PetscScalar tmp ;
-  tmp = d ;
+  PetscScalar tmp = d;
 
   GetDP_Begin("LinAlg_AddMatrixProdMatrixDouble");
 
@@ -972,7 +967,7 @@ void LinAlg_SubScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
 }
 
 void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3){
-  PetscScalar tmp=-1.0 ;
+  PetscScalar tmp = -1.0 ;
 
   GetDP_Begin("LinAlg_SubVectorVector");
 
@@ -1078,7 +1073,7 @@ void LinAlg_ProdVectorVector(gVector *V1, gVector *V2, double *d){
   GetDP_Begin("LinAlg_ProdVectorVector");
 
   ierr = VecDot(V1->V, V2->V, &tmp) ; MYCHECK(ierr);
-#ifdef PETSC_USE_COMPLEX
+#if PETSC_USE_COMPLEX
   *d = real(tmp) ;
 #else
   *d = tmp ;
@@ -1179,10 +1174,9 @@ void LinAlg_AssembleVector(gVector *V){
 
 /* FMM interface routine */
 
-static int ii = 0;
-
 int LinAlg_ApplyFMM(void *ptr, Vec xin, Vec xout){
 
+  static int ii = 0;
   static Vec DTAxi ;
   PetscScalar *tmpV, tmp, mone = -1.0 ;
   double *x, *y ;
@@ -1348,7 +1342,6 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
   /*
   ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d rhs vector:\n",it); MYCHECK(ierr);
   ierr = VecView(rhs,PETSC_VIEWER_STDOUT_WORLD); MYCHECK(ierr);
-
   ierr = VecDuplicate(x, &t); MYCHECK(ierr);
   ierr = VecSet(&zero,t); MYCHECK(ierr); 
   ierr = VecDuplicate(x, &v); MYCHECK(ierr); 
@@ -1376,122 +1369,53 @@ void LinAlg_FMMMatVectorProd(gVector *V1, gVector *V2){
 /* Solve */
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
-
   int its, RankCpu ;
-
-  /*
-  Vec diag, x, r, t,v,residual ;
-  int i,n ;
-  PetscScalar *tmpV ;
-  */
 
   GetDP_Begin("LinAlg_Solve");
 
-  /* Should be done only if the structure and/or the value of the elements change */
-
-  /* Scaling */
-  /*  
-  VecDuplicate(X->V, &diag);
-  MatGetDiagonal(A->M, diag);
-  VecReciprocal(diag); 
-  MatDiagonalScale(A->M, diag, PETSC_NULL);
-  VecPointwiseMult(B->V, diag, B->V);
-  */
-
 #if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
-
-  /* Should be done only once */
   if (!Solver->sles) {
     ierr = SLESCreate(PETSC_COMM_WORLD, &Solver->sles); MYCHECK(ierr);
-
-    /* Explicitly set the initial solution */
-    /*
-      KSP ksp;
-      SLESGetKSP(Solver->sles,&ksp);
-      KSPSetInitialGuessNonzero(ksp,PETSC_TRUE);
-    */
-
-    /* Should be done only if the structure and/or the value of the elements change */
-    /* if (!ReUse_ILU) */
-    /*
-    IS  isrow,iscol;
-    ierr = MatGetOrdering(A->M, MATORDERING_RCM,&isrow,&iscol);  
-    */
     ierr = SLESSetOperators(Solver->sles, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
     ierr = SLESSetFromOptions(Solver->sles); MYCHECK(ierr);
   }
-
-  /* Todo everytime */
-
   if (Flag_FMM){
     ierr = SLESGetPC(Solver->sles, &Solver->pc); MYCHECK(ierr);
+    ierr = SLESGetKSP(Solver->sles, &Solver->ksp); MYCHECK(ierr);
     /*
     ierr = PCSetType(Solver->pc,PCNONE);MYCHECK(ierr);
     ierr = PCSetType(Solver->pc,PCSHELL);MYCHECK(ierr);
-    */
-    ierr = SLESGetKSP(Solver->sles, &Solver->ksp); MYCHECK(ierr);
- 
-    /* put this for example in ~/.petscrc:
-    ierr = KSPSetTolerances(Solver->ksp,1.e-9,PETSC_DEFAULT,PETSC_DEFAULT, 1000);MYCHECK(ierr);
-    ierr = KSPGMRESSetRestart(Solver->ksp, 30);MYCHECK(ierr);
-    */   
-
-    /*
     ierr = PCShellSetName(Solver->pc,"FMM");MYCHECK(ierr);
     ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM, PETSC_NULL);MYCHECK(ierr) ;
     ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0);MYCHECK(ierr) ;    
     */
   }
-
   ierr = SLESSolve(Solver->sles, B->V, X->V, &its); MYCHECK(ierr);
-
   ierr = SLESView(Solver->sles,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
-
 #else
-
-  /* Should be done only once */
-  if (! Solver->ksp) {
+  if (!Solver->ksp) {
     ierr = KSPCreate(PETSC_COMM_WORLD, &Solver->ksp); MYCHECK(ierr);
-
     ierr = KSPSetOperators(Solver->ksp, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
     ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
   }
-
-  /* Todo everytime */
-
   if (Flag_FMM){
     ierr = KSPGetPC(Solver->ksp, &Solver->pc); MYCHECK(ierr);
     /*
     ierr = PCSetType(Solver->pc,PCNONE);MYCHECK(ierr);
     ierr = PCSetType(Solver->pc,PCSHELL);MYCHECK(ierr);
-    */
- 
-    /* put this for example in ~/.petscrc:
-    ierr = KSPSetTolerances(Solver->ksp,1.e-9,PETSC_DEFAULT,PETSC_DEFAULT, 1000);MYCHECK(ierr);
-    ierr = KSPGMRESSetRestart(Solver->ksp, 30);MYCHECK(ierr);
-    */   
-
-    /*
     ierr = PCShellSetName(Solver->pc,"FMM");MYCHECK(ierr);
     ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM, PETSC_NULL);MYCHECK(ierr) ;
     ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0);MYCHECK(ierr) ;    
     */
   }
-
   ierr = KSPSolve(Solver->ksp, B->V, X->V); MYCHECK(ierr);
   its = KSPGetIterationNumber (Solver->ksp, &its);
   ierr = KSPView(Solver->ksp,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
-
 #endif
 
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
   if (!RankCpu) Msg(PETSC, "%d iterations", its) ;
-
-  /* unscale */
-  /*  VecReciprocal(diag); 
-  MatDiagonalScale(A->M, diag, PETSC_NULL);
-  VecPointwiseMult(newb, diag, B->V); */
 
   GetDP_End ;
 }
