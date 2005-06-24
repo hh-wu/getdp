@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.17 2005-06-24 02:43:24 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.18 2005-06-24 05:27:55 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -385,7 +385,7 @@ void F_AcousticFieldSoftCylinder(F_ARG){
   V->Val[0] = 0.;
   V->Val[MAX_DIM] = 0. ;
   
-  ns = k + 10;
+  ns = (int)k + 10;
   
   for (n = 0 ; n < ns ; n++){
 
@@ -442,7 +442,7 @@ void F_DrAcousticFieldSoftCylinder(F_ARG){
   V->Val[0] = 0.;
   V->Val[MAX_DIM] = 0. ;
   
-  ns = k + 10;
+  ns = (int)k + 10;
 
   Hnkrtab = (complex*)Malloc(ns*sizeof(complex));
 

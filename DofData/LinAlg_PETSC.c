@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.38 2005-06-23 01:45:00 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.39 2005-06-24 05:27:55 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -34,6 +34,7 @@
 #include "LinAlg.h"
 #include "F_FMMOperations.h"
 #include "SafeIO.h"
+#include "CurrentData.h"
 
 extern int Flag_FMM ;
 
@@ -142,10 +143,10 @@ void LinAlg_SequentialEnd(void){
 /* Create */
 
 void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName){
-#if ((PETSC_VERSION_MAJOR==2)&&(PETSC_VERSION_MINOR>=2))
-  Solver->ksp = NULL;
-#else
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
   Solver->sles = NULL;
+#else
+  Solver->ksp = NULL;
 #endif
 }
 
@@ -261,10 +262,10 @@ void LinAlg_DestroySolver(gSolver *Solver){
 
   GetDP_Begin("LinAlg_DestroySolver");
 
-#if ((PETSC_VERSION_MAJOR==2)&&(PETSC_VERSION_MINOR>=2))
-  ierr = KSPDestroy(Solver->ksp); MYCHECK(ierr);
-#else
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
   ierr = SLESDestroy(Solver->sles); MYCHECK(ierr);
+#else
+  ierr = KSPDestroy(Solver->ksp); MYCHECK(ierr);
 #endif
 
   GetDP_End ;
@@ -794,7 +795,8 @@ void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3){
 }
 
 void LinAlg_DummyVector(gVector *V){
-
+  int * DummyDof;
+  
   GetDP_Begin("LinAlg_DummyVector");
 
   DummyDof = Current.DofData->DummyDof;
@@ -1336,7 +1338,7 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
 
   ierr = KSPGetRhs(ksp, &rhs); MYCHECK(ierr) ;
   ierr = VecAYPX(&mone, DTAxi, rhs);MYCHECK(ierr);
-#if ((PETSC_VERSION_MAJOR==2)&&(PETSC_VERSION_MINOR<2))
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
   ierr = KSPSetRhs(ksp, rhs); MYCHECK(ierr);
 #endif
 
@@ -1396,7 +1398,56 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   VecPointwiseMult(B->V, diag, B->V);
   */
 
-#if ((PETSC_VERSION_MAJOR==2)&&(PETSC_VERSION_MINOR>=2))
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
+
+  /* Should be done only once */
+  if (!Solver->sles) {
+    ierr = SLESCreate(PETSC_COMM_WORLD, &Solver->sles); MYCHECK(ierr);
+
+    /* Explicitly set the initial solution */
+    /*
+      KSP ksp;
+      SLESGetKSP(Solver->sles,&ksp);
+      KSPSetInitialGuessNonzero(ksp,PETSC_TRUE);
+    */
+
+    /* Should be done only if the structure and/or the value of the elements change */
+    /* if (!ReUse_ILU) */
+    /*
+    IS  isrow,iscol;
+    ierr = MatGetOrdering(A->M, MATORDERING_RCM,&isrow,&iscol);  
+    */
+    ierr = SLESSetOperators(Solver->sles, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
+    ierr = SLESSetFromOptions(Solver->sles); MYCHECK(ierr);
+  }
+
+  /* Todo everytime */
+
+  if (Flag_FMM){
+    ierr = SLESGetPC(Solver->sles, &Solver->pc); MYCHECK(ierr);
+    /*
+    ierr = PCSetType(Solver->pc,PCNONE);MYCHECK(ierr);
+    ierr = PCSetType(Solver->pc,PCSHELL);MYCHECK(ierr);
+    */
+    ierr = SLESGetKSP(Solver->sles, &Solver->ksp); MYCHECK(ierr);
+ 
+    /* put this for example in ~/.petscrc:
+    ierr = KSPSetTolerances(Solver->ksp,1.e-9,PETSC_DEFAULT,PETSC_DEFAULT, 1000);MYCHECK(ierr);
+    ierr = KSPGMRESSetRestart(Solver->ksp, 30);MYCHECK(ierr);
+    */   
+
+    /*
+    ierr = PCShellSetName(Solver->pc,"FMM");MYCHECK(ierr);
+    ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM, PETSC_NULL);MYCHECK(ierr) ;
+    ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0);MYCHECK(ierr) ;    
+    */
+  }
+
+  ierr = SLESSolve(Solver->sles, B->V, X->V, &its); MYCHECK(ierr);
+
+  ierr = SLESView(Solver->sles,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
+
+#else
 
   /* Should be done only once */
   if (! Solver->ksp) {
@@ -1430,54 +1481,8 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   ierr = KSPSolve(Solver->ksp, B->V, X->V); MYCHECK(ierr);
   its = KSPGetIterationNumber (Solver->ksp, &its);
   ierr = KSPView(Solver->ksp,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
-  
-#else
 
-  /* Should be done only once */
-  if (! Solver->sles) {
-    ierr = SLESCreate(PETSC_COMM_WORLD, &Solver->sles); MYCHECK(ierr);
-
-    /* Explicitly set the initial solution */
-    /*
-      KSP ksp;
-      SLESGetKSP(Solver->sles,&ksp);
-      KSPSetInitialGuessNonzero(ksp,PETSC_TRUE);
-    */
-
-    /* Should be done only if the structure and/or the value of the elements change */
-    /* if (!ReUse_ILU) */
-
-    ierr = SLESSetOperators(Solver->sles, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
-    ierr = SLESSetFromOptions(Solver->sles); MYCHECK(ierr);
-  }
-
-  /* Todo everytime */
-
-  if (Flag_FMM){
-    ierr = SLESGetPC(Solver->sles, &Solver->pc); MYCHECK(ierr);
-    /*
-    ierr = PCSetType(Solver->pc,PCNONE);MYCHECK(ierr);
-    ierr = PCSetType(Solver->pc,PCSHELL);MYCHECK(ierr);
-    */
-    ierr = SLESGetKSP(Solver->sles, &Solver->ksp); MYCHECK(ierr);
- 
-    /* put this for example in ~/.petscrc:
-    ierr = KSPSetTolerances(Solver->ksp,1.e-9,PETSC_DEFAULT,PETSC_DEFAULT, 1000);MYCHECK(ierr);
-    ierr = KSPGMRESSetRestart(Solver->ksp, 30);MYCHECK(ierr);
-    */   
-
-    /*
-    ierr = PCShellSetName(Solver->pc,"FMM");MYCHECK(ierr);
-    ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM, PETSC_NULL);MYCHECK(ierr) ;
-    ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0);MYCHECK(ierr) ;    
-    */
-  }
-
-  ierr = SLESSolve(Solver->sles, B->V, X->V, &its); MYCHECK(ierr);
-
-  ierr = SLESView(Solver->sles,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
-
-#endif /* ((PETSC_VERSION_MAJOR==2)&&(PETSC_VERSION_MINOR>=2)) */
+#endif
 
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
