@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.40 2005-06-24 06:08:55 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.41 2005-06-24 06:25:51 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1369,9 +1369,16 @@ void LinAlg_FMMMatVectorProd(gVector *V1, gVector *V2){
 /* Solve */
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
-  int its, RankCpu ;
+  int its, RankCpu, i, j ;
 
   GetDP_Begin("LinAlg_Solve");
+
+  MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
+
+  if (!RankCpu){
+    ierr = MatGetSize(A->M, &i, &j); MYCHECK(ierr);
+    Msg(PETSC, "N: %d", i) ;
+  }
 
 #if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
   if (!Solver->sles) {
@@ -1412,8 +1419,6 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   its = KSPGetIterationNumber (Solver->ksp, &its);
   ierr = KSPView(Solver->ksp,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
 #endif
-
-  MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
   if (!RankCpu) Msg(PETSC, "%d iterations", its) ;
 
