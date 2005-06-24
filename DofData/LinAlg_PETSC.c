@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.42 2005-06-24 08:18:03 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.43 2005-06-24 17:33:21 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -32,7 +32,7 @@
    ~/.petscrc. Here are some useful options:
 
    -ksp_gmres_restart 100
-   -ksp_rtol 1.e-8
+   -ksp_rtol 1.e-10
    -ksp_monitor
    -pc_type ilu
    -pc_ilu_levels 6
@@ -1286,13 +1286,6 @@ int LinAlg_ApplyFMM(void *ptr, Vec xin, Vec xout){
 #endif
   }
 
-  /*
-    ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d DTAxi vector:\n",ii); MYCHECK(ierr);
-    ierr = VecView(DTAxi,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr);
-    ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d xout vector:\n",ii);MYCHECK(ierr);
-    ierr = VecView(xout,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
-  */
-
   ierr = VecRestoreArray(xin, &tmpV); MYCHECK(ierr);
   ierr = VecAssemblyEnd(xin); MYCHECK(ierr);
   ierr = VecAssemblyEnd(xout); MYCHECK(ierr);
@@ -1458,39 +1451,43 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   if (!Solver->sles) {
     ierr = SLESCreate(PETSC_COMM_WORLD, &Solver->sles); MYCHECK(ierr);
     ierr = SLESSetOperators(Solver->sles, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
-    ierr = SLESSetFromOptions(Solver->sles); MYCHECK(ierr);
   }
-  if (Flag_FMM){
-    ierr = SLESGetPC(Solver->sles, &Solver->pc); MYCHECK(ierr);
-    ierr = SLESGetKSP(Solver->sles, &Solver->ksp); MYCHECK(ierr);
-    /*
-    ierr = PCSetType(Solver->pc,PCNONE);MYCHECK(ierr);
-    ierr = PCSetType(Solver->pc,PCSHELL);MYCHECK(ierr);
-    ierr = PCShellSetName(Solver->pc,"FMM");MYCHECK(ierr);
-    ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM, PETSC_NULL);MYCHECK(ierr) ;
-    ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0);MYCHECK(ierr) ;    
-    */
-  }
-  ierr = SLESSolve(Solver->sles, B->V, X->V, &its); MYCHECK(ierr);
-  ierr = SLESView(Solver->sles,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
+  ierr = SLESGetPC(Solver->sles, &Solver->pc); MYCHECK(ierr);
+  ierr = SLESGetKSP(Solver->sles, &Solver->ksp); MYCHECK(ierr);
 #else
   if (!Solver->ksp) {
     ierr = KSPCreate(PETSC_COMM_WORLD, &Solver->ksp); MYCHECK(ierr);
     ierr = KSPSetOperators(Solver->ksp, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
-    ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
   }
+  ierr = KSPGetPC(Solver->ksp, &Solver->pc); MYCHECK(ierr);
+#endif
+
+  /* set some default options */
+  ierr = PCSetType(Solver->pc, PCILU); MYCHECK(ierr);
+  ierr = PCILUSetMatOrdering(Solver->pc, MATORDERING_RCM); MYCHECK(ierr);
+  ierr = PCILUSetLevels(Solver->pc, 6); MYCHECK(ierr);
+  ierr = KSPSetTolerances(Solver->ksp, 1.e-8, PETSC_DEFAULT, PETSC_DEFAULT, 
+			  PETSC_DEFAULT); MYCHECK(ierr);
+  /*
   if (Flag_FMM){
-    ierr = KSPGetPC(Solver->ksp, &Solver->pc); MYCHECK(ierr);
-    /*
-    ierr = PCSetType(Solver->pc,PCNONE);MYCHECK(ierr);
-    ierr = PCSetType(Solver->pc,PCSHELL);MYCHECK(ierr);
-    ierr = PCShellSetName(Solver->pc,"FMM");MYCHECK(ierr);
-    ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM, PETSC_NULL);MYCHECK(ierr) ;
-    ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0);MYCHECK(ierr) ;    
-    */
+    ierr = PCSetType(Solver->pc,PCNONE); MYCHECK(ierr);
+    ierr = PCSetType(Solver->pc,PCSHELL); MYCHECK(ierr);
+    ierr = PCShellSetName(Solver->pc,"FMM"); MYCHECK(ierr);
+    ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM, PETSC_NULL); MYCHECK(ierr) ;
+    ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0); MYCHECK(ierr) ;    
   }
+  */
+
+  /* override the default options with the ones from the option
+     database (if any), and solve the system */
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
+  ierr = SLESSetFromOptions(Solver->sles); MYCHECK(ierr);
+  ierr = SLESSolve(Solver->sles, B->V, X->V, &its); MYCHECK(ierr);
+  ierr = SLESView(Solver->sles,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
+#else
+  ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
   ierr = KSPSolve(Solver->ksp, B->V, X->V); MYCHECK(ierr);
-  its = KSPGetIterationNumber (Solver->ksp, &its);
+  ierr = KSPGetIterationNumber(Solver->ksp, &its); MYCHECK(ierr);
   ierr = KSPView(Solver->ksp,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
 #endif
 
