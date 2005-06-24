@@ -864,6 +864,7 @@ Optional Packages:
   --with-readline-prefix=PFX
                           prefix where GNU readline is installed
   --with-petsc-prefix=PFX prefix where PETSc is installed
+  --with-petsc-arch=ARCH  PETSc architecture
   --with-bopt=PFX         BOPT option to use with PETSc
   --with-metis-prefix=PFX prefix where METIS is installed
   --with-fftw-prefix=PFX  prefix where FFTw is installed
@@ -1349,6 +1350,12 @@ if test "${with_petsc_prefix+set}" = set; then
   PETSC_PREFIX=$withval
 else
   PETSC_PREFIX="${PETSC_DIR}"
+fi;
+
+# Check whether --with-petsc-arch or --without-petsc-arch was given.
+if test "${with_petsc_arch+set}" = set; then
+  withval="$with_petsc_arch"
+  PETSC_ARCH=$withval
 fi;
 
 # Check whether --with-bopt or --without-bopt was given.
@@ -2440,7 +2447,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2443:" \
+echo "$as_me:2450:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3040,9 +3047,39 @@ if test "x$enable_petsc" = "xyes"; then
   fi
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
   if test "x${PETSC_ARCH}" = "x"; then
-    PETSC_ARCH=`${PETSC_DIR}/bin/petscarch`
+    as_ac_File=`echo "ac_cv_file_${PETSC_DIR}/bin/petscarch" | $as_tr_sh`
+echo "$as_me:$LINENO: checking for ${PETSC_DIR}/bin/petscarch" >&5
+echo $ECHO_N "checking for ${PETSC_DIR}/bin/petscarch... $ECHO_C" >&6
+if eval "test \"\${$as_ac_File+set}\" = set"; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "${PETSC_DIR}/bin/petscarch"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+echo "$as_me:$LINENO: result: `eval echo '${'$as_ac_File'}'`" >&5
+echo "${ECHO_T}`eval echo '${'$as_ac_File'}'`" >&6
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+  OLD_PETSC="yes"
+else
+  OLD_PETSC="no"
+fi
+
+    if test "x${OLD_PETSC}" = "xyes"; then
+      PETSC_ARCH=`${PETSC_DIR}/bin/petscarch`
+    else
+      { { echo "$as_me:$LINENO: error: Could not determine PETSC_ARCH. Run configure again with --with-petsc-arch." >&5
+echo "$as_me: error: Could not determine PETSC_ARCH. Run configure again with --with-petsc-arch." >&2;}
+   { (exit 1); exit 1; }; }
+    fi
   fi
-  if test "x${BOPT}" = "x"; then
+    if test "x${BOPT}" = "x"; then
      BOPT="g_complex"
   fi
 

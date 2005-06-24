@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.43 2005-06-20 20:30:54 geuzaine Exp $
+dnl $Id: configure.in,v 1.44 2005-06-24 07:46:57 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -41,6 +41,10 @@ AC_ARG_WITH(petsc-prefix,
             AC_HELP_STRING([--with-petsc-prefix=PFX],
                            [prefix where PETSc is installed]),
             [PETSC_PREFIX=$withval],[PETSC_PREFIX="${PETSC_DIR}"])
+AC_ARG_WITH(petsc-arch,
+            AC_HELP_STRING([--with-petsc-arch=ARCH],
+                           [PETSc architecture]),
+            [PETSC_ARCH=$withval])
 AC_ARG_WITH(bopt,
             AC_HELP_STRING([--with-bopt=PFX],
                            [BOPT option to use with PETSc]),
@@ -134,8 +138,14 @@ if test "x$enable_petsc" = "xyes"; then
   fi
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
   if test "x${PETSC_ARCH}" = "x"; then
-    PETSC_ARCH=`${PETSC_DIR}/bin/petscarch`
+    AC_CHECK_FILE(${PETSC_DIR}/bin/petscarch,OLD_PETSC="yes",OLD_PETSC="no")
+    if test "x${OLD_PETSC}" = "xyes"; then
+      PETSC_ARCH=`${PETSC_DIR}/bin/petscarch`
+    else
+      AC_MSG_ERROR([Could not determine PETSC_ARCH. Run configure again with --with-petsc-arch.])
+    fi
   fi
+  dnl BOPT is not used in PETSc >= 2.3, but this does not hurt
   if test "x${BOPT}" = "x"; then
      BOPT="g_complex"
   fi
