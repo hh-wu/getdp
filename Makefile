@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.171 2005-06-23 01:45:00 geuzaine Exp $
+# $Id: Makefile,v 1.172 2005-06-24 18:25:33 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -47,15 +47,6 @@ blackbox: variables initialtag
            "C_FLAGS=${C_FLAGS} -DHAVE_BLACKBOX" \
         ); done
 	${LINKER} -o bin/getdp-box ${GETDP_LIBS}
-
-compile-hf: variables initialtag
-	@for i in Scattering DofData Numeric DataStr NR; do (cd $$i && ${MAKE}); done
-
-link-hf: variables
-	${CLINKER} -o bin/hf lib/libScattering.a lib/libDofData.a lib/libNumeric.a\
-          lib/libDataStr.a lib/libNR.a ${PETSC_SLES_LIB} -L${FFTW_DIR}/lib -lfftw -lm
-
-hf: compile-hf link-hf
 
 install: variables
 	-mkdir -p ${bindir}
@@ -140,14 +131,13 @@ source-common:
 
 source: source-common
 	cd getdp-${GETDP_VERSION} && rm -rf CVS */CVS */*/CVS */.globalrc\
-          ${GETDP_VERSION_FILE} NR Scattering utils/commercial utils/temp\
-          doc/slides
+          ${GETDP_VERSION_FILE} NR utils/commercial utils/temp doc/slides
 	tar zcvf getdp-${GETDP_VERSION}-source.tgz getdp-${GETDP_VERSION}
 
 source-commercial: source-common
 	cd getdp-${GETDP_VERSION} && rm -rf CVS */CVS */*/CVS */.globalrc\
-          ${GETDP_VERSION_FILE} Scattering utils/commercial utils/temp\
-          doc/slides TODO *.spec doc/getdp.html doc/FAQ doc/README.cvs
+          ${GETDP_VERSION_FILE} utils/commercial utils/temp doc/slides\
+          TODO *.spec doc/getdp.html doc/FAQ doc/README.cvs
 	cp -f utils/commercial/README getdp-${GETDP_VERSION}/README
 	cp -f utils/commercial/LICENSE getdp-${GETDP_VERSION}/doc/LICENSE
 	cp -f utils/commercial/license.texi getdp-${GETDP_VERSION}/doc/texinfo/license.texi
