@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.45 2005-06-24 07:49:58 geuzaine Exp $
+dnl $Id: configure.in,v 1.46 2005-06-24 18:17:21 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -28,15 +28,15 @@ dnl Parse '--with' command-line options
 AC_ARG_WITH(gsl-prefix,
             AC_HELP_STRING([--with-gsl-prefix=PFX],
                            [prefix where GSL is installed]),
-            [GSL_PREFIX=$withval],[GSL_PREFIX="${GSL_DIR}"])
+            [GSL_PREFIX=$withval])
 AC_ARG_WITH(lapack-prefix,
             AC_HELP_STRING([--with-lapack-prefix=PFX],
                            [prefix where BLAS/LAPACK is installed]),
-            [LAPACK_PREFIX=$withval],[LAPACK_PREFIX="${LAPACK_DIR}"])
+            [LAPACK_PREFIX=$withval])
 AC_ARG_WITH(readline-prefix,
             AC_HELP_STRING([--with-readline-prefix=PFX],
                            [prefix where GNU readline is installed]),
-            [READLINE_PREFIX=$withval],[READLINE_PREFIX="${READLINE_DIR}"])
+            [READLINE_PREFIX=$withval])
 AC_ARG_WITH(petsc-prefix,
             AC_HELP_STRING([--with-petsc-prefix=PFX],
                            [prefix where PETSc is installed]),
@@ -52,11 +52,11 @@ AC_ARG_WITH(bopt,
 AC_ARG_WITH(metis-prefix,
             AC_HELP_STRING([--with-metis-prefix=PFX],
                            [prefix where METIS is installed]),
-            [METIS_PREFIX=$withval],[METIS_PREFIX="${METIS_DIR}"])
+            [METIS_PREFIX=$withval])
 AC_ARG_WITH(fftw-prefix,
             AC_HELP_STRING([--with-fftw-prefix=PFX],
                            [prefix where FFTw is installed]),
-            [FFTW_PREFIX=$withval],[FFTW_PREFIX="${FFTW_DIR}"])
+            [FFTW_PREFIX=$withval])
 
 dnl Parse '--enable' command line options
 AC_ARG_ENABLE(multiharmonic,

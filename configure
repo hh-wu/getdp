@@ -1324,24 +1324,18 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 if test "${with_gsl_prefix+set}" = set; then
   withval="$with_gsl_prefix"
   GSL_PREFIX=$withval
-else
-  GSL_PREFIX="${GSL_DIR}"
 fi;
 
 # Check whether --with-lapack-prefix or --without-lapack-prefix was given.
 if test "${with_lapack_prefix+set}" = set; then
   withval="$with_lapack_prefix"
   LAPACK_PREFIX=$withval
-else
-  LAPACK_PREFIX="${LAPACK_DIR}"
 fi;
 
 # Check whether --with-readline-prefix or --without-readline-prefix was given.
 if test "${with_readline_prefix+set}" = set; then
   withval="$with_readline_prefix"
   READLINE_PREFIX=$withval
-else
-  READLINE_PREFIX="${READLINE_DIR}"
 fi;
 
 # Check whether --with-petsc-prefix or --without-petsc-prefix was given.
@@ -1368,16 +1362,12 @@ fi;
 if test "${with_metis_prefix+set}" = set; then
   withval="$with_metis_prefix"
   METIS_PREFIX=$withval
-else
-  METIS_PREFIX="${METIS_DIR}"
 fi;
 
 # Check whether --with-fftw-prefix or --without-fftw-prefix was given.
 if test "${with_fftw_prefix+set}" = set; then
   withval="$with_fftw_prefix"
   FFTW_PREFIX=$withval
-else
-  FFTW_PREFIX="${FFTW_DIR}"
 fi;
 
 # Check whether --enable-multiharmonic or --disable-multiharmonic was given.
@@ -2447,7 +2437,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2450:" \
+echo "$as_me:2440:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5

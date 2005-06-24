@@ -9,8 +9,8 @@ make install
 
 This requires the GNU Scientific Library 1.2 or higher (freely
 available from http://sources.redhat.com/gsl/). You can use the
---with-gsl-prefix configure option (or define the GSL_DIR environment
-variable) if the library is not installed in its default
+--with-gsl-prefix configure option (or define the GSL_PREFIX
+environment variable) if the library is not installed in its default
 location. Please note that compiling the Windows version requires the
 Cygwin tools (freely available from http://www.cygwin.com).
 
