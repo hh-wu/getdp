@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.41 2005-06-24 06:25:51 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.42 2005-06-24 08:18:03 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -333,7 +333,11 @@ void LinAlg_ZeroVector(gVector *V){
 
   GetDP_Begin("LinAlg_ZeroVector");
 
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
   ierr = VecSet(&zero,V->V); MYCHECK(ierr);
+#else
+  ierr = VecSet(V->V, zero); MYCHECK(ierr);
+#endif
 
   GetDP_End ;
 }
@@ -892,11 +896,19 @@ void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3){
 
   GetDP_Begin("LinAlg_AddVectorVector");
 
-  if(V3==V1){
+  if(V3 == V1){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = VecAXPY(&tmp, V2->V, V1->V) ; MYCHECK(ierr);
+#else
+    ierr = VecAXPY(V1->V, tmp, V2->V) ; MYCHECK(ierr);
+#endif
   }
-  else if(V3==V2){
+  else if(V3 == V2){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = VecAXPY(&tmp, V1->V, V2->V) ; MYCHECK(ierr);
+#else
+    ierr = VecAXPY(V2->V, tmp, V1->V) ; MYCHECK(ierr);
+#endif
   }
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_AddVectorVector'");  
@@ -909,11 +921,19 @@ void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVecto
 
   GetDP_Begin("LinAlg_AddvectorProdVectorDouble");
 
-  if(V3==V1){
+  if(V3 == V1){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = VecAXPY(&tmp, V2->V, V1->V) ; MYCHECK(ierr);
+#else
+    ierr = VecAXPY(V1->V, tmp, V2->V) ; MYCHECK(ierr);
+#endif
   }
-  else if(V3==V2){
+  else if(V3 == V2){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = VecAYPX(&tmp, V1->V, V2->V) ; MYCHECK(ierr);
+#else
+    ierr = VecAYPX(V2->V, tmp, V1->V) ; MYCHECK(ierr);
+#endif
   }
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_AddVectorProdVectorDouble'");  
@@ -926,11 +946,19 @@ void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
 
   GetDP_Begin("LinAlg_AddMatrixMatrix");
 
-  if(M3==M1){
+  if(M3 == M1){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = MatAXPY(&tmp, M2->M, M1->M, SAME_NONZERO_PATTERN) ; MYCHECK(ierr);
+#else
+    ierr = MatAXPY(M1->M, tmp, M2->M, SAME_NONZERO_PATTERN) ; MYCHECK(ierr);
+#endif
   }
-  else if(M3==M2){
+  else if(M3 == M2){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = MatAXPY(&tmp, M1->M, M2->M, SAME_NONZERO_PATTERN) ; MYCHECK(ierr);
+#else
+    ierr = MatAXPY(M2->M, tmp, M1->M, SAME_NONZERO_PATTERN) ; MYCHECK(ierr);
+#endif
   }
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_AddMatrixMatrix'");  
@@ -943,11 +971,19 @@ void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatri
 
   GetDP_Begin("LinAlg_AddMatrixProdMatrixDouble");
 
-  if(M3==M1){
+  if(M3 == M1){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = MatAXPY(&tmp, M2->M, M1->M, SAME_NONZERO_PATTERN) ; MYCHECK(ierr);
+#else
+    ierr = MatAXPY(M1->M, tmp, M2->M, SAME_NONZERO_PATTERN) ; MYCHECK(ierr);
+#endif
   }
-  else if(M3==M2){
+  else if(M3 == M2){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = MatAYPX(&tmp, M1->M, M2->M) ; MYCHECK(ierr);
+#else
+    ierr = MatAYPX(M2->M, tmp, M1->M) ; MYCHECK(ierr);
+#endif
   }
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_AddMatrixMatrix'");
@@ -971,11 +1007,19 @@ void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3){
 
   GetDP_Begin("LinAlg_SubVectorVector");
 
-  if(V3==V1){
+  if(V3 == V1){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = VecAXPY(&tmp, V2->V, V1->V) ; MYCHECK(ierr);
+#else
+    ierr = VecAXPY(V1->V, tmp, V2->V) ; MYCHECK(ierr);
+#endif
   }
-  else if(V3==V2){
+  else if(V3 == V2){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = VecAYPX(&tmp, V1->V, V2->V) ; MYCHECK(ierr);
+#else
+    ierr = VecAYPX(V2->V, tmp, V1->V) ; MYCHECK(ierr);
+#endif
   }
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_SubVectorVector'");  
@@ -1034,8 +1078,12 @@ void LinAlg_ProdVectorScalar(gVector *V1, gScalar *S, gVector *V2){
 
   GetDP_Begin("LinAlg_ProdVectorScalar");
 
-  if(V2==V1){
+  if(V2 == V1){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = VecScale(&S->s, V1->V) ; MYCHECK(ierr);
+#else
+    ierr = VecScale(V1->V, S->s) ; MYCHECK(ierr);
+#endif
   }
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_ProdVectorScalar'");
@@ -1049,8 +1097,12 @@ void LinAlg_ProdVectorDouble(gVector *V1, double d, gVector *V2){
 
   GetDP_Begin("LinAlg_ProdVectorDouble");
 
-  if(V2==V1){
+  if(V2 == V1){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = VecScale(&tmp, V1->V) ; MYCHECK(ierr);
+#else
+    ierr = VecScale(V1->V, tmp) ; MYCHECK(ierr);
+#endif
   }
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_ProdVectorDouble'");
@@ -1098,8 +1150,12 @@ void LinAlg_ProdMatrixScalar(gMatrix *M1, gScalar *S, gMatrix *M2){
 
   GetDP_Begin("LinAlg_ProdMatrixScalar");
 
-  if(M2==M1){
+  if(M2 == M1){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = MatScale(&S->s, M1->M) ; MYCHECK(ierr);
+#else
+    ierr = MatScale(M1->M, S->s) ; MYCHECK(ierr);
+#endif
   }
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_ProdMatrixScalar'");
@@ -1113,8 +1169,12 @@ void LinAlg_ProdMatrixDouble(gMatrix *M1, double d, gMatrix *M2){
 
   GetDP_Begin("LinAlg_ProdMatrixDouble");
 
-  if(M2==M1){
+  if(M2 == M1){
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
     ierr = MatScale(&tmp, M1->M) ; MYCHECK(ierr);
+#else
+    ierr = MatScale(M1->M, tmp) ; MYCHECK(ierr);
+#endif
   }
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_ProdMatrixDouble'");
@@ -1219,8 +1279,12 @@ int LinAlg_ApplyFMM(void *ptr, Vec xin, Vec xout){
     }    
   }
   else{
-     ierr = VecAXPY(&mone,DTAxi, xout);  MYCHECK(ierr) ;    
- }
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
+    ierr = VecAXPY(&mone, DTAxi, xout); MYCHECK(ierr) ;
+#else
+    ierr = VecAXPY(xout, mone,DTAxi); MYCHECK(ierr) ;
+#endif
+  }
 
   /*
     ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d DTAxi vector:\n",ii); MYCHECK(ierr);
@@ -1293,17 +1357,21 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
   double *x_it, *y_it ;
   int i, n;
 
- GetDP_Begin("LinAlg_ApplyFMMMonitor") ;
-
- /* Build the solution vector */
-
- ierr = KSPBuildSolution(ksp,PETSC_NULL, &x); MYCHECK(ierr) ;
-
- ierr = VecDuplicate(x, &DTAxi); MYCHECK(ierr);
- ierr = VecSet(&zero,DTAxi) ; MYCHECK(ierr);
-
- ierr = VecGetLocalSize(x, &n);  MYCHECK(ierr) ;
- ierr = VecGetArray(x, &tmpV);  MYCHECK(ierr) ;
+  GetDP_Begin("LinAlg_ApplyFMMMonitor") ;
+  
+  /* Build the solution vector */
+  
+  ierr = KSPBuildSolution(ksp,PETSC_NULL, &x); MYCHECK(ierr) ;
+  
+  ierr = VecDuplicate(x, &DTAxi); MYCHECK(ierr);
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
+  ierr = VecSet(&zero, DTAxi) ; MYCHECK(ierr);
+#else
+  ierr = VecSet(DTAxi, zero) ; MYCHECK(ierr);
+#endif
+  
+  ierr = VecGetLocalSize(x, &n);  MYCHECK(ierr) ;
+  ierr = VecGetArray(x, &tmpV);  MYCHECK(ierr) ;
   
 #if PETSC_USE_COMPLEX
   x_it   = (double*)Malloc(2*n*sizeof(double));
@@ -1331,7 +1399,13 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
   }
 
   ierr = KSPGetRhs(ksp, &rhs); MYCHECK(ierr) ;
-  ierr = VecAYPX(&mone, DTAxi, rhs);MYCHECK(ierr);
+
+#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 3))
+  ierr = VecAYPX(&mone, DTAxi, rhs); MYCHECK(ierr);
+#else
+  ierr = VecAYPX(rhs, mone, DTAxi); MYCHECK(ierr);
+#endif
+
 #if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
   ierr = KSPSetRhs(ksp, rhs); MYCHECK(ierr);
 #endif
