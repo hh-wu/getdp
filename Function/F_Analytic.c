@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.16 2005-06-23 01:45:00 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.17 2005-06-24 02:43:24 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -272,6 +272,206 @@ void F_JFIE_TransZPolCyl(F_ARG){
 
 } 
 
+/* some utility functions to deal with complex numbers */
+
+typedef struct {
+  double r;
+  double i;
+} complex;
+
+static complex Csum(complex a, complex b)
+{
+  complex s;
+
+  s.r = a.r + b.r;
+  s.i = a.i + b.i;
+  return(s);
+}
+
+static complex Csub(complex a, complex b)
+{
+  complex s;
+
+  s.r = a.r - b.r;
+  s.i = a.i - b.i;
+  return(s);
+}
+
+static complex Cprod(complex a, complex b)
+{
+  complex s;
+
+  s.r = a.r * b.r - a.i * b.i;
+  s.i = a.r * b.i + a.i * b.r;
+  return(s);
+}
+
+static complex Cdiv(complex a, complex b)
+{
+  complex s;
+  double den;
+
+  den = b.r * b.r + b.i * b.i;
+  s.r = (a.r * b.r + a.i * b.i) / den;
+  s.i = (a.i * b.r - a.r * b.i) / den;
+  return(s);
+}
+
+static complex Cconj(complex a)
+{
+  complex s;
+
+  s.r = a.r;
+  s.i = -a.i;
+  return(s);
+}
+
+static complex Cneg(complex a)
+{
+  complex s;
+
+  s.r = -a.r;
+  s.i = -a.i;
+  return(s);
+}
+
+static double Cmodu(complex a)
+{
+  return(sqrt(a.r * a.r + a.i * a.i));
+}
+
+static complex Cpow(complex a, double b)
+{
+  complex s;
+  double mod, arg;
+
+  mod = a.r * a.r + a.i * a.i;
+  arg = atan2(a.i,a.r);
+  mod = pow(mod,0.5*b);
+  arg *= b;
+  s.r = mod * cos(arg);
+  s.i = mod * sin(arg);
+
+  return(s);
+}
+
+static complex Cprodr(double a, complex b)
+{
+  complex s;
+
+  s.r = a * b.r;
+  s.i = a * b.i;
+  return(s);
+}
+
+/* Solution of Helmholtz equation outside a circular cylinder of
+   radius R, under plane wave incidence e^{ikx} */
+
+void F_AcousticFieldSoftCylinder(F_ARG){
+  complex I = {0.,1.}, HnkR, Hnkr, tmp;
+  double k, R, r, kr, kR, theta, cost ;
+  int n, ns ;
+
+  GetDP_Begin("F_AcousticFieldSoftCylinder") ;  
+
+  theta = atan2(A->Val[1], A->Val[0]) ;
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;   
+  kr = k*r;
+  kR = k*R;
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = k + 10;
+  
+  for (n = 0 ; n < ns ; n++){
+
+    HnkR.r = jn(n,kR);
+    HnkR.i = yn(n,kR);
+
+    Hnkr.r = jn(n,kr);
+    Hnkr.i = yn(n,kr);
+
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( HnkR.r, Hnkr) ) , HnkR );
+
+    cost = cos(n*theta);
+
+    V->Val[0] +=  cost * tmp.r * (!n ? 0.5 : 1.);
+    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+  }
+  
+  V->Val[0] *= -2;
+  V->Val[MAX_DIM] *= -2;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+} 
+
+/* Radial derivative of the solution of the Helmholtz equation outside
+   a circular cylinder of radius R, under plane wave incidence
+   e^{ikx} */
+
+complex DHn(complex *Hnkrtab, int n, double x){
+  if(n == 0){
+    return Cneg(Hnkrtab[1]);
+  }
+  else{
+    return Csub( Hnkrtab[n-1] , Cprodr((double)n/x, Hnkrtab[n]) );
+  }
+}
+
+void F_DrAcousticFieldSoftCylinder(F_ARG){
+  complex I = {0.,1.}, HnkR, tmp, *Hnkrtab;
+  double k, R, r, kr, kR, theta, cost ;
+  int n, ns ;
+
+  GetDP_Begin("F_DrAcousticFieldSoftCylinder") ;  
+
+  theta = atan2(A->Val[1], A->Val[0]) ;
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;   
+  kr = k*r;
+  kR = k*R;
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = k + 10;
+
+  Hnkrtab = (complex*)Malloc(ns*sizeof(complex));
+
+  for (n = 0 ; n < ns ; n++){
+    Hnkrtab[n].r = jn(n,kr);
+    Hnkrtab[n].i = yn(n,kr);
+  }
+
+  for (n = 0 ; n < ns ; n++){
+    HnkR.r = jn(n,kR);
+    HnkR.i = yn(n,kR);
+
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( HnkR.r, DHn(Hnkrtab, n, kr) ) ) , HnkR );
+
+    cost = cos(n*theta);
+
+    V->Val[0] +=  cost * tmp.r * (!n ? 0.5 : 1.);
+    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+  }
+
+  Free(Hnkrtab);
+  
+  V->Val[0] *= -2 * k;
+  V->Val[MAX_DIM] *= -2 * k;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+} 
 
 
 /* ------------------------------------------------------------------------ */
