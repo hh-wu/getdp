@@ -5674,6 +5674,5 @@ echo "- Solver           : $SOLVER"
 if test "x$enable_petsc" = "xyes"; then
 echo "- PETSC_DIR        : $PETSC_DIR"
 echo "- PETSC_ARCH       : $PETSC_ARCH"
-echo "- BOPT             : $BOPT"
 fi
 echo "********************************************************************"
