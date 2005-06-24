@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2005-06-23 01:45:00 geuzaine Exp $
+# $Id: Makefile,v 1.11 2005-06-24 17:51:53 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -51,48 +51,61 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
+# 1 "/Users/geuzaine/.getdp/FMM//"
 FMM_Groups.o: FMM_Groups.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Numeric/Numeric.h ../DataStr/List.h \
   ../Main/Data_DefineE.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
-  ../DataStr/Tools.h ../Integration/Quadrature.h \
-  ../Main/Treatment_Formulation.h ../Main/Cal_Quantity.h \
-  ../Main/Cal_Value.h Data_FMM.h F_FMM.h Truncation.h
+  ../Main/Data_Element.h ../DofData/DofData.h ../DofData/LinAlg.h \
+  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../DataStr/Tools.h ../DataStr/List.h \
+  ../DataStr/Tree.h ../Integration/Quadrature.h \
+  ../Main/Treatment_Formulation.h ../Main/Data_Active.h \
+  ../Main/Cal_Quantity.h ../Main/Data_Active.h ../Main/Cal_Value.h \
+  Data_FMM.h F_FMM.h Truncation.h
+# 1 "/Users/geuzaine/.getdp/FMM//"
 FMM_CalDTAmatrices.o: FMM_CalDTAmatrices.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h ../Main/Treatment_Formulation.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Cal_Quantity.h \
-  ../Main/Cal_Value.h ../Main/CurrentData.h ../DofData/DofData.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Element.h \
+  ../Main/Cal_Quantity.h ../Main/Data_Active.h ../Main/Cal_Value.h \
+  ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../Main/Get_Geometry.h \
-  ../Main/Get_DofOfElement.h ../Main/Data_DefineE.h \
-  ../Function/GF_Function.h ../DataStr/Tools.h Data_FMM.h \
+  ../Main/Data_Active.h ../Main/Get_DofOfElement.h ../Main/Data_Active.h \
+  ../Main/Data_DefineE.h ../Function/GF_Function.h ../DataStr/Tools.h \
+  ../DataStr/List.h ../DataStr/Tree.h Data_FMM.h \
   Cal_FMMAnalyticalIntegral.h F_FMM_DTA.h
+# 1 "/Users/geuzaine/.getdp/FMM//"
 FMM_Operations.o: FMM_Operations.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Numeric/Numeric.h ../DataStr/List.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/Data_DefineE.h ../Main/CurrentData.h ../Main/Data_Active.h \
-  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
-  ../Main/Cal_Value.h Data_FMM.h
+  ../Main/Data_Passive.h ../Main/Data_Element.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Cal_Value.h \
+  Data_FMM.h
+# 1 "/Users/geuzaine/.getdp/FMM//"
 Print_FMM.o: Print_FMM.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Numeric/Numeric.h ../Main/Data_Passive.h ../Main/Data_Element.h \
-  ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../DataStr/Tools.h \
-  ../Main/ExtendedGroup.h Data_FMM.h
+  ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
+  ../Main/Data_Element.h ../DofData/DofData.h ../DofData/LinAlg.h \
+  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../DataStr/Tools.h ../DataStr/List.h \
+  ../DataStr/Tree.h ../Main/ExtendedGroup.h ../Main/Data_Active.h \
+  Data_FMM.h
+# 1 "/Users/geuzaine/.getdp/FMM//"
 Cal_FMMAnalyticalIntegral.o: Cal_FMMAnalyticalIntegral.c \
   ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
   ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
-  ../Numeric/Numeric.h ../DataStr/Tools.h Cal_FMMAnalyticalIntegral.h
+  ../Main/Data_Element.h ../DofData/DofData.h ../DofData/LinAlg.h \
+  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Numeric/Numeric.h ../DataStr/Tools.h \
+  ../DataStr/List.h ../DataStr/Tree.h Cal_FMMAnalyticalIntegral.h

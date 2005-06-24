@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.31 2005-06-23 01:45:02 geuzaine Exp $
+# $Id: Makefile,v 1.32 2005-06-24 17:51:54 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -71,26 +71,34 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
+# 1 "/Users/geuzaine/.getdp/Numeric//"
 Analytic_HollowCylLF.o: Analytic_HollowCylLF.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h Numeric.h ../DataStr/List.h
+# 1 "/Users/geuzaine/.getdp/Numeric//"
 Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../include/Magic.h Numeric.h
+  ../Main/Data_Element.h ../include/Magic.h Numeric.h ../include/Compat.h
+# 1 "/Users/geuzaine/.getdp/Numeric//"
 Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h Numeric.h
+# 1 "/Users/geuzaine/.getdp/Numeric//"
 Legendre.o: Legendre.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h
+# 1 "/Users/geuzaine/.getdp/Numeric//"
 SphBessel.o: SphBessel.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h Amos_F.h \
   ../include/Compat.h
+# 1 "/Users/geuzaine/.getdp/Numeric//"
 Numeric.o: Numeric.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h
+# 1 "/Users/geuzaine/.getdp/Numeric//"
 gsl_newt.o: gsl_newt.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h
+# 1 "/Users/geuzaine/.getdp/Numeric//"
 gsl_brent.o: gsl_brent.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h

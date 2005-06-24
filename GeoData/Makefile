@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.19 2005-06-23 01:45:01 geuzaine Exp $
+# $Id: Makefile,v 1.20 2005-06-24 17:51:53 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -54,20 +54,27 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
+# 1 "/Users/geuzaine/.getdp/GeoData//"
 GeoData.o: GeoData.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
-  ../Main/Data_Element.h ../Numeric/Numeric.h ../include/Magic.h
+  ../Main/Data_Element.h GeoData.h ../Numeric/Numeric.h \
+  ../include/Magic.h
+# 1 "/Users/geuzaine/.getdp/GeoData//"
 GeoEntity.o: GeoEntity.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
-  ../Main/Data_Element.h GeoEntity.h ../include/Magic.h \
-  ../DataStr/Tools.h
+  ../Main/Data_Element.h GeoData.h GeoEntity.h ../include/Magic.h \
+  ../DataStr/Tools.h ../DataStr/List.h ../DataStr/Tree.h
+# 1 "/Users/geuzaine/.getdp/GeoData//"
 GeoTree.o: GeoTree.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
-  ../Main/Data_Element.h ../DataStr/Tools.h
+  ../Main/Data_Element.h GeoData.h ../DataStr/Tools.h ../DataStr/List.h \
+  ../DataStr/Tree.h
+# 1 "/Users/geuzaine/.getdp/GeoData//"
 GeoNormal.o: GeoNormal.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h GeoData.h Data_GeoData.h ../DataStr/Tree.h \
-  ../DataStr/avl.h ../Numeric/Numeric.h ../DataStr/Tools.h
+  ../DataStr/avl.h ../Numeric/Numeric.h GeoData.h ../DataStr/Tools.h \
+  ../DataStr/List.h ../DataStr/Tree.h

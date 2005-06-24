@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.25 2005-06-23 01:45:00 geuzaine Exp $
+# $Id: Makefile,v 1.26 2005-06-24 17:51:53 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -55,19 +55,24 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
+# 1 "/Users/geuzaine/.getdp/DofData//"
 DofData.o: DofData.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../include/GetDPVersion.h DofData.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h LinAlg.h \
   ../Sparskit/Solver.h ../Main/Graph.h Data_DofData.h ../DataStr/Tools.h \
-  ../include/Magic.h ../Main/CurrentData.h ../Main/Data_Active.h \
-  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h ../Numeric/Numeric.h
+  ../DataStr/List.h ../DataStr/Tree.h ../include/Magic.h \
+  ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../Main/Data_Element.h DofData.h ../Numeric/Numeric.h
+# 1 "/Users/geuzaine/.getdp/DofData//"
 LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../include/Magic.h LinAlg.h ../Sparskit/Solver.h \
   ../DataStr/List.h ../DataStr/SafeIO.h ../FMM/F_FMMOperations.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../Main/CurrentData.h ../Main/Data_Active.h DofData.h ../Main/Graph.h \
+  ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
+  ../Main/Data_Element.h DofData.h LinAlg.h ../Main/Graph.h \
   Data_DofData.h
+# 1 "/Users/geuzaine/.getdp/DofData//"
 LinAlg_PETSC.o: LinAlg_PETSC.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h
