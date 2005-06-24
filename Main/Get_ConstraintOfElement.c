@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.28 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.29 2005-06-24 00:55:48 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -40,7 +40,8 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 				     int Num_Entity[], int i_Entity,
 				     int i_BFunction, int TypeConstraint) {
 
-  int                    Nbr_Constraint, i_Constraint, k, Index_GeoElement ;
+  int                    Nbr_Constraint, i_Constraint, k, Index_GeoElement, dummy ;
+  double                *uvw;
   List_T                      * Constraint_L ;
   struct ConstraintInFS       * Constraint_P ;
   struct ConstraintPerRegion  * ConstraintPerRegion_P ;
@@ -90,9 +91,12 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
 		Geo_GetNodesCoordinates( 1, &Current.NumEntity,
 					 &Current.x, &Current.y, &Current.z) ;
-		/* Il faudrait mettre un message pour les gens qui 
-		   voudraient utiliser CompXYZ en prepro. Ils risquent d'avoir des 
-		   resultats surprenants : u=v=w=0 tjs et pas les coord du noeud  */
+		/* This is necessary if we want CoordXYZ[] functions
+		   to work in prepro for nodal contraints */
+		uvw = Geo_GetNodes_uvw(Current.Element->Type, &dummy) ;
+		Current.u = uvw[3 * i_Entity] ;
+		Current.v = uvw[3 * i_Entity + 1] ;
+		Current.w = uvw[3 * i_Entity + 2] ;
 		break ;
 	      case EDGESOF :
 		Current.NumEntityInElement = i_Entity ;  
