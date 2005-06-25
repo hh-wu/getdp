@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.172 2005-06-24 18:25:33 geuzaine Exp $
+# $Id: Makefile,v 1.173 2005-06-25 22:28:39 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -114,15 +114,14 @@ tags:
 	htags
 
 etags:
-	etags `find . \( -name "*.cpp" -o -name "*.c" -o -name "*.h"\
-                      -o -name "*.y" -o -name "*.l" \)`
+	etags `find . \( -o -name "*.c" -o -name "*.h" -o -name "*.y" -o -name "*.l" \)`
 
 # Rules to package the sources
 
 source-common:
 	rm -rf getdp-${GETDP_VERSION}
 	tar zcvf getdp.tgz `ls README* configure *.in Makefile */Makefile\
-                            */*.[chylfF] */*.[ch]pp *.spec` doc demos utils
+                            */*.[chylfF] *.spec` doc demos utils
 	mkdir getdp-${GETDP_VERSION}
 	cd getdp-${GETDP_VERSION} && tar zxvf ../getdp.tgz
 	rm -f getdp.tgz
