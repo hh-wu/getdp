@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.32 2005-06-24 17:51:54 geuzaine Exp $
+# $Id: Makefile,v 1.33 2005-07-05 14:40:47 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -28,7 +28,7 @@ CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 FFLAGS  = ${F77_FLAGS} ${INCLUDE}
 
 CSRC =  Analytic_HollowCylLF.c \
-        Lanczos.c \
+        Arpack.c \
         Adapt.c \
         Legendre.c \
         SphBessel.c \

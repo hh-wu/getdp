@@ -3329,10 +3329,9 @@ echo "$as_me: error: Could not find GSL, aborting." >&2;}
   fi
 fi
 
-if test "x${GSL}" = "xyes"; then
-  if test "x${LAPACK_PREFIX}" != "x"; then
-    LDFLAGS="-L${LAPACK_PREFIX} ${LDFLAGS}"
-  fi
+if test "x${LAPACK_PREFIX}" != "x"; then
+  LDFLAGS="-L${LAPACK_PREFIX} ${LDFLAGS}"
+fi
 
 echo "$as_me:$LINENO: checking for main in -lblas" >&5
 echo $ECHO_N "checking for main in -lblas... $ECHO_C" >&6
@@ -3401,7 +3400,7 @@ _ACEOF
 
 fi
 
-  echo "$as_me:$LINENO: checking for main in -llapack" >&5
+echo "$as_me:$LINENO: checking for main in -llapack" >&5
 echo $ECHO_N "checking for main in -llapack... $ECHO_C" >&6
 if test "${ac_cv_lib_lapack_main+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -3465,13 +3464,14 @@ else
   LAPACK="no"
 fi
 
-  if test "x${LAPACK}" = "xyes"; then
-    C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
-    if test "x${LAPACK_PREFIX}" = "x"; then
-      GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
-    else
-      GETDP_LIBS="${GETDP_LIBS} -L${LAPACK_PREFIX} -llapack -lblas"
-    fi
+if test "x${LAPACK}" = "xyes"; then
+  C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
+  GETDP_DIRS="${GETDP_DIRS} Arpack"
+  GETDP_LIBS="${GETDP_LIBS} -lArpack"
+  if test "x${LAPACK_PREFIX}" = "x"; then
+    GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+  else
+    GETDP_LIBS="${GETDP_LIBS} -L${LAPACK_PREFIX} -llapack -lblas"
   fi
 fi
 

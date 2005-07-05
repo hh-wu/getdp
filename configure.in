@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.46 2005-06-24 18:17:21 geuzaine Exp $
+dnl $Id: configure.in,v 1.47 2005-07-05 14:40:47 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -260,21 +260,21 @@ if test "x${GSL}" != "xyes"; then
   fi
 fi
 
-dnl If we use the GSL, check for Lapack (for Lanczos)
-if test "x${GSL}" = "xyes"; then
-  if test "x${LAPACK_PREFIX}" != "x"; then
-    LDFLAGS="-L${LAPACK_PREFIX} ${LDFLAGS}"
-  fi
-  AC_CHECK_LIB(blas,main)
-  AC_CHECK_LIB(lapack,main,LAPACK="yes",LAPACK="no")
-  if test "x${LAPACK}" = "xyes"; then
-    C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
-    if test "x${LAPACK_PREFIX}" = "x"; then
-      GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
-    else
-      GETDP_LIBS="${GETDP_LIBS} -L${LAPACK_PREFIX} -llapack -lblas"
-    fi   
-  fi
+dnl Check for lapack and blas (and ask to compile Arpack if we have them)
+if test "x${LAPACK_PREFIX}" != "x"; then
+  LDFLAGS="-L${LAPACK_PREFIX} ${LDFLAGS}"
+fi
+AC_CHECK_LIB(blas,main)
+AC_CHECK_LIB(lapack,main,LAPACK="yes",LAPACK="no")
+if test "x${LAPACK}" = "xyes"; then
+  C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
+  GETDP_DIRS="${GETDP_DIRS} Arpack"
+  GETDP_LIBS="${GETDP_LIBS} -lArpack"
+  if test "x${LAPACK_PREFIX}" = "x"; then
+    GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+  else
+    GETDP_LIBS="${GETDP_LIBS} -L${LAPACK_PREFIX} -llapack -lblas"
+  fi   
 fi
 
 dnl Do we trace the function calls in getdp?
