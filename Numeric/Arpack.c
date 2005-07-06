@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.5 2005-07-06 15:12:51 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.6 2005-07-06 16:03:33 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -368,13 +368,13 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
       if(ido == -1){
 	Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
 	LinAlg_ProdMatrixVector(M, &v1, &v2);
-	Msg(INFO, "Arpack iteration %d", k++);
+	Msg(BIGINFO, "Arpack iteration %d", k++);
 	LinAlg_Solve(K, &v2, &DofData_P->Solver, &v1);
 	GetDP2Arpack(&v1, &workd[ipntr[1]-1]);
       }
       else if(ido == 1){
 	Arpack2GetDP(n, &workd[ipntr[2]-1], &v1);
-	Msg(INFO, "Arpack iteration %d", k++);
+	Msg(BIGINFO, "Arpack iteration %d", k++);
 	LinAlg_Solve(K, &v1, &DofData_P->Solver, &v2);
 	GetDP2Arpack(&v2, &workd[ipntr[1]-1]);
       }
