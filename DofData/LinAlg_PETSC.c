@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.45 2005-07-06 14:24:47 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.46 2005-07-06 14:32:41 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1460,7 +1460,6 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
     newsolver = 1;
     ierr = KSPCreate(PETSC_COMM_WORLD, &Solver->ksp); MYCHECK(ierr);
     ierr = KSPSetOperators(Solver->ksp, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
-ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
   }
   ierr = KSPGetPC(Solver->ksp, &Solver->pc); MYCHECK(ierr);
 #endif
