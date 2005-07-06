@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.48 2005-07-06 15:00:00 geuzaine Exp $
+dnl $Id: configure.in,v 1.49 2005-07-06 15:12:51 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -266,7 +266,7 @@ if test "x${LAPACK_PREFIX}" != "x"; then
 fi
 AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
 if test "x${BLAS}" = "xyes"; then
-  AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no")
+  AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
   if test "x${LAPACK}" = "xyes"; then
     C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
     GETDP_DIRS="${GETDP_DIRS} Arpack"

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.4 2005-07-06 15:00:00 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.5 2005-07-06 15:12:51 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -22,6 +22,11 @@
  * Contributor(s):
  */
 
+#include "GetDP.h"
+#include "DofData.h"
+#include "CurrentData.h"
+#include "Numeric.h"
+
 #if !defined(HAVE_LAPACK)
 
 void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double shift){
@@ -30,10 +35,6 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 
 #else
 
-#include "GetDP.h"
-#include "DofData.h"
-#include "CurrentData.h"
-#include "Numeric.h"
 #include "Arpack_F.h"
 
 /* This routine uses Arpack to solve Standard or Generalized Complex,
