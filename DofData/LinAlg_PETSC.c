@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.43 2005-06-24 17:33:21 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.44 2005-07-06 11:23:48 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1458,6 +1458,7 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   if (!Solver->ksp) {
     ierr = KSPCreate(PETSC_COMM_WORLD, &Solver->ksp); MYCHECK(ierr);
     ierr = KSPSetOperators(Solver->ksp, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
+ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
   }
   ierr = KSPGetPC(Solver->ksp, &Solver->pc); MYCHECK(ierr);
 #endif
@@ -1485,10 +1486,10 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   ierr = SLESSolve(Solver->sles, B->V, X->V, &its); MYCHECK(ierr);
   ierr = SLESView(Solver->sles,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
 #else
-  ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
+  //ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
   ierr = KSPSolve(Solver->ksp, B->V, X->V); MYCHECK(ierr);
   ierr = KSPGetIterationNumber(Solver->ksp, &its); MYCHECK(ierr);
-  ierr = KSPView(Solver->ksp,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
+  //ierr = KSPView(Solver->ksp,PETSC_VIEWER_STDOUT_WORLD);MYCHECK(ierr); 
 #endif
 
   if (!RankCpu) Msg(PETSC, "%d iterations", its) ;

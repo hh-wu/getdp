@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.1 2005-07-05 14:40:47 geuzaine Exp $
+# $Id: Makefile,v 1.2 2005-07-06 11:23:48 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -42,10 +42,13 @@ COBJ  = cnaitr.o cnapps.o cnaup2.o cnaupd.o cneigh.o cneupd.o cngets.o \
 ZOBJ  = znaitr.o znapps.o znaup2.o znaupd.o zneigh.o zneupd.o zngets.o \
         zgetv0.o zsortc.o zstatn.o
 
+UTILS = cvout.o dmout.o dvout.o icnteq.o icopy.o iset.o iswap.o \
+        ivout.o second.o smout.o svout.o zmout.o zvout.o
+
 .SUFFIXES: .o .f
 
-${LIB}: ${SOBJ} ${DOBJ} ${COBJ} ${ZOBJ}
-	${AR} ${LIB} ${SOBJ} ${DOBJ} ${COBJ} ${ZOBJ}
+${LIB}: ${SOBJ} ${DOBJ} ${COBJ} ${ZOBJ} ${UTILS}
+	${AR} ${LIB} ${SOBJ} ${DOBJ} ${COBJ} ${ZOBJ} ${UTILS}
 	${RANLIB} ${LIB}
 
 .f.o:
