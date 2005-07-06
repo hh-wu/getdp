@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.42 2005-06-24 06:31:55 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.43 2005-07-06 14:24:47 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -679,7 +679,8 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 
     do {
       fgets(String, MAX_STRING_LENGTH, File_RES) ;
-      if (feof(File_RES)) Msg(WARNING,"Prematured end of file (Time Step %d)", Val_TimeStep);
+      if (feof(File_RES)) 
+	Msg(WARNING, "Prematured end of file (Time Step %d)", Val_TimeStep);
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.2 2005-07-06 11:23:48 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.3 2005-07-06 14:24:47 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -36,15 +36,8 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 #include "Numeric.h"
 #include "Arpack_f.h"
 
-/* This routine uses Arpack to solve Generalized, Complex,
-   Non-Hermitian eigenvalue problems
-
-   We want to solve A*x = lambda*M*x in shift-invert mode
-   so OP = inv[A - sigma*M]*M and B = M
-   Assume "call matvecM(n,x,y)" computes y = M*x
-   Assume "call solve(n,rhs,x)" solves [A - sigma*M]*x = rhs
-   Assume exact shifts are used
- */
+/* This routine uses Arpack to solve Standard or Generalized Complex,
+   Non-Hermitian eigenvalue problems */
 
 static void Arpack2GetDP(int N, complex_16 *in, gVector *out)
 {
@@ -345,11 +338,15 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 
   GetDP_Begin("Lanczos");
 
+  /* Sanity checks */
   if(LanSize >= n-1)
     Msg(ERROR, "Lansize too large (must be < %d)", n-1);
 
   if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
     Msg(ERROR, "No System available for Lanczos: check 'DtDt' and 'GenerateSeparate'");
+
+  if(bmat == 'G' && iparam[6] != 3)
+    Msg(ERROR, "Wrong input parameters for generalized eigen problem");
 
   /* Create 2 temp vectors */
   LinAlg_CreateVector(&v1, &DofData_P->Solver, DofData_P->NbrDof,
@@ -364,32 +361,19 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   /* Keep calling znaupd again and again until ido == 99 */
   k = 0;
   do {
-    Msg(INFO, "Arpack iteration %d", k++);
     znaupd_(&ido, &bmat, &n, which, &nev, &tol, resid, &ncv, v, &ldv, iparam,
 	    ipntr, workd, workl, &lworkl, rwork, &info);
-    Msg(INFO, "  ido = %d  info = %d  #converged=%d", ido, info, iparam[4]);
-    if(bmat == 'G'){
-      /*
-c     if (ido .eq. -1) then
-c        call matvecM (n, workd(ipntr(1)), temp_array)
-c        call solve (n, temp_array, workd(ipntr(2)))
-c        go to 10
-c     else if (ido .eq. 1) then
-c        call solve (n, workd(ipntr(3)), workd(ipntr(2)))
-c        go to 10
-c     else if (ido .eq. 2) then
-c        call matvecM (n, workd(ipntr(1)), workd(ipntr(2)))
-c        go to 10
-c     end if 
-      */
+    if(bmat == 'G'){ /* Generalized eigenvalue problem K x = lambda M x */
       if(ido == -1){
 	Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
 	LinAlg_ProdMatrixVector(M, &v1, &v2);
+	Msg(INFO, "Arpack iteration %d", k++);
 	LinAlg_Solve(K, &v2, &DofData_P->Solver, &v1);
 	GetDP2Arpack(&v1, &workd[ipntr[1]-1]);
       }
       else if(ido == 1){
 	Arpack2GetDP(n, &workd[ipntr[2]-1], &v1);
+	Msg(INFO, "Arpack iteration %d", k++);
 	LinAlg_Solve(K, &v1, &DofData_P->Solver, &v2);
 	GetDP2Arpack(&v2, &workd[ipntr[1]-1]);
       }
@@ -406,7 +390,7 @@ c     end if
 	Msg(INFO, "Got info=%d: not doing anything with it");
       }
     }
-    else{
+    else{ /* Standard eigenvalue problem K x = lambda x */
       if(ido == 1 || ido == -1){
 	/* y = A x with x = workd[ipntr[0]-1] and y = workd[ipntr[1]-1]; */
 	Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
