@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.3 2005-07-06 14:24:47 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.4 2005-07-06 15:00:00 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -34,7 +34,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 #include "DofData.h"
 #include "CurrentData.h"
 #include "Numeric.h"
-#include "Arpack_f.h"
+#include "Arpack_F.h"
 
 /* This routine uses Arpack to solve Standard or Generalized Complex,
    Non-Hermitian eigenvalue problems */

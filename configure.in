@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.47 2005-07-05 14:40:47 geuzaine Exp $
+dnl $Id: configure.in,v 1.48 2005-07-06 15:00:00 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -100,6 +100,9 @@ AC_PROG_F77
 if test "x${CC}" = "x" -o "x${F77}" = "x" ; then
   AC_MSG_ERROR([Could not find required compilers, aborting.])
 fi
+
+dnl Use C for tests
+AC_LANG(C)
 
 dnl Set default compiler flags
 C_FLAGS="${CFLAGS}"
@@ -206,15 +209,11 @@ else
       C_FLAGS="-g -O3 -DMSDOS"
       F77_FLAGS="-g -O1 -DMSDOS"
       ;;
-    Darwin*)
-      LINKER="gcc"
-      GETDP_LIBS="${GETDP_LIBS} -lg2c"
-      ;;
   esac
 
 fi
 
-dnl Check for GSL
+dnl Check for GSL 
 if test "x$enable_gsl" != "xno"; then
   if test "x${GSL_PREFIX}" != "x"; then
     LDFLAGS="-L${GSL_PREFIX}/lib ${LDFLAGS}"
@@ -260,22 +259,26 @@ if test "x${GSL}" != "xyes"; then
   fi
 fi
 
-dnl Check for lapack and blas (and ask to compile Arpack if we have them)
+dnl Check for lapack and blas (and use Arpack if we have them)
+AC_LANG_PUSH(Fortran 77)
 if test "x${LAPACK_PREFIX}" != "x"; then
   LDFLAGS="-L${LAPACK_PREFIX} ${LDFLAGS}"
 fi
-AC_CHECK_LIB(blas,main)
-AC_CHECK_LIB(lapack,main,LAPACK="yes",LAPACK="no")
-if test "x${LAPACK}" = "xyes"; then
-  C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
-  GETDP_DIRS="${GETDP_DIRS} Arpack"
-  GETDP_LIBS="${GETDP_LIBS} -lArpack"
-  if test "x${LAPACK_PREFIX}" = "x"; then
-    GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
-  else
-    GETDP_LIBS="${GETDP_LIBS} -L${LAPACK_PREFIX} -llapack -lblas"
-  fi   
+AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
+if test "x${BLAS}" = "xyes"; then
+  AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no")
+  if test "x${LAPACK}" = "xyes"; then
+    C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
+    GETDP_DIRS="${GETDP_DIRS} Arpack"
+    GETDP_LIBS="${GETDP_LIBS} -lArpack"
+    if test "x${LAPACK_PREFIX}" = "x"; then
+      GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+    else
+      GETDP_LIBS="${GETDP_LIBS} -L${LAPACK_PREFIX} -llapack -lblas"
+    fi   
+  fi
 fi
+AC_LANG_POP()
 
 dnl Do we trace the function calls in getdp?
 if test "x$enable_debug" = "xyes"; then
@@ -340,6 +343,11 @@ dnl Finish link line
 case "${UNAME}" in
   MINGW*)
     dnl '-lm' is removed on purpose!
+    ;;
+  Darwin*)
+    dnl force C linker on Mac OS X
+    LINKER="gcc"
+    GETDP_LIBS="${GETDP_LIBS} -lg2c -lm"
     ;;
   *)
     GETDP_LIBS="${GETDP_LIBS} -lm"    
