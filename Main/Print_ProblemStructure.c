@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.36 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.37 2005-07-07 21:40:16 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -991,6 +991,15 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
 	  OPE->Case.Lanczos.Size,
 	  OPE->Case.Lanczos.Shift);
+      break ;
+
+    case OPERATION_EIGENSOLVE :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
+      Msg(CHECK, "      EigenSolve [ %s, %d, %.10g , %.10g ] ;\n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+	  OPE->Case.EigenSolve.NumEigenvalues,
+	  OPE->Case.EigenSolve.Shift_r, OPE->Case.EigenSolve.Shift_i);
       break ;
 
     case OPERATION_SETTIME :

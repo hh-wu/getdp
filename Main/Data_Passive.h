@@ -793,6 +793,10 @@ struct Operation {
       double  Shift ; 
     } Lanczos ;
     struct {
+      int     NumEigenvalues ; 
+      double  Shift_r, Shift_i ; 
+    } EigenSolve ;
+    struct {
       int     Size ; 
       List_T  * Save ;
       double  Shift ;
@@ -915,6 +919,7 @@ struct ChangeOfState {
 #define OPERATION_UPDATEFMMDATA           105
 #define OPERATION_LANCZOS                   8
 #define OPERATION_PERTURBATION              9
+#define OPERATION_EIGENSOLVE               16
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11

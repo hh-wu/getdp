@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.67 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.68 2005-07-07 21:40:16 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -58,6 +58,7 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
 			int Flag_Jac, int Flag_Separate);
 
 void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double shift) ;
+void EigenSolve (struct DofData * DofData_P, int NumEigenvalues, double shift_r, double shift_i) ;
 
 static int  Flag_IterativeLoop = 0 ;  /* Attention: phase de test */
 static int  Flag_NextThetaFixed = 0 ;  /* Attention: phase de test */
@@ -551,6 +552,19 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
       Lanczos(DofData_P, Operation_P->Case.Lanczos.Size, 
 	      Operation_P->Case.Lanczos.Save, Operation_P->Case.Lanczos.Shift) ;
+      Flag_CPU = 1 ;
+      break ;
+
+      /*  -->  EigenSolve                             */
+      /*  ------------------------------------------  */
+
+    case OPERATION_EIGENSOLVE :
+      Init_OperationOnSystem("EigenSolve",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+      EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues, 
+		 Operation_P->Case.EigenSolve.Shift_r,
+		 Operation_P->Case.EigenSolve.Shift_i) ;
       Flag_CPU = 1 ;
       break ;
 
