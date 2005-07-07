@@ -55,28 +55,23 @@ typedef struct { Solver_Params Params ; } gSolver ;
 
 #include "petsc.h"
 
-#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
-  #include "petscsles.h"
+#if (PETSC_VERSION_MAJOR < 2) || ((PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR < 3))
+  #error "GetDP requires PETSc version 2.3 or higher"
 #else
   #include "petscksp.h"
 #endif
 
 #if PETSC_USE_COMPLEX
-#define gSCALAR_SIZE 2
-#define gCOMPLEX_INCREMENT 1
+  #define gSCALAR_SIZE 2
+  #define gCOMPLEX_INCREMENT 1
 #else
-#define gSCALAR_SIZE 1
-#define gCOMPLEX_INCREMENT 2
+  #define gSCALAR_SIZE 1
+  #define gCOMPLEX_INCREMENT 2
 #endif
-typedef struct { PetscScalar s ; }               gScalar ;
-typedef struct { Mat M ; }                       gMatrix ;
-typedef struct { Vec V ; }                       gVector ;
-
-#if ((PETSC_VERSION_MAJOR <= 2) && (PETSC_VERSION_MINOR < 2))
-  typedef struct { SLES sles ; PC pc ; KSP ksp ; } gSolver ;
-#else
-  typedef struct { KSP ksp ; PC pc ; } gSolver ;
-#endif
+typedef struct { PetscScalar s ; }   gScalar ;
+typedef struct { Mat M ; }           gMatrix ;
+typedef struct { Vec V ; }           gVector ;
+typedef struct { KSP ksp ; PC pc ; } gSolver ;
 
 #else
 

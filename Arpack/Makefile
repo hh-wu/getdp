@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.2 2005-07-06 11:23:48 geuzaine Exp $
+# $Id: Makefile,v 1.3 2005-07-07 13:08:48 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -59,17 +59,9 @@ clean:
 
 
 depend:
-	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile && \
-	${CC} -MM ${CFLAGS} ${CSRC} \
-	) >Makefile.new
-	cp Makefile Makefile.bak
-	cp Makefile.new Makefile
-	rm -f Makefile.new
+	true
 
 nodepend:
-	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile) >Makefile.new
-	cp Makefile Makefile.bak
-	cp Makefile.new Makefile
-	rm -f Makefile.new
+	true
 
 # DO NOT DELETE THIS LINE

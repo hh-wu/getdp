@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.17 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.18 2005-07-07 13:08:48 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -46,12 +46,12 @@ void  Cal_AssembleTerm_NoDt(struct Dof * Equ, struct Dof * Dof, double Val[]) {
     if (!Current.DofData->Flag_Init[1]) {
       Current.DofData->Flag_Init[1] = 1 ;
       LinAlg_CreateMatrix(&Current.DofData->M1, &Current.DofData->Solver, 
-		    Current.DofData->NbrDof, Current.DofData->NbrDof,
-		    Current.DofData->NbrPart, Current.DofData->Part, 
-		    Current.DofData->Nnz) ;
+			  Current.DofData->NbrDof, Current.DofData->NbrDof,
+			  Current.DofData->NbrPart, Current.DofData->Part, 
+			  Current.DofData->Nnz) ;
       LinAlg_CreateVector(&Current.DofData->m1, &Current.DofData->Solver, 
-		    Current.DofData->NbrDof, Current.DofData->NbrPart, 
-		    Current.DofData->Part) ;
+			  Current.DofData->NbrDof, Current.DofData->NbrPart, 
+			  Current.DofData->Part) ;
       LinAlg_ZeroMatrix(&Current.DofData->M1);
       LinAlg_ZeroVector(&Current.DofData->m1);
     }
@@ -255,18 +255,19 @@ void  Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
     if (!Current.DofData->Flag_Init[3]) {
       Current.DofData->Flag_Init[3] = 1 ;
       LinAlg_CreateMatrix(&Current.DofData->M3, &Current.DofData->Solver, 
-		    Current.DofData->NbrDof, Current.DofData->NbrDof,
-		    Current.DofData->NbrPart, Current.DofData->Part, 
-		    Current.DofData->Nnz) ;
+			  Current.DofData->NbrDof, Current.DofData->NbrDof,
+			  Current.DofData->NbrPart, Current.DofData->Part, 
+			  Current.DofData->Nnz) ;
       LinAlg_CreateVector(&Current.DofData->m3, &Current.DofData->Solver, 
-		    Current.DofData->NbrDof, Current.DofData->NbrPart,
-		    Current.DofData->Part) ;
+			  Current.DofData->NbrDof, Current.DofData->NbrPart,
+			  Current.DofData->Part) ;
       LinAlg_ZeroMatrix(&Current.DofData->M3);
       LinAlg_ZeroVector(&Current.DofData->m3);
     }
-    for (k = 0 ; k < Current.NbrHar ; k += 2) 
+    for (k = 0 ; k < Current.NbrHar ; k += 2) {
       Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k], 
 			&Current.DofData->M3, &Current.DofData->m3) ;
+    }
   }
   else {
     if (Current.NbrHar == 1) {

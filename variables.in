@@ -1,4 +1,4 @@
-# $Id: variables.in,v 1.8 2004-01-19 16:51:12 geuzaine Exp $
+# $Id: variables.in,v 1.9 2005-07-07 13:08:48 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -48,7 +48,6 @@ SOLVER=@SOLVER@
 # PETSc stuff
 PETSC_DIR=@PETSC_DIR@
 PETSC_ARCH=@PETSC_ARCH@
-BOPT=@BOPT@
 @PETSC_INCLUDE_MAKEFILE@
 
 # METIS path

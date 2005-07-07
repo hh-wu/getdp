@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.49 2005-07-06 15:12:51 geuzaine Exp $
+dnl $Id: configure.in,v 1.50 2005-07-07 13:08:48 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -45,10 +45,6 @@ AC_ARG_WITH(petsc-arch,
             AC_HELP_STRING([--with-petsc-arch=ARCH],
                            [PETSc architecture]),
             [PETSC_ARCH=$withval])
-AC_ARG_WITH(bopt,
-            AC_HELP_STRING([--with-bopt=PFX],
-                           [BOPT option to use with PETSc]),
-            [BOPT=$withval])
 AC_ARG_WITH(metis-prefix,
             AC_HELP_STRING([--with-metis-prefix=PFX],
                            [prefix where METIS is installed]),
@@ -147,10 +143,6 @@ if test "x$enable_petsc" = "xyes"; then
     else
       AC_MSG_ERROR([Could not determine PETSC_ARCH. Run configure again with --with-petsc-arch.])
     fi
-  fi
-  dnl BOPT is not used in PETSc >= 2.3, but this does not hurt
-  if test "x${BOPT}" = "x"; then
-     BOPT="g_complex"
   fi
 
 else
@@ -371,7 +363,6 @@ AC_SUBST(AR)
 AC_SUBST(PETSC_INCLUDE_MAKEFILE)
 AC_SUBST(PETSC_DIR)
 AC_SUBST(PETSC_ARCH)
-AC_SUBST(BOPT)
 AC_SUBST(METIS_DIR)
 AC_SUBST(FFTW_DIR)
 AC_OUTPUT(variables)

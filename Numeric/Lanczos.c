@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.24 2005-06-24 17:43:15 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.25 2005-07-07 13:08:48 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -443,9 +443,9 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 
   /* resolution du PVP generalise K v = valp M v */
   /* identifier les matrices avec des matrices du probleme en cours */
-  K = &DofData_P->M1 ; /* matrice des termes en DtDt */
+  K = &DofData_P->M1 ; /* matrice des autres termes */
   /* L = &DofData_P->M2 ; */ /* matrice des termes en Dt pour le futur */
-  M = &DofData_P->M3 ; /* matrice des autres termes  */
+  M = &DofData_P->M3 ; /* matrice des termes en DtDt  */
   b = &DofData_P->b  ; 
   x = &DofData_P->CurrentSolution->x ;
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.6 2005-07-06 16:03:33 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.7 2005-07-07 13:08:48 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -69,8 +69,8 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   gVector v1, v2;
   int i, j, k, l, newsol;
 
-  gMatrix *K = &DofData_P->M1; /* matrix associated with DtDt terms */
-  gMatrix *M = &DofData_P->M3; /* matrix associated with terms with no Dt nor DtDt */
+  gMatrix *K = &DofData_P->M1; /* matrix associated with terms with no Dt nor DtDt */
+  gMatrix *M = &DofData_P->M3; /* matrix associated with DtDt terms */
   gVector *b = &DofData_P->b; 
   gVector *x = &DofData_P->CurrentSolution->x;
 
@@ -123,7 +123,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
      SI = smallest imaginary part
      LI = largest imaginary part */
   
-  int nev = LanSize - 1; /* FIXME */
+  int nev = LanSize/3; /* FIXME */
   /* Number of eigenvalues of OP to be computed. 0 < NEV < N-1.
      Therefore, you'll be able to compute AT MOST n-2 eigenvalues! */
   
@@ -356,7 +356,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 		      DofData_P->NbrPart, DofData_P->Part);
 
   /* Shifting: K = K - shift * M */
-  if(bmat == 'G' && fabs(shift) > 1.e-12)
+  if(bmat == 'G')
     LinAlg_AddMatrixProdMatrixDouble(K, M, -shift, K) ; 
 
   /* Keep calling znaupd again and again until ido == 99 */

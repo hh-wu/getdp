@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.33 2005-07-05 14:40:47 geuzaine Exp $
+# $Id: Makefile,v 1.34 2005-07-07 13:08:48 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -75,13 +75,14 @@ nodepend:
 Analytic_HollowCylLF.o: Analytic_HollowCylLF.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h Numeric.h ../DataStr/List.h
 # 1 "/Users/geuzaine/.getdp/Numeric//"
-Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
+Arpack.o: Arpack.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../Main/Data_Element.h ../include/Magic.h Numeric.h ../include/Compat.h
+  ../Main/Data_Element.h ../include/Magic.h Numeric.h Arpack_F.h \
+  ../include/Compat.h
 # 1 "/Users/geuzaine/.getdp/Numeric//"
 Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
