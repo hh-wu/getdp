@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.7 2005-07-07 13:08:48 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.8 2005-07-07 21:44:08 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -29,16 +29,20 @@
 
 #if !defined(HAVE_LAPACK)
 
-void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double shift){
-  Msg(ERROR, "Arpack implementation of Lanczos[] not available without LAPACK");
+void EigenSolve (struct DofData * DofData_P, int NumEigenvalues, 
+		 double shift_r, double shift_i){
+  Msg(ERROR, "EigenSolve not available without LAPACK");
 }
 
 #else
 
 #include "Arpack_F.h"
 
-/* This routine uses Arpack to solve Standard or Generalized Complex,
-   Non-Hermitian eigenvalue problems */
+/* This routine uses Arpack to solve Generalized Complex Non-Hermitian
+   eigenvalue problems. We don't use the "Generalized" Arpack mode
+   (bmat=='G') since it requires M to be Hermitian. Instead, we use
+   the regular mode (bmat='I') and apply the shift "by hand", which
+   allows us to use arbitrary matrices K and M. */
 
 static void Arpack2GetDP(int N, complex_16 *in, gVector *out)
 {
@@ -64,10 +68,12 @@ static void GetDP2Arpack(gVector *in, complex_16 *out)
   }
 }
 
-void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double shift){
+void EigenSolve (struct DofData * DofData_P, int NumEigenvalues, 
+		 double shift_r, double shift_i){
   struct Solution Solution_S;
   gVector v1, v2;
   int i, j, k, l, newsol;
+  double tmp;
 
   gMatrix *K = &DofData_P->M1; /* matrix associated with terms with no Dt nor DtDt */
   gMatrix *M = &DofData_P->M3; /* matrix associated with DtDt terms */
@@ -108,7 +114,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
      the "shift-and-invert" mode, the vector M * X is already 
      available and does not need to be recomputed in forming OP*X. */
 
-  char bmat = 'G';
+  char bmat = 'I';
   /* BMAT specifies the type of the matrix B that defines the
      semi-inner product for the operator OP.
      BMAT = 'I' -> standard eigenvalue problem A*x = lambda*x
@@ -123,7 +129,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
      SI = smallest imaginary part
      LI = largest imaginary part */
   
-  int nev = LanSize/3; /* FIXME */
+  int nev = NumEigenvalues;
   /* Number of eigenvalues of OP to be computed. 0 < NEV < N-1.
      Therefore, you'll be able to compute AT MOST n-2 eigenvalues! */
   
@@ -142,7 +148,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
      On OUTPUT:
      RESID contains the final residual vector. */
   
-  int ncv = LanSize;
+  int ncv =  NumEigenvalues * 2;
   /* Number of columns of the matrix V. NCV must satisfy the two
      inequalities 1 <= NCV-NEV and NCV <= N.
      This will indicate how many Arnoldi vectors are generated 
@@ -160,7 +166,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   /* Leading dimension of "v". In our case, the number of lines of
      "v". */
   
-  int iparam[11] = {1, 0, 10000, 1, 0, 0, 3, 0, 0, 0, 0};
+  int iparam[11] = {1, 0, 10000, 1, 0, 0, 1, 0, 0, 0, 0};
   /* iparam[0] = ISHIFT: method for selecting the implicit shifts.
      The shifts selected at each iteration are used to filter out
      the components of the unwanted eigenvector.
@@ -331,23 +337,24 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   int ldz = n;
   /* Leading dimension of "z". In our case, the number of lines of "z". */
   
-  complex_16 sigma = {shift, 0.};
-  /* The shift. In our example, not used. */
+  complex_16 sigma = {0., 0.,};
+  /* The shift. Not used in this case: we deal with the shift "by
+     hand". */
   
   complex_16 *workev = (complex_16*)Malloc(2 * ncv * sizeof(complex_16));
   /* Workspace */
 
-  GetDP_Begin("Lanczos");
+  GetDP_Begin("EigenSolve");
 
   /* Sanity checks */
-  if(LanSize >= n-1)
-    Msg(ERROR, "Lansize too large (must be < %d)", n-1);
+  if(nev >= n-1)
+    Msg(ERROR, "NumEigenvalues too large (must be < %d)", n-1);
 
   if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
-    Msg(ERROR, "No System available for Lanczos: check 'DtDt' and 'GenerateSeparate'");
+    Msg(ERROR, "No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
 
-  if(bmat == 'G' && iparam[6] != 3)
-    Msg(ERROR, "Wrong input parameters for generalized eigen problem");
+  if(bmat != 'I' || iparam[6] != 1)
+    Msg(ERROR, "General and/or shift-invert mode should not be used");
 
   /* Create 2 temp vectors */
   LinAlg_CreateVector(&v1, &DofData_P->Solver, DofData_P->NbrDof,
@@ -356,55 +363,26 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 		      DofData_P->NbrPart, DofData_P->Part);
 
   /* Shifting: K = K - shift * M */
-  if(bmat == 'G')
-    LinAlg_AddMatrixProdMatrixDouble(K, M, -shift, K) ; 
+  LinAlg_AddMatrixProdMatrixDouble(K, M, -shift_r, K) ; 
 
   /* Keep calling znaupd again and again until ido == 99 */
   k = 0;
   do {
     znaupd_(&ido, &bmat, &n, which, &nev, &tol, resid, &ncv, v, &ldv, iparam,
 	    ipntr, workd, workl, &lworkl, rwork, &info);
-    if(bmat == 'G'){ /* Generalized eigenvalue problem K x = lambda M x */
-      if(ido == -1){
-	Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
-	LinAlg_ProdMatrixVector(M, &v1, &v2);
-	Msg(BIGINFO, "Arpack iteration %d", k++);
-	LinAlg_Solve(K, &v2, &DofData_P->Solver, &v1);
-	GetDP2Arpack(&v1, &workd[ipntr[1]-1]);
-      }
-      else if(ido == 1){
-	Arpack2GetDP(n, &workd[ipntr[2]-1], &v1);
-	Msg(BIGINFO, "Arpack iteration %d", k++);
-	LinAlg_Solve(K, &v1, &DofData_P->Solver, &v2);
-	GetDP2Arpack(&v2, &workd[ipntr[1]-1]);
-      }
-      else if(ido == 2){
-	Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
-	LinAlg_ProdMatrixVector(M, &v1, &v2);
-	GetDP2Arpack(&v2, &workd[ipntr[1]-1]);
-      }
-      else if(ido == 99){
-	/* we're done */
-	break;
-      }
-      else{
-	Msg(INFO, "Got info=%d: not doing anything with it");
-      }
+    if(ido == 1 || ido == -1){
+      Msg(BIGINFO, "Arpack iteration %d", k++);
+      Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
+      LinAlg_ProdMatrixVector(M, &v1, &v2);
+      LinAlg_Solve(K, &v2, &DofData_P->Solver, &v1);
+      GetDP2Arpack(&v1, &workd[ipntr[1]-1]);
     }
-    else{ /* Standard eigenvalue problem K x = lambda x */
-      if(ido == 1 || ido == -1){
-	/* y = A x with x = workd[ipntr[0]-1] and y = workd[ipntr[1]-1]; */
-	Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
-	LinAlg_ProdMatrixVector(K, &v1, &v2);
-	GetDP2Arpack(&v2, &workd[ipntr[1]-1]);
-      }
-      else if(ido == 99){
-	/* we're done */
-	break;
-      }
-      else{
-	Msg(INFO, "Got info=%d: not doing anything with it");
-      }
+    else if(ido == 99){
+      /* we're done */
+      break;
+    }
+    else{
+      Msg(INFO, "Arpack code = %d (ignored)", info);
     }
   } while (1);
 
@@ -413,7 +391,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     /* OK */
   }
   else if(info == 1){
-    Msg(WARNING, "Maxmimum number of iteration reached in Lanczos");
+    Msg(WARNING, "Maxmimum number of iteration reached in EigenSolve");
   }
   else if(info == 2){
     Msg(WARNING, "No shifts could be applied during a cycle of the");
@@ -421,10 +399,10 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     Msg(WARNING, "is to increase the size of NCV relative to NEV.");
   }
   else if(info < 0){
-    Msg(ERROR, "Error in Arpack: code = %d", info);
+    Msg(ERROR, "Arpack code = %d", info);
   }
   else{
-    Msg(INFO, "Unknown return value in Arpack: code = %d", info);
+    Msg(WARNING, "Arpack code = %d (unknown)", info);
   }
 
   /* Call to zneupd for post-processing */  
@@ -433,26 +411,20 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 	  rwork, &info);
 
   /* Test for errors */  
-  if(info != 0){
-    Msg(ERROR, "Error in post-processing eigenvectors: code = %d", info);
-  }
+  if(info != 0)
+    Msg(ERROR, "Arpack code = %d (eigenvector post-processing)", info);
   
-  /* Print the eigenvalues */
-  for (k = 0; k < nev; k++)
+  /* Compute the unshifted eigenvalues and print them */
+  for (k = 0; k < nev; k++){
+    tmp = SQU(d[k].re) + SQU(d[k].im);
+    d[k].re = shift_r + d[k].re/tmp;
+    d[k].im = shift_i - d[k].im/tmp;
     Msg(BIGINFO, "Eigenvalue %d = %.16g + %.16g*i", k, d[k].re, d[k].im);
+  }
 
-  /* Save (some of) the eigenvectors */
+  /* Save the eigenvectors */
   newsol = 0;
-  for(k = 0; k < List_Nbr(LanSave); k++){
-    List_Read(LanSave, k, &i);
-    
-    i--; /* FIXME: for backward compatility (the eigenvector index
-	    starts at 1 instead of 0 in the old Lanczos.c) */
-
-    if(i < 0 || i > nev-1){
-      Msg(WARNING, "Eigenvector index out of range");
-      break;
-    }
+  for(k = 0; k < nev; k++){
     
     if(newsol) {
       /* create new solution */
@@ -465,15 +437,15 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     newsol = 1;
     
     /* Store real part of eigenvalue in "Time": not perfect... FIXME */
-    DofData_P->CurrentSolution->Time = d[i].re;
-    DofData_P->CurrentSolution->TimeStep = i;
+    DofData_P->CurrentSolution->Time = d[k].re;
+    DofData_P->CurrentSolution->TimeStep = k;
     DofData_P->CurrentSolution->TimeFunctionValues = NULL;
     DofData_P->CurrentSolution->SolutionExist = 1;
 
     /* Store eigenvector */
     for(l = 0; l < DofData_P->NbrDof; l+=gCOMPLEX_INCREMENT){
       j = l / gCOMPLEX_INCREMENT;
-      LinAlg_SetComplexInVector(z[i*n+j].re, z[i*n+j].im, 
+      LinAlg_SetComplexInVector(z[k*n+j].re, z[k*n+j].im, 
 				&DofData_P->CurrentSolution->x, l, l+1);
     }
   }    

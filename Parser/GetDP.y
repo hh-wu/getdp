@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.69 2005-06-23 01:45:37 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.70 2005-07-07 21:44:09 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -307,7 +307,7 @@ double _value;
 %token      tOriginSystem  tDestinationSystem 
 %token    tOperation  tOperationEnd
 %token      tSetTime tDTime tSetFrequency tFourierTransform tFourierTransformJ
-%token      tLanczos tPerturbation tUpdate tUpdateConstraint tBreak 
+%token      tLanczos tEigenSolve tPerturbation tUpdate tUpdateConstraint tBreak 
 
 %token      tTimeLoopTheta
 %token        tTime0  tTimeMax  tDTime  tTheta
@@ -4928,6 +4928,20 @@ OperationTerm :
       }
       List_Delete($7);
       Operation_P->Case.Lanczos.Shift = $9 ;
+    }
+
+  | tEigenSolve '[' tSTRING ',' FExpr ',' FExpr ',' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_EIGENSOLVE ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5 ;
+      Operation_P->Case.EigenSolve.Shift_r = $7 ;
+      Operation_P->Case.EigenSolve.Shift_i = $9 ;
     }
 
   | tPerturbation '[' tSTRING ',' tSTRING ',' tSTRING ','
