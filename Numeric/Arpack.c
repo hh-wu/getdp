@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.8 2005-07-07 21:44:08 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.9 2005-07-07 22:18:06 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -72,13 +72,11 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 		 double shift_r, double shift_i){
   struct Solution Solution_S;
   gVector v1, v2;
-  int i, j, k, l, newsol;
+  int j, k, l, newsol;
   double tmp;
 
   gMatrix *K = &DofData_P->M1; /* matrix associated with terms with no Dt nor DtDt */
   gMatrix *M = &DofData_P->M3; /* matrix associated with DtDt terms */
-  gVector *b = &DofData_P->b; 
-  gVector *x = &DofData_P->CurrentSolution->x;
 
   int n = DofData_P->NbrDof / gCOMPLEX_INCREMENT; /* size of the system */
 
