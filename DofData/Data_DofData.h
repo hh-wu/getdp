@@ -108,7 +108,7 @@ struct FMMmat{
 
 struct Solution {
   int       TimeStep ; /* Premiere position pour permettre les recherches */
-  double    Time ;
+  double    Time, TimeImag ;
   int       SolutionExist ;
   double  * TimeFunctionValues, ExplicitTimeFunctionValue ;
   gVector   x ;

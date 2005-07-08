@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.33 2005-07-07 21:44:08 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.34 2005-07-08 21:54:52 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -326,7 +326,9 @@ File                         return tFile ;
 Sort                         return tSort ;
 Iso                          return tIso ;
 NoNewLine                    return tNoNewLine ;
+TimeLegend                   return tTimeLegend ;
 FrequencyLegend              return tFrequencyLegend ;
+EigenvalueLegend             return tEigenvalueLegend ;
 EvaluationPoints             return tEvaluationPoints ;
 Store                        return tStore ;
 

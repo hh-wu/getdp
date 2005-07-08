@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.9 2005-07-07 22:18:06 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.10 2005-07-08 21:54:52 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -433,14 +433,12 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
     } 
     newsol = 1;
-    
-    /* Store real part of eigenvalue in "Time": not perfect... FIXME */
+
     DofData_P->CurrentSolution->Time = d[k].re;
+    DofData_P->CurrentSolution->TimeImag = d[k].im;
     DofData_P->CurrentSolution->TimeStep = k;
     DofData_P->CurrentSolution->TimeFunctionValues = NULL;
     DofData_P->CurrentSolution->SolutionExist = 1;
-
-    /* Store eigenvector */
     for(l = 0; l < DofData_P->NbrDof; l+=gCOMPLEX_INCREMENT){
       j = l / gCOMPLEX_INCREMENT;
       LinAlg_SetComplexInVector(z[k*n+j].re, z[k*n+j].im, 

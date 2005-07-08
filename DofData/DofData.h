@@ -49,7 +49,7 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) ;
 void  Dof_WriteFileRES0(char * Name_File, int Format) ;
 void  Dof_ReadFileRES0(void) ;
 void  Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format, 
-		       double Val_Time, int Val_TimeStep) ;
+		       double Val_Time, double Val_TimeImag, int Val_TimeStep) ;
 void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P, 
 		      int Read_DofData, double *Time, double *TimeStep) ;
 void  Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P, int Format,

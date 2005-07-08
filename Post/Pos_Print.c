@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.65 2005-06-23 01:45:07 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.66 2005-07-08 21:54:55 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -190,8 +190,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 		    PostSubOperation_P->HarmonicToTime, 
 		    PostSubOperation_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
-		    CPQ_P?CPQ_P->Name:NULL,
-		    PostSubOperation_P->FrequencyLegend);
+		    CPQ_P?CPQ_P->Name:NULL);
   
   /* Get the region */
   
@@ -738,8 +737,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 		    PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
-		    CPQ_P?CPQ_P->Name:NULL,
-		    PostSubOperation_P->FrequencyLegend);
+		    CPQ_P?CPQ_P->Name:NULL);
 
   if(CPQ_P){
     Cal_PostCumulativeQuantity(NULL,
@@ -1028,8 +1026,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 		    NbTimeStep, PSO_P->HarmonicToTime,
 		    PSO_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
-		    CPQ_P?CPQ_P->Name:NULL,
-		    PSO_P->FrequencyLegend);
+		    CPQ_P?CPQ_P->Name:NULL);
 
   PE = Create_PostElement(0, POINT, 1, 0) ;
 
@@ -1454,8 +1451,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P) {
 		    PostSubOperation_P->Iso, 1,
 		    PostSubOperation_P->HarmonicToTime, 
 		    PostSubOperation_P->CombinationType, 0,
-		    NULL, NULL,
-		    PostSubOperation_P->FrequencyLegend);
+		    NULL, NULL);
   
   Region_L = ((struct Group *)
 	      List_Pointer(Problem_S.Group, 

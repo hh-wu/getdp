@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.68 2005-07-07 21:40:16 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.69 2005-07-08 21:54:52 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -767,6 +767,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         
 	Solution_S.TimeStep = (int)Current.TimeStep ;
         Solution_S.Time = Current.Time ;
+        Solution_S.TimeImag = 0. ;
         Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
 
 	Solution_S.SolutionExist = 1 ;
@@ -827,7 +828,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  RES0 = (int)Current.TimeStep ;
 	}
       }
-      Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, Current.Time, (int)Current.TimeStep) ;
+      Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, Current.Time, 0, (int)Current.TimeStep) ;
       break ;
 
       /*  -->  S a v e S o l u t i o n s              */
@@ -849,7 +850,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	if (!DofData_P->CurrentSolution->SolutionExist)
 	  Msg(ERROR, "SaveSolutions: solution #%d doesn't exist anymore", i) ;
 	Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, 
-			 DofData_P->CurrentSolution->Time, i) ;
+			 DofData_P->CurrentSolution->Time, 
+			 DofData_P->CurrentSolution->TimeImag, i) ;
       }
       break ;
 
@@ -1401,6 +1403,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Solution_S.TimeStep = (int)Current.TimeStep ;
 	Solution_S.Time = Current.Time ;
+	Solution_S.TimeImag = 0. ;
 	Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData2_P) ;
 	Solution_S.SolutionExist = 1 ;
         LinAlg_CreateVector(&Solution_S.x, &DofData2_P->Solver, DofData2_P->NbrDof,
@@ -1751,6 +1754,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  List_Read(Operation_P->Case.FourierTransform.Frequency, i, &d) ;
 	  Solution_S.TimeStep = i ;
 	  Solution_S.Time = TWO_PI * d;
+	  Solution_S.TimeImag = 0.;
 	  Solution_S.SolutionExist = 1 ;
 	  LinAlg_CreateVector(&Solution_S.x, &DofData2_P->Solver, DofData2_P->NbrDof,
 			      DofData2_P->NbrPart, DofData2_P->Part) ;
@@ -1864,42 +1868,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_Binary = 0;
       break;
 
-      /*  --> S c a n / R e a d                       */
-      /*  ------------------------------------------  */
-
-    case OPERATION_READ : Flag_Binary = 1;
-    case OPERATION_SCAN : 
-#if 0
-      /* A refaire */
-
-      Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
-			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
-      
-      if (DofData_P->Solutions == NULL) {
-	DofData_P->Solutions = List_Create(20, 20, sizeof(struct Solution)) ;
-	init_solver(&DofData_P->SolverParameter) ;
-	
-	binary_read_matrix (&DofData_P->A, DefineSystem_P->Name, ".mat") ;
-	binary_read_vector
-	  (DofData_P->NbrDof, &DofData_P->b, DefineSystem_P->Name, ".rhs") ;
-	
-	Solution_S.TimeStep = (int)Current.TimeStep ;
-	Solution_S.Time = Current.Time ;
-	Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
-	init_vector(DofData_P->NbrDof, &Solution_S.x) ;
-	zero_vector(DofData_P->NbrDof,  Solution_S.x) ;
-	List_Add(DofData_P->Solutions, &Solution_S) ;
-	DofData_P->CurrentSolution = (struct Solution*)
-	  List_Pointer(DofData_P->Solutions, 0) ;
-      }
-      else {
-	Msg(ERROR, "Binary read not implemented in this case") ;
-      }
-      Flag_Binary = 0;
-#endif
-      break ;
-      
       /*  -->  C h a n g e O f C o o r d i n a t e s  */
       /*  ------------------------------------------ */ 
 	      
@@ -2029,6 +1997,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 	List_PQuery(DofData_P->Solutions, &i_TimeStep, fcmp_int))) {
     Solution_S.TimeStep = (int)Current.TimeStep ;
     Solution_S.Time = Current.Time ;
+    Solution_S.TimeImag = 0. ;
     Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
     Solution_S.SolutionExist = 1 ;
     LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
@@ -2384,6 +2353,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 
     Solution_S.TimeStep = (int)Current.TimeStep ;
     Solution_S.Time = Current.Time ;
+    Solution_S.TimeImag = 0. ;
     Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P);
 
     Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;

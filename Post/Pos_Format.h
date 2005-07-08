@@ -28,8 +28,7 @@ void  Format_PostFormat(int Format) ;
 
 void  Format_PostHeader(int Format, int Contour, 
 			int NbTimeStep, int HarmonicToTime,
-			int Type, int Order, char *Name1, char *Name2,
-			double FrequencyLegend[3]) ;
+			int Type, int Order, char *Name1, char *Name2) ;
 
 void  Format_PostFooter(struct PostSubOperation * PSO_P, int Store) ;
 

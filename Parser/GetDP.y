@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.70 2005-07-07 21:44:09 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.71 2005-07-08 21:54:54 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -341,7 +341,8 @@ double _value;
 %token        tFile tDepth tDimension tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
-%token        tFrequencyLegend tEvaluationPoints tStore
+%token        tTimeLegend tFrequencyLegend tEigenvalueLegend
+%token        tEvaluationPoints tStore
 %token        tStr, tDate
 
 /* ------------------------------------------------------------------ */
@@ -6362,7 +6363,10 @@ PrintOptions :
       PostSubOperation_S.ChangeOfCoordinates[1] = -1 ;
       PostSubOperation_S.ChangeOfCoordinates[2] = -1 ;
       PostSubOperation_S.ChangeOfValues = NULL ;
-      PostSubOperation_S.FrequencyLegend[0] = -1 ;
+      PostSubOperation_S.Legend = LEGEND_NONE;
+      PostSubOperation_S.LegendPosition[0] = 0.;
+      PostSubOperation_S.LegendPosition[1] = 0.;
+      PostSubOperation_S.LegendPosition[2] = 0.;
       PostSubOperation_S.EvaluationPoints = NULL ;
       PostSubOperation_S.StoreInRegister = -1 ;
     }
@@ -6536,11 +6540,28 @@ PrintOption :
       PostSubOperation_S.ChangeOfValues = List_Copy(ListOfInt_L) ;
     }
 
+  | ',' tTimeLegend '{' FExpr ',' FExpr ',' FExpr '}'
+    { 
+      PostSubOperation_S.Legend = LEGEND_TIME ;
+      PostSubOperation_S.LegendPosition[0] = $4 ;
+      PostSubOperation_S.LegendPosition[1] = $6 ;
+      PostSubOperation_S.LegendPosition[2] = $8 ;
+    }
+
   | ',' tFrequencyLegend '{' FExpr ',' FExpr ',' FExpr '}'
     { 
-      PostSubOperation_S.FrequencyLegend[0] = $4 ;
-      PostSubOperation_S.FrequencyLegend[1] = $6 ;
-      PostSubOperation_S.FrequencyLegend[2] = $8 ;
+      PostSubOperation_S.Legend = LEGEND_FREQUENCY ;
+      PostSubOperation_S.LegendPosition[0] = $4 ;
+      PostSubOperation_S.LegendPosition[1] = $6 ;
+      PostSubOperation_S.LegendPosition[2] = $8 ;
+    }
+
+  | ',' tEigenvalueLegend '{' FExpr ',' FExpr ',' FExpr '}'
+    { 
+      PostSubOperation_S.Legend = LEGEND_EIGENVALUES ;
+      PostSubOperation_S.LegendPosition[0] = $4 ;
+      PostSubOperation_S.LegendPosition[1] = $6 ;
+      PostSubOperation_S.LegendPosition[2] = $8 ;
     }
 
   | ',' tEvaluationPoints '{' RecursiveListOfFExpr '}'

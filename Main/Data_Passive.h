@@ -1024,7 +1024,8 @@ struct PostSubOperation {
   int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex ;
   int    ChangeOfCoordinates[3] ; 
   int    StoreInRegister ;
-  double FrequencyLegend[3] ;
+  int    Legend ;
+  double LegendPosition[3] ;
   char   * String, * String2 ;
   double Target, Val ;
   List_T * HeaderChar_L, * HeaderTag_L ;
@@ -1111,6 +1112,12 @@ struct PostSubOperation {
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION      1
 #define SORT_BY_CONNECTIVITY  2
+
+/* PostSubOperation.Legend */
+#define LEGEND_NONE        0
+#define LEGEND_TIME        1
+#define LEGEND_FREQUENCY   2
+#define LEGEND_EIGENVALUES 3
 
 /* ------------------------------------------------------------------------ */
 /*  C u r r e n t D a t a                                                   */

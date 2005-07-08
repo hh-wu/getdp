@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.39 2005-06-23 01:45:07 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.40 2005-07-08 21:54:55 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -31,6 +31,7 @@
 #include "Pos_Iso.h"
 #include "Pos_Format.h"
 #include "Pos_Element.h"
+#include "Pos_Formulation.h"
 #include "F_Function.h"
 #include "Cal_Value.h"
 #include "Cal_Quantity.h"
@@ -86,12 +87,10 @@ void  Format_PostFormat(int Format){
 void  Format_PostHeader(int Format, int Contour, 
 			int NbTimeStep, int HarmonicToTime,
 			int Type, int Order,
-			char *Name1, char *Name2,
-			double FrequencyLegend[3]){
+			char *Name1, char *Name2){
 
   char name[MAX_STRING_LENGTH] ;
   int i ;
-  double * Val_Pulsation ;
 
   GetDP_Begin("Format_PostHeader");
 
@@ -117,16 +116,17 @@ void  Format_PostHeader(int Format, int Contour,
   switch(Format){
   case FORMAT_GMSH_PARSED :
     fprintf(PostStream, "View \"%s\" {\n", name) ;
+    Gmsh_StartNewView = 1 ;
     break ;
   case FORMAT_GMSH :
     if(Flag_BIN){ /* bricolage */
       fprintf(PostStream, "$View /* %s */\n", name);
       fprintf(PostStream, "%s ", name);
-      Gmsh_StartNewView = 1 ;
     }
     else{
       fprintf(PostStream, "View \"%s\" {\n", name) ;
     }
+    Gmsh_StartNewView = 1 ;
     break ;
   case FORMAT_GNUPLOT :
     fprintf(PostStream, "# PostData '%s'\n", name);
@@ -137,30 +137,93 @@ void  Format_PostHeader(int Format, int Contour,
     break ;
   }
 
-  if ( (Format == FORMAT_GMSH || Format == FORMAT_GMSH_PARSED) &&
-       Current.NbrHar > 1 && FrequencyLegend[0] >= 0) {
-    fprintf(PostStream,"T2(%d,%d,%d){", 
-	    (int)FrequencyLegend[0], (int)FrequencyLegend[1], (int)FrequencyLegend[2]);
-    Val_Pulsation = Current.DofData->Val_Pulsation ;
-    for (i=0 ; i<Current.NbrHar ; i+=2) { 
-      fprintf(PostStream,"\"%f Hz  (COSINUS)\", ",(double)(Val_Pulsation[i/2]/2./PI)) ;
-      fprintf(PostStream,"\"%f Hz  (-SINUS)\"",(double)(Val_Pulsation[i/2]/2./PI)) ;
-      if (i<Current.NbrHar-2) fprintf(PostStream,", ") ;
-    } 
-    fprintf(PostStream,"};\n") ;
-  }
-
   GetDP_End ;
 }
 
 void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
   List_T  * Iso_L[NBR_MAX_ISO] ;
-  double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0 ;
+  double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0, freq, valr, vali ;
   int       NbrIso = 0 ; 
-  int       iPost, iNode, iIso, f, One=1 ;
+  int       iPost, iNode, iIso, f, iTime, One=1, i, j, NbTimeStep ;
   struct PostElement *PE ;
 
   GetDP_Begin("Format_PostFooter");
+
+  if ( (PSO_P->Format == FORMAT_GMSH || PSO_P->Format == FORMAT_GMSH_PARSED) ){
+
+    if(Flag_BIN){ /* bricolage */
+
+      Msg(WARNING, "Legends not implemented yet in binary mode");
+
+    }
+    else{
+      
+      if( !(NbTimeStep = List_Nbr(PSO_P->TimeStep_L)) )
+	NbTimeStep = List_Nbr(Current.DofData->Solutions);
+
+      switch(PSO_P->Legend){
+	
+      case LEGEND_TIME:
+	fprintf(PostStream, "T2(%d,%d,%d){", (int)PSO_P->LegendPosition[0],
+		(int)PSO_P->LegendPosition[1], (int)PSO_P->LegendPosition[2]);
+	for (i = 0 ; i < NbTimeStep ; i++) {
+	  Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
+	  valr = Current.DofData->CurrentSolution->Time ;
+	  for (j = 0 ; j < Current.NbrHar ; j++){
+	    fprintf(PostStream, "\"Step %d/%d: Time = %g\"", i+1, NbTimeStep, valr);
+	    if (j < Current.NbrHar - 1) fprintf(PostStream, ", ") ;
+	  }
+	  if (i < NbTimeStep - 1) fprintf(PostStream, ", ") ;	  
+	}
+	fprintf(PostStream, "};\n") ;
+	break;
+
+      case LEGEND_FREQUENCY:
+	if(Current.NbrHar > 1) {
+	  fprintf(PostStream, "T2(%d,%d,%d){", (int)PSO_P->LegendPosition[0],
+		  (int)PSO_P->LegendPosition[1], (int)PSO_P->LegendPosition[2]);
+	  for (i = 0 ; i < NbTimeStep ; i++) {
+	    Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
+	    for (j = 0 ; j < Current.NbrHar ; j+=2) { 
+	      freq = 0.5*Current.DofData->Val_Pulsation[j/2]/M_PI ;
+	      fprintf(PostStream, "\"%g Hz (Real Part: COSINUS)\", \"%g Hz (Imaginary Part: -SINUS)\"", 
+		      freq, freq) ;
+	      if (j < Current.NbrHar - 2) fprintf(PostStream, ", ") ;
+	    } 
+	    if (i < NbTimeStep - 1) fprintf(PostStream, ", ") ;	  
+	  }
+	  fprintf(PostStream, "};\n") ;
+	}
+	break;
+
+      case LEGEND_EIGENVALUES:
+	fprintf(PostStream, "T2(%d,%d,%d){", (int)PSO_P->LegendPosition[0],
+		(int)PSO_P->LegendPosition[1], (int)PSO_P->LegendPosition[2]);
+	for (i = 0 ; i < NbTimeStep ; i++) {
+	  Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
+	  valr = Current.DofData->CurrentSolution->Time ;
+	  vali = Current.DofData->CurrentSolution->TimeImag ;
+	  for (j = 0 ; j < Current.NbrHar ; j+=2) { 
+	    if(vali >= 0)
+	      fprintf(PostStream, 
+		      "\"Eigenvalue %d/%d: %g + i * %g (Real Part)\", "
+		      "\"Eigenvalue %d/%d: %g + i * %g (Imaginary Part)\"", 
+		      i+1, NbTimeStep, valr, vali, i+1, NbTimeStep, valr, vali);
+	    else
+	      fprintf(PostStream, 
+		      "\"Eigenvalue %d/%d: %g - i * %g (Real Part)\", "
+		      "\"Eigenvalue %d/%d: %g - i * %g (Imaginary Part)\"", 
+		      i+1, NbTimeStep, valr, -vali, i+1, NbTimeStep, valr, -vali);
+	    if (j < Current.NbrHar - 2) fprintf(PostStream, ", ") ;
+	  }
+	  if (i < NbTimeStep - 1) fprintf(PostStream, ", ") ;	  
+	}
+	fprintf(PostStream, "};\n") ;
+	break;
+      }
+    }
+
+  }
 
   if(PSO_P->Iso){
 
@@ -217,6 +280,14 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
 
   switch(PSO_P->Format){
   case FORMAT_GMSH_PARSED :
+    if(List_Nbr(TimeValue_L) > 1){
+      fprintf(PostStream, "TIME{");
+      for(iTime = 0; iTime < List_Nbr(TimeValue_L); iTime++){
+	if(iTime) fprintf(PostStream, ",");
+	fprintf(PostStream, "%g", *(double*)List_Pointer(TimeValue_L, iTime));
+      }
+      fprintf(PostStream, "};\n");
+    }
     fprintf(PostStream, "};\n") ;
     break ;
   case FORMAT_GMSH :
@@ -255,6 +326,14 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
       fprintf(PostStream, "$EndView\n");
     }
     else{
+      if(List_Nbr(TimeValue_L) > 1){
+	fprintf(PostStream, "TIME{");
+	for(iTime = 0; iTime < List_Nbr(TimeValue_L); iTime++){
+	  if(iTime) fprintf(PostStream, ",");
+	  fprintf(PostStream, "%g", *(double*)List_Pointer(TimeValue_L, iTime));
+	}
+	fprintf(PostStream, "};\n");
+      }
       fprintf(PostStream, "};\n") ;
     }
     break ;
@@ -270,7 +349,7 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
 /*  F o r m a t _ G m s h P a r s e d                                       */
 /* ------------------------------------------------------------------------ */
 
-void  Format_GmshParsed(int TimeStep, int NbTimeStep, int NbHarmonic, 
+void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmonic, 
 			int HarmonicToTime, int Type, int NbrNodes, 
 			double *x, double *y, double *z, struct Value *Value){
   int     i,j,k;
@@ -279,6 +358,19 @@ void  Format_GmshParsed(int TimeStep, int NbTimeStep, int NbHarmonic,
 
   GetDP_Begin("Format_GmshParsed");
 
+  if(Gmsh_StartNewView){
+    Gmsh_StartNewView = 0 ;
+    if(!TimeValue_L) TimeValue_L = List_Create(100,1000,sizeof(double));
+    else List_Reset(TimeValue_L);
+  }
+
+  if (HarmonicToTime == 1)
+    for(k = 0 ; k < NbHarmonic ; k++)
+      List_Put(TimeValue_L, NbHarmonic*TimeStep+k, &Time);
+  else
+    for(k = 0 ; k < HarmonicToTime ; k++)
+      List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);	
+  
   switch (Value[0].Type) {
 
   case SCALAR :
@@ -810,7 +902,7 @@ void  Format_PostElement(int Format, int Contour, int Store,
 
   switch(Format){
   case FORMAT_GMSH_PARSED :
-    Format_GmshParsed(TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
+    Format_GmshParsed(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		      PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
 		      PE->Value) ;
     break ;
@@ -821,7 +913,7 @@ void  Format_PostElement(int Format, int Contour, int Store,
 		  PE->Value) ;
     }
     else{
-      Format_GmshParsed(TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
+      Format_GmshParsed(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 			PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
 			PE->Value) ;
     }

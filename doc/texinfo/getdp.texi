@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.69 2005-06-23 01:45:07 geuzaine Exp $
+@c $Id: getdp.texi,v 1.70 2005-07-08 21:54:55 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -671,7 +671,7 @@ three-dimensional models (3D)
 static states@*
 sinusoidal and harmonic states@*
 transient states@*
-eigen value problems (experimental)
+eigenvalue problems (experimental)
 @end table
 
 These methods have been successfully applied to build coupled physical
@@ -3599,7 +3599,7 @@ Generate iteration matrices separately for system @var{system-id}. It is
 destined to be used with @code{Update} in order to create more efficiently
 the actual system to solve (this is only useful in linear transient problems
 with one single excitation) or with @code{Lanczos} in order to generate the
-matrices of a (generalized) eigen value problem.
+matrices of a (generalized) eigenvalue problem.
 
 @item Update
 @code{[@var{system-id}, @var{expression}]}
@@ -3694,13 +3694,22 @@ time steps.
 
 Print the current values of the expressions listed in @var{expression-list}.
 
+@item EigenSolve
+@code{[@var{system-id}, @var{expression-cst}, @var{expression-cst}, @var{expression-cst}]}
+
+Eigenvalue/eigenvector computation using Arpack. The parameters are: the
+system (which has to be generated with @code{GenerateSeparate[]}), the
+number of eigenvalues/eigenvectors to compute and the real and imaginary
+spectral shift (around which to look for eigenvalues).
+
 @item Lanczos
 @code{[@var{system-id}, @var{expression-cst}, @{ @var{expression-cst-list} @} , @var{expression-cst}]}
 
-Eigen value computation by the Lanczos algorithm. The parameters are: the
-system (which has to be generated with @code{GenerateSeparate[]}), the size
-of the Lanczos space, the indices of the eigen values/vectors to store, the
-spectral shift.
+Eigenvalue/eigenvector computation by the Lanczos algorithm. The parameters
+are: the system (which has to be generated with @code{GenerateSeparate[]}),
+the size of the Lanczos space, the indices of the eigenvalues/eigenvectors
+to store, the spectral shift. This routine is deprecated: use
+@code{EigenSolve} instead.
 
 @item FourierTransform
 @code{[@var{system-id}, @var{system-id}, @{ @var{expression-cst-list} @}]}
@@ -5835,10 +5844,10 @@ interruption).
 
 @example
 $ResFormat /* GetDP v@var{getdp-version-number}, @var{string-for-format} */
-@var{getdp-version-number} @var{file-res-format}
+1.1 @var{file-res-format}
 $EndResFormat
 $Solution  /* DofData #@var{dofdata-number} */
-@var{dofdata-number} @var{time-value} @var{time-step-number}
+@var{dofdata-number} @var{time-value} @var{time-imag-value} @var{time-step-number}
 @var{solution-value}
 @dots{}
 $EndSolution
@@ -5852,8 +5861,10 @@ $EndSolution
 A @code{$Solution} field contains the solution associated with a 
 @code{$DofData} field.
 @item
-There is one @code{$Solution} field for each time step, of which the time is 
-@var{time-value} (0 for non time dependent analyses).
+There is one @code{$Solution} field for each time step, of which the time is
+@var{time-value} (0 for non time dependent or non modal analyses) and the
+imaginary time is @var{time-imag-value} (0 for non time dependent or non
+modal analyses).
 @item
 The order of the @var{solution-value}s in a @code{$Solution} field follows 
 the numbering of the equations given in the @file{.pre} file 

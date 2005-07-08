@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.34 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.35 2005-07-08 21:54:52 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -270,14 +270,10 @@ void Cal_WholeQuantity(struct Element * Element,
       Index++ ;  
       break ;
 
-    case WQ_OPERATORANDQUANTITYEVAL : /* {op qty}[x,y,z] {op qty}[x,y,z,t]*/
+    case WQ_OPERATORANDQUANTITYEVAL : /* {op qty}[x,y,z] {op qty}[negDeltaTimeStep]*/
       if (i_WQ != DofIndexInWholeQuantity || TreatmentStatus == _POS){
-	/*
-	if ((k = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments) != 3) 
-	  Msg(ERROR, "Explicit time evaluation not done (yet)");
-	*/
-
-	if ((k = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments) == 3) { 
+	k = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments;
+	if (k == 3) { 
 	  Index -= k ;
 	  X = Stack[0][Index  ].Val[0] ;
 	  Y = Stack[0][Index+1].Val[0] ;
@@ -292,7 +288,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	  Multi[Index] = 0 ;
 	  Index++ ;
 	} 
-	else if ((k = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments) == 1) { 
+	else if (k == 1) { 
 	  Index -= k ;
 	  ntime = (int)Stack[0][Index].Val[0] ;
 	  
@@ -334,8 +330,9 @@ void Cal_WholeQuantity(struct Element * Element,
 	      }
 	    }
 	  }
-
-	} else
+	  
+	} 
+	else
 	  Msg(ERROR, "Explicit time evaluation not done (yet)");
       }
       else{

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.32 2005-06-24 17:51:54 geuzaine Exp $
+# $Id: Makefile,v 1.33 2005-07-08 21:54:55 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -166,5 +166,6 @@ Pos_Format.o: Pos_Format.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../Main/Data_Element.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
   ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h Pos_Iso.h \
-  Pos_Element.h Pos_Format.h ../Function/F_Function.h ../Main/Cal_Value.h \
-  ../Main/Cal_Quantity.h ../Main/Data_Active.h ../Main/Cal_Value.h
+  Pos_Element.h Pos_Format.h Pos_Formulation.h ../Function/F_Function.h \
+  ../Main/Cal_Value.h ../Main/Cal_Quantity.h ../Main/Data_Active.h \
+  ../Main/Cal_Value.h
