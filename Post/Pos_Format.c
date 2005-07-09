@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.40 2005-07-08 21:54:55 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.41 2005-07-09 16:27:36 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -49,6 +49,7 @@ static int     Gmsh_StartNewView = 0 ;
 static int     NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT;
 static int     NbSQ, NbVQ, NbTQ, NbSS, NbVS, NbTS, NbSH, NbVH, NbTH;
 static int     NbSI, NbVI, NbTI, NbSY, NbVY, NbTY;
+static int     NbT2;
 static List_T *SP = NULL, *VP = NULL, *TP = NULL;
 static List_T *SL = NULL, *VL = NULL, *TL = NULL;
 static List_T *ST = NULL, *VT = NULL, *TT = NULL;
@@ -57,6 +58,7 @@ static List_T *SS = NULL, *VS = NULL, *TS = NULL;
 static List_T *SH = NULL, *VH = NULL, *TH = NULL;
 static List_T *SI = NULL, *VI = NULL, *TI = NULL;
 static List_T *SY = NULL, *VY = NULL, *TY = NULL;
+static List_T *T2D = NULL, *T2C = NULL;
 
 /* ------------------------------------------------------------------------ */
 /*  F o r m a t _ P o s t F o r m a t / H e a d e r / F o o t e r           */
@@ -140,89 +142,112 @@ void  Format_PostHeader(int Format, int Contour,
   GetDP_End ;
 }
 
+void Gmsh_StringStart(int Format, double x, double y, double style){
+  double d;
+  if(Flag_BIN){ /* bricolage: should use Format instead */
+    List_Add(T2D, &x);
+    List_Add(T2D, &y);
+    List_Add(T2D, &style); 
+    d = List_Nbr(T2C);
+    List_Add(T2D, &d); 
+    NbT2++;
+  }
+  else{
+    fprintf(PostStream, "T2(%g,%g,%g){", x, y, style);
+  }
+}
+
+void Gmsh_StringAdd(int Format, int first, char *text){
+  int i;
+  if(Flag_BIN){ /* bricolage: should use Format instead */
+    for(i = 0; i < (int)strlen(text)+1; i++) 
+      List_Add(T2C, &text[i]);
+  }
+  else{
+    if(!first) 
+      fprintf(PostStream, ",");
+    fprintf(PostStream, "\"%s\"", text);
+  }
+}
+
+void Gmsh_StringEnd(int Format){
+  if(Flag_BIN){ /* bricolage: should use Format instead */
+  }
+  else{
+    fprintf(PostStream, "};\n") ;
+  }
+}
+
 void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
   List_T  * Iso_L[NBR_MAX_ISO] ;
   double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0, freq, valr, vali ;
   int       NbrIso = 0 ; 
   int       iPost, iNode, iIso, f, iTime, One=1, i, j, NbTimeStep ;
+  char      tmp[1024];
   struct PostElement *PE ;
-
+  
   GetDP_Begin("Format_PostFooter");
-
+  
   if ( (PSO_P->Format == FORMAT_GMSH || PSO_P->Format == FORMAT_GMSH_PARSED) ){
-
-    if(Flag_BIN){ /* bricolage */
-
-      Msg(WARNING, "Legends not implemented yet in binary mode");
-
-    }
-    else{
+    
+    if( !(NbTimeStep = List_Nbr(PSO_P->TimeStep_L)) )
+      NbTimeStep = List_Nbr(Current.DofData->Solutions);
+    
+    switch(PSO_P->Legend){
       
-      if( !(NbTimeStep = List_Nbr(PSO_P->TimeStep_L)) )
-	NbTimeStep = List_Nbr(Current.DofData->Solutions);
-
-      switch(PSO_P->Legend){
-	
-      case LEGEND_TIME:
-	fprintf(PostStream, "T2(%d,%d,%d){", (int)PSO_P->LegendPosition[0],
-		(int)PSO_P->LegendPosition[1], (int)PSO_P->LegendPosition[2]);
-	for (i = 0 ; i < NbTimeStep ; i++) {
-	  Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
-	  valr = Current.DofData->CurrentSolution->Time ;
-	  for (j = 0 ; j < Current.NbrHar ; j++){
-	    fprintf(PostStream, "\"Step %d/%d: Time = %g\"", i+1, NbTimeStep, valr);
-	    if (j < Current.NbrHar - 1) fprintf(PostStream, ", ") ;
-	  }
-	  if (i < NbTimeStep - 1) fprintf(PostStream, ", ") ;	  
+    case LEGEND_TIME:
+      Gmsh_StringStart(PSO_P->Format, PSO_P->LegendPosition[0],
+		       PSO_P->LegendPosition[1], PSO_P->LegendPosition[2]);
+      for (i = 0 ; i < NbTimeStep ; i++) {
+	Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
+	valr = Current.DofData->CurrentSolution->Time ;
+	for (j = 0 ; j < Current.NbrHar ; j++){
+	  sprintf(tmp, "Step %d/%d: Time = %g", i+1, NbTimeStep, valr);
+	  Gmsh_StringAdd(PSO_P->Format, (!i && !j), tmp);
 	}
-	fprintf(PostStream, "};\n") ;
-	break;
-
-      case LEGEND_FREQUENCY:
-	if(Current.NbrHar > 1) {
-	  fprintf(PostStream, "T2(%d,%d,%d){", (int)PSO_P->LegendPosition[0],
-		  (int)PSO_P->LegendPosition[1], (int)PSO_P->LegendPosition[2]);
-	  for (i = 0 ; i < NbTimeStep ; i++) {
-	    Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
-	    for (j = 0 ; j < Current.NbrHar ; j+=2) { 
-	      freq = 0.5*Current.DofData->Val_Pulsation[j/2]/M_PI ;
-	      fprintf(PostStream, "\"%g Hz (Real Part: COSINUS)\", \"%g Hz (Imaginary Part: -SINUS)\"", 
-		      freq, freq) ;
-	      if (j < Current.NbrHar - 2) fprintf(PostStream, ", ") ;
-	    } 
-	    if (i < NbTimeStep - 1) fprintf(PostStream, ", ") ;	  
-	  }
-	  fprintf(PostStream, "};\n") ;
-	}
-	break;
-
-      case LEGEND_EIGENVALUES:
-	fprintf(PostStream, "T2(%d,%d,%d){", (int)PSO_P->LegendPosition[0],
-		(int)PSO_P->LegendPosition[1], (int)PSO_P->LegendPosition[2]);
-	for (i = 0 ; i < NbTimeStep ; i++) {
-	  Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
-	  valr = Current.DofData->CurrentSolution->Time ;
-	  vali = Current.DofData->CurrentSolution->TimeImag ;
-	  for (j = 0 ; j < Current.NbrHar ; j+=2) { 
-	    if(vali >= 0)
-	      fprintf(PostStream, 
-		      "\"Eigenvalue %d/%d: %g + i * %g (Real Part)\", "
-		      "\"Eigenvalue %d/%d: %g + i * %g (Imaginary Part)\"", 
-		      i+1, NbTimeStep, valr, vali, i+1, NbTimeStep, valr, vali);
-	    else
-	      fprintf(PostStream, 
-		      "\"Eigenvalue %d/%d: %g - i * %g (Real Part)\", "
-		      "\"Eigenvalue %d/%d: %g - i * %g (Imaginary Part)\"", 
-		      i+1, NbTimeStep, valr, -vali, i+1, NbTimeStep, valr, -vali);
-	    if (j < Current.NbrHar - 2) fprintf(PostStream, ", ") ;
-	  }
-	  if (i < NbTimeStep - 1) fprintf(PostStream, ", ") ;	  
-	}
-	fprintf(PostStream, "};\n") ;
-	break;
       }
+      Gmsh_StringEnd(PSO_P->Format);
+      break;
+      
+    case LEGEND_FREQUENCY:
+      if(Current.NbrHar > 1) {
+	Gmsh_StringStart(PSO_P->Format, PSO_P->LegendPosition[0],
+			 PSO_P->LegendPosition[1], PSO_P->LegendPosition[2]);
+	for (i = 0 ; i < NbTimeStep ; i++) {
+	  Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
+	  for (j = 0 ; j < Current.NbrHar ; j+=2) { 
+	    freq = 0.5*Current.DofData->Val_Pulsation[j/2]/M_PI ;
+	    sprintf(tmp, "%g Hz (Real Part: COSINUS)", freq);
+	    Gmsh_StringAdd(PSO_P->Format, (!i && !j), tmp);
+	    sprintf(tmp, "%g Hz (Imaginary Part: -SINUS)", freq);
+	    Gmsh_StringAdd(PSO_P->Format, 0, tmp);
+	  } 
+	}
+	Gmsh_StringEnd(PSO_P->Format);
+      }
+      break;
+      
+    case LEGEND_EIGENVALUES:
+      Gmsh_StringStart(PSO_P->Format, PSO_P->LegendPosition[0],
+		       PSO_P->LegendPosition[1], PSO_P->LegendPosition[2]);
+      for (i = 0 ; i < NbTimeStep ; i++) {
+	Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
+	valr = Current.DofData->CurrentSolution->Time ;
+	vali = Current.DofData->CurrentSolution->TimeImag ;
+	for (j = 0 ; j < Current.NbrHar ; j+=2) { 
+	  sprintf(tmp, "Eigenvalue %d/%d: %g %s i * %g (Real Part)", 
+		  i+1, NbTimeStep, valr, (vali > 0) ? "+" : "-", 
+		  (vali > 0) ? vali : -vali);
+	  Gmsh_StringAdd(PSO_P->Format, (!i && !j), tmp);
+	  sprintf(tmp, "Eigenvalue %d/%d: %g %s i * %g (Imaginary Part)", 
+		  i+1, NbTimeStep, valr, (vali > 0) ? "+" : "-", 
+		  (vali > 0) ? vali : -vali);
+	  Gmsh_StringAdd(PSO_P->Format, 0, tmp);
+	}
+      }
+      Gmsh_StringEnd(PSO_P->Format);
+      break;
     }
-
   }
 
   if(PSO_P->Iso){
@@ -293,11 +318,11 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
   case FORMAT_GMSH :
     if(Flag_BIN){ /* bricolage */
       fprintf(PostStream, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d "
-	      "%d %d %d %d %d %d %d %d %d 0 0 0 0\n",
+	      "%d %d %d %d %d %d %d %d %d %d %d 0 0\n",
 	      List_Nbr(TimeValue_L),
 	      NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT, 
 	      NbSQ, NbVQ, NbTQ, NbSS, NbVS, NbTS, NbSH, NbVH, NbTH,
-	      NbSI, NbVI, NbTI, NbSY, NbVY, NbTY);
+	      NbSI, NbVI, NbTI, NbSY, NbVY, NbTY, NbT2, List_Nbr(T2C));
       if(Flag_BIN){
 	f = LIST_FORMAT_BINARY;
 	fwrite(&One, sizeof(int), 1, PostStream);
@@ -322,6 +347,7 @@ void  Format_PostFooter(struct PostSubOperation *PSO_P, int Store){
       List_WriteToFile(TI, PostStream, f);
       List_WriteToFile(SY, PostStream, f); List_WriteToFile(VY, PostStream, f);
       List_WriteToFile(TY, PostStream, f);
+      List_WriteToFile(T2D, PostStream, f); List_WriteToFile(T2C, PostStream, f);
       fprintf(PostStream, "\n");
       fprintf(PostStream, "$EndView\n");
     }
@@ -497,6 +523,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
     NbST = NbVT = NbTT = NbSQ = NbVQ = NbTQ = 0;
     NbSS = NbVS = NbTS = NbSH = NbVH = NbTH = 0;
     NbSI = NbVI = NbTI = NbSY = NbVY = NbTY = 0;
+    NbT2 = 0;
     if(!SP) SP = List_Create(100,1000,sizeof(double)); else List_Reset(SP);
     if(!VP) VP = List_Create(100,1000,sizeof(double)); else List_Reset(VP);
     if(!TP) TP = List_Create(100,1000,sizeof(double)); else List_Reset(TP);
@@ -521,6 +548,8 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
     if(!SY) SY = List_Create(100,1000,sizeof(double)); else List_Reset(SY);
     if(!VY) VY = List_Create(100,1000,sizeof(double)); else List_Reset(VY);
     if(!TY) TY = List_Create(100,1000,sizeof(double)); else List_Reset(TY);
+    if(!T2D) T2D = List_Create(100,1000,sizeof(double)); else List_Reset(T2D);
+    if(!T2C) T2C = List_Create(100,1000,sizeof(char)); else List_Reset(T2C);
     if(!TimeValue_L) TimeValue_L = List_Create(100,1000,sizeof(double));
     else List_Reset(TimeValue_L);
   }

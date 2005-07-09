@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.71 2005-07-08 21:54:54 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.72 2005-07-09 16:27:36 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -6540,6 +6540,15 @@ PrintOption :
       PostSubOperation_S.ChangeOfValues = List_Copy(ListOfInt_L) ;
     }
 
+  | ',' tTimeLegend
+    { 
+      PostSubOperation_S.Legend = LEGEND_TIME ;
+      PostSubOperation_S.LegendPosition[0] = 1.e5 ;
+      PostSubOperation_S.LegendPosition[1] = 30. ;
+      /* (align<<16)|(font<<8)|(fontsize) */
+      PostSubOperation_S.LegendPosition[2] = 66574 ;
+    }
+
   | ',' tTimeLegend '{' FExpr ',' FExpr ',' FExpr '}'
     { 
       PostSubOperation_S.Legend = LEGEND_TIME ;
@@ -6548,12 +6557,30 @@ PrintOption :
       PostSubOperation_S.LegendPosition[2] = $8 ;
     }
 
+  | ',' tFrequencyLegend
+    { 
+      PostSubOperation_S.Legend = LEGEND_FREQUENCY ;
+      PostSubOperation_S.LegendPosition[0] = 1.e5 ;
+      PostSubOperation_S.LegendPosition[1] = 30. ;
+      /* (align<<16)|(font<<8)|(fontsize) */
+      PostSubOperation_S.LegendPosition[2] = 66574 ;
+    }
+
   | ',' tFrequencyLegend '{' FExpr ',' FExpr ',' FExpr '}'
     { 
       PostSubOperation_S.Legend = LEGEND_FREQUENCY ;
       PostSubOperation_S.LegendPosition[0] = $4 ;
       PostSubOperation_S.LegendPosition[1] = $6 ;
       PostSubOperation_S.LegendPosition[2] = $8 ;
+    }
+
+  | ',' tEigenvalueLegend
+    { 
+      PostSubOperation_S.Legend = LEGEND_EIGENVALUES ;
+      PostSubOperation_S.LegendPosition[0] = 1.e5 ;
+      PostSubOperation_S.LegendPosition[1] = 30. ;
+      /* (align<<16)|(font<<8)|(fontsize) */
+      PostSubOperation_S.LegendPosition[2] = 66574 ;
     }
 
   | ',' tEigenvalueLegend '{' FExpr ',' FExpr ',' FExpr '}'
@@ -6567,8 +6594,7 @@ PrintOption :
   | ',' tEvaluationPoints '{' RecursiveListOfFExpr '}'
     { 
       if(List_Nbr($4)%3 != 0)
-	vyyerror("Expected 3n coordinates, got %d", 
-		 List_Nbr($4));
+	vyyerror("Expected 3n coordinates, got %d", List_Nbr($4));
       else {
 	PostSubOperation_S.EvaluationPoints = $4 ;
       }

@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.70 2005-07-08 21:54:55 geuzaine Exp $
+@c $Id: getdp.texi,v 1.71 2005-07-09 16:27:36 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -4103,6 +4103,38 @@ Changes the values of the results according to the expressions given in
 argument. The @var{expression}s represent the new values (@var{x}-compoment,
 @var{y}-component, etc.), and can be functions of the current values of the
 solution (@var{$Val0}, @var{$Val1}, etc.). 
+
+@item DecomposeInSimplex
+
+Decomposes all output elements in simplices (points, lines, triangles or
+tetrahedra).
+
+@item Store
+@code{@var{expression-cst}}
+
+Stores the result of the post-processing operation in the register
+@var{expression-cst}.
+
+@item TimeLegend
+@code{< @{ @var{expression}, @var{expression}, @var{expression} @} >}
+
+Includes a time legend in Gmsh plots. If the three optional expressions
+giving the position of the legend are not specified, the legend is centered
+on top of the plot.
+
+@item FrequencyLegend
+@code{< @{ @var{expression}, @var{expression}, @var{expression} @} >}
+
+Includes a frequency legend in Gmsh plots. If the three optional expressions
+giving the position of the legend are not specified, the legend is centered
+on top of the plot.
+
+@item EigenvalueLegend
+@code{< @{ @var{expression}, @var{expression}, @var{expression} @} >}
+
+Includes an eigenvalue legend in Gmsh plots. If the three optional
+expressions giving the position of the legend are not specified, the legend
+is centered on top of the plot.
 
 @end ftable
 
