@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.25 2005-07-07 13:08:48 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.26 2005-07-09 07:17:21 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -837,6 +837,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
          Post ? J'ai verifie dans l'affichage de Gmsh et a semble bien
          tre le cas */
       DofData_P->CurrentSolution->Time = wi[ii] ;
+      DofData_P->CurrentSolution->TimeImag = 0. ;
       DofData_P->CurrentSolution->TimeStep = ii ;
       DofData_P->CurrentSolution->TimeFunctionValues = NULL ;
       DofData_P->CurrentSolution->SolutionExist = 1 ;
