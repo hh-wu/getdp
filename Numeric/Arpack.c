@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.12 2005-07-11 20:19:21 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.13 2005-07-11 21:26:27 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -25,6 +25,7 @@
 
 #include "GetDP.h"
 #include "DofData.h"
+#include "CurrentData.h"
 #include "Numeric.h"
 #include "EigenPar.h"
 
@@ -76,7 +77,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   gVector v1, v2;
   int j, k, l, newsol;
   double tmp, d1, d2, dmax, abs, arg;
-  complex_16 omega;
+  complex_16 f;
 
   gMatrix *K = &DofData_P->M1; /* matrix associated with terms with no Dt nor DtDt */
   gMatrix *M = &DofData_P->M3; /* matrix associated with DtDt terms */
@@ -91,6 +92,11 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 
   GetDP_Begin("EigenSolve");
 
+  /* Bail out if we are not in harmonic regime: it's much easier this
+     way for now (FIXME: code the special case for real systems) */
+  if(Current.NbrHar != 2)
+    Msg(ERROR, "EigenSolve requires system defined with \"Type Complex\"");
+  
   /* Get eigenproblem parameters */
   EigenPar("eigen.par", &eigenpar);
 
@@ -457,11 +463,12 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     /* Eigenvalue = omega^2 -> f = sqrt(omega^2)/(2*Pi) */
     abs = sqrt(SQU(d[k].re) + SQU(d[k].im));
     arg = atan2(d[k].im, d[k].re);
-    omega.re = sqrt(abs) * cos(0.5*arg);
-    omega.im = sqrt(abs) * sin(0.5*arg);
-    
-    Msg(BIGINFO, "Eigenvalue %d w^2 = %.12e + %.12e * i (f = %.12e + %.12e * i)",
-	k, d[k].re, d[k].im, omega.re/TWO_PI, omega.im/TWO_PI);
+    f.re = sqrt(abs) * cos(0.5*arg) / TWO_PI;
+    f.im = sqrt(abs) * sin(0.5*arg) / TWO_PI;
+    Msg(BIGINFO, "Eigenvalue %03d: w^2 = %.12e %s %.12e * i", 
+	k+1, d[k].re, (d[k].im > 0) ? "+" :  "-", (d[k].im > 0) ? d[k].im : -d[k].im);
+    Msg(BIGINFO, "                  f = %.12e %s %.12e * i",
+	f.re, (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
   }
 
   /* Save the eigenvectors */
