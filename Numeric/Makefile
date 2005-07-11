@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.37 2005-07-11 15:00:17 geuzaine Exp $
+# $Id: Makefile,v 1.38 2005-07-11 21:31:46 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -98,7 +98,10 @@ Arpack.o: Arpack.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
-  Numeric.h EigenPar.h Arpack_F.h ../include/Compat.h
+  ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../Main/Data_Element.h ../include/Magic.h Numeric.h EigenPar.h \
+  Arpack_F.h ../include/Compat.h
 # 1 "/Users/geuzaine/.getdp/Numeric//"
 Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
