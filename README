@@ -14,6 +14,15 @@ environment variable) if the library is not installed in its default
 location. Please note that compiling the Windows version requires the
 Cygwin tools (freely available from http://www.cygwin.com).
 
+By default, GetDP uses a built-in set of linear solvers derived from
+Sparskit Version 2 (http://www-users.cs.umn.edu/~saad/). GetDP can
+also be configured to use the linear solvers from PETSc 2.3 or higher
+(freely available from http://www.mcs.anl.gov/petsc), using either
+real or complex arithmetic. To configure GetDP with PETSc support,
+type
+
+./configure --enable-petsc
+
 For a description of all other configuration options, type
 
 ./configure --help

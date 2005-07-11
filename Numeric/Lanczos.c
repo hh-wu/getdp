@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.26 2005-07-09 07:17:21 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.27 2005-07-11 15:00:17 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -29,6 +29,7 @@
 #include "DofData.h"
 #include "CurrentData.h"
 #include "Numeric.h"
+#include "EigenPar.h"
 
 /* Version commentee par A. Nicolet de Lanczos.c le 2001/11/29 */
 
@@ -367,17 +368,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   long     mun = -1 ;
 #endif
   struct Solution Solution_S ;
-
-  /* declaration pour les parametres de eigen.par */
-  
-  struct eigenpro {
-    double prec;
-    int    size; /* remplacer LanSize par eigenpar.size */
-    int    reortho;
-  } eigenpar ;
-
-  char EigenFileName[MAX_FILE_NAME_LENGTH];
-  FILE * eigenf;
+  struct EigenPar eigenpar;
 
   GetDP_Begin("Lanczos");
 
@@ -389,44 +380,10 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     Msg(ERROR, "No System available for Lanczos: check 'DtDt' and 'GenerateSeparate'") ;
 
   /* lecture des parametres dans le fichier 'eigen.par' */
-  eigenpar.prec = 1.e-4; 
-  eigenpar.reortho = 0;
-  eigenpar.size = LanSize; /* FIXME: dans le .pro il faudrait changer
-			      la syntaxe. Enlever LanSize et remplacer
-			      le mot clef Lanczos par Eigenproblem */
-  strcpy(EigenFileName, Name_Path);
-  strcat(EigenFileName, "eigen.par");
-  Msg(INFO, "Loading eigenproblem parameter file '%s'", EigenFileName);
-  eigenf = fopen(EigenFileName, "r+t");
-  if (eigenf) { /* le fichier existe ! */
-    fscanf(eigenf, "%lg ", &eigenpar.prec); 
-    Msg(INFO, "eigenpar.prec = %g", eigenpar.prec);
-    fscanf(eigenf, "%d ", &eigenpar.reortho);
-    Msg(INFO, "eigenpar.reortho = %d", eigenpar.reortho);
-    fscanf(eigenf, "%d ", &eigenpar.size);
-    Msg(INFO, "eigenpar.size = %d", eigenpar.size);
-    /* tester la fin du fichier avec un entier standard */
-    fclose(eigenf);
-  }
-
-  /* reecriture des parametres */
-  eigenf=fopen(EigenFileName, "w+t");
-  fprintf(eigenf, "%g \n", eigenpar.prec);
-  fprintf(eigenf, "%d \n", eigenpar.reortho);
-  fprintf(eigenf, "%d \n", eigenpar.size);
-  fprintf(eigenf,
-	  "/*\n"
-	  "   The numbers above are the parameters for the numerical\n"
-	  "   eigenvalue problem:\n"
-	  "\n"
-	  "   prec = aimed accuracy for eigenvectors (default=1.e-4)\n"
-	  "   reortho = reorthogonalisation of Krylov basis: yes=1, no=0 (default=0) \n"
-	  "   size = number of iterations and max size of the Krylov basis\n"
-	  "\n"
-	  "   The shift is given in the .pro file because its choice relies\n"
-	  "   on physical considerations...\n"
-	  "*/");
-  fclose(eigenf);
+  EigenParRead("eigen.par", &eigenpar);
+  eigenpar.size = LanSize; /* Hack: we force this */
+  EigenParWrite("eigen.par", &eigenpar);
+  EigenParPrint(&eigenpar);
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
