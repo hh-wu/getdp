@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.11 2005-07-11 15:00:17 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.12 2005-07-11 20:19:21 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -20,6 +20,7 @@
  * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
+ *   Andre Nicolet
  */
 
 #include "GetDP.h"
@@ -74,7 +75,8 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   struct Solution Solution_S;
   gVector v1, v2;
   int j, k, l, newsol;
-  double tmp, d1, d2, dmax;
+  double tmp, d1, d2, dmax, abs, arg;
+  complex_16 omega;
 
   gMatrix *K = &DofData_P->M1; /* matrix associated with terms with no Dt nor DtDt */
   gMatrix *M = &DofData_P->M3; /* matrix associated with DtDt terms */
@@ -90,9 +92,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   GetDP_Begin("EigenSolve");
 
   /* Get eigenproblem parameters */
-  EigenParRead("eigen.par", &eigenpar);
-  EigenParWrite("eigen.par", &eigenpar);
-  EigenParPrint(&eigenpar);
+  EigenPar("eigen.par", &eigenpar);
 
   ido = 0;
   /* Reverse communication flag.  IDO must be zero on the first 
@@ -345,11 +345,11 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
               factorization. */
 
   rvec = 1; /* .true. */
-  /* If we want Ritz vectors to be computed as well. In our case, no. */
+  /* If we want Ritz vectors to be computed as well. */
   
   howmny = 'A';
-  /* What do we want: Ritz or Schur vectors? In our example, we won't use them,
-     anyway. For Schur, choose: howmny = 'P' */
+  /* What do we want: Ritz or Schur vectors? For Schur, choose: howmny
+     = 'P' */
   
   select = (unsigned int*)Malloc(ncv * sizeof(unsigned int));
   /* Internal workspace */
@@ -453,7 +453,15 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     tmp = SQU(d[k].re) + SQU(d[k].im);
     d[k].re = shift_r + d[k].re/tmp;
     d[k].im = shift_i - d[k].im/tmp;
-    Msg(BIGINFO, "Eigenvalue %d = %.16g + %.16g*i", k, d[k].re, d[k].im);
+
+    /* Eigenvalue = omega^2 -> f = sqrt(omega^2)/(2*Pi) */
+    abs = sqrt(SQU(d[k].re) + SQU(d[k].im));
+    arg = atan2(d[k].im, d[k].re);
+    omega.re = sqrt(abs) * cos(0.5*arg);
+    omega.im = sqrt(abs) * sin(0.5*arg);
+    
+    Msg(BIGINFO, "Eigenvalue %d w^2 = %.12e + %.12e * i (f = %.12e + %.12e * i)",
+	k, d[k].re, d[k].im, omega.re/TWO_PI, omega.im/TWO_PI);
   }
 
   /* Save the eigenvectors */

@@ -28,8 +28,6 @@ struct EigenPar {
   int    reortho;
 } ;
 
-void EigenParRead(char *filename, struct EigenPar *par);
-void EigenParWrite(char *filename, struct EigenPar *par);
-void EigenParPrint(struct EigenPar *par);
+void EigenPar(char *filename, struct EigenPar *par);
 
 #endif

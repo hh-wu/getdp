@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.27 2005-07-11 15:00:17 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.28 2005-07-11 20:19:21 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -380,10 +380,8 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     Msg(ERROR, "No System available for Lanczos: check 'DtDt' and 'GenerateSeparate'") ;
 
   /* lecture des parametres dans le fichier 'eigen.par' */
-  EigenParRead("eigen.par", &eigenpar);
+  EigenPar("eigen.par", &eigenpar);
   eigenpar.size = LanSize; /* Hack: we force this */
-  EigenParWrite("eigen.par", &eigenpar);
-  EigenParPrint(&eigenpar);
 
   /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
