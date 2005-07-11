@@ -1,7 +1,8 @@
-$Id: VERSIONS,v 1.51 2005-02-05 20:38:19 geuzaine Exp $
+$Id: VERSIONS,v 1.52 2005-07-11 21:35:08 geuzaine Exp $
 
-New since 1.0: Lanczos with GSL+lapack; various small improvements and
-bug fixes;
+New since 1.0: New EigenSolver based on Arpack; generalized old
+Lanczos solver to work with GSL+lapack; reworked PETSc interface, 
+which now requires PETSc 2.3; various small improvements and bug fixes;
 
 1.0: New license (GNU GPL); added support for latest Gmsh mesh file
 format; more code cleanups;
