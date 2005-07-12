@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.47 2005-07-07 13:08:48 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.48 2005-07-12 09:56:11 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1381,15 +1381,20 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
 
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
-  if(!RankCpu){
+  if(!Solver->ksp && !RankCpu) view = 1;
+
+  if(view){
     ierr = MatGetSize(A->M, &i, &j); MYCHECK(ierr);
     Msg(PETSC, "N: %d", i);
   }
 
   if(!Solver->ksp) {
-    view = 1;
+    /* compute preconditioner once for a given dofdata (same idea as
+       "reuse ilu" in Sparskit): we should add an option to override
+       this behavior since it can be wrong if do multiple solves with
+       a *direct solver* and we change the matrix in-between */
     ierr = KSPCreate(PETSC_COMM_WORLD, &Solver->ksp); MYCHECK(ierr);
-    ierr = KSPSetOperators(Solver->ksp, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
+    ierr = KSPSetOperators(Solver->ksp, A->M, A->M, SAME_PRECONDITIONER); MYCHECK(ierr);
     ierr = KSPGetPC(Solver->ksp, &Solver->pc); MYCHECK(ierr);
     if(Flag_FMM){
       ierr = PCSetType(Solver->pc,PCSHELL); MYCHECK(ierr);
@@ -1413,13 +1418,15 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   }
 
   ierr = KSPSolve(Solver->ksp, B->V, X->V); MYCHECK(ierr);
-  ierr = KSPGetIterationNumber(Solver->ksp, &its); MYCHECK(ierr);
 
   if(view){
     ierr = KSPView(Solver->ksp,PETSC_VIEWER_STDOUT_WORLD); MYCHECK(ierr);
   }
 
-  if(!RankCpu) Msg(PETSC, "%d iterations", its);
+  if(!RankCpu){
+    ierr = KSPGetIterationNumber(Solver->ksp, &its); MYCHECK(ierr);
+    Msg(PETSC, "%d iterations", its);
+  }
 
   GetDP_End;
 }

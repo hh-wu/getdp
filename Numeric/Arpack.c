@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.14 2005-07-12 08:14:30 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.15 2005-07-12 09:56:11 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -94,7 +94,8 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   GetDP_Begin("EigenSolve");
 
   /* Bail out if we are not in harmonic regime: it's much easier this
-     way for now (FIXME: code the special case for real systems) */
+     way (since, for real, non-symmetric matrices we would get complex
+     eigenvectors we could not easily store) */
   if(Current.NbrHar != 2)
     Msg(ERROR, "EigenSolve requires system defined with \"Type Complex\"");
   
