@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.13 2005-07-11 21:26:27 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.14 2005-07-12 08:14:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -20,6 +20,7 @@
  * Please report all bugs and problems to <getdp@geuz.org>.
  *
  * Contributor(s):
+ *   Alexandru Mustatea
  *   Andre Nicolet
  */
 

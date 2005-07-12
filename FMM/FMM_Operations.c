@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Operations.c,v 1.11 2005-06-23 01:45:00 geuzaine Exp $"
+#define RCSID "$Id: FMM_Operations.c,v 1.12 2005-07-12 08:14:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1030,7 +1030,7 @@ void FMMProd_AllLaplace3D(struct FMMmat *FMMmat_P, double *x, double *y ){
   
   GetDP_End ;
   
-};
+}
 
 
 
@@ -1164,7 +1164,7 @@ void FMMProd_AllLaplace3D_VECTOR(struct FMMmat *FMMmat_P, double *x, double *y )
   
   GetDP_End ;
 
-};
+}
 
 
 void FMMProd_AllHelmholtz(struct FMMmat *FMMmat_P, double *x, double *y ){
@@ -1263,7 +1263,7 @@ void FMMProd_AllHelmholtz(struct FMMmat *FMMmat_P, double *x, double *y ){
   }/* for iHar */
 
   GetDP_End ;  
-};
+}
 
 
 
