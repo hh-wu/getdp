@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.50 2005-07-07 13:08:48 geuzaine Exp $
+dnl $Id: configure.in,v 1.51 2005-07-13 11:26:44 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -40,7 +40,7 @@ AC_ARG_WITH(readline-prefix,
 AC_ARG_WITH(petsc-prefix,
             AC_HELP_STRING([--with-petsc-prefix=PFX],
                            [prefix where PETSc is installed]),
-            [PETSC_PREFIX=$withval],[PETSC_PREFIX="${PETSC_DIR}"])
+            [PETSC_DIR=$withval])
 AC_ARG_WITH(petsc-arch,
             AC_HELP_STRING([--with-petsc-arch=ARCH],
                            [PETSc architecture]),
@@ -122,33 +122,31 @@ AC_CHECK_LIB(m,main)
 dnl See if we need a .exe extension on executables
 AC_EXEEXT
 
-dnl Set default subdirectories and libraries
+dnl Set default subdirectories
 GETDP_DIRS="Main Parser Post Function Integration GeoData DofData Numeric DataStr FMM"
-GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr -lFMM"
 
 dnl Modify the above defaults and specify the linker
 if test "x$enable_petsc" = "xyes"; then
 
-  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_SLES_LIB} ${PETSC_KSP_LIB} -lm'
+  if test "x${PETSC_DIR}" = "x"; then
+    AC_MSG_ERROR([Could not determine PETSC_DIR. Run configure again with --with-petsc-prefix.])
+  fi
+  if test "x${PETSC_ARCH}" = "x"; then
+    AC_MSG_ERROR([Could not determine PETSC_ARCH. Run configure again with --with-petsc-arch.])
+  fi
+
+  C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
+  GETDP_DIRS="${GETDP_DIRS} Arpack"
+  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -lArpack ${PETSC_KSP_LIB} -lm'
   SOLVER='-DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
-  if test "x${PETSC_PREFIX}" != "x"; then
-    PETSC_DIR="${PETSC_PREFIX}"	
-  fi
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
-  if test "x${PETSC_ARCH}" = "x"; then
-    AC_CHECK_FILE(${PETSC_DIR}/bin/petscarch,OLD_PETSC="yes",OLD_PETSC="no")
-    if test "x${OLD_PETSC}" = "xyes"; then
-      PETSC_ARCH=`${PETSC_DIR}/bin/petscarch`
-    else
-      AC_MSG_ERROR([Could not determine PETSC_ARCH. Run configure again with --with-petsc-arch.])
-    fi
-  fi
 
 else
 
   GETDP_DIRS="${GETDP_DIRS} Sparskit"
-  SOLVER='-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT'
+  GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr -lFMM"
+  SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
   LINKER='${F77}'
   case "${UNAME}" in
     IRIX*)
@@ -201,7 +199,37 @@ else
       C_FLAGS="-g -O3 -DMSDOS"
       F77_FLAGS="-g -O1 -DMSDOS"
       ;;
+    Linux*)
+      dnl options for pgi compiler
+      case "${F77}" in
+        *pgf77*)
+          LINKER="${F77} -Mnomain"
+          GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
+          ;;
+      esac
+      ;;
   esac
+
+  dnl Check for lapack and blas (used by Arpack and Lanczos/GSL)
+  AC_LANG_PUSH(Fortran 77)
+  if test "x${LAPACK_PREFIX}" != "x"; then
+    LDFLAGS="-L${LAPACK_PREFIX} ${LDFLAGS}"
+  fi
+  AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
+  if test "x${BLAS}" = "xyes"; then
+    AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
+    if test "x${LAPACK}" = "xyes"; then
+      C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
+      GETDP_DIRS="${GETDP_DIRS} Arpack"
+      GETDP_LIBS="${GETDP_LIBS} -lArpack"
+      if test "x${LAPACK_PREFIX}" = "x"; then
+        GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+      else
+        GETDP_LIBS="${GETDP_LIBS} -L${LAPACK_PREFIX} -llapack -lblas"
+      fi   
+    fi
+  fi
+  AC_LANG_POP()
 
 fi
 
@@ -250,27 +278,6 @@ if test "x${GSL}" != "xyes"; then
     AC_MSG_ERROR([Could not find GSL, aborting.])
   fi
 fi
-
-dnl Check for lapack and blas (and use Arpack if we have them)
-AC_LANG_PUSH(Fortran 77)
-if test "x${LAPACK_PREFIX}" != "x"; then
-  LDFLAGS="-L${LAPACK_PREFIX} ${LDFLAGS}"
-fi
-AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
-if test "x${BLAS}" = "xyes"; then
-  AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
-  if test "x${LAPACK}" = "xyes"; then
-    C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
-    GETDP_DIRS="${GETDP_DIRS} Arpack"
-    GETDP_LIBS="${GETDP_LIBS} -lArpack"
-    if test "x${LAPACK_PREFIX}" = "x"; then
-      GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
-    else
-      GETDP_LIBS="${GETDP_LIBS} -L${LAPACK_PREFIX} -llapack -lblas"
-    fi   
-  fi
-fi
-AC_LANG_POP()
 
 dnl Do we trace the function calls in getdp?
 if test "x$enable_debug" = "xyes"; then
