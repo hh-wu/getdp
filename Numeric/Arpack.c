@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.15 2005-07-12 09:56:11 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.16 2005-07-13 09:49:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -405,6 +405,9 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 		      DofData_P->NbrPart, DofData_P->Part);
 
   /* Shifting: K = K - shift * M */
+  /* Warning: with PETSc, this can be very slow if the masks are very
+     different, for example if we are in real arithmetic and have one
+     real matrix and one complex "simulated-real" matrix */
   LinAlg_AddMatrixProdMatrixDouble(K, M, -shift_r, K) ; 
 
   /* Keep calling znaupd again and again until ido == 99 */
