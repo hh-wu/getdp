@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.49 2005-07-13 09:49:54 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.50 2005-07-15 16:44:25 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1391,15 +1391,15 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   if(!Solver->ksp) {
     /* compute preconditioner once for a given dofdata (same idea as
        "reuse ilu" in Sparskit): we should add an option to override
-       this behavior since it can be wrong if do multiple solves with
-       a *direct solver* and we change the matrix in-between
-       (FIXME: try SAME_PRECONDITIONER) */
+       this behavior since it can be wrong if we do multiple solves
+       with a *direct solver* and we change the matrix in-between
+       (e.g. in a nonlinear loop) */
     ierr = KSPCreate(PETSC_COMM_WORLD, &Solver->ksp); MYCHECK(ierr);
     ierr = KSPSetOperators(Solver->ksp, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
     ierr = KSPGetPC(Solver->ksp, &Solver->pc); MYCHECK(ierr);
     if(Flag_FMM){
-      ierr = PCSetType(Solver->pc,PCSHELL); MYCHECK(ierr);
-      ierr = PCShellSetName(Solver->pc,"FMM"); MYCHECK(ierr);
+      ierr = PCSetType(Solver->pc, PCSHELL); MYCHECK(ierr);
+      ierr = PCShellSetName(Solver->pc, "FMM"); MYCHECK(ierr);
       ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM); MYCHECK(ierr);
       ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0); MYCHECK(ierr);    
       ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
