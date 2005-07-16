@@ -3239,7 +3239,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
       ;;
     Darwin*)
             LINKER="gcc"
-      GETDP_LIBS="${GETDP_LIBS} -lg2c -lm"
+      GETDP_LIBS="${GETDP_LIBS} -lg2c"
       ;;
   esac
 
