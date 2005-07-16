@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.69 2005-07-08 21:54:52 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.70 2005-07-16 21:39:19 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -419,9 +419,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 						       Operation_P->Case.Generate.GroupIndex) ;
       Current.TypeAssembly = ASSEMBLY_SEPARATE ;
       Init_Update = 0 ; /* modif... ! */
-      DofData_P->Flag_Init[1] = 0 ;
-      DofData_P->Flag_Init[2] = 0 ;
-      DofData_P->Flag_Init[3] = 0 ;
 
       Init_SystemData(DofData_P, Flag_Jac) ;
       Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 1) ;
@@ -2032,9 +2029,21 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     for(i=0 ; i<List_Nbr(Problem_S.Expression) ; i++){
       DofData_P->CurrentSolution->TimeFunctionValues[i] = 1. ;
     }
+    if(Current.DofData->Flag_Init[1]){
+      LinAlg_ZeroMatrix(&Current.DofData->M1) ;
+      LinAlg_ZeroVector(&Current.DofData->m1);
+    }
+    if(Current.DofData->Flag_Init[2]){
+      LinAlg_ZeroMatrix(&Current.DofData->M2) ;
+      LinAlg_ZeroVector(&Current.DofData->m2);
+    }
+    if(Current.DofData->Flag_Init[3]){
+      LinAlg_ZeroMatrix(&Current.DofData->M3) ;
+      LinAlg_ZeroVector(&Current.DofData->m3);
+    }
   }
   else{
-    Msg(INFO,"Setting System {A,b} to zero");
+    Msg(INFO, "Setting System {A,b} to zero");
     LinAlg_ZeroMatrix(&Current.DofData->A) ;
     LinAlg_ZeroVector(&Current.DofData->b) ;
 
@@ -2042,7 +2051,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       for(i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
 	List_Read( DofData_P->OnlyTheseMatrices,i,&iMat);
 	if(iMat){
-	  Msg(INFO,"Setting System {A%d,b%d} to zero",iMat,iMat);
+	  Msg(INFO, "Setting System {A%d,b%d} to zero",iMat,iMat);
 	  switch(iMat){
 	  case 1 :
 	    LinAlg_ZeroMatrix(&Current.DofData->A1) ;
