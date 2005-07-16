@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.35 2005-07-08 21:54:52 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.36 2005-07-16 21:37:24 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -160,6 +160,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
   static int Flag_WarningMissSolForDt = 0 ;
   static int Flag_WarningMissSolForTime_ntime = 0 ;
+  static int Flag_InfoForTime_ntime = 0 ;
 
   int     i_WQ, j, k, Flag_True, Index, DofIndex, Multi[MAX_STACK_SIZE] ;
   int     Save_NbrHar, Save_Region, Type_Dimension, ntime, numSolution ;
@@ -295,12 +296,21 @@ void Cal_WholeQuantity(struct Element * Element,
 	  for (k = 0 ; k < Current.NbrSystem ; k++){
 	    if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){  /* Not the correct test !!! */
 	      ((Current.DofData_P0+k)->CurrentSolution) -= ntime ;
+	      if (Flag_InfoForTime_ntime != List_Nbr((Current.DofData_P0+k)->Solutions)) {
+		Msg(INFO, "Accessing solution from %d time steps ago", ntime);
+		Msg(INFO, "  -> System %d/%d: TimeStep = %d, Time = %g + i * %g",
+		    k+1, Current.NbrSystem, 
+		    (Current.DofData_P0+k)->CurrentSolution->TimeStep,
+		    (Current.DofData_P0+k)->CurrentSolution->Time,
+		    (Current.DofData_P0+k)->CurrentSolution->TimeImag);
+		Flag_InfoForTime_ntime = List_Nbr((Current.DofData_P0+k)->Solutions);
+	      }
 	    }
 	    else {
 	      if (!Flag_WarningMissSolForTime_ntime) {
 		Msg(WARNING,
-		    "Missing solution for time -%d  computation (Sys#%d/%d)",
-		    ntime, k, Current.NbrSystem);
+		    "Missing solution for time step -%d computation (System #%d/%d)",
+		    ntime, k+1, Current.NbrSystem);
 		Flag_WarningMissSolForTime_ntime = 1 ;
 	      }
 	    }
@@ -320,14 +330,6 @@ void Cal_WholeQuantity(struct Element * Element,
 	  for (k = 0 ; k < Current.NbrSystem ; k++){
 	    if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){
 	      ((Current.DofData_P0+k)->CurrentSolution) += ntime ;
-	    }
-	    else {
-	      if (!Flag_WarningMissSolForTime_ntime) {
-		Msg(WARNING,
-		    "Missing solution for time -%d  computation (Sys#%d/%d)",
-		    ntime, k, Current.NbrSystem);
-		Flag_WarningMissSolForTime_ntime = 1 ;
-	      }
 	    }
 	  }
 	  
