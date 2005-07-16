@@ -230,6 +230,7 @@ void LinAlg_FMMMatVectorProd(gVector *V1, gVector *V2);
 /* Solve */
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X);
+void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X);
 
 #endif
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.51 2005-07-16 07:43:31 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.52 2005-07-16 21:41:24 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1374,10 +1374,8 @@ void LinAlg_FMMMatVectorProd(gVector *V1, gVector *V2){
 
 /* Solve */
 
-void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
+static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int precond){
   int its, RankCpu, i, j, view = 0;
-
-  GetDP_Begin("LinAlg_Solve");
 
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
@@ -1389,11 +1387,6 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   }
 
   if(!Solver->ksp) {
-    /* compute preconditioner once for a given dofdata (same idea as
-       "reuse ilu" in Sparskit): we should add an option to override
-       this behavior since it can be wrong if we do multiple solves
-       with a *direct solver* and we change the matrix in-between
-       (e.g. in a nonlinear loop) */
     ierr = KSPCreate(PETSC_COMM_WORLD, &Solver->ksp); MYCHECK(ierr);
     ierr = KSPSetOperators(Solver->ksp, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
     ierr = KSPGetPC(Solver->ksp, &Solver->pc); MYCHECK(ierr);
@@ -1417,7 +1410,10 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
       ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
     }
   }
-
+  else if(precond){
+    ierr = KSPSetOperators(Solver->ksp, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
+  }
+  
   ierr = KSPSolve(Solver->ksp, B->V, X->V); MYCHECK(ierr);
 
   if(view){
@@ -1428,6 +1424,23 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
     ierr = KSPGetIterationNumber(Solver->ksp, &its); MYCHECK(ierr);
     Msg(PETSC, "%d iterations", its);
   }
+
+  GetDP_End;
+
+}
+
+void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
+  GetDP_Begin("LinAlg_Solve");
+
+  _solve(A, B, Solver, X, 1);
+
+  GetDP_End;
+}
+
+void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
+  GetDP_Begin("LinAlg_SolveAgain");
+
+  _solve(A, B, Solver, X, 0);
 
   GetDP_End;
 }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.29 2005-07-07 13:08:48 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.30 2005-07-16 21:41:24 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -951,6 +951,19 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
   GetDP_Begin("LinAlg_Solve");
 
   solve_matrix(&A->M, &Solver->Params, B->V, X->V);
+
+  GetDP_End ;
+}
+
+void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
+  int tmp;
+
+  GetDP_Begin("LinAlg_SolveAgain");
+
+  tmp = Solver->Params.Re_Use_LU;
+  Solver->Params.Re_Use_LU = 1;
+  solve_matrix(&A->M, &Solver->Params, B->V, X->V);
+  Solver->Params.Re_Use_LU = tmp;
 
   GetDP_End ;
 }
