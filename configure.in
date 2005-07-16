@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.52 2005-07-16 07:43:31 geuzaine Exp $
+dnl $Id: configure.in,v 1.53 2005-07-16 07:55:07 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -147,6 +147,28 @@ else
   GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr -lFMM"
   SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
   LINKER='${F77}'
+
+  dnl Check for blas and lapack (used by Arpack and Lanczos/GSL)
+  AC_LANG_PUSH(Fortran 77)
+  if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+    LDFLAGS="-L${BLAS_LAPACK_PREFIX} ${LDFLAGS}"
+  fi
+  AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
+  if test "x${BLAS}" = "xyes"; then
+    AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
+    if test "x${LAPACK}" = "xyes"; then
+      C_FLAGS="${C_FLAGS} -DHAVE_BLAS_LAPACK"
+      GETDP_DIRS="${GETDP_DIRS} Arpack"
+      GETDP_LIBS="${GETDP_LIBS} -lArpack"
+      if test "x${BLAS_LAPACK_PREFIX}" = "x"; then
+        GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+      else
+        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -llapack -lblas"
+      fi   
+    fi
+  fi
+  AC_LANG_POP()
+
   case "${UNAME}" in
     IRIX*)
       dnl options for native SGI compiler
@@ -213,27 +235,6 @@ else
       GETDP_LIBS="${GETDP_LIBS} -lg2c -lm"
       ;;
   esac
-
-  dnl Check for blas and lapack (used by Arpack and Lanczos/GSL)
-  AC_LANG_PUSH(Fortran 77)
-  if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
-    LDFLAGS="-L${BLAS_LAPACK_PREFIX} ${LDFLAGS}"
-  fi
-  AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
-  if test "x${BLAS}" = "xyes"; then
-    AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
-    if test "x${LAPACK}" = "xyes"; then
-      C_FLAGS="${C_FLAGS} -DHAVE_BLAS_LAPACK"
-      GETDP_DIRS="${GETDP_DIRS} Arpack"
-      GETDP_LIBS="${GETDP_LIBS} -lArpack"
-      if test "x${BLAS_LAPACK_PREFIX}" = "x"; then
-        GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
-      else
-        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -llapack -lblas"
-      fi   
-    fi
-  fi
-  AC_LANG_POP()
 
 fi
 

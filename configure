@@ -3049,64 +3049,6 @@ else
   GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr -lFMM"
   SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
   LINKER='${F77}'
-  case "${UNAME}" in
-    IRIX*)
-            if test "x${CC}" = "xcc"; then
-                        SOLVER="-DHAVE_SPARSKIT"
-      fi
-      ;;
-    HP-UX*)
-            if test "x${CC}" = "xcc"; then
-        C_FLAGS="+O2 +Onolimit -Ae +DAportable"
-        C_PARSER_FLAGS="+O1 -Ae +DAportable"
-      fi
-      if test "x${F77}" = "xf77"; then
-        F77_FLAGS="+O2 +DAportable"
-        LINKER="f77 +DAportable"
-        GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
-        SOLVER="-DHAVE_UNDERSCORE ${SOLVER}"
-      fi
-      ;;
-    OSF1*)
-            if test "x${CC}" = "xcc"; then
-        C_PARSER_FLAGS="-O1"
-      fi
-      if test "x${F77}" = "xf77"; then
-        LINKER="f77 -nofor_main"
-      fi
-      ;;
-    SunOS*)
-      GETDP_LIBS="${GETDP_LIBS} -lsocket"
-      ;;
-    AIX*)
-            if test "x${CC}" = "xcc"; then
-        C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
-        C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
-      fi
-      if test "x${F77}" = "xf77"; then
-        F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
-        SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
-      fi
-      ;;
-    MINGW*)
-      CC="gcc -mno-cygwin"
-      F77="g77 -mno-cygwin"
-      C_FLAGS="-g -O3 -DMSDOS"
-      F77_FLAGS="-g -O1 -DMSDOS"
-      ;;
-    Linux*)
-            case "${F77}" in
-        *pgf77*)
-          LINKER="${F77} -Mnomain"
-          GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
-          ;;
-      esac
-      ;;
-    Darwin*)
-            LINKER="gcc"
-      GETDP_LIBS="${GETDP_LIBS} -lg2c -lm"
-      ;;
-  esac
 
     ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
@@ -3241,6 +3183,65 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+
+  case "${UNAME}" in
+    IRIX*)
+            if test "x${CC}" = "xcc"; then
+                        SOLVER="-DHAVE_SPARSKIT"
+      fi
+      ;;
+    HP-UX*)
+            if test "x${CC}" = "xcc"; then
+        C_FLAGS="+O2 +Onolimit -Ae +DAportable"
+        C_PARSER_FLAGS="+O1 -Ae +DAportable"
+      fi
+      if test "x${F77}" = "xf77"; then
+        F77_FLAGS="+O2 +DAportable"
+        LINKER="f77 +DAportable"
+        GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
+        SOLVER="-DHAVE_UNDERSCORE ${SOLVER}"
+      fi
+      ;;
+    OSF1*)
+            if test "x${CC}" = "xcc"; then
+        C_PARSER_FLAGS="-O1"
+      fi
+      if test "x${F77}" = "xf77"; then
+        LINKER="f77 -nofor_main"
+      fi
+      ;;
+    SunOS*)
+      GETDP_LIBS="${GETDP_LIBS} -lsocket"
+      ;;
+    AIX*)
+            if test "x${CC}" = "xcc"; then
+        C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+        C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
+      fi
+      if test "x${F77}" = "xf77"; then
+        F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
+        SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
+      fi
+      ;;
+    MINGW*)
+      CC="gcc -mno-cygwin"
+      F77="g77 -mno-cygwin"
+      C_FLAGS="-g -O3 -DMSDOS"
+      F77_FLAGS="-g -O1 -DMSDOS"
+      ;;
+    Linux*)
+            case "${F77}" in
+        *pgf77*)
+          LINKER="${F77} -Mnomain"
+          GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
+          ;;
+      esac
+      ;;
+    Darwin*)
+            LINKER="gcc"
+      GETDP_LIBS="${GETDP_LIBS} -lg2c -lm"
+      ;;
+  esac
 
 fi
 
