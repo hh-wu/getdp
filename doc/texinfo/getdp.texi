@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.71 2005-07-09 16:27:36 geuzaine Exp $
+@c $Id: getdp.texi,v 1.72 2005-07-16 21:44:41 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -83,10 +83,6 @@ BELGIUM @*
 @iftex
 @global@let@sl=@it
 @global@setfont@indit@itshape{9}{1000}
-@c @global@let@bullet=-
-@c @global@let@linkcolor=@Orange
-@c @parskip=5pt
-@c @parindent=1cm
 @end iftex
 
 @c =========================================================================
@@ -199,6 +195,7 @@ Expressions
 * Arguments::                   
 * Registers::                   
 * Fields::                      
+* Loops and conditionals::      
 
 Definition
 
@@ -631,8 +628,6 @@ same line is ignored.
 See @ref{Constants}, for the definition of the character expression
 @var{expression-char}.
 
-@c todo: give the syntax for loops and tests (if/endif, for/endfor)
-
 @c -------------------------------------------------------------------------
 @c Which Problems can GetDP actually solve?
 @c -------------------------------------------------------------------------
@@ -671,7 +666,7 @@ three-dimensional models (3D)
 static states@*
 sinusoidal and harmonic states@*
 transient states@*
-eigenvalue problems (experimental)
+eigenvalue problems
 @end table
 
 These methods have been successfully applied to build coupled physical
@@ -709,6 +704,7 @@ define and solve his problem.
 * Arguments::                   
 * Registers::                   
 * Fields::                      
+* Loops and conditionals::      
 @end menu
 
 @node Expression definition, Constants, Expressions, Expressions
@@ -807,8 +803,7 @@ defined as:
 @vindex @var{constant-def}
 @vindex @var{string-id}
 @vindex @var{expression-char}
-@c todo: add this
-@c @vindex @var{affectation}
+@vindex @var{affectation}
 
 The three constant types used in GetDP are @var{integer}, @var{real} and
 @var{string}.  These types have the same meaning and syntax as in the C or
@@ -845,7 +840,9 @@ List of constant expressions are defined as:
   @var{constant-id} @{@} |
   @var{constant-id} @{ @var{expression-cst-list} @} |
   List[ @var{constant-id} ] |
-  ListAlt[ @var{constant-id}, @var{constant-id} ]
+  ListAlt[ @var{constant-id}, @var{constant-id} ] |
+  LinSpace[ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} ] |
+  LogSpace[ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} ]
 @end example
 
 The second case in this last definition permits to create a list containing
@@ -857,12 +854,13 @@ equal to the third @var{expression-cst}. The fourth and fifth cases permit
 to reference constant identifiers (@var{constant-id}s) of lists of constants
 and constant identifiers of sublists of constants (see below for the
 definition of constant identifiers) . The sixth case is a synonym for the
-fourth. The last case permits to create alternate lists: the arguments of
+fourth. The seventh case permits to create alternate lists: the arguments of
 @code{ListAlt} must be @var{constant-id}s of lists of constants of the same
 dimension. The result is an alternate list of these constants: first
 constant of argument 1, first constant of argument 2, second constant of
 argument 1, etc. These kinds of lists of constants are for example often
-used for function parameters (@pxref{Functions}).
+used for function parameters (@pxref{Functions}). The last two cases permit
+to create linear and logarithmic lists of numbers, respectively.
 
 Contrary to a general @var{expression} which is evaluated at runtime (thanks
 to an internal stack mechanism), an @var{expression-cst} is completely
@@ -871,24 +869,38 @@ evaluated during the syntactic analysis of the problem (when GetDP reads the
 with identifiers can be made outside or inside any GetDP object. The syntax
 for the definition of constants is:
 
-@c TODO: add the affectation metavar in the definition of all supported
-@c objects
-
 @example
 @var{affectation}:
-  DefineConstant [ @var{constant-id} < = @var{expression-cst} > <,@dots{}> ]; |
-  @var{constant-id} = @var{constant-def};
+  DefineConstant [ @var{constant-id} < = @var{expression-cst} > 
+                   @var{string-id} < = "@var{string}" > <,@dots{}> ]; |
+  @var{constant-id} = @var{constant-def}; |
+  @var{string-id} = @var{string-def}; |
+  Printf("@var{string}"); |
+  Printf("@var{string}", @var{expression-cst-list}); |
+  Read(@var{constant-id}); |
+  Read(@var{constant-id})[@var{expression-cst}];
 @end example
 
 @noindent with
 
 @example
 @var{constant-id}:
-  @var{string}
+  @var{string} |
+  @var{string} ~ @{ @var{expression-cst} @}
 
 @var{constant-def}:
   @var{expression-cst-list-item} |
-  @{ @var{expression-cst-list} @}
+  @{ @var{expression-cst-list} @} |
+  ListFromFile [ @var{expression-char} ]
+
+@var{string-id}:
+  @var{string} |
+  @var{string} ~ @{ @var{expression-cst} @}
+
+@var{string-def}:
+  "@var{string}" |
+  Str[ @var{expression-char} ] |
+  StrCat[ @var{expression-char}, @var{expression-char} ]
 @end example
 
 @noindent Notes:
@@ -911,31 +923,22 @@ messages produced when references to undefined quantities are made).
 See @ref{Constant expression examples}, as well as @ref{Function examples}, for
 some examples.
 
-Constant character strings can also be defined. The syntax for their
-definition is the following:
-
-@example
-@var{string-id} = "@var{string}";
-@end example
-
-@noindent with
-
-@example
-@var{string-id}:
-  @var{string}
-@end example
-
-Character expressions can be defined, using these constant strings:
+Character expressions are defined as follows:
 
 @example
 @var{expression-char}:
   "@var{string}" |
   @var{string-id} |
-  StrCat[ @var{expression-char} , @var{expression-char} ]
+  StrCat[ @var{expression-char} , @var{expression-char} ] |
+  Sprintf( @var{expression-char} ) |
+  Sprintf( @var{expression-char}, @var{expression-cst-list} ) |
+  Date
 @end example
 
 @noindent The third case in this definition permits to concatenate two
-character expressions.
+character expressions; the next two cases permit to print the value of
+variables using standard C formatting; the last case permits to access the
+current date.
 
 @c -------------------------------------------------------------------------
 @c Operators
@@ -1274,7 +1277,7 @@ See @ref{Function examples}, for an example.
 @c Fields
 @c -------------------------------------------------------------------------
 
-@node Fields,  , Registers, Expressions
+@node Fields, Loops and conditionals, Registers, Expressions
 @section Fields
 
 @cindex Fields
@@ -1375,72 +1378,66 @@ is usually preferred with such fields.
 @c Loops and conditionals
 @c -------------------------------------------------------------------------
 
-@c @node Loops and conditionals, General commands, User-defined functions, General tools
-@c @section Loops and conditionals
+@node Loops and conditionals,  , Fields, Expressions
+@section Loops and conditionals
 
-@c @cindex Loops
-@c @cindex Conditionals
+@cindex Loops
+@cindex Conditionals
 
-@c @vindex @var{loop}
+@vindex @var{loop}
 
-@c Loops and conditionals are defined as follows, and can be imbricated:
+Loops and conditionals are defined as follows, and can be imbricated:
 
-@c @c TODO: somehow add a loop (?) metavar in the definition of all
-@c supported objects? (not esay since if can enclose different things...)
+@var{loop}:
 
-@c @ftable @code
-@c @item For ( @var{expression} : @var{expression} )
-@c Iterates from the value of the first @var{expression} to the value of the
-@c second @var{expression}, with a unit incrementation step. At each iteration,
-@c the commands comprised between `@code{For ( @var{expression} :
-@c @var{expression} )}' and the matching @code{EndFor} are executed.
+@ftable @code
+@item For ( @var{expression-cst} : @var{expression-cst} )
+Iterates from the value of the first @var{expression-cst} to the value of
+the second @var{expression-cst}, with a unit incrementation step. At each
+iteration, the commands comprised between `@code{For ( @var{expression-cst}
+: @var{expression-cst} )}' and the matching @code{EndFor} are executed.
 
-@c @item For ( @var{expression} : @var{expression} : @var{expression} )
-@c Iterates from the value of the first @var{expression} to the value of the
-@c second @var{expression}, with a positive or negative incrementation step
-@c equal to the third @var{expression}. At each iteration, the commands
-@c comprised between `@code{For ( @var{expression} : @var{expression} :
-@c @var{expression} )}' and the matching @code{EndFor} are executed.
+@item For ( @var{expression-cst} : @var{expression-cst} : @var{expression-cst} )
+Iterates from the value of the first @var{expression-cst} to the value of the
+second @var{expression-cst}, with a positive or negative incrementation step
+equal to the third @var{expression-cst}. At each iteration, the commands
+comprised between `@code{For ( @var{expression-cst} : @var{expression-cst} :
+@var{expression-cst} )}' and the matching @code{EndFor} are executed.
 
-@c @item For @var{string} In @{ @var{expression} : @var{expression} @}
-@c Iterates from the value of the first @var{expression} to the value of the
-@c second @var{expression}, with a unit incrementation step. At each iteration,
-@c the value of the iterate is affected to an expression named @var{string},
-@c and the commands comprised between `@code{For @var{string} In @{
-@c @var{expression} : @var{expression} @}}' and the matching @code{EndFor} are
-@c executed.
+@item For @var{string} In @{ @var{expression-cst} : @var{expression-cst} @}
+Iterates from the value of the first @var{expression-cst} to the value of the
+second @var{expression-cst}, with a unit incrementation step. At each iteration,
+the value of the iterate is affected to an expression named @var{string},
+and the commands comprised between `@code{For @var{string} In @{
+@var{expression-cst} : @var{expression-cst} @}}' and the matching @code{EndFor} are
+executed.
 
-@c @item For @var{string} In @{ @var{expression} : @var{expression} : @var{expression} @}
-@c Iterates from the value of the first @var{expression} to the value of the
-@c second @var{expression}, with a positive or negative incrementation step
-@c equal to the third @var{expression}. At each iteration, the value of the
-@c iterate is affected to an expression named @var{string}, and the commands
-@c comprised between `@code{For @var{string} In @{ @var{expression} :
-@c @var{expression} : @var{expression} @}}' and the matching @code{EndFor} are
-@c executed.
+@item For @var{string} In @{ @var{expression-cst} : @var{expression-cst} : @var{expression-cst} @}
+Iterates from the value of the first @var{expression-cst} to the value of the
+second @var{expression-cst}, with a positive or negative incrementation step
+equal to the third @var{expression-cst}. At each iteration, the value of the
+iterate is affected to an expression named @var{string}, and the commands
+comprised between `@code{For @var{string} In @{ @var{expression-cst} :
+@var{expression-cst} : @var{expression-cst} @}}' and the matching @code{EndFor} are
+executed.
 
-@c @item EndFor
-@c Ends a matching @code{For} command.
+@item EndFor
+Ends a matching @code{For} command.
 
-@c @item If ( @var{expression} )
-@c The body enclosed between `@code{If ( @var{expression} )}' and the matching
-@c @code{Endif} is evaluated if @var{expression} is non-zero.
+@item If ( @var{expression-cst} )
+The body enclosed between `@code{If ( @var{expression-cst} )}' and the matching
+@code{Endif} is evaluated if @var{expression-cst} is non-zero.
 
-@c @item EndIf
-@c Ends a matching @code{If} command.
-@c @end ftable
+@item EndIf
+Ends a matching @code{If} command.
+@end ftable
 
-@c Loops and conditionals can be used in any of the following objects: Group,
-@c Function, Constraint (as well as in a contraint-case), FunctionSpace,
-@c Formulation (as well as in the quantity and equation defintions), Resolution
-@c (as well as resolution-term, system defintion and operations),
-@c PostProcessing (in the definition of the PostQuantities), PostOperation
-@c (as well as in the Operation list
-
-@c See @ref{t5.geo}, for an example of @code{For} and @code{If} commands. Gmsh
-@c does not provide any @code{Else} (or similar) command at the time of this
-@c writing.
-
+Loops and conditionals can be used in any of the following objects: Group,
+Function, Constraint (as well as in a contraint-case), FunctionSpace,
+Formulation (as well as in the quantity and equation defintions), Resolution
+(as well as resolution-term, system defintion and operations),
+PostProcessing (in the definition of the PostQuantities) and PostOperation
+(as well as in the operation list).
 
 @c =========================================================================
 @c Objects
@@ -1539,6 +1536,9 @@ The syntax for the definition of groups is:
 Group @{
   < DefineGroup [ @var{group-id} <@{@var{integer}@}> <,@dots{}> ]; > @dots{}
   < @var{group-id} <@{<#>@var{integer}@}> = @var{group-def}; > @dots{}
+  < @var{group-id} <@{<#>@var{integer}@}> += @var{group-def}; > @dots{}
+  < @var{affectation} > @dots{}
+  < @var{loop} > @dots{}
 @}
 @end example
 
@@ -1632,6 +1632,8 @@ definition of functions is:
 Function @{
   < DefineFunction [ @var{function-id} <,@dots{}> ]; > @dots{}
   < @var{function-id} [ < @var{group-def} > ] = @var{expression}; > @dots{}
+  < @var{affectation} > @dots{}
+  < @var{loop} > @dots{}
 @}
 @end example
 
@@ -1707,12 +1709,16 @@ Constraint @{
       @{ Region @var{group-def}; < Type @var{constraint-type}; >
         < SubRegion @var{group-def}; > < TimeFunction @var{expression}; > 
         @var{constraint-val}; @} @dots{}
+      < @var{loop} > @dots{}
     @} 
   | Case @var{constraint-case-id} @{ 
       @{ Region @var{group-def}; < Type @var{constraint-type}; >
         @var{constraint-case-val}; @} @dots{}
+      < @var{loop} > @dots{}
     @} @dots{}
   @} @dots{}
+  < @var{affectation} > @dots{}
+  < @var{loop} > @dots{}
 @}
 @end example
 
@@ -1852,6 +1858,8 @@ FunctionSpace @{
        NameOfConstraint @var{constraint-id} <@{@}>; @} @dots{}
     @} >
   @} @dots{}
+  < @var{affectation} > @dots{}
+  < @var{loop} > @dots{}
 @}
 @end example
 
@@ -2141,8 +2149,12 @@ Formulation @{
            @{ Node @var{expression}; Loop @var{expression}; Equation @var{expression};
              In @var{group-def}; @} @dots{}
          @} > @dots{}
+     < @var{affectation} > @dots{}
+     < @var{loop} > @dots{}
     @}
   @} @dots{}
+  < @var{affectation} > @dots{}
+  < @var{loop} > @dots{}
 @}
 @end example
 
@@ -2254,10 +2266,17 @@ Resolution @{
           Frequency @{ @var{expression-cst-list} @}; >
         < DestinationSystem @var{system-id}; > 
         < OriginSystem @var{system-id}; | OriginSystem @{ @var{system-id} <,@dots{}> @}; >
-        < NameOfMesh @var{expression-char} > < Solver @var{expression-char} > @} @dots{}
-    @} 
-    Operation @{ < @var{resolution-op}; > @dots{} @}
+        < NameOfMesh @var{expression-char} > < Solver @var{expression-char} > 
+        < @var{loop} > @} @dots{}
+      < @var{loop} > @dots{}
+    @}
+    Operation @{ 
+      < @var{resolution-op}; > @dots{} 
+      < @var{loop} > @dots{}
+    @}
   @} @dots{}
+  < @var{affectation} > @dots{}
+  < @var{loop} > @dots{}
 @}
 @end example
 
@@ -2352,8 +2371,10 @@ PostProcessing @{
     NameOfFormulation @var{formulation-id} <@{@}>; < NameOfSystem @var{system-id}; >
     Quantity @{
       @{ Name @var{post-quantity-id}; Value @{ @var{post-value} @dots{} @} @} @dots{}
+      < @var{loop} > @dots{}
     @}
   @} @dots{}
+  < @var{affectation} > @dots{}
 @}
 @end example
 
@@ -2436,9 +2457,13 @@ user-defined plane, etc.), and outputs the results in several file formats.
 @example
 PostOperation @{
   @{ Name @var{post-operation-id}; NameOfPostProcessing @var{post-processing-id}; 
-    < Format @var{post-operation-fmt}; >
-    Operation @{ < @var{post-operation-op}; > @dots{} @}
+    < Format @var{post-operation-fmt}; > < Append @var{expression-char}; >
+    Operation @{ 
+      < @var{post-operation-op}; > @dots{} 
+    @}
   @} @dots{}
+  < @var{affectation} > @dots{}
+  < @var{loop} > @dots{}
 @} |
 PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
   < @var{post-operation-op}; > @dots{}
@@ -2453,6 +2478,11 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
 
 @var{post-operation-op}:
   Print[ @var{post-quantity-term}, @var{print-support} <,@var{print-option}> @dots{} ] |
+  Print[ "@var{string}", @var{expression-cst} <,@var{print-option}> @dots{} ] |
+  Print[ "@var{string}", Str[ @var{expression-char} ] <,@var{print-option}> @dots{} ] |
+  PrintGroup[ @var{group-id}, @var{print-support} <,@var{print-option}> @dots{} ] |
+  Echo[ "@var{string}" <,@var{print-option}> @dots{} ] |
+  < @var{loop} > @dots{}
   @var{etc}
 
 @var{post-quantity-term}:
@@ -3601,6 +3631,16 @@ the actual system to solve (this is only useful in linear transient problems
 with one single excitation) or with @code{Lanczos} in order to generate the
 matrices of a (generalized) eigenvalue problem.
 
+@item GenerateOnly
+@code{[@var{system-id}, @var{expression-cst-list}]}
+
+Not documented yet.
+
+@item GenerateOnlyJac
+@code{[@var{system-id}, @var{expression-cst-list}]}
+
+Not documented yet.
+
 @item Update
 @code{[@var{system-id}, @var{expression}]}
 
@@ -3608,13 +3648,12 @@ Update the system of equations @var{system-id} (built from iteration
 matrices generated separately with @code{GenerateSeparate}) with
 @var{expression}
 
-@c todo: is this ok? what about UpdateConstraint[@var{system-id}]?
+@item UpdateConstraint
+@code{[@var{system-id}, @var{group-id}, @var{constraint-type}]}
 
-@c  @item UpdateConstraint
-@c  @code{[@var{system-id}, @var{group-id}, @var{constraint-type}]}
-
-@c  Update the constraint of type @var{constraint-type} acting on @var{group-id}
-@c  during the processing.
+Not documented yet.
+@c Update the constraint of type @var{constraint-type} acting on @var{group-id}
+@c during the processing.
 
 @item InitSolution
 @code{[@var{system-id}]}
@@ -3680,6 +3719,10 @@ If @var{expression} is true (nonzero), perform the operations in the first
 @var{resolution-op}, else perform the operations in the second
 @var{resolution-op}.
 
+@item Break
+
+Not implemented yet.
+
 @item Print
 @code{[ @var{system-id} <, File @var{expression-char} > <, @{ @var{expression-cst-list} @} >}@*
 @code{<, TimeStep @{ @var{expression-cst-list} @} >]}
@@ -3744,18 +3787,33 @@ number of iterations (if no convergence), the relaxation factor (multiplies
 the iterative correction @var{dx}) and the relative error to achieve. The
 optional parameter is a flag for testing purposes.
 
+@item PostOperation
+@code{[@var{post-operation-id}]}
 
-@c  todo: Patrick, la suite est-elle comprehensible ?
+Perform the specified @code{PostOperation}.
 
+@c @item Perturbation 
 
-@c  @item IterativeTimeReduction
-@c  @{ @var{iterative-time-reduction-arg}; @}
+@item ChangeOfCoordinates
 
+Not documented yet.
+
+@item SaveMesh
+
+Not documented yet.
+
+@item DeformMesh
+
+Not documented yet.
+
+@item IterativeTimeReduction
+@{ @var{iterative-time-reduction-arg}; @}
+
+Not documented yet.
 @c  Iterative reduction of time interval to delimit variations of solutions 
 @c  (e.g.@: used in types of nonlinear analyses).
 
 @end ftable
-
 
 @c  todo: Patrick, la suite est-elle comprehensible ?
 
