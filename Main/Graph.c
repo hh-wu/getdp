@@ -1,4 +1,4 @@
-#define RCSID "$Id: Graph.c,v 1.15 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Graph.c,v 1.16 2005-07-16 07:43:31 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -266,7 +266,7 @@ void AddEdgeInGraph (gGraph *G, int ic, int il){
 }
 
 
-#ifdef _METIS
+#if defined(HAVE_METIS)
 
 EXTERN_C_BEGIN
 #include "metis.h"
@@ -404,7 +404,7 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
 
   GetDP_Begin("PartitionGraph");
 
-  Msg(ERROR, "Impossible to partition (GetDP was not compiled with -D_METIS)");
+  Msg(ERROR, "Impossible to partition (GetDP was compiled without Metis)");
 
   GetDP_End ;
 }

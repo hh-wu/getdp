@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.51 2005-07-13 11:26:44 geuzaine Exp $
+dnl $Id: configure.in,v 1.52 2005-07-16 07:43:31 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -29,10 +29,10 @@ AC_ARG_WITH(gsl-prefix,
             AC_HELP_STRING([--with-gsl-prefix=PFX],
                            [prefix where GSL is installed]),
             [GSL_PREFIX=$withval])
-AC_ARG_WITH(lapack-prefix,
-            AC_HELP_STRING([--with-lapack-prefix=PFX],
-                           [prefix where BLAS/LAPACK is installed]),
-            [LAPACK_PREFIX=$withval])
+AC_ARG_WITH(blas-lapack-prefix,
+            AC_HELP_STRING([--with-blas-lapack-prefix=PFX],
+                           [prefix where BLAS and LAPACK are installed]),
+            [BLAS_LAPACK_PREFIX=$withval])
 AC_ARG_WITH(readline-prefix,
             AC_HELP_STRING([--with-readline-prefix=PFX],
                            [prefix where GNU readline is installed]),
@@ -47,12 +47,8 @@ AC_ARG_WITH(petsc-arch,
             [PETSC_ARCH=$withval])
 AC_ARG_WITH(metis-prefix,
             AC_HELP_STRING([--with-metis-prefix=PFX],
-                           [prefix where METIS is installed]),
+                           [prefix where Metis is installed]),
             [METIS_PREFIX=$withval])
-AC_ARG_WITH(fftw-prefix,
-            AC_HELP_STRING([--with-fftw-prefix=PFX],
-                           [prefix where FFTw is installed]),
-            [FFTW_PREFIX=$withval])
 
 dnl Parse '--enable' command line options
 AC_ARG_ENABLE(multiharmonic,
@@ -73,6 +69,9 @@ AC_ARG_ENABLE(gsl,
 AC_ARG_ENABLE(readline,
               AC_HELP_STRING([--enable-readline],
                              [use GNU readline (default=yes)]))
+AC_ARG_ENABLE(metis,
+              AC_HELP_STRING([--enable-metis],
+                             [use Metis for graph partitioning (default=no)]))
 
 dnl Get the operating system and version number
 UNAME=`uname`
@@ -135,7 +134,7 @@ if test "x$enable_petsc" = "xyes"; then
     AC_MSG_ERROR([Could not determine PETSC_ARCH. Run configure again with --with-petsc-arch.])
   fi
 
-  C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
+  C_FLAGS="${C_FLAGS} -DHAVE_BLAS_LAPACK"
   GETDP_DIRS="${GETDP_DIRS} Arpack"
   GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -lArpack ${PETSC_KSP_LIB} -lm'
   SOLVER='-DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
@@ -208,24 +207,29 @@ else
           ;;
       esac
       ;;
+    Darwin*)
+      dnl force C linker on Mac OS X
+      LINKER="gcc"
+      GETDP_LIBS="${GETDP_LIBS} -lg2c -lm"
+      ;;
   esac
 
-  dnl Check for lapack and blas (used by Arpack and Lanczos/GSL)
+  dnl Check for blas and lapack (used by Arpack and Lanczos/GSL)
   AC_LANG_PUSH(Fortran 77)
-  if test "x${LAPACK_PREFIX}" != "x"; then
-    LDFLAGS="-L${LAPACK_PREFIX} ${LDFLAGS}"
+  if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+    LDFLAGS="-L${BLAS_LAPACK_PREFIX} ${LDFLAGS}"
   fi
   AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
   if test "x${BLAS}" = "xyes"; then
     AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
     if test "x${LAPACK}" = "xyes"; then
-      C_FLAGS="${C_FLAGS} -DHAVE_LAPACK"
+      C_FLAGS="${C_FLAGS} -DHAVE_BLAS_LAPACK"
       GETDP_DIRS="${GETDP_DIRS} Arpack"
       GETDP_LIBS="${GETDP_LIBS} -lArpack"
-      if test "x${LAPACK_PREFIX}" = "x"; then
+      if test "x${BLAS_LAPACK_PREFIX}" = "x"; then
         GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
       else
-        GETDP_LIBS="${GETDP_LIBS} -L${LAPACK_PREFIX} -llapack -lblas"
+        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -llapack -lblas"
       fi   
     fi
   fi
@@ -284,24 +288,19 @@ if test "x$enable_debug" = "xyes"; then
   C_FLAGS="${C_FLAGS} -DHAVE_DEBUG_STACK"
 fi
 
-dnl Do we enable large multiharmic calculations?
+dnl Do we enable large number of harmonics in calculations?
 if test "x$enable_multiharmonic" = "xyes"; then
   C_FLAGS="${C_FLAGS} -DHAVE_MULTIHARMONIC"
 fi
 
-dnl Check for METIS
-if test "x${METIS_PREFIX}" != "x"; then
-  METIS_DIR="${METIS_PREFIX}"	
+dnl Check for Metis
+if test "x$enable_metis" = "xyes"; then
+  C_FLAGS="${C_FLAGS} -DHAVE_METIS"
+  if test "x${METIS_PREFIX}" != "x"; then
+    C_FLAGS="${C_FLAGS} -I${METIS_PREFIX}/include"
+    GETDP_LIBS="${GETDP_LIBS} -L${METIS_PREFIX} -lmetis"
+  fi
 fi
-
-dnl Check for FFTW (not used in public release)
-if test "x${FFTW_PREFIX}" != "x"; then
-  FFTW_DIR="${FFTW_PREFIX}"	
-fi
-CPPFLAGS="-I${FFTW_DIR}/include"
-AC_CHECK_HEADER(fftw.h,FFTW="yes",FFTW="no")
-LDFLAGS="-L${FFTW_DIR}/lib ${LDFLAGS}"
-AC_CHECK_LIB(fftw,main,FFTW="yes",FFTW="no",-lm)
 
 dnl Check for GNU readline
 if test "x$enable_readline" != "xno"; then
@@ -343,11 +342,6 @@ case "${UNAME}" in
   MINGW*)
     dnl '-lm' is removed on purpose!
     ;;
-  Darwin*)
-    dnl force C linker on Mac OS X
-    LINKER="gcc"
-    GETDP_LIBS="${GETDP_LIBS} -lg2c -lm"
-    ;;
   *)
     GETDP_LIBS="${GETDP_LIBS} -lm"    
     ;;
@@ -370,8 +364,6 @@ AC_SUBST(AR)
 AC_SUBST(PETSC_INCLUDE_MAKEFILE)
 AC_SUBST(PETSC_DIR)
 AC_SUBST(PETSC_ARCH)
-AC_SUBST(METIS_DIR)
-AC_SUBST(FFTW_DIR)
 AC_OUTPUT(variables)
 
 dnl Print some information

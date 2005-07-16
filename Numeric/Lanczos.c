@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.28 2005-07-11 20:19:21 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.29 2005-07-16 07:43:31 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -229,10 +229,10 @@ double gsl_random(){ /* uniform random numbers in range [0.0, 1.0) */
 /* calc complex eigenvalues of Hessenberg form of real non-symmetrical
    matrix: GSL doesn't have it, so we use LAPACK's DHSEQR routine */
 
-#if !defined(HAVE_LAPACK)
+#if !defined(HAVE_BLAS_LAPACK)
 
 void hqr(double **hin, int nhess, double *wrout, double *wiout){
-  Msg(ERROR, "Lanczos algorithm not available without LAPACK");
+  Msg(ERROR, "Lanczos algorithm not available without BLAS and LAPACK");
 }
 
 #else

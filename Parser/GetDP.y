@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.72 2005-07-09 16:27:36 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.73 2005-07-16 07:43:31 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -7471,6 +7471,10 @@ void  Pro_DefineQuantityIndex(List_T * WholeQuantity_L,
   struct TwoInt Pair, *Pair_P ;
 
   List_Reset(ListOfTwoInt_L) ;
+
+  /* special case for the Equ part (right of the comma) 
+     FIXME: change this when we allow a full WholeQuantity expression
+     there */
   if (DefineQuantityIndexEqu >= 0){
     Pair.Int1 = DefineQuantityIndexEqu ;
     Pair.Int2 = -1 ;

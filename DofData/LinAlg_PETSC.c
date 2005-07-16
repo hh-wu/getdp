@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.50 2005-07-15 16:44:25 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.51 2005-07-16 07:43:31 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -178,13 +178,13 @@ void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName){
 }
 
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *Part){
-#if defined(_METIS)
+#if defined(HAVE_METIS)
   int NbrCpu, RankCpu;
 #endif
 
   GetDP_Begin("LinAlg_CreateVector");
 
-#if defined(_METIS)
+#if defined(HAVE_METIS)
   MPI_Comm_size(MPI_COMM_WORLD, &NbrCpu);
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
   if(NbrPart != NbrCpu){
@@ -215,13 +215,13 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *P
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m, 
 			 int NbrPart, int *Part, int *Nnz){
 
-#if defined(_METIS)
+#if defined(HAVE_METIS)
   int NbrCpu, RankCpu, i_Start, i_End;
 #endif
 
   GetDP_Begin("LinAlg_CreateMatrix");
 
-#if defined(_METIS)
+#if defined(HAVE_METIS)
   MPI_Comm_size(PETSC_COMM_WORLD, &NbrCpu);
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 

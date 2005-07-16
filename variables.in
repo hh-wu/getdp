@@ -1,4 +1,4 @@
-# $Id: variables.in,v 1.9 2005-07-07 13:08:48 geuzaine Exp $
+# $Id: variables.in,v 1.10 2005-07-16 07:43:31 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -49,12 +49,6 @@ SOLVER=@SOLVER@
 PETSC_DIR=@PETSC_DIR@
 PETSC_ARCH=@PETSC_ARCH@
 @PETSC_INCLUDE_MAKEFILE@
-
-# METIS path
-METIS_DIR=@METIS_DIR@
-
-# FFTW path
-FFTW_DIR=@FFTW_DIR@
 
 # How you create a static library on this machine
 AR=@AR@
