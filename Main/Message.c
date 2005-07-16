@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.73 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.74 2005-07-16 08:13:56 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -84,7 +84,7 @@ char help[] =
 #if defined(HAVE_SPARSKIT)
   "Usage: %s [file] [options]\n"
 #else
-  "Usage: mpirun [MPI options] %s [file] [options] [PETSc options]\n"
+  "Usage: [mpirun [MPI options]] %s [file] [options] [PETSc options]\n"
 #endif
   "Processing options:\n"
   "  -pre 'Resolution'         pre-processing\n"
