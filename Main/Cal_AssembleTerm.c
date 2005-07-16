@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.18 2005-07-07 13:08:48 geuzaine Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.19 2005-07-16 21:41:52 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -118,12 +118,12 @@ void  Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[]) {
     if (!Current.DofData->Flag_Init[2]) {
       Current.DofData->Flag_Init[2] = 1 ;
       LinAlg_CreateMatrix(&Current.DofData->M2, &Current.DofData->Solver, 
-		    Current.DofData->NbrDof, Current.DofData->NbrDof,
-		    Current.DofData->NbrPart, Current.DofData->Part, 
-		    Current.DofData->Nnz) ;
+			  Current.DofData->NbrDof, Current.DofData->NbrDof,
+			  Current.DofData->NbrPart, Current.DofData->Part, 
+			  Current.DofData->Nnz) ;
       LinAlg_CreateVector(&Current.DofData->m2, &Current.DofData->Solver, 
-		    Current.DofData->NbrDof, Current.DofData->NbrPart,
-		    Current.DofData->Part) ;
+			  Current.DofData->NbrDof, Current.DofData->NbrPart,
+			  Current.DofData->Part) ;
       LinAlg_ZeroMatrix(&Current.DofData->M2);
       LinAlg_ZeroVector(&Current.DofData->m2);
     }
