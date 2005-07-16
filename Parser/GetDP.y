@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.73 2005-07-16 07:43:31 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.74 2005-07-16 21:40:27 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -200,12 +200,13 @@ struct PostQuantityTerm           PostQuantityTerm_S ;
 struct PostOperation          PostOperation_S ;
 struct PostSubOperation         PostSubOperation_S ;
 
-
-static int ImbricatedLoop = 0;
-static fpos_t yyposImbricatedLoopsTab[10];
-static int yylinenoImbricatedLoopsTab[10];
-static double LoopControlVariablesTab[10][3];
-static char *LoopControlVariablesNameTab[10];
+#define MAX_RECUR_LOOPS 100
+static double x0, x1, step;
+static int ImbricatedLoop = 0, do_next;
+static fpos_t yyposImbricatedLoopsTab[MAX_RECUR_LOOPS];
+static int yylinenoImbricatedLoopsTab[MAX_RECUR_LOOPS];
+static double LoopControlVariablesTab[MAX_RECUR_LOOPS][3];
+static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 
 time_t date_info;
 
@@ -2108,8 +2109,6 @@ ConstraintTerm :
       else
 	vyyerror("Multiple Constraint not allowed for Case Constraint") ;
     }
-
-
   ;
 
 
@@ -2263,7 +2262,6 @@ ConstraintCaseTerm :
       else  vyyerror("Branch incompatible with Type") ;
     }
 
-
   | tRegionRef GroupRHS tEND
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
@@ -2281,6 +2279,7 @@ ConstraintCaseTerm :
       }
       else  vyyerror("RegionRef incompatible with Type") ;
     }
+
   | tSubRegionRef GroupRHS tEND
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
@@ -2289,6 +2288,7 @@ ConstraintCaseTerm :
 	  Num_Group(&Group_S, "CO_RegionRef", $2) ;
       else  vyyerror("SubRegionRef incompatible with Type") ;
     }
+
   | tFunction Expression tEND
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
@@ -2296,6 +2296,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Link.FunctionIndex = $2 ;
       else  vyyerror("Function incompatible with Type") ;
     }
+
   | tCoefficient Expression tEND
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
@@ -2303,6 +2304,7 @@ ConstraintCaseTerm :
 	ConstraintPerRegion_S.Case.Link.CoefIndex = $2 ;
       else  vyyerror("Coefficient incompatible with Type") ;
     }
+
   | tFilter Expression tEND
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
@@ -2312,6 +2314,7 @@ ConstraintCaseTerm :
       }
       else  vyyerror("Filter incompatible with Type") ;
     }
+
   | tFunction '[' Expression ',' Expression ']' tEND
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
@@ -2321,6 +2324,7 @@ ConstraintCaseTerm :
       }
       else  vyyerror("Function incompatible with Type") ;
     }
+
   | tCoefficient '[' Expression ',' Expression ']' tEND
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
@@ -2330,6 +2334,7 @@ ConstraintCaseTerm :
       }
       else  vyyerror("Coefficient incompatible with Type") ;
     }
+
   | tFilter '[' Expression ',' Expression ']' tEND
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
@@ -2341,7 +2346,6 @@ ConstraintCaseTerm :
     }
 
   ;
-
 
 
 /* ------------------------------------------------------------------------ */
@@ -4514,6 +4518,7 @@ DefineSystemTerm :
     {
       DefineSystem_S.SolverDataFileName = $2 ;
     }
+
   | Loop
   ;
 
@@ -6675,6 +6680,11 @@ Loop :
       fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
       ImbricatedLoop++;
+      if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
+	vyyerror("Reached maximum number of imbricated loops");
+	ImbricatedLoop = MAX_RECUR_LOOPS-1;
+      }
+      if($3 > $5) skip_until("For", "EndFor");
     }
   | tFor '(' FExpr tDOTS FExpr tDOTS FExpr ')'
     {
@@ -6685,6 +6695,12 @@ Loop :
       fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
       ImbricatedLoop++;
+      if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
+	vyyerror("Reached maximum number of imbricated loops");
+	ImbricatedLoop = MAX_RECUR_LOOPS-1;
+      }
+      if(($7 > 0. && $3 > $5) || ($7 < 0. && $3 < $5))
+	skip_until("For", "EndFor");
     }
   | tFor tSTRING tIn '{' FExpr tDOTS FExpr '}' 
     {
@@ -6699,6 +6715,11 @@ Loop :
       fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
       ImbricatedLoop++;
+      if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
+	vyyerror("Reached maximum number of imbricated loops");
+	ImbricatedLoop = MAX_RECUR_LOOPS-1;
+      }
+      if($5 > $7) skip_until("For", "EndFor");
     }
   | tFor tSTRING tIn '{' FExpr tDOTS FExpr tDOTS FExpr '}' 
     {
@@ -6713,30 +6734,41 @@ Loop :
       fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
       ImbricatedLoop++;
+      if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
+	vyyerror("Reached maximum number of imbricated loops");
+	ImbricatedLoop = MAX_RECUR_LOOPS-1;
+      }
+      if(($9 > 0. && $5 > $7) || ($9 < 0. && $5 < $7))
+	skip_until("For", "EndFor");
     }
   | tEndFor 
     {
-      if(LoopControlVariablesTab[ImbricatedLoop-1][1] >  
-	 LoopControlVariablesTab[ImbricatedLoop-1][0]){
-	LoopControlVariablesTab[ImbricatedLoop-1][0] +=
-	  LoopControlVariablesTab[ImbricatedLoop-1][2];
-		
-	if(strlen(LoopControlVariablesNameTab[ImbricatedLoop-1])){
-	  Constant_S.Name = LoopControlVariablesNameTab[ImbricatedLoop-1] ; 
-	  Constant_S.Type = VAR_FLOAT ;
-	  Constant_S.Value.Float = LoopControlVariablesTab[ImbricatedLoop-1][0] ;
-
-	  if ((i=List_ISearchSeq(ConstantTable_L, &Constant_S, fcmp_Constant))<0) 
-	    vyyerror("Something wrong with For loop starting ") ;
-
-	  List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;      
-	}
-
-	fsetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
-	yylinenum = yylinenoImbricatedLoopsTab[ImbricatedLoop-1];
+      if(ImbricatedLoop <= 0){
+	vyyerror("Invalid For/EndFor loop");
+	ImbricatedLoop = 0;
       }
       else{
-	ImbricatedLoop--;
+	x0 = LoopControlVariablesTab[ImbricatedLoop-1][0];
+	x1 = LoopControlVariablesTab[ImbricatedLoop-1][1];
+	step = LoopControlVariablesTab[ImbricatedLoop-1][2];
+	do_next = (step > 0.) ? (x0+step <= x1) : (x0+step >= x1);
+	if(do_next){
+	  LoopControlVariablesTab[ImbricatedLoop-1][0] +=
+	    LoopControlVariablesTab[ImbricatedLoop-1][2];
+	  if(strlen(LoopControlVariablesNameTab[ImbricatedLoop-1])){
+	    Constant_S.Name = LoopControlVariablesNameTab[ImbricatedLoop-1] ; 
+	    Constant_S.Type = VAR_FLOAT ;
+	    Constant_S.Value.Float = LoopControlVariablesTab[ImbricatedLoop-1][0] ;
+	    if ((i=List_ISearchSeq(ConstantTable_L, &Constant_S, fcmp_Constant))<0) 
+	      vyyerror("Something wrong with For loop starting ") ;
+	    List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;      
+	  }
+	  fsetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
+	  yylinenum = yylinenoImbricatedLoopsTab[ImbricatedLoop-1];
+	}
+	else{
+	  ImbricatedLoop--;
+	}
       }
     }
 
