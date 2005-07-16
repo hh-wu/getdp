@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.17 2005-07-16 07:43:31 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.18 2005-07-16 21:36:50 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -416,11 +416,15 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     znaupd_(&ido, &bmat, &n, which, &nev, &tol, resid, &ncv, v, &ldv, iparam,
 	    ipntr, workd, workl, &lworkl, rwork, &info);
     if(ido == 1 || ido == -1){
-      Msg(BIGINFO, "Arpack iteration %d", k++);
+      Msg(BIGINFO, "Arpack iteration %d", k);
       Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
       LinAlg_ProdMatrixVector(M, &v1, &v2);
-      LinAlg_Solve(K, &v2, &DofData_P->Solver, &v1);
+      if(!k)
+	LinAlg_Solve(K, &v2, &DofData_P->Solver, &v1);
+      else
+	LinAlg_SolveAgain(K, &v2, &DofData_P->Solver, &v1);
       GetDP2Arpack(&v1, &workd[ipntr[1]-1]);
+      k++;
     }
     else if(ido == 99){
       /* we're done */
@@ -479,7 +483,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   /* Save the eigenvectors */
   newsol = 0;
   for(k = 0; k < nev; k++){
-    
+
     if(newsol) {
       /* create new solution */
       LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
@@ -492,7 +496,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 
     DofData_P->CurrentSolution->Time = d[k].re;
     DofData_P->CurrentSolution->TimeImag = d[k].im;
-    DofData_P->CurrentSolution->TimeStep = k;
+    DofData_P->CurrentSolution->TimeStep = (int)Current.TimeStep;
     DofData_P->CurrentSolution->TimeFunctionValues = NULL;
     DofData_P->CurrentSolution->SolutionExist = 1;
     for(l = 0; l < DofData_P->NbrDof; l+=gCOMPLEX_INCREMENT){
@@ -500,6 +504,10 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
       LinAlg_SetComplexInVector(z[k*n+j].re, z[k*n+j].im, 
 				&DofData_P->CurrentSolution->x, l, l+1);
     }
+
+    /* increment the global timestep counter so that a future
+       GenerateSystem knows which solutions exist */
+    Current.TimeStep++;
 
     /* Normalize eigenvector in L2 norm */
     dmax = 0.0 ;

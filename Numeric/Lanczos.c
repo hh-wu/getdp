@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.29 2005-07-16 07:43:31 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.30 2005-07-16 21:36:50 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -793,10 +793,14 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
          tre le cas */
       DofData_P->CurrentSolution->Time = wi[ii] ;
       DofData_P->CurrentSolution->TimeImag = 0. ;
-      DofData_P->CurrentSolution->TimeStep = ii ;
+      DofData_P->CurrentSolution->TimeStep = (int)Current.TimeStep ;
       DofData_P->CurrentSolution->TimeFunctionValues = NULL ;
       DofData_P->CurrentSolution->SolutionExist = 1 ;
       LinAlg_ZeroVector(&DofData_P->CurrentSolution->x) ;
+
+      /* increment the global timestep counter so that a future
+	 GenerateSystem knows which solutions exist */
+      Current.TimeStep++;
 
       /* boucle de taille m = taille des matrices A,K,M du probleme */
       /* calcul de la composant k du vecteur ii */
