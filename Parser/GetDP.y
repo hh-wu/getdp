@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.75 2005-07-17 06:53:16 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.76 2005-07-17 14:29:37 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -2661,8 +2661,9 @@ OptionalParametersForBasisFunction :
 
   | '{' tQuantity tSTRING tEND
     tFormulation tSTRING DefineDimension tEND
-    { Save_Nbr_Index = Nbr_Index ; Nbr_Index = $7 ; }
-
+    { 
+      Save_Nbr_Index = Nbr_Index ; Nbr_Index = $7 ; 
+    }
     tGroup GroupRHS tEND
     {
       Nbr_Index = Save_Nbr_Index ;
@@ -2671,7 +2672,6 @@ OptionalParametersForBasisFunction :
       if (!Flag_MultipleIndex)
 	vyyerror("Multiple Group needed for multiple Formulation: %s {}", $6) ;
     }
-
     tResolution tSTRING MultipleIndex tEND '}'
     {
       if (!Flag_MultipleIndex)
@@ -2713,7 +2713,6 @@ OptionalParametersForBasisFunction :
       }
       List_Sort(BasisFunction_S.GlobalBasisFunction, fcmp_int) ;
 
-
       for (k = 0 ; k < $7 ; k++) {
 	List_Read(BasisFunction_S.GlobalBasisFunction, k, &GlobalBasisFunction_S) ;
 	List_Read(Problem_S.Formulation,
@@ -2739,18 +2738,24 @@ OptionalParametersForBasisFunction :
 SubSpaces :
 
     /* none */
-    { $$ = Current_SubSpace_L =
-	List_Create(6, 6, sizeof (struct SubSpace)) ; }
+    { 
+      $$ = Current_SubSpace_L =
+	List_Create(6, 6, sizeof (struct SubSpace)) ; 
+    }
 
   | SubSpaces  '{' SubSpace '}'
-    { List_Add($$ = $1, &SubSpace_S) ; }
+    { 
+      List_Add($$ = $1, &SubSpace_S) ; 
+    }
   ;
 
 
 SubSpace :
 
     /* none */
-    { SubSpace_S.Name = NULL ; SubSpace_S.BasisFunction  = NULL ; }
+    { 
+      SubSpace_S.Name = NULL ; SubSpace_S.BasisFunction  = NULL ; 
+    }
 
   | SubSpace  SubSpaceTerm
   ;
@@ -2759,9 +2764,11 @@ SubSpace :
 SubSpaceTerm :
 
     tName tSTRING tEND
-    { Check_NameOfStructNotExist("SubSpace", Current_SubSpace_L,
+    { 
+      Check_NameOfStructNotExist("SubSpace", Current_SubSpace_L,
 				 $2, fcmp_SubSpace_Name) ;
-      SubSpace_S.Name = $2 ; }
+      SubSpace_S.Name = $2 ; 
+    }
 
   | tNameOfBasisFunction ListOfBasisFunction tEND
     { SubSpace_S.BasisFunction = $2 ; }
@@ -2836,7 +2843,10 @@ ListOfBasisFunctionCoef :
 
 RecursiveListOfBasisFunctionCoef :
 
-    /* none */    { $$ = List_Create(5, 5, sizeof(int)) ; }
+    /* none */
+    { 
+      $$ = List_Create(5, 5, sizeof(int)) ; 
+    }
 
   | RecursiveListOfBasisFunctionCoef Comma tSTRING
     {
@@ -2854,11 +2864,14 @@ RecursiveListOfBasisFunctionCoef :
 GlobalQuantities :
 
     /* none */
-    { $$ = Current_GlobalQuantity_L =
-	List_Create(6, 6, sizeof (struct GlobalQuantity)) ; }
+    { 
+      $$ = Current_GlobalQuantity_L =
+	List_Create(6, 6, sizeof (struct GlobalQuantity)) ; 
+    }
 
   | GlobalQuantities  '{' GlobalQuantity '}'
-    { GlobalQuantity_S.Num = Num_BasisFunction++ ;
+    { 
+      GlobalQuantity_S.Num = Num_BasisFunction++ ;
       List_Add($$ = $1, &GlobalQuantity_S) ;
     }
   ;
@@ -2867,7 +2880,8 @@ GlobalQuantities :
 GlobalQuantity :
 
     /* none */
-    { GlobalQuantity_S.Name = NULL ; GlobalQuantity_S.Num  = 0 ;
+    { 
+      GlobalQuantity_S.Name = NULL ; GlobalQuantity_S.Num  = 0 ;
       GlobalQuantity_S.Type = ALIASOF ; GlobalQuantity_S.ReferenceIndex = -1 ;
     }
 
@@ -2878,12 +2892,15 @@ GlobalQuantity :
 GlobalQuantityTerm :
 
     tName String__Index tEND
-    { Check_NameOfStructNotExist("GlobalQuantity", Current_GlobalQuantity_L,
+    { 
+      Check_NameOfStructNotExist("GlobalQuantity", Current_GlobalQuantity_L,
 				 $2, fcmp_GlobalQuantity_Name) ;
-      GlobalQuantity_S.Name = $2 ; }
+      GlobalQuantity_S.Name = $2 ; 
+    }
 
   | tType tSTRING tEND
-    { GlobalQuantity_S.Type =
+    { 
+      GlobalQuantity_S.Type =
 	Get_DefineForString(GlobalQuantity_Type, $2, &FlagError) ;
       if (FlagError){
 	vyyerror("Unknown type of GlobalQuantity: %s", $2);
@@ -2893,7 +2910,8 @@ GlobalQuantityTerm :
     }
 
   | tNameOfCoef tSTRING tEND
-    { if ((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, $2, 
+    { 
+      if ((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, $2, 
 			       fcmp_BasisFunction_NameOfCoef)) < 0) 
 	vyyerror("Unknown NameOfCoef: %s", $2) ;
       else
@@ -3253,12 +3271,9 @@ DefineQuantityTerm :
       Free($2) ;
     }
 
-
   | tDummyFrequency ListOfFExpr tEND
     { DefineQuantity_S.DummyFrequency = $2;
     }
-
-
 
   | tNameOfSpace String__Index 
     {
@@ -3364,8 +3379,6 @@ DefineQuantityTerm :
       }
       Free($2) ;
     }
-
-
 
   | tIndexOfSystem tINT tEND
     { 
