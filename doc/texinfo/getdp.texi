@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.73 2005-07-16 21:49:23 geuzaine Exp $
+@c $Id: getdp.texi,v 1.74 2005-07-17 06:53:16 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -727,6 +727,7 @@ Expressions are denoted by the metasyntactic variable @var{expression}
 
 @example
 @var{expression}:
+  ( @var{expression} ) |
   @var{integer} |
   @var{real} |
   @var{constant-id} |
@@ -739,7 +740,13 @@ Expressions are denoted by the metasyntactic variable @var{expression}
   @var{expression} @var{operator-binary} @var{expression} |
   @var{expression} @var{operator-ternary-left} @var{expression} @var{operator-ternary-right} @var{expression} |
   @var{built-in-function-id} [ < @var{expression-list} > ] < @{ @var{expression-cst-list} @} > |
-  @var{function-id} [ < @var{expression-list} > ]
+  @var{function-id} [ < @var{expression-list} > ] |
+  < Real | Complex > [ @var{expression} ] |
+  Dt [ @var{expression} ] |
+  AtAnteriorTimeStep [ @var{expression}, @var{integer} ] |
+  Order [ @var{quantity} ] |
+  Trace [ @var{expression}, @var{group-id} ] |
+  @var{expression} ##@var{integer}
 @end example
 
 @noindent The following sections introduce the quantities that can appear in
@@ -750,8 +757,13 @@ constant expression identifiers (@var{constant-id},
 (@var{register-value-set}, @var{register-value-get}), operators
 (@var{operator-unary}, @var{operator-binary}, @var{operator-ternary-left},
 @var{operator-ternary-right}) and built-in or user-defined functions
-(@var{built-in-function-id}, @var{function-id}). List of expressions are
-defined as:
+(@var{built-in-function-id}, @var{function-id}). The last seven cases in
+this definition permit to cast an expression as real or complex, get the
+time derivative or evaluate an expression at an anterior time step, retrieve
+the interpolation order of a discretized quantity, evaluate the trace of an
+expression, and print the value of an expression for debugging purposes.
+
+List of expressions are defined as:
 
 @example
 @var{expression-list}: 
@@ -813,6 +825,7 @@ purely constant expressions, denoted by the metasyntactic variable
 
 @example
 @var{expression-cst}:
+  ( @var{expression-cst} ) |
   @var{integer} |
   @var{real} |
   @var{constant-id} |
@@ -1305,7 +1318,8 @@ objects:
 
 @example
 @var{quantity}:
-  < @var{quantity-dof} > @{ < @var{quantity-operator} > @var{quantity-id} @}
+  < @var{quantity-dof} > @{ < @var{quantity-operator} > @var{quantity-id} @} |
+  @{ < @var{quantity-operator} > @var{quantity-id} @} [ @var{expression-cst-list} ]
 @end example
 
 @noindent with 
@@ -1366,12 +1380,17 @@ Inverse div: applied to a divergence field.
 
 @end ftable
 
-@noindent Note:
+@noindent Notes:
 @enumerate
 @item
 While the operators @code{Grad}, @code{Curl} and @code{Div} can be applied
 to 0, 1 and 2-forms respectively, the exterior derivative operator @code{d}
 is usually preferred with such fields.
+@item
+The second case permits to evaluate a discretized quantity at a certain
+position X, Y, Z (when @var{expression-cst-list} contains three items) or at
+a specific time, N time steps ago (when @var{expression-cst-list} contains a
+single item).
 @end enumerate
 
 @c -------------------------------------------------------------------------

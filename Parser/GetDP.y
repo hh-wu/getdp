@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.74 2005-07-16 21:40:27 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.75 2005-07-17 06:53:16 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1675,19 +1675,6 @@ WholeQuantity_Single :
     {
       WholeQuantity_S.Type = WQ_SHOWVALUE ;
       WholeQuantity_S.Case.ShowValue.Index = (int)$3 ;
-      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
-    }
-
-  | tDofValue '[' tSTRING ',' tINT ']' 
-    {
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
-			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("DofValue : Unknown System: %s", $3) ;
-      /* Free($3) ; */
-      WholeQuantity_S.Case.DofValue.DefineSystemIndex = i ;
-      WholeQuantity_S.Type = WQ_DOFVALUE ;
-      WholeQuantity_S.Case.DofValue.SystemName = $3 ;
-      WholeQuantity_S.Case.DofValue.DofNumber = $5 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 

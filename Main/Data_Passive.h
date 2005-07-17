@@ -699,9 +699,8 @@ struct WholeQuantity {
 #define WQ_SHOWVALUE               20
 #define WQ_MHTIMEEVAL              211
 #define WQ_MHJACNL                 212
-#define WQ_DOFVALUE                213
 #define WQ_POSTSAVE                214
-#define WQ_ATANTERIORTIMESTEP        22
+#define WQ_ATANTERIORTIMESTEP      22
 
 /* TypeOperator */
 #define OP_PLUS           1
