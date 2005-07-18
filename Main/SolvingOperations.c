@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.71 2005-07-18 08:21:24 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.72 2005-07-18 20:05:04 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -67,7 +67,6 @@ static int  Init_Update = 0 ; /* provisoire */
 /* Johan: it would be nice to get rid of these globals... */
 struct Group * Generate_Group = NULL;
 int Flag_RHS = 0;
-int Flag_Pos_TimeLoop = 0;
 double **MH_Moving_Matrix = NULL ; 
 int MH_Moving_Matrix_simple=0, MH_Moving_Matrix_probe=0, MH_Moving_Matrix_separate=0  ; 
 int NbrAnyDof_MH_moving, NbrDof_MH_moving ;
@@ -218,31 +217,26 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                           struct DofData     * DofData2_P0) {
 
   int     i, j, k, l ;
-  double  d, d2 ;
-  int     Nbr_Operation, i_Operation ;
-  int     Num_Iteration ;
-  int     Flag_Jac, Flag_CPU, Flag_Binary=0, Flag_FMMDA=0 ;
-  double  MeanError, RelFactor_Modified ;
+  double  d, d1, d2, *Scales ;
+  int     Nbr_Operation, Nbr_Sol, i_Operation, Num_Iteration ;
+  int     Flag_Jac, Flag_CPU, Flag_Binary = 0, Flag_FMMDA = 0 ;
   int     Save_TypeTime ;
-  double  Save_DTime ;
+  double  Save_Time, Save_DTime, Save_TimeStep ;
+  double  MeanError, RelFactor_Modified ;
   char    *str;
   char    ResName[MAX_FILE_NAME_LENGTH], ResNum[MAX_STRING_LENGTH] ;
-  char    FileName[MAX_FILE_NAME_LENGTH];
-  char    FileFMM[MAX_FILE_NAME_LENGTH];
+  char    FileName[MAX_FILE_NAME_LENGTH], FileFMM[MAX_FILE_NAME_LENGTH];
   char    FileName_exMH[MAX_FILE_NAME_LENGTH];
   gScalar tmp ;
-  double * Scales, d1 ;
-  int NbrSol ;
-  double SaveTime;
 
-  struct Operation     * Operation_P ;
-  struct DefineSystem  * DefineSystem_P ;
-  struct DofData       * DofData_P, * DofData2_P ;
-  struct Solution      * Solution_P, Solution_S ;
+  struct Operation      * Operation_P ;
+  struct DefineSystem   * DefineSystem_P ;
+  struct DofData        * DofData_P, * DofData2_P ;
+  struct Solution       * Solution_P, Solution_S ;
   struct PostOperation  * PostOperation_P ;
   struct PostProcessing * PostProcessing_P ;
-  struct Dof           Dof, * Dof_P ;
-  struct Value         Value, far ;
+  struct Dof            Dof, * Dof_P ;
+  struct Value          Value, far ;
 
   double  **DTA ;
   FILE * MomFMM ;
@@ -293,7 +287,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_SYSTEMCOMMAND :
-      system(Operation_P->Case.SystemCommand);
+      system(Operation_P->Case.SystemCommand.String);
       break ;
 
       /*  -->  G e n e r a t e                        */
@@ -381,8 +375,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GENERATEJAC :  Flag_Jac  = 1 ;   
     case OPERATION_GENERATE :
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
-			       Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			       &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
 
       if ( Current.FMM.SystemIndex == Operation_P->DefineSystemIndex )
 	if (Flag_FMM)
@@ -562,6 +556,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues, 
 		 Operation_P->Case.EigenSolve.Shift_r,
 		 Operation_P->Case.EigenSolve.Shift_i) ;
+      /* FIXME TEST TEST TEST TEST !!! */
+      Current.RelativeDifference = 1.0 ;
+      
       Flag_CPU = 1 ;
       break ;
 
@@ -845,10 +842,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	DofData_P->CurrentSolution = (struct Solution*)
 	  List_Pointer(DofData_P->Solutions, i) ;
 	if (!DofData_P->CurrentSolution->SolutionExist)
-	  Msg(ERROR, "SaveSolutions: solution #%d doesn't exist anymore", i) ;
-	Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, 
-			 DofData_P->CurrentSolution->Time, 
-			 DofData_P->CurrentSolution->TimeImag, i) ;
+	  Msg(WARNING, "Solution #%d doesn't exist anymore: skipping", i) ;
+	else
+	  Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, 
+			   DofData_P->CurrentSolution->Time, 
+			   DofData_P->CurrentSolution->TimeImag, i) ;
       }
       break ;
 
@@ -1440,11 +1438,19 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break ;
 
+      /*  -->  E v a l u a t e                        */
+      /*  ------------------------------------------  */
+
+    case OPERATION_EVALUATE :
+      Get_ValueOfExpressionByIndex(Operation_P->Case.Evaluate.ExpressionIndex,
+				   NULL, 0., 0., 0., &Value) ;
+      break ;
+
       /*  -->  S e t T i m e                          */
       /*  ------------------------------------------  */
 
     case OPERATION_SETTIME :
-      Get_ValueOfExpressionByIndex(Operation_P->Case.SetTimeIndex,
+      Get_ValueOfExpressionByIndex(Operation_P->Case.SetTime.ExpressionIndex,
 				   NULL, 0., 0., 0., &Value) ;
       Current.Time = Value.Val[0] ;
       break ;
@@ -1521,14 +1527,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Msg(BIGINFO, "Theta Time = %.8g s (TimeStep %d)", Current.Time, 
 	    (int)Current.TimeStep) ;
 
-	Flag_Pos_TimeLoop = 1;
-	SaveTime = Current.Time ;
+	Save_Time = Current.Time ;
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopTheta.Operation, 
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
-	Flag_Pos_TimeLoop = 0;
-	Current.Time = SaveTime ;
+	Current.Time = Save_Time ;
 
       }
 
@@ -1666,18 +1670,18 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
 
 
-      NbrSol = List_Nbr(DofData2_P->Solutions) ;
+      Nbr_Sol = List_Nbr(DofData2_P->Solutions) ;
       Scales = Operation_P->Case.FourierTransform2.Scales ;
 
       if ( (Operation_P->Case.FourierTransform2.Period_sofar + Current.DTime > 
-	    Operation_P->Case.FourierTransform2.Period) && NbrSol ) {
+	    Operation_P->Case.FourierTransform2.Period) && Nbr_Sol ) {
 	Msg (INFO, "Normalizing and finalizing Fourier Analysis"
 	     " (solution  %d) (Period: %e out of %e)",
-	     NbrSol, Operation_P->Case.FourierTransform2.Period_sofar,
+	     Nbr_Sol, Operation_P->Case.FourierTransform2.Period_sofar,
 	     Operation_P->Case.FourierTransform2.Period);
 	for (i=0 ; i<NbrHar2 ; i++) Msg(INFO, "Har  %d : Scales %e ", i, Scales[i]) ;
 
-	Solution_P = (struct Solution*)List_Pointer(DofData2_P->Solutions, NbrSol-1);
+	Solution_P = (struct Solution*)List_Pointer(DofData2_P->Solutions, Nbr_Sol-1);
 
 	for(j=0 ; j<DofData2_P->NbrDof ; j+=NbrHar2){
 	  NumDof = ((struct Dof *)List_Pointer(DofData2_P->DofList,j))->Case.Unknown.NumDof - 1 ;
@@ -1693,20 +1697,20 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       
 
       if (Operation_P->Case.FourierTransform2.Period_sofar == 0) {
-	Msg (INFO, "Starting new Fourier Analysis : solution %d ", NbrSol);
-	Solution_S.TimeStep = NbrSol;
-	Solution_S.Time = NbrSol;
+	Msg (INFO, "Starting new Fourier Analysis : solution %d ", Nbr_Sol);
+	Solution_S.TimeStep = Nbr_Sol;
+	Solution_S.Time = Nbr_Sol;
 	Solution_S.SolutionExist = 1 ;
 	LinAlg_CreateVector(&Solution_S.x, &DofData2_P->Solver, DofData2_P->NbrDof,
 			    DofData2_P->NbrPart, DofData2_P->Part) ;
 	LinAlg_ZeroVector(&Solution_S.x) ;
 	List_Add(DofData2_P->Solutions, &Solution_S) ;
-	NbrSol++ ;
+	Nbr_Sol++ ;
 	for (k=0 ; k<NbrHar2 ; k++) Scales[k] = 0 ;  
       }
 
       DofData2_P->CurrentSolution = Solution_P =
-	(struct Solution*)List_Pointer(DofData2_P->Solutions, NbrSol-1) ;
+	(struct Solution*)List_Pointer(DofData2_P->Solutions, Nbr_Sol-1) ;
       
 
       for (k=0 ; k<NbrHar2 ; k+=2) {
@@ -1899,6 +1903,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      
     case OPERATION_POSTOPERATION :
       Msg(OPERATION, "PostOperation") ;
+
+      Save_Time = Current.Time ;
+      Save_TimeStep = Current.TimeStep ;
+
       for(i=0 ; i<List_Nbr(Operation_P->Case.PostOperation.PostOperations); i++){
 	str = *(char**)List_Pointer(Operation_P->Case.PostOperation.PostOperations, i);
 	if((j = List_ISearchSeq(Problem_S.PostOperation, str, fcmp_PostOperation_Name)) < 0){
@@ -1915,6 +1923,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	     GeoData_P0, PostProcessing_P, PostOperation_P) ;
 	}
       }
+
+      /* the post-processing can (and usually will) change the current
+	 timestep, current time and current solution pointers: we need
+	 to reset them */
+      Current.Time = Save_Time ;
+      Current.TimeStep = Save_TimeStep ;
+      for (k = 0 ; k < Current.NbrSystem ; k++)
+	(Current.DofData_P0+k)->CurrentSolution = (struct Solution*)
+	  List_Pointer((Current.DofData_P0+k)->Solutions, 
+		       List_Nbr((Current.DofData_P0+k)->Solutions) - 1) ;
       break ;
 
 

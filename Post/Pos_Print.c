@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.66 2005-07-08 21:54:55 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.67 2005-07-18 20:05:12 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -161,26 +161,12 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   int       NbrTimeStep, iTime, iNode ;
   int       Store = 0, DecomposeInSimplex = 0, Depth ;
 
-  extern int Flag_Pos_TimeLoop ;
-
   GetDP_Begin("Pos_PrintOnElementsOf");
 
   /* Select the TimeSteps */
   
-  if(Flag_Pos_TimeLoop || !(NbrTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
-    NbrTimeStep = List_Nbr(Current.DofData->Solutions);
-    for(iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
-      if (Flag_Pos_TimeLoop) { 
-	iTime = NbrTimeStep - 1;
-	NbrTimeStep = 1;
-	/* if(!List_Nbr(PostSubOperation_P->TimeStep_L)) */
-	List_Reset(PostSubOperation_P->TimeStep_L);
-      }
-      List_Add(PostSubOperation_P->TimeStep_L, &iTime);
-
-    }
-  }
-
+  NbrTimeStep = Pos_InitTimeSteps(PostSubOperation_P);
+  
   /* Print the header */
 
   NbrGeo = Geo_GetNbrGeoElements() ;
@@ -715,17 +701,13 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
   List_T             * PE_L ;
 
   int     NbGeoElement, NbTimeStep, NbCut, * NumNodes ;
-  int     iPost, iNode, iGeo, iTime, iCut, iEdge ;
+  int     iPost, iNode, iGeo, iCut, iEdge, iTime ;
   double  A, B, C, D, d1, d2, u, xcg, ycg, zcg ;
   double  x[3], y[3], z[3] ;
 
   GetDP_Begin("Pos_PrintOnSection");
 
-  if( !(NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
-    NbTimeStep = List_Nbr(Current.DofData->Solutions);
-    for(iTime = 0 ; iTime < NbTimeStep ; iTime++)
-      List_Add(PostSubOperation_P->TimeStep_L, &iTime);
-  }
+  NbTimeStep = Pos_InitTimeSteps(PostSubOperation_P);
 
   PE_L = List_Create(10, 10, sizeof(struct PostElement *)) ;
 
@@ -999,8 +981,8 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
   struct Value       * CumulativeValues, Value ;
   struct PostElement * PE , * PE2 ;
 
-  int     i1, i2, i3, j, k, NbTimeStep, ts ;
-  float  *Array=NULL ;
+  int     i1, i2, i3, k, NbTimeStep, ts ;
+  float  *Array = NULL ;
   double  u, v, w, Length, Normal[4] = {0., 0., 0., 0.} ;
   double  X[4], Y[4], Z[4], S[4], N[4], tmp[3];
 
@@ -1008,10 +990,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 
   Get_InitDofOfElement(&Element) ;
 
-  if( !(NbTimeStep = List_Nbr(PSO_P->TimeStep_L)) ){
-    NbTimeStep = List_Nbr(Current.DofData->Solutions);
-    for(j = 0 ; j < NbTimeStep ; j++) List_Add(PSO_P->TimeStep_L, &j);
-  }
+  NbTimeStep = Pos_InitTimeSteps(PSO_P);
 
   if(CPQ_P){
     Cal_PostCumulativeQuantity(NULL, PSO_P->PostQuantitySupport[Order],
@@ -1241,7 +1220,6 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 			struct PostSubOperation  *PostSubOperation_P) {
 
   struct Element   Element ;
-  /*  struct Value   * CumulativeValues ; */
   struct Value     Value ;
   struct PostQuantity  *PQ_P ;
 
@@ -1251,11 +1229,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
   GetDP_Begin("Pos_PrintOnRegion");
 
-  if( !(NbrTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
-    NbrTimeStep = List_Nbr(Current.DofData->Solutions);
-    for(iTime = 0 ; iTime < NbrTimeStep ; iTime++)
-      List_Add(PostSubOperation_P->TimeStep_L, &iTime);
-  }
+  NbrTimeStep = Pos_InitTimeSteps(PostSubOperation_P);
 
   if (CPQ_P && NCPQ_P)
     Msg(ERROR, "Only one PostProcessing Quantity allowed in PostOperation") ;
@@ -1271,26 +1245,6 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     PQ_P = NCPQ_P ;  Support_L = NULL ;
   }
 
-  /*
-  if(CPQ_P){
-    Cal_PostCumulativeQuantity(NULL, PostSubOperation_P->PostQuantitySupport[Order],
-			       PostSubOperation_P->TimeStep_L,
-			       CPQ_P, DefineQuantity_P0,
-			       QuantityStorage_P0, &CumulativeValues);
-  }
-
-  if (!NCPQ_P) { Only one Cumulative
-    for (j = 0 ; j < NbrTimeStep ; j++) {
-      Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, j) ;
-      fprintf(PostStream, "%.8g", Current.Time) ;
-      Format_PostValue(PostSubOperation_P->Format, &CumulativeValues[j],
-		       Current.NbrHar, Current.Time, 0, 1) ;
-    }
-    fprintf(PostStream, "\n"); 
-  }
-  else {  There is one non-cumulative
-  */
-  /* Il vaut mieux supprimer cela ... ou plutot l'entendre comme cela : */
   if (!Support_L &&
       List_Nbr(NCPQ_P->PostQuantityTerm) &&
       (
@@ -1341,10 +1295,9 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0, 
 		       Support_L, &Element, 0., 0., 0., &Value) ;
 
-      if (PostSubOperation_P->StoreInRegister >= 0) {
+      if (PostSubOperation_P->StoreInRegister >= 0)
 	Cal_StoreInRegister(&Value, PostSubOperation_P->StoreInRegister) ;
-      }
-
+      
       Format_PostValue(PostSubOperation_P->Format,
 		       Current.Time, i, Nbr_Region,
 		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
@@ -1352,10 +1305,6 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 		       &Value) ;
     }
 
-  }
-
-  if(PostSubOperation_P->Save){
-    Cal_CopyValue(&Value,PostSubOperation_P->Save) ;
   }
 
   GetDP_End ;

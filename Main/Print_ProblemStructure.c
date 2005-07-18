@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.37 2005-07-07 21:40:16 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.38 2005-07-18 20:05:04 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -172,6 +172,10 @@ void  Print_WholeQuantity(struct Problem  * Problem,
 
     case WQ_VALUESAVED :
       Msg(CHECK, " #%d", (WQ+k)->Case.ValueSaved.Index + 1) ;
+      break ;
+
+    case WQ_SHOWVALUE :
+      Msg(CHECK, " ->show with prefix #%d", (WQ+k)->Case.ShowValue.Index + 1) ;
       break ;
 
     default :
@@ -923,7 +927,7 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
     case OPERATION_TRANSFERSOLUTION :
     case OPERATION_TRANSFERINITSOLUTION :
       for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
-      Msg(CHECK, "      %s[%s] ;\n",
+      Msg(CHECK, "      %s [%s] ;\n",
 	  Get_StringForDefine(Operation_Type, OPE->Type),
 	  ((struct DefineSystem *)
 	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name) ;
@@ -949,7 +953,7 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 
     case OPERATION_TIMELOOPTHETA :
       for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
-      Msg(CHECK, "      TimeLoopTheta[ %.10g, %.10g, Exp[%s], Exp[%s] ] {\n",
+      Msg(CHECK, "      TimeLoopTheta [ %.10g, %.10g, Exp[%s], Exp[%s] ] {\n",
 	  OPE->Case.TimeLoopTheta.Time0, OPE->Case.TimeLoopTheta.TimeMax,
 	  Get_ExpressionName(Problem,
 			     OPE->Case.TimeLoopTheta.DTimeIndex),
@@ -962,7 +966,7 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 
     case OPERATION_TIMELOOPNEWMARK :
       for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
-      Msg(CHECK, "      TimeLoopNewmark[ %.10g, %.10g, Exp[%s], %.10g, %.10g ] {\n",
+      Msg(CHECK, "      TimeLoopNewmark [ %.10g, %.10g, Exp[%s], %.10g, %.10g ] {\n",
 	  OPE->Case.TimeLoopNewmark.Time0, OPE->Case.TimeLoopNewmark.TimeMax,
 	  Get_ExpressionName(Problem,
 			     OPE->Case.TimeLoopNewmark.DTimeIndex),
@@ -974,11 +978,10 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 
     case OPERATION_ITERATIVELOOP :
       for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
-      Msg(CHECK, "      IterativeLoop [ %d, Exp[%s], %.10g ] {\n",
-	  OPE->Case.IterativeLoop.NbrMaxIteration,
-	  Get_ExpressionName(Problem,
-			     OPE->Case.IterativeLoop.RelaxationFactorIndex),
-	  OPE->Case.IterativeLoop.Criterion) ;
+      Msg(CHECK, "      IterativeLoop [ %d, %.10g, Exp[%s] ] {\n",
+	  OPE->Case.IterativeLoop.NbrMaxIteration, 
+	  OPE->Case.IterativeLoop.Criterion,
+	  Get_ExpressionName(Problem, OPE->Case.IterativeLoop.RelaxationFactorIndex)) ;
       Print_Operation(RE, OPE->Case.IterativeLoop.Operation, Problem) ;
       for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      }\n") ;
@@ -1002,11 +1005,23 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 	  OPE->Case.EigenSolve.Shift_r, OPE->Case.EigenSolve.Shift_i);
       break ;
 
+    case OPERATION_POSTOPERATION :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
+      Msg(CHECK, "      PostOperation [ ... ] ;\n");
+      break ;
+
+    case OPERATION_EVALUATE :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
+      Msg(CHECK, "      Evaluate [ Exp[%s] ] ;\n",
+	  Get_ExpressionName(Problem,
+			     OPE->Case.Evaluate.ExpressionIndex)) ;
+      break ;
+
     case OPERATION_SETTIME :
       for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      SetTime [ Exp[%s] ] ;\n",
 	  Get_ExpressionName(Problem,
-			     OPE->Case.SetTimeIndex)) ;
+			     OPE->Case.SetTime.ExpressionIndex)) ;
       break ;
 
     case OPERATION_SETFREQUENCY :
@@ -1026,7 +1041,7 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
     case OPERATION_SYSTEMCOMMAND :
       for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      SystemCommand \" %s \" ;\n",
-	  OPE->Case.SystemCommand);
+	  OPE->Case.SystemCommand.String);
       break ;
 
     case OPERATION_TEST :

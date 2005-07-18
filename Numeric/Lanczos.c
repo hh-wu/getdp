@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.30 2005-07-16 21:36:50 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.31 2005-07-18 20:05:04 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -333,7 +333,7 @@ void cal_vec_pr_T(double **T, int N, double valp, double *v){
     if(mat[i][i-1] != 0.0)
       v[i-1]/=mat[i][i-1];
     else {
-      Msg(BIGINFO, " --- INVARIANT SUBSPACE FOUND ! --- ");
+      Msg(INFO, " --- INVARIANT SUBSPACE FOUND ! --- ");
       /* verifier que la manoeuvre de sortie est valide !!! */
       for(k=i;k<=N;k++)	v[k]=0.0;
       v[i-1]=1.0;
@@ -566,7 +566,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   /* Lan[0] is built: q_o = q_o/sqrt(dum) */
   LinAlg_ProdVectorDouble(&Lan[0], 1./sqrt(dum), &Lan[0]);
 
-  Msg(BIGINFO, "Lanczos iteration 1/%d", LanSize);
+  Msg(INFO, "Lanczos iteration 1/%d", LanSize);
 
   /* etape 1 */
 
@@ -608,7 +608,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   Restart = 2 ; /* pour 'Arnoldi with restarting', cf. Golub & Van Loan */
   for (i=Restart ; i<=LanSize ; i++){
     
-    Msg(BIGINFO, "Lanczos iteration %d/%d", i, LanSize);
+    Msg(INFO, "Lanczos iteration %d/%d", i, LanSize);
 
     /* q_1 = K^-1 b  avec b deja multiplie par M */
     LinAlg_Solve(K, b, &DofData_P->Solver, &Lan[i]);
@@ -624,7 +624,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 
     /* OPTIONNAL PART : re-orthogonalization DGKS */
     if (eigenpar.reortho == 1) {
-      Msg(BIGINFO, " *** reorthogonalization *** ");
+      Msg(INFO, " *** reorthogonalization *** ");
       for (j=1 ; j<=i ; j++) {
 	LinAlg_ProdMatrixVector(M, &Lan[j-1], x);
 	LinAlg_ProdVectorVector(x, &Lan[i], &dum);
@@ -692,23 +692,23 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
       wi[k] = shift+1.0/wr[k];
 
     /* estimation d'erreur et test de convergence */
-    Msg(BIGINFO, "------------------ hessenberg coeff %d = %g  ",i,Hes[i+1][i]);
+    Msg(INFO, "------------------ hessenberg coeff %d = %g  ",i,Hes[i+1][i]);
     if (Hes[i+1][i] < 1e-20) 
-      Msg(BIGINFO, " --- INVARIANT SUBSPACE FOUND ! --- ");
+      Msg(INFO, " --- INVARIANT SUBSPACE FOUND ! --- ");
     
     /* search the largest eigenvalue */
     dum = 0. ; ivmax =1 ;
     for (k=1 ; k<=i ; k++)
       if (wr[k] > dum) {ivmax = k; dum = wr[k];};
     
-    if (wr[ivmax] == 0.) Msg(BIGINFO," OOOPS !! - no positive eigen value ? - ");
+    if (wr[ivmax] == 0.) Msg(WARNING," OOOPS !! - no positive eigen value ? - ");
     
     Msg(INFO, "Max eigenvalue = %g on %d ", dum, ivmax);  
 
     /* compute the corresponding eigenvector */
     cal_vec_pr_T(Hes, i, wr[ivmax], diag);
     Msg(INFO, "Last eigenvector component = %g ", diag[i]);  
-    Msg(BIGINFO, " ******** Residual estimate = %g ",
+    Msg(INFO, " ******** Residual estimate = %g ",
 	Hes[i+1][i] * diag[i] / wr[ivmax] );
   }
 
@@ -744,7 +744,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
     cal_vec_pr_T(Hes, LanSize, wr[i], diag);
     
     /* estimation d'erreur et test de convergence */
-    /* Msg(BIGINFO, "*********** estim %d = %g", i, 
+    /* Msg(INFO, "*********** estim %d = %g", i, 
        Hes[LanSize+1][LanSize]*diag[LanSize]); */
     if (wr[i]>1e-20) 
       err[i] = Hes[LanSize+1][LanSize]*diag[LanSize]/wr[i];
@@ -800,7 +800,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 
       /* increment the global timestep counter so that a future
 	 GenerateSystem knows which solutions exist */
-      Current.TimeStep++;
+      Current.TimeStep += 1.;
 
       /* boucle de taille m = taille des matrices A,K,M du probleme */
       /* calcul de la composant k du vecteur ii */
@@ -822,7 +822,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
       }
       
       /* normation L infini : abs plus grand element mis a un */
-      /* Msg(BIGINFO, "normation du vecteur propre %d  ",ii); */
+      /* Msg(INFO, "normation du vecteur propre %d  ",ii); */
       /* determination du maximum */
       dum = 0.; dum1 = 0.;
       for(k=0; k<NbrDof; k++){
@@ -836,7 +836,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
 				&DofData_P->CurrentSolution->x);
       
       /* estimation d'erreur et test de convergence */
-      /* Msg(BIGINFO, "------------------ estim %d = %g  ",ii,Hes[ii+1][ii]); */
+      /* Msg(INFO, "------------------ estim %d = %g  ",ii,Hes[ii+1][ii]); */
       
     } /* fin du test de validite */
     else{

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.46 2005-07-18 08:27:26 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.47 2005-07-18 20:05:12 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -44,32 +44,28 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   struct PostQuantity   *NCPQ_P = NULL, *CPQ_P = NULL ;
   double                 Pulsation ;
   int                    i, Order = 0 ;
-  char                   FileName[MAX_FILE_NAME_LENGTH];
-
-  char  NameApp[100] ;
-  extern int Flag_Pos_TimeLoop ;
-  int save_Flag_Pos_TimeLoop;
+  char                   FileName[MAX_FILE_NAME_LENGTH], AddExt[100];
 
   GetDP_Begin("Pos_Formulation");
 
-  save_Flag_Pos_TimeLoop = Flag_Pos_TimeLoop; 
-
-  if (PostSubOperation_P->Format == FORMAT_TIME_TABLE) Flag_Pos_TimeLoop = 0;
-
-  if (Flag_Pos_TimeLoop) sprintf(NameApp, "_%.0f.pos", (double)Current.TimeStep) ;
- 
-  if (PostSubOperation_P->FileOut){
+  if(PostSubOperation_P->FileOut){
     if(PostSubOperation_P->FileOut[0] == '/' || 
        PostSubOperation_P->FileOut[0] == '\\'){
       strcpy(FileName, PostSubOperation_P->FileOut);
-      if (Flag_Pos_TimeLoop) strcat(FileName, NameApp);
     }
     else{
       strcpy(FileName, Name_Path);
       strcat(FileName, PostSubOperation_P->FileOut);
-      if (Flag_Pos_TimeLoop) strcat(FileName, NameApp);
     }
-    if (!PostSubOperation_P->CatFile) {
+
+    if(PostSubOperation_P->LastTimeStepOnly) {
+      /* We should implement something more general, like strings with
+	 tags (e.g., "file_%TimeStep.pos") */
+      sprintf(AddExt, "_%03d", (int)Current.TimeStep) ;
+      strcat(FileName, AddExt);
+    }
+
+    if(!PostSubOperation_P->CatFile) {
       if((PostStream = fopen(FileName, Flag_BIN ? "wb" : "w")))
 	Msg(DIRECT, "          > '%s'", FileName) ;
       else
@@ -86,13 +82,13 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     PostStream = stdout ;
   }
 
-  if (PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n\n") ;
-/*  two blanks lines for -index in gnuplot  */
+  if(PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n\n") ;
+  /*  two blanks lines for -index in gnuplot  */
 
   Format_PostFormat(PostSubOperation_P->Format) ;
 
-  if (PostSubOperation_P->PostQuantityIndex[0] >= 0) {
-    if (PostSubOperation_P->PostQuantitySupport[0] < 0) { /* Noncumulative */
+  if(PostSubOperation_P->PostQuantityIndex[0] >= 0) {
+    if(PostSubOperation_P->PostQuantitySupport[0] < 0) { /* Noncumulative */
       NCPQ_P = 
 	(struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
 					     PostSubOperation_P->PostQuantityIndex[0]) ;
@@ -140,16 +136,14 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   }
 
-  if (PostSubOperation_P->FileOut){
+  if(PostSubOperation_P->FileOut){
     fclose(PostStream) ;
-    if (Flag_SOCKET > 0 && 
-	(PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
-	 PostSubOperation_P->Format == FORMAT_GMSH)){
+    if(Flag_SOCKET > 0 && 
+       (PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
+	PostSubOperation_P->Format == FORMAT_GMSH)){
       Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_VIEW, FileName);
     }
   }
-
-  Flag_Pos_TimeLoop = save_Flag_Pos_TimeLoop; 
 
   GetDP_End ;
 }
@@ -180,8 +174,8 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
   QuantityStorage_L = List_Create(List_Nbr(Formulation_P->DefineQuantity),  1, 
 				  sizeof (struct QuantityStorage) ) ;
 
-  for (i = 0 ; i < List_Nbr(Formulation_P->DefineQuantity) ; i++) {
-
+  for(i = 0 ; i < List_Nbr(Formulation_P->DefineQuantity) ; i++) {
+    
     QuantityStorage.DefineQuantity = DefineQuantity_P0 + i ;
 
     if(QuantityStorage.DefineQuantity->Type == INTEGRALQUANTITY &&
@@ -282,9 +276,9 @@ void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep) {
 
   List_Read(TimeStep_L, Index_TimeStep, &Num_TimeStep) ;
 
-  for (k = 0 ; k < Current.NbrSystem ; k++)
-    if ( (Num_Solution = MIN(List_Nbr((Current.DofData_P0+k)->Solutions)-1,
-			     Num_TimeStep)) >=0 )
+  for(k = 0 ; k < Current.NbrSystem ; k++)
+    if( (Num_Solution = MIN(List_Nbr((Current.DofData_P0+k)->Solutions)-1,
+			    Num_TimeStep)) >=0 )
       (Current.DofData_P0+k)->CurrentSolution = (struct Solution*)
 	List_Pointer((Current.DofData_P0+k)->Solutions, Num_Solution) ;
 
@@ -292,4 +286,28 @@ void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep) {
   Current.TimeStep = Num_TimeStep ;
 
   GetDP_End ;
+}
+
+/* ------------------------------------------------------------------------ */
+/*  P o s _ I n i t T i m e S t e p s                                       */
+/* ------------------------------------------------------------------------ */
+
+int Pos_InitTimeSteps(struct PostSubOperation *PostSubOperation_P) {
+  int iTime, NbTimeStep;
+
+  GetDP_Begin("Pos_InitTimeSteps");
+
+  if(PostSubOperation_P->LastTimeStepOnly){
+    List_Reset(PostSubOperation_P->TimeStep_L);
+    iTime = List_Nbr(Current.DofData->Solutions) - 1;
+    List_Add(PostSubOperation_P->TimeStep_L, &iTime);
+    GetDP_Return(1);
+  }
+
+  if( !(NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
+    NbTimeStep = List_Nbr(Current.DofData->Solutions);
+    for(iTime = 0 ; iTime < NbTimeStep ; iTime++)
+      List_Add(PostSubOperation_P->TimeStep_L, &iTime);
+  }
+  GetDP_Return(NbTimeStep);
 }

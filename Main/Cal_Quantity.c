@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.38 2005-07-18 08:01:42 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.39 2005-07-18 20:05:04 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -32,8 +32,6 @@
 #include "CurrentData.h"
 #include "Numeric.h"
 #include "Tools.h"
-
-int  fcmp_int2(const void * a, const void * b) ;
 
 void  Cal_SolidAngle(int Source, struct Element *Element,
 		     struct QuantityStorage * QuantityStorage,
@@ -168,7 +166,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
   struct WholeQuantity   *WholeQuantity_P0, *WholeQuantity_P ;
   struct DofData         *Save_DofData ;
-  struct Solution        *Solution_P0 ;
+  struct Solution        *Solution_P0, *Solution_PN ;
 
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
 
@@ -271,11 +269,12 @@ void Cal_WholeQuantity(struct Element * Element,
       Index++ ;  
       break ;
 
-    case WQ_OPERATORANDQUANTITYEVAL : /* {op qty}[x,y,z] {op qty}[negDeltaTimeStep]*/
+    case WQ_OPERATORANDQUANTITYEVAL : /* {op qty}[x,y,z] or
+					 {op qty}[ntime] */
       if (i_WQ != DofIndexInWholeQuantity || TreatmentStatus == _POS){
-	k = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments;
-	if (k == 3) { 
-	  Index -= k ;
+	j = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments;
+	if (j == 3) { 
+	  Index -= j ;
 	  X = Stack[0][Index  ].Val[0] ;
 	  Y = Stack[0][Index+1].Val[0] ;
 	  Z = Stack[0][Index+2].Val[0] ;
@@ -289,12 +288,13 @@ void Cal_WholeQuantity(struct Element * Element,
 	  Multi[Index] = 0 ;
 	  Index++ ;
 	} 
-	else if (k == 1) { 
-	  Index -= k ;
+	else if (j == 1) { 
+	  Index -= j ;
 	  ntime = (int)Stack[0][Index].Val[0] ;
-	  
+
 	  for (k = 0 ; k < Current.NbrSystem ; k++){
-	    if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){  /* Not the correct test !!! */
+	    Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
+	    if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= ntime){ 
 	      ((Current.DofData_P0+k)->CurrentSolution) -= ntime ;
 	      if (Flag_InfoForTime_ntime != List_Nbr((Current.DofData_P0+k)->Solutions)) {
 		Msg(INFO, "Accessing solution from %d time steps ago", ntime);
@@ -328,14 +328,16 @@ void Cal_WholeQuantity(struct Element * Element,
 	  Index++ ;
 
 	  for (k = 0 ; k < Current.NbrSystem ; k++){
-	    if(List_Nbr((Current.DofData_P0+k)->Solutions) > ntime){
+	    Solution_PN = (struct Solution*)
+	      List_Pointer((Current.DofData_P0+k)->Solutions, 
+			   List_Nbr((Current.DofData_P0+k)->Solutions)-1);
+	    if((Solution_PN - (Current.DofData_P0+k)->CurrentSolution) >= ntime)
 	      ((Current.DofData_P0+k)->CurrentSolution) += ntime ;
-	    }
 	  }
 	  
 	} 
 	else
-	  Msg(ERROR, "Explicit time evaluation not done (yet)");
+	  Msg(ERROR, "Explicit (x,y,z,time) evaluation not implemented");
       }
       else{
 	Msg(ERROR, "Explicit Dof{} evaluation out of context");
@@ -444,7 +446,6 @@ void Cal_WholeQuantity(struct Element * Element,
 	((CAST1V)WholeQuantity_P->Case.Operator.Function)(&Stack[0][Index-1]) ;
       break ;
 
-
       /* WARNING: all the rest assumes 0 multi status */
 
     case WQ_TEST :
@@ -494,7 +495,6 @@ void Cal_WholeQuantity(struct Element * Element,
       Index++ ;  
       break ;
 
-
     case WQ_CURRENTVALUE :
       if (Current.NbrHar == 1) {
 	Stack[0][Index].Val[0] = *(WholeQuantity_P->Case.CurrentValue.Value) ;
@@ -509,7 +509,6 @@ void Cal_WholeQuantity(struct Element * Element,
       Multi[Index] = 0 ;
       Index++ ;  
       break ;
-
 
     case WQ_ARGUMENT :
       Cal_CopyValue(DofValue + WholeQuantity_P->Case.Argument.Index - 1,
@@ -763,6 +762,9 @@ List_T * Purify_WholeQuantity(List_T * WQ_L) {
   GetDP_Return(NULL) ;
 }
 
+/* ------------------------------------------------------------------------ */
+/*  C a l _ S t o r e I n R e g i s t e r                                   */
+/* ------------------------------------------------------------------------ */
 
 void Cal_StoreInRegister(struct  Value  *Value, int RegisterIndex ) {
   Cal_CopyValue(Value, ValueSaved + RegisterIndex) ;

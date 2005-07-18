@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.54 2005-07-18 08:27:26 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.55 2005-07-18 20:05:04 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -272,6 +272,7 @@ void LinAlg_DestroySolver(gSolver *Solver){
   GetDP_Begin("LinAlg_DestroySolver");
 
   ierr = KSPDestroy(Solver->ksp); MYCHECK(ierr);
+  Solver->ksp = NULL;
 
   GetDP_End;
 }

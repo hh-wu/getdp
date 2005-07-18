@@ -752,14 +752,18 @@ struct Operation {
   int  Type, DefineSystemIndex ;
 
   union {
-    int     SetTimeIndex ;
-    char   *SystemCommand ;
     struct {
       int DivXYZIndex, Dfar, Precision, FlagDTA ;
     } GenerateFMMGroups ;
     struct {
       List_T * MatrixIndex_L ;
     } GenerateOnly ;
+    struct {
+      char *String ;
+    } SystemCommand ;
+    struct {
+      int     ExpressionIndex ;
+    } SetTime ;
     struct {
       int     ExpressionIndex ;
     } Update ;
@@ -787,6 +791,9 @@ struct Operation {
       int     NumEigenvalues ; 
       double  Shift_r, Shift_i ; 
     } EigenSolve ;
+    struct {
+      int     ExpressionIndex ; 
+    } Evaluate ;
     struct {
       int     Size ; 
       List_T  * Save ;
@@ -911,6 +918,7 @@ struct ChangeOfState {
 #define OPERATION_LANCZOS                   8
 #define OPERATION_PERTURBATION              9
 #define OPERATION_EIGENSOLVE               16
+#define OPERATION_EVALUATE                 17
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11
@@ -1013,7 +1021,7 @@ struct PostSubOperation {
   int    Type, SubType, CombinationType ;
   int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
   int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex ;
-  int    ChangeOfCoordinates[3] ; 
+  int    ChangeOfCoordinates[3], LastTimeStepOnly ; 
   int    StoreInRegister ;
   int    Legend ;
   double LegendPosition[3] ;
@@ -1026,7 +1034,6 @@ struct PostSubOperation {
   List_T * TimeStep_L, * Value_L, * Iso_L, * Frequency_L ;
   List_T * ChangeOfValues ;
   List_T * EvaluationPoints ;
-  struct Value * Save ;
   union {
     struct { int RegionIndex ; } OnRegion ;
     struct { double x[4], y[4], z[4] ; int n[3] ; } OnGrid ;

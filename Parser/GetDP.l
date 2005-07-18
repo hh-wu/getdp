@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.35 2005-07-18 08:01:42 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.36 2005-07-18 20:05:04 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -256,6 +256,7 @@ FourierTransform             return tFourierTransform ;
 FourierTransformJ            return tFourierTransformJ ;
 Lanczos                      return tLanczos ;
 EigenSolve                   return tEigenSolve ;
+Evaluate                     return tEvaluate ;
 Test                         return tIf ;
 TimeLoopTheta                return tTimeLoopTheta ;
 TimeLoopNewmark              return tTimeLoopNewmark ;
@@ -330,6 +331,7 @@ FrequencyLegend              return tFrequencyLegend ;
 EigenvalueLegend             return tEigenvalueLegend ;
 EvaluationPoints             return tEvaluationPoints ;
 Store                        return tStore ;
+LastTimeStepOnly             return tLastTimeStepOnly ;
 
 If                           return tIf ;
 Else                         return tElse ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.18 2005-07-16 21:36:50 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.19 2005-07-18 20:05:04 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -416,7 +416,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     znaupd_(&ido, &bmat, &n, which, &nev, &tol, resid, &ncv, v, &ldv, iparam,
 	    ipntr, workd, workl, &lworkl, rwork, &info);
     if(ido == 1 || ido == -1){
-      Msg(BIGINFO, "Arpack iteration %d", k);
+      Msg(INFO, "Arpack iteration %d", k+1);
       Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
       LinAlg_ProdMatrixVector(M, &v1, &v2);
       if(!k)
@@ -434,6 +434,8 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
       Msg(INFO, "Arpack code = %d (ignored)", info);
     }
   } while (1);
+
+  Msg(BIGINFO, "Arpack required %d iterations", k);
 
   /* Testing for errors */  
   if(info == 0){
@@ -507,7 +509,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 
     /* increment the global timestep counter so that a future
        GenerateSystem knows which solutions exist */
-    Current.TimeStep++;
+    Current.TimeStep += 1.;
 
     /* Normalize eigenvector in L2 norm */
     dmax = 0.0 ;

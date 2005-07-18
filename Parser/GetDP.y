@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.77 2005-07-18 08:01:43 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.78 2005-07-18 20:05:11 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -297,6 +297,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %token    tOperation  tOperationEnd
 %token      tSetTime tDTime tSetFrequency tFourierTransform tFourierTransformJ
 %token      tLanczos tEigenSolve tPerturbation tUpdate tUpdateConstraint tBreak 
+%token      tEvaluate
 
 %token      tTimeLoopTheta
 %token        tTime0  tTimeMax  tDTime  tTheta
@@ -331,7 +332,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
-%token        tEvaluationPoints tStore
+%token        tEvaluationPoints tStore tLastTimeStepOnly
 %token        tStr, tDate
 
 /* ------------------------------------------------------------------ */
@@ -4642,7 +4643,7 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SETTIME ;
-      Operation_P->Case.SetTimeIndex = $2 ;
+      Operation_P->Case.SetTime.ExpressionIndex = $2 ;
     }
 
   | tTimeLoopTheta '{' TimeLoopTheta '}' 
@@ -4697,7 +4698,7 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SETTIME ;
-      Operation_P->Case.SetTimeIndex = $3 ;
+      Operation_P->Case.SetTime.ExpressionIndex = $3 ;
     }
 
   | tBreak tEND
@@ -4930,6 +4931,13 @@ OperationTerm :
       Operation_P->Case.EigenSolve.Shift_i = $9 ;
     }
 
+  | tEvaluate '[' Expression ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_EVALUATE;
+      Operation_P->Case.Evaluate.ExpressionIndex = (int)$3 ;
+    }
+
   | tPerturbation '[' tSTRING ',' tSTRING ',' tSTRING ','
     FExpr ',' ListOfFExpr ',' FExpr ',' FExpr ']' tEND
     { Operation_P = (struct Operation*)
@@ -5073,7 +5081,7 @@ OperationTerm :
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SYSTEMCOMMAND ;
-      Operation_P->Case.SystemCommand = $3 ; 
+      Operation_P->Case.SystemCommand.String = $3 ; 
     }
 
   | tSolveJac_AdaptRelax '[' tSTRING ',' ListOfFExpr ',' FExpr ']' tEND
@@ -6049,7 +6057,6 @@ PostSubOperation :
   | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_PRINT ;
-      PostSubOperation_S.Save = NULL ;
     }
 
   | tPrint '[' tBIGSTR ',' FExpr PrintOptions ']' tEND
@@ -6348,6 +6355,7 @@ PrintOptions :
       PostSubOperation_S.LegendPosition[2] = 0.;
       PostSubOperation_S.EvaluationPoints = NULL ;
       PostSubOperation_S.StoreInRegister = -1 ;
+      PostSubOperation_S.LastTimeStepOnly = 0;
     }
   | PrintOptions PrintOption 
   ;
@@ -6518,7 +6526,6 @@ PrintOption :
     { 
       PostSubOperation_S.ChangeOfValues = List_Copy(ListOfInt_L) ;
     }
-
   | ',' tTimeLegend
     { 
       PostSubOperation_S.Legend = LEGEND_TIME ;
@@ -6527,7 +6534,6 @@ PrintOption :
       /* (align<<16)|(font<<8)|(fontsize) */
       PostSubOperation_S.LegendPosition[2] = 66574 ;
     }
-
   | ',' tTimeLegend '{' FExpr ',' FExpr ',' FExpr '}'
     { 
       PostSubOperation_S.Legend = LEGEND_TIME ;
@@ -6535,7 +6541,6 @@ PrintOption :
       PostSubOperation_S.LegendPosition[1] = $6 ;
       PostSubOperation_S.LegendPosition[2] = $8 ;
     }
-
   | ',' tFrequencyLegend
     { 
       PostSubOperation_S.Legend = LEGEND_FREQUENCY ;
@@ -6544,7 +6549,6 @@ PrintOption :
       /* (align<<16)|(font<<8)|(fontsize) */
       PostSubOperation_S.LegendPosition[2] = 66574 ;
     }
-
   | ',' tFrequencyLegend '{' FExpr ',' FExpr ',' FExpr '}'
     { 
       PostSubOperation_S.Legend = LEGEND_FREQUENCY ;
@@ -6552,7 +6556,6 @@ PrintOption :
       PostSubOperation_S.LegendPosition[1] = $6 ;
       PostSubOperation_S.LegendPosition[2] = $8 ;
     }
-
   | ',' tEigenvalueLegend
     { 
       PostSubOperation_S.Legend = LEGEND_EIGENVALUES ;
@@ -6561,7 +6564,6 @@ PrintOption :
       /* (align<<16)|(font<<8)|(fontsize) */
       PostSubOperation_S.LegendPosition[2] = 66574 ;
     }
-
   | ',' tEigenvalueLegend '{' FExpr ',' FExpr ',' FExpr '}'
     { 
       PostSubOperation_S.Legend = LEGEND_EIGENVALUES ;
@@ -6569,7 +6571,6 @@ PrintOption :
       PostSubOperation_S.LegendPosition[1] = $6 ;
       PostSubOperation_S.LegendPosition[2] = $8 ;
     }
-
   | ',' tEvaluationPoints '{' RecursiveListOfFExpr '}'
     { 
       if(List_Nbr($4)%3 != 0)
@@ -6578,12 +6579,14 @@ PrintOption :
 	PostSubOperation_S.EvaluationPoints = $4 ;
       }
     }
-
   | ',' tStore tINT
     {
       PostSubOperation_S.StoreInRegister = $3 - 1 ;
     }
-
+  | ',' tLastTimeStepOnly
+    {
+      PostSubOperation_S.LastTimeStepOnly = 1 ;
+    }
   ;
 
 

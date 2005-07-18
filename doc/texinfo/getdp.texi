@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.75 2005-07-18 08:01:44 geuzaine Exp $
+@c $Id: getdp.texi,v 1.76 2005-07-18 20:05:12 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -3708,6 +3708,11 @@ constraint, to the system of equations defined with a
 @code{DestinationSystem} command. This is used with the
 @code{InitFromResolution} constraint type (@pxref{Types for Constraint}).
 
+@item Evaluate
+@code{[@var{expression}]}
+
+Evaluate @var{expression}.
+
 @item SetTime
 @code{[@var{expression}]}
 
@@ -4113,6 +4118,11 @@ p-refinement).
 @code{@var{expression-cst-list-item} | @{ @var{expression-cst-list} @}}
 
 Outputs results for the specified time steps only.
+
+@item LastTimeStepOnly
+
+Outputs results for the last time step only (useful when calling a
+@code{PostOperation} directly in a @code{Resolution}, for example).
 
 @item Frequency
 @code{@var{expression-cst-list-item} | @{ @var{expression-cst-list} @}}
