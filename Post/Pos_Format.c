@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.41 2005-07-09 16:27:36 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.42 2005-07-18 08:27:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -92,7 +92,6 @@ void  Format_PostHeader(int Format, int Contour,
 			char *Name1, char *Name2){
 
   char name[MAX_STRING_LENGTH] ;
-  int i ;
 
   GetDP_Begin("Format_PostHeader");
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Operations.c,v 1.12 2005-07-12 08:14:30 geuzaine Exp $"
+#define RCSID "$Id: FMM_Operations.c,v 1.13 2005-07-18 08:27:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -485,7 +485,7 @@ void FMM_Scaling(double *rowscal, double *colscal, int N){
   struct FMMmat *FMMmat_P0, *FMMmat_P ;
   int  iDof, NbrDof, NumDof, *NumDof_A ;
   int  iEqu, NbrEqu, NumEqu, *NumEqu_A ;
-  double **Ag_M, **D_M, *Ag_V, *D_V, *x_prev ;
+  double **Ag_M, **D_M, *Ag_V, *D_V, *x_prev = NULL ;
   List_T *NumDof_L, *NumEqu_L ;
 
   /* Aggregation and Disaggregation matrices can be either SCALAR or VECTOR */

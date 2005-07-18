@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.45 2005-06-23 01:45:07 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.46 2005-07-18 08:27:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -41,9 +41,9 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 		      struct PostProcessing    *PostProcessing_P,
 		      struct PostSubOperation  *PostSubOperation_P) {
 
-  struct PostQuantity   *NCPQ_P, *CPQ_P ;
+  struct PostQuantity   *NCPQ_P = NULL, *CPQ_P = NULL ;
   double                 Pulsation ;
-  int                    i, Order ;
+  int                    i, Order = 0 ;
   char                   FileName[MAX_FILE_NAME_LENGTH];
 
   char  NameApp[100] ;

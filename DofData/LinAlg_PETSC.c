@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.53 2005-07-18 08:19:13 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.54 2005-07-18 08:27:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1194,7 +1194,7 @@ int LinAlg_ApplyFMM(void *ptr, Vec xin, Vec xout){
   static int ii = 0;
   static Vec DTAxi;
   PetscScalar *tmpV, tmp, mone = -1.0;
-  double *x, *y;
+  double *x = NULL, *y = NULL;
   int i, n;
 
   GetDP_Begin("LinAlg_ApplyFMM");
