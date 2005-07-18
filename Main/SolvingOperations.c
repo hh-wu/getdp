@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.70 2005-07-16 21:39:19 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.71 2005-07-18 08:21:24 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1212,6 +1212,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      aii = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*row_old+row_old]; 
 	      ajj = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+col_old]; 
 #else
+	      aii = ajj = 0.;
 	      Msg(ERROR, "This operation only OK with Sparskit");
 #endif
 	      /*  
