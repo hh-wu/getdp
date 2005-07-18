@@ -73,7 +73,6 @@ struct Problem {
   List_T  * FunctionSpace , * Constraint        , * Formulation   ;
   List_T  * JacobianMethod, * IntegrationMethod ;
   List_T  * Resolution    , * PostProcessing    , * PostOperation ;
-  List_T  * PostSave ;
   List_T  * FMMGroup ;
 } ;
 
@@ -87,12 +86,6 @@ struct Group {
   List_T  * InitialList , * InitialSuppList ;
   List_T  * ExtendedList, * ExtendedSuppList ;
   struct  MovingBand2D * MovingBand2D ; 
-} ;
-
-
-struct PostSave {
-  char    * Name ;
-  struct Value * Value ;
 } ;
 
 struct MovingBand2D {
@@ -659,7 +652,6 @@ struct WholeQuantity {
     struct { int  Index ; }                                       SaveValue ;
     struct { int  Index ; }                                       ShowValue ;
     struct { int  Index ; }                                       ValueSaved ;
-    struct { struct Value * Value ; }                             PostSave ;
     struct { int  TypeOperator ; void  (*Function)() ; }          Operator ; /* binary or unary */
     struct { List_T *WholeQuantity ; 
              int FunctionSpaceIndexForType, NbrHar ; }            Cast ;

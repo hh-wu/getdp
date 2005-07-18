@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.34 2005-07-08 21:54:52 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.35 2005-07-18 08:01:42 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -53,7 +53,6 @@ extern int       yycolnum, yyincludenum ;
   result = (c == EOF) ? YY_NULL : (buf[0] = c, 1);	\
 }
 
-char  tmpstring[2048];
 void  parsestring(char endchar);
 void  C_comments(void) ;
 void  CC_comments(void) ;
@@ -401,24 +400,30 @@ void  CC_comments(void) {
 
 void  parsestring(char endchar) {
   int c, i;
-  
+  char tmp[2048];
+
   c = input();  
   i = 0;
   while(c != endchar){ 
     if(c == EOF) { 
+      Msg(ERROR, "End of file in string") ;
       yycolnum=0 ; 
       break;
     }
     else if(c == '\n') { 
       yycolnum=0 ; 
     }
+    else if(i >= (int)sizeof(tmp)-1) {
+      Msg(ERROR, "String too long") ;
+      break;
+    }
     else { 
-      tmpstring[i++] = c; 
+      tmp[i++] = c; 
     }
     c = input(); 
   }
-  tmpstring[i++] = '\0';
-  yylval.c = strsave(tmpstring);
+  tmp[i] = '\0';
+  yylval.c = strsave(tmp);
 }
 
 char *strsave(char *string) {
@@ -444,7 +449,7 @@ void skip_until(char *skip, char *until){
       chars[0] = input();
       if(chars[0] == '\n') yylinenum++ ; 
       if(chars[0] == (char)EOF){
-        Msg(GERROR, "Unexpected end of file") ;
+        Msg(ERROR, "Unexpected end of file") ;
 	return;
       }
       if(chars[0] == until[0]) break;
@@ -452,7 +457,10 @@ void skip_until(char *skip, char *until){
     }
 
     l = (l_skip > l_until) ? l_skip : l_until ;
-
+    if(l >= (int)sizeof(chars)){
+      Msg(ERROR, "Search pattern too long in skip_until");
+      return;
+    }
     for(i=1 ; i<l ; i++){
       chars[i] = input();
       if(chars[i] == '\n') yylinenum++ ; 
@@ -482,5 +490,3 @@ void skip_until(char *skip, char *until){
 
   }
 }
-
-

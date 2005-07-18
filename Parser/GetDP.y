@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.76 2005-07-17 14:29:37 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.77 2005-07-18 08:01:43 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -56,11 +56,6 @@
 #include "Message.h"
 #include "Magic.h"
 
-#define MAX_OPEN_FILES  256 
-
-char  tmp[MAX_STRING_LENGTH] ;
-
-
 void  Check_NameOfStructNotExist(char * Struct, List_T * List_L, void * data,
 				 int (*fcmp)(const void *a, const void *b)) ;
 
@@ -82,9 +77,6 @@ int  fcmp_Resolution_Name          (const void *a, const void *b) ;
 int  fcmp_PostProcessing_Name      (const void *a, const void *b) ;
 int  fcmp_PostQuantity_Name        (const void *a, const void *b) ;
 int  fcmp_PostOperation_Name       (const void *a, const void *b) ;
-int  fcmp_PostSave_Name            (const void *a, const void *b) ;
-
-struct Value *  Add_PostSave(char * Name) ;
 
 int  Add_Group(struct Group * Group_P, char * Name, int Flag_Plus, int Num_Index) ;
 int  Add_Group_2(struct Group * Group_P, char * Name, int Flag_Add, 
@@ -138,8 +130,7 @@ List_T  * ListOfDefineQuantity, * ListOfFunctionSpaceIndex, * ListOfEquationTerm
 List_T  * ListOfInt_Lnew ;
 int     * ListOfInt_P ;
 
-char     StringAux1[255], * Save_Name ;
-static char  tmpstring[1024] ;
+char    * Save_Name, tmpstr[1024] ;
 
 int      i, j, k, l, FlagError ;
 int      Num_BasisFunction = 1 ;
@@ -152,8 +143,12 @@ int      Current_System ;
 int      Nbr_Arguments ;
 int      Constraint_Index ;
 int      TypeOperatorDofInTrace, DefineQuantityIndexDofInTrace ;
-double   d, Value ;
 
+double   d ;
+
+time_t date_info;
+
+FILE* File;
 
 struct Constant  Constant_S, Constant1_S, Constant2_S ;
 
@@ -207,13 +202,6 @@ static fpos_t yyposImbricatedLoopsTab[MAX_RECUR_LOOPS];
 static int yylinenoImbricatedLoopsTab[MAX_RECUR_LOOPS];
 static double LoopControlVariablesTab[MAX_RECUR_LOOPS][3];
 static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
-
-time_t date_info;
-
-char   buff[128];
-
-FILE* File;
-double _value;
 
 %}
 
@@ -670,8 +658,8 @@ GroupRHS :
 	List_Reset(ListOfInt_L) ;  /* For list of multiple region */
 
 	for (k = 0 ; k < Nbr_Index ; k++) {
-	  sprintf(StringAux1, "%s_%d_", $1, k+1) ;
-	  if ( (i = List_ISearchSeq(Problem_S.Group, StringAux1,
+	  sprintf(tmpstr, "%s_%d_", $1, k+1) ;
+	  if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr,
 				    fcmp_Group_Name)) < 0 ) {
 	    $$ = -2 ; vyyerror("Unknown Group: %s {%d}", $1, k+1) ;
 	  }
@@ -756,8 +744,8 @@ SuppListOfRegion :
       else {
 	List_Reset(ListOfInitialList2_L) ;
 	for (k = 0 ; k < Nbr_Index ; k++) {
-	  sprintf(StringAux1, "%s_%d_", $3, k+1) ;
-	  if ( (i = List_ISearchSeq(Problem_S.Group, StringAux1, fcmp_Group_Name))
+	  sprintf(tmpstr, "%s_%d_", $3, k+1) ;
+	  if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr, fcmp_Group_Name))
 	       >= 0 ) {
 	    if ( ((struct Group *)List_Pointer(Problem_S.Group, i))->Type ==
 		 ELEMENTLIST ) {
@@ -957,8 +945,8 @@ IRegion :
       List_Reset(ListOfInitialList0_L) ;
       $$ = ListOfInitialList0_L ;
       for (k = 1 ; k <= Nbr_Index ; k++) {
-	sprintf(StringAux1, "%s_%d_", $1, k) ;
-	if ( (i = List_ISearchSeq(Problem_S.Group, StringAux1, fcmp_Group_Name)) < 0 ) {
+	sprintf(tmpstr, "%s_%d_", $1, k) ;
+	if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr, fcmp_Group_Name)) < 0 ) {
 	  vyyerror("Unknown Group: %s {%d}", $1, k) ;  break ;
 	}
 	else
@@ -988,8 +976,8 @@ DefineGroups :
   | DefineGroups Comma tSTRING '{' FExpr '}'
     { 
       for (k = 0 ; k < (int)$5 ; k++) {
-	sprintf(StringAux1, "%s_%d_", $3, k+1) ;
-	if ( (i = List_ISearchSeq(Problem_S.Group, StringAux1,
+	sprintf(tmpstr, "%s_%d_", $3, k+1) ;
+	if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr,
 				  fcmp_Group_Name)) < 0 ) {
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
@@ -1663,14 +1651,6 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
-  | '$''$' String__Index
-    {
-      WholeQuantity_S.Type = WQ_POSTSAVE ;
-      WholeQuantity_S.Case.PostSave.Value = (struct Value *)Add_PostSave($3) ;
-      printf("PostSave %p\n", (struct Value *)Add_PostSave($3)) ;
-      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
-    }
-
   | WholeQuantity_Single tSHOW FExpr
     {
       WholeQuantity_S.Type = WQ_SHOWVALUE ;
@@ -1706,8 +1686,8 @@ ParametersForFunction :
     { /* Attention: provisoire. Note: Impossible a mettre dans MultiFExpr
          car conflit avec Affectation dans Group */
       $$ = List_Create(2, 1, sizeof(double)) ;
-      Value = (double)Num_Group(&Group_S, "PA_Region", $4) ;
-      List_Add($$, &Value) ;
+      d = (double)Num_Group(&Group_S, "PA_Region", $4) ;
+      List_Add($$, &d) ;
     }
 
   ;
@@ -2023,10 +2003,10 @@ BracedConstraint :
 	Save_Name = strsave(Constraint_S.Name) ;  Free(Constraint_S.Name) ;
 	if (List_Nbr(ListOfConstraintPerRegion))
 	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    sprintf(StringAux1, "%s_%d_", Save_Name, k+1) ;
+	    sprintf(tmpstr, "%s_%d_", Save_Name, k+1) ;
 	    Check_NameOfStructNotExist("Constraint", Problem_S.Constraint,
-				       StringAux1, fcmp_Constraint_Name) ;
-	    Constraint_S.Name = strsave(StringAux1) ;
+				       tmpstr, fcmp_Constraint_Name) ;
+	    Constraint_S.Name = strsave(tmpstr) ;
 	    List_Read(ListOfConstraintPerRegion, k,
 		      &Constraint_S.ConstraintPerRegion) ;
 	    List_Add(Problem_S.Constraint, &Constraint_S) ;
@@ -2062,9 +2042,9 @@ ConstraintTerm :
 
   | tName String__Index DefineDimension tEND
     { Nbr_Index = $3 ;
-      sprintf(StringAux1, "%s_%d_", $2, 1) ;
+      sprintf(tmpstr, "%s_%d_", $2, 1) ;
       Check_NameOfStructNotExist("Constraint", Problem_S.Constraint,
-				 StringAux1, fcmp_Constraint_Name) ;
+				 tmpstr, fcmp_Constraint_Name) ;
       Constraint_S.Name = $2 ; }
 
   | tType tSTRING tEND
@@ -2361,10 +2341,10 @@ BracedFunctionSpace :
 	Save_Name = strsave(FunctionSpace_S.Name) ;  Free(FunctionSpace_S.Name) ;
 	if (List_Nbr(ListOfBasisFunction))
 	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    sprintf(StringAux1, "%s_%d_", Save_Name, k+1) ;
+	    sprintf(tmpstr, "%s_%d_", Save_Name, k+1) ;
 	    Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
-				       StringAux1, fcmp_FunctionSpace_Name) ;
-	    FunctionSpace_S.Name = strsave(StringAux1) ;
+				       tmpstr, fcmp_FunctionSpace_Name) ;
+	    FunctionSpace_S.Name = strsave(tmpstr) ;
 	    List_Read(ListOfBasisFunction , k, &FunctionSpace_S.BasisFunction) ;
 	    if (List_Nbr(ListOfConstraintInFS))
 	      List_Read(ListOfConstraintInFS, k, &FunctionSpace_S.Constraint) ;
@@ -2403,9 +2383,9 @@ FunctionSpaceTerm :
 
   | tName tSTRING DefineDimension tEND
     { Nbr_Index = $3 ;
-      sprintf(StringAux1, "%s_%d_", $2, 1) ;
+      sprintf(tmpstr, "%s_%d_", $2, 1) ;
       Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
-				 StringAux1, fcmp_FunctionSpace_Name) ;
+				 tmpstr, fcmp_FunctionSpace_Name) ;
       FunctionSpace_S.Name = $2 ; }
 
   | tType tSTRING tEND
@@ -2691,15 +2671,15 @@ OptionalParametersForBasisFunction :
 	else
 	  vyyerror("Only one Region needed in Group: %s", Group_S.Name) ;
 
-	sprintf(StringAux1, "%s_%d_", $6, k+1) ;
-	if ((i = List_ISearchSeq(Problem_S.Formulation, StringAux1,
+	sprintf(tmpstr, "%s_%d_", $6, k+1) ;
+	if ((i = List_ISearchSeq(Problem_S.Formulation, tmpstr,
 				 fcmp_Formulation_Name)) < 0)
 	  vyyerror("Unknown Formulation: %s {%d}", $6, k+1) ;
 	else {
 	  GlobalBasisFunction_S.FormulationIndex = i ;
 
-	  sprintf(StringAux1, "%s_%d_", $15, k+1) ;
-	  if ((i = List_ISearchSeq(Problem_S.Resolution, StringAux1,
+	  sprintf(tmpstr, "%s_%d_", $15, k+1) ;
+	  if ((i = List_ISearchSeq(Problem_S.Resolution, tmpstr,
 				   fcmp_Resolution_Name)) < 0)
 	    vyyerror("Unknown Resolution: %s {%d}", $15, k+1) ;
 	  else {
@@ -3091,10 +3071,10 @@ ConstraintInFSTerm :
 	    }
 	  }
 	  else {
-	    sprintf(StringAux1, "%s_%d_", $2, k+1) ;
-	    if ((i = List_ISearchSeq(Problem_S.Constraint, StringAux1,
+	    sprintf(tmpstr, "%s_%d_", $2, k+1) ;
+	    if ((i = List_ISearchSeq(Problem_S.Constraint, tmpstr,
 				     fcmp_Constraint_Name)) < 0)
-	      vyyerror("Unknown Constraint: %s {%d}", StringAux1, k+1) ;
+	      vyyerror("Unknown Constraint: %s {%d}", tmpstr, k+1) ;
 	    else {
 	      List_Add(ListOfConstraintIndex, &i) ;
 	      Constraint_Index = i ;
@@ -3131,10 +3111,10 @@ BracedFormulation :
 	Save_Name = strsave(Formulation_S.Name) ;  Free(Formulation_S.Name) ;
 	if (List_Nbr(ListOfDefineQuantity))
 	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    sprintf(StringAux1, "%s_%d_", Save_Name, k+1) ;
+	    sprintf(tmpstr, "%s_%d_", Save_Name, k+1) ;
 	    Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
-				       StringAux1, fcmp_Formulation_Name) ;
-	    Formulation_S.Name = strsave(StringAux1) ;
+				       tmpstr, fcmp_Formulation_Name) ;
+	    Formulation_S.Name = strsave(tmpstr) ;
 	    List_Read(ListOfDefineQuantity, k, &Formulation_S.DefineQuantity) ;
 	    List_Read(ListOfEquationTerm  , k, &Formulation_S.Equation      ) ;
 	    List_Add(Problem_S.Formulation, &Formulation_S) ;
@@ -3171,9 +3151,9 @@ FormulationTerm :
 
   | tName tSTRING DefineDimension tEND
     { Nbr_Index = $3 ;
-      sprintf(StringAux1, "%s_%d_", $2, 1) ;
+      sprintf(tmpstr, "%s_%d_", $2, 1) ;
       Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
-				 StringAux1, fcmp_Formulation_Name) ;
+				 tmpstr, fcmp_Formulation_Name) ;
       Formulation_S.Name = $2 ; }
 
   | tType tSTRING tEND
@@ -3344,10 +3324,10 @@ DefineQuantityTerm :
 	    }
 	  }
 	  else {
-	    sprintf(StringAux1, "%s_%d_", $2, k+1) ;
-	    if ((i = List_ISearchSeq(Problem_S.FunctionSpace, StringAux1,
+	    sprintf(tmpstr, "%s_%d_", $2, k+1) ;
+	    if ((i = List_ISearchSeq(Problem_S.FunctionSpace, tmpstr,
 				     fcmp_FunctionSpace_Name)) < 0)
-	      vyyerror("Unknown FunctionSpace: %s {%d}", StringAux1, k+1) ;
+	      vyyerror("Unknown FunctionSpace: %s {%d}", tmpstr, k+1) ;
 	    else {
 	      List_Add(ListOfFunctionSpaceIndex, &i) ;
 	      DefineQuantity_S.FunctionSpaceIndex = i ;
@@ -4361,10 +4341,10 @@ BracedResolution :
 	Save_Name = strsave(Resolution_S.Name) ;  Free(Resolution_S.Name) ;
 	if (List_Nbr(ListOfDefineSystem))
 	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    sprintf(StringAux1, "%s_%d_", Save_Name, k+1) ;
+	    sprintf(tmpstr, "%s_%d_", Save_Name, k+1) ;
 	    Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
-				       StringAux1, fcmp_Resolution_Name) ;
-	    Resolution_S.Name = strsave(StringAux1) ;
+				       tmpstr, fcmp_Resolution_Name) ;
+	    Resolution_S.Name = strsave(tmpstr) ;
 	    List_Read(ListOfDefineSystem, k, &Resolution_S.DefineSystem) ;
 	    List_Add(Problem_S.Resolution, &Resolution_S) ;
 	  }
@@ -4401,9 +4381,9 @@ ResolutionTerm :
 
   | tName tSTRING DefineDimension tEND
     { Nbr_Index = $3 ;
-      sprintf(StringAux1, "%s_%d_", $2, 1) ;
+      sprintf(tmpstr, "%s_%d_", $2, 1) ;
       Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
-				 StringAux1, fcmp_Resolution_Name) ;
+				 tmpstr, fcmp_Resolution_Name) ;
       Resolution_S.Name = $2 ; }
 
   | tDefineSystem  '{' DefineSystems '}'
@@ -4551,8 +4531,8 @@ ListOfFormulation :
 	    else  List_Add(DefineSystem_S.FormulationIndex, &i) ;
 	  }
 	  else {
-	    sprintf(StringAux1, "%s_%d_", $1, k+1) ;
-	    if ((i = List_ISearchSeq(Problem_S.Formulation, StringAux1,
+	    sprintf(tmpstr, "%s_%d_", $1, k+1) ;
+	    if ((i = List_ISearchSeq(Problem_S.Formulation, tmpstr,
 				     fcmp_Formulation_Name)) < 0)
 	      vyyerror("Unknown Formulation: %s {%d}", $1, k+1) ;
 	    else  List_Add(DefineSystem_S.FormulationIndex, &i) ;
@@ -4928,8 +4908,8 @@ OperationTerm :
       Operation_P->Case.Lanczos.Save = 
 	List_Create(List_Nbr($7), 1, sizeof(int)) ;
       for (i = 0 ; i < List_Nbr($7) ; i++) {
-	List_Read($7, i, &Value) ;
-	j = (int)Value ;
+	List_Read($7, i, &d) ;
+	j = (int)d ;
 	List_Add(Operation_P->Case.Lanczos.Save, &j) ;
       }
       List_Delete($7);
@@ -4974,8 +4954,8 @@ OperationTerm :
       Operation_P->Case.Perturbation.Save = 
 	List_Create(List_Nbr($11), 1, sizeof(int)) ;
       for (i = 0 ; i < List_Nbr($11) ; i++) {
-	List_Read($11, i, &Value) ;
-	j = (int)Value ;
+	List_Read($11, i, &d) ;
+	j = (int)d ;
 	List_Add(Operation_P->Case.Perturbation.Save, &j) ;
       }
       List_Delete($11);
@@ -5360,7 +5340,7 @@ PrintOperationOption :
     { Operation_P->Case.Print.DofNumber = 
 	List_Create(List_Nbr($2), 1, sizeof(int)) ;
       for (i = 0 ; i < List_Nbr($2) ; i++) {
-	List_Read($2, i, &Value) ; j = (int)Value ;
+	List_Read($2, i, &d) ; j = (int)d ;
 	List_Add(Operation_P->Case.Print.DofNumber, &j) ;     
       }
       List_Delete($2);
@@ -5689,10 +5669,10 @@ BracedPostProcessing :
 	Save_Name = strsave(PostProcessing_S.Name) ;  Free(PostProcessing_S.Name) ;
 	if (List_Nbr(ListOfFormulation))
 	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    sprintf(StringAux1, "%s_%d_", Save_Name, k+1) ;
+	    sprintf(tmpstr, "%s_%d_", Save_Name, k+1) ;
 	    Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
-				       StringAux1, fcmp_Formulation_Name) ;
-	    PostProcessing_S.Name = strsave(StringAux1) ;
+				       tmpstr, fcmp_Formulation_Name) ;
+	    PostProcessing_S.Name = strsave(tmpstr) ;
 	    List_Read(ListOfFormulation, k, &PostProcessing_S.FormulationIndex) ;
 	    List_Add(Problem_S.PostProcessing, &PostProcessing_S) ;
 	  }
@@ -5727,9 +5707,9 @@ PostProcessingTerm :
 
   | tName tSTRING DefineDimension tEND
     { Nbr_Index = $3 ;
-      sprintf(StringAux1, "%s_%d_", $2, 1) ;
+      sprintf(tmpstr, "%s_%d_", $2, 1) ;
       Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
-				 StringAux1, fcmp_PostProcessing_Name) ;
+				 tmpstr, fcmp_PostProcessing_Name) ;
       PostProcessing_S.Name = $2 ; 
     }
 
@@ -5764,8 +5744,8 @@ PostProcessingTerm :
 	    }
 	  }
 	  else {
-	    sprintf(StringAux1, "%s_%d_", $2, k+1) ;
-	    if ((i = List_ISearchSeq(Problem_S.Formulation, StringAux1,
+	    sprintf(tmpstr, "%s_%d_", $2, k+1) ;
+	    if ((i = List_ISearchSeq(Problem_S.Formulation, tmpstr,
 				     fcmp_Formulation_Name)) < 0)
 	      vyyerror("Unknown Formulation: %s {%d}", $2, k+1) ;
 	    else {
@@ -6070,12 +6050,6 @@ PostSubOperation :
     {
       PostSubOperation_S.Type = POP_PRINT ;
       PostSubOperation_S.Save = NULL ;
-    }
-
-  | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' '-' '>' '$' '$' String__Index tEND
-    {
-      PostSubOperation_S.Type = POP_PRINT ;
-      PostSubOperation_S.Save = ((struct Value *)Add_PostSave($11)) ;
     }
 
   | tPrint '[' tBIGSTR ',' FExpr PrintOptions ']' tEND
@@ -6443,8 +6417,8 @@ PrintOption :
 
       printf("--> string: \"");
       for(i=0;i<List_Nbr(PostSubOperation_S.FormatChar_L);i++){
-	List_Read(PostSubOperation_S.FormatChar_L, i, &tmp[0]) ;
-	printf("%c", tmp[0]);
+	List_Read(PostSubOperation_S.FormatChar_L, i, &tmpstr[0]) ;
+	printf("%c", tmpstr[0]);
       }
       printf("\"\n");
       
@@ -6640,11 +6614,11 @@ ParsedStrings :
             }
 	    i++ ;
 	  } while(i<(int)strlen($2)) ;
-	  strncpy(tmp, &$2[j], i-j); 
-	  tmp[i-j] = '\0'; 
-	  k = Get_DefineForString(PostSubOperation_FormatTag, tmp, &FlagError) ;
+	  strncpy(tmpstr, &$2[j], i-j); 
+	  tmpstr[i-j] = '\0'; 
+	  k = Get_DefineForString(PostSubOperation_FormatTag, tmpstr, &FlagError) ;
 	  if (FlagError){
-	    vyyerror("Unknown Tag in Format: %s", tmp);
+	    vyyerror("Unknown Tag in Format: %s", tmpstr);
 	    Get_Valid_SXD(PostSubOperation_FormatTag) ;
 	  }
 	  else {
@@ -6830,8 +6804,8 @@ Affectation :
       if (!(File = fopen($5, "r"))) Msg(ERROR, "Unable to open file '%s'", $5);
       Constant_S.Value.ListOfFloat = List_Create(100,100,sizeof(double));
       while (!feof(File))
-	if (fscanf(File, "%lf", &_value) != EOF)
-	  List_Add(Constant_S.Value.ListOfFloat, &_value) ;
+	if (fscanf(File, "%lf", &d) != EOF)
+	  List_Add(Constant_S.Value.ListOfFloat, &d) ;
       fclose(File) ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
@@ -6843,21 +6817,21 @@ Affectation :
 
   | tPrintf '(' tBIGSTR ',' RecursiveListOfFExpr ')' tEND
     {
-      i = Print_ListOfDouble($3,$5,tmpstring);
+      i = Print_ListOfDouble($3,$5,tmpstr);
       if(i<0) 
 	vyyerror("Too few arguments in Printf");
       else if(i>0)
 	vyyerror("Too many arguments (%d) in Printf", i);
       else
-	Msg(INFO2, tmpstring);
+	Msg(INFO2, tmpstr);
       List_Delete($5);
     }
 
   | tRead '(' String__Index ')' tEND
     {
       Msg(INFO2, "? ");
-      fgets(buff, 128, stdin);
-      Constant_S.Value.Float = atof(buff);
+      fgets(tmpstr, sizeof(tmpstr), stdin);
+      Constant_S.Value.Float = atof(tmpstr);
       Constant_S.Name = $3 ; 
       Constant_S.Type = VAR_FLOAT ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
@@ -6866,12 +6840,12 @@ Affectation :
   | tRead '(' String__Index ')' '[' FExpr ']' tEND
     {
       Msg(INFO2, "[<return>=%g] ? ",$6);
-      fgets(buff, 128, stdin);
+      fgets(tmpstr, sizeof(tmpstr), stdin);
 
-      if(!strcmp(buff,"\n"))
+      if(!strcmp(tmpstr,"\n"))
 	Constant_S.Value.Float = $6;
       else
-	Constant_S.Value.Float = atof(buff);
+	Constant_S.Value.Float = atof(tmpstr);
       Constant_S.Name = $3 ; 
       Constant_S.Type = VAR_FLOAT ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
@@ -7050,8 +7024,8 @@ RecursiveListOfFExpr :
   | RecursiveListOfFExpr ',' MultiFExpr
     { 
       for(i=0 ; i<List_Nbr($3) ; i++){
-	List_Read($3, i, &Value) ;
-	List_Add($$, &Value) ;
+	List_Read($3, i, &d) ;
+	List_Add($$, &d) ;
       }
       List_Delete($3);
     }
@@ -7189,17 +7163,17 @@ StringIndex :
   
     tSTRING  '~' '{' FExpr '}'  
     { 
-      sprintf(StringAux1, "_%d", (int)$4) ;
-      $$ = (char *)Malloc((strlen($1)+strlen(StringAux1)+1)*sizeof(char)) ;
-      strcpy($$, $1) ; strcat($$, StringAux1) ;
+      sprintf(tmpstr, "_%d", (int)$4) ;
+      $$ = (char *)Malloc((strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
+      strcpy($$, $1) ; strcat($$, tmpstr) ;
       Free($1) ;
     }
 
   | StringIndex '~'  '{' FExpr '}' 
     {
-      sprintf(StringAux1, "_%d", (int)$4) ;
-      $$ = (char *)Realloc($1,(strlen($1)+strlen(StringAux1)+1)*sizeof(char)) ;
-      strcpy($$, $1) ; strcat($$, StringAux1) ;
+      sprintf(tmpstr, "_%d", (int)$4) ;
+      $$ = (char *)Realloc($1,(strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
+      strcpy($$, $1) ; strcat($$, tmpstr) ;
     }
 
   ;
@@ -7246,7 +7220,7 @@ CharExpr :
 
   | tSprintf '(' CharExpr ',' RecursiveListOfFExpr ')'
     {
-      i = Print_ListOfDouble($3,$5,tmpstring);
+      i = Print_ListOfDouble($3,$5,tmpstr);
       if(i<0){
 	vyyerror("Too few arguments in Sprintf");
 	$$ = $3;
@@ -7256,8 +7230,8 @@ CharExpr :
 	$$ = $3;
       }
       else{
-	$$ = (char*)Malloc((strlen(tmpstring)+1)*sizeof(char));
-	strcpy($$, tmpstring);
+	$$ = (char*)Malloc((strlen(tmpstr)+1)*sizeof(char));
+	strcpy($$, tmpstr);
 	Free($3);
       }
       List_Delete($5);
@@ -7314,12 +7288,12 @@ int  Add_Group(struct Group * Group_P, char * Name, int Flag_Plus, int Num_Index
 
   switch (Flag_Plus) {
   case 1 :
-    sprintf(StringAux1, "_%s_%d", Name, List_Nbr(Problem_S.Group)) ;
-    Group_P->Name = strsave(StringAux1) ;
+    sprintf(tmpstr, "_%s_%d", Name, List_Nbr(Problem_S.Group)) ;
+    Group_P->Name = strsave(tmpstr) ;
     break ;
   case 2 :
-    sprintf(StringAux1, "%s_%d_", Name, Num_Index) ;
-    Group_P->Name = strsave(StringAux1) ;
+    sprintf(tmpstr, "%s_%d_", Name, Num_Index) ;
+    Group_P->Name = strsave(tmpstr) ;
     break ;
   default :
     Group_P->Name = Name ;
@@ -7346,13 +7320,13 @@ int  Add_Group_2(struct Group * Group_P, char * Name, int Flag_Add,
     Problem_S.Group = List_Create(50, 50, sizeof (struct Group) ) ;
 
   if (Flag_Plus == 0)
-    sprintf(StringAux1, "%s", Name) ;
+    sprintf(tmpstr, "%s", Name) ;
   else if (Flag_Plus == 1)
-    sprintf(StringAux1, "%s_%d_", Name, Num_Index1) ;
+    sprintf(tmpstr, "%s_%d_", Name, Num_Index1) ;
   else if (Flag_Plus == 2)
-    sprintf(StringAux1, "%s_%d_%d_", Name, Num_Index1,Num_Index2) ;
+    sprintf(tmpstr, "%s_%d_%d_", Name, Num_Index1,Num_Index2) ;
 
-  Group_P->Name = strsave(StringAux1) ;
+  Group_P->Name = strsave(tmpstr) ;
   
   if ((i = List_ISearchSeq(Problem_S.Group, Group_P->Name, fcmp_Group_Name)) < 0) {
     i = Group_P->Num = List_Nbr(Problem_S.Group) ;
@@ -7395,31 +7369,6 @@ int  Add_Group_Index(struct Group * Group_P, char * Name, int Flag_Plus) {
   return (Num-Nbr_Index+1) ;
 }
 
-
-/*  A d d _ P o s t S a v e  */
-
-struct Value *  Add_PostSave(char * Name) {
-  struct PostSave PostSave_S;
-
-  if (!Problem_S.PostSave)
-    Problem_S.PostSave = List_Create(10, 10, sizeof (struct PostSave) ) ;
-
-  if ((i = List_ISearchSeq(Problem_S.PostSave, Name, fcmp_PostSave_Name)) < 0) {
-    PostSave_S.Name = Name ;
-    PostSave_S.Value = (struct Value *)Calloc(1,sizeof(struct Value)) ;
-    List_Add(Problem_S.PostSave, &PostSave_S) ;
-    printf("PostSave 11 %p\n",  PostSave_S.Value) ;
-  }
-  else {
-    PostSave_S.Value = (struct Value *)(((struct PostSave *)
-					 List_Pointer(Problem_S.PostSave,i))->Value) ;
-    /* List_Write(Problem_S.PostSave, i, &PostSave_S) ; */
-    printf("PostSave 22 %p\n",  PostSave_S.Value) ;
-  }
-
-  return  PostSave_S.Value ;
-}
-
 /*  A d d _ E x p r e s s i o n   */
 
 int  Add_Expression(struct Expression * Expression_P,
@@ -7430,8 +7379,8 @@ int  Add_Expression(struct Expression * Expression_P,
     Problem_S.Expression = List_Create(50, 50, sizeof (struct Expression) ) ;
 
   if (Flag_Plus) {
-    sprintf(StringAux1, "_%s_%d", Name, List_Nbr(Problem_S.Expression)) ;
-    Expression_P->Name = strsave(StringAux1) ;
+    sprintf(tmpstr, "_%s_%d", Name, List_Nbr(Problem_S.Expression)) ;
+    Expression_P->Name = strsave(tmpstr) ;
   }
   else  Expression_P->Name = Name ;
 
@@ -7620,10 +7569,6 @@ int  fcmp_PostQuantity_Name(const void * a, const void * b) {
 int  fcmp_PostOperation_Name(const void * a, const void * b) {
   return ( strcmp((char *)a, ((struct PostOperation *)b)->Name ) ) ;
 }
-int  fcmp_PostSave_Name(const void * a, const void * b) {
-  return ( strcmp((char *)a, ((struct PostSave *)b)->Name ) ) ;
-}
-
 
 int Print_ListOfDouble(char *format, List_T *list, char *buffer){
   int i, j, k;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.37 2005-07-17 06:53:12 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.38 2005-07-18 08:01:42 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -713,12 +713,6 @@ void Cal_WholeQuantity(struct Element * Element,
 	Msg(ERROR, "Register size exceeded (%d)", MAX_REGISTER_SIZE);
       Cal_CopyValue(ValueSaved + WholeQuantity_P->Case.ValueSaved.Index, 
 		    &Stack[0][Index]) ;
-      Multi[Index] = 0 ;
-      Index++ ;  
-      break ;
-
-    case WQ_POSTSAVE :
-      Cal_CopyValue(WholeQuantity_P->Case.PostSave.Value, &Stack[0][Index]) ;
       Multi[Index] = 0 ;
       Index++ ;  
       break ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.53 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.54 2005-07-18 08:01:42 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -34,9 +34,9 @@
 #include "GmshClient.h"
 
 extern FILE *yyin ;
-long int     yylinenum=0 ;
-int          yycolnum=0, yyincludenum=0 ;
-char         yyname[MAX_FILE_NAME_LENGTH]="", yyincludename[MAX_FILE_NAME_LENGTH];
+long int     yylinenum = 0 ;
+int          yycolnum = 0, yyincludenum = 0 ;
+char         yyname[MAX_FILE_NAME_LENGTH] = "", yyincludename[MAX_FILE_NAME_LENGTH];
 int          yyparse(void) ;
 int          yyrestart(FILE*) ;
 
@@ -55,8 +55,8 @@ struct PostProcessing    InteractivePostProcessing_S ;
 struct PostSubOperation  InteractivePostSubOperation_S ;
 
 int     TreatmentStatus;
-int     ErrorLevel, InteractiveLevel=0; 
-int     InteractiveCompute, InteractiveInterrupt=0 ;
+int     ErrorLevel, InteractiveLevel = 0; 
+int     InteractiveCompute, InteractiveInterrupt = 0 ;
 int     Flag_PRE, Flag_PAR, Flag_CAL, Flag_POS, Flag_IPOS, Flag_XDATA;
 int     Flag_CHECK, Flag_LRES, Flag_LPOS, Flag_LIPOS, Flag_I; 
 int     Flag_RESTART, Flag_LOG, Flag_VERBOSE, Flag_BIN, Flag_PROGRESS ;
