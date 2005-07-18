@@ -1,4 +1,4 @@
-#define RCSID "$Id: MovingBand2D.c,v 1.9 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: MovingBand2D.c,v 1.10 2005-07-18 08:19:13 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -28,6 +28,7 @@
 #include "Data_DefineE.h"
 #include "CurrentData.h"
 #include "GeoData.h"
+#include "Numeric.h"
 #include "Tools.h"
 
 /* ------------------------------------------------------------------------ */
@@ -223,13 +224,6 @@ void  Init_MovingBand2D (struct Group * Group_P) {
 }
 
 
-
-#define SQU(a)     ((a)*(a))  
-#define MAX(a,b)   ((a)>(b) ? (a) : (b))  
-#define MIN(a,b)   ((a)<(b) ? (a) : (b))  
-
-
-
 int Different_Sense_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
 			 double x1[], double y1[], double x2[], double y2[]){
   
@@ -335,11 +329,6 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
   }
   GetDP_End ;
 }  
-
-
-#undef SQU
-#undef MAX
-#undef MIN
 
 
 void  Mesh_MovingBand2D (struct Group * Group_P) {

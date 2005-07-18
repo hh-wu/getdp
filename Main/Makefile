@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.33 2005-06-24 17:51:54 geuzaine Exp $
+# $Id: Makefile,v 1.34 2005-07-18 08:19:13 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -308,8 +308,8 @@ MovingBand2D.o: MovingBand2D.c ../include/GetDP.h Message.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   Data_DefineE.h CurrentData.h ../DofData/DofData.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h ../DataStr/Tools.h ../DataStr/List.h \
-  ../DataStr/Tree.h
+  ../include/Magic.h ../Numeric/Numeric.h ../DataStr/Tools.h \
+  ../DataStr/List.h ../DataStr/Tree.h
 # 1 "/Users/geuzaine/.getdp/Main//"
 Get_Define.o: Get_Define.c ../include/GetDP.h Message.h \
   ../DataStr/Malloc.h Data_Active.h Data_Passive.h ../DataStr/List.h \

@@ -24,22 +24,11 @@
 
 #include <stdio.h>
 
-/* 
-
-GetDP only uses a predefined set of acces routines to scalars (double
-precision floating point real or complex values), vectors of scalars
-and matrices of scalars. To introduce a new solver in GetDP, you
-should
-
-1) define all following routines in a new libary. Already existing 
-   libraries are LinAlg_SPARSKIT and LinAlg_PETSC
-
-2) rebuild all GetDP libraries
-
-3) link the LinAlg_XXX and the solver library with all other GetDP
-   libraries
-
-*/
+/* GetDP only uses a predefined set of acces routines to scalars
+   (double precision floating point real or complex values), vectors
+   of scalars and matrices of scalars. Thse routines are redefined for
+   each solver interface, currently Sparskit (LinAlg_SPARSKIT.c) and
+   PETSc (LinAlg_PETSC.c) */
 
 #if defined(HAVE_SPARSKIT)
 

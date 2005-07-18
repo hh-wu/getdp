@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.52 2005-07-16 21:41:24 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.53 2005-07-18 08:19:13 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -26,7 +26,7 @@
  */
 
 /* 
-   This is the interface library for the PETSC solver
+   This is the interface library for the PETSC solvers
 
    Options for PETSc can be provided on the command line, or in the file
    ~/.petscrc. 

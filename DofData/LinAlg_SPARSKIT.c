@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.30 2005-07-16 21:41:24 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.31 2005-07-18 08:19:13 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -25,7 +25,7 @@
 
 #if defined(HAVE_SPARSKIT)
 
-/* This is the interface library for the Default (SPARSKIT based) solver */
+/* This is the interface library for the Sparskit solvers */
 
 #include "GetDP.h"
 #include "Magic.h"
@@ -37,7 +37,7 @@
 #include "CurrentData.h"
 
 extern char  Name_Path[MAX_FILE_NAME_LENGTH] ;
-static char *Name_SolverFile=NULL, *Name_DefaultSolverFile="solver.par" ;
+static char *Name_SolverFile = NULL, *Name_DefaultSolverFile = "solver.par" ;
 static char *SolverOptions[100];
 
 /* Init */
@@ -685,7 +685,7 @@ void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j){
   GetDP_Begin("LinAlg_AddDoubleInMatrix");
 
   if ((DummyDof = Current.DofData->DummyDof))
-    if ( (DummyDof[i]==1 || DummyDof[j] == 1) && (i != j) ) 
+    if ( (DummyDof[i] == 1 || DummyDof[j] == 1) && (i != j) ) 
     GetDP_End ;
 
   add_matrix_double(&M->M, i+1, j+1, d) ;
@@ -713,7 +713,7 @@ void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3){
 
   GetDP_Begin("LinAlg_AddvectorVector");
 
-  if(V3==V1)
+  if(V3 == V1)
     add_vector_vector(V1->N, V1->V, V2->V) ;
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_AddVectorVector'");
@@ -725,7 +725,7 @@ void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVecto
 
   GetDP_Begin("LinAlg_AddVectorProdVectorDouble");
 
-  if(V3==V1)
+  if(V3 == V1)
     add_vector_prod_vector_double(V1->N, V1->V, V2->V, d) ;
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_AddVectorProdVectorDouble'");
@@ -737,7 +737,7 @@ void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3){
 
   GetDP_Begin("LinAlg_AddMatrixMatrix");
 
-  if(M3==M1)
+  if(M3 == M1)
     add_matrix_matrix(&M1->M, &M2->M) ;
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_AddMatrixMatrix'");
@@ -749,7 +749,7 @@ void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatri
 
   GetDP_Begin("LinAlg_AddMatrixProdMatrixDouble");
 
-  if(M3==M1)
+  if(M3 == M1)
     add_matrix_prod_matrix_double(&M1->M, &M2->M, d) ;
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_AddMatrixProdMatrixDouble'");
@@ -772,9 +772,9 @@ void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3){
 
   GetDP_Begin("LinAlg_SubVectorVector");
 
-  if(V3==V1) 
+  if(V3 == V1) 
     sub_vector_vector_1(V1->N, V1->V, V2->V) ;
-  else if (V3==V2) 
+  else if (V3 == V2) 
     sub_vector_vector_2(V1->N, V1->V, V2->V) ;
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_SubVectorVector'");  
@@ -834,7 +834,7 @@ void LinAlg_ProdVectorDouble(gVector *V1, double d, gVector *V2){
   
   GetDP_Begin("LinAlg_ProdVectorDouble");
 
-  if(V2==V1)
+  if(V2 == V1)
     prod_vector_double(V1->N, V1->V, d);
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_ProdVectorDouble'");
@@ -864,7 +864,7 @@ void LinAlg_ProdMatrixVector(gMatrix *M, gVector *V1, gVector *V2){
 
   GetDP_Begin("LinAlg_ProdMatrixVector");
 
-  if(V2==V1)
+  if(V2 == V1)
     Msg(ERROR, "Wrong arguments in 'LinAlg_ProdMatrixVector'");
   else
     prod_matrix_vector(&M->M, V1->V, V2->V);
@@ -876,7 +876,7 @@ void LinAlg_ProdMatrixScalar(gMatrix *M1, gScalar *S, gMatrix *M2){
 
   GetDP_Begin("LinAlg_ProdMatrixScalar");
 
-  if(M2==M1)
+  if(M2 == M1)
     prod_matrix_double (&M1->M, S->d);
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_ProdMatrixScalar'");
@@ -888,7 +888,7 @@ void LinAlg_ProdMatrixDouble(gMatrix *M1, double d, gMatrix *M2){
 
   GetDP_Begin("LinAlg_ProdMatrixDouble");
 
-  if(M2==M1)
+  if(M2 == M1)
     prod_matrix_double (&M1->M, d);
   else
     Msg(ERROR, "Wrong arguments in 'LinAlg_ProdMatrixDouble'");
