@@ -1,4 +1,4 @@
-#define RCSID "$Id: gsl_newt.c,v 1.8 2005-06-23 01:45:02 geuzaine Exp $"
+#define RCSID "$Id: gsl_newt.c,v 1.9 2005-07-19 22:16:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -29,12 +29,12 @@
 
 #if defined(HAVE_GSL)
 
-#include "Numeric.h"
-
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_linalg.h>
+
+#include "Numeric.h"
 
 #define MAX_DIM_NEWT 10
 #define MAXITER 10000

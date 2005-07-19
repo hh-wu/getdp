@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.33 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.34 2005-07-19 22:16:25 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -23,12 +23,6 @@
  *   Patrick Lefevre
  */
 
-#include "GetDP.h"
-#include "Get_Geometry.h"
-#include "BF_Function.h"
-#include "Numeric.h"
-#include "Data_DefineE.h"
-
 #if defined(HAVE_GSL)
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_linalg.h>
@@ -37,7 +31,11 @@
 #include "nrutil.h"
 #endif
 
-#include "Solver.h"
+#include "GetDP.h"
+#include "Get_Geometry.h"
+#include "BF_Function.h"
+#include "Numeric.h"
+#include "Data_DefineE.h"
 
 /* ------------------------------------------------------------------------ */
 /*  G e t _ N o d e s C o o r d i n a t e s O f E l e m e n t               */

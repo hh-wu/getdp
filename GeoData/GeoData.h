@@ -92,6 +92,7 @@ void  Geo_GenerateFacetsOfSubTree(List_T * InitialList, List_T * ExtendedList,
 				  Tree_T * EntitiesInTree_T) ;
 void  Geo_ChangeTreeIndex(void * a, void * b) ;
 
+int  fcmp_GeoData_Name(const void * a, const void * b) ;
 int  fcmp_Elm(const void * a, const void * b) ;
 int  fcmp_Nod(const void * a, const void * b) ;
 int  fcmp_E2XE1(const void * a, const void * b) ;

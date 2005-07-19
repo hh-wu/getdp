@@ -75,13 +75,16 @@ void  Init_OperationOnSystem(char                * Name,
 			     struct GeoData      * GeoData_P0,
 			     struct DefineSystem ** DefineSystem_P,
 			     struct DofData      ** DofData_P,  
-			     int Flag_Jac,
 			     struct Resolution   * Resolution2_P) ;
 
 void  Generate_System(struct DefineSystem * DefineSystem_P,
 		      struct DofData * DofData_P, 
 		      struct DofData * DofData_P0, 
 		      int Flag_Jac, int Separate) ;
+
+void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
+			struct DofData * DofData_P, 
+			struct DofData * DofData_P0);
 
 void  Update_System(struct DefineSystem * DefineSystem_P,
 		    struct DofData * DofData_P, 

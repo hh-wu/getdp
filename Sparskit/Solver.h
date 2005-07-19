@@ -72,7 +72,6 @@
 #define NORM1_SCALING   3
 #define NORM2_SCALING   4
 
-
 #if defined(HAVE_ILU_FLOAT)
 #define scalar float
 #else
@@ -165,7 +164,8 @@ void multi_prod_matrix_double(int n, Matrix **Mat, double *coef, Matrix *MatRes)
 void multi_prod_vector_double(int n, int Sizevec, double **Vec, double *coef, double *VecRes);
 void multi_prod_matrix_vector(int n, int Sizevec, Matrix **Mat, double **Vec, double *VecRes);
 
-void normation_vector(int Nb, double *U);
+void norm2_vector(int Nb, double *U, double *norm);
+void norminf_vector(int Nb, double *U, double *norm);
 
 void identity_matrix (Matrix *M);
 

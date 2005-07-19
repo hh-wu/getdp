@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.29 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.30 2005-07-19 22:16:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -37,13 +37,7 @@
 #include "Get_DofOfElement.h"
 #include "CurrentData.h"
 #include "Graph.h"
-
-int  fcmp_Resolution_Name(const void * a, const void * b) ;
-int  fcmp_PostProcessing_Name(const void * a, const void * b) ;
-int  fcmp_PostOperation_Name(const void * a, const void * b) ;
-int  fcmp_DefineSystem_Name(const void * a, const void * b) ;
-
-void PartitionGraph(struct DofData * DofData_P, int NbPartition) ;
+#include "Parser.h"
 
 /* ------------------------------------------------------------------------ */
 /*  S o l v i n g A n a l y s e                                             */

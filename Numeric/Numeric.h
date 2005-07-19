@@ -23,6 +23,7 @@
 #define _NUMERIC_H_
 
 #include "List.h"
+#include "Data_DofData.h"
 
 #ifdef MAX
 #undef MAX
@@ -71,6 +72,9 @@ void hollowcyl(double x, double y, double *bx, double *by, double *phi,
 	       double b0, double mur, double r0, double r1);
 
 int check_gsl();
+
+void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double shift) ;
+void EigenSolve (struct DofData * DofData_P, int NumEigenvalues, double shift_r, double shift_i) ;
 
 /* Numerical routines implemented using either Numerical Recipes or
    the GSL */

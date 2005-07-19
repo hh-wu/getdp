@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.21 2005-06-23 01:45:07 geuzaine Exp $"
+#define RCSID "$Id: Matrix.c,v 1.22 2005-07-19 22:16:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -548,16 +548,16 @@ void prodsc_vectorconj_vector (int Nb, double *U , double *V, double *proscar, d
 /*  n o r m                                                                 */
 /* ------------------------------------------------------------------------ */
 
-void normation_vector( int Nb , double *U ){
-  double val;
+void norm2_vector(int Nb, double *U, double *norm){
+  prodsc_vector_vector(Nb,U,U,norm);
+  *norm = sqrt(*norm);
+}
 
-  prodsc_vector_vector(Nb,U,U,&val);
-  if(val > 0.0){
-    printf(" norm : %g \n",val);
-    prod_vector_double(Nb,U,1.0/sqrt(val));
-  } else {
-    printf("attention normation d'un vecteur nul \n");
-  }
+void norminf_vector(int Nb, double *U, double *norm){
+  int i;
+  *norm = 0.;
+  for(i=0; i<Nb; i++) 
+    if(fabs(U[i]) > *norm) *norm = fabs(U[i]);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -582,7 +582,7 @@ void binary_write_matrix (Matrix *M, char *name, char *ext){
   char  filename[256];
 
   if(!M->N){
-    printf("No elements in matrix\n");
+    Msg(WARNING, "No elements in matrix");
     return;
   }
 

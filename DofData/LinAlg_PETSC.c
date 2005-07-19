@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.55 2005-07-18 20:05:04 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.56 2005-07-19 22:16:24 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1162,6 +1162,32 @@ void LinAlg_DivScalarDouble(gScalar *S1, double d, gScalar *S2){
   GetDP_Begin("LinAlg_DivScalarDouble");
 
   S2->s = S1->s / d;
+
+  GetDP_End;
+}
+
+/* Norm */
+
+void LinAlg_VectorNorm2(gVector *V1, double *norm){
+  PetscReal tmp;
+
+  GetDP_Begin("LinAlg_VectorNorm2");
+  
+  VecNorm(V1->V, NORM_2, &tmp);
+
+  *norm = tmp;
+
+  GetDP_End;
+}
+
+void LinAlg_VectorNormInf(gVector *V1, double *norm){
+  PetscReal tmp;
+
+  GetDP_Begin("LinAlg_VectorNormInf");
+  
+  VecNorm(V1->V, NORM_INFINITY, &tmp);
+
+  *norm = tmp;
 
   GetDP_End;
 }

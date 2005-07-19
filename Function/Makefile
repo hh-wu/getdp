@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.31 2005-06-24 17:51:53 geuzaine Exp $
+# $Id: Makefile,v 1.32 2005-07-19 22:16:24 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -87,10 +87,11 @@ F_Analytic.o: F_Analytic.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Element.h \
-  ../Numeric/Numeric.h ../Numeric/Numeric_F.h ../include/Compat.h \
+  ../Numeric/Numeric.h ../DofData/Data_DofData.h ../DofData/LinAlg.h \
+  ../Sparskit/Solver.h ../Numeric/Numeric_F.h ../include/Compat.h \
   ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/Cal_Value.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
+  ../DofData/LinAlg.h ../DofData/Graph.h ../DofData/Data_DofData.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Legendre.h \
   ../Numeric/SphBessel.h
 # 1 "/Users/geuzaine/.getdp/Function//"
@@ -101,8 +102,9 @@ F_Coord.o: F_Coord.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Element.h \
   ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/Cal_Value.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Numeric/Numeric.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 F_Math.o: F_Math.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
@@ -111,8 +113,9 @@ F_Math.o: F_Math.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Element.h \
   ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/Cal_Value.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Numeric/Numeric.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 F_ExtMath.o: F_ExtMath.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
@@ -121,8 +124,9 @@ F_ExtMath.o: F_ExtMath.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Element.h \
   ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/Cal_Value.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Numeric/Numeric.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 F_Misc.o: F_Misc.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
@@ -131,9 +135,10 @@ F_Misc.o: F_Misc.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Element.h \
   ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/Cal_Value.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
-  ../DataStr/Tools.h ../DataStr/List.h ../DataStr/Tree.h
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Numeric/Numeric.h ../DataStr/Tools.h \
+  ../DataStr/List.h ../DataStr/Tree.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 F_Interpolation.o: F_Interpolation.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
@@ -142,9 +147,10 @@ F_Interpolation.o: F_Interpolation.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Element.h \
   ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/Cal_Value.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
-  ../DataStr/Tools.h ../DataStr/List.h ../DataStr/Tree.h
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Numeric/Numeric.h ../DataStr/Tools.h \
+  ../DataStr/List.h ../DataStr/Tree.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 F_Type.o: F_Type.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
@@ -153,8 +159,9 @@ F_Type.o: F_Type.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Element.h \
   ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/Cal_Value.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Numeric/Numeric.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 F_MultiHar.o: F_MultiHar.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
@@ -165,9 +172,10 @@ F_MultiHar.o: F_MultiHar.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Treatment_Formulation.h ../Main/Data_Active.h \
   ../Main/Cal_Quantity.h ../Main/Data_Active.h ../Main/Cal_Value.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
-  ../DataStr/Tools.h ../DataStr/List.h ../DataStr/Tree.h
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Numeric/Numeric.h ../DataStr/Tools.h \
+  ../DataStr/List.h ../DataStr/Tree.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 F_Jiles.o: F_Jiles.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
@@ -176,9 +184,10 @@ F_Jiles.o: F_Jiles.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Element.h \
   ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/Cal_Value.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
-  ../DataStr/Tools.h ../DataStr/List.h ../DataStr/Tree.h
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Numeric/Numeric.h ../DataStr/Tools.h \
+  ../DataStr/List.h ../DataStr/Tree.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 F_DiscreteGeometry.o: F_DiscreteGeometry.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h ../Main/Data_DefineE.h \
@@ -188,14 +197,15 @@ F_DiscreteGeometry.o: F_DiscreteGeometry.c ../include/GetDP.h \
   ../Main/Data_Element.h ../Main/Get_Geometry.h ../Main/Data_Active.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
-  ../Numeric/Numeric.h ../DataStr/Tools.h ../DataStr/List.h \
-  ../DataStr/Tree.h
+  ../DofData/Graph.h ../DofData/Data_DofData.h ../DofData/LinAlg.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
+  ../DataStr/Tools.h ../DataStr/List.h ../DataStr/Tree.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 BF_Node.o: BF_Node.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h BF_Function.h ../Main/Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/List.h \
-  ../DataStr/Tree.h ../DataStr/avl.h ../Numeric/Numeric.h
+  ../DataStr/Tree.h ../DataStr/avl.h ../Numeric/Numeric.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 BF_Node_2.o: BF_Node_2.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h BF_Function.h ../Main/Data_Element.h \
@@ -262,7 +272,8 @@ BF_Region.o: BF_Region.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../Main/Data_Element.h \
   ../Main/Data_Element.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
+  ../DofData/Graph.h ../DofData/Data_DofData.h ../DofData/LinAlg.h \
+  ../DofData/Data_DofData.h ../include/Magic.h \
   ../Main/Treatment_Formulation.h ../Main/Data_Active.h \
   ../Main/Cal_Quantity.h ../Main/Data_Active.h ../Main/Cal_Value.h
 # 1 "/Users/geuzaine/.getdp/Function//"
@@ -272,9 +283,9 @@ GF_Laplace.o: GF_Laplace.c ../include/GetDP.h ../Main/Message.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/Data_Element.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
-  ../Numeric/Numeric.h ../FMM/Data_FMM.h ../Numeric/Legendre.h \
-  ../Numeric/SphBessel.h
+  ../DofData/Graph.h ../DofData/Data_DofData.h ../DofData/LinAlg.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h \
+  ../FMM/Data_FMM.h ../Numeric/Legendre.h ../Numeric/SphBessel.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 GF_LaplacexForm.o: GF_LaplacexForm.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Active.h ../Main/Data_Passive.h \
@@ -282,9 +293,10 @@ GF_LaplacexForm.o: GF_LaplacexForm.c ../include/GetDP.h ../Main/Message.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/Data_Element.h BF_Function.h ../Main/CurrentData.h \
   ../Main/Data_Active.h ../DofData/DofData.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h ../Main/Data_DefineE.h ../Numeric/Numeric.h \
-  ../Numeric/Numeric_F.h ../include/Compat.h
+  ../Sparskit/Solver.h ../DofData/Graph.h ../DofData/Data_DofData.h \
+  ../DofData/LinAlg.h ../DofData/Data_DofData.h ../include/Magic.h \
+  ../Main/Data_DefineE.h ../Numeric/Numeric.h ../Numeric/Numeric_F.h \
+  ../include/Compat.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 GF_Helmholtz.o: GF_Helmholtz.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Active.h ../Main/Data_Passive.h \
@@ -292,9 +304,10 @@ GF_Helmholtz.o: GF_Helmholtz.c ../include/GetDP.h ../Main/Message.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/Data_Element.h ../Main/Cal_Value.h ../Main/CurrentData.h \
   ../Main/Data_Active.h ../DofData/DofData.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../Main/Graph.h ../DofData/Data_DofData.h \
-  ../include/Magic.h ../Numeric/Numeric.h ../FMM/Data_FMM.h \
-  ../Numeric/Legendre.h ../Numeric/SphBessel.h
+  ../Sparskit/Solver.h ../DofData/Graph.h ../DofData/Data_DofData.h \
+  ../DofData/LinAlg.h ../DofData/Data_DofData.h ../include/Magic.h \
+  ../Numeric/Numeric.h ../FMM/Data_FMM.h ../Numeric/Legendre.h \
+  ../Numeric/SphBessel.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 GF_HelmholtzxForm.o: GF_HelmholtzxForm.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h ../Main/Data_Active.h \
@@ -302,10 +315,10 @@ GF_HelmholtzxForm.o: GF_HelmholtzxForm.c ../include/GetDP.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/Tree.h \
   ../DataStr/avl.h ../Main/Data_Element.h BF_Function.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/Graph.h \
-  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Data_DefineE.h \
-  ../Numeric/Numeric.h ../Numeric/Numeric_F.h ../include/Compat.h \
-  ../Integration/Quadrature.h
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Main/Data_DefineE.h ../Numeric/Numeric.h \
+  ../Numeric/Numeric_F.h ../include/Compat.h ../Integration/Quadrature.h
 # 1 "/Users/geuzaine/.getdp/Function//"
 F_BiotSavart.o: F_BiotSavart.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Active.h ../Main/Data_Passive.h \
@@ -313,5 +326,5 @@ F_BiotSavart.o: F_BiotSavart.c ../include/GetDP.h ../Main/Message.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/Data_Element.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Graph.h ../DofData/Data_DofData.h ../include/Magic.h \
-  ../Numeric/Numeric.h
+  ../DofData/Graph.h ../DofData/Data_DofData.h ../DofData/LinAlg.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Numeric/Numeric.h

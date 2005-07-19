@@ -26,12 +26,10 @@
 #define _GRAPH_H_
 
 #include "List.h"
-
-typedef struct {
-  List_T  *jptr, *ai, *ptr;
-}gGraph;
+#include "Data_DofData.h"
 
 void InitGraph (int g_NbLines, gGraph *G) ;
 void AddEdgeInGraph (gGraph *G, int ic, int il) ;
+void PartitionGraph(struct DofData * DofData_P, int NbPartition) ;
 
 #endif

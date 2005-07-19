@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.78 2005-07-18 20:05:11 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.79 2005-07-19 22:16:29 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -52,32 +52,12 @@
 #include "BF_Function.h"
 #include "Quadrature.h"
 #include "Cal_Value.h"
-#include "Constant.h"
+#include "Parser.h"
 #include "Message.h"
 #include "Magic.h"
 
-void  Check_NameOfStructNotExist(char * Struct, List_T * List_L, void * data,
-				 int (*fcmp)(const void *a, const void *b)) ;
-
-int  fcmp_Constant                 (const void *a, const void *b) ;
-int  fcmp_Expression_Name          (const void *a, const void *b) ;
-int  fcmp_Group_Name               (const void *a, const void *b) ;
-int  fcmp_Constraint_Name          (const void *a, const void *b) ;
-int  fcmp_JacobianMethod_Name      (const void *a, const void *b) ;
-int  fcmp_IntegrationMethod_Name   (const void *a, const void *b) ;
-int  fcmp_BasisFunction_Name       (const void *a, const void *b) ;
-int  fcmp_FunctionSpace_Name       (const void *a, const void *b) ;
-int  fcmp_BasisFunction_NameOfCoef (const void *a, const void *b) ;
-int  fcmp_SubSpace_Name            (const void *a, const void *b) ;
-int  fcmp_GlobalQuantity_Name      (const void *a, const void *b) ;
-int  fcmp_Formulation_Name         (const void *a, const void *b) ;
-int  fcmp_DefineQuantity_Name      (const void *a, const void *b) ;
-int  fcmp_DefineSystem_Name        (const void *a, const void *b) ;
-int  fcmp_Resolution_Name          (const void *a, const void *b) ;
-int  fcmp_PostProcessing_Name      (const void *a, const void *b) ;
-int  fcmp_PostQuantity_Name        (const void *a, const void *b) ;
-int  fcmp_PostOperation_Name       (const void *a, const void *b) ;
-
+void Check_NameOfStructNotExist(char * Struct, List_T * List_L, void * data,
+				int (*fcmp)(const void *a, const void *b)) ;
 int  Add_Group(struct Group * Group_P, char * Name, int Flag_Plus, int Num_Index) ;
 int  Add_Group_2(struct Group * Group_P, char * Name, int Flag_Add, 
 		 int Flag_Plus, int Num_Index1, int Num_Index2) ;
@@ -91,11 +71,10 @@ void Pro_DefineQuantityIndex_1(List_T * WholeQuantity_L, int TraceGroupIndex) ;
 void Help(char *topic) ;
 int  Print_ListOfDouble(char *format, List_T *list, char *buffer) ;
 
-char  *strsave(char *string) ;
-void  yyerror(char *s) ;
-void  vyyerror(char *fmt, ...) ;
-int   yylex();
-void  skip_until (char *skip, char *until);
+
+void yyerror(char *s) ;
+void vyyerror(char *fmt, ...) ;
+int  yylex();
 
 extern FILE            *yyin ;
 extern long int         yylinenum ;

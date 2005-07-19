@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.72 2005-07-18 20:05:04 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.73 2005-07-19 22:16:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -29,6 +29,7 @@
 #include "Treatment_Formulation.h"
 #include "GeoData.h"
 #include "DofData.h"
+#include "Parser.h"
 #include "Init_Problem.h"
 #include "Cal_Quantity.h"
 #include "Tools.h"
@@ -44,22 +45,6 @@
 #include "F_FMM_DTA.h"
 #include "BF_Function.h"
 
-int  fcmp_DefineSystem_Name(const void * a, const void * b) ;
-int  fcmp_PostOperation_Name(const void * a, const void * b) ;
-int  fcmp_DefineQuantity_Name(const void * a, const void * b) ;
-int  fcmp_GeoData_Name(const void * a, const void * b) ;
-void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofData_P) ;
-
-void  Cal_SolutionError(gVector * dx, gVector * x, int diff, double * MeanError) ;
-void  Cal_SolutionErrorX(int Nbr, double * dx, double * x, double * MeanError) ;
-void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
-			struct DofData * DofData_P, 
-			struct DofData * DofData_P0, 
-			int Flag_Jac, int Flag_Separate);
-
-void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double shift) ;
-void EigenSolve (struct DofData * DofData_P, int NumEigenvalues, double shift_r, double shift_i) ;
-
 static int  Flag_IterativeLoop = 0 ;  /* Attention: phase de test */
 static int  Flag_NextThetaFixed = 0 ;  /* Attention: phase de test */
 static int  Init_Update = 0 ; /* provisoire */
@@ -68,7 +53,7 @@ static int  Init_Update = 0 ; /* provisoire */
 struct Group * Generate_Group = NULL;
 int Flag_RHS = 0;
 double **MH_Moving_Matrix = NULL ; 
-int MH_Moving_Matrix_simple=0, MH_Moving_Matrix_probe=0, MH_Moving_Matrix_separate=0  ; 
+int MH_Moving_Matrix_simple = 0, MH_Moving_Matrix_probe = 0, MH_Moving_Matrix_separate = 0 ; 
 int NbrAnyDof_MH_moving, NbrDof_MH_moving ;
 Tree_T  * DofTree_MH_moving ;
 List_T  * DofList_MH_moving ;
@@ -92,7 +77,6 @@ void  Init_OperationOnSystem(char                * Name,
 			     struct GeoData      * GeoData_P0,
 			     struct DefineSystem ** DefineSystem_P,
 			     struct DofData      ** DofData_P,  
-			     int Flag_Jac,
 			     struct Resolution   * Resolution2_P) {
 
   int i ;
@@ -140,9 +124,6 @@ void  Init_OperationOnSystem(char                * Name,
 /* ------------------------------------------------------------------------ */
 /*  I n i t _ S y s t e m D a t a                                           */
 /* ------------------------------------------------------------------------ */
-
-int fcmp_Dof(const void * a, const void * b) ;
-
 
 void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac) {
 
@@ -204,6 +185,92 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac) {
   GetDP_End ;
 }
 
+/* ------------------------------------------------------------------------ */
+/*  C a l _ S o l u t i o n E r r o r                                       */
+/* ------------------------------------------------------------------------ */
+
+void  Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError) {
+  int     i, n;
+  double  valx, valdx, errsqr = 0., xmoy = 0., dxmoy = 0., tol ;
+
+  GetDP_Begin("Cal_SolutionError");
+
+  if(gSCALAR_SIZE == 2)
+    Msg(WARNING, "FIXME: Cal_SolutionError might return strange results"
+	" in complex arithmetic");
+  
+  LinAlg_GetVectorSize(dx, &n);
+
+  for (i=0 ; i<n ; i++) {
+    LinAlg_GetAbsDoubleInVector(&valx, x, i) ; 
+    LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ; 
+    xmoy += valx ;
+    if(diff) dxmoy += (valdx-valx) ;
+    else     dxmoy += valdx ;
+  }
+  xmoy  /= (double)n ;
+  dxmoy /= (double)n ;
+
+  if (xmoy > 1.e-30) {
+    tol = xmoy*1.e-10 ;
+    for (i=0 ; i<n ; i++){
+      LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
+      LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ;
+      if(diff){
+	if (valx > tol) errsqr += fabs(valdx-valx)/valx ;
+	else 	        errsqr += fabs(valdx-valx) ;
+      }
+      else{
+	if (valx > tol) errsqr += valdx/valx ;
+	else 	        errsqr += valdx ;
+      }
+    }
+    *MeanError = errsqr/(double)n ;
+  }
+  else{
+    if (dxmoy > 1.e-30) 
+      *MeanError = 1. ;
+    else
+      *MeanError = 0. ;
+  }
+
+  GetDP_End ;
+}
+
+/* ------------------------------------------------------------------------ */
+/*  C a l _ S o l u t i o n E r r o r X                                     */
+/* ------------------------------------------------------------------------ */
+
+void  Cal_SolutionErrorX(int Nbr, double * xNew, double * x, double * MeanError) {
+  int i;
+  double errsqr = 0., xmoy = 0., dxmoy = 0., tol ;
+
+  GetDP_Begin("Cal_SolutionErrorX");
+
+  if(gSCALAR_SIZE == 2)
+    Msg(ERROR, "FIXME: Cal_SolutionErrorX might return strange results"
+	" in complex arithmetic");
+
+  for (i = 0 ; i < Nbr ; i++) {
+    xmoy  += fabs( x[i])/(double)Nbr ;
+    dxmoy += fabs(xNew[i]-x[i])/(double)Nbr ;
+  }
+
+  if (xmoy > 1.e-30) {
+    tol = xmoy*1.e-10 ;
+
+    for (i = 0 ; i < Nbr ; i++)
+      if ( fabs(x[i]) > tol ) errsqr += fabs((xNew[i]-x[i]) / x[i]) ;
+      else                    errsqr += fabs(xNew[i]-x[i]) ;
+
+    *MeanError = errsqr / (double)Nbr ;
+  }
+  else
+    if (dxmoy > 1.e-30)  *MeanError = 1. ;
+    else                 *MeanError = 0. ;
+
+  GetDP_End ;
+}
 
 /* ------------------------------------------------------------------------ */
 /*  T r e a t m e n t _ O p e r a t i o n                                   */
@@ -247,10 +314,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   /* adaptive relaxation */
   gVector x_Save;
   int NbrSteps_relax;
-  double  Norm, Cal_NormVector(gVector *);
+  double  Norm;
   double Frelax, Frelax_Opt, Error_Prev;
   int istep;
-  void ShowVector(gVector *);
 
   int Nbr_Formulation, Index_Formulation ;
   struct Formulation * Formulation_P ; 
@@ -296,7 +362,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GENERATEFMMGROUPS : Flag_FMM  = 1 ;       
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
       
       DefineSystem_P->Flag_FMM = Flag_FMM ;      
       Current.FMM.SystemIndex = Operation_P->DefineSystemIndex ;
@@ -342,7 +408,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GENERATEONLY:
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if ( Current.FMM.SystemIndex == Operation_P->DefineSystemIndex )
 	if (Flag_FMM)
@@ -376,7 +442,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GENERATE :
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if ( Current.FMM.SystemIndex == Operation_P->DefineSystemIndex )
 	if (Flag_FMM)
@@ -406,7 +472,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GENERATESEPARATE :
       Init_OperationOnSystem("GenerateSeparate",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if (Operation_P->Case.Generate.GroupIndex >= 0) 
 	Generate_Group = (struct Group *) List_Pointer(Problem_S.Group, 
@@ -427,7 +493,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_UPDATE :
       Init_OperationOnSystem("Update",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
       Update_System(DefineSystem_P, DofData_P, DofData_P0, 
 		    Operation_P->Case.Update.ExpressionIndex) ;
       Flag_CPU = 1 ;
@@ -437,7 +503,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_UPDATETRANSLATION :
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       ReSet_FMMGroupCenters();      
 
@@ -464,7 +530,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_UPDATECONSTRAINT :
       Init_OperationOnSystem("UpdateConstraint",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
       UpdateConstraint_System(DefineSystem_P, DofData_P, DofData_P0, 
 			      Operation_P->Case.UpdateConstraint.GroupIndex,
 			      Operation_P->Case.UpdateConstraint.Type) ;
@@ -478,7 +544,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  Solve : A x = b  */
       Init_OperationOnSystem("Solve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if ( Current.FMM.SystemIndex == Operation_P->DefineSystemIndex )
 	if (Flag_FMM) DefineSystem_P->Flag_FMM = Flag_FMM ;
@@ -540,7 +606,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_LANCZOS :
       Init_OperationOnSystem("Lanczos",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
       Lanczos(DofData_P, Operation_P->Case.Lanczos.Size, 
 	      Operation_P->Case.Lanczos.Save, Operation_P->Case.Lanczos.Shift) ;
       Flag_CPU = 1 ;
@@ -552,7 +618,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_EIGENSOLVE :
       Init_OperationOnSystem("EigenSolve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
       EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues, 
 		 Operation_P->Case.EigenSolve.Shift_r,
 		 Operation_P->Case.EigenSolve.Shift_i) ;
@@ -568,7 +634,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_PERTURBATION :
       Init_OperationOnSystem("Perturbation",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
       /*
       Perturbation(DofData_P,
 		   DofData_P0+Operation_P->Case.Perturbation.DefineSystemIndex2,
@@ -589,7 +655,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_Jac = 1 ;
       Init_OperationOnSystem("SolveJac",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if ( Current.FMM.SystemIndex == Operation_P->DefineSystemIndex )
 	if (Flag_FMM) DefineSystem_P->Flag_FMM = Flag_FMM ;
@@ -662,7 +728,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Flag_Jac = 1 ;
       Init_OperationOnSystem("SolveJacAdaptRelax",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(DofData_P->Flag_Init[0] < 2)
 	Msg(ERROR, "Jacobian system not initialized (missing GenerateJac?)");
@@ -698,15 +764,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
 	LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
 					 Frelax, &DofData_P->CurrentSolution->x);
-	/* printf("XXX");ShowVector(&DofData_P->CurrentSolution->x); */
+	/* LinAlg_PrintVector(stdout, &DofData_P->CurrentSolution->x); */
 
 	/* calculate residual with trial solution */
-	ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, 0, 0) ;
+	ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0) ;
 	LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
 	LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
 
 	/* check whether norm of residual is smaller than previous ones */
-	Norm = Cal_NormVector(&DofData_P->res);
+	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
+	LinAlg_GetVectorSize(&DofData_P->res, &N);
+	Norm /= (double)N;
 	Msg(INFO, " adaptive relaxation : factor = %8f   Norm residual = %10.4e", Frelax, Norm) ;
 
 	if (Norm < Error_Prev) {
@@ -739,7 +807,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_INITSOLUTION :
       Init_OperationOnSystem("InitSolution",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(Flag_RESTART){
         if (!DofData_P->Solutions)
@@ -803,7 +871,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_SAVESOLUTION :
       Init_OperationOnSystem("SaveSolution",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
       strcpy(ResName, Name_Generic) ;
       if(!Flag_SPLIT){
 	strcat(ResName, ".res") ;
@@ -831,7 +899,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_SAVESOLUTIONS :
       Init_OperationOnSystem("SaveSolutions",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
       strcpy(ResName, Name_Generic) ;
       strcat(ResName, ".res") ;
       if(RES0 < 0){	
@@ -869,8 +937,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GENERATE_MH_MOVING :
       Init_OperationOnSystem("Generate_MH_Moving",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
+      if(gSCALAR_SIZE == 2)
+	Msg(ERROR, "FIXME: Generate_MH_Moving will not work in complex arithmetic");
+      
       Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
       Generate_Group = (struct Group *) 
@@ -1002,7 +1073,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GENERATE_MH_MOVING_S :
       Init_OperationOnSystem("Generate_MH_Moving_Separate",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
@@ -1211,7 +1282,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      ajj = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+col_old]; 
 #else
 	      aii = ajj = 0.;
-	      Msg(ERROR, "This operation only OK with Sparskit");
+	      Msg(ERROR, "FIXME: Generate_MH_Moving works only with Sparskit");
 #endif
 	      /*  
 	      printf ("i %d  Entity %d Har %d  ||  i %d  Entity %d Har %d  ||  aij %e \n",
@@ -1245,7 +1316,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_DUMMYDOFS :    
       Init_OperationOnSystem("DummyDofs",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
       Msg(RESOURCES, "");
       Dof_GetDummies(DefineSystem_P, DofData_P);
       Msg(RESOURCES, "");
@@ -1276,7 +1347,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Init_OperationOnSystem("SaveSolutionExtendedMH",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
       strcpy(FileName_exMH, Name_Generic) ;
       strcat(FileName_exMH, Operation_P->Case.SaveSolutionExtendedMH.ResFile) ;
       strcat(FileName_exMH, ".res") ;
@@ -1308,7 +1379,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Init_OperationOnSystem("SaveSolutionMHtoTime",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
       strcpy(FileName_exMH, Name_Generic) ;
       strcat(FileName_exMH, Operation_P->Case.SaveSolutionMHtoTime.ResFile) ;
       strcat(FileName_exMH, ".res") ;
@@ -1329,7 +1400,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_READSOLUTION :
       Init_OperationOnSystem("ReadSolution",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
       i = 0 ;
       while(Name_ResFile[i]){
 	Msg(LOADING, "Processing data '%s'", Name_ResFile[i]) ;
@@ -1352,7 +1423,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_SAVEMESH :
       Init_OperationOnSystem("SaveMesh",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(Operation_P->Case.SaveMesh.FileName[0] == '/' || 
 	 Operation_P->Case.SaveMesh.FileName[0] == '\\'){
@@ -1381,7 +1452,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_TRANSFERSOLUTION :
       Init_OperationOnSystem("TransferSolution",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-			     &DefineSystem_P, &DofData_P, Flag_Jac, Resolution2_P) ;
+			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
       
       if(Resolution2_P){ /* pre-resolution */
 	DofData2_P = DofData2_P0 + DefineSystem_P->DestinationSystemIndex ;
@@ -1651,10 +1722,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_FOURIERTRANSFORM2 :
       Msg(OPERATION, "FourierTransform") ;
 
+      if(gSCALAR_SIZE == 2)
+	Msg(ERROR, "FIXME: FourierTransform2 will not work in complex arithmetic");
+
       DofData_P  = DofData_P0 + Operation_P->Case.FourierTransform2.DefineSystemIndex[0] ;
       DofData2_P = DofData_P0 + Operation_P->Case.FourierTransform2.DefineSystemIndex[1] ;     
       
-
       NbrHar1 = DofData_P->NbrHar ;
       NbrDof1 = List_Nbr(DofData_P->DofList) ;
       NbrHar2 = DofData2_P->NbrHar ;
@@ -1668,7 +1741,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	DofData2_P->Solutions = List_Create(1, 1, sizeof(struct Solution)) ;	
 	Operation_P->Case.FourierTransform2.Scales = (double *)Malloc(NbrHar2*sizeof(double)) ;
       }
-
 
       Nbr_Sol = List_Nbr(DofData2_P->Solutions) ;
       Scales = Operation_P->Case.FourierTransform2.Scales ;
@@ -1695,7 +1767,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	break;
       }
       
-
       if (Operation_P->Case.FourierTransform2.Period_sofar == 0) {
 	Msg (INFO, "Starting new Fourier Analysis : solution %d ", Nbr_Sol);
 	Solution_S.TimeStep = Nbr_Sol;
@@ -1712,7 +1783,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       DofData2_P->CurrentSolution = Solution_P =
 	(struct Solution*)List_Pointer(DofData2_P->Solutions, Nbr_Sol-1) ;
       
-
       for (k=0 ; k<NbrHar2 ; k+=2) {
 	d = DofData2_P->Val_Pulsation[k/2] * Current.Time ;
 	Scales[k  ] +=  cos(d) * cos(d) * Current.DTime ;
@@ -2163,8 +2233,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 
 void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
 			struct DofData * DofData_P, 
-			struct DofData * DofData_P0, 
-			int Flag_Jac, int Flag_Separate) {
+			struct DofData * DofData_P0) {
 
   int    i, Nbr_Formulation, Index_Formulation ;
   struct Formulation     * Formulation_P ;
@@ -2550,132 +2619,8 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
   GetDP_End ;
 }
 
-
 /* ------------------------------------------------------------------------ */
-/*  C a l _ S o l u t i o n E r r o r                                       */
-/* ------------------------------------------------------------------------ */
-
-void  Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError) {
-  int     i, n;
-  double  valx, valdx, errsqr=0., xmoy=0., dxmoy=0., tol ;
-
-
-
-  GetDP_Begin("Cal_SolutionError");
-  LinAlg_GetVectorSize(dx, &n);
-
-
-  for (i=0 ; i<n ; i++) {
-    LinAlg_GetAbsDoubleInVector(&valx, x, i) ; 
-    LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ; 
-    xmoy += valx ;
-    if(diff) dxmoy += (valdx-valx) ;
-    else     dxmoy += valdx ;
-  }
-  xmoy  /= (double)n ;
-  dxmoy /= (double)n ;
-
-  if (xmoy > 1.e-30) {
-    tol = xmoy*1.e-10 ;
-    for (i=0 ; i<n ; i++){
-      LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
-      LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ;
-      if(diff){
-	if (valx > tol) errsqr += fabs(valdx-valx)/valx ;
-	else 	        errsqr += fabs(valdx-valx) ;
-      }
-      else{
-	if (valx > tol) errsqr += valdx/valx ;
-	else 	        errsqr += valdx ;
-      }
-    }
-    *MeanError = errsqr/(double)n ;
-  }
-  else{
-    if (dxmoy > 1.e-30) 
-      *MeanError = 1. ;
-    else
-      *MeanError = 0. ;
-  }
-
-  GetDP_End ;
-}
-/* ------------------------------------------------------------------------ */
-/*  C a l _ NormVector                                                      */
-/* ------------------------------------------------------------------------ */
-
-void  ShowVector(gVector *x) {
-  int     i, n;
-  double  valx;
-
-  GetDP_Begin("Cal_ShowVector");
-  LinAlg_GetVectorSize(x, &n);
-
-  for (i=0 ; i<n ; i++) {
-    LinAlg_GetDoubleInVector(&valx, x, i) ; 
-    printf("%d  %e  ", i, valx );
-  }
-  printf("\n");
-}
-
-
-double  Cal_NormVector(gVector *x) {
-  int     i, n;
-  double  valx, sum = 0;
-
-  GetDP_Begin("Cal_NormVector");
-  LinAlg_GetVectorSize(x, &n);
-
-  for (i=0 ; i<n ; i++) {
-    LinAlg_GetAbsDoubleInVector(&valx, x, i) ; 
-    sum += valx ;
-    /* printf("%e sum = %e \n", valx ,sum ); */
-  }
-  /* printf("\n"); */
-  sum /= (double)n ;
-
-  /* printf("sum = %e \n",sum); */
-
-  GetDP_Return(sum);
-}
-
-
-
-/* ------------------------------------------------------------------------ */
-/*  C a l _ S o l u t i o n E r r o r X                                     */
-/* ------------------------------------------------------------------------ */
-
-void  Cal_SolutionErrorX(int Nbr, double * xNew, double * x, double * MeanError) {
-  int i;
-  double errsqr = 0., xmoy = 0., dxmoy = 0., tol ;
-
-  GetDP_Begin("Cal_SolutionErrorX");
-
-  for (i = 0 ; i < Nbr ; i++) {
-    xmoy  += fabs( x[i])/(double)Nbr ;
-    dxmoy += fabs(xNew[i]-x[i])/(double)Nbr ;
-  }
-
-  if (xmoy > 1.e-30) {
-    tol = xmoy*1.e-10 ;
-
-    for (i = 0 ; i < Nbr ; i++)
-      if ( fabs(x[i]) > tol ) errsqr += fabs((xNew[i]-x[i]) / x[i]) ;
-      else                    errsqr += fabs(xNew[i]-x[i]) ;
-
-    *MeanError = errsqr / (double)Nbr ;
-  }
-  else
-    if (dxmoy > 1.e-30)  *MeanError = 1. ;
-    else                 *MeanError = 0. ;
-
-  GetDP_End ;
-}
-
-
-
-/* ------------------------------------------------------------------------ */
-/*  Operation_IterativeTimeReduction                                        */
+/*  O p e r a t i o n _ I t e r a t i v e T i m e R e d u c t i o n         */
 /* ------------------------------------------------------------------------ */
 
 void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
@@ -2887,8 +2832,6 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 /*  C a l _ C o m p a r e G l o b a l Q u a n t i t y                       */
 /* ------------------------------------------------------------------------ */
 
-/*  Ne marchera pas avec PETSC COMPLEX... */
-
 void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 				int Type_Analyse, int * Type_ChangeOfState,
 				int * FlagIndex, int Flag_First) {
@@ -2912,6 +2855,10 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
   double  Save_Time ;
 
   GetDP_Begin("Cal_CompareGlobalQuantity");
+
+  if(gSCALAR_SIZE == 2)
+    Msg(ERROR, "FIXME: Cal_CompareGlobalQuantity might return strange results"
+	" in complex arithmetic");
 
   /* test */
   v_k  = 1./27.2836 ;  v_ke = 18.518519 ;
@@ -3200,7 +3147,7 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 
 
 /* ------------------------------------------------------------------------ */
-/*  Operation_ChangeOfCoordinates                                           */
+/*  O p e r a t i o n _ C h a n g e O f C o o r d i n a t e s               */
 /* ------------------------------------------------------------------------ */
 
 void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,

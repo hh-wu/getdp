@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.26 2005-06-24 17:51:53 geuzaine Exp $
+# $Id: Makefile,v 1.27 2005-07-19 22:16:24 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -28,6 +28,7 @@ CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
 
 SRC = DofData.c \
+      Graph.c \
       LinAlg_SPARSKIT.c \
       LinAlg_PETSC.c
 
@@ -59,11 +60,18 @@ nodepend:
 DofData.o: DofData.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../include/GetDPVersion.h DofData.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h LinAlg.h \
-  ../Sparskit/Solver.h ../Main/Graph.h Data_DofData.h ../DataStr/Tools.h \
-  ../DataStr/List.h ../DataStr/Tree.h ../include/Magic.h \
-  ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
+  ../Sparskit/Solver.h Graph.h Data_DofData.h ../Main/Data_Passive.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../Main/Data_Element.h DofData.h ../Numeric/Numeric.h
+  ../DataStr/Tools.h ../DataStr/List.h ../DataStr/Tree.h \
+  ../include/Magic.h ../Main/CurrentData.h ../Main/Data_Active.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h DofData.h \
+  ../Numeric/Numeric.h Data_DofData.h
+# 1 "/Users/geuzaine/.getdp/DofData//"
+Graph.o: Graph.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
+  Graph.h ../DataStr/List.h Data_DofData.h ../DataStr/Tree.h \
+  ../DataStr/avl.h LinAlg.h ../Sparskit/Solver.h DofData.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../include/Compat.h
 # 1 "/Users/geuzaine/.getdp/DofData//"
 LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../include/Magic.h LinAlg.h ../Sparskit/Solver.h \
@@ -71,8 +79,8 @@ LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
-  ../Main/Data_Element.h DofData.h LinAlg.h ../Main/Graph.h \
-  Data_DofData.h
+  ../Main/Data_Element.h DofData.h LinAlg.h Graph.h Data_DofData.h \
+  LinAlg.h Data_DofData.h
 # 1 "/Users/geuzaine/.getdp/DofData//"
 LinAlg_PETSC.o: LinAlg_PETSC.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h

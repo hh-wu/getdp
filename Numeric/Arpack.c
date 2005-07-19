@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.19 2005-07-18 20:05:04 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.20 2005-07-19 22:16:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -77,7 +77,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   struct Solution Solution_S;
   gVector v1, v2;
   int j, k, l, newsol;
-  double tmp, d1, d2, dmax, abs, arg;
+  double tmp, d1, d2, abs, arg;
   complex_16 f;
 
   gMatrix *K = &DofData_P->M1; /* matrix associated with terms with no Dt nor DtDt */
@@ -506,27 +506,24 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
       LinAlg_SetComplexInVector(z[k*n+j].re, z[k*n+j].im, 
 				&DofData_P->CurrentSolution->x, l, l+1);
     }
-
+    
+    /* Arpack returns eigenvectors normalized in L-2 norm. Renormalize
+       them in L-infty norm so that the absolute value of the largest
+       element is 1 */
+    tmp = 0.;
+    for(l = 0; l < DofData_P->NbrDof; l+=gCOMPLEX_INCREMENT){
+      LinAlg_GetComplexInVector(&d1, &d2, 
+				&DofData_P->CurrentSolution->x, l, l+1);
+      abs = sqrt(SQU(d1) + SQU(d2));
+      if(abs > tmp) tmp = abs;
+    }
+    if(tmp > 1.e-16)
+      LinAlg_ProdVectorDouble(&DofData_P->CurrentSolution->x, 1./tmp,
+			      &DofData_P->CurrentSolution->x);
+    
     /* increment the global timestep counter so that a future
        GenerateSystem knows which solutions exist */
     Current.TimeStep += 1.;
-
-    /* Normalize eigenvector in L2 norm */
-    dmax = 0.0 ;
-    for(l = 0; l < DofData_P->NbrDof; l+=gCOMPLEX_INCREMENT){
-      LinAlg_GetComplexInVector(&d1, &d2, &DofData_P->CurrentSolution->x, l, l+1);
-      tmp = SQU(d1) + SQU(d2);
-      if(tmp > dmax){
-	dmax = tmp;
-      }
-    }
-    if(dmax > 1.e-16){
-      LinAlg_ProdVectorDouble(&DofData_P->CurrentSolution->x, 1./sqrt(dmax),
-			      &DofData_P->CurrentSolution->x);
-    }
-    else{
-      Msg(WARNING, "Unable to norm eigenvector %d: norm = %g", k, dmax);
-    }
   }
     
   /* deallocate */

@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.31 2005-07-18 08:19:13 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.32 2005-07-19 22:16:24 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -923,6 +923,26 @@ void LinAlg_DivScalarDouble(gScalar *S1, double d, gScalar *S2){
   S2->d = S1->d / d ;
 
   GetDP_End ;
+}
+
+/* Norm */
+
+void LinAlg_VectorNorm2(gVector *V1, double *norm){
+
+  GetDP_Begin("LinAlg_VectorNorm2");
+
+  norm2_vector(V1->N, V1->V, norm);
+  
+  GetDP_End ;
+}
+
+void LinAlg_VectorNormInf(gVector *V1, double *norm){
+
+  GetDP_Begin("LinAlg_VectorNormInf");
+  
+  norminf_vector(V1->N, V1->V, norm);
+
+  GetDP_End;
 }
 
 /* Assemble */

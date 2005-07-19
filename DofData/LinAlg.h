@@ -207,6 +207,11 @@ void LinAlg_DummyVector(gVector *V);
 void LinAlg_DivScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3);
 void LinAlg_DivScalarDouble(gScalar *S1, double d, gScalar *S2);
 
+/* Norm */
+
+void LinAlg_VectorNorm2(gVector *V1, double *norm);
+void LinAlg_VectorNormInf(gVector *V1, double *norm);
+
 /* Assemble */
 
 void LinAlg_AssembleMatrix(gMatrix *M);

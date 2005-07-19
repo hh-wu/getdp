@@ -28,7 +28,10 @@
 #include "LinAlg.h"
 #include "Graph.h"
 
+#include "Data_Passive.h"
 #include "Data_DofData.h"
+
+int   fcmp_Dof(const void * a, const void * b) ;
 
 void  Dof_InitDofData(struct DofData * DofData_P, int Num,
 		      int ResolutionIndex, int SystemIndex,
@@ -94,6 +97,7 @@ void    Dof_GetRealDofValue(struct DofData * DofData_P, struct Dof * Dof_P, doub
 void    Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P, 
 			       double *d1, double *d2) ;
 
+void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofData_P) ;
 void Dof_InitDofForNoDof(struct Dof * DofForNoDof, int NbrHar) ;
 
 void Print_DofNumber(struct Dof *Dof_P) ;

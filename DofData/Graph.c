@@ -1,4 +1,4 @@
-#define RCSID "$Id: Graph.c,v 1.16 2005-07-16 07:43:31 geuzaine Exp $"
+#define RCSID "$Id: Graph.c,v 1.1 2005-07-19 22:16:24 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *

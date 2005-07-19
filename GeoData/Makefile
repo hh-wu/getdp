@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.20 2005-06-24 17:51:53 geuzaine Exp $
+# $Id: Makefile,v 1.21 2005-07-19 22:16:25 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -22,8 +22,9 @@
 include ../variables
 
 LIB     = ../lib/libGeoData.a
-INCLUDE = -I. -I../include -I../DataStr -I../Main -I../Numeric
-CFLAGS  = ${C_FLAGS} ${INCLUDE}
+INCLUDE = -I. -I../include -I../DataStr -I../Main -I../DofData\
+          -I../Sparskit -I../Numeric
+CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
 SRC = GeoData.c \
       GeoEntity.c \
@@ -59,6 +60,7 @@ GeoData.o: GeoData.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h GeoData.h Data_GeoData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Passive.h \
   ../Main/Data_Element.h GeoData.h ../Numeric/Numeric.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
   ../include/Magic.h
 # 1 "/Users/geuzaine/.getdp/GeoData//"
 GeoEntity.o: GeoEntity.c ../include/GetDP.h ../Main/Message.h \
@@ -76,5 +78,6 @@ GeoTree.o: GeoTree.c ../include/GetDP.h ../Main/Message.h \
 GeoNormal.o: GeoNormal.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h GeoData.h Data_GeoData.h ../DataStr/Tree.h \
-  ../DataStr/avl.h ../Numeric/Numeric.h GeoData.h ../DataStr/Tools.h \
+  ../DataStr/avl.h ../Numeric/Numeric.h ../DofData/Data_DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h GeoData.h ../DataStr/Tools.h \
   ../DataStr/List.h ../DataStr/Tree.h

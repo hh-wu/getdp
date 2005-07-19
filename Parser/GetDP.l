@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.36 2005-07-18 20:05:04 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.37 2005-07-19 22:16:26 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -31,8 +31,8 @@
 #include <math.h>
 
 #include "Data_Passive.h"
-#include "Constant.h"
 #include "Malloc.h"
+#include "Parser.h"
 #include "GetDP.tab.h"
 
 extern long int  yylinenum ;
@@ -53,10 +53,6 @@ extern int       yycolnum, yyincludenum ;
   result = (c == EOF) ? YY_NULL : (buf[0] = c, 1);	\
 }
 
-void  parsestring(char endchar);
-void  C_comments(void) ;
-void  CC_comments(void) ;
-char  *strsave(char *string) ;
 %}
 
 alpha      [a-zA-Z\_\.]

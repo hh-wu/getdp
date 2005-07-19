@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.27 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: GeoData.c,v 1.28 2005-07-19 22:16:25 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -44,8 +44,6 @@ int  Geo_AddGeoData(List_T * GeoData_L,
 
   struct GeoData  GeoData_S ;
   int  i ;
-
-  int  fcmp_GeoData_Name(const void *a, const void *b) ;
 
   GetDP_Begin("Geo_AddGeoData");
 
