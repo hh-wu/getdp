@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.54 2005-07-18 08:01:42 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.55 2005-07-19 22:18:57 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -86,11 +86,12 @@ int  main(int argc, char *argv[]) {
 
   GetDP_Begin("main");
 
-  /* handle some signals */
-
+  /* handle some signals FIXME: could not make this work on IRIX */
+#if !defined(__sgi__) 
   signal(SIGFPE,  Signal); /* Floating-point exception (ANSI).  */
   signal(SIGSEGV, Signal); /* Segmentation violation (ANSI).  */
   signal(SIGINT,  Signal); /* Interrupt (ANSI).  */
+#endif
 
   /* init MPI for multi-processor jobs */
 

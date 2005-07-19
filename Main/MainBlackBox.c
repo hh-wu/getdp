@@ -1,4 +1,4 @@
-#define RCSID "$Id: MainBlackBox.c,v 1.13 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: MainBlackBox.c,v 1.14 2005-07-19 22:18:57 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -70,10 +70,13 @@ int  main(int argc, char *argv[]) {
   }
   Flag_VERBOSE = 2 ;
 
+  /* FIXME: could not make this work on IRIX */
+#if !defined(__sgi__) 
   signal(SIGINT,  Signal); 
   signal(SIGQUIT, Signal);
   signal(SIGABRT, Signal);
   signal(SIGFPE,  Signal); 
+#endif
 
   file = fopen(argv[2], "r");
   if(!file) Msg(ERROR, "Unable to open file '%s'", argv[2]);
