@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.18 2005-06-24 05:27:55 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.19 2005-07-20 15:40:25 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -272,43 +272,43 @@ void F_JFIE_TransZPolCyl(F_ARG){
 
 } 
 
-/* some utility functions to deal with complex numbers */
+/* some utility functions to deal with cplx numbers */
 
 typedef struct {
   double r;
   double i;
-} complex;
+} cplx;
 
-static complex Csum(complex a, complex b)
+static cplx Csum(cplx a, cplx b)
 {
-  complex s;
+  cplx s;
 
   s.r = a.r + b.r;
   s.i = a.i + b.i;
   return(s);
 }
 
-static complex Csub(complex a, complex b)
+static cplx Csub(cplx a, cplx b)
 {
-  complex s;
+  cplx s;
 
   s.r = a.r - b.r;
   s.i = a.i - b.i;
   return(s);
 }
 
-static complex Cprod(complex a, complex b)
+static cplx Cprod(cplx a, cplx b)
 {
-  complex s;
+  cplx s;
 
   s.r = a.r * b.r - a.i * b.i;
   s.i = a.r * b.i + a.i * b.r;
   return(s);
 }
 
-static complex Cdiv(complex a, complex b)
+static cplx Cdiv(cplx a, cplx b)
 {
-  complex s;
+  cplx s;
   double den;
 
   den = b.r * b.r + b.i * b.i;
@@ -317,32 +317,32 @@ static complex Cdiv(complex a, complex b)
   return(s);
 }
 
-static complex Cconj(complex a)
+static cplx Cconj(cplx a)
 {
-  complex s;
+  cplx s;
 
   s.r = a.r;
   s.i = -a.i;
   return(s);
 }
 
-static complex Cneg(complex a)
+static cplx Cneg(cplx a)
 {
-  complex s;
+  cplx s;
 
   s.r = -a.r;
   s.i = -a.i;
   return(s);
 }
 
-static double Cmodu(complex a)
+static double Cmodu(cplx a)
 {
   return(sqrt(a.r * a.r + a.i * a.i));
 }
 
-static complex Cpow(complex a, double b)
+static cplx Cpow(cplx a, double b)
 {
-  complex s;
+  cplx s;
   double mod, arg;
 
   mod = a.r * a.r + a.i * a.i;
@@ -355,9 +355,9 @@ static complex Cpow(complex a, double b)
   return(s);
 }
 
-static complex Cprodr(double a, complex b)
+static cplx Cprodr(double a, cplx b)
 {
-  complex s;
+  cplx s;
 
   s.r = a * b.r;
   s.i = a * b.i;
@@ -368,7 +368,7 @@ static complex Cprodr(double a, complex b)
    radius R, under plane wave incidence e^{ikx} */
 
 void F_AcousticFieldSoftCylinder(F_ARG){
-  complex I = {0.,1.}, HnkR, Hnkr, tmp;
+  cplx I = {0.,1.}, HnkR, Hnkr, tmp;
   double k, R, r, kr, kR, theta, cost ;
   int n, ns ;
 
@@ -415,7 +415,7 @@ void F_AcousticFieldSoftCylinder(F_ARG){
    a circular cylinder of radius R, under plane wave incidence
    e^{ikx} */
 
-complex DHn(complex *Hnkrtab, int n, double x){
+cplx DHn(cplx *Hnkrtab, int n, double x){
   if(n == 0){
     return Cneg(Hnkrtab[1]);
   }
@@ -425,7 +425,7 @@ complex DHn(complex *Hnkrtab, int n, double x){
 }
 
 void F_DrAcousticFieldSoftCylinder(F_ARG){
-  complex I = {0.,1.}, HnkR, tmp, *Hnkrtab;
+  cplx I = {0.,1.}, HnkR, tmp, *Hnkrtab;
   double k, R, r, kr, kR, theta, cost ;
   int n, ns ;
 
@@ -444,7 +444,7 @@ void F_DrAcousticFieldSoftCylinder(F_ARG){
   
   ns = (int)k + 10;
 
-  Hnkrtab = (complex*)Malloc(ns*sizeof(complex));
+  Hnkrtab = (cplx*)Malloc(ns*sizeof(cplx));
 
   for (n = 0 ; n < ns ; n++){
     Hnkrtab[n].r = jn(n,kr);
