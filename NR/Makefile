@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.8 2005-06-23 01:45:01 geuzaine Exp $
+# $Id: Makefile,v 1.9 2005-07-20 11:40:44 colignon Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -22,8 +22,8 @@
 include ../variables
 
 LIB     = ../lib/libNR.a
-INCLUDE = -I. -I../Main -I../Numeric -I../include -I../DataStr
-CFLAGS  = ${C_FLAGS} ${INCLUDE} 
+INCLUDE = -I. -I../Main -I../Numeric -I../include -I../DataStr -I../DofData -I../Sparskit
+CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE} 
 
 CSRC =  brent.c\
         dpythag.c\
