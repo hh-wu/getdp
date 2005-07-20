@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.32 2005-07-19 22:16:24 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_SPARSKIT.c,v 1.33 2005-07-20 15:58:22 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -543,6 +543,16 @@ void LinAlg_SetScalar(gScalar *S, double *d){
 
   S->d = d[0] ;
 
+  GetDP_End ;
+}
+
+void LinAlg_SetVector(gVector *V, double *v){
+  int i;
+
+  GetDP_Begin("LinAlg_SetScalar");
+
+  for(i=0; i<V->N; i++) V->V[i] = *v ;
+  
   GetDP_End ;
 }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.56 2005-07-19 22:16:24 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.57 2005-07-20 15:58:22 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -319,7 +319,7 @@ void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2){
 
   GetDP_Begin("LinAlg_CopyMatrix");
 
-  ierr = MatCopy(M1->M, M2->M, SAME_NONZERO_PATTERN); MYCHECK(ierr);
+  ierr = MatCopy(M1->M, M2->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
 
   GetDP_End;
 }
@@ -708,16 +708,12 @@ void LinAlg_SetScalar(gScalar *S, double *d){
 }
 
 void LinAlg_SetVector(gVector *V, double *v){
-  PetscScalar tmp;
+  PetscScalar tmp = *v;
   int i, n;
 
   GetDP_Begin("LinAlg_SetVector");
 
-  ierr = VecGetLocalSize(V->V, &n);  MYCHECK(ierr);
-  for (i=0;i<n;i++){
-    tmp = v[i]; 
-    ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); MYCHECK(ierr);
-  }
+  ierr = VecSet(V->V, tmp); MYCHECK(ierr);
 
   GetDP_End;
 }
@@ -726,7 +722,7 @@ void LinAlg_SetScalarInVector(gScalar *S, gVector *V, int i){
 
   GetDP_Begin("LinAlg_SetScalarInVector");
 
-  ierr = VecSetValues(V->V, 1, &i, &S->s, ADD_VALUES); MYCHECK(ierr);
+  ierr = VecSetValues(V->V, 1, &i, &S->s, INSERT_VALUES); MYCHECK(ierr);
 
   GetDP_End;
 }
