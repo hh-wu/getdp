@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.23 2005-07-21 14:29:26 nicolet Exp $"
+#define RCSID "$Id: Arpack.c,v 1.24 2005-07-21 14:46:23 nicolet Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -592,7 +592,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     }
     else{
       /* Eigenvalue = i*omega */
-      omega.re = -d[k].im;
+      omega.re = d[k].im;
       omega.im = -d[k].re;
       omega2.re = SQU(omega.re) - SQU(omega.im);
       omega2.im = 2. * omega.re * omega.im;
