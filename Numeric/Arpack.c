@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.21 2005-07-20 12:42:46 nicolet Exp $"
+#define RCSID "$Id: Arpack.c,v 1.22 2005-07-21 10:04:56 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -59,6 +59,21 @@ static void Arpack2GetDP(int N, complex_16 *in, gVector *out)
   }
 }
 
+static void Arpack2GetDPSplit(int N, complex_16 *in, gVector *out1, gVector *out2)
+{
+  int i, j;
+  double re, im;
+  for(i = 0; i < N/2; i++){
+    j = i * gCOMPLEX_INCREMENT;
+    re = in[i].re;
+    im = in[i].im;
+    LinAlg_SetComplexInVector(re, im, out1, j, j+1);
+    re = in[N/2+i].re;
+    im = in[N/2+i].im;
+    LinAlg_SetComplexInVector(re, im, out2, j, j+1);
+  }
+}
+
 static void GetDP2Arpack(gVector *in, complex_16 *out)
 {
   int i, N;
@@ -71,19 +86,34 @@ static void GetDP2Arpack(gVector *in, complex_16 *out)
   }
 }
 
+static void GetDP2ArpackMerge(gVector *in1, gVector *in2, complex_16 *out)
+{
+  int i, N;
+  double re, im;
+  LinAlg_GetVectorSize(in1, &N);
+  for(i = 0; i < N; i += gCOMPLEX_INCREMENT){
+    LinAlg_GetComplexInVector(&re, &im, in1, i, i+1);
+    out[i/gCOMPLEX_INCREMENT].re = re;
+    out[i/gCOMPLEX_INCREMENT].im = im;
+    LinAlg_GetComplexInVector(&re, &im, in2, i, i+1);
+    out[N/gCOMPLEX_INCREMENT + i/gCOMPLEX_INCREMENT].re = re;
+    out[N/gCOMPLEX_INCREMENT + i/gCOMPLEX_INCREMENT].im = im;
+  }
+}
+
 void EigenSolve (struct DofData * DofData_P, int NumEigenvalues, 
 		 double shift_r, double shift_i){
   struct EigenPar eigenpar;
   struct Solution Solution_S;
-  gVector v1, v2;
-  int j, k, l, newsol;
+  gVector v1, v2, w1, w2, x, y;
+  int n, j, k, l, newsol, quad_evp = 0;
   double tmp, d1, d2, abs, arg;
-  complex_16 f;
+  complex_16 f, omega, omega2;
 
   gMatrix *K = &DofData_P->M1; /* matrix associated with terms with no Dt nor DtDt */
   gMatrix *L = &DofData_P->M2; /* matrix associated with Dt terms */
   gMatrix *M = &DofData_P->M3; /* matrix associated with DtDt terms */
-  int n = DofData_P->NbrDof / gCOMPLEX_INCREMENT; /* size of the system */
+  gMatrix D; /* temp matrix for quadratic eigenvalue problem */
 
   /* Arpack parameters: see below for explanation */
   int ido, nev, ncv, ldv, iparam[11], ipntr[14], lworkl, info, ldz;
@@ -99,9 +129,21 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
      eigenvectors we could not easily store) */
   if(Current.NbrHar != 2)
     Msg(ERROR, "EigenSolve requires system defined with \"Type Complex\"");
+
+  /* Sanity checks */
+  if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
+    Msg(ERROR, "No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
+
+  if(DofData_P->Flag_Init[2])
+    quad_evp = 1;
   
   /* Get eigenproblem parameters */
   EigenPar("eigen.par", &eigenpar);
+
+  n = DofData_P->NbrDof / gCOMPLEX_INCREMENT; /* size of the system */
+  
+  if(quad_evp)
+    n *= 2;
 
   ido = 0;
   /* Reverse communication flag.  IDO must be zero on the first 
@@ -392,24 +434,41 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   workev = (complex_16*)Malloc(2 * ncv * sizeof(complex_16));
   /* Workspace */
 
-  /* Sanity checks */
-  if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
-    Msg(ERROR, "No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
-
   if(bmat != 'I' || iparam[6] != 1)
     Msg(ERROR, "General and/or shift-invert mode should not be used");
 
-  /* Create 2 temp vectors */
-  LinAlg_CreateVector(&v1, &DofData_P->Solver, DofData_P->NbrDof,
-		      DofData_P->NbrPart, DofData_P->Part);
-  LinAlg_CreateVector(&v2, &DofData_P->Solver, DofData_P->NbrDof,
-		      DofData_P->NbrPart, DofData_P->Part);
-
-  /* Shifting: K = K - shift * M */
-  /* Warning: with PETSc, this can be very slow if the masks are very
+  /* Create temp vectors and matrices and apply shift. Warning: with
+     PETSc, the shifting can be very slow if the masks are very
      different, for example if we are in real arithmetic and have one
      real matrix and one complex "simulated-real" matrix */
-  LinAlg_AddMatrixProdMatrixDouble(K, M, -shift_r, K) ; 
+  if(!quad_evp){
+    LinAlg_CreateVector(&v1, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part);
+    LinAlg_CreateVector(&v2, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part);
+    /* K = K - shift * M */
+    LinAlg_AddMatrixProdMatrixDouble(K, M, -shift_r, K) ;
+  }
+  else{
+    LinAlg_CreateVector(&x, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part);
+    LinAlg_CreateVector(&y, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part);
+    LinAlg_CreateVector(&v1, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part);
+    LinAlg_CreateVector(&w1, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part);
+    LinAlg_CreateVector(&w2, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrPart, DofData_P->Part);
+    LinAlg_CreateMatrix(&D, &DofData_P->Solver, DofData_P->NbrDof,
+			DofData_P->NbrDof, DofData_P->NbrPart,
+			DofData_P->Part, NULL);
+    /* D = -(shift^2 * M + shift * L + K) */
+    LinAlg_CopyMatrix(M, &D);
+    LinAlg_AddMatrixProdMatrixDouble(L, &D, shift_r, &D);
+    LinAlg_AddMatrixProdMatrixDouble(K, &D, shift_r, &D);
+    LinAlg_ProdMatrixDouble(&D, -1., &D);
+  }
 
   /* Keep calling znaupd again and again until ido == 99 */
   k = 0;
@@ -418,13 +477,35 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 	    ipntr, workd, workl, &lworkl, rwork, &info);
     if(ido == 1 || ido == -1){
       Msg(INFO, "Arpack iteration %d", k+1);
-      Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
-      LinAlg_ProdMatrixVector(M, &v1, &v2);
-      if(!k)
-	LinAlg_Solve(K, &v2, &DofData_P->Solver, &v1);
-      else
-	LinAlg_SolveAgain(K, &v2, &DofData_P->Solver, &v1);
-      GetDP2Arpack(&v1, &workd[ipntr[1]-1]);
+
+      if(!quad_evp){
+	Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
+	LinAlg_ProdMatrixVector(M, &v1, &v2);
+	if(!k)
+	  LinAlg_Solve(K, &v2, &DofData_P->Solver, &v1);
+	else
+	  LinAlg_SolveAgain(K, &v2, &DofData_P->Solver, &v1);
+	GetDP2Arpack(&v1, &workd[ipntr[1]-1]);
+      }
+      else{
+	Arpack2GetDPSplit(n, &workd[ipntr[0]-1], &x, &y);
+	LinAlg_ProdMatrixVector(M, &y, &w2);
+	LinAlg_ProdMatrixVector(L, &x, &v1);
+	LinAlg_AddVectorVector(&v1, &w2, &v1);
+	LinAlg_ProdMatrixVector(M, &x, &w1);
+	LinAlg_AddVectorProdVectorDouble(&v1, &w1, shift_r, &v1);
+	if(!k)
+	  LinAlg_Solve(&D, &v1, &DofData_P->Solver, &w1);
+	else
+	  LinAlg_SolveAgain(&D, &v1, &DofData_P->Solver, &w1);
+
+	LinAlg_ProdMatrixVector(K, &x, &v1);
+	LinAlg_ProdVectorDouble(&v1, -1., &v1);
+	LinAlg_AddVectorProdVectorDouble(&v1, &w2, shift_r, &v1);
+	LinAlg_SolveAgain(&D, &v1, &DofData_P->Solver, &w2);
+	GetDP2ArpackMerge(&w1, &w2, &workd[ipntr[1]-1]);
+      }
+
       k++;
     }
     else if(ido == 99){
@@ -435,7 +516,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
       Msg(INFO, "Arpack code = %d (ignored)", info);
     }
   } while (1);
-
+  
   Msg(BIGINFO, "Arpack required %d iterations", k);
 
   /* Testing for errors */  
@@ -466,27 +547,43 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   if(info != 0)
     Msg(ERROR, "Arpack code = %d (eigenvector post-processing)", info);
   
-  /* Compute the unshifted eigenvalues and print them */
+  /* Compute the unshifted eigenvalues and print them, and store the
+     associated eigenvectors */
+  newsol = 0;
   for (k = 0; k < nev; k++){
+    /* unshift the eigenvalues */
     tmp = SQU(d[k].re) + SQU(d[k].im);
     d[k].re = shift_r + d[k].re/tmp;
     d[k].im = shift_i - d[k].im/tmp;
 
-    /* Eigenvalue = omega^2 -> f = sqrt(omega^2)/(2*Pi) */
-    abs = sqrt(SQU(d[k].re) + SQU(d[k].im));
-    arg = atan2(d[k].im, d[k].re);
-    f.re = sqrt(abs) * cos(0.5*arg) / TWO_PI;
-    f.im = sqrt(abs) * sin(0.5*arg) / TWO_PI;
+    if(!quad_evp){
+      /* Eigenvalue = omega^2 */
+      omega2.re = d[k].re;
+      omega2.im = d[k].im;
+      abs = sqrt(SQU(omega2.re) + SQU(omega2.im));
+      arg = atan2(omega2.im, omega2.re);
+      omega.re = sqrt(abs) * cos(0.5*arg);
+      omega.im = sqrt(abs) * sin(0.5*arg);
+      f.re = omega.re / TWO_PI;
+      f.im = omega.im / TWO_PI;
+    }
+    else{
+      /* Eigenvalue = i*omega */
+      omega.re = -d[k].im;
+      omega.im = -d[k].re;
+      omega2.re = SQU(omega.re) - SQU(omega.im);
+      omega2.im = 2. * omega.re * omega.im;
+      f.re = omega.re / TWO_PI;
+      f.im = omega.im / TWO_PI;
+    }
+
     Msg(BIGINFO, "Eigenvalue %03d: w^2 = %.12e %s %.12e * i", 
-	k+1, d[k].re, (d[k].im > 0) ? "+" :  "-", (d[k].im > 0) ? d[k].im : -d[k].im);
+	k+1, omega2.re, (omega2.im > 0) ? "+" :  "-", (omega2.im > 0) ? omega2.im : -omega2.im);
+    Msg(BIGINFO, "                  w = %.12e %s %.12e * i",
+	omega.re, (omega.im > 0) ? "+" : "-", (omega.im > 0) ? omega.im : -omega.im);
     Msg(BIGINFO, "                  f = %.12e %s %.12e * i",
 	f.re, (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
-  }
-
-  /* Save the eigenvectors */
-  newsol = 0;
-  for(k = 0; k < nev; k++){
-
+    
     if(newsol) {
       /* create new solution */
       LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
@@ -496,9 +593,9 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
     } 
     newsol = 1;
-
-    DofData_P->CurrentSolution->Time = d[k].re;
-    DofData_P->CurrentSolution->TimeImag = d[k].im;
+    
+    DofData_P->CurrentSolution->Time = omega.re;
+    DofData_P->CurrentSolution->TimeImag = omega.im;
     DofData_P->CurrentSolution->TimeStep = (int)Current.TimeStep;
     DofData_P->CurrentSolution->TimeFunctionValues = NULL;
     DofData_P->CurrentSolution->SolutionExist = 1;
@@ -526,10 +623,21 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
        GenerateSystem knows which solutions exist */
     Current.TimeStep += 1.;
   }
-    
+  
   /* deallocate */
-  LinAlg_DestroyVector(&v1);
-  LinAlg_DestroyVector(&v2);
+  if(!quad_evp){
+    LinAlg_DestroyVector(&v1);
+    LinAlg_DestroyVector(&v2);
+  }
+  else{
+    LinAlg_DestroyVector(&x);
+    LinAlg_DestroyVector(&y);
+    LinAlg_DestroyVector(&v1);
+    LinAlg_DestroyVector(&w1);
+    LinAlg_DestroyVector(&w2);
+    LinAlg_DestroyMatrix(&D);
+  }
+
   Free(resid);
   Free(v);
   Free(workd);
