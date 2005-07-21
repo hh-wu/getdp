@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.22 2005-07-21 10:04:56 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.23 2005-07-21 14:29:26 nicolet Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -450,6 +450,29 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     LinAlg_AddMatrixProdMatrixDouble(K, M, -shift_r, K) ;
   }
   else{
+    /* This is an explanation of our approach to a quadratic
+       eigenvalue problem i.e. - w^2 M x + i w L x + K x = 0.  This
+       system is equivalent to (y = i w x) and (i w M y + i w L x + K
+       x = 0), or, in matrix form:
+
+       | L   M |  |x|          |-K   0|  |x|
+       | I   0 |  |y|  iw =    | 0   I|  |y| , or 
+
+          |x|            |x|
+       A  |y|  iw =   B  |y|.
+
+       To apply Arpack with a shift 's' (but not in shift inverted
+       mode to avoid the Hermitian constraint!), we build the
+       following operator: (B- sA)^-1 A.  To do this, the following
+       computation is performed: (x,y) is transformed to
+       (Solve(D,Lx+sMx+My),Solve(D,-Kx+sMy)) where Solve(D,v) means
+       the solution of the Dx=v linear system and where
+       D=-(s^2M+sL+K).  Note that if the number of degrees of freedom
+       is N, the matrix computations are still performed on NxN
+       matrices but the Arpack vector is of size n=2*N.  Only the x
+       part of the (x,y) eigenvectors are retained as physical
+       solutions. */
+
     LinAlg_CreateVector(&x, &DofData_P->Solver, DofData_P->NbrDof,
 			DofData_P->NbrPart, DofData_P->Part);
     LinAlg_CreateVector(&y, &DofData_P->Solver, DofData_P->NbrDof,
