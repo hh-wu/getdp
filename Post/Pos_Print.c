@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.68 2005-07-22 13:09:50 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.69 2005-07-22 13:26:31 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1399,7 +1399,7 @@ void  Pos_PrintExpression(struct PostSubOperation *PostSubOperation_P){
       Get_ValueOfExpressionByIndex(expr, NULL, 0., 0., 0., &Value) ; 
       if(str) fprintf(PostStream, "%s", str);
       Print_Value(&Value);
-      fprintf(PrintStream, "\n") ;
+      fprintf(PostStream, "\n") ;
     }      
     else if(str2){
       if(str) fprintf(PostStream, "%s", str);

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.49 2005-07-22 13:09:50 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.50 2005-07-22 13:26:31 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -81,6 +81,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   else{
     PostStream = stdout ;
   }
+
+  PrintStream = PostStream ;
 
   if(PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n\n") ;
   /*  two blanks lines for -index in gnuplot  */
