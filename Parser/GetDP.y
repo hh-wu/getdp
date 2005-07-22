@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.81 2005-07-22 13:09:50 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.82 2005-07-22 15:59:59 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -6962,23 +6962,6 @@ OneFExpr :
   | t1D                        { $$ = (double)_1D ; }
   | t2D                        { $$ = (double)_2D ; }
   | t3D                        { $$ = (double)_3D ; }
-
-/*
-  | tSTRING 
-    { Constant_S.Name = $1 ;
-      if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
-	vyyerror("Unknown Constant: %s", $1) ;  $$ = 0. ;
-      }
-      else  {
-	if (Constant_S.Type == VAR_FLOAT)
-	  $$ = Constant_S.Value.Float ;
-	else {
-	  vyyerror("Single value Constant needed: %s", $1) ;  $$ = 0. ;
-	}
-      }
-      Free($1) ;
-    }
-*/
   | String__Index
     { Constant_S.Name = $1 ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
@@ -7251,14 +7234,6 @@ CharExpr :
       strcpy($$, ctime(&date_info));
       $$[strlen($$)-1] = 0;
     }
-
-/*
-  | CharExpr '+' CharExpr
-    {
-      $$ = (char *)Malloc((strlen($1)+strlen($3)+1)*sizeof(char)) ;
-      strcpy($$, $1) ;  strcat($$, $3) ;
-    }
-*/
   ;
 
 StrCat :
@@ -7610,7 +7585,6 @@ int Print_ListOfDouble(char *format, List_T *list, char *buffer){
     return -1;
   return 0;
 }
-  
 
 
 /*  E r r o r   h a n d l i n g  */
