@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.31 2005-07-18 20:05:04 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.32 2005-07-22 09:35:51 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -801,6 +801,10 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
       /* increment the global timestep counter so that a future
 	 GenerateSystem knows which solutions exist */
       Current.TimeStep += 1.;
+      /* update the current value of Time and TimeImag so that
+	 $EigenvalueReal and $EigenvalueImag are up-to-date */
+      Current.Time = wi[ii];
+      Current.TimeImag = 0.;
 
       /* boucle de taille m = taille des matrices A,K,M du probleme */
       /* calcul de la composant k du vecteur ii */

@@ -918,7 +918,8 @@ struct ChangeOfState {
 #define OPERATION_LANCZOS                   8
 #define OPERATION_PERTURBATION              9
 #define OPERATION_EIGENSOLVE               16
-#define OPERATION_EVALUATE                 17
+#define OPERATION_EIGENSOLVEJAC            17
+#define OPERATION_EVALUATE                 18
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11
@@ -927,9 +928,9 @@ struct ChangeOfState {
 #define OPERATION_INIT_MOVINGBAND2D       444
 #define OPERATION_MESH_MOVINGBAND2D       222
 #define OPERATION_GENERATE_MH_MOVING      999
-#define OPERATION_GENERATE_MH_MOVING_S    9991
-#define OPERATION_ADD_MH_MOVING           9992
-#define OPERATION_DUMMYDOFS               9993
+#define OPERATION_GENERATE_MH_MOVING_S   9991
+#define OPERATION_ADD_MH_MOVING          9992
+#define OPERATION_DUMMYDOFS              9993
 
 
 #define OPERATION_SAVEMESH                333
@@ -956,7 +957,7 @@ struct ChangeOfState {
 #define OPERATION_ITERATIVETIMEREDUCTION   33
 
 #define OPERATION_CHANGEOFCOORDINATES      40
-#define OPERATION_CHANGEOFCOORDINATES2     400
+#define OPERATION_CHANGEOFCOORDINATES2    400
 
 #define OPERATION_SYSTEMCOMMAND            50
 
@@ -1168,7 +1169,7 @@ struct CurrentData {
 
   double  Val[NBR_MAX_HARMONIC * MAX_DIM];
 
-  double  Time, TimeStep, DTime ;
+  double  Time, TimeImag, TimeStep, DTime ;
   double  Theta, Beta, Gamma ;
 
   double  Iteration, RelativeDifference, RelativeDifferenceOld ;

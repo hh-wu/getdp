@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.44 2005-07-08 21:54:52 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.45 2005-07-22 09:35:51 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -611,7 +611,8 @@ void  Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 /* ------------------------------------------------------------------------ */
 
 void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
-		      int Read_DofData, double *Time, double *TimeStep) {
+		      int Read_DofData, double *Time, double *TimeImag,
+		      double *TimeStep) {
 
   int             Num_DofData, Val_TimeStep, Format = 0, Read ;
   double          Val_Time, Val_TimeImag = 0., Version = 0.;
@@ -691,6 +692,7 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
   }   /* while 1 ... */
 
   *Time = Val_Time ;
+  *TimeImag = Val_TimeImag ;
   *TimeStep = (double)Val_TimeStep ;
 
   GetDP_End ;
@@ -1583,84 +1585,6 @@ void Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P,
 
   GetDP_End ;
 }
-
-/* ------------------------------------------------------------------------ */
-/*  D o f _ G e t D o f V a l u e D t                                       */
-/* ------------------------------------------------------------------------ */
-/*  N e v e r   u s e d . . .  */
-gScalar Dof_GetDofValueDt(struct DofData * DofData_P, struct Dof * Dof_P) {
-  gScalar t2, t1 ;
-
-  GetDP_Begin("Dof_GetDofValueDt");
-
-  if(DofData_P->NbrHar!=1 && gSCALAR_SIZE==2)
-    Msg(ERROR, "'Dof_GetDofValueDt' is not ready for complex stored numbers");
-
-  switch (Dof_P->Type) {
-
-  case DOF_UNKNOWN :
-    if (DofData_P->NbrHar == 1) {
-      LinAlg_GetScalarInVector(&t1, &DofData_P->CurrentSolution->x, 
-			       Dof_P->Case.Unknown.NumDof-1) ;
-      LinAlg_GetScalarInVector(&t2, &(DofData_P->CurrentSolution-1)->x, 
-			       Dof_P->Case.Unknown.NumDof-1) ;
-      LinAlg_SubScalarScalar(&t1, &t2, &t1) ;
-      LinAlg_DivScalarDouble
-	(&t1, DofData_P->CurrentSolution->Time-(DofData_P->CurrentSolution-1)->Time,
-	 &t1) ;
-    }
-    else {
-      if(Dof_P->Harmonic%2 == 0){
-	LinAlg_GetScalarInVector
-	  (&t1, 
-	   &DofData_P->CurrentSolution->x, (Dof_P+1)->Case.Unknown.NumDof-1) ;
-	LinAlg_ProdScalarDouble(&t1, -DofData_P->Val_Pulsation[Dof_P->Harmonic/2], &t1) ;
-      }
-      else{
-	LinAlg_GetScalarInVector
-	  (&t1, 
-	   &DofData_P->CurrentSolution->x, (Dof_P-1)->Case.Unknown.NumDof-1) ;
-	LinAlg_ProdScalarDouble(&t1, DofData_P->Val_Pulsation[Dof_P->Harmonic/2], &t1) ;
-      }
-    }
-    break ;
-
-  case DOF_FIXED :
-  case DOF_FIXEDWITHASSOCIATE :
-    if (DofData_P->NbrHar == 1)
-      LinAlg_ProdScalarDouble
-	(&Dof_P->Val, 
-	 (DofData_P->CurrentSolution->
-	  TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex] -
-	  (DofData_P->CurrentSolution-1)->
-	  TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex])
-	 / (DofData_P->CurrentSolution->Time - (DofData_P->CurrentSolution-1)->Time),
-	 &t1) ;
-    else {
-      if(Dof_P->Harmonic%2 == 0)
-	LinAlg_ProdScalarDouble
-	  (&(Dof_P+1)->Val, 
-	   -DofData_P->Val_Pulsation[Dof_P->Harmonic/2], &t1) ;
-      else
-	LinAlg_ProdScalarDouble
-	  (&(Dof_P-1)->Val, 
-	   DofData_P->Val_Pulsation[Dof_P->Harmonic/2], &t1) ;
-    }
-    break ;
-    
-  case DOF_LINK :
-    /* to be completed... if needed... */
-    break ;
-
-  default :  
-    LinAlg_ZeroScalar(&t1) ;
-    break ;
-  }
-
-  GetDP_Return(t1) ;
-}
-
-
 
 /* ------------------------------------------------------------------------- */
 /*  D o f _ D e f i n e Unknown D o f F r o m Solve o r Init D o f           */

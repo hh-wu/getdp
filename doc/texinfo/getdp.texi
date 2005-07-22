@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.76 2005-07-18 20:05:12 geuzaine Exp $
+@c $Id: getdp.texi,v 1.77 2005-07-22 09:35:54 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -429,14 +429,10 @@ problems. For each example, you should then go back to @ref{Objects}, and
 objects appearing in it. Note that indexes for many concepts and for all the
 syntax elements are available at the end of this manual.
 
-Once the examples presented in @ref{Short examples}, are understood, you
-may start to use GetDP on your computer (@pxref{Running GetDP}), for
-example by solving the complete examples presented in @ref{Complete
-examples}. 
-
-@c todo: Ready-to-use input files for these examples can be downloaded
-@c from the web site.
-
+Once the examples presented in @ref{Short examples}, are understood, you may
+start to use GetDP on your computer (@pxref{Running GetDP}), for example by
+solving the complete examples presented in @ref{Complete examples}. Other
+ready-to-use example files can be downloaded from the web site.
 
 @c =========================================================================
 @c Overview
@@ -1174,6 +1170,8 @@ the only functions allowed in a constant definition (see the definition of
 @tindex $Theta
 @tindex $TimeStep
 @tindex $Iteration
+@tindex $EigenvalueReal
+@tindex $EigenvalueImag
 @tindex $X
 @tindex $XS
 @tindex $Y
@@ -1200,6 +1198,10 @@ Current theta value in a theta time stepping algorithm.
 Number of the current time step in a time stepping algorithm.
 @item $Iteration
 Number of the current iteration in a nonlinear loop.
+@item $EigenvalueReal
+Real part of the current eigenvalue.
+@item $EigenvalueImag
+Imaginary part of the current eigenvalue.
 @item $X, $XS
 Value of the current (destination or source) X-coordinate.
 @item $Y, $YS
@@ -1713,20 +1715,15 @@ network type for the definition of circuit connections, to be used in
 
 The syntax for the definition of constraints is:
 
-@c todo: constraints of type LINK
-@c        < RegionRef @var{group-def}; > < SubRegionRef @var{group-def}; > 
-@c        < Coefficient @var{expression}; | Coefficient [ , ] >
-@c        < Filter @var{expression}; | Filter [ , ]; > 
-@c + constraint-val -> Function @var{expression}
-@c
-@c + LinkCplx
-
 @example
 Constraint @{
   @{ Name @var{constraint-id} <@{#@var{integer}@}>; Type @var{constraint-type};
     Case @{
       @{ Region @var{group-def}; < Type @var{constraint-type}; >
         < SubRegion @var{group-def}; > < TimeFunction @var{expression}; > 
+        < RegionRef @var{group-def}; > < SubRegionRef @var{group-def}; > 
+        < Coefficient @var{expression}; > < Function @var{expression}; >
+        < Filter @var{expression}; > 
         @var{constraint-val}; @} @dots{}
       < @var{loop} > @dots{}
     @} 
@@ -1749,7 +1746,7 @@ Constraint @{
   @var{string}
 
 @var{constraint-type}: 
-  Assign | Init | Network | @var{etc}
+  Assign | Init | Network | Link | @var{etc}
 
 @var{constraint-val}:
   Value @var{expression} | NameOfResolution @var{resolution-id} | @var{etc}
@@ -3082,7 +3079,6 @@ Gets X, Y and Z in a vector.
 @end ftable
 
 
-
 @c .........................................................................
 @c Misc
 @c .........................................................................
@@ -3180,14 +3176,34 @@ To give an initial value to be computed by a pre-resolution.
 @item Network
 To describe the node connections of branches in a network.
 
-@c todo: links
 @item Link
-To define links between degrees of freedom. This is not documented yet.
+To define links between degrees of freedom in the constrained region with
+degrees of freedom in a ``reference'' region, with some coefficient. For
+example, to link the degrees of freedom in the contrained region @code{Left}
+with the degrees of freedom in the reference region @code{Right}, located 1
+unit to the right of the region @code{Left} along the X-axis, with the
+coeficient @code{-1}, one could write:
 
-@c todo: linkcplx
+@example
+@{ Name periodic;
+  Case @{
+    @{ Region Left; Type Link ; RegionRef Right;
+      Coefficient -1; Function Vector[$X+Pi,$Y,$Z] ;
+    @}
+  @}
+@}
+@end example
+
+In this example, @code{Function} defines the mapping that translates the
+geometrical elements in the region @code{Left} by 1 along the X-axis, so
+that they correspond with the elements in the region @code{Right}. For this
+mapping to work, the meshes of @code{Left} and @code{Right} must be
+identical.
+
 @item LinkCplx
-To define complex-valued links between degrees of freedom. This is not
-documented yet either.
+To define complex-valued links between degrees of freedom. The syntax is the
+same as for constraints of type @code{Link}, but @code{Coeficient} can be
+complex.
 
 @end ftable
 
@@ -3647,8 +3663,8 @@ compute the relative error @var{dx}/@var{x}.
 Generate iteration matrices separately for system @var{system-id}. It is
 destined to be used with @code{Update} in order to create more efficiently
 the actual system to solve (this is only useful in linear transient problems
-with one single excitation) or with @code{Lanczos} in order to generate the
-matrices of a (generalized) eigenvalue problem.
+with one single excitation) or with @code{EigenSolve} in order to generate
+the matrices of a (generalized) eigenvalue problem.
 
 @item GenerateOnly
 @code{[@var{system-id}, @var{expression-cst-list}]}
@@ -3690,7 +3706,7 @@ Save the solution of the system of equations @var{system-id}.
 
 Save all the solutions available for the system of equations
 @var{system-id}. This should be used with algorithms that generate more than
-one solution at once, e.g.@: @code{Lanczos} or @code{FourierTransform}.
+one solution at once, e.g.@: @code{EigenSolve} or @code{FourierTransform}.
 
 @item TransferSolution
 @code{[@var{system-id}]}
@@ -3748,6 +3764,11 @@ If @var{expression} is true (nonzero), perform the operations in the first
 Not implemented yet.
 
 @item Print
+@code{[ @{ @var{expression-list} @}, < File @var{expression-char} > ]}
+
+Print the expressions listed in @var{expression-list}.
+
+@item Print
 @code{[ @var{system-id} <, File @var{expression-char} > <, @{ @var{expression-cst-list} @} >}@*
 @code{<, TimeStep @{ @var{expression-cst-list} @} >]}
 
@@ -3755,11 +3776,6 @@ Print the system @var{system-id}. If the @var{expression-cst-list} is given,
 print only the values of the degrees of freedom given in that list.
 If the @code{TimeStep} option is present, limit the printing to the selected
 time steps.
-
-@item Print
-@code{[ @{ @var{expression-list} @}, < File @var{expression-char} > ]}
-
-Print the current values of the expressions listed in @var{expression-list}.
 
 @item EigenSolve
 @code{[@var{system-id}, @var{expression-cst}, @var{expression-cst}, @var{expression-cst}]}
@@ -3772,11 +3788,11 @@ spectral shift (around which to look for eigenvalues).
 @item Lanczos
 @code{[@var{system-id}, @var{expression-cst}, @{ @var{expression-cst-list} @} , @var{expression-cst}]}
 
-Eigenvalue/eigenvector computation by the Lanczos algorithm. The parameters
-are: the system (which has to be generated with @code{GenerateSeparate[]}),
-the size of the Lanczos space, the indices of the eigenvalues/eigenvectors
-to store, the spectral shift. This routine is deprecated: use
-@code{EigenSolve} instead.
+Eigenvalue/eigenvector computation using the Lanczos algorithm. The
+parameters are: the system (which has to be generated with
+@code{GenerateSeparate[]}), the size of the Lanczos space, the indices of
+the eigenvalues/eigenvectors to store, the spectral shift. This routine is
+deprecated: use @code{EigenSolve} instead.
 
 @item FourierTransform
 @code{[@var{system-id}, @var{system-id}, @{ @var{expression-cst-list} @}]}
@@ -3816,24 +3832,19 @@ optional parameter is a flag for testing purposes.
 
 Perform the specified @code{PostOperation}.
 
+@c todo:
+
 @c @item Perturbation 
 
-@item ChangeOfCoordinates
+@c @item ChangeOfCoordinates
 
-Not documented yet.
+@c @item SaveMesh
 
-@item SaveMesh
+@c @item DeformeMesh
 
-Not documented yet.
-
-@item DeformMesh
-
-Not documented yet.
-
-@item IterativeTimeReduction
-@{ @var{iterative-time-reduction-arg}; @}
-
-Not documented yet.
+@c @item IterativeTimeReduction
+@c @{ @var{iterative-time-reduction-arg}; @}
+@c 
 @c  Iterative reduction of time interval to delimit variations of solutions 
 @c  (e.g.@: used in types of nonlinear analyses).
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.30 2005-07-19 22:16:26 geuzaine Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.31 2005-07-22 09:35:51 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -140,7 +140,8 @@ void  SolvingAnalyse (void) {
 
       Init_DofDataInFunctionSpace(Nbr_DefineSystem2, DofData2_P0) ;
 
-      Current.TypeTime = TIME_STATIC  ; Current.Time = 0. ; Current.TimeStep = 0. ;
+      Current.TypeTime = TIME_STATIC  ; 
+      Current.Time = 0. ; Current.TimeImag = 0. ; Current.TimeStep = 0. ;
       Current.RelativeDifference = 0. ; Current.RelaxationFactor = 1. ;
 
       TreatmentStatus = _CAL ;
@@ -275,7 +276,8 @@ void  SolvingAnalyse (void) {
       while(Name_ResFile[i]){
 	Msg(LOADING, "Processing data '%s'", Name_ResFile[i]) ;
 	Dof_OpenFile(DOF_RES, Name_ResFile[i], "r");
-	Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeStep) ;
+	Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeImag, 
+			&Current.TimeStep) ;
 	Dof_CloseFile(DOF_RES);
 	i++ ;
       }
@@ -283,7 +285,7 @@ void  SolvingAnalyse (void) {
 	  Current.Time, Current.TimeStep) ;
     }
     else{
-      Current.Time = Current.TimeStep = 0. ;
+      Current.Time = Current.TimeImag = Current.TimeStep = 0. ;
     }
 
     Current.NbrHar = 1 ; /* Bug : peut ne pas etre initialise si -cal sans 
@@ -343,7 +345,7 @@ void  SolvingAnalyse (void) {
       while(Name_ResFile[i]){
 	Msg(LOADING, "Processing data '%s'", Name_ResFile[i]) ;
 	Dof_OpenFile(DOF_RES, Name_ResFile[i], "r");
-	Dof_ReadFileRES(DofData_L, NULL, -1, &d, &d) ;
+	Dof_ReadFileRES(DofData_L, NULL, -1, &d, &d, &d) ;
 	Dof_CloseFile(DOF_RES) ;
 	i++ ;
       }
@@ -375,6 +377,7 @@ void  SolvingAnalyse (void) {
 	for (j = 0 ; j < Nbr_Solution ; j++) {
 	  Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, j) ;
 	  Current.Time = Solution_P->Time ;
+	  Current.TimeImag = Solution_P->TimeImag ;
 	  Current.TimeStep = 0.;
 	  Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
 	}

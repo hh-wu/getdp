@@ -54,7 +54,8 @@ void  Dof_ReadFileRES0(void) ;
 void  Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format, 
 		       double Val_Time, double Val_TimeImag, int Val_TimeStep) ;
 void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P, 
-		      int Read_DofData, double *Time, double *TimeStep) ;
+		      int Read_DofData, double *Time, double *TimeImag,
+		      double *TimeStep) ;
 void  Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P, int Format,
 				int NbrH);
 void  Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P, 
@@ -92,7 +93,6 @@ void  Dof_TransferDof(struct DofData * DofData1_P, struct DofData ** DofData2_P)
 
 struct  Dof * Dof_GetDofStruct(struct DofData * DofData_P, int D1, int D2, int D3) ;
 gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P) ;
-gScalar Dof_GetDofValueDt(struct DofData * DofData_P, struct Dof * Dof_P) ;
 void    Dof_GetRealDofValue(struct DofData * DofData_P, struct Dof * Dof_P, double *d) ;
 void    Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P, 
 			       double *d1, double *d2) ;

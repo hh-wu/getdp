@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.37 2005-07-19 22:16:26 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.38 2005-07-22 09:35:51 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -252,6 +252,7 @@ FourierTransform             return tFourierTransform ;
 FourierTransformJ            return tFourierTransformJ ;
 Lanczos                      return tLanczos ;
 EigenSolve                   return tEigenSolve ;
+EigenSolveJac                return tEigenSolveJac ;
 Evaluate                     return tEvaluate ;
 Test                         return tIf ;
 TimeLoopTheta                return tTimeLoopTheta ;

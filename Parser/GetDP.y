@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.79 2005-07-19 22:16:29 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.80 2005-07-22 09:35:54 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -275,7 +275,8 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %token      tOriginSystem  tDestinationSystem 
 %token    tOperation  tOperationEnd
 %token      tSetTime tDTime tSetFrequency tFourierTransform tFourierTransformJ
-%token      tLanczos tEigenSolve tPerturbation tUpdate tUpdateConstraint tBreak 
+%token      tLanczos tEigenSolve tEigenSolveJac tPerturbation 
+%token      tUpdate tUpdateConstraint tBreak 
 %token      tEvaluate
 
 %token      tTimeLoopTheta
@@ -4900,6 +4901,20 @@ OperationTerm :
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_EIGENSOLVE ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.EigenSolve.NumEigenvalues = (int)$5 ;
+      Operation_P->Case.EigenSolve.Shift_r = $7 ;
+      Operation_P->Case.EigenSolve.Shift_i = $9 ;
+    }
+
+  | tEigenSolveJac '[' tSTRING ',' FExpr ',' FExpr ',' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_EIGENSOLVEJAC ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $3) ;

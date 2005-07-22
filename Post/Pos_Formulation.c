@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.47 2005-07-18 20:05:12 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.48 2005-07-22 09:35:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -283,6 +283,7 @@ void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep) {
 	List_Pointer((Current.DofData_P0+k)->Solutions, Num_Solution) ;
 
   Current.Time = Current.DofData->CurrentSolution->Time ;
+  Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
   Current.TimeStep = Num_TimeStep ;
 
   GetDP_End ;

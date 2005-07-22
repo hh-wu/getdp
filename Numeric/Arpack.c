@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.24 2005-07-21 14:46:23 nicolet Exp $"
+#define RCSID "$Id: Arpack.c,v 1.25 2005-07-22 09:35:51 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -645,6 +645,10 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     /* increment the global timestep counter so that a future
        GenerateSystem knows which solutions exist */
     Current.TimeStep += 1.;
+    /* update the current value of Time and TimeImag so that
+       $EigenvalueReal and $EigenvalueImag are up-to-date */
+    Current.Time = omega.re;
+    Current.TimeImag = omega.im;
   }
   
   /* deallocate */

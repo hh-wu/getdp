@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.19 2005-07-16 21:41:52 geuzaine Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.20 2005-07-22 09:35:51 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -435,16 +435,10 @@ void  Cal_AssembleTerm_MH_Moving_separate(struct Dof * Equ, struct Dof * Dof, do
 }
 
 void  Cal_AssembleTerm_MH_Moving_probe(struct Dof * Equ, struct Dof * Dof, double Val[]) {
-  extern Tree_T * DofTree_MH_moving ;
-  /*
-  int     k, l ;
-  double  tmp ;
-  extern double ** MH_Moving_Matrix ; 
-  extern struct Dof **Dof_MH_moving ;
-  extern int * DummyDof;
-  */
+  extern Tree_T  * DofTree_MH_moving ;
+
   GetDP_Begin("Cal_AssembleTerm_MH_probe");
-
+ 
   if (Dof->Type == DOF_UNKNOWN && !Tree_PQuery(DofTree_MH_moving, Dof)) 
       Tree_Add(DofTree_MH_moving,Dof) ;
   else if (Dof->Type == DOF_LINK && !Tree_PQuery(DofTree_MH_moving, Dof->Case.Link.Dof))
@@ -454,47 +448,6 @@ void  Cal_AssembleTerm_MH_Moving_probe(struct Dof * Equ, struct Dof * Dof, doubl
       Tree_Add(DofTree_MH_moving,Equ) ; 
   else if (Equ->Type == DOF_LINK && !Tree_PQuery(DofTree_MH_moving, Equ->Case.Link.Dof))
       Tree_Add(DofTree_MH_moving,Equ->Case.Link.Dof) ;
-
-  /*
-
-  if (Dof->Type == DOF_UNKNOWN && !Tree_PQuery(DofTree_MH_moving, Dof)) 
-    if(!DummyDof[Dof->Case.Unknown.NumDof-1])
-      Tree_Add(DofTree_MH_moving,Dof) ;
-  for (k = 0 ; k < Current.NbrHar ; k++) Tree_Add(DofTree_MH_moving,Dof+k) ;
-  else if (Dof->Type == DOF_LINK && !Tree_PQuery(DofTree_MH_moving, Dof->Case.Link.Dof))
-    if(!DummyDof[(Dof->Case.Link.Dof)->Case.Unknown.NumDof-1])
-      Tree_Add(DofTree_MH_moving,Dof->Case.Link.Dof) ;
-  for (k = 0 ; k < Current.NbrHar ; k++) Tree_Add(DofTree_MH_moving,(Dof+k)->Case.Link.Dof) ;
-
-  if (Equ->Type == DOF_UNKNOWN && !Tree_PQuery(DofTree_MH_moving, Equ))
-    if(!DummyDof[Equ->Case.Unknown.NumDof-1])
-      Tree_Add(DofTree_MH_moving,Equ) ; 
-  for (k = 0 ; k < Current.NbrHar ; k++) Tree_Add(DofTree_MH_moving,Equ+k) ;
-  else if (Equ->Type == DOF_LINK && !Tree_PQuery(DofTree_MH_moving, Equ->Case.Link.Dof))
-    if(!DummyDof[(Equ->Case.Link.Dof)->Case.Unknown.NumDof-1])
-      Tree_Add(DofTree_MH_moving,Equ->Case.Link.Dof) ;
-  for (k = 0 ; k < Current.NbrHar ; k++) Tree_Add(DofTree_MH_moving,(Equ+k)->Case.Link.Dof) ;
-  */
-
-  /*
-  for (k = 0 ; k < Current.NbrHar ; k++) {
-    if ((Dof+k)->Type == DOF_UNKNOWN) {
-      if (!Tree_PQuery(DofTree_MH_moving, Dof+k)) Tree_Add(DofTree_MH_moving,Dof+k) ;
-    } else if ((Dof+k)->Type == DOF_LINK) {
-      if (!Tree_PQuery(DofTree_MH_moving, (Dof+k)->Case.Link.Dof)) 
-	Tree_Add(DofTree_MH_moving,(Dof+k)->Case.Link.Dof) ;
-    }
-  }
-  
-  for (k = 0 ; k < Current.NbrHar ; k++) {
-    if ((Equ+k)->Type == DOF_UNKNOWN) {
-      if (!Tree_PQuery(DofTree_MH_moving, Equ+k)) Tree_Add(DofTree_MH_moving,Equ+k) ;
-    } else if ((Equ+k)->Type == DOF_LINK) {
-      if (!Tree_PQuery(DofTree_MH_moving, (Equ+k)->Case.Link.Dof)) 
-	Tree_Add(DofTree_MH_moving,(Equ+k)->Case.Link.Dof) ;
-    }
-  }
-  */
 
   GetDP_End ;
 }

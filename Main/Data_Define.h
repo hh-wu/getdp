@@ -244,7 +244,9 @@ struct StringXDefine  ChangeOfState_Type[] = {
 struct StringXPointer  Current_Value[] = {
   {"Time"     , &Current.Time},       {"DTime"    , &Current.DTime},
   {"Theta"    , &Current.Theta},      {"TimeStep" , &Current.TimeStep},
-  {"Iteration", &Current.Iteration},  {"Iter"     , &Current.Iteration},  
+  {"Iteration", &Current.Iteration},  {"Iter"     , &Current.Iteration},
+  {"TimeImag" , &Current.TimeImag},   {"Eigenvalue" , &Current.Time},    
+  {"EigenvalueReal" , &Current.Time}, {"EigenvalueImag" , &Current.TimeImag},
 
   {"X"  , &Current.x}, {"Y"  , &Current.y},  {"Z"  , &Current.z},
   {"XS" , &Current.xs},{"YS" , &Current.ys}, {"ZS" , &Current.zs},
