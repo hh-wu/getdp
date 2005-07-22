@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.67 2005-07-18 20:05:12 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.68 2005-07-22 13:09:50 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1375,6 +1375,42 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
   }
 
   GetDP_End ;
+}
+
+/* ------------------------------------------------------------------------ */
+/*  P o s _ P r i n t E x p r e s s i o n                                   */
+/* ------------------------------------------------------------------------ */
+
+void  Pos_PrintExpression(struct PostSubOperation *PostSubOperation_P){
+
+  int NbrTimeStep, iTime;
+  struct Value Value;
+  char *str = PostSubOperation_P->Case.Expression.String;
+  char *str2 = PostSubOperation_P->Case.Expression.String2;
+  int expr = PostSubOperation_P->Case.Expression.ExpressionIndex;
+
+  GetDP_Begin("Pos_PrintExpression");
+
+  NbrTimeStep = Pos_InitTimeSteps(PostSubOperation_P);
+
+  for(iTime = 0; iTime < NbrTimeStep; iTime++){
+    Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
+    if(expr >= 0){
+      Get_ValueOfExpressionByIndex(expr, NULL, 0., 0., 0., &Value) ; 
+      if(str) fprintf(PostStream, "%s", str);
+      Print_Value(&Value);
+      fprintf(PrintStream, "\n") ;
+    }      
+    else if(str2){
+      if(str) fprintf(PostStream, "%s", str);
+      fprintf(PostStream, "%s\n", str2);
+    }
+    else if(str){
+      fprintf(PostStream, "%s\n", str);
+    }
+  }
+  
+  GetDP_End;
 }
 
 /* ------------------------------------------------------------------------ */

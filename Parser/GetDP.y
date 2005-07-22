@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.80 2005-07-22 09:35:54 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.81 2005-07-22 13:09:50 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -6048,23 +6048,36 @@ PostSubOperation :
     {
       vyyerror("Plot has been superseded by Print (Plot OnRegion becomes Print OnElementsOf)") ;
     }
+
   | tPrint '[' PostQuantitiesToPrint PrintSubType PrintOptions ']' tEND
     {
       PostSubOperation_S.Type = POP_PRINT ;
     }
 
-  | tPrint '[' tBIGSTR ',' FExpr PrintOptions ']' tEND
+  | tPrint '[' tBIGSTR ',' Expression PrintOptions ']' tEND
     {
-      PostSubOperation_S.Type = POP_PRINTVAL ;
-      PostSubOperation_S.String = $3 ;
-      PostSubOperation_S.Val = $5 ;
+      PostSubOperation_S.Type = POP_EXPRESSION ;
+      PostSubOperation_S.Case.Expression.String = $3 ;
+      PostSubOperation_S.Case.Expression.String2 = NULL ;
+      PostSubOperation_S.Case.Expression.ExpressionIndex = $5 ;
       PostSubOperation_S.PostQuantityIndex[0] = -1 ;
     }
+
   | tPrint '[' tBIGSTR ',' tStr '[' CharExpr ']' PrintOptions ']' tEND
     {
-      PostSubOperation_S.Type = POP_PRINTVALSTR ;
-      PostSubOperation_S.String = $3 ;
-      PostSubOperation_S.String2 = $7 ;
+      PostSubOperation_S.Type = POP_EXPRESSION ;
+      PostSubOperation_S.Case.Expression.String = $3 ;
+      PostSubOperation_S.Case.Expression.String2 = $7 ;
+      PostSubOperation_S.Case.Expression.ExpressionIndex = -1 ;
+      PostSubOperation_S.PostQuantityIndex[0] = -1 ;
+    }
+
+  | tEcho '[' tBIGSTR PrintOptions ']' tEND
+    {
+      PostSubOperation_S.Type = POP_EXPRESSION ;
+      PostSubOperation_S.Case.Expression.String = $3 ;
+      PostSubOperation_S.Case.Expression.String2 = NULL ;
+      PostSubOperation_S.Case.Expression.ExpressionIndex = -1 ;
       PostSubOperation_S.PostQuantityIndex[0] = -1 ;
     }
 
@@ -6084,11 +6097,6 @@ PostSubOperation :
       PostSubOperation_S.Type = POP_NONE ;
     }
 
-  | tEcho '[' tBIGSTR PrintOptions ']' tEND
-    {
-      PostSubOperation_S.Type = POP_ECHO ;
-      PostSubOperation_S.Case.EchoString = $3 ;
-    }
   ;
 
 PostQuantitiesToPrint :
@@ -6331,6 +6339,7 @@ PrintOptions :
       PostSubOperation_S.Adapt = 0 ;
       PostSubOperation_S.Target = -1. ;
       PostSubOperation_S.HarmonicToTime = 1 ;
+      PostSubOperation_S.FrozenTimeStepList = 0;
       PostSubOperation_S.TimeStep_L = List_Create(10,10,sizeof(int)); ;
       PostSubOperation_S.Frequency_L = List_Create(10,10,sizeof(double)); ;
       PostSubOperation_S.Value_L = List_Create(10,10,sizeof(double)); ;
@@ -6441,6 +6450,7 @@ PrintOption :
     }
   | ',' tTimeStep ListOfFExpr 
     { 
+      PostSubOperation_S.FrozenTimeStepList = 1;
       for(i=0 ; i<List_Nbr($3) ; i++){
 	List_Read($3,i,&d);
 	j = (int)d ;

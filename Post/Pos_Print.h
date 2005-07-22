@@ -40,5 +40,6 @@ void  Pos_PrintWithArgument (ARG);
 #undef ARG
 
 void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P);
+void  Pos_PrintExpression(struct PostSubOperation *PostSubOperation_P);
 
 #endif

@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.77 2005-07-22 09:35:54 geuzaine Exp $
+@c $Id: getdp.texi,v 1.78 2005-07-22 13:09:50 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -2494,10 +2494,10 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
 
 @var{post-operation-op}:
   Print[ @var{post-quantity-term}, @var{print-support} <,@var{print-option}> @dots{} ] |
-  Print[ "@var{string}", @var{expression-cst} <,@var{print-option}> @dots{} ] |
+  Print[ "@var{string}", @var{expression} <,@var{print-option}> @dots{} ] |
   Print[ "@var{string}", Str[ @var{expression-char} ] <,@var{print-option}> @dots{} ] |
-  PrintGroup[ @var{group-id}, @var{print-support} <,@var{print-option}> @dots{} ] |
   Echo[ "@var{string}" <,@var{print-option}> @dots{} ] |
+  PrintGroup[ @var{group-id}, @var{print-support} <,@var{print-option}> @dots{} ] |
   < @var{loop} > @dots{}
   @var{etc}
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Value.c,v 1.23 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Cal_Value.c,v 1.24 2005-07-22 13:09:49 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -2606,7 +2606,7 @@ void Print_Value(struct Value *A){
     if(Current.NbrHar>1) fprintf(PrintStream, "(");
     for (k = 0 ; k < Current.NbrHar ; k++) {
       if(k) fprintf(PrintStream, ",");
-      fprintf(PrintStream, "%g", A->Val[MAX_DIM*k]);
+      fprintf(PrintStream, "%.16g", A->Val[MAX_DIM*k]);
     }
     if(Current.NbrHar>1) fprintf(PrintStream, ")");    
     break;
@@ -2618,7 +2618,7 @@ void Print_Value(struct Value *A){
       if(Current.NbrHar>1) fprintf(PrintStream, "(");
       for (k = 0 ; k < Current.NbrHar ; k++) {
 	if(k) fprintf(PrintStream, ",");
-	fprintf(PrintStream, "%g", A->Val[MAX_DIM*k+i]);
+	fprintf(PrintStream, "%.16g", A->Val[MAX_DIM*k+i]);
       }
       if(Current.NbrHar>1) fprintf(PrintStream, ")");
     }
@@ -2644,7 +2644,7 @@ void Print_Value(struct Value *A){
 	  if(index<0) 
 	    fprintf(PrintStream, "0");
 	  else
-	    fprintf(PrintStream, "%g", A->Val[MAX_DIM*k+index]);
+	    fprintf(PrintStream, "%.16g", A->Val[MAX_DIM*k+index]);
 	}
 	if(Current.NbrHar>1) fprintf(PrintStream, ")");
       }
@@ -2661,7 +2661,6 @@ void Print_Value(struct Value *A){
 
   GetDP_End ;
 }
-
 
 /* ------------------------------------------------------------------------ 
    Complete harmonics 
@@ -2700,9 +2699,6 @@ void  Cal_SetHarmonicValue(struct Value *R) {
 
   GetDP_End ;
 }
-
-
-
 
 /* ------------------------------------------------------------------------ 
    Set superfluous harmonics to zero (in case of CASTing) 
@@ -2757,125 +2753,11 @@ void  Cal_SetZeroHarmonicValue(struct Value *R, int Save_NbrHar) {
   GetDP_End ;
 }
 
-
-
 /* ------------------------------------------------------- */
 /*  -->  S h o w _ V a l u e                               */
 /* ------------------------------------------------------- */
 
-
 #define W(i,j)   A->Val[MAX_DIM*(i)+j]
-
-
-void Show_Value(struct Value *A){
-  int k, nzh;
-  int NonZeroHar(int, double[]);
- 
-  GetDP_Begin("Cal_ShowValue");
-
-  switch(A->Type){
-
-  case SCALAR : 
-    if((nzh=NonZeroHar(1,A->Val)) == 0){
-      fprintf(stderr, "zero scalar \n") ;     
-    }else if(nzh == 1){
-      fprintf(stderr, "real scalar %e \n", W(0,0) ) ; 
-    }else if (nzh == 2){
-      fprintf(stderr, "complex scalar %e +j %e \n", W(0,0), W(1,0) ) ;
-    }else {
-      fprintf(stderr, "multi-freq scalar ");
-      for (k = 0 ; k < Current.NbrHar ; k += 2) 
-	fprintf(stderr, " Freq %d : %e + j %e",k/2+1, W(k,0), W(k+1,0) ) ;
-      fprintf(stderr, "\n");
-    }    
-    break;
-
-  case VECTOR :
-    if((nzh=NonZeroHar(3,A->Val)) == 0){
-      fprintf(stderr, "zero vector \n") ;
-    }else if (nzh == 1){ 
-      fprintf(stderr, "real vector x %e  y %e  z %e \n", W(0,0), W(0,1), W(0,2));
-    }else if (nzh == 2){
-      fprintf(stderr, "complex vector x %e +j %e  y %e +j %e  z %e +j %e \n",
-	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2) );   
-    }else{
-      fprintf(stderr, "multi-freq vector ");
-      for (k = 0 ; k < Current.NbrHar ; k += 2) 
-	fprintf(stderr, " Freq %d :  x %e +j %e  y %e +j %e  z %e +j %e", k/2+1,
-		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2) );   
-      fprintf(stderr,"\n");
-    }
-    break;
-  
-  case TENSOR :
-    if((nzh=NonZeroHar(9,A->Val)) == 0){
-      fprintf(stderr, "zero tensor \n") ;
-    }else if (nzh == 1){
-      fprintf(stderr, "real tensor xx %e  xy %e  xz %e  yx %e  yy %e  yz %e  zx %e  zy %e  zz %e \n", 
-	      W(0,0), W(0,1), W(0,2), W(0,3), W(0,4), W(0,5), W(0,6), W(0,7), W(0,8));
-    }else if (nzh == 2){
-      fprintf(stderr, "complex tensor  xx %e +j %e  xy %e +j %e  xz %e +j %e \
-	      yx %e +j %e  yy %e +j %e  yz %e +j %e  zx %e +j %e  zy %e +j %e  zz %e +j %e\n",
-	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2), W(0,3), W(1,3), W(0,4), W(1,4), 
-	      W(0,5), W(1,5), W(0,6), W(1,6), W(0,7), W(1,7), W(0,8), W(1,8)); 
-    } else {
-      fprintf(stderr, "multi-freq tensor ");
-      for (k = 0 ; k < Current.NbrHar ; k += 2) 
-	fprintf(stderr, " Freq %d :  xx %e +j %e  xy %e +j %e  xz %e +j %e  \
-	        yx %e +j %e  yy %e +j %e  yz %e +j %e  zx %e +j %e  zy %e +j %e  zz %e +j %e", k/2+1, 
-		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2), W(k,3), W(k+1,3), W(k,4), W(k+1,4), 
-		W(k,5), W(k+1,5), W(k,6), W(k+1,6), W(k,7), W(k+1,7), W(k,8), W(k+1,8));
-      fprintf(stderr,"\n");
-     
-    }
-    break;
-
-  case TENSOR_SYM :
-    if((nzh=NonZeroHar(6,A->Val)) == 0){
-      fprintf(stderr, "zero sym tensor \n") ;
-    } else if (nzh == 1){
-      fprintf(stderr, "real sym tensor xx %e  xy %e  xz %e  yy %e  yz %e  zz %e \n", 
-	      W(0,0), W(0,1), W(0,2), W(0,3), W(0,4), W(0,5));
-    } else if (nzh == 2){
-      fprintf(stderr, "complex sym tensor  xx %e +j %e  xy %e +j %e  xz %e +j %e  yy %e +j %e  yz %e +j %e  zz %e +j %e\n",
-	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2), W(0,3), W(1,3), W(0,4), W(1,4), W(0,5), W(1,5)); 
-    } else {
-      fprintf(stderr, "multi-freq sym tensor ");
-      for (k = 0 ; k < Current.NbrHar ; k += 2) 
-	fprintf(stderr, " Freq %d :  xx %e +j %e  xy %e +j %e  xz %e +j %e  yy %e +j %e  yz %e +j %e  zz %e +j %e", k/2+1,
-		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2), W(k,3), W(k+1,3), 
-		W(k,4), W(k+1,4), W(k,5), W(k+1,5));
-      fprintf(stderr,"\n");
-    }
-    break;
-
-  case TENSOR_DIAG :
-    if((nzh=NonZeroHar(3,A->Val)) == 0){
-      fprintf(stderr, "zero sym tensor \n") ;
-    } else if (nzh == 1){
-      fprintf(stderr, "real diag tensor xx %e  yy %e  zz %e \n", 
-	      W(0,0), W(0,1), W(0,2));
-    } else if (nzh == 2){
-      fprintf(stderr, "complex diag tensor  xx %e +j %e  yy %e +j %e  zz %e +j %e",
-	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2)); 
-    } else {
-      fprintf(stderr, "multi-freq diag tensor ");
-      for (k = 0 ; k < Current.NbrHar ; k += 2) 
-	fprintf(stderr, " Freq %d :  xx %e +j %e  yy %e +j %e  zz %e +j %e", k/2+1,  
-		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2));
-      fprintf(stderr,"\n");
-    }
-    break;
-
-  default :
-    fprintf(stderr, "unknown type \n");
-
-  }
-  GetDP_End ;
-}
-
-#undef W
-
 
 int NonZeroHar(int NbrComp, double Val[]){
   int iComp, nz, nh; 
@@ -2893,3 +2775,140 @@ int NonZeroHar(int NbrComp, double Val[]){
   GetDP_Return(nh+1);
 }
 
+void Show_Value(struct Value *A){
+  int k, nzh;
+ 
+  GetDP_Begin("Cal_ShowValue");
+
+  switch(A->Type){
+
+  case SCALAR : 
+    if((nzh=NonZeroHar(1,A->Val)) == 0){
+      fprintf(stderr, "zero scalar \n") ;     
+    }
+    else if(nzh == 1){
+      fprintf(stderr, "real scalar %e \n", W(0,0) ) ; 
+    }
+    else if (nzh == 2){
+      fprintf(stderr, "complex scalar %e +j %e \n", W(0,0), W(1,0) ) ;
+    }
+    else {
+      fprintf(stderr, "multi-freq scalar ");
+      for (k = 0 ; k < Current.NbrHar ; k += 2) 
+	fprintf(stderr, " Freq %d : %e + j %e",k/2+1, W(k,0), W(k+1,0) ) ;
+      fprintf(stderr, "\n");
+    }    
+    break;
+    
+  case VECTOR :
+    if((nzh=NonZeroHar(3,A->Val)) == 0){
+      fprintf(stderr, "zero vector \n") ;
+    }
+    else if (nzh == 1){ 
+      fprintf(stderr, "real vector x %e  y %e  z %e \n", W(0,0), W(0,1), W(0,2));
+    }
+    else if (nzh == 2){
+      fprintf(stderr, "complex vector x %e +j %e  y %e +j %e  z %e +j %e \n",
+	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2) );   
+    }
+    else{
+      fprintf(stderr, "multi-freq vector ");
+      for (k = 0 ; k < Current.NbrHar ; k += 2) 
+	fprintf(stderr, " Freq %d :  x %e +j %e  y %e +j %e  z %e +j %e", k/2+1,
+		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2) );   
+      fprintf(stderr, "\n");
+    }
+    break;
+    
+  case TENSOR :
+    if((nzh=NonZeroHar(9,A->Val)) == 0){
+      fprintf(stderr, "zero tensor \n") ;
+    }
+    else if (nzh == 1){
+      fprintf(stderr, "real tensor "
+	      " xx %e  xy %e  xz %e "
+	      " yx %e  yy %e  yz %e "
+	      " zx %e  zy %e  zz %e \n", 
+	      W(0,0), W(0,1), W(0,2), W(0,3), W(0,4), W(0,5), W(0,6), W(0,7), W(0,8));
+    }
+    else if (nzh == 2){
+      fprintf(stderr, "complex tensor "
+	      " xx %e +j %e  xy %e +j %e  xz %e +j %e "
+	      " yx %e +j %e  yy %e +j %e  yz %e +j %e "
+	      " zx %e +j %e  zy %e +j %e  zz %e +j %e\n",
+	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2), 
+	      W(0,3), W(1,3), W(0,4), W(1,4), W(0,5), W(1,5), 
+	      W(0,6), W(1,6), W(0,7), W(1,7), W(0,8), W(1,8)); 
+    } 
+    else {
+      fprintf(stderr, "multi-freq tensor ");
+      for (k = 0 ; k < Current.NbrHar ; k += 2) 
+	fprintf(stderr, " Freq %d : "
+		" xx %e +j %e  xy %e +j %e  xz %e +j %e "
+	        " yx %e +j %e  yy %e +j %e  yz %e +j %e "
+		" zx %e +j %e  zy %e +j %e  zz %e +j %e", k/2+1, 
+		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2), 
+		W(k,3), W(k+1,3), W(k,4), W(k+1,4), W(k,5), W(k+1,5), 
+		W(k,6), W(k+1,6), W(k,7), W(k+1,7), W(k,8), W(k+1,8));
+      fprintf(stderr, "\n");
+    }
+    break;
+
+  case TENSOR_SYM :
+    if((nzh=NonZeroHar(6,A->Val)) == 0){
+      fprintf(stderr, "zero sym tensor \n") ;
+    } 
+    else if (nzh == 1){
+      fprintf(stderr, "real sym tensor "
+	      " xx %e  xy %e  xz %e "
+	      " yy %e  yz %e  zz %e \n", 
+	      W(0,0), W(0,1), W(0,2), W(0,3), W(0,4), W(0,5));
+    } 
+    else if (nzh == 2){
+      fprintf(stderr, "complex sym tensor "
+	      " xx %e +j %e  xy %e +j %e  xz %e +j %e "
+	      " yy %e +j %e  yz %e +j %e  zz %e +j %e\n",
+	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2),
+	      W(0,3), W(1,3), W(0,4), W(1,4), W(0,5), W(1,5)); 
+    } 
+    else {
+      fprintf(stderr, "multi-freq sym tensor ");
+      for (k = 0 ; k < Current.NbrHar ; k += 2) 
+	fprintf(stderr, " Freq %d : "
+		" xx %e +j %e  xy %e +j %e  xz %e +j %e "
+		" yy %e +j %e  yz %e +j %e  zz %e +j %e", k/2+1,
+		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2), 
+		W(k,3), W(k+1,3), W(k,4), W(k+1,4), W(k,5), W(k+1,5));
+      fprintf(stderr, "\n");
+    }
+    break;
+
+  case TENSOR_DIAG :
+    if((nzh=NonZeroHar(3,A->Val)) == 0){
+      fprintf(stderr, "zero sym tensor \n") ;
+    } 
+    else if (nzh == 1){
+      fprintf(stderr, "real diag tensor xx %e  yy %e  zz %e \n", 
+	      W(0,0), W(0,1), W(0,2));
+    } 
+    else if (nzh == 2){
+      fprintf(stderr, "complex diag tensor  xx %e +j %e  yy %e +j %e  zz %e +j %e",
+	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2)); 
+    } 
+    else {
+      fprintf(stderr, "multi-freq diag tensor ");
+      for (k = 0 ; k < Current.NbrHar ; k += 2) 
+	fprintf(stderr, " Freq %d :  xx %e +j %e  yy %e +j %e  zz %e +j %e", k/2+1,  
+		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2));
+      fprintf(stderr, "\n");
+    }
+    break;
+    
+  default :
+    Msg(ERROR, "Unknown value type in Show_Value");
+  }
+
+  GetDP_End ;
+}
+
+#undef W

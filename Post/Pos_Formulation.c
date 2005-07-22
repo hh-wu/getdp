@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.48 2005-07-22 09:35:54 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.49 2005-07-22 13:09:50 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -231,23 +231,12 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
     }    
     break ;    
 
+  case POP_EXPRESSION :
+    Pos_PrintExpression(PostSubOperation_P);
+    break;
+
   case POP_GROUP :
     Pos_PrintGroup(PostSubOperation_P);
-    break;
-
-  case POP_ECHO :
-    fprintf(PostStream, PostSubOperation_P->Case.EchoString);
-    fprintf(PostStream, "\n");
-    break;
-
-  case POP_PRINTVAL :
-    fprintf(PostStream, "%s%.16g\n", 
-	    PostSubOperation_P->String, PostSubOperation_P->Val) ;
-    break;
-
-  case POP_PRINTVALSTR :
-    fprintf(PostStream, "%s%s\n", 
-	    PostSubOperation_P->String, PostSubOperation_P->String2) ;
     break;
 
   default :
@@ -263,6 +252,33 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
 }
 
 
+/* ------------------------------------------------------------------------ */
+/*  P o s _ I n i t T i m e S t e p s                                       */
+/* ------------------------------------------------------------------------ */
+
+int Pos_InitTimeSteps(struct PostSubOperation *PostSubOperation_P) {
+  int iTime, NbTimeStep;
+
+  GetDP_Begin("Pos_InitTimeSteps");
+
+  if(PostSubOperation_P->LastTimeStepOnly){
+    iTime = List_Nbr(Current.DofData->Solutions) - 1;
+    List_Reset(PostSubOperation_P->TimeStep_L);
+    List_Add(PostSubOperation_P->TimeStep_L, &iTime);
+    GetDP_Return(1);
+  }
+
+  NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L);
+
+  if(!NbTimeStep || !PostSubOperation_P->FrozenTimeStepList){
+    NbTimeStep = List_Nbr(Current.DofData->Solutions);
+    List_Reset(PostSubOperation_P->TimeStep_L);
+    for(iTime = 0 ; iTime < NbTimeStep ; iTime++)
+      List_Add(PostSubOperation_P->TimeStep_L, &iTime);
+  }
+  
+  GetDP_Return(NbTimeStep);
+}
 
 /* ------------------------------------------------------------------------ */
 /*  P o s _ I n i t A l l S o l u t i o n s                                 */
@@ -287,28 +303,4 @@ void Pos_InitAllSolutions(List_T * TimeStep_L, int Index_TimeStep) {
   Current.TimeStep = Num_TimeStep ;
 
   GetDP_End ;
-}
-
-/* ------------------------------------------------------------------------ */
-/*  P o s _ I n i t T i m e S t e p s                                       */
-/* ------------------------------------------------------------------------ */
-
-int Pos_InitTimeSteps(struct PostSubOperation *PostSubOperation_P) {
-  int iTime, NbTimeStep;
-
-  GetDP_Begin("Pos_InitTimeSteps");
-
-  if(PostSubOperation_P->LastTimeStepOnly){
-    List_Reset(PostSubOperation_P->TimeStep_L);
-    iTime = List_Nbr(Current.DofData->Solutions) - 1;
-    List_Add(PostSubOperation_P->TimeStep_L, &iTime);
-    GetDP_Return(1);
-  }
-
-  if( !(NbTimeStep = List_Nbr(PostSubOperation_P->TimeStep_L)) ){
-    NbTimeStep = List_Nbr(Current.DofData->Solutions);
-    for(iTime = 0 ; iTime < NbTimeStep ; iTime++)
-      List_Add(PostSubOperation_P->TimeStep_L, &iTime);
-  }
-  GetDP_Return(NbTimeStep);
 }

@@ -1024,10 +1024,9 @@ struct PostSubOperation {
   int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex ;
   int    ChangeOfCoordinates[3], LastTimeStepOnly ; 
   int    StoreInRegister ;
-  int    Legend ;
+  int    Legend, FrozenTimeStepList ;
   double LegendPosition[3] ;
-  char   * String, * String2 ;
-  double Target, Val ;
+  double Target ;
   List_T * HeaderChar_L, * HeaderTag_L ;
   List_T * FormatChar_L, * FormatTag_L ;
   List_T * FooterChar_L, * FooterTag_L ;
@@ -1042,7 +1041,7 @@ struct PostSubOperation {
     struct { double x[3], y[3], z[3] ; } OnSection ;
     struct { int RegionIndex, ArgumentIndex ; double x[2] ; int n ; } WithArgument ;
     struct { int ExtendedGroupIndex, GroupIndex ; } Group ;
-    char *EchoString;
+    struct { char *String ; char *String2 ; int ExpressionIndex; } Expression ;
   } Case ;
 } ;
 
@@ -1050,9 +1049,7 @@ struct PostSubOperation {
 #define POP_NONE          0
 #define POP_PRINT         1
 #define POP_GROUP         2
-#define POP_ECHO          3
-#define POP_PRINTVAL      4
-#define POP_PRINTVALSTR   5
+#define POP_EXPRESSION    4
 
 /* PostOperation.SubType */
 #define PRINT_ONREGION        1
