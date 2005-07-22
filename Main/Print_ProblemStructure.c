@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.38 2005-07-18 20:05:04 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.39 2005-07-22 14:50:14 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1346,7 +1346,7 @@ char * Print_PostSubOperation(struct Problem *Problem,
     strcat(out,tmp);
     break;
 
-  default : /* POP_GROUP, POP_ECHO, etc. */
+  default : /* POP_EXPRESSION, POP_GROUP, etc. */
     strcpy(out, "");
     return out;
 
