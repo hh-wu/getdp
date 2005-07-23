@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.58 2005-07-23 07:03:59 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.59 2005-07-23 07:12:44 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -418,12 +418,20 @@ void LinAlg_ReadScalar(FILE *file, gScalar *S){
 }
 
 void LinAlg_ReadVector(FILE *file, gVector *V) {
-  int n;
+  int i, n;
+  PetscScalar *tmp;
 
   GetDP_Begin("LinAlg_ReadVector");
 
   ierr = VecGetSize(V->V, &n); MYCHECK(ierr);
-  fread(V->V, sizeof(PetscScalar), n, file);
+  tmp = (PetscScalar*)Malloc(n*sizeof(PetscScalar));
+  fread(tmp, sizeof(PetscScalar), n, file);
+
+  for(i=0; i<n; i++){
+    ierr = VecSetValues(V->V, 1, &i, &tmp[i], INSERT_VALUES); MYCHECK(ierr);
+  }
+
+  Free(tmp);
 
   GetDP_End;
 }
