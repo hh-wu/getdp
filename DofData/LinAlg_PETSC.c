@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.57 2005-07-20 15:58:22 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.58 2005-07-23 07:03:59 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -85,6 +85,7 @@ int petscMult(Mat A, Vec x, Vec y){
   gMatrix A1;
   gVector x1, y1;
   petscCtx *ctx;
+
   A1.M = A; x1.V = x; y1.V = y;
   MatShellGetContext(A,(void**)&ctx);
   ctx->fct(&A1,&x1,&y1);
@@ -214,7 +215,6 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *P
 
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m, 
 			 int NbrPart, int *Part, int *Nnz){
-
 #if defined(HAVE_METIS)
   int NbrCpu, RankCpu, i_Start, i_End;
 #endif
@@ -253,9 +253,11 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
 
 void LinAlg_CreateMatrixShell(gMatrix *A, gSolver *Solver, int n, int m, void *myCtx, 
 			      void (*myMult)(gMatrix *A, gVector *x, gVector *y)){
+  petscCtx *ctx;
+
   GetDP_Begin("LinAlg_CreateMatrixShell");
 
-  petscCtx *ctx = (petscCtx*)Malloc(sizeof(petscCtx)); /* memory leak! to change... */
+  ctx = (petscCtx*)Malloc(sizeof(petscCtx)); /* memory leak! to change... */
   ctx->ctx = myCtx;
   ctx->fct = myMult;
   MatCreateShell(PETSC_COMM_WORLD,n,m,PETSC_DETERMINE,
@@ -682,10 +684,10 @@ void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1){
 }
 
 void LinAlg_GetMatrixContext(gMatrix *A, void **myCtx){
+  petscCtx *ctx;
 
   GetDP_Begin("LinAlg_GetMatrixContext");
 
-  petscCtx *ctx;
   MatShellGetContext(A->M,(void**)&ctx);
   *myCtx = ctx->ctx;
   
