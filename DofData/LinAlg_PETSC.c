@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.59 2005-07-23 07:12:44 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.60 2005-08-02 17:17:57 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -719,7 +719,6 @@ void LinAlg_SetScalar(gScalar *S, double *d){
 
 void LinAlg_SetVector(gVector *V, double *v){
   PetscScalar tmp = *v;
-  int i, n;
 
   GetDP_Begin("LinAlg_SetVector");
 
