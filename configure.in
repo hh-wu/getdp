@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.55 2005-07-20 15:56:28 geuzaine Exp $
+dnl $Id: configure.in,v 1.56 2005-08-02 17:03:14 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -57,6 +57,9 @@ AC_ARG_ENABLE(multiharmonic,
 AC_ARG_ENABLE(petsc,
               AC_HELP_STRING([--enable-petsc],
                              [use PETSc linear solvers (default=no)]))
+AC_ARG_ENABLE(arpack,
+              AC_HELP_STRING([--enable-arpack],
+                             [enable built-in Arpack eigensolver (default=yes)]))
 AC_ARG_ENABLE(debug,
               AC_HELP_STRING([--enable-debug],
                              [build debug stack frame (default=no)]))
@@ -135,8 +138,15 @@ if test "x$enable_petsc" = "xyes"; then
   fi
 
   C_FLAGS="${C_FLAGS} -DHAVE_BLAS_LAPACK"
-  GETDP_DIRS="${GETDP_DIRS} Arpack"
-  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -lArpack ${PETSC_KSP_LIB} -lm'
+
+  if test "x$enable_arpack" != "xno"; then
+    C_FLAGS="${C_FLAGS} -DHAVE_ARPACK"
+    GETDP_DIRS="${GETDP_DIRS} Arpack"
+    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -lArpack ${PETSC_KSP_LIB}'
+  else
+    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_KSP_LIB}'
+  fi
+
   SOLVER='-DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
@@ -158,17 +168,24 @@ else
     AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
     if test "x${LAPACK}" = "xyes"; then
       C_FLAGS="${C_FLAGS} -DHAVE_BLAS_LAPACK"
-      GETDP_DIRS="${GETDP_DIRS} Arpack"
-      GETDP_LIBS="${GETDP_LIBS} -lArpack"
-      if test "x${BLAS_LAPACK_PREFIX}" = "x"; then
-        GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
-      else
-        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -llapack -lblas"
+      if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX}"
       fi   
     fi
   fi
   AC_LANG_POP()
 
+  dnl Check for Arpack, then link with blas and lapack if necessary
+  if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
+    C_FLAGS="${C_FLAGS} -DHAVE_ARPACK"
+    GETDP_DIRS="${GETDP_DIRS} Arpack"
+    GETDP_LIBS="${GETDP_LIBS} -lArpack"
+  fi
+  if test "x${LAPACK}" = "xyes"; then
+    GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+  fi
+
+  dnl Force specific options for native compilers
   case "${UNAME}" in
     IRIX*)
       dnl options for native SGI compiler

@@ -850,6 +850,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-multiharmonic  enable multiharmonic (> 2) calculations (default=no)
   --enable-petsc          use PETSc linear solvers (default=no)
+  --enable-arpack         enable built-in Arpack eigensolver (default=yes)
   --enable-debug          build debug stack frame (default=no)
   --enable-purewin32      don't depend on Cygwin on Windows (default=no)
   --enable-gsl            use GSL as numerical toolkit (default=yes)
@@ -1363,6 +1364,11 @@ fi;
 # Check whether --enable-petsc or --disable-petsc was given.
 if test "${enable_petsc+set}" = set; then
   enableval="$enable_petsc"
+
+fi;
+# Check whether --enable-arpack or --disable-arpack was given.
+if test "${enable_arpack+set}" = set; then
+  enableval="$enable_arpack"
 
 fi;
 # Check whether --enable-debug or --disable-debug was given.
@@ -2427,7 +2433,7 @@ fi
 
 
 # Provide some information about the compiler.
-echo "$as_me:2430:" \
+echo "$as_me:2436:" \
      "checking for Fortran 77 compiler version" >&5
 ac_compiler=`set X $ac_compile; echo $2`
 { (eval echo "$as_me:$LINENO: \"$ac_compiler --version </dev/null >&5\"") >&5
@@ -3037,8 +3043,15 @@ echo "$as_me: error: Could not determine PETSC_ARCH. Run configure again with --
   fi
 
   C_FLAGS="${C_FLAGS} -DHAVE_BLAS_LAPACK"
-  GETDP_DIRS="${GETDP_DIRS} Arpack"
-  GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -lArpack ${PETSC_KSP_LIB} -lm'
+
+  if test "x$enable_arpack" != "xno"; then
+    C_FLAGS="${C_FLAGS} -DHAVE_ARPACK"
+    GETDP_DIRS="${GETDP_DIRS} Arpack"
+    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -lArpack ${PETSC_KSP_LIB}'
+  else
+    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_KSP_LIB}'
+  fi
+
   SOLVER='-DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
@@ -3168,12 +3181,8 @@ fi
 
     if test "x${LAPACK}" = "xyes"; then
       C_FLAGS="${C_FLAGS} -DHAVE_BLAS_LAPACK"
-      GETDP_DIRS="${GETDP_DIRS} Arpack"
-      GETDP_LIBS="${GETDP_LIBS} -lArpack"
-      if test "x${BLAS_LAPACK_PREFIX}" = "x"; then
-        GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
-      else
-        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -llapack -lblas"
+      if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX}"
       fi
     fi
   fi
@@ -3184,7 +3193,16 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
-  case "${UNAME}" in
+    if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
+    C_FLAGS="${C_FLAGS} -DHAVE_ARPACK"
+    GETDP_DIRS="${GETDP_DIRS} Arpack"
+    GETDP_LIBS="${GETDP_LIBS} -lArpack"
+  fi
+  if test "x${LAPACK}" = "xyes"; then
+    GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+  fi
+
+    case "${UNAME}" in
     IRIX*)
             if test "x${CC}" = "xcc"; then
                         SOLVER="-DHAVE_SPARSKIT"

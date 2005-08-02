@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.25 2005-07-22 09:35:51 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.26 2005-08-02 17:03:14 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -30,11 +30,11 @@
 #include "Numeric.h"
 #include "EigenPar.h"
 
-#if !defined(HAVE_BLAS_LAPACK)
+#if !defined(HAVE_ARPACK) || !defined(HAVE_BLAS_LAPACK)
 
 void EigenSolve (struct DofData * DofData_P, int NumEigenvalues, 
 		 double shift_r, double shift_i){
-  Msg(ERROR, "EigenSolve not available without BLAS and LAPACK");
+  Msg(ERROR, "EigenSolve not available without BLAS, LAPACK and ARPACK");
 }
 
 #else
