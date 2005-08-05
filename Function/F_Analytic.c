@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.19 2005-07-20 15:40:25 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.20 2005-08-05 23:17:07 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -364,8 +364,9 @@ static cplx Cprodr(double a, cplx b)
   return(s);
 }
 
-/* Solution of Helmholtz equation outside a circular cylinder of
-   radius R, under plane wave incidence e^{ikx} */
+/* Solution of Helmholtz equation outside an acoustically soft
+   circular cylinder of radius R, under plane wave incidence
+   e^{ikx} */
 
 void F_AcousticFieldSoftCylinder(F_ARG){
   cplx I = {0.,1.}, HnkR, Hnkr, tmp;
@@ -473,6 +474,60 @@ void F_DrAcousticFieldSoftCylinder(F_ARG){
   GetDP_End;
 } 
 
+/* Solution of Helmholtz equation outside an acoustically hard
+   circular cylinder of radius R, under plane wave incidence
+   e^{ikx} */
+
+void F_AcousticFieldHardCylinder(F_ARG){
+  cplx I = {0.,1.}, Hnkr, dHnkR, tmp, *HnkRtab;
+  double k, R, r, kr, kR, theta, cost ;
+  int n, ns ;
+
+  GetDP_Begin("F_AcousticFieldHardCylinder") ;  
+
+  theta = atan2(A->Val[1], A->Val[0]) ;
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;   
+  kr = k*r;
+  kR = k*R;
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = (int)k + 10;
+  
+  HnkRtab = (cplx*)Malloc(ns*sizeof(cplx));
+
+  for (n = 0 ; n < ns ; n++){
+    HnkRtab[n].r = jn(n,kR);
+    HnkRtab[n].i = yn(n,kR);
+  }
+
+  for (n = 0 ; n < ns ; n++){
+    Hnkr.r = jn(n,kr);
+    Hnkr.i = yn(n,kr);
+
+    dHnkR = DHn(HnkRtab, n, kR);
+
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( dHnkR.r, Hnkr) ) , dHnkR );
+
+    cost = cos(n*theta);
+
+    V->Val[0] +=  cost * tmp.r * (!n ? 0.5 : 1.);
+    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+  }
+
+  Free(HnkRtab);
+  
+  V->Val[0] *= -2;
+  V->Val[MAX_DIM] *= -2;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+} 
 
 /* ------------------------------------------------------------------------ */
 /*  Problem of the sphere. Scattering.                                      */

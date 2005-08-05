@@ -41,6 +41,7 @@ void  F_RCS_SphPhi        (F_ARG) ;
 void  F_AcousticSoftSphere(F_ARG) ;
 void  F_AcousticFieldSoftCylinder(F_ARG) ;
 void  F_DrAcousticFieldSoftCylinder(F_ARG) ;
+void  F_AcousticFieldHardCylinder(F_ARG) ;
 
 /* F_Math */
 

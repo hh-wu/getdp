@@ -657,7 +657,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"AcousticSoftSphere",          (CAST)F_AcousticSoftSphere,  0,   4 },
   {"AcousticFieldSoftCylinder",   (CAST)F_AcousticFieldSoftCylinder, 2, 1},
   {"DrAcousticFieldSoftCylinder", (CAST)F_DrAcousticFieldSoftCylinder, 2, 1},
-
+  {"AcousticFieldHardCylinder",   (CAST)F_AcousticFieldHardCylinder, 2, 1},
 
   /* GF_XXX : Green Functions */
 
