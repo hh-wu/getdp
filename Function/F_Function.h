@@ -42,6 +42,9 @@ void  F_AcousticSoftSphere(F_ARG) ;
 void  F_AcousticFieldSoftCylinder(F_ARG) ;
 void  F_DrAcousticFieldSoftCylinder(F_ARG) ;
 void  F_AcousticFieldHardCylinder(F_ARG) ;
+void  F_OSRC_C0(F_ARG);
+void  F_OSRC_Aj(F_ARG);
+void  F_OSRC_Bj(F_ARG);
 
 /* F_Math */
 

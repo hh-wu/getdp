@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.20 2005-08-05 23:17:07 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.21 2005-08-06 02:31:11 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -736,7 +736,6 @@ void F_RCS_SphPhi(F_ARG){
   double J, J_1, dJ, ctheta, stheta, cteRe1, cteRe2, a2, b2, d2, den2, lambda ;
   int i, n ;
 
-
   GetDP_Begin("F_RCS_SphPhi") ;  
 
   theta = atan2(sqrt( A->Val[0]* A->Val[0] + A->Val[1]*A->Val[1] ),  A->Val[2]);
@@ -790,7 +789,6 @@ void F_RCS_SphPhi(F_ARG){
   V->Type = SCALAR ;
 
   GetDP_End;
-
 } 
 
 
@@ -822,6 +820,8 @@ void  F_AcousticSoftSphere(F_ARG){
   int n;
   double jnka[N], jnkr[N], hnkar[N], hnkai[N], hnkrr[N], hnkri[N];
   struct Value V_tmp, V_tmp2, V_mi, V_jnka, V_jnkr, V_hnka, V_hnkr, V_an;
+
+  GetDP_Begin("F_AcousticSoftSphere") ;  
 
   k     = A->Val[0];
   a     = (A+1)->Val[0];
@@ -884,5 +884,108 @@ void  F_AcousticSoftSphere(F_ARG){
 void  F_AcousticHardSphere(F_ARG){
 
 }
+
+
+/* ------------------------------------------------------------------------ */
+/*  Coefficients for On Surface Radiation Conditions (OSRC)                 */
+/* ------------------------------------------------------------------------ */
+
+/* 
+   See:
+   1) Kechroud, Antoine & Soulaimani, Nuemrical accuracy of a
+   Pade-type non-reflecting..., IJNME 2005
+   2) Antoine, Darbas & Lu, An improved surface radiation condition...
+   CMAME, 2006(?)
+*/
+
+static double aj(int j, int N){
+  return 2./(2.*N + 1.) * SQU(sin(j * M_PI/(2.*N + 1.))) ;
+}
+
+static double bj(int j, int N){
+  return SQU(cos(j * M_PI/(2.*N + 1.))) ;
+}
+
+void  F_OSRC_C0(F_ARG){
+  int j, N;
+  double theta;
+  cplx sum = {1., 0.}, z, un = {1., 0.};
+
+  GetDP_Begin("F_OSRC_C0") ;  
+
+  N     = (int)A->Val[0];
+  theta = (A+1)->Val[0];
+
+  z.r = cos(-theta) - 1. ;
+  z.i = sin(-theta) ;
+
+  for(j = 1; j <= N; j++){
+    sum = Csum( sum, Cdiv( Cprodr(aj(j,N), z) , Csum(un, Cprodr(bj(j,N), z)))) ;
+  }
+  z.r = cos(theta/2.) ;
+  z.i = sin(theta/2.) ;
+  sum = Cprod(sum, z);
+  
+  V->Val[0] = sum.r;
+  V->Val[MAX_DIM] = sum.i;
+  V->Type = SCALAR ;
+
+  GetDP_End;
+}
+
+void F_OSRC_Aj(F_ARG){
+  int j, N;
+  double theta;
+  cplx z, res, un = {1., 0.};
+
+  GetDP_Begin("F_OSRC_Aj") ;  
+
+  j     = (int)A->Val[0];
+  N     = (int)(A+1)->Val[0];
+  theta = (A+2)->Val[0];
+
+  z.r = cos(-theta/2.) ;
+  z.i = sin(-theta/2.) ;
+  res = Cprodr(aj(j,N), z);
+
+  z.r = cos(-theta) - 1. ;
+  z.i = sin(-theta) ;
+
+  res = Cdiv(res, Cpow( Csum(un, Cprodr(bj(j,N), z)) , 2.));
+
+  V->Val[0] = res.r;
+  V->Val[MAX_DIM] = res.i;
+  V->Type = SCALAR ;
+
+  GetDP_End;
+}
+
+void F_OSRC_Bj(F_ARG){
+  int j, N;
+  double theta;
+  cplx z, res, un = {1., 0.};
+
+  GetDP_Begin("F_OSRC_Bj") ;  
+
+  j     = (int)A->Val[0];
+  N     = (int)(A+1)->Val[0];
+  theta = (A+2)->Val[0];
+
+  z.r = cos(-theta) ;
+  z.i = sin(-theta) ;
+  res = Cprodr(bj(j,N), z);
+
+  z.r = cos(-theta) - 1. ;
+  z.i = sin(-theta) ;
+
+  res = Cdiv(res, Cpow( Csum(un, Cprodr(bj(j,N), z)) , 2.));
+
+  V->Val[0] = res.r;
+  V->Val[MAX_DIM] = res.i;
+  V->Type = SCALAR ;
+
+  GetDP_End;
+}
+
 
 #undef F_ARG
