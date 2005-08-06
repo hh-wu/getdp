@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.22 2005-08-06 08:30:55 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.23 2005-08-06 18:22:38 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -44,10 +44,96 @@
 
 #define F_ARG    struct Function * Fct, struct Value * A, struct Value * V
 
+/* some utility functions to deal with cplx numbers */
+
+typedef struct {
+  double r;
+  double i;
+} cplx;
+
+static cplx Csum(cplx a, cplx b)
+{
+  cplx s;
+  s.r = a.r + b.r;
+  s.i = a.i + b.i;
+  return(s);
+}
+
+static cplx Csub(cplx a, cplx b)
+{
+  cplx s;
+  s.r = a.r - b.r;
+  s.i = a.i - b.i;
+  return(s);
+}
+
+static cplx Cprod(cplx a, cplx b)
+{
+  cplx s;
+  s.r = a.r * b.r - a.i * b.i;
+  s.i = a.r * b.i + a.i * b.r;
+  return(s);
+}
+
+static cplx Cdiv(cplx a, cplx b)
+{
+  cplx s;
+  double den;
+  den = b.r * b.r + b.i * b.i;
+  s.r = (a.r * b.r + a.i * b.i) / den;
+  s.i = (a.i * b.r - a.r * b.i) / den;
+  return(s);
+}
+
+static cplx Cconj(cplx a)
+{
+  cplx s;
+  s.r = a.r;
+  s.i = -a.i;
+  return(s);
+}
+
+static cplx Cneg(cplx a)
+{
+  cplx s;
+  s.r = -a.r;
+  s.i = -a.i;
+  return(s);
+}
+
+static double Cmodu(cplx a)
+{
+  return(sqrt(a.r * a.r + a.i * a.i));
+}
+
+static cplx Cpow(cplx a, double b)
+{
+  cplx s;
+  double mod, arg;
+  mod = a.r * a.r + a.i * a.i;
+  arg = atan2(a.i,a.r);
+  mod = pow(mod,0.5*b);
+  arg *= b;
+  s.r = mod * cos(arg);
+  s.i = mod * sin(arg);
+
+  return(s);
+}
+
+static cplx Cprodr(double a, cplx b)
+{
+  cplx s;
+  s.r = a * b.r;
+  s.i = a * b.i;
+  return(s);
+}
 
 /* ------------------------------------------------------------------------ */
-/*  Problem of the sphere                                                   */
+/*  Exact solutions for spheres                                               */
 /* ------------------------------------------------------------------------ */
+
+/* Solid and hollow sphere, in magnetostatics and magnetodynamics. Returns 
+   field at any point */
 
 void  F_Sphere (F_ARG) {
 
@@ -87,452 +173,8 @@ void  F_Sphere (F_ARG) {
   GetDP_End ;
 }
 
-
-/* ------------------------------------------------------------------------ */
-/*  Problem of the cylinder                                                 */
-/* ------------------------------------------------------------------------ */
-
-void  F_Cylinder (F_ARG) {
-  int     type ;
-  double  x, y ;
-  double  valx[2], valy[2];
-  double  bxr, bxi, byr, byi, phir, phii=0 ;
-  double  mur, sigma, freq, b0, r0, r1 ;
-
-  GetDP_Begin("F_Cylinder");
-
-  valx[0] = 0.0  ; valx[1] = 0.0 ;
-  valy[0] = 0.0  ; valy[1] = 0.0 ;
-
-  x = Current.x; y = Current.y; 
-  
-  mur = Fct->Para[0] ; sigma = Fct->Para[1] ; freq = Fct->Para[2] ;
-  b0  = Fct->Para[3] ; r0    = Fct->Para[4] ; r1   = Fct->Para[5] ;
-  type = (int)Fct->Para[6] ;
-
-  if (r0 == 0.0) 
-    solcyl_(&x,&y,&bxr,&bxi,&byr,&byi,&b0,&mur,&sigma,&freq,&r1);
-  else
-    hollowcyl(x,y,&bxr,&byr,&phir,b0,mur,r0,r1);
-
-  if(type == 0){
-    valx[0] = bxr ; valx[1] = bxi ;
-    valy[0] = byr ; valy[1] = byi ;
-  }
-  else{
-    valx[0] = phir ; valx[1] = phii ;
-  }
-
-  if (Current.NbrHar == 1) {
-    V->Val[0] = valx[0] ; V->Val[1] = valy[0] ; V->Val[2] = 0.0 ;
-  }
-  else {
-    V->Val[0] = valx[0] ; V->Val[1] = valy[0] ; V->Val[2] = 0.0 ;
-    V->Val[MAX_DIM] = valx[1] ; V->Val[MAX_DIM+1] = valy[1] ; V->Val[MAX_DIM+2] = 0.0 ;
-  }
-
-  V->Type = VECTOR ;
-
-  GetDP_End ;
-}
-
-
-
-/* ------------------------------------------------------------------------ */
-/*  Problem of the cylinder. Scattering.                                    */
-/* ------------------------------------------------------------------------ */
-
-/*  Incident wave z-polarized                                               */
-
-void F_JFIE_ZPolCyl(F_ARG){
-  
-  double k0, r, kr, e0, eta, phi, a, b, c, d, den ;
-  int i, ns ;
-
-  GetDP_Begin("F_JFIE_ZPolCyl") ;  
- 
-  phi = atan2( A->Val[1], A->Val[0] ) ;
- 
-  k0  = Fct->Para[0] ;
-  eta = Fct->Para[1] ;
-  e0  = Fct->Para[2] ;
-  r   = Fct->Para[3] ;   
-  
-  kr = k0*r ;
-  ns = 100 ;  
-
-  
-  V->Val[0] = 0.;
-  V->Val[MAX_DIM] = 0. ;
-  
-  for (i = -ns ; i <= ns ; i++ ){
-    a = cos(i*(phi-(PI/2))) ;
-    b = sin(i*(phi-(PI/2))) ;
-    c = jn(i,kr) ;
-    d =  -yn(i,kr) ;     
-    
-    den = c*c+d*d ;
-    
-    V->Val[0] += (a*c+b*d)/den ; 
-    V->Val[MAX_DIM] += (b*c-a*d)/den ;
-  }
-  
-  V->Val[0] *= -2*e0/kr/eta/PI ;
-  V->Val[MAX_DIM] *= -2*e0/kr/eta/PI ;
-  
-  V->Type = SCALAR ;
-
-  GetDP_End;
-
-} 
-
-
-void F_RCS_ZPolCyl(F_ARG){
-  
-  double k0, r, kr, rinf, krinf, phi, a, b, d,den ; 
-  double lambda, bjn, rr = 0., ri = 0. ;
-  int i, ns ;
-
-  GetDP_Begin("F_RCS_ZPolCyl") ;  
- 
-  phi = atan2( A->Val[1], A->Val[0] ) ;
- 
-  k0  = Fct->Para[0] ;
-  r  = Fct->Para[1] ;
-  rinf   = Fct->Para[2] ; 
-
-  kr = k0*r ;
-  krinf = k0*rinf ;
-  lambda = 2*PI/k0 ;
-
-  ns = 100 ;  
-  
-  for (i = -ns ; i <= ns ; i++ ){
-    bjn = jn(i,kr) ;
-    a = bjn * cos(i*phi) ;
-    b = bjn * sin(i*phi) ;
-    d =  -yn(i,kr) ;     
-    
-    den = bjn*bjn+d*d ;
-    
-    rr += (a*bjn+b*d)/den ; 
-    ri += (b*bjn-a*d)/den ;
-  }
-  
-  V->Val[0] =  10*log10( 4*PI*SQU(rinf/lambda) * 2/krinf/PI *(SQU(rr)+SQU(ri)) ) ;
-  V->Val[MAX_DIM] = 0. ;
-  
-  V->Type = SCALAR ;
-
-  GetDP_End;
-
-} 
-
-
-
-/*  Incident wave polarized transversely to z                               */
-
-void F_JFIE_TransZPolCyl(F_ARG){
-  
-  double k0, r, kr, h0, phi, a, b, c, d, den ;
-  int i, ns ;
-
-  GetDP_Begin("F_JFIE_TransZPolCyl") ;  
- 
-  phi = atan2( A->Val[1], A->Val[0] ) ;
- 
-  k0  = Fct->Para[0] ;
-  h0  = Fct->Para[1] ;
-  r   = Fct->Para[2] ;   
-  
-  kr = k0*r ;
-  ns = 100 ;  
-
-  V->Val[0] = 0.;
-  V->Val[MAX_DIM] = 0. ;
-  
-  for (i = -ns ; i <= ns ; i++ ){
-    a = cos(PI/2 +i*(phi-(PI/2))) ;
-    b = sin(PI/2 +i*(phi-(PI/2))) ;
-    c = -jn(i+1,kr) + (i/kr)*jn(i,kr) ;
-    d =  yn(i+1,kr) - (i/kr)*yn(i,kr) ; 
-    
-    den = c*c+d*d ;
-    
-    V->Val[0] += (a*c+b*d)/den ; 
-    V->Val[MAX_DIM] += (b*c-a*d)/den ;
-  }
-  
-  V->Val[0] *= 2*h0/kr/PI ;
-  V->Val[MAX_DIM] *= 2*h0/kr/PI ;
-  
-  V->Type = SCALAR ;
-
-  GetDP_End;
-
-} 
-
-/* some utility functions to deal with cplx numbers */
-
-typedef struct {
-  double r;
-  double i;
-} cplx;
-
-static cplx Csum(cplx a, cplx b)
-{
-  cplx s;
-
-  s.r = a.r + b.r;
-  s.i = a.i + b.i;
-  return(s);
-}
-
-static cplx Csub(cplx a, cplx b)
-{
-  cplx s;
-
-  s.r = a.r - b.r;
-  s.i = a.i - b.i;
-  return(s);
-}
-
-static cplx Cprod(cplx a, cplx b)
-{
-  cplx s;
-
-  s.r = a.r * b.r - a.i * b.i;
-  s.i = a.r * b.i + a.i * b.r;
-  return(s);
-}
-
-static cplx Cdiv(cplx a, cplx b)
-{
-  cplx s;
-  double den;
-
-  den = b.r * b.r + b.i * b.i;
-  s.r = (a.r * b.r + a.i * b.i) / den;
-  s.i = (a.i * b.r - a.r * b.i) / den;
-  return(s);
-}
-
-static cplx Cconj(cplx a)
-{
-  cplx s;
-
-  s.r = a.r;
-  s.i = -a.i;
-  return(s);
-}
-
-static cplx Cneg(cplx a)
-{
-  cplx s;
-
-  s.r = -a.r;
-  s.i = -a.i;
-  return(s);
-}
-
-static double Cmodu(cplx a)
-{
-  return(sqrt(a.r * a.r + a.i * a.i));
-}
-
-static cplx Cpow(cplx a, double b)
-{
-  cplx s;
-  double mod, arg;
-
-  mod = a.r * a.r + a.i * a.i;
-  arg = atan2(a.i,a.r);
-  mod = pow(mod,0.5*b);
-  arg *= b;
-  s.r = mod * cos(arg);
-  s.i = mod * sin(arg);
-
-  return(s);
-}
-
-static cplx Cprodr(double a, cplx b)
-{
-  cplx s;
-
-  s.r = a * b.r;
-  s.i = a * b.i;
-  return(s);
-}
-
-/* Solution of Helmholtz equation outside an acoustically soft
-   circular cylinder of radius R, under plane wave incidence
-   e^{ikx} */
-
-void F_AcousticFieldSoftCylinder(F_ARG){
-  cplx I = {0.,1.}, HnkR, Hnkr, tmp;
-  double k, R, r, kr, kR, theta, cost ;
-  int n, ns ;
-
-  GetDP_Begin("F_AcousticFieldSoftCylinder") ;  
-
-  theta = atan2(A->Val[1], A->Val[0]) ;
-  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
-
-  k = Fct->Para[0] ;
-  R = Fct->Para[1] ;   
-  kr = k*r;
-  kR = k*R;
-
-  V->Val[0] = 0.;
-  V->Val[MAX_DIM] = 0. ;
-  
-  ns = (int)k + 10;
-  
-  for (n = 0 ; n < ns ; n++){
-
-    HnkR.r = jn(n,kR);
-    HnkR.i = yn(n,kR);
-
-    Hnkr.r = jn(n,kr);
-    Hnkr.i = yn(n,kr);
-
-    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( HnkR.r, Hnkr) ) , HnkR );
-
-    cost = cos(n*theta);
-
-    V->Val[0] +=  cost * tmp.r * (!n ? 0.5 : 1.);
-    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
-  }
-  
-  V->Val[0] *= -2;
-  V->Val[MAX_DIM] *= -2;
-  
-  V->Type = SCALAR ;
-
-  GetDP_End;
-} 
-
-/* Radial derivative of the solution of the Helmholtz equation outside
-   a circular cylinder of radius R, under plane wave incidence
-   e^{ikx} */
-
-cplx DHn(cplx *Hnkrtab, int n, double x){
-  if(n == 0){
-    return Cneg(Hnkrtab[1]);
-  }
-  else{
-    return Csub( Hnkrtab[n-1] , Cprodr((double)n/x, Hnkrtab[n]) );
-  }
-}
-
-void F_DrAcousticFieldSoftCylinder(F_ARG){
-  cplx I = {0.,1.}, HnkR, tmp, *Hnkrtab;
-  double k, R, r, kr, kR, theta, cost ;
-  int n, ns ;
-
-  GetDP_Begin("F_DrAcousticFieldSoftCylinder") ;  
-
-  theta = atan2(A->Val[1], A->Val[0]) ;
-  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
-
-  k = Fct->Para[0] ;
-  R = Fct->Para[1] ;   
-  kr = k*r;
-  kR = k*R;
-
-  V->Val[0] = 0.;
-  V->Val[MAX_DIM] = 0. ;
-  
-  ns = (int)k + 10;
-
-  Hnkrtab = (cplx*)Malloc(ns*sizeof(cplx));
-
-  for (n = 0 ; n < ns ; n++){
-    Hnkrtab[n].r = jn(n,kr);
-    Hnkrtab[n].i = yn(n,kr);
-  }
-
-  for (n = 0 ; n < ns ; n++){
-    HnkR.r = jn(n,kR);
-    HnkR.i = yn(n,kR);
-
-    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( HnkR.r, DHn(Hnkrtab, n, kr) ) ) , HnkR );
-
-    cost = cos(n*theta);
-
-    V->Val[0] +=  cost * tmp.r * (!n ? 0.5 : 1.);
-    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
-  }
-
-  Free(Hnkrtab);
-  
-  V->Val[0] *= -2 * k;
-  V->Val[MAX_DIM] *= -2 * k;
-  
-  V->Type = SCALAR ;
-
-  GetDP_End;
-} 
-
-/* Solution of Helmholtz equation outside an acoustically hard
-   circular cylinder of radius R, under plane wave incidence
-   e^{ikx} */
-
-void F_AcousticFieldHardCylinder(F_ARG){
-  cplx I = {0.,1.}, Hnkr, dHnkR, tmp, *HnkRtab;
-  double k, R, r, kr, kR, theta, cost ;
-  int n, ns ;
-
-  GetDP_Begin("F_AcousticFieldHardCylinder") ;  
-
-  theta = atan2(A->Val[1], A->Val[0]) ;
-  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
-
-  k = Fct->Para[0] ;
-  R = Fct->Para[1] ;   
-  kr = k*r;
-  kR = k*R;
-
-  V->Val[0] = 0.;
-  V->Val[MAX_DIM] = 0. ;
-  
-  ns = (int)k + 10;
-  
-  HnkRtab = (cplx*)Malloc(ns*sizeof(cplx));
-
-  for (n = 0 ; n < ns ; n++){
-    HnkRtab[n].r = jn(n,kR);
-    HnkRtab[n].i = yn(n,kR);
-  }
-
-  for (n = 0 ; n < ns ; n++){
-    Hnkr.r = jn(n,kr);
-    Hnkr.i = yn(n,kr);
-
-    dHnkR = DHn(HnkRtab, n, kR);
-
-    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( dHnkR.r, Hnkr) ) , dHnkR );
-
-    cost = cos(n*theta);
-
-    V->Val[0] +=  cost * tmp.r * (!n ? 0.5 : 1.);
-    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
-  }
-
-  Free(HnkRtab);
-  
-  V->Val[0] *= -2;
-  V->Val[MAX_DIM] *= -2;
-  
-  V->Type = SCALAR ;
-
-  GetDP_End;
-} 
-
-/* ------------------------------------------------------------------------ */
-/*  Problem of the sphere. Scattering.                                      */
-/* ------------------------------------------------------------------------ */
-
+/* Scattering by solid PEC sphere. Returns theta-component of surface
+   current */
 
 void F_JFIE_SphTheta(F_ARG){
   
@@ -558,7 +200,6 @@ void F_JFIE_SphTheta(F_ARG){
 
   if ( theta == 0. ) theta += 1e-7; /* Warning! This is an approximation. */
   if ( theta == PI || theta == -PI ) theta -= 1e-7;
-
 
   for (i = 1 ; i <= n ; i++ ){
     ctheta = cos(theta);
@@ -595,10 +236,9 @@ void F_JFIE_SphTheta(F_ARG){
   V->Type = SCALAR ;
 
   GetDP_End;
-
 } 
 
-
+/* Scattering by solid PEC sphere. Returns theta-component of RCS */
 
 void F_RCS_SphTheta(F_ARG){
   
@@ -663,7 +303,7 @@ void F_RCS_SphTheta(F_ARG){
   GetDP_End;
 }
 
-
+/* Scattering by solid PEC sphere. Returns phi-component of surface current */
 
 void F_JFIE_SphPhi(F_ARG){
   
@@ -728,7 +368,7 @@ void F_JFIE_SphPhi(F_ARG){
 
 }
 
-
+/* Scattering by solid PEC sphere. Returns phi-component of RCS */
 
 void F_RCS_SphPhi(F_ARG){
   
@@ -791,15 +431,9 @@ void F_RCS_SphPhi(F_ARG){
   GetDP_End;
 } 
 
-
-/* ------------------------------------------------------------------------ */
-/*  Problem of the sphere. Acoustic scattering.                             */
-/* ------------------------------------------------------------------------ */
-
-/* 
-   Scattering on an acoustically soft sphere (exterior Dirichlet
+/* Scattering by solid acoustically soft sphere (exterior Dirichlet
    problem) by incident plane wave in the direction of the negative
-   z-axis
+   z-axis. Returns total field at any exterior point.
 
    J.J. Bowman, T.B.A. Senior and P.L.E. Uslenghi, Electromagnetic and
    Acoustic Scattering by Simple Shapes, p. 358 
@@ -881,22 +515,362 @@ void  F_AcousticSoftSphere(F_ARG){
 #undef N   
 }
 
-void  F_AcousticHardSphere(F_ARG){
 
+/* ------------------------------------------------------------------------ */
+/*  Exact solutions for cylinders                                           */
+/* ------------------------------------------------------------------------ */
+
+/* Solid or hollow cylinder, in magnetostatic and magnetodynamics */
+
+void  F_Cylinder (F_ARG) {
+  int     type ;
+  double  x, y ;
+  double  valx[2], valy[2];
+  double  bxr, bxi, byr, byi, phir, phii=0 ;
+  double  mur, sigma, freq, b0, r0, r1 ;
+
+  GetDP_Begin("F_Cylinder");
+
+  valx[0] = 0.0  ; valx[1] = 0.0 ;
+  valy[0] = 0.0  ; valy[1] = 0.0 ;
+
+  x = Current.x; y = Current.y; 
+  
+  mur = Fct->Para[0] ; sigma = Fct->Para[1] ; freq = Fct->Para[2] ;
+  b0  = Fct->Para[3] ; r0    = Fct->Para[4] ; r1   = Fct->Para[5] ;
+  type = (int)Fct->Para[6] ;
+
+  if (r0 == 0.0) 
+    solcyl_(&x,&y,&bxr,&bxi,&byr,&byi,&b0,&mur,&sigma,&freq,&r1);
+  else
+    hollowcyl(x,y,&bxr,&byr,&phir,b0,mur,r0,r1);
+
+  if(type == 0){
+    valx[0] = bxr ; valx[1] = bxi ;
+    valy[0] = byr ; valy[1] = byi ;
+  }
+  else{
+    valx[0] = phir ; valx[1] = phii ;
+  }
+
+  if (Current.NbrHar == 1) {
+    V->Val[0] = valx[0] ; V->Val[1] = valy[0] ; V->Val[2] = 0.0 ;
+  }
+  else {
+    V->Val[0] = valx[0] ; V->Val[1] = valy[0] ; V->Val[2] = 0.0 ;
+    V->Val[MAX_DIM] = valx[1] ; V->Val[MAX_DIM+1] = valy[1] ; V->Val[MAX_DIM+2] = 0.0 ;
+  }
+
+  V->Type = VECTOR ;
+
+  GetDP_End ;
 }
 
+/* Scattering by solid PEC cylinder, incident wave z-polarized.
+   Returns current on cylinder surface */
+
+void F_JFIE_ZPolCyl(F_ARG){
+  
+  double k0, r, kr, e0, eta, phi, a, b, c, d, den ;
+  int i, ns ;
+
+  GetDP_Begin("F_JFIE_ZPolCyl") ;  
+ 
+  phi = atan2( A->Val[1], A->Val[0] ) ;
+ 
+  k0  = Fct->Para[0] ;
+  eta = Fct->Para[1] ;
+  e0  = Fct->Para[2] ;
+  r   = Fct->Para[3] ;   
+  
+  kr = k0*r ;
+  ns = 100 ;  
+
+  
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  for (i = -ns ; i <= ns ; i++ ){
+    a = cos(i*(phi-(PI/2))) ;
+    b = sin(i*(phi-(PI/2))) ;
+    c = jn(i,kr) ;
+    d =  -yn(i,kr) ;     
+    
+    den = c*c+d*d ;
+    
+    V->Val[0] += (a*c+b*d)/den ; 
+    V->Val[MAX_DIM] += (b*c-a*d)/den ;
+  }
+  
+  V->Val[0] *= -2*e0/kr/eta/PI ;
+  V->Val[MAX_DIM] *= -2*e0/kr/eta/PI ;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+
+} 
+
+/* Scattering by solid PEC cylinder, incident wave z-polarized.
+   Returns RCS */
+
+void F_RCS_ZPolCyl(F_ARG){
+  
+  double k0, r, kr, rinf, krinf, phi, a, b, d,den ; 
+  double lambda, bjn, rr = 0., ri = 0. ;
+  int i, ns ;
+
+  GetDP_Begin("F_RCS_ZPolCyl") ;  
+ 
+  phi = atan2( A->Val[1], A->Val[0] ) ;
+ 
+  k0  = Fct->Para[0] ;
+  r  = Fct->Para[1] ;
+  rinf   = Fct->Para[2] ; 
+
+  kr = k0*r ;
+  krinf = k0*rinf ;
+  lambda = 2*PI/k0 ;
+
+  ns = 100 ;  
+  
+  for (i = -ns ; i <= ns ; i++ ){
+    bjn = jn(i,kr) ;
+    a = bjn * cos(i*phi) ;
+    b = bjn * sin(i*phi) ;
+    d =  -yn(i,kr) ;     
+    
+    den = bjn*bjn+d*d ;
+    
+    rr += (a*bjn+b*d)/den ; 
+    ri += (b*bjn-a*d)/den ;
+  }
+  
+  V->Val[0] =  10*log10( 4*PI*SQU(rinf/lambda) * 2/krinf/PI *(SQU(rr)+SQU(ri)) ) ;
+  V->Val[MAX_DIM] = 0. ;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+
+} 
+
+/* Scattering by solid PEC cylinder, incident wave polarized
+   transversely to z.  Returns current on cylinder surface */
+
+void F_JFIE_TransZPolCyl(F_ARG){
+  
+  double k0, r, kr, h0, phi, a, b, c, d, den ;
+  int i, ns ;
+
+  GetDP_Begin("F_JFIE_TransZPolCyl") ;  
+ 
+  phi = atan2( A->Val[1], A->Val[0] ) ;
+ 
+  k0  = Fct->Para[0] ;
+  h0  = Fct->Para[1] ;
+  r   = Fct->Para[2] ;   
+  
+  kr = k0*r ;
+  ns = 100 ;  
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  for (i = -ns ; i <= ns ; i++ ){
+    a = cos(PI/2 +i*(phi-(PI/2))) ;
+    b = sin(PI/2 +i*(phi-(PI/2))) ;
+    c = -jn(i+1,kr) + (i/kr)*jn(i,kr) ;
+    d =  yn(i+1,kr) - (i/kr)*yn(i,kr) ; 
+    
+    den = c*c+d*d ;
+    
+    V->Val[0] += (a*c+b*d)/den ; 
+    V->Val[MAX_DIM] += (b*c-a*d)/den ;
+  }
+  
+  V->Val[0] *= 2*h0/kr/PI ;
+  V->Val[MAX_DIM] *= 2*h0/kr/PI ;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+
+} 
+
+
+/* Scattering by acoustically soft circular cylinder of radius R,
+   under plane wave incidence e^{ikx}. Returns field outside */
+
+void F_AcousticFieldSoftCylinder(F_ARG){
+  cplx I = {0.,1.}, HnkR, Hnkr, tmp;
+  double k, R, r, kr, kR, theta, cost ;
+  int n, ns ;
+
+  GetDP_Begin("F_AcousticFieldSoftCylinder") ;  
+
+  theta = atan2(A->Val[1], A->Val[0]) ;
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;   
+  kr = k*r;
+  kR = k*R;
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = (int)k + 10;
+  
+  for (n = 0 ; n < ns ; n++){
+
+    HnkR.r = jn(n,kR);
+    HnkR.i = yn(n,kR);
+
+    Hnkr.r = jn(n,kr);
+    Hnkr.i = yn(n,kr);
+
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( HnkR.r, Hnkr) ) , HnkR );
+
+    cost = cos(n*theta);
+
+    V->Val[0] +=  cost * tmp.r * (!n ? 0.5 : 1.);
+    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+  }
+  
+  V->Val[0] *= -2;
+  V->Val[MAX_DIM] *= -2;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+} 
+
+cplx DHn(cplx *Hnkrtab, int n, double x){
+  if(n == 0){
+    return Cneg(Hnkrtab[1]);
+  }
+  else{
+    return Csub( Hnkrtab[n-1] , Cprodr((double)n/x, Hnkrtab[n]) );
+  }
+}
+
+/* Scattering by acoustically soft circular cylinder of radius R,
+   under plane wave incidence e^{ikx}. Returns radial derivative of
+   the solution of the Helmholtz equation outside */
+
+void F_DrAcousticFieldSoftCylinder(F_ARG){
+  cplx I = {0.,1.}, HnkR, tmp, *Hnkrtab;
+  double k, R, r, kr, kR, theta, cost ;
+  int n, ns ;
+
+  GetDP_Begin("F_DrAcousticFieldSoftCylinder") ;  
+
+  theta = atan2(A->Val[1], A->Val[0]) ;
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;   
+  kr = k*r;
+  kR = k*R;
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = (int)k + 10;
+
+  Hnkrtab = (cplx*)Malloc(ns*sizeof(cplx));
+
+  for (n = 0 ; n < ns ; n++){
+    Hnkrtab[n].r = jn(n,kr);
+    Hnkrtab[n].i = yn(n,kr);
+  }
+
+  for (n = 0 ; n < ns ; n++){
+    HnkR.r = jn(n,kR);
+    HnkR.i = yn(n,kR);
+
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( HnkR.r, DHn(Hnkrtab, n, kr) ) ) , HnkR );
+
+    cost = cos(n*theta);
+
+    V->Val[0] +=  cost * tmp.r * (!n ? 0.5 : 1.);
+    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+  }
+
+  Free(Hnkrtab);
+  
+  V->Val[0] *= -2 * k;
+  V->Val[MAX_DIM] *= -2 * k;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+} 
+
+/* Scattering by acoustically hard circular cylinder of radius R,
+   under plane wave incidence e^{ikx}. Returns solution outside */
+
+void F_AcousticFieldHardCylinder(F_ARG){
+  cplx I = {0.,1.}, Hnkr, dHnkR, tmp, *HnkRtab;
+  double k, R, r, kr, kR, theta, cost ;
+  int n, ns ;
+
+  GetDP_Begin("F_AcousticFieldHardCylinder") ;  
+
+  theta = atan2(A->Val[1], A->Val[0]) ;
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;   
+  kr = k*r;
+  kR = k*R;
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = (int)k + 10;
+  
+  HnkRtab = (cplx*)Malloc(ns*sizeof(cplx));
+
+  for (n = 0 ; n < ns ; n++){
+    HnkRtab[n].r = jn(n,kR);
+    HnkRtab[n].i = yn(n,kR);
+  }
+
+  for (n = 0 ; n < ns ; n++){
+    Hnkr.r = jn(n,kr);
+    Hnkr.i = yn(n,kr);
+
+    dHnkR = DHn(HnkRtab, n, kR);
+
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( dHnkR.r, Hnkr) ) , dHnkR );
+
+    cost = cos(n*theta);
+
+    V->Val[0] +=  cost * tmp.r * (!n ? 0.5 : 1.);
+    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+  }
+
+  Free(HnkRtab);
+  
+  V->Val[0] *= -2;
+  V->Val[MAX_DIM] *= -2;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+} 
 
 /* ------------------------------------------------------------------------ */
-/*  Coefficients for On Surface Radiation Conditions (OSRC)                 */
+/*  On Surface Radiation Conditions (OSRC)                                  */
 /* ------------------------------------------------------------------------ */
 
-/* 
-   See:
+/* Coefficients C0, Aj and Bj: see papers
    1) Kechroud, Antoine & Soulaimani, Nuemrical accuracy of a
    Pade-type non-reflecting..., IJNME 2005
    2) Antoine, Darbas & Lu, An improved surface radiation condition...
-   CMAME, 2006(?)
-*/
+   CMAME, 2006(?) */
 
 static double aj(int j, int N){
   return 2./(2.*N + 1.) * SQU(sin((double)j * M_PI/(2.*N + 1.))) ;
