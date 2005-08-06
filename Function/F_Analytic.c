@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.21 2005-08-06 02:31:11 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.22 2005-08-06 08:30:55 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -899,11 +899,11 @@ void  F_AcousticHardSphere(F_ARG){
 */
 
 static double aj(int j, int N){
-  return 2./(2.*N + 1.) * SQU(sin(j * M_PI/(2.*N + 1.))) ;
+  return 2./(2.*N + 1.) * SQU(sin((double)j * M_PI/(2.*N + 1.))) ;
 }
 
 static double bj(int j, int N){
-  return SQU(cos(j * M_PI/(2.*N + 1.))) ;
+  return SQU(cos((double)j * M_PI/(2.*N + 1.))) ;
 }
 
 void  F_OSRC_C0(F_ARG){
@@ -913,15 +913,15 @@ void  F_OSRC_C0(F_ARG){
 
   GetDP_Begin("F_OSRC_C0") ;  
 
-  N     = (int)A->Val[0];
-  theta = (A+1)->Val[0];
+  N = (int)Fct->Para[0] ;
+  theta = Fct->Para[1] ;   
 
   z.r = cos(-theta) - 1. ;
   z.i = sin(-theta) ;
-
   for(j = 1; j <= N; j++){
     sum = Csum( sum, Cdiv( Cprodr(aj(j,N), z) , Csum(un, Cprodr(bj(j,N), z)))) ;
   }
+
   z.r = cos(theta/2.) ;
   z.i = sin(theta/2.) ;
   sum = Cprod(sum, z);
@@ -940,9 +940,9 @@ void F_OSRC_Aj(F_ARG){
 
   GetDP_Begin("F_OSRC_Aj") ;  
 
-  j     = (int)A->Val[0];
-  N     = (int)(A+1)->Val[0];
-  theta = (A+2)->Val[0];
+  j = (int)Fct->Para[0] ;
+  N = (int)Fct->Para[1] ;
+  theta = Fct->Para[2] ;   
 
   z.r = cos(-theta/2.) ;
   z.i = sin(-theta/2.) ;
@@ -950,8 +950,7 @@ void F_OSRC_Aj(F_ARG){
 
   z.r = cos(-theta) - 1. ;
   z.i = sin(-theta) ;
-
-  res = Cdiv(res, Cpow( Csum(un, Cprodr(bj(j,N), z)) , 2.));
+  res = Cdiv(res, Cpow( Csum(un, Cprodr(bj(j,N), z)), 2.));
 
   V->Val[0] = res.r;
   V->Val[MAX_DIM] = res.i;
@@ -967,9 +966,9 @@ void F_OSRC_Bj(F_ARG){
 
   GetDP_Begin("F_OSRC_Bj") ;  
 
-  j     = (int)A->Val[0];
-  N     = (int)(A+1)->Val[0];
-  theta = (A+2)->Val[0];
+  j = (int)Fct->Para[0] ;
+  N = (int)Fct->Para[1] ;
+  theta = Fct->Para[2] ;   
 
   z.r = cos(-theta) ;
   z.i = sin(-theta) ;
@@ -977,7 +976,6 @@ void F_OSRC_Bj(F_ARG){
 
   z.r = cos(-theta) - 1. ;
   z.i = sin(-theta) ;
-
   res = Cdiv(res, Cpow( Csum(un, Cprodr(bj(j,N), z)) , 2.));
 
   V->Val[0] = res.r;
@@ -986,6 +984,5 @@ void F_OSRC_Bj(F_ARG){
 
   GetDP_End;
 }
-
 
 #undef F_ARG

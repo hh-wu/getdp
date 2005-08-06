@@ -661,7 +661,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
 
   {"OSRC_C0",   (CAST)F_OSRC_C0, 2, 0},
   {"OSRC_Aj",   (CAST)F_OSRC_Aj, 3, 0},
-  {"OSRC_Bj",   (CAST)F_OSRC_Aj, 3, 0},
+  {"OSRC_Bj",   (CAST)F_OSRC_Bj, 3, 0},
 
   /* GF_XXX : Green Functions */
 

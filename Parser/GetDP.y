@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.82 2005-07-22 15:59:59 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.83 2005-08-06 08:30:57 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -2193,7 +2193,7 @@ ConstraintCaseTerm :
       else  vyyerror("Value incompatible with Type") ;
     }
 
-  | tNameOfResolution tSTRING tEND
+  | tNameOfResolution String__Index tEND
     {
       if (ConstraintPerRegion_S.Type == ASSIGNFROMRESOLUTION ||
 	  ConstraintPerRegion_S.Type == INITFROMRESOLUTION)
@@ -4465,7 +4465,7 @@ DefineSystemTerm :
       DefineSystem_S.OriginSystemIndex = $2 ;
     }
 
-  | tDestinationSystem tSTRING tEND
+  | tDestinationSystem String__Index tEND
     { 
       DefineSystem_S.DestinationSystemName = $2 ; 
     }
@@ -4709,7 +4709,7 @@ OperationTerm :
       Operation_P->Case.Test.Operation_False = $10 ;
     }
 
-  | tSetFrequency '[' tSTRING ',' Expression ']' tEND
+  | tSetFrequency '[' String__Index ',' Expression ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SETFREQUENCY ;
@@ -4722,7 +4722,7 @@ OperationTerm :
     }
 
 
-  | tGenerateFMMGroups '[' tSTRING ',' Expression ',' Expression ',' Expression ',' Expression ']' tEND
+  | tGenerateFMMGroups '[' String__Index ',' Expression ',' Expression ',' Expression ',' Expression ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_GENERATEFMMGROUPS ;
@@ -4737,7 +4737,7 @@ OperationTerm :
       Operation_P->Case.GenerateFMMGroups.FlagDTA = $11;      
     }
 
-  | tGenerateFMMGroups '[' tSTRING ',' Expression ',' Expression ',' Expression ']' tEND
+  | tGenerateFMMGroups '[' String__Index ',' Expression ',' Expression ',' Expression ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_GENERATEFMMGROUPS ;
@@ -4752,7 +4752,7 @@ OperationTerm :
       Operation_P->Case.GenerateFMMGroups.FlagDTA = -1;      
     }
 
-  | tGenerateFMMGroups '[' tSTRING ',' Expression ',' Expression ']' tEND
+  | tGenerateFMMGroups '[' String__Index ',' Expression ',' Expression ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_GENERATEFMMGROUPS ;
@@ -4767,7 +4767,7 @@ OperationTerm :
       Operation_P->Case.GenerateFMMGroups.FlagDTA = -1;      
     }
 
-  | tGenerateOnly '[' tSTRING ',' ListOfFExpr ']' tEND
+  | tGenerateOnly '[' String__Index ',' ListOfFExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_GENERATEONLY ;
@@ -4787,7 +4787,7 @@ OperationTerm :
       List_Delete($5); 
     }
 
-  | tGenerateOnlyJac '[' tSTRING ',' ListOfFExpr ']' tEND
+  | tGenerateOnlyJac '[' String__Index ',' ListOfFExpr ']' tEND
      { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_GENERATEONLYJAC ;
@@ -4808,7 +4808,7 @@ OperationTerm :
     }
 
 
-  | tUpdate '[' tSTRING ',' Expression ']' tEND
+  | tUpdate '[' String__Index ',' Expression ']' tEND
     { Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_UPDATE ;
@@ -4820,7 +4820,7 @@ OperationTerm :
       Operation_P->Case.Update.ExpressionIndex = $5 ;
     }
     
-  | tUpdateConstraint '[' tSTRING ',' GroupRHS ',' tSTRING ']' tEND
+  | tUpdateConstraint '[' String__Index ',' GroupRHS ',' String__Index ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
     Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
@@ -4840,7 +4840,7 @@ OperationTerm :
       Free($7) ;
     }
 
-  | tFourierTransform '[' tSTRING ',' tSTRING ',' ListOfFExpr ']' tEND
+  | tFourierTransform '[' String__Index ',' String__Index ',' ListOfFExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_FOURIERTRANSFORM ;
@@ -4857,7 +4857,7 @@ OperationTerm :
       Operation_P->Case.FourierTransform.Frequency = $7;
     }
 
-  | tFourierTransformJ '[' tSTRING ',' tSTRING ',' FExpr ']' tEND
+  | tFourierTransformJ '[' String__Index ',' String__Index ',' FExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_FOURIERTRANSFORM2 ;
@@ -4876,7 +4876,7 @@ OperationTerm :
       Operation_P->Case.FourierTransform2.Scales = NULL;
     }
 
-  | tLanczos '[' tSTRING ',' FExpr ',' ListOfFExpr ',' FExpr ']' tEND
+  | tLanczos '[' String__Index ',' FExpr ',' ListOfFExpr ',' FExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_LANCZOS ;
@@ -4897,7 +4897,7 @@ OperationTerm :
       Operation_P->Case.Lanczos.Shift = $9 ;
     }
 
-  | tEigenSolve '[' tSTRING ',' FExpr ',' FExpr ',' FExpr ']' tEND
+  | tEigenSolve '[' String__Index ',' FExpr ',' FExpr ',' FExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_EIGENSOLVE ;
@@ -4911,7 +4911,7 @@ OperationTerm :
       Operation_P->Case.EigenSolve.Shift_i = $9 ;
     }
 
-  | tEigenSolveJac '[' tSTRING ',' FExpr ',' FExpr ',' FExpr ']' tEND
+  | tEigenSolveJac '[' String__Index ',' FExpr ',' FExpr ',' FExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_EIGENSOLVEJAC ;
@@ -4932,7 +4932,7 @@ OperationTerm :
       Operation_P->Case.Evaluate.ExpressionIndex = (int)$3 ;
     }
 
-  | tPerturbation '[' tSTRING ',' tSTRING ',' tSTRING ','
+  | tPerturbation '[' String__Index ',' String__Index ',' String__Index ','
     FExpr ',' ListOfFExpr ',' FExpr ',' FExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
@@ -5078,7 +5078,7 @@ OperationTerm :
       Operation_P->Case.SystemCommand.String = $3 ; 
     }
 
-  | tSolveJac_AdaptRelax '[' tSTRING ',' ListOfFExpr ',' FExpr ']' tEND
+  | tSolveJac_AdaptRelax '[' String__Index ',' ListOfFExpr ',' FExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SOLVEJACADAPTRELAX ;
@@ -5091,7 +5091,7 @@ OperationTerm :
       Operation_P->Case.SolveJac_AdaptRelax.Factor_L = $5 ; 
     }
 
-  | tSaveSolutionExtendedMH '[' tSTRING ',' FExpr ',' CharExpr ']' tEND
+  | tSaveSolutionExtendedMH '[' String__Index ',' FExpr ',' CharExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SAVESOLUTIONEXTENDEDMH ;
@@ -5104,7 +5104,7 @@ OperationTerm :
       Operation_P->Case.SaveSolutionExtendedMH.ResFile = $7 ;
     }
 
-  | tSaveSolutionMHtoTime '[' tSTRING ',' ListOfFExpr ',' CharExpr ']' tEND
+  | tSaveSolutionMHtoTime '[' String__Index ',' ListOfFExpr ',' CharExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SAVESOLUTIONMHTOTIME ;
@@ -5166,7 +5166,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_SAVEMESH ;
     }
 
-  | tGenerate_MH_Moving  '[' tSTRING ',' tSTRING ',' FExpr ',' FExpr ']' '{' Operation '}'  tEND
+  | tGenerate_MH_Moving  '[' String__Index ',' String__Index ',' FExpr ',' FExpr ']' '{' Operation '}'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
@@ -5184,7 +5184,7 @@ OperationTerm :
       Operation_P->Case.Generate_MH_Moving.Operation = $12 ;
     }
 
-  | tGenerate_MH_Moving_Separate  '[' tSTRING ',' tSTRING ',' FExpr ',' FExpr ']' 
+  | tGenerate_MH_Moving_Separate  '[' String__Index ',' String__Index ',' FExpr ',' FExpr ']' 
                                   '{' Operation '}'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
@@ -5203,7 +5203,7 @@ OperationTerm :
       Operation_P->Case.Generate_MH_Moving_S.Operation = $12 ;
     }
 
-  | tAdd_MH_Moving  '[' tSTRING ',' FExpr ']'  tEND
+  | tAdd_MH_Moving  '[' String__Index ',' FExpr ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
@@ -5259,7 +5259,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_DEFORMEMESH ;
     }
 
-  | tGenerateGroup  '[' tSTRING ',' tSTRING ']'  tEND
+  | tGenerateGroup  '[' String__Index ',' String__Index ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
@@ -5274,7 +5274,7 @@ OperationTerm :
       Operation_P->Case.Generate.GroupIndex = i ;
     }
 
-  | tGenerateJacGroup  '[' tSTRING ',' tSTRING ']'  tEND
+  | tGenerateJacGroup  '[' String__Index ',' String__Index ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
@@ -5305,7 +5305,7 @@ PrintOperation :
       Operation_P->Case.Print.Expression = List_Copy(ListOfInt_L) ; 
     }
 
-  | tSTRING
+  | String__Index
     { if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $1,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $1) ;
@@ -5523,7 +5523,7 @@ IterativeTimeReductionTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Case.IterativeTimeReduction.Flag = (int)$2 ; }
 
-  | tDefineSystem tSTRING tEND
+  | tDefineSystem String__Index tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $2,
@@ -5761,7 +5761,7 @@ PostProcessingTerm :
       Free($2) ;
     }
 
-  | tNameOfSystem tSTRING tEND
+  | tNameOfSystem String__Index tEND
     { 
       PostProcessing_S.NameOfSystem = $2 ;
     }
@@ -5963,7 +5963,7 @@ PostOperationTerm :
       PostOperation_S.Name = $2 ; 
     }
 
-  | tNameOfPostProcessing tSTRING tEND
+  | tNameOfPostProcessing String__Index tEND
     { 
       if ((i = List_ISearchSeq(Problem_S.PostProcessing, $2,
 			       fcmp_PostProcessing_Name)) < 0)
@@ -7151,7 +7151,7 @@ MultiFExpr :
 
 StringIndex :
   
-    tSTRING  '~' '{' FExpr '}'  
+    tSTRING '~' '{' FExpr '}'  
     { 
       sprintf(tmpstr, "_%d", (int)$4) ;
       $$ = (char *)Malloc((strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
@@ -7159,7 +7159,7 @@ StringIndex :
       Free($1) ;
     }
 
-  | StringIndex '~'  '{' FExpr '}' 
+  | StringIndex '~' '{' FExpr '}' 
     {
       sprintf(tmpstr, "_%d", (int)$4) ;
       $$ = (char *)Realloc($1,(strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
@@ -7168,11 +7168,11 @@ StringIndex :
 
   ;
 
-
 String__Index :
 
     tSTRING 
     { $$ = $1 ; }
+
   | StringIndex
     { $$ = $1 ; }
 
@@ -7183,7 +7183,7 @@ CharExpr :
     tBIGSTR
     { $$ = $1 ; }
 
-  | tSTRING
+  | String__Index
     { Constant_S.Name = $1 ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	vyyerror("Unknown Constant: %s", $1) ;  $$ = NULL ;

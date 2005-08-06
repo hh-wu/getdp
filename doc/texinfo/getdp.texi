@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.78 2005-07-22 13:09:50 geuzaine Exp $
+@c $Id: getdp.texi,v 1.79 2005-08-06 08:30:57 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -1328,7 +1328,8 @@ objects:
 
 @example
 @var{quantity-id}:
-  @var{string}
+  @var{string} |
+  @var{string} ~ @{ @var{expression-cst} @}
 @end example
 
 @noindent and
@@ -1567,7 +1568,8 @@ Group @{
 
 @example
 @var{group-id}:
-  @var{string}
+  @var{string} |
+  @var{string} ~ @{ @var{expression-cst} @}
 
 @var{group-def}:
   @var{group-type} [ @var{group-list} <, @var{group-sub-type} @var{group-list} > ] |
@@ -1743,7 +1745,8 @@ Constraint @{
 @example
 @var{constraint-id}:
 @var{constraint-case-id}:
-  @var{string}
+  @var{string} |
+  @var{string} ~ @{ @var{expression-cst} @}
 
 @var{constraint-type}: 
   Assign | Init | Network | Link | @var{etc}
@@ -1883,12 +1886,15 @@ FunctionSpace @{
 
 @example
 @var{function-space-id}: 
+@var{formulation-id}:
+@var{resolution-id}:
+  @var{string} |
+  @var{string} ~ @{ @var{expression-cst} @}
+
 @var{basis-function-id}:
 @var{coef-id}:
 @var{sub-space-id}:
 @var{global-quantity-id}: 
-@var{formulation-id}:
-@var{resolution-id}:
   @var{string}
 
 @var{function-space-type}:   
@@ -2178,7 +2184,8 @@ Formulation @{
 
 @example
 @var{formulation-id}:
-  @var{string}
+  @var{string} |
+  @var{string} ~ @{ @var{expression-cst} @}
 
 @var{formulation-type}:
   FemEquation | @var{etc}
@@ -2301,7 +2308,8 @@ Resolution @{
 @example
 @var{resolution-id}:
 @var{system-id}:
-  @var{string}
+  @var{string} |
+  @var{string} ~ @{ @var{expression-cst} @}
 
 @var{formulation-list}:
   @var{formulation-id} <@{@}> | @{ @var{formulation-id} <@{@}> <,@dots{}> @}
@@ -2399,7 +2407,8 @@ PostProcessing @{
 @example
 @var{post-processing-id}:
 @var{post-quantity-id}:
-  @var{string}
+  @var{string} |
+  @var{string} ~ @{ @var{expression-cst} @}
 
 @var{post-value}:
   Local @{ @var{local-value} @} | Integral @{ @var{integral-value} @}
@@ -2490,7 +2499,8 @@ PostOperation @var{post-operation-id} UsingPost @var{post-processing-id} @{
 
 @example
 @var{post-operation-id}:
-  @var{string}
+  @var{string} |
+  @var{string} ~ @{ @var{expression-cst} @}
 
 @var{post-operation-op}:
   Print[ @var{post-quantity-term}, @var{print-support} <,@var{print-option}> @dots{} ] |
