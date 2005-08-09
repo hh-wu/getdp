@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.23 2005-08-06 18:22:38 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.24 2005-08-09 15:58:40 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -44,7 +44,7 @@
 
 #define F_ARG    struct Function * Fct, struct Value * A, struct Value * V
 
-/* some utility functions to deal with cplx numbers */
+/* some utility functions to deal with complex numbers */
 
 typedef struct {
   double r;
@@ -950,7 +950,7 @@ void F_OSRC_Bj(F_ARG){
 
   z.r = cos(-theta) - 1. ;
   z.i = sin(-theta) ;
-  res = Cdiv(res, Cpow( Csum(un, Cprodr(bj(j,N), z)) , 2.));
+  res = Cdiv(res, Csum(un, Cprodr(bj(j,N), z)));
 
   V->Val[0] = res.r;
   V->Val[MAX_DIM] = res.i;
