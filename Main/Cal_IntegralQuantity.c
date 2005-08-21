@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.12 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.13 2005-08-21 14:18:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -284,14 +284,11 @@ void  Cal_NumericalIntegralQuantity (struct Element                 *Element,
       }
       
       if(Nbr_IntegrationCells > 1){
-	xyz2uvwInAnElement (Element->ElementSource, 
-			    Current.xs, Current.ys, Current.zs,
-			    &Current.us, &Current.vs, &Current.ws, 
-			    (double (*)(struct Element*, MATRIX3x3*))
-			    IQA->Get_Jacobian, IQA->Type_Dimension) ;
+	xyz2uvwInAnElement(Element->ElementSource, 
+			   Current.xs, Current.ys, Current.zs,
+			   &Current.us, &Current.vs, &Current.ws);
       }
       
-
       if(Type_DefineQuantity != NODOF){
 	for (j = 0 ; j < Nbr_Dof ; j++) {
 	  ((void (*)(struct Element*, int, double, double, double, double*))

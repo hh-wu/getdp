@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Region.c,v 1.13 2005-06-23 01:45:00 geuzaine Exp $"
+#define RCSID "$Id: BF_Region.c,v 1.14 2005-08-21 14:18:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -216,7 +216,7 @@ void  BF_Global(struct Element * Element, int NumGlobal,
     (Element,
      NULL,
      GlobalBasisFunction_P->QuantityStorage,
-     QUANTITY_SIMPLE, NOOP, 0,
+     QUANTITY_SIMPLE, NOOP, -1, 0,
      u, v, w, 0., 0., 0.,  Value.Val, &Value.Type, 0) ;
   Current.NbrHar = Save_NbrHar;
 
@@ -273,7 +273,7 @@ void  BF_dGlobal(struct Element * Element, int NumGlobal,
     (Element,
      NULL,
      GlobalBasisFunction_P->QuantityStorage,
-     QUANTITY_SIMPLE, EXTDER, 0,
+     QUANTITY_SIMPLE, EXTDER, -1, 0,
      u, v, w, 0., 0., 0.,  Value.Val, &Value.Type, 0) ;
   Current.NbrHar = Save_NbrHar;
 

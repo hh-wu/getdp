@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.69 2005-07-22 13:26:31 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.70 2005-08-21 14:18:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -801,8 +801,8 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 	    e[NbCut].zc = u*e[NbCut].z[0] + (1.-u)*e[NbCut].z[1];	  
 
 	    if(NCPQ_P)
-	      xyz2uvwInAnElementSimple(&Element, e[NbCut].xc, e[NbCut].yc, e[NbCut].zc, 
-				       &e[NbCut].uc, &e[NbCut].vc, &e[NbCut].wc);	  
+	      xyz2uvwInAnElement(&Element, e[NbCut].xc, e[NbCut].yc, e[NbCut].zc, 
+				 &e[NbCut].uc, &e[NbCut].vc, &e[NbCut].wc);	  
 	    NbCut++;
 	  }
 	}

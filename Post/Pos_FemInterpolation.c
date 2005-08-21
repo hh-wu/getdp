@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_FemInterpolation.c,v 1.18 2005-06-23 01:45:07 geuzaine Exp $"
+#define RCSID "$Id: Pos_FemInterpolation.c,v 1.19 2005-08-21 14:18:30 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -54,7 +54,8 @@ int SearchType(int type){
 void  Pos_FemInterpolation(struct Element * Element, 
 			   struct QuantityStorage * QuantityStorage_P0,
 			   struct QuantityStorage * QuantityStorage_P,
-			   int Type_Quantity, int Type_Operator, int UseXYZ, 
+			   int Type_Quantity, int Type_Operator, 
+			   int Type_Dimension, int UseXYZ, 
 			   double u, double v, double w, 
 			   double x, double y, double z, 
 			   double Val[], int * Type_Value,
@@ -129,7 +130,8 @@ void  Pos_FemInterpolation(struct Element * Element,
 	}
       }
       Init_SearchGrid(&Current.GeoData->Grid);
-      InWhichElement(Current.GeoData->Grid, NULL, &TheElement, SearchType(Element->Type),
+      InWhichElement(Current.GeoData->Grid, NULL, &TheElement, 
+		     (Type_Dimension >= 0) ? Type_Dimension : SearchType(Element->Type),
 		     x, y, z, &u, &v, &w) ;
       TheElement_P = &TheElement ;
       Get_InitDofOfElement(&TheElement) ;
@@ -298,12 +300,13 @@ void  Pos_FemInterpolation(struct Element * Element,
 	  ((void (*)(struct Element*, double*, double*))
 	   xChangeOfCoordinates) (TheElement_P, vBFu[j], vBFxDof[j].Val) ;
 	  /*
-	  	  printf("j %d , Num %d, Type_Form %d  change %d vBFu[j] %e %e %e  vBFx[j]  %e %e %e\n", j,  QuantityStorage_P->BasisFunction[j].NumEntityInElement+1,
+   	  printf("j %d , Num %d, Type_Form %d  change %d "
+	         "vBFu[j] %e %e %e  vBFx[j]  %e %e %e\n", 
+		 j,  QuantityStorage_P->BasisFunction[j].NumEntityInElement+1,
 		 Type_Form,(Flag_ChangeOfCoordinates && TheElement_P->Num != NO_ELEMENT),
 		 vBFu[j][0],vBFu[j][1],vBFu[j][2],
 		 vBFxDof[j].Val[0],vBFxDof[j].Val[1],vBFxDof[j].Val[2]);
 	  */
-
 	}
       }
       
@@ -403,14 +406,13 @@ void  Pos_FemInterpolation(struct Element * Element,
        -------- */
 
     /*
-      Ceci, c'est nul a chier. Ce qu'il faut faire, c'est
-      ne pas reinterpoler ici, mais laisser au Cal_Quantity dans Cal_IntegralQuantity
-      le soin de reinterpoler directment la quantity local intervenant ds la qte integrale 
-      s'il y a lieu !
+      Ceci, c'est nul a chier. Ce qu'il faut faire, c'est ne pas
+      reinterpoler ici, mais laisser au Cal_Quantity dans
+      Cal_IntegralQuantity le soin de reinterpoler directment la
+      quantity local intervenant ds la qte integrale s'il y a lieu !
 
-      Mais, Ct faire avec l'integration anal ?
-     
-     */
+      Mais, comment faire avec l'integration analytique ?
+    */
 
     
     else { 

@@ -250,7 +250,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.90 2005-08-06 08:30:55 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.91 2005-08-21 14:18:26 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -4682,7 +4682,7 @@ case 138:
 case 139:
 #line 1453 "GetDP.y"
 { 
-      if(yyvsp[0].i!=1 && yyvsp[0].i!=3 && yyvsp[0].i!=4) /* Modification for using the previous result of a Quantity */
+      if(yyvsp[0].i!=1 && yyvsp[0].i!=3 && yyvsp[0].i!=4)
 	vyyerror("Wrong number of arguments for discrete quantity evaluation (%d)", yyvsp[0].i) ;
       WholeQuantity_S.Type = WQ_OPERATORANDQUANTITYEVAL ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = yyvsp[0].i ;

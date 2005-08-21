@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.17 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.18 2005-08-21 14:18:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -431,7 +431,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
 	      y2 += Cells[i_Cell].y[i] * Cells[i_Cell].n[i];
 	      z2 += Cells[i_Cell].z[i] * Cells[i_Cell].n[i];
 	    }
-	    xyz2uvwInAnElement (Element, x2, y2, z2, &u2, &v2, &w2, Get_Jacobian, Type_Dimension) ;
+	    xyz2uvwInAnElement(Element, x2, y2, z2, &u2, &v2, &w2) ;
 	    
 	    Current.Element = Element ;
 	    Current.u = u2 ;

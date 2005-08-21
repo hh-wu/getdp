@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.83 2005-08-06 08:30:57 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.84 2005-08-21 14:18:28 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1451,7 +1451,7 @@ WholeQuantity_Single :
 
   | Quantity_Def ArgumentsForFunction
     { 
-      if($2!=1 && $2!=3 && $2!=4) /* Modification for using the previous result of a Quantity */
+      if($2!=1 && $2!=3 && $2!=4)
 	vyyerror("Wrong number of arguments for discrete quantity evaluation (%d)", $2) ;
       WholeQuantity_S.Type = WQ_OPERATORANDQUANTITYEVAL ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = $2 ;

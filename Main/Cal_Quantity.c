@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.40 2005-07-22 09:35:51 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.41 2005-08-21 14:18:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -138,14 +138,13 @@ void  Get_ValueOfExpressionByIndex(int Index_Expression,
 
    Note that Stack[8][MAX_STACK_SIZE] should actually be
    Stack[NBR_MAX_BASISFUNCTION][MAX_STACK_SIZE]. But this tends to
-   overflow the stack when we don't use USE_STATIC_STACK. Also, 8 is
+   overflow the stack when we don't use USE_GLOBAL_STACK. Also, 8 is
    OK since the 'multi' feature is only used for SolidAngle
    computations at the moment.
 
    A better solution would be to build a single stack (instead of 8
    stacks), where a Value could be multiple. But this requires to
-   change the way we deal with function arguments.
-*/
+   change the way we deal with function arguments. */
 
 static struct Value ValueSaved[MAX_REGISTER_SIZE] ;  
 
@@ -170,18 +169,20 @@ void Cal_WholeQuantity(struct Element * Element,
 
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
 
-#define USE_STATIC_STACK
+#define USE_GLOBAL_STACK
 
-#if defined(USE_STATIC_STACK)
-  /* Stack size 
+#if defined(USE_GLOBAL_STACK)
+
+  /* Use a single global (static) stack for all quantity evaluations.
+
+     Stack size 
        = MAX_RECURSION * MAX_STACK_SIZE * 8 * sizeof(struct Value)
        = 50 * 40 * 8 * (MAX_DIM * NBR_MAX_HARMONIC * sizeof(double))
        = 50 * 40 * 8 * (9 * 2 * 8)
       ~= 2 Mb
 
      Beware that for NBR_MAX_HARMONIC=40, the size would grow to
-     40Mb... So let's define MAX_RECURSION as follows :
-  */
+     40Mb... So let's define MAX_RECURSION as follows : */
 
 #if NBR_MAX_HARMONIC <= 10
 #define MAX_RECURSION 50
@@ -189,27 +190,30 @@ void Cal_WholeQuantity(struct Element * Element,
 #define MAX_RECURSION 10
 #endif
 
-  /*
-     We need MAX_RECURSION sufficiently large for expressions like
+  /* We need MAX_RECURSION sufficiently large for expressions like
      (a?b:(c?d:(e?...))) with all n<MAX_RECURSION first tests
      evaluating to false. This case happens quite often when
      specifying piecewise defined physical characteristics.
 
      If this poses problem in the future, we could still think about
      reallocating ths stack as it grows. The same holds for
-     MAX_STACK_SIZE, of course.
-  */
+     MAX_STACK_SIZE, of course. */
+
   static struct Value ***StaticStack;
   static int RecursionIndex = -1, first = 1;
   struct Value **Stack;
+
 #else
-  /* This quickly overflows the stack on Windows and Mac OS X */
+
+  /* Use a local stack: this can quickly overflow the stack on Windows
+     and Mac OS X */
   struct Value Stack[8][MAX_STACK_SIZE] ;
+
 #endif
 
   GetDP_Begin("Cal_WholeQuantity");
 
-#if defined(USE_STATIC_STACK)
+#if defined(USE_GLOBAL_STACK)
   if(first){
     StaticStack = (struct Value***)Malloc(MAX_RECURSION*sizeof(struct Value**));
     for(j = 0; j < MAX_RECURSION; j++){
@@ -247,7 +251,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	   QuantityStorage_P0,
 	   QuantityStorage_P0 + WholeQuantity_P->Case.OperatorAndQuantity.Index,
 	   WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity,
-	   WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, 0,
+	   WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, -1, 0,
 	   u, v, w, 0, 0, 0, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
 	Multi[Index] = 0 ;
       }
@@ -269,21 +273,25 @@ void Cal_WholeQuantity(struct Element * Element,
       Index++ ;  
       break ;
 
-    case WQ_OPERATORANDQUANTITYEVAL : /* {op qty}[x,y,z] or
-					 {op qty}[ntime] */
+    case WQ_OPERATORANDQUANTITYEVAL : 
+      /* {op qty}[x,y,z], {op qty}[x,y,z,dimension] or {op qty}[ntime] */
       if (i_WQ != DofIndexInWholeQuantity || TreatmentStatus == _POS){
 	j = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments;
-	if (j == 3) { 
+	if (j == 3 || j == 4) { 
 	  Index -= j ;
 	  X = Stack[0][Index  ].Val[0] ;
 	  Y = Stack[0][Index+1].Val[0] ;
 	  Z = Stack[0][Index+2].Val[0] ;
+	  if(j == 4) 
+	    Type_Dimension = (int)Stack[0][Index+3].Val[0] ;
+	  else
+	    Type_Dimension = -1 ;
 	  Pos_FemInterpolation
 	    (Element,
 	     QuantityStorage_P0,
 	     QuantityStorage_P0 + WholeQuantity_P->Case.OperatorAndQuantity.Index,
 	     WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity,
-	     WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, 1,
+	     WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, Type_Dimension, 1,
 	     u, v, w, X, Y, Z, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
 	  Multi[Index] = 0 ;
 	  Index++ ;
@@ -321,7 +329,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	     QuantityStorage_P0,
 	     QuantityStorage_P0 + WholeQuantity_P->Case.OperatorAndQuantity.Index,
 	     WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity,
-	     WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, 0,
+	     WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, -1, 0,
 	     u, v, w, 0, 0, 0, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
 	  
 	  Multi[Index] = 0 ;
@@ -367,11 +375,8 @@ void Cal_WholeQuantity(struct Element * Element,
 	  Current.y += Element->y[j] * Element->n[j] ;
 	  Current.z += Element->z[j] * Element->n[j] ;
 	}
-	Get_Jacobian = (double (*)(struct Element*, MATRIX3x3*))
-	  Get_JacobianFunction(Element->JacobianCase->TypeJacobian + 1,
-			       Element->ElementTrace->Type, &Type_Dimension) ;
-	xyz2uvwInAnElement (Element->ElementTrace, Current.x, Current.y, Current.z, 
-			    &Current.ut, &Current.vt, &Current.wt, Get_Jacobian, Type_Dimension) ;	
+	xyz2uvwInAnElement(Element->ElementTrace, Current.x, Current.y, Current.z, 
+			   &Current.ut, &Current.vt, &Current.wt) ;	
 	Cal_WholeQuantity(Element->ElementTrace, QuantityStorage_P0,
 			  WholeQuantity_P->Case.Trace.WholeQuantity,
 			  Current.ut, Current.vt, Current.wt, 
@@ -713,7 +718,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
   if (DofIndexInWholeQuantity < 0) Cal_CopyValue(&Stack[0][0], &DofValue[0]) ;
 
-#if defined(USE_STATIC_STACK)
+#if defined(USE_GLOBAL_STACK)
   RecursionIndex--;
 #endif
 
@@ -728,12 +733,10 @@ List_T * Purify_WholeQuantity(List_T * WQ_L) {
   
   GetDP_Begin("Purify_WholeQuantity");
 
-  /* 
-     It would be nice to pre-compute all trivial sequences in a list
+  /* It would be nice to pre-compute all trivial sequences in a list
      of WholeQuantities. For example, when all the quantties are
      constants, it is pretty stupid to recompute everything
-     everytime using the stack...
-  */
+     everytime using the stack... */
 
   GetDP_Return(NULL) ;
 }

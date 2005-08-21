@@ -52,11 +52,6 @@ void InWhichElement (struct Grid Grid,
 
 void xyz2uvwInAnElement (struct Element *Element,
 			 double  x, double  y, double  z, 
-			 double *u, double *v, double *w,
-			 double   (*Get_Jacobian) (struct Element * Element, MATRIX3x3 * Jac),
-			 int      Dimension) ;
-void xyz2uvwInAnElementSimple (struct Element *Element,
-			       double  x, double  y, double  z, 
-			       double *u, double *v, double *w);
+			 double *u, double *v, double *w);
 
 #endif

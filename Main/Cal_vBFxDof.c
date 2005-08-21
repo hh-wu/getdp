@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_vBFxDof.c,v 1.11 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Cal_vBFxDof.c,v 1.12 2005-08-21 14:18:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -53,26 +53,18 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
   int  i, j, Type_Dimension ;
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
 
- 
   GetDP_Begin("Cal_vBFxDof");
   
   if(EquationTerm_P->Case.LocalTerm.Term.DofInTrace){
-
     E = Current.Element->ElementTrace ;
-
     Current.x = Current.y = Current.z = 0. ;
     for (i = 0 ; i < Current.Element->GeoElement->NbrNodes ; i++) {
       Current.x += Current.Element->x[i] * Current.Element->n[i] ;
       Current.y += Current.Element->y[i] * Current.Element->n[i] ;
       Current.z += Current.Element->z[i] * Current.Element->n[i] ;
     }
-
-    Get_Jacobian = (double (*)(struct Element*, MATRIX3x3*))
-      Get_JacobianFunction(Current.Element->JacobianCase->TypeJacobian + 1,
-			   E->Type, &Type_Dimension) ;
-    xyz2uvwInAnElement (E, Current.x, Current.y, Current.z, 
-			&Current.ut, &Current.vt, &Current.wt,
-			Get_Jacobian, Type_Dimension) ;	
+    xyz2uvwInAnElement(E, Current.x, Current.y, Current.z, 
+		       &Current.ut, &Current.vt, &Current.wt) ;	
     u = Current.ut ;
     v = Current.vt ;
     w = Current.wt ;
