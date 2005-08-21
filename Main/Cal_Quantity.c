@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.41 2005-08-21 14:18:26 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.42 2005-08-21 16:30:16 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -166,8 +166,6 @@ void Cal_WholeQuantity(struct Element * Element,
   struct WholeQuantity   *WholeQuantity_P0, *WholeQuantity_P ;
   struct DofData         *Save_DofData ;
   struct Solution        *Solution_P0, *Solution_PN ;
-
-  double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
 
 #define USE_GLOBAL_STACK
 

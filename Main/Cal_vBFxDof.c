@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_vBFxDof.c,v 1.12 2005-08-21 14:18:26 geuzaine Exp $"
+#define RCSID "$Id: Cal_vBFxDof.c,v 1.13 2005-08-21 16:30:16 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -50,8 +50,7 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
   double         u, v, w ;
   struct Value   CoefPhys ;
   struct Element *E ;
-  int  i, j, Type_Dimension ;
-  double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
+  int  i, j ;
 
   GetDP_Begin("Cal_vBFxDof");
   

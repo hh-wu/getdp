@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.34 2005-08-21 14:18:30 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.35 2005-08-21 16:30:16 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -41,9 +41,7 @@ static struct Geo_Element  * LastGeoElement;
 void ComputeElementBox(struct Element * Element,
 		       struct ElementBox * ElementBox) {
 
-  double XPolyConv, YPolyConv, Xmid, Ymid;
-  double d, dxy, dxz, dyz;
-  int    i;
+  int i;
 
   GetDP_Begin("ComputeElementBox");
 
@@ -383,10 +381,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   /* Note: Il est garanti en sortie que les fcts de forme geometriques sont 
      initialisees en u,v,w */
  
-  List_T              * PointElement_L;
-  struct ElementBox     ElementBox;
   struct Brick        * Brick_P ;
-  struct PointElement   PointElement ;
   int                   i, dim, lowdim = 0, highdim = 0;  
   double                tol;
 
@@ -464,7 +459,7 @@ void xyz2uvwInAnElement (struct Element *Element,
   double   u_new, v_new, w_new;
   double   Error = 1.0 ;
   int      i, iter = 1 ;
-  int      ChainDim, Type_Dimension, Type_Jacobian ;
+  int      ChainDim = _3D, Type_Dimension, Type_Jacobian ;
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
 
   GetDP_Begin("xyz2uvwInAnElement");
