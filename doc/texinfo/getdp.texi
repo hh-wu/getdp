@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.79 2005-08-06 08:30:57 geuzaine Exp $
+@c $Id: getdp.texi,v 1.80 2005-08-29 01:01:09 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -5704,7 +5704,7 @@ commands given in the @code{Operation} field of the selected
 @item -pos
 @var{post-operation-id} @dots{}
 
-Performs the operations in the @var{PostOperation}(s) selected by the
+Performs the operations in the @code{PostOperation}(s) selected by the
 @var{post-operation-id}(s). This requires that a processing has been
 performed previously, or that a @code{-cal} option is given on the same
 command line. If @var{post-operation-id} is omitted, the list of available
@@ -5715,16 +5715,16 @@ choices is displayed.
 
 Enters an interactive post-processing mode, permetting to manually type
 @code{PostOperation}-like commands. These commands are based on the
-@var{PostProcessing} object(s) selected by the @var{post-processing-id}(s).
+@code{PostProcessing} object(s) selected by the @var{post-processing-id}(s).
 If @var{post-processing-id} is omitted, the list of available choices is
 displayed.
 
 @item -msh
 @var{filename}
 
-Reads the mesh database (in @code{.msh} format) from @var{filename}
-(@pxref{File formats}) rather than reading it from the default problem file
-name (with the @file{.msh} extension appended).
+Reads the mesh (in @code{.msh} format) from @var{filename} (@pxref{File
+formats}) rather than from the default problem file name (with the
+@file{.msh} extension appended).
 
 @item -split
 
@@ -5743,7 +5743,8 @@ of mesh, pre-processing and processing files.
 
 @item -restart
 
-Restarts processing of a transient problem interrupted before being complete.
+Restarts processing of a time stepping resolution interrupted before being
+complete.
 
 @item -solve
 @var{resolution-id}

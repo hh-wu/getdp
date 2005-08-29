@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2005-06-23 01:45:07 geuzaine Exp $
+# $Id: Makefile,v 1.13 2005-08-29 01:01:09 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -50,9 +50,7 @@ infoz: info
 	tar zcvf getdp-info.tgz getdp.info*
 
 txt:
-	makeinfo --no-headers getdp.texi |\
-        sed -n '/...Table of Contents.../,$$p' |\
-        sed 's/...Table of Contents...//' > getdp.txt
+	makeinfo --no-headers getdp.texi -o getdp.txt
 
 all: ps pdf html html1 infoz txt
 
