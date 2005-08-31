@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Tetrahedron.c,v 1.14 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Tetrahedron.c,v 1.15 2005-08-31 20:44:41 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -100,11 +100,7 @@ void  GaussLegendre_Tetrahedron (int Nbr_Points, int Num,
 
   GetDP_Begin("GaussLegendre_Tetrahedron");
 
-#ifdef MSDOS
   nb = (int)pow((double)Nbr_Points, 1./3.);
-#else
-  nb = (int)cbrt((double)Nbr_Points);
-#endif
 
   if(nb*nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
     Msg(ERROR, "Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;

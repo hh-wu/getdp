@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.74 2005-07-16 08:13:56 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.75 2005-08-31 20:44:41 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -23,7 +23,7 @@
 #include <signal.h>
 #include <sys/time.h>
 
-#if !defined(MSDOS)
+#if !defined (WIN32) || defined(__CYGWIN__)
 #include <sys/resource.h>
 #endif
 
@@ -273,7 +273,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
 }
 
 void GetResources(long *s, long *us, long *mem){
-#if !defined(MSDOS)
+#if !defined (WIN32) || defined(__CYGWIN__)
   static struct rusage r;
 
   getrusage(RUSAGE_SELF,&r);
@@ -286,7 +286,7 @@ void GetResources(long *s, long *us, long *mem){
 }
 
 void PrintResources(FILE *stream, char *fmt, long s, long us, long mem){
-#if !defined(MSDOS)
+#if !defined (WIN32) || defined(__CYGWIN__)
   char sockmsg[1000];
   if(Flag_SOCKET > 0){
     sprintf(sockmsg, RESOURCES_STR "%scpu %ld.%ld s / mem %ld kb\n", fmt, s, us, mem);
@@ -331,7 +331,7 @@ void Msg(int level, char *fmt, ...){
 }
 
 void CheckResources(void){
-#if !defined(MSDOS)
+#if !defined (WIN32) || defined(__CYGWIN__)
   static struct rlimit r;
 
   getrlimit(RLIMIT_STACK, &r);

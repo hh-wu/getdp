@@ -1,4 +1,4 @@
-/* $Id: GmshClient.c,v 1.15 2005-06-23 01:45:01 geuzaine Exp $ */
+/* $Id: GmshClient.c,v 1.16 2005-08-31 20:44:41 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 C. Geuzaine, J.-F. Remacle
  *
@@ -30,13 +30,7 @@
  *   Christopher Stott
  */
 
-#ifdef MSDOS /* pure DOS/Windows code, without cygwin */
-
-int  Gmsh_Connect(char *sockname){ return -2;}
-void Gmsh_SendString(int socket, int type, char str[]){;}
-void Gmsh_Disconnect(int sock){;}
-
-#else
+#if !defined (WIN32) || defined(__CYGWIN__)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -164,5 +158,11 @@ void Gmsh_Disconnect(int sock)
 {
   close(sock);
 }
+
+#else /* pure Windows code, without cygwin */
+
+int  Gmsh_Connect(char *sockname){ return -2;}
+void Gmsh_SendString(int socket, int type, char str[]){;}
+void Gmsh_Disconnect(int sock){;}
 
 #endif
