@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.174 2005-07-16 21:49:23 geuzaine Exp $
+# $Id: Makefile,v 1.175 2005-08-31 22:03:57 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -100,10 +100,10 @@ tag:
 	echo "#define GETDP_PATCH_VERSION ${GETDP_PATCH_VERSION}" >> ${GETDP_VERSION_FILE}
 	echo "#define GETDP_EXTRA_VERSION \"${GETDP_EXTRA_VERSION}\"" >> ${GETDP_VERSION_FILE}
 	echo "#define GETDP_VERSION  \"${GETDP_VERSION}\"" >> ${GETDP_VERSION_FILE}
-	echo "#define GETDP_DATE     \"`date`\""      >> ${GETDP_VERSION_FILE}
-	echo "#define GETDP_HOST     \"`hostname`\""  >> ${GETDP_VERSION_FILE}
-	echo "#define GETDP_PACKAGER \"`whoami`\""    >> ${GETDP_VERSION_FILE}
-	echo "#define GETDP_OS       \"`uname -sr`\"" >> ${GETDP_VERSION_FILE}
+	echo "#define GETDP_DATE     \"`date`\""     >> ${GETDP_VERSION_FILE}
+	echo "#define GETDP_HOST     \"`hostname`\"" >> ${GETDP_VERSION_FILE}
+	echo "#define GETDP_PACKAGER \"`whoami`\""   >> ${GETDP_VERSION_FILE}
+	echo "#define GETDP_OS       \"${UNAME}\""   >> ${GETDP_VERSION_FILE}
 	echo "#define GETDP_SHORT_LICENSE \"${GETDP_SHORT_LICENSE}\"" >> ${GETDP_VERSION_FILE}
 
 initialtag:
