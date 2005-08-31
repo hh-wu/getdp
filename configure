@@ -852,7 +852,7 @@ Optional Features:
   --enable-petsc          use PETSc linear solvers (default=no)
   --enable-arpack         enable built-in Arpack eigensolver (default=yes)
   --enable-debug          build debug stack frame (default=no)
-  --enable-purewin32      don't depend on Cygwin on Windows (default=no)
+  --enable-cygwin         use the Cygwin library on Windows (default=yes)
   --enable-gsl            use GSL as numerical toolkit (default=yes)
   --enable-readline       use GNU readline (default=no)
   --enable-metis          use Metis for graph partitioning (default=no)
@@ -1376,9 +1376,9 @@ if test "${enable_debug+set}" = set; then
   enableval="$enable_debug"
 
 fi;
-# Check whether --enable-purewin32 or --disable-purewin32 was given.
-if test "${enable_purewin32+set}" = set; then
-  enableval="$enable_purewin32"
+# Check whether --enable-cygwin or --disable-cygwin was given.
+if test "${enable_cygwin+set}" = set; then
+  enableval="$enable_cygwin"
 
 fi;
 # Check whether --enable-gsl or --disable-gsl was given.
@@ -1405,7 +1405,7 @@ if test "x${UNAME}" = "x"; then
 fi
 case "${UNAME}" in
   CYGWIN*)
-    if test "x$enable_purewin32" = "xyes"; then
+    if test "x$enable_cygwin" = "xno"; then
       UNAME=MINGW
     fi
     ;;
@@ -2593,6 +2593,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 C_FLAGS="${CFLAGS}"
 C_PARSER_FLAGS="${CFLAGS}"
 F77_FLAGS="${FFLAGS}"
+OPTIONS=""
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -3042,10 +3043,10 @@ echo "$as_me: error: Could not determine PETSC_ARCH. Run configure again with --
    { (exit 1); exit 1; }; }
   fi
 
-  C_FLAGS="${C_FLAGS} -DHAVE_BLAS_LAPACK"
+  OPTIONS="${OPTIONS} -DHAVE_BLAS_LAPACK"
 
   if test "x$enable_arpack" != "xno"; then
-    C_FLAGS="${C_FLAGS} -DHAVE_ARPACK"
+    OPTIONS="${OPTIONS} -DHAVE_ARPACK"
     GETDP_DIRS="${GETDP_DIRS} Arpack"
     GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -lArpack ${PETSC_KSP_LIB}'
   else
@@ -3180,7 +3181,7 @@ else
 fi
 
     if test "x${LAPACK}" = "xyes"; then
-      C_FLAGS="${C_FLAGS} -DHAVE_BLAS_LAPACK"
+      OPTIONS="${OPTIONS} -DHAVE_BLAS_LAPACK"
       if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
         GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX}"
       fi
@@ -3194,7 +3195,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
     if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
-    C_FLAGS="${C_FLAGS} -DHAVE_ARPACK"
+    OPTIONS="${OPTIONS} -DHAVE_ARPACK"
     GETDP_DIRS="${GETDP_DIRS} Arpack"
     GETDP_LIBS="${GETDP_LIBS} -lArpack"
   fi
@@ -3400,12 +3401,12 @@ else
 fi
 
   if test "x${GSL}" = "xyes"; then
-    C_FLAGS="${C_FLAGS} -DHAVE_GSL"
+    OPTIONS="${OPTIONS} -DHAVE_GSL"
     if test "x${GSL_PREFIX}" = "x"; then
       GETDP_LIBS="${GETDP_LIBS} -lgsl -lgslcblas"
     else
       GETDP_LIBS="${GETDP_LIBS} -L${GSL_PREFIX}/lib -lgsl -lgslcblas"
-      C_FLAGS="${C_FLAGS} -I${GSL_PREFIX}/include"
+      OPTIONS="${OPTIONS} -I${GSL_PREFIX}/include"
     fi
   fi
 fi
@@ -3462,17 +3463,17 @@ echo "$as_me: error: Could not find GSL, aborting." >&2;}
 fi
 
 if test "x$enable_debug" = "xyes"; then
-  C_FLAGS="${C_FLAGS} -DHAVE_DEBUG_STACK"
+  OPTIONS="${OPTIONS} -DHAVE_DEBUG_STACK"
 fi
 
 if test "x$enable_multiharmonic" = "xyes"; then
-  C_FLAGS="${C_FLAGS} -DHAVE_MULTIHARMONIC"
+  OPTIONS="${OPTIONS} -DHAVE_MULTIHARMONIC"
 fi
 
 if test "x$enable_metis" = "xyes"; then
-  C_FLAGS="${C_FLAGS} -DHAVE_METIS"
+  OPTIONS="${OPTIONS} -DHAVE_METIS"
   if test "x${METIS_PREFIX}" != "x"; then
-    C_FLAGS="${C_FLAGS} -I${METIS_PREFIX}/include"
+    OPTIONS="${OPTIONS} -I${METIS_PREFIX}/include"
     GETDP_LIBS="${GETDP_LIBS} -L${METIS_PREFIX} -lmetis"
   fi
 fi
@@ -4144,12 +4145,12 @@ fi
     fi
   fi
   if test "x${READLINE}" = "xyes"; then
-    C_FLAGS="${C_FLAGS} -DHAVE_READLINE"
+    OPTIONS="${OPTIONS} -DHAVE_READLINE"
     if test "x${READLINE_PREFIX}" = "x"; then
       GETDP_LIBS="${GETDP_LIBS} -lreadline -lhistory"
     else
       GETDP_LIBS="${GETDP_LIBS} -L${READLINE_PREFIX}/lib -lreadline -lhistory"
-      C_FLAGS="${C_FLAGS} -I${READLINE_PREFIX}/include"
+      OPTIONS="${OPTIONS} -I${READLINE_PREFIX}/include"
     fi
     if test "x${TERMCAP}" = "xyes"; then
       GETDP_LIBS="${GETDP_LIBS} -ltermcap"
@@ -4484,6 +4485,9 @@ fi
 
 done
 
+
+C_FLAGS="${C_FLAGS} ${OPTIONS}"
+C_PARSER_FLAGS="${C_PARSER_FLAGS} ${OPTIONS}"
 
 
 
