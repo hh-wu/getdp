@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.84 2005-08-21 14:18:28 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.85 2005-08-31 17:44:25 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1970,7 +1970,6 @@ Constraints :
 	Problem_S.Constraint = List_Create(20, 20, sizeof (struct Constraint) ) ;
     }
 
-  | Loop
   | Constraints BracedConstraint 
   ;
 
@@ -1997,6 +1996,8 @@ BracedConstraint :
     }
 
   | Affectation
+
+  | Loop
   ;
 
 Constraint :
