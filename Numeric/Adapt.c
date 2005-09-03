@@ -1,4 +1,4 @@
-#define RCSID "$Id: Adapt.c,v 1.15 2005-06-23 01:45:02 geuzaine Exp $"
+#define RCSID "$Id: Adapt.c,v 1.16 2005-09-03 02:46:11 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -27,9 +27,6 @@
 #include "Data_Element.h"
 #include "Adapt.h"
 #include "Numeric.h"
-
-#define TOL     1.e-08
-#define MAXDEG  999
 
 static int     NN ;
 static double  MINH , *ERR , *HH , *PP , E0, DIM ;
@@ -98,7 +95,7 @@ double fP1 (double l){
 /* ------------------------------------------------------------------------ */
 
 double min1d (int method, double (*funct)(double), double *xmin){
-  double xx, fx, fb, fa, bx, ax;
+  double xx, fx, fb, fa, bx, ax, tol = 1.e-4;
 
   GetDP_Begin("min1d");
 
@@ -109,7 +106,7 @@ double min1d (int method, double (*funct)(double), double *xmin){
   }    
   mnbrak(&ax,&xx,&bx,&fa,&fx,&fb,funct);
 
-  GetDP_Return( brent(ax,xx,bx,funct,TOL,xmin) );
+  GetDP_Return( brent(ax,xx,bx,funct,tol,xmin) );
 }
 
 /* Adapt return the constraint (N0 ou e0) for the optimzed problem */
@@ -120,9 +117,8 @@ double Adapt (int N,        /* Number of elements */
 	      double *err,  /* elementary errors */
 	      double *h,    /* elementary mesh sizes */
 	      double *p,    /* elementary exponents */
-	      double e0     /* prescribed error or number of elements */
-	      ){
-  int i;
+	      double e0){   /* prescribed error or number of elements */
+  int i, maxdeg = 999;
   double contr=0., pivrai, lambda, minf, qi, ri, pi, obj, obj2, minri=0., maxri=0.;
   double errmin=0., errmax=0.;
 
@@ -198,7 +194,7 @@ double Adapt (int N,        /* Number of elements */
     for(i = 1 ; i <= N ; i++){
       qi = -log(2.*lambda*DSQR(err[i])*log(h[i]/MINH)) / log(h[i]/MINH);
       pi = p[i] - .5 * qi;
-      pivrai = DMIN(DMAX(1., (double)(int)(pi+.99)), MAXDEG);
+      pivrai = DMIN(DMAX(1., (double)(int)(pi+.99)), maxdeg);
       obj2 += pow(h[i]/MINH, 2.*(p[i]-pivrai)) * DSQR(err[i]);
       obj += DSQR(err[i]) * pow(h[i]/MINH, qi); 
       h[i] = h[i];

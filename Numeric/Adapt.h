@@ -36,7 +36,6 @@ double Adapt (int N,        /* Number of elements */
 	      double *err,  /* elementary errors */
 	      double *h,    /* elementary mesh sizes */
 	      double *p,    /* elementary exponents */
-	      double e0     /* prescribed error or number of elements */
-	      );
+	      double e0);   /* prescribed error or number of elements */
 
 #endif

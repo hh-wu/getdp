@@ -1,4 +1,4 @@
-#define RCSID "$Id: gsl_brent.c,v 1.5 2005-06-23 01:45:02 geuzaine Exp $"
+#define RCSID "$Id: gsl_brent.c,v 1.6 2005-09-03 02:46:11 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -112,84 +112,74 @@ double brent(double ax, double bx, double cx,
 #define MYLIMIT_ 100.0
 #define MYTINY_  1.0e-20
 
-void mnbrak(double *ax, double *bx, double *cx, double *fa, double *fb,
-            double *fc, double (*func) (double))
+void mnbrak(double *ax, double *bx, double *cx, 
+	    double *fa_dummy, double *fb_dummy, double *fc_dummy, 
+	    double (*func) (double))
 {
-  double ulim, u, r, q, fu;
+  double ulim, u, r, q;
+  double tmp;
+  volatile double f_a, f_b, f_c, f_u;
 
-  /* Msg(INFO, "--MNBRAK1 : ax %12.5E bx = %12.5E",*ax,*bx); */
-
-  *fa = (*func) (*ax);
-  *fb = (*func) (*bx);
-  if(*fb > *fa) {
-    double tmp;
+  f_a = (*func) (*ax);
+  f_b = (*func) (*bx);
+  if(f_b > f_a) {
     tmp = *ax;
     *ax = *bx;
     *bx = tmp;
-    tmp = *fb;
-    *fb = *fa;
-    *fa = tmp;
+    tmp = f_b;
+    f_b = f_a;
+    f_a = tmp;
   }
 
-  /* Msg(INFO, "--MNBRAK2 : ax %12.5E  bx = %12.5E",*ax,*bx); */
-
   *cx = *bx + MYGOLD_ * (*bx - *ax);
-  *fc = (*func) (*cx);
-  while(*fb > *fc) {
-    r = (*bx - *ax) * (*fb - *fc);
-    q = (*bx - *cx) * (*fb - *fa);
-    u =
-      (*bx) - ((*bx - *cx) * q -
-               (*bx - *ax) * r) / (2.0 * SIGN(MAX(fabs(q - r), MYTINY_),
-                                              q - r));
+  f_c = (*func) (*cx);
 
-    /* Msg(INFO, "--MNBRAK : %12.5E %12.5E %12.5E %12.5E %12.5E",*ax,*fa,*fb,*fc,u); */
-
+  while(f_b > f_c) {
+    r = (*bx - *ax) * (f_b - f_c);
+    q = (*bx - *cx) * (f_b - f_a);
+    u = (*bx) - ((*bx - *cx) * q - (*bx - *ax) * r) / 
+      (2.0 * SIGN(MAX(fabs(q - r), MYTINY_), q - r));
     ulim = *bx + MYLIMIT_ * (*cx - *bx);
+
     if((*bx - u) * (u - *cx) > 0.0) {
-      fu = (*func) (u);
-      if(fu < *fc) {
+      f_u = (*func) (u);
+      if(f_u < f_c) {
         *ax = *bx;
         *bx = u;
-        *fa = *fb;
-        *fb = fu;
         return;
       }
-      else if(fu > *fb) {
+      else if(f_u > f_b) {
         *cx = u;
-        *fc = fu;
         return;
       }
       u = *cx + MYGOLD_ * (*cx - *bx);
-      fu = (*func) (u);
+      f_u = (*func) (u);
     }
     else if((*cx - u) * (u - ulim) > 0.0) {
-      fu = (*func) (u);
-      if(fu < *fc) {
+      f_u = (*func) (u);
+      if(f_u < f_c) {
         *bx = *cx;
         *cx = u;
         u = *cx + MYGOLD_ * (*cx - *bx);
-        *fb = *fc;
-        *fc = fu;
-        fu = (*func) (u);
+        f_b = f_c;
+        f_c = f_u;
+        f_u = (*func) (u);
       }
     }
     else if((u - ulim) * (ulim - *cx) >= 0.0) {
       u = ulim;
-      fu = (*func) (u);
+      f_u = (*func) (u);
     }
     else {
       u = *cx + MYGOLD_ * (*cx - *bx);
-      fu = (*func) (u);
+      f_u = (*func) (u);
     }
     *ax = *bx;
     *bx = *cx;
     *cx = u;
-    *fa = *fb;
-    *fb = *fc;
-    *fc = fu;
-
-    /* Msg(INFO, "MNBRAK : %12.5E %12.5E %12.5E",*ax,*bx,*cx); */
+    f_a = f_b;
+    f_b = f_c;
+    f_c = f_u;
   }
 }
 
