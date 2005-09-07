@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.59 2005-08-31 22:03:57 geuzaine Exp $
+dnl $Id: configure.in,v 1.60 2005-09-07 03:05:32 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -227,11 +227,14 @@ else
       fi
       ;;
     Linux*)
-      dnl options for pgi compiler
+      dnl options for pgi and intel compilers
       case "${F77}" in
         *pgf77*)
           LINKER="${F77} -Mnomain"
           GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
+          ;;
+        *ifort*)
+          LINKER="${F77} -nofor_main"
           ;;
       esac
       ;;

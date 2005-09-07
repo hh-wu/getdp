@@ -3243,6 +3243,9 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
           LINKER="${F77} -Mnomain"
           GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
           ;;
+        *ifort*)
+          LINKER="${F77} -nofor_main"
+          ;;
       esac
       ;;
     Darwin*)
@@ -4598,10 +4601,9 @@ for ac_i in : $LIBOBJS; do test "x$ac_i" = x: && continue
   # 1. Remove the extension, and $U if already installed.
   ac_i=`echo "$ac_i" |
 	 sed 's/\$U\././;s/\.o$//;s/\.obj$//'`
-  # 2. Prepend LIBOBJDIR.  When used with automake>=1.10 LIBOBJDIR
-  #    will be set to the directory where LIBOBJS objects are built.
-  ac_libobjs="$ac_libobjs \${LIBOBJDIR}$ac_i\$U.$ac_objext"
-  ac_ltlibobjs="$ac_ltlibobjs \${LIBOBJDIR}$ac_i"'$U.lo'
+  # 2. Add them.
+  ac_libobjs="$ac_libobjs $ac_i\$U.$ac_objext"
+  ac_ltlibobjs="$ac_ltlibobjs $ac_i"'$U.lo'
 done
 LIBOBJS=$ac_libobjs
 
