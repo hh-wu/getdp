@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.83 2005-09-14 03:47:24 geuzaine Exp $
+@c $Id: getdp.texi,v 1.84 2005-09-14 03:53:53 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -422,15 +422,14 @@ ready-to-use software could be rapidly developed for given problems.
 
 After reading @ref{Overview}, which depicts the general philosophy of
 GetDP, you might want to skip @ref{Expressions}, @ref{Objects} and
-@ref{Types for objects} and directly run some of the tutorials and
-demonstration files bundled in the distribution on your computer
-(@pxref{Running GetDP}). You should then open these examples with a text
-editor and compare their structure with the examples given in @ref{Short
-examples} and @ref{Complete examples}. For each new syntax element that
-you fall onto, you can then go back to @ref{Expressions}, @ref{Objects},
-and @ref{Types for objects}, and find in these chapters the detailed
-description of the syntactic rules as well as all the available
-options. 
+@ref{Types for objects} and directly run the demo files bundled in the
+distribution on your computer (@pxref{Running GetDP}). You should then
+open these examples with a text editor and compare their structure with
+the examples given in @ref{Short examples} and @ref{Complete
+examples}. For each new syntax element that you fall onto, you can then
+go back to @ref{Expressions}, @ref{Objects}, and @ref{Types for
+objects}, and find in these chapters the detailed description of the
+syntactic rules as well as all the available options.
 
 Indexes for many concepts (@pxref{Concept index}) and for all the syntax
 elements (@pxref{Syntax index}) are available at the end of this
@@ -705,13 +704,13 @@ This chapter and the next two describe in a rather formal way all the
 commands that can be used in the ASCII text input files.  If you are
 just beginning to use GetDP, or just want to see what GetDP is all
 about, you should skip this chapter and the next two for now, have a
-quick look at @ref{Running GetDP}, and run the tutorials and
-demonstration files bundled in the distribution on your computer. You
-should then open the @file{.pro} files in a text editor and compare the
-general objects with those presented in @ref{Short examples} and
-@ref{Complete examples}.  Once you have a general idea of how the files
-are organized, you might want to come back here to learn more about the
-specific syntax of all the commands, and all the available options.
+quick look at @ref{Running GetDP}, and run the demo problems bundled in
+the distribution on your computer. You should then open the @file{.pro}
+files in a text editor and compare their structure with the examples
+given in @ref{Short examples} and @ref{Complete examples}. Once you have
+a general idea of how the files are organized, you might want to come
+back here to learn more about the specific syntax of all the objects,
+and all the available options.
 
 @menu
 * Expression definition::
