@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.81 2005-09-01 16:15:34 geuzaine Exp $
+@c $Id: getdp.texi,v 1.82 2005-09-14 03:46:59 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -40,6 +40,7 @@
 @set EDITION        4.2
 @set GETDP-VERSION  1.1
 @set GETDP-WEB      @uref{http://www.geuz.org/getdp/}
+@set GETDP-WIKI     @uref{http://www.geuz.org/getdp/wiki/FrontPage}
 @set GMSH-WEB       @uref{http://www.geuz.org/gmsh/}
 @set COPYRIGHT      @copyright{} 1997-2005 Patrick Dular, Christophe Geuzaine
 @c
@@ -187,7 +188,7 @@ Overview
 
 Expressions 
 
-* Expression definition::       
+* Expression definition::       Constants:: Operators:: Functions:: Current
 * Constants::                   
 * Operators::                   
 * Functions::                   
@@ -419,20 +420,21 @@ ready-to-use software could be rapidly developed for given problems.
 
 @cindex Reading, guidelines
 
-After reading @ref{Overview}, and @ref{Expressions}, which depict the
-general concepts and the way to construct simple expressions in GetDP, you
-can safely (during a first reading) skip @ref{Objects} and @ref{Types for
-objects} and directly go to @ref{Short examples}. This chapter gives simple
-examples of the problem definition syntax used to define the discrete
-problems. For each example, you should then go back to @ref{Objects}, and
-@ref{Types for objects}, and have a detailed view of the syntax of the
-objects appearing in it. Note that indexes for many concepts and for all the
-syntax elements are available at the end of this manual.
+After reading @ref{Overview}, which depicts the general philosophy of
+GetDP, you might want to skip @ref{Expressions}, @ref{Objects} and
+@ref{Types for objects} and directly run some of the tutorials and
+demonstration files bundled in the distribution on your computer
+(@pxref{Running GetDP}). You should then open these examples with a text
+editor and compare their structure with the examples given in @ref{Short
+examples} and @ref{Complete examples}. For each new syntax element that
+you fall onto, you can then go back to @ref{Expressions}, @ref{Objects},
+and @ref{Types for objects}, and find in these chapters the detailed
+description of the syntactic rules as well as all the available
+options. 
 
-Once the examples presented in @ref{Short examples}, are understood, you may
-start to use GetDP on your computer (@pxref{Running GetDP}), for example by
-solving the complete examples presented in @ref{Complete examples}. Other
-ready-to-use example files can be downloaded from the web site.
+Indexes for many concepts (@pxref{Concept index}) and for all the syntax
+elements (@pxref{Syntax index}) are available at the end of this
+manual. 
 
 @c =========================================================================
 @c Overview
@@ -510,21 +512,23 @@ The computational tools which are in the center of a problem definition
 structure are formulations (@code{Formulation}) and function spaces
 (@code{FunctionSpace}). Formulations define systems of equations that have
 to be built and solved, while function spaces contain all the quantities,
-i.e.@: functions, fields of vectors or covectors, known or not, involved in
+i.e., functions, fields of vectors or covectors, known or not, involved in
 formulations.
 
-Each object of a problem definition structure must be defined before being
-referred to by others. A linking which always respects this property is the
-following: it first contains the objects defining particular data of a
-problem, such as geometry, physical characteristics and boundary conditions
-(i.e.@: @code{Group}, @code{Function} and @code{Constraint}) followed by
-those defining a resolution method, such as unknowns, equations and related
-objects (i.e.@: @code{Jacobian}, @code{Integration}, @code{FunctionSpace},
-@code{Formulation}, @code{Resolution} and @code{PostProcessing}).  The
-processing cycle ends with the presentation of the results (i.e.@: lists of
-numbers in various formats), defined in @code{PostOperation} fields.  This
-decomposition points out the possibility of building black boxes, containing
-objects of the second group, adapted to treatments of defined problems.
+Each object of a problem definition structure must be defined before
+being referred to by others. A linking which always respects this
+property is the following: it first contains the objects defining
+particular data of a problem, such as geometry, physical characteristics
+and boundary conditions (i.e., @code{Group}, @code{Function} and
+@code{Constraint}) followed by those defining a resolution method, such
+as unknowns, equations and related objects (i.e., @code{Jacobian},
+@code{Integration}, @code{FunctionSpace}, @code{Formulation},
+@code{Resolution} and @code{PostProcessing}).  The processing cycle ends
+with the presentation of the results (i.e., lists of numbers in various
+formats), defined in @code{PostOperation} fields.  This decomposition
+points out the possibility of building black boxes, containing objects
+of the second group, adapted to treatment of general classes of problems
+that share the same resolution methods.
 
 
 @c -------------------------------------------------------------------------
@@ -554,7 +558,7 @@ metasyntactic variables.
 @item 
 Keywords and literal symbols are printed like @code{this}.
 @item 
-Metasyntactic variables (i.e.@: text bits that are not part of the syntax,
+Metasyntactic variables (i.e., text bits that are not part of the syntax,
 but stand for other text bits) are printed like @var{this}.
 @item 
 A colon (@code{:}) after a metasyntactic variable separates the variable
@@ -586,7 +590,7 @@ The @var{etc} symbol replaces nonlisted rules.
 @tindex //
 
 Both C and C++ style comments are supported and can be used in the input
-data file to comment selected text regions:
+data files to comment selected text regions:
 
 @enumerate
 @item
@@ -595,8 +599,7 @@ the text region comprised between @code{/*} and @code{*/} pairs is ignored;
 the rest of a line after a double slash @code{//} is ignored.
 @end enumerate
 
-These commands won't have the described effects inside double quotes or
-inside GetDP keywords.
+Comments cannot be used inside double quotes or inside GetDP keywords.
 
 @c -------------------------------------------------------------------------
 @c Includes
@@ -611,10 +614,10 @@ inside GetDP keywords.
 @tindex Include
 @tindex #include
 
-Files can be included by placing one of the following commands
-(@var{expression-char} represents a file name) on a separate line, and
-outside any GetDP object.  Any text placed after an include command on the
-same line is ignored.
+An input data file can be included in another input data file by placing
+one of the following commands (@var{expression-char} represents a file
+name) on a separate line, outside the GetDP objects.  Any text placed
+after an include command on the same line is ignored.
 
 @example
 @code{Include @var{expression-char}} 
@@ -679,6 +682,17 @@ forms a problem definition structure which is totally external to the
 software: GetDP offers computational tools; the user freely applies them to
 define and solve his problem.
 
+Nevertheless, specific numerical tools will @emph{always} need to be
+implemented to solve specific problems in areas other than those
+mentionned above. If you think the general phisosophy of GetDP is right
+for you and your problem, but you discover that GetDP lacks the tools
+necessary to handle it, let us know: we would love to discuss it with
+you. For example, at the time of this writing, many areas of GetDP would
+need to be improved to make GetDP as useful for computational mechanics
+or computational fluid dynamics as it is for computational
+electromagnetics... So if you have the skills and some free time, feel
+free to join the project: we gladly accept all code contributions!
+
 
 @c =========================================================================
 @c Expressions
@@ -687,12 +701,20 @@ define and solve his problem.
 @node Expressions, Objects, Overview, Top
 @chapter Expressions 
 
-@c -------------------------------------------------------------------------
-@c Definition
-@c -------------------------------------------------------------------------
+This chapter and the next two describe in a rather formal way all the
+commands that can be used in the ASCII text input files.  If you are
+just beginning to use GetDP, or just want to see what GetDP is all
+about, you should skip this chapter and the next two for now, have a
+quick look at @ref{Running GetDP}, and run the tutorials and
+demonstration files bundled in the distribution on your computer. You
+should then open the @file{.pro} files in a text editor and compare the
+general objects with those presented in @ref{Short examples} and
+@ref{Complete examples}.  Once you have a general idea of how the files
+are organized, you might want to come back here to learn more about the
+specific syntax of all the commands, and all the available options.
 
 @menu
-* Expression definition::       
+* Expression definition::
 * Constants::                   
 * Operators::                   
 * Functions::                   
@@ -702,6 +724,10 @@ define and solve his problem.
 * Fields::                      
 * Loops and conditionals::      
 @end menu
+
+@c -------------------------------------------------------------------------
+@c Definition
+@c -------------------------------------------------------------------------
 
 @node Expression definition, Constants, Expressions, Expressions
 @section Definition
@@ -746,7 +772,7 @@ Expressions are denoted by the metasyntactic variable @var{expression}
 @end example
 
 @noindent The following sections introduce the quantities that can appear in
-expressions, i.e.@: constant terminals (@var{integer}, @var{real}) and
+expressions, i.e., constant terminals (@var{integer}, @var{real}) and
 constant expression identifiers (@var{constant-id},
 @var{expression-cst-list}), discretized fields (@var{quantity}), arguments
 (@var{argument}), current values (@var{current-value}), register values
@@ -1102,7 +1128,7 @@ argument (located after @code{:}) is evaluated and returned.
 @tindex ()
 
 The evaluation priorities are summarized below (from stronger to weaker,
-i.e.@: @code{^} has the highest evaluation priority). Parentheses
+i.e., @code{^} has the highest evaluation priority). Parentheses
 @code{()} may be used anywhere to change the order of evaluation.
 
 @table @code
@@ -1235,7 +1261,7 @@ Value of the current parametric coordinates used in the parametric
 @enumerate
 @item
 The current X, Y and Z coordinates refer to the `physical world'
-coordinates, i.e.@: coordinates in which the mesh is expressed.
+coordinates, i.e., coordinates in which the mesh is expressed.
 @end enumerate
 
 
@@ -1492,8 +1518,7 @@ This chapter presents the formal definition of the ten GetDP objects
 mentioned in @ref{Overview}. To be concise, all the possible parameters for
 these objects are not given here (cf.@: the @var{etc} syntactic rule defined
 in @ref{Syntactic rules}). Please refer to @ref{Types for objects}, for
-this.
-
+the list of all available options.
 
 @menu
 * Group::                       
@@ -1540,7 +1565,7 @@ this.
 Meshes (grids) constitute the input data of GetDP. All that is needed by
 GetDP as a mesh is a file containing a list of nodes (with their
 coordinates) and a list of geometrical elements with, for each one, a number
-characterizing its geometrical type (i.e.@: line, triangle, quadrangle,
+characterizing its geometrical type (i.e., line, triangle, quadrangle,
 tetrahedron, hexahedron, prism, etc.), a number characterizing the physical
 region to which it belongs and the list of its nodes. This minimal input set
 should be easy to extract from most of the classical mesh file
@@ -1553,14 +1578,14 @@ regions, and function groups, with nodes, edges, facets, volumes, groups of
 nodes, edges of tree, facets of tree, @dots{} of regions.
 
 Amongst region groups, elementary and global groups can be distinguished:
-elementary groups are relative to single regions (e.g.@: physical regions in
+elementary groups are relative to single regions (e.g., physical regions in
 which piecewise defined functions or constraints can be defined) while
 global groups are relative to sets of regions for which given treatments
-have to be performed (e.g.@: domain of integration, support of a function
+have to be performed (e.g., domain of integration, support of a function
 space, etc.).
 
 Groups of function type contain lists of entities built on some region
-groups (e.g.@: nodes for nodal elements, edges for edge elements, edges of
+groups (e.g., nodes for nodal elements, edges for edge elements, edges of
 tree for gauge conditions, groups of nodes for floating potentials, elements
 on one side of a surface for cuts, etc.).
 
@@ -1623,7 +1648,7 @@ in an @var{expression-cst-list-item} (@pxref{Constants}). For example,
 @item
 Array of groups: @code{DefineGroup[@var{group-id}@{@var{n}@}]} defines
 the empty groups @code{@var{group-id}@{@var{i}@}}, @var{i}=1, @dots{}, n.
-Such a definition is optional, i.e.@: each
+Such a definition is optional, i.e., each
 @code{@var{group-id}@{@var{i}@}} can be separately defined, in any order.
 @item
 Multidefinition: @code{@var{group-id}@{#@var{n}@} = @var{group-def}}
@@ -1658,7 +1683,7 @@ examples}, for some examples.
 
 A user-defined function can be global in space or piecewise defined in
 region groups. A physical characteristic is an example of a piecewise
-defined function (e.g.@: magnetic permeability, electric conductivity, etc.)
+defined function (e.g., magnetic permeability, electric conductivity, etc.)
 and can be simply a constant, for linear materials, or a function of one or
 several arguments for nonlinear materials. Such functions can of course
 depend on space coordinates or time, which can be needed to express complex
@@ -1729,7 +1754,7 @@ Constraints can be referred to in @code{FunctionSpace} objects to be
 used for boundary conditions, to impose global quantities or to
 initialize quantities.  These constraints can be expressed with
 functions or be imposed by the pre-resolution of another discrete
-problem. Other constraints can also be defined, e.g.@: constraints of
+problem. Other constraints can also be defined, e.g., constraints of
 network type for the definition of circuit connections, to be used in 
 @code{Formulation} objects.
 
@@ -1852,15 +1877,15 @@ See @ref{Types for Constraint}, for the complete list of options and
 
 A @code{FunctionSpace} is characterized by the type of its interpolated
 fields, one or several basis functions and optional constraints (in
-space and time). Subspaces of a function space can be defined (e.g.@:
+space and time). Subspaces of a function space can be defined (e.g.,
 for the use with hierarchical elements), as well as direct associations of
-global quantities (e.g.@: floating potential, electric charge, current,
+global quantities (e.g., floating potential, electric charge, current,
 voltage, magnetomotive force, etc.).
 
 A key point is that basis functions are defined by any number of subsets of
 functions, being added. Each subset is characterized by associated built-in
 functions for evaluation, a support of definition and a set of associated
-supporting geometrical entities (e.g.@: nodes, edges, facets, volumes,
+supporting geometrical entities (e.g., nodes, edges, facets, volumes,
 groups of nodes, edges incident to a node, etc.). The freedom in defining
 various kinds of basis functions associated with different geometrical
 entities to interpolate a field permits to build made-to-measure function
@@ -1955,7 +1980,7 @@ argument, and the optional @code{SubRegion} in the same object as a
 @var{group-sub-type} argument.
 @item
 Function: a global basis function (@code{BF_Global} or
-@code{BF_dGlobal}) needs parameters, i.e.@: it is given by the quantity
+@code{BF_dGlobal}) needs parameters, i.e., it is given by the quantity
 (@var{quantity-id}) pre-computed from multiresolutions performed on
 multiformulations.
 @end enumerate
@@ -1991,10 +2016,10 @@ Jacobian methods can be referred to in @code{Formulation} and
 @code{PostProcessing} objects to be used in the computation of integral
 terms and for changes of coordinates. They are based on @code{Group}
 objects and define the geometrical transformations applied to the
-reference elements (i.e.@: lines, triangles, quadrangles, tetrahedra,
+reference elements (i.e., lines, triangles, quadrangles, tetrahedra,
 prisms, hexahedra, etc.). Besides the classical lineic, surfacic and
 volume Jacobians, the @code{Jacobian} object allows the construction of
-various transformation methods (e.g.@: infinite transformations for
+various transformation methods (e.g., infinite transformations for
 unbounded domains) thanks to dedicated jacobian methods.
 
 The syntax for the definition of Jacobian methods is:
@@ -2062,7 +2087,7 @@ computation of integral terms, each with a set of particular options (number of
 integration points for quadrature methods---which can be linked to an error
 criterion for adaptative methods, definition of transformations for singular
 integrations, etc.). Moreover, a choice can be made between several
-integration methods according to a criterion (e.g.@: on the proximity between
+integration methods according to a criterion (e.g., on the proximity between
 the source and computation points in integral formulations).
 
 The syntax for the definition of integration methods is:
@@ -2148,7 +2173,7 @@ line integrals with many kinds of densities to integrate, written in a
 form that is similar to their symbolic expressions (it uses the same
 @var{expression} syntax as elsewhere in GetDP), which therefore permits
 to directly take into account various kinds of elementary matrices
-(e.g.@: with scalar or cross products, anisotropies, nonlinearities, time
+(e.g., with scalar or cross products, anisotropies, nonlinearities, time
 derivatives, various test functions, etc.). In case nonlinear physical
 characteristics are considered, arguments are used for associated
 functions. In that way, many formulations can be directly written in the
@@ -2159,7 +2184,7 @@ to maintain a generality in both their definitions.
 
 A @code{Formulation} is characterized by its type, the involved
 quantities (of local, global or integral type) and a list of equation
-terms. Global equations can also be considered, e.g.@: for the coupling
+terms. Global equations can also be considered, e.g., for the coupling
 with network relations.
 
 The syntax for the definition of formulations is:
@@ -2290,8 +2315,8 @@ linear system, its solving with various kinds of linear solvers, the saving
 of the solution or its transfer to another system, the definition of various
 time stepping methods, the construction of iterative loops for nonlinear
 problems (Newton-Raphson and fixed point methods), etc.  Multi-harmonic
-resolutions, coupled problems (e.g.@: magneto-thermal) or linked problems
-(e.g.@: pre-computations of source fields) are thus easily defined in GetDP.
+resolutions, coupled problems (e.g., magneto-thermal) or linked problems
+(e.g., pre-computations of source fields) are thus easily defined in GetDP.
 
 The @code{Resolution} object is characterized by a list of systems to
 build and their associated formulations, using time or frequency domain,
@@ -2351,7 +2376,7 @@ The default type for a system of equations is @code{Real}. A frequency
 domain analysis is defined through the definition of one or several
 frequencies (@code{Frequency @var{expression-cst-list-item} | Frequency @{
 @var{expression-cst-list} @}}). Complex systems of equations with no
-predefined list of frequencies (e.g.@: in modal analyses) can be explicitely
+predefined list of frequencies (e.g., in modal analyses) can be explicitely
 defined with @code{Type Complex}.
 @item
 @code{NameOfMesh} permits to explicitely specify the mesh to be used for the
@@ -2494,7 +2519,7 @@ See @ref{Types for PostProcessing}, for the complete list of options and
 
 The @code{PostOperation} is the bridge between results obtained with GetDP
 and the external world. It defines several elementary operations on
-@code{PostProcessing} quantities (e.g.@: plot on a region, section on a
+@code{PostProcessing} quantities (e.g., plot on a region, section on a
 user-defined plane, etc.), and outputs the results in several file formats.
 
 @example
@@ -2661,7 +2686,7 @@ Groups of edges of elements of @var{R1}
 (a group is associated with each region).
 
 < @code{InSupport}: in a support @var{R2} being a group of type @code{ElementOf}, 
-i.e.@: containing elements >.
+i.e., containing elements >.
 
 @item GroupsOfEdgesOnNodesOf
 Groups of edges incident to nodes of elements of @var{R1} 
@@ -3190,10 +3215,10 @@ Returns the interpolation order of the @var{quantity}.
 @ftable @code
 
 @item Assign
-To assign a value (e.g.@: for boundary condition).
+To assign a value (e.g., for boundary condition).
 
 @item Init
-To give an initial value (e.g.@: initial value in a time analysis).
+To give an initial value (e.g., initial value in a time analysis).
 
 @item AssignFromResolution
 To assign a value to be computed by a pre-resolution.
@@ -3253,23 +3278,23 @@ complex.
 @ftable @code
 
 @item Form0
-0-form, i.e.@: scalar field of potential type.
+0-form, i.e., scalar field of potential type.
 
 @item Form1
-1-form, i.e.@: curl-conform field (associated with a curl).
+1-form, i.e., curl-conform field (associated with a curl).
 
 @item Form2
-2-form, i.e.@: div-conform field (associated with a divergence).
+2-form, i.e., div-conform field (associated with a divergence).
 
 @item Form3
-3-form, i.e.@: scalar field of density type.
+3-form, i.e., scalar field of density type.
 
 @item Form1P
-1-form perpendicular to the @var{z}=0 plane, i.e.@: perpendicular
+1-form perpendicular to the @var{z}=0 plane, i.e., perpendicular
 curl-conform field (associated with a curl).
 
 @item Form2P
-2-form in the @var{z}=0 plane, i.e.@: parallel div-conform field 
+2-form in the @var{z}=0 plane, i.e., parallel div-conform field 
 (associated with a divergence).
 
 @item Scalar
@@ -3638,7 +3663,7 @@ Jacobian term to be assembled in the Jacobian matrix for nonlinear analysis.
 
 @item NeverDt
 No time scheme applied to the term 
-(e.g.@: Theta is always 1 even if a theta scheme is applied).
+(e.g., Theta is always 1 even if a theta scheme is applied).
 
 @end ftable
 
@@ -3734,7 +3759,7 @@ Save the solution of the system of equations @var{system-id}.
 
 Save all the solutions available for the system of equations
 @var{system-id}. This should be used with algorithms that generate more than
-one solution at once, e.g.@: @code{EigenSolve} or @code{FourierTransform}.
+one solution at once, e.g., @code{EigenSolve} or @code{FourierTransform}.
 
 @item TransferSolution
 @code{[@var{system-id}]}
@@ -3836,7 +3861,7 @@ transform.
 @code{@{ @var{resolution-op} @}}
 
 Time loop of a theta scheme. The parameters are: the initial time, the end
-time, the time step and the theta parameter (e.g.@: 1 for implicit
+time, the time step and the theta parameter (e.g., 1 for implicit
 Euler, 0.5 for Crank-Nicholson).
 
 @item TimeLoopNewmark
@@ -3874,7 +3899,7 @@ Perform the specified @code{PostOperation}.
 @c @{ @var{iterative-time-reduction-arg}; @}
 @c 
 @c  Iterative reduction of time interval to delimit variations of solutions 
-@c  (e.g.@: used in types of nonlinear analyses).
+@c  (e.g., used in types of nonlinear analyses).
 
 @end ftable
 
@@ -3965,10 +3990,10 @@ Perform the specified @code{PostOperation}.
 @c  Test of change of level of quantities.
 
 @c  @item ChangeReference
-@c  Compare quantities to reference functions (e.g.@: for regulation).
+@c  Compare quantities to reference functions (e.g., for regulation).
 
 @c  @item ChangeReference2
-@c  Compare quantities to reference functions (e.g.@: for regulation).
+@c  Compare quantities to reference functions (e.g., for regulation).
 
 @c  @end ftable
 
@@ -4035,7 +4060,7 @@ To compute a global integral quantity, with no associated region.
 @{ @{ @var{expression-cst-list} @} @{ @var{expression-cst-list} @} @{ @var{expression-cst-list} @} @}
 
 To compute a quantity on a section of the mesh defined by three points
-(i.e.@: on the intersection of the mesh with a cutting a plane, specified by
+(i.e., on the intersection of the mesh with a cutting a plane, specified by
 three points). Each @var{expression-cst-list} must contain exactly three
 elements (the coordinates of the points).
 
@@ -4211,7 +4236,7 @@ Outputs directly contour prints for the values specified in the
 
 @item NoNewLine
 Suppresses the new lines in the output when printing global quantities
-(i.e.@: with @code{Print OnRegion} or @code{Print OnGlobal}).
+(i.e., with @code{Print OnRegion} or @code{Print OnGlobal}).
 
 @item ChangeOfCoordinates
 @code{@{ @var{expression}, @var{expression}, @var{expression} @}}
@@ -4277,7 +4302,7 @@ Gmsh output. See the documentation of Gmsh (@value{GMSH-WEB}) for a
 description of the file formats.
 
 @item Table
-Space oriented column output, e.g.@: suitable for Gnuplot, Excel, Caleida
+Space oriented column output, e.g., suitable for Gnuplot, Excel, Caleida
 Graph, etc. The columns are: @var{element-type} @var{element-index}
 @var{x-coord} @var{y-coord} @var{z-coord} <@var{x-coord} @var{y-coord}
 @var{z-coord}> @dots{} @var{real} @var{real} @var{real} @var{values}. The
@@ -4287,7 +4312,7 @@ abscissa for @code{OnLine} plots, normal to the plane for @code{OnPlane}
 plots, parametric coordinates for parametric @code{OnGrid} plots, etc.
 
 @item TimeTable
-Time oriented column output, e.g.@: suitable for Gnuplot, Excel, Caleida
+Time oriented column output, e.g., suitable for Gnuplot, Excel, Caleida
 Graph, etc. The columns are: @var{time-step} @var{time} @var{x-coord}
 @var{y-coord} @var{z-coord} <@var{x-coord} @var{y-coord} @var{z-coord}>
 @dots{} @var{value}.
@@ -4436,7 +4461,7 @@ Function @{
 
 @noindent
 A nonlinear characteristic can be defined through an @var{expression} 
-with arguments, e.g.
+with arguments, e.g.,
 
 @example
 Function @{
@@ -4502,7 +4527,7 @@ g[] = f[$1]#0 * Sin[#0^2];
 @noindent thus reducing the number of evaluations of @code{f[]} (and of the
 argument @code{$1}) to one.
 
-A function can also be time dependent, e.g.
+A function can also be time dependent, e.g.,
 
 @example
 Function @{
@@ -4561,7 +4586,7 @@ introduced in the @code{Value} field, since the @code{Value} is only
 evaluated once during the pre-processing.
 
 Other constraints can be referred to in @code{Formulation}s. It is the case of 
-those defining electrical circuit connections (@code{Network} type), e.g.@:
+those defining electrical circuit connections (@code{Network} type), e.g.,
 
 @example
 Constraint @{
@@ -4619,7 +4644,7 @@ The most elementary function space is the nodal finite element space,
 defined on a mesh of a domain @var{W} and denoted @i{S0(W)} 
 (associated finite elements can be of various geometries), 
 and associated with essential boundary conditions (Dirichlet conditions). 
-It contains 0-forms, i.e.@: scalar fields of potential type:
+It contains 0-forms, i.e., scalar fields of potential type:
 
 @tex
 $$ v = \sum_{n\in N} v_n s_n \quad v\in S^0(W) $$
@@ -4671,8 +4696,8 @@ will be directly taken into account.
 
 Higher order finite elements can be directly taken into account by @code{BF_Node}. 
 Hierarchical finite elements for 0-forms can be used by simply adding other basis 
-functions (associated with other geometrical entities, e.g.@: edges and facets) to 
-@code{BasisFunction}, e.g.@:
+functions (associated with other geometrical entities, e.g., edges and facets) to 
+@code{BasisFunction}, e.g.,
 
 @example
     @dots{}
@@ -4693,7 +4718,7 @@ functions (associated with other geometrical entities, e.g.@: edges and facets) 
 @subsection Nodal finite element space with floating potentials
 
 A scalar potential with floating values @var{vf} on certain boundaries @var{Gf}, 
-@var{f} in @var{Cf}, e.g.@: for electrostatic problems, can be expressed as
+@var{f} in @var{Cf}, e.g., for electrostatic problems, can be expressed as
 
 @tex
 $$ v = \sum_{n\in N_v} v_n s_n + \sum_{f\in C_f} v_f s_f    \quad v\in S^0(W)  $$
@@ -4743,7 +4768,7 @@ coefficient @code{vf}, and the electric charge
 @subsection Edge finite element space
 
 Another space is the edge finite element space, denoted @i{S1(W)}, 
-containing 1-forms, i.e.@: curl-conform fields:
+containing 1-forms, i.e., curl-conform fields:
 
 @tex
 $$ {\bf h} = \sum_{e\in E} h_e {\bf s}_e   \quad{\bf h}\in S^1(W)  $$
@@ -4778,7 +4803,7 @@ FunctionSpace @{
 @subsection Edge finite element space with gauge condition
 
 A 1-form function space containing vector potentials can be associated
-with a gauge condition, which can be defined as a constraint, e.g.@: a
+with a gauge condition, which can be defined as a constraint, e.g., a
 zero value is fixed for all circulations along edges of a tree
 (@code{EdgesOfTreeIn}) built in the mesh (@code{Domain}), having to be
 complete on certain boundaries (@code{StartingOn Surf}):
@@ -4858,7 +4883,7 @@ FunctionSpace @{
 @end example
 
 @noindent
-This example points out the definition of a piecewise defined basis function, e.g.@:
+This example points out the definition of a piecewise defined basis function, e.g.,
 function @code{vn} being defined with @code{BF_GradNode} in @code{DomainCC} and 
 @code{BF_GroupOfEdges} in @code{DomainC}. This leads to an easy coupling
 between these regions.
@@ -4916,7 +4941,7 @@ FunctionSpace @{
 @end example
 
 @noindent
-Global quantities associated with the cuts, i.e.@: currents and voltages 
+Global quantities associated with the cuts, i.e., currents and voltages 
 if @var{h} is the magnetic field, have also been defined.
 
 
@@ -4932,7 +4957,7 @@ if @var{h} is the magnetic field, have also been defined.
 
 A simple Jacobian method is for volume transformations (of @var{n}-D 
 regions in @var{n}-D geometries; @var{n} = 1, 2 or 3), 
-e.g.@: in region @code{Domain},
+e.g., in region @code{Domain},
 
 @example
 Jacobian @{
@@ -5055,14 +5080,14 @@ Formulation @{
 
 @noindent
 The density of the @code{Galerkin} term is a copy of the symbolic form of
-the formulation, i.e.@: the product of a relative permittivity function
+the formulation, i.e., the product of a relative permittivity function
 @code{epsr[]} by a vector of degrees of freedom (@code{Dof@{.@}}); the
 scalar product of this with the gradient of test function @code{v} results
 in a symmetrical matrix.
 
 @noindent
 Note that another @code{Quantity} could be defined for test functions,
-e.g.@: @code{vp} defined by @code{@{ Name vp; Type Local; NameOfSpace
+e.g., @code{vp} defined by @code{@{ Name vp; Type Local; NameOfSpace
 Hgrad_v; @}}.  However, its use would result in the computation of a full
 matrix and consequently in a loss of efficiency.
 
@@ -5146,7 +5171,7 @@ Formulation @{
 @noindent
 Note that @var{js} is here given by a function @code{SourceCurrentDensity[]}, 
 but could also be given by data computed from another problem, 
-e.g.@: from an electrokinetic problem (coupling of formulations) or 
+e.g., from an electrokinetic problem (coupling of formulations) or 
 from a fully fixed function space (constraints fixing the density, which is 
 usually more efficient in time domain analyses).
 
@@ -5157,7 +5182,7 @@ usually more efficient in time domain analyses).
 @node Magnetodynamics, Other formulations, Magnetostatics, Formulation examples
 @subsection Magnetodynamic 3D or 2D magnetic field and magnetic scalar potential formulation
 
-A magnetodynamic 3D or 2D @var{h-phi} formulation, i.e.@: coupling the magnetic 
+A magnetodynamic 3D or 2D @var{h-phi} formulation, i.e., coupling the magnetic 
 field @var{h} with a magnetic scalar potential @var{phi},
 
 @tex
@@ -5199,7 +5224,7 @@ Formulation @{
 @subsection Nonlinearities, Mixed formulations, @dots{}
 
 In case nonlinear physical characteristics are considered, arguments are
-used for associated functions, e.g.@: @code{mu[@{h@}]}. Several test
+used for associated functions, e.g., @code{mu[@{h@}]}. Several test
 functions can be considered in an @code{Equation} field.  Consequently,
 mixed formulations can be defined.
 
@@ -5228,7 +5253,7 @@ mixed formulations can be defined.
 @node Static resolution, Frequency domain resolution, Resolution examples, Resolution examples
 @subsection Static resolution (electrostatic problem)
 
-A static resolution, e.g.@: for the electrostatic formulation 
+A static resolution, e.g., for the electrostatic formulation 
 (@pxref{Formulation examples}), can be defined by
 
 @example
@@ -5256,7 +5281,7 @@ solving (@code{Solve}) and the saving of the solution (@code{SaveSolution}).
 @node Frequency domain resolution, Time domain resolution, Static resolution, Resolution examples
 @subsection Frequency domain resolution (magnetodynamic problem)
 
-A frequency domain resolution, e.g.@: for the magnetodynamic @var{h-phi} 
+A frequency domain resolution, e.g., for the magnetodynamic @var{h-phi} 
 formulation (@pxref{Formulation examples}), is given by
 
 @example
@@ -5274,7 +5299,7 @@ Resolution @{
 @end example
 
 @noindent
-preceded by the definition of constant @code{Freq}, e.g.@:
+preceded by the definition of constant @code{Freq}, e.g.,
 
 @example
 Function @{
@@ -5289,7 +5314,7 @@ Function @{
 @node Time domain resolution, Nonlinear resolution, Frequency domain resolution, Resolution examples
 @subsection Time domain resolution (magnetodynamic problem)
 
-A time domain resolution, e.g.@: for the same magnetodynamic @var{h-phi} 
+A time domain resolution, e.g., for the same magnetodynamic @var{h-phi} 
 formulation (@pxref{Formulation examples}), is given by
 
 @example
@@ -5309,7 +5334,7 @@ Resolution @{
 @end example
 
 @noindent
-If, e.g.@: the @code{Resolution} above is preceded by the constant and function 
+If, e.g., the @code{Resolution} above is preceded by the constant and function 
 definitions below
 
 @example
@@ -5333,7 +5358,7 @@ time step 1 ms.
 @subsection Nonlinear time domain resolution (magnetodynamic problem)
 
 In case a nonlinear problem is solved, an iterative loop has to be defined
-in an appropriate level of the recursive resolution operations, e.g.@: for
+in an appropriate level of the recursive resolution operations, e.g., for
 the magnetodynamic problem above,
 
 @example
@@ -5351,7 +5376,7 @@ the magnetodynamic problem above,
 @end example
 
 @noindent
-preceded by constant definitions, e.g.@:
+preceded by constant definitions, e.g.,
 
 @example
 Function @{
@@ -5368,9 +5393,9 @@ Function @{
 @node Coupled formulations,  , Nonlinear resolution, Resolution examples
 @subsection Coupled formulations
 
-A coupled problem, e.g.@: magnetodynamic (in frequency domain; 
+A coupled problem, e.g., magnetodynamic (in frequency domain; 
 @code{Frequency Freq}) - thermal (in time domain) coupling, with temperature 
-dependent characteristics (e.g.@: @code{rho[@{T@}]}, @dots{}), can be defined by:
+dependent characteristics (e.g., @code{rho[@{T@}]}, @dots{}), can be defined by:
 
 @example
 Resolution @{
@@ -5412,7 +5437,7 @@ nested directly by the user, which gives a great freedom for coupled problems.
 @cindex Post-processing, examples
 
 The quantities to be post-computed based on a solution of a resolution are
-defined e.g.@: for the electrostatic problem (@pxref{Formulation examples};
+defined, e.g., for the electrostatic problem (@pxref{Formulation examples};
 @pxref{Resolution examples}), for the solution associated with the
 formulation @code{Electrostatics_v}, by
 
@@ -5466,7 +5491,7 @@ which points out the way to define post-quantities based on global quantities.
 @cindex Post-operation, examples
 
 The simplest post-processing operation is the generation of maps of local
-quantities, i.e.@: the display of the computed fields on the mesh. For
+quantities, i.e., the display of the computed fields on the mesh. For
 example, using the @code{PostProcessing} defined in @ref{PostProcessing
 examples}, the maps of the electric scalar potential and of the electric
 field on the elements of the region @code{Domain} are defined as:
@@ -5545,6 +5570,14 @@ PostOperation @{
 
 @cindex Complete examples
 @cindex Examples, complete
+@cindex Wiki
+
+This chapter presents complete examples that can be run ``as is'' with
+GetDP (@pxref{Running GetDP}).
+
+Many other ready-to-use examples are available in the GetDP wiki at the
+following address: @value{GETDP-WIKI} (username=getdp; password=wiki).
+
 
 @menu
 * Electrostatic problem::       
@@ -5559,22 +5592,23 @@ PostOperation @{
 @node Electrostatic problem, Magnetostatic problem, Complete examples, Complete examples
 @section Electrostatic problem
 
-
-An elementary electrostatic problem is first considered.  The
-formulation used is an electric scalar potential formulation (file
+Let us first consider a simple electrostatic problem.  The formulation
+used is an electric scalar potential formulation (file
 @file{EleSta_v.pro}, including files @file{Jacobian_Lib.pro} and
 @file{Integration_Lib.pro}).  It is applied to a microstrip line (file
-@file{mStrip.pro}), of which the geometry is defined in the file
-@file{mStrip.geo}: see @ref{Gmsh examples}. The geometry is two-dimensional;
-one half of the structure is considered by symmetry.
+@file{mStrip.pro}), whose geometry is defined in the file
+@file{mStrip.geo} (@pxref{Gmsh examples}). The geometry is
+two-dimensional and by symmetry only one half of the structure is
+modeled.
 
 @image{Strip,,}
 
-The structure of the following files points out the separation of the
-data describing the particular problem and the method used to solve it,
-and therefore how it is possible to build black boxes adapted to well
-defined categories of problems. The files are commented
-(@pxref{Comments}) and can be run without any modification.
+Note that the structure of the following files points out the separation
+of the data describing the particular problem and the method used to
+solve it (@pxref{Numerical tools as objects}), and therefore how it is
+possible to build black boxes adapted to well defined categories of
+problems. The files are commented (@pxref{Comments}) and can be run
+without any modification.
 
 @sp 1
 
@@ -5601,12 +5635,12 @@ defined categories of problems. The files are commented
 @node Magnetostatic problem, Magnetodynamic problem, Electrostatic problem, Complete examples
 @section Magnetostatic problem
 
-A magnetostatic problem is considered.  The formulation used is a 2D
+We now consider a magnetostatic problem.  The formulation used is a 2D
 magnetic vector potential formulation (see file @file{MagSta_a_2D.pro}).
-It is applied to a core-inductor system (file @file{CoreSta.pro}), of
-which the geometry is defined in file @file{Core.geo} (@pxref{Gmsh
-examples}).  The geometry is two-dimensional; one fourth of the
-structure is considered by symmetry.
+It is applied to a core-inductor system (file @file{CoreSta.pro}), whose
+geometry is defined in theh file @file{Core.geo} (@pxref{Gmsh
+examples}).  The geometry is two-dimensional and, by symmetry, one
+fourth of the structure is modeled.
 
 @image{Core,,}
 
@@ -5630,17 +5664,13 @@ electrostatic problem presented in @ref{Electrostatic problem}.
 @node Magnetodynamic problem,  , Magnetostatic problem, Complete examples
 @section Magnetodynamic problem
 
-
-A magnetodynamic problem is considered.  The formulation is a
-two-dimensional a-v formulation (see file @file{MagDyn_av_2D.pro}, which
-includes the same jacobian and integration library files as in the previous
-section).  It is applied to a core-inductor system (defined in file
-@file{CoreMassive.pro}), of which the geometry has already been defined in
-file @file{Core.geo} (giving file @file{Core.msh} with Gmsh; @pxref{Input
-file format}).
-
-The jacobian and integration methods used are defined in the same file
-as in the electrostatic problem in @ref{Electrostatic problem}.
+As a third example we consider a magnetodynamic problem.  The
+formulation is a two-dimensional a-v formulation (see file
+@file{MagDyn_av_2D.pro}, which includes the same jacobian and
+integration library files as in @ref{Electrostatic problem}).  It is
+applied to a core-inductor system (defined in file
+@file{CoreMassive.pro}), whose geometry has already been defined in file
+@file{Core.geo}.
 
 @sp 1
 
@@ -5663,17 +5693,17 @@ as in the electrostatic problem in @ref{Electrostatic problem}.
 @cindex Options, command line
 @cindex Running GetDP
 
-GetDP has no graphical interface@footnote{If you are looking for a graphical
-front-end to GetDP, you may consider using Gmsh (available at
-@value{GMSH-WEB}). Gmsh permits to construct geometries, generate meshes,
-launch computations and visualize results directly from within a
-user-friendly graphical interface. The file formats used by Gmsh for mesh
-generation and post-processing are the default file formats accepted by
-GetDP (see @ref{Input file format}, and @ref{Types for PostOperation}).}. It is
-a command-line driven program that reads a problem definition file once at
-the beginning of the processing. This problem definition file is a regular
-ASCII text file (@pxref{Numerical tools as objects}), hence created with
-whatever editor you like.
+GetDP has no graphical interface@footnote{If you are looking for a
+graphical front-end to GetDP, you may consider using Gmsh (available at
+@value{GMSH-WEB}). Gmsh permits to construct geometries, generate
+meshes, launch computations and visualize results directly from within a
+user-friendly graphical interface. The file formats used by Gmsh for
+mesh generation and post-processing are the default file formats
+accepted by GetDP (see @ref{Input file format}, and @ref{Types for
+PostOperation}).}. It is a command-line driven program that reads a
+problem definition file once at the beginning of the processing. This
+problem definition file is a regular ASCII text file (@pxref{Numerical
+tools as objects}), hence created with whatever text editor you like.
 
 If you just type the program name at your shell prompt (without any
 argument), you will get a short help on how to run GetDP. All GetDP
@@ -5684,8 +5714,8 @@ getdp @var{filename} @var{options}
 @end example
 
 @noindent
-where @var{filename} is an ASCII file containing the problem definition,
-i.e.@: the structures this user's guide has taught you to create. This file
+where @var{filename} is the ASCII file containing the problem definition,
+i.e., the structures this user's guide has taught you to create. This file
 can include other files (@pxref{Includes}), so that only one problem
 definition file should always be given on the command line. The input files
 containing the problem definition structure are usually given the
@@ -5929,7 +5959,7 @@ Point (1 node).
 
 The @file{.pre} file is generated by the pre-processing stage. It
 contains all the information about the degrees of freedom to be
-considered during the processing stage for a given resolution (i.e.@:
+considered during the processing stage for a given resolution (i.e.,
 unknowns, fixed values, initial values, etc.).
 
 @example
@@ -5979,7 +6009,7 @@ of this field in the @file{.pre} file.
 the application of constraints.
 @item
 Each degree of freedom is coded with three integer values, which are the 
-associated basis function, entity and harmonic numbers, i.e.@:
+associated basis function, entity and harmonic numbers, i.e.,
 @var{dof-basis-function-number}, @var{dof-entity} and @var{dof-harmonic}.
 @item
 @var{nnz} is not used at the moment.
