@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.60 2005-09-07 03:05:32 geuzaine Exp $
+dnl $Id: configure.in,v 1.61 2005-09-15 16:57:21 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -385,4 +385,6 @@ if test "x$enable_petsc" = "xyes"; then
 echo "- PETSC_DIR        : $PETSC_DIR"
 echo "- PETSC_ARCH       : $PETSC_ARCH"
 fi
+echo "********************************************************************"
+echo "To fine-tune the configuration, edit the 'variables' file"
 echo "********************************************************************"
