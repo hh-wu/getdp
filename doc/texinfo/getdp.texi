@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.84 2005-09-14 03:53:53 geuzaine Exp $
+@c $Id: getdp.texi,v 1.85 2005-09-17 15:33:08 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -67,14 +67,7 @@
 This is edition @value{EDITION} (@today{}) of the @cite{GetDP Reference
 Manual}, for GetDP @value{GETDP-VERSION}.
 @noindent
-Copyright @value{COPYRIGHT}
-@noindent
-University of Li@`ege @*
-Department of Electrical Engineering @*
-Institut d'@'Electricit@'e Montefiore @*
-Sart Tilman Campus, Building B28 @*
-B-4000 Li@`ege @*
-BELGIUM @*
+Copyright @value{COPYRIGHT}.
 @end ifinfo
 
 @c =========================================================================
@@ -188,7 +181,7 @@ Overview
 
 Expressions 
 
-* Expression definition::       Constants:: Operators:: Functions:: Current
+* Expression definition::
 * Constants::                   
 * Operators::                   
 * Functions::                   
