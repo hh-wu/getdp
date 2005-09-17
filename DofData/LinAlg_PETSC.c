@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.60 2005-08-02 17:17:57 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.61 2005-09-17 14:43:04 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -203,7 +203,7 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *P
   ierr = VecSetSizes(V->V, PETSC_DECIDE, n); MYCHECK(ierr);
 
   /* set some default options */
-  ierr = VecSetType(V->V, VECSEQ);
+  ierr = VecSetType(V->V, VECSEQ); MYCHECK(ierr);
   
   /* override the default options with the ones from the option
      database (if any) */
@@ -1381,10 +1381,10 @@ int LinAlg_ApplyFMMMonitor(KSP ksp, int it,double rnorm,void *dummy){
   ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d rhs vector:\n",it); MYCHECK(ierr);
   ierr = VecView(rhs,PETSC_VIEWER_STDOUT_WORLD); MYCHECK(ierr);
   ierr = VecDuplicate(x, &t); MYCHECK(ierr);
-  ierr = VecSet(&zero,t); MYCHECK(ierr); 
-  ierr = VecDuplicate(x, &v); MYCHECK(ierr); 
-  ierr = VecSet(&zero,v); MYCHECK(ierr);  
-  ierr = KSPBuildResidual(ksp, t, v, &Residual);
+  ierr = VecSet(&zero,t); MYCHECK(ierr);
+  ierr = VecDuplicate(x, &v); MYCHECK(ierr);
+  ierr = VecSet(&zero,v); MYCHECK(ierr);
+  ierr = KSPBuildResidual(ksp, t, v, &Residual); MYCHECK(ierr);
   */
 
   ierr = PetscPrintf(PETSC_COMM_WORLD,"iteration %d KSP Residual norm %14.12e \n",
