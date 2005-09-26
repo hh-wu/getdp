@@ -97,10 +97,9 @@ PostOperation {
       Print[ b,   OnPlane {{-0.1,0,0}{0.1, 0, 0}{-0.1,0.1,0}} {60,30}, File "b_phi_grid.pos" ] ;
       Print[ b,   OnLine {{-0.07,eps,0}{0.09, eps, 0}} {500}, File "b_phi.cut" , Format Table ] ;
       Print[ h,   OnLine {{-0.06,eps,0}{-0.06,0.05,0}} {500}, File "h_phi.cut" , Format Table ] ;
-
       Print[ phi, OnGrid {$A*Cos[$B]-0.05,$A*Sin[$B],0} { 0:0.05:0.001, 0:Pi:Pi/51, 0}, File "phi_polar.pos" ] ;
-      Echo [ "Plugin(Triangulate).iView = PostProcessing.NbViews-1;", File >>"phi_polar.pos" ];
-      Echo [ "Plugin(Triangulate).Run;", File >>"phi_polar.pos" ];
+      //Echo [ "Plugin(Triangulate).iView = PostProcessing.NbViews-1;", File >>"phi_polar.pos" ];
+      //Echo [ "Plugin(Triangulate).Run;", File >>"phi_polar.pos" ];
     }
   }
 
