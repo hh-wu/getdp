@@ -1,4 +1,4 @@
-c $Id: Analytic_SphCylLF.f,v 1.4 2005-06-23 01:45:02 geuzaine Exp $
+c $Id: Analytic_SphCylLF.f,v 1.5 2005-10-13 23:07:10 geuzaine Exp $
 c
 c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 c
@@ -132,9 +132,9 @@ c     ----- dynamique
          dadx = dadr * cos (t) - dadt * sin(t)
          dady = dadr * sin (t) + dadt * cos(t)
          sxr = real (dady) 
-         sxi = imag (dady)
+         sxi = aimag (dady)
          syr = - real (dadx) 
-         syi = - imag (dadx)
+         syi = - aimag (dadx)
          
          
 c     ----- statique
@@ -146,7 +146,7 @@ c     ----- statique
             sxi = 0.0
             sy = cmplx(2./(1.+1./mur))
             syr = real (sy)
-            syi = imag (sy)
+            syi = aimag (sy)
             
          else 
             vaux = (mur-1.)/(mur+1.)*(r0/r)**2
@@ -155,9 +155,9 @@ c     ----- statique
             sx = br*cos(t)-bt*sin(t)
             sy = br*sin(t)+bt*cos(t)
             sxr = real (sx)
-            sxi = imag (sx)
+            sxi = aimag (sx)
             syr = real (sy)
-            syi = imag (sy)
+            syi = aimag (sy)
             
          endif
       
@@ -248,11 +248,11 @@ c     ----- dynamique
             sy = (br*stheta*sin(phi)+bt*ctheta*sin(phi))
             sz = ( (br*ctheta-bt*stheta)               )
             sxr = real (sx)
-            sxi = imag (sx)
+            sxi = aimag (sx)
             syr = real (sy)
-            syi = imag (sy)
+            syi = aimag (sy)
             szr = real (sz)
-            szi = imag (sz)
+            szi = aimag (sz)
          else
             sxr = 0.
             sxi = 0.
@@ -260,7 +260,7 @@ c     ----- dynamique
             syi = 0.
             sz = br*ctheta
             szr = real (sz)
-            szi = imag (sz)
+            szi = aimag (sz)
          endif
          
 c     ----- statique
@@ -274,7 +274,7 @@ c     ----- statique
             syi = 0.
             sz = cmplx( 3./(1.+2./mur))
             szr = real (sz)
-            szi = imag (sz)
+            szi = aimag (sz)
             
          else
             vaux = (mur-1.)/(mur+2.)*(r0/r)**3
@@ -286,11 +286,11 @@ c     ----- statique
                sy = (br*stheta*sin(phi)+bt*ctheta*sin(phi))
                sz = (br*ctheta-bt*stheta) + 1.
                sxr = real (sx)
-               sxi = imag (sx)
+               sxi = aimag (sx)
                syr = real (sy)
-               syi = imag (sy)
+               syi = aimag (sy)
                szr = real (sz)
-               szi = imag (sz)
+               szi = aimag (sz)
             else
                sxr = 0.
                sxi = 0.
@@ -298,7 +298,7 @@ c     ----- statique
                syi = 0.
                sz = br*ctheta + 1.
                szr = real (sz)
-               szi = imag (sz)
+               szi = aimag (sz)
             endif
             
          endif
