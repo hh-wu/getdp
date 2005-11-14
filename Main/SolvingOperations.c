@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.74 2005-07-22 09:35:51 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.75 2005-11-14 19:22:34 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1903,10 +1903,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Current.Time = Save_Time ;
       Current.TimeImag = Save_TimeImag ;
       Current.TimeStep = Save_TimeStep ;
-      for (k = 0 ; k < Current.NbrSystem ; k++)
-	(Current.DofData_P0+k)->CurrentSolution = (struct Solution*)
-	  List_Pointer((Current.DofData_P0+k)->Solutions, 
-		       List_Nbr((Current.DofData_P0+k)->Solutions) - 1) ;
+      for (k = 0 ; k < Current.NbrSystem ; k++){
+	i = List_Nbr((Current.DofData_P0+k)->Solutions) - 1;
+	if(i >= 0)
+	  (Current.DofData_P0+k)->CurrentSolution = (struct Solution*)
+	    List_Pointer((Current.DofData_P0+k)->Solutions, i);
+      }
       break ;
 
       /*  -->  O t h e r                              */
