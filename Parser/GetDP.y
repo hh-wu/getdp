@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.85 2005-08-31 17:44:25 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.86 2005-11-14 19:19:34 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -5684,6 +5684,8 @@ BracedPostProcessing :
     }
  
   | Affectation
+
+  | Loop
   ;
 
 PostProcessing :
