@@ -250,7 +250,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.93 2005-11-14 19:19:32 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.94 2005-11-15 15:06:21 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -972,18 +972,18 @@ static const short yyrline[] = { 0,
   6395,  6399,  6403,  6407,  6417,  6422,  6427,  6447,  6454,  6464,
   6473,  6482,  6489,  6497,  6501,  6510,  6514,  6518,  6526,  6532,
   6536,  6544,  6551,  6559,  6566,  6574,  6581,  6589,  6593,  6601,
-  6608,  6656,  6673,  6689,  6708,  6728,  6759,  6763,  6775,  6779,
-  6794,  6800,  6806,  6812,  6823,  6828,  6840,  6850,  6866,  6869,
-  6875,  6881,  6892,  6894,  6895,  6896,  6897,  6898,  6899,  6900,
-  6901,  6902,  6903,  6904,  6905,  6906,  6907,  6908,  6909,  6910,
-  6911,  6912,  6913,  6916,  6918,  6919,  6920,  6921,  6922,  6923,
-  6924,  6925,  6926,  6927,  6928,  6929,  6930,  6931,  6932,  6933,
-  6934,  6935,  6936,  6937,  6938,  6939,  6940,  6941,  6942,  6943,
-  6944,  6945,  6946,  6947,  6948,  6949,  6950,  6951,  6952,  6953,
-  6954,  6955,  6956,  6959,  6962,  6963,  6964,  6965,  6966,  6967,
-  6968,  6984,  6989,  6995,  6998,  7003,  7011,  7014,  7017,  7027,
-  7035,  7046,  7062,  7084,  7099,  7137,  7145,  7155,  7165,  7174,
-  7179,  7184,  7189,  7204,  7209,  7214,  7233,  7242
+  6608,  6656,  6673,  6689,  6708,  6728,  6759,  6763,  6774,  6778,
+  6793,  6799,  6805,  6811,  6822,  6827,  6839,  6849,  6865,  6868,
+  6874,  6880,  6891,  6893,  6894,  6895,  6896,  6897,  6898,  6899,
+  6900,  6901,  6902,  6903,  6904,  6905,  6906,  6907,  6908,  6909,
+  6910,  6911,  6912,  6915,  6917,  6918,  6919,  6920,  6921,  6922,
+  6923,  6924,  6925,  6926,  6927,  6928,  6929,  6930,  6931,  6932,
+  6933,  6934,  6935,  6936,  6937,  6938,  6939,  6940,  6941,  6942,
+  6943,  6944,  6945,  6946,  6947,  6948,  6949,  6950,  6951,  6952,
+  6953,  6954,  6955,  6958,  6961,  6962,  6963,  6964,  6965,  6966,
+  6967,  6983,  6988,  6994,  6997,  7002,  7010,  7013,  7016,  7026,
+  7034,  7045,  7061,  7083,  7098,  7136,  7144,  7154,  7164,  7173,
+  7178,  7183,  7188,  7203,  7208,  7213,  7232,  7241
 };
 #endif
 
@@ -9922,7 +9922,7 @@ case 636:
 	    Constant_S.Type = VAR_FLOAT ;
 	    Constant_S.Value.Float = LoopControlVariablesTab[ImbricatedLoop-1][0] ;
 	    if ((i=List_ISearchSeq(ConstantTable_L, &Constant_S, fcmp_Constant))<0) 
-	      vyyerror("Something wrong with For loop starting ") ;
+	      vyyerror("Unknown For/EndFor loop control variable %s", Constant_S.Name) ;
 	    List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;      
 	  }
 	  fsetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
@@ -9946,7 +9946,7 @@ case 638:
     ;
     break;}
 case 640:
-#line 6780 "GetDP.y"
+#line 6779 "GetDP.y"
 {
       Constant_S.Name = yyvsp[-3].c ; 
       if(List_Nbr(yyvsp[-1].l) == 1){
@@ -9962,28 +9962,28 @@ case 640:
     ;
     break;}
 case 641:
-#line 6795 "GetDP.y"
+#line 6794 "GetDP.y"
 { Constant_S.Name = yyvsp[-3].c ; Constant_S.Type = VAR_CHAR ;
       Constant_S.Value.Char = yyvsp[-1].c ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;
     break;}
 case 642:
-#line 6801 "GetDP.y"
+#line 6800 "GetDP.y"
 { Constant_S.Name = yyvsp[-6].c ; Constant_S.Type = VAR_CHAR ;
       Constant_S.Value.Char = yyvsp[-2].c ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;
     break;}
 case 643:
-#line 6807 "GetDP.y"
+#line 6806 "GetDP.y"
 { Constant_S.Name = yyvsp[-3].c ; Constant_S.Type = VAR_CHAR ;
       Constant_S.Value.Char = yyvsp[-1].c ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;
     break;}
 case 644:
-#line 6813 "GetDP.y"
+#line 6812 "GetDP.y"
 { Constant_S.Name = yyvsp[-6].c ; Constant_S.Type = VAR_LISTOFFLOAT ;
       if (!(File = fopen(yyvsp[-2].c, "r"))) Msg(ERROR, "Unable to open file '%s'", yyvsp[-2].c);
       Constant_S.Value.ListOfFloat = List_Create(100,100,sizeof(double));
@@ -9995,13 +9995,13 @@ case 644:
     ;
     break;}
 case 645:
-#line 6824 "GetDP.y"
+#line 6823 "GetDP.y"
 {
       Msg(DIRECT, yyvsp[-2].c);
     ;
     break;}
 case 646:
-#line 6829 "GetDP.y"
+#line 6828 "GetDP.y"
 {
       i = Print_ListOfDouble(yyvsp[-4].c,yyvsp[-2].l,tmpstr);
       if(i<0) 
@@ -10014,7 +10014,7 @@ case 646:
     ;
     break;}
 case 647:
-#line 6841 "GetDP.y"
+#line 6840 "GetDP.y"
 {
       Msg(INFO2, "? ");
       fgets(tmpstr, sizeof(tmpstr), stdin);
@@ -10025,7 +10025,7 @@ case 647:
     ;
     break;}
 case 648:
-#line 6851 "GetDP.y"
+#line 6850 "GetDP.y"
 {
       Msg(INFO2, "[<return>=%g] ? ",yyvsp[-2].d);
       fgets(tmpstr, sizeof(tmpstr), stdin);
@@ -10040,7 +10040,7 @@ case 648:
     ;
     break;}
 case 650:
-#line 6870 "GetDP.y"
+#line 6869 "GetDP.y"
 { Constant_S.Name = yyvsp[0].c ; Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = 0. ;
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
@@ -10048,7 +10048,7 @@ case 650:
     ;
     break;}
 case 651:
-#line 6876 "GetDP.y"
+#line 6875 "GetDP.y"
 { Constant_S.Name = yyvsp[-2].c ; Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = yyvsp[0].d ;
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
@@ -10056,7 +10056,7 @@ case 651:
     ;
     break;}
 case 652:
-#line 6882 "GetDP.y"
+#line 6881 "GetDP.y"
 { Constant_S.Name = yyvsp[-2].c ; Constant_S.Type = VAR_CHAR ;
       Constant_S.Value.Char = yyvsp[0].c ;
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
@@ -10064,279 +10064,279 @@ case 652:
     ;
     break;}
 case 653:
-#line 6893 "GetDP.y"
+#line 6892 "GetDP.y"
 { yyval.c = "Exp";    ;
     break;}
 case 654:
-#line 6894 "GetDP.y"
+#line 6893 "GetDP.y"
 { yyval.c = "Log";    ;
     break;}
 case 655:
-#line 6895 "GetDP.y"
+#line 6894 "GetDP.y"
 { yyval.c = "Log10";  ;
     break;}
 case 656:
-#line 6896 "GetDP.y"
+#line 6895 "GetDP.y"
 { yyval.c = "Sqrt";   ;
     break;}
 case 657:
-#line 6897 "GetDP.y"
+#line 6896 "GetDP.y"
 { yyval.c = "Sin";    ;
     break;}
 case 658:
-#line 6898 "GetDP.y"
+#line 6897 "GetDP.y"
 { yyval.c = "Asin";   ;
     break;}
 case 659:
-#line 6899 "GetDP.y"
+#line 6898 "GetDP.y"
 { yyval.c = "Cos";    ;
     break;}
 case 660:
-#line 6900 "GetDP.y"
+#line 6899 "GetDP.y"
 { yyval.c = "Acos";   ;
     break;}
 case 661:
-#line 6901 "GetDP.y"
+#line 6900 "GetDP.y"
 { yyval.c = "Tan";    ;
     break;}
 case 662:
-#line 6902 "GetDP.y"
+#line 6901 "GetDP.y"
 { yyval.c = "Atan";   ;
     break;}
 case 663:
-#line 6903 "GetDP.y"
+#line 6902 "GetDP.y"
 { yyval.c = "Atan2";  ;
     break;}
 case 664:
-#line 6904 "GetDP.y"
+#line 6903 "GetDP.y"
 { yyval.c = "Sinh";   ;
     break;}
 case 665:
-#line 6905 "GetDP.y"
+#line 6904 "GetDP.y"
 { yyval.c = "Cosh";   ;
     break;}
 case 666:
-#line 6906 "GetDP.y"
+#line 6905 "GetDP.y"
 { yyval.c = "Tanh";   ;
     break;}
 case 667:
-#line 6907 "GetDP.y"
+#line 6906 "GetDP.y"
 { yyval.c = "Fabs";   ;
     break;}
 case 668:
-#line 6908 "GetDP.y"
+#line 6907 "GetDP.y"
 { yyval.c = "Floor";  ;
     break;}
 case 669:
-#line 6909 "GetDP.y"
+#line 6908 "GetDP.y"
 { yyval.c = "Ceil";   ;
     break;}
 case 670:
-#line 6910 "GetDP.y"
+#line 6909 "GetDP.y"
 { yyval.c = "Fmod";   ;
     break;}
 case 671:
-#line 6911 "GetDP.y"
+#line 6910 "GetDP.y"
 { yyval.c = "Modulo"; ;
     break;}
 case 672:
-#line 6912 "GetDP.y"
+#line 6911 "GetDP.y"
 { yyval.c = "Hypot";  ;
     break;}
 case 673:
-#line 6913 "GetDP.y"
+#line 6912 "GetDP.y"
 { yyval.c = yyvsp[0].c;       ;
     break;}
 case 674:
-#line 6917 "GetDP.y"
+#line 6916 "GetDP.y"
 { yyval.d = yyvsp[0].d ;          ;
     break;}
 case 675:
-#line 6918 "GetDP.y"
+#line 6917 "GetDP.y"
 { yyval.d = yyvsp[-1].d ;          ;
     break;}
 case 676:
-#line 6919 "GetDP.y"
+#line 6918 "GetDP.y"
 { yyval.d = -yyvsp[0].d ;         ;
     break;}
 case 677:
-#line 6920 "GetDP.y"
+#line 6919 "GetDP.y"
 { yyval.d = !yyvsp[0].d ;         ;
     break;}
 case 678:
-#line 6921 "GetDP.y"
+#line 6920 "GetDP.y"
 { yyval.d = yyvsp[-2].d - yyvsp[0].d ;     ;
     break;}
 case 679:
-#line 6922 "GetDP.y"
+#line 6921 "GetDP.y"
 { yyval.d = yyvsp[-2].d + yyvsp[0].d ;     ;
     break;}
 case 680:
-#line 6923 "GetDP.y"
+#line 6922 "GetDP.y"
 { yyval.d = yyvsp[-2].d * yyvsp[0].d ;     ;
     break;}
 case 681:
-#line 6924 "GetDP.y"
+#line 6923 "GetDP.y"
 { yyval.d = yyvsp[-2].d / yyvsp[0].d ;     ;
     break;}
 case 682:
-#line 6925 "GetDP.y"
+#line 6924 "GetDP.y"
 { yyval.d = (int)yyvsp[-2].d % (int)yyvsp[0].d ;  ;
     break;}
 case 683:
-#line 6926 "GetDP.y"
+#line 6925 "GetDP.y"
 { yyval.d = pow(yyvsp[-2].d,yyvsp[0].d) ;  ;
     break;}
 case 684:
-#line 6927 "GetDP.y"
+#line 6926 "GetDP.y"
 { yyval.d = yyvsp[-2].d < yyvsp[0].d ;     ;
     break;}
 case 685:
-#line 6928 "GetDP.y"
+#line 6927 "GetDP.y"
 { yyval.d = yyvsp[-2].d > yyvsp[0].d ;     ;
     break;}
 case 686:
-#line 6929 "GetDP.y"
+#line 6928 "GetDP.y"
 { yyval.d = yyvsp[-2].d <= yyvsp[0].d ;    ;
     break;}
 case 687:
-#line 6930 "GetDP.y"
+#line 6929 "GetDP.y"
 { yyval.d = yyvsp[-2].d >= yyvsp[0].d ;    ;
     break;}
 case 688:
-#line 6931 "GetDP.y"
+#line 6930 "GetDP.y"
 { yyval.d = yyvsp[-2].d == yyvsp[0].d ;    ;
     break;}
 case 689:
-#line 6932 "GetDP.y"
+#line 6931 "GetDP.y"
 { yyval.d = yyvsp[-2].d != yyvsp[0].d ;    ;
     break;}
 case 690:
-#line 6933 "GetDP.y"
+#line 6932 "GetDP.y"
 { yyval.d = yyvsp[-2].d && yyvsp[0].d ;    ;
     break;}
 case 691:
-#line 6934 "GetDP.y"
+#line 6933 "GetDP.y"
 { yyval.d = yyvsp[-2].d || yyvsp[0].d ;    ;
     break;}
 case 692:
-#line 6935 "GetDP.y"
+#line 6934 "GetDP.y"
 { yyval.d = exp(yyvsp[-1].d);      ;
     break;}
 case 693:
-#line 6936 "GetDP.y"
+#line 6935 "GetDP.y"
 { yyval.d = log(yyvsp[-1].d);      ;
     break;}
 case 694:
-#line 6937 "GetDP.y"
+#line 6936 "GetDP.y"
 { yyval.d = log10(yyvsp[-1].d);    ;
     break;}
 case 695:
-#line 6938 "GetDP.y"
+#line 6937 "GetDP.y"
 { yyval.d = sqrt(yyvsp[-1].d);     ;
     break;}
 case 696:
-#line 6939 "GetDP.y"
+#line 6938 "GetDP.y"
 { yyval.d = sin(yyvsp[-1].d);      ;
     break;}
 case 697:
-#line 6940 "GetDP.y"
+#line 6939 "GetDP.y"
 { yyval.d = asin(yyvsp[-1].d);     ;
     break;}
 case 698:
-#line 6941 "GetDP.y"
+#line 6940 "GetDP.y"
 { yyval.d = cos(yyvsp[-1].d);      ;
     break;}
 case 699:
-#line 6942 "GetDP.y"
+#line 6941 "GetDP.y"
 { yyval.d = acos(yyvsp[-1].d);     ;
     break;}
 case 700:
-#line 6943 "GetDP.y"
+#line 6942 "GetDP.y"
 { yyval.d = tan(yyvsp[-1].d);      ;
     break;}
 case 701:
-#line 6944 "GetDP.y"
+#line 6943 "GetDP.y"
 { yyval.d = atan(yyvsp[-1].d);     ;
     break;}
 case 702:
-#line 6945 "GetDP.y"
+#line 6944 "GetDP.y"
 { yyval.d = atan2(yyvsp[-3].d,yyvsp[-1].d); ;
     break;}
 case 703:
-#line 6946 "GetDP.y"
+#line 6945 "GetDP.y"
 { yyval.d = sinh(yyvsp[-1].d);     ;
     break;}
 case 704:
-#line 6947 "GetDP.y"
+#line 6946 "GetDP.y"
 { yyval.d = cosh(yyvsp[-1].d);     ;
     break;}
 case 705:
-#line 6948 "GetDP.y"
+#line 6947 "GetDP.y"
 { yyval.d = tanh(yyvsp[-1].d);     ;
     break;}
 case 706:
-#line 6949 "GetDP.y"
+#line 6948 "GetDP.y"
 { yyval.d = fabs(yyvsp[-1].d);     ;
     break;}
 case 707:
-#line 6950 "GetDP.y"
+#line 6949 "GetDP.y"
 { yyval.d = floor(yyvsp[-1].d);    ;
     break;}
 case 708:
-#line 6951 "GetDP.y"
+#line 6950 "GetDP.y"
 { yyval.d = ceil(yyvsp[-1].d);     ;
     break;}
 case 709:
-#line 6952 "GetDP.y"
+#line 6951 "GetDP.y"
 { yyval.d = fmod(yyvsp[-3].d,yyvsp[-1].d);  ;
     break;}
 case 710:
-#line 6953 "GetDP.y"
+#line 6952 "GetDP.y"
 { yyval.d = fmod(yyvsp[-3].d,yyvsp[-1].d);  ;
     break;}
 case 711:
-#line 6954 "GetDP.y"
+#line 6953 "GetDP.y"
 { yyval.d = sqrt(yyvsp[-3].d*yyvsp[-3].d+yyvsp[-1].d*yyvsp[-1].d);  ;
     break;}
 case 712:
-#line 6955 "GetDP.y"
+#line 6954 "GetDP.y"
 { yyval.d = yyvsp[-4].d? yyvsp[-2].d : yyvsp[0].d ; ;
     break;}
 case 713:
-#line 6956 "GetDP.y"
+#line 6955 "GetDP.y"
 { Msg(DIRECT, "Value (line %ld) --> %.16g", yylinenum, yyvsp[-1].d); ;
     break;}
 case 714:
-#line 6961 "GetDP.y"
+#line 6960 "GetDP.y"
 { yyval.d = yyvsp[0].d ; ;
     break;}
 case 715:
-#line 6962 "GetDP.y"
+#line 6961 "GetDP.y"
 { yyval.d = (double)yyvsp[0].i ; ;
     break;}
 case 716:
-#line 6963 "GetDP.y"
+#line 6962 "GetDP.y"
 { yyval.d = 3.1415926535897932 ; ;
     break;}
 case 717:
-#line 6964 "GetDP.y"
+#line 6963 "GetDP.y"
 { yyval.d = (double)_0D ; ;
     break;}
 case 718:
-#line 6965 "GetDP.y"
+#line 6964 "GetDP.y"
 { yyval.d = (double)_1D ; ;
     break;}
 case 719:
-#line 6966 "GetDP.y"
+#line 6965 "GetDP.y"
 { yyval.d = (double)_2D ; ;
     break;}
 case 720:
-#line 6967 "GetDP.y"
+#line 6966 "GetDP.y"
 { yyval.d = (double)_3D ; ;
     break;}
 case 721:
-#line 6969 "GetDP.y"
+#line 6968 "GetDP.y"
 { Constant_S.Name = yyvsp[0].c ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	vyyerror("Unknown Constant: %s", yyvsp[0].c) ;  yyval.d = 0. ;
@@ -10352,41 +10352,41 @@ case 721:
     ;
     break;}
 case 722:
-#line 6987 "GetDP.y"
+#line 6986 "GetDP.y"
 { yyval.l = NULL; ;
     break;}
 case 723:
-#line 6990 "GetDP.y"
+#line 6989 "GetDP.y"
 { 
       yyval.l = List_Create(1,1,sizeof(double)) ;  
       List_Add(yyval.l, &(yyvsp[0].d)) ; 
     ;
     break;}
 case 724:
-#line 6996 "GetDP.y"
+#line 6995 "GetDP.y"
 { yyval.l = yyvsp[0].l; ;
     break;}
 case 725:
-#line 6999 "GetDP.y"
+#line 6998 "GetDP.y"
 { yyval.l = yyvsp[-1].l; ;
     break;}
 case 726:
-#line 7006 "GetDP.y"
+#line 7005 "GetDP.y"
 { 
       yyval.l = List_Create(20,20,sizeof(double));
       List_Add(yyval.l, &(yyvsp[0].d)) ; 
     ;
     break;}
 case 727:
-#line 7012 "GetDP.y"
+#line 7011 "GetDP.y"
 { yyval.l = yyvsp[0].l; ;
     break;}
 case 728:
-#line 7015 "GetDP.y"
+#line 7014 "GetDP.y"
 { List_Add(yyval.l, &(yyvsp[0].d)) ; ;
     break;}
 case 729:
-#line 7018 "GetDP.y"
+#line 7017 "GetDP.y"
 { 
       for(i=0 ; i<List_Nbr(yyvsp[0].l) ; i++){
 	List_Read(yyvsp[0].l, i, &d) ;
@@ -10396,14 +10396,14 @@ case 729:
     ;
     break;}
 case 730:
-#line 7030 "GetDP.y"
+#line 7029 "GetDP.y"
 { yyval.l = List_Create(20,20,sizeof(double)) ; 
       for(d=yyvsp[-2].d ; (yyvsp[-2].d<yyvsp[0].d)?(d<=yyvsp[0].d):(d>=yyvsp[0].d) ; (yyvsp[-2].d<yyvsp[0].d)?(d+=1.):(d-=1.)) 
 	List_Add(yyval.l, &d) ;
     ;
     break;}
 case 731:
-#line 7036 "GetDP.y"
+#line 7035 "GetDP.y"
 { yyval.l = List_Create(20,20,sizeof(double)) ; 
       if(!yyvsp[0].d || (yyvsp[-4].d<yyvsp[-2].d && yyvsp[0].d<0) || (yyvsp[-4].d>yyvsp[-2].d && yyvsp[0].d>0)){
 	vyyerror("Wrong increment in '%g : %g : %g'", yyvsp[-4].d, yyvsp[-2].d, yyvsp[0].d) ;
@@ -10415,7 +10415,7 @@ case 731:
     ;
     break;}
 case 732:
-#line 7047 "GetDP.y"
+#line 7046 "GetDP.y"
 { yyval.l = List_Create(20,20,sizeof(double)) ; 
       Constant_S.Name = yyvsp[-2].c ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
@@ -10432,7 +10432,7 @@ case 732:
     ;
     break;}
 case 733:
-#line 7063 "GetDP.y"
+#line 7062 "GetDP.y"
 { yyval.l = List_Create(20,20,sizeof(double)) ; 
       Constant_S.Name = yyvsp[-3].c ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
@@ -10454,7 +10454,7 @@ case 733:
     ;
     break;}
 case 734:
-#line 7085 "GetDP.y"
+#line 7084 "GetDP.y"
 { yyval.l = List_Create(20,20,sizeof(double)) ; 
       Constant_S.Name = yyvsp[-1].c ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
@@ -10470,7 +10470,7 @@ case 734:
     ;
     break;}
 case 735:
-#line 7100 "GetDP.y"
+#line 7099 "GetDP.y"
 { yyval.l = List_Create(20,20,sizeof(double)) ; 
       Constant1_S.Name = yyvsp[-3].c ; Constant2_S.Name = yyvsp[-1].c ;
       if (!List_Query(ConstantTable_L, &Constant1_S, fcmp_Constant)) {
@@ -10509,7 +10509,7 @@ case 735:
     ;
     break;}
 case 736:
-#line 7138 "GetDP.y"
+#line 7137 "GetDP.y"
 { yyval.l = List_Create(20,20,sizeof(double)) ; 
       for(i=0 ; i<(int)yyvsp[-1].d ; i++) {
 	d = yyvsp[-5].d + (yyvsp[-3].d-yyvsp[-5].d)*(double)i/(yyvsp[-1].d-1) ;
@@ -10518,7 +10518,7 @@ case 736:
     ;
     break;}
 case 737:
-#line 7146 "GetDP.y"
+#line 7145 "GetDP.y"
 { yyval.l = List_Create(20,20,sizeof(double)) ;
       for(i=0 ; i<(int)yyvsp[-1].d ; i++) {
 	d = pow(10,yyvsp[-5].d + (yyvsp[-3].d-yyvsp[-5].d)*(double)i/(yyvsp[-1].d-1)) ;
@@ -10527,7 +10527,7 @@ case 737:
     ;
     break;}
 case 738:
-#line 7158 "GetDP.y"
+#line 7157 "GetDP.y"
 { 
       sprintf(tmpstr, "_%d", (int)yyvsp[-1].d) ;
       yyval.c = (char *)Malloc((strlen(yyvsp[-4].c)+strlen(tmpstr)+1)*sizeof(char)) ;
@@ -10536,7 +10536,7 @@ case 738:
     ;
     break;}
 case 739:
-#line 7166 "GetDP.y"
+#line 7165 "GetDP.y"
 {
       sprintf(tmpstr, "_%d", (int)yyvsp[-1].d) ;
       yyval.c = (char *)Realloc(yyvsp[-4].c,(strlen(yyvsp[-4].c)+strlen(tmpstr)+1)*sizeof(char)) ;
@@ -10544,19 +10544,19 @@ case 739:
     ;
     break;}
 case 740:
-#line 7177 "GetDP.y"
+#line 7176 "GetDP.y"
 { yyval.c = yyvsp[0].c ; ;
     break;}
 case 741:
-#line 7180 "GetDP.y"
+#line 7179 "GetDP.y"
 { yyval.c = yyvsp[0].c ; ;
     break;}
 case 742:
-#line 7187 "GetDP.y"
+#line 7186 "GetDP.y"
 { yyval.c = yyvsp[0].c ; ;
     break;}
 case 743:
-#line 7190 "GetDP.y"
+#line 7189 "GetDP.y"
 { Constant_S.Name = yyvsp[0].c ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	vyyerror("Unknown Constant: %s", yyvsp[0].c) ;  yyval.c = NULL ;
@@ -10572,19 +10572,19 @@ case 743:
     ;
     break;}
 case 744:
-#line 7205 "GetDP.y"
+#line 7204 "GetDP.y"
 {
       yyval.c = yyvsp[0].c ;
     ;
     break;}
 case 745:
-#line 7210 "GetDP.y"
+#line 7209 "GetDP.y"
 {
       yyval.c = yyvsp[-1].c;
     ;
     break;}
 case 746:
-#line 7215 "GetDP.y"
+#line 7214 "GetDP.y"
 {
       i = Print_ListOfDouble(yyvsp[-3].c,yyvsp[-1].l,tmpstr);
       if(i<0){
@@ -10604,7 +10604,7 @@ case 746:
     ;
     break;}
 case 747:
-#line 7234 "GetDP.y"
+#line 7233 "GetDP.y"
 {
       time(&date_info);
       yyval.c = (char *)Malloc((strlen(ctime(&date_info))+1)*sizeof(char)) ;
@@ -10613,7 +10613,7 @@ case 747:
     ;
     break;}
 case 748:
-#line 7244 "GetDP.y"
+#line 7243 "GetDP.y"
 {
       if (yyvsp[-3].c != NULL && yyvsp[-1].c != NULL) {
 	yyval.c = (char *)Malloc((strlen(yyvsp[-3].c)+strlen(yyvsp[-1].c)+1)*sizeof(char)) ;
@@ -10846,7 +10846,7 @@ yyerrhandle:
     }
   return 1;
 }
-#line 7255 "GetDP.y"
+#line 7254 "GetDP.y"
 
 
 

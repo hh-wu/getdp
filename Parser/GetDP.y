@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.86 2005-11-14 19:19:34 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.87 2005-11-15 15:06:21 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -6644,7 +6644,7 @@ ParsedStrings :
       } while (i<(int)strlen($2)) ;
       Free($2) ;
     }
-;
+  ;
 
 
 
@@ -6744,7 +6744,7 @@ Loop :
 	    Constant_S.Type = VAR_FLOAT ;
 	    Constant_S.Value.Float = LoopControlVariablesTab[ImbricatedLoop-1][0] ;
 	    if ((i=List_ISearchSeq(ConstantTable_L, &Constant_S, fcmp_Constant))<0) 
-	      vyyerror("Something wrong with For loop starting ") ;
+	      vyyerror("Unknown For/EndFor loop control variable %s", Constant_S.Name) ;
 	    List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;      
 	  }
 	  fsetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
@@ -6763,8 +6763,7 @@ Loop :
   | tEndIf
     {
     }
-
-;
+  ;
 
 
 
