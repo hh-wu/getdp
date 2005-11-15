@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.85 2005-09-17 15:33:08 geuzaine Exp $
+@c $Id: getdp.texi,v 1.86 2005-11-15 02:00:08 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 @c
@@ -2434,6 +2434,7 @@ PostProcessing @{
     @}
   @} @dots{}
   < @var{affectation} > @dots{}
+  < @var{loop} > @dots{}
 @}
 @end example
 
