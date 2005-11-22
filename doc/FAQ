@@ -1,4 +1,4 @@
-$Id: FAQ,v 1.9 2004-03-08 05:38:37 geuzaine Exp $
+$Id: FAQ,v 1.10 2005-11-22 03:35:22 geuzaine Exp $
 
 This is the GetDP FAQ
 
@@ -27,7 +27,8 @@ GNU foundation's web site at http://www.gnu.org.
 
 * 1.3 What does 'GetDP' mean?
 
-General environment for the treatment of Discrete Problems
+It's an acronym for a "General environment for the treatment of
+Discrete Problems".
 
 * 1.4 Where can I find more information?
 
