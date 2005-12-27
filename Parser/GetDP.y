@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.87 2005-11-15 15:06:21 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.88 2005-12-27 09:55:58 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -55,6 +55,8 @@
 #include "Parser.h"
 #include "Message.h"
 #include "Magic.h"
+
+void  hack_endfor(void) ;
 
 void Check_NameOfStructNotExist(char * Struct, List_T * List_L, void * data,
 				int (*fcmp)(const void *a, const void *b)) ;
@@ -6661,7 +6663,7 @@ Loop :
       LoopControlVariablesTab[ImbricatedLoop][1] = $5 ;
       LoopControlVariablesTab[ImbricatedLoop][2] = 1.0 ;
       LoopControlVariablesNameTab[ImbricatedLoop] = "" ;
-      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
+      fgetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
       ImbricatedLoop++;
       if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
@@ -6676,7 +6678,7 @@ Loop :
       LoopControlVariablesTab[ImbricatedLoop][1] = $5 ;
       LoopControlVariablesTab[ImbricatedLoop][2] = $7 ;
       LoopControlVariablesNameTab[ImbricatedLoop] = "" ;
-      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
+      fgetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
       ImbricatedLoop++;
       if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
@@ -6696,7 +6698,7 @@ Loop :
       Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = $5 ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
-      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
+      fgetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
       ImbricatedLoop++;
       if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
@@ -6715,7 +6717,7 @@ Loop :
       Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = $5 ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
-      fgetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
+      fgetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
       ImbricatedLoop++;
       if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
@@ -6725,7 +6727,7 @@ Loop :
       if(($9 > 0. && $5 > $7) || ($9 < 0. && $5 < $7))
 	skip_until("For", "EndFor");
     }
-  | tEndFor 
+  | tEndFor
     {
       if(ImbricatedLoop <= 0){
 	vyyerror("Invalid For/EndFor loop");
@@ -6747,11 +6749,23 @@ Loop :
 	      vyyerror("Unknown For/EndFor loop control variable %s", Constant_S.Name) ;
 	    List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;      
 	  }
-	  fsetpos( yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
+	  fsetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
 	  yylinenum = yylinenoImbricatedLoopsTab[ImbricatedLoop-1];
 	}
 	else{
 	  ImbricatedLoop--;
+	  /* There is a problem with line numbers when EndFor is
+	     directly followed by '\n' (i.e., mostly on Unix since
+	     there is usually a '\t' on Windows). After a For body
+	     that is executed more than once, the line number is too
+	     large by one. This can cause problems with Includes
+	     afterwards. I didn't have time to investigate further
+	     (one hack is to add something after EndFor on the same
+	     line; the real solution is to change the way we deal with
+	     includes and replace the line number stuff with
+	     fgetpos/fsetpos), so I've added the following temporary
+	     hack: */
+	  hack_endfor();
 	}
       }
     }

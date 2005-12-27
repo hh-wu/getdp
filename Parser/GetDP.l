@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.38 2005-07-22 09:35:51 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.39 2005-12-27 09:55:57 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -460,7 +460,7 @@ void skip_until(char *skip, char *until){
       Msg(ERROR, "Search pattern too long in skip_until");
       return;
     }
-    for(i=1 ; i<l ; i++){
+    for(i = 1 ; i < l ; i++){
       chars[i] = input();
       if(chars[i] == '\n') yylinenum++ ; 
       if(chars[i] == (char)EOF){
@@ -481,11 +481,17 @@ void skip_until(char *skip, char *until){
       nb_skip++;
     }
     else{
-      for(i=1;i<l-1;i++){
+      for(i = 1; i < l - 1; i++){
 	unput(chars[l-i]);
         if(chars[l-i] == '\n') yylinenum-- ;
       }
     }
 
   }
+}
+
+void  hack_endfor(void) {
+  int c = input();
+  unput(c);
+  if(c == '\n') yylinenum--;
 }
