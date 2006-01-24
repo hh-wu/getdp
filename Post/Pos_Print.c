@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.70 2005-08-21 14:18:30 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.71 2006-01-24 14:04:32 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1222,6 +1222,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   struct Element   Element ;
   struct Value     Value ;
   struct PostQuantity  *PQ_P ;
+  struct Group * Group_P ;
 
   List_T  *Region_L, *Support_L ;
   int      i, iTime, NbrTimeStep ;
@@ -1255,21 +1256,33 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       )
     Msg(ERROR, "Print OnRegion not valid for PostProcessing Quantity '%s'", NCPQ_P->Name);
 
-  Region_L =  (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
-    ((struct Group *)
+  Group_P = (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
+    (struct Group *)
      List_Pointer(Problem_S.Group, 
-		  PostSubOperation_P->Case.OnRegion.RegionIndex))->InitialList ;
+		  PostSubOperation_P->Case.OnRegion.RegionIndex);
+  Region_L =  Group_P?  Group_P->InitialList : NULL ;
   if (Region_L) {
-    List_Sort(Region_L, fcmp_int) ;
-    Nbr_Region = List_Nbr(Region_L) ;
+    if (Group_P->FunctionType == REGION) {
+      List_Sort(Region_L, fcmp_int) ;
+      Nbr_Region = List_Nbr(Region_L) ;
 
-    if (PostSubOperation_P->Format != FORMAT_SPACE_TABLE) {
-      fprintf(PostStream, "# %s on", PQ_P->Name) ;
-      for(i = 0 ; i < Nbr_Region ; i++) {
-	List_Read(Region_L, i, &Num_Region) ;
-	fprintf(PostStream, " %d", Num_Region) ;
+      if (PostSubOperation_P->Format != FORMAT_SPACE_TABLE) {
+	fprintf(PostStream, "# %s on", PQ_P->Name) ;
+	for(i = 0 ; i < Nbr_Region ; i++) {
+	  List_Read(Region_L, i, &Num_Region) ;
+	  fprintf(PostStream, " %d", Num_Region) ;
+	}
+	fprintf(PostStream, "\n") ;
       }
-      fprintf(PostStream, "\n") ;
+    }
+    else if (Group_P->FunctionType == NODESOF) {
+      if (!Group_P->ExtendedList)  Generate_ExtendedGroup(Group_P) ;
+      Region_L = Group_P->ExtendedList ; /* Attention: new Region_L */
+      Nbr_Region = List_Nbr(Region_L) ;
+    }
+    else {
+      Msg(ERROR, "Function type (%d) not allowed for PrintOnRegion",
+	  Group_P->FunctionType) ;
     }
   }
   else
@@ -1287,6 +1300,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 	Num_Region = NO_REGION ;
       Current.SubRegion = Num_Region ; /* Region being a GlobalQuantity Entity no */
 
+      Current.NumEntity = Num_Region ; /* for OnRegion NodesOf */
+
       Element.GeoElement = NULL ;
       Element.Num = NO_ELEMENT ;
       Element.Type = -1 ;
@@ -1299,7 +1314,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 	Cal_StoreInRegister(&Value, PostSubOperation_P->StoreInRegister) ;
       
       Format_PostValue(PostSubOperation_P->Format,
-		       Current.Time, i, Nbr_Region,
+		       Current.Time, i, Current.NumEntity, Nbr_Region,
 		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 		       PostSubOperation_P->NoNewLine,
 		       &Value) ;
@@ -1368,7 +1383,7 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
 		       NULL, &Element, 0., 0., 0., &Value) ;
 
       Format_PostValue(PostSubOperation_P->Format,
-		       x, 0, 1,
+		       x, 0, 0, 1,
 		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 		       PostSubOperation_P->NoNewLine,
 		       &Value) ;

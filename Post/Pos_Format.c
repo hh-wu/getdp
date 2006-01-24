@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.42 2005-07-18 08:27:26 geuzaine Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.43 2006-01-24 14:04:32 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -973,7 +973,7 @@ void  Format_PostElement(int Format, int Contour, int Store,
 /* ------------------------------------------------------------------------ */
 
 void  Format_PostValue(int Format,
-		       double Time, int iRegion, int NbrRegion,
+		       double Time, int iRegion, int numRegion, int NbrRegion,
 		       int NbrHarmonics, int HarmonicToTime, int Flag_NoNewLine,
 		       struct Value * Value) {
 
@@ -984,6 +984,7 @@ void  Format_PostValue(int Format,
 
   GetDP_Begin("Format_PostValue");
 
+
   if(iRegion == 0){
     switch(Value->Type){
     case SCALAR      : Size = 1 ; break ;
@@ -992,51 +993,68 @@ void  Format_PostValue(int Format,
     case TENSOR_SYM  : Size = 6 ; break ;
     case TENSOR      : Size = 9 ; break ;
     }
-    TmpValues = (struct Value*) Malloc(NbrRegion*sizeof(struct Value)) ;
-   }
+  }
 
-  Cal_CopyValue(Value, &TmpValues[iRegion]) ;
+  if (Format == FORMAT_REGION_TABLE) {
+    if(iRegion == 0){
+      fprintf(PostStream, "%d\n", NbrRegion) ;
+    }
+    fprintf(PostStream, "%d", numRegion) ;
+    for (k = 0 ; k < NbrHarmonics ; k++) {
+      for(j = 0 ; j < Size ; j++)
+	fprintf(PostStream, ", %.16g", Value->Val[MAX_DIM*k+j]) ;
+      fprintf(PostStream, "\n") ;
+    }
+  }
+  else {
 
-  if (iRegion == NbrRegion-1) {
+    if(iRegion == 0){
+      TmpValues = (struct Value*) Malloc(NbrRegion*sizeof(struct Value)) ;
+    }
 
-    if (HarmonicToTime == 1) {
-      switch (Format) {
-      case FORMAT_FREQUENCY_TABLE :
-	if (NbrHarmonics == 1)
-	  Msg(ERROR, "FrequencyTable format not allowed (only one harmonic)") ;
-	break ;
-      default :
-	fprintf(PostStream, "%.16g ", Time) ;
-	break ;
-      }
-      for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++)
-	for (k = 0 ; k < NbrHarmonics ; k++) {
-	  if (Format == FORMAT_FREQUENCY_TABLE && !(k%2)) {
-	    Freq = Current.DofData->Val_Pulsation[0] / TWO_PI ;
-	    fprintf(PostStream, "%.16g ", Freq) ;
+    Cal_CopyValue(Value, &TmpValues[iRegion]) ;
+
+    if (iRegion == NbrRegion-1) {
+
+      if (HarmonicToTime == 1) {
+	switch (Format) {
+	case FORMAT_FREQUENCY_TABLE :
+	  if (NbrHarmonics == 1)
+	    Msg(ERROR, "FrequencyTable format not allowed (only one harmonic)") ;
+	  break ;
+	default :
+	  fprintf(PostStream, "%.16g ", Time) ;
+	  break ;
+	}
+	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++)
+	  for (k = 0 ; k < NbrHarmonics ; k++) {
+	    if (Format == FORMAT_FREQUENCY_TABLE && !(k%2)) {
+	      Freq = Current.DofData->Val_Pulsation[0] / TWO_PI ;
+	      fprintf(PostStream, "%.16g ", Freq) ;
+	    }
+	    for(j = 0 ; j < Size ; j++)
+	      fprintf(PostStream, " %.16g", TmpValues[iRegion].Val[MAX_DIM*k+j]) ;
 	  }
-	  for(j = 0 ; j < Size ; j++)
-	    fprintf(PostStream, " %.16g", TmpValues[iRegion].Val[MAX_DIM*k+j]) ;
-	}
-      if (Flag_NoNewLine)
-	fprintf(PostStream, "  ") ;
-      else
-	fprintf(PostStream, "\n") ;
-    }
-    else {
-      for(k = 0 ; k < HarmonicToTime ; k++) {
-	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
-	  F_MHToTime0(k+iRegion, &TmpValues[iRegion], &TmpValue, 
-		      k, HarmonicToTime, &TimeMH) ;
-	  if (iRegion == 0)  fprintf(PostStream, "%.16g ", TimeMH) ;
-	  for(j = 0 ; j < Size ; j++)
-	    fprintf(PostStream, " %.16g", TmpValue.Val[j]) ;
-	}
-	fprintf(PostStream, "\n") ;
+	if (Flag_NoNewLine)
+	  fprintf(PostStream, "  ") ;
+	else
+	  fprintf(PostStream, "\n") ;
       }
-    }
+      else {
+	for(k = 0 ; k < HarmonicToTime ; k++) {
+	  for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
+	    F_MHToTime0(k+iRegion, &TmpValues[iRegion], &TmpValue, 
+			k, HarmonicToTime, &TimeMH) ;
+	    if (iRegion == 0)  fprintf(PostStream, "%.16g ", TimeMH) ;
+	    for(j = 0 ; j < Size ; j++)
+	      fprintf(PostStream, " %.16g", TmpValue.Val[j]) ;
+	  }
+	  fprintf(PostStream, "\n") ;
+	}
+      }
 
-    Free(TmpValues) ;
+      Free(TmpValues) ;
+    }
   }
 
   GetDP_End ;

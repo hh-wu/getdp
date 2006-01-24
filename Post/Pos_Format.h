@@ -40,7 +40,7 @@ void  Format_PostElement(int Format, int Contour, int Store,
 			 List_T *ChangeOfValues);
 
 void  Format_PostValue(int Format,
-		       double Time, int iRegion, int NbrRegion,
+		       double Time, int iRegion, int numRegion, int NbrRegion,
 		       int NbrHarmonics, int HarmonicToTime, int Flag_NoNewLine,
 		       struct Value * Value) ;
 

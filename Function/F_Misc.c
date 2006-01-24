@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.24 2005-06-23 01:45:00 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.25 2006-01-24 14:04:32 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1041,5 +1041,98 @@ void  F_TransformPiezoT (F_ARG) {
 }
 
 #endif /* #if !defined(HAVE_GSL) */
+
+
+
+/* ------------------------------------------------------------------------ */
+/*          Start:            V I R T U A L   W O R K                       */
+/* ------------------------------------------------------------------------ */
+
+void  JacobianVol2D_dx (struct Element * Element, 
+			MATRIX3x3 * Jac, MATRIX3x3 * Jac_dx, double * DetJac_dx, int i) {
+
+  GetDP_Begin("JacobianVol2D_dx");
+
+  Jac_dx->c11 = Element->dndu[i][0] ;  Jac_dx->c12 = Element->dndu[i][0] ;
+  Jac_dx->c21 = Element->dndu[i][1] ;  Jac_dx->c22 = Element->dndu[i][1] ;
+
+  DetJac_dx[0] = Jac_dx->c11 * Jac->c22 - Jac_dx->c21 * Jac->c12 ;
+  DetJac_dx[1] = Jac_dx->c22 * Jac->c11 - Jac_dx->c12 * Jac->c21 ;
+  DetJac_dx[2] = 0. ;
+  
+  GetDP_End ;
+}
+
+
+/* F_VirtualWork */
+
+void  F_VirtualWork (F_ARG) {
+
+  GetDP_Begin("F_VirtualWork");
+
+  int numNode;
+  double u, v, w;
+
+  MATRIX3x3 Jac;
+  MATRIX3x3 Jac_dx;
+  double DetJac;
+  double DetJac_dx [3];
+  //double Jac_dx[3];
+
+  double valField[3], sv[3], s[3] ;
+
+  int i, nodeInElement;
+  
+  
+  /*  numNode = (int)((A+1)->Val[0]); */
+
+  numNode = Current.NumEntity;
+  
+  i = 0;
+  while (i < Current.Element->GeoElement->NbrNodes && 
+	 Current.Element->GeoElement->NumNodes[i]!=numNode)  i++;
+  
+  if (i < Current.Element->GeoElement->NbrNodes ) {
+    /*
+    printf("element : %d %d\n", Current.Element->GeoElement->Num, i+1);
+    */
+    
+    valField[0] = A->Val[0];
+    valField[1] = A->Val[1];
+    valField[2] = A->Val[2];
+    
+    u = Current.u; v = Current.v; w = Current.w;
+    Get_BFGeoElement(Current.Element, u,v,w);
+    
+    DetJac = JacobianVol2D (Current.Element, &Jac) ;
+    
+    JacobianVol2D_dx (Current.Element, &Jac, &Jac_dx, DetJac_dx, i) ;
+    
+    s[0] = 
+      DetJac_dx[0] *  (valField[1] * valField[1] - valField[0] * valField[0])
+      -  2 * DetJac_dx[1] *  valField[0] * valField[1] ;
+    
+    s[1] = 
+      DetJac_dx[1] * (valField[0] * valField[0] - valField[1] * valField[1])
+      -  2 * DetJac_dx[0] *  valField[0] * valField[1] ;
+    
+    s[2] = 0;
+    
+    s[0] /= fabs(DetJac);
+    s[1] /= fabs(DetJac);
+    s[2] /= fabs(DetJac);
+    
+  }
+  else {
+    s[0] = 0.; s[1] = 0.; s[2] = 0.;
+  }
+
+  V->Type = VECTOR ;
+  V->Val[0] = s[0] ;
+  V->Val[1] = s[1] ;
+  V->Val[2] = s[2] ;
+
+  GetDP_End ;
+}
 
 #undef F_ARG

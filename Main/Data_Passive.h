@@ -1104,6 +1104,7 @@ struct PostSubOperation {
 #define FORMAT_GREF                  13
 #define FORMAT_MATLAB                14
 #define FORMAT_GNUPLOT               15
+#define FORMAT_REGION_TABLE          16
 
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION      1
