@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.43 2006-01-24 14:04:32 dular Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.44 2006-01-24 14:37:58 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -980,6 +980,7 @@ void  Format_PostValue(int Format,
   static int  Size ;
   int  j, k ;
   double TimeMH, Freq ;
+  double x, y, z ;
   static struct Value  TmpValue, *TmpValues ;
 
   GetDP_Begin("Format_PostValue");
@@ -1005,6 +1006,14 @@ void  Format_PostValue(int Format,
 	fprintf(PostStream, ", %.16g", Value->Val[MAX_DIM*k+j]) ;
       fprintf(PostStream, "\n") ;
     }
+  }
+  else if (Format == FORMAT_GMSH) {
+    
+    Geo_GetNodesCoordinates(1, &numRegion, &x, &y, &z) ;
+
+    Format_GmshParsed(Time, 0, 1, NbrHarmonics, HarmonicToTime,
+		      POINT, 1, &x, &y, &z,
+		      Value) ;
   }
   else {
 

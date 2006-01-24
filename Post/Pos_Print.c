@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.71 2006-01-24 14:04:32 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.72 2006-01-24 14:37:58 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1246,6 +1246,12 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     PQ_P = NCPQ_P ;  Support_L = NULL ;
   }
 
+  Format_PostHeader(PostSubOperation_P->Format, PostSubOperation_P->Iso, 
+		    NbrTimeStep, PostSubOperation_P->HarmonicToTime,
+		    PostSubOperation_P->CombinationType, Order,
+		    NCPQ_P?NCPQ_P->Name:NULL,
+		    CPQ_P?CPQ_P->Name:NULL);
+
   if (!Support_L &&
       List_Nbr(NCPQ_P->PostQuantityTerm) &&
       (
@@ -1321,6 +1327,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     }
 
   }
+
+  Format_PostFooter(PostSubOperation_P, 0);
 
   GetDP_End ;
 }
