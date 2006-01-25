@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.25 2006-01-24 14:04:32 dular Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.26 2006-01-25 13:23:46 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
