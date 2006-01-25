@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.72 2006-01-24 14:37:58 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.73 2006-01-25 14:54:26 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1220,7 +1220,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 			struct PostSubOperation  *PostSubOperation_P) {
 
   struct Element   Element ;
-  struct Value     Value ;
+  struct Value     Value, ValueSummed ;
   struct PostQuantity  *PQ_P ;
   struct Group * Group_P ;
 
@@ -1298,6 +1298,11 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
     Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
 
+    if (Group_P->FunctionType == NODESOF) {
+      ValueSummed.Type = VECTOR ;
+      Cal_ZeroValue(&ValueSummed) ;
+    }
+
     for(i = 0 ; i < Nbr_Region ; i++) {
 
       if (Region_L)
@@ -1324,6 +1329,13 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 		       PostSubOperation_P->NoNewLine,
 		       &Value) ;
+      if (Group_P->FunctionType == NODESOF)
+	Cal_AddValue(&ValueSummed, &Value, &ValueSummed);
+    }
+
+    if (Group_P->FunctionType == NODESOF) {
+      fprintf(PostStream, "#Sum: ") ;
+      Print_Value(&ValueSummed);
     }
 
   }
