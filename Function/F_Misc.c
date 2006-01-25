@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.26 2006-01-25 13:23:46 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.27 2006-01-25 14:31:26 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1049,7 +1049,8 @@ void  F_TransformPiezoT (F_ARG) {
 /* ------------------------------------------------------------------------ */
 
 void  JacobianVol2D_dx (struct Element * Element, 
-			MATRIX3x3 * Jac, MATRIX3x3 * Jac_dx, double * DetJac_dx, int i) {
+			MATRIX3x3 * Jac, double DetJac,
+			MATRIX3x3 * Jac_dx, double * DetJac_dx, int i) {
 
   GetDP_Begin("JacobianVol2D_dx");
 
@@ -1059,7 +1060,13 @@ void  JacobianVol2D_dx (struct Element * Element,
   DetJac_dx[0] = Jac_dx->c11 * Jac->c22 - Jac_dx->c21 * Jac->c12 ;
   DetJac_dx[1] = Jac_dx->c22 * Jac->c11 - Jac_dx->c12 * Jac->c21 ;
   DetJac_dx[2] = 0. ;
-  
+
+  if (DetJac < 0) {
+    DetJac_dx[0] *= -1.;
+    DetJac_dx[1] *= -1.;
+    DetJac_dx[2] *= -1.;
+  }
+
   GetDP_End ;
 }
 
@@ -1106,7 +1113,7 @@ void  F_VirtualWork (F_ARG) {
     
     DetJac = JacobianVol2D (Current.Element, &Jac) ;
     
-    JacobianVol2D_dx (Current.Element, &Jac, &Jac_dx, DetJac_dx, i) ;
+    JacobianVol2D_dx (Current.Element, &Jac, DetJac, &Jac_dx, DetJac_dx, i) ;
     
     s[0] = 
       DetJac_dx[0] *  (valField[1] * valField[1] - valField[0] * valField[0])
