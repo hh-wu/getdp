@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.73 2006-01-25 14:54:26 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.74 2006-01-25 15:04:38 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1336,6 +1336,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     if (Group_P->FunctionType == NODESOF) {
       fprintf(PostStream, "#Sum: ") ;
       Print_Value(&ValueSummed);
+      fprintf(PostStream, "\n") ;
     }
 
   }
