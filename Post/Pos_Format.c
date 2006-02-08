@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.44 2006-01-24 14:37:58 dular Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.45 2006-02-08 14:17:42 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -985,7 +985,6 @@ void  Format_PostValue(int Format,
 
   GetDP_Begin("Format_PostValue");
 
-
   if(iRegion == 0){
     switch(Value->Type){
     case SCALAR      : Size = 1 ; break ;
@@ -1037,7 +1036,7 @@ void  Format_PostValue(int Format,
 	}
 	for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++)
 	  for (k = 0 ; k < NbrHarmonics ; k++) {
-	    if (Format == FORMAT_FREQUENCY_TABLE && !(k%2)) {
+	    if (Format == FORMAT_FREQUENCY_TABLE && !(k%2) && iRegion==0) {
 	      Freq = Current.DofData->Val_Pulsation[0] / TWO_PI ;
 	      fprintf(PostStream, "%.16g ", Freq) ;
 	    }

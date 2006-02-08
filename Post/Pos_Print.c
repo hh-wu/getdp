@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.75 2006-01-25 15:59:13 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.76 2006-02-08 14:17:42 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1227,6 +1227,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   List_T  *Region_L, *Support_L ;
   int      i, iTime, NbrTimeStep ;
   int      Nbr_Region, Num_Region ;
+  int      Flag_Summation=0;
 
   GetDP_Begin("Pos_PrintOnRegion");
 
@@ -1285,6 +1286,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       if (!Group_P->ExtendedList)  Generate_ExtendedGroup(Group_P) ;
       Region_L = Group_P->ExtendedList ; /* Attention: new Region_L */
       Nbr_Region = List_Nbr(Region_L) ;
+      Flag_Summation = 1;
     }
     else {
       Msg(ERROR, "Function type (%d) not allowed for PrintOnRegion",
@@ -1298,7 +1300,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
     Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
 
-    if (Group_P->FunctionType == NODESOF) {
+    if (Flag_Summation) {
       ValueSummed.Type = VECTOR ;
       Cal_ZeroValue(&ValueSummed) ;
     }
@@ -1329,12 +1331,10 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 		       PostSubOperation_P->NoNewLine,
 		       &Value) ;
-      if (Group_P->FunctionType == NODESOF)
-	Cal_AddValue(&ValueSummed, &Value, &ValueSummed);
+      if (Flag_Summation) Cal_AddValue(&ValueSummed, &Value, &ValueSummed);
     }
 
-    if (Group_P->FunctionType == NODESOF &&
-	PostSubOperation_P->Format ==FORMAT_REGION_TABLE) {
+    if (Flag_Summation && PostSubOperation_P->Format == FORMAT_REGION_TABLE) {
       fprintf(PostStream, "#Sum: ") ;
       Print_Value(&ValueSummed);
       fprintf(PostStream, "\n") ;
