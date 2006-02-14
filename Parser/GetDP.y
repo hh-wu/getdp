@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.88 2005-12-27 09:55:58 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.89 2006-02-14 17:36:20 dular Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -57,6 +57,8 @@
 #include "Magic.h"
 
 void  hack_endfor(void) ;
+void  hack_endfor_printf(void) ;
+void  hack_endfor2(void) ;
 
 void Check_NameOfStructNotExist(char * Struct, List_T * List_L, void * data,
 				int (*fcmp)(const void *a, const void *b)) ;
@@ -853,6 +855,12 @@ IRegion :
     { Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; List_Add($$ = ListOfInt_L, &($1)) ; }
 
+  /* Add (.) to avoid conflicts */
+  | '(' FExpr ')'
+{ Flag_MultipleIndex = 0 ; i = (int)$2 ;
+      List_Reset(ListOfInt_L) ; List_Add($$ = ListOfInt_L, &i) ; }
+
+
   | '@' RecursiveListOfFExpr '@'
     { 
       Flag_MultipleIndex = 0 ;
@@ -874,16 +882,41 @@ IRegion :
       $$ = ListOfInt_L ;
     }
 
-  | tINT tDOTS tINT tDOTS FExpr
+  /* Add (.) to avoid conflicts */
+  | '(' FExpr ')' tDOTS FExpr
     { 
       Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; 
-      if(!(int)$5 || ($1<$3 && (int)$5<0) || ($1>$3 && (int)$5>0)){
-	vyyerror("Wrong increment in '%d : %d : %d'", $1, $3, (int)$5) ;
+      for(j=$2 ; ($2<$5)?(j<=$5):(j>=$5) ; ($2<$5)?j++:j--) 
+	List_Add(ListOfInt_L, &j) ;
+      $$ = ListOfInt_L ;
+    }
+
+  | tINT tDOTS FExpr tDOTS FExpr
+    { 
+      Flag_MultipleIndex = 0 ;
+      List_Reset(ListOfInt_L) ; 
+      if(!(int)$5 || ($1<(int)$3 && (int)$5<0) || ($1>(int)$3 && (int)$5>0)){
+	vyyerror("Wrong increment in '%d : %d : %d'", $1, (int)$3, (int)$5) ;
 	List_Add(ListOfInt_L, &($1)) ;
       }
       else
 	for(j=$1 ; ((int)$5>0)?(j<=$3):(j>=$3) ; j+=(int)$5) 
+	  List_Add(ListOfInt_L, &j) ;
+      $$ = ListOfInt_L ;
+    }
+
+  /* Add (.) to avoid conflicts */
+  | '(' FExpr ')' tDOTS FExpr tDOTS FExpr
+    { 
+      Flag_MultipleIndex = 0 ;
+      List_Reset(ListOfInt_L) ; 
+      if(!(int)$7 || ((int)$2<(int)$5 && (int)$7<0) || ((int)$2>(int)$5 && (int)$7>0)){
+	vyyerror("Wrong increment in '%d : %d : %d'", (int)$2, (int)$5, (int)$7) ;
+	 i = (int)$2 ; List_Add(ListOfInt_L, &i) ;
+      }
+      else
+	for(j=(int)$2 ; ((int)$7>0)?(j<=(int)$5):(j>=(int)$5) ; j+=(int)$7) 
 	  List_Add(ListOfInt_L, &j) ;
       $$ = ListOfInt_L ;
     }
@@ -992,7 +1025,7 @@ Index :
 /*
     '{' FExpr '}'    { $$ = (int)$2 ; }
 */
-    '{' tINT '}'    { $$ = (int)$2 ; }
+    '{' FExpr '}'    { $$ = (int)$2 ; }
   ;
 
 
@@ -2457,6 +2490,11 @@ BasisFunctions :
 	$$ = FunctionSpace_S.BasisFunction ;
       }
     }
+
+  | BasisFunctions  Loop
+    {
+      $$ = $1 ;
+    }
   ;
 
 
@@ -2586,15 +2624,17 @@ BasisFunctionTerm :
 	      for (k = 0 ; k < List_Nbr(Group_S.InitialList) ; k++)
 		if (*((int*)List_Pointer(Group_S.InitialList, k)) !=
 		    *((int*)List_Pointer(BasisFunction_S.GlobalBasisFunction, k))) {
-		  vyyerror("Bad correspondance between Group and Entity") ;
+		  vyyerror("Bad correspondance between Group and Entity (elements differ)") ;
 		  break ;
 		}
 	    }
 	    else if (List_Nbr(Group_S.InitialList) != 0 ||
 		     GlobalBasisFunction_S.EntityIndex != -1)
-	      vyyerror("Bad correspondance between Group and Entity") ;
+	      vyyerror("Bad correspondance between Group and Entity (#BF %d, #Global %d)",
+		       List_Nbr(BasisFunction_S.GlobalBasisFunction),
+		       List_Nbr(Group_S.InitialList)) ;
 	  }
-	  else  vyyerror("Bad correspondance between Group and Entity") ;
+	  else  vyyerror("Bad correspondance between Group and Entity (Entity must be Global)") ;
 	}
       }
       else {
@@ -2969,7 +3009,11 @@ ConstraintInFSs :
 	  }
 	}
       }
+    }
 
+  | ConstraintInFSs  Loop
+    {
+      $$ = $1 ;
     }
   ;
 
@@ -6750,6 +6794,8 @@ Loop :
 	    List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;      
 	  }
 	  fsetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
+	  hack_endfor2();
+	  /*	  hack_endfor_printf();*/
 	  yylinenum = yylinenoImbricatedLoopsTab[ImbricatedLoop-1];
 	}
 	else{
@@ -6765,7 +6811,18 @@ Loop :
 	     includes and replace the line number stuff with
 	     fgetpos/fsetpos), so I've added the following temporary
 	     hack: */
+	  /*
+	    If hack_endfor() is used, it is OK for a loop executed more than once
+	    but not anymore for a single execution.
+	    fsetpos() seems to position the file just after the For but with one
+	    additional character (the one after EndFor) at the beginning.
+	    I do not understand why there is such a mixing of two separate data.
+	    I then added hack_endfor2() to suppress the useless additional character.
+	    Patrick
+	  */
+	  /*
 	  hack_endfor();
+	  */
 	}
       }
     }
@@ -6965,7 +7022,9 @@ FExpr :
   | tFmod   '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }
   | tModulo '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }
   | tHypot  '[' FExpr ',' FExpr ']'  { $$ = sqrt($3*$3+$5*$5);  }
+/*???
   | FExpr '?' FExpr tDOTS FExpr      { $$ = $1? $3 : $5 ; }
+*/
   | FExpr '#' { Msg(DIRECT, "Value (line %ld) --> %.16g", yylinenum, $1); }
   ;
 
@@ -7169,7 +7228,7 @@ StringIndex :
   
     tSTRING '~' '{' FExpr '}'  
     { 
-      sprintf(tmpstr, "_%d", (int)$4) ;
+      sprintf(tmpstr, "_%d_", (int)$4) ;
       $$ = (char *)Malloc((strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
       strcpy($$, $1) ; strcat($$, tmpstr) ;
       Free($1) ;
@@ -7177,7 +7236,7 @@ StringIndex :
 
   | StringIndex '~' '{' FExpr '}' 
     {
-      sprintf(tmpstr, "_%d", (int)$4) ;
+      sprintf(tmpstr, "_%d_", (int)$4) ;
       $$ = (char *)Realloc($1,(strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
       strcpy($$, $1) ; strcat($$, tmpstr) ;
     }
