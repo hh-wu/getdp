@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.89 2006-02-14 17:36:20 dular Exp $ */
+/* $Id: GetDP.y,v 1.90 2006-02-14 17:43:13 dular Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -66,7 +66,6 @@ int  Add_Group(struct Group * Group_P, char * Name, int Flag_Plus, int Num_Index
 int  Add_Group_2(struct Group * Group_P, char * Name, int Flag_Add, 
 		 int Flag_Plus, int Num_Index1, int Num_Index2) ;
 int  Num_Group(struct Group * Group_P, char * Name, int Num_Group) ;
-int  Add_Group_Index(struct Group * Group_P, char * Name, int Flag_Plus) ;
 int  Add_Expression(struct Expression * Expression_P, char * Name, int Flag_Plus) ;
 void Pro_DefineQuantityIndex(List_T * WholeQuantity_L,int DefineQuantityIndexEqu,
 			     int * NbrQuantityIndex, int ** QuantityIndexTable,
@@ -99,21 +98,14 @@ List_T  * Current_BasisFunction_L, * Current_SubSpace_L, * Current_GlobalQuantit
 List_T  * Current_WholeQuantity_L, * Current_System_L ;
 List_T  * Operation_L ;
 
-int      Nbr_Index, Flag_MultipleIndex, Save_Nbr_Index ;
-List_T  * ListOfInitialList0_L, * InitialList0_L ;
-List_T  * ListOfInitialList2_L, * InitialList2_L ;
-List_T  * ListOfInitialList_L, * ListOfInitialSuppList_L ;
-List_T  * ListOfDefineSystem, * ListOfListOfFormulation ;
-List_T  * ListOfConstraintPerRegion, * ListOfRegionIndex, * ListOfSubRegionIndex ;
+int      Nbr_Index, Flag_MultipleIndex, Flag1 ;
 List_T  * ListOfFormulation ;
-List_T  * ListOfBasisFunction, * ListOfSupportIndex, * ListOfEntityIndex ;
-List_T  * ListOfConstraintInFS, * ListOfConstraintIndex ;
-List_T  * ListOfDefineQuantity, * ListOfFunctionSpaceIndex, * ListOfEquationTerm ;
+List_T  * ListOfBasisFunction, * ListOfEntityIndex ;
 
 List_T  * ListOfInt_Lnew ;
 int     * ListOfInt_P ;
 
-char    * Save_Name, tmpstr[1024] ;
+char     tmpstr[1024] ;
 
 int      i, j, k, l, FlagError ;
 int      Num_BasisFunction = 1 ;
@@ -201,7 +193,8 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %token <d> tFLOAT
 %token <c> tSTRING tBIGSTR
 
-%type <i>  GroupRHS, ReducedGroupRHS, FunctionForGroup, SuppListTypeForGroup
+%type <i>  GroupRHS, GroupRHS_MultipleIndex, ReducedGroupRHS
+%type <i>  FunctionForGroup, SuppListTypeForGroup
 %type <i>  Expression, DefineDimension, MultipleIndex, Index
 %type <i>  ArgumentsForFunction, RecursiveListOfQuantity
 %type <i>  PostQuantitySupport
@@ -354,28 +347,10 @@ Stats :
 	ListOfPointer2_L= List_Create(10, 10, sizeof(void *)) ;
 	ListOfChar_L    = List_Create(128, 128, sizeof(char)) ;
 
-	ListOfInitialList0_L    = List_Create(5,5, sizeof(List_T *)) ;
-	ListOfInitialList_L     = List_Create(5,5, sizeof(List_T *)) ;
-	ListOfInitialSuppList_L = List_Create(5,5, sizeof(List_T *)) ;
-
-	ListOfDefineSystem      = List_Create(5,5, sizeof(List_T *)) ;
-	ListOfListOfFormulation = List_Create(5,5, sizeof(List_T *)) ;
-
-	ListOfConstraintPerRegion = List_Create(5,5, sizeof(List_T *)) ;
-	ListOfRegionIndex       = List_Create(5,5, sizeof(int)) ;
-	ListOfSubRegionIndex    = List_Create(5,5, sizeof(int)) ;
-
 	ListOfFormulation       = List_Create(5,5, sizeof(int)) ;
 
 	ListOfBasisFunction     = List_Create(5,5, sizeof(List_T *)) ;
-	ListOfSupportIndex      = List_Create(5,5, sizeof(int)) ;
 	ListOfEntityIndex       = List_Create(5,5, sizeof(int)) ;
-	ListOfConstraintInFS    = List_Create(5,5, sizeof(List_T *)) ;
-	ListOfConstraintIndex   = List_Create(5,5, sizeof(List_T *)) ;
-
-	ListOfDefineQuantity    = List_Create(5,5, sizeof(List_T *)) ;
-	ListOfFunctionSpaceIndex= List_Create(5,5, sizeof(int *)) ;
-	ListOfEquationTerm      = List_Create(5,5, sizeof(List_T *)) ;
       }
     }
     ProblemDefinitions
@@ -384,29 +359,10 @@ Stats :
 	List_Delete(ListOfPointer_L) ; List_Delete(ListOfPointer2_L) ; 
 	List_Delete(ListOfChar_L) ;
 
-	List_Delete(ListOfInitialList0_L) ;
-
-	List_Delete(ListOfInitialList_L) ;
-	List_Delete(ListOfInitialSuppList_L) ;
-
-	List_Delete(ListOfDefineSystem) ;
-	List_Delete(ListOfListOfFormulation) ;
-
-	List_Delete(ListOfConstraintPerRegion) ;
-	List_Delete(ListOfRegionIndex) ;
-	List_Delete(ListOfSubRegionIndex) ;
-
 	List_Delete(ListOfFormulation) ;
 
 	List_Delete(ListOfBasisFunction) ;
-	List_Delete(ListOfSupportIndex) ;
 	List_Delete(ListOfEntityIndex) ;
-	List_Delete(ListOfConstraintInFS) ;
-	List_Delete(ListOfConstraintIndex) ;
-
-	List_Delete(ListOfDefineQuantity) ;
-	List_Delete(ListOfFunctionSpaceIndex) ;
-	List_Delete(ListOfEquationTerm) ;
       }
     }
 
@@ -422,7 +378,7 @@ ProblemDefinitions :
 
     /* none */
   | ProblemDefinitions
-    { Formulation_S.DefineQuantity = NULL ; Nbr_Index = 0 ; }
+    { Formulation_S.DefineQuantity = NULL ; }
     ProblemDefinition
   ;
 
@@ -525,7 +481,7 @@ Interactive :
 Groups :
 
     /* none */
-  | Groups { Nbr_Index = 0 ; } Group
+  | Groups Group
   ;
 
 
@@ -533,15 +489,18 @@ Group :
 
    String__Index tDEF ReducedGroupRHS tEND
     { Add_Group(&Group_S, $1, 0, 0) ; }
+
   | tSTRING Index tDEF ReducedGroupRHS tEND
     { Add_Group(&Group_S, $1, 2, $2) ; }
+
 /* Patrick, temporary for compatibility with 'String__Index' syntax (19/01/2004)
   | String__Index DefineDimension tDEF
 */
-  | tSTRING DefineDimension tDEF
-    { Nbr_Index = $2 ; }
-    ReducedGroupRHS tEND
-    { Add_Group_Index(&Group_S, $1, 2) ; }
+  | tSTRING DefineDimension tDEF ReducedGroupRHS tEND
+    {
+      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      Add_Group(&Group_S, $1, 0, 0) ;
+    }
 
   | tDefineGroup '[' DefineGroups ']' tEND
 
@@ -584,28 +543,19 @@ MovingBand2DGroup :
 
 ReducedGroupRHS :
 
-    FunctionForGroup '['
-    {
-      Flag_MultipleIndex = 0 ;  /* Init ... */
-      ListOfInitialList2_L = ListOfInitialList_L ;  /* Init pour ListOfRegion */
-    }
-    ListOfRegionOrAll
+    FunctionForGroup '[' ListOfRegionOrAll
     {
       Group_S.FunctionType = $1 ;
       switch (Group_S.FunctionType) {
       case ELEMENTSOF :  Group_S.Type = ELEMENTLIST ;  break ;
       default :          Group_S.Type = REGIONLIST  ;  break ;
       }
-      if (!Nbr_Index)  Group_S.InitialList = $4 ;
-      else             Group_S.InitialList = $4 ;
-
-      ListOfInitialList2_L = ListOfInitialSuppList_L ;  /* Init pour SuppListOfRegion */
+      Group_S.InitialList = $3 ;
     }
     SuppListOfRegion ']'
     {
       Group_S.SuppListType = Type_SuppList ;
-      if (!Nbr_Index)  Group_S.InitialSuppList = $6 ;
-      else             Group_S.InitialSuppList = NULL ;
+      Group_S.InitialSuppList = $5 ;
       $$ = -1 ;
     }
 
@@ -626,24 +576,34 @@ GroupRHS :
       $$ = $1 ;
     }
 
-  | String__Index MultipleIndex
+  | String__Index
+    {
+      if ( !strcmp($1, "All") ) {
+	$$ = -3;
+      }
+      else if ( (i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) >= 0 ) {
+	List_Read(Problem_S.Group, i, &Group_S) ; $$ = i ;
+      }
+      else {
+	$$ = -2 ; vyyerror("Unknown Group: %s", $1) ;
+      }
+      Free($1) ;
+    }
+  ;
+
+GroupRHS_MultipleIndex :
+
+    String__Index MultipleIndex
     {
       if (!Flag_MultipleIndex) {
-	if ( !strcmp($1, "All") ) {
-	  $$ = -3;
-	}
-	else if ( (i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) < 0 ) {
-	  $$ = -2 ; vyyerror("Unknown Group: %s", $1) ;
-	}
-	else {
+	if ( (i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) >= 0 )
 	  List_Read(Problem_S.Group, i, &Group_S) ; $$ = i ;
-	}
       }
       else {
 	List_Reset(ListOfInt_L) ;  /* For list of multiple region */
 
 	for (k = 0 ; k < Nbr_Index ; k++) {
-	  sprintf(tmpstr, "%s_%d_", $1, k+1) ;
+	  sprintf(tmpstr, "%s_%d", $1, k+1) ;
 	  if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr,
 				    fcmp_Group_Name)) < 0 ) {
 	    $$ = -2 ; vyyerror("Unknown Group: %s {%d}", $1, k+1) ;
@@ -680,17 +640,7 @@ FunctionForGroup :
 ListOfRegionOrAll :
 
     ListOfRegion   { $$ = $1 ; }
-  | tAll
-    { 
-      if (!Nbr_Index)
-	$$ = NULL ;
-      else {
-	List_Reset(ListOfInitialList2_L) ;
-	InitialList2_L = NULL ;
-	for (k = 0 ; k < Nbr_Index ; k++)
-	  List_Add(ListOfInitialList2_L, &InitialList2_L) ;
-      }
-    }
+  | tAll           { $$ = NULL ; }
   ;
 
 
@@ -702,51 +652,18 @@ SuppListOfRegion :
   | Comma SuppListTypeForGroup ListOfRegion
     { Type_SuppList = $2 ; $$ = $3 ; }
 
-  | Comma tInSupport String__Index MultipleIndex
+  | Comma tInSupport String__Index
     {
       Type_SuppList = SUPPLIST_INSUPPORT ;
-      if (!Flag_MultipleIndex) {
-	if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
-	  if ( ((struct Group *)List_Pointer(Problem_S.Group, i))->Type == 
-	       ELEMENTLIST ) {
-	    if (!Nbr_Index) {
-	      $$ = List_Create( 1, 5, sizeof(int)) ;
-	      List_Add($$, &i) ;
-	    }
-	    else {
-	      List_Reset(ListOfInitialList2_L) ;
-	      for (k = 0 ; k < Nbr_Index ; k++) {
-		InitialList2_L = List_Create( 1, 5, sizeof(int)) ;
-		List_Add(ListOfInitialList2_L, &InitialList2_L) ;
-		List_Add(InitialList2_L, &i) ;
-	      }
-	    }
-	  }
-	  else  vyyerror("Not a Support of Element Type: %s", $3) ;
+      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
+	if ( ((struct Group *)List_Pointer(Problem_S.Group, i))->Type == 
+	     ELEMENTLIST ) {
+	  $$ = List_Create( 1, 5, sizeof(int)) ;
+	  List_Add($$, &i) ;
 	}
-	else  vyyerror("Unknown Region for Support: %s", $3) ;
+	else  vyyerror("Not a Support of Element Type: %s", $3) ;
       }
-      else {
-	List_Reset(ListOfInitialList2_L) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  sprintf(tmpstr, "%s_%d_", $3, k+1) ;
-	  if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr, fcmp_Group_Name))
-	       >= 0 ) {
-	    if ( ((struct Group *)List_Pointer(Problem_S.Group, i))->Type ==
-		 ELEMENTLIST ) {
-	      if (!Nbr_Index)
-		vyyerror("Multiple Group out of context: %s {}", $3) ;
-	      else {
-		InitialList2_L = List_Create( 1, 5, sizeof(int)) ;
-		List_Add(ListOfInitialList2_L, &InitialList2_L) ;
-		List_Add(InitialList2_L, &i) ;
-	      }
-	    }
-	    else  vyyerror("Not a Support of Element Type: %s", $3) ;
-	  }
-	  else  vyyerror("Unknown Region for Support: %s {%d}", $3, k+1) ;
-	}
-      }
+      else  vyyerror("Unknown Region for Support: %s", $3) ;
       Free($3) ;
     }
   ;
@@ -768,26 +685,9 @@ ListOfRegion :
 
     IRegion
     {
-      if (!Nbr_Index) {
-	$$ = List_Create(((List_Nbr($1) > 0)? List_Nbr($1) : 1), 5, sizeof(int)) ;
-	for (i = 0 ; i < List_Nbr($1) ; i++)
-	  List_Add($$, (int *)List_Pointer($1, i) ) ;
-      }
-      else {
-	List_Reset(ListOfInitialList2_L) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  if (Flag_MultipleIndex)
-	    List_Read(ListOfInitialList0_L, k, &InitialList0_L) ;
-	  else
-	    InitialList0_L = $1 ;
-	  InitialList2_L =
-	    List_Create(((List_Nbr(InitialList0_L) > 0)? List_Nbr($1) : 1), 5,
-			sizeof(int)) ;
-	  List_Add(ListOfInitialList2_L, &InitialList2_L) ;
-	  for (i = 0 ; i < List_Nbr(InitialList0_L) ; i++)
-	    List_Add(InitialList2_L, (int *)List_Pointer(InitialList0_L, i) ) ;
-	}
-      }
+      $$ = List_Create(((List_Nbr($1) > 0)? List_Nbr($1) : 1), 5, sizeof(int)) ;
+      for (i = 0 ; i < List_Nbr($1) ; i++)
+	List_Add($$, (int *)List_Pointer($1, i) ) ;
     }
 
   | '{' RecursiveListOfRegion '}'
@@ -799,52 +699,21 @@ RecursiveListOfRegion :
 
     /* none */
     {
-      if (!Nbr_Index)
-	$$ = List_Create( 5, 5, sizeof(int)) ;
-      else {
-	List_Reset(ListOfInitialList2_L) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  InitialList2_L = List_Create( 5, 5, sizeof(int)) ;
-	  List_Add(ListOfInitialList2_L, &InitialList2_L) ;
-	}
-      }
+      $$ = List_Create( 5, 5, sizeof(int)) ;
     }
 
   | RecursiveListOfRegion Comma IRegion
-    { $$ = $1 ;
-      if (!Nbr_Index)
-	for (i = 0 ; i < List_Nbr($3) ; i++)
-	  List_Add($$, (int *)List_Pointer($3, i) ) ;
-      else {
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  if (Flag_MultipleIndex)
-	    List_Read(ListOfInitialList0_L, k, &InitialList0_L) ;
-	  else
-	    InitialList0_L = $3 ;
-	  List_Read(ListOfInitialList2_L, k, &InitialList2_L) ;
-	  for (i = 0 ; i < List_Nbr(InitialList0_L) ; i++)
-	    List_Add(InitialList2_L, (int *)List_Pointer(InitialList0_L, i) ) ;
-	}
-      }
+    {
+      $$ = $1 ;
+      for (i = 0 ; i < List_Nbr($3) ; i++)
+	List_Add($$, (int *)List_Pointer($3, i) ) ;
     }
 
   | RecursiveListOfRegion Comma '-' IRegion
-    { $$ = $1 ;
-      if (!Nbr_Index)
-	for (i = 0 ; i < List_Nbr($4) ; i++)
-	  List_Suppress($$, (int *)List_Pointer($4, i), fcmp_int ) ;
-      else {
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  if (Flag_MultipleIndex)
-	    List_Read(ListOfInitialList0_L, k, &InitialList0_L) ;
-	  else
-	    InitialList0_L = $4 ;
-	  List_Read(ListOfInitialList2_L, k, &InitialList2_L) ;
-	  for (i = 0 ; i < List_Nbr(InitialList0_L) ; i++)
-	    List_Suppress(InitialList2_L,
-			  (int *)List_Pointer(InitialList0_L, i), fcmp_int) ;
-	}
-      }
+    {
+      $$ = $1 ;
+      for (i = 0 ; i < List_Nbr($4) ; i++)
+	List_Suppress($$, (int *)List_Pointer($4, i), fcmp_int ) ;
     }
   ;
 
@@ -852,18 +721,20 @@ RecursiveListOfRegion :
 IRegion :
 
     tINT
-    { Flag_MultipleIndex = 0 ;
-      List_Reset(ListOfInt_L) ; List_Add($$ = ListOfInt_L, &($1)) ; }
+    {
+      List_Reset(ListOfInt_L) ; List_Add($$ = ListOfInt_L, &($1)) ;
+    }
 
   /* Add (.) to avoid conflicts */
   | '(' FExpr ')'
-{ Flag_MultipleIndex = 0 ; i = (int)$2 ;
-      List_Reset(ListOfInt_L) ; List_Add($$ = ListOfInt_L, &i) ; }
+    {
+      i = (int)$2 ;
+      List_Reset(ListOfInt_L) ; List_Add($$ = ListOfInt_L, &i) ;
+    }
 
 
   | '@' RecursiveListOfFExpr '@'
     { 
-      Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ;  
       
       for(i=0 ; i<List_Nbr($2) ; i++) {
@@ -875,7 +746,6 @@ IRegion :
 
   | tINT tDOTS FExpr
     { 
-      Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; 
       for(j=$1 ; ($1<$3)?(j<=$3):(j>=$3) ; ($1<$3)?j++:j--) 
 	List_Add(ListOfInt_L, &j) ;
@@ -885,7 +755,6 @@ IRegion :
   /* Add (.) to avoid conflicts */
   | '(' FExpr ')' tDOTS FExpr
     { 
-      Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; 
       for(j=$2 ; ($2<$5)?(j<=$5):(j>=$5) ; ($2<$5)?j++:j--) 
 	List_Add(ListOfInt_L, &j) ;
@@ -894,7 +763,6 @@ IRegion :
 
   | tINT tDOTS FExpr tDOTS FExpr
     { 
-      Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; 
       if(!(int)$5 || ($1<(int)$3 && (int)$5<0) || ($1>(int)$3 && (int)$5>0)){
 	vyyerror("Wrong increment in '%d : %d : %d'", $1, (int)$3, (int)$5) ;
@@ -909,7 +777,6 @@ IRegion :
   /* Add (.) to avoid conflicts */
   | '(' FExpr ')' tDOTS FExpr tDOTS FExpr
     { 
-      Flag_MultipleIndex = 0 ;
       List_Reset(ListOfInt_L) ; 
       if(!(int)$7 || ((int)$2<(int)$5 && (int)$7<0) || ((int)$2>(int)$5 && (int)$7>0)){
 	vyyerror("Wrong increment in '%d : %d : %d'", (int)$2, (int)$5, (int)$7) ;
@@ -923,7 +790,6 @@ IRegion :
 
   | String__Index
     {
-      Flag_MultipleIndex = 0 ;
       if ( (i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) < 0 ) {
 	/* Si ce n'est pas un nom de groupe, est-ce un nom de constante ? : */
 	Constant_S.Name = $1 ;
@@ -954,24 +820,6 @@ IRegion :
 	$$ = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList ;
       Free($1) ;
     }
-
-  | tSTRING '{' '}'
-    {
-      Flag_MultipleIndex = 1 ;
-      List_Reset(ListOfInitialList0_L) ;
-      $$ = ListOfInitialList0_L ;
-      for (k = 1 ; k <= Nbr_Index ; k++) {
-	sprintf(tmpstr, "%s_%d_", $1, k) ;
-	if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr, fcmp_Group_Name)) < 0 ) {
-	  vyyerror("Unknown Group: %s {%d}", $1, k) ;  break ;
-	}
-	else
-	  List_Add(ListOfInitialList0_L, 
-		   &(((struct Group *)
-		      List_Pointer(Problem_S.Group, i))->InitialList)) ;
-      }
-      Free($1) ;
-    }
   ;
 
 
@@ -992,7 +840,7 @@ DefineGroups :
   | DefineGroups Comma tSTRING '{' FExpr '}'
     { 
       for (k = 0 ; k < (int)$5 ; k++) {
-	sprintf(tmpstr, "%s_%d_", $3, k+1) ;
+	sprintf(tmpstr, "%s_%d", $3, k+1) ;
 	if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr,
 				  fcmp_Group_Name)) < 0 ) {
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
@@ -1021,13 +869,10 @@ MultipleIndex :
   | '{' '}'    { Flag_MultipleIndex = 1 ; }
   ;
 
+
 Index :
-/*
-    '{' FExpr '}'    { $$ = (int)$2 ; }
-*/
     '{' FExpr '}'    { $$ = (int)$2 ; }
   ;
-
 
 
 /* ------------------------------------------------------------------------ */
@@ -2012,22 +1857,7 @@ BracedConstraint :
 
     '{' Constraint '}'
     {
-      if (!Nbr_Index)
-	List_Add(Problem_S.Constraint, &Constraint_S) ;
-      else {
-	Save_Name = strsave(Constraint_S.Name) ;  Free(Constraint_S.Name) ;
-	if (List_Nbr(ListOfConstraintPerRegion))
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    sprintf(tmpstr, "%s_%d_", Save_Name, k+1) ;
-	    Check_NameOfStructNotExist("Constraint", Problem_S.Constraint,
-				       tmpstr, fcmp_Constraint_Name) ;
-	    Constraint_S.Name = strsave(tmpstr) ;
-	    List_Read(ListOfConstraintPerRegion, k,
-		      &Constraint_S.ConstraintPerRegion) ;
-	    List_Add(Problem_S.Constraint, &Constraint_S) ;
-	  }
-	Free(Save_Name) ;
-      }
+      List_Add(Problem_S.Constraint, &Constraint_S) ;
     }
 
   | Affectation
@@ -2042,7 +1872,6 @@ Constraint :
       Constraint_S.Type = ASSIGN ;
       Constraint_S.ConstraintPerRegion = NULL ;
       Constraint_S.MultiConstraintPerRegion = NULL ;
-      Nbr_Index = 0 ;
     }
 
   | Constraint  ConstraintTerm
@@ -2052,17 +1881,19 @@ Constraint :
 ConstraintTerm :
 
     tName String__Index tEND
-    { Nbr_Index = 0 ;
+    {
       Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, $2,
 				 fcmp_Constraint_Name) ;
-      Constraint_S.Name = $2 ; }
+      Constraint_S.Name = $2 ;
+    }
 
-  | tName String__Index DefineDimension tEND
-    { Nbr_Index = $3 ;
-      sprintf(tmpstr, "%s_%d_", $2, 1) ;
-      Check_NameOfStructNotExist("Constraint", Problem_S.Constraint,
-				 tmpstr, fcmp_Constraint_Name) ;
-      Constraint_S.Name = $2 ; }
+  | tName tSTRING DefineDimension tEND
+    {
+      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, $2,
+				 fcmp_Constraint_Name) ;
+      Constraint_S.Name = $2 ;
+    }
 
   | tType tSTRING tEND
     { Constraint_S.Type = Get_DefineForString(Constraint_Type, $2, &FlagError) ;
@@ -2078,20 +1909,16 @@ ConstraintTerm :
 
   | tCase tSTRING '{' ConstraintCases '}'
     {
-      if (!Nbr_Index) {
-	if (!Constraint_S.MultiConstraintPerRegion)
-	  Constraint_S.MultiConstraintPerRegion =
-	    List_Create( 5, 5, sizeof(struct MultiConstraintPerRegion)) ;
+      if (!Constraint_S.MultiConstraintPerRegion)
+	Constraint_S.MultiConstraintPerRegion =
+	  List_Create( 5, 5, sizeof(struct MultiConstraintPerRegion)) ;
 
-	MultiConstraintPerRegion_S.Name = $2 ;
-	MultiConstraintPerRegion_S.ConstraintPerRegion = $4 ;
-	MultiConstraintPerRegion_S.Active = NULL ;
+      MultiConstraintPerRegion_S.Name = $2 ;
+      MultiConstraintPerRegion_S.ConstraintPerRegion = $4 ;
+      MultiConstraintPerRegion_S.Active = NULL ;
 
-	List_Add(Constraint_S.MultiConstraintPerRegion, 
-		 &MultiConstraintPerRegion_S) ;
-      }
-      else
-	vyyerror("Multiple Constraint not allowed for Case Constraint") ;
+      List_Add(Constraint_S.MultiConstraintPerRegion, 
+	       &MultiConstraintPerRegion_S) ;
     }
   ;
 
@@ -2100,37 +1927,12 @@ ConstraintCases :
 
     /* none */
     {
-      if (!Nbr_Index)
-	$$ = List_Create(6, 6, sizeof (struct ConstraintPerRegion)) ;
-      else {
-	List_Reset(ListOfConstraintPerRegion) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  Constraint_S.ConstraintPerRegion =
-	    List_Create(6, 6, sizeof (struct ConstraintPerRegion)) ;
-	  List_Add(ListOfConstraintPerRegion, &Constraint_S.ConstraintPerRegion) ;
-	}
-	$$ = Constraint_S.ConstraintPerRegion ;
-      }
+      $$ = List_Create(6, 6, sizeof (struct ConstraintPerRegion)) ;
     }
 
   | ConstraintCases  '{' ConstraintCase '}'
     {
-      if (!Nbr_Index)
-	List_Add($$ = $1, &ConstraintPerRegion_S) ;
-      else {
-	if (List_Nbr(ListOfRegionIndex))
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    List_Read(ListOfRegionIndex, k, &ConstraintPerRegion_S.RegionIndex) ;
-	    if (List_Nbr(ListOfSubRegionIndex))
-	      List_Read
-		(ListOfSubRegionIndex, k, &ConstraintPerRegion_S.SubRegionIndex) ;
-
-	    List_Read
-	      (ListOfConstraintPerRegion, k, &Constraint_S.ConstraintPerRegion) ;
-	    List_Add(Constraint_S.ConstraintPerRegion, &ConstraintPerRegion_S) ;
-	  }
-	$$ = Constraint_S.ConstraintPerRegion ;
-      }
+      List_Add($$ = $1, &ConstraintPerRegion_S) ;
     }
 
   | ConstraintCases Loop
@@ -2168,52 +1970,13 @@ ConstraintCaseTerm :
 
   | tRegion GroupRHS tEND
     { 
-      if (!Nbr_Index){
-	ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, "CO_Region", $2) ;
-      }
-      else {
-	List_Reset(ListOfRegionIndex) ;
-	if ($2 >= 0) {
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    if (Flag_MultipleIndex)  List_Read(ListOfInt_L, k, &i) ;
-	    else                     i = $2 ;
-	    List_Add(ListOfRegionIndex, &i) ;
-	  }
-	}
-	else if ($2 == -1) {
-	  Add_Group_Index(&Group_S, "CO_Region", 1) ;
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    List_Read(ListOfInt_L, k, &i) ;
-	    List_Add(ListOfRegionIndex, &i) ;
-	  }
-	}
-	else  vyyerror("Bad Group right hand side") ;
-      }
+      ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, "CO_Region", $2) ;
     }
 
   | tSubRegion GroupRHS tEND
     { 
-      if (!Nbr_Index)
-	ConstraintPerRegion_S.SubRegionIndex =
-	  Num_Group(&Group_S, "CO_SubRegion", $2) ;
-      else {
-	List_Reset(ListOfSubRegionIndex) ;
-	if ($2 >= 0) {
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    if (Flag_MultipleIndex)  List_Read(ListOfInt_L, k, &i) ;
-	    else                     i = $2 ;
-	    List_Add(ListOfSubRegionIndex, &i) ;
-	  }
-	}
-	else if ($2 == -1) {
-	  Add_Group_Index(&Group_S, "CO_SubRegion", 1) ;
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    List_Read(ListOfInt_L, k, &i) ;
-	    List_Add(ListOfSubRegionIndex, &i) ;
-	  }
-	}
-	else  vyyerror("Bad Group right hand side") ;
-      }
+      ConstraintPerRegion_S.SubRegionIndex =
+	Num_Group(&Group_S, "CO_SubRegion", $2) ;
     }
 
   | tTimeFunction Expression tEND
@@ -2352,23 +2115,7 @@ BracedFunctionSpace :
 
     '{' FunctionSpace '}'
     {
-      if (!Nbr_Index)
-	List_Add(Problem_S.FunctionSpace, &FunctionSpace_S) ;
-      else {
-	Save_Name = strsave(FunctionSpace_S.Name) ;  Free(FunctionSpace_S.Name) ;
-	if (List_Nbr(ListOfBasisFunction))
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    sprintf(tmpstr, "%s_%d_", Save_Name, k+1) ;
-	    Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
-				       tmpstr, fcmp_FunctionSpace_Name) ;
-	    FunctionSpace_S.Name = strsave(tmpstr) ;
-	    List_Read(ListOfBasisFunction , k, &FunctionSpace_S.BasisFunction) ;
-	    if (List_Nbr(ListOfConstraintInFS))
-	      List_Read(ListOfConstraintInFS, k, &FunctionSpace_S.Constraint) ;
-	    List_Add(Problem_S.FunctionSpace, &FunctionSpace_S) ;
-	  }
-	Free(Save_Name) ;
-      }
+      List_Add(Problem_S.FunctionSpace, &FunctionSpace_S) ;
     }
 
   | Affectation
@@ -2383,7 +2130,6 @@ FunctionSpace :
     { FunctionSpace_S.Name = NULL ; FunctionSpace_S.Type = FORM0 ;
       FunctionSpace_S.BasisFunction = FunctionSpace_S.SubSpace =
 	FunctionSpace_S.GlobalQuantity = FunctionSpace_S.Constraint = NULL ;
-      Nbr_Index = 0 ;
     }
 
   | FunctionSpace  FunctionSpaceTerm
@@ -2393,17 +2139,19 @@ FunctionSpace :
 FunctionSpaceTerm :
 
     tName String__Index tEND
-    { Nbr_Index = 0 ;
+    {
       Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
 				 $2, fcmp_FunctionSpace_Name) ;
-      FunctionSpace_S.Name = $2 ; }
+      FunctionSpace_S.Name = $2 ;
+    }
 
   | tName tSTRING DefineDimension tEND
-    { Nbr_Index = $3 ;
-      sprintf(tmpstr, "%s_%d_", $2, 1) ;
+    {
+      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
-				 tmpstr, fcmp_FunctionSpace_Name) ;
-      FunctionSpace_S.Name = $2 ; }
+				 $2, fcmp_FunctionSpace_Name) ;
+      FunctionSpace_S.Name = $2 ;
+    }
 
   | tType tSTRING tEND
     { FunctionSpace_S.Type = Get_DefineForString(Field_Type, $2, &FlagError) ;
@@ -2432,63 +2180,25 @@ BasisFunctions :
 
     /* none */
     {
-      if (!Nbr_Index)
-	$$ = Current_BasisFunction_L =
-	  List_Create(6, 6, sizeof (struct BasisFunction)) ;
-      else {
-	List_Reset(ListOfBasisFunction) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  FunctionSpace_S.BasisFunction =
-	    List_Create(6, 6, sizeof (struct BasisFunction)) ;
-	  List_Add(ListOfBasisFunction, &FunctionSpace_S.BasisFunction) ;
-	}
-	$$ = Current_BasisFunction_L = FunctionSpace_S.BasisFunction ;
-      }
+      $$ = Current_BasisFunction_L =
+	List_Create(6, 6, sizeof (struct BasisFunction)) ;
     }
 
   | BasisFunctions  '{' BasisFunction '}'
     {
-      if (!Nbr_Index) {
-	if ( (i = List_ISearchSeq($1, BasisFunction_S.Name, 
-				  fcmp_BasisFunction_Name)) < 0 ) {
-	  /*
+      if ( (i = List_ISearchSeq($1, BasisFunction_S.Name, 
+				fcmp_BasisFunction_Name)) < 0 ) {
+	/*
 	  BasisFunction_S.Num = Num_BasisFunction++ ;
-	  */
-	  BasisFunction_S.Num = Num_BasisFunction ;
-	  Num_BasisFunction += (BasisFunction_S.SubFunction)?
-	    List_Nbr(BasisFunction_S.SubFunction) : 1 ;
-	}
-	else  /* BasisFunction definie par morceaux => meme Num */
-	  BasisFunction_S.Num = ((struct BasisFunction *)List_Pointer($1, i))->Num ;
-	
-	List_Add($$ = $1, &BasisFunction_S) ;
+	*/
+	BasisFunction_S.Num = Num_BasisFunction ;
+	Num_BasisFunction += (BasisFunction_S.SubFunction)?
+	  List_Nbr(BasisFunction_S.SubFunction) : 1 ;
       }
-      else {
-	if (List_Nbr(ListOfSupportIndex))
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    List_Read(ListOfSupportIndex, k, &BasisFunction_S.SupportIndex) ;
-	    List_Read(ListOfEntityIndex , k, &BasisFunction_S.EntityIndex ) ;
-	    List_Read(ListOfBasisFunction, k, &FunctionSpace_S.BasisFunction) ;
+      else  /* BasisFunction definie par morceaux => meme Num */
+	BasisFunction_S.Num = ((struct BasisFunction *)List_Pointer($1, i))->Num ;
 
-	    if ( (i = List_ISearchSeq(FunctionSpace_S.BasisFunction,
-				      BasisFunction_S.Name, 
-				      fcmp_BasisFunction_Name)) < 0 ) {
-	      /*
-	      BasisFunction_S.Num = Num_BasisFunction++ ;
-	      */
-	      BasisFunction_S.Num = Num_BasisFunction ;
-	      Num_BasisFunction += (BasisFunction_S.SubFunction)?
-		List_Nbr(BasisFunction_S.SubFunction) : 1 ;
-	    }
-	    else  /* BasisFunction definie par morceaux => meme Num */
-	      BasisFunction_S.Num =
-		((struct BasisFunction *)
-		 List_Pointer(FunctionSpace_S.BasisFunction, i))->Num ;
-
-	    List_Add(FunctionSpace_S.BasisFunction, &BasisFunction_S) ;
-	  }
-	$$ = FunctionSpace_S.BasisFunction ;
-      }
+      List_Add($$ = $1, &BasisFunction_S) ;
     }
 
   | BasisFunctions  Loop
@@ -2580,80 +2290,33 @@ BasisFunctionTerm :
 
   | tSupport GroupRHS tEND
     {
-      if (!Nbr_Index)
-	BasisFunction_S.SupportIndex = Num_Group(&Group_S, "BF_Support", $2) ;
-      else {
-	List_Reset(ListOfSupportIndex) ;
-	if ($2 >= 0) {
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    if (Flag_MultipleIndex)  List_Read(ListOfInt_L, k, &i) ;
-	    else                     i = $2 ;
-	    List_Add(ListOfSupportIndex, &i) ;
-	  }
-	}
-	else if ($2 == -1) {
-	  Add_Group_Index(&Group_S, "BF_Support", 1) ;
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    List_Read(ListOfInt_L, k, &i) ;
-	    List_Add(ListOfSupportIndex, &i) ;
-	  }
-	}
-	else  vyyerror("Bad Group right hand side") ;
-      }
+      BasisFunction_S.SupportIndex = Num_Group(&Group_S, "BF_Support", $2) ;
     }
 
   | tEntity GroupRHS tEND
     {
-      if (!Nbr_Index) {
-	if ($2 >= 0) {
-	  BasisFunction_S.EntityIndex = $2 ;
-	  if (Group_S.InitialList)
-	    List_Sort(Group_S.InitialList, fcmp_int) ;  /* Necessaire pour Global... */
-	}
-	else if ($2 == -1) {
-	  if (Group_S.InitialList)
-	    List_Sort(Group_S.InitialList, fcmp_int) ;  /* Necessaire pour Global... */
-	  BasisFunction_S.EntityIndex = Add_Group(&Group_S, "BF_Entity", 1, 0) ;
-	}
-	else  vyyerror("Bad Group right hand side") ;
+      BasisFunction_S.EntityIndex = Num_Group(&Group_S, "BF_Entity", $2) ;
+      if (Group_S.InitialList)
+	List_Sort(Group_S.InitialList, fcmp_int) ;  /* Needed for Global Region */
 
-	if (BasisFunction_S.GlobalBasisFunction) {
-	  if (Group_S.FunctionType == GLOBAL) {
-	    if (List_Nbr(BasisFunction_S.GlobalBasisFunction) ==
-		List_Nbr(Group_S.InitialList)) {
-	      for (k = 0 ; k < List_Nbr(Group_S.InitialList) ; k++)
-		if (*((int*)List_Pointer(Group_S.InitialList, k)) !=
-		    *((int*)List_Pointer(BasisFunction_S.GlobalBasisFunction, k))) {
-		  vyyerror("Bad correspondance between Group and Entity (elements differ)") ;
-		  break ;
-		}
-	    }
-	    else if (List_Nbr(Group_S.InitialList) != 0 ||
-		     GlobalBasisFunction_S.EntityIndex != -1)
-	      vyyerror("Bad correspondance between Group and Entity (#BF %d, #Global %d)",
-		       List_Nbr(BasisFunction_S.GlobalBasisFunction),
-		       List_Nbr(Group_S.InitialList)) ;
+      if (BasisFunction_S.GlobalBasisFunction) { /* Function to be defined before Entity */
+	if (Group_S.FunctionType == GLOBAL) {
+	  if (List_Nbr(BasisFunction_S.GlobalBasisFunction) ==
+	      List_Nbr(Group_S.InitialList)) {
+	    for (k = 0 ; k < List_Nbr(Group_S.InitialList) ; k++)
+	      if (*((int*)List_Pointer(Group_S.InitialList, k)) !=
+		  *((int*)List_Pointer(BasisFunction_S.GlobalBasisFunction, k))) {
+		vyyerror("Bad correspondance between Group and Entity (elements differ)") ;
+		break ;
+	      }
 	  }
-	  else  vyyerror("Bad correspondance between Group and Entity (Entity must be Global)") ;
+	  else if (List_Nbr(Group_S.InitialList) != 0 ||
+		   GlobalBasisFunction_S.EntityIndex != -1)
+	    vyyerror("Bad correspondance between Group and Entity (#BF %d, #Global %d)",
+		     List_Nbr(BasisFunction_S.GlobalBasisFunction),
+		     List_Nbr(Group_S.InitialList)) ;
 	}
-      }
-      else {
-	List_Reset(ListOfEntityIndex) ;
-	if ($2 >= 0) {
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    if (Flag_MultipleIndex)  List_Read(ListOfInt_L, k, &i) ;
-	    else                     i = $2 ;
-	    List_Add(ListOfEntityIndex, &i) ;
-	  }
-	}
-	else if ($2 == -1) {
-	  Add_Group_Index(&Group_S, "BF_Entity", 1) ;
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    List_Read(ListOfInt_L, k, &i) ;
-	    List_Add(ListOfEntityIndex, &i) ;
-	  }
-	}
-	else  vyyerror("Bad Group right hand side") ;
+	else  vyyerror("Bad correspondance between Group and Entity (Entity must be Global)") ;
       }
     }
   ;
@@ -2665,74 +2328,75 @@ OptionalParametersForBasisFunction :
 
   | '{' tQuantity tSTRING tEND
     tFormulation tSTRING DefineDimension tEND
-    { 
-      Save_Nbr_Index = Nbr_Index ; Nbr_Index = $7 ; 
-    }
-    tGroup GroupRHS tEND
     {
-      Nbr_Index = Save_Nbr_Index ;
-      BasisFunction_S.GlobalBasisFunction =
-	List_Create($7, 1, sizeof(struct GlobalBasisFunction)) ;
+      Nbr_Index = $7 ;
+    }
+    tGroup GroupRHS_MultipleIndex tEND
+    {
+      Flag1 = Flag_MultipleIndex;
+      if (Flag_MultipleIndex)
+	Msg(WARNING, "Old way to define Group, remove \'{}\' to use one Group");
+      /* Will be the new way to define Group
       if (!Flag_MultipleIndex)
 	vyyerror("Multiple Group needed for multiple Formulation: %s {}", $6) ;
+      */
     }
     tResolution tSTRING MultipleIndex tEND '}'
     {
       if (!Flag_MultipleIndex)
 	vyyerror("Multiple Resolution needed for multiple Formulation: %s {}", $6) ;
 
+      BasisFunction_S.GlobalBasisFunction =
+	List_Create($7, 1, sizeof(struct GlobalBasisFunction)) ;
+
       for (k = 0 ; k < $7 ; k++) {
 
-	List_Read(ListOfInt_L, k, &i) ;
-	List_Read(Problem_S.Group, i, &Group_S) ;
-	if (List_Nbr(Group_S.InitialList) == 1) {
-	  List_Read(Group_S.InitialList, 0, &i) ;
+	if (!Flag1) { /* New way: only one group with all the single regions is given */
+	  List_Read(Group_S.InitialList, k, &i) ;
 	  GlobalBasisFunction_S.EntityIndex = i ;
 	}
-	else if (List_Nbr(Group_S.InitialList) == 0) {
-	  GlobalBasisFunction_S.EntityIndex = -1 ;
+	else { /* Old way */
+	  List_Read(ListOfInt_L, k, &i) ;
+	  List_Read(Problem_S.Group, i, &Group_S) ;
+	  if (List_Nbr(Group_S.InitialList) == 1) {
+	    List_Read(Group_S.InitialList, 0, &i) ;
+	    GlobalBasisFunction_S.EntityIndex = i ;
+	  }
+	  else if (List_Nbr(Group_S.InitialList) == 0) {
+	    GlobalBasisFunction_S.EntityIndex = -1 ;
+	  }
+	  else
+	    vyyerror("Only one Region needed in Group: %s", Group_S.Name) ;
 	}
-	else
-	  vyyerror("Only one Region needed in Group: %s", Group_S.Name) ;
 
-	sprintf(tmpstr, "%s_%d_", $6, k+1) ;
+	sprintf(tmpstr, "%s_%d", $6, k+1) ;
 	if ((i = List_ISearchSeq(Problem_S.Formulation, tmpstr,
-				 fcmp_Formulation_Name)) < 0)
-	  vyyerror("Unknown Formulation: %s {%d}", $6, k+1) ;
-	else {
+				 fcmp_Formulation_Name)) >= 0) {
 	  GlobalBasisFunction_S.FormulationIndex = i ;
-
-	  sprintf(tmpstr, "%s_%d_", $15, k+1) ;
-	  if ((i = List_ISearchSeq(Problem_S.Resolution, tmpstr,
-				   fcmp_Resolution_Name)) < 0)
-	    vyyerror("Unknown Resolution: %s {%d}", $15, k+1) ;
+	  List_Read(Problem_S.Formulation, i, &Formulation_S) ;
+	  if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, $3, 
+				   fcmp_DefineQuantity_Name)) >= 0)
+	    GlobalBasisFunction_S.DefineQuantityIndex = i ;
 	  else {
-	    GlobalBasisFunction_S.ResolutionIndex = i ;
-
-	    GlobalBasisFunction_S.DefineQuantityIndex = -1 ;
-	    GlobalBasisFunction_S.QuantityStorage = NULL ;
-	    List_Add(BasisFunction_S.GlobalBasisFunction, &GlobalBasisFunction_S) ;
+	    vyyerror("Unknown Quantity '%s' in Formulation '%s'", $3,
+		     Formulation_S.Name) ;
+	    break ;
 	  }
 	}
+	else
+	  vyyerror("Unknown Formulation: %s {%d}", $6, k+1) ;
+
+	sprintf(tmpstr, "%s_%d", $15, k+1) ;
+	if ((i = List_ISearchSeq(Problem_S.Resolution, tmpstr,
+				 fcmp_Resolution_Name)) >= 0)
+	  GlobalBasisFunction_S.ResolutionIndex = i ;
+	else
+	  vyyerror("Unknown Resolution: %s {%d}", $15, k+1) ;
+
+	GlobalBasisFunction_S.QuantityStorage = NULL ;
+	List_Add(BasisFunction_S.GlobalBasisFunction, &GlobalBasisFunction_S) ;
       }
       List_Sort(BasisFunction_S.GlobalBasisFunction, fcmp_int) ;
-
-      for (k = 0 ; k < $7 ; k++) {
-	List_Read(BasisFunction_S.GlobalBasisFunction, k, &GlobalBasisFunction_S) ;
-	List_Read(Problem_S.Formulation,
-		  GlobalBasisFunction_S.FormulationIndex, &Formulation_S) ;
-	if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, $3, 
-				 fcmp_DefineQuantity_Name)) < 0) {
-	  vyyerror("Unknown Quantity '%s' in Formulation '%s'", $3,
-		   Formulation_S.Name) ;
-	  break ;
-	}
-	else {
-	  GlobalBasisFunction_S.DefineQuantityIndex = i ;
-	  List_Write(BasisFunction_S.GlobalBasisFunction, k,
-		     &GlobalBasisFunction_S) ;
-	}
-      }
 
       Free($3) ; Free($6) ; Free($15) ;
     }
@@ -2929,17 +2593,7 @@ ConstraintInFSs :
 
     /* none */
     {
-      if (!Nbr_Index)
-	$$ = List_Create(6, 6, sizeof (struct ConstraintInFS)) ;
-      else {
-	List_Reset(ListOfConstraintInFS) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  FunctionSpace_S.Constraint =
-	    List_Create(6, 6, sizeof (struct ConstraintInFS)) ;
-	  List_Add(ListOfConstraintInFS, &FunctionSpace_S.Constraint) ;
-	}
-	$$ = FunctionSpace_S.Constraint ;
-      }
+      $$ = List_Create(6, 6, sizeof (struct ConstraintInFS)) ;
     }
 
   | ConstraintInFSs '{' ConstraintInFS '}'
@@ -2951,7 +2605,7 @@ ConstraintInFSs :
       default :          Group_S.Type = REGIONLIST  ;  break ;
       }
 
-      if (!Nbr_Index && Constraint_Index >= 0) {
+      if (Constraint_Index >= 0) {
 	Constraint_P = (struct Constraint *)
 	  List_Pointer(Problem_S.Constraint, Constraint_Index) ;
 
@@ -2974,38 +2628,6 @@ ConstraintInFSs :
 	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P ;
 	    
 	    List_Add($$ = $1, &ConstraintInFS_S) ;
-	  }
-	}
-      }
-
-      else if (Nbr_Index && List_Nbr(ListOfConstraintIndex)) {
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  List_Read(ListOfConstraintIndex, k, &Constraint_Index) ;
-	  /* same as above... */
-	  Constraint_P = (struct Constraint *)
-	    List_Pointer(Problem_S.Constraint, Constraint_Index) ;
-
-	  for (i = 0 ; i < List_Nbr(Constraint_P->ConstraintPerRegion) ; i++) {
-	    ConstraintPerRegion_P = (struct ConstraintPerRegion *)
-	      List_Pointer(Constraint_P->ConstraintPerRegion, i) ;
-
-	    if (ConstraintPerRegion_P->RegionIndex >= 0) {
-	      Group_S.InitialList =
-		((struct Group *)
-		 List_Pointer(Problem_S.Group, ConstraintPerRegion_P->RegionIndex))
-		->InitialList ;
-	      Group_S.InitialSuppList =
-		(ConstraintPerRegion_P->SubRegionIndex >= 0)?
-		((struct Group *)
-		 List_Pointer(Problem_S.Group,
-			      ConstraintPerRegion_P->SubRegionIndex))
-		->InitialList : NULL ;
-	      ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, "CO_Entity", 1, 0) ;
-	      ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P ;
-	      /* ... same */
-	      List_Read(ListOfConstraintInFS, k, &FunctionSpace_S.Constraint) ;
-	      List_Add(FunctionSpace_S.Constraint, &ConstraintInFS_S) ;
-	    }
 	  }
 	}
       }
@@ -3075,41 +2697,10 @@ ConstraintInFSTerm :
   | tEntitySubType SuppListTypeForGroup tEND
     { Type_SuppList = $2 ; }
 
-  | tNameOfConstraint String__Index MultipleIndex tEND
+  | tNameOfConstraint String__Index tEND
     {
-      if (!Nbr_Index) {
-	if (!Flag_MultipleIndex) {
-	  Constraint_Index =
-	    List_ISearchSeq(Problem_S.Constraint, $2, fcmp_Constraint_Name) ;
-	}
-	else {
-	  vyyerror("Multiple Constraint out of context: %s {}", $2) ;
-	}
-      }
-      else {
-	List_Reset(ListOfConstraintIndex) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  if (!Flag_MultipleIndex) {
-	    if ((i = List_ISearchSeq(Problem_S.Constraint, $2,
-				     fcmp_Constraint_Name)) < 0)
-	      vyyerror("Unknown Constraint: %s", $2) ;
-	    else {
-	      List_Add(ListOfConstraintIndex, &i) ;
-	      Constraint_Index = i ;
-	    }
-	  }
-	  else {
-	    sprintf(tmpstr, "%s_%d_", $2, k+1) ;
-	    if ((i = List_ISearchSeq(Problem_S.Constraint, tmpstr,
-				     fcmp_Constraint_Name)) < 0)
-	      vyyerror("Unknown Constraint: %s {%d}", tmpstr, k+1) ;
-	    else {
-	      List_Add(ListOfConstraintIndex, &i) ;
-	      Constraint_Index = i ;
-	    }
-	  }
-	}
-      }
+      Constraint_Index =
+	List_ISearchSeq(Problem_S.Constraint, $2, fcmp_Constraint_Name) ;
       Free($2) ;
     }
   ;
@@ -3133,22 +2724,7 @@ BracedFormulation :
 
     '{' Formulation '}'
     {
-      if (!Nbr_Index)
-	List_Add(Problem_S.Formulation, &Formulation_S) ;
-      else {
-	Save_Name = strsave(Formulation_S.Name) ;  Free(Formulation_S.Name) ;
-	if (List_Nbr(ListOfDefineQuantity))
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    sprintf(tmpstr, "%s_%d_", Save_Name, k+1) ;
-	    Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
-				       tmpstr, fcmp_Formulation_Name) ;
-	    Formulation_S.Name = strsave(tmpstr) ;
-	    List_Read(ListOfDefineQuantity, k, &Formulation_S.DefineQuantity) ;
-	    List_Read(ListOfEquationTerm  , k, &Formulation_S.Equation      ) ;
-	    List_Add(Problem_S.Formulation, &Formulation_S) ;
-	  }
-	Free(Save_Name) ;
-      }
+      List_Add(Problem_S.Formulation, &Formulation_S) ;
     }
 
   | Affectation
@@ -3162,7 +2738,6 @@ Formulation :
     /* none */
     { Formulation_S.Name = NULL ; Formulation_S.Type = FEMEQUATION ;
       Formulation_S.DefineQuantity = NULL ; Formulation_S.Equation = NULL ;
-      Nbr_Index = 0 ;
     }
 
   | Formulation  FormulationTerm
@@ -3172,17 +2747,19 @@ Formulation :
 FormulationTerm :
 
     tName String__Index tEND
-    { Nbr_Index = 0 ;
+    {
       Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
 				 $2, fcmp_Formulation_Name) ;
-      Formulation_S.Name = $2 ; }
+      Formulation_S.Name = $2 ;
+    }
 
   | tName tSTRING DefineDimension tEND
-    { Nbr_Index = $3 ;
-      sprintf(tmpstr, "%s_%d_", $2, 1) ;
+    {
+      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
-				 tmpstr, fcmp_Formulation_Name) ;
-      Formulation_S.Name = $2 ; }
+				 $2, fcmp_Formulation_Name) ;
+      Formulation_S.Name = $2 ;
+    }
 
   | tType tSTRING tEND
     { Formulation_S.Type =
@@ -3204,30 +2781,12 @@ FormulationTerm :
 DefineQuantities :
     /* none */
     {
-      if (!Nbr_Index)
-	Formulation_S.DefineQuantity = List_Create(6, 6, sizeof (struct DefineQuantity)) ;
-      else {
-	List_Reset(ListOfDefineQuantity) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  Formulation_S.DefineQuantity =
-	    List_Create(6, 6, sizeof (struct DefineQuantity)) ;
-	  List_Add(ListOfDefineQuantity, &Formulation_S.DefineQuantity) ;
-	}
-      }
+      Formulation_S.DefineQuantity = List_Create(6, 6, sizeof (struct DefineQuantity)) ;
     }
 
   | DefineQuantities  '{' DefineQuantity '}'
     {
-      if (!Nbr_Index)
-	List_Add(Formulation_S.DefineQuantity, &DefineQuantity_S) ;
-      else {
-	if (List_Nbr(ListOfFunctionSpaceIndex))
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    List_Read(ListOfFunctionSpaceIndex, k, &DefineQuantity_S.FunctionSpaceIndex) ;
-	    List_Read(ListOfDefineQuantity, k, &Formulation_S.DefineQuantity) ;
-	    List_Add(Formulation_S.DefineQuantity, &DefineQuantity_S) ;
-	  }
-      }
+      List_Add(Formulation_S.DefineQuantity, &DefineQuantity_S) ;
     }
 
   | DefineQuantities Loop
@@ -3285,16 +2844,11 @@ DefineQuantityTerm :
 
   | tNameOfSpace String__Index 
     {
-      if (!Nbr_Index) {
-	if ((i = List_ISearchSeq(Problem_S.FunctionSpace, $2,
-				 fcmp_FunctionSpace_Name)) < 0)
-	  vyyerror("Unknown FunctionSpace: %s", $2) ;
-	else
-	  DefineQuantity_S.FunctionSpaceIndex = i ;
-      }
-      else{ 
-	vyyerror("Multiple Formulation out of context: %s {}", $2) ;
-      }
+      if ((i = List_ISearchSeq(Problem_S.FunctionSpace, $2,
+			       fcmp_FunctionSpace_Name)) < 0)
+	vyyerror("Unknown FunctionSpace: %s", $2) ;
+      else
+	DefineQuantity_S.FunctionSpaceIndex = i ;
     }
     IndexInFunctionSpace tEND
     { 
@@ -3318,74 +2872,6 @@ DefineQuantityTerm :
 	}
       }
      
-    }
-
-/* Patrick, temporary for compatibility with 'String__Index' syntax (19/01/2004)
-  | tNameOfSpace tSTRING MultipleIndex
-*/
-  | tNameOfSpace tSTRING '{' '}'
-    {
-      Flag_MultipleIndex = 1 ;
-
-      if (!Nbr_Index) {
-	if (!Flag_MultipleIndex){
-	  if ((i = List_ISearchSeq(Problem_S.FunctionSpace, $2,
-				   fcmp_FunctionSpace_Name)) < 0)
-	    vyyerror("Unknown FunctionSpace: %s", $2) ;
-	  else
-	    DefineQuantity_S.FunctionSpaceIndex = i ;
-	}
-	else{ 
-	  vyyerror("Multiple Formulation out of context: %s {}", $2) ;
-	}
-      }
-      else {
-	List_Reset(ListOfFunctionSpaceIndex) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  if (!Flag_MultipleIndex) {
-	    if ((i = List_ISearchSeq(Problem_S.FunctionSpace, $2,
-				     fcmp_FunctionSpace_Name)) < 0)
-	      vyyerror("Unknown FunctionSpace: %s", $2) ;
-	    else {
-	      List_Add(ListOfFunctionSpaceIndex, &i) ;
-	      DefineQuantity_S.FunctionSpaceIndex = i ;
-	    }
-	  }
-	  else {
-	    sprintf(tmpstr, "%s_%d_", $2, k+1) ;
-	    if ((i = List_ISearchSeq(Problem_S.FunctionSpace, tmpstr,
-				     fcmp_FunctionSpace_Name)) < 0)
-	      vyyerror("Unknown FunctionSpace: %s {%d}", tmpstr, k+1) ;
-	    else {
-	      List_Add(ListOfFunctionSpaceIndex, &i) ;
-	      DefineQuantity_S.FunctionSpaceIndex = i ;
-	    }
-	  }
-	}
-      }
-    }
-    IndexInFunctionSpace tEND
-    { /* attention : doit disparaitre. */
-      if (DefineQuantity_S.FunctionSpaceIndex >= 0) {
-	if (DefineQuantity_S.Type == GLOBALQUANTITY &&
-	    !DefineQuantity_S.IndexInFunctionSpace) {
-	  if (DefineQuantity_S.Name) {
-	    List_Read(Problem_S.FunctionSpace,
-		      DefineQuantity_S.FunctionSpaceIndex, &FunctionSpace_S) ;
-	    if ((i = List_ISearchSeq(FunctionSpace_S.GlobalQuantity, 
-				     DefineQuantity_S.Name,
-				     fcmp_GlobalQuantity_Name)) < 0) {
-	      vyyerror("Unknown GlobalQuantity: %s", DefineQuantity_S.Name) ;
-	    }
-	    else {
-	      DefineQuantity_S.IndexInFunctionSpace = List_Create(1, 1, sizeof(int));
-	      List_Add(DefineQuantity_S.IndexInFunctionSpace, &i) ;
-	    }
-	  }
-	  else  vyyerror("No Name pre-defined for GlobalQuantity") ;
-	}
-      }
-      Free($2) ;
     }
 
   | tIndexOfSystem tINT tEND
@@ -3792,41 +3278,12 @@ Equations :
 
     /* none */
     {
-      if (!Nbr_Index)
-	$$ = List_Create(6, 6, sizeof(struct EquationTerm)) ;
-      else {
-	List_Reset(ListOfEquationTerm) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  Formulation_S.Equation =
-	    List_Create(6, 6, sizeof (struct EquationTerm)) ;
-	  List_Add(ListOfEquationTerm, &Formulation_S.Equation) ;
-	}
-	$$ = Formulation_S.Equation ;
-      }
+      $$ = List_Create(6, 6, sizeof(struct EquationTerm)) ;
     }
 
   | Equations  EquationTerm
     {
-      if (!Nbr_Index)
-	List_Add($$ = $1, &EquationTerm_S) ;
-      else {
-	if (List_Nbr(ListOfSupportIndex))
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    if (EquationTerm_S.Type == GALERKIN || EquationTerm_S.Type == DERHAM)
-	      List_Read(ListOfSupportIndex, k,
-			&EquationTerm_S.Case.LocalTerm.InIndex) ;
-	    else if (EquationTerm_S.Type == GLOBALTERM)
-	      List_Read(ListOfSupportIndex, k,
-			&EquationTerm_S.Case.GlobalTerm.InIndex) ;
-	    else if (EquationTerm_S.Type == GLOBALEQUATION)  /* Attention: Pas fait ! */
-	      vyyerror("Multiple GlobalEquation not yet implemented in parser ...") ; 
-
-	    List_Read(ListOfEquationTerm, k, &Formulation_S.Equation) ;
-
-	    List_Add(Formulation_S.Equation, &EquationTerm_S) ;
-	  }
-	$$ = Formulation_S.Equation ;
-      }
+      List_Add($$ = $1, &EquationTerm_S) ;
     }
 
   | Equations  Affectation
@@ -4094,26 +3551,7 @@ LocalTermTerm  :
 
   | tIn GroupRHS tEND
     {
-      if (!Nbr_Index)
-	EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, "FO_In", $2) ;
-      else {
-	List_Reset(ListOfSupportIndex) ;
-	if ($2 >= 0) {
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    if (Flag_MultipleIndex)  List_Read(ListOfInt_L, k, &i) ;
-	    else                     i = $2 ;
-	    List_Add(ListOfSupportIndex, &i) ;
-	  }
-	}
-	else if ($2 == -1) {
-	  Add_Group_Index(&Group_S, "FO_In", 1) ;
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    List_Read(ListOfInt_L, k, &i) ;
-	    List_Add(ListOfSupportIndex, &i) ;
-	  }
-	}
-	else  vyyerror("Bad Group right hand side") ;
-      }
+      EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, "FO_In", $2) ;
     }
 
   | tJacobian tSTRING tEND
@@ -4190,26 +3628,7 @@ GlobalTermTerm :
 */
     tIn GroupRHS tEND
     {
-      if (!Nbr_Index)
-	EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, "FO_In", $2) ;
-      else {
-	List_Reset(ListOfSupportIndex) ;
-	if ($2 >= 0) {
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    if (Flag_MultipleIndex)  List_Read(ListOfInt_L, k, &i) ;
-	    else                     i = $2 ;
-	    List_Add(ListOfSupportIndex, &i) ;
-	  }
-	}
-	else if ($2 == -1) {
-	  Add_Group_Index(&Group_S, "FO_In", 1) ;
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    List_Read(ListOfInt_L, k, &i) ;
-	    List_Add(ListOfSupportIndex, &i) ;
-	  }
-	}
-	else  vyyerror("Bad Group right hand side") ;
-      }
+      EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, "FO_In", $2) ;
     }
 
   |  TermOperator '['
@@ -4363,21 +3782,7 @@ BracedResolution :
 
     '{' Resolution '}'
     {
-      if (!Nbr_Index)
-	List_Add(Problem_S.Resolution, &Resolution_S) ;
-      else {
-	Save_Name = strsave(Resolution_S.Name) ;  Free(Resolution_S.Name) ;
-	if (List_Nbr(ListOfDefineSystem))
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    sprintf(tmpstr, "%s_%d_", Save_Name, k+1) ;
-	    Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
-				       tmpstr, fcmp_Resolution_Name) ;
-	    Resolution_S.Name = strsave(tmpstr) ;
-	    List_Read(ListOfDefineSystem, k, &Resolution_S.DefineSystem) ;
-	    List_Add(Problem_S.Resolution, &Resolution_S) ;
-	  }
-	Free(Save_Name) ;
-      }
+      List_Add(Problem_S.Resolution, &Resolution_S) ;
     }
 
   | Affectation
@@ -4389,9 +3794,9 @@ BracedResolution :
 Resolution :
 
     /* none */
-    { Resolution_S.Name = NULL ; Resolution_S.DefineSystem = NULL ;
+    {
+      Resolution_S.Name = NULL ; Resolution_S.DefineSystem = NULL ;
       Resolution_S.Operation = NULL ;
-      Nbr_Index = 0 ;
     }
 
   | Resolution  ResolutionTerm
@@ -4401,18 +3806,19 @@ Resolution :
 ResolutionTerm :
 
     tName String__Index tEND
-    { Nbr_Index = 0 ;
+    {
       Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
 				 $2, fcmp_Resolution_Name) ;
       Resolution_S.Name = $2 ;
     }
 
   | tName tSTRING DefineDimension tEND
-    { Nbr_Index = $3 ;
-      sprintf(tmpstr, "%s_%d_", $2, 1) ;
+    {
+      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
-				 tmpstr, fcmp_Resolution_Name) ;
-      Resolution_S.Name = $2 ; }
+				 $2, fcmp_Resolution_Name) ;
+      Resolution_S.Name = $2 ;
+    }
 
   | tDefineSystem  '{' DefineSystems '}'
     { Resolution_S.DefineSystem = $3 ; }
@@ -4429,32 +3835,12 @@ ResolutionTerm :
 DefineSystems :
     /* none */
     {
-      if (!Nbr_Index)
-	$$ = Current_System_L = List_Create(6, 6, sizeof (struct DefineSystem)) ;
-      else {
-	List_Reset(ListOfDefineSystem) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  Resolution_S.DefineSystem =
-	    List_Create(6, 6, sizeof (struct DefineSystem)) ;
-	  List_Add(ListOfDefineSystem, &Resolution_S.DefineSystem) ;
-	}
-	$$ = Current_System_L = Resolution_S.DefineSystem ;
-      }
+      $$ = Current_System_L = List_Create(6, 6, sizeof (struct DefineSystem)) ;
     }
 
   | DefineSystems  '{' DefineSystem '}'
     {
-      if (!Nbr_Index)
-	List_Add($$ = Current_System_L = $1, &DefineSystem_S) ;
-      else {
-	if (List_Nbr(ListOfListOfFormulation))
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    List_Read(ListOfListOfFormulation, k, &DefineSystem_S.FormulationIndex) ;
-	    List_Read(ListOfDefineSystem, k, &Resolution_S.DefineSystem) ;
-	    List_Add(Resolution_S.DefineSystem, &DefineSystem_S) ;
-	  }
-	$$ = Current_System_L = Resolution_S.DefineSystem ;
-      }
+      List_Add($$ = Current_System_L = $1, &DefineSystem_S) ;
     }
 
   |  DefineSystems Loop
@@ -4533,40 +3919,12 @@ DefineSystemTerm :
 
 ListOfFormulation :
 
-    String__Index MultipleIndex
+    String__Index
     {
-      if (!Nbr_Index) {
-	$$ = List_Create(1, 1, sizeof(int)) ;
-	if (!Flag_MultipleIndex){
-	  if ((i = List_ISearchSeq(Problem_S.Formulation, $1, fcmp_Formulation_Name)) < 0)
-	    vyyerror("Unknown Formulation: %s", $1) ;
-	  else  List_Add($$, &i) ;
-	}
-	else{
-	  vyyerror("Multiple Formulation out of context: %s {}", $1) ;
-	}
-      }
-      else {
-	List_Reset(ListOfListOfFormulation) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  DefineSystem_S.FormulationIndex = List_Create(1, 1, sizeof(int)) ;
-	  List_Add(ListOfListOfFormulation, &DefineSystem_S.FormulationIndex) ;
-
-	  if (!Flag_MultipleIndex) {
-	    if ((i = List_ISearchSeq(Problem_S.Formulation, $1,
-				     fcmp_Formulation_Name)) < 0)
-	      vyyerror("Unknown Formulation: %s", $1) ;
-	    else  List_Add(DefineSystem_S.FormulationIndex, &i) ;
-	  }
-	  else {
-	    sprintf(tmpstr, "%s_%d_", $1, k+1) ;
-	    if ((i = List_ISearchSeq(Problem_S.Formulation, tmpstr,
-				     fcmp_Formulation_Name)) < 0)
-	      vyyerror("Unknown Formulation: %s {%d}", $1, k+1) ;
-	    else  List_Add(DefineSystem_S.FormulationIndex, &i) ;
-	  }
-	}
-      }
+      $$ = List_Create(1, 1, sizeof(int)) ;
+      if ((i = List_ISearchSeq(Problem_S.Formulation, $1, fcmp_Formulation_Name)) < 0)
+	vyyerror("Unknown Formulation: %s", $1) ;
+      else  List_Add($$, &i) ;
       Free($1) ;
     }
 
@@ -5712,21 +5070,7 @@ BracedPostProcessing :
 
     '{' PostProcessing '}'
     {
-      if (!Nbr_Index)
-	List_Add(Problem_S.PostProcessing, &PostProcessing_S) ;
-      else {
-	Save_Name = strsave(PostProcessing_S.Name) ;  Free(PostProcessing_S.Name) ;
-	if (List_Nbr(ListOfFormulation))
-	  for (k = 0 ; k < Nbr_Index ; k++) {
-	    sprintf(tmpstr, "%s_%d_", Save_Name, k+1) ;
-	    Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
-				       tmpstr, fcmp_Formulation_Name) ;
-	    PostProcessing_S.Name = strsave(tmpstr) ;
-	    List_Read(ListOfFormulation, k, &PostProcessing_S.FormulationIndex) ;
-	    List_Add(Problem_S.PostProcessing, &PostProcessing_S) ;
-	  }
-	Free(Save_Name) ;
-      }
+      List_Add(Problem_S.PostProcessing, &PostProcessing_S) ;
     }
  
   | Affectation
@@ -5742,7 +5086,6 @@ PostProcessing :
       PostProcessing_S.OriginSystemIndex = NULL ;
       PostProcessing_S.NameOfSystem = NULL ;
       PostProcessing_S.PostQuantity = NULL ;
-      Nbr_Index = 0 ;
     }
 
   | PostProcessing  PostProcessingTerm
@@ -5750,62 +5093,29 @@ PostProcessing :
 
 PostProcessingTerm :
     tName String__Index tEND
-    { Nbr_Index = 0 ;
+    {
       Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
 				 $2, fcmp_PostProcessing_Name) ;
       PostProcessing_S.Name = $2 ; 
     }
 
   | tName tSTRING DefineDimension tEND
-    { Nbr_Index = $3 ;
-      sprintf(tmpstr, "%s_%d_", $2, 1) ;
+    {
+      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
-				 tmpstr, fcmp_PostProcessing_Name) ;
+				 $2, fcmp_PostProcessing_Name) ;
       PostProcessing_S.Name = $2 ; 
     }
 
-  | tNameOfFormulation String__Index MultipleIndex tEND
+  | tNameOfFormulation String__Index tEND
     { 
-      if (!Nbr_Index) {
-	if (!Flag_MultipleIndex){
-	  if ((i = List_ISearchSeq(Problem_S.Formulation, $2,
-				   fcmp_Formulation_Name)) < 0){
-	    vyyerror("Unknown Formulation: %s", $2) ;
-	  }
-	  else {
-	    PostProcessing_S.FormulationIndex = i ;
-	    List_Read(Problem_S.Formulation, i, &Formulation_S) ;
-	  }
-	}
-	else{
-	  vyyerror("Multiple Formulation out of context: %s {}", $2) ;
-	}
+      if ((i = List_ISearchSeq(Problem_S.Formulation, $2,
+			       fcmp_Formulation_Name)) < 0){
+	vyyerror("Unknown Formulation: %s", $2) ;
       }
       else {
-	List_Reset(ListOfFormulation) ;
-	for (k = 0 ; k < Nbr_Index ; k++) {
-	  if (!Flag_MultipleIndex) {
-	    if ((i = List_ISearchSeq(Problem_S.Formulation, $2,
-				     fcmp_Formulation_Name)) < 0)
-	      vyyerror("Unknown Formulation: %s", $2) ;
-	    else {
-	      List_Add(ListOfFormulation, &i) ;
-	      PostProcessing_S.FormulationIndex = i ;
-	      List_Read(Problem_S.Formulation, i, &Formulation_S) ;
-	    }
-	  }
-	  else {
-	    sprintf(tmpstr, "%s_%d_", $2, k+1) ;
-	    if ((i = List_ISearchSeq(Problem_S.Formulation, tmpstr,
-				     fcmp_Formulation_Name)) < 0)
-	      vyyerror("Unknown Formulation: %s {%d}", $2, k+1) ;
-	    else {
-	      List_Add(ListOfFormulation, &i) ;
-	      PostProcessing_S.FormulationIndex = i ;
-	      List_Read(Problem_S.Formulation, i, &Formulation_S) ;
-	    }
-	  }
-	}
+	PostProcessing_S.FormulationIndex = i ;
+	List_Read(Problem_S.Formulation, i, &Formulation_S) ;
       }
       Free($2) ;
     }
@@ -5940,10 +5250,9 @@ SubPostQuantityTerm :
      Free($2) ;
    }
 
- | tIn { Save_Nbr_Index = Nbr_Index ; Nbr_Index = 0 ; } GroupRHS tEND
-   { 
-      Nbr_Index = Save_Nbr_Index ;
-      PostQuantityTerm_S.InIndex = Num_Group(&Group_S, "PQ_In", $3) ;
+ | tIn GroupRHS tEND
+   {
+      PostQuantityTerm_S.InIndex = Num_Group(&Group_S, "PQ_In", $2) ;
    }
 
   | tJacobian tSTRING tEND
@@ -6743,6 +6052,7 @@ Loop :
       Constant_S.Value.Float = $5 ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
       fgetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
+      /*      hack_endfor_printf();*/
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
       ImbricatedLoop++;
       if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
@@ -6893,6 +6203,11 @@ Affectation :
   | tPrintf '(' tBIGSTR ')' tEND
     {
       Msg(DIRECT, $3);
+    }
+
+  | tPrintf '#' tEND
+    {
+      Msg(INFO, "Line number: %d", yylinenum);
     }
 
   | tPrintf '(' tBIGSTR ',' RecursiveListOfFExpr ')' tEND
@@ -7226,17 +6541,17 @@ MultiFExpr :
 
 StringIndex :
   
-    tSTRING '~' '{' FExpr '}'  
-    { 
-      sprintf(tmpstr, "_%d_", (int)$4) ;
+    tSTRING '~' '{' FExpr '}'
+    {
+      sprintf(tmpstr, "_%d", (int)$4) ;
       $$ = (char *)Malloc((strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
       strcpy($$, $1) ; strcat($$, tmpstr) ;
       Free($1) ;
     }
 
-  | StringIndex '~' '{' FExpr '}' 
+  | StringIndex '~' '{' FExpr '}'
     {
-      sprintf(tmpstr, "_%d_", (int)$4) ;
+      sprintf(tmpstr, "_%d", (int)$4) ;
       $$ = (char *)Realloc($1,(strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
       strcpy($$, $1) ; strcat($$, tmpstr) ;
     }
@@ -7349,7 +6664,7 @@ int  Add_Group(struct Group * Group_P, char * Name, int Flag_Plus, int Num_Index
     Group_P->Name = strsave(tmpstr) ;
     break ;
   case 2 :
-    sprintf(tmpstr, "%s_%d_", Name, Num_Index) ;
+    sprintf(tmpstr, "%s_%d", Name, Num_Index) ;
     Group_P->Name = strsave(tmpstr) ;
     break ;
   default :
@@ -7379,9 +6694,9 @@ int  Add_Group_2(struct Group * Group_P, char * Name, int Flag_Add,
   if (Flag_Plus == 0)
     sprintf(tmpstr, "%s", Name) ;
   else if (Flag_Plus == 1)
-    sprintf(tmpstr, "%s_%d_", Name, Num_Index1) ;
+    sprintf(tmpstr, "%s_%d", Name, Num_Index1) ;
   else if (Flag_Plus == 2)
-    sprintf(tmpstr, "%s_%d_%d_", Name, Num_Index1,Num_Index2) ;
+    sprintf(tmpstr, "%s_%d_%d", Name, Num_Index1,Num_Index2) ;
 
   Group_P->Name = strsave(tmpstr) ;
   
@@ -7410,21 +6725,6 @@ int  Num_Group(struct Group * Group_P, char * Name, int Num_Group) {
   return Num_Group ;
 }
 
-
-int  Add_Group_Index(struct Group * Group_P, char * Name, int Flag_Plus) {
-  int k, Num ;
-
-  List_Reset(ListOfInt_L) ;
-
-  for (k = 0 ; k < Nbr_Index ; k++) {
-    List_Read(ListOfInitialList_L, k, &Group_P->InitialList) ;
-    if (Group_P->SuppListType != SUPPLIST_NONE)
-      List_Read(ListOfInitialSuppList_L, k, &Group_P->InitialSuppList) ;
-    Num = Add_Group(Group_P, Name, Flag_Plus, k+1) ;
-    List_Add(ListOfInt_L, &Num) ;
-  }
-  return (Num-Nbr_Index+1) ;
-}
 
 /*  A d d _ E x p r e s s i o n   */
 
