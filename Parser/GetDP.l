@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.39 2005-12-27 09:55:57 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.40 2006-02-14 17:13:09 dular Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -433,6 +433,7 @@ void skip_until(char *skip, char *until){
   int i, nb_skip;
   int l, l_skip, l_until;
   char chars[256];
+  int c_next, c_next_skip, c_next_until;
 
   nb_skip = 0 ;
 
@@ -450,6 +451,12 @@ void skip_until(char *skip, char *until){
       if(chars[0] == (char)EOF){
         Msg(ERROR, "Unexpected end of file") ;
 	return;
+      }
+      if(chars[0] == '/'){
+        c_next = input();
+        if     (c_next ==  '*') C_comments();
+        else if(c_next ==  '/') CC_comments();
+        else unput(c_next);
       }
       if(chars[0] == until[0]) break;
       if(skip && chars[0] == skip[0]) break;
@@ -469,7 +476,15 @@ void skip_until(char *skip, char *until){
       }
     }
 
-    if(!strncmp(chars,until,l_until)){
+    c_next = input(); unput(c_next);
+    c_next_skip = (l_skip<l)? chars[l_skip] : c_next;
+    c_next_until = (l_until<l)? chars[l_until] : c_next;
+
+    if(!strncmp(chars,until,l_until)
+       && (!(c_next_until>='a' && c_next_until<='z')
+           && !(c_next_until>='A' && c_next_until<='Z')
+           && c_next_until!='_' )
+      ){
       if(!nb_skip){
 	return;
       }
@@ -477,7 +492,11 @@ void skip_until(char *skip, char *until){
 	nb_skip--;
       }
     }
-    else if(skip && !strncmp(chars,skip,l_skip)){
+    else if(skip && !strncmp(chars,skip,l_skip)
+       && (!(c_next_skip>='a' && c_next_skip<='z')
+           && !(c_next_skip>='A' && c_next_skip<='Z')
+           && c_next_skip!='_' )
+    ){
       nb_skip++;
     }
     else{
@@ -495,3 +514,17 @@ void  hack_endfor(void) {
   unput(c);
   if(c == '\n') yylinenum--;
 }
+
+void  hack_endfor_printf(void) {
+
+char chars[5];
+  int c = input(), c2 = input(), c3 = input();
+  unput(c3); unput(c2); unput(c);
+  chars[0]=c; chars[1]=c2; chars[2]=c3; chars[3]=0;
+  printf("++++++ c: %d %d %d /%s/\n", (int)c, (int)c2, (int)c3, chars);
+}
+
+void  hack_endfor2(void) {
+  int c = input();
+}
+
