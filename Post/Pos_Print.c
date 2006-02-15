@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.76 2006-02-08 14:17:42 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.77 2006-02-15 10:42:25 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1226,7 +1226,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
   List_T  *Region_L, *Support_L ;
   int      i, iTime, NbrTimeStep ;
-  int      Nbr_Region, Num_Region ;
+  int      Nbr_Region, Num_Region, Group_FunctionType ;
   int      Flag_Summation=0;
 
   GetDP_Begin("Pos_PrintOnRegion");
@@ -1268,6 +1268,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
      List_Pointer(Problem_S.Group, 
 		  PostSubOperation_P->Case.OnRegion.RegionIndex);
   Region_L =  Group_P?  Group_P->InitialList : NULL ;
+  Group_FunctionType = Group_P? Group_P->FunctionType : REGION;
+
   if (Region_L) {
     if (Group_P->FunctionType == REGION) {
       List_Sort(Region_L, fcmp_int) ;
@@ -1326,7 +1328,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       if (PostSubOperation_P->StoreInRegister >= 0)
 	Cal_StoreInRegister(&Value, PostSubOperation_P->StoreInRegister) ;
       
-      Format_PostValue(PostSubOperation_P->Format,
+      Format_PostValue(PostSubOperation_P->Format, Group_FunctionType,
 		       Current.Time, i, Current.NumEntity, Nbr_Region,
 		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 		       PostSubOperation_P->NoNewLine,
@@ -1404,7 +1406,7 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
       Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0, 
 		       NULL, &Element, 0., 0., 0., &Value) ;
 
-      Format_PostValue(PostSubOperation_P->Format,
+      Format_PostValue(PostSubOperation_P->Format, REGION,
 		       x, 0, 0, 1,
 		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 		       PostSubOperation_P->NoNewLine,
