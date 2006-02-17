@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.77 2006-02-15 10:42:25 dular Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.78 2006-02-17 15:34:58 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1227,7 +1227,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   List_T  *Region_L, *Support_L ;
   int      i, iTime, NbrTimeStep ;
   int      Nbr_Region, Num_Region, Group_FunctionType ;
-  int      Flag_Summation=0;
+  int      Flag_Summation=0, Type_Evaluation;
+  double   u, v, w;
 
   GetDP_Begin("Pos_PrintOnRegion");
 
@@ -1253,6 +1254,13 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 		    NCPQ_P?NCPQ_P->Name:NULL,
 		    CPQ_P?CPQ_P->Name:NULL);
 
+  Group_P = (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
+    (struct Group *)
+     List_Pointer(Problem_S.Group, 
+		  PostSubOperation_P->Case.OnRegion.RegionIndex);
+  Region_L =  Group_P?  Group_P->InitialList : NULL ;
+  Group_FunctionType = Group_P? Group_P->FunctionType : REGION;
+
   if (!Support_L &&
       List_Nbr(NCPQ_P->PostQuantityTerm) &&
       (
@@ -1260,15 +1268,15 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
        ->Type == LOCALQUANTITY &&
        ((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
        ->EvaluationType == LOCAL)
-      )
-    Msg(ERROR, "Print OnRegion not valid for PostProcessing Quantity '%s'", NCPQ_P->Name);
-
-  Group_P = (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
-    (struct Group *)
-     List_Pointer(Problem_S.Group, 
-		  PostSubOperation_P->Case.OnRegion.RegionIndex);
-  Region_L =  Group_P?  Group_P->InitialList : NULL ;
-  Group_FunctionType = Group_P? Group_P->FunctionType : REGION;
+      ) {
+    if (Group_FunctionType == REGION)
+      Msg(ERROR, "Print OnRegion not valid for PostProcessing Quantity '%s'",
+	  NCPQ_P->Name);
+    else
+      Type_Evaluation = LOCAL;
+  }
+  else
+    Type_Evaluation = GLOBAL;
 
   if (Region_L) {
     if (Group_P->FunctionType == REGION) {
@@ -1288,7 +1296,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       if (!Group_P->ExtendedList)  Generate_ExtendedGroup(Group_P) ;
       Region_L = Group_P->ExtendedList ; /* Attention: new Region_L */
       Nbr_Region = List_Nbr(Region_L) ;
-      Flag_Summation = 1;
+      if (PostSubOperation_P->Comma) /* Provisoire */
+	Flag_Summation = 1;
     }
     else {
       Msg(ERROR, "Function type (%d) not allowed for PrintOnRegion",
@@ -1298,12 +1307,14 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   else
     Nbr_Region = 1 ;
 
+  if (Type_Evaluation == LOCAL)
+    Init_SearchGrid(&Current.GeoData->Grid) ;
+
   for (iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
 
     Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
 
     if (Flag_Summation) {
-      ValueSummed.Type = VECTOR ;
       Cal_ZeroValue(&ValueSummed) ;
     }
 
@@ -1322,18 +1333,36 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       Element.Type = -1 ;
       Current.Region = Element.Region = Num_Region ;
       Current.x = Current.y = Current.z = 0. ;
-      Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0, 
-		       Support_L, &Element, 0., 0., 0., &Value) ;
+
+      if (Type_Evaluation == GLOBAL) {
+	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0, 
+			 Support_L, &Element, 0., 0., 0., &Value) ;
+      }
+      else {
+	if (Group_FunctionType == NODESOF)
+	  Geo_GetNodesCoordinates(1, &Num_Region,
+				  &Current.x, &Current.y, &Current.z) ;
+	InWhichElement(Current.GeoData->Grid, NULL, &Element,
+		       PostSubOperation_P->Dimension,
+		       Current.x, Current.y, Current.z, &u, &v, &w) ;
+
+	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0, 
+			 Support_L, &Element, u, v, w, &Value) ;
+      }
 
       if (PostSubOperation_P->StoreInRegister >= 0)
 	Cal_StoreInRegister(&Value, PostSubOperation_P->StoreInRegister) ;
       
-      Format_PostValue(PostSubOperation_P->Format, Group_FunctionType,
+      Format_PostValue(PostSubOperation_P->Format, PostSubOperation_P->Comma,
+		       Group_FunctionType,
 		       Current.Time, i, Current.NumEntity, Nbr_Region,
 		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 		       PostSubOperation_P->NoNewLine,
 		       &Value) ;
-      if (Flag_Summation) Cal_AddValue(&ValueSummed, &Value, &ValueSummed);
+      if (Flag_Summation) {
+	ValueSummed.Type = Value.Type ;
+	Cal_AddValue(&ValueSummed, &Value, &ValueSummed);
+      }
     }
 
     if (Flag_Summation && PostSubOperation_P->Format == FORMAT_REGION_TABLE) {
@@ -1406,7 +1435,8 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
       Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0, 
 		       NULL, &Element, 0., 0., 0., &Value) ;
 
-      Format_PostValue(PostSubOperation_P->Format, REGION,
+      Format_PostValue(PostSubOperation_P->Format, PostSubOperation_P->Comma,
+		       REGION,
 		       x, 0, 0, 1,
 		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 		       PostSubOperation_P->NoNewLine,

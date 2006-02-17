@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.46 2006-02-15 10:42:25 dular Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.47 2006-02-17 15:34:58 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -972,7 +972,7 @@ void  Format_PostElement(int Format, int Contour, int Store,
 /*  F o r m a t _ P o s t V a l u e                                         */
 /* ------------------------------------------------------------------------ */
 
-void  Format_PostValue(int Format, int Group_FunctionType,
+void  Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 		       double Time, int iRegion, int numRegion, int NbrRegion,
 		       int NbrHarmonics, int HarmonicToTime, int Flag_NoNewLine,
 		       struct Value * Value) {
@@ -1001,13 +1001,14 @@ void  Format_PostValue(int Format, int Group_FunctionType,
     }
     fprintf(PostStream, "%d", numRegion) ;
     for (k = 0 ; k < NbrHarmonics ; k++) {
-      for(j = 0 ; j < Size ; j++)
-	fprintf(PostStream, ", %.16g", Value->Val[MAX_DIM*k+j]) ;
+      for(j = 0 ; j < Size ; j++) {
+	if (Flag_Comma) fprintf(PostStream, ",");
+	fprintf(PostStream, " %.16g", Value->Val[MAX_DIM*k+j]) ;
+      }
       fprintf(PostStream, "\n") ;
     }
   }
   else if (Format == FORMAT_GMSH) {
-    
     if (Group_FunctionType == NODESOF)
       Geo_GetNodesCoordinates(1, &numRegion, &x, &y, &z) ;
     else {
@@ -1016,7 +1017,6 @@ void  Format_PostValue(int Format, int Group_FunctionType,
 	  "Post Format \'Gmsh\' not adapted for global quantities supported"
 	  " by Regions. Zero coordinates are considered.") ;
     }
-
     Format_GmshParsed(Time, 0, 1, NbrHarmonics, HarmonicToTime,
 		      POINT, 1, &x, &y, &z,
 		      Value) ;
