@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.90 2006-02-14 17:43:13 dular Exp $ */
+/* $Id: GetDP.y,v 1.91 2006-02-17 15:37:26 dular Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -305,7 +305,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %token        tOnGlobal tOnRegion tOnElementsOf
 %token        tOnGrid tOnSection tOnPoint tOnLine tOnPlane tOnBox
 %token        tWithArgument
-%token        tFile tDepth tDimension tTimeStep tHarmonicToTime
+%token        tFile tDepth tDimension tComma tTimeStep tHarmonicToTime
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
@@ -1550,7 +1550,6 @@ ParametersForFunction :
       d = (double)Num_Group(&Group_S, "PA_Region", $4) ;
       List_Add($$, &d) ;
     }
-
   ;
 
 /* ------------------------------------------------------------------------ */
@@ -5693,6 +5692,7 @@ PrintOptions :
       PostSubOperation_S.Depth = 1 ; 
       PostSubOperation_S.Smoothing = 0 ; 
       PostSubOperation_S.Skin = 0 ; 
+      PostSubOperation_S.Comma = 0 ;
       PostSubOperation_S.Dimension = _ALL ;
       PostSubOperation_S.Adapt = 0 ;
       PostSubOperation_S.Target = -1. ;
@@ -5798,6 +5798,10 @@ PrintOption :
 	printf("%d:%d ", j, k);
       }
       printf("\n");
+    }
+  | ',' tComma
+    { 
+      PostSubOperation_S.Comma = 1 ; 
     }
   | ',' tDimension FExpr
     { 
@@ -6203,6 +6207,22 @@ Affectation :
   | tPrintf '(' tBIGSTR ')' tEND
     {
       Msg(DIRECT, $3);
+    }
+
+  | tPrintf String__Index tEND
+    {
+      Constant_S.Name = $2 ;
+      if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+	vyyerror("Unknown Constant: %s", $2) ;
+      else
+	if (Constant_S.Type != VAR_LISTOFFLOAT)
+	  printf("%s: %g\n", $2, Constant_S.Value.Float);
+	else
+	  printf("%s: Dimension %d\n", $2, List_Nbr(Constant_S.Value.ListOfFloat));
+	  for(i=0 ; i<List_Nbr(Constant_S.Value.ListOfFloat) ; i++) {
+	    List_Read(Constant_S.Value.ListOfFloat, i, &d) ;
+	    printf(" (%d) %g\n", i, d);
+	  }
     }
 
   | tPrintf '#' tEND

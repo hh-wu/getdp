@@ -146,6 +146,10 @@ void  F_InterpolationMatrix   (F_ARG) ;
 void  Fi_InitListXY     (F_ARG) ;
 void  Fi_InitListXY2    (F_ARG) ;
 void  Fi_InitAkima      (F_ARG) ;
+
+void  F_ValueFromIndex (F_ARG) ;
+void  Fi_InitValueFromIndex (F_ARG) ;
+
 void  F_TransformTensor (F_ARG) ;  /* pour Tuan */
 void  F_TransformPerm   (F_ARG) ;  /* pour Tuan */
 void  F_TransformPiezo  (F_ARG) ;  /* pour Tuan */

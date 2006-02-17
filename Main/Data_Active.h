@@ -192,6 +192,9 @@ struct FunctionActive {
     struct {
       double  Value ;
     } SurfaceArea ;
+    struct {
+      List_T * Table ;
+    } ValueFromIndex ;
   } Case ;
 } ;
 

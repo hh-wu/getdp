@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Interpolation.c,v 1.3 2005-06-23 01:45:00 geuzaine Exp $"
+#define RCSID "$Id: F_Interpolation.c,v 1.4 2006-02-17 15:37:23 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -378,6 +378,57 @@ void  F_InterpolationMatrix (F_ARG) {
   GetDP_End ;
 }
 
+
+struct IntDouble { int Int; double Double; } ;
+
+void  F_ValueFromIndex (F_ARG) {
+
+  struct FunctionActive  * D ;
+  struct IntDouble * IntDouble_P;
+
+  GetDP_Begin("F_ValueFromIndex");
+
+  if (!Fct->Active)  Fi_InitValueFromIndex (Fct, A, V) ;
+
+  D = Fct->Active ;
+
+  IntDouble_P = (struct IntDouble *)
+    List_PQuery(D->Case.ValueFromIndex.Table, &Current.NumEntity, fcmp_int);
+
+  if (!IntDouble_P)
+    Msg(ERROR,"Unknown Entity Index in ValueFromIndex Table");
+  /*
+  printf("==> search %d --> found %g\n", Current.NumEntity, IntDouble_P->Double);
+  */
+  V->Val[0] = IntDouble_P->Double ;
+  V->Type = SCALAR ;
+
+  GetDP_End ;
+}
+
+void  Fi_InitValueFromIndex (F_ARG) {
+
+  int     i, N ;
+  struct IntDouble IntDouble_s;
+  struct FunctionActive  * D ;
+
+  GetDP_Begin("Fi_InitValueFromIndex");
+
+  N = Fct->Para[0];
+  
+  D = Fct->Active =
+    (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
+
+  D->Case.ValueFromIndex.Table = List_Create(N, 1, sizeof(struct IntDouble));
+
+  for (i = 0 ; i < N ; i++) {
+    IntDouble_s.Int = (int)(Fct->Para[i*2+1]+0.1);
+    IntDouble_s.Double = Fct->Para[i*2+2];
+    List_Add(D->Case.ValueFromIndex.Table, &IntDouble_s);
+  }
+
+  GetDP_End ;
+}
 
 
 #undef F_ARG

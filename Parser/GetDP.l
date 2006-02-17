@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.40 2006-02-14 17:13:09 dular Exp $ */
+/* $Id: GetDP.l,v 1.41 2006-02-17 15:37:23 dular Exp $ */
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -316,6 +316,7 @@ Footer                       return tFooter ;
 Header                       return tHeader ;
 Depth                        return tDepth ;
 Dimension                    return tDimension ;
+Comma                        return tComma ;
 HarmonicToTime               return tHarmonicToTime ;
 TimeStep                     return tTimeStep ;
 Target                       return tTarget ;

@@ -1020,7 +1020,7 @@ struct PostOperation {
 struct PostSubOperation {
   int    PostQuantityIndex[2], PostQuantitySupport[2] ;  
   int    Type, SubType, CombinationType ;
-  int    Depth, Skin, Smoothing, Dimension, HarmonicToTime, CatFile ;
+  int    Depth, Skin, Smoothing, Dimension, Comma, HarmonicToTime, CatFile ;
   int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex ;
   int    ChangeOfCoordinates[3], LastTimeStepOnly ; 
   int    StoreInRegister ;
