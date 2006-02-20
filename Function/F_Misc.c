@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.27 2006-01-25 14:31:26 dular Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.28 2006-02-20 14:52:13 dular Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -1048,18 +1048,32 @@ void  F_TransformPiezoT (F_ARG) {
 /*          Start:            V I R T U A L   W O R K                       */
 /* ------------------------------------------------------------------------ */
 
-void  JacobianVol2D_dx (struct Element * Element, 
+void  JacobianVol_dx (struct Element * Element, 
 			MATRIX3x3 * Jac, double DetJac,
 			MATRIX3x3 * Jac_dx, double * DetJac_dx, int i) {
 
   GetDP_Begin("JacobianVol2D_dx");
 
-  Jac_dx->c11 = Element->dndu[i][0] ;  Jac_dx->c12 = Element->dndu[i][0] ;
-  Jac_dx->c21 = Element->dndu[i][1] ;  Jac_dx->c22 = Element->dndu[i][1] ;
+  Jac_dx->c11 = Element->dndu[i][0] ;  Jac_dx->c12 = Element->dndu[i][0] ;  Jac_dx->c13 = Element->dndu[i][0] ;
+  Jac_dx->c21 = Element->dndu[i][1] ;  Jac_dx->c22 = Element->dndu[i][1] ;  Jac_dx->c23 = Element->dndu[i][1] ;
+  Jac_dx->c31 = Element->dndu[i][2] ;  Jac_dx->c32 = Element->dndu[i][2] ;  Jac_dx->c33 = Element->dndu[i][2] ;
 
-  DetJac_dx[0] = Jac_dx->c11 * Jac->c22 - Jac_dx->c21 * Jac->c12 ;
-  DetJac_dx[1] = Jac_dx->c22 * Jac->c11 - Jac_dx->c12 * Jac->c21 ;
-  DetJac_dx[2] = 0. ;
+  DetJac_dx[0] = Jac_dx->c11 * ( Jac->c22 * Jac->c33 - Jac->c23 * Jac->c32 )
+               - Jac_dx->c21 * ( Jac->c12 * Jac->c33 - Jac->c13 * Jac->c32 )
+               + Jac_dx->c31 * ( Jac->c12 * Jac->c23 - Jac->c22 * Jac->c13 );
+
+  DetJac_dx[1] = - Jac_dx->c12 * ( Jac->c21 * Jac->c33 - Jac->c23 * Jac->c31 )
+                 + Jac_dx->c22 * ( Jac->c11 * Jac->c33 - Jac->c13 * Jac->c31 )
+                 - Jac_dx->c32 * ( Jac->c11 * Jac->c23 - Jac->c13 * Jac->c21 );
+
+  DetJac_dx[2] = Jac_dx->c11 * ( Jac->c21 * Jac->c32 - Jac->c22 * Jac->c31 )
+               - Jac_dx->c21 * ( Jac->c11 * Jac->c32 - Jac->c12 * Jac->c31 )
+               + Jac_dx->c31 * ( Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21 );
+
+
+  /* DetJac_dx[0] = Jac_dx->c11 * Jac->c22 - Jac_dx->c21 * Jac->c12 ; */
+/*   DetJac_dx[1] = Jac_dx->c22 * Jac->c11 - Jac_dx->c12 * Jac->c21 ; */
+/*   DetJac_dx[2] = 0. ; */
 
   if (DetJac < 0) {
     DetJac_dx[0] *= -1.;
@@ -1077,7 +1091,7 @@ void  F_VirtualWork (F_ARG) {
 
   GetDP_Begin("F_VirtualWork");
 
-  int numNode;
+  int numNode , Type_Dimension;
   double u, v, w;
 
   MATRIX3x3 Jac;
@@ -1110,25 +1124,71 @@ void  F_VirtualWork (F_ARG) {
     
     u = Current.u; v = Current.v; w = Current.w;
     Get_BFGeoElement(Current.Element, u,v,w);
+
+
+    Type_Dimension = Current.GeoData->Dimension;
+
+    switch (Type_Dimension)
+      {
+      case _2D :
+	DetJac = JacobianVol2D (Current.Element, &Jac) ;
+	JacobianVol_dx (Current.Element, &Jac, DetJac, &Jac_dx, DetJac_dx, i) ;
+
+	s[0] =   DetJac_dx[0] *  ( - valField[0] * valField[0] + valField[1] * valField[1] + valField[2] * valField[2] )
+	  -  2 * DetJac_dx[1] *  valField[0] * valField[1]
+	  -  2 * DetJac_dx[2] *  valField[0] * valField[2];
     
-    DetJac = JacobianVol2D (Current.Element, &Jac) ;
+    /*  DetJac_dx[0] *  (valField[1] * valField[1] - valField[0] * valField[0]) */
+    /*       -  2 * DetJac_dx[1] *  valField[0] * valField[1] ; */
     
-    JacobianVol2D_dx (Current.Element, &Jac, DetJac, &Jac_dx, DetJac_dx, i) ;
+	s[1] =   DetJac_dx[1] *  ( valField[0] * valField[0] - valField[1] * valField[1] + valField[2] * valField[2] )
+	  -  2 * DetJac_dx[0] *  valField[1] * valField[0]
+	  -  2 * DetJac_dx[2] *  valField[1] * valField[2];
+	
+      
+	/*      DetJac_dx[1] * (valField[0] * valField[0] - valField[1] * valField[1]) */
+	/*       -  2 * DetJac_dx[0] *  valField[0] * valField[1] ; */
+	
+	s[2] =   DetJac_dx[2] *  ( valField[0] * valField[0] + valField[1] * valField[1] - valField[2] * valField[2] )
+	  -  2 * DetJac_dx[0] *  valField[2] * valField[0]
+	  -  2 * DetJac_dx[1] *  valField[2] * valField[1];
     
-    s[0] = 
-      DetJac_dx[0] *  (valField[1] * valField[1] - valField[0] * valField[0])
-      -  2 * DetJac_dx[1] *  valField[0] * valField[1] ;
-    
-    s[1] = 
-      DetJac_dx[1] * (valField[0] * valField[0] - valField[1] * valField[1])
-      -  2 * DetJac_dx[0] *  valField[0] * valField[1] ;
-    
-    s[2] = 0;
-    
-    s[0] /= fabs(DetJac);
-    s[1] /= fabs(DetJac);
-    s[2] /= fabs(DetJac);
-    
+	s[0] /= fabs(DetJac);
+	s[1] /= fabs(DetJac);
+	s[2] /= fabs(DetJac);
+	
+	break;
+
+      case _3D :
+	DetJac = JacobianVol3D (Current.Element, &Jac) ;
+	JacobianVol_dx (Current.Element, &Jac, DetJac, &Jac_dx, DetJac_dx, i) ;
+	
+	s[0] =   DetJac_dx[0] *  ( - valField[0] * valField[0] + valField[1] * valField[1] + valField[2] * valField[2] )
+	  -  2 * DetJac_dx[1] *  valField[0] * valField[1]
+	  -  2 * DetJac_dx[2] *  valField[0] * valField[2];
+	
+	/*  DetJac_dx[0] *  (valField[1] * valField[1] - valField[0] * valField[0]) */
+	/*       -  2 * DetJac_dx[1] *  valField[0] * valField[1] ; */
+	
+	s[1] =   DetJac_dx[1] *  ( valField[0] * valField[0] - valField[1] * valField[1] + valField[2] * valField[2] )
+	  -  2 * DetJac_dx[0] *  valField[1] * valField[0]
+	  -  2 * DetJac_dx[2] *  valField[1] * valField[2];
+	
+	
+	/*      DetJac_dx[1] * (valField[0] * valField[0] - valField[1] * valField[1]) */
+	/*       -  2 * DetJac_dx[0] *  valField[0] * valField[1] ; */
+	
+	s[2] =   DetJac_dx[2] *  ( valField[0] * valField[0] + valField[1] * valField[1] - valField[2] * valField[2] )
+	  -  2 * DetJac_dx[0] *  valField[2] * valField[0]
+	  -  2 * DetJac_dx[1] *  valField[2] * valField[1];
+	
+	s[0] /= fabs(DetJac);
+	s[1] /= fabs(DetJac);
+	s[2] /= fabs(DetJac);
+	
+	break;
+	
+      }
   }
   else {
     s[0] = 0.; s[1] = 0.; s[2] = 0.;
