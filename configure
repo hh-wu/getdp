@@ -3058,7 +3058,7 @@ ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
   if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
-    LDFLAGS="-L${BLAS_LAPACK_PREFIX} ${LDFLAGS}"
+    LDFLAGS="-L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib ${LDFLAGS}"
   fi
 
 echo "$as_me:$LINENO: checking for dasum in -lblas" >&5
@@ -3171,7 +3171,7 @@ fi
     if test "x${LAPACK}" = "xyes"; then
       OPTIONS="${OPTIONS} -DHAVE_BLAS_LAPACK"
       if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
-        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX}"
+        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
       fi
     fi
   fi
@@ -3259,7 +3259,7 @@ fi
 
 if test "x$enable_gsl" != "xno"; then
   if test "x${GSL_PREFIX}" != "x"; then
-    LDFLAGS="-L${GSL_PREFIX}/lib ${LDFLAGS}"
+    LDFLAGS="-L${GSL_PREFIX} -L${GSL_PREFIX}/lib ${LDFLAGS}"
   fi
 
 echo "$as_me:$LINENO: checking for main in -lgslcblas" >&5
@@ -3398,8 +3398,8 @@ fi
     if test "x${GSL_PREFIX}" = "x"; then
       GETDP_LIBS="${GETDP_LIBS} -lgsl -lgslcblas"
     else
-      GETDP_LIBS="${GETDP_LIBS} -L${GSL_PREFIX}/lib -lgsl -lgslcblas"
-      OPTIONS="${OPTIONS} -I${GSL_PREFIX}/include"
+      GETDP_LIBS="${GETDP_LIBS} -L${GSL_PREFIX} -L${GSL_PREFIX}/lib -lgsl -lgslcblas"
+      OPTIONS="${OPTIONS} -I${GSL_PREFIX} -I${GSL_PREFIX}/include"
     fi
   fi
 fi
@@ -3466,15 +3466,15 @@ fi
 if test "x$enable_metis" = "xyes"; then
   OPTIONS="${OPTIONS} -DHAVE_METIS"
   if test "x${METIS_PREFIX}" != "x"; then
-    OPTIONS="${OPTIONS} -I${METIS_PREFIX}/include"
-    GETDP_LIBS="${GETDP_LIBS} -L${METIS_PREFIX} -lmetis"
+    OPTIONS="${OPTIONS} -I${METIS_PREFIX} -I${METIS_PREFIX}/include"
+    GETDP_LIBS="${GETDP_LIBS} -L${METIS_PREFIX} -L${METIS_PREFIX}/lib -lmetis"
   fi
 fi
 
 if test "x$enable_readline" = "xyes"; then
   if test "x${READLINE_PREFIX}" != "x"; then
-    CPPFLAGS="-I${READLINE_PREFIX}/include"
-    LDFLAGS="-L${READLINE_PREFIX}/lib ${LDFLAGS}"
+    CPPFLAGS="-I${READLINE_PREFIX} -I${READLINE_PREFIX}/include"
+    LDFLAGS="-L${READLINE_PREFIX} -L${READLINE_PREFIX}/lib ${LDFLAGS}"
   fi
 
 echo "$as_me:$LINENO: checking for egrep" >&5
@@ -4142,8 +4142,8 @@ fi
     if test "x${READLINE_PREFIX}" = "x"; then
       GETDP_LIBS="${GETDP_LIBS} -lreadline -lhistory"
     else
-      GETDP_LIBS="${GETDP_LIBS} -L${READLINE_PREFIX}/lib -lreadline -lhistory"
-      OPTIONS="${OPTIONS} -I${READLINE_PREFIX}/include"
+      GETDP_LIBS="${GETDP_LIBS} -L${READLINE_PREFIX} -L${READLINE_PREFIX}/lib -lreadline -lhistory"
+      OPTIONS="${OPTIONS} -I${READLINE_PREFIX} -I${READLINE_PREFIX}/include"
     fi
     if test "x${TERMCAP}" = "xyes"; then
       GETDP_LIBS="${GETDP_LIBS} -ltermcap"
