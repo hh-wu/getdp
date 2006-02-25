@@ -1,6 +1,6 @@
-#define RCSID "$Id: Message.c,v 1.77 2006-02-25 05:50:37 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.78 2006-02-25 15:00:24 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ void FinalizeAndExit(void);
 /* ------------------------------------------------------------------------ */
 
 char acronym[]   = "GetDP, a General environment for the treatment of Discrete Problems\n";
-char copyright[] = "Copyright (C) 1997-2005 Patrick Dular and Christophe Geuzaine\n";
+char copyright[] = "Copyright (C) 1997-2006 Patrick Dular and Christophe Geuzaine\n";
 
 char version[]   = "Version      : %s\n";
 char license[]   = "License      : %s\n";

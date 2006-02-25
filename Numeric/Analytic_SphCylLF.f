@@ -1,6 +1,6 @@
-c $Id: Analytic_SphCylLF.f,v 1.5 2005-10-13 23:07:10 geuzaine Exp $
+c $Id: Analytic_SphCylLF.f,v 1.6 2006-02-25 15:00:24 geuzaine Exp $
 c
-c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
+c Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 c
 c This program is free software; you can redistribute it and/or modify
 c it under the terms of the GNU General Public License as published by

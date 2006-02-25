@@ -1,6 +1,6 @@
-#define RCSID "$Id: F_Misc.c,v 1.28 2006-02-20 14:52:13 dular Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.29 2006-02-25 15:00:24 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

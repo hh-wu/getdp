@@ -1,7 +1,7 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.86 2005-11-15 02:00:08 geuzaine Exp $
+@c $Id: getdp.texi,v 1.87 2006-02-25 15:00:25 geuzaine Exp $
 @c
-@c Copyright (C) 1997-2005 P. Dular, C. Geuzaine
+@c Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 @c
 @c This program is free software; you can redistribute it and/or modify
 @c it under the terms of the GNU General Public License as published by
@@ -37,12 +37,11 @@
 @c =========================================================================
 @c %**start of header
 @setfilename        getdp.info
-@set EDITION        4.3
-@set GETDP-VERSION  1.1
+@set GETDP-VERSION  2.0.0
 @set GETDP-WEB      @uref{http://www.geuz.org/getdp/}
 @set GETDP-WIKI     @uref{http://www.geuz.org/getdp/wiki/FrontPage}
 @set GMSH-WEB       @uref{http://www.geuz.org/gmsh/}
-@set COPYRIGHT      @copyright{} 1997-2005 Patrick Dular, Christophe Geuzaine
+@set COPYRIGHT      @copyright{} 1997-2006 Patrick Dular, Christophe Geuzaine
 @c
 @settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate
@@ -64,8 +63,8 @@
 * GetDP: (getdp).  General finite element solver
 @end direntry
 @noindent
-This is edition @value{EDITION} (@today{}) of the @cite{GetDP Reference
-Manual}, for GetDP @value{GETDP-VERSION}.
+This is the @cite{GetDP Reference Manual} for GetDP
+@value{GETDP-VERSION} (@today{}).
 @noindent
 Copyright @value{COPYRIGHT}.
 @end ifinfo
@@ -92,7 +91,7 @@ Copyright @value{COPYRIGHT}.
 @subtitle The documentation for GetDP @value{GETDP-VERSION}
 @subtitle A General environment for the treatment of Discrete Problems
 @subtitle 
-@subtitle Edition @value{EDITION} (@today{})
+@subtitle @today{}
 
 @author Patrick Dular
 @author Christophe Geuzaine
@@ -133,8 +132,8 @@ Patrick Dular and Christophe Geuzaine
 
 GetDP is a scientific computation software for the numerical solution of
 integro-differential equations, using finite element and integral type
-methods. This is edition @value{EDITION} (@today{}) of the @cite{GetDP
-Reference Manual}, for GetDP @value{GETDP-VERSION}.
+methods. This is the @cite{GetDP Reference Manual} for GetDP
+@value{GETDP-VERSION} (@today{}).
 @end ifnottex
 
 @c =========================================================================

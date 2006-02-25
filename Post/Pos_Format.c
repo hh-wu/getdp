@@ -1,6 +1,6 @@
-#define RCSID "$Id: Pos_Format.c,v 1.47 2006-02-17 15:34:58 dular Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.48 2006-02-25 15:00:25 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

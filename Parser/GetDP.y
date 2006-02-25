@@ -1,7 +1,7 @@
 %{
-/* $Id: GetDP.y,v 1.91 2006-02-17 15:37:26 dular Exp $ */
+/* $Id: GetDP.y,v 1.92 2006-02-25 15:00:25 geuzaine Exp $ */
 /*
- * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

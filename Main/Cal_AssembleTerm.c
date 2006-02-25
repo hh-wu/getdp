@@ -1,6 +1,6 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.20 2005-07-22 09:35:51 geuzaine Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.21 2006-02-25 15:00:24 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

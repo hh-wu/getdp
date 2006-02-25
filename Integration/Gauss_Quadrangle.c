@@ -1,6 +1,6 @@
-#define RCSID "$Id: Gauss_Quadrangle.c,v 1.12 2005-06-23 01:45:01 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Quadrangle.c,v 1.13 2006-02-25 15:00:24 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

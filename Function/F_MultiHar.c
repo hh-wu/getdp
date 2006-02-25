@@ -1,6 +1,6 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.24 2005-06-23 01:45:00 geuzaine Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.25 2006-02-25 15:00:24 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

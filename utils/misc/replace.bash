@@ -1,8 +1,9 @@
 #!/bin/bash -
 
-for A in $*
+for A in  $*
 do
-echo modifying $A
-mv $A $A.old
-sed "s/Copyright (C) 1997-2004/Copyright (C) 1997-2005/g" $A.old  > $A
+sed "s|1997-2005|1997-2006|g" $A > $A.XXX
+echo modif $A
+rm -f $A
+mv -f $A.XXX $A
 done

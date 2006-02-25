@@ -1,6 +1,6 @@
-#define RCSID "$Id: EigenPar.c,v 1.2 2005-07-11 20:19:21 geuzaine Exp $"
+#define RCSID "$Id: EigenPar.c,v 1.3 2006-02-25 15:00:24 geuzaine Exp $"
 /*
- * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
+ * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
