@@ -1,6 +1,6 @@
-/* $Id: GmshClient.c,v 1.16 2005-08-31 20:44:41 geuzaine Exp $ */
+/* $Id: GmshClient.c,v 1.17 2006-02-25 03:29:22 geuzaine Exp $ */
 /*
- * Copyright (C) 1997-2005 C. Geuzaine, J.-F. Remacle
+ * Copyright (C) 1997-2006 C. Geuzaine, J.-F. Remacle
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation
@@ -24,13 +24,11 @@
  * ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE
  * OF THIS SOFTWARE.
  * 
- *  Please report all bugs and problems to <gmsh@geuz.org>.
+ * Please report all bugs and problems to <gmsh@geuz.org>.
  *
  * Contributor(s):
  *   Christopher Stott
  */
-
-#if !defined (WIN32) || defined(__CYGWIN__)
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,52 +36,62 @@
 #ifdef _AIX
 #include <strings.h>
 #endif
+
+#if !defined(WIN32) || defined(__CYGWIN__)
+
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/un.h>
 #include <sys/time.h>
-#include <unistd.h>
 #include <netinet/in.h>
 #include <netdb.h>
+
+#else /* pure windows */
+
+#include <winsock.h>
+#include <process.h>
+
+#endif
 
 /* private functions */
 
 static void Socket_SendData(int socket, void *buffer, int bytes)
 {
-  int sofar, remaining, len;
+  ssize_t len;
+  int sofar, remaining;
   char *buf;
   buf = (char *)buffer;
   sofar = 0;
   remaining = bytes;
   do {
-    len = write(socket, buf + sofar, remaining);
+    len = send(socket, buf + sofar, remaining, 0); 
     sofar += len;
     remaining -= len;
   } while(remaining > 0);
 }
 
-static long Socket_GetTime()
+static void Socket_Idle(int ms)
 {
-  struct timeval tp;
-  gettimeofday(&tp, (struct timezone *)0);
-  return (long)tp.tv_sec * 1000000 + (long)tp.tv_usec;
-}
-
-static void Socket_Idle(double delay)
-{
-  long t1 = Socket_GetTime();
-  while(1) {
-    if(Socket_GetTime() - t1 > 1.e6 * delay)
-      break;
-  }
+#if !defined(WIN32) || defined(__CYGWIN__)
+    usleep(1000 * ms);
+#else
+    Sleep(ms);
+#endif
 }
 
 /* public interface */
 
 int Gmsh_Connect(char *sockname)
 {
+#if !defined(WIN32) || defined(__CYGWIN__)
   struct sockaddr_un addr_un;
+#else
+  WSADATA wsaData;
+  int iResult;
+#endif
+
   struct sockaddr_in addr_in;
   int sock;
   int tries;
@@ -91,9 +99,15 @@ int Gmsh_Connect(char *sockname)
   int portno, remotelen;
   char remote[256], *port;
 
+#if defined(WIN32) && !defined(__CYGWIN__)
+  iResult = WSAStartup(MAKEWORD(2,2), &wsaData);
+  if(iResult != NO_ERROR)
+    return -4;  /* Error: Couldn't initialize Windows sockets */
+#endif
+
   /* slight delay to be sure that the socket is bound by the
      server before we attempt to connect to it... */
-  Socket_Idle(0.1);
+  Socket_Idle(100);
 
   if(strstr(sockname, "/") || strstr(sockname, "\\") || !strstr(sockname, ":")){
     /* UNIX socket (testing ":" is not enough with Windows paths) */
@@ -112,6 +126,7 @@ int Gmsh_Connect(char *sockname)
   /* create socket */
 
   if(portno < 0){
+#if !defined(WIN32) || defined(__CYGWIN__)
     sock = socket(PF_UNIX, SOCK_STREAM, 0);
     if(sock < 0)
       return -1; /* Error: Couldn't create socket */
@@ -121,25 +136,28 @@ int Gmsh_Connect(char *sockname)
     for(tries = 0; tries < 5; tries++) {
       if(connect(sock, (struct sockaddr *)&addr_un, sizeof(addr_un)) >= 0)
 	return sock;
-      Socket_Idle(0.1);
+      Socket_Idle(100);
     }
+#else
+    /* Unix sockets are not available on Windows without Cygwin */
+    return -1;
+#endif
   }
   else{
-    /* try to connect socket to given name */
     sock = socket(AF_INET, SOCK_STREAM, 0);
     if(sock < 0)
       return -1; /* Error: Couldn't create socket */
     if(!(server = gethostbyname(remote)))
       return -3; /* Error: No such host */
+    /* try to connect socket to given name */
     memset((char *) &addr_in, 0, sizeof(addr_in));
     addr_in.sin_family = AF_INET;
     memcpy((char *)&addr_in.sin_addr.s_addr, (char *)server->h_addr, server->h_length);
     addr_in.sin_port = htons(portno);
-    addr_in.sin_addr.s_addr = INADDR_ANY;
     for(tries = 0; tries < 5; tries++) {
       if(connect(sock, (struct sockaddr *)&addr_in, sizeof(addr_in)) >= 0)
 	return sock;
-      Socket_Idle(0.1);
+      Socket_Idle(100);
     }
   }
 
@@ -156,13 +174,10 @@ void Gmsh_SendString(int socket, int type, char str[])
 
 void Gmsh_Disconnect(int sock)
 {
+#if !defined(WIN32) || defined(__CYGWIN__)
   close(sock);
-}
-
-#else /* pure Windows code, without cygwin */
-
-int  Gmsh_Connect(char *sockname){ return -2;}
-void Gmsh_SendString(int socket, int type, char str[]){;}
-void Gmsh_Disconnect(int sock){;}
-
+#else
+  closesocket(sock);
+  WSACleanup();
 #endif
+}

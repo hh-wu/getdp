@@ -1,4 +1,4 @@
-#define RCSID "$Id: MainBlackBox.c,v 1.14 2005-07-19 22:18:57 geuzaine Exp $"
+#define RCSID "$Id: MainBlackBox.c,v 1.15 2006-02-25 03:29:22 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -110,7 +110,9 @@ int  main(int argc, char *argv[]) {
   strcpy(Name_Path, "");
 
   Read_ProblemStructure(Name_TmpFile);
+#if !defined(WIN32) || defined(__CYGWIN__)
   unlink(Name_TmpFile);
+#endif
   
   if (Problem_S.Expression) 
     Problem_Expression0 = (struct Expression*)List_Pointer(Problem_S.Expression, 0) ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Interactive.c,v 1.27 2005-06-23 01:45:07 geuzaine Exp $"
+#define RCSID "$Id: Pos_Interactive.c,v 1.28 2006-02-25 03:29:22 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -20,7 +20,9 @@
  * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
+#if !defined(WIN32) || defined(__CYGWIN__)
 #include <unistd.h> /* unlink */
+#endif
 
 #include "GetDP.h"
 #include "Data_Passive.h"
@@ -174,7 +176,9 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
   InteractiveLevel = 0;
 
   /* delete the tmp file */
+#if !defined(WIN32) || defined(__CYGWIN__)
   unlink(GETDP_TMP_FILENAME);
+#endif
 
   if(!post) FinalizeAndExit();
 
