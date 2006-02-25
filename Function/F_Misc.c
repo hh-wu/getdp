@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.29 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.30 2006-02-25 19:08:02 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1091,19 +1091,14 @@ void  F_VirtualWork (F_ARG) {
 
   GetDP_Begin("F_VirtualWork");
 
-  int numNode , Type_Dimension;
+  int i, numNode, Type_Dimension;
   double u, v, w;
 
   MATRIX3x3 Jac;
   MATRIX3x3 Jac_dx;
   double DetJac;
   double DetJac_dx [3];
-  //double Jac_dx[3];
-
-  double valField[3], sv[3], s[3] ;
-
-  int i, nodeInElement;
-  
+  double valField[3], s[3] ;
   
   /*  numNode = (int)((A+1)->Val[0]); */
 
@@ -1115,7 +1110,7 @@ void  F_VirtualWork (F_ARG) {
   
   if (i < Current.Element->GeoElement->NbrNodes ) {
     /*
-    printf("element : %d %d\n", Current.Element->GeoElement->Num, i+1);
+      printf("element : %d %d\n", Current.Element->GeoElement->Num, i+1);
     */
     
     valField[0] = A->Val[0];
@@ -1124,76 +1119,86 @@ void  F_VirtualWork (F_ARG) {
     
     u = Current.u; v = Current.v; w = Current.w;
     Get_BFGeoElement(Current.Element, u,v,w);
-
-
+    
     Type_Dimension = Current.GeoData->Dimension;
-
-    switch (Type_Dimension)
-      {
-      case _2D :
-	DetJac = JacobianVol2D (Current.Element, &Jac) ;
-	JacobianVol_dx (Current.Element, &Jac, DetJac, &Jac_dx, DetJac_dx, i) ;
-
-	s[0] =   DetJac_dx[0] *  ( - valField[0] * valField[0] + valField[1] * valField[1] + valField[2] * valField[2] )
-	  -  2 * DetJac_dx[1] *  valField[0] * valField[1]
-	  -  2 * DetJac_dx[2] *  valField[0] * valField[2];
     
-    /*  DetJac_dx[0] *  (valField[1] * valField[1] - valField[0] * valField[0]) */
-    /*       -  2 * DetJac_dx[1] *  valField[0] * valField[1] ; */
-    
-	s[1] =   DetJac_dx[1] *  ( valField[0] * valField[0] - valField[1] * valField[1] + valField[2] * valField[2] )
-	  -  2 * DetJac_dx[0] *  valField[1] * valField[0]
-	  -  2 * DetJac_dx[2] *  valField[1] * valField[2];
-	
+    switch (Type_Dimension) {
+    case _2D :
+      DetJac = JacobianVol2D (Current.Element, &Jac) ;
+      JacobianVol_dx (Current.Element, &Jac, DetJac, &Jac_dx, DetJac_dx, i) ;
       
-	/*      DetJac_dx[1] * (valField[0] * valField[0] - valField[1] * valField[1]) */
-	/*       -  2 * DetJac_dx[0] *  valField[0] * valField[1] ; */
-	
-	s[2] =   DetJac_dx[2] *  ( valField[0] * valField[0] + valField[1] * valField[1] - valField[2] * valField[2] )
-	  -  2 * DetJac_dx[0] *  valField[2] * valField[0]
-	  -  2 * DetJac_dx[1] *  valField[2] * valField[1];
+      s[0] =   DetJac_dx[0] *  ( - valField[0] * valField[0] + 
+				   valField[1] * valField[1] + 
+				   valField[2] * valField[2] )
+	-  2 * DetJac_dx[1] *  valField[0] * valField[1]
+	-  2 * DetJac_dx[2] *  valField[0] * valField[2];
+      
+      /*  DetJac_dx[0] *  (valField[1] * valField[1] - valField[0] * valField[0]) */
+      /*       -  2 * DetJac_dx[1] *  valField[0] * valField[1] ; */
     
-	s[0] /= fabs(DetJac);
-	s[1] /= fabs(DetJac);
-	s[2] /= fabs(DetJac);
+      s[1] =   DetJac_dx[1] *  ( valField[0] * valField[0] - 
+				 valField[1] * valField[1] + 
+				 valField[2] * valField[2] )
+	-  2 * DetJac_dx[0] *  valField[1] * valField[0]
+	-  2 * DetJac_dx[2] *  valField[1] * valField[2];
+      
+      /*      DetJac_dx[1] * (valField[0] * valField[0] - valField[1] * valField[1]) */
+      /*       -  2 * DetJac_dx[0] *  valField[0] * valField[1] ; */
 	
-	break;
+      s[2] =   DetJac_dx[2] *  ( valField[0] * valField[0] + 
+				 valField[1] * valField[1] - 
+				 valField[2] * valField[2] )
+	-  2 * DetJac_dx[0] *  valField[2] * valField[0]
+	-  2 * DetJac_dx[1] *  valField[2] * valField[1];
+      
+      s[0] /= fabs(DetJac);
+      s[1] /= fabs(DetJac);
+      s[2] /= fabs(DetJac);
+      break;
 
-      case _3D :
-	DetJac = JacobianVol3D (Current.Element, &Jac) ;
-	JacobianVol_dx (Current.Element, &Jac, DetJac, &Jac_dx, DetJac_dx, i) ;
-	
-	s[0] =   DetJac_dx[0] *  ( - valField[0] * valField[0] + valField[1] * valField[1] + valField[2] * valField[2] )
-	  -  2 * DetJac_dx[1] *  valField[0] * valField[1]
-	  -  2 * DetJac_dx[2] *  valField[0] * valField[2];
-	
-	/*  DetJac_dx[0] *  (valField[1] * valField[1] - valField[0] * valField[0]) */
-	/*       -  2 * DetJac_dx[1] *  valField[0] * valField[1] ; */
-	
-	s[1] =   DetJac_dx[1] *  ( valField[0] * valField[0] - valField[1] * valField[1] + valField[2] * valField[2] )
-	  -  2 * DetJac_dx[0] *  valField[1] * valField[0]
-	  -  2 * DetJac_dx[2] *  valField[1] * valField[2];
-	
-	
-	/*      DetJac_dx[1] * (valField[0] * valField[0] - valField[1] * valField[1]) */
-	/*       -  2 * DetJac_dx[0] *  valField[0] * valField[1] ; */
-	
-	s[2] =   DetJac_dx[2] *  ( valField[0] * valField[0] + valField[1] * valField[1] - valField[2] * valField[2] )
-	  -  2 * DetJac_dx[0] *  valField[2] * valField[0]
-	  -  2 * DetJac_dx[1] *  valField[2] * valField[1];
-	
-	s[0] /= fabs(DetJac);
-	s[1] /= fabs(DetJac);
-	s[2] /= fabs(DetJac);
-	
-	break;
-	
-      }
+    case _3D :
+      DetJac = JacobianVol3D (Current.Element, &Jac) ;
+      JacobianVol_dx (Current.Element, &Jac, DetJac, &Jac_dx, DetJac_dx, i) ;
+      
+      s[0] =   DetJac_dx[0] *  ( - valField[0] * valField[0] + 
+				   valField[1] * valField[1] + 
+				   valField[2] * valField[2] )
+	-  2 * DetJac_dx[1] *  valField[0] * valField[1]
+	-  2 * DetJac_dx[2] *  valField[0] * valField[2];
+      
+      /*  DetJac_dx[0] *  (valField[1] * valField[1] - valField[0] * valField[0]) */
+      /*       -  2 * DetJac_dx[1] *  valField[0] * valField[1] ; */
+      
+      s[1] =   DetJac_dx[1] *  ( valField[0] * valField[0] - 
+				 valField[1] * valField[1] + 
+				 valField[2] * valField[2] )
+	-  2 * DetJac_dx[0] *  valField[1] * valField[0]
+	-  2 * DetJac_dx[2] *  valField[1] * valField[2];
+      
+      /*      DetJac_dx[1] * (valField[0] * valField[0] - valField[1] * valField[1]) */
+      /*       -  2 * DetJac_dx[0] *  valField[0] * valField[1] ; */
+      
+      s[2] =   DetJac_dx[2] *  ( valField[0] * valField[0] +
+				 valField[1] * valField[1] - 
+				 valField[2] * valField[2] )
+	-  2 * DetJac_dx[0] *  valField[2] * valField[0]
+	-  2 * DetJac_dx[1] *  valField[2] * valField[1];
+      
+      s[0] /= fabs(DetJac);
+      s[1] /= fabs(DetJac);
+      s[2] /= fabs(DetJac);
+      break;
+      
+    default :
+      s[0] = 0.; s[1] = 0.; s[2] = 0.;
+      break;
+      
+    }
   }
   else {
     s[0] = 0.; s[1] = 0.; s[2] = 0.;
   }
-
+  
   V->Type = VECTOR ;
   V->Val[0] = s[0] ;
   V->Val[1] = s[1] ;

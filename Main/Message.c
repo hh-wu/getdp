@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.78 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.79 2006-02-25 19:08:02 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -383,5 +383,5 @@ void Progress(int current, int final, char *label){
 
 void Debug(void){
   /* non-empty so that optimizing compilers don't get rid of it */
-  fprintf(stderr, "") ;
+  fprintf(stderr, " ") ;
 }

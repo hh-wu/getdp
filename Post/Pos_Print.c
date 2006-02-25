@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.79 2006-02-25 15:00:25 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.80 2006-02-25 19:08:02 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1226,8 +1226,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
   List_T  *Region_L, *Support_L ;
   int      i, iTime, NbrTimeStep ;
-  int      Nbr_Region, Num_Region, Group_FunctionType ;
-  int      Flag_Summation=0, Type_Evaluation;
+  int      Nbr_Region=0, Num_Region, Group_FunctionType ;
+  int      Flag_Summation=0, Type_Evaluation=0;
   double   u, v, w;
 
   GetDP_Begin("Pos_PrintOnRegion");
