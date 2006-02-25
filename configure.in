@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.64 2006-02-25 08:40:21 geuzaine Exp $
+dnl $Id: configure.in,v 1.65 2006-02-25 15:59:37 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -350,10 +350,6 @@ fi
 
 dnl Finish link line
 GETDP_LIBS="${GETDP_LIBS} -lm"    
-
-dnl Check for header files
-AC_HEADER_STDC
-AC_CHECK_HEADERS(sys/time.h sys/resource.h)
 
 dnl Add options to C compiler flags
 C_FLAGS="${C_FLAGS} ${OPTIONS}"
