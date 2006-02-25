@@ -7,9 +7,6 @@ To install GetDP, type
 make
 make install
 
-Please note that compiling the Windows version requires the Cygwin
-tools (freely available from http://www.cygwin.com).
-
 For a description of all other configuration options, type
 
 ./configure --help

@@ -852,7 +852,7 @@ Optional Features:
   --enable-petsc          use PETSc linear solvers (default=no)
   --enable-arpack         enable built-in Arpack eigensolver (default=yes)
   --enable-debug          build debug stack frame (default=no)
-  --enable-cygwin         use the Cygwin library on Windows (default=yes)
+  --enable-cygwin         use the Cygwin library on Windows (default=no)
   --enable-gsl            use GSL as numerical toolkit (default=yes)
   --enable-readline       use GNU readline (default=no)
   --enable-metis          use Metis for graph partitioning (default=no)
@@ -3231,7 +3231,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
       fi
       ;;
     CYGWIN*)
-      if test "x$enable_cygwin" = "xno"; then
+      if test "x$enable_cygwin" != "xyes"; then
         CC="gcc -mno-cygwin"
         F77="g77 -mno-cygwin"
 	UNAME="${UNAME}-no-cygwin"

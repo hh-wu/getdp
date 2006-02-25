@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.178 2006-02-17 15:37:23 dular Exp $
+# $Id: Makefile,v 1.179 2006-02-25 08:02:58 geuzaine Exp $
 #
 # Copyright (C) 1997-2005 P. Dular, C. Geuzaine
 #
@@ -21,9 +21,9 @@
 
 include variables
 
-GETDP_MAJOR_VERSION = 1
-GETDP_MINOR_VERSION = 1
-GETDP_PATCH_VERSION = 2
+GETDP_MAJOR_VERSION = 2
+GETDP_MINOR_VERSION = 0
+GETDP_PATCH_VERSION = 0
 GETDP_EXTRA_VERSION = "-cvs"
 
 GETDP_VERSION = ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}
@@ -167,7 +167,6 @@ package-win:
 	rm -rf getdp-${GETDP_VERSION}
 	mkdir getdp-${GETDP_VERSION}
 	strip bin/getdp.exe
-	cp /usr/bin/cygwin1.dll getdp-${GETDP_VERSION}
 	cp bin/getdp.exe getdp-${GETDP_VERSION}
 	cp doc/README.win32 getdp-${GETDP_VERSION}/README.txt
 	cp doc/VERSIONS getdp-${GETDP_VERSION}/VERSIONS.txt

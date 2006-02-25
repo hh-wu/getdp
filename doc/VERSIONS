@@ -1,4 +1,7 @@
-$Id: VERSIONS,v 1.54 2005-08-21 18:23:27 geuzaine Exp $
+$Id: VERSIONS,v 1.55 2006-02-25 08:02:58 geuzaine Exp $
+
+2.0.0: Windows versions do not depend on Cygwin anymore; major parser
+cleanup (loops&co)
 
 1.1: New eigensolver based on Arpack (EigenSolve); generalized old
 Lanczos solver to work with GSL+lapack; reworked PETSc interface,
