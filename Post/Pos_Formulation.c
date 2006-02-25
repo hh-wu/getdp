@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.50 2005-07-22 13:26:31 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.51 2006-02-25 03:29:22 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -143,7 +143,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     if(Flag_SOCKET > 0 && 
        (PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
 	PostSubOperation_P->Format == FORMAT_GMSH)){
-      Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_VIEW, FileName);
+      Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_MERGE_FILE, FileName);
     }
   }
 

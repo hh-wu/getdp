@@ -3235,6 +3235,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
         CC="gcc -mno-cygwin"
         F77="g77 -mno-cygwin"
 	UNAME="${UNAME}-no-cygwin"
+        GETDP_LIBS="${GETDP_LIBS} -lwsock32"
       fi
       ;;
     Linux*)

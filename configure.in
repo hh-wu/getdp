@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.61 2005-09-15 16:57:21 geuzaine Exp $
+dnl $Id: configure.in,v 1.62 2006-02-25 04:46:27 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -224,6 +224,7 @@ else
         CC="gcc -mno-cygwin"
         F77="g77 -mno-cygwin"
 	UNAME="${UNAME}-no-cygwin"
+        GETDP_LIBS="${GETDP_LIBS} -lwsock32"
       fi
       ;;
     Linux*)

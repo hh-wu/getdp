@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.55 2005-07-19 22:18:57 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.56 2006-02-25 03:29:22 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -20,8 +20,13 @@
  * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
+#if !defined(WIN32) || defined(__CYGWIN__)
 #include <sys/types.h>
 #include <unistd.h>
+#else
+#include <process.h>
+#endif
+
 #include <signal.h>
 #include <time.h>
 
@@ -309,7 +314,11 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  else if(Flag_SOCKET == -3)
 	    Msg(ERROR, "No such host %s", argv[i]);
 	  else{
+#if !defined(WIN32) || defined(__CYGWIN__)
 	    sprintf(pid, "%d", getpid());
+#else
+	    sprintf(pid, "%d", _getpid());
+#endif
 	    Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_START, pid);
 	  }
 	  i++ ; 
@@ -567,7 +576,9 @@ void FinalizeAndExit(void){
     Gmsh_Disconnect(Flag_SOCKET);
   }
 
+#if !defined(WIN32) || defined(__CYGWIN__)
   unlink(GETDP_TMP_FILENAME);
+#endif
 
   GetDP_Exit(1) ;
 }

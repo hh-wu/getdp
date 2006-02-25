@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.76 2005-11-14 19:22:34 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.77 2006-02-25 05:50:37 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2005 P. Dular, C. Geuzaine
  *
@@ -246,8 +246,8 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       }
       Gmsh_SendString(Flag_SOCKET, gmshlevel, prefix);
     }
-#if !defined(__CYGWIN__) 
-    else{ /* on everything but cygwin, don't print anything if getdp
+#if !defined(WIN32) 
+    else{ /* on everything but windows, don't print anything if getdp
 	     is called with a socket arg: it would be piped to
 	     .xsession-errors */
 #endif
@@ -263,7 +263,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       if(*abort){
 	Print_GetDPContext(stream);
       }
-#if !defined(__CYGWIN__) 
+#if !defined(WIN32) 
     }
 #endif
 
