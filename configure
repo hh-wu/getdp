@@ -2570,6 +2570,23 @@ if test "x${CC}" = "x" -o "x${F77}" = "x" ; then
 echo "$as_me: error: Could not find required compilers, aborting." >&2;}
    { (exit 1); exit 1; }; }
 fi
+LINKER="${F77}"
+
+case "$UNAME" in
+  CYGWIN*)
+    if test "x$enable_cygwin" != "xyes"; then
+      UNAME="${UNAME}-no-cygwin"
+      CC="${CC} -mno-cygwin"
+      F77="${F77} -mno-cygwin"
+      LINKER="${LINKER} -mno-cygwin"
+    fi
+    ;;
+esac
+
+C_FLAGS="${CFLAGS}"
+C_PARSER_FLAGS="${CFLAGS}"
+F77_FLAGS="${FFLAGS}"
+OPTIONS=""
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -2577,11 +2594,6 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-
-C_FLAGS="${CFLAGS}"
-C_PARSER_FLAGS="${CFLAGS}"
-F77_FLAGS="${FFLAGS}"
-OPTIONS=""
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -2946,6 +2958,8 @@ AR="${AR} ruvs"
 
 
 
+
+
 echo "$as_me:$LINENO: checking for main in -lm" >&5
 echo $ECHO_N "checking for main in -lm... $ECHO_C" >&6
 if test "${ac_cv_lib_m_main+set}" = set; then
@@ -3014,8 +3028,6 @@ _ACEOF
 fi
 
 
-
-
 GETDP_DIRS="Main Parser Post Function Integration GeoData DofData Numeric DataStr FMM"
 
 if test "x$enable_petsc" = "xyes"; then
@@ -3050,7 +3062,6 @@ else
   GETDP_DIRS="${GETDP_DIRS} Sparskit"
   GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr -lFMM"
   SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
-  LINKER='${F77}'
 
     ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
@@ -3230,11 +3241,8 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
         SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
       fi
       ;;
-    CYGWIN*)
+    CYGWIN* | MINGW*)
       if test "x$enable_cygwin" != "xyes"; then
-        CC="gcc -mno-cygwin"
-        F77="g77 -mno-cygwin"
-	UNAME="${UNAME}-no-cygwin"
         GETDP_LIBS="${GETDP_LIBS} -lwsock32"
       fi
       ;;
