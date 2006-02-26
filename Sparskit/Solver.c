@@ -1,4 +1,4 @@
-#define RCSID "$Id: Solver.c,v 1.27 2006-02-25 15:00:25 geuzaine Exp $"
+#define RCSID "$Id: Solver.c,v 1.28 2006-02-26 00:43:00 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -159,7 +159,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
 
   for (i=1; i<M->N; i++) {
     if(ia[i]-ia[i-1] <= 0)
-      Msg(ERROR, "Zero row in matrix");
+      Msg(GERROR, "Zero row in matrix");
   }
 
   rhs = (double*) Malloc(M->N * sizeof(double));
@@ -198,7 +198,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       Free(w); Free(mask); Free(levels);
       break; 	
     default :
-      Msg(ERROR, "Unknown renumbering technique");
+      Msg(GERROR, "Unknown renumbering technique");
       break;
     }
     print_matrix_info_CSR(M->N, ia, ja);
@@ -300,7 +300,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       break ;
 
     default :
-      Msg(ERROR, "Unknown ILU method");
+      Msg(GERROR, "Unknown ILU method");
       break;
     }
     
@@ -370,7 +370,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     case  0 : 
       break;
     case -1 :
-      Msg(ERROR, "Input matrix may be wrong");
+      Msg(GERROR, "Input matrix may be wrong");
       break;
     case -2 : /* Matrix L in ILU overflows work array 'al' */
     case -3 : /* Matrix U in ILU overflows work array 'alu' */
@@ -382,13 +382,13 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       M->S.jlu = (int*) Malloc(nnz_ilu * sizeof(int));
       goto reallocate ;
     case -4 :
-      Msg(ERROR, "Illegal value of nb_fill in ILU");
+      Msg(GERROR, "Illegal value of nb_fill in ILU");
       break;
     case -5 :
-      Msg(ERROR, "Zero row encountered in ILU");
+      Msg(GERROR, "Zero row encountered in ILU");
       break;
     default :
-      Msg(ERROR, "Zero pivot on line %d in ILU",ierr);
+      Msg(GERROR, "Zero pivot on line %d in ILU",ierr);
       break;
     }
     
@@ -446,7 +446,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
                  ipar[4] = M->N + (ipar[5]+1) * (2*M->N+4); break;
   case PGMRES  : Msg(SPARSKIT, "Alternative Generalized Minimum RESidual (GMRES)\n");
                  ipar[4] = (M->N+4) * (ipar[5]+2) + (ipar[5]+1) * ipar[5]/2; break;
-  default      : Msg(ERROR, "Unknown algorithm for sparse matrix solver"); break;
+  default      : Msg(GERROR, "Unknown algorithm for sparse matrix solver"); break;
   }
   
   w = (double*) Malloc(ipar[4] * sizeof(double));

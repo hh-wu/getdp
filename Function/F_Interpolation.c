@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Interpolation.c,v 1.5 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: F_Interpolation.c,v 1.6 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -63,7 +63,7 @@ void  F_InterpolationLinear (F_ARG) {
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg(ERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
+    Msg(GERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     a = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -98,7 +98,7 @@ void  F_dInterpolationLinear (F_ARG) {
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg(ERROR,"Bad argument for linear Interpolation (%g < %g)", xp, x[0]) ;
+    Msg(GERROR,"Bad argument for linear Interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     dyp = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -134,7 +134,7 @@ void  F_dInterpolationLinear2 (F_ARG) {
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg(ERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
+    Msg(GERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     a = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -149,7 +149,7 @@ void  F_dInterpolationLinear2 (F_ARG) {
   if (Current.NbrHar == 1)
     V->Val[0] = yp ;
   else {
-    Msg(ERROR,"Function 'Interpolation' not valid for Complex");
+    Msg(GERROR,"Function 'Interpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
 
@@ -177,7 +177,7 @@ void  F_InterpolationAkima (F_ARG) {
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg(ERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
+    Msg(GERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     a = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -195,7 +195,7 @@ void  F_InterpolationAkima (F_ARG) {
   if (Current.NbrHar == 1)
     V->Val[0] = yp ;
   else {
-    Msg(ERROR,"Function 'Interpolation' not valid for Complex");
+    Msg(GERROR,"Function 'Interpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
 
@@ -222,7 +222,7 @@ void  F_dInterpolationAkima (F_ARG) {
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg(ERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
+    Msg(GERROR,"Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     dyp = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -238,7 +238,7 @@ void  F_dInterpolationAkima (F_ARG) {
   if (Current.NbrHar == 1)
     V->Val[0] = dyp ;
   else {
-    Msg(ERROR,"Function 'Interpolation' not valid for Complex");
+    Msg(GERROR,"Function 'Interpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
 
@@ -351,12 +351,12 @@ void  F_InterpolationMatrix (F_ARG) {
   GetDP_Begin("F_InterpolationMatrix");
 
   N = Fct->NbrParameters;
-  if (N <= 2) Msg(ERROR,"Bad number of parameters for matrix interpolation (%d)", N) ;
+  if (N <= 2) Msg(GERROR,"Bad number of parameters for matrix interpolation (%d)", N) ;
 
   NbrLines   = (int)(Fct->Para[0]+0.5);
   NbrColumns = (int)(Fct->Para[1]+0.5);
   if (N-2 != NbrLines*NbrColumns)
-    Msg(ERROR,"Bad number of parameters for matrix interpolation (%d+2 instead of %d+2)",
+    Msg(GERROR,"Bad number of parameters for matrix interpolation (%d+2 instead of %d+2)",
 	N-2, NbrLines*NbrColumns) ;
 
   Matrix = Fct->Para+2;
@@ -396,7 +396,7 @@ void  F_ValueFromIndex (F_ARG) {
     List_PQuery(D->Case.ValueFromIndex.Table, &Current.NumEntity, fcmp_int);
 
   if (!IntDouble_P)
-    Msg(ERROR,"Unknown Entity Index in ValueFromIndex Table");
+    Msg(GERROR,"Unknown Entity Index in ValueFromIndex Table");
   /*
   printf("==> search %d --> found %g\n", Current.NumEntity, IntDouble_P->Double);
   */

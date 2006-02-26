@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Tetrahedron.c,v 1.16 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Tetrahedron.c,v 1.17 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -63,7 +63,7 @@ void  Gauss_Tetrahedron (int Nbr_Points, int Num,
 
   default : 
     Msg(DIRECT, ERROR_STR "Wrong number of Gauss Points for Tetrahedron");
-    Msg(ERROR, "Valid choices: 1, 4, 5, 15, 16, 17, 29");
+    Msg(GERROR, "Valid choices: 1, 4, 5, 15, 16, 17, 29");
     break;
   }
 
@@ -103,7 +103,7 @@ void  GaussLegendre_Tetrahedron (int Nbr_Points, int Num,
   nb = (int)pow((double)Nbr_Points, 1./3.);
 
   if(nb*nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
-    Msg(ERROR, "Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
+    Msg(GERROR, "Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
 
   if(gltet[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) gltet[i] = 0 ;
 

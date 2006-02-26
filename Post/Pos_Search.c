@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.36 2006-02-25 15:00:25 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.37 2006-02-26 00:42:59 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -412,7 +412,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   }
   
   if (!(Brick_P = (struct Brick *)List_Pointer(Grid.Bricks, i)))
-    Msg(ERROR, "Brick %d not found in Grid", i) ;
+    Msg(GERROR, "Brick %d not found in Grid", i) ;
 
   switch(Dim){
   case _1D  : lowdim = 0 ; highdim = 0 ; break;
@@ -475,7 +475,7 @@ void xyz2uvwInAnElement (struct Element *Element,
   else if(Element->Type & POINT)
     ChainDim = _0D;
   else
-    Msg(ERROR, "Unknown type of element in xyz2uvwInAnElement");
+    Msg(GERROR, "Unknown type of element in xyz2uvwInAnElement");
   
   if (ChainDim == _1D && Current.GeoData->Dimension == _3D) 
     Type_Jacobian = JACOBIAN_LIN;

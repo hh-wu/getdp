@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pre_GetDofFMMGroup.c,v 1.7 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Pre_GetDofFMMGroup.c,v 1.8 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -120,7 +120,7 @@ void  Pre_GetDofFMMGroup (struct Formulation * Formulation_P,
 	      QuantityStorageEqu_P->NbrElementaryBasisFunction = 0 ;
 	      break ;
 	    default :
-	      Msg(ERROR, "Bad kind of Quantity in Formulation '%s'",
+	      Msg(GERROR, "Bad kind of Quantity in Formulation '%s'",
 		  Formulation_P->Name);
 	      break;
 	    }
@@ -167,7 +167,7 @@ void  Pre_GetDofFMMGroup (struct Formulation * Formulation_P,
 	    Element.FMMGroup = Element.GeoElement->FMMGroup ;
 	    
 	    if (i_Group != Element.GeoElement->FMMGroup) 
-	      Msg(ERROR,"Wrong Element in FMMGroup i_Group %d FMMElmGroup %d Element %d ",
+	      Msg(GERROR,"Wrong Element in FMMGroup i_Group %d FMMElmGroup %d Element %d ",
 		  i_Group, Element.FMMGroup, Element.Num ) ;
 	    
 	    Current.Region = Element.Region = Element.GeoElement->Region ;

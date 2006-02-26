@@ -1,4 +1,4 @@
-#define RCSID "$Id: EigenPar.c,v 1.3 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: EigenPar.c,v 1.4 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -89,7 +89,7 @@ void EigenPar(char *filename, struct EigenPar *par){
       fclose(fp);
     }
     else{
-      Msg(ERROR, "Unable to open file '%s'", path);
+      Msg(GERROR, "Unable to open file '%s'", path);
     }
   }
   

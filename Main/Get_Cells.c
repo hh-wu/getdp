@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Cells.c,v 1.11 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Get_Cells.c,v 1.12 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -121,16 +121,16 @@ void Get_deRhamCells(struct Element *Element,
     break ;
 
   case EDGESOF :
-    Msg(ERROR, "de Rham Map on EdgesOf not Done") ;
+    Msg(GERROR, "de Rham Map on EdgesOf not Done") ;
     break;
 
   case FACETSOF :
-    Msg(ERROR, "de Rham Map on FacetsOf not Done") ;
+    Msg(GERROR, "de Rham Map on FacetsOf not Done") ;
     break;
 
   case VOLUMESOF :
     *Relative_Jacobian = 0 ;
-    if(*Nbr_Cells > 1) Msg(ERROR, "Non consistent choice of VolumesOf");
+    if(*Nbr_Cells > 1) Msg(GERROR, "Non consistent choice of VolumesOf");
     Cells[0] = *Element ;
     break;
     
@@ -205,7 +205,7 @@ void Get_deRhamCells(struct Element *Element,
       break;
 
     default :
-      Msg(ERROR, "Unknown Element type for DualNodesOf");
+      Msg(GERROR, "Unknown Element type for DualNodesOf");
       break;
 
     }
@@ -248,7 +248,7 @@ void Get_deRhamCells(struct Element *Element,
       break;
 
     default :
-      Msg(ERROR, "Unknown Element type for DualEdgesOf");
+      Msg(GERROR, "Unknown Element type for DualEdgesOf");
       break;
 
     }
@@ -256,7 +256,7 @@ void Get_deRhamCells(struct Element *Element,
 
   case DUALFACETSOF :
   case DUALVOLUMESOF :
-    Msg(ERROR, "de Rham Map on DualFacetsOf and DualVolumesOf not done") ;
+    Msg(GERROR, "de Rham Map on DualFacetsOf and DualVolumesOf not done") ;
     break ;
 
 
@@ -311,18 +311,18 @@ void Get_deRhamCells(struct Element *Element,
       break;
 
     default :
-      Msg(ERROR, "Unknown Element type for BoundaryOfDualNodesOf");
+      Msg(GERROR, "Unknown Element type for BoundaryOfDualNodesOf");
       break;
 
     }
     break;
 
   case BOUNDARYOFDUALEDGESOF :
-    Msg(ERROR, "de Rham Map on BoundaryOfDualEdgesOf not done") ;
+    Msg(GERROR, "de Rham Map on BoundaryOfDualEdgesOf not done") ;
     break;
 
   default:
-    Msg(ERROR, "Unknown type of Entity in de Rham Map");
+    Msg(GERROR, "Unknown type of Entity in de Rham Map");
     break;
   }
 
@@ -368,7 +368,7 @@ void Get_IntegrationCells(struct Element *Element,
     break;
 
   default :
-    Msg(ERROR, "Unknown Element type for Get_IntegrationCells");
+    Msg(GERROR, "Unknown Element type for Get_IntegrationCells");
     break;
 
   }

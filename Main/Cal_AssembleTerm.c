@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AssembleTerm.c,v 1.21 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Cal_AssembleTerm.c,v 1.22 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -198,7 +198,7 @@ void  Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
   GetDP_Begin("Cal_AssembleTerm_DtNL");
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Msg(ERROR, "DtNL not ready for separate assembly");
+    Msg(GERROR, "DtNL not ready for separate assembly");
   }
   else {
     if (Current.NbrHar == 1) {
@@ -219,12 +219,12 @@ void  Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
 			  &Current.DofData->b) ;
 	break ;
       case TIME_NEWMARK :
-	Msg(ERROR, "DtNL not ready for separate assembly with TimeLoopNewmark");
+	Msg(GERROR, "DtNL not ready for separate assembly with TimeLoopNewmark");
 	break ;
       }
     }
     else {
-      Msg(ERROR, "DtNL not ready for separate assembly for Complex type");
+      Msg(GERROR, "DtNL not ready for separate assembly for Complex type");
       /*
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	tmp[0] = -Val[k+1] * Current.DofData->Val_Pulsation[k/2] ;
@@ -333,7 +333,7 @@ void  Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
   GetDP_Begin("Cal_AssembleTerm_JacNL");
   
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Msg(ERROR, "JacNL not ready for separate assembly");
+    Msg(GERROR, "JacNL not ready for separate assembly");
   }
   else{
     if (Current.NbrHar == 1) {
@@ -344,7 +344,7 @@ void  Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[]) {
 			  &Current.DofData->Jac, NULL) ;
 	break ;
       case TIME_NEWMARK :
-	Msg(ERROR, "JacNL not ready for Newmark");
+	Msg(GERROR, "JacNL not ready for Newmark");
 	break ;
       }
     }
@@ -370,7 +370,7 @@ void  Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
   GetDP_Begin("Cal_AssembleTerm_NeverDt");
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Msg(ERROR, "NeverDt not ready for separate assembly");
+    Msg(GERROR, "NeverDt not ready for separate assembly");
   }
   else{
     if (Current.NbrHar == 1) {

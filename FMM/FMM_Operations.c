@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Operations.c,v 1.14 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: FMM_Operations.c,v 1.15 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -508,7 +508,7 @@ void FMM_Scaling(double *rowscal, double *colscal, int N){
 #if defined(HAVE_SPARSKIT)
       x_prev = ((Current.DofData->CurrentSolution-1)->x).V ;
 #else
-      Msg(ERROR, "FMM_Scaling only implemented for Sparskit");
+      Msg(GERROR, "FMM_Scaling only implemented for Sparskit");
 #endif
       if (!Flag_scaled){
 	for (i = 0 ; i < N ; i++)
@@ -789,7 +789,7 @@ void FMMProd_AllLaplace2D(struct FMMmat *FMMmat_P, double *x, double *y ){
 #if defined(HAVE_SPARSKIT)
     x_prev = ((Current.DofData->CurrentSolution-1)->x).V ;
 #else
-    Msg(ERROR, "FMM_Scaling only implemented for Sparskit");
+    Msg(GERROR, "FMM_Scaling only implemented for Sparskit");
 #endif
 
 
@@ -915,7 +915,7 @@ void FMMProd_AllLaplace3D(struct FMMmat *FMMmat_P, double *x, double *y ){
 #if defined(HAVE_SPARSKIT)
     x_prev = ((Current.DofData->CurrentSolution-1)->x).V ;
 #else
-    Msg(ERROR, "FMM_Scaling only implemented for Sparskit");
+    Msg(GERROR, "FMM_Scaling only implemented for Sparskit");
 #endif
 
   

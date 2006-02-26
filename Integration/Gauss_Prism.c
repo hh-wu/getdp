@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Prism.c,v 1.10 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Prism.c,v 1.11 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -50,7 +50,7 @@ void  Gauss_Prism      (int Nbr_Points, int Num,
     
   default : 
     Msg(DIRECT, ERROR_STR "Wrong number of Gauss points for Prism");
-    Msg(ERROR, "Valid choices: 6, 9, 21, 42");
+    Msg(GERROR, "Valid choices: 6, 9, 21, 42");
     break;
 
   }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: CSR.c,v 1.13 2006-02-25 15:00:25 geuzaine Exp $"
+#define RCSID "$Id: CSR.c,v 1.14 2006-02-26 00:42:59 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -127,7 +127,7 @@ static void sort2(unsigned long n, double arr[], int ai[] , int aj []){
       aj[j M1]=c;
       jstack += 2;
       if (jstack > NSTACK) {
-	Msg(ERROR, "NSTACK too small in sort2");
+	Msg(GERROR, "NSTACK too small in sort2");
       }
       if (ir-i+1 >= j-l) {
 	istack[jstack]=ir;

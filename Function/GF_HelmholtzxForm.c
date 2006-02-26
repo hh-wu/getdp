@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_HelmholtzxForm.c,v 1.7 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: GF_HelmholtzxForm.c,v 1.8 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -172,13 +172,13 @@ void GF_HelmholtzxForm (F_ARG2) {
       break ;
     
       default :
-	Msg(ERROR, "Unknown Element Type (%s) for 'GF_HelmholtzxForm'",
+	Msg(GERROR, "Unknown Element Type (%s) for 'GF_HelmholtzxForm'",
 	    Get_StringForDefine(Element_Type, Element->ElementSource->Type));
       }
       break ;
 
     default :
-      Msg(ERROR, "Unknown Dimension (%d) for 'GF_HelmholtzxForm'", 
+      Msg(GERROR, "Unknown Dimension (%d) for 'GF_HelmholtzxForm'", 
 	  (int)Fct->Para[0]);
     
     }

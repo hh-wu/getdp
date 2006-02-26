@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.57 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.58 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -308,11 +308,11 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	if (i<argc && argv[i][0]!='-') { 
 	  Flag_SOCKET = Gmsh_Connect(argv[i]) ;
 	  if(Flag_SOCKET == -1)
-	    Msg(ERROR, "Couldn't create socket %s", argv[i]);
+	    Msg(GERROR, "Couldn't create socket %s", argv[i]);
 	  else if(Flag_SOCKET == -2)
-	    Msg(ERROR, "Couldn't connect to socket %s", argv[i]);
+	    Msg(GERROR, "Couldn't connect to socket %s", argv[i]);
 	  else if(Flag_SOCKET == -3)
-	    Msg(ERROR, "No such host %s", argv[i]);
+	    Msg(GERROR, "No such host %s", argv[i]);
 	  else{
 #if !defined(WIN32) || defined(__CYGWIN__)
 	    sprintf(pid, "%d", getpid());
@@ -324,7 +324,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing socket name");
+	  Msg(GERROR, "Missing socket name");
 	}
       }
 
@@ -340,7 +340,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Flag_VERBOSE = atoi(argv[i]) ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing number");
+	  Msg(GERROR, "Missing number");
 	}
       } 
 
@@ -366,7 +366,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Flag_PROGRESS = atoi(argv[i]) ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing number");
+	  Msg(GERROR, "Missing number");
 	}
       } 
 
@@ -390,7 +390,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Flag_ORDER = atof(argv[i]) ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing interpolation order") ;
+	  Msg(GERROR, "Missing interpolation order") ;
 	}
       }
 
@@ -402,7 +402,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Flag_PAR = atoi(argv[i]) ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing number of partitions") ;
+	  Msg(GERROR, "Missing number of partitions") ;
 	}
       }
 
@@ -430,7 +430,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  while (i<argc && argv[i][0]!='-') { 
 	    Name_PostOperation[j] = argv[i] ; i++ ; j++ ;
 	    if(j == NBR_MAX_POS)
-	      Msg(ERROR, "Too many PostOperations");
+	      Msg(GERROR, "Too many PostOperations");
 	  }
 	  if(!j){
 	    Flag_POS = Flag_LPOS = 1 ;
@@ -449,7 +449,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	while (i<argc && argv[i][0]!='-') { 
 	  Name_PostProcessing[j] = argv[i] ; i++ ; j++ ;
 	  if(j == NBR_MAX_POS)
-	    Msg(ERROR, "Too many PostProcessings");
+	    Msg(GERROR, "Too many PostProcessings");
 	}
 	if(!j){
 	  Flag_IPOS = Flag_POS = Flag_LIPOS = 1 ;
@@ -468,7 +468,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Name_MshFile = argv[i] ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing file name");
+	  Msg(GERROR, "Missing file name");
 	}
       }
 
@@ -480,7 +480,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  Name_AdaptFile = argv[i] ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing file name");
+	  Msg(GERROR, "Missing file name");
 	}
       }
 
@@ -489,10 +489,10 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	while (i<argc && argv[i][0]!='-') { 
 	  Name_ResFile[j] = argv[i] ; i++ ; j++ ;
 	  if(j == NBR_MAX_RES)
-	    Msg(ERROR, "Too many '.res' files");
+	    Msg(GERROR, "Too many '.res' files");
 	}
 	if(!j)
-	  Msg(ERROR, "Missing file name");
+	  Msg(GERROR, "Missing file name");
 	else{
 	  Name_ResFile[j] = NULL ;
 	}
@@ -504,7 +504,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  strcpy(Name_Generic, argv[i]) ; i++ ; 
 	}
 	else {
-	  Msg(ERROR, "Missing string");
+	  Msg(GERROR, "Missing string");
 	}
       }
 
@@ -527,7 +527,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
   }
   
   if(!strlen(Name_ProFile))
-    Msg(ERROR, "Missing input file name");
+    Msg(GERROR, "Missing input file name");
   else{
     if(!strlen(Name_Generic)){
       strcpy(Name_Generic, Name_ProFile) ;
@@ -607,7 +607,7 @@ void  Read_ProblemStructure (char * Name){
 
   Msg(LOADING, "Problem definition '%s'", AbsPath) ;
 
-  if(!(yyin = fopen(AbsPath, "r"))) Msg(ERROR, "Unable to open file '%s'", AbsPath);
+  if(!(yyin = fopen(AbsPath, "r"))) Msg(GERROR, "Unable to open file '%s'", AbsPath);
 
   ErrorLevel = 0 ;  yylinenum = 1 ; yyincludenum=0 ; strcpy(yyname, AbsPath) ;
 

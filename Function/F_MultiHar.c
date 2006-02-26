@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_MultiHar.c,v 1.25 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: F_MultiHar.c,v 1.26 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -66,7 +66,7 @@ int NbrValues_Type (int Type){
   case TENSOR_SYM : return 6 ;
   case TENSOR : return 9 ;
   default :
-    Msg(ERROR, "Unknown type in NbrValues_Type");
+    Msg(GERROR, "Unknown type in NbrValues_Type");
     return 0;
   }
 }
@@ -103,7 +103,7 @@ void  * Get_RealProductFunction_Type1xType2xType1 (int Type1, int Type2) {
   } else if (Type1 == VECTOR && Type1 == SCALAR) {
     GetDP_Return((void *)Product_VECTORxSCALARxVECTOR) ;
   } else {
-    Msg(ERROR, "Not allowed types in Get_RealProductFunction_Type1xType2xType1");
+    Msg(GERROR, "Not allowed types in Get_RealProductFunction_Type1xType2xType1");
     GetDP_Return(NULL) ;
   }
 
@@ -290,9 +290,9 @@ void  F_MHToTime (struct Function * Fct, struct Value * A, struct Value * V) {
 
   GetDP_Begin("F_MHToTime");
 
-  if (Current.NbrHar == 1) Msg(ERROR, "'F_MHToTime' only for Multi-Harmonic stuff") ;
+  if (Current.NbrHar == 1) Msg(GERROR, "'F_MHToTime' only for Multi-Harmonic stuff") ;
   if((A+1)->Type != SCALAR)			
-    Msg(ERROR, "'F_MHToTime' requires second scalar argument (time)");	
+    Msg(GERROR, "'F_MHToTime' requires second scalar argument (time)");	
   time = (A+1)->Val[0] ;
 
   for (iHar = 0 ; iHar < Current.NbrHar/2 ; iHar++) {
@@ -411,14 +411,14 @@ void  Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationT
 
   /* check if Galerkin term produces symmetrical contribution to system matrix */
   if (!FI->SymmetricalMatrix) 
-     Msg(ERROR, "Galerkin term with MHJacNL must be symmetrical");
+     Msg(GERROR, "Galerkin term with MHJacNL must be symmetrical");
   
   if (List_Nbr(WholeQuantity_L) == 3){
     if (i_WQ != 0 || 
 	EquationTerm_P->Case.LocalTerm.Term.DofIndexInWholeQuantity != 1 ||
 	(WholeQuantity_P0 + 2)->Type != WQ_BINARYOPERATOR ||
 	(WholeQuantity_P0 + 2)->Case.Operator.TypeOperator != OP_TIME)
-      Msg(ERROR, "Not allowed expression in Galerkin term with MHJacNL");
+      Msg(GERROR, "Not allowed expression in Galerkin term with MHJacNL");
     FI->MHJacNL_Factor = 1.; 
   } else if (List_Nbr(WholeQuantity_L) == 5){
     if ((WholeQuantity_P0 + 0)->Type != WQ_CONSTANT ||
@@ -428,19 +428,19 @@ void  Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationT
 	EquationTerm_P->Case.LocalTerm.Term.DofIndexInWholeQuantity != 3 ||
 	(WholeQuantity_P0 + 4)->Type != WQ_BINARYOPERATOR ||
 	(WholeQuantity_P0 + 4)->Case.Operator.TypeOperator != OP_TIME)
-      Msg(ERROR, "Not allowed expression in Galerkin term with MHJacNL");
+      Msg(GERROR, "Not allowed expression in Galerkin term with MHJacNL");
     FI->MHJacNL_Factor = WholeQuantity_P0->Case.Constant ;
     /* printf(" Factor = %e \n" , FI->MHJacNL_Factor); */
   } else {
-    Msg(ERROR, "Not allowed expression in Galerkin term with MHJacNL (%d terms) ", 
+    Msg(GERROR, "Not allowed expression in Galerkin term with MHJacNL (%d terms) ", 
 	List_Nbr(WholeQuantity_L));
   }
 
   if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE) 
-    Msg(ERROR, "Not allowed expression in Galerkin term with MHJacNL");
+    Msg(GERROR, "Not allowed expression in Galerkin term with MHJacNL");
     
   if (EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative != JACNL_)
-    Msg(ERROR, "MHJacNL can only be used with JACNL") ;
+    Msg(GERROR, "MHJacNL can only be used with JACNL") ;
 
   FI->MHJacNL = 1 ;
   FI->MHJacNL_Index  = (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index ;
@@ -544,7 +544,7 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 		  ->InitialList, &Element->Region, fcmp_int) ) i++ ;
 
   if (i == FI->NbrJacobianCase)
-    Msg(ERROR, "Undefined Jacobian in Region %d", Element->Region);
+    Msg(GERROR, "Undefined Jacobian in Region %d", Element->Region);
 
   Element->JacobianCase = FI->JacobianCase_P0 + i ;
 
@@ -563,14 +563,14 @@ void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
 
   switch (IntegrationCase_P->Type) {    
   case ANALYTIC :
-    Msg(ERROR, "Analytical integration not implemented for MHJacNL");
+    Msg(GERROR, "Analytical integration not implemented for MHJacNL");
   }  
 
   Quadrature_P = (struct Quadrature*)
     List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
   
   if(!Quadrature_P)
-    Msg(ERROR, "Unknown type of Element (%s) for Integration method (%s)",
+    Msg(GERROR, "Unknown type of Element (%s) for Integration method (%s)",
 	Get_StringForDefine(Element_Type, Element->Type),
 	((struct IntegrationMethod *)
 	 List_Pointer(Problem_S.IntegrationMethod,

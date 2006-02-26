@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.29 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: GeoData.c,v 1.30 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -135,7 +135,7 @@ void  Geo_OpenFile(char * Name, char * Mode) {
 
   File_GEO = fopen(Name, Mode) ;
 
-  if (!File_GEO) Msg(ERROR, "Unable to open file '%s'", Name);
+  if (!File_GEO) Msg(GERROR, "Unable to open file '%s'", Name);
 
   GetDP_End ;
 }
@@ -181,11 +181,11 @@ int Geo_GetElementType(int Format, int Type){
     case 12 : GetDP_Return(HEXAHEDRON_2) ;
     case 13 : GetDP_Return(PRISM_2) ;
     case 14 : GetDP_Return(PYRAMID_2) ;
-    default : Msg(ERROR, "Unkown type of Element in Gmsh format") ; GetDP_Return(-1) ;
+    default : Msg(GERROR, "Unkown type of Element in Gmsh format") ; GetDP_Return(-1) ;
     }
     break ;
   default :
-    Msg(ERROR, "Unkown mesh format") ;
+    Msg(GERROR, "Unkown mesh format") ;
     GetDP_Return(-1) ;
   }
 
@@ -214,11 +214,11 @@ int Geo_GetElementTypeInv(int Format, int Type){
     case HEXAHEDRON_2  : GetDP_Return(12) ;
     case PRISM_2       : GetDP_Return(13) ;
     case PYRAMID_2     : GetDP_Return(14) ;
-    default : Msg(ERROR, "Unkown type of Element in Gmsh format") ; GetDP_Return(-1) ;
+    default : Msg(GERROR, "Unkown type of Element in Gmsh format") ; GetDP_Return(-1) ;
     }
     break ;
   default :
-    Msg(ERROR, "Unkown mesh format") ;
+    Msg(GERROR, "Unkown mesh format") ;
     GetDP_Return(-1) ;
   }
 
@@ -244,7 +244,7 @@ int Geo_GetNbNodesPerElement(int Type){
   case HEXAHEDRON_2  : GetDP_Return(20) ;
   case PRISM_2       : GetDP_Return(15) ;
   case PYRAMID_2     : GetDP_Return(13) ;
-  default : Msg(ERROR, "Unkown type of Element") ; GetDP_Return(-1) ;
+  default : Msg(GERROR, "Unkown type of Element") ; GetDP_Return(-1) ;
   }
 
 }
@@ -334,7 +334,7 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
       fscanf(File_GEO, "%lf %d %d\n", &Version, &Format, &Size);
       if(Version != 2.0){
-	Msg(ERROR, "Unknown mesh file version (%g)", Version);
+	Msg(GERROR, "Unknown mesh file version (%g)", Version);
 	return;
       }
 
@@ -442,7 +442,7 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 
     do {
       fgets(String, MAX_STRING_LENGTH, File_GEO) ;
-      if (feof(File_GEO)) Msg(ERROR, "Prematured end of file");
+      if (feof(File_GEO)) Msg(GERROR, "Prematured end of file");
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -486,7 +486,7 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
 	fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) ;
 	if(!(Geo_Element_P = (struct Geo_Element *)
 	     List_PQuery(GeoData_P->Elements, &Geo_Element, fcmp_Elm)))
-	  Msg(ERROR, "Element %d not found in database", Geo_Element.Num) ;
+	  Msg(GERROR, "Element %d not found in database", Geo_Element.Num) ;
 	Index_GeoElement = Geo_GetGeoElementIndex(Geo_Element_P) ;
 	GeoData_P->H[Index_GeoElement+1] = H ;
 	GeoData_P->P[Index_GeoElement+1] = P ;
@@ -496,7 +496,7 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) {
 
     do {
       fgets(String, MAX_STRING_LENGTH, File_GEO) ;
-      if (feof(File_GEO)) Msg(ERROR, "Prematured end of file");
+      if (feof(File_GEO)) Msg(GERROR, "Prematured end of file");
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -633,7 +633,7 @@ void Geo_GetNodesCoordinates(int Nbr_Node, int * Num_Node,
 
     if(!(Geo_Node_P = (struct Geo_Node*)
 	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
-      Msg(ERROR, "Node %d does not exist", Geo_Node.Num) ;
+      Msg(GERROR, "Node %d does not exist", Geo_Node.Num) ;
     
     x[i] = Geo_Node_P->x ;  y[i] = Geo_Node_P->y ;  z[i] = Geo_Node_P->z ;
   }
@@ -658,7 +658,7 @@ void Geo_SetNodesCoordinates(int Nbr_Node, int * Num_Node,
 
     if(!(Geo_Node_P = (struct Geo_Node*)
 	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
-      Msg(ERROR, "Node %d does not exist", Geo_Node.Num) ;
+      Msg(GERROR, "Node %d does not exist", Geo_Node.Num) ;
     
     Geo_Node_P->x = x[i] ;  Geo_Node_P->y = y[i] ;  Geo_Node_P->z = z[i] ;
   }
@@ -679,7 +679,7 @@ void Geo_SetNodesCoordinatesX(int Nbr_Node, int * Num_Node,
 
     if(!(Geo_Node_P = (struct Geo_Node*)
 	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
-      Msg(ERROR, "Node %d does not exist", Geo_Node.Num) ;
+      Msg(GERROR, "Node %d does not exist", Geo_Node.Num) ;
     
     Geo_Node_P->x = x[i] ;
   }
@@ -700,7 +700,7 @@ void Geo_SetNodesCoordinatesY(int Nbr_Node, int * Num_Node,
 
     if(!(Geo_Node_P = (struct Geo_Node*)
 	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
-      Msg(ERROR, "Node %d does not exist", Geo_Node.Num) ;
+      Msg(GERROR, "Node %d does not exist", Geo_Node.Num) ;
     
     Geo_Node_P->y = y[i] ;
   }
@@ -720,7 +720,7 @@ void Geo_SetNodesCoordinatesZ(int Nbr_Node, int * Num_Node,
 
     if(!(Geo_Node_P = (struct Geo_Node*)
 	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
-      Msg(ERROR, "Node %d does not exist", Geo_Node.Num) ;
+      Msg(GERROR, "Node %d does not exist", Geo_Node.Num) ;
     
     Geo_Node_P->z = z[i] ;
   }

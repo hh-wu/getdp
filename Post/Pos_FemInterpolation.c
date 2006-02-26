@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_FemInterpolation.c,v 1.20 2006-02-25 15:00:25 geuzaine Exp $"
+#define RCSID "$Id: Pos_FemInterpolation.c,v 1.21 2006-02-26 00:42:59 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -47,7 +47,7 @@ int SearchType(int type){
   case HEXAHEDRON  :
   case PRISM       :
   case PYRAMID     : GetDP_Return(_3D) ;
-  default          : Msg(ERROR, "Unknown Type in 'SearchType'"); GetDP_Return(-1) ;
+  default          : Msg(GERROR, "Unknown Type in 'SearchType'"); GetDP_Return(-1) ;
   }
 }
 
@@ -107,10 +107,10 @@ void  Pos_FemInterpolation(struct Element * Element,
   if(SubType_DefineQuantity != NODOF) {
 
     if(!QuantityStorage_P->FunctionSpace)
-      Msg(ERROR, "No available function space for quantity");
+      Msg(GERROR, "No available function space for quantity");
 
     if(!QuantityStorage_P->FunctionSpace->DofData)
-      Msg(ERROR, "No available data to interpolate quantity");
+      Msg(GERROR, "No available data to interpolate quantity");
 
     GeoDataNum = QuantityStorage_P->FunctionSpace->DofData->GeoDataIndex;
     UseNewGeo = (GeoDataNum != Current.GeoData->Num) ;
@@ -176,7 +176,7 @@ void  Pos_FemInterpolation(struct Element * Element,
   else if (Type_DefineQuantity == INTEGRALQUANTITY) {
 
     if(Type_Operator != NOOP){
-      Msg(ERROR, "Operator acting on Integral Quantity");
+      Msg(GERROR, "Operator acting on Integral Quantity");
     }
     Type_Form = VECTOR ;
     Get_InitElementSource(TheElement_P,
@@ -395,7 +395,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	break ;
 	
       default :
-	Msg(ERROR, "Unknown Form type in 'Pos_FemInterpolation'");
+	Msg(GERROR, "Unknown Form type in 'Pos_FemInterpolation'");
 	break;
       }
       
@@ -452,7 +452,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	  break ;
 	  
 	default :
-	  Msg(ERROR, "Unknown Form type in 'Pos_FemInterpolation'");
+	  Msg(GERROR, "Unknown Form type in 'Pos_FemInterpolation'");
 	  break;
 	}
 	
@@ -536,7 +536,7 @@ void  Pos_FemInterpolation(struct Element * Element,
 	  break ;
 	  
 	default :
-	  Msg(ERROR, "Unknown Form type in 'Pos_FemInterpolation'");
+	  Msg(GERROR, "Unknown Form type in 'Pos_FemInterpolation'");
 	  break;
 	}
 	

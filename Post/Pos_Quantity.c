@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.19 2006-02-25 15:00:25 geuzaine Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.20 2006-02-26 00:42:59 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -370,7 +370,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 	      ->InitialList, &Element->Region, fcmp_int) )  i++ ;
 
       if (i == List_Nbr(JacobianCase_L))
-	Msg(ERROR, "Undefined Jacobian in Region %d", Element->Region) ;
+	Msg(GERROR, "Undefined Jacobian in Region %d", Element->Region) ;
 
       Element->JacobianCase = JacobianCase_P0 + i ;
       Get_Jacobian = (double (*)(struct Element*, MATRIX3x3*))
@@ -414,10 +414,10 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
   else if(PostQuantityTerm_P->EvaluationType == INTEGRAL){
 
     if(Element->Num == NO_ELEMENT)
-      Msg(ERROR, "No element in which to integrate");
+      Msg(GERROR, "No element in which to integrate");
 
     if(PostQuantityTerm_P->IntegrationMethodIndex < 0)
-      Msg(ERROR, "Missing Integration method in PostProcesssing Quantity '%s'", 
+      Msg(GERROR, "Missing Integration method in PostProcesssing Quantity '%s'", 
 	  PostQuantity_P->Name);
     
     IntegrationCase_L = 
@@ -436,14 +436,14 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 					    CriterionIndex) ;
     
     if(IntegrationCase_P->Type != GAUSS)
-      Msg(ERROR, "Only numerical integration is available "
+      Msg(GERROR, "Only numerical integration is available "
 	  "in Integral PostQuantities");
     
     Quadrature_P = (struct Quadrature*)
       List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
     
     if(!Quadrature_P)
-      Msg(ERROR, "Unknown type of Element (%s) for Integration method (%s) "
+      Msg(GERROR, "Unknown type of Element (%s) for Integration method (%s) "
 	  " in PostProcessing Quantity (%s)", 
 	  Get_StringForDefine(Element_Type, Element->Type),
 	  ((struct IntegrationMethod *)

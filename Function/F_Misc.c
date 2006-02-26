@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.30 2006-02-25 19:08:02 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.31 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -73,7 +73,7 @@ void  F_Normal(F_ARG) {
   GetDP_Begin("F_Normal");
 
   if(!Current.Element || Current.Element->Num == NO_ELEMENT)
-    Msg(ERROR, "No element on which to compute 'F_Normal'");
+    Msg(GERROR, "No element on which to compute 'F_Normal'");
 
   Geo_CreateNormal(Current.Element->Type, 
 		   Current.Element->x, 
@@ -105,7 +105,7 @@ void  F_NormalSource(F_ARG) {
   GetDP_Begin("F_NormalSource");
 
   if(!Current.ElementSource || Current.ElementSource->Num == NO_ELEMENT)
-    Msg(ERROR, "No element on which to compute 'F_NormalSource'");
+    Msg(GERROR, "No element on which to compute 'F_NormalSource'");
 
   Geo_CreateNormal(Current.ElementSource->Type, 
 		   Current.ElementSource->x, 
@@ -139,7 +139,7 @@ void  F_Tangent(F_ARG) {
   GetDP_Begin("F_Tangent");
 
   if(!Current.Element || Current.Element->Num == NO_ELEMENT)
-    Msg(ERROR, "No element on which to compute 'F_Tangent'");
+    Msg(GERROR, "No element on which to compute 'F_Tangent'");
 
   switch (Current.Element->Type) {
    
@@ -154,7 +154,7 @@ void  F_Tangent(F_ARG) {
     break ;
 
   default :
-    Msg(ERROR, "Function 'Tangent' only valid for Line Elements");
+    Msg(GERROR, "Function 'Tangent' only valid for Line Elements");
   }
 
   if (Current.NbrHar != 1) {
@@ -184,7 +184,7 @@ void  F_CompElementNum (F_ARG) {
   GetDP_Begin("F_CompElementNum");
 
   if(!Current.Element || !Current.ElementSource)
-    Msg(ERROR, "Uninitialized Element in 'F_CompElementNum'");
+    Msg(GERROR, "Uninitialized Element in 'F_CompElementNum'");
 
   V->Type = SCALAR ;
   V->Val[0] = (Current.Element->Num == Current.ElementSource->Num) ;
@@ -230,7 +230,7 @@ void F_ElementVol (F_ARG) {
     Vol = JacobianVol3D(Current.Element,&Jac) ;
     break;
   default :
-    Msg(ERROR, "F_ElementVol not implemented for %s",
+    Msg(GERROR, "F_ElementVol not implemented for %s",
 	Get_StringForDefine(Element_Type, Current.Element->Type));
   }
 
@@ -310,7 +310,7 @@ void  F_SurfaceArea (F_ARG) {
 
 	}
 	else {
-	  Msg(ERROR, "Function 'SurfaceArea' only valid for Triangle or Quandrangle Elements");
+	  Msg(GERROR, "Function 'SurfaceArea' only valid for Triangle or Quandrangle Elements");
 	}
       }
     }
@@ -340,19 +340,19 @@ void  F_SurfaceArea (F_ARG) {
 /* All the following should really be rewritten and generalized... */
 
 void  F_TransformTensor (F_ARG) {
-  Msg(ERROR, "Tuan's routines are not available with the GSL");
+  Msg(GERROR, "Tuan's routines are not available with the GSL");
 }
 
 void  F_TransformPerm (F_ARG) {
-  Msg(ERROR, "Tuan's routines are not available with the GSL");
+  Msg(GERROR, "Tuan's routines are not available with the GSL");
 }
 
 void  F_TransformPiezo (F_ARG) {
-  Msg(ERROR, "Tuan's routines are not available with the GSL");
+  Msg(GERROR, "Tuan's routines are not available with the GSL");
 }
 
 void  F_TransformPiezoT (F_ARG) {
-  Msg(ERROR, "Tuan's routines are not available with the GSL");
+  Msg(GERROR, "Tuan's routines are not available with the GSL");
 }
 
 #else
@@ -553,7 +553,7 @@ void  F_TransformTensor (F_ARG) {
       ( (A+1)->Type != TENSOR && (A+1)->Type != TENSOR_SYM && (A+1)->Type != TENSOR_DIAG ) ||
       ( (A+2)->Type != TENSOR && (A+2)->Type != TENSOR_SYM && (A+2)->Type != TENSOR_DIAG ) ||
       ( (A+3)->Type != TENSOR && (A+3)->Type != TENSOR_SYM && (A+3)->Type != TENSOR_DIAG ) )
-    Msg(ERROR, "Function 'TransformTensor' requires 4 Tensors on input (NOT %s %s %s %s)",
+    Msg(GERROR, "Function 'TransformTensor' requires 4 Tensors on input (NOT %s %s %s %s)",
                Get_StringForDefine(Field_Type,(A+0)->Type),
                Get_StringForDefine(Field_Type,(A+1)->Type),
                Get_StringForDefine(Field_Type,(A+2)->Type),
@@ -717,7 +717,7 @@ void  F_TransformPerm (F_ARG) {
   Gamma = Fct->Para[2];
   
   if ( A->Type != TENSOR && A->Type != TENSOR_SYM && A->Type != TENSOR_DIAG )
-    Msg(ERROR, "Wrong type of argument for function 'TransformTensor2' (NOT %s) ",
+    Msg(GERROR, "Wrong type of argument for function 'TransformTensor2' (NOT %s) ",
 	Get_StringForDefine(Field_Type,A->Type));
   
   for(i=0;i<N;i++)
@@ -808,7 +808,7 @@ void  F_TransformPiezo (F_ARG) {
 
   if( ( (A+0)->Type != TENSOR && (A+0)->Type != TENSOR_SYM && (A+0)->Type != TENSOR_DIAG ) ||
       ( (A+1)->Type != TENSOR && (A+1)->Type != TENSOR_SYM && (A+1)->Type != TENSOR_DIAG ) )
-    Msg(ERROR, "Function 'TransformTensor' requires 2 Tensors on input (NOT %s %s )",
+    Msg(GERROR, "Function 'TransformTensor' requires 2 Tensors on input (NOT %s %s )",
                Get_StringForDefine(Field_Type,(A+0)->Type),
                Get_StringForDefine(Field_Type,(A+1)->Type) );
 
@@ -927,7 +927,7 @@ void  F_TransformPiezoT (F_ARG) {
 
   if( ( (A+0)->Type != TENSOR && (A+0)->Type != TENSOR_SYM && (A+0)->Type != TENSOR_DIAG ) ||
       ( (A+1)->Type != TENSOR && (A+3)->Type != TENSOR_SYM && (A+3)->Type != TENSOR_DIAG ) )
-    Msg(ERROR, "Function 'TransformTensor' requires 2 Tensors on input (NOT %s %s )",
+    Msg(GERROR, "Function 'TransformTensor' requires 2 Tensors on input (NOT %s %s )",
                Get_StringForDefine(Field_Type,(A+0)->Type),
                Get_StringForDefine(Field_Type,(A+1)->Type) );
 

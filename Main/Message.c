@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.79 2006-02-25 19:08:02 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.80 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -21,10 +21,12 @@
  */
 
 #include <signal.h>
-#include <sys/time.h>
 
 #if !defined (WIN32) || defined(__CYGWIN__)
+#include <sys/time.h>
 #include <sys/resource.h>
+#else
+#include <windows.h>
 #endif
 
 #if defined(__APPLE__)
@@ -159,7 +161,7 @@ void Signal (int sig_num){
 	Msg(BIGINFO, "Switching to low verbosity mode"); 
 	Flag_VERBOSE = 1;
       }
-      else Msg(ERROR, "Interrupt (generated from terminal special character)"); 
+      else Msg(GERROR, "Interrupt (generated from terminal special character)"); 
     }
     else
       InteractiveInterrupt = 1;
@@ -173,7 +175,7 @@ void Signal (int sig_num){
     Msg(BIGERROR, "Floating point exception (division by zero?)");
     break;
   default :
-    Msg(ERROR, "Unknown signal");
+    Msg(GERROR, "Unknown signal");
     break;
   }
 }
@@ -212,7 +214,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
 
   switch(level){
   case CHECK     : verb = 0; nl = 0; str = NULL; break;
-  case ERROR     : /* fall-through */
+  case GERROR    : /* fall-through */
   case BIGERROR  : verb = 0; nl = 1; str = ERROR_STR; *abort = 1; break;
   case WARNING   : verb = 0; nl = 1; str = WARNING_STR; break;
   case OPERATION : verb = 2; nl = 1; str = OPERATION_STR; break;
@@ -239,7 +241,7 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
       if(!nl) sockmsg[strlen(sockmsg)-1] = '\0' ;
       strcat(prefix, sockmsg);
       switch(level){
-      case ERROR    : /* fall-through */
+      case GERROR   : /* fall-through */
       case BIGERROR : gmshlevel = GMSH_CLIENT_ERROR; break;
       case WARNING  : gmshlevel = GMSH_CLIENT_WARNING; break;
       default       : gmshlevel = GMSH_CLIENT_INFO; break;
@@ -272,49 +274,52 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
   fflush(stream);
 }
 
-void GetResources(long *s, long *us, long *mem){
-#if !defined (WIN32) || defined(__CYGWIN__)
+void GetResources(double *s, long *mem)
+{
+#if !defined(WIN32) || defined(__CYGWIN__)
   static struct rusage r;
-
-  getrusage(RUSAGE_SELF,&r);
-  *s   = (long)r.ru_utime.tv_sec ;
-  *us  = (long)r.ru_utime.tv_usec ;
-  *mem = (long)r.ru_maxrss ;
+  getrusage(RUSAGE_SELF, &r);
+  *s = (double)r.ru_utime.tv_sec + 1.e-6 * (double)r.ru_utime.tv_usec;
+  *mem = (long)r.ru_maxrss;
 #else
-  *s = *us = *mem = 0 ;
+  FILETIME creation, exit, kernel, user;
+  if(GetProcessTimes(GetCurrentProcess(), &creation, &exit, &kernel, &user)){
+    *s = 1.e-7 * 4294967296. * (double)user.dwHighDateTime +
+         1.e-7 * (double)user.dwLowDateTime;
+  }
+  *mem = 0;
 #endif
 }
 
-void PrintResources(FILE *stream, char *fmt, long s, long us, long mem){
-#if !defined (WIN32) || defined(__CYGWIN__)
+void PrintResources(FILE *stream, char *fmt, double s, long mem){
   char sockmsg[1000];
   if(Flag_SOCKET > 0){
-    sprintf(sockmsg, RESOURCES_STR "%scpu %ld.%ld s / mem %ld kb\n", fmt, s, us, mem);
+    sprintf(sockmsg, RESOURCES_STR "%scpu %g s / mem %ld kb\n", fmt, s, mem);
     Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_INFO, sockmsg);
   }
   else{
     fprintf(stream, RESOURCES_STR) ;
-    fprintf(stream, "%scpu %ld.%ld s / mem %ld kb\n", fmt, s, us, mem);
+    fprintf(stream, "%scpu %g s / mem %ld kb\n", fmt, s, mem);
   }
-#endif
 }
 
 void Msg(int level, char *fmt, ...){
   va_list  args;
   int      abort = 0;
-  long     s, us, mem ;
+  double   s;
+  long     mem ;
 
   if(Current.RankCpu && level != PETSC) return ;
 
   if(level == RESOURCES){
-    if(Flag_LOG || Flag_VERBOSE > 3) GetResources(&s, &us, &mem) ;
-    if(Flag_VERBOSE > 3) PrintResources(stderr, fmt, s, us, mem) ;
-    if(Flag_LOG) PrintResources(LogStream, fmt, s, us, mem) ;
+    if(Flag_LOG || Flag_VERBOSE > 3) GetResources(&s, &mem) ;
+    if(Flag_VERBOSE > 3) PrintResources(stderr, fmt, s, mem) ;
+    if(Flag_LOG) PrintResources(LogStream, fmt, s, mem) ;
   }
   else if(level == SUMMARY){
-    if(Flag_LOG || Flag_VERBOSE > 0) GetResources(&s, &us, &mem) ;
-    if(Flag_VERBOSE > 0) PrintResources(stderr, fmt, s, us, mem) ;
-    if(Flag_LOG) PrintResources(LogStream, fmt, s, us, mem) ;
+    if(Flag_LOG || Flag_VERBOSE > 0) GetResources(&s, &&mem) ;
+    if(Flag_VERBOSE > 0) PrintResources(stderr, fmt, s, mem) ;
+    if(Flag_LOG) PrintResources(LogStream, fmt, s, mem) ;
   }
   else{
     va_start (args, fmt);

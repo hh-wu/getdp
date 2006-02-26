@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.10 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: FMM_CalDTAmatrices.c,v 1.11 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -378,7 +378,7 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 	Element.Type   = Element.GeoElement->Type ;
 	Current.Region = Element.Region = Element.GeoElement->Region ;
 	if (Element.GeoElement->FMMGroup != i_Group) 
-	  Msg(ERROR, "Element.GeoElement->FMMGroup != i_Group");
+	  Msg(GERROR, "Element.GeoElement->FMMGroup != i_Group");
 	Element.FMMGroup = i_Group ;
 	
 	QuantityStorageEqu_P->NumLastElementForFunctionSpace = Element.Num ;
@@ -407,7 +407,7 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 		->InitialList, &Element.Region, fcmp_int) )  i++ ;
 
 	if (i == FI->NbrJacobianCase)
-	  Msg(ERROR, "Undefined Jacobian in Region %d", Element.Region);
+	  Msg(GERROR, "Undefined Jacobian in Region %d", Element.Region);
 	
 	Element.JacobianCase = FI->JacobianCase_P0 + i ;
 	
@@ -428,7 +428,7 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 	    List_PQuery(IntegrationCase_P->Case, &Element.Type, fcmp_int);
       
 	  if(!Quadrature_P)
-	    Msg(ERROR, "Unknown type of Element (%s) for Integration method (%s)",
+	    Msg(GERROR, "Unknown type of Element (%s) for Integration method (%s)",
 		Get_StringForDefine(Element_Type, Element.Type),
 		((struct IntegrationMethod *)
 		 List_Pointer(Problem_S.IntegrationMethod,
@@ -511,7 +511,7 @@ void  Cal_FMMGalerkinDisaggregation(struct EquationTerm     * EquationTerm_P0,
 				 Case.Unknown.NumDof, fcmp_int) ;
 		
 		if (j != -1) Cal_AddValueArray2DoubleArray(BFGFValue, Disagg_M[j], NbrDir) ; 
-		else  Msg(ERROR, "Wrong NumEqu %d for Disagg",
+		else  Msg(GERROR, "Wrong NumEqu %d for Disagg",
 			  QuantityStorageEqu_P->BasisFunction[i].Dof->Case.Unknown.NumDof) ;
 		
 	      }/* if DOF_UNKNOWN */      
@@ -687,7 +687,7 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 	Element.Type   = Element.GeoElement->Type ;
 	Current.Region = Element.Region = Element.GeoElement->Region ;
 	if (Element.GeoElement->FMMGroup != i_Group)
-	  Msg(ERROR, "Element.GeoElement->FMMGroup != i_Group");
+	  Msg(GERROR, "Element.GeoElement->FMMGroup != i_Group");
 	Element.FMMGroup = i_Group ;
 	
 	Current.Element = &Element ;
@@ -719,7 +719,7 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 		&Element.ElementSource->Region, fcmp_int) )  i++ ;
     
 	if (i == List_Nbr(FI->IntegralQuantityActive.JacobianCase_L))
-	  Msg(ERROR, "Undefined Jacobian in Region %d", Element.Region);
+	  Msg(GERROR, "Undefined Jacobian in Region %d", Element.Region);
 	
 	Element.JacobianCase = (struct JacobianCase*)List_Pointer(FI->IntegralQuantityActive.JacobianCase_L, i) ;
 	
@@ -740,7 +740,7 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 	    List_PQuery(IntegrationCase_P->Case, &Element.Type, fcmp_int);
 	  
 	  if(!Quadrature_P)
-	    Msg(ERROR, "Unknown type of Element (%s) for Integration method (%s)",
+	    Msg(GERROR, "Unknown type of Element (%s) for Integration method (%s)",
 		Get_StringForDefine(Element_Type, Element.Type),
 		((struct IntegrationMethod *)
 		 List_Pointer(Problem_S.IntegrationMethod,
@@ -811,7 +811,7 @@ void  Cal_FMMGalerkinAggregation(struct EquationTerm     * EquationTerm_P0,
 				 Case.Unknown.NumDof, fcmp_int) ;
 
 		if (j != -1) Cal_AddValueArray2DoubleArray(BFGFValue, Aggreg_M[j], NbrDir) ; 
-		else  Msg(ERROR, "Wrong NumEqu %d for Aggreg",
+		else  Msg(GERROR, "Wrong NumEqu %d for Aggreg",
 			  QuantityStorageDof_P->BasisFunction[i].Dof->Case.Unknown.NumDof) ;
 	      }/* if DOF_UNKNOWN */     
 	    } /* for i Nbr_Dof */
@@ -901,7 +901,7 @@ void Cal_TermsforAggregation( struct QuantityStorage * QuantityStorageDof_P,
     ((CASTF2V)QuantityStorageDof_P->DefineQuantity->IntegralQuantity.AnyFunction.Fct)
       (&QuantityStorageDof_P->DefineQuantity->IntegralQuantity.AnyFunction, &Val0, &Val0) ;	 
     break;
-  default: Msg(ERROR, "Unknown type of Integral Quantity for FMM");
+  default: Msg(GERROR, "Unknown type of Integral Quantity for FMM");
   }
   
   

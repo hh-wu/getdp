@@ -1,4 +1,4 @@
-#define RCSID "$Id: Malloc.c,v 1.8 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: Malloc.c,v 1.9 2006-02-26 00:42:52 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -33,7 +33,7 @@ void *Malloc(size_t size)
   if (!size) return(NULL);
   ptr = malloc(size);
   if (ptr == NULL)
-    Msg(ERROR, "Out of memory (buy some more RAM!)");
+    Msg(GERROR, "Out of memory (buy some more RAM!)");
   return(ptr);
 }
 
@@ -44,7 +44,7 @@ void *Calloc(size_t num, size_t size)
   if (!size) return(NULL);
   ptr = calloc(num, size);
   if (ptr == NULL)
-    Msg(ERROR, "Out of memory (buy some more RAM!)");
+    Msg(GERROR, "Out of memory (buy some more RAM!)");
   return(ptr);
 }
 
@@ -53,7 +53,7 @@ void *Realloc(void *ptr, size_t size)
   if (!size) return(NULL);
   ptr = realloc(ptr,size);
   if (ptr == NULL)
-    Msg(ERROR, "Out of memory (buy some more RAM!)");
+    Msg(GERROR, "Out of memory (buy some more RAM!)");
   return(ptr);
 }
 

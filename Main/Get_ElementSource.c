@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ElementSource.c,v 1.12 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Get_ElementSource.c,v 1.13 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -46,7 +46,7 @@ void  Get_InitElementSource(struct Element *Element, int InIndex) {
   i_ElementSource = -1 ;
 
   if(InIndex<0){
-    Msg(ERROR, "Missing support (Region Group) in Integral Quantity");
+    Msg(GERROR, "Missing support (Region Group) in Integral Quantity");
   }
   else{
     RegionSource_L = ((struct Group*)
@@ -114,7 +114,7 @@ void  Get_ElementTrace(struct Element *Element, int InIndex) {
   
   if(!(Pair_P = (struct TwoInt*)List_PQuery(Group_P->ExtendedList, 
 					    &Element->Num, fcmp_int)))
-    Msg(ERROR, "No Element connected to Element %d: check Group for Trace", 
+    Msg(GERROR, "No Element connected to Element %d: check Group for Trace", 
 	Element->Num) ;
 
   Element->ElementTrace = &ElementTrace ;

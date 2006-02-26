@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoNormal.c,v 1.10 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: GeoNormal.c,v 1.11 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -149,7 +149,7 @@ void Geo_CreateNormal(int Type, double *x, double *y, double *z, double *N) {
     break ;
     
   default :
-    Msg(ERROR, "Normal computation not done (yet) for Element Type %d", Type);
+    Msg(GERROR, "Normal computation not done (yet) for Element Type %d", Type);
   }
 
   GetDP_End ;

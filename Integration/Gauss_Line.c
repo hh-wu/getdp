@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Line.c,v 1.12 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Line.c,v 1.13 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -70,7 +70,7 @@ void Gauss_Line (int Nbr_Points, int Num,
       *u = glxl[Nbr_Points-1][Num] ; *v = *w = 0. ; *wght = glpl[Nbr_Points-1][Num] ;
     }
     else
-      Msg(ERROR, "Maximum number of integration points exceeded (%d > %d)",
+      Msg(GERROR, "Maximum number of integration points exceeded (%d > %d)",
 	  Nbr_Points, MAX_LINE_POINTS) ;
     break ;
   }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: SphBessel.c,v 1.11 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: SphBessel.c,v 1.12 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -49,7 +49,7 @@ double Spherical_j_n(int n, double x){
   else{
     fnu = n + 0.5;
     zbesj_(&x, &xi, &fnu, &kode, &NB, &bjr, &bji, &nz, &ierr) ;
-    if(ierr) Msg(ERROR, "Exception caught in first kind Bessel function");
+    if(ierr) Msg(GERROR, "Exception caught in first kind Bessel function");
     jsph = sqrt(0.5*PI/x) * bjr;
   }
   
@@ -66,7 +66,7 @@ void Spherical_j_nArray(int n, double x, int NB, double jsph[]){
   GetDP_Begin("Spherical_j_n_Array");
 
   if (NB > NBR_MAX_EXP)
-    Msg(ERROR, "The number of Spherical_j_n required exceeds the maximum "
+    Msg(GERROR, "The number of Spherical_j_n required exceeds the maximum "
 	"defined: NBR_MAX_EXP = %d",NBR_MAX_EXP) ;
  
   if (x == 0.){
@@ -76,7 +76,7 @@ void Spherical_j_nArray(int n, double x, int NB, double jsph[]){
   else{
     fnu = n + 0.5 ; /* From order n to (n+NB-1) */
     zbesj_(&x, &xi, &fnu, &kode, &NB, jsph, jsphi, &nz, &ierr) ;
-    if(ierr) Msg(ERROR, "Exception caught in first kind Bessel function");
+    if(ierr) Msg(GERROR, "Exception caught in first kind Bessel function");
     cte = sqrt(0.5*PI/x);    
     for(i = 0 ; i < NB ; i++ ) jsph[i] *= cte ;
   }
@@ -95,7 +95,7 @@ double AltSpherical_j_n(int n, double x){
 
   fnu = n + 0.5;
   zbesj_(&x, &xi, &fnu, &kode, &NB, &abjr, &abji, &nz, &ierr) ;
-  if(ierr) Msg(ERROR, "Exception caught in first kind Bessel function");
+  if(ierr) Msg(GERROR, "Exception caught in first kind Bessel function");
   ajsph = sqrt(0.5*PI*x) * abjr;
    
   GetDP_Return(ajsph);
@@ -137,11 +137,11 @@ double Spherical_y_n(int n, double x){
 
   GetDP_Begin("Spherical_y_n");
 
-  if (x==0.) Msg(ERROR, "Singularity in Spherical_y_n");
+  if (x==0.) Msg(GERROR, "Singularity in Spherical_y_n");
 
   fnu = n+0.5;
   zbesy_(&x, &xi, &fnu, &kode, &NB, &byr, &byi, &nz, &auxbyr, &auxbyi, &ierr);
-  if(ierr) Msg(ERROR, "Exception caught in second kind Bessel function");
+  if(ierr) Msg(GERROR, "Exception caught in second kind Bessel function");
 
   ysph = sqrt(0.5*PI/x) * byr;
 
@@ -158,7 +158,7 @@ void Spherical_y_nArray(int n, double x, int NB, double ysph[]){
   GetDP_Begin("Spherical_y_n_Array");
 
   if (NB > NBR_MAX_EXP)
-    Msg(ERROR, "The number of Spherical_y_n required exceeds the maximum "
+    Msg(GERROR, "The number of Spherical_y_n required exceeds the maximum "
 	"defined: NBR_MAX_EXP = %d",NBR_MAX_EXP) ;
 
   if (x == 0.){
@@ -168,7 +168,7 @@ void Spherical_y_nArray(int n, double x, int NB, double ysph[]){
   else{
     fnu = n + 0.5 ; /* From order n to (n+NB-1) */
     zbesy_(&x, &xi, &fnu, &kode, &NB, ysph, ysphi, &nz, auxbyr, auxbyi, &ierr);
-    if(ierr) Msg(ERROR, "Exception caught in second kind Bessel function");
+    if(ierr) Msg(GERROR, "Exception caught in second kind Bessel function");
     cte = sqrt(0.5*PI/x);
     for(i = 0 ; i < NB ; i++ ) ysph[i] *= cte ;
   }
@@ -187,7 +187,7 @@ double AltSpherical_y_n(int n, double x){
 
   fnu = n+0.5;
   zbesy_(&x, &xi, &fnu, &kode, &NB, &abyr, &abyi, &nz, &auxabyr, &auxabyi, &ierr);
-  if(ierr) Msg(ERROR, "Exception caught in second kind Bessel function");
+  if(ierr) Msg(GERROR, "Exception caught in second kind Bessel function");
   aysph = sqrt(0.5*PI*x) * abyr;
    
   GetDP_Return(aysph);      
@@ -230,7 +230,7 @@ void Spherical_h_n(int type, int n, double x, double *hr, double *hi){
 
   fnu = n + 0.5;
   zbesh_(&x, &xi, &fnu, &kode, &type, &NB, &bhr, &bhi, &nz, &ierr) ;
-  if(ierr) Msg(ERROR, "Exception caught in third kind Bessel function");     
+  if(ierr) Msg(GERROR, "Exception caught in third kind Bessel function");     
   fact = sqrt(0.5*PI/x); 
   *hr = fact * bhr;
   *hi = fact * bhi;
@@ -248,12 +248,12 @@ void Spherical_h_nArray(int type, int n, double x, int NB, double hr[], double h
   GetDP_Begin("Spherical_h_n");
 
   if (NB > NBR_MAX_EXP)
-    Msg(ERROR, "The number of Spherical_h_n required exceeds the maximum "
+    Msg(GERROR, "The number of Spherical_h_n required exceeds the maximum "
 	"defined: NBR_MAX_EXP = %d",NBR_MAX_EXP) ;
 
   fnu = n + 0.5;
   zbesh_(&x, &xi, &fnu, &kode, &type, &NB, hr, hi, &nz, &ierr) ;
-  if(ierr) Msg(ERROR, "Exception caught in third kind Bessel function");     
+  if(ierr) Msg(GERROR, "Exception caught in third kind Bessel function");     
   fact = sqrt(0.5*PI/x); 
   for(i=0 ; i<NB ; i++){
     hr[i] *= fact;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.19 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Cal_deRhamTermOfFemEquation.c,v 1.20 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -51,7 +51,7 @@ void  Cal_InitdeRhamTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
     EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
 
   if(EquationTerm_P->Case.LocalTerm.Term.TypeOperatorEqu != NOOP)
-    Msg(ERROR, "An aperator cannot act on the \"test function\" in a de Rham Map");
+    Msg(GERROR, "An aperator cannot act on the \"test function\" in a de Rham Map");
 
   FI->Type_FormEqu = -1 ;
 
@@ -78,7 +78,7 @@ void  Cal_InitdeRhamTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
     break ;
   case INTEGRALQUANTITY :
     if(EquationTerm_P->Case.LocalTerm.Term.TypeOperatorDof != NOOP){
-      Msg(ERROR, "A differential operator cannot act on an Integral Quantity");
+      Msg(GERROR, "A differential operator cannot act on an Integral Quantity");
     }
     FI->Type_FormDof = VECTOR ; /* we don't know the type a priori */
     FI->IntegralQuantityActive.IntegrationCase_L =
@@ -160,7 +160,7 @@ void  Cal_InitdeRhamTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   case DTDTDOF_: FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDtDof; break;
   case JACNL_  : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_JacNL  ; break;
   case NEVERDT_: FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NeverDt; break;
-  default      : Msg(ERROR, "Unknown type of operator for de Rham (%d)", 
+  default      : Msg(GERROR, "Unknown type of operator for de Rham (%d)", 
 		     EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
   }
 
@@ -280,7 +280,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
 	  ->InitialList, &Element->Region, fcmp_int) )  i++ ;
   
   if (i == FI->NbrJacobianCase)
-    Msg(ERROR, "Undefined Jacobian in Region %d", Element->Region);
+    Msg(GERROR, "Undefined Jacobian in Region %d", Element->Region);
   
   Element->JacobianCase = FI->JacobianCase_P0 + i ;
 
@@ -398,7 +398,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
 	  List_PQuery(IntegrationCase_P->Case, &Cells[0].Type, fcmp_int);
 	
 	if(!Quadrature_P)
-	  Msg(ERROR, "Unknown type of Element (%s) for Integration method (%s)",
+	  Msg(GERROR, "Unknown type of Element (%s) for Integration method (%s)",
 	      Get_StringForDefine(Element_Type, Cells[0].Type),
 	      ((struct IntegrationMethod *)
 	       List_Pointer(Problem_S.IntegrationMethod,
@@ -466,7 +466,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
 		Cal_ProductValue(&Cell_Vector[i_Cell], &vBFxDof[j], &vBFxDof[j]) ;
 	      break;
 	    default :
-	      Msg(ERROR, "Unknown type of Dof (%s) for scalar product in deRham Map",
+	      Msg(GERROR, "Unknown type of Dof (%s) for scalar product in deRham Map",
 		  Get_StringForDefine(Field_Type, FI->Type_FormDof));
 	      break;
 	    }
@@ -483,7 +483,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
 	break ; /* case GAUSS */
 	
       default :
-	Msg(ERROR, "Unknown type of Integration method (%s)",
+	Msg(GERROR, "Unknown type of Integration method (%s)",
 	    ((struct IntegrationMethod *)
 	     List_Pointer(Problem_S.IntegrationMethod,
 			  EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))->Name);
@@ -515,7 +515,7 @@ void  Cal_deRhamTermOfFemEquation(struct Element          * Element,
 
     /*
       if(Nbr_Cells != Nbr_Ent1 || Nbr_Equ != Nbr_Ent2)
-      Msg(ERROR, "Error in deRham Map: wrong discrete derivative");
+      Msg(GERROR, "Error in deRham Map: wrong discrete derivative");
     */
     
     

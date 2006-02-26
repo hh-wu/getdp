@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.14 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Cal_IntegralQuantity.c,v 1.15 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -90,7 +90,7 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
       List_PQuery(IQA->IntegrationCase_P->Case, &ElementSourceType, fcmp_int) ;
 
     if(!Quadrature_P)
-      Msg(ERROR, "Unknown type of Element (%s) for Integration method (%s)",
+      Msg(GERROR, "Unknown type of Element (%s) for Integration method (%s)",
 	  Get_StringForDefine(Element_Type, ElementSourceType),
 	  ((struct IntegrationMethod *)
 	   List_Pointer(Problem_S.IntegrationMethod,
@@ -111,7 +111,7 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
 	    &Element->ElementSource->Region, fcmp_int) )  i++ ;
     
     if (i == List_Nbr(IQA->JacobianCase_L))
-      Msg(ERROR, "Undefined Jacobian in Region %d", Element->ElementSource->Region);
+      Msg(GERROR, "Undefined Jacobian in Region %d", Element->ElementSource->Region);
     
     Element->ElementSource->JacobianCase =
       (struct JacobianCase*)List_Pointer(IQA->JacobianCase_L, i) ;
@@ -122,7 +122,7 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
 
 
     if(QuantityStorage_P->DefineQuantity->IntegralQuantity.Symmetry)
-      Msg(ERROR, "Symmetries of integral kernels not ready with numerical integration");
+      Msg(GERROR, "Symmetries of integral kernels not ready with numerical integration");
     break;
 
 
@@ -139,12 +139,12 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
       break ;
     case CWQ_GF_PVEC_DOF :
     case CWQ_EXP_TIME_GF_PVEC_DOF :
-    default : Msg(ERROR, "Unrecognized Integral Quantity to integrate analytically");
+    default : Msg(GERROR, "Unrecognized Integral Quantity to integrate analytically");
     }
     break ;
     
   default :
-    Msg(ERROR, "Unknown type of Integration method (%s) for Integral Quantity", 
+    Msg(GERROR, "Unknown type of Integration method (%s) for Integral Quantity", 
 	((struct IntegrationMethod *)
 	 List_Pointer(Problem_S.IntegrationMethod,
 		      QuantityStorage_P->DefineQuantity->IntegralQuantity.
@@ -191,7 +191,7 @@ void Apply_ConstantFactor(struct QuantityStorage * QuantityStorage_P,
   case CWQ_FCT_PVEC_GF_PVEC_DOF :
     Cal_CrossProductValue(Val, vBFxDof, vBFxDof);
     break;
-  default : Msg(ERROR, "Unknown type of canonical Integral Quantity");
+  default : Msg(GERROR, "Unknown type of canonical Integral Quantity");
   }
 
   GetDP_End ;
@@ -229,7 +229,7 @@ void  Cal_NumericalIntegralQuantity (struct Element                 *Element,
      GAUSS, GAUSSLEGENDRE */
 
   if(Nbr_deRhamCells && Nbr_deRhamCells != Nbr_Dof)
-    Msg(ERROR, "Incompatible de Rham approximation of Integral Quantity");
+    Msg(GERROR, "Incompatible de Rham approximation of Integral Quantity");
   
   if (Element->Num != NO_ELEMENT) {
     Current.x = Current.y = Current.z = 0. ;
@@ -244,7 +244,7 @@ void  Cal_NumericalIntegralQuantity (struct Element                 *Element,
   Current.ElementSource = Element->ElementSource ;
 
   if(Nbr_deRhamCells)
-    Msg(ERROR, "de Rham approximation of integral kernels not done (yet) with Gauss");
+    Msg(GERROR, "de Rham approximation of integral kernels not done (yet) with Gauss");
   
   if(IQA->IntegrationCase_P->SubType == SINGULAR){
     Flag_RemoveSingularity = 1;
@@ -370,7 +370,7 @@ void  Cal_AnalyticIntegralQuantity  (struct Element                 *Element,
     break ;
   case CWQ_GF_PVEC_DOF :
   case CWQ_EXP_TIME_GF_PVEC_DOF :
-    Msg(ERROR, "Vector product of GF_Function and Dof{} not done for analytic integration");
+    Msg(GERROR, "Vector product of GF_Function and Dof{} not done for analytic integration");
     break ;
   case CWQ_GF_PSCA_EXP :
   case CWQ_GF_PVEC_EXP :
@@ -384,7 +384,7 @@ void  Cal_AnalyticIntegralQuantity  (struct Element                 *Element,
 			  NULL, 0., 0., 0., &Val0) ;      
     Current.Region = Element->Region ;
     break ;
-  default : Msg(ERROR, "Unknown type of canonical Integral Quantity");
+  default : Msg(GERROR, "Unknown type of canonical Integral Quantity");
   }
 
 
@@ -444,7 +444,7 @@ void  Cal_AnalyticIntegralQuantity  (struct Element                 *Element,
     break;
     
   default:
-    Msg(ERROR, "Unknown type of symmetry in Integral Quantity");
+    Msg(GERROR, "Unknown type of symmetry in Integral Quantity");
     break;
   }
   

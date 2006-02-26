@@ -1,4 +1,4 @@
-#define RCSID "$Id: ExtendedGroup.c,v 1.13 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: ExtendedGroup.c,v 1.14 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -75,7 +75,7 @@ int  Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
     GetDP_Return (! List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int)) ;
 
   default :
-    Msg(ERROR, "Unknown function type for Group '%s'", Group_P->Name);
+    Msg(GERROR, "Unknown function type for Group '%s'", Group_P->Name);
     GetDP_Return(-1) ;
   }
 }
@@ -137,7 +137,7 @@ void  Generate_ExtendedGroup(struct Group * Group_P) {
     break ;
 
   default :
-    Msg(ERROR, "Unknown function type for Group '%s'", Group_P->Name) ;
+    Msg(GERROR, "Unknown function type for Group '%s'", Group_P->Name) ;
     break;
   }
 
@@ -348,7 +348,7 @@ void  Generate_GroupsOfEdges(List_T * InitialList,
     break ;
 
   default :
-    Msg(ERROR, "Bad GroupsOfEdges (supplementary list missing)") ;
+    Msg(GERROR, "Bad GroupsOfEdges (supplementary list missing)") ;
   }
 
   *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;

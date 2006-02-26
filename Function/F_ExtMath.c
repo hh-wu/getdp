@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_ExtMath.c,v 1.11 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: F_ExtMath.c,v 1.12 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -49,7 +49,7 @@ void  F_Hypot (F_ARG) {
   GetDP_Begin("F_Hypot");
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
-    Msg(ERROR, "Non scalar argument(s) for function 'Hypot'");
+    Msg(GERROR, "Non scalar argument(s) for function 'Hypot'");
 
   if (Current.NbrHar == 1){ 
     V->Val[0] = sqrt(A->Val[0]*A->Val[0]+(A+1)->Val[0]*(A+1)->Val[0]) ;
@@ -72,8 +72,8 @@ void  F_TanhC2 (F_ARG) {
 
   GetDP_Begin("F_TanhC2");
 
-  if(A->Type != SCALAR) Msg(ERROR, "Non scalar arguments for function 'TanhC2'");
-  if(Current.NbrHar != 2) Msg(ERROR, "Function 'TanhC2' only valid for Complex"); 
+  if(A->Type != SCALAR) Msg(GERROR, "Non scalar arguments for function 'TanhC2'");
+  if(Current.NbrHar != 2) Msg(GERROR, "Function 'TanhC2' only valid for Complex"); 
 
   denom = DSQU(cosh(A->Val[0])*cos(A->Val[0])) + DSQU(sinh(A->Val[0])*sin(A->Val[0]));
   V->Val[0]       = sinh(A->Val[0])*cosh(A->Val[0]) / denom ;
@@ -94,7 +94,7 @@ void  F_Transpose (F_ARG) {
   GetDP_Begin("F_Transpose");
 
   if(A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR)
-    Msg(ERROR, "Wrong type of argument for function 'Transpose'");
+    Msg(GERROR, "Wrong type of argument for function 'Transpose'");
 
   Cal_TransposeValue(A,V);
 
@@ -107,7 +107,7 @@ void  F_Trace (F_ARG) {
   GetDP_Begin("F_Trace");
 
   if(A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR)
-    Msg(ERROR, "Wrong type of argument for function 'Trace'");
+    Msg(GERROR, "Wrong type of argument for function 'Trace'");
 
   Cal_TraceValue(A,V);
 
@@ -124,7 +124,7 @@ void  F_RotateXYZ (F_ARG) {
   if((A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR &&
       A->Type != VECTOR) ||
      (A+1)->Type != SCALAR || (A+2)->Type != SCALAR || (A+3)->Type != SCALAR)
-    Msg(ERROR, "Wrong type of argument(s) for function 'Rotate'");
+    Msg(GERROR, "Wrong type of argument(s) for function 'Rotate'");
 
   ca = cos((A+1)->Val[0]) ; sa = sin((A+1)->Val[0]) ;
   cb = cos((A+2)->Val[0]) ; sb = sin((A+2)->Val[0]) ;
@@ -184,7 +184,7 @@ void  F_Norm (F_ARG) {
     break ;
 
   default :
-    Msg(ERROR, "Wrong type of argument for function 'Norm'");
+    Msg(GERROR, "Wrong type of argument for function 'Norm'");
     break;
   }
 
@@ -235,7 +235,7 @@ void  F_SquNorm (F_ARG) {
     break ;
 
   default :
-    Msg(ERROR, "Wrong type of argument for function 'SquNorm'");
+    Msg(GERROR, "Wrong type of argument for function 'SquNorm'");
     break;
   }
 
@@ -313,7 +313,7 @@ void  F_Unit (F_ARG) {
     break ;
 
   default :
-    Msg(ERROR, "Wrong type of argument for function 'Unit'");
+    Msg(GERROR, "Wrong type of argument for function 'Unit'");
     break;
   }
 
@@ -341,7 +341,7 @@ void  F_Cos_wt_p (F_ARG) {
     V->Val[MAX_DIM] = sin(Fct->Para[1]) ;
   }
   else {
-    Msg(ERROR,"Too many harmonics for function 'Cos_wt_p'") ; 
+    Msg(GERROR,"Too many harmonics for function 'Cos_wt_p'") ; 
   }
   V->Type = SCALAR ;
 
@@ -361,7 +361,7 @@ void  F_Sin_wt_p (F_ARG) {
     V->Val[MAX_DIM] = -cos(Fct->Para[1]) ;
   }
   else {
-    Msg(ERROR,"Too many harmonics for function 'Sin_wt_p'") ; 
+    Msg(GERROR,"Too many harmonics for function 'Sin_wt_p'") ; 
   }
   V->Type = SCALAR ;
 
@@ -379,7 +379,7 @@ void  F_Complex_MH (F_ARG) {
   NbrFreq = Fct->NbrParameters ;
   NbrComp = Fct->NbrArguments ;
   if (NbrComp != 2*NbrFreq) 
-    Msg(ERROR, "Number of components does not equal twice the number of frequencies in Complex_MH") ;
+    Msg(GERROR, "Number of components does not equal twice the number of frequencies in Complex_MH") ;
 
   R.Type = A->Type ;
   Cal_ZeroValue(&R);
@@ -420,7 +420,7 @@ void  F_Complex_MH (F_ARG) {
 	      R.Val[MAX_DIM*k+8] += (A+l)->Val[8] ;
 	      break;
 	    default :
-	      Msg(ERROR, "Unknown type of arguments in function 'Complex_MH'");
+	      Msg(GERROR, "Unknown type of arguments in function 'Complex_MH'");
 	      break;
 	    }
 	  }
@@ -454,7 +454,7 @@ void  F_Period (F_ARG) {
       * Fct->Para[0] + ((A->Val[0] < 0.)? Fct->Para[0] : 0.) ;
       */
   else {
-    Msg(ERROR,"Function 'F_Period' not valid for Complex");
+    Msg(GERROR,"Function 'F_Period' not valid for Complex");
   }
   V->Type = SCALAR ;
 

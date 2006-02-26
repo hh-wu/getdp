@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Math.c,v 1.11 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: F_Math.c,v 1.12 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -49,7 +49,7 @@
   GetDP_Begin("F_" string);						\
 									\
   if(A->Type != SCALAR)							\
-    Msg(ERROR, "Non scalar argument for function '" string "'");	\
+    Msg(GERROR, "Non scalar argument for function '" string "'");	\
 									\
   V->Val[0] = func(A->Val[0]) ;						\
   if (Current.NbrHar != 1){						\
@@ -91,7 +91,7 @@ void  F_Ceil  (F_ARG) { scalar_real_1_arg (ceil, "Ceil")  }
   GetDP_Begin("F_" string);						\
 									\
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)			\
-    Msg(ERROR, "Non scalar argument(s) for function '" string "'");	\
+    Msg(GERROR, "Non scalar argument(s) for function '" string "'");	\
 									\
   V->Val[0] = func(A->Val[0], (A+1)->Val[0]) ;				\
   if (Current.NbrHar != 1){						\

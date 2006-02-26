@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.92 2006-02-25 15:00:25 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.93 2006-02-26 00:42:58 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -6195,7 +6195,7 @@ Affectation :
 
   | String__Index tDEF tListFromFile '[' CharExpr ']' tEND
     { Constant_S.Name = $1 ; Constant_S.Type = VAR_LISTOFFLOAT ;
-      if (!(File = fopen($5, "r"))) Msg(ERROR, "Unable to open file '%s'", $5);
+      if (!(File = fopen($5, "r"))) Msg(GERROR, "Unable to open file '%s'", $5);
       Constant_S.Value.ListOfFloat = List_Create(100,100,sizeof(double));
       while (!feof(File))
 	if (fscanf(File, "%lf", &d) != EOF)

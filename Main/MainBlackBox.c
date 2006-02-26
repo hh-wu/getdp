@@ -1,4 +1,4 @@
-#define RCSID "$Id: MainBlackBox.c,v 1.16 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: MainBlackBox.c,v 1.17 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -79,7 +79,7 @@ int  main(int argc, char *argv[]) {
 #endif
 
   file = fopen(argv[2], "r");
-  if(!file) Msg(ERROR, "Unable to open file '%s'", argv[2]);
+  if(!file) Msg(GERROR, "Unable to open file '%s'", argv[2]);
   do { 
     fgets(str, MAX_STRING_LENGTH, file) ; 
     if (feof(file)) break ;
@@ -91,7 +91,7 @@ int  main(int argc, char *argv[]) {
 
   if(argc==5){
     file = fopen(argv[3], "r");
-    if(!file) Msg(ERROR, "Unable to open file '%s'", argv[3]);
+    if(!file) Msg(GERROR, "Unable to open file '%s'", argv[3]);
     do { 
       fgets(str, MAX_STRING_LENGTH, file) ; 
       if (feof(file)) break ;
@@ -101,7 +101,7 @@ int  main(int argc, char *argv[]) {
   }
   
   file = fopen(Name_TmpFile, "w");
-  if(!file) Msg(ERROR, "Unable to open file '%s'", Name_TmpFile);
+  if(!file) Msg(GERROR, "Unable to open file '%s'", Name_TmpFile);
   fprintf(file, buf);
   fclose(file);
 

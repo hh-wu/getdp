@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Laplace.c,v 1.16 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: GF_Laplace.c,v 1.17 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -71,7 +71,7 @@ void  GF_Laplace (F_ARG) {
     switch(Current.FMM.Flag_GF){
     case FMM_DIRECT :
       d = SQU(Current.x-Current.xs) + SQU(Current.y-Current.ys) ;
-      if(!d) Msg(ERROR, "Log(0) in 'GF_Laplace'") ;
+      if(!d) Msg(GERROR, "Log(0) in 'GF_Laplace'") ;
       V->Val[0] = - ONE_OVER_FOUR_PI * log(d) ;
       V->Val[MAX_DIM] = 0. ; 
       break;
@@ -117,7 +117,7 @@ void  GF_Laplace (F_ARG) {
       r = sqrt( SQU(Current.x-Current.xs) + SQU(Current.y-Current.ys)) ; /* (yc-xc) */  
       phi_r = atan2(Current.y-Current.ys, Current.x-Current.xs) ;
 
-      if(!r) Msg(ERROR, "1/0 in 'GF_Laplace (Translation - 2D)'") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_Laplace (Translation - 2D)'") ;
      
       a = 1. ;  c1 = 1. ;
       for (i = 0 ; i < Nd ;  i++){
@@ -145,7 +145,7 @@ void  GF_Laplace (F_ARG) {
       break;
  
    default :
-      Msg(ERROR, "Case 2D: Bad Flag_GF 'GF_Laplace' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 2D: Bad Flag_GF 'GF_Laplace' (%d)", Current.FMM.Flag_GF);  
       break;
     }
     break;
@@ -159,7 +159,7 @@ void  GF_Laplace (F_ARG) {
       }
       else{
 	d = SQU(Current.x-Current.xs) + SQU(Current.y-Current.ys) + SQU(Current.z-Current.zs) ;
-	if(!d) Msg(ERROR, "1/0 in 'GF_Laplace'") ;
+	if(!d) Msg(GERROR, "1/0 in 'GF_Laplace'") ;
         V->Val[0] = ONE_OVER_FOUR_PI / sqrt(d) ;
       }
       V->Val[MAX_DIM] = 0. ; 
@@ -221,7 +221,7 @@ void  GF_Laplace (F_ARG) {
       zzs = Current.z - Current.zs ;
       
       r =  sqrt(SQU(xxs) + SQU(yys) + SQU(zzs)); /* Distance between FMM group centers */ 
-      if(!r) Msg(ERROR, "1/r in 'GF_Laplace (Translation - 3D)'") ;
+      if(!r) Msg(GERROR, "1/r in 'GF_Laplace (Translation - 3D)'") ;
 
       Theta = atan2(sqrt(SQU(xxs)+SQU(yys)), zzs) ; 
       Phi   = atan2(yys, xxs) ;      
@@ -241,13 +241,13 @@ void  GF_Laplace (F_ARG) {
       break;
 
     default :
-      Msg(ERROR, "Case 3D: Bad Flag_GF 'GF_Laplace' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 3D: Bad Flag_GF 'GF_Laplace' (%d)", Current.FMM.Flag_GF);  
       break;
     }    
     break;
     
   default :
-    Msg(ERROR, "Bad Parameter for 'GF_Laplace' (%d)", (int)Fct->Para[0]);
+    Msg(GERROR, "Bad Parameter for 'GF_Laplace' (%d)", (int)Fct->Para[0]);
     break;
   }
 
@@ -281,7 +281,7 @@ void GF_GradLaplace (F_ARG) {
       xxs = Current.x-Current.xs ; 
       yys = Current.y-Current.ys ; 
       r = SQU(xxs)+SQU(yys) ;
-      if(!r) Msg(ERROR, "1/0 in 'GF_GradLaplace'") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_GradLaplace'") ;
      
       V->Val[0] = - ONE_OVER_TWO_PI * xxs / r ;
       V->Val[1] = - ONE_OVER_TWO_PI * yys / r ;
@@ -309,7 +309,7 @@ void GF_GradLaplace (F_ARG) {
      yys = -Current.FMM.Ygc + Current.y;
      r = sqrt(SQU(xxs) + SQU(yys))/Current.FMM.Robs;
      phi_r = atan2(yys, xxs) ;
-     if(!r) Msg(ERROR, "1/0 in 'GF_GradLaplace (Disaggregation - 2D)'") ;
+     if(!r) Msg(GERROR, "1/0 in 'GF_GradLaplace (Disaggregation - 2D)'") ;
      cte = -1/r/r ; 
      for (i = 0 ; i < Nd ; i++){
 	cte *= r ; 
@@ -330,7 +330,7 @@ void GF_GradLaplace (F_ARG) {
       r = sqrt(SQU(Current.xs-Current.x) + SQU(Current.ys-Current.y)) ;  
       phi_r = atan2(Current.ys-Current.y, Current.xs-Current.x) ;
       
-      if(!r) Msg(ERROR, "1/0 in 'GF_GradLaplace (Translation - 2D)'") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_GradLaplace (Translation - 2D)'") ;
 
       a = 1/Current.FMM.Rsrc ;
       for (i = 0 ; i < Nd ;  i++){
@@ -349,7 +349,7 @@ void GF_GradLaplace (F_ARG) {
       break;
 
     default:
-      Msg(ERROR, "Case 2D: Bad Flag_GF 'GF_GradLaplace' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 2D: Bad Flag_GF 'GF_GradLaplace' (%d)", Current.FMM.Flag_GF);  
       break;
     }
     break ;
@@ -362,7 +362,7 @@ void GF_GradLaplace (F_ARG) {
       zzs = Current.z-Current.zs ;
       r = CUB(sqrt(SQU(xxs)+SQU(yys)+SQU(zzs))) ;
       
-      if(!r) Msg(ERROR, "1/0 in 'GF_GradLaplace'") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_GradLaplace'") ;
      
       V->Val[0] = - ONE_OVER_FOUR_PI * xxs / r ;
       V->Val[1] = - ONE_OVER_FOUR_PI * yys / r ;
@@ -404,7 +404,7 @@ void GF_GradLaplace (F_ARG) {
 
       r_2   = SQU(xxs)+SQU(yys)+SQU(zzs) ;
       r = sqrt(r_2) ;
-      if(!r) Msg(ERROR, "1/0 in 'GF_GradLaplace (Disaggregation - 3D)'") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_GradLaplace (Disaggregation - 3D)'") ;
 
       rxy_2 = SQU(xxs)+SQU(yys) ;
       rxy =  sqrt(rxy_2) ;
@@ -455,7 +455,7 @@ void GF_GradLaplace (F_ARG) {
       yys = Current.y - Current.ys ;
       zzs = Current.z - Current.zs ;
       r =  sqrt(SQU(xxs) + SQU(yys) + SQU(zzs)) ; 
-      if(!r) Msg(ERROR, "1/r in 'GF_GradLaplace (Translation - 3D)'") ;
+      if(!r) Msg(GERROR, "1/r in 'GF_GradLaplace (Translation - 3D)'") ;
       Theta = atan2( sqrt(SQU(xxs)+SQU(yys)), zzs ) ; 
       Phi   = atan2(yys, xxs) ;      
       cTheta = cos(Theta) ;
@@ -474,13 +474,13 @@ void GF_GradLaplace (F_ARG) {
       break;
 
     default:
-      Msg(ERROR, "Case 3D: Bad Flag_GF 'GF_GradLaplace' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 3D: Bad Flag_GF 'GF_GradLaplace' (%d)", Current.FMM.Flag_GF);  
       break;
     }
     break;
 
   default :
-    Msg(ERROR, "Bad Parameter for 'GF_GradLaplace' (%d)", (int)Fct->Para[0]);
+    Msg(GERROR, "Bad Parameter for 'GF_GradLaplace' (%d)", (int)Fct->Para[0]);
     break;
   }
 
@@ -562,7 +562,7 @@ void GF_NPxGradLaplace (F_ARG) {
       r = sqrt(SQU(xxs) + SQU(yys))/Current.FMM.Robs ;
       phi_r = atan2(yys, xxs) ;  
       
-      if(!r) Msg(ERROR, "1/0 in 'GF_NPxGradLaplace (Disaggregation - 2D)' Integration point == Group center") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_NPxGradLaplace (Disaggregation - 2D)' Integration point == Group center") ;
   
       cte = -1/r/r/sqrt(SQU(x1x0)+SQU(y1y0)) ; 
       for (i = 0 ; i < Nd ; i++){
@@ -582,7 +582,7 @@ void GF_NPxGradLaplace (F_ARG) {
       r = sqrt(SQU(Current.xs-Current.x) + SQU(Current.ys-Current.y)) ;  
       phi_r = atan2(Current.ys-Current.y, Current.xs-Current.x) ;
       
-      if(!r) Msg(ERROR, "1/0 in 'GF_GradLaplace (Translation - 2D)'") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_GradLaplace (Translation - 2D)'") ;
       
       a = 1/Current.FMM.Rsrc ;      
       for (i = 0 ; i < Nd ;  i++){
@@ -601,7 +601,7 @@ void GF_NPxGradLaplace (F_ARG) {
       break;
       
     default :
-      Msg(ERROR, "Case 2D: Bad Flag_GF 'GF_NPxGradLaplace' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 2D: Bad Flag_GF 'GF_NPxGradLaplace' (%d)", Current.FMM.Flag_GF);  
       break;
     }
     break ;   
@@ -676,11 +676,11 @@ void GF_NPxGradLaplace (F_ARG) {
      
       r_2   = SQU(xxs)+SQU(yys)+SQU(zzs) ;
       r = sqrt(r_2) ;
-      if(!r) Msg(ERROR, "1/0 in 'GF_NPxGradLaplace (Disaggregation - 3D)' r %e ",r) ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_NPxGradLaplace (Disaggregation - 3D)' r %e ",r) ;
 
       rxy_2 = SQU(xxs)+SQU(yys) ;
       rxy =  sqrt(rxy_2) ;
-      if(!rxy) Msg(ERROR, "1/0 in 'GF_NPxGradLaplace (Disaggregation - 3D)' rxy %e",rxy ) ;
+      if(!rxy) Msg(GERROR, "1/0 in 'GF_NPxGradLaplace (Disaggregation - 3D)' rxy %e",rxy ) ;
 
       Theta = atan2(rxy, zzs) ; 
       Phi   = atan2(yys, xxs) ;
@@ -728,7 +728,7 @@ void GF_NPxGradLaplace (F_ARG) {
       zzs = Current.z - Current.zs ;
 
       r =  sqrt(SQU(xxs) + SQU(yys) + SQU(zzs)) ; 
-      if(!r) Msg(ERROR, "1/0 in 'GF_NPxGradLaplace (Translation - 3D)'") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_NPxGradLaplace (Translation - 3D)'") ;
       
       Theta = atan2(sqrt(SQU(xxs)+SQU(yys)), zzs) ; 
       Phi   = atan2(yys, xxs) ;      
@@ -748,12 +748,12 @@ void GF_NPxGradLaplace (F_ARG) {
       break;
 
     default:
-      Msg(ERROR, "Case 3D: Bad Flag_GF 'GF_NPxGradLaplace' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 3D: Bad Flag_GF 'GF_NPxGradLaplace' (%d)", Current.FMM.Flag_GF);  
       break;
     }
     break;
   default :
-    Msg(ERROR, "Bad Parameter for 'GF_NPxGradLaplace' (%d)", (int)Fct->Para[0]);
+    Msg(GERROR, "Bad Parameter for 'GF_NPxGradLaplace' (%d)", (int)Fct->Para[0]);
     break;
   }
 
@@ -810,7 +810,7 @@ void GF_NSxGradLaplace (F_ARG) {
     V->Val[MAX_DIM] = 0. ;
     break ;      
   default :
-    Msg(ERROR, "Bad Parameter for 'GF_NSxGradLaplace' (%d)", (int)Fct->Para[0]);
+    Msg(GERROR, "Bad Parameter for 'GF_NSxGradLaplace' (%d)", (int)Fct->Para[0]);
     break;
   }
 
@@ -826,7 +826,7 @@ void  GF_ApproximateLaplace (F_ARG) {
   
   GetDP_Begin("GF_ApproxilateLaplace");
 
-  Msg(ERROR, "The Approximate Integral Kernels can only be Integrated Analytically");
+  Msg(GERROR, "The Approximate Integral Kernels can only be Integrated Analytically");
 
   GetDP_End ;
 }

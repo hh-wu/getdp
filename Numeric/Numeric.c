@@ -1,4 +1,4 @@
-#define RCSID "$Id: Numeric.c,v 1.5 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Numeric.c,v 1.6 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -35,7 +35,7 @@
 
 void new_handler(const char *reason, const char *file, int line,
                  int gsl_errno){
-  Msg(ERROR, "GSL: %s (%s, line %d)", reason, file, line);
+  Msg(GERROR, "GSL: %s (%s, line %d)", reason, file, line);
 }
 
 int check_gsl(){
@@ -46,7 +46,7 @@ int check_gsl(){
     Msg(DIRECT, ERROR_STR "Your GSL version (%d.%d.X) has a bug in the singular value",
         major, minor);
     Msg(DIRECT, ERROR_STR "decomposition code. Please upgrade to version 1.2 or above.");
-    Msg(ERROR, "You can download the GSL from http://sources.redhat.com/gsl/");
+    Msg(GERROR, "You can download the GSL from http://sources.redhat.com/gsl/");
     return 0;
   }
   /* set new error handler */

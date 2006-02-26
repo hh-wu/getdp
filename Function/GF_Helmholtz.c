@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_Helmholtz.c,v 1.16 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: GF_Helmholtz.c,v 1.17 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -63,7 +63,7 @@ void GF_Helmholtz (F_ARG) {
   GetDP_Begin("GF_Helmholtz");
 
   if(Current.NbrHar != 2)
-    Msg(ERROR, "Wrong Number of Harmonics in 'GF_Helmholtz'");
+    Msg(GERROR, "Wrong Number of Harmonics in 'GF_Helmholtz'");
   
 
   V->Type = SCALAR ;
@@ -74,7 +74,7 @@ void GF_Helmholtz (F_ARG) {
     case FMM_DIRECT :
       r = sqrt(SQU(Current.x-Current.xs)+
 	       SQU(Current.y-Current.ys) ) ;
-      if(!r) Msg(ERROR, "1/0 in 'GF_Helmholtz'") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_Helmholtz'") ;
       kr = Fct->Para[1]*r;
 
       V->Val[0]       = -y0(kr)/4 ; 
@@ -144,7 +144,7 @@ void GF_Helmholtz (F_ARG) {
       break;      
 
     default :
-      Msg(ERROR, "Case 2D: Bad Flag_GF 'GF_Helmholtz' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 2D: Bad Flag_GF 'GF_Helmholtz' (%d)", Current.FMM.Flag_GF);  
       break;
     }
     break;
@@ -155,7 +155,7 @@ void GF_Helmholtz (F_ARG) {
       r = sqrt(SQU(Current.x-Current.xs)+
 	       SQU(Current.y-Current.ys)+
 	       SQU(Current.z-Current.zs)) ;
-      if(!r) Msg(ERROR, "1/0 in 'GF_Helmholtz'") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_Helmholtz'") ;
 
       kr = Fct->Para[1]*r;     
       V->Val[0]       =  ONE_OVER_FOUR_PI * cos(kr) / r ; 
@@ -232,14 +232,14 @@ void GF_Helmholtz (F_ARG) {
 
       break;      
     default :
-      Msg(ERROR, "Case 3D: Bad Flag_GF 'GF_Helmholtz' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 3D: Bad Flag_GF 'GF_Helmholtz' (%d)", Current.FMM.Flag_GF);  
       break;
 
     }
     break;
 
   default :
-    Msg(ERROR, "Bad Parameter for 'GF_Helmholtz' (%d)", (int)Fct->Para[0]);
+    Msg(GERROR, "Bad Parameter for 'GF_Helmholtz' (%d)", (int)Fct->Para[0]);
     break;
   }
      
@@ -264,7 +264,7 @@ void GF_HelmholtzThinWire (F_ARG) {
   GetDP_Begin("GF_HelmholtzThinWire");
 
   if(Current.NbrHar != 2)
-    Msg(ERROR, "Wrong Number of Harmonics in 'GF_HelmholtzThinWire'");
+    Msg(GERROR, "Wrong Number of Harmonics in 'GF_HelmholtzThinWire'");
   
 
   V->Type = SCALAR ;
@@ -276,7 +276,7 @@ void GF_HelmholtzThinWire (F_ARG) {
       a =  Fct->Para[2] ;
       r = sqrt(SQU(Current.x-Current.xs)+
 	       SQU(Current.y-Current.ys)+SQU(a)) ;
-      if(!r) Msg(ERROR, "1/0 in 'GF_HelmholtzThinWire'") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_HelmholtzThinWire'") ;
       kr = Fct->Para[1]*r;
 
       V->Val[0]       = -y0(kr)/4 ; 
@@ -346,7 +346,7 @@ void GF_HelmholtzThinWire (F_ARG) {
       break;      
 
     default :
-      Msg(ERROR, "Case 2D: Bad Flag_GF 'GF_HelmholtzThinWire' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 2D: Bad Flag_GF 'GF_HelmholtzThinWire' (%d)", Current.FMM.Flag_GF);  
       break;
     }
     break;
@@ -359,7 +359,7 @@ void GF_HelmholtzThinWire (F_ARG) {
       r = sqrt(SQU(Current.x-Current.xs)+
 	       SQU(Current.y-Current.ys)+
 	       SQU(Current.z-Current.zs)+SQU(a)) ;
-      if(!r) Msg(ERROR, "1/0 in 'GF_HelmholtzThinWire'") ;
+      if(!r) Msg(GERROR, "1/0 in 'GF_HelmholtzThinWire'") ;
       
       kr = Fct->Para[1]*r;     
       V->Val[0]       =  ONE_OVER_FOUR_PI * cos(kr) / r ; 
@@ -436,14 +436,14 @@ void GF_HelmholtzThinWire (F_ARG) {
 
       break;      
     default :
-      Msg(ERROR, "Case 3D: Bad Flag_GF 'GF_HelmholtzThinWire' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 3D: Bad Flag_GF 'GF_HelmholtzThinWire' (%d)", Current.FMM.Flag_GF);  
       break;
 
     }
     break;
 
   default :
-    Msg(ERROR, "Bad Parameter for 'GF_HelmholtzThinWire' (%d)", (int)Fct->Para[0]);
+    Msg(GERROR, "Bad Parameter for 'GF_HelmholtzThinWire' (%d)", (int)Fct->Para[0]);
     break;
   }
      
@@ -471,7 +471,7 @@ void GF_GradHelmholtz (F_ARG) {
   GetDP_Begin("GF_GradHelmholtz");
   
   if(Current.NbrHar != 2)
-    Msg(ERROR, "Wrong Number of Harmonics in 'GF_GradHelmholtz'");
+    Msg(GERROR, "Wrong Number of Harmonics in 'GF_GradHelmholtz'");
   
   V->Type = VECTOR ;
 
@@ -564,7 +564,7 @@ void GF_GradHelmholtz (F_ARG) {
       break;
       
     default :
-      Msg(ERROR, "Case 2D: Bad Flag_GF 'GF_GradHelmholtz' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 2D: Bad Flag_GF 'GF_GradHelmholtz' (%d)", Current.FMM.Flag_GF);  
       break;
     }         
     break; 
@@ -668,13 +668,13 @@ void GF_GradHelmholtz (F_ARG) {
       break;
    
     default :
-      Msg(ERROR, "Case 3D: Bad Flag_GF 'GF_GradHelmholtz' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 3D: Bad Flag_GF 'GF_GradHelmholtz' (%d)", Current.FMM.Flag_GF);  
       break;
     }
     break;   
    
   default :
-    Msg(ERROR, "Bad Parameter for 'GF_GradHelmholtz' (%d)", (int)Fct->Para[0]);
+    Msg(GERROR, "Bad Parameter for 'GF_GradHelmholtz' (%d)", (int)Fct->Para[0]);
     break;
     
   }
@@ -699,7 +699,7 @@ void GF_NPxGradHelmholtz (F_ARG) {
 
   /* Vectorial product N[] /\ Grad G */ 
   if(Current.NbrHar != 2)
-    Msg(ERROR, "Wrong Number of Harmonics in 'GF_NPxGradHelmholtz'");
+    Msg(GERROR, "Wrong Number of Harmonics in 'GF_NPxGradHelmholtz'");
   
   V->Type = VECTOR ;
 
@@ -727,14 +727,14 @@ void GF_NPxGradHelmholtz (F_ARG) {
       break ;
 
     default:
-      Msg(ERROR, "Case 3D: Bad Flag_GF 'GF_NPxGradLaplace' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 3D: Bad Flag_GF 'GF_NPxGradLaplace' (%d)", Current.FMM.Flag_GF);  
       break;
     }
     
     break;
 
   default :
-    Msg(ERROR, "Bad Parameter for 'GF_NPxGradHelmholtz' (%d)", (int)Fct->Para[0]);
+    Msg(GERROR, "Bad Parameter for 'GF_NPxGradHelmholtz' (%d)", (int)Fct->Para[0]);
     break;
   }
   
@@ -759,7 +759,7 @@ void GF_NSxGradHelmholtz (F_ARG) {
   GetDP_Begin("GF_NSxGradHelmholtz");
   
   if(Current.NbrHar != 2)
-    Msg(ERROR, "Wrong Number of Harmonics in 'GF_NSxGradHelmholtz'");
+    Msg(GERROR, "Wrong Number of Harmonics in 'GF_NSxGradHelmholtz'");
 
   V->Type = SCALAR ;
 
@@ -867,7 +867,7 @@ void GF_NSxGradHelmholtz (F_ARG) {
       break;     
       
     default :
-      Msg(ERROR, "Case 2D: Bad Flag_GF 'GF_NSxGradHelmholtz' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 2D: Bad Flag_GF 'GF_NSxGradHelmholtz' (%d)", Current.FMM.Flag_GF);  
       break;
     }
     break; 
@@ -907,13 +907,13 @@ void GF_NSxGradHelmholtz (F_ARG) {
       break ;
   
     default :
-      Msg(ERROR, "Case 3D: Bad Flag_GF 'GF_NSxGradHelmholtz' (%d)", Current.FMM.Flag_GF);  
+      Msg(GERROR, "Case 3D: Bad Flag_GF 'GF_NSxGradHelmholtz' (%d)", Current.FMM.Flag_GF);  
       break;
     }
     break;
 
   default :
-    Msg(ERROR, "Bad Parameter for 'GF_NSxGradHelmholtz' (%d)", (int)Fct->Para[0]);
+    Msg(GERROR, "Bad Parameter for 'GF_NSxGradHelmholtz' (%d)", (int)Fct->Para[0]);
     break;
   }
   

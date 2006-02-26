@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.18 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.19 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -61,7 +61,7 @@ void  Treatment_Formulation(struct Formulation * Formulation_P) {
     break ;
 
   default :
-    Msg(ERROR, "Unknown type for Formulation '%s'", Formulation_P->Name) ;
+    Msg(GERROR, "Unknown type for Formulation '%s'", Formulation_P->Name) ;
     break ;
   }
 
@@ -113,10 +113,10 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
   /* --------------------------------------------------------------- */
 
   if (!(Nbr_EquationTerm = List_Nbr(Formulation_P->Equation)))
-    Msg(ERROR, "No equation in Formulation '%s'", Formulation_P->Name);
+    Msg(GERROR, "No equation in Formulation '%s'", Formulation_P->Name);
   
   if (!(Nbr_DefineQuantity = List_Nbr(Formulation_P->DefineQuantity)))
-    Msg(ERROR, "No Quantity in Formulation '%s'", Formulation_P->Name);
+    Msg(GERROR, "No Quantity in Formulation '%s'", Formulation_P->Name);
 
   DefineQuantity_P0 = (struct DefineQuantity*)
     List_Pointer(Formulation_P->DefineQuantity, 0) ;
@@ -205,7 +205,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
       break ;
 
     default :
-      Msg(ERROR, "Unknown type of equation term") ;
+      Msg(GERROR, "Unknown type of equation term") ;
       break ;
     }
 
@@ -337,7 +337,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 		QuantityStorage_P->NbrElementaryBasisFunction = 0 ;
 		break ;
 	      default :
-		Msg(ERROR, "Bad kind of Quantity in Formulation '%s'",
+		Msg(GERROR, "Bad kind of Quantity in Formulation '%s'",
 		    Formulation_P->Name);
 		break;
 	      }
@@ -494,7 +494,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 		 QuantityStorage_P->FunctionSpace, QuantityStorage_P) ;
 	      break ;
 	    default :
-	      Msg(ERROR, "Bad kind of Quantity in Formulation '%s'",
+	      Msg(GERROR, "Bad kind of Quantity in Formulation '%s'",
 		  Formulation_P->Name);
 	      break;
 	    }
@@ -511,7 +511,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 				      QuantityStorage_P0) ;
 	  break ;
 	case _PAR :
-	  Msg(ERROR, "Partitionning not done for Global Terms");
+	  Msg(GERROR, "Partitionning not done for Global Terms");
 	  break;
 	case _CAL :
 	  Cal_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
@@ -544,7 +544,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 				  DefineQuantity_P0, QuantityStorage_P0) ;
 	    break ;
 	  case _PAR :
-	    Msg(ERROR, "Partitionning not done for Global Equations");
+	    Msg(GERROR, "Partitionning not done for Global Equations");
 	    break;
 	  case _CAL :
 	    Cal_FemGlobalEquation(EquationTerm_P,
@@ -643,7 +643,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
       if (!List_Search(RegionIndex_L, &Num_Region, fcmp_int))
 	List_Add(RegionIndex_L, &Num_Region) ;
       else {
-	Msg(ERROR, "2 occurences of Elementary Region #%d in Contraint '%s'",
+	Msg(GERROR, "2 occurences of Elementary Region #%d in Contraint '%s'",
 	    Num_Region, Constraint_P->Name);
       }
     }
@@ -695,7 +695,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
   if (List_Nbr(DofGlobal_Equ_L) != Nbr_EquAndDof) {
     Msg(DIRECT, ERROR_STR "Incompatible number of equations with Contraint '%s'.",
 	Constraint_P->Name);
-    Msg(ERROR, "(%d equations obtained while %d branches are defined)",
+    Msg(GERROR, "(%d equations obtained while %d branches are defined)",
 	List_Nbr(DofGlobal_Equ_L), Nbr_EquAndDof);
   }
 
@@ -838,7 +838,7 @@ struct Dof * Cal_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
     GetDP_Return(QuaSto_S.BasisFunction[0].Dof) ;
   }
   else {
-    Msg(ERROR, "Not 1 Dof associated with GlobalQuantity (Region #%d)",	Num_Region) ;
+    Msg(GERROR, "Not 1 Dof associated with GlobalQuantity (Region #%d)",	Num_Region) ;
     GetDP_Return(NULL) ;
   }
 
@@ -854,7 +854,7 @@ void  Treatment_GlobalFormulation(struct Formulation * Formulation_P) {
 
   GetDP_Begin("Treatment_GlobalFormulation");
 
-  Msg(ERROR, "You should not be here!") ;
+  Msg(GERROR, "You should not be here!") ;
 
   GetDP_End ;
 }

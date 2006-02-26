@@ -1,4 +1,4 @@
-#define RCSID "$Id: Graph.c,v 1.2 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: Graph.c,v 1.3 2006-02-26 00:42:52 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -124,7 +124,7 @@ static void Graph_sort(unsigned long n, int ai[] , int aj []){
       aj[j M1]=c;
       jstack += 2;
       if (jstack > NSTACK) {
-	Msg(ERROR, "NSTACK too small in sort2");
+	Msg(GERROR, "NSTACK too small in sort2");
       }
       if (ir-i+1 >= j-l) {
 	istack[jstack]=ir;
@@ -382,7 +382,7 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
     case DOF_FIXEDWITHASSOCIATE :
       break;
     default :
-      Msg(ERROR,"Strange stuff in partitioning");
+      Msg(GERROR,"Strange stuff in partitioning");
       break;
     }
   }
@@ -404,7 +404,7 @@ void PartitionGraph(struct DofData * DofData_P, int NbPartition){
 
   GetDP_Begin("PartitionGraph");
 
-  Msg(ERROR, "Impossible to partition (GetDP was compiled without Metis)");
+  Msg(GERROR, "Impossible to partition (GetDP was compiled without Metis)");
 
   GetDP_End ;
 }

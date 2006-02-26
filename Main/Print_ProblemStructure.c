@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.40 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.41 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1550,7 +1550,7 @@ void  Print_ListResolution(int choose, struct Problem  * Problem) {
       Name_Resolution = RE->Name ; 
     }
     else if(choose)
-      Msg(ERROR, "Unknown Resolution") ;
+      Msg(GERROR, "Unknown Resolution") ;
   }
   else
     Msg(WARNING, "No Resolution available") ;
@@ -1586,7 +1586,7 @@ void  Print_ListPostProcessing(int choose, struct Problem  * Problem) {
       Name_PostProcessing[1] = NULL ;
     }
     else if(choose)
-      Msg(ERROR, "Unknown PostProcessing") ;
+      Msg(GERROR, "Unknown PostProcessing") ;
   }
   else
     Msg(WARNING, "No PostProcessing available") ;
@@ -1629,7 +1629,7 @@ void  Print_ListPostOperation(int choose, struct Problem  * Problem) {
       Name_PostOperation[1] = NULL ;
     }
     else if(choose)
-      Msg(ERROR, "Unknown PostOperation") ;
+      Msg(GERROR, "Unknown PostOperation") ;
   }
   else
     Msg(WARNING, "No PostOperation available");

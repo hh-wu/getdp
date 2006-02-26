@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Region.c,v 1.15 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: BF_Region.c,v 1.16 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -228,7 +228,7 @@ void  BF_Global(struct Element * Element, int NumGlobal,
     s[0] = Value.Val[0] ;  s[1] = Value.Val[1] ;  s[2] = Value.Val[2] ;
     break ;
   default :
-    Msg(ERROR, "Bad type of value for Global BasisFunction") ;
+    Msg(GERROR, "Bad type of value for Global BasisFunction") ;
   }
 
   GetDP_End ;
@@ -285,7 +285,7 @@ void  BF_dGlobal(struct Element * Element, int NumGlobal,
     s[0] = Value.Val[0] ;  s[1] = Value.Val[1] ;  s[2] = Value.Val[2] ;
     break ;
   default :
-    Msg(ERROR, "Bad type of value for Global BasisFunction") ;
+    Msg(GERROR, "Bad type of value for Global BasisFunction") ;
   }
 
   GetDP_End ;

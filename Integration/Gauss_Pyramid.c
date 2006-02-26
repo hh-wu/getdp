@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Pyramid.c,v 1.10 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Pyramid.c,v 1.11 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -38,7 +38,7 @@ void  Gauss_Pyramid (int Nbr_Points, int Num,
 
   default : 
     Msg(DIRECT, ERROR_STR "Wrong number of Gauss points for Pyramid");
-    Msg(ERROR, "Valid choice: 8");
+    Msg(GERROR, "Valid choice: 8");
     break;
 
   }

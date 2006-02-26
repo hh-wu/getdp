@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Coord.c,v 1.19 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: F_Coord.c,v 1.20 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -165,7 +165,7 @@ void  F_aX21_bY21_cZ21 (F_ARG) {
   GetDP_Begin("F_aX21_bY21_cZ21");
 
   if(!Current.Element || Current.Element->Num == NO_ELEMENT)
-    Msg(ERROR, "No element on which to perform F_aX21_bY21_cZ21");
+    Msg(GERROR, "No element on which to perform F_aX21_bY21_cZ21");
 
   NumNodes = Geo_GetNodesOfEdgeInElement (Current.Element->GeoElement, 
 					  Current.NumEntityInElement) ;

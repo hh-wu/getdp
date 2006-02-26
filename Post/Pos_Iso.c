@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Iso.c,v 1.20 2006-02-25 15:00:25 geuzaine Exp $"
+#define RCSID "$Id: Pos_Iso.c,v 1.21 2006-02-26 00:42:59 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -209,7 +209,7 @@ void Cal_Iso(struct PostElement *PE, List_T *list,
     }
     break ;
   default :
-    Msg(ERROR, "Iso computation not done for this type of element");
+    Msg(GERROR, "Iso computation not done for this type of element");
     break ;
   }
 

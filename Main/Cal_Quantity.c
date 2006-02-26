@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.43 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.44 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -83,10 +83,10 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
       }
       else {
 	if(Current.Region == NO_REGION)
-	  Msg(ERROR, "Function '%s' undefined in expressions without support",
+	  Msg(GERROR, "Function '%s' undefined in expressions without support",
 	      Expression_P->Name);
 	else
-	  Msg(ERROR, "Function '%s' undefined in Region %d",
+	  Msg(GERROR, "Function '%s' undefined in Region %d",
 	      Expression_P->Name, Current.Region);
       }
     }
@@ -96,7 +96,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
     break ;
 
   default :
-    Msg(ERROR, "Unknown type (%d) of Expression (%s)",
+    Msg(GERROR, "Unknown type (%d) of Expression (%s)",
 	Expression_P->Type, Expression_P->Name) ;  
     break;
   }
@@ -224,7 +224,7 @@ void Cal_WholeQuantity(struct Element * Element,
   }
   RecursionIndex++;
   if(RecursionIndex < 0 || RecursionIndex >= MAX_RECURSION) 
-    Msg(ERROR, "Recursion problem in Cal_WholeQuantity (%d outside [0,%d])", 
+    Msg(GERROR, "Recursion problem in Cal_WholeQuantity (%d outside [0,%d])", 
 	RecursionIndex, MAX_RECURSION);
   Stack = StaticStack[RecursionIndex];
 #endif
@@ -236,7 +236,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
   for (i_WQ = 0 ; i_WQ < List_Nbr(WholeQuantity_L) ; i_WQ++) {
 
-    if(Index >= MAX_STACK_SIZE) Msg(ERROR, "Stack size exceeded (%d)", MAX_STACK_SIZE);
+    if(Index >= MAX_STACK_SIZE) Msg(GERROR, "Stack size exceeded (%d)", MAX_STACK_SIZE);
 
     WholeQuantity_P = WholeQuantity_P0 + i_WQ ;
 
@@ -343,10 +343,10 @@ void Cal_WholeQuantity(struct Element * Element,
 	  
 	} 
 	else
-	  Msg(ERROR, "Explicit (x,y,z,time) evaluation not implemented");
+	  Msg(GERROR, "Explicit (x,y,z,time) evaluation not implemented");
       }
       else{
-	Msg(ERROR, "Explicit Dof{} evaluation out of context");
+	Msg(GERROR, "Explicit Dof{} evaluation out of context");
       }
       break ;
 
@@ -354,7 +354,7 @@ void Cal_WholeQuantity(struct Element * Element,
       Save_Region = Current.Region ; 
 
       if(!Element->ElementTrace)
-	Msg(ERROR, "The trace operator should act on a discrete Quantity");
+	Msg(GERROR, "The trace operator should act on a discrete Quantity");
       
       Current.Region = Element->ElementTrace->Region ;
       
@@ -633,7 +633,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_MHTRANSFORM :
       if(Current.NbrHar == 1)
-	Msg(ERROR, 
+	Msg(GERROR, 
 	    "MHTransform can only be used in complex (multi-harmonic) calculations") ;
 
       Cal_WholeQuantity(Element, QuantityStorage_P0, 
@@ -680,7 +680,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_SAVEVALUE :
       if(WholeQuantity_P->Case.SaveValue.Index > MAX_REGISTER_SIZE-1)
-	Msg(ERROR, "Register Size Exceeded (%d)", MAX_REGISTER_SIZE);
+	Msg(GERROR, "Register Size Exceeded (%d)", MAX_REGISTER_SIZE);
       /* if (WholeQuantity_P->Case.SaveValue.Index >= 0) */
       Cal_CopyValue(&Stack[0][Index-1], 
 		    ValueSaved + WholeQuantity_P->Case.SaveValue.Index) ;
@@ -688,7 +688,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_VALUESAVED :
       if(WholeQuantity_P->Case.ValueSaved.Index > MAX_REGISTER_SIZE-1)
-	Msg(ERROR, "Register size exceeded (%d)", MAX_REGISTER_SIZE);
+	Msg(GERROR, "Register size exceeded (%d)", MAX_REGISTER_SIZE);
       Cal_CopyValue(ValueSaved + WholeQuantity_P->Case.ValueSaved.Index, 
 		    &Stack[0][Index]) ;
       Multi[Index] = 0 ;
@@ -709,7 +709,7 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
       
     default :
-      Msg(ERROR, "Unknown type of WholeQuantity (%d)", WholeQuantity_P->Type);
+      Msg(GERROR, "Unknown type of WholeQuantity (%d)", WholeQuantity_P->Type);
       break;
     }
   }

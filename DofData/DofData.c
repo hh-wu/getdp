@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.46 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.47 2006-02-26 00:42:52 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -136,7 +136,7 @@ void  Dof_OpenFile(int Type, char * Name, char * Mode) {
   strcpy(FileName, Name) ; strcat(FileName, Extension) ;
 
   if (!(File_X = fopen(FileName, Mode)))
-    Msg(ERROR,"Unable to open file '%s'", FileName) ;
+    Msg(GERROR,"Unable to open file '%s'", FileName) ;
 
   switch (Type) {
   case DOF_PRE :  File_PRE = File_X ;  break ;
@@ -213,7 +213,7 @@ void  Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData) {
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
-  if (feof(File_PRE)) Msg(ERROR, "$Resolution field not found in file");
+  if (feof(File_PRE)) Msg(GERROR, "$Resolution field not found in file");
 
   if (!strncmp(&String[1], "Resolution", 10)) {
     fscanf(File_PRE, "%d %d", Num_Resolution, Nbr_DofData) ;
@@ -221,7 +221,7 @@ void  Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData) {
 
   do {
     fgets(String, MAX_STRING_LENGTH, File_PRE) ;
-    if (feof(File_PRE)) Msg(ERROR, "Prematured end of file");
+    if (feof(File_PRE)) Msg(GERROR, "Prematured end of file");
   } while (String[0] != '$') ;
 
   GetDP_End ;
@@ -355,7 +355,7 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
-  if (feof(File_PRE)) Msg(ERROR, "$DofData field not found in file");
+  if (feof(File_PRE)) Msg(GERROR, "$DofData field not found in file");
 
   if (!strncmp(&String[1], "DofData", 7)) {
 
@@ -432,7 +432,7 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) {
 
   do {
     fgets(String, MAX_STRING_LENGTH, File_PRE) ;
-    if (feof(File_PRE)) Msg(ERROR, "Prematured end of file");
+    if (feof(File_PRE)) Msg(GERROR, "Prematured end of file");
   } while (String[0] != '$') ;
 
   Dof_InitDofType(DofData_P) ;
@@ -751,12 +751,12 @@ void  Dof_InitDofType(struct DofData * DofData_P) {
 	  Dof_GetDofStruct(DofData_P, Dof_P->NumType-1,
 			   Dof_P->Case.Link.EntityRef, Dof_P->Harmonic) ;
 	if (Dof_P->Case.Link.Dof == NULL)
-	  Msg(ERROR,"Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
+	  Msg(GERROR,"Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
 	      Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
       }
       /*
       if (Dof_P->Case.Link.Dof == NULL)
-	Msg(ERROR,"Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
+	Msg(GERROR,"Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
 	    Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
       */
       break ;
@@ -1244,7 +1244,7 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
     case DOF_LINKCPLX :
       if(NbrHar==1)
-	Msg(ERROR,"LinkCplx only valid for Complex systems") ;
+	Msg(GERROR,"LinkCplx only valid for Complex systems") ;
       else{
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef - Val[1] * Dof_P->Case.Link.Coef2 ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef + Val[0] * Dof_P->Case.Link.Coef2 ;
@@ -1253,12 +1253,12 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       break ;
 
     case DOF_FIXED_SOLVE :  case DOF_FIXEDWITHASSOCIATE_SOLVE :
-      Msg(ERROR,"Wrong Constraints: "
+      Msg(GERROR,"Wrong Constraints: "
 	  "remaining Dof(s) waiting to be fixed by a Resolution");
       break;
 
     case DOF_UNKNOWN_INIT :
-      Msg(ERROR,"Wrong Initial Constraints: "
+      Msg(GERROR,"Wrong Initial Constraints: "
 	  "remaining Dof(s) with non-fixed initial conditions");
       break;
     }
@@ -1277,7 +1277,7 @@ void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
   case DOF_LINKCPLX :
     if(NbrHar==1)
-      Msg(ERROR,"LinkCplx only valid for Complex systems") ;
+      Msg(GERROR,"LinkCplx only valid for Complex systems") ;
     else{ /* Warning: conjugate! */
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef + Val[1] * Equ_P->Case.Link.Coef2 ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef - Val[0] * Equ_P->Case.Link.Coef2 ;
@@ -1356,7 +1356,7 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 				    (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Unknown.NumDof-1):-1) ;
 	}
 	else{
-	  Msg(ERROR, "Assemby in vectors with more than one harmonic not yet implemented") ;
+	  Msg(GERROR, "Assemby in vectors with more than one harmonic not yet implemented") ;
 	}
       }
       break ;
@@ -1374,7 +1374,7 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
     case DOF_LINKCPLX :
       if(NbrHar==1)
-	Msg(ERROR,"LinkCplx only valid for Complex systems") ;
+	Msg(GERROR,"LinkCplx only valid for Complex systems") ;
       else{
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef - Val[1] * Dof_P->Case.Link.Coef2 ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef + Val[0] * Dof_P->Case.Link.Coef2 ;
@@ -1384,12 +1384,12 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       break ;
 
     case DOF_FIXED_SOLVE :  case DOF_FIXEDWITHASSOCIATE_SOLVE :
-      Msg(ERROR,"Wrong Constraints: "
+      Msg(GERROR,"Wrong Constraints: "
 	  "remaining Dof(s) waiting to be fixed by a Resolution");
       break;
 
     case DOF_UNKNOWN_INIT :
-      Msg(ERROR,"Wrong Initial Constraints: "
+      Msg(GERROR,"Wrong Initial Constraints: "
 	  "remaining Dof(s) with non-fixed initial conditions");
       break;
     }
@@ -1408,7 +1408,7 @@ void  Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
   case DOF_LINKCPLX :
     if(NbrHar==1)
-      Msg(ERROR,"LinkCplx only valid for Complex systems") ;
+      Msg(GERROR,"LinkCplx only valid for Complex systems") ;
     else{ /* Warning: conjugate! */
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef + Val[1] * Equ_P->Case.Link.Coef2 ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef - Val[0] * Equ_P->Case.Link.Coef2 ;
@@ -1485,7 +1485,7 @@ gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P) {
 
   case DOF_UNKNOWN :
     if(!DofData_P->CurrentSolution->SolutionExist){
-      Msg(ERROR, "Empty solution in DofData %d", DofData_P->Num);
+      Msg(GERROR, "Empty solution in DofData %d", DofData_P->Num);
     }
     LinAlg_GetScalarInVector(&tmp, &DofData_P->CurrentSolution->x, 
 			     Dof_P->Case.Unknown.NumDof-1) ;
@@ -1508,7 +1508,7 @@ gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P) {
 
   case DOF_LINKCPLX :
     /* Too soon to treat LinkCplx: we need the real and imaginary parts */
-    Msg(ERROR, "Cannot call Dof_GetDofValue for LinkCplx");
+    Msg(GERROR, "Cannot call Dof_GetDofValue for LinkCplx");
     break ;
 
   default :
@@ -1525,7 +1525,7 @@ void Dof_GetRealDofValue(struct DofData * DofData_P, struct Dof * Dof_P, double 
   GetDP_Begin("Dof_GetRealDofValue");
 
   if (Dof_P->Type == DOF_LINKCPLX) {
-    Msg(ERROR, "Cannot call Dof_GetRealDofValue for LinkCplx");
+    Msg(GERROR, "Cannot call Dof_GetRealDofValue for LinkCplx");
   }
 
   tmp = Dof_GetDofValue(DofData_P, Dof_P) ;
@@ -1739,7 +1739,7 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
   GetDP_Begin("Dof_GetDummies");
 
   if (!(Val_Pulsation = Current.DofData->Val_Pulsation))
-    Msg(ERROR, "Dof_GetDummies can only be used for harmonic problems");
+    Msg(GERROR, "Dof_GetDummies can only be used for harmonic problems");
 
   DummyDof = DofData_P->DummyDof = (int *)Malloc(DofData_P->NbrDof*sizeof(int)); 
   for (iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) DummyDof[iDof]=0;

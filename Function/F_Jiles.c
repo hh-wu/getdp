@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Jiles.c,v 1.4 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: F_Jiles.c,v 1.5 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -57,10 +57,10 @@ void  F_dhdb_Jiles (F_ARG) {  /* input : h,b,dh */
 
   GetDP_Begin("F_dhdb_Jiles") ;
   
-  /* if (Current.NbrHar != 1) Msg(ERROR,"Only for time stepping"); */
+  /* if (Current.NbrHar != 1) Msg(GERROR,"Only for time stepping"); */
   
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Msg(ERROR,"Three vector arguments required");
+    Msg(GERROR,"Three vector arguments required");
 
   Hx  = (A+0)->Val[0] ;  Hy = (A+0)->Val[1] ;
   Bx  = (A+1)->Val[0] ;  By = (A+1)->Val[1] ;
@@ -86,10 +86,10 @@ void  F_dbdh_Jiles (F_ARG) {  /* input : h,b,dh */
 
   GetDP_Begin("F_dbdh_Jiles") ;
   
-  /* if (Current.NbrHar != 1) Msg(ERROR,"Only for time stepping"); */
+  /* if (Current.NbrHar != 1) Msg(GERROR,"Only for time stepping"); */
   
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Msg(ERROR,"Three vector arguments required");
+    Msg(GERROR,"Three vector arguments required");
 
   Hx  = (A+0)->Val[0] ;  Hy = (A+0)->Val[1] ;
   Bx  = (A+1)->Val[0] ;  By = (A+1)->Val[1] ;
@@ -116,7 +116,7 @@ void  F_h_Jiles (F_ARG) { /* input : h1,b1,b2 */
   GetDP_Begin("F_h_Jiles") ;
 
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Msg(ERROR,"Three vector arguments required");
+    Msg(GERROR,"Three vector arguments required");
   
   Hx1 = (A+0)->Val[0] ; Hy1 = (A+0)->Val[1] ;
   Bx1 = (A+1)->Val[0] ; By1 = (A+1)->Val[1] ;
@@ -141,7 +141,7 @@ void  F_b_Jiles (F_ARG) { /* input : b1,h1,h2 */
   GetDP_Begin("F_b_Jiles") ;
 
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Msg(ERROR,"Three vector arguments required");
+    Msg(GERROR,"Three vector arguments required");
   
   Bx1 = (A+0)->Val[0] ; By1 = (A+0)->Val[1] ;
   Hx1 = (A+1)->Val[0] ; Hy1 = (A+1)->Val[1] ;

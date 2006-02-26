@@ -1,4 +1,4 @@
-#define RCSID "$Id: FMM_Groups.c,v 1.16 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: FMM_Groups.c,v 1.17 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -101,7 +101,7 @@ void Init_CurrentFMMData ( double k0 ){
   Current.FMM.N = (k0 < 0 && Dimension == _3D) ? (NbrDir-1)*(NbrDir+1): Current.FMM.NbrDir ; /* Laplace & GradLaplace 3D */
 
   if (Current.FMM.N > NBR_MAX_DIR || Current.FMM.NbrDir >  NBR_MAX_DIR )
-    Msg(ERROR, "NbrDirections exceeds the NBR_MAX_DIR: %d", NBR_MAX_DIR ) ;
+    Msg(GERROR, "NbrDirections exceeds the NBR_MAX_DIR: %d", NBR_MAX_DIR ) ;
 
   if (k0 < 0) Msg(INFO, "NbrDirections = %d N = %d", NbrDir, Current.FMM.N ) ;  
  
@@ -153,7 +153,7 @@ void Init_CurrentFMMData ( double k0 ){
       }
       break;
     default :
-      Msg(ERROR, "Wrong Dimension for GroupsFMM: %d", Dimension ) ;
+      Msg(GERROR, "Wrong Dimension for GroupsFMM: %d", Dimension ) ;
     }
   
   GetDP_End;
@@ -699,7 +699,7 @@ int FMM_SetTruncation( double Rsrc, double Robs, double D, int Dimension){
     case 8 :  NbrDir = t2D1e_8[k] ; break ;  
     case 9 :  NbrDir = t2D1e_9[k] ; break ;
     default: 
-      Msg(ERROR, "Precision for FMM truncation can only be: 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9");
+      Msg(GERROR, "Precision for FMM truncation can only be: 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9");
     }
     if (NbrDir > 11){ if (Flag_FMM == 1) Msg(WARNING,"NbrDir = %d changed to 11 for memory requirements", NbrDir) ; NbrDir = 11 ;}
   }
@@ -713,7 +713,7 @@ int FMM_SetTruncation( double Rsrc, double Robs, double D, int Dimension){
     case 8 :  NbrDir = t3D1e_8[k] ; break ;  
     case 9 :  NbrDir = t3D1e_9[k] ; break ;
     default: 
-      Msg(ERROR, "Precision for FMM truncation can only be: 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9");
+      Msg(GERROR, "Precision for FMM truncation can only be: 1e-3, 1e-4, 1e-5, 1e-6, 1e-7, 1e-8, 1e-9");
   }
     if (NbrDir > 15){ 
       if (Flag_FMM == 1) 
@@ -775,7 +775,7 @@ int  NeighbouringGroups( int FMMGroupEObs, int FMMGroupESrc ){
   while (iFMMEqu<NbrFMMEqu && ((FMMmat_P0+iFMMEqu)->Obs != Current.FMM.Obs || (FMMmat_P0+iFMMEqu)->Src != Current.FMM.Src)) 
     iFMMEqu++ ;
 
-  if ( iFMMEqu == NbrFMMEqu )  Msg(ERROR, "Wrong Supports for FMM: Source %d Observation %d", Current.FMM.Src, Current.FMM.Obs) ; 
+  if ( iFMMEqu == NbrFMMEqu )  Msg(GERROR, "Wrong Supports for FMM: Source %d Observation %d", Current.FMM.Src, Current.FMM.Obs) ; 
 
   FMMObs = (FMMmat_P0+iFMMEqu)->Obs ;
   FMMSrc = (FMMmat_P0+iFMMEqu)->Src ;

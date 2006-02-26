@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.23 2006-02-25 15:00:25 geuzaine Exp $"
+#define RCSID "$Id: Matrix.c,v 1.24 2006-02-26 00:42:59 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -69,7 +69,7 @@ void init_matrix (int NbLines, Matrix *M, Solver_Params *p){
     M->F.a    = (double*) Malloc (NbLines * NbLines * sizeof(double));
     break;
   default :
-    Msg(ERROR, "Unknown type of matrix storage format: %d", M->T);
+    Msg(GERROR, "Unknown type of matrix storage format: %d", M->T);
     break;
   }
 }
@@ -394,7 +394,7 @@ void scale_matrix (int scaling, Matrix *M){
 
     default : 
 
-      Msg(ERROR, "Unknown type of matrix scaling: %d", scaling);
+      Msg(GERROR, "Unknown type of matrix scaling: %d", scaling);
       break;
 
     }
@@ -424,7 +424,7 @@ void scale_vector (int ROW_or_COLUMN, Matrix *M, double *V){
   case 1  : scal =  M->colscal ; break ;
   }
 
-  if (scal == NULL) Msg(ERROR, "scale_vector : no scaling factors available !") ;
+  if (scal == NULL) Msg(GERROR, "scale_vector : no scaling factors available !") ;
 
   for (i = 0 ; i < M->N ; i++) V[i] *= scal[i] ; 
 }
@@ -693,12 +693,12 @@ void formatted_write_matrix (FILE *pfile, Matrix *M, int style){
       break;
     
     default : 
-      Msg(ERROR, "Unknown print style for formatted matrix output");
+      Msg(GERROR, "Unknown print style for formatted matrix output");
     }
     break ;
     
   default :
-    Msg(ERROR, "Unknown matrix format for formatted matrix output");
+    Msg(GERROR, "Unknown matrix format for formatted matrix output");
 
   }
 }
@@ -728,7 +728,7 @@ void binary_read_matrix (Matrix *M, char *name , char *ext){
   pfile = fopen(filename, "r") ;
 
   if (pfile == NULL) {
-    Msg(ERROR,"Error opening file '%s'", filename);    
+    Msg(GERROR,"Error opening file '%s'", filename);    
   }
   
   fscanf(pfile,"%d",&M->T);
@@ -781,7 +781,7 @@ void binary_read_vector (int Nb, double **V, char *name, char *ext){
   pfile = fopen(filename, "r") ;
 
   if (pfile == NULL) {
-    Msg(ERROR, "Error opening file %s", filename);
+    Msg(GERROR, "Error opening file %s", filename);
   }
 
   init_vector(Nb, V);
@@ -802,7 +802,7 @@ void formatted_read_matrix (Matrix *M, char *name , char *ext, int style){
   pfile = fopen(filename, "r+") ;
 
   if (pfile == NULL) {
-    Msg(ERROR,"Error opening file  %s", filename);
+    Msg(GERROR,"Error opening file  %s", filename);
   }
   
   fscanf(pfile,"%d",&M->T);
@@ -846,7 +846,7 @@ void formatted_read_vector (int Nb, double *V, char *name, char *ext, int style)
   pfile = fopen(filename, "r") ;
 
   if (pfile == NULL) {
-    Msg(ERROR,"Error opening file %s", filename);
+    Msg(GERROR,"Error opening file %s", filename);
   }
 
   for(i=0 ; i<Nb ; i++) fscanf(pfile, "%lf", &V[i]);

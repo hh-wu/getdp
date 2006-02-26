@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_FunctionValue.c,v 1.16 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Get_FunctionValue.c,v 1.17 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -49,7 +49,7 @@ int Get_ValueFromForm(int Form) {
     GetDP_Return(VECTOR) ;
 
   default :
-    Msg(ERROR, "Unknown Form type in 'Get_ValueFromForm'");
+    Msg(GERROR, "Unknown Form type in 'Get_ValueFromForm'");
     GetDP_Return(-1) ;
   }
 }
@@ -78,11 +78,11 @@ struct IntegrationCase * Get_IntegrationCase (struct Element * Element,
        List_Pointer(Problem_S.Expression, CriterionIndex),
        NULL, 0., 0., 0., &Criterion) ;
     if(Criterion.Val[0] < 0 || Criterion.Val[0] >= List_Nbr(IntegrationCase_L))
-      Msg(ERROR, "Integration criterion out of range");
+      Msg(GERROR, "Integration criterion out of range");
   }
   else {
     if(List_Nbr(IntegrationCase_L) > 1)
-      Msg(ERROR, "Missing integration criterion");
+      Msg(GERROR, "Missing integration criterion");
     Criterion.Val[0] = 0;
   }
 
@@ -226,7 +226,7 @@ void  Get_FunctionValue(int Nbr_Function,
     break ;
 
   default :
-    Msg(ERROR, "Unknown operator in 'Get_FunctionValue'");
+    Msg(GERROR, "Unknown operator in 'Get_FunctionValue'");
     break;
   }
 
@@ -303,7 +303,7 @@ void  Get_InitFunctionValue(int Type_Operator,
     break ;
 
   default :
-    Msg(ERROR, "Unknown operator in 'Get_InitFunctionValue'");
+    Msg(GERROR, "Unknown operator in 'Get_InitFunctionValue'");
     break;
   }
 

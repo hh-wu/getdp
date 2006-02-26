@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Value.c,v 1.25 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Cal_Value.c,v 1.26 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -70,7 +70,7 @@ void Cal_ComplexDivision(double V1[], double V2[], double P[]) {
   GetDP_Begin("Cal_ComplexDivision");
 
   Mod2       = DSQU(V2[0]) + DSQU(V2[MAX_DIM]) ;
-  if(!Mod2) Msg(ERROR, "Division by zero in 'Cal_ComplexDivision'");
+  if(!Mod2) Msg(GERROR, "Division by zero in 'Cal_ComplexDivision'");
   P[0]       = (  V1[0] * V2[0]       + V1[MAX_DIM] * V2[MAX_DIM]) / Mod2 ;
   P[MAX_DIM] = (- V1[0] * V2[MAX_DIM] + V1[MAX_DIM] * V2[0])       / Mod2 ;
 
@@ -83,7 +83,7 @@ void Cal_ComplexInvert(double V1[], double P[]) {
   GetDP_Begin("Cal_ComplexInvert");
 
   Mod2       = DSQU(V1[0]) + DSQU(V1[MAX_DIM]) ;
-  if(!Mod2) Msg(ERROR, "Division by zero in 'Cal_ComplexInvert'");
+  if(!Mod2) Msg(GERROR, "Division by zero in 'Cal_ComplexInvert'");
   P[0]       =   V1[0]       / Mod2 ;
   P[MAX_DIM] = - V1[MAX_DIM] / Mod2 ;
 
@@ -225,7 +225,7 @@ void  Cal_ValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values){
     }
   }
   else {
-    Msg(ERROR, "Wrong type conversion: %s ",
+    Msg(GERROR, "Wrong type conversion: %s ",
 	Get_StringForDefine(Field_Type, V1[0].Type));
   }
 
@@ -257,7 +257,7 @@ void  Cal_AddValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values)
     }
   }
   else {
-    Msg(ERROR, "Wrong type conversion: %s ",
+    Msg(GERROR, "Wrong type conversion: %s ",
 	Get_StringForDefine(Field_Type, V1[0].Type));
   }
   GetDP_End ;
@@ -378,7 +378,7 @@ void  Cal_AddValue (struct Value * V1, struct Value * V2, struct Value * R) {
   }
   
   else {
-    Msg(ERROR, "Addition of different quantities: %s + %s",
+    Msg(GERROR, "Addition of different quantities: %s + %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -496,7 +496,7 @@ void  Cal_AddValueArray (struct Value *V1, struct Value *V2, struct Value *R, in
     }
   }
   else
-    Msg(ERROR, "Addition of different quantities: %s + %s",
+    Msg(GERROR, "Addition of different quantities: %s + %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   
@@ -590,7 +590,7 @@ void  Cal_MultValue (struct Value * V1, double d, struct Value * R) {
     }
     break;        
   default :
-    Msg(ERROR, "Wrong argument type for 'Cal_MultValue'");
+    Msg(GERROR, "Wrong argument type for 'Cal_MultValue'");
     break;
   }
   GetDP_End ;
@@ -683,7 +683,7 @@ void  Cal_AddMultValue (struct Value * V1, struct Value * V2, double d, struct V
     }
     break;        
   default :
-    Msg(ERROR, "Wrong argument type for 'Cal_AddMultValue'");
+    Msg(GERROR, "Wrong argument type for 'Cal_AddMultValue'");
     break;
   }
   Cal_AddValue(V1,&A,R);
@@ -788,7 +788,7 @@ void  Cal_AddMultValueArray (struct Value * V1, struct Value * V2, double d, str
     }
     break;        
   default :
-    Msg(ERROR, "Wrong argument type for 'Cal_AddMultValueArray'");
+    Msg(GERROR, "Wrong argument type for 'Cal_AddMultValueArray'");
     break;
   }
   Cal_AddValueArray(V1, V2, R,Nbr_Values);
@@ -838,7 +838,7 @@ void  Cal_AddMultValue2 (struct Value * V1, double d1,
     }
     break;
   default :
-    Msg(ERROR, "Wrong argument type for 'Cal_AddMultValue2'");
+    Msg(GERROR, "Wrong argument type for 'Cal_AddMultValue2'");
     break;
   }
 
@@ -939,7 +939,7 @@ void  Cal_SubstractValue (struct Value * V1, struct Value * V2, struct Value * R
   }
 
   else {
-    Msg(ERROR, "Substraction of different quantities: %s - %s",
+    Msg(GERROR, "Substraction of different quantities: %s - %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1266,7 +1266,7 @@ void  Cal_ProductValue (struct Value * V1, struct Value * V2, struct Value * R) 
   /* a faire: differents tenseurs entre eux */
 
   else {
-    Msg(ERROR, "Product of non adapted quantities: %s * %s",
+    Msg(GERROR, "Product of non adapted quantities: %s * %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1375,7 +1375,7 @@ void  Cal_DivideValue (struct Value * V1, struct Value * V2, struct Value * R) {
   }
 
   else {
-    Msg(ERROR, "Division of non adapted quantities: %s / %s",
+    Msg(GERROR, "Division of non adapted quantities: %s / %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1416,7 +1416,7 @@ void  Cal_ModuloValue (struct Value * V1, struct Value * V2, struct Value * R) {
   }
 
   else {
-    Msg(ERROR, "Modulo of non adapted quantities: %s %% %s",
+    Msg(GERROR, "Modulo of non adapted quantities: %s %% %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1464,7 +1464,7 @@ void  Cal_CrossProductValue (struct Value * V1, struct Value * V2, struct Value 
   }
 
   else {
-    Msg(ERROR, "Cross product of non vector quantities: %s /\\ %s",
+    Msg(GERROR, "Cross product of non vector quantities: %s /\\ %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1517,7 +1517,7 @@ void  Cal_PowerValue (struct Value * V1, struct Value * V2, struct Value * R) {
   }
 
   else {
-    Msg(ERROR, "Power of non scalar quantities: %s ^ %s",
+    Msg(GERROR, "Power of non scalar quantities: %s ^ %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1540,7 +1540,7 @@ void  Cal_LessValue (struct Value * V1, struct Value * V2, struct Value * R) {
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison of non scalar quantities: %s < %s",
+    Msg(GERROR, "Comparison of non scalar quantities: %s < %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1562,7 +1562,7 @@ void  Cal_LessOrEqualValue (struct Value * V1, struct Value * V2, struct Value *
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison of non scalar quantities: %s <= %s",
+    Msg(GERROR, "Comparison of non scalar quantities: %s <= %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1584,7 +1584,7 @@ void  Cal_GreaterValue (struct Value * V1, struct Value * V2, struct Value * R) 
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison of non scalar quantities: %s > %s",
+    Msg(GERROR, "Comparison of non scalar quantities: %s > %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1606,7 +1606,7 @@ void  Cal_GreaterOrEqualValue (struct Value * V1, struct Value * V2, struct Valu
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison of non scalar quantities: %s >= %s",
+    Msg(GERROR, "Comparison of non scalar quantities: %s >= %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1688,7 +1688,7 @@ void  Cal_EqualValue (struct Value * V1, struct Value * V2, struct Value * R) {
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison of different quantities: %s == %s",
+    Msg(GERROR, "Comparison of different quantities: %s == %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1770,7 +1770,7 @@ void  Cal_NotEqualValue (struct Value * V1, struct Value * V2, struct Value * R)
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison of different quantities: %s != %s",
+    Msg(GERROR, "Comparison of different quantities: %s != %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1791,7 +1791,7 @@ void  Cal_ApproxEqualValue (struct Value * V1, struct Value * V2, struct Value *
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Comparison of non scalar quantities: %s ~= %s",
+    Msg(GERROR, "Comparison of non scalar quantities: %s ~= %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1812,7 +1812,7 @@ void  Cal_AndValue (struct Value * V1, struct Value * V2, struct Value * R) {
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "And of non scalar quantities: %s && %s",
+    Msg(GERROR, "And of non scalar quantities: %s && %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1834,7 +1834,7 @@ void  Cal_OrValue (struct Value * V1, struct Value * V2, struct Value * R) {
     R->Type = SCALAR ;
   }
   else {
-    Msg(ERROR, "Or of non scalar quantities: %s || %s",
+    Msg(GERROR, "Or of non scalar quantities: %s || %s",
 	Get_StringForDefine(Field_Type, V1->Type),
 	Get_StringForDefine(Field_Type, V2->Type));
   }
@@ -1890,7 +1890,7 @@ void  Cal_NegValue (struct Value * R) {
     }
     break;
   default :
-    Msg(ERROR, "Wrong argument type for Operator (-)");
+    Msg(GERROR, "Wrong argument type for Operator (-)");
     break;
   }
 
@@ -1910,7 +1910,7 @@ void  Cal_NotValue (struct Value * R) {
     R->Val[0] = !R->Val[0] ;
   }
   else {
-    Msg(ERROR, "Negation of non scalar quantity: ! %s",
+    Msg(GERROR, "Negation of non scalar quantity: ! %s",
 	Get_StringForDefine(Field_Type, R->Type));
   }
 
@@ -1968,7 +1968,7 @@ void Cal_TransposeValue(struct Value *V1, struct Value *R){
     break;    
     
   default:
-    Msg(ERROR, "Wrong argument in 'Cal_TransposeValue'");
+    Msg(GERROR, "Wrong argument in 'Cal_TransposeValue'");
     break;
   }  
   
@@ -2029,7 +2029,7 @@ void Cal_TraceValue(struct Value *V1, struct Value *R){
     break;
     
   default:
-    Msg(ERROR, "Wrong argument type in 'Cal_TraceValue'");
+    Msg(GERROR, "Wrong argument type in 'Cal_TraceValue'");
     break;
   }  
 
@@ -2322,7 +2322,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R){
 #undef COMPLEX_COMPUTE_A
     
   default :
-    Msg(ERROR, "Wrong argument type in 'Cal_RotateValue'");
+    Msg(GERROR, "Wrong argument type in 'Cal_RotateValue'");
     break;
   }
 
@@ -2427,7 +2427,7 @@ void Cal_DetValue(struct Value *V1, struct Value *R){
     break;    
     
   default:
-    Msg(ERROR, "Wrong argument type in 'Cal_DetValue'");
+    Msg(GERROR, "Wrong argument type in 'Cal_DetValue'");
     break;
   }  
   
@@ -2452,7 +2452,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
 
     if(Current.NbrHar==1){      
       if(!V1->Val[0]){
-	Msg(ERROR, "Division by zero in 'Cal_InvertValue'");
+	Msg(GERROR, "Division by zero in 'Cal_InvertValue'");
       }
       R->Val[0] = 1./V1->Val[0];
     }
@@ -2473,7 +2473,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
 	R->Val[2] = 1./V1->Val[2];
       }
       else{
-	Msg(ERROR, "Null determinant in 'Cal_InvertValue'");
+	Msg(GERROR, "Null determinant in 'Cal_InvertValue'");
       }
     }
     else{
@@ -2489,7 +2489,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
     Cal_DetValue(V1,&Det);
 
     if(!Det.Val[0]){
-      Msg(ERROR, "Null determinant in 'Cal_InvertValue'");
+      Msg(GERROR, "Null determinant in 'Cal_InvertValue'");
     }
 
     if(Current.NbrHar==1){      
@@ -2538,7 +2538,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
     Cal_DetValue(V1,&Det);
 
     if(!Det.Val[0]){
-      Msg(ERROR, "Null determinant in 'Cal_InvertValue'");
+      Msg(GERROR, "Null determinant in 'Cal_InvertValue'");
     }
 
     if(Current.NbrHar==1){      
@@ -2584,7 +2584,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R){
     break;
 
   default :
-    Msg(ERROR, "Wrong type of argument in 'Cal_InvertValue'");
+    Msg(GERROR, "Wrong type of argument in 'Cal_InvertValue'");
     break;
   }
 
@@ -2653,7 +2653,7 @@ void Print_Value(struct Value *A){
     break;
 
   default :
-    Msg(ERROR, "Unknown type of argument in function 'Printf'");
+    Msg(GERROR, "Unknown type of argument in function 'Printf'");
     break;
   }
 
@@ -2694,7 +2694,7 @@ void  Cal_SetHarmonicValue(struct Value *R) {
     break;
     
   default :
-    Msg(ERROR, "Unknown type of argument in function 'Cal_SetHarmonicValue'");
+    Msg(GERROR, "Unknown type of argument in function 'Cal_SetHarmonicValue'");
   }
 
   GetDP_End ;
@@ -2747,7 +2747,7 @@ void  Cal_SetZeroHarmonicValue(struct Value *R, int Save_NbrHar) {
     }
     break ;
   default :
-    Msg(ERROR, "Unknown type of argument in function 'Cal_SetZeroHarmonicValue'");
+    Msg(GERROR, "Unknown type of argument in function 'Cal_SetZeroHarmonicValue'");
   }
 
   GetDP_End ;
@@ -2905,7 +2905,7 @@ void Show_Value(struct Value *A){
     break;
     
   default :
-    Msg(ERROR, "Unknown value type in Show_Value");
+    Msg(GERROR, "Unknown value type in Show_Value");
   }
 
   GetDP_End ;

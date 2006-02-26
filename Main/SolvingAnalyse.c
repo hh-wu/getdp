@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.32 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.33 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -84,7 +84,7 @@ void  SolvingAnalyse (void) {
       Num_Resolution = List_ISearchSeq(Problem_S.Resolution, Name_Resolution,
                                        fcmp_Resolution_Name) ;
     else
-      Msg(ERROR, "Missing Resolution");
+      Msg(GERROR, "Missing Resolution");
   }
   else if (Flag_PAR || Flag_CAL || Flag_POS) {
     Dof_OpenFile(DOF_PRE, Name_Generic, "r") ;
@@ -95,7 +95,7 @@ void  SolvingAnalyse (void) {
 
   if (Num_Resolution < 0 ||
       Num_Resolution + 1 > List_Nbr(Problem_S.Resolution))
-    Msg(ERROR, "Unknown Resolution (%s)", Name_Resolution);
+    Msg(GERROR, "Unknown Resolution (%s)", Name_Resolution);
 
   Treatment_Resolution(Num_Resolution, &Nbr_DefineSystem, &Nbr_OtherSystem,
                        &Resolution_P, &DefineSystem_P0, &DofData_P0,
@@ -189,10 +189,10 @@ void  SolvingAnalyse (void) {
   else if (Flag_PAR || Flag_CAL || Flag_POS) {
     
     if(Flag_PAR && (Flag_CAL || Flag_POS))
-      Msg(ERROR, "Please partition independently of -cal or -pos");
+      Msg(GERROR, "Please partition independently of -cal or -pos");
       
     if(Flag_PAR > NBR_MAX_PARTITION)
-      Msg(ERROR, "Too many partitions");
+      Msg(GERROR, "Too many partitions");
 
     Msg(LOADING,"Pre-Processing data '%s.pre'", Name_Generic) ;
 
@@ -319,7 +319,7 @@ void  SolvingAnalyse (void) {
       while(Name_PostProcessing[i]){
 	if((Num = List_ISearchSeq(Problem_S.PostProcessing, Name_PostProcessing[i],
 				  fcmp_PostProcessing_Name)) < 0)
-	  Msg(ERROR, "Unknown PostProcessing (%s)", Name_PostProcessing[i]) ;
+	  Msg(GERROR, "Unknown PostProcessing (%s)", Name_PostProcessing[i]) ;
 	PostProcessing_P[i] = (struct PostProcessing *)
 	  List_Pointer(Problem_S.PostProcessing, Num) ;
 	PostOperation_P[i] = NULL ;
@@ -330,7 +330,7 @@ void  SolvingAnalyse (void) {
       while(Name_PostOperation[i]){
 	if((Num = List_ISearchSeq(Problem_S.PostOperation, Name_PostOperation[i],
 				  fcmp_PostOperation_Name)) < 0)
-	  Msg(ERROR, "Unknown PostOperation (%s)", Name_PostOperation[i]) ;
+	  Msg(GERROR, "Unknown PostOperation (%s)", Name_PostOperation[i]) ;
 	PostOperation_P[i] = (struct PostOperation*)
 	  List_Pointer(Problem_S.PostOperation, Num) ;
 	PostProcessing_P[i] = (struct PostProcessing *)
@@ -434,7 +434,7 @@ void  Treatment_Resolution(int ResolutionIndex,
   
   *Nbr_DefineSystem = List_Nbr((*Resolution_P)->DefineSystem) ;
   if (!*Nbr_DefineSystem)
-    Msg(ERROR, "No System exists for Resolution '%s'", (*Resolution_P)->Name) ;
+    Msg(GERROR, "No System exists for Resolution '%s'", (*Resolution_P)->Name) ;
   
   if (*Nbr_OtherSystem)  *Nbr_OtherSystem -= *Nbr_DefineSystem ;
 
@@ -499,7 +499,7 @@ void  Init_HarInDofData(struct DefineSystem * DefineSystem_P,
   }
 
   if (DofData_P->NbrHar > NBR_MAX_HARMONIC)
-    Msg(ERROR, "Too many harmonics to generate system (%d > %d)", 
+    Msg(GERROR, "Too many harmonics to generate system (%d > %d)", 
         DofData_P->NbrHar/2, NBR_MAX_HARMONIC/2) ; 
 
   if (DofData_P->NbrHar > 1) {
@@ -590,7 +590,7 @@ void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
     
     if(DefineQuantity_P->DofDataIndex >= 0){
       if(DefineQuantity_P->DofDataIndex >= List_Nbr(DefineSystem_P->OriginSystemIndex))
-        Msg(ERROR, "Invalid System index (%d) in discrete Quantity (%s)",
+        Msg(GERROR, "Invalid System index (%d) in discrete Quantity (%s)",
             DefineQuantity_P->DofDataIndex, DefineQuantity_P->Name);
 
       List_Read(DefineSystem_P->OriginSystemIndex, DefineQuantity_P->DofDataIndex, &j) ;
@@ -701,14 +701,14 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   GetDP_Begin("Treatment_PostOperation");
 
   if (!List_Nbr(PostProcessing_P->PostQuantity))
-    Msg(ERROR, "No Quantity available for PostProcessing '%s'",
+    Msg(GERROR, "No Quantity available for PostProcessing '%s'",
 	PostProcessing_P->Name) ;
 
   Formulation_P = (struct Formulation *)
     List_Pointer(Problem_S.Formulation, PostProcessing_P->FormulationIndex) ;
 
   if (!List_Nbr(Formulation_P->DefineQuantity))
-    Msg(ERROR, "No discrete Quantity in Formulation '%s'", Formulation_P->Name);
+    Msg(GERROR, "No discrete Quantity in Formulation '%s'", Formulation_P->Name);
 
   /* Choice of Current DofData */
 
@@ -716,7 +716,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
     if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
 			     PostProcessing_P->NameOfSystem,
 			     fcmp_DefineSystem_Name)) < 0)
-      Msg(ERROR, "Unknown System name (%s) in PostProcessing (%s)", 
+      Msg(GERROR, "Unknown System name (%s) in PostProcessing (%s)", 
 	  PostProcessing_P->NameOfSystem, PostProcessing_P->Name) ;
     
     Current.DofData = DofData_P0 + i;
@@ -738,7 +738,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   }
 
   if(!Current.DofData)
-    Msg(ERROR, "PostProcessing not compatible with Resolution");
+    Msg(GERROR, "PostProcessing not compatible with Resolution");
 
   DefineSystem_P = DefineSystem_P0 + Current.DofData->Num ;
   Current.NbrHar = Current.DofData->NbrHar ;

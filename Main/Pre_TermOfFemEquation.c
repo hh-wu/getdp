@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pre_TermOfFemEquation.c,v 1.16 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Pre_TermOfFemEquation.c,v 1.17 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -391,11 +391,11 @@ void  Pre_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 	if (!List_Search(RegionIndex_L, &Num_Region, fcmp_int))
 	  List_Add(RegionIndex_L, &Num_Region) ;
 	else
-	  Msg(ERROR, "2 occurences of Elementary Region #%d in Contraint '%s'",
+	  Msg(GERROR, "2 occurences of Elementary Region #%d in Contraint '%s'",
 	      Num_Region, Constraint_P->Name);
       }
       else
-	Msg(ERROR, "Not 1 Elementary Region in Group '%s'", Group_P->Name);
+	Msg(GERROR, "Not 1 Elementary Region in Group '%s'", Group_P->Name);
     }
   }
   Nbr_EquAndDof = List_Nbr(RegionIndex_L) ;
@@ -438,7 +438,7 @@ void  Pre_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
   if (Nbr_GlobalEqu != Nbr_EquAndDof){
     Msg(DIRECT, ERROR_STR "Incompatible number of equations with Contraint '%s'",
 	Constraint_P->Name);
-    Msg(ERROR, "(%d equations obtained while %d branches are defined)",
+    Msg(GERROR, "(%d equations obtained while %d branches are defined)",
 	Nbr_GlobalEqu, Nbr_EquAndDof);
   }
   

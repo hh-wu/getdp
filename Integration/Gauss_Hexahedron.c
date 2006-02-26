@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Hexahedron.c,v 1.16 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Hexahedron.c,v 1.17 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -47,7 +47,7 @@ void  Gauss_Hexahedron (int Nbr_Points, int Num,
 
   default : 
     Msg(DIRECT, ERROR_STR "Wrong number of Gauss points for Hexahedron");
-    Msg(ERROR, "Valid choices: 6, 34, 77");
+    Msg(GERROR, "Valid choices: 6, 34, 77");
     break;
 
   }
@@ -71,7 +71,7 @@ void  GaussLegendre_Hexahedron (int Nbr_Points, int Num,
   nb = (int)cbrt((double)Nbr_Points);
   
   if(nb*nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
-    Msg(ERROR, "Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
+    Msg(GERROR, "Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
   
   if(glhex[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) glhex[i] = 0 ;
     

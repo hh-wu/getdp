@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Quadrangle.c,v 1.13 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Quadrangle.c,v 1.14 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -37,7 +37,7 @@ void  Gauss_Quadrangle (int Nbr_Points, int Num,
   case  7 : *u= xq7 [Num] ; *v= yq7 [Num] ; *w= 0. ; *wght= pq7 [Num] ; break ;
   default : 
     Msg(DIRECT, ERROR_STR "Wrong number of Gauss points for Quadrangle");
-    Msg(ERROR, "Valid choices: 3, 4, 7");
+    Msg(GERROR, "Valid choices: 3, 4, 7");
     break;
   }
 
@@ -59,7 +59,7 @@ void  GaussLegendre_Quadrangle (int Nbr_Points, int Num,
   nb = (int)sqrt((double)Nbr_Points);
 
   if(nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
-    Msg(ERROR, "Number of points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
+    Msg(GERROR, "Number of points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
 
   if(glq[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) glq[i] = 0 ;
 
@@ -98,7 +98,7 @@ void  GaussSingularR_Quadrangle (int Nbr_Points, int Num,
   case  4 : *u= xqs4 [Num] ; *v= yqs4 [Num] ; *w= 0. ; *wght= pqs4 [Num] ; break ;
   default : 
     Msg(DIRECT, ERROR_STR "Wrong number of (modified) Gauss Points for Quadrangle");
-    Msg(ERROR, "Valid choices: 1, 3, 4");
+    Msg(GERROR, "Valid choices: 1, 3, 4");
     break;
   }
 

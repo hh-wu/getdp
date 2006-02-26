@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Interactive.c,v 1.29 2006-02-25 15:00:25 geuzaine Exp $"
+#define RCSID "$Id: Pos_Interactive.c,v 1.30 2006-02-26 00:42:59 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -153,7 +153,7 @@ void  Pos_Interactive(struct Formulation *Formulation_P,
       else{ /* getdp command */
 	/* write it in the tmp file */
 	if(!(yyin = fopen(GETDP_TMP_FILENAME,"w")))
-	   Msg(ERROR, "Unable to open file '%s'", GETDP_TMP_FILENAME);
+	   Msg(GERROR, "Unable to open file '%s'", GETDP_TMP_FILENAME);
 	fprintf(yyin,"%s;\n",myptr);
 	fclose(yyin);
 	/* parse the tmp file */

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Print.c,v 1.80 2006-02-25 19:08:02 geuzaine Exp $"
+#define RCSID "$Id: Pos_Print.c,v 1.81 2006-02-26 00:42:59 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -211,11 +211,11 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
   if(PostSubOperation_P->Adapt){
     if(PostSubOperation_P->Dimension == _ALL)
-      Msg(ERROR, "You have to specify a Dimension for the adaptation (2 or 3)");
+      Msg(GERROR, "You have to specify a Dimension for the adaptation (2 or 3)");
     if(PostSubOperation_P->Target < 0.)
-      Msg(ERROR, "You have to specify a Target for the adaptation (e.g. 0.01)");
+      Msg(GERROR, "You have to specify a Target for the adaptation (e.g. 0.01)");
     if(NbrTimeStep > 1)
-      Msg(ERROR, "Adaption not ready with more than one time step"); 
+      Msg(GERROR, "Adaption not ready with more than one time step"); 
   }
 
   /* Check if we should decompose all PostElements to simplices */
@@ -732,7 +732,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
   switch(PostSubOperation_P->SubType) {
 
   case PRINT_ONSECTION_1D :
-    Msg(ERROR, "Print on 1D cuts not done (use Print OnLine instead)");
+    Msg(GERROR, "Print on 1D cuts not done (use Print OnLine instead)");
     break;
 
   case PRINT_ONSECTION_2D :
@@ -879,7 +879,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
     break;
     
   default :
-    Msg(ERROR, "Unknown operation in Print OnSection");
+    Msg(GERROR, "Unknown operation in Print OnSection");
     break;
   }
 
@@ -946,7 +946,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 #define LETS_STORE_THE_RESULT								\
  if(!NCPQ_P){										\
    if(CumulativeValues[0].Type != SCALAR)						\
-     Msg(ERROR, "Print OnPlane is not designed for non scalar values with Depth > 1");	\
+     Msg(GERROR, "Print OnPlane is not designed for non scalar values with Depth > 1");	\
    else											\
      for (ts = 0 ; ts < NbTimeStep ; ts++)						\
        for(k = 0 ; k < Current.NbrHar ; k++)						\
@@ -961,7 +961,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
      Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,			\
                       NULL, &Element, u, v, w, &PE->Value[0]);				\
      if(PE->Value[0].Type != SCALAR)							\
-       Msg(ERROR, "Print OnPlane is not designed for non scalar values with Depth > 1");\
+       Msg(GERROR, "Print OnPlane is not designed for non scalar values with Depth > 1");\
      if(CPQ_P)										\
        Combine_PostQuantity(PSO_P->CombinationType, Order,				\
                             &PE->Value[0], &CumulativeValues[ts]) ;			\
@@ -1235,7 +1235,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   NbrTimeStep = Pos_InitTimeSteps(PostSubOperation_P);
 
   if (CPQ_P && NCPQ_P)
-    Msg(ERROR, "Only one PostProcessing Quantity allowed in PostOperation") ;
+    Msg(GERROR, "Only one PostProcessing Quantity allowed in PostOperation") ;
 
   if (CPQ_P) {
     PQ_P = CPQ_P ;
@@ -1270,7 +1270,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
        ->EvaluationType == LOCAL)
       ) {
     if (Group_FunctionType == REGION)
-      Msg(ERROR, "Print OnRegion not valid for PostProcessing Quantity '%s'",
+      Msg(GERROR, "Print OnRegion not valid for PostProcessing Quantity '%s'",
 	  NCPQ_P->Name);
     else
       Type_Evaluation = LOCAL;
@@ -1300,7 +1300,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 	Flag_Summation = 1;
     }
     else {
-      Msg(ERROR, "Function type (%d) not allowed for PrintOnRegion",
+      Msg(GERROR, "Function type (%d) not allowed for PrintOnRegion",
 	  Group_P->FunctionType) ;
     }
   }
@@ -1400,7 +1400,7 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
   GetDP_Begin("Pos_PrintWithArgument");
 
   if(CPQ_P)
-    Msg(ERROR, "Cumulative PostProcessing Quantity in PrintWithArgument not done") ;
+    Msg(GERROR, "Cumulative PostProcessing Quantity in PrintWithArgument not done") ;
 
   X[0] = PostSubOperation_P->Case.WithArgument.x[0] ;
   X[1] = PostSubOperation_P->Case.WithArgument.x[1] ;
@@ -1553,7 +1553,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P) {
 	break ;
 
       default :
-	Msg(ERROR, "Print function not implemented for this kind of Group");
+	Msg(GERROR, "Print function not implemented for this kind of Group");
 	break ;
 
       }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Legendre.c,v 1.14 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Legendre.c,v 1.15 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -32,7 +32,7 @@ double Factorial( double n ){
 
   GetDP_Begin("Factorial");
 
-  if ( n < 0 ) Msg(ERROR, "Factorial(n): n must be a positive integer") ;
+  if ( n < 0 ) Msg(GERROR, "Factorial(n): n must be a positive integer") ;
   if ( n == 0 ) GetDP_Return(1.) ;
   if ( n <= 2 ) GetDP_Return(n) ;
 
@@ -70,7 +70,7 @@ double Legendre(int l, int m, double x){
   GetDP_Begin("Legendre");
   
   if ( THEABS(m) > l || fabs(x) > 1.)
-    Msg(ERROR, "Bad arguments for Legendre: P_l^m(x) with -l<=m<=l (int), -1<=x<=1 l = %d m = %d x = %.8g", l, m, x);
+    Msg(GERROR, "Bad arguments for Legendre: P_l^m(x) with -l<=m<=l (int), -1<=x<=1 l = %d m = %d x = %.8g", l, m, x);
  
   Cte = (m > 0) ? 1. : Factorial((double)(l-THEABS(m)))/Factorial((double)(l+THEABS(m))) * pow(-1.,(double)THEABS(m)) ;
   m = THEABS(m) ;
@@ -168,7 +168,7 @@ double dLegendre (int l, int m, double x){
   GetDP_Begin("dLegendre");
   
   if ( THEABS(m) > l || fabs(x) > 1.)
-    Msg(ERROR,
+    Msg(GERROR,
 	"Bad arguments for dLegendre: -l<=m<=l (integers), -1<=x<=1. Current values: l %d m %d x %.8g", l, m, x) ;
   
   if (fabs(x)==1.) dpl = 0.;
@@ -189,7 +189,7 @@ double dLegendreFinDif (int l, int m, double x){
   GetDP_Begin("dLegendreFinDif");
   
   if ( THEABS(m) > l || fabs(x) > 1.)
-    Msg(ERROR, "Bad arguments for dLegendreFinDif: -l<=m<=l (integers), -1<=x<=1. Current values: l %d m %d x %.8g", l, m, x );
+    Msg(GERROR, "Bad arguments for dLegendreFinDif: -l<=m<=l (integers), -1<=x<=1. Current values: l %d m %d x %.8g", l, m, x );
   
   dpl =  (Legendre (l, m, x+delta) - Legendre (l, m, x-delta))/(2*delta);
   

@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Edge_4.c,v 1.9 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: BF_Edge_4.c,v 1.10 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -31,7 +31,7 @@
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Edge number in 'BF_Edge_4E'")
+#define WrongNumEntity   Msg(GERROR, "Wrong Edge number in 'BF_Edge_4E'")
 
 void  BF_Edge_4E (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double s[] ) {
@@ -66,7 +66,7 @@ void  BF_Edge_4E (struct Element * Element, int NumEntity,
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : Msg(ERROR, "BF_Edge_4E not ready for QUADRANGLE");
+    default : Msg(GERROR, "BF_Edge_4E not ready for QUADRANGLE");
     }
     break ;
 
@@ -102,24 +102,24 @@ void  BF_Edge_4E (struct Element * Element, int NumEntity,
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : Msg(ERROR, "BF_Edge_4E not ready for HEXAHEDRON");
+    default : Msg(GERROR, "BF_Edge_4E not ready for HEXAHEDRON");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg(ERROR, "BF_Edge_4E not ready for PRISM");
+    default : Msg(GERROR, "BF_Edge_4E not ready for PRISM");
     }
     break ;
 
   case PYRAMID :
     switch(NumEntity) {
-    default : Msg(ERROR, "BF_Edge_4E not ready for PYRAMID");
+    default : Msg(GERROR, "BF_Edge_4E not ready for PYRAMID");
     }
     break ;
 
   default :
-    Msg(ERROR, "Unkown type of Element in BF_Edge_4E");
+    Msg(GERROR, "Unkown type of Element in BF_Edge_4E");
     break ;
   }
 
@@ -136,7 +136,7 @@ void  BF_Edge_4E (struct Element * Element, int NumEntity,
 /*  Facets  */
 /* -------- */
 
-#define WrongNumEntity   Msg(ERROR, "Wrong Face number in 'BF_Edge_4F'")
+#define WrongNumEntity   Msg(GERROR, "Wrong Face number in 'BF_Edge_4F'")
 
 void  BF_Edge_4F (struct Element * Element, int NumEntity, 
 		   double u, double v, double w,  double s[] ) {
@@ -146,7 +146,7 @@ void  BF_Edge_4F (struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
-    Msg(ERROR, "You should never end up here!") ;
+    Msg(GERROR, "You should never end up here!") ;
     break;
 
   case TRIANGLE :
@@ -158,7 +158,7 @@ void  BF_Edge_4F (struct Element * Element, int NumEntity,
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : Msg(ERROR, "BF_Edge_4F not ready for QUADRANGLE");
+    default : Msg(GERROR, "BF_Edge_4F not ready for QUADRANGLE");
     }
     break ;
 
@@ -186,18 +186,18 @@ void  BF_Edge_4F (struct Element * Element, int NumEntity,
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : Msg(ERROR, "BF_Edge_4F not ready for QUADRANGLE");
+    default : Msg(GERROR, "BF_Edge_4F not ready for QUADRANGLE");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg(ERROR, "BF_Edge_4F not ready for PRISM");
+    default : Msg(GERROR, "BF_Edge_4F not ready for PRISM");
     }
     break ;
 
   default :
-    Msg(ERROR, "Unkown type of Element in BF_Edge_4F");
+    Msg(GERROR, "Unkown type of Element in BF_Edge_4F");
     break ;
 
   }
@@ -216,7 +216,7 @@ void  BF_Edge_4V (struct Element * Element, int NumEntity,
 
   GetDP_Begin("BF_Edge_4V");
 
-  Msg(ERROR, "You should never end up here!") ;
+  Msg(GERROR, "You should never end up here!") ;
 
   GetDP_End ;
 }

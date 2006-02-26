@@ -1,4 +1,4 @@
-#define RCSID "$Id: Gauss_Triangle.c,v 1.13 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Gauss_Triangle.c,v 1.14 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -42,7 +42,7 @@ void  Gauss_Triangle (int Nbr_Points, int Num,
   case 16 : *u= xt16[Num] ; *v= yt16[Num] ; *w= 0. ; *wght= pt16[Num] ; break ;
   default : 
     Msg(DIRECT, ERROR_STR "Wrong number of Gauss points for Triangle");
-    Msg(ERROR, "Valid choices: 1, 3, 4, 6, 7, 12, 13, 16");
+    Msg(GERROR, "Valid choices: 1, 3, 4, 6, 7, 12, 13, 16");
     break;
   }
 
@@ -78,7 +78,7 @@ void  GaussLegendre_Triangle (int Nbr_Points, int Num,
   nb = (int)sqrt((double)Nbr_Points);
 
   if(nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
-    Msg(ERROR, "Number of points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
+    Msg(GERROR, "Number of points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
 
   if(glt[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) glt[i] = 0 ;
 
@@ -117,7 +117,7 @@ void  GaussSingularR_Triangle (int Nbr_Points, int Num,
   case  4 : *u= xts4 [Num] ; *v= yts4 [Num] ; *w= 0. ; *wght= pts4 [Num] ; break ;
   default : 
     Msg(DIRECT, ERROR_STR "Wrong number of (modified) Gauss points for Triangle");
-    Msg(ERROR, "Valid choices: 1, 3, 4");
+    Msg(GERROR, "Valid choices: 1, 3, 4");
     break;
   }
 

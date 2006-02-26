@@ -88,7 +88,7 @@ double Get_RadiusCircumCircle(struct Element * Element){
 		 DSQU(center[2] - Element->z[0]) ) ;
 
   default :
-    Msg(ERROR, "Get_ElementSize not done for Element Type = %d", Element->Type);
+    Msg(GERROR, "Get_ElementSize not done for Element Type = %d", Element->Type);
     return 0 ;
   }
 

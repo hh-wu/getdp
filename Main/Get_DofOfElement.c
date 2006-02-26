@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_DofOfElement.c,v 1.26 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Get_DofOfElement.c,v 1.27 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -469,7 +469,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
     case _POS :
     case _CST :
       if(!FunctionSpace_P->DofData)
-	Msg(ERROR, "Empty DofData in FunctionSpace '%s' (no unknowns?)",
+	Msg(GERROR, "Empty DofData in FunctionSpace '%s' (no unknowns?)",
 	    FunctionSpace_P->Name);
 
       CodeExist =
@@ -489,7 +489,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
       break ;
 
     default : 
-      Msg(ERROR, "Unknown TreatmentStatus (%d)", TreatmentStatus);
+      Msg(GERROR, "Unknown TreatmentStatus (%d)", TreatmentStatus);
     }
 
     /*  2.  O n e   a s s o c i a t e s   a   b a s i s   f u n c t i o n :  */
@@ -561,7 +561,7 @@ void  Get_DofOfRegion(int  Num_Region,
     switch (TreatmentStatus) {
     case _CAL :  case _POS :
       if(!FunctionSpace_P->DofData)
-	Msg(ERROR, "Empty DofData in FunctionSpace '%s' (no unknowns?)",
+	Msg(GERROR, "Empty DofData in FunctionSpace '%s' (no unknowns?)",
 	    FunctionSpace_P->Name);
 
       CodeExist =

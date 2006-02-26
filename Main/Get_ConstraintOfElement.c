@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.30 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.31 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -161,7 +161,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	    }
 	    else if (ConstraintPerRegion_P->Type == CST_LINK ||
 		     ConstraintPerRegion_P->Type == CST_LINKCPLX) {
-	      Msg(ERROR, "CST_LINK for GlobalQuantity not done yet") ;
+	      Msg(GERROR, "CST_LINK for GlobalQuantity not done yet") ;
 	    }
 	    else {
 	      Get_PreResolutionForConstraint
@@ -174,7 +174,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	break ; /* GLOBALQUANTITY */
 
       default :
-	Msg(ERROR, "Unknown type of Quantity in Constraint of type Fixed");
+	Msg(GERROR, "Unknown type of Quantity in Constraint of type Fixed");
 	break;
 
       }
@@ -182,7 +182,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
       break ;  /* ASSIGN || INIT || ASSIGNFROMRESOLUTION || INITFROMRESOLUTION */
 
     default :
-      Msg(ERROR, "Unknown type of Constraint");
+      Msg(GERROR, "Unknown type of Constraint");
       break;
 
     }
@@ -334,7 +334,7 @@ void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
 	break ;  /* ASSIGN || INIT || ASSIGNFROMRESOLUTION || INITFROMRESOLUTION */
 
       default :
-	Msg(ERROR, "Unknown type of Constraint");
+	Msg(GERROR, "Unknown type of Constraint");
 	break;
       }
     }  /* if (GLOBALQUANTITY) ... */
@@ -365,7 +365,7 @@ void  Get_PreResolutionForConstraint(struct ConstraintInFS * Constraint_P,
 	 List_ISearchSeq(Problem_S.Resolution,
 			 Constraint_P->ConstraintPerRegion->
 			 Case.Solve.ResolutionName, fcmp_Resolution_Name)) < 0) {
-      Msg(ERROR, "Unknown ResolutionName '%s' in Constraint",
+      Msg(GERROR, "Unknown ResolutionName '%s' in Constraint",
 	  Constraint_P->ConstraintPerRegion->Case.Solve.ResolutionName) ;
     }
   if(List_ISearchSeq(PreResolutionIndex_L, &Constraint_P->Active.ResolutionIndex, 
@@ -415,7 +415,7 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
   /* old
     List_PQuery(Constraint_P->Active.Active->Case.Link.Couples,
 		&Num_Entity, fcmp_absint) ;
-  if (!TwoIntOneDouble_P)  Msg(ERROR, "Constraint Link: bad definition") ;
+  if (!TwoIntOneDouble_P)  Msg(GERROR, "Constraint Link: bad definition") ;
   */
 
   if (TwoIntOneDouble_P) {
@@ -517,7 +517,7 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New) {
 		       Active->Case.Link.Couples) ;
     break ;
   case FACETSOF :
-    Msg(ERROR, "Link not yet implemented for FACETSOF") ;
+    Msg(GERROR, "Link not yet implemented for FACETSOF") ;
     break ;
   case REGION :
     Generate_LinkRegions(Constraint_P,
@@ -526,7 +526,7 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New) {
 			 Active->Case.Link.Couples) ;
     break ;
   default :
-    Msg(ERROR, "Bad function type for Constraint Link: %d", Group_P->FunctionType) ;
+    Msg(GERROR, "Bad function type for Constraint Link: %d", Group_P->FunctionType) ;
     break ;
   }
 
@@ -658,7 +658,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   }
 
   if (Nbr_EntityRef != Nbr_Entity)
-    Msg(ERROR, "Constraint Link: bad correspondance of number of Nodes (%d, %d)",
+    Msg(GERROR, "Constraint Link: bad correspondance of number of Nodes (%d, %d)",
 	Nbr_Entity, Nbr_EntityRef) ;
 
   Msg(DEBUG2, "==> List of link for nodes\n") ;
@@ -671,7 +671,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     if ((fabs(NodeXYZ.x-NodeXYZRef.x) > TOL) ||
 	(fabs(NodeXYZ.y-NodeXYZRef.y) > TOL) ||
 	(fabs(NodeXYZ.z-NodeXYZRef.z) > TOL))
-      Msg(ERROR, "Constraint Link: bad correspondance of Nodes (%d, %d)"
+      Msg(GERROR, "Constraint Link: bad correspondance of Nodes (%d, %d)"
 	  " (%e %e %e)",
 	  NodeXYZ.NumNode, NodeXYZRef.NumNode,
 	  fabs(NodeXYZ.x-NodeXYZRef.x), fabs(NodeXYZ.y-NodeXYZRef.y),
@@ -797,8 +797,8 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
   /*  EdgeNN_L = ExtendedList_L ; */
   EdgeNN_L = List_Create(Nbr_Entity, 1, sizeof(struct EdgeNN)) ;
 
-  /*  if (Nbr_Entity != List_Nbr(EdgeNN_L))  Msg(ERROR, "Constraint Link: strange...") ; */
-  if (Nbr_Entity != List_Nbr(ExtendedList_L))  Msg(ERROR, "Constraint Link: strange...") ;
+  /*  if (Nbr_Entity != List_Nbr(EdgeNN_L))  Msg(GERROR, "Constraint Link: strange...") ; */
+  if (Nbr_Entity != List_Nbr(ExtendedList_L))  Msg(GERROR, "Constraint Link: strange...") ;
 
   for (i = 0 ; i < Nbr_Entity ; i++) {
     List_Read(ExtendedList_L, i, &EdgeNN) ;
@@ -828,18 +828,18 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 	  TwoIntOneDouble2_P = (struct TwoIntOneDouble *)
 	    List_PQuery(CouplesOfNodes2_L, &EdgeNN.Node2, fcmp_int) ;
 	  if (!TwoIntOneDouble_P)
-	    Msg(ERROR, "Constraint Link: unknown node (%d)", EdgeNN.Node1) ;
+	    Msg(GERROR, "Constraint Link: unknown node (%d)", EdgeNN.Node1) ;
 	  if (!TwoIntOneDouble2_P)
-	    Msg(ERROR, "Constraint Link: unknown node (%d)", EdgeNN.Node2) ;
+	    Msg(GERROR, "Constraint Link: unknown node (%d)", EdgeNN.Node2) ;
 	}
-	else  Msg(ERROR, "Constraint Link: bad correspondance for edges") ;
+	else  Msg(GERROR, "Constraint Link: bad correspondance for edges") ;
       }
 
       EdgeNN.Node1 = TwoIntOneDouble_P->Int2 ;
       EdgeNN.Node2 = TwoIntOneDouble2_P->Int2 ;
 
       if (fabs(TwoIntOneDouble_P->Double - TwoIntOneDouble2_P->Double) > 1.e-18)
-	Msg(ERROR, "Constraint Link: Bad Coefficient for Edges") ;
+	Msg(GERROR, "Constraint Link: Bad Coefficient for Edges") ;
 
       EdgeNN.Coef = TwoIntOneDouble_P->Double ;
       EdgeNN.Coef2 = TwoIntOneDouble_P->Double2 ; /* LinkCplx */
@@ -893,7 +893,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
   Nbr_EntityRef = List_Nbr(EdgeNNRef_L) ;
 
   if (Nbr_EntityRef != Nbr_Entity)
-    Msg(ERROR, "Constraint Link: bad correspondance of number of Edges (%d, %d)",
+    Msg(GERROR, "Constraint Link: bad correspondance of number of Edges (%d, %d)",
 	Nbr_Entity, Nbr_EntityRef) ;
 
   List_Sort(EdgeNN_L   , fcmp_NN) ;
@@ -911,7 +911,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 
     if (EdgeNN.Node1 != EdgeNNRef.Node1 ||
 	EdgeNN.Node2 != EdgeNNRef.Node2)
-      Msg(ERROR, "Constraint Link: bad correspondance of Edges (%d, %d)",
+      Msg(GERROR, "Constraint Link: bad correspondance of Edges (%d, %d)",
 	  EdgeNN.NumEdge, EdgeNNRef.NumEdge) ;
 
     TwoIntOneDouble.Int1 = EdgeNN.NumEdge ;
@@ -999,7 +999,7 @@ void  Generate_LinkRegions(struct ConstraintInFS * Constraint_P,
   GetDP_Begin("Generate_LinkRegions");
 
   if (List_Nbr(Region_L) > 1 || List_Nbr(RegionRef_L) > 1)
-    Msg(ERROR, "More than one region for link type constraint") ;
+    Msg(GERROR, "More than one region for link type constraint") ;
 
   List_Read(Region_L, 0, &TwoIntOneDouble.Int1) ;
   List_Read(RegionRef_L, 0, &TwoIntOneDouble.Int2) ;

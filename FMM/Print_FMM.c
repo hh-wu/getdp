@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_FMM.c,v 1.11 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: Print_FMM.c,v 1.12 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -104,7 +104,7 @@ void  Geo_WriteFileFMMGroups(struct GeoData *GeoData_P, char * FileName){
 		  Geo_GetGeoNodeOfNum(Element_P->NumNodes[3])->x,
 		  Geo_GetGeoNodeOfNum(Element_P->NumNodes[3])->y,
 		  Geo_GetGeoNodeOfNum(Element_P->NumNodes[3])->z, i, i, i, i); break;
-	default :  Msg(ERROR, "Wrong Type of Element for FMM groups"); break;   
+	default :  Msg(GERROR, "Wrong Type of Element for FMM groups"); break;   
 	}
       }
     } 
@@ -230,7 +230,7 @@ void  Geo_WriteFileMshFMMGroups( struct GeoData *GeoData_P, char * FileName ){
 		  Element_P->NumNodes[0], Element_P->NumNodes[1],
 		  Element_P->NumNodes[2],Element_P->NumNodes[3]); break;
 
-	default :  Msg(ERROR, "Wrong Type of Element for FMM groups"); break;
+	default :  Msg(GERROR, "Wrong Type of Element for FMM groups"); break;
 	}
       }
     }

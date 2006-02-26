@@ -1,4 +1,4 @@
-#define RCSID "$Id: Generate_Network.c,v 1.11 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Generate_Network.c,v 1.12 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -50,7 +50,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L) {
 
   ListInt_L = List_Create(10, 10, sizeof(int)) ;
   Nbr_Branch = List_Nbr(ConstraintPerRegion_L) ;
-  if (!Nbr_Branch) Msg(ERROR, "No branch in Network") ;
+  if (!Nbr_Branch) Msg(GERROR, "No branch in Network") ;
 
   for (j = 0 ; j < Nbr_Branch ; j++) {
     CPR = (struct ConstraintPerRegion *)List_Pointer(ConstraintPerRegion_L, j) ;
@@ -119,7 +119,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L) {
 	  for (l=0 ; l<Nbr_Branch ; l++){
 	    if      (vk - vi == 0)  MatA[k][l] -= MatA[i][l] ;
 	    else if (vk + vi == 0)  MatA[k][l] += MatA[i][l] ;
-	    else                    Msg(ERROR, "Bad network") ;
+	    else                    Msg(GERROR, "Bad network") ;
 	  }
 	}
       }
@@ -127,7 +127,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L) {
     else {
       if (j_col2 < Nbr_Branch)
 	Num_col[j_col2++] = j ;  /* Column for the complementary part of the matrix */
-      else  Msg(ERROR, "Bad network") ;
+      else  Msg(GERROR, "Bad network") ;
     }
   }
   

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Adapt.c,v 1.17 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Adapt.c,v 1.18 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -211,7 +211,7 @@ double Adapt (int N,        /* Number of elements */
     break;
 
   default :
-    Msg(ERROR, "Unknown adaptation method");
+    Msg(GERROR, "Unknown adaptation method");
   }
 
   GetDP_Return(contr) ;

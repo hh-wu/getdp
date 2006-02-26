@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_AnalyticIntegration.c,v 1.10 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Cal_AnalyticIntegration.c,v 1.11 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -38,7 +38,7 @@ double  Cal_AnalyticIntegration(struct Element * E,
   if ((E->Type != TRIANGLE) ||
       (BFEqu != (void (*)())BF_GradNode) || (BFDof != (void (*)())BF_GradNode) ) {
 
-    Msg(ERROR, "Unknown analytic method for integration") ;
+    Msg(GERROR, "Unknown analytic method for integration") ;
     GetDP_Return(0.) ;
   }
 
@@ -63,7 +63,7 @@ double  Cal_AnalyticIntegration(struct Element * E,
 	      (E->x[1]-E->x[2])*(E->x[0]-E->x[1])) * fabs(DetJ)
 	/ (2. * DetJ * DetJ) ) ;
     default :
-      Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");
+      Msg(GERROR, "Something wrong in Cal_AnalyticIntegration");
       GetDP_Return(0.) ;
     }
     
@@ -82,7 +82,7 @@ double  Cal_AnalyticIntegration(struct Element * E,
 	      (E->x[2]-E->x[0])*(E->x[0]-E->x[1])) * fabs(DetJ)
 	/ (2. * DetJ * DetJ) ) ;
     default :
-      Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");
+      Msg(GERROR, "Something wrong in Cal_AnalyticIntegration");
       GetDP_Return(0.) ;
     }
     
@@ -101,12 +101,12 @@ double  Cal_AnalyticIntegration(struct Element * E,
 	      (E->x[0]-E->x[1])*(E->x[0]-E->x[1])) * fabs(DetJ)
 	/ (2. * DetJ * DetJ) ) ;
     default :
-      Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");
+      Msg(GERROR, "Something wrong in Cal_AnalyticIntegration");
       GetDP_Return(0.);
     }
 
   default :
-    Msg(ERROR, "Something wrong in Cal_AnalyticIntegration");
+    Msg(GERROR, "Something wrong in Cal_AnalyticIntegration");
     GetDP_Return(0.) ;
     
   }

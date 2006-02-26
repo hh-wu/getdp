@@ -1,4 +1,4 @@
-#define RCSID "$Id: Lanczos.c,v 1.33 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Lanczos.c,v 1.34 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -232,7 +232,7 @@ double gsl_random(){ /* uniform random numbers in range [0.0, 1.0) */
 #if !defined(HAVE_BLAS_LAPACK)
 
 void hqr(double **hin, int nhess, double *wrout, double *wiout){
-  Msg(ERROR, "Lanczos algorithm not available without BLAS and LAPACK");
+  Msg(GERROR, "Lanczos algorithm not available without BLAS and LAPACK");
 }
 
 #else
@@ -281,7 +281,7 @@ void hqr(double **hin, int nhess, double *wrout, double *wiout){
   dhseqr_(job, compz, &n, &ilo, &ihi, h, &ldh, wr, wi, dummy, &ldz, work, 
 	  &lwork, &info);
   if (info != 0)
-    Msg(ERROR, "Lanczos/lapack dhseqr error = %d", info);
+    Msg(GERROR, "Lanczos/lapack dhseqr error = %d", info);
   
   for (i = 0; i < n; i++) {
     wrout[i + 1] = wr[i]; /* base-1 */
@@ -377,7 +377,7 @@ void Lanczos (struct DofData * DofData_P, int LanSize, List_T *LanSave, double s
   Msg(BIGINFO, "Lanczos - December 2001 - beta 0.2 A. Nicolet - Marseille ");
 
   if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
-    Msg(ERROR, "No System available for Lanczos: check 'DtDt' and 'GenerateSeparate'") ;
+    Msg(GERROR, "No System available for Lanczos: check 'DtDt' and 'GenerateSeparate'") ;
 
   /* lecture des parametres dans le fichier 'eigen.par' */
   EigenPar("eigen.par", &eigenpar);

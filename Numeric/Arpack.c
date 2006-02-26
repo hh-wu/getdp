@@ -1,4 +1,4 @@
-#define RCSID "$Id: Arpack.c,v 1.28 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: Arpack.c,v 1.29 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -34,7 +34,7 @@
 
 void EigenSolve (struct DofData * DofData_P, int NumEigenvalues, 
 		 double shift_r, double shift_i){
-  Msg(ERROR, "EigenSolve not available without BLAS, LAPACK and ARPACK");
+  Msg(GERROR, "EigenSolve not available without BLAS, LAPACK and ARPACK");
 }
 
 #else
@@ -124,11 +124,11 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
      way (since, for real, non-symmetric matrices we would get complex
      eigenvectors we could not easily store) */
   if(Current.NbrHar != 2)
-    Msg(ERROR, "EigenSolve requires system defined with \"Type Complex\"");
+    Msg(GERROR, "EigenSolve requires system defined with \"Type Complex\"");
 
   /* Sanity checks */
   if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
-    Msg(ERROR, "No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
+    Msg(GERROR, "No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
 
   /* Check if we have a "quadratic" evp (- w^2 M x + i w L x + K x = 0) */
   if(DofData_P->Flag_Init[2])
@@ -421,7 +421,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   /* Workspace */
 
   if(bmat != 'I' || iparam[6] != 1)
-    Msg(ERROR, "General and/or shift-invert mode should not be used");
+    Msg(GERROR, "General and/or shift-invert mode should not be used");
 
   /* Create temp vectors and matrices and apply shift. Warning: with
      PETSc, the shifting can be very slow if the masks are very
@@ -541,7 +541,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     Msg(WARNING, "is to increase the size of NCV relative to NEV.");
   }
   else if(info < 0){
-    Msg(ERROR, "Arpack code = %d", info);
+    Msg(GERROR, "Arpack code = %d", info);
   }
   else{
     Msg(WARNING, "Arpack code = %d (unknown)", info);
@@ -554,7 +554,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 
   /* Test for errors */  
   if(info != 0)
-    Msg(ERROR, "Arpack code = %d (eigenvector post-processing)", info);
+    Msg(GERROR, "Arpack code = %d (eigenvector post-processing)", info);
   
   /* Compute the unshifted eigenvalues and print them, and store the
      associated eigenvectors */

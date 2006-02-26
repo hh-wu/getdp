@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Formulation.c,v 1.52 2006-02-25 15:00:25 geuzaine Exp $"
+#define RCSID "$Id: Pos_Formulation.c,v 1.53 2006-02-26 00:42:59 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -69,13 +69,13 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       if((PostStream = fopen(FileName, Flag_BIN ? "wb" : "w")))
 	Msg(DIRECT, "          > '%s'", FileName) ;
       else
-	Msg(ERROR, "Unable to open file '%s'", FileName) ;
+	Msg(GERROR, "Unable to open file '%s'", FileName) ;
     }
     else {
       if((PostStream = fopen(FileName, Flag_BIN ? "ab" : "a")))
 	Msg(DIRECT, "         >> '%s'", FileName) ;
       else
-	Msg(ERROR, "Unable to open file '%s'", FileName) ;
+	Msg(GERROR, "Unable to open file '%s'", FileName) ;
     }
   }
   else{
@@ -116,7 +116,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   if(List_Nbr(PostSubOperation_P->Frequency_L)){
     if(List_Nbr(PostSubOperation_P->Frequency_L) > List_Nbr(Current.DofData->Pulsation))
-      Msg(ERROR, "Too many frequencies specified in PostOperation");
+      Msg(GERROR, "Too many frequencies specified in PostOperation");
     for(i = 0 ; i < List_Nbr(PostSubOperation_P->Frequency_L) ; i++){
       Pulsation = *((double *)List_Pointer(PostSubOperation_P->Frequency_L, i)) * TWO_PI ;
       List_Write(Current.DofData->Pulsation, i, &Pulsation) ;
@@ -133,7 +133,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     break ;
 
   default :
-    Msg(ERROR, "Unknown Type for Formulation (%s)", Formulation_P->Name) ;
+    Msg(GERROR, "Unknown Type for Formulation (%s)", Formulation_P->Name) ;
     break;
 
   }
@@ -228,7 +228,7 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
 			    QuantityStorage_P0, PostSubOperation_P) ;
       break ;
     default :
-      Msg(ERROR, "Unknown Operation type for Print"); 
+      Msg(GERROR, "Unknown Operation type for Print"); 
       break;
     }    
     break ;    
@@ -242,7 +242,7 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
     break;
 
   default :
-    Msg(ERROR, "Unknown PostSubOperation type") ;
+    Msg(GERROR, "Unknown PostSubOperation type") ;
     break;
   }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Facet.c,v 1.14 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: BF_Facet.c,v 1.15 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -23,13 +23,13 @@
 #include "GetDP.h"
 #include "BF_Function.h"
 
-#define NoFace   Msg(ERROR, "Missing Face Entity in Element %d", Element->Num)
+#define NoFace   Msg(GERROR, "Missing Face Entity in Element %d", Element->Num)
 
 /* ------------------------------------------------------------------------ */
 /*  B F _ F a c e t                                                         */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumFacet   Msg(ERROR, "Wrong Facet number in 'BF_Facet'")
+#define WrongNumFacet   Msg(GERROR, "Wrong Facet number in 'BF_Facet'")
 
 void  BF_Facet   (struct Element * Element, int NumFacet, 
 		  double u, double v, double w,  double s[] ) {
@@ -175,7 +175,7 @@ void  BF_Facet   (struct Element * Element, int NumFacet,
 #endif
     
   default :
-    Msg(ERROR, "Unkown type of Element in BF_Facet");
+    Msg(GERROR, "Unkown type of Element in BF_Facet");
     break;
   }
 
@@ -194,7 +194,7 @@ void  BF_Facet   (struct Element * Element, int NumFacet,
 /*  B F _ D i v F a c e t                                                   */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumFacet   Msg(ERROR, "Wrong Facet number in 'BF_DivFacet'")
+#define WrongNumFacet   Msg(GERROR, "Wrong Facet number in 'BF_DivFacet'")
 
 void  BF_DivFacet(struct Element * Element, int NumFacet, 
 		  double u, double v, double w,  double s[] ) {
@@ -290,7 +290,7 @@ void  BF_DivFacet(struct Element * Element, int NumFacet,
 #endif
     
   default :
-    Msg(ERROR, "Unkown type of Element in BF_DivFacet");
+    Msg(GERROR, "Unkown type of Element in BF_DivFacet");
     break ;
   }
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoEntity.c,v 1.12 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: GeoEntity.c,v 1.13 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -50,7 +50,7 @@ double * Geo_GetNodes_uvw(int Type, int *nbn){
   case PRISM       : *nbn = NbrNodes_Prism ;       GetDP_Return(*Nodes_Prism) ;
   case PYRAMID     : *nbn = NbrNodes_Pyramid ;     GetDP_Return(*Nodes_Pyramid) ;
   default : 
-    Msg(ERROR, "Unknown type of Element in Geo_GetNodes_uvw") ; GetDP_Return(NULL) ;
+    Msg(GERROR, "Unknown type of Element in Geo_GetNodes_uvw") ; GetDP_Return(NULL) ;
   }
 }
 
@@ -137,7 +137,7 @@ int  * Geo_GetIM_Den(int Type_Element, int * Nbe) {
   case PRISM :       *Nbe = NbrEdges_Prism       ; GetDP_Return(*Den_Prism) ;
   case PYRAMID :     *Nbe = NbrEdges_Pyramid     ; GetDP_Return(*Den_Pyramid) ;
   default : 
-    Msg(ERROR, "Unknown incidence matrix for element type %d", Type_Element);
+    Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
   }
 }
@@ -160,7 +160,7 @@ int  * Geo_GetIM_Dfe(int Type_Element, int * Nbf) {
   case PRISM :       *Nbf = NbrFacets_Prism       ; GetDP_Return(*Dfe_Prism) ;
   case PYRAMID :     *Nbf = NbrFacets_Pyramid     ; GetDP_Return(*Dfe_Pyramid) ;
   default :
-    Msg(ERROR, "Unknown incidence matrix for element type %d", Type_Element);
+    Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
   }
 }
@@ -182,7 +182,7 @@ int  * Geo_GetIM_Dfn(int Type_Element, int * Nbf) {
   case PRISM :	    *Nbf = NbrFacets_Prism       ; GetDP_Return(*Dfn_Prism) ;
   case PYRAMID :    *Nbf = NbrFacets_Pyramid     ; GetDP_Return(*Dfn_Pyramid) ;
   default :
-    Msg(ERROR, "Unknown incidence matrix for element type %d", Type_Element);
+    Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
   }
 }
@@ -218,7 +218,7 @@ int * Geo_GetIM_Den_Xp(int Type_Element, int * Nbe, int * Nbn) {
     *Nbe = NbrEdges_Pyramid ; *Nbn = NbrNodes_Pyramid ; 
     GetDP_Return(Den_Pyramid_Xp) ;
   default :
-    Msg(ERROR, "Unknown incidence matrix for element type %d", Type_Element);
+    Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
   }
 }
@@ -255,7 +255,7 @@ int * Geo_GetIM_Dfe_Xp(int Type_Element, int * nbf, int * nbe) {
     *nbf = NbrFacets_Pyramid ; *nbe = NbrEdges_Pyramid ; 
     GetDP_Return(Dfe_Pyramid_Xp) ;
   default :
-    Msg(ERROR, "Unknown incidence matrix for element type %d", Type_Element);
+    Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
   }
 }
@@ -490,7 +490,7 @@ void  Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
       fscanf(File_PRE, "%d", &GeoDataIndex) ;
       if(GeoDataIndex > NbrGeoData-1) 
-	Msg(ERROR, "Unknown GeoData: %d", GeoDataIndex);
+	Msg(GERROR, "Unknown GeoData: %d", GeoDataIndex);
 
       GeoData_P = GeoData_P0 + GeoDataIndex ;
       Geo_Element_P0 = (struct Geo_Element*)List_Pointer(GeoData_P->Elements, 0) ;
@@ -512,7 +512,7 @@ void  Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
       fscanf(File_PRE, "%d", &GeoDataIndex) ;
       if(GeoDataIndex > NbrGeoData-1)
-	Msg(ERROR, "Unknown GeoData: %d", GeoDataIndex);
+	Msg(GERROR, "Unknown GeoData: %d", GeoDataIndex);
 
       GeoData_P = GeoData_P0 + GeoDataIndex ;
       Geo_Element_P0 = (struct Geo_Element*)List_Pointer(GeoData_P->Elements, 0) ;
@@ -543,7 +543,7 @@ void  Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
     do {
       fgets(String, MAX_STRING_LENGTH, File_PRE) ;
-      if (feof(File_PRE)) Msg(ERROR, "Prematured end of file");
+      if (feof(File_PRE)) Msg(GERROR, "Prematured end of file");
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */

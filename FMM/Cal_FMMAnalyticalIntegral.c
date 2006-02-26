@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_FMMAnalyticalIntegral.c,v 1.9 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: Cal_FMMAnalyticalIntegral.c,v 1.10 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -111,17 +111,17 @@ void GF_FMMLaplacexForm( struct Element           * Element,
 	      M[i][2*id+1] = -Re2*sphi + Im2*cphi ;
 	    }
 	  }
-	  else  Msg(ERROR, "Wrong NumDof %d for Analytical Aggreg", 
+	  else  Msg(GERROR, "Wrong NumDof %d for Analytical Aggreg", 
 		    QuantityStorage_P->BasisFunction[j].Dof->Case.Unknown.NumDof) ;
 	}
       } 
       break;
     default:
-      Msg(ERROR, "Element not implemented for Analytical Aggreg") ;
+      Msg(GERROR, "Element not implemented for Analytical Aggreg") ;
     }/* Element type */
     break;
   default:
-    Msg(ERROR, "Wrong dimension for Analytical Aggreg") ;
+    Msg(GERROR, "Wrong dimension for Analytical Aggreg") ;
   }
   
   GetDP_End;

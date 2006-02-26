@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.76 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.77 2006-02-26 00:42:54 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -95,7 +95,7 @@ void  Init_OperationOnSystem(char                * Name,
       if ((i = List_ISearchSeq(Resolution2_P->DefineSystem, 
 			       (*DefineSystem_P)->DestinationSystemName,
 			       fcmp_DefineSystem_Name)) < 0)
-	Msg(ERROR, "Unknown DestinationSystem (%s) in System (%s)", 
+	Msg(GERROR, "Unknown DestinationSystem (%s) in System (%s)", 
 	    (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
       (*DefineSystem_P)->DestinationSystemIndex = i ;      
       Dof_DefineUnknownDofFromSolveOrInitDof(DofData_P) ;
@@ -104,7 +104,7 @@ void  Init_OperationOnSystem(char                * Name,
       if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
 			       (*DefineSystem_P)->DestinationSystemName,
 			       fcmp_DefineSystem_Name)) < 0)
-	Msg(ERROR, "Unknown DestinationSystem (%s) in System (%s)", 
+	Msg(GERROR, "Unknown DestinationSystem (%s) in System (%s)", 
 	    (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
       (*DefineSystem_P)->DestinationSystemIndex = i ;      
     }
@@ -245,7 +245,7 @@ void  Cal_SolutionErrorX(int Nbr, double * xNew, double * x, double * MeanError)
   GetDP_Begin("Cal_SolutionErrorX");
 
   if(gSCALAR_SIZE == 2)
-    Msg(ERROR, "FIXME: Cal_SolutionErrorX might return strange results"
+    Msg(GERROR, "FIXME: Cal_SolutionErrorX might return strange results"
 	" in complex arithmetic");
 
   for (i = 0 ; i < Nbr ; i++) {
@@ -460,7 +460,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if (List_Nbr(DefineSystem_P->FormulationIndex) == 1)
 	List_Read(DefineSystem_P->FormulationIndex, 0, &Index_Formulation) ;
       else
-	Msg(ERROR,"FMM not ready for working with more than 1 formulation per system!");
+	Msg(GERROR,"FMM not ready for working with more than 1 formulation per system!");
 
       Current.FMM.DivXYZIndex = Operation_P->Case.GenerateFMMGroups.DivXYZIndex ;
       Get_ValueOfExpressionByIndex(Operation_P->Case.GenerateFMMGroups.Dfar,
@@ -624,7 +624,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	if (Flag_FMM) DefineSystem_P->Flag_FMM = Flag_FMM ;
 
       if(DofData_P->Flag_Init[0] < 2)
-	Msg(ERROR, "Jacobian system not initialized (missing GenerateJac?)");
+	Msg(GERROR, "Jacobian system not initialized (missing GenerateJac?)");
       
       if (DofData_P->Flag_Only){
 	if(DofData_P->Flag_InitOnly[0]){
@@ -694,7 +694,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(DofData_P->Flag_Init[0] < 2)
-	Msg(ERROR, "Jacobian system not initialized (missing GenerateJac?)");
+	Msg(GERROR, "Jacobian system not initialized (missing GenerateJac?)");
 
       LinAlg_AddMatrixMatrix(&DofData_P->Jac, &DofData_P->A, &DofData_P->Jac) ;
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
@@ -717,7 +717,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Error_Prev = 1e99 ;  Frelax_Opt = 1. ;
 
       if (!(NbrSteps_relax = List_Nbr(Operation_P->Case.SolveJac_AdaptRelax.Factor_L)))
-	  Msg(ERROR, "No factors provided for Adaptive Relaxation");
+	  Msg(GERROR, "No factors provided for Adaptive Relaxation");
 
       for( istep = 0 ; istep < NbrSteps_relax ; istep++ ){  
 		
@@ -833,7 +833,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if(Flag_RESTART){
         if (!DofData_P->Solutions)
-          Msg(ERROR, "No solution to restart the computation");
+          Msg(GERROR, "No solution to restart the computation");
 
         for(i=0 ; i<DofData_P->NbrAnyDof ; i++){
           Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
@@ -963,7 +963,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(gSCALAR_SIZE == 2)
-	Msg(ERROR, "FIXME: Generate_MH_Moving will not work in complex arithmetic");
+	Msg(GERROR, "FIXME: Generate_MH_Moving will not work in complex arithmetic");
       
       Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
@@ -975,7 +975,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	MH_Moving_Matrix[k] = (double *) Malloc(Current.NbrHar*sizeof(double)) ;
 
       if (! (Val_Pulsation = Current.DofData->Val_Pulsation))
-	Msg(ERROR, "Generate_MH_moving can only be used for harmonic problems");
+	Msg(GERROR, "Generate_MH_moving can only be used for harmonic problems");
 
       for (k = 0 ; k < Current.NbrHar ; k++)
 	for (l = 0 ; l < Current.NbrHar ; l++) 
@@ -1050,7 +1050,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	MH_Moving_Matrix[k] = (double *) Malloc(Current.NbrHar*sizeof(double)) ;
 
       if (! (Val_Pulsation = Current.DofData->Val_Pulsation))
-	Msg(ERROR, "Generate_MH_moving can only be used for harmonic problems");
+	Msg(GERROR, "Generate_MH_moving can only be used for harmonic problems");
 
       for (k = 0 ; k < Current.NbrHar ; k++)
 	for (l = 0 ; l < Current.NbrHar ; l++) 
@@ -1092,12 +1092,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	  for (i = 0 ; i < NbrDof_MH_moving ; i++) {	  
 	    Dof_P = (struct Dof*)List_Pointer(DofList_MH_moving,i) ;
-	    if (Dof_P->Type != DOF_UNKNOWN) Msg(ERROR,"Dof_MH_moving not of type unknown !?");
+	    if (Dof_P->Type != DOF_UNKNOWN) Msg(GERROR,"Dof_MH_moving not of type unknown !?");
 	    NumDof_MH_moving[i] =  Dof_P->Case.Unknown.NumDof; 
 
 	    if(!(Dof_MH_moving[i] = (struct Dof *)List_PQuery(Current.DofData->DofList, 
 							      Dof_P, fcmp_Dof)))
-	      Msg(ERROR, "Troubles") ;
+	      Msg(GERROR, "Troubles") ;
 	    for (k = 0 ; k < Current.NbrHar ; k++) { 
 	      (Dof_MH_moving[i]+k)->Case.Unknown.NumDof = i*Current.NbrHar+k+1 ;
 	    }	  
@@ -1192,7 +1192,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      ajj = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+col_old]; 
 #else
 	      aii = ajj = 0.;
-	      Msg(ERROR, "FIXME: Generate_MH_Moving works only with Sparskit");
+	      Msg(GERROR, "FIXME: Generate_MH_Moving works only with Sparskit");
 #endif
 	      if(d*d > 1e-12 * aii*ajj  && 
 		 ( (DummyDof[row_new]==0 && DummyDof[col_new] == 0) || (row_new == col_new) ) ){ 
@@ -1312,7 +1312,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	i++ ;
       }
       if(!List_Nbr(DofData_P->Solutions))
-	Msg(ERROR, "No valid data found for ReadSolution[%s]", DefineSystem_P->Name);
+	Msg(GERROR, "No valid data found for ReadSolution[%s]", DefineSystem_P->Name);
 	
       DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;	
@@ -1368,7 +1368,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	DofData2_P = DofData_P0 + DefineSystem_P->DestinationSystemIndex ;
 	
 	if(DofData_P->NbrAnyDof != DofData2_P->NbrAnyDof)
-	  Msg(ERROR, "Dimensions do not match for TransferSolution");
+	  Msg(GERROR, "Dimensions do not match for TransferSolution");
 
 	Solution_S.TimeStep = (int)Current.TimeStep ;
 	Solution_S.Time = Current.Time ;
@@ -1452,7 +1452,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Init_HarInDofData(DefineSystem_P, DofData_P) ;
       }
       else
-	Msg(ERROR, "Invalid SetFrequency for real system '%s'", DefineSystem_P->Name) ;
+	Msg(GERROR, "Invalid SetFrequency for real system '%s'", DefineSystem_P->Name) ;
       break;
 
       /*  -->  T i m e L o o p T h e t a              */
@@ -1460,7 +1460,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_TIMELOOPTHETA :
       if(!List_Nbr(Current.DofData->Solutions))
-	Msg(ERROR, "Not enough initial solutions for TimeLoopTheta");
+	Msg(GERROR, "Not enough initial solutions for TimeLoopTheta");
 
       Msg(OPERATION, "TimeLoopTheta ...") ;
 
@@ -1517,7 +1517,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_TIMELOOPNEWMARK :
       if(List_Nbr(Current.DofData->Solutions) < 2)
-	Msg(ERROR, "Not enough initial solutions for TimeLoopNewmark");
+	Msg(GERROR, "Not enough initial solutions for TimeLoopNewmark");
 
       Msg(OPERATION, "TimeLoopNewmark ...") ;
 
@@ -1624,7 +1624,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Msg(OPERATION, "FourierTransform") ;
 
       if(gSCALAR_SIZE == 2)
-	Msg(ERROR, "FIXME: FourierTransform2 will not work in complex arithmetic");
+	Msg(GERROR, "FIXME: FourierTransform2 will not work in complex arithmetic");
 
       DofData_P  = DofData_P0 + Operation_P->Case.FourierTransform2.DefineSystemIndex[0] ;
       DofData2_P = DofData_P0 + Operation_P->Case.FourierTransform2.DefineSystemIndex[1] ;     
@@ -1635,7 +1635,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       NbrDof2 = List_Nbr(DofData2_P->DofList) ;
 
       if (NbrHar1 != 1 || NbrHar2 < 2 || NbrDof2 != (NbrDof1*NbrHar2))
-	Msg(ERROR,"Uncompatible System definitions for FourierTransform"
+	Msg(GERROR,"Uncompatible System definitions for FourierTransform"
 	    " (NbrHar = %d|%d   NbrDof = %d|%d)", NbrHar1, NbrHar2, NbrDof1, NbrDof2) ;
 
       if(!DofData2_P->Solutions){
@@ -1718,7 +1718,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	k = List_Nbr(Operation_P->Case.FourierTransform.Frequency) ;
 
 	if(DofData2_P->NbrDof != gCOMPLEX_INCREMENT * DofData_P->NbrDof)
-	  Msg(ERROR, "Uncompatible System definitions for FourierTransform") ;
+	  Msg(GERROR, "Uncompatible System definitions for FourierTransform") ;
 
 	DofData2_P->Solutions = List_Create(k, 1, sizeof(struct Solution)) ;	
 
@@ -1764,7 +1764,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  strcat(FileName, Operation_P->Case.Print.FileOut);
 	}
 	if(!(PrintStream = fopen(FileName, "a")))
-	  Msg(ERROR, "Unable to open file '%s'", FileName) ;
+	  Msg(GERROR, "Unable to open file '%s'", FileName) ;
 	Msg(OPERATION, "Print -> '%s'", FileName) ;
       }
       else{
@@ -1862,7 +1862,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if ((i = List_ISearchSeq(GeoData_L, Operation_P->Case.DeformeMesh.Name_MshFile,
 			       fcmp_GeoData_Name)) < 0)
-	Msg(ERROR,"DeformeMesh: Wrong NameOfMeshFile %s", 
+	Msg(GERROR,"DeformeMesh: Wrong NameOfMeshFile %s", 
 	    Operation_P->Case.DeformeMesh.Name_MshFile );
       Operation_P->Case.DeformeMesh.GeoDataIndex = i ;
       
@@ -2012,7 +2012,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
        number. Since GenerateSeparate[] is called outside the time
        loop (i.e. before TimeStep+=1), the List_PQuery may return (in
        an unpredictable way) any of the initial solutions. */
-    Msg(ERROR, "Incompatible time") ;
+    Msg(GERROR, "Incompatible time") ;
   }
 
   if(Flag_Separate){
@@ -2343,7 +2343,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
   GetDP_Begin("Update_System");
 
   if (!DofData_P->Solutions)
-    Msg(ERROR, "No initialized solution available for update") ;
+    Msg(GERROR, "No initialized solution available for update") ;
 
   i_TimeStep = (int)Current.TimeStep ;
   if (!(Solution_P = (struct Solution*)
@@ -2367,14 +2367,14 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 
   }
   else if (Solution_P != DofData_P->CurrentSolution) {
-    Msg(ERROR, "Incompatible time") ;
+    Msg(GERROR, "Incompatible time") ;
   }
   
   switch (Current.TypeTime) {
   case TIME_THETA :
 
     if(!DofData_P->Flag_Init[1] && !DofData_P->Flag_Init[2])
-      Msg(ERROR, "No system available for Update") ;
+      Msg(GERROR, "No system available for Update") ;
 
     if(!Init_Update){
       Init_Update = 1;
@@ -2422,7 +2422,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
   case TIME_NEWMARK :
 
     if(!DofData_P->Flag_Init[1] && !DofData_P->Flag_Init[2] && !DofData_P->Flag_Init[3])
-      Msg(ERROR, "No system available for Update") ;
+      Msg(GERROR, "No system available for Update") ;
 
     if(!Init_Update){
       Init_Update = 1;
@@ -2471,11 +2471,11 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
     break ;
 
   default :
-    Msg(ERROR, "Wrong type of analysis for update") ;
+    Msg(GERROR, "Wrong type of analysis for update") ;
   }
 
   LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-  if(!i) Msg(ERROR, "Generated system is of dimension zero");
+  if(!i) Msg(GERROR, "Generated system is of dimension zero");
 
   Free_UnusedSolutions(DofData_P);
 
@@ -2758,7 +2758,7 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
   GetDP_Begin("Cal_CompareGlobalQuantity");
 
   if(gSCALAR_SIZE == 2)
-    Msg(ERROR, "FIXME: Cal_CompareGlobalQuantity might return strange results"
+    Msg(GERROR, "FIXME: Cal_CompareGlobalQuantity might return strange results"
 	" in complex arithmetic");
 
   /* test */
@@ -2973,7 +2973,7 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 
 	case CHANGEOFSTATE_CHANGEREFERENCE :
 	  if (Nbr_Region != 1)
-	    Msg(ERROR, "More than 1 Region for ChangeReference not done yet") ;
+	    Msg(GERROR, "More than 1 Region for ChangeReference not done yet") ;
 	  for (i = 0 ; i < Nbr_Region ; i++) {
 	    if (fabs(val1[i] - val0[i]) >
 		fabs(ChangeOfState_P->Criterion) *
@@ -2988,7 +2988,7 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 
 	case CHANGEOFSTATE_CHANGEREFERENCE2 :
 	  if (Nbr_Region != 1)
-	    Msg(ERROR, "More than 1 Region for ChangeReference2 not done yet") ;
+	    Msg(GERROR, "More than 1 Region for ChangeReference2 not done yet") ;
 	  for (i = 0 ; i < Nbr_Region ; i++) {
 	    *FlagIndex = ChangeOfState_P->FlagIndex ;
 	    if (val1[i] > val0[i])  *FlagIndex *= -1 ;
@@ -3068,7 +3068,7 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 		 Operation_P->Case.ChangeOfCoordinates.GroupIndex) ;
   if (!Group_P->ExtendedList)  Generate_ExtendedGroup(Group_P) ;
   if (Group_P->FunctionType != NODESOF)
-    Msg(ERROR, "ChangeOfCoordinates: Group must be of NodesOf function type") ; 
+    Msg(GERROR, "ChangeOfCoordinates: Group must be of NodesOf function type") ; 
 
   Nbr_Node = List_Nbr(Group_P->ExtendedList) ;
 
@@ -3141,7 +3141,7 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
 					  Operation_P->DefineSystemIndex) ;
 
   if( List_Nbr(DS->FormulationIndex) > 1 )
-    Msg(ERROR, "DeformeMesh: Only one formulation must be associated to the system %s", 
+    Msg(GERROR, "DeformeMesh: Only one formulation must be associated to the system %s", 
 	DS->Name) ;
   
   FO = (struct Formulation *) List_Pointer(Problem_S.Formulation,
@@ -3149,7 +3149,7 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
   
   if((i = List_ISearchSeq(FO->DefineQuantity, Operation_P->Case.DeformeMesh.Quantity,
 			  fcmp_DefineQuantity_Name)) < 0)
-    Msg(ERROR, "Unknown Quantity '%s' in Formulation %s",
+    Msg(GERROR, "Unknown Quantity '%s' in Formulation %s",
               Operation_P->Case.DeformeMesh.Quantity, FO->Name ) ;
   DQ_P = (struct DefineQuantity *) List_Pointer(FO->DefineQuantity, i) ;
 

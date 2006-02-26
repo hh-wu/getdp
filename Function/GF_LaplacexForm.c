@@ -1,4 +1,4 @@
-#define RCSID "$Id: GF_LaplacexForm.c,v 1.18 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: GF_LaplacexForm.c,v 1.19 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -136,7 +136,7 @@ void GF_LaplacexForm (F_ARG2) {
 	Val->Val[0] = - ONE_OVER_FOUR_PI * I1 ; 
       }
       else {
-	Msg(ERROR, "Unknown Basis Function Type for 'GF_LaplacexForm'");
+	Msg(GERROR, "Unknown Basis Function Type for 'GF_LaplacexForm'");
       }
       break ;
       
@@ -168,7 +168,7 @@ void GF_LaplacexForm (F_ARG2) {
 	Val->Val[0] = valr * DetJ ; 
       }
       else{
-	Msg(ERROR, "Unknown Basis Function Type for 'GF_LaplacexForm'");
+	Msg(GERROR, "Unknown Basis Function Type for 'GF_LaplacexForm'");
       }
       break ;
 
@@ -196,12 +196,12 @@ void GF_LaplacexForm (F_ARG2) {
 	Val->Type = SCALAR ;
       }
       else{
-	Msg(ERROR, "Unknown Basis Function Type for 'GF_LaplacexForm'");
+	Msg(GERROR, "Unknown Basis Function Type for 'GF_LaplacexForm'");
       }
       break ;
       
     default :
-      Msg(ERROR, "Unknown Element Type (%s) for 'GF_LaplacexForm'",
+      Msg(GERROR, "Unknown Element Type (%s) for 'GF_LaplacexForm'",
 	  Get_StringForDefine(Element_Type, Element->ElementSource->Type));
     }
     
@@ -311,7 +311,7 @@ void GF_LaplacexForm (F_ARG2) {
 	if(r00 <= EPSILON*(fabs(s0m)+fabs(s0p)) ){ f20 = log(s0m/s0p) ; B0 = 0; }
 	else{
 	  if (!(r0m + s0m)) 
-	    Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15e %.15e",
+	    Msg(GERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15e %.15e",
 		Element->ElementSource->Num, x, y, z) ;
 	  f20 = log((r0p + s0p) / (r0m + s0m));
 	  B0  = atan(t00*s0p/(r00_2+fabs(zl)*r0p))-atan(t00*s0m/(r00_2+fabs(zl)*r0m));
@@ -320,7 +320,7 @@ void GF_LaplacexForm (F_ARG2) {
 	if(r10 <= EPSILON*(fabs(s1m)+fabs(s1p)) ){ f21 = log(s1m/s1p); B1 = 0; }
 	else{
 	  if(!(r0p + s1m)) 
-	    Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15e %.15e",
+	    Msg(GERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15e %.15e",
 		Element->ElementSource->Num, x, y, z) ;
 	  f21 = log((r1p + s1p) / (r0p + s1m));
 	  B1 =  atan(t10*s1p/(r10_2+fabs(zl)*r1p))-atan(t10*s1m/(r10_2+fabs(zl)*r0p));
@@ -329,7 +329,7 @@ void GF_LaplacexForm (F_ARG2) {
 	if(r20 <= EPSILON*(fabs(s2m)+fabs(s2p)) ){ f22 = log(s2m/s2p); B2 = 0; }
 	else{
 	  if(!(r1p+s2m))
-	    Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15e %.15e",
+	    Msg(GERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) Num %d Obs %.15e %.15e %.15e",
 		Element->ElementSource->Num, x, y, z) ;
 	  f22 = log((r0m + s2p) / (r1p + s2m));
 	  B2 = atan(t20*s2p/(r20_2+fabs(zl)*r0m))-atan(t20*s2m/(r20_2+fabs(zl)*r1p));
@@ -349,7 +349,7 @@ void GF_LaplacexForm (F_ARG2) {
 
       case 2 : /* BF_Node */
 	if (!v2) 	
-	  Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) v2 %e", v2);
+	  Msg(GERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) v2 %e", v2);
 
 	f30 = (s0p*r0p-s0m*r0m) + r00_2 * f20 ; /* f3i */
 	f31 = (s1p*r1p-s1m*r0p) + r10_2 * f21 ;
@@ -392,7 +392,7 @@ void GF_LaplacexForm (F_ARG2) {
 	}
 	break;
       default :
-	Msg(ERROR, "Unknown Basis Function Type for 'GF_LaplacexForm'");
+	Msg(GERROR, "Unknown Basis Function Type for 'GF_LaplacexForm'");
       }
 
       Val->Val[0] *= ONE_OVER_FOUR_PI ;
@@ -401,13 +401,13 @@ void GF_LaplacexForm (F_ARG2) {
       break ;
     
     default :
-      Msg(ERROR, "Unknown Element Type (%s) for 'GF_LaplacexForm'",
+      Msg(GERROR, "Unknown Element Type (%s) for 'GF_LaplacexForm'",
 	  Get_StringForDefine(Element_Type, Element->ElementSource->Type));
     }
     break ;
 
   default :
-    Msg(ERROR, "Unknown Dimension (%d) for 'GF_LaplacexForm'", 
+    Msg(GERROR, "Unknown Dimension (%d) for 'GF_LaplacexForm'", 
 	(int)Fct->Para[0]);
     
   }
@@ -493,12 +493,12 @@ void GF_GradLaplacexForm (F_ARG2) {
 	Val->Val[0] = my*valr - mx*vali ; 
       }
       else{
-	Msg(ERROR, "Unknown Basis Function Type for 'GF_GradLaplacexForm'");
+	Msg(GERROR, "Unknown Basis Function Type for 'GF_GradLaplacexForm'");
       }
       break ;
 
     default :
-      Msg(ERROR, "Unknown Element Type (%s) for 'GF_GradLaplacexForm'",
+      Msg(GERROR, "Unknown Element Type (%s) for 'GF_GradLaplacexForm'",
 	  Get_StringForDefine(Element_Type, Element->ElementSource->Type));
     }
     break ;
@@ -653,7 +653,7 @@ void GF_GradLaplacexForm (F_ARG2) {
     
       case 2 : /* BF_Node */
 	if (!v2 ) 	
-	  Msg(ERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) v2 %e", v2);
+	  Msg(GERROR,"1/0 in GF_LaplacexForm (case _3D TRIANGLE) v2 %e", v2);
 
 	f0[0] = s0[0] * t00 * f20 - m0[0]*(r0p-r0m) ; /* fi */
 	f0[1] = s0[1] * t00 * f20 - m0[1]*(r0p-r0m) ;
@@ -724,13 +724,13 @@ void GF_GradLaplacexForm (F_ARG2) {
       break ;
       
     default :
-      Msg(ERROR, "Unknown Element Type (%s) for 'GF_GradLaplacexForm'",
+      Msg(GERROR, "Unknown Element Type (%s) for 'GF_GradLaplacexForm'",
 	  Get_StringForDefine(Element_Type, Element->ElementSource->Type));
     }
     break ;
     
   default :
-    Msg(ERROR, "Unknown Dimension (%d) for 'GF_GradLaplacexForm'",
+    Msg(GERROR, "Unknown Dimension (%d) for 'GF_GradLaplacexForm'",
 	(int)Fct->Para[0]);
     
   }
@@ -769,7 +769,7 @@ void GF_NPxGradLaplacexForm (F_ARG2) {
 
     case LINE :	  
       if (Element->Type != LINE)
-	Msg(ERROR, "GF_NPxGradLaplacexForm not ready for mixed geometrical elements");
+	Msg(GERROR, "GF_NPxGradLaplacexForm not ready for mixed geometrical elements");
 
       xs[0] = Element->ElementSource->x[0] ; ys[0] = Element->ElementSource->y[0] ;
       xs[1] = Element->ElementSource->x[1] ; ys[1] = Element->ElementSource->y[1] ;
@@ -793,14 +793,14 @@ void GF_NPxGradLaplacexForm (F_ARG2) {
 	switch (Type_Int) {	  
 	case 1 :  
 	case 2 :  
-	  Msg(ERROR, "Degenerate case not done in 'GF_NPxGradLaplacexForm'");
+	  Msg(GERROR, "Degenerate case not done in 'GF_NPxGradLaplacexForm'");
 	  break ;	
 	case 3 :  
 	  if (fabs(d) < EPSILON2) {
 	    I1 = 0.0 ;
 	  }
 	  else {
-	    if(d<0) Msg(ERROR, "Unexpected value in 'GF_NPxGradLaplacexForm'");
+	    if(d<0) Msg(GERROR, "Unexpected value in 'GF_NPxGradLaplacexForm'");
 	    i1 = sqrt(d) ;
 	    Is = 2. / i1 * (atan((2.*a+b)/i1) -  atan(b/i1)) ;
 	    Jp = sqrt(SQU(xp[0]-xp[1])+SQU(yp[0]-yp[1])) ;
@@ -813,12 +813,12 @@ void GF_NPxGradLaplacexForm (F_ARG2) {
 	Val->Val[0] = - ONE_OVER_TWO_PI * I1 ; 
       }
       else {	
-	Msg(ERROR, "Unknown Basis Function Type for 'GF_NPxGradLaplacexForm'");
+	Msg(GERROR, "Unknown Basis Function Type for 'GF_NPxGradLaplacexForm'");
       }
       break ;
 
     default :
-      Msg(ERROR, "Unknown Element Type (%s) for 'GF_NPxGradLaplacexForm'",
+      Msg(GERROR, "Unknown Element Type (%s) for 'GF_NPxGradLaplacexForm'",
 	  Get_StringForDefine(Element_Type, Element->ElementSource->Type));     
     }
     break ;
@@ -834,13 +834,13 @@ void GF_NPxGradLaplacexForm (F_ARG2) {
       Val->Val[0] = N[0]*ValGrad.Val[0] + N[1]*ValGrad.Val[1] + N[2]*ValGrad.Val[2] ;
       break ;
     default :
-      Msg(ERROR, "Unknown Element Type (%s) for 'GF_NPxGradLaplacexForm'",
+      Msg(GERROR, "Unknown Element Type (%s) for 'GF_NPxGradLaplacexForm'",
 	  Get_StringForDefine(Element_Type, Element->ElementSource->Type));  
     }
     break ;
 
   default :
-    Msg(ERROR, "Unknown Dimension (%d) for 'GF_NPxGradLaplacexForm'",
+    Msg(GERROR, "Unknown Dimension (%d) for 'GF_NPxGradLaplacexForm'",
 	(int)Fct->Para[0]);
   }
 
@@ -857,7 +857,7 @@ void GF_NSxGradLaplacexForm (F_ARG2) {
     
   GetDP_Begin("GF_NSxGradLaplacexForm");
 
-  Msg(ERROR, "Not done: 'GF_NSxGradLaplacexForm'");
+  Msg(GERROR, "Not done: 'GF_NSxGradLaplacexForm'");
   
   GetDP_End ;
 }
@@ -878,7 +878,7 @@ void GF_ApproximateLaplacexForm (F_ARG2) {
     break ;
 
   default :
-    Msg(ERROR, "Bad Parameter Value in 'GF_ApproximateLaplacexForm'");
+    Msg(GERROR, "Bad Parameter Value in 'GF_ApproximateLaplacexForm'");
     break;
 
   }

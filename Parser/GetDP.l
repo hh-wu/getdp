@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.42 2006-02-25 15:00:24 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.43 2006-02-26 00:42:54 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -406,7 +406,7 @@ void  parsestring(char endchar) {
   i = 0;
   while(c != endchar){ 
     if(c == EOF) { 
-      Msg(ERROR, "End of file in string") ;
+      Msg(GERROR, "End of file in string") ;
       yycolnum=0 ; 
       break;
     }
@@ -414,7 +414,7 @@ void  parsestring(char endchar) {
       yycolnum=0 ; 
     }
     else if(i >= (int)sizeof(tmp)-1) {
-      Msg(ERROR, "String too long") ;
+      Msg(GERROR, "String too long") ;
       break;
     }
     else { 
@@ -450,7 +450,7 @@ void skip_until(char *skip, char *until){
       chars[0] = input();
       if(chars[0] == '\n') yylinenum++ ; 
       if(chars[0] == (char)EOF){
-        Msg(ERROR, "Unexpected end of file") ;
+        Msg(GERROR, "Unexpected end of file") ;
 	return;
       }
       if(chars[0] == '/'){
@@ -465,7 +465,7 @@ void skip_until(char *skip, char *until){
 
     l = (l_skip > l_until) ? l_skip : l_until ;
     if(l >= (int)sizeof(chars)){
-      Msg(ERROR, "Search pattern too long in skip_until");
+      Msg(GERROR, "Search pattern too long in skip_until");
       return;
     }
     for(i = 1 ; i < l ; i++){

@@ -251,7 +251,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.100 2006-02-25 15:00:24 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.101 2006-02-26 00:42:54 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -9358,7 +9358,7 @@ case 643:
 case 644:
 #line 6197 "GetDP.y"
 { Constant_S.Name = yyvsp[-6].c ; Constant_S.Type = VAR_LISTOFFLOAT ;
-      if (!(File = fopen(yyvsp[-2].c, "r"))) Msg(ERROR, "Unable to open file '%s'", yyvsp[-2].c);
+      if (!(File = fopen(yyvsp[-2].c, "r"))) Msg(GERROR, "Unable to open file '%s'", yyvsp[-2].c);
       Constant_S.Value.ListOfFloat = List_Create(100,100,sizeof(double));
       while (!feof(File))
 	if (fscanf(File, "%lf", &d) != EOF)

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Parser.c,v 1.17 2006-02-25 15:00:25 geuzaine Exp $"
+#define RCSID "$Id: Parser.c,v 1.18 2006-02-26 00:43:00 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -407,7 +407,7 @@ void init_solver_option (Solver_Params *p , char *name, char *value){
     }    
   }
 
-  Msg(ERROR, "Unknown solver parameter '%s'", name);
+  Msg(GERROR, "Unknown solver parameter '%s'", name);
 }
 
 

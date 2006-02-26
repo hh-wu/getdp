@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.25 2006-02-25 15:00:24 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.26 2006-02-26 00:42:53 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -153,11 +153,11 @@ void  F_Sphere (F_ARG) {
       solsph_(&x,&y,&z,&sxr,&sxi,&syr,&syi,&szr,&szi,&mur,&sigma,&freq,&r1);  
     }
     else {
-      Msg(ERROR, "Not done ...");
+      Msg(GERROR, "Not done ...");
     }
   }
   else{  /* sphere creuse */
-    Msg(ERROR, "Not done ...");
+    Msg(GERROR, "Not done ...");
   }
 
   if (Current.NbrHar == 1) {

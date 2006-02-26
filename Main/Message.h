@@ -27,8 +27,7 @@
 /* Message levels */ 
 
 #define DIRECT       0
-#define ERROR        1
-#define GERROR         1 /* for Windows/Gmsh compatibility */
+#define GERROR       1
 #define BIGERROR     2
 #define WARNING      3
 #define OPERATION    4
@@ -41,7 +40,6 @@
 #define PETSC        11
 #define ITER         12
 #define DEBUG        13
-#define GDEBUG          13 /* for Windows/Gmsh compatibility */
 #define DEBUG2       14
 #define LOADING      15
 #define RESOURCES    16

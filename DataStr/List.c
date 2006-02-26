@@ -1,4 +1,4 @@
-#define RCSID "$Id: List.c,v 1.21 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: List.c,v 1.22 2006-02-26 00:42:52 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -121,14 +121,14 @@ int List_Replace(List_T *liste, void *data,
 void List_Read(List_T *liste, int index, void *data)
 {
   if ((index < 0) || (index >= liste->n))
-    Msg(ERROR, "Wrong list index (read)");
+    Msg(GERROR, "Wrong list index (read)");
   memcpy(data,&liste->array[index * liste->size],liste->size);
 }
 
 void List_Write(List_T *liste, int index, void *data)
 {
   if ((index < 0) || (index >= liste->n))
-    Msg(ERROR, "Wrong list index (write)");
+    Msg(GERROR, "Wrong list index (write)");
   liste->isorder = 0;
   memcpy(&liste->array[index * liste->size],data,liste->size);
 }
@@ -136,7 +136,7 @@ void List_Write(List_T *liste, int index, void *data)
 void List_Put(List_T *liste, int index, void *data)
 {
   if (index < 0)
-    Msg(ERROR, "Wrong list index (put)");
+    Msg(GERROR, "Wrong list index (put)");
 
   if (index >= liste->n) {
     liste->n = index + 1;
@@ -155,7 +155,7 @@ void List_Pop(List_T *liste)
 void *List_Pointer(List_T *liste, int index)
 {
   if ((index < 0) || (index >= liste->n))
-    Msg(ERROR, "Wrong list index (pointer)");
+    Msg(GERROR, "Wrong list index (pointer)");
 
   liste->isorder = 0; /* getdp: a examiner... */
   return(&liste->array[index * liste->size]);
@@ -164,7 +164,7 @@ void *List_Pointer(List_T *liste, int index)
 void *List_Pointer_NoChange(List_T *liste, int index)
 {
   if ((index < 0) || (index >= liste->n))
-    Msg(ERROR, "Wrong list index (pointer)");
+    Msg(GERROR, "Wrong list index (pointer)");
 
   return(&liste->array[index * liste->size]);
 }
