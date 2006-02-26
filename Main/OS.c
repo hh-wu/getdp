@@ -1,4 +1,4 @@
-#define RCSID "$Id: OS.c,v 1.1 2006-02-26 16:34:28 geuzaine Exp $"
+#define RCSID "$Id: OS.c,v 1.2 2006-02-26 17:00:32 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -25,6 +25,7 @@
 
 /* these are available on all OSes */
 #include <stdlib.h>
+#include <stdio.h>
 #include <sys/types.h>
 
 #if !defined(WIN32) || defined(__CYGWIN__)
@@ -34,6 +35,7 @@
 #else
 #include <windows.h>
 #include <process.h>
+#include <io.h>
 #endif
 
 #if defined(__APPLE__)
