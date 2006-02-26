@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.80 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.81 2006-02-26 00:47:28 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -317,7 +317,7 @@ void Msg(int level, char *fmt, ...){
     if(Flag_LOG) PrintResources(LogStream, fmt, s, mem) ;
   }
   else if(level == SUMMARY){
-    if(Flag_LOG || Flag_VERBOSE > 0) GetResources(&s, &&mem) ;
+    if(Flag_LOG || Flag_VERBOSE > 0) GetResources(&s, &mem) ;
     if(Flag_VERBOSE > 0) PrintResources(stderr, fmt, s, mem) ;
     if(Flag_LOG) PrintResources(LogStream, fmt, s, mem) ;
   }
