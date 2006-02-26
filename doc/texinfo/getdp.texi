@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.87 2006-02-25 15:00:25 geuzaine Exp $
+@c $Id: getdp.texi,v 1.88 2006-02-26 21:21:19 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 @c
@@ -1591,8 +1591,8 @@ The syntax for the definition of groups is:
 @example
 Group @{
   < DefineGroup [ @var{group-id} <@{@var{integer}@}> <,@dots{}> ]; > @dots{}
-  < @var{group-id} <@{<#>@var{integer}@}> = @var{group-def}; > @dots{}
-  < @var{group-id} <@{<#>@var{integer}@}> += @var{group-def}; > @dots{}
+  < @var{group-id} = @var{group-def}; > @dots{}
+  < @var{group-id} += @var{group-def}; > @dots{}
   < @var{affectation} > @dots{}
   < @var{loop} > @dots{}
 @}
@@ -1641,12 +1641,6 @@ Array of groups: @code{DefineGroup[@var{group-id}@{@var{n}@}]} defines
 the empty groups @code{@var{group-id}@{@var{i}@}}, @var{i}=1, @dots{}, n.
 Such a definition is optional, i.e., each
 @code{@var{group-id}@{@var{i}@}} can be separately defined, in any order.
-@item
-Multidefinition: @code{@var{group-id}@{#@var{n}@} = @var{group-def}}
-defines the groups @code{@var{group-id}@{@var{i}@}},
-@var{i}=1, @dots{}, @var{n}, by replacing for each @var{i} any
-@code{@var{group-id}@{@}} in @var{group-def} with
-@code{@var{group-id}@{@var{i}@}}.
 @item
 @code{#@var{group-list}} is an abbreviation of @code{Region[@var{group-list}]}.
 @end enumerate
@@ -1753,7 +1747,7 @@ The syntax for the definition of constraints is:
 
 @example
 Constraint @{
-  @{ Name @var{constraint-id} <@{#@var{integer}@}>; Type @var{constraint-type};
+  @{ Name @var{constraint-id}; Type @var{constraint-type};
     Case @{
       @{ Region @var{group-def}; < Type @var{constraint-type}; >
         < SubRegion @var{group-def}; > < TimeFunction @var{expression}; > 
@@ -1794,12 +1788,6 @@ Constraint @{
 
 @noindent Notes:
 @enumerate
-@item
-Multidefinition: @code{Name @var{constraint-id}@{#@var{n}@}} defines
-the constraints @code{@var{constraint-id}@{@var{i}@}},
-@var{i}=1, @dots{}, @var{n}, replacing for each @var{i} any
-@code{@var{group-id}@{@}} in @var{group-def}s of @code{Case}
-fields with @var{group-id}@{@var{i}@}.
 @item
 The constraint type @var{constraint-type} defined outside the @code{Case}
 fields is applied to all the cases of the constraint, unless other types are
@@ -1887,7 +1875,7 @@ The syntax for the definition of function spaces is:
 
 @example
 FunctionSpace @{
-  @{ Name @var{function-space-id} <@{#@var{integer}@}>;
+  @{ Name @var{function-space-id};
     Type @var{function-space-type};
     BasisFunction @{ 
      @{ Name @var{basis-function-id}; NameOfCoef @var{coef-id}; 
@@ -1947,12 +1935,6 @@ FunctionSpace @{
 
 @noindent Notes:
 @enumerate
-@item
-Multidefinition: @code{Name @var{function-space-id}@{#@var{n}@}} defines
-the function spaces @code{@var{function-space-id}@{@var{i}@}},
-@var{i}=1, @dots{}, @var{n}, replacing for each @var{i} any @code{@{@}} in
-@var{group-def}s of @code{BasisFunction} field and in 
-@var{constraint-id}@code{@{@}} of @code{Constraint} field with @{@var{i}@}.
 @item
 When the definition region of a function type group used as an @code{Entity} of 
 a @code{BasisFunction} is the same as that of the associated @code{Support}, 
@@ -2182,7 +2164,7 @@ The syntax for the definition of formulations is:
 
 @example
 Formulation @{
-  @{ Name @var{formulation-id} <@{#@var{integer}@}>; Type @var{formulation-type}; 
+  @{ Name @var{formulation-id}; Type @var{formulation-type}; 
     Quantity @{ 
       @{ Name @var{quantity-id}; Type @var{quantity-type}; 
         NameOfSpace @var{function-space-id} <@{@}>
@@ -2236,12 +2218,6 @@ Formulation @{
 
 @noindent Note:
 @enumerate
-@item
-Multidefinition: @code{Name @var{formulation-id}@{#@var{n}@}} defines
-the formulations @code{@var{formulation-id}@{@var{i}@}},
-@var{i}=1, @dots{}, @var{n}, replacing for each @var{i} any @code{@{@}} in
-@var{function-space-id}@code{@{@}} of @code{Quantity} field and in
-@var{group-def}s of @code{Equation} field with @{@var{i}@}.
 @item
 @code{IndexOfSystem} permits to resolve ambiguous cases when several
 quantities belong to the same function space, but to different systems of
@@ -2315,7 +2291,7 @@ and a list of elementary operations:
 
 @example
 Resolution @{
-  @{ Name @var{resolution-id} <@{#@var{integer}@}>; 
+  @{ Name @var{resolution-id}; 
     System @{ 
       @{ Name @var{system-id}; NameOfFormulation @var{formulation-list}; 
         < Type @var{system-type}; >
@@ -2357,11 +2333,6 @@ Resolution @{
 
 @noindent Notes:
 @enumerate
-@item
-Multidefinition: @code{Name @var{resolution-id}@{#@var{n}@}} defines the
-resolutions @code{@var{resolution-id}@{@var{i}@}}, @var{i}=1, @dots{},
-@var{n}, replacing for each @var{i} any @code{@{@}} in
-@var{formulation-id}@code{@{@}} of @code{System} field with @{@var{i}@}.
 @item
 The default type for a system of equations is @code{Real}. A frequency
 domain analysis is defined through the definition of one or several
@@ -2425,7 +2396,7 @@ interest:
 
 @example
 PostProcessing @{
-  @{ Name @var{post-processing-id} <@{#@var{integer}@}>; 
+  @{ Name @var{post-processing-id}; 
     NameOfFormulation @var{formulation-id} <@{@}>; < NameOfSystem @var{system-id}; >
     Quantity @{
       @{ Name @var{post-quantity-id}; Value @{ @var{post-value} @dots{} @} @} @dots{}
@@ -2458,11 +2429,6 @@ PostProcessing @{
 
 @noindent Notes:
 @enumerate
-@item
-Multidefinition: @code{Name @var{post-processing-id}@{#@var{n}@}}
-defines the post-processings @code{@var{post-proces@-sing-id}@{@var{i}@}},
-@var{i}=1, @dots{}, @var{n}, replacing for each @var{i} any @code{@{@}} in
-@var{formulation-id}@code{@{@}} with @{@var{i}@}.
 @item
 The quantity defined with @var{integral-value} is piecewise defined over the
 elements of the mesh of @var{group-def}, and takes, in each element, the
