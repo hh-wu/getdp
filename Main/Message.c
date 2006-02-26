@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.81 2006-02-26 00:47:28 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.82 2006-02-26 00:52:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -292,15 +292,16 @@ void GetResources(double *s, long *mem)
 }
 
 void PrintResources(FILE *stream, char *fmt, double s, long mem){
-  char sockmsg[1000];
-  if(Flag_SOCKET > 0){
-    sprintf(sockmsg, RESOURCES_STR "%scpu %g s / mem %ld kb\n", fmt, s, mem);
-    Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_INFO, sockmsg);
-  }
-  else{
-    fprintf(stream, RESOURCES_STR) ;
-    fprintf(stream, "%scpu %g s / mem %ld kb\n", fmt, s, mem);
-  }
+  char msg[1000];
+  if(mem)
+    sprintf(msg, RESOURCES_STR "%scpu %g s / mem %ld kb\n", fmt, s, mem);
+  else
+    sprintf(msg, RESOURCES_STR "%scpu %g s\n", fmt, s);
+
+  if(Flag_SOCKET > 0)
+    Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_INFO, msg);
+  else
+    fprintf(stream, msg);
 }
 
 void Msg(int level, char *fmt, ...){
