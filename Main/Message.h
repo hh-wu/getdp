@@ -64,6 +64,5 @@ void Signal(int signum);
 void Msg(int level, char *fmt, ...);
 void Progress(int current, int final, char *label);
 void Debug(void);
-void CheckResources(void);
 
 #endif

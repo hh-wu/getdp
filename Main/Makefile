@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.36 2006-02-25 15:00:24 geuzaine Exp $
+# $Id: Makefile,v 1.37 2006-02-26 01:04:35 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -27,7 +27,7 @@ INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../Function\
           -I../Sparskit -I../FMM -I../NR -I../Parser
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
-SRC = Main.c Message.c \
+SRC = Main.c Message.c Timer.c \
         SolvingAnalyse.c SolvingOperations.c \
           Treatment_Formulation.c \
               Get_DofOfElement.c \

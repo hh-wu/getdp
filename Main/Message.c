@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.82 2006-02-26 00:52:26 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.83 2006-02-26 01:04:35 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -21,24 +21,12 @@
  */
 
 #include <signal.h>
-
-#if !defined (WIN32) || defined(__CYGWIN__)
-#include <sys/time.h>
-#include <sys/resource.h>
-#else
-#include <windows.h>
-#endif
-
-#if defined(__APPLE__)
-#define RUSAGE_SELF      0
-#define RUSAGE_CHILDREN -1
-#endif
-
 #include "GetDP.h"
 #include "GetDPVersion.h"
 #include "CurrentData.h"
 #include "LinAlg.h"
 #include "GmshClient.h"
+#include "Timer.h"
 
 #if !defined(GETDP_EXTRA_VERSION)
 #error 
@@ -274,23 +262,6 @@ void PrintMsg(FILE *stream, int level, int Verbosity,
   fflush(stream);
 }
 
-void GetResources(double *s, long *mem)
-{
-#if !defined(WIN32) || defined(__CYGWIN__)
-  static struct rusage r;
-  getrusage(RUSAGE_SELF, &r);
-  *s = (double)r.ru_utime.tv_sec + 1.e-6 * (double)r.ru_utime.tv_usec;
-  *mem = (long)r.ru_maxrss;
-#else
-  FILETIME creation, exit, kernel, user;
-  if(GetProcessTimes(GetCurrentProcess(), &creation, &exit, &kernel, &user)){
-    *s = 1.e-7 * 4294967296. * (double)user.dwHighDateTime +
-         1.e-7 * (double)user.dwLowDateTime;
-  }
-  *mem = 0;
-#endif
-}
-
 void PrintResources(FILE *stream, char *fmt, double s, long mem){
   char msg[1000];
   if(mem)
@@ -335,23 +306,6 @@ void Msg(int level, char *fmt, ...){
     }
   }
 }
-
-void CheckResources(void){
-#if !defined (WIN32) || defined(__CYGWIN__)
-  static struct rlimit r;
-
-  getrlimit(RLIMIT_STACK, &r);
-
-  /* Try to get at least 1 MB of stack. Running with too small a stack
-     causes getdp to crash in the recursive calls (mainly Cal_WholeQuantity) */
-  if(r.rlim_cur < 1024*1024){
-    Msg(INFO, "Increasing process stack size (%d kB < 1 MB)", r.rlim_cur/1024);
-    r.rlim_cur = r.rlim_max;
-    setrlimit(RLIMIT_STACK, &r);
-  }
-#endif
-}
-
 
 /* ------------------------------------------------------------------------ */
 /*  P r o g r e s s                                                         */

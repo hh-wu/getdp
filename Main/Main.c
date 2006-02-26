@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.58 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.59 2006-02-26 01:04:35 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -37,6 +37,7 @@
 #include "Magic.h"
 #include "Numeric.h"
 #include "GmshClient.h"
+#include "Timer.h"
 
 extern FILE *yyin ;
 long int     yylinenum = 0 ;
