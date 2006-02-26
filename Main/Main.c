@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.59 2006-02-26 01:04:35 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.60 2006-02-26 16:34:28 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -20,13 +20,6 @@
  * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
-#if !defined(WIN32) || defined(__CYGWIN__)
-#include <sys/types.h>
-#include <unistd.h>
-#else
-#include <process.h>
-#endif
-
 #include <signal.h>
 #include <time.h>
 
@@ -37,7 +30,7 @@
 #include "Magic.h"
 #include "Numeric.h"
 #include "GmshClient.h"
-#include "Timer.h"
+#include "OS.h"
 
 extern FILE *yyin ;
 long int     yylinenum = 0 ;
@@ -315,11 +308,7 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	  else if(Flag_SOCKET == -3)
 	    Msg(GERROR, "No such host %s", argv[i]);
 	  else{
-#if !defined(WIN32) || defined(__CYGWIN__)
-	    sprintf(pid, "%d", getpid());
-#else
-	    sprintf(pid, "%d", _getpid());
-#endif
+	    sprintf(pid, "%d", GetProcessId());
 	    Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_START, pid);
 	  }
 	  i++ ; 
@@ -577,9 +566,7 @@ void FinalizeAndExit(void){
     Gmsh_Disconnect(Flag_SOCKET);
   }
 
-#if !defined(WIN32) || defined(__CYGWIN__)
-  unlink(GETDP_TMP_FILENAME);
-#endif
+  UnlinkFile(GETDP_TMP_FILENAME);
 
   GetDP_Exit(1) ;
 }

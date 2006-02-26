@@ -1,4 +1,4 @@
-#define RCSID "$Id: SafeIO.c,v 1.5 2006-02-25 15:00:23 geuzaine Exp $"
+#define RCSID "$Id: SafeIO.c,v 1.6 2006-02-26 16:34:28 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include <unistd.h>
 
 #include "SafeIO.h"
 #include "Message.h"
@@ -69,11 +68,8 @@ int safe_fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream){
       Msg(GERROR, "Disk full");
     else
       Msg(GERROR, strerror(errno));
-    Msg(GERROR, "Truncating output file");
     if(fflush(stream) < 0)
       Msg(GERROR, "EOF reached");
-    if(ftruncate(fileno(stream), 0) < 0)
-      Msg(GERROR, strerror(errno));
     if(fclose(stream) < 0)
       Msg(GERROR, strerror(errno));
     return 1;

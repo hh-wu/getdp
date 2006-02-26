@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.35 2006-02-25 15:00:25 geuzaine Exp $
+# $Id: Makefile,v 1.36 2006-02-26 16:34:28 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -84,7 +84,7 @@ Pos_Interactive.o: Pos_Interactive.c ../include/GetDP.h ../Main/Message.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
   ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
-  ../include/Magic.h
+  ../include/Magic.h ../Main/OS.h
 # 1 "/Users/geuzaine/.getdp/Post//"
 Pos_ReadLine.o: Pos_ReadLine.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h

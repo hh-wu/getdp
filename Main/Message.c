@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.83 2006-02-26 01:04:35 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.84 2006-02-26 16:34:28 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -26,7 +26,7 @@
 #include "CurrentData.h"
 #include "LinAlg.h"
 #include "GmshClient.h"
-#include "Timer.h"
+#include "OS.h"
 
 #if !defined(GETDP_EXTRA_VERSION)
 #error 

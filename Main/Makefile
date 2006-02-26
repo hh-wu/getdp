@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.38 2006-02-26 01:07:23 geuzaine Exp $
+# $Id: Makefile,v 1.39 2006-02-26 16:34:28 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -27,7 +27,7 @@ INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../Function\
           -I../Sparskit -I../FMM -I../NR -I../Parser
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
-SRC = Main.c Message.c Timer.c \
+SRC = Main.c Message.c OS.c \
         SolvingAnalyse.c SolvingOperations.c \
           Treatment_Formulation.c \
               Get_DofOfElement.c \
@@ -87,7 +87,7 @@ Main.o: Main.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/Tree.h \
   ../DataStr/avl.h Print_ProblemStructure.h ../DofData/LinAlg.h \
   ../Sparskit/Solver.h ../include/Magic.h ../Numeric/Numeric.h \
-  ../DofData/Data_DofData.h ../DofData/LinAlg.h GmshClient.h Timer.h
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h GmshClient.h OS.h
 # 1 "/Users/geuzaine/.getdp/Main//"
 Message.o: Message.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \
   ../include/GetDPVersion.h CurrentData.h Data_Active.h Data_Passive.h \
@@ -96,9 +96,9 @@ Message.o: Message.c ../include/GetDP.h Message.h ../DataStr/Malloc.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
   ../DofData/Graph.h ../DofData/Data_DofData.h ../DofData/LinAlg.h \
   Data_Passive.h ../DofData/Data_DofData.h ../include/Magic.h \
-  GmshClient.h Timer.h
+  GmshClient.h OS.h
 # 1 "/Users/geuzaine/.getdp/Main//"
-Timer.o: Timer.c Message.h
+OS.o: OS.c Message.h
 # 1 "/Users/geuzaine/.getdp/Main//"
 SolvingAnalyse.o: SolvingAnalyse.c ../include/GetDP.h Message.h \
   ../DataStr/Malloc.h Treatment_Formulation.h Data_Active.h \

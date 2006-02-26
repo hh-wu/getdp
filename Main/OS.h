@@ -19,10 +19,12 @@
  * Please report all bugs and problems to <getdp@geuz.org>.
  */
 
-#ifndef _TIMER_H_
-#define _TIMER_H_
+#ifndef _OS_H_
+#define _OS_H_
 
 void GetResources(double *s, long *mem);
 void CheckResources(void);
+int GetProcessId();
+int UnlinkFile(char *filename);
 
 #endif
