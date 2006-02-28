@@ -1,26 +1,32 @@
-$Id: README.win32,v 1.3 2006-02-25 08:02:58 geuzaine Exp $
+This is GetDP, a General environment for the treatment of Discrete
+Problems.
 
-1) About command-line programs:
+GetDP is distributed under the terms of the GNU General Public
+License. See the LICENSE and CREDITS files for more information.
 
-GetDP has no integrated graphical user interface. It is a command-line
-driven program that reads a problem definition file once at the
-beginning of the processing. To launch GetDP on Windows without the
-graphical front-end provided by Gmsh (see point 2, below), you have to
-first open a DOS command shell. The problem definition files are
-regular ASCII text files: you can thus create them with whatever
-editor you like (e.g. Notepad, Wordpad or Emacs). Note that
-precompiled versions of Emacs for Windows are available at
-ftp://ftp.gnu.org/gnu/windows/emacs/.
+The demos/ directory contains a small problem definition example.  The
+reference manual as well as additional examples are available on the
+web site (http://geuz.org/getdp/).
 
-If you regularly use GetDP on the command line, you will probably want
-to install a better shell than the rather rudimentary DOS
-shell. Amongst the many free replacements available on the web, we
-recommend the cygwin environment (http://www.cygwin.com), which also
-provides all the necessary tools to recompile GetDP from the sources
-on Windows.
+Important notes:
 
-2) Using Gmsh as a graphical front-end to GetDP:
+1) GetDP is a command-line driven program: it has no integrated
+   graphical user interface. To launch GetDP without the graphical
+   front-end provided by Gmsh (see below), you have to first open a
+   DOS command shell.  
 
-Gmsh (http://www.geuz.org/gmsh/) is a 3D CAD, mesh and post-processing
-program that can be used as a graphical front-end to GetDP. Just go to
-Gmsh's solver module and click on 'GetDP', et voila!
+2) If you regularly use GetDP on the command line, you will probably
+   want to install a better shell than the rather rudimentary DOS
+   shell. Amongst the many free replacements available on the web, we
+   recommend the cygwin environment (http://www.cygwin.com), which
+   also provides all the necessary tools to recompile GetDP.
+
+3) The problem definition files (".pro" files) are regular ASCII text
+   files: you can create them with whatever editor you like (Notepad,
+   Wordpad, Emacs, etc.). Precompiled versions of Emacs for Windows
+   are available at ftp://ftp.gnu.org/gnu/windows/emacs/.
+
+4) Gmsh (http://geuz.org/gmsh/) is a 3D CAD, mesh and post-processing
+   program that can be used as a graphical front-end to GetDP. To
+   launch GetDP via Gmsh's solver module, simply open Gmsh, go to the
+   solver menu, and click on 'GetDP', et voila!
