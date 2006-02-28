@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.88 2006-02-26 21:21:19 geuzaine Exp $
+@c $Id: getdp.texi,v 1.89 2006-02-28 18:49:55 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 @c
@@ -37,7 +37,7 @@
 @c =========================================================================
 @c %**start of header
 @setfilename        getdp.info
-@set GETDP-VERSION  2.0.0
+@set GETDP-VERSION  1.2
 @set GETDP-WEB      @uref{http://www.geuz.org/getdp/}
 @set GETDP-WIKI     @uref{http://www.geuz.org/getdp/wiki/FrontPage}
 @set GMSH-WEB       @uref{http://www.geuz.org/gmsh/}

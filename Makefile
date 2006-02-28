@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.180 2006-02-25 15:00:23 geuzaine Exp $
+# $Id: Makefile,v 1.181 2006-02-28 18:49:55 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -21,8 +21,8 @@
 
 include variables
 
-GETDP_MAJOR_VERSION = 2
-GETDP_MINOR_VERSION = 0
+GETDP_MAJOR_VERSION = 1
+GETDP_MINOR_VERSION = 2
 GETDP_PATCH_VERSION = 0
 GETDP_EXTRA_VERSION = "-cvs"
 

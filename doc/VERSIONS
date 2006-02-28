@@ -1,6 +1,6 @@
-$Id: VERSIONS,v 1.55 2006-02-25 08:02:58 geuzaine Exp $
+$Id: VERSIONS,v 1.56 2006-02-28 18:49:55 geuzaine Exp $
 
-2.0.0: Windows versions do not depend on Cygwin anymore; major parser
+1.2: Windows versions do not depend on Cygwin anymore; major parser
 cleanup (loops&co)
 
 1.1: New eigensolver based on Arpack (EigenSolve); generalized old
