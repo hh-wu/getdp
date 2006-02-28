@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.24 2006-02-26 00:42:59 geuzaine Exp $"
+#define RCSID "$Id: Matrix.c,v 1.25 2006-02-28 12:16:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -588,7 +588,7 @@ void binary_write_matrix (Matrix *M, char *name, char *ext){
 
   strcpy(filename, name);
   strcat(filename, ext);
-  pfile = fopen(filename, "w+") ;
+  pfile = fopen(filename, "wb") ;
 
   fprintf(pfile,"%d\n",M->T);
 
@@ -629,7 +629,7 @@ void binary_write_vector (int Nb, double *V, char *name, char *ext){
 
   strcpy(filename, name);
   strcat(filename, ext);
-  pfile = fopen(filename, "w+") ;
+  pfile = fopen(filename, "wb") ;
 
   fwrite(V, sizeof(double), Nb, pfile);
 
@@ -725,7 +725,7 @@ void binary_read_matrix (Matrix *M, char *name , char *ext){
   
   strcpy(filename, name);
   strcat(filename, ext);
-  pfile = fopen(filename, "r") ;
+  pfile = fopen(filename, "rb") ;
 
   if (pfile == NULL) {
     Msg(GERROR,"Error opening file '%s'", filename);    
@@ -778,7 +778,7 @@ void binary_read_vector (int Nb, double **V, char *name, char *ext){
 
   strcpy(filename, name);
   strcat(filename, ext);
-  pfile = fopen(filename, "r") ;
+  pfile = fopen(filename, "rb") ;
 
   if (pfile == NULL) {
     Msg(GERROR, "Error opening file %s", filename);
@@ -799,7 +799,7 @@ void formatted_read_matrix (Matrix *M, char *name , char *ext, int style){
   
   strcpy(filename, name);
   strcat(filename, ext);
-  pfile = fopen(filename, "r+") ;
+  pfile = fopen(filename, "r") ;
 
   if (pfile == NULL) {
     Msg(GERROR,"Error opening file  %s", filename);

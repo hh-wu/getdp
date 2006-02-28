@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.33 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.34 2006-02-28 12:16:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -275,7 +275,7 @@ void  SolvingAnalyse (void) {
       i = 0 ;
       while(Name_ResFile[i]){
 	Msg(LOADING, "Processing data '%s'", Name_ResFile[i]) ;
-	Dof_OpenFile(DOF_RES, Name_ResFile[i], "r");
+	Dof_OpenFile(DOF_RES, Name_ResFile[i], "rb");
 	Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeImag, 
 			&Current.TimeStep) ;
 	Dof_CloseFile(DOF_RES);
@@ -344,7 +344,7 @@ void  SolvingAnalyse (void) {
       i = 0 ;
       while(Name_ResFile[i]){
 	Msg(LOADING, "Processing data '%s'", Name_ResFile[i]) ;
-	Dof_OpenFile(DOF_RES, Name_ResFile[i], "r");
+	Dof_OpenFile(DOF_RES, Name_ResFile[i], "rb");
 	Dof_ReadFileRES(DofData_L, NULL, -1, &d, &d, &d) ;
 	Dof_CloseFile(DOF_RES) ;
 	i++ ;

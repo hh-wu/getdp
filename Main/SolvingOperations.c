@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.77 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.78 2006-02-28 12:16:29 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1305,7 +1305,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       i = 0 ;
       while(Name_ResFile[i]){
 	Msg(LOADING, "Processing data '%s'", Name_ResFile[i]) ;
-	Dof_OpenFile(DOF_TMP, Name_ResFile[i], "r");
+	Dof_OpenFile(DOF_TMP, Name_ResFile[i], "rb");
 	Dof_ReadFileRES(NULL, DofData_P, DofData_P->Num, &Current.Time, &Current.TimeImag,
 			&Current.TimeStep) ;
 	Dof_CloseFile(DOF_TMP);
@@ -1763,7 +1763,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  strcpy(FileName, Name_Path);
 	  strcat(FileName, Operation_P->Case.Print.FileOut);
 	}
-	if(!(PrintStream = fopen(FileName, "a")))
+	if(!(PrintStream = fopen(FileName, "ab")))
 	  Msg(GERROR, "Unable to open file '%s'", FileName) ;
 	Msg(OPERATION, "Print -> '%s'", FileName) ;
       }
