@@ -29,4 +29,8 @@ Important notes:
 4) Gmsh (http://geuz.org/gmsh/) is a 3D CAD, mesh and post-processing
    program that can be used as a graphical front-end to GetDP. To
    launch GetDP via Gmsh, simply open Gmsh, go to the solver module
-   and click on 'GetDP', et voila!
+   and click on the GetDP button. If Gmsh cannot find GetDP because
+   getdp.exe is not in your path, simply specify the location of
+   getdp.exe in the 'Executable' field (in the second tab of the
+   solver dialog window) and click on 'Apply'. You can also click on
+   'Save' if you want to use this location the next time you use Gmsh.
