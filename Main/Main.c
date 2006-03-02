@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.60 2006-02-26 16:34:28 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.61 2006-03-02 13:05:38 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -595,7 +595,11 @@ void  Read_ProblemStructure (char * Name){
 
   Msg(LOADING, "Problem definition '%s'", AbsPath) ;
 
-  if(!(yyin = fopen(AbsPath, "r"))) Msg(GERROR, "Unable to open file '%s'", AbsPath);
+  /* opening the file in text mode messes up the loops (they use
+     fsetpos/fgetpos) on Windows without Cygwin; not sure why, but
+     opening the file in binary mode fixes the problem */
+  if(!(yyin = fopen(AbsPath, "rb"))) 
+    Msg(GERROR, "Unable to open file '%s'", AbsPath);
 
   ErrorLevel = 0 ;  yylinenum = 1 ; yyincludenum=0 ; strcpy(yyname, AbsPath) ;
 
@@ -606,7 +610,7 @@ void  Read_ProblemStructure (char * Name){
   while(yyincludenum > 0){
     Read_ProblemStructure(yyincludename);    
     
-    yyin = fopen(yyname, "r");
+    yyin = fopen(yyname, "rb"); /* same comment as above */
     yyrestart(yyin);
     for(i=0;i<yylinenum;i++) fgets(AbsPath, 2048, yyin);
     yylinenum++ ;
