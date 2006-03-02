@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.31 2006-02-26 00:42:53 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.32 2006-03-02 22:04:12 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1072,8 +1072,8 @@ void  JacobianVol_dx (struct Element * Element,
 
 
   /* DetJac_dx[0] = Jac_dx->c11 * Jac->c22 - Jac_dx->c21 * Jac->c12 ; */
-/*   DetJac_dx[1] = Jac_dx->c22 * Jac->c11 - Jac_dx->c12 * Jac->c21 ; */
-/*   DetJac_dx[2] = 0. ; */
+  /* DetJac_dx[1] = Jac_dx->c22 * Jac->c11 - Jac_dx->c12 * Jac->c21 ; */
+  /* DetJac_dx[2] = 0. ; */
 
   if (DetJac < 0) {
     DetJac_dx[0] *= -1.;
@@ -1089,16 +1089,15 @@ void  JacobianVol_dx (struct Element * Element,
 
 void  F_VirtualWork (F_ARG) {
 
-  GetDP_Begin("F_VirtualWork");
-
   int i, numNode, Type_Dimension;
   double u, v, w;
-
   MATRIX3x3 Jac;
   MATRIX3x3 Jac_dx;
   double DetJac;
   double DetJac_dx [3];
   double valField[3], s[3] ;
+
+  GetDP_Begin("F_VirtualWork");
   
   /*  numNode = (int)((A+1)->Val[0]); */
 
