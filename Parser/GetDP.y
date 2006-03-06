@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.93 2006-02-26 00:42:58 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.94 2006-03-06 17:44:31 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -756,7 +756,7 @@ IRegion :
   | '(' FExpr ')' tDOTS FExpr
     { 
       List_Reset(ListOfInt_L) ; 
-      for(j=$2 ; ($2<$5)?(j<=$5):(j>=$5) ; ($2<$5)?j++:j--) 
+      for(j=(int)$2 ; ($2<$5)?(j<=$5):(j>=$5) ; ($2<$5)?j++:j--) 
 	List_Add(ListOfInt_L, &j) ;
       $$ = ListOfInt_L ;
     }

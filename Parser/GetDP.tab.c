@@ -251,7 +251,7 @@
 
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.102 2006-02-26 00:47:28 geuzaine Exp $ */
+/* $Id: GetDP.tab.c,v 1.103 2006-03-06 17:44:29 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -4027,7 +4027,7 @@ case 78:
 #line 757 "GetDP.y"
 { 
       List_Reset(ListOfInt_L) ; 
-      for(j=yyvsp[-3].d ; (yyvsp[-3].d<yyvsp[0].d)?(j<=yyvsp[0].d):(j>=yyvsp[0].d) ; (yyvsp[-3].d<yyvsp[0].d)?j++:j--) 
+      for(j=(int)yyvsp[-3].d ; (yyvsp[-3].d<yyvsp[0].d)?(j<=yyvsp[0].d):(j>=yyvsp[0].d) ; (yyvsp[-3].d<yyvsp[0].d)?j++:j--) 
 	List_Add(ListOfInt_L, &j) ;
       yyval.l = ListOfInt_L ;
     ;
