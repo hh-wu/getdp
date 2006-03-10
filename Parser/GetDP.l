@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.43 2006-02-26 00:42:54 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.44 2006-03-10 18:09:23 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -510,22 +510,15 @@ void skip_until(char *skip, char *until){
   }
 }
 
-void  hack_endfor(void) {
-  int c = input();
-  unput(c);
-  if(c == '\n') yylinenum--;
-}
-
-void  hack_endfor_printf(void) {
-
-char chars[5];
+void hack_fsetpos_printf(void) {
+  char chars[5];
   int c = input(), c2 = input(), c3 = input();
   unput(c3); unput(c2); unput(c);
-  chars[0]=c; chars[1]=c2; chars[2]=c3; chars[3]=0;
+  chars[0] = c; chars[1] = c2; chars[2] = c3; chars[3] = 0;
   printf("++++++ c: %d %d %d /%s/\n", (int)c, (int)c2, (int)c3, chars);
 }
 
-void  hack_endfor2(void) {
+void hack_fsetpos(void) {
   int c = input();
 }
 

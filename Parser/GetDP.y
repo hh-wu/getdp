@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.94 2006-03-06 17:44:31 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.95 2006-03-10 18:09:23 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -56,9 +56,8 @@
 #include "Message.h"
 #include "Magic.h"
 
-void  hack_endfor(void) ;
-void  hack_endfor_printf(void) ;
-void  hack_endfor2(void) ;
+void hack_fsetpos(void) ;
+void hack_fsetpos_printf(void) ;
 
 void Check_NameOfStructNotExist(char * Struct, List_T * List_L, void * data,
 				int (*fcmp)(const void *a, const void *b)) ;
@@ -6056,7 +6055,7 @@ Loop :
       Constant_S.Value.Float = $5 ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
       fgetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
-      /*      hack_endfor_printf();*/
+      /* hack_fsetpos_printf(); */
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
       ImbricatedLoop++;
       if(ImbricatedLoop > MAX_RECUR_LOOPS-1){
@@ -6108,35 +6107,17 @@ Loop :
 	    List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;      
 	  }
 	  fsetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop-1]);
-	  hack_endfor2();
-	  /*	  hack_endfor_printf();*/
+	  /* fsetpos() seems to position the file just after the For
+	     but with one additional character (the one after EndFor)
+	     at the beginning.  I do not understand why there is such
+	     a mixing of two separate data. hack_fsetpos() removes the
+	     useless additional character. */
+	  hack_fsetpos();
+	  /* hack_fsetpos_printf(); */
 	  yylinenum = yylinenoImbricatedLoopsTab[ImbricatedLoop-1];
 	}
 	else{
 	  ImbricatedLoop--;
-	  /* There is a problem with line numbers when EndFor is
-	     directly followed by '\n' (i.e., mostly on Unix since
-	     there is usually a '\t' on Windows). After a For body
-	     that is executed more than once, the line number is too
-	     large by one. This can cause problems with Includes
-	     afterwards. I didn't have time to investigate further
-	     (one hack is to add something after EndFor on the same
-	     line; the real solution is to change the way we deal with
-	     includes and replace the line number stuff with
-	     fgetpos/fsetpos), so I've added the following temporary
-	     hack: */
-	  /*
-	    If hack_endfor() is used, it is OK for a loop executed more than once
-	    but not anymore for a single execution.
-	    fsetpos() seems to position the file just after the For but with one
-	    additional character (the one after EndFor) at the beginning.
-	    I do not understand why there is such a mixing of two separate data.
-	    I then added hack_endfor2() to suppress the useless additional character.
-	    Patrick
-	  */
-	  /*
-	  hack_endfor();
-	  */
 	}
       }
     }
