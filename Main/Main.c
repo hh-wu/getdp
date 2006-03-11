@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.61 2006-03-02 13:05:38 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.62 2006-03-11 17:55:01 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -307,6 +307,8 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	    Msg(GERROR, "Couldn't connect to socket %s", argv[i]);
 	  else if(Flag_SOCKET == -3)
 	    Msg(GERROR, "No such host %s", argv[i]);
+	  else if(Flag_SOCKET == -4)
+	    Msg(GERROR, "Couldn't initialize Windows sockets");
 	  else{
 	    sprintf(pid, "%d", GetProcessId());
 	    Gmsh_SendString(Flag_SOCKET, GMSH_CLIENT_START, pid);
