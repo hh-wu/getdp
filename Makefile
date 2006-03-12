@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.181 2006-02-28 18:49:55 geuzaine Exp $
+# $Id: Makefile,v 1.182 2006-03-12 07:21:30 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -121,7 +121,7 @@ etags:
 source-common:
 	rm -rf getdp-${GETDP_VERSION}
 	tar zcvf getdp.tgz `ls README* configure *.in Makefile */Makefile\
-                            */*.[chylfF] *.spec` doc demos utils
+                            */*.[chylfF]` doc demos utils
 	mkdir getdp-${GETDP_VERSION}
 	cd getdp-${GETDP_VERSION} && tar zxvf ../getdp.tgz
 	rm -f getdp.tgz
@@ -136,7 +136,7 @@ source: source-common
 source-commercial: source-common
 	cd getdp-${GETDP_VERSION} && rm -rf CVS */CVS */*/CVS */.globalrc\
           ${GETDP_VERSION_FILE} utils/commercial utils/temp doc/slides\
-          TODO *.spec doc/getdp.html doc/FAQ doc/README.cvs
+          TODO doc/getdp.html doc/FAQ doc/README.cvs
 	cp -f utils/commercial/README getdp-${GETDP_VERSION}/README
 	cp -f utils/commercial/LICENSE getdp-${GETDP_VERSION}/doc/LICENSE
 	cp -f utils/commercial/license.texi getdp-${GETDP_VERSION}/doc/texinfo/license.texi
@@ -190,7 +190,7 @@ package-mac: package-unix
 
 package-rpm:
 	tar zcvf /usr/src/redhat/SOURCES/getdp-${GETDP_VERSION}.tar.gz .
-	rpmbuild -bb --define 'getdpversion ${GETDP_VERSION}' getdp.spec
+	rpmbuild -bb --define 'getdpversion ${GETDP_VERSION}' utils/misc/getdp.spec
 	mv /usr/src/redhat/RPMS/i386/getdp-${GETDP_VERSION}-?.i386.rpm .
 	mv /usr/src/redhat/BUILD/getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-${UNAME}.tgz .
 	rm -f /usr/src/redhat/SOURCES/getdp-${GETDP_VERSION}.tar.gz
