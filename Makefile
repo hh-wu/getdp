@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.183 2006-03-12 14:53:06 geuzaine Exp $
+# $Id: Makefile,v 1.184 2006-03-12 16:20:56 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -189,12 +189,12 @@ package-mac: package-unix
 	mv getdp-${GETDP_VERSION}-${UNAME}.tgz getdp-${GETDP_VERSION}-MacOSX.tgz
 
 package-rpm:
-	tar zcvf /usr/src/redhat/SOURCES/getdp-${GETDP_VERSION}.tar.gz .
+	tar zcvf /usr/src/rpm/SOURCES/getdp-${GETDP_VERSION}.tar.gz .
 	rpmbuild -bb --define 'getdpversion ${GETDP_VERSION}' utils/misc/getdp.spec
-	mv /usr/src/redhat/RPMS/i386/getdp-${GETDP_VERSION}-?.i386.rpm .
-	mv /usr/src/redhat/BUILD/getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-${UNAME}.tgz .
-	rm -f /usr/src/redhat/SOURCES/getdp-${GETDP_VERSION}.tar.gz
-	rm -rf /usr/src/redhat/BUILD/getdp-${GETDP_VERSION}
+	mv /usr/src/rpm/RPMS/i386/getdp-${GETDP_VERSION}-?.i386.rpm .
+	mv /usr/src/rpm/BUILD/getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-${UNAME}.tgz .
+	rm -f /usr/src/rpm/SOURCES/getdp-${GETDP_VERSION}.tar.gz
+	rm -rf /usr/src/rpm/BUILD/getdp-${GETDP_VERSION}
 
 # Rules to distribute official releases
 
