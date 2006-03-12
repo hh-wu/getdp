@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.182 2006-03-12 07:21:30 geuzaine Exp $
+# $Id: Makefile,v 1.183 2006-03-12 14:53:06 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -136,7 +136,7 @@ source: source-common
 source-commercial: source-common
 	cd getdp-${GETDP_VERSION} && rm -rf CVS */CVS */*/CVS */.globalrc\
           ${GETDP_VERSION_FILE} utils/commercial utils/temp doc/slides\
-          TODO doc/getdp.html doc/FAQ doc/README.cvs
+          doc/TODO doc/getdp.html doc/FAQ doc/README.cvs
 	cp -f utils/commercial/README getdp-${GETDP_VERSION}/README
 	cp -f utils/commercial/LICENSE getdp-${GETDP_VERSION}/doc/LICENSE
 	cp -f utils/commercial/license.texi getdp-${GETDP_VERSION}/doc/texinfo/license.texi
