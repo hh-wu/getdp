@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.78 2006-02-28 12:16:29 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.79 2006-03-13 22:48:21 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -835,14 +835,18 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         if (!DofData_P->Solutions)
           Msg(GERROR, "No solution to restart the computation");
 
-        for(i=0 ; i<DofData_P->NbrAnyDof ; i++){
+        for(i = 0 ; i < DofData_P->NbrAnyDof ; i++){
           Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
           if(Dof_P->Type == DOF_UNKNOWN_INIT) Dof_P->Type = DOF_UNKNOWN ;
         }
-	/* The last solution is the current one */
-        DofData_P->CurrentSolution = (struct Solution*)
-          List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;        
-        DofData_P->CurrentSolution->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
+
+	for(i = 0; i < List_Nbr(DofData_P->Solutions); i++){
+	  Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, i);
+	  Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
+	  /* The last solution is the current one */	  
+	  if(i == List_Nbr(DofData_P->Solutions) - 1)
+	    DofData_P->CurrentSolution = Solution_P;
+	}
 	RES0 = (int)Current.TimeStep ;
       }
       else{
