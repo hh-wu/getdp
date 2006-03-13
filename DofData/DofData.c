@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.47 2006-02-26 00:42:52 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.48 2006-03-13 20:49:51 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -641,13 +641,16 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 
     if (!strncmp(&String[1], "Solution", 8)) {
 
-      /* Warning: the '\n' character is needed for subsequent fread */
+      /* don't use fscanf directly on the stream here: the data that
+	 follows can be binary, and the first character could be
+	 e.g. 0x0d, which would cause fscanf to eat-up one character
+	 too much, leading to an offset in fread */
+      fgets(String, MAX_STRING_LENGTH, File_RES) ; 
       if(Version <= 1.0)
-	fscanf(File_RES, "%d %lf %d\n", &Num_DofData, &Val_Time, &Val_TimeStep) ;
+	sscanf(String, "%d %lf %d", &Num_DofData, &Val_Time, &Val_TimeStep) ;
       else
-	fscanf(File_RES, "%d %lf %lf %d\n", &Num_DofData, &Val_Time, &Val_TimeImag, &Val_TimeStep) ;
-
-      /* printf("Found solution %d\n", Val_TimeStep); */
+	sscanf(String, "%d %lf %lf %d", &Num_DofData, &Val_Time, &Val_TimeImag, 
+	       &Val_TimeStep) ;
 
       if (Read_DofData < 0){
 	Read = 1 ; DofData_P = (struct DofData*)List_Pointer(DofData_L, Num_DofData) ;
@@ -671,11 +674,6 @@ void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 	Format ? 
 	  LinAlg_ReadVector(File_RES, &Solution_S.x) :
 	  LinAlg_ScanVector(File_RES, &Solution_S.x) ;
-
-	/*
-	  for(i=0; i<5; i++) printf("val= %g\n", Solution_S.x.V[i]);
-	  printf("\n");
-	*/
 
 	if (DofData_P->Solutions == NULL)
 	  DofData_P->Solutions = List_Create( 20, 20, sizeof(struct Solution)) ;
