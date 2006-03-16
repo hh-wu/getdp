@@ -1,4 +1,9 @@
-$Id: TODO,v 1.3 2006-03-16 01:15:23 geuzaine Exp $
+$Id: TODO,v 1.4 2006-03-16 01:18:00 geuzaine Exp $
+
+*******************************************************************
+
+Move the optional code (Arpack, Sparksit?, NR) into new contrib/
+directory
 
 *******************************************************************
 
