@@ -1,4 +1,9 @@
-$Id: TODO,v 1.4 2006-03-16 01:18:00 geuzaine Exp $
+$Id: TODO,v 1.5 2006-04-07 15:24:21 geuzaine Exp $
+
+*******************************************************************
+
+If we use petsc+complex+mpi, the CC is not set to the c++ compiler
+(it is when using petsc+compex)
 
 *******************************************************************
 
