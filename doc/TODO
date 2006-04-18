@@ -1,4 +1,10 @@
-$Id: TODO,v 1.5 2006-04-07 15:24:21 geuzaine Exp $
+$Id: TODO,v 1.6 2006-04-18 03:44:10 geuzaine Exp $
+
+*******************************************************************
+
+verify if the post-pro uses the correct frequency for each system if
+the frequency was changed by hand using SetFrequency in the
+resolution, in between two GenerateSystem
 
 *******************************************************************
 
