@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.63 2006-02-26 00:42:52 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.64 2006-04-18 13:18:15 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1432,8 +1432,13 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
     else{
       /* set some default options */
       ierr = PCSetType(Solver->pc, PCILU); MYCHECK(ierr);
+#if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR == 0)
       ierr = PCILUSetMatOrdering(Solver->pc, MATORDERING_RCM); MYCHECK(ierr);
       ierr = PCILUSetLevels(Solver->pc, 6); MYCHECK(ierr);
+#else
+      ierr = PCFactorSetMatOrdering(Solver->pc, MATORDERING_RCM); MYCHECK(ierr);
+      ierr = PCFactorSetLevels(Solver->pc, 6); MYCHECK(ierr);
+#endif
       ierr = KSPSetTolerances(Solver->ksp, 1.e-8, PETSC_DEFAULT, PETSC_DEFAULT, 
 			      PETSC_DEFAULT); MYCHECK(ierr);
       
