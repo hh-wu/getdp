@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.19 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.20 2006-04-18 15:03:58 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -88,6 +88,8 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
   List_T                   * FemLocalTermActive_L ;
   struct FemLocalTermActive* FemLocalTermActive_S ;
   List_T                   * QuantityStorage_L ;
+
+  struct Group * GroupIn_P ;
 
   int    i, j, Nbr_Element, i_Element, Nbr_EquationTerm, i_EquTerm ;
   int    Index_DefineQuantity, 	TraceGroupIndex_DefineQuantity ;
@@ -277,11 +279,25 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 	/* if the element is in the support of integration of the term */
 	/* ----------------------------------------------------------- */
 
+	GroupIn_P = (struct Group *)
+	  List_Pointer(Problem_S.Group,
+		       EquationTerm_P->Case.LocalTerm.InIndex);
+
+
+	if ((GroupIn_P->Type == REGIONLIST  &&
+	     List_Search(GroupIn_P->InitialList, &Element.Region, fcmp_int))
+	    ||
+	    (GroupIn_P->Type == ELEMENTLIST  &&
+	     Check_IsEntityInExtendedGroup(GroupIn_P, Element.Num, 0))
+	    ) {
+
+	/*
 	if (List_Search(((struct Group *)
 			 List_Pointer(Problem_S.Group,
 				      EquationTerm_P->Case.
 				      LocalTerm.InIndex))->InitialList, 
 			&Element.Region, fcmp_int ) ) {
+	*/
 
 	  if(Flag_VERBOSE == 10)
 	    printf("==> Element #%d, EquationTerm #%d/%d\n",
