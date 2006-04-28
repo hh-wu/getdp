@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.64 2006-04-18 13:18:15 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.65 2006-04-28 16:28:15 colignon Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -36,8 +36,8 @@
    renumbering):
 
    -pc_type ilu
-   -pc_ilu_levels 6
-   -pc_ilu_mat_ordering_type rcm
+   -pc_ilu_levels 6 (version 2.3.0) or -pc_factor_levels 6 (version 2.3.1)
+   -pc_ilu_mat_ordering_type rcm (version 2.3.0) or -pc_factor_mat_ordering rcm (version 2.3.1)
    -ksp_rtol 1.e-8
 
    Other useful options include:
@@ -1453,7 +1453,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
   
   ierr = KSPSolve(Solver->ksp, B->V, X->V); MYCHECK(ierr);
 
-  if(view){
+  if(!Solver->ksp){
     ierr = KSPView(Solver->ksp,PETSC_VIEWER_STDOUT_WORLD); MYCHECK(ierr);
   }
 
@@ -1461,7 +1461,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
     ierr = KSPGetIterationNumber(Solver->ksp, &its); MYCHECK(ierr);
     Msg(PETSC, "%d iterations", its);
   }
-
+  
   GetDP_End;
 
 }
