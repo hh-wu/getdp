@@ -1,4 +1,4 @@
-#define RCSID "$Id: Main.c,v 1.62 2006-03-11 17:55:01 geuzaine Exp $"
+#define RCSID "$Id: Main.c,v 1.63 2006-05-03 07:05:02 colignon Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -498,6 +498,12 @@ int Get_Options(int argc, char *argv[], int *sargc, char **sargv,
 	else {
 	  Msg(GERROR, "Missing string");
 	}
+      }
+
+      else if (!strcmp(argv[i]+1, "petscinfo") || 
+	       !strcmp(argv[i]+1, "-petscinfo")) {
+	sargv[(*sargc)++] = "-info" ;
+	i++ ;
       }
 
       else {
