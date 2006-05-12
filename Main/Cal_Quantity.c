@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.44 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.45 2006-05-12 09:53:15 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -243,6 +243,7 @@ void Cal_WholeQuantity(struct Element * Element,
     switch (WholeQuantity_P->Type) {
 
     case WQ_OPERATORANDQUANTITY : /* {op qty}  Dof{op qty}  BF{op qty} */
+      Save_Region = Current.Region ; 
       if (i_WQ != DofIndexInWholeQuantity){ /* Attention!!! || TreatmentStatus == _POS){  */
 	Pos_FemInterpolation
 	  (Element,
@@ -257,6 +258,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	DofIndex = Index ;
       }
       Index++ ;  
+      Current.Region = Save_Region ;
       break ;
 
     case WQ_ORDER : /* Order[{qty}] */
@@ -272,6 +274,7 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
 
     case WQ_OPERATORANDQUANTITYEVAL : 
+      Save_Region = Current.Region ; 
       /* {op qty}[x,y,z], {op qty}[x,y,z,dimension] or {op qty}[ntime] */
       if (i_WQ != DofIndexInWholeQuantity || TreatmentStatus == _POS){
 	j = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments;
@@ -348,6 +351,7 @@ void Cal_WholeQuantity(struct Element * Element,
       else{
 	Msg(GERROR, "Explicit Dof{} evaluation out of context");
       }
+      Current.Region = Save_Region ;
       break ;
 
     case WQ_TRACE : /* Trace[WholeQuantity, Group] */
