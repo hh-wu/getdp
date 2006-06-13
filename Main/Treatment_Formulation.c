@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.20 2006-04-18 15:03:58 sabarieg Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.21 2006-06-13 11:07:25 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -284,7 +284,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 		       EquationTerm_P->Case.LocalTerm.InIndex);
 
 
-	if ((GroupIn_P->Type == REGIONLIST  &&
+	if ((GroupIn_P->Type != ELEMENTLIST  &&
 	     List_Search(GroupIn_P->InitialList, &Element.Region, fcmp_int))
 	    ||
 	    (GroupIn_P->Type == ELEMENTLIST  &&
