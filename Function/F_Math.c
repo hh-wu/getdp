@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Math.c,v 1.12 2006-02-26 00:42:53 geuzaine Exp $"
+#define RCSID "$Id: F_Math.c,v 1.13 2006-06-13 11:08:17 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -108,6 +108,112 @@ void  F_Fmod  (F_ARG) { scalar_real_2_arg (fmod, "Fmod")     }
 
 #undef scalar_real_2_arg
 
+/* ------------------------------------------------------------------------ */
+/*  Bessel functions jn, yn and their derivatives                           */
+/* ------------------------------------------------------------------------ */
+
+void  F_Jn (F_ARG) { 
+  int     k, n;
+  double  x;   
+
+  GetDP_Begin("Jn");
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Msg(GERROR, "Non scalar argument(s) for function 'Jn'");
+  n = (int)A->Val[0];
+  x = (A+1)->Val[0];
+
+  V->Val[0] = jn(n, x);
+
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  V->Type = SCALAR;
+  GetDP_End ;
+}
+
+void  F_Yn (F_ARG) { 
+  int     k, n;
+  double  x;   
+
+  GetDP_Begin("Yn");
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Msg(GERROR, "Non scalar argument(s) for function 'Yn'");
+  n = (int)A->Val[0];
+  x = (A+1)->Val[0];
+
+  V->Val[0] = yn(n, x);
+
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  V->Type = SCALAR;
+  GetDP_End ;
+}
+
+double dBessel(double *tab, int n, double x){
+  if(n == 0){
+    return - tab[1];
+  }
+  else{
+    return tab[n-1] - (double)n/x * tab[n];
+  }
+}
+
+void  F_dJn (F_ARG) {
+  int     k, n;
+  double  x, *jntab;   
+
+  GetDP_Begin("dJn");
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Msg(GERROR, "Non scalar argument(s) for function 'dJn'");
+  n = (int)A->Val[0];
+  x = (A+1)->Val[0];
+
+  jntab = (double*)Malloc((n + 2) * sizeof(double));
+  for(k = 0; k < n + 2; k++){
+    jntab[k] = jn(k, x);
+  }
+  V->Val[0] = dBessel(jntab, n, x);
+  Free(jntab);
+
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  V->Type = SCALAR;
+  GetDP_End ;
+}
+
+void  F_dYn (F_ARG) { 
+  int     k, n;
+  double  x, *yntab;   
+
+  GetDP_Begin("dYn");
+  if(A->Type != SCALAR || (A+1)->Type != SCALAR)
+    Msg(GERROR, "Non scalar argument(s) for function 'dYn'");
+  n = (int)A->Val[0];
+  x = (A+1)->Val[0];
+
+  yntab = (double*)Malloc((n + 2) * sizeof(double));
+  for(k = 0; k < n + 2; k++){
+    yntab[k] = yn(k, x);
+  }
+  V->Val[0] = dBessel(yntab, n, x);
+  Free(yntab);
+
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  V->Type = SCALAR;
+  GetDP_End ;
+}
 
 #undef F_ARG
 
