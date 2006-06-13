@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.95 2006-03-10 18:09:23 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.96 2006-06-13 11:06:40 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -486,7 +486,7 @@ Groups :
 
 Group :
 
-   String__Index tDEF ReducedGroupRHS tEND
+    String__Index tDEF ReducedGroupRHS tEND
     { Add_Group(&Group_S, $1, 0, 0) ; }
 
   | tSTRING Index tDEF ReducedGroupRHS tEND
@@ -515,7 +515,7 @@ Group :
 
 MovingBand2DGroup :
 
-  String__Index '[' FExpr ']' tDEF tMovingBand2D
+    String__Index '[' FExpr ']' tDEF tMovingBand2D
     { 
       Group_S.InitialList = List_Create( 1, 1, sizeof(int)) ;
       i = (int)$3 ;
