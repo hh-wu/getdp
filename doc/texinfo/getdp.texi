@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.89 2006-02-28 18:49:55 geuzaine Exp $
+@c $Id: getdp.texi,v 1.90 2006-06-13 11:06:12 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 @c
@@ -1379,6 +1379,29 @@ Defines a vector of discrete quantities (vector of @code{D}egrees @code{o}f
 define (elementary) matrices.  Roughly said, the @code{Dof} symbol in front
 of a discrete quantity indicates that this quantity is an unknown quantity,
 and should therefore not be considered as already computed.
+
+An @code{Equation} term must be linear with respect to the
+@code{Dof}. Thus, for example, a nonlinear term like 
+@example
+Galerkin @{ [ f[] * Dof@{T@}^4 , @{T@} ]; @dots{} @}
+@end example
+must first be linearized; and while
+@example
+Galerkin @{ [ f[] * Dof@{T@} , @{T@} ]; @dots{} @}
+Galerkin @{ [ -f[] * 12 , @{T@} ]; @dots{} @}
+@end example
+is valid, the following, which is affine but not linear, is not:
+@example
+Galerkin @{ [ f[] * (Dof@{T@} - 12) , @{T@} ]; @dots{} @}
+@end example
+
+GetDP supports two linearization techniques. The first is functional
+iteration (or Picard method), where one simply plugs the value obtained
+at the previous iteration into the nonlinear equation (the previous
+value is known, and is accessed e.g. with @code{@{T@}} instead
+@code{Dof@{T@}}). The second is the Newton-Raphson iteration, where the
+Jacobian is specified with a @code{JacNL} equation term (see
+@value{GETDP-WIKI} for an example).
 
 @item BF
 Indicates that only a basis function will be used (only valid with basis
