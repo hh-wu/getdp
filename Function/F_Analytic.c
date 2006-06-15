@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.26 2006-02-26 00:42:53 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.27 2006-06-15 18:20:07 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -755,6 +755,90 @@ cplx DHn(cplx *Hnkrtab, int n, double x){
   }
 }
 
+/* Scattering by acoustically soft circular cylinder of radius R0,
+   under plane wave incidence e^{ikx}, with artificial boundary
+   condition at R1. Returns exact solution of the (interior!) problem
+   between R0 and R1. */
+
+void F_AcousticFieldSoftCylinderABC(F_ARG){
+  cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda;
+  cplx H1nkR0, *H1nkR1tab, *H2nkR1tab, H1nkr;
+  
+  double k, R0, R1, r, kr, kR0, kR1, theta, cost ;
+  int n, ns ;
+
+  GetDP_Begin("F_AcousticFieldSoftCylinderABC") ;  
+
+  theta = atan2(A->Val[1], A->Val[0]) ;
+  r = sqrt(A->Val[0] * A->Val[0] + A->Val[1] * A->Val[1]) ;
+
+  k = Fct->Para[0] ;
+  R0 = Fct->Para[1] ;   
+  R1 = Fct->Para[2] ;
+  kr = k * r;
+  kR0 = k * R0;
+  kR1 = k * R1;
+
+  /* Sommerfeld ABC */
+  lambda = Cprodr(-k, I);
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = (int)k + 10;
+
+  H1nkR1tab = (cplx*)Malloc(ns * sizeof(cplx));
+  for (n = 0 ; n < ns ; n++){
+    H1nkR1tab[n].r = jn(n, kR1);
+    H1nkR1tab[n].i = yn(n, kR1);
+  }
+
+  H2nkR1tab = (cplx*)Malloc(ns * sizeof(cplx));
+  for (n = 0 ; n < ns ; n++){
+    H2nkR1tab[n] = Cconj(H1nkR1tab[n]);
+  }
+
+  for (n = 0 ; n < ns ; n++){
+    H1nkR0.r = jn(n, kR0);
+    H1nkR0.i = yn(n, kR0);
+
+    H1nkr.r = jn(n,kr);
+    H1nkr.i = yn(n,kr);
+
+    alpha1 = Csum( Cprodr(k, DHn(H1nkR1tab, n, kR1)) , 
+		   Cprod(lambda, H1nkR1tab[n]) );
+    alpha2 = Csum( Cprodr(k, DHn(H2nkR1tab, n, kR1)) , 
+		   Cprod(lambda, H2nkR1tab[n]) );
+    delta = Csub( Cprod( alpha1 , Cconj(H1nkR0) ) ,
+		  Cprod( alpha2 , H1nkR0 ) );
+
+    if(Cmodu(delta) < 1.e-6) break;
+
+    am = Cdiv( Cprodr(H1nkR0.r, alpha2) ,
+	       delta );
+    bm = Cdiv( Cprodr(-H1nkR0.r, alpha1) ,
+	       delta );
+
+    tmp = Cprod( Cpow(I,n) , Csum( Cprod( am , H1nkr ) ,
+				   Cprod( bm , Cconj(H1nkr) ) ) );
+
+    cost = cos(n * theta);
+
+    V->Val[0] += cost * tmp.r * (!n ? 0.5 : 1.);
+    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+  }
+
+  Free(H1nkR1tab);
+  Free(H2nkR1tab);
+  
+  V->Val[0] *= 2;
+  V->Val[MAX_DIM] *= 2;
+
+  V->Type = SCALAR ;
+
+  GetDP_End;
+} 
+
 /* Scattering by acoustically soft circular cylinder of radius R,
    under plane wave incidence e^{ikx}. Returns radial derivative of
    the solution of the Helmholtz equation outside */
@@ -857,6 +941,158 @@ void F_AcousticFieldHardCylinder(F_ARG){
   V->Val[0] *= -2;
   V->Val[MAX_DIM] *= -2;
   
+  V->Type = SCALAR ;
+
+  GetDP_End;
+} 
+
+/* Scattering by acoustically hard circular cylinder of radius R,
+   under plane wave incidence e^{ikx}. Returns the angular derivative
+   of the solution outside */
+
+void F_DthetaAcousticFieldHardCylinder(F_ARG){
+  cplx I = {0.,1.}, Hnkr, dHnkR, tmp, *HnkRtab;
+  double k, R, r, kr, kR, theta, sint ;
+  int n, ns ;
+
+  GetDP_Begin("F_DthetaAcousticFieldHardCylinder") ;  
+
+  theta = atan2(A->Val[1], A->Val[0]) ;
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;   
+  kr = k*r;
+  kR = k*R;
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = (int)k + 10;
+  
+  HnkRtab = (cplx*)Malloc(ns*sizeof(cplx));
+
+  for (n = 0 ; n < ns ; n++){
+    HnkRtab[n].r = jn(n,kR);
+    HnkRtab[n].i = yn(n,kR);
+  }
+
+  for (n = 0 ; n < ns ; n++){
+    Hnkr.r = jn(n,kr);
+    Hnkr.i = yn(n,kr);
+
+    dHnkR = DHn(HnkRtab, n, kR);
+
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( dHnkR.r, Hnkr) ) , dHnkR );
+
+    sint = sin(n*theta);
+
+    V->Val[0] += - n * sint * tmp.r * (!n ? 0.5 : 1.);
+    V->Val[MAX_DIM] +=  - n * sint * tmp.i * (!n ? 0.5 : 1.);
+  }
+
+  Free(HnkRtab);
+  
+  V->Val[0] *= -2 ;
+  V->Val[MAX_DIM] *= -2 ;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+} 
+
+/* Scattering by acoustically hard circular cylinder of radius R0,
+   under plane wave incidence e^{ikx}, with artificial boundary
+   condition at R1. Returns exact solution of the (interior!) problem
+   between R0 and R1. */
+
+void F_AcousticFieldHardCylinderABC(F_ARG){
+  cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda;
+  cplx H1nkR0, *H1nkR0tab, *H2nkR0tab, *H1nkR1tab, *H2nkR1tab, H1nkr;
+  
+  double k, R0, R1, r, kr, kR0, kR1, theta, cost ;
+  int n, ns ;
+
+  GetDP_Begin("F_AcousticFieldHardCylinderABC") ;  
+
+  theta = atan2(A->Val[1], A->Val[0]) ;
+  r = sqrt(A->Val[0] * A->Val[0] + A->Val[1] * A->Val[1]) ;
+
+  k = Fct->Para[0] ;
+  R0 = Fct->Para[1] ;   
+  R1 = Fct->Para[2] ;
+  kr = k * r;
+  kR0 = k * R0;
+  kR1 = k * R1;
+
+  /* Sommerfeld ABC */
+  lambda = Cprodr(-k, I);
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = (int)k + 10;
+
+  H1nkR0tab = (cplx*)Malloc(ns * sizeof(cplx));
+  for (n = 0 ; n < ns ; n++){
+    H1nkR0tab[n].r = jn(n, kR0);
+    H1nkR0tab[n].i = yn(n, kR0);
+  }
+
+  H2nkR0tab = (cplx*)Malloc(ns * sizeof(cplx));
+  for (n = 0 ; n < ns ; n++){
+    H2nkR0tab[n] = Cconj(H1nkR0tab[n]);
+  }
+
+  H1nkR1tab = (cplx*)Malloc(ns * sizeof(cplx));
+  for (n = 0 ; n < ns ; n++){
+    H1nkR1tab[n].r = jn(n, kR1);
+    H1nkR1tab[n].i = yn(n, kR1);
+  }
+
+  H2nkR1tab = (cplx*)Malloc(ns * sizeof(cplx));
+  for (n = 0 ; n < ns ; n++){
+    H2nkR1tab[n] = Cconj(H1nkR1tab[n]);
+  }
+
+  for (n = 0 ; n < ns ; n++){
+    H1nkR0.r = jn(n, kR0);
+    H1nkR0.i = yn(n, kR0);
+
+    H1nkr.r = jn(n,kr);
+    H1nkr.i = yn(n,kr);
+
+    alpha1 = Csum( Cprodr(k, DHn(H1nkR1tab, n, kR1)) , 
+		   Cprod(lambda, H1nkR1tab[n]) );
+    alpha2 = Csum( Cprodr(k, DHn(H2nkR1tab, n, kR1)) , 
+		   Cprod(lambda, H2nkR1tab[n]) );
+    delta = Cprodr( k , Csub( Cprod( alpha1 , DHn(H2nkR0tab, n, kR0) ) ,
+			      Cprod( alpha2 , DHn(H1nkR0tab, n, kR0) ) ) );
+
+    if(Cmodu(delta) < 1.e-6) break;
+
+    am = Cdiv( Cprodr(k * DHn(H1nkR0tab, n, kR0).r, alpha2) ,
+	       delta );
+    bm = Cdiv( Cprodr(-k * DHn(H1nkR0tab, n, kR0).r, alpha1) ,
+	       delta );
+
+    tmp = Cprod( Cpow(I,n) , Csum( Cprod( am , H1nkr ) ,
+				   Cprod( bm , Cconj(H1nkr) ) ) );
+
+    cost = cos(n * theta);
+
+    V->Val[0] += cost * tmp.r * (!n ? 0.5 : 1.);
+    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+  }
+
+  Free(H1nkR0tab);
+  Free(H2nkR0tab);
+  Free(H1nkR1tab);
+  Free(H2nkR1tab);
+  
+  V->Val[0] *= 2;
+  V->Val[MAX_DIM] *= 2;
+
   V->Type = SCALAR ;
 
   GetDP_End;
