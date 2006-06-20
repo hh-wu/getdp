@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.27 2006-06-15 18:20:07 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.28 2006-06-20 08:17:17 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -67,6 +67,14 @@ static cplx Csub(cplx a, cplx b)
   return(s);
 }
 
+static cplx Csubr(double a, cplx b)
+{
+  cplx s;
+  s.r = a - b.r;
+  s.i = - b.i;
+  return(s);
+}
+
 static cplx Cprod(cplx a, cplx b)
 {
   cplx s;
@@ -82,6 +90,16 @@ static cplx Cdiv(cplx a, cplx b)
   den = b.r * b.r + b.i * b.i;
   s.r = (a.r * b.r + a.i * b.i) / den;
   s.i = (a.i * b.r - a.r * b.i) / den;
+  return(s);
+}
+
+static cplx Cdivr(double a, cplx b)
+{
+  cplx s;
+  double den;
+  den = b.r * b.r + b.i * b.i;
+  s.r = (a * b.r) / den;
+  s.i = (- a * b.i) / den;
   return(s);
 }
 
@@ -761,11 +779,11 @@ cplx DHn(cplx *Hnkrtab, int n, double x){
    between R0 and R1. */
 
 void F_AcousticFieldSoftCylinderABC(F_ARG){
-  cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda;
-  cplx H1nkR0, *H1nkR1tab, *H2nkR1tab, H1nkr;
+  cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda, coef;
+  cplx H1nkR0, *H1nkR1tab, *H2nkR1tab, H1nkr, alphaBT, betaBT, keps;
   
-  double k, R0, R1, r, kr, kR0, kR1, theta, cost ;
-  int n, ns ;
+  double k, R0, R1, r, kr, kR0, kR1, theta, cost, kappa ;
+  int n, ns, ABCtype ;
 
   GetDP_Begin("F_AcousticFieldSoftCylinderABC") ;  
 
@@ -775,12 +793,32 @@ void F_AcousticFieldSoftCylinderABC(F_ARG){
   k = Fct->Para[0] ;
   R0 = Fct->Para[1] ;   
   R1 = Fct->Para[2] ;
+  ABCtype = (int)Fct->Para[3] ;
   kr = k * r;
   kR0 = k * R0;
   kR1 = k * R1;
 
-  /* Sommerfeld ABC */
-  lambda = Cprodr(-k, I);
+  if(ABCtype == 1){  /* Sommerfeld */
+    lambda = Cprodr(-k, I);
+  }
+  else if(ABCtype == 2){ /* Bayliss-Turkel */
+    /*
+      alphaBT[] = 1/(2*R1) - I[]/(8*k*R1^2*(1+I[]/(k*R1)));
+      betaBT[] = - 1/(2*I[]*k*(1+I[]/(k*R1)));
+    */
+    coef.r = 2*k;
+    coef.i = 2/R1;
+    alphaBT = Csubr( 1/(2*R1) , Cdiv(I , Cprodr(4*R1*R1 , coef) ) );
+    betaBT = Cdiv(I , coef);
+  }
+  else if(ABCtype == 3){ /* Pade */
+    kappa = 1./R1; /* for circular boundary only! */
+    keps.r = k;
+    keps.i = 0.4 * pow(k, 1./3.) * pow(kappa, 2./3.);
+  }
+  else{
+    Msg(GERROR, "Unknown ABC type");
+  }
 
   V->Val[0] = 0.;
   V->Val[MAX_DIM] = 0. ;
@@ -805,6 +843,16 @@ void F_AcousticFieldSoftCylinderABC(F_ARG){
     H1nkr.r = jn(n,kr);
     H1nkr.i = yn(n,kr);
 
+    if(ABCtype == 2){
+      lambda = Csum( Csum( Cprodr(-k, I) , alphaBT ) ,
+		     Cprodr( n*n/(R1*R1) , betaBT ) );
+    }
+    else if(ABCtype == 3){
+      lambda = Cprod( Cprodr(-k, I) ,
+		      Cpow( Csubr(1 , Cdivr(n*n/(R1*R1) , Cprod(keps , keps))) , 0.5));
+
+    }
+    
     alpha1 = Csum( Cprodr(k, DHn(H1nkR1tab, n, kR1)) , 
 		   Cprod(lambda, H1nkR1tab[n]) );
     alpha2 = Csum( Cprodr(k, DHn(H2nkR1tab, n, kR1)) , 
@@ -1007,11 +1055,11 @@ void F_DthetaAcousticFieldHardCylinder(F_ARG){
    between R0 and R1. */
 
 void F_AcousticFieldHardCylinderABC(F_ARG){
-  cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda;
-  cplx H1nkR0, *H1nkR0tab, *H2nkR0tab, *H1nkR1tab, *H2nkR1tab, H1nkr;
+  cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda, coef;
+  cplx H1nkR0, *H1nkR0tab, *H2nkR0tab, *H1nkR1tab, *H2nkR1tab, H1nkr, alphaBT, betaBT;
   
   double k, R0, R1, r, kr, kR0, kR1, theta, cost ;
-  int n, ns ;
+  int n, ns, ABCtype ;
 
   GetDP_Begin("F_AcousticFieldHardCylinderABC") ;  
 
@@ -1021,12 +1069,27 @@ void F_AcousticFieldHardCylinderABC(F_ARG){
   k = Fct->Para[0] ;
   R0 = Fct->Para[1] ;   
   R1 = Fct->Para[2] ;
+  ABCtype = (int)Fct->Para[3] ;
   kr = k * r;
   kR0 = k * R0;
   kR1 = k * R1;
 
-  /* Sommerfeld ABC */
-  lambda = Cprodr(-k, I);
+  if(ABCtype == 1){ /* Sommerfeld */
+    lambda = Cprodr(-k, I);
+  }
+  else if(ABCtype == 2){ /* Bayliss-Turkel */
+    /*
+      alphaBT[] = 1/(2*R1) - I[]/(8*k*R1^2*(1+I[]/(k*R1)));
+      betaBT[] = - 1/(2*I[]*k*(1+I[]/(k*R1)));
+    */
+    coef.r = 2*k;
+    coef.i = 2/R1;
+    alphaBT = Csubr( 1/(2*R1) , Cdiv(I , Cprodr(4*R1*R1 , coef) ) );
+    betaBT = Cdiv(I , coef);
+  }
+  else{
+    Msg(GERROR, "Unknown ABC type");
+  }
 
   V->Val[0] = 0.;
   V->Val[MAX_DIM] = 0. ;
@@ -1061,6 +1124,11 @@ void F_AcousticFieldHardCylinderABC(F_ARG){
 
     H1nkr.r = jn(n,kr);
     H1nkr.i = yn(n,kr);
+
+    if(ABCtype == 2){
+      lambda = Csum( Csum( Cprodr(-k, I) , alphaBT ) ,
+		     Cprodr( n*n/(R1*R1) , betaBT ) );
+    }
 
     alpha1 = Csum( Cprodr(k, DHn(H1nkR1tab, n, kR1)) , 
 		   Cprod(lambda, H1nkR1tab[n]) );
