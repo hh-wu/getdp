@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.28 2006-06-20 08:17:17 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.29 2006-06-27 22:53:19 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -940,6 +940,62 @@ void F_DrAcousticFieldSoftCylinder(F_ARG){
   GetDP_End;
 } 
 
+/* Scattering by acoustically soft circular cylinder of radius R,
+   under plane wave incidence e^{ikx}. Returns RCS */
+
+void F_RCSSoftCylinder(F_ARG){
+  cplx I = {0.,1.}, HnkR, Hnkr, res, tmp;
+  double k, R, r, kr, kR, theta, cost, val ;
+  int n, ns ;
+
+  GetDP_Begin("F_RCSSoftCylinder") ;  
+
+  theta = atan2(A->Val[1], A->Val[0]) ;
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;   
+  kR = k*R;
+
+  res.r = 0.;
+  res.i = 0. ;
+  
+  ns = (int)k + 10;
+  
+  for (n = 0 ; n < ns ; n++){
+
+    HnkR.r = jn(n,kR);
+    HnkR.i = yn(n,kR);
+
+    /* leaving r in following asymptotic formula for clarity (see
+       Colton and Kress, Inverse Acoustic..., p. 65, eq. 3.59) */
+    Hnkr.r = cos(k*r - n*M_PI/2. - M_PI/4.) / sqrt(k*r) * sqrt(2./M_PI);
+    Hnkr.i = sin(k*r - n*M_PI/2. - M_PI/4.) / sqrt(k*r) * sqrt(2./M_PI);
+
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( HnkR.r, Hnkr) ) , HnkR );
+
+    cost = cos(n*theta);
+
+    res.r += cost * tmp.r * (!n ? 0.5 : 1.);
+    res.i += cost * tmp.i * (!n ? 0.5 : 1.);
+  }
+
+  res.r *= -2;
+  res.i *= -2;
+  
+  val = Cmodu(res);
+  val *= val;
+  val *= 2. * M_PI * r;
+  val = 10. * log10(val);
+
+  V->Val[0] = val;
+  V->Val[MAX_DIM] = 0.;
+
+  V->Type = SCALAR ;
+
+  GetDP_End;
+} 
+
 /* Scattering by acoustically hard circular cylinder of radius R,
    under plane wave incidence e^{ikx}. Returns solution outside */
 
@@ -1161,6 +1217,70 @@ void F_AcousticFieldHardCylinderABC(F_ARG){
   V->Val[0] *= 2;
   V->Val[MAX_DIM] *= 2;
 
+  V->Type = SCALAR ;
+
+  GetDP_End;
+} 
+
+/* Scattering by acoustically hard circular cylinder of radius R,
+   under plane wave incidence e^{ikx}. Returns RCS. */
+
+void F_RCSHardCylinder(F_ARG){
+  cplx I = {0.,1.}, Hnkr, dHnkR, res, tmp, *HnkRtab;
+  double k, R, r, kr, kR, theta, cost, val ;
+  int n, ns ;
+
+  GetDP_Begin("F_RCSHardCylinder") ;  
+
+  theta = atan2(A->Val[1], A->Val[0]) ;
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1]) ;
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;   
+  kr = k*r;
+  kR = k*R;
+
+  res.r = 0.;
+  res.i = 0. ;
+  
+  ns = (int)k + 10;
+  
+  HnkRtab = (cplx*)Malloc(ns*sizeof(cplx));
+
+  for (n = 0 ; n < ns ; n++){
+    HnkRtab[n].r = jn(n,kR);
+    HnkRtab[n].i = yn(n,kR);
+  }
+
+  for (n = 0 ; n < ns ; n++){
+    /* leaving r in following asymptotic formula for clarity (see
+       Colton and Kress, Inverse Acoustic..., p. 65, eq. 3.59) */
+    Hnkr.r = cos(k*r - n*M_PI/2. - M_PI/4.) / sqrt(k*r) * sqrt(2./M_PI);
+    Hnkr.i = sin(k*r - n*M_PI/2. - M_PI/4.) / sqrt(k*r) * sqrt(2./M_PI);
+
+    dHnkR = DHn(HnkRtab, n, kR);
+
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr( dHnkR.r, Hnkr) ) , dHnkR );
+
+    cost = cos(n*theta);
+
+    res.r += cost * tmp.r * (!n ? 0.5 : 1.);
+    res.i += cost * tmp.i * (!n ? 0.5 : 1.);
+  }
+
+  Free(HnkRtab);
+  
+  res.r *= -2;
+  res.i *= -2;
+  
+  val = Cmodu(res);
+  val *= val;
+  val *= 2. * M_PI * r;
+  val = 10. * log10(val);
+
+  V->Val[0] = val;
+  V->Val[MAX_DIM] = 0.;
+  
   V->Type = SCALAR ;
 
   GetDP_End;

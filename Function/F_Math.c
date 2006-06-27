@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Math.c,v 1.13 2006-06-13 11:08:17 geuzaine Exp $"
+#define RCSID "$Id: F_Math.c,v 1.14 2006-06-27 22:53:19 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -107,6 +107,35 @@ void  F_Atan2 (F_ARG) { scalar_real_2_arg (atan2, "Atan2")   }
 void  F_Fmod  (F_ARG) { scalar_real_2_arg (fmod, "Fmod")     }
 
 #undef scalar_real_2_arg
+
+/* ------------------------------------------------------------------------ */
+/*  Sign function                                                           */
+/* ------------------------------------------------------------------------ */
+
+void  F_Sign (F_ARG) { 
+  int     k, n;
+  double  x;   
+
+  GetDP_Begin("Sign");
+  if(A->Type != SCALAR)
+    Msg(GERROR, "Non scalar argument for function 'Sign'");
+  x = A->Val[0];
+
+  if(x > 0)
+    V->Val[0] = 1.;
+  else if(x < 0)
+    V->Val[0] = -1.;
+  else
+    V->Val[0] = 0.;
+
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+  V->Type = SCALAR;
+  GetDP_End ;
+}
 
 /* ------------------------------------------------------------------------ */
 /*  Bessel functions jn, yn and their derivatives                           */
