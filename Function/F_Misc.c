@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.32 2006-03-02 22:04:12 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.33 2006-06-27 22:52:20 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1119,7 +1119,7 @@ void  F_VirtualWork (F_ARG) {
     u = Current.u; v = Current.v; w = Current.w;
     Get_BFGeoElement(Current.Element, u,v,w);
     
-    Type_Dimension = Current.GeoData->Dimension;
+    Type_Dimension = (int)Current.GeoData->Dimension;
     
     switch (Type_Dimension) {
     case _2D :
