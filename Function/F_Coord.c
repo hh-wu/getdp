@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Coord.c,v 1.20 2006-02-26 00:42:53 geuzaine Exp $"
+#define RCSID "$Id: F_Coord.c,v 1.21 2006-06-27 08:51:28 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -85,6 +85,36 @@ void  F_CoordXYZ (F_ARG) {
 }
 
 
+void  F_CoordXYZS (F_ARG) {
+  int     i, k ;
+  double  X, Y, Z ;
+
+  GetDP_Begin("F_CoordXYZS");
+
+  X = Current.xs ;
+  Y = Current.ys ;
+  Z = Current.zs ;
+
+  if (Current.NbrHar == 1){ 
+    V->Val[0] = X ; 
+    V->Val[1] = Y ; 
+    V->Val[2] = Z ;    
+  } 
+  else {
+    for (k = 0 ; k < Current.NbrHar ; k+=2) {
+      V->Val[MAX_DIM* k     ] = X ; 
+      V->Val[MAX_DIM* k   +1] = Y ; 
+      V->Val[MAX_DIM* k   +2] = Z ;
+      V->Val[MAX_DIM*(k+1)  ] = 0. ; 
+      V->Val[MAX_DIM*(k+1)+1] = 0. ; 
+      V->Val[MAX_DIM*(k+1)+2] = 0. ;
+    }
+  }
+  V->Type = VECTOR ;
+
+  GetDP_End ;
+}
+
 /* ------------------------------------------------------------------------ */
 /*  Get the X, Y or Z coordinate                                            */
 /* ------------------------------------------------------------------------ */
@@ -125,6 +155,31 @@ void  F_CoordZ (F_ARG) { get_1_coord("F_CoordZ",z) }
 
 #undef get_1_coord
 
+#define get_1_coord_source(name,coord)						\
+  int     i, k;									\
+  double  tmp;									\
+										\
+  GetDP_Begin(name);								\
+										\
+  tmp = Current.coord ;							        \
+  if (Current.NbrHar == 1){							\
+    V->Val[0] = tmp ;								\
+  }										\
+  else {									\
+    for (k = 0 ; k < Current.NbrHar ; k+=2) {					\
+      V->Val[MAX_DIM* k     ] = tmp ;						\
+      V->Val[MAX_DIM*(k+1)  ] = 0. ;						\
+    }										\
+  }										\
+  V->Type = SCALAR ;								\
+										\
+  GetDP_End ;
+
+void  F_CoordXS (F_ARG) { get_1_coord_source("F_CoordXS",xs) }
+void  F_CoordYS (F_ARG) { get_1_coord_source("F_CoordYS",ys) }
+void  F_CoordZS (F_ARG) { get_1_coord_source("F_CoordZS",zs) }
+
+#undef get_1_coord_source
 
 /* ------------------------------------------------------------------------ */
 /*  a*X + b*Y + c*Z                                                         */

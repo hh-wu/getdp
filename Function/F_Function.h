@@ -133,6 +133,10 @@ void  F_CoordXYZ        (F_ARG) ;
 void  F_aX_bY_cZ        (F_ARG) ;
 void  F_aX21_bY21_cZ21  (F_ARG) ;
 
+void  F_CoordXS         (F_ARG) ;
+void  F_CoordYS         (F_ARG) ;
+void  F_CoordZS         (F_ARG) ;
+void  F_CoordXYZS       (F_ARG) ;
 
 /* F_Misc */
 

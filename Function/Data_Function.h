@@ -611,7 +611,10 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"XYZ"               , (CAST)F_CoordXYZ         ,   0,   0 },
   {"F_aX_bY_cZ"        , (CAST)F_aX_bY_cZ         ,   3,   0 },
   {"F_aX21_bY21_cZ21"  , (CAST)F_aX21_bY21_cZ21   ,   3,   0 },
-
+  {"XS"                , (CAST)F_CoordXS          ,   0,   0 },
+  {"YS"                , (CAST)F_CoordYS          ,   0,   0 },
+  {"ZS"                , (CAST)F_CoordZS          ,   0,   0 },
+  {"XYZS"              , (CAST)F_CoordXYZS        ,   0,   0 },
 
   /* F_Misc */
 
