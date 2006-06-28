@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.67 2006-06-28 20:35:48 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.68 2006-06-28 20:36:17 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1211,8 +1211,10 @@ void LinAlg_AssembleMatrix(gMatrix *M){
      slow to use during assembly : uncomment this to force a
      conversion to these formats after the assembly is done in the
      standard format */
-  //ierr = MatConvert(M->M, MATUMFPACK, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
-  ierr = MatConvert(M->M, MATSUPERLU, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
+  /*
+    ierr = MatConvert(M->M, MATUMFPACK, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
+    ierr = MatConvert(M->M, MATSUPERLU, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
+  */
 
   GetDP_End;
 }
