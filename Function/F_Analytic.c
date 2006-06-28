@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.29 2006-06-27 22:53:19 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.30 2006-06-28 20:29:08 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -147,7 +147,7 @@ static cplx Cprodr(double a, cplx b)
 }
 
 /* ------------------------------------------------------------------------ */
-/*  Exact solutions for spheres                                               */
+/*  Exact solutions for spheres                                             */
 /* ------------------------------------------------------------------------ */
 
 /* Solid and hollow sphere, in magnetostatics and magnetodynamics. Returns 
@@ -449,90 +449,272 @@ void F_RCS_SphPhi(F_ARG){
   GetDP_End;
 } 
 
-/* Scattering by solid acoustically soft sphere (exterior Dirichlet
-   problem) by incident plane wave in the direction of the negative
-   z-axis. Returns total field at any exterior point.
+/* Scattering by acoustically soft sphere (exterior Dirichlet problem)
+   of radius R, under plane wave incidence e^{ikx}. Returns scattered
+   field outside. (Colton and Kress, Inverse Acoustic..., p 51,
+   eq. 3.29) */
 
-   J.J. Bowman, T.B.A. Senior and P.L.E. Uslenghi, Electromagnetic and
-   Acoustic Scattering by Simple Shapes, p. 358 
+void  F_AcousticFieldSoftSphere(F_ARG){
+  cplx I = {0.,1.}, hnkR, hnkr, tmp;
+  double k, R, r, kr, kR, theta, fact ;
+  int n, ns ;
 
-   In:
-   k: wave number
-   a: sphere radius
-   r: r coord in spherical coords
-   theta: theta coord in spherical coords
+  GetDP_Begin("F_AcousticFieldSoftSphere") ;  
 
-   Out:
-   total field V_i+V_s
-*/
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
+  theta = acos(A->Val[0] / r); /* angle between position vector and (1,0,0) */
 
-void  F_AcousticSoftSphere(F_ARG){
-#define N 50
-  double k, a, r, theta, ka, kr, fact;
-  int n;
-  double jnka[N], jnkr[N], hnkar[N], hnkai[N], hnkrr[N], hnkri[N];
-  struct Value V_tmp, V_tmp2, V_mi, V_jnka, V_jnkr, V_hnka, V_hnkr, V_an;
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;
+  kr = k*r;
+  kR = k*R;
 
-  GetDP_Begin("F_AcousticSoftSphere") ;  
-
-  k     = A->Val[0];
-  a     = (A+1)->Val[0];
-  r     = (A+2)->Val[0];
-  theta = (A+3)->Val[0];
-
-  kr = k*r ;
-  ka = k*a ;
-
-  V->Type         = SCALAR ;
-  V->Val[0]       = 0.;
+  V->Val[0] = 0.;
   V->Val[MAX_DIM] = 0. ;
+  
+  ns = (int)k + 10;
 
-  V_tmp.Type = V_tmp2.Type = SCALAR;
-  V_mi.Type = V_jnka.Type = V_jnkr.Type = SCALAR;
-  V_hnka.Type = V_hnkr.Type = V_an.Type = SCALAR;
+  for (n = 0 ; n < ns ; n++){
+    hnkR.r = Spherical_j_n(n, kR);
+    hnkR.i = Spherical_y_n(n, kR);
 
-  n = 0;
-  Spherical_j_nArray(n,kr,N,&jnkr[0]);
-  Spherical_j_nArray(n,ka,N,&jnka[0]);
-  Spherical_h_nArray(1,n,kr,N,hnkrr,hnkri);
-  Spherical_h_nArray(1,n,ka,N,hnkar,hnkai);
+    hnkr.r = Spherical_j_n(n, kr);
+    hnkr.i = Spherical_y_n(n, kr);
 
-  /* to compare with gsl/python */
-  /*
-  for (n = 0 ; n < N ; n++){
-    jnkr[n] = Spherical_j_n(n,kr);
-    jnka[n] = Spherical_j_n(n,ka);
-    Spherical_h_n(1,n,kr,&hnkrr[n],&hnkri[n]);
-    Spherical_h_n(1,n,ka,&hnkar[n],&hnkai[n]);
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr(hnkR.r, hnkr) ) , hnkR );
+
+    fact = (2*n+1) * Legendre(n, 0, cos(theta));
+
+    V->Val[0] +=  fact * tmp.r;
+    V->Val[MAX_DIM] += fact * tmp.i;
   }
-  */
+  
+  V->Val[0] *= -1;
+  V->Val[MAX_DIM] *= -1;
+  
+  V->Type = SCALAR ;
 
-  for (n = 0 ; n < N ; n++){
-    V_mi.Val[0] = 0.; V_mi.Val[MAX_DIM] = -1.;
-    V_tmp.Val[0] = n ; V_tmp.Val[MAX_DIM] = 0.;
-    Cal_PowerValue (&V_mi, &V_tmp, &V_mi);
-
-    V_jnkr.Val[0] = jnkr[n]; V_jnkr.Val[MAX_DIM] = 0;
-    V_jnka.Val[0] = jnka[n]; V_jnka.Val[MAX_DIM] = 0;
-    V_hnkr.Val[0] = hnkrr[n]; V_hnkr.Val[MAX_DIM] = hnkri[n];
-    V_hnka.Val[0] = hnkar[n]; V_hnka.Val[MAX_DIM] = hnkai[n];
-
-    Cal_ComplexDivision(V_jnka.Val,V_hnka.Val,V_an.Val);
-    Cal_ComplexProduct(V_an.Val,V_hnkr.Val,V_tmp.Val);
-    
-    V_tmp.Val[0]       = V_jnkr.Val[0]       - V_tmp.Val[0];
-    V_tmp.Val[MAX_DIM] = V_jnkr.Val[MAX_DIM] - V_tmp.Val[MAX_DIM];
-
-    Cal_ComplexProduct(V_mi.Val,V_tmp.Val,V_tmp2.Val);
-
-    fact = (2*n+1) * Legendre(n,0,cos(theta));
-
-    V->Val[0]       += fact * V_tmp2.Val[0] ; 
-    V->Val[MAX_DIM] += fact * V_tmp2.Val[MAX_DIM] ;
-  }
-#undef N   
+  GetDP_End;
 }
 
+cplx Dhn_Spherical(cplx *hntab, int n, double x){
+  return Csub( Cprodr( (double)n/x, hntab[n] ) , hntab[n+1] );
+}
+
+/* Scattering by acoustically soft sphere (exterior Dirichlet problem)
+   of radius R, under plane wave incidence e^{ikx}. Returns radial
+   derivative of scattered field outside */
+
+void  F_DrAcousticFieldSoftSphere(F_ARG){
+  cplx I = {0.,1.}, hnkR, hnkr, tmp, *hnkrtab;
+  double k, R, r, kr, kR, theta, fact ;
+  int n, ns ;
+
+  GetDP_Begin("F_DrAcousticFieldSoftSphere") ;  
+
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
+  theta = acos(A->Val[0] / r); /* angle between position vector and (1,0,0) */
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;
+  kr = k*r;
+  kR = k*R;
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = (int)k + 10;
+
+  hnkrtab = (cplx*)Malloc((ns + 1)*sizeof(cplx));
+
+  for (n = 0 ; n < ns + 1 ; n++){
+    hnkrtab[n].r = Spherical_j_n(n, kr);
+    hnkrtab[n].i = Spherical_y_n(n, kr);
+  }
+
+  for (n = 0 ; n < ns ; n++){
+    hnkR.r = Spherical_j_n(n, kR);
+    hnkR.i = Spherical_y_n(n, kR);
+
+    hnkr.r = Spherical_j_n(n, kr);
+    hnkr.i = Spherical_y_n(n, kr);
+
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr(hnkR.r * k, Dhn_Spherical(hnkrtab, n, kr)) ) ,
+		hnkR );
+
+    fact = (2*n+1) * Legendre(n, 0, cos(theta));
+
+    V->Val[0] +=  fact * tmp.r;
+    V->Val[MAX_DIM] += fact * tmp.i;
+  }
+  
+  Free(hnkrtab);
+
+  V->Val[0] *= -1;
+  V->Val[MAX_DIM] *= -1;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+}
+
+/* Scattering by acoustically soft sphere (exterior Dirichlet problem)
+   of radius R, under plane wave incidence e^{ikx}. Returns RCS.
+   (Colton and Kress, Inverse Acoustic..., p 52, eq. 3.30) */
+
+void  F_RCSSoftSphere(F_ARG){
+  cplx I = {0.,1.}, hnkR, tmp, res;
+  double k, R, r, kR, theta, fact, val ;
+  int n, ns ;
+
+  GetDP_Begin("F_RCSSoftSphere") ;  
+
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
+  theta = acos(A->Val[0] / r); /* angle between position vector and (1,0,0) */
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;
+  kR = k*R;
+
+  res.r = 0.;
+  res.i = 0. ;
+  
+  ns = (int)k + 10;
+
+  for (n = 0 ; n < ns ; n++){
+    hnkR.r = Spherical_j_n(n, kR);
+    hnkR.i = Spherical_y_n(n, kR);
+
+    tmp = Cdivr( hnkR.r, hnkR );
+
+    fact = (2*n+1) * Legendre(n, 0, cos(theta));
+
+    res.r += fact * tmp.r;
+    res.i += fact * tmp.i;
+  }
+
+  val = Cmodu( Cprodr( 1./k , Cprod(res, I) ) );
+  val *= val;
+  val *= 4. * M_PI;
+  val = 10. * log10(val);
+    
+  V->Val[0] = val;
+  V->Val[MAX_DIM] = 0.;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+}
+
+/* Scattering by acoustically hard sphere (exterior Neumann problem)
+   of radius R, under plane wave incidence e^{ikx}. Returns scattered
+   field outside */
+
+void  F_AcousticFieldHardSphere(F_ARG){
+  cplx I = {0.,1.}, hnkR, hnkr, tmp, DhnkR, *hnkRtab;
+  double k, R, r, kr, kR, theta, fact ;
+  int n, ns ;
+
+  GetDP_Begin("F_AcousticFieldHardSphere") ;  
+
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
+  theta = acos(A->Val[0] / r); /* angle between position vector and (1,0,0) */
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;
+  kr = k*r;
+  kR = k*R;
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = (int)k + 10;
+
+  hnkRtab = (cplx*)Malloc((ns + 1)*sizeof(cplx));
+
+  for (n = 0 ; n < ns + 1 ; n++){
+    hnkRtab[n].r = Spherical_j_n(n, kR);
+    hnkRtab[n].i = Spherical_y_n(n, kR);
+  }
+
+  for (n = 0 ; n < ns ; n++){
+    hnkr.r = Spherical_j_n(n, kr);
+    hnkr.i = Spherical_y_n(n, kr);
+
+    DhnkR = Dhn_Spherical(hnkRtab, n, kR);
+
+    tmp = Cdiv( Cprod( Cpow(I,n) , Cprodr(DhnkR.r, hnkr) ) , DhnkR );
+
+    fact = (2*n+1) * Legendre(n, 0, cos(theta));
+
+    V->Val[0] +=  fact * tmp.r;
+    V->Val[MAX_DIM] += fact * tmp.i;
+  }
+  
+  Free(hnkRtab);
+
+  V->Val[0] *= -1;
+  V->Val[MAX_DIM] *= -1;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+}
+
+/* Scattering by acoustically hard sphere (exterior Dirichlet problem)
+   of radius R, under plane wave incidence e^{ikx}. Returns RCS */
+
+void  F_RCSHardSphere(F_ARG){
+  cplx I = {0.,1.}, DhnkR, tmp, res, *hnkRtab;
+  double k, R, r, kR, theta, fact, val ;
+  int n, ns ;
+
+  GetDP_Begin("F_RCSHardSphere") ;  
+
+  r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
+  theta = acos(A->Val[0] / r); /* angle between position vector and (1,0,0) */
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;
+  kR = k*R;
+
+  res.r = 0.;
+  res.i = 0. ;
+  
+  ns = (int)k + 10;
+
+  hnkRtab = (cplx*)Malloc((ns + 1)*sizeof(cplx));
+
+  for (n = 0 ; n < ns + 1 ; n++){
+    hnkRtab[n].r = Spherical_j_n(n, kR);
+    hnkRtab[n].i = Spherical_y_n(n, kR);
+  }
+
+  for (n = 0 ; n < ns ; n++){
+    DhnkR = Dhn_Spherical(hnkRtab, n, kR);
+
+    tmp = Cdivr( DhnkR.r, DhnkR );
+
+    fact = (2*n+1) * Legendre(n, 0, cos(theta));
+
+    res.r += fact * tmp.r;
+    res.i += fact * tmp.i;
+  }
+
+  Free(hnkRtab);
+
+  val = Cmodu( Cprodr( 1./k , Cprod(res, I) ) );
+  val *= val;
+  val *= 4. * M_PI;
+  val = 10. * log10(val);
+    
+  V->Val[0] = val;
+  V->Val[MAX_DIM] = 0.;
+  
+  V->Type = SCALAR ;
+
+  GetDP_End;
+}
 
 /* ------------------------------------------------------------------------ */
 /*  Exact solutions for cylinders                                           */
@@ -718,7 +900,8 @@ void F_JFIE_TransZPolCyl(F_ARG){
 
 
 /* Scattering by acoustically soft circular cylinder of radius R,
-   under plane wave incidence e^{ikx}. Returns field outside */
+   under plane wave incidence e^{ikx}. Returns scatterered field
+   outside */
 
 void F_AcousticFieldSoftCylinder(F_ARG){
   cplx I = {0.,1.}, HnkR, Hnkr, tmp;
@@ -997,7 +1180,8 @@ void F_RCSSoftCylinder(F_ARG){
 } 
 
 /* Scattering by acoustically hard circular cylinder of radius R,
-   under plane wave incidence e^{ikx}. Returns solution outside */
+   under plane wave incidence e^{ikx}. Returns scatterered field
+   outside */
 
 void F_AcousticFieldHardCylinder(F_ARG){
   cplx I = {0.,1.}, Hnkr, dHnkR, tmp, *HnkRtab;

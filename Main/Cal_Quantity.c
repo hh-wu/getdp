@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.45 2006-05-12 09:53:15 sabarieg Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.46 2006-06-28 20:29:08 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -47,6 +47,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
 			    struct Value * Value) {
   int k ;
   struct ExpressionPerRegion  * ExpressionPerRegion_P ;
+  static char *Flag_WarningUndefined = NULL ;
 
   GetDP_Begin("Get_ValueOfExpression");
 
@@ -94,6 +95,15 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
       (Expression_P->Case.PieceWiseFunction.ExpressionForLastRegion, 
        QuantityStorage_P0, u, v, w, Value) ;
     break ;
+
+  case UNDEFINED_EXP :
+    if(!Flag_WarningUndefined || strcmp(Flag_WarningUndefined, Expression_P->Name)){
+      Msg(WARNING, "Undefined expression '%s' (assuming zero)", Expression_P->Name) ;
+      Flag_WarningUndefined = Expression_P->Name;
+    }
+    Cal_ZeroValue(Value);
+    Value->Type = SCALAR ;
+    break;
 
   default :
     Msg(GERROR, "Unknown type (%d) of Expression (%s)",
@@ -358,8 +368,8 @@ void Cal_WholeQuantity(struct Element * Element,
       Save_Region = Current.Region ; 
 
       if(!Element->ElementTrace)
-	Msg(GERROR, "The trace operator should act on a discrete Quantity");
-      
+	Msg(GERROR, "Trace must act on discrete quantity (and not in post-processing)");
+
       Current.Region = Element->ElementTrace->Region ;
       
       if(WholeQuantity_P->Case.Trace.DofIndexInWholeQuantity >= 0){

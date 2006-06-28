@@ -666,16 +666,21 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"JFIE_OnSphCutPhi",            (CAST)F_JFIE_SphPhi,         4,   1 },
   {"RCS_SphPhi",                  (CAST)F_RCS_SphPhi,          4,   1 },
 
-  {"AcousticSoftSphere",              (CAST)F_AcousticSoftSphere,  0, 4 },
+  {"AcousticFieldSoftSphere",         (CAST)F_AcousticFieldSoftSphere,  2, 1 },
+  {"DrAcousticFieldSoftSphere",       (CAST)F_DrAcousticFieldSoftSphere, 2, 1 },
+  {"RCSSoftSphere",                   (CAST)F_RCSSoftSphere,  2, 1 },
 
-  {"AcousticFieldSoftCylinder",       (CAST)F_AcousticFieldSoftCylinder, 2, 1},
-  {"AcousticFieldSoftCylinderABC",    (CAST)F_AcousticFieldSoftCylinderABC, 4, 1},
-  {"DrAcousticFieldSoftCylinder",     (CAST)F_DrAcousticFieldSoftCylinder, 2, 1},
+  {"AcousticFieldHardSphere",         (CAST)F_AcousticFieldHardSphere,  2, 1 },
+  {"RCSHardSphere",                   (CAST)F_RCSHardSphere,  2, 1 },
+
+  {"AcousticFieldSoftCylinder",       (CAST)F_AcousticFieldSoftCylinder, 2, 1 },
+  {"AcousticFieldSoftCylinderABC",    (CAST)F_AcousticFieldSoftCylinderABC, 4, 1 },
+  {"DrAcousticFieldSoftCylinder",     (CAST)F_DrAcousticFieldSoftCylinder, 2, 1 },
   {"RCSSoftCylinder",                 (CAST)F_RCSSoftCylinder,  2, 1 },
 
-  {"AcousticFieldHardCylinder",       (CAST)F_AcousticFieldHardCylinder, 2, 1},
-  {"AcousticFieldHardCylinderABC",    (CAST)F_AcousticFieldHardCylinderABC, 4, 1},
-  {"DthetaAcousticFieldHardCylinder", (CAST)F_DthetaAcousticFieldHardCylinder, 2, 1},
+  {"AcousticFieldHardCylinder",       (CAST)F_AcousticFieldHardCylinder, 2, 1 },
+  {"AcousticFieldHardCylinderABC",    (CAST)F_AcousticFieldHardCylinderABC, 4, 1 },
+  {"DthetaAcousticFieldHardCylinder", (CAST)F_DthetaAcousticFieldHardCylinder, 2, 1 },
   {"RCSHardCylinder",                 (CAST)F_RCSHardCylinder,  2, 1 },
 
   {"OSRC_C0",   (CAST)F_OSRC_C0, 2, 0},

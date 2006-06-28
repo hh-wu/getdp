@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.96 2006-06-13 11:06:40 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.97 2006-06-28 20:29:10 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1000,6 +1000,11 @@ Expression :
     { Expression_S.Type = WHOLEQUANTITY ;  Expression_S.Case.WholeQuantity = $2 ;
       $$ = Add_Expression(&Expression_S, "Exp_Fct", 1) ; }
 
+  /* undefined expression (same as DefineFunction, but inline) */
+  | '*' '*' '*'
+    { Expression_S.Type = UNDEFINED_EXP ; 
+      $$ = Add_Expression(&Expression_S, "Exp_Undefined", 1) ;
+    }
   ;
 
 ListOfExpression :
