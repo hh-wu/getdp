@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c $Id: getdp.texi,v 1.90 2006-06-13 11:06:12 geuzaine Exp $
+@c $Id: getdp.texi,v 1.91 2006-06-28 20:35:48 geuzaine Exp $
 @c
 @c Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 @c
@@ -1725,8 +1725,10 @@ The optional @var{group-def} in brackets must be of @code{Region} type, and
 indicates on which region the (piecewise) function is defined. Warning: it
 is incorrect to write @code{f[reg1]=1; g[reg2]=f[]+1;} since the domains of
 definition of @code{f[]} and @code{g[]} don't match.
+@item
+One can also define initially empty functions inline by replacing the
+expression with @code{***}.
 @end enumerate
-
 
 See @ref{Types for Function}, for the complete list of built-in functions
 and @ref{Function examples}, for some examples.
