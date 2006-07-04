@@ -38,6 +38,7 @@ void  F_JFIE_SphTheta     (F_ARG) ;
 void  F_RCS_SphTheta      (F_ARG) ;
 void  F_JFIE_SphPhi       (F_ARG) ;
 void  F_RCS_SphPhi        (F_ARG) ;
+void  F_CurrentPerfectlyConductingSphere(F_ARG);
 void  F_AcousticFieldSoftSphere(F_ARG) ;
 void  F_DrAcousticFieldSoftSphere(F_ARG) ;
 void  F_RCSSoftSphere(F_ARG) ;

@@ -666,6 +666,8 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"JFIE_OnSphCutPhi",            (CAST)F_JFIE_SphPhi,         4,   1 },
   {"RCS_SphPhi",                  (CAST)F_RCS_SphPhi,          4,   1 },
 
+  {"CurrentPerfectlyConductingSphere",(CAST)F_CurrentPerfectlyConductingSphere,  3, 1 },
+
   {"AcousticFieldSoftSphere",         (CAST)F_AcousticFieldSoftSphere,  2, 1 },
   {"DrAcousticFieldSoftSphere",       (CAST)F_DrAcousticFieldSoftSphere, 2, 1 },
   {"RCSSoftSphere",                   (CAST)F_RCSSoftSphere,  2, 1 },

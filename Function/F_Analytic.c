@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.30 2006-06-28 20:29:08 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.31 2006-07-04 13:15:48 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -448,6 +448,132 @@ void F_RCS_SphPhi(F_ARG){
 
   GetDP_End;
 } 
+
+/*
+  Escat near field: donne par Monk pp. 258-259
+  E_inf: Monk, p. 260
+*/
+
+/* Scattering by perfectly conducting sphere of radius R, under plane
+   wave incidence pol*e^{ik \alpha\dot\r}, with alpha = (0,0,-1) and
+   pol = (1,0,0). Returns surface current (From Harrington,
+   Time-harmonic electromagnetic fields, p. 294) */
+
+void F_CurrentPerfectlyConductingSphere(F_ARG){
+  cplx I = {0., 1.}, tmp, *hn, coef1, coef2, an, jtheta, jphi, rtp[3], xyz[3];
+  double k, R, r, kR, theta, phi, Z0, ctheta, stheta, Pn0, Pn1, dPn1, mat[3][3], x, y, z ;
+  int n, ns, i, j ;
+
+  GetDP_Begin("F_CurrentPerfectlyConductingSphere") ;  
+
+  x = A->Val[0];
+  y = A->Val[1];
+  z = A->Val[2];
+  r = sqrt(x*x+y*y+z*z);
+  theta = atan2(sqrt(x*x+y*y), z);
+  phi = atan2(y,x); 
+
+  /* warning: approximation */
+  if (theta == 0. ) theta += 1e-15;
+  if (theta == M_PI || theta == -M_PI ) theta -= 1e-15;
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;
+  Z0 = Fct->Para[2] ; /* impedance of vacuum = sqrt(mu_0/eps_0) \approx 120*pi */
+  kR = k * R;
+
+  /* test position to check if on sphere */
+  if(fabs(r - R) > 1.e-3)
+    Msg(GERROR, "Evaluation point not on sphere");
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+  
+  ns = (int)k + 10;
+
+  hn = (cplx*)Malloc((ns + 1)*sizeof(cplx));
+
+  for (n = 0 ; n < ns + 1 ; n++){
+    hn[n].r = AltSpherical_j_n(n, kR);
+    hn[n].i = - AltSpherical_y_n(n, kR);
+  }
+
+  ctheta = cos(theta);
+  stheta = sin(theta);
+
+  jtheta.r = 0;
+  jtheta.i = 0;
+  jphi.r = 0;
+  jphi.i = 0;
+
+  for (n = 1 ; n < ns ; n++){
+    // 1 / \hat{H}_n^2 (ka)
+    coef1 = Cdivr( 1.0 , hn[n] );
+    // 1 / \hat{H}_n^2' (ka)
+    coef2 = Cdivr( 1.0 , Csub( Cprodr( (double)(n+1) / kR , hn[n]) , hn[n+1] ) );
+    
+    Pn0 = Legendre(n, 0, ctheta);
+    Pn1 = Legendre(n, 1, ctheta);
+
+    dPn1 = (n+1)*n* Pn0/stheta - (ctheta/(ctheta*ctheta-1))* Pn1;
+    an = Cprodr( (2.*n+1.) / (double)(n * (n+1.)) , Cpow(I, -n) );
+
+    tmp = Cprod( an , Csum( Cprodr( stheta * dPn1 , coef2 ) ,
+			    Cprodr( Pn1 / stheta , Cprod( I ,  coef1 )) ) );
+    jtheta = Csum( jtheta, tmp );
+
+    tmp = Cprod( an , Csub( Cprodr( Pn1 / stheta , coef2 ) ,
+			    Cprodr( dPn1 * stheta , Cdiv(coef1 , I)) ) );
+    jphi = Csum( jphi, tmp );
+  }
+
+  Free(hn);
+
+  tmp = Cprodr( cos(phi)/(kR*Z0), I);
+  jtheta = Cprod( jtheta, tmp );
+
+  tmp = Cprodr( sin(phi)/(kR*Z0), I );
+  jphi = Cprod( jphi, tmp );
+
+  /* r, theta, phi components */
+  rtp[0].r = 0;
+  rtp[0].i = 0;
+  rtp[1] = jtheta;
+  rtp[2] = jphi;
+  
+  /* r basis vector */
+  mat[0][0] = sin(theta) * cos(phi) ;
+  mat[0][1] = sin(theta) * sin(phi) ;
+  mat[0][2] = cos(theta)  ;
+  /* theta basis vector */
+  mat[1][0] = cos(theta) * cos(phi) ;
+  mat[1][1] = cos(theta) * sin(phi) ;
+  mat[1][2] = - sin(theta) ;
+  /* phi basis vector */
+  mat[2][0] = - sin(phi) ;
+  mat[2][1] = cos(phi);
+  mat[2][2] = 0.;
+
+  /* x, y, z components */
+  for(i = 0; i < 3; i++){
+    xyz[i].r = 0;
+    xyz[i].i = 0;
+    for(j = 0; j < 3; j++)
+      xyz[i] = Csum( xyz[i] , Cprodr(mat[j][i] , rtp[j]) );
+  }
+
+  V->Val[0] = xyz[0].r;
+  V->Val[1] = xyz[1].r;
+  V->Val[2] = xyz[2].r;
+  V->Val[MAX_DIM] = xyz[0].i;
+  V->Val[MAX_DIM+1] = xyz[1].i;
+  V->Val[MAX_DIM+2] = xyz[2].i;
+  
+  V->Type = VECTOR ;
+
+  GetDP_End;
+}
+
 
 /* Scattering by acoustically soft sphere (exterior Dirichlet problem)
    of radius R, under plane wave incidence e^{ikx}. Returns scattered
