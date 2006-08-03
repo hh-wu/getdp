@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.69 2006-08-03 10:04:39 colignon Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.70 2006-08-03 10:15:42 colignon Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1205,6 +1205,17 @@ void LinAlg_AssembleMatrix(gMatrix *M){
 
   ierr = MatAssemblyBegin(M->M, MAT_FINAL_ASSEMBLY); MYCHECK(ierr);
   ierr = MatAssemblyEnd(M->M, MAT_FINAL_ASSEMBLY); MYCHECK(ierr);  
+
+  /* changing the preallocation does not seem to change anything for
+     umfpack or superlu matrices, which are thus almost impossibly
+     slow to use during assembly : uncomment this to force a
+     conversion to these formats after the assembly is done in the
+     standard format */
+
+  /*
+    ierr = MatConvert(M->M, MATUMFPACK, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
+    ierr = MatConvert(M->M, MATSUPERLU, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
+  */
 
   GetDP_End;
 }
