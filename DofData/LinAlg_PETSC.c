@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.70 2006-08-03 10:15:42 colignon Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.71 2006-09-08 12:41:24 colignon Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -959,7 +959,7 @@ void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatri
     ierr = MatAXPY(M1->M, tmp, M2->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
   }
   else if(M3 == M2){
-    ierr = MatAYPX(M2->M, tmp, M1->M); MYCHECK(ierr);
+    ierr = MatAYPX(M2->M, tmp, M1->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
   }
   else
     Msg(GERROR, "Wrong arguments in 'LinAlg_AddMatrixProdMatrixDouble'");
