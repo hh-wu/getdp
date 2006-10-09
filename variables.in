@@ -1,4 +1,4 @@
-# $Id: variables.in,v 1.11 2006-06-23 21:11:11 geuzaine Exp $
+# $Id: variables.in,v 1.12 2006-10-09 21:47:09 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -50,8 +50,9 @@ PETSC_DIR=@PETSC_DIR@
 PETSC_ARCH=@PETSC_ARCH@
 @PETSC_INCLUDE_MAKEFILE@
 
-# PETSc 2.3.1 with complex variables does not redfine CC as the CXX
-# compiler anymore: uncomment this line if you need to force it
+# PETSc >= 2.3.1 configured with with C++ complex number support does
+# not redefine CC as the CXX compiler anymore. Uncomment the following
+# line in that case:
 # CC=${CXX}
 
 # How you create a static library on this machine
