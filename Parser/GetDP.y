@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.97 2006-06-28 20:29:10 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.98 2006-10-23 08:17:55 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -2136,6 +2136,8 @@ FunctionSpace :
     }
 
   | FunctionSpace  FunctionSpaceTerm
+
+  | FunctionSpace  Loop
   ;
 
 
@@ -2544,6 +2546,11 @@ GlobalQuantities :
     { 
       GlobalQuantity_S.Num = Num_BasisFunction++ ;
       List_Add($$ = $1, &GlobalQuantity_S) ;
+    }
+
+  | GlobalQuantities  Loop
+    {
+      $$ = $1 ;
     }
   ;
 
@@ -3850,6 +3857,8 @@ DefineSystems :
      {
        $$ = $1 ;
      }
+
+  | Affectation
 
   ;
 
@@ -6343,9 +6352,9 @@ FExpr :
   | tFmod   '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }
   | tModulo '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }
   | tHypot  '[' FExpr ',' FExpr ']'  { $$ = sqrt($3*$3+$5*$5);  }
-/*???
+
   | FExpr '?' FExpr tDOTS FExpr      { $$ = $1? $3 : $5 ; }
-*/
+
   | FExpr '#' { Msg(DIRECT, "Value (line %ld) --> %.16g", yylinenum, $1); }
   ;
 
