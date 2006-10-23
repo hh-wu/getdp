@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.37 2006-10-23 08:22:02 dular Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.38 2006-10-23 13:31:12 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -826,7 +826,7 @@ double  JacobianSur2D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Begin("JacobianSur2D");
 
   Jac->c11 = 0. ;  Jac->c12 = 0. ;  Jac->c13 = 0. ;
-  Jac->c21 = 0. ;  Jac->c22 = 1. ;  Jac->c23 = 0. ; /*modif: c22=1 !!!*/
+  Jac->c21 = 0. ;  Jac->c22 = 0. ;  Jac->c23 = 0. ; /*modif: c22=1 !!! faux*/
   Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
 
   for ( i = 0 ; i < Element->GeoElement->NbrNodes ; i++ ) {
