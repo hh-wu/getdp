@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.39 2006-06-28 20:29:32 geuzaine Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.40 2006-10-23 13:41:34 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -394,7 +394,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   if ((Dim == _1D && Current.GeoData->Dimension == _3D) ||
       (Dim == _1D && Current.GeoData->Dimension == _2D) ||
       (Dim == _2D && Current.GeoData->Dimension == _3D)) 
-    tol = Current.GeoData->CharacteristicLength * 5.e-3;
+    tol = Current.GeoData->CharacteristicLength * 1.e-4; /* instead of 5.e-3 */
   else
     tol = Current.GeoData->CharacteristicLength * 1.e-8;
   if(LastGeoElement){
