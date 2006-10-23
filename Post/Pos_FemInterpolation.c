@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_FemInterpolation.c,v 1.21 2006-02-26 00:42:59 geuzaine Exp $"
+#define RCSID "$Id: Pos_FemInterpolation.c,v 1.22 2006-10-23 08:17:09 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -130,8 +130,13 @@ void  Pos_FemInterpolation(struct Element * Element,
 	}
       }
       Init_SearchGrid(&Current.GeoData->Grid);
+      /*
       InWhichElement(Current.GeoData->Grid, NULL, &TheElement, 
 		     (Type_Dimension >= 0) ? Type_Dimension : SearchType(Element->Type),
+		     x, y, z, &u, &v, &w) ;
+      */
+      InWhichElement(Current.GeoData->Grid, NULL, &TheElement, 
+		     (Type_Dimension >= 0) ? Type_Dimension : _ALL,
 		     x, y, z, &u, &v, &w) ;
       TheElement_P = &TheElement ;
       Get_InitDofOfElement(&TheElement) ;
