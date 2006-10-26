@@ -167,7 +167,9 @@ void  Fi_InitListXY2    (F_ARG) ;
 void  Fi_InitAkima      (F_ARG) ;
 
 void  F_ValueFromIndex (F_ARG) ;
+void  F_VectorFromIndex (F_ARG) ;
 void  Fi_InitValueFromIndex (F_ARG) ;
+void  Fi_InitVectorFromIndex (F_ARG) ;
 
 void  F_TransformTensor (F_ARG) ;  /* pour Tuan */
 void  F_TransformPerm   (F_ARG) ;  /* pour Tuan */
