@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.80 2006-10-23 08:25:12 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.81 2006-10-27 15:33:01 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1848,7 +1848,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      
     case OPERATION_CHANGEOFCOORDINATES :
       Msg(OPERATION, "ChangeOfCoordinates") ;
-      //      Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0) ;
+      /* Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0) ; */
       Operation_ChangeOfCoordinates
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break ;

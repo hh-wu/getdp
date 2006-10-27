@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_ExtMath.c,v 1.13 2006-10-09 13:25:28 sabarieg Exp $"
+#define RCSID "$Id: F_ExtMath.c,v 1.14 2006-10-27 15:33:01 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -72,8 +72,10 @@ void  F_TanhC2 (F_ARG) {
 
   GetDP_Begin("F_TanhC2");
 
-  //if(A->Type != SCALAR) Msg(GERROR, "Non scalar arguments for function 'TanhC2'");
-  //if(Current.NbrHar != 2) Msg(GERROR, "Function 'TanhC2' only valid for Complex"); 
+  /*
+    if(A->Type != SCALAR) Msg(GERROR, "Non scalar arguments for function 'TanhC2'");
+    if(Current.NbrHar != 2) Msg(GERROR, "Function 'TanhC2' only valid for Complex"); 
+  */
 
   denom = DSQU(cosh(A->Val[0])*cos(A->Val[MAX_DIM])) + DSQU(sinh(A->Val[0])*sin(A->Val[MAX_DIM]));
   V->Val[0]       = sinh(A->Val[0])*cosh(A->Val[0]) / denom ;

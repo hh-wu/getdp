@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.31 2006-07-04 13:15:48 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.32 2006-10-27 15:33:01 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -507,9 +507,9 @@ void F_CurrentPerfectlyConductingSphere(F_ARG){
   jphi.i = 0;
 
   for (n = 1 ; n < ns ; n++){
-    // 1 / \hat{H}_n^2 (ka)
+    /* 1 / \hat{H}_n^2 (ka) */
     coef1 = Cdivr( 1.0 , hn[n] );
-    // 1 / \hat{H}_n^2' (ka)
+    /* 1 / \hat{H}_n^2' (ka) */
     coef2 = Cdivr( 1.0 , Csub( Cprodr( (double)(n+1) / kR , hn[n]) , hn[n+1] ) );
     
     Pn0 = Legendre(n, 0, ctheta);
