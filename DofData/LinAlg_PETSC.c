@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.71 2006-09-08 12:41:24 colignon Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.72 2006-10-27 15:03:42 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -241,7 +241,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
 
   /* set some default options */
   ierr = MatSetType(M->M, MATSEQAIJ); MYCHECK(ierr); 
-  ierr = MatSeqAIJSetPreallocation(M->M, 50, PETSC_NULL); MYCHECK(ierr); 
+  ierr = MatSeqAIJSetPreallocation(M->M, 200, PETSC_NULL); MYCHECK(ierr); 
 
   /* override the default options with the ones from the option
      database (if any) */
@@ -959,7 +959,11 @@ void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatri
     ierr = MatAXPY(M1->M, tmp, M2->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
   }
   else if(M3 == M2){
+#if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 2)
+    ierr = MatAYPX(M2->M, tmp, M1->M); MYCHECK(ierr);
+#else
     ierr = MatAYPX(M2->M, tmp, M1->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
+#endif
   }
   else
     Msg(GERROR, "Wrong arguments in 'LinAlg_AddMatrixProdMatrixDouble'");
@@ -1214,8 +1218,8 @@ void LinAlg_AssembleMatrix(gMatrix *M){
 
   /*
     ierr = MatConvert(M->M, MATUMFPACK, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
-    ierr = MatConvert(M->M, MATSUPERLU, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
   */
+  ierr = MatConvert(M->M, MATSUPERLU, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
 
   GetDP_End;
 }

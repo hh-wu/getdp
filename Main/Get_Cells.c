@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Cells.c,v 1.12 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: Get_Cells.c,v 1.13 2006-10-27 15:03:42 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -84,7 +84,7 @@ void Get_deRhamCells(struct Element *Element,
 		     struct QuantityStorage *QuantityStorage,
 		     struct Group * Group, 
 		     int *Nbr_Cells, struct Element Cells[],
-		     struct Value Vec[], int *Relative_Jacobian){
+		     struct Value Vect[], int *Relative_Jacobian){
 
   double   Bary_Edge[12][3], Bary_Facet[6][3], Bary_Volume[3], *uvw, norm ;
   int      i ;
@@ -231,18 +231,18 @@ void Get_deRhamCells(struct Element *Element,
 	Cells[i].y[1] = Bary_Facet[0][1] ;
 	Cells[i].z[1] = Bary_Facet[0][2] ;
 
-	Vec[i].Type = VECTOR ; /* tangent */
-	Vec[i].Val[0] = Cells[i].x[1] - Cells[i].x[0] ;
-	Vec[i].Val[1] = Cells[i].y[1] - Cells[i].y[0] ;
-	Vec[i].Val[2] = Cells[i].z[1] - Cells[i].z[0] ;
-	norm = sqrt(DSQU(Vec[i].Val[0])+DSQU(Vec[i].Val[1])+DSQU(Vec[i].Val[2]));
-	Vec[i].Val[0] /= norm ;
-	Vec[i].Val[1] /= norm ;
-	Vec[i].Val[2] /= norm ;
+	Vect[i].Type = VECTOR ; /* tangent */
+	Vect[i].Val[0] = Cells[i].x[1] - Cells[i].x[0] ;
+	Vect[i].Val[1] = Cells[i].y[1] - Cells[i].y[0] ;
+	Vect[i].Val[2] = Cells[i].z[1] - Cells[i].z[0] ;
+	norm = sqrt(DSQU(Vect[i].Val[0])+DSQU(Vect[i].Val[1])+DSQU(Vect[i].Val[2]));
+	Vect[i].Val[0] /= norm ;
+	Vect[i].Val[1] /= norm ;
+	Vect[i].Val[2] /= norm ;
 	if(i==1){
-	  Vec[i].Val[0] *= -1 ;
-	  Vec[i].Val[1] *= -1 ;
-	  Vec[i].Val[2] *= -1 ;
+	  Vect[i].Val[0] *= -1 ;
+	  Vect[i].Val[1] *= -1 ;
+	  Vect[i].Val[2] *= -1 ;
 	}
       }
       break;
@@ -294,18 +294,18 @@ void Get_deRhamCells(struct Element *Element,
 	Cells[i].y[1] = Bary_Facet[0][1] ;
 	Cells[i].z[1] = Bary_Facet[0][2] ;
 
-	Vec[i].Type = VECTOR ;	/* normal. Only valid for 2D cases ! */
-	Vec[i].Val[0] = Cells[i].y[1] - Cells[i].y[0] ;
-	Vec[i].Val[1] = Cells[i].x[0] - Cells[i].x[1] ;
-	Vec[i].Val[2] = 0;
-	norm = sqrt(DSQU(Vec[i].Val[0])+DSQU(Vec[i].Val[1])+DSQU(Vec[i].Val[2]));
-	Vec[i].Val[0] /= norm ;
-	Vec[i].Val[1] /= norm ;
-	Vec[i].Val[2] /= norm ;
+	Vect[i].Type = VECTOR ;	/* normal. Only valid for 2D cases ! */
+	Vect[i].Val[0] = Cells[i].y[1] - Cells[i].y[0] ;
+	Vect[i].Val[1] = Cells[i].x[0] - Cells[i].x[1] ;
+	Vect[i].Val[2] = 0;
+	norm = sqrt(DSQU(Vect[i].Val[0])+DSQU(Vect[i].Val[1])+DSQU(Vect[i].Val[2]));
+	Vect[i].Val[0] /= norm ;
+	Vect[i].Val[1] /= norm ;
+	Vect[i].Val[2] /= norm ;
 	if(i==1){
-	  Vec[i].Val[0] *= -1 ;
-	  Vec[i].Val[1] *= -1 ;
-	  Vec[i].Val[2] *= -1 ;
+	  Vect[i].Val[0] *= -1 ;
+	  Vect[i].Val[1] *= -1 ;
+	  Vect[i].Val[2] *= -1 ;
 	}
       }
       break;
