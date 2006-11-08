@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.35 2006-02-25 15:00:24 geuzaine Exp $
+# $Id: Makefile,v 1.36 2006-11-08 22:54:39 jacob Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -55,6 +55,7 @@ SRC = F_Analytic.c \
       GF_LaplacexForm.c \
       GF_Helmholtz.c \
       GF_HelmholtzxForm.c \
+      F_Raytracing.c\
       F_BiotSavart.c
 
 OBJ = ${SRC:.c=.o}

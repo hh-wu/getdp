@@ -55,6 +55,8 @@ void  F_RCSHardCylinder(F_ARG) ;
 void  F_OSRC_C0(F_ARG);
 void  F_OSRC_Aj(F_ARG);
 void  F_OSRC_Bj(F_ARG);
+/*F_Raytracing.c*/
+void  F_CylinderPhase(F_ARG);  
 
 /* F_Math */
 
