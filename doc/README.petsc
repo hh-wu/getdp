@@ -1,6 +1,6 @@
-$Id: README.petsc,v 1.3 2006-02-25 08:02:58 geuzaine Exp $
+$Id: README.petsc,v 1.4 2006-11-17 17:37:23 geuzaine Exp $
 
-To compile PETSc >= 2.3 using complex arithmetic, on a single
+To compile PETSc >= 2.3.2 using complex arithmetic, on a single
 processor machine:
 
 1) Install blas and lapack if they are not already installed. (Note:
@@ -11,7 +11,8 @@ will also need Python, as well as a C, C++ and a Fortran 77 compiler.
 
 2) uncompress the PETSc distriution and, in the top directory, run
 
-./config/configure.py --with-scalar-type=complex --with-mpi=0 --with-debugging=0
+./config/configure.py --with-mpi=0 --with-debugging=0
+          --with-scalar-type=complex --with-clanguage=cxx
 
 3) define PETSC_ARCH and PETSC_DIR in your shell environment
 

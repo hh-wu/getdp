@@ -1,12 +1,12 @@
-$Id: README.cvs,v 1.2 2003-03-18 01:50:17 geuzaine Exp $
+$Id: README.cvs,v 1.3 2006-11-17 17:37:23 geuzaine Exp $
 
-0) Set the variable CVS_RHS to ssh ('export CVS_RHS=ssh' with bash, or
-   'setenv CVS_RHS ssh' with tcsh)
+0) Set the variable CVS_RSH to ssh ('export CVS_RSH=ssh' with bash, or
+   'setenv CVS_RSH ssh' with tcsh)
    
 1) The first time you want to download the latest full source by
    CVS, type:
 
-   cvs -d username@cvs.geuz.org:/cvsroot ckeckout getdp
+   cvs -d username@cvs.geuz.org:/cvsroot checkout getdp
 
    where username is your login on cvs.geuz.org
 
