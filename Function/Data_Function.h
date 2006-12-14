@@ -562,6 +562,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Norm"              , (CAST)F_Norm             ,   0,   1 },
   {"SquNorm"           , (CAST)F_SquNorm          ,   0,   1 },
   {"Unit"              , (CAST)F_Unit             ,   0,   1 },
+  {"ScalarUnit"        , (CAST)F_ScalarUnit       ,   0,   1 },
   {"Normalized"        , (CAST)F_Unit             ,   0,   1 },
   {"F_Cos_wt_p"        , (CAST)F_Cos_wt_p         ,   2,   0 },
   {"F_Sin_wt_p"        , (CAST)F_Sin_wt_p         ,   2,   0 },

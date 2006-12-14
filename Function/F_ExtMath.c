@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_ExtMath.c,v 1.14 2006-10-27 15:33:01 geuzaine Exp $"
+#define RCSID "$Id: F_ExtMath.c,v 1.15 2006-12-14 10:26:26 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -275,9 +275,9 @@ void  F_Unit (F_ARG) {
     if (Current.NbrHar == 1) {
       Norm = sqrt(DSQU(A->Val[0]) + DSQU(A->Val[1]) + DSQU(A->Val[2])) ;
       if (Norm > 1.e-30) {  /* Attention: tolerance */
-	V->Val[0] /= Norm ;
-	V->Val[1] /= Norm ;
-	V->Val[2] /= Norm ;
+	V->Val[0] = A->Val[0]/Norm ;
+	V->Val[1] = A->Val[1]/Norm ;
+	V->Val[2] = A->Val[2]/Norm ;
       }
       else {
 	V->Val[0] = 0. ;
@@ -294,12 +294,12 @@ void  F_Unit (F_ARG) {
 		    DSQU(A->Val[MAX_DIM*(k+1)+1]) +
 		    DSQU(A->Val[MAX_DIM*(k+1)+2])) ;
 	if (Norm > 1.e-30) {  /* Attention: tolerance */
-	  V->Val[MAX_DIM* k     ] /= Norm ;
-	  V->Val[MAX_DIM* k   +1] /= Norm ;
-	  V->Val[MAX_DIM* k   +2] /= Norm ;
-	  V->Val[MAX_DIM*(k+1)  ] /= Norm ;
-	  V->Val[MAX_DIM*(k+1)+1] /= Norm ;
-	  V->Val[MAX_DIM*(k+1)+2] /= Norm ;
+	  V->Val[MAX_DIM* k     ] = A->Val[MAX_DIM* k     ]/Norm ;
+	  V->Val[MAX_DIM* k   +1] = A->Val[MAX_DIM* k   +1]/Norm ;
+	  V->Val[MAX_DIM* k   +2] = A->Val[MAX_DIM* k   +2]/Norm ;
+	  V->Val[MAX_DIM*(k+1)  ] = A->Val[MAX_DIM*(k+1)  ]/Norm ;
+	  V->Val[MAX_DIM*(k+1)+1] = A->Val[MAX_DIM*(k+1)+1]/Norm ;
+	  V->Val[MAX_DIM*(k+1)+2] = A->Val[MAX_DIM*(k+1)+2]/Norm ;
 	}
 	else {
 	  V->Val[MAX_DIM* k     ] = 0 ;
@@ -318,6 +318,29 @@ void  F_Unit (F_ARG) {
     Msg(GERROR, "Wrong type of argument for function 'Unit'");
     break;
   }
+
+  GetDP_End ;
+}
+
+/* ------------------------------------------------------------------------ */
+/*  ScalarUnit                                                              */
+/* ------------------------------------------------------------------------ */
+
+void  F_ScalarUnit (F_ARG) {
+  int k ;
+
+  GetDP_Begin("F_ScalarUnit");
+
+  if (Current.NbrHar == 1) {
+    V->Val[0] = 1. ;
+  }
+  else {
+    for (k = 0 ; k < Current.NbrHar ; k += 2 ) {
+      V->Val[MAX_DIM* k   ] = 1. ;
+      V->Val[MAX_DIM*(k+1)] = 0. ;
+    }
+  }
+  V->Type = SCALAR ;
 
   GetDP_End ;
 }

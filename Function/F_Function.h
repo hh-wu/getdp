@@ -94,6 +94,7 @@ void  F_RotateXYZ       (F_ARG) ;
 void  F_Norm            (F_ARG) ;
 void  F_SquNorm         (F_ARG) ;
 void  F_Unit            (F_ARG) ;
+void  F_ScalarUnit      (F_ARG) ;
 void  F_Cos_wt_p        (F_ARG) ;
 void  F_Sin_wt_p        (F_ARG) ;
 void  F_Period          (F_ARG) ;
