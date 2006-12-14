@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.46 2006-06-28 20:29:08 geuzaine Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.47 2006-12-14 10:28:43 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -484,8 +484,17 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_BUILTINFUNCTION :
       Index -= WholeQuantity_P->Case.Function.NbrArguments ;
-      ((CASTF2V)WholeQuantity_P->Case.Function.Fct)
-	(&WholeQuantity_P->Case.Function, &Stack[0][Index], &Stack[0][Index]) ;	
+
+      if (Index != DofIndex)
+	((CASTF2V)WholeQuantity_P->Case.Function.Fct)
+	  (&WholeQuantity_P->Case.Function, &Stack[0][Index], &Stack[0][Index]) ;
+      else /* Dof must be the only argument, only valid with linear functions */
+	for (j = 0 ; j < Nbr_Dof ; j++) {
+	  Current.NumEntity = Current.NumEntities[j]; /* temp */
+	  ((CASTF2V)WholeQuantity_P->Case.Function.Fct)
+	    (&WholeQuantity_P->Case.Function, &DofValue[j], &DofValue[j]) ;
+	}
+
       Multi[Index] = 0 ;
       Index++ ;
       break ;

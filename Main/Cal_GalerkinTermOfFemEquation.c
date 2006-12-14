@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.25 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.26 2006-12-14 10:28:43 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -35,6 +35,7 @@
 #include "Tools.h"
 #include "F_FMM.h"
 
+#define CASTF2V   void(*)(struct Function*, struct Value*, struct Value*)
 
 void  Cal_InitGalerkinTermOfFemEquation_MHJacNL(struct EquationTerm  * EquationTerm_P) ;
 void  Cal_GalerkinTermOfFemEquation_MHJacNL(struct Element          * Element,
@@ -482,7 +483,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	
 	/* Test Functions */
 	
-	if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE)
+	if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ == CWQ_EXP_TIME_DOF)
 	  Get_ValueOfExpressionByIndex
 	    (EquationTerm_P->Case.LocalTerm.Term.ExpressionIndexForCanonical_Equ,
 	     QuantityStorage_P0, Current.u, Current.v, Current.w, &CanonicExpression_Equ) ;
@@ -505,14 +506,21 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	    V1.Val[MAX_DIM+1] = 0;
 	    V1.Val[MAX_DIM+2] = 0;
 	    
-	    switch(EquationTerm_P->Case.LocalTerm.Term.OperatorTypeForCanonical_Equ){
-	    case OP_TIME : Cal_ProductValue (&CanonicExpression_Equ,&V1,&V2); break;
-	    case OP_CROSSPRODUCT : Cal_CrossProductValue (&CanonicExpression_Equ,&V1,&V2); break;
-	    default : Msg(GERROR, "Unknown operation in Equation");
+	    if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ == CWQ_EXP_TIME_DOF){
+	      switch(EquationTerm_P->Case.LocalTerm.Term.OperatorTypeForCanonical_Equ){
+	      case OP_TIME : Cal_ProductValue (&CanonicExpression_Equ,&V1,&V2); break;
+	      case OP_CROSSPRODUCT : Cal_CrossProductValue (&CanonicExpression_Equ,&V1,&V2); break;
+	      default : Msg(GERROR, "Unknown operation in Equation");
+	      }
+	    }
+	    else if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ == CWQ_FCT_DOF){
+	      ((CASTF2V)EquationTerm_P->Case.LocalTerm.Term.BuiltInFunction_Equ)
+		(NULL, &V1, &V2) ;
 	    }
 	    vBFxEqu[i][0] = V2.Val[0];
 	    vBFxEqu[i][1] = V2.Val[1];
 	    vBFxEqu[i][2] = V2.Val[2];
+
 	  }
 	  
 	} /* for Nbr_Equ */

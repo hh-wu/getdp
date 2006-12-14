@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.31 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.32 2006-12-14 10:28:43 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -642,14 +642,14 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   List_Sort(NodeXYZRef_L, fcmp_XYZ) ;
 
   Msg(DEBUG2, "After sorting\n") ;
-  Msg(DEBUG2, "- Other\n") ;
+  Msg(DEBUG2, "- Other (after rotation)\n") ;
   for (i = 0 ; i < Nbr_Entity ; i++) {
     List_Read(NodeXYZ_L, i, &NodeXYZ) ;
     Msg(DEBUG2, "%d -> %d: %e %e %e :: %e\n",
 	    i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y, NodeXYZ.z,
 	    atan2(NodeXYZ.y,NodeXYZ.x)/3.1415926535897*180.) ;
   }
-  Msg(DEBUG2, "- Reference (after rotation)\n") ;
+  Msg(DEBUG2, "- Reference\n") ;
   for (i = 0 ; i < Nbr_EntityRef ; i++) {
     List_Read(NodeXYZRef_L, i, &NodeXYZ) ;
     Msg(DEBUG2, "%d -> %d: %e %e %e :: %e\n",

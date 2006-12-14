@@ -500,6 +500,7 @@ struct EquationTerm {
 	struct  Function  FunctionForCanonical ;
 	int     CanonicalWholeQuantity_Equ, ExpressionIndexForCanonical_Equ, 
 	          OperatorTypeForCanonical_Equ ;
+	void    (*BuiltInFunction_Equ)() ;
 
 	int     NbrQuantityIndex, * QuantityIndexTable, QuantityIndexPost ;
 	int     * QuantityTraceGroupIndexTable ;
@@ -613,6 +614,7 @@ struct GlobalEquationTerm {
 #define CWQ_EXP_TIME_DOF   2
 #define CWQ_FCT_TIME_DOF   3
 #define CWQ_FCT_PVEC_DOF   4
+#define CWQ_FCT_DOF       20
 
 #define CWQ_GF             5
 #define CWQ_GF_PSCA_DOF    6
@@ -1132,6 +1134,7 @@ struct CurrentData {
   int     NbrHar ;
   int     Region, SubRegion ;
   int     NumEntity, NumEntityInElement ;
+  int     NumEntities[NBR_MAX_BASISFUNCTIONS];
 
   struct  Element  * Element ;
   int     IntegrationSupportIndex ;

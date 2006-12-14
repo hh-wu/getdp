@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.98 2006-10-23 08:17:55 dular Exp $ */
+/* $Id: GetDP.y,v 1.99 2006-12-14 10:28:44 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -3535,6 +3535,14 @@ LocalTermTerm  :
 	  (WholeQuantity_P+0)->Case.Expression.Index ;
 	EquationTerm_S.Case.LocalTerm.Term.OperatorTypeForCanonical_Equ =
 	  (WholeQuantity_P+2)->Case.Operator.TypeOperator ;
+      }
+      else if (List_Nbr($7) == 2 &&
+	       ( (WholeQuantity_P+0)->Type == WQ_OPERATORANDQUANTITY &&
+		 (WholeQuantity_P+1)->Type == WQ_BUILTINFUNCTION ) ) {
+	EquationTerm_S.Case.LocalTerm.Term.CanonicalWholeQuantity_Equ = 
+	  CWQ_FCT_DOF ;
+	EquationTerm_S.Case.LocalTerm.Term.BuiltInFunction_Equ = 
+	  (WholeQuantity_P+1)->Case.Function.Fct ;
       }
       else{
 	vyyerror("Unrecognized quantity structure in Equation");
