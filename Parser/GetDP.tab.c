@@ -1,7 +1,9 @@
-/* A Bison parser, made by GNU Bison 2.1.  */
+/* A Bison parser, made by GNU Bison 2.3.  */
 
-/* Skeleton parser for Yacc-like parsing with Bison,
-   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005 Free Software Foundation, Inc.
+/* Skeleton implementation for Bison's Yacc-like parsers in C
+
+   Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
 
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -18,13 +20,21 @@
    Foundation, Inc., 51 Franklin Street, Fifth Floor,
    Boston, MA 02110-1301, USA.  */
 
-/* As a special exception, when this file is copied by Bison into a
-   Bison output file, you may use that output file without restriction.
-   This special exception was added by the Free Software Foundation
-   in version 1.24 of Bison.  */
+/* As a special exception, you may create a larger work that contains
+   part or all of the Bison parser skeleton and distribute that work
+   under terms of your choice, so long as that work isn't itself a
+   parser generator using the skeleton or a modified version thereof
+   as a parser skeleton.  Alternatively, if you modify or redistribute
+   the parser skeleton itself, you may (at your option) remove this
+   special exception, which will cause the skeleton and the resulting
+   Bison output files to be licensed under the GNU General Public
+   License without this special exception.
 
-/* Written by Richard Stallman by simplifying the original so called
-   ``semantic'' parser.  */
+   This special exception was added by the Free Software Foundation in
+   version 2.2 of Bison.  */
+
+/* C LALR(1) parser skeleton written by Richard Stallman, by
+   simplifying the original so-called "semantic" parser.  */
 
 /* All symbols defined below should begin with yy or YY, to avoid
    infringing on user name space.  This should be done even for local
@@ -37,7 +47,7 @@
 #define YYBISON 1
 
 /* Bison version.  */
-#define YYBISON_VERSION "2.1"
+#define YYBISON_VERSION "2.3"
 
 /* Skeleton name.  */
 #define YYSKELETON_NAME "yacc.c"
@@ -554,7 +564,7 @@
 /* Copy the first part of user declarations.  */
 #line 1 "GetDP.y"
 
-/* $Id: GetDP.tab.c,v 1.108 2007-01-24 09:41:55 bouta Exp $ */
+/* $Id: GetDP.tab.c,v 1.109 2007-01-24 10:18:43 sabarieg Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -752,17 +762,19 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 # define YYTOKEN_TABLE 0
 #endif
 
-#if ! defined (YYSTYPE) && ! defined (YYSTYPE_IS_DECLARED)
+#if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
+typedef union YYSTYPE
 #line 183 "GetDP.y"
-typedef union YYSTYPE {
+{
   char    *c ;
   int     i ;
   double  d ;
   List_T  *l ;
   struct TwoInt t ;
-} YYSTYPE;
-/* Line 196 of yacc.c.  */
-#line 766 "GetDP.tab.c"
+}
+/* Line 193 of yacc.c.  */
+#line 777 "GetDP.tab.c"
+	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
 # define YYSTYPE_IS_TRIVIAL 1
@@ -773,22 +785,55 @@ typedef union YYSTYPE {
 /* Copy the second part of user declarations.  */
 
 
-/* Line 219 of yacc.c.  */
-#line 778 "GetDP.tab.c"
+/* Line 216 of yacc.c.  */
+#line 790 "GetDP.tab.c"
 
-#if ! defined (YYSIZE_T) && defined (__SIZE_TYPE__)
-# define YYSIZE_T __SIZE_TYPE__
+#ifdef short
+# undef short
 #endif
-#if ! defined (YYSIZE_T) && defined (size_t)
-# define YYSIZE_T size_t
+
+#ifdef YYTYPE_UINT8
+typedef YYTYPE_UINT8 yytype_uint8;
+#else
+typedef unsigned char yytype_uint8;
 #endif
-#if ! defined (YYSIZE_T) && (defined (__STDC__) || defined (__cplusplus))
-# include <stddef.h> /* INFRINGES ON USER NAME SPACE */
-# define YYSIZE_T size_t
+
+#ifdef YYTYPE_INT8
+typedef YYTYPE_INT8 yytype_int8;
+#elif (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
+typedef signed char yytype_int8;
+#else
+typedef short int yytype_int8;
 #endif
-#if ! defined (YYSIZE_T)
-# define YYSIZE_T unsigned int
+
+#ifdef YYTYPE_UINT16
+typedef YYTYPE_UINT16 yytype_uint16;
+#else
+typedef unsigned short int yytype_uint16;
 #endif
+
+#ifdef YYTYPE_INT16
+typedef YYTYPE_INT16 yytype_int16;
+#else
+typedef short int yytype_int16;
+#endif
+
+#ifndef YYSIZE_T
+# ifdef __SIZE_TYPE__
+#  define YYSIZE_T __SIZE_TYPE__
+# elif defined size_t
+#  define YYSIZE_T size_t
+# elif ! defined YYSIZE_T && (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
+#  include <stddef.h> /* INFRINGES ON USER NAME SPACE */
+#  define YYSIZE_T size_t
+# else
+#  define YYSIZE_T unsigned int
+# endif
+#endif
+
+#define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
 
 #ifndef YY_
 # if YYENABLE_NLS
@@ -802,7 +847,32 @@ typedef union YYSTYPE {
 # endif
 #endif
 
-#if ! defined (yyoverflow) || YYERROR_VERBOSE
+/* Suppress unused-variable warnings by "using" E.  */
+#if ! defined lint || defined __GNUC__
+# define YYUSE(e) ((void) (e))
+#else
+# define YYUSE(e) /* empty */
+#endif
+
+/* Identity function, used to suppress warnings about constant conditions.  */
+#ifndef lint
+# define YYID(n) (n)
+#else
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
+static int
+YYID (int i)
+#else
+static int
+YYID (i)
+    int i;
+#endif
+{
+  return i;
+}
+#endif
+
+#if ! defined yyoverflow || YYERROR_VERBOSE
 
 /* The parser invokes alloca or malloc; define the necessary symbols.  */
 
@@ -810,64 +880,76 @@ typedef union YYSTYPE {
 #  if YYSTACK_USE_ALLOCA
 #   ifdef __GNUC__
 #    define YYSTACK_ALLOC __builtin_alloca
+#   elif defined __BUILTIN_VA_ARG_INCR
+#    include <alloca.h> /* INFRINGES ON USER NAME SPACE */
+#   elif defined _AIX
+#    define YYSTACK_ALLOC __alloca
+#   elif defined _MSC_VER
+#    include <malloc.h> /* INFRINGES ON USER NAME SPACE */
+#    define alloca _alloca
 #   else
 #    define YYSTACK_ALLOC alloca
-#    if defined (__STDC__) || defined (__cplusplus)
+#    if ! defined _ALLOCA_H && ! defined _STDLIB_H && (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
 #     include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
-#     define YYINCLUDED_STDLIB_H
+#     ifndef _STDLIB_H
+#      define _STDLIB_H 1
+#     endif
 #    endif
 #   endif
 #  endif
 # endif
 
 # ifdef YYSTACK_ALLOC
-   /* Pacify GCC's `empty if-body' warning. */
-#  define YYSTACK_FREE(Ptr) do { /* empty */; } while (0)
+   /* Pacify GCC's `empty if-body' warning.  */
+#  define YYSTACK_FREE(Ptr) do { /* empty */; } while (YYID (0))
 #  ifndef YYSTACK_ALLOC_MAXIMUM
     /* The OS might guarantee only one guard page at the bottom of the stack,
        and a page size can be as small as 4096 bytes.  So we cannot safely
        invoke alloca (N) if N exceeds 4096.  Use a slightly smaller number
        to allow for a few compiler-allocated temporary stack slots.  */
-#   define YYSTACK_ALLOC_MAXIMUM 4032 /* reasonable circa 2005 */
+#   define YYSTACK_ALLOC_MAXIMUM 4032 /* reasonable circa 2006 */
 #  endif
 # else
 #  define YYSTACK_ALLOC YYMALLOC
 #  define YYSTACK_FREE YYFREE
 #  ifndef YYSTACK_ALLOC_MAXIMUM
-#   define YYSTACK_ALLOC_MAXIMUM ((YYSIZE_T) -1)
+#   define YYSTACK_ALLOC_MAXIMUM YYSIZE_MAXIMUM
 #  endif
-#  ifdef __cplusplus
-extern "C" {
+#  if (defined __cplusplus && ! defined _STDLIB_H \
+       && ! ((defined YYMALLOC || defined malloc) \
+	     && (defined YYFREE || defined free)))
+#   include <stdlib.h> /* INFRINGES ON USER NAME SPACE */
+#   ifndef _STDLIB_H
+#    define _STDLIB_H 1
+#   endif
 #  endif
 #  ifndef YYMALLOC
 #   define YYMALLOC malloc
-#   if (! defined (malloc) && ! defined (YYINCLUDED_STDLIB_H) \
-	&& (defined (__STDC__) || defined (__cplusplus)))
+#   if ! defined malloc && ! defined _STDLIB_H && (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
 void *malloc (YYSIZE_T); /* INFRINGES ON USER NAME SPACE */
 #   endif
 #  endif
 #  ifndef YYFREE
 #   define YYFREE free
-#   if (! defined (free) && ! defined (YYINCLUDED_STDLIB_H) \
-	&& (defined (__STDC__) || defined (__cplusplus)))
+#   if ! defined free && ! defined _STDLIB_H && (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
 void free (void *); /* INFRINGES ON USER NAME SPACE */
 #   endif
 #  endif
-#  ifdef __cplusplus
-}
-#  endif
 # endif
-#endif /* ! defined (yyoverflow) || YYERROR_VERBOSE */
+#endif /* ! defined yyoverflow || YYERROR_VERBOSE */
 
 
-#if (! defined (yyoverflow) \
-     && (! defined (__cplusplus) \
-	 || (defined (YYSTYPE_IS_TRIVIAL) && YYSTYPE_IS_TRIVIAL)))
+#if (! defined yyoverflow \
+     && (! defined __cplusplus \
+	 || (defined YYSTYPE_IS_TRIVIAL && YYSTYPE_IS_TRIVIAL)))
 
 /* A type that is properly aligned for any stack member.  */
 union yyalloc
 {
-  short int yyss;
+  yytype_int16 yyss;
   YYSTYPE yyvs;
   };
 
@@ -877,13 +959,13 @@ union yyalloc
 /* The size of an array large to enough to hold all stacks, each with
    N elements.  */
 # define YYSTACK_BYTES(N) \
-     ((N) * (sizeof (short int) + sizeof (YYSTYPE))			\
+     ((N) * (sizeof (yytype_int16) + sizeof (YYSTYPE)) \
       + YYSTACK_GAP_MAXIMUM)
 
 /* Copy COUNT objects from FROM to TO.  The source and destination do
    not overlap.  */
 # ifndef YYCOPY
-#  if defined (__GNUC__) && 1 < __GNUC__
+#  if defined __GNUC__ && 1 < __GNUC__
 #   define YYCOPY(To, From, Count) \
       __builtin_memcpy (To, From, (Count) * sizeof (*(From)))
 #  else
@@ -894,7 +976,7 @@ union yyalloc
 	  for (yyi = 0; yyi < (Count); yyi++)	\
 	    (To)[yyi] = (From)[yyi];		\
 	}					\
-      while (0)
+      while (YYID (0))
 #  endif
 # endif
 
@@ -912,28 +994,22 @@ union yyalloc
 	yynewbytes = yystacksize * sizeof (*Stack) + YYSTACK_GAP_MAXIMUM; \
 	yyptr += yynewbytes / sizeof (*yyptr);				\
       }									\
-    while (0)
+    while (YYID (0))
 
 #endif
 
-#if defined (__STDC__) || defined (__cplusplus)
-   typedef signed char yysigned_char;
-#else
-   typedef short int yysigned_char;
-#endif
-
-/* YYFINAL -- State number of the termination state. */
+/* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  3
 /* YYLAST -- Last index in YYTABLE.  */
 #define YYLAST   6926
 
-/* YYNTOKENS -- Number of terminals. */
+/* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  269
-/* YYNNTS -- Number of nonterminals. */
+/* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  191
-/* YYNRULES -- Number of rules. */
+/* YYNRULES -- Number of rules.  */
 #define YYNRULES  755
-/* YYNRULES -- Number of states. */
+/* YYNRULES -- Number of states.  */
 #define YYNSTATES  2045
 
 /* YYTRANSLATE(YYLEX) -- Bison symbol number corresponding to YYLEX.  */
@@ -944,7 +1020,7 @@ union yyalloc
   ((unsigned int) (YYX) <= YYMAXUTOK ? yytranslate[YYX] : YYUNDEFTOK)
 
 /* YYTRANSLATE[YYLEX] -- Bison symbol number corresponding to YYLEX.  */
-static const unsigned short int yytranslate[] =
+static const yytype_uint16 yytranslate[] =
 {
        0,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
@@ -1002,7 +1078,7 @@ static const unsigned short int yytranslate[] =
 #if YYDEBUG
 /* YYPRHS[YYN] -- Index of the first RHS symbol of rule number YYN in
    YYRHS.  */
-static const unsigned short int yyprhs[] =
+static const yytype_uint16 yyprhs[] =
 {
        0,     0,     3,     4,     7,     8,     9,    13,    18,    23,
       28,    33,    38,    43,    48,    53,    58,    63,    65,    67,
@@ -1082,8 +1158,8 @@ static const unsigned short int yyprhs[] =
     3116,  3118,  3120,  3125,  3132,  3134
 };
 
-/* YYRHS -- A `-1'-separated list of the rules' RHS. */
-static const short int yyrhs[] =
+/* YYRHS -- A `-1'-separated list of the rules' RHS.  */
+static const yytype_int16 yyrhs[] =
 {
      270,     0,    -1,    -1,   271,   272,    -1,    -1,    -1,   272,
      273,   274,    -1,    62,   264,   277,   265,    -1,    99,   264,
@@ -1403,7 +1479,7 @@ static const short int yyrhs[] =
 };
 
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
-static const unsigned short int yyrline[] =
+static const yytype_uint16 yyrline[] =
 {
        0,   340,   340,   340,   376,   380,   379,   387,   388,   389,
      390,   391,   392,   393,   394,   395,   396,   398,   400,   402,
@@ -1470,23 +1546,23 @@ static const unsigned short int yyrline[] =
     5884,  5893,  5897,  5901,  5909,  5915,  5919,  5927,  5934,  5942,
     5949,  5957,  5964,  5972,  5976,  5986,  5991,  6041,  6056,  6072,
     6092,  6112,  6150,  6154,  6167,  6169,  6184,  6190,  6196,  6202,
-    6216,  6221,  6237,  6242,  6254,  6264,  6280,  6283,  6289,  6295,
-    6307,  6308,  6309,  6310,  6311,  6312,  6313,  6314,  6315,  6316,
-    6317,  6318,  6319,  6320,  6321,  6322,  6323,  6324,  6325,  6326,
-    6327,  6331,  6332,  6333,  6334,  6335,  6336,  6337,  6338,  6339,
-    6340,  6341,  6342,  6343,  6344,  6345,  6346,  6347,  6348,  6349,
-    6350,  6351,  6352,  6353,  6354,  6355,  6356,  6357,  6358,  6359,
-    6360,  6361,  6362,  6363,  6364,  6365,  6366,  6367,  6368,  6370,
-    6372,  6377,  6378,  6379,  6380,  6381,  6382,  6383,  6384,  6403,
-    6405,  6411,  6414,  6421,  6427,  6430,  6433,  6445,  6451,  6462,
-    6478,  6500,  6515,  6553,  6561,  6573,  6581,  6592,  6595,  6602,
-    6605,  6620,  6625,  6630,  6649,  6659
+    6218,  6223,  6239,  6244,  6256,  6266,  6282,  6285,  6291,  6297,
+    6309,  6310,  6311,  6312,  6313,  6314,  6315,  6316,  6317,  6318,
+    6319,  6320,  6321,  6322,  6323,  6324,  6325,  6326,  6327,  6328,
+    6329,  6333,  6334,  6335,  6336,  6337,  6338,  6339,  6340,  6341,
+    6342,  6343,  6344,  6345,  6346,  6347,  6348,  6349,  6350,  6351,
+    6352,  6353,  6354,  6355,  6356,  6357,  6358,  6359,  6360,  6361,
+    6362,  6363,  6364,  6365,  6366,  6367,  6368,  6369,  6370,  6372,
+    6374,  6379,  6380,  6381,  6382,  6383,  6384,  6385,  6386,  6405,
+    6407,  6413,  6416,  6423,  6429,  6432,  6435,  6447,  6453,  6464,
+    6480,  6502,  6517,  6555,  6563,  6575,  6583,  6594,  6597,  6604,
+    6607,  6622,  6627,  6632,  6651,  6661
 };
 #endif
 
 #if YYDEBUG || YYERROR_VERBOSE || YYTOKEN_TABLE
 /* YYTNAME[SYMBOL-NUM] -- String name of the symbol SYMBOL-NUM.
-   First, the terminals, then, starting at YYNTOKENS, nonterminals. */
+   First, the terminals, then, starting at YYNTOKENS, nonterminals.  */
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "tINT", "tFLOAT", "tSTRING", "tBIGSTR",
@@ -1599,7 +1675,7 @@ static const char *const yytname[] =
 # ifdef YYPRINT
 /* YYTOKNUM[YYLEX-NUM] -- Internal token number corresponding to
    token YYLEX-NUM.  */
-static const unsigned short int yytoknum[] =
+static const yytype_uint16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
      265,   266,   267,   268,   269,   270,   271,   272,   273,   274,
@@ -1632,7 +1708,7 @@ static const unsigned short int yytoknum[] =
 # endif
 
 /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
-static const unsigned short int yyr1[] =
+static const yytype_uint16 yyr1[] =
 {
        0,   269,   271,   270,   272,   273,   272,   274,   274,   274,
      274,   274,   274,   274,   274,   274,   274,   274,   274,   274,
@@ -1713,7 +1789,7 @@ static const unsigned short int yyr1[] =
 };
 
 /* YYR2[YYN] -- Number of symbols composing right hand side of rule YYN.  */
-static const unsigned char yyr2[] =
+static const yytype_uint8 yyr2[] =
 {
        0,     2,     0,     2,     0,     0,     3,     4,     4,     4,
        4,     4,     4,     4,     4,     4,     4,     1,     1,     2,
@@ -1796,7 +1872,7 @@ static const unsigned char yyr2[] =
 /* YYDEFACT[STATE-NAME] -- Default rule to reduce with in state
    STATE-NUM when YYTABLE doesn't specify something else to do.  Zero
    means the default is an error.  */
-static const unsigned short int yydefact[] =
+static const yytype_uint16 yydefact[] =
 {
        2,     0,     4,     1,     5,    41,   747,     0,     0,     0,
        0,     0,     0,     0,     0,     0,     0,     0,     0,     0,
@@ -2005,8 +2081,8 @@ static const unsigned short int yydefact[] =
      597,    89,     0,     0,   270
 };
 
-/* YYDEFGOTO[NTERM-NUM]. */
-static const short int yydefgoto[] =
+/* YYDEFGOTO[NTERM-NUM].  */
+static const yytype_int16 yydefgoto[] =
 {
       -1,     1,     2,     4,     5,    24,    25,    26,   112,   188,
      189,   944,  1548,   244,   624,   245,  2021,   246,   504,   780,
@@ -2033,7 +2109,7 @@ static const short int yydefgoto[] =
 /* YYPACT[STATE-NUM] -- Index in YYTABLE of the portion describing
    STATE-NUM.  */
 #define YYPACT_NINF -1583
-static const short int yypact[] =
+static const yytype_int16 yypact[] =
 {
    -1583,    71, -1583, -1583,   103,  4386,  -112,   104,   -91,   834,
      196,  2013,   130,   -52,   -12,    -9,    12,    20,    44,    46,
@@ -2243,7 +2319,7 @@ static const short int yypact[] =
 };
 
 /* YYPGOTO[NTERM-NUM].  */
-static const short int yypgoto[] =
+static const yytype_int16 yypgoto[] =
 {
    -1583, -1583, -1583, -1583, -1583, -1583, -1583, -1583, -1583, -1583,
    -1583, -1583, -1583,   192, -1583,  -278, -1583,  1291, -1583, -1583,
@@ -2272,7 +2348,7 @@ static const short int yypgoto[] =
    number is the opposite.  If zero, do what YYDEFACT says.
    If YYTABLE_NINF, syntax error.  */
 #define YYTABLE_NINF -681
-static const short int yytable[] =
+static const yytype_int16 yytable[] =
 {
       30,   305,    34,   505,   173,   676,  1688,    60,   180,   181,
        6,   348,   552,     6,   685,   879,   483,  1196,    74,  1699,
@@ -2969,7 +3045,7 @@ static const short int yytable[] =
      912,   913,   914,   915,     0,     0,   916
 };
 
-static const short int yycheck[] =
+static const yytype_int16 yycheck[] =
 {
        5,   178,     7,   356,    86,   559,  1588,    12,   109,   110,
        5,     3,   415,     5,   568,   731,   343,  1011,    23,  1601,
@@ -3668,7 +3744,7 @@ static const short int yycheck[] =
 
 /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
    symbol of state STATE-NUM.  */
-static const unsigned short int yystos[] =
+static const yytype_uint16 yystos[] =
 {
        0,   270,   271,     0,   272,   273,     5,    11,    12,    19,
       20,    21,    22,    29,    62,    68,    81,    83,    95,    99,
@@ -3902,7 +3978,7 @@ do								\
       yychar = (Token);						\
       yylval = (Value);						\
       yytoken = YYTRANSLATE (yychar);				\
-      YYPOPSTACK;						\
+      YYPOPSTACK (1);						\
       goto yybackup;						\
     }								\
   else								\
@@ -3910,7 +3986,7 @@ do								\
       yyerror (YY_("syntax error: cannot back up")); \
       YYERROR;							\
     }								\
-while (0)
+while (YYID (0))
 
 
 #define YYTERROR	1
@@ -3925,7 +4001,7 @@ while (0)
 #ifndef YYLLOC_DEFAULT
 # define YYLLOC_DEFAULT(Current, Rhs, N)				\
     do									\
-      if (N)								\
+      if (YYID (N))                                                    \
 	{								\
 	  (Current).first_line   = YYRHSLOC (Rhs, 1).first_line;	\
 	  (Current).first_column = YYRHSLOC (Rhs, 1).first_column;	\
@@ -3939,7 +4015,7 @@ while (0)
 	  (Current).first_column = (Current).last_column =		\
 	    YYRHSLOC (Rhs, 0).last_column;				\
 	}								\
-    while (0)
+    while (YYID (0))
 #endif
 
 
@@ -3951,8 +4027,8 @@ while (0)
 # if YYLTYPE_IS_TRIVIAL
 #  define YY_LOCATION_PRINT(File, Loc)			\
      fprintf (File, "%d.%d-%d.%d",			\
-              (Loc).first_line, (Loc).first_column,	\
-              (Loc).last_line,  (Loc).last_column)
+	      (Loc).first_line, (Loc).first_column,	\
+	      (Loc).last_line,  (Loc).last_column)
 # else
 #  define YY_LOCATION_PRINT(File, Loc) ((void) 0)
 # endif
@@ -3979,36 +4055,96 @@ while (0)
 do {						\
   if (yydebug)					\
     YYFPRINTF Args;				\
-} while (0)
+} while (YYID (0))
 
-# define YY_SYMBOL_PRINT(Title, Type, Value, Location)		\
-do {								\
-  if (yydebug)							\
-    {								\
-      YYFPRINTF (stderr, "%s ", Title);				\
-      yysymprint (stderr,					\
-                  Type, Value);	\
-      YYFPRINTF (stderr, "\n");					\
-    }								\
-} while (0)
+# define YY_SYMBOL_PRINT(Title, Type, Value, Location)			  \
+do {									  \
+  if (yydebug)								  \
+    {									  \
+      YYFPRINTF (stderr, "%s ", Title);					  \
+      yy_symbol_print (stderr,						  \
+		  Type, Value); \
+      YYFPRINTF (stderr, "\n");						  \
+    }									  \
+} while (YYID (0))
+
+
+/*--------------------------------.
+| Print this symbol on YYOUTPUT.  |
+`--------------------------------*/
+
+/*ARGSUSED*/
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
+static void
+yy_symbol_value_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+#else
+static void
+yy_symbol_value_print (yyoutput, yytype, yyvaluep)
+    FILE *yyoutput;
+    int yytype;
+    YYSTYPE const * const yyvaluep;
+#endif
+{
+  if (!yyvaluep)
+    return;
+# ifdef YYPRINT
+  if (yytype < YYNTOKENS)
+    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
+# else
+  YYUSE (yyoutput);
+# endif
+  switch (yytype)
+    {
+      default:
+	break;
+    }
+}
+
+
+/*--------------------------------.
+| Print this symbol on YYOUTPUT.  |
+`--------------------------------*/
+
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
+static void
+yy_symbol_print (FILE *yyoutput, int yytype, YYSTYPE const * const yyvaluep)
+#else
+static void
+yy_symbol_print (yyoutput, yytype, yyvaluep)
+    FILE *yyoutput;
+    int yytype;
+    YYSTYPE const * const yyvaluep;
+#endif
+{
+  if (yytype < YYNTOKENS)
+    YYFPRINTF (yyoutput, "token %s (", yytname[yytype]);
+  else
+    YYFPRINTF (yyoutput, "nterm %s (", yytname[yytype]);
+
+  yy_symbol_value_print (yyoutput, yytype, yyvaluep);
+  YYFPRINTF (yyoutput, ")");
+}
 
 /*------------------------------------------------------------------.
 | yy_stack_print -- Print the state stack from its BOTTOM up to its |
 | TOP (included).                                                   |
 `------------------------------------------------------------------*/
 
-#if defined (__STDC__) || defined (__cplusplus)
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
 static void
-yy_stack_print (short int *bottom, short int *top)
+yy_stack_print (yytype_int16 *bottom, yytype_int16 *top)
 #else
 static void
 yy_stack_print (bottom, top)
-    short int *bottom;
-    short int *top;
+    yytype_int16 *bottom;
+    yytype_int16 *top;
 #endif
 {
   YYFPRINTF (stderr, "Stack now");
-  for (/* Nothing. */; bottom <= top; ++bottom)
+  for (; bottom <= top; ++bottom)
     YYFPRINTF (stderr, " %d", *bottom);
   YYFPRINTF (stderr, "\n");
 }
@@ -4017,37 +4153,45 @@ yy_stack_print (bottom, top)
 do {								\
   if (yydebug)							\
     yy_stack_print ((Bottom), (Top));				\
-} while (0)
+} while (YYID (0))
 
 
 /*------------------------------------------------.
 | Report that the YYRULE is going to be reduced.  |
 `------------------------------------------------*/
 
-#if defined (__STDC__) || defined (__cplusplus)
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
 static void
-yy_reduce_print (int yyrule)
+yy_reduce_print (YYSTYPE *yyvsp, int yyrule)
 #else
 static void
-yy_reduce_print (yyrule)
+yy_reduce_print (yyvsp, yyrule)
+    YYSTYPE *yyvsp;
     int yyrule;
 #endif
 {
+  int yynrhs = yyr2[yyrule];
   int yyi;
   unsigned long int yylno = yyrline[yyrule];
-  YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu), ",
-             yyrule - 1, yylno);
-  /* Print the symbols being reduced, and their result.  */
-  for (yyi = yyprhs[yyrule]; 0 <= yyrhs[yyi]; yyi++)
-    YYFPRINTF (stderr, "%s ", yytname[yyrhs[yyi]]);
-  YYFPRINTF (stderr, "-> %s\n", yytname[yyr1[yyrule]]);
+  YYFPRINTF (stderr, "Reducing stack by rule %d (line %lu):\n",
+	     yyrule - 1, yylno);
+  /* The symbols being reduced.  */
+  for (yyi = 0; yyi < yynrhs; yyi++)
+    {
+      fprintf (stderr, "   $%d = ", yyi + 1);
+      yy_symbol_print (stderr, yyrhs[yyprhs[yyrule] + yyi],
+		       &(yyvsp[(yyi + 1) - (yynrhs)])
+		       		       );
+      fprintf (stderr, "\n");
+    }
 }
 
 # define YY_REDUCE_PRINT(Rule)		\
 do {					\
   if (yydebug)				\
-    yy_reduce_print (Rule);		\
-} while (0)
+    yy_reduce_print (yyvsp, Rule); \
+} while (YYID (0))
 
 /* Nonzero means print parse trace.  It is left uninitialized so that
    multiple parsers can coexist.  */
@@ -4081,42 +4225,44 @@ int yydebug;
 #if YYERROR_VERBOSE
 
 # ifndef yystrlen
-#  if defined (__GLIBC__) && defined (_STRING_H)
+#  if defined __GLIBC__ && defined _STRING_H
 #   define yystrlen strlen
 #  else
 /* Return the length of YYSTR.  */
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
 static YYSIZE_T
-#   if defined (__STDC__) || defined (__cplusplus)
 yystrlen (const char *yystr)
-#   else
+#else
+static YYSIZE_T
 yystrlen (yystr)
-     const char *yystr;
-#   endif
+    const char *yystr;
+#endif
 {
-  const char *yys = yystr;
-
-  while (*yys++ != '\0')
+  YYSIZE_T yylen;
+  for (yylen = 0; yystr[yylen]; yylen++)
     continue;
-
-  return yys - yystr - 1;
+  return yylen;
 }
 #  endif
 # endif
 
 # ifndef yystpcpy
-#  if defined (__GLIBC__) && defined (_STRING_H) && defined (_GNU_SOURCE)
+#  if defined __GLIBC__ && defined _STRING_H && defined _GNU_SOURCE
 #   define yystpcpy stpcpy
 #  else
 /* Copy YYSRC to YYDEST, returning the address of the terminating '\0' in
    YYDEST.  */
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
 static char *
-#   if defined (__STDC__) || defined (__cplusplus)
 yystpcpy (char *yydest, const char *yysrc)
-#   else
+#else
+static char *
 yystpcpy (yydest, yysrc)
-     char *yydest;
-     const char *yysrc;
-#   endif
+    char *yydest;
+    const char *yysrc;
+#endif
 {
   char *yyd = yydest;
   const char *yys = yysrc;
@@ -4142,7 +4288,7 @@ yytnamerr (char *yyres, const char *yystr)
 {
   if (*yystr == '"')
     {
-      size_t yyn = 0;
+      YYSIZE_T yyn = 0;
       char const *yyp = yystr;
 
       for (;;)
@@ -4177,53 +4323,123 @@ yytnamerr (char *yyres, const char *yystr)
 }
 # endif
 
-#endif /* YYERROR_VERBOSE */
+/* Copy into YYRESULT an error message about the unexpected token
+   YYCHAR while in state YYSTATE.  Return the number of bytes copied,
+   including the terminating null byte.  If YYRESULT is null, do not
+   copy anything; just return the number of bytes that would be
+   copied.  As a special case, return 0 if an ordinary "syntax error"
+   message will do.  Return YYSIZE_MAXIMUM if overflow occurs during
+   size calculation.  */
+static YYSIZE_T
+yysyntax_error (char *yyresult, int yystate, int yychar)
+{
+  int yyn = yypact[yystate];
 
+  if (! (YYPACT_NINF < yyn && yyn <= YYLAST))
+    return 0;
+  else
+    {
+      int yytype = YYTRANSLATE (yychar);
+      YYSIZE_T yysize0 = yytnamerr (0, yytname[yytype]);
+      YYSIZE_T yysize = yysize0;
+      YYSIZE_T yysize1;
+      int yysize_overflow = 0;
+      enum { YYERROR_VERBOSE_ARGS_MAXIMUM = 5 };
+      char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
+      int yyx;
+
+# if 0
+      /* This is so xgettext sees the translatable formats that are
+	 constructed on the fly.  */
+      YY_("syntax error, unexpected %s");
+      YY_("syntax error, unexpected %s, expecting %s");
+      YY_("syntax error, unexpected %s, expecting %s or %s");
+      YY_("syntax error, unexpected %s, expecting %s or %s or %s");
+      YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s");
+# endif
+      char *yyfmt;
+      char const *yyf;
+      static char const yyunexpected[] = "syntax error, unexpected %s";
+      static char const yyexpecting[] = ", expecting %s";
+      static char const yyor[] = " or %s";
+      char yyformat[sizeof yyunexpected
+		    + sizeof yyexpecting - 1
+		    + ((YYERROR_VERBOSE_ARGS_MAXIMUM - 2)
+		       * (sizeof yyor - 1))];
+      char const *yyprefix = yyexpecting;
+
+      /* Start YYX at -YYN if negative to avoid negative indexes in
+	 YYCHECK.  */
+      int yyxbegin = yyn < 0 ? -yyn : 0;
+
+      /* Stay within bounds of both yycheck and yytname.  */
+      int yychecklim = YYLAST - yyn + 1;
+      int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
+      int yycount = 1;
+
+      yyarg[0] = yytname[yytype];
+      yyfmt = yystpcpy (yyformat, yyunexpected);
+
+      for (yyx = yyxbegin; yyx < yyxend; ++yyx)
+	if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
+	  {
+	    if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
+	      {
+		yycount = 1;
+		yysize = yysize0;
+		yyformat[sizeof yyunexpected - 1] = '\0';
+		break;
+	      }
+	    yyarg[yycount++] = yytname[yyx];
+	    yysize1 = yysize + yytnamerr (0, yytname[yyx]);
+	    yysize_overflow |= (yysize1 < yysize);
+	    yysize = yysize1;
+	    yyfmt = yystpcpy (yyfmt, yyprefix);
+	    yyprefix = yyor;
+	  }
+
+      yyf = YY_(yyformat);
+      yysize1 = yysize + yystrlen (yyf);
+      yysize_overflow |= (yysize1 < yysize);
+      yysize = yysize1;
+
+      if (yysize_overflow)
+	return YYSIZE_MAXIMUM;
+
+      if (yyresult)
+	{
+	  /* Avoid sprintf, as that infringes on the user's name space.
+	     Don't have undefined behavior even if the translation
+	     produced a string with the wrong number of "%s"s.  */
+	  char *yyp = yyresult;
+	  int yyi = 0;
+	  while ((*yyp = *yyf) != '\0')
+	    {
+	      if (*yyp == '%' && yyf[1] == 's' && yyi < yycount)
+		{
+		  yyp += yytnamerr (yyp, yyarg[yyi++]);
+		  yyf += 2;
+		}
+	      else
+		{
+		  yyp++;
+		  yyf++;
+		}
+	    }
+	}
+      return yysize;
+    }
+}
+#endif /* YYERROR_VERBOSE */
 
 
-#if YYDEBUG
-/*--------------------------------.
-| Print this symbol on YYOUTPUT.  |
-`--------------------------------*/
-
-#if defined (__STDC__) || defined (__cplusplus)
-static void
-yysymprint (FILE *yyoutput, int yytype, YYSTYPE *yyvaluep)
-#else
-static void
-yysymprint (yyoutput, yytype, yyvaluep)
-    FILE *yyoutput;
-    int yytype;
-    YYSTYPE *yyvaluep;
-#endif
-{
-  /* Pacify ``unused variable'' warnings.  */
-  (void) yyvaluep;
-
-  if (yytype < YYNTOKENS)
-    YYFPRINTF (yyoutput, "token %s (", yytname[yytype]);
-  else
-    YYFPRINTF (yyoutput, "nterm %s (", yytname[yytype]);
-
-
-# ifdef YYPRINT
-  if (yytype < YYNTOKENS)
-    YYPRINT (yyoutput, yytoknum[yytype], *yyvaluep);
-# endif
-  switch (yytype)
-    {
-      default:
-        break;
-    }
-  YYFPRINTF (yyoutput, ")");
-}
-
-#endif /* ! YYDEBUG */
 /*-----------------------------------------------.
 | Release the memory associated to this symbol.  |
 `-----------------------------------------------*/
 
-#if defined (__STDC__) || defined (__cplusplus)
+/*ARGSUSED*/
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
 static void
 yydestruct (const char *yymsg, int yytype, YYSTYPE *yyvaluep)
 #else
@@ -4234,8 +4450,7 @@ yydestruct (yymsg, yytype, yyvaluep)
     YYSTYPE *yyvaluep;
 #endif
 {
-  /* Pacify ``unused variable'' warnings.  */
-  (void) yyvaluep;
+  YYUSE (yyvaluep);
 
   if (!yymsg)
     yymsg = "Deleting";
@@ -4245,7 +4460,7 @@ yydestruct (yymsg, yytype, yyvaluep)
     {
 
       default:
-        break;
+	break;
     }
 }
 
@@ -4253,13 +4468,13 @@ yydestruct (yymsg, yytype, yyvaluep)
 /* Prevent warnings from -Wmissing-prototypes.  */
 
 #ifdef YYPARSE_PARAM
-# if defined (__STDC__) || defined (__cplusplus)
+#if defined __STDC__ || defined __cplusplus
 int yyparse (void *YYPARSE_PARAM);
-# else
+#else
 int yyparse ();
-# endif
+#endif
 #else /* ! YYPARSE_PARAM */
-#if defined (__STDC__) || defined (__cplusplus)
+#if defined __STDC__ || defined __cplusplus
 int yyparse (void);
 #else
 int yyparse ();
@@ -4284,20 +4499,24 @@ int yynerrs;
 `----------*/
 
 #ifdef YYPARSE_PARAM
-# if defined (__STDC__) || defined (__cplusplus)
-int yyparse (void *YYPARSE_PARAM)
-# else
-int yyparse (YYPARSE_PARAM)
-  void *YYPARSE_PARAM;
-# endif
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
+int
+yyparse (void *YYPARSE_PARAM)
+#else
+int
+yyparse (YYPARSE_PARAM)
+    void *YYPARSE_PARAM;
+#endif
 #else /* ! YYPARSE_PARAM */
-#if defined (__STDC__) || defined (__cplusplus)
+#if (defined __STDC__ || defined __C99__FUNC__ \
+     || defined __cplusplus || defined _MSC_VER)
 int
 yyparse (void)
 #else
 int
 yyparse ()
-    ;
+
 #endif
 #endif
 {
@@ -4309,6 +4528,12 @@ yyparse ()
   int yyerrstatus;
   /* Look-ahead token as an internal (translated) token number.  */
   int yytoken = 0;
+#if YYERROR_VERBOSE
+  /* Buffer for error messages, and its allocated size.  */
+  char yymsgbuf[128];
+  char *yymsg = yymsgbuf;
+  YYSIZE_T yymsg_alloc = sizeof yymsgbuf;
+#endif
 
   /* Three stacks and their tools:
      `yyss': related to states,
@@ -4319,9 +4544,9 @@ yyparse ()
      to reallocate them elsewhere.  */
 
   /* The state stack.  */
-  short int yyssa[YYINITDEPTH];
-  short int *yyss = yyssa;
-  short int *yyssp;
+  yytype_int16 yyssa[YYINITDEPTH];
+  yytype_int16 *yyss = yyssa;
+  yytype_int16 *yyssp;
 
   /* The semantic value stack.  */
   YYSTYPE yyvsa[YYINITDEPTH];
@@ -4330,7 +4555,7 @@ yyparse ()
 
 
 
-#define YYPOPSTACK   (yyvsp--, yyssp--)
+#define YYPOPSTACK(N)   (yyvsp -= (N), yyssp -= (N))
 
   YYSIZE_T yystacksize = YYINITDEPTH;
 
@@ -4339,9 +4564,9 @@ yyparse ()
   YYSTYPE yyval;
 
 
-  /* When reducing, the number of symbols on the RHS of the reduced
-     rule.  */
-  int yylen;
+  /* The number of symbols on the RHS of the reduced rule.
+     Keep to zero when no symbol should be popped.  */
+  int yylen = 0;
 
   YYDPRINTF ((stderr, "Starting parse\n"));
 
@@ -4365,8 +4590,7 @@ yyparse ()
 `------------------------------------------------------------*/
  yynewstate:
   /* In all cases, when you get here, the value and location stacks
-     have just been pushed. so pushing a state here evens the stacks.
-     */
+     have just been pushed.  So pushing a state here evens the stacks.  */
   yyssp++;
 
  yysetstate:
@@ -4379,11 +4603,11 @@ yyparse ()
 
 #ifdef yyoverflow
       {
-	/* Give user a chance to reallocate the stack. Use copies of
+	/* Give user a chance to reallocate the stack.  Use copies of
 	   these so that the &'s don't force the real ones into
 	   memory.  */
 	YYSTYPE *yyvs1 = yyvs;
-	short int *yyss1 = yyss;
+	yytype_int16 *yyss1 = yyss;
 
 
 	/* Each stack pointer address is followed by the size of the
@@ -4411,7 +4635,7 @@ yyparse ()
 	yystacksize = YYMAXDEPTH;
 
       {
-	short int *yyss1 = yyss;
+	yytype_int16 *yyss1 = yyss;
 	union yyalloc *yyptr =
 	  (union yyalloc *) YYSTACK_ALLOC (YYSTACK_BYTES (yystacksize));
 	if (! yyptr)
@@ -4446,12 +4670,10 @@ yyparse ()
 `-----------*/
 yybackup:
 
-/* Do appropriate processing given the current state.  */
-/* Read a look-ahead token if we need one and don't already have one.  */
-/* yyresume: */
+  /* Do appropriate processing given the current state.  Read a
+     look-ahead token if we need one and don't already have one.  */
 
   /* First try to decide what to do without reference to look-ahead token.  */
-
   yyn = yypact[yystate];
   if (yyn == YYPACT_NINF)
     goto yydefault;
@@ -4493,22 +4715,21 @@ yybackup:
   if (yyn == YYFINAL)
     YYACCEPT;
 
-  /* Shift the look-ahead token.  */
-  YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
-
-  /* Discard the token being shifted unless it is eof.  */
-  if (yychar != YYEOF)
-    yychar = YYEMPTY;
-
-  *++yyvsp = yylval;
-
-
   /* Count tokens shifted since error; after three, turn off error
      status.  */
   if (yyerrstatus)
     yyerrstatus--;
 
+  /* Shift the look-ahead token.  */
+  YY_SYMBOL_PRINT ("Shifting", yytoken, &yylval, &yylloc);
+
+  /* Discard the shifted token unless it is eof.  */
+  if (yychar != YYEOF)
+    yychar = YYEMPTY;
+
   yystate = yyn;
+  *++yyvsp = yylval;
+
   goto yynewstate;
 
 
@@ -4585,7 +4806,7 @@ yyreduce:
   case 19:
 #line 403 "GetDP.y"
     {            
-      strcpy(yyincludename, (yyvsp[0].c)); yyincludenum++ ; return(0);
+      strcpy(yyincludename, (yyvsp[(2) - (2)].c)); yyincludenum++ ; return(0);
     ;}
     break;
 
@@ -4621,7 +4842,7 @@ yyreduce:
 
   case 27:
 #line 430 "GetDP.y"
-    { Help((yyvsp[-1].c)); ;}
+    { Help((yyvsp[(2) - (3)].c)); ;}
     break;
 
   case 28:
@@ -4686,7 +4907,7 @@ yyreduce:
 
   case 40:
 #line 456 "GetDP.y"
-    { Print_Object((yyvsp[-1].i), &Problem_S); ;}
+    { Print_Object((yyvsp[(2) - (3)].i), &Problem_S); ;}
     break;
 
   case 41:
@@ -4712,32 +4933,32 @@ yyreduce:
 
   case 45:
 #line 490 "GetDP.y"
-    { Add_Group(&Group_S, (yyvsp[-3].c), 0, 0) ; ;}
+    { Add_Group(&Group_S, (yyvsp[(1) - (4)].c), 0, 0) ; ;}
     break;
 
   case 46:
 #line 493 "GetDP.y"
-    { Add_Group(&Group_S, (yyvsp[-4].c), 2, (yyvsp[-3].i)) ; ;}
+    { Add_Group(&Group_S, (yyvsp[(1) - (5)].c), 2, (yyvsp[(2) - (5)].i)) ; ;}
     break;
 
   case 47:
 #line 499 "GetDP.y"
     {
       yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
-      Add_Group(&Group_S, (yyvsp[-4].c), 0, 0) ;
+      Add_Group(&Group_S, (yyvsp[(1) - (5)].c), 0, 0) ;
     ;}
     break;
 
   case 50:
 #line 509 "GetDP.y"
-    { Add_Group_2(&Group_S, (yyvsp[-4].c), 1, 0, 0, 0) ; ;}
+    { Add_Group_2(&Group_S, (yyvsp[(1) - (5)].c), 1, 0, 0, 0) ; ;}
     break;
 
   case 53:
 #line 519 "GetDP.y"
     { 
       Group_S.InitialList = List_Create( 1, 1, sizeof(int)) ;
-      i = (int)(yyvsp[-3].d) ;
+      i = (int)(yyvsp[(3) - (6)].d) ;
       List_Add(Group_S.InitialList, &i) ;
       Group_S.Type         = MOVINGBAND2D ;  
       Group_S.FunctionType = REGION ;
@@ -4750,30 +4971,30 @@ yyreduce:
 #line 529 "GetDP.y"
     {
       Group_S.MovingBand2D = (struct MovingBand2D *)Malloc(sizeof(struct MovingBand2D)) ;
-      Group_S.MovingBand2D->InitialList1 = (yyvsp[0].l) ; 
+      Group_S.MovingBand2D->InitialList1 = (yyvsp[(10) - (10)].l) ; 
       Group_S.MovingBand2D->ExtendedList1 = NULL ; 
-      Group_S.MovingBand2D->PhysNum = (int)(yyvsp[-7].d) ; 
+      Group_S.MovingBand2D->PhysNum = (int)(yyvsp[(3) - (10)].d) ; 
     ;}
     break;
 
   case 55:
 #line 536 "GetDP.y"
     {
-      Group_S.MovingBand2D->InitialList2 = (yyvsp[-4].l) ; 
-      Add_Group(&Group_S, (yyvsp[-17].c), 0, 0) ; 
-      Group_S.MovingBand2D->Period2 = (int)(yyvsp[-2].d) ; 
+      Group_S.MovingBand2D->InitialList2 = (yyvsp[(14) - (18)].l) ; 
+      Add_Group(&Group_S, (yyvsp[(1) - (18)].c), 0, 0) ; 
+      Group_S.MovingBand2D->Period2 = (int)(yyvsp[(16) - (18)].d) ; 
     ;}
     break;
 
   case 56:
 #line 546 "GetDP.y"
     {
-      Group_S.FunctionType = (yyvsp[-2].i) ;
+      Group_S.FunctionType = (yyvsp[(1) - (3)].i) ;
       switch (Group_S.FunctionType) {
       case ELEMENTSOF :  Group_S.Type = ELEMENTLIST ;  break ;
       default :          Group_S.Type = REGIONLIST  ;  break ;
       }
-      Group_S.InitialList = (yyvsp[0].l) ;
+      Group_S.InitialList = (yyvsp[(3) - (3)].l) ;
     ;}
     break;
 
@@ -4781,7 +5002,7 @@ yyreduce:
 #line 555 "GetDP.y"
     {
       Group_S.SuppListType = Type_SuppList ;
-      Group_S.InitialSuppList = (yyvsp[-1].l) ;
+      Group_S.InitialSuppList = (yyvsp[(5) - (6)].l) ;
       (yyval.i) = -1 ;
     ;}
     break;
@@ -4790,7 +5011,7 @@ yyreduce:
 #line 563 "GetDP.y"
     {
       Group_S.FunctionType = REGION ;  Group_S.Type = REGIONLIST  ;
-      Group_S.InitialList = (yyvsp[0].l) ;
+      Group_S.InitialList = (yyvsp[(2) - (2)].l) ;
       Group_S.SuppListType = SUPPLIST_NONE ;  Group_S.InitialSuppList = NULL ;
       (yyval.i) = -1 ;
     ;}
@@ -4799,23 +5020,23 @@ yyreduce:
   case 59:
 #line 574 "GetDP.y"
     {
-      (yyval.i) = (yyvsp[0].i) ;
+      (yyval.i) = (yyvsp[(1) - (1)].i) ;
     ;}
     break;
 
   case 60:
 #line 579 "GetDP.y"
     {
-      if ( !strcmp((yyvsp[0].c), "All") ) {
+      if ( !strcmp((yyvsp[(1) - (1)].c), "All") ) {
 	(yyval.i) = -3;
       }
-      else if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[0].c), fcmp_Group_Name)) >= 0 ) {
+      else if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(1) - (1)].c), fcmp_Group_Name)) >= 0 ) {
 	List_Read(Problem_S.Group, i, &Group_S) ; (yyval.i) = i ;
       }
       else {
-	(yyval.i) = -2 ; vyyerror("Unknown Group: %s", (yyvsp[0].c)) ;
+	(yyval.i) = -2 ; vyyerror("Unknown Group: %s", (yyvsp[(1) - (1)].c)) ;
       }
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(1) - (1)].c)) ;
     ;}
     break;
 
@@ -4823,17 +5044,17 @@ yyreduce:
 #line 596 "GetDP.y"
     {
       if (!Flag_MultipleIndex) {
-	if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[-1].c), fcmp_Group_Name)) >= 0 )
+	if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(1) - (2)].c), fcmp_Group_Name)) >= 0 )
 	  List_Read(Problem_S.Group, i, &Group_S) ; (yyval.i) = i ;
       }
       else {
 	List_Reset(ListOfInt_L) ;  /* For list of multiple region */
 
 	for (k = 0 ; k < Nbr_Index ; k++) {
-	  sprintf(tmpstr, "%s_%d", (yyvsp[-1].c), k+1) ;
+	  sprintf(tmpstr, "%s_%d", (yyvsp[(1) - (2)].c), k+1) ;
 	  if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr,
 				    fcmp_Group_Name)) < 0 ) {
-	    (yyval.i) = -2 ; vyyerror("Unknown Group: %s {%d}", (yyvsp[-1].c), k+1) ;
+	    (yyval.i) = -2 ; vyyerror("Unknown Group: %s {%d}", (yyvsp[(1) - (2)].c), k+1) ;
 	  }
 	  else {
 	    if (k == 0) {
@@ -4843,7 +5064,7 @@ yyreduce:
 	  List_Add(ListOfInt_L, &i) ;
 	}
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(1) - (2)].c)) ;
     ;}
     break;
 
@@ -4854,18 +5075,18 @@ yyreduce:
 
   case 63:
 #line 629 "GetDP.y"
-    { (yyval.i) = Get_DefineForString(FunctionForGroup_Type, (yyvsp[0].c), &FlagError) ;
+    { (yyval.i) = Get_DefineForString(FunctionForGroup_Type, (yyvsp[(1) - (1)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of Function for Group: %s", (yyvsp[0].c));
+	vyyerror("Unknown type of Function for Group: %s", (yyvsp[(1) - (1)].c));
 	Get_Valid_SXD(FunctionForGroup_Type);
       }
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(1) - (1)].c)) ;
     ;}
     break;
 
   case 64:
 #line 641 "GetDP.y"
-    { (yyval.l) = (yyvsp[0].l) ; ;}
+    { (yyval.l) = (yyvsp[(1) - (1)].l) ; ;}
     break;
 
   case 65:
@@ -4880,49 +5101,49 @@ yyreduce:
 
   case 67:
 #line 652 "GetDP.y"
-    { Type_SuppList = (yyvsp[-1].i) ; (yyval.l) = (yyvsp[0].l) ; ;}
+    { Type_SuppList = (yyvsp[(2) - (3)].i) ; (yyval.l) = (yyvsp[(3) - (3)].l) ; ;}
     break;
 
   case 68:
 #line 655 "GetDP.y"
     {
       Type_SuppList = SUPPLIST_INSUPPORT ;
-      if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[0].c), fcmp_Group_Name)) >= 0 ) {
+      if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (3)].c), fcmp_Group_Name)) >= 0 ) {
 	if ( ((struct Group *)List_Pointer(Problem_S.Group, i))->Type == 
 	     ELEMENTLIST ) {
 	  (yyval.l) = List_Create( 1, 5, sizeof(int)) ;
 	  List_Add((yyval.l), &i) ;
 	}
-	else  vyyerror("Not a Support of Element Type: %s", (yyvsp[0].c)) ;
+	else  vyyerror("Not a Support of Element Type: %s", (yyvsp[(3) - (3)].c)) ;
       }
-      else  vyyerror("Unknown Region for Support: %s", (yyvsp[0].c)) ;
-      Free((yyvsp[0].c)) ;
+      else  vyyerror("Unknown Region for Support: %s", (yyvsp[(3) - (3)].c)) ;
+      Free((yyvsp[(3) - (3)].c)) ;
     ;}
     break;
 
   case 69:
 #line 673 "GetDP.y"
-    { (yyval.i) = Get_DefineForString(FunctionForGroup_SuppList, (yyvsp[0].c), &FlagError) ;
+    { (yyval.i) = Get_DefineForString(FunctionForGroup_SuppList, (yyvsp[(1) - (1)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of Supplementary Region: %s", (yyvsp[0].c));
+	vyyerror("Unknown type of Supplementary Region: %s", (yyvsp[(1) - (1)].c));
 	Get_Valid_SXD(FunctionForGroup_SuppList);
       }
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(1) - (1)].c)) ;
     ;}
     break;
 
   case 70:
 #line 686 "GetDP.y"
     {
-      (yyval.l) = List_Create(((List_Nbr((yyvsp[0].l)) > 0)? List_Nbr((yyvsp[0].l)) : 1), 5, sizeof(int)) ;
-      for (i = 0 ; i < List_Nbr((yyvsp[0].l)) ; i++)
-	List_Add((yyval.l), (int *)List_Pointer((yyvsp[0].l), i) ) ;
+      (yyval.l) = List_Create(((List_Nbr((yyvsp[(1) - (1)].l)) > 0)? List_Nbr((yyvsp[(1) - (1)].l)) : 1), 5, sizeof(int)) ;
+      for (i = 0 ; i < List_Nbr((yyvsp[(1) - (1)].l)) ; i++)
+	List_Add((yyval.l), (int *)List_Pointer((yyvsp[(1) - (1)].l), i) ) ;
     ;}
     break;
 
   case 71:
 #line 693 "GetDP.y"
-    { (yyval.l) = (yyvsp[-1].l) ; ;}
+    { (yyval.l) = (yyvsp[(2) - (3)].l) ; ;}
     break;
 
   case 72:
@@ -4935,32 +5156,32 @@ yyreduce:
   case 73:
 #line 705 "GetDP.y"
     {
-      (yyval.l) = (yyvsp[-2].l) ;
-      for (i = 0 ; i < List_Nbr((yyvsp[0].l)) ; i++)
-	List_Add((yyval.l), (int *)List_Pointer((yyvsp[0].l), i) ) ;
+      (yyval.l) = (yyvsp[(1) - (3)].l) ;
+      for (i = 0 ; i < List_Nbr((yyvsp[(3) - (3)].l)) ; i++)
+	List_Add((yyval.l), (int *)List_Pointer((yyvsp[(3) - (3)].l), i) ) ;
     ;}
     break;
 
   case 74:
 #line 712 "GetDP.y"
     {
-      (yyval.l) = (yyvsp[-3].l) ;
-      for (i = 0 ; i < List_Nbr((yyvsp[0].l)) ; i++)
-	List_Suppress((yyval.l), (int *)List_Pointer((yyvsp[0].l), i), fcmp_int ) ;
+      (yyval.l) = (yyvsp[(1) - (4)].l) ;
+      for (i = 0 ; i < List_Nbr((yyvsp[(4) - (4)].l)) ; i++)
+	List_Suppress((yyval.l), (int *)List_Pointer((yyvsp[(4) - (4)].l), i), fcmp_int ) ;
     ;}
     break;
 
   case 75:
 #line 723 "GetDP.y"
     {
-      List_Reset(ListOfInt_L) ; List_Add((yyval.l) = ListOfInt_L, &((yyvsp[0].i))) ;
+      List_Reset(ListOfInt_L) ; List_Add((yyval.l) = ListOfInt_L, &((yyvsp[(1) - (1)].i))) ;
     ;}
     break;
 
   case 76:
 #line 729 "GetDP.y"
     {
-      i = (int)(yyvsp[-1].d) ;
+      i = (int)(yyvsp[(2) - (3)].d) ;
       List_Reset(ListOfInt_L) ; List_Add((yyval.l) = ListOfInt_L, &i) ;
     ;}
     break;
@@ -4970,8 +5191,8 @@ yyreduce:
     { 
       List_Reset(ListOfInt_L) ;  
       
-      for(i=0 ; i<List_Nbr((yyvsp[-1].l)) ; i++) {
-	List_Read((yyvsp[-1].l), i, &d) ; j = (int)d ;
+      for(i=0 ; i<List_Nbr((yyvsp[(2) - (3)].l)) ; i++) {
+	List_Read((yyvsp[(2) - (3)].l), i, &d) ; j = (int)d ;
 	List_Add(ListOfInt_L, &j) ;
       }
       (yyval.l) = ListOfInt_L;
@@ -4982,7 +5203,7 @@ yyreduce:
 #line 747 "GetDP.y"
     { 
       List_Reset(ListOfInt_L) ; 
-      for(j=(yyvsp[-2].i) ; ((yyvsp[-2].i)<(yyvsp[0].d))?(j<=(yyvsp[0].d)):(j>=(yyvsp[0].d)) ; ((yyvsp[-2].i)<(yyvsp[0].d))?j++:j--) 
+      for(j=(yyvsp[(1) - (3)].i) ; ((yyvsp[(1) - (3)].i)<(yyvsp[(3) - (3)].d))?(j<=(yyvsp[(3) - (3)].d)):(j>=(yyvsp[(3) - (3)].d)) ; ((yyvsp[(1) - (3)].i)<(yyvsp[(3) - (3)].d))?j++:j--) 
 	List_Add(ListOfInt_L, &j) ;
       (yyval.l) = ListOfInt_L ;
     ;}
@@ -4992,7 +5213,7 @@ yyreduce:
 #line 756 "GetDP.y"
     { 
       List_Reset(ListOfInt_L) ; 
-      for(j=(int)(yyvsp[-3].d) ; ((yyvsp[-3].d)<(yyvsp[0].d))?(j<=(yyvsp[0].d)):(j>=(yyvsp[0].d)) ; ((yyvsp[-3].d)<(yyvsp[0].d))?j++:j--) 
+      for(j=(int)(yyvsp[(2) - (5)].d) ; ((yyvsp[(2) - (5)].d)<(yyvsp[(5) - (5)].d))?(j<=(yyvsp[(5) - (5)].d)):(j>=(yyvsp[(5) - (5)].d)) ; ((yyvsp[(2) - (5)].d)<(yyvsp[(5) - (5)].d))?j++:j--) 
 	List_Add(ListOfInt_L, &j) ;
       (yyval.l) = ListOfInt_L ;
     ;}
@@ -5002,12 +5223,12 @@ yyreduce:
 #line 764 "GetDP.y"
     { 
       List_Reset(ListOfInt_L) ; 
-      if(!(int)(yyvsp[0].d) || ((yyvsp[-4].i)<(int)(yyvsp[-2].d) && (int)(yyvsp[0].d)<0) || ((yyvsp[-4].i)>(int)(yyvsp[-2].d) && (int)(yyvsp[0].d)>0)){
-	vyyerror("Wrong increment in '%d : %d : %d'", (yyvsp[-4].i), (int)(yyvsp[-2].d), (int)(yyvsp[0].d)) ;
-	List_Add(ListOfInt_L, &((yyvsp[-4].i))) ;
+      if(!(int)(yyvsp[(5) - (5)].d) || ((yyvsp[(1) - (5)].i)<(int)(yyvsp[(3) - (5)].d) && (int)(yyvsp[(5) - (5)].d)<0) || ((yyvsp[(1) - (5)].i)>(int)(yyvsp[(3) - (5)].d) && (int)(yyvsp[(5) - (5)].d)>0)){
+	vyyerror("Wrong increment in '%d : %d : %d'", (yyvsp[(1) - (5)].i), (int)(yyvsp[(3) - (5)].d), (int)(yyvsp[(5) - (5)].d)) ;
+	List_Add(ListOfInt_L, &((yyvsp[(1) - (5)].i))) ;
       }
       else
-	for(j=(yyvsp[-4].i) ; ((int)(yyvsp[0].d)>0)?(j<=(yyvsp[-2].d)):(j>=(yyvsp[-2].d)) ; j+=(int)(yyvsp[0].d)) 
+	for(j=(yyvsp[(1) - (5)].i) ; ((int)(yyvsp[(5) - (5)].d)>0)?(j<=(yyvsp[(3) - (5)].d)):(j>=(yyvsp[(3) - (5)].d)) ; j+=(int)(yyvsp[(5) - (5)].d)) 
 	  List_Add(ListOfInt_L, &j) ;
       (yyval.l) = ListOfInt_L ;
     ;}
@@ -5017,12 +5238,12 @@ yyreduce:
 #line 778 "GetDP.y"
     { 
       List_Reset(ListOfInt_L) ; 
-      if(!(int)(yyvsp[0].d) || ((int)(yyvsp[-5].d)<(int)(yyvsp[-2].d) && (int)(yyvsp[0].d)<0) || ((int)(yyvsp[-5].d)>(int)(yyvsp[-2].d) && (int)(yyvsp[0].d)>0)){
-	vyyerror("Wrong increment in '%d : %d : %d'", (int)(yyvsp[-5].d), (int)(yyvsp[-2].d), (int)(yyvsp[0].d)) ;
-	 i = (int)(yyvsp[-5].d) ; List_Add(ListOfInt_L, &i) ;
+      if(!(int)(yyvsp[(7) - (7)].d) || ((int)(yyvsp[(2) - (7)].d)<(int)(yyvsp[(5) - (7)].d) && (int)(yyvsp[(7) - (7)].d)<0) || ((int)(yyvsp[(2) - (7)].d)>(int)(yyvsp[(5) - (7)].d) && (int)(yyvsp[(7) - (7)].d)>0)){
+	vyyerror("Wrong increment in '%d : %d : %d'", (int)(yyvsp[(2) - (7)].d), (int)(yyvsp[(5) - (7)].d), (int)(yyvsp[(7) - (7)].d)) ;
+	 i = (int)(yyvsp[(2) - (7)].d) ; List_Add(ListOfInt_L, &i) ;
       }
       else
-	for(j=(int)(yyvsp[-5].d) ; ((int)(yyvsp[0].d)>0)?(j<=(int)(yyvsp[-2].d)):(j>=(int)(yyvsp[-2].d)) ; j+=(int)(yyvsp[0].d)) 
+	for(j=(int)(yyvsp[(2) - (7)].d) ; ((int)(yyvsp[(7) - (7)].d)>0)?(j<=(int)(yyvsp[(5) - (7)].d)):(j>=(int)(yyvsp[(5) - (7)].d)) ; j+=(int)(yyvsp[(7) - (7)].d)) 
 	  List_Add(ListOfInt_L, &j) ;
       (yyval.l) = ListOfInt_L ;
     ;}
@@ -5031,11 +5252,11 @@ yyreduce:
   case 82:
 #line 791 "GetDP.y"
     {
-      if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[0].c), fcmp_Group_Name)) < 0 ) {
+      if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(1) - (1)].c), fcmp_Group_Name)) < 0 ) {
 	/* Si ce n'est pas un nom de groupe, est-ce un nom de constante ? : */
-	Constant_S.Name = (yyvsp[0].c) ;
+	Constant_S.Name = (yyvsp[(1) - (1)].c) ;
 	if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
-	  vyyerror("Unknown Constant: %s", (yyvsp[0].c)) ;
+	  vyyerror("Unknown Constant: %s", (yyvsp[(1) - (1)].c)) ;
 	  i = 0 ;
 	  List_Reset(ListOfInt_L) ; List_Add((yyval.l) = ListOfInt_L, &i) ;
 	}
@@ -5052,49 +5273,49 @@ yyreduce:
 	    }
 	  }
 	  else {
-	    vyyerror("Unknown type of Constant: %s", (yyvsp[0].c)) ;
+	    vyyerror("Unknown type of Constant: %s", (yyvsp[(1) - (1)].c)) ;
 	    i = 0 ;
 	    List_Reset(ListOfInt_L) ; List_Add((yyval.l) = ListOfInt_L, &i) ;
 	  }
       }
       else   /* Si c'est un nom de groupe : */
 	(yyval.l) = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList ;
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(1) - (1)].c)) ;
     ;}
     break;
 
   case 84:
 #line 830 "GetDP.y"
-    { if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[0].c), fcmp_Group_Name)) < 0 ) {
+    { if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (3)].c), fcmp_Group_Name)) < 0 ) {
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = ListDummy_L ;
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	i = Add_Group(&Group_S, (yyvsp[0].c), 0, 0) ;
+	i = Add_Group(&Group_S, (yyvsp[(3) - (3)].c), 0, 0) ;
       }
-      else  Free((yyvsp[0].c)) ;
+      else  Free((yyvsp[(3) - (3)].c)) ;
     ;}
     break;
 
   case 85:
 #line 840 "GetDP.y"
     { 
-      for (k = 0 ; k < (int)(yyvsp[-1].d) ; k++) {
-	sprintf(tmpstr, "%s_%d", (yyvsp[-3].c), k+1) ;
+      for (k = 0 ; k < (int)(yyvsp[(5) - (6)].d) ; k++) {
+	sprintf(tmpstr, "%s_%d", (yyvsp[(3) - (6)].c), k+1) ;
 	if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr,
 				  fcmp_Group_Name)) < 0 ) {
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	  Group_S.InitialList = ListDummy_L ;
-	  Add_Group(&Group_S, (yyvsp[-3].c), 2, k+1) ;
+	  Add_Group(&Group_S, (yyvsp[(3) - (6)].c), 2, k+1) ;
 	}
       }
-      Free((yyvsp[-3].c)) ;
+      Free((yyvsp[(3) - (6)].c)) ;
     ;}
     break;
 
   case 88:
 #line 862 "GetDP.y"
-    { (yyval.i) = (int)(yyvsp[-1].d) ; ;}
+    { (yyval.i) = (int)(yyvsp[(3) - (4)].d) ; ;}
     break;
 
   case 89:
@@ -5109,27 +5330,27 @@ yyreduce:
 
   case 91:
 #line 873 "GetDP.y"
-    { (yyval.i) = (int)(yyvsp[-1].d) ; ;}
+    { (yyval.i) = (int)(yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 95:
 #line 892 "GetDP.y"
     {
       if ( (i = List_ISearchSeq
-	    (Problem_S.Expression, (yyvsp[-5].c), fcmp_Expression_Name)) >= 0 ) {
+	    (Problem_S.Expression, (yyvsp[(1) - (6)].c), fcmp_Expression_Name)) >= 0 ) {
 	if (((struct Expression *)List_Pointer(Problem_S.Expression, i))->Type ==
 	    UNDEFINED_EXP) {
 	  Free(((struct Expression *)List_Pointer(Problem_S.Expression, i))->Name) ;
-	  List_Read (Problem_S.Expression, (yyvsp[-1].i), &Expression_S) ;
+	  List_Read (Problem_S.Expression, (yyvsp[(5) - (6)].i), &Expression_S) ;
 	  List_Write(Problem_S.Expression,  i, &Expression_S) ;
-	  ((struct Expression *)List_Pointer(Problem_S.Expression, i))->Name = (yyvsp[-5].c) ;
+	  ((struct Expression *)List_Pointer(Problem_S.Expression, i))->Name = (yyvsp[(1) - (6)].c) ;
 	  List_Pop(Problem_S.Expression) ;
 	}
-	else  { vyyerror("Redefinition of Function: %s", (yyvsp[-5].c)) ; }
+	else  { vyyerror("Redefinition of Function: %s", (yyvsp[(1) - (6)].c)) ; }
       }
       else {  /* new identifier */
-	Free(((struct Expression *)List_Pointer(Problem_S.Expression, (yyvsp[-1].i)))->Name) ;
-	((struct Expression *)List_Pointer(Problem_S.Expression, (yyvsp[-1].i)))->Name = (yyvsp[-5].c) ;
+	Free(((struct Expression *)List_Pointer(Problem_S.Expression, (yyvsp[(5) - (6)].i)))->Name) ;
+	((struct Expression *)List_Pointer(Problem_S.Expression, (yyvsp[(5) - (6)].i)))->Name = (yyvsp[(1) - (6)].c) ;
       }
     ;}
     break;
@@ -5138,14 +5359,14 @@ yyreduce:
 #line 912 "GetDP.y"
     {
       if ( (i = List_ISearchSeq
-	    (Problem_S.Expression, (yyvsp[-6].c), fcmp_Expression_Name)) < 0 ) {
+	    (Problem_S.Expression, (yyvsp[(1) - (7)].c), fcmp_Expression_Name)) < 0 ) {
 	/* Si le nom n'existe pas : */
 	i = List_Nbr(Problem_S.Expression) ;
 	Expression_S.Type = PIECEWISEFUNCTION ;
 	Expression_S.Case.PieceWiseFunction.ExpressionPerRegion =
 	  List_Create( 5, 5, sizeof(struct ExpressionPerRegion)) ;
 	Expression_S.Case.PieceWiseFunction.NumLastRegion = -1 ;
-	Add_Expression(&Expression_S, (yyvsp[-6].c), 0) ;
+	Add_Expression(&Expression_S, (yyvsp[(1) - (7)].c), 0) ;
 	Expression_P = (struct Expression*)List_Pointer(Problem_S.Expression, i) ;
       }
       else {
@@ -5157,12 +5378,12 @@ yyreduce:
 	  Expression_P->Case.PieceWiseFunction.NumLastRegion = -1 ;
 	}
 	else if (Expression_P->Type != PIECEWISEFUNCTION)
-	  vyyerror("Not piece-wise Expression: %s", (yyvsp[-6].c)) ;
-	Free((yyvsp[-6].c)) ;
+	  vyyerror("Not piece-wise Expression: %s", (yyvsp[(1) - (7)].c)) ;
+	Free((yyvsp[(1) - (7)].c)) ;
       }
 
-      if ((yyvsp[-4].i) >= 0 || (yyvsp[-4].i) == -1) {
-	ExpressionPerRegion_S.ExpressionIndex = (yyvsp[-1].i) ;
+      if ((yyvsp[(3) - (7)].i) >= 0 || (yyvsp[(3) - (7)].i) == -1) {
+	ExpressionPerRegion_S.ExpressionIndex = (yyvsp[(6) - (7)].i) ;
 	for (i = 0 ; i < List_Nbr(Group_S.InitialList) ; i++) {
 	  List_Read(Group_S.InitialList, i, &ExpressionPerRegion_S.RegionIndex) ;
 
@@ -5174,7 +5395,7 @@ yyreduce:
 	    List_Add(Expression_P->Case.PieceWiseFunction.ExpressionPerRegion,
 		     &ExpressionPerRegion_S) ;
 	}
-	if ((yyvsp[-4].i) == -1) { List_Delete(Group_S.InitialList) ; }
+	if ((yyvsp[(3) - (7)].i) == -1) { List_Delete(Group_S.InitialList) ; }
       }
       else  vyyerror("Bad Group right hand side") ;
     ;}
@@ -5184,26 +5405,26 @@ yyreduce:
 #line 965 "GetDP.y"
     {
       if ( (i = List_ISearchSeq
-	    (Problem_S.Expression, (yyvsp[0].c), fcmp_Expression_Name)) < 0 ) {
+	    (Problem_S.Expression, (yyvsp[(3) - (3)].c), fcmp_Expression_Name)) < 0 ) {
 	Expression_S.Type = UNDEFINED_EXP ;
-	Add_Expression(&Expression_S, (yyvsp[0].c), 0) ;
+	Add_Expression(&Expression_S, (yyvsp[(3) - (3)].c), 0) ;
       }
-      else  Free((yyvsp[0].c)) ;
+      else  Free((yyvsp[(3) - (3)].c)) ;
     ;}
     break;
 
   case 101:
 #line 985 "GetDP.y"
-    { Expression_S.Type = CONSTANT ;  Expression_S.Case.Constant = (yyvsp[-1].d) ;
+    { Expression_S.Type = CONSTANT ;  Expression_S.Case.Constant = (yyvsp[(3) - (4)].d) ;
       (yyval.i) = Add_Expression(&Expression_S, "Exp_Cst", 1) ;
     ;}
     break;
 
   case 102:
 #line 991 "GetDP.y"
-    { if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[-1].c), fcmp_Expression_Name)) < 0)
-	vyyerror("Unknown name of Expression: %s", (yyvsp[-1].c)) ;
-      Free((yyvsp[-1].c)) ;  (yyval.i) = i ;
+    { if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(3) - (4)].c), fcmp_Expression_Name)) < 0)
+	vyyerror("Unknown name of Expression: %s", (yyvsp[(3) - (4)].c)) ;
+      Free((yyvsp[(3) - (4)].c)) ;  (yyval.i) = i ;
     ;}
     break;
 
@@ -5215,7 +5436,7 @@ yyreduce:
 
   case 104:
 #line 1000 "GetDP.y"
-    { Expression_S.Type = WHOLEQUANTITY ;  Expression_S.Case.WholeQuantity = (yyvsp[0].l) ;
+    { Expression_S.Type = WHOLEQUANTITY ;  Expression_S.Case.WholeQuantity = (yyvsp[(2) - (2)].l) ;
       (yyval.i) = Add_Expression(&Expression_S, "Exp_Fct", 1) ; ;}
     break;
 
@@ -5233,12 +5454,12 @@ yyreduce:
 
   case 108:
 #line 1023 "GetDP.y"
-    { List_Reset(ListOfInt_L) ;  List_Add(ListOfInt_L, &((yyvsp[0].i))) ; ;}
+    { List_Reset(ListOfInt_L) ;  List_Add(ListOfInt_L, &((yyvsp[(1) - (1)].i))) ; ;}
     break;
 
   case 109:
 #line 1026 "GetDP.y"
-    { List_Add(ListOfInt_L, &((yyvsp[0].i))) ; ;}
+    { List_Add(ListOfInt_L, &((yyvsp[(3) - (3)].i))) ; ;}
     break;
 
   case 110:
@@ -5477,7 +5698,7 @@ yyreduce:
   case 137:
 #line 1214 "GetDP.y"
     { WholeQuantity_S.Type = WQ_CONSTANT ;
-      WholeQuantity_S.Case.Constant = (yyvsp[0].d) ;
+      WholeQuantity_S.Case.Constant = (yyvsp[(1) - (1)].d) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
     break;
@@ -5488,17 +5709,17 @@ yyreduce:
 
       /* Expression */
 
-      if ((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[-2].c),fcmp_Expression_Name)) >= 0) {  
+      if ((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(1) - (3)].c),fcmp_Expression_Name)) >= 0) {  
 	WholeQuantity_S.Type = WQ_EXPRESSION ;
 	WholeQuantity_S.Case.Expression.Index = i ;
-	WholeQuantity_S.Case.Expression.NbrArguments = (yyvsp[-1].i) ;
-	if ((yyvsp[-1].i) < 0)  vyyerror("Uncompatible argument for Function: %s", (yyvsp[-2].c)) ;
+	WholeQuantity_S.Case.Expression.NbrArguments = (yyvsp[(2) - (3)].i) ;
+	if ((yyvsp[(2) - (3)].i) < 0)  vyyerror("Uncompatible argument for Function: %s", (yyvsp[(1) - (3)].c)) ;
       }
 
       /* Built in functions */
 
       else { 
-	Get_Function2NbrForString(F_Function, (yyvsp[-2].c), &FlagError,
+	Get_Function2NbrForString(F_Function, (yyvsp[(1) - (3)].c), &FlagError,
 				  &WholeQuantity_S.Case.Function.Fct,
 				  &WholeQuantity_S.Case.Function.NbrParameters,
 				  &WholeQuantity_S.Case.Function.NbrArguments) ;
@@ -5506,19 +5727,19 @@ yyreduce:
 	if (!FlagError) {
 
 	  /* arguments */
-	  if ((yyvsp[-1].i) >= 0) {
-	    if ((yyvsp[-1].i) == WholeQuantity_S.Case.Function.NbrArguments) {
+	  if ((yyvsp[(2) - (3)].i) >= 0) {
+	    if ((yyvsp[(2) - (3)].i) == WholeQuantity_S.Case.Function.NbrArguments) {
 	      WholeQuantity_S.Type = WQ_BUILTINFUNCTION ;
 	    }
 	    else if (WholeQuantity_S.Case.Function.NbrArguments == -1  ||
 		     (WholeQuantity_S.Case.Function.NbrArguments == -2 )) { 
 	      /* && ($2)%2 == 0)) { */
 	      WholeQuantity_S.Type = WQ_BUILTINFUNCTION ;
-	      WholeQuantity_S.Case.Function.NbrArguments = (yyvsp[-1].i) ;
+	      WholeQuantity_S.Case.Function.NbrArguments = (yyvsp[(2) - (3)].i) ;
 	    }
 	    else {
 	      vyyerror("Wrong number of arguments for Function '%s' (%d instead of %d)", 
-		       (yyvsp[-2].c), (yyvsp[-1].i), WholeQuantity_S.Case.Function.NbrArguments) ;
+		       (yyvsp[(1) - (3)].c), (yyvsp[(2) - (3)].i), WholeQuantity_S.Case.Function.NbrArguments) ;
 	    }
 	  }
 	  else {
@@ -5527,34 +5748,34 @@ yyreduce:
 
 	  /* parameters */
 	  if (WholeQuantity_S.Case.Function.NbrParameters >= 0 &&
-	      WholeQuantity_S.Case.Function.NbrParameters != List_Nbr((yyvsp[0].l))) {
+	      WholeQuantity_S.Case.Function.NbrParameters != List_Nbr((yyvsp[(3) - (3)].l))) {
 	    vyyerror("Wrong number of parameters for Function '%s' (%d instead of %d)", 
-		     (yyvsp[-2].c), List_Nbr((yyvsp[0].l)), WholeQuantity_S.Case.Function.NbrParameters) ;
+		     (yyvsp[(1) - (3)].c), List_Nbr((yyvsp[(3) - (3)].l)), WholeQuantity_S.Case.Function.NbrParameters) ;
 	  }
-	  else if (WholeQuantity_S.Case.Function.NbrParameters == -2 && List_Nbr((yyvsp[0].l))%2 != 0) {
+	  else if (WholeQuantity_S.Case.Function.NbrParameters == -2 && List_Nbr((yyvsp[(3) - (3)].l))%2 != 0) {
 	    vyyerror("Wrong number of parameters for Function '%s' (%d is not even)",
-		     (yyvsp[-2].c), List_Nbr((yyvsp[0].l))) ;
+		     (yyvsp[(1) - (3)].c), List_Nbr((yyvsp[(3) - (3)].l))) ;
 	  }
 	  else {
-	    WholeQuantity_S.Case.Function.NbrParameters = List_Nbr((yyvsp[0].l)) ;
+	    WholeQuantity_S.Case.Function.NbrParameters = List_Nbr((yyvsp[(3) - (3)].l)) ;
 	    if (WholeQuantity_S.Case.Function.NbrParameters > 0) {
 	      WholeQuantity_S.Case.Function.Para =
 		(double *)Malloc
 		(WholeQuantity_S.Case.Function.NbrParameters * sizeof(double)) ;
 	      for (i = 0 ; i < WholeQuantity_S.Case.Function.NbrParameters ; i++)
-		List_Read((yyvsp[0].l), i, &WholeQuantity_S.Case.Function.Para[i]) ;
+		List_Read((yyvsp[(3) - (3)].l), i, &WholeQuantity_S.Case.Function.Para[i]) ;
 	    }
 	  }
 
 	}
 
 	else {
-	  vyyerror("Unknown Function: %s", (yyvsp[-2].c)) ;
+	  vyyerror("Unknown Function: %s", (yyvsp[(1) - (3)].c)) ;
 	}
       }
 
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
-      List_Delete((yyvsp[0].l));
+      List_Delete((yyvsp[(3) - (3)].l));
     ;}
     break;
 
@@ -5563,14 +5784,14 @@ yyreduce:
     { WholeQuantity_S.Type = WQ_OPERATORANDQUANTITY ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = 0 ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity =
-	Get_DefineForString(QuantityFromFS_Type, (yyvsp[-1].c), &FlagError) ;
+	Get_DefineForString(QuantityFromFS_Type, (yyvsp[(1) - (2)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of discrete Quantity: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of discrete Quantity: %s", (yyvsp[(1) - (2)].c));
 	Get_Valid_SXD(QuantityFromFS_Type) ;
       }
-      Free((yyvsp[-1].c)) ;
-      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = (yyvsp[0].t).Int1 ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[0].t).Int2 ;
+      Free((yyvsp[(1) - (2)].c)) ;
+      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = (yyvsp[(2) - (2)].t).Int1 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[(2) - (2)].t).Int2 ;
 
       switch(WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity) {
       case QUANTITY_DOF :
@@ -5599,8 +5820,8 @@ yyreduce:
     { WholeQuantity_S.Type = WQ_OPERATORANDQUANTITY ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = 0 ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity = QUANTITY_SIMPLE ;
-      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = (yyvsp[0].t).Int1 ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[0].t).Int2 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = (yyvsp[(1) - (1)].t).Int1 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[(1) - (1)].t).Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
     break;
@@ -5608,13 +5829,13 @@ yyreduce:
   case 141:
 #line 1337 "GetDP.y"
     { 
-      if((yyvsp[0].i)!=1 && (yyvsp[0].i)!=3 && (yyvsp[0].i)!=4)
-	vyyerror("Wrong number of arguments for discrete quantity evaluation (%d)", (yyvsp[0].i)) ;
+      if((yyvsp[(2) - (2)].i)!=1 && (yyvsp[(2) - (2)].i)!=3 && (yyvsp[(2) - (2)].i)!=4)
+	vyyerror("Wrong number of arguments for discrete quantity evaluation (%d)", (yyvsp[(2) - (2)].i)) ;
       WholeQuantity_S.Type = WQ_OPERATORANDQUANTITYEVAL ;
-      WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = (yyvsp[0].i) ;
+      WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = (yyvsp[(2) - (2)].i) ;
       WholeQuantity_S.Case.OperatorAndQuantity.TypeQuantity = QUANTITY_SIMPLE ;
-      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = (yyvsp[-1].t).Int1 ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[-1].t).Int2 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.TypeOperator = (yyvsp[(1) - (2)].t).Int1 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[(1) - (2)].t).Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
     break;
@@ -5627,7 +5848,7 @@ yyreduce:
   case 143:
 #line 1351 "GetDP.y"
     { WholeQuantity_S.Type = WQ_TIMEDERIVATIVE ;
-      WholeQuantity_S.Case.TimeDerivative.WholeQuantity = (yyvsp[-1].l) ;
+      WholeQuantity_S.Case.TimeDerivative.WholeQuantity = (yyvsp[(4) - (5)].l) ;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
 		&Current_WholeQuantity_L) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
@@ -5645,8 +5866,8 @@ yyreduce:
   case 145:
 #line 1365 "GetDP.y"
     { WholeQuantity_S.Type = WQ_ATANTERIORTIMESTEP ;
-      WholeQuantity_S.Case.AtAnteriorTimeStep.WholeQuantity = (yyvsp[-3].l) ;
-      WholeQuantity_S.Case.AtAnteriorTimeStep.TimeStep = (yyvsp[-1].i) ;
+      WholeQuantity_S.Case.AtAnteriorTimeStep.WholeQuantity = (yyvsp[(4) - (7)].l) ;
+      WholeQuantity_S.Case.AtAnteriorTimeStep.TimeStep = (yyvsp[(6) - (7)].i) ;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
 		&Current_WholeQuantity_L) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
@@ -5664,14 +5885,14 @@ yyreduce:
   case 147:
 #line 1379 "GetDP.y"
     {
-      if ((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[-8].c),fcmp_Expression_Name)) < 0) 
-	vyyerror("Undefined function '%s' used in MHTransform", (yyvsp[-8].c)) ;
+      if ((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(3) - (11)].c),fcmp_Expression_Name)) < 0) 
+	vyyerror("Undefined function '%s' used in MHTransform", (yyvsp[(3) - (11)].c)) ;
       if (Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity)
 	vyyerror("Dof{} definition cannot be used in MHTransform") ;
       WholeQuantity_S.Type = WQ_MHTRANSFORM ; 
       WholeQuantity_S.Case.MHTransform.Index = i ;
-      WholeQuantity_S.Case.MHTransform.WholeQuantity = (yyvsp[-5].l) ;
-      WholeQuantity_S.Case.MHTransform.NbrPoints = (int)(yyvsp[-1].d) ;
+      WholeQuantity_S.Case.MHTransform.WholeQuantity = (yyvsp[(6) - (11)].l) ;
+      WholeQuantity_S.Case.MHTransform.NbrPoints = (int)(yyvsp[(10) - (11)].d) ;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
@@ -5680,12 +5901,12 @@ yyreduce:
   case 148:
 #line 1393 "GetDP.y"
     {
-      if ((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[-6].c),fcmp_Expression_Name)) < 0) 
-	vyyerror("Undefined function '%s' used in MHJacNL", (yyvsp[-6].c)) ;
+      if ((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(3) - (9)].c),fcmp_Expression_Name)) < 0) 
+	vyyerror("Undefined function '%s' used in MHJacNL", (yyvsp[(3) - (9)].c)) ;
       WholeQuantity_S.Type = WQ_MHJACNL ; 
       WholeQuantity_S.Case.MHJacNL.Index = i ;
-      WholeQuantity_S.Case.MHJacNL.NbrPoints = (int)(yyvsp[-3].d) ;
-      WholeQuantity_S.Case.MHJacNL.FreqOffSet = (int)(yyvsp[-1].d) ;
+      WholeQuantity_S.Case.MHJacNL.NbrPoints = (int)(yyvsp[(6) - (9)].d) ;
+      WholeQuantity_S.Case.MHJacNL.FreqOffSet = (int)(yyvsp[(8) - (9)].d) ;
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1, &Current_WholeQuantity_L) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
@@ -5694,7 +5915,7 @@ yyreduce:
   case 149:
 #line 1405 "GetDP.y"
     { WholeQuantity_S.Type = WQ_SOLIDANGLE ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[-1].t).Int2 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[(3) - (4)].t).Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
     break;
@@ -5702,7 +5923,7 @@ yyreduce:
   case 150:
 #line 1411 "GetDP.y"
     { WholeQuantity_S.Type = WQ_ORDER ;
-      WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[-1].t).Int2 ;
+      WholeQuantity_S.Case.OperatorAndQuantity.Index = (yyvsp[(3) - (4)].t).Int2 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
     break;
@@ -5715,16 +5936,16 @@ yyreduce:
   case 152:
 #line 1419 "GetDP.y"
     { WholeQuantity_S.Type = WQ_TRACE ;
-      WholeQuantity_S.Case.Trace.WholeQuantity = (yyvsp[-3].l) ;
-      WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, "WQ_Trace_In", (yyvsp[-1].i)) ;
+      WholeQuantity_S.Case.Trace.WholeQuantity = (yyvsp[(4) - (7)].l) ;
+      WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, "WQ_Trace_In", (yyvsp[(6) - (7)].i)) ;
 
       if(Group_S.Type != ELEMENTLIST || Group_S.SuppListType != SUPPLIST_CONNECTEDTO)
 	vyyerror("Group for Trace should be of Type 'ElementsOf[x, ConnectedTo y]'");
 
       WholeQuantity_S.Case.Trace.DofIndexInWholeQuantity = -1 ;
       if (Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity){
-	for(i=0 ; i<List_Nbr((yyvsp[-3].l)) ; i++){
-	  WholeQuantity_P = (struct WholeQuantity*)List_Pointer((yyvsp[-3].l), i) ;
+	for(i=0 ; i<List_Nbr((yyvsp[(4) - (7)].l)) ; i++){
+	  WholeQuantity_P = (struct WholeQuantity*)List_Pointer((yyvsp[(4) - (7)].l), i) ;
 	  if(WholeQuantity_P->Type == WQ_OPERATORANDQUANTITY)
 	    if(WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity == QUANTITY_DOF){
 	      WholeQuantity_S.Case.Trace.DofIndexInWholeQuantity = i ;
@@ -5746,16 +5967,16 @@ yyreduce:
   case 153:
 #line 1448 "GetDP.y"
     { WholeQuantity_S.Type = WQ_CAST ;
-      WholeQuantity_S.Case.Cast.WholeQuantity = (yyvsp[-1].l) ;
+      WholeQuantity_S.Case.Cast.WholeQuantity = (yyvsp[(5) - (6)].l) ;
 
-      if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, (yyvsp[-4].c),
+      if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, (yyvsp[(2) - (6)].c),
 			       fcmp_DefineQuantity_Name)) < 0) {
-	if (!strcmp((yyvsp[-4].c), "Real"))
+	if (!strcmp((yyvsp[(2) - (6)].c), "Real"))
 	  WholeQuantity_S.Case.Cast.NbrHar = 1 ;
-	else if (!strcmp((yyvsp[-4].c), "Complex"))
+	else if (!strcmp((yyvsp[(2) - (6)].c), "Complex"))
 	  WholeQuantity_S.Case.Cast.NbrHar = 2 ;
 	else
-	  vyyerror("Unknown Cast: %s", (yyvsp[-4].c)) ;
+	  vyyerror("Unknown Cast: %s", (yyvsp[(2) - (6)].c)) ;
       }
       else {
 	WholeQuantity_S.Case.Cast.NbrHar = 0 ;
@@ -5763,7 +5984,7 @@ yyreduce:
 	  ((struct DefineQuantity *)List_Pointer(Formulation_S.DefineQuantity, i))
 	    ->FunctionSpaceIndex ;
       }
-      Free((yyvsp[-4].c)) ;
+      Free((yyvsp[(2) - (6)].c)) ;
 
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
 		&Current_WholeQuantity_L) ;
@@ -5774,13 +5995,13 @@ yyreduce:
   case 154:
 #line 1474 "GetDP.y"
     { WholeQuantity_S.Type = WQ_CURRENTVALUE ;
-      Get_PointerForString(Current_Value, (yyvsp[0].c), &FlagError,
+      Get_PointerForString(Current_Value, (yyvsp[(2) - (2)].c), &FlagError,
 			   (void **)&WholeQuantity_S.Case.CurrentValue.Value) ;
       if (FlagError){
-	vyyerror("Unknown current value: $%s", (yyvsp[0].c));
+	vyyerror("Unknown current value: $%s", (yyvsp[(2) - (2)].c));
 	Get_Valid_SXP(Current_Value);
       }
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(2) - (2)].c)) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
     break;
@@ -5806,7 +6027,7 @@ yyreduce:
   case 157:
 #line 1500 "GetDP.y"
     { WholeQuantity_S.Type = WQ_ARGUMENT ;
-      WholeQuantity_S.Case.Argument.Index = (yyvsp[0].i) ;
+      WholeQuantity_S.Case.Argument.Index = (yyvsp[(2) - (2)].i) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
     break;
@@ -5815,7 +6036,7 @@ yyreduce:
 #line 1506 "GetDP.y"
     {
       WholeQuantity_S.Type = WQ_SAVEVALUE ;
-      WholeQuantity_S.Case.SaveValue.Index = (yyvsp[0].i) - 1 ;
+      WholeQuantity_S.Case.SaveValue.Index = (yyvsp[(3) - (3)].i) - 1 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
     break;
@@ -5824,7 +6045,7 @@ yyreduce:
 #line 1513 "GetDP.y"
     {
       WholeQuantity_S.Type = WQ_VALUESAVED ;
-      WholeQuantity_S.Case.ValueSaved.Index = (yyvsp[0].i) - 1 ;
+      WholeQuantity_S.Case.ValueSaved.Index = (yyvsp[(2) - (2)].i) - 1 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
     break;
@@ -5833,7 +6054,7 @@ yyreduce:
 #line 1520 "GetDP.y"
     {
       WholeQuantity_S.Type = WQ_SHOWVALUE ;
-      WholeQuantity_S.Case.ShowValue.Index = (int)(yyvsp[0].d) ;
+      WholeQuantity_S.Case.ShowValue.Index = (int)(yyvsp[(3) - (3)].d) ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     ;}
     break;
@@ -5850,7 +6071,7 @@ yyreduce:
 
   case 163:
 #line 1533 "GetDP.y"
-    { (yyval.i) = (yyvsp[-1].i) ; ;}
+    { (yyval.i) = (yyvsp[(2) - (3)].i) ; ;}
     break;
 
   case 164:
@@ -5860,7 +6081,7 @@ yyreduce:
 
   case 165:
 #line 1539 "GetDP.y"
-    { (yyval.i) = (yyvsp[-2].i) + 1 ; ;}
+    { (yyval.i) = (yyvsp[(1) - (3)].i) + 1 ; ;}
     break;
 
   case 166:
@@ -5870,7 +6091,7 @@ yyreduce:
 
   case 167:
 #line 1548 "GetDP.y"
-    { (yyval.l) = (yyvsp[-1].l); ;}
+    { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 168:
@@ -5878,7 +6099,7 @@ yyreduce:
     { /* Attention: provisoire. Note: Impossible a mettre dans MultiFExpr
          car conflit avec Affectation dans Group */
       (yyval.l) = List_Create(2, 1, sizeof(double)) ;
-      d = (double)Num_Group(&Group_S, "PA_Region", (yyvsp[-2].i)) ;
+      d = (double)Num_Group(&Group_S, "PA_Region", (yyvsp[(4) - (6)].i)) ;
       List_Add((yyval.l), &d) ;
     ;}
     break;
@@ -5904,13 +6125,13 @@ yyreduce:
   case 173:
 #line 1587 "GetDP.y"
     { Check_NameOfStructNotExist("JacobianMethod", Problem_S.JacobianMethod,
-				 (yyvsp[-1].c), fcmp_JacobianMethod_Name) ;
-      JacobianMethod_S.Name = (yyvsp[-1].c) ; ;}
+				 (yyvsp[(2) - (3)].c), fcmp_JacobianMethod_Name) ;
+      JacobianMethod_S.Name = (yyvsp[(2) - (3)].c) ; ;}
     break;
 
   case 174:
 #line 1592 "GetDP.y"
-    { JacobianMethod_S.JacobianCase = (yyvsp[-1].l) ; ;}
+    { JacobianMethod_S.JacobianCase = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 175:
@@ -5920,7 +6141,7 @@ yyreduce:
 
   case 176:
 #line 1602 "GetDP.y"
-    { List_Add((yyval.l) = (yyvsp[-3].l), &JacobianCase_S) ; ;}
+    { List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &JacobianCase_S) ; ;}
     break;
 
   case 177:
@@ -5931,7 +6152,7 @@ yyreduce:
 
   case 179:
 #line 1619 "GetDP.y"
-    { JacobianCase_S.RegionIndex = Num_Group(&Group_S, "JA_Region", (yyvsp[-1].i)) ; ;}
+    { JacobianCase_S.RegionIndex = Num_Group(&Group_S, "JA_Region", (yyvsp[(2) - (3)].i)) ; ;}
     break;
 
   case 180:
@@ -5942,32 +6163,32 @@ yyreduce:
   case 181:
 #line 1625 "GetDP.y"
     { JacobianCase_S.TypeJacobian =
-	Get_Define1NbrForString(Jacobian_Type, (yyvsp[-2].c), &FlagError,
+	Get_Define1NbrForString(Jacobian_Type, (yyvsp[(2) - (4)].c), &FlagError,
 				&JacobianCase_S.NbrParameters) ;
       if (!FlagError) {
-	if (JacobianCase_S.NbrParameters == -2 && (List_Nbr((yyvsp[-1].l)))%2 != 0)
+	if (JacobianCase_S.NbrParameters == -2 && (List_Nbr((yyvsp[(3) - (4)].l)))%2 != 0)
 	  vyyerror("Wrong number of parameters for Jacobian '%s' (%d is not even)",
-		   (yyvsp[-2].c), List_Nbr((yyvsp[-1].l))) ;
+		   (yyvsp[(2) - (4)].c), List_Nbr((yyvsp[(3) - (4)].l))) ;
 	if (JacobianCase_S.NbrParameters < 0)
-	  JacobianCase_S.NbrParameters = List_Nbr((yyvsp[-1].l));
-	if (List_Nbr((yyvsp[-1].l)) == JacobianCase_S.NbrParameters) {
+	  JacobianCase_S.NbrParameters = List_Nbr((yyvsp[(3) - (4)].l));
+	if (List_Nbr((yyvsp[(3) - (4)].l)) == JacobianCase_S.NbrParameters) {
 	  if (JacobianCase_S.NbrParameters) {
 	    JacobianCase_S.Para =
 	      (double *)Malloc(JacobianCase_S.NbrParameters * sizeof(double)) ;
 	    for (i = 0 ; i < JacobianCase_S.NbrParameters ; i++)
-	      List_Read((yyvsp[-1].l), i, &JacobianCase_S.Para[i]) ;
+	      List_Read((yyvsp[(3) - (4)].l), i, &JacobianCase_S.Para[i]) ;
 	  }
 	}
 	else
 	  vyyerror("Wrong number of parameters for Jacobian '%s' (%d instead of %d)", 
-		   (yyvsp[-2].c), List_Nbr((yyvsp[-1].l)), JacobianCase_S.NbrParameters) ;
+		   (yyvsp[(2) - (4)].c), List_Nbr((yyvsp[(3) - (4)].l)), JacobianCase_S.NbrParameters) ;
       }
       else{
-	vyyerror("Unknown type of Jacobian: %s", (yyvsp[-2].c));
+	vyyerror("Unknown type of Jacobian: %s", (yyvsp[(2) - (4)].c));
 	Get_Valid_SXD1N(Jacobian_Type);
       }
-      Free((yyvsp[-2].c));
-      List_Delete((yyvsp[-1].l));
+      Free((yyvsp[(2) - (4)].c));
+      List_Delete((yyvsp[(3) - (4)].l));
     ;}
     break;
 
@@ -5997,19 +6218,19 @@ yyreduce:
 #line 1689 "GetDP.y"
     { 
       Check_NameOfStructNotExist("IntegrationMethod", Problem_S.IntegrationMethod,
-				 (yyvsp[-1].c), fcmp_IntegrationMethod_Name) ;
-      IntegrationMethod_S.Name = (yyvsp[-1].c) ; 
+				 (yyvsp[(2) - (3)].c), fcmp_IntegrationMethod_Name) ;
+      IntegrationMethod_S.Name = (yyvsp[(2) - (3)].c) ; 
     ;}
     break;
 
   case 187:
 #line 1696 "GetDP.y"
-    { IntegrationMethod_S.CriterionIndex = (yyvsp[-1].i) ;  ;}
+    { IntegrationMethod_S.CriterionIndex = (yyvsp[(2) - (3)].i) ;  ;}
     break;
 
   case 188:
 #line 1699 "GetDP.y"
-    { IntegrationMethod_S.IntegrationCase = (yyvsp[-1].l) ; ;}
+    { IntegrationMethod_S.IntegrationCase = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 189:
@@ -6019,7 +6240,7 @@ yyreduce:
 
   case 190:
 #line 1709 "GetDP.y"
-    { List_Add((yyval.l) = (yyvsp[-3].l), &IntegrationCase_S) ; ;}
+    { List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &IntegrationCase_S) ; ;}
     break;
 
   case 191:
@@ -6033,30 +6254,30 @@ yyreduce:
   case 193:
 #line 1728 "GetDP.y"
     { IntegrationCase_S.Type =
-	Get_DefineForString(Integration_Type, (yyvsp[-1].c), &FlagError) ;
+	Get_DefineForString(Integration_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of Integration method: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of Integration method: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(Integration_Type);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 194:
 #line 1738 "GetDP.y"
     { IntegrationCase_S.SubType =
-	Get_DefineForString(Integration_SubType, (yyvsp[-1].c), &FlagError) ;
+	Get_DefineForString(Integration_SubType, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown subtype of Integration method: %s", (yyvsp[-1].c));
+	vyyerror("Unknown subtype of Integration method: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(Integration_Type);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 195:
 #line 1748 "GetDP.y"
-    { IntegrationCase_S.Case = (yyvsp[-1].l) ; ;}
+    { IntegrationCase_S.Case = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 196:
@@ -6066,7 +6287,7 @@ yyreduce:
 
   case 197:
 #line 1758 "GetDP.y"
-    { List_Add((yyval.l) = (yyvsp[-3].l), &QuadratureCase_S) ; ;}
+    { List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &QuadratureCase_S) ; ;}
     break;
 
   case 198:
@@ -6083,9 +6304,9 @@ yyreduce:
 
   case 200:
 #line 1781 "GetDP.y"
-    { QuadratureCase_S.ElementType = Get_DefineForString(Element_Type, (yyvsp[-1].c), &FlagError) ;
+    { QuadratureCase_S.ElementType = Get_DefineForString(Element_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of Element: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of Element: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(Element_Type);
       }
 
@@ -6126,34 +6347,34 @@ yyreduce:
 	break ;
       }
 
-      if (FlagError)  vyyerror("Bad type of Integration method for Element: %s", (yyvsp[-1].c)) ;
-      Free((yyvsp[-1].c)) ;
+      if (FlagError)  vyyerror("Bad type of Integration method for Element: %s", (yyvsp[(2) - (3)].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 201:
 #line 1829 "GetDP.y"
-    { QuadratureCase_S.NumberOfPoints = (int)(yyvsp[-1].d) ; ;}
+    { QuadratureCase_S.NumberOfPoints = (int)(yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 202:
 #line 1832 "GetDP.y"
-    { QuadratureCase_S.MaxNumberOfPoints = (int)(yyvsp[-1].d) ; ;}
+    { QuadratureCase_S.MaxNumberOfPoints = (int)(yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 203:
 #line 1835 "GetDP.y"
-    { QuadratureCase_S.NumberOfDivisions = (int)(yyvsp[-1].d) ; ;}
+    { QuadratureCase_S.NumberOfDivisions = (int)(yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 204:
 #line 1838 "GetDP.y"
-    { QuadratureCase_S.MaxNumberOfDivisions = (int)(yyvsp[-1].d) ; ;}
+    { QuadratureCase_S.MaxNumberOfDivisions = (int)(yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 205:
 #line 1841 "GetDP.y"
-    { QuadratureCase_S.StoppingCriterion = (yyvsp[-1].d) ; ;}
+    { QuadratureCase_S.StoppingCriterion = (yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 206:
@@ -6182,9 +6403,9 @@ yyreduce:
   case 213:
 #line 1887 "GetDP.y"
     {
-      Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, (yyvsp[-1].c),
+      Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, (yyvsp[(2) - (3)].c),
 				 fcmp_Constraint_Name) ;
-      Constraint_S.Name = (yyvsp[-1].c) ;
+      Constraint_S.Name = (yyvsp[(2) - (3)].c) ;
     ;}
     break;
 
@@ -6192,26 +6413,26 @@ yyreduce:
 #line 1894 "GetDP.y"
     {
       yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
-      Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, (yyvsp[-2].c),
+      Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, (yyvsp[(2) - (4)].c),
 				 fcmp_Constraint_Name) ;
-      Constraint_S.Name = (yyvsp[-2].c) ;
+      Constraint_S.Name = (yyvsp[(2) - (4)].c) ;
     ;}
     break;
 
   case 215:
 #line 1902 "GetDP.y"
-    { Constraint_S.Type = Get_DefineForString(Constraint_Type, (yyvsp[-1].c), &FlagError) ;
+    { Constraint_S.Type = Get_DefineForString(Constraint_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of Constraint: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of Constraint: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(Constraint_Type);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 216:
 #line 1911 "GetDP.y"
-    { Constraint_S.ConstraintPerRegion = (yyvsp[-1].l) ; ;}
+    { Constraint_S.ConstraintPerRegion = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 217:
@@ -6221,8 +6442,8 @@ yyreduce:
 	Constraint_S.MultiConstraintPerRegion =
 	  List_Create( 5, 5, sizeof(struct MultiConstraintPerRegion)) ;
 
-      MultiConstraintPerRegion_S.Name = (yyvsp[-3].c) ;
-      MultiConstraintPerRegion_S.ConstraintPerRegion = (yyvsp[-1].l) ;
+      MultiConstraintPerRegion_S.Name = (yyvsp[(2) - (5)].c) ;
+      MultiConstraintPerRegion_S.ConstraintPerRegion = (yyvsp[(4) - (5)].l) ;
       MultiConstraintPerRegion_S.Active = NULL ;
 
       List_Add(Constraint_S.MultiConstraintPerRegion, 
@@ -6240,14 +6461,14 @@ yyreduce:
   case 219:
 #line 1937 "GetDP.y"
     {
-      List_Add((yyval.l) = (yyvsp[-3].l), &ConstraintPerRegion_S) ;
+      List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &ConstraintPerRegion_S) ;
     ;}
     break;
 
   case 220:
 #line 1942 "GetDP.y"
     { 
-      (yyval.l) = (yyvsp[-1].l) ;
+      (yyval.l) = (yyvsp[(1) - (2)].l) ;
     ;}
     break;
 
@@ -6264,19 +6485,19 @@ yyreduce:
   case 223:
 #line 1965 "GetDP.y"
     { ConstraintPerRegion_S.Type = 
-	Get_DefineForString(Constraint_Type, (yyvsp[-1].c), &FlagError) ;
+	Get_DefineForString(Constraint_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of Constraint: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of Constraint: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(Constraint_Type);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 224:
 #line 1975 "GetDP.y"
     { 
-      ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, "CO_Region", (yyvsp[-1].i)) ;
+      ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, "CO_Region", (yyvsp[(2) - (3)].i)) ;
     ;}
     break;
 
@@ -6284,14 +6505,14 @@ yyreduce:
 #line 1980 "GetDP.y"
     { 
       ConstraintPerRegion_S.SubRegionIndex =
-	Num_Group(&Group_S, "CO_SubRegion", (yyvsp[-1].i)) ;
+	Num_Group(&Group_S, "CO_SubRegion", (yyvsp[(2) - (3)].i)) ;
     ;}
     break;
 
   case 226:
 #line 1986 "GetDP.y"
     {
-      ConstraintPerRegion_S.TimeFunctionIndex = (yyvsp[-1].i) ;
+      ConstraintPerRegion_S.TimeFunctionIndex = (yyvsp[(2) - (3)].i) ;
     ;}
     break;
 
@@ -6300,7 +6521,7 @@ yyreduce:
     { 
       if (ConstraintPerRegion_S.Type == ASSIGN ||
 	  ConstraintPerRegion_S.Type == INIT)
-	ConstraintPerRegion_S.Case.Fixed.ExpressionIndex = (yyvsp[-1].i) ;
+	ConstraintPerRegion_S.Case.Fixed.ExpressionIndex = (yyvsp[(2) - (3)].i) ;
       else  vyyerror("Value incompatible with Type") ;
     ;}
     break;
@@ -6310,7 +6531,7 @@ yyreduce:
     {
       if (ConstraintPerRegion_S.Type == ASSIGNFROMRESOLUTION ||
 	  ConstraintPerRegion_S.Type == INITFROMRESOLUTION)
-	ConstraintPerRegion_S.Case.Solve.ResolutionName = (yyvsp[-1].c) ;
+	ConstraintPerRegion_S.Case.Solve.ResolutionName = (yyvsp[(2) - (3)].c) ;
       else  vyyerror("NameOfResolution incompatible with Type") ;
     ;}
     break;
@@ -6319,8 +6540,8 @@ yyreduce:
 #line 2007 "GetDP.y"
     {
       if (ConstraintPerRegion_S.Type == NETWORK) {
-	ConstraintPerRegion_S.Case.Network.Node1 = (int)(yyvsp[-4].d) ;
-	ConstraintPerRegion_S.Case.Network.Node2 = (int)(yyvsp[-2].d) ;
+	ConstraintPerRegion_S.Case.Network.Node1 = (int)(yyvsp[(3) - (7)].d) ;
+	ConstraintPerRegion_S.Case.Network.Node2 = (int)(yyvsp[(5) - (7)].d) ;
       }
       else  vyyerror("Branch incompatible with Type") ;
     ;}
@@ -6332,7 +6553,7 @@ yyreduce:
       if (ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.RegionRefIndex =
-	  Num_Group(&Group_S, "CO_RegionRef", (yyvsp[-1].i)) ;
+	  Num_Group(&Group_S, "CO_RegionRef", (yyvsp[(2) - (3)].i)) ;
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex = -1 ;
 
 	ConstraintPerRegion_S.Case.Link.FilterIndex = -1 ;
@@ -6352,7 +6573,7 @@ yyreduce:
       if (ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex =
-	  Num_Group(&Group_S, "CO_RegionRef", (yyvsp[-1].i)) ;
+	  Num_Group(&Group_S, "CO_RegionRef", (yyvsp[(2) - (3)].i)) ;
       else  vyyerror("SubRegionRef incompatible with Type") ;
     ;}
     break;
@@ -6362,7 +6583,7 @@ yyreduce:
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
-	ConstraintPerRegion_S.Case.Link.FunctionIndex = (yyvsp[-1].i) ;
+	ConstraintPerRegion_S.Case.Link.FunctionIndex = (yyvsp[(2) - (3)].i) ;
       else  vyyerror("Function incompatible with Type") ;
     ;}
     break;
@@ -6372,7 +6593,7 @@ yyreduce:
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
-	ConstraintPerRegion_S.Case.Link.CoefIndex = (yyvsp[-1].i) ;
+	ConstraintPerRegion_S.Case.Link.CoefIndex = (yyvsp[(2) - (3)].i) ;
       else  vyyerror("Coefficient incompatible with Type") ;
     ;}
     break;
@@ -6382,7 +6603,7 @@ yyreduce:
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
-	ConstraintPerRegion_S.Case.Link.FilterIndex  = (yyvsp[-1].i) ;
+	ConstraintPerRegion_S.Case.Link.FilterIndex  = (yyvsp[(2) - (3)].i) ;
 	ConstraintPerRegion_S.Case.Link.FilterIndex2 = -1 ;
       }
       else  vyyerror("Filter incompatible with Type") ;
@@ -6394,8 +6615,8 @@ yyreduce:
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
-	ConstraintPerRegion_S.Case.Link.FunctionIndex  = (yyvsp[-4].i) ;
-	ConstraintPerRegion_S.Case.Link.FunctionIndex2 = (yyvsp[-2].i) ;
+	ConstraintPerRegion_S.Case.Link.FunctionIndex  = (yyvsp[(3) - (7)].i) ;
+	ConstraintPerRegion_S.Case.Link.FunctionIndex2 = (yyvsp[(5) - (7)].i) ;
       }
       else  vyyerror("Function incompatible with Type") ;
     ;}
@@ -6406,8 +6627,8 @@ yyreduce:
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
-	ConstraintPerRegion_S.Case.Link.CoefIndex  = (yyvsp[-4].i) ;
-	ConstraintPerRegion_S.Case.Link.CoefIndex2 = (yyvsp[-2].i) ;
+	ConstraintPerRegion_S.Case.Link.CoefIndex  = (yyvsp[(3) - (7)].i) ;
+	ConstraintPerRegion_S.Case.Link.CoefIndex2 = (yyvsp[(5) - (7)].i) ;
       }
       else  vyyerror("Coefficient incompatible with Type") ;
     ;}
@@ -6418,8 +6639,8 @@ yyreduce:
     {
       if (ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
-	ConstraintPerRegion_S.Case.Link.FilterIndex  = (yyvsp[-4].i) ;
-	ConstraintPerRegion_S.Case.Link.FilterIndex2 = (yyvsp[-2].i) ;
+	ConstraintPerRegion_S.Case.Link.FilterIndex  = (yyvsp[(3) - (7)].i) ;
+	ConstraintPerRegion_S.Case.Link.FilterIndex2 = (yyvsp[(5) - (7)].i) ;
       }
       else  vyyerror("Filter incompatible with Type") ;
     ;}
@@ -6452,8 +6673,8 @@ yyreduce:
 #line 2147 "GetDP.y"
     {
       Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
-				 (yyvsp[-1].c), fcmp_FunctionSpace_Name) ;
-      FunctionSpace_S.Name = (yyvsp[-1].c) ;
+				 (yyvsp[(2) - (3)].c), fcmp_FunctionSpace_Name) ;
+      FunctionSpace_S.Name = (yyvsp[(2) - (3)].c) ;
     ;}
     break;
 
@@ -6462,40 +6683,40 @@ yyreduce:
     {
       yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
-				 (yyvsp[-2].c), fcmp_FunctionSpace_Name) ;
-      FunctionSpace_S.Name = (yyvsp[-2].c) ;
+				 (yyvsp[(2) - (4)].c), fcmp_FunctionSpace_Name) ;
+      FunctionSpace_S.Name = (yyvsp[(2) - (4)].c) ;
     ;}
     break;
 
   case 248:
 #line 2162 "GetDP.y"
-    { FunctionSpace_S.Type = Get_DefineForString(Field_Type, (yyvsp[-1].c), &FlagError) ;
+    { FunctionSpace_S.Type = Get_DefineForString(Field_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of FunctionSpace: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of FunctionSpace: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(Field_Type);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 249:
 #line 2171 "GetDP.y"
-    { FunctionSpace_S.BasisFunction  = (yyvsp[-1].l) ; ;}
+    { FunctionSpace_S.BasisFunction  = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 250:
 #line 2174 "GetDP.y"
-    { FunctionSpace_S.SubSpace       = (yyvsp[-1].l) ; ;}
+    { FunctionSpace_S.SubSpace       = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 251:
 #line 2177 "GetDP.y"
-    { FunctionSpace_S.GlobalQuantity = (yyvsp[-1].l) ; ;}
+    { FunctionSpace_S.GlobalQuantity = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 252:
 #line 2180 "GetDP.y"
-    { FunctionSpace_S.Constraint     = (yyvsp[-1].l) ; ;}
+    { FunctionSpace_S.Constraint     = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 253:
@@ -6509,7 +6730,7 @@ yyreduce:
   case 254:
 #line 2193 "GetDP.y"
     {
-      if ( (i = List_ISearchSeq((yyvsp[-3].l), BasisFunction_S.Name, 
+      if ( (i = List_ISearchSeq((yyvsp[(1) - (4)].l), BasisFunction_S.Name, 
 				fcmp_BasisFunction_Name)) < 0 ) {
 	/*
 	  BasisFunction_S.Num = Num_BasisFunction++ ;
@@ -6519,16 +6740,16 @@ yyreduce:
 	  List_Nbr(BasisFunction_S.SubFunction) : 1 ;
       }
       else  /* BasisFunction definie par morceaux => meme Num */
-	BasisFunction_S.Num = ((struct BasisFunction *)List_Pointer((yyvsp[-3].l), i))->Num ;
+	BasisFunction_S.Num = ((struct BasisFunction *)List_Pointer((yyvsp[(1) - (4)].l), i))->Num ;
 
-      List_Add((yyval.l) = (yyvsp[-3].l), &BasisFunction_S) ;
+      List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &BasisFunction_S) ;
     ;}
     break;
 
   case 255:
 #line 2210 "GetDP.y"
     {
-      (yyval.l) = (yyvsp[-1].l) ;
+      (yyval.l) = (yyvsp[(1) - (2)].l) ;
     ;}
     break;
 
@@ -6551,36 +6772,36 @@ yyreduce:
 
   case 258:
 #line 2240 "GetDP.y"
-    { BasisFunction_S.Name = (yyvsp[-1].c) ; ;}
+    { BasisFunction_S.Name = (yyvsp[(2) - (3)].c) ; ;}
     break;
 
   case 259:
 #line 2243 "GetDP.y"
     { Check_NameOfStructNotExist("NameOfCoef", Current_BasisFunction_L,
-				 (yyvsp[-1].c), fcmp_BasisFunction_NameOfCoef) ;
-      BasisFunction_S.NameOfCoef = (yyvsp[-1].c) ; BasisFunction_S.Dimension = 1 ; ;}
+				 (yyvsp[(2) - (3)].c), fcmp_BasisFunction_NameOfCoef) ;
+      BasisFunction_S.NameOfCoef = (yyvsp[(2) - (3)].c) ; BasisFunction_S.Dimension = 1 ; ;}
     break;
 
   case 260:
 #line 2248 "GetDP.y"
     { Check_NameOfStructNotExist("NameOfCoef", Current_BasisFunction_L,
-				 (yyvsp[-2].c), fcmp_BasisFunction_NameOfCoef) ;
-      BasisFunction_S.NameOfCoef = (yyvsp[-2].c) ; BasisFunction_S.Dimension = (yyvsp[-1].i) ; ;}
+				 (yyvsp[(2) - (4)].c), fcmp_BasisFunction_NameOfCoef) ;
+      BasisFunction_S.NameOfCoef = (yyvsp[(2) - (4)].c) ; BasisFunction_S.Dimension = (yyvsp[(3) - (4)].i) ; ;}
     break;
 
   case 261:
 #line 2253 "GetDP.y"
     {
       Get_3Function2NbrForString
-	(BF_Function, (yyvsp[-2].c), &FlagError,
+	(BF_Function, (yyvsp[(2) - (4)].c), &FlagError,
 	 &BasisFunction_S.Function, &BasisFunction_S.dFunction, 
 	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Order,
 	 &BasisFunction_S.ElementType) ;
       if (FlagError){
-	vyyerror("Unknown Function for BasisFunction: %s", (yyvsp[-2].c));
+	vyyerror("Unknown Function for BasisFunction: %s", (yyvsp[(2) - (4)].c));
 	Get_Valid_SX3F2N(BF_Function);
       }
-      Free((yyvsp[-2].c)) ;
+      Free((yyvsp[(2) - (4)].c)) ;
     ;}
     break;
 
@@ -6588,21 +6809,21 @@ yyreduce:
 #line 2267 "GetDP.y"
     {
       Get_3Function2NbrForString
-	(BF_Function, (yyvsp[-4].c), &FlagError,
+	(BF_Function, (yyvsp[(3) - (7)].c), &FlagError,
 	 &BasisFunction_S.dFunction, &FunctionDummy, &FunctionDummy, &d, &i) ;
       if (FlagError){
-	vyyerror("Unknown dFunction (1) for BasisFunction: %s", (yyvsp[-4].c));
+	vyyerror("Unknown dFunction (1) for BasisFunction: %s", (yyvsp[(3) - (7)].c));
 	Get_Valid_SX3F2N(BF_Function);
       }
-      Free((yyvsp[-4].c)) ;
+      Free((yyvsp[(3) - (7)].c)) ;
       Get_3Function2NbrForString
-	(BF_Function, (yyvsp[-2].c), &FlagError,
+	(BF_Function, (yyvsp[(5) - (7)].c), &FlagError,
 	 &BasisFunction_S.dInvFunction, &FunctionDummy, &FunctionDummy, &d, &i) ;
       if (FlagError){
-	vyyerror("Unknown dFunction (2) for BasisFunction: %s", (yyvsp[-2].c));
+	vyyerror("Unknown dFunction (2) for BasisFunction: %s", (yyvsp[(5) - (7)].c));
 	Get_Valid_SX3F2N(BF_Function);
       }
-      Free((yyvsp[-2].c)) ;
+      Free((yyvsp[(5) - (7)].c)) ;
     ;}
     break;
 
@@ -6623,14 +6844,14 @@ yyreduce:
   case 265:
 #line 2297 "GetDP.y"
     {
-      BasisFunction_S.SupportIndex = Num_Group(&Group_S, "BF_Support", (yyvsp[-1].i)) ;
+      BasisFunction_S.SupportIndex = Num_Group(&Group_S, "BF_Support", (yyvsp[(2) - (3)].i)) ;
     ;}
     break;
 
   case 266:
 #line 2302 "GetDP.y"
     {
-      BasisFunction_S.EntityIndex = Num_Group(&Group_S, "BF_Entity", (yyvsp[-1].i)) ;
+      BasisFunction_S.EntityIndex = Num_Group(&Group_S, "BF_Entity", (yyvsp[(2) - (3)].i)) ;
       if (Group_S.InitialList)
 	List_Sort(Group_S.InitialList, fcmp_int) ;  /* Needed for Global Region */
 
@@ -6659,7 +6880,7 @@ yyreduce:
   case 268:
 #line 2336 "GetDP.y"
     {
-      Nbr_Index = (yyvsp[-1].i) ;
+      Nbr_Index = (yyvsp[(7) - (8)].i) ;
     ;}
     break;
 
@@ -6680,12 +6901,12 @@ yyreduce:
 #line 2350 "GetDP.y"
     {
       if (!Flag_MultipleIndex)
-	vyyerror("Multiple Resolution needed for multiple Formulation: %s {}", (yyvsp[-12].c)) ;
+	vyyerror("Multiple Resolution needed for multiple Formulation: %s {}", (yyvsp[(6) - (18)].c)) ;
 
       BasisFunction_S.GlobalBasisFunction =
-	List_Create((yyvsp[-11].i), 1, sizeof(struct GlobalBasisFunction)) ;
+	List_Create((yyvsp[(7) - (18)].i), 1, sizeof(struct GlobalBasisFunction)) ;
 
-      for (k = 0 ; k < (yyvsp[-11].i) ; k++) {
+      for (k = 0 ; k < (yyvsp[(7) - (18)].i) ; k++) {
 
 	if (!Flag1) { /* New way: only one group with all the single regions is given */
 	  List_Read(Group_S.InitialList, k, &i) ;
@@ -6705,36 +6926,36 @@ yyreduce:
 	    vyyerror("Only one Region needed in Group: %s", Group_S.Name) ;
 	}
 
-	sprintf(tmpstr, "%s_%d", (yyvsp[-12].c), k+1) ;
+	sprintf(tmpstr, "%s_%d", (yyvsp[(6) - (18)].c), k+1) ;
 	if ((i = List_ISearchSeq(Problem_S.Formulation, tmpstr,
 				 fcmp_Formulation_Name)) >= 0) {
 	  GlobalBasisFunction_S.FormulationIndex = i ;
 	  List_Read(Problem_S.Formulation, i, &Formulation_S) ;
-	  if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, (yyvsp[-15].c), 
+	  if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, (yyvsp[(3) - (18)].c), 
 				   fcmp_DefineQuantity_Name)) >= 0)
 	    GlobalBasisFunction_S.DefineQuantityIndex = i ;
 	  else {
-	    vyyerror("Unknown Quantity '%s' in Formulation '%s'", (yyvsp[-15].c),
+	    vyyerror("Unknown Quantity '%s' in Formulation '%s'", (yyvsp[(3) - (18)].c),
 		     Formulation_S.Name) ;
 	    break ;
 	  }
 	}
 	else
-	  vyyerror("Unknown Formulation: %s {%d}", (yyvsp[-12].c), k+1) ;
+	  vyyerror("Unknown Formulation: %s {%d}", (yyvsp[(6) - (18)].c), k+1) ;
 
-	sprintf(tmpstr, "%s_%d", (yyvsp[-3].c), k+1) ;
+	sprintf(tmpstr, "%s_%d", (yyvsp[(15) - (18)].c), k+1) ;
 	if ((i = List_ISearchSeq(Problem_S.Resolution, tmpstr,
 				 fcmp_Resolution_Name)) >= 0)
 	  GlobalBasisFunction_S.ResolutionIndex = i ;
 	else
-	  vyyerror("Unknown Resolution: %s {%d}", (yyvsp[-3].c), k+1) ;
+	  vyyerror("Unknown Resolution: %s {%d}", (yyvsp[(15) - (18)].c), k+1) ;
 
 	GlobalBasisFunction_S.QuantityStorage = NULL ;
 	List_Add(BasisFunction_S.GlobalBasisFunction, &GlobalBasisFunction_S) ;
       }
       List_Sort(BasisFunction_S.GlobalBasisFunction, fcmp_int) ;
 
-      Free((yyvsp[-15].c)) ; Free((yyvsp[-12].c)) ; Free((yyvsp[-3].c)) ;
+      Free((yyvsp[(3) - (18)].c)) ; Free((yyvsp[(6) - (18)].c)) ; Free((yyvsp[(15) - (18)].c)) ;
     ;}
     break;
 
@@ -6749,7 +6970,7 @@ yyreduce:
   case 272:
 #line 2420 "GetDP.y"
     { 
-      List_Add((yyval.l) = (yyvsp[-3].l), &SubSpace_S) ; 
+      List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &SubSpace_S) ; 
     ;}
     break;
 
@@ -6764,19 +6985,19 @@ yyreduce:
 #line 2440 "GetDP.y"
     { 
       Check_NameOfStructNotExist("SubSpace", Current_SubSpace_L,
-				 (yyvsp[-1].c), fcmp_SubSpace_Name) ;
-      SubSpace_S.Name = (yyvsp[-1].c) ; 
+				 (yyvsp[(2) - (3)].c), fcmp_SubSpace_Name) ;
+      SubSpace_S.Name = (yyvsp[(2) - (3)].c) ; 
     ;}
     break;
 
   case 276:
 #line 2447 "GetDP.y"
-    { SubSpace_S.BasisFunction = (yyvsp[-1].l) ; ;}
+    { SubSpace_S.BasisFunction = (yyvsp[(2) - (3)].l) ; ;}
     break;
 
   case 277:
 #line 2450 "GetDP.y"
-    { SubSpace_S.BasisFunction = (yyvsp[-1].l) ; ;}
+    { SubSpace_S.BasisFunction = (yyvsp[(2) - (3)].l) ; ;}
     break;
 
   case 278:
@@ -6784,22 +7005,22 @@ yyreduce:
     {
       (yyval.l) = List_Create(1, 1, sizeof(int)) ;
       if ((i = List_ISearchSeq(Current_BasisFunction_L,
-			       (yyvsp[0].c), fcmp_BasisFunction_Name)) < 0)
-	vyyerror("Unknown BasisFunction: %s", (yyvsp[0].c)) ;
+			       (yyvsp[(1) - (1)].c), fcmp_BasisFunction_Name)) < 0)
+	vyyerror("Unknown BasisFunction: %s", (yyvsp[(1) - (1)].c)) ;
       else {
 	List_Add((yyval.l), &i) ; j = i+1 ;
 	while ((i = List_ISearchSeqPartial(Current_BasisFunction_L,
-					   (yyvsp[0].c), j, fcmp_BasisFunction_Name)) >= 0) {
+					   (yyvsp[(1) - (1)].c), j, fcmp_BasisFunction_Name)) >= 0) {
 	  List_Add((yyval.l), &i) ; j = i+1 ;  /* for piecewise defined basis functions */
 	}
       }
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(1) - (1)].c)) ;
     ;}
     break;
 
   case 279:
 #line 2473 "GetDP.y"
-    { (yyval.l) = (yyvsp[-1].l) ; ;}
+    { (yyval.l) = (yyvsp[(2) - (3)].l) ; ;}
     break;
 
   case 280:
@@ -6811,16 +7032,16 @@ yyreduce:
 #line 2482 "GetDP.y"
     {
       if ((i = List_ISearchSeq(Current_BasisFunction_L,
-			       (yyvsp[0].c), fcmp_BasisFunction_Name)) < 0)
-	vyyerror("Unknown BasisFunction: %s", (yyvsp[0].c)) ;
+			       (yyvsp[(3) - (3)].c), fcmp_BasisFunction_Name)) < 0)
+	vyyerror("Unknown BasisFunction: %s", (yyvsp[(3) - (3)].c)) ;
       else {
-	List_Add((yyvsp[-2].l), &i) ; j = i+1 ;
+	List_Add((yyvsp[(1) - (3)].l), &i) ; j = i+1 ;
 	while ((i = List_ISearchSeqPartial(Current_BasisFunction_L,
-					   (yyvsp[0].c), j, fcmp_BasisFunction_Name)) >= 0) {
-	  List_Add((yyvsp[-2].l), &i) ; j = i+1 ;  /* for piecewise defined basis functions */
+					   (yyvsp[(3) - (3)].c), j, fcmp_BasisFunction_Name)) >= 0) {
+	  List_Add((yyvsp[(1) - (3)].l), &i) ; j = i+1 ;  /* for piecewise defined basis functions */
 	}
       }
-      (yyval.l) = (yyvsp[-2].l) ; Free((yyvsp[0].c)) ;
+      (yyval.l) = (yyvsp[(1) - (3)].l) ; Free((yyvsp[(3) - (3)].c)) ;
     ;}
     break;
 
@@ -6829,18 +7050,18 @@ yyreduce:
     {
       (yyval.l) = List_Create(1, 1, sizeof(int)) ;
       if ((i = List_ISearchSeq(Current_BasisFunction_L,
-			       (yyvsp[0].c), fcmp_BasisFunction_NameOfCoef)) < 0)
-	vyyerror("Unknown BasisFunctionCoef: %s", (yyvsp[0].c)) ;
+			       (yyvsp[(1) - (1)].c), fcmp_BasisFunction_NameOfCoef)) < 0)
+	vyyerror("Unknown BasisFunctionCoef: %s", (yyvsp[(1) - (1)].c)) ;
       else {
 	List_Add((yyval.l), &i) ; j = i+1 ;
       }
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(1) - (1)].c)) ;
     ;}
     break;
 
   case 283:
 #line 2513 "GetDP.y"
-    { (yyval.l) = (yyvsp[-1].l) ; ;}
+    { (yyval.l) = (yyvsp[(2) - (3)].l) ; ;}
     break;
 
   case 284:
@@ -6854,12 +7075,12 @@ yyreduce:
 #line 2525 "GetDP.y"
     {
       if ((i = List_ISearchSeq(Current_BasisFunction_L,
-			       (yyvsp[0].c), fcmp_BasisFunction_NameOfCoef)) < 0)
-	vyyerror("Unknown BasisFunctionCoef: %s", (yyvsp[0].c)) ;
+			       (yyvsp[(3) - (3)].c), fcmp_BasisFunction_NameOfCoef)) < 0)
+	vyyerror("Unknown BasisFunctionCoef: %s", (yyvsp[(3) - (3)].c)) ;
       else {
-	List_Add((yyvsp[-2].l), &i) ; j = i+1 ;
+	List_Add((yyvsp[(1) - (3)].l), &i) ; j = i+1 ;
       }
-      (yyval.l) = (yyvsp[-2].l) ; Free((yyvsp[0].c)) ;
+      (yyval.l) = (yyvsp[(1) - (3)].l) ; Free((yyvsp[(3) - (3)].c)) ;
     ;}
     break;
 
@@ -6875,14 +7096,14 @@ yyreduce:
 #line 2546 "GetDP.y"
     { 
       GlobalQuantity_S.Num = Num_BasisFunction++ ;
-      List_Add((yyval.l) = (yyvsp[-3].l), &GlobalQuantity_S) ;
+      List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &GlobalQuantity_S) ;
     ;}
     break;
 
   case 288:
 #line 2552 "GetDP.y"
     {
-      (yyval.l) = (yyvsp[-1].l) ;
+      (yyval.l) = (yyvsp[(1) - (2)].l) ;
     ;}
     break;
 
@@ -6898,8 +7119,8 @@ yyreduce:
 #line 2573 "GetDP.y"
     { 
       Check_NameOfStructNotExist("GlobalQuantity", Current_GlobalQuantity_L,
-				 (yyvsp[-1].c), fcmp_GlobalQuantity_Name) ;
-      GlobalQuantity_S.Name = (yyvsp[-1].c) ; 
+				 (yyvsp[(2) - (3)].c), fcmp_GlobalQuantity_Name) ;
+      GlobalQuantity_S.Name = (yyvsp[(2) - (3)].c) ; 
     ;}
     break;
 
@@ -6907,24 +7128,24 @@ yyreduce:
 #line 2580 "GetDP.y"
     { 
       GlobalQuantity_S.Type =
-	Get_DefineForString(GlobalQuantity_Type, (yyvsp[-1].c), &FlagError) ;
+	Get_DefineForString(GlobalQuantity_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of GlobalQuantity: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of GlobalQuantity: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(GlobalQuantity_Type);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 293:
 #line 2591 "GetDP.y"
     { 
-      if ((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, (yyvsp[-1].c), 
+      if ((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, (yyvsp[(2) - (3)].c), 
 			       fcmp_BasisFunction_NameOfCoef)) < 0) 
-	vyyerror("Unknown NameOfCoef: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown NameOfCoef: %s", (yyvsp[(2) - (3)].c)) ;
       else
 	GlobalQuantity_S.ReferenceIndex = i ;
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
@@ -6967,7 +7188,7 @@ yyreduce:
 	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, "CO_Entity", 1, 0) ;
 	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P ;
 	    
-	    List_Add((yyval.l) = (yyvsp[-3].l), &ConstraintInFS_S) ;
+	    List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &ConstraintInFS_S) ;
 	  }
 	}
       }
@@ -6977,7 +7198,7 @@ yyreduce:
   case 296:
 #line 2647 "GetDP.y"
     {
-      (yyval.l) = (yyvsp[-1].l) ;
+      (yyval.l) = (yyvsp[(1) - (2)].l) ;
     ;}
     break;
 
@@ -6995,11 +7216,11 @@ yyreduce:
 
   case 299:
 #line 2672 "GetDP.y"
-    { if ((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, (yyvsp[-1].c), 
+    { if ((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, (yyvsp[(2) - (3)].c), 
 			       fcmp_BasisFunction_NameOfCoef)) < 0) {
-	if ((i = List_ISearchSeq(FunctionSpace_S.GlobalQuantity, (yyvsp[-1].c),
+	if ((i = List_ISearchSeq(FunctionSpace_S.GlobalQuantity, (yyvsp[(2) - (3)].c),
 				 fcmp_GlobalQuantity_Name)) < 0)
-	  vyyerror("Unknown NameOfCoef: %s", (yyvsp[-1].c)) ;
+	  vyyerror("Unknown NameOfCoef: %s", (yyvsp[(2) - (3)].c)) ;
 	else {
 	  ConstraintInFS_S.QuantityType   = GLOBALQUANTITY ;
 	  ConstraintInFS_S.ReferenceIndex = i ;
@@ -7009,26 +7230,26 @@ yyreduce:
 	ConstraintInFS_S.QuantityType   = LOCALQUANTITY ;
 	ConstraintInFS_S.ReferenceIndex = i ;
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 300:
 #line 2705 "GetDP.y"
-    { Type_Function = (yyvsp[-1].i) ; ;}
+    { Type_Function = (yyvsp[(2) - (3)].i) ; ;}
     break;
 
   case 301:
 #line 2708 "GetDP.y"
-    { Type_SuppList = (yyvsp[-1].i) ; ;}
+    { Type_SuppList = (yyvsp[(2) - (3)].i) ; ;}
     break;
 
   case 302:
 #line 2711 "GetDP.y"
     {
       Constraint_Index =
-	List_ISearchSeq(Problem_S.Constraint, (yyvsp[-1].c), fcmp_Constraint_Name) ;
-      Free((yyvsp[-1].c)) ;
+	List_ISearchSeq(Problem_S.Constraint, (yyvsp[(2) - (3)].c), fcmp_Constraint_Name) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
@@ -7057,8 +7278,8 @@ yyreduce:
 #line 2760 "GetDP.y"
     {
       Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
-				 (yyvsp[-1].c), fcmp_Formulation_Name) ;
-      Formulation_S.Name = (yyvsp[-1].c) ;
+				 (yyvsp[(2) - (3)].c), fcmp_Formulation_Name) ;
+      Formulation_S.Name = (yyvsp[(2) - (3)].c) ;
     ;}
     break;
 
@@ -7067,26 +7288,26 @@ yyreduce:
     {
       yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
-				 (yyvsp[-2].c), fcmp_Formulation_Name) ;
-      Formulation_S.Name = (yyvsp[-2].c) ;
+				 (yyvsp[(2) - (4)].c), fcmp_Formulation_Name) ;
+      Formulation_S.Name = (yyvsp[(2) - (4)].c) ;
     ;}
     break;
 
   case 312:
 #line 2775 "GetDP.y"
     { Formulation_S.Type =
-	Get_DefineForString(Formulation_Type, (yyvsp[-1].c), &FlagError) ;
+	Get_DefineForString(Formulation_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of Formulation: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of Formulation: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(Formulation_Type);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 314:
 #line 2787 "GetDP.y"
-    { Formulation_S.Equation = (yyvsp[-1].l) ; ;}
+    { Formulation_S.Equation = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 315:
@@ -7124,7 +7345,7 @@ yyreduce:
 
   case 320:
 #line 2832 "GetDP.y"
-    { DefineQuantity_S.Name = (yyvsp[-1].c) ; ;}
+    { DefineQuantity_S.Name = (yyvsp[(2) - (3)].c) ; ;}
     break;
 
   case 321:
@@ -7140,27 +7361,27 @@ yyreduce:
   case 323:
 #line 2842 "GetDP.y"
     { DefineQuantity_S.Type =
-	Get_DefineForString(DefineQuantity_Type, (yyvsp[-1].c), &FlagError) ;
+	Get_DefineForString(DefineQuantity_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of Quantity: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of Quantity: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(DefineQuantity_Type);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 324:
 #line 2852 "GetDP.y"
-    { DefineQuantity_S.DummyFrequency = (yyvsp[-1].l);
+    { DefineQuantity_S.DummyFrequency = (yyvsp[(2) - (3)].l);
     ;}
     break;
 
   case 325:
 #line 2856 "GetDP.y"
     {
-      if ((i = List_ISearchSeq(Problem_S.FunctionSpace, (yyvsp[0].c),
+      if ((i = List_ISearchSeq(Problem_S.FunctionSpace, (yyvsp[(2) - (2)].c),
 			       fcmp_FunctionSpace_Name)) < 0)
-	vyyerror("Unknown FunctionSpace: %s", (yyvsp[0].c)) ;
+	vyyerror("Unknown FunctionSpace: %s", (yyvsp[(2) - (2)].c)) ;
       else
 	DefineQuantity_S.FunctionSpaceIndex = i ;
     ;}
@@ -7195,7 +7416,7 @@ yyreduce:
   case 327:
 #line 2888 "GetDP.y"
     { 
-      DefineQuantity_S.DofDataIndex = (yyvsp[-1].i) ; 
+      DefineQuantity_S.DofDataIndex = (yyvsp[(2) - (3)].i) ; 
     ;}
     break;
 
@@ -7211,7 +7432,7 @@ yyreduce:
   case 329:
 #line 2899 "GetDP.y"
     { 
-      DefineQuantity_S.IntegralQuantity.WholeQuantity = (yyvsp[-2].l) ;
+      DefineQuantity_S.IntegralQuantity.WholeQuantity = (yyvsp[(3) - (5)].l) ;
       DefineQuantity_S.IntegralQuantity.DofIndexInWholeQuantity = 
 	Current_DofIndexInWholeQuantity ;
 
@@ -7524,46 +7745,46 @@ yyreduce:
   case 330:
 #line 3210 "GetDP.y"
     {
-      DefineQuantity_S.IntegralQuantity.InIndex = Num_Group(&Group_S, "IQ_In", (yyvsp[-1].i)) ;
+      DefineQuantity_S.IntegralQuantity.InIndex = Num_Group(&Group_S, "IQ_In", (yyvsp[(2) - (3)].i)) ;
     ;}
     break;
 
   case 331:
 #line 3215 "GetDP.y"
-    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[-1].c),
+    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[(2) - (3)].c),
 			       fcmp_IntegrationMethod_Name)) < 0)
-	vyyerror("Unknown Integration method: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown Integration method: %s", (yyvsp[(2) - (3)].c)) ;
       else
 	DefineQuantity_S.IntegralQuantity.IntegrationMethodIndex = i ;
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 332:
 #line 3224 "GetDP.y"
-    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[-1].c),
+    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[(2) - (3)].c),
 			       fcmp_IntegrationMethod_Name)) < 0)
-	vyyerror("Unknown Integration method: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown Integration method: %s", (yyvsp[(2) - (3)].c)) ;
       else
 	DefineQuantity_S.IntegralQuantity.FMMIntegrationMethodIndex = i ;
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 333:
 #line 3233 "GetDP.y"
-    { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, (yyvsp[-1].c),
+    { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, (yyvsp[(2) - (3)].c),
 			       fcmp_JacobianMethod_Name)) < 0)
-	vyyerror("Unknown Jacobian method: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown Jacobian method: %s", (yyvsp[(2) - (3)].c)) ;
       else
 	DefineQuantity_S.IntegralQuantity.JacobianMethodIndex = i ;
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 334:
 #line 3242 "GetDP.y"
-    { DefineQuantity_S.IntegralQuantity.Symmetry = (yyvsp[-1].i) ; ;}
+    { DefineQuantity_S.IntegralQuantity.Symmetry = (yyvsp[(2) - (3)].i) ; ;}
     break;
 
   case 336:
@@ -7574,9 +7795,9 @@ yyreduce:
 	  if ((i = List_ISearchSeq
 	       (((struct FunctionSpace *)
 		 List_Pointer(Problem_S.FunctionSpace,
-			      DefineQuantity_S.FunctionSpaceIndex))->SubSpace, (yyvsp[-1].c),
+			      DefineQuantity_S.FunctionSpaceIndex))->SubSpace, (yyvsp[(2) - (3)].c),
 		fcmp_SubSpace_Name)) < 0)
-	    vyyerror("Unknown SubSpace: %s", (yyvsp[-1].c)) ;
+	    vyyerror("Unknown SubSpace: %s", (yyvsp[(2) - (3)].c)) ;
 	  else {
 	    DefineQuantity_S.IndexInFunctionSpace =
 	      ((struct SubSpace *)
@@ -7591,8 +7812,8 @@ yyreduce:
 	  List_Read(Problem_S.FunctionSpace,
 		    DefineQuantity_S.FunctionSpaceIndex, &FunctionSpace_S) ;
 	  if ((i = List_ISearchSeq(FunctionSpace_S.GlobalQuantity, 
-				   (yyvsp[-1].c), fcmp_GlobalQuantity_Name)) < 0) {
-	    vyyerror("Unknown GlobalQuantity: %s", (yyvsp[-1].c)) ;
+				   (yyvsp[(2) - (3)].c), fcmp_GlobalQuantity_Name)) < 0) {
+	    vyyerror("Unknown GlobalQuantity: %s", (yyvsp[(2) - (3)].c)) ;
 	  }
 	  else {
 	    DefineQuantity_S.IndexInFunctionSpace = List_Create(1, 1, sizeof(int));
@@ -7600,7 +7821,7 @@ yyreduce:
 	  }
 	}
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
@@ -7614,21 +7835,21 @@ yyreduce:
   case 338:
 #line 3295 "GetDP.y"
     {
-      List_Add((yyval.l) = (yyvsp[-1].l), &EquationTerm_S) ;
+      List_Add((yyval.l) = (yyvsp[(1) - (2)].l), &EquationTerm_S) ;
     ;}
     break;
 
   case 339:
 #line 3300 "GetDP.y"
     {
-      (yyval.l) = (yyvsp[-1].l) ;
+      (yyval.l) = (yyvsp[(1) - (2)].l) ;
     ;}
     break;
 
   case 340:
 #line 3305 "GetDP.y"
     {
-      (yyval.l) = (yyvsp[-1].l) ;
+      (yyval.l) = (yyvsp[(1) - (2)].l) ;
     ;}
     break;
 
@@ -7664,24 +7885,24 @@ yyreduce:
   case 347:
 #line 3345 "GetDP.y"
     { EquationTerm_S.Case.GlobalEquation.Type =
-	Get_DefineForString(Constraint_Type, (yyvsp[-1].c), &FlagError) ;
+	Get_DefineForString(Constraint_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of GlobalEquation: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of GlobalEquation: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(Constraint_Type);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 348:
 #line 3355 "GetDP.y"
     {
-      if ((i = List_ISearchSeq(Problem_S.Constraint, (yyvsp[-1].c),
+      if ((i = List_ISearchSeq(Problem_S.Constraint, (yyvsp[(2) - (3)].c),
 			       fcmp_Constraint_Name)) >= 0)
 	EquationTerm_S.Case.GlobalEquation.ConstraintIndex = i ;
       else
 	EquationTerm_S.Case.GlobalEquation.ConstraintIndex = -1 ;
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
@@ -7708,22 +7929,22 @@ yyreduce:
 
   case 352:
 #line 3391 "GetDP.y"
-    { GlobalEquationTerm_S.DefineQuantityIndexNode = (yyvsp[-1].t).Int2 ; ;}
+    { GlobalEquationTerm_S.DefineQuantityIndexNode = (yyvsp[(2) - (3)].t).Int2 ; ;}
     break;
 
   case 353:
 #line 3393 "GetDP.y"
-    { GlobalEquationTerm_S.DefineQuantityIndexLoop = (yyvsp[-1].t).Int2 ; ;}
+    { GlobalEquationTerm_S.DefineQuantityIndexLoop = (yyvsp[(2) - (3)].t).Int2 ; ;}
     break;
 
   case 354:
 #line 3395 "GetDP.y"
-    { GlobalEquationTerm_S.DefineQuantityIndexEqu  = (yyvsp[-1].t).Int2 ; ;}
+    { GlobalEquationTerm_S.DefineQuantityIndexEqu  = (yyvsp[(2) - (3)].t).Int2 ; ;}
     break;
 
   case 355:
 #line 3397 "GetDP.y"
-    { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, "FO_In", (yyvsp[-1].i)) ; ;}
+    { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, "FO_In", (yyvsp[(2) - (3)].i)) ; ;}
     break;
 
   case 356:
@@ -7759,7 +7980,7 @@ yyreduce:
 
   case 359:
 #line 3438 "GetDP.y"
-    { EquationTerm_S.Case.LocalTerm.Term.WholeQuantity = (yyvsp[0].l) ;
+    { EquationTerm_S.Case.LocalTerm.Term.WholeQuantity = (yyvsp[(4) - (4)].l) ;
 
       EquationTerm_S.Case.LocalTerm.Term.DofIndexInWholeQuantity =
 	Current_DofIndexInWholeQuantity ;
@@ -7845,13 +8066,13 @@ yyreduce:
       EquationTerm_S.Case.LocalTerm.Term.DefineQuantityIndexEqu = Quantity_Index ;
       EquationTerm_S.Case.LocalTerm.Term.CanonicalWholeQuantity_Equ = CWQ_NONE ;
 
-      WholeQuantity_P = (struct WholeQuantity*) List_Pointer((yyvsp[-2].l), 0) ;
+      WholeQuantity_P = (struct WholeQuantity*) List_Pointer((yyvsp[(7) - (9)].l), 0) ;
 
-      if (List_Nbr((yyvsp[-2].l)) == 1){
+      if (List_Nbr((yyvsp[(7) - (9)].l)) == 1){
 	if ((WholeQuantity_P+0)->Type != WQ_OPERATORANDQUANTITY)
 	  vyyerror("Missing Quantity in Equation");
       }
-      else if (List_Nbr((yyvsp[-2].l)) == 3 &&
+      else if (List_Nbr((yyvsp[(7) - (9)].l)) == 3 &&
 	       ( (WholeQuantity_P+0)->Type == WQ_EXPRESSION &&
 		 (WholeQuantity_P+1)->Type == WQ_OPERATORANDQUANTITY &&
 		 (WholeQuantity_P+2)->Type == WQ_BINARYOPERATOR ) ) {
@@ -7862,7 +8083,7 @@ yyreduce:
 	EquationTerm_S.Case.LocalTerm.Term.OperatorTypeForCanonical_Equ =
 	  (WholeQuantity_P+2)->Case.Operator.TypeOperator ;
       }
-      else if (List_Nbr((yyvsp[-2].l)) == 2 &&
+      else if (List_Nbr((yyvsp[(7) - (9)].l)) == 2 &&
 	       ( (WholeQuantity_P+0)->Type == WQ_OPERATORANDQUANTITY &&
 		 (WholeQuantity_P+1)->Type == WQ_BUILTINFUNCTION ) ) {
 	EquationTerm_S.Case.LocalTerm.Term.CanonicalWholeQuantity_Equ = 
@@ -7897,29 +8118,29 @@ yyreduce:
   case 361:
 #line 3571 "GetDP.y"
     {
-      EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, "FO_In", (yyvsp[-1].i)) ;
+      EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, "FO_In", (yyvsp[(2) - (3)].i)) ;
     ;}
     break;
 
   case 362:
 #line 3576 "GetDP.y"
-    { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, (yyvsp[-1].c),
+    { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, (yyvsp[(2) - (3)].c),
 			       fcmp_JacobianMethod_Name)) < 0)
-	vyyerror("Unknown Jacobian method: %s",(yyvsp[-1].c)) ;
+	vyyerror("Unknown Jacobian method: %s",(yyvsp[(2) - (3)].c)) ;
       else
 	EquationTerm_S.Case.LocalTerm.JacobianMethodIndex = i ;
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 363:
 #line 3585 "GetDP.y"
-    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[-1].c),
+    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[(2) - (3)].c),
 			       fcmp_IntegrationMethod_Name)) < 0)
-	vyyerror("Unknown Integration method: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown Integration method: %s", (yyvsp[(2) - (3)].c)) ;
       else
 	EquationTerm_S.Case.LocalTerm.IntegrationMethodIndex = i ;
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
@@ -7932,21 +8153,21 @@ yyreduce:
 
   case 365:
 #line 3599 "GetDP.y"
-    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[-1].c),
+    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[(2) - (3)].c),
 			       fcmp_IntegrationMethod_Name)) < 0)
-	vyyerror("Unknown Integration method: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown Integration method: %s", (yyvsp[(2) - (3)].c)) ;
       else
 	EquationTerm_S.Case.LocalTerm.FMMIntegrationMethodIndex = i ;
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 366:
 #line 3608 "GetDP.y"
-    { if ( (yyvsp[-2].i) == 1 || (yyvsp[-2].i) == 2 || (yyvsp[-2].i) == 3 )
-	EquationTerm_S.Case.LocalTerm.MatrixIndex = (yyvsp[-2].i) ;
+    { if ( (yyvsp[(3) - (5)].i) == 1 || (yyvsp[(3) - (5)].i) == 2 || (yyvsp[(3) - (5)].i) == 3 )
+	EquationTerm_S.Case.LocalTerm.MatrixIndex = (yyvsp[(3) - (5)].i) ;
       else
-	vyyerror("Unknown Matrix123: %d", (yyvsp[-2].i)) ;
+	vyyerror("Unknown Matrix123: %d", (yyvsp[(3) - (5)].i)) ;
     ;}
     break;
 
@@ -7970,7 +8191,7 @@ yyreduce:
   case 369:
 #line 3648 "GetDP.y"
     {
-      EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, "FO_In", (yyvsp[-1].i)) ;
+      EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, "FO_In", (yyvsp[(2) - (3)].i)) ;
     ;}
     break;
 
@@ -7986,7 +8207,7 @@ yyreduce:
 
   case 371:
 #line 3661 "GetDP.y"
-    { EquationTerm_S.Case.GlobalTerm.Term.WholeQuantity = (yyvsp[0].l) ;
+    { EquationTerm_S.Case.GlobalTerm.Term.WholeQuantity = (yyvsp[(4) - (4)].l) ;
 
       EquationTerm_S.Case.GlobalTerm.Term.DofIndexInWholeQuantity =
 	Current_DofIndexInWholeQuantity ;
@@ -8043,8 +8264,8 @@ yyreduce:
 
   case 372:
 #line 3716 "GetDP.y"
-    { EquationTerm_S.Case.GlobalTerm.Term.TypeOperatorEqu = (yyvsp[-2].t).Int1 ;
-      EquationTerm_S.Case.GlobalTerm.Term.DefineQuantityIndexEqu = (yyvsp[-2].t).Int2 ;
+    { EquationTerm_S.Case.GlobalTerm.Term.TypeOperatorEqu = (yyvsp[(7) - (9)].t).Int1 ;
+      EquationTerm_S.Case.GlobalTerm.Term.DefineQuantityIndexEqu = (yyvsp[(7) - (9)].t).Int2 ;
 
       Pro_DefineQuantityIndex
 	(EquationTerm_S.Case.GlobalTerm.Term.WholeQuantity,
@@ -8097,16 +8318,16 @@ yyreduce:
 
   case 381:
 #line 3747 "GetDP.y"
-    { (yyval.t).Int1 = Get_DefineForString(Operator_Type, (yyvsp[-2].c), &FlagError) ;
+    { (yyval.t).Int1 = Get_DefineForString(Operator_Type, (yyvsp[(2) - (4)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown Operator for discrete Quantity: %s", (yyvsp[-2].c));
+	vyyerror("Unknown Operator for discrete Quantity: %s", (yyvsp[(2) - (4)].c));
 	Get_Valid_SXD(Operator_Type);
       }
-      Free((yyvsp[-2].c)) ;
+      Free((yyvsp[(2) - (4)].c)) ;
 
-      if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, (yyvsp[-1].c),
+      if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, (yyvsp[(3) - (4)].c),
 			       fcmp_DefineQuantity_Name)) < 0)
-	vyyerror("Unknown discrete Quantity: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown discrete Quantity: %s", (yyvsp[(3) - (4)].c)) ;
       (yyval.t).Int2 = i ;
 
       /* the following should be suppressed as soon as the test
@@ -8114,7 +8335,7 @@ yyreduce:
       Quantity_TypeOperator = (yyval.t).Int1 ;
       Quantity_Index = (yyval.t).Int2 ;
 
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(3) - (4)].c)) ;
     ;}
     break;
 
@@ -8122,9 +8343,9 @@ yyreduce:
 #line 3768 "GetDP.y"
     { (yyval.t).Int1 = NOOP ;
 
-      if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, (yyvsp[-1].c),
+      if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, (yyvsp[(2) - (3)].c),
 			       fcmp_DefineQuantity_Name)) < 0)
-	vyyerror("Unknown discrete Quantity: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown discrete Quantity: %s", (yyvsp[(2) - (3)].c)) ;
       (yyval.t).Int2 = i ;
 
       /* the following should be suppressed as soon as the test
@@ -8132,7 +8353,7 @@ yyreduce:
       Quantity_TypeOperator = (yyval.t).Int1 ;
       Quantity_Index = (yyval.t).Int2 ;
 
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
@@ -8162,8 +8383,8 @@ yyreduce:
 #line 3827 "GetDP.y"
     {
       Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
-				 (yyvsp[-1].c), fcmp_Resolution_Name) ;
-      Resolution_S.Name = (yyvsp[-1].c) ;
+				 (yyvsp[(2) - (3)].c), fcmp_Resolution_Name) ;
+      Resolution_S.Name = (yyvsp[(2) - (3)].c) ;
     ;}
     break;
 
@@ -8172,14 +8393,14 @@ yyreduce:
     {
       yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
-				 (yyvsp[-2].c), fcmp_Resolution_Name) ;
-      Resolution_S.Name = (yyvsp[-2].c) ;
+				 (yyvsp[(2) - (4)].c), fcmp_Resolution_Name) ;
+      Resolution_S.Name = (yyvsp[(2) - (4)].c) ;
     ;}
     break;
 
   case 392:
 #line 3842 "GetDP.y"
-    { Resolution_S.DefineSystem = (yyvsp[-1].l) ; ;}
+    { Resolution_S.DefineSystem = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 393:
@@ -8189,7 +8410,7 @@ yyreduce:
 
   case 394:
 #line 3847 "GetDP.y"
-    { Resolution_S.Operation = (yyvsp[-1].l) ;  List_Delete(Operation_L) ; ;}
+    { Resolution_S.Operation = (yyvsp[(4) - (5)].l) ;  List_Delete(Operation_L) ; ;}
     break;
 
   case 396:
@@ -8202,21 +8423,21 @@ yyreduce:
   case 397:
 #line 3860 "GetDP.y"
     {
-      List_Add((yyval.l) = Current_System_L = (yyvsp[-3].l), &DefineSystem_S) ;
+      List_Add((yyval.l) = Current_System_L = (yyvsp[(1) - (4)].l), &DefineSystem_S) ;
     ;}
     break;
 
   case 398:
 #line 3865 "GetDP.y"
     {
-       (yyval.l) = (yyvsp[-1].l) ;
+       (yyval.l) = (yyvsp[(1) - (2)].l) ;
      ;}
     break;
 
   case 399:
 #line 3870 "GetDP.y"
     {
-       (yyval.l) = (yyvsp[-1].l) ;
+       (yyval.l) = (yyvsp[(1) - (2)].l) ;
      ;}
     break;
 
@@ -8238,49 +8459,49 @@ yyreduce:
 
   case 402:
 #line 3899 "GetDP.y"
-    { DefineSystem_S.Name = (yyvsp[-1].c) ; ;}
+    { DefineSystem_S.Name = (yyvsp[(2) - (3)].c) ; ;}
     break;
 
   case 403:
 #line 3902 "GetDP.y"
-    { DefineSystem_S.Type = Get_DefineForString(DefineSystem_Type, (yyvsp[-1].c), &FlagError) ;
+    { DefineSystem_S.Type = Get_DefineForString(DefineSystem_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of System: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of System: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(DefineSystem_Type);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 404:
 #line 3911 "GetDP.y"
-    { DefineSystem_S.FormulationIndex = (yyvsp[-1].l) ; ;}
+    { DefineSystem_S.FormulationIndex = (yyvsp[(2) - (3)].l) ; ;}
     break;
 
   case 405:
 #line 3914 "GetDP.y"
     {
-      DefineSystem_S.MeshName = (yyvsp[-1].c) ;
+      DefineSystem_S.MeshName = (yyvsp[(2) - (3)].c) ;
     ;}
     break;
 
   case 406:
 #line 3919 "GetDP.y"
     { 
-      DefineSystem_S.OriginSystemIndex = (yyvsp[-1].l) ;
+      DefineSystem_S.OriginSystemIndex = (yyvsp[(2) - (3)].l) ;
     ;}
     break;
 
   case 407:
 #line 3924 "GetDP.y"
     { 
-      DefineSystem_S.DestinationSystemName = (yyvsp[-1].c) ; 
+      DefineSystem_S.DestinationSystemName = (yyvsp[(2) - (3)].c) ; 
     ;}
     break;
 
   case 408:
 #line 3929 "GetDP.y"
-    { DefineSystem_S.FrequencyValue = (yyvsp[-1].l);
+    { DefineSystem_S.FrequencyValue = (yyvsp[(2) - (3)].l);
       DefineSystem_S.Type = VAL_COMPLEX ;
     ;}
     break;
@@ -8288,7 +8509,7 @@ yyreduce:
   case 409:
 #line 3934 "GetDP.y"
     {
-      DefineSystem_S.SolverDataFileName = (yyvsp[-1].c) ;
+      DefineSystem_S.SolverDataFileName = (yyvsp[(2) - (3)].c) ;
     ;}
     break;
 
@@ -8296,16 +8517,16 @@ yyreduce:
 #line 3945 "GetDP.y"
     {
       (yyval.l) = List_Create(1, 1, sizeof(int)) ;
-      if ((i = List_ISearchSeq(Problem_S.Formulation, (yyvsp[0].c), fcmp_Formulation_Name)) < 0)
-	vyyerror("Unknown Formulation: %s", (yyvsp[0].c)) ;
+      if ((i = List_ISearchSeq(Problem_S.Formulation, (yyvsp[(1) - (1)].c), fcmp_Formulation_Name)) < 0)
+	vyyerror("Unknown Formulation: %s", (yyvsp[(1) - (1)].c)) ;
       else  List_Add((yyval.l), &i) ;
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(1) - (1)].c)) ;
     ;}
     break;
 
   case 412:
 #line 3954 "GetDP.y"
-    { (yyval.l) = (yyvsp[-1].l) ; ;}
+    { (yyval.l) = (yyvsp[(2) - (3)].l) ; ;}
     break;
 
   case 413:
@@ -8316,11 +8537,11 @@ yyreduce:
   case 414:
 #line 3964 "GetDP.y"
     {
-      if ((i = List_ISearchSeq(Problem_S.Formulation, (yyvsp[0].c), fcmp_Formulation_Name)) < 0)
-	vyyerror("Unknown Formulation: %s", (yyvsp[0].c)) ;
+      if ((i = List_ISearchSeq(Problem_S.Formulation, (yyvsp[(3) - (3)].c), fcmp_Formulation_Name)) < 0)
+	vyyerror("Unknown Formulation: %s", (yyvsp[(3) - (3)].c)) ;
       else  
-	List_Add((yyvsp[-2].l), &i) ;
-      (yyval.l) = (yyvsp[-2].l) ; Free((yyvsp[0].c)) ;
+	List_Add((yyvsp[(1) - (3)].l), &i) ;
+      (yyval.l) = (yyvsp[(1) - (3)].l) ; Free((yyvsp[(3) - (3)].c)) ;
     ;}
     break;
 
@@ -8328,17 +8549,17 @@ yyreduce:
 #line 3976 "GetDP.y"
     {
       (yyval.l) = List_Create(1, 1, sizeof(int)) ;
-      if ((i = List_ISearchSeq(Current_System_L, (yyvsp[0].c), fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[0].c)) ;
+      if ((i = List_ISearchSeq(Current_System_L, (yyvsp[(1) - (1)].c), fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", (yyvsp[(1) - (1)].c)) ;
       else  
 	List_Add((yyval.l), &i) ;
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(1) - (1)].c)) ;
     ;}
     break;
 
   case 416:
 #line 3986 "GetDP.y"
-    { (yyval.l) = (yyvsp[-1].l) ;  ;}
+    { (yyval.l) = (yyvsp[(2) - (3)].l) ;  ;}
     break;
 
   case 417:
@@ -8349,11 +8570,11 @@ yyreduce:
   case 418:
 #line 3995 "GetDP.y"
     {
-      if ((i = List_ISearchSeq(Current_System_L, (yyvsp[0].c), fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[0].c)) ;
+      if ((i = List_ISearchSeq(Current_System_L, (yyvsp[(3) - (3)].c), fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (3)].c)) ;
       else  
-	List_Add((yyvsp[-2].l), &i) ;
-      (yyval.l) = (yyvsp[-2].l) ; Free((yyvsp[0].c)) ;
+	List_Add((yyvsp[(1) - (3)].l), &i) ;
+      (yyval.l) = (yyvsp[(1) - (3)].l) ; Free((yyvsp[(3) - (3)].c)) ;
     ;}
     break;
 
@@ -8372,7 +8593,7 @@ yyreduce:
     { 
       if (((struct Operation*)
 	  List_Pointer(Operation_L, List_Nbr(Operation_L)-1))->Type !=  OPERATION_NONE)
-	List_Add((yyval.l) = (yyvsp[-1].l), (struct Operation*)
+	List_Add((yyval.l) = (yyvsp[(1) - (2)].l), (struct Operation*)
 		 List_Pointer(Operation_L, List_Nbr(Operation_L)-1)) ; 
     ;}
     break;
@@ -8381,17 +8602,17 @@ yyreduce:
 #line 4028 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = Get_DefineForString(Operation_Type, (yyvsp[-2].c), &FlagError) ;
+      Operation_P->Type = Get_DefineForString(Operation_Type, (yyvsp[(1) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of Operation: %s", (yyvsp[-2].c));
+	vyyerror("Unknown type of Operation: %s", (yyvsp[(1) - (3)].c));
 	Get_Valid_SXD(Operation_Type);
       }
-      Free((yyvsp[-2].c)) ;
+      Free((yyvsp[(1) - (3)].c)) ;
 
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-1].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(2) - (3)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-1].c)) ;
-      Free((yyvsp[-1].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(2) - (3)].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
       Operation_P->DefineSystemIndex = i ;
 
       if (Operation_P->Type == OPERATION_GENERATE || 
@@ -8406,7 +8627,7 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SETTIME ;
-      Operation_P->Case.SetTime.ExpressionIndex = (yyvsp[-1].i) ;
+      Operation_P->Case.SetTime.ExpressionIndex = (yyvsp[(2) - (3)].i) ;
     ;}
     break;
 
@@ -8446,17 +8667,17 @@ yyreduce:
 #line 4083 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Type = Get_DefineForString(Operation_Type, (yyvsp[-4].c), &FlagError) ;
+      Operation_P->Type = Get_DefineForString(Operation_Type, (yyvsp[(1) - (5)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of Operation: %s", (yyvsp[-4].c));
+	vyyerror("Unknown type of Operation: %s", (yyvsp[(1) - (5)].c));
 	Get_Valid_SXD(Operation_Type);
       }
-      Free((yyvsp[-4].c)) ;
+      Free((yyvsp[(1) - (5)].c)) ;
       
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-2].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (5)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-2].c)) ;
-      Free((yyvsp[-2].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (5)].c)) ;
+      Free((yyvsp[(3) - (5)].c)) ;
       Operation_P->DefineSystemIndex = i ;
 
       if (Operation_P->Type == OPERATION_GENERATE || 
@@ -8471,7 +8692,7 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SETTIME ;
-      Operation_P->Case.SetTime.ExpressionIndex = (yyvsp[-2].i) ;
+      Operation_P->Case.SetTime.ExpressionIndex = (yyvsp[(3) - (5)].i) ;
     ;}
     break;
 
@@ -8490,8 +8711,8 @@ yyreduce:
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_TEST ;
-      Operation_P->Case.Test.ExpressionIndex = (yyvsp[-4].i) ;
-      Operation_P->Case.Test.Operation_True = (yyvsp[-1].l) ;
+      Operation_P->Case.Test.ExpressionIndex = (yyvsp[(3) - (7)].i) ;
+      Operation_P->Case.Test.Operation_True = (yyvsp[(6) - (7)].l) ;
       Operation_P->Case.Test.Operation_False = NULL ;
     ;}
     break;
@@ -8503,9 +8724,9 @@ yyreduce:
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_TEST ;
-      Operation_P->Case.Test.ExpressionIndex = (yyvsp[-8].i) ;
-      Operation_P->Case.Test.Operation_True = (yyvsp[-5].l) ;
-      Operation_P->Case.Test.Operation_False = (yyvsp[-1].l) ;
+      Operation_P->Case.Test.ExpressionIndex = (yyvsp[(3) - (11)].i) ;
+      Operation_P->Case.Test.Operation_True = (yyvsp[(6) - (11)].l) ;
+      Operation_P->Case.Test.Operation_False = (yyvsp[(10) - (11)].l) ;
     ;}
     break;
 
@@ -8514,12 +8735,12 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SETFREQUENCY ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-4].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (7)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-4].c)) ;
-      Free((yyvsp[-4].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (7)].c)) ;
+      Free((yyvsp[(3) - (7)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.SetFrequency.ExpressionIndex = (yyvsp[-2].i) ;
+      Operation_P->Case.SetFrequency.ExpressionIndex = (yyvsp[(5) - (7)].i) ;
     ;}
     break;
 
@@ -8528,15 +8749,15 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_GENERATEFMMGROUPS ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-10].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (13)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-10].c)) ;
-      Free((yyvsp[-10].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (13)].c)) ;
+      Free((yyvsp[(3) - (13)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.GenerateFMMGroups.DivXYZIndex = (yyvsp[-8].i);      
-      Operation_P->Case.GenerateFMMGroups.Dfar = (yyvsp[-6].i);
-      Operation_P->Case.GenerateFMMGroups.Precision = (yyvsp[-4].i);
-      Operation_P->Case.GenerateFMMGroups.FlagDTA = (yyvsp[-2].i);      
+      Operation_P->Case.GenerateFMMGroups.DivXYZIndex = (yyvsp[(5) - (13)].i);      
+      Operation_P->Case.GenerateFMMGroups.Dfar = (yyvsp[(7) - (13)].i);
+      Operation_P->Case.GenerateFMMGroups.Precision = (yyvsp[(9) - (13)].i);
+      Operation_P->Case.GenerateFMMGroups.FlagDTA = (yyvsp[(11) - (13)].i);      
     ;}
     break;
 
@@ -8545,14 +8766,14 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_GENERATEFMMGROUPS ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-8].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (11)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-8].c)) ;
-      Free((yyvsp[-8].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (11)].c)) ;
+      Free((yyvsp[(3) - (11)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.GenerateFMMGroups.DivXYZIndex = (yyvsp[-6].i);      
-      Operation_P->Case.GenerateFMMGroups.Dfar = (yyvsp[-4].i);
-      Operation_P->Case.GenerateFMMGroups.Precision = (yyvsp[-2].i);
+      Operation_P->Case.GenerateFMMGroups.DivXYZIndex = (yyvsp[(5) - (11)].i);      
+      Operation_P->Case.GenerateFMMGroups.Dfar = (yyvsp[(7) - (11)].i);
+      Operation_P->Case.GenerateFMMGroups.Precision = (yyvsp[(9) - (11)].i);
       Operation_P->Case.GenerateFMMGroups.FlagDTA = -1;      
     ;}
     break;
@@ -8562,13 +8783,13 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_GENERATEFMMGROUPS ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-6].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (9)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-6].c)) ;
-      Free((yyvsp[-6].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (9)].c)) ;
+      Free((yyvsp[(3) - (9)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.GenerateFMMGroups.DivXYZIndex = (yyvsp[-4].i);      
-      Operation_P->Case.GenerateFMMGroups.Dfar = (yyvsp[-2].i);
+      Operation_P->Case.GenerateFMMGroups.DivXYZIndex = (yyvsp[(5) - (9)].i);      
+      Operation_P->Case.GenerateFMMGroups.Dfar = (yyvsp[(7) - (9)].i);
       Operation_P->Case.GenerateFMMGroups.Precision = -1;
       Operation_P->Case.GenerateFMMGroups.FlagDTA = -1;      
     ;}
@@ -8579,20 +8800,20 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_GENERATEONLY ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-4].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (7)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-4].c)) ;
-      Free((yyvsp[-4].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (7)].c)) ;
+      Free((yyvsp[(3) - (7)].c)) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.GenerateOnly.MatrixIndex_L =
-	List_Create(List_Nbr((yyvsp[-2].l)),1,sizeof(int));
+	List_Create(List_Nbr((yyvsp[(5) - (7)].l)),1,sizeof(int));
      
-      for(i=0 ; i<List_Nbr((yyvsp[-2].l)) ; i++){
-	List_Read((yyvsp[-2].l),i,&d);
+      for(i=0 ; i<List_Nbr((yyvsp[(5) - (7)].l)) ; i++){
+	List_Read((yyvsp[(5) - (7)].l),i,&d);
 	j = (int)d ;
 	List_Add(Operation_P->Case.GenerateOnly.MatrixIndex_L, &j);
       }
-      List_Delete((yyvsp[-2].l)); 
+      List_Delete((yyvsp[(5) - (7)].l)); 
     ;}
     break;
 
@@ -8601,20 +8822,20 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_GENERATEONLYJAC ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-4].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (7)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-4].c)) ;
-      Free((yyvsp[-4].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (7)].c)) ;
+      Free((yyvsp[(3) - (7)].c)) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.GenerateOnly.MatrixIndex_L =
-	List_Create(List_Nbr((yyvsp[-2].l)),1,sizeof(int));
+	List_Create(List_Nbr((yyvsp[(5) - (7)].l)),1,sizeof(int));
      
-      for(i=0 ; i<List_Nbr((yyvsp[-2].l)) ; i++){
-	List_Read((yyvsp[-2].l),i,&d);
+      for(i=0 ; i<List_Nbr((yyvsp[(5) - (7)].l)) ; i++){
+	List_Read((yyvsp[(5) - (7)].l),i,&d);
 	j = (int)d ;
 	List_Add(Operation_P->Case.GenerateOnly.MatrixIndex_L, &j);
       }
-      List_Delete((yyvsp[-2].l)); 
+      List_Delete((yyvsp[(5) - (7)].l)); 
     ;}
     break;
 
@@ -8623,12 +8844,12 @@ yyreduce:
     { Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_UPDATE ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-4].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (7)].c),
                                fcmp_DefineSystem_Name)) < 0)
-        vyyerror("Unknown System: %s", (yyvsp[-4].c)) ;
-      Free((yyvsp[-4].c)) ;
+        vyyerror("Unknown System: %s", (yyvsp[(3) - (7)].c)) ;
+      Free((yyvsp[(3) - (7)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.Update.ExpressionIndex = (yyvsp[-2].i) ;
+      Operation_P->Case.Update.ExpressionIndex = (yyvsp[(5) - (7)].i) ;
     ;}
     break;
 
@@ -8637,20 +8858,20 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
     Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-6].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (9)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-6].c)) ;
-      Free((yyvsp[-6].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (9)].c)) ;
+      Free((yyvsp[(3) - (9)].c)) ;
       Operation_P->DefineSystemIndex = i ;
       Operation_P->Case.UpdateConstraint.GroupIndex =
-	Num_Group(&Group_S, "OP_UpdateCst", (yyvsp[-4].i)) ;
+	Num_Group(&Group_S, "OP_UpdateCst", (yyvsp[(5) - (9)].i)) ;
       Operation_P->Case.UpdateConstraint.Type =
-	Get_DefineForString(Constraint_Type, (yyvsp[-2].c), &FlagError) ;
+	Get_DefineForString(Constraint_Type, (yyvsp[(7) - (9)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of Constraint: %s", (yyvsp[-2].c));
+	vyyerror("Unknown type of Constraint: %s", (yyvsp[(7) - (9)].c));
 	Get_Valid_SXD(Constraint_Type);
       }
-      Free((yyvsp[-2].c)) ;
+      Free((yyvsp[(7) - (9)].c)) ;
     ;}
     break;
 
@@ -8659,17 +8880,17 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_FOURIERTRANSFORM ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-6].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (9)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-6].c)) ;
-      Free((yyvsp[-6].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (9)].c)) ;
+      Free((yyvsp[(3) - (9)].c)) ;
       Operation_P->Case.FourierTransform.DefineSystemIndex[0] = i ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-4].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(5) - (9)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-4].c)) ;
-      Free((yyvsp[-4].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(5) - (9)].c)) ;
+      Free((yyvsp[(5) - (9)].c)) ;
       Operation_P->Case.FourierTransform.DefineSystemIndex[1] = i ;
-      Operation_P->Case.FourierTransform.Frequency = (yyvsp[-2].l);
+      Operation_P->Case.FourierTransform.Frequency = (yyvsp[(7) - (9)].l);
     ;}
     break;
 
@@ -8678,17 +8899,17 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_FOURIERTRANSFORM2 ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-6].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (9)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-6].c)) ;
-      Free((yyvsp[-6].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (9)].c)) ;
+      Free((yyvsp[(3) - (9)].c)) ;
       Operation_P->Case.FourierTransform2.DefineSystemIndex[0] = i ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-4].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(5) - (9)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-4].c)) ;
-      Free((yyvsp[-4].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(5) - (9)].c)) ;
+      Free((yyvsp[(5) - (9)].c)) ;
       Operation_P->Case.FourierTransform2.DefineSystemIndex[1] = i ;
-      Operation_P->Case.FourierTransform2.Period = (yyvsp[-2].d);
+      Operation_P->Case.FourierTransform2.Period = (yyvsp[(7) - (9)].d);
       Operation_P->Case.FourierTransform2.Period_sofar = 0.;
       Operation_P->Case.FourierTransform2.Scales = NULL;
     ;}
@@ -8699,21 +8920,21 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_LANCZOS ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-8].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (11)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-8].c)) ;
-      Free((yyvsp[-8].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (11)].c)) ;
+      Free((yyvsp[(3) - (11)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.Lanczos.Size = (int)(yyvsp[-6].d) ;
+      Operation_P->Case.Lanczos.Size = (int)(yyvsp[(5) - (11)].d) ;
       Operation_P->Case.Lanczos.Save = 
-	List_Create(List_Nbr((yyvsp[-4].l)), 1, sizeof(int)) ;
-      for (i = 0 ; i < List_Nbr((yyvsp[-4].l)) ; i++) {
-	List_Read((yyvsp[-4].l), i, &d) ;
+	List_Create(List_Nbr((yyvsp[(7) - (11)].l)), 1, sizeof(int)) ;
+      for (i = 0 ; i < List_Nbr((yyvsp[(7) - (11)].l)) ; i++) {
+	List_Read((yyvsp[(7) - (11)].l), i, &d) ;
 	j = (int)d ;
 	List_Add(Operation_P->Case.Lanczos.Save, &j) ;
       }
-      List_Delete((yyvsp[-4].l));
-      Operation_P->Case.Lanczos.Shift = (yyvsp[-2].d) ;
+      List_Delete((yyvsp[(7) - (11)].l));
+      Operation_P->Case.Lanczos.Shift = (yyvsp[(9) - (11)].d) ;
     ;}
     break;
 
@@ -8722,14 +8943,14 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_EIGENSOLVE ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-8].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (11)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-8].c)) ;
-      Free((yyvsp[-8].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (11)].c)) ;
+      Free((yyvsp[(3) - (11)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.EigenSolve.NumEigenvalues = (int)(yyvsp[-6].d) ;
-      Operation_P->Case.EigenSolve.Shift_r = (yyvsp[-4].d) ;
-      Operation_P->Case.EigenSolve.Shift_i = (yyvsp[-2].d) ;
+      Operation_P->Case.EigenSolve.NumEigenvalues = (int)(yyvsp[(5) - (11)].d) ;
+      Operation_P->Case.EigenSolve.Shift_r = (yyvsp[(7) - (11)].d) ;
+      Operation_P->Case.EigenSolve.Shift_i = (yyvsp[(9) - (11)].d) ;
     ;}
     break;
 
@@ -8738,14 +8959,14 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_EIGENSOLVEJAC ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-8].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (11)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-8].c)) ;
-      Free((yyvsp[-8].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (11)].c)) ;
+      Free((yyvsp[(3) - (11)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.EigenSolve.NumEigenvalues = (int)(yyvsp[-6].d) ;
-      Operation_P->Case.EigenSolve.Shift_r = (yyvsp[-4].d) ;
-      Operation_P->Case.EigenSolve.Shift_i = (yyvsp[-2].d) ;
+      Operation_P->Case.EigenSolve.NumEigenvalues = (int)(yyvsp[(5) - (11)].d) ;
+      Operation_P->Case.EigenSolve.Shift_r = (yyvsp[(7) - (11)].d) ;
+      Operation_P->Case.EigenSolve.Shift_i = (yyvsp[(9) - (11)].d) ;
     ;}
     break;
 
@@ -8754,7 +8975,7 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_EVALUATE;
-      Operation_P->Case.Evaluate.ExpressionIndex = (int)(yyvsp[-2].i) ;
+      Operation_P->Case.Evaluate.ExpressionIndex = (int)(yyvsp[(3) - (5)].i) ;
     ;}
     break;
 
@@ -8763,32 +8984,32 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_PERTURBATION ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-14].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (17)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-14].c)) ;
-      Free((yyvsp[-14].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (17)].c)) ;
+      Free((yyvsp[(3) - (17)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-12].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(5) - (17)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-12].c)) ;
-      Free((yyvsp[-12].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(5) - (17)].c)) ;
+      Free((yyvsp[(5) - (17)].c)) ;
       Operation_P->Case.Perturbation.DefineSystemIndex2 = i ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-10].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(7) - (17)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-10].c)) ;
-      Free((yyvsp[-10].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(7) - (17)].c)) ;
+      Free((yyvsp[(7) - (17)].c)) ;
       Operation_P->Case.Perturbation.DefineSystemIndex3 = i ;
-      Operation_P->Case.Perturbation.Size = (int)(yyvsp[-8].d) ;
+      Operation_P->Case.Perturbation.Size = (int)(yyvsp[(9) - (17)].d) ;
       Operation_P->Case.Perturbation.Save = 
-	List_Create(List_Nbr((yyvsp[-6].l)), 1, sizeof(int)) ;
-      for (i = 0 ; i < List_Nbr((yyvsp[-6].l)) ; i++) {
-	List_Read((yyvsp[-6].l), i, &d) ;
+	List_Create(List_Nbr((yyvsp[(11) - (17)].l)), 1, sizeof(int)) ;
+      for (i = 0 ; i < List_Nbr((yyvsp[(11) - (17)].l)) ; i++) {
+	List_Read((yyvsp[(11) - (17)].l), i, &d) ;
 	j = (int)d ;
 	List_Add(Operation_P->Case.Perturbation.Save, &j) ;
       }
-      List_Delete((yyvsp[-6].l));
-      Operation_P->Case.Perturbation.Shift = (yyvsp[-4].d) ;
-      Operation_P->Case.Perturbation.PertFreq = (int)(yyvsp[-2].d) ;
+      List_Delete((yyvsp[(11) - (17)].l));
+      Operation_P->Case.Perturbation.Shift = (yyvsp[(13) - (17)].d) ;
+      Operation_P->Case.Perturbation.PertFreq = (int)(yyvsp[(15) - (17)].d) ;
     ;}
     break;
 
@@ -8798,11 +9019,11 @@ yyreduce:
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_TIMELOOPTHETA ;
-      Operation_P->Case.TimeLoopTheta.Time0 = (yyvsp[-10].d) ;
-      Operation_P->Case.TimeLoopTheta.TimeMax = (yyvsp[-8].d) ;
-      Operation_P->Case.TimeLoopTheta.DTimeIndex = (yyvsp[-6].i) ;
-      Operation_P->Case.TimeLoopTheta.ThetaIndex = (yyvsp[-4].i) ;
-      Operation_P->Case.TimeLoopTheta.Operation = (yyvsp[-1].l) ;
+      Operation_P->Case.TimeLoopTheta.Time0 = (yyvsp[(3) - (13)].d) ;
+      Operation_P->Case.TimeLoopTheta.TimeMax = (yyvsp[(5) - (13)].d) ;
+      Operation_P->Case.TimeLoopTheta.DTimeIndex = (yyvsp[(7) - (13)].i) ;
+      Operation_P->Case.TimeLoopTheta.ThetaIndex = (yyvsp[(9) - (13)].i) ;
+      Operation_P->Case.TimeLoopTheta.Operation = (yyvsp[(12) - (13)].l) ;
     ;}
     break;
 
@@ -8812,12 +9033,12 @@ yyreduce:
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_TIMELOOPNEWMARK ;
-      Operation_P->Case.TimeLoopNewmark.Time0 = (yyvsp[-12].d) ; 
-      Operation_P->Case.TimeLoopNewmark.TimeMax = (yyvsp[-10].d) ; 
-      Operation_P->Case.TimeLoopNewmark.DTimeIndex = (yyvsp[-8].i) ; 
-      Operation_P->Case.TimeLoopNewmark.Beta = (yyvsp[-6].d) ; 
-      Operation_P->Case.TimeLoopNewmark.Gamma = (yyvsp[-4].d) ; 
-      Operation_P->Case.TimeLoopNewmark.Operation = (yyvsp[-1].l) ;
+      Operation_P->Case.TimeLoopNewmark.Time0 = (yyvsp[(3) - (15)].d) ; 
+      Operation_P->Case.TimeLoopNewmark.TimeMax = (yyvsp[(5) - (15)].d) ; 
+      Operation_P->Case.TimeLoopNewmark.DTimeIndex = (yyvsp[(7) - (15)].i) ; 
+      Operation_P->Case.TimeLoopNewmark.Beta = (yyvsp[(9) - (15)].d) ; 
+      Operation_P->Case.TimeLoopNewmark.Gamma = (yyvsp[(11) - (15)].d) ; 
+      Operation_P->Case.TimeLoopNewmark.Operation = (yyvsp[(14) - (15)].l) ;
     ;}
     break;
 
@@ -8827,11 +9048,11 @@ yyreduce:
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_ITERATIVELOOP ;
-      Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)(yyvsp[-8].d) ;
-      Operation_P->Case.IterativeLoop.Criterion = (yyvsp[-6].d) ;
-      Operation_P->Case.IterativeLoop.RelaxationFactorIndex = (yyvsp[-4].i) ;
+      Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)(yyvsp[(3) - (11)].d) ;
+      Operation_P->Case.IterativeLoop.Criterion = (yyvsp[(5) - (11)].d) ;
+      Operation_P->Case.IterativeLoop.RelaxationFactorIndex = (yyvsp[(7) - (11)].i) ;
       Operation_P->Case.IterativeLoop.Flag = 0 ;
-      Operation_P->Case.IterativeLoop.Operation = (yyvsp[-1].l) ;
+      Operation_P->Case.IterativeLoop.Operation = (yyvsp[(10) - (11)].l) ;
     ;}
     break;
 
@@ -8841,11 +9062,11 @@ yyreduce:
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_ITERATIVELOOP ;
-      Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)(yyvsp[-10].d) ;
-      Operation_P->Case.IterativeLoop.Criterion = (yyvsp[-8].d) ;
-      Operation_P->Case.IterativeLoop.RelaxationFactorIndex = (yyvsp[-6].i) ;
-      Operation_P->Case.IterativeLoop.Flag = (int)(yyvsp[-4].d) ;
-      Operation_P->Case.IterativeLoop.Operation = (yyvsp[-1].l) ;
+      Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)(yyvsp[(3) - (13)].d) ;
+      Operation_P->Case.IterativeLoop.Criterion = (yyvsp[(5) - (13)].d) ;
+      Operation_P->Case.IterativeLoop.RelaxationFactorIndex = (yyvsp[(7) - (13)].i) ;
+      Operation_P->Case.IterativeLoop.Flag = (int)(yyvsp[(9) - (13)].d) ;
+      Operation_P->Case.IterativeLoop.Operation = (yyvsp[(12) - (13)].l) ;
     ;}
     break;
 
@@ -8876,8 +9097,8 @@ yyreduce:
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES ;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Num_Group(&Group_S, "OP_ChgCoord", (yyvsp[-4].i)) ;
-      Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = (yyvsp[-2].i) ; 
+	Num_Group(&Group_S, "OP_ChgCoord", (yyvsp[(3) - (7)].i)) ;
+      Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = (yyvsp[(5) - (7)].i) ; 
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = -1 ; 
     ;}
     break;
@@ -8889,10 +9110,10 @@ yyreduce:
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES ;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Num_Group(&Group_S, "OP_ChgCoord", (yyvsp[-8].i)) ;
-      Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = (yyvsp[-6].i) ;
-      Operation_P->Case.ChangeOfCoordinates.NumNode = (int)(yyvsp[-4].d) ;
-      Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = (yyvsp[-2].i) ; 
+	Num_Group(&Group_S, "OP_ChgCoord", (yyvsp[(3) - (11)].i)) ;
+      Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = (yyvsp[(5) - (11)].i) ;
+      Operation_P->Case.ChangeOfCoordinates.NumNode = (int)(yyvsp[(7) - (11)].d) ;
+      Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = (yyvsp[(9) - (11)].i) ; 
     ;}
     break;
 
@@ -8904,7 +9125,7 @@ yyreduce:
       Operation_P->Type = OPERATION_POSTOPERATION ;
       Operation_P->Case.PostOperation.PostOperations =
 	List_Create(1,1,sizeof(char*));
-      List_Add(Operation_P->Case.PostOperation.PostOperations, &(yyvsp[-2].c));
+      List_Add(Operation_P->Case.PostOperation.PostOperations, &(yyvsp[(3) - (5)].c));
     ;}
     break;
 
@@ -8914,7 +9135,7 @@ yyreduce:
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SYSTEMCOMMAND ;
-      Operation_P->Case.SystemCommand.String = (yyvsp[-2].c) ; 
+      Operation_P->Case.SystemCommand.String = (yyvsp[(3) - (5)].c) ; 
     ;}
     break;
 
@@ -8923,13 +9144,13 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SOLVEJACADAPTRELAX ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-6].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (9)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-6].c)) ;
-      Free((yyvsp[-6].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (9)].c)) ;
+      Free((yyvsp[(3) - (9)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.SolveJac_AdaptRelax.CheckAll = (int)(yyvsp[-2].d) ;
-      Operation_P->Case.SolveJac_AdaptRelax.Factor_L = (yyvsp[-4].l) ; 
+      Operation_P->Case.SolveJac_AdaptRelax.CheckAll = (int)(yyvsp[(7) - (9)].d) ;
+      Operation_P->Case.SolveJac_AdaptRelax.Factor_L = (yyvsp[(5) - (9)].l) ; 
     ;}
     break;
 
@@ -8938,13 +9159,13 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SAVESOLUTIONEXTENDEDMH ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-6].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (9)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-6].c)) ;
-      Free((yyvsp[-6].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (9)].c)) ;
+      Free((yyvsp[(3) - (9)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.SaveSolutionExtendedMH.NbrFreq = (int)(yyvsp[-4].d) ;
-      Operation_P->Case.SaveSolutionExtendedMH.ResFile = (yyvsp[-2].c) ;
+      Operation_P->Case.SaveSolutionExtendedMH.NbrFreq = (int)(yyvsp[(5) - (9)].d) ;
+      Operation_P->Case.SaveSolutionExtendedMH.ResFile = (yyvsp[(7) - (9)].c) ;
     ;}
     break;
 
@@ -8953,13 +9174,13 @@ yyreduce:
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_SAVESOLUTIONMHTOTIME ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-6].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (9)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-6].c)) ;
-      Free((yyvsp[-6].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (9)].c)) ;
+      Free((yyvsp[(3) - (9)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.SaveSolutionMHtoTime.Time = (yyvsp[-4].l) ;
-      Operation_P->Case.SaveSolutionMHtoTime.ResFile = (yyvsp[-2].c) ;
+      Operation_P->Case.SaveSolutionMHtoTime.Time = (yyvsp[(5) - (9)].l) ;
+      Operation_P->Case.SaveSolutionMHtoTime.ResFile = (yyvsp[(7) - (9)].c) ;
     ;}
     break;
 
@@ -8967,11 +9188,11 @@ yyreduce:
 #line 4549 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
-      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[-2].c), fcmp_Group_Name)) < 0) 
-   	vyyerror("Unknown Group: %s", (yyvsp[-2].c)) ;
+      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (5)].c), fcmp_Group_Name)) < 0) 
+   	vyyerror("Unknown Group: %s", (yyvsp[(3) - (5)].c)) ;
       Operation_P->Type = OPERATION_INIT_MOVINGBAND2D ;
             Operation_P->Case.Init_MovingBand2D.GroupIndex = i ;
-      Free((yyvsp[-2].c)) ;
+      Free((yyvsp[(3) - (5)].c)) ;
     ;}
     break;
 
@@ -8979,11 +9200,11 @@ yyreduce:
 #line 4559 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
-      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[-2].c), fcmp_Group_Name)) < 0) 
-    	vyyerror("Unknown Group: %s", (yyvsp[-2].c)) ;
+      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (5)].c), fcmp_Group_Name)) < 0) 
+    	vyyerror("Unknown Group: %s", (yyvsp[(3) - (5)].c)) ;
       Operation_P->Type = OPERATION_MESH_MOVINGBAND2D ;
       Operation_P->Case.Mesh_MovingBand2D.GroupIndex = i ;
-      Free((yyvsp[-2].c)) ;
+      Free((yyvsp[(3) - (5)].c)) ;
     ;}
     break;
 
@@ -8991,14 +9212,14 @@ yyreduce:
 #line 4569 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-8].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (11)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-8].c)) ;
-      Free((yyvsp[-8].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (11)].c)) ;
+      Free((yyvsp[(3) - (11)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", (yyvsp[-6].i)) ;
-      Operation_P->Case.SaveMesh.FileName = (yyvsp[-4].c) ;
-      Operation_P->Case.SaveMesh.ExprIndex = (yyvsp[-2].i) ;
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", (yyvsp[(5) - (11)].i)) ;
+      Operation_P->Case.SaveMesh.FileName = (yyvsp[(7) - (11)].c) ;
+      Operation_P->Case.SaveMesh.ExprIndex = (yyvsp[(9) - (11)].i) ;
       Operation_P->Type = OPERATION_SAVEMESH ;
     ;}
     break;
@@ -9007,13 +9228,13 @@ yyreduce:
 #line 4583 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-6].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (9)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-6].c)) ;
-      Free((yyvsp[-6].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (9)].c)) ;
+      Free((yyvsp[(3) - (9)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", (yyvsp[-4].i)) ;
-      Operation_P->Case.SaveMesh.FileName = (yyvsp[-2].c) ;
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", (yyvsp[(5) - (9)].i)) ;
+      Operation_P->Case.SaveMesh.FileName = (yyvsp[(7) - (9)].c) ;
       Operation_P->Case.SaveMesh.ExprIndex = -1 ;
       Operation_P->Type = OPERATION_SAVEMESH ;
     ;}
@@ -9023,19 +9244,19 @@ yyreduce:
 #line 4597 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-11].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (14)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-11].c)) ;
-      Free((yyvsp[-11].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (14)].c)) ;
+      Free((yyvsp[(3) - (14)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[-9].c), fcmp_Group_Name)) < 0) 
-	vyyerror("Unknown Group: %s", (yyvsp[-9].c)) ;
-      Free((yyvsp[-9].c)) ;
+      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[(5) - (14)].c), fcmp_Group_Name)) < 0) 
+	vyyerror("Unknown Group: %s", (yyvsp[(5) - (14)].c)) ;
+      Free((yyvsp[(5) - (14)].c)) ;
       Operation_P->Type = OPERATION_GENERATE_MH_MOVING ;
       Operation_P->Case.Generate_MH_Moving.GroupIndex = i ;
-      Operation_P->Case.Generate_MH_Moving.Period  = (yyvsp[-7].d) ;
-      Operation_P->Case.Generate_MH_Moving.NbrStep = (int)(yyvsp[-5].d) ;
-      Operation_P->Case.Generate_MH_Moving.Operation = (yyvsp[-2].l) ;
+      Operation_P->Case.Generate_MH_Moving.Period  = (yyvsp[(7) - (14)].d) ;
+      Operation_P->Case.Generate_MH_Moving.NbrStep = (int)(yyvsp[(9) - (14)].d) ;
+      Operation_P->Case.Generate_MH_Moving.Operation = (yyvsp[(12) - (14)].l) ;
     ;}
     break;
 
@@ -9043,19 +9264,19 @@ yyreduce:
 #line 4616 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-11].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (14)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-11].c)) ;
-      Free((yyvsp[-11].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (14)].c)) ;
+      Free((yyvsp[(3) - (14)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[-9].c), fcmp_Group_Name)) < 0) 
-	vyyerror("Unknown Group: %s", (yyvsp[-9].c)) ;
-      Free((yyvsp[-9].c)) ;
+      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[(5) - (14)].c), fcmp_Group_Name)) < 0) 
+	vyyerror("Unknown Group: %s", (yyvsp[(5) - (14)].c)) ;
+      Free((yyvsp[(5) - (14)].c)) ;
       Operation_P->Type = OPERATION_GENERATE_MH_MOVING_S ;
       Operation_P->Case.Generate_MH_Moving_S.GroupIndex = i ;
-      Operation_P->Case.Generate_MH_Moving_S.Period  = (yyvsp[-7].d) ;
-      Operation_P->Case.Generate_MH_Moving_S.NbrStep = (int)(yyvsp[-5].d) ;
-      Operation_P->Case.Generate_MH_Moving_S.Operation = (yyvsp[-2].l) ;
+      Operation_P->Case.Generate_MH_Moving_S.Period  = (yyvsp[(7) - (14)].d) ;
+      Operation_P->Case.Generate_MH_Moving_S.NbrStep = (int)(yyvsp[(9) - (14)].d) ;
+      Operation_P->Case.Generate_MH_Moving_S.Operation = (yyvsp[(12) - (14)].l) ;
     ;}
     break;
 
@@ -9063,12 +9284,12 @@ yyreduce:
 #line 4634 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-4].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (7)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-4].c)) ;
-      Free((yyvsp[-4].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (7)].c)) ;
+      Free((yyvsp[(3) - (7)].c)) ;
       Operation_P->Type = OPERATION_ADD_MH_MOVING ;
-      Operation_P->Case.Add_MH_Moving.dummy = (yyvsp[-2].d) ;
+      Operation_P->Case.Add_MH_Moving.dummy = (yyvsp[(5) - (7)].d) ;
     ;}
     break;
 
@@ -9076,15 +9297,15 @@ yyreduce:
 #line 4645 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-9].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (12)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-9].c)) ;
-      Free((yyvsp[-9].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (12)].c)) ;
+      Free((yyvsp[(3) - (12)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.DeformeMesh.Quantity = (yyvsp[-7].c) ;
-      Operation_P->Case.DeformeMesh.Name_MshFile = (yyvsp[-4].c) ;
+      Operation_P->Case.DeformeMesh.Quantity = (yyvsp[(5) - (12)].c) ;
+      Operation_P->Case.DeformeMesh.Name_MshFile = (yyvsp[(8) - (12)].c) ;
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1 ;
-      Operation_P->Case.DeformeMesh.Factor = (yyvsp[-2].d) ;
+      Operation_P->Case.DeformeMesh.Factor = (yyvsp[(10) - (12)].d) ;
       Operation_P->Type = OPERATION_DEFORMEMESH ;
     ;}
     break;
@@ -9093,13 +9314,13 @@ yyreduce:
 #line 4660 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-7].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (10)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-7].c)) ;
-      Free((yyvsp[-7].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (10)].c)) ;
+      Free((yyvsp[(3) - (10)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.DeformeMesh.Quantity = (yyvsp[-5].c) ;
-      Operation_P->Case.DeformeMesh.Name_MshFile = (yyvsp[-2].c) ;
+      Operation_P->Case.DeformeMesh.Quantity = (yyvsp[(5) - (10)].c) ;
+      Operation_P->Case.DeformeMesh.Name_MshFile = (yyvsp[(8) - (10)].c) ;
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1 ;
       Operation_P->Case.DeformeMesh.Factor = 1 ;
       Operation_P->Type = OPERATION_DEFORMEMESH ;
@@ -9110,12 +9331,12 @@ yyreduce:
 #line 4675 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-4].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (7)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-4].c)) ;
-      Free((yyvsp[-4].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (7)].c)) ;
+      Free((yyvsp[(3) - (7)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      Operation_P->Case.DeformeMesh.Quantity = (yyvsp[-2].c) ;
+      Operation_P->Case.DeformeMesh.Quantity = (yyvsp[(5) - (7)].c) ;
       Operation_P->Case.DeformeMesh.Name_MshFile = NULL ;
       Operation_P->Case.DeformeMesh.GeoDataIndex = -1 ;
       Operation_P->Case.DeformeMesh.Factor = 1 ;
@@ -9127,14 +9348,14 @@ yyreduce:
 #line 4690 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-4].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (7)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-4].c)) ;
-      Free((yyvsp[-4].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (7)].c)) ;
+      Free((yyvsp[(3) - (7)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[-2].c), fcmp_Group_Name)) < 0) 
-	vyyerror("Unknown Group: %s", (yyvsp[-2].c)) ;
-      Free((yyvsp[-2].c)) ;
+      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[(5) - (7)].c), fcmp_Group_Name)) < 0) 
+	vyyerror("Unknown Group: %s", (yyvsp[(5) - (7)].c)) ;
+      Free((yyvsp[(5) - (7)].c)) ;
       Operation_P->Type = OPERATION_GENERATE ;
       Operation_P->Case.Generate.GroupIndex = i ;
     ;}
@@ -9144,14 +9365,14 @@ yyreduce:
 #line 4705 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;    
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-4].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(3) - (7)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-4].c)) ;
-      Free((yyvsp[-4].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(3) - (7)].c)) ;
+      Free((yyvsp[(3) - (7)].c)) ;
       Operation_P->DefineSystemIndex = i ;
-      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[-2].c), fcmp_Group_Name)) < 0) 
-	vyyerror("Unknown Group: %s", (yyvsp[-2].c)) ;
-      Free((yyvsp[-2].c)) ;
+      if (( i = List_ISearchSeq(Problem_S.Group, (yyvsp[(5) - (7)].c), fcmp_Group_Name)) < 0) 
+	vyyerror("Unknown Group: %s", (yyvsp[(5) - (7)].c)) ;
+      Free((yyvsp[(5) - (7)].c)) ;
       Operation_P->Type = OPERATION_GENERATEJAC ;
       Operation_P->Case.Generate.GroupIndex = i ;
     ;}
@@ -9175,10 +9396,10 @@ yyreduce:
 
   case 476:
 #line 4736 "GetDP.y"
-    { if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[0].c),
+    { if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(1) - (1)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[0].c)) ;
-      Free((yyvsp[0].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(1) - (1)].c)) ;
+      Free((yyvsp[(1) - (1)].c)) ;
       Operation_P->DefineSystemIndex = i ;
     ;}
     break;
@@ -9194,30 +9415,30 @@ yyreduce:
 
   case 479:
 #line 4756 "GetDP.y"
-    { Operation_P->Case.Print.FileOut = (yyvsp[0].c) ; ;}
+    { Operation_P->Case.Print.FileOut = (yyvsp[(3) - (3)].c) ; ;}
     break;
 
   case 480:
 #line 4759 "GetDP.y"
     { Operation_P->Case.Print.TimeStep = 
-	List_Create(List_Nbr((yyvsp[0].l)), 1, sizeof(int)) ;
-      for(i=0 ; i<List_Nbr((yyvsp[0].l)) ; i++){
-	List_Read((yyvsp[0].l),i,&d);	j = (int)d ;
+	List_Create(List_Nbr((yyvsp[(3) - (3)].l)), 1, sizeof(int)) ;
+      for(i=0 ; i<List_Nbr((yyvsp[(3) - (3)].l)) ; i++){
+	List_Read((yyvsp[(3) - (3)].l),i,&d);	j = (int)d ;
 	List_Add(Operation_P->Case.Print.TimeStep, &j);
       }
-      List_Delete((yyvsp[0].l));
+      List_Delete((yyvsp[(3) - (3)].l));
     ;}
     break;
 
   case 481:
 #line 4769 "GetDP.y"
     { Operation_P->Case.Print.DofNumber = 
-	List_Create(List_Nbr((yyvsp[0].l)), 1, sizeof(int)) ;
-      for (i = 0 ; i < List_Nbr((yyvsp[0].l)) ; i++) {
-	List_Read((yyvsp[0].l), i, &d) ; j = (int)d ;
+	List_Create(List_Nbr((yyvsp[(2) - (2)].l)), 1, sizeof(int)) ;
+      for (i = 0 ; i < List_Nbr((yyvsp[(2) - (2)].l)) ; i++) {
+	List_Read((yyvsp[(2) - (2)].l), i, &d) ; j = (int)d ;
 	List_Add(Operation_P->Case.Print.DofNumber, &j) ;     
       }
-      List_Delete((yyvsp[0].l));
+      List_Delete((yyvsp[(2) - (2)].l));
     ;}
     break;
 
@@ -9237,28 +9458,28 @@ yyreduce:
 #line 4801 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.TimeLoopTheta.Time0   = (yyvsp[-1].d) ; ;}
+      Operation_P->Case.TimeLoopTheta.Time0   = (yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 485:
 #line 4805 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.TimeLoopTheta.TimeMax = (yyvsp[-1].d) ; ;}
+      Operation_P->Case.TimeLoopTheta.TimeMax = (yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 486:
 #line 4809 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.TimeLoopTheta.DTimeIndex = (yyvsp[-1].i) ; ;}
+      Operation_P->Case.TimeLoopTheta.DTimeIndex = (yyvsp[(2) - (3)].i) ; ;}
     break;
 
   case 487:
 #line 4813 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.TimeLoopTheta.ThetaIndex = (yyvsp[-1].i) ; ;}
+      Operation_P->Case.TimeLoopTheta.ThetaIndex = (yyvsp[(2) - (3)].i) ; ;}
     break;
 
   case 488:
@@ -9266,7 +9487,7 @@ yyreduce:
     { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.TimeLoopTheta.Operation = (yyvsp[-1].l) ;
+      Operation_P->Case.TimeLoopTheta.Operation = (yyvsp[(3) - (4)].l) ;
     ;}
     break;
 
@@ -9287,35 +9508,35 @@ yyreduce:
 #line 4846 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.TimeLoopNewmark.Time0   = (yyvsp[-1].d) ; ;}
+      Operation_P->Case.TimeLoopNewmark.Time0   = (yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 492:
 #line 4850 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.TimeLoopNewmark.TimeMax = (yyvsp[-1].d) ; ;}
+      Operation_P->Case.TimeLoopNewmark.TimeMax = (yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 493:
 #line 4854 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.TimeLoopNewmark.DTimeIndex = (yyvsp[-1].i) ; ;}
+      Operation_P->Case.TimeLoopNewmark.DTimeIndex = (yyvsp[(2) - (3)].i) ; ;}
     break;
 
   case 494:
 #line 4858 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.TimeLoopNewmark.Beta   = (yyvsp[-1].d) ; ;}
+      Operation_P->Case.TimeLoopNewmark.Beta   = (yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 495:
 #line 4862 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.TimeLoopNewmark.Gamma   = (yyvsp[-1].d) ; ;}
+      Operation_P->Case.TimeLoopNewmark.Gamma   = (yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 496:
@@ -9323,7 +9544,7 @@ yyreduce:
     { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.TimeLoopNewmark.Operation = (yyvsp[-1].l) ;
+      Operation_P->Case.TimeLoopNewmark.Operation = (yyvsp[(3) - (4)].l) ;
     ;}
     break;
 
@@ -9343,28 +9564,28 @@ yyreduce:
 #line 4893 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)(yyvsp[-1].d) ; ;}
+      Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)(yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 500:
 #line 4897 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeLoop.Criterion = (yyvsp[-1].d) ; ;}
+      Operation_P->Case.IterativeLoop.Criterion = (yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 501:
 #line 4901 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeLoop.RelaxationFactorIndex = (yyvsp[-1].i) ; ;}
+      Operation_P->Case.IterativeLoop.RelaxationFactorIndex = (yyvsp[(2) - (3)].i) ; ;}
     break;
 
   case 502:
 #line 4905 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeLoop.Flag = (int)(yyvsp[-1].d) ; ;}
+      Operation_P->Case.IterativeLoop.Flag = (int)(yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 503:
@@ -9372,7 +9593,7 @@ yyreduce:
     { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeLoop.Operation = (yyvsp[-1].l) ;
+      Operation_P->Case.IterativeLoop.Operation = (yyvsp[(3) - (4)].l) ;
     ;}
     break;
 
@@ -9395,38 +9616,38 @@ yyreduce:
 #line 4938 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeTimeReduction.NbrMaxIteration = (int)(yyvsp[-1].d) ; ;}
+      Operation_P->Case.IterativeTimeReduction.NbrMaxIteration = (int)(yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 507:
 #line 4942 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeTimeReduction.DivisionCoefficient = (yyvsp[-1].d) ; ;}
+      Operation_P->Case.IterativeTimeReduction.DivisionCoefficient = (yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 508:
 #line 4946 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeTimeReduction.Criterion = (yyvsp[-1].d) ; ;}
+      Operation_P->Case.IterativeTimeReduction.Criterion = (yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 509:
 #line 4950 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeTimeReduction.Flag = (int)(yyvsp[-1].d) ; ;}
+      Operation_P->Case.IterativeTimeReduction.Flag = (int)(yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 510:
 #line 4955 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[-1].c),
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, (yyvsp[(2) - (3)].c),
 			       fcmp_DefineSystem_Name)) < 0)
-	vyyerror("Unknown System: %s", (yyvsp[-1].c)) ;
-      Free((yyvsp[-1].c)) ;
+	vyyerror("Unknown System: %s", (yyvsp[(2) - (3)].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
       Current_System = Operation_P->DefineSystemIndex = i ;
     ;}
     break;
@@ -9435,7 +9656,7 @@ yyreduce:
 #line 4965 "GetDP.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeTimeReduction.ChangeOfState = (yyvsp[-1].l) ;
+      Operation_P->Case.IterativeTimeReduction.ChangeOfState = (yyvsp[(3) - (4)].l) ;
     ;}
     break;
 
@@ -9444,7 +9665,7 @@ yyreduce:
     { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeTimeReduction.Operation = (yyvsp[-1].l) ;
+      Operation_P->Case.IterativeTimeReduction.Operation = (yyvsp[(3) - (4)].l) ;
     ;}
     break;
 
@@ -9453,7 +9674,7 @@ yyreduce:
     { List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-      Operation_P->Case.IterativeTimeReduction.OperationEnd = (yyvsp[-1].l) ;
+      Operation_P->Case.IterativeTimeReduction.OperationEnd = (yyvsp[(3) - (4)].l) ;
     ;}
     break;
 
@@ -9464,7 +9685,7 @@ yyreduce:
 
   case 515:
 #line 4990 "GetDP.y"
-    { List_Add((yyval.l) = (yyvsp[-3].l), &ChangeOfState_S) ; ;}
+    { List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &ChangeOfState_S) ; ;}
     break;
 
   case 516:
@@ -9485,12 +9706,12 @@ yyreduce:
   case 518:
 #line 5013 "GetDP.y"
     { ChangeOfState_S.Type =
-	Get_DefineForString(ChangeOfState_Type, (yyvsp[-1].c), &FlagError) ;
+	Get_DefineForString(ChangeOfState_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown type of ChangeOfState: %s", (yyvsp[-1].c));
+	vyyerror("Unknown type of ChangeOfState: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(ChangeOfState_Type);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
@@ -9508,7 +9729,7 @@ yyreduce:
 	    ((struct Formulation *)
 	     List_Pointer(Problem_S.Formulation, ListOfInt_P[j]))->DefineQuantity ;
 
-	  if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, (yyvsp[-1].c),
+	  if ((i = List_ISearchSeq(Formulation_S.DefineQuantity, (yyvsp[(2) - (3)].c),
 				   fcmp_DefineQuantity_Name)) >= 0)
 	    break ;
 	}
@@ -9517,40 +9738,40 @@ yyreduce:
 	  ChangeOfState_S.QuantityIndex = i ;
 	}
 	else
-	  vyyerror("Unknown discrete Quantity: %s", (yyvsp[-1].c)) ;
+	  vyyerror("Unknown discrete Quantity: %s", (yyvsp[(2) - (3)].c)) ;
       }
       else
-	vyyerror("System undefined for Quantity: %s", (yyvsp[-1].c)) ;
-      Free((yyvsp[-1].c)) ;
+	vyyerror("System undefined for Quantity: %s", (yyvsp[(2) - (3)].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 520:
 #line 5052 "GetDP.y"
-    { ChangeOfState_S.InIndex = Num_Group(&Group_S, "OP_In", (yyvsp[-1].i)) ; ;}
+    { ChangeOfState_S.InIndex = Num_Group(&Group_S, "OP_In", (yyvsp[(2) - (3)].i)) ; ;}
     break;
 
   case 521:
 #line 5055 "GetDP.y"
-    { ChangeOfState_S.Criterion = (yyvsp[-1].d) ; ;}
+    { ChangeOfState_S.Criterion = (yyvsp[(2) - (3)].d) ; ;}
     break;
 
   case 522:
 #line 5058 "GetDP.y"
     { 
       if (ChangeOfState_S.ExpressionIndex < 0)
-	ChangeOfState_S.ExpressionIndex = (yyvsp[-1].i) ;
+	ChangeOfState_S.ExpressionIndex = (yyvsp[(2) - (3)].i) ;
       else
-	ChangeOfState_S.ExpressionIndex2 = (yyvsp[-1].i) ;
+	ChangeOfState_S.ExpressionIndex2 = (yyvsp[(2) - (3)].i) ;
     ;}
     break;
 
   case 523:
 #line 5066 "GetDP.y"
     {
-      if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[-1].c), fcmp_Expression_Name)) < 0)
-	vyyerror("Unknown name of expression for Flag: %s", (yyvsp[-1].c)) ;
-      Free((yyvsp[-1].c)) ;
+      if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(2) - (3)].c), fcmp_Expression_Name)) < 0)
+	vyyerror("Unknown name of expression for Flag: %s", (yyvsp[(2) - (3)].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
       ChangeOfState_S.FlagIndex = i ;
     ;}
     break;
@@ -9586,8 +9807,8 @@ yyreduce:
 #line 5119 "GetDP.y"
     {
       Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
-				 (yyvsp[-1].c), fcmp_PostProcessing_Name) ;
-      PostProcessing_S.Name = (yyvsp[-1].c) ; 
+				 (yyvsp[(2) - (3)].c), fcmp_PostProcessing_Name) ;
+      PostProcessing_S.Name = (yyvsp[(2) - (3)].c) ; 
     ;}
     break;
 
@@ -9596,36 +9817,36 @@ yyreduce:
     {
       yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
-				 (yyvsp[-2].c), fcmp_PostProcessing_Name) ;
-      PostProcessing_S.Name = (yyvsp[-2].c) ; 
+				 (yyvsp[(2) - (4)].c), fcmp_PostProcessing_Name) ;
+      PostProcessing_S.Name = (yyvsp[(2) - (4)].c) ; 
     ;}
     break;
 
   case 533:
 #line 5134 "GetDP.y"
     { 
-      if ((i = List_ISearchSeq(Problem_S.Formulation, (yyvsp[-1].c),
+      if ((i = List_ISearchSeq(Problem_S.Formulation, (yyvsp[(2) - (3)].c),
 			       fcmp_Formulation_Name)) < 0){
-	vyyerror("Unknown Formulation: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown Formulation: %s", (yyvsp[(2) - (3)].c)) ;
       }
       else {
 	PostProcessing_S.FormulationIndex = i ;
 	List_Read(Problem_S.Formulation, i, &Formulation_S) ;
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 534:
 #line 5147 "GetDP.y"
     { 
-      PostProcessing_S.NameOfSystem = (yyvsp[-1].c) ;
+      PostProcessing_S.NameOfSystem = (yyvsp[(2) - (3)].c) ;
     ;}
     break;
 
   case 535:
 #line 5152 "GetDP.y"
-    { PostProcessing_S.PostQuantity = (yyvsp[-1].l) ; ;}
+    { PostProcessing_S.PostQuantity = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 536:
@@ -9635,17 +9856,17 @@ yyreduce:
 
   case 537:
 #line 5161 "GetDP.y"
-    { List_Add((yyval.l) = (yyvsp[-3].l), &PostQuantity_S) ; ;}
+    { List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &PostQuantity_S) ; ;}
     break;
 
   case 538:
 #line 5164 "GetDP.y"
-    { (yyval.l) = (yyvsp[-1].l) ; ;}
+    { (yyval.l) = (yyvsp[(1) - (2)].l) ; ;}
     break;
 
   case 539:
 #line 5166 "GetDP.y"
-    { (yyval.l) = (yyvsp[-1].l) ; ;}
+    { (yyval.l) = (yyvsp[(1) - (2)].l) ; ;}
     break;
 
   case 540:
@@ -9658,12 +9879,12 @@ yyreduce:
 
   case 542:
 #line 5183 "GetDP.y"
-    { PostQuantity_S.Name = (yyvsp[-1].c) ; ;}
+    { PostQuantity_S.Name = (yyvsp[(2) - (3)].c) ; ;}
     break;
 
   case 543:
 #line 5186 "GetDP.y"
-    { PostQuantity_S.PostQuantityTerm = (yyvsp[-1].l) ; ;}
+    { PostQuantity_S.PostQuantityTerm = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 544:
@@ -9675,7 +9896,7 @@ yyreduce:
 #line 5197 "GetDP.y"
     { 
       PostQuantityTerm_S.EvaluationType = INTEGRAL ;
-      List_Add((yyval.l) = (yyvsp[-4].l), &PostQuantityTerm_S) ; 
+      List_Add((yyval.l) = (yyvsp[(1) - (5)].l), &PostQuantityTerm_S) ; 
     ;}
     break;
 
@@ -9683,13 +9904,13 @@ yyreduce:
 #line 5203 "GetDP.y"
     { 
       PostQuantityTerm_S.EvaluationType =
-	Get_DefineForString(PostQuantityTerm_EvaluationType, (yyvsp[-3].c), &FlagError) ;
+	Get_DefineForString(PostQuantityTerm_EvaluationType, (yyvsp[(2) - (5)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown EvaluationType for PostQuantityTerm: %s", (yyvsp[-3].c));
+	vyyerror("Unknown EvaluationType for PostQuantityTerm: %s", (yyvsp[(2) - (5)].c));
 	Get_Valid_SXD(PostQuantityTerm_EvaluationType);
       }
-      Free((yyvsp[-3].c)) ;
-      List_Add((yyval.l) = (yyvsp[-4].l), &PostQuantityTerm_S) ; 
+      Free((yyvsp[(2) - (5)].c)) ;
+      List_Add((yyval.l) = (yyvsp[(1) - (5)].l), &PostQuantityTerm_S) ; 
     ;}
     break;
 
@@ -9716,7 +9937,7 @@ yyreduce:
 
   case 550:
 #line 5238 "GetDP.y"
-    { PostQuantityTerm_S.WholeQuantity = (yyvsp[-2].l) ;
+    { PostQuantityTerm_S.WholeQuantity = (yyvsp[(4) - (6)].l) ;
 
       Pro_DefineQuantityIndex
 	(PostQuantityTerm_S.WholeQuantity, -1,
@@ -9748,41 +9969,41 @@ yyreduce:
 #line 5266 "GetDP.y"
     { /* force the Type */
      PostQuantityTerm_S.Type =
-       Get_DefineForString(DefineQuantity_Type, (yyvsp[-1].c), &FlagError) ;
+       Get_DefineForString(DefineQuantity_Type, (yyvsp[(2) - (3)].c), &FlagError) ;
      if (FlagError){
-       vyyerror("Unknown type of Operation: %s", (yyvsp[-1].c));
+       vyyerror("Unknown type of Operation: %s", (yyvsp[(2) - (3)].c));
        Get_Valid_SXD(DefineQuantity_Type);
      }
-     Free((yyvsp[-1].c)) ;
+     Free((yyvsp[(2) - (3)].c)) ;
    ;}
     break;
 
   case 552:
 #line 5277 "GetDP.y"
     {
-      PostQuantityTerm_S.InIndex = Num_Group(&Group_S, "PQ_In", (yyvsp[-1].i)) ;
+      PostQuantityTerm_S.InIndex = Num_Group(&Group_S, "PQ_In", (yyvsp[(2) - (3)].i)) ;
    ;}
     break;
 
   case 553:
 #line 5282 "GetDP.y"
-    { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, (yyvsp[-1].c),
+    { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, (yyvsp[(2) - (3)].c),
 			       fcmp_JacobianMethod_Name)) < 0)
-	vyyerror("Unknown Jacobian method: %s",(yyvsp[-1].c)) ;
+	vyyerror("Unknown Jacobian method: %s",(yyvsp[(2) - (3)].c)) ;
       else
 	PostQuantityTerm_S.JacobianMethodIndex = i ;
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 554:
 #line 5291 "GetDP.y"
-    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[-1].c),
+    { if ((i = List_ISearchSeq(Problem_S.IntegrationMethod, (yyvsp[(2) - (3)].c),
 			       fcmp_IntegrationMethod_Name)) < 0)
-	vyyerror("Unknown Integration method: %s",(yyvsp[-1].c)) ;
+	vyyerror("Unknown Integration method: %s",(yyvsp[(2) - (3)].c)) ;
       else
 	PostQuantityTerm_S.IntegrationMethodIndex = i ;
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
@@ -9814,22 +10035,22 @@ yyreduce:
 #line 5341 "GetDP.y"
     { 
       Check_NameOfStructNotExist("PostOperation", Problem_S.PostOperation,
-				 (yyvsp[-1].c), fcmp_PostOperation_Name) ;
-      PostOperation_S.Name = (yyvsp[-1].c) ; 
+				 (yyvsp[(2) - (3)].c), fcmp_PostOperation_Name) ;
+      PostOperation_S.Name = (yyvsp[(2) - (3)].c) ; 
     ;}
     break;
 
   case 563:
 #line 5348 "GetDP.y"
     { 
-      if ((i = List_ISearchSeq(Problem_S.PostProcessing, (yyvsp[-1].c),
+      if ((i = List_ISearchSeq(Problem_S.PostProcessing, (yyvsp[(2) - (3)].c),
 			       fcmp_PostProcessing_Name)) < 0)
-	vyyerror("Unknown PostProcessing: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown PostProcessing: %s", (yyvsp[(2) - (3)].c)) ;
       else {
 	PostOperation_S.PostProcessingIndex = i ;
 	List_Read(Problem_S.PostProcessing, i, &InteractivePostProcessing_S) ;
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
@@ -9837,25 +10058,25 @@ yyreduce:
 #line 5360 "GetDP.y"
     { 
       PostOperation_S.Format =
-	Get_DefineForString(PostSubOperation_Format, (yyvsp[-1].c), &FlagError) ;
+	Get_DefineForString(PostSubOperation_Format, (yyvsp[(2) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown PostProcessing Format: %s", (yyvsp[-1].c));
+	vyyerror("Unknown PostProcessing Format: %s", (yyvsp[(2) - (3)].c));
 	Get_Valid_SXD(PostSubOperation_Format);
       }
-      Free((yyvsp[-1].c)) ;
+      Free((yyvsp[(2) - (3)].c)) ;
     ;}
     break;
 
   case 565:
 #line 5371 "GetDP.y"
     { 
-      PostOperation_S.AppendString = (yyvsp[-1].c) ;
+      PostOperation_S.AppendString = (yyvsp[(2) - (3)].c) ;
     ;}
     break;
 
   case 566:
 #line 5376 "GetDP.y"
-    { PostOperation_S.PostSubOperation = (yyvsp[-1].l) ; ;}
+    { PostOperation_S.PostSubOperation = (yyvsp[(3) - (4)].l) ; ;}
     break;
 
   case 567:
@@ -9864,24 +10085,24 @@ yyreduce:
       PostOperation_S.PostProcessingIndex = -1 ;
       PostOperation_S.AppendString = NULL ;  
       PostOperation_S.Format = FORMAT_GMSH ;  
-      if ((i = List_ISearchSeq(Problem_S.PostProcessing, (yyvsp[0].c),
+      if ((i = List_ISearchSeq(Problem_S.PostProcessing, (yyvsp[(4) - (4)].c),
 			       fcmp_PostProcessing_Name)) < 0)
-	vyyerror("Unknown PostProcessing: %s", (yyvsp[0].c)) ;
+	vyyerror("Unknown PostProcessing: %s", (yyvsp[(4) - (4)].c)) ;
       else {
 	PostOperation_S.PostProcessingIndex = i ;
 	List_Read(Problem_S.PostProcessing, i, &InteractivePostProcessing_S) ;
 	if (!Problem_S.PostOperation)
 	  Problem_S.PostOperation = List_Create(5, 5, sizeof (struct PostOperation)) ;
-	PostOperation_S.Name = (yyvsp[-2].c) ;
+	PostOperation_S.Name = (yyvsp[(2) - (4)].c) ;
       }
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(4) - (4)].c)) ;
     ;}
     break;
 
   case 568:
 #line 5399 "GetDP.y"
     {
-      PostOperation_S.PostSubOperation = (yyvsp[-1].l) ;
+      PostOperation_S.PostSubOperation = (yyvsp[(7) - (8)].l) ;
       if (PostOperation_S.PostProcessingIndex >= 0)
 	List_Add(Problem_S.PostOperation, &PostOperation_S) ;
     ;}
@@ -9905,7 +10126,7 @@ yyreduce:
       if (PostSubOperation_S.Type != POP_NONE) {
 	if(PostSubOperation_S.Format<0)
 	  PostSubOperation_S.Format = PostOperation_S.Format ;
-	List_Add((yyval.l) = (yyvsp[-2].l), &PostSubOperation_S) ; 
+	List_Add((yyval.l) = (yyvsp[(1) - (3)].l), &PostSubOperation_S) ; 
       }
     ;}
     break;
@@ -9928,9 +10149,9 @@ yyreduce:
 #line 5439 "GetDP.y"
     {
       PostSubOperation_S.Type = POP_EXPRESSION ;
-      PostSubOperation_S.Case.Expression.String = (yyvsp[-5].c) ;
+      PostSubOperation_S.Case.Expression.String = (yyvsp[(3) - (8)].c) ;
       PostSubOperation_S.Case.Expression.String2 = NULL ;
-      PostSubOperation_S.Case.Expression.ExpressionIndex = (yyvsp[-3].i) ;
+      PostSubOperation_S.Case.Expression.ExpressionIndex = (yyvsp[(5) - (8)].i) ;
       PostSubOperation_S.PostQuantityIndex[0] = -1 ;
     ;}
     break;
@@ -9939,8 +10160,8 @@ yyreduce:
 #line 5448 "GetDP.y"
     {
       PostSubOperation_S.Type = POP_EXPRESSION ;
-      PostSubOperation_S.Case.Expression.String = (yyvsp[-8].c) ;
-      PostSubOperation_S.Case.Expression.String2 = (yyvsp[-4].c) ;
+      PostSubOperation_S.Case.Expression.String = (yyvsp[(3) - (11)].c) ;
+      PostSubOperation_S.Case.Expression.String2 = (yyvsp[(7) - (11)].c) ;
       PostSubOperation_S.Case.Expression.ExpressionIndex = -1 ;
       PostSubOperation_S.PostQuantityIndex[0] = -1 ;
     ;}
@@ -9950,7 +10171,7 @@ yyreduce:
 #line 5457 "GetDP.y"
     {
       PostSubOperation_S.Type = POP_EXPRESSION ;
-      PostSubOperation_S.Case.Expression.String = (yyvsp[-3].c) ;
+      PostSubOperation_S.Case.Expression.String = (yyvsp[(3) - (6)].c) ;
       PostSubOperation_S.Case.Expression.String2 = NULL ;
       PostSubOperation_S.Case.Expression.ExpressionIndex = -1 ;
       PostSubOperation_S.PostQuantityIndex[0] = -1 ;
@@ -9961,7 +10182,7 @@ yyreduce:
 #line 5466 "GetDP.y"
     {
       PostSubOperation_S.Type = POP_GROUP ;
-      PostSubOperation_S.Case.Group.ExtendedGroupIndex = Num_Group(&Group_S, "PO_Group", (yyvsp[0].i)) ;
+      PostSubOperation_S.Case.Group.ExtendedGroupIndex = Num_Group(&Group_S, "PO_Group", (yyvsp[(3) - (3)].i)) ;
       PostSubOperation_S.PostQuantityIndex[0] = -1 ;
     ;}
     break;
@@ -9969,7 +10190,7 @@ yyreduce:
   case 578:
 #line 5472 "GetDP.y"
     {
-      PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, "PO_Group", (yyvsp[-3].i)) ;
+      PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, "PO_Group", (yyvsp[(7) - (10)].i)) ;
     ;}
     break;
 
@@ -9983,37 +10204,37 @@ yyreduce:
   case 580:
 #line 5486 "GetDP.y"
     {
-      if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, (yyvsp[-2].c), 
+      if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, (yyvsp[(1) - (3)].c), 
 			       fcmp_PostQuantity_Name)) < 0)
-	vyyerror("Unknown PostProcessing Quantity: %s", (yyvsp[-2].c)) ;
+	vyyerror("Unknown PostProcessing Quantity: %s", (yyvsp[(1) - (3)].c)) ;
       PostSubOperation_S.PostQuantityIndex[0] = i ;
       PostSubOperation_S.PostQuantityIndex[1] = -1 ;
-      PostSubOperation_S.PostQuantitySupport[0] = (yyvsp[-1].i) ;
+      PostSubOperation_S.PostQuantitySupport[0] = (yyvsp[(2) - (3)].i) ;
       PostSubOperation_S.PostQuantitySupport[1] = -1 ;
-      Free((yyvsp[-2].c)) ;
+      Free((yyvsp[(1) - (3)].c)) ;
     ;}
     break;
 
   case 581:
 #line 5498 "GetDP.y"
     {
-      if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, (yyvsp[-5].c), 
+      if ((i = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, (yyvsp[(1) - (6)].c), 
 			       fcmp_PostQuantity_Name)) < 0)
-	vyyerror("Unknown PostProcessing Quantity: %s", (yyvsp[-5].c)) ;
+	vyyerror("Unknown PostProcessing Quantity: %s", (yyvsp[(1) - (6)].c)) ;
       PostSubOperation_S.PostQuantityIndex[0] = i ;
-      PostSubOperation_S.PostQuantitySupport[0] = (yyvsp[-4].i) ;
+      PostSubOperation_S.PostQuantitySupport[0] = (yyvsp[(2) - (6)].i) ;
 
-      if ((j = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, (yyvsp[-2].c), 
+      if ((j = List_ISearchSeq(InteractivePostProcessing_S.PostQuantity, (yyvsp[(4) - (6)].c), 
 			       fcmp_PostQuantity_Name)) < 0)
-	vyyerror("Unknown PostProcessing Quantity: %s", (yyvsp[-2].c)) ;
+	vyyerror("Unknown PostProcessing Quantity: %s", (yyvsp[(4) - (6)].c)) ;
       PostSubOperation_S.PostQuantityIndex[1] = j ;
-      PostSubOperation_S.PostQuantitySupport[1] = (yyvsp[-1].i) ;
+      PostSubOperation_S.PostQuantitySupport[1] = (yyvsp[(5) - (6)].i) ;
 
-      if (((yyvsp[-4].i)<0 && (yyvsp[-1].i)<0) || ((yyvsp[-4].i)>=0 && (yyvsp[-1].i)>=0)) {
+      if (((yyvsp[(2) - (6)].i)<0 && (yyvsp[(5) - (6)].i)<0) || ((yyvsp[(2) - (6)].i)>=0 && (yyvsp[(5) - (6)].i)>=0)) {
 	vyyerror("Postprocessing Quantities '%s' and '%s' of same type (%s)", 
-		 (yyvsp[-5].c), (yyvsp[-2].c), ((yyvsp[-4].i)>0)? "with Support":"without Support") ;
+		 (yyvsp[(1) - (6)].c), (yyvsp[(4) - (6)].c), ((yyvsp[(2) - (6)].i)>0)? "with Support":"without Support") ;
       }      
-      Free((yyvsp[-5].c)) ; Free((yyvsp[-2].c)) ;
+      Free((yyvsp[(1) - (6)].c)) ; Free((yyvsp[(4) - (6)].c)) ;
     ;}
     break;
 
@@ -10044,7 +10265,7 @@ yyreduce:
 
   case 587:
 #line 5532 "GetDP.y"
-    { (yyval.i) = Num_Group(&Group_S, "PO_Support", (yyvsp[-1].i)) ; ;}
+    { (yyval.i) = Num_Group(&Group_S, "PO_Support", (yyvsp[(2) - (3)].i)) ; ;}
     break;
 
   case 588:
@@ -10060,7 +10281,7 @@ yyreduce:
     {
       PostSubOperation_S.SubType = PRINT_ONREGION ;
       PostSubOperation_S.Case.OnRegion.RegionIndex = 
-	Num_Group(&Group_S, "PO_OnRegion", (yyvsp[0].i)) ;
+	Num_Group(&Group_S, "PO_OnRegion", (yyvsp[(2) - (2)].i)) ;
     ;}
     break;
 
@@ -10069,7 +10290,7 @@ yyreduce:
     {
       PostSubOperation_S.SubType = PRINT_ONELEMENTSOF ;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, "PO_OnElementsOf", (yyvsp[0].i)) ;
+	Num_Group(&Group_S, "PO_OnElementsOf", (yyvsp[(2) - (2)].i)) ;
     ;}
     break;
 
@@ -10077,23 +10298,23 @@ yyreduce:
 #line 5560 "GetDP.y"
     {
       PostSubOperation_S.SubType = PRINT_ONSECTION_2D ;
-      if(List_Nbr((yyvsp[-8].l))!=3 || List_Nbr((yyvsp[-5].l))!=3 || List_Nbr((yyvsp[-2].l))!=3)
+      if(List_Nbr((yyvsp[(4) - (12)].l))!=3 || List_Nbr((yyvsp[(7) - (12)].l))!=3 || List_Nbr((yyvsp[(10) - (12)].l))!=3)
 	vyyerror("Expected {3}{3}{3} coordinates, got {%d}{%d}{%d}", 
-		 List_Nbr((yyvsp[-8].l)), List_Nbr((yyvsp[-5].l)), List_Nbr((yyvsp[-2].l)));
+		 List_Nbr((yyvsp[(4) - (12)].l)), List_Nbr((yyvsp[(7) - (12)].l)), List_Nbr((yyvsp[(10) - (12)].l)));
       else{
-	List_Read((yyvsp[-8].l), 0, &PostSubOperation_S.Case.OnSection.x[0]);
-	List_Read((yyvsp[-8].l), 1, &PostSubOperation_S.Case.OnSection.y[0]);
-	List_Read((yyvsp[-8].l), 2, &PostSubOperation_S.Case.OnSection.z[0]);
-	List_Read((yyvsp[-5].l), 0, &PostSubOperation_S.Case.OnSection.x[1]);
-	List_Read((yyvsp[-5].l), 1, &PostSubOperation_S.Case.OnSection.y[1]);
-	List_Read((yyvsp[-5].l), 2, &PostSubOperation_S.Case.OnSection.z[1]);
-	List_Read((yyvsp[-2].l), 0, &PostSubOperation_S.Case.OnSection.x[2]);
-	List_Read((yyvsp[-2].l), 1, &PostSubOperation_S.Case.OnSection.y[2]);
-	List_Read((yyvsp[-2].l), 2, &PostSubOperation_S.Case.OnSection.z[2]);
+	List_Read((yyvsp[(4) - (12)].l), 0, &PostSubOperation_S.Case.OnSection.x[0]);
+	List_Read((yyvsp[(4) - (12)].l), 1, &PostSubOperation_S.Case.OnSection.y[0]);
+	List_Read((yyvsp[(4) - (12)].l), 2, &PostSubOperation_S.Case.OnSection.z[0]);
+	List_Read((yyvsp[(7) - (12)].l), 0, &PostSubOperation_S.Case.OnSection.x[1]);
+	List_Read((yyvsp[(7) - (12)].l), 1, &PostSubOperation_S.Case.OnSection.y[1]);
+	List_Read((yyvsp[(7) - (12)].l), 2, &PostSubOperation_S.Case.OnSection.z[1]);
+	List_Read((yyvsp[(10) - (12)].l), 0, &PostSubOperation_S.Case.OnSection.x[2]);
+	List_Read((yyvsp[(10) - (12)].l), 1, &PostSubOperation_S.Case.OnSection.y[2]);
+	List_Read((yyvsp[(10) - (12)].l), 2, &PostSubOperation_S.Case.OnSection.z[2]);
       }
-      List_Delete((yyvsp[-8].l));
-      List_Delete((yyvsp[-5].l));
-      List_Delete((yyvsp[-2].l));
+      List_Delete((yyvsp[(4) - (12)].l));
+      List_Delete((yyvsp[(7) - (12)].l));
+      List_Delete((yyvsp[(10) - (12)].l));
     ;}
     break;
 
@@ -10102,7 +10323,7 @@ yyreduce:
     {
       PostSubOperation_S.SubType = PRINT_ONGRID ;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, "PO_OnGrid", (yyvsp[0].i)) ;
+	Num_Group(&Group_S, "PO_OnGrid", (yyvsp[(2) - (2)].i)) ;
     ;}
     break;
 
@@ -10110,12 +10331,12 @@ yyreduce:
 #line 5590 "GetDP.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_PARAM ;
-      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[0] = (yyvsp[-12].i) ;
-      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[1] = (yyvsp[-10].i) ;
-      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[2] = (yyvsp[-8].i) ;
-      PostSubOperation_S.Case.OnParamGrid.ParameterValue[0] = (yyvsp[-5].l) ;
-      PostSubOperation_S.Case.OnParamGrid.ParameterValue[1] = (yyvsp[-3].l) ;
-      PostSubOperation_S.Case.OnParamGrid.ParameterValue[2] = (yyvsp[-1].l) ;
+      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[0] = (yyvsp[(3) - (15)].i) ;
+      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[1] = (yyvsp[(5) - (15)].i) ;
+      PostSubOperation_S.Case.OnParamGrid.ExpressionIndex[2] = (yyvsp[(7) - (15)].i) ;
+      PostSubOperation_S.Case.OnParamGrid.ParameterValue[0] = (yyvsp[(10) - (15)].l) ;
+      PostSubOperation_S.Case.OnParamGrid.ParameterValue[1] = (yyvsp[(12) - (15)].l) ;
+      PostSubOperation_S.Case.OnParamGrid.ParameterValue[2] = (yyvsp[(14) - (15)].l) ;
     ;}
     break;
 
@@ -10123,14 +10344,14 @@ yyreduce:
 #line 5601 "GetDP.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_0D ;
-      if(List_Nbr((yyvsp[-1].l))!=3)
-	vyyerror("Expected {3} coordinates, got {%d}", List_Nbr((yyvsp[-1].l)));
+      if(List_Nbr((yyvsp[(3) - (4)].l))!=3)
+	vyyerror("Expected {3} coordinates, got {%d}", List_Nbr((yyvsp[(3) - (4)].l)));
       else{
-	List_Read((yyvsp[-1].l), 0, &PostSubOperation_S.Case.OnGrid.x[0]);
-	List_Read((yyvsp[-1].l), 1, &PostSubOperation_S.Case.OnGrid.y[0]);
-	List_Read((yyvsp[-1].l), 2, &PostSubOperation_S.Case.OnGrid.z[0]);
+	List_Read((yyvsp[(3) - (4)].l), 0, &PostSubOperation_S.Case.OnGrid.x[0]);
+	List_Read((yyvsp[(3) - (4)].l), 1, &PostSubOperation_S.Case.OnGrid.y[0]);
+	List_Read((yyvsp[(3) - (4)].l), 2, &PostSubOperation_S.Case.OnGrid.z[0]);
       }
-      List_Delete((yyvsp[-1].l));
+      List_Delete((yyvsp[(3) - (4)].l));
     ;}
     break;
 
@@ -10138,20 +10359,20 @@ yyreduce:
 #line 5615 "GetDP.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_1D ;
-      if(List_Nbr((yyvsp[-8].l))!=3 || List_Nbr((yyvsp[-5].l))!=3)
+      if(List_Nbr((yyvsp[(4) - (12)].l))!=3 || List_Nbr((yyvsp[(7) - (12)].l))!=3)
 	vyyerror("Expected {3}{3} coordinates, got {%d}{%d}", 
-		 List_Nbr((yyvsp[-8].l)), List_Nbr((yyvsp[-5].l)));
+		 List_Nbr((yyvsp[(4) - (12)].l)), List_Nbr((yyvsp[(7) - (12)].l)));
       else{
-	List_Read((yyvsp[-8].l), 0, &PostSubOperation_S.Case.OnGrid.x[0]);
-	List_Read((yyvsp[-8].l), 1, &PostSubOperation_S.Case.OnGrid.y[0]);
-	List_Read((yyvsp[-8].l), 2, &PostSubOperation_S.Case.OnGrid.z[0]);
-	List_Read((yyvsp[-5].l), 0, &PostSubOperation_S.Case.OnGrid.x[1]);
-	List_Read((yyvsp[-5].l), 1, &PostSubOperation_S.Case.OnGrid.y[1]);
-	List_Read((yyvsp[-5].l), 2, &PostSubOperation_S.Case.OnGrid.z[1]);
+	List_Read((yyvsp[(4) - (12)].l), 0, &PostSubOperation_S.Case.OnGrid.x[0]);
+	List_Read((yyvsp[(4) - (12)].l), 1, &PostSubOperation_S.Case.OnGrid.y[0]);
+	List_Read((yyvsp[(4) - (12)].l), 2, &PostSubOperation_S.Case.OnGrid.z[0]);
+	List_Read((yyvsp[(7) - (12)].l), 0, &PostSubOperation_S.Case.OnGrid.x[1]);
+	List_Read((yyvsp[(7) - (12)].l), 1, &PostSubOperation_S.Case.OnGrid.y[1]);
+	List_Read((yyvsp[(7) - (12)].l), 2, &PostSubOperation_S.Case.OnGrid.z[1]);
       }
-      PostSubOperation_S.Case.OnGrid.n[0] = (int)(yyvsp[-1].d) ;
-      List_Delete((yyvsp[-8].l));
-      List_Delete((yyvsp[-5].l));
+      PostSubOperation_S.Case.OnGrid.n[0] = (int)(yyvsp[(11) - (12)].d) ;
+      List_Delete((yyvsp[(4) - (12)].l));
+      List_Delete((yyvsp[(7) - (12)].l));
     ;}
     break;
 
@@ -10159,25 +10380,25 @@ yyreduce:
 #line 5636 "GetDP.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_2D ;
-      if(List_Nbr((yyvsp[-13].l))!=3 || List_Nbr((yyvsp[-10].l))!=3 || List_Nbr((yyvsp[-7].l))!=3)
+      if(List_Nbr((yyvsp[(4) - (17)].l))!=3 || List_Nbr((yyvsp[(7) - (17)].l))!=3 || List_Nbr((yyvsp[(10) - (17)].l))!=3)
 	vyyerror("Expected {3}{3}{3} coordinates, got {%d}{%d}{%d}", 
-		 List_Nbr((yyvsp[-13].l)), List_Nbr((yyvsp[-10].l)), List_Nbr((yyvsp[-7].l)));
+		 List_Nbr((yyvsp[(4) - (17)].l)), List_Nbr((yyvsp[(7) - (17)].l)), List_Nbr((yyvsp[(10) - (17)].l)));
       else{
-	List_Read((yyvsp[-13].l), 0, &PostSubOperation_S.Case.OnGrid.x[0]);
-	List_Read((yyvsp[-13].l), 1, &PostSubOperation_S.Case.OnGrid.y[0]);
-	List_Read((yyvsp[-13].l), 2, &PostSubOperation_S.Case.OnGrid.z[0]);
-	List_Read((yyvsp[-10].l), 0, &PostSubOperation_S.Case.OnGrid.x[1]);
-	List_Read((yyvsp[-10].l), 1, &PostSubOperation_S.Case.OnGrid.y[1]);
-	List_Read((yyvsp[-10].l), 2, &PostSubOperation_S.Case.OnGrid.z[1]);
-	List_Read((yyvsp[-7].l), 0, &PostSubOperation_S.Case.OnGrid.x[2]);
-	List_Read((yyvsp[-7].l), 1, &PostSubOperation_S.Case.OnGrid.y[2]);
-	List_Read((yyvsp[-7].l), 2, &PostSubOperation_S.Case.OnGrid.z[2]);
+	List_Read((yyvsp[(4) - (17)].l), 0, &PostSubOperation_S.Case.OnGrid.x[0]);
+	List_Read((yyvsp[(4) - (17)].l), 1, &PostSubOperation_S.Case.OnGrid.y[0]);
+	List_Read((yyvsp[(4) - (17)].l), 2, &PostSubOperation_S.Case.OnGrid.z[0]);
+	List_Read((yyvsp[(7) - (17)].l), 0, &PostSubOperation_S.Case.OnGrid.x[1]);
+	List_Read((yyvsp[(7) - (17)].l), 1, &PostSubOperation_S.Case.OnGrid.y[1]);
+	List_Read((yyvsp[(7) - (17)].l), 2, &PostSubOperation_S.Case.OnGrid.z[1]);
+	List_Read((yyvsp[(10) - (17)].l), 0, &PostSubOperation_S.Case.OnGrid.x[2]);
+	List_Read((yyvsp[(10) - (17)].l), 1, &PostSubOperation_S.Case.OnGrid.y[2]);
+	List_Read((yyvsp[(10) - (17)].l), 2, &PostSubOperation_S.Case.OnGrid.z[2]);
       }
-      PostSubOperation_S.Case.OnGrid.n[0] = (int)(yyvsp[-3].d) ;
-      PostSubOperation_S.Case.OnGrid.n[1] = (int)(yyvsp[-1].d) ;
-      List_Delete((yyvsp[-13].l));
-      List_Delete((yyvsp[-10].l));
-      List_Delete((yyvsp[-7].l));
+      PostSubOperation_S.Case.OnGrid.n[0] = (int)(yyvsp[(14) - (17)].d) ;
+      PostSubOperation_S.Case.OnGrid.n[1] = (int)(yyvsp[(16) - (17)].d) ;
+      List_Delete((yyvsp[(4) - (17)].l));
+      List_Delete((yyvsp[(7) - (17)].l));
+      List_Delete((yyvsp[(10) - (17)].l));
     ;}
     break;
 
@@ -10185,30 +10406,30 @@ yyreduce:
 #line 5663 "GetDP.y"
     {
       PostSubOperation_S.SubType = PRINT_ONGRID_3D ;
-      if(List_Nbr((yyvsp[-18].l))!=3 || List_Nbr((yyvsp[-15].l))!=3 || List_Nbr((yyvsp[-12].l))!=3 || List_Nbr((yyvsp[-9].l))!=3)
+      if(List_Nbr((yyvsp[(4) - (22)].l))!=3 || List_Nbr((yyvsp[(7) - (22)].l))!=3 || List_Nbr((yyvsp[(10) - (22)].l))!=3 || List_Nbr((yyvsp[(13) - (22)].l))!=3)
 	vyyerror("Expected {3}{3}{3}{3} coordinates, got {%d}{%d}{%d}{%d}", 
-		 List_Nbr((yyvsp[-18].l)), List_Nbr((yyvsp[-15].l)), List_Nbr((yyvsp[-12].l)), List_Nbr((yyvsp[-9].l)));
+		 List_Nbr((yyvsp[(4) - (22)].l)), List_Nbr((yyvsp[(7) - (22)].l)), List_Nbr((yyvsp[(10) - (22)].l)), List_Nbr((yyvsp[(13) - (22)].l)));
       else{
-	List_Read((yyvsp[-18].l), 0, &PostSubOperation_S.Case.OnGrid.x[0]);
-	List_Read((yyvsp[-18].l), 1, &PostSubOperation_S.Case.OnGrid.y[0]);
-	List_Read((yyvsp[-18].l), 2, &PostSubOperation_S.Case.OnGrid.z[0]);
-	List_Read((yyvsp[-15].l), 0, &PostSubOperation_S.Case.OnGrid.x[1]);
-	List_Read((yyvsp[-15].l), 1, &PostSubOperation_S.Case.OnGrid.y[1]);
-	List_Read((yyvsp[-15].l), 2, &PostSubOperation_S.Case.OnGrid.z[1]);
-	List_Read((yyvsp[-12].l), 0, &PostSubOperation_S.Case.OnGrid.x[2]);
-	List_Read((yyvsp[-12].l), 1, &PostSubOperation_S.Case.OnGrid.y[2]);
-	List_Read((yyvsp[-12].l), 2, &PostSubOperation_S.Case.OnGrid.z[2]);
-	List_Read((yyvsp[-9].l), 0, &PostSubOperation_S.Case.OnGrid.x[3]);
-	List_Read((yyvsp[-9].l), 1, &PostSubOperation_S.Case.OnGrid.y[3]);
-	List_Read((yyvsp[-9].l), 2, &PostSubOperation_S.Case.OnGrid.z[3]);
+	List_Read((yyvsp[(4) - (22)].l), 0, &PostSubOperation_S.Case.OnGrid.x[0]);
+	List_Read((yyvsp[(4) - (22)].l), 1, &PostSubOperation_S.Case.OnGrid.y[0]);
+	List_Read((yyvsp[(4) - (22)].l), 2, &PostSubOperation_S.Case.OnGrid.z[0]);
+	List_Read((yyvsp[(7) - (22)].l), 0, &PostSubOperation_S.Case.OnGrid.x[1]);
+	List_Read((yyvsp[(7) - (22)].l), 1, &PostSubOperation_S.Case.OnGrid.y[1]);
+	List_Read((yyvsp[(7) - (22)].l), 2, &PostSubOperation_S.Case.OnGrid.z[1]);
+	List_Read((yyvsp[(10) - (22)].l), 0, &PostSubOperation_S.Case.OnGrid.x[2]);
+	List_Read((yyvsp[(10) - (22)].l), 1, &PostSubOperation_S.Case.OnGrid.y[2]);
+	List_Read((yyvsp[(10) - (22)].l), 2, &PostSubOperation_S.Case.OnGrid.z[2]);
+	List_Read((yyvsp[(13) - (22)].l), 0, &PostSubOperation_S.Case.OnGrid.x[3]);
+	List_Read((yyvsp[(13) - (22)].l), 1, &PostSubOperation_S.Case.OnGrid.y[3]);
+	List_Read((yyvsp[(13) - (22)].l), 2, &PostSubOperation_S.Case.OnGrid.z[3]);
       }
-      PostSubOperation_S.Case.OnGrid.n[0] = (int)(yyvsp[-5].d) ;
-      PostSubOperation_S.Case.OnGrid.n[1] = (int)(yyvsp[-3].d) ;
-      PostSubOperation_S.Case.OnGrid.n[2] = (int)(yyvsp[-1].d) ;
-      List_Delete((yyvsp[-18].l));
-      List_Delete((yyvsp[-15].l));
-      List_Delete((yyvsp[-12].l));
-      List_Delete((yyvsp[-9].l));
+      PostSubOperation_S.Case.OnGrid.n[0] = (int)(yyvsp[(17) - (22)].d) ;
+      PostSubOperation_S.Case.OnGrid.n[1] = (int)(yyvsp[(19) - (22)].d) ;
+      PostSubOperation_S.Case.OnGrid.n[2] = (int)(yyvsp[(21) - (22)].d) ;
+      List_Delete((yyvsp[(4) - (22)].l));
+      List_Delete((yyvsp[(7) - (22)].l));
+      List_Delete((yyvsp[(10) - (22)].l));
+      List_Delete((yyvsp[(13) - (22)].l));
     ;}
     break;
 
@@ -10218,16 +10439,16 @@ yyreduce:
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT ;
 
       PostSubOperation_S.Case.WithArgument.RegionIndex = 
-	Num_Group(&Group_S, "PO_On", (yyvsp[-10].i)) ;
+	Num_Group(&Group_S, "PO_On", (yyvsp[(2) - (12)].i)) ;
 
-      if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[-8].c), fcmp_Expression_Name)) < 0)
-	vyyerror("Unknown Name of Expression: %s", (yyvsp[-8].c)) ;
-      Free((yyvsp[-8].c)) ;
+      if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(4) - (12)].c), fcmp_Expression_Name)) < 0)
+	vyyerror("Unknown Name of Expression: %s", (yyvsp[(4) - (12)].c)) ;
+      Free((yyvsp[(4) - (12)].c)) ;
 
       PostSubOperation_S.Case.WithArgument.ArgumentIndex = i ;
-      PostSubOperation_S.Case.WithArgument.x[0] = (yyvsp[-6].d) ;
-      PostSubOperation_S.Case.WithArgument.x[1] = (yyvsp[-4].d) ;
-      PostSubOperation_S.Case.WithArgument.n = (int)(yyvsp[-1].d) ;
+      PostSubOperation_S.Case.WithArgument.x[0] = (yyvsp[(6) - (12)].d) ;
+      PostSubOperation_S.Case.WithArgument.x[1] = (yyvsp[(8) - (12)].d) ;
+      PostSubOperation_S.Case.WithArgument.n = (int)(yyvsp[(11) - (12)].d) ;
     ;}
     break;
 
@@ -10269,7 +10490,7 @@ yyreduce:
   case 601:
 #line 5750 "GetDP.y"
     { 
-      PostSubOperation_S.FileOut = (yyvsp[0].c) ; 
+      PostSubOperation_S.FileOut = (yyvsp[(3) - (3)].c) ; 
       if(PostOperation_S.AppendString) 
 	strcat(PostSubOperation_S.FileOut, PostOperation_S.AppendString) ;
       PostSubOperation_S.CatFile = 0 ; 
@@ -10279,7 +10500,7 @@ yyreduce:
   case 602:
 #line 5757 "GetDP.y"
     { 
-      PostSubOperation_S.FileOut = (yyvsp[0].c) ; 
+      PostSubOperation_S.FileOut = (yyvsp[(4) - (4)].c) ; 
       if(PostOperation_S.AppendString) 
 	strcat(PostSubOperation_S.FileOut, PostOperation_S.AppendString) ;
       PostSubOperation_S.CatFile = 1 ; 
@@ -10289,7 +10510,7 @@ yyreduce:
   case 603:
 #line 5764 "GetDP.y"
     { 
-      PostSubOperation_S.FileOut = (yyvsp[0].c) ; 
+      PostSubOperation_S.FileOut = (yyvsp[(4) - (4)].c) ; 
       if(PostOperation_S.AppendString) 
 	strcat(PostSubOperation_S.FileOut, PostOperation_S.AppendString) ;
       PostSubOperation_S.CatFile = 2 ; 
@@ -10299,7 +10520,7 @@ yyreduce:
   case 604:
 #line 5771 "GetDP.y"
     { 
-      PostSubOperation_S.Depth = (int)(yyvsp[0].d) ; 
+      PostSubOperation_S.Depth = (int)(yyvsp[(3) - (3)].d) ; 
     ;}
     break;
 
@@ -10320,7 +10541,7 @@ yyreduce:
   case 607:
 #line 5783 "GetDP.y"
     {
-      PostSubOperation_S.HarmonicToTime = (int)(yyvsp[0].d) ; 
+      PostSubOperation_S.HarmonicToTime = (int)(yyvsp[(3) - (3)].d) ; 
     ;}
     break;
 
@@ -10328,12 +10549,12 @@ yyreduce:
 #line 5787 "GetDP.y"
     { 
       PostSubOperation_S.Format =
-	Get_DefineForString(PostSubOperation_Format, (yyvsp[0].c), &FlagError) ;
+	Get_DefineForString(PostSubOperation_Format, (yyvsp[(3) - (3)].c), &FlagError) ;
       if (FlagError){
-	vyyerror("Unknown PostProcessing Format: %s", (yyvsp[0].c));
+	vyyerror("Unknown PostProcessing Format: %s", (yyvsp[(3) - (3)].c));
 	Get_Valid_SXD(PostSubOperation_Format);
       }
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(3) - (3)].c)) ;
     ;}
     break;
 
@@ -10386,8 +10607,8 @@ yyreduce:
   case 613:
 #line 5831 "GetDP.y"
     { 
-      if((int)(yyvsp[0].d) >= 1 && (int)(yyvsp[0].d) <= 3)
-	PostSubOperation_S.Dimension = (int)(yyvsp[0].d) ;
+      if((int)(yyvsp[(3) - (3)].d) >= 1 && (int)(yyvsp[(3) - (3)].d) <= 3)
+	PostSubOperation_S.Dimension = (int)(yyvsp[(3) - (3)].d) ;
       else
 	vyyerror("Wrong Dimension in Print") ;  	
     ;}
@@ -10397,12 +10618,12 @@ yyreduce:
 #line 5838 "GetDP.y"
     { 
       PostSubOperation_S.FrozenTimeStepList = 1;
-      for(i=0 ; i<List_Nbr((yyvsp[0].l)) ; i++){
-	List_Read((yyvsp[0].l),i,&d);
+      for(i=0 ; i<List_Nbr((yyvsp[(3) - (3)].l)) ; i++){
+	List_Read((yyvsp[(3) - (3)].l),i,&d);
 	j = (int)d ;
 	List_Add(PostSubOperation_S.TimeStep_L, &j);
       }
-      List_Delete((yyvsp[0].l));
+      List_Delete((yyvsp[(3) - (3)].l));
     ;}
     break;
 
@@ -10410,9 +10631,9 @@ yyreduce:
 #line 5848 "GetDP.y"
     { 
       PostSubOperation_S.Adapt = 
-	Get_DefineForString(PostSubOperation_AdaptationType, (yyvsp[0].c), &FlagError) ;
+	Get_DefineForString(PostSubOperation_AdaptationType, (yyvsp[(3) - (3)].c), &FlagError) ;
       if(FlagError){
-	vyyerror("Unknown Adaptation method: %s", (yyvsp[0].c));
+	vyyerror("Unknown Adaptation method: %s", (yyvsp[(3) - (3)].c));
 	Get_Valid_SXD(PostSubOperation_AdaptationType);
       }
     ;}
@@ -10422,9 +10643,9 @@ yyreduce:
 #line 5857 "GetDP.y"
     { 
       PostSubOperation_S.Sort = 
-	Get_DefineForString(PostSubOperation_SortType, (yyvsp[0].c), &FlagError) ;
+	Get_DefineForString(PostSubOperation_SortType, (yyvsp[(3) - (3)].c), &FlagError) ;
       if(FlagError){
-	vyyerror("Unknown Sort method: %s", (yyvsp[0].c));
+	vyyerror("Unknown Sort method: %s", (yyvsp[(3) - (3)].c));
 	Get_Valid_SXD(PostSubOperation_SortType);
       }
     ;}
@@ -10433,8 +10654,8 @@ yyreduce:
   case 617:
 #line 5866 "GetDP.y"
     { 
-      if((yyvsp[0].d) >= 0.)
-	PostSubOperation_S.Target = (yyvsp[0].d) ;
+      if((yyvsp[(3) - (3)].d) >= 0.)
+	PostSubOperation_S.Target = (yyvsp[(3) - (3)].d) ;
       else
 	vyyerror("Bad Target value") ;
     ;}
@@ -10443,18 +10664,18 @@ yyreduce:
   case 618:
 #line 5873 "GetDP.y"
     { 
-      for(i=0 ; i<List_Nbr((yyvsp[0].l)) ; i++){
-	List_Read((yyvsp[0].l),i,&d);	
+      for(i=0 ; i<List_Nbr((yyvsp[(3) - (3)].l)) ; i++){
+	List_Read((yyvsp[(3) - (3)].l),i,&d);	
 	List_Add(PostSubOperation_S.Value_L, &d);
       }
-      List_Delete((yyvsp[0].l));
+      List_Delete((yyvsp[(3) - (3)].l));
     ;}
     break;
 
   case 619:
 #line 5881 "GetDP.y"
     { 
-      PostSubOperation_S.Iso = (int)(yyvsp[0].d);
+      PostSubOperation_S.Iso = (int)(yyvsp[(3) - (3)].d);
     ;}
     break;
 
@@ -10462,11 +10683,11 @@ yyreduce:
 #line 5885 "GetDP.y"
     { 
       PostSubOperation_S.Iso = -1 ;
-      for(i=0 ; i<List_Nbr((yyvsp[-1].l)) ; i++){
-	List_Read((yyvsp[-1].l),i,&d);	
+      for(i=0 ; i<List_Nbr((yyvsp[(4) - (5)].l)) ; i++){
+	List_Read((yyvsp[(4) - (5)].l),i,&d);	
 	List_Add(PostSubOperation_S.Iso_L, &d);
       }
-      List_Delete((yyvsp[-1].l));
+      List_Delete((yyvsp[(4) - (5)].l));
     ;}
     break;
 
@@ -10487,20 +10708,20 @@ yyreduce:
   case 623:
 #line 5902 "GetDP.y"
     { 
-      for(i=0 ; i<List_Nbr((yyvsp[0].l)) ; i++){
-	List_Read((yyvsp[0].l),i,&d);	
+      for(i=0 ; i<List_Nbr((yyvsp[(3) - (3)].l)) ; i++){
+	List_Read((yyvsp[(3) - (3)].l),i,&d);	
 	List_Add(PostSubOperation_S.Frequency_L, &d);
       }
-      List_Delete((yyvsp[0].l));
+      List_Delete((yyvsp[(3) - (3)].l));
     ;}
     break;
 
   case 624:
 #line 5910 "GetDP.y"
     { 
-      PostSubOperation_S.ChangeOfCoordinates[0] = (yyvsp[-5].i) ;
-      PostSubOperation_S.ChangeOfCoordinates[1] = (yyvsp[-3].i) ;
-      PostSubOperation_S.ChangeOfCoordinates[2] = (yyvsp[-1].i) ;
+      PostSubOperation_S.ChangeOfCoordinates[0] = (yyvsp[(4) - (9)].i) ;
+      PostSubOperation_S.ChangeOfCoordinates[1] = (yyvsp[(6) - (9)].i) ;
+      PostSubOperation_S.ChangeOfCoordinates[2] = (yyvsp[(8) - (9)].i) ;
     ;}
     break;
 
@@ -10526,9 +10747,9 @@ yyreduce:
 #line 5928 "GetDP.y"
     { 
       PostSubOperation_S.Legend = LEGEND_TIME ;
-      PostSubOperation_S.LegendPosition[0] = (yyvsp[-5].d) ;
-      PostSubOperation_S.LegendPosition[1] = (yyvsp[-3].d) ;
-      PostSubOperation_S.LegendPosition[2] = (yyvsp[-1].d) ;
+      PostSubOperation_S.LegendPosition[0] = (yyvsp[(4) - (9)].d) ;
+      PostSubOperation_S.LegendPosition[1] = (yyvsp[(6) - (9)].d) ;
+      PostSubOperation_S.LegendPosition[2] = (yyvsp[(8) - (9)].d) ;
     ;}
     break;
 
@@ -10547,9 +10768,9 @@ yyreduce:
 #line 5943 "GetDP.y"
     { 
       PostSubOperation_S.Legend = LEGEND_FREQUENCY ;
-      PostSubOperation_S.LegendPosition[0] = (yyvsp[-5].d) ;
-      PostSubOperation_S.LegendPosition[1] = (yyvsp[-3].d) ;
-      PostSubOperation_S.LegendPosition[2] = (yyvsp[-1].d) ;
+      PostSubOperation_S.LegendPosition[0] = (yyvsp[(4) - (9)].d) ;
+      PostSubOperation_S.LegendPosition[1] = (yyvsp[(6) - (9)].d) ;
+      PostSubOperation_S.LegendPosition[2] = (yyvsp[(8) - (9)].d) ;
     ;}
     break;
 
@@ -10568,19 +10789,19 @@ yyreduce:
 #line 5958 "GetDP.y"
     { 
       PostSubOperation_S.Legend = LEGEND_EIGENVALUES ;
-      PostSubOperation_S.LegendPosition[0] = (yyvsp[-5].d) ;
-      PostSubOperation_S.LegendPosition[1] = (yyvsp[-3].d) ;
-      PostSubOperation_S.LegendPosition[2] = (yyvsp[-1].d) ;
+      PostSubOperation_S.LegendPosition[0] = (yyvsp[(4) - (9)].d) ;
+      PostSubOperation_S.LegendPosition[1] = (yyvsp[(6) - (9)].d) ;
+      PostSubOperation_S.LegendPosition[2] = (yyvsp[(8) - (9)].d) ;
     ;}
     break;
 
   case 632:
 #line 5965 "GetDP.y"
     { 
-      if(List_Nbr((yyvsp[-1].l))%3 != 0)
-	vyyerror("Expected 3n coordinates, got %d", List_Nbr((yyvsp[-1].l)));
+      if(List_Nbr((yyvsp[(4) - (5)].l))%3 != 0)
+	vyyerror("Expected 3n coordinates, got %d", List_Nbr((yyvsp[(4) - (5)].l)));
       else {
-	PostSubOperation_S.EvaluationPoints = (yyvsp[-1].l) ;
+	PostSubOperation_S.EvaluationPoints = (yyvsp[(4) - (5)].l) ;
       }
     ;}
     break;
@@ -10588,7 +10809,7 @@ yyreduce:
   case 633:
 #line 5973 "GetDP.y"
     {
-      PostSubOperation_S.StoreInRegister = (yyvsp[0].i) - 1 ;
+      PostSubOperation_S.StoreInRegister = (yyvsp[(3) - (3)].i) - 1 ;
     ;}
     break;
 
@@ -10612,22 +10833,22 @@ yyreduce:
     {
       i = 0 ;
       do{
-	if((yyvsp[0].c)[i] == '%'){ 
+	if((yyvsp[(2) - (2)].c)[i] == '%'){ 
 	  i++ ; j=i ;
 	  do{
-	    if((yyvsp[0].c)[i] == '+'  || (yyvsp[0].c)[i] == '-'  || (yyvsp[0].c)[i] == '*'  || (yyvsp[0].c)[i] == '%'  ||
-	       (yyvsp[0].c)[i] == '>'  || (yyvsp[0].c)[i] == '<'  || (yyvsp[0].c)[i] == '|'  || (yyvsp[0].c)[i] == '&'  ||
-	       (yyvsp[0].c)[i] == '$'  || (yyvsp[0].c)[i] == '\'' || (yyvsp[0].c)[i] == '\\' || (yyvsp[0].c)[i] == '/'  || 
-	       (yyvsp[0].c)[i] == '{'  ||	(yyvsp[0].c)[i] == '}'  || (yyvsp[0].c)[i] == '('  || (yyvsp[0].c)[i] == ')'  ||
-	       (yyvsp[0].c)[i] == '['  || (yyvsp[0].c)[i] == ']'  || (yyvsp[0].c)[i] == '!'  || (yyvsp[0].c)[i] == ','  ||
-	       (yyvsp[0].c)[i] == '^'  || (yyvsp[0].c)[i] == '.'  || (yyvsp[0].c)[i] == ';'  || (yyvsp[0].c)[i] == '~'  || 
-	       (yyvsp[0].c)[i] == ' '  || (yyvsp[0].c)[i] == '\n' || (yyvsp[0].c)[i] == '\t' || (yyvsp[0].c)[i] == '#'  ||
-               (yyvsp[0].c)[i] == '`'  || (yyvsp[0].c)[i] == ':'  ){
+	    if((yyvsp[(2) - (2)].c)[i] == '+'  || (yyvsp[(2) - (2)].c)[i] == '-'  || (yyvsp[(2) - (2)].c)[i] == '*'  || (yyvsp[(2) - (2)].c)[i] == '%'  ||
+	       (yyvsp[(2) - (2)].c)[i] == '>'  || (yyvsp[(2) - (2)].c)[i] == '<'  || (yyvsp[(2) - (2)].c)[i] == '|'  || (yyvsp[(2) - (2)].c)[i] == '&'  ||
+	       (yyvsp[(2) - (2)].c)[i] == '$'  || (yyvsp[(2) - (2)].c)[i] == '\'' || (yyvsp[(2) - (2)].c)[i] == '\\' || (yyvsp[(2) - (2)].c)[i] == '/'  || 
+	       (yyvsp[(2) - (2)].c)[i] == '{'  ||	(yyvsp[(2) - (2)].c)[i] == '}'  || (yyvsp[(2) - (2)].c)[i] == '('  || (yyvsp[(2) - (2)].c)[i] == ')'  ||
+	       (yyvsp[(2) - (2)].c)[i] == '['  || (yyvsp[(2) - (2)].c)[i] == ']'  || (yyvsp[(2) - (2)].c)[i] == '!'  || (yyvsp[(2) - (2)].c)[i] == ','  ||
+	       (yyvsp[(2) - (2)].c)[i] == '^'  || (yyvsp[(2) - (2)].c)[i] == '.'  || (yyvsp[(2) - (2)].c)[i] == ';'  || (yyvsp[(2) - (2)].c)[i] == '~'  || 
+	       (yyvsp[(2) - (2)].c)[i] == ' '  || (yyvsp[(2) - (2)].c)[i] == '\n' || (yyvsp[(2) - (2)].c)[i] == '\t' || (yyvsp[(2) - (2)].c)[i] == '#'  ||
+               (yyvsp[(2) - (2)].c)[i] == '`'  || (yyvsp[(2) - (2)].c)[i] == ':'  ){
               break ;
             }
 	    i++ ;
-	  } while(i<(int)strlen((yyvsp[0].c))) ;
-	  strncpy(tmpstr, &(yyvsp[0].c)[j], i-j); 
+	  } while(i<(int)strlen((yyvsp[(2) - (2)].c))) ;
+	  strncpy(tmpstr, &(yyvsp[(2) - (2)].c)[j], i-j); 
 	  tmpstr[i-j] = '\0'; 
 	  k = Get_DefineForString(PostSubOperation_FormatTag, tmpstr, &FlagError) ;
 	  if (FlagError){
@@ -10641,19 +10862,19 @@ yyreduce:
 	  }
         }
 	else{
-	  List_Add(ListOfChar_L, &(yyvsp[0].c)[i]);
+	  List_Add(ListOfChar_L, &(yyvsp[(2) - (2)].c)[i]);
 	  i++ ;
 	}
-      } while (i<(int)strlen((yyvsp[0].c))) ;
-      Free((yyvsp[0].c)) ;
+      } while (i<(int)strlen((yyvsp[(2) - (2)].c))) ;
+      Free((yyvsp[(2) - (2)].c)) ;
     ;}
     break;
 
   case 637:
 #line 6042 "GetDP.y"
     {
-      LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[-3].d) ;
-      LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[-1].d) ;
+      LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(3) - (6)].d) ;
+      LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(5) - (6)].d) ;
       LoopControlVariablesTab[ImbricatedLoop][2] = 1.0 ;
       LoopControlVariablesNameTab[ImbricatedLoop] = "" ;
       fgetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
@@ -10663,16 +10884,16 @@ yyreduce:
 	vyyerror("Reached maximum number of imbricated loops");
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
-      if((yyvsp[-3].d) > (yyvsp[-1].d)) skip_until("For", "EndFor");
+      if((yyvsp[(3) - (6)].d) > (yyvsp[(5) - (6)].d)) skip_until("For", "EndFor");
     ;}
     break;
 
   case 638:
 #line 6057 "GetDP.y"
     {
-      LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[-5].d) ;
-      LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[-3].d) ;
-      LoopControlVariablesTab[ImbricatedLoop][2] = (yyvsp[-1].d) ;
+      LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(3) - (8)].d) ;
+      LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(5) - (8)].d) ;
+      LoopControlVariablesTab[ImbricatedLoop][2] = (yyvsp[(7) - (8)].d) ;
       LoopControlVariablesNameTab[ImbricatedLoop] = "" ;
       fgetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
@@ -10681,7 +10902,7 @@ yyreduce:
 	vyyerror("Reached maximum number of imbricated loops");
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
-      if(((yyvsp[-1].d) > 0. && (yyvsp[-5].d) > (yyvsp[-3].d)) || ((yyvsp[-1].d) < 0. && (yyvsp[-5].d) < (yyvsp[-3].d)))
+      if(((yyvsp[(7) - (8)].d) > 0. && (yyvsp[(3) - (8)].d) > (yyvsp[(5) - (8)].d)) || ((yyvsp[(7) - (8)].d) < 0. && (yyvsp[(3) - (8)].d) < (yyvsp[(5) - (8)].d)))
 	skip_until("For", "EndFor");
     ;}
     break;
@@ -10689,13 +10910,13 @@ yyreduce:
   case 639:
 #line 6073 "GetDP.y"
     {
-      LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[-3].d) ;
-      LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[-1].d) ;
+      LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(5) - (8)].d) ;
+      LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(7) - (8)].d) ;
       LoopControlVariablesTab[ImbricatedLoop][2] = 1.0 ;
-      LoopControlVariablesNameTab[ImbricatedLoop] = (yyvsp[-6].c) ;      
-      Constant_S.Name = (yyvsp[-6].c) ; 
+      LoopControlVariablesNameTab[ImbricatedLoop] = (yyvsp[(2) - (8)].c) ;      
+      Constant_S.Name = (yyvsp[(2) - (8)].c) ; 
       Constant_S.Type = VAR_FLOAT ;
-      Constant_S.Value.Float = (yyvsp[-3].d) ;
+      Constant_S.Value.Float = (yyvsp[(5) - (8)].d) ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
       fgetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
       /* hack_fsetpos_printf(); */
@@ -10705,20 +10926,20 @@ yyreduce:
 	vyyerror("Reached maximum number of imbricated loops");
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
-      if((yyvsp[-3].d) > (yyvsp[-1].d)) skip_until("For", "EndFor");
+      if((yyvsp[(5) - (8)].d) > (yyvsp[(7) - (8)].d)) skip_until("For", "EndFor");
     ;}
     break;
 
   case 640:
 #line 6093 "GetDP.y"
     {
-      LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[-5].d) ;
-      LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[-3].d) ;
-      LoopControlVariablesTab[ImbricatedLoop][2] = (yyvsp[-1].d) ;
-      LoopControlVariablesNameTab[ImbricatedLoop] = (yyvsp[-8].c) ;      
-      Constant_S.Name = (yyvsp[-8].c) ; 
+      LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(5) - (10)].d) ;
+      LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(7) - (10)].d) ;
+      LoopControlVariablesTab[ImbricatedLoop][2] = (yyvsp[(9) - (10)].d) ;
+      LoopControlVariablesNameTab[ImbricatedLoop] = (yyvsp[(2) - (10)].c) ;      
+      Constant_S.Name = (yyvsp[(2) - (10)].c) ; 
       Constant_S.Type = VAR_FLOAT ;
-      Constant_S.Value.Float = (yyvsp[-5].d) ;
+      Constant_S.Value.Float = (yyvsp[(5) - (10)].d) ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
       fgetpos(yyin, &yyposImbricatedLoopsTab[ImbricatedLoop]);
       yylinenoImbricatedLoopsTab[ImbricatedLoop] = yylinenum ;
@@ -10727,7 +10948,7 @@ yyreduce:
 	vyyerror("Reached maximum number of imbricated loops");
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
-      if(((yyvsp[-1].d) > 0. && (yyvsp[-5].d) > (yyvsp[-3].d)) || ((yyvsp[-1].d) < 0. && (yyvsp[-5].d) < (yyvsp[-3].d)))
+      if(((yyvsp[(9) - (10)].d) > 0. && (yyvsp[(5) - (10)].d) > (yyvsp[(7) - (10)].d)) || ((yyvsp[(9) - (10)].d) < 0. && (yyvsp[(5) - (10)].d) < (yyvsp[(7) - (10)].d)))
 	skip_until("For", "EndFor");
     ;}
     break;
@@ -10775,7 +10996,7 @@ yyreduce:
   case 642:
 #line 6151 "GetDP.y"
     {
-      if(!(yyvsp[-1].d)) skip_until("If", "EndIf");
+      if(!(yyvsp[(3) - (4)].d)) skip_until("If", "EndIf");
     ;}
     break;
 
@@ -10788,15 +11009,15 @@ yyreduce:
   case 645:
 #line 6170 "GetDP.y"
     {
-      Constant_S.Name = (yyvsp[-3].c) ; 
-      if(List_Nbr((yyvsp[-1].l)) == 1){
+      Constant_S.Name = (yyvsp[(1) - (4)].c) ; 
+      if(List_Nbr((yyvsp[(3) - (4)].l)) == 1){
 	Constant_S.Type = VAR_FLOAT ;
-	List_Read((yyvsp[-1].l), 0, &Constant_S.Value.Float) ;
-	List_Delete((yyvsp[-1].l));
+	List_Read((yyvsp[(3) - (4)].l), 0, &Constant_S.Value.Float) ;
+	List_Delete((yyvsp[(3) - (4)].l));
       }
       else{
 	Constant_S.Type = VAR_LISTOFFLOAT ;
-	Constant_S.Value.ListOfFloat = (yyvsp[-1].l);
+	Constant_S.Value.ListOfFloat = (yyvsp[(3) - (4)].l);
       }
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;}
@@ -10804,61 +11025,64 @@ yyreduce:
 
   case 646:
 #line 6185 "GetDP.y"
-    { Constant_S.Name = (yyvsp[-3].c) ; Constant_S.Type = VAR_CHAR ;
-      Constant_S.Value.Char = (yyvsp[-1].c) ;
+    { Constant_S.Name = (yyvsp[(1) - (4)].c) ; Constant_S.Type = VAR_CHAR ;
+      Constant_S.Value.Char = (yyvsp[(3) - (4)].c) ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;}
     break;
 
   case 647:
 #line 6191 "GetDP.y"
-    { Constant_S.Name = (yyvsp[-6].c) ; Constant_S.Type = VAR_CHAR ;
-      Constant_S.Value.Char = (yyvsp[-2].c) ;
+    { Constant_S.Name = (yyvsp[(1) - (7)].c) ; Constant_S.Type = VAR_CHAR ;
+      Constant_S.Value.Char = (yyvsp[(5) - (7)].c) ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;}
     break;
 
   case 648:
 #line 6197 "GetDP.y"
-    { Constant_S.Name = (yyvsp[-3].c) ; Constant_S.Type = VAR_CHAR ;
-      Constant_S.Value.Char = (yyvsp[-1].c) ;
+    { Constant_S.Name = (yyvsp[(1) - (4)].c) ; Constant_S.Type = VAR_CHAR ;
+      Constant_S.Value.Char = (yyvsp[(3) - (4)].c) ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;}
     break;
 
   case 649:
 #line 6203 "GetDP.y"
-    { Constant_S.Name = (yyvsp[-6].c) ; Constant_S.Type = VAR_LISTOFFLOAT ;
-    //if (!(File = fopen($5, "r")))
-    //Msg(GERROR, "Unable to open file '%s'", $5);
+    { Constant_S.Name = (yyvsp[(1) - (7)].c) ; Constant_S.Type = VAR_LISTOFFLOAT ;
+
+    if (!(File = fopen((yyvsp[(5) - (7)].c), "r"))) 
+      Constant_S.Value.ListOfFloat = NULL ;
+    else{
       Constant_S.Value.ListOfFloat = List_Create(100,100,sizeof(double));
-      if ((File = fopen((yyvsp[-2].c), "r")))
-	while (!feof(File))
-	  if (fscanf(File, "%lf", &d) != EOF)
-	    List_Add(Constant_S.Value.ListOfFloat, &d) ;
-    fclose(File) ;
+      while (!feof(File))
+	if (fscanf(File, "%lf", &d) != EOF)
+	  List_Add(Constant_S.Value.ListOfFloat, &d) ;
+      fclose(File) ;
+    }
+
     List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;}
     break;
 
   case 650:
-#line 6217 "GetDP.y"
+#line 6219 "GetDP.y"
     {
-      Msg(DIRECT, (yyvsp[-2].c));
+      Msg(DIRECT, (yyvsp[(3) - (5)].c));
     ;}
     break;
 
   case 651:
-#line 6222 "GetDP.y"
+#line 6224 "GetDP.y"
     {
-      Constant_S.Name = (yyvsp[-1].c) ;
+      Constant_S.Name = (yyvsp[(2) - (3)].c) ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
-	vyyerror("Unknown Constant: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown Constant: %s", (yyvsp[(2) - (3)].c)) ;
       else
 	if (Constant_S.Type != VAR_LISTOFFLOAT)
-	  printf("%s: %g\n", (yyvsp[-1].c), Constant_S.Value.Float);
+	  printf("%s: %g\n", (yyvsp[(2) - (3)].c), Constant_S.Value.Float);
 	else
-	  printf("%s: Dimension %d\n", (yyvsp[-1].c), List_Nbr(Constant_S.Value.ListOfFloat));
+	  printf("%s: Dimension %d\n", (yyvsp[(2) - (3)].c), List_Nbr(Constant_S.Value.ListOfFloat));
 	  for(i=0 ; i<List_Nbr(Constant_S.Value.ListOfFloat) ; i++) {
 	    List_Read(Constant_S.Value.ListOfFloat, i, &d) ;
 	    printf(" (%d) %g\n", i, d);
@@ -10867,57 +11091,57 @@ yyreduce:
     break;
 
   case 652:
-#line 6238 "GetDP.y"
+#line 6240 "GetDP.y"
     {
       Msg(INFO, "Line number: %d", yylinenum);
     ;}
     break;
 
   case 653:
-#line 6243 "GetDP.y"
+#line 6245 "GetDP.y"
     {
-      i = Print_ListOfDouble((yyvsp[-4].c),(yyvsp[-2].l),tmpstr);
+      i = Print_ListOfDouble((yyvsp[(3) - (7)].c),(yyvsp[(5) - (7)].l),tmpstr);
       if(i<0) 
 	vyyerror("Too few arguments in Printf");
       else if(i>0)
 	vyyerror("Too many arguments (%d) in Printf", i);
       else
 	Msg(INFO2, tmpstr);
-      List_Delete((yyvsp[-2].l));
+      List_Delete((yyvsp[(5) - (7)].l));
     ;}
     break;
 
   case 654:
-#line 6255 "GetDP.y"
+#line 6257 "GetDP.y"
     {
       Msg(INFO2, "? ");
       fgets(tmpstr, sizeof(tmpstr), stdin);
       Constant_S.Value.Float = atof(tmpstr);
-      Constant_S.Name = (yyvsp[-2].c) ; 
+      Constant_S.Name = (yyvsp[(3) - (5)].c) ; 
       Constant_S.Type = VAR_FLOAT ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;}
     break;
 
   case 655:
-#line 6265 "GetDP.y"
+#line 6267 "GetDP.y"
     {
-      Msg(INFO2, "[<return>=%g] ? ",(yyvsp[-2].d));
+      Msg(INFO2, "[<return>=%g] ? ",(yyvsp[(6) - (8)].d));
       fgets(tmpstr, sizeof(tmpstr), stdin);
 
       if(!strcmp(tmpstr,"\n"))
-	Constant_S.Value.Float = (yyvsp[-2].d);
+	Constant_S.Value.Float = (yyvsp[(6) - (8)].d);
       else
 	Constant_S.Value.Float = atof(tmpstr);
-      Constant_S.Name = (yyvsp[-5].c) ; 
+      Constant_S.Name = (yyvsp[(3) - (8)].c) ; 
       Constant_S.Type = VAR_FLOAT ;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;}
     break;
 
   case 657:
-#line 6284 "GetDP.y"
-    { Constant_S.Name = (yyvsp[0].c) ; Constant_S.Type = VAR_FLOAT ;
+#line 6286 "GetDP.y"
+    { Constant_S.Name = (yyvsp[(3) - (3)].c) ; Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = 0. ;
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
@@ -10925,459 +11149,459 @@ yyreduce:
     break;
 
   case 658:
-#line 6290 "GetDP.y"
-    { Constant_S.Name = (yyvsp[-2].c) ; Constant_S.Type = VAR_FLOAT ;
-      Constant_S.Value.Float = (yyvsp[0].d) ;
+#line 6292 "GetDP.y"
+    { Constant_S.Name = (yyvsp[(3) - (5)].c) ; Constant_S.Type = VAR_FLOAT ;
+      Constant_S.Value.Float = (yyvsp[(5) - (5)].d) ;
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;}
     break;
 
   case 659:
-#line 6296 "GetDP.y"
-    { Constant_S.Name = (yyvsp[-2].c) ; Constant_S.Type = VAR_CHAR ;
-      Constant_S.Value.Char = (yyvsp[0].c) ;
+#line 6298 "GetDP.y"
+    { Constant_S.Name = (yyvsp[(3) - (5)].c) ; Constant_S.Type = VAR_CHAR ;
+      Constant_S.Value.Char = (yyvsp[(5) - (5)].c) ;
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     ;}
     break;
 
   case 660:
-#line 6307 "GetDP.y"
+#line 6309 "GetDP.y"
     { (yyval.c) = "Exp";    ;}
     break;
 
   case 661:
-#line 6308 "GetDP.y"
+#line 6310 "GetDP.y"
     { (yyval.c) = "Log";    ;}
     break;
 
   case 662:
-#line 6309 "GetDP.y"
+#line 6311 "GetDP.y"
     { (yyval.c) = "Log10";  ;}
     break;
 
   case 663:
-#line 6310 "GetDP.y"
+#line 6312 "GetDP.y"
     { (yyval.c) = "Sqrt";   ;}
     break;
 
   case 664:
-#line 6311 "GetDP.y"
+#line 6313 "GetDP.y"
     { (yyval.c) = "Sin";    ;}
     break;
 
   case 665:
-#line 6312 "GetDP.y"
+#line 6314 "GetDP.y"
     { (yyval.c) = "Asin";   ;}
     break;
 
   case 666:
-#line 6313 "GetDP.y"
+#line 6315 "GetDP.y"
     { (yyval.c) = "Cos";    ;}
     break;
 
   case 667:
-#line 6314 "GetDP.y"
+#line 6316 "GetDP.y"
     { (yyval.c) = "Acos";   ;}
     break;
 
   case 668:
-#line 6315 "GetDP.y"
+#line 6317 "GetDP.y"
     { (yyval.c) = "Tan";    ;}
     break;
 
   case 669:
-#line 6316 "GetDP.y"
+#line 6318 "GetDP.y"
     { (yyval.c) = "Atan";   ;}
     break;
 
   case 670:
-#line 6317 "GetDP.y"
+#line 6319 "GetDP.y"
     { (yyval.c) = "Atan2";  ;}
     break;
 
   case 671:
-#line 6318 "GetDP.y"
+#line 6320 "GetDP.y"
     { (yyval.c) = "Sinh";   ;}
     break;
 
   case 672:
-#line 6319 "GetDP.y"
+#line 6321 "GetDP.y"
     { (yyval.c) = "Cosh";   ;}
     break;
 
   case 673:
-#line 6320 "GetDP.y"
+#line 6322 "GetDP.y"
     { (yyval.c) = "Tanh";   ;}
     break;
 
   case 674:
-#line 6321 "GetDP.y"
+#line 6323 "GetDP.y"
     { (yyval.c) = "Fabs";   ;}
     break;
 
   case 675:
-#line 6322 "GetDP.y"
+#line 6324 "GetDP.y"
     { (yyval.c) = "Floor";  ;}
     break;
 
   case 676:
-#line 6323 "GetDP.y"
+#line 6325 "GetDP.y"
     { (yyval.c) = "Ceil";   ;}
     break;
 
   case 677:
-#line 6324 "GetDP.y"
+#line 6326 "GetDP.y"
     { (yyval.c) = "Fmod";   ;}
     break;
 
   case 678:
-#line 6325 "GetDP.y"
+#line 6327 "GetDP.y"
     { (yyval.c) = "Modulo"; ;}
     break;
 
   case 679:
-#line 6326 "GetDP.y"
+#line 6328 "GetDP.y"
     { (yyval.c) = "Hypot";  ;}
     break;
 
   case 680:
-#line 6327 "GetDP.y"
-    { (yyval.c) = (yyvsp[0].c);       ;}
+#line 6329 "GetDP.y"
+    { (yyval.c) = (yyvsp[(1) - (1)].c);       ;}
     break;
 
   case 681:
-#line 6331 "GetDP.y"
-    { (yyval.d) = (yyvsp[0].d) ;          ;}
+#line 6333 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (1)].d) ;          ;}
     break;
 
   case 682:
-#line 6332 "GetDP.y"
-    { (yyval.d) = (yyvsp[-1].d) ;          ;}
+#line 6334 "GetDP.y"
+    { (yyval.d) = (yyvsp[(2) - (3)].d) ;          ;}
     break;
 
   case 683:
-#line 6333 "GetDP.y"
-    { (yyval.d) = -(yyvsp[0].d) ;         ;}
+#line 6335 "GetDP.y"
+    { (yyval.d) = -(yyvsp[(2) - (2)].d) ;         ;}
     break;
 
   case 684:
-#line 6334 "GetDP.y"
-    { (yyval.d) = !(yyvsp[0].d) ;         ;}
+#line 6336 "GetDP.y"
+    { (yyval.d) = !(yyvsp[(2) - (2)].d) ;         ;}
     break;
 
   case 685:
-#line 6335 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) - (yyvsp[0].d) ;     ;}
+#line 6337 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) - (yyvsp[(3) - (3)].d) ;     ;}
     break;
 
   case 686:
-#line 6336 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) + (yyvsp[0].d) ;     ;}
+#line 6338 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) + (yyvsp[(3) - (3)].d) ;     ;}
     break;
 
   case 687:
-#line 6337 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) * (yyvsp[0].d) ;     ;}
+#line 6339 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) * (yyvsp[(3) - (3)].d) ;     ;}
     break;
 
   case 688:
-#line 6338 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) / (yyvsp[0].d) ;     ;}
+#line 6340 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) / (yyvsp[(3) - (3)].d) ;     ;}
     break;
 
   case 689:
-#line 6339 "GetDP.y"
-    { (yyval.d) = (int)(yyvsp[-2].d) % (int)(yyvsp[0].d) ;  ;}
+#line 6341 "GetDP.y"
+    { (yyval.d) = (int)(yyvsp[(1) - (3)].d) % (int)(yyvsp[(3) - (3)].d) ;  ;}
     break;
 
   case 690:
-#line 6340 "GetDP.y"
-    { (yyval.d) = pow((yyvsp[-2].d),(yyvsp[0].d)) ;  ;}
+#line 6342 "GetDP.y"
+    { (yyval.d) = pow((yyvsp[(1) - (3)].d),(yyvsp[(3) - (3)].d)) ;  ;}
     break;
 
   case 691:
-#line 6341 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) < (yyvsp[0].d) ;     ;}
+#line 6343 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) < (yyvsp[(3) - (3)].d) ;     ;}
     break;
 
   case 692:
-#line 6342 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) > (yyvsp[0].d) ;     ;}
+#line 6344 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) > (yyvsp[(3) - (3)].d) ;     ;}
     break;
 
   case 693:
-#line 6343 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) <= (yyvsp[0].d) ;    ;}
+#line 6345 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) <= (yyvsp[(3) - (3)].d) ;    ;}
     break;
 
   case 694:
-#line 6344 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) >= (yyvsp[0].d) ;    ;}
+#line 6346 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) >= (yyvsp[(3) - (3)].d) ;    ;}
     break;
 
   case 695:
-#line 6345 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) == (yyvsp[0].d) ;    ;}
+#line 6347 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) == (yyvsp[(3) - (3)].d) ;    ;}
     break;
 
   case 696:
-#line 6346 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) != (yyvsp[0].d) ;    ;}
+#line 6348 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) != (yyvsp[(3) - (3)].d) ;    ;}
     break;
 
   case 697:
-#line 6347 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) && (yyvsp[0].d) ;    ;}
+#line 6349 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) && (yyvsp[(3) - (3)].d) ;    ;}
     break;
 
   case 698:
-#line 6348 "GetDP.y"
-    { (yyval.d) = (yyvsp[-2].d) || (yyvsp[0].d) ;    ;}
+#line 6350 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (3)].d) || (yyvsp[(3) - (3)].d) ;    ;}
     break;
 
   case 699:
-#line 6349 "GetDP.y"
-    { (yyval.d) = exp((yyvsp[-1].d));      ;}
+#line 6351 "GetDP.y"
+    { (yyval.d) = exp((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 700:
-#line 6350 "GetDP.y"
-    { (yyval.d) = log((yyvsp[-1].d));      ;}
+#line 6352 "GetDP.y"
+    { (yyval.d) = log((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 701:
-#line 6351 "GetDP.y"
-    { (yyval.d) = log10((yyvsp[-1].d));    ;}
+#line 6353 "GetDP.y"
+    { (yyval.d) = log10((yyvsp[(3) - (4)].d));    ;}
     break;
 
   case 702:
-#line 6352 "GetDP.y"
-    { (yyval.d) = sqrt((yyvsp[-1].d));     ;}
+#line 6354 "GetDP.y"
+    { (yyval.d) = sqrt((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 703:
-#line 6353 "GetDP.y"
-    { (yyval.d) = sin((yyvsp[-1].d));      ;}
+#line 6355 "GetDP.y"
+    { (yyval.d) = sin((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 704:
-#line 6354 "GetDP.y"
-    { (yyval.d) = asin((yyvsp[-1].d));     ;}
+#line 6356 "GetDP.y"
+    { (yyval.d) = asin((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 705:
-#line 6355 "GetDP.y"
-    { (yyval.d) = cos((yyvsp[-1].d));      ;}
+#line 6357 "GetDP.y"
+    { (yyval.d) = cos((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 706:
-#line 6356 "GetDP.y"
-    { (yyval.d) = acos((yyvsp[-1].d));     ;}
+#line 6358 "GetDP.y"
+    { (yyval.d) = acos((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 707:
-#line 6357 "GetDP.y"
-    { (yyval.d) = tan((yyvsp[-1].d));      ;}
+#line 6359 "GetDP.y"
+    { (yyval.d) = tan((yyvsp[(3) - (4)].d));      ;}
     break;
 
   case 708:
-#line 6358 "GetDP.y"
-    { (yyval.d) = atan((yyvsp[-1].d));     ;}
+#line 6360 "GetDP.y"
+    { (yyval.d) = atan((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 709:
-#line 6359 "GetDP.y"
-    { (yyval.d) = atan2((yyvsp[-3].d),(yyvsp[-1].d)); ;}
+#line 6361 "GetDP.y"
+    { (yyval.d) = atan2((yyvsp[(3) - (6)].d),(yyvsp[(5) - (6)].d)); ;}
     break;
 
   case 710:
-#line 6360 "GetDP.y"
-    { (yyval.d) = sinh((yyvsp[-1].d));     ;}
+#line 6362 "GetDP.y"
+    { (yyval.d) = sinh((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 711:
-#line 6361 "GetDP.y"
-    { (yyval.d) = cosh((yyvsp[-1].d));     ;}
+#line 6363 "GetDP.y"
+    { (yyval.d) = cosh((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 712:
-#line 6362 "GetDP.y"
-    { (yyval.d) = tanh((yyvsp[-1].d));     ;}
+#line 6364 "GetDP.y"
+    { (yyval.d) = tanh((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 713:
-#line 6363 "GetDP.y"
-    { (yyval.d) = fabs((yyvsp[-1].d));     ;}
+#line 6365 "GetDP.y"
+    { (yyval.d) = fabs((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 714:
-#line 6364 "GetDP.y"
-    { (yyval.d) = floor((yyvsp[-1].d));    ;}
+#line 6366 "GetDP.y"
+    { (yyval.d) = floor((yyvsp[(3) - (4)].d));    ;}
     break;
 
   case 715:
-#line 6365 "GetDP.y"
-    { (yyval.d) = ceil((yyvsp[-1].d));     ;}
+#line 6367 "GetDP.y"
+    { (yyval.d) = ceil((yyvsp[(3) - (4)].d));     ;}
     break;
 
   case 716:
-#line 6366 "GetDP.y"
-    { (yyval.d) = fmod((yyvsp[-3].d),(yyvsp[-1].d));  ;}
+#line 6368 "GetDP.y"
+    { (yyval.d) = fmod((yyvsp[(3) - (6)].d),(yyvsp[(5) - (6)].d));  ;}
     break;
 
   case 717:
-#line 6367 "GetDP.y"
-    { (yyval.d) = fmod((yyvsp[-3].d),(yyvsp[-1].d));  ;}
+#line 6369 "GetDP.y"
+    { (yyval.d) = fmod((yyvsp[(3) - (6)].d),(yyvsp[(5) - (6)].d));  ;}
     break;
 
   case 718:
-#line 6368 "GetDP.y"
-    { (yyval.d) = sqrt((yyvsp[-3].d)*(yyvsp[-3].d)+(yyvsp[-1].d)*(yyvsp[-1].d));  ;}
+#line 6370 "GetDP.y"
+    { (yyval.d) = sqrt((yyvsp[(3) - (6)].d)*(yyvsp[(3) - (6)].d)+(yyvsp[(5) - (6)].d)*(yyvsp[(5) - (6)].d));  ;}
     break;
 
   case 719:
-#line 6370 "GetDP.y"
-    { (yyval.d) = (yyvsp[-4].d)? (yyvsp[-2].d) : (yyvsp[0].d) ; ;}
+#line 6372 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (5)].d)? (yyvsp[(3) - (5)].d) : (yyvsp[(5) - (5)].d) ; ;}
     break;
 
   case 720:
-#line 6372 "GetDP.y"
-    { Msg(DIRECT, "Value (line %ld) --> %.16g", yylinenum, (yyvsp[-1].d)); ;}
+#line 6374 "GetDP.y"
+    { Msg(DIRECT, "Value (line %ld) --> %.16g", yylinenum, (yyvsp[(1) - (2)].d)); ;}
     break;
 
   case 721:
-#line 6377 "GetDP.y"
-    { (yyval.d) = (yyvsp[0].d) ; ;}
+#line 6379 "GetDP.y"
+    { (yyval.d) = (yyvsp[(1) - (1)].d) ; ;}
     break;
 
   case 722:
-#line 6378 "GetDP.y"
-    { (yyval.d) = (double)(yyvsp[0].i) ; ;}
+#line 6380 "GetDP.y"
+    { (yyval.d) = (double)(yyvsp[(1) - (1)].i) ; ;}
     break;
 
   case 723:
-#line 6379 "GetDP.y"
+#line 6381 "GetDP.y"
     { (yyval.d) = 3.1415926535897932 ; ;}
     break;
 
   case 724:
-#line 6380 "GetDP.y"
+#line 6382 "GetDP.y"
     { (yyval.d) = (double)_0D ; ;}
     break;
 
   case 725:
-#line 6381 "GetDP.y"
+#line 6383 "GetDP.y"
     { (yyval.d) = (double)_1D ; ;}
     break;
 
   case 726:
-#line 6382 "GetDP.y"
+#line 6384 "GetDP.y"
     { (yyval.d) = (double)_2D ; ;}
     break;
 
   case 727:
-#line 6383 "GetDP.y"
+#line 6385 "GetDP.y"
     { (yyval.d) = (double)_3D ; ;}
     break;
 
   case 728:
-#line 6385 "GetDP.y"
-    { Constant_S.Name = (yyvsp[0].c) ;
+#line 6387 "GetDP.y"
+    { Constant_S.Name = (yyvsp[(1) - (1)].c) ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
-	vyyerror("Unknown Constant: %s", (yyvsp[0].c)) ;  (yyval.d) = 0. ;
+	vyyerror("Unknown Constant: %s", (yyvsp[(1) - (1)].c)) ;  (yyval.d) = 0. ;
       }
       else  {
 	if (Constant_S.Type == VAR_FLOAT)
 	  (yyval.d) = Constant_S.Value.Float ;
 	else {
-	  vyyerror("Single value Constant needed: %s", (yyvsp[0].c)) ;  (yyval.d) = 0. ;
+	  vyyerror("Single value Constant needed: %s", (yyvsp[(1) - (1)].c)) ;  (yyval.d) = 0. ;
 	}
       }
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(1) - (1)].c)) ;
     ;}
     break;
 
   case 729:
-#line 6403 "GetDP.y"
+#line 6405 "GetDP.y"
     { (yyval.l) = NULL; ;}
     break;
 
   case 730:
-#line 6406 "GetDP.y"
+#line 6408 "GetDP.y"
     { 
       (yyval.l) = List_Create(1,1,sizeof(double)) ;  
-      List_Add((yyval.l), &((yyvsp[0].d))) ; 
+      List_Add((yyval.l), &((yyvsp[(1) - (1)].d))) ; 
     ;}
     break;
 
   case 731:
-#line 6412 "GetDP.y"
-    { (yyval.l) = (yyvsp[0].l); ;}
+#line 6414 "GetDP.y"
+    { (yyval.l) = (yyvsp[(1) - (1)].l); ;}
     break;
 
   case 732:
-#line 6415 "GetDP.y"
-    { (yyval.l) = (yyvsp[-1].l); ;}
+#line 6417 "GetDP.y"
+    { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 733:
-#line 6422 "GetDP.y"
+#line 6424 "GetDP.y"
     { 
       (yyval.l) = List_Create(20,20,sizeof(double));
-      List_Add((yyval.l), &((yyvsp[0].d))) ; 
+      List_Add((yyval.l), &((yyvsp[(1) - (1)].d))) ; 
     ;}
     break;
 
   case 734:
-#line 6428 "GetDP.y"
-    { (yyval.l) = (yyvsp[0].l); ;}
+#line 6430 "GetDP.y"
+    { (yyval.l) = (yyvsp[(1) - (1)].l); ;}
     break;
 
   case 735:
-#line 6431 "GetDP.y"
-    { List_Add((yyval.l), &((yyvsp[0].d))) ; ;}
+#line 6433 "GetDP.y"
+    { List_Add((yyval.l), &((yyvsp[(3) - (3)].d))) ; ;}
     break;
 
   case 736:
-#line 6434 "GetDP.y"
+#line 6436 "GetDP.y"
     { 
-      for(i=0 ; i<List_Nbr((yyvsp[0].l)) ; i++){
-	List_Read((yyvsp[0].l), i, &d) ;
+      for(i=0 ; i<List_Nbr((yyvsp[(3) - (3)].l)) ; i++){
+	List_Read((yyvsp[(3) - (3)].l), i, &d) ;
 	List_Add((yyval.l), &d) ;
       }
-      List_Delete((yyvsp[0].l));
+      List_Delete((yyvsp[(3) - (3)].l));
     ;}
     break;
 
   case 737:
-#line 6446 "GetDP.y"
+#line 6448 "GetDP.y"
     { (yyval.l) = List_Create(20,20,sizeof(double)) ; 
-      for(d=(yyvsp[-2].d) ; ((yyvsp[-2].d)<(yyvsp[0].d))?(d<=(yyvsp[0].d)):(d>=(yyvsp[0].d)) ; ((yyvsp[-2].d)<(yyvsp[0].d))?(d+=1.):(d-=1.)) 
+      for(d=(yyvsp[(1) - (3)].d) ; ((yyvsp[(1) - (3)].d)<(yyvsp[(3) - (3)].d))?(d<=(yyvsp[(3) - (3)].d)):(d>=(yyvsp[(3) - (3)].d)) ; ((yyvsp[(1) - (3)].d)<(yyvsp[(3) - (3)].d))?(d+=1.):(d-=1.)) 
 	List_Add((yyval.l), &d) ;
     ;}
     break;
 
   case 738:
-#line 6452 "GetDP.y"
+#line 6454 "GetDP.y"
     { (yyval.l) = List_Create(20,20,sizeof(double)) ; 
-      if(!(yyvsp[0].d) || ((yyvsp[-4].d)<(yyvsp[-2].d) && (yyvsp[0].d)<0) || ((yyvsp[-4].d)>(yyvsp[-2].d) && (yyvsp[0].d)>0)){
-	vyyerror("Wrong increment in '%g : %g : %g'", (yyvsp[-4].d), (yyvsp[-2].d), (yyvsp[0].d)) ;
-	List_Add((yyval.l), &((yyvsp[-4].d))) ;
+      if(!(yyvsp[(5) - (5)].d) || ((yyvsp[(1) - (5)].d)<(yyvsp[(3) - (5)].d) && (yyvsp[(5) - (5)].d)<0) || ((yyvsp[(1) - (5)].d)>(yyvsp[(3) - (5)].d) && (yyvsp[(5) - (5)].d)>0)){
+	vyyerror("Wrong increment in '%g : %g : %g'", (yyvsp[(1) - (5)].d), (yyvsp[(3) - (5)].d), (yyvsp[(5) - (5)].d)) ;
+	List_Add((yyval.l), &((yyvsp[(1) - (5)].d))) ;
       }
       else
-	for(d=(yyvsp[-4].d) ; ((yyvsp[0].d)>0)?(d<=(yyvsp[-2].d)):(d>=(yyvsp[-2].d)) ; d+=(yyvsp[0].d)) 
+	for(d=(yyvsp[(1) - (5)].d) ; ((yyvsp[(5) - (5)].d)>0)?(d<=(yyvsp[(3) - (5)].d)):(d>=(yyvsp[(3) - (5)].d)) ; d+=(yyvsp[(5) - (5)].d)) 
 	  List_Add((yyval.l), &d) ;
     ;}
     break;
 
   case 739:
-#line 6463 "GetDP.y"
+#line 6465 "GetDP.y"
     { (yyval.l) = List_Create(20,20,sizeof(double)) ; 
-      Constant_S.Name = (yyvsp[-2].c) ;
+      Constant_S.Name = (yyvsp[(1) - (3)].c) ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
-	vyyerror("Unknown Constant: %s", (yyvsp[-2].c)) ;
+	vyyerror("Unknown Constant: %s", (yyvsp[(1) - (3)].c)) ;
       else
 	if (Constant_S.Type != VAR_LISTOFFLOAT)
 	  /* vyyerror("Multi value Constant needed: %s", $1) ; */
@@ -11391,16 +11615,16 @@ yyreduce:
     break;
 
   case 740:
-#line 6479 "GetDP.y"
+#line 6481 "GetDP.y"
     { (yyval.l) = List_Create(20,20,sizeof(double)) ; 
-      Constant_S.Name = (yyvsp[-3].c) ;
+      Constant_S.Name = (yyvsp[(1) - (4)].c) ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
-	vyyerror("Unknown Constant: %s", (yyvsp[-3].c)) ;
+	vyyerror("Unknown Constant: %s", (yyvsp[(1) - (4)].c)) ;
       else
 	if (Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror("Multi value Constant needed: %s", (yyvsp[-3].c)) ;
+	  vyyerror("Multi value Constant needed: %s", (yyvsp[(1) - (4)].c)) ;
 	else
-	  for(i=0 ; i<List_Nbr((yyvsp[-1].l)) ; i++) {
+	  for(i=0 ; i<List_Nbr((yyvsp[(3) - (4)].l)) ; i++) {
 	    if(i < List_Nbr(Constant_S.Value.ListOfFloat)){
 	      List_Read(Constant_S.Value.ListOfFloat, i, &d) ;
 	      List_Add((yyval.l), &d) ;
@@ -11414,14 +11638,14 @@ yyreduce:
     break;
 
   case 741:
-#line 6501 "GetDP.y"
+#line 6503 "GetDP.y"
     { (yyval.l) = List_Create(20,20,sizeof(double)) ; 
-      Constant_S.Name = (yyvsp[-1].c) ;
+      Constant_S.Name = (yyvsp[(3) - (4)].c) ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
-	vyyerror("Unknown Constant: %s", (yyvsp[-1].c)) ;
+	vyyerror("Unknown Constant: %s", (yyvsp[(3) - (4)].c)) ;
       else
 	if (Constant_S.Type != VAR_LISTOFFLOAT)
-	  vyyerror("Multi value Constant needed: %s", (yyvsp[-1].c)) ;
+	  vyyerror("Multi value Constant needed: %s", (yyvsp[(3) - (4)].c)) ;
 	else
 	  for(i=0 ; i<List_Nbr(Constant_S.Value.ListOfFloat) ; i++) {
 	    List_Read(Constant_S.Value.ListOfFloat, i, &d) ;
@@ -11431,31 +11655,31 @@ yyreduce:
     break;
 
   case 742:
-#line 6516 "GetDP.y"
+#line 6518 "GetDP.y"
     { (yyval.l) = List_Create(20,20,sizeof(double)) ; 
-      Constant1_S.Name = (yyvsp[-3].c) ; Constant2_S.Name = (yyvsp[-1].c) ;
+      Constant1_S.Name = (yyvsp[(3) - (6)].c) ; Constant2_S.Name = (yyvsp[(5) - (6)].c) ;
       if (!List_Query(ConstantTable_L, &Constant1_S, fcmp_Constant)) {
-	vyyerror("Unknown Constant: %s", (yyvsp[-3].c)) ;
+	vyyerror("Unknown Constant: %s", (yyvsp[(3) - (6)].c)) ;
       }
       else
 	if (Constant1_S.Type != VAR_LISTOFFLOAT) {
-	  vyyerror("Multi value Constant needed: %s", (yyvsp[-3].c)) ;
+	  vyyerror("Multi value Constant needed: %s", (yyvsp[(3) - (6)].c)) ;
 	}
 	else {
 	  if (!List_Query(ConstantTable_L, &Constant2_S, fcmp_Constant)) {
-	    vyyerror("Unknown Constant: %s", (yyvsp[-1].c)) ;
+	    vyyerror("Unknown Constant: %s", (yyvsp[(5) - (6)].c)) ;
 	  }
 	  else
 	    if (Constant2_S.Type != VAR_LISTOFFLOAT) {
-	      vyyerror("Multi value Constant needed: %s", (yyvsp[-1].c)) ;
+	      vyyerror("Multi value Constant needed: %s", (yyvsp[(5) - (6)].c)) ;
 	    }
 	    else {
 	      if (List_Nbr(Constant1_S.Value.ListOfFloat) !=
 		  List_Nbr(Constant2_S.Value.ListOfFloat)) {
 		vyyerror("Different dimensions of Multi value Constants: "
 			 "%s {%d}, %s {%d}",
-			 (yyvsp[-3].c), List_Nbr(Constant1_S.Value.ListOfFloat),
-			 (yyvsp[-1].c), List_Nbr(Constant2_S.Value.ListOfFloat)) ;
+			 (yyvsp[(3) - (6)].c), List_Nbr(Constant1_S.Value.ListOfFloat),
+			 (yyvsp[(5) - (6)].c), List_Nbr(Constant2_S.Value.ListOfFloat)) ;
 	      }
 	      else {
 		for(i=0 ; i<List_Nbr(Constant1_S.Value.ListOfFloat) ; i++) {
@@ -11471,113 +11695,113 @@ yyreduce:
     break;
 
   case 743:
-#line 6554 "GetDP.y"
+#line 6556 "GetDP.y"
     { (yyval.l) = List_Create(20,20,sizeof(double)) ; 
-      for(i=0 ; i<(int)(yyvsp[-1].d) ; i++) {
-	d = (yyvsp[-5].d) + ((yyvsp[-3].d)-(yyvsp[-5].d))*(double)i/((yyvsp[-1].d)-1) ;
+      for(i=0 ; i<(int)(yyvsp[(7) - (8)].d) ; i++) {
+	d = (yyvsp[(3) - (8)].d) + ((yyvsp[(5) - (8)].d)-(yyvsp[(3) - (8)].d))*(double)i/((yyvsp[(7) - (8)].d)-1) ;
 	List_Add((yyval.l), &d) ;
       }
     ;}
     break;
 
   case 744:
-#line 6562 "GetDP.y"
+#line 6564 "GetDP.y"
     { (yyval.l) = List_Create(20,20,sizeof(double)) ;
-      for(i=0 ; i<(int)(yyvsp[-1].d) ; i++) {
-	d = pow(10,(yyvsp[-5].d) + ((yyvsp[-3].d)-(yyvsp[-5].d))*(double)i/((yyvsp[-1].d)-1)) ;
+      for(i=0 ; i<(int)(yyvsp[(7) - (8)].d) ; i++) {
+	d = pow(10,(yyvsp[(3) - (8)].d) + ((yyvsp[(5) - (8)].d)-(yyvsp[(3) - (8)].d))*(double)i/((yyvsp[(7) - (8)].d)-1)) ;
 	List_Add((yyval.l), &d) ;
       }
     ;}
     break;
 
   case 745:
-#line 6574 "GetDP.y"
+#line 6576 "GetDP.y"
     {
-      sprintf(tmpstr, "_%d", (int)(yyvsp[-1].d)) ;
-      (yyval.c) = (char *)Malloc((strlen((yyvsp[-4].c))+strlen(tmpstr)+1)*sizeof(char)) ;
-      strcpy((yyval.c), (yyvsp[-4].c)) ; strcat((yyval.c), tmpstr) ;
-      Free((yyvsp[-4].c)) ;
+      sprintf(tmpstr, "_%d", (int)(yyvsp[(4) - (5)].d)) ;
+      (yyval.c) = (char *)Malloc((strlen((yyvsp[(1) - (5)].c))+strlen(tmpstr)+1)*sizeof(char)) ;
+      strcpy((yyval.c), (yyvsp[(1) - (5)].c)) ; strcat((yyval.c), tmpstr) ;
+      Free((yyvsp[(1) - (5)].c)) ;
     ;}
     break;
 
   case 746:
-#line 6582 "GetDP.y"
+#line 6584 "GetDP.y"
     {
-      sprintf(tmpstr, "_%d", (int)(yyvsp[-1].d)) ;
-      (yyval.c) = (char *)Realloc((yyvsp[-4].c),(strlen((yyvsp[-4].c))+strlen(tmpstr)+1)*sizeof(char)) ;
-      strcpy((yyval.c), (yyvsp[-4].c)) ; strcat((yyval.c), tmpstr) ;
+      sprintf(tmpstr, "_%d", (int)(yyvsp[(4) - (5)].d)) ;
+      (yyval.c) = (char *)Realloc((yyvsp[(1) - (5)].c),(strlen((yyvsp[(1) - (5)].c))+strlen(tmpstr)+1)*sizeof(char)) ;
+      strcpy((yyval.c), (yyvsp[(1) - (5)].c)) ; strcat((yyval.c), tmpstr) ;
     ;}
     break;
 
   case 747:
-#line 6593 "GetDP.y"
-    { (yyval.c) = (yyvsp[0].c) ; ;}
+#line 6595 "GetDP.y"
+    { (yyval.c) = (yyvsp[(1) - (1)].c) ; ;}
     break;
 
   case 748:
-#line 6596 "GetDP.y"
-    { (yyval.c) = (yyvsp[0].c) ; ;}
+#line 6598 "GetDP.y"
+    { (yyval.c) = (yyvsp[(1) - (1)].c) ; ;}
     break;
 
   case 749:
-#line 6603 "GetDP.y"
-    { (yyval.c) = (yyvsp[0].c) ; ;}
+#line 6605 "GetDP.y"
+    { (yyval.c) = (yyvsp[(1) - (1)].c) ; ;}
     break;
 
   case 750:
-#line 6606 "GetDP.y"
-    { Constant_S.Name = (yyvsp[0].c) ;
+#line 6608 "GetDP.y"
+    { Constant_S.Name = (yyvsp[(1) - (1)].c) ;
       if (!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
-	vyyerror("Unknown Constant: %s", (yyvsp[0].c)) ;  (yyval.c) = NULL ;
+	vyyerror("Unknown Constant: %s", (yyvsp[(1) - (1)].c)) ;  (yyval.c) = NULL ;
       }
       else  {
 	if (Constant_S.Type == VAR_CHAR)
 	  (yyval.c) = Constant_S.Value.Char ;
 	else {
-	  vyyerror("String Constant needed: %s", (yyvsp[0].c)) ;  (yyval.c) = NULL ;
+	  vyyerror("String Constant needed: %s", (yyvsp[(1) - (1)].c)) ;  (yyval.c) = NULL ;
 	}
       }
-      Free((yyvsp[0].c)) ;
+      Free((yyvsp[(1) - (1)].c)) ;
     ;}
     break;
 
   case 751:
-#line 6621 "GetDP.y"
+#line 6623 "GetDP.y"
     {
-      (yyval.c) = (yyvsp[0].c) ;
+      (yyval.c) = (yyvsp[(1) - (1)].c) ;
     ;}
     break;
 
   case 752:
-#line 6626 "GetDP.y"
+#line 6628 "GetDP.y"
     {
-      (yyval.c) = (yyvsp[-1].c);
+      (yyval.c) = (yyvsp[(3) - (4)].c);
     ;}
     break;
 
   case 753:
-#line 6631 "GetDP.y"
+#line 6633 "GetDP.y"
     {
-      i = Print_ListOfDouble((yyvsp[-3].c),(yyvsp[-1].l),tmpstr);
+      i = Print_ListOfDouble((yyvsp[(3) - (6)].c),(yyvsp[(5) - (6)].l),tmpstr);
       if(i<0){
 	vyyerror("Too few arguments in Sprintf");
-	(yyval.c) = (yyvsp[-3].c);
+	(yyval.c) = (yyvsp[(3) - (6)].c);
       }
       else if(i>0){
 	vyyerror("Too many arguments (%d) in Sprintf", i);
-	(yyval.c) = (yyvsp[-3].c);
+	(yyval.c) = (yyvsp[(3) - (6)].c);
       }
       else{
 	(yyval.c) = (char*)Malloc((strlen(tmpstr)+1)*sizeof(char));
 	strcpy((yyval.c), tmpstr);
-	Free((yyvsp[-3].c));
+	Free((yyvsp[(3) - (6)].c));
       }
-      List_Delete((yyvsp[-1].l));
+      List_Delete((yyvsp[(5) - (6)].l));
     ;}
     break;
 
   case 754:
-#line 6650 "GetDP.y"
+#line 6652 "GetDP.y"
     {
       time(&date_info);
       (yyval.c) = (char *)Malloc((strlen(ctime(&date_info))+1)*sizeof(char)) ;
@@ -11587,11 +11811,11 @@ yyreduce:
     break;
 
   case 755:
-#line 6660 "GetDP.y"
+#line 6662 "GetDP.y"
     {
-      if ((yyvsp[-3].c) != NULL && (yyvsp[-1].c) != NULL) {
-	(yyval.c) = (char *)Malloc((strlen((yyvsp[-3].c))+strlen((yyvsp[-1].c))+1)*sizeof(char)) ;
-	strcpy((yyval.c), (yyvsp[-3].c)) ;  strcat((yyval.c), (yyvsp[-1].c)) ;
+      if ((yyvsp[(3) - (6)].c) != NULL && (yyvsp[(5) - (6)].c) != NULL) {
+	(yyval.c) = (char *)Malloc((strlen((yyvsp[(3) - (6)].c))+strlen((yyvsp[(5) - (6)].c))+1)*sizeof(char)) ;
+	strcpy((yyval.c), (yyvsp[(3) - (6)].c)) ;  strcat((yyval.c), (yyvsp[(5) - (6)].c)) ;
       }
       else {
 	vyyerror("Undefined argument for StrCat function") ;  (yyval.c) = NULL ;
@@ -11600,16 +11824,14 @@ yyreduce:
     break;
 
 
+/* Line 1267 of yacc.c.  */
+#line 11829 "GetDP.tab.c"
       default: break;
     }
+  YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
 
-/* Line 1126 of yacc.c.  */
-#line 11608 "GetDP.tab.c"
-
-  yyvsp -= yylen;
-  yyssp -= yylen;
-
-
+  YYPOPSTACK (yylen);
+  yylen = 0;
   YY_STACK_PRINT (yyss, yyssp);
 
   *++yyvsp = yyval;
@@ -11638,110 +11860,41 @@ yyerrlab:
   if (!yyerrstatus)
     {
       ++yynerrs;
-#if YYERROR_VERBOSE
-      yyn = yypact[yystate];
-
-      if (YYPACT_NINF < yyn && yyn < YYLAST)
-	{
-	  int yytype = YYTRANSLATE (yychar);
-	  YYSIZE_T yysize0 = yytnamerr (0, yytname[yytype]);
-	  YYSIZE_T yysize = yysize0;
-	  YYSIZE_T yysize1;
-	  int yysize_overflow = 0;
-	  char *yymsg = 0;
-#	  define YYERROR_VERBOSE_ARGS_MAXIMUM 5
-	  char const *yyarg[YYERROR_VERBOSE_ARGS_MAXIMUM];
-	  int yyx;
-
-#if 0
-	  /* This is so xgettext sees the translatable formats that are
-	     constructed on the fly.  */
-	  YY_("syntax error, unexpected %s");
-	  YY_("syntax error, unexpected %s, expecting %s");
-	  YY_("syntax error, unexpected %s, expecting %s or %s");
-	  YY_("syntax error, unexpected %s, expecting %s or %s or %s");
-	  YY_("syntax error, unexpected %s, expecting %s or %s or %s or %s");
-#endif
-	  char *yyfmt;
-	  char const *yyf;
-	  static char const yyunexpected[] = "syntax error, unexpected %s";
-	  static char const yyexpecting[] = ", expecting %s";
-	  static char const yyor[] = " or %s";
-	  char yyformat[sizeof yyunexpected
-			+ sizeof yyexpecting - 1
-			+ ((YYERROR_VERBOSE_ARGS_MAXIMUM - 2)
-			   * (sizeof yyor - 1))];
-	  char const *yyprefix = yyexpecting;
-
-	  /* Start YYX at -YYN if negative to avoid negative indexes in
-	     YYCHECK.  */
-	  int yyxbegin = yyn < 0 ? -yyn : 0;
-
-	  /* Stay within bounds of both yycheck and yytname.  */
-	  int yychecklim = YYLAST - yyn;
-	  int yyxend = yychecklim < YYNTOKENS ? yychecklim : YYNTOKENS;
-	  int yycount = 1;
-
-	  yyarg[0] = yytname[yytype];
-	  yyfmt = yystpcpy (yyformat, yyunexpected);
-
-	  for (yyx = yyxbegin; yyx < yyxend; ++yyx)
-	    if (yycheck[yyx + yyn] == yyx && yyx != YYTERROR)
-	      {
-		if (yycount == YYERROR_VERBOSE_ARGS_MAXIMUM)
-		  {
-		    yycount = 1;
-		    yysize = yysize0;
-		    yyformat[sizeof yyunexpected - 1] = '\0';
-		    break;
-		  }
-		yyarg[yycount++] = yytname[yyx];
-		yysize1 = yysize + yytnamerr (0, yytname[yyx]);
-		yysize_overflow |= yysize1 < yysize;
-		yysize = yysize1;
-		yyfmt = yystpcpy (yyfmt, yyprefix);
-		yyprefix = yyor;
-	      }
-
-	  yyf = YY_(yyformat);
-	  yysize1 = yysize + yystrlen (yyf);
-	  yysize_overflow |= yysize1 < yysize;
-	  yysize = yysize1;
-
-	  if (!yysize_overflow && yysize <= YYSTACK_ALLOC_MAXIMUM)
-	    yymsg = (char *) YYSTACK_ALLOC (yysize);
-	  if (yymsg)
-	    {
-	      /* Avoid sprintf, as that infringes on the user's name space.
-		 Don't have undefined behavior even if the translation
-		 produced a string with the wrong number of "%s"s.  */
-	      char *yyp = yymsg;
-	      int yyi = 0;
-	      while ((*yyp = *yyf))
-		{
-		  if (*yyp == '%' && yyf[1] == 's' && yyi < yycount)
-		    {
-		      yyp += yytnamerr (yyp, yyarg[yyi++]);
-		      yyf += 2;
-		    }
-		  else
-		    {
-		      yyp++;
-		      yyf++;
-		    }
-		}
-	      yyerror (yymsg);
+#if ! YYERROR_VERBOSE
+      yyerror (YY_("syntax error"));
+#else
+      {
+	YYSIZE_T yysize = yysyntax_error (0, yystate, yychar);
+	if (yymsg_alloc < yysize && yymsg_alloc < YYSTACK_ALLOC_MAXIMUM)
+	  {
+	    YYSIZE_T yyalloc = 2 * yysize;
+	    if (! (yysize <= yyalloc && yyalloc <= YYSTACK_ALLOC_MAXIMUM))
+	      yyalloc = YYSTACK_ALLOC_MAXIMUM;
+	    if (yymsg != yymsgbuf)
 	      YYSTACK_FREE (yymsg);
-	    }
-	  else
-	    {
-	      yyerror (YY_("syntax error"));
+	    yymsg = (char *) YYSTACK_ALLOC (yyalloc);
+	    if (yymsg)
+	      yymsg_alloc = yyalloc;
+	    else
+	      {
+		yymsg = yymsgbuf;
+		yymsg_alloc = sizeof yymsgbuf;
+	      }
+	  }
+
+	if (0 < yysize && yysize <= yymsg_alloc)
+	  {
+	    (void) yysyntax_error (yymsg, yystate, yychar);
+	    yyerror (yymsg);
+	  }
+	else
+	  {
+	    yyerror (YY_("syntax error"));
+	    if (yysize != 0)
 	      goto yyexhaustedlab;
-	    }
-	}
-      else
-#endif /* YYERROR_VERBOSE */
-	yyerror (YY_("syntax error"));
+	  }
+      }
+#endif
     }
 
 
@@ -11752,14 +11905,15 @@ yyerrlab:
 	 error, discard it.  */
 
       if (yychar <= YYEOF)
-        {
+	{
 	  /* Return failure if at end of input.  */
 	  if (yychar == YYEOF)
 	    YYABORT;
-        }
+	}
       else
 	{
-	  yydestruct ("Error: discarding", yytoken, &yylval);
+	  yydestruct ("Error: discarding",
+		      yytoken, &yylval);
 	  yychar = YYEMPTY;
 	}
     }
@@ -11777,11 +11931,14 @@ yyerrorlab:
   /* Pacify compilers like GCC when the user code never invokes
      YYERROR and the label yyerrorlab therefore never appears in user
      code.  */
-  if (0)
+  if (/*CONSTCOND*/ 0)
      goto yyerrorlab;
 
-yyvsp -= yylen;
-  yyssp -= yylen;
+  /* Do not reclaim the symbols of the rule which action triggered
+     this YYERROR.  */
+  YYPOPSTACK (yylen);
+  yylen = 0;
+  YY_STACK_PRINT (yyss, yyssp);
   yystate = *yyssp;
   goto yyerrlab1;
 
@@ -11811,8 +11968,9 @@ yyerrlab1:
 	YYABORT;
 
 
-      yydestruct ("Error: popping", yystos[yystate], yyvsp);
-      YYPOPSTACK;
+      yydestruct ("Error: popping",
+		  yystos[yystate], yyvsp);
+      YYPOPSTACK (1);
       yystate = *yyssp;
       YY_STACK_PRINT (yyss, yyssp);
     }
@@ -11823,7 +11981,7 @@ yyerrlab1:
   *++yyvsp = yylval;
 
 
-  /* Shift the error token. */
+  /* Shift the error token.  */
   YY_SYMBOL_PRINT ("Shifting", yystos[yyn], yyvsp, yylsp);
 
   yystate = yyn;
@@ -11858,21 +12016,30 @@ yyreturn:
   if (yychar != YYEOF && yychar != YYEMPTY)
      yydestruct ("Cleanup: discarding lookahead",
 		 yytoken, &yylval);
+  /* Do not reclaim the symbols of the rule which action triggered
+     this YYABORT or YYACCEPT.  */
+  YYPOPSTACK (yylen);
+  YY_STACK_PRINT (yyss, yyssp);
   while (yyssp != yyss)
     {
       yydestruct ("Cleanup: popping",
 		  yystos[*yyssp], yyvsp);
-      YYPOPSTACK;
+      YYPOPSTACK (1);
     }
 #ifndef yyoverflow
   if (yyss != yyssa)
     YYSTACK_FREE (yyss);
 #endif
-  return yyresult;
+#if YYERROR_VERBOSE
+  if (yymsg != yymsgbuf)
+    YYSTACK_FREE (yymsg);
+#endif
+  /* Make sure YYID is used.  */
+  return YYID (yyresult);
 }
 
 
-#line 6671 "GetDP.y"
+#line 6673 "GetDP.y"
 
 
 
