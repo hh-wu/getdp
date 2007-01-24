@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.44 2006-03-10 18:09:23 geuzaine Exp $ */
+/* $Id: GetDP.l,v 1.45 2007-01-24 09:22:54 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -371,6 +371,10 @@ int yywrap() {
 
 #ifdef __cplusplus
 #define input yyinput
+#endif
+
+#ifndef yytext_ptr
+#define yytext_ptr yytext
 #endif
 
 void  C_comments(void) {
