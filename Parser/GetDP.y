@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.100 2007-01-24 09:41:56 bouta Exp $ */
+/* $Id: GetDP.y,v 1.101 2007-01-24 09:53:13 sabarieg Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -276,13 +276,13 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %token      tEvaluate
 
 %token      tTimeLoopTheta
-%token        tTime0  tTimeMax  tDTime  tTheta
+%token      tTime0 tTimeMax tTheta
 %token      tTimeLoopNewmark
 %token        tBeta  tGamma
 %token      tIterativeLoop
-%token        tNbrMaxIteration  tRelaxationFactor
+%token      tNbrMaxIteration  tRelaxationFactor
 %token      tIterativeTimeReduction
-%token        tDivisionCoefficient tChangeOfState
+%token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand
 %token      tGenerateFMMGroups
 %token      tGenerateOnly
@@ -6201,17 +6201,19 @@ Affectation :
 
   | String__Index tDEF tListFromFile '[' CharExpr ']' tEND
     { Constant_S.Name = $1 ; Constant_S.Type = VAR_LISTOFFLOAT ;
-    //if (!(File = fopen($5, "r")))
-    //Msg(GERROR, "Unable to open file '%s'", $5);
+
+    if (!(File = fopen($5, "r"))) 
+      Constant_S.Value.ListOfFloat = NULL ;
+    else{
       Constant_S.Value.ListOfFloat = List_Create(100,100,sizeof(double));
-      if ((File = fopen($5, "r")))
-	while (!feof(File))
-	  if (fscanf(File, "%lf", &d) != EOF)
-	    List_Add(Constant_S.Value.ListOfFloat, &d) ;
-    fclose(File) ;
-    List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
+      while (!feof(File))
+	if (fscanf(File, "%lf", &d) != EOF)
+	  List_Add(Constant_S.Value.ListOfFloat, &d) ;
+      fclose(File) ;
     }
 
+    List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
+    }
 
   | tPrintf '(' tBIGSTR ')' tEND
     {
