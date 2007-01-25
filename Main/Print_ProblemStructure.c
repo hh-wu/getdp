@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.41 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.42 2007-01-25 12:16:37 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -110,6 +110,7 @@ void  Print_WholeQuantity(struct Problem  * Problem,
       Msg(CHECK, " %s", Get_StringForFunction2Nbr(F_Function,
 						  (WQ+k)->Case.Function.Fct)) ;
       if ((WQ+k)->Type == WQ_EXTERNBUILTINFUNCTION)  Msg(CHECK, "[.]") ;
+      if ((WQ+k)->Type == WQ_BUILTINFUNCTION)  Msg(CHECK, "[]") ;
       if ((WQ+k)->Case.Function.NbrParameters) {
 	Msg(CHECK, "{") ;
 	for (j = 0 ; j < (WQ+k)->Case.Function.NbrParameters ; j++) {
