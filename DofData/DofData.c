@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.48 2006-03-13 20:49:51 geuzaine Exp $"
+#define RCSID "$Id: DofData.c,v 1.49 2007-01-25 12:20:52 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1692,10 +1692,10 @@ void Print_DofNumber(struct Dof *Dof_P){
 
   switch(Dof_P->Type){
   case DOF_UNKNOWN : 
-    printf("%d ", Dof_P->Case.Unknown.NumDof) ; 
+    printf("%d(%d) ", Dof_P->Case.Unknown.NumDof, Dof_P->Entity) ; 
     break ;
   case DOF_FIXED   : 
-    printf("Fixed ") ; 
+    printf("Fixed(%d) ", Dof_P->Entity) ; 
     break ;
   case DOF_FIXEDWITHASSOCIATE : 
     printf("Assoc-%d ", Dof_P->Case.FixedAssociate.NumDof) ; 

@@ -73,6 +73,32 @@ static int  Den_Line    [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
 static int  Den_Line_Xp [] 
   = { -1, 1 } ;
 
+
+/* ------------------------------------------------------------------------
+   LINE_2         edge 1: nodes 1 -> 2  
+
+        v                            
+        |                            
+        |                            
+   --1-----2--u  
+        |                            
+        |                            
+
+   ------------------------------------------------------------------------ */
+
+static int  NbrNodes_Line_2  = 3 ;
+static int  NbrEdges_Line_2  = 1 ;  
+static int  NbrFacets_Line_2 = 0 ;
+
+static double  Nodes_Line_2 [][3]
+  = { {-1., 0., 0.} , {1., 0., 0.,} , {0., 0., 0.,} } ;
+
+static int  Den_Line_2    [] [NBR_MAX_SUBENTITIES_IN_ELEMENT] 
+  = { { 1, -2, 0} } ;
+
+static int  Den_Line_2_Xp [] 
+  = { -1, 1 } ;
+
 /* ------------------------------------------------------------------------
    TRIANGLE      edge 1: nodes 1 -> 2         
    v                  2:       1 -> 3                  
@@ -108,6 +134,44 @@ static int  Dfe_Triangle_Xp []
 
 
 static int  Dfn_Triangle [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, 2, 3, 0} } ;
+
+/* ------------------------------------------------------------------------
+   TRIANGLE_2    edge 1: nodes 1 -> 2         
+   v                  2:       1 -> 3                  
+   |                  3:       2 -> 3                  
+   |                           
+   3             facet 1: edges 1 -2 3   nodes 1 2 3                      
+   |\        
+   | \       
+   |__\___u                    
+   1   2                       
+   ------------------------------------------------------------------------ */
+
+static int  NbrNodes_Triangle_2  = 6 ;  
+static int  NbrEdges_Triangle_2  = 3 ;  
+static int  NbrFacets_Triangle_2 = 1 ;
+
+static double  Nodes_Triangle_2 [][3]
+  = { {0., 0., 0.} , {1., 0., 0.} , {0., 1., 0.} , 
+      {0.5, 0., 0.} , {0.5, 0.5, 0.} , {0., 0.5, 0.} } ;
+
+static int  Den_Triangle_2 [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, -2, 0}, { 1, -3, 0}, { 2, -3, 0} } ;
+
+static int  Den_Triangle_2_Xp []
+  = { -1, 1, 0, 
+      -1, 0, 1,
+       0,-1, 1 } ;
+
+static int  Dfe_Triangle_2 [] [NBR_MAX_SUBENTITIES_IN_ELEMENT] 
+  = { { 1, 3, -2, 0} } ;
+
+static int  Dfe_Triangle_2_Xp []
+  = { 1,-1, 1 } ;
+
+
+static int  Dfn_Triangle_2 [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
   = { { 1, 2, 3, 0} } ;
 
 /* ------------------------------------------------------------------------

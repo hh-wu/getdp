@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.28 2006-02-26 00:42:59 geuzaine Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.29 2007-01-25 12:20:52 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -203,6 +203,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
       break;
       
     case LINE :
+    case LINE_2 :
       u01 = .5 * (PE->u[0] + PE->u[1]);
       v01 = .5 * (PE->v[0] + PE->v[1]);
       w01 = .5 * (PE->w[0] + PE->w[1]);
@@ -218,6 +219,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
       break;
       
     case TRIANGLE :
+    case TRIANGLE_2 :
       u01 = .5 * (PE->u[0] + PE->u[1]); u02 = .5 * (PE->u[0] + PE->u[2]); 
       v01 = .5 * (PE->v[0] + PE->v[1]);	v02 = .5 * (PE->v[0] + PE->v[2]); 
       w01 = .5 * (PE->w[0] + PE->w[1]);	w02 = .5 * (PE->w[0] + PE->w[2]); 
@@ -393,6 +395,8 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 #else
     case PYRAMID     : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
 #endif
+    case LINE_2      : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
+    case TRIANGLE_2  : PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
     }
     POS_CUT_FILL ;     
 
@@ -411,6 +415,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	break ;
 
       case LINE :    
+      case LINE_2 :    
 	PE = Create_PostElement(Index, LINE, 2, 1) ; /* nodes 1 2 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->NumNodes[1] = GE->NumNodes[1] ;
@@ -420,6 +425,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	break ;
       
       case TRIANGLE :    
+      case TRIANGLE_2 :    
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 2 3 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->NumNodes[1] = GE->NumNodes[1] ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node.c,v 1.16 2006-02-26 00:42:53 geuzaine Exp $"
+#define RCSID "$Id: BF_Node.c,v 1.17 2007-01-25 12:20:52 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -136,6 +136,28 @@ void  BF_Node(struct Element * Element, int NumNode,
 #endif
     break ;
 
+  case LINE_2 :
+    switch(NumNode) {
+    case 1  : *s = 0.5*u*(u-1.) ; break ;
+    case 2  : *s = 1.-u*u       ; break ;
+    case 3  : *s = 0.5*u*(1.+u) ; break ;
+    default : WrongNumNode ;
+    }
+    break ;
+
+  case TRIANGLE_2 :
+    r = 1.-u-v ;
+    switch(NumNode) {
+    case 1  : *s = r*(2.*r-1.) ; break ;
+    case 2  : *s = u*(2.*u-1.)    ; break ;
+    case 3  : *s = v*(2.*v-1.)    ; break ;
+    case 4  : *s = 4.*r*u ; break ;
+    case 5  : *s = 4.*u*v ; break ;
+    case 6  : *s = 4.*v*r ; break ;
+    default : WrongNumNode ;
+    }
+    break ;
+
   default :
     Msg(GERROR, "Unknown type of Element in BF_Node");
     break;
@@ -154,6 +176,8 @@ void  BF_Node(struct Element * Element, int NumNode,
 
 void  BF_GradNode(struct Element * Element, int NumNode, 
 		  double u, double v, double w,  double s[] ) {
+
+  double r;
 
   GetDP_Begin("BF_GradNode");
 
@@ -319,6 +343,28 @@ void  BF_GradNode(struct Element * Element, int NumNode,
       }
     }
 #endif
+    break ;
+
+  case LINE_2 :
+    switch(NumNode) {
+    case 1  : s[0] = -0.5+u ; s[1] = 0. ; s[2] =  0. ; break ;
+    case 2  : s[0] = -2.*u  ; s[1] = 0. ; s[2] =  0. ; break ;
+    case 3  : s[0] = 0.5+u  ; s[1] = 0. ; s[2] =  0. ; break ;
+    default : WrongNumNode ;
+    }
+    break ;
+
+  case TRIANGLE_2 :
+    r = 1.-u-v ;
+    switch(NumNode) {
+    case 1  : s[0] = 1.-4.*r ; s[1] = 1.-4.*r ; s[2] =  0. ; break ;
+    case 2  : s[0] =-1.+4.*u ; s[1] = 0.      ; s[2] =  0. ; break ;
+    case 3  : s[0] = 0.      ; s[1] =-1.+4.*v ; s[2] =  0. ; break ;
+    case 4  : s[0] = 4.*(r-u); s[1] = -4.*u   ; s[2] =  0. ; break ;
+    case 5  : s[0] = 4.*v    ; s[1] =  4.*u   ; s[2] =  0. ; break ;
+    case 6  : s[0] =-4.*v    ; s[1] =  4.*(r-v); s[2] =  0. ; break ;
+    default : WrongNumNode ;
+    }
     break ;
 
   default :

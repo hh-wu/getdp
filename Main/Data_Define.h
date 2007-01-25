@@ -136,6 +136,8 @@ struct StringXDefine  Element_Type[] = {
   {"Hexahedron"  , HEXAHEDRON},
   {"Prism"       , PRISM},
   {"Pyramid"     , PYRAMID},
+  {"Line2"       , LINE_2},
+  {"Triangle2"   , TRIANGLE_2},
   {NULL          , TRIANGLE}
  } ;
 
@@ -339,6 +341,8 @@ struct DefineXFunction  FunctionForGauss[] = {
   {HEXAHEDRON     , (CAST)Gauss_Hexahedron},
   {PRISM          , (CAST)Gauss_Prism},
   {PYRAMID        , (CAST)Gauss_Pyramid},
+  {LINE_2         , (CAST)Gauss_Line},
+  {TRIANGLE_2     , (CAST)Gauss_Triangle},
   {0              , (CAST)Gauss_Triangle}
 } ;
 

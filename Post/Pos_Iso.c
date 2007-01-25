@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Iso.c,v 1.21 2006-02-26 00:42:59 geuzaine Exp $"
+#define RCSID "$Id: Pos_Iso.c,v 1.22 2007-01-25 12:20:52 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -143,6 +143,7 @@ void Cal_Iso(struct PostElement *PE, List_T *list,
 
   switch(PE->Type){
   case TRIANGLE :
+  case TRIANGLE_2 :
     Cal_IsoTriangle(PE->x, PE->y, PE->z, PE->Value, 
 		    val, vmin, vmax, x, y, z, &nb) ;
     if(nb == 2){

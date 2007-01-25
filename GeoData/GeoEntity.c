@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoEntity.c,v 1.13 2006-02-26 00:42:53 geuzaine Exp $"
+#define RCSID "$Id: GeoEntity.c,v 1.14 2007-01-25 12:20:52 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -44,12 +44,14 @@ double * Geo_GetNodes_uvw(int Type, int *nbn){
   case POINT       : *nbn = NbrNodes_Point ;       GetDP_Return(*Nodes_Point) ;
   case LINE        : *nbn = NbrNodes_Line ;        GetDP_Return(*Nodes_Line) ;
   case TRIANGLE    : *nbn = NbrNodes_Triangle ;    GetDP_Return(*Nodes_Triangle) ;
+
   case QUADRANGLE  : *nbn = NbrNodes_Quadrangle ;  GetDP_Return(*Nodes_Quadrangle) ;
   case TETRAHEDRON : *nbn = NbrNodes_Tetrahedron ; GetDP_Return(*Nodes_Tetrahedron) ;
   case HEXAHEDRON  : *nbn = NbrNodes_Hexahedron ;  GetDP_Return(*Nodes_Hexahedron) ;
   case PRISM       : *nbn = NbrNodes_Prism ;       GetDP_Return(*Nodes_Prism) ;
   case PYRAMID     : *nbn = NbrNodes_Pyramid ;     GetDP_Return(*Nodes_Pyramid) ;
-  default : 
+  case LINE_2      : *nbn = NbrNodes_Line_2 ;      GetDP_Return(*Nodes_Line_2) ;
+  case TRIANGLE_2  : *nbn = NbrNodes_Triangle_2 ;  GetDP_Return(*Nodes_Triangle_2) ;  default : 
     Msg(GERROR, "Unknown type of Element in Geo_GetNodes_uvw") ; GetDP_Return(NULL) ;
   }
 }
@@ -136,6 +138,8 @@ int  * Geo_GetIM_Den(int Type_Element, int * Nbe) {
   case HEXAHEDRON :  *Nbe = NbrEdges_Hexahedron  ; GetDP_Return(*Den_Hexahedron) ;
   case PRISM :       *Nbe = NbrEdges_Prism       ; GetDP_Return(*Den_Prism) ;
   case PYRAMID :     *Nbe = NbrEdges_Pyramid     ; GetDP_Return(*Den_Pyramid) ;
+  case LINE_2 :      *Nbe = NbrEdges_Line_2      ; GetDP_Return(*Den_Line_2) ;
+  case TRIANGLE_2 :  *Nbe = NbrEdges_Triangle_2  ; GetDP_Return(*Den_Triangle_2) ;
   default : 
     Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
@@ -159,6 +163,8 @@ int  * Geo_GetIM_Dfe(int Type_Element, int * Nbf) {
   case HEXAHEDRON :  *Nbf = NbrFacets_Hexahedron  ; GetDP_Return(*Dfe_Hexahedron) ;
   case PRISM :       *Nbf = NbrFacets_Prism       ; GetDP_Return(*Dfe_Prism) ;
   case PYRAMID :     *Nbf = NbrFacets_Pyramid     ; GetDP_Return(*Dfe_Pyramid) ;
+  case LINE_2 :      *Nbf = NbrFacets_Line_2      ; GetDP_Return(NULL) ;
+  case TRIANGLE_2 :  *Nbf = NbrFacets_Triangle_2  ; GetDP_Return(*Dfe_Triangle_2) ;
   default :
     Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
@@ -181,6 +187,8 @@ int  * Geo_GetIM_Dfn(int Type_Element, int * Nbf) {
   case HEXAHEDRON : *Nbf = NbrFacets_Hexahedron  ; GetDP_Return(*Dfn_Hexahedron) ;
   case PRISM :	    *Nbf = NbrFacets_Prism       ; GetDP_Return(*Dfn_Prism) ;
   case PYRAMID :    *Nbf = NbrFacets_Pyramid     ; GetDP_Return(*Dfn_Pyramid) ;
+  case LINE_2 :     *Nbf = NbrFacets_Line_2      ; GetDP_Return(NULL) ;
+  case TRIANGLE_2 : *Nbf = NbrFacets_Triangle_2  ; GetDP_Return(*Dfn_Triangle_2) ;
   default :
     Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
@@ -217,6 +225,12 @@ int * Geo_GetIM_Den_Xp(int Type_Element, int * Nbe, int * Nbn) {
   case PYRAMID :
     *Nbe = NbrEdges_Pyramid ; *Nbn = NbrNodes_Pyramid ; 
     GetDP_Return(Den_Pyramid_Xp) ;
+  case LINE_2 :
+    *Nbe = NbrEdges_Line_2 ; *Nbn = NbrNodes_Line_2 ; 
+    GetDP_Return(Den_Line_2_Xp) ;
+  case TRIANGLE_2 :
+    *Nbe = NbrEdges_Triangle_2 ; *Nbn = NbrNodes_Triangle_2 ; 
+    GetDP_Return(Den_Triangle_2_Xp) ;
   default :
     Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
@@ -254,6 +268,12 @@ int * Geo_GetIM_Dfe_Xp(int Type_Element, int * nbf, int * nbe) {
   case PYRAMID :
     *nbf = NbrFacets_Pyramid ; *nbe = NbrEdges_Pyramid ; 
     GetDP_Return(Dfe_Pyramid_Xp) ;
+  case LINE_2 :
+    *nbf = NbrFacets_Line_2 ; *nbe = NbrEdges_Line_2 ; 
+    GetDP_Return(NULL) ;
+  case TRIANGLE_2 :
+    *nbf = NbrFacets_Triangle_2 ; *nbe = NbrEdges_Triangle_2 ; 
+    GetDP_Return(Dfe_Triangle_2_Xp) ;
   default :
     Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
