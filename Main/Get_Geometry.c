@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.38 2006-10-23 13:31:12 dular Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.39 2007-01-25 12:19:27 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -452,7 +452,7 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
     }
   }
 
-  if ( (fabs(R) > fabs(B) + 1.e-12*fabs(B)) || 
+  if ( (fabs(R) > fabs(B) + 1.e-2*fabs(B)) || 
        (fabs(R) < fabs(A) - 1.e-2*fabs(A)) )
     Msg(GERROR, "Bad parameters for transformation Jacobian: %g not in [%g,%g]", R, A, B) ;
 
@@ -479,7 +479,14 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
   Jac->c32  = f * (    - theta * ZR * dRdy) ;
   Jac->c33  = f * (1.0 - theta * ZR * dRdz) ;
 
-  DetJac = f * f * (1.0 - theta) ;
+  switch (Dim) {
+  case _2D :
+    DetJac = f * f * (1.0 - theta) ;
+    break;
+  default :
+    DetJac = f * f * f * (1.0 - theta) ;
+    break ;
+  }
 
   GetDP_Return(DetJac) ;
 
