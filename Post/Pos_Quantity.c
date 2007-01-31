@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.20 2006-02-26 00:42:59 geuzaine Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.21 2007-01-31 14:54:02 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -50,6 +50,7 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 
   List_T   *InRegion_L ;
   int       i_PQT, Type_Quantity ;
+  struct Group * Group_P ;/* For generating extended group */
 
   GetDP_Begin("Cal_PostQuantity");
 
@@ -66,9 +67,22 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
     
     List_Read(PostQuantity_P->PostQuantityTerm, i_PQT, &PostQuantityTerm) ;
     
+    /*
     InRegion_L = (PostQuantityTerm.InIndex < 0)?  NULL :
       ((struct Group *)List_Pointer(Problem_S.Group, 
 				    PostQuantityTerm.InIndex))->InitialList ;
+    */
+
+    Group_P = (PostQuantityTerm.InIndex < 0)?  NULL :
+      (struct Group *)List_Pointer(Problem_S.Group, 
+				   PostQuantityTerm.InIndex);
+    InRegion_L = Group_P ?  Group_P->InitialList : NULL ; 
+
+     /* Generating Extended Group if necessary */
+    if (Group_P->FunctionType == ELEMENTSOF){
+      if (!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
+      InRegion_L = Group_P->ExtendedList ;
+    }
 
     if (!Support_L)  Type_Quantity = PostQuantityTerm.Type ;
     else             Type_Quantity = GLOBALQUANTITY ; /* Always if Support */
@@ -81,6 +95,7 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
       }
       else {
 	if (Type_Quantity == GLOBALQUANTITY) {
+	  
 	  /* Plus de test ici... vu que le OnRegion de la PostOperation n'a rien
 	     a voir avec le support d'une integration ...
 	  if (!List_Search(InRegion_L, &Current.Region, fcmp_int)) {
@@ -149,6 +164,8 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
   int    Nbr_Element, i_Element ;
   struct Element  Element ;
   int    Type_Quantity ;
+  int  i, Num_Region ;
+
 
   GetDP_Begin("Pos_GlobalQuantity");
 
@@ -202,9 +219,12 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
       Element.Type   = Element.GeoElement->Type ;
       Current.Region = Element.Region = Element.GeoElement->Region ;
 
+
       /* Filter: only elements in both InRegion_L and Support_L are considered */
-      if ((!InRegion_L || List_Search(InRegion_L, &Element.Region, fcmp_int)) &&
+      if ((!InRegion_L || (List_Search(InRegion_L, &Element.Region, fcmp_int) 
+	   || List_Search(InRegion_L, &Element.Num, fcmp_int) ) ) &&
 	  (!Support_L || List_Search(Support_L, &Element.Region, fcmp_int))) {
+
 	Get_NodesCoordinatesOfElement(&Element) ;
 	Current.x = Element.x[0];
 	Current.y = Element.y[0];
@@ -215,6 +235,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 				    0., 0., 0., Value) ;
       }
     }  /* for i_Element ... */
+
   }  /* if INTEGRAL ... */
 
   GetDP_End ;
