@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.33 2006-06-27 22:52:20 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.34 2007-01-31 13:50:54 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1100,6 +1100,7 @@ void  F_VirtualWork (F_ARG) {
   GetDP_Begin("F_VirtualWork");
   
   /*  numNode = (int)((A+1)->Val[0]); */
+  Current.flagAssDiag = 1; /*+++prov*/
 
   numNode = Current.NumEntity;
   

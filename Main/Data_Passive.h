@@ -1156,6 +1156,8 @@ struct CurrentData {
   int     TypeTime, TypeAssembly ;
   int     SubTimeStep ;
 
+  int     flagAssDiag ;
+
   /* All values below must be of double type */
 
   double  x, y, z ;
