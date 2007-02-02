@@ -38,7 +38,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 			struct PostQuantityTerm  *PostQuantityTerm_P,
 			struct Element         *ElementEmpty, 
 			List_T  *InRegion_L, List_T  *Support_L,
-			struct Value *Value) ;
+			struct Value *Value, int Type_InRegion) ;
 
 void Cal_PostCumulativeQuantity(List_T                 *Region_L,
 				int                    SupportIndex,
