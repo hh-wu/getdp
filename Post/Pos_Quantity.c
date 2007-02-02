@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.21 2007-01-31 14:54:02 sabarieg Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.22 2007-02-02 10:08:30 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -49,7 +49,7 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
   struct PostQuantityTerm  PostQuantityTerm ;
 
   List_T   *InRegion_L ;
-  int       i_PQT, Type_Quantity ;
+  int       i_PQT, Type_Quantity, Type_InRegion ;
   struct Group * Group_P ;/* For generating extended group */
 
   GetDP_Begin("Cal_PostQuantity");
@@ -77,6 +77,8 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
       (struct Group *)List_Pointer(Problem_S.Group, 
 				   PostQuantityTerm.InIndex);
     InRegion_L = Group_P ?  Group_P->InitialList : NULL ; 
+
+    Type_InRegion = Group_P->FunctionType;
 
      /* Generating Extended Group if necessary */
     if (Group_P->FunctionType == ELEMENTSOF){
@@ -132,7 +134,7 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 
       Pos_GlobalQuantity(PostQuantity_P,
 			 DefineQuantity_P0, QuantityStorage_P0,
-			 &PostQuantityTerm, Element, InRegion_L, Support_L, Value) ;
+			 &PostQuantityTerm, Element, InRegion_L, Support_L, Value, Type_InRegion) ;
     }
    
   }  /* for i_PQT ... */
@@ -151,7 +153,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 			struct PostQuantityTerm  *PostQuantityTerm_P,
 			struct Element         *ElementEmpty, 
 			List_T  *InRegion_L, List_T  *Support_L,
-			struct Value *Value) {
+			struct Value *Value, int Type_InRegion) {
 
   struct DefineQuantity    *DefineQuantity_P ;
   struct QuantityStorage   *QuantityStorage_P ;
@@ -221,9 +223,9 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 
 
       /* Filter: only elements in both InRegion_L and Support_L are considered */
-      if ((!InRegion_L || (List_Search(InRegion_L, &Element.Region, fcmp_int) 
-	   || List_Search(InRegion_L, &Element.Num, fcmp_int) ) ) &&
-	  (!Support_L || List_Search(Support_L, &Element.Region, fcmp_int))) {
+     if ((!InRegion_L || 
+	   (List_Search(InRegion_L,(Type_InRegion==ELEMENTSOF ? &Element.Num  :&Element.Region), fcmp_int)))&&
+	 (!Support_L || List_Search(Support_L, &Element.Region, fcmp_int))) {
 
 	Get_NodesCoordinatesOfElement(&Element) ;
 	Current.x = Element.x[0];
