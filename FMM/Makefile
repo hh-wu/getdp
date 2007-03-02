@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.13 2006-02-25 15:00:23 geuzaine Exp $
+# $Id: Makefile,v 1.14 2007-03-02 08:40:34 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -51,7 +51,6 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-# 1 "/Users/geuzaine/.getdp/FMM//"
 FMM_Groups.o: FMM_Groups.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Numeric/Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
@@ -65,7 +64,6 @@ FMM_Groups.o: FMM_Groups.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Treatment_Formulation.h ../Main/Data_Active.h \
   ../Main/Cal_Quantity.h ../Main/Data_Active.h ../Main/Cal_Value.h \
   Data_FMM.h F_FMM.h Truncation.h
-# 1 "/Users/geuzaine/.getdp/FMM//"
 FMM_CalDTAmatrices.o: FMM_CalDTAmatrices.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h ../Main/Treatment_Formulation.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
@@ -79,7 +77,6 @@ FMM_CalDTAmatrices.o: FMM_CalDTAmatrices.c ../include/GetDP.h \
   ../Main/Get_DofOfElement.h ../Main/Data_Active.h ../Main/Data_DefineE.h \
   ../Function/GF_Function.h ../DataStr/Tools.h ../DataStr/List.h \
   ../DataStr/Tree.h Data_FMM.h Cal_FMMAnalyticalIntegral.h F_FMM_DTA.h
-# 1 "/Users/geuzaine/.getdp/FMM//"
 FMM_Operations.o: FMM_Operations.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Numeric/Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
@@ -90,7 +87,6 @@ FMM_Operations.o: FMM_Operations.c ../include/GetDP.h ../Main/Message.h \
   ../DofData/LinAlg.h ../DofData/Graph.h ../DofData/Data_DofData.h \
   ../DofData/Data_DofData.h ../include/Magic.h ../Main/Cal_Value.h \
   Data_FMM.h
-# 1 "/Users/geuzaine/.getdp/FMM//"
 Print_FMM.o: Print_FMM.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h \
@@ -102,7 +98,6 @@ Print_FMM.o: Print_FMM.c ../include/GetDP.h ../Main/Message.h \
   ../include/Magic.h ../DataStr/Tools.h ../DataStr/List.h \
   ../DataStr/Tree.h ../Main/ExtendedGroup.h ../Main/Data_Active.h \
   Data_FMM.h
-# 1 "/Users/geuzaine/.getdp/FMM//"
 Cal_FMMAnalyticalIntegral.o: Cal_FMMAnalyticalIntegral.c \
   ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \

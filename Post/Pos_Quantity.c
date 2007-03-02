@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.22 2007-02-02 10:08:30 sabarieg Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.23 2007-03-02 08:40:35 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -30,6 +30,7 @@
 #include "Get_Geometry.h"
 #include "Data_Passive.h"
 #include "Data_DefineE.h"
+#include "ExtendedGroup.h"
 #include "CurrentData.h"
 #include "Tools.h"
 

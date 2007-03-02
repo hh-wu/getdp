@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.40 2006-02-25 15:00:24 geuzaine Exp $
+# $Id: Makefile,v 1.41 2007-03-02 08:40:35 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -73,12 +73,10 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-# 1 "/Users/geuzaine/.getdp/Numeric//"
 Analytic_HollowCylLF.o: Analytic_HollowCylLF.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h
-# 1 "/Users/geuzaine/.getdp/Numeric//"
 EigenPar.o: EigenPar.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../DataStr/List.h ../Main/Data_Element.h \
@@ -87,7 +85,6 @@ EigenPar.o: EigenPar.c ../include/GetDP.h ../Main/Message.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
   ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
   ../include/Magic.h EigenPar.h
-# 1 "/Users/geuzaine/.getdp/Numeric//"
 Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
@@ -97,7 +94,6 @@ Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
   ../DofData/Data_DofData.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../include/Magic.h \
   Numeric.h EigenPar.h ../include/Compat.h
-# 1 "/Users/geuzaine/.getdp/Numeric//"
 Arpack.o: Arpack.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
@@ -107,32 +103,26 @@ Arpack.o: Arpack.c ../include/GetDP.h ../Main/Message.h \
   ../DofData/Data_DofData.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../include/Magic.h \
   Numeric.h EigenPar.h Arpack_F.h ../include/Compat.h
-# 1 "/Users/geuzaine/.getdp/Numeric//"
 Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h Numeric.h \
   ../DofData/Data_DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h
-# 1 "/Users/geuzaine/.getdp/Numeric//"
 Legendre.o: Legendre.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h
-# 1 "/Users/geuzaine/.getdp/Numeric//"
 SphBessel.o: SphBessel.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h Amos_F.h ../include/Compat.h
-# 1 "/Users/geuzaine/.getdp/Numeric//"
 Numeric.o: Numeric.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h
-# 1 "/Users/geuzaine/.getdp/Numeric//"
 gsl_newt.o: gsl_newt.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../DofData/LinAlg.h ../Sparskit/Solver.h
-# 1 "/Users/geuzaine/.getdp/Numeric//"
 gsl_brent.o: gsl_brent.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.23 2006-02-25 15:00:25 geuzaine Exp $
+# $Id: Makefile,v 1.24 2007-03-02 08:40:35 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -59,12 +59,10 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-# 1 "/Users/geuzaine/.getdp/Parser//"
 GetDP.yy.o: GetDP.yy.c ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../DataStr/Malloc.h Parser.h GetDP.tab.h
-# 1 "/Users/geuzaine/.getdp/Parser//"
 GetDP.tab.o: GetDP.tab.c ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../Main/Message.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \

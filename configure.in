@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.66 2006-02-26 19:25:58 geuzaine Exp $
+dnl $Id: configure.in,v 1.67 2007-03-02 08:40:34 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -249,9 +249,13 @@ else
       esac
       ;;
     Darwin*)
-      dnl force C linker on Mac OS X
-      LINKER="gcc"
-      GETDP_LIBS="${GETDP_LIBS} -lg2c"
+      case "${F77}" in
+        *g77*)
+          dnl force C linker with g77 compiler
+          LINKER="gcc"
+          GETDP_LIBS="${GETDP_LIBS} -lg2c"
+          ;;
+      esac
       ;;
   esac
 

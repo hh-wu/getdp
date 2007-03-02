@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2006-02-25 15:00:23 geuzaine Exp $
+# $Id: Makefile,v 1.16 2007-03-02 08:40:34 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -56,15 +56,9 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-# 1 "/Users/geuzaine/.getdp/DataStr//"
 List.o: List.c Malloc.h List.h ../Main/Message.h SafeIO.h
-# 1 "/Users/geuzaine/.getdp/DataStr//"
 Malloc.o: Malloc.c Malloc.h ../Main/Message.h
-# 1 "/Users/geuzaine/.getdp/DataStr//"
 SafeIO.o: SafeIO.c SafeIO.h ../Main/Message.h
-# 1 "/Users/geuzaine/.getdp/DataStr//"
 Tree.o: Tree.c Malloc.h Tree.h avl.h
-# 1 "/Users/geuzaine/.getdp/DataStr//"
 avl.o: avl.c avl.h Malloc.h
-# 1 "/Users/geuzaine/.getdp/DataStr//"
 Tools.o: Tools.c Tools.h List.h Tree.h avl.h

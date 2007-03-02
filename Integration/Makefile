@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.22 2006-02-25 15:00:24 geuzaine Exp $
+# $Id: Makefile,v 1.23 2007-03-02 08:40:35 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -58,27 +58,19 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-# 1 "/Users/geuzaine/.getdp/Integration//"
 Gauss_Point.o: Gauss_Point.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h
-# 1 "/Users/geuzaine/.getdp/Integration//"
 Gauss_Line.o: Gauss_Line.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Quadrature.h Gauss_Line.h
-# 1 "/Users/geuzaine/.getdp/Integration//"
 Gauss_Triangle.o: Gauss_Triangle.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Quadrature.h Gauss_Triangle.h
-# 1 "/Users/geuzaine/.getdp/Integration//"
 Gauss_Quadrangle.o: Gauss_Quadrangle.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h Quadrature.h Gauss_Quadrangle.h
-# 1 "/Users/geuzaine/.getdp/Integration//"
 Gauss_Tetrahedron.o: Gauss_Tetrahedron.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h Quadrature.h Gauss_Tetrahedron.h
-# 1 "/Users/geuzaine/.getdp/Integration//"
 Gauss_Hexahedron.o: Gauss_Hexahedron.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h Quadrature.h Gauss_Hexahedron.h
-# 1 "/Users/geuzaine/.getdp/Integration//"
 Gauss_Prism.o: Gauss_Prism.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Gauss_Prism.h
-# 1 "/Users/geuzaine/.getdp/Integration//"
 Gauss_Pyramid.o: Gauss_Pyramid.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Gauss_Pyramid.h
