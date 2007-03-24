@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Analytic.c,v 1.32 2006-10-27 15:33:01 geuzaine Exp $"
+#define RCSID "$Id: F_Analytic.c,v 1.33 2007-03-24 10:15:07 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1091,8 +1091,8 @@ void F_AcousticFieldSoftCylinderABC(F_ARG){
   cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda, coef;
   cplx H1nkR0, *H1nkR1tab, *H2nkR1tab, H1nkr, alphaBT, betaBT, keps;
   
-  double k, R0, R1, r, kr, kR0, kR1, theta, cost, kappa ;
-  int n, ns, ABCtype ;
+  double k, R0, R1, r, kr, kR0, kR1, theta, cost, sint, kappa ;
+  int n, ns, ABCtype, SingleMode ;
 
   GetDP_Begin("F_AcousticFieldSoftCylinderABC") ;  
 
@@ -1103,6 +1103,7 @@ void F_AcousticFieldSoftCylinderABC(F_ARG){
   R0 = Fct->Para[1] ;   
   R1 = Fct->Para[2] ;
   ABCtype = (int)Fct->Para[3] ;
+  SingleMode = (int)Fct->Para[4] ;
   kr = k * r;
   kR0 = k * R0;
   kR1 = k * R1;
@@ -1146,6 +1147,8 @@ void F_AcousticFieldSoftCylinderABC(F_ARG){
   }
 
   for (n = 0 ; n < ns ; n++){
+    if(SingleMode >= 0 && SingleMode != n) continue;
+
     H1nkR0.r = jn(n, kR0);
     H1nkR0.i = yn(n, kR0);
 
@@ -1176,20 +1179,29 @@ void F_AcousticFieldSoftCylinderABC(F_ARG){
     bm = Cdiv( Cprodr(-H1nkR0.r, alpha1) ,
 	       delta );
 
-    tmp = Cprod( Cpow(I,n) , Csum( Cprod( am , H1nkr ) ,
-				   Cprod( bm , Cconj(H1nkr) ) ) );
-
-    cost = cos(n * theta);
-
-    V->Val[0] += cost * tmp.r * (!n ? 0.5 : 1.);
-    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+    if(SingleMode >= 0 && SingleMode == n){
+      tmp = Csum( Cprod( am , H1nkr ) , Cprod( bm , Cconj(H1nkr) ) );
+      cost = cos(n * theta);
+      sint = sin(n * theta);
+      V->Val[0] += cost * tmp.r - sint * tmp.i;
+      V->Val[MAX_DIM] += cost * tmp.i + sint * tmp.r;
+    }
+    else{
+      tmp = Cprod( Cpow(I,n) , Csum( Cprod( am , H1nkr ) ,
+				     Cprod( bm , Cconj(H1nkr) ) ) );
+      cost = cos(n * theta);
+      V->Val[0] += cost * tmp.r * (!n ? 0.5 : 1.);
+      V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+    }
   }
 
   Free(H1nkR1tab);
   Free(H2nkR1tab);
   
-  V->Val[0] *= 2;
-  V->Val[MAX_DIM] *= 2;
+  if(SingleMode < 0){
+    V->Val[0] *= 2;
+    V->Val[MAX_DIM] *= 2;
+  }
 
   V->Type = SCALAR ;
 
@@ -1424,8 +1436,8 @@ void F_AcousticFieldHardCylinderABC(F_ARG){
   cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda, coef;
   cplx H1nkR0, *H1nkR0tab, *H2nkR0tab, *H1nkR1tab, *H2nkR1tab, H1nkr, alphaBT, betaBT;
   
-  double k, R0, R1, r, kr, kR0, kR1, theta, cost ;
-  int n, ns, ABCtype ;
+  double k, R0, R1, r, kr, kR0, kR1, theta, cost, sint ;
+  int n, ns, ABCtype, SingleMode ;
 
   GetDP_Begin("F_AcousticFieldHardCylinderABC") ;  
 
@@ -1436,6 +1448,7 @@ void F_AcousticFieldHardCylinderABC(F_ARG){
   R0 = Fct->Para[1] ;   
   R1 = Fct->Para[2] ;
   ABCtype = (int)Fct->Para[3] ;
+  SingleMode = (int)Fct->Para[4] ;
   kr = k * r;
   kR0 = k * R0;
   kR1 = k * R1;
@@ -1485,6 +1498,8 @@ void F_AcousticFieldHardCylinderABC(F_ARG){
   }
 
   for (n = 0 ; n < ns ; n++){
+    if(SingleMode >= 0 && SingleMode != n) continue;
+
     H1nkR0.r = jn(n, kR0);
     H1nkR0.i = yn(n, kR0);
 
@@ -1510,13 +1525,20 @@ void F_AcousticFieldHardCylinderABC(F_ARG){
     bm = Cdiv( Cprodr(-k * DHn(H1nkR0tab, n, kR0).r, alpha1) ,
 	       delta );
 
-    tmp = Cprod( Cpow(I,n) , Csum( Cprod( am , H1nkr ) ,
-				   Cprod( bm , Cconj(H1nkr) ) ) );
-
-    cost = cos(n * theta);
-
-    V->Val[0] += cost * tmp.r * (!n ? 0.5 : 1.);
-    V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+    if(SingleMode >= 0 && SingleMode == n){
+      tmp = Csum( Cprod( am , H1nkr ) , Cprod( bm , Cconj(H1nkr) ) ) ;
+      cost = cos(n * theta);
+      sint = sin(n * theta);
+      V->Val[0] += cost * tmp.r - sint * tmp.i;
+      V->Val[MAX_DIM] += cost * tmp.i + sint * tmp.r;
+    }
+    else{
+      tmp = Cprod( Cpow(I,n) , Csum( Cprod( am , H1nkr ) ,
+				     Cprod( bm , Cconj(H1nkr) ) ) );
+      cost = cos(n * theta);
+      V->Val[0] += cost * tmp.r * (!n ? 0.5 : 1.);
+      V->Val[MAX_DIM] += cost * tmp.i * (!n ? 0.5 : 1.);
+    }
   }
 
   Free(H1nkR0tab);
@@ -1524,8 +1546,10 @@ void F_AcousticFieldHardCylinderABC(F_ARG){
   Free(H1nkR1tab);
   Free(H2nkR1tab);
   
-  V->Val[0] *= 2;
-  V->Val[MAX_DIM] *= 2;
+  if(SingleMode < 0){
+    V->Val[0] *= 2;
+    V->Val[MAX_DIM] *= 2;
+  }
 
   V->Type = SCALAR ;
 

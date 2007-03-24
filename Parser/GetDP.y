@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.101 2007-01-24 09:53:13 sabarieg Exp $ */
+/* $Id: GetDP.y,v 1.102 2007-03-24 10:15:09 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -5748,23 +5748,44 @@ PrintOptions :
 PrintOption :
     ',' tFile CharExpr
     { 
-      PostSubOperation_S.FileOut = $3 ; 
-      if(PostOperation_S.AppendString) 
+      if(!PostOperation_S.AppendString){
+	PostSubOperation_S.FileOut = $3 ; 
+      }
+      else{
+	PostSubOperation_S.FileOut =
+	  (char *)Malloc((strlen($3)+strlen(PostOperation_S.AppendString)+1)*sizeof(char));
+	strcpy(PostSubOperation_S.FileOut, $3);
 	strcat(PostSubOperation_S.FileOut, PostOperation_S.AppendString) ;
+	Free($3);
+      }
       PostSubOperation_S.CatFile = 0 ; 
     }
   | ',' tFile '>' CharExpr
     { 
-      PostSubOperation_S.FileOut = $4 ; 
-      if(PostOperation_S.AppendString) 
+      if(!PostOperation_S.AppendString){
+	PostSubOperation_S.FileOut = $4 ; 
+      }
+      else{
+	PostSubOperation_S.FileOut =
+	  (char *)Malloc((strlen($4)+strlen(PostOperation_S.AppendString)+1)*sizeof(char));
+	strcpy(PostSubOperation_S.FileOut, $4);
 	strcat(PostSubOperation_S.FileOut, PostOperation_S.AppendString) ;
+	Free($4);
+      }
       PostSubOperation_S.CatFile = 1 ; 
     }
   | ',' tFile tGREATERGREATER CharExpr
     { 
-      PostSubOperation_S.FileOut = $4 ; 
-      if(PostOperation_S.AppendString) 
+      if(!PostOperation_S.AppendString){
+	PostSubOperation_S.FileOut = $4 ; 
+      }
+      else{
+	PostSubOperation_S.FileOut =
+	  (char *)Malloc((strlen($4)+strlen(PostOperation_S.AppendString)+1)*sizeof(char));
+	strcpy(PostSubOperation_S.FileOut, $4);
 	strcat(PostSubOperation_S.FileOut, PostOperation_S.AppendString) ;
+	Free($4);
+      }
       PostSubOperation_S.CatFile = 2 ; 
     }
   | ',' tDepth FExpr  
