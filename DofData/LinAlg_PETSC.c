@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.73 2006-10-27 15:04:44 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.74 2007-03-26 10:06:52 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -67,6 +67,7 @@
 #include "SafeIO.h"
 #include "CurrentData.h"
 
+extern int Flag_Verbose;
 extern int Flag_FMM;
 
 /* error checking, petsc-style */
@@ -1426,7 +1427,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
 
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
-  if(!Solver->ksp) view = 1;
+  if(!Solver->ksp && Flag_VERBOSE > 0) view = 1;
 
   if(view && !RankCpu){
     ierr = MatGetSize(A->M, &i, &j); MYCHECK(ierr);
