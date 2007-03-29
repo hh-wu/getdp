@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.23 2007-03-02 08:40:35 geuzaine Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.24 2007-03-29 18:03:10 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -79,10 +79,10 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 				   PostQuantityTerm.InIndex);
     InRegion_L = Group_P ?  Group_P->InitialList : NULL ; 
 
-    Type_InRegion = Group_P->FunctionType;
+    Type_InRegion = Group_P ?  Group_P->FunctionType : REGION;
 
      /* Generating Extended Group if necessary */
-    if (Group_P->FunctionType == ELEMENTSOF){
+    if (Group_P && Group_P->FunctionType == ELEMENTSOF){
       if (!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
       InRegion_L = Group_P->ExtendedList ;
     }
