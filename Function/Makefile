@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.38 2007-03-02 08:40:34 geuzaine Exp $
+# $Id: Makefile,v 1.39 2007-04-21 14:45:17 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -37,6 +37,7 @@ SRC = F_Analytic.c \
       F_Type.c \
       F_MultiHar.c \
       F_Jiles.c \
+      F_Geometry.c \
       F_DiscreteGeometry.c \
       BF_Node.c \
       BF_Node_2.c \
@@ -170,6 +171,17 @@ F_MultiHar.o: F_MultiHar.c ../include/GetDP.h ../Main/Message.h \
   ../include/Magic.h ../Numeric/Numeric.h ../DataStr/Tools.h \
   ../DataStr/List.h ../DataStr/Tree.h
 F_Jiles.o: F_Jiles.c ../include/GetDP.h ../Main/Message.h \
+  ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
+  ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Element.h \
+  ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/Cal_Value.h \
+  ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Numeric/Numeric.h ../DataStr/Tools.h \
+  ../DataStr/List.h ../DataStr/Tree.h
+F_Geometry.o: F_Geometry.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_DefineE.h F_Function.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \

@@ -691,8 +691,11 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"OSRC_Aj",   (CAST)F_OSRC_Aj, 3, 0},
   {"OSRC_Bj",   (CAST)F_OSRC_Bj, 3, 0},
 
-   /*F_Raytracing.c - for ray tracing*/
-  {"CylinderPhase",                 (CAST)F_CylinderPhase,  0, 3 },
+  /* F_Geometry */
+  {"ProjectPointOnEllipse", (CAST)F_ProjectPointOnEllipse,  2, 1 },
+
+  /* F_Raytracing: ray tracing functions */
+  {"CylinderPhase", (CAST)F_CylinderPhase,  0, 3 },
 
   /* GF_XXX : Green Functions */
 
