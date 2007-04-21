@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Geometry.c,v 1.1 2007-04-21 14:45:17 geuzaine Exp $"
+#define RCSID "$Id: F_Geometry.c,v 1.2 2007-04-21 14:48:13 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -79,7 +79,7 @@ void  F_ProjectPointOnEllipse(F_ARG) {
   x = ELLIPSE_PARAMETERS[0] * cos(t);
   y = ELLIPSE_PARAMETERS[1] * sin(t);
 
-  printf("SL(%g,%g,0,%g,%g,0){1,1};\n", A->Val[0], A->Val[1], x, y);
+  /* printf("SL(%g,%g,0,%g,%g,0){1,1};\n", A->Val[0], A->Val[1], x, y); */
    
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] = 0. ;
