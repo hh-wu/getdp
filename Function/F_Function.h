@@ -57,11 +57,13 @@ void  F_OSRC_Aj(F_ARG);
 void  F_OSRC_Bj(F_ARG);
 
 /* F_Geometry */
+
 void  F_ProjectPointOnEllipse(F_ARG);  
 
 /* F_Raytracing */
 
 void  F_CylinderPhase(F_ARG);  
+void  F_DiamondPhase(F_ARG);
 
 /* F_Math */
 

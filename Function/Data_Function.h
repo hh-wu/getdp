@@ -695,10 +695,10 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"ProjectPointOnEllipse", (CAST)F_ProjectPointOnEllipse,  2, 1 },
 
   /* F_Raytracing: ray tracing functions */
-  {"CylinderPhase", (CAST)F_CylinderPhase,  0, 3 },
+  {"CylinderPhase",         (CAST)F_CylinderPhase,  0, 1 },
+  {"DiamondPhase",          (CAST)F_DiamondPhase,  0, 1 },
 
   /* GF_XXX : Green Functions */
-
   {"Laplace"           , (CAST)GF_Laplace          ,   1,   0 },
   {"GradLaplace"       , (CAST)GF_GradLaplace      ,   1,   0 },
   {"NPxGradLaplace"    , (CAST)GF_NPxGradLaplace   ,   1,   0 },
