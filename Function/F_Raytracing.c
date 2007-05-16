@@ -26,7 +26,7 @@ struct f_context
 
 static int f(const gsl_vector *ts, void *param, gsl_vector *f)
 {
-  struct f_context * c = (f_context *)param;
+  struct f_context * c = (struct f_context *)param;
   double t = gsl_vector_get(ts, 0);
   double s = gsl_vector_get(ts, 1);
   double x = c->x1;
@@ -40,7 +40,7 @@ static int f(const gsl_vector *ts, void *param, gsl_vector *f)
 
 static int df(const gsl_vector *ts, void* param, gsl_matrix *j)
 {
-  struct f_context *c = (f_context *)(param);
+  struct f_context *c = (struct f_context *)(param);
   double t = gsl_vector_get(ts, 0);
   double s = gsl_vector_get(ts, 1);
   double x = c->x1;
