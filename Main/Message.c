@@ -1,4 +1,4 @@
-#define RCSID "$Id: Message.c,v 1.85 2006-04-21 16:27:27 geuzaine Exp $"
+#define RCSID "$Id: Message.c,v 1.86 2007-05-16 16:02:23 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -330,7 +330,8 @@ void Progress(int current, int final, char *label){
     }
     else
       fprintf(stderr, "(%s%d %%)     \r", label, ProgressIndex) ;
-    ProgressIndex += Flag_PROGRESS ;
+    while(ProgressIndex < 100*current/(double)final)
+      ProgressIndex += Flag_PROGRESS ;
   }
   if(current >= final-1){
     if(Flag_SOCKET < 0) fprintf(stderr, "                        \r") ;
