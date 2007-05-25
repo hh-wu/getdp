@@ -7,6 +7,9 @@
 #include "Get_Geometry.h"
 #include "Cal_Value.h" 
 #include "CurrentData.h"
+
+#if defined(HAVE_GSL)
+
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>
 
@@ -273,3 +276,5 @@ void F_DiamondPhase(F_ARG)
   V->Type = SCALAR;
   GetDP_End; 
 }
+
+#endif

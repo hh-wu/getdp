@@ -62,8 +62,10 @@ void  F_ProjectPointOnEllipse(F_ARG);
 
 /* F_Raytracing */
 
+#if defined(HAVE_GSL)
 void  F_CylinderPhase(F_ARG);  
 void  F_DiamondPhase(F_ARG);
+#endif
 
 /* F_Math */
 
