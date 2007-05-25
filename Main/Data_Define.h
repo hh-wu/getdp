@@ -344,6 +344,7 @@ struct DefineXFunction  FunctionForGauss[] = {
   {PYRAMID        , (CAST)Gauss_Pyramid},
   {LINE_2         , (CAST)Gauss_Line},
   {TRIANGLE_2     , (CAST)Gauss_Triangle},
+  {QUADRANGLE_2   , (CAST)Gauss_Quadrangle},
   {0              , (CAST)Gauss_Triangle}
 } ;
 
