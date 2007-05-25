@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node.c,v 1.17 2007-01-25 12:20:52 dular Exp $"
+#define RCSID "$Id: BF_Node.c,v 1.18 2007-05-25 11:20:48 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -139,8 +139,8 @@ void  BF_Node(struct Element * Element, int NumNode,
   case LINE_2 :
     switch(NumNode) {
     case 1  : *s = 0.5*u*(u-1.) ; break ;
-    case 2  : *s = 1.-u*u       ; break ;
-    case 3  : *s = 0.5*u*(1.+u) ; break ;
+    case 2  : *s = 0.5*u*(1.+u) ; break ;
+    case 3  : *s = 1.-u*u       ; break ;
     default : WrongNumNode ;
     }
     break ;
@@ -348,8 +348,8 @@ void  BF_GradNode(struct Element * Element, int NumNode,
   case LINE_2 :
     switch(NumNode) {
     case 1  : s[0] = -0.5+u ; s[1] = 0. ; s[2] =  0. ; break ;
-    case 2  : s[0] = -2.*u  ; s[1] = 0. ; s[2] =  0. ; break ;
-    case 3  : s[0] = 0.5+u  ; s[1] = 0. ; s[2] =  0. ; break ;
+    case 2  : s[0] =  0.5+u ; s[1] = 0. ; s[2] =  0. ; break ;
+    case 3  : s[0] = -2.*u  ; s[1] = 0. ; s[2] =  0. ; break ;
     default : WrongNumNode ;
     }
     break ;
