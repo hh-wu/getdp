@@ -138,6 +138,7 @@ struct StringXDefine  Element_Type[] = {
   {"Pyramid"     , PYRAMID},
   {"Line2"       , LINE_2},
   {"Triangle2"   , TRIANGLE_2},
+  {"Quadrangle2" , QUADRANGLE_2},
   {NULL          , TRIANGLE}
  } ;
 

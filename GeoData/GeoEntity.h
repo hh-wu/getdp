@@ -80,7 +80,7 @@ static int  Den_Line_Xp []
         v                            
         |                            
         |                            
-   --1-----2--u  
+   --1--3--2--u  
         |                            
         |                            
 
@@ -143,9 +143,9 @@ static int  Dfn_Triangle [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
    |                           
    3             facet 1: edges 1 -2 3   nodes 1 2 3                      
    |\        
-   | \       
+   6 5       
    |__\___u                    
-   1   2                       
+   1 4 2                       
    ------------------------------------------------------------------------ */
 
 static int  NbrNodes_Triangle_2  = 6 ;  
@@ -211,6 +211,49 @@ static int  Dfe_Quadrangle_Xp []
 
 
 static int  Dfn_Quadrangle [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, 2, 3, 4, 0} } ;
+
+/* ------------------------------------------------------------------------
+   QUADRANGLE_2   edge 1: nodes 1 -> 2 
+        v              2:       1 -> 4                    
+        |              3:       2 -> 3                    
+     4--7--3           4:       3 -> 4 
+     |  |  |     
+   --8--9--6--u   facet 1: edges 1 -2 3 4   nodes 1 2 3 4
+     |  |  |     
+     1--5--2                          
+        |                             
+   ------------------------------------------------------------------------ */
+
+static int  NbrNodes_Quadrangle_2  = 9 ;
+static int  NbrEdges_Quadrangle_2  = 4 ;
+static int  NbrFacets_Quadrangle_2 = 1 ;
+
+static double  Nodes_Quadrangle_2 [][3]
+  = { {-1., -1., 0.} , { 1.,-1., 0.} , 
+      { 1.,  1., 0.} , {-1., 1., 0.} ,
+      { 0., -1., 0.} , { 1., 0., 0.} , 
+      { 0.,  1., 0.} , {-1., 0., 0.} ,
+      { 0.,  0., 0.}
+  } ;
+
+static int  Den_Quadrangle_2 [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, -2, 0}, { 1, -4, 0}, { 2, -3, 0}, { 3, -4, 0} } ;
+
+static int  Den_Quadrangle_2_Xp []
+  = { -1, 1, 0, 0, 
+      -1, 0, 0, 1,
+       0,-1, 1, 0,
+       0, 0,-1, 1 } ;
+
+static int  Dfe_Quadrangle_2 [] [NBR_MAX_SUBENTITIES_IN_ELEMENT] 
+  = { { 1, 3, 4, -2, 0} } ;
+
+static int  Dfe_Quadrangle_2_Xp []
+  = { 1,-1, 1, 1 } ;
+
+
+static int  Dfn_Quadrangle_2 [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
   = { { 1, 2, 3, 4, 0} } ;
 
 /* ------------------------------------------------------------------------

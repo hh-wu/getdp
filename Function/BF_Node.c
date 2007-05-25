@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node.c,v 1.18 2007-05-25 11:20:48 dular Exp $"
+#define RCSID "$Id: BF_Node.c,v 1.19 2007-05-25 11:51:02 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -154,6 +154,21 @@ void  BF_Node(struct Element * Element, int NumNode,
     case 4  : *s = 4.*r*u ; break ;
     case 5  : *s = 4.*u*v ; break ;
     case 6  : *s = 4.*v*r ; break ;
+    default : WrongNumNode ;
+    }
+    break ;
+
+  case QUADRANGLE_2 :
+    switch(NumNode) {
+    case 1  : *s = 0 ; break ;
+    case 2  : *s = 0 ; break ;
+    case 3  : *s = 0 ; break ;
+    case 4  : *s = 0 ; break ;
+    case 5  : *s = 0 ; break ;
+    case 6  : *s = 0 ; break ;
+    case 7  : *s = 0 ; break ;
+    case 8  : *s = 0 ; break ;
+    case 9  : *s = 0 ; break ;
     default : WrongNumNode ;
     }
     break ;
@@ -363,6 +378,21 @@ void  BF_GradNode(struct Element * Element, int NumNode,
     case 4  : s[0] = 4.*(r-u); s[1] = -4.*u   ; s[2] =  0. ; break ;
     case 5  : s[0] = 4.*v    ; s[1] =  4.*u   ; s[2] =  0. ; break ;
     case 6  : s[0] =-4.*v    ; s[1] =  4.*(r-v); s[2] =  0. ; break ;
+    default : WrongNumNode ;
+    }
+    break ;
+
+  case QUADRANGLE_2 :
+    switch(NumNode) {
+    case 1  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    case 2  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    case 3  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    case 4  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    case 5  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    case 6  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    case 7  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    case 8  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    case 9  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
     default : WrongNumNode ;
     }
     break ;

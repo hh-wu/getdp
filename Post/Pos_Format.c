@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.50 2007-01-25 12:20:52 dular Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.51 2007-05-25 11:51:02 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -412,6 +412,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
       case PYRAMID     : fprintf(PostStream, "SY("); break;
       case LINE_2      : fprintf(PostStream, "SL("); break;
       case TRIANGLE_2  : fprintf(PostStream, "ST("); break;
+      case QUADRANGLE_2: fprintf(PostStream, "SQ("); break;
       }    
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -459,6 +460,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
       case PYRAMID     : fprintf(PostStream, "VY("); break;
       case LINE_2      : fprintf(PostStream, "VL("); break;
       case TRIANGLE_2  : fprintf(PostStream, "VT("); break;
+      case QUADRANGLE_2: fprintf(PostStream, "VQ("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -573,6 +575,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       case PYRAMID     : Current_L = SY ; NbSY++ ; break ;
       case LINE_2      : Current_L = SL ; NbSL++ ; break ;
       case TRIANGLE_2  : Current_L = ST ; NbST++ ; break ;
+      case QUADRANGLE_2: Current_L = SQ ; NbSQ++ ; break ;
       }
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
@@ -608,6 +611,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       case PYRAMID     : Current_L = VY ; NbVY++ ; break ;
       case LINE_2      : Current_L = VL ; NbVL++ ; break ;
       case TRIANGLE_2  : Current_L = VT ; NbVT++ ; break ;
+      case QUADRANGLE_2: Current_L = VQ ; NbVQ++ ; break ;
       }
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);

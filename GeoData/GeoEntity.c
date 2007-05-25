@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoEntity.c,v 1.14 2007-01-25 12:20:52 dular Exp $"
+#define RCSID "$Id: GeoEntity.c,v 1.15 2007-05-25 11:51:02 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -51,7 +51,7 @@ double * Geo_GetNodes_uvw(int Type, int *nbn){
   case PRISM       : *nbn = NbrNodes_Prism ;       GetDP_Return(*Nodes_Prism) ;
   case PYRAMID     : *nbn = NbrNodes_Pyramid ;     GetDP_Return(*Nodes_Pyramid) ;
   case LINE_2      : *nbn = NbrNodes_Line_2 ;      GetDP_Return(*Nodes_Line_2) ;
-  case TRIANGLE_2  : *nbn = NbrNodes_Triangle_2 ;  GetDP_Return(*Nodes_Triangle_2) ;  default : 
+  case TRIANGLE_2  : *nbn = NbrNodes_Triangle_2 ;  GetDP_Return(*Nodes_Triangle_2) ;  case QUADRANGLE_2: *nbn = NbrNodes_Quadrangle_2 ;GetDP_Return(*Nodes_Quadrangle_2) ;  default : 
     Msg(GERROR, "Unknown type of Element in Geo_GetNodes_uvw") ; GetDP_Return(NULL) ;
   }
 }
@@ -140,6 +140,7 @@ int  * Geo_GetIM_Den(int Type_Element, int * Nbe) {
   case PYRAMID :     *Nbe = NbrEdges_Pyramid     ; GetDP_Return(*Den_Pyramid) ;
   case LINE_2 :      *Nbe = NbrEdges_Line_2      ; GetDP_Return(*Den_Line_2) ;
   case TRIANGLE_2 :  *Nbe = NbrEdges_Triangle_2  ; GetDP_Return(*Den_Triangle_2) ;
+  case QUADRANGLE_2 :*Nbe = NbrEdges_Quadrangle_2; GetDP_Return(*Den_Quadrangle_2) ;
   default : 
     Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
@@ -165,6 +166,7 @@ int  * Geo_GetIM_Dfe(int Type_Element, int * Nbf) {
   case PYRAMID :     *Nbf = NbrFacets_Pyramid     ; GetDP_Return(*Dfe_Pyramid) ;
   case LINE_2 :      *Nbf = NbrFacets_Line_2      ; GetDP_Return(NULL) ;
   case TRIANGLE_2 :  *Nbf = NbrFacets_Triangle_2  ; GetDP_Return(*Dfe_Triangle_2) ;
+  case QUADRANGLE_2 :*Nbf = NbrFacets_Quadrangle_2; GetDP_Return(*Dfe_Quadrangle_2) ;
   default :
     Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
@@ -189,6 +191,7 @@ int  * Geo_GetIM_Dfn(int Type_Element, int * Nbf) {
   case PYRAMID :    *Nbf = NbrFacets_Pyramid     ; GetDP_Return(*Dfn_Pyramid) ;
   case LINE_2 :     *Nbf = NbrFacets_Line_2      ; GetDP_Return(NULL) ;
   case TRIANGLE_2 : *Nbf = NbrFacets_Triangle_2  ; GetDP_Return(*Dfn_Triangle_2) ;
+  case QUADRANGLE_2:*Nbf = NbrFacets_Quadrangle_2; GetDP_Return(*Dfn_Quadrangle_2) ;
   default :
     Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
@@ -231,6 +234,9 @@ int * Geo_GetIM_Den_Xp(int Type_Element, int * Nbe, int * Nbn) {
   case TRIANGLE_2 :
     *Nbe = NbrEdges_Triangle_2 ; *Nbn = NbrNodes_Triangle_2 ; 
     GetDP_Return(Den_Triangle_2_Xp) ;
+  case QUADRANGLE_2 :
+    *Nbe = NbrEdges_Quadrangle_2 ; *Nbn = NbrNodes_Quadrangle_2 ; 
+    GetDP_Return(Den_Quadrangle_2_Xp) ;
   default :
     Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
@@ -274,6 +280,9 @@ int * Geo_GetIM_Dfe_Xp(int Type_Element, int * nbf, int * nbe) {
   case TRIANGLE_2 :
     *nbf = NbrFacets_Triangle_2 ; *nbe = NbrEdges_Triangle_2 ; 
     GetDP_Return(Dfe_Triangle_2_Xp) ;
+  case QUADRANGLE_2 :
+    *nbf = NbrFacets_Quadrangle_2 ; *nbe = NbrEdges_Quadrangle_2 ; 
+    GetDP_Return(Dfe_Quadrangle_2_Xp) ;
   default :
     Msg(GERROR, "Unknown incidence matrix for element type %d", Type_Element);
     GetDP_Return(NULL) ;
