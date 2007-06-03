@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.74 2007-03-26 10:06:52 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.75 2007-06-03 13:05:17 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1442,7 +1442,11 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
       ierr = PCSetType(Solver->pc, PCSHELL); MYCHECK(ierr);
       ierr = PCShellSetName(Solver->pc, "FMM"); MYCHECK(ierr);
       ierr = PCShellSetApply(Solver->pc, LinAlg_ApplyFMM); MYCHECK(ierr);
+#if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 3)
       ierr = KSPSetMonitor(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0); MYCHECK(ierr);    
+#else
+      ierr = KSPMonitorSet(Solver->ksp, LinAlg_ApplyFMMMonitor, PETSC_NULL, 0); MYCHECK(ierr);    
+#endif
       ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
     }
     else{
@@ -1451,8 +1455,11 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
 #if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR == 0)
       ierr = PCILUSetMatOrdering(Solver->pc, MATORDERING_RCM); MYCHECK(ierr);
       ierr = PCILUSetLevels(Solver->pc, 6); MYCHECK(ierr);
-#else
+#elif (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 3)
       ierr = PCFactorSetMatOrdering(Solver->pc, MATORDERING_RCM); MYCHECK(ierr);
+      ierr = PCFactorSetLevels(Solver->pc, 6); MYCHECK(ierr);
+#else
+      ierr = PCFactorSetMatOrderingType(Solver->pc, MATORDERING_RCM); MYCHECK(ierr);
       ierr = PCFactorSetLevels(Solver->pc, 6); MYCHECK(ierr);
 #endif
       ierr = KSPSetTolerances(Solver->ksp, 1.e-8, PETSC_DEFAULT, PETSC_DEFAULT, 
