@@ -1,4 +1,4 @@
-dnl $Id: configure.in,v 1.67 2007-03-02 08:40:34 geuzaine Exp $
+dnl $Id: configure.in,v 1.68 2007-06-03 16:08:19 geuzaine Exp $
 dnl
 dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 dnl
@@ -151,6 +151,13 @@ if test "x$enable_petsc" = "xyes"; then
   SOLVER='-DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
+
+  if grep PETSC_CLANGUAGE_CXX ${PETSC_DIR}/bmake/${PETSC_ARCH}/petscconf.h >/dev/null; then 
+    dnl PETSc >= 2.3.1 configured with with C++ complex number support does
+    dnl not redefine CC as the CXX compiler anymore, but getdp needs this
+    echo "PETSc is configured with CXX as the C compiler"
+    PETSC_REDEFINE_CC='CC=${CXX}'
+  fi
 
 else
 
@@ -379,6 +386,7 @@ AC_SUBST(GETDP_DIRS)
 AC_SUBST(GETDP_LIBS)
 AC_SUBST(AR)
 AC_SUBST(PETSC_INCLUDE_MAKEFILE)
+AC_SUBST(PETSC_REDEFINE_CC)
 AC_SUBST(PETSC_DIR)
 AC_SUBST(PETSC_ARCH)
 AC_OUTPUT(variables)

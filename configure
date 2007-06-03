@@ -309,7 +309,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT F77 FFLAGS ac_ct_F77 CPP RANLIB ac_ct_RANLIB AR EGREP UNAME C_FLAGS C_PARSER_FLAGS F77_FLAGS SOLVER LINKER GETDP_DIRS GETDP_LIBS PETSC_INCLUDE_MAKEFILE PETSC_DIR PETSC_ARCH LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT F77 FFLAGS ac_ct_F77 CPP RANLIB ac_ct_RANLIB AR EGREP UNAME C_FLAGS C_PARSER_FLAGS F77_FLAGS SOLVER LINKER GETDP_DIRS GETDP_LIBS PETSC_INCLUDE_MAKEFILE PETSC_REDEFINE_CC PETSC_DIR PETSC_ARCH LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -3057,6 +3057,11 @@ echo "$as_me: error: Could not determine PETSC_ARCH. Run configure again with --
   LINKER='${CLINKER}'
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
 
+  if grep PETSC_CLANGUAGE_CXX ${PETSC_DIR}/bmake/${PETSC_ARCH}/petscconf.h >/dev/null; then
+            echo "PETSc is configured with CXX as the C compiler"
+    PETSC_REDEFINE_CC='CC=${CXX}'
+  fi
+
 else
 
   GETDP_DIRS="${GETDP_DIRS} Sparskit"
@@ -4182,6 +4187,7 @@ C_PARSER_FLAGS="${C_PARSER_FLAGS} ${OPTIONS}"
 
 
 
+
           ac_config_files="$ac_config_files variables"
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -4841,6 +4847,7 @@ s,@LINKER@,$LINKER,;t t
 s,@GETDP_DIRS@,$GETDP_DIRS,;t t
 s,@GETDP_LIBS@,$GETDP_LIBS,;t t
 s,@PETSC_INCLUDE_MAKEFILE@,$PETSC_INCLUDE_MAKEFILE,;t t
+s,@PETSC_REDEFINE_CC@,$PETSC_REDEFINE_CC,;t t
 s,@PETSC_DIR@,$PETSC_DIR,;t t
 s,@PETSC_ARCH@,$PETSC_ARCH,;t t
 s,@LIBOBJS@,$LIBOBJS,;t t

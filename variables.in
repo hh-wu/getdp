@@ -1,4 +1,4 @@
-# $Id: variables.in,v 1.12 2006-10-09 21:47:09 geuzaine Exp $
+# $Id: variables.in,v 1.13 2007-06-03 16:08:19 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -49,11 +49,7 @@ SOLVER=@SOLVER@
 PETSC_DIR=@PETSC_DIR@
 PETSC_ARCH=@PETSC_ARCH@
 @PETSC_INCLUDE_MAKEFILE@
-
-# PETSc >= 2.3.1 configured with with C++ complex number support does
-# not redefine CC as the CXX compiler anymore. Uncomment the following
-# line in that case:
-# CC=${CXX}
+@PETSC_REDEFINE_CC@
 
 # How you create a static library on this machine
 AR=@AR@
