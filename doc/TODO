@@ -1,4 +1,10 @@
-$Id: TODO,v 1.7 2006-06-13 11:06:12 geuzaine Exp $
+$Id: TODO,v 1.8 2007-06-06 13:22:38 geuzaine Exp $
+
+*******************************************************************
+
+PETSc solvers: matrix assembly is extremely slow if not preallocated
+correctly. Need to preallocate global equations separately from local
+ones. Idea: allocate full rows for global equations.
 
 *******************************************************************
 
