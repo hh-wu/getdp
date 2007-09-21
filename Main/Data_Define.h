@@ -223,6 +223,7 @@ struct StringXDefine  Operation_Type[] = {
   {"Solve"                  , OPERATION_SOLVE},
   {"GenerateJac"            , OPERATION_GENERATEJAC},
   {"SolveJac"               , OPERATION_SOLVEJAC},
+  {"SolveAgain"               , OPERATION_SOLVEAGAIN},
   {"GenerateSeparate"       , OPERATION_GENERATESEPARATE},
   {"InitSolution"           , OPERATION_INITSOLUTION},
   {"SaveSolution"           , OPERATION_SAVESOLUTION},

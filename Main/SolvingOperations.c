@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.81 2006-10-27 15:33:01 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.82 2007-09-21 21:28:07 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -283,7 +283,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   int     i, j, k, l ;
   double  d, d1, d2, *Scales ;
   int     Nbr_Operation, Nbr_Sol, i_Operation, Num_Iteration ;
-  int     Flag_Jac, Flag_CPU, Flag_Binary = 0, Flag_FMMDA = 0 ;
+  int     Flag_Jac, Flag_CPU, Flag_Binary = 0, Flag_FMMDA = 0, Flag_SolveAgain = 0 ;
   int     Save_TypeTime ;
   double  Save_Time, Save_TimeImag, Save_DTime, Save_TimeStep ;
   double  MeanError, RelFactor_Modified ;
@@ -549,7 +549,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       /*  -->  S o l v e                              */
       /*  ------------------------------------------  */
-
+    case OPERATION_SOLVEAGAIN : Flag_SolveAgain = 1 ;
     case OPERATION_SOLVE :
       /*  Solve : A x = b  */
       Init_OperationOnSystem("Solve",
@@ -604,9 +604,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_AssembleVector(&DofData_P->b) ;
       }
 
-      LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
-		   &DofData_P->CurrentSolution->x) ;
-
+      if(!Flag_SolveAgain)
+	LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
+		     &DofData_P->CurrentSolution->x) ;
+      else
+	LinAlg_SolveAgain(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
+		     &DofData_P->CurrentSolution->x) ;
+      
       Flag_CPU = 1 ;
       break ;
 

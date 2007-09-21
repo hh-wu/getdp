@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.51 2007-05-25 11:51:02 dular Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.52 2007-09-21 21:28:07 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1020,6 +1020,7 @@ void  Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
       fprintf(PostStream, "\n") ;
     }
   }
+
   else if (Format == FORMAT_GMSH) {
     if (Group_FunctionType == NODESOF)
       Geo_GetNodesCoordinates(1, &numRegion, &x, &y, &z) ;
@@ -1033,6 +1034,7 @@ void  Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 		      POINT, 1, &x, &y, &z,
 		      Value) ;
   }
+
   else {
 
     if(iRegion == 0){

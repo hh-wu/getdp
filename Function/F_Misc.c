@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.34 2007-01-31 13:50:54 dular Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.35 2007-09-21 21:28:07 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1103,22 +1103,20 @@ void  F_VirtualWork (F_ARG) {
   Current.flagAssDiag = 1; /*+++prov*/
 
   numNode = Current.NumEntity;
-  
+    
   i = 0;
   while (i < Current.Element->GeoElement->NbrNodes && 
-	 Current.Element->GeoElement->NumNodes[i]!=numNode)  i++;
+	 Current.Element->GeoElement->NumNodes[i] != numNode)  i++;
   
   if (i < Current.Element->GeoElement->NbrNodes ) {
-    /*
-      printf("element : %d %d\n", Current.Element->GeoElement->Num, i+1);
-    */
+    
+    //printf("element : %d %d\n", Current.Element->GeoElement->Num, numNode);
     
     valField[0] = A->Val[0];
     valField[1] = A->Val[1];
     valField[2] = A->Val[2];
     
-    u = Current.u; v = Current.v; w = Current.w;
-    Get_BFGeoElement(Current.Element, u,v,w);
+    Get_BFGeoElement(Current.Element, Current.u, Current.v, Current.w);
     
     Type_Dimension = (int)Current.GeoData->Dimension;
     

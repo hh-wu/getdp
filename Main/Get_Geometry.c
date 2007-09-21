@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.39 2007-01-25 12:19:27 dular Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.40 2007-09-21 21:28:07 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -482,12 +482,22 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
   switch (Dim) {
   case _2D :
     DetJac = f * f * (1.0 - theta) ;
+
+    /*
+      DetJac =  Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21; 
+    */
     break;
   default :
-    DetJac = f * f * f * (1.0 - theta) ;
+    DetJac = f * f * f * (1.0 - theta);
+
+    /*
+    DetJac =  Jac->c11 * (Jac->c22 * Jac->c33 - Jac->c23*Jac->c32)
+            - Jac->c12 * (Jac->c21 * Jac->c33 - Jac->c23*Jac->c31)
+            + Jac->c13 * (Jac->c21 * Jac->c32 - Jac->c22*Jac->c31);
+    */
     break ;
   }
-
+  
   GetDP_Return(DetJac) ;
 
 }

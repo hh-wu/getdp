@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_vBFxDof.c,v 1.15 2006-12-14 10:28:43 dular Exp $"
+#define RCSID "$Id: Cal_vBFxDof.c,v 1.16 2007-09-21 21:28:07 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -90,6 +90,7 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
 	 FI->xChangeOfCoordinatesDof) (E, vBFuDof[j], vBFxDof[j].Val) ;
 	vBFxDof[j].Type = FI->Type_ValueDof ;
 	if(Current.NbrHar > 1) Cal_SetHarmonicValue(&vBFxDof[j]) ;
+
 
 	/* temp (rather add QuantityStorage_P to CurrentData) */
 	Current.NumEntities[j] =

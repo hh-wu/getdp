@@ -906,6 +906,7 @@ struct ChangeOfState {
 
 #define OPERATION_GENERATE                  1
 #define OPERATION_SOLVE                     2
+#define OPERATION_SOLVEAGAIN              223  
 #define OPERATION_GENERATEJAC               3
 #define OPERATION_GENERATEFMMGROUPS       100
 #define OPERATION_GENERATEONLY            101
