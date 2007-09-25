@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.40 2007-09-21 21:28:07 sabarieg Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.41 2007-09-25 14:26:04 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -445,9 +445,9 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
   }
   else{
     switch(Axis) {
-    case 1: R = (X-Cx) ; dRdx =1.0 ; dRdy =0.0 ; dRdz =0.0 ; break;
-    case 2: R = (Y-Cy) ; dRdx =0.0 ; dRdy =1.0 ; dRdz =0.0 ; break;
-    case 3: R = (Z-Cz) ; dRdx =0.0 ; dRdy =0.0 ; dRdz =1.0 ; break;
+    case 1: R = fabs(X-Cx) ; dRdx =THESIGN(X-Cx) ; dRdy =0.0 ;           dRdz =0.0 ;           break;
+    case 2: R = fabs(Y-Cy) ; dRdx =0.0 ;           dRdy =THESIGN(Y-Cy) ; dRdz =0.0 ;           break;
+    case 3: R = fabs(Z-Cz) ; dRdx =0.0 ;           dRdy =0.0 ;           dRdz =THESIGN(Z-Cz) ; break;
     default: Msg(GERROR, "Bad axis specification: 1 for X, 2 for Y and 3 for Z");
     }
   }
