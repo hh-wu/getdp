@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Interpolation.c,v 1.8 2007-01-24 09:57:12 sabarieg Exp $"
+#define RCSID "$Id: F_Interpolation.c,v 1.9 2007-10-04 12:12:11 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -418,7 +418,7 @@ void  F_VectorFromIndex (F_ARG) {
 
   D = Fct->Active ;
   
-  //printf("%d \n", List_Nbr(D->Case.ValueFromIndex.Table));
+  /* printf("%d \n", List_Nbr(D->Case.ValueFromIndex.Table)); */
 
   if (List_Nbr(D->Case.ValueFromIndex.Table)){
 

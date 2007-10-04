@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.35 2007-09-21 21:28:07 sabarieg Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.36 2007-10-04 12:12:11 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1110,7 +1110,7 @@ void  F_VirtualWork (F_ARG) {
   
   if (i < Current.Element->GeoElement->NbrNodes ) {
     
-    //printf("element : %d %d\n", Current.Element->GeoElement->Num, numNode);
+    /* printf("element : %d %d\n", Current.Element->GeoElement->Num, numNode); */
     
     valField[0] = A->Val[0];
     valField[1] = A->Val[1];
