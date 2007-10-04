@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.30 2006-02-26 00:42:53 geuzaine Exp $"
+#define RCSID "$Id: GeoData.c,v 1.31 2007-10-04 12:17:51 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -33,6 +33,19 @@ FILE  * File_GEO ;
 
 struct GeoData  * CurrentGeoData ;
 
+static void swapBytes(char *array, int size, int n)
+{
+  int i, c;
+  
+  char *x = (char *)Malloc(size * sizeof(char)) ;
+  for(i = 0; i < n; i++) {
+    char *a = &array[i * size];
+    memcpy(x, a, size);
+    for(c = 0; c < size; c++)
+      a[size - 1 - c] = x[c];
+  }
+  Free(x);
+}
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ A d d G e o D a t a                                             */
@@ -181,11 +194,11 @@ int Geo_GetElementType(int Format, int Type){
     case 12 : GetDP_Return(HEXAHEDRON_2) ;
     case 13 : GetDP_Return(PRISM_2) ;
     case 14 : GetDP_Return(PYRAMID_2) ;
-    default : Msg(GERROR, "Unkown type of Element in Gmsh format") ; GetDP_Return(-1) ;
+    default : Msg(GERROR, "Unkown type of Element in Gmsh format (%d)", FORMAT_GMSH) ; GetDP_Return(-1) ;
     }
     break ;
   default :
-    Msg(GERROR, "Unkown mesh format") ;
+    Msg(GERROR, "Unkown mesh format (%d)", Format) ;
     GetDP_Return(-1) ;
   }
 
@@ -316,7 +329,8 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
   struct Geo_Node     Geo_Node ;
   struct Geo_Element  Geo_Element ;
   char                String[MAX_STRING_LENGTH] ;
-
+  int                 binary = 0, swap = 0;
+  
   GetDP_Begin("Geo_ReadFile");
 
   while (1) {
@@ -338,6 +352,16 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 	return;
       }
 
+      if(Format){
+	binary = 1;
+	Msg(INFO, "Mesh is in binary format");
+	int one;
+	if(fread(&one, sizeof(int), 1, File_GEO) != 1) return;
+	if(one != 1){
+	  swap = 1;
+	  Msg(INFO, "Swapping bytes from binary file");
+	}
+      }
     }
 
     /*  N O D E S  */
@@ -347,12 +371,30 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 	     !strncmp(&String[1], "Nodes", 5)) {
 
       fscanf(File_GEO, "%d", &Nbr) ;
+      if(binary) {
+	char c;
+	if(fread(&c, sizeof(char), 1, File_GEO) != 1) return;
+      }
       if (GeoData_P->Nodes == NULL)
 	GeoData_P->Nodes = List_Create(Nbr, 1000, sizeof(struct Geo_Node)) ;
 
       for (i = 0 ; i < Nbr ; i++) {
-	fscanf(File_GEO, "%d %lf %lf %lf",
-	       &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z) ;
+	if (!binary){
+	  fscanf(File_GEO, "%d %lf %lf %lf",
+		 &Geo_Node.Num, &Geo_Node.x, &Geo_Node.y, &Geo_Node.z) ;
+	} 
+	else {
+	  if(fread(&Geo_Node.Num, sizeof(int), 1, File_GEO) != 1) return;
+	  if(swap) swapBytes((char*)&Geo_Node.Num, sizeof(int), 1);
+	  
+	  double xyz[3];
+	  if(fread(xyz, sizeof(double), 3, File_GEO) != 3) return;
+	  if(swap) swapBytes((char*)xyz, sizeof(double), 3);
+	  Geo_Node.x = xyz[0];
+	  Geo_Node.y = xyz[1]; 
+	  Geo_Node.z = xyz[2];
+	  /* printf("%d %g %g %g\n", Geo_Node.Num, xyz[0], xyz[1], xyz[2]); */
+	}
 	List_Add(GeoData_P->Nodes, &Geo_Node) ;
 	if(!i){
 	  GeoData_P->Xmin = GeoData_P->Xmax = Geo_Node.x;
@@ -402,6 +444,11 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
 	     !strncmp(&String[1], "Elements", 8)) {
 
       fscanf(File_GEO, "%d", &Nbr) ;
+      if(binary) {
+	char c;
+	if(fread(&c, sizeof(char), 1, File_GEO) != 1) return;
+      }
+
       if (GeoData_P->Elements == NULL)
 	GeoData_P->Elements =
 	  List_Create(Nbr, 1000, sizeof(struct Geo_Element)) ;
@@ -409,33 +456,66 @@ void  Geo_ReadFile(struct GeoData * GeoData_P) {
       Geo_Element.NbrEdges = Geo_Element.NbrFacets = 0 ;
       Geo_Element.NumEdges = Geo_Element.NumFacets = NULL ;
 
-      for (i = 0 ; i < Nbr ; i++) {
-	if(Version == 1.0){
-	  fscanf(File_GEO, "%d %d %d %d %d",
-		 &Geo_Element.Num, &Type, &Geo_Element.Region,
-		 &iDummy, &Geo_Element.NbrNodes) ;
-	  Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
-	}
-	else{
-	  fscanf(File_GEO, "%d %d %d", &Geo_Element.Num, &Type, &NbTags);
-	  Geo_Element.Region = 1;
-	  for(j = 0; j < NbTags; j++){
-	    fscanf(File_GEO, "%d", &iDummy);
-	    if(j == 0)
-	      Geo_Element.Region = iDummy;
-	    /* ignore any other tags for now */
+      if (!binary){
+	for (i = 0 ; i < Nbr ; i++) {
+	  if(Version == 1.0){
+	    fscanf(File_GEO, "%d %d %d %d %d",
+		   &Geo_Element.Num, &Type, &Geo_Element.Region,
+		   &iDummy, &Geo_Element.NbrNodes) ;
+	    Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
 	  }
+	  else{
+	    fscanf(File_GEO, "%d %d %d", &Geo_Element.Num, &Type, &NbTags);
+	    Geo_Element.Region = 1;
+	    for(j = 0; j < NbTags; j++){
+	      fscanf(File_GEO, "%d", &iDummy);
+	      if(j == 0)
+		Geo_Element.Region = iDummy;
+	      /* ignore any other tags for now */
+	    }
+	    Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
+	    Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
+	  }
+	  Geo_Element.FMMGroup = Geo_Element.Region ;
+	  Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
+	  for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
+	    fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) ;
+
+	  List_Add(GeoData_P->Elements, &Geo_Element) ;
+	}
+      } 
+      else {
+	int numElementsPartial = 0;
+	while(numElementsPartial < Nbr){
+	  int header[3];
+	  if(fread(header, sizeof(int), 3, File_GEO) != 3) return;
+	  if(swap) swapBytes((char*)header, sizeof(int), 3);
+	  Type = header[0];
+	  int numElms = header[1];
+	  int numTags = header[2];
 	  Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
 	  Geo_Element.NbrNodes = Geo_GetNbNodesPerElement(Geo_Element.Type);
+	  unsigned int n = 1 + numTags + Geo_Element.NbrNodes;
+	  int *data = (int *)Malloc(n * sizeof(int)) ;
+	  for(i = 0; i < numElms; i++) {
+	    if(fread(data, sizeof(int), n, File_GEO) != n) return;
+	    if(swap) swapBytes((char*)data, sizeof(int), n);
+	    Geo_Element.Num = data[0];
+	    Geo_Element.Region = (numTags > 0) ? data[4 - numTags] : 0;
+	    int elementary = (numTags > 1) ? data[4 - numTags + 1] : 0;
+	    Geo_Element.FMMGroup = (numTags > 2) ? data[4 - numTags + 2] : 0;
+	    Geo_Element.NumNodes = &data[numTags + 1];
+	    Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
+	    for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
+	      Geo_Element.NumNodes[j] = data[numTags + 1 + j] ;
+
+	    List_Add(GeoData_P->Elements, &Geo_Element) ;
+	  }
+	  Free(data);
+	  numElementsPartial += numElms;
 	}
-	Geo_Element.FMMGroup = Geo_Element.Region ;
-	Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
-	for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
-	  fscanf(File_GEO, "%d", &Geo_Element.NumNodes[j]) ;
-
-	List_Add(GeoData_P->Elements, &Geo_Element) ;
       }
-
+      
       List_Sort(GeoData_P->Elements, fcmp_Elm) ;
       
     }
