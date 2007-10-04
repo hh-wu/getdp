@@ -20,16 +20,10 @@ also be configured to use the linear solvers from PETSc 2.3 or higher
 real or complex arithmetic. To configure GetDP with PETSc support,
 type
 
-
-setenv PETSC_DIR /home/sabarieg/SRC/petsc-2.3.2-p10
-setenv PETSC_ARCH linux-gnu-cxx-complex
-
 ./configure --enable-petsc
-./configure --enable-petsc --with-petsc-prefix=/home/sabarieg/SRC/petsc-2.3.2-p10 --with-petsc-arch=linux-gnu-cxx-complex
 
-
-
-For a description of all other configuration options, type
+(look at doc/README.petsc for more information). For a description of
+all other configuration options, type
 
 ./configure --help
 
@@ -38,29 +32,3 @@ License. See doc/LICENSE and doc/CREDITS for more information.
 
 See the doc/ and demos/ directories for documentation and
 examples. The reference manual is located in doc/texinfo/.
-
-Compiling petsc:
-
-# VERSION REAL SERIE
-# ------------------
-
-#export PETSC_DIR=$PWD
-#export PETSC_ARCH=linux-gnu-c-real
-
-setenv PETSC_DIR /home/sabarieg/SRC/petsc-2.3.3-p2
-setenv PETSC_ARCH linux-gnu-cxx-real 
-./config/configure.py --with-debugging=no --with-mpi=0 make all test
-
-
-# VERSION COMPLEX SERIE
-# ---------------------
-
-#export PETSC_DIR=$PWD
-#export PETSC_ARCH=linux-gnu-cxx-complex
-
-setenv PETSC_DIR /home/sabarieg/SRC/petsc-2.3.3-p2
-setenv PETSC_ARCH linux-gnu-cxx-cplx
-
-./config/configure.py --with-debugging=no --with-scalar-type=complex --with-clanguage=cxx --with-mpi=0
-make all test
-
