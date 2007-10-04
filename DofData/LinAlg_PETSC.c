@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.76 2007-09-21 21:28:07 sabarieg Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.77 2007-10-04 11:52:26 sabarieg Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -237,16 +237,25 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
 			 1, &Nnz[i_Start], 
 			 &M->M); MYCHECK(ierr); 
 #else
+  /*
+    Options must be set before preallocating!!!
+    That seems to solve the problem with slow assembly and external solvers (UMFPACK,
+    SUPERLU).
+    Matrix type is not forced anymore. Use command line (-mat_type umfpack).
+    By default, PetSC takes MATSEQAIJ or MATMPIAIJ. It is not necessary to use the 
+    following instruction:
+       ierr = MatSetType(M->M, MATSEQAIJ); MYCHECK(ierr); 
+
+    That seems to disturb the assembly of the external solvers...
+  */
+
   ierr = MatCreate(PETSC_COMM_WORLD, &M->M); MYCHECK(ierr); 
   ierr = MatSetSizes(M->M, PETSC_DECIDE, PETSC_DECIDE, n, m); MYCHECK(ierr); 
 
-  /* set some default options */
-  ierr = MatSetType(M->M, MATSEQAIJ); MYCHECK(ierr); 
-  ierr = MatSeqAIJSetPreallocation(M->M, 100, PETSC_NULL); MYCHECK(ierr); 
-
-  /* override the default options with the ones from the option
-     database (if any) */
+  // override the default options with the ones from the option database (if any)
   ierr = MatSetFromOptions(M->M); MYCHECK(ierr);
+  ierr = MatSeqAIJSetPreallocation(M->M, 200, PETSC_NULL); MYCHECK(ierr); 
+
 #endif
 
   GetDP_End;
@@ -1211,13 +1220,16 @@ void LinAlg_AssembleMatrix(gMatrix *M){
   ierr = MatAssemblyBegin(M->M, MAT_FINAL_ASSEMBLY); MYCHECK(ierr);
   ierr = MatAssemblyEnd(M->M, MAT_FINAL_ASSEMBLY); MYCHECK(ierr);  
 
+    
   /* changing the preallocation does not seem to change anything for
      umfpack or superlu matrices, which are thus almost impossibly
      slow to use during assembly : uncomment this to force a
      conversion to these formats after the assembly is done in the
      standard format */
 
-  ierr = MatConvert(M->M, MATUMFPACK, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
+  //ierr = MatConvert(M->M, MATUMFPACK, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
+  //ierr = MatSetOption(M->M, MAT_NO_NEW_NONZERO_LOCATIONS); MYCHECK(ierr); 
+
   /*
     ierr = MatConvert(M->M, MATUMFPACK, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
     ierr = MatConvert(M->M, MATSUPERLU, MAT_REUSE_MATRIX, &M->M); MYCHECK(ierr); 
@@ -1495,9 +1507,7 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
 
   _solve(A, B, Solver, X, 1);
 
-  // we force the matrix not to be umfpack...-> MATAIJ Very slow otherwise
-  ierr = MatConvert(A->M, MATAIJ, MAT_REUSE_MATRIX, &A->M); MYCHECK(ierr); 
-
+    
   GetDP_End;
 }
 
@@ -1506,8 +1516,6 @@ void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
 
   _solve(A, B, Solver, X, 0);
   
-  ierr = MatConvert(A->M, MATAIJ, MAT_REUSE_MATRIX, &A->M); MYCHECK(ierr);
-
   GetDP_End;
 }
 
