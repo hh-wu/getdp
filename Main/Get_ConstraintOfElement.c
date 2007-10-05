@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.32 2006-12-14 10:28:43 dular Exp $"
+#define RCSID "$Id: Get_ConstraintOfElement.c,v 1.33 2007-10-05 14:46:54 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -161,7 +161,22 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	    }
 	    else if (ConstraintPerRegion_P->Type == CST_LINK ||
 		     ConstraintPerRegion_P->Type == CST_LINKCPLX) {
+	      /*
 	      Msg(GERROR, "CST_LINK for GlobalQuantity not done yet") ;
+	      */
+	      /* to be validated */
+	      Get_LinkForConstraint
+		(Constraint_P,
+		 abs(Num_Entity[i_Entity]),
+		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
+		 CodeEntity_Link,
+		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value) ;
+	      if (abs(Num_Entity[i_Entity]) ==
+		  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
+		  CodeEntity_Link)
+		QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint =
+		  NONE ;
+
 	    }
 	    else {
 	      Get_PreResolutionForConstraint
