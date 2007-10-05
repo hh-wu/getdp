@@ -116,6 +116,7 @@ struct DofData {
   char    * SolverDataFileName ;
   List_T  * Solutions ;
   struct Solution  * CurrentSolution ;
+  struct Solution  * Save_CurrentSolution ;
 
   int       Flag_Init[4] ;
   int       Flag_Only ;

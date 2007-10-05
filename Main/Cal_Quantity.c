@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.47 2006-12-14 10:28:43 dular Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.48 2007-10-05 09:06:06 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -550,6 +550,8 @@ void Cal_WholeQuantity(struct Element * Element,
 			  u, v, w, -1, 0, &Stack[0][Index]) ;
 	
 	for (k = 0 ; k < Current.NbrSystem ; k++){
+	  (Current.DofData_P0+k)->Save_CurrentSolution ==
+	    (Current.DofData_P0+k)->CurrentSolution;
 	  if(List_Nbr((Current.DofData_P0+k)->Solutions) > 1){
 	    Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
 	    if ((Current.DofData_P0+k)->CurrentSolution != Solution_P0)
@@ -580,8 +582,8 @@ void Cal_WholeQuantity(struct Element * Element,
 	  Cal_ZeroValue(&Stack[0][Index]);
 
 	for (k = 0 ; k < Current.NbrSystem ; k++)
-	  if (List_Nbr((Current.DofData_P0+k)->Solutions) > 1)
-	    ((Current.DofData_P0+k)->CurrentSolution) ++ ;
+	  (Current.DofData_P0+k)->CurrentSolution ==
+	    (Current.DofData_P0+k)->Save_CurrentSolution;
 
 	Current.Time = Save_Time ;
       }
