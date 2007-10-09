@@ -257,6 +257,49 @@ static int  Dfn_Quadrangle_2 [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
   = { { 1, 2, 3, 4, 0} } ;
 
 /* ------------------------------------------------------------------------
+   QUADRANGLE_2_8N   edge 1: nodes 1 -> 3 
+        v                     2:       1 -> 7                    
+        |                     3:       3 -> 5                    
+     7--6--5                  4:       5 -> 7 
+     |  |  |     
+   --8-----4--u          facet 1: edges 1 -3 5 7   nodes 1 3 5 7
+     |  |  |     
+     1--2--3                          
+        |                             
+   ------------------------------------------------------------------------ */
+
+static int  NbrNodes_Quadrangle_2_8N  = 8 ;
+static int  NbrEdges_Quadrangle_2_8N  = 4 ;
+static int  NbrFacets_Quadrangle_2_8N = 1 ;
+
+
+static double  Nodes_Quadrangle_2_8N [][3]
+  = { {-1., -1., 0.} , { 1.,-1., 0.} , 
+      { 1.,  1., 0.} , {-1., 1., 0.} ,
+      { 0., -1., 0.} , { 1., 0., 0.} , 
+      { 0.,  1., 0.} , {-1., 0., 0.} ,
+  } ;
+
+static int  Den_Quadrangle_2_8N [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, -2, 0}, { 1, -4, 0}, { 2, -3, 0}, { 3, -4, 0} } ;
+
+static int  Den_Quadrangle_2_8N_Xp []
+  = { -1, 1, 0, 0,
+      -1, 0, 0, 1,
+       0,-1, 1, 0,
+       0, 0,-1, 1 } ;
+
+static int  Dfe_Quadrangle_2_8N [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, 3, 4, -2, 0} } ;
+
+static int  Dfe_Quadrangle_2_8N_Xp []
+  = { 1,-1, 1, 1 } ;
+
+
+static int  Dfn_Quadrangle_2_8N [] [NBR_MAX_SUBENTITIES_IN_ELEMENT]
+  = { { 1, 2, 3, 4, 0} } ;
+
+/* ------------------------------------------------------------------------
    TETRAHEDRON    edge 1: nodes 1 -> 2                
    v                   2:       1 -> 3                                            
    |                   3:       1 -> 4                

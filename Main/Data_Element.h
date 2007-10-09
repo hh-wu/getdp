@@ -101,6 +101,7 @@ struct Element {
 #define HEXAHEDRON_2     (1<<12)
 #define PRISM_2          (1<<13)
 #define PYRAMID_2        (1<<14)
+#define QUADRANGLE_2_8N  (1<<16)
 
 #endif
 

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Search.c,v 1.40 2006-10-23 13:41:34 dular Exp $"
+#define RCSID "$Id: Pos_Search.c,v 1.41 2007-10-09 11:06:26 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -98,7 +98,7 @@ int PointInRefElement (struct Element * Element, double u, double v, double w){
       GetDP_Return(0); 
     }
     GetDP_Return(1);
-  case QUADRANGLE : case QUADRANGLE_2 :
+  case QUADRANGLE : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
     if (u<-ONE  || v<-ONE || u>ONE || v>ONE){
       GetDP_Return (0);
     }
@@ -309,7 +309,7 @@ void Init_SearchGrid(struct Grid * Grid) {
 	      List_Add(Brick_P->p[0], &Element.GeoElement); 
 	      break;
 	    case TRIANGLE :    case TRIANGLE_2 :
-	    case QUADRANGLE :  case QUADRANGLE_2 :
+	    case QUADRANGLE :  case QUADRANGLE_2 : case QUADRANGLE_2_8N :
 	      List_Add(Brick_P->p[1], &Element.GeoElement); 
 	      break;
 	    case TETRAHEDRON : case TETRAHEDRON_2 : 
@@ -467,9 +467,9 @@ void xyz2uvwInAnElement (struct Element *Element,
 
   if(Element->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID))
     ChainDim = _3D;
-  else if(Element->Type & (TRIANGLE|QUADRANGLE))
+  else if(Element->Type & (TRIANGLE|QUADRANGLE|TRIANGLE_2|QUADRANGLE_2))
     ChainDim = _2D;
-  else if(Element->Type & LINE)
+  else if(Element->Type & (LINE|LINE_2))
     ChainDim = _1D;
   else if(Element->Type & POINT)
     ChainDim = _0D;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Element.c,v 1.30 2007-05-25 11:51:02 dular Exp $"
+#define RCSID "$Id: Pos_Element.c,v 1.31 2007-10-09 11:06:25 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -389,7 +389,8 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
     case TRIANGLE    :
     case TRIANGLE_2  : PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
     case QUADRANGLE  :
-    case QUADRANGLE_2: PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
+    case QUADRANGLE_2:
+    case QUADRANGLE_2_8N: PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
     case TETRAHEDRON : PE->u[0] = 0.25 ; PE->v[0] = 0.25 ; PE->w[0] = 0.25 ; break ;
     case HEXAHEDRON  : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
     case PRISM       : PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
@@ -438,7 +439,8 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	break ;
 	
       case QUADRANGLE :    
-      case QUADRANGLE_2 :    
+      case QUADRANGLE_2 :
+      case QUADRANGLE_2_8N:
 	if(DecomposeInSimplex){
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1); /* nodes 1 2 4 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;

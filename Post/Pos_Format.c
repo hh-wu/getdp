@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Format.c,v 1.52 2007-09-21 21:28:07 sabarieg Exp $"
+#define RCSID "$Id: Pos_Format.c,v 1.53 2007-10-09 11:06:25 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -413,6 +413,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
       case LINE_2      : fprintf(PostStream, "SL("); break;
       case TRIANGLE_2  : fprintf(PostStream, "ST("); break;
       case QUADRANGLE_2: fprintf(PostStream, "SQ("); break;
+      case QUADRANGLE_2_8N: fprintf(PostStream, "SQ("); break;
       }    
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -461,6 +462,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
       case LINE_2      : fprintf(PostStream, "VL("); break;
       case TRIANGLE_2  : fprintf(PostStream, "VT("); break;
       case QUADRANGLE_2: fprintf(PostStream, "VQ("); break;
+      case QUADRANGLE_2_8N: fprintf(PostStream, "VQ("); break;
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
@@ -576,6 +578,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       case LINE_2      : Current_L = SL ; NbSL++ ; break ;
       case TRIANGLE_2  : Current_L = ST ; NbST++ ; break ;
       case QUADRANGLE_2: Current_L = SQ ; NbSQ++ ; break ;
+      case QUADRANGLE_2_8N: Current_L = SQ ; NbSQ++ ; break ;
       }
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
@@ -612,6 +615,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       case LINE_2      : Current_L = VL ; NbVL++ ; break ;
       case TRIANGLE_2  : Current_L = VT ; NbVT++ ; break ;
       case QUADRANGLE_2: Current_L = VQ ; NbVQ++ ; break ;
+      case QUADRANGLE_2_8N: Current_L = VQ ; NbVQ++ ; break ;
       }
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
       for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
@@ -670,6 +674,7 @@ int Get_GmshElementType(int Type){
   case HEXAHEDRON_2 :  GetDP_Return(12) ; 
   case PRISM_2 :       GetDP_Return(13) ; 
   case PYRAMID_2 :     GetDP_Return(14) ; 
+  case QUADRANGLE_2_8N : GetDP_Return(16) ; 
   default : 
     Msg(GERROR, "Unknown type of element in Gmsh format") ;
     GetDP_Return(-1) ;

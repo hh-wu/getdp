@@ -1,4 +1,4 @@
-#define RCSID "$Id: GeoData.c,v 1.31 2007-10-04 12:17:51 geuzaine Exp $"
+#define RCSID "$Id: GeoData.c,v 1.32 2007-10-09 11:06:25 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -194,6 +194,7 @@ int Geo_GetElementType(int Format, int Type){
     case 12 : GetDP_Return(HEXAHEDRON_2) ;
     case 13 : GetDP_Return(PRISM_2) ;
     case 14 : GetDP_Return(PYRAMID_2) ;
+    case 16 : GetDP_Return(QUADRANGLE_2_8N) ;
     default : Msg(GERROR, "Unkown type of Element in Gmsh format (%d)", FORMAT_GMSH) ; GetDP_Return(-1) ;
     }
     break ;
@@ -227,6 +228,7 @@ int Geo_GetElementTypeInv(int Format, int Type){
     case HEXAHEDRON_2  : GetDP_Return(12) ;
     case PRISM_2       : GetDP_Return(13) ;
     case PYRAMID_2     : GetDP_Return(14) ;
+    case QUADRANGLE_2_8N: GetDP_Return(16) ;
     default : Msg(GERROR, "Unkown type of Element in Gmsh format") ; GetDP_Return(-1) ;
     }
     break ;
@@ -252,11 +254,12 @@ int Geo_GetNbNodesPerElement(int Type){
   case PYRAMID       : GetDP_Return(5) ;
   case LINE_2        : GetDP_Return(3) ;
   case TRIANGLE_2    : GetDP_Return(6) ;
-  case QUADRANGLE_2  : GetDP_Return(8) ;
+  case QUADRANGLE_2  : GetDP_Return(9) ;
   case TETRAHEDRON_2 : GetDP_Return(10) ;      
   case HEXAHEDRON_2  : GetDP_Return(20) ;
   case PRISM_2       : GetDP_Return(15) ;
   case PYRAMID_2     : GetDP_Return(13) ;
+  case QUADRANGLE_2_8N: GetDP_Return(8) ;
   default : Msg(GERROR, "Unkown type of Element") ; GetDP_Return(-1) ;
   }
 

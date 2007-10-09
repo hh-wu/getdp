@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.82 2007-09-21 21:28:07 sabarieg Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.83 2007-10-09 11:06:25 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1960,6 +1960,7 @@ void Free_UnusedSolutions(struct DofData * DofData_P){
 	if (Solution_P->TimeFunctionValues) Free(Solution_P->TimeFunctionValues) ;
 
 	Solution_P->SolutionExist = 0 ;
+
       }
     }
   }

@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.49 2007-01-25 12:20:52 dular Exp $"
+#define RCSID "$Id: DofData.c,v 1.50 2007-10-09 11:06:25 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *

@@ -139,6 +139,7 @@ struct StringXDefine  Element_Type[] = {
   {"Line2"       , LINE_2},
   {"Triangle2"   , TRIANGLE_2},
   {"Quadrangle2" , QUADRANGLE_2},
+  {"Quadrangle2_8N", QUADRANGLE_2_8N},
   {NULL          , TRIANGLE}
  } ;
 
@@ -346,6 +347,7 @@ struct DefineXFunction  FunctionForGauss[] = {
   {LINE_2         , (CAST)Gauss_Line},
   {TRIANGLE_2     , (CAST)Gauss_Triangle},
   {QUADRANGLE_2   , (CAST)Gauss_Quadrangle},
+  {QUADRANGLE_2_8N, (CAST)Gauss_Quadrangle},
   {0              , (CAST)Gauss_Triangle}
 } ;
 

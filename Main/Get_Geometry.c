@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.41 2007-09-25 14:26:04 dular Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.42 2007-10-09 11:06:25 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -95,7 +95,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _1D ; GetDP_Return((void *)JacobianVol1D) ;
 
     case TRIANGLE    : case TRIANGLE_2   :
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVol2D) ;
 
     case TETRAHEDRON : case TETRAHEDRON_2 : 
@@ -114,7 +114,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     switch (Type_Element) {
 
     case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolSphShell2D) ;
 
     case TETRAHEDRON : case TETRAHEDRON_2 :  
@@ -133,7 +133,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     switch (Type_Element) {
 
     case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolRectShell2D) ;
 
     case TETRAHEDRON : case TETRAHEDRON_2 :  
@@ -152,7 +152,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     switch (Type_Element) {
 
     case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolPlpdX2D) ;
 
     default : 
@@ -165,7 +165,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     switch (Type_Element) {
 
     case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxi2D) ;
 
     default : 
@@ -178,7 +178,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     switch (Type_Element) {
 
     case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiSphShell2D) ;
 
     default : 
@@ -191,7 +191,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     switch (Type_Element) {
 
     case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiRectShell2D) ;
 
     default : 
@@ -204,7 +204,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     switch (Type_Element) {
 
     case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiPlpdX2D) ;
 
     default : 
@@ -218,7 +218,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     switch (Type_Element) {
 
     case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiSqu2D) ;
 
     default : 
@@ -231,7 +231,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     switch (Type_Element) {
 
     case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiSquSphShell2D) ;
 
     default : 
@@ -244,7 +244,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
     switch (Type_Element) {
 
     case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianVolAxiSquRectShell2D) ;
 
     default : 
@@ -263,7 +263,7 @@ void  * Get_JacobianFunction (int Type_Jacobian, int Type_Element,
       *Type_Dimension = _2D ; GetDP_Return((void *)JacobianSur2D) ;
 
     case TRIANGLE    : case TRIANGLE_2   :  
-    case QUADRANGLE  : case QUADRANGLE_2 : 
+    case QUADRANGLE  : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       *Type_Dimension = _3D ; GetDP_Return((void *)JacobianSur3D) ;
 
     default : 
@@ -1080,7 +1080,7 @@ void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
     switch(Type_Element){
 
     case TRIANGLE   : case TRIANGLE_2   : 
-    case QUADRANGLE : case QUADRANGLE_2 :
+    case QUADRANGLE : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
       if(!DetMat) Msg(GERROR, "Null determinant in 'Get_InverseMatrix'");
       InvMat->c11 =   Mat->c22 * Mat->c33 / DetMat ;
       InvMat->c21 = - Mat->c21 * Mat->c33 / DetMat ;

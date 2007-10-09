@@ -1,4 +1,4 @@
-#define RCSID "$Id: BF_Node.c,v 1.19 2007-05-25 11:51:02 dular Exp $"
+#define RCSID "$Id: BF_Node.c,v 1.20 2007-10-09 11:06:25 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -160,15 +160,29 @@ void  BF_Node(struct Element * Element, int NumNode,
 
   case QUADRANGLE_2 :
     switch(NumNode) {
-    case 1  : *s = 0 ; break ;
-    case 2  : *s = 0 ; break ;
-    case 3  : *s = 0 ; break ;
-    case 4  : *s = 0 ; break ;
-    case 5  : *s = 0 ; break ;
-    case 6  : *s = 0 ; break ;
-    case 7  : *s = 0 ; break ;
-    case 8  : *s = 0 ; break ;
-    case 9  : *s = 0 ; break ;
+    case 1  : *s =  0.25 * (1.-u)  *  (1.-v)  * u * v  ; break ;
+    case 2  : *s = -0.25 * (1.+u)  *  (1.-v)  * u * v  ; break ;
+    case 3  : *s =  0.25 * (1.+u)  *  (1.+v)  * u * v  ; break ;
+    case 4  : *s = -0.25 * (1.-u)  *  (1.+v)  * u * v  ; break ;
+    case 5  : *s =  -0.5 * (1.-u*u)*  (1.-v)  * v      ; break ;
+    case 6  : *s =   0.5 * (1.+u)  *  (1.-v*v)* u      ; break ;
+    case 7  : *s =   0.5 * (1.-u*u)*  (1.+v)  * v      ; break ;
+    case 8  : *s =  -0.5 * (1.-u)  *  (1.-v*v)* u      ; break ;
+    case 9  : *s =         (1.-u*u)*  (1.-v*v)         ; break ;
+    default : WrongNumNode ;
+    }
+    break ;
+
+  case QUADRANGLE_2_8N :
+    switch(NumNode) {
+    case 1  : *s = -0.25 * (1.-u)  *  (1.-v)  * (1.+u+v)  ; break ;
+    case 2  : *s = -0.25 * (1.+u)  *  (1.-v)  * (1.-u+v)  ; break ;
+    case 3  : *s = -0.25 * (1.+u)  *  (1.+v)  * (1.-u-v)  ; break ;
+    case 4  : *s = -0.25 * (1.-u)  *  (1.+v)  * (1.+u-v)  ; break ;
+    case 5  : *s =   0.5 * (1.-u*u)*  (1.-v)              ; break ;
+    case 6  : *s =   0.5 * (1.+u)  *  (1.-v*v)            ; break ;
+    case 7  : *s =   0.5 * (1.-u*u)*  (1.+v)              ; break ;
+    case 8  : *s =   0.5 * (1.-u)  *  (1.-v*v)            ; break ;
     default : WrongNumNode ;
     }
     break ;
@@ -384,15 +398,30 @@ void  BF_GradNode(struct Element * Element, int NumNode,
 
   case QUADRANGLE_2 :
     switch(NumNode) {
-    case 1  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-    case 2  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-    case 3  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-    case 4  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-    case 5  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-    case 6  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-    case 7  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-    case 8  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
-    case 9  : s[0] = 0. ; s[1] = 0. ; s[2] = 0. ; break ;
+    case 1  : s[0] =   0.25 * (1.-2.*u) * (1.-v)  * v  ;   s[1] =   0.25 * (1.-u)   * (1.-2.*v) * u   ;   s[2] = 0. ; break ;
+    case 2  : s[0] =  -0.25 * (1.+2.*u) * (1.-v)  * v  ;   s[1] =  -0.25 * (1.+u)   * (1.-2.*v) * u   ;   s[2] = 0. ; break ;
+    case 3  : s[0] =   0.25 * (1.+2.*u) * (1.+v)  * v  ;   s[1] =   0.25 * (1.+u)   * (1.+2.*v) * u   ;   s[2] = 0. ; break ;
+    case 4  : s[0] =  -0.25 * (1.-2.*u) * (1.+v)  * v  ;   s[1] =  -0.25 * (1.-u)   * (1.+2.*v) * u   ;   s[2] = 0. ; break ;
+    case 5  : s[0] =          (1.-v)   *   u      * v  ;   s[1] =   -0.5 * (1.-u*u) * (1.-2.*v)       ;   s[2] = 0. ; break ;
+    case 6  : s[0] =    0.5 * (1.+2.*u) * (1.-v*v)     ;   s[1] =         -(1.+u)   *  u        * v   ;   s[2] = 0. ; break ;
+    case 7  : s[0] =         -(1.+v)   *   u      * v  ;   s[1] =    0.5 * (1.-u*u) * (1.+2.*v)       ;   s[2] = 0. ; break ;
+    case 8  : s[0] =   -0.5 * (1.-2.*u) * (1.-v*v)     ;   s[1] =          (1.-u)   *  u        * v   ;   s[2] = 0. ; break ;
+    case 9  : s[0] =    -2. * (1.-v*v) *   u           ;   s[1] =    -2. * (1.-u*u) *  v              ;   s[2] = 0. ; break ;
+    default : WrongNumNode ;
+    }
+    break ;
+
+  case QUADRANGLE_2_8N :
+    switch(NumNode) {
+    case 1  : s[0] =   0.25 * (1.-v) * (2.*u+v)    ;   s[1] =   0.25 * (1.-u)  * (u+2.*v)   ;   s[2] = 0. ; break ;
+    case 2  : s[0] =   0.25 * (1.-v) * (2.*u-v)    ;   s[1] =  -0.25 * (1.+u)  * (u-2.*v)   ;   s[2] = 0. ; break ;
+    case 3  : s[0] =   0.25 * (1.+v) * (2.*u+v)    ;   s[1] =   0.25 * (1.+u)  * (u+2.*v)   ;   s[2] = 0. ; break ;
+    case 4  : s[0] =   0.25 * (1.+v) * (2.*u-v)    ;   s[1] =  -0.25 * (1.-u)  * (u-2.*v)   ;   s[2] = 0. ; break ;
+    case 5  : s[0] =         -(1.-v) *  u          ;   s[1] =   -0.5 * (1.-u*u)             ;   s[2] = 0. ; break ;
+    case 6  : s[0] =    0.5 * (1.-v*v)             ;   s[1] =         -(1.+u)  *  v         ;   s[2] = 0. ; break ;
+    case 7  : s[0] =         -(1.+v) *  u          ;   s[1] =    0.5 * (1.-u*u)             ;   s[2] = 0. ; break ;
+    case 8  : s[0] =   -0.5 * (1.-v*v)             ;   s[1] =         -(1.-u)  *  v         ;   s[2] = 0. ; break ;
+
     default : WrongNumNode ;
     }
     break ;
