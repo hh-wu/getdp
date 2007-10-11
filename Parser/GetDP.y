@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.102 2007-03-24 10:15:09 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.103 2007-10-11 11:33:39 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -4641,7 +4641,7 @@ OperationTerm :
       Operation_P->Case.Add_MH_Moving.dummy = $5 ;
     }
 
-  | tDeformeMesh  '{' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr ',' tFLOAT '}' tEND
+  | tDeformeMesh  '{' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr ',' FExpr '}' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
