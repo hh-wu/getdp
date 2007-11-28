@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.186 2007-05-11 21:31:26 geuzaine Exp $
+# $Id: Makefile,v 1.187 2007-11-28 06:52:32 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -246,7 +246,7 @@ distrib-source-commercial:
 
 distrib-source-nightly:
 	mv -f Makefile Makefile.distrib
-	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION = \"-nightly-${GETDP_DATE}\"/g"\
+	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION = \"-cvs-${GETDP_DATE}\"/g"\
           Makefile.distrib > Makefile
 	make source
 	make distrib-post
