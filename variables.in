@@ -1,4 +1,4 @@
-# $Id: variables.in,v 1.13 2007-06-03 16:08:19 geuzaine Exp $
+# $Id: variables.in,v 1.14 2007-11-28 13:01:21 geuzaine Exp $
 #
 # Copyright (C) 1997-2004 P. Dular, C. Geuzaine
 #
@@ -19,8 +19,9 @@
 # 
 # Please report all bugs and problems to <getdp@geuz.org>.
 
-# OS
+# OS and host
 UNAME=@UNAME@
+HOSTNAME=@HOSTNAME@
 
 # The names of the C and Fortran compilers
 CC=@CC@

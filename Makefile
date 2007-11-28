@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.187 2007-11-28 06:52:32 geuzaine Exp $
+# $Id: Makefile,v 1.188 2007-11-28 13:01:21 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -33,13 +33,13 @@ GETDP_SHORT_LICENSE = "GNU General Public License"
 GETDP_VERSION_FILE = include/GetDPVersion.h
 GETDP_DATE = `date "+%Y%m%d"`
 
-all: variables initialtag compile link
+all: link
+
+link: compile
+	${LINKER} -o bin/getdp ${GETDP_LIBS}
 
 compile: variables initialtag
 	@for i in ${GETDP_DIRS}; do (cd $$i && ${MAKE}); done
-
-link: variables
-	${LINKER} -o bin/getdp ${GETDP_LIBS}
 
 blackbox: variables initialtag
 	@for i in ${GETDP_DIRS}; \
@@ -100,10 +100,10 @@ tag:
 	echo "#define GETDP_PATCH_VERSION ${GETDP_PATCH_VERSION}" >> ${GETDP_VERSION_FILE}
 	echo "#define GETDP_EXTRA_VERSION \"${GETDP_EXTRA_VERSION}\"" >> ${GETDP_VERSION_FILE}
 	echo "#define GETDP_VERSION  \"${GETDP_VERSION}\"" >> ${GETDP_VERSION_FILE}
-	echo "#define GETDP_DATE     \"`date`\""     >> ${GETDP_VERSION_FILE}
-	echo "#define GETDP_HOST     \"`hostname`\"" >> ${GETDP_VERSION_FILE}
-	echo "#define GETDP_PACKAGER \"`whoami`\""   >> ${GETDP_VERSION_FILE}
-	echo "#define GETDP_OS       \"${UNAME}\""   >> ${GETDP_VERSION_FILE}
+	echo "#define GETDP_DATE     \"`date`\""      >> ${GETDP_VERSION_FILE}
+	echo "#define GETDP_HOST     \"${HOSTNAME}\"" >> ${GETDP_VERSION_FILE}
+	echo "#define GETDP_PACKAGER \"`whoami`\""    >> ${GETDP_VERSION_FILE}
+	echo "#define GETDP_OS       \"${UNAME}\""    >> ${GETDP_VERSION_FILE}
 	echo "#define GETDP_SHORT_LICENSE \"${GETDP_SHORT_LICENSE}\"" >> ${GETDP_VERSION_FILE}
 
 initialtag:
