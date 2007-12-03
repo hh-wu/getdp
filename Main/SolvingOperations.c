@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.83 2007-10-09 11:06:25 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.84 2007-12-03 14:01:57 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -3222,6 +3222,10 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
     }
     
   }
+
+  Current.GeoData = GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex;
+  Current.GeoData->Grid.Init=0;
+  Init_SearchGrid(&Current.GeoData->Grid) ;
   
   GetDP_End ;
 }
