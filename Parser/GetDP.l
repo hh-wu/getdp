@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.45 2007-01-24 09:22:54 dular Exp $ */
+/* $Id: GetDP.l,v 1.46 2007-12-03 14:02:49 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -116,6 +116,7 @@ All                          return tAll ;
 InSupport                    return tInSupport ;
 MovingBand2D                 return tMovingBand2D ;
 SaveMesh                     return tSaveMesh ;
+DeformMesh                   return tDeformeMesh ;
 DeformeMesh                  return tDeformeMesh ;
 
 DefineFunction               return tDefineFunction ;
