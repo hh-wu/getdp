@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.84 2007-12-03 14:01:57 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.85 2007-12-08 12:27:49 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -44,6 +44,7 @@
 #include "F_FMMOperations.h"
 #include "F_FMM_DTA.h"
 #include "BF_Function.h"
+#include "Pos_Search.h"
 
 static int  Flag_IterativeLoop = 0 ;  /* Attention: phase de test */
 static int  Flag_NextThetaFixed = 0 ;  /* Attention: phase de test */
