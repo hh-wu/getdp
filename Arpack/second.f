@@ -20,13 +20,16 @@
       REAL               TARRAY( 2 )
 *     ..
 *     .. External Functions ..
-      REAL               ETIME
-      EXTERNAL           ETIME
+*     REMOVED BY CHRISTOPHE 
+*      REAL               ETIME
+*      EXTERNAL           ETIME
+
 *     ..
 *     .. Executable Statements ..
 *
-
-      T1 = ETIME( TARRAY )
+*     REMOVED BY CHRISTOPHE 
+*      T1 = ETIME( TARRAY )
+      T1 = 0
       T  = TARRAY( 1 )
 
       RETURN
