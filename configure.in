@@ -1,24 +1,3 @@
-dnl $Id: configure.in,v 1.69 2007-11-28 13:01:21 geuzaine Exp $
-dnl
-dnl Copyright (C) 1997-2004 P. Dular, C. Geuzaine
-dnl
-dnl This program is free software; you can redistribute it and/or modify
-dnl it under the terms of the GNU General Public License as published by
-dnl the Free Software Foundation; either version 2 of the License, or
-dnl (at your option) any later version.
-dnl
-dnl This program is distributed in the hope that it will be useful,
-dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
-dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-dnl GNU General Public License for more details.
-dnl
-dnl You should have received a copy of the GNU General Public License
-dnl along with this program; if not, write to the Free Software
-dnl Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-dnl USA.
-dnl 
-dnl Please report all bugs and problems to <getdp@geuz.org>.
-
 dnl Process this file with autoconf to produce the configure script.
 
 dnl Check that this is the getdp source tree
@@ -153,12 +132,19 @@ if test "x$enable_petsc" = "xyes"; then
   LINKER='${CLINKER}'
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
 
+  dnl PETSc >= 2.3.1 configured with with C++ complex number support does
+  dnl not redefine CC as the CXX compiler anymore, but getdp needs this
   if grep PETSC_CLANGUAGE_CXX ${PETSC_DIR}/bmake/${PETSC_ARCH}/petscconf.h >/dev/null; then 
-    dnl PETSc >= 2.3.1 configured with with C++ complex number support does
-    dnl not redefine CC as the CXX compiler anymore, but getdp needs this
     echo "PETSc is configured with CXX as the C compiler"
     PETSC_REDEFINE_CC='CC=${CXX}'
   fi
+
+  dnl Fix link when using gfortran as the fortran compiler
+  case "${F77}" in
+    *gfortran*)
+      GETDP_LIBS="${GETDP_LIBS} -lgfortran"
+      ;;
+  esac
 
 else
 
