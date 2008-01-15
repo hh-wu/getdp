@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.42 2007-01-25 12:16:37 dular Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.43 2008-01-15 13:21:54 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -927,6 +927,7 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
     case OPERATION_READSOLUTION :
     case OPERATION_TRANSFERSOLUTION :
     case OPERATION_TRANSFERINITSOLUTION :
+    case OPERATION_SETCURRENTSYSTEM :
       for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
       Msg(CHECK, "      %s [%s] ;\n",
 	  Get_StringForDefine(Operation_Type, OPE->Type),

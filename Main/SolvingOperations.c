@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.85 2007-12-08 12:27:49 geuzaine Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.86 2008-01-15 13:21:54 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -826,6 +826,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 		   Operation_P->Case.Perturbation.PertFreq) ;
       */
       Flag_CPU = 1 ;
+      break ;
+
+      /*  -->  S e t C u r r e n t S y s t e m        */
+      /*  ------------------------------------------  */
+
+    case OPERATION_SETCURRENTSYSTEM :
+      Init_OperationOnSystem("SetCurrentSystem",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
       break ;
 
       /*  -->  I n i t S o l u t i o n                */

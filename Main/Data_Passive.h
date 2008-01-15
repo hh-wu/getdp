@@ -942,6 +942,7 @@ struct ChangeOfState {
 #define OPERATION_TRANSFERSOLUTION         13
 #define OPERATION_TRANSFERINITSOLUTION     14
 #define OPERATION_INITSOLUTION             15
+#define OPERATION_SETCURRENTSYSTEM         70
 
 #define OPERATION_SETTIME                  20
 #define OPERATION_SETFREQUENCY             21
