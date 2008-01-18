@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.103 2007-10-11 11:33:39 dular Exp $ */
+/* $Id: GetDP.y,v 1.104 2008-01-18 13:41:56 sabarieg Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -5210,6 +5210,10 @@ SubPostQuantities :
       Free($2) ;
       List_Add($$ = $1, &PostQuantityTerm_S) ; 
     }
+
+  | SubPostQuantities  Loop /*Ruth*/
+    { $$ = $1 ; }
+
   ;
 
 SubPostQuantity :
