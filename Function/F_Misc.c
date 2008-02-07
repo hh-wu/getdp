@@ -1,4 +1,4 @@
-#define RCSID "$Id: F_Misc.c,v 1.36 2007-10-04 12:12:11 geuzaine Exp $"
+#define RCSID "$Id: F_Misc.c,v 1.37 2008-02-07 12:56:20 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1204,5 +1204,28 @@ void  F_VirtualWork (F_ARG) {
 
   GetDP_End ;
 }
+
+
+
+void  F_AssDiag(F_ARG) {
+  int  k ;
+
+  GetDP_Begin("F_AssDiag");
+
+  Current.flagAssDiag = 2; /*+++prov*/
+
+  V->Val[0] = 1.;
+
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+
+  V->Type = SCALAR ;
+
+  GetDP_End ;
+}
+
 
 #undef F_ARG

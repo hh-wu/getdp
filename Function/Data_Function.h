@@ -644,6 +644,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"TransformPiezoT"       , (CAST)F_TransformPiezoT       ,   4,   2 }, /* pour Tuan */
 
   {"VirtualWork"           , (CAST)F_VirtualWork           ,   0,   1 }, /* pour Patrick */
+  {"AssDiag"               , (CAST)F_AssDiag               ,   0,   0 }, /* pour Patrick */
 
   {"dhdb_Jiles"            , (CAST)F_dhdb_Jiles            ,   1,   3 }, /* pour Johan */
   {"dbdh_Jiles"            , (CAST)F_dbdh_Jiles            ,   1,   3 }, /* pour Johan */

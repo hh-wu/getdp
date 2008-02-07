@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.27 2007-01-31 13:50:54 dular Exp $"
+#define RCSID "$Id: Cal_GalerkinTermOfFemEquation.c,v 1.28 2008-02-07 12:56:20 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -647,7 +647,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	 FI->Function_AssembleTerm)
 	  (QuantityStorageEqu_P->BasisFunction[i].Dof,
 	   QuantityStorageDof_P->BasisFunction[j].Dof,  Ek[i][j]) ;
-    else {
+    else if (Current.flagAssDiag == 1) {
       for (i = 0 ; i < Nbr_Equ ; i++) {
 	/*      for (j = 0 ; j < Nbr_Dof ; j++)*/
 	j = i;
@@ -656,7 +656,19 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	  (QuantityStorageEqu_P->BasisFunction[i].Dof,
 	   QuantityStorageDof_P->BasisFunction[j].Dof,  Ek[i][j]) ;
       }
+    }
+    else if (Current.flagAssDiag == 2) {
+      for (i = 0 ; i < Nbr_Equ ; i++) {
+	/*      for (j = 0 ; j < Nbr_Dof ; j++)*/
+	j = i;
+	Ek[i][j][0] = -1.;
+	for (k = 1 ; k < Current.NbrHar ; k++)  Ek[i][j][k] = 0. ;
+	((void (*)(struct Dof*, struct Dof*, double*)) 
+	 FI->Function_AssembleTerm)
+	  (QuantityStorageEqu_P->BasisFunction[i].Dof,
+	   QuantityStorageDof_P->BasisFunction[j].Dof,  Ek[i][j]) ;
       }
+    }
 
     
     /* Exit while(1) directly if not integral quantity */

@@ -194,6 +194,7 @@ void  F_h_Jiles         (F_ARG) ;  /* pour Johan */
 void  F_b_Jiles         (F_ARG) ;  /* pour Johan */
 
 void  F_VirtualWork     (F_ARG) ;  /* pour Patrick */
+void  F_AssDiag         (F_ARG) ;  /* pour Patrick */
 
 
 /* F_MultiHar */
