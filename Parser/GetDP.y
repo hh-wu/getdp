@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.104 2008-01-18 13:41:56 sabarieg Exp $ */
+/* $Id: GetDP.y,v 1.105 2008-02-08 15:52:07 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -888,7 +888,7 @@ Function :
 
     tDefineFunction '[' DefineFunctions ']' tEND 
 
-  | tSTRING '[' ']' tDEF Expression tEND
+  | String__Index '[' ']' tDEF Expression tEND
     {
       if ( (i = List_ISearchSeq
 	    (Problem_S.Expression, $1, fcmp_Expression_Name)) >= 0 ) {
@@ -908,7 +908,7 @@ Function :
       }
     }
 
-  | tSTRING '[' GroupRHS ']' tDEF Expression tEND
+  | String__Index '[' GroupRHS ']' tDEF Expression tEND
     {
       if ( (i = List_ISearchSeq
 	    (Problem_S.Expression, $1, fcmp_Expression_Name)) < 0 ) {
@@ -969,6 +969,19 @@ DefineFunctions :
 	Add_Expression(&Expression_S, $3, 0) ;
       }
       else  Free($3) ;
+    }
+
+  | DefineFunctions Comma tSTRING '{' FExpr '}'
+    {
+      for (k = 0 ; k < (int)$5 ; k++) {
+	sprintf(tmpstr, "%s_%d", $3, k+1) ;
+	if ( (i = List_ISearchSeq(Problem_S.Expression, tmpstr,
+				  fcmp_Expression_Name)) < 0 ) {
+	  Expression_S.Type = UNDEFINED_EXP ;
+	  Add_Expression(&Expression_S, tmpstr, 2) ;
+	}
+      }
+      Free($3) ;
     }
   ;
 
@@ -6076,7 +6089,7 @@ Loop :
 	vyyerror("Reached maximum number of imbricated loops");
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
-      if($3 > $5) skip_until("For", "EndFor");
+      if($3 > $5) {skip_until("For", "EndFor"); ImbricatedLoop--;}
     }
   | tFor '(' FExpr tDOTS FExpr tDOTS FExpr ')'
     {
@@ -6092,7 +6105,7 @@ Loop :
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
       if(($7 > 0. && $3 > $5) || ($7 < 0. && $3 < $5))
-	skip_until("For", "EndFor");
+	{skip_until("For", "EndFor"); ImbricatedLoop--;}
     }
   | tFor tSTRING tIn '{' FExpr tDOTS FExpr '}' 
     {
@@ -6112,7 +6125,7 @@ Loop :
 	vyyerror("Reached maximum number of imbricated loops");
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
-      if($5 > $7) skip_until("For", "EndFor");
+      if($5 > $7) {skip_until("For", "EndFor"); ImbricatedLoop--;}
     }
   | tFor tSTRING tIn '{' FExpr tDOTS FExpr tDOTS FExpr '}' 
     {
@@ -6132,7 +6145,7 @@ Loop :
 	ImbricatedLoop = MAX_RECUR_LOOPS-1;
       }
       if(($9 > 0. && $5 > $7) || ($9 < 0. && $5 < $7))
-	skip_until("For", "EndFor");
+	{skip_until("For", "EndFor"); ImbricatedLoop--;}
     }
   | tEndFor
     {
@@ -6608,7 +6621,10 @@ StringIndex :
   | StringIndex '~' '{' FExpr '}'
     {
       sprintf(tmpstr, "_%d", (int)$4) ;
+      /* error in some cases?!?
       $$ = (char *)Realloc($1,(strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
+      */
+      $$ = (char *)Malloc((strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
       strcpy($$, $1) ; strcat($$, tmpstr) ;
     }
 
@@ -6791,11 +6807,17 @@ int  Add_Expression(struct Expression * Expression_P,
   if (!Problem_S.Expression)
     Problem_S.Expression = List_Create(50, 50, sizeof (struct Expression) ) ;
 
-  if (Flag_Plus) {
+  switch (Flag_Plus) {
+  case 1 :
     sprintf(tmpstr, "_%s_%d", Name, List_Nbr(Problem_S.Expression)) ;
     Expression_P->Name = strsave(tmpstr) ;
+    break ;
+  case 2 :
+    Expression_P->Name = strsave(tmpstr) ;
+    break ;
+  default :
+    Expression_P->Name = Name ;
   }
-  else  Expression_P->Name = Name ;
 
   if ((i = List_ISearchSeq
        (Problem_S.Expression, Name, fcmp_Expression_Name)) < 0) {
