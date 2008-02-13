@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.106 2008-02-13 15:22:51 dular Exp $ */
+/* $Id: GetDP.y,v 1.107 2008-02-13 15:31:38 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -6325,8 +6325,21 @@ Affectation :
     {
       Msg(INFO, "Constants:");
       for (i=0; i<List_Nbr(ConstantTable_L); i++) {
-	Msg(INFO, "  (%d/%d): '%s'", i+1, List_Nbr(ConstantTable_L),
-		((struct Constant*)List_Pointer(ConstantTable_L, i))->Name);
+	List_Read(ConstantTable_L, i, &Constant_S);
+	switch (Constant_S.Type) {
+	case VAR_FLOAT:
+	  Msg(INFO, "  (%d/%d): '%s' = %g", i+1, List_Nbr(ConstantTable_L),
+	      Constant_S.Name, Constant_S.Value.Float);
+	  break;
+	case VAR_CHAR:
+	  Msg(INFO, "  (%d/%d): '%s' = '%s'", i+1, List_Nbr(ConstantTable_L),
+	      Constant_S.Name, Constant_S.Value.Char);
+	  break;
+	default:
+	  Msg(INFO, "  (%d/%d): '%s' = ...", i+1, List_Nbr(ConstantTable_L),
+	      Constant_S.Name);
+	  break;
+	}
       }
     }
   ;
