@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.105 2008-02-08 15:52:07 dular Exp $ */
+/* $Id: GetDP.y,v 1.106 2008-02-13 15:22:51 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -215,7 +215,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
-%token  tStrCat tSprintf tPrintf tRead
+%token  tStrCat tSprintf tPrintf tRead tPrintConstants
 %token  tFor tEndFor tIf tElse tEndIf
 %token  tFlag tHelp tCpu tCheck
 %token  tInclude
@@ -2897,9 +2897,9 @@ DefineQuantityTerm :
      
     }
 
-  | tIndexOfSystem tINT tEND
+  | tIndexOfSystem FExpr tEND
     { 
-      DefineQuantity_S.DofDataIndex = $2 ; 
+      DefineQuantity_S.DofDataIndex = (int)$2 ;
     }
 
   | '['
@@ -3930,7 +3930,13 @@ DefineSystemTerm :
 
   | tOriginSystem ListOfSystem tEND
     { 
-      DefineSystem_S.OriginSystemIndex = $2 ;
+      if (!DefineSystem_S.OriginSystemIndex) {
+	DefineSystem_S.OriginSystemIndex = $2 ;
+      }
+      else {
+	for (i = 0 ; i < List_Nbr($2) ; i++)
+	  List_Add(DefineSystem_S.OriginSystemIndex, (int *)List_Pointer($2, i) ) ;
+      }
     }
 
   | tDestinationSystem String__Index tEND
@@ -6315,6 +6321,14 @@ Affectation :
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
 
+  | tPrintConstants tEND
+    {
+      Msg(INFO, "Constants:");
+      for (i=0; i<List_Nbr(ConstantTable_L); i++) {
+	Msg(INFO, "  (%d/%d): '%s'", i+1, List_Nbr(ConstantTable_L),
+		((struct Constant*)List_Pointer(ConstantTable_L, i))->Name);
+      }
+    }
   ;
 
 DefineConstants :
@@ -6326,6 +6340,20 @@ DefineConstants :
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
+  | DefineConstants Comma tSTRING '{' FExpr '}'
+    {
+      Constant_S.Type = VAR_FLOAT ;
+      Constant_S.Value.Float = 0. ;
+      for (k = 0 ; k < (int)$5 ; k++) {
+	sprintf(tmpstr, "%s_%d", $3, k+1) ;
+	Constant_S.Name = tmpstr ;
+	if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)) {
+	  Constant_S.Name = strsave(tmpstr);
+	  List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
+	}
+      }
+      Free($3) ;
+    }
   | DefineConstants Comma tSTRING tDEF FExpr
     { Constant_S.Name = $3 ; Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = $5 ;
@@ -6334,8 +6362,7 @@ DefineConstants :
     }
   | DefineConstants Comma tSTRING tDEF tBIGSTR
     { Constant_S.Name = $3 ; Constant_S.Type = VAR_CHAR ;
-      Constant_S.Value.Char = $5 ;
-      if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
+      Constant_S.Value.Char = $5 ;      if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
   ;
