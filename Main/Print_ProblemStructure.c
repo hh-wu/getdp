@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.43 2008-01-15 13:21:54 dular Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.44 2008-02-13 15:18:24 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1146,7 +1146,20 @@ void  Print_Resolution(struct Problem  * Problem) {
       Msg(CHECK, " } ; ") ;
 
       if(DS->MeshName)
-	Msg(CHECK, "NameOfMesh %s ;", DS->MeshName) ;
+	Msg(CHECK, "NameOfMesh %s ; ", DS->MeshName) ;
+
+      if(DS->OriginSystemIndex) {
+	Msg(CHECK, "OriginSystem {") ;
+
+	for (k = 0 ; k < List_Nbr(DS->OriginSystemIndex) ; k++) {
+	  if (k)  Msg(CHECK, ",") ;
+	  Msg(CHECK, " %d", *((int *)List_Pointer(DS->OriginSystemIndex, k))) ;
+	}
+	Msg(CHECK, " } ;") ;
+
+
+	Msg(CHECK, "OriginSystem %s ; ", DS->MeshName) ;
+      }
 
       if (DS->Type == VAL_COMPLEX) {
 	Msg(CHECK, "Frequency {") ;
@@ -1155,7 +1168,7 @@ void  Print_Resolution(struct Problem  * Problem) {
 	  if (k)  Msg(CHECK, ",") ;
 	  Msg(CHECK, " %.10g", *((double *)List_Pointer(DS->FrequencyValue, k))) ;
 	}
-	Msg(CHECK, " } ;") ;
+	Msg(CHECK, " } ; ") ;
       }
 
       Msg(CHECK, " }\n") ;
