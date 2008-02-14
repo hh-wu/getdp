@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.44 2008-02-13 15:18:24 dular Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.45 2008-02-14 13:33:45 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1156,9 +1156,6 @@ void  Print_Resolution(struct Problem  * Problem) {
 	  Msg(CHECK, " %d", *((int *)List_Pointer(DS->OriginSystemIndex, k))) ;
 	}
 	Msg(CHECK, " } ;") ;
-
-
-	Msg(CHECK, "OriginSystem %s ; ", DS->MeshName) ;
       }
 
       if (DS->Type == VAL_COMPLEX) {
