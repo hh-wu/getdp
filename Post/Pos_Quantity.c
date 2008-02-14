@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pos_Quantity.c,v 1.24 2007-03-29 18:03:10 geuzaine Exp $"
+#define RCSID "$Id: Pos_Quantity.c,v 1.25 2008-02-14 08:47:50 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -92,7 +92,17 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 
     if (InRegion_L) {
       if (Element->Num != NO_ELEMENT) {
+	/* not correct for ElementsOf (i.e. ELEMENTLIST)
 	if (!List_Search(InRegion_L, &Element->Region, fcmp_int)) { 
+	  Type_Quantity = -1 ; 
+	}
+	*/
+	if (!((Group_P->Type != ELEMENTLIST  &&
+	       List_Search(Group_P->InitialList, &Element->Region, fcmp_int))
+	      ||
+	      (Group_P->Type == ELEMENTLIST  &&
+	       Check_IsEntityInExtendedGroup(Group_P, Element->Num, 0))
+	      )) {
 	  Type_Quantity = -1 ; 
 	}
       }
