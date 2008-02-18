@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.107 2008-02-13 15:31:38 dular Exp $ */
+/* $Id: GetDP.y,v 1.108 2008-02-18 15:33:06 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -397,7 +397,8 @@ ProblemDefinition :
 
   | SeparatePostOperation
 
-  | Affectation
+  | Loop
+  /* contains For, EndFor, If, EndIf, Affectation */
 
   | tInclude CharExpr
     {            
@@ -454,7 +455,7 @@ Interactive :
     { Print_PostOperation(&Problem_S); }
   | tCheck tINT tEND
     { Print_Object($2, &Problem_S); }
-
+/* not used anymore
   | {
       PostOperation_S.Name = NULL ;  
       PostOperation_S.AppendString = NULL ;  
@@ -469,6 +470,7 @@ Interactive :
       InteractivePostSubOperation_S = PostSubOperation_S ;
       InteractiveCompute = 1;
     }
+*/
   ;
 
 
@@ -507,8 +509,6 @@ Group :
 
   | String__Index '+' tDEF ReducedGroupRHS tEND
     { Add_Group_2(&Group_S, $1, 1, 0, 0, 0) ; }
-  
-  | Affectation
   
   | Loop
   ;
@@ -951,8 +951,6 @@ Function :
       }
       else  vyyerror("Bad Group right hand side") ;
     }
-
-  | Affectation
 
   | Loop
   ;
@@ -1876,8 +1874,6 @@ BracedConstraint :
       List_Add(Problem_S.Constraint, &Constraint_S) ;
     }
 
-  | Affectation
-
   | Loop
   ;
 
@@ -2133,8 +2129,6 @@ BracedFunctionSpace :
     {
       List_Add(Problem_S.FunctionSpace, &FunctionSpace_S) ;
     }
-
-  | Affectation
 
   | Loop  
   ;
@@ -2750,8 +2744,6 @@ BracedFormulation :
       List_Add(Problem_S.Formulation, &Formulation_S) ;
     }
 
-  | Affectation
-
   | Loop
   ;
 
@@ -3309,11 +3301,6 @@ Equations :
       List_Add($$ = $1, &EquationTerm_S) ;
     }
 
-  | Equations  Affectation
-    {
-      $$ = $1 ;
-    }
-
   | Equations  Loop
     {
       $$ = $1 ;
@@ -3816,8 +3803,6 @@ BracedResolution :
       List_Add(Problem_S.Resolution, &Resolution_S) ;
     }
 
-  | Affectation
-
   | Loop
   ;
 
@@ -3875,11 +3860,6 @@ DefineSystems :
     }
 
   | DefineSystems Loop
-     {
-       $$ = $1 ;
-     }
-
-  | DefineSystems Affectation
      {
        $$ = $1 ;
      }
@@ -5114,8 +5094,6 @@ BracedPostProcessing :
     {
       List_Add(Problem_S.PostProcessing, &PostProcessing_S) ;
     }
- 
-  | Affectation
 
   | Loop
   ;
@@ -5179,9 +5157,7 @@ PostQuantities :
   | PostQuantities '{' PostQuantity '}'
     { List_Add($$ = $1, &PostQuantity_S) ; }
 
-  | PostQuantities  Affectation 
-    { $$ = $1 ; }
-  | PostQuantities  Loop 
+  | PostQuantities  Loop
     { $$ = $1 ; }
 
   ;
@@ -5230,9 +5206,8 @@ SubPostQuantities :
       List_Add($$ = $1, &PostQuantityTerm_S) ; 
     }
 
-  | SubPostQuantities  Loop /*Ruth*/
+  | SubPostQuantities  Loop
     { $$ = $1 ; }
-
   ;
 
 SubPostQuantity :
@@ -5342,8 +5317,6 @@ BracedPostOperation :
     '{' PostOperation '}'
     { List_Add(Problem_S.PostOperation, &PostOperation_S) ; }
 
-  | Affectation
-  
   | Loop
   ;
 
@@ -5500,7 +5473,6 @@ PostSubOperation :
     {
       PostSubOperation_S.Type = POP_NONE ;
     }
-
   ;
 
 PostQuantitiesToPrint :
@@ -6198,8 +6170,9 @@ Loop :
   | tEndIf
     {
     }
-  ;
 
+  | Affectation
+  ;
 
 
 /* ------------------------------------------------------------------------ */
@@ -6347,13 +6320,13 @@ Affectation :
 DefineConstants :
 
     /* none */
-  | DefineConstants Comma tSTRING
+  | DefineConstants Comma String__Index
     { Constant_S.Name = $3 ; Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = 0. ;
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
-  | DefineConstants Comma tSTRING '{' FExpr '}'
+  | DefineConstants Comma String__Index '{' FExpr '}'
     {
       Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = 0. ;
@@ -6367,13 +6340,13 @@ DefineConstants :
       }
       Free($3) ;
     }
-  | DefineConstants Comma tSTRING tDEF FExpr
+  | DefineConstants Comma String__Index tDEF FExpr
     { Constant_S.Name = $3 ; Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = $5 ;
       if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
     }
-  | DefineConstants Comma tSTRING tDEF tBIGSTR
+  | DefineConstants Comma String__Index tDEF tBIGSTR
     { Constant_S.Name = $3 ; Constant_S.Type = VAR_CHAR ;
       Constant_S.Value.Char = $5 ;      if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
