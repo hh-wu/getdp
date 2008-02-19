@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.108 2008-02-18 15:33:06 dular Exp $ */
+/* $Id: GetDP.y,v 1.109 2008-02-19 08:50:38 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -826,17 +826,28 @@ DefineGroups :
 
     /* none */
 
-  | DefineGroups Comma tSTRING
+  | DefineGroups Comma String__Index
     { if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0 ) {
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
-	Group_S.InitialList = ListDummy_L ;
+	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	i = Add_Group(&Group_S, $3, 0, 0) ;
       }
       else  Free($3) ;
     }
 
-  | DefineGroups Comma tSTRING '{' FExpr '}'
+  | DefineGroups Comma String__Index tDEF '{' '}'
+    {
+      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
+	Free($3) ;
+      }
+      Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
+      Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
+      Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
+      i = Add_Group(&Group_S, $3, 0, 0) ;
+    }
+
+  | DefineGroups Comma String__Index '{' FExpr '}'
     { 
       for (k = 0 ; k < (int)$5 ; k++) {
 	sprintf(tmpstr, "%s_%d", $3, k+1) ;
@@ -844,9 +855,28 @@ DefineGroups :
 				  fcmp_Group_Name)) < 0 ) {
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	  Group_S.InitialList = ListDummy_L ;
+	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
 	  Add_Group(&Group_S, $3, 2, k+1) ;
 	}
+      }
+      Free($3) ;
+    }
+
+  | DefineGroups Comma String__Index '{' FExpr '}' tDEF '{' '}'
+    { 
+      for (k = 0 ; k < (int)$5 ; k++) {
+	sprintf(tmpstr, "%s_%d", $3, k+1) ;
+	/*
+	if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr,
+				  fcmp_Group_Name)) < 0 ) {
+	*/
+	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
+	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
+	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
+	  Add_Group(&Group_S, $3, 2, k+1) ;
+	  /*
+	}
+	  */
       }
       Free($3) ;
     }
@@ -6761,7 +6791,7 @@ int  Add_Group(struct Group * Group_P, char * Name, int Flag_Plus, int Num_Index
     Group_P->ExtendedList = NULL ;  Group_P->ExtendedSuppList = NULL ;
     List_Add(Problem_S.Group, Group_P) ;
   }
-  else  List_Write(Problem_S.Group, i, Group_P) ;
+  else  List_Write(Problem_S.Group, i, Group_P) ; /* TODO: List_Delete()... */
 
   return i ;
 
