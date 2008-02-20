@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.109 2008-02-19 08:50:38 dular Exp $ */
+/* $Id: GetDP.y,v 1.110 2008-02-20 08:59:05 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -197,6 +197,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %type <i>  Expression, DefineDimension, MultipleIndex, Index
 %type <i>  ArgumentsForFunction, RecursiveListOfQuantity
 %type <i>  PostQuantitySupport
+%type <i>  StrCmp
 %type <d>  FExpr, OneFExpr
 %type <l>  MultiFExpr, ListOfFExpr, RecursiveListOfFExpr, ParametersForFunction
 %type <l>  RecursiveListOfRegion
@@ -215,7 +216,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
-%token  tStrCat tSprintf tPrintf tRead tPrintConstants
+%token  tStrCat tSprintf tPrintf tRead tPrintConstants tStrCmp
 %token  tFor tEndFor tIf tElse tEndIf
 %token  tFlag tHelp tCpu tCheck
 %token  tInclude
@@ -1564,6 +1565,11 @@ WholeQuantity_Single :
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
     }
 
+  | StrCmp
+    { WholeQuantity_S.Type = WQ_CONSTANT ;
+      WholeQuantity_S.Case.Constant = $1 ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+    }
   ;
 
 
@@ -6452,6 +6458,8 @@ FExpr :
 
   | FExpr '?' FExpr tDOTS FExpr      { $$ = $1? $3 : $5 ; }
 
+  | StrCmp                           { $$ = $1; }
+
   | FExpr '#' { Msg(DIRECT, "Value (line %ld) --> %.16g", yylinenum, $1); }
   ;
 
@@ -6753,6 +6761,19 @@ StrCat :
       }
     }
   ;
+
+StrCmp :
+    tStrCmp '[' CharExpr ',' CharExpr ']'
+    {
+      if ($3 != NULL && $5 != NULL) {
+	$$ = strcmp($3, $5);
+      }
+      else {
+	vyyerror("Undefined argument for StrCat function") ;  $$ = 1 ;
+      }
+    }
+  ;
+
 
 %%
 
