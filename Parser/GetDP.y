@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.110 2008-02-20 08:59:05 dular Exp $ */
+/* $Id: GetDP.y,v 1.111 2008-02-20 10:37:14 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -197,7 +197,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %type <i>  Expression, DefineDimension, MultipleIndex, Index
 %type <i>  ArgumentsForFunction, RecursiveListOfQuantity
 %type <i>  PostQuantitySupport
-%type <i>  StrCmp
+%type <i>  StrCmp, NbrRegions
 %type <d>  FExpr, OneFExpr
 %type <l>  MultiFExpr, ListOfFExpr, RecursiveListOfFExpr, ParametersForFunction
 %type <l>  RecursiveListOfRegion
@@ -216,7 +216,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
-%token  tStrCat tSprintf tPrintf tRead tPrintConstants tStrCmp
+%token  tStrCat tSprintf tPrintf tRead tPrintConstants tStrCmp tNbrRegions
 %token  tFor tEndFor tIf tElse tEndIf
 %token  tFlag tHelp tCpu tCheck
 %token  tInclude
@@ -1566,6 +1566,12 @@ WholeQuantity_Single :
     }
 
   | StrCmp
+    { WholeQuantity_S.Type = WQ_CONSTANT ;
+      WholeQuantity_S.Case.Constant = $1 ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+    }
+
+  | NbrRegions
     { WholeQuantity_S.Type = WQ_CONSTANT ;
       WholeQuantity_S.Case.Constant = $1 ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
@@ -6460,6 +6466,8 @@ FExpr :
 
   | StrCmp                           { $$ = $1; }
 
+  | NbrRegions                       { $$ = $1; }
+
   | FExpr '#' { Msg(DIRECT, "Value (line %ld) --> %.16g", yylinenum, $1); }
   ;
 
@@ -6770,6 +6778,19 @@ StrCmp :
       }
       else {
 	vyyerror("Undefined argument for StrCat function") ;  $$ = 1 ;
+      }
+    }
+  ;
+
+NbrRegions :
+    tNbrRegions '[' String__Index ']'
+    {
+      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
+	$$ = List_Nbr(((struct Group *)List_Pointer(Problem_S.Group, i))
+		      ->InitialList) ;
+      }
+      else {
+	vyyerror("Unknown Group: %s", $3) ;  $$ = 0 ;
       }
     }
   ;

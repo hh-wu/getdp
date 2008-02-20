@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.48 2008-02-20 08:59:04 dular Exp $ */
+/* $Id: GetDP.l,v 1.49 2008-02-20 10:37:13 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -99,6 +99,7 @@ Printf                       return tPrintf ;
 Read                         return tRead ;
 PrintConstants               return tPrintConstants;
 StrCmp                       return tStrCmp ;
+NbrRegions                   return tNbrRegions ;
 
 Pi                           return tPi ;
 0D                           return t0D ;
