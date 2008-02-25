@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_DofOfElement.c,v 1.27 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: Get_DofOfElement.c,v 1.28 2008-02-25 15:37:51 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -559,7 +559,9 @@ void  Get_DofOfRegion(int  Num_Region,
     }
 
     switch (TreatmentStatus) {
-    case _CAL :  case _POS :
+    case _CAL :
+    case _POS :
+    case _CST :
       if(!FunctionSpace_P->DofData)
 	Msg(GERROR, "Empty DofData in FunctionSpace '%s' (no unknowns?)",
 	    FunctionSpace_P->Name);
@@ -583,7 +585,8 @@ void  Get_DofOfRegion(int  Num_Region,
       QuantityStorage_P->BasisFunction[0].CodeAssociateBasisFunction =
 	Num_AssociateBasisFunction ;
 
-      if (TreatmentStatus == _PRE)  /* Contrainte associee ? */
+      if (TreatmentStatus == _PRE ||
+	  TreatmentStatus == _CST)  /* Contrainte associee ? */
 	Treatment_ConstraintForRegion(GlobalQuantity_P,
 				      FunctionSpace_P, QuantityStorage_P) ;
       Nbr_ElementaryBF = 1 ;
@@ -625,4 +628,3 @@ void  Get_PreResolutionForGlobalBasisFunction(int Nbr_Global, int StartingIndex,
 
   GetDP_End ;
 }
-

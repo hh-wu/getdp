@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.86 2008-01-15 13:21:54 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.87 2008-02-25 15:37:51 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -2526,7 +2526,7 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
     List_Read(DefineSystem_P->FormulationIndex, k, &Index_Formulation) ;
     Formulation_P = (struct Formulation*)
       List_Pointer(Problem_S.Formulation, Index_Formulation) ;
-    Msg(OPERATION, "Treatment Formulation '%s'", Formulation_P->Name) ;
+    Msg(OPERATION, "UpdateConstraint: Treatment Formulation '%s'", Formulation_P->Name) ;
 
     Init_DofDataInDefineQuantity(DefineSystem_P, DofData_P0, Formulation_P) ;
     Treatment_Formulation(Formulation_P) ;

@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.111 2008-02-20 10:37:14 dular Exp $ */
+/* $Id: GetDP.y,v 1.112 2008-02-25 15:37:52 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -4291,7 +4291,7 @@ OperationTerm :
   | tUpdateConstraint '[' String__Index ',' GroupRHS ',' String__Index ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
-    Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
+      Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
       if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
 			       fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $3) ;
@@ -4306,6 +4306,19 @@ OperationTerm :
 	Get_Valid_SXD(Constraint_Type);
       }
       Free($7) ;
+    }
+    
+  | tUpdateConstraint '[' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_UPDATECONSTRAINT ;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.UpdateConstraint.GroupIndex = -1;
+      Operation_P->Case.UpdateConstraint.Type = ASSIGN;
     }
 
   | tFourierTransform '[' String__Index ',' String__Index ',' ListOfFExpr ']' tEND

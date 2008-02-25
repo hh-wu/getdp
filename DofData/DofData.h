@@ -81,6 +81,7 @@ void  Dof_DefineUnknownDofFromSolveOrInitDof(struct DofData ** DofData_P) ;
 
 void  Dof_NumberUnknownDof(void) ;
 
+void  Dof_UpdateAssignFixedDof(struct Dof *Dof_P, int NbrHar, double *Val) ;
 void  Dof_UpdateLinkDof(struct Dof *Dof_P, int NbrHar, double Value[], int D2_Link) ;
 
 void  Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar, double * Val,

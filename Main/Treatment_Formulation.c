@@ -1,4 +1,4 @@
-#define RCSID "$Id: Treatment_Formulation.c,v 1.21 2006-06-13 11:07:25 geuzaine Exp $"
+#define RCSID "$Id: Treatment_Formulation.c,v 1.22 2008-02-25 15:37:51 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -533,6 +533,10 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P) {
 	  Cal_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
 				      QuantityStorage_P0,
 				      &QuantityStorage_S, DofForNoDof_P) ;
+	  break ;
+	case _CST :
+	  Cst_GlobalTermOfFemEquation(Num_Region, EquationTerm_P,
+				      QuantityStorage_P0) ;
 	  break ;
 	}
 	

@@ -1,4 +1,4 @@
-#define RCSID "$Id: Pre_TermOfFemEquation.c,v 1.17 2006-02-26 00:42:54 geuzaine Exp $"
+#define RCSID "$Id: Pre_TermOfFemEquation.c,v 1.18 2008-02-25 15:37:51 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -338,6 +338,68 @@ void  Pre_GlobalTermOfFemEquation(int  Num_Region,
 }
 
 
+/* ------------------------------------------------------------------------ */
+/*  C s t _ G l o b a l T e r m O f F e m F o r m u l a t i o n             */
+/* ------------------------------------------------------------------------ */
+
+void  Cst_GlobalTermOfFemEquation(int  Num_Region,
+				  struct EquationTerm     * EquationTerm_P,
+				  struct QuantityStorage  * QuantityStorage_P0) {
+
+  struct QuantityStorage  * QuantityStorageEqu_P, * QuantityStorageDof_P ;
+
+  GetDP_Begin("Cst_GlobalTermOfFemEquation");
+
+  QuantityStorageEqu_P = QuantityStorage_P0 +
+    EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexEqu ;
+  QuantityStorageDof_P =
+    (EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexDof >= 0)?
+      QuantityStorage_P0 +
+	EquationTerm_P->Case.GlobalTerm.Term.DefineQuantityIndexDof : NULL ;
+
+  if (QuantityStorageEqu_P->NbrElementaryBasisFunction == 1) {
+
+    switch(QuantityStorageEqu_P->BasisFunction[0].Constraint) {
+    case ASSIGN:
+      Dof_UpdateAssignFixedDof
+	(QuantityStorageEqu_P->BasisFunction[0].Dof, Current.NbrHar,
+	 QuantityStorageEqu_P->BasisFunction[0].Value) ;
+      break ;
+    case CST_LINK:
+    case CST_LINKCPLX:
+      Dof_UpdateLinkDof
+	(QuantityStorageEqu_P->BasisFunction[0].Dof, Current.NbrHar,
+	 QuantityStorageEqu_P->BasisFunction[0].Value,
+	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity_Link) ;
+      break;
+    }
+  }
+
+  if (QuantityStorageDof_P && (QuantityStorageDof_P != QuantityStorageEqu_P)) {
+    if (QuantityStorageDof_P->NbrElementaryBasisFunction == 1) {
+
+      switch(QuantityStorageDof_P->BasisFunction[0].Constraint) {
+      case ASSIGN:
+	Dof_UpdateAssignFixedDof
+	  (QuantityStorageDof_P->BasisFunction[0].Dof, Current.NbrHar,
+	   QuantityStorageDof_P->BasisFunction[0].Value) ;
+	break ;
+      case CST_LINK:
+      case CST_LINKCPLX:
+	Dof_UpdateLinkDof
+	  (QuantityStorageDof_P->BasisFunction[0].Dof, Current.NbrHar,
+	   QuantityStorageDof_P->BasisFunction[0].Value,
+	   QuantityStorageDof_P->BasisFunction[0].CodeEntity_Link) ;
+	break;
+      }
+    }
+
+  }
+
+  GetDP_End ;
+}
+
+
 
 /* ------------------------------------------------------------------------ */
 /*  P r e _ F e m G l o b a l E q u a t i o n                               */
@@ -555,13 +617,13 @@ void  Cst_TermOfFemEquation(struct Element          * Element,
 	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
 	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar) ;
 	break;
+	*/
       case ASSIGN:
-	Dof_DefineAssignFixedDof
-	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
-	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar,
-	   QuantityStorageEqu_P->BasisFunction[i].Value,
-	   QuantityStorageEqu_P->BasisFunction[i].TimeFunctionIndex) ;
+	Dof_UpdateAssignFixedDof
+	  (QuantityStorageEqu_P->BasisFunction[i].Dof, Current.NbrHar,
+	   QuantityStorageEqu_P->BasisFunction[i].Value) ;
 	break;
+	/*
       case INIT:
 	Dof_DefineInitFixedDof
 	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
@@ -598,14 +660,12 @@ void  Cst_TermOfFemEquation(struct Element          * Element,
     for (i = 0 ; i < QuantityStorageDof_P->NbrElementaryBasisFunction ; i++)
 
       switch(QuantityStorageDof_P->BasisFunction[i].Constraint){
-	/*
       case ASSIGN:
-	Dof_DefineAssignFixedDof
-	  (QuantityStorageDof_P->BasisFunction[i].CodeBasisFunction,
-	   QuantityStorageDof_P->BasisFunction[i].CodeEntity, Current.NbrHar,
-	   QuantityStorageDof_P->BasisFunction[i].Value,
-	   QuantityStorageDof_P->BasisFunction[i].TimeFunctionIndex) ;
+	Dof_UpdateAssignFixedDof
+	  (QuantityStorageDof_P->BasisFunction[i].Dof, Current.NbrHar,
+	   QuantityStorageDof_P->BasisFunction[i].Value) ;
 	break;
+	/*
       case INIT:
 	Dof_DefineInitFixedDof
 	  (QuantityStorageDof_P->BasisFunction[i].CodeBasisFunction,

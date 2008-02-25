@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.50 2007-10-09 11:06:25 dular Exp $"
+#define RCSID "$Id: DofData.c,v 1.51 2008-02-25 15:37:51 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1124,6 +1124,23 @@ struct Dof  * Dof_GetDofStruct(struct DofData * DofData_P, int D1, int D2, int D
   Dof.NumType = D1 ;  Dof.Entity = D2 ;  Dof.Harmonic = D3 ;
 
   GetDP_Return((struct Dof *)List_PQuery(DofData_P->DofList, &Dof, fcmp_Dof)) ;
+}
+
+
+/* ------------------------------------------------------------------------ */
+/*  D o f _ U p d a t e A s s i g n F i x e d D o f                         */
+/* ------------------------------------------------------------------------ */
+
+void  Dof_UpdateAssignFixedDof(struct Dof *Dof_P, int NbrHar, double *Val) {
+  int         k ;
+
+  GetDP_Begin("Dof_UpdateAssignedFixedDof");
+
+  for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
+    LinAlg_SetScalar(&Dof_P->Val, &Val[k]) ;
+  }
+
+  GetDP_End ;
 }
 
 
