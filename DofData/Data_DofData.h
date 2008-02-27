@@ -95,6 +95,11 @@ struct Dof {
 #define DOF_FIXED_SOLVE               4  /* waiting to be fixed by a resolution */
 #define DOF_FIXEDWITHASSOCIATE_SOLVE  6  /* waiting to be fixed by a resolution */
 
+struct CorrectionSolutions {
+  List_T * Solutions ;
+} ;
+
+
 struct DofData {
   int       Num ;
 
@@ -117,6 +122,13 @@ struct DofData {
   List_T  * Solutions ;
   struct Solution  * CurrentSolution ;
   struct Solution  * Save_CurrentSolution ;
+
+  struct {
+    int       Flag ;
+    List_T  * Save_FullSolutions ;
+    struct Solution  * Save_CurrentFullSolution ;
+    List_T  * AllSolutions ;
+  } CorrectionSolutions ;
 
   int       Flag_Init[4] ;
   int       Flag_Only ;

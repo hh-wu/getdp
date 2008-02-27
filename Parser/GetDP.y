@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.112 2008-02-25 15:37:52 dular Exp $ */
+/* $Id: GetDP.y,v 1.113 2008-02-27 17:51:29 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -274,7 +274,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %token      tSetTime tDTime tSetFrequency tFourierTransform tFourierTransformJ
 %token      tLanczos tEigenSolve tEigenSolveJac tPerturbation 
 %token      tUpdate tUpdateConstraint tBreak 
-%token      tEvaluate
+%token      tEvaluate tSelectCorrection tAddCorrection
 
 %token      tTimeLoopTheta
 %token      tTime0 tTimeMax tTheta
@@ -4169,6 +4169,7 @@ OperationTerm :
   | tIf '[' Expression ']' '{' Operation '}' tElse '{' Operation '}' 
     { 
       List_Pop(Operation_L) ;
+      List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_TEST ;
@@ -4411,6 +4412,29 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
       Operation_P->Type = OPERATION_EVALUATE;
       Operation_P->Case.Evaluate.ExpressionIndex = (int)$3 ;
+    }
+
+  | tSelectCorrection '[' String__Index ',' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_SELECTCORRECTION;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.SelectCorrection.Iteration = (int)$5 ;
+    }
+
+  | tAddCorrection '[' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_ADDCORRECTION;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
     }
 
   | tPerturbation '[' String__Index ',' String__Index ',' String__Index ','

@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.87 2008-02-25 15:37:51 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.88 2008-02-27 17:51:28 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -547,6 +547,90 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       GF_FMMTranslationValueAdaptive();
       /* GF_FMMTranslationValue(); */
       break;
+
+      /*  -->  S e l e c t C o r r e c t i o n        */
+      /*  ------------------------------------------  */
+
+    case OPERATION_SELECTCORRECTION :
+      Init_OperationOnSystem("SelectCorrection",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      if (!Operation_P->Case.SelectCorrection.Iteration) {
+	/* Full solution to be considered again */
+	Msg(OPERATION, "  Full solution to be considered again");
+	if (DofData_P->CorrectionSolutions.Flag) {
+	  DofData_P->CorrectionSolutions.Flag = 0;
+	  DofData_P->Solutions = DofData_P->CorrectionSolutions.Save_FullSolutions ;
+	  DofData_P->CurrentSolution
+	    = DofData_P->CorrectionSolutions.Save_CurrentFullSolution ;
+	}
+
+      }
+      else {
+	/* Last correction to be considered */
+	if (!DofData_P->CorrectionSolutions.Flag) {
+	  DofData_P->CorrectionSolutions.Flag = 1;
+	  DofData_P->CorrectionSolutions.Save_FullSolutions = DofData_P->Solutions ;
+	  DofData_P->CorrectionSolutions.Save_CurrentFullSolution
+	    = DofData_P->CurrentSolution ;
+
+	  /* last correction solutions */
+	  if ((i = List_Nbr(DofData_P->CorrectionSolutions.AllSolutions)-1) >= 0) {
+	    List_Read(DofData_P->CorrectionSolutions.AllSolutions, i, 
+		      &DofData_P->Solutions);
+	  }
+	  else {
+	    DofData_P->CorrectionSolutions.AllSolutions =
+	      List_Create(10, 10, sizeof(List_T*));
+	    DofData_P->Solutions = List_Create(20, 20, sizeof(struct Solution)) ;
+	    List_Add(DofData_P->CorrectionSolutions.AllSolutions, &DofData_P->Solutions);
+	  }
+
+	  /* last time step correction */
+	  if ((i = List_Nbr(DofData_P->Solutions)-1) >= 0) {
+	    DofData_P->CurrentSolution = (struct Solution*)
+	      List_Pointer(DofData_P->Solutions, i) ;
+	  }
+	  else {
+	    DofData_P->CurrentSolution = NULL;
+	    /* CurrentSolution will be defined later */
+	  }
+	}
+	else {
+	  Msg(GERROR, "DofData #%d already selected as a correction", DofData_P->Num);
+	}
+      }
+
+      break ;
+
+      /*  -->  A d d C o r r e c t i o n              */
+      /*  ------------------------------------------  */
+
+    case OPERATION_ADDCORRECTION :
+      Init_OperationOnSystem("AddCorrection",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+
+      if (DofData_P->CorrectionSolutions.Flag) {
+
+	Cal_SolutionError
+	  (&DofData_P->CurrentSolution->x,
+	   &DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x, 
+	   0, &MeanError) ;
+	Msg(BIGINFO, "Mean error: %.3e", MeanError) ;
+
+	LinAlg_AddVectorVector
+	  (&DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x,
+	   &DofData_P->CurrentSolution->x, 
+	   &DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x) ;
+
+
+      }
+      else {
+	  Msg(GERROR, "DofData #%d is not selected as a correction", DofData_P->Num);
+      }
+
+      break ;
 
       /*  -->  S o l v e                              */
       /*  ------------------------------------------  */

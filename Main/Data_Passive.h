@@ -797,6 +797,9 @@ struct Operation {
       int     ExpressionIndex ; 
     } Evaluate ;
     struct {
+      int     Iteration ;
+    } SelectCorrection ;
+    struct {
       int     Size ; 
       List_T  * Save ;
       double  Shift ;
@@ -923,6 +926,8 @@ struct ChangeOfState {
 #define OPERATION_EIGENSOLVE               16
 #define OPERATION_EIGENSOLVEJAC            17
 #define OPERATION_EVALUATE                 18
+#define OPERATION_SELECTCORRECTION         80
+#define OPERATION_ADDCORRECTION            81
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11
