@@ -1,4 +1,4 @@
-#define RCSID "$Id: DofData.c,v 1.52 2008-02-27 17:51:28 dular Exp $"
+#define RCSID "$Id: DofData.c,v 1.53 2008-02-28 21:15:29 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -93,6 +93,7 @@ void  Dof_InitDofData(struct DofData * DofData_P, int Num,
   DofData_P->CurrentSolution = NULL ;
 
   DofData_P->CorrectionSolutions.Flag = 0;
+  DofData_P->CorrectionSolutions.AllSolutions = NULL;
 
   DofData_P->DummyDof = NULL ;
 
