@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.89 2008-02-28 12:23:52 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.90 2008-02-28 12:31:22 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -619,6 +619,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	   0, &MeanError) ;
 	Msg(BIGINFO, "Mean error: %.3e  (after %d iteration%s)", 
 	    MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
+
+	Current.RelativeDifference += MeanError ;
 
 	LinAlg_AddVectorVector
 	  (&DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x,
