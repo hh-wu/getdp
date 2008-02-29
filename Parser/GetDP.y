@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.113 2008-02-27 17:51:29 dular Exp $ */
+/* $Id: GetDP.y,v 1.114 2008-02-29 08:29:36 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -4435,6 +4435,19 @@ OperationTerm :
 	vyyerror("Unknown System: %s", $3) ;
       Free($3) ;
       Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.AddCorrection.Alpha = 1. ;
+    }
+
+  | tAddCorrection '[' String__Index ',' FExpr ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1) ;
+      Operation_P->Type = OPERATION_ADDCORRECTION;
+      if ((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3) ;
+      Free($3) ;
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.AddCorrection.Alpha = $5 ;
     }
 
   | tPerturbation '[' String__Index ',' String__Index ',' String__Index ','

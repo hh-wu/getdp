@@ -800,6 +800,9 @@ struct Operation {
       int     Iteration ;
     } SelectCorrection ;
     struct {
+      double  Alpha ;
+    } AddCorrection ;
+    struct {
       int     Size ; 
       List_T  * Save ;
       double  Shift ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.90 2008-02-28 12:31:22 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.91 2008-02-29 08:29:35 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -564,6 +564,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  DofData_P->CurrentSolution
 	    = DofData_P->CorrectionSolutions.Save_CurrentFullSolution ;
 	}
+	else {
+	  Msg(GERROR, "DofData #%d already selected as a full solution", DofData_P->Num);
+	}
 
       }
       else {
@@ -620,7 +623,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Msg(BIGINFO, "Mean error: %.3e  (after %d iteration%s)", 
 	    MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
 
-	Current.RelativeDifference += MeanError ;
+	Current.RelativeDifference += 
+	  MeanError * Operation_P->Case.AddCorrection.Alpha ;
 
 	LinAlg_AddVectorVector
 	  (&DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x,
