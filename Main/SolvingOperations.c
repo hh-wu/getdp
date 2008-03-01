@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.91 2008-02-29 08:29:35 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.92 2008-03-01 14:24:20 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -287,6 +287,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   int     Flag_Jac, Flag_CPU, Flag_Binary = 0, Flag_FMMDA = 0, Flag_SolveAgain = 0 ;
   int     Save_TypeTime ;
   double  Save_Time, Save_TimeImag, Save_DTime, Save_TimeStep ;
+  double  Save_Iteration ;
   double  MeanError, RelFactor_Modified ;
   char    *str;
   char    ResName[MAX_FILE_NAME_LENGTH], ResNum[MAX_STRING_LENGTH] ;
@@ -1669,6 +1670,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_ITERATIVELOOP :
       Msg(OPERATION, "IterativeLoop ...") ;
 
+      Save_Iteration = Current.Iteration ;
+
       for (Num_Iteration = 1 ;
 	   Num_Iteration <= Operation_P->Case.IterativeLoop.NbrMaxIteration ;
 	   Num_Iteration++) {
@@ -1696,6 +1699,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
       Msg(BIGINFO, "Mean Error = %.3e after %d Iterations",
 	  Current.RelativeDifference, Num_Iteration) ;
+
+      Current.Iteration = Save_Iteration ;
+
       break ;
 
       /*  -->  I t e r a t i v e T i m e R e d u c t i o n  */
