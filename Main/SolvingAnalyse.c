@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingAnalyse.c,v 1.34 2006-02-28 12:16:29 geuzaine Exp $"
+#define RCSID "$Id: SolvingAnalyse.c,v 1.35 2008-03-01 14:32:46 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -142,6 +142,7 @@ void  SolvingAnalyse (void) {
 
       Current.TypeTime = TIME_STATIC  ; 
       Current.Time = 0. ; Current.TimeImag = 0. ; Current.TimeStep = 0. ;
+      Current.Iteration = 0 ;
       Current.RelativeDifference = 0. ; Current.RelaxationFactor = 1. ;
 
       TreatmentStatus = _CAL ;
