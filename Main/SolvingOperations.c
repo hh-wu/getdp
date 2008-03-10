@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.92 2008-03-01 14:24:20 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.93 2008-03-10 10:46:18 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -616,6 +616,26 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if (DofData_P->CorrectionSolutions.Flag) {
+
+	if (DofData_P->CorrectionSolutions.Save_CurrentFullSolution->TimeStep
+	    !=
+	    DofData_P->CurrentSolution->TimeStep) {
+
+	  Solution_S.TimeStep = (int)Current.TimeStep ;
+	  Solution_S.Time = Current.Time ;
+	  Solution_S.TimeImag = Current.TimeImag ;
+	  Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
+	  Solution_S.SolutionExist = 1 ;
+	  LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
+			      DofData_P->NbrPart, DofData_P->Part) ;
+	  LinAlg_ZeroVector(&Solution_S.x) ;
+
+	  List_Add(DofData_P->CorrectionSolutions.Save_FullSolutions, &Solution_S) ;
+	  DofData_P->CorrectionSolutions.Save_CurrentFullSolution =
+	    (struct Solution*)
+	    List_Pointer(DofData_P->CorrectionSolutions.Save_FullSolutions,
+			 List_Nbr(DofData_P->CorrectionSolutions.Save_FullSolutions)-1) ;
+	}
 
 	Cal_SolutionError
 	  (&DofData_P->CurrentSolution->x,
