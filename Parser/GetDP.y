@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.114 2008-02-29 08:29:36 dular Exp $ */
+/* $Id: GetDP.y,v 1.115 2008-03-12 16:09:21 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -4155,7 +4155,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_BREAK ;
     }
 
-  | tIf '[' Expression ']' '{' Operation '}' 
+  | tIf '[' Expression ']' '{' Operation '}'
     { 
       List_Pop(Operation_L) ;
       Operation_P = (struct Operation*)
@@ -4166,7 +4166,7 @@ OperationTerm :
       Operation_P->Case.Test.Operation_False = NULL ;
     }
 
-  | tIf '[' Expression ']' '{' Operation '}' tElse '{' Operation '}' 
+  | tIf '[' Expression ']' '{' Operation '}' tElse '{' Operation '}'
     { 
       List_Pop(Operation_L) ;
       List_Pop(Operation_L) ;
