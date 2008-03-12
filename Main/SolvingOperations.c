@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.93 2008-03-10 10:46:18 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.94 2008-03-12 16:08:07 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -566,7 +566,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	    = DofData_P->CorrectionSolutions.Save_CurrentFullSolution ;
 	}
 	else {
-	  Msg(GERROR, "DofData #%d already selected as a full solution", DofData_P->Num);
+	  Msg(GERROR, "SelectCorrection: DofData #%d already selected as a full solution",
+	      DofData_P->Num);
 	}
 
       }
@@ -601,7 +602,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  }
 	}
 	else {
-	  Msg(GERROR, "DofData #%d already selected as a correction", DofData_P->Num);
+	  Msg(GERROR, "SelectCorrection: DofData #%d already selected as a correction",
+	      DofData_P->Num);
 	}
       }
 
@@ -655,7 +657,51 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       }
       else {
-	  Msg(GERROR, "DofData #%d is not selected as a correction", DofData_P->Num);
+	  Msg(GERROR, "AddCorrection: DofData #%d is not selected as a correction",
+	      DofData_P->Num);
+      }
+
+      break ;
+
+      /*  -->  I n i t C o r r e c t i o n            */
+      /*  ------------------------------------------  */
+
+    case OPERATION_INITCORRECTION :
+      Init_OperationOnSystem("InitCorrection",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+
+      if (DofData_P->CorrectionSolutions.Flag) {
+
+	Solution_S.TimeStep = (int)Current.TimeStep ;
+	Solution_S.Time = Current.Time ;
+	Solution_S.TimeImag = Current.TimeImag ;
+	Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
+	Solution_S.SolutionExist = 1 ;
+	LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
+			    DofData_P->NbrPart, DofData_P->Part) ;
+
+	/* The last full solution, if any, initializes the current correction */
+	if (List_Nbr(DofData_P->CorrectionSolutions.Save_FullSolutions)) {
+	  LinAlg_CopyVector
+	    (&((struct Solution *)
+	       List_Pointer
+	       (DofData_P->CorrectionSolutions.Save_FullSolutions,
+		List_Nbr(DofData_P->CorrectionSolutions.Save_FullSolutions)-1))->x,
+	     &Solution_S.x) ;
+	}
+	else {
+	  LinAlg_ZeroVector(&Solution_S.x) ;
+	}
+
+	List_Add(DofData_P->Solutions, &Solution_S) ;
+	DofData_P->CurrentSolution =
+	  (struct Solution*)
+	  List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
+      }
+      else {
+	  Msg(GERROR, "InitCorrection: DofData #%d is not selected as a correction",
+	      DofData_P->Num);
       }
 
       break ;

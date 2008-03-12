@@ -931,6 +931,7 @@ struct ChangeOfState {
 #define OPERATION_EVALUATE                 18
 #define OPERATION_SELECTCORRECTION         80
 #define OPERATION_ADDCORRECTION            81
+#define OPERATION_INITCORRECTION           82
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11
