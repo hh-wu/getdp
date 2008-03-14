@@ -803,6 +803,9 @@ struct Operation {
       double  Alpha ;
     } AddCorrection ;
     struct {
+      double  Alpha ;
+    } MultiplySolution ;
+    struct {
       int     Size ; 
       List_T  * Save ;
       double  Shift ;
@@ -932,6 +935,8 @@ struct ChangeOfState {
 #define OPERATION_SELECTCORRECTION         80
 #define OPERATION_ADDCORRECTION            81
 #define OPERATION_INITCORRECTION           82
+#define OPERATION_MULTIPLYSOLUTION         83
+#define OPERATION_ADDOPPOSITEFULLSOLUTION  84
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11

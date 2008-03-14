@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.50 2008-02-27 17:51:28 dular Exp $ */
+/* $Id: GetDP.l,v 1.51 2008-03-14 09:51:27 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -260,6 +260,8 @@ EigenSolveJac                return tEigenSolveJac ;
 Evaluate                     return tEvaluate ;
 SelectCorrection             return tSelectCorrection ;
 AddCorrection                return tAddCorrection ;
+MultiplySolution             return tMultiplySolution ;
+AddOppositeFullSolution      return tAddOppositeFullSolution ;
 Test                         return tIf ;
 TimeLoopTheta                return tTimeLoopTheta ;
 TimeLoopNewmark              return tTimeLoopNewmark ;

@@ -1,4 +1,4 @@
-#define RCSID "$Id: SolvingOperations.c,v 1.94 2008-03-12 16:08:07 dular Exp $"
+#define RCSID "$Id: SolvingOperations.c,v 1.95 2008-03-14 09:51:26 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -704,6 +704,32 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      DofData_P->Num);
       }
 
+      break ;
+
+      /*  -->  M u l t i p l y S o l u t i o n        */
+      /*  ------------------------------------------  */
+
+    case OPERATION_MULTIPLYSOLUTION :
+      Init_OperationOnSystem("MultiplySolution",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+
+      LinAlg_ProdVectorDouble(&DofData_P->CurrentSolution->x,
+			      Operation_P->Case.MultiplySolution.Alpha,
+			      &DofData_P->CurrentSolution->x) ;
+      break ;
+
+      /*  -->  A d d O p p o s i t e F u l l S o l u t i o n  */
+      /*  --------------------------------------------------  */
+
+    case OPERATION_ADDOPPOSITEFULLSOLUTION :
+      Init_OperationOnSystem("AddOppositeFullSolution",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      LinAlg_AddVectorProdVectorDouble
+	(&DofData_P->CurrentSolution->x,
+	 &DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x, -1.,
+	 &DofData_P->CurrentSolution->x) ;
       break ;
 
       /*  -->  S o l v e                              */
@@ -3294,6 +3320,9 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
     }
 
   }
+
+  Current.GeoData->Grid.Init=0;
+  Init_SearchGrid(&Current.GeoData->Grid);
 
   GetDP_End ;
 }
