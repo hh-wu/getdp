@@ -657,6 +657,8 @@ struct WholeQuantity {
     struct { int  TypeOperator ; void  (*Function)() ; }          Operator ; /* binary or unary */
     struct { List_T *WholeQuantity ; 
              int FunctionSpaceIndexForType, NbrHar ; }            Cast ;
+    struct { List_T *WholeQuantity ;
+             int ExpressionIndex ; }                              ChangeCurrentPosition ;
     struct { List_T *WholeQuantity ; 
              int InIndex, DofIndexInWholeQuantity ; }             Trace ;
     struct { char * SystemName ; int DefineSystemIndex ; 
@@ -695,6 +697,7 @@ struct WholeQuantity {
 #define WQ_MHJACNL                 212
 #define WQ_POSTSAVE                214
 #define WQ_ATANTERIORTIMESTEP      22
+#define WQ_CHANGECURRENTPOSITION   30
 
 /* TypeOperator */
 #define OP_PLUS           1

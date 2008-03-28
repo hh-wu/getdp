@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.49 2007-11-15 09:00:51 sabarieg Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.50 2008-03-28 14:56:43 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -172,10 +172,13 @@ void Cal_WholeQuantity(struct Element * Element,
   int     i_WQ, j, k, Flag_True, Index, DofIndex, Multi[MAX_STACK_SIZE] ;
   int     Save_NbrHar, Save_Region, Type_Dimension, ntime ;
   double  Save_Time, Save_TimeImag, Save_TimeStep, X, Y, Z, Order ;
+  double  Save_x, Save_y, Save_z ;
 
   struct WholeQuantity   *WholeQuantity_P0, *WholeQuantity_P ;
   struct DofData         *Save_DofData ;
   struct Solution        *Solution_P0, *Solution_PN ;
+
+  struct Value  ValueTmp ;
 
 #define USE_GLOBAL_STACK
 
@@ -700,6 +703,26 @@ void Cal_WholeQuantity(struct Element * Element,
       
       Current.NbrHar = Save_NbrHar ;
       Current.DofData = Save_DofData ;
+      Multi[Index] = 0 ;
+      Index++ ;
+      break ;
+
+    case WQ_CHANGECURRENTPOSITION : 
+      Save_x = Current.x ; Save_y = Current.y ; Save_z = Current.z ;
+
+      Get_ValueOfExpressionByIndex
+	(WholeQuantity_P->Case.ChangeCurrentPosition.ExpressionIndex,
+	 NULL, 0., 0., 0., &ValueTmp) ;
+
+      Current.x = ValueTmp.Val[0] ;
+      Current.y = ValueTmp.Val[1] ;
+      Current.z = ValueTmp.Val[2] ;
+
+      Cal_WholeQuantity(Element, QuantityStorage_P0,
+			WholeQuantity_P->Case.ChangeCurrentPosition.WholeQuantity,
+			u, v, w, -1, 0, &Stack[0][Index]) ;
+      
+      Current.x = Save_x ; Current.y = Save_y ; Current.z = Save_z ;
       Multi[Index] = 0 ;
       Index++ ;
       break ;

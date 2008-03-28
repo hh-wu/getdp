@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.51 2008-03-14 09:51:27 dular Exp $ */
+/* $Id: GetDP.l,v 1.52 2008-03-28 14:56:43 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -158,6 +158,7 @@ Trace                        return tTrace ;
 DofValue                     return tDofValue ;
 LinSpace                     return tLinSpace ;
 LogSpace                     return tLogSpace ;
+ChangeCurrentPosition        return tChangeCurrentPosition ;
 
 MHTransform                  return tMHTransform;
 MHJacNL                      return tMHJacNL;

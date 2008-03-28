@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.116 2008-03-14 09:51:28 dular Exp $ */
+/* $Id: GetDP.y,v 1.117 2008-03-28 14:56:44 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -221,6 +221,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %token  tFlag tHelp tCpu tCheck
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
+%token  tChangeCurrentPosition
 %token  tDefineConstant  tPi  t0D  t1D  t2D  t3D 
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil
@@ -1507,6 +1508,16 @@ WholeQuantity_Single :
 	    ->FunctionSpaceIndex ;
       }
       Free($2) ;
+
+      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
+		&Current_WholeQuantity_L) ;
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+    }
+
+  | '<' tChangeCurrentPosition '[' Expression ']' '>' '[' WholeQuantityExpression ']'
+    { WholeQuantity_S.Type = WQ_CHANGECURRENTPOSITION ;
+      WholeQuantity_S.Case.ChangeCurrentPosition.WholeQuantity = $8 ;
+      WholeQuantity_S.Case.ChangeCurrentPosition.ExpressionIndex = $4 ;
 
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
 		&Current_WholeQuantity_L) ;
