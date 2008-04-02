@@ -657,8 +657,7 @@ struct WholeQuantity {
     struct { int  TypeOperator ; void  (*Function)() ; }          Operator ; /* binary or unary */
     struct { List_T *WholeQuantity ; 
              int FunctionSpaceIndexForType, NbrHar ; }            Cast ;
-    struct { List_T *WholeQuantity ;
-             int ExpressionIndex ; }                              ChangeCurrentPosition ;
+    struct { List_T *WholeQuantity ; }                            ChangeCurrentPosition ;
     struct { List_T *WholeQuantity ; 
              int InIndex, DofIndexInWholeQuantity ; }             Trace ;
     struct { char * SystemName ; int DefineSystemIndex ; 

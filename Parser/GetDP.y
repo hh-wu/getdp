@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.117 2008-03-28 14:56:44 dular Exp $ */
+/* $Id: GetDP.y,v 1.118 2008-04-02 20:38:38 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1247,6 +1247,32 @@ WholeQuantity :
       WholeQuantity_S.Case.Operator.Function = (void (*)())Cal_NotValue ;
       List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ; }
 
+  | '<' tChangeCurrentPosition '[' WholeQuantity ']' '>' 
+    { WholeQuantity_S.Type = WQ_CHANGECURRENTPOSITION ;
+
+      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
+
+      WholeQuantity_P = (struct WholeQuantity*)
+	List_Pointer(Current_WholeQuantity_L, List_Nbr(Current_WholeQuantity_L)-1);
+      List_Add(ListOfPointer2_L, &WholeQuantity_P);
+
+      Current_WholeQuantity_L = List_Create( 5, 5, sizeof(struct WholeQuantity)) ;
+      List_Add(ListOfPointer_L, &Current_WholeQuantity_L) ;
+    }
+    '[' WholeQuantity ']'
+    {
+      WholeQuantity_P = 
+	*((struct WholeQuantity**)
+	  List_Pointer(ListOfPointer2_L, List_Nbr(ListOfPointer2_L)-1)) ;
+      List_Pop(ListOfPointer2_L) ;
+
+      WholeQuantity_P->Case.ChangeCurrentPosition.WholeQuantity =
+	*((List_T **)List_Pointer(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1)) ;
+      List_Pop(ListOfPointer_L) ;
+
+      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
+		&Current_WholeQuantity_L) ;
+    }
   ;
 
 
@@ -1508,16 +1534,6 @@ WholeQuantity_Single :
 	    ->FunctionSpaceIndex ;
       }
       Free($2) ;
-
-      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
-		&Current_WholeQuantity_L) ;
-      List_Add(Current_WholeQuantity_L, &WholeQuantity_S) ;
-    }
-
-  | '<' tChangeCurrentPosition '[' Expression ']' '>' '[' WholeQuantityExpression ']'
-    { WholeQuantity_S.Type = WQ_CHANGECURRENTPOSITION ;
-      WholeQuantity_S.Case.ChangeCurrentPosition.WholeQuantity = $8 ;
-      WholeQuantity_S.Case.ChangeCurrentPosition.ExpressionIndex = $4 ;
 
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
 		&Current_WholeQuantity_L) ;
