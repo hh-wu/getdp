@@ -21,7 +21,7 @@ getdp-update:
 	cd ${GETDP} && ./configure\
           --enable-petsc\
           --with-petsc-prefix=${HOME}/src/petsc-2.3.3-p1\
-          --with-petsc-arch=cygwin-cxx-opt\
+          --with-petsc-arch=umfpack-cxx-opt\
           --with-gsl-prefix=/usr/local >> ${LOG} 2>&1
 	cd ${GETDP} && make clean >> ${LOG} 2>&1
 
