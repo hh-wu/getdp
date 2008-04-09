@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.79 2008-04-09 09:01:24 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.80 2008-04-09 21:55:47 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1410,8 +1410,120 @@ void LinAlg_FMMMatVectorProd(gVector *V1, gVector *V2){
 
 /* Solve */
 
+#if defined(HAVE_ZITSOL)
+
+extern "C" {
+int getdp_zitsol(int n, int nnz, int *row, int *col, double *valr, double *vali, 
+		 double *rhsr, double *rhsi, double *solr, double *soli,
+		 int precond, int lfil, double tol0, double tol, int im, int maxits);
+}
+
+static void _zitsol(gMatrix *A, gVector *B, gVector *X)
+{
+  MatInfo info;
+  PetscInt ncols;
+  PetscScalar *b, *x, d;
+  const PetscInt *cols;
+  const PetscScalar *vals;
+  int i, j, k, n, nnz, *row, *col;
+  double *valr, *vali, *rhsr, *rhsi, *solr, *soli;
+
+  int precond = 1, lfil = 30, im = 100, maxits = 200;
+  double tol0 = 0.01, tol = 1e-10;
+
+  ierr = MatGetInfo(A->M, MAT_LOCAL, &info);
+  n = info.rows_local;
+  nnz = info.nz_used;
+
+  row = (int*)Malloc(nnz * sizeof(int));
+  col = (int*)Malloc(nnz * sizeof(int));
+  valr = (double*)Malloc(nnz * sizeof(double));
+  vali = (double*)Malloc(nnz * sizeof(double));
+  rhsr = (double*)Malloc(n * sizeof(double));
+  rhsi = (double*)Malloc(n * sizeof(double));
+  solr = (double*)Malloc(n * sizeof(double));
+  soli = (double*)Malloc(n * sizeof(double));
+
+  k = 0;
+  for(i = 0; i < n; i++){
+    ierr = MatGetRow(A->M, i, &ncols, &cols, &vals);
+    for(j = 0; j < ncols; j++){
+      if(k >= nnz){
+	Msg(GERROR, "something wrong in nnz: %d >= %d", k, nnz);
+	return;
+      }
+      row[k] = i;
+      col[k] = cols[j];
+      Msg(DEBUG, "A[%d][%d] = ", row[k], col[k]);
+#if PETSC_USE_COMPLEX
+      valr[k] = real(vals[j]);
+      vali[k] = imag(vals[j]);
+      Msg(DEBUG, "%g+i*%g\n", valr[k], vali[k]);
+#else
+      valr[k] = vals[j];
+      vali[k] = 0.;
+      Msg(DEBUG, "%g\n", valr[k]);
+#endif
+      k++;
+    }
+    ierr = MatRestoreRow(A->M, i, &ncols, &cols, &vals);
+  }
+
+  Msg(INFO, "n = %d, nnz = %d (check k = %d)", n, nnz, k);
+
+  ierr = VecGetArray(B->V, &b); MYCHECK(ierr);
+  ierr = VecGetArray(X->V, &x); MYCHECK(ierr);
+  for(i = 0; i < n; i++){
+#if PETSC_USE_COMPLEX
+    rhsr[i] = real(b[i]);
+    rhsi[i] = imag(b[i]);
+    solr[i] = real(x[i]);
+    soli[i] = imag(x[i]);
+#else
+    rhsr[i] = b[i];
+    rhsi[i] = 0.;
+    solr[i] = x[i];
+    soli[i] = 0.;
+#endif
+  }
+  ierr = VecRestoreArray(B->V, &b); MYCHECK(ierr);
+  ierr = VecRestoreArray(X->V, &x); MYCHECK(ierr);
+  
+  if(getdp_zitsol(n, nnz, row, col, valr, vali, rhsr, rhsi, solr, soli,
+		  precond, lfil, tol0, tol, im, maxits) > maxits){
+    Msg(GERROR, "Did not converge in %d iterations", maxits);
+  }
+
+  for(i = 0; i < n; i++){
+#if PETSC_USE_COMPLEX
+    d = solr[i] + PETSC_i * soli[i];
+#else
+    d = solr[i];
+#endif
+    ierr = VecSetValues(X->V, 1, &i, &d, INSERT_VALUES); MYCHECK(ierr);
+  }
+  
+  Free(row);
+  Free(col);
+  Free(valr);
+  Free(vali);
+  Free(rhsr);
+  Free(rhsi);
+  Free(solr);
+  Free(soli);
+}
+
+#endif
+
 static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int precond){
   int its, RankCpu, i, j, view = 0;
+
+#if defined(HAVE_ZITSOL)
+  /* testing Yousef's new preconditioners and solvers */
+  PetscTruth zitsol = PETSC_FALSE;
+  PetscOptionsGetTruth(PETSC_NULL, "-zitsol", &zitsol, 0);
+  if(zitsol){ _zitsol(A, B, X); return; }
+#endif
 
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
@@ -1477,39 +1589,8 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
 
 }
 
-static void _itsolve(gMatrix *A, gVector *B, gVector *X){
-  /* transfer matrix in coo format */
-  int m, n;
-  ierr = MatGetSize(A->M, &m, &n); MYCHECK(ierr);
-  for(int i = 0; i < m; i++){
-    PetscInt          ncols;
-    const PetscInt    *cols;
-    const PetscScalar *vals;
-    ierr = MatGetRow(A->M, i, &ncols, &cols, &vals);
-    printf("row %d:\n", i);
-    for(int j = 0; j < ncols; j++){
-#if PETSC_USE_COMPLEX
-      printf("  col %d = %g+i*%g\n", cols[j], real(vals[j]), imag(vals[j]));
-#else
-      printf("  col %d = %g\n", cols[j], vals[j]);	     
-#endif
-    }
-    ierr = MatRestoreRow(A->M, i, &ncols, &cols, &vals);
-  }
-  /* call solver */
-}
-
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
-  PetscTruth itsolve = PETSC_FALSE;
-
   GetDP_Begin("LinAlg_Solve");
-
-  /* FIXME: test Yousef's new preconditioners and solvers */
-  PetscOptionsGetTruth(PETSC_NULL, "-itsolve", &itsolve, 0);
-  if(itsolve){
-    _itsolve(A, B, X);
-    return;
-  }
 
   _solve(A, B, Solver, X, 1);
 
