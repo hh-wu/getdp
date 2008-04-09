@@ -1,0 +1,4 @@
+#
+# this will launch a new build every night at 0h31
+#
+31 0 * * * cd ${HOME}/src/getdp/utils/nightly && make getdp-mac-nightly

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.188 2007-11-28 13:01:21 geuzaine Exp $
+# $Id: Makefile,v 1.189 2008-04-09 09:49:01 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -204,6 +204,12 @@ distrib-pre:
           Makefile.distrib > Makefile
 	make tag
 
+distrib-pre-cvs:
+	mv -f Makefile Makefile.distrib
+	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION = \"-cvs-${GETDP_DATE}\"/g"\
+          Makefile.distrib > Makefile
+	make tag
+
 distrib-post:
 	mv -f Makefile.distrib Makefile
 	rm -f ${GETDP_VERSION_FILE}
@@ -215,6 +221,12 @@ distrib-unix:
 	make distrib-post
 	ldd bin/getdp
 
+distrib-unix-nigtly:
+	make distrib-pre-cvs
+	make all
+	make package-unix
+	make distrib-post
+
 distrib-win: 
 	make distrib-pre
 	make all
@@ -222,12 +234,24 @@ distrib-win:
 	make distrib-post
 	objdump -p bin/getdp.exe | grep DLL
 
+distrib-win-nightly: 
+	make distrib-pre-cvs
+	make all
+	make package-win
+	make distrib-post
+
 distrib-mac:
 	make distrib-pre
 	make all
 	make package-mac
 	make distrib-post
 	otool -L bin/getdp
+
+distrib-mac-nightly:
+	make distrib-pre-cvs
+	make all
+	make package-mac
+	make distrib-post
 
 distrib-rpm:
 	make distrib-pre
@@ -239,14 +263,12 @@ distrib-source:
 	make source
 	make distrib-post
 
+distrib-source-nightly:
+	make distrib-pre-cvs
+	make source
+	make distrib-post
+
 distrib-source-commercial:
 	make distrib-pre
 	make source-commercial
-	make distrib-post
-
-distrib-source-nightly:
-	mv -f Makefile Makefile.distrib
-	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION = \"-cvs-${GETDP_DATE}\"/g"\
-          Makefile.distrib > Makefile
-	make source
 	make distrib-post
