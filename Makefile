@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.189 2008-04-09 09:49:01 geuzaine Exp $
+# $Id: Makefile,v 1.190 2008-04-09 11:45:45 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -37,6 +37,12 @@ all: link
 
 link: compile
 	${LINKER} -o bin/getdp ${GETDP_LIBS}
+
+link-mac-universal: compile
+	g++ -arch i386 ${OPTIM} -o bin/getdp_i386 ${GETDP_LIBS}
+	g++ -arch ppc ${OPTIM} -o bin/getdp_ppc ${GETDP_LIBS}
+	lipo -create bin/getdp_i386 bin/getdp_ppc -output bin/getdp
+	rm -f bin/getdp_i386 bin/getdp_ppc
 
 compile: variables initialtag
 	@for i in ${GETDP_DIRS}; do (cd $$i && ${MAKE}); done
