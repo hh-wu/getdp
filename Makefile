@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.190 2008-04-09 11:45:45 geuzaine Exp $
+# $Id: Makefile,v 1.191 2008-04-09 12:48:09 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -227,7 +227,7 @@ distrib-unix:
 	make distrib-post
 	ldd bin/getdp
 
-distrib-unix-nigtly:
+distrib-unix-nightly:
 	make distrib-pre-cvs
 	make all
 	make package-unix
