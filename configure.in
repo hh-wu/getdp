@@ -146,6 +146,15 @@ if test "x$enable_petsc" = "xyes"; then
       ;;
   esac
 
+  dnl Force specific options for native compilers
+  case "${UNAME}" in
+    CYGWIN* | MINGW*)
+      if test "x$enable_cygwin" != "xyes"; then
+        GETDP_LIBS="${GETDP_LIBS} -lwsock32"
+      fi
+      ;;
+  esac
+
 else
 
   GETDP_DIRS="${GETDP_DIRS} Sparskit"

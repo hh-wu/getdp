@@ -3489,6 +3489,14 @@ echo "$as_me: error: Could not determine PETSC_ARCH. Run configure again with --
       ;;
   esac
 
+    case "${UNAME}" in
+    CYGWIN* | MINGW*)
+      if test "x$enable_cygwin" != "xyes"; then
+        GETDP_LIBS="${GETDP_LIBS} -lwsock32"
+      fi
+      ;;
+  esac
+
 else
 
   GETDP_DIRS="${GETDP_DIRS} Sparskit"

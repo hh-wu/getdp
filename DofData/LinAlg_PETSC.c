@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.78 2007-10-04 12:11:20 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.79 2008-04-09 09:01:24 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -480,10 +480,14 @@ void LinAlg_PrintVector(FILE *file, gVector *V){
 } 
 
 void LinAlg_PrintMatrix(FILE *file, gMatrix *M){
+  PetscViewer fd;
 
   GetDP_Begin("LinAlg_PrintMatrix");
   
-  ierr = MatView(M->M,PETSC_VIEWER_STDOUT_WORLD); MYCHECK(ierr);
+  PetscViewerASCIIOpen(PETSC_COMM_WORLD, "matrix.m", &fd); MYCHECK(ierr);
+  ierr = PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB); MYCHECK(ierr);
+  ierr = MatView(M->M, fd); MYCHECK(ierr);
+  ierr = PetscViewerDestroy(fd); MYCHECK(ierr);
 
   GetDP_End;
 }
@@ -1473,8 +1477,39 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
 
 }
 
+static void _itsolve(gMatrix *A, gVector *B, gVector *X){
+  /* transfer matrix in coo format */
+  int m, n;
+  ierr = MatGetSize(A->M, &m, &n); MYCHECK(ierr);
+  for(int i = 0; i < m; i++){
+    PetscInt          ncols;
+    const PetscInt    *cols;
+    const PetscScalar *vals;
+    ierr = MatGetRow(A->M, i, &ncols, &cols, &vals);
+    printf("row %d:\n", i);
+    for(int j = 0; j < ncols; j++){
+#if PETSC_USE_COMPLEX
+      printf("  col %d = %g+i*%g\n", cols[j], real(vals[j]), imag(vals[j]));
+#else
+      printf("  col %d = %g\n", cols[j], vals[j]);	     
+#endif
+    }
+    ierr = MatRestoreRow(A->M, i, &ncols, &cols, &vals);
+  }
+  /* call solver */
+}
+
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){
+  PetscTruth itsolve = PETSC_FALSE;
+
   GetDP_Begin("LinAlg_Solve");
+
+  /* FIXME: test Yousef's new preconditioners and solvers */
+  PetscOptionsGetTruth(PETSC_NULL, "-itsolve", &itsolve, 0);
+  if(itsolve){
+    _itsolve(A, B, X);
+    return;
+  }
 
   _solve(A, B, Solver, X, 1);
 
