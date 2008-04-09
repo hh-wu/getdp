@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.118 2008-04-02 20:38:38 dular Exp $ */
+/* $Id: GetDP.y,v 1.119 2008-04-09 08:35:49 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -192,26 +192,26 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %token <d> tFLOAT
 %token <c> tSTRING tBIGSTR
 
-%type <i>  GroupRHS, GroupRHS_MultipleIndex, ReducedGroupRHS
-%type <i>  FunctionForGroup, SuppListTypeForGroup
-%type <i>  Expression, DefineDimension, MultipleIndex, Index
-%type <i>  ArgumentsForFunction, RecursiveListOfQuantity
+%type <i>  GroupRHS GroupRHS_MultipleIndex ReducedGroupRHS
+%type <i>  FunctionForGroup SuppListTypeForGroup
+%type <i>  Expression DefineDimension MultipleIndex Index
+%type <i>  ArgumentsForFunction RecursiveListOfQuantity
 %type <i>  PostQuantitySupport
-%type <i>  StrCmp, NbrRegions
-%type <d>  FExpr, OneFExpr
-%type <l>  MultiFExpr, ListOfFExpr, RecursiveListOfFExpr, ParametersForFunction
+%type <i>  StrCmp NbrRegions
+%type <d>  FExpr OneFExpr
+%type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr ParametersForFunction
 %type <l>  RecursiveListOfRegion
-%type <l>  ListOfRegion, ListOfRegionOrAll, SuppListOfRegion, IRegion
-%type <l>  ConstraintCases, IntegrationCases, QuadratureCases, JacobianCases
-%type <l>  BasisFunctions, SubSpaces, GlobalQuantities, ConstraintInFSs
-%type <l>  ListOfBasisFunction, RecursiveListOfBasisFunction
-%type <l>  ListOfBasisFunctionCoef, RecursiveListOfBasisFunctionCoef
-%type <l>  Equations, WholeQuantityExpression
-%type <l>  DefineSystems, Operation, ChangeOfStates
-%type <l>  ListOfFormulation, RecursiveListOfFormulation
-%type <l>  ListOfSystem, RecursiveListOfSystem
-%type <l>  PostQuantities, SubPostQuantities, PostSubOperations
-%type <c>  NameForFunction, CharExpr, StrCat, StringIndex, String__Index
+%type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion IRegion
+%type <l>  ConstraintCases IntegrationCases QuadratureCases JacobianCases
+%type <l>  BasisFunctions SubSpaces GlobalQuantities ConstraintInFSs
+%type <l>  ListOfBasisFunction RecursiveListOfBasisFunction
+%type <l>  ListOfBasisFunctionCoef RecursiveListOfBasisFunctionCoef
+%type <l>  Equations WholeQuantityExpression
+%type <l>  DefineSystems Operation ChangeOfStates
+%type <l>  ListOfFormulation RecursiveListOfFormulation
+%type <l>  ListOfSystem RecursiveListOfSystem
+%type <l>  PostQuantities SubPostQuantities PostSubOperations
+%type <c>  NameForFunction CharExpr StrCat StringIndex String__Index
 %type <t>  Quantity_Def
 
 /* ------------------------------------------------------------------ */
@@ -312,7 +312,7 @@ static char *LoopControlVariablesNameTab[MAX_RECUR_LOOPS];
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
 %token        tEvaluationPoints tStore tLastTimeStepOnly
-%token        tStr, tDate
+%token        tStr tDate
 
 /* ------------------------------------------------------------------ */
 /* Operators (with ascending priority): cf. C language                */
