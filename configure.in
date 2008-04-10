@@ -153,9 +153,12 @@ if test "x$enable_petsc" = "xyes"; then
 
   dnl check for zitsol
   if test "x$enable_zitsol" = "xyes"; then
-    OPTIONS="${OPTIONS} -DHAVE_ZITSOL"
-    GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
-    GETDP_LIBS="${GETDP_LIBS} -Lcontrib/ZITSOL_1 -lzitsol"
+    AC_CHECK_FILE(./contrib/ZITSOL_1/zarms2.c,ZITSOL="yes",ZITSOL="no")
+    if test "x${ZITSOL}" = "xyes"; then
+      OPTIONS="${OPTIONS} -DHAVE_ZITSOL"
+      GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
+      GETDP_LIBS="${GETDP_LIBS} -Lcontrib/ZITSOL_1 -lzitsol"
+    fi
   fi
 
   dnl Fix link when using gfortran as the fortran compiler

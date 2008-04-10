@@ -3503,9 +3503,34 @@ echo "$as_me: error: Could not determine PETSC_ARCH. Run configure again with --
   fi
 
     if test "x$enable_zitsol" = "xyes"; then
-    OPTIONS="${OPTIONS} -DHAVE_ZITSOL"
-    GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
-    GETDP_LIBS="${GETDP_LIBS} -Lcontrib/ZITSOL_1 -lzitsol"
+    { echo "$as_me:$LINENO: checking for ./contrib/ZITSOL_1/zarms2.c" >&5
+echo $ECHO_N "checking for ./contrib/ZITSOL_1/zarms2.c... $ECHO_C" >&6; }
+if test "${ac_cv_file___contrib_ZITSOL_1_zarms2_c+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "./contrib/ZITSOL_1/zarms2.c"; then
+  ac_cv_file___contrib_ZITSOL_1_zarms2_c=yes
+else
+  ac_cv_file___contrib_ZITSOL_1_zarms2_c=no
+fi
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_file___contrib_ZITSOL_1_zarms2_c" >&5
+echo "${ECHO_T}$ac_cv_file___contrib_ZITSOL_1_zarms2_c" >&6; }
+if test $ac_cv_file___contrib_ZITSOL_1_zarms2_c = yes; then
+  ZITSOL="yes"
+else
+  ZITSOL="no"
+fi
+
+    if test "x${ZITSOL}" = "xyes"; then
+      OPTIONS="${OPTIONS} -DHAVE_ZITSOL"
+      GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
+      GETDP_LIBS="${GETDP_LIBS} -Lcontrib/ZITSOL_1 -lzitsol"
+    fi
   fi
 
     case "${F77}" in
