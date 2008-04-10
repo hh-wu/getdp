@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.80 2008-04-09 21:55:47 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.81 2008-04-10 07:05:26 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1422,6 +1422,7 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 {
   MatInfo info;
   PetscInt ncols;
+  PetscTruth set;
   PetscScalar *b, *x, d;
   const PetscInt *cols;
   const PetscScalar *vals;
@@ -1430,6 +1431,11 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 
   int precond = 1, lfil = 30, im = 100, maxits = 200;
   double tol0 = 0.01, tol = 1e-10;
+
+  PetscOptionsGetReal(PETSC_NULL, "-tol", &tol0, &set);
+  PetscOptionsGetInt(PETSC_NULL, "-lfil", &lfil, &set);
+
+  Msg(INFO, "lfil = %d tol0 = %g", lfil, tol0);
 
   ierr = MatGetInfo(A->M, MAT_LOCAL, &info);
   n = info.rows_local;
@@ -1490,7 +1496,7 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
   ierr = VecRestoreArray(X->V, &x); MYCHECK(ierr);
   
   if(getdp_zitsol(n, nnz, row, col, valr, vali, rhsr, rhsi, solr, soli,
-		  precond, lfil, tol0, tol, im, maxits) > maxits){
+		  precond, lfil, tol0, tol, im, maxits) >= maxits){
     Msg(GERROR, "Did not converge in %d iterations", maxits);
   }
 
@@ -1520,8 +1526,8 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
 
 #if defined(HAVE_ZITSOL)
   /* testing Yousef's new preconditioners and solvers */
-  PetscTruth zitsol = PETSC_FALSE;
-  PetscOptionsGetTruth(PETSC_NULL, "-zitsol", &zitsol, 0);
+  PetscTruth zitsol = PETSC_FALSE, set;
+  PetscOptionsGetTruth(PETSC_NULL, "-zitsol", &zitsol, &set);
   if(zitsol){ _zitsol(A, B, X); return; }
 #endif
 
