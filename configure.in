@@ -57,6 +57,9 @@ AC_ARG_ENABLE(readline,
 AC_ARG_ENABLE(metis,
               AC_HELP_STRING([--enable-metis],
                              [use Metis for graph partitioning (default=no)]))
+AC_ARG_ENABLE(zitsol,
+              AC_HELP_STRING([--enable-zitsol],
+                             [enable support for ZITSOL (default=no)]))
 
 dnl Get the operating system and machine names
 UNAME=`uname`
@@ -131,8 +134,8 @@ if test "x$enable_petsc" = "xyes"; then
 
   if test "x$enable_arpack" != "xno"; then
     OPTIONS="${OPTIONS} -DHAVE_ARPACK"
-    GETDP_DIRS="${GETDP_DIRS} Arpack"
-    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -lArpack ${PETSC_KSP_LIB}'
+    GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
+    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -Lcontrib/Arpack -lArpack ${PETSC_KSP_LIB}'
   else
     GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_KSP_LIB}'
   fi
@@ -146,6 +149,13 @@ if test "x$enable_petsc" = "xyes"; then
   if grep PETSC_CLANGUAGE_CXX ${PETSC_DIR}/bmake/${PETSC_ARCH}/petscconf.h >/dev/null; then 
     echo "PETSc is configured with CXX as the C compiler"
     PETSC_REDEFINE_CC='CC=${CXX}'
+  fi
+
+  dnl check for zitsol
+  if test "x$enable_zitsol" = "xyes"; then
+    OPTIONS="${OPTIONS} -DHAVE_ZITSOL"
+    GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
+    GETDP_LIBS="${GETDP_LIBS} -Lcontrib/ZITSOL_1 -lzitsol"
   fi
 
   dnl Fix link when using gfortran as the fortran compiler
@@ -202,8 +212,8 @@ else
   dnl Check for Arpack, then link with blas and lapack if necessary
   if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
     OPTIONS="${OPTIONS} -DHAVE_ARPACK"
-    GETDP_DIRS="${GETDP_DIRS} Arpack"
-    GETDP_LIBS="${GETDP_LIBS} -lArpack"
+    GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
+    GETDP_LIBS="${GETDP_LIBS} -Lcontrib/Arpack -lArpack"
   fi
   if test "x${LAPACK}" = "xyes"; then
     GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"

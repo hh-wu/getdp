@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2006-02-25 15:00:23 geuzaine Exp $
+# $Id: Makefile,v 1.1 2008-04-10 20:35:02 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -19,9 +19,9 @@
 # 
 # Please report all bugs and problems to <getdp@geuz.org>.
 
-include ../variables
+include ../../variables
 
-LIB      = ../lib/libArpack.a
+LIB      = ../../lib/libArpack.a
 
 INCLUDE  = 
 FFLAGS = ${F77_FLAGS} ${INCLUDE}
