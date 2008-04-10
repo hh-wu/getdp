@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.25 2006-02-25 15:00:25 geuzaine Exp $
+# $Id: Makefile,v 1.26 2008-04-10 20:49:45 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -81,16 +81,12 @@ nodepend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-# 1 "/Users/geuzaine/.getdp/Sparskit//"
 Solver.o: Solver.c Solver.h ../DataStr/List.h Solver_F.h \
   ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h \
   ../FMM/F_FMMOperations.h
-# 1 "/Users/geuzaine/.getdp/Sparskit//"
 Matrix.o: Matrix.c Solver.h ../DataStr/List.h Solver_F.h \
   ../include/Compat.h ../Main/Message.h ../DataStr/Malloc.h
-# 1 "/Users/geuzaine/.getdp/Sparskit//"
 Parser.o: Parser.c Solver.h ../DataStr/List.h ../Main/Message.h \
   ../DataStr/Malloc.h
-# 1 "/Users/geuzaine/.getdp/Sparskit//"
 CSR.o: CSR.c Solver.h ../DataStr/List.h ../Main/Message.h \
   ../DataStr/Malloc.h

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.41 2008-04-10 20:43:47 geuzaine Exp $
+# $Id: Makefile,v 1.42 2008-04-10 20:49:44 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -118,7 +118,7 @@ SolvingOperations.o: SolvingOperations.c ../include/GetDP.h Message.h \
   Get_DofOfElement.h CurrentData.h ../include/Magic.h ExtendedGroup.h \
   MovingBand2D.h ../FMM/F_FMM.h Data_Element.h ../FMM/Data_FMM.h \
   ../FMM/F_FMMOperations.h ../FMM/F_FMM_DTA.h Data_Active.h \
-  ../Function/BF_Function.h
+  ../Function/BF_Function.h ../Post/Pos_Search.h
 Treatment_Formulation.o: Treatment_Formulation.c ../include/GetDP.h \
   Message.h ../DataStr/Malloc.h Treatment_Formulation.h Data_Active.h \
   Data_Passive.h ../DataStr/List.h Data_Element.h ../GeoData/GeoData.h \
