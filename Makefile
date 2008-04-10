@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.193 2008-04-10 20:39:05 geuzaine Exp $
+# $Id: Makefile,v 1.194 2008-04-10 20:43:46 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -136,8 +136,8 @@ source-common:
 
 source: source-common
 	cd getdp-${GETDP_VERSION} && rm -rf CVS */CVS */*/CVS */.globalrc\
-          ${GETDP_VERSION_FILE} NR utils/commercial utils/temp doc/slides\
-          contrib/ZITSOL_1
+          ${GETDP_VERSION_FILE} utils/commercial utils/temp doc/slides\
+          contrib/NR contrib/ZITSOL_1
 	tar zcvf getdp-${GETDP_VERSION}-source.tgz getdp-${GETDP_VERSION}
 
 source-commercial: source-common

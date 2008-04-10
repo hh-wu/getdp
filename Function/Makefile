@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.39 2007-04-21 14:45:17 geuzaine Exp $
+# $Id: Makefile,v 1.40 2008-04-10 20:43:46 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -23,7 +23,7 @@ include ../variables
 
 LIB     = ../lib/libFunction.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData -I../Main\
-          -I../Numeric -I../Sparskit -I../Integration -I../FMM -I../NR
+          -I../Numeric -I../Sparskit -I../Integration -I../FMM -I../contrib/NR
 
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 

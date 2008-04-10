@@ -135,7 +135,7 @@ if test "x$enable_petsc" = "xyes"; then
   if test "x$enable_arpack" != "xno"; then
     OPTIONS="${OPTIONS} -DHAVE_ARPACK"
     GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
-    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -Lcontrib/Arpack -lArpack ${PETSC_KSP_LIB}'
+    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -lArpack ${PETSC_KSP_LIB}'
   else
     GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_KSP_LIB}'
   fi
@@ -216,7 +216,7 @@ else
   if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
     OPTIONS="${OPTIONS} -DHAVE_ARPACK"
     GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
-    GETDP_LIBS="${GETDP_LIBS} -Lcontrib/Arpack -lArpack"
+    GETDP_LIBS="${GETDP_LIBS} -lArpack"
   fi
   if test "x${LAPACK}" = "xyes"; then
     GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
@@ -317,7 +317,7 @@ if test "x$enable_gsl" != "xno"; then
 fi
 if test "x${GSL}" != "xyes"; then
   dnl Check if non-free numerical recipes routines are in the tree
-  AC_CHECK_FILE(./NR/dsvdcmp.c,NR="yes",NR="no")
+  AC_CHECK_FILE(./contrib/NR/dsvdcmp.c,NR="yes",NR="no")
   if test "x${NR}" = "xyes"; then
     echo "********************************************************************"
     echo "You are building a non-free version of GetDP, using code copyright"
@@ -325,7 +325,7 @@ if test "x${GSL}" != "xyes"; then
     echo "To use the GSL instead, run configure again with the --enable-gsl"
     echo "option."
     echo "********************************************************************"
-    GETDP_DIRS="${GETDP_DIRS} NR"
+    GETDP_DIRS="${GETDP_DIRS} contrib/NR"
     GETDP_LIBS="${GETDP_LIBS} -lNR"
   else
     echo "********************************************************************"

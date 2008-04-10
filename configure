@@ -3488,7 +3488,7 @@ echo "$as_me: error: Could not determine PETSC_ARCH. Run configure again with --
   if test "x$enable_arpack" != "xno"; then
     OPTIONS="${OPTIONS} -DHAVE_ARPACK"
     GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
-    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -Lcontrib/Arpack -lArpack ${PETSC_KSP_LIB}'
+    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -lArpack ${PETSC_KSP_LIB}'
   else
     GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_KSP_LIB}'
   fi
@@ -3692,7 +3692,7 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
     if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
     OPTIONS="${OPTIONS} -DHAVE_ARPACK"
     GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
-    GETDP_LIBS="${GETDP_LIBS} -Lcontrib/Arpack -lArpack"
+    GETDP_LIBS="${GETDP_LIBS} -lArpack"
   fi
   if test "x${LAPACK}" = "xyes"; then
     GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
@@ -3906,24 +3906,24 @@ fi
   fi
 fi
 if test "x${GSL}" != "xyes"; then
-    { echo "$as_me:$LINENO: checking for ./NR/dsvdcmp.c" >&5
-echo $ECHO_N "checking for ./NR/dsvdcmp.c... $ECHO_C" >&6; }
-if test "${ac_cv_file___NR_dsvdcmp_c+set}" = set; then
+    { echo "$as_me:$LINENO: checking for ./contrib/NR/dsvdcmp.c" >&5
+echo $ECHO_N "checking for ./contrib/NR/dsvdcmp.c... $ECHO_C" >&6; }
+if test "${ac_cv_file___contrib_NR_dsvdcmp_c+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
 else
   test "$cross_compiling" = yes &&
   { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
 echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
    { (exit 1); exit 1; }; }
-if test -r "./NR/dsvdcmp.c"; then
-  ac_cv_file___NR_dsvdcmp_c=yes
+if test -r "./contrib/NR/dsvdcmp.c"; then
+  ac_cv_file___contrib_NR_dsvdcmp_c=yes
 else
-  ac_cv_file___NR_dsvdcmp_c=no
+  ac_cv_file___contrib_NR_dsvdcmp_c=no
 fi
 fi
-{ echo "$as_me:$LINENO: result: $ac_cv_file___NR_dsvdcmp_c" >&5
-echo "${ECHO_T}$ac_cv_file___NR_dsvdcmp_c" >&6; }
-if test $ac_cv_file___NR_dsvdcmp_c = yes; then
+{ echo "$as_me:$LINENO: result: $ac_cv_file___contrib_NR_dsvdcmp_c" >&5
+echo "${ECHO_T}$ac_cv_file___contrib_NR_dsvdcmp_c" >&6; }
+if test $ac_cv_file___contrib_NR_dsvdcmp_c = yes; then
   NR="yes"
 else
   NR="no"
@@ -3936,7 +3936,7 @@ fi
     echo "To use the GSL instead, run configure again with the --enable-gsl"
     echo "option."
     echo "********************************************************************"
-    GETDP_DIRS="${GETDP_DIRS} NR"
+    GETDP_DIRS="${GETDP_DIRS} contrib/NR"
     GETDP_LIBS="${GETDP_LIBS} -lNR"
   else
     echo "********************************************************************"
