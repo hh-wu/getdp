@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.81 2008-04-10 07:05:26 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.82 2008-04-10 08:11:05 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1432,10 +1432,11 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
   int precond = 1, lfil = 30, im = 100, maxits = 200;
   double tol0 = 0.01, tol = 1e-10;
 
-  PetscOptionsGetReal(PETSC_NULL, "-tol", &tol0, &set);
+  PetscOptionsGetInt(PETSC_NULL, "-precond", &precond, &set);
   PetscOptionsGetInt(PETSC_NULL, "-lfil", &lfil, &set);
+  PetscOptionsGetReal(PETSC_NULL, "-tol0", &tol0, &set);
 
-  Msg(INFO, "lfil = %d tol0 = %g", lfil, tol0);
+  Msg(INFO, "precond = %d lfil = %d tol0 = %g", precond, lfil, tol0);
 
   ierr = MatGetInfo(A->M, MAT_LOCAL, &info);
   n = info.rows_local;
