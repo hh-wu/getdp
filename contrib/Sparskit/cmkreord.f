@@ -1,4 +1,4 @@
-c $Id: cmkreord.f,v 1.2 2000-09-07 18:56:37 geuzaine Exp $
+c $Id: cmkreord.f,v 1.1 2008-04-11 06:01:06 geuzaine Exp $
 c-----------------------------------------------------------------------
       subroutine cmkreord(n,a,ja,ia,a0,ja0,ia0,
      *     init,iperm,mask,maskval,nlev,riord,

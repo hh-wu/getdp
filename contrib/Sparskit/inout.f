@@ -1,4 +1,4 @@
-c $Id: inout.f,v 1.2 2000-09-07 18:56:37 geuzaine Exp $
+c $Id: inout.f,v 1.1 2008-04-11 06:01:06 geuzaine Exp $
 c----------------------------------------------------------------------c
       subroutine psplot (ncol,ja,ia,iunt,mode)
       integer ja(*),ia(*),iunt,ncol,id,mode

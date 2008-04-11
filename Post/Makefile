@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.38 2008-04-10 20:49:45 geuzaine Exp $
+# $Id: Makefile,v 1.39 2008-04-11 06:01:04 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -23,7 +23,7 @@ include ../variables
 
 LIB     = ../lib/libPost.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData\
-          -I../Main -I../Numeric -I../Sparskit -I../Function
+          -I../Main -I../Numeric -I../contrib/Sparskit -I../Function
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE} 
 
 SRC = Pos_FemInterpolation.c \
@@ -69,10 +69,11 @@ Pos_FemInterpolation.o: Pos_FemInterpolation.c ../include/GetDP.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Main/Data_Element.h \
   ../Main/Get_DofOfElement.h ../Main/Data_Active.h ../Main/Get_Geometry.h \
   ../Main/Data_Active.h ../DofData/DofData.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../DofData/Graph.h ../DofData/Data_DofData.h \
-  ../DofData/LinAlg.h ../DofData/Data_DofData.h Pos_Search.h \
-  ../Main/CurrentData.h ../Main/Data_Active.h ../include/Magic.h \
-  ../DataStr/Tools.h ../DataStr/List.h ../DataStr/Tree.h
+  ../contrib/Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
+  Pos_Search.h ../Main/CurrentData.h ../Main/Data_Active.h \
+  ../include/Magic.h ../DataStr/Tools.h ../DataStr/List.h \
+  ../DataStr/Tree.h
 Pos_Interactive.o: Pos_Interactive.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
@@ -80,7 +81,7 @@ Pos_Interactive.o: Pos_Interactive.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../Main/Data_Element.h \
   Pos_Formulation.h ../Main/Print_ProblemStructure.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h ../DofData/Graph.h \
   ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
   ../include/Magic.h ../Main/OS.h
 Pos_ReadLine.o: Pos_ReadLine.c ../include/GetDP.h ../Main/Message.h \
@@ -89,24 +90,25 @@ Pos_Formulation.o: Pos_Formulation.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Numeric/Numeric.h \
-  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Treatment_Formulation.h ../Main/Data_Active.h \
-  ../Main/Data_Passive.h ../Main/Data_Element.h ../Main/CurrentData.h \
-  ../Main/Data_Active.h ../DofData/DofData.h ../DofData/LinAlg.h \
-  ../DofData/Graph.h ../DofData/Data_DofData.h ../DofData/Data_DofData.h \
-  ../include/Magic.h ../Main/Get_DofOfElement.h ../Main/Data_Active.h \
-  Pos_Formulation.h Pos_Print.h Pos_Format.h ../Main/GmshClient.h
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h \
+  ../contrib/Sparskit/Solver.h ../Main/Treatment_Formulation.h \
+  ../Main/Data_Active.h ../Main/Data_Passive.h ../Main/Data_Element.h \
+  ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
+  ../DofData/LinAlg.h ../DofData/Graph.h ../DofData/Data_DofData.h \
+  ../DofData/Data_DofData.h ../include/Magic.h ../Main/Get_DofOfElement.h \
+  ../Main/Data_Active.h Pos_Formulation.h Pos_Print.h Pos_Format.h \
+  ../Main/GmshClient.h
 Pos_Print.o: Pos_Print.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/Data_Passive.h ../DataStr/List.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../Numeric/Numeric.h \
-  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
-  ../Main/Treatment_Formulation.h ../Main/Data_Active.h \
-  ../Main/Data_Passive.h ../Main/Data_Element.h ../Main/Get_Geometry.h \
-  ../Main/Data_Active.h ../Main/CurrentData.h ../Main/Data_Active.h \
-  ../DofData/DofData.h ../DofData/LinAlg.h ../DofData/Graph.h \
-  ../DofData/Data_DofData.h ../DofData/Data_DofData.h ../include/Magic.h \
-  ../Main/Get_DofOfElement.h ../Main/Data_Active.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h \
+  ../contrib/Sparskit/Solver.h ../Main/Treatment_Formulation.h \
+  ../Main/Data_Active.h ../Main/Data_Passive.h ../Main/Data_Element.h \
+  ../Main/Get_Geometry.h ../Main/Data_Active.h ../Main/CurrentData.h \
+  ../Main/Data_Active.h ../DofData/DofData.h ../DofData/LinAlg.h \
+  ../DofData/Graph.h ../DofData/Data_DofData.h ../DofData/Data_DofData.h \
+  ../include/Magic.h ../Main/Get_DofOfElement.h ../Main/Data_Active.h \
   ../Main/ExtendedGroup.h ../Main/Data_Active.h ../Main/Cal_Quantity.h \
   ../Main/Data_Active.h ../Main/Cal_Value.h Pos_Formulation.h \
   Pos_Quantity.h Pos_Element.h Pos_Search.h Pos_Print.h Pos_Format.h \
@@ -122,7 +124,7 @@ Pos_Quantity.o: Pos_Quantity.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Cal_Value.h ../Main/Get_Geometry.h ../Main/Data_Active.h \
   ../Main/Data_DefineE.h ../Main/ExtendedGroup.h ../Main/Data_Active.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h ../DofData/Graph.h \
   ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
   ../include/Magic.h ../DataStr/Tools.h ../DataStr/List.h \
   ../DataStr/Tree.h
@@ -133,7 +135,7 @@ Pos_Element.o: Pos_Element.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Data_Element.h ../Main/Data_Element.h \
   ../Main/Get_DofOfElement.h ../Main/Data_Active.h Pos_Element.h \
   ../Main/Cal_Value.h ../Main/CurrentData.h ../Main/Data_Active.h \
-  ../DofData/DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h \
+  ../DofData/DofData.h ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h \
   ../DofData/Graph.h ../DofData/Data_DofData.h ../DofData/LinAlg.h \
   ../DofData/Data_DofData.h ../include/Magic.h
 Pos_Iso.o: Pos_Iso.c ../include/GetDP.h ../Main/Message.h \
@@ -141,7 +143,7 @@ Pos_Iso.o: Pos_Iso.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/List.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
   ../Main/Data_Element.h ../Numeric/Numeric.h ../DofData/Data_DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/CurrentData.h \
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h ../Main/CurrentData.h \
   ../Main/Data_Active.h ../DofData/DofData.h ../DofData/LinAlg.h \
   ../DofData/Graph.h ../DofData/Data_DofData.h ../DofData/Data_DofData.h \
   ../include/Magic.h Pos_Iso.h Pos_Element.h
@@ -152,7 +154,7 @@ Pos_Search.o: Pos_Search.c ../include/GetDP.h ../Main/Message.h \
   ../Main/Data_Element.h ../Main/Get_Geometry.h ../Main/Data_Active.h \
   Pos_Search.h ../Main/Get_DofOfElement.h ../Main/Data_Active.h \
   ../Main/CurrentData.h ../Main/Data_Active.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h ../DofData/Graph.h \
   ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
   ../include/Magic.h ../DataStr/Tools.h ../DataStr/List.h \
   ../DataStr/Tree.h ../Numeric/Numeric.h
@@ -161,7 +163,7 @@ Pos_Format.o: Pos_Format.c ../include/GetDP.h ../Main/Message.h \
   ../GeoData/Data_GeoData.h ../DataStr/List.h ../DataStr/Tree.h \
   ../DataStr/avl.h ../Main/Data_Passive.h ../Main/Data_Element.h \
   ../Main/Data_DefineE.h ../Numeric/Numeric.h ../DofData/Data_DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../Main/CurrentData.h \
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h ../Main/CurrentData.h \
   ../Main/Data_Active.h ../Main/Data_Passive.h ../Main/Data_Element.h \
   ../DofData/DofData.h ../DofData/LinAlg.h ../DofData/Graph.h \
   ../DofData/Data_DofData.h ../DofData/Data_DofData.h ../include/Magic.h \

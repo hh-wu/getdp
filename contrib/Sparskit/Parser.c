@@ -1,4 +1,4 @@
-#define RCSID "$Id: Parser.c,v 1.18 2006-02-26 00:43:00 geuzaine Exp $"
+#define RCSID "$Id: Parser.c,v 1.1 2008-04-11 06:01:05 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *

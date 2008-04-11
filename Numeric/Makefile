@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.42 2008-04-10 20:43:47 geuzaine Exp $
+# $Id: Makefile,v 1.43 2008-04-11 06:01:04 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -23,7 +23,7 @@ include ../variables
 
 LIB     = ../lib/libNumeric.a
 INCLUDE = -I. -I../include -I../DataStr -I../DofData -I../GeoData\
-          -I../Main -I../Sparskit -I../contrib/NR
+          -I../Main -I../contrib/Sparskit -I../contrib/NR
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE} 
 FFLAGS  = ${F77_FLAGS} ${INCLUDE}
 
@@ -76,54 +76,56 @@ nodepend:
 Analytic_HollowCylLF.o: Analytic_HollowCylLF.c ../include/GetDP.h \
   ../Main/Message.h ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h
 EigenPar.o: EigenPar.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../DataStr/List.h ../Main/Data_Element.h \
   ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/Tree.h \
   ../DataStr/avl.h ../Main/Data_Element.h ../DofData/DofData.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h ../DofData/Graph.h \
   ../DofData/Data_DofData.h ../DofData/LinAlg.h ../DofData/Data_DofData.h \
   ../include/Magic.h EigenPar.h
 Lanczos.o: Lanczos.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../DofData/Graph.h ../DofData/Data_DofData.h \
-  ../DofData/LinAlg.h ../Main/Data_Passive.h ../Main/Data_Element.h \
-  ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../contrib/Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../Main/Data_Passive.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DofData/Data_DofData.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../include/Magic.h \
   Numeric.h EigenPar.h ../include/Compat.h
 Arpack.o: Arpack.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../DofData/DofData.h ../DataStr/List.h \
   ../DataStr/Tree.h ../DataStr/avl.h ../DofData/LinAlg.h \
-  ../Sparskit/Solver.h ../DofData/Graph.h ../DofData/Data_DofData.h \
-  ../DofData/LinAlg.h ../Main/Data_Passive.h ../Main/Data_Element.h \
-  ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
+  ../contrib/Sparskit/Solver.h ../DofData/Graph.h \
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../Main/Data_Passive.h \
+  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DofData/Data_DofData.h ../Main/CurrentData.h ../Main/Data_Active.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../include/Magic.h \
   Numeric.h EigenPar.h Arpack_F.h ../include/Compat.h
 Adapt.o: Adapt.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h Adapt.h Numeric.h \
-  ../DofData/Data_DofData.h ../DofData/LinAlg.h ../Sparskit/Solver.h
+  ../DofData/Data_DofData.h ../DofData/LinAlg.h \
+  ../contrib/Sparskit/Solver.h
 Legendre.o: Legendre.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h
 SphBessel.o: SphBessel.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h Amos_F.h ../include/Compat.h
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h Amos_F.h \
+  ../include/Compat.h
 Numeric.o: Numeric.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h
 gsl_newt.o: gsl_newt.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h
 gsl_brent.o: gsl_brent.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h Numeric.h ../DataStr/List.h \
   ../DofData/Data_DofData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../DofData/LinAlg.h ../Sparskit/Solver.h
+  ../DofData/LinAlg.h ../contrib/Sparskit/Solver.h

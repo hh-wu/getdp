@@ -1,4 +1,4 @@
-#define RCSID "$Id: Matrix.c,v 1.25 2006-02-28 12:16:29 geuzaine Exp $"
+#define RCSID "$Id: Matrix.c,v 1.1 2008-04-11 06:01:05 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *

@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.30 2008-04-10 20:49:44 geuzaine Exp $
+# $Id: Makefile,v 1.31 2008-04-11 06:01:03 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -23,7 +23,7 @@ include ../variables
 
 LIB     = ../lib/libDofData.a
 INCLUDE = -I. -I../include -I../DataStr -I../GeoData -I../Main\
-          -I../Sparskit -I../FMM -I../Numeric
+          -I../contrib/Sparskit -I../FMM -I../Numeric
 CFLAGS  = ${C_FLAGS} ${SOLVER} ${INCLUDE}
 
 
@@ -59,24 +59,24 @@ nodepend:
 DofData.o: DofData.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h ../include/GetDPVersion.h DofData.h \
   ../DataStr/List.h ../DataStr/Tree.h ../DataStr/avl.h LinAlg.h \
-  ../Sparskit/Solver.h Graph.h Data_DofData.h ../Main/Data_Passive.h \
-  ../Main/Data_Element.h ../GeoData/GeoData.h ../GeoData/Data_GeoData.h \
-  ../DataStr/Tools.h ../DataStr/List.h ../DataStr/Tree.h \
-  ../include/Magic.h ../Main/CurrentData.h ../Main/Data_Active.h \
-  ../Main/Data_Passive.h ../Main/Data_Element.h DofData.h \
-  ../Numeric/Numeric.h Data_DofData.h
+  ../contrib/Sparskit/Solver.h Graph.h Data_DofData.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
+  ../GeoData/Data_GeoData.h ../DataStr/Tools.h ../DataStr/List.h \
+  ../DataStr/Tree.h ../include/Magic.h ../Main/CurrentData.h \
+  ../Main/Data_Active.h ../Main/Data_Passive.h ../Main/Data_Element.h \
+  DofData.h ../Numeric/Numeric.h Data_DofData.h
 Graph.o: Graph.c ../include/GetDP.h ../Main/Message.h ../DataStr/Malloc.h \
   Graph.h ../DataStr/List.h Data_DofData.h ../DataStr/Tree.h \
-  ../DataStr/avl.h LinAlg.h ../Sparskit/Solver.h DofData.h \
+  ../DataStr/avl.h LinAlg.h ../contrib/Sparskit/Solver.h DofData.h \
   ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
   ../GeoData/Data_GeoData.h ../include/Compat.h
 LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.c ../include/GetDP.h ../Main/Message.h \
-  ../DataStr/Malloc.h ../include/Magic.h LinAlg.h ../Sparskit/Solver.h \
-  ../DataStr/List.h ../DataStr/SafeIO.h ../FMM/F_FMMOperations.h \
-  ../Main/Data_Passive.h ../Main/Data_Element.h ../GeoData/GeoData.h \
-  ../GeoData/Data_GeoData.h ../DataStr/Tree.h ../DataStr/avl.h \
-  ../Main/CurrentData.h ../Main/Data_Active.h ../Main/Data_Passive.h \
-  ../Main/Data_Element.h DofData.h LinAlg.h Graph.h Data_DofData.h \
-  LinAlg.h Data_DofData.h
+  ../DataStr/Malloc.h ../include/Magic.h LinAlg.h \
+  ../contrib/Sparskit/Solver.h ../DataStr/List.h ../DataStr/SafeIO.h \
+  ../FMM/F_FMMOperations.h ../Main/Data_Passive.h ../Main/Data_Element.h \
+  ../GeoData/GeoData.h ../GeoData/Data_GeoData.h ../DataStr/Tree.h \
+  ../DataStr/avl.h ../Main/CurrentData.h ../Main/Data_Active.h \
+  ../Main/Data_Passive.h ../Main/Data_Element.h DofData.h LinAlg.h \
+  Graph.h Data_DofData.h LinAlg.h Data_DofData.h
 LinAlg_PETSC.o: LinAlg_PETSC.c ../include/GetDP.h ../Main/Message.h \
   ../DataStr/Malloc.h

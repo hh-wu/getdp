@@ -1,4 +1,4 @@
-c $Id: blas1.f,v 1.2 2000-09-07 18:56:37 geuzaine Exp $
+c $Id: blas1.f,v 1.1 2008-04-11 06:01:05 geuzaine Exp $
       subroutine  dcopy(n,dx,incx,dy,incy)
 c
 c     copies a vector, x, to a vector, y.

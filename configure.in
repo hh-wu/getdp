@@ -191,7 +191,7 @@ if test "x$enable_petsc" = "xyes"; then
 
 else
 
-  GETDP_DIRS="${GETDP_DIRS} Sparskit"
+  GETDP_DIRS="${GETDP_DIRS} contrib/Sparskit"
   GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr -lFMM"
   SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
 
