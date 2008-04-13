@@ -1,4 +1,4 @@
-#define RCSID "$Id: LinAlg_PETSC.c,v 1.82 2008-04-10 08:11:05 geuzaine Exp $"
+#define RCSID "$Id: LinAlg_PETSC.c,v 1.83 2008-04-13 09:50:05 geuzaine Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -222,16 +222,11 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
 #if defined(HAVE_METIS)
   MPI_Comm_size(PETSC_COMM_WORLD, &NbrCpu);
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
-
   if(NbrPart != NbrCpu) Msg(GERROR, "%d partitions on %d CPU", NbrPart, NbrCpu);
-
   i_Start = Part[RankCpu]-1;
   i_End   = Part[RankCpu+1]-1;
-  ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD,
-			 i_End-i_Start, i_End-i_Start, 
-			 n, m, 
-			 1, &Nnz[i_Start], 
-			 1, &Nnz[i_Start], 
+  ierr = MatCreateMPIAIJ(PETSC_COMM_WORLD, i_End-i_Start, i_End-i_Start, 
+			 n, m, 1, &Nnz[i_Start], 1, &Nnz[i_Start], 
 			 &M->M); MYCHECK(ierr); 
 #else
   ierr = MatCreate(PETSC_COMM_WORLD, &M->M); MYCHECK(ierr); 
@@ -241,7 +236,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m,
   ierr = MatSetFromOptions(M->M); MYCHECK(ierr);
 
   /* preallocation option must be set after other options */
-  ierr = MatSeqAIJSetPreallocation(M->M, 200, PETSC_NULL); MYCHECK(ierr); 
+  ierr = MatSeqAIJSetPreallocation(M->M, 50, PETSC_NULL); MYCHECK(ierr); 
 #endif
 
   GetDP_End;
