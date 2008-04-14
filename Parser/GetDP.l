@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.l,v 1.52 2008-03-28 14:56:43 dular Exp $ */
+/* $Id: GetDP.l,v 1.53 2008-04-14 18:31:03 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -391,11 +391,11 @@ void  C_comments(void) {
 
   while(1) {
     while((c = input()) != '*'){ 
-      if(c == '\n') yylinenum++ ; 
-      if(c == EOF) {
+      if(feof(yyin)) {
         fprintf(stderr, "Error: End of file in commented region\n") ;
         exit(1);
       }
+      if(c == '\n') yylinenum++ ; 
     } 
     if((c = input()) == '/') return ;
     unput(c) ;
@@ -406,7 +406,7 @@ void  CC_comments(void) {
   int c;
   while(1){ 	 
     c = input(); 	 
-    if(c == '\n' || c == EOF) break; 	 
+    if(feof(yyin) || c == '\n') break; 	 
   }
   yylinenum++ ; 
 }
@@ -418,7 +418,7 @@ void  parsestring(char endchar) {
   c = input();  
   i = 0;
   while(c != endchar){ 
-    if(c == EOF) { 
+    if(feof(yyin)) { 
       Msg(GERROR, "End of file in string") ;
       yycolnum=0 ; 
       break;
@@ -462,7 +462,7 @@ void skip_until(char *skip, char *until){
     while (1){
       chars[0] = input();
       if(chars[0] == '\n') yylinenum++ ; 
-      if(chars[0] == (char)EOF){
+      if(feof(yyin)){
         Msg(GERROR, "Unexpected end of file") ;
 	return;
       }
@@ -484,7 +484,7 @@ void skip_until(char *skip, char *until){
     for(i = 1 ; i < l ; i++){
       chars[i] = input();
       if(chars[i] == '\n') yylinenum++ ; 
-      if(chars[i] == (char)EOF){
+      if(feof(yyin)){
 	l = i;
 	break;
       }
