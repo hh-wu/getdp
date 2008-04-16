@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.119 2008-04-09 08:35:49 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.120 2008-04-16 16:05:14 geuzaine Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -7233,8 +7233,7 @@ void  yyerror (char *s) {
   char space1[32] = "", space2[512]= "";
 
   if(!InteractiveLevel){
-    Msg(DIRECT, "Error ('%s' line %ld): %s on '%s'", yyname, yylinenum, 
-	s, yytext) ;
+    Msg(GERROR, "'%s' line %ld : %s on '%s'", yyname, yylinenum, s, yytext);
   }
   else{
     if(!ErrorLevel){
@@ -7266,7 +7265,7 @@ void  vyyerror (char *fmt, ...){
   va_end (args);
 
   if(!InteractiveLevel){
-    Msg(DIRECT, "Error ('%s' line %ld): %s", yyname, yylinenum, str);
+    Msg(GERROR, "'%s' line %ld : %s", yyname, yylinenum, str);
   }
   else{
     if(!ErrorLevel){
