@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.51 2008-04-02 20:40:29 dular Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.52 2008-04-17 20:04:31 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -178,6 +178,8 @@ void Cal_WholeQuantity(struct Element * Element,
   struct DofData         *Save_DofData ;
   struct Solution        *Solution_P0, *Solution_PN ;
 
+  struct Element* Save_CurrentElement ;
+
   struct Value  ValueTmp ;
 
 #define USE_GLOBAL_STACK
@@ -257,6 +259,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_OPERATORANDQUANTITY : /* {op qty}  Dof{op qty}  BF{op qty} */
       Save_Region = Current.Region ; 
+      Save_CurrentElement = Current.Element ;
       if (i_WQ != DofIndexInWholeQuantity){ /* Attention!!! || TreatmentStatus == _POS){  */
 	Pos_FemInterpolation
 	  (Element,
@@ -271,6 +274,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	DofIndex = Index ;
       }
       Index++ ;  
+      Current.Element = Save_CurrentElement ;
       Current.Region = Save_Region ;
       break ;
 
@@ -287,7 +291,8 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
 
     case WQ_OPERATORANDQUANTITYEVAL : 
-      Save_Region = Current.Region ; 
+      Save_Region = Current.Region ;
+      Save_CurrentElement = Current.Element ;
       /* {op qty}[x,y,z], {op qty}[x,y,z,dimension] or {op qty}[ntime] */
       if (i_WQ != DofIndexInWholeQuantity || TreatmentStatus == _POS){
 	j = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments;
@@ -364,6 +369,7 @@ void Cal_WholeQuantity(struct Element * Element,
       else{
 	Msg(GERROR, "Explicit Dof{} evaluation out of context");
       }
+      Current.Element = Save_CurrentElement ;
       Current.Region = Save_Region ;
       break ;
 
