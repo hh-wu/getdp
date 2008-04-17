@@ -37,6 +37,7 @@
 #define _2D      2
 #define _3D      3
 #define _ALL     4
+#define _AXI     5
 
 #define GETDP_PROMPT_STRING  "getdp> "
 #define GETDP_TMP_FILENAME   "getdp.tmp"

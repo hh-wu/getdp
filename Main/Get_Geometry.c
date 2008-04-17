@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_Geometry.c,v 1.42 2007-10-09 11:06:25 dular Exp $"
+#define RCSID "$Id: Get_Geometry.c,v 1.43 2008-04-17 14:58:39 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -481,11 +481,14 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
 
   switch (Dim) {
   case _2D :
+    Jac->c33  = 1. ;
     DetJac = f * f * (1.0 - theta) ;
-
     /*
       DetJac =  Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21; 
     */
+    break;
+  case _AXI :
+    DetJac = f * f * f * (1.0 - theta) ;
     break;
   default :
     DetJac = f * f * f * (1.0 - theta);
@@ -650,13 +653,13 @@ double  JacobianVolAxiSphShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Begin("JacobianVolAxiSphShell2D");
 
   DetJac1 = JacobianVolAxi2D  (Element, &Jac1) ;
-  DetJac2 = Transformation    (_2D, JACOBIAN_SPH, Element, &Jac2) ;
+  DetJac2 = Transformation    (_AXI, JACOBIAN_SPH, Element, &Jac2) ;
 
   Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
 
                                     Jac->c13 = 0. ;
                                     Jac->c23 = 0. ;
-  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = Jac1.c33 ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = Jac1.c33 * Jac2.c33 ;
 
   GetDP_Return(DetJac1 * DetJac2) ;
 }
@@ -668,13 +671,13 @@ double  JacobianVolAxiRectShell2D (struct Element * Element, MATRIX3x3 * Jac) {
   GetDP_Begin("JacobianVolAxiRectShell2D");
 
   DetJac1 = JacobianVolAxi2D  (Element, &Jac1) ;
-  DetJac2 = Transformation    (_2D, JACOBIAN_RECT, Element, &Jac2) ;
+  DetJac2 = Transformation    (_AXI, JACOBIAN_RECT, Element, &Jac2) ;
 
   Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
 
                                     Jac->c13 = 0. ;
                                     Jac->c23 = 0. ;
-  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = Jac1.c33 ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = Jac1.c33 * Jac2.c33 ;
 
   GetDP_Return(DetJac1 * DetJac2) ;
 }
@@ -742,13 +745,13 @@ double  JacobianVolAxiSquSphShell2D (struct Element * Element, MATRIX3x3 * Jac) 
   GetDP_Begin("JacobianVolAxiSquSphShell2D");
 
   DetJac1 = JacobianVolAxiSqu2D(Element, &Jac1) ;
-  DetJac2 = Transformation     (_2D, JACOBIAN_SPH, Element, &Jac2) ;
+  DetJac2 = Transformation     (_AXI, JACOBIAN_SPH, Element, &Jac2) ;
 
   Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
 
                                     Jac->c13 = 0. ;
                                     Jac->c23 = 0. ;
-  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = Jac1.c33 ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = Jac1.c33 * Jac2.c33 ;
 
   GetDP_Return(DetJac1 * DetJac2) ;
 }
@@ -760,13 +763,13 @@ double  JacobianVolAxiSquRectShell2D (struct Element * Element, MATRIX3x3 * Jac)
   GetDP_Begin("JacobianVolAxiSquRectShell2D");
 
   DetJac1 = JacobianVolAxiSqu2D(Element, &Jac1) ;
-  DetJac2 = Transformation     (_2D, JACOBIAN_RECT, Element, &Jac2) ;
+  DetJac2 = Transformation     (_AXI, JACOBIAN_RECT, Element, &Jac2) ;
 
   Get_ProductMatrix( _2D, &Jac1, &Jac2, Jac) ;
 
                                     Jac->c13 = 0. ;
                                     Jac->c23 = 0. ;
-  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = Jac1.c33 ;
+  Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = Jac1.c33 * Jac2.c33 ;
 
   GetDP_Return(DetJac1 * DetJac2) ;
 }
