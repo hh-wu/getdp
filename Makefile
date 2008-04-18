@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.194 2008-04-10 20:43:46 geuzaine Exp $
+# $Id: Makefile,v 1.195 2008-04-18 22:03:37 geuzaine Exp $
 #
 # Copyright (C) 1997-2006 P. Dular, C. Geuzaine
 #
@@ -124,18 +124,22 @@ etags:
 
 # Rules to package the sources
 
-source-common:
+source-common: purge
 	rm -rf getdp-${GETDP_VERSION}
-	tar zcvf getdp.tgz `ls README* configure *.in Makefile */Makefile\
-                            */*.[chylfF]` doc demos utils
+	tar zcf getdp.tgz --exclude "*.o" --exclude "*.a" --exclude "getdp"\
+          --exclude "variables" --exclude "config.log" --exclude "config.status"\
+          --exclude "autom4*" --exclude "Makefile.distrib" --exclude "Makefile.back"\
+          --exclude "benchmarks" --exclude "HTML"\
+          --exclude "*TAGS*" --exclude "GSYMS" --exclude "GPATH" --exclude "CVS"\
+          *
 	mkdir getdp-${GETDP_VERSION}
-	cd getdp-${GETDP_VERSION} && tar zxvf ../getdp.tgz
+	cd getdp-${GETDP_VERSION} && tar zxf ../getdp.tgz
 	rm -f getdp.tgz
 	cd getdp-${GETDP_VERSION}/demos && ${MAKE} clean
 	cd getdp-${GETDP_VERSION}/doc && ${MAKE} clean
 
 source: source-common
-	cd getdp-${GETDP_VERSION} && rm -rf CVS */CVS */*/CVS */.globalrc\
+	cd getdp-${GETDP_VERSION} && rm -rf */.globalrc\
           ${GETDP_VERSION_FILE} utils/commercial utils/temp doc/slides\
           contrib/NR contrib/ZITSOL_1
 	tar zcvf getdp-${GETDP_VERSION}-source.tgz getdp-${GETDP_VERSION}
