@@ -1,4 +1,4 @@
-#define RCSID "$Id: Cal_Quantity.c,v 1.52 2008-04-17 20:04:31 dular Exp $"
+#define RCSID "$Id: Cal_Quantity.c,v 1.53 2008-04-21 12:33:45 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -293,18 +293,29 @@ void Cal_WholeQuantity(struct Element * Element,
     case WQ_OPERATORANDQUANTITYEVAL : 
       Save_Region = Current.Region ;
       Save_CurrentElement = Current.Element ;
-      /* {op qty}[x,y,z], {op qty}[x,y,z,dimension] or {op qty}[ntime] */
+      /* {op qty}[x,y,z], {op qty}[x,y,z,dimension] 
+	 or {op qty}[Vector[x,y,x],dimension]
+	 or {op qty}[ntime] */
       if (i_WQ != DofIndexInWholeQuantity || TreatmentStatus == _POS){
 	j = WholeQuantity_P->Case.OperatorAndQuantity.NbrArguments;
-	if (j == 3 || j == 4) { 
-	  Index -= j ;
-	  X = Stack[0][Index  ].Val[0] ;
-	  Y = Stack[0][Index+1].Val[0] ;
-	  Z = Stack[0][Index+2].Val[0] ;
-	  if(j == 4) 
-	    Type_Dimension = (int)Stack[0][Index+3].Val[0] ;
-	  else
-	    Type_Dimension = -1 ;
+	if (j == 2 || j == 3 || j == 4) {
+	  if (j == 3 || j == 4) {
+	    Index -= j ;
+	    X = Stack[0][Index  ].Val[0] ;
+	    Y = Stack[0][Index+1].Val[0] ;
+	    Z = Stack[0][Index+2].Val[0] ;
+	    if(j == 4) 
+	      Type_Dimension = (int)Stack[0][Index+3].Val[0] ;
+	    else
+	      Type_Dimension = -1 ;
+	  }
+	  else { /* j==2 */
+	    Index -= j ;
+	    X = Stack[0][Index  ].Val[0] ;
+	    Y = Stack[0][Index  ].Val[1] ;
+	    Z = Stack[0][Index  ].Val[2] ;
+	    Type_Dimension = (int)Stack[0][Index+1].Val[0] ;
+	  }
 	  Pos_FemInterpolation
 	    (Element,
 	     QuantityStorage_P0,

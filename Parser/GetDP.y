@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.120 2008-04-16 16:05:14 geuzaine Exp $ */
+/* $Id: GetDP.y,v 1.121 2008-04-21 12:33:47 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -1405,7 +1405,7 @@ WholeQuantity_Single :
 
   | Quantity_Def ArgumentsForFunction
     { 
-      if($2!=1 && $2!=3 && $2!=4)
+      if($2!=1 && $2!=2 && $2!=3 && $2!=4)
 	vyyerror("Wrong number of arguments for discrete quantity evaluation (%d)", $2) ;
       WholeQuantity_S.Type = WQ_OPERATORANDQUANTITYEVAL ;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = $2 ;
@@ -1664,7 +1664,7 @@ JacobianMethod :
 
 JacobianMethodTerm :
 
-    tName tSTRING tEND
+    tName String__Index tEND
     { Check_NameOfStructNotExist("JacobianMethod", Problem_S.JacobianMethod,
 				 $2, fcmp_JacobianMethod_Name) ;
       JacobianMethod_S.Name = $2 ; }
@@ -1702,7 +1702,7 @@ JacobianCaseTerm :
   | tRegion tAll tEND
     { JacobianCase_S.RegionIndex = -1 ; }
 
-  | tJacobian tSTRING ParametersForFunction tEND
+  | tJacobian String__Index ParametersForFunction tEND
     { JacobianCase_S.TypeJacobian =
 	Get_Define1NbrForString(Jacobian_Type, $2, &FlagError,
 				&JacobianCase_S.NbrParameters) ;
@@ -3304,7 +3304,7 @@ DefineQuantityTerm :
       Free($2) ;
     }
 
-  | tJacobian tSTRING tEND
+  | tJacobian String__Index tEND
     { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, $2,
 			       fcmp_JacobianMethod_Name)) < 0)
 	vyyerror("Unknown Jacobian method: %s", $2) ;
@@ -3642,7 +3642,7 @@ LocalTermTerm  :
       EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, "FO_In", $2) ;
     }
 
-  | tJacobian tSTRING tEND
+  | tJacobian String__Index tEND
     { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, $2,
 			       fcmp_JacobianMethod_Name)) < 0)
 	vyyerror("Unknown Jacobian method: %s",$2) ;
@@ -5419,7 +5419,7 @@ SubPostQuantityTerm :
       PostQuantityTerm_S.InIndex = Num_Group(&Group_S, "PQ_In", $2) ;
    }
 
-  | tJacobian tSTRING tEND
+  | tJacobian String__Index tEND
     { if ((i = List_ISearchSeq(Problem_S.JacobianMethod, $2,
 			       fcmp_JacobianMethod_Name)) < 0)
 	vyyerror("Unknown Jacobian method: %s",$2) ;
