@@ -3536,6 +3536,8 @@ fi
     case "${F77}" in
     *gfortran*)
       GETDP_LIBS="${GETDP_LIBS} -lgfortran"
+      { echo "$as_me:$LINENO: WARNING: gfortran breaks Arpack (known incompatibility in blas' zdotc)." >&5
+echo "$as_me: WARNING: gfortran breaks Arpack (known incompatibility in blas' zdotc)." >&2;}
       ;;
   esac
 
@@ -3758,6 +3760,10 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
         *g77*)
                     LINKER="gcc"
           GETDP_LIBS="${GETDP_LIBS} -lg2c"
+          ;;
+        *gfortran*)
+          { echo "$as_me:$LINENO: WARNING: gfortran breaks Arpack (known incompatibility in blas' zdotc)!" >&5
+echo "$as_me: WARNING: gfortran breaks Arpack (known incompatibility in blas' zdotc)!" >&2;}
           ;;
       esac
       ;;

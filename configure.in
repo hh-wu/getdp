@@ -165,6 +165,7 @@ if test "x$enable_petsc" = "xyes"; then
   case "${F77}" in
     *gfortran*)
       GETDP_LIBS="${GETDP_LIBS} -lgfortran"
+      AC_MSG_WARN([gfortran breaks Arpack (known incompatibility in blas' zdotc).])
       ;;
   esac
 
@@ -291,6 +292,9 @@ else
           dnl force C linker with g77 compiler
           LINKER="gcc"
           GETDP_LIBS="${GETDP_LIBS} -lg2c"
+          ;;
+        *gfortran*)
+          AC_MSG_WARN([gfortran breaks Arpack (known incompatibility in blas' zdotc)!])
           ;;
       esac
       ;;
