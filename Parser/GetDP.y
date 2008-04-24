@@ -1,5 +1,5 @@
 %{
-/* $Id: GetDP.y,v 1.121 2008-04-21 12:33:47 dular Exp $ */
+/* $Id: GetDP.y,v 1.122 2008-04-24 21:10:59 dular Exp $ */
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -3926,7 +3926,10 @@ DefineSystems :
 
   | DefineSystems  '{' DefineSystem '}'
     {
-      List_Add($$ = Current_System_L = $1, &DefineSystem_S) ;
+      if ((i = List_ISearchSeq(Current_System_L, DefineSystem_S.Name, fcmp_DefineSystem_Name)) < 0)
+	List_Add($$ = Current_System_L = $1, &DefineSystem_S) ;
+      else
+	List_Write(Current_System_L, i, &DefineSystem_S) ;
     }
 
   | DefineSystems Loop
@@ -3939,7 +3942,7 @@ DefineSystems :
 DefineSystem :
 
     /* none */
-    { DefineSystem_S.Name = NULL ;  
+    { DefineSystem_S.Name = NULL ;
       DefineSystem_S.Type = VAL_REAL ;
       DefineSystem_S.FormulationIndex = NULL ;
       DefineSystem_S.MeshName = NULL ;
@@ -3959,7 +3962,12 @@ DefineSystem :
 DefineSystemTerm :
 
     tName String__Index tEND
-    { DefineSystem_S.Name = $2 ; }
+    { 
+      if ((i = List_ISearchSeq(Current_System_L, $2, fcmp_DefineSystem_Name)) < 0)
+	DefineSystem_S.Name = $2 ;
+      else
+	List_Read(Current_System_L, i, &DefineSystem_S) ;
+    }
 
   | tType tSTRING tEND
     { DefineSystem_S.Type = Get_DefineForString(DefineSystem_Type, $2, &FlagError) ;
