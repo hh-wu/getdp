@@ -1,4 +1,4 @@
-#define RCSID "$Id: Print_ProblemStructure.c,v 1.45 2008-02-14 13:33:45 dular Exp $"
+#define RCSID "$Id: Print_ProblemStructure.c,v 1.46 2008-04-24 21:07:42 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -920,7 +920,6 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
     case OPERATION_GENERATEJAC :
     case OPERATION_SOLVEJAC :
     case OPERATION_GENERATESEPARATE :
-    case OPERATION_UPDATECONSTRAINT :
     case OPERATION_INITSOLUTION :
     case OPERATION_SAVESOLUTION :
     case OPERATION_SAVESOLUTIONS :
@@ -942,6 +941,29 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
 	  Get_ExpressionName(Problem,
 			     OPE->Case.Update.ExpressionIndex)) ;
+      break ;
+
+   case OPERATION_SELECTCORRECTION :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
+      Msg(CHECK, "      SelectCorrection [ %s, %d ] ;\n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+	  OPE->Case.SelectCorrection.Iteration) ;
+      break ;
+
+   case OPERATION_ADDCORRECTION :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
+      Msg(CHECK, "      AddCorrection [ %s, %g ] ;\n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+	  OPE->Case.AddCorrection.Alpha) ;
+      break ;
+
+   case OPERATION_UPDATECONSTRAINT :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
+      Msg(CHECK, "      UpdateConstraint [ %s ] ;\n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name) ;
       break ;
 
    case OPERATION_FOURIERTRANSFORM :
@@ -1048,7 +1070,7 @@ void  Print_Operation(struct Resolution * RE, List_T * Operation_L,
 
     case OPERATION_TEST :
       for (i=0 ; i<2*NbrBlk ; i++) Msg(CHECK, " ") ;
-      Msg(CHECK, "      If [ Exp[%s] ] {\n",
+      Msg(CHECK, "      Test [ Exp[%s] ] {\n",
 	  Get_ExpressionName(Problem,
 			     OPE->Case.Test.ExpressionIndex)) ;
       Print_Operation(RE, OPE->Case.Test.Operation_True, Problem) ;
