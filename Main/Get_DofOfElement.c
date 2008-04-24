@@ -1,4 +1,4 @@
-#define RCSID "$Id: Get_DofOfElement.c,v 1.28 2008-02-25 15:37:51 dular Exp $"
+#define RCSID "$Id: Get_DofOfElement.c,v 1.29 2008-04-24 21:08:59 dular Exp $"
 /*
  * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
  *
@@ -477,6 +477,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 	  Dof_GetDofStruct(FunctionSpace_P->DofData,
 			   Code_BasisFunction, abs(Num_Entity[i_Entity]), 0))
 	 != NULL) ;
+
       if (Flag_SubSpace && CodeExist && TreatmentStatus != _POS)
 	CodeExist =
 	  Check_IsEntityInExtendedGroup(GroupEntity_P, abs(Num_Entity[i_Entity]), 0) ;
