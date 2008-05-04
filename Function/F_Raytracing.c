@@ -182,9 +182,10 @@ void  F_CylinderPhase(F_ARG)
 
 void F_DiamondPhase(F_ARG)
 {
+  double x, y, phase, r, theta, xtrans, ytrans;
+
   GetDP_Begin(F_DiamondPhase);
 
-  double x, y, phase, r, theta, xtrans, ytrans;
   x = A->Val[0];
   y = A->Val[1];
 
