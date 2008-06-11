@@ -1,4 +1,19 @@
-$Id: TODO,v 1.9 2007-11-28 13:01:21 geuzaine Exp $
+$Id: TODO,v 1.10 2008-06-11 10:19:00 geuzaine Exp $
+
+Lars.Rindorf@teknologisk.dk wrote:
+>> By the way, with sparsekit and 3D modelling in getdp I found an  
+>> error. If one includes terms like
+>>       Galerkin {      [ Einc[], {E} ]; In port; Integration I1;  
+>> Jacobian Jac;}
+>> Where Einc is purely imaginary then sparsekit complex conjugates it. 
+>>  It is only a problem in 3D. In 2D it does not exist. The problem  
+>> also disappers with petsc.
+>>
+
+*******************************************************************
+
+access Time & TimeImag (mostly for eigenvalues Re/Im) in
+post-processing !
 
 *******************************************************************
 
