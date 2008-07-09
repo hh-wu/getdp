@@ -1,67 +1,51 @@
-# $Id: Makefile,v 1.1 2008-04-10 20:35:02 geuzaine Exp $
+# GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
 #
-# Copyright (C) 1997-2006 P. Dular, C. Geuzaine
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-# USA.
-# 
-# Please report all bugs and problems to <getdp@geuz.org>.
+# See the LICENSE.txt file for license information. Please report all
+# bugs and problems to <getdp@geuz.org>.
 
 include ../../variables
 
-LIB      = ../../lib/libArpack.a
+LIB = ../../lib/libGetDPArpack${LIBEXT}
 
-INCLUDE  = 
-FFLAGS = ${F77_FLAGS} ${INCLUDE}
+INC = 
 
-SOBJ  = sgetv0.o slaqrb.o sstqrb.o ssortc.o ssortr.o sstatn.o sstats.o \
-	snaitr.o snapps.o snaup2.o snaupd.o snconv.o sneigh.o sngets.o \
-	ssaitr.o ssapps.o ssaup2.o ssaupd.o ssconv.o sseigt.o ssgets.o \
-	sneupd.o sseupd.o ssesrt.o
+F77FLAGS = ${OPTIM} ${FLAGS} ${INC}
 
-DOBJ  = dgetv0.o dlaqrb.o dstqrb.o dsortc.o dsortr.o dstatn.o dstats.o \
-	dnaitr.o dnapps.o dnaup2.o dnaupd.o dnconv.o dneigh.o dngets.o \
-	dsaitr.o dsapps.o dsaup2.o dsaupd.o dsconv.o dseigt.o dsgets.o \
-	dneupd.o dseupd.o dsesrt.o
+SSRC  = sgetv0.f slaqrb.f sstqrb.f ssortc.f ssortr.f sstatn.f sstats.f \
+	snaitr.f snapps.f snaup2.f snaupd.f snconv.f sneigh.f sngets.f \
+	ssaitr.f ssapps.f ssaup2.f ssaupd.f ssconv.f sseigt.f ssgets.f \
+	sneupd.f sseupd.f ssesrt.f
 
-COBJ  = cnaitr.o cnapps.o cnaup2.o cnaupd.o cneigh.o cneupd.o cngets.o \
-        cgetv0.o csortc.o cstatn.o
+DSRC  = dgetv0.f dlaqrb.f dstqrb.f dsortc.f dsortr.f dstatn.f dstats.f \
+	dnaitr.f dnapps.f dnaup2.f dnaupd.f dnconv.f dneigh.f dngets.f \
+	dsaitr.f dsapps.f dsaup2.f dsaupd.f dsconv.f dseigt.f dsgets.f \
+	dneupd.f dseupd.f dsesrt.f
 
-ZOBJ  = znaitr.o znapps.o znaup2.o znaupd.o zneigh.o zneupd.o zngets.o \
-        zgetv0.o zsortc.o zstatn.o
+CSRC  = cnaitr.f cnapps.f cnaup2.f cnaupd.f cneigh.f cneupd.f cngets.f \
+        cgetv0.f csortc.f cstatn.f
 
-UTILS = cvout.o dmout.o dvout.o icnteq.o icopy.o iset.o iswap.o \
-        ivout.o second.o smout.o svout.o zmout.o zvout.o
+ZSRC  = znaitr.f znapps.f znaup2.f znaupd.f zneigh.f zneupd.f zngets.f \
+        zgetv0.f zsortc.f zstatn.f
 
-.SUFFIXES: .o .f
+UTILS = cvout.f dmout.f dvout.f icnteq.f icopy.f iset.f iswap.f \
+        ivout.f second.f smout.f svout.f zmout.f zvout.f
 
-${LIB}: ${SOBJ} ${DOBJ} ${COBJ} ${ZOBJ} ${UTILS}
-	${AR} ${LIB} ${SOBJ} ${DOBJ} ${COBJ} ${ZOBJ} ${UTILS}
+OBJ = ${SSRC:.f=${OBJEXT}} ${DSRC:.f=${OBJEXT}} ${ZSRC:.f=${OBJEXT}} ${UTILS:.f=${OBJEXT}}
+
+.SUFFIXES: .${OBJEXT} .f
+
+${LIB}: ${OBJ}
+	${AR} ${ARFLAGS}${LIB} ${OBJ}
 	${RANLIB} ${LIB}
 
-.f.o:
-	${F77} ${FFLAGS} -c $<
+.f${OBJEXT}:
+	${F77} ${F77FLAGS} ${DASH}c $<
 
 clean:
-	rm -f *.o
+	rm -f *.o *.obj
 
 
 depend:
-	true
-
-nodepend:
 	true
 
 # DO NOT DELETE THIS LINE
