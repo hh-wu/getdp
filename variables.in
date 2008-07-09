@@ -1,30 +1,14 @@
-# $Id: variables.in,v 1.14 2007-11-28 13:01:21 geuzaine Exp $
+# GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
 #
-# Copyright (C) 1997-2004 P. Dular, C. Geuzaine
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-# USA.
-# 
-# Please report all bugs and problems to <getdp@geuz.org>.
+# See the LICENSE.txt file for license information. Please report all
+# bugs and problems to <getdp@geuz.org>.
 
 # OS and host
 UNAME=@UNAME@
 HOSTNAME=@HOSTNAME@
 
 # The names of the C and Fortran compilers
-CC=@CC@
+CXX=@CXX@
 F77=@F77@
 
 # If you need to link to dynamic libraries installed in non-standard
@@ -34,29 +18,37 @@ F77=@F77@
 # environement variable or use the 'ldconfig' program.
 LINKER=@LINKER@
 
-# Compiler flags
-C_FLAGS=@C_FLAGS@
-C_PARSER_FLAGS=@C_PARSER_FLAGS@
-F77_FLAGS=@F77_FLAGS@
+# All compiler flags except optimization flags
+FLAGS=@FLAGS@
 
-# GetDP subdirectories and libraries
+# Additional system includes
+SYSINCLUDE=
+
+# Compiler optimization flags
+OPTIM=@OPTIM@
+
+# GetDP subdirectories
 GETDP_DIRS=@GETDP_DIRS@
-GETDP_LIBS=@GETDP_LIBS@
 
-# Solver flags
-SOLVER=@SOLVER@
+# GetDP  and libraries
+GETDP_LIBS=@GETDP_LIBS@
 
 # PETSc stuff
 PETSC_DIR=@PETSC_DIR@
 PETSC_ARCH=@PETSC_ARCH@
 @PETSC_INCLUDE_MAKEFILE@
-@PETSC_REDEFINE_CC@
 
 # How you create a static library on this machine
 AR=@AR@
+ARFLAGS=
 RANLIB=@RANLIB@
 
-# The extension to use for executables...
+# The symbol used in front of compiler flags
+DASH=-
+
+# The extension to use for object files, libraries and executables
+OBJEXT=.o
+LIBEXT=.a
 EXEEXT=@EXEEXT@
 
 # Installation directories

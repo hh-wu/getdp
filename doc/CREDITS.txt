@@ -1,4 +1,4 @@
-$Id: CREDITS,v 1.17 2006-03-13 20:49:51 geuzaine Exp $
+$Id: CREDITS.txt,v 1.1 2008-07-09 21:29:40 geuzaine Exp $
 
              GetDP is copyright (C) 1997-2006
 

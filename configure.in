@@ -1,7 +1,12 @@
+dnl GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
+dnl
+dnl See the LICENSE.txt file for license information. Please report all
+dnl bugs and problems to <getdp@geuz.org>.
+
 dnl Process this file with autoconf to produce the configure script.
 
 dnl Check that this is the getdp source tree
-AC_INIT(Parser/GetDP.y)
+AC_INIT(Interface/proParser.y)
 
 dnl Parse '--with' command-line options
 AC_ARG_WITH(gsl-prefix,
@@ -12,10 +17,6 @@ AC_ARG_WITH(blas-lapack-prefix,
             AC_HELP_STRING([--with-blas-lapack-prefix=PFX],
                            [prefix where BLAS and LAPACK are installed]),
             [BLAS_LAPACK_PREFIX=$withval])
-AC_ARG_WITH(readline-prefix,
-            AC_HELP_STRING([--with-readline-prefix=PFX],
-                           [prefix where GNU readline is installed]),
-            [READLINE_PREFIX=$withval])
 AC_ARG_WITH(petsc-prefix,
             AC_HELP_STRING([--with-petsc-prefix=PFX],
                            [prefix where PETSc is installed]),
@@ -24,92 +25,72 @@ AC_ARG_WITH(petsc-arch,
             AC_HELP_STRING([--with-petsc-arch=ARCH],
                            [PETSc architecture]),
             [PETSC_ARCH=$withval])
-AC_ARG_WITH(metis-prefix,
-            AC_HELP_STRING([--with-metis-prefix=PFX],
-                           [prefix where Metis is installed]),
-            [METIS_PREFIX=$withval])
 
 dnl Parse '--enable' command line options
-AC_ARG_ENABLE(multiharmonic,
-              AC_HELP_STRING([--enable-multiharmonic],
-                             [enable multiharmonic (> 2) calculations (default=no)]))
 AC_ARG_ENABLE(petsc,
               AC_HELP_STRING([--enable-petsc],
-                             [use PETSc linear solvers (default=no)]))
-AC_ARG_ENABLE(arpack,
-              AC_HELP_STRING([--enable-arpack],
-                             [enable built-in Arpack eigensolver (default=yes)]))
-AC_ARG_ENABLE(debug,
-              AC_HELP_STRING([--enable-debug],
-                             [build debug stack frame (default=no)]))
+                             [use PETSc linear solvers (default=yes)]))
+AC_ARG_ENABLE(sparskit,
+              AC_HELP_STRING([--enable-sparskit],
+                             [use Sperskit linear solvers (default=no)]))
 AC_ARG_ENABLE(cygwin,
               AC_HELP_STRING([--enable-cygwin],
                              [use the Cygwin library on Windows (default=no)]))
-AC_ARG_ENABLE(universal,
-              AC_HELP_STRING([--enable-universal],
-                             [enable support for universal binaries on Mac (default=no)]))
 AC_ARG_ENABLE(gsl,
               AC_HELP_STRING([--enable-gsl],
                              [use GSL as numerical toolkit (default=yes)]))
-AC_ARG_ENABLE(readline,
-              AC_HELP_STRING([--enable-readline],
-                             [use GNU readline (default=no)]))
-AC_ARG_ENABLE(metis,
-              AC_HELP_STRING([--enable-metis],
-                             [use Metis for graph partitioning (default=no)]))
-AC_ARG_ENABLE(zitsol,
-              AC_HELP_STRING([--enable-zitsol],
-                             [enable support for ZITSOL (default=no)]))
+AC_ARG_ENABLE(arpack,
+              AC_HELP_STRING([--enable-arpack],
+                             [enable built-in Arpack eigensolver (default=yes)]))
 
 dnl Get the operating system and machine names
 UNAME=`uname`
 HOSTNAME=`hostname`
 
 dnl Check for default compilers
-AC_PROG_CC
+AC_PROG_CXX
 AC_PROG_F77
-if test "x${CC}" = "x" -o "x${F77}" = "x" ; then
+if test "x${CXX}" = "x" -o "x${F77}" = "x" ; then
   AC_MSG_ERROR([Could not find required compilers, aborting.])
 fi
-LINKER="${F77}"
+
+dnl Set default optimization level
+OPTIM="${CXXFLAGS}"
+
+dnl Use c++ for all compilation tests
+AC_LANG(C++)
 
 dnl Take care of no-cygwin option before doing any other tests
 case "$UNAME" in
   CYGWIN*)
     if test "x$enable_cygwin" != "xyes"; then
       UNAME="${UNAME}-no-cygwin"
-      CC="${CC} -mno-cygwin"
+      CXX="${CXX} -mno-cygwin"
       F77="${F77} -mno-cygwin"
       LINKER="${LINKER} -mno-cygwin"
     fi
     ;;
 esac
 
-dnl Set default flags
-C_FLAGS="${CFLAGS}"
-C_PARSER_FLAGS="${CFLAGS}"
-F77_FLAGS="${FFLAGS}"
-OPTIONS=""
-
-dnl Use C for tests
-AC_LANG(C)
-
 dnl Check for various programs
 AC_PROG_CPP
 AC_PROG_RANLIB
-case "${UNAME}" in
+
+dnl How to build static libraries?
+case "$UNAME" in
   Darwin*)
     RANLIB=true
     AR="libtool -o"
     ;;
+  *)
+    AC_PROG_RANLIB
+    AC_PATH_PROG(AR, ar)
+    if test "x${AR}" = "x:"; then
+      AC_MSG_ERROR([Could not find the library archiver, aborting.])
+    fi
+    AR="${AR} ruvs"
+    ;;
 esac
-
-dnl How to build static libraries?
-AC_PATH_PROG(AR, ar)
-if test "x${AR}" = "x:"; then
-  AC_MSG_ERROR([Could not find the library archiver, aborting.])
-fi
-AR="${AR} ruvs"
 
 dnl See if we need a .exe extension on executables
 AC_EXEEXT
@@ -117,189 +98,48 @@ AC_EXEEXT
 dnl Check for standard math library
 AC_CHECK_LIB(m,main)
 
-dnl Set default subdirectories
-GETDP_DIRS="Main Parser Post Function Integration GeoData DofData Numeric DataStr FMM"
+dnl Set default subdirectories and options
+GETDP_DIRS="Common Numeric Interface Legacy Main"
+GETDP_LIBS="-Llib -lGetDPMain -lGetDPLegacy -lGetDPInterface -lGetDPNumeric -lGetDPCommon"
+FLAGS="-DHAVE_LEGACY"
 
-dnl Modify the above defaults and specify the linker
-if test "x$enable_petsc" = "xyes"; then
-
+dnl Check for PETSc
+if test "x$enable_petsc" != "xno"; then
   if test "x${PETSC_DIR}" = "x"; then
     AC_MSG_ERROR([Could not determine PETSC_DIR. Run configure again with --with-petsc-prefix.])
   fi
   if test "x${PETSC_ARCH}" = "x"; then
     AC_MSG_ERROR([Could not determine PETSC_ARCH. Run configure again with --with-petsc-arch.])
   fi
-
-  OPTIONS="${OPTIONS} -DHAVE_BLAS_LAPACK"
-
-  if test "x$enable_arpack" != "xno"; then
-    OPTIONS="${OPTIONS} -DHAVE_ARPACK"
-    GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
-    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM -lArpack ${PETSC_KSP_LIB}'
-  else
-    GETDP_LIBS='-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lDataStr -lFMM ${PETSC_KSP_LIB}'
-  fi
-
-  SOLVER='-DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
-  LINKER='${CLINKER}'
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
+  GETDP_LIBS+=' ${PETSC_KSP_LIB}'
+  FLAGS+=' -DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
+  LINKER='${CLINKER}'
+fi
 
-  dnl PETSc >= 2.3.1 configured with with C++ complex number support does
-  dnl not redefine CC as the CXX compiler anymore, but getdp needs this
-  if grep PETSC_CLANGUAGE_CXX ${PETSC_DIR}/bmake/${PETSC_ARCH}/petscconf.h >/dev/null; then 
-    echo "PETSc is configured with CXX as the C compiler"
-    PETSC_REDEFINE_CC='CC=${CXX}'
+dnl Check for PETSc
+if test "x$enable_sparskit" = "xyes"; then
+  AC_MSG_ERROR([Sparskit not reimplemented yet.])
+fi
+
+dnl Check for Gmsh 
+if test "x${GMSH_PREFIX}" != "x"; then
+  LDFLAGS="-L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib ${LDFLAGS}"
+fi
+AC_CHECK_LIB(Gmsh,main,GMSH="yes",GMSH="no")
+if test "x${GMSH}" = "xyes"; then
+  if test "x${GMSH_PREFIX}" = "x"; then
+    GETDP_LIBS+=" -lGmsh"
+  else
+    GETDP_LIBS+=" -L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib -lGmsh"
+    FLAGS+=" -I${GMSH_PREFIX} -I${GMSH_PREFIX}/include"
   fi
-
-  dnl check for zitsol
-  if test "x$enable_zitsol" = "xyes"; then
-    AC_CHECK_FILE(./contrib/ZITSOL_1/zarms2.c,ZITSOL="yes",ZITSOL="no")
-    if test "x${ZITSOL}" = "xyes"; then
-      OPTIONS="${OPTIONS} -DHAVE_ZITSOL"
-      GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
-      GETDP_LIBS="${GETDP_LIBS} -Lcontrib/ZITSOL_1 -lzitsol"
-    fi
-  fi
-
-  dnl Fix link when using gfortran as the fortran compiler
-  case "${F77}" in
-    *gfortran*)
-      GETDP_LIBS="${GETDP_LIBS} -lgfortran"
-      AC_MSG_WARN([gfortran breaks Arpack (known incompatibility in blas' zdotc).])
-      ;;
-  esac
-
-  dnl Force specific options for native compilers
-  case "${UNAME}" in
-    CYGWIN* | MINGW*)
-      if test "x$enable_cygwin" != "xyes"; then
-        GETDP_LIBS="${GETDP_LIBS} -lwsock32"
-      fi
-      ;;
-    Darwin*)
-      if test "x$enable_universal" = "xyes"; then
-        C_FLAGS="-arch i386 -arch ppc ${C_FLAGS}"
-        C_PARSER_FLAGS="-arch i386 -arch ppc ${C_PARSER_FLAGS}"
-        F77_FLAGS="-arch i386 -arch ppc ${F77_FLAGS}"
-      fi
-      case "${F77}" in
-        *g77*)
-          GETDP_LIBS="${GETDP_LIBS} -lg2c"
-          ;;
-      esac
-      ;;
-  esac
-
 else
-
-  GETDP_DIRS="${GETDP_DIRS} contrib/Sparskit"
-  GETDP_LIBS="-Llib -lMain -lParser -lPost -lFunction -lIntegration -lGeoData -lDofData -lNumeric -lSparskit -lDataStr -lFMM"
-  SOLVER="-DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
-
-  dnl Check for blas and lapack (used by Arpack and Lanczos/GSL)
-  AC_LANG_PUSH(Fortran 77)
-  if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
-    LDFLAGS="-L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib ${LDFLAGS}"
+  AC_CHECK_FILE(./contrib/gmsh/GmshEmbedded.cpp,GMSH="yes",GMSH="no")
+  if test "x${GMSH}" = "xyes"; then
+    GETDP_DIRS+=" contrib/gmsh"
+    GETDP_LIBS+=" -lGmshEmbedded"
   fi
-  AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
-  if test "x${BLAS}" = "xyes"; then
-    AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
-    if test "x${LAPACK}" = "xyes"; then
-      OPTIONS="${OPTIONS} -DHAVE_BLAS_LAPACK"
-      if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
-        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
-      fi   
-    fi
-  fi
-  AC_LANG_POP()
-
-  dnl Check for Arpack, then link with blas and lapack if necessary
-  if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
-    OPTIONS="${OPTIONS} -DHAVE_ARPACK"
-    GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
-    GETDP_LIBS="${GETDP_LIBS} -lArpack"
-  fi
-  if test "x${LAPACK}" = "xyes"; then
-    GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
-  fi
-
-  dnl Force specific options for native compilers
-  case "${UNAME}" in
-    IRIX*)
-      dnl options for native SGI compiler
-      if test "x${CC}" = "xcc"; then
-        dnl add "-mips3 -n32" to all flags for portable 32 bit exe
-        dnl -DHAVE_ILU_FLOAT crashes Sparskit
-        SOLVER="-DHAVE_SPARSKIT"
-      fi
-      ;;
-    HP-UX*)
-      dnl options for native HP compiler
-      if test "x${CC}" = "xcc"; then
-        C_FLAGS="+O2 +Onolimit -Ae +DAportable"
-        C_PARSER_FLAGS="+O1 -Ae +DAportable"
-      fi
-      if test "x${F77}" = "xf77"; then
-        F77_FLAGS="+O2 +DAportable"
-        LINKER="f77 +DAportable"
-        GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
-        SOLVER="-DHAVE_UNDERSCORE ${SOLVER}"
-      fi
-      ;;
-    OSF1*)
-      dnl options for native DEC compiler
-      if test "x${CC}" = "xcc"; then
-        C_PARSER_FLAGS="-O1"
-      fi
-      if test "x${F77}" = "xf77"; then
-        LINKER="f77 -nofor_main"
-      fi
-      ;;
-    SunOS*)
-      GETDP_LIBS="${GETDP_LIBS} -lsocket"
-      ;;
-    AIX*)
-      dnl options for native AIX compiler
-      if test "x${CC}" = "xcc"; then
-        C_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
-        C_PARSER_FLAGS="-O1 -D_BSD -qMAXMEM=10000"
-      fi
-      if test "x${F77}" = "xf77"; then
-        F77_FLAGS="-O2 -D_BSD -qMAXMEM=10000"
-        SOLVER="-DHAVE_SPARSKIT -DHAVE_UNDERSCORE"
-      fi
-      ;;
-    CYGWIN* | MINGW*)
-      if test "x$enable_cygwin" != "xyes"; then
-        GETDP_LIBS="${GETDP_LIBS} -lwsock32"
-      fi
-      ;;
-    Linux*)
-      dnl options for pgi and intel compilers
-      case "${F77}" in
-        *pgf77*)
-          LINKER="${F77} -Mnomain"
-          GETDP_LIBS="Main/Main.o ${GETDP_LIBS}"
-          ;;
-        *ifort*)
-          LINKER="${F77} -nofor_main"
-          ;;
-      esac
-      ;;
-    Darwin*)
-      case "${F77}" in
-        *g77*)
-          dnl force C linker with g77 compiler
-          LINKER="gcc"
-          GETDP_LIBS="${GETDP_LIBS} -lg2c"
-          ;;
-        *gfortran*)
-          AC_MSG_WARN([gfortran breaks Arpack (known incompatibility in blas' zdotc)!])
-          ;;
-      esac
-      ;;
-  esac
-
 fi
 
 dnl Check for GSL 
@@ -310,18 +150,18 @@ if test "x$enable_gsl" != "xno"; then
   AC_CHECK_LIB(gslcblas,main)
   AC_CHECK_LIB(gsl,main,GSL="yes",GSL="no")
   if test "x${GSL}" = "xyes"; then
-    OPTIONS="${OPTIONS} -DHAVE_GSL"
+    FLAGS+=" -DHAVE_GSL"
     if test "x${GSL_PREFIX}" = "x"; then
-      GETDP_LIBS="${GETDP_LIBS} -lgsl -lgslcblas"
+      GETDP_LIBS+=" -lgsl -lgslcblas"
     else
-      GETDP_LIBS="${GETDP_LIBS} -L${GSL_PREFIX} -L${GSL_PREFIX}/lib -lgsl -lgslcblas"
-      OPTIONS="${OPTIONS} -I${GSL_PREFIX} -I${GSL_PREFIX}/include"
+      GETDP_LIBS+=" -L${GSL_PREFIX} -L${GSL_PREFIX}/lib -lgsl -lgslcblas"
+      FLAGS+=" -I${GSL_PREFIX} -I${GSL_PREFIX}/include"
     fi
   fi
 fi
 if test "x${GSL}" != "xyes"; then
   dnl Check if non-free numerical recipes routines are in the tree
-  AC_CHECK_FILE(./contrib/NR/dsvdcmp.c,NR="yes",NR="no")
+  AC_CHECK_FILE(./contrib/NR/dsvdcmp.cpp,NR="yes",NR="no")
   if test "x${NR}" = "xyes"; then
     echo "********************************************************************"
     echo "You are building a non-free version of GetDP, using code copyright"
@@ -329,8 +169,8 @@ if test "x${GSL}" != "xyes"; then
     echo "To use the GSL instead, run configure again with the --enable-gsl"
     echo "option."
     echo "********************************************************************"
-    GETDP_DIRS="${GETDP_DIRS} contrib/NR"
-    GETDP_LIBS="${GETDP_LIBS} -lNR"
+    GETDP_DIRS+=" contrib/NR"
+    GETDP_LIBS+=" -lGetDPNR"
   else
     echo "********************************************************************"
     echo "This is the free version of GetDP and configure could not find"
@@ -344,100 +184,53 @@ if test "x${GSL}" != "xyes"; then
     echo "versions <= 1.1.1 have a bug in the singular value decomposition"
     echo "algorithm that may cause GetDP to hang during execution."
     echo "********************************************************************"
-    AC_MSG_ERROR([Could not find GSL, aborting.])
+    AC_MSG_ERROR([Could not find GSL or NR, aborting.])
   fi
 fi
 
-dnl Do we trace the function calls in getdp?
-if test "x$enable_debug" = "xyes"; then
-  OPTIONS="${OPTIONS} -DHAVE_DEBUG_STACK"
+dnl Check for Arpack
+AC_CHECK_FILE(./contrib/Arpack/znaupd.f, ARPACK="yes", ARPACK="no")
+if test "x${ARPACK}" = "xyes" -a "x$enable_arpack" != "xno"; then
+   GETDP_DIRS+=" contrib/Arpack"
+   GETDP_LIBS+=" -lGetDPArpack"
+   FLAGS+=" -DHAVE_ARPACK"
 fi
 
-dnl Do we enable large number of harmonics in calculations?
-if test "x$enable_multiharmonic" = "xyes"; then
-  OPTIONS="${OPTIONS} -DHAVE_MULTIHARMONIC"
-fi
-
-dnl Check for Metis
-if test "x$enable_metis" = "xyes"; then
-  OPTIONS="${OPTIONS} -DHAVE_METIS"
-  if test "x${METIS_PREFIX}" != "x"; then
-    OPTIONS="${OPTIONS} -I${METIS_PREFIX} -I${METIS_PREFIX}/include"
-    GETDP_LIBS="${GETDP_LIBS} -L${METIS_PREFIX} -L${METIS_PREFIX}/lib -lmetis"
-  fi
-fi
-
-dnl Check for GNU readline
-if test "x$enable_readline" = "xyes"; then
-  if test "x${READLINE_PREFIX}" != "x"; then
-    CPPFLAGS="-I${READLINE_PREFIX} -I${READLINE_PREFIX}/include"
-    LDFLAGS="-L${READLINE_PREFIX} -L${READLINE_PREFIX}/lib ${LDFLAGS}"
-  fi
-  AC_CHECK_HEADER(readline/readline.h,READLINE="yes",READLINE="no")
-  dnl readline neads the termcap functions (also available in libcurses)
-  AC_CHECK_LIB(termcap,main,TERMCAP="yes",TERMCAP="no")
-  if test "x${TERMCAP}" = "xyes"; then
-    AC_CHECK_LIB(readline,main,READLINE="yes",READLINE="no",-lhistory -ltermcap)
-  else
-    AC_CHECK_LIB(curses,main,CURSES="yes",CURSES="no")
-    if test "x${CURSES}" = "xyes"; then
-      AC_CHECK_LIB(readline,main,READLINE="yes",READLINE="no",-lhistory -lcurses)
-    else
-      READLINE="no"
-    fi
-  fi
-  if test "x${READLINE}" = "xyes"; then
-    OPTIONS="${OPTIONS} -DHAVE_READLINE"
-    if test "x${READLINE_PREFIX}" = "x"; then
-      GETDP_LIBS="${GETDP_LIBS} -lreadline -lhistory"
-    else
-      GETDP_LIBS="${GETDP_LIBS} -L${READLINE_PREFIX} -L${READLINE_PREFIX}/lib -lreadline -lhistory"
-      OPTIONS="${OPTIONS} -I${READLINE_PREFIX} -I${READLINE_PREFIX}/include"
-    fi
-    if test "x${TERMCAP}" = "xyes"; then
-      GETDP_LIBS="${GETDP_LIBS} -ltermcap"
-    else
-      GETDP_LIBS="${GETDP_LIBS} -lcurses"
-    fi
-  fi
-fi
+dnl Fix link when using gfortran as the fortran compiler
+case "${F77}" in
+  *gfortran*)
+    GETDP_LIBS+=" -lgfortran"
+    ;;
+esac
 
 dnl Finish link line
-GETDP_LIBS="${GETDP_LIBS} -lm"    
-
-dnl Add options to C compiler flags
-C_FLAGS="${C_FLAGS} ${OPTIONS}"
-C_PARSER_FLAGS="${C_PARSER_FLAGS} ${OPTIONS}"
+GETDP_LIBS+=" -lm"    
 
 dnl Write output
 AC_SUBST(UNAME)
 AC_SUBST(HOSTNAME)
-AC_SUBST(C_FLAGS)
-AC_SUBST(C_PARSER_FLAGS)
-AC_SUBST(F77_FLAGS)
-AC_SUBST(SOLVER)
+AC_SUBST(FLAGS)
+AC_SUBST(OPTIM)
 AC_SUBST(LINKER)
 AC_SUBST(GETDP_DIRS)
 AC_SUBST(GETDP_LIBS)
 AC_SUBST(AR)
 AC_SUBST(PETSC_INCLUDE_MAKEFILE)
-AC_SUBST(PETSC_REDEFINE_CC)
 AC_SUBST(PETSC_DIR)
 AC_SUBST(PETSC_ARCH)
 AC_OUTPUT(variables)
 
 dnl Print some information
 echo "********************************************************************"
-echo "GetDP is configured for"
+echo "GetDP2 is configured for"
 echo "- OS               : $UNAME on $HOSTNAME"
-echo "- C compiler       : $CC $C_FLAGS"
-echo "- Fortran compiler : $F77 $F77_FLAGS"
+echo "- C++ compiler     : $CXX"
+echo "- Fortran compiler : $F77"
 echo "- Linker           : $LINKER"
-echo "- Solver           : $SOLVER"
-if test "x$enable_petsc" = "xyes"; then
+echo "- Optimization     : $OPTIM"
+echo "- Options          : $FLAGS"
 echo "- PETSC_DIR        : $PETSC_DIR"
 echo "- PETSC_ARCH       : $PETSC_ARCH"
-fi
 echo "********************************************************************"
 echo "To fine-tune the configuration, edit the 'variables' file"
 echo "********************************************************************"

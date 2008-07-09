@@ -1,45 +1,54 @@
-#define RCSID "$Id: Arpack.c,v 1.29 2006-02-26 00:42:54 geuzaine Exp $"
-/*
- * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA.
- *
- * Please report all bugs and problems to <getdp@geuz.org>.
- *
- * Contributor(s):
- *   Alexandru Mustatea
- *   Andre Nicolet
- */
+// GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <getdp@geuz.org>.
 
-#include "GetDP.h"
+//
+// Contributor(s):
+//   Alexandru Mustatea
+//   Andre Nicolet
+//
+
+#include <math.h>
+#include "ProData.h"
 #include "DofData.h"
-#include "CurrentData.h"
-#include "Numeric.h"
-#include "EigenPar.h"
+#include "EigenSolve.h"
+#include "MallocUtils.h"
+#include "Message.h"
+
+extern struct CurrentData Current ;
+extern char   Name_Path[MAX_FILE_NAME_LENGTH] ;
 
 #if !defined(HAVE_ARPACK) || !defined(HAVE_BLAS_LAPACK)
 
-void EigenSolve (struct DofData * DofData_P, int NumEigenvalues, 
-		 double shift_r, double shift_i){
-  Msg(GERROR, "EigenSolve not available without BLAS, LAPACK and ARPACK");
+void EigenSolve(struct DofData * DofData_P, int NumEigenvalues, 
+		double shift_r, double shift_i)
+{
+  Msg::Error("EigenSolve not available without BLAS, LAPACK and ARPACK");
 }
 
 #else
 
-#include "Arpack_F.h"
+#if defined(HAVE_UNDERSCORE)
+#define znaupd_ znaupd
+#define zneupd_ zneupd
+#endif
+
+extern "C" {
+  typedef struct {double re; double im;} complex_16;
+  extern void znaupd_(int *ido, char *bmat, int *n,
+		      char *which, int *nev, double *tol, complex_16 resid[],
+		      int *ncv, complex_16 v[], int *ldv, int iparam[],
+		      int ipntr[], complex_16 workd[], complex_16 workl[], int *lworkl,
+		      double rwork[], int *info);
+  extern void zneupd_(unsigned int *rvec, char *howmny, unsigned int select[], 
+		      complex_16 d[], complex_16 z[], int *ldz, complex_16 *sigma,
+		      complex_16 workev[], char *bmat, int *n, char *which, 
+		      int *nev, double *tol, complex_16 resid[], int *ncv, 
+		      complex_16 v[], int *ldv, int iparam[], int ipntr[], 
+		      complex_16 workd[], complex_16 workl[], int *lworkl, 
+		      double rwork[], int *info);
+}
 
 /* This routine uses Arpack to solve Generalized Complex Non-Hermitian
    eigenvalue problems. We don't use the "Generalized" Arpack mode
@@ -47,7 +56,8 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
    the regular mode (bmat='I') and apply the shift "by hand", which
    allows us to use arbitrary matrices K and M. */
 
-static void Arpack2GetDP(int N, complex_16 *in, gVector *out){
+static void Arpack2GetDP(int N, complex_16 *in, gVector *out)
+{
   int i, j;
   double re, im;
   for(i = 0; i < N; i++){
@@ -58,7 +68,8 @@ static void Arpack2GetDP(int N, complex_16 *in, gVector *out){
   }
 }
 
-static void Arpack2GetDPSplit(int N, complex_16 *in, gVector *out1, gVector *out2){
+static void Arpack2GetDPSplit(int N, complex_16 *in, gVector *out1, gVector *out2)
+{
   int i, j;
   double re, im;
   for(i = 0; i < N/2; i++){
@@ -72,7 +83,8 @@ static void Arpack2GetDPSplit(int N, complex_16 *in, gVector *out1, gVector *out
   }
 }
 
-static void GetDP2Arpack(gVector *in, complex_16 *out){
+static void GetDP2Arpack(gVector *in, complex_16 *out)
+{
   int i, N;
   double re, im;
   LinAlg_GetVectorSize(in, &N);
@@ -83,7 +95,8 @@ static void GetDP2Arpack(gVector *in, complex_16 *out){
   }
 }
 
-static void GetDP2ArpackMerge(gVector *in1, gVector *in2, complex_16 *out){
+static void GetDP2ArpackMerge(gVector *in1, gVector *in2, complex_16 *out)
+{
   int i, N;
   double re, im;
   LinAlg_GetVectorSize(in1, &N);
@@ -98,7 +111,8 @@ static void GetDP2ArpackMerge(gVector *in1, gVector *in2, complex_16 *out){
 }
 
 void EigenSolve (struct DofData * DofData_P, int NumEigenvalues, 
-		 double shift_r, double shift_i){
+		 double shift_r, double shift_i)
+{
   struct EigenPar eigenpar;
   struct Solution Solution_S;
   gVector v1, v2, w1, w2, x, y;
@@ -118,17 +132,15 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   unsigned int rvec, *select;
   complex_16 *resid, *v, *workd, *workl, *d, *z, sigma, *workev;
 
-  GetDP_Begin("EigenSolve");
-
   /* Bail out if we are not in harmonic regime: it's much easier this
      way (since, for real, non-symmetric matrices we would get complex
      eigenvectors we could not easily store) */
   if(Current.NbrHar != 2)
-    Msg(GERROR, "EigenSolve requires system defined with \"Type Complex\"");
+    Msg::Error("EigenSolve requires system defined with \"Type Complex\"");
 
   /* Sanity checks */
   if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
-    Msg(GERROR, "No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
+    Msg::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
 
   /* Check if we have a "quadratic" evp (- w^2 M x + i w L x + K x = 0) */
   if(DofData_P->Flag_Init[2])
@@ -421,7 +433,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   /* Workspace */
 
   if(bmat != 'I' || iparam[6] != 1)
-    Msg(GERROR, "General and/or shift-invert mode should not be used");
+    Msg::Error("General and/or shift-invert mode should not be used");
 
   /* Create temp vectors and matrices and apply shift. Warning: with
      PETSc, the shifting can be very slow if the masks are very
@@ -541,7 +553,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     Msg(WARNING, "is to increase the size of NCV relative to NEV.");
   }
   else if(info < 0){
-    Msg(GERROR, "Arpack code = %d", info);
+    Msg::Error("Arpack code = %d", info);
   }
   else{
     Msg(WARNING, "Arpack code = %d (unknown)", info);
@@ -554,7 +566,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 
   /* Test for errors */  
   if(info != 0)
-    Msg(GERROR, "Arpack code = %d (eigenvector post-processing)", info);
+    Msg::Error("Arpack code = %d (eigenvector post-processing)", info);
   
   /* Compute the unshifted eigenvalues and print them, and store the
      associated eigenvectors */
@@ -660,8 +672,79 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   Free(d);
   Free(z);
   Free(workev);
-
-  GetDP_End;
 }
 
 #endif
+
+static void EigenGetDouble(char *text, double *d)
+{
+  char str[256];
+  printf("%s (default=%.16g): ", text, *d);
+  fgets(str, sizeof(str), stdin);
+  if(strlen(str) && strcmp(str, "\n"))
+    *d = atof(str);
+}
+
+static void EigenGetInt(char *text, int *i)
+{
+  char str[256];
+  printf("%s (default=%d): ", text, *i);
+  fgets(str, sizeof(str), stdin);
+  if(strlen(str) && strcmp(str, "\n"))
+    *i = atoi(str);
+}
+
+void EigenPar(char *filename, struct EigenPar *par)
+{
+  char path[1024];
+  FILE *fp;
+
+  /* set some defaults */
+  par->prec = 1.e-4;
+  par->reortho = 0;
+  par->size = 50;
+
+  /* try to read parameters from file */
+  strcpy(path, Name_Path);
+  strcat(path, filename);
+  fp = fopen(path, "r");
+  if(fp) {
+    Msg::Info("Loading eigenproblem parameter file '%s'", path);
+    fscanf(fp, "%lf", &par->prec); 
+    fscanf(fp, "%d", &par->reortho);
+    fscanf(fp, "%d", &par->size);
+    fclose(fp);
+  }
+  else{
+    fp = fopen(path, "w");
+    if(fp){
+      /* get parameters from command line */
+      EigenGetDouble("Precision", &par->prec);
+      EigenGetInt("Reorthogonalization", &par->reortho);
+      EigenGetInt("Krylov basis size", &par->size);
+      /* write file */
+      fprintf(fp, "%.16g\n", par->prec);
+      fprintf(fp, "%d\n", par->reortho);
+      fprintf(fp, "%d\n", par->size);
+      fprintf(fp,
+	      "/*\n"
+	      "   The numbers above are the parameters for the numerical\n"
+	      "   eigenvalue problem:\n"
+	      "\n"
+	      "   prec = aimed accuracy for eigenvectors (default=1.e-4)\n"
+	      "   reortho = reorthogonalisation of Krylov basis: yes=1, no=0 (default=0) \n"
+	      "   size = size of the Krylov basis\n"
+	      "\n"
+	      "   The shift is given in the .pro file because its choice relies\n"
+	      "   on physical considerations.\n"
+	      "*/");
+      fclose(fp);
+    }
+    else{
+      Msg::Error("Unable to open file '%s'", path);
+    }
+  }
+  
+  Msg::Info("Eigenproblem parameters: prec = %g, reortho = %d, size = %d", 
+	    par->prec, par->reortho, par->size);
+}

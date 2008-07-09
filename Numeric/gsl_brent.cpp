@@ -1,29 +1,11 @@
-#define RCSID "$Id: gsl_brent.c,v 1.7 2006-02-25 15:00:24 geuzaine Exp $"
-/*
- * Copyright (C) 1997-2006 P. Dular, C. Geuzaine
- *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
- * USA.
- *
- * Please report all bugs and problems to <getdp@geuz.org>.
- */
-
-#include "GetDP.h"
+// GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <getdp@geuz.org>.
 
 #if defined(HAVE_GSL)
 
+#include "Message.h"
 #include "Numeric.h"
 
 #include <gsl/gsl_errno.h>
@@ -40,20 +22,20 @@ double fn1(double x, void *params)
 
 #define MAXITER 100
 
-/* Returns the minimum betwen ax and cx to a given tolerance tol using
-   brent's method. */
+// Returns the minimum betwen ax and cx to a given tolerance tol using
+// brent's method.
 
 double brent(double ax, double bx, double cx,
              double (*f) (double), double tol, double *xmin)
 {
   int status;
   int iter = 0;
-  double a, b, c;               /* a < b < c */
+  double a, b, c;               // a < b < c
   const gsl_min_fminimizer_type *T;
   gsl_min_fminimizer *s;
   gsl_function F;
 
-  /* gsl wants a<b */
+  // gsl wants a<b
   b = bx;
   if(ax < cx) {
     a = ax;
@@ -64,7 +46,7 @@ double brent(double ax, double bx, double cx,
     c = cx;
   }
 
-  /* if a-b < tol, return func(a) */
+  // if a-b < tol, return func(a)
   if(fabs(c - a) < tol) {
     *xmin = ax;
     return (f(*xmin));
@@ -83,18 +65,18 @@ double brent(double ax, double bx, double cx,
     iter++;
     status = gsl_min_fminimizer_iterate(s);
     if(status)
-      break;    /* solver problem */
+      break;    // solver problem    
     b = gsl_min_fminimizer_minimum(s);
-    /* this is deprecated: we should use gsl_min_fminimizer_x_minimum(s) instead */
+    // this is deprecated: we should use gsl_min_fminimizer_x_minimum(s) instead
     a = gsl_min_fminimizer_x_lower(s);
     c = gsl_min_fminimizer_x_upper(s);
-    /* we should think about the tolerance more carefully... */
+    // we should think about the tolerance more carefully...
     status = gsl_min_test_interval(a, c, tol, tol);
   }
   while(status == GSL_CONTINUE && iter < MAXITER);
 
   if(status != GSL_SUCCESS)
-    Msg(GERROR, "MIN1D not converged: f(%g) = %g", b, fn1(b, NULL));
+    Msg::Error("MIN1D not converged: f(%g) = %g", b, fn1(b, NULL));
 
   *xmin = b;
   gsl_min_fminimizer_free(s);
@@ -102,27 +84,28 @@ double brent(double ax, double bx, double cx,
 }
 
 
-/* Find an initial bracketting of the minimum of func. Given 2 initial
-   points ax and bx, mnbrak checks in which direction func decreases,
-   and takes some steps in that direction, until the function
-   increases--at cx. mnbrak returns ax and cx (possibly switched),
-   bracketting a minimum. */
+// Find an initial bracketting of the minimum of func. Given 2 initial
+// points ax and bx, mnbrak checks in which direction func decreases,
+// and takes some steps in that direction, until the function
+// increases--at cx. mnbrak returns ax and cx (possibly switched),
+// bracketting a minimum.
 
 #define MYGOLD_  1.618034
 #define MYLIMIT_ 100.0
 #define MYTINY_  1.0e-20
+#define SIGN(a,b)((b) >= 0.0 ? fabs(a) : -fabs(a))
 
 void mnbrak(double *ax, double *bx, double *cx, 
-	    double *fa_dummy, double *fb_dummy, double *fc_dummy, 
-	    double (*func) (double))
+            double *fa_dummy, double *fb_dummy, double *fc_dummy, 
+            double (*func) (double))
 {
   double ulim, u, r, q;
-  double tmp;
   volatile double f_a, f_b, f_c, f_u;
 
   f_a = (*func) (*ax);
   f_b = (*func) (*bx);
   if(f_b > f_a) {
+    double tmp;
     tmp = *ax;
     *ax = *bx;
     *bx = tmp;
@@ -138,7 +121,7 @@ void mnbrak(double *ax, double *bx, double *cx,
     r = (*bx - *ax) * (f_b - f_c);
     q = (*bx - *cx) * (f_b - f_a);
     u = (*bx) - ((*bx - *cx) * q - (*bx - *ax) * r) / 
-      (2.0 * SIGN(MAX(fabs(q - r), MYTINY_), q - r));
+      (2.0 * SIGN(std::max(fabs(q - r), MYTINY_), q - r));
     ulim = *bx + MYLIMIT_ * (*cx - *bx);
 
     if((*bx - u) * (u - *cx) > 0.0) {

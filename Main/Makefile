@@ -5,43 +5,32 @@
 
 include ../variables
 
-LIB = ../lib/libGetDPNumeric${LIBEXT}
+LIB = ../lib/libGetDPMain${LIBEXT}
 
 INC = ${DASH}I. ${DASH}I../Common ${DASH}I../Interface ${DASH}I../Legacy \
-      ${DASH}I../contrib/NR ${DASH}I../contrib/Sparskit
+      ${DASH}I../contrib
 
-CFLAGS = ${OPTIM} ${FLAGS} ${INC} ${SYSINCLUDE}
+CXXFLAGS = ${OPTIM} ${FLAGS} ${INC} ${SYSTEMINCLUDE}
 
-SRC = Numeric.cpp \
-      Adapt.cpp \
-      EigenSolve.cpp \
-      Bessel.cpp \
-      Legendre.cpp \
-      gsl_brent.cpp gsl_newt.cpp gsl_min.cpp \
-
-FSRC = BesselLib.f
+SRC = Main.cpp
 
 OBJ = ${SRC:.cpp=${OBJEXT}}
-FOBJ = ${FSRC:.f=.o}
 
-.SUFFIXES: ${OBJEXT} .cpp .f
+.SUFFIXES: ${OBJEXT} .cpp
 
-${LIB}: ${OBJ} ${FOBJ}
-	${AR} ${ARFLAGS}${LIB} ${OBJ} ${FOBJ}
+${LIB}: ${OBJ} 
+	${AR} ${LIB} ${OBJ} 
 	${RANLIB} ${LIB}
 
 .cpp${OBJEXT}:
-	${CXX} ${CFLAGS} ${DASH}c $<
-
-.f${OBJEXT}:
-	${F77} ${FFLAGS} -c $<
+	${CXX} ${CXXFLAGS} ${DASH}c $<
 
 clean:
 	rm -f *.o *.obj
 
 depend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile && \
-	${CXX} -MM -MG ${CFLAGS} ${SRC} \
+	${CXX} -MM -MG ${CXXFLAGS} ${SRC} \
 	) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
