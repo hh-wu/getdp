@@ -1,4 +1,4 @@
-$Id: FAQ,v 1.12 2006-04-17 14:15:31 geuzaine Exp $
+$Id: FAQ.txt,v 1.1 2008-07-09 21:29:40 geuzaine Exp $
 
 This is the GetDP FAQ
 
