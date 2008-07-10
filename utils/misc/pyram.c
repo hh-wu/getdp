@@ -1,4 +1,4 @@
-/* $Id: pyram.c,v 1.1 2004-04-24 20:38:30 geuzaine Exp $ */
+/* $Id: pyram.c,v 1.1 2008-07-10 10:27:47 geuzaine Exp $ */
 
 /* 
    Calcul des points de Gauss pour une pyramide

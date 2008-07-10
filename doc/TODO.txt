@@ -1,4 +1,4 @@
-$Id: TODO.txt,v 1.1 2008-07-10 10:21:48 geuzaine Exp $
+$Id: TODO.txt,v 1.2 2008-07-10 10:33:04 geuzaine Exp $
 
 Lars.Rindorf@teknologisk.dk wrote:
 >> By the way, with sparsekit and 3D modelling in getdp I found an  
@@ -30,16 +30,6 @@ ones. Idea: allocate full rows for global equations.
 verify if the post-pro uses the correct frequency for each system if
 the frequency was changed by hand using SetFrequency in the
 resolution, in between two GenerateSystem
-
-*******************************************************************
-
-If we use petsc+complex+mpi, the CC is not set to the c++ compiler
-(it is when using petsc+compex)
-
-*******************************************************************
-
-Move the optional code (Arpack, Sparksit?, NR) into new contrib/
-directory
 
 ********************************************************************
 
