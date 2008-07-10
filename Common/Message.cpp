@@ -34,45 +34,43 @@ int Message::_socket = 0;
 
 void Message::Fatal(const char *fmt, ...)
 {
+  char str[1024];
   va_list args;
   va_start(args, fmt);
+  vsprintf(str, fmt, args);
+  va_end(args);
+
   if(_socket){
-    char str[1024];
-    vsprintf(str, fmt, args);
     _client.Error(str);
   }
   else{
     if(_commSize > 1) 
-      fprintf(stdout, "Fatal   : [On processor %d] ", _commRank);
+      fprintf(stderr, "Fatal   : [On processor %d] %s\n", _commRank, str);
     else
-      fprintf(stdout, "Fatal   : ");
-    vfprintf(stdout, fmt, args);
-    fprintf(stdout, "\n");
-    fflush(stdout);
+      fprintf(stderr, "Fatal   : %s\n", str);
+    fflush(stderr);
   }
-  va_end(args);
   exit(1);
 }
 
 void Message::Error(const char *fmt, ...)
 {
+  char str[1024];
   va_list args;
   va_start(args, fmt);
+  vsprintf(str, fmt, args);
+  va_end(args);
+
   if(_socket){
-    char str[1024];
-    vsprintf(str, fmt, args);
     _client.Error(str);
   }
   else{
     if(_commSize > 1) 
-      fprintf(stdout, "Error   : [On processor %d] ", _commRank);
+      fprintf(stderr, "Error   : [On processor %d] %s\n", _commRank, str);
     else
-      fprintf(stdout, "Error   : ");
-    vfprintf(stdout, fmt, args);
-    fprintf(stdout, "\n");
-    fflush(stdout);
+      fprintf(stderr, "Error   : %s\n", str);
+    fflush(stderr);
   }
-  va_end(args);
   exit(1);
 }
 
@@ -80,20 +78,18 @@ void Message::Warning(const char *fmt, ...)
 {
   if(_commRank) return;
   if(_verbosity >= 1){
+    char str[1024];
     va_list args;
     va_start(args, fmt);
+    vsprintf(str, fmt, args);
+    va_end(args);
     if(_socket){
-      char str[1024];
-      vsprintf(str, fmt, args);
       _client.Warning(str);
     }
     else{
-      fprintf(stdout, "Warning : ");
-      vfprintf(stdout, fmt, args);
-      fprintf(stdout, "\n");
+      fprintf(stdout, "Warning : %s\n", str);
       fflush(stdout);
     }
-    va_end(args);
   }
 }
 
@@ -101,20 +97,18 @@ void Message::Info(const char *fmt, ...)
 {
   if(_commRank) return;
   if(_verbosity >= 2){
+    char str[1024];
     va_list args;
     va_start(args, fmt);
+    vsprintf(str, fmt, args);
+    va_end(args);
     if(_socket){
-      char str[1024];
-      vsprintf(str, fmt, args);
       _client.Info(str);
     }
     else{
-      fprintf(stdout, "Info    : ");
-      vfprintf(stdout, fmt, args);
-      fprintf(stdout, "\n");
+      fprintf(stdout, "Info    : %s\n", str);
       fflush(stdout);
     }
-    va_end(args);
   }
 }
 
@@ -123,35 +117,33 @@ void Message::Direct(const char *fmt, ...)
   if(_commRank) return;
   va_list args;
   va_start(args, fmt);
+  char str[1024];
+  vsprintf(str, fmt, args);
+  va_end(args);
   if(_socket){
-    char str[1024];
-    vsprintf(str, fmt, args);
     _client.Info(str);
   }
   else{
-    fprintf(stdout, "Info    : ");
-    vfprintf(stdout, fmt, args);
-    fprintf(stdout, "\n");
+    fprintf(stdout, "Info    : %s\n", str);
     fflush(stdout);
   }
-  va_end(args);
 }
 
 void Message::Check(const char *fmt, ...)
 {
   if(_commRank) return;
+  char str[1024];
   va_list args;
   va_start(args, fmt);
+  vsprintf(str, fmt, args);
+  va_end(args);
   if(_socket){
-    char str[1024];
-    vsprintf(str, fmt, args);
     _client.Info(str);
   }
   else{
-    vfprintf(stdout, fmt, args);
+    fprintf(stdout, "%s", str);
     fflush(stdout);
   }
-  va_end(args);
 }
 
 void Message::Debug(const char *fmt, ...)
@@ -159,14 +151,19 @@ void Message::Debug(const char *fmt, ...)
   if(_verbosity >= 99){
     va_list args;
     va_start(args, fmt);
-    if(_commSize > 1) 
-      fprintf(stdout, "Debug   : [On processor %d] ", _commRank);
-    else
-      fprintf(stdout, "Debug   : ");
-    vfprintf(stdout, fmt, args);
-    fprintf(stdout, "\n");
-    fflush(stdout);
+    char str[1024];
+    vsprintf(str, fmt, args);
     va_end(args);
+    if(_socket){
+      _client.Info(str);
+    }
+    else{
+      if(_commSize > 1) 
+	fprintf(stdout, "Debug   : [On processor %d] %s\n", _commRank, str);
+      else
+	fprintf(stdout, "Debug   : %s\n", str);
+      fflush(stdout);
+    }
   }
 }
 
@@ -202,29 +199,29 @@ void Message::Cpu(const char *fmt, ...)
     double s = 0.;
     long mem = 0;
     GetResources(&s, &mem);
+    char str[1024];
     va_list args;
     va_start(args, fmt);
+    vsprintf(str, fmt, args);
+    va_end(args);
+    if(strlen(fmt)) strcat(str, " ");
     if(_socket){
-      char str[1024], tmp[256];
-      vsprintf(str, fmt, args);
+      char tmp[256];
       if(mem)
-	sprintf(tmp, " (CPU = %gs Mem = %ldkb)\n", s, mem);
+	sprintf(tmp, "(CPU = %gs Mem = %ldkb)\n", s, mem);
       else
-	sprintf(tmp, " (CPU = %gs)\n", s);
+	sprintf(tmp, "(CPU = %gs)\n", s);
       strcat(str, tmp);
       _client.Info(str);
     }
     else{
       fprintf(stdout, "Info    : ");
-      vfprintf(stdout, fmt, args);
-      if(strlen(fmt)) fprintf(stdout, " ");
       if(mem)
-	  fprintf(stdout, "(CPU = %gs Mem = %ldkb)\n", s, mem);
+	fprintf(stdout, "%s(CPU = %gs Mem = %ldkb)\n", str, s, mem);
       else
-	fprintf(stdout, "(CPU = %gs)\n", s);
+	fprintf(stdout, "%s(CPU = %gs)\n", str, s);
       fflush(stdout);
     }
-    va_end(args);
   }
 }
 
