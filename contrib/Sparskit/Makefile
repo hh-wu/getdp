@@ -51,10 +51,11 @@ clean:
 
 depend:
 	(sed '/^# DO NOT DELETE THIS LINE/q' Makefile && \
-	${CXX} -MM ${CFLAGS} ${SRC} \
+	${CXX} -MM -MG ${CXXFLAGS} ${CSRC} \
 	) >Makefile.new
 	cp Makefile Makefile.bak
 	cp Makefile.new Makefile
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
+Sparskit.o: Sparskit.cpp Sparskit.h ListUtils.h MallocUtils.h Message.h

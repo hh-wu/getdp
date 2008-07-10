@@ -2,7 +2,6 @@
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
-
 //
 // Contributor(s):
 //   Alexandru Mustatea

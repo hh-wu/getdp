@@ -44,3 +44,13 @@ depend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
+ProData.o: ProData.cpp ProData.h ../Common/ListUtils.h ProDefine.h \
+  ProParser.h ../Common/Message.h ../Common/GmshClient.h
+ProDefine.o: ProDefine.cpp ProData.h ../Common/ListUtils.h ProDefine.h \
+  ../Common/Message.h ../Common/GmshClient.h
+ProParser.yy.o: ProParser.yy.cpp ProData.h ../Common/ListUtils.h \
+  ProParser.h ProParser.tab.hpp ../Common/Message.h \
+  ../Common/GmshClient.h
+ProParser.tab.o: ProParser.tab.cpp ProData.h ../Common/ListUtils.h \
+  ProDefine.h ProDefines.h ProParser.h ../Common/Message.h \
+  ../Common/GmshClient.h

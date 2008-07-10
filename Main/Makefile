@@ -37,3 +37,4 @@ depend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
+Main.o: Main.cpp ../Legacy/MainLegacy.h

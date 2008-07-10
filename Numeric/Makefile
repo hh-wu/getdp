@@ -14,7 +14,6 @@ CFLAGS = ${OPTIM} ${FLAGS} ${INC} ${SYSINCLUDE}
 
 SRC = Numeric.cpp \
       Adapt.cpp \
-      EigenSolve.cpp \
       Bessel.cpp \
       Legendre.cpp \
       gsl_brent.cpp gsl_newt.cpp gsl_min.cpp \
@@ -48,3 +47,14 @@ depend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
+Numeric.o: Numeric.cpp ../Common/Message.h ../Common/GmshClient.h
+Adapt.o: Adapt.cpp Adapt.h Numeric.h ../Common/Message.h \
+  ../Common/GmshClient.h
+Bessel.o: Bessel.cpp ../Common/Message.h ../Common/GmshClient.h Bessel.h
+Legendre.o: Legendre.cpp ../Common/Message.h ../Common/GmshClient.h
+gsl_brent.o: gsl_brent.cpp ../Common/Message.h ../Common/GmshClient.h \
+  Numeric.h
+gsl_newt.o: gsl_newt.cpp ../Common/Message.h ../Common/GmshClient.h \
+  Numeric.h
+gsl_min.o: gsl_min.cpp ../Common/Message.h ../Common/GmshClient.h \
+  Numeric.h

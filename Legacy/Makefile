@@ -51,7 +51,8 @@ SRC = MainLegacy.cpp \
               Cal_Value.cpp \
               Cal_AssembleTerm.cpp \
               Cal_PostQuantity.cpp \
-            MovingBand2D.cpp \
+        MovingBand2D.cpp \
+        EigenSolve.cpp \
       Pos_FemInterpolation.cpp \
       Pos_Formulation.cpp \
         Pos_Print.cpp \
@@ -80,3 +81,255 @@ depend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
+MainLegacy.o: MainLegacy.cpp ../Common/GetDPVersion.h \
+  ../Interface/ProData.h ../Common/ListUtils.h SolvingAnalyse.h \
+  ../Numeric/Numeric.h LinAlg.h ../Common/OS.h ../Common/MallocUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+F_Analytic.o: F_Analytic.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  F.h ../Numeric/Legendre.h ../Numeric/Bessel.h ../Common/MallocUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+F_BiotSavart.o: F_BiotSavart.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h F.h ../Common/Message.h ../Common/GmshClient.h
+F_Coord.o: F_Coord.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  GeoData.h ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \
+  F.h Get_Geometry.h ../Common/Message.h ../Common/GmshClient.h
+F_ExtMath.o: F_ExtMath.cpp F.h ../Interface/ProData.h \
+  ../Common/ListUtils.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h DofData.h LinAlg.h Get_Geometry.h Cal_Value.h \
+  ../Common/Message.h ../Common/GmshClient.h
+F_Geometry.o: F_Geometry.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  F.h ../Numeric/Numeric.h ../Common/Message.h ../Common/GmshClient.h
+F_Interpolation.o: F_Interpolation.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h F.h ../Common/MallocUtils.h ../Common/Message.h \
+  ../Common/GmshClient.h
+F_Jiles.o: F_Jiles.cpp ../Interface/ProData.h ../Common/ListUtils.h F.h \
+  ../Common/Message.h ../Common/GmshClient.h
+F_Math.o: F_Math.cpp ../Interface/ProData.h ../Common/ListUtils.h F.h \
+  ../Common/MallocUtils.h ../Common/Message.h ../Common/GmshClient.h
+F_Misc.o: F_Misc.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  ../Interface/ProDefine.h ../Interface/ProData.h F.h Get_Geometry.h \
+  Cal_Value.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h ../Common/MallocUtils.h ../Common/Message.h \
+  ../Common/GmshClient.h
+F_MultiHar.o: F_MultiHar.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  ../Interface/ProDefine.h ../Interface/ProData.h DofData.h \
+  ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h LinAlg.h \
+  F.h Get_Geometry.h Get_FunctionValue.h Cal_Quantity.h \
+  ../Common/MallocUtils.h ../Common/Message.h ../Common/GmshClient.h
+F_Raytracing.o: F_Raytracing.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h F.h ../Common/Message.h ../Common/GmshClient.h
+F_Type.o: F_Type.cpp ../Interface/ProData.h ../Common/ListUtils.h F.h \
+  ../Common/Message.h ../Common/GmshClient.h
+BF_Node.o: BF_Node.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+BF_NodeXYZ.o: BF_NodeXYZ.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  BF.h Get_Geometry.h ../Common/Message.h ../Common/GmshClient.h
+BF_Node_2.o: BF_Node_2.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+BF_Node_3.o: BF_Node_3.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+BF_Edge.o: BF_Edge.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+BF_Edge_2.o: BF_Edge_2.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+BF_Edge_3.o: BF_Edge_3.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  GeoData.h ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+BF_Edge_4.o: BF_Edge_4.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+BF_Facet.o: BF_Facet.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+BF_Volume.o: BF_Volume.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+BF_Region.o: BF_Region.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  BF.h Get_DofOfElement.h Pos_FemInterpolation.h Cal_Quantity.h \
+  ../Common/MallocUtils.h ../Common/Message.h ../Common/GmshClient.h
+BF_Perpendicular.o: BF_Perpendicular.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h BF.h
+BF_GroupOfEntities.o: BF_GroupOfEntities.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h BF.h Get_Geometry.h
+GF_Helmholtz.o: GF_Helmholtz.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h GF.h Cal_Value.h GeoData.h ../Common/TreeUtils.h \
+  ../Common/avl.h ../Common/ListUtils.h ../Common/Message.h \
+  ../Common/GmshClient.h
+GF_HelmholtzxForm.o: GF_HelmholtzxForm.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h ../Interface/ProDefine.h ../Interface/ProData.h \
+  BF.h GF.h Gauss.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h ../Common/Message.h ../Common/GmshClient.h
+GF_Laplace.o: GF_Laplace.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  GF.h ../Common/Message.h ../Common/GmshClient.h
+GF_LaplacexForm.o: GF_LaplacexForm.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h ../Interface/ProDefine.h ../Interface/ProData.h \
+  BF.h GF.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h ../Common/Message.h ../Common/GmshClient.h
+Gauss_Point.o: Gauss_Point.cpp
+Gauss_Line.o: Gauss_Line.cpp Gauss.h Gauss_Line.h ../Common/Message.h \
+  ../Common/GmshClient.h ../Common/MallocUtils.h
+Gauss_Triangle.o: Gauss_Triangle.cpp Gauss.h Gauss_Triangle.h \
+  ../Common/Message.h ../Common/GmshClient.h ../Common/MallocUtils.h
+Gauss_Quadrangle.o: Gauss_Quadrangle.cpp Gauss.h Gauss_Quadrangle.h \
+  ../Common/Message.h ../Common/GmshClient.h ../Common/MallocUtils.h
+Gauss_Tetrahedron.o: Gauss_Tetrahedron.cpp Gauss.h Gauss_Tetrahedron.h \
+  ../Common/Message.h ../Common/GmshClient.h ../Common/MallocUtils.h
+Gauss_Hexahedron.o: Gauss_Hexahedron.cpp Gauss.h Gauss_Hexahedron.h \
+  ../Common/Message.h ../Common/GmshClient.h ../Common/MallocUtils.h
+Gauss_Prism.o: Gauss_Prism.cpp Gauss_Prism.h ../Common/Message.h \
+  ../Common/GmshClient.h
+Gauss_Pyramid.o: Gauss_Pyramid.cpp Gauss_Pyramid.h ../Common/Message.h \
+  ../Common/GmshClient.h
+GeoData.o: GeoData.cpp GeoData.h ../Common/ListUtils.h \
+  ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \
+  ../Interface/ProData.h ../Common/MallocUtils.h ../Common/Message.h \
+  ../Common/GmshClient.h
+GeoEntity.o: GeoEntity.cpp GeoData.h ../Common/ListUtils.h \
+  ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \
+  ../Interface/ProData.h GeoEntity.h ../Common/MallocUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+GeoNormal.o: GeoNormal.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  GeoData.h ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \
+  ../Common/MallocUtils.h ../Common/Message.h ../Common/GmshClient.h
+GeoTree.o: GeoTree.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  GeoData.h ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h
+DofData.o: DofData.cpp ../Common/GetDPVersion.h ../Interface/ProData.h \
+  ../Common/ListUtils.h DofData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h LinAlg.h ../Common/MallocUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+LinAlg.o: LinAlg.cpp LinAlg.h ../Common/Message.h ../Common/GmshClient.h
+LinAlg_PETSC.o: LinAlg_PETSC.cpp LinAlg.h ../Common/MallocUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.cpp LinAlg.h ../Interface/ProData.h \
+  ../Common/ListUtils.h DofData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h ../Common/MallocUtils.h ../Common/Message.h \
+  ../Common/GmshClient.h
+SolvingAnalyse.o: SolvingAnalyse.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h DofData.h LinAlg.h Treatment_Formulation.h \
+  Cal_Quantity.h Get_DofOfElement.h Pos_Formulation.h SolvingOperations.h \
+  ../Common/MallocUtils.h ../Common/Message.h ../Common/GmshClient.h
+SolvingOperations.o: SolvingOperations.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h ../Interface/ProDefine.h ../Interface/ProData.h \
+  GeoData.h ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \
+  DofData.h LinAlg.h BF.h Cal_Quantity.h Cal_Value.h Get_DofOfElement.h \
+  ExtendedGroup.h MovingBand2D.h Pos_Search.h EigenSolve.h \
+  Treatment_Formulation.h SolvingAnalyse.h SolvingOperations.h \
+  ../Common/MallocUtils.h ../Common/Message.h ../Common/GmshClient.h
+Treatment_Formulation.o: Treatment_Formulation.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h DofData.h LinAlg.h Get_DofOfElement.h \
+  Get_ElementSource.h Pre_TermOfFemEquation.h \
+  Cal_GalerkinTermOfFemEquation.h Cal_GlobalTermOfFemEquation.h \
+  Cal_AssembleTerm.h Generate_Network.h ExtendedGroup.h \
+  ../Common/Message.h ../Common/GmshClient.h
+Get_DofOfElement.o: Get_DofOfElement.cpp Get_DofOfElement.h \
+  ../Interface/ProData.h ../Common/ListUtils.h ExtendedGroup.h \
+  Cal_Quantity.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h DofData.h LinAlg.h ../Common/Message.h \
+  ../Common/GmshClient.h
+Get_ConstraintOfElement.o: Get_ConstraintOfElement.cpp Get_DofOfElement.h \
+  ../Interface/ProData.h ../Common/ListUtils.h ExtendedGroup.h \
+  Cal_Quantity.h Cal_Value.h GeoData.h ../Common/TreeUtils.h \
+  ../Common/avl.h ../Common/ListUtils.h ../Common/MallocUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+Get_FunctionValue.o: Get_FunctionValue.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h DofData.h LinAlg.h Cal_Quantity.h Get_Geometry.h \
+  ../Common/Message.h ../Common/GmshClient.h
+Get_Geometry.o: Get_Geometry.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h ../Interface/ProDefine.h ../Interface/ProData.h \
+  Get_Geometry.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h BF.h ../Common/Message.h ../Common/GmshClient.h
+Get_ElementSource.o: Get_ElementSource.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h ExtendedGroup.h Get_Geometry.h \
+  ../Common/Message.h ../Common/GmshClient.h
+ExtendedGroup.o: ExtendedGroup.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h ../Interface/ProDefine.h ../Interface/ProData.h \
+  ExtendedGroup.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h ../Common/Message.h ../Common/GmshClient.h
+Pre_TermOfFemEquation.o: Pre_TermOfFemEquation.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h DofData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h LinAlg.h Get_DofOfElement.h ExtendedGroup.h \
+  ../Common/Message.h ../Common/GmshClient.h
+Generate_Network.o: Generate_Network.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h ../Common/MallocUtils.h ../Common/Message.h \
+  ../Common/GmshClient.h
+Cal_GalerkinTermOfFemEquation.o: Cal_GalerkinTermOfFemEquation.cpp \
+  ../Interface/ProData.h ../Common/ListUtils.h ../Interface/ProDefine.h \
+  ../Interface/ProData.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h DofData.h LinAlg.h Cal_Quantity.h Cal_Value.h \
+  Cal_IntegralQuantity.h Cal_AnalyticIntegration.h Cal_AssembleTerm.h \
+  Cal_GalerkinTermOfFemEquation.h Get_DofOfElement.h Get_ElementSource.h \
+  Get_Geometry.h Get_FunctionValue.h Pos_Search.h ../Common/Message.h \
+  ../Common/GmshClient.h
+Cal_GlobalTermOfFemEquation.o: Cal_GlobalTermOfFemEquation.cpp \
+  ../Interface/ProData.h ../Common/ListUtils.h GeoData.h \
+  ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h DofData.h \
+  LinAlg.h Cal_Quantity.h Cal_Value.h Cal_AssembleTerm.h \
+  Get_DofOfElement.h Get_Geometry.h ../Common/Message.h \
+  ../Common/GmshClient.h
+Cal_IntegralQuantity.o: Cal_IntegralQuantity.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h ../Interface/ProDefine.h ../Interface/ProData.h \
+  BF.h Cal_Quantity.h Cal_Value.h Get_Geometry.h Get_FunctionValue.h \
+  ../Common/Message.h ../Common/GmshClient.h
+Cal_AnalyticIntegration.o: Cal_AnalyticIntegration.cpp \
+  ../Interface/ProData.h ../Common/ListUtils.h BF.h ../Common/Message.h \
+  ../Common/GmshClient.h
+Cal_Quantity.o: Cal_Quantity.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h DofData.h LinAlg.h F.h Cal_Quantity.h Cal_Value.h \
+  Get_Geometry.h Pos_FemInterpolation.h Pos_Search.h Get_FunctionValue.h \
+  ../Common/MallocUtils.h ../Common/Message.h ../Common/GmshClient.h
+Cal_Value.o: Cal_Value.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  ../Interface/ProDefine.h ../Interface/ProData.h Cal_Value.h \
+  ../Common/Message.h ../Common/GmshClient.h
+Cal_AssembleTerm.o: Cal_AssembleTerm.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h DofData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h LinAlg.h ../Common/Message.h \
+  ../Common/GmshClient.h
+Cal_PostQuantity.o: Cal_PostQuantity.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h ../Interface/ProDefine.h ../Interface/ProData.h \
+  GeoData.h ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \
+  Get_DofOfElement.h Cal_Quantity.h Cal_Value.h Get_Geometry.h \
+  Get_FunctionValue.h ExtendedGroup.h Pos_Formulation.h \
+  ../Common/MallocUtils.h ../Common/Message.h ../Common/GmshClient.h
+MovingBand2D.o: MovingBand2D.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h ExtendedGroup.h GeoData.h ../Common/TreeUtils.h \
+  ../Common/avl.h ../Common/ListUtils.h ../Common/MallocUtils.h \
+  ../Common/Message.h ../Common/GmshClient.h
+EigenSolve.o: EigenSolve.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  DofData.h ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \
+  LinAlg.h EigenSolve.h ../Common/MallocUtils.h ../Common/Message.h \
+  ../Common/GmshClient.h
+Pos_FemInterpolation.o: Pos_FemInterpolation.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h DofData.h LinAlg.h Get_DofOfElement.h \
+  Get_ElementSource.h Get_Geometry.h Get_FunctionValue.h \
+  Cal_IntegralQuantity.h Pos_Search.h ../Common/Message.h \
+  ../Common/GmshClient.h
+Pos_Formulation.o: Pos_Formulation.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h DofData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h LinAlg.h Get_DofOfElement.h Pos_Print.h \
+  Pos_Format.h ../Common/Message.h ../Common/GmshClient.h
+Pos_Print.o: Pos_Print.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  GeoData.h ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \
+  Cal_PostQuantity.h Get_Geometry.h Get_DofOfElement.h \
+  Get_FunctionValue.h ExtendedGroup.h Cal_Quantity.h Cal_Value.h \
+  Pos_Formulation.h Pos_Element.h Pos_Search.h Pos_Print.h Pos_Format.h \
+  ../Numeric/Adapt.h ../Common/MallocUtils.h ../Common/Message.h \
+  ../Common/GmshClient.h
+Pos_Element.o: Pos_Element.cpp Pos_Element.h ../Interface/ProData.h \
+  ../Common/ListUtils.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h Get_Geometry.h Get_DofOfElement.h Cal_Value.h \
+  ../Common/MallocUtils.h ../Common/Message.h ../Common/GmshClient.h
+Pos_Format.o: Pos_Format.cpp ../Common/GetDPVersion.h \
+  ../Interface/ProData.h ../Common/ListUtils.h ../Interface/ProDefine.h \
+  ../Interface/ProData.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h DofData.h LinAlg.h Pos_Iso.h Pos_Element.h \
+  Pos_Format.h Pos_Formulation.h F.h Cal_Value.h Cal_Quantity.h \
+  ../Common/MallocUtils.h ../Common/Message.h ../Common/GmshClient.h
+Pos_Iso.o: Pos_Iso.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  Pos_Element.h ../Common/Message.h ../Common/GmshClient.h
+Pos_Search.o: Pos_Search.cpp ../Interface/ProData.h ../Common/ListUtils.h \
+  GeoData.h ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \
+  Get_Geometry.h Pos_Search.h Get_DofOfElement.h ../Common/Message.h \
+  ../Common/GmshClient.h
