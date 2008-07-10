@@ -1,4 +1,4 @@
-// $Id: GEdge.cpp,v 1.1 2008-07-09 21:05:26 geuzaine Exp $
+// $Id: GEdge.cpp,v 1.2 2008-07-10 14:35:46 geuzaine Exp $
 //
 // Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
 //
@@ -67,7 +67,7 @@ MElement *GEdge::getMeshElement(unsigned int index)
 
 void GEdge::resetMeshAttributes()
 {
-  meshAttributes.Method = LIBRE;
+  meshAttributes.Method = MESH_UNSTRUCTURED;
   meshAttributes.coeffTransfinite = 0.;
   meshAttributes.nbPointsTransfinite = 0;
   meshAttributes.typeTransfinite = 0;
@@ -142,7 +142,7 @@ GPoint GEdge::closestPoint(const SPoint3 & queryPoint) const
   return GPoint(0, 0, 0);
 }
 
-int GEdge::containsParam(double pt) const
+bool GEdge::containsParam(double pt) const
 {
   Range<double> rg = parBounds(0);
   return (pt >= rg.low() && pt <= rg.high());

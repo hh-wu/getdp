@@ -1,4 +1,4 @@
-// $Id: GRegion.cpp,v 1.1 2008-07-09 21:05:26 geuzaine Exp $
+// $Id: GRegion.cpp,v 1.2 2008-07-10 14:35:47 geuzaine Exp $
 //
 // Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
 //
@@ -79,7 +79,7 @@ MElement *GRegion::getMeshElement(unsigned int index)
 
 void GRegion::resetMeshAttributes()
 {
-  meshAttributes.Method = LIBRE;
+  meshAttributes.Method = MESH_UNSTRUCTURED;
   meshAttributes.extrude = 0;
 }
 

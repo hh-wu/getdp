@@ -79,6 +79,9 @@
 #define MSH_LIN_4  26
 #define MSH_LIN_5  27
 #define MSH_LIN_6  28
+#define MSH_TET_20 29
+#define MSH_TET_35 30
+#define MSH_TET_56 31
 
 // Geometric entities
 #define ENT_NONE     0
@@ -101,7 +104,9 @@
 #define ALGO_3D_NETGEN             4
 #define ALGO_3D_TETGEN             5 // unused
 
-#define TRANSFINI 1
-#define LIBRE     2
+// Meshing methods
+#define MESH_NONE         0
+#define MESH_TRANSFINITE  1
+#define MESH_UNSTRUCTURED 2
 
 #endif

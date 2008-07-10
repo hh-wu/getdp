@@ -1,4 +1,4 @@
-// $Id: MVertex.cpp,v 1.1 2008-07-09 21:05:27 geuzaine Exp $
+// $Id: MVertex.cpp,v 1.2 2008-07-10 14:35:47 geuzaine Exp $
 //
 // Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
 //

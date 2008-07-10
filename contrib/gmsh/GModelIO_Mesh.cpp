@@ -1,4 +1,4 @@
-// $Id: GModelIO_Mesh.cpp,v 1.1 2008-07-09 21:05:26 geuzaine Exp $
+// $Id: GModelIO_Mesh.cpp,v 1.2 2008-07-10 14:35:47 geuzaine Exp $
 //
 // Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
 //
@@ -139,6 +139,9 @@ static int getNumVerticesForElementTypeMSH(int type)
   case MSH_QUA_9  : return 4 + 4 + 1;
   case MSH_TET_4  : return 4;
   case MSH_TET_10 : return 4 + 6;
+  case MSH_TET_20 : return 4 + 12 + 4;
+  case MSH_TET_35 : return 4 + 16 + 12 + 3;
+  case MSH_TET_56 : return 4 + 20 + 24 + 8;
   case MSH_HEX_8  : return 8;
   case MSH_HEX_20 : return 8 + 12;
   case MSH_HEX_27 : return 8 + 12 + 6 + 1;
@@ -249,7 +252,7 @@ int GModel::readMSH(const std::string &name)
         int num;
         if(fscanf(fp, "%d", &num) != 1) return 0;
         if(!fgets(str, sizeof(str), fp)) return 0;
-        std::string name = extractDoubleQuotedString(str, 256);
+        std::string name = ExtractDoubleQuotedString(str, 256);
         if(name.size()) setPhysicalName(name, num);
       }
 
@@ -272,9 +275,9 @@ int GModel::readMSH(const std::string &name)
         }
         else{
           if(fread(&num, sizeof(int), 1, fp) != 1) return 0;
-          if(swap) swapBytes((char*)&num, sizeof(int), 1);
+          if(swap) SwapBytes((char*)&num, sizeof(int), 1);
           if(fread(xyz, sizeof(double), 3, fp) != 3) return 0;
-          if(swap) swapBytes((char*)xyz, sizeof(double), 3);
+          if(swap) SwapBytes((char*)xyz, sizeof(double), 3);
         }
         minVertex = std::min(minVertex, num);
         maxVertex = std::max(maxVertex, num);
@@ -350,7 +353,7 @@ int GModel::readMSH(const std::string &name)
         while(numElementsPartial < numElements){
           int header[3];
           if(fread(header, sizeof(int), 3, fp) != 3) return 0;
-          if(swap) swapBytes((char*)header, sizeof(int), 3);
+          if(swap) SwapBytes((char*)header, sizeof(int), 3);
           int type = header[0];
           int numElms = header[1];
           int numTags = header[2];
@@ -359,7 +362,7 @@ int GModel::readMSH(const std::string &name)
           int *data = new int[n];
           for(int i = 0; i < numElms; i++) {
             if(fread(data, sizeof(int), n, fp) != n) return 0;
-            if(swap) swapBytes((char*)data, sizeof(int), n);
+            if(swap) SwapBytes((char*)data, sizeof(int), n);
             int num = data[0];
             int physical = (numTags > 0) ? data[4 - numTags] : 0;
             int elementary = (numTags > 1) ? data[4 - numTags + 1] : 0;
@@ -798,7 +801,7 @@ int GModel::readSTL(const std::string &name, double tolerance)
       if(nfacets > 10000000){
         Msg::Info("Swapping bytes from binary file");
         swap = true;
-        swapBytes((char*)&nfacets, sizeof(unsigned int), 1);
+        SwapBytes((char*)&nfacets, sizeof(unsigned int), 1);
       }
       if(ret && nfacets){
         char *data = new char[nfacets * 50 * sizeof(char)];
@@ -806,7 +809,7 @@ int GModel::readSTL(const std::string &name, double tolerance)
         if(ret == nfacets * 50){
           for(unsigned int i = 0; i < nfacets; i++) {
             float *xyz = (float *)&data[i * 50 * sizeof(char)];
-            if(swap) swapBytes((char*)xyz, sizeof(float), 12);
+            if(swap) SwapBytes((char*)xyz, sizeof(float), 12);
             for(int j = 0; j < 3; j++){
               SPoint3 p(xyz[3 + 3 * j], xyz[3 + 3 * j + 1], xyz[3 + 3 * j + 2]);
               points.push_back(p);
@@ -1393,18 +1396,19 @@ int GModel::readMESH(const std::string &name)
   char str[256];
   int format;
   sscanf(buffer, "%s %d", str, &format);
-
   if(format != 1){
     Msg::Error("Medit mesh import only available for ASCII files");
     return 0;
   }
 
   std::vector<MVertex*> vertexVector;
-  std::map<int, std::vector<MElement*> > elements[3];
+  std::map<int, std::vector<MElement*> > elements[4];
+  std::vector<MVertex*> corners,ridges;
 
   while(!feof(fp)) {
-    if(!fgets(buffer, sizeof(buffer), fp)) break;
-    if(buffer[0] != '#'){ // skip comments
+    if(!fgets(buffer, 256, fp)) break;
+    if(buffer[0] != '#'){ // skip comments and empty lines
+      str[0]='\0';
       sscanf(buffer, "%s", str);
       if(!strcmp(str, "Dimension")){
         if(!fgets(buffer, sizeof(buffer), fp)) break;
@@ -1423,6 +1427,21 @@ int GModel::readMESH(const std::string &name)
           vertexVector[i] = new MVertex(x, y, z);
         }
       }
+      else if(!strcmp(str, "Edges")){
+        if(!fgets(buffer, sizeof(buffer), fp)) break;
+        int nbe;
+        sscanf(buffer, "%d", &nbe);
+        Msg::Info("%d edges", nbe);
+        for(int i = 0; i < nbe; i++) {
+          if(!fgets(buffer, sizeof(buffer), fp)) break;
+          int n[2], cl;
+          sscanf(buffer, "%d %d %d", &n[0], &n[1], &cl);
+          for(int j = 0; j < 2; j++) n[j]--;
+          std::vector<MVertex*> vertices;
+          if(!getVertices(2, n, vertexVector, vertices)) return 0;
+          elements[3][cl].push_back(new MLine(vertices));
+        }
+      }
       else if(!strcmp(str, "Triangles")){
         if(!fgets(buffer, sizeof(buffer), fp)) break;
         int nbe;
@@ -1436,6 +1455,36 @@ int GModel::readMESH(const std::string &name)
           std::vector<MVertex*> vertices;
           if(!getVertices(3, n, vertexVector, vertices)) return 0;
           elements[0][cl].push_back(new MTriangle(vertices));
+        }
+      }
+      else if(!strcmp(str, "Corners")){
+        if(!fgets(buffer, sizeof(buffer), fp)) break;
+        int nbe;
+        sscanf(buffer, "%d", &nbe);
+        Msg::Info("%d corners", nbe);
+        for(int i = 0; i < nbe; i++) {
+          if(!fgets(buffer, sizeof(buffer), fp)) break;
+          int  n[1];
+          sscanf(buffer, "%d",&n[0]);
+          for(int j = 0; j < 1; j++) n[j]--;
+	  //          std::vector<MVertex*> vertices;
+	  //          if(!getVertices(1, n, vertexVector, vertices)) return 0;
+	  //          corners.push_back(vertices[0]);
+        }
+      }
+      else if(!strcmp(str, "Ridges")){
+        if(!fgets(buffer, sizeof(buffer), fp)) break;
+        int nbe;
+        sscanf(buffer, "%d", &nbe);
+        Msg::Info("%d ridges", nbe);
+        for(int i = 0; i < nbe; i++) {
+          if(!fgets(buffer, sizeof(buffer), fp)) break;
+          int  n[1];
+          sscanf(buffer, "%d",&n[0]);
+          for(int j = 0; j < 1; j++) n[j]--;
+	  //          std::vector<MVertex*> vertices;
+	  //          if(!getVertices(1, n, vertexVector, vertices)) return 0;
+	  //          ridges.push_back(vertices[0]);
         }
       }
       else if(!strcmp(str, "Quadrilaterals")) {

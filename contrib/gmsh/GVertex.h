@@ -24,7 +24,7 @@
 #include "GPoint.h"
 #include "SPoint2.h"
 
-// A model vertex
+// A model vertex.
 class GVertex : public GEntity 
 {
  protected:
@@ -44,7 +44,7 @@ class GVertex : public GEntity
   virtual GeomType geomType() const { return Point; }
   inline double prescribedMeshSizeAtVertex() const { return meshSize; }
   virtual void setPrescribedMeshSizeAtVertex(double l) { meshSize = l; }
-  virtual SBoundingBox3d bounds(){ return SBoundingBox3d(SPoint3(x(), y(), z())); }
+  virtual SBoundingBox3d bounds() const { return SBoundingBox3d(SPoint3(x(), y(), z())); }
   virtual SPoint2 reparamOnFace(GFace *gf, int) const;
   virtual std::string getAdditionalInfoString();
   virtual std::list<GEdge*> edges() const{ return l_edges; }

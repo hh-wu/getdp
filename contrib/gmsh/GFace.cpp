@@ -1,4 +1,4 @@
-// $Id: GFace.cpp,v 1.1 2008-07-09 21:05:26 geuzaine Exp $
+// $Id: GFace.cpp,v 1.2 2008-07-10 14:35:47 geuzaine Exp $
 //
 // Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
 //
@@ -43,6 +43,8 @@ void dsvdcmp(double **a, int m, int n, double w[], double **v);
 #endif
 
 extern Context_T CTX;
+
+#define SQU(a)      ((a)*(a))
 
 GFace::GFace(GModel *model, int tag)
   : GEntity(model, tag), r1(0), r2(0), va_geom_triangles(0)
@@ -91,7 +93,7 @@ void GFace::resetMeshAttributes()
 {
   meshAttributes.recombine = 0;
   meshAttributes.recombineAngle = 0.;
-  meshAttributes.Method = LIBRE;
+  meshAttributes.Method = MESH_UNSTRUCTURED;
   meshAttributes.transfiniteArrangement = 0;
   meshAttributes.transfiniteSmoothing = -1;
   meshAttributes.extrude = 0;
@@ -333,7 +335,7 @@ void GFace::computeMeanPlane(const std::vector<SPoint3> &points)
     prosca(res, res2, &cosc);
     sinc = sqrt(c[0] * c[0] + c[1] * c[1] + c[2] * c[2]);
     angplan = myatan2(sinc, cosc);
-    angplan = angle_02pi(angplan) * 180. / Pi;
+    angplan = angle_02pi(angplan) * 180. / M_PI;
     if((angplan > 70 && angplan < 110) || (angplan > 260 && angplan < 280)) {
       Msg::Info("SVD failed (angle=%g): using rough algo...", angplan);
       res[0] = res2[0];
@@ -512,7 +514,7 @@ void GFace::XYZtoUV(const double X, const double Y, const double Z,
       iter = 1;
 
       GPoint P = point(U, V);
-      err2 = sqrt(DSQR(X - P.x()) + DSQR(Y - P.y()) + DSQR(Z - P.z()));
+      err2 = sqrt(SQU(X - P.x()) + SQU(Y - P.y()) + SQU(Z - P.z()));
       if (err2 < 1.e-8 * CTX.lc) return;
 
       while(err > Precision && iter < MaxIter) {
@@ -538,8 +540,8 @@ void GFace::XYZtoUV(const double X, const double Y, const double Z,
 
         //if(Unew > umax || Vnew > vmax || Unew < umin || Vnew < vmin) break;
 
-        err = DSQR(Unew - U) + DSQR(Vnew - V);
-        err2 = sqrt(DSQR(X - P.x()) + DSQR(Y - P.y()) + DSQR(Z - P.z()));
+        err = SQU(Unew - U) + SQU(Vnew - V);
+        err2 = sqrt(SQU(X - P.x()) + SQU(Y - P.y()) + SQU(Z - P.z()));
         iter++;
         U = Unew;
         V = Vnew;
@@ -575,21 +577,21 @@ SPoint2 GFace::parFromPoint(const SPoint3 &p) const
   return SPoint2(U, V);
 }
 
-GPoint GFace::closestPoint(const SPoint3 & queryPoint) const
+GPoint GFace::closestPoint(const SPoint3 & queryPoint, const double initialGuess[2]) const
 {
   Msg::Error("Closet point not implemented for this type of surface");
   return GPoint(0, 0, 0);
 }
 
-int GFace::containsParam(const SPoint2 &pt) const
+bool GFace::containsParam(const SPoint2 &pt) const
 {
   Range<double> uu = parBounds(0);
   Range<double> vv = parBounds(1);
   if((pt.x() >= uu.low() && pt.x() <= uu.high()) &&
      (pt.y() >= vv.low() && pt.y() <= vv.high()))
-    return 1;
+    return true;
   else
-    return 0;
+    return false;
 }
 
 bool GFace::buildRepresentationCross()
@@ -730,7 +732,21 @@ bool GFace::buildSTLTriangulation()
 // by default we assume that straight lines are geodesics
 SPoint2 GFace::geodesic(const SPoint2 &pt1 , const SPoint2 &pt2 , double t)
 {
-  return pt1 + (pt2 - pt1) * t;
+  if(CTX.mesh.second_order_experimental){
+    // FIXME: this is buggy -- remove the CTX option once we do it in
+    // a robust manner
+    GPoint gp1 = point(pt1.x(), pt1.y());
+    GPoint gp2 = point(pt2.x(), pt2.y());
+    SPoint2 guess = pt1 + (pt2 - pt1) * t;
+    GPoint gp = closestPoint(SPoint3(gp1.x() + t * (gp2.x() - gp1.x()),
+				     gp1.y() + t * (gp2.y() - gp1.y()),
+				     gp1.z() + t * (gp2.z() - gp1.z())),
+			     (double*)guess);
+    return SPoint2(gp.u(), gp.v());
+  }
+  else{
+    return pt1 + (pt2 - pt1) * t;
+  }
 }
 
 // length of a curve drawn on a surface

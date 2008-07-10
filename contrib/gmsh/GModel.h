@@ -27,8 +27,10 @@
 #include "GEdge.h"
 #include "GFace.h"
 #include "GRegion.h"
+#include "SPoint3.h"
 #include "SBoundingBox3d.h"
 
+class Octree;
 class FM_Internals;
 class GEO_Internals;
 class OCC_Internals;
@@ -39,34 +41,45 @@ class FieldManager;
 class GModel
 {
  private:
-  // Vertex cache to speed-up direct access by vertex number (used for
+  // vertex cache to speed-up direct access by vertex number (used for
   // post-processing I/O)
   std::vector<MVertex*> _vertexVectorCache;
   std::map<int, MVertex*> _vertexMapCache;
 
+  // an octree for fast mesh element lookup
+  Octree *_octree;
+
+  // geo model internal data
   GEO_Internals *_geo_internals;
   void _createGEOInternals();
   void _deleteGEOInternals();
 
+  // OpenCascade model internal data
   OCC_Internals *_occ_internals;
   void _deleteOCCInternals();
 
+  // Fourier model internal data
   FM_Internals *_fm_internals;
   void _createFMInternals();
   void _deleteFMInternals();
  
-  // Characteristic Lengths fields
+  // characteristic Lengths fields
   FieldManager *_fields;
 
-  // Store the elements in the map (indexed by elementary region
+  // store the elements given in the map (indexed by elementary region
   // number) into the model, creating discrete geometrical entities on
   // the fly if needed
   void _storeElementsInEntities(std::map<int, std::vector<MElement*> > &map);
 
-  // loop over all vertices connected to elements and associate geo entity
+  // loop over all vertices connected to elements and associate geo
+  // entity
   void _associateEntityWithMeshVertices();
 
-  // index of the current model
+  // entity that is currently being meshed (used for error reporting)
+  GEntity *_currentMeshEntity;
+
+  // index of the current model (in the static list of all loaded
+  // models)
   static int _current;
 
  protected:
@@ -89,25 +102,29 @@ class GModel
   // index >= 0
   static GModel *current(int index=-1);
 
-  // finds the model by name
+  // find the model by name
   static GModel *findByName(std::string name);
 
-  // Deletes everything in a GModel
+  // delete everything in a GModel
   void destroy();
 
-  // Access internal CAD representations
+  // delete all the mesh-related caches (this must be called when the
+  // mesh is changed)
+  void destroyMeshCaches();
+
+  // access internal CAD representations
   GEO_Internals *getGEOInternals(){ return _geo_internals; }
   OCC_Internals *getOCCInternals(){ return _occ_internals; }
   FM_Internals *getFMInternals() { return _fm_internals; }
 
-  // Access characteristic length fields
+  // access characteristic length fields
   FieldManager *getFields(){ return _fields; }
 
-  // Get/set the model name
+  // get/set the model name
   void setName(std::string name){ modelName = name; }
   std::string getName(){ return modelName; }
 
-  // Get the number of regions in this model.
+  // get the number of regions in this model.
   int getNumRegions() const { return regions.size(); }
   int getNumFaces() const { return faces.size(); }
   int getNumEdges() const { return edges.size(); }
@@ -119,7 +136,7 @@ class GModel
   typedef std::set<GVertex*, GEntityLessThan>::iterator viter;
   typedef std::map<int, std::string>::iterator piter;
 
-  // Get an iterator initialized to the first/last entity in this model.
+  // get an iterator initialized to the first/last entity in this model.
   riter firstRegion() { return regions.begin(); }
   fiter firstFace() { return faces.begin(); }
   eiter firstEdge() { return edges.begin(); }
@@ -129,13 +146,13 @@ class GModel
   eiter lastEdge() { return edges.end(); }
   viter lastVertex() { return vertices.end(); }
 
-  // Find the entity with the given tag.
+  // find the entity with the given tag.
   GRegion *getRegionByTag(int n) const;
   GFace *getFaceByTag(int n) const;
   GEdge *getEdgeByTag(int n) const;
   GVertex *getVertexByTag(int n) const;
 
-  // Add/remove an entity in the model
+  // add/remove an entity in the model
   void add(GRegion *r) { regions.insert(r); }
   void add(GFace *f) { faces.insert(f); }
   void add(GEdge *e) { edges.insert(e); }
@@ -145,6 +162,7 @@ class GModel
   void remove(GEdge *e);
   void remove(GVertex *v);
 
+  // Snap vertices on model edges by using geometry tolerance
   void snapVertices();
 
   // Get a vector containing all the entities in the model
@@ -187,6 +205,9 @@ class GModel
   // Returns the total number of elements in the mesh
   int getNumMeshElements();
 
+  // Access a mesh element by coordinates
+  MElement *getMeshElementByCoord(SPoint3 &p);
+
   // Returns the total number of vertices in the mesh
   int getNumMeshVertices();
 
@@ -200,6 +221,13 @@ class GModel
   // index all the (used) mesh vertices in a continuous sequence,
   // starting at 1
   int indexMeshVertices(bool all);
+
+  // scale the mesh by the given factor
+  void scaleMesh(double factor);
+
+  // set/get entity that is currently being meshed (for error reporting)
+  void setCurrentMeshEntity(GEntity *e){ _currentMeshEntity = e; }
+  GEntity *getCurrentMeshEntity(){ return _currentMeshEntity; }
 
   // Deletes all invisble mesh elements
   void removeInvisibleElements();
@@ -234,7 +262,7 @@ class GModel
   int readOCCBREP(const std::string &name);
   int readOCCIGES(const std::string &name);
   int readOCCSTEP(const std::string &name);
-  int importOCCShape(const void *shape, const void *options=0);
+  int importOCCShape(const void *shape, const void *meshConstraints=0);
 
   // Gmsh mesh file format
   int readMSH(const std::string &name);
