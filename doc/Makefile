@@ -6,4 +6,3 @@
 clean:
 	rm -f *~ .*~
 	cd texinfo && ${MAKE} clean
-	cd slides && ${MAKE} clean

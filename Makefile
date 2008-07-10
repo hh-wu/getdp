@@ -55,7 +55,7 @@ purge:
                -o -name "gmon.out" -o -name ".gdb_history" -o -name "debug?.pos"`
 
 clean:
-	for i in doc lib ${GETDP_DIRS}; do (cd $$i && ${MAKE} clean); done
+	for i in doc lib demos ${GETDP_DIRS}; do (cd $$i && ${MAKE} clean); done
 	rm -f ${GETDP_VERSION_FILE}
 
 depend: initialtag

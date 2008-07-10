@@ -6,4 +6,3 @@
 clean:
 	rm -f *.pre *.res *.pos *.cut
 
-
