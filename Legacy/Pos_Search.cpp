@@ -14,7 +14,7 @@
 #include "Get_DofOfElement.h"
 #include "Message.h"
 
-#define DSQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a)) 
 
 extern struct CurrentData Current ;
 
@@ -480,7 +480,7 @@ void xyz2uvwInAnElement (struct Element *Element,
                    Element->InvJac.c23 * (y-y_est) +
 	           Element->InvJac.c33 * (z-z_est) ;
 
-      Error = DSQU(u_new - *u) + DSQU(v_new - *v) + DSQU(w_new - *w);      
+      Error = SQU(u_new - *u) + SQU(v_new - *v) + SQU(w_new - *w);      
 
       *u = u_new;
       *v = v_new;

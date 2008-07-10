@@ -24,7 +24,7 @@ void dsvdcmp(double **a, int m, int n, double w[], double **v);
 #endif
 
 #define THESIGN(a) ((a)>=0 ? 1 : -1)
-#define DSQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a)) 
 #define HYPOT(a,b) (sqrt((a)*(a)+(b)*(b)))
 
 /* ------------------------------------------------------------------------ */
@@ -414,7 +414,7 @@ double  Transformation (int Dim, int Type, struct Element * Element, MATRIX3x3 *
   if(L) B = (B*B-A*A*L)/(B-A*L);
 
   if(Type == JACOBIAN_SPH){
-    R    = sqrt( DSQU(X-Cx) + DSQU(Y-Cy) + DSQU(Z-Cz) ) ;
+    R    = sqrt( SQU(X-Cx) + SQU(Y-Cy) + SQU(Z-Cz) ) ;
     dRdx = (X-Cx)/R ; 
     dRdy = (Y-Cy)/R ; 
     dRdz = (Z-Cz)/R ;
@@ -676,7 +676,7 @@ double  JacobianVolAxiSqu2D (struct Element * Element, MATRIX3x3 * Jac)
   Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
 
   for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
-    s += DSQU(Element->x[i]) * Element->n[i] ;
+    s += SQU(Element->x[i]) * Element->n[i] ;
 
 
   /* Warning! For evaluations on the symmetry axis */
@@ -689,8 +689,8 @@ double  JacobianVolAxiSqu2D (struct Element * Element, MATRIX3x3 * Jac)
   r = sqrt(s);
 
   for ( i = 0 ; i < Element->GeoElement->NbrNodes ; i++ ) {
-    Jac->c11 += 0.5/r * DSQU(Element->x[i]) * Element->dndu[i][0] ;
-    Jac->c21 += 0.5/r * DSQU(Element->x[i]) * Element->dndu[i][1] ;
+    Jac->c11 += 0.5/r * SQU(Element->x[i]) * Element->dndu[i][0] ;
+    Jac->c21 += 0.5/r * SQU(Element->x[i]) * Element->dndu[i][1] ;
     Jac->c12 += Element->y[i] * Element->dndu[i][0] ;
     Jac->c22 += Element->y[i] * Element->dndu[i][1] ;
   }
@@ -876,9 +876,9 @@ double  JacobianSur3D (struct Element * Element, MATRIX3x3 * Jac)
     Jac->c23 += Element->z[i] * Element->dndu[i][1] ;
   }
 
-  DetJac = sqrt( DSQU(Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21)
-		 + DSQU(Jac->c13 * Jac->c21 - Jac->c11 * Jac->c23)
-		 + DSQU(Jac->c12 * Jac->c23 - Jac->c13 * Jac->c22) ) ;
+  DetJac = sqrt( SQU(Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21)
+		 + SQU(Jac->c13 * Jac->c21 - Jac->c11 * Jac->c23)
+		 + SQU(Jac->c12 * Jac->c23 - Jac->c13 * Jac->c22) ) ;
 
   return(DetJac) ;
 }
@@ -902,7 +902,7 @@ double  JacobianLin3D (struct Element * Element, MATRIX3x3 * Jac)
     Jac->c13 += Element->z[i] * Element->dndu[i][0] ;
   }
 
-  DetJac = sqrt(DSQU(Jac->c11)+DSQU(Jac->c12)+DSQU(Jac->c13)) ;
+  DetJac = sqrt(SQU(Jac->c11)+SQU(Jac->c12)+SQU(Jac->c13)) ;
 
   return(DetJac) ;
 }

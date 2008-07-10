@@ -28,7 +28,7 @@
 #include "Message.h"
 
 #define TWO_PI             6.2831853071795865
-#define DSQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a)) 
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
@@ -351,13 +351,13 @@ void Cal_ThetaRHS(int *init, double *coef,
 
 void Cal_NewmarkCoefficients(double *coef)
 {
-  coef[0] = 1./DSQU(Current.DTime) ;
+  coef[0] = 1./SQU(Current.DTime) ;
   coef[1] = Current.Gamma/Current.DTime ;
   coef[2] = Current.Beta ;
-  coef[3] = -2./DSQU(Current.DTime) ;
+  coef[3] = -2./SQU(Current.DTime) ;
   coef[4] = (1.-2.*Current.Gamma)/Current.DTime ;
   coef[5] = 0.5+Current.Gamma-2.*Current.Beta ;
-  coef[6] = 1./DSQU(Current.DTime) ;
+  coef[6] = 1./SQU(Current.DTime) ;
   coef[7] = (Current.Gamma-1.)/Current.DTime ;
   coef[8] = 0.5-Current.Gamma+Current.Beta ;
 }

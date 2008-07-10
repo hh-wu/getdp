@@ -7,7 +7,7 @@ include ../variables
 
 LIB = ../lib/libGetDPInterface${LIBEXT}
 
-INC = ${DASH}I../Interface ${DASH}I../Common ${DASH}I../Legacy
+INC = ${DASH}I. ${DASH}I../Common ${DASH}I../Legacy
 
 CFLAGS = ${OPTIM} ${FLAGS} ${INC} ${SYSTEMINCLUDE}
 

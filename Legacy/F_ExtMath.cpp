@@ -13,7 +13,7 @@
 
 extern struct CurrentData Current ;
 
-#define DSQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a)) 
 #define TWO_PI             6.2831853071795865
 
 /* ------------------------------------------------------------------------ */
@@ -44,8 +44,8 @@ void F_Hypot(F_ARG)
 void F_TanhC2(F_ARG)
 {
   double denom = 
-    DSQU(cosh(A->Val[0])*cos(A->Val[MAX_DIM])) + 
-    DSQU(sinh(A->Val[0])*sin(A->Val[MAX_DIM]));
+    SQU(cosh(A->Val[0])*cos(A->Val[MAX_DIM])) + 
+    SQU(sinh(A->Val[0])*sin(A->Val[MAX_DIM]));
   V->Val[0]       = sinh(A->Val[0])*cosh(A->Val[0]) / denom ;
   V->Val[MAX_DIM] = sin(A->Val[MAX_DIM])*cos(A->Val[MAX_DIM]) / denom ;
   V->Type = SCALAR ;
@@ -110,8 +110,8 @@ void F_Norm(F_ARG)
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2 ) {
-	V->Val[MAX_DIM*k] = sqrt(DSQU(A->Val[MAX_DIM*k]) + 
-				 DSQU(A->Val[MAX_DIM*(k+1)]));
+	V->Val[MAX_DIM*k] = sqrt(SQU(A->Val[MAX_DIM*k]) + 
+				 SQU(A->Val[MAX_DIM*(k+1)]));
 	V->Val[MAX_DIM*(k+1)] = 0. ;
       }
     }
@@ -119,16 +119,16 @@ void F_Norm(F_ARG)
 
   case VECTOR :
     if (Current.NbrHar == 1) {
-      V->Val[0] = sqrt(DSQU(A->Val[0]) + DSQU(A->Val[1]) + DSQU(A->Val[2])) ;
+      V->Val[0] = sqrt(SQU(A->Val[0]) + SQU(A->Val[1]) + SQU(A->Val[2])) ;
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2 ) {
-	V->Val[MAX_DIM*k] = sqrt(DSQU(A->Val[MAX_DIM* k     ]) + 
-				 DSQU(A->Val[MAX_DIM* k   +1]) +
-				 DSQU(A->Val[MAX_DIM* k   +2]) + 
-				 DSQU(A->Val[MAX_DIM*(k+1)  ]) + 
-				 DSQU(A->Val[MAX_DIM*(k+1)+1]) + 
-				 DSQU(A->Val[MAX_DIM*(k+1)+2])) ;
+	V->Val[MAX_DIM*k] = sqrt(SQU(A->Val[MAX_DIM* k     ]) + 
+				 SQU(A->Val[MAX_DIM* k   +1]) +
+				 SQU(A->Val[MAX_DIM* k   +2]) + 
+				 SQU(A->Val[MAX_DIM*(k+1)  ]) + 
+				 SQU(A->Val[MAX_DIM*(k+1)+1]) + 
+				 SQU(A->Val[MAX_DIM*(k+1)+2])) ;
 	V->Val[MAX_DIM*(k+1)] = 0. ;
       }
     }
@@ -154,11 +154,11 @@ void F_SquNorm(F_ARG)
     
   case SCALAR :
     if (Current.NbrHar == 1) {
-      V->Val[0] = DSQU(A->Val[0]) ;
+      V->Val[0] = SQU(A->Val[0]) ;
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2 ) {
-	V->Val[MAX_DIM*k] = DSQU(A->Val[MAX_DIM*k]) + DSQU(A->Val[MAX_DIM*(k+1)]);
+	V->Val[MAX_DIM*k] = SQU(A->Val[MAX_DIM*k]) + SQU(A->Val[MAX_DIM*(k+1)]);
 	V->Val[MAX_DIM*(k+1)] = 0. ;
       }
     }
@@ -166,16 +166,16 @@ void F_SquNorm(F_ARG)
 
   case VECTOR :
     if (Current.NbrHar == 1) {
-      V->Val[0] = DSQU(A->Val[0]) + DSQU(A->Val[1]) + DSQU(A->Val[2]) ;
+      V->Val[0] = SQU(A->Val[0]) + SQU(A->Val[1]) + SQU(A->Val[2]) ;
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2 ) {
-	V->Val[MAX_DIM*k] = DSQU(A->Val[MAX_DIM* k     ]) + 
-	                    DSQU(A->Val[MAX_DIM* k   +1]) +
-                            DSQU(A->Val[MAX_DIM* k   +2]) + 
-			    DSQU(A->Val[MAX_DIM*(k+1)  ]) + 
-			    DSQU(A->Val[MAX_DIM*(k+1)+1]) + 
-			    DSQU(A->Val[MAX_DIM*(k+1)+2]) ;
+	V->Val[MAX_DIM*k] = SQU(A->Val[MAX_DIM* k     ]) + 
+	                    SQU(A->Val[MAX_DIM* k   +1]) +
+                            SQU(A->Val[MAX_DIM* k   +2]) + 
+			    SQU(A->Val[MAX_DIM*(k+1)  ]) + 
+			    SQU(A->Val[MAX_DIM*(k+1)+1]) + 
+			    SQU(A->Val[MAX_DIM*(k+1)+2]) ;
 	V->Val[MAX_DIM*(k+1)] = 0. ;
       }
     }
@@ -215,7 +215,7 @@ void F_Unit(F_ARG)
 
   case VECTOR :
     if (Current.NbrHar == 1) {
-      Norm = sqrt(DSQU(A->Val[0]) + DSQU(A->Val[1]) + DSQU(A->Val[2])) ;
+      Norm = sqrt(SQU(A->Val[0]) + SQU(A->Val[1]) + SQU(A->Val[2])) ;
       if (Norm > 1.e-30) {  /* Attention: tolerance */
 	V->Val[0] = A->Val[0]/Norm ;
 	V->Val[1] = A->Val[1]/Norm ;
@@ -229,12 +229,12 @@ void F_Unit(F_ARG)
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2 ) {
-	Norm = sqrt(DSQU(A->Val[MAX_DIM* k     ]) +
-		    DSQU(A->Val[MAX_DIM* k   +1]) +
-		    DSQU(A->Val[MAX_DIM* k   +2]) +
-		    DSQU(A->Val[MAX_DIM*(k+1)  ]) +
-		    DSQU(A->Val[MAX_DIM*(k+1)+1]) +
-		    DSQU(A->Val[MAX_DIM*(k+1)+2])) ;
+	Norm = sqrt(SQU(A->Val[MAX_DIM* k     ]) +
+		    SQU(A->Val[MAX_DIM* k   +1]) +
+		    SQU(A->Val[MAX_DIM* k   +2]) +
+		    SQU(A->Val[MAX_DIM*(k+1)  ]) +
+		    SQU(A->Val[MAX_DIM*(k+1)+1]) +
+		    SQU(A->Val[MAX_DIM*(k+1)+2])) ;
 	if (Norm > 1.e-30) {  /* Attention: tolerance */
 	  V->Val[MAX_DIM* k     ] = A->Val[MAX_DIM* k     ]/Norm ;
 	  V->Val[MAX_DIM* k   +1] = A->Val[MAX_DIM* k   +1]/Norm ;

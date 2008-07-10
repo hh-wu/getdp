@@ -22,7 +22,7 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
-#define DSQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a)) 
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
@@ -542,9 +542,9 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       /* Compute curvilinear coord if connection sort */
       if(PostSubOperation_P->Sort == SORT_BY_CONNECTIVITY){
 	Dummy[0] = Dummy[1] ;
-	Dummy[1] = Dummy[0] + sqrt(DSQU(PE->x[1]-PE->x[0])+
-				   DSQU(PE->y[1]-PE->y[0])+
-				   DSQU(PE->z[1]-PE->z[0])) ;
+	Dummy[1] = Dummy[0] + sqrt(SQU(PE->x[1]-PE->x[0])+
+				   SQU(PE->y[1]-PE->y[0])+
+				   SQU(PE->z[1]-PE->z[0])) ;
 	Dummy[2] = PE->v[0] ;
 	Dummy[3] = -1. ;
       }
@@ -614,7 +614,7 @@ void prodvec (double *a , double *b , double *c)
 void normvec(double *a)
 {
   double mod;
-  mod = sqrt(DSQU(a[0])+DSQU(a[1])+DSQU(a[2]));
+  mod = sqrt(SQU(a[0])+SQU(a[1])+SQU(a[2]));
   a[0]/=mod;
   a[1]/=mod;
   a[2]/=mod;
@@ -991,7 +991,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
     Z[0] = PSO_P->Case.OnGrid.z[0] ; Z[1] = PSO_P->Case.OnGrid.z[1] ;
     N[0] = PSO_P->Case.OnGrid.n[0] ;
     Normal[1] = Normal[2] = 0.0 ;
-    Length = sqrt(DSQU(X[1]-X[0]) + DSQU(Y[1]-Y[0]) + DSQU(Z[1]-Z[0])) ;
+    Length = sqrt(SQU(X[1]-X[0]) + SQU(Y[1]-Y[0]) + SQU(Z[1]-Z[0])) ;
     for (i1 = 0 ; i1 <= N[0] ; i1++) {
       S[0] = (double)i1 / (double)(N[0] ? N[0] : 1) ;
       Normal[0] = Length * S[0] ;
@@ -1013,7 +1013,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
     S[0] = X[1]-X[0]; S[1] = Y[1]-Y[0]; S[2] = Z[1]-Z[0];
     N[0] = X[2]-X[0]; N[1] = Y[2]-Y[0]; N[2] = Z[2]-Z[0];
     prodvec(S,N,Normal);
-    Length = sqrt(DSQU(Normal[0])+DSQU(Normal[1])+DSQU(Normal[2]));
+    Length = sqrt(SQU(Normal[0])+SQU(Normal[1])+SQU(Normal[2]));
     if(!Length){
       Msg::Warning("Bad plane (null normal)"); 
       return ;

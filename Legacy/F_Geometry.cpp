@@ -9,7 +9,7 @@
 #include "Numeric.h"
 #include "Message.h"
 
-#define DSQR(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a)) 
 
 extern struct CurrentData Current ;
 
@@ -20,7 +20,7 @@ static double dist_ellipse(double t)
   double x, y;
   x = ELLIPSE_PARAMETERS[0] * cos(t);
   y = ELLIPSE_PARAMETERS[1] * sin(t);
-  return sqrt(DSQR(x - POINT_TO_PROJECT[0]) + DSQR(y - POINT_TO_PROJECT[1]));
+  return sqrt(SQU(x - POINT_TO_PROJECT[0]) + SQU(y - POINT_TO_PROJECT[1]));
 }
 
 void F_ProjectPointOnEllipse(F_ARG)

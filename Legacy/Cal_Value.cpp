@@ -15,7 +15,7 @@
 
 extern struct CurrentData Current ;
 
-#define DSQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a)) 
 
 /* ------------------------------------------------------------------------ */
 /*  O p e r a t o r s   o n   V a l u e s                                   */
@@ -50,7 +50,7 @@ void Cal_ComplexDivision(double V1[], double V2[], double P[])
 {
   double Mod2 ;
 
-  Mod2       = DSQU(V2[0]) + DSQU(V2[MAX_DIM]) ;
+  Mod2       = SQU(V2[0]) + SQU(V2[MAX_DIM]) ;
   if(!Mod2) Msg::Error("Division by zero in 'Cal_ComplexDivision'");
   P[0]       = (  V1[0] * V2[0]       + V1[MAX_DIM] * V2[MAX_DIM]) / Mod2 ;
   P[MAX_DIM] = (- V1[0] * V2[MAX_DIM] + V1[MAX_DIM] * V2[0])       / Mod2 ;
@@ -60,7 +60,7 @@ void Cal_ComplexInvert(double V1[], double P[])
 {
   double Mod2 ;
 
-  Mod2       = DSQU(V1[0]) + DSQU(V1[MAX_DIM]) ;
+  Mod2       = SQU(V1[0]) + SQU(V1[MAX_DIM]) ;
   if(!Mod2) Msg::Error("Division by zero in 'Cal_ComplexInvert'");
   P[0]       =   V1[0]       / Mod2 ;
   P[MAX_DIM] = - V1[MAX_DIM] / Mod2 ;
@@ -1395,7 +1395,7 @@ void Cal_PowerValue(struct Value * V1, struct Value * V2, struct Value * R)
     }
     if(V2->Val[0] == 2.){
       if (Current.NbrHar == 1) {
-	R->Val[0] = DSQU(V1->Val[0]) ;
+	R->Val[0] = SQU(V1->Val[0]) ;
       }
       else{
 	for (k = 0 ; k < Current.NbrHar ; k+=2) {
@@ -1411,7 +1411,7 @@ void Cal_PowerValue(struct Value * V1, struct Value * V2, struct Value * R)
       }
       else{
 	for (k = 0 ; k < Current.NbrHar ; k+=2) {
-	  abs = pow(sqrt(DSQU(V1->Val[MAX_DIM*k])+DSQU(V1->Val[MAX_DIM*(k+1)])), 
+	  abs = pow(sqrt(SQU(V1->Val[MAX_DIM*k])+SQU(V1->Val[MAX_DIM*(k+1)])), 
 		    V2->Val[0]) ;
 	  arg = atan2(V1->Val[MAX_DIM*(k+1)], V1->Val[MAX_DIM*k]) ;
 	  R->Val[MAX_DIM* k   ] = abs * cos(V2->Val[0] * arg) ;

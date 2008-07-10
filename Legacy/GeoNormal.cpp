@@ -9,7 +9,7 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
-#define DSQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a)) 
 
 extern struct Problem    Problem_S ;
 extern struct GeoData  * CurrentGeoData ;
@@ -104,7 +104,7 @@ void Geo_CreateNormal(int Type, double *x, double *y, double *z, double *N)
   case LINE :
     nx = y[1] - y[0] ;
     ny = x[0] - x[1] ;
-    norm = sqrt(DSQU(nx)+DSQU(ny)) ;      
+    norm = sqrt(SQU(nx)+SQU(ny)) ;      
     N[0] = nx / norm ;
     N[1] = ny / norm ;
     N[2] = 0. ;
@@ -121,7 +121,7 @@ void Geo_CreateNormal(int Type, double *x, double *y, double *z, double *N)
     nx = y1y0 * z2z0 - z1z0 * y2y0 ;
     ny = z1z0 * x2x0 - x1x0 * z2z0 ;
     nz = x1x0 * y2y0 - y1y0 * x2x0 ;
-    norm = sqrt(DSQU(nx)+DSQU(ny)+DSQU(nz)) ;
+    norm = sqrt(SQU(nx)+SQU(ny)+SQU(nz)) ;
     N[0] = nx/norm ;
     N[1] = ny/norm ;
     N[2] = nz/norm ;

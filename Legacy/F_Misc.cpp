@@ -17,7 +17,7 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
-#define DSQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a)) 
 
 extern struct CurrentData Current ;
 
@@ -108,7 +108,7 @@ void F_Tangent(F_ARG)
     tx = Current.Element->x[1] - Current.Element->x[0] ;
     ty = Current.Element->y[1] - Current.Element->y[0] ;
     tz = Current.Element->z[1] - Current.Element->z[0] ;
-    norm = sqrt(DSQU(tx)+DSQU(ty)+DSQU(tz)) ;      
+    norm = sqrt(SQU(tx)+SQU(ty)+SQU(tz)) ;      
     V->Val[0] = tx/norm ;
     V->Val[1] = ty/norm ;
     V->Val[2] = tz/norm ;
@@ -330,27 +330,27 @@ void T_Stress(double **T, int n, double alpha, double beta, double gamma)
        T_x[i][j] = 0.;
     }    
   }
-  T_z[0][0] = DSQU(cos(alpha));
-  T_z[0][1] = DSQU(sin(alpha));
+  T_z[0][0] = SQU(cos(alpha));
+  T_z[0][1] = SQU(sin(alpha));
   T_z[0][3] = 2*cos(alpha)*sin(alpha);
-  T_z[1][0] = DSQU(sin(alpha));    
-  T_z[1][1] = DSQU(cos(alpha));
+  T_z[1][0] = SQU(sin(alpha));    
+  T_z[1][1] = SQU(cos(alpha));
   T_z[1][3] =-2*cos(alpha)*sin(alpha);
   T_z[2][2] = 1.0;
   T_z[3][0] =-cos(alpha)*sin(alpha);
   T_z[3][1] = cos(alpha)*sin(alpha);
-  T_z[3][3] = DSQU(cos(alpha))-DSQU(sin(alpha));
+  T_z[3][3] = SQU(cos(alpha))-SQU(sin(alpha));
   T_z[4][4] = cos(alpha);
   T_z[4][5] =-sin(alpha);
   T_z[5][4] = sin(alpha);
   T_z[5][5] = cos(alpha);
 
-  T_y[0][0] = DSQU(cos(beta));
-  T_y[0][2] = DSQU(sin(beta));
+  T_y[0][0] = SQU(cos(beta));
+  T_y[0][2] = SQU(sin(beta));
   T_y[0][5] =-2*cos(beta)*sin(beta);
   T_y[1][1] = 1.0; 
-  T_y[2][0] = DSQU(sin(beta));    
-  T_y[2][2] = DSQU(cos(beta));
+  T_y[2][0] = SQU(sin(beta));    
+  T_y[2][2] = SQU(cos(beta));
   T_y[2][5] = 2*cos(beta)*sin(beta);
   T_y[3][3] = cos(beta);
   T_y[3][4] =-sin(beta);
@@ -358,20 +358,20 @@ void T_Stress(double **T, int n, double alpha, double beta, double gamma)
   T_y[4][4] = cos(beta);
   T_y[5][0] = cos(beta)*sin(beta);
   T_y[5][2] =-cos(beta)*sin(beta);
-  T_y[5][5] = DSQU(cos(beta))-DSQU(sin(beta));
+  T_y[5][5] = SQU(cos(beta))-SQU(sin(beta));
 
   T_x[0][0] = 1.0;
-  T_x[1][1] = DSQU(cos(gamma));
-  T_x[1][2] = DSQU(sin(gamma));
+  T_x[1][1] = SQU(cos(gamma));
+  T_x[1][2] = SQU(sin(gamma));
   T_x[1][4] = 2*cos(gamma)*sin(gamma);
-  T_x[2][1] = DSQU(sin(gamma));    
-  T_x[2][2] = DSQU(cos(gamma));
+  T_x[2][1] = SQU(sin(gamma));    
+  T_x[2][2] = SQU(cos(gamma));
   T_x[2][4] =-2*cos(gamma)*sin(gamma);
   T_x[3][3] = cos(gamma);
   T_x[3][5] = sin(gamma);
   T_x[4][1] =-cos(gamma)*sin(gamma);
   T_x[4][2] = cos(gamma)*sin(gamma);
-  T_x[4][4] = DSQU(cos(gamma))-DSQU(sin(gamma));
+  T_x[4][4] = SQU(cos(gamma))-SQU(sin(gamma));
   T_x[5][3] =-sin(gamma);
   T_x[5][5] = cos(gamma);
  
@@ -416,27 +416,27 @@ void T_Strain(double **T, int n, double alpha, double beta, double gamma)
        T_x[i][j] = 0;
     }    
   }
-  T_z[0][0] = DSQU(cos(alpha));
-  T_z[0][1] = DSQU(sin(alpha));
+  T_z[0][0] = SQU(cos(alpha));
+  T_z[0][1] = SQU(sin(alpha));
   T_z[0][3] = cos(alpha)*sin(alpha);
-  T_z[1][0] = DSQU(sin(alpha));    
-  T_z[1][1] = DSQU(cos(alpha));
+  T_z[1][0] = SQU(sin(alpha));    
+  T_z[1][1] = SQU(cos(alpha));
   T_z[1][3] =-cos(alpha)*sin(alpha);
   T_z[2][2] = 1.0;
   T_z[3][0] =-2*cos(alpha)*sin(alpha);
   T_z[3][1] = 2*cos(alpha)*sin(alpha);
-  T_z[3][3] = DSQU(cos(alpha))-DSQU(sin(alpha));
+  T_z[3][3] = SQU(cos(alpha))-SQU(sin(alpha));
   T_z[4][4] = cos(alpha);
   T_z[4][5] =-sin(alpha);
   T_z[5][4] = sin(alpha);
   T_z[5][5] = cos(alpha);
 
-  T_y[0][0] = DSQU(cos(beta));
-  T_y[0][2] = DSQU(sin(beta));
+  T_y[0][0] = SQU(cos(beta));
+  T_y[0][2] = SQU(sin(beta));
   T_y[0][5] =-cos(beta)*sin(beta);
   T_y[1][1] = 1.0; 
-  T_y[2][0] = DSQU(sin(beta));    
-  T_y[2][2] = DSQU(cos(beta));
+  T_y[2][0] = SQU(sin(beta));    
+  T_y[2][2] = SQU(cos(beta));
   T_y[2][5] = cos(beta)*sin(beta);
   T_y[3][3] = cos(beta);
   T_y[3][4] =-sin(beta);
@@ -444,20 +444,20 @@ void T_Strain(double **T, int n, double alpha, double beta, double gamma)
   T_y[4][4] = cos(beta);
   T_y[5][0] = 2*cos(beta)*sin(beta);
   T_y[5][2] =-2*cos(beta)*sin(beta);
-  T_y[5][5] = DSQU(cos(beta))-DSQU(sin(beta));
+  T_y[5][5] = SQU(cos(beta))-SQU(sin(beta));
 
   T_x[0][0] = 1.0;
-  T_x[1][1] = DSQU(cos(gamma));
-  T_x[1][2] = DSQU(sin(gamma));
+  T_x[1][1] = SQU(cos(gamma));
+  T_x[1][2] = SQU(sin(gamma));
   T_x[1][4] = cos(gamma)*sin(gamma);
-  T_x[2][1] = DSQU(sin(gamma));    
-  T_x[2][2] = DSQU(cos(gamma));
+  T_x[2][1] = SQU(sin(gamma));    
+  T_x[2][2] = SQU(cos(gamma));
   T_x[2][4] =-cos(gamma)*sin(gamma);
   T_x[3][3] = cos(gamma);
   T_x[3][5] = sin(gamma);
   T_x[4][1] =-2*cos(gamma)*sin(gamma);
   T_x[4][2] = 2*cos(gamma)*sin(gamma);
-  T_x[4][4] = DSQU(cos(gamma))-DSQU(sin(gamma));
+  T_x[4][4] = SQU(cos(gamma))-SQU(sin(gamma));
   T_x[5][3] =-sin(gamma);
   T_x[5][5] = cos(gamma);
  

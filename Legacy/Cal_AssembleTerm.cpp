@@ -11,7 +11,7 @@
 #include "DofData.h"
 #include "Message.h"
 
-#define DSQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a)) 
 
 extern struct CurrentData Current ;
 
@@ -244,15 +244,15 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 	}
 	break;
       case TIME_NEWMARK :
-	tmp[0] = Val[0]/DSQU(Current.DTime) ;
+	tmp[0] = Val[0]/SQU(Current.DTime) ;
 	Dof_AssembleInMat(Equ, Dof, Current.NbrHar, tmp,
 			  &Current.DofData->A, &Current.DofData->b) ;
-	tmp[0] = 2*Val[0]/DSQU(Current.DTime) ;
+	tmp[0] = 2*Val[0]/SQU(Current.DTime) ;
 	Dof_AssembleInVec(Equ, Dof, Current.NbrHar, tmp,
 			  Current.DofData->CurrentSolution-1,
 			  &(Current.DofData->CurrentSolution-1)->x, 
 			  &Current.DofData->b) ;
-	tmp[0] = -Val[0]/DSQU(Current.DTime) ;
+	tmp[0] = -Val[0]/SQU(Current.DTime) ;
 	Dof_AssembleInVec(Equ, Dof, Current.NbrHar, tmp,
 			  Current.DofData->CurrentSolution-2,
 			  &(Current.DofData->CurrentSolution-2)->x, 
@@ -262,8 +262,8 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
     }    
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
-	tmp[0] = - Val[k]   * DSQU(Current.DofData->Val_Pulsation[k/2]) ;
-	tmp[1] = - Val[k+1] * DSQU(Current.DofData->Val_Pulsation[k/2]) ; 
+	tmp[0] = - Val[k]   * SQU(Current.DofData->Val_Pulsation[k/2]) ;
+	tmp[1] = - Val[k+1] * SQU(Current.DofData->Val_Pulsation[k/2]) ; 
 	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, tmp,
 			  &Current.DofData->A, &Current.DofData->b) ;
       }

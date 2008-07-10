@@ -10,7 +10,7 @@
 #include "ProData.h"
 #include "Message.h"
 
-#define DSQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a)) 
 
 /* ------------------------------------------------------------------------ */
 /*  B F _ N o d e                                                           */
@@ -310,16 +310,16 @@ void BF_GradNode(struct Element * Element, int NumNode,
       switch(NumNode) {
       case 1  : s[0] = -1. + v / (1. -w) ;            
 	        s[1] = -1. + u / (1. -w) ;            
-      	        s[2] = -1. + u * v / DSQU(1.-w) ; break ;
+      	        s[2] = -1. + u * v / SQU(1.-w) ; break ;
       case 2  : s[0] =  1. - v / (1. -w) ;            
 	        s[1] = - u / (1. -w) ;            
-	        s[2] = - u * v / DSQU(1.-w) ; break ;
+	        s[2] = - u * v / SQU(1.-w) ; break ;
       case 3  : s[0] = v / (1.-w) ;
                 s[1] = u / (1.-w) ;
-                s[2] = u * v / DSQU(1.-w) ; break ;
+                s[2] = u * v / SQU(1.-w) ; break ;
       case 4  : s[0] = - v / (1. -w) ; 
                 s[1] = 1. - u / (1. -w) ;
-                s[2] = - u * v/ DSQU(1.-w) ; break ;
+                s[2] = - u * v/ SQU(1.-w) ; break ;
       case 5  : s[0] = 0. ; 
                 s[1] = 0. ;
                 s[2] = 1. ; break ;
@@ -336,16 +336,16 @@ void BF_GradNode(struct Element * Element, int NumNode,
       switch(NumNode) {
       case 1  : s[0] = 0.25 * ( -(1.-v) + v*w/(1.-w) ) ;            
 	        s[1] = 0.25 * ( -(1.-u) + u*w/(1.-w) ) ;            
-      	        s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
+      	        s[2] = 0.25 * ( -1.     + u*v/SQU(1.-w) ) ; break ;
       case 2  : s[0] = 0.25 * (  (1.-v) + v*w/(1.-w) ) ;            
 	        s[1] = 0.25 * ( -(1.+u) + u*w/(1.-w) ) ;            
-	        s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
+	        s[2] = 0.25 * ( -1.     + u*v/SQU(1.-w) ) ; break ;
       case 3  : s[0] = 0.25 * (  (1.+v) + v*w/(1.-w) ) ; 
                 s[1] = 0.25 * (  (1.+u) + u*w/(1.-w) ) ;
-                s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
+                s[2] = 0.25 * ( -1.     + u*v/SQU(1.-w) ) ; break ;
       case 4  : s[0] = 0.25 * ( -(1.+v) + v*w/(1.-w) ) ;
                 s[1] = 0.25 * (  (1.-u) + u*w/(1.-w) ) ;
-                s[2] = 0.25 * ( -1.     + u*v/DSQU(1.-w) ) ; break ;
+                s[2] = 0.25 * ( -1.     + u*v/SQU(1.-w) ) ; break ;
       case 5  : s[0] = 0. ; 
                 s[1] = 0. ;
                 s[2] = 1. ; break ;

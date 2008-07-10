@@ -7,8 +7,7 @@ include ../variables
 
 LIB = ../lib/libGetDPNumeric${LIBEXT}
 
-INC = ${DASH}I. ${DASH}I../Common\
-      ${DASH}I../contrib/NR ${DASH}I../contrib/Sparskit
+INC = ${DASH}I. ${DASH}I../Common ${DASH}I../contrib/NR
 
 CFLAGS = ${OPTIM} ${FLAGS} ${INC} ${SYSINCLUDE}
 
