@@ -897,6 +897,12 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 
 #endif
 
+static PetscErrorCode _myKspMonitor(KSP ksp, int it, PetscReal rnorm, void *mctx)
+{
+  Msg::Info("%3d KSP Residual norm %14.12e", it, rnorm);
+  return 0;
+}
+
 static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int precond)
 {
   int its, RankCpu, i, j, view = 0;
@@ -936,6 +942,10 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
     ierr = KSPSetTolerances(Solver->ksp, 1.e-8, PETSC_DEFAULT, PETSC_DEFAULT, 
 			    PETSC_DEFAULT); MYCHECK(ierr);
     
+    if(Msg::UseSocket()){
+      ierr = KSPMonitorSet(Solver->ksp, _myKspMonitor, PETSC_NULL, PETSC_NULL); MYCHECK(ierr);
+    }
+
     /* override the default options with the ones from the option
        database (if any) */
     ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
@@ -946,10 +956,10 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
   
   ierr = KSPSolve(Solver->ksp, B->V, X->V); MYCHECK(ierr);
 
-    if(view){
-      ierr = KSPView(Solver->ksp,PETSC_VIEWER_STDOUT_SELF); MYCHECK(ierr);
-    }
-
+  if(view){
+    ierr = KSPView(Solver->ksp,PETSC_VIEWER_STDOUT_SELF); MYCHECK(ierr);
+  }
+  
   if(!RankCpu){
     ierr = KSPGetIterationNumber(Solver->ksp, &its); MYCHECK(ierr);
     Msg::Info("%d iterations", its);

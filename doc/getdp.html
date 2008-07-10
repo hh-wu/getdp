@@ -1,45 +1,41 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
+
 <head>
-  <title>GetDP: a General Environment for the Treatment of
-Discrete Problems</title>
+
+<title>GetDP: a General Environment for the Treatment of Discrete
+Problems</title>
 
 
-  <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 
-  <meta name="keywords" content="free, finite element, solver, finite elements,
+<meta name="keywords" content="free, finite element, solver, finite elements,
 integral equations, boundary elements, partial differential equations,
 numerical methods, electromagnetism, electromagnetics, thermal,
 thermics, mechanical, mechanics, acoustics, couplings, Gmsh, solveur,
 elements finis, programme gratuit">
 
-  <link href="/general.css" rel="stylesheet" type="text/css">
+<link href="/general.css" rel="stylesheet" type="text/css">
 
 </head>
 
-
-
 <body>
 
-<h1 align="center">GetDP: a General Environment for the
-Treatment of
+<h1 align="center">GetDP: a General Environment for the Treatment of
 Discrete Problems</h1>
-
 <p>
-</p>
-
 <h3 align="center">Patrick Dular and Christophe Geuzaine</h3>
-
 <p>
-</p>
-
-<h3 align="center">Version 1.2, 11 March 2006</h3>
-
+<h3 align="center">Version 2.0.0, ? 2008</h3>
 <p>
-</p>
-
-<center> <a href="#Description">Description</a>
-| <a href="#Documentation">Documentation</a> | <a href="#Mailing%20lists">Mailing lists</a> | <a href="#Download"><b>Download</b></a> | <a href="#Authors">Authors and credits</a> | <a href="#Licensing">Licensing</a> | <a href="#Links">Links</a>
+<center> 
+  <a href="#Description">Description</a> |
+  <a href="#Download"><b>Download</b></a> |
+  <a href="#Authors">Authors and credits</a> |
+  <a href="#Documentation">Documentation</a> |
+  <a href="#Mailing%20lists">Mailing lists</a> |
+  <a href="#Licensing">Licensing</a> |
+  <a href="#Links">Links</a>
 </center>
 
 <h2><a name="Description"></a>Description</h2>
@@ -49,176 +45,161 @@ discretize de Rham-type complexes in one, two and three dimensions.
 The main feature of GetDP is the closeness between the input data
 defining discrete problems (written by the user in ASCII data files)
 and the symbolic mathematical expressions of these problems.
-<p>See GetDP's reference manual for a more thorough <a href="/getdp/doc/texinfo/getdp_3.html">overview of GetDP's
+<p>See GetDP's reference manual for a more
+thorough <a href="/getdp/doc/texinfo/getdp_3.html">overview of GetDP's
 capabilities</a>.
-</p>
+
+<h2><a name="Download"></a>Download</h2>
+
+GetDP is distributed under the terms of
+the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public
+License (GPL)</a>. Pre-compiled binaries are available for Windows,
+Linux and Mac OS X. A sample demo file is included in the archives.
+
+<ul>
+<li>
+<strong>Current stable release</strong>:
+<a href="/getdp/bin/Windows/getdp-2.0.0-Windows.zip"><strong>Windows</strong></a>,
+<a href="/getdp/bin/Linux/getdp-2.0.0-Linux.tgz"><strong>Linux</strong></a>,
+<a href="/getdp/bin/MacOSX/getdp-2.0.0-MacOSX.tgz"><strong>Mac OS X</strong></a> and
+<a href="/getdp/src/getdp-2.0.0-source.tgz"><strong>source code</strong></a>
+<a href="#build-footnote" name="build-footmark"><sup>1</sup></a>
+<p>
+<li>Experimental versions (these might be buggy, or might not even
+launch: use at your own risk!):
+<ul><li>automated nightly builds:
+<a href="/getdp/bin/Windows/getdp-nightly-Windows.zip">Windows</a>
+(<a href="/getdp/bin/Windows/nightly.log">build log</a>),
+<a href="/getdp/bin/Linux/getdp-nightly-Linux.tgz">Linux</a>
+(<a href="/getdp/bin/Linux/nightly.log">build log</a>),
+<a href="/getdp/bin/MacOSX/getdp-nightly-MacOSX.tgz">Mac OS X</a>
+(<a href="/getdp/bin/MacOSX/nightly.log">build log</a>)
+<li>nightly <a href="/getdp/src/getdp-nightly-source.tgz">cvs source
+snapshot</a>
+</ul>
+<li>
+Browse all versions: <a href="/getdp/bin/">binaries</a>
+and <a href="/getdp/src/">sources</a>
+</ul>
+
+If you use GetDP, we would appreciate if you
+could <a href="/getdp/doc/getdp.bib">mention</a> it in your work
+(books, articles, reports, etc.).
+
+<h2><a name="Authors"></a>Authors and credits</h2>
+
+GetDP is developed by Patrick Dular and Christophe Geuzaine (both
+currently with the <a href="http://www.ulg.ac.be">University of
+Li&egrave;ge</a>). The <a href="doc/CREDITS.txt">CREDITS</a> file has
+more information.
+<p>
+Please use <a href="mailto:getdp@geuz.org">getdp@geuz.org</a> to send
+questions or bug reports.
 
 <h2><a name="Documentation"></a>Documentation</h2>
 
 <ul>
-
-  <li><a href="/getdp/doc/texinfo/getdp.html">Reference
-manual</a> (also available in <a href="/getdp/doc/texinfo/getdp.ps">postscript</a>, <a href="/getdp/doc/texinfo/getdp.pdf">pdf</a>, <a href="/getdp/doc/texinfo/getdp.txt">text</a> and <a href="/getdp/doc/texinfo/getdp-info.tgz">info</a>
-formats, or as a <a href="/getdp/doc/texinfo/getdp-full.html">single
-html file</a>) </li>
-
-  <li><a href="/getdp/wiki/FrontPage">Library of
-examples</a> (username: getdp, password: wiki). We need your help
-to add new examples !
-  </li>
-
-  <li><a href="/getdp/doc/slides/getdp-01.html">Short
-presentation</a> (also available in <a href="/getdp/doc/slides/getdp.ps">postscript</a> and <a href="/getdp/doc/slides/getdp.pdf">pdf</a> formats) </li>
-
-  <li><a href="/getdp/doc/FAQ">Frequently asked
-questions (FAQ)</a> </li>
-
-  <li><a href="/getdp/doc/VERSIONS">Version history</a>
-  </li>
-
-  <li><a href="/getdp/doc/CREDITS">Credits</a>
-  </li>
-
+  <li><a href="/getdp/doc/texinfo/getdp.html">Reference manual</a>
+    (also available in 
+    <a href="/getdp/doc/texinfo/getdp.pdf">pdf</a>,
+    <a href="/getdp/doc/texinfo/getdp.txt">text</a> and
+    <a href="/getdp/doc/texinfo/getdp-info.tgz">info</a> formats, or as a 
+    <a href="/getdp/doc/texinfo/getdp-full.html">single html file</a>)
+  <li><a href="/getdp/doc/slides/getdp-01.html">Short presentation</a>
+    (also available in <a href="/getdp/doc/slides/getdp.pdf">pdf</a>)
+  <li><a href="/getdp/doc/FAQ.txt">Frequently asked questions (FAQ)</a>
+  <li><a href="/getdp/doc/VERSIONS.txt">Version history</a>
+  <li><a href="/getdp/doc/CREDITS.txt">Credits</a>
 </ul>
 
-<form method="get" action="http://www.geuz.org/search/search-geuz.cgi"><input size="30" name="q" value="">&nbsp;
-  <input value="Search!" type="submit">&nbsp;
-  <input name="ps" value="10" type="hidden">
-  <select name="ul">
-  <option value="/getdp" selected="selected">All
-GetDP resources
-  </option>
-  <option value="/getdp/doc/">GetDP documentation
-  </option>
-  <option value="/pipermail/getdp">GetDP mailing list
-archives
-  </option>
-  </select>
+We need your help to build a <a href="/getdp/wiki/FrontPage">library
+of examples</a> (username: getdp, password: wiki).
 
+<p>
+
+<form method="get" action="http://www.geuz.org/search/search-geuz.cgi">
+<input size=30 name="q" value="">&nbsp;
+<input type="submit" value="Search!">&nbsp;
+<input type="hidden" name="ps" value="10">
+<select name="ul">
+  <option value="/getdp" selected="selected">All GetDP resources
+  <option value="/getdp/doc/">GetDP documentation
+  <option value="/pipermail/getdp">GetDP mailing list archives
+</select>
 </form>
 
 <h2><a name="Mailing lists"></a>Mailing lists</h2>
 
 <ul>
-
-  <li><a href="/mailman/listinfo/getdp/">getdp</a>
-is the public mailing list for GetDP users. You should send all
-questions, bug reports, requests or pleas for changes related to GetDP
-to this list. The list is archived <a href="/pipermail/getdp/">here</a>.
-  </li>
-
+  <li><a href="/mailman/listinfo/getdp/">getdp</a> is the public
+    mailing list for GetDP users. You should send all questions, bug
+    reports, requests or pleas for changes related to GetDP to this
+    list. The list is archived <a href="/pipermail/getdp/">here</a>.
   <li><a href="/mailman/listinfo/getdp-announce/">getdp-announce</a>
-is a moderated (i.e. "read-only") list for announcements about
-significant GetDP events. You should subscribe to this list to get
-information about software releases, important bug fixes and other
-GetDP-specific news. The list is archived <a href="/pipermail/getdp-announce/">here</a>.
-  </li>
-
+    is a moderated (i.e. "read-only") list for announcements about
+    significant GetDP events. You should subscribe to this list to get
+    information about software releases, important bug fixes and other
+    GetDP-specific news. The list is
+    archived <a href="/pipermail/getdp-announce/">here</a>.
 </ul>
-
-<h2><a name="Download"></a>Download</h2>
-
-GetDP is distributed under the terms of the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General
-Public License
-(GPL)</a>. Pre-compiled binaries are available for Windows, Linux
-and
-Mac OS X. A sample demo file is included in the archives.
-<ul>
-
-  <li><a href="/getdp/bin/Windows/getdp-1.2.1-Windows.zip">Windows
-(95/98/NT/2000/XP)</a>
-  </li>
-
-  <li><a href="/getdp/bin/Linux/getdp-1.2.1-Linux.tgz">Linux
-(i386, glibc 2.3 and above)</a> </li>
-
-  <li><a href="/getdp/bin/MacOSX/getdp-1.2.1-MacOSX.tgz">Mac
-OS X (10.3.9 and above)</a>
-  </li>
-
-  <li><a href="/getdp/src/getdp-1.2.1-source.tgz">Source
-(all platforms)</a> <a href="#build-footnote" name="build-footmark"><sup>1</sup></a>
-  </li>
-
-</ul>
-
-<p>
-Older versions are also still available: <a href="/getdp/src/">sources</a>,
-<a href="/getdp/bin/">binaries</a>.
-If you use GetDP, we would appreciate if you
-could <a href="/getdp/doc/getdp.bib">mention</a> it
-in your work
-(books, articles, reports, etc.).
-</p>
-
-<h2><a name="Authors"></a>Authors and credits</h2>
-
-GetDP is developed by Patrick Dular (currently with
-the <a href="http://www.ulg.ac.be">University of
-Li&egrave;ge</a>) and
-Christophe Geuzaine (currently with <a href="http://www.case.edu">Case
-Western Reserve University</a>). The <a href="doc/CREDITS">CREDITS
-file</a> has more information.
-<p>Please use <a href="mailto:getdp@geuz.org">getdp@geuz.org</a>
-to send
-questions or bug reports.
-</p>
 
 <h2><a name="Licensing"></a>Licensing</h2>
 
-GetDP is copyright (C) 1997-2006 by P. Dular and C. Geuzaine and is
-distributed under the terms of the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General
-Public License
-(GPL)</a>.
-<p>In short, this means that everyone is free to use GetDP and to
+GetDP is copyright (C) 1997-2008 by P. Dular and C. Geuzaine and is
+distributed under the terms of
+the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public
+License (GPL)</a>.
+
+<p>
+In short, this means that everyone is free to use GetDP and to
 redistribute it on a free basis. GetDP is not in the public domain; it
 is copyrighted and there are restrictions on its distribution (see the
-<a href="http://www.gnu.org/copyleft/gpl.html">license</a>
-and its
+<a href="http://www.gnu.org/copyleft/gpl.html">license</a> and its
 associated <a href="http://www.gnu.org/copyleft/gpl-faq.html">FAQ</a>).
 For example, you cannot integrate this version of GetDP (in full or in
-parts) in any <em>closed-source</em> software you plan to
-distribute
+parts) in any <em>closed-source</em> software you plan to distribute
 (commercially or not).
 </p>
 
-<p>If you want to integrate GetDP into a closed-source software,
-or want
-to sell a modified closed-source version of GetDP, please contact us in
-person. You can purchase a version of GetDP under a different license,
-with "no strings attached" (for example allowing you to take parts of
-GetDP and integrate them into your own proprietary code).
+<p>If you want to integrate GetDP into a closed-source software, or
+want to sell a modified closed-source version of GetDP, please contact
+us in person. You can purchase a version of GetDP under a different
+license, with "no strings attached" (for example allowing you to take
+parts of GetDP and integrate them into your own proprietary code).
 </p>
 
 <h2><a name="Links"></a>Links</h2>
 
-<a href="/gmsh/">Gmsh</a> is a three-dimensional
-finite element mesh
+<a href="/gmsh/">Gmsh</a> is a three-dimensional finite element mesh
 generator with simple CAD and post-processing capabilities that can be
 used as a graphical front-end for GetDP.
-<p>GetDP's default linear algebra solvers are based on Yousef
-Saad's <a href="http://www-users.cs.umn.edu/%7Esaad/software/SPARSKIT/sparskit.html">SPARSKIT</a>.
-GetDP can also be linked with <a href="http://www-unix.mcs.anl.gov/petsc/">PETSc</a>,
-from
-Argonne National Laboratory.
-</p>
 
-<p>The free version of GetDP depends on the <a href="http://sources.redhat.com/gsl/">GNU Scientific library</a>.
-</p>
+<p>
+GetDP is interfaced with the
+<a href="http://www-users.cs.umn.edu/%7Esaad/software/SPARSKIT/sparskit.html">SPARSKIT</a>
+and <a href="http://www-unix.mcs.anl.gov/petsc/">PETSc</a> linear
+solvers.
 
-<p></p>
-
-<form action="https://www.paypal.com/cgi-bin/webscr" method="post"><input name="cmd" value="_xclick" type="hidden">
-  <input name="business" value="paypal@geuz.org" type="hidden"><input name="item_name" value="GetDP donation" type="hidden"><input name="no_note" value="1" type="hidden"><input name="currency_code" value="USD" type="hidden"><input name="tax" value="0" type="hidden"><input src="/images/donation.gif" name="submit" alt="Make a donation with PayPal" type="image"></form>
+<p>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_xclick">
+<input type="hidden" name="business" value="paypal@geuz.org">
+<input type="hidden" name="item_name" value="GetDP donation">
+<input type="hidden" name="no_note" value="1">
+<input type="hidden" name="currency_code" value="USD">
+<input type="hidden" name="tax" value="0">
+<input type="image" src="/images/donation.gif" name="submit" 
+       alt="Make a donation with PayPal">
+</form>
 
 <hr>
-<a name="build-footnote"></a><a href="#build-footmark"><sup>1</sup></a>In
-addition to a C and a
-Fortran 77 compiler, you need the <a href="http://sources.redhat.com/gsl/">GSL (&gt; 1.2)</a>
-libraries
-properly installed on your system in order to compile GetDP.
-<p>Back to <a href="/">geuz.org</a>
-</p>
+<a name="build-footnote"></a><a href="#build-footmark"><sup>1</sup></a>You
+need the <a href="http://sources.redhat.com/gsl/">GNU Scientific
+Library (GSL >= 1.2)</a> properly installed on your system in order to
+compile GetDP.
+
+<p>
+Back to <a href="/">geuz.org</a>
 
 </body>
 </html>

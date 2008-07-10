@@ -25,7 +25,7 @@
 @set GETDP-WEB      @uref{http://www.geuz.org/getdp/}
 @set GETDP-WIKI     @uref{http://www.geuz.org/getdp/wiki/FrontPage}
 @set GMSH-WEB       @uref{http://www.geuz.org/gmsh/}
-@set COPYRIGHT      @copyright{} 1997-2006 Patrick Dular, Christophe Geuzaine
+@set COPYRIGHT      @copyright{} 1997-2008 Patrick Dular, Christophe Geuzaine
 @c
 @settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate
@@ -5725,15 +5725,6 @@ performed previously, or that a @code{-cal} option is given on the same
 command line. If @var{post-operation-id} is omitted, the list of available
 choices is displayed.
 
-@item -ipos
-@var{post-processing-id} @dots{}
-
-Enters an interactive post-processing mode, permetting to manually type
-@code{PostOperation}-like commands. These commands are based on the
-@code{PostProcessing} object(s) selected by the @var{post-processing-id}(s).
-If @var{post-processing-id} is omitted, the list of available choices is
-displayed.
-
 @item -msh
 @var{filename}
 
@@ -5779,11 +5770,6 @@ Specifies the maximum interpolation order.
 @item -bin 
 
 Selects binary format for output files.
-
-@item -log
-
-Saves all processing history in a log file (the input file name with an
-appended @code{.log} extension).
 
 @item -socket
 @var{string}
@@ -6062,7 +6048,7 @@ files that produce the bug (problem definition and mesh files). Don't forget
 to mention both the version of GetDP and the version of your operation
 system (@pxref{Running GetDP} to see how to get this information).
 
-See the @file{TODO} file in the distribution to check the problems we
+See the @file{TODO.txt} file in the distribution to check the problems we
 already know about.
 
 @c -------------------------------------------------------------------------
@@ -6076,7 +6062,7 @@ already know about.
 @cindex History, versions
 @cindex Changelog
 
-@verbatiminclude ../VERSIONS
+@verbatiminclude ../VERSIONS.txt
 
 @c -------------------------------------------------------------------------
 @c Credits
@@ -6089,7 +6075,7 @@ already know about.
 @cindex Contributors, list
 @cindex Credits 
 
-@verbatiminclude ../CREDITS
+@verbatiminclude ../CREDITS.txt
 
 @c =========================================================================
 @c Tips ans Tricks
@@ -6150,7 +6136,7 @@ available PostOperations.
 @cindex Questions, frequently asked
 @cindex FAQ
 
-@verbatiminclude ../FAQ
+@verbatiminclude ../FAQ.txt
 
 @c =========================================================================
 @c Gmsh Examples

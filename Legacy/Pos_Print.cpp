@@ -238,8 +238,8 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     
     /* Generate all PostElements */
 
+    Msg::ResetProgressMeter();
     for(iGeo = 0 ; iGeo < NbrGeo ; iGeo += incGeo) {
-      //Progress(iGeo, NbrGeo, "Generate: ") ;
       Element.GeoElement = Geo_GetGeoElement(iGeo) ;
       if(List_Search(Region_L, &Element.GeoElement->Region, fcmp_int)){
 	Fill_PostElement(Element.GeoElement, PostElement_L, iGeo,
@@ -247,6 +247,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 			 PostSubOperation_P->EvaluationPoints,
 			 DecomposeInSimplex) ;
       }
+      Msg::ProgressMeter(iGeo + 1, NbrGeo, "Generate: ");
     }
 
     /* Compute the skin */
@@ -254,8 +255,8 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     if(PostSubOperation_P->Skin){
       PostElement_T = Tree_Create(sizeof(struct PostElement *), fcmp_PostElement);
 
+      Msg::ResetProgressMeter();
       for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){
-	//Progress(iPost, List_Nbr(PostElement_L), "Skin: ") ;
 	PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost) ;
 	if(Tree_PQuery(PostElement_T, &PE)){
 	  Tree_Suppress(PostElement_T, &PE);
@@ -263,6 +264,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	}
 	else
 	  Tree_Add(PostElement_T, &PE);
+	Msg::ProgressMeter(iPost + 1, List_Nbr(PostElement_L), "Skin: ");
       }
 
       /* only decompose in simplices (triangles!) now */
@@ -291,14 +293,14 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   } /* if Store */
   
   /* Loop on GeoElements */
-  
+
+  Msg::ResetProgressMeter();
   for(iGeo = 0 ; iGeo < NbrGeo ; iGeo += incGeo) {
     
     if(Store){
       if(iGeo) break ;
     }
     else{
-      // Progress(iGeo, NbrGeo, "Compute: ") ;
       List_Reset(PostElement_L) ;
       Element.GeoElement = Geo_GetGeoElement(iGeo) ;
       if(List_Search(Region_L, &Element.GeoElement->Region, fcmp_int)){
@@ -314,8 +316,6 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     /* Loop on PostElements */
     
     for(iPost = 0 ; iPost < NbrPost ; iPost++) {
-
-      //if(Store) Progress(iPost, NbrPost, "Compute: ") ;
 
       PE = *(struct PostElement **)List_Pointer(PostElement_L, iPost) ;
 
@@ -399,6 +399,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       if(!Store) Destroy_PostElement(PE) ;
 
     }
+    Msg::ProgressMeter(iGeo + 1, NbrGeo, "Compute: ");
   } /* for iGeo */
 
   /* Perform Smoothing */
@@ -727,8 +728,8 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
     
     NbGeoElement = Geo_GetNbrGeoElements() ;
 
+    Msg::ResetProgressMeter();
     for(iGeo = 0 ; iGeo < NbGeoElement ; iGeo++) {
-      //Progress(iGeo, NbGeoElement, "Cut: ") ;
       Element.GeoElement = Geo_GetGeoElement(iGeo) ;
       Element.Num        = Element.GeoElement->Num ;
       Element.Type       = Element.GeoElement->Type ;
@@ -842,7 +843,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 	}
 
       }
-
+      Msg::ProgressMeter(iGeo + 1, NbGeoElement, "Cut: ") ;
     }
     Format_PostFooter(PostSubOperation_P, 0);
     break;
@@ -1467,10 +1468,9 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
 
   if(!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
 
+  Msg::ResetProgressMeter();
   for(iGeo = 0 ; iGeo < NbrGeo ; iGeo++) {
-    
-    //Progress(iGeo, NbrGeo, "Compute: ") ;
-
+   
     GeoElement = Geo_GetGeoElement(iGeo) ;
     if(List_Search(Region_L, &GeoElement->Region, fcmp_int)){
 
@@ -1506,7 +1506,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
       }
 
     }
-
+    Msg::ProgressMeter(iGeo + 1, NbrGeo, "Compute: ") ;
   }
 
   Destroy_PostElement(SL) ;

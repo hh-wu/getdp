@@ -303,20 +303,19 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 
     Type_Quantity = LOCALQUANTITY ; /* Attention... il faut se comprendre: */
     /* il s'agit de grandeurs locales qui seront integrees */
+    Msg::ResetProgressMeter();
     for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
-      //Progress(i_Element, Nbr_Element, "Accumulate: ") ;
-
       Element.GeoElement = Geo_GetGeoElement(i_Element) ;
       Element.Num    = Element.GeoElement->Num ;
       Element.Type   = Element.GeoElement->Type ;
       Current.Region = Element.Region = Element.GeoElement->Region ;
 
-
       /* Filter: only elements in both InRegion_L and Support_L are considered */
-     if ((!InRegion_L || 
-	   (List_Search(InRegion_L,(Type_InRegion==ELEMENTSOF ? &Element.Num  :&Element.Region), fcmp_int)))&&
-	 (!Support_L || List_Search(Support_L, &Element.Region, fcmp_int))) {
-
+      if ((!InRegion_L || 
+	   (List_Search(InRegion_L, (Type_InRegion==ELEMENTSOF ?
+				     &Element.Num  : &Element.Region), fcmp_int))) &&
+	  (!Support_L || List_Search(Support_L, &Element.Region, fcmp_int))) {
+	
 	Get_NodesCoordinatesOfElement(&Element) ;
 	Current.x = Element.x[0];
 	Current.y = Element.y[0];
@@ -326,6 +325,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 				    PostQuantityTerm_P, &Element, Type_Quantity,
 				    0., 0., 0., Value) ;
       }
+      Msg::ProgressMeter(i_Element + 1, Nbr_Element, "Accumulate: ");
     }  /* for i_Element ... */
 
   }  /* if INTEGRAL ... */

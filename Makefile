@@ -94,3 +94,134 @@ etags:
 	etags `find . \( -name "*.cpp" -o -name "*.c" -o -name "*.h"\
                       -o -name "*.y" -o -name "*.l" \)`
 
+# Rules to package the sources
+
+source-common: purge
+	rm -rf getdp-${GETDP_VERSION}
+	tar zcf getdp.tgz --exclude "*.o" --exclude "*.a" --exclude "getdp"\
+          --exclude "variables" --exclude "config.log" --exclude "config.status"\
+          --exclude "autom4*" --exclude "Makefile.distrib" --exclude "Makefile.bak"\
+          --exclude "benchmarks" --exclude "HTML"\
+          --exclude "*TAGS*" --exclude "GSYMS" --exclude "GPATH" --exclude "CVS"\
+          *
+	mkdir getdp-${GETDP_VERSION}
+	cd getdp-${GETDP_VERSION} && tar zxf ../getdp.tgz
+	rm -f getdp.tgz
+	cd getdp-${GETDP_VERSION}/demos && ${MAKE} clean
+	cd getdp-${GETDP_VERSION}/doc && ${MAKE} clean
+
+source: source-common
+	cd getdp-${GETDP_VERSION} && rm -rf */.globalrc\
+          ${GETDP_VERSION_FILE} utils/temp doc/slides\
+          contrib/NR contrib/ZITSOL_1
+	tar zcvf getdp-${GETDP_VERSION}-source.tgz getdp-${GETDP_VERSION}
+
+# Rules to package the binaries
+
+package-unix:
+	rm -rf getdp-${GETDP_VERSION}
+	mkdir getdp-${GETDP_VERSION}
+	strip bin/getdp
+	cp bin/getdp getdp-${GETDP_VERSION}
+	cp doc/getdp.1 doc/LICENSE.txt doc/VERSIONS.txt doc/FAQ.txt doc/CREDITS.txt\
+          getdp-${GETDP_VERSION}
+	cp -R demos getdp-${GETDP_VERSION}
+	rm -rf getdp-${GETDP_VERSION}/*/CVS
+	rm -f getdp-${GETDP_VERSION}/*/*.pre
+	rm -f getdp-${GETDP_VERSION}/*/*.res
+	rm -f getdp-${GETDP_VERSION}/*/*.pos
+	rm -f getdp-${GETDP_VERSION}/*/*.cut
+	rm -f getdp-${GETDP_VERSION}/*/*~
+	tar cvf getdp-${GETDP_VERSION}-${UNAME}.tar getdp-${GETDP_VERSION}
+	gzip getdp-${GETDP_VERSION}-${UNAME}.tar
+	mv getdp-${GETDP_VERSION}-${UNAME}.tar.gz getdp-${GETDP_VERSION}-${UNAME}.tgz
+
+package-win:
+	rm -rf getdp-${GETDP_VERSION}
+	mkdir getdp-${GETDP_VERSION}
+	strip bin/getdp.exe
+	cp bin/getdp.exe getdp-${GETDP_VERSION}
+	cp doc/README.win32 getdp-${GETDP_VERSION}/README.txt
+	cp doc/LICENSE.txt doc/VERSIONS.txt doc/FAQ.txt doc/CREDITS.txt\
+          ${GETDP_VERSION}
+	cd utils/misc && ./unix2dos.bash ../../getdp-${GETDP_VERSION}/*.txt
+	cp -R demos getdp-${GETDP_VERSION}
+	rm -rf getdp-${GETDP_VERSION}/*/CVS
+	rm -f getdp-${GETDP_VERSION}/*/*.pre
+	rm -f getdp-${GETDP_VERSION}/*/*.res
+	rm -f getdp-${GETDP_VERSION}/*/*.pos
+	rm -f getdp-${GETDP_VERSION}/*/*.cut
+	rm -f getdp-${GETDP_VERSION}/*/*~
+	cd utils/misc && ./unix2dos.bash ../../getdp-${GETDP_VERSION}/demos/*
+	cd getdp-${GETDP_VERSION} && zip -r getdp-${GETDP_VERSION}-Windows.zip *
+	mv getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-Windows.zip .
+
+package-mac: package-unix
+	mv getdp-${GETDP_VERSION}-${UNAME}.tgz getdp-${GETDP_VERSION}-MacOSX.tgz
+
+# Rules to distribute official releases
+
+distrib-pre:
+	mv -f Makefile Makefile.distrib
+	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION =/g"\
+          Makefile.distrib > Makefile
+	make tag
+
+distrib-pre-cvs:
+	mv -f Makefile Makefile.distrib
+	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION = \"-cvs-${GETDP_DATE}\"/g"\
+          Makefile.distrib > Makefile
+	make tag
+
+distrib-post:
+	mv -f Makefile.distrib Makefile
+	rm -f ${GETDP_VERSION_FILE}
+
+distrib-unix:
+	make distrib-pre
+	make all
+	make package-unix
+	make distrib-post
+	ldd bin/getdp
+
+distrib-unix-nightly:
+	make distrib-pre-cvs
+	make all
+	make package-unix
+	make distrib-post
+
+distrib-win: 
+	make distrib-pre
+	make all
+	make package-win
+	make distrib-post
+	objdump -p bin/getdp.exe | grep DLL
+
+distrib-win-nightly: 
+	make distrib-pre-cvs
+	make all
+	make package-win
+	make distrib-post
+
+distrib-mac:
+	make distrib-pre
+	make all
+	make package-mac
+	make distrib-post
+	otool -L bin/getdp
+
+distrib-mac-nightly:
+	make distrib-pre-cvs
+	make all
+	make package-mac
+	make distrib-post
+
+distrib-source:
+	make distrib-pre
+	make source
+	make distrib-post
+
+distrib-source-nightly:
+	make distrib-pre-cvs
+	make source
+	make distrib-post

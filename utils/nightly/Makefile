@@ -17,7 +17,7 @@ getdp-update:
 	rm -f ${GETDP}/Makefile*
 	rm -rf ${GETDP}/getdp-*cvs*
 	echo "BUILD BEGIN: `date`" > ${LOG}
-	cd ${GETDP} && export CVS_RSH=ssh && cvs update -dPA -rgmsh_1_branch >> ${LOG} 2>&1
+	cd ${GETDP} && export CVS_RSH=ssh && cvs update -dPA >> ${LOG} 2>&1
 	cd ${GETDP} && ./configure\
           --enable-petsc\
           --with-petsc-prefix=${HOME}/src/petsc-2.3.3-p1\

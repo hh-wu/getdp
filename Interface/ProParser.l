@@ -178,7 +178,6 @@ Symmetry                     return tSymmetry;
 Equation                     return tEquation;
 Galerkin                     return tGalerkin;
 deRham                       return tdeRham;
-DiscreteGeometry             return tDiscreteGeometry;
 
 Dt                           return tDt;
 DtDof                        return tDtDof;

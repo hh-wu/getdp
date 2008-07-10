@@ -4,11 +4,13 @@
 // bugs and problems to <getdp@geuz.org>.
 
 #include <math.h>
+#include "ProData.h"
+#include "GeoData.h"
 #include "Get_DofOfElement.h"
+#include "Get_ConstraintOfElement.h"
 #include "ExtendedGroup.h"
 #include "Cal_Quantity.h"
 #include "Cal_Value.h"
-#include "GeoData.h"
 #include "MallocUtils.h"
 #include "Message.h"
 

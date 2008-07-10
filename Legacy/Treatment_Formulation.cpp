@@ -401,6 +401,8 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
   
   Nbr_Element = Geo_GetNbrGeoElements() ;
 
+  Msg::ResetProgressMeter();
+      
   for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
 
     if (Generate_Group) {
@@ -413,9 +415,6 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
       }
       if (i_Element == Nbr_Element) break ;
     }
-
-
-    //Progress(i_Element, Nbr_Element, "") ;
 
     Element.GeoElement = Geo_GetGeoElement(i_Element) ;
     Element.Num    = Element.GeoElement->Num ;
@@ -580,7 +579,8 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
       } /* if GALERKIN ... */
       
     }  /* for i_EquTerm ... */
-    
+
+    Msg::ProgressMeter(i_Element + 1, Nbr_Element);    
   }  /* for i_Element ... */
 
 

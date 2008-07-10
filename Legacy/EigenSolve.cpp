@@ -18,12 +18,12 @@
 extern struct CurrentData Current ;
 extern char   *Name_Path ;
 
-#if !defined(HAVE_ARPACK) || !defined(HAVE_BLAS_LAPACK)
+#if !defined(HAVE_ARPACK)
 
 void EigenSolve(struct DofData * DofData_P, int NumEigenvalues, 
 		double shift_r, double shift_i)
 {
-  Msg::Error("EigenSolve not available without BLAS, LAPACK and ARPACK");
+  Msg::Error("EigenSolve not available without ARPACK");
 }
 
 #else

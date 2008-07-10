@@ -1,34 +1,35 @@
-.\" $Id: getdp.1,v 1.32 2006-02-28 18:49:55 geuzaine Exp $
-.TH GetDP 1 "28 February 2006" "GetDP 1.2" "GetDP Manual Pages"
+.\" $Id: getdp.1,v 1.33 2008-07-10 10:21:48 geuzaine Exp $
+.TH GetDP 1 "July 10 2008" "GetDP 2" "GetDP Manual Pages"
 .UC 4
 .\" ********************************************************************
 .SH NAME
 GetDP \- a General environment for the treatment of Discrete Problems
 .\" ********************************************************************
 .SH SYNOPSIS
-.B getdp file [option(s)]
+.B getdp [file] [options]
 .\" ********************************************************************
 .SH DESCRIPTION
-\fIGetDP\fP is a scientific computation software for the numerical
-solution of integro-differential equations, using finite element and
-integral type methods. \fIGetDP\fP is command-line driven, has no
-graphical interface, and works by reading user-written ASCII files
-containing the discrete problems definitions, expressed in a way close
-to their mathematical formulations.
+\fIGetDP\fP is a general finite element solver using mixed elements to
+discretize de Rham-type complexes in one, two and three
+dimensions. The main feature of \fIGetDP\fP is the closeness between
+the input data defining discrete problems (written by the user in
+ASCII data files) and the symbolic mathematical expressions of these
+problems.
+.PP
+\fIGetDP\fP is a command-line program. See \fIGmsh\fP for a graphical
+front-end.
 .\" ********************************************************************
 .SH WARNING
-This man page does not describe the syntax of the ASCII input files:
-you should refer to the info documentation for this (e.g. with \fBinfo
-getdp\fP). Various versions of the Texinfo manual (html, postscript,
-pdf) are available at
-\fIhttp://www.geuz.org/getdp/\fP.
+This man page does not describe the syntax of the input files: you
+should refer to the info documentation for this (e.g. with \fBinfo
+getdp\fP). Up-to-date versions of the manual in various formats are
+available at \fIhttp://www.geuz.org/getdp/\fP.
 .\" ********************************************************************
 .SH OPTIONS
-Here is a description of the most common arguments accepted by
-\fIGetDP\fP on the command line:
+Command line arguments:
 .TP 4
 .B file
-is an ASCII file containing the problem definition, i.e.  the
+is an ASCII file containing the problem definition, i.e., the
 structures the Texinfo documentation will teach you to create. This
 file can include other files, so that only one problem definition file
 should always be given on the command line. The input files containing
@@ -63,11 +64,6 @@ performed previously, or that a \fB\-cal\fP option is given on the
 same command line. If \fIpost-operation-id\fP is omitted, the list of
 available choices is displayed.
 .TP 4
-.B \-ipos \fIpost-processing-id\fP(s)
-enters an interactive post-processing mode, permitting to enter
-post-processing operations manually. If no \fIpost-processing-id\fP(s)
-is (are) given, the list of available choices is displayed.
-.TP 4
 .B \-msh \fIfilename\fP
 reads the mesh database from \fIfilename\fP rather than reading it
 from the default problem file name with the \fI.msh\fP extension
@@ -89,10 +85,6 @@ reads adaptation constraints from \fIfilename(s)\fP.
 .TP 4
 .B \-degree \fIfloat\fP
 specifies maximum interpolation degree.
-.TP 4
-.B \-log
-saves all processing history in a log file (the input file name with
-an appended \fI.log\fP extension).
 .TP 4
 .B \-socket \fIstring\fP
 communicates through socket \fIstring\fP.
@@ -120,15 +112,15 @@ displays a message listing basic usage and available options.
 .PP
 .\" ********************************************************************
 .SH AUTHORS
-Patrick Dular (Patrick.Dular@ulg.ac.be) and Christophe Geuzaine
-(Christope.Geuzaine@case.edu). Many additions by many other people
-(see the documentation for a comprehensive list of collaborators).
+Patrick Dular (patrick.dular at ulg.ac.be) and Christophe Geuzaine
+(cgeuzaine at ulg.ac.be). See the documentation for a comprehensive
+list of contributors.
 .\" ********************************************************************
 .SH SEE ALSO
 .BR gmsh (1),
-.br
+.BR
 GetDP examples (\fI/usr/share/doc/getdp-*/\fR),
-.br
+.BR
 GetDP homepage (\fIhttp://www.geuz.org/getdp/\fR).
 .PP
 The full documentation for GetDP is maintained as a Texinfo manual.

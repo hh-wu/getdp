@@ -90,7 +90,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
 
   default :
     Msg::Error("Unknown type (%d) of Expression (%s)",
-	Expression_P->Type, Expression_P->Name) ;  
+	       Expression_P->Type, Expression_P->Name) ;  
     break;
   }
 }

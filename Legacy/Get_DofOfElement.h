@@ -32,18 +32,6 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 			 int StartingIndex,
 			 int i_BFunction, int TypeConstraint, int * Num_SubFunction) ;
 
-void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
-				     struct QuantityStorage  * QuantityStorage_P,
-				     int Num_Entity[], int i_Entity,
-				     int i_BFunction, int TypeConstraint) ;
-
-void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[],
-			     int * Index_TimeFunction) ;
-void  Get_PreResolutionForConstraint(struct ConstraintInFS * Constraint_P,
-				     int * Index_TimeFunction) ;
-void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
-			    int Num_Entity, int * CodeEntity_Link, double Value[]) ;
-
 void  Get_PreResolutionForGlobalBasisFunction(int Nbr_Global, int StartingIndex,
 					      struct Element * Element) ;
 
@@ -51,9 +39,5 @@ void  Get_DofOfRegion(int  Num_Region,
 		      struct GlobalQuantity   * GlobalQuantity_P,
 		      struct FunctionSpace    * FunctionSpace_P,
 		      struct QuantityStorage  * QuantityStorage_P) ;
-
-void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
-				    struct FunctionSpace    * FunctionSpace_P,
-				    struct QuantityStorage  * QuantityStorage_P) ;
 
 #endif

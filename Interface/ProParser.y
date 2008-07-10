@@ -192,7 +192,7 @@ void vyyerror(char *fmt, ...);
 %token        tNameOfSpace tIndexOfSystem 
 %token        tSymmetry
 %token    tEquation
-%token        tGalerkin tdeRham tGlobalTerm tGlobalEquation tDiscreteGeometry
+%token        tGalerkin tdeRham tGlobalTerm tGlobalEquation
 %token          tDt tDtDof tDtDt tDtDtDof tJacNL tNeverDt tDtNL tAtAnteriorTimeStep
 %token          tIn
 %token          tFull_Matrix
@@ -3278,10 +3278,6 @@ EquationTerm :
 
   | tGlobalEquation  '{' GlobalEquation '}'
     { EquationTerm_S.Type = GLOBALEQUATION; }
-/*
-  | tDiscreteGeometry  '{' LocalTerm '}'
-    { EquationTerm_S.Type = DISCRETEGEOMETRY; }
-*/
  ;
 
 
