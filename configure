@@ -2604,26 +2604,6 @@ echo "$as_me: error: Could not find required compilers, aborting." >&2;}
    { (exit 1); exit 1; }; }
 fi
 
-OPTIM="${CXXFLAGS}"
-
-ac_ext=cpp
-ac_cpp='$CXXCPP $CPPFLAGS'
-ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
-ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
-ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
-
-
-case "$UNAME" in
-  CYGWIN*)
-    if test "x$enable_cygwin" != "xyes"; then
-      UNAME="${UNAME}-no-cygwin"
-      CXX="${CXX} -mno-cygwin"
-      F77="${F77} -mno-cygwin"
-      LINKER="${LINKER} -mno-cygwin"
-    fi
-    ;;
-esac
-
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
 ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
@@ -3294,11 +3274,263 @@ echo "${ECHO_T}$ac_cv_prog_cc_c89" >&6; } ;;
 esac
 
 
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+{ echo "$as_me:$LINENO: checking how to run the C preprocessor" >&5
+echo $ECHO_N "checking how to run the C preprocessor... $ECHO_C" >&6; }
+# On Suns, sometimes $CPP names a directory.
+if test -n "$CPP" && test -d "$CPP"; then
+  CPP=
+fi
+if test -z "$CPP"; then
+  if test "${ac_cv_prog_CPP+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+      # Double quotes because CPP needs to be expanded
+    for CPP in "$CC -E" "$CC -E -traditional-cpp" "/lib/cpp"
+    do
+      ac_preproc_ok=false
+for ac_c_preproc_warn_flag in '' yes
+do
+  # Use a header file that comes with gcc, so configuring glibc
+  # with a fresh cross-compiler works.
+  # Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
+  # <limits.h> exists even on freestanding compilers.
+  # On the NeXT, cc -E runs the code through the compiler's parser,
+  # not just through cpp. "Syntax error" is here to catch this case.
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#ifdef __STDC__
+# include <limits.h>
+#else
+# include <assert.h>
+#endif
+		     Syntax error
+_ACEOF
+if { (ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then
+  :
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  # Broken: fails on valid input.
+continue
+fi
+
+rm -f conftest.err conftest.$ac_ext
+
+  # OK, works on sane cases.  Now check whether nonexistent headers
+  # can be detected and how.
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <ac_nonexistent.h>
+_ACEOF
+if { (ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then
+  # Broken: success on invalid input.
+continue
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  # Passes both tests.
+ac_preproc_ok=:
+break
+fi
+
+rm -f conftest.err conftest.$ac_ext
+
+done
+# Because of `break', _AC_PREPROC_IFELSE's cleaning code was skipped.
+rm -f conftest.err conftest.$ac_ext
+if $ac_preproc_ok; then
+  break
+fi
+
+    done
+    ac_cv_prog_CPP=$CPP
+
+fi
+  CPP=$ac_cv_prog_CPP
+else
+  ac_cv_prog_CPP=$CPP
+fi
+{ echo "$as_me:$LINENO: result: $CPP" >&5
+echo "${ECHO_T}$CPP" >&6; }
+ac_preproc_ok=false
+for ac_c_preproc_warn_flag in '' yes
+do
+  # Use a header file that comes with gcc, so configuring glibc
+  # with a fresh cross-compiler works.
+  # Prefer <limits.h> to <assert.h> if __STDC__ is defined, since
+  # <limits.h> exists even on freestanding compilers.
+  # On the NeXT, cc -E runs the code through the compiler's parser,
+  # not just through cpp. "Syntax error" is here to catch this case.
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#ifdef __STDC__
+# include <limits.h>
+#else
+# include <assert.h>
+#endif
+		     Syntax error
+_ACEOF
+if { (ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then
+  :
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  # Broken: fails on valid input.
+continue
+fi
+
+rm -f conftest.err conftest.$ac_ext
+
+  # OK, works on sane cases.  Now check whether nonexistent headers
+  # can be detected and how.
+  cat >conftest.$ac_ext <<_ACEOF
+/* confdefs.h.  */
+_ACEOF
+cat confdefs.h >>conftest.$ac_ext
+cat >>conftest.$ac_ext <<_ACEOF
+/* end confdefs.h.  */
+#include <ac_nonexistent.h>
+_ACEOF
+if { (ac_try="$ac_cpp conftest.$ac_ext"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_cpp conftest.$ac_ext") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } >/dev/null && {
+	 test -z "$ac_c_preproc_warn_flag$ac_c_werror_flag" ||
+	 test ! -s conftest.err
+       }; then
+  # Broken: success on invalid input.
+continue
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+  # Passes both tests.
+ac_preproc_ok=:
+break
+fi
+
+rm -f conftest.err conftest.$ac_ext
+
+done
+# Because of `break', _AC_PREPROC_IFELSE's cleaning code was skipped.
+rm -f conftest.err conftest.$ac_ext
+if $ac_preproc_ok; then
+  :
+else
+  { { echo "$as_me:$LINENO: error: C preprocessor \"$CPP\" fails sanity check
+See \`config.log' for more details." >&5
+echo "$as_me: error: C preprocessor \"$CPP\" fails sanity check
+See \`config.log' for more details." >&2;}
+   { (exit 1); exit 1; }; }
+fi
+
+ac_ext=c
+ac_cpp='$CPP $CPPFLAGS'
+ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_c_compiler_gnu
+
+LINKER="${CXX}"
+
+OPTIM="${CXXFLAGS}"
+
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+
+case "$UNAME" in
+  CYGWIN*)
+    if test "x$enable_cygwin" != "xyes"; then
+      UNAME="${UNAME}-no-cygwin"
+      CXX="${CXX} -mno-cygwin"
+      F77="${F77} -mno-cygwin"
+      LINKER="${LINKER} -mno-cygwin"
+    fi
+    ;;
+esac
 
 ac_ext=c
 ac_cpp='$CPP $CPPFLAGS'
@@ -3851,7 +4083,7 @@ GETDP_DIRS="Common Numeric Interface Legacy Main"
 GETDP_LIBS="-Llib -lGetDPMain -lGetDPLegacy -lGetDPInterface -lGetDPNumeric -lGetDPCommon"
 FLAGS="-DHAVE_LEGACY"
 
-if test "x$enable_petsc" != "xno"; then
+if test "x$enable_petsc" != "xno" -a "x$enable_sparskit" != "xyes"; then
   if test "x${PETSC_DIR}" = "x"; then
     { { echo "$as_me:$LINENO: error: Could not determine PETSC_DIR. Run configure again with --with-petsc-prefix." >&5
 echo "$as_me: error: Could not determine PETSC_DIR. Run configure again with --with-petsc-prefix." >&2;}
@@ -3862,6 +4094,7 @@ echo "$as_me: error: Could not determine PETSC_DIR. Run configure again with --w
 echo "$as_me: error: Could not determine PETSC_ARCH. Run configure again with --with-petsc-arch." >&2;}
    { (exit 1); exit 1; }; }
   fi
+  LAPACK="yes"
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
   GETDP_LIBS+=' ${PETSC_KSP_LIB}'
   FLAGS+=' -DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
@@ -3869,9 +4102,186 @@ echo "$as_me: error: Could not determine PETSC_ARCH. Run configure again with --
 fi
 
 if test "x$enable_sparskit" = "xyes"; then
-  { { echo "$as_me:$LINENO: error: Sparskit not reimplemented yet." >&5
-echo "$as_me: error: Sparskit not reimplemented yet." >&2;}
+  { echo "$as_me:$LINENO: checking for ./contrib/Sparskit/Sparskit.cpp" >&5
+echo $ECHO_N "checking for ./contrib/Sparskit/Sparskit.cpp... $ECHO_C" >&6; }
+if test "${ac_cv_file___contrib_Sparskit_Sparskit_cpp+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
    { (exit 1); exit 1; }; }
+if test -r "./contrib/Sparskit/Sparskit.cpp"; then
+  ac_cv_file___contrib_Sparskit_Sparskit_cpp=yes
+else
+  ac_cv_file___contrib_Sparskit_Sparskit_cpp=no
+fi
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_file___contrib_Sparskit_Sparskit_cpp" >&5
+echo "${ECHO_T}$ac_cv_file___contrib_Sparskit_Sparskit_cpp" >&6; }
+if test $ac_cv_file___contrib_Sparskit_Sparskit_cpp = yes; then
+  SPARSKIT="yes"
+else
+  SPARSKIT="no"
+fi
+
+  if test "x${SPARSKIT}" = "xno"; then
+    { { echo "$as_me:$LINENO: error: Could not find Sparskit." >&5
+echo "$as_me: error: Could not find Sparskit." >&2;}
+   { (exit 1); exit 1; }; }
+  fi
+  GETDP_DIRS+=" contrib/Sparskit"
+  GETDP_LIBS+=" -lGetDPSparskit"
+  FLAGS+=" -DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
+    ac_ext=f
+ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
+ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_f77_compiler_gnu
+
+  if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+    LDFLAGS+=" -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
+  fi
+
+{ echo "$as_me:$LINENO: checking for dasum in -lblas" >&5
+echo $ECHO_N "checking for dasum in -lblas... $ECHO_C" >&6; }
+if test "${ac_cv_lib_blas_dasum+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lblas  $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+      program main
+      call dasum
+      end
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_f77_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_blas_dasum=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_blas_dasum=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_blas_dasum" >&5
+echo "${ECHO_T}$ac_cv_lib_blas_dasum" >&6; }
+if test $ac_cv_lib_blas_dasum = yes; then
+  BLAS="yes"
+else
+  BLAS="no"
+fi
+
+  if test "x${BLAS}" = "xyes"; then
+    { echo "$as_me:$LINENO: checking for dbdsqr in -llapack" >&5
+echo $ECHO_N "checking for dbdsqr in -llapack... $ECHO_C" >&6; }
+if test "${ac_cv_lib_lapack_dbdsqr+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-llapack -lblas $LIBS"
+cat >conftest.$ac_ext <<_ACEOF
+      program main
+      call dbdsqr
+      end
+_ACEOF
+rm -f conftest.$ac_objext conftest$ac_exeext
+if { (ac_try="$ac_link"
+case "(($ac_try" in
+  *\"* | *\`* | *\\*) ac_try_echo=\$ac_try;;
+  *) ac_try_echo=$ac_try;;
+esac
+eval "echo \"\$as_me:$LINENO: $ac_try_echo\"") >&5
+  (eval "$ac_link") 2>conftest.er1
+  ac_status=$?
+  grep -v '^ *+' conftest.er1 >conftest.err
+  rm -f conftest.er1
+  cat conftest.err >&5
+  echo "$as_me:$LINENO: \$? = $ac_status" >&5
+  (exit $ac_status); } && {
+	 test -z "$ac_f77_werror_flag" ||
+	 test ! -s conftest.err
+       } && test -s conftest$ac_exeext &&
+       $as_test_x conftest$ac_exeext; then
+  ac_cv_lib_lapack_dbdsqr=yes
+else
+  echo "$as_me: failed program was:" >&5
+sed 's/^/| /' conftest.$ac_ext >&5
+
+	ac_cv_lib_lapack_dbdsqr=no
+fi
+
+rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
+      conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_lib_lapack_dbdsqr" >&5
+echo "${ECHO_T}$ac_cv_lib_lapack_dbdsqr" >&6; }
+if test $ac_cv_lib_lapack_dbdsqr = yes; then
+  LAPACK="yes"
+else
+  LAPACK="no"
+fi
+
+  fi
+  ac_ext=cpp
+ac_cpp='$CXXCPP $CPPFLAGS'
+ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
+ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
+ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
+
+fi
+
+{ echo "$as_me:$LINENO: checking for ./contrib/Arpack/znaupd.f" >&5
+echo $ECHO_N "checking for ./contrib/Arpack/znaupd.f... $ECHO_C" >&6; }
+if test "${ac_cv_file___contrib_Arpack_znaupd_f+set}" = set; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "./contrib/Arpack/znaupd.f"; then
+  ac_cv_file___contrib_Arpack_znaupd_f=yes
+else
+  ac_cv_file___contrib_Arpack_znaupd_f=no
+fi
+fi
+{ echo "$as_me:$LINENO: result: $ac_cv_file___contrib_Arpack_znaupd_f" >&5
+echo "${ECHO_T}$ac_cv_file___contrib_Arpack_znaupd_f" >&6; }
+if test $ac_cv_file___contrib_Arpack_znaupd_f = yes; then
+  ARPACK="yes"
+else
+  ARPACK="no"
+fi
+
+if test "x${ARPACK}" = "xyes" -a "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
+  FLAGS+=" -DHAVE_ARPACK"
+  GETDP_DIRS+=" contrib/Arpack"
+  GETDP_LIBS+=" -lGetDPArpack"
+  if test "x${SPARSKIT}" = "xyes"; then
+    GETDP_LIBS+=" -llapack -lblas"
+  fi
 fi
 
 if test "x${GMSH_PREFIX}" != "x"; then
@@ -4167,38 +4577,25 @@ echo "$as_me: error: Could not find GSL or NR, aborting." >&2;}
   fi
 fi
 
-{ echo "$as_me:$LINENO: checking for ./contrib/Arpack/znaupd.f" >&5
-echo $ECHO_N "checking for ./contrib/Arpack/znaupd.f... $ECHO_C" >&6; }
-if test "${ac_cv_file___contrib_Arpack_znaupd_f+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "./contrib/Arpack/znaupd.f"; then
-  ac_cv_file___contrib_Arpack_znaupd_f=yes
-else
-  ac_cv_file___contrib_Arpack_znaupd_f=no
-fi
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_file___contrib_Arpack_znaupd_f" >&5
-echo "${ECHO_T}$ac_cv_file___contrib_Arpack_znaupd_f" >&6; }
-if test $ac_cv_file___contrib_Arpack_znaupd_f = yes; then
-  ARPACK="yes"
-else
-  ARPACK="no"
-fi
-
-if test "x${ARPACK}" = "xyes" -a "x$enable_arpack" != "xno"; then
-   GETDP_DIRS+=" contrib/Arpack"
-   GETDP_LIBS+=" -lGetDPArpack"
-   FLAGS+=" -DHAVE_ARPACK"
-fi
-
 case "${F77}" in
   *gfortran*)
     GETDP_LIBS+=" -lgfortran"
+    ;;
+esac
+
+case "${UNAME}" in
+  CYGWIN* | MINGW*)
+    if test "x$enable_cygwin" != "xyes"; then
+      GETDP_LIBS+=" -lwsock32"
+    fi
+    ;;
+  Darwin*)
+    case "${F77}" in
+      *gfortran*)
+        { echo "$as_me:$LINENO: WARNING: gfortran breaks Arpack (known incompatibility in blas' zdotc)!" >&5
+echo "$as_me: WARNING: gfortran breaks Arpack (known incompatibility in blas' zdotc)!" >&2;}
+        ;;
+    esac
     ;;
 esac
 
@@ -5241,7 +5638,7 @@ fi
 
 
 echo "********************************************************************"
-echo "GetDP2 is configured for"
+echo "GetDP is configured for"
 echo "- OS               : $UNAME on $HOSTNAME"
 echo "- C++ compiler     : $CXX"
 echo "- Fortran compiler : $F77"

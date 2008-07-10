@@ -73,6 +73,7 @@ void Message::Error(const char *fmt, ...)
     fflush(stdout);
   }
   va_end(args);
+  exit(1);
 }
 
 void Message::Warning(const char *fmt, ...)

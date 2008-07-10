@@ -56,6 +56,7 @@ class Message {
   static void SendFileOnSocket(std::string filename);
   static void SendOptionOnSocket(int num, std::string option);
   static void FinalizeSocket();
+  static bool UseSocket(){ return _socket ? true : false; }
 };
 
 typedef Message Msg;

@@ -18,7 +18,7 @@ extern struct CurrentData Current ;
 
 extern int    Flag_BIN ;
 
-extern char   Name_Path[MAX_FILE_NAME_LENGTH] ;
+extern char   *Name_Path ;
 
 FILE *PostStream = stdout;
 

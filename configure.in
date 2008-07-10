@@ -54,6 +54,10 @@ if test "x${CXX}" = "x" -o "x${F77}" = "x" ; then
   AC_MSG_ERROR([Could not find required compilers, aborting.])
 fi
 
+dnl Set preprocessor and linker
+AC_PROG_CPP
+LINKER="${CXX}"
+
 dnl Set default optimization level
 OPTIM="${CXXFLAGS}"
 
@@ -104,22 +108,50 @@ GETDP_LIBS="-Llib -lGetDPMain -lGetDPLegacy -lGetDPInterface -lGetDPNumeric -lGe
 FLAGS="-DHAVE_LEGACY"
 
 dnl Check for PETSc
-if test "x$enable_petsc" != "xno"; then
+if test "x$enable_petsc" != "xno" -a "x$enable_sparskit" != "xyes"; then
   if test "x${PETSC_DIR}" = "x"; then
     AC_MSG_ERROR([Could not determine PETSC_DIR. Run configure again with --with-petsc-prefix.])
   fi
   if test "x${PETSC_ARCH}" = "x"; then
     AC_MSG_ERROR([Could not determine PETSC_ARCH. Run configure again with --with-petsc-arch.])
   fi
+  LAPACK="yes"
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
   GETDP_LIBS+=' ${PETSC_KSP_LIB}'
   FLAGS+=' -DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
   LINKER='${CLINKER}'
 fi
 
-dnl Check for PETSc
+dnl Check for Sparskit
 if test "x$enable_sparskit" = "xyes"; then
-  AC_MSG_ERROR([Sparskit not reimplemented yet.])
+  AC_CHECK_FILE(./contrib/Sparskit/Sparskit.cpp,SPARSKIT="yes",SPARSKIT="no")
+  if test "x${SPARSKIT}" = "xno"; then
+    AC_MSG_ERROR([Could not find Sparskit.])
+  fi
+  GETDP_DIRS+=" contrib/Sparskit"
+  GETDP_LIBS+=" -lGetDPSparskit"
+  FLAGS+=" -DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
+  dnl Check for blas and lapack (used by Arpack and Lanczos/GSL)
+  AC_LANG_PUSH(Fortran 77)
+  if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+    LDFLAGS+=" -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
+  fi
+  AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
+  if test "x${BLAS}" = "xyes"; then
+    AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
+  fi
+  AC_LANG_POP()
+fi
+
+dnl Check for Arpack, then link with blas and lapack if necessary
+AC_CHECK_FILE(./contrib/Arpack/znaupd.f, ARPACK="yes", ARPACK="no")
+if test "x${ARPACK}" = "xyes" -a "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
+  FLAGS+=" -DHAVE_ARPACK"
+  GETDP_DIRS+=" contrib/Arpack"
+  GETDP_LIBS+=" -lGetDPArpack"
+  if test "x${SPARSKIT}" = "xyes"; then
+    GETDP_LIBS+=" -llapack -lblas"
+  fi
 fi
 
 dnl Check for Gmsh 
@@ -188,18 +220,26 @@ if test "x${GSL}" != "xyes"; then
   fi
 fi
 
-dnl Check for Arpack
-AC_CHECK_FILE(./contrib/Arpack/znaupd.f, ARPACK="yes", ARPACK="no")
-if test "x${ARPACK}" = "xyes" -a "x$enable_arpack" != "xno"; then
-   GETDP_DIRS+=" contrib/Arpack"
-   GETDP_LIBS+=" -lGetDPArpack"
-   FLAGS+=" -DHAVE_ARPACK"
-fi
-
 dnl Fix link when using gfortran as the fortran compiler
 case "${F77}" in
   *gfortran*)
     GETDP_LIBS+=" -lgfortran"
+    ;;
+esac
+
+dnl Force specific options for native compilers
+case "${UNAME}" in
+  CYGWIN* | MINGW*)
+    if test "x$enable_cygwin" != "xyes"; then
+      GETDP_LIBS+=" -lwsock32"
+    fi
+    ;;
+  Darwin*)
+    case "${F77}" in
+      *gfortran*)
+        AC_MSG_WARN([gfortran breaks Arpack (known incompatibility in blas' zdotc)!])
+        ;;
+    esac
     ;;
 esac
 
@@ -222,7 +262,7 @@ AC_OUTPUT(variables)
 
 dnl Print some information
 echo "********************************************************************"
-echo "GetDP2 is configured for"
+echo "GetDP is configured for"
 echo "- OS               : $UNAME on $HOSTNAME"
 echo "- C++ compiler     : $CXX"
 echo "- Fortran compiler : $F77"

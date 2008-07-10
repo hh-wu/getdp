@@ -17,7 +17,7 @@
 #include "Message.h"
 
 extern struct CurrentData Current ;
-extern char   Name_Path[MAX_FILE_NAME_LENGTH] ;
+extern char   *Name_Path ;
 
 #if !defined(HAVE_ARPACK) || !defined(HAVE_BLAS_LAPACK)
 

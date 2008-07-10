@@ -16,7 +16,8 @@
 
 extern struct CurrentData Current ;
 
-extern char  Name_Path[MAX_FILE_NAME_LENGTH] ;
+extern char *Name_Path;
+
 static char *Name_SolverFile = NULL, *Name_DefaultSolverFile = "solver.par" ;
 static char *SolverOptions[100];
 
@@ -60,7 +61,7 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv)
       }
     }
     else
-      Msg::Info("Unknown option: '%s'\n", argv[i++]) ; 
+      Msg::Info("Unknown option: '%s'", argv[i++]) ; 
   }
 }
 
@@ -109,7 +110,7 @@ void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName)
     strcat(FileName, Name_DefaultSolverFile);
   }
   
-  Msg::Info("Loading parameter file '%s'\n", FileName);
+  Msg::Info("Loading parameter file '%s'", FileName);
 
   init_solver(&Solver->Params, FileName) ;
 
@@ -120,14 +121,13 @@ void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName)
   }
 }
 
-void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n, int NbrPart, int *Part)
+void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
 {
   init_vector(n, &V->V) ;
   V->N = n ;
 }
 
-void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m, 
-			 int NbrPart, int *Part, int *Nnz)
+void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 {
   init_matrix(n, &M->M, &Solver->Params) ;
 }

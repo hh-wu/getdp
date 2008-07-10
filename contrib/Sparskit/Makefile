@@ -5,7 +5,7 @@
 
 include ../../variables
 
-LIB = ../../lib/libGmshSparskit${LIBEXT}
+LIB = ../../lib/libGetDPSparskit${LIBEXT}
 
 INC = ${DASH}I. ${DASH}I../../Common
 
