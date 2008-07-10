@@ -576,7 +576,7 @@ PACKAGE_VERSION=
 PACKAGE_STRING=
 PACKAGE_BUGREPORT=
 
-ac_unique_file="Interface/proParser.y"
+ac_unique_file="Interface/ProParser.y"
 ac_subst_vars='SHELL
 PATH_SEPARATOR
 PACKAGE_NAME

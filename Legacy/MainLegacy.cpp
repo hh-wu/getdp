@@ -26,7 +26,7 @@ void Info(int level, char *arg0)
   case 0 :
     fprintf(stderr, 
 	    "GetDP, a General environment for the treatment of Discrete Problems\n"
-	    "Copyright (C) 1997-2006 Patrick Dular and Christophe Geuzaine\n"
+	    "Copyright (C) 1997-2008 P. Dular, C. Geuzaine\n"
 #if defined(HAVE_SPARSKIT)
 	    "Usage: %s [file] [options]\n"
 #else

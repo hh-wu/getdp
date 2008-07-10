@@ -6,7 +6,7 @@ dnl bugs and problems to <getdp@geuz.org>.
 dnl Process this file with autoconf to produce the configure script.
 
 dnl Check that this is the getdp source tree
-AC_INIT(Interface/proParser.y)
+AC_INIT(Interface/ProParser.y)
 
 dnl Parse '--with' command-line options
 AC_ARG_WITH(gsl-prefix,
