@@ -115,6 +115,10 @@ if test "x$enable_petsc" != "xno" -a "x$enable_sparskit" != "xyes"; then
   if test "x${PETSC_ARCH}" = "x"; then
     AC_MSG_ERROR([Could not determine PETSC_ARCH. Run configure again with --with-petsc-arch.])
   fi
+  AC_CHECK_FILE(${PETSC_DIR}/bmake/${PETSC_ARCH}/petscconf.h,PETSC="yes",PETSC="no")
+  if test "x${PETSC}" = "xno"; then
+    AC_MSG_ERROR([Could not find PETSC. Use --enable-sparskit instead?])
+  fi
   LAPACK="yes"
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
   GETDP_LIBS+=' ${PETSC_KSP_LIB}'

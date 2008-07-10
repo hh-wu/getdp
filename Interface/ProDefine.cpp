@@ -4,8 +4,8 @@
 // bugs and problems to <getdp@geuz.org>.
 
 #include <strings.h>
-#include "proData.h"
-#include "proDefine.h"
+#include "ProData.h"
+#include "ProDefine.h"
 #include "Message.h"
 
 /* --------------------------------------------------------------------------- */

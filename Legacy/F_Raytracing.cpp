@@ -3,6 +3,7 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
+#include <math.h>
 #include "ProData.h"
 #include "F.h"
 #include "Message.h"
@@ -81,7 +82,7 @@ static int newton(gsl_multiroot_function_fdf FDF, double *u, double *v)
     *u = gsl_vector_get(solver->x, 0);
     *v = gsl_vector_get(solver->x, 1);
 
-    if(*v < 0 || *v > 15 || abs(*u) > 7){
+    if(*v < 0 || *v > 15 || fabs(*u) > 7){
       status= GSL_FAILURE;
       break;
     }
@@ -127,7 +128,7 @@ void F_CylinderPhase(F_ARG)
     initGuess = atan2(y, x);
   }
   
-  if(abs(x) < 1 && abs(y) > 6.5){
+  if(fabs(x) < 1 && fabs(y) > 6.5){
     if(y < 0){
       initGuess = initGuess - 3.14 / 8;
     }

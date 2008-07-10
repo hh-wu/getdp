@@ -6,9 +6,9 @@
 #include <stdlib.h>
 #include <strings.h>
 #include <string>
-#include "proData.h"
-#include "proDefine.h"
-#include "proParser.h"
+#include "ProData.h"
+#include "ProDefine.h"
+#include "ProParser.h"
 #include "Message.h"
 
 // Global problem structure: this is the only problem structure that

@@ -8,9 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "proData.h"
-#include "proParser.h"
-#include "proParser.tab.hpp"
+#include "ProData.h"
+#include "ProParser.h"
+#include "ProParser.tab.hpp"
 #include "Message.h"
 
 // Redefinition of YY_INPUT to allow input character count (this is

@@ -6,7 +6,7 @@
 #ifndef _PRO_DEFINE_H_
 #define _PRO_DEFINE_H_
 
-#include "proData.h"
+#include "ProData.h"
 
 struct StringXDefine {
   char *string; 

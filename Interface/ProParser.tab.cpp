@@ -600,10 +600,10 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
-#include "proData.h"
-#include "proDefine.h"
-#include "proDefines.h"
-#include "proParser.h"
+#include "ProData.h"
+#include "ProDefine.h"
+#include "ProDefines.h"
+#include "ProParser.h"
 #include "Message.h"
 
 // Global problem structure filled by the parser

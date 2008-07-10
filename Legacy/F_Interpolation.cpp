@@ -365,7 +365,7 @@ void Fi_InitValueFromIndex(F_ARG)
   struct IntDouble IntDouble_s;
   struct FunctionActive  * D ;
 
-  N = Fct->Para[0];
+  N = (int)Fct->Para[0];
   
   D = Fct->Active =
     (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
@@ -387,7 +387,7 @@ void Fi_InitVectorFromIndex(F_ARG)
 
   if ((Fct->NbrParameters)){
 
-    N = Fct->Para[0];
+    N = (int)Fct->Para[0];
       
     D = Fct->Active =
       (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
