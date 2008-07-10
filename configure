@@ -4080,7 +4080,7 @@ fi
 
 
 GETDP_DIRS="Common Numeric Interface Legacy Main"
-GETDP_LIBS="-Llib -lGetDPMain -lGetDPLegacy -lGetDPInterface -lGetDPNumeric -lGetDPCommon"
+GETDP_LIBS="-Llib -lGetDPMain -lGetDPLegacy -lGetDPInterface -lGetDPLegacy -lGetDPNumeric -lGetDPCommon"
 FLAGS="-DHAVE_LEGACY"
 
 if test "x$enable_petsc" != "xno" -a "x$enable_sparskit" != "xyes"; then
@@ -4610,6 +4610,9 @@ fi
 case "${F77}" in
   *gfortran*)
     GETDP_LIBS+=" -lgfortran"
+    ;;
+  *g77*)
+    GETDP_LIBS+=" -lg2c"
     ;;
 esac
 

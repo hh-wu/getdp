@@ -104,7 +104,7 @@ AC_CHECK_LIB(m,main)
 
 dnl Set default subdirectories and options
 GETDP_DIRS="Common Numeric Interface Legacy Main"
-GETDP_LIBS="-Llib -lGetDPMain -lGetDPLegacy -lGetDPInterface -lGetDPNumeric -lGetDPCommon"
+GETDP_LIBS="-Llib -lGetDPMain -lGetDPLegacy -lGetDPInterface -lGetDPLegacy -lGetDPNumeric -lGetDPCommon"
 FLAGS="-DHAVE_LEGACY"
 
 dnl Check for PETSc
@@ -228,6 +228,9 @@ dnl Fix link when using gfortran as the fortran compiler
 case "${F77}" in
   *gfortran*)
     GETDP_LIBS+=" -lgfortran"
+    ;;
+  *g77*)
+    GETDP_LIBS+=" -lg2c"
     ;;
 esac
 
