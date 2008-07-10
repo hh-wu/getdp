@@ -58,4 +58,4 @@ depend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-
+Sparskit.o: Sparskit.cpp Sparskit.h ListUtils.h MallocUtils.h Message.h

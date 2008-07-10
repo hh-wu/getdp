@@ -220,16 +220,17 @@ Treatment_Formulation.o: Treatment_Formulation.cpp ../Interface/ProData.h \
   Cal_GalerkinTermOfFemEquation.h Cal_GlobalTermOfFemEquation.h \
   Cal_AssembleTerm.h Generate_Network.h ExtendedGroup.h \
   ../Common/Message.h ../Common/GmshClient.h
-Get_DofOfElement.o: Get_DofOfElement.cpp Get_DofOfElement.h \
-  ../Interface/ProData.h ../Common/ListUtils.h ExtendedGroup.h \
-  Cal_Quantity.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
-  ../Common/ListUtils.h DofData.h LinAlg.h ../Common/Message.h \
-  ../Common/GmshClient.h
-Get_ConstraintOfElement.o: Get_ConstraintOfElement.cpp Get_DofOfElement.h \
-  ../Interface/ProData.h ../Common/ListUtils.h ExtendedGroup.h \
-  Cal_Quantity.h Cal_Value.h GeoData.h ../Common/TreeUtils.h \
-  ../Common/avl.h ../Common/ListUtils.h ../Common/MallocUtils.h \
+Get_DofOfElement.o: Get_DofOfElement.cpp ../Interface/ProData.h \
+  ../Common/ListUtils.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h DofData.h LinAlg.h Get_DofOfElement.h \
+  Get_ConstraintOfElement.h ExtendedGroup.h Cal_Quantity.h \
   ../Common/Message.h ../Common/GmshClient.h
+Get_ConstraintOfElement.o: Get_ConstraintOfElement.cpp \
+  ../Interface/ProData.h ../Common/ListUtils.h GeoData.h \
+  ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \
+  Get_DofOfElement.h Get_ConstraintOfElement.h ExtendedGroup.h \
+  Cal_Quantity.h Cal_Value.h ../Common/MallocUtils.h ../Common/Message.h \
+  ../Common/GmshClient.h
 Get_FunctionValue.o: Get_FunctionValue.cpp ../Interface/ProData.h \
   ../Common/ListUtils.h GeoData.h ../Common/TreeUtils.h ../Common/avl.h \
   ../Common/ListUtils.h DofData.h LinAlg.h Cal_Quantity.h Get_Geometry.h \
