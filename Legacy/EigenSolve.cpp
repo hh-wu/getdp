@@ -15,6 +15,9 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
+#define SQU(a)     ((a)*(a)) 
+#define TWO_PI             6.2831853071795865
+
 extern struct CurrentData Current ;
 extern char   *Name_Path ;
 
