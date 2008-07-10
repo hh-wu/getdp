@@ -476,7 +476,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     LinAlg_CreateVector(&v1, &DofData_P->Solver, DofData_P->NbrDof);
     LinAlg_CreateVector(&w1, &DofData_P->Solver, DofData_P->NbrDof);
     LinAlg_CreateVector(&w2, &DofData_P->Solver, DofData_P->NbrDof);
-    LinAlg_CreateMatrix(&D, &DofData_P->Solver, DofData_P->NbrDof);
+    LinAlg_CreateMatrix(&D, &DofData_P->Solver, DofData_P->NbrDof, DofData_P->NbrDof);
     /* D = -(shift^2 * M + shift * L + K) */
     LinAlg_CopyMatrix(M, &D);
     LinAlg_AddMatrixProdMatrixDouble(L, &D, shift_r, &D);
