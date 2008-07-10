@@ -148,13 +148,15 @@ if test "x$enable_sparskit" = "xyes"; then
 fi
 
 dnl Check for Arpack, then link with blas and lapack if necessary
-if test "x${ARPACK}" = "xyes" -a "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
+if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
   AC_CHECK_FILE(./contrib/Arpack/znaupd.f, ARPACK="yes", ARPACK="no")
-  FLAGS="${FLAGS} -DHAVE_ARPACK"
-  GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
-  GETDP_LIBS="${GETDP_LIBS} -lGetDPArpack"
-  if test "x${SPARSKIT}" = "xyes"; then
-    GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+  if test "x${ARPACK}" = "xyes"; then
+    FLAGS="${FLAGS} -DHAVE_ARPACK"
+    GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
+    GETDP_LIBS="${GETDP_LIBS} -lGetDPArpack"
+    if test "x${SPARSKIT}" = "xyes"; then
+      GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+    fi
   fi
 fi
 

@@ -206,7 +206,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 
   /* sanity check */
   if(nev >= n-1){
-    Msg(WARNING, "NumEigenvalues too large (%d < %d): setting to %d", nev, n-1, n-2);
+    Msg::Warning("NumEigenvalues too large (%d < %d): setting to %d", nev, n-1, n-2);
     nev = n-2;
   }
 
@@ -237,11 +237,11 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   
   /* sanity checks */
   if(ncv <= nev){
-    Msg(WARNING, "Krylov space size too small (%d <= %d), setting to %d", ncv, nev, nev*2);
+    Msg::Warning("Krylov space size too small (%d <= %d), setting to %d", ncv, nev, nev*2);
     ncv = nev * 2;
   }
   if(ncv > n){
-    Msg(WARNING, "Krylov space size too large (%d > %d), setting to %d", ncv, n, n);
+    Msg::Warning("Krylov space size too large (%d > %d), setting to %d", ncv, n, n);
     ncv = n;
   }
 
@@ -496,7 +496,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     znaupd_(&ido, &bmat, &n, which, &nev, &tol, resid, &ncv, v, &ldv, iparam,
 	    ipntr, workd, workl, &lworkl, rwork, &info);
     if(ido == 1 || ido == -1){
-      Msg(INFO, "Arpack iteration %d", k+1);
+      Msg::Info("Arpack iteration %d", k+1);
 
       if(!quad_evp){
 	Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
@@ -533,29 +533,29 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
       break;
     }
     else{
-      Msg(INFO, "Arpack code = %d (ignored)", info);
+      Msg::Info("Arpack code = %d (ignored)", info);
     }
   } while (1);
   
-  Msg(BIGINFO, "Arpack required %d iterations", k);
+  Msg::Info("Arpack required %d iterations", k);
 
   /* Testing for errors */  
   if(info == 0){
     /* OK */
   }
   else if(info == 1){
-    Msg(WARNING, "Maxmimum number of iteration reached in EigenSolve");
+    Msg::Warning("Maxmimum number of iteration reached in EigenSolve");
   }
   else if(info == 2){
-    Msg(WARNING, "No shifts could be applied during a cycle of the");
-    Msg(WARNING, "Implicitly restarted Arnoldi iteration. One possibility");
-    Msg(WARNING, "is to increase the size of NCV relative to NEV.");
+    Msg::Warning("No shifts could be applied during a cycle of the");
+    Msg::Warning("Implicitly restarted Arnoldi iteration. One possibility");
+    Msg::Warning("is to increase the size of NCV relative to NEV.");
   }
   else if(info < 0){
     Msg::Error("Arpack code = %d", info);
   }
   else{
-    Msg(WARNING, "Arpack code = %d (unknown)", info);
+    Msg::Warning("Arpack code = %d (unknown)", info);
   }
 
   /* Call to zneupd for post-processing */  
@@ -597,12 +597,14 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
       f.im = omega.im / TWO_PI;
     }
 
-    Msg(BIGINFO, "Eigenvalue %03d: w^2 = %.12e %s %.12e * i", 
-	k+1, omega2.re, (omega2.im > 0) ? "+" :  "-", (omega2.im > 0) ? omega2.im : -omega2.im);
-    Msg(BIGINFO, "                  w = %.12e %s %.12e * i",
-	omega.re, (omega.im > 0) ? "+" : "-", (omega.im > 0) ? omega.im : -omega.im);
-    Msg(BIGINFO, "                  f = %.12e %s %.12e * i",
-	f.re, (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
+    Msg::Info("Eigenvalue %03d: w^2 = %.12e %s %.12e * i", 
+	      k+1, omega2.re, (omega2.im > 0) ? "+" :  "-", 
+	      (omega2.im > 0) ? omega2.im : -omega2.im);
+    Msg::Info("                  w = %.12e %s %.12e * i",
+	      omega.re, (omega.im > 0) ? "+" : "-",
+	      (omega.im > 0) ? omega.im : -omega.im);
+    Msg::Info("                  f = %.12e %s %.12e * i",
+	      f.re, (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
     
     if(newsol) {
       /* Create new solution */
