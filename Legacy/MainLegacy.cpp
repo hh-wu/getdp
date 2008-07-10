@@ -27,11 +27,7 @@ void Info(int level, char *arg0)
     fprintf(stderr, 
 	    "GetDP, a General environment for the treatment of Discrete Problems\n"
 	    "Copyright (C) 1997-2008 P. Dular, C. Geuzaine\n"
-#if defined(HAVE_SPARSKIT)
 	    "Usage: %s [file] [options]\n"
-#else
-	    "Usage: [mpirun [MPI options]] %s [file] [options] [PETSc options]\n"
-#endif
 	    "Processing options:\n"
 	    "  -pre 'Resolution'         pre-processing\n"
 	    "  -cal                      processing\n"
