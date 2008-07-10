@@ -439,10 +439,8 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
      different, for example if we are in real arithmetic and have one
      real matrix and one complex "simulated-real" matrix */
   if(!quad_evp){
-    LinAlg_CreateVector(&v1, &DofData_P->Solver, DofData_P->NbrDof,
-			DofData_P->NbrPart, DofData_P->Part);
-    LinAlg_CreateVector(&v2, &DofData_P->Solver, DofData_P->NbrDof,
-			DofData_P->NbrPart, DofData_P->Part);
+    LinAlg_CreateVector(&v1, &DofData_P->Solver, DofData_P->NbrDof);
+    LinAlg_CreateVector(&v2, &DofData_P->Solver, DofData_P->NbrDof);
     /* K = K - shift * M */
     LinAlg_AddMatrixProdMatrixDouble(K, M, -shift_r, K) ;
   }
@@ -470,19 +468,12 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
        part of the (x,y) eigenvectors are retained as physical
        solutions. */
 
-    LinAlg_CreateVector(&x, &DofData_P->Solver, DofData_P->NbrDof,
-			DofData_P->NbrPart, DofData_P->Part);
-    LinAlg_CreateVector(&y, &DofData_P->Solver, DofData_P->NbrDof,
-			DofData_P->NbrPart, DofData_P->Part);
-    LinAlg_CreateVector(&v1, &DofData_P->Solver, DofData_P->NbrDof,
-			DofData_P->NbrPart, DofData_P->Part);
-    LinAlg_CreateVector(&w1, &DofData_P->Solver, DofData_P->NbrDof,
-			DofData_P->NbrPart, DofData_P->Part);
-    LinAlg_CreateVector(&w2, &DofData_P->Solver, DofData_P->NbrDof,
-			DofData_P->NbrPart, DofData_P->Part);
-    LinAlg_CreateMatrix(&D, &DofData_P->Solver, DofData_P->NbrDof,
-			DofData_P->NbrDof, DofData_P->NbrPart,
-			DofData_P->Part, NULL);
+    LinAlg_CreateVector(&x, &DofData_P->Solver, DofData_P->NbrDof);
+    LinAlg_CreateVector(&y, &DofData_P->Solver, DofData_P->NbrDof);
+    LinAlg_CreateVector(&v1, &DofData_P->Solver, DofData_P->NbrDof);
+    LinAlg_CreateVector(&w1, &DofData_P->Solver, DofData_P->NbrDof);
+    LinAlg_CreateVector(&w2, &DofData_P->Solver, DofData_P->NbrDof);
+    LinAlg_CreateMatrix(&D, &DofData_P->Solver, DofData_P->NbrDof);
     /* D = -(shift^2 * M + shift * L + K) */
     LinAlg_CopyMatrix(M, &D);
     LinAlg_AddMatrixProdMatrixDouble(L, &D, shift_r, &D);
@@ -608,8 +599,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
     
     if(newsol) {
       /* Create new solution */
-      LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof,
-			  DofData_P->NbrPart, DofData_P->Part);
+      LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof);
       List_Add(DofData_P->Solutions, &Solution_S);
       DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
