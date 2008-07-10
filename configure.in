@@ -121,8 +121,8 @@ if test "x$enable_petsc" != "xno" -a "x$enable_sparskit" != "xyes"; then
   fi
   LAPACK="yes"
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
-  GETDP_LIBS+=' ${PETSC_KSP_LIB}'
-  FLAGS+=' -DHAVE_PETSC ${PETSCFLAGS} ${PETSC_INCLUDE}'
+  GETDP_LIBS="${GETDP_LIBS} \${PETSC_KSP_LIB}"
+  FLAGS="${FLAGS} -DHAVE_PETSC \${PETSCFLAGS} \${PETSC_INCLUDE}"
   LINKER='${CLINKER}'
 fi
 
@@ -132,13 +132,13 @@ if test "x$enable_sparskit" = "xyes"; then
   if test "x${SPARSKIT}" = "xno"; then
     AC_MSG_ERROR([Could not find Sparskit.])
   fi
-  GETDP_DIRS+=" contrib/Sparskit"
-  GETDP_LIBS+=" -lGetDPSparskit"
-  FLAGS+=" -DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
+  GETDP_DIRS="${GETDP_DIRS} contrib/Sparskit"
+  GETDP_LIBS="${GETDP_LIBS} -lGetDPSparskit"
+  FLAGS="${FLAGS} -DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
   dnl Check for blas and lapack (used by Arpack and Lanczos/GSL)
   AC_LANG_PUSH(Fortran 77)
   if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
-    LDFLAGS+=" -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
+    LDFLAGS="${LDFLAGS} -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
   fi
   AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
   if test "x${BLAS}" = "xyes"; then
@@ -150,11 +150,11 @@ fi
 dnl Check for Arpack, then link with blas and lapack if necessary
 if test "x${ARPACK}" = "xyes" -a "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
   AC_CHECK_FILE(./contrib/Arpack/znaupd.f, ARPACK="yes", ARPACK="no")
-  FLAGS+=" -DHAVE_ARPACK"
-  GETDP_DIRS+=" contrib/Arpack"
-  GETDP_LIBS+=" -lGetDPArpack"
+  FLAGS="${FLAGS} -DHAVE_ARPACK"
+  GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
+  GETDP_LIBS="${GETDP_LIBS} -lGetDPArpack"
   if test "x${SPARSKIT}" = "xyes"; then
-    GETDP_LIBS+=" -llapack -lblas"
+    GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
   fi
 fi
 
@@ -165,16 +165,16 @@ fi
 AC_CHECK_LIB(Gmsh,main,GMSH="yes",GMSH="no")
 if test "x${GMSH}" = "xyes"; then
   if test "x${GMSH_PREFIX}" = "x"; then
-    GETDP_LIBS+=" -lGmsh"
+    GETDP_LIBS="${GETDP_LIBS} -lGmsh"
   else
-    GETDP_LIBS+=" -L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib -lGmsh"
-    FLAGS+=" -I${GMSH_PREFIX} -I${GMSH_PREFIX}/include"
+    GETDP_LIBS="${GETDP_LIBS} -L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib -lGmsh"
+    FLAGS="${FLAGS} -I${GMSH_PREFIX} -I${GMSH_PREFIX}/include"
   fi
 else
   AC_CHECK_FILE(./contrib/gmsh/GmshEmbedded.cpp,GMSH="yes",GMSH="no")
   if test "x${GMSH}" = "xyes"; then
-    GETDP_DIRS+=" contrib/gmsh"
-    GETDP_LIBS+=" -lGmshEmbedded"
+    GETDP_DIRS="${GETDP_DIRS} contrib/gmsh"
+    GETDP_LIBS="${GETDP_LIBS} -lGmshEmbedded"
   fi
 fi
 
@@ -186,12 +186,12 @@ if test "x$enable_gsl" != "xno"; then
   AC_CHECK_LIB(gslcblas,main)
   AC_CHECK_LIB(gsl,main,GSL="yes",GSL="no")
   if test "x${GSL}" = "xyes"; then
-    FLAGS+=" -DHAVE_GSL"
+    FLAGS="${FLAGS} -DHAVE_GSL"
     if test "x${GSL_PREFIX}" = "x"; then
-      GETDP_LIBS+=" -lgsl -lgslcblas"
+      GETDP_LIBS="${GETDP_LIBS} -lgsl -lgslcblas"
     else
-      GETDP_LIBS+=" -L${GSL_PREFIX} -L${GSL_PREFIX}/lib -lgsl -lgslcblas"
-      FLAGS+=" -I${GSL_PREFIX} -I${GSL_PREFIX}/include"
+      GETDP_LIBS="${GETDP_LIBS} -L${GSL_PREFIX} -L${GSL_PREFIX}/lib -lgsl -lgslcblas"
+      FLAGS="${FLAGS} -I${GSL_PREFIX} -I${GSL_PREFIX}/include"
     fi
   fi
 fi
@@ -205,8 +205,8 @@ if test "x${GSL}" != "xyes"; then
     echo "To use the GSL instead, run configure again with the --enable-gsl"
     echo "option."
     echo "********************************************************************"
-    GETDP_DIRS+=" contrib/NR"
-    GETDP_LIBS+=" -lGetDPNR"
+    GETDP_DIRS="${GETDP_DIRS} contrib/NR"
+    GETDP_LIBS="${GETDP_LIBS} -lGetDPNR"
   else
     echo "********************************************************************"
     echo "This is the free version of GetDP and configure could not find"
@@ -227,10 +227,10 @@ fi
 dnl Fix link when using gfortran as the fortran compiler
 case "${F77}" in
   *gfortran*)
-    GETDP_LIBS+=" -lgfortran"
+    GETDP_LIBS="${GETDP_LIBS} -lgfortran"
     ;;
   *g77*)
-    GETDP_LIBS+=" -lg2c"
+    GETDP_LIBS="${GETDP_LIBS} -lg2c"
     ;;
 esac
 
@@ -238,7 +238,7 @@ dnl Force specific options for native compilers
 case "${UNAME}" in
   CYGWIN* | MINGW*)
     if test "x$enable_cygwin" != "xyes"; then
-      GETDP_LIBS+=" -lwsock32"
+      GETDP_LIBS="${GETDP_LIBS} -lwsock32"
     fi
     ;;
   Darwin*)
@@ -253,7 +253,7 @@ case "${UNAME}" in
 esac
 
 dnl Finish link line
-GETDP_LIBS+=" -lm"    
+GETDP_LIBS="${GETDP_LIBS} -lm"    
 
 dnl Write output
 AC_SUBST(UNAME)
