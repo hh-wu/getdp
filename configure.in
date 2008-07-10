@@ -148,8 +148,8 @@ if test "x$enable_sparskit" = "xyes"; then
 fi
 
 dnl Check for Arpack, then link with blas and lapack if necessary
-AC_CHECK_FILE(./contrib/Arpack/znaupd.f, ARPACK="yes", ARPACK="no")
 if test "x${ARPACK}" = "xyes" -a "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
+  AC_CHECK_FILE(./contrib/Arpack/znaupd.f, ARPACK="yes", ARPACK="no")
   FLAGS+=" -DHAVE_ARPACK"
   GETDP_DIRS+=" contrib/Arpack"
   GETDP_LIBS+=" -lGetDPArpack"
@@ -244,7 +244,9 @@ case "${UNAME}" in
   Darwin*)
     case "${F77}" in
       *gfortran*)
-        AC_MSG_WARN([gfortran breaks Arpack (known incompatibility in blas' zdotc)!])
+        if test "x${ARPACK}" = "xyes"; then
+          AC_MSG_WARN([gfortran breaks Arpack on Mac OS X (known probl. in blas zdotc)])
+        fi
         ;;
     esac
     ;;
@@ -276,8 +278,10 @@ echo "- Fortran compiler : $F77"
 echo "- Linker           : $LINKER"
 echo "- Optimization     : $OPTIM"
 echo "- Options          : $FLAGS"
-echo "- PETSC_DIR        : $PETSC_DIR"
-echo "- PETSC_ARCH       : $PETSC_ARCH"
+if test "x${PETSC}" = "xyes"; then
+  echo "- PETSC_DIR        : $PETSC_DIR"
+  echo "- PETSC_ARCH       : $PETSC_ARCH"
+fi
 echo "********************************************************************"
 echo "To fine-tune the configuration, edit the 'variables' file"
 echo "********************************************************************"

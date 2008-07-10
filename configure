@@ -4282,7 +4282,8 @@ ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
 fi
 
-{ echo "$as_me:$LINENO: checking for ./contrib/Arpack/znaupd.f" >&5
+if test "x${ARPACK}" = "xyes" -a "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
+  { echo "$as_me:$LINENO: checking for ./contrib/Arpack/znaupd.f" >&5
 echo $ECHO_N "checking for ./contrib/Arpack/znaupd.f... $ECHO_C" >&6; }
 if test "${ac_cv_file___contrib_Arpack_znaupd_f+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -4305,7 +4306,6 @@ else
   ARPACK="no"
 fi
 
-if test "x${ARPACK}" = "xyes" -a "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
   FLAGS+=" -DHAVE_ARPACK"
   GETDP_DIRS+=" contrib/Arpack"
   GETDP_LIBS+=" -lGetDPArpack"
@@ -4625,8 +4625,10 @@ case "${UNAME}" in
   Darwin*)
     case "${F77}" in
       *gfortran*)
-        { echo "$as_me:$LINENO: WARNING: gfortran breaks Arpack (known incompatibility in blas' zdotc)!" >&5
-echo "$as_me: WARNING: gfortran breaks Arpack (known incompatibility in blas' zdotc)!" >&2;}
+        if test "x${ARPACK}" = "xyes"; then
+          { echo "$as_me:$LINENO: WARNING: gfortran breaks Arpack on Mac OS X (known probl. in blas zdotc)" >&5
+echo "$as_me: WARNING: gfortran breaks Arpack on Mac OS X (known probl. in blas zdotc)" >&2;}
+        fi
         ;;
     esac
     ;;
@@ -5678,8 +5680,10 @@ echo "- Fortran compiler : $F77"
 echo "- Linker           : $LINKER"
 echo "- Optimization     : $OPTIM"
 echo "- Options          : $FLAGS"
-echo "- PETSC_DIR        : $PETSC_DIR"
-echo "- PETSC_ARCH       : $PETSC_ARCH"
+if test "x${PETSC}" = "xyes"; then
+  echo "- PETSC_DIR        : $PETSC_DIR"
+  echo "- PETSC_ARCH       : $PETSC_ARCH"
+fi
 echo "********************************************************************"
 echo "To fine-tune the configuration, edit the 'variables' file"
 echo "********************************************************************"
