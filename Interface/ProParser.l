@@ -11,6 +11,7 @@
 #include "ProData.h"
 #include "ProParser.h"
 #include "ProParser.tab.hpp"
+#include "MallocUtils.h"
 #include "Message.h"
 
 // Redefinition of YY_INPUT to allow input character count (this is
@@ -343,7 +344,7 @@ int getdp_yywrap()
 
 char *strSave(char *string) 
 {
-  return ((char *)strcpy((char *)malloc(strlen(string)+1), string));
+  return ((char *)strcpy((char *)Malloc(strlen(string)+1), string));
 }
 
 void cStyleComments() 
@@ -353,7 +354,7 @@ void cStyleComments()
     while((c = input()) != '*'){ 
       if(c == '\n') getdp_yylinenum++; 
       if(feof(getdp_yyin)) {
-        fprintf(stderr, "Error: End of file in commented region\n");
+	Msg::Error("End of file in commented region");
         exit(1);
       }
     } 
