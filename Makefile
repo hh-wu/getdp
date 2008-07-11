@@ -20,8 +20,10 @@ GETDP_DATE = `date "+%Y%m%d"`
 all: link
 
 link: compile
-	${LINKER} ${OPTIM} -o bin/getdp ${GETDP_LIBS}
-	${POSTBUILD}
+	${LINKER} ${OPTIM} -o bin/getdp Main/Main${OBJEXT} ${GETDP_LIBS}
+
+chris: compile
+	${LINKER} ${OPTIM} -o bin/getdp2 Main/MainChris${OBJEXT} ${GETDP_LIBS}
 
 link-mac-universal: compile
 	${LINKER} -arch i386 ${OPTIM} -o bin/getdp_i386 ${GETDP_LIBS}

@@ -104,7 +104,7 @@ AC_CHECK_LIB(m,main)
 
 dnl Set default subdirectories and options
 GETDP_DIRS="Common Numeric Interface Legacy Main"
-GETDP_LIBS="-Llib -lGetDPMain -lGetDPLegacy -lGetDPInterface -lGetDPLegacy -lGetDPNumeric -lGetDPCommon"
+GETDP_LIBS="-Llib -lGetDPLegacy -lGetDPInterface -lGetDPLegacy -lGetDPNumeric -lGetDPCommon"
 FLAGS="-DHAVE_LEGACY"
 
 dnl Check for PETSc

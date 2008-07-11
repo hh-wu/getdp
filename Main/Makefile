@@ -18,7 +18,7 @@ OBJ = ${SRC:.cpp=${OBJEXT}}
 
 .SUFFIXES: ${OBJEXT} .cpp
 
-${LIB}: ${OBJ} 
+${LIB}: ${OBJ} MainChris${OBJEXT}
 	${AR} ${LIB} ${OBJ} 
 	${RANLIB} ${LIB}
 
