@@ -4124,11 +4124,10 @@ fi
 echo "$as_me: error: Could not find PETSC. Use --enable-sparskit instead?" >&2;}
    { (exit 1); exit 1; }; }
   fi
-  LAPACK="yes"
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
-  GETDP_LIBS="${GETDP_LIBS} \${PETSC_KSP_LIB}"
-  FLAGS="${FLAGS} -DHAVE_PETSC \${PETSCFLAGS} \${PETSC_INCLUDE}"
+  LAPACK="yes"
   LINKER='${CLINKER}'
+  FLAGS="${FLAGS} -DHAVE_PETSC \${PETSCFLAGS} \${PETSC_INCLUDE}"
 fi
 
 if test "x$enable_sparskit" = "xyes"; then
@@ -4163,14 +4162,16 @@ echo "$as_me: error: Could not find Sparskit." >&2;}
   GETDP_DIRS="${GETDP_DIRS} contrib/Sparskit"
   GETDP_LIBS="${GETDP_LIBS} -lGetDPSparskit"
   FLAGS="${FLAGS} -DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
-    ac_ext=f
+fi
+
+ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
-  if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
-    LDFLAGS="${LDFLAGS} -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
-  fi
+if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+  LDFLAGS="${LDFLAGS} -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
+fi
 
 { echo "$as_me:$LINENO: checking for dasum in -lblas" >&5
 echo $ECHO_N "checking for dasum in -lblas... $ECHO_C" >&6; }
@@ -4222,8 +4223,8 @@ else
   BLAS="no"
 fi
 
-  if test "x${BLAS}" = "xyes"; then
-    { echo "$as_me:$LINENO: checking for dbdsqr in -llapack" >&5
+if test "x${BLAS}" = "xyes"; then
+  { echo "$as_me:$LINENO: checking for dbdsqr in -llapack" >&5
 echo $ECHO_N "checking for dbdsqr in -llapack... $ECHO_C" >&6; }
 if test "${ac_cv_lib_lapack_dbdsqr+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -4273,14 +4274,13 @@ else
   LAPACK="no"
 fi
 
-  fi
-  ac_ext=cpp
+fi
+ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
-fi
 
 if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
   { echo "$as_me:$LINENO: checking for ./contrib/Arpack/znaupd.f" >&5
@@ -4311,7 +4311,11 @@ fi
     GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
     GETDP_LIBS="${GETDP_LIBS} -lGetDPArpack"
     if test "x${SPARSKIT}" = "xyes"; then
-      GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+      if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -llapack -lblas"
+      else
+        GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+      fi
     fi
   fi
 fi
@@ -4607,6 +4611,10 @@ fi
 echo "$as_me: error: Could not find GSL or NR, aborting." >&2;}
    { (exit 1); exit 1; }; }
   fi
+fi
+
+if test "x${PETSC}" = "xyes"; then
+  GETDP_LIBS="${GETDP_LIBS} \${PETSC_KSP_LIB}"
 fi
 
 case "${F77}" in

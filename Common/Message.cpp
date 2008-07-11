@@ -81,39 +81,37 @@ void Message::Error(const char *fmt, ...)
 
 void Message::Warning(const char *fmt, ...)
 {
-  if(_commRank) return;
-  if(_verbosity >= 1){
-    char str[1024];
-    va_list args;
-    va_start(args, fmt);
-    vsprintf(str, fmt, args);
-    va_end(args);
-    if(_socket){
-      _client.Warning(str);
-    }
-    else{
-      fprintf(stdout, "Warning : %s\n", str);
-      fflush(stdout);
-    }
+  if(_commRank || _verbosity < 1) return;
+  char str[1024];
+  va_list args;
+  va_start(args, fmt);
+  vsprintf(str, fmt, args);
+  va_end(args);
+
+  if(_socket){
+    _client.Warning(str);
+  }
+  else{
+    fprintf(stdout, "Warning : %s\n", str);
+    fflush(stdout);
   }
 }
 
 void Message::Info(const char *fmt, ...)
 {
-  if(_commRank) return;
-  if(_verbosity >= 2){
-    char str[1024];
-    va_list args;
-    va_start(args, fmt);
-    vsprintf(str, fmt, args);
-    va_end(args);
-    if(_socket){
-      _client.Info(str);
-    }
-    else{
-      fprintf(stdout, "Info    : %s\n", str);
-      fflush(stdout);
-    }
+  if(_commRank || _verbosity < 2) return;
+  char str[1024];
+  va_list args;
+  va_start(args, fmt);
+  vsprintf(str, fmt, args);
+  va_end(args);
+
+  if(_socket){
+    _client.Info(str);
+  }
+  else{
+    fprintf(stdout, "Info    : %s\n", str);
+    fflush(stdout);
   }
 }
 
@@ -125,6 +123,7 @@ void Message::Direct(const char *fmt, ...)
   char str[1024];
   vsprintf(str, fmt, args);
   va_end(args);
+
   if(_socket){
     _client.Info(str);
   }
@@ -142,6 +141,7 @@ void Message::Check(const char *fmt, ...)
   va_start(args, fmt);
   vsprintf(str, fmt, args);
   va_end(args);
+
   if(_socket){
     _client.Info(str);
   }
@@ -153,22 +153,22 @@ void Message::Check(const char *fmt, ...)
 
 void Message::Debug(const char *fmt, ...)
 {
-  if(_verbosity >= 99){
-    va_list args;
-    va_start(args, fmt);
-    char str[1024];
-    vsprintf(str, fmt, args);
-    va_end(args);
-    if(_socket){
-      _client.Info(str);
-    }
-    else{
-      if(_commSize > 1) 
-	fprintf(stdout, "Debug   : [On processor %d] %s\n", _commRank, str);
-      else
-	fprintf(stdout, "Debug   : %s\n", str);
-      fflush(stdout);
-    }
+  if(_verbosity < 99) return;
+  va_list args;
+  va_start(args, fmt);
+  char str[1024];
+  vsprintf(str, fmt, args);
+  va_end(args);
+
+  if(_socket){
+    _client.Info(str);
+  }
+  else{
+    if(_commSize > 1) 
+      fprintf(stdout, "Debug   : [On processor %d] %s\n", _commRank, str);
+    else
+      fprintf(stdout, "Debug   : %s\n", str);
+    fflush(stdout);
   }
 }
 
@@ -199,55 +199,52 @@ double Message::Cpu()
 
 void Message::Cpu(const char *fmt, ...)
 {
-  if(_commRank) return;
-  if(_verbosity >= 1){
-    double s = 0.;
-    long mem = 0;
-    GetResources(&s, &mem);
-    char str[1024];
-    va_list args;
-    va_start(args, fmt);
-    vsprintf(str, fmt, args);
-    va_end(args);
-    if(strlen(fmt)) strcat(str, " ");
-    if(_socket){
-      char tmp[256];
-      if(mem)
-	sprintf(tmp, "(CPU = %gs Mem = %ldkb)\n", s, mem);
-      else
-	sprintf(tmp, "(CPU = %gs)\n", s);
-      strcat(str, tmp);
-      _client.Info(str);
-    }
-    else{
-      fprintf(stdout, "Info    : ");
-      if(mem)
-	fprintf(stdout, "%s(CPU = %gs Mem = %ldkb)\n", str, s, mem);
-      else
-	fprintf(stdout, "%s(CPU = %gs)\n", str, s);
-      fflush(stdout);
-    }
+  if(_commRank || _verbosity < 1) return;
+  double s = 0.;
+  long mem = 0;
+  GetResources(&s, &mem);
+  char str[1024];
+  va_list args;
+  va_start(args, fmt);
+  vsprintf(str, fmt, args);
+  va_end(args);
+  if(strlen(fmt)) strcat(str, " ");
+
+  if(_socket){
+    char tmp[256];
+    if(mem)
+      sprintf(tmp, "(CPU = %gs Mem = %ldkb)\n", s, mem);
+    else
+      sprintf(tmp, "(CPU = %gs)\n", s);
+    strcat(str, tmp);
+    _client.Info(str);
+  }
+  else{
+    fprintf(stdout, "Info    : ");
+    if(mem)
+      fprintf(stdout, "%s(CPU = %gs Mem = %ldkb)\n", str, s, mem);
+    else
+      fprintf(stdout, "%s(CPU = %gs)\n", str, s);
+    fflush(stdout);
   }
 }
 
 void Message::ProgressMeter(int n, int N, const char *fmt, ...)
 {
-  if(_commRank) return;
-  if(_verbosity >= 2){
-    va_list args;
-    va_start(args, fmt);
-    double percent = 100. * (double)n/(double)N;
-    if(percent >= _progressMeterCurrent){
-      vfprintf(stdout, fmt, args);
-      fprintf(stdout, "(%d %%)                     \r", _progressMeterCurrent);
-      while(_progressMeterCurrent < percent)
-	_progressMeterCurrent += _progressMeterStep;
-    }
-    va_end(args);
-    if(n > N - 1)
-      fprintf(stdout, "Done!                                              \r");
-    fflush(stdout);
+  if(_commRank || _verbosity < 2) return;
+  va_list args;
+  va_start(args, fmt);
+  double percent = 100. * (double)n/(double)N;
+  if(percent >= _progressMeterCurrent){
+    vfprintf(stdout, fmt, args);
+    fprintf(stdout, "(%d %%)                     \r", _progressMeterCurrent);
+    while(_progressMeterCurrent < percent)
+      _progressMeterCurrent += _progressMeterStep;
   }
+  va_end(args);
+  if(n > N - 1)
+    fprintf(stdout, "Done!                                              \r");
+  fflush(stdout);
 }
 
 void Message::PrintTimers()

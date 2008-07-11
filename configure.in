@@ -119,11 +119,10 @@ if test "x$enable_petsc" != "xno" -a "x$enable_sparskit" != "xyes"; then
   if test "x${PETSC}" = "xno"; then
     AC_MSG_ERROR([Could not find PETSC. Use --enable-sparskit instead?])
   fi
-  LAPACK="yes"
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
-  GETDP_LIBS="${GETDP_LIBS} \${PETSC_KSP_LIB}"
-  FLAGS="${FLAGS} -DHAVE_PETSC \${PETSCFLAGS} \${PETSC_INCLUDE}"
+  LAPACK="yes"
   LINKER='${CLINKER}'
+  FLAGS="${FLAGS} -DHAVE_PETSC \${PETSCFLAGS} \${PETSC_INCLUDE}"
 fi
 
 dnl Check for Sparskit
@@ -135,17 +134,18 @@ if test "x$enable_sparskit" = "xyes"; then
   GETDP_DIRS="${GETDP_DIRS} contrib/Sparskit"
   GETDP_LIBS="${GETDP_LIBS} -lGetDPSparskit"
   FLAGS="${FLAGS} -DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
-  dnl Check for blas and lapack (used by Arpack and Lanczos/GSL)
-  AC_LANG_PUSH(Fortran 77)
-  if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
-    LDFLAGS="${LDFLAGS} -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
-  fi
-  AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
-  if test "x${BLAS}" = "xyes"; then
-    AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
-  fi
-  AC_LANG_POP()
 fi
+
+dnl Check for blas and lapack
+AC_LANG_PUSH(Fortran 77)
+if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+  LDFLAGS="${LDFLAGS} -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
+fi
+AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
+if test "x${BLAS}" = "xyes"; then
+  AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
+fi
+AC_LANG_POP()
 
 dnl Check for Arpack, then link with blas and lapack if necessary
 if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
@@ -155,7 +155,11 @@ if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
     GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
     GETDP_LIBS="${GETDP_LIBS} -lGetDPArpack"
     if test "x${SPARSKIT}" = "xyes"; then
-      GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+      if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -llapack -lblas"
+      else
+        GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+      fi
     fi
   fi
 fi
@@ -226,7 +230,12 @@ if test "x${GSL}" != "xyes"; then
   fi
 fi
 
-dnl Fix link when using gfortran as the fortran compiler
+dnl Add PETSc libraries at the end (they include blas and lapack)
+if test "x${PETSC}" = "xyes"; then
+  GETDP_LIBS="${GETDP_LIBS} \${PETSC_KSP_LIB}"
+fi
+
+dnl Add necessary Fortran libraries
 case "${F77}" in
   *gfortran*)
     GETDP_LIBS="${GETDP_LIBS} -lgfortran"
