@@ -86,7 +86,7 @@ void LinAlg_Barrier(void)
 void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName)
 {
   int  i;
-  char FileName[MAX_FILE_NAME_LENGTH];
+  char FileName[256];
 
   strcpy(FileName, Name_Path);
 

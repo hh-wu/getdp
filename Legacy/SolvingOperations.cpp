@@ -1497,9 +1497,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   double  Save_Iteration ;
   double  MeanError, RelFactor_Modified ;
   char    *str;
-  char    ResName[MAX_FILE_NAME_LENGTH], ResNum[MAX_STRING_LENGTH] ;
-  char    FileName[MAX_FILE_NAME_LENGTH];
-  char    FileName_exMH[MAX_FILE_NAME_LENGTH];
+  char    ResName[256], ResNum[256] ;
+  char    FileName[256];
+  char    FileName_exMH[256];
   gScalar tmp ;
   FILE    *fp = stdout;
 

@@ -103,7 +103,7 @@ void Dof_SetCurrentDofData(struct DofData * DofData_P)
 
 void Dof_OpenFile(int Type, char * Name, char * Mode) 
 {
-  char  * Extension, FileName[MAX_FILE_NAME_LENGTH] ;
+  char  * Extension, FileName[256] ;
   FILE  * File_X ;
 
   switch (Type) {
@@ -169,10 +169,10 @@ void Dof_WriteFilePRE0(int Num_Resolution, char * Name_Resolution,
 
 void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
 {
-  char  String[MAX_STRING_LENGTH] ;
+  char  String[256] ;
 
   do { 
-    fgets(String, MAX_STRING_LENGTH, File_PRE) ; 
+    fgets(String, sizeof(String), File_PRE) ; 
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
@@ -183,7 +183,7 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
   }
 
   do {
-    fgets(String, MAX_STRING_LENGTH, File_PRE) ;
+    fgets(String, sizeof(String), File_PRE) ;
     if (feof(File_PRE)) Msg::Error("Prematured end of file");
   } while (String[0] != '$') ;
 }
@@ -292,10 +292,10 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 {
   int         i, Nbr_Index, Int, Dummy ;
   struct Dof  Dof ;
-  char        String[MAX_STRING_LENGTH] ;
+  char        String[256] ;
 
   do { 
-    fgets(String, MAX_STRING_LENGTH, File_PRE) ; 
+    fgets(String, sizeof(String), File_PRE) ; 
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
@@ -372,7 +372,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
   }
 
   do {
-    fgets(String, MAX_STRING_LENGTH, File_PRE) ;
+    fgets(String, sizeof(String), File_PRE) ;
     if (feof(File_PRE)) Msg::Error("Prematured end of file");
   } while (String[0] != '$') ;
 
@@ -511,12 +511,12 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
   double          Val_Time, Val_TimeImag = 0., Version = 0.;
   struct DofData  * DofData_P = NULL ;
   struct Solution Solution_S ;
-  char            String[MAX_STRING_LENGTH] ;
+  char            String[256] ;
 
   while (1) {
 
     do { 
-      fgets(String, MAX_STRING_LENGTH, File_RES) ; 
+      fgets(String, sizeof(String), File_RES) ; 
       if (feof(File_RES))  break ;
     } while (String[0] != '$') ;  
 
@@ -536,7 +536,7 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 	 follows can be binary, and the first character could be
 	 e.g. 0x0d, which would cause fscanf to eat-up one character
 	 too much, leading to an offset in fread */
-      fgets(String, MAX_STRING_LENGTH, File_RES) ; 
+      fgets(String, sizeof(String), File_RES) ; 
       if(Version <= 1.0)
 	sscanf(String, "%d %lf %d", &Num_DofData, &Val_Time, &Val_TimeStep) ;
       else
@@ -572,7 +572,7 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
     }
 
     do {
-      fgets(String, MAX_STRING_LENGTH, File_RES) ;
+      fgets(String, sizeof(String), File_RES) ;
       if (feof(File_RES)) 
 	Msg::Warning("Prematured end of file (Time Step %d)", Val_TimeStep);
     } while (String[0] != '$') ;

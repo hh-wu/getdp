@@ -17,8 +17,6 @@
 
 #define NBR_MAX_RES           2500
 #define NBR_MAX_POS           10
-#define MAX_FILE_NAME_LENGTH  256
-#define MAX_STRING_LENGTH     256
 
 #define _PRE  1 // pre-processing
 #define _CAL  2 // processing

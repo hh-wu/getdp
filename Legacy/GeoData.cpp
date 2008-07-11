@@ -281,13 +281,13 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
   double              Version = 1.0 ;
   struct Geo_Node     Geo_Node ;
   struct Geo_Element  Geo_Element ;
-  char                String[MAX_STRING_LENGTH] ;
+  char                String[256] ;
   int                 binary = 0, swap = 0;
   
   while (1) {
 
     do { 
-      fgets(String, MAX_STRING_LENGTH, File_GEO) ; 
+      fgets(String, sizeof(String), File_GEO) ; 
       if (feof(File_GEO))  break ;
     } while (String[0] != '$') ;  
     
@@ -470,7 +470,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
     }
 
     do {
-      fgets(String, MAX_STRING_LENGTH, File_GEO) ;
+      fgets(String, sizeof(String), File_GEO) ;
       if (feof(File_GEO)) Msg::Error("Prematured end of file");
     } while (String[0] != '$') ;
 
@@ -483,7 +483,7 @@ void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
   struct Geo_Element Geo_Element, * Geo_Element_P ;
   int        Nbr, i, Index_GeoElement ;
   double     E, H, P, Max_Order = -1.0 ;
-  char       String[MAX_STRING_LENGTH] ;
+  char       String[256] ;
 
   Nbr = List_Nbr(GeoData_P->Elements) ;
 
@@ -499,7 +499,7 @@ void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
   while (1) {
 
     do { 
-      fgets(String, MAX_STRING_LENGTH, File_GEO) ; 
+      fgets(String, sizeof(String), File_GEO) ; 
       if (feof(File_GEO))  break ;
     } while (String[0] != '$') ;  
     
@@ -520,7 +520,7 @@ void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
     }
 
     do {
-      fgets(String, MAX_STRING_LENGTH, File_GEO) ;
+      fgets(String, sizeof(String), File_GEO) ;
       if (feof(File_GEO)) Msg::Error("Prematured end of file");
     } while (String[0] != '$') ;
 

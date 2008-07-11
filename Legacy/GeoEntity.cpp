@@ -450,7 +450,7 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
   struct Group        * Group_P ;
   int   i, Index_Element, Nbr_Entities, j, Index_Group, Num_Entity ;
   int   GeoDataIndex ;
-  char  String[MAX_STRING_LENGTH] ;
+  char  String[256] ;
 
   for(GeoDataIndex = 0 ; GeoDataIndex < NbrGeoData ; GeoDataIndex++){    
     if(!(GeoData_P0 + GeoDataIndex)->Elements){
@@ -462,7 +462,7 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
   while (1) {
 
     do { 
-      fgets(String, MAX_STRING_LENGTH, File_PRE) ; 
+      fgets(String, sizeof(String), File_PRE) ; 
       if (feof(File_PRE))  break ;
     } while (String[0] != '$') ;  
 
@@ -526,7 +526,7 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
     }
 
     do {
-      fgets(String, MAX_STRING_LENGTH, File_PRE) ;
+      fgets(String, sizeof(String), File_PRE) ;
       if (feof(File_PRE)) Msg::Error("Prematured end of file");
     } while (String[0] != '$') ;
 

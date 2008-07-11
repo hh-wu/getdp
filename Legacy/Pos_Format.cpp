@@ -79,7 +79,7 @@ void  Format_PostHeader(int Format, int Contour,
 			int Type, int Order,
 			char *Name1, char *Name2)
 {
-  char name[MAX_STRING_LENGTH] ;
+  char name[256] ;
 
   if(Contour){
     if(!PostElement_L) 

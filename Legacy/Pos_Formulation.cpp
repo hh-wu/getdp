@@ -178,7 +178,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   struct PostQuantity   *NCPQ_P = NULL, *CPQ_P = NULL ;
   double                 Pulsation ;
   int                    i, Order = 0 ;
-  char                   FileName[MAX_FILE_NAME_LENGTH], AddExt[100];
+  char                   FileName[256], AddExt[100];
 
   if(PostSubOperation_P->FileOut){
     if(PostSubOperation_P->FileOut[0] == '/' || 
