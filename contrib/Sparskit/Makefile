@@ -59,5 +59,4 @@ depend:
 
 # DO NOT DELETE THIS LINE
 Sparskit.o: Sparskit.cpp Sparskit.h ../../Common/ListUtils.h \
-  ../../Common/MallocUtils.h ../../Common/Message.h \
-  ../../Common/GmshClient.h
+  ../../Common/MallocUtils.h ../../Common/Message.h
