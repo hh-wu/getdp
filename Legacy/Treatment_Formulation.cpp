@@ -566,7 +566,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	      }
 	      
 	    }/* Flag_Only */
-	      break ;
+	    break ;
 
 	    case _CST :
 	      Cst_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;

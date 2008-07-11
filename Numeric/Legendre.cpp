@@ -25,6 +25,8 @@ double Factorial(double n)
 
   F = n ;
   while ( n > 2 ){ n-- ; F *= n ; }
+
+  return F;
 }
 
 double BinomialCoef(double n, double m)

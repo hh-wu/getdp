@@ -18,10 +18,10 @@ extern struct CurrentData Current ;
 
 extern char *Name_Path;
 
+#if defined(HAVE_SPARSKIT)
+
 static char *Name_SolverFile = NULL, *Name_DefaultSolverFile = "solver.par" ;
 static char *SolverOptions[100];
-
-#if defined(HAVE_SPARSKIT)
 
 /* Init */
 

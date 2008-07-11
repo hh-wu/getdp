@@ -77,7 +77,7 @@ void F_Fmod  (F_ARG) { scalar_real_2_arg (fmod, "Fmod")     }
 
 void F_Sign(F_ARG)
 { 
-  int     k, n;
+  int     k;
   double  x;   
 
   if(A->Type != SCALAR)

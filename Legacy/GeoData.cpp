@@ -452,7 +452,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	    if(swap) swapBytes((char*)data, sizeof(int), n);
 	    Geo_Element.Num = data[0];
 	    Geo_Element.Region = (numTags > 0) ? data[4 - numTags] : 0;
-	    int elementary = (numTags > 1) ? data[4 - numTags + 1] : 0;
+	    //int elementary = (numTags > 1) ? data[4 - numTags + 1] : 0;
 	    Geo_Element.NumNodes = &data[numTags + 1];
 	    Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
 	    for (j = 0 ; j < Geo_Element.NbrNodes ; j++)

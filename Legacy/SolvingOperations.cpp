@@ -1510,9 +1510,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   struct PostOperation  * PostOperation_P ;
   struct PostProcessing * PostProcessing_P ;
   struct Dof            Dof, * Dof_P ;
-  struct Value          Value, far ;
+  struct Value          Value ;
 
-  int iDof, iEqu, N ;
+  int N ;
 
   static int RES0 = -1 ;
 

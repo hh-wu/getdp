@@ -108,7 +108,7 @@ void GF_GradLaplace(GF_ARG)
 
 void GF_NPxGradLaplace(GF_ARG)
 {
-  double x1x0, x2x0, y1y0, y2y0, z1z0, z2z0, xxs, yys, zzs, a, b, c, n, r ;
+  double x1x0, x2x0, y1y0, y2y0, z1z0, z2z0, xxs, yys, zzs, a, b, c, r ;
 
   V->Type = SCALAR ;
   V->Val[MAX_DIM] = 0. ;  
