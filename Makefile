@@ -23,6 +23,7 @@ link: compile
 	${LINKER} ${OPTIM} -o bin/getdp Main/Main${OBJEXT} ${GETDP_LIBS}
 
 chris: compile
+	cd Main && make MainChris${OBJEXT}
 	${LINKER} ${OPTIM} -o bin/getdp2 Main/MainChris${OBJEXT} ${GETDP_LIBS}
 
 link-mac-universal: compile
