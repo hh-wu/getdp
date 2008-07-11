@@ -1,8 +1,3 @@
-// GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
-//
-// See the LICENSE.txt file for license information. Please report all
-// bugs and problems to <getdp@geuz.org>.
-
 #ifndef _GMSH_CLIENT_H_
 #define _GMSH_CLIENT_H_
 

@@ -9,7 +9,6 @@
 #include <map>
 #include <string>
 #include <stdarg.h>
-#include "GmshClient.h"
 
 // a class to manage messages
 class Message {
@@ -22,8 +21,7 @@ class Message {
   static int _progressMeterStep, _progressMeterCurrent;
   // timers
   static std::map<std::string, double> _timers;
-  // Gmsh solver client code
-  static GmshClient _client;
+  // communication socket
   static int _socket;
  public:
   Message() {}

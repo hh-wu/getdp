@@ -22,6 +22,12 @@
 #endif
 
 #include "Message.h"
+#include "GmshClient.h"
+
+// don't put the client in the Message class, to avoid having 
+// to include GmshClient.h (and hence all the Windows crap) 
+// in Message.h
+static GmshClient _client;
 
 int Message::_commRank = 0;
 int Message::_commSize = 1;
@@ -29,7 +35,6 @@ int Message::_verbosity = 3;
 int Message::_progressMeterStep = 10;
 int Message::_progressMeterCurrent = 0;
 std::map<std::string, double> Message::_timers;
-GmshClient Message::_client;
 int Message::_socket = 0;
 
 void Message::Fatal(const char *fmt, ...)
