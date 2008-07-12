@@ -10,6 +10,9 @@
 #include "ProDefine.h"
 #include "ProParser.h"
 #include "Message.h"
+#if defined(HAVE_LEGACY)
+#include "Generate_Network.h"
+#endif
 
 // Global problem structure: this is the only problem structure that
 // is instanciated, and it is filled by the parser
@@ -246,9 +249,10 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
 
     case WQ_BUILTINFUNCTION : 
     case WQ_EXTERNBUILTINFUNCTION :
-      // FIXME
-      //Msg::Check(" %s", Get_StringForFunction2Nbr(F_Function,
-      //					  (WQ+k)->Case.Function.Fct));
+#if defined(HAVE_LEGACY)
+      Msg::Check(" %s", Get_StringForFunction2Nbr(F_Function,
+						  (WQ+k)->Case.Function.Fct));
+#endif
       if ((WQ+k)->Type == WQ_EXTERNBUILTINFUNCTION)  Msg::Check("[.]");
       if ((WQ+k)->Type == WQ_BUILTINFUNCTION)  Msg::Check("[]");
       if ((WQ+k)->Case.Function.NbrParameters) {
@@ -508,10 +512,10 @@ void Print_Constraint()
 	      CPR->Case.Network.Node1, CPR->Case.Network.Node2);
 	  Msg::Check(" }\n");
 	}
-
-	// FIXME
-	//if (!MCPR_S.Active)
-	//MCPR_S.Active = Generate_Network(MCPR_S.ConstraintPerRegion);
+#if defined(HAVE_LEGACY)
+	if (!MCPR_S.Active)
+	  MCPR_S.Active = Generate_Network(MCPR_S.ConstraintPerRegion);
+#endif
 	Print_Network(&MCPR_S);
       }
     }
@@ -687,11 +691,11 @@ void Print_FunctionSpace()
       BF = (struct BasisFunction*)List_Pointer(BF_L, 0);
       for (i=0; i<Nbr; i++) {
 	Msg::Check("    /* GlobalNum : %d */\n", BF->Num);
-	// FIXME
-	//	Msg::Check("      Name %s; NameOfCoef %s; Function %s;\n",
-	//  BF->Name, BF->NameOfCoef,
-	//  Get_StringFor3Function2Nbr(BF_Function, BF->Function));
-
+#if defined(HAVE_LEGACY)
+	Msg::Check("      Name %s; NameOfCoef %s; Function %s;\n",
+		   BF->Name, BF->NameOfCoef,
+		   Get_StringFor3Function2Nbr(BF_Function, BF->Function));
+#endif
 	if (BF->SubFunction) {
 	  Msg::Check("      SubFunction {");
 	  Nbrj = List_Nbr(BF->SubFunction);
