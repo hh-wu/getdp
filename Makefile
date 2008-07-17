@@ -146,7 +146,7 @@ package-win:
 	cp bin/getdp.exe getdp-${GETDP_VERSION}
 	cp doc/README.win32 getdp-${GETDP_VERSION}/README.txt
 	cp doc/LICENSE.txt doc/VERSIONS.txt doc/FAQ.txt doc/CREDITS.txt\
-          ${GETDP_VERSION}
+          getdp-${GETDP_VERSION}
 	cd utils/misc && ./unix2dos.bash ../../getdp-${GETDP_VERSION}/*.txt
 	cp -R demos getdp-${GETDP_VERSION}
 	rm -rf getdp-${GETDP_VERSION}/*/CVS
