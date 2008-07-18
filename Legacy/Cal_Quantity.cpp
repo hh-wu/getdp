@@ -268,7 +268,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
   struct Element* Save_CurrentElement ;
 
-#define USE_GLOBAL_STACK
+//#define USE_GLOBAL_STACK
 
 #if defined(USE_GLOBAL_STACK)
 

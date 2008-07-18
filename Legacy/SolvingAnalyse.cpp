@@ -183,6 +183,8 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 		      ->FunctionSpaceIndex)) ->DofData ;
       if(Current.DofData) break;
     }
+    Msg::Warning("You did not specify NameOfSystem in PostProcessing: selected '%s'",
+		 (DefineSystem_P0 + Current.DofData->Num)->Name) ;
   }
 
   if(!Current.DofData)
@@ -195,9 +197,6 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 			GeoData_P0 + Current.DofData->GeoDataIndex) ;
 
   Msg::Info("Selected PostProcessing '%s'", PostProcessing_P->Name);
-  /*
-  Msg::Info("Selected System '%s'", DefineSystem_P->Name) ;
-  */
   Msg::Info("Selected Mesh '%s'", Current.GeoData->Name);
 
   Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);
@@ -206,8 +205,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   for (i_POP = 0 ; i_POP < Nbr_PostSubOperation ; i_POP++) {      
     Msg::Info("PostOperation %d/%d ", i_POP+1, Nbr_PostSubOperation) ;      
     PostSubOperation_P = (struct PostSubOperation*)
-      List_Pointer(PostOperation_P->PostSubOperation, i_POP) ;
-    
+      List_Pointer(PostOperation_P->PostSubOperation, i_POP) ;    
     Pos_Formulation(Formulation_P, PostProcessing_P, PostSubOperation_P) ;
   }
 
