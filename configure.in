@@ -121,7 +121,7 @@ if test "x$enable_petsc" != "xno" -a "x$enable_sparskit" != "xyes"; then
   fi
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
   LAPACK="yes"
-  LINKER='${CLINKER}'
+  LINKER="\${CLINKER}"
   FLAGS="${FLAGS} -DHAVE_PETSC \${PETSCFLAGS} \${PETSC_INCLUDE}"
 fi
 
@@ -265,6 +265,14 @@ esac
 
 dnl Finish link line
 GETDP_LIBS="${GETDP_LIBS} -lm"    
+
+case "$UNAME" in
+  CYGWIN*)
+    dnl increase stack size to 16Mb to avoid stack overflows in
+    dnl recursive calls (cf. Cal_Quantity)
+    LINKER="${LINKER} -Wl,--stack,16777216"
+    ;;
+esac
 
 dnl Write output
 AC_SUBST(UNAME)

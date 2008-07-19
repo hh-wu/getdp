@@ -82,8 +82,7 @@ void CheckResources(){
   getrlimit(RLIMIT_STACK, &r);
 
   // Try to get at least 16 MB of stack. Running with too small a stack
-  // can cause crashes in the recursive calls (e.g. for tet
-  // classification in 3D Delaunay)
+  // can cause crashes in the recursive calls (cf. Cal_Quantity)
   if(r.rlim_cur < 16 * 1024 * 1024){
     Msg::Info("Increasing process stack size (%d kB < 16 MB)", r.rlim_cur / 1024);
     r.rlim_cur = r.rlim_max;

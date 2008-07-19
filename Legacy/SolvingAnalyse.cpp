@@ -163,10 +163,11 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   if(PostProcessing_P->NameOfSystem){
     if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
 			     PostProcessing_P->NameOfSystem,
-			     fcmp_DefineSystem_Name)) < 0)
+			     fcmp_DefineSystem_Name)) < 0){
       Msg::Error("Unknown System name (%s) in PostProcessing (%s)", 
 		 PostProcessing_P->NameOfSystem, PostProcessing_P->Name) ;
-    
+      return;
+    }
     Current.DofData = DofData_P0 + i;
     /* (Re)creation des liens entre FunctionSpace et DofData:
        seuls les FS n'intervenant pas dans le DD courant peuvent
@@ -183,12 +184,14 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 		      ->FunctionSpaceIndex)) ->DofData ;
       if(Current.DofData) break;
     }
-    Msg::Warning("You did not specify NameOfSystem in PostProcessing: selected '%s'",
-		 (DefineSystem_P0 + Current.DofData->Num)->Name) ;
+    Msg::Info("NameOfSystem not set in PostProcessing: selected '%s'",
+	      (DefineSystem_P0 + Current.DofData->Num)->Name) ;
   }
 
-  if(!Current.DofData)
+  if(!Current.DofData){
     Msg::Error("PostProcessing not compatible with Resolution");
+    return;
+  }
 
   DefineSystem_P = DefineSystem_P0 + Current.DofData->Num ;
   Current.NbrHar = Current.DofData->NbrHar ;
@@ -277,8 +280,10 @@ void  Treatment_Resolution(int ResolutionIndex,
   Msg::Info("Selected Resolution '%s'", (*Resolution_P)->Name) ;
   
   *Nbr_DefineSystem = List_Nbr((*Resolution_P)->DefineSystem) ;
-  if (!*Nbr_DefineSystem)
+  if (!*Nbr_DefineSystem){
     Msg::Error("No System exists for Resolution '%s'", (*Resolution_P)->Name) ;
+    return;
+  }
   
   if (*Nbr_OtherSystem)  *Nbr_OtherSystem -= *Nbr_DefineSystem ;
 

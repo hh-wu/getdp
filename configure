@@ -4126,7 +4126,7 @@ echo "$as_me: error: Could not find PETSC. Use --enable-sparskit instead?" >&2;}
   fi
   PETSC_INCLUDE_MAKEFILE='include ${PETSC_DIR}/bmake/common/variables'
   LAPACK="yes"
-  LINKER='${CLINKER}'
+  LINKER="\${CLINKER}"
   FLAGS="${FLAGS} -DHAVE_PETSC \${PETSCFLAGS} \${PETSC_INCLUDE}"
 fi
 
@@ -4645,6 +4645,12 @@ echo "$as_me: WARNING: gfortran breaks Arpack on Mac OS X (known probl. in blas 
 esac
 
 GETDP_LIBS="${GETDP_LIBS} -lm"
+
+case "$UNAME" in
+  CYGWIN*)
+            LINKER="${LINKER} -Wl,--stack,16777216"
+    ;;
+esac
 
 
 
