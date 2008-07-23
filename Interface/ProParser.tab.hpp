@@ -216,78 +216,79 @@
      tGenerateOnly = 432,
      tGenerateOnlyJac = 433,
      tSolveJac_AdaptRelax = 434,
-     tSaveSolutionExtendedMH = 435,
-     tSaveSolutionMHtoTime = 436,
-     tInit_MovingBand2D = 437,
-     tMesh_MovingBand2D = 438,
-     tGenerate_MH_Moving = 439,
-     tGenerate_MH_Moving_Separate = 440,
-     tAdd_MH_Moving = 441,
-     tGenerateGroup = 442,
-     tGenerateJacGroup = 443,
-     tSaveMesh = 444,
-     tDeformeMesh = 445,
-     tDummyFrequency = 446,
-     tPostProcessing = 447,
-     tNameOfSystem = 448,
-     tPostOperation = 449,
-     tNameOfPostProcessing = 450,
-     tUsingPost = 451,
-     tAppend = 452,
-     tPlot = 453,
-     tPrint = 454,
-     tPrintGroup = 455,
-     tEcho = 456,
-     tWrite = 457,
-     tAdapt = 458,
-     tOnGlobal = 459,
-     tOnRegion = 460,
-     tOnElementsOf = 461,
-     tOnGrid = 462,
-     tOnSection = 463,
-     tOnPoint = 464,
-     tOnLine = 465,
-     tOnPlane = 466,
-     tOnBox = 467,
-     tWithArgument = 468,
-     tFile = 469,
-     tDepth = 470,
-     tDimension = 471,
-     tComma = 472,
-     tTimeStep = 473,
-     tHarmonicToTime = 474,
-     tFormat = 475,
-     tHeader = 476,
-     tFooter = 477,
-     tSkin = 478,
-     tSmoothing = 479,
-     tTarget = 480,
-     tSort = 481,
-     tIso = 482,
-     tNoNewLine = 483,
-     tDecomposeInSimplex = 484,
-     tChangeOfValues = 485,
-     tTimeLegend = 486,
-     tFrequencyLegend = 487,
-     tEigenvalueLegend = 488,
-     tEvaluationPoints = 489,
-     tStore = 490,
-     tLastTimeStepOnly = 491,
-     tStr = 492,
-     tDate = 493,
-     tDEF = 494,
-     tOR = 495,
-     tAND = 496,
-     tAPPROXEQUAL = 497,
-     tNOTEQUAL = 498,
-     tEQUAL = 499,
-     tGREATERGREATER = 500,
-     tLESSLESS = 501,
-     tGREATEROREQUAL = 502,
-     tLESSOREQUAL = 503,
-     tCROSSPRODUCT = 504,
-     UNARYPREC = 505,
-     tSHOW = 506
+     tTensorProductSolve = 435,
+     tSaveSolutionExtendedMH = 436,
+     tSaveSolutionMHtoTime = 437,
+     tInit_MovingBand2D = 438,
+     tMesh_MovingBand2D = 439,
+     tGenerate_MH_Moving = 440,
+     tGenerate_MH_Moving_Separate = 441,
+     tAdd_MH_Moving = 442,
+     tGenerateGroup = 443,
+     tGenerateJacGroup = 444,
+     tSaveMesh = 445,
+     tDeformeMesh = 446,
+     tDummyFrequency = 447,
+     tPostProcessing = 448,
+     tNameOfSystem = 449,
+     tPostOperation = 450,
+     tNameOfPostProcessing = 451,
+     tUsingPost = 452,
+     tAppend = 453,
+     tPlot = 454,
+     tPrint = 455,
+     tPrintGroup = 456,
+     tEcho = 457,
+     tWrite = 458,
+     tAdapt = 459,
+     tOnGlobal = 460,
+     tOnRegion = 461,
+     tOnElementsOf = 462,
+     tOnGrid = 463,
+     tOnSection = 464,
+     tOnPoint = 465,
+     tOnLine = 466,
+     tOnPlane = 467,
+     tOnBox = 468,
+     tWithArgument = 469,
+     tFile = 470,
+     tDepth = 471,
+     tDimension = 472,
+     tComma = 473,
+     tTimeStep = 474,
+     tHarmonicToTime = 475,
+     tFormat = 476,
+     tHeader = 477,
+     tFooter = 478,
+     tSkin = 479,
+     tSmoothing = 480,
+     tTarget = 481,
+     tSort = 482,
+     tIso = 483,
+     tNoNewLine = 484,
+     tDecomposeInSimplex = 485,
+     tChangeOfValues = 486,
+     tTimeLegend = 487,
+     tFrequencyLegend = 488,
+     tEigenvalueLegend = 489,
+     tEvaluationPoints = 490,
+     tStore = 491,
+     tLastTimeStepOnly = 492,
+     tStr = 493,
+     tDate = 494,
+     tDEF = 495,
+     tOR = 496,
+     tAND = 497,
+     tAPPROXEQUAL = 498,
+     tNOTEQUAL = 499,
+     tEQUAL = 500,
+     tGREATERGREATER = 501,
+     tLESSLESS = 502,
+     tGREATEROREQUAL = 503,
+     tLESSOREQUAL = 504,
+     tCROSSPRODUCT = 505,
+     UNARYPREC = 506,
+     tSHOW = 507
    };
 #endif
 /* Tokens.  */
@@ -468,78 +469,79 @@
 #define tGenerateOnly 432
 #define tGenerateOnlyJac 433
 #define tSolveJac_AdaptRelax 434
-#define tSaveSolutionExtendedMH 435
-#define tSaveSolutionMHtoTime 436
-#define tInit_MovingBand2D 437
-#define tMesh_MovingBand2D 438
-#define tGenerate_MH_Moving 439
-#define tGenerate_MH_Moving_Separate 440
-#define tAdd_MH_Moving 441
-#define tGenerateGroup 442
-#define tGenerateJacGroup 443
-#define tSaveMesh 444
-#define tDeformeMesh 445
-#define tDummyFrequency 446
-#define tPostProcessing 447
-#define tNameOfSystem 448
-#define tPostOperation 449
-#define tNameOfPostProcessing 450
-#define tUsingPost 451
-#define tAppend 452
-#define tPlot 453
-#define tPrint 454
-#define tPrintGroup 455
-#define tEcho 456
-#define tWrite 457
-#define tAdapt 458
-#define tOnGlobal 459
-#define tOnRegion 460
-#define tOnElementsOf 461
-#define tOnGrid 462
-#define tOnSection 463
-#define tOnPoint 464
-#define tOnLine 465
-#define tOnPlane 466
-#define tOnBox 467
-#define tWithArgument 468
-#define tFile 469
-#define tDepth 470
-#define tDimension 471
-#define tComma 472
-#define tTimeStep 473
-#define tHarmonicToTime 474
-#define tFormat 475
-#define tHeader 476
-#define tFooter 477
-#define tSkin 478
-#define tSmoothing 479
-#define tTarget 480
-#define tSort 481
-#define tIso 482
-#define tNoNewLine 483
-#define tDecomposeInSimplex 484
-#define tChangeOfValues 485
-#define tTimeLegend 486
-#define tFrequencyLegend 487
-#define tEigenvalueLegend 488
-#define tEvaluationPoints 489
-#define tStore 490
-#define tLastTimeStepOnly 491
-#define tStr 492
-#define tDate 493
-#define tDEF 494
-#define tOR 495
-#define tAND 496
-#define tAPPROXEQUAL 497
-#define tNOTEQUAL 498
-#define tEQUAL 499
-#define tGREATERGREATER 500
-#define tLESSLESS 501
-#define tGREATEROREQUAL 502
-#define tLESSOREQUAL 503
-#define tCROSSPRODUCT 504
-#define UNARYPREC 505
-#define tSHOW 506
+#define tTensorProductSolve 435
+#define tSaveSolutionExtendedMH 436
+#define tSaveSolutionMHtoTime 437
+#define tInit_MovingBand2D 438
+#define tMesh_MovingBand2D 439
+#define tGenerate_MH_Moving 440
+#define tGenerate_MH_Moving_Separate 441
+#define tAdd_MH_Moving 442
+#define tGenerateGroup 443
+#define tGenerateJacGroup 444
+#define tSaveMesh 445
+#define tDeformeMesh 446
+#define tDummyFrequency 447
+#define tPostProcessing 448
+#define tNameOfSystem 449
+#define tPostOperation 450
+#define tNameOfPostProcessing 451
+#define tUsingPost 452
+#define tAppend 453
+#define tPlot 454
+#define tPrint 455
+#define tPrintGroup 456
+#define tEcho 457
+#define tWrite 458
+#define tAdapt 459
+#define tOnGlobal 460
+#define tOnRegion 461
+#define tOnElementsOf 462
+#define tOnGrid 463
+#define tOnSection 464
+#define tOnPoint 465
+#define tOnLine 466
+#define tOnPlane 467
+#define tOnBox 468
+#define tWithArgument 469
+#define tFile 470
+#define tDepth 471
+#define tDimension 472
+#define tComma 473
+#define tTimeStep 474
+#define tHarmonicToTime 475
+#define tFormat 476
+#define tHeader 477
+#define tFooter 478
+#define tSkin 479
+#define tSmoothing 480
+#define tTarget 481
+#define tSort 482
+#define tIso 483
+#define tNoNewLine 484
+#define tDecomposeInSimplex 485
+#define tChangeOfValues 486
+#define tTimeLegend 487
+#define tFrequencyLegend 488
+#define tEigenvalueLegend 489
+#define tEvaluationPoints 490
+#define tStore 491
+#define tLastTimeStepOnly 492
+#define tStr 493
+#define tDate 494
+#define tDEF 495
+#define tOR 496
+#define tAND 497
+#define tAPPROXEQUAL 498
+#define tNOTEQUAL 499
+#define tEQUAL 500
+#define tGREATERGREATER 501
+#define tLESSLESS 502
+#define tGREATEROREQUAL 503
+#define tLESSOREQUAL 504
+#define tCROSSPRODUCT 505
+#define UNARYPREC 506
+#define tSHOW 507
 
 
 
@@ -555,7 +557,7 @@ typedef union YYSTYPE
   struct TwoInt t;
 }
 /* Line 1529 of yacc.c.  */
-#line 559 "ProParser.tab.hpp"
+#line 561 "ProParser.tab.hpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1

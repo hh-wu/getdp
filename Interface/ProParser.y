@@ -131,7 +131,8 @@ void vyyerror(char *fmt, ...);
 %type <i>  PostQuantitySupport
 %type <i>  StrCmp NbrRegions
 %type <d>  FExpr OneFExpr
-%type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr ParametersForFunction
+%type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr RecursiveListOfListOfFExpr
+%type <l>  ParametersForFunction
 %type <l>  RecursiveListOfRegion
 %type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion IRegion
 %type <l>  ConstraintCases IntegrationCases QuadratureCases JacobianCases
@@ -144,6 +145,7 @@ void vyyerror(char *fmt, ...);
 %type <l>  ListOfSystem RecursiveListOfSystem
 %type <l>  PostQuantities SubPostQuantities PostSubOperations
 %type <c>  NameForFunction CharExpr StrCat StringIndex String__Index
+%type <l>  RecursiveListOfString__Index
 %type <t>  Quantity_Def
 
 /* ------------------------------------------------------------------ */
@@ -220,7 +222,7 @@ void vyyerror(char *fmt, ...);
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand
 %token      tGenerateOnly
 %token      tGenerateOnlyJac
-%token      tSolveJac_AdaptRelax 
+%token      tSolveJac_AdaptRelax  tTensorProductSolve
 %token      tSaveSolutionExtendedMH tSaveSolutionMHtoTime
 %token      tInit_MovingBand2D tMesh_MovingBand2D 
 %token      tGenerate_MH_Moving tGenerate_MH_Moving_Separate tAdd_MH_Moving 
@@ -4737,6 +4739,44 @@ OperationTerm :
       Operation_P->Case.Generate.GroupIndex = i;
     }
 
+    // FIXME: Roman
+  | tTensorProductSolve '[' '{' RecursiveListOfString__Index '}' ',' 
+                            '{' RecursiveListOfString__Index '}' ',' 
+                            ListOfFExpr ','
+                            '{' RecursiveListOfListOfFExpr '}' ']'  tEND
+    { 
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);    
+
+      Operation_P->Case.TensorProductSolve.SystemIndex = List_Create(4, 4, sizeof(int));
+      for(int j = 0; j < List_Nbr($4); j++){
+	char *sys;
+	List_Read($4, j, &sys);
+	int i;
+	if((i = List_ISearchSeq(Resolution_S.DefineSystem, sys,
+				fcmp_DefineSystem_Name)) < 0)
+	  vyyerror("Unknown System: %s", sys);
+	Free(sys);
+	List_Add(Operation_P->Case.TensorProductSolve.SystemIndex, &i);
+      }
+      Free($4);
+      Operation_P->Case.TensorProductSolve.ExpectationIndex = List_Create(4, 4, sizeof(int));
+      for(int j = 0; j < List_Nbr($8); j++){
+	char *sys;
+	List_Read($8, j, &sys);
+	int i;
+	if((i = List_ISearchSeq(Resolution_S.DefineSystem, sys,
+				fcmp_DefineSystem_Name)) < 0)
+	  vyyerror("Unknown System: %s", sys);
+	Free(sys);
+	List_Add(Operation_P->Case.TensorProductSolve.ExpectationIndex, &i);
+      }
+      Free($8);
+      Operation_P->Case.TensorProductSolve.LocalMatrixIndex = $11; 
+      Operation_P->Case.TensorProductSolve.ExpansionCoef = $14;
+      Operation_P->Type = OPERATION_TENSORPRODUCTSOLVE;
+    }
+
   | Loop
     {
       Operation_P = (struct Operation*)
@@ -6559,6 +6599,18 @@ RecursiveListOfFExpr :
     }
  ;
 
+RecursiveListOfListOfFExpr :
+    ListOfFExpr
+    {
+      $$ = List_Create(2, 1, sizeof(List_T*));
+      List_Add($$, &($1));
+    }
+  | RecursiveListOfListOfFExpr ',' ListOfFExpr
+    {
+      List_Add($$, &($3));
+    }
+;
+
 MultiFExpr :
 
     FExpr tDOTS FExpr
@@ -6721,6 +6773,18 @@ String__Index :
   | StringIndex
     { $$ = $1; }
 
+ ;
+
+RecursiveListOfString__Index :
+
+    String__Index
+    { 
+      $$ = List_Create(20,20,sizeof(char*));
+      List_Add($$, &($1)); 
+    }
+
+  | RecursiveListOfString__Index ',' String__Index
+    { List_Add($$, &($3)); }
  ;
 
 CharExpr :

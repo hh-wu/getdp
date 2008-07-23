@@ -6,6 +6,7 @@
 #ifndef _PRO_DATA_H_
 #define _PRO_DATA_H_
 
+#include <vector>
 #include "ListUtils.h"
 
 #define _0D      0
@@ -984,6 +985,12 @@ struct Operation {
       int     GeoDataIndex;
       double  Factor;
     } DeformeMesh;
+    // FIXME: Roman
+    struct {
+      List_T *SystemIndex, *ExpectationIndex; 
+      List_T *LocalMatrixIndex; 
+      List_T *ExpansionCoef;
+    } TensorProductSolve;
 
   } Case;
 
@@ -1024,6 +1031,7 @@ struct ChangeOfState {
 #define OPERATION_INITCORRECTION           82
 #define OPERATION_MULTIPLYSOLUTION         83
 #define OPERATION_ADDOPPOSITEFULLSOLUTION  84
+#define OPERATION_TENSORPRODUCTSOLVE       85
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11

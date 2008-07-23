@@ -1161,6 +1161,20 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
 	  OPE->Case.DeformeMesh.Name_MshFile);
       break;
 
+    // FIXME: Roman
+    case OPERATION_TENSORPRODUCTSOLVE :
+      Msg::Check("      TensorProductSolve [\n");
+      for(int i = 0; i < List_Nbr(OPE->Case.TensorProductSolve.SystemIndex); i++){
+	int j;
+	List_Read(OPE->Case.TensorProductSolve.SystemIndex, i, &j);
+	Msg::Check("%d ", j);
+      }
+      Msg::Check("  XXX] \n");
+      //Operation_P->ExpectationIndex = ;
+      //Operation_P->LocalMatrixIndex = ;
+      //Operation_P->ExpansionCoef = ;
+      break;
+
     default :
       Msg::Check("      ???;\n");
       break;
