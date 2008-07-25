@@ -42,8 +42,7 @@ depend:
 # DO NOT DELETE THIS LINE
 ListUtils.o: ListUtils.cpp MallocUtils.h ListUtils.h TreeUtils.h avl.h \
   Message.h
-TreeUtils.o: TreeUtils.cpp MallocUtils.h TreeUtils.h avl.h ListUtils.h \
-  Message.h
+TreeUtils.o: TreeUtils.cpp MallocUtils.h TreeUtils.h avl.h ListUtils.h
 avl.o: avl.cpp avl.h MallocUtils.h
 MallocUtils.o: MallocUtils.cpp MallocUtils.h Message.h
 Message.o: Message.cpp Message.h GmshClient.h

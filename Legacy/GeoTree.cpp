@@ -108,7 +108,7 @@ void Geo_GenerateEdgesOfSubTree(List_T * InitialList, List_T * ExtendedList,
 	  else {
 	    EntityInTree_S.Num = abs(Geo_Element->NumNodes[Entity]) ;
 	    EntitiesInTree_P[Entity] = (struct EntityInTree*)
-	      Tree_AddP(EntitiesInTree_T, &EntityInTree_S) ;
+	      Tree_Add(EntitiesInTree_T, &EntityInTree_S) ;
 	    Flag_Change = 1 ;
 	  }
 	}
@@ -179,7 +179,7 @@ void Geo_GenerateFacetsOfSubTree(List_T * InitialList, List_T * ExtendedList,
 	  else {
 	    EntityInTree_S.Num = abs(Geo_Element->NumEdges[Entity]) ;
 	    EntitiesInTree_P[Entity] = (struct EntityInTree*)
-	      Tree_AddP(EntitiesInTree_T, &EntityInTree_S) ;
+	      Tree_Add(EntitiesInTree_T, &EntityInTree_S) ;
 	    Flag_Change = 1 ;
 	  }
 	}

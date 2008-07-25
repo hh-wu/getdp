@@ -64,7 +64,7 @@ clean:
 
 depend: initialtag
 	for i in ${GETDP_DIRS};\
-        do (cd $$i && ${MAKE} depend "FLAGS=-DHAVE_GSL"); done
+        do (cd $$i && ${MAKE} depend "CXX=g++" "FLAGS=-DHAVE_GSL"); done
 
 nodepend:
 	for i in ${GETDP_DIRS} ; do \
