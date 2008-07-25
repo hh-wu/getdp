@@ -51,7 +51,7 @@ typedef struct { KSP ksp ; PC pc ; } gSolver ;
 typedef struct { double s; }    gScalar ;
 typedef struct { double **m; }  gMatrix ;
 typedef struct { double *m; }   gVector ;
-typedef struct { int dymmy; }   gSolver ;
+typedef struct { int dummy; }   gSolver ;
 
 #endif
 

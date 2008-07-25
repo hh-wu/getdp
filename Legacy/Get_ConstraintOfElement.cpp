@@ -242,6 +242,10 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
   }
   else{
     Value[0] = Val_Modulus.Val[0] ;
+    // Set this to zero to avoid having an uninitialized imaginary
+    // part if you use a complex arithmetic solver (on a real matrix)
+    // -- cf. LinAlg_SetScalar() calls in DofData.cpp
+    Value[1] = 0. ; 
   }
 }
 
