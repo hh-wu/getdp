@@ -4624,26 +4624,14 @@ fi
 
   if test "x${NR}" = "xyes"; then
     echo "********************************************************************"
-    echo "You are building a non-free version of GetDP, using code copyright"
-    echo "(C) 1986-92 Numerical Recipes Software J!0."
-    echo "To use the GSL instead, run configure again with the --enable-gsl"
-    echo "option."
+    echo "  You are building a non-free version of GetDP, using code copyright"
+    echo "  (C) 1986-92 Numerical Recipes Software J!0."
+    echo "  To use the GSL instead, run configure again with the --enable-gsl"
+    echo "  option."
     echo "********************************************************************"
     GETDP_DIRS="${GETDP_DIRS} contrib/NR"
     GETDP_LIBS="${GETDP_LIBS} -lGetDPNR"
   else
-    echo "********************************************************************"
-    echo "This is the free version of GetDP and configure could not find"
-    echo "the GNU Scientific Library (GSL) on your system:"
-    echo "- if it is installed in a non-standard location, please run"
-    echo "  configure again with the --with-gsl-prefix option"
-    echo "- if it is not installed on your system, you can download it from"
-    echo "  http://sources.redhat.com/gsl/"
-    echo ""
-    echo "IMPORTANT NOTE: You need to install GSL version 1.2 or above. All"
-    echo "versions <= 1.1.1 have a bug in the singular value decomposition"
-    echo "algorithm that may cause GetDP to hang during execution."
-    echo "********************************************************************"
     { { echo "$as_me:$LINENO: error: Could not find GSL or NR, aborting." >&5
 echo "$as_me: error: Could not find GSL or NR, aborting." >&2;}
    { (exit 1); exit 1; }; }
@@ -5727,15 +5715,15 @@ fi
 
 echo "********************************************************************"
 echo "GetDP is configured for"
-echo "- OS               : $UNAME on $HOSTNAME"
-echo "- C++ compiler     : $CXX"
-echo "- Fortran compiler : $F77"
-echo "- Linker           : $LINKER"
-echo "- Optimization     : $OPTIM"
-echo "- Options          : $FLAGS"
+echo "  - OS               : $UNAME on $HOSTNAME"
+echo "  - C++ compiler     : $CXX"
+echo "  - Fortran compiler : $F77"
+echo "  - Linker           : $LINKER"
+echo "  - Optimization     : $OPTIM"
+echo "  - Options          : $FLAGS"
 if test "x${PETSC}" = "xyes"; then
-  echo "- PETSC_DIR        : $PETSC_DIR"
-  echo "- PETSC_ARCH       : $PETSC_ARCH"
+  echo "  - PETSC_DIR        : $PETSC_DIR"
+  echo "  - PETSC_ARCH       : $PETSC_ARCH"
 fi
 echo "********************************************************************"
 echo "To fine-tune the configuration, edit the 'variables' file"
