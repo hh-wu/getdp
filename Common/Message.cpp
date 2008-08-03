@@ -76,6 +76,8 @@ void Message::Error(const char *fmt, ...)
       fprintf(stderr, "Error   : %s\n", str);
     fflush(stderr);
   }
+
+  FinalizeSocket();
   exit(1);
 }
 

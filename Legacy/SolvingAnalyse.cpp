@@ -159,7 +159,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
     Msg::Error("No discrete Quantity in Formulation '%s'", Formulation_P->Name);
 
   /* Choice of Current DofData */
-
+  Current.DofData = 0;
   if(PostProcessing_P->NameOfSystem){
     if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
 			     PostProcessing_P->NameOfSystem,
@@ -184,8 +184,9 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 		      ->FunctionSpaceIndex)) ->DofData ;
       if(Current.DofData) break;
     }
-    Msg::Info("NameOfSystem not set in PostProcessing: selected '%s'",
-	      (DefineSystem_P0 + Current.DofData->Num)->Name) ;
+    if(Current.DofData)
+      Msg::Info("NameOfSystem not set in PostProcessing: selected '%s'",
+		(DefineSystem_P0 + Current.DofData->Num)->Name) ;
   }
 
   if(!Current.DofData){
