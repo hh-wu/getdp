@@ -13,17 +13,16 @@ available from http://sources.redhat.com/gsl/). You can use the
 environment variable) if the library is not installed in its default
 location.
 
-By default, GetDP uses a built-in set of linear solvers derived from
-Sparskit Version 2 (http://www-users.cs.umn.edu/~saad/). GetDP can
-also be configured to use the linear solvers from PETSc 2.3 or higher
-(freely available from http://www.mcs.anl.gov/petsc), using either
-real or complex arithmetic. To configure GetDP with PETSc support,
-type
+By default, GetDP uses linear solvers from PETSc 2.3 or higher (freely
+available from http://www.mcs.anl.gov/petsc), using either real or
+complex arithmetic. If you don't have PETsc installed on your system
+you can configure GetDP to use a built-in set of linear solvers
+derived from Sparskit Version 2 (http://www-users.cs.umn.edu/~saad/)
+by typing
 
-./configure --enable-petsc
+./configure --enable-sparskit
 
-(look at doc/README.petsc for more information). For a description of
-all other configuration options, type
+For a description of all other configuration options, type
 
 ./configure --help
 
