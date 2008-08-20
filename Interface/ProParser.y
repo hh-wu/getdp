@@ -6957,17 +6957,6 @@ int  Add_Group_2(struct Group *Group_P, char *Name, int Flag_Add,
     } 
   } 
   else List_Write(Problem_S.Group, i, Group_P);
-  
-  if ((i = List_ISearchSeq(Problem_S.Group, Group_P->Name, fcmp_Group_Name)) < 0) {
-    i = Group_P->Num = List_Nbr(Problem_S.Group) ;
-    Group_P->ExtendedList = NULL ;  Group_P->ExtendedSuppList = NULL ;
-    List_Add(Problem_S.Group, Group_P) ;
-  } else if (Flag_Add) {
-    InitialList = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList ;
-    for (int j = 0 ; j < List_Nbr(Group_P->InitialList) ; j++) {
-      List_Add(InitialList, (int *)List_Pointer(Group_P->InitialList, j)) ;
-    } 
-  } else List_Write(Problem_S.Group, i, Group_P) ;
 
   return i;
 }
