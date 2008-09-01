@@ -1327,7 +1327,7 @@ WholeQuantity_Single :
 
   | Quantity_Def ArgumentsForFunction
     { 
-      if($2 != 1 && $2 != 3 && $2 != 4)
+      if($2 != 1 && $2 != 2 && $2 != 3 && $2 != 4)
 	vyyerror("Wrong number of arguments for discrete quantity evaluation (%d)", $2);
       WholeQuantity_S.Type = WQ_OPERATORANDQUANTITYEVAL;
       WholeQuantity_S.Case.OperatorAndQuantity.NbrArguments = $2;
@@ -2901,9 +2901,9 @@ DefineQuantityTerm :
      
     }
 
-  | tIndexOfSystem tINT tEND
+  | tIndexOfSystem FExpr tEND
     { 
-      DefineQuantity_S.DofDataIndex = $2; 
+      DefineQuantity_S.DofDataIndex = (int)$2; 
     }
 
   | '['
@@ -6759,8 +6759,11 @@ StringIndex :
     {
       char tmpstr[256];
       sprintf(tmpstr, "_%d", (int)$4);
-      $$ = (char *)realloc($1,(strlen($1)+strlen(tmpstr)+1)*sizeof(char));
-      strcpy($$, $1); strcat($$, tmpstr);
+      /* error in some cases?!?
+      $$ = (char *)Realloc($1,(strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
+      */
+      $$ = (char *)Malloc((strlen($1)+strlen(tmpstr)+1)*sizeof(char)) ;
+      strcpy($$, $1) ; strcat($$, tmpstr) ;
     }
 
  ;
@@ -6979,12 +6982,26 @@ int  Add_Expression(struct Expression *Expression_P,
   if(!Problem_S.Expression)
     Problem_S.Expression = List_Create(50, 50, sizeof (struct Expression));
 
+  switch (Flag_Plus) {
+  case 1 :
+    char tmpstr[256];
+    sprintf(tmpstr, "_%s_%d", Name, List_Nbr(Problem_S.Expression)) ;
+    Expression_P->Name = strSave(tmpstr) ;
+    break ;
+  case 2 :
+    Expression_P->Name = strSave(tmpstr) ;
+    break ;
+  default :
+    Expression_P->Name = Name ;
+  }
+  /*
   if(Flag_Plus) {
     char tmpstr[256];
     sprintf(tmpstr, "_%s_%d", Name, List_Nbr(Problem_S.Expression));
     Expression_P->Name = strSave(tmpstr);
   }
   else  Expression_P->Name = Name;
+  */
 
   int  i;
   if((i = List_ISearchSeq
