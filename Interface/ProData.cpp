@@ -996,7 +996,6 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
     case OPERATION_GENERATEJAC :
     case OPERATION_SOLVEJAC :
     case OPERATION_GENERATESEPARATE :
-    case OPERATION_UPDATECONSTRAINT :
     case OPERATION_INITSOLUTION :
     case OPERATION_SAVESOLUTION :
     case OPERATION_SAVESOLUTIONS :
@@ -1017,6 +1016,29 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
 	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
 	  Get_ExpressionName(OPE->Case.Update.ExpressionIndex));
       break;
+    
+    case OPERATION_SELECTCORRECTION :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg::Check(" ");
+      Msg::Check("      SelectCorrection [ %s, %d ] ;\n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+	  OPE->Case.SelectCorrection.Iteration) ;
+      break ;
+
+   case OPERATION_ADDCORRECTION :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg::Check(" ");
+      Msg::Check("      AddCorrection [ %s, %g ] ;\n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
+	  OPE->Case.AddCorrection.Alpha) ;
+      break ;
+
+   case OPERATION_UPDATECONSTRAINT :
+      for (i=0 ; i<2*NbrBlk ; i++) Msg::Check(" ");
+      Msg::Check("      UpdateConstraint [ %s ] ;\n",
+	  ((struct DefineSystem *)
+	   List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name) ;
+      break ;
 
    case OPERATION_FOURIERTRANSFORM :
       for (i=0; i<2*NbrBlk; i++) Msg::Check(" ");
@@ -1223,7 +1245,17 @@ void Print_Resolution()
       Msg::Check(" }; ");
 
       if(DS->MeshName)
-	Msg::Check("NameOfMesh %s;", DS->MeshName);
+	Msg::Check("NameOfMesh %s; ", DS->MeshName);
+
+      if(DS->OriginSystemIndex) {
+	Msg::Check("OriginSystem {") ;
+
+	for (k = 0 ; k < List_Nbr(DS->OriginSystemIndex) ; k++) {
+	  if (k)  Msg::Check(",") ;
+	  Msg::Check(" %d", *((int *)List_Pointer(DS->OriginSystemIndex, k))) ;
+	}
+	Msg::Check(" } ;") ;
+      }
 
       if (DS->Type == VAL_COMPLEX) {
 	Msg::Check("Frequency {");
