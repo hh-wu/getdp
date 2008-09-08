@@ -73,7 +73,7 @@ void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
   for(i = 0 ; i < List_Nbr(Formulation_P->DefineQuantity) ; i++){
     DefineQuantity_P = (struct DefineQuantity *)
       List_Pointer(Formulation_P->DefineQuantity, i);
-    
+
     if(DefineQuantity_P->DofDataIndex >= 0){
       if(DefineQuantity_P->DofDataIndex >= List_Nbr(DefineSystem_P->OriginSystemIndex))
 	Msg::Error("Invalid System index (%d) in discrete Quantity (%s)",

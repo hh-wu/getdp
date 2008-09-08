@@ -3807,7 +3807,11 @@ DefineSystems :
 
   | DefineSystems  '{' DefineSystem '}'
     {
-      List_Add($$ = Current_System_L = $1, &DefineSystem_S);
+      int i ;
+      if ((i = List_ISearchSeq(Current_System_L, DefineSystem_S.Name, fcmp_DefineSystem_Name)) < 0)
+	List_Add($$ = Current_System_L = $1, &DefineSystem_S) ;
+      else
+	List_Write(Current_System_L, i, &DefineSystem_S) ;
     }
 
   | DefineSystems Loop
