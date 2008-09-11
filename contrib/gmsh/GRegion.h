@@ -1,24 +1,10 @@
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
+
 #ifndef _GREGION_H_
 #define _GREGION_H_
-
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-//
-// Please report all bugs and problems to <gmsh@geuz.org>.
 
 #include "GEntity.h"
 
@@ -58,17 +44,20 @@ class GRegion : public GEntity {
   // check if the region is connected to another region by an edge
   bool edgeConnected(GRegion *r) const;
 
-  // recompute the mesh partitions defined on this region
-  void recomputeMeshPartitions();
-
-  // delete the mesh partitions defined on this region
-  void deleteMeshPartitions();
-
   // return a type-specific additional information string
   virtual std::string getAdditionalInfoString();
 
-  // get number of elements in the mesh and get element by index
+  // number of types of elements
+  int getNumElementTypes() const { return 4; }
+
+  // get total/by-type number of elements in the mesh
   unsigned int getNumMeshElements();
+  void getNumMeshElements(unsigned *const c) const;
+
+  // get the start of the array of a type of element
+  MElement *const *getStartElementType(int type) const;
+
+  // get the element at the given index
   MElement *getMeshElement(unsigned int index);
 
   // reset the mesh attributes to default values

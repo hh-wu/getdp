@@ -40,6 +40,6 @@ char *strSave(char *string);
 void cStyleComments();
 void cxxStyleComments();
 void parseString(char endchar);
-void skipUntil(char *skip, char *until);
+void skipUntil(const char *skip, const char *until);
 
 #endif

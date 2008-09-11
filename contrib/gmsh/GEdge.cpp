@@ -1,40 +1,23 @@
-// $Id: GEdge.cpp,v 1.2 2008-07-10 14:35:46 geuzaine Exp $
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
 //
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-//
-// Please report all bugs and problems to <gmsh@geuz.org>.
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
 
+#include <sstream>
 #include <algorithm>
 #include "GModel.h"
 #include "GEdge.h"
 #include "GFace.h"
 #include "MElement.h"
 #include "GmshDefines.h"
+#include "Message.h"
 
-#if defined(HAVE_GMSH_EMBEDDED)
-#  include "GmshEmbedded.h"
-#else
-#  include "Message.h"
-#  include "GaussLegendre1D.h"
+#if !defined(HAVE_GMSH_EMBEDDED)
+#include "GaussLegendre1D.h"
 #endif
 
 GEdge::GEdge(GModel *model, int tag, GVertex *_v0, GVertex *_v1)
-  : GEntity(model, tag), v0(_v0), v1(_v1)
+  : GEntity(model, tag), _tooSmall(false), v0(_v0), v1(_v1)
 {
   if(v0) v0->addEdge(this);
   if(v1 && v1 != v0) v1->addEdge(this);
@@ -56,6 +39,16 @@ GEdge::~GEdge()
 unsigned int GEdge::getNumMeshElements()
 { 
   return lines.size();
+}
+
+void GEdge::getNumMeshElements(unsigned *const c) const
+{
+  c[0] += lines.size();
+}
+
+MElement *const *GEdge::getStartElementType(int type) const
+{
+  return reinterpret_cast<MElement *const *>(&lines[0]);
 }
 
 MElement *GEdge::getMeshElement(unsigned int index)
@@ -114,26 +107,11 @@ void GEdge::setVisibility(char val, bool recursive)
   }
 }
 
-void GEdge::recomputeMeshPartitions()
-{
-  for(unsigned int i = 0; i < lines.size(); i++) {
-    int part = lines[i]->getPartition();
-    if(part) model()->getMeshPartitions().insert(part);
-  }
-}
-
-void GEdge::deleteMeshPartitions()
-{
-  for(unsigned int i = 0; i < lines.size(); i++)
-    lines[i]->setPartition(0);
-}
-
 std::string GEdge::getAdditionalInfoString()
 {
-  if(!v0 || !v1) return std::string("");
-  char tmp[256];
-  sprintf(tmp, "{%d,%d}", v0->tag(), v1->tag());
-  return std::string(tmp);
+  std::ostringstream sstream;
+  if(v0 && v1) sstream << "{" << v0->tag() << "," << v1->tag() << "}";
+  return sstream.str();
 }
 
 GPoint GEdge::closestPoint(const SPoint3 & queryPoint) const

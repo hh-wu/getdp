@@ -1,23 +1,7 @@
-// $Id: GModelIO_Mesh.cpp,v 1.2 2008-07-10 14:35:47 geuzaine Exp $
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
 //
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-// 
-// Please report all bugs and problems to <gmsh@geuz.org>.
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
 
 #include <stdlib.h>
 #include <string.h>
@@ -32,39 +16,7 @@
 #include "discreteEdge.h"
 #include "discreteVertex.h"
 #include "StringUtils.h"
-
-#if defined(HAVE_GMSH_EMBEDDED)
-#  include "GmshEmbedded.h"
-#else
-#  include "Message.h"
-#endif
-
-static void storeVerticesInEntities(std::map<int, MVertex*> &vertices)
-{
-  std::map<int, MVertex*>::const_iterator it = vertices.begin();
-  for(; it != vertices.end(); ++it){
-    MVertex *v = it->second;
-    GEntity *ge = v->onWhat();
-    if(ge) 
-      ge->mesh_vertices.push_back(v);
-    else
-      delete v; // we delete all unused vertices
-  }
-}
-
-static void storeVerticesInEntities(std::vector<MVertex*> &vertices)
-{
-  for(unsigned int i = 0; i < vertices.size(); i++){
-    MVertex *v = vertices[i];
-    if(v){ // the vector can have null entries (first or last element)
-      GEntity *ge = v->onWhat();
-      if(ge) 
-        ge->mesh_vertices.push_back(v);
-      else
-        delete v; // we delete all unused vertices
-    }
-  }
-}
+#include "Message.h"
 
 static void storePhysicalTagsInEntities(GModel *m, int dim,
                                         std::map<int, std::map<int, std::string> > &map)
@@ -117,78 +69,32 @@ static bool getVertices(int num, int *indices, std::vector<MVertex*> &vec,
   return true;
 }
 
-static int getNumVerticesForElementTypeMSH(int type)
-{
-  switch (type) {
-  case MSH_PNT    : return 1;
-  case MSH_LIN_2  : return 2;
-  case MSH_LIN_3  : return 2 + 1;
-  case MSH_LIN_4  : return 2 + 2;
-  case MSH_LIN_5  : return 2 + 3;
-  case MSH_LIN_6  : return 2 + 4;
-  case MSH_TRI_3  : return 3;
-  case MSH_TRI_6  : return 3 + 3;
-  case MSH_TRI_9  : return 3 + 6;
-  case MSH_TRI_10 : return 3 + 6 + 1;
-  case MSH_TRI_12 : return 3 + 9;
-  case MSH_TRI_15 : return 3 + 9 + 3;
-  case MSH_TRI_15I: return 3 + 12;
-  case MSH_TRI_21 : return 3 + 12 + 6;
-  case MSH_QUA_4  : return 4;
-  case MSH_QUA_8  : return 4 + 4;
-  case MSH_QUA_9  : return 4 + 4 + 1;
-  case MSH_TET_4  : return 4;
-  case MSH_TET_10 : return 4 + 6;
-  case MSH_TET_20 : return 4 + 12 + 4;
-  case MSH_TET_35 : return 4 + 16 + 12 + 3;
-  case MSH_TET_56 : return 4 + 20 + 24 + 8;
-  case MSH_HEX_8  : return 8;
-  case MSH_HEX_20 : return 8 + 12;
-  case MSH_HEX_27 : return 8 + 12 + 6 + 1;
-  case MSH_PRI_6  : return 6;
-  case MSH_PRI_15 : return 6 + 9;
-  case MSH_PRI_18 : return 6 + 9 + 3;
-  case MSH_PYR_5  : return 5;
-  case MSH_PYR_13 : return 5 + 8;
-  case MSH_PYR_14 : return 5 + 8 + 1;
-  default: 
-    Msg::Error("Unknown type of element %d", type);
-    return 0;
-  }
-}
-
 static void createElementMSH(GModel *m, int num, int type, int physical, 
                              int reg, int part, std::vector<MVertex*> &v, 
-                             std::map<int, std::vector<MVertex*> > &points,
-                             std::map<int, std::vector<MElement*> > elem[7],
+                             std::map<int, std::vector<MElement*> > elements[8],
                              std::map<int, std::map<int, std::string> > physicals[4])
 {
-  int dim;
-  if(type == MSH_PNT){
-    dim = 0;
-    points[reg].push_back(v[0]);
+  MElementFactory factory;
+  MElement *e = factory.create(type, v, num, part);
+  if(!e){
+    Msg::Error("Unknown type of element %d", type);
+    return;
   }
-  else{
-    MElementFactory factory;
-    MElement *e = factory.create(type, v, num, part);
-    if(!e){
-      Msg::Error("Unknown type of element %d", type);
-      return;
-    }
-    dim = e->getDim();
-    int idx;
-    switch(e->getNumEdges()){
-    case 1 : idx = 0; break;
-    case 3 : idx = 1; break;
-    case 4 : idx = 2; break;
-    case 6 : idx = 3; break;
-    case 12 : idx = 4; break;
-    case 9 : idx = 5; break;
-    case 8 : idx = 6; break;
-    default : Msg::Error("Wrong number of edges in element"); return;
-    }
-    elem[idx][reg].push_back(e);
+
+  int dim = e->getDim();
+  int idx;
+  switch(e->getNumEdges()){
+  case 0 : idx = 0; break;
+  case 1 : idx = 1; break;
+  case 3 : idx = 2; break;
+  case 4 : idx = 3; break;
+  case 6 : idx = 4; break;
+  case 12 : idx = 5; break;
+  case 9 : idx = 6; break;
+  case 8 : idx = 7; break;
+  default : Msg::Error("Wrong number of edges in element"); return;
   }
+  elements[idx][reg].push_back(e);
   
   if(physical && (!physicals[dim].count(reg) || !physicals[dim][reg].count(physical)))
     physicals[dim][reg][physical] = "unnamed";
@@ -204,15 +110,11 @@ int GModel::readMSH(const std::string &name)
     return 0;
   }
 
-  double version = 1.0;
-  bool binary = false, swap = false;
   char str[256] = "XXX";
-  std::map<int, std::vector<MVertex*> > points;
-  std::map<int, std::vector<MElement*> > elements[7];
+  double version = 1.0;
+  bool binary = false, swap = false, postpro = false;
+  std::map<int, std::vector<MElement*> > elements[8];
   std::map<int, std::map<int, std::string> > physicals[4];
-  bool postpro = false;
-
-  // we might want to cache those for post-processing lookups
   std::map<int, MVertex*> vertexMap;
   std::vector<MVertex*> vertexVector;
  
@@ -266,12 +168,13 @@ int GModel::readMSH(const std::string &name)
       Msg::ResetProgressMeter();
       vertexVector.clear();
       vertexMap.clear();
-          int minVertex = numVertices + 1, maxVertex = -1;
+      int minVertex = numVertices + 1, maxVertex = -1;
       for(int i = 0; i < numVertices; i++) {
         int num;
         double xyz[3];
         if(!binary){
-          if(fscanf(fp, "%d %lf %lf %lf", &num, &xyz[0], &xyz[1], &xyz[2]) != 4) return 0;
+          if(fscanf(fp, "%d %lf %lf %lf", &num, &xyz[0], &xyz[1], &xyz[2]) != 4)
+	    return 0;
         }
         else{
           if(fread(&num, sizeof(int), 1, fp) != 1) return 0;
@@ -318,7 +221,7 @@ int GModel::readMSH(const std::string &name)
           int num, type, physical = 0, elementary = 0, partition = 0, numVertices;
           if(version <= 1.0){
             fscanf(fp, "%d %d %d %d %d", &num, &type, &physical, &elementary, &numVertices);
-            if(numVertices != getNumVerticesForElementTypeMSH(type)) return 0;
+            if(numVertices != MElement::getInfoMSH(type)) return 0;
           }
           else{
             int numTags;
@@ -331,9 +234,9 @@ int GModel::readMSH(const std::string &name)
               else if(j == 2) partition = tag;
               // ignore any other tags for now
             }
-            if(!(numVertices = getNumVerticesForElementTypeMSH(type))) return 0;
+            if(!(numVertices = MElement::getInfoMSH(type))) return 0;
           }
-          int indices[30];
+          int indices[60];
           for(int j = 0; j < numVertices; j++) fscanf(fp, "%d", &indices[j]);
           std::vector<MVertex*> vertices;
           if(vertexVector.size()){
@@ -343,7 +246,7 @@ int GModel::readMSH(const std::string &name)
             if(!getVertices(numVertices, indices, vertexMap, vertices)) return 0;
           }
           createElementMSH(this, num, type, physical, elementary, partition, 
-                           vertices, points, elements, physicals);
+                           vertices, elements, physicals);
 	  if(numElements > 100000) 
 	    Msg::ProgressMeter(i + 1, numElements, "Reading elements");
         }
@@ -357,7 +260,7 @@ int GModel::readMSH(const std::string &name)
           int type = header[0];
           int numElms = header[1];
           int numTags = header[2];
-          int numVertices = getNumVerticesForElementTypeMSH(type);
+          int numVertices = MElement::getInfoMSH(type);
           unsigned int n = 1 + numTags + numVertices;
           int *data = new int[n];
           for(int i = 0; i < numElms; i++) {
@@ -376,7 +279,7 @@ int GModel::readMSH(const std::string &name)
               if(!getVertices(numVertices, indices, vertexMap, vertices)) return 0;
             }
             createElementMSH(this, num, type, physical, elementary, partition, 
-                             vertices, points, elements, physicals);
+                             vertices, elements, physicals);
 	    if(numElements > 100000) 
 	      Msg::ProgressMeter(numElementsPartial + i + 1, numElements, 
 				 "Reading elements");
@@ -415,39 +318,21 @@ int GModel::readMSH(const std::string &name)
   }
 
   // store the elements in their associated elementary entity. If the
-  // entity does not exist, create a new one.
+  // entity does not exist, create a new (discrete) one.
   for(int i = 0; i < (int)(sizeof(elements) / sizeof(elements[0])); i++)
     _storeElementsInEntities(elements[i]);
-
-  // treat points separately
-  for(std::map<int, std::vector<MVertex*> >::iterator it = points.begin(); 
-      it != points.end(); ++it){
-    GVertex *v = getVertexByTag(it->first);
-    if(!v){
-      v = new discreteVertex(this, it->first);
-      add(v);
-    }
-    for(unsigned int i = 0; i < it->second.size(); i++) 
-      v->mesh_vertices.push_back(it->second[i]);
-  }
 
   // associate the correct geometrical entity with each mesh vertex
   _associateEntityWithMeshVertices();
 
-  // special case for geometry vertices: now that the correct
-  // geometrical entity has been associated with the vertices, we
-  // reset mesh_vertices so that it can be filled again below
-  for(viter it = firstVertex(); it != lastVertex(); ++it)
-    (*it)->mesh_vertices.clear();
-
   // store the vertices in their associated geometrical entity
   if(vertexVector.size())
-    storeVerticesInEntities(vertexVector);
+    _storeVerticesInEntities(vertexVector);
   else
-    storeVerticesInEntities(vertexMap);
+    _storeVerticesInEntities(vertexMap);
 
   // store the physical tags
-  for(int i = 0; i < 4; i++)  
+  for(int i = 0; i < 4; i++)
     storePhysicalTagsInEntities(this, i, physicals[i]);
 
   fclose(fp);
@@ -497,7 +382,7 @@ static void writeElementHeaderMSH(bool binary, FILE *fp, std::map<int,int> &elem
 }
 
 template<class T>
-static void writeElementsMSH(FILE *fp, const std::vector<T*> &ele, int saveAll, 
+static void writeElementsMSH(FILE *fp, const std::vector<T*> &ele, bool saveAll, 
                              double version, bool binary, int &num, int elementary, 
                              std::vector<int> &physicals)
 {
@@ -531,11 +416,11 @@ int GModel::writeMSH(const std::string &name, double version, bool binary,
   // get the number of elements (we assume that all the elements in a
   // list have the same type, i.e., they are all of the same
   // polynomial order)
-  std::map<int,int> elements;
+  std::map<int, int> elements;
   for(viter it = firstVertex(); it != lastVertex(); ++it){
     int p = (saveAll ? 1 : (*it)->physicals.size());
-    int n = p * (*it)->mesh_vertices.size();
-    if(n) elements[MSH_PNT] += n;
+    int n = p * (*it)->points.size();
+    if(n) elements[(*it)->points[0]->getTypeForMSH()] += n;
   }
   for(eiter it = firstEdge(); it != lastEdge(); ++it){
     int p = (saveAll ? 1 : (*it)->physicals.size());
@@ -562,7 +447,7 @@ int GModel::writeMSH(const std::string &name, double version, bool binary,
   }
 
   int numElements = 0;
-  std::map<int,int>::const_iterator it = elements.begin();
+  std::map<int, int>::const_iterator it = elements.begin();
   for(; it != elements.end(); ++it)
     numElements += it->second;
 
@@ -590,18 +475,12 @@ int GModel::writeMSH(const std::string &name, double version, bool binary,
     fprintf(fp, "$NOD\n");
 
   fprintf(fp, "%d\n", numVertices);
-  for(viter it = firstVertex(); it != lastVertex(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeMSH(fp, binary, scalingFactor);
-  for(eiter it = firstEdge(); it != lastEdge(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++)
-      (*it)->mesh_vertices[i]->writeMSH(fp, binary, scalingFactor);
-  for(fiter it = firstFace(); it != lastFace(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeMSH(fp, binary, scalingFactor);
-  for(riter it = firstRegion(); it != lastRegion(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeMSH(fp, binary, scalingFactor);
+
+  std::vector<GEntity*> entities;
+  getEntities(entities);
+  for(unsigned int i = 0; i < entities.size(); i++)
+    for(unsigned int j = 0; j < entities[i]->mesh_vertices.size(); j++) 
+      entities[i]->mesh_vertices[j]->writeMSH(fp, binary, scalingFactor);
 
   if(binary) fprintf(fp, "\n");
 
@@ -619,7 +498,7 @@ int GModel::writeMSH(const std::string &name, double version, bool binary,
 
   writeElementHeaderMSH(binary, fp, elements, MSH_PNT);
   for(viter it = firstVertex(); it != lastVertex(); ++it)
-    writeElementsMSH(fp, (*it)->mesh_vertices, saveAll, version, binary, num,
+    writeElementsMSH(fp, (*it)->points, saveAll, version, binary, num,
                      (*it)->tag(), (*it)->physicals);
   writeElementHeaderMSH(binary, fp, elements, MSH_LIN_2, MSH_LIN_3, MSH_LIN_4, MSH_LIN_5);
   for(eiter it = firstEdge(); it != lastEdge(); ++it)
@@ -634,7 +513,8 @@ int GModel::writeMSH(const std::string &name, double version, bool binary,
   for(fiter it = firstFace(); it != lastFace(); ++it)
     writeElementsMSH(fp, (*it)->quadrangles, saveAll, version, binary, num,
                      (*it)->tag(), (*it)->physicals);
-  writeElementHeaderMSH(binary, fp, elements, MSH_TET_4, MSH_TET_10);
+  writeElementHeaderMSH(binary, fp, elements, MSH_TET_4, MSH_TET_10, MSH_TET_20, 
+			MSH_TET_35, MSH_TET_56, MSH_TET_52);
   for(riter it = firstRegion(); it != lastRegion(); ++it)
     writeElementsMSH(fp, (*it)->tetrahedra, saveAll, version, binary, num,
                      (*it)->tag(), (*it)->physicals);
@@ -666,7 +546,7 @@ int GModel::writeMSH(const std::string &name, double version, bool binary,
 
 int GModel::writePOS(const std::string &name, bool printElementary, 
                      bool printElementNumber, bool printGamma, bool printEta, 
-                     bool printRho, bool saveAll, double scalingFactor)
+                     bool printRho, bool printDisto, bool saveAll, double scalingFactor)
 {
   FILE *fp = fopen(name.c_str(), "w");
   if(!fp){
@@ -674,7 +554,7 @@ int GModel::writePOS(const std::string &name, bool printElementary,
     return 0;
   }
 
-  bool f[5] = {printElementary, printElementNumber, printGamma, printEta, printRho};
+  bool f[6] = {printElementary, printElementNumber, printGamma, printEta, printRho,printDisto};
 
   bool first = true;  
   std::string names;
@@ -698,6 +578,10 @@ int GModel::writePOS(const std::string &name, bool printElementary,
     if(first) first = false; else names += ",";
     names += "\"Rho\"";
   }
+  if(f[5]){
+    if(first) first = false; else names += ",";
+    names += "\"Disto\"";
+  }
 
   if(names.empty()) return 0;
 
@@ -706,42 +590,14 @@ int GModel::writePOS(const std::string &name, bool printElementary,
   fprintf(fp, "View \"Statistics\" {\n");
   fprintf(fp, "T2(1.e5,30,%d){%s};\n", (1<<16)|(4<<8), names.c_str());
 
-  for(eiter it = firstEdge(); it != lastEdge(); ++it) {
-    if(saveAll || (*it)->physicals.size()){
-      for(unsigned int i = 0; i < (*it)->lines.size(); i++)
-        (*it)->lines[i]->writePOS(fp, f[0], f[1], f[2], f[3], f[4], 
-                                  scalingFactor, (*it)->tag());
-    }
-  }
-
-  for(fiter it = firstFace(); it != lastFace(); ++it) {
-    if(saveAll || (*it)->physicals.size()){
-      for(unsigned int i = 0; i < (*it)->triangles.size(); i++)
-        (*it)->triangles[i]->writePOS(fp, f[0], f[1], f[2], f[3], f[4], 
-                                      scalingFactor, (*it)->tag());
-      for(unsigned int i = 0; i < (*it)->quadrangles.size(); i++)
-        (*it)->quadrangles[i]->writePOS(fp, f[0], f[1], f[2], f[3], f[4], 
-                                        scalingFactor, (*it)->tag());
-    }
-  }
-
-  for(riter it = firstRegion(); it != lastRegion(); ++it) {
-    if(saveAll || (*it)->physicals.size()){
-      for(unsigned int i = 0; i < (*it)->tetrahedra.size(); i++)
-        (*it)->tetrahedra[i]->writePOS(fp, f[0], f[1], f[2], f[3], f[4],
-                                       scalingFactor, (*it)->tag());
-      for(unsigned int i = 0; i < (*it)->hexahedra.size(); i++)
-        (*it)->hexahedra[i]->writePOS(fp, f[0], f[1], f[2], f[3], f[4], 
-                                      scalingFactor, (*it)->tag());
-      for(unsigned int i = 0; i < (*it)->prisms.size(); i++)
-        (*it)->prisms[i]->writePOS(fp, f[0], f[1], f[2], f[3], f[4], 
-                                   scalingFactor, (*it)->tag());
-      for(unsigned int i = 0; i < (*it)->pyramids.size(); i++)
-        (*it)->pyramids[i]->writePOS(fp, f[0], f[1], f[2], f[3], f[4], 
-                                     scalingFactor, (*it)->tag());
-    }
-  }
-
+  std::vector<GEntity*> entities;
+  getEntities(entities);
+  for(unsigned int i = 0; i < entities.size(); i++)
+    if(saveAll || entities[i]->physicals.size())
+      for(unsigned int j = 0; j < entities[i]->getNumMeshElements(); j++)
+	entities[i]->getMeshElement(j)->writePOS(fp, f[0], f[1], f[2], f[3],
+						 f[4], f[5], scalingFactor, 
+						 entities[i]->tag());
   fprintf(fp, "};\n");
 
   fclose(fp);
@@ -1070,7 +926,7 @@ int GModel::readVRML(const std::string &name)
   for(int i = 0; i < (int)(sizeof(elements)/sizeof(elements[0])); i++) 
     _storeElementsInEntities(elements[i]);
   _associateEntityWithMeshVertices();
-  storeVerticesInEntities(allVertexVector);
+  _storeVerticesInEntities(allVertexVector);
 
   fclose(fp);
   return 1;
@@ -1218,7 +1074,7 @@ int GModel::readUNV(const std::string &name)
             break;
           case 45: case 55: case 65: case 75: case 85: case 95:
             elements[2][elementary].push_back
-              (new MQuadrangle8(vertices[0], vertices[2], vertices[4], vertices[6], 
+              (new MQuadrangle8(vertices[0], vertices[2], vertices[4], vertices[6],
                                 vertices[1], vertices[3], vertices[5], vertices[7],
                                 num));
             dim = 2;
@@ -1229,7 +1085,7 @@ int GModel::readUNV(const std::string &name)
             break;
           case 118: 
             elements[3][elementary].push_back
-              (new MTetrahedron10(vertices[0], vertices[2], vertices[4], vertices[9], 
+              (new MTetrahedron10(vertices[0], vertices[2], vertices[4], vertices[9],
                                   vertices[1], vertices[3], vertices[5], vertices[8],
                                   vertices[6], vertices[7], num));
             dim = 3;
@@ -1242,8 +1098,8 @@ int GModel::readUNV(const std::string &name)
             elements[4][elementary].push_back
               (new MHexahedron20(vertices[0], vertices[2], vertices[4], vertices[6], 
                                  vertices[12], vertices[14], vertices[16], vertices[18],
-                                 vertices[1], vertices[7], vertices[8], vertices[3],  
-                                 vertices[9], vertices[5], vertices[10], vertices[11], 
+                                 vertices[1], vertices[7], vertices[8], vertices[3],
+                                 vertices[9], vertices[5], vertices[10], vertices[11],
                                  vertices[13], vertices[19], vertices[15], vertices[17], 
                                  num));
             dim = 3; 
@@ -1273,24 +1129,13 @@ int GModel::readUNV(const std::string &name)
   for(int i = 0; i < (int)(sizeof(elements)/sizeof(elements[0])); i++) 
     _storeElementsInEntities(elements[i]);
   _associateEntityWithMeshVertices();
-  storeVerticesInEntities(vertexMap);
+  _storeVerticesInEntities(vertexMap);
+
   for(int i = 0; i < 4; i++)  
     storePhysicalTagsInEntities(this, i, physicals[i]);
 
   fclose(fp);
   return 1;
-}
-
-template<class T>
-static void writeElementsUNV(FILE *fp, const std::vector<T*> &ele, int saveAll, 
-                             int &num, int elementary, std::vector<int> &physicals)
-{
-  for(unsigned int i = 0; i < ele.size(); i++)
-    if(saveAll)
-      ele[i]->writeUNV(fp, ++num, elementary, 0);
-    else
-      for(unsigned int j = 0; j < physicals.size(); j++)
-        ele[i]->writeUNV(fp, ++num, elementary, physicals[j]);
 }
 
 int GModel::writeUNV(const std::string &name, bool saveAll, bool saveGroupsOfNodes, 
@@ -1306,38 +1151,30 @@ int GModel::writeUNV(const std::string &name, bool saveAll, bool saveGroupsOfNod
 
   indexMeshVertices(saveAll);
 
+  std::vector<GEntity*> entities;
+  getEntities(entities);
+
   // nodes
   fprintf(fp, "%6d\n", -1);
   fprintf(fp, "%6d\n", 2411);
-  for(viter it = firstVertex(); it != lastVertex(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeUNV(fp, scalingFactor);
-  for(eiter it = firstEdge(); it != lastEdge(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++)
-      (*it)->mesh_vertices[i]->writeUNV(fp, scalingFactor);
-  for(fiter it = firstFace(); it != lastFace(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeUNV(fp, scalingFactor);
-  for(riter it = firstRegion(); it != lastRegion(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeUNV(fp, scalingFactor);
+  for(unsigned int i = 0; i < entities.size(); i++)
+    for(unsigned int j = 0; j < entities[i]->mesh_vertices.size(); j++) 
+      entities[i]->mesh_vertices[j]->writeUNV(fp, scalingFactor);
   fprintf(fp, "%6d\n", -1);  
 
   // elements
   fprintf(fp, "%6d\n", -1);
   fprintf(fp, "%6d\n", 2412);
   int num = 0;
-  for(eiter it = firstEdge(); it != lastEdge(); ++it){
-    writeElementsUNV(fp, (*it)->lines, saveAll, num, (*it)->tag(), (*it)->physicals);
-  }
-  for(fiter it = firstFace(); it != lastFace(); ++it){
-    writeElementsUNV(fp, (*it)->triangles, saveAll, num, (*it)->tag(), (*it)->physicals);
-    writeElementsUNV(fp, (*it)->quadrangles, saveAll, num, (*it)->tag(), (*it)->physicals);
-  }
-  for(riter it = firstRegion(); it != lastRegion(); ++it){
-    writeElementsUNV(fp, (*it)->tetrahedra, saveAll, num, (*it)->tag(), (*it)->physicals);
-    writeElementsUNV(fp, (*it)->hexahedra, saveAll, num, (*it)->tag(), (*it)->physicals);
-    writeElementsUNV(fp, (*it)->prisms, saveAll, num, (*it)->tag(), (*it)->physicals);
+  for(unsigned int i = 0; i < entities.size(); i++){
+    for(unsigned int j = 0; j < entities[i]->getNumMeshElements(); j++){
+      MElement *e = entities[i]->getMeshElement(j);
+      if(saveAll)
+	e->writeUNV(fp, ++num, entities[i]->tag(), 0);
+      else
+	for(unsigned int k = 0; k < entities[i]->physicals.size(); k++)
+	  e->writeUNV(fp, ++num, entities[i]->tag(), entities[i]->physicals[k]);
+    }
   }
   fprintf(fp, "%6d\n", -1);
 
@@ -1465,11 +1302,11 @@ int GModel::readMESH(const std::string &name)
         for(int i = 0; i < nbe; i++) {
           if(!fgets(buffer, sizeof(buffer), fp)) break;
           int  n[1];
-          sscanf(buffer, "%d",&n[0]);
+          sscanf(buffer, "%d", &n[0]);
           for(int j = 0; j < 1; j++) n[j]--;
-	  //          std::vector<MVertex*> vertices;
-	  //          if(!getVertices(1, n, vertexVector, vertices)) return 0;
-	  //          corners.push_back(vertices[0]);
+	  // std::vector<MVertex*> vertices;
+	  // if(!getVertices(1, n, vertexVector, vertices)) return 0;
+	  // corners.push_back(vertices[0]);
         }
       }
       else if(!strcmp(str, "Ridges")){
@@ -1480,11 +1317,11 @@ int GModel::readMESH(const std::string &name)
         for(int i = 0; i < nbe; i++) {
           if(!fgets(buffer, sizeof(buffer), fp)) break;
           int  n[1];
-          sscanf(buffer, "%d",&n[0]);
+          sscanf(buffer, "%d", &n[0]);
           for(int j = 0; j < 1; j++) n[j]--;
-	  //          std::vector<MVertex*> vertices;
-	  //          if(!getVertices(1, n, vertexVector, vertices)) return 0;
-	  //          ridges.push_back(vertices[0]);
+	  // std::vector<MVertex*> vertices;
+	  // if(!getVertices(1, n, vertexVector, vertices)) return 0;
+	  // ridges.push_back(vertices[0]);
         }
       }
       else if(!strcmp(str, "Quadrilaterals")) {
@@ -1523,7 +1360,7 @@ int GModel::readMESH(const std::string &name)
   for(int i = 0; i < (int)(sizeof(elements)/sizeof(elements[0])); i++) 
     _storeElementsInEntities(elements[i]);
   _associateEntityWithMeshVertices();
-  storeVerticesInEntities(vertexVector);
+  _storeVerticesInEntities(vertexVector);
 
   fclose(fp);
   return 1;
@@ -1547,18 +1384,11 @@ int GModel::writeMESH(const std::string &name, bool saveAll, double scalingFacto
 
   fprintf(fp, " Vertices\n");
   fprintf(fp, " %d\n", numVertices);
-  for(viter it = firstVertex(); it != lastVertex(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeMESH(fp, scalingFactor);
-  for(eiter it = firstEdge(); it != lastEdge(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++)
-      (*it)->mesh_vertices[i]->writeMESH(fp, scalingFactor);
-  for(fiter it = firstFace(); it != lastFace(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeMESH(fp, scalingFactor);
-  for(riter it = firstRegion(); it != lastRegion(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeMESH(fp, scalingFactor);
+  std::vector<GEntity*> entities;
+  getEntities(entities);
+  for(unsigned int i = 0; i < entities.size(); i++)
+    for(unsigned int j = 0; j < entities[i]->mesh_vertices.size(); j++) 
+      entities[i]->mesh_vertices[j]->writeMESH(fp, scalingFactor);
   
   int numTriangles = 0, numQuadrangles = 0, numTetrahedra = 0;
   for(fiter it = firstFace(); it != lastFace(); ++it){
@@ -1880,7 +1710,7 @@ int GModel::readBDF(const std::string &name)
   for(int i = 0; i < (int)(sizeof(elements)/sizeof(elements[0])); i++) 
     _storeElementsInEntities(elements[i]);
   _associateEntityWithMeshVertices();
-  storeVerticesInEntities(vertexMap);
+  _storeVerticesInEntities(vertexMap);
 
   fclose(fp);
   return 1;
@@ -1901,46 +1731,20 @@ int GModel::writeBDF(const std::string &name, int format, bool saveAll,
 
   fprintf(fp, "$ Created by Gmsh\n");
 
-  for(viter it = firstVertex(); it != lastVertex(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeBDF(fp, format, scalingFactor);
-  for(eiter it = firstEdge(); it != lastEdge(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++)
-      (*it)->mesh_vertices[i]->writeBDF(fp, format, scalingFactor);
-  for(fiter it = firstFace(); it != lastFace(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeBDF(fp, format, scalingFactor);
-  for(riter it = firstRegion(); it != lastRegion(); ++it)
-    for(unsigned int i = 0; i < (*it)->mesh_vertices.size(); i++) 
-      (*it)->mesh_vertices[i]->writeBDF(fp, format, scalingFactor);
-  
-  for(eiter it = firstEdge(); it != lastEdge(); ++it){
-    if(saveAll || (*it)->physicals.size()){
-      for(unsigned int i = 0; i < (*it)->lines.size(); i++)
-        (*it)->lines[i]->writeBDF(fp, format, (*it)->tag());
-    }
-  }
-  for(fiter it = firstFace(); it != lastFace(); ++it){
-    if(saveAll || (*it)->physicals.size()){
-      for(unsigned int i = 0; i < (*it)->triangles.size(); i++)
-        (*it)->triangles[i]->writeBDF(fp, format, (*it)->tag());
-      for(unsigned int i = 0; i < (*it)->quadrangles.size(); i++)
-        (*it)->quadrangles[i]->writeBDF(fp, format, (*it)->tag());
-    }
-  }
-  for(riter it = firstRegion(); it != lastRegion(); ++it){
-    if(saveAll || (*it)->physicals.size()){
-      for(unsigned int i = 0; i < (*it)->tetrahedra.size(); i++)
-        (*it)->tetrahedra[i]->writeBDF(fp, format, (*it)->tag());
-      for(unsigned int i = 0; i < (*it)->hexahedra.size(); i++)
-        (*it)->hexahedra[i]->writeBDF(fp, format, (*it)->tag());
-      for(unsigned int i = 0; i < (*it)->prisms.size(); i++)
-        (*it)->prisms[i]->writeBDF(fp, format, (*it)->tag());
-      for(unsigned int i = 0; i < (*it)->pyramids.size(); i++)
-        (*it)->pyramids[i]->writeBDF(fp, format, (*it)->tag());
-    }
-  }
-  
+  std::vector<GEntity*> entities;
+  getEntities(entities);
+
+  // nodes
+  for(unsigned int i = 0; i < entities.size(); i++)
+    for(unsigned int j = 0; j < entities[i]->mesh_vertices.size(); j++) 
+      entities[i]->mesh_vertices[j]->writeBDF(fp, format, scalingFactor);
+
+  // elements
+  for(unsigned int i = 0; i < entities.size(); i++)
+    for(unsigned int j = 0; j < entities[i]->getNumMeshElements(); j++)
+      if(saveAll || entities[i]->physicals.size())
+	entities[i]->getMeshElement(j)->writeBDF(fp, format, entities[i]->tag());
+
   fprintf(fp, "ENDDATA\n");
    
   fclose(fp);
@@ -2152,7 +1956,8 @@ int GModel::writeVTK(const std::string &name, bool binary, bool saveAll,
   fprintf(fp, "DATASET UNSTRUCTURED_GRID\n");
 
   // get all the entities in the model
-  std::vector<GEntity*> entities = getEntities();
+  std::vector<GEntity*> entities;
+  getEntities(entities);
 
   // write mesh vertices
   fprintf(fp, "POINTS %d double\n", numVertices);

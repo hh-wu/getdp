@@ -25,6 +25,8 @@ class Message {
   static int _socket;
  public:
   Message() {}
+  static void Init(int argc, char **argv){}
+  static void Exit(int level){}
   static int GetCommRank(){ return _commRank; }
   static int GetCommSize(){ return _commSize; }
   static void SetCommRank(int val){ _commRank = val; }
@@ -43,7 +45,6 @@ class Message {
   static void Check(const char *fmt, ...);
   static void Debug(const char *fmt, ...);
   static void Cpu(const char *fmt, ...);
-  static double Cpu();
   static void ProgressMeter(int n, int N, const char *fmt, ...);
   static void ProgressMeter(int n, int N){ ProgressMeter(n, N, ""); }
   static void SetProgressMeterStep(int step){ _progressMeterStep = step; }

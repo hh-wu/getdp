@@ -1,35 +1,14 @@
-// $Id: GVertex.cpp,v 1.2 2008-07-10 14:35:47 geuzaine Exp $
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
 //
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-// 
-// Please report all bugs and problems to <gmsh@geuz.org>.
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
 
-#include <string.h>
+#include <sstream>
 #include <algorithm>
 #include "GVertex.h"
 #include "GFace.h"
-#include "MVertex.h"
-
-#if defined(HAVE_GMSH_EMBEDDED)
-#  include "GmshEmbedded.h"
-#else
-#  include "Message.h"
-#endif
+#include "MElement.h"
+#include "Message.h"
 
 GVertex::GVertex(GModel *m, int tag, double ms) : GEntity(m, tag), meshSize(ms) 
 {
@@ -39,6 +18,9 @@ GVertex::~GVertex()
 {
   for(unsigned int i = 0; i < mesh_vertices.size(); i++)
     delete mesh_vertices[i];
+
+  for(unsigned int i = 0; i < points.size(); i++)
+    delete points[i];
 }
 
 void GVertex::setPosition(GPoint &p)
@@ -63,13 +45,21 @@ SPoint2 GVertex::reparamOnFace(GFace *gf, int) const
 
 std::string GVertex::getAdditionalInfoString()
 {
-  char str[256];
-  sprintf(str, "{%g,%g,%g}", x(), y(), z());
+  std::ostringstream sstream;
+  sstream << "{" << x() << "," << y() << "," << z() << "}";
   double lc = prescribedMeshSizeAtVertex();
-  if(lc < 1.e22){
-    char str2[256];
-    sprintf(str2, " (cl: %g)", lc);
-    strcat(str, str2);
-  }
-  return std::string(str);
+  if(lc < 1.e22) sstream << " (cl: " << lc << ")";
+  return sstream.str();
+}
+
+unsigned int GVertex::getNumMeshElements()
+{
+  return points.size(); 
+}
+
+MElement *GVertex::getMeshElement(unsigned int index)
+{ 
+  if(index < points.size())
+    return points[index]; 
+  return 0;
 }

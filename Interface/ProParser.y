@@ -94,7 +94,7 @@ void hack_fsetpos_printf();
 int  getdp_yylex();
 
 // Forward function declarations
-void Check_NameOfStructNotExist(char *Struct, List_T *List_L, void *data,
+void Check_NameOfStructNotExist(const char *Struct, List_T *List_L, void *data,
 				int (*fcmp)(const void *a, const void *b));
 int  Add_Group(struct Group *Group_P, char *Name, int Flag_Plus, int Num_Index);
 int  Add_Group_2(struct Group *Group_P, char *Name, int Flag_Add, 
@@ -106,8 +106,8 @@ void Pro_DefineQuantityIndex(List_T *WholeQuantity_L,int DefineQuantityIndexEqu,
 			     int **QuantityTraceGroupIndexTable);
 void Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex);
 int  Print_ListOfDouble(char *format, List_T *list, char *buffer);
-void yyerror(char *s);
-void vyyerror(char *fmt, ...);
+void yyerror(const char *s);
+void vyyerror(const char *fmt, ...);
 
 %}
 
@@ -364,7 +364,7 @@ Group :
 */
   | tSTRING DefineDimension tDEF ReducedGroupRHS tEND
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Add_Group(&Group_S, $1, 0, 0);
     }
 
@@ -909,7 +909,7 @@ Expression :
   /* expressions constantes: evaluees lors de l'analyse syntaxique */
     tConstant '[' FExpr ']'
     { Expression_S.Type = CONSTANT;  Expression_S.Case.Constant = $3;
-      $$ = Add_Expression(&Expression_S, "Exp_Cst", 1);
+      $$ = Add_Expression(&Expression_S, (char*)"Exp_Cst", 1);
     }
 
   /* reutilisation de fonctions deja definies en amont */
@@ -925,12 +925,12 @@ Expression :
       List_Reset(ListOfPointer_L); List_Reset(ListOfPointer2_L); }
     WholeQuantityExpression
     { Expression_S.Type = WHOLEQUANTITY;  Expression_S.Case.WholeQuantity = $2;
-      $$ = Add_Expression(&Expression_S, "Exp_Fct", 1); }
+      $$ = Add_Expression(&Expression_S, (char*)"Exp_Fct", 1); }
 
   /* undefined expression (same as DefineFunction, but inline) */
   | '*' '*' '*'
     { Expression_S.Type = UNDEFINED_EXP; 
-      $$ = Add_Expression(&Expression_S, "Exp_Undefined", 1);
+      $$ = Add_Expression(&Expression_S, (char*)"Exp_Undefined", 1);
     }
  ;
 
@@ -1412,7 +1412,7 @@ WholeQuantity_Single :
     '[' WholeQuantityExpression ',' GroupRHS ']'
     { WholeQuantity_S.Type = WQ_TRACE;
       WholeQuantity_S.Case.Trace.WholeQuantity = $4;
-      WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, "WQ_Trace_In", $6);
+      WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, (char*)"WQ_Trace_In", $6);
 
       if(Group_S.Type != ELEMENTLIST || Group_S.SuppListType != SUPPLIST_CONNECTEDTO)
 	vyyerror("Group for Trace should be of Type 'ElementsOf[x, ConnectedTo y]'");
@@ -1556,7 +1556,7 @@ ParametersForFunction :
     { /* Attention: provisoire. Note: Impossible a mettre dans MultiFExpr
          car conflit avec Affectation dans Group */
       $$ = List_Create(2, 1, sizeof(double));
-      double d = (double)Num_Group(&Group_S, "PA_Region", $4);
+      double d = (double)Num_Group(&Group_S, (char*)"PA_Region", $4);
       List_Add($$, &d);
     }
  ;
@@ -1621,7 +1621,7 @@ JacobianCase :
 JacobianCaseTerm :
 
     tRegion GroupRHS tEND
-    { JacobianCase_S.RegionIndex = Num_Group(&Group_S, "JA_Region", $2); }
+    { JacobianCase_S.RegionIndex = Num_Group(&Group_S, (char*)"JA_Region", $2); }
 
   | tRegion tAll tEND
     { JacobianCase_S.RegionIndex = -1; }
@@ -1895,7 +1895,7 @@ ConstraintTerm :
 
   | tName tSTRING DefineDimension tEND
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, $2,
 				 fcmp_Constraint_Name);
       Constraint_S.Name = $2;
@@ -1976,13 +1976,13 @@ ConstraintCaseTerm :
 
   | tRegion GroupRHS tEND
     { 
-      ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, "CO_Region", $2);
+      ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, (char*)"CO_Region", $2);
     }
 
   | tSubRegion GroupRHS tEND
     { 
       ConstraintPerRegion_S.SubRegionIndex =
-	Num_Group(&Group_S, "CO_SubRegion", $2);
+	Num_Group(&Group_S, (char*)"CO_SubRegion", $2);
     }
 
   | tTimeFunction Expression tEND
@@ -2020,7 +2020,7 @@ ConstraintCaseTerm :
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.RegionRefIndex =
-	  Num_Group(&Group_S, "CO_RegionRef", $2);
+	  Num_Group(&Group_S, (char*)"CO_RegionRef", $2);
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex = -1;
 
 	ConstraintPerRegion_S.Case.Link.FilterIndex = -1;
@@ -2038,7 +2038,7 @@ ConstraintCaseTerm :
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex =
-	  Num_Group(&Group_S, "CO_RegionRef", $2);
+	  Num_Group(&Group_S, (char*)"CO_RegionRef", $2);
       else  vyyerror("SubRegionRef incompatible with Type");
     }
 
@@ -2153,7 +2153,7 @@ FunctionSpaceTerm :
 
   | tName tSTRING DefineDimension tEND
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
 				 $2, fcmp_FunctionSpace_Name);
       FunctionSpace_S.Name = $2;
@@ -2300,12 +2300,12 @@ BasisFunctionTerm :
 
   | tSupport GroupRHS tEND
     {
-      BasisFunction_S.SupportIndex = Num_Group(&Group_S, "BF_Support", $2);
+      BasisFunction_S.SupportIndex = Num_Group(&Group_S, (char*)"BF_Support", $2);
     }
 
   | tEntity GroupRHS tEND
     {
-      BasisFunction_S.EntityIndex = Num_Group(&Group_S, "BF_Entity", $2);
+      BasisFunction_S.EntityIndex = Num_Group(&Group_S, (char*)"BF_Entity", $2);
       if(Group_S.InitialList)
 	List_Sort(Group_S.InitialList, fcmp_Integer);  /* Needed for Global Region */
 
@@ -2650,7 +2650,7 @@ ConstraintInFSs :
 	       List_Pointer(Problem_S.Group,
 			    ConstraintPerRegion_P->SubRegionIndex))
 	      ->InitialList : NULL;
-	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, "CO_Entity", 1, 0);
+	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity", 1, 0);
 	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
 	    
 	    List_Add($$ = $1, &ConstraintInFS_S);
@@ -2781,7 +2781,7 @@ FormulationTerm :
 
   | tName tSTRING DefineDimension tEND
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
 				 $2, fcmp_Formulation_Name);
       Formulation_S.Name = $2;
@@ -3176,7 +3176,7 @@ DefineQuantityTerm :
 
   | tIn GroupRHS tEND
     {
-      DefineQuantity_S.IntegralQuantity.InIndex = Num_Group(&Group_S, "IQ_In", $2);
+      DefineQuantity_S.IntegralQuantity.InIndex = Num_Group(&Group_S, (char*)"IQ_In", $2);
     }
 
   | tIntegration tSTRING tEND
@@ -3351,7 +3351,7 @@ GlobalEquationTermTermTerm :
   | tEquation Quantity_Def  tEND
     { GlobalEquationTerm_S.DefineQuantityIndexEqu  = $2.Int2; }
   | tIn GroupRHS tEND
-    { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, "FO_In", $2); }
+  { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2); }
  ;
 
 
@@ -3525,7 +3525,7 @@ LocalTermTerm  :
 
   | tIn GroupRHS tEND
     {
-      EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, "FO_In", $2);
+      EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2);
     }
 
   | tJacobian String__Index tEND
@@ -3597,7 +3597,7 @@ GlobalTermTerm :
 */
     tIn GroupRHS tEND
     {
-      EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, "FO_In", $2);
+      EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2);
     }
 
   |  TermOperator '['
@@ -3781,7 +3781,7 @@ ResolutionTerm :
 
   | tName tSTRING DefineDimension tEND
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
 				 $2, fcmp_Resolution_Name);
       Resolution_S.Name = $2;
@@ -4183,7 +4183,7 @@ OperationTerm :
       Free($3);
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.UpdateConstraint.GroupIndex =
-	Num_Group(&Group_S, "OP_UpdateCst", $5);
+	Num_Group(&Group_S, (char*)"OP_UpdateCst", $5);
       Operation_P->Case.UpdateConstraint.Type =
 	Get_DefineForString(Constraint_Type, $7, &FlagError);
       if(FlagError){
@@ -4482,7 +4482,7 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Num_Group(&Group_S, "OP_ChgCoord", $3);
+	Num_Group(&Group_S, (char*)"OP_ChgCoord", $3);
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = $5; 
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = -1; 
     }
@@ -4493,7 +4493,7 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Num_Group(&Group_S, "OP_ChgCoord", $3);
+	Num_Group(&Group_S, (char*)"OP_ChgCoord", $3);
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = $5;
       Operation_P->Case.ChangeOfCoordinates.NumNode = (int)$7;
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = $9; 
@@ -4591,7 +4591,7 @@ OperationTerm :
 	vyyerror("Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", $5);
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", $5);
       Operation_P->Case.SaveMesh.FileName = $7;
       Operation_P->Case.SaveMesh.ExprIndex = $9;
       Operation_P->Type = OPERATION_SAVEMESH;
@@ -4606,7 +4606,7 @@ OperationTerm :
 	vyyerror("Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", $5);
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", $5);
       Operation_P->Case.SaveMesh.FileName = $7;
       Operation_P->Case.SaveMesh.ExprIndex = -1;
       Operation_P->Type = OPERATION_SAVEMESH;
@@ -5120,7 +5120,7 @@ ChangeOfStateTerm :
     }
 
   | tIn GroupRHS tEND
-    { ChangeOfState_S.InIndex = Num_Group(&Group_S, "OP_In", $2); }
+  { ChangeOfState_S.InIndex = Num_Group(&Group_S, (char*)"OP_In", $2); }
 
   | tCriterion FExpr tEND
     { ChangeOfState_S.Criterion = $2; }
@@ -5194,7 +5194,7 @@ PostProcessingTerm :
 
   | tName tSTRING DefineDimension tEND
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
 				 $2, fcmp_PostProcessing_Name);
       PostProcessing_S.Name = $2; 
@@ -5327,7 +5327,7 @@ SubPostQuantityTerm :
 	  if(PostQuantityTerm_S.Type == 0)
 	    PostQuantityTerm_S.Type = j;
 	  else if(PostQuantityTerm_S.Type != j)	  
-	    yyerror("Mixed discrete Quantity types in term (should be split in separate terms)");
+	    vyyerror("Mixed discrete Quantity types in term (should be split in separate terms)");
 	}
 	if(PostQuantityTerm_S.Type == 0)  PostQuantityTerm_S.Type = LOCALQUANTITY;
       }
@@ -5347,7 +5347,7 @@ SubPostQuantityTerm :
 
  | tIn GroupRHS tEND
    {
-      PostQuantityTerm_S.InIndex = Num_Group(&Group_S, "PQ_In", $2);
+     PostQuantityTerm_S.InIndex = Num_Group(&Group_S, (char*)"PQ_In", $2);
    }
 
   | tJacobian String__Index tEND
@@ -5541,12 +5541,12 @@ PostSubOperation :
   | tPrintGroup '[' GroupRHS 
     {
       PostSubOperation_S.Type = POP_GROUP;
-      PostSubOperation_S.Case.Group.ExtendedGroupIndex = Num_Group(&Group_S, "PO_Group", $3);
+      PostSubOperation_S.Case.Group.ExtendedGroupIndex = Num_Group(&Group_S, (char*)"PO_Group", $3);
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     }
     ',' tIn GroupRHS PrintOptions ']' tEND
     {
-      PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, "PO_Group", $7);
+      PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, (char*)"PO_Group", $7);
     }
 
   | Loop
@@ -5607,7 +5607,7 @@ PostQuantitySupport :
     /* none */
     { $$ = -1; }
   | '[' GroupRHS ']'
-    { $$ = Num_Group(&Group_S, "PO_Support", $2); }
+  { $$ = Num_Group(&Group_S, (char*)"PO_Support", $2); }
  ;
 
 PrintSubType :
@@ -5622,14 +5622,14 @@ PrintSubType :
     {
       PostSubOperation_S.SubType = PRINT_ONREGION;
       PostSubOperation_S.Case.OnRegion.RegionIndex = 
-	Num_Group(&Group_S, "PO_OnRegion", $2);
+	Num_Group(&Group_S, (char*)"PO_OnRegion", $2);
     }
 
   | tOnElementsOf GroupRHS
     {
       PostSubOperation_S.SubType = PRINT_ONELEMENTSOF;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, "PO_OnElementsOf", $2);
+	Num_Group(&Group_S, (char*)"PO_OnElementsOf", $2);
     }
 
   | tOnSection '{' '{' RecursiveListOfFExpr '}'
@@ -5660,7 +5660,7 @@ PrintSubType :
     {
       PostSubOperation_S.SubType = PRINT_ONGRID;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, "PO_OnGrid", $2);
+	Num_Group(&Group_S, (char*)"PO_OnGrid", $2);
     }
 
   | tOnGrid '{' Expression ',' Expression ',' Expression '}' 
@@ -5774,7 +5774,7 @@ PrintSubType :
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
       PostSubOperation_S.Case.WithArgument.RegionIndex = 
-	Num_Group(&Group_S, "PO_On", $2);
+	Num_Group(&Group_S, (char*)"PO_On", $2);
       int i;
       if((i = List_ISearchSeq(Problem_S.Expression, $4, fcmp_Expression_Name)) < 0)
 	vyyerror("Unknown Name of Expression: %s", $4);
@@ -6150,7 +6150,7 @@ Loop :
       LoopControlVariablesTab[ImbricatedLoop][0] = $3;
       LoopControlVariablesTab[ImbricatedLoop][1] = $5;
       LoopControlVariablesTab[ImbricatedLoop][2] = 1.0;
-      LoopControlVariablesNameTab[ImbricatedLoop] = "";
+      LoopControlVariablesNameTab[ImbricatedLoop] = (char*)"";
       fgetpos(getdp_yyin, &FposImbricatedLoopsTab[ImbricatedLoop]);
       LinenoImbricatedLoopsTab[ImbricatedLoop] = getdp_yylinenum;
       if($3 > $5) 
@@ -6167,7 +6167,7 @@ Loop :
       LoopControlVariablesTab[ImbricatedLoop][0] = $3;
       LoopControlVariablesTab[ImbricatedLoop][1] = $5;
       LoopControlVariablesTab[ImbricatedLoop][2] = $7;
-      LoopControlVariablesNameTab[ImbricatedLoop] = "";
+      LoopControlVariablesNameTab[ImbricatedLoop] = (char*)"";
       fgetpos(getdp_yyin, &FposImbricatedLoopsTab[ImbricatedLoop]);
       LinenoImbricatedLoopsTab[ImbricatedLoop] = getdp_yylinenum;
       if(($7 > 0. && $3 > $5) || ($7 < 0. && $3 < $5))
@@ -6462,26 +6462,26 @@ DefineConstants :
    syntaxe dans les expressions constantes et dans les whole_expressions */
 
 NameForFunction :
-    tExp     { $$ = "Exp";    }
-  | tLog     { $$ = "Log";    }
-  | tLog10   { $$ = "Log10";  }
-  | tSqrt    { $$ = "Sqrt";   }
-  | tSin     { $$ = "Sin";    }
-  | tAsin    { $$ = "Asin";   }
-  | tCos     { $$ = "Cos";    }
-  | tAcos    { $$ = "Acos";   }
-  | tTan     { $$ = "Tan";    }
-  | tAtan    { $$ = "Atan";   }
-  | tAtan2   { $$ = "Atan2";  }
-  | tSinh    { $$ = "Sinh";   }
-  | tCosh    { $$ = "Cosh";   }
-  | tTanh    { $$ = "Tanh";   }
-  | tFabs    { $$ = "Fabs";   }
-  | tFloor   { $$ = "Floor";  }
-  | tCeil    { $$ = "Ceil";   }
-  | tFmod    { $$ = "Fmod";   }
-  | tModulo  { $$ = "Modulo"; }
-  | tHypot   { $$ = "Hypot";  }
+    tExp     { $$ = (char*)"Exp";    }
+  | tLog     { $$ = (char*)"Log";    }
+  | tLog10   { $$ = (char*)"Log10";  }
+  | tSqrt    { $$ = (char*)"Sqrt";   }
+  | tSin     { $$ = (char*)"Sin";    }
+  | tAsin    { $$ = (char*)"Asin";   }
+  | tCos     { $$ = (char*)"Cos";    }
+  | tAcos    { $$ = (char*)"Acos";   }
+  | tTan     { $$ = (char*)"Tan";    }
+  | tAtan    { $$ = (char*)"Atan";   }
+  | tAtan2   { $$ = (char*)"Atan2";  }
+  | tSinh    { $$ = (char*)"Sinh";   }
+  | tCosh    { $$ = (char*)"Cosh";   }
+  | tTanh    { $$ = (char*)"Tanh";   }
+  | tFabs    { $$ = (char*)"Fabs";   }
+  | tFloor   { $$ = (char*)"Floor";  }
+  | tCeil    { $$ = (char*)"Ceil";   }
+  | tFmod    { $$ = (char*)"Fmod";   }
+  | tModulo  { $$ = (char*)"Modulo"; }
+  | tHypot   { $$ = (char*)"Hypot";  }
   | String__Index  { $$ = $1;       }
  ;
 
@@ -6972,7 +6972,7 @@ int  Num_Group(struct Group *Group_P, char *Name, int Num_Group)
 {
   if      (Num_Group >= 0)   /* OK */;
   else if(Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, 1, 0);
-  else                       vyyerror("Bad Group right hand side");
+  else                      vyyerror("Bad Group right hand side");
 
   return Num_Group;
 }
@@ -7100,7 +7100,7 @@ void  Pro_DefineQuantityIndex(List_T *WholeQuantity_L,
 
 /* C h e c k _ N a m e O f S t r u c t N o t E x i s t   */
 
-void  Check_NameOfStructNotExist(char *Struct, List_T *List_L, void *data,
+void  Check_NameOfStructNotExist(const char *Struct, List_T *List_L, void *data,
 				 int (*fcmp)(const void *a, const void *b)) 
 {
   if(List_ISearchSeq(List_L, data, fcmp) >= 0)
@@ -7173,21 +7173,20 @@ void  Print_Constant()
 
 /*  E r r o r   h a n d l i n g  */
 
-void yyerror(char *s) 
+void yyerror(const char *s) 
 {
   extern char *getdp_yytext;
-  Msg::Direct("Error ('%s' line %ld): %s on '%s'", getdp_yyname, getdp_yylinenum, 
-	      s, getdp_yytext);
+  Msg::Error("'%s', line %ld : %s (%s)", getdp_yyname, getdp_yylinenum, s, getdp_yytext);
   getdp_yyerrorlevel = 1;
 }
 
-void vyyerror(char *fmt, ...)
+void vyyerror(const char *fmt, ...)
 {
   char str[256];
   va_list args;
   va_start(args, fmt);
   vsprintf(str, fmt, args);
   va_end(args);
-  Msg::Direct("Error ('%s' line %ld): %s", getdp_yyname, getdp_yylinenum, str);
+  Msg::Error("'%s', line %ld : %s", getdp_yyname, getdp_yylinenum, str);
   getdp_yyerrorlevel = 1;
 }

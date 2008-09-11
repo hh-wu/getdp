@@ -17,7 +17,7 @@ void LinAlg_InitializeSolver(int* argc, char*** argv){}
 void LinAlg_Finalize(){}
 void LinAlg_FinalizeSolver(){}
 void LinAlg_Barrier(){}
-void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName){ err; }
+void LinAlg_CreateSolver(gSolver *Solver, const char * SolverDataFileName){ err; }
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n){ err; }
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m){ err; }
 void LinAlg_DestroySolver(gSolver *Solver){ err; }

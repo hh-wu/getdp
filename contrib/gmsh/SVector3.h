@@ -1,24 +1,10 @@
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
+
 #ifndef _SVECTOR3_H_
 #define _SVECTOR3_H_
-
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-// 
-// Please report all bugs and problems to <gmsh@geuz.org>.
 
 #include "SPoint3.h"
 
@@ -44,6 +30,7 @@ class SVector3 {
     double n = norm(); if(n){ P[0] /= n; P[1] /= n; P[2] /= n; }
     return n;
   }
+  void negate() { P[0] = -P[0]; P[1] = -P[1]; P[2] = -P[2]; }  
   // why both [] and (), why not
   double &operator[](int i){ return P[i]; }
   double operator[](int i) const { return P[i]; }
@@ -51,20 +38,22 @@ class SVector3 {
   double operator()(int i) const { return P[i]; }
   SVector3 & operator += (const SVector3 &a)
   {
-    for(int i = 0; i < 3; i++)
-      P[i] += a[i];
+    P[0] += a[0];  P[1] += a[1];  P[2] += a[2];
     return *this;
   }
   SVector3 & operator -= (const SVector3 &a)
   { 
-    for(int i = 0; i < 3; i++)
-      P[i] -= a[i];
+    P[0] -= a[0];  P[1] -= a[1];  P[2] -= a[2];
     return *this;
   }
   SVector3 & operator *= (const SVector3 &a)
-  { 
-    for(int i = 0; i < 3; i++)
-      P[i] *= a[i];
+  {
+    P[0] *= a[0]; P[1] *= a[1]; P[2] *= a[2];
+    return *this;
+  }
+  SVector3 & operator *= (const double v)
+  {
+    P[0] *= v; P[1] *= v; P[2] *= v;
     return *this;
   }
   SVector3 & operator = (double v)

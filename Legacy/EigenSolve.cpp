@@ -8,6 +8,7 @@
 //   Andre Nicolet
 //
 
+#include <strings.h>
 #include <math.h>
 #include "ProData.h"
 #include "DofData.h"
@@ -194,7 +195,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
      BMAT = 'I' -> standard eigenvalue problem A*x = lambda*x
      BMAT = 'G' -> generalized eigenvalue problem A*x = lambda*M*x */
   
-  which = "LM";
+  which = (char*)"LM";
   /* Which eigenvalues we want:
      SM = smallest magnitude ( magnitude = absolute value )
      LM = largest magnitude
@@ -670,7 +671,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 
 #endif
 
-static void EigenGetDouble(char *text, double *d)
+static void EigenGetDouble(const char *text, double *d)
 {
   char str[256];
   printf("%s (default=%.16g): ", text, *d);
@@ -679,7 +680,7 @@ static void EigenGetDouble(char *text, double *d)
     *d = atof(str);
 }
 
-static void EigenGetInt(char *text, int *i)
+static void EigenGetInt(const char *text, int *i)
 {
   char str[256];
   printf("%s (default=%d): ", text, *i);
@@ -688,7 +689,7 @@ static void EigenGetInt(char *text, int *i)
     *i = atoi(str);
 }
 
-void EigenPar(char *filename, struct EigenPar *par)
+void EigenPar(const char *filename, struct EigenPar *par)
 {
   char path[1024];
   FILE *fp;

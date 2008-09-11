@@ -12,7 +12,7 @@
 /*  G e t   S t r i n g ,   D e f i n e ,   F u n c t i o n ,   P o i n t e r  */
 /* --------------------------------------------------------------------------- */
 
-int Get_DefineForString(struct StringXDefine SXD[], char *string,
+int Get_DefineForString(struct StringXDefine SXD[], const char *string,
 			 int *FlagError)
 {
   int i = 0, define ;
@@ -24,7 +24,7 @@ int Get_DefineForString(struct StringXDefine SXD[], char *string,
   return(define) ;
 }
 
-int Get_Define1NbrForString(struct StringXDefine1Nbr SXD[], char *string,
+int Get_Define1NbrForString(struct StringXDefine1Nbr SXD[], const char *string,
 			     int *FlagError, int *Nbr1) 
 {
   int i = 0, define ;
@@ -37,7 +37,7 @@ int Get_Define1NbrForString(struct StringXDefine1Nbr SXD[], char *string,
 }
 
 
-void Get_PointerForString(struct StringXPointer SXF[], char *string,
+void Get_PointerForString(struct StringXPointer SXF[], const char *string,
 			  int *FlagError, void **Pointer) 
 {
   int i = 0 ;
@@ -47,7 +47,7 @@ void Get_PointerForString(struct StringXPointer SXF[], char *string,
   *FlagError = (SXF[i].string == NULL)? 1 : 0 ;
 }
 
-void Get_3Function2NbrForString(struct StringX3Function2Nbr SXF[], char *string,
+void Get_3Function2NbrForString(struct StringX3Function2Nbr SXF[], const char *string,
 				int *FlagError, void (**Function1)(),
 				void (**Function2)(), void (**Function3)(),
 				double *Nbr1, int *Nbr2) 
@@ -61,7 +61,7 @@ void Get_3Function2NbrForString(struct StringX3Function2Nbr SXF[], char *string,
 }
 
 
-void Get_Function2NbrForString(struct StringXFunction2Nbr SXF[], char *string,
+void Get_Function2NbrForString(struct StringXFunction2Nbr SXF[], const char *string,
 			       int *FlagError, void (**Function)(),
 			       int *Nbr1, int *Nbr2) 
 {
@@ -93,9 +93,9 @@ void Get_FunctionForDefine(struct DefineXFunction DXF[], int define,
   *FlagError = (DXF[i].define == 0)? 1 : 0 ;
 }
 
-char  *Get_StringForDefine(struct StringXDefine SXD[], int define) 
+const char *Get_StringForDefine(struct StringXDefine SXD[], int define) 
 {
-  int i = 0 ;  char *string ;
+  int i = 0 ; const char *string ;
 
   while ((SXD[i].string != NULL) && (SXD[i].define != define))  i++ ;
   if (SXD[i].string != NULL)  string = SXD[i].string ;  else  string = "?" ;
@@ -103,9 +103,9 @@ char  *Get_StringForDefine(struct StringXDefine SXD[], int define)
   return(string) ;
 }
 
-char  *Get_StringForDefine1Nbr(struct StringXDefine1Nbr SXD[], int define) 
+const char  *Get_StringForDefine1Nbr(struct StringXDefine1Nbr SXD[], int define) 
 {
-  int i = 0 ;  char *string ;
+  int i = 0 ; const char *string ;
 
   while ((SXD[i].string != NULL) && (SXD[i].define != define))  i++ ;
   if (SXD[i].string != NULL)  string = SXD[i].string ;  else  string = "?" ;
@@ -114,9 +114,9 @@ char  *Get_StringForDefine1Nbr(struct StringXDefine1Nbr SXD[], int define)
 }
 
 
-char *Get_StringForPointer(struct StringXPointer SXF[], void *Pointer) 
+const char *Get_StringForPointer(struct StringXPointer SXF[], void *Pointer) 
 {
-  int i = 0 ;  char *string ;
+  int i = 0 ; const char *string ;
 
   while ((SXF[i].string != NULL) && (SXF[i].Pointer != Pointer))  i++ ;
   if (SXF[i].string != NULL)  string = SXF[i].string ;  else  string = "?" ;
@@ -125,9 +125,9 @@ char *Get_StringForPointer(struct StringXPointer SXF[], void *Pointer)
 }
 
 
-char *Get_StringFor3Function2Nbr(struct StringX3Function2Nbr SXF[], void (*Function1)())
+const char *Get_StringFor3Function2Nbr(struct StringX3Function2Nbr SXF[], void (*Function1)())
 {
-  int i = 0 ;  char *string ;
+  int i = 0 ; const char *string ;
 
   while ((SXF[i].string != NULL) && (SXF[i].Function1 != Function1))  i++ ;
   if (SXF[i].string != NULL)  string = SXF[i].string ;  else  string = "?" ;
@@ -136,9 +136,9 @@ char *Get_StringFor3Function2Nbr(struct StringX3Function2Nbr SXF[], void (*Funct
 }
 
 
-char *Get_StringForFunction2Nbr(struct StringXFunction2Nbr SXF[], void (*Function)())
+const char *Get_StringForFunction2Nbr(struct StringXFunction2Nbr SXF[], void (*Function)())
 {
-  int i = 0 ;  char *string ;
+  int i = 0 ; const char *string ;
 
   while ((SXF[i].string != NULL) && (SXF[i].Function != Function))  i++ ;
   if (SXF[i].string != NULL)  string = SXF[i].string ;  else  string = "?" ;

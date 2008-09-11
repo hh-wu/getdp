@@ -137,7 +137,7 @@ void  Dof_InitDofData(struct DofData * DofData_P, int Num,
 
 void  Dof_SetCurrentDofData(struct DofData * DofData_P) ;
 
-void  Dof_OpenFile(int Type, char * Name, char * Mode) ;
+void  Dof_OpenFile(int Type, char * Name, const char * Mode) ;
 void  Dof_CloseFile(int Type) ;
 void  Dof_FlushFile(int Type) ;
 

@@ -87,7 +87,7 @@ void LinAlg_Barrier()
 
 /* Create */
 
-void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName)
+void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
 {
   Solver->ksp = NULL;
 }

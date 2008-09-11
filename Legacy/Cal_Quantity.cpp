@@ -3,6 +3,7 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
+#include <strings.h>
 #include <math.h>
 #include "ProData.h"
 #include "GeoData.h"

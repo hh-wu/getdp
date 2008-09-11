@@ -1,24 +1,10 @@
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
+
 #ifndef _GENTITY_H_
 #define _GENTITY_H_
-
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-//
-// Please report all bugs and problems to <gmsh@geuz.org>.
 
 #include <list>
 #include <vector>
@@ -237,8 +223,15 @@ class GEntity {
   // reset the mesh attributes to default values
   virtual void resetMeshAttributes() { return; }
 
-  // get the number of mesh elements in the entity
+  // number of types of elements
+  virtual int getNumElementTypes() const { return 0; }
+
+  // get the number of mesh elements (total and by type) in the entity
   virtual unsigned int getNumMeshElements() { return 0; }
+  virtual void getNumMeshElements(unsigned *const c) const { };
+
+  // get the start of the array of a type of element
+  virtual MElement *const *getStartElementType(int type) const { return 0; }
 
   // get the element at the given index
   virtual MElement *getMeshElement(unsigned int index) { return 0; }

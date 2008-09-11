@@ -83,7 +83,7 @@ void LinAlg_Barrier(void)
 
 /* Create */
 
-void LinAlg_CreateSolver(gSolver *Solver, char * SolverDataFileName)
+void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
 {
   int  i;
   char FileName[256];

@@ -1,24 +1,10 @@
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
+
 #ifndef _MFACE_H_
 #define _MFACE_H_
-
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-// 
-// Please report all bugs and problems to <gmsh@geuz.org>.
 
 #include <functional>
 #include <vector>
@@ -37,6 +23,9 @@ class MFace {
   inline int getNumVertices() const { return _v[3] ? 4 : 3; }
   inline MVertex *getVertex(const int i) const { return _v[i]; }
   inline MVertex *getSortedVertex(const int i) const { return _v[int(_si[i])]; }
+  
+  bool computeCorrespondence(const MFace&,int&,bool&) const;
+
   void getOrderedVertices(std::vector<MVertex*> &verts) const
   {
     for(int i = 0; i < getNumVertices(); i++)
@@ -105,13 +94,26 @@ class MFace {
   }
 };
 
+inline bool operator==(const MFace &f1, const MFace &f2)
+{
+  return (f1.getSortedVertex(0) == f2.getSortedVertex(0) &&
+          f1.getSortedVertex(1) == f2.getSortedVertex(1) &&
+          f1.getSortedVertex(2) == f2.getSortedVertex(2) &&
+          f1.getSortedVertex(3) == f2.getSortedVertex(3));
+}
+
+inline bool operator!=(const MFace &f1, const MFace &f2)
+{
+  return (f1.getSortedVertex(0) != f2.getSortedVertex(0) ||
+          f1.getSortedVertex(1) != f2.getSortedVertex(1) ||
+          f1.getSortedVertex(2) != f2.getSortedVertex(2) ||
+          f1.getSortedVertex(3) != f2.getSortedVertex(3));
+}
+
 struct Equal_Face : public std::binary_function<MFace, MFace, bool> {
   bool operator()(const MFace &f1, const MFace &f2) const
   {
-    return (f1.getSortedVertex(0) == f2.getSortedVertex(0) &&
-            f1.getSortedVertex(1) == f2.getSortedVertex(1) &&
-            f1.getSortedVertex(2) == f2.getSortedVertex(2) &&
-            f1.getSortedVertex(3) == f2.getSortedVertex(3));
+    return (f1 == f2);
   }
 };
 
@@ -128,5 +130,8 @@ struct Less_Face : public std::binary_function<MFace, MFace, bool> {
     return false;
   }
 };
+
+
+
 
 #endif

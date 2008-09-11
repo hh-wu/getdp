@@ -1,24 +1,10 @@
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
+
 #ifndef _GEDGE_H_
 #define _GEDGE_H_
-
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-//
-// Please report all bugs and problems to <gmsh@geuz.org>.
 
 #include "GEntity.h"
 #include "GVertex.h"
@@ -34,6 +20,7 @@ class ExtrudeParams;
 class GEdge : public GEntity {
  private:
   double _length;
+  bool _tooSmall;
 
  protected:
   GVertex *v0, *v1;
@@ -63,10 +50,11 @@ class GEdge : public GEntity {
   // get the bounding box
   virtual SBoundingBox3d bounds() const;
 
-  // faces that bound this entity bounds
+  // faces that this entity bounds
   virtual std::list<GFace*> faces() const { return l_faces; }
 
   // get the parameter location for a point in space on the edge
+  // (returns std::numeric_limits<double>::max() if failed)
   virtual double parFromPoint(const SPoint3 &) const = 0;
 
   // get the point for the given parameter location
@@ -89,13 +77,7 @@ class GEdge : public GEntity {
   virtual double curvature(double par) const;
 
   // reparmaterize the point onto the given face
-  virtual SPoint2 reparamOnFace(GFace *face, double epar,int dir) const;
-
-  // recompute the mesh partitions defined on this edge
-  void recomputeMeshPartitions();
-
-  // delete the mesh partitions defined on this edge
-  void deleteMeshPartitions();
+  virtual SPoint2 reparamOnFace(GFace *face, double epar, int dir) const;
 
   // return the minimum number of segments used for meshing the edge
   virtual int minimumMeshSegments() const { return 1; }
@@ -118,10 +100,20 @@ class GEdge : public GEntity {
   virtual double prescribedMeshSizeAtVertex() const { return meshAttributes.meshSize; }
 
   // true if start == end and no more than 2 segments
-  bool isMeshDegenerated() const{ return (v0 == v1 && mesh_vertices.size() < 2); }
+  void setTooSmall ( bool b) {_tooSmall = b;}
+  bool isMeshDegenerated() const{ return _tooSmall || (v0 == v1 && mesh_vertices.size() < 2); }
 
-  // get number of elements in the mesh and get element by index
+  // number of types of elements
+  int getNumElementTypes() const { return 1; }
+
+  // get total/by-type number of elements in the mesh
   unsigned int getNumMeshElements();
+  void getNumMeshElements(unsigned *const c) const;
+
+  // get the start of the array of a type of element
+  MElement *const *getStartElementType(int type) const;
+
+  // get the element at the given index
   MElement *getMeshElement(unsigned int index);
 
   // reset the mesh attributes to default values

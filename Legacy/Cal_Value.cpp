@@ -7,6 +7,7 @@
 //   Johan Gyselinck
 //
 
+#include <string.h>
 #include <math.h>
 #include "ProData.h"
 #include "ProDefine.h"

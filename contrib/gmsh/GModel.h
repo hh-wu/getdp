@@ -1,24 +1,10 @@
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
+
 #ifndef _GMODEL_H_
 #define _GMODEL_H_
-
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-//
-// Please report all bugs and problems to <gmsh@geuz.org>.
 
 #include <algorithm>
 #include <set>
@@ -36,6 +22,7 @@ class GEO_Internals;
 class OCC_Internals;
 class smooth_normals;
 class FieldManager;
+class CGNSOptions;
 
 // A geometric model. The model is a "not yet" non-manifold B-Rep.
 class GModel
@@ -75,6 +62,11 @@ class GModel
   // entity
   void _associateEntityWithMeshVertices();
 
+  // store the vertices in the entity they are associated with, and
+  // delete those that are not associated with any geo entity
+  void _storeVerticesInEntities(std::map<int, MVertex*> &vertices);
+  void _storeVerticesInEntities(std::vector<MVertex*> &vertices);
+
   // entity that is currently being meshed (used for error reporting)
   GEntity *_currentMeshEntity;
 
@@ -90,6 +82,7 @@ class GModel
   std::set<GVertex*, GEntityLessThan> vertices;
   std::set<int> meshPartitions;
   std::map<int, std::string> physicalNames, elementaryNames;
+  int partitionSize[2];
 
  public:
   GModel(std::string name="");
@@ -165,8 +158,8 @@ class GModel
   // Snap vertices on model edges by using geometry tolerance
   void snapVertices();
 
-  // Get a vector containing all the entities in the model
-  std::vector<GEntity*> getEntities();
+  // Fill a vector containing all the entities in the model
+  void getEntities(std::vector<GEntity*> &entities);
 
   // Checks if there are no physical entities in the model
   bool noPhysicalGroups();
@@ -205,6 +198,10 @@ class GModel
   // Returns the total number of elements in the mesh
   int getNumMeshElements();
 
+  // Get the number of each type of element in the mesh at the largest
+  // dimension and return the dimension
+  int getNumMeshElements(unsigned c[4]);
+
   // Access a mesh element by coordinates
   MElement *getMeshElementByCoord(SPoint3 &p);
 
@@ -234,10 +231,16 @@ class GModel
 
   // The list of partitions
   std::set<int> &getMeshPartitions() { return meshPartitions; }
-  std::set<int> &recomputeMeshPartitions();
+  void recomputeMeshPartitions();
 
   // Deletes all the partitions
   void deleteMeshPartitions();
+
+  // Store/recall min and max partitions size
+  void setMinPartitionSize(const int pSize) { partitionSize[0] = pSize; }
+  void setMaxPartitionSize(const int pSize) { partitionSize[1] = pSize; }
+  int getMinPartitionSize() const { return partitionSize[0]; }
+  int getMaxPartitionSize() const { return partitionSize[1]; }
 
   // Performs various coherence tests on the mesh
   void checkMeshCoherence();
@@ -272,7 +275,7 @@ class GModel
   // Mesh statistics (as Gmsh post-processing views)
   int writePOS(const std::string &name, bool printElementary,
                bool printElementNumber, bool printGamma, bool printEta, bool printRho,
-               bool saveAll=false, double scalingFactor=1.0);
+               bool printDisto,bool saveAll=false, double scalingFactor=1.0);
 
   // Stereo lithography format
   int readSTL(const std::string &name, double tolerance=1.e-3);
@@ -306,7 +309,8 @@ class GModel
 
   // CFD General Notation System files
   int readCGNS(const std::string &name);
-  int writeCGNS(const std::string &name, double scalingFactor=1.0);
+  int writeCGNS(const std::string &name, int zoneDefinition,
+                const CGNSOptions &options, double scalingFactor=1.0);
 
   // Med "Modele d'Echange de Donnees" file format (the static routine
   // is allowed to load multiple models/meshes)

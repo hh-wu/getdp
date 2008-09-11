@@ -409,7 +409,7 @@ void parseString(char endchar)
   getdp_yylval.c = strSave(tmp);
 }
 
-void skipUntil(char *skip, char *until)
+void skipUntil(const char *skip, const char *until)
 {
   int l, l_skip, l_until;
   char chars[256];

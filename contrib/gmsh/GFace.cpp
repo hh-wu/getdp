@@ -1,45 +1,30 @@
-// $Id: GFace.cpp,v 1.2 2008-07-10 14:35:47 geuzaine Exp $
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
 //
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-//
-// Please report all bugs and problems to <gmsh@geuz.org>.
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
 
+#include <sstream>
 #include "GModel.h"
 #include "GFace.h"
 #include "GEdge.h"
 #include "MElement.h"
+#include "Message.h"
+#include "VertexArray.h"
 
 #if defined(HAVE_GMSH_EMBEDDED)
-#  include "GmshEmbedded.h"
+#include "GmshEmbedded.h"
 #else
-#  include "Message.h"
-#  include "Numeric.h"
-#  include "GaussLegendre1D.h"
-#  include "VertexArray.h"
-#  include "Context.h"
-#  if defined(HAVE_GSL)
-#    include <gsl/gsl_vector.h>
-#    include <gsl/gsl_linalg.h>
-#  else
-#    define NRANSI
-#    include "nrutil.h"
+#include "Numeric.h"
+#include "GaussLegendre1D.h"
+#include "Context.h"
+#if defined(HAVE_GSL)
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_linalg.h>
+#else
+#define NRANSI
+#include "nrutil.h"
 void dsvdcmp(double **a, int m, int n, double w[], double **v);
-#  endif
+#endif
 #endif
 
 extern Context_T CTX;
@@ -78,6 +63,23 @@ GFace::~GFace()
 unsigned int GFace::getNumMeshElements()
 { 
   return triangles.size() + quadrangles.size(); 
+}
+
+void GFace::getNumMeshElements(unsigned *const c) const
+{
+  c[0] += triangles.size();
+  c[1] += quadrangles.size();
+}
+
+MElement *const *GFace::getStartElementType(int type) const
+{
+  switch(type) {
+  case 0:
+    return reinterpret_cast<MElement *const *>(&triangles[0]);
+  case 1:
+    return reinterpret_cast<MElement *const *>(&quadrangles[0]);
+  }
+  return 0;
 }
 
 MElement *GFace::getMeshElement(unsigned int index)
@@ -150,46 +152,21 @@ void GFace::setVisibility(char val, bool recursive)
   }
 }
 
-void GFace::recomputeMeshPartitions()
-{
-  for(unsigned int i = 0; i < triangles.size(); i++) {
-    int part = triangles[i]->getPartition();
-    if(part) model()->getMeshPartitions().insert(part);
-  }
-  for(unsigned int i = 0; i < quadrangles.size(); i++) {
-    int part = quadrangles[i]->getPartition();
-    if(part) model()->getMeshPartitions().insert(part);
-  }
-}
-
-void GFace::deleteMeshPartitions()
-{
-  for(unsigned int i = 0; i < triangles.size(); i++)
-    triangles[i]->setPartition(0);
-  for(unsigned int i = 0; i < quadrangles.size(); i++)
-    quadrangles[i]->setPartition(0);
-}
-
 std::string GFace::getAdditionalInfoString()
 {
-  if(l_edges.empty()) return std::string("");
-
-  char tmp[256];
-  if(l_edges.size() > 10){
-    sprintf(tmp, "{%d, ..., %d}", (*l_edges.begin())->tag(), (*l_edges.end())->tag());
-    return std::string(tmp);
+  std::ostringstream sstream;
+  if(l_edges.size() > 20){
+    sstream << "{" << l_edges.front()->tag() << ",...," << l_edges.back()->tag() << "}";
   }
-
-  std::string str("");
-  std::list<GEdge*>::const_iterator it = l_edges.begin();
-  str += "{";
-  for(; it != l_edges.end(); it++){
-    if(it != l_edges.begin()) str += ",";
-    sprintf(tmp, "%d", (*it)->tag());
-    str += tmp;
+  else if(l_edges.size()){
+    sstream << "{";
+    for(std::list<GEdge*>::iterator it = l_edges.begin(); it != l_edges.end(); ++it){
+      if(it != l_edges.begin()) sstream << ",";
+      sstream << (*it)->tag();
+    }
+    sstream << "}";
   }
-  str += "}";
-  return str;
+  return sstream.str();
 }
 
 void GFace::computeMeanPlane()
@@ -554,8 +531,8 @@ void GFace::XYZtoUV(const double X, const double Y, const double Z,
          Unew <= umax && Vnew <= vmax &&
          Unew >= umin && Vnew >= vmin){
         if (onSurface && err2 > 1.e-4 * CTX.lc)
-          Msg::Warning("Converged for i=%d j=%d (err=%g iter=%d) BUT xyz error = %g",
-              i, j, err, iter, err2);
+          Msg::Warning("Converged for i=%d j=%d (err=%g iter=%d) BUT xyz error = %g in point (%e,%e,%e) on surface %d",
+                       i, j, err, iter, err2,X,Y,Z,tag());
         return;
       }
     }
@@ -572,14 +549,14 @@ void GFace::XYZtoUV(const double X, const double Y, const double Z,
 
 SPoint2 GFace::parFromPoint(const SPoint3 &p) const
 {
-  double U, V;
+  double U = 0., V = 0.;
   XYZtoUV(p.x(), p.y(), p.z(), U, V, 1.0);
   return SPoint2(U, V);
 }
 
 GPoint GFace::closestPoint(const SPoint3 & queryPoint, const double initialGuess[2]) const
 {
-  Msg::Error("Closet point not implemented for this type of surface");
+  Msg::Error("Closest point not implemented for this type of surface");
   return GPoint(0, 0, 0);
 }
 
@@ -732,7 +709,7 @@ bool GFace::buildSTLTriangulation()
 // by default we assume that straight lines are geodesics
 SPoint2 GFace::geodesic(const SPoint2 &pt1 , const SPoint2 &pt2 , double t)
 {
-  if(CTX.mesh.second_order_experimental){
+  if(CTX.mesh.second_order_experimental && geomType() != GEntity::Plane ){
     // FIXME: this is buggy -- remove the CTX option once we do it in
     // a robust manner
     GPoint gp1 = point(pt1.x(), pt1.y());
@@ -742,7 +719,10 @@ SPoint2 GFace::geodesic(const SPoint2 &pt1 , const SPoint2 &pt2 , double t)
 				     gp1.y() + t * (gp2.y() - gp1.y()),
 				     gp1.z() + t * (gp2.z() - gp1.z())),
 			     (double*)guess);
-    return SPoint2(gp.u(), gp.v());
+    if (gp.g())
+      return SPoint2(gp.u(), gp.v());
+    else
+      return pt1 + (pt2 - pt1) * t;
   }
   else{
     return pt1 + (pt2 - pt1) * t;

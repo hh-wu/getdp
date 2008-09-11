@@ -1,34 +1,14 @@
-// $Id: GRegion.cpp,v 1.2 2008-07-10 14:35:47 geuzaine Exp $
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
 //
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-//
-// Please report all bugs and problems to <gmsh@geuz.org>.
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
 
+#include <sstream>
 #include "GModel.h"
 #include "GRegion.h"
 #include "GFace.h"
 #include "MElement.h"
-
-#if defined(HAVE_GMSH_EMBEDDED)
-#  include "GmshEmbedded.h"
-#else
-#  include "Message.h"
-#endif
+#include "Message.h"
 
 GRegion::GRegion(GModel *model, int tag) : GEntity (model, tag)
 {
@@ -62,6 +42,29 @@ GRegion::~GRegion()
 unsigned int GRegion::getNumMeshElements()
 { 
   return tetrahedra.size() + hexahedra.size() + prisms.size() + pyramids.size();
+}
+
+void GRegion::getNumMeshElements(unsigned *const c) const
+{
+  c[0] += tetrahedra.size();
+  c[1] += hexahedra.size();
+  c[2] += prisms.size();
+  c[3] += pyramids.size();
+}
+
+MElement *const *GRegion::getStartElementType(int type) const
+{
+  switch(type) {
+  case 0:
+    return reinterpret_cast<MElement *const *>(&tetrahedra[0]);
+  case 1:
+    return reinterpret_cast<MElement *const *>(&hexahedra[0]);
+  case 2:
+    return reinterpret_cast<MElement *const *>(&prisms[0]);
+  case 3:
+    return reinterpret_cast<MElement *const *>(&pyramids[0]);
+  }
+  return 0;
 }
 
 MElement *GRegion::getMeshElement(unsigned int index)
@@ -110,58 +113,21 @@ void GRegion::setVisibility(char val, bool recursive)
   }
 }
 
-void GRegion::recomputeMeshPartitions()
-{
-  for(unsigned int i = 0; i < tetrahedra.size(); i++) {
-    int part = tetrahedra[i]->getPartition();
-    if(part) model()->getMeshPartitions().insert(part);
-  }
-  for(unsigned int i = 0; i < hexahedra.size(); i++) {
-    int part = hexahedra[i]->getPartition();
-    if(part) model()->getMeshPartitions().insert(part);
-  }
-  for(unsigned int i = 0; i < prisms.size(); i++) {
-    int part = prisms[i]->getPartition();
-    if(part) model()->getMeshPartitions().insert(part);
-  }
-  for(unsigned int i = 0; i < pyramids.size(); i++) {
-    int part = pyramids[i]->getPartition();
-    if(part) model()->getMeshPartitions().insert(part);
-  }
-}
-
-void GRegion::deleteMeshPartitions()
-{
-  for(unsigned int i = 0; i < tetrahedra.size(); i++)
-    tetrahedra[i]->setPartition(0);
-  for(unsigned int i = 0; i < hexahedra.size(); i++)
-    hexahedra[i]->setPartition(0);
-  for(unsigned int i = 0; i < prisms.size(); i++)
-    prisms[i]->setPartition(0);
-  for(unsigned int i = 0; i < pyramids.size(); i++)
-    pyramids[i]->setPartition(0);
-}
-
 std::string GRegion::getAdditionalInfoString()
 {
-  if(l_faces.empty()) return std::string("");
-
-  char tmp[256];
-  if(l_faces.size() > 10){
-    sprintf(tmp, "{%d, ..., %d}", (*l_faces.begin())->tag(), (*l_faces.end())->tag());
-    return std::string(tmp);
+  std::ostringstream sstream;
+  if(l_faces.size() > 20){
+    sstream << "{" << l_faces.front()->tag() << ",...," << l_faces.back()->tag() << "}";
   }
-
-  std::string str("");
-  std::list<GFace*>::const_iterator it = l_faces.begin();
-  str += "{";
-  for(; it != l_faces.end(); it++){
-    if(it != l_faces.begin()) str += ",";
-    sprintf(tmp, "%d", (*it)->tag());
-    str += tmp;
+  else if(l_faces.size()){
+    sstream << "{";
+    for(std::list<GFace*>::iterator it = l_faces.begin(); it != l_faces.end(); ++it){
+      if(it != l_faces.begin()) sstream << ",";
+      sstream << (*it)->tag();
+    }
+    sstream << "}";
   }
-  str += "}";
-  return str;
+  return sstream.str();
 }
 
 std::list<GEdge*> GRegion::edges() const
@@ -173,7 +139,7 @@ std::list<GEdge*> GRegion::edges() const
     e2 = (*it)->edges();
     std::list<GEdge*>::const_iterator it2 = e2.begin();
     while (it2 != e2.end()){
-      if (std::find(e.begin(), e.end(), *it2) == e.end())
+      if(std::find(e.begin(), e.end(), *it2) == e.end())
         e.push_back(*it2);
       ++it2;
     }

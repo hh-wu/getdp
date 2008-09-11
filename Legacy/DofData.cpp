@@ -8,6 +8,7 @@
 //   Ruth Sabariego
 //
 
+#include <strings.h>
 #include <math.h>
 #include "GetDPVersion.h"
 #include "ProData.h"
@@ -101,9 +102,10 @@ void Dof_SetCurrentDofData(struct DofData * DofData_P)
 /*  D o f _ O p e n F i l e                                                 */
 /* ------------------------------------------------------------------------ */
 
-void Dof_OpenFile(int Type, char * Name, char * Mode) 
+void Dof_OpenFile(int Type, char * Name, const char * Mode) 
 {
-  char  * Extension, FileName[256] ;
+  const char  * Extension;
+  char    FileName[256] ;
   FILE  * File_X ;
 
   switch (Type) {

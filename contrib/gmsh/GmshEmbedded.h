@@ -1,8 +1,12 @@
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
+
 #ifndef _GMSH_EMBEDDED_H_
 #define _GMSH_EMBEDDED_H_
 
 #include "NumericEmbedded.h"
-#include "Message.h"
 
 class Context_T{
 public:
@@ -33,11 +37,6 @@ public:
 };
 
 class smooth_normals{
- public:
-  int dummy;
-};
-
-class VertexArray{
  public:
   int dummy;
 };

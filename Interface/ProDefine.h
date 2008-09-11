@@ -9,22 +9,22 @@
 #include "ProData.h"
 
 struct StringXDefine {
-  char *string; 
+  const char *string; 
   int define;
 };
 
 struct StringXDefine1Nbr {
-  char *string; 
+  const char *string; 
   int define, Nbr1;
 };
 
 struct StringXPointer {
-  char *string; 
+  const char *string; 
   void *Pointer;
 };
 
 struct StringX3Function2Nbr {
-  char *string;
+  const char *string;
   void (*Function1)(); 
   void (*Function2)(); 
   void (*Function3)();
@@ -38,7 +38,7 @@ struct DefineXFunction {
 };
 
 struct StringXFunction2Nbr {
-  char *string;  
+  const char *string;  
   void (*Function)();  
   int   Nbr1, Nbr2;
 };
@@ -82,44 +82,41 @@ extern struct StringX3Function2Nbr BF_Function[];
 extern struct StringXFunction2Nbr  F_Function[];
 extern struct FunctionXFunction    GF_Function[];
 
-char *Get_StringForDefine(struct StringXDefine SXD[], int define);
-int   Get_DefineForString(struct StringXDefine SXD[], char *string,
-			  int *FlagError);
+const char *Get_StringForDefine(struct StringXDefine SXD[], int define);
+int Get_DefineForString(struct StringXDefine SXD[], const char *string,
+			int *FlagError);
 
-char *Get_StringForDefine1Nbr(struct StringXDefine1Nbr SXD[], int define);
-int   Get_Define1NbrForString(struct StringXDefine1Nbr SXD[], char *string,
+const char *Get_StringForDefine1Nbr(struct StringXDefine1Nbr SXD[], int define);
+int Get_Define1NbrForString(struct StringXDefine1Nbr SXD[], const char *string,
 			      int *FlagError, int *Nbr1);
 
-char *Get_StringForPointer(struct StringXPointer SXF[], void *Pointer);
-void  Get_PointerForString(struct StringXPointer SXF[], char *string,
-			   int *FlagError, void **Pointer);
+const char *Get_StringForPointer(struct StringXPointer SXF[], void *Pointer);
+void Get_PointerForString(struct StringXPointer SXF[], const char *string,
+			  int *FlagError, void **Pointer);
 
-char *Get_StringFor3Function2Nbr(struct StringX3Function2Nbr SXF[], 
-				 void (*Function1)());
-void  Get_3Function2NbrForString(struct StringX3Function2Nbr SXF[], char *string,
-				 int *FlagError,
-				 void (**Function1)(), 
-				 void (**Function2)(), 
-				 void (**Function3)(),
-				 double *Nbr1, int *Nbr2);
+const char *Get_StringFor3Function2Nbr(struct StringX3Function2Nbr SXF[], 
+				       void (*Function1)());
+void Get_3Function2NbrForString(struct StringX3Function2Nbr SXF[], const char *string,
+				int *FlagError, void (**Function1)(), 
+				void (**Function2)(), void (**Function3)(),
+				double *Nbr1, int *Nbr2);
 
 void Get_FunctionForDefine(struct DefineXFunction DXF[], int define,
 			   int *FlagError, void (**Function)());
 
-void Get_Function2NbrForString(struct StringXFunction2Nbr SXF[], char *string,
-			       int *FlagError, 
-			       void (**Function)(), 
+void Get_Function2NbrForString(struct StringXFunction2Nbr SXF[], const char *string,
+			       int *FlagError, void (**Function)(), 
 			       int *Nbr1, int *Nbr2);
 
 void  Get_FunctionForFunction(struct FunctionXFunction  FXF[], void (*Function1)(),
 			      int *FlagError, void (**Function2)() );	     
 
-char *Get_StringForFunction2Nbr(struct StringXFunction2Nbr SXF[], void (*Function)());
+const char *Get_StringForFunction2Nbr(struct StringXFunction2Nbr SXF[], void (*Function)());
 
-char *Get_Valid_SXD   (struct StringXDefine        V[]);
-char *Get_Valid_SXD1N (struct StringXDefine1Nbr    V[]);
-char *Get_Valid_SXP   (struct StringXPointer       V[]);
+char *Get_Valid_SXD(struct StringXDefine V[]);
+char *Get_Valid_SXD1N(struct StringXDefine1Nbr V[]);
+char *Get_Valid_SXP(struct StringXPointer V[]);
 char *Get_Valid_SX3F2N(struct StringX3Function2Nbr V[]);
-char *Get_Valid_SXF2N (struct StringXFunction2Nbr  V[]);
+char *Get_Valid_SXF2N(struct StringXFunction2Nbr V[]);
 
 #endif

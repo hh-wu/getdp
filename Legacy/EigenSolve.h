@@ -14,7 +14,7 @@ struct EigenPar {
   int    reortho;
 } ;
 
-void EigenPar(char *filename, struct EigenPar *par);
+void EigenPar(const char *filename, struct EigenPar *par);
 void EigenSolve(struct DofData * DofData_P, int NumEigenvalues, 
 		double shift_r, double shift_i);
 

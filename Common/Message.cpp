@@ -191,14 +191,6 @@ static void GetResources(double *s, long *mem)
 #endif
 }
 
-double Message::Cpu()
-{
-  double s = 0.;
-  long mem = 0;
-  GetResources(&s, &mem);
-  return s;
-}
-
 void Message::Cpu(const char *fmt, ...)
 {
   if(_commRank || _verbosity < 1) return;

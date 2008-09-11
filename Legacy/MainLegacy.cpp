@@ -3,6 +3,7 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
+#include <strings.h>
 #include "GetDPVersion.h"
 #include "ProData.h"
 #include "SolvingAnalyse.h"
@@ -270,7 +271,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 
       else if (!strcmp(argv[i]+1, "petscinfo") || 
 	       !strcmp(argv[i]+1, "-petscinfo")) {
-	sargv[(*sargc)++] = "-info" ;
+	sargv[(*sargc)++] = (char*)"-info" ;
 	i++ ;
       }
 

@@ -1,24 +1,10 @@
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
+
 #ifndef _PVIEW_DATA_GMODEL_H_
 #define _PVIEW_DATA_GMODEL_H_
-
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-// 
-// Please report all bugs and problems to <gmsh@geuz.org>.
 
 #include "PViewData.h"
 #include "GModel.h"
@@ -58,7 +44,7 @@ class stepData{
     : _model(model), _fileName(fileName), _fileIndex(fileIndex), _time(time), 
       _min(min), _max(max), _numComp(numComp), _data(0)
   {
-    _entities = _model->getEntities();
+    _model->getEntities(_entities);
     _bbox = _model->bounds();
   }
   ~stepData(){ destroyData(); }
@@ -149,7 +135,7 @@ class PViewDataGModel : public PViewData {
   int getNumScalars(int step=-1);
   int getNumVectors(int step=-1);
   int getNumTensors(int step=-1);
-  int getNumPoints(int step=-1){ return 0; }
+  int getNumPoints(int step=-1);
   int getNumLines(int step=-1);
   int getNumTriangles(int step=-1);
   int getNumQuadrangles(int step=-1);

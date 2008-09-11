@@ -1,23 +1,7 @@
-// $Id: StringUtils.cpp,v 1.2 2008-07-10 14:35:47 geuzaine Exp $
+// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
 //
-// Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
-//
-// This program is free software; you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation; either version 2 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
-// USA.
-// 
-// Please report all bugs and problems to <gmsh@geuz.org>.
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <gmsh@geuz.org>.
 
 #if defined(__CYGWIN__)
 #include <sys/cygwin.h>
@@ -76,12 +60,14 @@ std::string SanitizeTeXString(const char *in, int equation)
   return out;
 }
 
-void FixWindowsPath(const char *in, char *out)
+std::string FixWindowsPath(const char *in)
 {
 #if defined(__CYGWIN__)
-  cygwin_conv_to_win32_path(in, out);
+  char tmp[1024];
+  cygwin_conv_to_win32_path(in, tmp);
+  return std::string(tmp);
 #else
-  strcpy(out, in);
+  return std::string(in);
 #endif
 }
 

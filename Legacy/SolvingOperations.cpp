@@ -8,6 +8,7 @@
 //   Ruth Sabariego
 //
 
+#include <strings.h>
 #include <math.h>
 #include "ProData.h"
 #include "ProDefine.h"
@@ -1382,7 +1383,7 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
 /*  I n i t _ O p e r a t i o n O n S y s t e m                             */
 /* ------------------------------------------------------------------------ */
 
-void  Init_OperationOnSystem(char                * Name,
+void  Init_OperationOnSystem(const char          * Name,
 			     struct Resolution   * Resolution_P,
 			     struct Operation    * Operation_P ,
 			     struct DofData      * DofData_P0,

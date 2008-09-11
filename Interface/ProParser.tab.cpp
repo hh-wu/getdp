@@ -679,7 +679,7 @@ void hack_fsetpos_printf();
 int  getdp_yylex();
 
 // Forward function declarations
-void Check_NameOfStructNotExist(char *Struct, List_T *List_L, void *data,
+void Check_NameOfStructNotExist(const char *Struct, List_T *List_L, void *data,
 				int (*fcmp)(const void *a, const void *b));
 int  Add_Group(struct Group *Group_P, char *Name, int Flag_Plus, int Num_Index);
 int  Add_Group_2(struct Group *Group_P, char *Name, int Flag_Add, 
@@ -691,8 +691,8 @@ void Pro_DefineQuantityIndex(List_T *WholeQuantity_L,int DefineQuantityIndexEqu,
 			     int **QuantityTraceGroupIndexTable);
 void Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex);
 int  Print_ListOfDouble(char *format, List_T *list, char *buffer);
-void yyerror(char *s);
-void vyyerror(char *fmt, ...);
+void yyerror(const char *s);
+void vyyerror(const char *fmt, ...);
 
 
 
@@ -724,7 +724,7 @@ typedef union YYSTYPE
   List_T  *l;
   struct TwoInt t;
 }
-/* Line 187 of yacc.c.  */
+/* Line 193 of yacc.c.  */
 #line 729 "ProParser.tab.cpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
@@ -788,7 +788,7 @@ typedef short int yytype_int16;
 #define YYSIZE_MAXIMUM ((YYSIZE_T) -1)
 
 #ifndef YY_
-# if YYENABLE_NLS
+# if defined YYENABLE_NLS && YYENABLE_NLS
 #  if ENABLE_NLS
 #   include <libintl.h> /* INFRINGES ON USER NAME SPACE */
 #   define YY_(msgid) dgettext ("bison-runtime", msgid)
@@ -4197,7 +4197,7 @@ while (YYID (0))
    we won't break user code: when these are the locations we know.  */
 
 #ifndef YY_LOCATION_PRINT
-# if YYLTYPE_IS_TRIVIAL
+# if defined YYLTYPE_IS_TRIVIAL && YYLTYPE_IS_TRIVIAL
 #  define YY_LOCATION_PRINT(File, Loc)			\
      fprintf (File, "%d.%d-%d.%d",			\
 	      (Loc).first_line, (Loc).first_column,	\
@@ -4994,7 +4994,7 @@ yyreduce:
   case 24:
 #line 366 "ProParser.y"
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Add_Group(&Group_S, (yyvsp[(1) - (5)].c), 0, 0);
     ;}
     break;
@@ -5536,7 +5536,7 @@ yyreduce:
   case 79:
 #line 911 "ProParser.y"
     { Expression_S.Type = CONSTANT;  Expression_S.Case.Constant = (yyvsp[(3) - (4)].d);
-      (yyval.i) = Add_Expression(&Expression_S, "Exp_Cst", 1);
+      (yyval.i) = Add_Expression(&Expression_S, (char*)"Exp_Cst", 1);
     ;}
     break;
 
@@ -5558,13 +5558,13 @@ yyreduce:
   case 82:
 #line 927 "ProParser.y"
     { Expression_S.Type = WHOLEQUANTITY;  Expression_S.Case.WholeQuantity = (yyvsp[(2) - (2)].l);
-      (yyval.i) = Add_Expression(&Expression_S, "Exp_Fct", 1); ;}
+      (yyval.i) = Add_Expression(&Expression_S, (char*)"Exp_Fct", 1); ;}
     break;
 
   case 83:
 #line 932 "ProParser.y"
     { Expression_S.Type = UNDEFINED_EXP; 
-      (yyval.i) = Add_Expression(&Expression_S, "Exp_Undefined", 1);
+      (yyval.i) = Add_Expression(&Expression_S, (char*)"Exp_Undefined", 1);
     ;}
     break;
 
@@ -6131,7 +6131,7 @@ yyreduce:
 #line 1413 "ProParser.y"
     { WholeQuantity_S.Type = WQ_TRACE;
       WholeQuantity_S.Case.Trace.WholeQuantity = (yyvsp[(4) - (7)].l);
-      WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, "WQ_Trace_In", (yyvsp[(6) - (7)].i));
+      WholeQuantity_S.Case.Trace.InIndex = Num_Group(&Group_S, (char*)"WQ_Trace_In", (yyvsp[(6) - (7)].i));
 
       if(Group_S.Type != ELEMENTLIST || Group_S.SuppListType != SUPPLIST_CONNECTEDTO)
 	vyyerror("Group for Trace should be of Type 'ElementsOf[x, ConnectedTo y]'");
@@ -6309,7 +6309,7 @@ yyreduce:
     { /* Attention: provisoire. Note: Impossible a mettre dans MultiFExpr
          car conflit avec Affectation dans Group */
       (yyval.l) = List_Create(2, 1, sizeof(double));
-      double d = (double)Num_Group(&Group_S, "PA_Region", (yyvsp[(4) - (6)].i));
+      double d = (double)Num_Group(&Group_S, (char*)"PA_Region", (yyvsp[(4) - (6)].i));
       List_Add((yyval.l), &d);
     ;}
     break;
@@ -6362,7 +6362,7 @@ yyreduce:
 
   case 161:
 #line 1624 "ProParser.y"
-    { JacobianCase_S.RegionIndex = Num_Group(&Group_S, "JA_Region", (yyvsp[(2) - (3)].i)); ;}
+    { JacobianCase_S.RegionIndex = Num_Group(&Group_S, (char*)"JA_Region", (yyvsp[(2) - (3)].i)); ;}
     break;
 
   case 162:
@@ -6622,7 +6622,7 @@ yyreduce:
   case 195:
 #line 1897 "ProParser.y"
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, (yyvsp[(2) - (4)].c),
 				 fcmp_Constraint_Name);
       Constraint_S.Name = (yyvsp[(2) - (4)].c);
@@ -6707,7 +6707,7 @@ yyreduce:
   case 205:
 #line 1978 "ProParser.y"
     { 
-      ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, "CO_Region", (yyvsp[(2) - (3)].i));
+      ConstraintPerRegion_S.RegionIndex = Num_Group(&Group_S, (char*)"CO_Region", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
@@ -6715,7 +6715,7 @@ yyreduce:
 #line 1983 "ProParser.y"
     { 
       ConstraintPerRegion_S.SubRegionIndex =
-	Num_Group(&Group_S, "CO_SubRegion", (yyvsp[(2) - (3)].i));
+	Num_Group(&Group_S, (char*)"CO_SubRegion", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
@@ -6763,7 +6763,7 @@ yyreduce:
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX) {
 	ConstraintPerRegion_S.Case.Link.RegionRefIndex =
-	  Num_Group(&Group_S, "CO_RegionRef", (yyvsp[(2) - (3)].i));
+	  Num_Group(&Group_S, (char*)"CO_RegionRef", (yyvsp[(2) - (3)].i));
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex = -1;
 
 	ConstraintPerRegion_S.Case.Link.FilterIndex = -1;
@@ -6783,7 +6783,7 @@ yyreduce:
       if(ConstraintPerRegion_S.Type == CST_LINK ||
 	  ConstraintPerRegion_S.Type == CST_LINKCPLX)
 	ConstraintPerRegion_S.Case.Link.SubRegionRefIndex =
-	  Num_Group(&Group_S, "CO_RegionRef", (yyvsp[(2) - (3)].i));
+	  Num_Group(&Group_S, (char*)"CO_RegionRef", (yyvsp[(2) - (3)].i));
       else  vyyerror("SubRegionRef incompatible with Type");
     ;}
     break;
@@ -6891,7 +6891,7 @@ yyreduce:
   case 227:
 #line 2155 "ProParser.y"
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
 				 (yyvsp[(2) - (4)].c), fcmp_FunctionSpace_Name);
       FunctionSpace_S.Name = (yyvsp[(2) - (4)].c);
@@ -7058,14 +7058,14 @@ yyreduce:
   case 245:
 #line 2302 "ProParser.y"
     {
-      BasisFunction_S.SupportIndex = Num_Group(&Group_S, "BF_Support", (yyvsp[(2) - (3)].i));
+      BasisFunction_S.SupportIndex = Num_Group(&Group_S, (char*)"BF_Support", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
   case 246:
 #line 2307 "ProParser.y"
     {
-      BasisFunction_S.EntityIndex = Num_Group(&Group_S, "BF_Entity", (yyvsp[(2) - (3)].i));
+      BasisFunction_S.EntityIndex = Num_Group(&Group_S, (char*)"BF_Entity", (yyvsp[(2) - (3)].i));
       if(Group_S.InitialList)
 	List_Sort(Group_S.InitialList, fcmp_Integer);  /* Needed for Global Region */
 
@@ -7410,7 +7410,7 @@ yyreduce:
 	       List_Pointer(Problem_S.Group,
 			    ConstraintPerRegion_P->SubRegionIndex))
 	      ->InitialList : NULL;
-	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, "CO_Entity", 1, 0);
+	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity", 1, 0);
 	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
 	    
 	    List_Add((yyval.l) = (yyvsp[(1) - (4)].l), &ConstraintInFS_S);
@@ -7513,7 +7513,7 @@ yyreduce:
   case 290:
 #line 2783 "ProParser.y"
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
 				 (yyvsp[(2) - (4)].c), fcmp_Formulation_Name);
       Formulation_S.Name = (yyvsp[(2) - (4)].c);
@@ -7924,7 +7924,7 @@ yyreduce:
   case 309:
 #line 3178 "ProParser.y"
     {
-      DefineQuantity_S.IntegralQuantity.InIndex = Num_Group(&Group_S, "IQ_In", (yyvsp[(2) - (3)].i));
+      DefineQuantity_S.IntegralQuantity.InIndex = Num_Group(&Group_S, (char*)"IQ_In", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
@@ -8112,7 +8112,7 @@ yyreduce:
 
   case 332:
 #line 3354 "ProParser.y"
-    { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, "FO_In", (yyvsp[(2) - (3)].i)); ;}
+    { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, (char*)"FO_In", (yyvsp[(2) - (3)].i)); ;}
     break;
 
   case 333:
@@ -8285,7 +8285,7 @@ yyreduce:
   case 338:
 #line 3527 "ProParser.y"
     {
-      EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, "FO_In", (yyvsp[(2) - (3)].i));
+      EquationTerm_S.Case.LocalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
@@ -8351,7 +8351,7 @@ yyreduce:
   case 345:
 #line 3599 "ProParser.y"
     {
-      EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, "FO_In", (yyvsp[(2) - (3)].i));
+      EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", (yyvsp[(2) - (3)].i));
     ;}
     break;
 
@@ -8551,7 +8551,7 @@ yyreduce:
   case 366:
 #line 3783 "ProParser.y"
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
 				 (yyvsp[(2) - (4)].c), fcmp_Resolution_Name);
       Resolution_S.Name = (yyvsp[(2) - (4)].c);
@@ -8994,7 +8994,7 @@ yyreduce:
       Free((yyvsp[(3) - (9)].c));
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.UpdateConstraint.GroupIndex =
-	Num_Group(&Group_S, "OP_UpdateCst", (yyvsp[(5) - (9)].i));
+	Num_Group(&Group_S, (char*)"OP_UpdateCst", (yyvsp[(5) - (9)].i));
       Operation_P->Case.UpdateConstraint.Type =
 	Get_DefineForString(Constraint_Type, (yyvsp[(7) - (9)].c), &FlagError);
       if(FlagError){
@@ -9325,7 +9325,7 @@ yyreduce:
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Num_Group(&Group_S, "OP_ChgCoord", (yyvsp[(3) - (7)].i));
+	Num_Group(&Group_S, (char*)"OP_ChgCoord", (yyvsp[(3) - (7)].i));
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = (yyvsp[(5) - (7)].i); 
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = -1; 
     ;}
@@ -9338,7 +9338,7 @@ yyreduce:
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_CHANGEOFCOORDINATES;
       Operation_P->Case.ChangeOfCoordinates.GroupIndex =
-	Num_Group(&Group_S, "OP_ChgCoord", (yyvsp[(3) - (11)].i));
+	Num_Group(&Group_S, (char*)"OP_ChgCoord", (yyvsp[(3) - (11)].i));
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex = (yyvsp[(5) - (11)].i);
       Operation_P->Case.ChangeOfCoordinates.NumNode = (int)(yyvsp[(7) - (11)].d);
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = (yyvsp[(9) - (11)].i); 
@@ -9451,7 +9451,7 @@ yyreduce:
 	vyyerror("Unknown System: %s", (yyvsp[(3) - (11)].c));
       Free((yyvsp[(3) - (11)].c));
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", (yyvsp[(5) - (11)].i));
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", (yyvsp[(5) - (11)].i));
       Operation_P->Case.SaveMesh.FileName = (yyvsp[(7) - (11)].c);
       Operation_P->Case.SaveMesh.ExprIndex = (yyvsp[(9) - (11)].i);
       Operation_P->Type = OPERATION_SAVEMESH;
@@ -9468,7 +9468,7 @@ yyreduce:
 	vyyerror("Unknown System: %s", (yyvsp[(3) - (9)].c));
       Free((yyvsp[(3) - (9)].c));
       Operation_P->DefineSystemIndex = i;
-      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, "OP_SaveMesh", (yyvsp[(5) - (9)].i));
+      Operation_P->Case.SaveMesh.GroupIndex = Num_Group(&Group_S, (char*)"OP_SaveMesh", (yyvsp[(5) - (9)].i));
       Operation_P->Case.SaveMesh.FileName = (yyvsp[(7) - (9)].c);
       Operation_P->Case.SaveMesh.ExprIndex = -1;
       Operation_P->Type = OPERATION_SAVEMESH;
@@ -10033,7 +10033,7 @@ yyreduce:
 
   case 498:
 #line 5123 "ProParser.y"
-    { ChangeOfState_S.InIndex = Num_Group(&Group_S, "OP_In", (yyvsp[(2) - (3)].i)); ;}
+    { ChangeOfState_S.InIndex = Num_Group(&Group_S, (char*)"OP_In", (yyvsp[(2) - (3)].i)); ;}
     break;
 
   case 499:
@@ -10101,7 +10101,7 @@ yyreduce:
   case 509:
 #line 5196 "ProParser.y"
     {
-      yyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
+      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
 				 (yyvsp[(2) - (4)].c), fcmp_PostProcessing_Name);
       PostProcessing_S.Name = (yyvsp[(2) - (4)].c); 
@@ -10245,7 +10245,7 @@ yyreduce:
 	  if(PostQuantityTerm_S.Type == 0)
 	    PostQuantityTerm_S.Type = j;
 	  else if(PostQuantityTerm_S.Type != j)	  
-	    yyerror("Mixed discrete Quantity types in term (should be split in separate terms)");
+	    vyyerror("Mixed discrete Quantity types in term (should be split in separate terms)");
 	}
 	if(PostQuantityTerm_S.Type == 0)  PostQuantityTerm_S.Type = LOCALQUANTITY;
       }
@@ -10269,7 +10269,7 @@ yyreduce:
   case 529:
 #line 5349 "ProParser.y"
     {
-      PostQuantityTerm_S.InIndex = Num_Group(&Group_S, "PQ_In", (yyvsp[(2) - (3)].i));
+     PostQuantityTerm_S.InIndex = Num_Group(&Group_S, (char*)"PQ_In", (yyvsp[(2) - (3)].i));
    ;}
     break;
 
@@ -10476,7 +10476,7 @@ yyreduce:
 #line 5542 "ProParser.y"
     {
       PostSubOperation_S.Type = POP_GROUP;
-      PostSubOperation_S.Case.Group.ExtendedGroupIndex = Num_Group(&Group_S, "PO_Group", (yyvsp[(3) - (3)].i));
+      PostSubOperation_S.Case.Group.ExtendedGroupIndex = Num_Group(&Group_S, (char*)"PO_Group", (yyvsp[(3) - (3)].i));
       PostSubOperation_S.PostQuantityIndex[0] = -1;
     ;}
     break;
@@ -10484,7 +10484,7 @@ yyreduce:
   case 554:
 #line 5548 "ProParser.y"
     {
-      PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, "PO_Group", (yyvsp[(7) - (10)].i));
+      PostSubOperation_S.Case.Group.GroupIndex = Num_Group(&Group_S, (char*)"PO_Group", (yyvsp[(7) - (10)].i));
     ;}
     break;
 
@@ -10561,7 +10561,7 @@ yyreduce:
 
   case 563:
 #line 5610 "ProParser.y"
-    { (yyval.i) = Num_Group(&Group_S, "PO_Support", (yyvsp[(2) - (3)].i)); ;}
+    { (yyval.i) = Num_Group(&Group_S, (char*)"PO_Support", (yyvsp[(2) - (3)].i)); ;}
     break;
 
   case 564:
@@ -10577,7 +10577,7 @@ yyreduce:
     {
       PostSubOperation_S.SubType = PRINT_ONREGION;
       PostSubOperation_S.Case.OnRegion.RegionIndex = 
-	Num_Group(&Group_S, "PO_OnRegion", (yyvsp[(2) - (2)].i));
+	Num_Group(&Group_S, (char*)"PO_OnRegion", (yyvsp[(2) - (2)].i));
     ;}
     break;
 
@@ -10586,7 +10586,7 @@ yyreduce:
     {
       PostSubOperation_S.SubType = PRINT_ONELEMENTSOF;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, "PO_OnElementsOf", (yyvsp[(2) - (2)].i));
+	Num_Group(&Group_S, (char*)"PO_OnElementsOf", (yyvsp[(2) - (2)].i));
     ;}
     break;
 
@@ -10619,7 +10619,7 @@ yyreduce:
     {
       PostSubOperation_S.SubType = PRINT_ONGRID;
       PostSubOperation_S.Case.OnRegion.RegionIndex =
-	Num_Group(&Group_S, "PO_OnGrid", (yyvsp[(2) - (2)].i));
+	Num_Group(&Group_S, (char*)"PO_OnGrid", (yyvsp[(2) - (2)].i));
     ;}
     break;
 
@@ -10736,7 +10736,7 @@ yyreduce:
       PostSubOperation_S.SubType = PRINT_WITHARGUMENT;
 
       PostSubOperation_S.Case.WithArgument.RegionIndex = 
-	Num_Group(&Group_S, "PO_On", (yyvsp[(2) - (12)].i));
+	Num_Group(&Group_S, (char*)"PO_On", (yyvsp[(2) - (12)].i));
       int i;
       if((i = List_ISearchSeq(Problem_S.Expression, (yyvsp[(4) - (12)].c), fcmp_Expression_Name)) < 0)
 	vyyerror("Unknown Name of Expression: %s", (yyvsp[(4) - (12)].c));
@@ -11201,7 +11201,7 @@ yyreduce:
       LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(3) - (6)].d);
       LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(5) - (6)].d);
       LoopControlVariablesTab[ImbricatedLoop][2] = 1.0;
-      LoopControlVariablesNameTab[ImbricatedLoop] = "";
+      LoopControlVariablesNameTab[ImbricatedLoop] = (char*)"";
       fgetpos(getdp_yyin, &FposImbricatedLoopsTab[ImbricatedLoop]);
       LinenoImbricatedLoopsTab[ImbricatedLoop] = getdp_yylinenum;
       if((yyvsp[(3) - (6)].d) > (yyvsp[(5) - (6)].d)) 
@@ -11221,7 +11221,7 @@ yyreduce:
       LoopControlVariablesTab[ImbricatedLoop][0] = (yyvsp[(3) - (8)].d);
       LoopControlVariablesTab[ImbricatedLoop][1] = (yyvsp[(5) - (8)].d);
       LoopControlVariablesTab[ImbricatedLoop][2] = (yyvsp[(7) - (8)].d);
-      LoopControlVariablesNameTab[ImbricatedLoop] = "";
+      LoopControlVariablesNameTab[ImbricatedLoop] = (char*)"";
       fgetpos(getdp_yyin, &FposImbricatedLoopsTab[ImbricatedLoop]);
       LinenoImbricatedLoopsTab[ImbricatedLoop] = getdp_yylinenum;
       if(((yyvsp[(7) - (8)].d) > 0. && (yyvsp[(3) - (8)].d) > (yyvsp[(5) - (8)].d)) || ((yyvsp[(7) - (8)].d) < 0. && (yyvsp[(3) - (8)].d) < (yyvsp[(5) - (8)].d)))
@@ -11546,102 +11546,102 @@ yyreduce:
 
   case 639:
 #line 6465 "ProParser.y"
-    { (yyval.c) = "Exp";    ;}
+    { (yyval.c) = (char*)"Exp";    ;}
     break;
 
   case 640:
 #line 6466 "ProParser.y"
-    { (yyval.c) = "Log";    ;}
+    { (yyval.c) = (char*)"Log";    ;}
     break;
 
   case 641:
 #line 6467 "ProParser.y"
-    { (yyval.c) = "Log10";  ;}
+    { (yyval.c) = (char*)"Log10";  ;}
     break;
 
   case 642:
 #line 6468 "ProParser.y"
-    { (yyval.c) = "Sqrt";   ;}
+    { (yyval.c) = (char*)"Sqrt";   ;}
     break;
 
   case 643:
 #line 6469 "ProParser.y"
-    { (yyval.c) = "Sin";    ;}
+    { (yyval.c) = (char*)"Sin";    ;}
     break;
 
   case 644:
 #line 6470 "ProParser.y"
-    { (yyval.c) = "Asin";   ;}
+    { (yyval.c) = (char*)"Asin";   ;}
     break;
 
   case 645:
 #line 6471 "ProParser.y"
-    { (yyval.c) = "Cos";    ;}
+    { (yyval.c) = (char*)"Cos";    ;}
     break;
 
   case 646:
 #line 6472 "ProParser.y"
-    { (yyval.c) = "Acos";   ;}
+    { (yyval.c) = (char*)"Acos";   ;}
     break;
 
   case 647:
 #line 6473 "ProParser.y"
-    { (yyval.c) = "Tan";    ;}
+    { (yyval.c) = (char*)"Tan";    ;}
     break;
 
   case 648:
 #line 6474 "ProParser.y"
-    { (yyval.c) = "Atan";   ;}
+    { (yyval.c) = (char*)"Atan";   ;}
     break;
 
   case 649:
 #line 6475 "ProParser.y"
-    { (yyval.c) = "Atan2";  ;}
+    { (yyval.c) = (char*)"Atan2";  ;}
     break;
 
   case 650:
 #line 6476 "ProParser.y"
-    { (yyval.c) = "Sinh";   ;}
+    { (yyval.c) = (char*)"Sinh";   ;}
     break;
 
   case 651:
 #line 6477 "ProParser.y"
-    { (yyval.c) = "Cosh";   ;}
+    { (yyval.c) = (char*)"Cosh";   ;}
     break;
 
   case 652:
 #line 6478 "ProParser.y"
-    { (yyval.c) = "Tanh";   ;}
+    { (yyval.c) = (char*)"Tanh";   ;}
     break;
 
   case 653:
 #line 6479 "ProParser.y"
-    { (yyval.c) = "Fabs";   ;}
+    { (yyval.c) = (char*)"Fabs";   ;}
     break;
 
   case 654:
 #line 6480 "ProParser.y"
-    { (yyval.c) = "Floor";  ;}
+    { (yyval.c) = (char*)"Floor";  ;}
     break;
 
   case 655:
 #line 6481 "ProParser.y"
-    { (yyval.c) = "Ceil";   ;}
+    { (yyval.c) = (char*)"Ceil";   ;}
     break;
 
   case 656:
 #line 6482 "ProParser.y"
-    { (yyval.c) = "Fmod";   ;}
+    { (yyval.c) = (char*)"Fmod";   ;}
     break;
 
   case 657:
 #line 6483 "ProParser.y"
-    { (yyval.c) = "Modulo"; ;}
+    { (yyval.c) = (char*)"Modulo"; ;}
     break;
 
   case 658:
 #line 6484 "ProParser.y"
-    { (yyval.c) = "Hypot";  ;}
+    { (yyval.c) = (char*)"Hypot";  ;}
     break;
 
   case 659:
@@ -12574,7 +12574,7 @@ int  Num_Group(struct Group *Group_P, char *Name, int Num_Group)
 {
   if      (Num_Group >= 0)   /* OK */;
   else if(Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, 1, 0);
-  else                       vyyerror("Bad Group right hand side");
+  else                      vyyerror("Bad Group right hand side");
 
   return Num_Group;
 }
@@ -12702,7 +12702,7 @@ void  Pro_DefineQuantityIndex(List_T *WholeQuantity_L,
 
 /* C h e c k _ N a m e O f S t r u c t N o t E x i s t   */
 
-void  Check_NameOfStructNotExist(char *Struct, List_T *List_L, void *data,
+void  Check_NameOfStructNotExist(const char *Struct, List_T *List_L, void *data,
 				 int (*fcmp)(const void *a, const void *b)) 
 {
   if(List_ISearchSeq(List_L, data, fcmp) >= 0)
@@ -12775,22 +12775,21 @@ void  Print_Constant()
 
 /*  E r r o r   h a n d l i n g  */
 
-void yyerror(char *s) 
+void yyerror(const char *s) 
 {
   extern char *getdp_yytext;
-  Msg::Direct("Error ('%s' line %ld): %s on '%s'", getdp_yyname, getdp_yylinenum, 
-	      s, getdp_yytext);
+  Msg::Error("'%s', line %ld : %s (%s)", getdp_yyname, getdp_yylinenum, s, getdp_yytext);
   getdp_yyerrorlevel = 1;
 }
 
-void vyyerror(char *fmt, ...)
+void vyyerror(const char *fmt, ...)
 {
   char str[256];
   va_list args;
   va_start(args, fmt);
   vsprintf(str, fmt, args);
   va_end(args);
-  Msg::Direct("Error ('%s' line %ld): %s", getdp_yyname, getdp_yylinenum, str);
+  Msg::Error("'%s', line %ld : %s", getdp_yyname, getdp_yylinenum, str);
   getdp_yyerrorlevel = 1;
 }
 
