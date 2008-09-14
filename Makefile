@@ -117,7 +117,7 @@ source-common: purge
 source: source-common
 	cd getdp-${GETDP_VERSION} && rm -rf */.globalrc\
           ${GETDP_VERSION_FILE} contrib/NR contrib/ZITSOL_1
-	tar zcvf getdp-${GETDP_VERSION}-source.tgz getdp-${GETDP_VERSION}
+	tar zcf getdp-${GETDP_VERSION}-source.tgz getdp-${GETDP_VERSION}
 
 # Rules to package the binaries
 
