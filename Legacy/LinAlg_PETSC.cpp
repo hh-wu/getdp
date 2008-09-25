@@ -13,6 +13,11 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
+// Johan, we curse you for a thousand generations!
+#include "ProData.h"
+#include "DofData.h"
+extern struct CurrentData Current ;
+
 #if defined(HAVE_PETSC)
 
 /* 
@@ -479,7 +484,9 @@ void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 
 void LinAlg_DummyVector(gVector *V)
 {
-  Msg::Error("'LinAlg_DummyVector' not yet implemented");  
+  if(Current.DofData->DummyDof)
+    Msg::Error("'LinAlg_DummyVector' not yet implemented");
+  return;
 }
 
 void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i)
