@@ -303,7 +303,7 @@ void BF_GradNode(struct Element * Element, int NumNode,
       case 2  : s[0] =  1. ; break ;
       case 3  :              break ;
       case 4  : s[1] =  1. ; break ;
-      case 5  : s[2] = 1. ; break ;
+      case 5  : s[2] =  1. ; break ;
       default : WrongNumNode ;
       }
     } else{
@@ -328,24 +328,40 @@ void BF_GradNode(struct Element * Element, int NumNode,
     }
 #else
     if(w == 1. && NumNode != 5) {
-      s[0] =  0.25 ; 
-      s[1] =  0.25 ;
-      s[2] = -0.25 ; 
+      //When w = 1 => u=v=0
+      switch(NumNode) { 
+      case 1 : s[0] = -0.25 ; 
+	       s[1] = -0.25 ;
+	       s[2] = -0.25 ; break ;
+      case 2 : s[0] =  0.25 ; 
+	       s[1] = -0.25 ;
+	       s[2] = -0.25 ; break ;
+      case 3 : s[0] =  0.25 ; 
+               s[1] =  0.25 ;
+               s[2] = -0.25 ; break ;
+      case 4 : s[0] = -0.25 ; 
+               s[1] =  0.25 ;
+               s[2] = -0.25 ; break ;
+      case 5 : s[0] =  0. ; 
+	       s[1] =  0. ;
+	       s[2] =  1. ; break ;
+      default : WrongNumNode ;
+      }
     }
     else{
       switch(NumNode) {
       case 1  : s[0] = 0.25 * ( -(1.-v) + v*w/(1.-w) ) ;            
 	        s[1] = 0.25 * ( -(1.-u) + u*w/(1.-w) ) ;            
-      	        s[2] = 0.25 * ( -1.     + u*v/SQU(1.-w) ) ; break ;
-      case 2  : s[0] = 0.25 * (  (1.-v) + v*w/(1.-w) ) ;            
-	        s[1] = 0.25 * ( -(1.+u) + u*w/(1.-w) ) ;            
-	        s[2] = 0.25 * ( -1.     + u*v/SQU(1.-w) ) ; break ;
+      	        s[2] = 0.25 * ( -1.     + u*v/(1.-w) + u*v*w/SQU(1.-w) ) ; break ;
+      case 2  : s[0] = 0.25 * (  (1.-v) - v*w/(1.-w) ) ;            
+	        s[1] = 0.25 * ( -(1.+u) - u*w/(1.-w) ) ;            
+	        s[2] = 0.25 * ( -1.     - u*v/(1.-w) - u*v*w/SQU(1.-w) ) ; break ;
       case 3  : s[0] = 0.25 * (  (1.+v) + v*w/(1.-w) ) ; 
                 s[1] = 0.25 * (  (1.+u) + u*w/(1.-w) ) ;
-                s[2] = 0.25 * ( -1.     + u*v/SQU(1.-w) ) ; break ;
-      case 4  : s[0] = 0.25 * ( -(1.+v) + v*w/(1.-w) ) ;
-                s[1] = 0.25 * (  (1.-u) + u*w/(1.-w) ) ;
-                s[2] = 0.25 * ( -1.     + u*v/SQU(1.-w) ) ; break ;
+                s[2] = 0.25 * ( -1.     + u*v/(1.-w) + u*v*w/SQU(1.-w) ) ; break ;
+      case 4  : s[0] = 0.25 * ( -(1.+v) - v*w/(1.-w) ) ;
+                s[1] = 0.25 * (  (1.-u) - u*w/(1.-w) ) ;
+                s[2] = 0.25 * ( -1.     - u*v/(1.-w) - u*v*w/SQU(1.-w) ) ; break ;
       case 5  : s[0] = 0. ; 
                 s[1] = 0. ;
                 s[2] = 1. ; break ;
