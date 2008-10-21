@@ -190,7 +190,8 @@ DofData.o: DofData.cpp ../Common/GetDPVersion.h ../Interface/ProData.h \
   ../Common/Message.h
 LinAlg.o: LinAlg.cpp LinAlg.h ../Common/Message.h
 LinAlg_PETSC.o: LinAlg_PETSC.cpp LinAlg.h ../Common/MallocUtils.h \
-  ../Common/Message.h
+  ../Common/Message.h ../Interface/ProData.h ../Common/ListUtils.h \
+  DofData.h ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h
 LinAlg_SPARSKIT.o: LinAlg_SPARSKIT.cpp LinAlg.h ../Interface/ProData.h \
   ../Common/ListUtils.h DofData.h ../Common/TreeUtils.h ../Common/avl.h \
   ../Common/ListUtils.h ../Common/MallocUtils.h ../Common/Message.h

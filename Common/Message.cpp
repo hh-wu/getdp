@@ -22,7 +22,7 @@
 #endif
 
 #include "Message.h"
-#include "GmshClient.h"
+#include "GmshSocket.h"
 
 // don't put the client in the Message class, to avoid having 
 // to include GmshClient.h (and hence all the Windows crap) 
