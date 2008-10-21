@@ -54,6 +54,7 @@ class Message {
   static void InitializeSocket(std::string sockname);
   static void SendFileOnSocket(std::string filename);
   static void SendOptionOnSocket(int num, std::string option);
+  static void TestSocket();
   static void FinalizeSocket();
   static bool UseSocket(){ return _socket ? true : false; }
 };

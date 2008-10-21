@@ -287,6 +287,17 @@ void Message::SendFileOnSocket(std::string filename)
   }
 }
 
+void Message::TestSocket()
+{
+  if(_socket){
+    std::string tmp("View \"test\" {\n");
+    for(int i= 0; i < 1000000; i++)
+      tmp += "ST(0,0,0, 1,0,0, 0,1,0){1,2,3};\n";
+    tmp += "};\n";
+    _client.SpeedTest(tmp.c_str());
+  }
+}
+
 void Message::SendOptionOnSocket(int num, std::string option)
 {
   if(_socket){

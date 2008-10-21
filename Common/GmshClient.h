@@ -62,6 +62,7 @@ class GmshClient {
 		CLIENT_PROGRESS     = 13,
 		CLIENT_MERGE_FILE   = 20, // old name was CLIENT_VIEW
 		CLIENT_PARSE_STRING = 21,
+		CLIENT_SPEED_TEST   = 30,
 		CLIENT_OPTION_1     = 100,
 		CLIENT_OPTION_2     = 101,
 		CLIENT_OPTION_3     = 102,
@@ -211,6 +212,10 @@ class GmshClient {
   void ParseString(const char *str)
   {
     _SendString(CLIENT_PARSE_STRING, str);
+  }
+  void SpeedTest(const char *str)
+  {
+    _SendString(CLIENT_SPEED_TEST, str);
   }
   void Option(int num, const char *str)
   {

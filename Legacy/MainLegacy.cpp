@@ -17,9 +17,9 @@ int     Flag_PRE = 0, Flag_CAL = 0, Flag_POS = 0, Flag_RESTART = 0;
 int     Flag_XDATA = 0, Flag_BIN = 0, Flag_SPLIT = 0;
 double  Flag_ORDER = -1.;
 char   *Name_Generic = 0, *Name_Path = 0;
-char   *Name_Resolution = 0 ;
+char   *Name_Resolution = 0;
 char   *Name_PostOperation[NBR_MAX_POS] = {0};
-char   *Name_MshFile = 0, *Name_ResFile[NBR_MAX_RES] = {0}, *Name_AdaptFile = 0 ;
+char   *Name_MshFile = 0, *Name_ResFile[NBR_MAX_RES] = {0}, *Name_AdaptFile = 0;
 
 void Info(int level, char *arg0)
 {
@@ -92,27 +92,27 @@ void Info(int level, char *arg0)
 void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro, 
 		 int *lres, int *lpos, int *check)
 {
-  int  i, j, Flag_NameProblem = 0 ;
+  int  i, j, Flag_NameProblem = 0;
 
-  strcpy(pro, "") ;  
+  strcpy(pro, "");  
 
-  i = *sargc = 1 ;
+  i = *sargc = 1;
 
   while (i < argc) {
     
     if (argv[i][0] == '-') {
       
-      if      (!strcmp(argv[i]+1, "cal"))    { Flag_CAL     = 1 ; i++ ; } 
-      else if (!strcmp(argv[i]+1, "check"))  { *check       = 1 ; i++ ; } 
-      else if (!strcmp(argv[i]+1, "xdata"))  { Flag_XDATA   = 1 ; i++ ; } 
-      else if (!strcmp(argv[i]+1, "bin"))    { Flag_BIN     = 1 ; i++ ; } 
-      else if (!strcmp(argv[i]+1, "ascii"))  { Flag_BIN     = 0 ; i++ ; } 
-      else if (!strcmp(argv[i]+1, "split"))  { Flag_SPLIT   = 1 ; i++ ; } 
+      if      (!strcmp(argv[i]+1, "cal"))    { Flag_CAL     = 1; i++; } 
+      else if (!strcmp(argv[i]+1, "check"))  { *check       = 1; i++; } 
+      else if (!strcmp(argv[i]+1, "xdata"))  { Flag_XDATA   = 1; i++; } 
+      else if (!strcmp(argv[i]+1, "bin"))    { Flag_BIN     = 1; i++; } 
+      else if (!strcmp(argv[i]+1, "ascii"))  { Flag_BIN     = 0; i++; } 
+      else if (!strcmp(argv[i]+1, "split"))  { Flag_SPLIT   = 1; i++; } 
 
       else if (!strcmp(argv[i]+1, "socket")) {
-	i++ ;
+	i++;
 	if (i<argc && argv[i][0]!='-') { 
-	  Msg::InitializeSocket(argv[i]); i++ ; 
+	  Msg::InitializeSocket(argv[i]); i++; 
 	}
 	else {
 	  Msg::Error("Missing socket name");
@@ -120,14 +120,14 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       }
 
       else if (!strcmp(argv[i]+1, "restart")){ 
-	Flag_CAL = Flag_RESTART = 1 ; i++ ;
+	Flag_CAL = Flag_RESTART = 1; i++;
       } 
 
       else if (!strcmp(argv[i]+1, "verbose") ||
 	       !strcmp(argv[i]+1, "v")) {
-	i++ ;
+	i++;
 	if (i<argc && argv[i][0]!='-') { 
-	  Msg::SetVerbosity(atoi(argv[i])); i++ ; 
+	  Msg::SetVerbosity(atoi(argv[i])); i++; 
 	}
 	else {
 	  Msg::Error("Missing number");
@@ -151,9 +151,9 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 
       else if (!strcmp(argv[i]+1, "progress") ||
 	       !strcmp(argv[i]+1, "p")) {
-	i++ ;
+	i++;
 	if (i<argc && argv[i][0]!='-') { 
-	  Msg::SetProgressMeterStep(atoi(argv[i])) ; i++ ;
+	  Msg::SetProgressMeterStep(atoi(argv[i])); i++;
 	}
 	else {
 	  Msg::Error("Missing number");
@@ -161,61 +161,61 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       } 
 
       else if (!strcmp(argv[i]+1, "pre")) {
-	i++ ;
+	i++;
 	if (i<argc && argv[i][0]=='#') {
-	  Flag_PRE = 1 ; *lres = -atoi(argv[i]+1) ; i++ ;
+	  Flag_PRE = 1; *lres = -atoi(argv[i]+1); i++;
 	}
 	else if (i<argc && argv[i][0]!='-') { 
-	  Flag_PRE = 1 ; Name_Resolution = argv[i] ; i++ ; 
+	  Flag_PRE = 1; Name_Resolution = argv[i]; i++; 
 	}
 	else {
-	  Flag_PRE = *lres = 1 ;
+	  Flag_PRE = *lres = 1;
 	}
       }
 
       else if (!strcmp(argv[i]+1, "order") ||
 	       !strcmp(argv[i]+1, "ord")) {
-	i++ ;
+	i++;
 	if (i<argc && argv[i][0]!='-') { 
-	  Flag_ORDER = atof(argv[i]) ; i++ ; 
+	  Flag_ORDER = atof(argv[i]); i++;
 	}
 	else {
-	  Msg::Error("Missing interpolation order") ;
+	  Msg::Error("Missing interpolation order");
 	}
       }
 
       else if (!strcmp(argv[i]+1, "solve") ||
 	       !strcmp(argv[i]+1, "sol")) {
-	i++ ;
+	i++;
 	if (i<argc && argv[i][0]=='#') {
-	  Flag_PRE = Flag_CAL = 1 ; *lres = -atoi(argv[i]+1) ; i++ ;
+	  Flag_PRE = Flag_CAL = 1; *lres = -atoi(argv[i]+1); i++;
 	}
 	else if (i<argc && argv[i][0]!='-') {
-	  Flag_PRE = Flag_CAL = 1 ; Name_Resolution = argv[i] ; i++ ; 
+	  Flag_PRE = Flag_CAL = 1; Name_Resolution = argv[i]; i++; 
 	}
 	else { 
-	  Flag_PRE = Flag_CAL = *lres = 1 ;
+	  Flag_PRE = Flag_CAL = *lres = 1;
 	}
       }
 
       else if (!strcmp(argv[i]+1, "post") ||
 	       !strcmp(argv[i]+1, "pos")) {
-	i++ ; j = 0 ;
+	i++; j = 0;
 	if (i<argc && argv[i][0]=='#') {
-	  Flag_POS = 1 ; *lpos = -atoi(argv[i]+1) ; i++ ;
+	  Flag_POS = 1; *lpos = -atoi(argv[i]+1); i++;
 	} /* Only one numbered (#) PostOperation allowed */
 	else {
 	  while (i<argc && argv[i][0]!='-') { 
-	    Name_PostOperation[j] = argv[i] ; i++ ; j++ ;
+	    Name_PostOperation[j] = argv[i]; i++; j++;
 	    if(j == NBR_MAX_POS)
 	      Msg::Error("Too many PostOperations");
 	  }
 	  if(!j){
-	    Flag_POS = *lpos = 1 ;
+	    Flag_POS = *lpos = 1;
 	  }
 	  else{
-	    Flag_POS = 1 ;
-	    Name_PostOperation[j] = NULL ;
+	    Flag_POS = 1;
+	    Name_PostOperation[j] = NULL;
 	  }
 	}
       }
@@ -223,9 +223,9 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       else if (!strcmp(argv[i]+1, "mesh") ||
 	       !strcmp(argv[i]+1, "msh") ||
 	       !strcmp(argv[i]+1, "m")) {
-	i++ ;
+	i++;
 	if (i<argc && argv[i][0]!='-') { 
-	  Name_MshFile = argv[i] ; i++ ; 
+	  Name_MshFile = argv[i]; i++; 
 	}
 	else {
 	  Msg::Error("Missing file name");
@@ -235,9 +235,9 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       else if (!strcmp(argv[i]+1, "adapt") ||
 	       !strcmp(argv[i]+1, "adap") ||
 	       !strcmp(argv[i]+1, "ada")) {
-	i++ ;
+	i++;
 	if (i<argc && argv[i][0]!='-') { 
-	  Name_AdaptFile = argv[i] ; i++ ; 
+	  Name_AdaptFile = argv[i]; i++; 
 	}
 	else {
 	  Msg::Error("Missing file name");
@@ -245,24 +245,24 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       }
 
       else if (!strcmp(argv[i]+1, "res")) {
-	i++ ; j = 0 ;
+	i++; j = 0;
 	while (i<argc && argv[i][0]!='-') { 
-	  Name_ResFile[j] = argv[i] ; i++ ; j++ ;
+	  Name_ResFile[j] = argv[i]; i++; j++;
 	  if(j == NBR_MAX_RES)
 	    Msg::Error("Too many '.res' files");
 	}
 	if(!j)
 	  Msg::Error("Missing file name");
 	else{
-	  Name_ResFile[j] = NULL ;
+	  Name_ResFile[j] = NULL;
 	}
       }
 
       else if (!strcmp(argv[i]+1, "name")) {
-	i++ ;
+	i++;
 	if (i<argc && argv[i][0]!='-') { 
 	  Name_Generic = (char*)Malloc((strlen(argv[i]) + 1) * sizeof(char));
-	  strcpy(Name_Generic, argv[i]) ; i++ ; 
+	  strcpy(Name_Generic, argv[i]); i++; 
 	}
 	else {
 	  Msg::Error("Missing string");
@@ -271,8 +271,8 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 
       else if (!strcmp(argv[i]+1, "petscinfo") || 
 	       !strcmp(argv[i]+1, "-petscinfo")) {
-	sargv[(*sargc)++] = (char*)"-info" ;
-	i++ ;
+	sargv[(*sargc)++] = (char*)"-info";
+	i++;
       }
 
       else {
@@ -282,9 +282,9 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
     }
     else{
       if (!Flag_NameProblem) { 
-	Flag_NameProblem = 1 ;
-	sargv[0] = argv[i] ;
-	strcpy(pro, argv[i++]) ;
+	Flag_NameProblem = 1;
+	sargv[0] = argv[i];
+	strcpy(pro, argv[i++]);
       }
       else{
 	sargv[(*sargc)++] = argv[i++];
@@ -298,21 +298,21 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
   else{
     if(!Name_Generic){
       Name_Generic = (char*)Malloc((strlen(pro) + 1) * sizeof(char));
-      strcpy(Name_Generic, pro) ;
+      strcpy(Name_Generic, pro);
       if(strcmp(pro+(strlen(pro)-4), ".pro") &&
 	 strcmp(pro+(strlen(pro)-4), ".PRO"))
-	strcat(pro,".pro") ;
+	strcat(pro,".pro");
       else
-	Name_Generic[strlen(pro)-4] = '\0' ;
+	Name_Generic[strlen(pro)-4] = '\0';
     }
     else if(strcmp(pro+(strlen(pro)-4), ".pro") &&
 	    strcmp(pro+(strlen(pro)-4), ".PRO"))
-      strcat(pro,".pro") ;
+      strcat(pro,".pro");
 
     Name_Path = (char*)Malloc((strlen(Name_Generic) + 1) * sizeof(char));
     strcpy(Name_Path, Name_Generic);
-    i = strlen(Name_Path)-1 ;
-    while(i >= 0 && Name_Path[i] != '/' && Name_Path[i] != '\\') i-- ;
+    i = strlen(Name_Path)-1;
+    while(i >= 0 && Name_Path[i] != '/' && Name_Path[i] != '\\') i--;
     Name_Path[i+1] = '\0';
   }
 }
@@ -326,31 +326,31 @@ int MainLegacy(int argc, char *argv[])
   char pro[256];
   char **sargv = (char**)Malloc(256 * sizeof(char*));
   int sargc, lres = 0, lpos = 0, check = 0;
-  Get_Options(argc, argv, &sargc, sargv, pro, &lres, &lpos, &check) ;
+  Get_Options(argc, argv, &sargc, sargv, pro, &lres, &lpos, &check);
 
   if(sargc > 1){
-    Msg::Info( "Passing unused options to solver: ") ;
-    for(int i = 1 ; i < sargc ; i++)
-      Msg::Info("  %s", sargv[i]) ;
+    Msg::Info( "Passing unused options to solver: ");
+    for(int i = 1; i < sargc; i++)
+      Msg::Info("  %s", sargv[i]);
   }
 
   if(!Name_ResFile[0]){
-    Name_ResFile[0] = (char*)Malloc((strlen(Name_Generic)+5)*sizeof(char)) ;
-    strcpy(Name_ResFile[0], Name_Generic) ;
-    strcat(Name_ResFile[0], ".res") ;
-    Name_ResFile[1] = 0 ;
+    Name_ResFile[0] = (char*)Malloc((strlen(Name_Generic)+5)*sizeof(char));
+    strcpy(Name_ResFile[0], Name_Generic);
+    strcat(Name_ResFile[0], ".res");
+    Name_ResFile[1] = 0;
   }
 
   if(!Name_MshFile){
-    Name_MshFile = (char*)Malloc((strlen(Name_Generic)+5)*sizeof(char)) ;
-    strcpy(Name_MshFile, Name_Generic) ;
-    strcat(Name_MshFile, ".msh") ;
+    Name_MshFile = (char*)Malloc((strlen(Name_Generic)+5)*sizeof(char));
+    strcpy(Name_MshFile, Name_Generic);
+    strcat(Name_MshFile, ".msh");
   }
 
   check_gsl();
   CheckResources();
 
-  LinAlg_InitializeSolver(&sargc, &sargv) ;
+  LinAlg_InitializeSolver(&sargc, &sargv);
 
   Init_ProblemStructure();
   Read_ProblemStructure(pro);
@@ -360,6 +360,8 @@ int MainLegacy(int argc, char *argv[])
     lres = lpos = 1;
     choose = 0;
   }
+
+  // Msg::TestSocket();
 
   if(check) 
     Print_ProblemStructure();
