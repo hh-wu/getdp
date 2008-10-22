@@ -95,18 +95,6 @@ void BF_Node(struct Element * Element, int NumNode,
     break ;
 
   case PYRAMID :
-#if defined(NEW_PYRAMIDS)
-    if(w != 1. && NumNode != 5) r = u*v / (1.-w) ;
-    else                        r = 0. ;
-    switch(NumNode) {
-    case 1  : *s = 1. - u - v - w + r ; break ;
-    case 2  : *s =              u - r ; break ;
-    case 3  : *s =                  r ; break ;
-    case 4  : *s =              v - r ; break ;
-    case 5  : *s =                  w ; break ;
-    default : WrongNumNode ;
-    }
-#else
     if(w != 1. && NumNode != 5) r = u*v*w / (1.-w) ;
     else                        r = 0. ;
     switch(NumNode) {
@@ -117,7 +105,6 @@ void BF_Node(struct Element * Element, int NumNode,
     case 5  : *s = w                               ; break ;
     default : WrongNumNode ;
     }
-#endif
     break ;
 
   case LINE_2 :
@@ -291,42 +278,6 @@ void BF_GradNode(struct Element * Element, int NumNode,
     break ;
 
   case PYRAMID :
-#if defined(NEW_PYRAMIDS)
-    if(w == 1.) {
-      s[0] =  0. ; 
-      s[1] =  0. ;
-      s[2] = -0. ; 
-      switch(NumNode) {
-      case 1  : s[0] = -1. ;            
-	        s[1] = -1. ;            
-      	        s[2] = -1. ; break ;
-      case 2  : s[0] =  1. ; break ;
-      case 3  :              break ;
-      case 4  : s[1] =  1. ; break ;
-      case 5  : s[2] =  1. ; break ;
-      default : WrongNumNode ;
-      }
-    } else{
-      switch(NumNode) {
-      case 1  : s[0] = -1. + v / (1. -w) ;            
-	        s[1] = -1. + u / (1. -w) ;            
-      	        s[2] = -1. + u * v / SQU(1.-w) ; break ;
-      case 2  : s[0] =  1. - v / (1. -w) ;            
-	        s[1] = - u / (1. -w) ;            
-	        s[2] = - u * v / SQU(1.-w) ; break ;
-      case 3  : s[0] = v / (1.-w) ;
-                s[1] = u / (1.-w) ;
-                s[2] = u * v / SQU(1.-w) ; break ;
-      case 4  : s[0] = - v / (1. -w) ; 
-                s[1] = 1. - u / (1. -w) ;
-                s[2] = - u * v/ SQU(1.-w) ; break ;
-      case 5  : s[0] = 0. ; 
-                s[1] = 0. ;
-                s[2] = 1. ; break ;
-      default : WrongNumNode ;
-      }
-    }
-#else
     if(w == 1. && NumNode != 5) {
       //When w = 1 => u=v=0
       switch(NumNode) { 
@@ -368,7 +319,6 @@ void BF_GradNode(struct Element * Element, int NumNode,
       default : WrongNumNode ;
       }
     }
-#endif
     break ;
 
   case LINE_2 :
