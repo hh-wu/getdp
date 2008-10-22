@@ -65,14 +65,12 @@ void BF_Volume(struct Element * Element, int NumVolume,
     }
     break ;
 
-#if defined(NEW_PYRAMIDS)
   case PYRAMID :
     switch(NumVolume) {
-    case 1  : *s = 3. ; break ;
+    case 1  : *s = 3./4. ; break ;
     default : WrongNumVolume ;
     }
     break ;
-#endif
 
   default :
     Msg::Error("Unkown type of Element in BF_Volume");
