@@ -120,7 +120,7 @@ void BF_Facet(struct Element * Element, int NumFacet,
     default : WrongNumFacet ;
     }
     break ;
-
+    /*
 #if defined(NEW_PYRAMIDS)
   case PYRAMID :
     if ( w == 1){
@@ -154,7 +154,7 @@ void BF_Facet(struct Element * Element, int NumFacet,
     }
     break ;
 #endif
-    
+    */
   default :
     Msg::Error("Unkown type of Element in BF_Facet");
     break;
@@ -257,7 +257,7 @@ void BF_DivFacet(struct Element * Element, int NumFacet,
     default : WrongNumFacet ;
     }
     break ;
-
+    /*
 #if defined(NEW_PYRAMIDS)
   case PYRAMID :
     switch(NumFacet) {
@@ -265,7 +265,7 @@ void BF_DivFacet(struct Element * Element, int NumFacet,
     }
     break ;
 #endif
-    
+    */
   default :
     Msg::Error("Unkown type of Element in BF_DivFacet");
     break ;
