@@ -120,43 +120,41 @@ void BF_Facet(struct Element * Element, int NumFacet,
     default : WrongNumFacet ;
     }
     break ;
-    /*
-#if defined(NEW_PYRAMIDS)
+
   case PYRAMID :
     if ( w == 1){
       switch(NumFacet) {
-      case 1  : s[0] =  0. ; s[1] = -2. ; s[2] = 1. ; break ;
-      case 2  : s[0] = -2. ; s[1] =  0. ; s[2] = 1. ; break ;
-      case 3  : s[0] =  0. ; s[1] =  0. ; s[2] = 1. ; break ;
-      case 4  : s[0] =  0. ; s[1] =  0. ; s[2] = 1. ; break ;
-      case 5  : s[0] =  0. ; s[1] =  0. ; s[2] = 0. ; break ;
+      case 1  : s[0] =  0.  ; s[1] = -0.5 ; s[2] = 0.25 ; break ;
+      case 2  : s[0] =  0.  ; s[1] =  0.  ; s[2] = 0.   ; break ;
+      case 3  : s[0] = -0.5 ; s[1] =  0.  ; s[2] = 0.25 ; break ;
+      case 4  : s[0] =  0.5 ; s[1] =  0.  ; s[2] = 0.25 ; break ;
+      case 5  : s[0] =  0.  ; s[1] =  0.5 ; s[2] = 0.25 ; break ;
       default : WrongNumFacet ;
       }
     } else {
       switch(NumFacet) {
-      case 1  : s[0] =      - u * w / (1. - w) ;
-        	s[1] =   -2. + v + v / (1. -w) ;
-        	s[2] =                      w  ; break ;
-      case 2  : s[0] =  -2. + u + u / (1. - w) ;
-        	s[1] =      - v * w / (1. - w) ;
-        	s[2] =                      w  ; break ;
-      case 3  : s[0] =         u + u / (1. -w) ;
-        	s[1] =      - v * w / (1. - w) ;
-        	s[2] =                      w  ; break ;
-      case 4  : s[0] =      - u * w / (1. - w) ;
-        	s[1] =        v + v / (1. - w) ;
-        	s[2] =                      w  ; break ;
-      case 5  : s[0] =                      u  ;
-        	s[1] =                      v  ;
-        	s[2] =                  w - 1. ; break ;
+      case 1  : s[0] = -0.25 * u * w / (1. - w) ;
+	        s[1] =  0.25 * (-2. + v + v / (1. - w)) ;
+        	s[2] =  0.25 * w ; break ;
+      case 2  : s[0] =  0.25 * u ;
+        	s[1] =  0.25 * v ;
+        	s[2] = -0.25 * (1. - w) ; break ;
+      case 3  : s[0] =  0.25 * (-2. + u + u / (1. - w)) ;
+        	s[1] = -0.25 * v * w / (1. - w) ;
+        	s[2] =  0.25 * w ; break ;
+      case 4  : s[0] =  0.25 * ( 2. + u + u / (1. - w)) ;
+        	s[1] = -0.25 * v * w / (1. - w);
+        	s[2] =  0.25 * w ; break ;
+      case 5  : s[0] = -0.25 * u * w / (1. - w) ;
+        	s[1] =  0.25 * ( 2. + v + v / (1. - w)) ;
+        	s[2] =  0.25 * w ; break ;
       default : WrongNumFacet ;
       }
     }
     break ;
-#endif
-    */
+
   default :
-    Msg::Error("Unkown type of Element in BF_Facet");
+    Msg::Error("Unknown type of Element in BF_Facet");
     break;
   }
 
@@ -257,15 +255,30 @@ void BF_DivFacet(struct Element * Element, int NumFacet,
     default : WrongNumFacet ;
     }
     break ;
-    /*
-#if defined(NEW_PYRAMIDS)
+
   case PYRAMID :
-    switch(NumFacet) {
-    default : WrongNumFacet ;
+    if ( w == 1){
+      s[0] = s[1] = s[2] = 0.  ;
+    } else {
+      switch(NumFacet) {
+      case 1  : s[0] = -0.25 * v / (-1.+w) / (-1.+w) ;
+	        s[1] = -0.25 * u / (-1.+w) / (-1.+w) ;
+        	s[2] =  0. ; break ;
+      case 2  : s[0] =  0. ; s[1] =  0. ; s[2] =  0. ; break ;
+      case 3  : s[0] =  0.25 * v / (-1.+w) / (-1.+w) ;
+        	s[1] =  0.25 * u / (-1.+w) / (-1.+w) ;
+        	s[2] =  0. ; break ;
+      case 4  : s[0] =  0.25 * v / (-1.+w) / (-1.+w) ;
+        	s[1] =  0.25 * u / (-1.+w) / (-1.+w);
+        	s[2] =  0. ; break ;
+      case 5  : s[0] = -0.25 * v / (-1.+w) / (-1.+w);
+        	s[1] = -0.25 * u / (-1.+w) / (-1.+w);
+        	s[2] =  0. ; break ;
+      default : WrongNumFacet ;
+      }
     }
     break ;
-#endif
-    */
+
   default :
     Msg::Error("Unkown type of Element in BF_DivFacet");
     break ;
