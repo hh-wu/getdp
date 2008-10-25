@@ -23,9 +23,13 @@
 #include <sys/time.h>
 #include <netinet/in.h>
 #include <netdb.h>
+#if defined(HAVE_NO_SOCKLEN_T)
+typedef int socklen_t;
+#endif
 #else
 #include <winsock.h>
 #include <process.h>
+typedef int socklen_t;
 #endif
 
 class GmshSocket{
@@ -117,13 +121,14 @@ class GmshSocket{
 #endif
   }
   // utility function to wait for some data to read on a socket (if
-  // seconds==0 we check for available data and return immediately,
-  // i.e., we do polling)
-  int Select(int socket, int seconds)
+  // seconds and microseconds == 0 we check for available data and
+  // return immediately, i.e., we do polling). Returns 0 when data is
+  // available.
+  int Select(int socket, int seconds, int microseconds)
   {
     struct timeval tv;
     tv.tv_sec = seconds;
-    tv.tv_usec = 0;
+    tv.tv_usec = microseconds;
     fd_set rfds;
     FD_ZERO(&rfds);
     FD_SET(socket, &rfds);
@@ -213,7 +218,7 @@ class GmshClient : public GmshSocket {
       if(_sock < 0)
 	return -1; // Error: Couldn't create socket
       // try to connect socket to host:port
-      char *port = strstr(sockname, ":");
+      const char *port = strstr(sockname, ":");
       int portno = atoi(port + 1);
       int remotelen = strlen(sockname) - strlen(port);
       char remote[256];
@@ -238,6 +243,10 @@ class GmshClient : public GmshSocket {
     }
     CloseSocket(_sock);
     return -2; // Error: Couldn't connect
+  }
+  int Select(int seconds, int microseconds)
+  {
+    return GmshSocket::Select(_sock, seconds, microseconds);
   }
   void Start()
   {
@@ -310,7 +319,7 @@ class GmshServer : public GmshSocket{
       // change permissions on the socket name in case it has to be rm'd later
       chmod(_sockname, 0666);
 #else
-      return -7; // Unix sockets not available on Windows without Cygwin
+      return -7; // Unix sockets not available on Windows
 #endif
     }
     else{
@@ -357,22 +366,17 @@ class GmshServer : public GmshSocket{
     else{
       // Wait at most maxdelay seconds for data, issue error if no
       // connection in that amount of time
-      if(!Select(tmpsock, maxdelay)){
+      if(!Select(tmpsock, maxdelay, 0)){
         CloseSocket(tmpsock);
         return -4;  // Error: Socket listening timeout
       }
     }
 
     // accept connection request
-#if defined(HAVE_NO_SOCKLEN_T)
-    int len;
-#else
-    socklen_t len;
-#endif
     if(_portno < 0){
 #if !defined(WIN32) || defined(__CYGWIN__)
       struct sockaddr_un from_un;
-      len = sizeof(from_un);
+      socklen_t len = sizeof(from_un);
       _sock = accept(tmpsock, (struct sockaddr *)&from_un, &len);
 #else
       _sock = -7; // Unix sockets not available on Windows
@@ -380,7 +384,7 @@ class GmshServer : public GmshSocket{
     }
     else{
       struct sockaddr_in from_in;
-      len = sizeof(from_in);
+      socklen_t len = sizeof(from_in);
       _sock = accept(tmpsock, (struct sockaddr *)&from_in, &len);
     }
     CloseSocket(tmpsock);
