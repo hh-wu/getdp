@@ -378,6 +378,8 @@ int MainLegacy(int argc, char *argv[])
   LinAlg_FinalizeSolver();
 
   Msg::Direct("E n d");
+  Msg::FinalizeSocket();
+
   LinAlg_Finalize();
   return 0;
 }
