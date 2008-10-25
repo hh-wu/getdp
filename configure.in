@@ -105,6 +105,12 @@ AC_EXEEXT
 dnl Check for standard math library
 AC_CHECK_LIB(m,main)
 
+dnl Check if Unix98 socklen_t type is available
+AC_TRY_COMPILE(
+  [#include <sys/types.h>
+   #include <sys/socket.h>],
+  [socklen_t len = 42; return 0;],,FLAGS="-DHAVE_NO_SOCKLEN_T ${FLAGS}")
+
 dnl Set default subdirectories and options
 GETDP_DIRS="Common Numeric Interface Legacy Main"
 GETDP_LIBS="-Llib -lGetDPLegacy -lGetDPInterface -lGetDPLegacy -lGetDPNumeric -lGetDPCommon"
