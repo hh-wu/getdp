@@ -192,28 +192,24 @@ void Message::Cpu(const char *fmt, ...)
   double s = 0.;
   long mem = 0;
   GetResources(&s, &mem);
-  char str[1024];
+
+  char str[1024], str2[256];
   va_list args;
   va_start(args, fmt);
   vsprintf(str, fmt, args);
   va_end(args);
   if(strlen(fmt)) strcat(str, " ");
+  if(mem)
+    sprintf(str2, "(CPU = %gs Mem = %ldkb)", s, mem);
+  else
+    sprintf(str2, "(CPU = %gs)", s);
+  strcat(str, str2);
 
   if(_client){
-    char tmp[256];
-    if(mem)
-      sprintf(tmp, "(CPU = %gs Mem = %ldkb)\n", s, mem);
-    else
-      sprintf(tmp, "(CPU = %gs)\n", s);
-    strcat(str, tmp);
     _client->Info(str);
   }
   else{
-    fprintf(stdout, "Info    : ");
-    if(mem)
-      fprintf(stdout, "%s(CPU = %gs Mem = %ldkb)\n", str, s, mem);
-    else
-      fprintf(stdout, "%s(CPU = %gs)\n", str, s);
+    fprintf(stdout, "Info    : %s\n", str);
     fflush(stdout);
   }
 }
@@ -221,19 +217,38 @@ void Message::Cpu(const char *fmt, ...)
 void Message::ProgressMeter(int n, int N, const char *fmt, ...)
 {
   if(_commRank || _verbosity < 2) return;
+
+  char str[1024], str2[256];
   va_list args;
   va_start(args, fmt);
+  vsprintf(str, fmt, args);
+  va_end(args);
+  if(strlen(fmt)) strcat(str, " ");
+
   double percent = 100. * (double)n/(double)N;
   if(percent >= _progressMeterCurrent){
-    vfprintf(stdout, fmt, args);
-    fprintf(stdout, "(%d %%)                     \r", _progressMeterCurrent);
+    sprintf(str2, "(%d %%)", _progressMeterCurrent);
+    strcat(str, str2);
+    if(_client){
+      _client->Progress(str);
+    }
+    else{
+      fprintf(stdout, "%s                      \r", str);
+      fflush(stdout);
+    }
     while(_progressMeterCurrent < percent)
       _progressMeterCurrent += _progressMeterStep;
   }
-  va_end(args);
-  if(n > N - 1)
-    fprintf(stdout, "Done!                                              \r");
-  fflush(stdout);
+
+  if(n > N - 1){
+    if(_client){
+      _client->Progress("Done!");
+    }
+    else{
+      fprintf(stdout, "Done!                                              \r");
+      fflush(stdout);
+    }
+  }
 }
 
 void Message::PrintTimers()
