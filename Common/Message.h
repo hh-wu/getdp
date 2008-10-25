@@ -10,6 +10,8 @@
 #include <string>
 #include <stdarg.h>
 
+class GmshClient;
+
 // a class to manage messages
 class Message {
  private:
@@ -21,8 +23,8 @@ class Message {
   static int _progressMeterStep, _progressMeterCurrent;
   // timers
   static std::map<std::string, double> _timers;
-  // communication socket
-  static int _socket;
+  // communication with Gmsh
+  static GmshClient *_client;
  public:
   Message() {}
   static void Init(int argc, char **argv){}
@@ -56,7 +58,7 @@ class Message {
   static void SendOptionOnSocket(int num, std::string option);
   static void TestSocket();
   static void FinalizeSocket();
-  static bool UseSocket(){ return _socket ? true : false; }
+  static bool UseSocket(){ return _client ? true : false; }
 };
 
 typedef Message Msg;

@@ -24,18 +24,13 @@
 #include "Message.h"
 #include "GmshSocket.h"
 
-// don't put the client in the Message class, to avoid having 
-// to include GmshClient.h (and hence all the Windows crap) 
-// in Message.h
-static GmshClient _client;
-
 int Message::_commRank = 0;
 int Message::_commSize = 1;
 int Message::_verbosity = 3;
 int Message::_progressMeterStep = 10;
 int Message::_progressMeterCurrent = 0;
 std::map<std::string, double> Message::_timers;
-int Message::_socket = 0;
+GmshClient* Message::_client = 0;
 
 void Message::Fatal(const char *fmt, ...)
 {
@@ -45,8 +40,8 @@ void Message::Fatal(const char *fmt, ...)
   vsprintf(str, fmt, args);
   va_end(args);
 
-  if(_socket){
-    _client.Error(str);
+  if(_client){
+    _client->Error(str);
   }
   else{
     if(_commSize > 1) 
@@ -66,8 +61,8 @@ void Message::Error(const char *fmt, ...)
   vsprintf(str, fmt, args);
   va_end(args);
 
-  if(_socket){
-    _client.Error(str);
+  if(_client){
+    _client->Error(str);
   }
   else{
     if(_commSize > 1) 
@@ -90,8 +85,8 @@ void Message::Warning(const char *fmt, ...)
   vsprintf(str, fmt, args);
   va_end(args);
 
-  if(_socket){
-    _client.Warning(str);
+  if(_client){
+    _client->Warning(str);
   }
   else{
     fprintf(stdout, "Warning : %s\n", str);
@@ -108,8 +103,8 @@ void Message::Info(const char *fmt, ...)
   vsprintf(str, fmt, args);
   va_end(args);
 
-  if(_socket){
-    _client.Info(str);
+  if(_client){
+    _client->Info(str);
   }
   else{
     fprintf(stdout, "Info    : %s\n", str);
@@ -126,8 +121,8 @@ void Message::Direct(const char *fmt, ...)
   vsprintf(str, fmt, args);
   va_end(args);
 
-  if(_socket){
-    _client.Info(str);
+  if(_client){
+    _client->Info(str);
   }
   else{
     fprintf(stdout, "Info    : %s\n", str);
@@ -144,8 +139,8 @@ void Message::Check(const char *fmt, ...)
   vsprintf(str, fmt, args);
   va_end(args);
 
-  if(_socket){
-    _client.Info(str);
+  if(_client){
+    _client->Info(str);
   }
   else{
     fprintf(stdout, "%s", str);
@@ -162,8 +157,8 @@ void Message::Debug(const char *fmt, ...)
   vsprintf(str, fmt, args);
   va_end(args);
 
-  if(_socket){
-    _client.Info(str);
+  if(_client){
+    _client->Info(str);
   }
   else{
     if(_commSize > 1) 
@@ -204,14 +199,14 @@ void Message::Cpu(const char *fmt, ...)
   va_end(args);
   if(strlen(fmt)) strcat(str, " ");
 
-  if(_socket){
+  if(_client){
     char tmp[256];
     if(mem)
       sprintf(tmp, "(CPU = %gs Mem = %ldkb)\n", s, mem);
     else
       sprintf(tmp, "(CPU = %gs)\n", s);
     strcat(str, tmp);
-    _client.Info(str);
+    _client->Info(str);
   }
   else{
     fprintf(stdout, "Info    : ");
@@ -254,8 +249,8 @@ void Message::PrintTimers()
   }
   if(!str.size()) return;
 
-  if(_socket){
-    _client.Info((char*)str.c_str());
+  if(_client){
+    _client->Info((char*)str.c_str());
   }
   else{
     if(_commSize > 1) 
@@ -269,47 +264,50 @@ void Message::PrintTimers()
 void Message::InitializeSocket(std::string sockname)
 {
   if(sockname.size()){
-    _socket = _client.Connect((char*)sockname.c_str());
-    if(_socket < 0){
+    _client = new GmshClient();
+    if(_client->Connect(sockname.c_str()) < 0){
       Msg::Error("Could not connect to socket `%s'", sockname.c_str());
-      _socket = 0;
+      delete _client;
+      _client = 0;
     }
     else{
-      _client.Start();
+      _client->Start();
     }
   }
 }
 
 void Message::SendFileOnSocket(std::string filename)
 {
-  if(_socket){
-    _client.MergeFile((char*)filename.c_str());
+  if(_client){
+    _client->MergeFile((char*)filename.c_str());
   }
 }
 
 void Message::TestSocket()
 {
-  if(_socket){
+  if(_client){
     std::string tmp("View \"test\" {\n");
     for(int i= 0; i < 1000000; i++)
       tmp += "ST(0,0,0, 1,0,0, 0,1,0){1,2,3};\n";
     tmp += "};\n";
-    _client.SpeedTest(tmp.c_str());
+    _client->SpeedTest(tmp.c_str());
   }
 }
 
 void Message::SendOptionOnSocket(int num, std::string option)
 {
-  if(_socket){
-    _client.Option(num, (char*)option.c_str());
+  if(_client){
+    _client->Option(num, option.c_str());
   }
 }
 
 void Message::FinalizeSocket()
 {
-  if(_socket){
-    _client.Stop();
-    _client.Disconnect();
+  if(_client){
+    _client->Stop();
+    _client->Disconnect();
+    delete _client;
+    _client = 0;
   }
 }
 
