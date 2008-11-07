@@ -8,7 +8,7 @@
 //   Ruth Sabariego
 //
 
-#include <strings.h>
+#include <string.h>
 #include <math.h>
 #include "ProData.h"
 #include "ProDefine.h"

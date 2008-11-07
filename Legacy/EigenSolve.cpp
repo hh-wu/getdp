@@ -8,7 +8,7 @@
 //   Andre Nicolet
 //
 
-#include <strings.h>
+#include <string.h>
 #include <math.h>
 #include "ProData.h"
 #include "DofData.h"

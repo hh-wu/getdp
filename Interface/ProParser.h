@@ -8,7 +8,6 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <strings.h>
 #include "ListUtils.h"
 
 struct Constant {

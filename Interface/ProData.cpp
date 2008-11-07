@@ -4,7 +4,7 @@
 // bugs and problems to <getdp@geuz.org>.
 
 #include <stdlib.h>
-#include <strings.h>
+#include <string.h>
 #include <string>
 #include "ProData.h"
 #include "ProDefine.h"

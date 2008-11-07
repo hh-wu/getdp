@@ -3,7 +3,7 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
-#include <strings.h>
+#include <string.h>
 #include "ProData.h"
 #include "DofData.h"
 #include "Get_DofOfElement.h"
