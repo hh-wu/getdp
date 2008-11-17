@@ -6,7 +6,6 @@
 #ifndef _PRO_DATA_H_
 #define _PRO_DATA_H_
 
-#include <vector>
 #include "ListUtils.h"
 
 #define _0D      0

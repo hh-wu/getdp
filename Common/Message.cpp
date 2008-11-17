@@ -125,7 +125,7 @@ void Message::Direct(const char *fmt, ...)
     _client->Info(str);
   }
   else{
-    fprintf(stdout, "Info    : %s\n", str);
+    fprintf(stdout, "%s\n", str);
     fflush(stdout);
   }
 }

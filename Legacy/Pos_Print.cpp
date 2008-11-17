@@ -3,6 +3,7 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
+#include <sstream>
 #include <math.h>
 #include "ProData.h"
 #include "GeoData.h"
@@ -1233,7 +1234,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       ) {
     if (Group_FunctionType == REGION)
       Msg::Error("Print OnRegion not valid for PostProcessing Quantity '%s'",
-	  NCPQ_P->Name);
+                 NCPQ_P->Name);
     else
       Type_Evaluation = LOCAL;
   }
@@ -1246,12 +1247,20 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       Nbr_Region = List_Nbr(Region_L) ;
 
       if (PostSubOperation_P->Format != FORMAT_SPACE_TABLE) {
-	fprintf(PostStream, "# %s on", PQ_P->Name) ;
+        std::ostringstream sstream;
+        if (PostSubOperation_P->Format == FORMAT_GMSH)
+          sstream << "// ";
+        else
+          sstream << "# ";
+        sstream << PQ_P->Name << " on";
 	for(i = 0 ; i < Nbr_Region ; i++) {
 	  List_Read(Region_L, i, &Num_Region) ;
-	  fprintf(PostStream, " %d", Num_Region) ;
+	  sstream << " " << Num_Region;
 	}
-	fprintf(PostStream, "\n") ;
+        if(PostStream == stdout || PostStream == stderr)
+          Msg::Direct(sstream.str().c_str());
+        else
+          fprintf(PostStream, "%s\n", sstream.str().c_str()) ;
       }
     }
     else if (Group_P->FunctionType == NODESOF) {
@@ -1263,7 +1272,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     }
     else {
       Msg::Error("Function type (%d) not allowed for PrintOnRegion",
-	  Group_P->FunctionType) ;
+                 Group_P->FunctionType) ;
     }
   }
   else

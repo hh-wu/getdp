@@ -7,6 +7,7 @@
 //   Johan Gyselinck
 //
 
+#include <sstream>
 #include <string.h>
 #include <math.h>
 #include "ProData.h"
@@ -192,7 +193,7 @@ void Cal_ValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values)
   }
   else {
     Msg::Error("Wrong type conversion: %s ",
-	Get_StringForDefine(Field_Type, V1[0].Type));
+               Get_StringForDefine(Field_Type, V1[0].Type));
   }
 }
 
@@ -218,7 +219,7 @@ void Cal_AddValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values)
   }
   else {
     Msg::Error("Wrong type conversion: %s ",
-	Get_StringForDefine(Field_Type, V1[0].Type));
+               Get_StringForDefine(Field_Type, V1[0].Type));
   }
 }
 
@@ -330,8 +331,8 @@ void Cal_AddValue(struct Value * V1, struct Value * V2, struct Value * R)
   
   else {
     Msg::Error("Addition of different quantities: %s + %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -440,8 +441,8 @@ void  Cal_AddValueArray (struct Value *V1, struct Value *V2, struct Value *R, in
   }
   else
     Msg::Error("Addition of different quantities: %s + %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
 }
 
 #undef ADD
@@ -862,8 +863,8 @@ void Cal_SubstractValue(struct Value * V1, struct Value * V2, struct Value * R)
 
   else {
     Msg::Error("Substraction of different quantities: %s - %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1184,8 +1185,8 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
 
   else {
     Msg::Error("Product of non adapted quantities: %s * %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 
 }
@@ -1290,8 +1291,8 @@ void Cal_DivideValue(struct Value * V1, struct Value * V2, struct Value * R)
 
   else {
     Msg::Error("Division of non adapted quantities: %s / %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 
 }
@@ -1329,8 +1330,8 @@ void Cal_ModuloValue(struct Value * V1, struct Value * V2, struct Value * R)
 
   else {
     Msg::Error("Modulo of non adapted quantities: %s %% %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 
 }
@@ -1374,8 +1375,8 @@ void  Cal_CrossProductValue (struct Value * V1, struct Value * V2, struct Value 
 
   else {
     Msg::Error("Cross product of non vector quantities: %s /\\ %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 
 }
@@ -1425,8 +1426,8 @@ void Cal_PowerValue(struct Value * V1, struct Value * V2, struct Value * R)
 
   else {
     Msg::Error("Power of non scalar quantities: %s ^ %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 
 }
@@ -1443,8 +1444,8 @@ void Cal_LessValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
   else {
     Msg::Error("Comparison of non scalar quantities: %s < %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1460,8 +1461,8 @@ void Cal_LessOrEqualValue(struct Value * V1, struct Value * V2, struct Value * R
   }
   else {
     Msg::Error("Comparison of non scalar quantities: %s <= %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1477,8 +1478,8 @@ void Cal_GreaterValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
   else {
     Msg::Error("Comparison of non scalar quantities: %s > %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1494,8 +1495,8 @@ void Cal_GreaterOrEqualValue(struct Value * V1, struct Value * V2, struct Value 
   }
   else {
     Msg::Error("Comparison of non scalar quantities: %s >= %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1572,8 +1573,8 @@ void Cal_EqualValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
   else {
     Msg::Error("Comparison of different quantities: %s == %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1650,8 +1651,8 @@ void Cal_NotEqualValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
   else {
     Msg::Error("Comparison of different quantities: %s != %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1667,8 +1668,8 @@ void Cal_ApproxEqualValue(struct Value * V1, struct Value * V2, struct Value * R
   }
   else {
     Msg::Error("Comparison of non scalar quantities: %s ~= %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1684,8 +1685,8 @@ void Cal_AndValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
   else {
     Msg::Error("And of non scalar quantities: %s && %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1701,8 +1702,8 @@ void Cal_OrValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
   else {
     Msg::Error("Or of non scalar quantities: %s || %s",
-	Get_StringForDefine(Field_Type, V1->Type),
-	Get_StringForDefine(Field_Type, V2->Type));
+               Get_StringForDefine(Field_Type, V1->Type),
+               Get_StringForDefine(Field_Type, V2->Type));
   }
 }
 
@@ -1768,7 +1769,7 @@ void Cal_NotValue(struct Value * R)
   }
   else {
     Msg::Error("Negation of non scalar quantity: ! %s",
-	Get_StringForDefine(Field_Type, R->Type));
+               Get_StringForDefine(Field_Type, R->Type));
   }
 }
 
@@ -2436,57 +2437,60 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
 void Print_Value(struct Value *A)
 {
   int i, j, k, index = 0;
+  std::ostringstream sstream;
+
+  sstream.precision(16);
 
   switch(A->Type){
 
   case SCALAR :
-    if(Current.NbrHar>1) fprintf(stdout, "(");
+    if(Current.NbrHar>1) sstream << "(";
     for (k = 0 ; k < Current.NbrHar ; k++) {
-      if(k) fprintf(stdout, ",");
-      fprintf(stdout, "%.16g", A->Val[MAX_DIM*k]);
+      if(k) sstream << ",";
+      sstream << A->Val[MAX_DIM*k];
     }
-    if(Current.NbrHar>1) fprintf(stdout, ")");    
+    if(Current.NbrHar>1) sstream << ")";    
     break;
 
   case VECTOR :
-    fprintf(stdout, "[");
+    sstream << "[";
     for (i = 0 ; i < 3 ; i++) {
-      if(i) fprintf(stdout, " ");
-      if(Current.NbrHar>1) fprintf(stdout, "(");
+      if(i) sstream << " ";
+      if(Current.NbrHar>1) sstream << "(";
       for (k = 0 ; k < Current.NbrHar ; k++) {
-	if(k) fprintf(stdout, ",");
-	fprintf(stdout, "%.16g", A->Val[MAX_DIM*k+i]);
+	if(k) sstream << ",";
+	sstream << A->Val[MAX_DIM*k+i];
       }
-      if(Current.NbrHar>1) fprintf(stdout, ")");
+      if(Current.NbrHar>1) sstream << ")";
     }
-    fprintf(stdout, "]");
+    sstream << "]";
     break;
 
   case TENSOR_DIAG :
   case TENSOR_SYM :
   case TENSOR :
-    fprintf(stdout, "[[");
+    sstream << "[[";
     for (i = 0 ; i < 3 ; i++) {
-      if(i) fprintf(stdout, "][");
+      if(i) sstream << "][";
       for (j = 0 ; j < 3 ; j++) {
-	if(j) fprintf(stdout, " ");
-	if(Current.NbrHar>1) fprintf(stdout, "(");
+	if(j) sstream << " ";
+	if(Current.NbrHar>1) sstream << "(";
 	switch(A->Type){
 	case TENSOR_DIAG : index = TENSOR_DIAG_MAP[3*i+j]; break;
 	case TENSOR_SYM  : index = TENSOR_SYM_MAP[3*i+j]; break;
 	case TENSOR      : index = 3*i+j; break;
 	}
 	for (k = 0 ; k < Current.NbrHar ; k++) {
-	  if(k) fprintf(stdout, ",");
+	  if(k) sstream << ",";
 	  if(index<0) 
-	    fprintf(stdout, "0");
+	    sstream << "0";
 	  else
-	    fprintf(stdout, "%.16g", A->Val[MAX_DIM*k+index]);
+	    sstream << A->Val[MAX_DIM*k+index];
 	}
-	if(Current.NbrHar>1) fprintf(stdout, ")");
+	if(Current.NbrHar>1) sstream << ")";
       }
     }
-    fprintf(stdout, "]]");
+    sstream << "]]";
     break;
 
   default :
@@ -2494,7 +2498,8 @@ void Print_Value(struct Value *A)
     break;
   }
 
-  fprintf(stdout, " ");
+  Msg::Direct("%s", sstream.str().c_str());
+  Msg::Direct(" ");
 }
 
 /* ------------------------------------------------------------------------ 

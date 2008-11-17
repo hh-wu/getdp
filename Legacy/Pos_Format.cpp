@@ -3,6 +3,7 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
+#include <sstream>
 #include <string.h>
 #include <math.h>
 #include "GetDPVersion.h"
@@ -976,13 +977,18 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
     if(iRegion == 0){
       fprintf(PostStream, "%d\n", NbrRegion) ;
     }
-    fprintf(PostStream, "%d", numRegion) ;
+    std::ostringstream sstream;
+    sstream.precision(16);
+    sstream << numRegion;
     for (k = 0 ; k < NbrHarmonics ; k++) {
       for(j = 0 ; j < Size ; j++) {
-	if (Flag_Comma) fprintf(PostStream, ",");
-	fprintf(PostStream, " %.16g", Value->Val[MAX_DIM*k+j]) ;
+	if (Flag_Comma) sstream << ",";
+	sstream << " " << Value->Val[MAX_DIM*k+j] ;
       }
-      fprintf(PostStream, "\n") ;
+      if(PostStream == stdout || PostStream == stderr)
+        Msg::Direct(sstream.str().c_str());
+      else
+        fprintf(PostStream, "%s\n", sstream.str().c_str()) ;
     }
   }
 
