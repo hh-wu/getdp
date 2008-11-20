@@ -30,7 +30,7 @@ ${LIB}: ${OBJ}
 parser: ProParser.y ProParser.l
 	bison -p getdp_yy --output ProParser.tab.cpp -d ProParser.y 
 	if [ -r ProParser.tab.cpp.h ]; then mv ProParser.tab.cpp.h ProParser.tab.hpp ; fi
-	flex -P getdp_yy -oProParser.yy.cpp ProParser.l
+	flex -Pgetdp_yy -oProParser.yy.cpp ProParser.l
 
 clean:
 	rm -f *.o *.obj
