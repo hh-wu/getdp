@@ -4090,8 +4090,9 @@ OperationTerm :
       Operation_P->Case.Test.Operation_False = NULL;
     }
 
-  | tIf '[' Expression ']' '{' Operation '}' tElse '{' Operation '}' 
+  | tIf '[' Expression ']' '{' Operation '}'  tElse '{' Operation '}' 
     { 
+      List_Pop(Operation_L);
       List_Pop(Operation_L);
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
