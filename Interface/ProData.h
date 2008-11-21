@@ -974,6 +974,9 @@ struct Operation {
       int     GroupIndex;
     } Generate;
     struct {
+      int     SolverIndex;
+    } Solve;
+    struct {
       int     GroupIndex;
       char    *FileName;
       int     ExprIndex;

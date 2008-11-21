@@ -96,7 +96,7 @@ void LinAlg_VectorNorm2(gVector *V1, double *norm){ err; }
 void LinAlg_VectorNormInf(gVector *V1, double *norm){ err; }
 void LinAlg_AssembleMatrix(gMatrix *M){ err; }
 void LinAlg_AssembleVector(gVector *V){ err; }
-void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){ err; }
-void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X){ err; }
+void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex){ err; }
+void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex){ err; }
 
 #endif

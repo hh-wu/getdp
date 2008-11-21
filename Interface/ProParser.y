@@ -129,7 +129,7 @@ void vyyerror(const char *fmt, ...);
 %type <i>  Expression DefineDimension MultipleIndex Index
 %type <i>  ArgumentsForFunction RecursiveListOfQuantity
 %type <i>  PostQuantitySupport
-%type <i>  StrCmp NbrRegions
+%type <i>  StrCmp NbrRegions CommaFExprOrNothing
 %type <d>  FExpr OneFExpr
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr RecursiveListOfListOfFExpr
 %type <l>  ParametersForFunction
@@ -3983,6 +3983,11 @@ Operation :
     }
  ;
 
+CommaFExprOrNothing :
+    { $$ = 0.; }
+  | ',' FExpr
+    { $$ = $2; }
+
 OperationTerm :
 
   /* OLD syntax */
@@ -4043,7 +4048,7 @@ OperationTerm :
 
   /* NEW syntax (function style): Only missing is IterativeTimeReduction */
 
-  | tSTRING '[' String__Index ']' tEND
+  | tSTRING '[' String__Index CommaFExprOrNothing ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = Get_DefineForString(Operation_Type, $1, &FlagError);
@@ -4064,6 +4069,10 @@ OperationTerm :
 	  Operation_P->Type == OPERATION_GENERATEJAC ||
 	  Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
+
+      if(Operation_P->Type == OPERATION_SOLVE || 
+         Operation_P->Type == OPERATION_SOLVEAGAIN)
+        Operation_P->Case.Solve.SolverIndex = $4;
     }
 
   | tSetTime '[' Expression ']' tEND

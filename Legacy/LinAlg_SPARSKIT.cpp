@@ -622,16 +622,14 @@ void LinAlg_AssembleVector(gVector *V)
 
 /* Solve */
 
-void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X)
+void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
 {
   solve_matrix(&A->M, &Solver->Params, B->V, X->V);
 }
 
-void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X)
+void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
 {
-  int tmp;
-
-  tmp = Solver->Params.Re_Use_LU;
+  int tmp = Solver->Params.Re_Use_LU;
   Solver->Params.Re_Use_LU = 1;
   solve_matrix(&A->M, &Solver->Params, B->V, X->V);
   Solver->Params.Re_Use_LU = tmp;

@@ -94,7 +94,7 @@ void LinAlg_Barrier()
 
 void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
 {
-  Solver->ksp = NULL;
+  for(int i = 0; i < 10; i++) Solver->ksp[i] = NULL;
 }
 
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
@@ -123,8 +123,11 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 
 void LinAlg_DestroySolver(gSolver *Solver)
 {
-  ierr = KSPDestroy(Solver->ksp); MYCHECK(ierr);
-  Solver->ksp = NULL;
+  for(int i = 0; i < 10; i++){
+    if(Solver->ksp[i]){
+      ierr = KSPDestroy(Solver->ksp[i]); MYCHECK(ierr);
+    }
+  }
 }
 
 void LinAlg_DestroyVector(gVector *V)
@@ -910,7 +913,8 @@ static PetscErrorCode _myKspMonitor(KSP ksp, int it, PetscReal rnorm, void *mctx
   return 0;
 }
 
-static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int precond)
+static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, 
+                   int precond, int kspIndex)
 {
   int its, RankCpu, i, j, view = 0;
 
@@ -921,66 +925,76 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int prec
   if(zitsol){ _zitsol(A, B, X); return; }
 #endif
 
+  if(kspIndex < 0 || kspIndex > 9){
+    Msg::Error("Linear Solver index out of range (%d)", kspIndex);
+    return;
+  }
+
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
-  if(!Solver->ksp && Msg::GetVerbosity() > 0) view = 1;
+  if(!Solver->ksp[kspIndex] && Msg::GetVerbosity() > 0) view = 1;
 
   if(view && !RankCpu){
     ierr = MatGetSize(A->M, &i, &j); MYCHECK(ierr);
     Msg::Info("N: %d", i);
   }
 
-  if(!Solver->ksp) {
-    ierr = KSPCreate(PETSC_COMM_WORLD, &Solver->ksp); MYCHECK(ierr);
-    ierr = KSPSetOperators(Solver->ksp, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
-    ierr = KSPGetPC(Solver->ksp, &Solver->pc); MYCHECK(ierr);
+  if(kspIndex != 0){
+    Msg::Info("Using solver index %d", kspIndex);
+  }
+
+  if(!Solver->ksp[kspIndex]) {
+    ierr = KSPCreate(PETSC_COMM_WORLD, &Solver->ksp[kspIndex]); MYCHECK(ierr);
+    ierr = KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
+    PC pc;
+    ierr = KSPGetPC(Solver->ksp[kspIndex], &pc); MYCHECK(ierr);
     /* set some default options */
-    ierr = PCSetType(Solver->pc, PCILU); MYCHECK(ierr);
+    ierr = PCSetType(pc, PCILU); MYCHECK(ierr);
 #if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR == 0)
-    ierr = PCILUSetMatOrdering(Solver->pc, MATORDERING_RCM); MYCHECK(ierr);
-    ierr = PCILUSetLevels(Solver->pc, 6); MYCHECK(ierr);
+    ierr = PCILUSetMatOrdering(pc, MATORDERING_RCM); MYCHECK(ierr);
+    ierr = PCILUSetLevels(pc, 6); MYCHECK(ierr);
 #elif (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 3)
-    ierr = PCFactorSetMatOrdering(Solver->pc, MATORDERING_RCM); MYCHECK(ierr);
-    ierr = PCFactorSetLevels(Solver->pc, 6); MYCHECK(ierr);
+    ierr = PCFactorSetMatOrdering(pc, MATORDERING_RCM); MYCHECK(ierr);
+    ierr = PCFactorSetLevels(pc, 6); MYCHECK(ierr);
 #else
-    ierr = PCFactorSetMatOrderingType(Solver->pc, MATORDERING_RCM); MYCHECK(ierr);
-    ierr = PCFactorSetLevels(Solver->pc, 6); MYCHECK(ierr);
+    ierr = PCFactorSetMatOrderingType(pc, MATORDERING_RCM); MYCHECK(ierr);
+    ierr = PCFactorSetLevels(pc, 6); MYCHECK(ierr);
 #endif
-    ierr = KSPSetTolerances(Solver->ksp, 1.e-8, PETSC_DEFAULT, PETSC_DEFAULT, 
+    ierr = KSPSetTolerances(Solver->ksp[kspIndex], 1.e-8, PETSC_DEFAULT, PETSC_DEFAULT, 
 			    PETSC_DEFAULT); MYCHECK(ierr);
     
     if(Msg::UseSocket()){
-      ierr = KSPMonitorSet(Solver->ksp, _myKspMonitor, PETSC_NULL, PETSC_NULL); MYCHECK(ierr);
+      ierr = KSPMonitorSet(Solver->ksp[kspIndex], _myKspMonitor, PETSC_NULL, PETSC_NULL); MYCHECK(ierr);
     }
 
     /* override the default options with the ones from the option
        database (if any) */
-    ierr = KSPSetFromOptions(Solver->ksp); MYCHECK(ierr);
+    ierr = KSPSetFromOptions(Solver->ksp[kspIndex]); MYCHECK(ierr);
   }
   else if(precond){
-    ierr = KSPSetOperators(Solver->ksp, A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
+    ierr = KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
   }
   
-  ierr = KSPSolve(Solver->ksp, B->V, X->V); MYCHECK(ierr);
+  ierr = KSPSolve(Solver->ksp[kspIndex], B->V, X->V); MYCHECK(ierr);
 
   if(view){
-    ierr = KSPView(Solver->ksp,PETSC_VIEWER_STDOUT_SELF); MYCHECK(ierr);
+    ierr = KSPView(Solver->ksp[kspIndex], PETSC_VIEWER_STDOUT_SELF); MYCHECK(ierr);
   }
   
   if(!RankCpu){
-    ierr = KSPGetIterationNumber(Solver->ksp, &its); MYCHECK(ierr);
+    ierr = KSPGetIterationNumber(Solver->ksp[kspIndex], &its); MYCHECK(ierr);
     Msg::Info("%d iterations", its);
   }
 }
 
-void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X)
+void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
 {
-  _solve(A, B, Solver, X, 1);
+  _solve(A, B, Solver, X, 1, solverIndex);
 }
 
-void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X)
+void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
 {
-  _solve(A, B, Solver, X, 0);
+  _solve(A, B, Solver, X, 0, solverIndex);
 }
 
 #endif

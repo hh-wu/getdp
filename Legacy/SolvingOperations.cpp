@@ -1873,10 +1873,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if(!Flag_SolveAgain)
 	LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
-		     &DofData_P->CurrentSolution->x) ;
+		     &DofData_P->CurrentSolution->x, Operation_P->Case.Solve.SolverIndex) ;
       else
 	LinAlg_SolveAgain(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
-		     &DofData_P->CurrentSolution->x) ;
+                          &DofData_P->CurrentSolution->x, Operation_P->Case.Solve.SolverIndex) ;
       
       Flag_CPU = 1 ;
       break ;

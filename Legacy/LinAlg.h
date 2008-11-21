@@ -7,6 +7,7 @@
 #define _LINALG_H_
 
 #include <stdio.h>
+#include <map>
 
 /* GetDP only uses a predefined set of acces routines to scalars
    (double precision floating point real or complex values), vectors
@@ -42,7 +43,7 @@ typedef struct { Solver_Params Params ; } gSolver ;
 typedef struct { PetscScalar s ; }   gScalar ;
 typedef struct { Mat M ; }           gMatrix ;
 typedef struct { Vec V ; }           gVector ;
-typedef struct { KSP ksp ; PC pc ; } gSolver ;
+typedef struct { KSP ksp[10] ; } gSolver ;
 
 #else
 
@@ -197,7 +198,7 @@ void LinAlg_AssembleVector(gVector *V);
 
 /* Solve */
 
-void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X);
-void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X);
+void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex=0);
+void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex=0);
 
 #endif
