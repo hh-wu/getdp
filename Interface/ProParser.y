@@ -3984,9 +3984,9 @@ Operation :
  ;
 
 CommaFExprOrNothing :
-    { $$ = 0.; }
+    { $$ = 0; }
   | ',' FExpr
-    { $$ = $2; }
+  { $$ = (int)$2; }
  ;
 
 OperationTerm :
@@ -4014,6 +4014,10 @@ OperationTerm :
 	  Operation_P->Type == OPERATION_GENERATEJAC ||
 	  Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;      
+
+      if(Operation_P->Type == OPERATION_SOLVE || 
+         Operation_P->Type == OPERATION_SOLVEAGAIN)
+        Operation_P->Case.Solve.SolverIndex = 0;
     }
 
   | tSetTime Expression tEND
@@ -4168,7 +4172,6 @@ OperationTerm :
       }
       List_Delete($5); 
     }
-
 
   | tUpdate '[' String__Index ',' Expression ']' tEND
     { Operation_P = (struct Operation*)
@@ -4415,7 +4418,6 @@ OperationTerm :
       Operation_P->Case.Perturbation.PertFreq = (int)$15;
     }
 
-
   | tTimeLoopTheta '[' FExpr ',' FExpr ',' Expression ',' Expression ']' 
                    '{' Operation '}' 
     { List_Pop(Operation_L);
@@ -4569,7 +4571,6 @@ OperationTerm :
       Operation_P->Case.SaveSolutionMHtoTime.Time = $5;
       Operation_P->Case.SaveSolutionMHtoTime.ResFile = $7;
     }
-
 
   | tInit_MovingBand2D  '{' String__Index '}' tEND
     { Operation_P = (struct Operation*)
@@ -4799,8 +4800,6 @@ OperationTerm :
       Operation_P->Type = NONE;
     } 
  ;
-
-
 
 PrintOperation :
     ListOfExpression
