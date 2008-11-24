@@ -54,8 +54,6 @@ extern struct CurrentData Current ;
 #define MYCHECK(ierr) CHKERRABORT(PETSC_COMM_WORLD,ierr)
 static int  ierr, SolverInitialized = 0;
 
-/* Initialize */
-
 void LinAlg_Initialize(int* argc, char*** argv)
 {
   MPI_Init(argc, argv);
@@ -63,17 +61,14 @@ void LinAlg_Initialize(int* argc, char*** argv)
 
 void LinAlg_InitializeSolver(int* argc, char*** argv)
 {
-  /* This function detects if MPI is initialized */
+  // This function detects if MPI is initialized
   PetscInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
   SolverInitialized = 1;
 }
 
-/* Finalize */
-
 void LinAlg_Finalize()
 {
   int flag;
-
   MPI_Initialized(&flag);
   if(flag) MPI_Finalize();
 }
@@ -83,14 +78,10 @@ void LinAlg_FinalizeSolver()
   if(SolverInitialized) PetscFinalize();
 }
 
-/* Barrier */
-
 void LinAlg_Barrier()
 {
   MPI_Barrier(PETSC_COMM_WORLD);
 }
-
-/* Create */
 
 void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
 {
@@ -101,9 +92,8 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
 {
   ierr = VecCreate(PETSC_COMM_WORLD, &V->V); MYCHECK(ierr);
   ierr = VecSetSizes(V->V, PETSC_DECIDE, n); MYCHECK(ierr);
-
-  /* override the default options with the ones from the option
-     database (if any) */
+  // override the default options with the ones from the option
+  // database (if any)
   ierr = VecSetFromOptions(V->V); MYCHECK(ierr);
 }
 
@@ -111,15 +101,12 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 {
   ierr = MatCreate(PETSC_COMM_WORLD, &M->M); MYCHECK(ierr); 
   ierr = MatSetSizes(M->M, PETSC_DECIDE, PETSC_DECIDE, n, m); MYCHECK(ierr); 
-
-  /* override the default options with the ones from the option database (if any) */
+  // override the default options with the ones from the option
+  // database (if any)
   ierr = MatSetFromOptions(M->M); MYCHECK(ierr);
-
-  /* preallocation option must be set after other options */
+  // preallocation option must be set after other options
   ierr = MatSeqAIJSetPreallocation(M->M, 50, PETSC_NULL); MYCHECK(ierr); 
 }
-
-/* Destroy */
 
 void LinAlg_DestroySolver(gSolver *Solver)
 {
@@ -140,8 +127,6 @@ void LinAlg_DestroyMatrix(gMatrix *M)
   ierr = MatDestroy(M->M); MYCHECK(ierr);
 }
 
-/* Copy */
-
 void LinAlg_CopyScalar(gScalar *S1, gScalar *S2)
 {
   S1->s = S2->s;
@@ -156,8 +141,6 @@ void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2)
 {
   ierr = MatCopy(M1->M, M2->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
 }
-
-/* Zero */
 
 void LinAlg_ZeroScalar(gScalar *S)
 {
@@ -176,8 +159,6 @@ void LinAlg_ZeroMatrix(gMatrix *M)
   ierr = MatZeroEntries(M->M); MYCHECK(ierr);
 }
 
-/* Scan */
-
 void LinAlg_ScanScalar(FILE *file, gScalar *S)
 {
 #if PETSC_USE_COMPLEX
@@ -191,12 +172,11 @@ void LinAlg_ScanScalar(FILE *file, gScalar *S)
 
 void LinAlg_ScanVector(FILE *file, gVector *V)
 {
-  int i, n;
-  PetscScalar tmp;
-  double a, b;  
-  
+  int n;  
   ierr = VecGetSize(V->V, &n); MYCHECK(ierr);
-  for(i=0; i<n; i++){
+  for(int i = 0; i < n; i++){
+    double a, b;
+    PetscScalar tmp;
 #if PETSC_USE_COMPLEX
     fscanf(file, "%lf %lf", &a, &b);
     tmp = a + PETSC_i * b;
@@ -213,8 +193,6 @@ void LinAlg_ScanMatrix(FILE *file, gMatrix *M)
   Msg::Error("'LinAlg_ScanMatrix' not yet implemented");  
 }
 
-/* Read */
-
 void LinAlg_ReadScalar(FILE *file, gScalar *S)
 {
   Msg::Error("'LinAlg_ReadScalar' not yet implemented");
@@ -222,17 +200,13 @@ void LinAlg_ReadScalar(FILE *file, gScalar *S)
 
 void LinAlg_ReadVector(FILE *file, gVector *V)
 {
-  int i, n;
-  PetscScalar *tmp;
-
+  int n;
   ierr = VecGetSize(V->V, &n); MYCHECK(ierr);
-  tmp = (PetscScalar*)Malloc(n*sizeof(PetscScalar));
+  PetscScalar *tmp = (PetscScalar*)Malloc(n*sizeof(PetscScalar));
   fread(tmp, sizeof(PetscScalar), n, file);
-
-  for(i=0; i<n; i++){
+  for(int i = 0; i < n; i++){
     ierr = VecSetValues(V->V, 1, &i, &tmp[i], INSERT_VALUES); MYCHECK(ierr);
   }
-
   Free(tmp);
 }
 
@@ -240,8 +214,6 @@ void LinAlg_ReadMatrix(FILE *file, gMatrix *M)
 {
   Msg::Error("'LinAlg_ReadMatrix' not yet implemented");  
 }
-
-/* Print */
 
 void LinAlg_PrintScalar(FILE *file, gScalar *S)
 {
@@ -254,13 +226,11 @@ void LinAlg_PrintScalar(FILE *file, gScalar *S)
 
 void LinAlg_PrintVector(FILE *file, gVector *V)
 {
-  PetscScalar *tmp;
-  int     i, n;
-
+  int n;
   ierr = VecGetLocalSize(V->V, &n); MYCHECK(ierr);
+  PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
-
-  for (i=0; i<n; i++){
+  for (int i = 0; i < n; i++){
 #if PETSC_USE_COMPLEX
     fprintf(file, "%.16g %.16g\n", real(tmp[i]), imag(tmp[i]));
 #else
@@ -268,21 +238,17 @@ void LinAlg_PrintVector(FILE *file, gVector *V)
 #endif
   }
   fflush(file);
-
   ierr = VecRestoreArray(V->V, &tmp); MYCHECK(ierr);
 } 
 
 void LinAlg_PrintMatrix(FILE *file, gMatrix *M)
 {
   PetscViewer fd;
-  
   PetscViewerASCIIOpen(PETSC_COMM_WORLD, "matrix.m", &fd); MYCHECK(ierr);
   ierr = PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB); MYCHECK(ierr);
   ierr = MatView(M->M, fd); MYCHECK(ierr);
   ierr = PetscViewerDestroy(fd); MYCHECK(ierr);
 }
-
-/* Write */
 
 void LinAlg_WriteScalar(FILE *file, gScalar *S)
 {
@@ -291,10 +257,9 @@ void LinAlg_WriteScalar(FILE *file, gScalar *S)
 
 void LinAlg_WriteVector(FILE *file, gVector *V)
 {
-  PetscScalar *tmp;
   int n;
-
   ierr = VecGetLocalSize(V->V, &n); MYCHECK(ierr);
+  PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
   fwrite(tmp, sizeof(PetscScalar), n, file);
   fprintf(file, "\n");
@@ -305,8 +270,6 @@ void LinAlg_WriteMatrix(FILE *file, gMatrix *M)
 {
   Msg::Error("'LinAlg_WriteMatrix' not yet implemented");  
 }
-
-/* Get */
 
 void LinAlg_GetVectorSize(gVector *V, int *i)
 {
@@ -350,7 +313,6 @@ void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S)
 void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i)
 {
   PetscScalar *tmp;
-
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
   S->s = tmp[i];
   ierr = VecRestoreArray(V->V, &tmp); MYCHECK(ierr);
@@ -359,7 +321,6 @@ void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i)
 void LinAlg_GetDoubleInVector(double *d, gVector *V, int i)
 {
   PetscScalar *tmp;
-
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
 #if PETSC_USE_COMPLEX
   *d = real(tmp[i]);
@@ -372,7 +333,6 @@ void LinAlg_GetDoubleInVector(double *d, gVector *V, int i)
 void LinAlg_GetAbsDoubleInVector(double *d, gVector *V, int i)
 {
   PetscScalar *tmp;
-
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
 #if PETSC_USE_COMPLEX
   *d = fabs(real(tmp[i]));
@@ -385,7 +345,6 @@ void LinAlg_GetAbsDoubleInVector(double *d, gVector *V, int i)
 void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j)
 {
   PetscScalar *tmp;
-
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
 #if PETSC_USE_COMPLEX
   *d1 = real(tmp[i]);
@@ -417,8 +376,6 @@ void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1)
   Msg::Error("'LinAlg_GetColumnInMatrix' not yet implemented");  
 }
 
-/* Set */
-
 void LinAlg_SetScalar(gScalar *S, double *d)
 {
 #if PETSC_USE_COMPLEX
@@ -431,7 +388,6 @@ void LinAlg_SetScalar(gScalar *S, double *d)
 void LinAlg_SetVector(gVector *V, double *v)
 {
   PetscScalar tmp = *v;
-
   ierr = VecSet(V->V, tmp); MYCHECK(ierr);
 }
 
@@ -442,16 +398,13 @@ void LinAlg_SetScalarInVector(gScalar *S, gVector *V, int i)
 
 void LinAlg_SetDoubleInVector(double d, gVector *V, int i)
 {
-  PetscScalar tmp;
-
-  tmp = d;
+  PetscScalar tmp = d;
   ierr = VecSetValues(V->V, 1, &i, &tmp, INSERT_VALUES); MYCHECK(ierr);
 }
 
 void LinAlg_SetComplexInVector(double d1, double d2, gVector *V, int i, int j)
 {
   PetscScalar tmp;
-
 #if PETSC_USE_COMPLEX
   tmp = d1 + PETSC_i * d2;
   ierr = VecSetValues(V->V, 1, &i, &tmp, INSERT_VALUES); MYCHECK(ierr);
@@ -478,8 +431,6 @@ void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, i
   Msg::Error("'LinAlg_SetComplexInMatrix' not yet implemented");  
 }
 
-/* Add */
-
 void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
   S3->s = S1->s + S2->s;
@@ -499,15 +450,13 @@ void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i)
 
 void LinAlg_AddDoubleInVector(double d, gVector *V, int i)
 {
-  PetscScalar tmp;
-  tmp = d;
+  PetscScalar tmp = d;
   ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); MYCHECK(ierr);
 }
 
 void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j)
 {
   PetscScalar tmp;
-
 #if PETSC_USE_COMPLEX
   tmp = d1 + PETSC_i * d2;
   ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); MYCHECK(ierr);
@@ -526,16 +475,13 @@ void LinAlg_AddScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 
 void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j)
 {
-  PetscScalar tmp;
-
-  tmp = d;
+  PetscScalar tmp = d;
   ierr = MatSetValues(M->M, 1, &i, 1, &j, &tmp, ADD_VALUES); MYCHECK(ierr);
 }
 
 void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l)
 {
   PetscScalar tmp;
-
 #if PETSC_USE_COMPLEX
   tmp = d1 + PETSC_i * d2;
   ierr = MatSetValues(M->M, 1, &i, 1, &j, &tmp, ADD_VALUES); MYCHECK(ierr);
@@ -557,7 +503,6 @@ void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, i
 void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3)
 {
   PetscScalar tmp = 1.0;
-
   if(V3 == V1){
     ierr = VecAXPY(V1->V, tmp, V2->V); MYCHECK(ierr);
   }
@@ -571,7 +516,6 @@ void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3)
 void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVector *V3)
 {
   PetscScalar tmp = d;
-
   if(V3 == V1){
     ierr = VecAXPY(V1->V, tmp, V2->V); MYCHECK(ierr);
   }
@@ -585,7 +529,6 @@ void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVecto
 void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 {
   PetscScalar tmp = 1.0;
-
   if(M3 == M1){
     ierr = MatAXPY(M1->M, tmp, M2->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
   }
@@ -599,7 +542,6 @@ void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatrix *M3)
 {
   PetscScalar tmp = d;
-
   if(M3 == M1){
     ierr = MatAXPY(M1->M, tmp, M2->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
   }
@@ -614,8 +556,6 @@ void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatri
     Msg::Error("Wrong arguments in 'LinAlg_AddMatrixProdMatrixDouble'");
 }
 
-/* Sub */
-
 void LinAlg_SubScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
   S3->s = S1->s - S2->s;
@@ -624,7 +564,6 @@ void LinAlg_SubScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3)
 {
   PetscScalar tmp = -1.0;
-
   if(V3 == V1){
     ierr = VecAXPY(V1->V, tmp, V2->V); MYCHECK(ierr);
   }
@@ -639,8 +578,6 @@ void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 {
   Msg::Error("'LinAlg_SubMatrixMatrix' not yet implemented");    
 }
-
-/* Prod */
 
 void LinAlg_ProdScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
@@ -679,9 +616,7 @@ void LinAlg_ProdVectorScalar(gVector *V1, gScalar *S, gVector *V2)
 
 void LinAlg_ProdVectorDouble(gVector *V1, double d, gVector *V2)
 {
-  PetscScalar tmp;
-  tmp = d;
-
+  PetscScalar tmp = d;
   if(V2 == V1){
     ierr = VecScale(V1->V, tmp); MYCHECK(ierr);
   }
@@ -697,7 +632,6 @@ void LinAlg_ProdVectorComplex(gVector *V1, double d1, double d2, gVector *V2)
 void LinAlg_ProdVectorVector(gVector *V1, gVector *V2, double *d)
 {
   PetscScalar tmp;
-
   ierr = VecDot(V1->V, V2->V, &tmp); MYCHECK(ierr);
 #if PETSC_USE_COMPLEX
   *d = real(tmp);
@@ -708,7 +642,7 @@ void LinAlg_ProdVectorVector(gVector *V1, gVector *V2, double *d)
 
 void LinAlg_ProdMatrixVector(gMatrix *M, gVector *V1, gVector *V2)
 {
-  if(V2==V1)
+  if(V2 == V1)
     Msg::Error("Wrong arguments in 'LinAlg_ProdMatrixVector'");
   else
     ierr = MatMult(M->M, V1->V, V2->V); MYCHECK(ierr);
@@ -725,9 +659,7 @@ void LinAlg_ProdMatrixScalar(gMatrix *M1, gScalar *S, gMatrix *M2)
 
 void LinAlg_ProdMatrixDouble(gMatrix *M1, double d, gMatrix *M2)
 {
-  PetscScalar tmp;
-  tmp = d;
-
+  PetscScalar tmp = d;
   if(M2 == M1){
     ierr = MatScale(M1->M, tmp); MYCHECK(ierr);
   }
@@ -749,8 +681,6 @@ void LinAlg_ProdMatrixComplex(gMatrix *M1, double d1, double d2, gMatrix *M2)
 #endif
 }
 
-/* Div */
-
 void LinAlg_DivScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
   S3->s = S1->s / S2->s;
@@ -761,12 +691,9 @@ void LinAlg_DivScalarDouble(gScalar *S1, double d, gScalar *S2)
   S2->s = S1->s / d;
 }
 
-/* Norm */
-
 void LinAlg_VectorNorm2(gVector *V1, double *norm)
 {
   PetscReal tmp;
-  
   VecNorm(V1->V, NORM_2, &tmp);
   *norm = tmp;
 }
@@ -774,12 +701,9 @@ void LinAlg_VectorNorm2(gVector *V1, double *norm)
 void LinAlg_VectorNormInf(gVector *V1, double *norm)
 {
   PetscReal tmp;
-  
   VecNorm(V1->V, NORM_INFINITY, &tmp);
   *norm = tmp;
 }
-
-/* Assemble */
 
 void LinAlg_AssembleMatrix(gMatrix *M)
 {
@@ -793,8 +717,6 @@ void LinAlg_AssembleVector(gVector *V)
   ierr = VecAssemblyEnd(V->V); MYCHECK(ierr);
 }
 
-/* Solve */
-
 #if defined(HAVE_ZITSOL)
 
 extern "C" {
@@ -805,43 +727,39 @@ extern "C" {
 
 static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 {
-  MatInfo info;
-  PetscInt ncols;
-  PetscTruth set;
-  PetscScalar *b, *x, d;
-  const PetscInt *cols;
-  const PetscScalar *vals;
-  int i, j, k, n, nnz, *row, *col;
-  double *valr, *vali, *rhsr, *rhsi, *solr, *soli;
-
   int precond = 1, lfil = 30, im = 100, maxits = 200;
   double tol0 = 0.01, tol = 1e-10;
+  PetscTruth set;
+  PetscOptionsGetInt(PETSC_NULL, "-zitsol_precond", &precond, &set);
+  PetscOptionsGetInt(PETSC_NULL, "-zitsol_lfil", &lfil, &set);
+  PetscOptionsGetInt(PETSC_NULL, "-zitsol_im", &im, &set);
+  PetscOptionsGetInt(PETSC_NULL, "-zitsol_maxits", &maxits, &set);
+  PetscOptionsGetReal(PETSC_NULL, "-zitsol_tol0", &tol0, &set);
+  PetscOptionsGetReal(PETSC_NULL, "-zitsol_tol", &tol, &set);
 
-  PetscOptionsGetInt(PETSC_NULL, "-precond", &precond, &set);
-  PetscOptionsGetInt(PETSC_NULL, "-lfil", &lfil, &set);
-  PetscOptionsGetReal(PETSC_NULL, "-tol0", &tol0, &set);
-
-  Msg::Info("precond = %d lfil = %d tol0 = %g", precond, lfil, tol0);
-
+  MatInfo info;
   ierr = MatGetInfo(A->M, MAT_LOCAL, &info);
-  n = info.rows_local;
-  nnz = info.nz_used;
+  int n = info.rows_local;
+  int nnz = info.nz_used;
 
-  row = (int*)Malloc(nnz * sizeof(int));
-  col = (int*)Malloc(nnz * sizeof(int));
-  valr = (double*)Malloc(nnz * sizeof(double));
-  vali = (double*)Malloc(nnz * sizeof(double));
-  rhsr = (double*)Malloc(n * sizeof(double));
-  rhsi = (double*)Malloc(n * sizeof(double));
-  solr = (double*)Malloc(n * sizeof(double));
-  soli = (double*)Malloc(n * sizeof(double));
+  int *row = (int*)Malloc(nnz * sizeof(int));
+  int *col = (int*)Malloc(nnz * sizeof(int));
+  double *valr = (double*)Malloc(nnz * sizeof(double));
+  double *vali = (double*)Malloc(nnz * sizeof(double));
+  double *rhsr = (double*)Malloc(n * sizeof(double));
+  double *rhsi = (double*)Malloc(n * sizeof(double));
+  double *solr = (double*)Malloc(n * sizeof(double));
+  double *soli = (double*)Malloc(n * sizeof(double));
 
-  k = 0;
-  for(i = 0; i < n; i++){
+  int k = 0;
+  for(int i = 0; i < n; i++){
+    PetscInt ncols;
+    const PetscInt *cols;
+    const PetscScalar *vals;
     ierr = MatGetRow(A->M, i, &ncols, &cols, &vals);
-    for(j = 0; j < ncols; j++){
+    for(int j = 0; j < ncols; j++){
       if(k >= nnz){
-	Msg::Error("something wrong in nnz: %d >= %d", k, nnz);
+	Msg::Error("Something wrong in nnz: %d >= %d", k, nnz);
 	return;
       }
       row[k] = i;
@@ -863,9 +781,10 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 
   Msg::Info("n = %d, nnz = %d (check k = %d)", n, nnz, k);
 
+  PetscScalar *b, *x;
   ierr = VecGetArray(B->V, &b); MYCHECK(ierr);
   ierr = VecGetArray(X->V, &x); MYCHECK(ierr);
-  for(i = 0; i < n; i++){
+  for(int i = 0; i < n; i++){
 #if PETSC_USE_COMPLEX
     rhsr[i] = real(b[i]);
     rhsi[i] = imag(b[i]);
@@ -880,13 +799,16 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
   }
   ierr = VecRestoreArray(B->V, &b); MYCHECK(ierr);
   ierr = VecRestoreArray(X->V, &x); MYCHECK(ierr);
-  
-  if(getdp_zitsol(n, nnz, row, col, valr, vali, rhsr, rhsi, solr, soli,
-		  precond, lfil, tol0, tol, im, maxits) >= maxits){
-    Msg::Error("Did not converge in %d iterations", maxits);
-  }
 
-  for(i = 0; i < n; i++){
+  int its = getdp_zitsol(n, nnz, row, col, valr, vali, rhsr, rhsi, solr, soli,
+                         precond, lfil, tol0, tol, im, maxits);
+  if(its >= maxits)
+    Msg::Error("Did not converge in %d iterations", maxits);
+  else
+    Msg::Info("Converged in %d iterations", its);
+  
+  for(int i = 0; i < n; i++){
+    PetscScalar d;
 #if PETSC_USE_COMPLEX
     d = solr[i] + PETSC_i * soli[i];
 #else
@@ -895,14 +817,10 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
     ierr = VecSetValues(X->V, 1, &i, &d, INSERT_VALUES); MYCHECK(ierr);
   }
   
-  Free(row);
-  Free(col);
-  Free(valr);
-  Free(vali);
-  Free(rhsr);
-  Free(rhsi);
-  Free(solr);
-  Free(soli);
+  Free(row); Free(col);
+  Free(valr); Free(vali);
+  Free(rhsr); Free(rhsi);
+  Free(solr); Free(soli);
 }
 
 #endif
@@ -916,10 +834,8 @@ static PetscErrorCode _myKspMonitor(KSP ksp, int it, PetscReal rnorm, void *mctx
 static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, 
                    int precond, int kspIndex)
 {
-  int its, RankCpu, i, j, view = 0;
-
 #if defined(HAVE_ZITSOL)
-  /* testing Yousef's new preconditioners and solvers */
+  // testing Yousef's new preconditioners and solvers
   PetscTruth zitsol = PETSC_FALSE, set;
   PetscOptionsGetTruth(PETSC_NULL, "-zitsol", &zitsol, &set);
   if(zitsol){ _zitsol(A, B, X); return; }
@@ -930,11 +846,13 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     return;
   }
 
+  int RankCpu;
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
-  if(!Solver->ksp[kspIndex] && Msg::GetVerbosity() > 0) view = 1;
+  bool view = (!Solver->ksp[kspIndex] && Msg::GetVerbosity() > 0);
 
   if(view && !RankCpu){
+    int i, j;
     ierr = MatGetSize(A->M, &i, &j); MYCHECK(ierr);
     Msg::Info("N: %d", i);
   }
@@ -948,7 +866,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     ierr = KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN); MYCHECK(ierr);
     PC pc;
     ierr = KSPGetPC(Solver->ksp[kspIndex], &pc); MYCHECK(ierr);
-    /* set some default options */
+    // set some default options
     ierr = PCSetType(pc, PCILU); MYCHECK(ierr);
 #if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR == 0)
     ierr = PCILUSetMatOrdering(pc, MATORDERING_RCM); MYCHECK(ierr);
@@ -962,13 +880,11 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 #endif
     ierr = KSPSetTolerances(Solver->ksp[kspIndex], 1.e-8, PETSC_DEFAULT, PETSC_DEFAULT, 
 			    PETSC_DEFAULT); MYCHECK(ierr);
-    
     if(Msg::UseSocket()){
       ierr = KSPMonitorSet(Solver->ksp[kspIndex], _myKspMonitor, PETSC_NULL, PETSC_NULL); MYCHECK(ierr);
     }
-
-    /* override the default options with the ones from the option
-       database (if any) */
+    // override the default options with the ones from the option
+    // database (if any)
     ierr = KSPSetFromOptions(Solver->ksp[kspIndex]); MYCHECK(ierr);
   }
   else if(precond){
@@ -982,6 +898,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   }
   
   if(!RankCpu){
+    int its;
     ierr = KSPGetIterationNumber(Solver->ksp[kspIndex], &its); MYCHECK(ierr);
     Msg::Info("%d iterations", its);
   }

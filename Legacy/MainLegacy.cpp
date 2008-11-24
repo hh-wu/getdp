@@ -3,7 +3,9 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
+#include <sstream>
 #include <string.h>
+#include <time.h>
 #include "GetDPVersion.h"
 #include "ProData.h"
 #include "SolvingAnalyse.h"
@@ -321,6 +323,17 @@ int MainLegacy(int argc, char *argv[])
 {
   if(argc < 2) Info(0, argv[0]);
 
+  time_t now;
+  time(&now);
+  std::string currtime(ctime(&now));
+  currtime.resize(currtime.size() - 1);
+
+  std::string cmdline;
+  for(int i = 0; i < argc; i++){
+    if(i) cmdline += " ";
+    cmdline += argv[i];
+  }
+
   LinAlg_Initialize(&argc, &argv);
 
   char pro[256];
@@ -328,10 +341,15 @@ int MainLegacy(int argc, char *argv[])
   int sargc, lres = 0, lpos = 0, check = 0;
   Get_Options(argc, argv, &sargc, sargv, pro, &lres, &lpos, &check);
 
+  Msg::Info("'%s' started on %s", cmdline.c_str(), currtime.c_str());
+
   if(sargc > 1){
-    Msg::Info( "Passing unused options to solver: ");
-    for(int i = 1; i < sargc; i++)
-      Msg::Info("  %s", sargv[i]);
+    std::string solveropt;
+    for(int i = 1; i < sargc; i++){
+      if(i > 1) solveropt += " ";
+      solveropt += sargv[i];
+    }
+    Msg::Debug( "Passing unused options to solver: '%s'", solveropt.c_str());
   }
 
   if(!Name_ResFile[0]){
