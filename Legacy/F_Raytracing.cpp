@@ -8,7 +8,19 @@
 #include "F.h"
 #include "Message.h"
 
-#if defined(HAVE_GSL)
+#if !defined(HAVE_GSL)
+
+void F_CylinderPhase(F_ARG) 
+{
+  Msg::Error("F_CylinderPhase requires the GSL");
+}
+
+void F_DiamondPhase(F_ARG)
+{
+  Msg::Error("F_DiamondPhase requires the GSL");
+}
+
+#else
 
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>

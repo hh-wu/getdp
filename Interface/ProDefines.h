@@ -1003,10 +1003,8 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"ProjectPointOnEllipse", (CAST)F_ProjectPointOnEllipse,  2, 1 },
 
   // F_Raytracing: ray tracing functions
-#if defined(HAVE_GSL)
   {"CylinderPhase",         (CAST)F_CylinderPhase,  0, 1 },
   {"DiamondPhase",          (CAST)F_DiamondPhase,  0, 1 },
-#endif
 
   // GF_XXX : Green Functions
   {"Laplace"           , (CAST)GF_Laplace          ,   1,   0 },
