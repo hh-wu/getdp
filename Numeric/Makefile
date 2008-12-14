@@ -17,7 +17,11 @@ SRC = Numeric.cpp \
       Legendre.cpp \
       gsl_brent.cpp gsl_newt.cpp gsl_min.cpp \
 
+ifneq (${F77},disabled)
 FSRC = BesselLib.f
+else
+FSRC = 
+endif
 
 OBJ = ${SRC:.cpp=${OBJEXT}}
 FOBJ = ${FSRC:.f=.o}

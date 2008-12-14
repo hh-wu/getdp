@@ -1231,6 +1231,7 @@ Optional Features:
   --enable-gsl            use GSL as numerical toolkit (default=yes)
   --enable-arpack         enable built-in Arpack eigensolver (default=yes)
   --enable-zitsol         enable support for ZITSOL (default=no)
+  --enable-fortran        enable Fortran subroutines (default=yes)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -1733,9 +1734,16 @@ if test "${enable_zitsol+set}" = set; then
   enableval=$enable_zitsol;
 fi
 
+# Check whether --enable-fortran was given.
+if test "${enable_fortran+set}" = set; then
+  enableval=$enable_fortran;
+fi
+
 
 UNAME=`uname`
 HOSTNAME=`hostname`
+
+FLAGS="-DHAVE_LEGACY"
 
 ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
@@ -2344,7 +2352,8 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-ac_ext=f
+if test "x$enable_fortran" != "xno"; then
+  ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
@@ -2604,6 +2613,10 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
+else
+  F77=disabled
+  FLAGS="${FLAGS} -DHAVE_NO_FORTRAN"
+fi
 if test "x${CXX}" = "x" -o "x${F77}" = "x" ; then
   { { echo "$as_me:$LINENO: error: Could not find required compilers, aborting." >&5
 echo "$as_me: error: Could not find required compilers, aborting." >&2;}
@@ -3532,7 +3545,9 @@ case "$UNAME" in
     if test "x$enable_cygwin" != "xyes"; then
       UNAME="${UNAME}-no-cygwin"
       CXX="${CXX} -mno-cygwin"
-      F77="${F77} -mno-cygwin"
+      if test "x$enable_fortran" != "xno"; then
+        F77="${F77} -mno-cygwin"
+      fi
       LINKER="${LINKER} -mno-cygwin"
     fi
     ;;
@@ -4130,7 +4145,6 @@ rm -f core conftest.err conftest.$ac_objext conftest.$ac_ext
 
 GETDP_DIRS="Common Numeric Interface Legacy Main"
 GETDP_LIBS="-Llib -lGetDPLegacy -lGetDPInterface -lGetDPLegacy -lGetDPNumeric -lGetDPCommon"
-FLAGS="-DHAVE_LEGACY"
 
 if test "x$enable_petsc" != "xno" -a "x$enable_sparskit" != "xyes"; then
   if test "x${PETSC_DIR}" = "x"; then
@@ -4213,11 +4227,13 @@ echo "$as_me: error: Could not find Sparskit." >&2;}
   FLAGS="${FLAGS} -DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
 fi
 
-ac_ext=f
+if test "x$enable_fortran" != "xno"; then
+  ac_ext=f
 ac_compile='$F77 -c $FFLAGS conftest.$ac_ext >&5'
 ac_link='$F77 -o conftest$ac_exeext $FFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_f77_compiler_gnu
 
+fi
 if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
   LDFLAGS="${LDFLAGS} -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
 fi
@@ -4324,15 +4340,18 @@ else
 fi
 
 fi
-ac_ext=cpp
+if test "x$enable_fortran" != "xno"; then
+  ac_ext=cpp
 ac_cpp='$CXXCPP $CPPFLAGS'
 ac_compile='$CXX -c $CXXFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CXX -o conftest$ac_exeext $CXXFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_cxx_compiler_gnu
 
+fi
 
-if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
-  { echo "$as_me:$LINENO: checking for ./contrib/Arpack/znaupd.f" >&5
+if test "x$enable_fortran" != "xno"; then
+  if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
+    { echo "$as_me:$LINENO: checking for ./contrib/Arpack/znaupd.f" >&5
 echo $ECHO_N "checking for ./contrib/Arpack/znaupd.f... $ECHO_C" >&6; }
 if test "${ac_cv_file___contrib_Arpack_znaupd_f+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -4355,22 +4374,24 @@ else
   ARPACK="no"
 fi
 
-  if test "x${ARPACK}" = "xyes"; then
-    FLAGS="${FLAGS} -DHAVE_ARPACK"
-    GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
-    GETDP_LIBS="${GETDP_LIBS} -lGetDPArpack"
-    if test "x${SPARSKIT}" = "xyes"; then
-      if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
-        GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -llapack -lblas"
-      else
-        GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+    if test "x${ARPACK}" = "xyes"; then
+      FLAGS="${FLAGS} -DHAVE_ARPACK"
+      GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
+      GETDP_LIBS="${GETDP_LIBS} -lGetDPArpack"
+      if test "x${SPARSKIT}" = "xyes"; then
+        if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+          GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -llapack -lblas"
+        else
+          GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+        fi
       fi
     fi
   fi
 fi
 
-if test "x$enable_zitsol" = "xyes" -a "x${PETSC}" = "xyes"; then
-  { echo "$as_me:$LINENO: checking for ./contrib/ZITSOL_1/zarms2.c" >&5
+if test "x$enable_fortran" != "xno"; then
+  if test "x$enable_zitsol" = "xyes" -a "x${PETSC}" = "xyes"; then
+    { echo "$as_me:$LINENO: checking for ./contrib/ZITSOL_1/zarms2.c" >&5
 echo $ECHO_N "checking for ./contrib/ZITSOL_1/zarms2.c... $ECHO_C" >&6; }
 if test "${ac_cv_file___contrib_ZITSOL_1_zarms2_c+set}" = set; then
   echo $ECHO_N "(cached) $ECHO_C" >&6
@@ -4393,10 +4414,11 @@ else
   ZITSOL="no"
 fi
 
-  if test "x${ZITSOL}" = "xyes"; then
-    FLAGS="${FLAGS} -DHAVE_ZITSOL"
-    GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
-    GETDP_LIBS="${GETDP_LIBS} -lGetDPzitsol"
+    if test "x${ZITSOL}" = "xyes"; then
+      FLAGS="${FLAGS} -DHAVE_ZITSOL"
+      GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
+      GETDP_LIBS="${GETDP_LIBS} -lGetDPzitsol"
+    fi
   fi
 fi
 

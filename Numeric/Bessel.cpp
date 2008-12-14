@@ -6,6 +6,28 @@
 #include "Message.h"
 #include "Bessel.h"
 
+#if defined(HAVE_NO_FORTRAN)
+
+static void zbesj_(double*, double*, double*, int*, int*, double*, 
+                   double*, int*, int*)
+{
+  Msg::Fatal("Bessel functions require Fortran compiler");
+}
+
+static void zbesy_(double*, double*, double*, int*, int*, double*, 
+                   double*, int*, double*, double*, int*)
+{
+  Msg::Fatal("Bessel functions require Fortran compiler");
+}
+
+static void zbesh_(double*, double*, double*, int*, int*, int*, 
+                   double*, double*, int*, int*)
+{
+  Msg::Fatal("Bessel functions require Fortran compiler");
+}
+
+#else
+
 #if defined(HAVE_UNDERSCORE)
 #define zbesj_ zbesj
 #define zbesy_ zbesy
@@ -13,13 +35,16 @@
 #endif
 
 extern "C" {
-  void zbesj_(double*, double*, double*, int*, int*, 
-	      double*, double*, int*, int*);
-  void zbesy_(double*, double*, double*, int*, int*, 
-	      double*, double*, int*, double*, double*, int*);
-  void zbesh_(double*, double*, double*, int*, int*, 
-	      int*, double*, double*, int*, int*) ;
+  void zbesj_(double*, double*, double*, int*, int*, double*, 
+              double*, int*, int*);
+  void zbesy_(double*, double*, double*, int*, int*, double*,
+              double*, int*, double*,
+              double*, int*);
+  void zbesh_(double*, double*, double*, int*, int*, int*, double*, 
+              double*, int*, int*);
 }
+
+#endif
 
 static int BesselError(int ierr, const char *str)
 {
@@ -40,13 +65,13 @@ static int BesselError(int ierr, const char *str)
     }
     return BESSEL_HALF_ACCURACY;
   case 4 :
-    Msg::Error("Complete loss of significance in %s (argument or order too large)\n", str);
+    Msg::Error("Complete loss of significance in %s (argument or order too large)", str);
     return BESSEL_NO_ACCURACY;
   case 5 :
-    Msg::Error("Failed to converge in %s\n", str);
+    Msg::Error("Failed to converge in %s", str);
     return BESSEL_NO_CONVERGENCE;
   default:
-    Msg::Info("Unknown Bessel status in %s (%d)\n", str, ierr);
+    Msg::Info("Unknown Bessel status in %s (%d)", str, ierr);
     return ierr;
   }
 }
