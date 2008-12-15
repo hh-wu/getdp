@@ -341,7 +341,8 @@ int MainLegacy(int argc, char *argv[])
   int sargc, lres = 0, lpos = 0, check = 0;
   Get_Options(argc, argv, &sargc, sargv, pro, &lres, &lpos, &check);
 
-  Msg::Info("'%s' started on %s", cmdline.c_str(), currtime.c_str());
+  Msg::Info("Running '%s'", cmdline.c_str());
+  Msg::Info("(Start = %s)", currtime.c_str());
 
   if(sargc > 1){
     std::string solveropt;
@@ -394,6 +395,11 @@ int MainLegacy(int argc, char *argv[])
     SolvingAnalyse();
 
   LinAlg_FinalizeSolver();
+
+  time(&now);
+  currtime = ctime(&now);
+  currtime[currtime.size() - 1] = '\0';
+  Msg::Info("(Stop = %s)", currtime.c_str());
 
   Msg::Direct("E n d");
   Msg::FinalizeSocket();
