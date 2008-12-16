@@ -342,7 +342,7 @@ int MainLegacy(int argc, char *argv[])
   Get_Options(argc, argv, &sargc, sargv, pro, &lres, &lpos, &check);
 
   Msg::Info("Running '%s'", cmdline.c_str());
-  Msg::Info("(Start = %s)", currtime.c_str());
+  Msg::Info("Started on %s", currtime.c_str());
 
   if(sargc > 1){
     std::string solveropt;
@@ -399,7 +399,7 @@ int MainLegacy(int argc, char *argv[])
   time(&now);
   currtime = ctime(&now);
   currtime[currtime.size() - 1] = '\0';
-  Msg::Info("(Stop = %s)", currtime.c_str());
+  Msg::Info("Stopped on %s", currtime.c_str());
 
   Msg::Direct("E n d");
   Msg::FinalizeSocket();

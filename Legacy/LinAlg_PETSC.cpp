@@ -105,7 +105,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   // database (if any)
   ierr = MatSetFromOptions(M->M); MYCHECK(ierr);
   // preallocation option must be set after other options
-  ierr = MatSeqAIJSetPreallocation(M->M, 50, PETSC_NULL); MYCHECK(ierr); 
+  ierr = MatSeqAIJSetPreallocation(M->M, 200, PETSC_NULL); MYCHECK(ierr); 
 }
 
 void LinAlg_DestroySolver(gSolver *Solver)
