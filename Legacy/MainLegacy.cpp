@@ -350,7 +350,7 @@ int MainLegacy(int argc, char *argv[])
       if(i > 1) solveropt += " ";
       solveropt += sargv[i];
     }
-    Msg::Debug( "Passing unused options to solver: '%s'", solveropt.c_str());
+    Msg::Debug("Passing unused options to solver: '%s'", solveropt.c_str());
   }
 
   if(!Name_ResFile[0]){
