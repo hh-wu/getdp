@@ -621,38 +621,67 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
 void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
 {
   int     i, n;
-  double  valx, valdx, errsqr = 0., xmoy = 0., dxmoy = 0., tol ;
-
+  double  valx, valdx, valxi = 0., valdxi = 0.,errsqr = 0., xmoy = 0., dxmoy = 0., tol, nvalx, nvaldx ;
+  /*
   if(gSCALAR_SIZE == 2)
     Msg::Warning("FIXME: Cal_SolutionError might return strange results"
 		 " in complex arithmetic");
-  
+  */
+
   LinAlg_GetVectorSize(dx, &n);
 
-  for (i=0 ; i<n ; i++) {
-    LinAlg_GetAbsDoubleInVector(&valx, x, i) ; 
-    LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ; 
-    xmoy += valx ;
-    if(diff) dxmoy += (valdx-valx) ;
-    else     dxmoy += valdx ;
-  }
+  if (gSCALAR_SIZE == 1)
+    for (i=0 ; i<n ; i++) {
+      LinAlg_GetAbsDoubleInVector(&valx, x, i) ; 
+      LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ; 
+      xmoy += valx ;
+      if(diff) dxmoy += (valdx-valx) ;
+      else     dxmoy += valdx ;
+    }
+  if (gSCALAR_SIZE == 2)
+    for (i=0 ; i<n ; i++) {
+      LinAlg_GetComplexInVector(&valx, &valxi, x, i, i+1);
+      LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, i+1);
+      xmoy += sqrt(valx*valx+valxi*valxi) ;
+      if(diff) dxmoy += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi)) ;
+      else     dxmoy += sqrt(valdx*valdx + valdxi*valdxi) ;
+    }
+
   xmoy  /= (double)n ;
   dxmoy /= (double)n ;
 
   if (xmoy > 1.e-30) {
     tol = xmoy*1.e-10 ;
-    for (i=0 ; i<n ; i++){
-      LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
-      LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ;
-      if(diff){
-	if (valx > tol) errsqr += fabs(valdx-valx)/valx ;
-	else 	        errsqr += fabs(valdx-valx) ;
+    if (gSCALAR_SIZE == 1)
+      for (i=0 ; i<n ; i++){
+        LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
+        LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ;
+        if(diff){
+          if (valx > tol) errsqr += fabs(valdx-valx)/valx ;
+          else 	        errsqr += fabs(valdx-valx) ;
+        }
+        else{
+          if (valx > tol) errsqr += valdx/valx ;
+          else 	        errsqr += valdx ;
+        }
       }
-      else{
-	if (valx > tol) errsqr += valdx/valx ;
-	else 	        errsqr += valdx ;
+
+    if (gSCALAR_SIZE == 2)
+      for (i=0 ; i<n ; i++) {
+        LinAlg_GetComplexInVector(&valx, &valxi, x, i, i+1);
+        LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, i+1);
+        nvalx = sqrt(valx*valx+valxi*valxi) ;
+        nvaldx = sqrt(valdx*valdx+valdxi*valdxi) ;
+        if(diff){
+          if (nvalx > tol) errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi))/nvalx ;
+          else 	        errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi));
+        }
+        else{
+          if (nvalx > tol) errsqr += nvaldx/nvalx ;
+          else 	        errsqr += nvaldx ;
+        }
       }
-    }
+
     *MeanError = errsqr/(double)n ;
   }
   else{
