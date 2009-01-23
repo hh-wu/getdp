@@ -32,7 +32,7 @@ void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
 
 #else
 
-#if defined(HAVE_UNDERSCORE)
+#if defined(HAVE_NO_UNDERSCORE)
 #define znaupd_ znaupd
 #define zneupd_ zneupd
 #endif

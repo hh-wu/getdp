@@ -157,19 +157,21 @@ if test "x$enable_sparskit" = "xyes"; then
   FLAGS="${FLAGS} -DHAVE_SPARSKIT -DHAVE_ILU_FLOAT"
 fi
 
-dnl Check for blas and lapack
-if test "x$enable_fortran" != "xno"; then
-  AC_LANG_PUSH(Fortran 77)
-fi
-if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
-  LDFLAGS="${LDFLAGS} -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
-fi
-AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
-if test "x${BLAS}" = "xyes"; then
-  AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
-fi
-if test "x$enable_fortran" != "xno"; then
-  AC_LANG_POP()
+dnl Check for blas and lapack by hand if we don't have PETSc
+if test "x${PETSC}" != "xyes"; then
+  if test "x$enable_fortran" != "xno"; then
+    AC_LANG_PUSH(Fortran 77)
+  fi
+  if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+    LDFLAGS="${LDFLAGS} -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
+  fi
+  AC_CHECK_LIB(blas,dasum,BLAS="yes",BLAS="no")
+  if test "x${BLAS}" = "xyes"; then
+    AC_CHECK_LIB(lapack,dbdsqr,LAPACK="yes",LAPACK="no",-lblas)
+  fi
+  if test "x$enable_fortran" != "xno"; then
+    AC_LANG_POP()
+  fi
 fi
 
 dnl Check for Arpack, then link with blas and lapack if necessary

@@ -28,8 +28,8 @@ getdp-update:
 getdp-windows-nightly: getdp-update
 	cd ${GETDP} && make distrib-win-nightly >> ${LOG} 2>&1
 	echo "BUILD END: `date`" >> ${LOG}
-	scp ${GETDP}/getdp-*cvs*.zip ${WEB_BIN}/Windows/getdp-nightly-Windows.zip
-	scp ${LOG} ${WEB_BIN}/Windows/
+	scp -C ${GETDP}/getdp-*cvs*.zip ${WEB_BIN}/Windows/getdp-nightly-Windows.zip
+	scp -C ${LOG} ${WEB_BIN}/Windows/
 
 getdp-linux-nightly: getdp-update
 	cd ${GETDP} && make distrib-unix-nightly >> ${LOG} 2>&1
