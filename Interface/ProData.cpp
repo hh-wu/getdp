@@ -1564,11 +1564,11 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
       ichoice = - Flag_LRES;
     }
     else{
-      Msg::Info("Available Resolutions");
+      if(!Msg::UseSocket()) Msg::Info("Available Resolutions");
       for (i = 0; i < Nbr; i++) {
 	RE = (struct Resolution*)List_Pointer(Problem_S.Resolution, i);
-	Msg::Check("(%d) %s\n", i+1, RE->Name);
-	Msg::SendOptionOnSocket(1, RE->Name);
+	if(!Msg::UseSocket()) Msg::Check("(%d) %s\n", i+1, RE->Name);
+	else Msg::SendOptionOnSocket(1, RE->Name);
       }
       if(choose){
 	Msg::Check("Choice: ");
@@ -1599,11 +1599,11 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
       ichoice = - Flag_LPOS;
     }
     else{
-      Msg::Info("Available PostOperations");
+      if(!Msg::UseSocket()) Msg::Info("Available PostOperations");
       for (i = 0; i < Nbr; i++) {
 	PO = (struct PostOperation*)List_Pointer(Problem_S.PostOperation, i);
-	Msg::Check("(%d) %s\n", i+1, PO->Name);
-	Msg::SendOptionOnSocket(2, PO->Name);
+	if(!Msg::UseSocket()) Msg::Check("(%d) %s\n", i+1, PO->Name);
+	else Msg::SendOptionOnSocket(2, PO->Name);
       }
       if(choose){
 	Msg::Check("Choice: ");
