@@ -9,6 +9,7 @@ HOSTNAME=@HOSTNAME@
 
 # The names of the C and Fortran compilers
 CXX=@CXX@
+CC=@CC@
 F77=@F77@
 
 # If you need to link to dynamic libraries installed in non-standard

@@ -8,6 +8,7 @@
 //
 
 #include <math.h>
+#include <string.h>
 #include "LinAlg.h"
 #include "ProData.h"
 #include "DofData.h"

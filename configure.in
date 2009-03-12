@@ -57,6 +57,7 @@ dnl Set default option flags
 FLAGS="-DHAVE_LEGACY"
 
 dnl Check for default compilers
+AC_PROG_CC
 AC_PROG_CXX
 if test "x$enable_fortran" != "xno"; then
   AC_PROG_F77
