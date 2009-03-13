@@ -985,11 +985,11 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 	if (Flag_Comma) sstream << ",";
 	sstream << " " << Value->Val[MAX_DIM*k+j] ;
       }
-      if(PostStream == stdout || PostStream == stderr)
-        Msg::Direct(sstream.str().c_str());
-      else
-        fprintf(PostStream, "%s\n", sstream.str().c_str()) ;
     }
+    if(PostStream == stdout || PostStream == stderr)
+      Msg::Direct(sstream.str().c_str());
+    else
+      fprintf(PostStream, "%s\n", sstream.str().c_str()) ;
   }
 
   else if (Format == FORMAT_GMSH) {
