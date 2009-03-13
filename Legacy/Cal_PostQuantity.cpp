@@ -303,7 +303,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 
     Type_Quantity = LOCALQUANTITY ; /* Attention... il faut se comprendre: */
     /* il s'agit de grandeurs locales qui seront integrees */
-    Msg::ResetProgressMeter();
+    //Msg::ResetProgressMeter();
     for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
       Element.GeoElement = Geo_GetGeoElement(i_Element) ;
       Element.Num    = Element.GeoElement->Num ;
@@ -325,7 +325,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 				    PostQuantityTerm_P, &Element, Type_Quantity,
 				    0., 0., 0., Value) ;
       }
-      Msg::ProgressMeter(i_Element + 1, Nbr_Element, "Accumulate: ");
+      //Msg::ProgressMeter(i_Element + 1, Nbr_Element, "Accumulate: ");
     }  /* for i_Element ... */
 
   }  /* if INTEGRAL ... */
