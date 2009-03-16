@@ -64,6 +64,12 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
   // This function detects if MPI is initialized
   PetscInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
   SolverInitialized = 1;
+
+  // get additional petsc options from specified file (useful e.g. on
+  // Windows where we don't know where to search for ~/.petsrc)
+  for(int i = 0; i < *argc - 1; i++)
+    if (!strcmp((*argv)[i], "-solver"))
+      PetscOptionsInsertFile((*argv)[i+1]);
 }
 
 void LinAlg_Finalize()

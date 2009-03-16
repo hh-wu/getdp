@@ -43,8 +43,12 @@ void Info(int level, char *arg0)
 	    "  -name string              use string as generic file name\n"
 	    "  -adapt file               read adaptation constraints from file\n"
 	    "  -order num                restrict maximum interpolation order\n"
-#if defined(HAVE_SPARSKIT)
 	    "Linear solver options:\n"
+#if defined(HAVE_PETSC)
+	    "  -solver file              specify parameter file (default: .petscrc)\n"
+	    "  [PETsc options]           PETSc options (must be listed after [file])\n"
+#endif
+#if defined(HAVE_SPARSKIT)
 	    "  -solver file              specify parameter file (default: solver.par)\n"
 	    "  -'Parameter' num          override value of solver parameter 'Parameter'\n"
 #endif
