@@ -12,7 +12,7 @@ CC=@CC@
 CXX=@CXX@
 FC=@FC@
 
-# PETSc variables (will overwrite compiler choice if PETSc is used)
+# PETSc variables (will overwrite compiler choices if PETSc is used)
 PETSC_DIR=@PETSC_DIR@
 PETSC_ARCH=@PETSC_ARCH@
 @PETSC_INCLUDE_MAKEFILE@
