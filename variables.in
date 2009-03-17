@@ -7,15 +7,27 @@
 UNAME=@UNAME@
 HOSTNAME=@HOSTNAME@
 
-# PETSc variables
-PETSC_DIR=@PETSC_DIR@
-PETSC_ARCH=@PETSC_ARCH@
-@PETSC_INCLUDE_MAKEFILE@
-
 # The names of the C, C++ and Fortran compilers
 CC=@CC@
 CXX=@CXX@
 FC=@FC@
+
+# PETSc variables (will overwrite compiler choice if PETSc is used)
+PETSC_DIR=@PETSC_DIR@
+PETSC_ARCH=@PETSC_ARCH@
+@PETSC_INCLUDE_MAKEFILE@
+
+# Make sure PETSc did not overwrite the compilers with empty strings
+# (in case PETSc was compiled without C/C++/Fortran support)
+ifeq (${CC},)
+  CC=@CC@
+endif
+ifeq (${CXX},)
+  CXX=@CXX@
+endif
+ifeq (${FC},)
+  FC=@FC@
+endif
 
 # If you need to link to dynamic libraries installed in non-standard
 # locations and are using the GNU linker, you may want to add
