@@ -727,8 +727,17 @@ c                 | upper triangular, thus the length of the |
 c                 | inner product can be set to j.           |
 c                 %------------------------------------------%
 c 
-                  workev(j) = zdotc(j, workl(ihbds), 1,
-     &                        workl(invsub+(j-1)*ldq), 1)
+
+c       FIXME GetDP: don't use zdotc on Apple with gfortran
+c                  workev(j) = zdotc(j, workl(ihbds), 1,
+c     &                        workl(invsub+(j-1)*ldq), 1)
+            workev(j) = 0
+            do 41 k=1, j
+             workev(j) = workev(j) + conjg(workl(ihbds)+k-1) *
+     &                              workl(invsub+(j-1)*ldq+k-1)
+ 41         continue
+c       END OF FIXME
+
  40         continue
 c
             if (msglvl .gt. 2) then
