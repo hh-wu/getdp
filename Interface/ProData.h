@@ -6,6 +6,7 @@
 #ifndef _PRO_DATA_H_
 #define _PRO_DATA_H_
 
+#include "GetDPConfig.h"
 #include "ListUtils.h"
 
 #define _0D      0

@@ -8,6 +8,7 @@
 
 #include <stdio.h>
 #include <map>
+#include "GetDPConfig.h"
 
 /* GetDP only uses a predefined set of acces routines to scalars
    (double precision floating point real or complex values), vectors

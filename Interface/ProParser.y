@@ -15,6 +15,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
 #include "ProDefines.h"

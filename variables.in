@@ -7,10 +7,15 @@
 UNAME=@UNAME@
 HOSTNAME=@HOSTNAME@
 
-# The names of the C and Fortran compilers
-CXX=@CXX@
+# PETSc variables
+PETSC_DIR=@PETSC_DIR@
+PETSC_ARCH=@PETSC_ARCH@
+@PETSC_INCLUDE_MAKEFILE@
+
+# The names of the C, C++ and Fortran compilers
 CC=@CC@
-F77=@F77@
+CXX=@CXX@
+FC=@FC@
 
 # If you need to link to dynamic libraries installed in non-standard
 # locations and are using the GNU linker, you may want to add
@@ -33,11 +38,6 @@ GETDP_DIRS=@GETDP_DIRS@
 
 # GetDP  and libraries
 GETDP_LIBS=@GETDP_LIBS@
-
-# PETSc stuff
-PETSC_DIR=@PETSC_DIR@
-PETSC_ARCH=@PETSC_ARCH@
-@PETSC_INCLUDE_MAKEFILE@
 
 # How you create a static library on this machine
 AR=@AR@

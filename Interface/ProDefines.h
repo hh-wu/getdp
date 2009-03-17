@@ -6,6 +6,7 @@
 #ifndef _PRO_DEFINES_H_
 #define _PRO_DEFINES_H_
 
+#include "GetDPConfig.h"
 #include "ProDefine.h"
 
 #if defined(HAVE_LEGACY)

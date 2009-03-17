@@ -6,6 +6,7 @@
 #include <sstream>
 #include <string.h>
 #include <time.h>
+#include "GetDPConfig.h"
 #include "GetDPVersion.h"
 #include "ProData.h"
 #include "SolvingAnalyse.h"

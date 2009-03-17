@@ -4,6 +4,7 @@
 // bugs and problems to <getdp@geuz.org>.
 
 #include <math.h>
+#include "GetDPConfig.h"
 #include "Message.h"
 
 #if defined(HAVE_GSL)

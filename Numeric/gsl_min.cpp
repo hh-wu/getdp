@@ -3,6 +3,7 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
+#include "GetDPConfig.h"
 #include "Message.h"
 
 #if defined(HAVE_GSL)

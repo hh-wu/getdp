@@ -44,13 +44,16 @@ depend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-ProData.o: ProData.cpp ProData.h ../Common/ListUtils.h ProDefine.h \
-  ProParser.h ../Common/Message.h
-ProDefine.o: ProDefine.cpp ProData.h ../Common/ListUtils.h ProDefine.h \
-  ../Common/Message.h
-ProParser.yy.o: ProParser.yy.cpp ProData.h ../Common/ListUtils.h \
-  ProParser.h ProParser.tab.hpp ../Common/MallocUtils.h \
-  ../Common/Message.h
-ProParser.tab.o: ProParser.tab.cpp ProData.h ../Common/ListUtils.h \
-  ProDefine.h ProDefines.h ProParser.h ../Common/MallocUtils.h \
+ProData.o: ProData.cpp ../Common/GetDPConfig.h ProData.h \
+  ../Common/ListUtils.h ProDefine.h ProParser.h ../Common/Message.h \
+  ../Legacy/Generate_Network.h ProData.h
+ProDefine.o: ProDefine.cpp ProData.h ../Common/GetDPConfig.h \
+  ../Common/ListUtils.h ProDefine.h ../Common/Message.h
+ProParser.yy.o: ProParser.yy.cpp ProData.h ../Common/GetDPConfig.h \
+  ../Common/ListUtils.h ProParser.h ProParser.tab.hpp \
+  ../Common/MallocUtils.h ../Common/Message.h
+ProParser.tab.o: ProParser.tab.cpp ProData.h ../Common/GetDPConfig.h \
+  ../Common/ListUtils.h ProDefine.h ProDefines.h ../Legacy/Gauss.h \
+  ../Legacy/F.h ProData.h ../Legacy/BF.h ../Legacy/GF.h \
+  ../Legacy/Cal_Value.h ProParser.h ../Common/MallocUtils.h \
   ../Common/Message.h

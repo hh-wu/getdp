@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <string>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
 #include "ProParser.h"

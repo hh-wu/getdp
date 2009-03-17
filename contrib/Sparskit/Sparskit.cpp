@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "GetDPConfig.h"
 #include "Sparskit.h"
 #include "MallocUtils.h"
 #include "Message.h"

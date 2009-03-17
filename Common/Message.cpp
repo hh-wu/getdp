@@ -21,6 +21,7 @@
 #define RUSAGE_CHILDREN -1
 #endif
 
+#include "GetDPConfig.h"
 #include "Message.h"
 #include "GmshSocket.h"
 

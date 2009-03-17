@@ -4,6 +4,7 @@
 // bugs and problems to <getdp@geuz.org>.
 
 #include <math.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "F.h"
 #include "Message.h"

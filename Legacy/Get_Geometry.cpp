@@ -8,6 +8,7 @@
 //
 
 #include <math.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
 #include "Get_Geometry.h"

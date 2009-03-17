@@ -1,0 +1,20 @@
+// GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <getdp@geuz.org>.
+
+#ifndef _GETDP_CONFIG_H_
+#define _GETDP_CONFIG_H_
+
+#undef HAVE_ARPACK
+#undef HAVE_GSL
+#undef HAVE_LEGACY
+#undef HAVE_NO_FORTRAN
+#undef HAVE_NO_SOCKLEN_T
+#undef HAVE_PETSC
+#undef HAVE_SPARSKIT
+#undef HAVE_ZITSOL
+
+#define GETDP_CONFIG_OPTIONS ""
+
+#endif

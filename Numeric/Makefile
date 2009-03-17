@@ -17,7 +17,7 @@ SRC = Numeric.cpp \
       Legendre.cpp \
       gsl_brent.cpp gsl_newt.cpp gsl_min.cpp \
 
-ifneq (${F77},disabled)
+ifneq (${FC},disabled)
 FSRC = BesselLib.f
 else
 FSRC = 
@@ -36,7 +36,7 @@ ${LIB}: ${OBJ} ${FOBJ}
 	${CXX} ${CFLAGS} ${DASH}c $<
 
 .f${OBJEXT}:
-	${F77} ${FFLAGS} -c $<
+	${FC} ${FFLAGS} -c $<
 
 clean:
 	rm -f *.o *.obj
@@ -50,10 +50,13 @@ depend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-Numeric.o: Numeric.cpp ../Common/Message.h
+Numeric.o: Numeric.cpp ../Common/GetDPConfig.h ../Common/Message.h
 Adapt.o: Adapt.cpp Adapt.h Numeric.h ../Common/Message.h
-Bessel.o: Bessel.cpp ../Common/Message.h Bessel.h
+Bessel.o: Bessel.cpp ../Common/GetDPConfig.h ../Common/Message.h Bessel.h
 Legendre.o: Legendre.cpp ../Common/Message.h
-gsl_brent.o: gsl_brent.cpp ../Common/Message.h Numeric.h
-gsl_newt.o: gsl_newt.cpp ../Common/Message.h Numeric.h
-gsl_min.o: gsl_min.cpp ../Common/Message.h Numeric.h
+gsl_brent.o: gsl_brent.cpp ../Common/GetDPConfig.h ../Common/Message.h \
+  Numeric.h
+gsl_newt.o: gsl_newt.cpp ../Common/GetDPConfig.h ../Common/Message.h \
+  Numeric.h
+gsl_min.o: gsl_min.cpp ../Common/GetDPConfig.h ../Common/Message.h \
+  Numeric.h

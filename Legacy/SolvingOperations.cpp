@@ -10,6 +10,7 @@
 
 #include <string.h>
 #include <math.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
 #include "GeoData.h"

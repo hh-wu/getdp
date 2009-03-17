@@ -9,6 +9,7 @@
 //   Jose Geraldo A. Brito Neto
 //
 
+#include "GetDPConfig.h"
 #include "LinAlg.h"
 #include "MallocUtils.h"
 #include "Message.h"

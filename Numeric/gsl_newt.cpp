@@ -10,6 +10,7 @@
 
 // This implements a Newton method using the GSL.
 
+#include "GetDPConfig.h"
 #include "Message.h"
 
 #if defined(HAVE_GSL)

@@ -63,8 +63,10 @@ clean:
 	rm -f ${GETDP_VERSION_FILE}
 
 depend: initialtag
-	for i in ${GETDP_DIRS};\
-        do (cd $$i && ${MAKE} depend "CXX=g++" "FLAGS=-DHAVE_GSL"); done
+	mv -f Common/GetDPConfig.h .
+	cp -f utils/misc/GetDPConfig.depend Common/GetDPConfig.h
+	for i in ${GETDP_DIRS}; do (cd $$i && ${MAKE} depend "CXX=g++"); done
+	mv -f GetDPConfig.h Common/
 
 nodepend:
 	for i in ${GETDP_DIRS} ; do \

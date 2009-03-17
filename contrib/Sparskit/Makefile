@@ -10,7 +10,7 @@ LIB = ../../lib/libGetDPSparskit${LIBEXT}
 INC = ${DASH}I. ${DASH}I../../Common
 
 CFLAGS = ${FLAGS} ${OPTIM} ${INC}
-FFLAGS = ${FLAGS} ${OPTIM} ${INC}
+FFLAGS = ${FLAGS} ${OPTIM} ${INC} -DSPARSKIT_FLOAT_ILU
 
 CSRC =  Sparskit.cpp
 
@@ -38,10 +38,10 @@ ${LIB}: ${COBJ} ${FOBJ1} ${FOBJ2}
 	${RANLIB} ${LIB}
 
 .F${OBJEXT}:
-	${F77} ${FFLAGS} ${DASH}c $<
+	${FC} ${FFLAGS} ${DASH}c $<
 
 .f${OBJEXT}:
-	${F77} ${FFLAGS} ${DASH}c $<
+	${FC} ${FFLAGS} ${DASH}c $<
 
 .cpp${OBJEXT}:
 	${CXX} ${CFLAGS} ${DASH}c $<
@@ -58,5 +58,6 @@ depend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-Sparskit.o: Sparskit.cpp Sparskit.h ../../Common/ListUtils.h \
-  ../../Common/MallocUtils.h ../../Common/Message.h
+Sparskit.o: Sparskit.cpp ../../Common/GetDPConfig.h Sparskit.h \
+  ../../Common/ListUtils.h ../../Common/MallocUtils.h \
+  ../../Common/Message.h
