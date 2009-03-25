@@ -1,10 +1,11 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
 
+#include "GmshConfig.h"
+#include "GmshMessage.h"
 #include "discreteEdge.h"
-#include "Message.h"
 
 #if !defined(HAVE_GMSH_EMBEDDED)
 #include "Geo.h"
@@ -31,8 +32,7 @@ SVector3 discreteEdge::firstDer(double par) const
   return SVector3();
 }
 
-double discreteEdge::parFromPoint(const SPoint3 &pt) const 
-{
-  Msg::Error("Cannot compute parametric coordinate on discrete edge");
-  return 0.;
+Range<double> discreteEdge::parBounds(int i) const {
+  Msg::Error("Cannot specify bounds for parametric coordinate on discrete edge");
+  return Range<double>(0,0);
 }

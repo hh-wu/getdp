@@ -6,34 +6,41 @@
 #ifndef _GMSH_EMBEDDED_H_
 #define _GMSH_EMBEDDED_H_
 
-#include "NumericEmbedded.h"
-
-class Context_T{
-public:
-  Context_T()
-  {
-    lc = 1.;
-    hide_unselected = 0;
-    geom.tolerance = 1.e-6;
-    mesh.reverse_all_normals = 1;
-    mesh.second_order_experimental = 0;
-    pick_elements = 0;
-  }
+class CTX{
+ private:
+  static CTX *_instance;
+ public:
   double lc;
-  int hide_unselected;
-  int pick_elements;
+  int pickElements;
+  int hideUnselected;
   struct{
     double tolerance;
   } geom;
   struct{
-    int reverse_all_normals;
-    int second_order_experimental;
+    int reverseAllNormals;
+    int secondOrderExperimental;
+    int numSubEdges;
   } mesh;
-  unsigned int PACK_COLOR(int,int,int,int){ return 0; }
-  int UNPACK_RED(unsigned int){ return 0; }
-  int UNPACK_GREEN(unsigned int){ return 0; }
-  int UNPACK_BLUE(unsigned int){ return 0; }
-  int UNPACK_ALPHA(unsigned int){ return 0; }
+  CTX()
+  {
+    lc = 1.;
+    pickElements = 0;
+    hideUnselected = 0;
+    geom.tolerance = 1.e-6;
+    mesh.reverseAllNormals = 1;
+    mesh.secondOrderExperimental = 0;
+  }
+  ~CTX(){}
+  static CTX *instance()
+  {
+    if(!_instance) _instance = new CTX();
+    return _instance;
+  }
+  unsigned int packColor(int,int,int,int){ return 0; }
+  int unpackRed(unsigned int){ return 0; }
+  int unpackGreen(unsigned int){ return 0; }
+  int unpackBlue(unsigned int){ return 0; }
+  int unpackAlpha(unsigned int){ return 0; }
 };
 
 class smooth_normals{

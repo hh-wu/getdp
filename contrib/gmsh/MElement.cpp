@@ -1,32 +1,36 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
 
 #include <stdlib.h>
 #include <math.h>
+#include "GmshConfig.h"
+#include "GmshMessage.h"
 #include "MElement.h"
+#include "MPoint.h"
+#include "MLine.h"
+#include "MTriangle.h"
+#include "MQuadrangle.h"
+#include "MTetrahedron.h"
+#include "MHexahedron.h"
+#include "MPrism.h"
+#include "MPyramid.h"
 #include "GEntity.h"
 #include "GFace.h"
-#include "FunctionSpace.h"
-#include "Message.h"
+#include "StringUtils.h"
+#include "Numeric.h"
 
 #if defined(HAVE_GMSH_EMBEDDED)
 #include "GmshEmbedded.h"
 #else
-#include "Numeric.h"
-#include "GaussLegendre1D.h"
 #include "Context.h"
-#include "qualityMeasures.h"
-#include "meshGFaceDelaunayInsertion.h"
-#include "meshGRegionDelaunayInsertion.h"
 #endif
 
 #define SQU(a)      ((a)*(a))
 
-extern Context_T CTX;
-
 int MElement::_globalNum = 0;
+double MElement::_isInsideTolerance = 1.e-6;
 double MElementLessThanLexicographic::tolerance = 1.e-6;
 
 void MElement::_getEdgeRep(MVertex *v0, MVertex *v1, 
@@ -59,7 +63,7 @@ void MElement::_getFaceRep(MVertex *v0, MVertex *v1, MVertex *v2,
 
 char MElement::getVisibility()
 {
-  if(CTX.hide_unselected && _visible < 2) return false;
+  if(CTX::instance()->hideUnselected && _visible < 2) return false;
   return _visible; 
 }
 
@@ -93,225 +97,22 @@ double MElement::rhoShapeMeasure()
     return 0.;
 }
 
-void MElement::getIntegrationPoints(int pOrder, int *npts, IntPt **pts) const
+void MElement::getShapeFunctions(double u, double v, double w, double s[], int o)
 {
-  Msg::Error("No integration points defined for this type of element");
-}
-
-void MElement::getShapeFunction(int num,double u,double v,double w,double &s) {
 #if !defined(HAVE_GMSH_EMBEDDED)
-  double sf[256];
-  getFunctionSpace()->f(u,v,w,sf);
-  s = sf[num];
+  const gmshFunctionSpace* fs = getFunctionSpace(o);
+  if(fs) fs->f(u, v, w, s);
+  else Msg::Error("Function space not implemented for this type of element");
 #endif
 }
 
-void MElement::getGradShapeFunction(int num,double uu,double vv,double ww,double s[3]) {
+void MElement::getGradShapeFunctions(double u, double v, double w, double s[][3], int o)
+{
 #if !defined(HAVE_GMSH_EMBEDDED)
-  double sf[256][3];
-  getFunctionSpace()->df(uu, vv, ww, sf);
-  for (int i=0;i<3;i++) s[i] = sf[num][i];
+  const gmshFunctionSpace* fs = getFunctionSpace(o);
+  if(fs) fs->df(u, v, w, s);
+  else Msg::Error("Function space not implemented for this type of element");
 #endif
-}
-
-
-SPoint3 MTriangle::circumcenter()
-{
-#if defined(HAVE_GMSH_EMBEDDED)
-  return SPoint3();
-#else
-  double p1[3] = {_v[0]->x(),_v[0]->y(),_v[0]->z()};
-  double p2[3] = {_v[1]->x(),_v[1]->y(),_v[1]->z()};
-  double p3[3] = {_v[2]->x(),_v[2]->y(),_v[2]->z()};
-  double res[3];
-  circumCenterXYZ(p1,p2,p3,res);
-  return SPoint3(res[0],res[1],res[2]);
-#endif
-}
-
-SPoint3 MTetrahedron::circumcenter()
-{
-#if defined(HAVE_GMSH_EMBEDDED)
-  return SPoint3();
-#else
-  MTet4 t(this,0);
-  double res[3];
-  t.circumcenter(res);
-  return SPoint3(res[0],res[1],res[2]);
-#endif
-}
-
-
-double MTriangle::distoShapeMeasure()
-{
-#if defined(HAVE_GMSH_EMBEDDED)
-  return 1.;
-#else
-  return qmDistorsionOfMapping(this);
-#endif
-}
-
-double MTetrahedron::distoShapeMeasure()
-{
-#if defined(HAVE_GMSH_EMBEDDED)
-  return 1.;
-#else
-  return qmDistorsionOfMapping(this);
-#endif
-}
-
-double MTriangle::gammaShapeMeasure()
-{
-#if defined(HAVE_GMSH_EMBEDDED)
-  return 0.;
-#else
-  return qmTriangle(this, QMTRI_RHO);
-#endif
-}
-
-const gmshFunctionSpace* MTriangle::getFunctionSpace(int o) const {
-
-  int order = (o == -1) ? getPolynomialOrder() : o;
-
-  int nf = getNumFaceVertices();  
-
-  if ((nf ==0) && (o == -1)) {
-    switch (order) {
-    case 1: return &gmshFunctionSpaces::find(MSH_TRI_3); break;
-    case 2: return &gmshFunctionSpaces::find(MSH_TRI_6); break;
-    case 3: return &gmshFunctionSpaces::find(MSH_TRI_9); break;
-    case 4: return &gmshFunctionSpaces::find(MSH_TRI_12); break;
-    case 5: return &gmshFunctionSpaces::find(MSH_TRI_15I); break;
-    default: Msg::Error("Order %d triangle function space not implemented", order); break;
-    }
-  }
-  else { 
-    switch (order) {
-    case 1: return &gmshFunctionSpaces::find(MSH_TRI_3); break;
-    case 2: return &gmshFunctionSpaces::find(MSH_TRI_6); break;
-    case 3: return &gmshFunctionSpaces::find(MSH_TRI_10); break;
-    case 4: return &gmshFunctionSpaces::find(MSH_TRI_15); break;
-    case 5: return &gmshFunctionSpaces::find(MSH_TRI_21); break;
-    default: Msg::Error("Order %d triangle function space implemented", order); break;
-    }
-  }
-  return NULL;
-}
-
-double MTetrahedron::gammaShapeMeasure()
-{
-#if defined(HAVE_GMSH_EMBEDDED)
-  return 0.;
-#else
-  double vol;
-  return qmTet(this, QMTET_2, &vol);
-#endif
-}
-
-
-double MTetrahedron::etaShapeMeasure()
-{
-#if defined(HAVE_GMSH_EMBEDDED)
-  return 0.;
-#else
-  double vol;
-  return qmTet(this, QMTET_3, &vol);
-#endif
-}
-
-double MTetrahedron::getVolume()
-{
-  double mat[3][3];
-  getMat(mat);
-  return det3x3(mat) / 6.;
-}
-
-void MTetrahedron::xyz2uvw(double xyz[3], double uvw[3])
-{
-  double mat[3][3], b[3], det;
-  getMat(mat);
-  b[0] = xyz[0] - getVertex(0)->x();
-  b[1] = xyz[1] - getVertex(0)->y();
-  b[2] = xyz[2] - getVertex(0)->z();
-  sys3x3(mat, b, uvw, &det);
-}
-
-
-const gmshFunctionSpace* MTetrahedron::getFunctionSpace(int o) const {
-
-  int order = (o == -1) ? getPolynomialOrder() : o;
-
-  int nv = getNumVolumeVertices();
-  
-  
-  if ((nv == 0) && (o == -1)) {
-    switch (order) {
-    case 1: return &gmshFunctionSpaces::find(MSH_TET_4); break;
-    case 2: return &gmshFunctionSpaces::find(MSH_TET_10); break;
-    case 3: return &gmshFunctionSpaces::find(MSH_TET_20); break;
-    case 4: return &gmshFunctionSpaces::find(MSH_TET_34); break;
-    case 5: return &gmshFunctionSpaces::find(MSH_TET_52); break;
-    default: Msg::Error("Order %d tetrahedron function space not implemented", order); break;
-    }
-  }
-  else { 
-    switch (order) {
-    case 1: return &gmshFunctionSpaces::find(MSH_TET_4); break;
-    case 2: return &gmshFunctionSpaces::find(MSH_TET_10); break;
-    case 3: return &gmshFunctionSpaces::find(MSH_TET_20); break;
-    case 4: return &gmshFunctionSpaces::find(MSH_TET_35); break;
-    case 5: return &gmshFunctionSpaces::find(MSH_TET_56); break;
-    default: Msg::Error("Order %d tetrahedron function space implemented", order); break;
-    }
-  }
-  return NULL;
-}
-
-
-
-int MHexahedron::getVolumeSign()
-{ 
-  double mat[3][3];
-  mat[0][0] = _v[1]->x() - _v[0]->x();
-  mat[0][1] = _v[3]->x() - _v[0]->x();
-  mat[0][2] = _v[4]->x() - _v[0]->x();
-  mat[1][0] = _v[1]->y() - _v[0]->y();
-  mat[1][1] = _v[3]->y() - _v[0]->y();
-  mat[1][2] = _v[4]->y() - _v[0]->y();
-  mat[2][0] = _v[1]->z() - _v[0]->z();
-  mat[2][1] = _v[3]->z() - _v[0]->z();
-  mat[2][2] = _v[4]->z() - _v[0]->z();
-  return sign(det3x3(mat));
-}
-
-int MPrism::getVolumeSign()
-{ 
-  double mat[3][3];
-  mat[0][0] = _v[1]->x() - _v[0]->x();
-  mat[0][1] = _v[2]->x() - _v[0]->x();
-  mat[0][2] = _v[3]->x() - _v[0]->x();
-  mat[1][0] = _v[1]->y() - _v[0]->y();
-  mat[1][1] = _v[2]->y() - _v[0]->y();
-  mat[1][2] = _v[3]->y() - _v[0]->y();
-  mat[2][0] = _v[1]->z() - _v[0]->z();
-  mat[2][1] = _v[2]->z() - _v[0]->z();
-  mat[2][2] = _v[3]->z() - _v[0]->z();
-  return sign(det3x3(mat));
-}
-
-int MPyramid::getVolumeSign()
-{ 
-  double mat[3][3];
-  mat[0][0] = _v[1]->x() - _v[0]->x();
-  mat[0][1] = _v[3]->x() - _v[0]->x();
-  mat[0][2] = _v[4]->x() - _v[0]->x();
-  mat[1][0] = _v[1]->y() - _v[0]->y();
-  mat[1][1] = _v[3]->y() - _v[0]->y();
-  mat[1][2] = _v[4]->y() - _v[0]->y();
-  mat[2][0] = _v[1]->z() - _v[0]->z();
-  mat[2][1] = _v[3]->z() - _v[0]->z();
-  mat[2][2] = _v[4]->z() - _v[0]->z();
-  return sign(det3x3(mat));
 }
 
 SPoint3 MElement::barycenter()
@@ -396,14 +197,12 @@ static double _computeDeterminantAndRegularize(MElement *ele, double jac[3][3])
 
 double MElement::getJacobian(double u, double v, double w, double jac[3][3])
 {
-  const gmshFunctionSpace* fs = getFunctionSpace();
-  
   jac[0][0] = jac[0][1] = jac[0][2] = 0.;
   jac[1][0] = jac[1][1] = jac[1][2] = 0.;
   jac[2][0] = jac[2][1] = jac[2][2] = 0.;
 
   double gsf[256][3];
-  fs->df(u, v, w, gsf);
+  getGradShapeFunctions(u, v, w, gsf);
   for (int i = 0; i < getNumVertices(); i++) {
     const MVertex* v = getVertex(i);
     double* gg = gsf[i];
@@ -419,14 +218,12 @@ double MElement::getJacobian(double u, double v, double w, double jac[3][3])
 
 double MElement::getPrimaryJacobian(double u, double v, double w, double jac[3][3])
 {
-  const gmshFunctionSpace* fs = getFunctionSpace(1);
-  
   jac[0][0] = jac[0][1] = jac[0][2] = 0.;
   jac[1][0] = jac[1][1] = jac[1][2] = 0.;
   jac[2][0] = jac[2][1] = jac[2][2] = 0.;
 
   double gsf[256][3];
-  fs->df(u, v, w, gsf);
+  getGradShapeFunctions(u, v, w, gsf, 1);
   for(int i = 0; i < getNumPrimaryVertices(); i++) {
     const MVertex* v = getVertex(i);
     double* gg = gsf[i];
@@ -440,40 +237,30 @@ double MElement::getPrimaryJacobian(double u, double v, double w, double jac[3][
   return _computeDeterminantAndRegularize(this, jac);
 }
 
-void MElement::pnt(double uu, double vv, double ww, SPoint3 &p)
+void MElement::pnt(double u, double v, double w, SPoint3 &p)
 {
   double x = 0., y = 0., z = 0.;
-  const gmshFunctionSpace* fs = getFunctionSpace();
-  if(fs){
-    double sf[256];
-    fs->f(uu, vv, ww, sf);
-    for (int j = 0; j < getNumVertices(); j++) {
-      const MVertex* v = getVertex(j);
-      x += sf[j] * v->x();
-      y += sf[j] * v->y();
-      z += sf[j] * v->z();
-    } 
-  }
-  else 
-    Msg::Error("Could not find function space");
+  double sf[256];
+  getShapeFunctions(u, v, w, sf);
+  for (int j = 0; j < getNumVertices(); j++) {
+    const MVertex* v = getVertex(j);
+    x += sf[j] * v->x();
+    y += sf[j] * v->y();
+    z += sf[j] * v->z();
+  } 
   p = SPoint3(x, y, z);
 }
 
-void MElement::primaryPnt(double uu, double vv, double ww, SPoint3 &p)
+void MElement::primaryPnt(double u, double v, double w, SPoint3 &p)
 {
   double x = 0., y = 0., z = 0.;
-  const gmshFunctionSpace* fs = getFunctionSpace(1);
-  if(fs){
-    double sf[256];
-    fs->f(uu, vv, ww, sf);
-    if (getNumPrimaryVertices() != 4) 
-      Msg::Error("Incorrect number of vertices %d", getNumPrimaryVertices());
-    for (int j = 0; j < getNumPrimaryVertices(); j++) {
-      const MVertex* v = getVertex(j);
-      x += sf[j] * v->x();
-      y += sf[j] * v->y();
-      z += sf[j] * v->z();
-    } 
+  double sf[256];
+  getShapeFunctions(u, v, w, sf, 1);
+  for (int j = 0; j < getNumPrimaryVertices(); j++) {
+    const MVertex* v = getVertex(j);
+    x += sf[j] * v->x();
+    y += sf[j] * v->y();
+    z += sf[j] * v->z();
   }
   p = SPoint3(x,y,z);
 }
@@ -491,13 +278,13 @@ void MElement::xyz2uvw(double xyz[3], double uvw[3])
     double jac[3][3];
     if(!getJacobian(uvw[0], uvw[1], uvw[2], jac)) break;
     double xn = 0., yn = 0., zn = 0.;
+    double sf[256];
+    getShapeFunctions(uvw[0], uvw[1], uvw[2], sf);
     for (int i = 0; i < getNumVertices(); i++) {
-      double s;
-      getShapeFunction(i, uvw[0], uvw[1], uvw[2], s);
       MVertex *v = getVertex(i);
-      xn += v->x() * s;
-      yn += v->y() * s;
-      zn += v->z() * s;
+      xn += v->x() * sf[i];
+      yn += v->y() * sf[i];
+      zn += v->z() * sf[i];
     }
     double inv[3][3];
     inv3x3(jac, inv);
@@ -515,30 +302,31 @@ void MElement::xyz2uvw(double xyz[3], double uvw[3])
   }
 }
 
-double MElement::interpolate(double val[], double u, double v, double w, int stride)
+double MElement::interpolate(double val[], double u, double v, double w, int stride,
+                             int order)
 {
   double sum = 0;
   int j = 0;
+  double sf[256];
+  getShapeFunctions(u, v, w, sf, order);
   for(int i = 0; i < getNumVertices(); i++){
-    double s;
-    getShapeFunction(i, u, v, w, s);
-    sum += val[j] * s;
+    sum += val[j] * sf[i];
     j += stride;
   }
   return sum;
 }
 
 void MElement::interpolateGrad(double val[], double u, double v, double w, double f[3],
-                               int stride, double invjac[3][3])
+                               int stride, double invjac[3][3], int order)
 {
   double dfdu[3] = {0., 0., 0.};
   int j = 0;
+  double gsf[256][3];
+  getGradShapeFunctions(u, v, w, gsf, order);
   for(int i = 0; i < getNumVertices(); i++){
-    double s[3];
-    getGradShapeFunction(i, u, v, w, s);
-    dfdu[0] += val[j] * s[0];
-    dfdu[1] += val[j] * s[1];
-    dfdu[2] += val[j] * s[2];
+    dfdu[0] += val[j] * gsf[i][0];
+    dfdu[1] += val[j] * gsf[i][1];
+    dfdu[2] += val[j] * gsf[i][2];
     j += stride;
   }
   if(invjac){
@@ -553,27 +341,28 @@ void MElement::interpolateGrad(double val[], double u, double v, double w, doubl
 }
 
 void MElement::interpolateCurl(double val[], double u, double v, double w, double f[3],
-                               int stride)
+                               int stride, int order)
 {
   double fx[3], fy[3], fz[3], jac[3][3], inv[3][3];
   getJacobian(u, v, w, jac);
   inv3x3(jac, inv);
-  interpolateGrad(&val[0], u, v, w, fx, stride, inv);
-  interpolateGrad(&val[1], u, v, w, fy, stride, inv);
-  interpolateGrad(&val[2], u, v, w, fz, stride, inv);
+  interpolateGrad(&val[0], u, v, w, fx, stride, inv, order);
+  interpolateGrad(&val[1], u, v, w, fy, stride, inv, order);
+  interpolateGrad(&val[2], u, v, w, fz, stride, inv, order);
   f[0] = fz[1] - fy[2];
   f[1] = -(fz[0] - fx[2]);
   f[2] = fy[0] - fx[1];
 }
 
-double MElement::interpolateDiv(double val[], double u, double v, double w, int stride)
+double MElement::interpolateDiv(double val[], double u, double v, double w, int stride,
+                                int order)
 {
   double fx[3], fy[3], fz[3], jac[3][3], inv[3][3];
   getJacobian(u, v, w, jac);
   inv3x3(jac, inv);
-  interpolateGrad(&val[0], u, v, w, fx, stride, inv);
-  interpolateGrad(&val[1], u, v, w, fy, stride, inv);
-  interpolateGrad(&val[2], u, v, w, fz, stride, inv);
+  interpolateGrad(&val[0], u, v, w, fx, stride, inv, order);
+  interpolateGrad(&val[1], u, v, w, fy, stride, inv, order);
+  interpolateGrad(&val[2], u, v, w, fz, stride, inv, order);
   return fx[0] + fy[1] + fz[2];
 }
 
@@ -736,10 +525,9 @@ void MElement::writeVRML(FILE *fp)
   fprintf(fp, "-1,\n");
 }
 
-void MElement::writeVTK(FILE *fp, bool binary)
+void MElement::writeVTK(FILE *fp, bool binary, bool bigEndian)
 {
-  int type = getTypeForUNV();
-  if(!type) return;
+  if(!getTypeForVTK()) return;
 
   setVolumePositive();
 
@@ -749,6 +537,8 @@ void MElement::writeVTK(FILE *fp, bool binary)
     verts[0] = n;
     for(int i = 0; i < n; i++)
       verts[i + 1] = getVertexVTK(i)->getIndex() - 1;
+    // VTK always expects big endian binary data
+    if(!bigEndian) SwapBytes((char*)verts, sizeof(int), n + 1);
     fwrite(verts, sizeof(int), n + 1, fp);
   }
   else{
@@ -832,6 +622,25 @@ void MElement::writeBDF(FILE *fp, int format, int elementary)
   }
 }
 
+void MElement::writeDIFF(FILE *fp, int num, bool binary, int physical_property)
+{
+  const char *str = getStringForDIFF();
+  if(!str) return;
+
+  setVolumePositive();
+
+  int n = getNumVertices();
+  if(binary){
+    // TODO
+  }
+  else{
+    fprintf(fp, "%d %s %d ", num, str, physical_property);
+    for(int i = 0; i < n; i++)
+      fprintf(fp, " %d", getVertexDIFF(i)->getIndex());
+    fprintf(fp, "\n");
+  }
+}
+
 int MElement::getInfoMSH(const int typeMSH, const char **const name)
 {
   switch(typeMSH){
@@ -875,259 +684,6 @@ int MElement::getInfoMSH(const int typeMSH, const char **const name)
   }               
 }
 
-const gmshFunctionSpace* MLine::getFunctionSpace(int o) const {
-
-  int order = o == -1 ? getPolynomialOrder() : o;
-  
-  switch (order) {
-  case 1: return &gmshFunctionSpaces::find(MSH_LIN_2); break;
-  case 2: return &gmshFunctionSpaces::find(MSH_LIN_3); break;
-  case 3: return &gmshFunctionSpaces::find(MSH_LIN_4); break;
-  case 4: return &gmshFunctionSpaces::find(MSH_LIN_5); break;
-  case 5: return &gmshFunctionSpaces::find(MSH_LIN_6); break;
-  default: 
-    Msg::Error("Order %d line point interpolation not implemented",
-	       getPolynomialOrder()); 
-    break;
-  }
-  return NULL;
-}
-
-const int numSubEdges = 6;
-
-int MTriangleN::getNumFacesRep(){ return numSubEdges * numSubEdges; }
-
-void MTriangleN::getFaceRep(int num, double *x, double *y, double *z, SVector3 *n)
-{
-  //  on the first layer, we have (numSubEdges-1) * 2 + 1 triangles
-  //  on the second layer, we have (numSubEdges-2) * 2 + 1 triangles
-  //  on the ith layer, we have (numSubEdges-1-i) * 2 + 1 triangles
-  int ix = 0, iy = 0;
-  int nbt = 0;
-  for (int i = 0; i < numSubEdges; i++){
-    int nbl = (numSubEdges - i - 1) * 2 + 1;
-    nbt += nbl;
-    if (nbt > num){
-      iy = i;
-      ix = nbl - (nbt - num);
-      break;
-    }
-  }
-
-  const double d = 1. / numSubEdges;
-
-  SPoint3 pnt1, pnt2, pnt3;
-  double J1[3][3], J2[3][3], J3[3][3];
-  if (ix % 2 == 0){
-    pnt(ix / 2 * d, iy * d, 0, pnt1);
-    pnt((ix / 2 + 1) * d, iy * d, 0, pnt2);
-    pnt(ix / 2 * d, (iy + 1) * d, 0, pnt3);
-    getJacobian(ix / 2 * d, iy * d, 0, J1);
-    getJacobian((ix / 2 + 1) * d, iy * d, 0, J2);
-    getJacobian(ix / 2 * d, (iy + 1) * d, 0, J3);
-  }
-  else{
-    pnt((ix / 2 + 1) * d, iy * d, 0, pnt1);
-    pnt((ix / 2 + 1) * d, (iy + 1) * d, 0, pnt2);
-    pnt(ix / 2 * d, (iy + 1) * d, 0, pnt3);
-    getJacobian((ix / 2 + 1) * d, iy * d, 0, J1);
-    getJacobian((ix / 2 + 1) * d, (iy + 1) * d, 0, J2);
-    getJacobian(ix / 2 * d, (iy + 1) * d, 0, J3);
-  }
-  {
-    SVector3 d1(J1[0][0], J1[0][1], J1[0][2]);
-    SVector3 d2(J1[1][0], J1[1][1], J1[1][2]);
-    n[0] = crossprod(d1, d2);
-    n[0].normalize();
-  }
-  {
-    SVector3 d1(J2[0][0], J2[0][1], J2[0][2]);
-    SVector3 d2(J2[1][0], J2[1][1], J2[1][2]);
-    n[1] = crossprod(d1, d2);
-    n[1].normalize();
-  }
-  {
-    SVector3 d1(J3[0][0], J3[0][1], J3[0][2]);
-    SVector3 d2(J3[1][0], J3[1][1], J3[1][2]);
-    n[2] = crossprod(d1, d2);
-    n[2].normalize();
-  }
-
-  x[0] = pnt1.x(); x[1] = pnt2.x(); x[2] = pnt3.x();
-  y[0] = pnt1.y(); y[1] = pnt2.y(); y[2] = pnt3.y();
-  z[0] = pnt1.z(); z[1] = pnt2.z(); z[2] = pnt3.z();
-}
-
-int MTriangleN::getNumEdgesRep(){ return 3 * numSubEdges; }
-
-void MTriangleN::getEdgeRep(int num, double *x, double *y, double *z, SVector3 *n)
-{
-  n[0] = n[1] = n[2] = getFace(0).normal();
-  int N = getNumEdgesRep() / 3;
-  if (num < N){
-    SPoint3 pnt1, pnt2;
-    pnt((double)num / N, 0., 0.,pnt1);
-    pnt((double)(num + 1) / N, 0., 0, pnt2);
-    x[0] = pnt1.x(); x[1] = pnt2.x();
-    y[0] = pnt1.y(); y[1] = pnt2.y();
-    z[0] = pnt1.z(); z[1] = pnt2.z();
-    return;
-  }  
-  if (num < 2 * N){
-    SPoint3 pnt1, pnt2;
-    num -= N;
-    pnt(1. - (double)num / N, (double)num / N, 0, pnt1);
-    pnt(1. - (double)(num + 1) / N, (double)(num + 1) / N, 0, pnt2);
-    x[0] = pnt1.x(); x[1] = pnt2.x();
-    y[0] = pnt1.y(); y[1] = pnt2.y();
-    z[0] = pnt1.z(); z[1] = pnt2.z();
-    return ;
-  }  
-  {
-    SPoint3 pnt1, pnt2;
-    num -= 2 * N;
-    pnt(0, (double)num / N, 0,pnt1);
-    pnt(0, (double)(num + 1) / N, 0,pnt2);
-    x[0] = pnt1.x(); x[1] = pnt2.x();
-    y[0] = pnt1.y(); y[1] = pnt2.y();
-    z[0] = pnt1.z(); z[1] = pnt2.z();
-  }
-}
-
-int MTetrahedronN::getNumEdgesRep(){ return 6 * numSubEdges; }
-
-void MTetrahedronN::getEdgeRep(int num, double *x, double *y, double *z, SVector3 *n)
-{
-  static double pp[4][3] = {{0,0,0},{1,0,0},{0,1,0},{0,0,1}};
-  static int ed [6][2] = {{0,1},{0,2},{0,3},{1,2},{1,3},{2,3}};
-  int iEdge = num / numSubEdges;
-  int iSubEdge = num % numSubEdges;  
-
-  
-  int iVertex1 = ed [iEdge][0];
-  int iVertex2 = ed [iEdge][1];
-  double t1 = (double) iSubEdge / (double) numSubEdges;
-  double u1 = pp[iVertex1][0] * (1.-t1) + pp[iVertex2][0] * t1;
-  double v1 = pp[iVertex1][1] * (1.-t1) + pp[iVertex2][1] * t1;
-  double w1 = pp[iVertex1][2] * (1.-t1) + pp[iVertex2][2] * t1;
-
-  double t2 = (double) (iSubEdge+1) / (double) numSubEdges;
-  double u2 = pp[iVertex1][0] * (1.-t2) + pp[iVertex2][0] * t2;
-  double v2 = pp[iVertex1][1] * (1.-t2) + pp[iVertex2][1] * t2;
-  double w2 = pp[iVertex1][2] * (1.-t2) + pp[iVertex2][2] * t2;
-
-  SPoint3 pnt1, pnt2;
-  pnt(u1,v1,w1,pnt1);
-  pnt(u2,v2,w2,pnt2);
-  x[0] = pnt1.x(); x[1] = pnt2.x(); 
-  y[0] = pnt1.y(); y[1] = pnt2.y();
-  z[0] = pnt1.z(); z[1] = pnt2.z();
-}
-
-int MTetrahedronN::getNumFacesRep(){ return 4 * numSubEdges * numSubEdges ; }
-
-void MTetrahedronN::getFaceRep(int num, double *x, double *y, double *z, SVector3 *n)
-{
-  static double pp[4][3] = {{0,0,0},{1,0,0},{0,1,0},{0,0,1}};
-  static int fak [4][3] = {{0,1,2},{0,1,3},{0,2,3},{1,2,3}};
-  int iFace    = num / (numSubEdges*numSubEdges);
-  int iSubFace = num % (numSubEdges*numSubEdges);  
-  
-  int iVertex1 = fak [iFace][0];
-  int iVertex2 = fak [iFace][1];
-  int iVertex3 = fak [iFace][2];
-
-  /*
-    0
-    0 1
-    0 1 2
-    0 1 2 3
-    0 1 2 3 4
-    0 1 2 3 4 5
-  */
-
-  //  on the first layer, we have (numSubEdges-1) * 2 + 1 triangles
-  //  on the second layer, we have (numSubEdges-2) * 2 + 1 triangles
-  //  on the ith layer, we have (numSubEdges-1-i) * 2 + 1 triangles
-  int ix = 0, iy = 0;
-  int nbt = 0;
-  for (int i = 0; i < numSubEdges; i++){
-    int nbl = (numSubEdges - i - 1) * 2 + 1;
-    nbt += nbl;
-    if (nbt > iSubFace){
-      iy = i;
-      ix = nbl - (nbt - iSubFace);
-      break;
-    }
-  }
-
-  const double d = 1. / numSubEdges;
-
-  SPoint3 pnt1, pnt2, pnt3;
-  double J1[2][3], J2[2][3], J3[2][3];
-  double u1,v1,u2,v2,u3,v3;
-  if (ix % 2 == 0){
-    u1 = ix / 2 * d; v1= iy*d;
-    u2 = (ix / 2 + 1) * d ; v2 =  iy * d;
-    u3 = ix / 2 * d ; v3 =  (iy+1) * d;
-  }
-  else{
-    u1 = (ix / 2 + 1) * d; v1= iy * d;
-    u2 = (ix / 2 + 1) * d; v2= (iy + 1) * d;
-    u3 = ix / 2 * d ; v3 =  (iy + 1) * d;
-  }
-
-  double U1 = pp[iVertex1][0] * (1.-u1-v1) + pp[iVertex2][0] * u1 + pp[iVertex3][0] * v1;
-  double U2 = pp[iVertex1][0] * (1.-u2-v2) + pp[iVertex2][0] * u2 + pp[iVertex3][0] * v2;
-  double U3 = pp[iVertex1][0] * (1.-u3-v3) + pp[iVertex2][0] * u3 + pp[iVertex3][0] * v3;
-
-  double V1 = pp[iVertex1][1] * (1.-u1-v1) + pp[iVertex2][1] * u1 + pp[iVertex3][1] * v1;
-  double V2 = pp[iVertex1][1] * (1.-u2-v2) + pp[iVertex2][1] * u2 + pp[iVertex3][1] * v2;
-  double V3 = pp[iVertex1][1] * (1.-u3-v3) + pp[iVertex2][1] * u3 + pp[iVertex3][1] * v3;
-
-  double W1 = pp[iVertex1][2] * (1.-u1-v1) + pp[iVertex2][2] * u1 + pp[iVertex3][2] * v1;
-  double W2 = pp[iVertex1][2] * (1.-u2-v2) + pp[iVertex2][2] * u2 + pp[iVertex3][2] * v2;
-  double W3 = pp[iVertex1][2] * (1.-u3-v3) + pp[iVertex2][2] * u3 + pp[iVertex3][2] * v3;
-
-  pnt(U1,V1,W1,pnt1);
-  pnt(U2,V2,W2,pnt2);
-  pnt(U3,V3,W3,pnt3);
-
-  x[0] = pnt1.x(); x[1] = pnt2.x(); x[2] = pnt3.x();
-  y[0] = pnt1.y(); y[1] = pnt2.y(); y[2] = pnt3.y();
-  z[0] = pnt1.z(); z[1] = pnt2.z(); z[2] = pnt3.z();
-
-  // facetted first
-
-  SVector3 d1(x[1]-x[0],y[1]-y[0],z[1]-z[0]);
-  SVector3 d2(x[2]-x[0],y[2]-y[0],z[2]-z[0]);
-  n[0] = crossprod(d1, d2);
-  n[0].normalize();
-  n[1] = n[0];
-  n[2] = n[0];
- 
-  return;
- 
-  {
-    SVector3 d1(J1[0][0], J1[0][1], J1[0][2]);
-    SVector3 d2(J1[1][0], J1[1][1], J1[1][2]);
-    n[0] = crossprod(d1, d2);
-    n[0].normalize();
-  }
-  {
-    SVector3 d1(J2[0][0], J2[0][1], J2[0][2]);
-    SVector3 d2(J2[1][0], J2[1][1], J2[1][2]);
-    n[1] = crossprod(d1, d2);
-    n[1].normalize();
-  }
-  {
-    SVector3 d1(J3[0][0], J3[0][1], J3[0][2]);
-    SVector3 d2(J3[1][0], J3[1][1], J3[1][2]);
-    n[2] = crossprod(d1, d2);
-    n[2].normalize();
-  }
-}
-
 MElement *MElementFactory::create(int type, std::vector<MVertex*> &v, 
 				  int num, int part)
 {
@@ -1167,64 +723,4 @@ MElement *MElementFactory::create(int type, std::vector<MVertex*> &v,
   case MSH_TET_56: return new MTetrahedronN(v, 5, num, part);
   default:         return 0;
   }
-}
-
-extern int getNGQTPts(int order);
-extern IntPt *getGQTPts (int order);
-extern int getNGQTetPts(int order);
-extern IntPt *getGQTetPts(int order);
-extern int getNGQQPts(int order);
-extern IntPt *getGQQPts(int order);
-extern int getNGQHPts(int order);
-extern IntPt *getGQHPts(int order);
-
-IntPt GQL[100]; 
-
-void MLine::getIntegrationPoints(int pOrder, int *npts, IntPt **pts) const
-{
-#if !defined(HAVE_GMSH_EMBEDDED)
-  double *t, *w;
-  int nbP = pOrder / 2 + 1;
-  gmshGaussLegendre1D(nbP, &t, &w);
-  for (int i = 0; i < nbP; i++){
-    GQL[i].pt[0] = t[i];
-    GQL[i].pt[1] = 0;
-    GQL[i].pt[2] = 0;
-    GQL[i].weight = w[i];
-  }
-  *npts = nbP;
-  *pts = GQL;
-#endif
-}
-
-void MTriangle:: getIntegrationPoints(int pOrder, int *npts, IntPt **pts) const
-{
-#if !defined(HAVE_GMSH_EMBEDDED)
-  *npts = getNGQTPts(pOrder);
-  *pts = getGQTPts(pOrder);
-#endif
-}
-
-void MTetrahedron::getIntegrationPoints(int pOrder, int *npts, IntPt **pts) const
-{
-#if !defined(HAVE_GMSH_EMBEDDED)
-  *npts = getNGQTetPts(pOrder);
-  *pts = getGQTetPts(pOrder);
-#endif
-}
-
-void MHexahedron::getIntegrationPoints(int pOrder, int *npts, IntPt **pts) const
-{
-#if !defined(HAVE_GMSH_EMBEDDED)
-  *npts = getNGQHPts(pOrder);
-  *pts = getGQHPts(pOrder);
-#endif
-}
-
-void MQuadrangle::getIntegrationPoints(int pOrder, int *npts, IntPt **pts) const
-{
-#if !defined(HAVE_GMSH_EMBEDDED)
-  *npts = getNGQQPts(pOrder);
-  *pts = getGQQPts(pOrder);
-#endif
 }

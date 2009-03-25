@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
@@ -7,6 +7,7 @@
 #define _PVIEW_H_
 
 #include <vector>
+#include <map>
 #include <string>
 #include "SPoint3.h"
 
@@ -14,7 +15,8 @@ class PViewData;
 class PViewOptions;
 class VertexArray;
 class smooth_normals;
-class GMSH_Post_Plugin;
+class GModel;
+class GMSH_PostPlugin;
 
 // A post-processing view.
 class PView{
@@ -39,7 +41,7 @@ class PView{
 
  public:
   // create a new view with list-based data, allocated or not
-  PView(bool allocate=true);
+  PView(bool allocate=true, int numalloc=1000);
   // construct a new view using the given data
   PView(PViewData *data);
   // construct a new view, alias of the view "ref"
@@ -47,6 +49,13 @@ class PView{
   // construct a new list-based view from a simple 2D dataset
   PView(std::string xname, std::string yname,
         std::vector<double> &x, std::vector<double> &y);
+  // construct a new model-based view from a bunch of data
+  PView(std::string name, std::string type, GModel *model,
+        std::map<int, std::vector<double> > &data, double time=0.);
+  // add a new time step to a given model-based view
+  void addStep(GModel *model, std::map<int, std::vector<double> > &data, 
+               double time=0.);
+
   // default destructor
   ~PView();
 

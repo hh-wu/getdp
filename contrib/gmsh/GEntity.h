@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
@@ -77,6 +77,7 @@ class GEntity {
     Bezier,
     ParametricCurve,
     BoundaryLayerCurve,
+    CompoundCurve,
     DiscreteCurve,
     Plane,
     Nurb,
@@ -92,6 +93,7 @@ class GEntity {
     SurfaceOfRevolution,
     BoundaryLayerSurface,
     DiscreteSurface,
+    CompoundSurface,
     Volume,
     DiscreteVolume
   };
@@ -115,6 +117,7 @@ class GEntity {
       "Bezier",
       "Parametric curve",
       "Boundary layer curve",
+      "Compound curve",
       "Discrete curve",
       "Plane",
       "Nurb",
@@ -130,6 +133,7 @@ class GEntity {
       "Surface of Revolution",
       "Boundary layer surface",
       "Discrete surface",
+      "Compound surface",
       "Volume",
       "Discrete volume"
     };
@@ -143,6 +147,9 @@ class GEntity {
   GEntity(GModel *m, int t);
 
   virtual ~GEntity();
+
+  // delete the mesh data
+  virtual void deleteMesh(){}
 
   // delete the vertex arrays, used to to draw the mesh efficiently
   void deleteVertexArrays();

@@ -10,7 +10,8 @@ GETDP_MINOR_VERSION = 0
 GETDP_PATCH_VERSION = 0
 GETDP_EXTRA_VERSION = 
 
-GETDP_VERSION = ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}
+GETDP_VERSION =\
+  ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}
 
 GETDP_SHORT_LICENSE = "GNU General Public License"
 
@@ -69,11 +70,11 @@ depend: initialtag
 	mv -f GetDPConfig.h Common/
 
 nodepend:
-	for i in ${GETDP_DIRS} ; do \
-          (cd $$i && (sed '/^# DO NOT DELETE THIS LINE/q' Makefile) > Makefile.new \
-          && cp Makefile Makefile.bak \
-          && cp Makefile.new Makefile \
-          && rm -f Makefile.new); \
+	for i in ${GETDP_DIRS} ; do\
+          (cd $$i && (sed '/^# DO NOT DELETE THIS LINE/q' Makefile) > Makefile.new\
+          && cp Makefile Makefile.bak\
+          && cp Makefile.new Makefile\
+          && rm -f Makefile.new);\
         done 
 
 tag:

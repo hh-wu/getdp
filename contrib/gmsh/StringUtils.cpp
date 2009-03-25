@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
@@ -8,6 +8,7 @@
 #endif
 
 #include "StringUtils.h"
+#include "GmshMessage.h"
 
 void SwapBytes(char *array, int size, int n)
 {
@@ -71,22 +72,56 @@ std::string FixWindowsPath(const char *in)
 #endif
 }
 
-void SplitFileName(const char *name, char *no_ext, char *ext, char *base)
+std::vector<std::string> SplitFileName(std::string fileName)
 {
-  strcpy(no_ext, name);
-  strcpy(ext, "");
-  for(int i = strlen(name) - 1; i >= 0; i--){
-    if(name[i] == '.'){
-      strcpy(ext, &name[i]);
-      no_ext[i] = '\0';
-      break;
+  // returns [path, baseName, extension]
+  int idot = fileName.find_last_of('.');
+  int islash = fileName.find_last_of("/\\");
+  if(idot == std::string::npos) idot = -1;
+  if(islash == std::string::npos) islash = -1;
+  std::vector<std::string> s(3);
+  if(idot > 0)
+    s[2] = fileName.substr(idot);
+  if(islash > 0)
+    s[0] = fileName.substr(0, islash + 1);
+  s[1] = fileName.substr(s[0].size(), fileName.size() - s[0].size() - s[2].size());
+  return s;
+}
+
+std::vector<std::string> SplitWhiteSpace(std::string in, unsigned int len)
+{
+  std::vector<std::string> out(1);
+  for(unsigned int i = 0; i < in.size(); i++){
+    out.back() += in[i];
+    if(out.back().size() > len && in[i] == ' ')
+      out.resize(out.size() + 1);
+  }
+  return out;
+}
+
+void ReplaceMultiFormat(const char *in, const char *val, char *out)
+{
+  unsigned int i = 0, j = 0;
+
+  out[0] = '\0';
+  while(i < strlen(in)){
+    if(in[i] == '%' && i != strlen(in) - 1){
+      if(in[i + 1] == 's'){
+        strcat(out, val);
+        i += 2;
+        j += strlen(val);
+      }
+      else{
+        Msg::Warning("Skipping unknown format '%%%c' in '%s'", in[i + 1], in);
+        i += 2;
+      }
+    }
+    else{
+      out[j] = in[i];
+      out[j + 1] = '\0';
+      i++;
+      j++;
     }
   }
-  strcpy(base, no_ext);
-  for(int i = strlen(no_ext) - 1; i >= 0; i--){
-    if(no_ext[i] == '/' || no_ext[i] == '\\'){
-      strcpy(base, &no_ext[i + 1]);
-      break;
-    }
-  }
+  out[j] = '\0';
 }

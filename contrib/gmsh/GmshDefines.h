@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
@@ -36,6 +36,7 @@
 #define FORMAT_BDF           31
 #define FORMAT_CGNS          32
 #define FORMAT_MED           33
+#define FORMAT_DIFF          34
 
 // Element types in .msh file format
 #define MSH_LIN_2  1

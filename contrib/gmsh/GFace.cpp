@@ -1,33 +1,26 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
 
 #include <sstream>
+#include "GmshConfig.h"
+#include "GmshMessage.h"
 #include "GModel.h"
 #include "GFace.h"
 #include "GEdge.h"
-#include "MElement.h"
-#include "Message.h"
+#include "MTriangle.h"
+#include "MQuadrangle.h"
 #include "VertexArray.h"
+#include "GmshMatrix.h"
+#include "Numeric.h"
 
 #if defined(HAVE_GMSH_EMBEDDED)
 #include "GmshEmbedded.h"
 #else
-#include "Numeric.h"
 #include "GaussLegendre1D.h"
 #include "Context.h"
-#if defined(HAVE_GSL)
-#include <gsl/gsl_vector.h>
-#include <gsl/gsl_linalg.h>
-#else
-#define NRANSI
-#include "nrutil.h"
-void dsvdcmp(double **a, int m, int n, double w[], double **v);
 #endif
-#endif
-
-extern Context_T CTX;
 
 #define SQU(a)      ((a)*(a))
 
@@ -47,17 +40,50 @@ GFace::~GFace()
     ++it;
   }
 
-  for(unsigned int i = 0; i < mesh_vertices.size(); i++)
-    delete mesh_vertices[i];
-
-  for(unsigned int i = 0; i < triangles.size(); i++)
-    delete triangles[i];
-
-  for(unsigned int i = 0; i < quadrangles.size(); i++)
-    delete quadrangles[i];
+  deleteMesh();
 
   if(va_geom_triangles)
     delete va_geom_triangles;
+}
+
+void GFace::delFreeEdge(GEdge *e)
+{ 
+  // delete the edge from the edge list and the orientation list
+  std::list<GEdge*>::iterator ite = l_edges.begin();
+  std::list<int>::iterator itd = l_dirs.begin();
+  while(ite != l_edges.end()){
+    if(e == *ite){
+      Msg::Debug("Erasing edge %d from edge list in face %d", e->tag(), tag());
+      l_edges.erase(ite);
+      if(itd != l_dirs.end()) l_dirs.erase(itd);
+      break;
+    }
+    ite++; 
+    if(itd != l_dirs.end()) itd++;
+  }
+
+  // delete the edge from the edge loops
+  for(std::list<GEdgeLoop>::iterator it = edgeLoops.begin(); 
+      it != edgeLoops.end(); it++){
+    for(GEdgeLoop::iter it2 = it->begin(); it2 != it->end(); it2++){
+      if(e == it2->ge){
+        Msg::Debug("Erasing edge %d from edge loop in face %d", e->tag(), tag());
+        it->erase(it2);
+        break;
+      }
+    }
+  }
+}
+
+void GFace::deleteMesh()
+{
+  for(unsigned int i = 0; i < mesh_vertices.size(); i++) delete mesh_vertices[i];
+  mesh_vertices.clear();
+  transfinite_vertices.clear();
+  for(unsigned int i = 0; i < triangles.size(); i++) delete triangles[i];
+  triangles.clear();
+  for(unsigned int i = 0; i < quadrangles.size(); i++) delete quadrangles[i];
+  quadrangles.clear();
 }
 
 unsigned int GFace::getNumMeshElements()
@@ -75,8 +101,10 @@ MElement *const *GFace::getStartElementType(int type) const
 {
   switch(type) {
   case 0:
+    if(triangles.empty()) return 0; // msvc would throw an exception
     return reinterpret_cast<MElement *const *>(&triangles[0]);
   case 1:
+    if(quadrangles.empty()) return 0; // msvc would throw an exception
     return reinterpret_cast<MElement *const *>(&quadrangles[0]);
   }
   return 0;
@@ -94,7 +122,7 @@ MElement *GFace::getMeshElement(unsigned int index)
 void GFace::resetMeshAttributes()
 {
   meshAttributes.recombine = 0;
-  meshAttributes.recombineAngle = 0.;
+  meshAttributes.recombineAngle = 45.;
   meshAttributes.Method = MESH_UNSTRUCTURED;
   meshAttributes.transfiniteArrangement = 0;
   meshAttributes.transfiniteSmoothing = -1;
@@ -169,6 +197,38 @@ std::string GFace::getAdditionalInfoString()
   return sstream.str();
 }
 
+void GFace::writeGEO(FILE *fp)
+{
+  if(geomType() == DiscreteSurface) return;
+
+  std::list<GEdge*> edg = edges();
+  std::list<int> dir = orientations();
+  if(edg.size() && dir.size() == edg.size()){
+    std::vector<int> num, ori;
+    for(std::list<GEdge*>::iterator it = edg.begin(); it != edg.end(); it++)
+      num.push_back((*it)->tag());
+    for(std::list<int>::iterator it = dir.begin(); it != dir.end(); it++)
+      ori.push_back((*it) > 0 ? 1 : -1);
+    fprintf(fp, "Line Loop(%d) = ", tag());
+    for(unsigned int i = 0; i < num.size(); i++){
+      if(i)
+        fprintf(fp, ", %d", num[i] * ori[i]);
+      else
+        fprintf(fp, "{%d", num[i] * ori[i]);
+    }
+    fprintf(fp, "};\n");
+    if(geomType() == GEntity::Plane){
+      fprintf(fp, "Plane Surface(%d) = {%d};\n", tag(), tag());
+    }
+    else if(edg.size() == 3 || edg.size() == 4){
+      fprintf(fp, "Ruled Surface(%d) = {%d};\n", tag(), tag());
+    }
+    else{
+      Msg::Error("Skipping surface %d in export", tag());
+    }
+  }
+}
+
 void GFace::computeMeanPlane()
 {
   std::vector<SPoint3> pts;
@@ -206,7 +266,6 @@ void GFace::computeMeanPlane(const std::vector<MVertex*> &points)
 
 void GFace::computeMeanPlane(const std::vector<SPoint3> &points)
 {
-#if !defined(HAVE_GMSH_EMBEDDED)
   // The concept of a mean plane computed in the sense of least
   // squares is fine for plane surfaces(!), but not really the best
   // one for non-plane surfaces. Indeed, imagine a quarter of a circle
@@ -228,63 +287,29 @@ void GFace::computeMeanPlane(const std::vector<SPoint3> &points)
   ym /= (double)ndata;
   zm /= (double)ndata;
 
-  int min;
-  double res[4], svd[3];
-#if defined(HAVE_GSL)
-  gsl_matrix *U = gsl_matrix_alloc(ndata, na);
-  gsl_matrix *V = gsl_matrix_alloc(na, na);
-  gsl_vector *W = gsl_vector_alloc(na);
-  gsl_vector *TMPVEC = gsl_vector_alloc(na);
+  gmshMatrix<double> U(ndata, na), V(na, na);
+  gmshVector<double> sigma(na);
   for(int i = 0; i < ndata; i++) {
-    gsl_matrix_set(U, i, 0, points[i].x() - xm);
-    gsl_matrix_set(U, i, 1, points[i].y() - ym);
-    gsl_matrix_set(U, i, 2, points[i].z() - zm);
+    U(i, 0) = points[i].x() - xm;
+    U(i, 1) = points[i].y() - ym;
+    U(i, 2) = points[i].z() - zm;
   }
-  gsl_linalg_SV_decomp(U, V, W, TMPVEC);
-  svd[0] = gsl_vector_get(W, 0);
-  svd[1] = gsl_vector_get(W, 1);
-  svd[2] = gsl_vector_get(W, 2);
+  U.svd(V, sigma);
+  double res[4], svd[3];
+  svd[0] = sigma(0);
+  svd[1] = sigma(1);
+  svd[2] = sigma(2);
+  int min;
   if(fabs(svd[0]) < fabs(svd[1]) && fabs(svd[0]) < fabs(svd[2]))
     min = 0;
   else if(fabs(svd[1]) < fabs(svd[0]) && fabs(svd[1]) < fabs(svd[2]))
     min = 1;
   else
     min = 2;
-  res[0] = gsl_matrix_get(V, 0, min);
-  res[1] = gsl_matrix_get(V, 1, min);
-  res[2] = gsl_matrix_get(V, 2, min);
+  res[0] = V(0, min);
+  res[1] = V(1, min);
+  res[2] = V(2, min);
   norme(res);
-  gsl_matrix_free(U);
-  gsl_matrix_free(V);
-  gsl_vector_free(W);
-  gsl_vector_free(TMPVEC);
-#else
-  double **U = dmatrix(1, ndata, 1, na);
-  double **V = dmatrix(1, na, 1, na);
-  double *W = dvector(1, na);
-  for(int i = 0; i < ndata; i++) {
-    U[i + 1][1] = points[i].x() - xm;
-    U[i + 1][2] = points[i].y() - ym;
-    U[i + 1][3] = points[i].z() - zm;
-  }
-  dsvdcmp(U, ndata, na, W, V);
-  if(fabs(W[1]) < fabs(W[2]) && fabs(W[1]) < fabs(W[3]))
-    min = 1;
-  else if(fabs(W[2]) < fabs(W[1]) && fabs(W[2]) < fabs(W[3]))
-    min = 2;
-  else
-    min = 3;
-  svd[0] = W[1];
-  svd[1] = W[2];
-  svd[2] = W[3];
-  res[0] = V[1][min];
-  res[1] = V[2][min];
-  res[2] = V[3][min];
-  norme(res);
-  free_dmatrix(U, 1, ndata, 1, na);
-  free_dmatrix(V, 1, na, 1, na);
-  free_dvector(W, 1, na);
-#endif
 
   double ex[3], t1[3], t2[3];
 
@@ -386,14 +411,13 @@ end:
         meanPlane.c * v->z() - meanPlane.d;
       if(fabs(d) > lc * 1.e-3) {
         Msg::Error("Plane surface %d (%gx+%gy+%gz+%g=0) is not plane!",
-            tag(), meanPlane.a, meanPlane.b, meanPlane.c, meanPlane.d);
+                   tag(), meanPlane.a, meanPlane.b, meanPlane.c, meanPlane.d);
         Msg::Error("Control point %d = (%g,%g,%g), val=%g",
-            v->tag(), v->x(), v->y(), v->z(), d);
+                   v->tag(), v->x(), v->y(), v->z(), d);
         return;
       }
     }
   }
-#endif
 }
 
 void GFace::getMeanPlaneData(double VX[3], double VY[3],
@@ -446,17 +470,11 @@ double GFace::curvature(const SPoint2 &param) const
   SVector3 dndu = 500 * (n2 - n1);
   SVector3 dndv = 500 * (n4 - n3);
 
-  // double c = fabs(dot(dndu, du) +  dot(dndv, dv)) / detJ;
-
-
   double ddu = dot(dndu,du);
   double ddv = dot(dndv,dv);
   
   double c = std::max(fabs(ddu),fabs(ddv))/detJ;
-  
-  
   // Msg::Info("c = %g detJ %g", c, detJ);
-
   return c;
 }
 
@@ -470,7 +488,6 @@ void GFace::XYZtoUV(const double X, const double Y, const double Z,
                     double &U, double &V, const double relax,
                     const bool onSurface) const
 {
-#if !defined(HAVE_GMSH_EMBEDDED)
   const double Precision = 1.e-8;
   const int MaxIter = 25;
   const int NumInitGuess = 11;
@@ -499,7 +516,7 @@ void GFace::XYZtoUV(const double X, const double Y, const double Z,
 
       GPoint P = point(U, V);
       err2 = sqrt(SQU(X - P.x()) + SQU(Y - P.y()) + SQU(Z - P.z()));
-      if (err2 < 1.e-8 * CTX.lc) return;
+      if (err2 < 1.e-8 * CTX::instance()->lc) return;
 
       while(err > Precision && iter < MaxIter) {
         P = point(U, V);
@@ -531,15 +548,13 @@ void GFace::XYZtoUV(const double X, const double Y, const double Z,
         V = Vnew;
       }
 
-      //printf("i=%d j=%d err=%g iter=%d err2=%g u=%.16g v=%.16g x=%g y=%g z=%g\n", 
-      //     i, j, err, iter, err2, U, V, X, Y, Z);
-
       if(iter < MaxIter && err <= Precision &&
          Unew <= umax && Vnew <= vmax &&
          Unew >= umin && Vnew >= vmin){
-        if (onSurface && err2 > 1.e-4 * CTX.lc)
-          Msg::Warning("Converged for i=%d j=%d (err=%g iter=%d) BUT xyz error = %g in point (%e,%e,%e) on surface %d",
-                       i, j, err, iter, err2,X,Y,Z,tag());
+        if (onSurface && err2 > 1.e-4 * CTX::instance()->lc)
+          Msg::Warning("Converged for i=%d j=%d (err=%g iter=%d) BUT "
+                       "xyz error = %g in point (%e,%e,%e) on surface %d",
+                       i, j, err, iter, err2, X, Y, Z, tag());
         return;
       }
     }
@@ -551,7 +566,6 @@ void GFace::XYZtoUV(const double X, const double Y, const double Z,
     Msg::Info("point %g %g %g : Relaxation factor = %g", X, Y, Z, 0.75 * relax);
     XYZtoUV(X, Y, Z, U, V, 0.75 * relax);
   }
-#endif
 }
 
 SPoint2 GFace::parFromPoint(const SPoint3 &p) const
@@ -576,6 +590,14 @@ bool GFace::containsParam(const SPoint2 &pt) const
     return true;
   else
     return false;
+}
+
+SVector3 GFace::normal(const SPoint2 &param) const
+{
+  Pair<SVector3,SVector3> der = firstDer(param);
+  SVector3 n = crossprod(der.first(), der.second());
+  n.normalize();
+  return n;
 }
 
 bool GFace::buildRepresentationCross()
@@ -692,7 +714,7 @@ bool GFace::buildSTLTriangulation()
   // i,j+1 *---* i+1,j+1
   //       | / |
   //   i,j *---* i+1,j
-  unsigned int c = CTX.color.geom.surface;
+  unsigned int c = CTX::instance()->color.geom.surface;
   unsigned int col[4] = {c, c, c, c};
   for(int i = 0; i < nu - 1; i++){
     for(int j = 0; j < nv - 1; j++){
@@ -716,7 +738,7 @@ bool GFace::buildSTLTriangulation()
 // by default we assume that straight lines are geodesics
 SPoint2 GFace::geodesic(const SPoint2 &pt1 , const SPoint2 &pt2 , double t)
 {
-  if(CTX.mesh.second_order_experimental && geomType() != GEntity::Plane ){
+  if(CTX::instance()->mesh.secondOrderExperimental && geomType() != GEntity::Plane ){
     // FIXME: this is buggy -- remove the CTX option once we do it in
     // a robust manner
     GPoint gp1 = point(pt1.x(), pt1.y());

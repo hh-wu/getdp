@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
@@ -6,7 +6,7 @@
 #include "GModel.h"
 #include "GmshEmbedded.h"
 
-Context_T CTX;
+CTX *CTX::_instance = 0;
 
 int GmshInitialize(int argc, char **argv)
 {

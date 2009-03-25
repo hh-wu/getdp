@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
@@ -28,6 +28,15 @@ class CGNSOptions;
 class GModel
 {
  private:
+  // the name of the model
+  std::string _name;
+
+  // the name of the file the model was read from
+  std::string _fileName;
+
+  // the visibility flag
+  char _visible;
+
   // vertex cache to speed-up direct access by vertex number (used for
   // post-processing I/O)
   std::vector<MVertex*> _vertexVectorCache;
@@ -75,7 +84,6 @@ class GModel
   static int _current;
 
  protected:
-  std::string modelName;
   std::set<GRegion*, GEntityLessThan> regions;
   std::set<GFace*, GEntityLessThan> faces;
   std::set<GEdge*, GEntityLessThan> edges;
@@ -91,7 +99,7 @@ class GModel
   // the static list of all loaded models
   static std::vector<GModel*> list;
 
-  // returns the current model, and sets the current model index if
+  // return the current model, and sets the current model index if
   // index >= 0
   static GModel *current(int index=-1);
 
@@ -114,14 +122,25 @@ class GModel
   FieldManager *getFields(){ return _fields; }
 
   // get/set the model name
-  void setName(std::string name){ modelName = name; }
-  std::string getName(){ return modelName; }
+  void setName(std::string name){ _name = name; }
+  std::string getName(){ return _name; }
 
-  // get the number of regions in this model.
+  // get/set the model file name
+  void setFileName(std::string fileName){ _fileName = fileName; }
+  std::string getFileName(){ return _fileName; }
+
+  // get/set the visibility flag
+  char getVisibility(){ return _visible; }
+  void setVisibility(char val){ _visible = val; }
+
+  // get the number of entities in this model
   int getNumRegions() const { return regions.size(); }
   int getNumFaces() const { return faces.size(); }
   int getNumEdges() const { return edges.size(); }
-  int getNumVertices() const  { return vertices.size(); }
+  int getNumVertices() const { return vertices.size(); }
+
+  // quickly check if the model is empty (contains no entities)
+  bool empty() const;
 
   typedef std::set<GRegion*, GEntityLessThan>::iterator riter;
   typedef std::set<GFace*, GEntityLessThan>::iterator fiter;
@@ -155,60 +174,63 @@ class GModel
   void remove(GEdge *e);
   void remove(GVertex *v);
 
-  // Snap vertices on model edges by using geometry tolerance
+  // snap vertices on model edges by using geometry tolerance
   void snapVertices();
 
-  // Fill a vector containing all the entities in the model
+  // fill a vector containing all the entities in the model
   void getEntities(std::vector<GEntity*> &entities);
 
-  // Checks if there are no physical entities in the model
+  // check if there are no physical entities in the model
   bool noPhysicalGroups();
 
-  // Returns all physical groups (one map per dimension: 0-D to 3-D)
+  // return all physical groups (one map per dimension: 0-D to 3-D)
   void getPhysicalGroups(std::map<int, std::vector<GEntity*> > groups[4]);
 
-  // Deletes physical groups in the model
+  // delete physical groups in the model
   void deletePhysicalGroups();
   void deletePhysicalGroup(int dim, int num);
 
-  // Returns the highest number associated with a physical entity
+  // return the highest number associated with a physical entity
   int getMaxPhysicalNumber();
 
-  // Get an iterator on the elementary/physical names
+  // get an iterator on the elementary/physical names
   piter firstPhysicalName() { return physicalNames.begin(); }
   piter lastPhysicalName() { return physicalNames.end(); }
   piter firstElementaryName() { return elementaryNames.begin(); }
   piter lastElementaryName() { return elementaryNames.end(); }
 
-  // Get the number of physical names
+  // get the number of physical names
   int numPhysicalNames(){ return physicalNames.size(); }
 
-  // Associate a name with a physical number (returns new id if number==0)
+  // associate a name with a physical number (returns new id if number==0)
   int setPhysicalName(std::string name, int number=0);
 
-  // Get the name (if any) of a given physical group
+  // get the name (if any) of a given physical group
   std::string getPhysicalName(int number);
 
-  // The bounding box
+  // set the selection flag on all entities
+  void setSelection(int val);
+
+  // the bounding box
   SBoundingBox3d bounds();
 
-  // Returns the mesh status for the entire model
+  // return the mesh status for the entire model
   int getMeshStatus(bool countDiscrete=true);
 
-  // Returns the total number of elements in the mesh
+  // return the total number of elements in the mesh
   int getNumMeshElements();
 
-  // Get the number of each type of element in the mesh at the largest
+  // get the number of each type of element in the mesh at the largest
   // dimension and return the dimension
   int getNumMeshElements(unsigned c[4]);
 
-  // Access a mesh element by coordinates
+  // access a mesh element by coordinates
   MElement *getMeshElementByCoord(SPoint3 &p);
 
-  // Returns the total number of vertices in the mesh
+  // return the total number of vertices in the mesh
   int getNumMeshVertices();
 
-  // Access a mesh vertex by tag, using the vertex cache
+  // access a mesh vertex by tag, using the vertex cache
   MVertex *getMeshVertexByTag(int n);
 
   // get all the mesh vertices associated with the physical group
@@ -226,29 +248,32 @@ class GModel
   void setCurrentMeshEntity(GEntity *e){ _currentMeshEntity = e; }
   GEntity *getCurrentMeshEntity(){ return _currentMeshEntity; }
 
-  // Deletes all invisble mesh elements
+  // delete all invisble mesh elements
   void removeInvisibleElements();
 
-  // The list of partitions
+  // the list of partitions
   std::set<int> &getMeshPartitions() { return meshPartitions; }
   void recomputeMeshPartitions();
 
-  // Deletes all the partitions
+  // delete all the partitions
   void deleteMeshPartitions();
 
-  // Store/recall min and max partitions size
+  // store/recall min and max partitions size
   void setMinPartitionSize(const int pSize) { partitionSize[0] = pSize; }
   void setMaxPartitionSize(const int pSize) { partitionSize[1] = pSize; }
   int getMinPartitionSize() const { return partitionSize[0]; }
   int getMaxPartitionSize() const { return partitionSize[1]; }
 
-  // Performs various coherence tests on the mesh
-  void checkMeshCoherence();
+  // perform various coherence tests on the mesh
+  void checkMeshCoherence(double tolerance);
 
-  // A container for smooth normals
+  // remove duplicate mesh vertices
+  int removeDuplicateMeshVertices(double tolerance);
+
+  // a container for smooth normals
   smooth_normals *normals;
 
-  // Mesh the model
+  // mesh the model
   int mesh(int dimension);
 
   // Gmsh native CAD format
@@ -270,7 +295,7 @@ class GModel
   // Gmsh mesh file format
   int readMSH(const std::string &name);
   int writeMSH(const std::string &name, double version=1.0, bool binary=false,
-               bool saveAll=false, double scalingFactor=1.0);
+               bool saveAll=false, bool saveParametric=false, double scalingFactor=1.0);
 
   // Mesh statistics (as Gmsh post-processing views)
   int writePOS(const std::string &name, bool printElementary,
@@ -320,8 +345,14 @@ class GModel
 	       bool saveAll=false, double scalingFactor=1.0);
 
   // VTK format
-  int readVTK(const std::string &name);
+  int readVTK(const std::string &name, bool bigEndian=false);
   int writeVTK(const std::string &name, bool binary=false,
+               bool saveAll=false, double scalingFactor=1.0,
+	       bool bigEndian=false);
+
+  // DIFFPACK format
+  int readDIFF(const std::string &name);
+  int writeDIFF(const std::string &name, bool binary=false,
                bool saveAll=false, double scalingFactor=1.0);
 };
 

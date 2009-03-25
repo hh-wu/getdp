@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
@@ -6,9 +6,12 @@
 #ifndef _GVERTEX_H_
 #define _GVERTEX_H_
 
+#include <stdio.h>
 #include "GEntity.h"
 #include "GPoint.h"
 #include "SPoint2.h"
+
+#define MAX_LC 1.e22
 
 class MElement;
 class MPoint;
@@ -20,8 +23,11 @@ class GVertex : public GEntity
   std::list<GEdge*> l_edges;
   double meshSize;
  public:
-  GVertex(GModel *m, int tag, double ms=1.e22);
+  GVertex(GModel *m, int tag, double ms=MAX_LC);
   virtual ~GVertex();
+
+  // delete mesh data
+  virtual void deleteMesh();
 
   // get/set the coordinates of the vertex
   virtual GPoint point() const = 0;
@@ -33,6 +39,9 @@ class GVertex : public GEntity
   // add/delete an edge bounded by this vertex
   void addEdge(GEdge *e);
   void delEdge(GEdge *e);
+
+  // get the edges that this vertex bounds
+  virtual std::list<GEdge*> edges() const{ return l_edges; }
 
   // get the dimension of the vertex (0)
   virtual int dim() const { return 0; }
@@ -48,13 +57,13 @@ class GVertex : public GEntity
   virtual SBoundingBox3d bounds() const { return SBoundingBox3d(SPoint3(x(), y(), z())); }
 
   // reparmaterize the point onto the given face
-  virtual SPoint2 reparamOnFace(GFace *gf, int) const;
+  virtual SPoint2 reparamOnFace(const GFace *gf, int) const;
 
   // return a type-specific additional information string
   virtual std::string getAdditionalInfoString();
 
-  // get the edges that this vertex bounds
-   virtual std::list<GEdge*> edges() const{ return l_edges; }
+  // export in GEO format
+  virtual void writeGEO(FILE *fp);
 
   // get number of elements in the mesh
   unsigned int getNumMeshElements();

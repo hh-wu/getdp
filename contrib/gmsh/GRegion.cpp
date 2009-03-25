@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
@@ -7,8 +7,11 @@
 #include "GModel.h"
 #include "GRegion.h"
 #include "GFace.h"
-#include "MElement.h"
-#include "Message.h"
+#include "MTetrahedron.h"
+#include "MHexahedron.h"
+#include "MPrism.h"
+#include "MPyramid.h"
+#include "GmshMessage.h"
 
 GRegion::GRegion(GModel *model, int tag) : GEntity (model, tag)
 {
@@ -23,20 +26,22 @@ GRegion::~GRegion()
     ++it;
   }
 
-  for(unsigned int i = 0; i < mesh_vertices.size(); i++)
-    delete mesh_vertices[i];
+  deleteMesh();
+}
 
-  for(unsigned int i = 0; i < tetrahedra.size(); i++)
-    delete tetrahedra[i];
-
-  for(unsigned int i = 0; i < hexahedra.size(); i++)
-    delete hexahedra[i];
-
-  for(unsigned int i = 0; i < prisms.size(); i++)
-    delete prisms[i];
-
-  for(unsigned int i = 0; i < pyramids.size(); i++)
-    delete pyramids[i];
+void GRegion::deleteMesh()
+{
+  for(unsigned int i = 0; i < mesh_vertices.size(); i++) delete mesh_vertices[i];
+  mesh_vertices.clear();
+  transfinite_vertices.clear();
+  for(unsigned int i = 0; i < tetrahedra.size(); i++) delete tetrahedra[i];
+  tetrahedra.clear();
+  for(unsigned int i = 0; i < hexahedra.size(); i++) delete hexahedra[i];
+  hexahedra.clear();
+  for(unsigned int i = 0; i < prisms.size(); i++) delete prisms[i];
+  prisms.clear();
+  for(unsigned int i = 0; i < pyramids.size(); i++) delete pyramids[i];
+  pyramids.clear();
 }
 
 unsigned int GRegion::getNumMeshElements()
@@ -56,12 +61,16 @@ MElement *const *GRegion::getStartElementType(int type) const
 {
   switch(type) {
   case 0:
+    if(tetrahedra.empty()) return 0; // msvc would throw an exception
     return reinterpret_cast<MElement *const *>(&tetrahedra[0]);
   case 1:
+    if(hexahedra.empty()) return 0; // msvc would throw an exception
     return reinterpret_cast<MElement *const *>(&hexahedra[0]);
   case 2:
+    if(prisms.empty()) return 0; // msvc would throw an exception
     return reinterpret_cast<MElement *const *>(&prisms[0]);
   case 3:
+    if(pyramids.empty()) return 0; // msvc would throw an exception
     return reinterpret_cast<MElement *const *>(&pyramids[0]);
   }
   return 0;
@@ -128,6 +137,23 @@ std::string GRegion::getAdditionalInfoString()
     sstream << "}";
   }
   return sstream.str();
+}
+
+void GRegion::writeGEO(FILE *fp)
+{
+  if(geomType() == DiscreteVolume) return;
+
+  if(l_faces.size()){
+    fprintf(fp, "Surface Loop(%d) = ", tag());
+    for(std::list<GFace*>::iterator it = l_faces.begin(); it != l_faces.end(); it++) {
+      if(it != l_faces.begin())
+        fprintf(fp, ", %d", (*it)->tag());
+      else
+        fprintf(fp, "{%d", (*it)->tag());
+    }
+    fprintf(fp, "};\n");
+    fprintf(fp, "Volume(%d) = {%d};\n", tag(), tag());
+  }
 }
 
 std::list<GEdge*> GRegion::edges() const

@@ -1,4 +1,4 @@
-// Gmsh - Copyright (C) 1997-2008 C. Geuzaine, J.-F. Remacle
+// Gmsh - Copyright (C) 1997-2009 C. Geuzaine, J.-F. Remacle
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
@@ -6,6 +6,7 @@
 #ifndef _GREGION_H_
 #define _GREGION_H_
 
+#include <stdio.h>
 #include "GEntity.h"
 
 class MElement;
@@ -25,6 +26,9 @@ class GRegion : public GEntity {
   GRegion(GModel *model, int tag);
   virtual ~GRegion();
 
+  // delete mesh data
+  virtual void deleteMesh();
+
   // get the dimension of the region (3)
   virtual int dim() const { return 3; }
 
@@ -33,7 +37,8 @@ class GRegion : public GEntity {
 
   // get/set faces that bound the region
   virtual std::list<GFace*> faces() const{ return l_faces; }
-  void set(std::list<GFace*> &f) { l_faces= f; }
+  virtual std::list<int> faceOrientations() const{ return l_dirs; }
+  void set(std::list<GFace*> &f) { l_faces = f; }
 
   // edges that bound the region
   virtual std::list<GEdge*> edges() const;
@@ -46,6 +51,9 @@ class GRegion : public GEntity {
 
   // return a type-specific additional information string
   virtual std::string getAdditionalInfoString();
+
+  // export in GEO format
+  virtual void writeGEO(FILE *fp);
 
   // number of types of elements
   int getNumElementTypes() const { return 4; }
@@ -64,6 +72,7 @@ class GRegion : public GEntity {
   virtual void resetMeshAttributes();
 
   struct {
+    // is this surface meshed using a transfinite interpolation
     char Method;
     // the extrusion parameters (if any)
     ExtrudeParams *extrude;
