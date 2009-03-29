@@ -3,7 +3,7 @@
 #define GMSH_PATCH_VERSION 1
 #define GMSH_EXTRA_VERSION ""
 #define GMSH_VERSION       "2.3.1"
-#define GMSH_DATE          "Sun Mar 22 16:24:16 CET 2009"
+#define GMSH_DATE          "Wed Mar 25 20:16:10 CET 2009"
 #define GMSH_HOST          "mbp-2.local"
 #define GMSH_PACKAGER      "geuzaine"
 #define GMSH_OS            "Darwin"
