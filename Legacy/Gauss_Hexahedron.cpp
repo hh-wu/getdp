@@ -20,6 +20,10 @@ void Gauss_Hexahedron(int Nbr_Points, int Num,
     *u = xhex6 [Num] ; *v = yhex6 [Num] ; *w = zhex6 [Num] ; 
     *wght = phex6 [Num] ; break ;
 
+  case  14 : 
+    *u = xhex14 [Num] ; *v = yhex14 [Num] ; *w = zhex14 [Num] ; 
+    *wght = phex14 [Num] ; break ;
+
   case 34 : 
     *u = xhex34[Num] ; *v = yhex34[Num] ; *w = zhex34[Num] ;
     *wght = phex34[Num] ; break ;
@@ -30,7 +34,7 @@ void Gauss_Hexahedron(int Nbr_Points, int Num,
 
   default : 
     Msg::Error("Wrong number of Gauss points for Hexahedron");
-    Msg::Error("Valid choices: 6, 34, 77");
+    Msg::Error("Valid choices: 6, 14, 34, 77");
     break;
 
   }
