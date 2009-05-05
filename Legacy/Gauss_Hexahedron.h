@@ -22,6 +22,22 @@ static double phex6[6] = { w1,  w1,  w1,  w1,  w1,  w1};
 #undef c1
 #undef w1
 
+
+#define b   0.795822426
+#define c   0.758786911
+#define wb  0.886426593 
+#define wc  0.335180055 
+
+static double xhex14[14] = {  b, -b,  0,  0,  0,  0,  c,  c,  c,  c, -c, -c, -c, -c };
+static double yhex14[14] = {  0,  0,  b, -b,  0,  0,  c,  c, -c, -c,  c,  c, -c, -c };
+static double zhex14[14] = {  0,  0,  0,  0,  b, -b,  c, -c,  c, -c,  c, -c,  c, -c };
+static double phex14[14] = { wb, wb, wb, wb, wb, wb, wc, wc, wc, wc, wc, wc, wc, wc };
+
+#undef b
+#undef c
+#undef wb
+#undef wc
+
 /* 34 integration points (DHATT ET TOUZOT, page 299) */
 
 static double xhex34[34] = {0.9317380000,-0.9317380000,0.,
