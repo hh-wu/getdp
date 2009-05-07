@@ -980,148 +980,67 @@ void F_TransformPiezoT (F_ARG)
 #endif /* #if !defined(HAVE_GSL) */
 
 /* ------------------------------------------------------------------------ */
-/*          Start:            V I R T U A L   W O R K                       */
+/*       F_VirtualWork                                                      */
 /* ------------------------------------------------------------------------ */
-
-void JacobianVol_dx(struct Element * Element, 
-		    MATRIX3x3 * Jac, double DetJac,
-		    MATRIX3x3 * Jac_dx, double * DetJac_dx, int i)
-{
-  Jac_dx->c11 = Element->dndu[i][0] ;  Jac_dx->c12 = Element->dndu[i][0] ;  Jac_dx->c13 = Element->dndu[i][0] ;
-  Jac_dx->c21 = Element->dndu[i][1] ;  Jac_dx->c22 = Element->dndu[i][1] ;  Jac_dx->c23 = Element->dndu[i][1] ;
-  Jac_dx->c31 = Element->dndu[i][2] ;  Jac_dx->c32 = Element->dndu[i][2] ;  Jac_dx->c33 = Element->dndu[i][2] ;
-
-  DetJac_dx[0] = Jac_dx->c11 * ( Jac->c22 * Jac->c33 - Jac->c23 * Jac->c32 )
-               - Jac_dx->c21 * ( Jac->c12 * Jac->c33 - Jac->c13 * Jac->c32 )
-               + Jac_dx->c31 * ( Jac->c12 * Jac->c23 - Jac->c22 * Jac->c13 );
-
-  DetJac_dx[1] = - Jac_dx->c12 * ( Jac->c21 * Jac->c33 - Jac->c23 * Jac->c31 )
-                 + Jac_dx->c22 * ( Jac->c11 * Jac->c33 - Jac->c13 * Jac->c31 )
-                 - Jac_dx->c32 * ( Jac->c11 * Jac->c23 - Jac->c13 * Jac->c21 );
-
-  DetJac_dx[2] = Jac_dx->c11 * ( Jac->c21 * Jac->c32 - Jac->c22 * Jac->c31 )
-               - Jac_dx->c21 * ( Jac->c11 * Jac->c32 - Jac->c12 * Jac->c31 )
-               + Jac_dx->c31 * ( Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21 );
-
-
-  /* DetJac_dx[0] = Jac_dx->c11 * Jac->c22 - Jac_dx->c21 * Jac->c12 ; */
-  /* DetJac_dx[1] = Jac_dx->c22 * Jac->c11 - Jac_dx->c12 * Jac->c21 ; */
-  /* DetJac_dx[2] = 0. ; */
-
-  if (DetJac < 0) {
-    DetJac_dx[0] *= -1.;
-    DetJac_dx[1] *= -1.;
-    DetJac_dx[2] *= -1.;
-  }
-}
-
-/* F_VirtualWork */
 
 void F_VirtualWork (F_ARG)
 {
-  int i, numNode, Type_Dimension;
-  MATRIX3x3 Jac;
-  MATRIX3x3 Jac_dx;
-  double DetJac;
-  double DetJac_dx [3];
-  double valField[3], s[3] ;
+  int i, numNode, Type_Dimension ;
+  MATRIX3x3 Jac ;
+  double DetJac ;
+  double DetJac_dx[3], squF[6] ;
+  double s[3] = {0.,0.,0.};
 
   /*  numNode = (int)((A+1)->Val[0]); */
   Current.flagAssDiag = 1; /*+++prov*/
 
   numNode = Current.NumEntity;
-    
-  i = 0;
-  while (i < Current.Element->GeoElement->NbrNodes && 
-	 Current.Element->GeoElement->NumNodes[i] != numNode)  i++;
   
-  if (i < Current.Element->GeoElement->NbrNodes ) {
-    
-    /* printf("element : %d %d\n", Current.Element->GeoElement->Num, numNode); */
-    
-    valField[0] = A->Val[0];
-    valField[1] = A->Val[1];
-    valField[2] = A->Val[2];
-    
-    Get_BFGeoElement(Current.Element, Current.u, Current.v, Current.w);
-    
-    Type_Dimension = (int)Current.GeoData->Dimension;
-    
-    switch (Type_Dimension) {
-    case _2D :
-      DetJac = JacobianVol2D (Current.Element, &Jac) ;
-      JacobianVol_dx (Current.Element, &Jac, DetJac, &Jac_dx, DetJac_dx, i) ;
-      
-      s[0] =   DetJac_dx[0] *  ( - valField[0] * valField[0] + 
-				   valField[1] * valField[1] + 
-				   valField[2] * valField[2] )
-	-  2 * DetJac_dx[1] *  valField[0] * valField[1]
-	-  2 * DetJac_dx[2] *  valField[0] * valField[2];
-      
-      /*  DetJac_dx[0] *  (valField[1] * valField[1] - valField[0] * valField[0]) */
-      /*       -  2 * DetJac_dx[1] *  valField[0] * valField[1] ; */
-    
-      s[1] =   DetJac_dx[1] *  ( valField[0] * valField[0] - 
-				 valField[1] * valField[1] + 
-				 valField[2] * valField[2] )
-	-  2 * DetJac_dx[0] *  valField[1] * valField[0]
-	-  2 * DetJac_dx[2] *  valField[1] * valField[2];
-      
-      /*      DetJac_dx[1] * (valField[0] * valField[0] - valField[1] * valField[1]) */
-      /*       -  2 * DetJac_dx[0] *  valField[0] * valField[1] ; */
-	
-      s[2] =   DetJac_dx[2] *  ( valField[0] * valField[0] + 
-				 valField[1] * valField[1] - 
-				 valField[2] * valField[2] )
-	-  2 * DetJac_dx[0] *  valField[2] * valField[0]
-	-  2 * DetJac_dx[1] *  valField[2] * valField[1];
-      
-      s[0] /= fabs(DetJac);
-      s[1] /= fabs(DetJac);
-      s[2] /= fabs(DetJac);
-      break;
-
-    case _3D :
-      DetJac = JacobianVol3D (Current.Element, &Jac) ;
-      JacobianVol_dx (Current.Element, &Jac, DetJac, &Jac_dx, DetJac_dx, i) ;
-      
-      s[0] =   DetJac_dx[0] *  ( - valField[0] * valField[0] + 
-				   valField[1] * valField[1] + 
-				   valField[2] * valField[2] )
-	-  2 * DetJac_dx[1] *  valField[0] * valField[1]
-	-  2 * DetJac_dx[2] *  valField[0] * valField[2];
-      
-      /*  DetJac_dx[0] *  (valField[1] * valField[1] - valField[0] * valField[0]) */
-      /*       -  2 * DetJac_dx[1] *  valField[0] * valField[1] ; */
-      
-      s[1] =   DetJac_dx[1] *  ( valField[0] * valField[0] - 
-				 valField[1] * valField[1] + 
-				 valField[2] * valField[2] )
-	-  2 * DetJac_dx[0] *  valField[1] * valField[0]
-	-  2 * DetJac_dx[2] *  valField[1] * valField[2];
-      
-      /*      DetJac_dx[1] * (valField[0] * valField[0] - valField[1] * valField[1]) */
-      /*       -  2 * DetJac_dx[0] *  valField[0] * valField[1] ; */
-      
-      s[2] =   DetJac_dx[2] *  ( valField[0] * valField[0] +
-				 valField[1] * valField[1] - 
-				 valField[2] * valField[2] )
-	-  2 * DetJac_dx[0] *  valField[2] * valField[0]
-	-  2 * DetJac_dx[1] *  valField[2] * valField[1];
-      
-      s[0] /= fabs(DetJac);
-      s[1] /= fabs(DetJac);
-      s[2] /= fabs(DetJac);
-      break;
-      
-    default :
-      s[0] = 0.; s[1] = 0.; s[2] = 0.;
-      break;
-      
-    }
+  for(i = 0; i < 3; i++) {
+    squF[i]   = A->Val[i] * A->Val[i] ;
+    squF[i+3] = A->Val[i] * A->Val[(i<2)?i+1:0] ;
   }
-  else {
-    s[0] = 0.; s[1] = 0.; s[2] = 0.;
+
+  //Get_BFGeoElement(Current.Element, Current.u, Current.v, Current.w);
+  DetJac  = Current.Element->DetJac ;
+  Jac     = Current.Element->Jac ;
+
+  i = 0 ;
+  while (i < Current.Element->GeoElement->NbrNodes && 
+         Current.Element->GeoElement->NumNodes[i] != numNode)  i++;
+    
+  if (i < Current.Element->GeoElement->NbrNodes ) {    
+    DetJac_dx[0] = 
+        Current.Element->dndu[i][0] * ( Jac.c22 * Jac.c33 - Jac.c23 * Jac.c32 )
+      - Current.Element->dndu[i][1] * ( Jac.c12 * Jac.c33 - Jac.c13 * Jac.c32 )
+      + Current.Element->dndu[i][2] * ( Jac.c12 * Jac.c23 - Jac.c22 * Jac.c13 );
+
+    DetJac_dx[1] = 
+      - Current.Element->dndu[i][0] * ( Jac.c21 * Jac.c33 - Jac.c23 * Jac.c31 )
+      + Current.Element->dndu[i][1] * ( Jac.c11 * Jac.c33 - Jac.c13 * Jac.c31 )
+      - Current.Element->dndu[i][2] * ( Jac.c11 * Jac.c23 - Jac.c13 * Jac.c21 );
+
+    DetJac_dx[2] = 
+        Current.Element->dndu[i][0] * ( Jac.c21 * Jac.c32 - Jac.c22 * Jac.c31 )
+      - Current.Element->dndu[i][1] * ( Jac.c11 * Jac.c32 - Jac.c12 * Jac.c31 )
+      + Current.Element->dndu[i][2] * ( Jac.c11 * Jac.c22 - Jac.c12 * Jac.c21 );
+
+    if(DetJac != 0){
+      s[0] = ( DetJac_dx[0] * ( - squF[0] + squF[1] + squF[2] )
+               -  2 * DetJac_dx[1] * squF[3]
+               -  2 * DetJac_dx[2] * squF[5])/DetJac ;
+    
+      s[1] = ( DetJac_dx[1] * ( squF[0] - squF[1] + squF[2] )
+               -  2 * DetJac_dx[0] * squF[3]
+               -  2 * DetJac_dx[2] * squF[4])/DetJac ;
+    
+      s[2] =  ( DetJac_dx[2] * ( squF[0] + squF[1] - squF[2] ) 
+               -  2 * DetJac_dx[0] * squF[5]
+               -  2 * DetJac_dx[1] * squF[4])/DetJac ;
+     }
+    else {
+      Msg::Warning("Zero determinant in 'F_VirtualWork'") ;
+    }
   }
   
   V->Type = VECTOR ;
