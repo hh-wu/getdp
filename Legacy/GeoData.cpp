@@ -299,7 +299,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
     if(!strncmp(&String[1], "MeshFormat", 10)) {
 
       fscanf(File_GEO, "%lf %d %d\n", &Version, &Format, &Size);
-      if(Version != 2.0){
+      if(Version != 2.0 && Version != 2.1){
 	Msg::Error("Unknown mesh file version (%g)", Version);
 	return;
       }
