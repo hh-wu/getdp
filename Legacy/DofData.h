@@ -158,6 +158,7 @@ void  Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P, in
 				int NbrH);
 void  Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P, 
 				int Format, List_T * Time_L);
+void  Dof_WriteFileRES_WithDofNum(char * Name_File, struct DofData * DofData_P);
 
 void  Dof_TransferDofTreeToList(struct DofData * DofData_P) ;
 void  Dof_InitDofType(struct DofData * DofData_P) ;

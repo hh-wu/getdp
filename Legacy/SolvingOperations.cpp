@@ -2210,6 +2210,18 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 		       (int)Current.TimeStep) ;
       break ;
 
+      /*  -->  S a v e S o l u t i o n W i t h D o f N u m  */
+      /*  ------------------------------------------------  */
+
+    case OPERATION_SAVESOLUTIONWITHDOFNUM :
+      Init_OperationOnSystem("SaveSolutionWithDofNum",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
+      strcpy(ResName, Name_Generic) ;
+      strcat(ResName, ".txt") ;
+      Dof_WriteFileRES_WithDofNum(ResName, DofData_P) ;
+      break ;
+
       /*  -->  S a v e S o l u t i o n s              */
       /*  ------------------------------------------  */
 

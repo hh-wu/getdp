@@ -502,6 +502,48 @@ void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 }
 
 /* ------------------------------------------------------------------------ */
+/*  D o f _ W r i t e F i l e D A T                                         */
+/* ------------------------------------------------------------------------ */
+
+void Dof_WriteFileRES_WithDofNum(char * Name_File, struct DofData * DofData_P) 
+{
+  FILE *fp = fopen(Name_File, "w");
+  if(!fp){
+    Msg::Error("Unable to open file '%s'", Name_File) ;
+    return;
+  }
+
+  int n;
+  LinAlg_GetVectorSize(&DofData_P->CurrentSolution->x, &n);
+  fprintf(fp, "%d\n", n) ;
+
+  List_T *l = 0;
+  if(!DofData_P->DofList) l = Tree2List(DofData_P->DofTree);
+  int N = l ? List_Nbr(l) : List_Nbr(DofData_P->DofList);
+
+  for(int i = 0; i < N; i++){
+    Dof *dof;
+    if(l)
+      List_Read(l, i, &dof);
+    else
+      dof = (Dof*)List_Pointer(DofData_P->DofList, i);
+    gScalar s;
+    if(dof->Type == DOF_UNKNOWN){
+      LinAlg_GetScalarInVector(&s, &DofData_P->CurrentSolution->x, dof->Case.Unknown.NumDof - 1);
+#if defined(PETSC_USE_COMPLEX)
+      fprintf(fp, "%d %g %g\n", dof->Entity, s.s.real(), s.s.imag());
+#else
+      fprintf(fp, "%d %g\n", dof->Entity, s.d);
+#endif
+    }
+  }
+
+  if(l) List_Delete(l);
+  
+  fclose(fp);
+}
+
+/* ------------------------------------------------------------------------ */
 /*  D o f _ R e a d F i l e R E S                                           */
 /* ------------------------------------------------------------------------ */
 

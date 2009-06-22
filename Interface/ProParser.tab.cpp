@@ -600,6 +600,7 @@
 #include <string.h>
 #include <math.h>
 #include <time.h>
+#include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
 #include "ProDefines.h"
@@ -716,7 +717,7 @@ void vyyerror(const char *fmt, ...);
 
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 typedef union YYSTYPE
-#line 115 "ProParser.y"
+#line 116 "ProParser.y"
 {
   char    *c;
   int     i;
@@ -725,7 +726,7 @@ typedef union YYSTYPE
   struct TwoInt t;
 }
 /* Line 193 of yacc.c.  */
-#line 729 "ProParser.tab.cpp"
+#line 730 "ProParser.tab.cpp"
 	YYSTYPE;
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */
 # define YYSTYPE_IS_DECLARED 1
@@ -738,7 +739,7 @@ typedef union YYSTYPE
 
 
 /* Line 216 of yacc.c.  */
-#line 742 "ProParser.tab.cpp"
+#line 743 "ProParser.tab.cpp"
 
 #ifdef short
 # undef short
@@ -1431,12 +1432,12 @@ static const yytype_int16 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint16 yyrline[] =
 {
-       0,   275,   275,   275,   308,   312,   311,   319,   320,   321,
-     322,   323,   324,   325,   326,   327,   328,   330,   332,   335,
-     347,   350,   356,   359,   365,   371,   373,   375,   378,   384,
-     394,   383,   411,   410,   427,   438,   443,   461,   493,   496,
-     509,   510,   517,   519,   522,   541,   554,   561,   569,   573,
-     580,   591,   597,   604,   617,   626,   634,   648,   663,   701,
+       0,   276,   276,   276,   309,   313,   312,   320,   321,   322,
+     323,   324,   325,   326,   327,   328,   329,   331,   333,   336,
+     348,   351,   357,   360,   366,   372,   374,   376,   379,   385,
+     395,   384,   412,   411,   428,   439,   444,   462,   494,   497,
+     510,   511,   518,   520,   523,   542,   555,   562,   570,   574,
+     581,   592,   598,   604,   617,   626,   634,   648,   663,   701,
      705,   716,   728,   745,   767,   767,   772,   778,   779,   784,
      792,   795,   800,   802,   823,   868,   872,   875,   886,   910,
      916,   924,   924,   931,   939,   943,   949,   952,   959,   959,
@@ -4911,7 +4912,7 @@ yyreduce:
   switch (yyn)
     {
         case 2:
-#line 275 "ProParser.y"
+#line 276 "ProParser.y"
     { if(++YaccLevel == 1) {
 	ConstantTable_L = List_Create(20, 10, sizeof(struct Constant));
 	ListDummy_L     = List_Create(1, 1, sizeof(int)); /* Do not delete */
@@ -4929,7 +4930,7 @@ yyreduce:
     break;
 
   case 3:
-#line 290 "ProParser.y"
+#line 291 "ProParser.y"
     { if(--YaccLevel == 0) {
 	List_Delete(ListOfInt_L); List_Delete(ListOfTwoInt_L);  
 	List_Delete(ListOfPointer_L); List_Delete(ListOfPointer2_L); 
@@ -4943,29 +4944,29 @@ yyreduce:
     break;
 
   case 5:
-#line 312 "ProParser.y"
+#line 313 "ProParser.y"
     { Formulation_S.DefineQuantity = NULL; ;}
     break;
 
   case 19:
-#line 336 "ProParser.y"
+#line 337 "ProParser.y"
     {            
       strcpy(getdp_yyincludename, (yyvsp[(2) - (2)].c)); getdp_yyincludenum++; return(0);
     ;}
     break;
 
   case 22:
-#line 357 "ProParser.y"
+#line 358 "ProParser.y"
     { Add_Group(&Group_S, (yyvsp[(1) - (4)].c), 0, 0); ;}
     break;
 
   case 23:
-#line 360 "ProParser.y"
+#line 361 "ProParser.y"
     { Add_Group(&Group_S, (yyvsp[(1) - (5)].c), 2, (yyvsp[(2) - (5)].i)); ;}
     break;
 
   case 24:
-#line 366 "ProParser.y"
+#line 367 "ProParser.y"
     {
       vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Add_Group(&Group_S, (yyvsp[(1) - (5)].c), 0, 0);
@@ -4973,12 +4974,12 @@ yyreduce:
     break;
 
   case 27:
-#line 376 "ProParser.y"
+#line 377 "ProParser.y"
     { Add_Group_2(&Group_S, (yyvsp[(1) - (5)].c), 1, 0, 0, 0); ;}
     break;
 
   case 29:
-#line 384 "ProParser.y"
+#line 385 "ProParser.y"
     { 
       Group_S.InitialList = List_Create(1, 1, sizeof(int));
       int i = (int)(yyvsp[(3) - (6)].d);
@@ -4991,7 +4992,7 @@ yyreduce:
     break;
 
   case 30:
-#line 394 "ProParser.y"
+#line 395 "ProParser.y"
     {
       Group_S.MovingBand2D = (struct MovingBand2D *)Malloc(sizeof(struct MovingBand2D));
       Group_S.MovingBand2D->InitialList1 = (yyvsp[(10) - (10)].l); 
@@ -5001,7 +5002,7 @@ yyreduce:
     break;
 
   case 31:
-#line 401 "ProParser.y"
+#line 402 "ProParser.y"
     {
       Group_S.MovingBand2D->InitialList2 = (yyvsp[(14) - (18)].l); 
       Add_Group(&Group_S, (yyvsp[(1) - (18)].c), 0, 0); 
@@ -5010,7 +5011,7 @@ yyreduce:
     break;
 
   case 32:
-#line 411 "ProParser.y"
+#line 412 "ProParser.y"
     {
       Group_S.FunctionType = (yyvsp[(1) - (3)].i);
       switch (Group_S.FunctionType) {
@@ -5022,7 +5023,7 @@ yyreduce:
     break;
 
   case 33:
-#line 420 "ProParser.y"
+#line 421 "ProParser.y"
     {
       Group_S.SuppListType = Type_SuppList;
       Group_S.InitialSuppList = (yyvsp[(5) - (6)].l);
@@ -5031,7 +5032,7 @@ yyreduce:
     break;
 
   case 34:
-#line 428 "ProParser.y"
+#line 429 "ProParser.y"
     {
       Group_S.FunctionType = REGION;  Group_S.Type = REGIONLIST;
       Group_S.InitialList = (yyvsp[(2) - (2)].l);
@@ -5041,14 +5042,14 @@ yyreduce:
     break;
 
   case 35:
-#line 439 "ProParser.y"
+#line 440 "ProParser.y"
     {
       (yyval.i) = (yyvsp[(1) - (1)].i);
     ;}
     break;
 
   case 36:
-#line 444 "ProParser.y"
+#line 445 "ProParser.y"
     {
       int i;
       if(!strcmp((yyvsp[(1) - (1)].c), "All")) {
@@ -5065,7 +5066,7 @@ yyreduce:
     break;
 
   case 37:
-#line 462 "ProParser.y"
+#line 463 "ProParser.y"
     {
       int i;
       if(!Flag_MultipleIndex) {
@@ -5095,12 +5096,12 @@ yyreduce:
     break;
 
   case 38:
-#line 494 "ProParser.y"
+#line 495 "ProParser.y"
     { (yyval.i) = REGION; ;}
     break;
 
   case 39:
-#line 497 "ProParser.y"
+#line 498 "ProParser.y"
     { (yyval.i) = Get_DefineForString(FunctionForGroup_Type, (yyvsp[(1) - (1)].c), &FlagError);
       if(FlagError){
 	vyyerror("Unknown type of Function for Group: %s", (yyvsp[(1) - (1)].c));
@@ -5111,27 +5112,27 @@ yyreduce:
     break;
 
   case 40:
-#line 509 "ProParser.y"
+#line 510 "ProParser.y"
     { (yyval.l) = (yyvsp[(1) - (1)].l); ;}
     break;
 
   case 41:
-#line 510 "ProParser.y"
+#line 511 "ProParser.y"
     { (yyval.l) = NULL; ;}
     break;
 
   case 42:
-#line 517 "ProParser.y"
+#line 518 "ProParser.y"
     { Type_SuppList = SUPPLIST_NONE;  (yyval.l) = NULL; ;}
     break;
 
   case 43:
-#line 520 "ProParser.y"
+#line 521 "ProParser.y"
     { Type_SuppList = (yyvsp[(2) - (3)].i); (yyval.l) = (yyvsp[(3) - (3)].l); ;}
     break;
 
   case 44:
-#line 523 "ProParser.y"
+#line 524 "ProParser.y"
     {
       int i;
       Type_SuppList = SUPPLIST_INSUPPORT;
@@ -5149,7 +5150,7 @@ yyreduce:
     break;
 
   case 45:
-#line 542 "ProParser.y"
+#line 543 "ProParser.y"
     { (yyval.i) = Get_DefineForString(FunctionForGroup_SuppList, (yyvsp[(1) - (1)].c), &FlagError);
       if(FlagError){
 	vyyerror("Unknown type of Supplementary Region: %s", (yyvsp[(1) - (1)].c));
@@ -5160,7 +5161,7 @@ yyreduce:
     break;
 
   case 46:
-#line 555 "ProParser.y"
+#line 556 "ProParser.y"
     {
       (yyval.l) = List_Create(((List_Nbr((yyvsp[(1) - (1)].l)) > 0)? List_Nbr((yyvsp[(1) - (1)].l)) : 1), 5, sizeof(int));
       for(int i = 0; i < List_Nbr((yyvsp[(1) - (1)].l)); i++)
@@ -5169,19 +5170,19 @@ yyreduce:
     break;
 
   case 47:
-#line 562 "ProParser.y"
+#line 563 "ProParser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 48:
-#line 569 "ProParser.y"
+#line 570 "ProParser.y"
     {
       (yyval.l) = List_Create(5, 5, sizeof(int));
     ;}
     break;
 
   case 49:
-#line 574 "ProParser.y"
+#line 575 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (3)].l);
       for(int i = 0; i < List_Nbr((yyvsp[(3) - (3)].l)); i++)
@@ -5190,7 +5191,7 @@ yyreduce:
     break;
 
   case 50:
-#line 581 "ProParser.y"
+#line 582 "ProParser.y"
     {
       (yyval.l) = (yyvsp[(1) - (4)].l);
       for(int i = 0; i < List_Nbr((yyvsp[(4) - (4)].l)); i++)
@@ -5199,14 +5200,14 @@ yyreduce:
     break;
 
   case 51:
-#line 592 "ProParser.y"
+#line 593 "ProParser.y"
     {
       List_Reset(ListOfInt_L); List_Add((yyval.l) = ListOfInt_L, &((yyvsp[(1) - (1)].i)));
     ;}
     break;
 
   case 52:
-#line 598 "ProParser.y"
+#line 599 "ProParser.y"
     {
       int i = (int)(yyvsp[(2) - (3)].d);
       List_Reset(ListOfInt_L); List_Add((yyval.l) = ListOfInt_L, &i);
@@ -12272,7 +12273,7 @@ yyreduce:
 
 
 /* Line 1267 of yacc.c.  */
-#line 12276 "ProParser.tab.cpp"
+#line 12277 "ProParser.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
