@@ -4812,39 +4812,16 @@ else
 fi
 
 if test "x${GMSH}" = "xyes"; then
+  cat >>confdefs.h <<\_ACEOF
+#define HAVE_GMSH 1
+_ACEOF
+
+  BO="${BO} Gmsh"
   if test "x${GMSH_PREFIX}" = "x"; then
     GETDP_LIBS="${GETDP_LIBS} -lGmsh"
   else
     GETDP_LIBS="${GETDP_LIBS} -L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib -lGmsh"
     FLAGS="${FLAGS} -I${GMSH_PREFIX} -I${GMSH_PREFIX}/include"
-  fi
-else
-  { echo "$as_me:$LINENO: checking for ./contrib/gmsh/GmshEmbedded.cpp" >&5
-echo $ECHO_N "checking for ./contrib/gmsh/GmshEmbedded.cpp... $ECHO_C" >&6; }
-if test "${ac_cv_file___contrib_gmsh_GmshEmbedded_cpp+set}" = set; then
-  echo $ECHO_N "(cached) $ECHO_C" >&6
-else
-  test "$cross_compiling" = yes &&
-  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
-echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
-   { (exit 1); exit 1; }; }
-if test -r "./contrib/gmsh/GmshEmbedded.cpp"; then
-  ac_cv_file___contrib_gmsh_GmshEmbedded_cpp=yes
-else
-  ac_cv_file___contrib_gmsh_GmshEmbedded_cpp=no
-fi
-fi
-{ echo "$as_me:$LINENO: result: $ac_cv_file___contrib_gmsh_GmshEmbedded_cpp" >&5
-echo "${ECHO_T}$ac_cv_file___contrib_gmsh_GmshEmbedded_cpp" >&6; }
-if test $ac_cv_file___contrib_gmsh_GmshEmbedded_cpp = yes; then
-  GMSH="yes"
-else
-  GMSH="no"
-fi
-
-  if test "x${GMSH}" = "xyes"; then
-    GETDP_DIRS="${GETDP_DIRS} contrib/gmsh"
-    GETDP_LIBS="${GETDP_LIBS} -lGmshEmbedded"
   fi
 fi
 
