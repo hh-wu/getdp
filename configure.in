@@ -225,17 +225,13 @@ if test "x${GMSH_PREFIX}" != "x"; then
 fi
 AC_CHECK_LIB(Gmsh,main,GMSH="yes",GMSH="no")
 if test "x${GMSH}" = "xyes"; then
+  AC_DEFINE(HAVE_GMSH)
+  BO="${BO} Gmsh"
   if test "x${GMSH_PREFIX}" = "x"; then
     GETDP_LIBS="${GETDP_LIBS} -lGmsh"
   else
     GETDP_LIBS="${GETDP_LIBS} -L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib -lGmsh"
     FLAGS="${FLAGS} -I${GMSH_PREFIX} -I${GMSH_PREFIX}/include"
-  fi
-else
-  AC_CHECK_FILE(./contrib/gmsh/GmshEmbedded.cpp,GMSH="yes",GMSH="no")
-  if test "x${GMSH}" = "xyes"; then
-    GETDP_DIRS="${GETDP_DIRS} contrib/gmsh"
-    GETDP_LIBS="${GETDP_LIBS} -lGmshEmbedded"
   fi
 fi
 
