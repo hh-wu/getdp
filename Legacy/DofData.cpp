@@ -515,7 +515,6 @@ void Dof_WriteFileRES_WithDofNum(char * Name_File, struct DofData * DofData_P)
 
   int n;
   LinAlg_GetVectorSize(&DofData_P->CurrentSolution->x, &n);
-  fprintf(fp, "%d\n", n) ;
 
   List_T *l = 0;
   if(!DofData_P->DofList) l = Tree2List(DofData_P->DofTree);
