@@ -859,7 +859,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   int RankCpu;
   MPI_Comm_rank(PETSC_COMM_WORLD, &RankCpu);
 
-  bool view = (!Solver->ksp[kspIndex] && Msg::GetVerbosity() > 0);
+  bool view = (!Solver->ksp[kspIndex] && Msg::GetVerbosity() > 2);
 
   if(view && !RankCpu){
     int i, j;

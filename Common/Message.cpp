@@ -115,7 +115,7 @@ void Message::Info(const char *fmt, ...)
 
 void Message::Direct(const char *fmt, ...)
 {
-  if(_commRank) return;
+  if(_commRank || _verbosity < 1) return;
   va_list args;
   va_start(args, fmt);
   char str[1024];
@@ -189,7 +189,7 @@ static void GetResources(double *s, long *mem)
 
 void Message::Cpu(const char *fmt, ...)
 {
-  if(_commRank || _verbosity < 1) return;
+  if(_commRank || _verbosity < 2) return;
   double s = 0.;
   long mem = 0;
   GetResources(&s, &mem);
