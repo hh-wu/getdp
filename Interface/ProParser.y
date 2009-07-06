@@ -224,7 +224,7 @@ void vyyerror(const char *fmt, ...);
 %token      tGenerateOnly
 %token      tGenerateOnlyJac
 %token      tSolveJac_AdaptRelax  tTensorProductSolve
-%token      tSaveSolutionExtendedMH tSaveSolutionMHtoTime
+%token      tSaveSolutionExtendedMH tSaveSolutionMHtoTime tSaveSolutionWithEntityNum
 %token      tInit_MovingBand2D tMesh_MovingBand2D 
 %token      tGenerate_MH_Moving tGenerate_MH_Moving_Separate tAdd_MH_Moving 
 %token      tGenerateGroup tGenerateJacGroup
@@ -4542,6 +4542,33 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SolveJac_AdaptRelax.CheckAll = (int)$7;
       Operation_P->Case.SolveJac_AdaptRelax.Factor_L = $5; 
+    }
+
+  | tSaveSolutionWithEntityNum '[' String__Index ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SAVESOLUTION_WITH_ENTITY_NUM;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex = -1;
+    }
+
+  | tSaveSolutionWithEntityNum '[' String__Index ',' GroupRHS ']' tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_SAVESOLUTION_WITH_ENTITY_NUM;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex = 
+        Num_Group(&Group_S, (char*)"OP_SaveSolutionWithEntityNum", $5);
     }
 
   | tSaveSolutionExtendedMH '[' String__Index ',' FExpr ',' CharExpr ']' tEND

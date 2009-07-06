@@ -2210,16 +2210,21 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 		       (int)Current.TimeStep) ;
       break ;
 
-      /*  -->  S a v e S o l u t i o n W i t h D o f N u m  */
+      /*  -->  S a v e S o l u t i o n W i t h E n t i t y N u m  */
       /*  ------------------------------------------------  */
 
-    case OPERATION_SAVESOLUTIONWITHDOFNUM :
-      Init_OperationOnSystem("SaveSolutionWithDofNum",
+    case OPERATION_SAVESOLUTION_WITH_ENTITY_NUM :
+      Init_OperationOnSystem("SaveSolutionWithEntityNum",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
       strcpy(ResName, Name_Generic) ;
       strcat(ResName, ".txt") ;
-      Dof_WriteFileRES_WithDofNum(ResName, DofData_P) ;
+      {
+        int num = Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex;
+        Group *g = 0;
+        if (num >= 0) g = (Group*)List_Pointer(Problem_S.Group, num);
+        Dof_WriteFileRES_WithEntityNum(ResName, DofData_P, g) ;
+      }
       break ;
 
       /*  -->  S a v e S o l u t i o n s              */

@@ -249,6 +249,7 @@ SystemCommand                return tSystemCommand;
 Break                        return tBreak;
 SolveJac_AdaptRelax          return tSolveJac_AdaptRelax;
 TensorProductSolve           return tTensorProductSolve;
+SaveSolutionWithEntityNum    return tSaveSolutionWithEntityNum;
 SaveSolutionExtendedMH       return tSaveSolutionExtendedMH;
 SaveSolutionMHtoTime         return tSaveSolutionMHtoTime;
 Init_MovingBand2D            return tInit_MovingBand2D;

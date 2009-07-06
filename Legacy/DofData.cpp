@@ -13,6 +13,7 @@
 #include "GetDPVersion.h"
 #include "ProData.h"
 #include "DofData.h"
+#include "ExtendedGroup.h"
 #include "ListUtils.h"
 #include "TreeUtils.h"
 #include "MallocUtils.h"
@@ -502,15 +503,21 @@ void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 }
 
 /* ------------------------------------------------------------------------ */
-/*  D o f _ W r i t e F i l e D A T                                         */
+/*  D o f _ W r i t e F i l e R E S _ W i t h E n t i t y N u m             */
 /* ------------------------------------------------------------------------ */
 
-void Dof_WriteFileRES_WithDofNum(char * Name_File, struct DofData * DofData_P) 
+void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P,
+                                    struct Group *Group_P) 
 {
   FILE *fp = fopen(Name_File, "w");
   if(!fp){
     Msg::Error("Unable to open file '%s'", Name_File) ;
     return;
+  }
+
+  if(Group_P){
+    Msg::Info("Filtering solution on group '%s'", Group_P->Name) ;
+    if(!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
   }
 
   int n;
@@ -528,12 +535,16 @@ void Dof_WriteFileRES_WithDofNum(char * Name_File, struct DofData * DofData_P)
       dof = (Dof*)List_Pointer(DofData_P->DofList, i);
     gScalar s;
     if(dof->Type == DOF_UNKNOWN){
-      LinAlg_GetScalarInVector(&s, &DofData_P->CurrentSolution->x, dof->Case.Unknown.NumDof - 1);
+      if(!Group_P || 
+         List_Search(Group_P->ExtendedList, &dof->Entity, fcmp_absint)){
+        LinAlg_GetScalarInVector(&s, &DofData_P->CurrentSolution->x, 
+                                 dof->Case.Unknown.NumDof - 1);
 #if defined(PETSC_USE_COMPLEX)
-      fprintf(fp, "%d %g %g\n", dof->Entity, s.s.real(), s.s.imag());
+        fprintf(fp, "%d %g %g\n", dof->Entity, s.s.real(), s.s.imag());
 #else
-      fprintf(fp, "%d %g\n", dof->Entity, s.d);
+        fprintf(fp, "%d %g\n", dof->Entity, s.d);
 #endif
+      }
     }
   }
 

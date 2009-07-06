@@ -939,6 +939,9 @@ struct Operation {
       int    CheckAll;
       List_T *Factor_L;
     } SolveJac_AdaptRelax;
+    struct{
+      int    GroupIndex;
+    } SaveSolutionWithEntityNum;
     struct {
       int NbrFreq;
       char    *ResFile;
@@ -1038,7 +1041,7 @@ struct ChangeOfState {
 
 #define OPERATION_SAVESOLUTION             10
 #define OPERATION_SAVESOLUTIONS            11
-#define OPERATION_SAVESOLUTIONWITHDOFNUM  121
+#define OPERATION_SAVESOLUTION_WITH_ENTITY_NUM 121
 #define OPERATION_SAVESOLUTIONEXTENDEDMH  111
 #define OPERATION_SAVESOLUTIONMHTOTIME    131
 #define OPERATION_INIT_MOVINGBAND2D       444
