@@ -542,7 +542,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
 #if defined(PETSC_USE_COMPLEX)
         fprintf(fp, "%d %g %g\n", dof->Entity, s.s.real(), s.s.imag());
 #else
-        fprintf(fp, "%d %g\n", dof->Entity, s.d);
+        fprintf(fp, "%d %g\n", dof->Entity, s.s);
 #endif
       }
     }
