@@ -155,7 +155,7 @@ void LinAlg_DestroyMatrix(gMatrix *M)
 
 void LinAlg_CopyScalar(gScalar *S1, gScalar *S2)
 {
-  S2->d = S1->d ;
+  S2->s = S1->s ;
 }
 
 void LinAlg_CopyVector(gVector *V1, gVector *V2)
@@ -172,7 +172,7 @@ void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2)
 
 void LinAlg_ZeroScalar(gScalar *S)
 {
-  S->d = 0. ;
+  S->s = 0. ;
 }
 
 void LinAlg_ZeroVector(gVector *V)
@@ -193,7 +193,7 @@ void LinAlg_ZeroMatrix(gMatrix *M)
 
 void LinAlg_ScanScalar(FILE *file, gScalar *S)
 {
-  fscanf(file, "%lf", &S->d) ;
+  fscanf(file, "%lf", &S->s) ;
 }
 
 void LinAlg_ScanVector(FILE *file, gVector *V) 
@@ -229,7 +229,7 @@ void LinAlg_ReadMatrix(FILE *file, gMatrix *M)
 
 void LinAlg_PrintScalar(FILE *file, gScalar *S)
 {
-  fprintf(file, "%.16g", S->d) ;
+  fprintf(file, "%.16g", S->s) ;
 }
 
 void LinAlg_PrintVector(FILE *file, gVector *V)
@@ -286,7 +286,7 @@ void LinAlg_GetLocalMatrixRange(gMatrix *M, int *low, int *high)
 
 void LinAlg_GetDoubleInScalar(double *d, gScalar *S)
 {
-  *d = S->d ;
+  *d = S->s ;
 }
 
 void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S)
@@ -296,7 +296,7 @@ void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S)
 
 void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i)
 {
-  S->d = V->V[i] ;
+  S->s = V->V[i] ;
 }
 
 void LinAlg_GetDoubleInVector(double *d, gVector *V, int i)
@@ -339,7 +339,7 @@ void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1)
 
 void LinAlg_SetScalar(gScalar *S, double *d)
 {
-  S->d = d[0] ;
+  S->s = d[0] ;
 }
 
 void LinAlg_SetVector(gVector *V, double *v)
@@ -351,7 +351,7 @@ void LinAlg_SetVector(gVector *V, double *v)
 
 void LinAlg_SetScalarInVector(gScalar *S, gVector *V, int i)
 {
-  V->V[i] = S->d ;
+  V->V[i] = S->s ;
 }
 
 void LinAlg_SetDoubleInVector(double d, gVector *V, int i)
@@ -384,7 +384,7 @@ void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, i
 
 void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
-  S3->d = S1->d + S2->d ;
+  S3->s = S1->s + S2->s ;
 }
 
 void LinAlg_DummyVector(gVector *V)
@@ -404,7 +404,7 @@ void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i)
   if ((DummyDof = Current.DofData->DummyDof)) 
     if (DummyDof[i] == 1) return ;
 
-  V->V[i] += S->d ;
+  V->V[i] += S->s ;
 }
 
 void LinAlg_AddDoubleInVector(double d, gVector *V, int i)
@@ -438,7 +438,7 @@ void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j)
 
 void LinAlg_AddScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 {
-  add_matrix_double(&M->M, i+1, j+1, S->d) ;
+  add_matrix_double(&M->M, i+1, j+1, S->s) ;
 }
 
 void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j)
@@ -500,7 +500,7 @@ void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatri
 
 void LinAlg_SubScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
-  S3->d = S1->d - S2->d ;
+  S3->s = S1->s - S2->s ;
 }
 
 void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3)
@@ -522,18 +522,18 @@ void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 
 void LinAlg_ProdScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
-  S3->d = S1->d * S2->d ;
+  S3->s = S1->s * S2->s ;
 }
 
 void LinAlg_ProdScalarDouble(gScalar *S1, double d, gScalar *S2)
 {
-  S2->d = S1->d * d ;
+  S2->s = S1->s * d ;
 }
 
 void LinAlg_ProdScalarComplex(gScalar *S, double d1, double d2, double *d3, double *d4)
 {
-  *d3 = S->d * d1 ;
-  *d4 = S->d * d2 ;
+  *d3 = S->s * d1 ;
+  *d4 = S->s * d2 ;
 }
 
 void LinAlg_ProdVectorScalar(gVector *V1, gScalar *S, gVector *V2)
@@ -570,7 +570,7 @@ void LinAlg_ProdMatrixVector(gMatrix *M, gVector *V1, gVector *V2)
 void LinAlg_ProdMatrixScalar(gMatrix *M1, gScalar *S, gMatrix *M2)
 {
   if(M2 == M1)
-    prod_matrix_double (&M1->M, S->d);
+    prod_matrix_double (&M1->M, S->s);
   else
     Msg::Error("Wrong arguments in 'LinAlg_ProdMatrixScalar'");
 }
@@ -592,12 +592,12 @@ void LinAlg_ProdMatrixComplex(gMatrix *M1, double d1, double d2, gMatrix *M2)
 
 void LinAlg_DivScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
-  S3->d = S1->d / S2->d ;
+  S3->s = S1->s / S2->s ;
 }
 
 void LinAlg_DivScalarDouble(gScalar *S1, double d, gScalar *S2)
 {
-  S2->d = S1->d / d ;
+  S2->s = S1->s / d ;
 }
 
 /* Norm */

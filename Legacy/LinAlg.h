@@ -21,7 +21,7 @@
 #include "Sparskit.h"
 #define gSCALAR_SIZE 1
 #define gCOMPLEX_INCREMENT 2
-typedef struct { double d ; }             gScalar ;
+typedef struct { double s ; }             gScalar ;
 typedef struct { Matrix M ; }             gMatrix ;
 typedef struct { int N ; double *V ; }    gVector ;
 typedef struct { Solver_Params Params ; } gSolver ;
