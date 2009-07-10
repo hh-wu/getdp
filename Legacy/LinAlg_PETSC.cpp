@@ -68,9 +68,15 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
 
   // get additional petsc options from specified file (useful e.g. on
   // Windows where we don't know where to search for ~/.petsrc)
-  for(int i = 0; i < *argc - 1; i++)
-    if (!strcmp((*argv)[i], "-solver"))
+  for(int i = 0; i < *argc - 1; i++){
+    if (!strcmp((*argv)[i], "-solver")){
+#if (PETSC_VERSION_MAJOR == 2)
       PetscOptionsInsertFile((*argv)[i+1]);
+#else
+      PetscOptionsInsertFile(PETSC_COMM_WORLD, (*argv)[i+1], PETSC_FALSE);
+#endif
+    }
+  }
 }
 
 void LinAlg_Finalize()
