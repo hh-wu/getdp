@@ -13,6 +13,7 @@
 #include "LinAlg.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include <cstring>
 
 // Johan, we curse you for a thousand generations!
 #include "ProData.h"
@@ -118,7 +119,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   // database (if any)
   ierr = MatSetFromOptions(M->M); MYCHECK(ierr);
   // preallocation option must be set after other options
-  int prealloc = 200;
+  PetscInt prealloc = 200;
   PetscTruth set;
   PetscOptionsGetInt(PETSC_NULL, "-petsc_prealloc", &prealloc, &set);
   ierr = MatSeqAIJSetPreallocation(M->M, prealloc, PETSC_NULL); MYCHECK(ierr); 
@@ -188,9 +189,9 @@ void LinAlg_ScanScalar(FILE *file, gScalar *S)
 
 void LinAlg_ScanVector(FILE *file, gVector *V)
 {
-  int n;  
+  PetscInt n;  
   ierr = VecGetSize(V->V, &n); MYCHECK(ierr);
-  for(int i = 0; i < n; i++){
+  for(PetscInt i = 0; i < n; i++){
     double a, b;
     PetscScalar tmp;
 #if PETSC_USE_COMPLEX
@@ -216,11 +217,11 @@ void LinAlg_ReadScalar(FILE *file, gScalar *S)
 
 void LinAlg_ReadVector(FILE *file, gVector *V)
 {
-  int n;
+  PetscInt n;
   ierr = VecGetSize(V->V, &n); MYCHECK(ierr);
   PetscScalar *tmp = (PetscScalar*)Malloc(n*sizeof(PetscScalar));
   fread(tmp, sizeof(PetscScalar), n, file);
-  for(int i = 0; i < n; i++){
+  for(PetscInt i = 0; i < n; i++){
     ierr = VecSetValues(V->V, 1, &i, &tmp[i], INSERT_VALUES); MYCHECK(ierr);
   }
   Free(tmp);
@@ -242,7 +243,7 @@ void LinAlg_PrintScalar(FILE *file, gScalar *S)
 
 void LinAlg_PrintVector(FILE *file, gVector *V)
 {
-  int n;
+  PetscInt n;
   ierr = VecGetLocalSize(V->V, &n); MYCHECK(ierr);
   PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
@@ -273,7 +274,7 @@ void LinAlg_WriteScalar(FILE *file, gScalar *S)
 
 void LinAlg_WriteVector(FILE *file, gVector *V)
 {
-  int n;
+  PetscInt n;
   ierr = VecGetLocalSize(V->V, &n); MYCHECK(ierr);
   PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
@@ -289,22 +290,41 @@ void LinAlg_WriteMatrix(FILE *file, gMatrix *M)
 
 void LinAlg_GetVectorSize(gVector *V, int *i)
 {
-  ierr = VecGetSize(V->V, i); MYCHECK(ierr);
+  PetscInt t;
+  ierr = VecGetSize(V->V, &t); MYCHECK(ierr);
+  if(t>INT_MAX)
+    Msg::Error("Problem too big\n");
+  *i=t;
 }
 
 void LinAlg_GetLocalVectorRange(gVector *V, int *low, int *high)
 {
-  ierr = VecGetOwnershipRange(V->V, low, high); MYCHECK(ierr);
+  PetscInt tlow, thigh;
+  ierr = VecGetOwnershipRange(V->V, &tlow, &thigh); MYCHECK(ierr);
+  if(tlow>INT_MAX || thigh>INT_MAX)
+      Msg::Error("Problem too big");
+  *low=tlow;
+  *high=thigh;
 }
 
 void LinAlg_GetMatrixSize(gMatrix *M, int *i, int *j)
 {
-  ierr = MatGetSize(M->M, i, j); MYCHECK(ierr);
+  PetscInt ti, tj;
+  ierr = MatGetSize(M->M, &ti, &tj); MYCHECK(ierr);
+  if(ti>INT_MAX || tj>INT_MAX)
+      Msg::Error("Problem too big");
+  *i=ti;
+  *j=tj;
 }
 
 void LinAlg_GetLocalMatrixRange(gMatrix *M, int *low, int *high)
 {
-  ierr = MatGetOwnershipRange(M->M, low, high); MYCHECK(ierr);
+  PetscInt tlow, thigh;
+  ierr = MatGetOwnershipRange(M->M, &tlow, &thigh); MYCHECK(ierr);
+  if(tlow>INT_MAX || thigh>INT_MAX)
+      Msg::Error("Problem too big");
+  *low=tlow;
+  *high=thigh;
 }
 
 void LinAlg_GetDoubleInScalar(double *d, gScalar *S)
@@ -409,13 +429,15 @@ void LinAlg_SetVector(gVector *V, double *v)
 
 void LinAlg_SetScalarInVector(gScalar *S, gVector *V, int i)
 {
-  ierr = VecSetValues(V->V, 1, &i, &S->s, INSERT_VALUES); MYCHECK(ierr);
+  PetscInt t = i;
+  ierr = VecSetValues(V->V, 1, &t, &S->s, INSERT_VALUES); MYCHECK(ierr);
 }
 
 void LinAlg_SetDoubleInVector(double d, gVector *V, int i)
 {
   PetscScalar tmp = d;
-  ierr = VecSetValues(V->V, 1, &i, &tmp, INSERT_VALUES); MYCHECK(ierr);
+  PetscInt t = i;
+  ierr = VecSetValues(V->V, 1, &t, &tmp, INSERT_VALUES); MYCHECK(ierr);
 }
 
 void LinAlg_SetComplexInVector(double d1, double d2, gVector *V, int i, int j)
@@ -423,18 +445,20 @@ void LinAlg_SetComplexInVector(double d1, double d2, gVector *V, int i, int j)
   PetscScalar tmp;
 #if PETSC_USE_COMPLEX
   tmp = d1 + PETSC_i * d2;
-  ierr = VecSetValues(V->V, 1, &i, &tmp, INSERT_VALUES); MYCHECK(ierr);
+  PetscInt ti = i, tj = j;
+  ierr = VecSetValues(V->V, 1, &ti, &tmp, INSERT_VALUES); MYCHECK(ierr);
 #else
   tmp = d1;
-  ierr = VecSetValues(V->V, 1, &i, &tmp, INSERT_VALUES); MYCHECK(ierr);
+  ierr = VecSetValues(V->V, 1, &ti, &tmp, INSERT_VALUES); MYCHECK(ierr);
   tmp = d2;
-  ierr = VecSetValues(V->V, 1, &j, &tmp, INSERT_VALUES); MYCHECK(ierr);
+  ierr = VecSetValues(V->V, 1, &tj, &tmp, INSERT_VALUES); MYCHECK(ierr);
 #endif
 }
 
 void LinAlg_SetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 {
-  ierr = MatSetValues(M->M, 1, &i, 1, &j, &S->s, INSERT_VALUES); MYCHECK(ierr);
+  PetscInt ti = i, tj = j;
+  ierr = MatSetValues(M->M, 1, &ti, 1, &tj, &S->s, INSERT_VALUES); MYCHECK(ierr);
 }
 
 void LinAlg_SetDoubleInMatrix(double d, gMatrix *M, int i, int j)
@@ -461,57 +485,63 @@ void LinAlg_DummyVector(gVector *V)
 
 void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i)
 {
-  ierr = VecSetValues(V->V, 1, &i, &S->s, ADD_VALUES); MYCHECK(ierr);
+  PetscInt ti = i;
+  ierr = VecSetValues(V->V, 1, &ti, &S->s, ADD_VALUES); MYCHECK(ierr);
 }
 
 void LinAlg_AddDoubleInVector(double d, gVector *V, int i)
 {
   PetscScalar tmp = d;
-  ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); MYCHECK(ierr);
+  PetscInt t = i;
+  ierr = VecSetValues(V->V, 1, &t, &tmp, ADD_VALUES); MYCHECK(ierr);
 }
 
 void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j)
 {
   PetscScalar tmp;
+  PetscInt ti = i, tj = j;
 #if PETSC_USE_COMPLEX
   tmp = d1 + PETSC_i * d2;
-  ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); MYCHECK(ierr);
+  ierr = VecSetValues(V->V, 1, &ti, &tmp, ADD_VALUES); MYCHECK(ierr);
 #else
   tmp = d1;
-  ierr = VecSetValues(V->V, 1, &i, &tmp, ADD_VALUES); MYCHECK(ierr);
+  ierr = VecSetValues(V->V, 1, &ti, &tmp, ADD_VALUES); MYCHECK(ierr);
   tmp = d2;
-  ierr = VecSetValues(V->V, 1, &j, &tmp, ADD_VALUES); MYCHECK(ierr);
+  ierr = VecSetValues(V->V, 1, &tj, &tmp, ADD_VALUES); MYCHECK(ierr);
 #endif
 }
 
 void LinAlg_AddScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 {
-  ierr = MatSetValues(M->M, 1, &i, 1, &j, &S->s, ADD_VALUES); MYCHECK(ierr);
+  PetscInt ti = i, tj = j;
+  ierr = MatSetValues(M->M, 1, &ti, 1, &tj, &S->s, ADD_VALUES); MYCHECK(ierr);
 }
 
 void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j)
 {
   PetscScalar tmp = d;
-  ierr = MatSetValues(M->M, 1, &i, 1, &j, &tmp, ADD_VALUES); MYCHECK(ierr);
+  PetscInt ti = i, tj = j;
+  ierr = MatSetValues(M->M, 1, &ti, 1, &tj, &tmp, ADD_VALUES); MYCHECK(ierr);
 }
 
 void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l)
 {
   PetscScalar tmp;
+  PetscInt ti = i, tj = j, tk = k, tl = l;
 #if PETSC_USE_COMPLEX
   tmp = d1 + PETSC_i * d2;
-  ierr = MatSetValues(M->M, 1, &i, 1, &j, &tmp, ADD_VALUES); MYCHECK(ierr);
+  ierr = MatSetValues(M->M, 1, &ti, 1, &tj, &tmp, ADD_VALUES); MYCHECK(ierr);
 #else
   if(d1){
     tmp = d1;
-    ierr = MatSetValues(M->M, 1, &i, 1, &j, &tmp, ADD_VALUES); MYCHECK(ierr);
-    ierr = MatSetValues(M->M, 1, &k, 1, &l, &tmp, ADD_VALUES); MYCHECK(ierr);
+    ierr = MatSetValues(M->M, 1, &ti, 1, &tj, &tmp, ADD_VALUES); MYCHECK(ierr);
+    ierr = MatSetValues(M->M, 1, &tk, 1, &tl, &tmp, ADD_VALUES); MYCHECK(ierr);
   }
   if(d2){
     tmp = -d2;
-    ierr = MatSetValues(M->M, 1, &i, 1, &l, &tmp, ADD_VALUES); MYCHECK(ierr);
+    ierr = MatSetValues(M->M, 1, &ti, 1, &tl, &tmp, ADD_VALUES); MYCHECK(ierr);
     tmp = d2;
-    ierr = MatSetValues(M->M, 1, &k, 1, &j, &tmp, ADD_VALUES); MYCHECK(ierr);
+    ierr = MatSetValues(M->M, 1, &tk, 1, &tj, &tmp, ADD_VALUES); MYCHECK(ierr);
   }
 #endif
 }
@@ -823,7 +853,7 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
   else
     Msg::Info("Converged in %d iterations", its);
   
-  for(int i = 0; i < n; i++){
+  for(PetscInt i = 0; i < n; i++){
     PetscScalar d;
 #if PETSC_USE_COMPLEX
     d = solr[i] + PETSC_i * soli[i];
@@ -841,9 +871,9 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 
 #endif
 
-static PetscErrorCode _myKspMonitor(KSP ksp, int it, PetscReal rnorm, void *mctx)
+static PetscErrorCode _myKspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void *mctx)
 {
-  Msg::Info("%3d KSP Residual norm %14.12e", it, rnorm);
+  Msg::Info("%3ld KSP Residual norm %14.12e", (long)it, rnorm);
   return 0;
 }
 
@@ -868,9 +898,9 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   bool view = (!Solver->ksp[kspIndex] && Msg::GetVerbosity() > 2);
 
   if(view && !RankCpu){
-    int i, j;
+    PetscInt i, j;
     ierr = MatGetSize(A->M, &i, &j); MYCHECK(ierr);
-    Msg::Info("N: %d", i);
+    Msg::Info("N: %ld", (long)i);
   }
 
   if(kspIndex != 0){
@@ -914,7 +944,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   }
   
   if(!RankCpu){
-    int its;
+    PetscInt its;
     ierr = KSPGetIterationNumber(Solver->ksp[kspIndex], &its); MYCHECK(ierr);
     Msg::Info("%d iterations", its);
   }
