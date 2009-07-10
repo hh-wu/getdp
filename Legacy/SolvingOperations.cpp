@@ -2223,7 +2223,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         int num = Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex;
         Group *g = 0;
         if (num >= 0) g = (Group*)List_Pointer(Problem_S.Group, num);
-        Dof_WriteFileRES_WithEntityNum(ResName, DofData_P, g) ;
+        bool saveFixed = Operation_P->Case.SaveSolutionWithEntityNum.SaveFixed;
+        Dof_WriteFileRES_WithEntityNum(ResName, DofData_P, g, saveFixed) ;
       }
       break ;
 

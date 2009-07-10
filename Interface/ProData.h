@@ -941,6 +941,7 @@ struct Operation {
     } SolveJac_AdaptRelax;
     struct{
       int    GroupIndex;
+      bool   SaveFixed;
     } SaveSolutionWithEntityNum;
     struct {
       int NbrFreq;

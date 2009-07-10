@@ -4557,7 +4557,7 @@ OperationTerm :
       Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex = -1;
     }
 
-  | tSaveSolutionWithEntityNum '[' String__Index ',' GroupRHS ']' tEND
+  | tSaveSolutionWithEntityNum '[' String__Index ',' GroupRHS CommaFExprOrNothing ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_SAVESOLUTION_WITH_ENTITY_NUM;
@@ -4569,6 +4569,7 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex = 
         Num_Group(&Group_S, (char*)"OP_SaveSolutionWithEntityNum", $5);
+      Operation_P->Case.SaveSolutionWithEntityNum.SaveFixed = $6;
     }
 
   | tSaveSolutionExtendedMH '[' String__Index ',' FExpr ',' CharExpr ']' tEND

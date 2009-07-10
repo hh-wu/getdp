@@ -509,7 +509,7 @@ void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 /* ------------------------------------------------------------------------ */
 
 void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P,
-                                    struct Group *Group_P) 
+                                    struct Group *Group_P, bool saveFixed) 
 {
   FILE *fp = fopen(Name_File, "w");
   if(!fp){
@@ -532,6 +532,9 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
       LinAlg_GetScalarInVector(&s, &DofData_P->CurrentSolution->x, 
                                dof->Case.Unknown.NumDof - 1);
       unknowns[dof->Entity] = s.s;
+    }
+    if(saveFixed && dof->Type == DOF_FIXED){
+      unknowns[dof->Entity] = dof->Val.s;
     }
   }
 
