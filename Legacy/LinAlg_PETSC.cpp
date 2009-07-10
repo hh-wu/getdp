@@ -30,27 +30,30 @@ extern struct CurrentData Current ;
    1.e-8 relative tolerance with ILU(6) preconditioner and RCMK
    renumbering):
 
-   -pc_type ilu
-   -pc_ilu_levels 6 (version 2.3.0) or -pc_factor_levels 6 (version 2.3.1)
-   -pc_ilu_mat_ordering_type rcm (version 2.3.0) or -pc_factor_mat_ordering rcm (version 2.3.1)
-   -ksp_rtol 1.e-8
+     -pc_type ilu
+     -pc_ilu_levels 6 (version 2.3.0) 
+        or -pc_factor_levels 6 (version 2.3.1)
+     -pc_ilu_mat_ordering_type rcm (version 2.3.0)
+        or -pc_factor_mat_ordering rcm (version 2.3.1)
+     -ksp_rtol 1.e-8
 
    Other useful options include:
 
-   -ksp_gmres_restart 100
-   -ksp_monitor
-   ...
+     -ksp_gmres_restart 100
+     -ksp_monitor
+     ...
 
    To use a direct solver (a sparse lu) instead of an iterative
    solver, use
 
-   -ksp_type preonly -pc_type lu
+     -ksp_type preonly -pc_type lu
 
    When PETSc is compiled with external solvers (UMFPACK, SuperLU,
    etc.), they can be accessed simply by changing the matrix type. For
    example, with umfpack:
 
-   -mat_type umfpack -ksp_type preonly -pc_type lu 
+     -mat_type umfpack (version 2.3.x)
+       or -pc_factor_mat_solver_package umfpack (version 3.0.0)
 */
 
 #define MYCHECK(ierr) CHKERRABORT(PETSC_COMM_WORLD,ierr)
