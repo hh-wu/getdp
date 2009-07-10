@@ -178,7 +178,7 @@ void LinAlg_ZeroMatrix(gMatrix *M)
 
 void LinAlg_ScanScalar(FILE *file, gScalar *S)
 {
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   double a, b;
   fscanf(file, "%lf %lf", &a, &b);
   S->s = a + PETSC_i * b;
@@ -194,7 +194,7 @@ void LinAlg_ScanVector(FILE *file, gVector *V)
   for(PetscInt i = 0; i < n; i++){
     double a, b;
     PetscScalar tmp;
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
     fscanf(file, "%lf %lf", &a, &b);
     tmp = a + PETSC_i * b;
 #else
@@ -234,7 +234,7 @@ void LinAlg_ReadMatrix(FILE *file, gMatrix *M)
 
 void LinAlg_PrintScalar(FILE *file, gScalar *S)
 {
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   fprintf(file, "%.16g %.16g", real(S->s), imag(S->s));
 #else
   fprintf(file, "%.16g", S->s);
@@ -248,7 +248,7 @@ void LinAlg_PrintVector(FILE *file, gVector *V)
   PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
   for (int i = 0; i < n; i++){
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
     fprintf(file, "%.16g %.16g\n", real(tmp[i]), imag(tmp[i]));
 #else
     fprintf(file, "%.16g\n", tmp[i]);
@@ -325,7 +325,7 @@ void LinAlg_GetLocalMatrixRange(gMatrix *M, int *low, int *high)
 
 void LinAlg_GetDoubleInScalar(double *d, gScalar *S)
 {
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   *d = real(S->s);
 #else
   *d = S->s;
@@ -334,7 +334,7 @@ void LinAlg_GetDoubleInScalar(double *d, gScalar *S)
 
 void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S)
 {
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   *d1 = real(S->s);
   *d2 = imag(S->s);
 #else
@@ -354,7 +354,7 @@ void LinAlg_GetDoubleInVector(double *d, gVector *V, int i)
 {
   PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   *d = real(tmp[i]);
 #else
   *d = tmp[i];
@@ -366,7 +366,7 @@ void LinAlg_GetAbsDoubleInVector(double *d, gVector *V, int i)
 {
   PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   *d = fabs(real(tmp[i]));
 #else
   *d = fabs(tmp[i]);
@@ -378,7 +378,7 @@ void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j)
 {
   PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   *d1 = real(tmp[i]);
   *d2 = imag(tmp[i]);
 #else
@@ -410,7 +410,7 @@ void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1)
 
 void LinAlg_SetScalar(gScalar *S, double *d)
 {
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   S->s = d[0] + (PETSC_i * d[1]);
 #else
   S->s = d[0];
@@ -439,7 +439,7 @@ void LinAlg_SetDoubleInVector(double d, gVector *V, int i)
 void LinAlg_SetComplexInVector(double d1, double d2, gVector *V, int i, int j)
 {
   PetscScalar tmp;
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   tmp = d1 + PETSC_i * d2;
   PetscInt ti = i, tj = j;
   ierr = VecSetValues(V->V, 1, &ti, &tmp, INSERT_VALUES); MYCHECK(ierr);
@@ -496,7 +496,7 @@ void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j)
 {
   PetscScalar tmp;
   PetscInt ti = i, tj = j;
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   tmp = d1 + PETSC_i * d2;
   ierr = VecSetValues(V->V, 1, &ti, &tmp, ADD_VALUES); MYCHECK(ierr);
 #else
@@ -524,7 +524,7 @@ void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, i
 {
   PetscScalar tmp;
   PetscInt ti = i, tj = j, tk = k, tl = l;
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   tmp = d1 + PETSC_i * d2;
   ierr = MatSetValues(M->M, 1, &ti, 1, &tj, &tmp, ADD_VALUES); MYCHECK(ierr);
 #else
@@ -633,11 +633,11 @@ void LinAlg_ProdScalarDouble(gScalar *S1, double d, gScalar *S2)
 
 void LinAlg_ProdScalarComplex(gScalar *S, double d1, double d2, double *d3, double *d4)
 {
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   PetscScalar tmp;
 #endif
 
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   tmp = S->s * (d1 + PETSC_i * d2);
   *d3 = real(tmp);
   *d4 = imag(tmp);
@@ -675,7 +675,7 @@ void LinAlg_ProdVectorVector(gVector *V1, gVector *V2, double *d)
 {
   PetscScalar tmp;
   ierr = VecDot(V1->V, V2->V, &tmp); MYCHECK(ierr);
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   *d = real(tmp);
 #else
   *d = tmp;
@@ -711,7 +711,7 @@ void LinAlg_ProdMatrixDouble(gMatrix *M1, double d, gMatrix *M2)
 
 void LinAlg_ProdMatrixComplex(gMatrix *M1, double d1, double d2, gMatrix *M2)
 {
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
   if(M2 == M1){
     PetscScalar tmp = d1 + (PETSC_i * d2);
     ierr = MatScale(M1->M, tmp); MYCHECK(ierr);
@@ -807,7 +807,7 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
       row[k] = i;
       col[k] = cols[j];
       Msg::Debug("A[%d][%d] = ", row[k], col[k]);
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
       valr[k] = real(vals[j]);
       vali[k] = imag(vals[j]);
       Msg::Debug("%g+i*%g", valr[k], vali[k]);
@@ -827,7 +827,7 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
   ierr = VecGetArray(B->V, &b); MYCHECK(ierr);
   ierr = VecGetArray(X->V, &x); MYCHECK(ierr);
   for(int i = 0; i < n; i++){
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
     rhsr[i] = real(b[i]);
     rhsi[i] = imag(b[i]);
     solr[i] = real(x[i]);
@@ -851,7 +851,7 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
   
   for(PetscInt i = 0; i < n; i++){
     PetscScalar d;
-#if PETSC_USE_COMPLEX
+#if defined(PETSC_USE_COMPLEX)
     d = solr[i] + PETSC_i * soli[i];
 #else
     d = solr[i];
