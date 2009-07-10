@@ -8,6 +8,8 @@
 //   Ruth Sabariego
 //
 
+#include <map>
+#include <complex>
 #include <string.h>
 #include <math.h>
 #include "GetDPVersion.h"
@@ -515,35 +517,42 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
     return;
   }
 
-  if(Group_P){
-    Msg::Info("Filtering solution on group '%s'", Group_P->Name) ;
-    if(!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
-  }
+  std::map<int, std::complex<double> > unknowns;
 
-  int n;
-  LinAlg_GetVectorSize(&DofData_P->CurrentSolution->x, &n);
-
-  List_T *l = 0;
-  if(!DofData_P->DofList) l = Tree2List(DofData_P->DofTree);
+  List_T *l = !DofData_P->DofList ? Tree2List(DofData_P->DofTree) : 0;
   int N = l ? List_Nbr(l) : List_Nbr(DofData_P->DofList);
-
   for(int i = 0; i < N; i++){
     Dof *dof;
     if(l)
       List_Read(l, i, &dof);
     else
       dof = (Dof*)List_Pointer(DofData_P->DofList, i);
-    gScalar s;
     if(dof->Type == DOF_UNKNOWN){
-      if(!Group_P || 
-         List_Search(Group_P->ExtendedList, &dof->Entity, fcmp_absint)){
-        LinAlg_GetScalarInVector(&s, &DofData_P->CurrentSolution->x, 
-                                 dof->Case.Unknown.NumDof - 1);
-#if defined(PETSC_USE_COMPLEX)
-        fprintf(fp, "%d %g %g\n", dof->Entity, s.s.real(), s.s.imag());
-#else
-        fprintf(fp, "%d %g\n", dof->Entity, s.s);
-#endif
+      gScalar s;
+      LinAlg_GetScalarInVector(&s, &DofData_P->CurrentSolution->x, 
+                               dof->Case.Unknown.NumDof - 1);
+      unknowns[dof->Entity] = s.s;
+    }
+  }
+
+  if(!Group_P){
+    for(std::map<int, std::complex<double> >::iterator it = unknowns.begin();
+        it != unknowns.end(); it++)
+      fprintf(fp, "%d %g %g\n", it->first, it->second.real(), it->second.imag());
+  }
+  else{
+    Msg::Info("Writing solution for all entities in group '%s'", Group_P->Name) ;
+    if(!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
+    for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
+      int num;
+      List_Read(Group_P->ExtendedList, i, &num);
+      if(unknowns.count(num)){
+        std::complex<double> s = unknowns[num];
+        fprintf(fp, "%d %g %g\n", num, s.real(), s.imag());
+      }
+      else{
+        // yes, write zero: that's on purpose for the iterative schemes
+        fprintf(fp, "%d 0 0\n", num);
       }
     }
   }
