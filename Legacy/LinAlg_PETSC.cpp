@@ -292,39 +292,35 @@ void LinAlg_GetVectorSize(gVector *V, int *i)
 {
   PetscInt t;
   ierr = VecGetSize(V->V, &t); MYCHECK(ierr);
-  if(t>INT_MAX)
-    Msg::Error("Problem too big\n");
-  *i=t;
+  if(t > INT_MAX) Msg::Error("Problem too big\n");
+  *i = t;
 }
 
 void LinAlg_GetLocalVectorRange(gVector *V, int *low, int *high)
 {
   PetscInt tlow, thigh;
   ierr = VecGetOwnershipRange(V->V, &tlow, &thigh); MYCHECK(ierr);
-  if(tlow>INT_MAX || thigh>INT_MAX)
-      Msg::Error("Problem too big");
-  *low=tlow;
-  *high=thigh;
+  if(tlow > INT_MAX || thigh > INT_MAX) Msg::Error("Problem too big");
+  *low = tlow;
+  *high = thigh;
 }
 
 void LinAlg_GetMatrixSize(gMatrix *M, int *i, int *j)
 {
   PetscInt ti, tj;
   ierr = MatGetSize(M->M, &ti, &tj); MYCHECK(ierr);
-  if(ti>INT_MAX || tj>INT_MAX)
-      Msg::Error("Problem too big");
-  *i=ti;
-  *j=tj;
+  if(ti > INT_MAX || tj > INT_MAX) Msg::Error("Problem too big");
+  *i = ti;
+  *j = tj;
 }
 
 void LinAlg_GetLocalMatrixRange(gMatrix *M, int *low, int *high)
 {
   PetscInt tlow, thigh;
   ierr = MatGetOwnershipRange(M->M, &tlow, &thigh); MYCHECK(ierr);
-  if(tlow>INT_MAX || thigh>INT_MAX)
-      Msg::Error("Problem too big");
-  *low=tlow;
-  *high=thigh;
+  if(tlow > INT_MAX || thigh > INT_MAX) Msg::Error("Problem too big");
+  *low = tlow;
+  *high = thigh;
 }
 
 void LinAlg_GetDoubleInScalar(double *d, gScalar *S)
