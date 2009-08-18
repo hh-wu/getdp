@@ -1,4 +1,0 @@
-#
-# this will launch a new build every night at 2h31
-#
-31 2 * * * cd ${HOME}/src/getdp/utils/nightly && make getdp-windows-nightly
