@@ -17,5 +17,5 @@ cd ${GETDP} && ./configure\
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-mac-nightly >> ${LOG} 2>&1
 echo "BUILD END: `date`" >> ${LOG}
-scp -C ${GETDP}/getdp-*cvs*.tgz ${WEB_BIN}/MacOSX/getdp-nightly-MacOSX.tgz
-scp -C ${LOG} ${WEB_BIN}/MacOSX/
+scp -C ${GETDP}/getdp-*cvs*.tgz ${WEB_BIN}/getdp-nightly-MacOSX.tgz
+scp -C ${LOG} ${WEB_BIN}/

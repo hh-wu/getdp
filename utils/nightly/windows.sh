@@ -17,5 +17,5 @@ cd ${GETDP} && ./configure\
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-win-nightly >> ${LOG} 2>&1
 echo "BUILD END: `date`" >> ${LOG}
-scp -C ${GETDP}/getdp-*cvs*.zip ${WEB_BIN}/Windows/getdp-nightly-Windows.zip
-scp -C ${LOG} ${WEB_BIN}/Windows/
+scp -C ${GETDP}/getdp-*cvs*.zip ${WEB_BIN}/getdp-nightly-Windows.zip
+scp -C ${LOG} ${WEB_BIN}/
