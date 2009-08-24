@@ -33,7 +33,6 @@ Discrete Problems</h1>
   <a href="#Download"><b>Download</b></a> |
   <a href="#Authors">Authors and credits</a> |
   <a href="#Documentation">Documentation</a> |
-  <a href="#Mailing%20lists">Mailing lists</a> |
   <a href="#Licensing">Licensing</a> |
   <a href="#Links">Links</a>
 </center>
@@ -58,12 +57,13 @@ Linux and Mac OS X. A sample demo file is included in the archives.
 
 <ul>
 <li>
+<span style="border: 1px dotted; padding: 3px;">
 <strong>Current stable release</strong>:
 <a href="/getdp/bin/Windows/getdp-1.2.1-Windows.zip"><strong>Windows</strong></a>,
 <a href="/getdp/bin/Linux/getdp-1.2.1-Linux.tgz"><strong>Linux</strong></a>,
 <a href="/getdp/bin/MacOSX/getdp-1.2.1-MacOSX.tgz"><strong>Mac OS X</strong></a> and
 <a href="/getdp/src/getdp-1.2.1-source.tgz"><strong>source code</strong></a>
-<a href="#build-footnote" name="build-footmark"><sup>1</sup></a>
+</span>
 <p>
 <li>Experimental versions (these might be buggy, or might not even
 launch: use at your own risk!):
@@ -109,16 +109,28 @@ questions or bug reports.
     (also available in <a href="/getdp/doc/slides/getdp.pdf">pdf</a>)
   <li><a href="/getdp/doc/FAQ.txt">Frequently asked questions (FAQ)</a>
   <li><a href="/getdp/doc/VERSIONS.txt">Version history</a>
-  <li><a href="/getdp/doc/CREDITS.txt">Credits</a>
+  <li>Mailing lists:
+    <ul>
+      <li><a href="/mailman/listinfo/getdp/">getdp</a> is the public
+        mailing list for GetDP users. You should send all questions,
+        bug reports, requests or pleas for changes related to GetDP to
+        this list. The list is
+        archived <a href="/pipermail/getdp/">here</a>.
+      <li><a href="/mailman/listinfo/getdp-announce/">getdp-announce</a>
+        is a moderated (i.e. "read-only") list for announcements about
+        significant GetDP events. You should subscribe to this list to
+        get information about software releases, important bug fixes
+        and other GetDP-specific news. The list is
+        archived <a href="/pipermail/getdp-announce/">here</a>.
+    </ul>
+  <li>Wiki: we need your help to build a <a href="/getdp/wiki/FrontPage">library
+      of examples</a> (username: getdp, password: wiki).
 </ul>
-
-We need your help to build a <a href="/getdp/wiki/FrontPage">library
-of examples</a> (username: getdp, password: wiki).
 
 <p>
 
 <form method="get" action="http://www.geuz.org/search/search-geuz.cgi">
-<input size=30 name="q" value="">&nbsp;
+<input size="30" name="q" value="">&nbsp;
 <input type="submit" value="Search!">&nbsp;
 <input type="hidden" name="ps" value="10">
 <select name="ul">
@@ -127,21 +139,6 @@ of examples</a> (username: getdp, password: wiki).
   <option value="/pipermail/getdp">GetDP mailing list archives
 </select>
 </form>
-
-<h2><a name="Mailing lists"></a>Mailing lists</h2>
-
-<ul>
-  <li><a href="/mailman/listinfo/getdp/">getdp</a> is the public
-    mailing list for GetDP users. You should send all questions, bug
-    reports, requests or pleas for changes related to GetDP to this
-    list. The list is archived <a href="/pipermail/getdp/">here</a>.
-  <li><a href="/mailman/listinfo/getdp-announce/">getdp-announce</a>
-    is a moderated (i.e. "read-only") list for announcements about
-    significant GetDP events. You should subscribe to this list to get
-    information about software releases, important bug fixes and other
-    GetDP-specific news. The list is
-    archived <a href="/pipermail/getdp-announce/">here</a>.
-</ul>
 
 <h2><a name="Licensing"></a>Licensing</h2>
 
@@ -170,15 +167,15 @@ parts of GetDP and integrate them into your own proprietary code).
 
 <h2><a name="Links"></a>Links</h2>
 
-<a href="/gmsh/">Gmsh</a> is a three-dimensional finite element mesh
-generator with simple CAD and post-processing capabilities that can be
-used as a graphical front-end for GetDP.
-
-<p>
-GetDP is interfaced with the
+<ul>
+<li><a href="/gmsh/">Gmsh</a> is a three-dimensional finite element
+  mesh generator with simple CAD and post-processing capabilities that
+  can be used as a graphical front-end for GetDP.
+<li>GetDP is interfaced with the
 <a href="http://www-users.cs.umn.edu/%7Esaad/software/SPARSKIT/sparskit.html">SPARSKIT</a>
 and <a href="http://www-unix.mcs.anl.gov/petsc/">PETSc</a> linear
 solvers.
+</ul>
 
 <p>
 <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
@@ -191,12 +188,6 @@ solvers.
 <input type="image" src="/images/donation.gif" name="submit" 
        alt="Make a donation with PayPal">
 </form>
-
-<hr>
-<a name="build-footnote"></a><a href="#build-footmark"><sup>1</sup></a>You
-need the <a href="http://sources.redhat.com/gsl/">GNU Scientific
-Library (GSL >= 1.2)</a> properly installed on your system in order to
-compile GetDP.
 
 <p>
 Back to <a href="/">geuz.org</a>
