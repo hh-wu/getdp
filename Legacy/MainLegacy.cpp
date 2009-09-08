@@ -191,6 +191,18 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	}
       }
 
+      else if (!strcmp(argv[i]+1, "solver")) {
+        // fix when calling getdp from gmsh (since the GUI forces us
+        // to put the -solver option before the .pro file!)
+	sargv[(*sargc)++] = argv[i++];
+	if (i<argc && argv[i][0]!='-') { 
+          sargv[(*sargc)++] = argv[i++];
+	}
+	else {
+	  Msg::Error("Missing solver option file name");
+	}
+      }
+
       else if (!strcmp(argv[i]+1, "solve") ||
 	       !strcmp(argv[i]+1, "sol")) {
 	i++;
