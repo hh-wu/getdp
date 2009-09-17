@@ -374,9 +374,17 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
     else List_Reset(TimeValue_L);
   }
 
-  if (HarmonicToTime == 1)
-    for(k = 0 ; k < NbHarmonic ; k++)
-      List_Put(TimeValue_L, NbHarmonic*TimeStep+k, &Time);
+  if (HarmonicToTime == 1){
+    if(NbHarmonic == 2 && NbTimeStep == 1){ // classical complex case
+      double zero = 0., one = 1.;
+      List_Put(TimeValue_L, 0, &zero);
+      List_Put(TimeValue_L, 1, &one);
+    }
+    else{
+      for(k = 0 ; k < NbHarmonic ; k++)
+        List_Put(TimeValue_L, NbHarmonic*TimeStep+k, &Time);
+    }
+  }
   else
     for(k = 0 ; k < HarmonicToTime ; k++)
       List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);	
