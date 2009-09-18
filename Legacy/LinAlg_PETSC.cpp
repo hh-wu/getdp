@@ -442,9 +442,9 @@ void LinAlg_SetDoubleInVector(double d, gVector *V, int i)
 void LinAlg_SetComplexInVector(double d1, double d2, gVector *V, int i, int j)
 {
   PetscScalar tmp;
+  PetscInt ti = i, tj = j;
 #if defined(PETSC_USE_COMPLEX)
   tmp = d1 + PETSC_i * d2;
-  PetscInt ti = i, tj = j;
   ierr = VecSetValues(V->V, 1, &ti, &tmp, INSERT_VALUES); MYCHECK(ierr);
 #else
   tmp = d1;
