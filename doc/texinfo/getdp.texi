@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
+@c GetDP - Copyright (C) 1997-2009 P. Dular, C. Geuzaine
 @c
 @c See the LICENSE.txt file for license information. Please report all
 @c bugs and problems to <getdp@geuz.org>.
@@ -21,11 +21,11 @@
 @c =========================================================================
 @c %**start of header
 @setfilename        getdp.info
-@set GETDP-VERSION  2
+@set GETDP-VERSION  2.0
 @set GETDP-WEB      @uref{http://www.geuz.org/getdp/}
 @set GETDP-WIKI     @uref{http://www.geuz.org/getdp/wiki/FrontPage}
 @set GMSH-WEB       @uref{http://www.geuz.org/gmsh/}
-@set COPYRIGHT      @copyright{} 1997-2008 Patrick Dular, Christophe Geuzaine
+@set COPYRIGHT      @copyright{} 1997-2009 Patrick Dular, Christophe Geuzaine
 @c
 @settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate
@@ -52,15 +52,6 @@ This is the @cite{GetDP Reference Manual} for GetDP
 @noindent
 Copyright @value{COPYRIGHT}.
 @end ifinfo
-
-@c =========================================================================
-@c TeX directives
-@c =========================================================================
-
-@iftex
-@global@let@sl=@it
-@global@setfont@indit@itshape{9}{1000}
-@end iftex
 
 @c =========================================================================
 @c Title page

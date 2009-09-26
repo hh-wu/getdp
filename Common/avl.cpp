@@ -1,9 +1,9 @@
-// GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
+// GetDP - Copyright (C) 1997-2009 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
-// $Id: avl.cpp,v 1.1 2008-07-09 21:07:17 geuzaine Exp $
+// $Id: avl.cpp,v 1.2 2009-09-26 06:44:38 geuzaine Exp $
 
 /*
  * avl package

@@ -2,7 +2,7 @@
 
 for A in  $*
 do
-sed "s|1997-2005|1997-2006|g" $A > $A.XXX
+sed "s|(C) 1997-2008 P|(C) 1997-2009 P|g" $A > $A.XXX
 echo modif $A
 rm -f $A
 mv -f $A.XXX $A

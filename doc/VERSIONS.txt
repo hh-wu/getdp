@@ -1,6 +1,10 @@
-$Id: VERSIONS.txt,v 1.1 2008-07-10 10:21:48 geuzaine Exp $
+$Id: VERSIONS.txt,v 1.2 2009-09-26 06:44:42 geuzaine Exp $
 
-New since 1.2: small bug fixes (binary .res read, Newmark -restart).
+New in 2.0: general code cleanup (separated interface from legacy
+code; removed various undocumented, unstable and otherwise
+experimental features; moved to C++); updated input file formats;
+default solvers are now based on PETSc; small bug fixes (binary .res
+read, Newmark -restart).
 
 New in 1.2: Windows versions do not depend on Cygwin anymore; major
 parser cleanup (loops & co).

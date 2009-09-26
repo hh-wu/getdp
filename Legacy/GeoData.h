@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
+// GetDP - Copyright (C) 1997-2009 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
@@ -44,7 +44,7 @@ void  Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name) ;
 
 void  Geo_SetCurrentGeoData(struct GeoData * GeoData_P) ;
 
-void  Geo_OpenFile(char * Name, char * Mode) ;
+void  Geo_OpenFile(char * Name, const char * Mode) ;
 void  Geo_CloseFile(void) ;
 void  Geo_ReadFile(struct GeoData * GeoData_P) ;
 void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) ;
