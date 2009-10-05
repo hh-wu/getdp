@@ -3108,6 +3108,11 @@ Gets X, Y and Z in a vector.
 
 Prints the value of @var{expression} when evaluated.
 
+@item Rand
+@code{[@var{expression}]}
+
+Returns a pseudo-random number in [0, @var{expression}].
+
 @item Normal
 @code{[]}
 
