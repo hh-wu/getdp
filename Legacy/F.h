@@ -147,6 +147,7 @@ void  F_CoordXYZS       (F_ARG) ;
 /* F_Misc */
 
 void  F_Printf          (F_ARG) ;
+void  F_Rand            (F_ARG) ;
 void  F_Normal          (F_ARG) ;
 void  F_NormalSource    (F_ARG) ;
 void  F_Tangent         (F_ARG) ;

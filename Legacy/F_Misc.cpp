@@ -34,6 +34,28 @@ void F_Printf(F_ARG)
 }
 
 /* ------------------------------------------------------------------------ */
+/*  Rand                                                                    */
+/* ------------------------------------------------------------------------ */
+
+void F_Rand(F_ARG)
+{
+  int     k;
+
+  if(A->Type != SCALAR)
+    Msg::Error("Non scalar argument for function 'Rand");
+
+  V->Val[0] = A->Val[0] * (double)rand() / (double)RAND_MAX;
+
+  if (Current.NbrHar != 1){
+    V->Val[MAX_DIM] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k += 2)
+      V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
+  }
+
+  V->Type = SCALAR ;
+}
+
+/* ------------------------------------------------------------------------ */
 /*  Computes the normal to an element                                       */
 /* ------------------------------------------------------------------------ */
 
