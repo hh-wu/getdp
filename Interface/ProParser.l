@@ -118,6 +118,7 @@ Ceil                         return tCeil;
 Fmod                         return tFmod;
 Modulo                       return tModulo;
 Hypot                        return tHypot;
+Rand                         return tRand;
 Cross                        return tCrossProduct;
 CrossProduct                 return tCrossProduct;
 SolidAngle                   return tSolidAngle;

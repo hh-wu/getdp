@@ -160,7 +160,7 @@ void vyyerror(const char *fmt, ...);
 %token  tDefineConstant tPi t0D t1D t2D t3D 
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil
-%token    tFmod tModulo tHypot 
+%token    tFmod tModulo tHypot tRand
 %token    tSolidAngle tTrace tOrder tCrossProduct tDofValue
 %token    tMHTransform tMHJacNL
 
@@ -6522,7 +6522,8 @@ NameForFunction :
   | tFmod    { $$ = (char*)"Fmod";   }
   | tModulo  { $$ = (char*)"Modulo"; }
   | tHypot   { $$ = (char*)"Hypot";  }
-  | String__Index  { $$ = $1;       }
+  | tRand    { $$ = (char*)"Rand";   }
+  | String__Index  { $$ = $1;        }
  ;
 
 FExpr :
@@ -6564,6 +6565,7 @@ FExpr :
   | tFmod   '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }
   | tModulo '[' FExpr ',' FExpr ']'  { $$ = fmod($3,$5);  }
   | tHypot  '[' FExpr ',' FExpr ']'  { $$ = sqrt($3*$3+$5*$5);  }
+  | tRand   '[' FExpr ']'  { $$ = $3 * (double)rand() / (double)RAND_MAX;  }
 
   | FExpr '?' FExpr tDOTS FExpr      { $$ = $1? $3 : $5; }
 
