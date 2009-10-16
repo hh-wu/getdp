@@ -549,13 +549,16 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
     for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
       int num;
       List_Read(Group_P->ExtendedList, i, &num);
-      if(unknowns.count(num)){
-        std::complex<double> s = unknowns[num];
-        fprintf(fp, "%d %g %g\n", num, s.real(), s.imag());
-      }
-      else{
-        // yes, write zero: that's on purpose for the iterative schemes
-        fprintf(fp, "%d 0 0\n", num);
+      if(!Group_P->InitialSuppList ||
+         (!List_Search(Group_P->ExtendedSuppList, &num, fcmp_int))){ // SuppList assumed to be "Not"!
+        if(unknowns.count(num)){
+          std::complex<double> s = unknowns[num];
+          fprintf(fp, "%d %g %g\n", num, s.real(), s.imag());
+        }
+        else{
+          // yes, write zero: that's on purpose for the iterative schemes
+          fprintf(fp, "%d 0 0\n", num);
+        }
       }
     }
   }
