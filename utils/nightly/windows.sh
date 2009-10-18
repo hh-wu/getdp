@@ -6,9 +6,9 @@ WEB_BIN=geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/Windows
 
 rm -f ${LOG}
 rm -f ${GETDP}/Makefile*
-rm -rf ${GETDP}/getdp-*cvs*
+rm -rf ${GETDP}/getdp-*svn*
 echo "BUILD BEGIN: `date`" > ${LOG}
-cd ${GETDP} && export CVS_RSH=ssh && cvs update -dPA >> ${LOG} 2>&1
+cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure\
   --enable-petsc\
   --with-petsc-prefix=${HOME}/src/petsc-3.0.0-p7\
@@ -17,5 +17,5 @@ cd ${GETDP} && ./configure\
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-win-nightly >> ${LOG} 2>&1
 echo "BUILD END: `date`" >> ${LOG}
-scp -C ${GETDP}/getdp-*cvs*.zip ${WEB_BIN}/getdp-nightly-Windows.zip
+scp -C ${GETDP}/getdp-*svn*.zip ${WEB_BIN}/getdp-nightly-Windows.zip
 scp -C ${LOG} ${WEB_BIN}/

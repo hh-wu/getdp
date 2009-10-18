@@ -34,7 +34,7 @@ problems.
 %build
 make distrib-unix
 make doc-info
-rm -rf CVS */CVS */*/CVS
+rm -rf .svn */.svn */*/.svn
 
 %install
 rm -rf $RPM_BUILD_ROOT

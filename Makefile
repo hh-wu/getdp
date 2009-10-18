@@ -109,7 +109,7 @@ source-common: purge
           --exclude "variables" --exclude "config.log" --exclude "config.status"\
           --exclude "autom4*" --exclude "Makefile.distrib" --exclude "Makefile.bak"\
           --exclude "benchmarks" --exclude "HTML"\
-          --exclude "*TAGS*" --exclude "GSYMS" --exclude "GPATH" --exclude "CVS"\
+          --exclude "*TAGS*" --exclude "GSYMS" --exclude "GPATH" --exclude ".svn"\
           *
 	mkdir getdp-${GETDP_VERSION}
 	cd getdp-${GETDP_VERSION} && tar zxf ../getdp.tgz
@@ -132,7 +132,7 @@ package-unix:
 	cp doc/getdp.1 doc/LICENSE.txt doc/VERSIONS.txt doc/FAQ.txt doc/CREDITS.txt\
           getdp-${GETDP_VERSION}
 	cp -R demos getdp-${GETDP_VERSION}
-	rm -rf getdp-${GETDP_VERSION}/*/CVS
+	rm -rf getdp-${GETDP_VERSION}/*/.svn
 	rm -f getdp-${GETDP_VERSION}/*/*.pre
 	rm -f getdp-${GETDP_VERSION}/*/*.res
 	rm -f getdp-${GETDP_VERSION}/*/*.pos
@@ -152,7 +152,7 @@ package-win:
           getdp-${GETDP_VERSION}
 	cd utils/misc && ./unix2dos.bash ../../getdp-${GETDP_VERSION}/*.txt
 	cp -R demos getdp-${GETDP_VERSION}
-	rm -rf getdp-${GETDP_VERSION}/*/CVS
+	rm -rf getdp-${GETDP_VERSION}/*/.svn
 	rm -f getdp-${GETDP_VERSION}/*/*.pre
 	rm -f getdp-${GETDP_VERSION}/*/*.res
 	rm -f getdp-${GETDP_VERSION}/*/*.pos
@@ -173,9 +173,9 @@ distrib-pre:
           Makefile.distrib > Makefile
 	make tag
 
-distrib-pre-cvs:
+distrib-pre-svn:
 	mv -f Makefile Makefile.distrib
-	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION = \"-cvs-${GETDP_DATE}\"/g"\
+	sed -e "s/^GETDP_EXTRA_VERSION.*/GETDP_EXTRA_VERSION = \"-svn-${GETDP_DATE}\"/g"\
           Makefile.distrib > Makefile
 	make tag
 
@@ -191,7 +191,7 @@ distrib-unix:
 	ldd bin/getdp
 
 distrib-unix-nightly:
-	make distrib-pre-cvs
+	make distrib-pre-svn
 	make all
 	make package-unix
 	make distrib-post
@@ -204,7 +204,7 @@ distrib-win:
 	objdump -p bin/getdp.exe | grep DLL
 
 distrib-win-nightly: 
-	make distrib-pre-cvs
+	make distrib-pre-svn
 	make all
 	make package-win
 	make distrib-post
@@ -217,7 +217,7 @@ distrib-mac:
 	otool -L bin/getdp
 
 distrib-mac-nightly:
-	make distrib-pre-cvs
+	make distrib-pre-svn
 	make all
 	make package-mac
 	make distrib-post
@@ -228,6 +228,6 @@ distrib-source:
 	make distrib-post
 
 distrib-source-nightly:
-	make distrib-pre-cvs
+	make distrib-pre-svn
 	make source
 	make distrib-post
