@@ -61,3 +61,5 @@ partial derivatives (warning: change of ccords!)
 
 * generalize Cal_Galerkin, Get_FunctionValue, etc. so that they accept
 the tensor values retuned by the generalized gradient
+
+* Fix me
