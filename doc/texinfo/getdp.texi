@@ -6037,12 +6037,15 @@ the numbering of the equations given in the @file{.pre} file
 @cindex Authors, e-mail
 @cindex E-mail, authors
 
-If you think you have found a bug in GetDP, you can report it by electronic
-mail to the GetDP mailing list at @email{getdp@@geuz.org}.  Please send as
-precise a description of the problem as you can, including sample input
-files that produce the bug (problem definition and mesh files). Don't forget
-to mention both the version of GetDP and the version of your operation
-system (@pxref{Running GetDP} to see how to get this information).
+If you think you have found a bug in GetDP, you can report it by
+electronic mail to the GetDP mailing list at @email{getdp@@geuz.org}, or
+file it directly into our bug tracking system at
+@url{https://geuz.org/trac/getdp/report} (login: getdp, password:
+getdp).  Please send as precise a description of the problem as you can,
+including sample input files that produce the bug (problem definition
+and mesh files). Don't forget to mention both the version of GetDP and
+the version of your operation system (@pxref{Running GetDP} to see how
+to get this information).
 
 See the @file{TODO.txt} file in the distribution to check the problems we
 already know about.
