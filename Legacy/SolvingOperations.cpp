@@ -3136,7 +3136,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	}
 	else{
 	  LinAlg_PrintMatrix(fp, &DofData_P->A) ;
-	  fprintf(fp, "\n") ;
 	  LinAlg_PrintVector(fp, &DofData_P->b) ;
 	}
       }

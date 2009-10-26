@@ -246,19 +246,11 @@ void LinAlg_PrintScalar(FILE *file, gScalar *S)
 
 void LinAlg_PrintVector(FILE *file, gVector *V)
 {
-  PetscInt n;
-  ierr = VecGetLocalSize(V->V, &n); MYCHECK(ierr);
-  PetscScalar *tmp;
-  ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
-  for (int i = 0; i < n; i++){
-#if defined(PETSC_USE_COMPLEX)
-    fprintf(file, "%.16g %.16g\n", real(tmp[i]), imag(tmp[i]));
-#else
-    fprintf(file, "%.16g\n", tmp[i]);
-#endif
-  }
-  fflush(file);
-  ierr = VecRestoreArray(V->V, &tmp); MYCHECK(ierr);
+  PetscViewer fd;
+  PetscViewerASCIIOpen(PETSC_COMM_WORLD, "vector.m", &fd); MYCHECK(ierr);
+  ierr = PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB); MYCHECK(ierr);
+  ierr = VecView(V->V, fd); MYCHECK(ierr);
+  ierr = PetscViewerDestroy(fd); MYCHECK(ierr);
 } 
 
 void LinAlg_PrintMatrix(FILE *file, gMatrix *M)
