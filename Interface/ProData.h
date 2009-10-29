@@ -1237,6 +1237,7 @@ struct PostSubOperation {
 #define FORMAT_MATLAB                14
 #define FORMAT_GNUPLOT               15
 #define FORMAT_REGION_TABLE          16
+#define FORMAT_UNV                   17
 
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION      1

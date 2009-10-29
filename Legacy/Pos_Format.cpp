@@ -124,6 +124,29 @@ void  Format_PostHeader(int Format, int Contour,
   case FORMAT_ADAPT :
     fprintf(PostStream, "$Adapt /* %s */\n", name) ;
     break ;
+  case FORMAT_UNV :
+    //The Case-Set-Parameters:
+    fprintf(PostStream, "    -1\n");
+    fprintf(PostStream, "  2438\n");
+    fprintf(PostStream, "Lastfall\n");
+    fprintf(PostStream, "    -1\n");
+    //preparations for Results UNV 2414 (simular to stress)
+    fprintf(PostStream, "    -1\n");
+    fprintf(PostStream, "  2414\n");
+    fprintf(PostStream, "         3\n"); //
+    fprintf(PostStream, "Results from EMAG Analysis\n");
+    fprintf(PostStream, "         3\n"); //3: Data at nodes on elements
+    fprintf(PostStream, "Solved by NXMagnetics\n");
+    fprintf(PostStream, "Development:\n");
+    fprintf(PostStream, "Dr. Binde Ingenieure, Design & Engineering GmbH\n");
+    fprintf(PostStream, "www.drbinde.de\n");
+    fprintf(PostStream, "\n");
+    fprintf(PostStream, "         3         1         2        62         2         6\n");//62: Quality
+    fprintf(PostStream, "       -11         0         1         1         1         0         0         0\n");
+    fprintf(PostStream, "       500         0\n");
+    fprintf(PostStream, "  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00\n");
+    fprintf(PostStream, "  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00\n");
+    break ;
   }
 }
 
@@ -353,6 +376,45 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
   case FORMAT_ADAPT :
     fprintf(PostStream, "$EndAdapt\n");
     break ;
+  case FORMAT_UNV :
+    fprintf(PostStream, "    -1\n");
+    break ;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
+/*  F o r m a t _ U n v                                                     */
+/* ------------------------------------------------------------------------ */
+
+void  Format_Unv(int Num_Element, int NbrNodes, struct Value *Value)
+{
+  int     i;
+  struct Value  TmpValue ;
+  
+  switch (Value[0].Type) {
+    
+  case SCALAR :
+    //Erste Zeile: Elementnummer, 1:Data present for all nodes, Number of nodes on elements, Number of data values per node
+    fprintf(PostStream, "%10i         1         %i         3\n", Num_Element, NbrNodes);
+    for(i = 0 ; i < NbrNodes ; i++){
+      //fprintf(PostStream, "%13.5E\n", Value[i].Val[0]);
+      fprintf(PostStream, "%13.5E%13.5E%13.5E\n", Value[i].Val[0], Value[i].Val[1], Value[i].Val[2]);
+    }
+    break ;
+
+  case VECTOR :
+    //Erste Zeile: Elementnummer, 1:Data present for all nodes, Number of nodes on elements, Number of data values per node
+    fprintf(PostStream, "%10i         1         %i         3\n", Num_Element, NbrNodes);
+    for(i = 0 ; i < NbrNodes ; i++){
+      fprintf(PostStream, "%13.5E%13.5E%13.5E\n", Value[i].Val[0], Value[i].Val[1], Value[i].Val[2]);
+    }
+    break ;
+    
+  case TENSOR_DIAG :
+  case TENSOR_SYM :
+  case TENSOR :
+    Msg::Error("Unv parsed format not done for Tensors");
+    break;
   }
 }
 
@@ -924,6 +986,9 @@ void  Format_PostElement(int Format, int Contour, int Store,
 		      PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
 		      PE->Value) ;
     break ;
+  case FORMAT_UNV :
+    Format_Unv(Num_Element, PE->NbrNodes, PE->Value) ;
+    break ;
   case FORMAT_GMSH :
     if(Flag_BIN){/* bricolage */
       Format_Gmsh(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
@@ -1011,6 +1076,12 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
     Format_GmshParsed(Time, 0, 1, NbrHarmonics, HarmonicToTime,
 		      POINT, 1, &x, &y, &z,
 		      Value) ;
+  }
+
+  else if (Format == FORMAT_UNV){
+
+    Msg::Warning("\'UNV\' format not available for Format_PostValue") ;
+
   }
 
   else {
