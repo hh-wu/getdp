@@ -110,8 +110,8 @@ void LinAlg_ReadMatrix(FILE *file, gMatrix *M);
 /* Print */
 
 void LinAlg_PrintScalar(FILE *file, gScalar *S);
-void LinAlg_PrintVector(FILE *file, gVector *V);
-void LinAlg_PrintMatrix(FILE *file, gMatrix *M);
+void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab=false);
+void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab=false);
 
 /* Write */
 

@@ -3135,8 +3135,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  LinAlg_WriteVector(fp, &DofData_P->b) ;
 	}
 	else{
-	  LinAlg_PrintMatrix(fp, &DofData_P->A) ;
-	  LinAlg_PrintVector(fp, &DofData_P->b) ;
+          // use matlab format if available
+	  LinAlg_PrintMatrix(fp, &DofData_P->A, true) ;
+	  LinAlg_PrintVector(fp, &DofData_P->b, true) ;
 	}
       }
 

@@ -244,17 +244,35 @@ void LinAlg_PrintScalar(FILE *file, gScalar *S)
 #endif
 }
 
-void LinAlg_PrintVector(FILE *file, gVector *V)
+void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab)
 {
-  PetscViewer fd;
-  PetscViewerASCIIOpen(PETSC_COMM_WORLD, "vector.m", &fd); MYCHECK(ierr);
-  ierr = PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB); MYCHECK(ierr);
-  ierr = VecView(V->V, fd); MYCHECK(ierr);
-  ierr = PetscViewerDestroy(fd); MYCHECK(ierr);
+  if(!matlab){
+    PetscInt n;
+    ierr = VecGetLocalSize(V->V, &n); MYCHECK(ierr);
+    PetscScalar *tmp;
+    ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
+    for (int i = 0; i < n; i++){
+#if defined(PETSC_USE_COMPLEX)
+      fprintf(file, "%.16g %.16g\n", real(tmp[i]), imag(tmp[i]));
+#else
+      fprintf(file, "%.16g\n", tmp[i]);
+#endif
+    }
+    fflush(file);
+    ierr = VecRestoreArray(V->V, &tmp); MYCHECK(ierr);
+  }
+  else{
+    PetscViewer fd;
+    PetscViewerASCIIOpen(PETSC_COMM_WORLD, "vector.m", &fd); MYCHECK(ierr);
+    ierr = PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB); MYCHECK(ierr);
+    ierr = VecView(V->V, fd); MYCHECK(ierr);
+    ierr = PetscViewerDestroy(fd); MYCHECK(ierr);
+  }
 } 
 
-void LinAlg_PrintMatrix(FILE *file, gMatrix *M)
+void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab)
 {
+  if(!matlab) Msg::Error("Non-matlab output not available for this matrix");
   PetscViewer fd;
   PetscViewerASCIIOpen(PETSC_COMM_WORLD, "matrix.m", &fd); MYCHECK(ierr);
   ierr = PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB); MYCHECK(ierr);

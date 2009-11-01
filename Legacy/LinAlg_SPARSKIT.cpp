@@ -232,13 +232,15 @@ void LinAlg_PrintScalar(FILE *file, gScalar *S)
   fprintf(file, "%.16g", S->s) ;
 }
 
-void LinAlg_PrintVector(FILE *file, gVector *V)
+void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab)
 {
+  if(matlab) Msg::Error("Matlab output not available for this vector");
   formatted_write_vector(file, V->N, V->V, KUL) ;
 }
 
-void LinAlg_PrintMatrix(FILE *file, gMatrix *M)
+void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab)
 {
+  if(matlab) Msg::Error("Matlab output not available for this matrix");
   formatted_write_matrix(file, &M->M, KUL) ;
 }
 
