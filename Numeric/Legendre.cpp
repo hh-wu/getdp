@@ -8,6 +8,7 @@
 //
 
 #include <math.h>
+#include <stdio.h>
 #include "Message.h"
 
 #define THESIGN(a) ((a)>=0 ? 1 : -1)
