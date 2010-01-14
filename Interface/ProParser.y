@@ -7035,7 +7035,7 @@ int  Add_Expression(struct Expression *Expression_P,
     Expression_P->Name = strSave(tmpstr) ;
     break ;
   case 2 :
-    Expression_P->Name = strSave(tmpstr) ;
+    Expression_P->Name = strSave(Name) ;
     break ;
   default :
     Expression_P->Name = Name ;
