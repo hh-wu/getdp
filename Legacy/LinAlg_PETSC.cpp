@@ -27,7 +27,7 @@ extern struct CurrentData Current ;
    ~/.petscrc. 
 
    By default, we use the following options (GMRES iterative solver,
-   1.e-8 relative tolerance with ILU(6) preconditioner and RCMK
+   1.e-10 relative tolerance with ILU(6) preconditioner and RCMK
    renumbering):
 
      -pc_type ilu
@@ -35,7 +35,7 @@ extern struct CurrentData Current ;
         or -pc_factor_levels 6 (version 2.3.1)
      -pc_ilu_mat_ordering_type rcm (version 2.3.0)
         or -pc_factor_mat_ordering rcm (version 2.3.1)
-     -ksp_rtol 1.e-8
+     -ksp_rtol 1.e-10
 
    Other useful options include:
 
@@ -933,7 +933,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     ierr = PCFactorSetMatOrderingType(pc, MATORDERING_RCM); MYCHECK(ierr);
     ierr = PCFactorSetLevels(pc, 6); MYCHECK(ierr);
 #endif
-    ierr = KSPSetTolerances(Solver->ksp[kspIndex], 1.e-8, PETSC_DEFAULT, PETSC_DEFAULT, 
+    ierr = KSPSetTolerances(Solver->ksp[kspIndex], 1.e-10, PETSC_DEFAULT, PETSC_DEFAULT, 
 			    PETSC_DEFAULT); MYCHECK(ierr);
     if(Msg::UseSocket()){
       ierr = KSPMonitorSet(Solver->ksp[kspIndex], _myKspMonitor, PETSC_NULL, PETSC_NULL); MYCHECK(ierr);
