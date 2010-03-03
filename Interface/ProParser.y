@@ -262,6 +262,7 @@ void vyyerror(const char *fmt, ...);
 %left    '<' tLESSOREQUAL '>' tGREATEROREQUAL tLESSLESS tGREATERGREATER
 %left    '+' '-'
 %left    '*' '/' '%' tCROSSPRODUCT
+%left    '|' '&'
 %right   '!' UNARYPREC
 %right   '^'
 %left    '(' ')' '[' ']' '.'
@@ -6534,6 +6535,8 @@ FExpr :
   | FExpr '-' FExpr                  { $$ = $1 - $3;     }
   | FExpr '+' FExpr                  { $$ = $1 + $3;     }
   | FExpr '*' FExpr                  { $$ = $1 * $3;     }
+  | FExpr '|' FExpr                  { $$ = (int)$1 | (int)$3;     }
+  | FExpr '&' FExpr                  { $$ = (int)$1 & (int)$3;     }
   | FExpr '/' FExpr                  { $$ = $1 / $3;     }
   | FExpr '%' FExpr                  { $$ = (int)$1 % (int)$3;  }
   | FExpr '^' FExpr                  { $$ = pow($1,$3);  }
