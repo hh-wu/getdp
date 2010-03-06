@@ -1195,7 +1195,7 @@ void identity_matrix (Matrix *M){
 /*  w r i t e                                                               */
 /* ------------------------------------------------------------------------ */
 
-void binary_write_matrix (Matrix *M, char *name, char *ext){
+void binary_write_matrix (Matrix *M, const char *name, const char *ext){
   
   int   Nb;
   FILE *pfile;
@@ -1243,7 +1243,7 @@ void binary_write_matrix (Matrix *M, char *name, char *ext){
 }
 
 
-void binary_write_vector (int Nb, double *V, char *name, char *ext){
+void binary_write_vector (int Nb, double *V, const char *name, const char *ext){
   char filename[256];
   FILE *pfile;
 
@@ -1337,7 +1337,7 @@ void formatted_write_vector (FILE *pfile, int Nb, double *V, int style){
 /* ------------------------------------------------------------------------ */
 
 
-void binary_read_matrix (Matrix *M, char *name , char *ext){
+void binary_read_matrix (Matrix *M, const char *name , const char *ext){
   
   int   Nb;
   FILE *pfile;
@@ -1392,7 +1392,7 @@ void binary_read_matrix (Matrix *M, char *name , char *ext){
 }
 
 
-void binary_read_vector (int Nb, double **V, char *name, char *ext){
+void binary_read_vector (int Nb, double **V, const char *name, const char *ext){
   char filename[256];
   FILE *pfile;
 
@@ -1411,7 +1411,7 @@ void binary_read_vector (int Nb, double **V, char *name, char *ext){
 }
 
 
-void formatted_read_matrix (Matrix *M, char *name , char *ext, int style){  
+void formatted_read_matrix (Matrix *M, const char *name , const char *ext, int style){  
   int i,nnz,inb,inb2;
   double nb;
   FILE *pfile;
@@ -1456,7 +1456,7 @@ void formatted_read_matrix (Matrix *M, char *name , char *ext, int style){
 }
 
 
-void formatted_read_vector (int Nb, double *V, char *name, char *ext, int style){
+void formatted_read_vector (int Nb, double *V, const char *name, const char *ext, int style){
   int i;
   FILE *pfile;
   char filename[256];
@@ -1805,12 +1805,12 @@ void actSCALING                 (act_ARGS){ p->Scaling = i; }
 #define ENTIER  2
 
 typedef struct {
-  char *str;
+  const char *str;
   int typeinfo;
   int defaultint;
   double defaultfloat;
-  char *com;
-  void (*action) ( Solver_Params *p , int i , double d );
+  const char *com;
+  void (*action) (Solver_Params *p , int i , double d);
 }InfoSolver;
 
 int compInfoSolver(const void *a, const void *b){
@@ -1865,7 +1865,7 @@ void Commentaires (FILE *out){
   fprintf(out,"\n");
 }
 
-void init_solver (Solver_Params *p , char *name){
+void init_solver (Solver_Params *p , const char *name){
   char buff[128];
   FILE *file;
   InfoSolver *pI,I;
@@ -1977,7 +1977,7 @@ void init_solver (Solver_Params *p , char *name){
 }
 
 
-void init_solver_option (Solver_Params *p , char *name, char *value){
+void init_solver_option (Solver_Params *p , const char *name, const char *value){
   InfoSolver *pI;
   int i, vali;
   float valf;
