@@ -852,15 +852,18 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
     }
   }
 
-  if(Format == FORMAT_SPACE_TABLE){
+  if(Format == FORMAT_SPACE_TABLE || Format == FORMAT_SIMPLE_SPACE_TABLE){
     if(TimeStep == 0){
-      fprintf(PostStream, "%d %d ", Get_GmshElementType(ElementType), NumElement);
+      if(Format != FORMAT_SIMPLE_SPACE_TABLE)
+        fprintf(PostStream, "%d %d  ", Get_GmshElementType(ElementType), NumElement);
       for(i=0 ; i<NbrNodes ; i++)
-	fprintf(PostStream, " %.16g %.16g %.16g ", x[i], y[i], z[i]);
-      if(Dummy) 
-	fprintf(PostStream, " %.16g %.16g %.16g ", Dummy[0], Dummy[1],  Dummy[2]);
-      else
-	fprintf(PostStream, " 0 0 0 ");
+	fprintf(PostStream, "%.16g %.16g %.16g  ", x[i], y[i], z[i]);
+      if(Format != FORMAT_SIMPLE_SPACE_TABLE){
+        if(Dummy) 
+          fprintf(PostStream, "%.16g %.16g %.16g  ", Dummy[0], Dummy[1],  Dummy[2]);
+        else
+          fprintf(PostStream, "0 0 0  ");
+      }
     }
   }
 
@@ -1008,6 +1011,7 @@ void  Format_PostElement(int Format, int Contour, int Store,
     break ;
   case FORMAT_SPACE_TABLE :
   case FORMAT_TIME_TABLE :
+  case FORMAT_SIMPLE_SPACE_TABLE :
     Format_Tabular(Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
 		   PE->Value) ;

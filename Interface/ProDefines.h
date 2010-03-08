@@ -263,6 +263,7 @@ struct StringXDefine  PostSubOperation_CombinationType[] = {
 
 struct StringXDefine  PostSubOperation_Format[] = {
   {"Table"               , FORMAT_SPACE_TABLE }, 
+  {"SimpleTable"         , FORMAT_SIMPLE_SPACE_TABLE }, 
   {"TimeTable"           , FORMAT_TIME_TABLE }, 
   {"RegionTable"         , FORMAT_REGION_TABLE }, 
   {"HarmonicToTimeTable" , FORMAT_TIME_TABLE },   // a supprimer

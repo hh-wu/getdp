@@ -1230,6 +1230,7 @@ struct PostSubOperation {
 /* PostSubOperation.Format */
 #define FORMAT_SPACE_TABLE            1
 #define FORMAT_TIME_TABLE             2
+#define FORMAT_SIMPLE_SPACE_TABLE     3
 #define FORMAT_FREQUENCY_TABLE        4
 #define FORMAT_ADAPT                  9
 #define FORMAT_GMSH                  10
