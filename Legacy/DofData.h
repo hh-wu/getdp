@@ -6,6 +6,7 @@
 #ifndef _DOFDATA_H_
 #define _DOFDATA_H_
 
+#include <vector>
 #include "ListUtils.h"
 #include "TreeUtils.h"
 #include "LinAlg.h"
@@ -41,6 +42,7 @@ struct Dof {
   union {
     struct {
       int       NumDof ;  /* Equation number - 1st position */
+      bool      NonLocal ; /* Set to true if equation is non-local */
     } Unknown ;
     struct {
       int       NumDof ;  /* Equation number (Associate) - 1st position */
@@ -126,6 +128,8 @@ struct DofData {
   /* Flag_Only and Flag_InitOnly[0,1,2] */
   gMatrix   A1, A2, A3 ;
   gVector   b1, b2, b3 ;
+
+  std::vector<int> NonLocalEquations;
 } ;
 
 
@@ -175,7 +179,7 @@ void  Dof_DefineAssignSolveDof(int D1, int D2, int NbrHar, int Index_TimeFunctio
 void  Dof_DefineInitSolveDof(int D1, int D2, int NbrHar) ;
 void  Dof_DefineLinkDof(int D1, int D2, int NbrHar, double Value[], int D2_Link) ;
 void  Dof_DefineLinkCplxDof(int D1, int D2, int NbrHar, double Value[], int D2_Link) ;
-void  Dof_DefineUnknownDof(int D1, int D2, int NbrHar) ;
+void  Dof_DefineUnknownDof(int D1, int D2, int NbrHar, bool NonLocal=false) ;
 void  Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar) ;
 void  Dof_DefineUnknownDofFromSolveOrInitDof(struct DofData ** DofData_P) ;
 

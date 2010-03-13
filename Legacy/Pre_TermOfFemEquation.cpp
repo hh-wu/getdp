@@ -7,6 +7,7 @@
 #include "DofData.h"
 #include "Get_DofOfElement.h"
 #include "ExtendedGroup.h"
+#include "BF.h"
 #include "Message.h"
 
 extern struct Problem Problem_S ;
@@ -40,6 +41,20 @@ void Pre_InitTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 /*  P r e _ T e r m O f F e m F o r m u l a t i o n                         */
 /* ------------------------------------------------------------------------ */
 
+bool IsEquationNonLocal(BasisFunction *bf)
+{
+  if(bf->Function == (void(*)())BF_Region ||
+     bf->Function == (void(*)())BF_RegionX ||
+     bf->Function == (void(*)())BF_RegionY ||
+     bf->Function == (void(*)())BF_RegionZ ||
+     bf->Function == (void(*)())BF_Global ||
+     bf->Function == (void(*)())BF_dGlobal ||
+     bf->Function == (void(*)())BF_Zero ||
+     bf->Function == (void(*)())BF_One)
+    return true;
+  return false;
+}
+
 void Pre_TermOfFemEquation(struct Element          * Element,
 			   struct EquationTerm     * EquationTerm_P,
 			   struct QuantityStorage  * QuantityStorage_P0)
@@ -57,12 +72,17 @@ void Pre_TermOfFemEquation(struct Element          * Element,
   if (QuantityStorageEqu_P->NumLastElementForEquDefinition != Element->Num) {
     QuantityStorageEqu_P->NumLastElementForEquDefinition = Element->Num ;
 
-    for (i = 0 ; i < QuantityStorageEqu_P->NbrElementaryBasisFunction ; i++)
+    for (i = 0 ; i < QuantityStorageEqu_P->NbrElementaryBasisFunction ; i++){
+
+      bool NonLocal = IsEquationNonLocal
+        (QuantityStorageEqu_P->BasisFunction[i].BasisFunction);
+
       switch(QuantityStorageEqu_P->BasisFunction[i].Constraint){
       case NONE:
 	Dof_DefineUnknownDof
 	  (QuantityStorageEqu_P->BasisFunction[i].CodeBasisFunction,
-	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar) ;
+	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity, Current.NbrHar, 
+           NonLocal) ;
 	break;
       case ASSIGN:
 	Dof_DefineAssignFixedDof
@@ -103,6 +123,7 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 	   QuantityStorageEqu_P->BasisFunction[i].CodeEntity_Link) ;
 	break;
       }
+    }
   }
 
   if (QuantityStorageDof_P &&
@@ -203,7 +224,8 @@ void Pre_GlobalTermOfFemEquation(int  Num_Region,
     case NONE:
       Dof_DefineUnknownDof
 	(QuantityStorageEqu_P->BasisFunction[0].CodeBasisFunction,
-	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar) ;
+	 QuantityStorageEqu_P->BasisFunction[0].CodeEntity, Current.NbrHar,
+         true) ;
       break ;
     case ASSIGN:
       Dof_DefineAssignFixedDof
@@ -386,7 +408,7 @@ void  Pre_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
     case NONE:
       Dof_DefineUnknownDof
 	(QuaSto_S.BasisFunction[0].CodeBasisFunction,
-	 QuaSto_S.BasisFunction[0].CodeEntity, Current.NbrHar) ;
+	 QuaSto_S.BasisFunction[0].CodeEntity, Current.NbrHar, true) ;
       break ;
     case ASSIGN:
       Dof_DefineAssignFixedDof

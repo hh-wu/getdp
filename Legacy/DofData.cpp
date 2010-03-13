@@ -258,7 +258,8 @@ void Dof_WriteDofPRE(void * a, void * b)
 
   switch (Dof_P->Type) {
   case DOF_UNKNOWN :
-    fprintf(File_PRE, "%d %d\n", Dof_P->Case.Unknown.NumDof, 1) ;
+    fprintf(File_PRE, "%d %d\n", Dof_P->Case.Unknown.NumDof, 
+            Dof_P->Case.Unknown.NonLocal ? -1 : 1) ;
     break ;
   case DOF_FIXEDWITHASSOCIATE :
     fprintf(File_PRE, "%d ", Dof_P->Case.FixedAssociate.NumDof) ;
@@ -275,7 +276,7 @@ void Dof_WriteDofPRE(void * a, void * b)
   case DOF_UNKNOWN_INIT :
     fprintf(File_PRE, "%d ", Dof_P->Case.Unknown.NumDof) ;
     LinAlg_PrintScalar(File_PRE, &Dof_P->Val);
-    fprintf(File_PRE, " %d\n", 1) ;
+    fprintf(File_PRE, " %d\n", Dof_P->Case.Unknown.NonLocal ? -1 : 1) ;
     break ;
   case DOF_LINK :
     fprintf(File_PRE, "%.16g %d\n",
@@ -342,6 +343,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
       case DOF_UNKNOWN :
 	fscanf(File_PRE, "%d", &Dof.Case.Unknown.NumDof) ;
 	fscanf(File_PRE, "%d", &Dummy) ;
+        Dof.Case.Unknown.NonLocal = (Dummy < 0) ? true : false;
 	break ;
       case DOF_FIXEDWITHASSOCIATE :
 	fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.NumDof) ;
@@ -359,6 +361,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 	fscanf(File_PRE, "%d", &Dof.Case.Unknown.NumDof) ;
 	LinAlg_ScanScalar(File_PRE, &Dof.Val) ;
 	fscanf(File_PRE, "%d", &Dummy) ;
+        Dof.Case.Unknown.NonLocal = (Dummy < 0) ? true : false;
 	break ;
       case DOF_LINK :
 	fscanf(File_PRE, "%lf %d",
@@ -550,7 +553,8 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
       int num;
       List_Read(Group_P->ExtendedList, i, &num);
       if(!Group_P->InitialSuppList ||
-         (!List_Search(Group_P->ExtendedSuppList, &num, fcmp_int))){ // SuppList assumed to be "Not"!
+         (!List_Search(Group_P->ExtendedSuppList, &num, fcmp_int))){
+        // SuppList assumed to be "Not"!
         if(unknowns.count(num)){
           std::complex<double> s = unknowns[num];
           fprintf(fp, "%d %g %g\n", num, s.real(), s.imag());
@@ -834,6 +838,7 @@ void Dof_DefineInitFixedDof(int D1, int D2, int NbrHar, double *Val)
       Dof.Type = DOF_UNKNOWN_INIT ;
       LinAlg_SetScalar(&Dof.Val, &Val[k]) ;
       Dof.Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ;
+      Dof.Case.Unknown.NonLocal = false;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
   }
@@ -855,6 +860,7 @@ void Dof_DefineInitSolveDof(int D1, int D2, int NbrHar)
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_UNKNOWN_INIT ;
       Dof.Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ;
+      Dof.Case.Unknown.NonLocal = false ;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
   }
@@ -907,7 +913,7 @@ void Dof_DefineLinkCplxDof(int D1, int D2, int NbrHar, double Value[], int D2_Li
 /*  D o f _ D e f i n e U n k n o w n D o f                                 */
 /* ------------------------------------------------------------------------ */
 
-void Dof_DefineUnknownDof(int D1, int D2, int NbrHar)
+void Dof_DefineUnknownDof(int D1, int D2, int NbrHar, bool NonLocal)
 {
   struct Dof  Dof ;
   int         k ;
@@ -918,8 +924,9 @@ void Dof_DefineUnknownDof(int D1, int D2, int NbrHar)
     Dof.Harmonic = k ;
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_UNKNOWN ;
-      Dof.Case.Unknown.NumDof = -1 ;
       /* Dof.Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ; */
+      Dof.Case.Unknown.NumDof = -1 ;
+      Dof.Case.Unknown.NonLocal = NonLocal ;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
   }
@@ -931,8 +938,11 @@ void NumberUnknownDof (void *a, void *b)
   
   Dof_P = (struct Dof *)a ;
 
-  if(Dof_P->Type == DOF_UNKNOWN && Dof_P->Case.Unknown.NumDof == -1){
-    Dof_P->Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ;
+  if(Dof_P->Type == DOF_UNKNOWN){
+    if(Dof_P->Case.Unknown.NumDof == -1)
+      Dof_P->Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ;
+    if(Dof_P->Case.Unknown.NonLocal)
+      CurrentDofData->NonLocalEquations.push_back(Dof_P->Case.Unknown.NumDof);
   }
 }
 
@@ -966,6 +976,7 @@ void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar)
 	if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
 	  Dof.Type = DOF_UNKNOWN ;
 	  Dof.Case.Unknown.NumDof = CurrentDofData->NbrDof ;
+	  Dof.Case.Unknown.NonLocal = true ;
 	  Tree_Add(CurrentDofData->DofTree, &Dof) ;
 	}
 	break ;
@@ -976,6 +987,7 @@ void Dof_DefineAssociateDof(int E1, int E2, int D1, int D2, int NbrHar)
 	if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
 	  Dof.Type = DOF_UNKNOWN ;
 	  Dof.Case.Unknown.NumDof = CurrentDofData->NbrDof ;
+	  Dof.Case.Unknown.NonLocal = true ;
 	  Tree_Add(CurrentDofData->DofTree, &Dof) ;
 	}
 	break ;
