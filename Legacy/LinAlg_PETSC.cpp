@@ -122,10 +122,10 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   PetscOptionsGetInt(PETSC_NULL, "-petsc_prealloc", &prealloc, &set);
   std::vector<int> nnz(n, prealloc);
   
-  // Huge hack: we preallocate the last 20 lines with more nnz to deal
-  // speed-up assembly time when global quantities exist (global
+  // Huge hack: we preallocate the last 10 lines of the matrix as full
+  // to speed-up assembly time when global quantities exist (global
   // quantities are numbered last) ;-)
-  for(int i = n - 20; i < n; i++) nnz[i] = n / 2;
+  for(int i = n - 10; i < n; i++) nnz[i] = n;
 
   ierr = MatCreateSeqAIJ(PETSC_COMM_WORLD, n, m, 0, &nnz[0], &M->M);
 
