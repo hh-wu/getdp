@@ -170,7 +170,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     }
   }
   else{
-    Msg::Info("Setting System {A,b} to zero");
+    //Msg::Info("Setting System {A,b} to zero");
     LinAlg_ZeroMatrix(&Current.DofData->A) ;
     LinAlg_ZeroVector(&Current.DofData->b) ;
 
@@ -178,7 +178,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       for(i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
 	List_Read( DofData_P->OnlyTheseMatrices,i,&iMat);
 	if(iMat){
-	  Msg::Info("Setting System {A%d,b%d} to zero",iMat,iMat);
+	  //Msg::Info("Setting System {A%d,b%d} to zero",iMat,iMat);
 	  switch(iMat){
 	  case 1 :
 	    LinAlg_ZeroMatrix(&Current.DofData->A1) ;

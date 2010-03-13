@@ -931,8 +931,9 @@ void NumberUnknownDof (void *a, void *b)
   
   Dof_P = (struct Dof *)a ;
 
-  if(Dof_P->Type == DOF_UNKNOWN && Dof_P->Case.Unknown.NumDof == -1)
+  if(Dof_P->Type == DOF_UNKNOWN && Dof_P->Case.Unknown.NumDof == -1){
     Dof_P->Case.Unknown.NumDof = ++(CurrentDofData->NbrDof) ;
+  }
 }
 
 void Dof_NumberUnknownDof(void)

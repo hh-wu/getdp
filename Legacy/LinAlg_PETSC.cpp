@@ -9,11 +9,12 @@
 //   Jose Geraldo A. Brito Neto
 //
 
+#include <vector>
+#include <cstring>
 #include "GetDPConfig.h"
 #include "LinAlg.h"
 #include "MallocUtils.h"
 #include "Message.h"
-#include <cstring>
 
 // Johan, we curse you for a thousand generations!
 #include "ProData.h"
@@ -116,16 +117,21 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
 
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 {
-  ierr = MatCreate(PETSC_COMM_WORLD, &M->M); MYCHECK(ierr); 
-  ierr = MatSetSizes(M->M, PETSC_DECIDE, PETSC_DECIDE, n, m); MYCHECK(ierr); 
-  // override the default options with the ones from the option
-  // database (if any)
-  ierr = MatSetFromOptions(M->M); MYCHECK(ierr);
-  // preallocation option must be set after other options
   PetscInt prealloc = 200;
   PetscTruth set;
   PetscOptionsGetInt(PETSC_NULL, "-petsc_prealloc", &prealloc, &set);
-  ierr = MatSeqAIJSetPreallocation(M->M, prealloc, PETSC_NULL); MYCHECK(ierr); 
+  std::vector<int> nnz(n, prealloc);
+  
+  // Huge hack: we preallocate the last 20 lines with more nnz to deal
+  // speed-up assembly time when global quantities exist (global
+  // quantities are numbered last) ;-)
+  for(int i = n - 20; i < n; i++) nnz[i] = n / 2;
+
+  ierr = MatCreateSeqAIJ(PETSC_COMM_WORLD, n, m, 0, &nnz[0], &M->M);
+
+  // override the default options with the ones from the option
+  // database (if any)
+  ierr = MatSetFromOptions(M->M); MYCHECK(ierr);
 }
 
 void LinAlg_DestroySolver(gSolver *Solver)
