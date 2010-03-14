@@ -460,11 +460,12 @@ void LinAlg_SetDoubleInVector(double d, gVector *V, int i)
 void LinAlg_SetComplexInVector(double d1, double d2, gVector *V, int i, int j)
 {
   PetscScalar tmp;
-  PetscInt ti = i, tj = j;
 #if defined(PETSC_USE_COMPLEX)
+  PetscInt ti = i;
   tmp = d1 + PETSC_i * d2;
   ierr = VecSetValues(V->V, 1, &ti, &tmp, INSERT_VALUES); MYCHECK(ierr);
 #else
+  PetscInt ti = i, tj = j;
   tmp = d1;
   ierr = VecSetValues(V->V, 1, &ti, &tmp, INSERT_VALUES); MYCHECK(ierr);
   tmp = d2;
@@ -516,11 +517,12 @@ void LinAlg_AddDoubleInVector(double d, gVector *V, int i)
 void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j)
 {
   PetscScalar tmp;
-  PetscInt ti = i, tj = j;
 #if defined(PETSC_USE_COMPLEX)
+  PetscInt ti = i;
   tmp = d1 + PETSC_i * d2;
   ierr = VecSetValues(V->V, 1, &ti, &tmp, ADD_VALUES); MYCHECK(ierr);
 #else
+  PetscInt ti = i, tj = j;
   tmp = d1;
   ierr = VecSetValues(V->V, 1, &ti, &tmp, ADD_VALUES); MYCHECK(ierr);
   tmp = d2;
@@ -544,11 +546,12 @@ void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j)
 void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l)
 {
   PetscScalar tmp;
-  PetscInt ti = i, tj = j, tk = k, tl = l;
 #if defined(PETSC_USE_COMPLEX)
+  PetscInt ti = i, tj = j;
   tmp = d1 + PETSC_i * d2;
   ierr = MatSetValues(M->M, 1, &ti, 1, &tj, &tmp, ADD_VALUES); MYCHECK(ierr);
 #else
+  PetscInt ti = i, tj = j, tk = k, tl = l;
   if(d1){
     tmp = d1;
     ierr = MatSetValues(M->M, 1, &ti, 1, &tj, &tmp, ADD_VALUES); MYCHECK(ierr);

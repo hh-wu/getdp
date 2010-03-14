@@ -23,9 +23,6 @@
 void BF_Edge(struct Element * Element, int NumEdge, 
 	     double u, double v, double w,  double s[])
 {
-
-  double r, ru, rv, rw, t ;
-
   switch (Element->Type) {
   case LINE :
     switch(NumEdge) {
@@ -119,7 +116,7 @@ void BF_Edge(struct Element * Element, int NumEdge,
     break ;
 
   case PYRAMID :
-    if ( w != 1){
+    if (w != 1){
       switch(NumEdge) {
       case 1  : s[0] =  0.25 * (1 - v - w) ;
 	        s[1] =  0. ;
@@ -278,7 +275,7 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
     break ;
 
   case PYRAMID :
-    if ( w != 1){
+    if (w != 1){
       switch(NumEdge) {
       case 1  : s[0] = -0.25 * u / (1. - w) ;       s[1] = -0.5 + 0.25 * v / (1. - w) ; s[2] =  0.25 ; break ;
       case 2  : s[0] =  0.5 - 0.25 * u / (1. - w) ; s[1] =  0.25 * v / (1. - w) ;       s[2] = -0.25 ; break ;

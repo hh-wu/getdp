@@ -47,11 +47,8 @@ static int f(const gsl_vector *ts, void *param, gsl_vector *f)
 
 static int df(const gsl_vector *ts, void* param, gsl_matrix *j)
 {
-  struct f_context *c = (struct f_context *)(param);
   double t = gsl_vector_get(ts, 0);
   double s = gsl_vector_get(ts, 1);
-  double x = c->x1;
-  double y = c->y1;
 
   double j1dt = -sin(t) + s*2*sin(2*t);
   double j2dt = cos(t) - 2*s*cos(2*t);
@@ -114,10 +111,9 @@ static int newton(gsl_multiroot_function_fdf FDF, double *u, double *v)
 
 void F_CylinderPhase(F_ARG) 
 {
-  double initGuess, tau[2], sigma, phase;
-  int *check;
+  double initGuess, tau[2], phase;
 
-  double x = A->Val[0], y = A->Val[1], r = 1.;
+  double x = A->Val[0], y = A->Val[1];
   struct f_context context = {x, y};
   gsl_multiroot_function_fdf FDF;
 
@@ -181,7 +177,7 @@ void F_CylinderPhase(F_ARG)
 
 void F_DiamondPhase(F_ARG)
 {
-  double x, y, phase, r, theta, xtrans, ytrans;
+  double x, y, phase, theta, xtrans, ytrans;
 
   x = A->Val[0];
   y = A->Val[1];

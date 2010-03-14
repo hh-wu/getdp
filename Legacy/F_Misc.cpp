@@ -1007,7 +1007,7 @@ void F_TransformPiezoT (F_ARG)
 
 void F_VirtualWork (F_ARG)
 {
-  int i, numNode, Type_Dimension ;
+  int i, numNode ;
   MATRIX3x3 Jac ;
   double DetJac ;
   double DetJac_dx[3], squF[6] ;

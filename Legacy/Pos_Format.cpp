@@ -389,7 +389,6 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 void  Format_Unv(int Num_Element, int NbrNodes, struct Value *Value)
 {
   int     i;
-  struct Value  TmpValue ;
   
   switch (Value[0].Type) {
     
