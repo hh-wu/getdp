@@ -26,7 +26,7 @@ Discrete Problems</h1>
 <p>
 <h3 align="center">Patrick Dular and Christophe Geuzaine</h3>
 <p>
-<h3 align="center">Version 2.0.0, xx 2010</h3>
+<h3 align="center">Version 2.0.0, 14 March 2010</h3>
 <p>
 <center> 
   <a href="#Description">Description</a> |
@@ -40,13 +40,42 @@ Discrete Problems</h1>
 <h2><a name="Description"></a>Description</h2>
 
 GetDP is a general finite element solver using mixed elements to
-discretize de Rham-type complexes in one, two and three dimensions.
-The main feature of GetDP is the closeness between the input data
-defining discrete problems (written by the user in ASCII data files)
-and the symbolic mathematical expressions of these problems.
-<p>See GetDP's reference manual for a more
-thorough <a href="/getdp/doc/texinfo/getdp_3.html">overview of GetDP's
-capabilities</a>.
+discretize <a href="http://en.wikipedia.org/wiki/De_Rham_cohomology">de
+Rham-type complexes</a> in one, two and three dimensions.  The main
+feature of GetDP is the closeness between the input data defining
+discrete problems (written by the user in ASCII data files) and the
+symbolic mathematical expressions of these problems. 
+<p>For example, to solve the Poisson equation <code>div(a grad(v)) =
+f</code> on a domain <code>D</code>, an input file
+("<code>.pro</code>" file) would contain something like this:
+<font size="-1">
+<pre>
+  FunctionSpace {
+    { Name H1; Type Form0; 
+      BasisFunction {
+        { Name sn; NameOfCoef vn; Function BF_Node; Support D; Entity NodesOf[All]; }
+      }
+    }
+  }
+  Formulation{
+    { Name Poisson; Type FemEquation;
+      Quantity { 
+        { Name v; Type Local; NameOfSpace H1; }
+      }
+      Equation {
+        Galerkin { [ a[] * Dof{Grad v}, {Grad v} ] ; In D; Jacobian V; Integration I; }
+        Galerkin { [ f[], {v} ] ; In D; Jacobian V; Integration I; }
+      }
+    }
+  }
+</pre>
+</font>
+i.e., a direct transcription of the discrete function space and weak
+form of the problem. 
+<p>
+See GetDP's reference manual for a more
+thorough <a href="/getdp/doc/texinfo/getdp.html#Overview">overview of
+GetDP's capabilities</a>.
 
 <h2><a name="Download"></a>Download</h2>
 
@@ -98,7 +127,7 @@ more information.
 Please use the public mailing
 list <a href="mailto:getdp@geuz.org">getdp@geuz.org</a> to send
 questions or ask for help. If you think you have found a bug in the
-program, you ca file a report directly
+program, you can file a report directly
 <a href="https://geuz.org/trac/getdp/newticket">here</a> (username:
 getdp, password: getdp).
 
