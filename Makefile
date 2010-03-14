@@ -8,7 +8,7 @@ include variables
 GETDP_MAJOR_VERSION = 2
 GETDP_MINOR_VERSION = 0
 GETDP_PATCH_VERSION = 0
-GETDP_EXTRA_VERSION = 
+GETDP_EXTRA_VERSION =
 
 GETDP_VERSION =\
   ${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}
@@ -129,7 +129,7 @@ package-unix:
 	mkdir getdp-${GETDP_VERSION}
 	strip bin/getdp
 	cp bin/getdp getdp-${GETDP_VERSION}
-	cp doc/getdp.1 doc/LICENSE.txt doc/VERSIONS.txt doc/FAQ.txt doc/CREDITS.txt\
+	cp doc/getdp.1 doc/LICENSE.txt doc/VERSIONS.txt doc/CREDITS.txt\
           getdp-${GETDP_VERSION}
 	cp -R demos getdp-${GETDP_VERSION}
 	rm -rf getdp-${GETDP_VERSION}/*/.svn
@@ -148,7 +148,7 @@ package-win:
 	strip bin/getdp.exe
 	cp bin/getdp.exe getdp-${GETDP_VERSION}
 	cp doc/README.win32 getdp-${GETDP_VERSION}/README.txt
-	cp doc/LICENSE.txt doc/VERSIONS.txt doc/FAQ.txt doc/CREDITS.txt\
+	cp doc/LICENSE.txt doc/VERSIONS.txt doc/CREDITS.txt\
           getdp-${GETDP_VERSION}
 	cd utils/misc && ./unix2dos.bash ../../getdp-${GETDP_VERSION}/*.txt
 	cp -R demos getdp-${GETDP_VERSION}
