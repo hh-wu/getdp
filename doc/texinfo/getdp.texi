@@ -88,7 +88,9 @@ all copies.
 @c Table of contents
 @c =========================================================================
 
+@ifnothtml
 @summarycontents
+@end ifnothtml
 @contents
 
 @c =========================================================================
@@ -101,9 +103,9 @@ all copies.
 
 Patrick Dular and Christophe Geuzaine
 
-GetDP is a scientific computation software for the numerical solution of
-integro-differential equations, using finite element and integral type
-methods. This is the @cite{GetDP Reference Manual} for GetDP
+GetDP is a general finite element solver that uses mixed finite elements
+to discretize de Rham-type complexes in one, two and three
+dimensions. This is the @cite{GetDP Reference Manual} for GetDP
 @value{GETDP-VERSION} (@today{}).
 @end ifnottex
 
