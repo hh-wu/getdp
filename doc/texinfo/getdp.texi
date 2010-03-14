@@ -1,5 +1,5 @@
 \input texinfo.tex @c -*-texinfo-*-
-@c GetDP - Copyright (C) 1997-2009 P. Dular, C. Geuzaine
+@c GetDP - Copyright (C) 1997-2010 P. Dular, C. Geuzaine
 @c
 @c See the LICENSE.txt file for license information. Please report all
 @c bugs and problems to <getdp@geuz.org>.
@@ -1008,8 +1008,9 @@ or C++ programming languages.
 @tindex !=
 @tindex ||
 @tindex &&
+@tindex |
+@tindex &
 @tindex ?:
-
 
 @noindent
 @var{operator-unary}:
@@ -1059,6 +1060,10 @@ Logical `or'. The evaluation of both arguments must result in floating point
 values. Warning: the logical `or' always (unlike in C or C++) implies the
 evaluation of both arguments.  That is, the second operand of @code{||} is
 evaluated even if the first one is true.
+@item &
+Binary `and'. 
+@item |
+Binary `or'.
 @end table
 
 @noindent
@@ -1100,6 +1105,7 @@ i.e., @code{^} has the highest evaluation priority). Parentheses
 @table @code
 @item ^
 @item - (unary), ! 
+@item | & 
 @item /\
 @item *, /, %
 @item +, - 
@@ -4273,6 +4279,10 @@ three @var{real} numbers preceding the @var{values} contain
 context-dependent information, depending on the type of plot: curvilinear
 abscissa for @code{OnLine} plots, normal to the plane for @code{OnPlane}
 plots, parametric coordinates for parametric @code{OnGrid} plots, etc.
+
+@item SimpleTable
+Like @code{Table}, but with only the @var{x-coord} @var{y-coord}
+@var{z-coord} and @var{values} columns.
 
 @item TimeTable
 Time oriented column output, e.g., suitable for Gnuplot, Excel, Caleida
