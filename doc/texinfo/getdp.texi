@@ -732,6 +732,7 @@ complete.
 Same as @code{-pre @var{resolution-id} -cal}.
 
 @item -solver
+@var{filename}
 
 Specifies a solver option file (whose format varies depending on the
 linear algebra toolkit used).
