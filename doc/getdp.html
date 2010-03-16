@@ -96,6 +96,16 @@ License (GPL)</a>:
       <a href="/getdp/src/getdp-2.0.0-source.tgz"><strong>source code</strong></a>
     </span>
     <p>
+
+<em>The binary versions are compiled
+with <a href="http://www.mcs.anl.gov/petsc/">PETSc</a> in complex
+arithmetic, with support for direct sparse linear solvers using
+<a href="http://www.cise.ufl.edu/research/sparse/umfpack">UMFPACK</a>. This
+makes them suboptimal for certain kinds of problems. You should
+recompile GetDP from the source code to achieve the best performance
+on your particular problem.</em>
+<p>
+
   <li>Development version:
     <ul><li>automated nightly builds:
         <a href="/getdp/bin/Windows/getdp-nightly-Windows.zip">Windows</a>
@@ -194,7 +204,7 @@ information.
 <h2><a name="Links"></a>Links</h2>
 
 <ul>
-  <li>GetDP uses either <a href="http://www-unix.mcs.anl.gov/petsc/">PETSc</a> or 
+  <li>GetDP uses either <a href="http://www.mcs.anl.gov/petsc/">PETSc</a> or 
     <a href="http://www-users.cs.umn.edu/%7Esaad/software/SPARSKIT/sparskit.html">SPARSKIT</a>
     to solve linear systems.
   <li><a href="/gmsh/">Gmsh</a> is a three-dimensional finite element

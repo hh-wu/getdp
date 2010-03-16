@@ -731,6 +731,12 @@ complete.
 
 Same as @code{-pre @var{resolution-id} -cal}.
 
+@item -solver
+@var{filename}
+
+Specifies a solver option file (whose format varies depending on the
+linear algebra toolkit used).
+
 @item -adapt
 @var{file}
 
@@ -5906,8 +5912,9 @@ Pyramid (5 nodes, 8 edges, 5 facets).
 Point (1 node).
 @end table
 
-GetDP can also read more recent version of the `msh' format (2.0 and
-above). See the Gmsh documentation for more information.
+GetDP can also read more recent versions of the `msh' format (2.0 and
+above). See the Gmsh documentation for more information about these
+formats.
 
 @c -------------------------------------------------------------------------
 @c Output File Format

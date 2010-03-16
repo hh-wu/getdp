@@ -117,7 +117,7 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
 
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 {
-  PetscInt prealloc = 200;
+  PetscInt prealloc = 100;
   PetscTruth set;
   PetscOptionsGetInt(PETSC_NULL, "-petsc_prealloc", &prealloc, &set);
   std::vector<int> nnz(n, prealloc);

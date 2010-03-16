@@ -1,4 +1,4 @@
-New in 2.0: general code cleanup (separated interface from legacy
+New in 2.0.0: general code cleanup (separated interface from legacy
 code; removed various undocumented, unstable and otherwise
 experimental features; moved to C++); updated input file formats;
 default solvers are now based on PETSc; small bug fixes (binary .res
