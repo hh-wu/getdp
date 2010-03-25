@@ -8,13 +8,7 @@
 //   Andre Nicolet
 //
 
-#include <string.h>
-#include <math.h>
 #include "GetDPConfig.h"
-#include "ProData.h"
-#include "DofData.h"
-#include "EigenSolve.h"
-#include "MallocUtils.h"
 #include "Message.h"
 
 #define SQU(a)     ((a)*(a)) 
@@ -23,15 +17,38 @@
 extern struct CurrentData Current ;
 extern char   *Name_Path ;
 
-#if !defined(HAVE_ARPACK)
+#if !defined(HAVE_ARPACK) && !defined(HAVE_SLEPC)
 
 void EigenSolve(struct DofData * DofData_P, int NumEigenvalues, 
 		double shift_r, double shift_i)
 {
-  Msg::Error("EigenSolve not available without ARPACK");
+  Msg::Error("EigenSolve not available without ARPACK or SLEPC");
 }
 
 #else
+
+#if 0 //defined(HAVE_SLEPC)
+
+void EigenSolve(struct DofData * DofData_P, int NumEigenvalues, 
+		double shift_r, double shift_i)
+{
+  Msg::Error("TODO SLEPC!");
+}
+
+#else
+
+#include <string.h>
+#include <math.h>
+#include "ProData.h"
+#include "DofData.h"
+#include "EigenSolve.h"
+#include "MallocUtils.h"
+
+struct EigenPar {
+  double prec;
+  int    size;
+  int    reortho;
+} ;
 
 #if defined(HAVE_NO_UNDERSCORE)
 #define znaupd_ znaupd
@@ -52,6 +69,79 @@ extern "C" {
 		      complex_16 v[], int *ldv, int iparam[], int ipntr[], 
 		      complex_16 workd[], complex_16 workl[], int *lworkl, 
 		      double rwork[], int *info);
+}
+
+static void EigenGetDouble(const char *text, double *d)
+{
+  char str[256];
+  printf("%s (default=%.16g): ", text, *d);
+  fgets(str, sizeof(str), stdin);
+  if(strlen(str) && strcmp(str, "\n"))
+    *d = atof(str);
+}
+
+static void EigenGetInt(const char *text, int *i)
+{
+  char str[256];
+  printf("%s (default=%d): ", text, *i);
+  fgets(str, sizeof(str), stdin);
+  if(strlen(str) && strcmp(str, "\n"))
+    *i = atoi(str);
+}
+
+void EigenPar(const char *filename, struct EigenPar *par)
+{
+  char path[1024];
+  FILE *fp;
+
+  /* set some defaults */
+  par->prec = 1.e-4;
+  par->reortho = 0;
+  par->size = 50;
+
+  /* try to read parameters from file */
+  strcpy(path, Name_Path);
+  strcat(path, filename);
+  fp = fopen(path, "r");
+  if(fp) {
+    Msg::Info("Loading eigenproblem parameter file '%s'", path);
+    fscanf(fp, "%lf", &par->prec); 
+    fscanf(fp, "%d", &par->reortho);
+    fscanf(fp, "%d", &par->size);
+    fclose(fp);
+  }
+  else{
+    fp = fopen(path, "w");
+    if(fp){
+      /* get parameters from command line */
+      EigenGetDouble("Precision", &par->prec);
+      EigenGetInt("Reorthogonalization", &par->reortho);
+      EigenGetInt("Krylov basis size", &par->size);
+      /* write file */
+      fprintf(fp, "%.16g\n", par->prec);
+      fprintf(fp, "%d\n", par->reortho);
+      fprintf(fp, "%d\n", par->size);
+      fprintf(fp,
+	      "/*\n"
+	      "   The numbers above are the parameters for the numerical\n"
+	      "   eigenvalue problem:\n"
+	      "\n"
+	      "   prec = aimed accuracy for eigenvectors (default=1.e-4)\n"
+	      "   reortho = reorthogonalisation of Krylov basis: yes=1, no=0 (default=0) \n"
+	      "   size = size of the Krylov basis\n"
+	      "\n"
+	      "   The shift is given in the .pro file because its choice relies\n"
+	      "   on physical considerations.\n"
+	      "*/");
+      fclose(fp);
+    }
+    else{
+      Msg::Error("Unable to open file '%s'", path);
+    }
+  }
+  
+  Msg::Info("Eigenproblem parameters: prec = %g, reortho = %d, size = %d", 
+	    par->prec, par->reortho, par->size);
 }
 
 /* This routine uses Arpack to solve Generalized Complex Non-Hermitian
@@ -672,75 +762,4 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
 
 #endif
 
-static void EigenGetDouble(const char *text, double *d)
-{
-  char str[256];
-  printf("%s (default=%.16g): ", text, *d);
-  fgets(str, sizeof(str), stdin);
-  if(strlen(str) && strcmp(str, "\n"))
-    *d = atof(str);
-}
-
-static void EigenGetInt(const char *text, int *i)
-{
-  char str[256];
-  printf("%s (default=%d): ", text, *i);
-  fgets(str, sizeof(str), stdin);
-  if(strlen(str) && strcmp(str, "\n"))
-    *i = atoi(str);
-}
-
-void EigenPar(const char *filename, struct EigenPar *par)
-{
-  char path[1024];
-  FILE *fp;
-
-  /* set some defaults */
-  par->prec = 1.e-4;
-  par->reortho = 0;
-  par->size = 50;
-
-  /* try to read parameters from file */
-  strcpy(path, Name_Path);
-  strcat(path, filename);
-  fp = fopen(path, "r");
-  if(fp) {
-    Msg::Info("Loading eigenproblem parameter file '%s'", path);
-    fscanf(fp, "%lf", &par->prec); 
-    fscanf(fp, "%d", &par->reortho);
-    fscanf(fp, "%d", &par->size);
-    fclose(fp);
-  }
-  else{
-    fp = fopen(path, "w");
-    if(fp){
-      /* get parameters from command line */
-      EigenGetDouble("Precision", &par->prec);
-      EigenGetInt("Reorthogonalization", &par->reortho);
-      EigenGetInt("Krylov basis size", &par->size);
-      /* write file */
-      fprintf(fp, "%.16g\n", par->prec);
-      fprintf(fp, "%d\n", par->reortho);
-      fprintf(fp, "%d\n", par->size);
-      fprintf(fp,
-	      "/*\n"
-	      "   The numbers above are the parameters for the numerical\n"
-	      "   eigenvalue problem:\n"
-	      "\n"
-	      "   prec = aimed accuracy for eigenvectors (default=1.e-4)\n"
-	      "   reortho = reorthogonalisation of Krylov basis: yes=1, no=0 (default=0) \n"
-	      "   size = size of the Krylov basis\n"
-	      "\n"
-	      "   The shift is given in the .pro file because its choice relies\n"
-	      "   on physical considerations.\n"
-	      "*/");
-      fclose(fp);
-    }
-    else{
-      Msg::Error("Unable to open file '%s'", path);
-    }
-  }
-  
-  Msg::Info("Eigenproblem parameters: prec = %g, reortho = %d, size = %d", 
-	    par->prec, par->reortho, par->size);
-}
+#endif

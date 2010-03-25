@@ -1231,6 +1231,7 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-petsc          use PETSc linear solvers (default=yes)
+  --enable-slepc          use SLEPc eigensolvers (default=yes)
   --enable-sparskit       use Sperskit linear solvers (default=no)
   --enable-cygwin         use the Cygwin library on Windows (default=no)
   --enable-gsl            use GSL as numerical toolkit (default=yes)
@@ -1246,6 +1247,7 @@ Optional Packages:
                           prefix where BLAS and LAPACK are installed
   --with-petsc-prefix=PFX prefix where PETSc is installed
   --with-petsc-arch=ARCH  PETSc architecture
+  --with-slepc-prefix=PFX prefix where SLEPc is installed
 
 Some influential environment variables:
   CC          C compiler command
@@ -1711,9 +1713,20 @@ if test "${with_petsc_arch+set}" = set; then
 fi
 
 
+# Check whether --with-slepc-prefix was given.
+if test "${with_slepc_prefix+set}" = set; then
+  withval=$with_slepc_prefix; SLEPC_DIR=$withval
+fi
+
+
 # Check whether --enable-petsc was given.
 if test "${enable_petsc+set}" = set; then
   enableval=$enable_petsc;
+fi
+
+# Check whether --enable-slepc was given.
+if test "${enable_slepc+set}" = set; then
+  enableval=$enable_slepc;
 fi
 
 # Check whether --enable-sparskit was given.
@@ -4243,6 +4256,21 @@ echo "$as_me: error: Could not find PETSC. Use --enable-sparskit instead?" >&2;}
 _ACEOF
 
   BO="${BO} Petsc"
+fi
+
+if test "x${PETSC}" = "xyes" -a "x$enable_slepc" != "xno"; then
+  if test "x${SLEPC_DIR}" = "x"; then
+    { { echo "$as_me:$LINENO: error: No SLEPC_DIR: run configure again with --with-slepc-prefix." >&5
+echo "$as_me: error: No SLEPC_DIR: run configure again with --with-slepc-prefix." >&2;}
+   { (exit 1); exit 1; }; }
+  fi
+  GETDP_LIBS="${GETDP_LIBS} -L${SLEPC_DIR}/${PETSC_ARCH}/lib -lslepc"
+  FLAGS="${FLAGS} -I${SLEPC_DIR}/include"
+  cat >>confdefs.h <<\_ACEOF
+#define HAVE_SLEPC 1
+_ACEOF
+
+  BO="${BO} Slepc"
 fi
 
 if test "x$enable_sparskit" = "xyes"; then
