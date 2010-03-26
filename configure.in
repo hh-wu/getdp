@@ -36,7 +36,7 @@ AC_ARG_ENABLE(petsc,
                              [use PETSc linear solvers (default=yes)]))
 AC_ARG_ENABLE(slepc,
               AC_HELP_STRING([--enable-slepc],
-                             [use SLEPc eigensolvers (default=yes)]))
+                             [use SLEPc eigensolvers (default=no)]))
 AC_ARG_ENABLE(sparskit,
               AC_HELP_STRING([--enable-sparskit],
                              [use Sperskit linear solvers (default=no)]))
@@ -167,12 +167,13 @@ fi
 dnl Check for SLEPc
 if test "x${PETSC}" = "xyes" -a "x$enable_slepc" != "xno"; then
   if test "x${SLEPC_DIR}" = "x"; then
-    AC_MSG_ERROR([No SLEPC_DIR: run configure again with --with-slepc-prefix.])
+    AC_MSG_WARN([No SLEPC_DIR: could not find SLEPC.])
+  else
+    GETDP_LIBS="${GETDP_LIBS} -L${SLEPC_DIR}/${PETSC_ARCH}/lib -lslepc"
+    FLAGS="${FLAGS} -I${SLEPC_DIR}/include"
+    AC_DEFINE(HAVE_SLEPC)
+    BO="${BO} Slepc"
   fi
-  GETDP_LIBS="${GETDP_LIBS} -L${SLEPC_DIR}/${PETSC_ARCH}/lib -lslepc"
-  FLAGS="${FLAGS} -I${SLEPC_DIR}/include"
-  AC_DEFINE(HAVE_SLEPC)
-  BO="${BO} Slepc"
 fi
 
 dnl Check for Sparskit
