@@ -120,7 +120,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   PetscInt prealloc = 100;
   PetscTruth set;
   PetscOptionsGetInt(PETSC_NULL, "-petsc_prealloc", &prealloc, &set);
-  prealloc = (n<prealloc)?n:prealloc ; // prealloc cannot be smaller than the number of rows!
+  prealloc = (n<prealloc)?n:prealloc ; // prealloc cannot be bigger than the number of rows!
   std::vector<PetscInt> nnz(n, prealloc);
 
   // preallocate non local equations as full lines (this is not
