@@ -2218,7 +2218,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
       strcpy(ResName, Name_Generic) ;
-      strcat(ResName, ".txt") ;
+      //strcat(ResName, ".txt") ;
       {
         int num = Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex;
         Group *g = 0;

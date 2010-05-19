@@ -514,7 +514,19 @@ void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P,
                                     struct Group *Group_P, bool saveFixed) 
 {
-  FILE *fp = fopen(Name_File, "w");
+
+  char    FileCplx[256] ;
+  char    FileRe[256] ;
+  char    FileIm[256] ;
+
+  strcpy(FileCplx, Name_File) ; strcat(FileCplx, ".txt") ;
+  strcpy(FileRe, Name_File) ; strcat(FileRe, "_Re.txt") ;
+  strcpy(FileIm, Name_File) ; strcat(FileIm, "_Im.txt") ;
+
+  FILE *fp   = fopen(FileCplx, "w");
+  FILE *fpRe = fopen(FileRe, "w");
+  FILE *fpIm = fopen(FileIm, "w");
+
   if(!fp){
     Msg::Error("Unable to open file '%s'", Name_File) ;
     return;
@@ -542,13 +554,23 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
   }
 
   if(!Group_P){
+    fprintf(fpRe, "%d\n", N);//Needed for ListFromFile
+    fprintf(fpIm, "%d\n", N);
+
     for(std::map<int, std::complex<double> >::iterator it = unknowns.begin();
-        it != unknowns.end(); it++)
-      fprintf(fp, "%d %g %g\n", it->first, it->second.real(), it->second.imag());
+        it != unknowns.end(); it++){
+      fprintf(fp  , "%d %g %g\n", it->first, it->second.real(), it->second.imag());
+      fprintf(fpRe, "%d %g\n", it->first, it->second.real());
+      fprintf(fpIm, "%d %g\n", it->first, it->second.imag());
+    }
   }
   else{
     Msg::Info("Writing solution for all entities in group '%s'", Group_P->Name) ;
     if(!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
+
+    fprintf(fpRe, "%d\n", List_Nbr(Group_P->ExtendedList));//Needed for ListFromFile
+    fprintf(fpIm, "%d\n", List_Nbr(Group_P->ExtendedList));
+
     for(int i = 0; i < List_Nbr(Group_P->ExtendedList); i++){
       int num;
       List_Read(Group_P->ExtendedList, i, &num);
@@ -558,10 +580,14 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
         if(unknowns.count(num)){
           std::complex<double> s = unknowns[num];
           fprintf(fp, "%d %g %g\n", num, s.real(), s.imag());
+          fprintf(fpRe, "%d %g\n", num, s.real());
+          fprintf(fpIm, "%d %g\n", num, s.imag());
         }
         else{
           // yes, write zero: that's on purpose for the iterative schemes
           fprintf(fp, "%d 0 0\n", num);
+          fprintf(fpRe, "%d 0\n", num);
+          fprintf(fpIm, "%d 0\n", num);
         }
       }
     }
@@ -570,6 +596,8 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
   if(l) List_Delete(l);
   
   fclose(fp);
+  fclose(fpRe);
+  fclose(fpIm);
 }
 
 /* ------------------------------------------------------------------------ */

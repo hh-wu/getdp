@@ -87,6 +87,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		Current.w = uvw[3 * i_Entity + 2] ;
 		break ;
 	      case EDGESOF :
+		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
 		Current.NumEntityInElement = i_Entity ;  
 		break ;
 	      }
