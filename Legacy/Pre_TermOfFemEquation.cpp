@@ -74,8 +74,8 @@ void Pre_TermOfFemEquation(struct Element          * Element,
 
     for (i = 0 ; i < QuantityStorageEqu_P->NbrElementaryBasisFunction ; i++){
 
-      bool NonLocal = IsEquationNonLocal
-        (QuantityStorageEqu_P->BasisFunction[i].BasisFunction);
+      bool NonLocal = (QuantityStorageEqu_P->TypeQuantity == INTEGRALQUANTITY) || 
+        IsEquationNonLocal(QuantityStorageEqu_P->BasisFunction[i].BasisFunction);
 
       switch(QuantityStorageEqu_P->BasisFunction[i].Constraint){
       case NONE:
