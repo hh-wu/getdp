@@ -48,7 +48,7 @@ static List_T *SP = NULL, *VP = NULL, *TP = NULL;
 static List_T *SL = NULL, *VL = NULL, *TL = NULL;
 static List_T *ST = NULL, *VT = NULL, *TT = NULL;
 static List_T *SQ = NULL, *VQ = NULL, *TQ = NULL;
-static List_T *SS = NULL, *VS = NULL, *TS = NULL;
+static List_T *SS = NULL, *VS = NULL, *TS1 = NULL; // TS<->TS1 fix compile with PETSc
 static List_T *SH = NULL, *VH = NULL, *TH = NULL;
 static List_T *SI = NULL, *VI = NULL, *TI = NULL;
 static List_T *SY = NULL, *VY = NULL, *TY = NULL;
@@ -350,7 +350,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       List_WriteToFile(SQ, PostStream, f); List_WriteToFile(VQ, PostStream, f);
       List_WriteToFile(TQ, PostStream, f); 
       List_WriteToFile(SS, PostStream, f); List_WriteToFile(VS, PostStream, f);
-      List_WriteToFile(TS, PostStream, f);
+      List_WriteToFile(TS1, PostStream, f);
       List_WriteToFile(SH, PostStream, f); List_WriteToFile(VH, PostStream, f);
       List_WriteToFile(TH, PostStream, f);
       List_WriteToFile(SI, PostStream, f); List_WriteToFile(VI, PostStream, f);
@@ -595,7 +595,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
     if(!TQ) TQ = List_Create(100,1000,sizeof(double)); else List_Reset(TQ);
     if(!SS) SS = List_Create(100,1000,sizeof(double)); else List_Reset(SS);
     if(!VS) VS = List_Create(100,1000,sizeof(double)); else List_Reset(VS);
-    if(!TS) TS = List_Create(100,1000,sizeof(double)); else List_Reset(TS);
+    if(!TS1) TS1 = List_Create(100,1000,sizeof(double)); else List_Reset(TS1);
     if(!SH) SH = List_Create(100,1000,sizeof(double)); else List_Reset(SH);
     if(!VH) VH = List_Create(100,1000,sizeof(double)); else List_Reset(VH);
     if(!TH) TH = List_Create(100,1000,sizeof(double)); else List_Reset(TH);
