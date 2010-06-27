@@ -16,6 +16,10 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
+#if defined(HAVE_SLEPC)
+#include <slepc.h>
+#endif
+
 // Johan, we curse you for a thousand generations!
 #include "ProData.h"
 #include "DofData.h"
@@ -69,6 +73,9 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
 {
   // This function detects if MPI is initialized
   PetscInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
+#if defined(HAVE_SLEPC)
+  SlepcInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
+#endif
   SolverInitialized = 1;
 
   // get additional petsc options from specified file (useful e.g. on
@@ -93,7 +100,12 @@ void LinAlg_Finalize()
 
 void LinAlg_FinalizeSolver()
 {
-  if(SolverInitialized) PetscFinalize();
+  if(SolverInitialized){
+#if defined(HAVE_SLEPC)
+    SlepcFinalize();
+#endif
+    PetscFinalize();
+  }
 }
 
 void LinAlg_Barrier()
@@ -120,7 +132,8 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   PetscInt prealloc = 100;
   PetscTruth set;
   PetscOptionsGetInt(PETSC_NULL, "-petsc_prealloc", &prealloc, &set);
-  prealloc = (n<prealloc)?n:prealloc ; // prealloc cannot be bigger than the number of rows!
+  // prealloc cannot be bigger than the number of rows!
+  prealloc = (n < prealloc) ? n : prealloc; 
   std::vector<PetscInt> nnz(n, prealloc);
 
   // preallocate non local equations as full lines (this is not
@@ -806,8 +819,10 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 
   MatInfo info;
   ierr = MatGetInfo(A->M, MAT_LOCAL, &info);
-  int n = info.rows_local;
   int nnz = info.nz_used;
+  //int n = info.rows_local;
+  PetscInt n;
+  ierr = VecGetLocalSize(B->V, &n); MYCHECK(ierr);
 
   int *row = (int*)Malloc(nnz * sizeof(int));
   int *col = (int*)Malloc(nnz * sizeof(int));
