@@ -1948,6 +1948,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
      
       LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
       LinAlg_DummyVector(&DofData_P->res) ;
+      
+      // debug:
+      //LinAlg_PrintMatrix(fp, &DofData_P->Jac, true) ;
+      //LinAlg_PrintVector(fp, &DofData_P->res, true) ;
+
       LinAlg_Solve(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
       Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
