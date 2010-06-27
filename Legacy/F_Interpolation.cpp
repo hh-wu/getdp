@@ -315,7 +315,8 @@ void F_ValueFromIndex (F_ARG)
     List_PQuery(D->Case.ValueFromIndex.Table, &Current.NumEntity, fcmp_int);
 
   if (!IntDouble_P)
-    Msg::Error("Unknown Entity Index in ValueFromIndex Table");
+    Msg::Error("Unknown Entity Index (%d) in ValueFromIndex Table",
+               Current.NumEntity);
   /*
   printf("==> search %d --> found %g\n", Current.NumEntity, IntDouble_P->Double);
   */
