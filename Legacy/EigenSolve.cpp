@@ -12,27 +12,17 @@
 #include "Message.h"
 
 #define SQU(a)     ((a)*(a)) 
-#define TWO_PI             6.2831853071795865
+#define TWO_PI     6.2831853071795865
 
 extern struct CurrentData Current ;
 extern char   *Name_Path ;
 
-#if !defined(HAVE_ARPACK) && !defined(HAVE_SLEPC)
+#if !defined(HAVE_ARPACK)
 
 void EigenSolve(struct DofData * DofData_P, int NumEigenvalues, 
 		double shift_r, double shift_i)
 {
   Msg::Error("EigenSolve not available without ARPACK or SLEPC");
-}
-
-#else
-
-#if 0 //defined(HAVE_SLEPC)
-
-void EigenSolve(struct DofData * DofData_P, int NumEigenvalues, 
-		double shift_r, double shift_i)
-{
-  Msg::Error("TODO SLEPC!");
 }
 
 #else
@@ -759,7 +749,5 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
   Free(z);
   Free(workev);
 }
-
-#endif
 
 #endif
