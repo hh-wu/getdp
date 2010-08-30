@@ -10,7 +10,9 @@
 //
 
 #include <vector>
+#include <string>
 #include <cstring>
+#include <stdio.h>
 #include "GetDPConfig.h"
 #include "LinAlg.h"
 #include "MallocUtils.h"
@@ -907,6 +909,137 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 
 #endif
 
+static void _nastranPrintRowValue(FILE *fp, int row, std::complex<double> val,
+                                  int &count)
+{
+  if(count == 4){ fprintf(fp, "\n*       "); count = 0; }
+  fprintf(fp, "%16d", row + 1); count++;
+  if(count == 4){ fprintf(fp, "\n*       "); count = 0; }
+  fprintf(fp, " % -14.8E", val.real()); count ++;
+#if defined(PETSC_USE_COMPLEX)
+  if(count == 4){ fprintf(fp, "\n*       "); count = 0; }
+  fprintf(fp, " % -14.8E", val.imag()); count++;
+#endif
+}
+
+static void _nastranWriteMatrix(gMatrix *A, const char *name)
+{
+  const char *fileName = (std::string(name) + std::string(".pch")).c_str();
+  FILE *fp = fopen(fileName, "w");
+  if(!fp){
+    Msg::Error("Could not open file '%s'", fileName);
+    return;
+  }
+#if defined(PETSC_USE_COMPLEX)
+  int type = 4;
+#else
+  int type = 2;
+#endif
+  PetscInt m, n;
+  ierr = MatGetLocalSize(A->M, &m, &n); MYCHECK(ierr);
+  Msg::Info("Writing matrix (%d x %d) to Nastran punchfile '%s'", m, n, fileName);
+  fprintf(fp, "DMI     %-15s0       1%8d       0        %8d%8d\n",
+          name, type, m, n);
+  Vec c;
+  ierr = VecCreate(PETSC_COMM_WORLD, &c); MYCHECK(ierr);
+  ierr = VecSetSizes(c, PETSC_DECIDE, m); MYCHECK(ierr);
+  ierr = VecSetFromOptions(c); MYCHECK(ierr);
+  for(int col = 0; col < n; col++){
+    ierr = MatGetColumnVector(A->M, c, col); MYCHECK(ierr);
+    PetscScalar *tmp;
+    ierr = VecGetArray(c, &tmp); MYCHECK(ierr);
+    fprintf(fp, "DMI*    %-16s%16d", name, col + 1);
+    int count = 2;
+    for(int row = 0; row < m; row++){
+      std::complex<double> val = tmp[row];
+      if(val != 0.) _nastranPrintRowValue(fp, row, val, count);
+    }
+    fprintf(fp, "\n");
+    ierr = VecRestoreArray(c, &tmp); MYCHECK(ierr);
+  }
+  VecDestroy(c);
+  fclose(fp);
+}
+
+static void _nastranWriteVector(gVector *B, const char *name)
+{
+  const char *fileName = (std::string(name) + std::string(".pch")).c_str();
+  FILE *fp = fopen(fileName, "w");
+  if(!fp){
+    Msg::Error("Could not open file '%s'", fileName);
+    return;
+  }
+#if defined(PETSC_USE_COMPLEX)
+  int type = 4;
+#else
+  int type = 2;
+#endif
+  PetscInt m;
+  ierr = VecGetSize(B->V, &m); MYCHECK(ierr);
+  Msg::Info("Writing vector (%d) to Nastran punchfile '%s'", m, fileName);
+  fprintf(fp, "DMI     %-15s0       2%8d       0        %8d%8d\n",
+          name, type, m, 1);
+  PetscScalar *tmp;
+  ierr = VecGetArray(B->V, &tmp); MYCHECK(ierr);
+  fprintf(fp, "DMI*    %-16s%16d", name, 1);
+  int count = 2;
+  for(int row = 0; row < m; row++){
+    std::complex<double> val = tmp[row];
+    if(val != 0.) _nastranPrintRowValue(fp, row, val, count);
+  }
+  fprintf(fp, "\n");
+  ierr = VecRestoreArray(B->V, &tmp); MYCHECK(ierr);
+  fclose(fp);
+}
+
+static void _nastranReadVector(gVector *X, const char *name)
+{
+  const char *fileName = (std::string(name) + std::string(".pch")).c_str();
+  FILE *fp = fopen(fileName, "r");
+  if(!fp){
+    Msg::Error("Could not open file '%s'", fileName);
+    return;
+  }
+  Msg::Info("Reading vector from Nastran punchfile '%s'", fileName);
+  
+  char header[2][128];
+  int tag[4], m, n;
+  if(fscanf(fp, "%s %s %d %d %d %d %d %d", header[0], header[1], 
+            &tag[0], &tag[1], &tag[2], &tag[3], &m, &n) != 8)
+    Msg::Error("Could not parse punch file");
+  if(std::string(header[0]) != "DMI")
+    Msg::Error("Bad header in punch file");
+  if(n != 1)
+    Msg::Error("Number of columns != 1");
+  bool cplx = (tag[2] == 3 || tag[2] == 4);
+  Msg::Info("%d rows, %s", m, cplx ? "complex" : "real");
+
+  Msg::Info("TODO!!");
+  /*
+  for(PetscInt i = 0; i < n; i++){
+    PetscScalar d = valX[i];
+    ierr = VecSetValues(X->V, 1, &i, &d, INSERT_VALUES); MYCHECK(ierr);
+  }
+  */
+
+  fclose(fp);
+}
+
+static void _nastran(gMatrix *A, gVector *B, gVector *X, char *solver)
+{
+  if(!solver || !strlen(solver)){
+    Msg::Fatal("Invalid or empty Nastran solver");
+    return;
+  }
+    
+  Msg::Info("Solving using Nastran");
+
+  _nastranWriteMatrix(A, "MATRIXA");
+  _nastranWriteVector(B, "MATRIXB");
+  Msg::Info("Calling '%s'", solver);
+  _nastranReadVector(X, "MATRIXB");
+}
+
 static PetscErrorCode _myKspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void *mctx)
 {
   Msg::Info("%3ld KSP Residual norm %14.12e", (long)it, rnorm);
@@ -916,12 +1049,19 @@ static PetscErrorCode _myKspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void 
 static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, 
                    int precond, int kspIndex)
 {
+  PetscTruth set;
+
 #if defined(HAVE_ZITSOL)
   // testing Yousef's new preconditioners and solvers
-  PetscTruth zitsol = PETSC_FALSE, set;
+  PetscTruth zitsol = PETSC_FALSE;
   PetscOptionsGetTruth(PETSC_NULL, "-zitsol", &zitsol, &set);
   if(zitsol){ _zitsol(A, B, X); return; }
 #endif
+
+  // testing Nastran linear solvers
+  char nastran[256];
+  PetscOptionsGetString(PETSC_NULL, "-nastran", nastran, sizeof(nastran), &set);
+  if(set){ _nastran(A, B, X, nastran); return; }
 
   if(kspIndex < 0 || kspIndex > 9){
     Msg::Error("Linear Solver index out of range (%d)", kspIndex);
