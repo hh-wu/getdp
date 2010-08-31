@@ -909,20 +909,38 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 
 #endif
 
-static void _nastranPrintRowValue(FILE *fp, int row, std::complex<double> val,
-                                  int &count)
+class matValue{ 
+ public:
+  int row, col; 
+  std::complex<double> val;
+  matValue(int r, int c, std::complex<double> v) : row(r), col(c), val(v) {}
+};
+
+class matValueLessThan{
+ public:
+  bool operator()(const matValue *v1, const matValue *v2) const 
+  { 
+    if(v1->col != v2->col)   
+      return v1->col < v2->col; 
+    return v1->row < v2->row;
+  }
+};
+
+static void _nastranPrintValue(FILE *fp, matValue *val, int &count)
 {
+  if(val->val == 0.) return;
   if(count == 4){ fprintf(fp, "\n*       "); count = 0; }
-  fprintf(fp, "%16d", row + 1); count++;
+  fprintf(fp, "%16d", val->row + 1); count++;
   if(count == 4){ fprintf(fp, "\n*       "); count = 0; }
-  fprintf(fp, " % -14.8E", val.real()); count ++;
+  fprintf(fp, " % -14.8E", val->val.real()); count ++;
 #if defined(PETSC_USE_COMPLEX)
   if(count == 4){ fprintf(fp, "\n*       "); count = 0; }
-  fprintf(fp, " % -14.8E", val.imag()); count++;
+  fprintf(fp, " % -14.8E", val->val.imag()); count++;
 #endif
 }
 
-static void _nastranWriteMatrix(gMatrix *A, const char *name)
+static void _nastranWriteMatrix(int m, int n, std::vector<matValue*> &val, 
+                                const char *name)
 {
   const char *fileName = (std::string(name) + std::string(".pch")).c_str();
   FILE *fp = fopen(fileName, "w");
@@ -930,65 +948,25 @@ static void _nastranWriteMatrix(gMatrix *A, const char *name)
     Msg::Error("Could not open file '%s'", fileName);
     return;
   }
+  int shape = (m == n) ? 1 : 2;
 #if defined(PETSC_USE_COMPLEX)
   int type = 3;
 #else
   int type = 1;
 #endif
-  PetscInt m, n;
-  ierr = MatGetLocalSize(A->M, &m, &n); MYCHECK(ierr);
   Msg::Info("Writing matrix (%d x %d) to Nastran punchfile '%s'", m, n, fileName);
-  fprintf(fp, "DMI     %-15s0       1%8d       0        %8d%8d\n",
-          name, type, m, n);
-  Vec c;
-  ierr = VecCreate(PETSC_COMM_WORLD, &c); MYCHECK(ierr);
-  ierr = VecSetSizes(c, PETSC_DECIDE, m); MYCHECK(ierr);
-  ierr = VecSetFromOptions(c); MYCHECK(ierr);
-  for(int col = 0; col < n; col++){
-    ierr = MatGetColumnVector(A->M, c, col); MYCHECK(ierr);
-    PetscScalar *tmp;
-    ierr = VecGetArray(c, &tmp); MYCHECK(ierr);
-    fprintf(fp, "DMI*    %-16s%16d", name, col + 1);
-    int count = 2;
-    for(int row = 0; row < m; row++){
-      std::complex<double> val = tmp[row];
-      if(val != 0.) _nastranPrintRowValue(fp, row, val, count);
+  fprintf(fp, "DMI     %-15s0%8d%8d       0        %8d%8d",
+          name, shape, type, m, n);
+  int col = -1, count = 0;
+  for(unsigned int i = 0; i < val.size(); i++){
+    if(val[i]->col != col){ // new column
+      col = val[i]->col;
+      fprintf(fp, "\nDMI*    %-16s%16d", name, col + 1);
+      count = 2;
     }
-    fprintf(fp, "\n");
-    ierr = VecRestoreArray(c, &tmp); MYCHECK(ierr);
-  }
-  VecDestroy(c);
-  fclose(fp);
-}
-
-static void _nastranWriteVector(gVector *B, const char *name)
-{
-  const char *fileName = (std::string(name) + std::string(".pch")).c_str();
-  FILE *fp = fopen(fileName, "w");
-  if(!fp){
-    Msg::Error("Could not open file '%s'", fileName);
-    return;
-  }
-#if defined(PETSC_USE_COMPLEX)
-  int type = 3;
-#else
-  int type = 1;
-#endif
-  PetscInt m;
-  ierr = VecGetSize(B->V, &m); MYCHECK(ierr);
-  Msg::Info("Writing vector (%d) to Nastran punchfile '%s'", m, fileName);
-  fprintf(fp, "DMI     %-15s0       2%8d       0        %8d%8d\n",
-          name, type, m, 1);
-  PetscScalar *tmp;
-  ierr = VecGetArray(B->V, &tmp); MYCHECK(ierr);
-  fprintf(fp, "DMI*    %-16s%16d", name, 1);
-  int count = 2;
-  for(int row = 0; row < m; row++){
-    std::complex<double> val = tmp[row];
-    if(val != 0.) _nastranPrintRowValue(fp, row, val, count);
+    _nastranPrintValue(fp, val[i], count);
   }
   fprintf(fp, "\n");
-  ierr = VecRestoreArray(B->V, &tmp); MYCHECK(ierr);
   fclose(fp);
 }
 
@@ -1058,10 +1036,47 @@ static void _nastran(gMatrix *A, gVector *B, gVector *X, char *solver)
 
   Msg::Info("Solving using Nastran");
 
-  _nastranWriteMatrix(A, "MATRIXA");
-  _nastranWriteVector(B, "MATRIXB");
+  // get sparse matrix and sort it by column (Nastran output is by
+  // column; we don't use PETSc's own MatGetColumnVector because it is
+  // atrociously slow. Yes, I tried.)
+  MatInfo info;
+  ierr = MatGetInfo(A->M, MAT_LOCAL, &info);
+  int nnz = info.nz_used;
+  PetscInt n;
+  ierr = VecGetLocalSize(B->V, &n); MYCHECK(ierr);
+  std::vector<matValue*> valA(nnz), valB(n);
+  int k = 0;
+  PetscScalar *tmpB;
+  ierr = VecGetArray(B->V, &tmpB); MYCHECK(ierr);
+  for(int i = 0; i < n; i++){
+    valB[i] = new matValue(i, 0, tmpB[i]);
+    PetscInt ncols;
+    const PetscInt *cols;
+    const PetscScalar *tmpA;
+    ierr = MatGetRow(A->M, i, &ncols, &cols, &tmpA); MYCHECK(ierr);
+    for(int j = 0; j < ncols; j++){
+      if(k >= nnz){
+	Msg::Error("Something wrong in nnz: %d >= %d", k, nnz);
+	return;
+      }
+      valA[k++] = new matValue(i, cols[j], tmpA[j]);
+    }
+    ierr = MatRestoreRow(A->M, i, &ncols, &cols, &tmpA); MYCHECK(ierr);
+  }
+  ierr = VecRestoreArray(B->V, &tmpB); MYCHECK(ierr);
+  std::sort(valA.begin(), valA.end(), matValueLessThan());
+
+  Msg::Info("n = %d, nnz = %d", n, nnz);
+
+  _nastranWriteMatrix(n, n, valA, "MATRIXA");
+  _nastranWriteMatrix(n, 1, valB, "MATRIXB");
+
+  for(unsigned int i = 0; i < valA.size(); i++) delete valA[i];
+  for(unsigned int i = 0; i < valB.size(); i++) delete valB[i];
+    
   Msg::Info("Calling '%s'", solver);
-  _nastranReadVector(X, "MATRIXB");
+
+  //_nastranReadVector(X, "MATRIXB");
 }
 
 static PetscErrorCode _myKspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void *mctx)
