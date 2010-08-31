@@ -621,19 +621,6 @@ void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
     Msg::Error("Wrong arguments in 'LinAlg_AddMatrixMatrix'");  
 }
 
-void LinAlg_AddMatrixMatrixSubsetPattern(gMatrix *M1, gMatrix *M2, gMatrix *M3)
-{
-  PetscScalar tmp = 1.0;
-  if(M3 == M1){
-    ierr = MatAXPY(M1->M, tmp, M2->M, SUBSET_NONZERO_PATTERN); MYCHECK(ierr);
-  }
-  else if(M3 == M2){
-    ierr = MatAXPY(M2->M, tmp, M1->M, SUBSET_NONZERO_PATTERN); MYCHECK(ierr);
-  }
-  else
-    Msg::Error("Wrong arguments in 'LinAlg_AddMatrixMatrixSubsetPattern'");  
-}
-
 void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatrix *M3)
 {
   PetscScalar tmp = d;
