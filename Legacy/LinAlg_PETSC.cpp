@@ -1086,6 +1086,7 @@ static void _nastran(gMatrix *A, gVector *B, gVector *X, char *solver)
   // Calling Nastran, assuming that we have MATRIXA.pch and
   // MATRIXB.pch available; Natran should write MATRIXX.pch.
   Msg::Info("Calling '%s'", solver);
+  system(solver);
 
   std::vector<matValue*> valX;
   _nastranReadSimpleVector(valX, "MATRIXX");
