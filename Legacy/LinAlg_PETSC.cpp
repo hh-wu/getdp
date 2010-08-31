@@ -18,6 +18,7 @@
 #include "LinAlg.h"
 #include "MallocUtils.h"
 #include "Message.h"
+#include "OS.h"
 
 #if defined(HAVE_SLEPC)
 #include <slepc.h>
@@ -927,16 +928,34 @@ class matValueLessThan{ // sort values by column
   }
 };
 
+static void _nastranPrintDouble(FILE *fp, double val)
+{
+#if defined(WIN32)
+  char str[32];
+  sprintf(str, " % -14.8E", val);
+  // Windows uses 3 digits in the exponent (which apparently does not
+  // conform with ANSI C): remove the extra 0
+  if(strlen(str) == 17 && (str[12] == 'E' || str[13] == 'E')){
+    str[14] = str[15];
+    str[15] = str[16];
+  }
+  str[16] = '\0';
+  fprintf(fp, "%s", str);
+#else
+  fprintf(fp, " % -14.8E", val);
+#endif
+}
+
 static void _nastranPrintValue(FILE *fp, matValue *val, int &count)
 {
   if(val->val == 0.) return;
   if(count == 4){ fprintf(fp, "\n*       "); count = 0; }
   fprintf(fp, "%16d", val->row + 1); count++;
   if(count == 4){ fprintf(fp, "\n*       "); count = 0; }
-  fprintf(fp, " % -14.8E", val->val.real()); count ++;
+  _nastranPrintDouble(fp, val->val.real()); count ++;
 #if defined(PETSC_USE_COMPLEX)
   if(count == 4){ fprintf(fp, "\n*       "); count = 0; }
-  fprintf(fp, " % -14.8E", val->val.imag()); count++;
+  _nastranPrintDouble(fp, val->val.imag()); count++;
 #endif
 }
 
@@ -1086,8 +1105,7 @@ static void _nastran(gMatrix *A, gVector *B, gVector *X, char *solver)
 
   // Calling Nastran, assuming that we have MATRIXA.pch and
   // MATRIXB.pch available; Natran should write MATRIXX.pch.
-  Msg::Info("Calling '%s'", solver);
-  system(solver);
+  SystemCall(solver);
 
   std::vector<matValue*> valX;
   _nastranReadSimpleVector(valX, "MATRIXX");

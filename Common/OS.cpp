@@ -153,6 +153,11 @@ int SystemCall(const char *command)
   Msg::Info("Calling '%s'", command);
   CreateProcess(NULL, (char*)command, NULL, NULL, FALSE,
                 NORMAL_PRIORITY_CLASS, NULL, NULL, &suInfo, &prInfo);
+  // wait until child process exits.
+  WaitForSingleObject(prInfo.hProcess, INFINITE);
+  // close process and thread handles. 
+  CloseHandle(prInfo.hProcess);
+  CloseHandle(prInfo.hThread);
   return 0;
 #else
   if(!system(NULL)) {
