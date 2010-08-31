@@ -916,7 +916,7 @@ class matValue{
   matValue(int r, int c, std::complex<double> v) : row(r), col(c), val(v) {}
 };
 
-class matValueLessThan{
+class matValueLessThan{ // sort values by column
  public:
   bool operator()(const matValue *v1, const matValue *v2) const 
   { 
@@ -954,7 +954,8 @@ static void _nastranWriteMatrix(int m, int n, std::vector<matValue*> &val,
 #else
   int type = 1;
 #endif
-  Msg::Info("Writing matrix (%d x %d) to Nastran punchfile '%s'", m, n, fileName);
+  Msg::Info("Writing matrix '%s' (%d x %d) to Nastran punchfile '%s'", 
+            name, m, n, fileName);
   fprintf(fp, "DMI     %-15s0%8d%8d       0        %8d%8d",
           name, shape, type, m, n);
   int col = -1, count = 0;
@@ -970,7 +971,7 @@ static void _nastranWriteMatrix(int m, int n, std::vector<matValue*> &val,
   fclose(fp);
 }
 
-static void _nastranReadVector(gVector *X, const char *name)
+static void _nastranReadSimpleVector(std::vector<matValue*> &val, const char *name)
 {
   const char *fileName = (std::string(name) + std::string(".pch")).c_str();
   FILE *fp = fopen(fileName, "r");
@@ -993,14 +994,11 @@ static void _nastranReadVector(gVector *X, const char *name)
     Msg::Error("Non-DMI punch file");
     return;
   }
-  if(n != 1){
-    Msg::Error("Number of columns != 1 for vector");
-    return;
-  }
   bool cplx = (tag[2] == 3 || tag[2] == 4);
-  Msg::Info("%d rows, %s", m, cplx ? "complex" : "real");
+  Msg::Info("%d elements, %s", m, cplx ? "complex" : "real");
 
-  int row = 0;
+  int col = -1, row = -1;
+  double valr = 0., vali = 0.;
   char field[4][17];
   for(int i = 0; i < 4; i++) field[i][16] = '\0';
   while(!feof(fp)){
@@ -1008,21 +1006,31 @@ static void _nastranReadVector(gVector *X, const char *name)
     for(int i = 0; i < 4; i++)
       strncpy(field[i], &buffer[8 + i * 16], 16);
     if(buffer[0] == 'D'){ // new column
-      row = atoi(field[2]);
-      //valr = atoi(field[3]);
+      col = atoi(field[1]) - 1;
+      row = atoi(field[2]) - 1;
+      if(col != 0 || row != 0){
+        Msg::Error("Can only read simple contiguous (full) Nastran vectors at the moment");
+        return;
+      }
+      valr = atof(field[3]);
+      if(!cplx) 
+        val.push_back(new matValue(row++, col, std::complex<double>(valr, vali)));
     }
     else{
-      
+      for(int i = 0; i < 4; i++){
+        if(val.size() == m) break;
+        if(cplx && i % 2){
+          vali = atof(field[i]);
+          val.push_back(new matValue(row++, col, std::complex<double>(valr, vali)));
+        }
+        else {
+          valr = atof(field[i]);
+          if(!cplx) 
+            val.push_back(new matValue(row++, col, std::complex<double>(valr, vali)));
+        }
+      }
     }
-    printf("AAAAAAAAAA '%s' '%s' '%s' '%s'\n", field[0], field[1], field[2], field[3]);
   }
-
-  /*
-  for(PetscInt i = 0; i < n; i++){
-    PetscScalar d = valX[i];
-    ierr = VecSetValues(X->V, 1, &i, &d, INSERT_VALUES); MYCHECK(ierr);
-  }
-  */
 
   fclose(fp);
 }
@@ -1038,13 +1046,14 @@ static void _nastran(gMatrix *A, gVector *B, gVector *X, char *solver)
 
   // get sparse matrix and sort it by column (Nastran output is by
   // column; we don't use PETSc's own MatGetColumnVector because it is
-  // atrociously slow. Yes, I tried.)
+  // atrociously slow. Yes, really. I tried.)
   MatInfo info;
   ierr = MatGetInfo(A->M, MAT_LOCAL, &info);
   int nnz = info.nz_used;
   PetscInt n;
   ierr = VecGetLocalSize(B->V, &n); MYCHECK(ierr);
   std::vector<matValue*> valA(nnz), valB(n);
+
   int k = 0;
   PetscScalar *tmpB;
   ierr = VecGetArray(B->V, &tmpB); MYCHECK(ierr);
@@ -1073,10 +1082,27 @@ static void _nastran(gMatrix *A, gVector *B, gVector *X, char *solver)
 
   for(unsigned int i = 0; i < valA.size(); i++) delete valA[i];
   for(unsigned int i = 0; i < valB.size(); i++) delete valB[i];
-    
+
+  // Calling Nastran, assuming that we have MATRIXA.pch and
+  // MATRIXB.pch available; Natran should write MATRIXX.pch.
   Msg::Info("Calling '%s'", solver);
 
-  //_nastranReadVector(X, "MATRIXB");
+  std::vector<matValue*> valX;
+  _nastranReadSimpleVector(valX, "MATRIXX");
+  
+  if(valX.size() != n){
+    Msg::Error("Wrong dimension of X vector");
+    return;
+  }
+  
+  for(PetscInt i = 0; i < valX.size(); i++){
+#if defined(PETSC_USE_COMPLEX)
+    PetscScalar d = valX[i]->val;
+#else
+    PetscScalar d = valX[i]->val.real();
+#endif
+    ierr = VecSetValues(X->V, 1, &i, &d, INSERT_VALUES); MYCHECK(ierr);
+  }
 }
 
 static PetscErrorCode _myKspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void *mctx)
@@ -1097,14 +1123,10 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   if(zitsol){ _zitsol(A, B, X); return; }
 #endif
 
-  static int solvecount = 0;
-  if(solvecount){
   // testing Nastran linear solvers
   char nastran[256];
   PetscOptionsGetString(PETSC_NULL, "-nastran", nastran, sizeof(nastran), &set);
   if(set){ _nastran(A, B, X, nastran); return; }
-  }
-  solvecount++;
 
   if(kspIndex < 0 || kspIndex > 9){
     Msg::Error("Linear Solver index out of range (%d)", kspIndex);
