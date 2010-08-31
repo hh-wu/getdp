@@ -1943,17 +1943,21 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_AssembleVector(&DofData_P->b) ;
       }
 
+      /* This is bad: the sparsity pattern of Jac is a subset of the
+         sparsity pattern of A: we have to take advantage of this in PETSc:
       LinAlg_AddMatrixMatrix(&DofData_P->Jac, &DofData_P->A, &DofData_P->Jac) ;
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
-     
       LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
       LinAlg_DummyVector(&DofData_P->res) ;
-      
-      // debug:
-      //LinAlg_PrintMatrix(fp, &DofData_P->Jac, true) ;
-      //LinAlg_PrintVector(fp, &DofData_P->res, true) ;
-
       LinAlg_Solve(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
+      */
+
+      LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
+      LinAlg_AddMatrixMatrixSubsetPattern(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ;
+      LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
+      LinAlg_DummyVector(&DofData_P->res) ;
+      LinAlg_Solve(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
+
 
       Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
       Msg::Info("Mean error: %.3e  (after %d iteration%s)", 

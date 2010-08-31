@@ -621,6 +621,19 @@ void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
     Msg::Error("Wrong arguments in 'LinAlg_AddMatrixMatrix'");  
 }
 
+void LinAlg_AddMatrixMatrixSubsetPattern(gMatrix *M1, gMatrix *M2, gMatrix *M3)
+{
+  PetscScalar tmp = 1.0;
+  if(M3 == M1){
+    ierr = MatAXPY(M1->M, tmp, M2->M, SUBSET_NONZERO_PATTERN); MYCHECK(ierr);
+  }
+  else if(M3 == M2){
+    ierr = MatAXPY(M2->M, tmp, M1->M, SUBSET_NONZERO_PATTERN); MYCHECK(ierr);
+  }
+  else
+    Msg::Error("Wrong arguments in 'LinAlg_AddMatrixMatrixSubsetPattern'");  
+}
+
 void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatrix *M3)
 {
   PetscScalar tmp = d;
@@ -931,9 +944,9 @@ static void _nastranWriteMatrix(gMatrix *A, const char *name)
     return;
   }
 #if defined(PETSC_USE_COMPLEX)
-  int type = 4;
+  int type = 3;
 #else
-  int type = 2;
+  int type = 1;
 #endif
   PetscInt m, n;
   ierr = MatGetLocalSize(A->M, &m, &n); MYCHECK(ierr);
@@ -970,9 +983,9 @@ static void _nastranWriteVector(gVector *B, const char *name)
     return;
   }
 #if defined(PETSC_USE_COMPLEX)
-  int type = 4;
+  int type = 3;
 #else
-  int type = 2;
+  int type = 1;
 #endif
   PetscInt m;
   ierr = VecGetSize(B->V, &m); MYCHECK(ierr);
@@ -1001,20 +1014,44 @@ static void _nastranReadVector(gVector *X, const char *name)
     return;
   }
   Msg::Info("Reading vector from Nastran punchfile '%s'", fileName);
-  
+
+  char buffer[256];
+  fgets(buffer, sizeof(buffer), fp);
   char header[2][128];
   int tag[4], m, n;
-  if(fscanf(fp, "%s %s %d %d %d %d %d %d", header[0], header[1], 
-            &tag[0], &tag[1], &tag[2], &tag[3], &m, &n) != 8)
-    Msg::Error("Could not parse punch file");
-  if(std::string(header[0]) != "DMI")
-    Msg::Error("Bad header in punch file");
-  if(n != 1)
-    Msg::Error("Number of columns != 1");
+  if(sscanf(buffer, "%s %s %d %d %d %d %d %d", header[0], header[1], 
+            &tag[0], &tag[1], &tag[2], &tag[3], &m, &n) != 8){
+    Msg::Error("Could not parse punch file header");
+    return;
+  }
+  if(std::string(header[0]) != "DMI"){
+    Msg::Error("Non-DMI punch file");
+    return;
+  }
+  if(n != 1){
+    Msg::Error("Number of columns != 1 for vector");
+    return;
+  }
   bool cplx = (tag[2] == 3 || tag[2] == 4);
   Msg::Info("%d rows, %s", m, cplx ? "complex" : "real");
 
-  Msg::Info("TODO!!");
+  int row = 0;
+  char field[4][17];
+  for(int i = 0; i < 4; i++) field[i][16] = '\0';
+  while(!feof(fp)){
+    if(!fgets(buffer, sizeof(buffer), fp)) break;
+    for(int i = 0; i < 4; i++)
+      strncpy(field[i], &buffer[8 + i * 16], 16);
+    if(buffer[0] == 'D'){ // new column
+      row = atoi(field[2]);
+      //valr = atoi(field[3]);
+    }
+    else{
+      
+    }
+    printf("AAAAAAAAAA '%s' '%s' '%s' '%s'\n", field[0], field[1], field[2], field[3]);
+  }
+
   /*
   for(PetscInt i = 0; i < n; i++){
     PetscScalar d = valX[i];
@@ -1031,7 +1068,7 @@ static void _nastran(gMatrix *A, gVector *B, gVector *X, char *solver)
     Msg::Fatal("Invalid or empty Nastran solver");
     return;
   }
-    
+
   Msg::Info("Solving using Nastran");
 
   _nastranWriteMatrix(A, "MATRIXA");
@@ -1058,10 +1095,14 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   if(zitsol){ _zitsol(A, B, X); return; }
 #endif
 
+  static int solvecount = 0;
+  if(solvecount){
   // testing Nastran linear solvers
   char nastran[256];
   PetscOptionsGetString(PETSC_NULL, "-nastran", nastran, sizeof(nastran), &set);
   if(set){ _nastran(A, B, X, nastran); return; }
+  }
+  solvecount++;
 
   if(kspIndex < 0 || kspIndex > 9){
     Msg::Error("Linear Solver index out of range (%d)", kspIndex);
