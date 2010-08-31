@@ -490,14 +490,6 @@ void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
     Msg::Error("Wrong arguments in 'LinAlg_AddMatrixMatrix'");
 }
 
-void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
-{
-  if(M3 == M1)
-    add_matrix_matrix(&M1->M, &M2->M) ;
-  else
-    Msg::Error("Wrong arguments in 'LinAlg_AddMatrixMatrix'");
-}
-
 void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatrix *M3)
 {
   if(M3 == M1)
