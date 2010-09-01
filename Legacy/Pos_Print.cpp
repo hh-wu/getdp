@@ -1451,7 +1451,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
 {
   struct Group        *Group_P;
   struct Geo_Element  *GeoElement;
-  struct PostElement  *SL;
+  struct PostElement  *SL, *ST, *SQ;
   List_T              *Region_L;
   int                  i, NbrGeo, iGeo, *NumNodes;
   double               x [NBR_MAX_NODES_IN_ELEMENT] ;
@@ -1474,6 +1474,8 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
 		 PostSubOperation_P->Case.Group.ExtendedGroupIndex);
 
   SL = Create_PostElement(0, LINE, 2, 1) ;
+  ST = Create_PostElement(0, TRIANGLE, 3, 1) ;
+  SQ = Create_PostElement(0, QUADRANGLE, 4, 1) ;
 
   if(!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
 
@@ -1505,6 +1507,48 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
 			       PostSubOperation_P->ChangeOfCoordinates,
 			       PostSubOperation_P->ChangeOfValues);
 	  }
+	}
+	break ;
+
+      case FACETSOFTREEIN :
+	if(!GeoElement->NbrFacets) Geo_CreateFacetsOfElement(GeoElement) ;
+	for(i=0 ; i<GeoElement->NbrFacets ; i++){
+	  if(List_Search(Group_P->ExtendedList, &GeoElement->NumFacets[i], fcmp_absint)){
+	    NumNodes = Geo_GetNodesOfFacetInElement(GeoElement, i) ;
+            if(!NumNodes[3]){ // we have triangle
+              ST->Index = iGeo;
+              ST->x[0] = x[abs(NumNodes[0])-1]; ST->x[1] = x[abs(NumNodes[1])-1];
+              ST->y[0] = y[abs(NumNodes[0])-1]; ST->y[1] = y[abs(NumNodes[1])-1];
+              ST->z[0] = z[abs(NumNodes[0])-1]; ST->z[1] = z[abs(NumNodes[1])-1];
+              ST->x[2] = x[abs(NumNodes[2])-1];
+              ST->y[2] = y[abs(NumNodes[2])-1];
+              ST->z[2] = z[abs(NumNodes[2])-1];
+              ST->Value[0].Type = ST->Value[1].Type = ST->Value[2].Type = SCALAR ;
+              ST->Value[0].Val[0] = ST->Value[1].Val[0] = ST->Value[2].Val[0] = GeoElement->NumFacets[i];
+              Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+                                 0, 0, 1, 1, 1, 
+                                 NULL, ST, 
+                                 PostSubOperation_P->ChangeOfCoordinates,
+                                 PostSubOperation_P->ChangeOfValues);
+            }
+            else{ // we have a quad
+              SQ->Index = iGeo;
+              SQ->x[0] = x[abs(NumNodes[0])-1]; SQ->x[1] = x[abs(NumNodes[1])-1];
+              SQ->y[0] = y[abs(NumNodes[0])-1]; SQ->y[1] = y[abs(NumNodes[1])-1];
+              SQ->z[0] = z[abs(NumNodes[0])-1]; SQ->z[1] = z[abs(NumNodes[1])-1];
+              SQ->x[2] = x[abs(NumNodes[2])-1]; SQ->x[3] = x[abs(NumNodes[3])-1];
+              SQ->y[2] = y[abs(NumNodes[2])-1]; SQ->y[3] = y[abs(NumNodes[3])-1];
+              SQ->z[2] = z[abs(NumNodes[2])-1]; SQ->z[3] = z[abs(NumNodes[3])-1];
+              SQ->Value[0].Type = SQ->Value[1].Type = SQ->Value[2].Type = SQ->Value[3].Type = SCALAR ;
+              SQ->Value[0].Val[0] = SQ->Value[1].Val[0] = SQ->Value[2].Val[0] = 
+                SQ->Value[3].Val[0] = GeoElement->NumFacets[i];
+              Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+                                 0, 0, 1, 1, 1, 
+                                 NULL, SQ, 
+                                 PostSubOperation_P->ChangeOfCoordinates,
+                                 PostSubOperation_P->ChangeOfValues);
+            }
+          }
 	}
 	break ;
 
