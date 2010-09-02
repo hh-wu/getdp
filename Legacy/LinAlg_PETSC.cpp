@@ -10,6 +10,7 @@
 //
 
 #include <vector>
+#include <algorithm>
 #include <complex>
 #include <string>
 #include <cstring>
