@@ -96,7 +96,9 @@ Resolution {
       { Name A ; NameOfFormulation MagSta_phi ; }
     }
     Operation { 
-      Generate[A] ; Solve[A] ; SaveSolution[A] ; 
+      Generate[A] ;
+      //Print[A];
+      Solve[A] ; SaveSolution[A] ; 
     }
   }
 }

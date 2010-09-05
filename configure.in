@@ -165,7 +165,7 @@ if test "x$enable_petsc" != "xno" -a "x$enable_sparskit" != "xyes"; then
 fi
 
 dnl Check for SLEPc
-if test "x${PETSC}" = "xyes" -a "x$enable_slepc" != "xno"; then
+if test "x${PETSC}" = "xyes" -a "x$enable_slepc" = "xyes"; then
   if test "x${SLEPC_DIR}" = "x"; then
     AC_MSG_WARN([No SLEPC_DIR: could not find SLEPC.])
   else
@@ -235,22 +235,6 @@ if test "x$enable_fortran" != "xno"; then
       GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
       GETDP_LIBS="${GETDP_LIBS} -lGetDPzitsol"
     fi
-  fi
-fi
-
-dnl Check for Gmsh 
-if test "x${GMSH_PREFIX}" != "x"; then
-  LDFLAGS="-L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib ${LDFLAGS}"
-fi
-AC_CHECK_LIB(Gmsh,main,GMSH="yes",GMSH="no")
-if test "x${GMSH}" = "xyes"; then
-  AC_DEFINE(HAVE_GMSH)
-  BO="${BO} Gmsh"
-  if test "x${GMSH_PREFIX}" = "x"; then
-    GETDP_LIBS="${GETDP_LIBS} -lGmsh"
-  else
-    GETDP_LIBS="${GETDP_LIBS} -L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib -lGmsh"
-    FLAGS="${FLAGS} -I${GMSH_PREFIX} -I${GMSH_PREFIX}/include"
   fi
 fi
 
