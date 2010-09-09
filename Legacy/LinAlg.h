@@ -59,17 +59,11 @@ typedef struct { int dummy; }   gSolver ;
 
 /* Init */
 
-void LinAlg_Initialize(int* argc, char*** argv);
 void LinAlg_InitializeSolver(int* argc, char*** argv);
 
 /* Finalize */
 
-void LinAlg_Finalize(void);
 void LinAlg_FinalizeSolver(void);
-
-/* Barrier */
-
-void LinAlg_Barrier(void);
 
 /* Create */
 

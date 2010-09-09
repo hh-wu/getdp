@@ -5,6 +5,9 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include "GetDPConfig.h"
+#include "Message.h"
+#include "GmshSocket.h"
 
 #if !defined(WIN32) || defined(__CYGWIN__)
 #include <sys/time.h>
@@ -21,9 +24,9 @@
 #define RUSAGE_CHILDREN -1
 #endif
 
-#include "GetDPConfig.h"
-#include "Message.h"
-#include "GmshSocket.h"
+#if defined(HAVE_PETSC)
+#include "petsc.h"
+#endif
 
 int Message::_commRank = 0;
 int Message::_commSize = 1;
@@ -32,6 +35,26 @@ int Message::_progressMeterStep = 10;
 int Message::_progressMeterCurrent = 0;
 std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
+
+void Message::Init(int argc, char **argv)
+{
+#if defined(HAVE_PETSC)
+  MPI_Init(&argc, &argv);
+  MPI_Comm_rank(MPI_COMM_WORLD, &_commRank);
+  MPI_Comm_size(MPI_COMM_WORLD, &_commSize);
+  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#endif
+}
+
+void Message::Exit(int level)
+{
+#if defined(HAVE_PETSC)
+  int flag;
+  MPI_Initialized(&flag);
+  if(flag) MPI_Finalize();
+#endif
+  exit(level);
+}
 
 void Message::Fatal(const char *fmt, ...)
 {
@@ -327,22 +350,12 @@ void Message::FinalizeSocket()
   }
 }
 
+void Message::Barrier()
+{
 #if defined(HAVE_PETSC)
-
-#include "petsc.h"
-
-void Message::Barrier()
-{
   MPI_Barrier(PETSC_COMM_WORLD);
-}
-
-#else
-
-void Message::Barrier()
-{
-}
-
 #endif
+}
 
 #if defined(_OPENMP)
 

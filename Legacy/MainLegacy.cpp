@@ -351,7 +351,7 @@ int MainLegacy(int argc, char *argv[])
     cmdline += argv[i];
   }
 
-  LinAlg_Initialize(&argc, &argv);
+  Msg::Init(argc, argv);
 
   char pro[256];
   char **sargv = (char**)Malloc(256 * sizeof(char*));
@@ -420,7 +420,6 @@ int MainLegacy(int argc, char *argv[])
 
   Msg::Direct("E n d");
   Msg::FinalizeSocket();
-
-  LinAlg_Finalize();
+  Msg::Exit(0);
   return 0;
 }

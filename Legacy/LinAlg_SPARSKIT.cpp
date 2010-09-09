@@ -27,10 +27,6 @@ static char *SolverOptions[100];
 
 /* Init */
 
-void LinAlg_Initialize(int* argc, char*** argv)
-{
-}
-
 void LinAlg_InitializeSolver(int* sargc, char*** sargv)
 {
   int i=1, argc, iopt=0;
@@ -69,17 +65,7 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv)
 
 /* Finalize */
 
-void LinAlg_Finalize(void)
-{
-}
-
 void LinAlg_FinalizeSolver(void)
-{
-}
-
-/* Barrier */
-
-void LinAlg_Barrier(void)
 {
 }
 

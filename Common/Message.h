@@ -27,8 +27,8 @@ class Message {
   static GmshClient *_client;
  public:
   Message() {}
-  static void Init(int argc, char **argv){}
-  static void Exit(int level){}
+  static void Init(int argc, char **argv);
+  static void Exit(int level);
   static int GetCommRank(){ return _commRank; }
   static int GetCommSize(){ return _commSize; }
   static void SetCommRank(int val){ _commRank = val; }

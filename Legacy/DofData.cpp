@@ -163,6 +163,8 @@ void Dof_FlushFile(int Type)
 void Dof_WriteFilePRE0(int Num_Resolution, char * Name_Resolution,
 		       int Nbr_DofData)
 {
+  if(Msg::GetCommRank()) return;
+
   fprintf(File_PRE, "$Resolution /* '%s' */\n", Name_Resolution) ;
   fprintf(File_PRE, "%d %d\n", Num_Resolution, Nbr_DofData) ;
   fprintf(File_PRE, "$EndResolution\n") ;
@@ -174,6 +176,8 @@ void Dof_WriteFilePRE0(int Num_Resolution, char * Name_Resolution,
 
 void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
 {
+  Msg::Barrier();
+
   char  String[256] ;
 
   do { 
@@ -199,6 +203,8 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
 
 void Dof_WriteFilePRE(struct DofData * DofData_P)
 {
+  if(Msg::GetCommRank()) return;
+
   int  i, Nbr_Index ;
   struct Dof  * Dof_P0 ;
 
@@ -296,6 +302,8 @@ void Dof_WriteDofPRE(void * a, void * b)
 
 void Dof_ReadFilePRE(struct DofData * DofData_P)
 {
+  Msg::Barrier();
+
   int         i, Nbr_Index, Int, Dummy ;
   struct Dof  Dof ;
   char        String[256] ;
@@ -393,6 +401,8 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 
 void Dof_WriteFileRES0(char * Name_File, int Format)
 {
+  if(Msg::GetCommRank()) return;
+
   Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "wb" : "w")) ;
   fprintf(File_RES, "$ResFormat /* GetDP %s, %s */\n", GETDP_VERSION, 
 	  Format ? "binary" : "ascii") ;
@@ -492,19 +502,23 @@ void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
 void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 		      double Val_Time, double Val_TimeImag, int Val_TimeStep) 
 {
-  Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "ab" : "a")) ;
-
-  fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num) ;
-  fprintf(File_RES, "%d %.16g %.16g %d\n", DofData_P->Num, Val_Time, 
-	  Val_TimeImag, Val_TimeStep) ;
+  if(!Msg::GetCommRank()){
+    Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "ab" : "a")) ;
+    
+    fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num) ;
+    fprintf(File_RES, "%d %.16g %.16g %d\n", DofData_P->Num, Val_Time, 
+            Val_TimeImag, Val_TimeStep) ;
+  }
 
   Format ? 
     LinAlg_WriteVector(File_RES, &DofData_P->CurrentSolution->x) :
     LinAlg_PrintVector(File_RES, &DofData_P->CurrentSolution->x) ;
 
-  fprintf(File_RES, "$EndSolution\n") ;
+  if(!Msg::GetCommRank()){
+    fprintf(File_RES, "$EndSolution\n") ;
 
-  Dof_CloseFile(DOF_RES) ;
+    Dof_CloseFile(DOF_RES) ;
+  }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -514,7 +528,6 @@ void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P,
                                     struct Group *Group_P, bool saveFixed) 
 {
-
   char    FileCplx[256] ;
   char    FileRe[256] ;
   char    FileIm[256] ;
@@ -608,6 +621,8 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 		     int Read_DofData, double *Time, double *TimeImag,
 		     double *TimeStep) 
 {
+  Msg::Barrier();
+
   int             Num_DofData, Val_TimeStep, Format = 0, Read ;
   double          Val_Time, Val_TimeImag = 0., Version = 0.;
   struct DofData  * DofData_P = NULL ;
