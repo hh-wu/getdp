@@ -390,6 +390,13 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	GeoData_P->CharacteristicLength = 1.;
     }
 
+    else if (!strncmp(&String[1], "ParametricNodes", 15)) {
+      
+      Msg::Error("Cannot read parametric nodes: please save mesh file with standard "
+                 "nodes instead!");
+      
+    }
+
     /*  E L E M E N T S  */
 
     else if (!strncmp(&String[1], "ELM", 3) ||
