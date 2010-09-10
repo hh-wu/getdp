@@ -426,6 +426,8 @@ void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S)
 
 void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i)
 {
+  if(!_isInLocalRange(V, i))
+    Msg::Error("GetScalarInVector Not implemented in parallel");
   PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
   S->s = tmp[i];
@@ -434,6 +436,8 @@ void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i)
 
 void LinAlg_GetDoubleInVector(double *d, gVector *V, int i)
 {
+  if(!_isInLocalRange(V, i))
+    Msg::Error("GetDoubleInVector Not implemented in parallel");
   PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
 #if defined(PETSC_USE_COMPLEX)
@@ -446,6 +450,8 @@ void LinAlg_GetDoubleInVector(double *d, gVector *V, int i)
 
 void LinAlg_GetAbsDoubleInVector(double *d, gVector *V, int i)
 {
+  if(!_isInLocalRange(V, i))
+    Msg::Error("GetAbsDoubleInVector Not implemented in parallel");
   PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
 #if defined(PETSC_USE_COMPLEX)
@@ -458,6 +464,8 @@ void LinAlg_GetAbsDoubleInVector(double *d, gVector *V, int i)
 
 void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j)
 {
+  if(!_isInLocalRange(V, i))
+    Msg::Error("GetComplexInVector Not implemented in parallel");
   PetscScalar *tmp;
   ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
 #if defined(PETSC_USE_COMPLEX)
