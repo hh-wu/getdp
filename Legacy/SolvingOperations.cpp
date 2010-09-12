@@ -623,11 +623,6 @@ void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
 {
   int     i, n;
   double  valx, valdx, valxi = 0., valdxi = 0.,errsqr = 0., xmoy = 0., dxmoy = 0., tol, nvalx, nvaldx ;
-  /*
-  if(gSCALAR_SIZE == 2)
-    Msg::Warning("FIXME: Cal_SolutionError might return strange results"
-		 " in complex arithmetic");
-  */
 
   LinAlg_GetVectorSize(dx, &n);
 
@@ -2175,6 +2170,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      (&Dof_P->Val, &Solution_S.x, Dof_P->Case.Unknown.NumDof-1) ;
 	  }
 	}
+        // FIXME: required by parallel version
+        LinAlg_AssembleVector(&Solution_S.x) ;
 	
 	List_Add(DofData_P->Solutions, &Solution_S) ;
 
@@ -2709,6 +2706,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      Msg::Warning("Trying to transfer a non symmetrical Dof");
 	    }
 	  }
+          // FIXME: required by parallel version
+          LinAlg_AssembleVector(&Solution_S.x) ;
 
 	  if (!DofData2_P->Solutions)
 	    DofData2_P->Solutions = List_Create( 20, 20, sizeof(struct Solution)) ;

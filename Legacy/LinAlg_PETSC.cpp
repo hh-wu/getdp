@@ -113,6 +113,29 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
   // override the default options with the ones from the option
   // database (if any)
   ierr = VecSetFromOptions(V->V); MYCHECK(ierr);
+
+  if(Msg::GetCommSize() > 1){
+    // create sequential vector that will contain all the values on
+    // all the procs
+    ierr = VecCreateSeq(PETSC_COMM_SELF, n, &V->Vseq); MYCHECK(ierr);
+  }
+}
+
+static void _fillseq(gVector *V)
+{
+  if(Msg::GetCommSize() == 1) return;
+  // collect all the values from the parallel petsc vector into a
+  // sequential vector on each processor
+  VecScatter ctx;
+  VecScatterCreateToAll(V->V, &ctx, &V->Vseq);
+#if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 3) 
+  VecScatterBegin(V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD, ctx);
+  VecScatterEnd(V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD, ctx);
+#else
+  VecScatterBegin(ctx, V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD);
+  VecScatterEnd(ctx, V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD);
+#endif
+  VecScatterDestroy(ctx);
 }
 
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
@@ -154,6 +177,9 @@ void LinAlg_DestroySolver(gSolver *Solver)
 void LinAlg_DestroyVector(gVector *V)
 {
   ierr = VecDestroy(V->V); MYCHECK(ierr);
+  if(Msg::GetCommSize() > 1){
+    ierr = VecDestroy(V->Vseq); MYCHECK(ierr);
+  }
 }
 
 void LinAlg_DestroyMatrix(gMatrix *M)
@@ -169,6 +195,9 @@ void LinAlg_CopyScalar(gScalar *S1, gScalar *S2)
 void LinAlg_CopyVector(gVector *V1, gVector *V2)
 {
   ierr = VecCopy(V1->V, V2->V); MYCHECK(ierr);
+  if(Msg::GetCommSize() > 1){
+    ierr = VecCopy(V1->Vseq, V2->Vseq); MYCHECK(ierr);
+  }
 }
 
 void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2)
@@ -186,6 +215,9 @@ void LinAlg_ZeroVector(gVector *V)
   PetscScalar zero = 0.0;
 
   ierr = VecSet(V->V, zero); MYCHECK(ierr);
+  if(Msg::GetCommSize() > 1){
+    ierr = VecSet(V->Vseq, zero); MYCHECK(ierr);
+  }
 }
 
 void LinAlg_ZeroMatrix(gMatrix *M)
@@ -206,6 +238,8 @@ void LinAlg_ScanScalar(FILE *file, gScalar *S)
 
 void LinAlg_ScanVector(FILE *file, gVector *V)
 {
+  if(Msg::GetCommSize() > 1)
+    Msg::Error("ScanVector not implemented in parallel");
   PetscInt n;  
   ierr = VecGetSize(V->V, &n); MYCHECK(ierr);
   for(PetscInt i = 0; i < n; i++){
@@ -224,16 +258,18 @@ void LinAlg_ScanVector(FILE *file, gVector *V)
 
 void LinAlg_ScanMatrix(FILE *file, gMatrix *M)
 {
-  Msg::Error("'LinAlg_ScanMatrix' not yet implemented");  
+  Msg::Error("ScanMatrix not yet implemented");  
 }
 
 void LinAlg_ReadScalar(FILE *file, gScalar *S)
 {
-  Msg::Error("'LinAlg_ReadScalar' not yet implemented");
+  Msg::Error("ReadScalar not yet implemented");
 }
 
 void LinAlg_ReadVector(FILE *file, gVector *V)
 {
+  if(Msg::GetCommSize() > 1)
+    Msg::Error("ScanVector not implemented in parallel");
   PetscInt n;
   ierr = VecGetSize(V->V, &n); MYCHECK(ierr);
   PetscScalar *tmp = (PetscScalar*)Malloc(n*sizeof(PetscScalar));
@@ -246,7 +282,7 @@ void LinAlg_ReadVector(FILE *file, gVector *V)
 
 void LinAlg_ReadMatrix(FILE *file, gMatrix *M)
 {
-  Msg::Error("'LinAlg_ReadMatrix' not yet implemented");  
+  Msg::Error("ReadMatrix not yet implemented");  
 }
 
 void LinAlg_PrintScalar(FILE *file, gScalar *S)
@@ -258,62 +294,23 @@ void LinAlg_PrintScalar(FILE *file, gScalar *S)
 #endif
 }
 
-static void _vecToVector(Vec input, std::vector<PetscScalar> &output)
-{
-  PetscScalar *x;
-  int locsize, size;
-  VecGetLocalSize(input, &locsize);
-  VecGetSize(input, &size);
-  output.resize(size);
-  
-  if(size == locsize){
-    // uni-processor version
-    VecGetArray(input, &x);
-    for(int i = 0; i < size; i++)
-      output[i] = x[i];
-    VecRestoreArray(input, &x);
-  }
-  else{
-    // multi-processor version (collects all the values from the
-    // parallel petsc vector into a sequential vector on each
-    // processor)
-    VecScatter ctx;
-    Vec tmp;
-    VecCreateSeq(PETSC_COMM_SELF, size, &tmp);
-    VecScatterCreateToAll(input, &ctx, &tmp);
-#if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 3) 
-    VecScatterBegin(input, tmp, INSERT_VALUES, SCATTER_FORWARD, ctx);
-    VecScatterEnd(input, tmp, INSERT_VALUES, SCATTER_FORWARD, ctx);
-#else
-    VecScatterBegin(ctx, input, tmp, INSERT_VALUES, SCATTER_FORWARD);
-    VecScatterEnd(ctx, input, tmp, INSERT_VALUES, SCATTER_FORWARD);
-#endif
-    VecGetArray(tmp, &x);
-    for(int i = 0; i < size; i++)
-      output[i] = x[i];
-    VecRestoreArray(tmp, &x);
-    VecScatterDestroy(ctx);
-    VecDestroy(tmp);
-  }
-}
-
 void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab)
 {
   if(!matlab){
-    std::vector<PetscScalar> tmp;
-    _vecToVector(V->V, tmp);
-
-    if(!Msg::GetCommRank()){
-      for (unsigned int i = 0; i < tmp.size(); i++){
+    PetscInt n;
+    ierr = VecGetSize(V->V, &n); MYCHECK(ierr);
+    Vec VV = Msg::GetCommSize() > 1 ? V->Vseq : V->V;
+    PetscScalar *tmp;
+    ierr = VecGetArray(VV, &tmp); MYCHECK(ierr);
+    for (int i = 0; i < n; i++){
 #if defined(PETSC_USE_COMPLEX)
-        fprintf(file, "%.16g %.16g\n", real(tmp[i]), imag(tmp[i]));
+      fprintf(file, "%.16g %.16g\n", real(tmp[i]), imag(tmp[i]));
 #else
-        fprintf(file, "%.16g\n", tmp[i]);
+      fprintf(file, "%.16g\n", tmp[i]);
 #endif
-      }
-      fflush(file);
     }
-
+    fflush(file);
+    ierr = VecRestoreArray(VV, &tmp); MYCHECK(ierr);
   }
   else{
     PetscViewer fd;
@@ -336,29 +333,31 @@ void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab)
 
 void LinAlg_WriteScalar(FILE *file, gScalar *S)
 {
-  Msg::Error("'LinAlg_WriteScalar' not yet implemented");
+  Msg::Error("WriteScalar not yet implemented");
 }
 
 void LinAlg_WriteVector(FILE *file, gVector *V)
 {
-  std::vector<PetscScalar> tmp;
-  _vecToVector(V->V, tmp);
-  if(!Msg::GetCommRank()){
-    fwrite(&tmp[0], sizeof(PetscScalar), tmp.size(), file);
-    fprintf(file, "\n");
-  }
+  PetscInt n;
+  ierr = VecGetSize(V->V, &n); MYCHECK(ierr);
+  Vec VV = Msg::GetCommSize() > 1 ? V->Vseq : V->V;
+  PetscScalar *tmp;
+  ierr = VecGetArray(VV, &tmp); MYCHECK(ierr);
+  fwrite(tmp, sizeof(PetscScalar), n, file);
+  fprintf(file, "\n");
+  ierr = VecRestoreArray(VV, &tmp); MYCHECK(ierr);
 }
 
 void LinAlg_WriteMatrix(FILE *file, gMatrix *M)
 {
-  Msg::Error("'LinAlg_WriteMatrix' not yet implemented");  
+  Msg::Error("WriteMatrix not yet implemented");  
 }
 
 void LinAlg_GetVectorSize(gVector *V, int *i)
 {
   PetscInt t;
   ierr = VecGetSize(V->V, &t); MYCHECK(ierr);
-  if(t > INT_MAX) Msg::Error("Problem too big\n");
+  if(t > INT_MAX) Msg::Error("Problem too big");
   *i = t;
 }
 
@@ -426,48 +425,44 @@ void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S)
 
 void LinAlg_GetScalarInVector(gScalar *S, gVector *V, int i)
 {
-  if(!_isInLocalRange(V, i))
-    Msg::Error("GetScalarInVector Not implemented in parallel");
+  Vec VV = Msg::GetCommSize() > 1 ? V->Vseq : V->V;
   PetscScalar *tmp;
-  ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
+  ierr = VecGetArray(VV, &tmp); MYCHECK(ierr);
   S->s = tmp[i];
-  ierr = VecRestoreArray(V->V, &tmp); MYCHECK(ierr);
+  ierr = VecRestoreArray(VV, &tmp); MYCHECK(ierr);
 }
 
 void LinAlg_GetDoubleInVector(double *d, gVector *V, int i)
 {
-  if(!_isInLocalRange(V, i))
-    Msg::Error("GetDoubleInVector Not implemented in parallel");
+  Vec VV = Msg::GetCommSize() > 1 ? V->Vseq : V->V;
   PetscScalar *tmp;
-  ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
+  ierr = VecGetArray(VV, &tmp); MYCHECK(ierr);
 #if defined(PETSC_USE_COMPLEX)
   *d = real(tmp[i]);
 #else
   *d = tmp[i];
 #endif
-  ierr = VecRestoreArray(V->V, &tmp); MYCHECK(ierr);
+  ierr = VecRestoreArray(VV, &tmp); MYCHECK(ierr);
 }
 
 void LinAlg_GetAbsDoubleInVector(double *d, gVector *V, int i)
 {
-  if(!_isInLocalRange(V, i))
-    Msg::Error("GetAbsDoubleInVector Not implemented in parallel");
+  Vec VV = Msg::GetCommSize() > 1 ? V->Vseq : V->V;
   PetscScalar *tmp;
-  ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
+  ierr = VecGetArray(VV, &tmp); MYCHECK(ierr);
 #if defined(PETSC_USE_COMPLEX)
   *d = fabs(real(tmp[i]));
 #else
   *d = fabs(tmp[i]);
 #endif
-  ierr = VecRestoreArray(V->V, &tmp); MYCHECK(ierr);
+  ierr = VecRestoreArray(VV, &tmp); MYCHECK(ierr);
 }
 
 void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j)
 {
-  if(!_isInLocalRange(V, i))
-    Msg::Error("GetComplexInVector Not implemented in parallel");
+  Vec VV = Msg::GetCommSize() > 1 ? V->Vseq : V->V;
   PetscScalar *tmp;
-  ierr = VecGetArray(V->V, &tmp); MYCHECK(ierr);
+  ierr = VecGetArray(VV, &tmp); MYCHECK(ierr);
 #if defined(PETSC_USE_COMPLEX)
   *d1 = real(tmp[i]);
   *d2 = imag(tmp[i]);
@@ -475,27 +470,27 @@ void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j)
   *d1 = (double)tmp[i];
   *d2 = (double)tmp[j];
 #endif
-  ierr = VecRestoreArray(V->V, &tmp); MYCHECK(ierr);
+  ierr = VecRestoreArray(VV, &tmp); MYCHECK(ierr);
 }
 
 void LinAlg_GetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 {
-  Msg::Error("'LinAlg_GetScalarInMatrix' not yet implemented");  
+  Msg::Error("GetScalarInMatrix not yet implemented");  
 }
 
 void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j)
 {
-  Msg::Error("'LinAlg_GetDoubleInMatrix' not yet implemented");  
+  Msg::Error("GetDoubleInMatrix not yet implemented");  
 }
 
 void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j, int k, int l)
 {
-  Msg::Error("'LinAlg_GetComplexInMatrix' not yet implemented");  
+  Msg::Error("GetComplexInMatrix not yet implemented");  
 }
 
 void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1)
 {
-  Msg::Error("'LinAlg_GetColumnInMatrix' not yet implemented");  
+  Msg::Error("GetColumnInMatrix not yet implemented");  
 }
 
 void LinAlg_SetScalar(gScalar *S, double *d)
@@ -559,12 +554,12 @@ void LinAlg_SetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 
 void LinAlg_SetDoubleInMatrix(double d, gMatrix *M, int i, int j)
 {
-  Msg::Error("'LinAlg_SetDoubleInMatrix' not yet implemented");  
+  Msg::Error("SetDoubleInMatrix not yet implemented");  
 }
 
 void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l)
 {
-  Msg::Error("'LinAlg_SetComplexInMatrix' not yet implemented");  
+  Msg::Error("SetComplexInMatrix not yet implemented");  
 }
 
 void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
@@ -575,7 +570,7 @@ void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 void LinAlg_DummyVector(gVector *V)
 {
   if(Current.DofData->DummyDof)
-    Msg::Error("'LinAlg_DummyVector' not yet implemented");
+    Msg::Error("DummyVector not yet implemented");
   return;
 }
 
@@ -669,9 +664,11 @@ void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3)
   PetscScalar tmp = 1.0;
   if(V3 == V1){
     ierr = VecAXPY(V1->V, tmp, V2->V); MYCHECK(ierr);
+    _fillseq(V2);
   }
   else if(V3 == V2){
     ierr = VecAXPY(V2->V, tmp, V1->V); MYCHECK(ierr);
+    _fillseq(V1);
   }
   else
     Msg::Error("Wrong arguments in 'LinAlg_AddVectorVector'");  
@@ -682,9 +679,11 @@ void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVecto
   PetscScalar tmp = d;
   if(V3 == V1){
     ierr = VecAXPY(V1->V, tmp, V2->V); MYCHECK(ierr);
+    _fillseq(V2);
   }
   else if(V3 == V2){
     ierr = VecAYPX(V2->V, tmp, V1->V); MYCHECK(ierr);
+    _fillseq(V1);
   }
   else
     Msg::Error("Wrong arguments in 'LinAlg_AddVectorProdVectorDouble'");  
@@ -730,9 +729,11 @@ void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3)
   PetscScalar tmp = -1.0;
   if(V3 == V1){
     ierr = VecAXPY(V1->V, tmp, V2->V); MYCHECK(ierr);
+    _fillseq(V2);
   }
   else if(V3 == V2){
     ierr = VecAYPX(V2->V, tmp, V1->V); MYCHECK(ierr);
+    _fillseq(V1);
   }
   else
     Msg::Error("Wrong arguments in 'LinAlg_SubVectorVector'");  
@@ -740,7 +741,7 @@ void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3)
 
 void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 {
-  Msg::Error("'LinAlg_SubMatrixMatrix' not yet implemented");    
+  Msg::Error("SubMatrixMatrix not yet implemented");    
 }
 
 void LinAlg_ProdScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
@@ -773,6 +774,7 @@ void LinAlg_ProdVectorScalar(gVector *V1, gScalar *S, gVector *V2)
 { 
   if(V2 == V1){
     ierr = VecScale(V1->V, S->s); MYCHECK(ierr);
+    _fillseq(V1);
   }
   else
     Msg::Error("Wrong arguments in 'LinAlg_ProdVectorScalar'");
@@ -783,6 +785,7 @@ void LinAlg_ProdVectorDouble(gVector *V1, double d, gVector *V2)
   PetscScalar tmp = d;
   if(V2 == V1){
     ierr = VecScale(V1->V, tmp); MYCHECK(ierr);
+    _fillseq(V1);
   }
   else
     Msg::Error("Wrong arguments in 'LinAlg_ProdVectorDouble'");
@@ -790,7 +793,7 @@ void LinAlg_ProdVectorDouble(gVector *V1, double d, gVector *V2)
 
 void LinAlg_ProdVectorComplex(gVector *V1, double d1, double d2, gVector *V2)
 {
-  Msg::Error("'LinAlg_ProdVectorComplex' not yet implemented");
+  Msg::Error("ProdVectorComplex not yet implemented");
 }
 
 void LinAlg_ProdVectorVector(gVector *V1, gVector *V2, double *d)
@@ -808,8 +811,10 @@ void LinAlg_ProdMatrixVector(gMatrix *M, gVector *V1, gVector *V2)
 {
   if(V2 == V1)
     Msg::Error("Wrong arguments in 'LinAlg_ProdMatrixVector'");
-  else
+  else{
     ierr = MatMult(M->M, V1->V, V2->V); MYCHECK(ierr);
+    _fillseq(V2);
+  }
 }
 
 void LinAlg_ProdMatrixScalar(gMatrix *M1, gScalar *S, gMatrix *M2)
@@ -841,7 +846,7 @@ void LinAlg_ProdMatrixComplex(gMatrix *M1, double d1, double d2, gMatrix *M2)
   else
     Msg::Error("Wrong arguments in 'LinAlg_ProdMatrixDouble'");
 #else
-  Msg::Error("'LinAlg_ProdMatrixComplex' not yet implemented");
+  Msg::Error("ProdMatrixComplex not yet implemented");
 #endif
 }
 
@@ -881,6 +886,7 @@ void LinAlg_AssembleVector(gVector *V)
   Msg::Barrier();
   ierr = VecAssemblyBegin(V->V); MYCHECK(ierr);
   ierr = VecAssemblyEnd(V->V); MYCHECK(ierr);
+  _fillseq(V);
 }
 
 #if defined(HAVE_ZITSOL)
@@ -1278,6 +1284,9 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   }
   
   ierr = KSPSolve(Solver->ksp[kspIndex], B->V, X->V); MYCHECK(ierr);
+
+  // copy result on all procs
+  _fillseq(X);
 
   if(view){
     ierr = KSPView(Solver->ksp[kspIndex], PETSC_VIEWER_STDOUT_SELF); MYCHECK(ierr);

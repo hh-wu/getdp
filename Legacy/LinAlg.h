@@ -41,10 +41,10 @@ typedef struct { Solver_Params Params ; } gSolver ;
   #define gSCALAR_SIZE 1
   #define gCOMPLEX_INCREMENT 2
 #endif
-typedef struct { PetscScalar s ; }   gScalar ;
-typedef struct { Mat M ; }           gMatrix ;
-typedef struct { Vec V ; }           gVector ;
-typedef struct { KSP ksp[10] ; } gSolver ;
+typedef struct { PetscScalar s ; } gScalar ;
+typedef struct { Mat M ; }         gMatrix ;
+typedef struct { Vec V, Vseq ; }   gVector ;
+typedef struct { KSP ksp[10] ; }   gSolver ;
 
 #else
 

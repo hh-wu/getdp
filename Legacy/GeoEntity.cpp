@@ -345,6 +345,8 @@ int fcmp_E2XE1(const void * a, const void * b)
 
 void Geo_WriteFilePRE(struct GeoData * GeoData_P, List_T * Group_L)
 {
+  if(Msg::GetCommRank()) return;
+
   int  i, Nbr_Elements, j, Index_Group, Nbr_Entities, * Num_Entities ;
   struct Geo_Element  * Geo_Element_P0, * Geo_Element_P ;
   struct Group  * Group_P ;
@@ -446,6 +448,8 @@ void Geo_WriteEntities2XEntities1(void * a, void * b)
 void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData, 
 		      List_T * Group_L)
 {
+  Msg::Barrier();
+
   struct GeoData      * GeoData_P ;
   struct Geo_Element  * Geo_Element_P0, * Geo_Element_P ;
   struct Group        * Group_P ;

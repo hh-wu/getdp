@@ -26,7 +26,7 @@
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
 
-FILE  * File_PRE, * File_RES, * File_TMP ;
+FILE  * File_PRE = 0, * File_RES = 0, * File_TMP = 0 ;
 
 struct DofData  * CurrentDofData ;
 
@@ -107,6 +107,16 @@ void Dof_SetCurrentDofData(struct DofData * DofData_P)
 
 void Dof_OpenFile(int Type, char * Name, const char * Mode) 
 {
+  if(Msg::GetCommRank() && (Mode[0] == 'w' || Mode[0] == 'a')){
+    switch (Type) {
+    case DOF_PRE :  File_PRE = 0 ;  break ;
+    case DOF_RES :  File_RES = 0 ;  break ;
+    case DOF_TMP :  File_RES = 0 ;  break ;
+    default      :  break ;
+    }
+    return;
+  }
+  
   const char  * Extension;
   char    FileName[256] ;
   FILE  * File_X ;
@@ -138,9 +148,9 @@ void Dof_OpenFile(int Type, char * Name, const char * Mode)
 void Dof_CloseFile(int Type)
 {
   switch (Type) {
-  case DOF_PRE :  fclose(File_PRE) ;  break ;
-  case DOF_RES :  fclose(File_RES) ;  break ;
-  case DOF_TMP :  fclose(File_RES) ;  File_RES = File_TMP ; break ;
+  case DOF_PRE :  if(File_PRE) fclose(File_PRE) ;  break ;
+  case DOF_RES :  if(File_RES) fclose(File_RES) ;  break ;
+  case DOF_TMP :  if(File_RES) fclose(File_RES) ;  File_RES = File_TMP ; break ;
   }
 }
 
@@ -418,6 +428,8 @@ void Dof_WriteFileRES0(char * Name_File, int Format)
 void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
 			       int Format, int NbrH)
 {
+  if(Msg::GetCommRank()) return;
+
   gVector x;
   double d;
   int i, inew;
@@ -451,6 +463,8 @@ void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
 void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P, 
 			       int Format, List_T * Time_L) 
 {
+  if(Msg::GetCommRank()) return;
+
   gVector x;
   double Time, d1, d2, d, *Pulsation;
   int iT, i, j, k;
@@ -502,23 +516,21 @@ void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
 void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 		      double Val_Time, double Val_TimeImag, int Val_TimeStep) 
 {
-  if(!Msg::GetCommRank()){
-    Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "ab" : "a")) ;
+  if(Msg::GetCommRank()) return;
+
+  Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "ab" : "a")) ;
     
-    fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num) ;
-    fprintf(File_RES, "%d %.16g %.16g %d\n", DofData_P->Num, Val_Time, 
-            Val_TimeImag, Val_TimeStep) ;
-  }
+  fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num) ;
+  fprintf(File_RES, "%d %.16g %.16g %d\n", DofData_P->Num, Val_Time, 
+          Val_TimeImag, Val_TimeStep) ;
 
   Format ? 
     LinAlg_WriteVector(File_RES, &DofData_P->CurrentSolution->x) :
     LinAlg_PrintVector(File_RES, &DofData_P->CurrentSolution->x) ;
 
-  if(!Msg::GetCommRank()){
-    fprintf(File_RES, "$EndSolution\n") ;
+  fprintf(File_RES, "$EndSolution\n") ;
 
-    Dof_CloseFile(DOF_RES) ;
-  }
+  Dof_CloseFile(DOF_RES) ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -528,6 +540,8 @@ void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P,
                                     struct Group *Group_P, bool saveFixed) 
 {
+  if(Msg::GetCommRank()) return;
+
   char    FileCplx[256] ;
   char    FileRe[256] ;
   char    FileIm[256] ;
@@ -1716,8 +1730,8 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
 	      }
 	    }
 	    Msg::Info("Freq %e (%d/%d) Form %d  Quant %d  Global %d  #dummies %d/%d", 
-		Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2, 
-		i, j, ((struct GlobalQuantity *)GlobalQuantity_P)->Num, ii, iit) ;
+                      Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2, 
+                      i, j, ((struct GlobalQuantity *)GlobalQuantity_P)->Num, ii, iit) ;
 	  }
 	    
 	}   /*  end DummyFrequency in DofData */ 
