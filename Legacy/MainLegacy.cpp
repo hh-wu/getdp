@@ -358,7 +358,7 @@ int MainLegacy(int argc, char *argv[])
   int sargc, lres = 0, lpos = 0, check = 0;
   Get_Options(argc, argv, &sargc, sargv, pro, &lres, &lpos, &check);
 
-  Msg::Info("Running '%s'", cmdline.c_str());
+  Msg::Info("Running '%s' [%d node(s)]", cmdline.c_str(), Msg::GetCommSize());
   Msg::Info("Started on %s", currtime.c_str());
 
   if(sargc > 1){
