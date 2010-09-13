@@ -664,11 +664,11 @@ void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3)
   PetscScalar tmp = 1.0;
   if(V3 == V1){
     ierr = VecAXPY(V1->V, tmp, V2->V); MYCHECK(ierr);
-    _fillseq(V2);
+    _fillseq(V1);
   }
   else if(V3 == V2){
     ierr = VecAXPY(V2->V, tmp, V1->V); MYCHECK(ierr);
-    _fillseq(V1);
+    _fillseq(V2);
   }
   else
     Msg::Error("Wrong arguments in 'LinAlg_AddVectorVector'");  
@@ -679,11 +679,11 @@ void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVecto
   PetscScalar tmp = d;
   if(V3 == V1){
     ierr = VecAXPY(V1->V, tmp, V2->V); MYCHECK(ierr);
-    _fillseq(V2);
+    _fillseq(V1);
   }
   else if(V3 == V2){
     ierr = VecAYPX(V2->V, tmp, V1->V); MYCHECK(ierr);
-    _fillseq(V1);
+    _fillseq(V2);
   }
   else
     Msg::Error("Wrong arguments in 'LinAlg_AddVectorProdVectorDouble'");  
@@ -729,11 +729,11 @@ void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3)
   PetscScalar tmp = -1.0;
   if(V3 == V1){
     ierr = VecAXPY(V1->V, tmp, V2->V); MYCHECK(ierr);
-    _fillseq(V2);
+    _fillseq(V1);
   }
   else if(V3 == V2){
     ierr = VecAYPX(V2->V, tmp, V1->V); MYCHECK(ierr);
-    _fillseq(V1);
+    _fillseq(V2);
   }
   else
     Msg::Error("Wrong arguments in 'LinAlg_SubVectorVector'");  
