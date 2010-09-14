@@ -1146,10 +1146,9 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       
     case DOF_UNKNOWN :
       if(NbrHar==1){
-	if(Val[0])
-	  LinAlg_AddDoubleInMatrix
-	    (Val[0], Mat, 
-	     Equ_P->Case.Unknown.NumDof-1, Dof_P->Case.Unknown.NumDof-1) ;
+        LinAlg_AddDoubleInMatrix
+          (Val[0], Mat, 
+           Equ_P->Case.Unknown.NumDof-1, Dof_P->Case.Unknown.NumDof-1) ;
       }
       else
 	LinAlg_AddComplexInMatrix
