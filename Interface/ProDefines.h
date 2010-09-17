@@ -211,6 +211,7 @@ struct StringXDefine  Operation_Type[] = {
   {"SolveJac_AdaptRelax"    , OPERATION_SOLVEJACADAPTRELAX}, 
   {"SaveSolutionExtendedMH" , OPERATION_SAVESOLUTIONEXTENDEDMH},
   {"DummyDofs"              , OPERATION_DUMMYDOFS},
+  {"InitCorrection"         , OPERATION_INITCORRECTION},
   {NULL                     , OPERATION_NONE}
 } ;
 
