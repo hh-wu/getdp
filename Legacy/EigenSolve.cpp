@@ -150,6 +150,7 @@ static void Arpack2GetDP(int N, complex_16 *in, gVector *out)
     j = i * gCOMPLEX_INCREMENT;
     LinAlg_SetComplexInVector(re, im, out, j, j+1);
   }
+  LinAlg_AssembleVector(out);
 }
 
 static void Arpack2GetDPSplit(int N, complex_16 *in, gVector *out1, gVector *out2)
@@ -165,6 +166,8 @@ static void Arpack2GetDPSplit(int N, complex_16 *in, gVector *out1, gVector *out
     im = in[N/2+i].im;
     LinAlg_SetComplexInVector(re, im, out2, j, j+1);
   }
+  LinAlg_AssembleVector(out1);
+  LinAlg_AssembleVector(out2);
 }
 
 static void GetDP2Arpack(gVector *in, complex_16 *out)
@@ -701,7 +704,7 @@ void EigenSolve (struct DofData * DofData_P, int NumEigenvalues,
       LinAlg_SetComplexInVector(z[k*n+j].re, z[k*n+j].im, 
 				&DofData_P->CurrentSolution->x, l, l+1);
     }
-    
+    LinAlg_AssembleVector(&DofData_P->CurrentSolution->x);
     /* Arpack returns eigenvectors normalized in L-2 norm. Renormalize
        them in L-infty norm so that the absolute value of the largest
        element is 1 */
