@@ -1289,7 +1289,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   _fillseq(X);
 
   if(view){
-    ierr = KSPView(Solver->ksp[kspIndex], PETSC_VIEWER_STDOUT_SELF); MYCHECK(ierr);
+    ierr = KSPView(Solver->ksp[kspIndex], PETSC_VIEWER_STDOUT_WORLD); MYCHECK(ierr);
   }
   
   if(!Msg::GetCommRank()){
