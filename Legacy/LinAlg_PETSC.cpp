@@ -144,6 +144,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   PetscTruth set;
   PetscOptionsGetInt(PETSC_NULL, "-petsc_prealloc", &prealloc, &set);
   // prealloc cannot be bigger than the number of rows!
+
   prealloc = (n < prealloc) ? n : prealloc; 
   std::vector<PetscInt> nnz(n, prealloc);
 
@@ -1241,11 +1242,16 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     return;
   }
 
+  PetscInt i, j;
+  ierr = MatGetSize(A->M, &i, &j); MYCHECK(ierr);
+  if(!i){
+    Msg::Warning("Zero-size system: skipping solve!");
+    return;
+  }
+
   bool view = (!Solver->ksp[kspIndex] && Msg::GetVerbosity() > 2);
 
   if(view && !Msg::GetCommRank()){
-    PetscInt i, j;
-    ierr = MatGetSize(A->M, &i, &j); MYCHECK(ierr);
     Msg::Info("N: %ld", (long)i);
   }
 
