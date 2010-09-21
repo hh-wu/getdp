@@ -93,7 +93,7 @@ Formulation {
 Resolution {
   { Name MagSta_phi ;
     System {
-      { Name A ; NameOfFormulation MagSta_phi ; }
+      { Name A ; NameOfFormulation MagSta_phi ; Type Complex; }
     }
     Operation { 
       Generate[A] ;

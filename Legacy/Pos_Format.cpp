@@ -28,7 +28,7 @@
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
 
-extern int    Flag_BIN ;
+extern int    Flag_BIN, Flag_GMSH_VERSION;
 
 extern FILE   *PostStream ;
 
@@ -53,6 +53,7 @@ static List_T *SH = NULL, *VH = NULL, *TH = NULL;
 static List_T *SI = NULL, *VI = NULL, *TI = NULL;
 static List_T *SY = NULL, *VY = NULL, *TY = NULL;
 static List_T *T2D = NULL, *T2C = NULL;
+static char    CurrentName[256]="";
 
 /* ------------------------------------------------------------------------ */
 /*  F o r m a t _ P o s t F o r m a t / H e a d e r / F o o t e r           */
@@ -62,7 +63,17 @@ void  Format_PostFormat(int Format)
 {
   switch(Format){
   case FORMAT_GMSH :
-    if(Flag_BIN){/* bricolage */
+    if(Flag_GMSH_VERSION == 2){
+      fprintf(PostStream, "$MeshFormat\n") ;
+      fprintf(PostStream, "2.2 %d %d\n", Flag_BIN, (int)sizeof(double)) ;
+      if(Flag_BIN){
+        int one=1;
+        fwrite(&one, sizeof(int), 1, PostStream);
+        fprintf(PostStream, "\n");
+      }
+      fprintf(PostStream, "$EndMeshFormat\n") ;
+    }
+    else if(Flag_BIN){/* bricolage */
       fprintf(PostStream, "$PostFormat /* Gmsh 1.2, %s */\n",
 	      Flag_BIN ? "binary" : "ascii") ;
       fprintf(PostStream, "1.2 %d %d\n", Flag_BIN, (int)sizeof(double)) ;
@@ -102,18 +113,22 @@ void  Format_PostHeader(int Format, int Contour,
   else
     strcpy(name, "unnamed");
 
+  strcpy(CurrentName, name);
+
   switch(Format){
   case FORMAT_GMSH_PARSED :
     fprintf(PostStream, "View \"%s\" {\n", name) ;
     Gmsh_StartNewView = 1 ;
     break ;
   case FORMAT_GMSH :
-    if(Flag_BIN){ /* bricolage */
-      fprintf(PostStream, "$View /* %s */\n", name);
-      fprintf(PostStream, "%s ", name);
-    }
-    else{
-      fprintf(PostStream, "View \"%s\" {\n", name) ;
+    if(Flag_GMSH_VERSION != 2){
+      if(Flag_BIN){ /* bricolage */
+        fprintf(PostStream, "$View /* %s */\n", name);
+        fprintf(PostStream, "%s ", name);
+      }
+      else {
+        fprintf(PostStream, "View \"%s\" {\n", name) ;
+      }
     }
     Gmsh_StartNewView = 1 ;
     break ;
@@ -141,11 +156,15 @@ void  Format_PostHeader(int Format, int Contour,
     fprintf(PostStream, "Dr. Binde Ingenieure, Design & Engineering GmbH\n");
     fprintf(PostStream, "www.drbinde.de\n");
     fprintf(PostStream, "\n");
-    fprintf(PostStream, "         3         1         2        62         2         6\n");//62: Quality
-    fprintf(PostStream, "       -11         0         1         1         1         0         0         0\n");
+    fprintf(PostStream, "         3         1         2        62         2"
+            "         6\n");//62: Quality
+    fprintf(PostStream, "       -11         0         1         1         1"
+            "         0         0         0\n");
     fprintf(PostStream, "       500         0\n");
-    fprintf(PostStream, "  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00\n");
-    fprintf(PostStream, "  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00\n");
+    fprintf(PostStream, "  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00"
+            "  0.00000E+00  0.00000E+00\n");
+    fprintf(PostStream, "  0.00000E+00  0.00000E+00  0.00000E+00  0.00000E+00"
+            "  0.00000E+00  0.00000E+00\n");
     break ;
   }
 }
@@ -189,6 +208,53 @@ void Gmsh_StringEnd(int Format)
   }
 }
 
+static void printElementNodeData(struct PostSubOperation *PSO_P, int numTimeStep,
+                                 int numComp, int Nb[8], List_T *L[8])
+{
+  int N = 0;
+  for(int i = 0; i < 8; i++) N += Nb[i];
+  if(!N) return;
+  int step = 0;
+  for (int ts = 0; ts < numTimeStep; ts++) {
+    Pos_InitAllSolutions(PSO_P->TimeStep_L, ts);
+    double time = Current.DofData->CurrentSolution->Time;
+    for(int har = 0; har < Current.NbrHar; har++){
+      fprintf(PostStream, "$ElementNodeData\n");
+      fprintf(PostStream, "1\n");
+      fprintf(PostStream, "\"%s\"\n", CurrentName);
+      fprintf(PostStream, "1\n");
+      fprintf(PostStream, "%.16g\n", time);
+      fprintf(PostStream, "3\n");
+      fprintf(PostStream, "%d\n", step);
+      fprintf(PostStream, "%d\n", numComp);
+      fprintf(PostStream, "%d\n", N);
+      for(int i = 0; i < 8; i++){
+        if(!Nb[i]) continue;
+        int stride = List_Nbr(L[i]) / Nb[i];
+        for(int j = 0; j < List_Nbr(L[i]); j += stride){
+          double *tmp = (double*)List_Pointer(L[i], j);
+          int num = (int)tmp[0] + 1;
+          int mult = (stride - 1) / numTimeStep / Current.NbrHar / numComp;
+          if(Flag_BIN){
+            fwrite(&num, sizeof(int), 1, PostStream);
+            fwrite(&mult, sizeof(int), 1, PostStream);
+            fwrite(&tmp[1 + step * mult * numComp], sizeof(double), mult * numComp,
+                   PostStream);          
+          }
+          else{
+            fprintf(PostStream, "%d %d", num, mult);
+            for(int k = 0; k < mult * numComp; k++)
+              fprintf(PostStream, " %.16g", tmp[1 + step * mult * numComp + k]);            
+            fprintf(PostStream, "\n");
+          }
+        }
+      }
+      fprintf(PostStream, "$EndElementNodeData\n");
+      step++;
+    }
+  }
+}
+
 void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 {
   List_T  * Iso_L[NBR_MAX_ISO] ;
@@ -197,12 +263,13 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
   int       iPost, iNode, iIso, f, iTime, One=1, i, j, NbTimeStep ;
   char      tmp[1024];
   struct PostElement *PE ;
-  
-  if ( (PSO_P->Format == FORMAT_GMSH || PSO_P->Format == FORMAT_GMSH_PARSED) ){
-    
-    if( !(NbTimeStep = List_Nbr(PSO_P->TimeStep_L)) )
-      NbTimeStep = List_Nbr(Current.DofData->Solutions);
-    
+
+  if( !(NbTimeStep = List_Nbr(PSO_P->TimeStep_L)) )
+    NbTimeStep = List_Nbr(Current.DofData->Solutions);
+
+  if ( (PSO_P->Format == FORMAT_GMSH || PSO_P->Format == FORMAT_GMSH_PARSED) && 
+       Flag_GMSH_VERSION != 2 ){
+
     switch(PSO_P->Legend){
       
     case LEGEND_TIME:
@@ -326,7 +393,20 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     fprintf(PostStream, "};\n") ;
     break ;
   case FORMAT_GMSH :
-    if(Flag_BIN){ /* bricolage */
+    if(Flag_GMSH_VERSION == 2){
+      int NS[8] = {NbSP, NbSL, NbST, NbSQ, NbSS, NbSH, NbSI, NbSY};
+      List_T *LS[8] = {SP, SL, ST, SQ, SS, SH, SI, SY};
+      printElementNodeData(PSO_P, NbTimeStep, 1, NS, LS);
+
+      int NV[8] = {NbVP, NbVL, NbVT, NbVQ, NbVS, NbVH, NbVI, NbVY};
+      List_T *LV[8] = {VP, VL, VT, VQ, VS, VH, VI, VY};
+      printElementNodeData(PSO_P, NbTimeStep, 3, NV, LV);
+
+      int NT[8] = {NbTP, NbTL, NbTT, NbTQ, NbTS, NbTH, NbTI, NbTY};
+      List_T *LT[8] = {TP, TL, TT, TQ, TS1, TH, TI, TY};
+      printElementNodeData(PSO_P, NbTimeStep, 9, NT, LT);
+    }
+    else if(Flag_BIN){ /* bricolage */
       fprintf(PostStream, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d "
 	      "%d %d %d %d %d %d %d %d %d %d %d 0 0\n",
 	      List_Nbr(TimeValue_L),
@@ -393,19 +473,25 @@ void  Format_Unv(int Num_Element, int NbrNodes, struct Value *Value)
   switch (Value[0].Type) {
     
   case SCALAR :
-    //Erste Zeile: Elementnummer, 1:Data present for all nodes, Number of nodes on elements, Number of data values per node
-    fprintf(PostStream, "%10i         1         %i         3\n", Num_Element, NbrNodes);
+    //Erste Zeile: Elementnummer, 1:Data present for all nodes, Number
+    //of nodes on elements, Number of data values per node
+    fprintf(PostStream, "%10i         1         %i         3\n", 
+            Num_Element, NbrNodes);
     for(i = 0 ; i < NbrNodes ; i++){
       //fprintf(PostStream, "%13.5E\n", Value[i].Val[0]);
-      fprintf(PostStream, "%13.5E%13.5E%13.5E\n", Value[i].Val[0], Value[i].Val[1], Value[i].Val[2]);
+      fprintf(PostStream, "%13.5E%13.5E%13.5E\n", Value[i].Val[0],
+              Value[i].Val[1], Value[i].Val[2]);
     }
     break ;
 
   case VECTOR :
-    //Erste Zeile: Elementnummer, 1:Data present for all nodes, Number of nodes on elements, Number of data values per node
-    fprintf(PostStream, "%10i         1         %i         3\n", Num_Element, NbrNodes);
+    //Erste Zeile: Elementnummer, 1:Data present for all nodes, Number
+    //of nodes on elements, Number of data values per node
+    fprintf(PostStream, "%10i         1         %i         3\n", 
+            Num_Element, NbrNodes);
     for(i = 0 ; i < NbrNodes ; i++){
-      fprintf(PostStream, "%13.5E%13.5E%13.5E\n", Value[i].Val[0], Value[i].Val[1], Value[i].Val[2]);
+      fprintf(PostStream, "%13.5E%13.5E%13.5E\n", Value[i].Val[0], 
+              Value[i].Val[1], Value[i].Val[2]);
     }
     break ;
     
@@ -566,7 +652,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
 }
 
 void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic, 
-		  int HarmonicToTime, int Type, int NbrNodes, 
+		  int HarmonicToTime, int Type, int ElementNum, int NbrNodes, 
 		  double *x, double *y, double *z, struct Value *Value)
 {
   int            i,j,k;
@@ -630,9 +716,15 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       case QUADRANGLE_2: Current_L = SQ ; NbSQ++ ; break ;
       case QUADRANGLE_2_8N: Current_L = SQ ; NbSQ++ ; break ;
       }
-      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
-      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
-      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
+      if(Flag_GMSH_VERSION != 2){
+        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
+        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
+        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
+      }
+      else{
+        double tmp = ElementNum;
+        List_Add(Current_L, &tmp);
+      }
     }
     if (HarmonicToTime == 1)
       for(k = 0 ; k < NbHarmonic ; k++){
@@ -667,9 +759,15 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       case QUADRANGLE_2: Current_L = VQ ; NbVQ++ ; break ;
       case QUADRANGLE_2_8N: Current_L = VQ ; NbVQ++ ; break ;
       }
-      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
-      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
-      for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
+      if(Flag_GMSH_VERSION != 2){
+        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
+        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
+        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
+      }
+      else{
+        double tmp = ElementNum;
+        List_Add(Current_L, &tmp);
+      }
     }
     if (HarmonicToTime == 1)
       for(k = 0 ; k < NbHarmonic ; k++){
@@ -992,9 +1090,9 @@ void  Format_PostElement(int Format, int Contour, int Store,
     Format_Unv(Num_Element, PE->NbrNodes, PE->Value) ;
     break ;
   case FORMAT_GMSH :
-    if(Flag_BIN){/* bricolage */
+    if(Flag_GMSH_VERSION == 2 || Flag_BIN){ /* bricolage */
       Format_Gmsh(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-		  PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
+		  PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, 
 		  PE->Value) ;
     }
     else{
@@ -1068,7 +1166,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
       fprintf(PostStream, "%s\n", sstream.str().c_str()) ;
   }
 
-  else if (Format == FORMAT_GMSH) {
+  else if (Format == FORMAT_GMSH && Flag_GMSH_VERSION != 2) {
     if (Group_FunctionType == NODESOF)
       Geo_GetNodesCoordinates(1, &numRegion, &x, &y, &z) ;
     else {
