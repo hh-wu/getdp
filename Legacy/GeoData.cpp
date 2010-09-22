@@ -46,7 +46,7 @@ int Geo_AddGeoData(List_T * GeoData_L,
   if (!Name_MshFile)  Name_MshFile = Name_DefaultMshFile ;
 
   if ((i = List_ISearchSeq(GeoData_L, Name_MshFile, fcmp_GeoData_Name)) < 0) {
-    Msg::Info("Loaded Geometric data '%s'", Name_MshFile) ;
+    Msg::Info("Loading Geometric data '%s'", Name_MshFile) ;
     i = List_Nbr(GeoData_L) ;
     Geo_InitGeoData(&GeoData_S, i, Name_MshFile) ;
     Geo_OpenFile(Name_MshFile, "r") ;
@@ -55,7 +55,7 @@ int Geo_AddGeoData(List_T * GeoData_L,
 
     if (!Name_AdaptFile) Name_AdaptFile = Name_DefaultAdaptFile ;
     if (Name_AdaptFile) {
-      Msg::Info("Loaded Adaptation data '%s'", Name_AdaptFile) ;
+      Msg::Info("Loading Adaptation data '%s'", Name_AdaptFile) ;
       Geo_OpenFile(Name_AdaptFile, "r") ;
       Geo_SetCurrentGeoData(&GeoData_S) ;
       Geo_ReadFileAdapt(&GeoData_S) ;
@@ -338,14 +338,12 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	else {
 	  if(fread(&Geo_Node.Num, sizeof(int), 1, File_GEO) != 1) return;
 	  if(swap) swapBytes((char*)&Geo_Node.Num, sizeof(int), 1);
-	  
 	  double xyz[3];
 	  if(fread(xyz, sizeof(double), 3, File_GEO) != 3) return;
 	  if(swap) swapBytes((char*)xyz, sizeof(double), 3);
 	  Geo_Node.x = xyz[0];
 	  Geo_Node.y = xyz[1]; 
 	  Geo_Node.z = xyz[2];
-	  /* printf("%d %g %g %g\n", Geo_Node.Num, xyz[0], xyz[1], xyz[2]); */
 	}
 	List_Add(GeoData_P->Nodes, &Geo_Node) ;
 	if(!i){
