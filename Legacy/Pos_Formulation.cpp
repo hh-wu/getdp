@@ -17,7 +17,7 @@
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
 
-extern int    Flag_BIN ;
+extern int    Flag_BIN, Flag_GMSH_VERSION ;
 
 extern char   *Name_Path ;
 
@@ -68,6 +68,11 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
 
   QuantityStorage_P0 = (struct QuantityStorage*)List_Pointer(QuantityStorage_L, 0) ;
 
+  // hack: force Gmsh version 1 for anything else than OnElementsOf
+  int oldVersion = Flag_GMSH_VERSION;
+  if(PostSubOperation_P->SubType != PRINT_ONELEMENTSOF || PostSubOperation_P->Depth != 1)
+    Flag_GMSH_VERSION = 1;
+
   switch (PostSubOperation_P->Type) {
 
   case POP_PRINT :
@@ -116,6 +121,8 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
     Msg::Error("Unknown PostSubOperation type") ;
     break;
   }
+
+  Flag_GMSH_VERSION = oldVersion;
 
   List_Delete(QuantityStorage_L);
 }
