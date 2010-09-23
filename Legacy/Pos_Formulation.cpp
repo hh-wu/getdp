@@ -68,11 +68,6 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
 
   QuantityStorage_P0 = (struct QuantityStorage*)List_Pointer(QuantityStorage_L, 0) ;
 
-  // hack: force Gmsh version 1 for anything else than OnElementsOf
-  int oldVersion = Flag_GMSH_VERSION;
-  if(PostSubOperation_P->SubType != PRINT_ONELEMENTSOF || PostSubOperation_P->Depth != 1)
-    Flag_GMSH_VERSION = 1;
-
   switch (PostSubOperation_P->Type) {
 
   case POP_PRINT :
@@ -121,8 +116,6 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
     Msg::Error("Unknown PostSubOperation type") ;
     break;
   }
-
-  Flag_GMSH_VERSION = oldVersion;
 
   List_Delete(QuantityStorage_L);
 }
@@ -222,6 +215,11 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     PostStream = stdout ;
   }
 
+  // hack: force Gmsh version 1 for anything else than OnElementsOf
+  int oldVersion = Flag_GMSH_VERSION;
+  if(PostSubOperation_P->SubType != PRINT_ONELEMENTSOF || PostSubOperation_P->Depth != 1)
+    Flag_GMSH_VERSION = 1;
+
   if(PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n\n") ;
   /*  two blanks lines for -index in gnuplot  */
 
@@ -275,6 +273,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     break;
 
   }
+
+  Flag_GMSH_VERSION = oldVersion;
 
   if(PostSubOperation_P->FileOut){
     fclose(PostStream) ;
