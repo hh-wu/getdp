@@ -325,12 +325,10 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	  for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++)
 	    Cal_CopyValue(&CumulativeValues[iTime], &PE->Value[iNode]);
 	  if(!Store)
-	    Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+	    Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
 			       Current.Time, iTime, NbrTimeStep, 
 			       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
-			       NULL, PE, 
-			       PostSubOperation_P->ChangeOfCoordinates,
-			       PostSubOperation_P->ChangeOfValues);
+			       NULL, PE);
 	}
       }
       else{ /* There is one non-cumulative */
@@ -355,12 +353,10 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 				     &PE->Value[iNode], &CumulativeValues[iNode]) ;
 	    }
 	    if(!Store)
-	      Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+	      Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
 				 Current.Time, iTime, NbrTimeStep, 
 				 Current.NbrHar, PostSubOperation_P->HarmonicToTime,
-				 NULL, PE, 
-				 PostSubOperation_P->ChangeOfCoordinates,
-				 PostSubOperation_P->ChangeOfValues);
+				 NULL, PE);
 	  }
 	}
 	else{ /* PRINT_ONREGION: We work on the real mesh */
@@ -387,12 +383,10 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	    }      
 
 	    if(!Store)
-	      Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+	      Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
 				 Current.Time, iTime, NbrTimeStep,
 				 Current.NbrHar, PostSubOperation_P->HarmonicToTime,
-				 NULL, PE, 
-				 PostSubOperation_P->ChangeOfCoordinates,
-				 PostSubOperation_P->ChangeOfValues);
+				 NULL, PE);
 	  }
 	}
       }
@@ -550,12 +544,10 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	Dummy[3] = -1. ;
       }
 
-      Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 1,
+      Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 1,
 			 Current.Time, 0, 1, 
 			 Current.NbrHar, PostSubOperation_P->HarmonicToTime,
-			 Dummy, PE, 
-			 PostSubOperation_P->ChangeOfCoordinates,
-			 PostSubOperation_P->ChangeOfValues);
+			 Dummy, PE);
     }
   }
 
@@ -649,12 +641,10 @@ void normvec(double *a)
 	else									\
 	  Cal_CopyValue(&CumulativeValues[iTime],&PE->Value[iNode]);		\
       }										\
-      Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso,0, \
+      Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso,0,         \
 			 Current.Time, iTime, NbTimeStep,			\
 			 Current.NbrHar, PostSubOperation_P->HarmonicToTime,	\
-			 NULL, PE,                                              \
-			 PostSubOperation_P->ChangeOfCoordinates,               \
-			 PostSubOperation_P->ChangeOfValues);	                \
+			 NULL, PE);                     	                \
     }										\
   }										\
   for(iPost = 0 ; iPost < List_Nbr(PE_L) ; iPost++)				\
@@ -874,12 +864,10 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
  if(!NCPQ_P){									\
    for (ts = 0 ; ts < NbTimeStep ; ts++){					\
      PE->Value[0] = CumulativeValues[ts] ;					\
-     Format_PostElement(PSO_P->Format, PSO_P->Iso, 0,				\
+     Format_PostElement(PSO_P, PSO_P->Iso, 0,			        	\
 		        Current.Time, ts, NbTimeStep,				\
                         Current.NbrHar, PSO_P->HarmonicToTime,                  \
-			Normal, PE,                                             \
-			PSO_P->ChangeOfCoordinates,                             \
-			PSO_P->ChangeOfValues);                                 \
+			Normal, PE);                                            \
    }										\
  }										\
  else{										\
@@ -897,12 +885,10 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
      if(CPQ_P)									\
        Combine_PostQuantity(PSO_P->CombinationType, Order,			\
                             &PE->Value[0], &CumulativeValues[ts]) ;		\
-     Format_PostElement(PSO_P->Format, PSO_P->Iso, 0,				\
+     Format_PostElement(PSO_P, PSO_P->Iso, 0,		        		\
                         Current.Time, ts, NbTimeStep,				\
                         Current.NbrHar, PSO_P->HarmonicToTime,                  \
-			Normal, PE,                                      	\
-			PSO_P->ChangeOfCoordinates,                             \
-			PSO_P->ChangeOfValues);                                 \
+			Normal, PE);                                            \
    }										\
  }
 
@@ -1068,12 +1054,10 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	      PE2->Value[1].Val[MAX_DIM*k] = ARRAY(i1+1,i2,k,ts) ;
 	      PE2->Value[2].Val[MAX_DIM*k] = ARRAY(i1,i2+1,k,ts) ;
 	    }
-	    Format_PostElement(PSO_P->Format, PSO_P->Iso, 0,
+	    Format_PostElement(PSO_P, PSO_P->Iso, 0,
 			       Current.Time, ts, NbTimeStep,
 			       Current.NbrHar, PSO_P->HarmonicToTime, 
-			       Normal, PE2,
-			       PSO_P->ChangeOfCoordinates,
-			       PSO_P->ChangeOfValues);
+			       Normal, PE2);
 	  }
 	  PE2->x[0] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[3] ;
 	  PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[3] ;
@@ -1087,12 +1071,10 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	      PE2->Value[1].Val[MAX_DIM*k] = ARRAY(i1,i2+1,k,ts) ;
 	      PE2->Value[2].Val[MAX_DIM*k] = ARRAY(i1+1,i2,k,ts) ;
 	    }
-	    Format_PostElement(PSO_P->Format, PSO_P->Iso, 0,
+	    Format_PostElement(PSO_P, PSO_P->Iso, 0,
 			       Current.Time, ts, NbTimeStep,
 			       Current.NbrHar, PSO_P->HarmonicToTime, 
-			       Normal, PE2, 
-			       PSO_P->ChangeOfCoordinates,
-			       PSO_P->ChangeOfValues);
+			       Normal, PE2);
 	  }
 	}
       }
@@ -1501,11 +1483,9 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
 	    SL->z[0] = z[abs(NumNodes[0])-1]; SL->z[1] = z[abs(NumNodes[1])-1];
 	    SL->Value[0].Type = SL->Value[1].Type = SCALAR ;
 	    SL->Value[0].Val[0] = SL->Value[1].Val[0] = GeoElement->NumEdges[i];
-	    Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+	    Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
 			       0, 0, 1, 1, 1, 
-			       NULL, SL, 
-			       PostSubOperation_P->ChangeOfCoordinates,
-			       PostSubOperation_P->ChangeOfValues);
+			       NULL, SL);
 	  }
 	}
 	break ;
@@ -1525,11 +1505,9 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
               ST->z[2] = z[abs(NumNodes[2])-1];
               ST->Value[0].Type = ST->Value[1].Type = ST->Value[2].Type = SCALAR ;
               ST->Value[0].Val[0] = ST->Value[1].Val[0] = ST->Value[2].Val[0] = GeoElement->NumFacets[i];
-              Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+              Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
                                  0, 0, 1, 1, 1, 
-                                 NULL, ST, 
-                                 PostSubOperation_P->ChangeOfCoordinates,
-                                 PostSubOperation_P->ChangeOfValues);
+                                 NULL, ST);
             }
             else{ // we have a quad
               SQ->Index = iGeo;
@@ -1542,11 +1520,9 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
               SQ->Value[0].Type = SQ->Value[1].Type = SQ->Value[2].Type = SQ->Value[3].Type = SCALAR ;
               SQ->Value[0].Val[0] = SQ->Value[1].Val[0] = SQ->Value[2].Val[0] = 
                 SQ->Value[3].Val[0] = GeoElement->NumFacets[i];
-              Format_PostElement(PostSubOperation_P->Format, PostSubOperation_P->Iso, 0,
+              Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
                                  0, 0, 1, 1, 1, 
-                                 NULL, SQ, 
-                                 PostSubOperation_P->ChangeOfCoordinates,
-                                 PostSubOperation_P->ChangeOfValues);
+                                 NULL, SQ);
             }
           }
 	}

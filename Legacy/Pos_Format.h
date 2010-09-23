@@ -17,12 +17,10 @@ void  Format_PostHeader(int Format, int Contour,
 
 void  Format_PostFooter(struct PostSubOperation * PSO_P, int Store) ;
 
-void  Format_PostElement(int Format, int Contour, int Store,
+void  Format_PostElement(struct PostSubOperation * PSO_P, int Contour, int Store,
 			 double Time, int TimeStep, int NbTimeStep, 
 			 int NbrHarmonics, int HarmonicToTime,
-			 double *Dummy, struct PostElement *PE,
-			 int *ChangeOfCoordinates,
-			 List_T *ChangeOfValues);
+			 double *Dummy, struct PostElement *PE);
 
 void  Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 		       double Time, int iRegion, int numRegion, int NbrRegion,

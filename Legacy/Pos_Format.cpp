@@ -53,7 +53,8 @@ static List_T *SH = NULL, *VH = NULL, *TH = NULL;
 static List_T *SI = NULL, *VI = NULL, *TI = NULL;
 static List_T *SY = NULL, *VY = NULL, *TY = NULL;
 static List_T *T2D = NULL, *T2C = NULL;
-static char    CurrentName[256]="";
+static char    CurrentName[256] = "";
+static int     CurrentPartitionNumber = 0;
 
 /* ------------------------------------------------------------------------ */
 /*  F o r m a t _ P o s t F o r m a t / H e a d e r / F o o t e r           */
@@ -93,6 +94,8 @@ void  Format_PostHeader(int Format, int Contour,
 			char *Name1, char *Name2)
 {
   char name[256] ;
+
+  CurrentPartitionNumber = 0;
 
   if(Contour){
     if(!PostElement_L) 
@@ -224,10 +227,11 @@ static void printElementNodeData(struct PostSubOperation *PSO_P, int numTimeStep
       fprintf(PostStream, "\"%s\"\n", CurrentName);
       fprintf(PostStream, "1\n");
       fprintf(PostStream, "%.16g\n", time);
-      fprintf(PostStream, "3\n");
+      fprintf(PostStream, "4\n");
       fprintf(PostStream, "%d\n", step);
       fprintf(PostStream, "%d\n", numComp);
       fprintf(PostStream, "%d\n", N);
+      fprintf(PostStream, "%d\n", CurrentPartitionNumber);
       for(int i = 0; i < 8; i++){
         if(!Nb[i]) continue;
         int stride = List_Nbr(L[i]) / Nb[i];
@@ -367,12 +371,10 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     for(iIso = 0 ; iIso < NbrIso ; iIso++){
       for(iPost = 0 ; iPost < List_Nbr(Iso_L[iIso]) ; iPost++){
 	PE = *(struct PostElement**)List_Pointer(Iso_L[iIso], iPost) ;
-	Format_PostElement(PSO_P->Format, 0, 0, 
+	Format_PostElement(PSO_P, 0, 0, 
 			   Current.Time, 0, 1, 
 			   Current.NbrHar, PSO_P->HarmonicToTime, 
-			   NULL, PE,
-			   PSO_P->ChangeOfCoordinates,
-			   PSO_P->ChangeOfValues);
+			   NULL, PE);
 	Destroy_PostElement(PE) ;
       }
       List_Delete(Iso_L[iIso]) ;
@@ -653,7 +655,8 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
 
 void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic, 
 		  int HarmonicToTime, int Type, int ElementNum, int NbrNodes, 
-		  double *x, double *y, double *z, struct Value *Value)
+		  double *x, double *y, double *z, struct Value *Value, 
+                  struct PostSubOperation *PSO_P, int Store)
 {
   int            i,j,k;
   double         TimeMH ;
@@ -794,6 +797,16 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
     break;
     
   }
+
+  // reduce memory requirements by automatically partitioning large
+  // output views into chunks not larger than 1Gb
+  if(Flag_GMSH_VERSION == 2 && TimeStep == NbTimeStep - 1 && 
+     List_Nbr(Current_L) > 1024 * 1024 * 1024 / sizeof(double)){
+    Format_PostFooter(PSO_P, Store);
+    CurrentPartitionNumber++;
+    Gmsh_StartNewView = 1;
+  }
+
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1013,12 +1026,10 @@ void  Format_Adapt(double * Dummy)
 /*  F o r m a t _ P o s t E l e m e n t                                     */
 /* ------------------------------------------------------------------------ */
 
-void  Format_PostElement(int Format, int Contour, int Store, 
+void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store, 
 			 double Time, int TimeStep, int NbTimeStep, 
 			 int NbrHarmonics, int HarmonicToTime, double *Dummy,
-			 struct PostElement * PE, 
-			 int *ChangeOfCoordinates,
-			 List_T *ChangeOfValues)
+			 struct PostElement * PE)
 {
   int    i, j, k, l, Num_Element ;
   struct PostElement  * PE2 ;
@@ -1049,30 +1060,30 @@ void  Format_PostElement(int Format, int Contour, int Store,
     return ;
   }
 
-  if(ChangeOfCoordinates && ChangeOfCoordinates[0] >= 0){
+  if(PSO_P->ChangeOfCoordinates && PSO_P->ChangeOfCoordinates[0] >= 0){
     for(i=0 ; i<PE->NbrNodes ; i++){
       Current.x = PE->x[i];
       Current.y = PE->y[i];
       Current.z = PE->z[i];
       for(j = 0; j<9 ; j++) Current.Val[j] = PE->Value[i].Val[j];
-      Get_ValueOfExpressionByIndex(ChangeOfCoordinates[0], NULL, 0., 0., 0., &Value) ; 
+      Get_ValueOfExpressionByIndex(PSO_P->ChangeOfCoordinates[0], NULL, 0., 0., 0., &Value) ; 
       PE->x[i] = Value.Val[0];
-      Get_ValueOfExpressionByIndex(ChangeOfCoordinates[1], NULL, 0., 0., 0., &Value) ; 
+      Get_ValueOfExpressionByIndex(PSO_P->ChangeOfCoordinates[1], NULL, 0., 0., 0., &Value) ; 
       PE->y[i] = Value.Val[0];
-      Get_ValueOfExpressionByIndex(ChangeOfCoordinates[2], NULL, 0., 0., 0., &Value) ; 
+      Get_ValueOfExpressionByIndex(PSO_P->ChangeOfCoordinates[2], NULL, 0., 0., 0., &Value) ; 
       PE->z[i] = Value.Val[0];
     }
   }
 
-  if(ChangeOfValues && List_Nbr(ChangeOfValues) > 0){
+  if(PSO_P->ChangeOfValues && List_Nbr(PSO_P->ChangeOfValues) > 0){
     for(i=0 ; i<PE->NbrNodes ; i++){
       Current.x = PE->x[i];
       Current.y = PE->y[i];
       Current.z = PE->z[i];
       for(k=0 ; k<Current.NbrHar ; k++){
 	for(j = 0; j<9 ; j++) Current.Val[j] = PE->Value[i].Val[MAX_DIM*k+j];
-	for(l=0 ; l<List_Nbr(ChangeOfValues) ; l++){
-	  Get_ValueOfExpressionByIndex(*(int*)List_Pointer(ChangeOfValues, l), 
+	for(l=0 ; l<List_Nbr(PSO_P->ChangeOfValues) ; l++){
+	  Get_ValueOfExpressionByIndex(*(int*)List_Pointer(PSO_P->ChangeOfValues, l), 
 				       NULL, 0., 0., 0., &Value) ; 
 	  PE->Value[i].Val[MAX_DIM*k+l] = Value.Val[0];
 	}
@@ -1080,7 +1091,7 @@ void  Format_PostElement(int Format, int Contour, int Store,
     }
   }
 
-  switch(Format){
+  switch(PSO_P->Format){
   case FORMAT_GMSH_PARSED :
     Format_GmshParsed(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		      PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
@@ -1093,7 +1104,7 @@ void  Format_PostElement(int Format, int Contour, int Store,
     if(Flag_GMSH_VERSION == 2 || Flag_BIN){ /* bricolage */
       Format_Gmsh(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		  PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, 
-		  PE->Value) ;
+		  PE->Value, PSO_P, Store) ;
     }
     else{
       Format_GmshParsed(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
@@ -1102,14 +1113,14 @@ void  Format_PostElement(int Format, int Contour, int Store,
     }
     break ;
   case FORMAT_GNUPLOT :
-    Format_Gnuplot(Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
+    Format_Gnuplot(PSO_P->Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
 		   PE->Value) ;
     break ;
   case FORMAT_SPACE_TABLE :
   case FORMAT_TIME_TABLE :
   case FORMAT_SIMPLE_SPACE_TABLE :
-    Format_Tabular(Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
+    Format_Tabular(PSO_P->Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
 		   PE->Value) ;
     break ;
