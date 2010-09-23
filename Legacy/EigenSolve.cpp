@@ -22,7 +22,7 @@ extern char   *Name_Path ;
 void EigenSolve(struct DofData * DofData_P, int NumEigenvalues, 
 		double shift_r, double shift_i)
 {
-  Msg::Error("EigenSolve not available without ARPACK or SLEPC");
+  Msg::Error("EigenSolve not available without ARPACK");
 }
 
 #else
