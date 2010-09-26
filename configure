@@ -1231,7 +1231,7 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-petsc          use PETSc linear solvers (default=yes)
-  --enable-slepc          use SLEPc eigensolvers (default=no)
+  --enable-slepc          use SLEPc eigensolvers (default=yes)
   --enable-sparskit       use Sperskit linear solvers (default=no)
   --enable-cygwin         use the Cygwin library on Windows (default=no)
   --enable-gsl            use GSL as numerical toolkit (default=yes)
@@ -4258,7 +4258,7 @@ _ACEOF
   BO="${BO} Petsc"
 fi
 
-if test "x${PETSC}" = "xyes" -a "x$enable_slepc" = "xyes"; then
+if test "x${PETSC}" = "xyes" -a "x$enable_slepc" != "xno"; then
   if test "x${SLEPC_DIR}" = "x"; then
     { echo "$as_me:$LINENO: WARNING: No SLEPC_DIR: could not find SLEPC." >&5
 echo "$as_me: WARNING: No SLEPC_DIR: could not find SLEPC." >&2;}
