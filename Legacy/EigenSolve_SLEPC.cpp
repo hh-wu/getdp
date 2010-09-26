@@ -14,11 +14,13 @@
 // directly on the command line.
 //
 // For example, for a linear evp:
-//    -st_ksp_type preonly -st_pc_type lu -st_pc_factor_mat_solver_package mumps
+//   -st_ksp_type preonly -st_pc_type lu
+//   -st_pc_factor_mat_solver_package mumps
 //
 // For example, for a quadratic evp:
-//    -qep_type linear -qep_hermitian -qep_eps_type krylovschur 
-//    -qep_st_ksp_type gmres -qep_st_pc_type bjacobi
+//   -qep_type linear qep_linear_explicitmatrix -qep_eps_type krylovschur 
+//   -qep_st_ksp_type preonly -qep_st_pc_type lu
+//   -qep_st_pc_factor_mat_solver_package mumps
 
 #include <string>
 #include <complex>
