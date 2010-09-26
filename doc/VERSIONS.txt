@@ -1,6 +1,7 @@
 2.1.0: parallel resolution using PETSc solvers; new Gmsh2 output
-format; various bug and performance fixes (missing face basis
-functions, slow PETSc assembly with global quantities, .
+format; new SLEPc-based eigensolvers; various bug and performance
+fixes (missing face basis functions, slow PETSc assembly with global
+quantities, ...)
 
 2.0.0: general code cleanup (separated interface from legacy code;
 removed various undocumented, unstable and otherwise experimental
