@@ -225,7 +225,6 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   Mat C = DofData_P->M2.M;
   Mat K = DofData_P->M1.M;
   QEP qep;
-  
   _try(QEPCreate(PETSC_COMM_WORLD, &qep));
   _try(QEPSetOperators(qep, M, C, K));
   _try(QEPSetProblemType(qep, QEP_GENERAL));
