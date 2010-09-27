@@ -13,14 +13,22 @@
 // problems. SLEPc options can be specified in the .petscrc file, or
 // directly on the command line.
 //
-// For example, for a linear evp:
+// For example, to use MUMPs for a linear evp:
+//   -eps_type krylovschur
 //   -st_ksp_type preonly -st_pc_type lu
 //   -st_pc_factor_mat_solver_package mumps
 //
-// For example, for a quadratic evp:
-//   -qep_type linear qep_linear_explicitmatrix -qep_eps_type krylovschur 
+// To solve a quadratic evp by linearization, using the first canonic
+// form, and building the operator explicitly so we can use a direct
+// solver:
+//   -qep_type linear -qep_linear_cform 1 -qep_linear_explicitmatrix
+//   -qep_eps_type krylovschur
 //   -qep_st_ksp_type preonly -qep_st_pc_type lu
 //   -qep_st_pc_factor_mat_solver_package mumps
+//
+// To solve the quadratic evp directly using arnoldu iter:
+//   -qep_type arnoldi -qep_eps_type krylovschur 
+//   -qep_st_ksp_type gmres -qep_st_pc_type ilu
 
 #include <string>
 #include <complex>
