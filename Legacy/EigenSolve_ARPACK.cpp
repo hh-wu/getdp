@@ -588,7 +588,6 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
 	  LinAlg_Solve(&D, &v1, &DofData_P->Solver, &w1);
 	else
 	  LinAlg_SolveAgain(&D, &v1, &DofData_P->Solver, &w1);
-
 	LinAlg_ProdMatrixVector(K, &x, &v1);
 	LinAlg_ProdVectorDouble(&v1, -1., &v1);
 	LinAlg_AddVectorProdVectorDouble(&v1, &w2, shift_r, &v1);

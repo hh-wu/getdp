@@ -25,8 +25,6 @@ extern char *Name_Path;
 static const char *Name_SolverFile = NULL, *Name_DefaultSolverFile = "solver.par" ;
 static char *SolverOptions[100];
 
-/* Init */
-
 void LinAlg_InitializeSolver(int* sargc, char*** sargv)
 {
   int i=1, argc, iopt=0;
@@ -63,13 +61,9 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv)
   }
 }
 
-/* Finalize */
-
 void LinAlg_FinalizeSolver(void)
 {
 }
-
-/* Create */
 
 void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
 {
@@ -79,22 +73,22 @@ void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
   strcpy(FileName, Name_Path);
 
   if(SolverDataFileName){
-    /* name in .pro file */
+    // name in .pro file
     if(SolverDataFileName[0] == '/' || SolverDataFileName[0] == '\\'){
-      /* -> absolute if it starts with / or \ */
+      // -> absolute if it starts with / or \
       strcpy(FileName, SolverDataFileName);
     }
     else{
-      /* -> relative otherwise */
+      // -> relative otherwise
       strcat(FileName, SolverDataFileName);
     }
   }
   else if (Name_SolverFile){
-    /* name on command line -> always absolute */
+    // name on command line -> always absolute
     strcpy(FileName, Name_SolverFile);
   }
   else{
-    /* default file name -> always relative */
+    // default file name -> always relative
     strcat(FileName, Name_DefaultSolverFile);
   }
   
@@ -120,8 +114,6 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   init_matrix(n, &M->M, &Solver->Params) ;
 }
 
-/* Destroy */
-
 void LinAlg_DestroySolver(gSolver *Solver)
 {
   Msg::Warning("'LinAlg_DestroySolver' not yet implemented");
@@ -136,8 +128,6 @@ void LinAlg_DestroyMatrix(gMatrix *M)
 {
   Msg::Warning("'LinAlg_DestroyMatrix' not yet implemented");  
 }
-
-/* Copy */
 
 void LinAlg_CopyScalar(gScalar *S1, gScalar *S2)
 {
@@ -154,8 +144,6 @@ void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2)
   Msg::Error("'LinAlg_CopyMatrix' not yet implemented");  
 }
 
-/* Zero */
-
 void LinAlg_ZeroScalar(gScalar *S)
 {
   S->s = 0. ;
@@ -170,12 +158,10 @@ void LinAlg_ZeroMatrix(gMatrix *M)
 {
   int i ;
   zero_matrix(&M->M) ;
-  /* la routine de produit matrice vecteur est buggee s'il
-     existe des lignes sans aucun element dans la matrice... */
+  // la routine de produit matrice vecteur est buggee s'il existe des
+  // lignes sans aucun element dans la matrice...
   for(i=0 ; i<M->M.N ; i++) add_matrix_double(&M->M, i+1, i+1, 0.0) ;
 }
-
-/* Scan */
 
 void LinAlg_ScanScalar(FILE *file, gScalar *S)
 {
@@ -194,8 +180,6 @@ void LinAlg_ScanMatrix(FILE *file, gMatrix *M)
   Msg::Error("'LinAlg_ScanMatrix' not yet implemented");
 }
 
-/* Read */
-
 void LinAlg_ReadScalar(FILE *file, gScalar *S)
 {
   Msg::Error("'LinAlg_ReadScalar' not yet implemented");
@@ -210,8 +194,6 @@ void LinAlg_ReadMatrix(FILE *file, gMatrix *M)
 {
   Msg::Error("'LinAlg_ReadMatrix' not yet implemented");
 }
-
-/* Print */
 
 void LinAlg_PrintScalar(FILE *file, gScalar *S)
 {
@@ -230,8 +212,6 @@ void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab)
   formatted_write_matrix(file, &M->M, KUL) ;
 }
 
-/* Write */
-
 void LinAlg_WriteScalar(FILE *file, gScalar *S)
 {
   Msg::Error("'LinAlg_WriteScalar' not yet implemented");
@@ -247,8 +227,6 @@ void LinAlg_WriteMatrix(FILE *file, gMatrix *M)
 {
   binary_write_matrix(&M->M, "A", ".mat") ;
 }
-
-/* Get */
 
 void LinAlg_GetVectorSize(gVector *V, int *i)
 {
@@ -323,8 +301,6 @@ void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1)
   get_column_in_matrix(&M->M, col, V1->V);
 }
 
-/* Set */
-
 void LinAlg_SetScalar(gScalar *S, double *d)
 {
   S->s = d[0] ;
@@ -367,8 +343,6 @@ void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, i
 {
   Msg::Error("'LinAlg_SetScalarInMatrix' not yet implemented");  
 }
-
-/* Add */
 
 void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
@@ -484,8 +458,6 @@ void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatri
     Msg::Error("Wrong arguments in 'LinAlg_AddMatrixProdMatrixDouble'");
 }
 
-/* Sub */
-
 void LinAlg_SubScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
   S3->s = S1->s - S2->s ;
@@ -505,8 +477,6 @@ void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 {
   Msg::Error("'LinAlg_SubMatrixMatrix' not yet implemented");  
 }
-
-/* Prod */
 
 void LinAlg_ProdScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
@@ -576,8 +546,6 @@ void LinAlg_ProdMatrixComplex(gMatrix *M1, double d1, double d2, gMatrix *M2)
   Msg::Error("'LinAlg_ProdMatrixComplex' not yet implemented");
 }
 
-/* Div */
-
 void LinAlg_DivScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 {
   S3->s = S1->s / S2->s ;
@@ -587,8 +555,6 @@ void LinAlg_DivScalarDouble(gScalar *S1, double d, gScalar *S2)
 {
   S2->s = S1->s / d ;
 }
-
-/* Norm */
 
 void LinAlg_VectorNorm2(gVector *V1, double *norm)
 {
@@ -600,8 +566,6 @@ void LinAlg_VectorNormInf(gVector *V1, double *norm)
   norminf_vector(V1->N, V1->V, norm);
 }
 
-/* Assemble */
-
 void LinAlg_AssembleMatrix(gMatrix *M)
 {
 }
@@ -609,8 +573,6 @@ void LinAlg_AssembleMatrix(gMatrix *M)
 void LinAlg_AssembleVector(gVector *V)
 {
 }
-
-/* Solve */
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
 {

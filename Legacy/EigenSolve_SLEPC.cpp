@@ -26,8 +26,8 @@
 //   -qep_st_ksp_type preonly -qep_st_pc_type lu
 //   -qep_st_pc_factor_mat_solver_package mumps
 //
-// To solve the quadratic evp directly using arnoldu iter:
-//   -qep_type arnoldi -qep_eps_type krylovschur 
+// To solve the quadratic evp directly using arnoldi iter:
+//   -qep_type qarnoldi -qep_eps_type krylovschur 
 //   -qep_st_ksp_type gmres -qep_st_pc_type ilu
 
 #include <string>
@@ -86,7 +86,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
       Msg::Info("EIG %03d w = %s%.16e %s%.16e  %3.6e", 
                 i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
       double fre = re / 2. / M_PI, fim = im / 2. / M_PI;
-      Msg::Info("          f = %s%.16e %s%.16e", 
+      Msg::Info("        f = %s%.16e %s%.16e", 
                 (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
     }
     
@@ -223,12 +223,12 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues, 
                           double shift_r, double shift_i)
 {
-  Msg::Info("Solving quadratic eigenvalue problem");
+  Msg::Warning("Solving quadratic eigenvalue problem -- THIS HAS NOT BEEN VALIDATED YET");
 
   // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
   // SLEPC notations for quadratic EVP: (\lambda^2 M + \lambda C + K) x = 0
   LinAlg_ProdMatrixDouble(&DofData_P->M3, -1.0, &DofData_P->M3);
-  LinAlg_ProdMatrixComplex(&DofData_P->M2, 0.0, -1.0, &DofData_P->M2);
+  LinAlg_ProdMatrixComplex(&DofData_P->M2, 0.0, 1.0, &DofData_P->M2);
   Mat M = DofData_P->M3.M;
   Mat C = DofData_P->M2.M;
   Mat K = DofData_P->M1.M;
@@ -239,7 +239,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 
   // set some default options
   _try(QEPSetDimensions(qep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
-  _try(QEPSetTolerances(qep, 1.e-7, 50));
+  _try(QEPSetTolerances(qep, 1.e-6, 50));
   _try(QEPSetType(qep, QEPLINEAR)); 
                   // QEPLINEAR or QEPQARNOLDI
   _try(QEPSetWhichEigenpairs(qep, QEP_SMALLEST_MAGNITUDE));
@@ -251,6 +251,21 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   // force options specified directly as arguments
   if(numEigenValues)
     _try(QEPSetDimensions(qep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
+
+  // apply shift-and-invert transformation
+#if defined(PETSC_USE_COMPLEX)
+  PetscScalar shift = shift_r + PETSC_i * shift_i;
+#else
+  PetscScalar shift = shift_r;
+  if(shift_i)
+    Msg::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
+#endif
+  EPS eps;
+  QEPLinearGetEPS(qep, &eps);
+  ST st;
+  _try(EPSGetST(eps, &st));
+  _try(STSetType(st, STSINVERT));
+  _try(STSetShift(st, shift));
 
   // print info
   const QEPType type;
