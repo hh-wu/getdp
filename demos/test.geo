@@ -112,13 +112,13 @@ Line(52) = {17,18};
 
 /* defining the surfaces */
 
-Line Loop(45) = {-39,-43,38,41};
+Line Loop(45) = {39,43,-38,-41};
 Plane Surface(46) = {45};
 
 Line Loop(47) = {-42,-39,44,36};
 Plane Surface(48) = {47};
 
-Line Loop(49) = {22,23,-28,32,-25,24,-21,11};
+Line Loop(49) = {-22,-23,28,-32,25,-24,21,-11};
 Plane Surface(50) = {49};
 
 Line Loop(53) = {37,1,2,3,35,-8,-7,-6,-33,9,22,23,-28,-27,40,41,42};
@@ -133,7 +133,7 @@ Plane Surface(58) = {57};
 Line Loop(59) = {18,19,20,17};
 Plane Surface(60) = {59};
 
-Line Loop(61) = {1,2,3,4};
+Line Loop(61) = {-1,-2,-3,-4};
 Plane Surface(62) = {61};
 
 Line Loop(63) = {6,7,8,5};
