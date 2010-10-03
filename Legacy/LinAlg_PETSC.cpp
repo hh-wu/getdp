@@ -58,12 +58,12 @@ extern struct CurrentData Current ;
 
      -ksp_type preonly -pc_type lu
 
-   When PETSc is compiled with external solvers (UMFPACK, SuperLU,
-   etc.), they can be accessed simply by changing the matrix type. For
-   example, with umfpack:
+   When PETSc is compiled with external solvers (MUMPS, UMFPACK,
+   SuperLU, etc.), they can be accessed simply by changing the matrix
+   type. For example, with mumps:
 
-     -mat_type umfpack (version 2.3.x)
-       or -pc_factor_mat_solver_package umfpack (version 3.0.0)
+     -mat_type mumps (version 2.3.x)
+       or -pc_factor_mat_solver_package mumps (version 3.x)
 */
 
 static void _try(int ierr){ CHKERRABORT(PETSC_COMM_WORLD, ierr); }
@@ -993,11 +993,9 @@ static PetscErrorCode _myKspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void 
 static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, 
                    int precond, int kspIndex)
 {
-  PetscTruth set;
-
 #if defined(HAVE_ZITSOL)
   // testing Yousef's new preconditioners and solvers
-  PetscTruth zitsol = PETSC_FALSE;
+  PetscTruth set, zitsol = PETSC_FALSE;
   PetscOptionsGetTruth(PETSC_NULL, "-zitsol", &zitsol, &set);
   if(zitsol){ _zitsol(A, B, X); return; }
 #endif
