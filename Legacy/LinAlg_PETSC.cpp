@@ -32,39 +32,30 @@ extern struct CurrentData Current ;
 
 #if defined(HAVE_PETSC)
 
-/* 
-   Options for PETSc can be provided on the command line, or in the file
-   ~/.petscrc. 
-
-   By default, we use the following options (GMRES iterative solver,
-   1.e-10 relative tolerance with ILU(6) preconditioner and RCMK
-   renumbering):
-
-     -pc_type ilu
-     -pc_ilu_levels 6 (version 2.3.0) 
-        or -pc_factor_levels 6 (version 2.3.1)
-     -pc_ilu_mat_ordering_type rcm (version 2.3.0)
-        or -pc_factor_mat_ordering rcm (version 2.3.1)
-     -ksp_rtol 1.e-10
-
-   Other useful options include:
-
-     -ksp_gmres_restart 100
-     -ksp_monitor
-     ...
-
-   To use a direct solver (a sparse lu) instead of an iterative
-   solver, use
-
-     -ksp_type preonly -pc_type lu
-
-   When PETSc is compiled with external solvers (MUMPS, UMFPACK,
-   SuperLU, etc.), they can be accessed simply by changing the matrix
-   type. For example, with mumps:
-
-     -mat_type mumps (version 2.3.x)
-       or -pc_factor_mat_solver_package mumps (version 3.x)
-*/
+// Options for PETSc can be provided on the command line, or in the file
+// ~/.petscrc. 
+//
+// By default we try to use MUMPS or UMFPACK direct solvers (if
+// available, with PETSc 3). Otherwise we use a GMRES iterative solver
+// preconditionned  with an ILU(6).
+//
+// All these options can be changed at runtime. For example you could
+// use
+//
+//   -pc_type ilu
+//   -pc_factor_levels 0
+//   -ksp_rtol 1.e-6
+//   -ksp_gmres_restart 100
+//   -ksp_monitor
+//
+// for GMRES with ILU(0), with a restart of 100 and a stopping
+// criterion at 1e-6. Or you could set
+//
+//   -pc_type lu
+//   -pc_factor_mat_solver_package mumps
+//   -ksp_type preonly
+//
+// to use the MUMPS direct solver
 
 static void _try(int ierr){ CHKERRABORT(PETSC_COMM_WORLD, ierr); }
 static int SolverInitialized = 0;
@@ -1023,9 +1014,23 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   if(!Solver->ksp[kspIndex]) {
     _try(KSPCreate(PETSC_COMM_WORLD, &Solver->ksp[kspIndex]));
     _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN));
+    if(Msg::UseSocket())
+      _try(KSPMonitorSet(Solver->ksp[kspIndex], _myKspMonitor, PETSC_NULL, PETSC_NULL));
     PC pc;
     _try(KSPGetPC(Solver->ksp[kspIndex], &pc));
+
     // set some default options
+    _try(KSPSetTolerances(Solver->ksp[kspIndex], 1.e-12, PETSC_DEFAULT, PETSC_DEFAULT, 
+                          PETSC_DEFAULT));
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS) // use MUMPS by default if available
+    _try(PCSetType(pc, PCLU));
+    _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+    _try(KSPSetType(Solver->ksp[kspIndex], "preonly"));
+#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_UMFPACK) // otherwise use UMFPACK if available
+    _try(PCSetType(pc, PCLU));
+    _try(PCFactorSetMatSolverPackage(pc, "umfpack"));
+    _try(KSPSetType(Solver->ksp[kspIndex], "preonly"));
+#else // otherwise use ILU(6) + GMRES
     _try(PCSetType(pc, PCILU));
 #if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR == 0)
     _try(PCILUSetMatOrdering(pc, MATORDERING_RCM));
@@ -1037,10 +1042,8 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     _try(PCFactorSetMatOrderingType(pc, MATORDERING_RCM));
     _try(PCFactorSetLevels(pc, 6));
 #endif
-    _try(KSPSetTolerances(Solver->ksp[kspIndex], 1.e-10, PETSC_DEFAULT, PETSC_DEFAULT, 
-                          PETSC_DEFAULT));
-    if(Msg::UseSocket())
-      _try(KSPMonitorSet(Solver->ksp[kspIndex], _myKspMonitor, PETSC_NULL, PETSC_NULL));
+#endif
+
     // override the default options with the ones from the option
     // database (if any)
     _try(KSPSetFromOptions(Solver->ksp[kspIndex]));
