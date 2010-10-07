@@ -35,9 +35,9 @@ extern struct CurrentData Current ;
 // Options for PETSc can be provided on the command line, or in the file
 // ~/.petscrc. 
 //
-// By default we try to use MUMPS or UMFPACK direct solvers (if
+// By default we try to use the MUMPS or UMFPACK direct solver (if
 // available, with PETSc 3). Otherwise we use a GMRES iterative solver
-// preconditionned  with an ILU(6).
+// preconditionned with an ILU(6).
 //
 // All these options can be changed at runtime. For example you could
 // use
@@ -45,17 +45,19 @@ extern struct CurrentData Current ;
 //   -pc_type ilu
 //   -pc_factor_levels 0
 //   -ksp_rtol 1.e-6
-//   -ksp_gmres_restart 100
+//   -ksp_gmres_restart 500
 //   -ksp_monitor
 //
-// for GMRES with ILU(0), with a restart of 100 and a stopping
-// criterion at 1e-6. Or you could set
+// for GMRES with ILU(0), with a restart of 500 and a stopping
+// criterion of 1e-6. Or you could set
 //
 //   -pc_type lu
 //   -pc_factor_mat_solver_package mumps
-//   -ksp_type preonly
+//   -ksp_type gmres
 //
-// to use the MUMPS direct solver
+// to use the MUMPS direct solver as a preconditioner to GMRES (useful
+// e.g if the matrix changed a bit, but you want to keep the same
+// factorization using "SolveAgain").
 
 static void _try(int ierr){ CHKERRABORT(PETSC_COMM_WORLD, ierr); }
 static int SolverInitialized = 0;
