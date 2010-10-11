@@ -256,7 +256,7 @@ void LinAlg_ReadScalar(FILE *file, gScalar *S)
 void LinAlg_ReadVector(FILE *file, gVector *V)
 {
   if(Msg::GetCommSize() > 1)
-    Msg::Error("ScanVector not implemented in parallel");
+    Msg::Error("ReadVector not implemented in parallel");
   PetscInt n;
   _try(VecGetSize(V->V, &n));
   PetscScalar *tmp = (PetscScalar*)Malloc(n*sizeof(PetscScalar));
@@ -492,6 +492,8 @@ void LinAlg_SetVector(gVector *V, double *v)
 {
   PetscScalar tmp = *v;
   _try(VecSet(V->V, tmp));
+  if(Msg::GetCommSize() > 1)
+    _try(VecSet(V->Vseq, tmp));
 }
 
 void LinAlg_SetScalarInVector(gScalar *S, gVector *V, int i)
