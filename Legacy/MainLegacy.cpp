@@ -54,9 +54,9 @@ void Info(int level, char *arg0)
 	    "  -'Parameter' num          override value of solver parameter 'Parameter'\n"
 #endif
 	    "Output options:\n"
-	    "  -bin                      use binary format for output files\n"
-	    "  -v2                       use mesh-based Gmsh output files\n"
-	    "  -socket string            communicate through socket string\n"
+	    "  -bin                      create binary output files\n"
+	    "  -v2                       create mesh-based Gmsh output files when possible\n"
+	    "  -socket string            communicate through socket\n"
 	    "Other options:\n"
 	    "  -check                    interactive check of problem structure\n"
 	    "  -v num                    set verbosity level (default: 4)\n"

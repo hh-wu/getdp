@@ -237,7 +237,7 @@ static void printElementNodeData(struct PostSubOperation *PSO_P, int numTimeStep
         int stride = List_Nbr(L[i]) / Nb[i];
         for(int j = 0; j < List_Nbr(L[i]); j += stride){
           double *tmp = (double*)List_Pointer(L[i], j);
-          int num = (int)tmp[0] + 1;
+          int num = (int)tmp[0];
           int mult = (stride - 1) / numTimeStep / Current.NbrHar / numComp;
           if(Flag_BIN){
             fwrite(&num, sizeof(int), 1, PostStream);
@@ -1103,7 +1103,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   case FORMAT_GMSH :
     if(Flag_GMSH_VERSION == 2 || Flag_BIN){ /* bricolage */
       Format_Gmsh(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-		  PE->Type, PE->Index, PE->NbrNodes, PE->x, PE->y, PE->z, 
+		  PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, 
 		  PE->Value, PSO_P, Store) ;
     }
     else{

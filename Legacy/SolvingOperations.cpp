@@ -1873,7 +1873,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_SOLVEAGAIN : Flag_SolveAgain = 1 ;
     case OPERATION_SOLVE :
       /*  Solve : A x = b  */
-      Init_OperationOnSystem("Solve",
+      Init_OperationOnSystem(Flag_SolveAgain ? "SolveAgain" : "Solve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
@@ -1909,10 +1909,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  -->  S o l v e J a c                        */
       /*  ------------------------------------------  */
 
+    case OPERATION_SOLVEJACAGAIN : Flag_SolveAgain = 1 ;
     case OPERATION_SOLVEJAC :
       /*  SolveJac : J(xn) dx = b(xn) - A(xn) xn ;  x = xn + dx  */
       Flag_Jac = 1 ;
-      Init_OperationOnSystem("SolveJac",
+      Init_OperationOnSystem(Flag_SolveAgain ? "SolveJacAgain" : "SolveJac",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
@@ -1945,7 +1946,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ;
       LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
       LinAlg_DummyVector(&DofData_P->res) ;
-      LinAlg_Solve(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
+
+      if(!Flag_SolveAgain)
+        LinAlg_Solve(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
+      else
+        LinAlg_SolveAgain(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
       Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
       Msg::Info("Mean error: %.3e  (after %d iteration%s)", 
