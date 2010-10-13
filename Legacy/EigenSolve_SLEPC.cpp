@@ -139,7 +139,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 {
   Msg::Info("Solving linear eigenvalue problem");
 
-  // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
+  // GetDP notation: -w^2 M3 x (+ iw M2 x) + M1 x = 0
   // SLEPC notation for generalized linear EVP: A x - \lambda B x = 0
   Mat A = DofData_P->M1.M;
   Mat B = DofData_P->M3.M;
