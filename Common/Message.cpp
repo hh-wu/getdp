@@ -8,6 +8,7 @@
 #include "GetDPConfig.h"
 #include "Message.h"
 #include "GmshSocket.h"
+#include "OS.h"
 
 #if !defined(WIN32) || defined(__CYGWIN__)
 #include <sys/time.h>
@@ -17,11 +18,6 @@
 #if defined(WIN32)
 #include <windows.h>
 #include <process.h>
-#endif
-
-#if defined(__APPLE__)
-#define RUSAGE_SELF      0
-#define RUSAGE_CHILDREN -1
 #endif
 
 #if defined(HAVE_PETSC)
@@ -191,23 +187,6 @@ void Message::Debug(const char *fmt, ...)
       fprintf(stdout, "Debug   : %s\n", str);
     fflush(stdout);
   }
-}
-
-static void GetResources(double *s, long *mem)
-{
-#if !defined(WIN32) || defined(__CYGWIN__)
-  static struct rusage r;
-  getrusage(RUSAGE_SELF, &r);
-  *s = (double)r.ru_utime.tv_sec + 1.e-6 * (double)r.ru_utime.tv_usec;
-  *mem = (long)r.ru_maxrss;
-#else
-  FILETIME creation, exit, kernel, user;
-  if(GetProcessTimes(GetCurrentProcess(), &creation, &exit, &kernel, &user)){
-    *s = 1.e-7 * 4294967296. * (double)user.dwHighDateTime +
-         1.e-7 * (double)user.dwLowDateTime;
-  }
-  *mem = 0;
-#endif
 }
 
 void Message::Cpu(const char *fmt, ...)

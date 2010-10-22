@@ -26,11 +26,6 @@
 #include <io.h>
 #endif
 
-#if defined(__APPLE__)
-#define RUSAGE_SELF      0
-#define RUSAGE_CHILDREN -1
-#endif
-
 #include "Message.h"
 
 double GetTimeInSeconds()

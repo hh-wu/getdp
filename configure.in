@@ -169,10 +169,15 @@ if test "x${PETSC}" = "xyes" -a "x$enable_slepc" != "xno"; then
   if test "x${SLEPC_DIR}" = "x"; then
     AC_MSG_WARN([No SLEPC_DIR: could not find SLEPC.])
   else
-    GETDP_LIBS="${GETDP_LIBS} -L${SLEPC_DIR}/${PETSC_ARCH}/lib -lslepc"
-    FLAGS="${FLAGS} -I${SLEPC_DIR}/include"
-    AC_DEFINE(HAVE_SLEPC)
-    BO="${BO} Slepc"
+    AC_CHECK_FILE(${SLEPC_DIR}/include/slepcqep.h,SLEPC="yes",SLEPC="no")
+    if test "x${SLEPC}" = "xyes"; then
+      GETDP_LIBS="${GETDP_LIBS} -L${SLEPC_DIR}/${PETSC_ARCH}/lib -lslepc"
+      FLAGS="${FLAGS} -I${SLEPC_DIR}/include"
+      AC_DEFINE(HAVE_SLEPC)
+      BO="${BO} Slepc"
+    else
+      AC_MSG_WARN([Did not find QEP (available in SLEPC >= 3.1): disabling SLEPC.])
+    fi
   fi
 fi
 

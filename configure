@@ -4263,13 +4263,43 @@ if test "x${PETSC}" = "xyes" -a "x$enable_slepc" != "xno"; then
     { echo "$as_me:$LINENO: WARNING: No SLEPC_DIR: could not find SLEPC." >&5
 echo "$as_me: WARNING: No SLEPC_DIR: could not find SLEPC." >&2;}
   else
-    GETDP_LIBS="${GETDP_LIBS} -L${SLEPC_DIR}/${PETSC_ARCH}/lib -lslepc"
-    FLAGS="${FLAGS} -I${SLEPC_DIR}/include"
-    cat >>confdefs.h <<\_ACEOF
+    as_ac_File=`echo "ac_cv_file_${SLEPC_DIR}/include/slepcqep.h" | $as_tr_sh`
+{ echo "$as_me:$LINENO: checking for ${SLEPC_DIR}/include/slepcqep.h" >&5
+echo $ECHO_N "checking for ${SLEPC_DIR}/include/slepcqep.h... $ECHO_C" >&6; }
+if { as_var=$as_ac_File; eval "test \"\${$as_var+set}\" = set"; }; then
+  echo $ECHO_N "(cached) $ECHO_C" >&6
+else
+  test "$cross_compiling" = yes &&
+  { { echo "$as_me:$LINENO: error: cannot check for file existence when cross compiling" >&5
+echo "$as_me: error: cannot check for file existence when cross compiling" >&2;}
+   { (exit 1); exit 1; }; }
+if test -r "${SLEPC_DIR}/include/slepcqep.h"; then
+  eval "$as_ac_File=yes"
+else
+  eval "$as_ac_File=no"
+fi
+fi
+ac_res=`eval echo '${'$as_ac_File'}'`
+	       { echo "$as_me:$LINENO: result: $ac_res" >&5
+echo "${ECHO_T}$ac_res" >&6; }
+if test `eval echo '${'$as_ac_File'}'` = yes; then
+  SLEPC="yes"
+else
+  SLEPC="no"
+fi
+
+    if test "x${SLEPC}" = "xyes"; then
+      GETDP_LIBS="${GETDP_LIBS} -L${SLEPC_DIR}/${PETSC_ARCH}/lib -lslepc"
+      FLAGS="${FLAGS} -I${SLEPC_DIR}/include"
+      cat >>confdefs.h <<\_ACEOF
 #define HAVE_SLEPC 1
 _ACEOF
 
-    BO="${BO} Slepc"
+      BO="${BO} Slepc"
+    else
+      { echo "$as_me:$LINENO: WARNING: Did not find QEP (available in SLEPC >= 3.1): disabling SLEPC." >&5
+echo "$as_me: WARNING: Did not find QEP (available in SLEPC >= 3.1): disabling SLEPC." >&2;}
+    fi
   fi
 fi
 

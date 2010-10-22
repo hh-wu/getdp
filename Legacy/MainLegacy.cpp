@@ -153,10 +153,10 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	Info(1, argv[0]);
       }
 
-      else if (!strcmp(argv[i]+1, "info") || 
-	       !strcmp(argv[i]+1, "-info")) {
-	Info(2, argv[0]);
-      }
+      //else if (!strcmp(argv[i]+1, "info") || 
+      //!strcmp(argv[i]+1, "-info")) {
+      //Info(2, argv[0]);
+      //}
 
       else if (!strcmp(argv[i]+1, "progress") ||
 	       !strcmp(argv[i]+1, "p")) {
