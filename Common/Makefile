@@ -45,5 +45,5 @@ ListUtils.o: ListUtils.cpp MallocUtils.h ListUtils.h TreeUtils.h avl.h \
 TreeUtils.o: TreeUtils.cpp MallocUtils.h TreeUtils.h avl.h ListUtils.h
 avl.o: avl.cpp avl.h MallocUtils.h
 MallocUtils.o: MallocUtils.cpp MallocUtils.h Message.h
-Message.o: Message.cpp GetDPConfig.h Message.h GmshSocket.h
+Message.o: Message.cpp GetDPConfig.h Message.h GmshSocket.h OS.h
 OS.o: OS.cpp Message.h

@@ -21,7 +21,7 @@
 @c =========================================================================
 @c %**start of header
 @setfilename getdp.info
-@set GETDP-VERSION 2.0
+@set GETDP-VERSION 2.1
 @set COPYRIGHT @copyright{} 1997-2010 Patrick Dular, Christophe Geuzaine
 @settitle GetDP @value{GETDP-VERSION}
 @footnotestyle separate
@@ -750,6 +750,10 @@ Specifies the maximum interpolation order.
 @item -bin 
 
 Selects binary format for output files.
+
+@item -v2
+
+Creates mesh-based Gmsh output files when possible.
 
 @item -socket
 @var{string}
