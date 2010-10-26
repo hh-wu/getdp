@@ -586,9 +586,9 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
 
     for(std::map<int, std::complex<double> >::iterator it = unknowns.begin();
         it != unknowns.end(); it++){
-      fprintf(fp  , "%d %g %g\n", it->first, it->second.real(), it->second.imag());
-      fprintf(fpRe, "%d %g\n", it->first, it->second.real());
-      fprintf(fpIm, "%d %g\n", it->first, it->second.imag());
+      fprintf(fp  , "%d %.16g %.16g\n", it->first, it->second.real(), it->second.imag());
+      fprintf(fpRe, "%d %.16g\n", it->first, it->second.real());
+      fprintf(fpIm, "%d %.16g\n", it->first, it->second.imag());
     }
   }
   else{
@@ -606,9 +606,9 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
         // SuppList assumed to be "Not"!
         if(unknowns.count(num)){
           std::complex<double> s = unknowns[num];
-          fprintf(fp, "%d %g %g\n", num, s.real(), s.imag());
-          fprintf(fpRe, "%d %g\n", num, s.real());
-          fprintf(fpIm, "%d %g\n", num, s.imag());
+          fprintf(fp, "%d %.16g %.16g\n", num, s.real(), s.imag());
+          fprintf(fpRe, "%d %.16g\n", num, s.real());
+          fprintf(fpIm, "%d %.16g\n", num, s.imag());
         }
         else{
           // yes, write zero: that's on purpose for the iterative schemes
