@@ -116,6 +116,7 @@ struct DofData {
   gMatrix   A, A_MH_moving, A_MH_moving2 ;
   gVector   b, b_MH_moving, b_MH_moving2 ;
   gSolver   Solver, Solver_MH_moving ;
+  gSolverNL SolverNL ;
 
   /* Flag_Init[0] == 2 */
   gMatrix   Jac ;

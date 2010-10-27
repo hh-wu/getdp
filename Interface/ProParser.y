@@ -4017,7 +4017,8 @@ OperationTerm :
 	Operation_P->Case.Generate.GroupIndex = -1;      
 
       if(Operation_P->Type == OPERATION_SOLVE || 
-         Operation_P->Type == OPERATION_SOLVEAGAIN)
+         Operation_P->Type == OPERATION_SOLVEAGAIN ||
+         Operation_P->Type == OPERATION_SOLVENL)
         Operation_P->Case.Solve.SolverIndex = 0;
     }
 
@@ -4077,7 +4078,8 @@ OperationTerm :
 	Operation_P->Case.Generate.GroupIndex = -1;
 
       if(Operation_P->Type == OPERATION_SOLVE || 
-         Operation_P->Type == OPERATION_SOLVEAGAIN)
+         Operation_P->Type == OPERATION_SOLVEAGAIN || 
+         Operation_P->Type == OPERATION_SOLVENL)
         Operation_P->Case.Solve.SolverIndex = $4;
     }
 

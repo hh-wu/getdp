@@ -17,6 +17,7 @@
 
 #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
 
+
 /* F_Analytic */
 
 void  F_JFIE_ZPolCyl      (F_ARG) ; 
@@ -159,11 +160,17 @@ void  F_dInterpolationLinear  (F_ARG) ;
 void  F_dInterpolationLinear2 (F_ARG) ;
 void  F_InterpolationAkima    (F_ARG) ;
 void  F_dInterpolationAkima   (F_ARG) ;
-void  F_InterpolationMatrix   (F_ARG) ;
 
-void  Fi_InitListXY     (F_ARG) ;
+
+void F_InterpolationBilinear (F_ARG) ; /* Riccardo */
+
+double Fi_interp2 (double *x, double *y, double *M, int NL, int NC, double xp, double yp);/* Riccardo */
+
+void  Fi_InitListX      (F_ARG) ; // List
+void  Fi_InitListXY     (F_ARG) ; // ListAlt
 void  Fi_InitListXY2    (F_ARG) ;
 void  Fi_InitAkima      (F_ARG) ;
+void  Fi_InitListMatrix (F_ARG) ; /* Riccardo */
 
 void  F_ValueFromIndex (F_ARG) ;
 void  F_VectorFromIndex (F_ARG) ;
@@ -179,6 +186,9 @@ void  F_dhdb_Jiles      (F_ARG) ;  /* pour Johan */
 void  F_dbdh_Jiles      (F_ARG) ;  /* pour Johan */
 void  F_h_Jiles         (F_ARG) ;  /* pour Johan */
 void  F_b_Jiles         (F_ARG) ;  /* pour Johan */
+
+void   F_DucharneH (F_ARG) ; /* pour Riccardo */
+double Fi_DucharneH (double *bi, double *hi, double *M, int NL, int NC, double b0, double h0, double b);
 
 void  F_VirtualWork     (F_ARG) ;  /* pour Patrick */
 void  F_AssDiag         (F_ARG) ;  /* pour Patrick */

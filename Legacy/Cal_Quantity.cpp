@@ -420,8 +420,8 @@ void Cal_WholeQuantity(struct Element * Element,
 	    if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= ntime){ 
 	      ((Current.DofData_P0+k)->CurrentSolution) -= ntime ;
 	      if (Flag_InfoForTime_ntime != List_Nbr((Current.DofData_P0+k)->Solutions)) {
-		Msg::Info("Accessing solution from %d time steps ago", ntime);
-		Msg::Info("  -> System %d/%d: TimeStep = %d, Time = %g + i * %g",
+		Msg::Debug("Accessing solution from %d time steps ago", ntime);
+		Msg::Debug("  -> System %d/%d: TimeStep = %d, Time = %g + i * %g",
 			  k+1, Current.NbrSystem, 
 			  (Current.DofData_P0+k)->CurrentSolution->TimeStep,
 			  (Current.DofData_P0+k)->CurrentSolution->Time,

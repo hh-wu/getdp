@@ -188,6 +188,161 @@ void F_dInterpolationAkima(F_ARG)
   V->Type = SCALAR ;
 }
 
+
+double Fi_interp2 (double *x, double *y, double *M, int NL, int NC, double xp, double yp) 
+{
+    double a11, a12, a21, a22, x1, y1, zp;
+    int i, j;
+
+    // Interpolate point (xp,yp) in a regular grid
+    // x[i] <= xp < x[i+1]
+    // y[j] <= yp < y[j+1]
+    
+    if (xp < x[0])
+      Msg::Error("Extrapolation not allowed ( x = %g < %g)", xp, x[0]) ;
+    else if (xp > x[NL-1]) 
+      i = NL-2 ;
+    else{
+      i = 0 ;  while (x[++i] < xp) ;  i-- ;
+    }
+
+    if (yp < y[0])
+      Msg::Error("Extrapolation not allowed ( y = %g < %g)", yp , y[0]) ;
+    else if (yp > y[NC-1])
+      j = NC-2 ;
+    else{
+      j = 0 ;  while (y[++j] < yp) ;  j-- ;
+    }
+    
+    a11 = M[i+NL*j];
+    a21 = M[(i+1)+NL*j];
+    a12 = M[i+NL*(j+1)];
+    a22 = M[(i+1)+NL*(j+1)];
+    x1 = 2.0*(xp-x[i]) / (x[i+1]-x[i]) - 1.0;
+    y1 = 2.0*(yp-y[j]) / (y[j+1]-y[j]) - 1.0;
+    
+    zp = ( a11 * (x1-1.0) * (y1-1.0) - 
+           a21 * (x1+1.0) * (y1-1.0) - 
+           a12 * (x1-1.0) * (y1+1.0) + 
+           a22 * (x1+1.0) * (y1+1.0) )  / 4.0;
+    
+    return zp;
+}
+
+
+void F_InterpolationBilinear(F_ARG)
+{
+/*  
+    It performs a bilinear interpolation at point (xp,yp) based
+    on a two-dimensional table (sorted grid).
+    
+    Input parameters: 
+    x   values (ascending order) linked to the NL lines of the table
+    y   values (ascending order) linked to the NC columns of the table
+    M   Matrix with the table: M(x,y) = M[x+NL*y]
+    NL  Number of lines
+    NC  Number of columns
+    xp  x coordinate of interpolation point
+    yp  y coordinate of interpolation point
+    
+    \return    interpolated value at point (xp,yp)
+    
+    R. Scorretti
+*/
+
+  int     NL, NC ;
+  double  xp, yp, zp = 0., *x, *y, *M;
+  struct FunctionActive  * D;
+
+  if( (A+0)->Type != SCALAR || (A+1)->Type != SCALAR)
+    Msg::Error("Two Scalar arguments required!");
+
+  if (!Fct->Active)  Fi_InitListMatrix (Fct, A, V) ;
+
+  D = Fct->Active ;  
+  NL = D->Case.ListMatrix.NbrLines ;  
+  NC = D->Case.ListMatrix.NbrColumns ;
+  
+  x = D->Case.ListMatrix.x ;  
+  y = D->Case.ListMatrix.y ;
+  M = D->Case.ListMatrix.data ;
+
+  xp = (A+0)->Val[0] ;
+  yp = (A+1)->Val[0] ;
+  
+  V->Val[0] = Fi_interp2 (x, y, M, NL, NC, xp, yp); ;
+  V->Type = SCALAR ;
+}
+
+
+void Fi_InitListMatrix(F_ARG)
+{
+  int     i=0, k, NL, NC, sz ;
+  double  *x, *y ;
+  struct FunctionActive  * D ;
+
+  /*
+    The original table structure:   
+          |  y(1)         y(2)         ...     y(NC)
+    ------+--------------------------------------------
+    x(1)  |  data(1)    data(NL+1)     ...      .
+    x(2)  |  data(2)    data(NL+2)              .
+    .     .             .              .  
+    .     .             .
+    x(NL) |  data(NL)   data(2*NL)  ...     data(NL*NC)
+  
+    is furnished with the following format:
+    [ NL, NC, x(1..NL), y(1..NC), data(1..NL*NC) ]
+
+    R. Scorretti
+ */
+
+  D = Fct->Active =
+    (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
+
+  NL = Fct->Para[i++];
+  NC = Fct->Para[i++];
+  
+  sz = 2 + NL + NC + NL*NC ; // expected size of list matrix
+  if (Fct->NbrParameters != sz) 
+    Msg::Error ("Bad size of input data (expected = %d ; found = %d). "
+		"List with format: x(NbrLines=%d), y(NbrColumns=%d), matrix(NbrLines*NbrColumns=%d)", 
+		sz, Fct->NbrParameters, NL, NC, NL*NC);
+
+  // Initialize structure and allocate memory
+  D->Case.ListMatrix.NbrLines = NL;
+  D->Case.ListMatrix.NbrColumns = NC;
+  D->Case.ListMatrix.x = (double *) malloc (sizeof(double)*NL);
+  D->Case.ListMatrix.y = (double *) malloc (sizeof(double)*NC);
+  D->Case.ListMatrix.data = (double *) malloc (sizeof(double)*NL*NC);
+  
+
+  // Assign values
+  for (k=0 ; k<NL ; ++k) D->Case.ListMatrix.x[k] = Fct->Para[i++];
+  for (k=0 ; k<NC ; ++k) D->Case.ListMatrix.y[k] = Fct->Para[i++];
+  for (k=0 ; k<NL*NC ; ++k) D->Case.ListMatrix.data[k] = Fct->Para[i++];
+}
+
+
+void Fi_InitListX(F_ARG)
+{
+  int     i, N ;
+  double  *x ;
+  struct FunctionActive  * D ;
+
+  D = Fct->Active =
+    (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
+  N = D->Case.Interpolation.NbrPoint = Fct->NbrParameters ;
+  x = D->Case.Interpolation.x = (double *)Malloc(sizeof(double)*N) ;
+
+  for (i = 0 ; i < N ; i++)
+    x[i] = Fct->Para[i] ;
+}
+
+
+
+
+
 void Fi_InitListXY(F_ARG)
 {
   int     i, N ;
@@ -267,37 +422,6 @@ void Fi_InitAkima(F_ARG)
   }
 }
 
-void F_InterpolationMatrix(F_ARG)
-{
-  int i, j, N, NbrLines, NbrColumns;
-  double xp;
-  double * Matrix;
-
-  N = Fct->NbrParameters;
-  if (N <= 2) Msg::Error("Bad number of parameters for matrix interpolation (%d)", N) ;
-
-  NbrLines   = (int)(Fct->Para[0]+0.5);
-  NbrColumns = (int)(Fct->Para[1]+0.5);
-  if (N-2 != NbrLines*NbrColumns)
-    Msg::Error("Bad number of parameters for matrix interpolation (%d+2 instead of %d+2)",
-	       N-2, NbrLines*NbrColumns) ;
-
-  Matrix = Fct->Para+2;
-
-  xp = A->Val[0] ;
- 
-  fprintf(stderr, "\n");
-  for (i = 0 ; i < NbrLines ; i++) {
-    fprintf(stderr, "  Line %d :", i);
-    for (j = 0 ; j < NbrColumns ; j++) {
-      fprintf(stderr, " %g", *(Matrix+i*NbrColumns+j));
-    }
-    fprintf(stderr, "\n");
-  }
-
-  V->Val[0] = 1. ;
-  V->Type = SCALAR ;
-}
 
 struct IntDouble { int Int; double Double; } ;
 struct IntVector { int Int; double Double[3]; } ;

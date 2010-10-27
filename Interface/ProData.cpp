@@ -996,6 +996,7 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
     case OPERATION_SOLVE :
     case OPERATION_GENERATEJAC :
     case OPERATION_SOLVEJAC :
+    case OPERATION_SOLVENL :
     case OPERATION_GENERATESEPARATE :
     case OPERATION_INITSOLUTION :
     case OPERATION_SAVESOLUTION :

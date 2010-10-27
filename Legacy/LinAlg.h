@@ -33,6 +33,7 @@ typedef struct { Solver_Params Params ; } gSolver ;
   #error "GetDP requires PETSc version 2.3 or higher"
 #else
   #include "petscksp.h"
+  #include "petscsnes.h"  
 #endif
 #if defined(PETSC_USE_COMPLEX)
   #define gSCALAR_SIZE 2
@@ -45,6 +46,7 @@ typedef struct { PetscScalar s ; } gScalar ;
 typedef struct { Mat M ; }         gMatrix ;
 typedef struct { Vec V, Vseq ; }   gVector ;
 typedef struct { KSP ksp[10] ; }   gSolver ;
+typedef struct { SNES snes[10] ; } gSolverNL ;
 
 #else
 
@@ -61,10 +63,12 @@ void LinAlg_InitializeSolver(int* argc, char*** argv);
 void LinAlg_FinalizeSolver(void);
 
 void LinAlg_CreateSolver(gSolver *Solver, const char * SolverDataFileName);
+void LinAlg_CreateSolverNL(gSolverNL *SolverNL, const char * SolverDataFileName);
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n);
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m);
 
 void LinAlg_DestroySolver(gSolver *Solver);
+void LinAlg_DestroySolverNL(gSolverNL *SolverNL);
 void LinAlg_DestroyVector(gVector *V);
 void LinAlg_DestroyMatrix(gMatrix *M);
 
@@ -156,5 +160,6 @@ void LinAlg_AssembleVector(gVector *V);
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex=0);
 void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex=0);
+void LinAlg_SolveNL(gMatrix *A, gVector *B, gSolverNL *SolverNL, gSolver *Solver, gVector *X, int solverIndex=0);
 
 #endif

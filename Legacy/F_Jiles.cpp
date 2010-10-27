@@ -15,25 +15,33 @@
 #define SQU(a)     ((a)*(a)) 
 #define MU0 1.25663706144e-6
 
-static double Ms = 2.1/MU0, a = 50, kkk = 82, c = 0.01, alpha = 82/(2.1/MU0) ; /* Bergqvist */
+//static double Ms = 2.1/MU0, a = 50, k = 82, c = 0.01, alpha = 82/(2.1/MU0) ; /* Bergqvist */
 
 void F_dhdb_Jiles(F_ARG)
 {
   /* input : h,b,dh */
 
   double Hx, Hy, Bx, By, dHx, dHy, dHdBxx, dHdByy, dHdBxy;
+  struct FunctionActive  * D ;
 
-  void Vector_dHdB (double Hx, double Hy, double Bx, double By, double dHx, double dHy,
+  void Vector_dHdB (double Hx, double Hy, double Bx, double By, double dHx, double dHy, 
+                    struct FunctionActive *D,
 		    double *dHdBxx, double *dHdByy, double *dHdBxy) ;
   
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
     Msg::Error("Three vector arguments required");
 
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  // Parameters for the Jiles-Atherton model: [Ms, a, k, c, alpha]
+  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c alpha}]} 
+  //  Ms = 2.1/MU0, a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
+  D = Fct->Active ;
+
   Hx  = (A+0)->Val[0] ;  Hy = (A+0)->Val[1] ;
   Bx  = (A+1)->Val[0] ;  By = (A+1)->Val[1] ;
   dHx = (A+2)->Val[0] ; dHy = (A+2)->Val[1] ;
   
-  Vector_dHdB (Hx, Hy, Bx, By, dHx, dHy, &dHdBxx, &dHdByy, &dHdBxy) ;
+  Vector_dHdB (Hx, Hy, Bx, By, dHx, dHy, D, &dHdBxx, &dHdByy, &dHdBxy) ;
 
   V->Type = TENSOR_SYM ;
 
@@ -46,18 +54,26 @@ void F_dbdh_Jiles(F_ARG)
   /* input : h,b,dh */
 
   double Hx, Hy, Bx, By, dHx, dHy, dBdHxx, dBdHyy, dBdHxy;
+  struct FunctionActive *D;
 
-  void Vector_dBdH (double Hx, double Hy, double Bx, double By, double dHx, double dHy,
+  void Vector_dBdH (double Hx, double Hy, double Bx, double By, double dHx, double dHy, 
+                    struct FunctionActive *D,
 		    double *dBdHxx, double *dBdHyy, double *dBdHxy) ;
   
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
     Msg::Error("Three vector arguments required");
 
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  // Parameters for the Jiles-Atherton model: [Ms, a, k, c, alpha]
+  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c alpha}]} 
+  //  Ms = 2.1/MU0, a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
+  D = Fct->Active ;
+
   Hx  = (A+0)->Val[0] ;  Hy = (A+0)->Val[1] ;
   Bx  = (A+1)->Val[0] ;  By = (A+1)->Val[1] ;
   dHx = (A+2)->Val[0] ; dHy = (A+2)->Val[1] ;
   
-  Vector_dBdH (Hx, Hy, Bx, By, dHx, dHy, &dBdHxx, &dBdHyy, &dBdHxy) ;
+  Vector_dBdH (Hx, Hy, Bx, By, dHx, dHy, D, &dBdHxx, &dBdHyy, &dBdHxy) ;
 
   V->Type = TENSOR_SYM ;
 
@@ -69,19 +85,28 @@ void F_h_Jiles(F_ARG)
 {
   /* input : h1,b1,b2 */
   double Hx1, Hy1, Bx1, By1, Bx2, By2, Hx2, Hy2;
+  struct FunctionActive *D;
 
   void Vector_H2 (double Hx1, double Hy1, 
 		  double Bx1, double By1, double Bx2, double By2, int n,
+                  struct FunctionActive *D,
 		  double *Hx2, double *Hy2) ;
 
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
     Msg::Error("Three vector arguments required");
+
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  // Parameters for the Jiles-Atherton model: [Ms, a, k, c, alpha]
+  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c alpha}]} 
+  //  Ms = 2.1/MU0, a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
+  D = Fct->Active ;
+
   
   Hx1 = (A+0)->Val[0] ; Hy1 = (A+0)->Val[1] ;
   Bx1 = (A+1)->Val[0] ; By1 = (A+1)->Val[1] ;
   Bx2 = (A+2)->Val[0] ; By2 = (A+2)->Val[1] ;
 
-  Vector_H2 (Hx1, Hy1, Bx1, By1, Bx2, By2, 10, &Hx2, &Hy2) ;
+  Vector_H2 (Hx1, Hy1, Bx1, By1, Bx2, By2, 10, D, &Hx2, &Hy2) ;
 
   V->Type = VECTOR ;
   V->Val[0] = Hx2 ; V->Val[1] = Hy2 ; V->Val[3] = 0 ;
@@ -91,42 +116,51 @@ void F_b_Jiles(F_ARG)
 { 
   /* input : b1,h1,h2 */
   double Hx1, Hy1, Bx1, By1, Bx2, By2, Hx2, Hy2;
+  struct FunctionActive  * D ;
 
   void Vector_B2 (double Bx1, double By1, 
 		  double Hx1, double Hy1, double Hx2, double Hy2, int n,
+                  struct FunctionActive *D,
 		  double *Bx2, double *By2) ;
 
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
     Msg::Error("Three vector arguments required");
+
+  if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
+  // Parameters for the Jiles-Atherton model: [Ms, a, k, c, alpha]
+  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c alpha}]} 
+  //  Ms = 2.1/MU0, a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
+  D = Fct->Active ;
+
   
   Bx1 = (A+0)->Val[0] ; By1 = (A+0)->Val[1] ;
   Hx1 = (A+1)->Val[0] ; Hy1 = (A+1)->Val[1] ;
   Hx2 = (A+2)->Val[0] ; Hy2 = (A+2)->Val[1] ;
 
-  Vector_B2 (Bx1, By1, Hx1, Hy1, Hx2, Hy2, 10, &Bx2, &By2) ;
+  Vector_B2 (Bx1, By1, Hx1, Hy1, Hx2, Hy2, 10, D, &Bx2, &By2) ;
 
   V->Type = VECTOR ;
   V->Val[0] = Bx2 ; V->Val[1] = By2 ; V->Val[3] = 0 ;
 }
 
-double F_Man (double He) 
+double F_Man (double He, double Ms, double a) 
 {
   if (fabs(He) < 0.01*a) return Ms*He/(3.*a) ;
   else return Ms*(cosh(He/a)/sinh(He/a)-a/He) ;
 }
 
-double F_dMandHe (double He)
+double F_dMandHe (double He, double Ms, double a)
 {
   if (fabs(He) < 0.01*a) return Ms/(3.*a) ;
   else return Ms/a*(1-SQU(cosh(He/a)/sinh(He/a))+SQU(a/He)) ;
 }
 
-void FV_Man (double Hex, double Hey, double *Manx, double *Many) 
+void FV_Man (double Hex, double Hey, double Ms, double a, double *Manx, double *Many) 
 {
   double He, Man;
 
   He = sqrt(Hex*Hex+Hey*Hey) ;
-  Man = F_Man(He) ;
+  Man = F_Man(He,Ms,a) ;
   if ( !He ) {
     *Manx = *Many = 0 ;
   } else {
@@ -136,14 +170,14 @@ void FV_Man (double Hex, double Hey, double *Manx, double *Many)
 
 }
 
-void FV_dMandHe(double Hex, double Hey, double *dMandHexx,
+void FV_dMandHe(double Hex, double Hey, double Ms, double a, double *dMandHexx,
 		double *dMandHeyy, double *dMandHexy)
 {
   double He, Man, dMandHe;
 
   He = sqrt(Hex*Hex+Hey*Hey) ;
-  Man = F_Man(He) ;
-  dMandHe = F_dMandHe(He) ;
+  Man = F_Man(He,Ms,a) ;
+  dMandHe = F_dMandHe(He,Ms,a) ;
 
   if ( !He ) {
     *dMandHexx = *dMandHeyy = dMandHe ;
@@ -156,7 +190,7 @@ void FV_dMandHe(double Hex, double Hey, double *dMandHexx,
 }
 
 void FV_dMidHe(double Hex, double Hey, double Manx, double Many, 
-	       double Mix, double Miy, double dHx, double dHy, 
+	       double Mix, double Miy, double dHx, double dHy, double k, 
 	       double *dMidHexx, double *dMidHeyy, double *dMidHexy)
 {
   double dM, kdM;
@@ -166,7 +200,7 @@ void FV_dMidHe(double Hex, double Hey, double Manx, double Many,
   if ( !dM || (Manx-Mix)*dHx + (Many-Miy)*dHy < 0 ) {
     *dMidHexx = *dMidHeyy = *dMidHexy = 0 ;
   } else {
-    kdM = kkk * dM;
+    kdM = k * dM;
     *dMidHexx = (Manx-Mix)*(Manx-Mix) / kdM ;
     *dMidHeyy = (Many-Miy)*(Many-Miy) / kdM ;
     *dMidHexy = (Manx-Mix)*(Many-Miy) / kdM ;
@@ -176,12 +210,14 @@ void FV_dMidHe(double Hex, double Hey, double Manx, double Many,
 
 void Vector_H2(double Hx1, double Hy1, 
 	       double Bx1, double By1, double Bx2, double By2, int n,
+               struct FunctionActive *D,
 	       double *Hx2, double *Hy2)
 {
   int i ;
   double Hx, Hy, dHx=0., dHy=0., Bx, By, dBx, dBy ;
   double dHdBxx, dHdByy, dHdBxy ;
-  void Vector_dHdB (double Hx, double Hy, double Bx, double By, double dHx, double dHy,
+  void Vector_dHdB (double Hx, double Hy, double Bx, double By, double dHx, double dHy, 
+                    struct FunctionActive *D,
 		    double *dHdBxx, double *dHdByy, double *dHdBxy) ;
   Hx = Hx1 ;
   Hy = Hy1 ;
@@ -195,12 +231,12 @@ void Vector_H2(double Hx1, double Hy1,
     if (!i) {
       dHx = dBx ;
       dHy = dBy ;
-      Vector_dHdB (Hx, Hy, Bx, By, dHx, dHy, &dHdBxx, &dHdByy, &dHdBxy) ;
+      Vector_dHdB (Hx, Hy, Bx, By, dHx, dHy, D, &dHdBxx, &dHdByy, &dHdBxy) ;
       dHx = dHdBxx * dBx + dHdBxy * dBy ;
       dHy = dHdBxy * dBx + dHdByy * dBy ;
     }
 
-    Vector_dHdB (Hx, Hy, Bx, By, dHx, dHy, &dHdBxx, &dHdByy, &dHdBxy) ;
+    Vector_dHdB (Hx, Hy, Bx, By, dHx, dHy, D, &dHdBxx, &dHdByy, &dHdBxy) ;
     dHx = dHdBxx * dBx + dHdBxy * dBy ;
     dHy = dHdBxy * dBx + dHdByy * dBy ;
     Hx += dHx ;
@@ -212,12 +248,14 @@ void Vector_H2(double Hx1, double Hy1,
 
 void Vector_B2(double Bx1, double By1, 
 	       double Hx1, double Hy1, double Hx2, double Hy2, int n,
+               struct FunctionActive *D,
 	       double *Bx2, double *By2)
 {
   int i ;
   double Hx, Hy, dHx, dHy, Bx, By ;
   double dBdHxx, dBdHyy, dBdHxy ;
-  void Vector_dBdH (double Hx, double Hy, double Bx, double By, double dHx, double dHy,
+  void Vector_dBdH (double Hx, double Hy, double Bx, double By, double dHx, double dHy, 
+                    struct FunctionActive *D,
 		    double *dBdHxx, double *dBdHyy, double *dBdHxy) ;
   Bx = Bx1;
   By = By1;
@@ -226,7 +264,7 @@ void Vector_B2(double Bx1, double By1,
   for (i=0 ; i<n ; i++) {
     Hx = (double)(n-i)/(double)n * Hx1 + (double)i/(double)n * Hx2 ;
     Hy = (double)(n-i)/(double)n * Hy1 + (double)i/(double)n * Hy2 ;
-    Vector_dBdH (Hx, Hy, Bx, By, dHx, dHy, &dBdHxx, &dBdHyy, &dBdHxy) ;
+    Vector_dBdH (Hx, Hy, Bx, By, dHx, dHy, D, &dBdHxx, &dBdHyy, &dBdHxy) ;
     Bx += dBdHxx * dHx + dBdHxy * dHy ;
     By += dBdHxy * dHx + dBdHyy * dHy ;
   }
@@ -235,7 +273,8 @@ void Vector_B2(double Bx1, double By1,
 
 }
 
-void Vector_dBdH(double Hx, double Hy, double Bx, double By, double dHx, double dHy,
+void Vector_dBdH(double Hx, double Hy, double Bx, double By, double dHx, double dHy, 
+                 struct FunctionActive *D,
 		 double *dBdHxx, double *dBdHyy, double *dBdHxy)
 {
   double Mx, My, Hex, Hey ;
@@ -244,27 +283,28 @@ void Vector_dBdH(double Hx, double Hy, double Bx, double By, double dHx, double 
   double dMidHexx, dMidHeyy, dMidHexy ;
   double dMdHxx, dMdHyy, dMdHxy ;
   double dxx, dyy, dxy, dd, exx, eyy, exy, fxx, fyy, fxy ;
- 
+  double Ms, a, k, c, alpha;    // parameters of J-A model
+
+  if (D->Case.Interpolation.NbrPoint != 4) 
+    Msg::Error("Jiles-Atherton parameters missing (List[{Ms, a, k, c}])");
+  Ms    = D->Case.Interpolation.x[0]/MU0 ;
+  a     = D->Case.Interpolation.x[1] ;
+  k     = D->Case.Interpolation.x[2] ;
+  c     = D->Case.Interpolation.x[3] ;
+  alpha = k/Ms ;
+
   Mx = Bx/MU0 - Hx ;
   My = By/MU0 - Hy ;
   Hex = Hx + alpha * Mx ;
   Hey = Hy + alpha * My ;
 
-  FV_Man (Hex, Hey, &Manx, &Many) ;
+  FV_Man (Hex, Hey, Ms, a, &Manx, &Many) ;
 
   Mix = (Mx - c*Manx) / (1-c) ;
   Miy = (My - c*Many) / (1-c) ;
 
-  /*
-  printf("Hx %f Hy %f \n", Hx,Hy) ;
-  printf("Bx %f By %f \n", Bx,By) ;
-  printf("Mx %f My %f \n", Mx,My) ;
-  printf("Manx %f Many %f \n", Manx,Many) ;
-  printf("Mix %f Miy %f \n", Mix,Miy) ;
-  */
-
-  FV_dMandHe (Hex, Hey, &dMandHexx, &dMandHeyy, &dMandHexy) ;
-  FV_dMidHe (Hex, Hey, Manx, Many, Mix, Miy, dHx, dHy, &dMidHexx, &dMidHeyy, &dMidHexy) ;
+  FV_dMandHe (Hex, Hey, Ms, a, &dMandHexx, &dMandHeyy, &dMandHexy) ;
+  FV_dMidHe (Hex, Hey, Manx, Many, Mix, Miy, dHx, dHy, k, &dMidHexx, &dMidHeyy, &dMidHexy) ;
 
   dxx = 1 - alpha*c*dMandHexx - alpha*(1-c)*dMidHexx ;
   dyy = 1 - alpha*c*dMandHeyy - alpha*(1-c)*dMidHeyy ;
@@ -280,23 +320,99 @@ void Vector_dBdH(double Hx, double Hy, double Bx, double By, double dHx, double 
   dMdHxx = exx*fxx + exy*fxy ;
   dMdHyy = eyy*fyy + exy*fxy ;
   dMdHxy = exx*fxy + exy*fyy ;
-  /*
-  printf("dMandHexx %e dMidHexx %e dMdHxx %e \n", dMandHexx,dMidHexx,dMdHxx) ;
-  printf("dMandHeyy %e dMidHeyy %e dMdHyy %e \n", dMandHeyy,dMidHeyy,dMdHyy) ;
-  printf("dMandHexy %e dMidHexy %e dMdHxy %e \n", dMandHexy,dMidHexy,dMdHxy) ;
-  */
-  *dBdHxx =  MU0 * (100.0 + dMdHxx) ; 
+
+  *dBdHxx =  MU0 * (100.0 + dMdHxx) ; //why 100?
   *dBdHyy =  MU0 * (100.0 + dMdHyy) ; 
   *dBdHxy =  MU0 * dMdHxy ; 
 }
 
-void Vector_dHdB(double Hx, double Hy, double Bx, double By, double dHx, double dHy,
+void Vector_dHdB(double Hx, double Hy, double Bx, double By, double dHx, double dHy, 
+                 struct FunctionActive *D,
 		 double *dHdBxx, double *dHdByy, double *dHdBxy)
 {
   double dBdHxx, dBdHyy, dBdHxy, det;
-  Vector_dBdH (Hx, Hy, Bx, By, dHx, dHy, &dBdHxx, &dBdHyy, &dBdHxy) ;
+
+  Vector_dBdH (Hx, Hy, Bx, By, dHx, dHy, D, &dBdHxx, &dBdHyy, &dBdHxy) ;
   det = dBdHxx * dBdHyy - dBdHxy * dBdHxy ;
   *dHdBxx =   dBdHyy / det ;
   *dHdByy =   dBdHxx / det ;
   *dHdBxy =  -dBdHxy / det ;
+}
+
+/* ------------------------------------------------------------------------ */
+/* 
+   Ducharne's model of static hysteresis                                    
+
+   Raulet, M.A.; Ducharne, B.; Masson, J.P.; Bayada, G.;
+   "The magnetic field diffusion equation including dynamic hysteresis:
+   a linear formulation of the problem", 
+   IEEE Trans. Mag., vol. 40, no. 2, pp. 872-875 (2004).
+   
+   The magnetic field h is computed for the path: (b0,h0)  --->  (b,h)
+   The final flux density b is imposed.
+   
+   In practice, the magnetic field is given by:
+   
+              /b
+       h(b) = |  (dh/db).db
+              /b0
+ 
+   where the values of (dh/db) are functions of (b,h) and are interpolated
+   from a provided table {bi, hi, M, NL, NC}, obtained e.g. experimentally.
+  
+   bi  Flux density (T) for the tabulated values
+   hi  Magnetic field (A/m) for the tabulated values
+   M   Matrix with the slopes of reversal paths
+   NL  Number of lines
+   NC  Number of columns
+   b0  Initial flux density (T)
+   h0  Initial magnetic field (A/m)
+   b   Final flux density (T)
+  
+*/
+/* ------------------------------------------------------------------------ */
+
+double Fi_DucharneH (double *bi, double *hi, double *M, int NL, int NC, double b0, double h0, double b)
+{
+    double db, dh, dHdB, h, s;
+    int i;
+    int N = 100 ; // fixed number of steps for numerical integration
+
+    h = h0;
+    db = (b-b0)/N;
+    s = (b-b0 < 0) ? -1 : +1;
+    for (i=0 ; i<N ; ++i) {
+        dHdB = Fi_interp2 (hi, bi, M, NL, NC, s*h0, s*b0);
+        dh = dHdB * db;
+        h0 = h0 + dh;
+    }
+    return h0 ;
+}
+
+void F_DucharneH(F_ARG)
+{
+    int    NL, NC, i;
+    double b0, h0, b, h, *bi, *hi, *M;
+    struct FunctionActive  * D;
+
+    if (!Fct->Active)  Fi_InitListMatrix (Fct, A, V) ;
+
+    D = Fct->Active ;
+    NL = D->Case.ListMatrix.NbrLines ;
+    NC = D->Case.ListMatrix.NbrColumns ;
+
+    bi = D->Case.ListMatrix.x ;
+    hi = D->Case.ListMatrix.y ;
+    M = D->Case.ListMatrix.data ;
+
+    V->Type = VECTOR ;
+    for (i=0 ; i<3 ; ++i) {
+        b0 = (A+0)->Val[i] ;
+        h0 = (A+1)->Val[i] ;
+        b  = (A+2)->Val[i] ;
+        h  = Fi_DucharneH (bi, hi, M, NL, NC, b0, h0, b);
+        V->Val[i] = h;
+    }
+
+
 }
