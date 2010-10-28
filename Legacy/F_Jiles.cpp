@@ -15,7 +15,14 @@
 #define SQU(a)     ((a)*(a)) 
 #define MU0 1.25663706144e-6
 
-//static double Ms = 2.1/MU0, a = 50, k = 82, c = 0.01, alpha = 82/(2.1/MU0) ; /* Bergqvist */
+/* ------------------------------------------------------------------------ */
+/*
+  Vectorized Jiles-Atherton hysteresis model
+  J. Gyselinck, P. Dular, N. Sadowski, J. Leite and J.P.A. Bastos,
+  "Incorporation of a Jiles-Atherton vector hysteresis model in 
+  2D FE magnetic field computations. Application of the Newton-Raphson method", 
+  Vol. 23, No. 3, pp. 685-693, 2004.
+ */
 
 void F_dhdb_Jiles(F_ARG)
 {
@@ -32,9 +39,9 @@ void F_dhdb_Jiles(F_ARG)
     Msg::Error("Three vector arguments required");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  // Parameters for the Jiles-Atherton model: [Ms, a, k, c, alpha]
-  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c alpha}]} 
-  //  Ms = 2.1/MU0, a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
+  // Parameters for the Jiles-Atherton model in D
+  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c, alpha}]} 
+  //  Ms = 2.1/mu0 (T), a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
   D = Fct->Active ;
 
   Hx  = (A+0)->Val[0] ;  Hy = (A+0)->Val[1] ;
@@ -64,9 +71,10 @@ void F_dbdh_Jiles(F_ARG)
     Msg::Error("Three vector arguments required");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  // Parameters for the Jiles-Atherton model: [Ms, a, k, c, alpha]
-  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c alpha}]} 
-  //  Ms = 2.1/MU0, a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
+  // Parameters for the Jiles-Atherton model in D
+  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c, alpha}]} 
+  //  Ms = 2.1/mu0 (T), a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
+
   D = Fct->Active ;
 
   Hx  = (A+0)->Val[0] ;  Hy = (A+0)->Val[1] ;
@@ -96,9 +104,9 @@ void F_h_Jiles(F_ARG)
     Msg::Error("Three vector arguments required");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  // Parameters for the Jiles-Atherton model: [Ms, a, k, c, alpha]
+  // Parameters for the Jiles-Atherton model in D
   // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c alpha}]} 
-  //  Ms = 2.1/MU0, a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
+  // Ms = 2.1/mu0 (T), a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
   D = Fct->Active ;
 
   
@@ -109,7 +117,7 @@ void F_h_Jiles(F_ARG)
   Vector_H2 (Hx1, Hy1, Bx1, By1, Bx2, By2, 10, D, &Hx2, &Hy2) ;
 
   V->Type = VECTOR ;
-  V->Val[0] = Hx2 ; V->Val[1] = Hy2 ; V->Val[3] = 0 ;
+  V->Val[0] = Hx2 ; V->Val[1] = Hy2 ; V->Val[2] = 0 ;
 }
 
 void F_b_Jiles(F_ARG)
@@ -127,12 +135,11 @@ void F_b_Jiles(F_ARG)
     Msg::Error("Three vector arguments required");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  // Parameters for the Jiles-Atherton model: [Ms, a, k, c, alpha]
+  // Parameters for the Jiles-Atherton model in D
   // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c alpha}]} 
-  //  Ms = 2.1/MU0, a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
+  //  Ms = 2.1/mu0 (T), a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist 
   D = Fct->Active ;
 
-  
   Bx1 = (A+0)->Val[0] ; By1 = (A+0)->Val[1] ;
   Hx1 = (A+1)->Val[0] ; Hy1 = (A+1)->Val[1] ;
   Hx2 = (A+2)->Val[0] ; Hy2 = (A+2)->Val[1] ;
@@ -140,7 +147,7 @@ void F_b_Jiles(F_ARG)
   Vector_B2 (Bx1, By1, Hx1, Hy1, Hx2, Hy2, 10, D, &Bx2, &By2) ;
 
   V->Type = VECTOR ;
-  V->Val[0] = Bx2 ; V->Val[1] = By2 ; V->Val[3] = 0 ;
+  V->Val[0] = Bx2 ; V->Val[1] = By2 ; V->Val[2] = 0 ;
 }
 
 double F_Man (double He, double Ms, double a) 
@@ -235,7 +242,7 @@ void Vector_H2(double Hx1, double Hy1,
       dHx = dHdBxx * dBx + dHdBxy * dBy ;
       dHy = dHdBxy * dBx + dHdByy * dBy ;
     }
-
+    
     Vector_dHdB (Hx, Hy, Bx, By, dHx, dHy, D, &dHdBxx, &dHdByy, &dHdBxy) ;
     dHx = dHdBxx * dBx + dHdBxy * dBy ;
     dHy = dHdBxy * dBx + dHdByy * dBy ;
@@ -285,14 +292,15 @@ void Vector_dBdH(double Hx, double Hy, double Bx, double By, double dHx, double 
   double dxx, dyy, dxy, dd, exx, eyy, exy, fxx, fyy, fxy ;
   double Ms, a, k, c, alpha;    // parameters of J-A model
 
-  if (D->Case.Interpolation.NbrPoint != 4) 
+  if (D->Case.Interpolation.NbrPoint != 5) 
     Msg::Error("Jiles-Atherton parameters missing (List[{Ms, a, k, c}])");
-  Ms    = D->Case.Interpolation.x[0]/MU0 ;
+  Ms    = D->Case.Interpolation.x[0] ;
   a     = D->Case.Interpolation.x[1] ;
   k     = D->Case.Interpolation.x[2] ;
   c     = D->Case.Interpolation.x[3] ;
-  alpha = k/Ms ;
+  alpha = D->Case.Interpolation.x[4] ;
 
+  
   Mx = Bx/MU0 - Hx ;
   My = By/MU0 - Hy ;
   Hex = Hx + alpha * Mx ;
@@ -321,8 +329,8 @@ void Vector_dBdH(double Hx, double Hy, double Bx, double By, double dHx, double 
   dMdHyy = eyy*fyy + exy*fxy ;
   dMdHxy = exx*fxy + exy*fyy ;
 
-  *dBdHxx =  MU0 * (100.0 + dMdHxx) ; //why 100?
-  *dBdHyy =  MU0 * (100.0 + dMdHyy) ; 
+  *dBdHxx =  MU0 * (1.0 + dMdHxx) ; //From the formulas, it is 1, but there was a 100, why?
+  *dBdHyy =  MU0 * (1.0 + dMdHyy) ; //it does not modify greatly the result
   *dBdHxy =  MU0 * dMdHxy ; 
 }
 
@@ -372,24 +380,26 @@ void Vector_dHdB(double Hx, double Hy, double Bx, double By, double dHx, double 
 */
 /* ------------------------------------------------------------------------ */
 
-double Fi_DucharneH (double *bi, double *hi, double *M, int NL, int NC, double b0, double h0, double b)
+double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL, int NC, double h0, double b0, double b)
 {
-    double db, dh, dHdB, h, s;
-    int i;
-    int N = 100 ; // fixed number of steps for numerical integration
+    double db, dh, dHdB, s;
+    int i, N = 200 ; // fixed number of steps for numerical integration
+    double max_b=bi[NC-1], min_b=bi[0] ;
+    double max_h=hi[NC-1], min_h=hi[0] ;
 
-    h = h0;
-    db = (b-b0)/N;
-    s = (b-b0 < 0) ? -1 : +1;
-    for (i=0 ; i<N ; ++i) {
-        dHdB = Fi_interp2 (hi, bi, M, NL, NC, s*h0, s*b0);
-        dh = dHdB * db;
-        h0 = h0 + dh;
+    db = (b - b0)/N ;
+    s = (b - b0 < 0) ? -1. : 1. ;
+    for (i=0 ; i < N ; ++i) {
+      bool IsInGrid = Fi_InterpolationBilinear(hi, bi, M, NL, NC, s*h0, s*b0, &dHdB);
+      if (!IsInGrid) dHdB = MU0 ;
+      dh = dHdB * db;
+      h0 += dh;
+      b0 += db;
     }
     return h0 ;
 }
 
-void F_DucharneH(F_ARG)
+void F_h_Ducharne(F_ARG)
 {
     int    NL, NC, i;
     double b0, h0, b, h, *bi, *hi, *M;
@@ -401,18 +411,87 @@ void F_DucharneH(F_ARG)
     NL = D->Case.ListMatrix.NbrLines ;
     NC = D->Case.ListMatrix.NbrColumns ;
 
-    bi = D->Case.ListMatrix.x ;
-    hi = D->Case.ListMatrix.y ;
-    M = D->Case.ListMatrix.data ;
+    hi = D->Case.ListMatrix.x ;
+    bi = D->Case.ListMatrix.y ;
+    M =  D->Case.ListMatrix.data ;
 
-    V->Type = VECTOR ;
+
     for (i=0 ; i<3 ; ++i) {
-        b0 = (A+0)->Val[i] ;
-        h0 = (A+1)->Val[i] ;
+        // (h0,b0) = state of the model, and b 
+        h0 = (A+0)->Val[i] ;
+        b0 = (A+1)->Val[i] ;
         b  = (A+2)->Val[i] ;
-        h  = Fi_DucharneH (bi, hi, M, NL, NC, b0, h0, b);
+
+        // Compute the magnetic field
+        h = Fi_h_Ducharne (hi, bi, M, NL, NC, h0, b0, b);
         V->Val[i] = h;
     }
 
-
+    V->Type = VECTOR ;
 }
+
+void F_nu_Ducharne(F_ARG)
+{
+    int    NL, NC, i;
+    double b0, h0, b[3], h[3], *bi, *hi, *M;
+    struct FunctionActive  * D;
+
+    if (!Fct->Active) Fi_InitListMatrix (Fct, A, V) ;
+
+    D = Fct->Active ;
+    NL = D->Case.ListMatrix.NbrLines ;
+    NC = D->Case.ListMatrix.NbrColumns ;
+
+    hi = D->Case.ListMatrix.x ;
+    bi = D->Case.ListMatrix.y ;
+    M  = D->Case.ListMatrix.data ;
+
+    for (i=0 ; i<3 ; ++i) {
+        // Get (h0,b0) = state of the model, and b
+        h0 = (A+0)->Val[i] ;
+        b0 = (A+1)->Val[i] ;
+        b[i] = (A+2)->Val[i] ;
+
+        // Compute h
+        h[i] = Fi_h_Ducharne (hi, bi, M, NL, NC, h0, b0, b[i]);
+    }
+
+    V->Type = TENSOR_SYM ;
+    V->Val[0] = (b[0] == 0) ? 1/(1e4*MU0) : h[0]/b[0]  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0 ;
+    V->Val[3] = (b[1] == 0) ? 1/(1e4*MU0) : h[1]/b[1]  ;  V->Val[4] = 0 ;
+    V->Val[5] = (b[2] == 0) ? 1/(1e4*MU0) : h[2]/b[2]  ;
+}
+
+void F_dhdb_Ducharne(F_ARG)
+{
+    int    NL, NC, i;
+    double b0, h0, b[3], h[3], *bi, *hi, *M, dHdB[3], s;
+    struct FunctionActive  * D;  
+
+    if (!Fct->Active)  Fi_InitListMatrix (Fct, A, V) ;
+
+    D = Fct->Active ;
+    NL = D->Case.ListMatrix.NbrLines ;
+    NC = D->Case.ListMatrix.NbrColumns ;
+
+    hi = D->Case.ListMatrix.x ;
+    bi = D->Case.ListMatrix.y ;
+    M  = D->Case.ListMatrix.data ;
+
+    for (i=0 ; i<3 ; ++i) {
+        // Get (h0,b0) = state of the model, and b 
+        h0 = (A+0)->Val[i] ;
+        b0 = (A+1)->Val[i] ;
+        b[i] = (A+2)->Val[i] ;
+        s = (b[i] - b0 < 0) ? -1 : +1;
+
+        bool IsInGrid = Fi_InterpolationBilinear (hi, bi, M, NL, NC, s*h0, s*b0, &(dHdB[i]));
+        if (!IsInGrid) dHdB[i] = MU0 ;
+    }
+
+    V->Type = TENSOR_SYM ;
+    V->Val[0] = dHdB[0]  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0 ;
+    V->Val[3] = dHdB[1]  ;  V->Val[4] = 0 ;
+    V->Val[5] = dHdB[2]  ;
+}
+

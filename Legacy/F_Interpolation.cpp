@@ -189,44 +189,43 @@ void F_dInterpolationAkima(F_ARG)
 }
 
 
-double Fi_interp2 (double *x, double *y, double *M, int NL, int NC, double xp, double yp) 
+bool Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC, double xp, double yp, double *zp) 
 {
-    double a11, a12, a21, a22, x1, y1, zp;
+    double a11, a12, a21, a22, x1, y1;
     int i, j;
 
     // Interpolate point (xp,yp) in a regular grid
     // x[i] <= xp < x[i+1]
     // y[j] <= yp < y[j+1]
     
-    if (xp < x[0])
-      Msg::Error("Extrapolation not allowed ( x = %g < %g)", xp, x[0]) ;
-    else if (xp > x[NL-1]) 
-      i = NL-2 ;
-    else{
-      i = 0 ;  while (x[++i] < xp) ;  i-- ;
-    }
+    *zp = 0.0 ;
+    if (xp < x[0]) return false ;
+    else if (xp > x[NL-1]) return false ;
+    else for (i=0 ; i<NL-1 ; ++i) if (x[i+1] >= xp  &&  xp >= x[i]) break;
 
-    if (yp < y[0])
-      Msg::Error("Extrapolation not allowed ( y = %g < %g)", yp , y[0]) ;
-    else if (yp > y[NC-1])
-      j = NC-2 ;
-    else{
-      j = 0 ;  while (y[++j] < yp) ;  j-- ;
-    }
-    
+    if (yp < y[0]) return false ;
+    else if (yp > y[NC-1]) return false ;
+    else for (j=0 ; j<NC-1 ; ++j) if (y[j+1] >= yp  &&  yp >= y[j]) break;
+
+    a11 = M[j+NL*i];
+    a21 = M[(j+1)+NL*i];
+    a12 = M[j+NL*(i+1)];
+    a22 = M[(j+1)+NL*(i+1)];
+    /*
     a11 = M[i+NL*j];
     a21 = M[(i+1)+NL*j];
     a12 = M[i+NL*(j+1)];
     a22 = M[(i+1)+NL*(j+1)];
+    */
     x1 = 2.0*(xp-x[i]) / (x[i+1]-x[i]) - 1.0;
     y1 = 2.0*(yp-y[j]) / (y[j+1]-y[j]) - 1.0;
     
-    zp = ( a11 * (x1-1.0) * (y1-1.0) - 
-           a21 * (x1+1.0) * (y1-1.0) - 
-           a12 * (x1-1.0) * (y1+1.0) + 
-           a22 * (x1+1.0) * (y1+1.0) )  / 4.0;
+    *zp = ( a11 * (x1-1.0) * (y1-1.0) - 
+            a21 * (x1+1.0) * (y1-1.0) - 
+            a12 * (x1-1.0) * (y1+1.0) + 
+            a22 * (x1+1.0) * (y1+1.0) )  / 4.0;
     
-    return zp;
+    return true ;
 }
 
 
@@ -250,7 +249,7 @@ void F_InterpolationBilinear(F_ARG)
     R. Scorretti
 */
 
-  int     NL, NC ;
+  int     NL, NC, err ;
   double  xp, yp, zp = 0., *x, *y, *M;
   struct FunctionActive  * D;
 
@@ -269,9 +268,13 @@ void F_InterpolationBilinear(F_ARG)
 
   xp = (A+0)->Val[0] ;
   yp = (A+1)->Val[0] ;
-  
-  V->Val[0] = Fi_interp2 (x, y, M, NL, NC, xp, yp); ;
+
+  bool IsInGrid = Fi_InterpolationBilinear (x, y, M, NL, NC, xp, yp, &zp);
+  if (!IsInGrid) Msg::Error("Extrapolation not allowed (xp=%g ; yp=%g)", xp, yp) ;
+
   V->Type = SCALAR ;
+  V->Val[0] = zp ;
+
 }
 
 

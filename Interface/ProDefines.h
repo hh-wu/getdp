@@ -951,7 +951,6 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"InterpolationAkima"    , (CAST)F_InterpolationAkima    ,  -2,   1 },
   {"dInterpolationAkima"   , (CAST)F_dInterpolationAkima   ,  -2,   1 },
 
-  // Riccardo
   {"InterpolationBilinear"   , (CAST)F_InterpolationBilinear   ,  -1,   2 },
 
   {"ValueFromIndex"        , (CAST)F_ValueFromIndex        ,  -1,   0 },
@@ -964,10 +963,18 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
 
   {"VirtualWork"           , (CAST)F_VirtualWork           ,   0,   1 },
 
+
+  // hysteresis models
   {"dhdb_Jiles"            , (CAST)F_dhdb_Jiles            ,  -1,   3 },
   {"dbdh_Jiles"            , (CAST)F_dbdh_Jiles            ,  -1,   3 },
   {"h_Jiles"               , (CAST)F_h_Jiles               ,  -1,   3 },
   {"b_Jiles"               , (CAST)F_b_Jiles               ,  -1,   3 },
+
+  {"dhdb_Ducharne"           , (CAST)F_dhdb_Ducharne       ,  -1,   3 },
+  {"h_Ducharne"              , (CAST)F_h_Ducharne          ,  -1,   3 },
+  {"nu_Ducharne"             , (CAST)F_nu_Ducharne         ,  -1,   3 },
+  
+
 
   // F_MultiHar
 

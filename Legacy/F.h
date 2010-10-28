@@ -164,7 +164,7 @@ void  F_dInterpolationAkima   (F_ARG) ;
 
 void F_InterpolationBilinear (F_ARG) ; /* Riccardo */
 
-double Fi_interp2 (double *x, double *y, double *M, int NL, int NC, double xp, double yp);/* Riccardo */
+bool Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC, double xp, double yp, double *zp);/* Riccardo */
 
 void  Fi_InitListX      (F_ARG) ; // List
 void  Fi_InitListXY     (F_ARG) ; // ListAlt
@@ -187,8 +187,10 @@ void  F_dbdh_Jiles      (F_ARG) ;  /* pour Johan */
 void  F_h_Jiles         (F_ARG) ;  /* pour Johan */
 void  F_b_Jiles         (F_ARG) ;  /* pour Johan */
 
-void   F_DucharneH (F_ARG) ; /* pour Riccardo */
-double Fi_DucharneH (double *bi, double *hi, double *M, int NL, int NC, double b0, double h0, double b);
+void  F_dhdb_Ducharne(F_ARG) ; /* pour Riccardo */
+void  F_h_Ducharne (F_ARG) ; /* pour Riccardo */
+void  F_nu_Ducharne(F_ARG) ; /* pour Riccardo */
+double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL, int NC, double h0, double b0, double b);
 
 void  F_VirtualWork     (F_ARG) ;  /* pour Patrick */
 void  F_AssDiag         (F_ARG) ;  /* pour Patrick */
