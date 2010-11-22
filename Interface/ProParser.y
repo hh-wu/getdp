@@ -6358,7 +6358,8 @@ Affectation :
 
   | String__Index tDEF tListFromFile '[' CharExpr ']' tEND
     { Constant_S.Name = $1; Constant_S.Type = VAR_LISTOFFLOAT;
-      static FILE *File;
+      Msg::Barrier();
+      FILE *File;
       if(!(File = fopen($5, "r"))){ 
         Msg::Warning("Could not open file '%s'", $5);
 	Constant_S.Value.ListOfFloat = NULL;
