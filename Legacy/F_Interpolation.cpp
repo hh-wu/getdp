@@ -193,30 +193,36 @@ bool Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC, 
 {
     double a11, a12, a21, a22, x1, y1;
     int i, j;
+    int maxLinIndex = NL*NC-1;  // max index of data
 
     // Interpolate point (xp,yp) in a regular grid
     // x[i] <= xp < x[i+1]
     // y[j] <= yp < y[j+1]
     
     *zp = 0.0 ;
-    if (xp < x[0]) return false ;
-    else if (xp > x[NL-1]) return false ;
-    else for (i=0 ; i<NL-1 ; ++i) if (x[i+1] >= xp  &&  xp >= x[i]) break;
 
-    if (yp < y[0]) return false ;
-    else if (yp > y[NC-1]) return false ;
-    else for (j=0 ; j<NC-1 ; ++j) if (y[j+1] >= yp  &&  yp >= y[j]) break;
+    // When (xp,yp) lays outside the boundaries of the table:
+    // the nearest border is taken 
+    if (xp < x[0]) xp = x[0];
+    else if (xp > x[NL-1]) xp = x[NL-1];
+    for (i=0 ; i<NL-1 ; ++i) if (x[i+1] >= xp  &&  xp >= x[i]) break;
+    i = (i >= NL) ? NL-1 : i;
 
-    a11 = M[j+NL*i];
-    a21 = M[(j+1)+NL*i];
-    a12 = M[j+NL*(i+1)];
-    a22 = M[(j+1)+NL*(i+1)];
-    /*
-    a11 = M[i+NL*j];
-    a21 = M[(i+1)+NL*j];
-    a12 = M[i+NL*(j+1)];
-    a22 = M[(i+1)+NL*(j+1)];
-    */
+    if (yp < y[0]) yp = y[0];
+    else if (yp > y[NC-1]) yp = y[NC-1];
+    for (j=0 ; j<NC-1 ; ++j) if (y[j+1] >= yp  &&  yp >= y[j]) break;
+    j = (j >= NC) ? NC-1 : j;
+
+    // Check for possibly wrong indexes
+    if ( (j+1)+NC*(i+1) < 0  ||  (j+1)+NC*(i+1)>maxLinIndex )
+      Msg::Error("Bad index in List for Bilinear Interpolation: i=%d , j=%d , mx=%d , in = %d!",
+                 i, j, (j+1)+NL*(i+1), maxLinIndex);
+
+    a11 = M[j+NC*i];
+    a21 = M[(j+1)+NC*i];
+    a12 = M[j+NC*(i+1)];
+    a22 = M[(j+1)+NC*(i+1)];
+
     x1 = 2.0*(xp-x[i]) / (x[i+1]-x[i]) - 1.0;
     y1 = 2.0*(yp-y[j]) / (y[j+1]-y[j]) - 1.0;
     
@@ -236,15 +242,14 @@ void F_InterpolationBilinear(F_ARG)
     on a two-dimensional table (sorted grid).
     
     Input parameters: 
-    x   values (ascending order) linked to the NL lines of the table
-    y   values (ascending order) linked to the NC columns of the table
-    M   Matrix with the table: M(x,y) = M[x+NL*y]
     NL  Number of lines
     NC  Number of columns
+    x   values (ascending order) linked to the NL lines of the table
+    y   values (ascending order) linked to the NC columns of the table
+    M   Matrix M(x,y) = M[x+NL*y]
+
     xp  x coordinate of interpolation point
     yp  y coordinate of interpolation point
-    
-    \return    interpolated value at point (xp,yp)
     
     R. Scorretti
 */
