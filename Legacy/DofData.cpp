@@ -596,13 +596,10 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
   else{
     Msg::Info("Writing solution for all entities in group '%s'", Group_P->Name) ;
 
-    // Warning: hack to make sure we use the correct mesh when several
-    // are loaded
-    struct GeoData *old = Current.GeoData;
-    Geo_SetCurrentGeoData(Current.GeoData = 
-                          GeoData_P0 + DofData_P->GeoDataIndex) ;
+    // force generation of extended list (necessary when using
+    // multiple meshes)
+    if(Group_P->ExtendedList) List_Delete(Group_P->ExtendedList);
     Generate_ExtendedGroup(Group_P) ;
-    Geo_SetCurrentGeoData(Current.GeoData = old);
 
     fprintf(fpRe, "%d\n", List_Nbr(Group_P->ExtendedList));//Needed for ListFromFile
     fprintf(fpIm, "%d\n", List_Nbr(Group_P->ExtendedList));
