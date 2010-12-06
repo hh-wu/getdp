@@ -15,6 +15,7 @@
 #include "GetDPVersion.h"
 #include "ProData.h"
 #include "DofData.h"
+#include "GeoData.h"
 #include "ExtendedGroup.h"
 #include "ListUtils.h"
 #include "TreeUtils.h"
@@ -538,7 +539,8 @@ void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 /* ------------------------------------------------------------------------ */
 
 void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P,
-                                    struct Group *Group_P, bool saveFixed) 
+                                    struct GeoData * GeoData_P0, struct Group *Group_P,
+                                    bool saveFixed) 
 {
   if(Msg::GetCommRank()) return;
 
@@ -593,7 +595,14 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
   }
   else{
     Msg::Info("Writing solution for all entities in group '%s'", Group_P->Name) ;
-    if(!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
+
+    // Warning: hack to make sure we use the correct mesh when several
+    // are loaded
+    struct GeoData *old = Current.GeoData;
+    Geo_SetCurrentGeoData(Current.GeoData = 
+                          GeoData_P0 + DofData_P->GeoDataIndex) ;
+    Generate_ExtendedGroup(Group_P) ;
+    Geo_SetCurrentGeoData(Current.GeoData = old);
 
     fprintf(fpRe, "%d\n", List_Nbr(Group_P->ExtendedList));//Needed for ListFromFile
     fprintf(fpIm, "%d\n", List_Nbr(Group_P->ExtendedList));

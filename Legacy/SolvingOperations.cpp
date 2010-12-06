@@ -2228,7 +2228,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Group *g = 0;
         if (num >= 0) g = (Group*)List_Pointer(Problem_S.Group, num);
         bool saveFixed = Operation_P->Case.SaveSolutionWithEntityNum.SaveFixed;
-        Dof_WriteFileRES_WithEntityNum(ResName, DofData_P, g, saveFixed) ;
+        Dof_WriteFileRES_WithEntityNum(ResName, DofData_P, GeoData_P0, g, saveFixed) ;
       }
       break ;
 

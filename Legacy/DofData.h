@@ -164,7 +164,8 @@ void  Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P, in
 void  Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P, 
 				int Format, List_T * Time_L);
 void  Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P,
-                                     struct Group * Group_P, bool saveFixed);
+                                     struct GeoData * GeoData_P0, struct Group * Group_P,
+                                     bool saveFixed);
 
 void  Dof_TransferDofTreeToList(struct DofData * DofData_P) ;
 void  Dof_InitDofType(struct DofData * DofData_P) ;
