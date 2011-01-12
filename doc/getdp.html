@@ -63,7 +63,7 @@ f</code> on a domain <code>D</code>, an input file
         { Name v; Type Local; NameOfSpace H1; }
       }
       Equation {
-        Galerkin { [ a[] * Dof{Grad v}, {Grad v} ] ; In D; Jacobian V; Integration I; }
+        Galerkin { [ a[] * Dof{d v}, {d v} ] ; In D; Jacobian V; Integration I; }
         Galerkin { [ f[], {v} ] ; In D; Jacobian V; Integration I; }
       }
     }
