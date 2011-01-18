@@ -103,6 +103,7 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
 {
   _try(VecCreate(PETSC_COMM_WORLD, &V->V));
   _try(VecSetSizes(V->V, PETSC_DECIDE, n));
+
   // override the default options with the ones from the option
   // database (if any)
   _try(VecSetFromOptions(V->V));
@@ -280,7 +281,8 @@ void LinAlg_PrintScalar(FILE *file, gScalar *S)
 #endif
 }
 
-void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab)
+void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab,
+                        const char* fileName, const char* varName)
 {
   if(!matlab){
     PetscInt n;
@@ -300,19 +302,22 @@ void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab)
   }
   else{
     PetscViewer fd;
-    _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, "vector.m", &fd));
+    _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, fileName, &fd));
     _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
+    _try(PetscObjectSetName((PetscObject)V->V, varName));
     _try(VecView(V->V, fd));
     _try(PetscViewerDestroy(fd));
   }
 } 
 
-void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab)
+void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab,
+                        const char* fileName, const char* varName)
 {
   if(!matlab) Msg::Error("Non-matlab output not available for this matrix");
   PetscViewer fd;
-  _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, "matrix.m", &fd));
+  _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, fileName, &fd));
   _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
+  _try(PetscObjectSetName((PetscObject)M->M, varName));
   _try(MatView(M->M, fd));
   _try(PetscViewerDestroy(fd));
 }

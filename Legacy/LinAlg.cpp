@@ -34,8 +34,10 @@ void LinAlg_ReadScalar(FILE *file, gScalar *S){ err; }
 void LinAlg_ReadVector(FILE *file, gVector *V){ err; }
 void LinAlg_ReadMatrix(FILE *file, gMatrix *M){ err; }
 void LinAlg_PrintScalar(FILE *file, gScalar *S){ err; }
-void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab){ err; }
-void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab){ err; }
+void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab,
+                        const char* fileName, const char* varName){ err; }
+void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab,
+                        const char* fileName, const char*varName){ err; }
 void LinAlg_WriteScalar(FILE *file, gScalar *S){ err; }
 void LinAlg_WriteVector(FILE *file, gVector *V){ err; }
 void LinAlg_WriteMatrix(FILE *file, gMatrix *M){ err; }
