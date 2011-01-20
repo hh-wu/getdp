@@ -3144,9 +3144,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           // use matlab format if available
           DefineSystem_P = (struct DefineSystem*)
             List_Pointer(Resolution_P->DefineSystem, Operation_P->DefineSystemIndex) ;
-          std::string name(DefineSystem_P->Name), mat("mat_"), vec("vec_");
-	  LinAlg_PrintMatrix(fp, &DofData_P->A, true, (mat + name + ".m").c_str(), (mat + name).c_str()) ;
-	  LinAlg_PrintVector(fp, &DofData_P->b, true, (vec + name + ".m").c_str(), (vec + name).c_str()) ;
+          std::string name(DefineSystem_P->Name), file("file_"), mat("mat_"), vec("vec_");
+	  LinAlg_PrintMatrix(fp, &DofData_P->A, true, (file + mat + name + ".m").c_str(),
+                             (mat + name).c_str()) ;
+	  LinAlg_PrintVector(fp, &DofData_P->b, true, (file + vec + name + ".m").c_str(),
+                             (vec + name).c_str()) ;
 	}
       }
 
