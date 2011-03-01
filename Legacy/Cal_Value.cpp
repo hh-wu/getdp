@@ -2434,7 +2434,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
 /*  -->  P r i n t _ V a l u e                             */
 /* ------------------------------------------------------- */
 
-void Print_Value(struct Value *A)
+std::string Print_Value_ToString(struct Value *A)
 {
   int i, j, k, index = 0;
   std::ostringstream sstream;
@@ -2497,8 +2497,14 @@ void Print_Value(struct Value *A)
     Msg::Error("Unknown type of argument in function 'Printf'");
     break;
   }
+  
+  std::string ret(sstream.str());
+  return ret;
+}
 
-  Msg::Direct("%s", sstream.str().c_str());
+void Print_Value(struct Value *A)
+{
+  Msg::Direct("%s", Print_Value_ToString(A).c_str());
   Msg::Direct(" ");
 }
 

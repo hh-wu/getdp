@@ -1319,9 +1319,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     }
 
     if (Flag_Summation && PostSubOperation_P->Format == FORMAT_REGION_TABLE) {
-      fprintf(PostStream, "#Sum: ") ;
-      Print_Value(&ValueSummed);
-      fprintf(PostStream, "\n") ;
+      fprintf(PostStream, "#Sum: %s\n", Print_Value_ToString(&ValueSummed).c_str());
     }
 
   }
@@ -1412,8 +1410,7 @@ void  Pos_PrintExpression(struct PostSubOperation *PostSubOperation_P)
     if(expr >= 0){
       Get_ValueOfExpressionByIndex(expr, NULL, 0., 0., 0., &Value) ; 
       if(str) fprintf(PostStream, "%s", str);
-      Print_Value(&Value);
-      fprintf(PostStream, "\n") ;
+      fprintf(PostStream, "%s\n", Print_Value_ToString(&Value).c_str());
     }      
     else if(str2){
       if(str) fprintf(PostStream, "%s", str);

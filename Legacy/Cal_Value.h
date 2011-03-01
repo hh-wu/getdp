@@ -6,6 +6,7 @@
 #ifndef _CAL_VALUE_H_
 #define _CAL_VALUE_H_
 
+#include <string>
 #include "ProData.h"
 
 void  Cal_CopyValue           (struct Value *V1, struct Value *R);
@@ -50,6 +51,7 @@ void  Cal_ComplexInvert   (double V1[], double P[]);
 
 /* Debug */
 
+std::string Print_Value_ToString(struct Value *A);
 void  Print_Value (struct Value *A);
 void  Show_Value (struct Value *A);
 
