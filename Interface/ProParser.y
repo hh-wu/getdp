@@ -2730,6 +2730,8 @@ ConstraintInFSTerm :
     {
       Constraint_Index =
 	List_ISearchSeq(Problem_S.Constraint, $2, fcmp_Constraint_Name);
+      if(Constraint_Index < 0)
+        Msg::Warning("Constraint '%s' is not provided", $2);
       Free($2);
     }
  ;
