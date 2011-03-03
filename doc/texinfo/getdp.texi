@@ -5735,7 +5735,7 @@ GetDP (@pxref{Running GetDP}).
 
 Many other ready-to-use examples are available in the GetDP wiki at the
 following address: @url{https://geuz.org/trac/getdp} (username=getdp;
-password=wiki).
+password=getdp).
 
 
 @menu
