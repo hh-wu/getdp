@@ -29,11 +29,7 @@ ifeq (${FC},)
   FC=@FC@
 endif
 
-# If you need to link to dynamic libraries installed in non-standard
-# locations and are using the GNU linker, you may want to add
-# '-Wl,--rpath,/path/to/dynamic/library' to the 'LINKER' variable
-# below. Alternatively, you could edit the 'LD_LIBARY_PATH'
-# environement variable or use the 'ldconfig' program.
+# The linker
 LINKER=@LINKER@
 
 # All compiler flags except optimization flags
