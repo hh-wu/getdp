@@ -4,12 +4,12 @@ GETDP=${HOME}/src/getdp
 LOG=${GETDP}/nightly.log
 WEB_BIN=geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/Windows
 
-CC=/usr/bin/i686-w64-mingw32-gcc.exe
-CXX=/usr/bin/i686-w64-mingw32-g++.exe
-FC=/usr/bin/i686-w64-mingw32-gfortran.exe
-PETSC_DIR=${HOME}/src/petsc-3.1-p5
-SLEPC_DIR=${HOME}/src/slepc-3.1-p6
-PETSC_ARCH=win32_complex_umfpack
+export CC=/usr/bin/i686-w64-mingw32-gcc.exe
+export CXX=/usr/bin/i686-w64-mingw32-g++.exe
+export FC=/usr/bin/i686-w64-mingw32-gfortran.exe
+export PETSC_DIR=${HOME}/src/petsc-3.1-p5
+export SLEPC_DIR=${HOME}/src/slepc-3.1-p6
+export PETSC_ARCH=win32_complex_umfpack
 
 rm -f ${LOG}
 rm -f ${GETDP}/Makefile*

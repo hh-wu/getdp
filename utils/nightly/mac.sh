@@ -4,9 +4,9 @@ GETDP=${HOME}/src/getdp
 LOG=${GETDP}/nightly.log
 WEB_BIN=geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/MacOSX
 
-PETSC_DIR=${HOME}/src/petsc-3.0.0-p7
-SLEPC_DIR=${HOME}/src/slepc-3.0.0-p7
-PETSC_ARCH=umfpack-cxx-opt
+export PETSC_DIR=${HOME}/src/petsc-3.0.0-p7
+export SLEPC_DIR=${HOME}/src/slepc-3.0.0-p7
+export PETSC_ARCH=umfpack-cxx-opt
 
 rm -f ${LOG}
 rm -f ${GETDP}/Makefile*
