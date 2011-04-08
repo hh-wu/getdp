@@ -262,17 +262,17 @@ fi
 dnl Add PETSc libraries at the end (they include blas and lapack)
 if test "x${PETSC}" = "xyes"; then
   GETDP_LIBS="${GETDP_LIBS} \${PETSC_KSP_LIB}"
+else
+  dnl Add necessary Fortran libraries
+  case "${FC}" in
+    *gfortran*)
+      GETDP_LIBS="${GETDP_LIBS} -lgfortran"
+      ;;
+    *g77*)
+      GETDP_LIBS="${GETDP_LIBS} -lg2c"
+      ;;
+  esac
 fi
-
-dnl Add necessary Fortran libraries
-case "${FC}" in
-  *gfortran*)
-    GETDP_LIBS="${GETDP_LIBS} -lgfortran"
-    ;;
-  *g77*)
-    GETDP_LIBS="${GETDP_LIBS} -lg2c"
-    ;;
-esac
 
 dnl Force specific options for native compilers
 case "${UNAME}" in
