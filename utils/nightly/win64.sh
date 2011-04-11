@@ -14,7 +14,7 @@ rm -f ${LOG}
 
 echo "BUILD BEGIN: `date`" > ${LOG}
 
-export PETSC_ARCH=win32_real_mumps_seq
+export PETSC_ARCH=win64_real_mumps_seq
 rm -f ${GETDP}/Makefile*
 rm -rf ${GETDP}/getdp-*svn*
 cd ${GETDP} && svn update >> ${LOG} 2>&1
@@ -23,7 +23,7 @@ cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-win-nightly >> ${LOG} 2>&1
 scp -C ${GETDP}/getdp-*svn*.zip ${WEB_BIN}/getdp-real-nightly-Win64.zip
 
-export PETSC_ARCH=win32_complex_mumps_seq
+export PETSC_ARCH=win64_complex_mumps_seq
 rm -f ${GETDP}/Makefile*
 rm -rf ${GETDP}/getdp-*svn*
 cd ${GETDP} && svn update >> ${LOG} 2>&1
