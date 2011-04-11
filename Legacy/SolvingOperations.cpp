@@ -621,6 +621,11 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
 
 void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
 {
+  // FIXME: this is really weird: we use a sort of relative 1-norm in
+  // the real case, and a relatve 2-norm in complex arithmetic...
+
+  // FIXME: couldn't we just check ||dx^(n)||_2 / ||dx^(0)||_2 ?
+
   int     i, n;
   double  valx, valdx, valxi = 0., valdxi = 0.,errsqr = 0., xmoy = 0., dxmoy = 0., tol, nvalx, nvaldx ;
 
