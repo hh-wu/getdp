@@ -7,8 +7,8 @@ WEB_BIN=geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/Windows
 export CC=/usr/bin/i686-w64-mingw32-gcc.exe
 export CXX=/usr/bin/i686-w64-mingw32-g++.exe
 export FC=/usr/bin/i686-w64-mingw32-gfortran.exe
-export PETSC_DIR=${HOME}/src/petsc-3.1-p5
-export SLEPC_DIR=${HOME}/src/slepc-3.1-p8
+export PETSC_DIR=${HOME}/src/petsc-3.1-p8
+export SLEPC_DIR=${HOME}/src/slepc-3.1-p6
 
 rm -f ${LOG}
 
