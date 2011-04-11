@@ -1,7 +1,7 @@
 #!/bin/sh
 
 GETDP=${HOME}/src/getdp
-LOG=${GETDP}/nightly-Win32.log
+LOG=${GETDP}/nightly32.log
 WEB_BIN=geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/Windows
 
 export CC=/usr/bin/i686-w64-mingw32-gcc.exe
