@@ -1,4 +1,4 @@
-# GetDP - Copyright (C) 1997-2010 P. Dular, C. Geuzaine
+# GetDP - Copyright (C) 1997-2011 P. Dular, C. Geuzaine
 #
 # See the LICENSE.txt file for license information. Please report all
 # bugs and problems to <getdp@geuz.org>.
@@ -190,7 +190,7 @@ distrib-unix:
 	make distrib-post
 	ldd bin/getdp
 
-distrib-unix-nightly:
+distrib-unix-svn:
 	make distrib-pre-svn
 	make all
 	make package-unix
@@ -203,7 +203,7 @@ distrib-win:
 	make distrib-post
 	objdump -p bin/getdp.exe | grep DLL
 
-distrib-win-nightly: 
+distrib-win-svn: 
 	make distrib-pre-svn
 	make all
 	make package-win
@@ -216,7 +216,7 @@ distrib-mac:
 	make distrib-post
 	otool -L bin/getdp
 
-distrib-mac-nightly:
+distrib-mac-svn:
 	make distrib-pre-svn
 	make all
 	make package-mac
@@ -227,7 +227,7 @@ distrib-source:
 	make source
 	make distrib-post
 
-distrib-source-nightly:
+distrib-source-svn:
 	make distrib-pre-svn
 	make source
 	make distrib-post

@@ -347,7 +347,7 @@ int MainLegacy(int argc, char *argv[])
   std::string currtime(ctime(&now));
   currtime.resize(currtime.size() - 1);
 
-  std::string cmdline;
+  std::string cmdline("");
   for(int i = 0; i < argc; i++){
     if(i) cmdline += " ";
     cmdline += argv[i];
@@ -364,7 +364,7 @@ int MainLegacy(int argc, char *argv[])
   Msg::Info("Started on %s", currtime.c_str());
 
   if(sargc > 1){
-    std::string solveropt;
+    std::string solveropt("");
     for(int i = 1; i < sargc; i++){
       if(i > 1) solveropt += " ";
       solveropt += sargv[i];
