@@ -42,9 +42,9 @@ GETDP=${HOME}/src/getdp
 LOG=${GETDP}/nightly64.log
 WEB_BIN=geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/MacOSX
 
-export CC=/usr/bin/gcc -m64
-export CXX=/usr/bin/g++ -m64
-export FC=/usr/local/bin/gfortran -m64
+export CC="/usr/bin/gcc -m64"
+export CXX="/usr/bin/g++ -m64"
+export FC="/usr/local/bin/gfortran -m64"
 export PETSC_DIR=${HOME}/src/petsc-3.1-p8
 export SLEPC_DIR=${HOME}/src/slepc-3.1-p4
 
