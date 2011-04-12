@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2010 P. Dular, C. Geuzaine
+// GetDP - Copyright (C) 1997-2011 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <gmsh@geuz.org>.
