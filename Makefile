@@ -23,16 +23,6 @@ all: link
 link: compile
 	${LINKER} ${OPTIM} -o bin/getdp Main/Main${OBJEXT} ${GETDP_LIBS}
 
-chris: compile
-	cd Main && make MainChris${OBJEXT}
-	${LINKER} ${OPTIM} -o bin/getdp2 Main/MainChris${OBJEXT} ${GETDP_LIBS}
-
-link-mac-universal: compile
-	${LINKER} -arch i386 ${OPTIM} -o bin/getdp_i386 ${GETDP_LIBS}
-	${LINKER} -arch ppc ${OPTIM} -o bin/getdp_ppc ${GETDP_LIBS}
-	lipo -create bin/getdp_i386 bin/getdp_ppc -output bin/getdp
-	rm -f bin/getdp_i386 bin/getdp_ppc
-
 compile: variables initialtag
 	@for i in ${GETDP_DIRS}; do (cd $$i && ${MAKE}); done
 

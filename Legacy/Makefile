@@ -207,8 +207,8 @@ DofData.o: DofData.cpp ../Common/GetDPVersion.h ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h DofData.h \
   ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
   ../Common/ListUtils.h LinAlg.h ../Common/GetDPConfig.h \
-  ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h ExtendedGroup.h \
-  ../Common/MallocUtils.h ../Common/Message.h
+  ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h GeoData.h \
+  ExtendedGroup.h ../Common/MallocUtils.h ../Common/Message.h
 LinAlg.o: LinAlg.cpp ../Common/GetDPConfig.h LinAlg.h \
   ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
   ../Common/Message.h
