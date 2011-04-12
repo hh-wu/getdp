@@ -1,4 +1,4 @@
 #
 # this will launch a new build every night at 0h31
 #
-31 0 * * * ${HOME}/src/getdp/utils/nightly/mac32.sh
+31 0 * * * ${HOME}/src/getdp/utils/nightly/mac.sh
