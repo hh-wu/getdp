@@ -86,36 +86,38 @@ License (GPL)</a>:
 <ul>
   <li>
     <span style="border: 1px dotted; padding: 3px;">
-      <strong>Current stable release</strong>:
-      <a href="/getdp/bin/Windows/getdp-2.1.0-Windows.zip"><strong>Windows</strong></a>
-      (XP/Vista),
-      <a href="/getdp/bin/Linux/getdp-2.1.0-Linux.tgz"><strong>Linux</strong></a>
-      (Intel glibc 2.3),
-      <a href="/getdp/bin/MacOSX/getdp-2.1.0-MacOSX.tgz"><strong>Mac OS X</strong></a>
-      (Intel 10.5) and
-      <a href="/getdp/src/getdp-2.1.0-source.tgz"><strong>source code</strong></a>
+      <strong>Current stable release</strong>: 
+      Windows <a href="/getdp/bin/Windows/getdp-2.1.1-Win32c.zip"><strong>32 bit</strong></a> /
+      <a href="/getdp/bin/Windows/getdp-2.1.1-Win64c.zip"><strong>64 bit</strong></a> 
+      (XP, Vista / 7),
+      Linux <a href="/getdp/bin/Linux/getdp-2.1.1-Linux32c.tgz"><strong>32 bit</strong></a>
+      (glibc 2.7),
+      MacOS X <a href="/getdp/bin/MacOSX/getdp-2.1.1-MacOSX32c.tgz"><strong>32 bit</strong></a>
+      (10.5) and
+      <a href="/getdp/src/getdp-2.1.1-source.tgz"><strong>source code</strong></a>
     </span>
     <p>
 
 <em>The binary versions are compiled
-with <a href="http://www.mcs.anl.gov/petsc/">PETSc</a> in complex
-arithmetic, with support for direct sparse linear solvers using
-<a href="http://www.cise.ufl.edu/research/sparse/umfpack">UMFPACK</a>. This
-makes them suboptimal for certain kinds of problems. You should
-recompile GetDP from the source code to achieve the best performance,
-in particular for large 3D problems. Check
+with <a href="http://www.mcs.anl.gov/petsc/">PETSc</a>, with support
+for sequential direct sparse linear solvers
+from <a href="http://graal.ens-lyon.fr/MUMPS">MUMPS</a>. For large
+problems you should consider compiling the parallel (MPI) version of
+GetDP: check
 the <a href="https://geuz.org/trac/getdp/wiki/PETScCompile">wiki</a>
 (login: getdp, password: getdp) for sample build instructions.</em>
 <p>
 
   <li>Development version:
-    <ul><li>automated nightly builds:
-        <a href="/getdp/bin/Windows/getdp-nightly-Windows.zip">Windows</a>
-        (<a href="/getdp/bin/Windows/nightly.log">build log</a>),
-        <a href="/getdp/bin/Linux/getdp-nightly-Linux.tgz">Linux</a>
-        (<a href="/getdp/bin/Linux/nightly.log">build log</a>),
-        <a href="/getdp/bin/MacOSX/getdp-nightly-MacOSX.tgz">Mac OS X</a>
-        (<a href="/getdp/bin/MacOSX/nightly.log">build log</a>)
+    <ul><li>automated nightly builds: 
+        Windows <a href="/getdp/bin/Windows/getdp-nightly-Win32c.zip">32 bit</a>
+        (<a href="/getdp/bin/Windows/nightly32.log">build log</a>) /
+        <a href="/getdp/bin/Windows/getdp-nightly-Win64c.zip">64 bit</a>
+        (<a href="/getdp/bin/Windows/nightly64.log">build log</a>),
+        Linux <a href="/getdp/bin/Linux/getdp-nightly-Linux32c.tgz">32  bits</a>
+        (<a href="/getdp/bin/Linux/nightly32.log">build log</a>),
+        MacOS X <a href="/getdp/bin/MacOSX/getdp-nightly-MacOSX32c.tgz">32 bits</a>
+        (<a href="/getdp/bin/MacOSX/nightly32.log">build log</a>)
       <li>nightly <a href="/getdp/src/getdp-nightly-source.tgz">source
           snapshot</a>
       <li>read-only svn access: '<code>svn co https://geuz.org/svn/getdp/trunk
