@@ -1,5 +1,6 @@
 #!/bin/sh
 
+EXTRA_VERSION=$1
 GETDP=${HOME}/src/getdp
 LOG=${GETDP}/nightly64.log
 WEB_BIN=geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/Windows
@@ -20,8 +21,8 @@ rm -rf ${GETDP}/getdp-*svn*
 cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure --with-gsl-prefix=/usr/local >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
-cd ${GETDP} && make distrib-win-nightly >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*svn*.zip ${WEB_BIN}/getdp-nightly-Win64r.zip
+cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
+scp -C ${GETDP}/getdp-*svn*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win64r.zip
 
 export PETSC_ARCH=win64_complex_mumps_seq
 rm -f ${GETDP}/Makefile*
@@ -29,8 +30,8 @@ rm -rf ${GETDP}/getdp-*svn*
 cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure --with-gsl-prefix=/usr/local >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
-cd ${GETDP} && make distrib-win-nightly >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*svn*.zip ${WEB_BIN}/getdp-nightly-Win64c.zip
+cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
+scp -C ${GETDP}/getdp-*svn*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win64c.zip
 
 echo "BUILD END: `date`" >> ${LOG}
 

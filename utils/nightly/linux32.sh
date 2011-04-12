@@ -1,5 +1,6 @@
 #!/bin/sh
 
+EXTRA_VERSION=$1
 GETDP=${HOME}/src/getdp
 LOG=${GETDP}/nightly32.log
 WEB_BIN=geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/Linux
@@ -17,8 +18,8 @@ rm -rf ${GETDP}/getdp-*svn*
 cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure --with-gsl-prefix=/usr/local >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
-cd ${GETDP} && make distrib-unix-nightly >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*svn*.tgz ${WEB_BIN}/getdp-nightly-Linux32r.tgz
+cd ${GETDP} && make distrib-unix${EXTRA_VERSION} >> ${LOG} 2>&1
+scp -C ${GETDP}/getdp-*svn*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-Linux32r.tgz
 
 export PETSC_ARCH=linux_complex_mumps_seq
 rm -f ${GETDP}/Makefile*
@@ -26,8 +27,8 @@ rm -rf ${GETDP}/getdp-*svn*
 cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure --with-gsl-prefix=/usr/local >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
-cd ${GETDP} && make distrib-unix-nightly >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*svn*.tgz ${WEB_BIN}/getdp-nightly-Linux32c.tgz
+cd ${GETDP} && make distrib-unix${EXTRA_VERSION} >> ${LOG} 2>&1
+scp -C ${GETDP}/getdp-*svn*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-Linux32c.tgz
 
 echo "BUILD END: `date`" >> ${LOG}
 
