@@ -213,23 +213,17 @@ bool Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC, 
     for (j=0 ; j<NC-1 ; ++j) if (y[j+1] >= yp  &&  yp >= y[j]) break;
     j = (j >= NC) ? NC-1 : j;
 
-    // Check for possibly wrong indexes
-    if ( (j+1)+NC*(i+1) < 0  ||  (j+1)+NC*(i+1)>maxLinIndex )
-      Msg::Error("Bad index in List for Bilinear Interpolation: i=%d , j=%d , mx=%d , in = %d!",
-                 i, j, (j+1)+NL*(i+1), maxLinIndex);
 
-    a11 = M[j+NC*i];
-    a21 = M[(j+1)+NC*i];
-    a12 = M[j+NC*(i+1)];
-    a22 = M[(j+1)+NC*(i+1)];
-
-    x1 = 2.0*(xp-x[i]) / (x[i+1]-x[i]) - 1.0;
-    y1 = 2.0*(yp-y[j]) / (y[j+1]-y[j]) - 1.0;
+    a11 = M[   i  + NL * j    ];
+    a21 = M[(i+1) + NL * j    ];
+    a12 = M[   i  + NL * (j+1)];
+    a22 = M[(i+1) + NL * (j+1)];
     
-    *zp = ( a11 * (x1-1.0) * (y1-1.0) - 
-            a21 * (x1+1.0) * (y1-1.0) - 
-            a12 * (x1-1.0) * (y1+1.0) + 
-            a22 * (x1+1.0) * (y1+1.0) )  / 4.0;
+    *zp = 1/((x[i+1]-x[i])*(y[j+1]-y[j])) *
+      ( a11 * ( x[i+1]-xp) * ( y[j+1]-yp) + 
+        a21 * (-x[i  ]+xp) * ( y[j+1]-yp) +
+        a12 * ( x[i+1]-xp) * (-y[j  ]+yp) + 
+        a22 * (-x[i  ]+xp) * (-y[j  ]+yp) );
     
     return true ;
 }
