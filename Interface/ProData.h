@@ -423,6 +423,9 @@ struct FunctionActive {
       double  Value;
     } SurfaceArea;
     struct {
+      double  Value;
+    } GetVolume;
+    struct {
       List_T *Table;
     } ValueFromIndex;
     struct {
@@ -456,7 +459,7 @@ struct IntegralQuantity {
   int      DefineQuantityIndexNoDof;
 
   int      NbrQuantityIndex, *QuantityIndexTable;
-  int    *QuantityTraceGroupIndexTable;
+  int    *QuantityTraceGroupIndexTable, *QuantityMappedGroupIndexTable ;
 
   int      InIndex;
   int      IntegrationMethodIndex, JacobianMethodIndex;
@@ -558,11 +561,11 @@ struct EquationTerm {
 	void    (*BuiltInFunction_Equ)();
 
 	int     NbrQuantityIndex, *QuantityIndexTable, QuantityIndexPost;
-	int     *QuantityTraceGroupIndexTable;
+	int     *QuantityTraceGroupIndexTable, *QuantityMappedGroupIndexTable;
 
 	int     TypeOperatorEqu, DefineQuantityIndexEqu;
 	int     TypeOperatorDof, DefineQuantityIndexDof;
-	int     DefineQuantityIndexNoDof, DofInTrace;
+	int     DefineQuantityIndexNoDof, DofInTrace, DofMapped;
       } Term;
 
       int  InIndex; 
@@ -586,7 +589,7 @@ struct EquationTerm {
 	int     CanonicalWholeQuantity, ExpressionIndexForCanonical;
 
 	int     NbrQuantityIndex, *QuantityIndexTable;
-	int     *QuantityTraceGroupIndexTable;
+	int     *QuantityTraceGroupIndexTable, *QuantityMappedGroupIndexTable;
 
 	int     TypeOperatorEqu, DefineQuantityIndexEqu;
 	int     TypeOperatorDof, DefineQuantityIndexDof;
@@ -756,8 +759,10 @@ struct WholeQuantity {
     struct { List_T *WholeQuantity; 
              int FunctionSpaceIndexForType, NbrHar; }            Cast;
     struct { List_T *WholeQuantity ; }                           ChangeCurrentPosition ;
-    struct { List_T *WholeQuantity; 
+    struct { List_T *WholeQuantity ; 
              int InIndex, DofIndexInWholeQuantity; }             Trace;
+    struct { List_T *WholeQuantity; 
+             int InIndex, DofIndexInWholeQuantity, MapIndex; }   Mapped;
     struct { char *SystemName; int DefineSystemIndex; 
              int DofNumber; }                                    DofValue; 
     struct { List_T *WholeQuantity; 
@@ -785,6 +790,7 @@ struct WholeQuantity {
 #define WQ_VALUESAVED              15
 #define WQ_SOLIDANGLE              16
 #define WQ_TRACE                   17
+#define WQ_MAPPED                  177
 #define WQ_ORDER                   18
 #define WQ_MHTIMEINTEGRATION       19
 #define WQ_MHTRANSFORM             199
@@ -1135,7 +1141,7 @@ struct PostQuantityTerm {
   int     TypeTimeDerivative;
   List_T  *WholeQuantity;
   int     NbrQuantityIndex, *QuantityIndexTable;
-  int     *QuantityTraceGroupIndexTable;
+  int     *QuantityTraceGroupIndexTable, *QuantityMappedGroupIndexTable;
   int     InIndex, JacobianMethodIndex, IntegrationMethodIndex;
 };
 
@@ -1265,6 +1271,7 @@ struct CurrentData {
   char   *Name;
 
   int     NbrSystem, NbrCpu, RankCpu;
+  struct DefineSystem   *DefineSystem_P ;
   struct DofData  *DofData_P0;
 
   struct DofData  *DofData;
@@ -1331,7 +1338,7 @@ struct Element {
 
   int       Num, Type, Region ;
 
-  struct Element  * ElementSource, * ElementTrace ;
+  struct Element  * ElementSource, * ElementTrace, * ElementMapped ;
 
   int       NumLastElementForNodesCoordinates ;
   double    x [NBR_MAX_NODES_IN_ELEMENT] ;

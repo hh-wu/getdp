@@ -124,6 +124,7 @@ CrossProduct                 return tCrossProduct;
 SolidAngle                   return tSolidAngle;
 Order                        return tOrder;
 Trace                        return tTrace;
+Mapped                       return tMapped;
 DofValue                     return tDofValue;
 LinSpace                     return tLinSpace;
 LogSpace                     return tLogSpace;
