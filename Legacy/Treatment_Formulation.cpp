@@ -472,8 +472,9 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
 	    TraceGroupIndex_DefineQuantity =
 	      EquationTerm_P->Case.LocalTerm.Term.QuantityTraceGroupIndexTable[i] ;
-            MappedGroupIndex_DefineQuantity =
-	      EquationTerm_P->Case.LocalTerm.Term.QuantityMappedGroupIndexTable[i] ;
+            MappedGroupIndex_DefineQuantity = -1;
+            // Ruth: this is not allocated yet:
+            //EquationTerm_P->Case.LocalTerm.Term.QuantityMappedGroupIndexTable[i] ;
 
 	    /* Only one analysis for each function space */
 
