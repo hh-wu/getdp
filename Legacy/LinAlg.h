@@ -45,7 +45,7 @@ typedef struct { Solver_Params Params ; } gSolver ;
 typedef struct { PetscScalar s ; } gScalar ;
 typedef struct { Mat M ; }         gMatrix ;
 typedef struct { Vec V, Vseq ; }   gVector ;
-typedef struct { KSP ksp[10] ; }   gSolver ;
+typedef struct { KSP ksp[10] ;  SNES snes[10] ; }   gSolver ;
 
 #else
 
@@ -159,5 +159,10 @@ void LinAlg_AssembleVector(gVector *V);
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex=0);
 void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex=0);
+//void LinAlg_SolveNL(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, gVector *R, gMatrix *Jac, int solverIndex=0);
+void LinAlg_SolveNL(gMatrix *A, gVector *B, gMatrix *Jac, gVector *R, gSolver *Solver, gVector *X, int solverIndex=0);
+
+void Generate_Residual (gVector *x, gVector *f) ;
+void Generate_FullJacobian (gVector *x, gMatrix *Jac) ;
 
 #endif

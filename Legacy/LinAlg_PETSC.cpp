@@ -96,7 +96,10 @@ void LinAlg_FinalizeSolver()
 
 void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
 {
-  for(int i = 0; i < 10; i++) Solver->ksp[i] = NULL;
+  for(int i = 0; i < 10; i++){ 
+    Solver->ksp[i] = NULL;
+    Solver->snes[i] = NULL;
+  }
 }
 
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
@@ -161,8 +164,10 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 
 void LinAlg_DestroySolver(gSolver *Solver)
 {
-  for(int i = 0; i < 10; i++)
+  for(int i = 0; i < 10; i++){
     if(Solver->ksp[i]) _try(KSPDestroy(Solver->ksp[i]));
+    if(Solver->snes[i]) _try(SNESDestroy(Solver->snes[i]));
+  }
 }
 
 void LinAlg_DestroyVector(gVector *V)
@@ -715,11 +720,11 @@ void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3)
 {
   PetscScalar tmp = -1.0;
   if(V3 == V1){
-    _try(VecAXPY(V1->V, tmp, V2->V));
+    _try(VecAXPY(V1->V, tmp, V2->V)); // V1->V = V1->V - V2->V
     _fillseq(V1);
   }
   else if(V3 == V2){
-    _try(VecAYPX(V2->V, tmp, V1->V));
+    _try(VecAYPX(V2->V, tmp, V1->V)); // V2->V = V1->V - V2->V
     _fillseq(V2);
   }
   else
@@ -728,7 +733,14 @@ void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3)
 
 void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 {
-  Msg::Error("SubMatrixMatrix not yet implemented");    
+
+  PetscScalar tmp = -1.0;
+  if(M3 == M1)
+    _try(MatAXPY(M1->M, tmp, M2->M, DIFFERENT_NONZERO_PATTERN)); // M1->M = M1->M - M2->M
+  else if(M3 == M2)
+    _try(MatAYPX(M2->M, tmp, M1->M, DIFFERENT_NONZERO_PATTERN)); // M2->M = M1->M - M2->M
+  else
+    Msg::Error("Wrong arguments in 'LinAlg_SubMatrixMatrix'");  
 }
 
 void LinAlg_ProdScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
@@ -990,6 +1002,12 @@ static PetscErrorCode _myKspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void 
   return 0;
 }
 
+static PetscErrorCode _mySnesMonitor(SNES snes, PetscInt it, PetscReal rnorm, void *mctx)
+{
+  Msg::Info("%3ld SNES Residual norm %14.12e", (long)it, rnorm);
+  return 0;
+}
+
 static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, 
                    int precond, int kspIndex)
 {
@@ -1076,6 +1094,215 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   }
 }
 
+//+++
+
+static PetscErrorCode _NLFormFunction(SNES snes, Vec x, Vec f, void *mctx)
+{
+  /*
+    snes - the SNES context
+    x 	 - input vector (solution at each NL iteration)
+    f    - vector to store function value (residual)
+    mctx - [optional] user-defined Jacobian context 
+  */
+
+  PetscScalar *tmpf ;
+  _try(VecGetArray(f, &tmpf));
+
+  gVector gx, gf ;
+
+  gx.V = x ;
+  gf.V = f ;
+
+  Generate_Residual(&gx, &gf);
+
+  _try(VecGetArray(gf.V, &tmpf)) ;
+  _try(VecRestoreArray(f, &tmpf));
+
+  return 0;
+}
+
+static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC, MatStructure *flag, void *mctx)
+{
+  /*
+    snes - the SNES context
+    x 	 - input vector
+    J    - Jacobian matrix
+    PC 	 - preconditioner matrix, usually the same as Jac
+    flag - flag indicating information about the preconditioner matrix structure 
+           (same as flag in KSPSetOperators()), one of 
+           SAME_NONZERO_PATTERN,DIFFERENT_NONZERO_PATTERN,SAME_PRECONDITIONER
+    mctx - [optional] user-defined Jacobian context 
+  */
+
+  gVector gx ;
+  gx.V = x ;
+
+  gMatrix gJ ;  
+  gJ.M = *J ;  
+
+  Generate_FullJacobian(&gx, &gJ);
+  
+  *J = gJ.M;
+  *flag = DIFFERENT_NONZERO_PATTERN ;
+
+  Msg::Barrier();
+  _try(MatAssemblyBegin(*J, MAT_FINAL_ASSEMBLY));
+  _try(MatAssemblyEnd(*J, MAT_FINAL_ASSEMBLY));
+ 
+  if (*PC != *J){
+    _try(MatAssemblyBegin(*PC, MAT_FINAL_ASSEMBLY));
+    _try(MatAssemblyEnd(*PC, MAT_FINAL_ASSEMBLY));
+  }
+
+  return 0;
+}
+
+
+static PetscErrorCode _NLFormInitialGuess(Vec x, PetscScalar val)
+{
+  // FormInitialGuess - Computes initial guess
+ 
+  VecSet(x,val);
+
+  return 0;
+}
+
+// Testing SNES - PETSC nonlinear solvers
+static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *Solver, 
+                     gVector *X, int precond, int solverIndex)
+{
+  if(solverIndex < 0 || solverIndex > 9){
+    Msg::Error("NonLinear Solver index out of range (%d)", solverIndex);
+    return;
+  }
+
+  PetscInt n, m;
+  _try(MatGetSize(A->M, &n, &m));
+  if(!n){
+    Msg::Warning("Zero-size system: skipping solve!");
+    return;
+  }
+  _try(MatGetSize(J->M, &n, &m));
+  if(!n){
+    Msg::Warning("Zero-size jacobian: skipping solve!");
+    return;
+  }
+  _try(VecGetSize(B->V, &n)); Msg::Info("size of RHS = %d", n);
+  _try(VecGetSize(R->V, &n)); Msg::Info("size of residual = %d", n);
+
+  bool view = (!Solver->snes[solverIndex] && Msg::GetVerbosity() > 2);
+
+  if(view && !Msg::GetCommRank())
+    Msg::Info("N: %ld", (long)n);
+ 
+  if(solverIndex != 0)
+    Msg::Info("Using nonlinear solver index %d", solverIndex);
+
+  PetscTruth flag_fd, fd_jacobian = PETSC_FALSE, snes_fd = PETSC_FALSE ;
+  MatStructure  flag_matstructure ;
+
+  // for FD jacobian (with a bit of help ;-))
+  ISColoring iscoloring; 
+  MatFDColoring matfdcoloring = 0 ; 
+
+  // Setting nonlinear solver defaults
+  if(!Solver->snes[solverIndex]) {
+    _try(SNESCreate(PETSC_COMM_WORLD, &Solver->snes[solverIndex]));
+    if(Msg::UseSocket())
+      _try(SNESMonitorSet(Solver->snes[solverIndex], _mySnesMonitor, PETSC_NULL, PETSC_NULL));
+    _try(SNESSetTolerances(Solver->snes[solverIndex], 1.e-12, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT,
+                           PETSC_DEFAULT));
+
+    // override default options with those from database (if any)
+    _try(SNESSetFromOptions(Solver->snes[solverIndex]));
+  
+  PetscOptionsGetTruth(PETSC_NULL,"-fd_jacobian",&fd_jacobian,0);
+  PetscOptionsGetTruth(PETSC_NULL,"-snes_fd",&snes_fd,0);
+  if (fd_jacobian || snes_fd) {
+    /*
+    printf("Finite Difference Jacobian with Coloring \n");
+    _try(MatGetColoring(J->M, MATCOLORING_SL, &iscoloring)) ;
+    _try(MatFDColoringCreate(J->M, iscoloring, &matfdcoloring));
+    _try(ISColoringDestroy(iscoloring));
+    _try(MatFDColoringSetFunction(matfdcoloring, (PetscErrorCode (*)(void))_NLFormFunction, PETSC_NULL));
+    _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M, SNESDefaultComputeJacobianColor,matfdcoloring));
+    */
+    printf("Finite Difference Jacobian \n");
+    _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M, SNESDefaultComputeJacobian,PETSC_NULL));
+  }
+  else {
+    printf("Jacobian computed by GetDP \n");
+    _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M, _NLFormJacobian, PETSC_NULL));
+  }  
+}
+  
+
+
+  //======================================================================================
+  /*
+ // Setting linear solver defaults == > KSP and PC to be used by the nonlinear solver 
+  if(!Solver->ksp[solverIndex]) {
+    _try(KSPCreate(PETSC_COMM_WORLD, &Solver->ksp[solverIndex]));
+    _try(KSPSetOperators(Solver->ksp[solverIndex], J->M, J->M, DIFFERENT_NONZERO_PATTERN));
+    PC pc;
+    _try(KSPGetPC(Solver->ksp[solverIndex], &pc));
+    
+    // set some default options
+    _try(KSPSetTolerances(Solver->ksp[solverIndex], 1.e-12, PETSC_DEFAULT, PETSC_DEFAULT, 
+                          PETSC_DEFAULT));
+#if defined(PETSC_HAVE_MUMPS) // use MUMPS by default if available
+    _try(PCSetType(pc, PCLU));
+    _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+    _try(KSPSetType(Solver->ksp[solverIndex], "preonly"));
+#elif defined(PETSC_HAVE_UMFPACK) // otherwise use UMFPACK if available
+    _try(PCSetType(pc, PCLU));
+    _try(PCFactorSetMatSolverPackage(pc, "umfpack"));
+    _try(KSPSetType(Solver->ksp[solverIndex], "preonly"));
+#else // otherwise use ILU(6) + GMRES
+    _try(PCSetType(pc, PCILU));
+#endif    
+    // override the default options with the ones from the option
+    // database (if any)
+    _try(KSPSetFromOptions(Solver->ksp[solverIndex]));
+  }
+  else if(precond){
+    _try(KSPSetOperators(Solver->ksp[solverIndex], J->M, J->M, DIFFERENT_NONZERO_PATTERN));
+  }
+  
+  _try(SNESGetKSP(Solver->snes[solverIndex], &Solver->ksp[solverIndex]));
+  */
+  
+  _try(SNESSetFunction(Solver->snes[solverIndex], R->V, _NLFormFunction, PETSC_NULL)); // R(x) = A(x)*x-b
+
+  _try(SNESComputeJacobian(Solver->snes[solverIndex], X->V, &J->M, &J->M, &flag_matstructure));
+  //_try(MatAssemblyBegin(J->M, MAT_FINAL_ASSEMBLY));
+  //_try(MatAssemblyEnd(J->M, MAT_FINAL_ASSEMBLY));
+  
+  //_try(_NLFormInitialGuess(X->V,.5));
+  
+  _try(SNESSolve(Solver->snes[solverIndex], PETSC_NULL, X->V));
+  
+  // copy result on all procs
+  _fillseq(X);
+  
+  if(view)
+    _try(SNESView(Solver->snes[solverIndex], PETSC_VIEWER_STDOUT_WORLD));
+  
+  if(!Msg::GetCommRank()){
+    PetscInt its;
+    _try(SNESGetIterationNumber(Solver->snes[solverIndex], &its));
+    Msg::Info("Number of Newton iterations %d", its);
+  }
+
+  if (matfdcoloring) {
+    _try(MatFDColoringDestroy(matfdcoloring));
+  }
+
+
+
+}
+
+
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
 {
   _solve(A, B, Solver, X, 1, solverIndex);
@@ -1084,6 +1311,11 @@ void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solve
 void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
 {
   _solve(A, B, Solver, X, 0, solverIndex);
+}
+
+void LinAlg_SolveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *Solver, gVector *X, int solverIndex)
+{
+  _solveNL(A, B, J, R, Solver, X, 1, solverIndex);
 }
 
 #endif

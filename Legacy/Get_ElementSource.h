@@ -11,5 +11,6 @@
 void Get_InitElementSource(struct Element *Element, int InIndex);
 int Get_NextElementSource(struct Element *ElementSource);
 void Get_ElementTrace(struct Element *Element, int InIndex);
+void Get_ElementMapped(struct Element *Element, int InIndex);
 
 #endif

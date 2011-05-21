@@ -301,6 +301,116 @@ void F_SurfaceArea(F_ARG)
   }
 }
 
+void F_GetVolume(F_ARG)
+{
+  struct Element  Element ;
+  List_T  * InitialList_L;
+
+  int     Index_Region, Nbr_Element, i_Element ;
+  double  Val_Volume ;
+  double  c11, c21, c31, c12, c22, c32, c13, c23, c33 ; 
+  double  DetJac ;
+  int     i, k ;
+
+  if (!Fct->Active) {
+    Fct->Active = (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
+
+    if (Fct->NbrParameters == 1) {
+      Index_Region = (int)(Fct->Para[0]) ;
+
+      InitialList_L = List_Create(1,1,sizeof(int));
+      List_Reset(InitialList_L);
+      List_Add(InitialList_L,&Index_Region);
+
+      /*
+      InitialList_L = ((struct Group *)
+		       List_Pointer(Problem_S.Group, Index_Region))->InitialList ;
+      */
+    }
+    else {
+      Index_Region = -1 ;
+      InitialList_L = NULL ;
+    }
+
+    Val_Volume = 0. ;
+    Nbr_Element = Geo_GetNbrGeoElements() ;
+    for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
+      Element.GeoElement = Geo_GetGeoElement(i_Element) ;
+      if ((InitialList_L && 
+	   List_Search(InitialList_L, &(Element.GeoElement->Region), fcmp_int)) ||
+	  (!InitialList_L && Element.GeoElement->Region == Current.Region)) {
+	Element.Num    = Element.GeoElement->Num ;
+	Element.Type   = Element.GeoElement->Type ;
+
+	if (Element.Type == TETRAHEDRON || 
+            Element.Type == HEXAHEDRON ||
+            Element.Type == PRISM) {
+          
+	  Get_NodesCoordinatesOfElement(&Element) ;
+	  Get_BFGeoElement(&Element, 0., 0., 0.) ;
+          
+	  c11 = c21 = c31 = c12 = c22 = c32 = c13 = c23 = c33 = 0;
+	  for ( i = 0 ; i < Element.GeoElement->NbrNodes ; i++ ) {
+            c11 += Element.x[i] * Element.dndu[i][0] ;
+            c21 += Element.x[i] * Element.dndu[i][1] ;
+            c31 += Element.x[i] * Element.dndu[i][2] ;
+            
+            c12 += Element.y[i] * Element.dndu[i][0] ;
+            c22 += Element.y[i] * Element.dndu[i][1] ;
+            c32 += Element.y[i] * Element.dndu[i][2] ;
+            
+            c13 += Element.z[i] * Element.dndu[i][0] ;
+            c23 += Element.z[i] * Element.dndu[i][1] ;
+            c33 += Element.z[i] * Element.dndu[i][2] ;
+	  }
+          
+          DetJac = c11 * c22 * c33 + c13 * c21 * c32
+            + c12 * c23 * c31 - c13 * c22 * c31
+            - c11 * c23 * c32 - c12 * c21 * c33 ;
+          
+          switch(Element.Type){
+          case TETRAHEDRON:
+            Val_Volume += 1./6. * fabs(DetJac);
+            break;
+          case HEXAHEDRON:
+            Val_Volume += 8. * fabs(DetJac);
+            break;
+          case PRISM:
+            Val_Volume += fabs(DetJac);
+            break;
+          }
+	}
+	else {
+	  Msg::Error("Function 'GetVolume' only valid for %s",
+                     Get_StringForDefine(Element_Type, Element.Type));
+	}
+      }
+    }
+    Fct->Active->Case.GetVolume.Value = Val_Volume ;
+  }
+
+  V->Type = SCALAR ;
+  V->Val[0] = Fct->Active->Case.GetVolume.Value ;
+  V->Val[MAX_DIM] = 0;
+
+  for (k = 2 ; k < Current.NbrHar ; k += 2) { 
+    V->Val[MAX_DIM* k] = V->Val[0] ;
+    V->Val[MAX_DIM* (k+1)] = 0 ;
+  }
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
 /* ------------------------------------------------------------------------ */
 /*  Transformation of a stiffness matrix (6x6) with 3 given angles          */
 /* ------------------------------------------------------------------------ */

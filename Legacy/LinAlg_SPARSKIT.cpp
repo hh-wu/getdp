@@ -589,4 +589,9 @@ void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int 
   Solver->Params.Re_Use_LU = tmp;
 }
 
+void LinAlg_SolveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *Solver, gVector *X, int solverIndex)
+{
+  Msg::Error("'LinAlg_SolveNL' not yet implemented for Sparskit");
+}
+
 #endif

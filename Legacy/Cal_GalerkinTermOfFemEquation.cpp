@@ -280,7 +280,21 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
     u = Current.ut ;
     v = Current.vt ;
     w = Current.wt ;
-  }  
+  } 
+  else if(EquationTerm_P->Case.LocalTerm.Term.DofMapped){
+    E = Current.Element->ElementMapped ;
+    Current.x = Current.y = Current.z = 0. ;
+    for (i = 0 ; i < Current.Element->GeoElement->NbrNodes ; i++) {
+      Current.x += Current.Element->x[i] * Current.Element->n[i] ;
+      Current.y += Current.Element->y[i] * Current.Element->n[i] ;
+      Current.z += Current.Element->z[i] * Current.Element->n[i] ;
+    }
+    xyz2uvwInAnElement(E, Current.x, Current.y, Current.z, 
+		       &Current.ut, &Current.vt, &Current.wt) ;	
+    u = Current.ut ;
+    v = Current.vt ;
+    w = Current.wt ;
+  } 
   else{
     E = Current.Element ;
     u = Current.u ;

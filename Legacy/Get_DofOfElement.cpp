@@ -33,6 +33,7 @@ struct Group            * GroupSupport_P, * GroupEntity_P ;
 void  Get_InitDofOfElement(struct Element * Element)
 {
   Element->ElementTrace = NULL ;
+  Element->ElementMapped = NULL ;
   Element->NumLastElementForNodesCoordinates      = -1 ;
   Element->NumLastElementForGroupsOfEntities      = -1 ;
   Element->NumLastElementForSolidAngle            = -1 ;

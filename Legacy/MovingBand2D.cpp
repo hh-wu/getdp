@@ -212,9 +212,11 @@ int Different_Sense_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, in
  
   if (closed2) itry2 = (imindist+1) % (nth2-1); else itry2 = std::min(imindist+1,nth2);
   if (closed2) itry4 = (imindist-1+nth2-1) % (nth2-1); else itry4 = std::max(imindist-1,0);
+
   dist1 = SQU(x1[2]-x2[itry2]) + SQU(y1[2]-y2[itry2]);
   dist2 = SQU(x1[2]-x2[itry4]) + SQU(y1[2]-y2[itry4]);
-  if (dist1 < dist2) Different = 0; else Different = 1;
+
+  Different = (dist1 < dist2) ? 0. : 1. ;
 
   return (Different) ;
 } 

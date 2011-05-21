@@ -52,7 +52,7 @@ static int  Init_Update = 0 ; /* provisoire */
 
 struct Group * Generate_Group = NULL;
 
-// Johan: it would be nice to get rid opf these globals
+// Johan: it would be nice to get rid of these globals
 int Flag_RHS = 0, *DummyDof ;
 double **MH_Moving_Matrix = NULL ; 
 int MH_Moving_Matrix_simple = 0 ;
@@ -269,7 +269,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 
 void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
 			struct DofData * DofData_P, 
-			struct DofData * DofData_P0)
+			struct DofData * DofData_P0, int Flag_Jac=0)
 {
   int    i, Nbr_Formulation, Index_Formulation ;
   struct Formulation     * Formulation_P ;
@@ -277,6 +277,9 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
   LinAlg_ZeroMatrix(&Current.DofData->A) ;
   LinAlg_ZeroVector(&Current.DofData->b) ;
  
+  if(Flag_Jac) 
+    LinAlg_ZeroMatrix(&Current.DofData->Jac) ;
+
   Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
   for (i = 0 ; i < Nbr_Formulation ; i++) {
@@ -288,13 +291,70 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
     Treatment_Formulation(Formulation_P) ;
   }
   
-
   LinAlg_AssembleMatrix(&DofData_P->A) ;
   LinAlg_AssembleVector(&DofData_P->b) ;
-  /* 
   LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-    if(!i) Msg::Warning("Generated system is of dimension zero");
-  */
+  if(!i) Msg::Warning("ReGenerated system is of dimension zero");
+
+
+  if(Flag_Jac){ /* This should in fact only be done if a JacNL term
+                   exists in the formulation... */
+     LinAlg_AssembleMatrix(&DofData_P->Jac) ;
+  }
+
+}
+
+void Generate_Residual(gVector *x, gVector *f)
+{
+  struct DefineSystem * DefineSystem_P ;
+  struct DofData * DofData_P ;
+  struct DofData * DofData_P0 ;
+  //int Flag_Jac = 1 ;
+  int Flag_Jac = 0 ;
+
+  Msg::Info("Generating Residual = A(x)x-b");
+
+  DofData_P  = Current.DofData ;
+  DofData_P0 = Current.DofData_P0;
+  DefineSystem_P = Current.DefineSystem_P ;
+
+  LinAlg_CopyVector(x, &DofData_P->dx);
+  LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
+                                 -1., &DofData_P->CurrentSolution->x);
+
+  //Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
+  ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac) ;
+
+  LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, f) ;
+  LinAlg_SubVectorVector(&DofData_P->b, f, f) ; //f = b(xn)-A(xn)*xn
+
+  LinAlg_AssembleVector(f) ;
+}
+
+void Generate_FullJacobian(gVector *x, gMatrix *Jac)
+{
+  struct DefineSystem * DefineSystem_P ;
+  struct DofData * DofData_P ;
+  struct DofData * DofData_P0 ;
+  int Flag_Jac = 1 ;
+
+  Msg::Info("Generating Full Jacobian = A(x) + DofData_P->Jac");
+
+  DofData_P  = Current.DofData ;
+  DofData_P0 = Current.DofData_P0;
+  DefineSystem_P = Current.DefineSystem_P ;
+  
+  LinAlg_CopyVector(x, &DofData_P->dx);
+  LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
+                         &DofData_P->CurrentSolution->x) ;
+  
+  //Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
+  ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac) ;
+
+  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ;
+
+  Jac = &DofData_P->A ;
+  LinAlg_AssembleMatrix(Jac) ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1426,6 +1486,8 @@ void  Init_OperationOnSystem(const char          * Name,
 
   *DefineSystem_P = (struct DefineSystem*)
     List_Pointer(Resolution_P->DefineSystem,Operation_P->DefineSystemIndex) ;
+  Current.DefineSystem_P = *DefineSystem_P ; //+++
+
   *DofData_P = DofData_P0 + Operation_P->DefineSystemIndex ;
   Dof_SetCurrentDofData(Current.DofData = *DofData_P) ;
   Current.NbrHar = Current.DofData->NbrHar ;
@@ -1910,6 +1972,50 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       
       Flag_CPU = 1 ;
       break ;
+      
+    // Using PETSC nonlinear solvers - SNES, nonlinear loop internal to PETSC
+    // Jacobian furnished or not (finite differences)...
+    case OPERATION_SOLVENL : 
+      /*  Solve nonlinear system: A(x) x = b(x)  */
+      Init_OperationOnSystem("SolveNL",
+			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;      
+      //Flag_Jac = 1;
+
+      printf("Flag_Jac = %d \n", Flag_Jac) ;
+      if(DofData_P->Flag_Init[0] < 2)
+	Msg::Error("Jacobian system not initialized (missing GenerateJac?)");
+      
+      if (DofData_P->Flag_Only){
+	if(DofData_P->Flag_InitOnly[0]){
+	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A1, &DofData_P->A);
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b1, &DofData_P->b) ;
+	}
+        
+	if(DofData_P->Flag_InitOnly[1]){
+	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A2, &DofData_P->A) ;
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b2, &DofData_P->b) ;
+	}
+	if(DofData_P->Flag_InitOnly[2]){
+	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;	
+	}
+        
+	LinAlg_AssembleMatrix(&DofData_P->A) ;
+	LinAlg_AssembleVector(&DofData_P->b) ;
+      }
+      
+      LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
+      LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;// res = b(xn)-A(xn)*xn
+      
+      if(Flag_Jac)
+        LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ; // Jacobian
+
+      LinAlg_SolveNL(&DofData_P->A, &DofData_P->b, &DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx,
+                     Operation_P->Case.Solve.SolverIndex) ; 
+      
+      Flag_CPU = 1 ;
+      break ;
 
       /*  -->  S o l v e J a c                        */
       /*  ------------------------------------------  */
@@ -1939,7 +2045,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
 	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;	
 	}
-
 	LinAlg_AssembleMatrix(&DofData_P->A) ;
 	LinAlg_AssembleVector(&DofData_P->b) ;
       }
@@ -1947,26 +2052,27 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       // Store sum in A (not in Jac) for performance reasons (the
       // sparsity pattern of Jac is a subset of the sparsity pattern
       // of A)
+      
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
       LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ;
-      LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
+      LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;// res = b(xn)-A(xn)*xn
       LinAlg_DummyVector(&DofData_P->res) ;
 
       if(!Flag_SolveAgain)
         LinAlg_Solve(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
       else
         LinAlg_SolveAgain(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
-
+      
       Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
       Msg::Info("Mean error: %.3e  (after %d iteration%s)", 
 		MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
 
       Current.RelativeDifference += MeanError ;
-
+     
       if (!Flag_IterativeLoop) {
         LinAlg_ProdVectorDouble(&DofData_P->dx, Current.RelaxationFactor, &DofData_P->dx) ;
       }
-      else {  /* Attention: phase test ... Technique bricolee ... provisoire */
+      else {  // Attention: phase test ... Technique bricolee ... provisoire 
         if (Current.Iteration == 1. || MeanError < Current.RelativeDifferenceOld)
           LinAlg_ProdVectorDouble(&DofData_P->dx, Current.RelaxationFactor, &DofData_P->dx) ;
         else {
@@ -1978,7 +2084,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Msg::Info("Mean error: %.3e", MeanError) ;
         }
       }
-
+    
       LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
 			     &DofData_P->CurrentSolution->x) ;
       
@@ -3248,4 +3354,5 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     if(Flag_CPU) Msg::Cpu("");
   }
 }
+
 

@@ -155,6 +155,7 @@ void  F_Tangent         (F_ARG) ;
 void  F_CompElementNum  (F_ARG) ;
 void  F_ElementVol      (F_ARG) ;
 void  F_SurfaceArea     (F_ARG) ;
+void  F_GetVolume       (F_ARG) ;
 void  F_InterpolationLinear   (F_ARG) ;
 void  F_dInterpolationLinear  (F_ARG) ;
 void  F_dInterpolationLinear2 (F_ARG) ;
