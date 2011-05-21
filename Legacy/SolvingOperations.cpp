@@ -2063,8 +2063,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       else
         LinAlg_SolveAgain(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
       
-      //Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
-      LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
+      Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
+      //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
       Msg::Info("Mean error: %.3e  (after %d iteration%s)", 
 		MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
 
