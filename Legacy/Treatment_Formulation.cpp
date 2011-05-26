@@ -291,7 +291,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
   struct Group * GroupIn_P ;
 
   int    i, j, Nbr_Element, i_Element, Nbr_EquationTerm, i_EquTerm ;
-  int    Index_DefineQuantity, 	TraceGroupIndex_DefineQuantity, MappedGroupIndex_DefineQuantity ;
+  int    Index_DefineQuantity, 	TraceGroupIndex_DefineQuantity ;
 
   List_T  * InitialListInIndex_L ;
   int     Nbr_Region, i_Region, Num_Region ;
@@ -472,9 +472,6 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
 	    TraceGroupIndex_DefineQuantity =
 	      EquationTerm_P->Case.LocalTerm.Term.QuantityTraceGroupIndexTable[i] ;
-            MappedGroupIndex_DefineQuantity = -1;
-            // Ruth: this is not allocated yet:
-            //EquationTerm_P->Case.LocalTerm.Term.QuantityMappedGroupIndexTable[i] ;
 
 	    /* Only one analysis for each function space */
 
@@ -487,8 +484,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	     */
 
 	    if (QuantityStorage_P->NumLastElementForFunctionSpace != Element.Num ||
-		TraceGroupIndex_DefineQuantity >= 0 || 
-                MappedGroupIndex_DefineQuantity >= 0 ) {
+		TraceGroupIndex_DefineQuantity >= 0 ) {
 
 	      QuantityStorage_P->NumLastElementForFunctionSpace = Element.Num ;
 
@@ -501,13 +497,6 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 		    (Element.ElementTrace, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
 		     DefineQuantity_P->IndexInFunctionSpace) ;
 		}
-		else if (MappedGroupIndex_DefineQuantity >= 0){
-                    Get_ElementMapped(&Element, MappedGroupIndex_DefineQuantity) ;
-                    QuantityStorage_P->NumLastElementForFunctionSpace = Element.ElementMapped->Num ;
-                    Get_DofOfElement
-                      (Element.ElementMapped, QuantityStorage_P->FunctionSpace, QuantityStorage_P,
-                       DefineQuantity_P->IndexInFunctionSpace) ;
-                }
                 else{
 		  Get_DofOfElement
 		    (&Element, QuantityStorage_P->FunctionSpace, QuantityStorage_P,

@@ -282,13 +282,6 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
 			     List_Pointer(Problem_S.Group, 
 					  (WQ+k)->Case.Trace.InIndex))->Name); 
       break;
-    case WQ_MAPPED :
-      Msg::Check(" Mapped[");
-      Print_WholeQuantity((WQ+k)->Case.Mapped.WholeQuantity, DQ_L);
-      Msg::Check(" , %s ]", ((struct Group*)
-			     List_Pointer(Problem_S.Group, 
-					  (WQ+k)->Case.Mapped.InIndex))->Name); 
-      break;
 
     case WQ_CAST :
       if(!(WQ+k)->Case.Cast.NbrHar)

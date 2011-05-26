@@ -459,7 +459,7 @@ struct IntegralQuantity {
   int      DefineQuantityIndexNoDof;
 
   int      NbrQuantityIndex, *QuantityIndexTable;
-  int    *QuantityTraceGroupIndexTable, *QuantityMappedGroupIndexTable ;
+  int    *QuantityTraceGroupIndexTable ;
 
   int      InIndex;
   int      IntegrationMethodIndex, JacobianMethodIndex;
@@ -561,11 +561,11 @@ struct EquationTerm {
 	void    (*BuiltInFunction_Equ)();
 
 	int     NbrQuantityIndex, *QuantityIndexTable, QuantityIndexPost;
-	int     *QuantityTraceGroupIndexTable, *QuantityMappedGroupIndexTable;
+	int     *QuantityTraceGroupIndexTable;
 
 	int     TypeOperatorEqu, DefineQuantityIndexEqu;
 	int     TypeOperatorDof, DefineQuantityIndexDof;
-	int     DefineQuantityIndexNoDof, DofInTrace, DofMapped;
+	int     DefineQuantityIndexNoDof, DofInTrace;
       } Term;
 
       int  InIndex; 
@@ -589,7 +589,7 @@ struct EquationTerm {
 	int     CanonicalWholeQuantity, ExpressionIndexForCanonical;
 
 	int     NbrQuantityIndex, *QuantityIndexTable;
-	int     *QuantityTraceGroupIndexTable, *QuantityMappedGroupIndexTable;
+	int     *QuantityTraceGroupIndexTable ;
 
 	int     TypeOperatorEqu, DefineQuantityIndexEqu;
 	int     TypeOperatorDof, DefineQuantityIndexDof;
@@ -761,8 +761,6 @@ struct WholeQuantity {
     struct { List_T *WholeQuantity ; }                           ChangeCurrentPosition ;
     struct { List_T *WholeQuantity ; 
              int InIndex, DofIndexInWholeQuantity; }             Trace;
-    struct { List_T *WholeQuantity; 
-             int InIndex, DofIndexInWholeQuantity, MapIndex; }   Mapped;
     struct { char *SystemName; int DefineSystemIndex; 
              int DofNumber; }                                    DofValue; 
     struct { List_T *WholeQuantity; 
@@ -790,7 +788,6 @@ struct WholeQuantity {
 #define WQ_VALUESAVED              15
 #define WQ_SOLIDANGLE              16
 #define WQ_TRACE                   17
-#define WQ_MAPPED                  177
 #define WQ_ORDER                   18
 #define WQ_MHTIMEINTEGRATION       19
 #define WQ_MHTRANSFORM             199
@@ -1141,7 +1138,7 @@ struct PostQuantityTerm {
   int     TypeTimeDerivative;
   List_T  *WholeQuantity;
   int     NbrQuantityIndex, *QuantityIndexTable;
-  int     *QuantityTraceGroupIndexTable, *QuantityMappedGroupIndexTable;
+  int     *QuantityTraceGroupIndexTable;
   int     InIndex, JacobianMethodIndex, IntegrationMethodIndex;
 };
 
@@ -1338,7 +1335,7 @@ struct Element {
 
   int       Num, Type, Region ;
 
-  struct Element  * ElementSource, * ElementTrace, * ElementMapped ;
+  struct Element  * ElementSource, * ElementTrace ;
 
   int       NumLastElementForNodesCoordinates ;
   double    x [NBR_MAX_NODES_IN_ELEMENT] ;

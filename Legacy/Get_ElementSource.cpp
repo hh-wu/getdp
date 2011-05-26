@@ -14,7 +14,7 @@ extern struct CurrentData Current ;
 
 static int     Nbr_ElementSource, i_ElementSource ;
 static List_T *RegionSource_L ;
-static struct  Element  ElementSource , ElementTrace, ElementMapped;
+static struct  Element  ElementSource , ElementTrace;
 
 /* ------------------------------------------------------------------------ */
 /*  G e t _ I n i t E l e m e n t S o u r c e                               */
@@ -99,28 +99,3 @@ void Get_ElementTrace(struct Element *Element, int InIndex)
 }
 
 
-/* ------------------------------------------------------------------------ */
-/*  G e t _ E l e m e n t M a p p e d                                       */
-/* ------------------------------------------------------------------------ */
-
-void Get_ElementMapped(struct Element *Element, int InIndex)
-{
-  struct Group   * Group_P ;
-
-  Element->ElementMapped = &ElementMapped ;
-
-  Group_P = (struct Group*)List_Pointer(Problem_S.Group, InIndex) ;
-  
-  if (!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
-  
-
-  Element->ElementMapped = &ElementMapped ;
-  Element->ElementMapped->GeoElement = Element->ElementMapped->GeoElement ;
-  Element->ElementMapped->Region = Element->ElementMapped->GeoElement->Region ;
-  Element->ElementMapped->Num    = Element->ElementMapped->GeoElement->Num ;
-  Element->ElementMapped->Type   = Element->ElementMapped->GeoElement->Type ;
-
-  Get_NodesCoordinatesOfElement(Element->ElementMapped) ;
-
-  Msg::Debug("Element %d -> Mapped %d", Element->Num, Element->ElementMapped->Num);
-}

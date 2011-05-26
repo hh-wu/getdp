@@ -504,41 +504,6 @@ void Cal_WholeQuantity(struct Element * Element,
       Index++ ;
       break ;
 
-   case WQ_MAPPED : /* Mapped[WholeQuantity, Group, Map[]] */
-      Save_Region = Current.Region ; 
-
-      if(!Element->ElementMapped)
-	Msg::Error("Mapped must act on discrete quantity (and not in post-processing)");
-
-      Current.Region = Element->ElementMapped->Region ;
-      
-      if(WholeQuantity_P->Case.Mapped.DofIndexInWholeQuantity >= 0){
-	Cal_WholeQuantity(Element->ElementMapped, QuantityStorage_P0,
-			  WholeQuantity_P->Case.Mapped.WholeQuantity,
-			  Current.ut, Current.vt, Current.wt, 
-			  WholeQuantity_P->Case.Mapped.DofIndexInWholeQuantity,
-			  Nbr_Dof, DofValue) ;
-	DofIndexInWholeQuantity = DofIndex = Index ;
-      }
-      else{
-	Current.x = Current.y = Current.z = 0. ;
-	for (j = 0 ; j < Element->GeoElement->NbrNodes ; j++) {
-	  Current.x += Element->x[j] * Element->n[j] ;
-	  Current.y += Element->y[j] * Element->n[j] ;
-	  Current.z += Element->z[j] * Element->n[j] ;
-	}
-	xyz2uvwInAnElement(Element->ElementMapped, Current.x, Current.y, Current.z, 
-			   &Current.ut, &Current.vt, &Current.wt) ;	
-	Cal_WholeQuantity(Element->ElementMapped, QuantityStorage_P0,
-			  WholeQuantity_P->Case.Mapped.WholeQuantity,
-			  Current.ut, Current.vt, Current.wt, 
-			  -1, 0, &Stack[0][Index]) ;
-      }
-      Current.Region = Save_Region ;
-      Multi[Index] = 0 ;
-      Index++ ;
-      break ;
-
     case WQ_SOLIDANGLE : /* SolidAngle[{qty}] */
       Cal_SolidAngle(0, Element, QuantityStorage_P0 +
 		     WholeQuantity_P->Case.OperatorAndQuantity.Index, 

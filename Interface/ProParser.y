@@ -49,7 +49,6 @@ static int Current_DofIndexInWholeQuantity, Last_DofIndexInWholeQuantity;
 static int Current_NoDofIndexInWholeQuantity;
 static int Current_System, Constraint_Index;
 static int TypeOperatorDofInTrace, DefineQuantityIndexDofInTrace;
-static int TypeOperatorDofMapped, DefineQuantityIndexDofMapped;
 static int ImbricatedLoop = 0;
 #define MAX_RECUR_LOOPS 100
 static fpos_t FposImbricatedLoopsTab[MAX_RECUR_LOOPS];
@@ -162,7 +161,7 @@ void vyyerror(const char *fmt, ...);
 %token  tExp tLog tLog10 tSqrt tSin tAsin tCos tAcos tTan
 %token    tAtan tAtan2 tSinh tCosh tTanh tFabs tFloor tCeil
 %token    tFmod tModulo tHypot tRand
-%token    tSolidAngle tTrace tMapped tOrder tCrossProduct tDofValue
+%token    tSolidAngle tTrace tOrder tCrossProduct tDofValue
 %token    tMHTransform tMHJacNL
 
 %token  tGroup tDefineGroup tAll tInSupport tMovingBand2D
@@ -1433,39 +1432,6 @@ WholeQuantity_Single :
 	}
 	if(Current_DofIndexInWholeQuantity != -4)
 	  vyyerror("Dof{} definition out of context in Trace operator");
-      }
-
-      List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
-		&Current_WholeQuantity_L);
-      List_Add(Current_WholeQuantity_L, &WholeQuantity_S);
-    }
-
-  | tMapped 
-    { Last_DofIndexInWholeQuantity = Current_DofIndexInWholeQuantity; }
-    '[' WholeQuantityExpression ',' GroupRHS ',' tSTRING '[' ']' ']'
-    { WholeQuantity_S.Type = WQ_MAPPED;
-      WholeQuantity_S.Case.Mapped.WholeQuantity = $4;
-      WholeQuantity_S.Case.Mapped.InIndex = Num_Group(&Group_S, (char*)"WQ_Mapped", $6);
-
-      int i ;
-      if((i = List_ISearchSeq(Problem_S.Expression, $8,fcmp_Expression_Name)) < 0) 
-      vyyerror("Undefined function '%s' used in Mapped", $8);
-      WholeQuantity_S.Case.Mapped.MapIndex = i ;
-
-      WholeQuantity_S.Case.Mapped.DofIndexInWholeQuantity = -1;
-      if(Current_DofIndexInWholeQuantity != Last_DofIndexInWholeQuantity){
-	for(int i = 0; i < List_Nbr($4); i++){
-	  WholeQuantity_P = (struct WholeQuantity*)List_Pointer($4, i);
-	  if(WholeQuantity_P->Type == WQ_OPERATORANDQUANTITY)
-	    if(WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity == QUANTITY_DOF){
-	      WholeQuantity_S.Case.Mapped.DofIndexInWholeQuantity = i;
-	      Current_DofIndexInWholeQuantity = -5;
-	      TypeOperatorDofMapped = WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator;
-	      DefineQuantityIndexDofMapped = WholeQuantity_P->Case.OperatorAndQuantity.Index;
-	    }
-	}
-	if(Current_DofIndexInWholeQuantity != -5)
-	  vyyerror("Dof{} definition out of context in Mapped operator");
       }
 
       List_Read(ListOfPointer_L, List_Nbr(ListOfPointer_L)-1,
@@ -3442,13 +3408,6 @@ LocalTermTerm  :
 	  TypeOperatorDofInTrace;
 	EquationTerm_S.Case.LocalTerm.Term.DefineQuantityIndexDof = 
 	  DefineQuantityIndexDofInTrace;
-      }
-      else if(Current_DofIndexInWholeQuantity == -5){
-	EquationTerm_S.Case.LocalTerm.Term.DofMapped = 1;
-	EquationTerm_S.Case.LocalTerm.Term.TypeOperatorDof = 
-	  TypeOperatorDofMapped;
-	EquationTerm_S.Case.LocalTerm.Term.DefineQuantityIndexDof = 
-	  DefineQuantityIndexDofMapped;
       }
       else if(Current_DofIndexInWholeQuantity >= 0) {
 	EquationTerm_S.Case.LocalTerm.Term.TypeOperatorDof =
@@ -7148,11 +7107,6 @@ void  Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex)
       Pro_DefineQuantityIndex_1
 	((WholeQuantity_P+i)->Case.Trace.WholeQuantity, 
 	 (WholeQuantity_P+i)->Case.Trace.InIndex);
-      break;
-    case WQ_MAPPED :
-      Pro_DefineQuantityIndex_1
-	((WholeQuantity_P+i)->Case.Mapped.WholeQuantity, 
-	 (WholeQuantity_P+i)->Case.Mapped.InIndex);
       break;
     case WQ_TEST :
       Pro_DefineQuantityIndex_1
