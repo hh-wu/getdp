@@ -363,6 +363,8 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 	fscanf(File_PRE, "%d", &Dof.Case.Unknown.NumDof) ;
 	fscanf(File_PRE, "%d", &Dummy) ;
         Dof.Case.Unknown.NonLocal = (Dummy < 0) ? true : false;
+        if(Dummy < 0) 
+          DofData_P->NonLocalEquations.push_back(Dof.Case.Unknown.NumDof);
 	break ;
       case DOF_FIXEDWITHASSOCIATE :
 	fscanf(File_PRE, "%d", &Dof.Case.FixedAssociate.NumDof) ;
@@ -381,6 +383,8 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 	LinAlg_ScanScalar(File_PRE, &Dof.Val) ;
 	fscanf(File_PRE, "%d", &Dummy) ;
         Dof.Case.Unknown.NonLocal = (Dummy < 0) ? true : false;
+        if(Dummy < 0) 
+          DofData_P->NonLocalEquations.push_back(Dof.Case.Unknown.NumDof);
 	break ;
       case DOF_LINK :
 	fscanf(File_PRE, "%lf %d",
