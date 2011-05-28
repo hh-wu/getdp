@@ -50,7 +50,71 @@ bool IsEquationNonLocal(BasisFunction *bf)
      bf->Function == (void(*)())BF_Global ||
      bf->Function == (void(*)())BF_dGlobal ||
      bf->Function == (void(*)())BF_Zero ||
-     bf->Function == (void(*)())BF_One)
+     bf->Function == (void(*)())BF_One ||
+     bf->Function == (void(*)())BF_GroupOfNodes ||
+     bf->Function == (void(*)())BF_GroupOfNodes_2E ||
+     bf->Function == (void(*)())BF_GroupOfNodes_2F ||
+     bf->Function == (void(*)())BF_GroupOfNodes_2V ||
+     bf->Function == (void(*)())BF_GroupOfNodes_3E ||
+     bf->Function == (void(*)())BF_GroupOfNodes_3F ||
+     bf->Function == (void(*)())BF_GroupOfNodes_3V ||
+     bf->Function == (void(*)())BF_GradGroupOfNodes ||
+     bf->Function == (void(*)())BF_GradGroupOfNodes_2E ||
+     bf->Function == (void(*)())BF_GradGroupOfNodes_2F ||
+     bf->Function == (void(*)())BF_GradGroupOfNodes_2V ||
+     bf->Function == (void(*)())BF_GradGroupOfNodes_3E ||
+     bf->Function == (void(*)())BF_GradGroupOfNodes_3F ||
+     bf->Function == (void(*)())BF_GradGroupOfNodes_3V ||
+     bf->Function == (void(*)())BF_GroupOfEdges ||
+     bf->Function == (void(*)())BF_GroupOfEdges_2E ||
+     bf->Function == (void(*)())BF_GroupOfEdges_2F ||
+     bf->Function == (void(*)())BF_GroupOfEdges_2V ||
+     bf->Function == (void(*)())BF_GroupOfEdges_3E ||
+     bf->Function == (void(*)())BF_GroupOfEdges_3F_a ||
+     bf->Function == (void(*)())BF_GroupOfEdges_3F_b ||
+     bf->Function == (void(*)())BF_GroupOfEdges_3F_c ||
+     bf->Function == (void(*)())BF_GroupOfEdges_3V ||
+     bf->Function == (void(*)())BF_GroupOfEdges_4E ||
+     bf->Function == (void(*)())BF_GroupOfEdges_4F ||
+     bf->Function == (void(*)())BF_GroupOfEdges_4V ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges_2E ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges_2F ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges_2V ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges_3E ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges_3F_a ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges_3F_b ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges_3F_c ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges_3V ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges_4E ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges_4F ||
+     bf->Function == (void(*)())BF_CurlGroupOfEdges_4V ||
+     bf->Function == (void(*)())BF_GroupOfPerpendicularEdges ||
+     bf->Function == (void(*)())BF_GroupOfPerpendicularEdges_2E ||
+     bf->Function == (void(*)())BF_GroupOfPerpendicularEdges_2F ||
+     bf->Function == (void(*)())BF_GroupOfPerpendicularEdges_2V ||
+     bf->Function == (void(*)())BF_GroupOfPerpendicularEdges_3E ||
+     bf->Function == (void(*)())BF_GroupOfPerpendicularEdges_3F ||
+     bf->Function == (void(*)())BF_GroupOfPerpendicularEdges_3V ||
+     bf->Function == (void(*)())BF_CurlGroupOfPerpendicularEdges ||
+     bf->Function == (void(*)())BF_CurlGroupOfPerpendicularEdges_2E ||
+     bf->Function == (void(*)())BF_CurlGroupOfPerpendicularEdges_2F ||
+     bf->Function == (void(*)())BF_CurlGroupOfPerpendicularEdges_2V ||
+     bf->Function == (void(*)())BF_CurlGroupOfPerpendicularEdges_3E ||
+     bf->Function == (void(*)())BF_CurlGroupOfPerpendicularEdges_3F ||
+     bf->Function == (void(*)())BF_CurlGroupOfPerpendicularEdges_3V ||
+     bf->Function == (void(*)())BF_GroupOfNodesX ||
+     bf->Function == (void(*)())BF_GroupOfNodesY ||
+     bf->Function == (void(*)())BF_GroupOfNodesZ ||
+     bf->Function == (void(*)())BF_GroupOfNodesX_D1 ||
+     bf->Function == (void(*)())BF_GroupOfNodesY_D1 ||
+     bf->Function == (void(*)())BF_GroupOfNodesZ_D1 ||
+     bf->Function == (void(*)())BF_GroupOfNodesX_D2 ||
+     bf->Function == (void(*)())BF_GroupOfNodesY_D2 ||
+     bf->Function == (void(*)())BF_GroupOfNodesZ_D2 ||
+     bf->Function == (void(*)())BF_GroupOfNodesX_D12 ||
+     bf->Function == (void(*)())BF_GroupOfNodesY_D12 ||
+     bf->Function == (void(*)())BF_GroupOfNodesZ_D12)
     return true;
   return false;
 }
