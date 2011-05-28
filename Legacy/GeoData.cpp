@@ -298,7 +298,9 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 
     if(!strncmp(&String[1], "MeshFormat", 10)) {
 
-      fscanf(File_GEO, "%lf %d %d\n", &Version, &Format, &Size);
+      fgets(String, sizeof(String), File_GEO) ; 
+      if(sscanf(String, "%lf %d %d", &Version, &Format, &Size) != 3) 
+        return;
       if(Version < 2.0 || Version >= 3.0){
 	Msg::Error("Unknown mesh file version (%g)", Version);
 	return;
@@ -322,11 +324,10 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	     !strncmp(&String[1], "NOD", 3) ||
 	     !strncmp(&String[1], "Nodes", 5)) {
 
-      fscanf(File_GEO, "%d", &Nbr) ;
-      if(binary) {
-	char c;
-	if(fread(&c, sizeof(char), 1, File_GEO) != 1) return;
-      }
+      fgets(String, sizeof(String), File_GEO) ; 
+      if(sscanf(String, "%d", &Nbr) != 1) return;
+      Msg::Debug("%d nodes", Nbr);
+
       if (GeoData_P->Nodes == NULL)
 	GeoData_P->Nodes = List_Create(Nbr, 1000, sizeof(struct Geo_Node)) ;
 
@@ -400,11 +401,9 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
     else if (!strncmp(&String[1], "ELM", 3) ||
 	     !strncmp(&String[1], "Elements", 8)) {
 
-      fscanf(File_GEO, "%d", &Nbr) ;
-      if(binary) {
-	char c;
-	if(fread(&c, sizeof(char), 1, File_GEO) != 1) return;
-      }
+      fgets(String, sizeof(String), File_GEO) ; 
+      if(sscanf(String, "%d", &Nbr) != 1) return;
+      Msg::Debug("%d elements", Nbr);
 
       if (GeoData_P->Elements == NULL)
 	GeoData_P->Elements =
@@ -457,13 +456,10 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	    if(fread(data, sizeof(int), n, File_GEO) != n) return;
 	    if(swap) swapBytes((char*)data, sizeof(int), n);
 	    Geo_Element.Num = data[0];
-	    Geo_Element.Region = (numTags > 0) ? data[4 - numTags] : 0;
-	    //int elementary = (numTags > 1) ? data[4 - numTags + 1] : 0;
-	    Geo_Element.NumNodes = &data[numTags + 1];
+	    Geo_Element.Region = (numTags > 0) ? data[1] : 0;
 	    Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
 	    for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
 	      Geo_Element.NumNodes[j] = data[numTags + 1 + j] ;
-
 	    List_Add(GeoData_P->Elements, &Geo_Element) ;
 	  }
 	  Free(data);
