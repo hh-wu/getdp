@@ -78,6 +78,7 @@ struct Group {
   int     Num,  Type, FunctionType, SuppListType;
   List_T *InitialList, *InitialSuppList;
   List_T *ExtendedList, *ExtendedSuppList;
+  bool    IsExtendedListMultiValued;
   struct  MovingBand2D *MovingBand2D; 
 };
 

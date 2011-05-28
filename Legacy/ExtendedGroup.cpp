@@ -123,6 +123,26 @@ void Generate_ExtendedGroup(struct Group * Group_P)
     Msg::Error("Unknown function type for Group '%s'", Group_P->Name) ;
     break;
   }
+
+  // Check if ExtendedList only contains single entries with identical
+  // first keys (in absolute value): this allows to dramatically
+  // speed-up Get_DofOfElement() for large global basis functions
+  if(List_Nbr(Group_P->ExtendedList) && (Group_P->FunctionType == GROUPSOFNODESOF ||
+                                         Group_P->FunctionType == GROUPSOFEDGESOF)) {
+    Group_P->IsExtendedListMultiValued = false;
+    List_Sort(Group_P->ExtendedList, fcmp_absint);
+    TwoInt k1, k2;
+    List_Read(Group_P->ExtendedList, 0, &k1);
+    for(int i = 1; i < List_Nbr(Group_P->ExtendedList); i++){
+      List_Read(Group_P->ExtendedList, i, &k2);
+      if(abs(k1.Int1) == abs(k2.Int1)){
+        Group_P->IsExtendedListMultiValued = true;
+        Msg::Info("  Extended group is multivalued (search will be slow...)");
+        break;
+      }
+    }
+  }
+
 }
 
 /* ------------------------------------------------------------------------ */

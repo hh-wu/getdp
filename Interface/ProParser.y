@@ -6975,6 +6975,7 @@ int  Add_Group(struct Group *Group_P, char *Name, int Flag_Plus, int Num_Index)
   if((i = List_ISearchSeq(Problem_S.Group, Group_P->Name, fcmp_Group_Name)) < 0) {
     i = Group_P->Num = List_Nbr(Problem_S.Group);
     Group_P->ExtendedList = NULL;  Group_P->ExtendedSuppList = NULL;
+    Group_P->IsExtendedListMultiValued = true;
     List_Add(Problem_S.Group, Group_P);
   }
   else  List_Write(Problem_S.Group, i, Group_P);
@@ -7005,6 +7006,7 @@ int  Add_Group_2(struct Group *Group_P, char *Name, int Flag_Add,
   if((i = List_ISearchSeq(Problem_S.Group, Group_P->Name, fcmp_Group_Name)) < 0) {
     i = Group_P->Num = List_Nbr(Problem_S.Group);
     Group_P->ExtendedList = NULL;  Group_P->ExtendedSuppList = NULL;
+    Group_P->IsExtendedListMultiValued = true;
     List_Add(Problem_S.Group, Group_P);
   } 
   else if(Flag_Add) {
