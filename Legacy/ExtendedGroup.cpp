@@ -73,7 +73,7 @@ void Generate_ExtendedGroup(struct Group * Group_P)
 {
 
   Msg::Info("  Generate ExtendedGroup '%s' (%s)", Group_P->Name,
-      Get_StringForDefine(FunctionForGroup_Type, Group_P->FunctionType)) ;
+            Get_StringForDefine(FunctionForGroup_Type, Group_P->FunctionType)) ;
 
   switch (Group_P->FunctionType) {
 
@@ -189,7 +189,8 @@ void Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList)
 
   Entity_Tr = Tree_Create(sizeof (struct TwoInt), fcmp_int2) ;
 
-  Nbr_Element = Geo_GetNbrGeoElements() ;  /*  Msg::Info("  Add Node :"); */
+  Nbr_Element = Geo_GetNbrGeoElements() ; 
+  // Msg::Info("  Add Node :");
   for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
     GeoElement = Geo_GetGeoElement(i_Element) ;
 
@@ -203,7 +204,7 @@ void Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList)
 
 	if ( ! Tree_Search(Entity_Tr, &Num_GroupOfNodes) ) {
 	  Tree_Add(Entity_Tr, &Num_GroupOfNodes) ;
-	  /* Msg::Info(" (%d, %d)", Num_GroupOfNodes.Int1, Num_GroupOfNodes.Int2); */
+          // Msg::Info(" (%d, %d)", Num_GroupOfNodes.Int1, Num_GroupOfNodes.Int2); 
 	}
       }
     }
