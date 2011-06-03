@@ -1167,11 +1167,13 @@ struct PostSubOperation {
   int    Type, SubType, CombinationType;
   int    Depth, Skin, Smoothing, Dimension, Comma, HarmonicToTime, CatFile;
   int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex;
+  int    ValueIndex;
   int    ChangeOfCoordinates[3], LastTimeStepOnly; 
   int    StoreInRegister;
   int    Legend, FrozenTimeStepList;
   double LegendPosition[3];
   double Target;
+  char    *ValueName;
   List_T *HeaderChar_L, *HeaderTag_L;
   List_T *FormatChar_L, *FormatTag_L;
   List_T *FooterChar_L, *FooterTag_L;
@@ -1243,6 +1245,7 @@ struct PostSubOperation {
 #define FORMAT_TIME_TABLE             2
 #define FORMAT_SIMPLE_SPACE_TABLE     3
 #define FORMAT_FREQUENCY_TABLE        4
+#define FORMAT_VALUE_ONLY             5
 #define FORMAT_ADAPT                  9
 #define FORMAT_GMSH                  10
 #define FORMAT_GMSH_PARSED           11

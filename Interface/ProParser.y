@@ -241,6 +241,7 @@ void vyyerror(const char *fmt, ...);
 %token        tOnGrid tOnSection tOnPoint tOnLine tOnPlane tOnBox
 %token        tWithArgument
 %token        tFile tDepth tDimension tComma tTimeStep tHarmonicToTime
+%token        tValueIndex tValueName
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
@@ -5863,6 +5864,8 @@ PrintOptions :
       PostSubOperation_S.EvaluationPoints = NULL;
       PostSubOperation_S.StoreInRegister = -1;
       PostSubOperation_S.LastTimeStepOnly = 0;
+      PostSubOperation_S.ValueIndex = 0;
+      PostSubOperation_S.ValueName = NULL;
     }
   | PrintOptions PrintOption 
  ;
@@ -5971,6 +5974,14 @@ PrintOption :
   | ',' tComma
     { 
       PostSubOperation_S.Comma = 1; 
+    }
+  | ',' tValueIndex FExpr
+    { 
+      PostSubOperation_S.ValueIndex = $3;
+    }
+  | ',' tValueName  CharExpr
+    { 
+      PostSubOperation_S.ValueName = $3;
     }
   | ',' tDimension FExpr
     { 

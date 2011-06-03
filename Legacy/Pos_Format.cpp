@@ -941,7 +941,8 @@ void Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 /*  F o r m a t _ T a b u l a r                                             */
 /* ------------------------------------------------------------------------ */
 
-void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
+void  Format_Tabular(struct PostSubOperation *PSO_P,
+                     int Format, double Time, int TimeStep, int NbrTimeSteps,
 		     int NbrHarmonics, int HarmonicToTime, 
 		     int ElementType, int NumElement, int NbrNodes,
 		     double *x, double *y, double *z, double *Dummy,
@@ -962,13 +963,15 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
     }
   }
 
-  if(Format == FORMAT_SPACE_TABLE || Format == FORMAT_SIMPLE_SPACE_TABLE){
+  if(Format == FORMAT_SPACE_TABLE || Format == FORMAT_SIMPLE_SPACE_TABLE
+     || Format == FORMAT_VALUE_ONLY){
     if(TimeStep == 0){
-      if(Format != FORMAT_SIMPLE_SPACE_TABLE)
+      if(Format != FORMAT_SIMPLE_SPACE_TABLE && Format != FORMAT_VALUE_ONLY)
         fprintf(PostStream, "%d %d  ", Get_GmshElementType(ElementType), NumElement);
-      for(i=0 ; i<NbrNodes ; i++)
-	fprintf(PostStream, "%.16g %.16g %.16g  ", x[i], y[i], z[i]);
-      if(Format != FORMAT_SIMPLE_SPACE_TABLE){
+      if(Format != FORMAT_VALUE_ONLY)
+        for(i=0 ; i<NbrNodes ; i++)
+          fprintf(PostStream, "%.16g %.16g %.16g  ", x[i], y[i], z[i]);
+      if(Format != FORMAT_SIMPLE_SPACE_TABLE && Format != FORMAT_VALUE_ONLY){
         if(Dummy) 
           fprintf(PostStream, "%.16g %.16g %.16g  ", Dummy[0], Dummy[1],  Dummy[2]);
         else
@@ -986,7 +989,14 @@ void  Format_Tabular(int Format, double Time, int TimeStep, int NbrTimeSteps,
     for(k = 0 ; k < NbrHarmonics ; k++) {
       for(i = 0 ; i < NbrNodes ; i++){
 	for(j = 0 ; j < Size ; j++){
-	  fprintf(PostStream, " %.16g", Value[i].Val[MAX_DIM*k+j]);
+          if (Format != FORMAT_VALUE_ONLY)
+            fprintf(PostStream, " %.16g", Value[i].Val[MAX_DIM*k+j]);
+          else{
+            fprintf(PostStream, " %s_%d_%d = %.16g",
+                    PSO_P->ValueName, j, PSO_P->ValueIndex, Value[i].Val[MAX_DIM*k+j]);
+            if (j<Size-1)
+              fprintf(PostStream, "\n");
+          }
 	}
 	fprintf(PostStream, " ");
       }
@@ -1120,7 +1130,9 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   case FORMAT_SPACE_TABLE :
   case FORMAT_TIME_TABLE :
   case FORMAT_SIMPLE_SPACE_TABLE :
-    Format_Tabular(PSO_P->Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
+  case FORMAT_VALUE_ONLY :
+    Format_Tabular(PSO_P,
+                   PSO_P->Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
 		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
 		   PE->Value) ;
     break ;

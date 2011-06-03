@@ -293,6 +293,8 @@ Header                       return tHeader;
 Depth                        return tDepth;
 Dimension                    return tDimension;
 Comma                        return tComma;
+ValueIndex                   return tValueIndex;
+ValueName                    return tValueName;
 HarmonicToTime               return tHarmonicToTime;
 TimeStep                     return tTimeStep;
 Target                       return tTarget;
