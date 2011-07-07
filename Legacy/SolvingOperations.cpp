@@ -170,7 +170,6 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     }
   }
   else{
-    //Msg::Info("Setting System {A,b} to zero");
     LinAlg_ZeroMatrix(&Current.DofData->A) ;
     LinAlg_ZeroVector(&Current.DofData->b) ;
 
@@ -671,6 +670,18 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
   }
 
   Dof_InitDofType(DofData_P) ; /* Attention: Init for only one DofData */
+
+  // Updating the constraints has (most probably) changed the mask of the matrices.
+  // Recreating the matrices will lead to much faster assembly (and reduced memory)
+  // with petsc-based solvers
+  int m, n;
+  LinAlg_GetMatrixSize(&DofData_P->A, &m, &n);
+  LinAlg_DestroyMatrix(&DofData_P->A);
+  LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver, m, n);
+
+  LinAlg_GetMatrixSize(&DofData_P->Jac, &m, &n);
+  LinAlg_DestroyMatrix(&DofData_P->Jac);
+  LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver, m, n);
 
   TreatmentStatus = Save_TreatmentStatus ;
 }
