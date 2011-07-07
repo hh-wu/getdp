@@ -1365,7 +1365,7 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 
   }
 
-  Current.GeoData->Grid.Init=0;
+  Free_SearchGrid(&Current.GeoData->Grid);
   Init_SearchGrid(&Current.GeoData->Grid);
 }
 
@@ -1465,7 +1465,7 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
   }
 
   Current.GeoData = GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex;
-  Current.GeoData->Grid.Init=0;
+  Free_SearchGrid(&Current.GeoData->Grid);
   Init_SearchGrid(&Current.GeoData->Grid) ;
 }
 

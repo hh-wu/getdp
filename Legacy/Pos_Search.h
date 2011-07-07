@@ -25,17 +25,18 @@ struct PointElement {
   int ElementIndex;
 } ;
 
-void Init_SearchGrid (struct Grid * Grid) ;
+void Init_SearchGrid(struct Grid * Grid);
+void Free_SearchGrid(struct Grid * Grid);
 
-void InWhichElement (struct Grid Grid, 
-		     List_T *ExcludeRegion,
-		     struct Element * Element, 
-		     int Flag, 
-		     double  x, double  y, double  z, 
-		     double *u, double *v, double *w) ;
+void InWhichElement(struct Grid Grid, 
+		    List_T *ExcludeRegion,
+		    struct Element * Element, 
+		    int Flag, 
+		    double  x, double  y, double  z, 
+		    double *u, double *v, double *w);
 
-void xyz2uvwInAnElement (struct Element *Element,
-			 double  x, double  y, double  z, 
-			 double *u, double *v, double *w);
+void xyz2uvwInAnElement(struct Element *Element,
+			double  x, double  y, double  z, 
+			double *u, double *v, double *w);
 
 #endif

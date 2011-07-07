@@ -316,6 +316,17 @@ void Init_SearchGrid(struct Grid * Grid)
   Msg::Info("...done: %dx%dx%d", Grid->Nx, Grid->Ny, Grid->Nz);
 }
 
+void Free_SearchGrid(struct Grid * Grid)
+{
+  if(!Grid->Init) return;
+  for(int i = 0; i < List_Nbr(Grid->Bricks); i++){
+    Brick *Brick_P = (struct Brick *)List_Pointer(Grid->Bricks, i) ;
+    for(int j = 0 ; j < 3 ; j++) List_Delete(Brick_P->p[j]);
+  }
+  List_Delete(Grid->Bricks);
+  Grid->Init = 0;
+}
+
 /* ------------------------------------------------------------------------ */
 /*  I n W h i c h   X X X                                                   */
 /* ------------------------------------------------------------------------ */
