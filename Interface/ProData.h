@@ -511,7 +511,8 @@ struct DefineQuantity {
   struct   IntegralQuantity  IntegralQuantity;
 };
 
-#define NBR_MAX_BASISFUNCTIONS         60
+// second order hex with 3 BFs per node for elasticity
+#define NBR_MAX_BASISFUNCTIONS         81
 
 struct QuantityStorage {
 

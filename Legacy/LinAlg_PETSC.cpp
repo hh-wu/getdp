@@ -62,6 +62,11 @@ extern struct CurrentData Current ;
 static void _try(int ierr){ CHKERRABORT(PETSC_COMM_WORLD, ierr); }
 static int SolverInitialized = 0;
 
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#define PetscTruth PetscBool
+#define PetscOptionsGetTruth PetscOptionsGetBool
+#endif
+
 void LinAlg_InitializeSolver(int* argc, char*** argv)
 {
   // This function detects if MPI is initialized
@@ -131,7 +136,12 @@ static void _fillseq(gVector *V)
   VecScatterBegin(ctx, V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD);
   VecScatterEnd(ctx, V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD);
 #endif
+
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+  VecScatterDestroy(&ctx);
+#else
   VecScatterDestroy(ctx);
+#endif
 }
 
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
@@ -165,21 +175,36 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 void LinAlg_DestroySolver(gSolver *Solver)
 {
   for(int i = 0; i < 10; i++){
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+    if(Solver->ksp[i]) _try(KSPDestroy(&Solver->ksp[i]));
+    if(Solver->snes[i]) _try(SNESDestroy(&Solver->snes[i]));
+#else
     if(Solver->ksp[i]) _try(KSPDestroy(Solver->ksp[i]));
     if(Solver->snes[i]) _try(SNESDestroy(Solver->snes[i]));
+#endif
   }
 }
 
 void LinAlg_DestroyVector(gVector *V)
 {
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+  _try(VecDestroy(&V->V));
+  if(Msg::GetCommSize() > 1)
+    _try(VecDestroy(&V->Vseq));
+#else
   _try(VecDestroy(V->V));
   if(Msg::GetCommSize() > 1)
     _try(VecDestroy(V->Vseq));
+#endif
 }
 
 void LinAlg_DestroyMatrix(gMatrix *M)
 {
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+  _try(MatDestroy(&M->M));
+#else
   _try(MatDestroy(M->M));
+#endif
 }
 
 void LinAlg_CopyScalar(gScalar *S1, gScalar *S2)
@@ -311,7 +336,11 @@ void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab,
     _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
     _try(PetscObjectSetName((PetscObject)V->V, varName));
     _try(VecView(V->V, fd));
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+    _try(PetscViewerDestroy(&fd));
+#else
     _try(PetscViewerDestroy(fd));
+#endif
   }
 } 
 
@@ -324,7 +353,11 @@ void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab,
   _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
   _try(PetscObjectSetName((PetscObject)M->M, varName));
   _try(MatView(M->M, fd));
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+  _try(PetscViewerDestroy(&fd));
+#else
   _try(PetscViewerDestroy(fd));
+#endif
 }
 
 void LinAlg_WriteScalar(FILE *file, gScalar *S)
@@ -1002,12 +1035,6 @@ static PetscErrorCode _myKspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void 
   return 0;
 }
 
-static PetscErrorCode _mySnesMonitor(SNES snes, PetscInt it, PetscReal rnorm, void *mctx)
-{
-  Msg::Info("%3ld SNES Residual norm %14.12e", (long)it, rnorm);
-  return 0;
-}
-
 static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, 
                    int precond, int kspIndex)
 {
@@ -1094,7 +1121,18 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   }
 }
 
-//+++
+void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
+{
+  _solve(A, B, Solver, X, 1, solverIndex);
+}
+
+void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
+{
+  _solve(A, B, Solver, X, 0, solverIndex);
+}
+
+
+// ======================================================================================
 
 static PetscErrorCode _NLFormFunction(SNES snes, Vec x, Vec f, void *mctx)
 {
@@ -1121,7 +1159,8 @@ static PetscErrorCode _NLFormFunction(SNES snes, Vec x, Vec f, void *mctx)
   return 0;
 }
 
-static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC, MatStructure *flag, void *mctx)
+static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC, 
+                                      MatStructure *flag, void *mctx)
 {
   /*
     snes - the SNES context
@@ -1164,6 +1203,12 @@ static PetscErrorCode _NLFormInitialGuess(Vec x, PetscScalar val)
  
   VecSet(x,val);
 
+  return 0;
+}
+
+static PetscErrorCode _mySnesMonitor(SNES snes, PetscInt it, PetscReal rnorm, void *mctx)
+{
+  Msg::Info("%3ld SNES Residual norm %14.12e", (long)it, rnorm);
   return 0;
 }
 
@@ -1238,7 +1283,6 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   
 
 
-  //======================================================================================
   /*
  // Setting linear solver defaults == > KSP and PC to be used by the nonlinear solver 
   if(!Solver->ksp[solverIndex]) {
@@ -1295,25 +1339,19 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   }
 
   if (matfdcoloring) {
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+    _try(MatFDColoringDestroy(&matfdcoloring));
+#else
     _try(MatFDColoringDestroy(matfdcoloring));
+#endif
   }
 
 
 
 }
 
-
-void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
-{
-  _solve(A, B, Solver, X, 1, solverIndex);
-}
-
-void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
-{
-  _solve(A, B, Solver, X, 0, solverIndex);
-}
-
-void LinAlg_SolveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *Solver, gVector *X, int solverIndex)
+void LinAlg_SolveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R,
+                    gSolver *Solver, gVector *X, int solverIndex)
 {
   _solveNL(A, B, J, R, Solver, X, 1, solverIndex);
 }

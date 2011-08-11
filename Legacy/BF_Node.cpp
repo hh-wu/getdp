@@ -368,7 +368,6 @@ void BF_GradNode(struct Element * Element, int NumNode,
     case 6  : s[0] =    0.5 * (1.-v*v)             ;   s[1] =         -(1.+u)  *  v         ;   s[2] = 0. ; break ;
     case 7  : s[0] =         -(1.+v) *  u          ;   s[1] =    0.5 * (1.-u*u)             ;   s[2] = 0. ; break ;
     case 8  : s[0] =   -0.5 * (1.-v*v)             ;   s[1] =         -(1.-u)  *  v         ;   s[2] = 0. ; break ;
-
     default : WrongNumNode ;
     }
     break ;

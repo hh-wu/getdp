@@ -142,7 +142,7 @@ if test "x$enable_petsc" != "xno" -a "x$enable_sparskit" != "xyes"; then
   fi
   LAPACK="yes"
   LINKER="\${CLINKER}"
-  FLAGS="${FLAGS} \${PETSCFLAGS} \${PETSC_INCLUDE}"
+  FLAGS="${FLAGS} \${PETSCFLAGS} \${PETSC_INCLUDE} \${PETSC_CC_INCLUDES}"
   AC_DEFINE(HAVE_PETSC)
   BO="${BO} Petsc"
 fi

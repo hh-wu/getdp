@@ -426,6 +426,10 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
     return ;
   }
 
+  if(Nbr_Equ > NBR_MAX_BASISFUNCTIONS)
+    Msg::Fatal("Number of basis functions (%d) exceeds NBR_MAX_BASISFUNCTIONS: "
+               "please recompile after changing Interface/ProData.h", Nbr_Equ);
+  
   Get_FunctionValue(Nbr_Equ, (void (**)())xFunctionBFEqu,
 		    EquationTerm_P->Case.LocalTerm.Term.TypeOperatorEqu,
 		    QuantityStorageEqu_P, &FI->Type_FormEqu) ;

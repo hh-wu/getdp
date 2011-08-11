@@ -4019,7 +4019,7 @@ fi
   fi
   LAPACK="yes"
   LINKER="\${CLINKER}"
-  FLAGS="${FLAGS} \${PETSCFLAGS} \${PETSC_INCLUDE}"
+  FLAGS="${FLAGS} \${PETSCFLAGS} \${PETSC_INCLUDE} \${PETSC_CC_INCLUDES}"
   $as_echo "#define HAVE_PETSC 1" >>confdefs.h
 
   BO="${BO} Petsc"
