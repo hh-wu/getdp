@@ -6,8 +6,6 @@
 #include "ProData.h"
 #include "Message.h"
 
-#define WrongElementType(A,B)  Msg::Error("Basis function A cannot be associated with B !")
-
 /* ------------------------------------------------------------------------ */
 /*  B F _ N o d e _ 3                                                       */
 /* ------------------------------------------------------------------------ */
@@ -98,7 +96,7 @@ void  BF_Node_3F(struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
-    WrongNumEntity ;
+    Msg::Error("BF_Node_3F cannot be associated with this type of element");
     break;
 
   case TRIANGLE :
@@ -155,14 +153,11 @@ void  BF_Node_3V(struct Element * Element, int NumEntity,
   switch (Element->Type) {
     
   case LINE :
-    WrongElementType(BF_Node_3V, LINE); break;
   case TRIANGLE :
-    WrongElementType(BF_Node_3V, TRIANGLE); break;
   case QUADRANGLE :
-    WrongElementType(BF_Node_3V, QUADRANGLE); break;
   case TETRAHEDRON :
-    WrongElementType(BF_Node_3V, TETRAHEDRON); break;
-
+    Msg::Error("BF_Node_3V cannot be associated with this type of element");
+    break;
 
   case HEXAHEDRON :
     switch(NumEntity) {
@@ -296,7 +291,7 @@ void BF_GradNode_3F(struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
-    WrongElementType(Node_3F, LINE);
+    Msg::Error("BF_GradNode_3F cannot be associated with this type of element");
     break ;
 
   case TRIANGLE :
@@ -353,14 +348,11 @@ void BF_GradNode_3V(struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
-    WrongElementType(BF_Node_3V, LINE); break;
   case TRIANGLE :
-    WrongElementType(BF_Node_3V, TRIANGLE); break;
   case QUADRANGLE :
-    WrongElementType(BF_Node_3V, QUADRANGLE); break;
   case TETRAHEDRON :
-    WrongElementType(BF_Node_3V, TETRAHEDRON); break;
-
+    Msg::Error("BF_GradNode_3V cannot be associated with this type of element");
+    break;
 
   case HEXAHEDRON :
     switch(NumEntity) {
@@ -380,4 +372,3 @@ void BF_GradNode_3V(struct Element * Element, int NumEntity,
   }
 }
 
-#undef WrongElementType
