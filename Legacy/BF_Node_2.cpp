@@ -76,9 +76,18 @@ void BF_Node_2E(struct Element * Element, int NumEntity,
     }
     break ;
 
-  case PRISM :
-    switch(NumEntity) {
-    default : Msg::Error("BF_Node_2E not ready for PRISM");
+  case PRISM : // FIXME: not tested!
+    switch(NumEntity) { 
+    case 1  : *s = 0.25 * (1.-u-v) * (1.-w) *     u    * (1.-w) ; break ;
+    case 2  : *s = 0.25 * (1.-u-v) * (1.-w) *       v  * (1.-w) ; break ;
+    case 3  : *s = 0.25 * (1.-u-v) * (1.-w) * (1.-u-v) * (1.+w) ; break ;
+    case 4  : *s = 0.25 *     u    * (1.-w) *       v  * (1.-w) ; break ;
+    case 5  : *s = 0.25 *     u    * (1.-w) *     u    * (1.+w) ; break ;
+    case 6  : *s = 0.25 *       v  * (1.-w) *       v  * (1.+w) ; break ;
+    case 7  : *s = 0.25 * (1.-u-v) * (1.+w) *     u    * (1.+w) ; break ;
+    case 8  : *s = 0.25 * (1.-u-v) * (1.+w) *       v  * (1.+w) ; break ;
+    case 9  : *s = 0.25 *     u    * (1.+w) *       v  * (1.+w) ; break ;
+    default : WrongNumEntity ;
     }
     break ;
 
@@ -133,6 +142,15 @@ void BF_Node_2F(struct Element * Element, int NumEntity,
   case PRISM :
     switch(NumEntity) {
     default : Msg::Error("BF_Node_2F not ready for PRISM");
+      // cannot do this yet in getdp, as dofs should only be
+      // associated with quad-faces: if really necessary we could
+      // implement actual 15 and 18-node prisms
+      /* 
+    case 1  : *s = 0.25 * (1.-u-v) * (1.-w) *     u    * (1.+w) ; break ;
+    case 3  : *s = 0.25 * (1.-u-v) * (1.-w) *       v  * (1.+w) ; break ;
+    case 4  : *s = 0.25 *     u    * (1.-w) *       v  * (1.+w) ; break ;
+    default : WrongNumEntity ;
+      */
     }
     break ;
 
@@ -295,9 +313,45 @@ void  BF_GradNode_2E(struct Element * Element, int NumEntity,
     }
     break ;
 
-  case PRISM :
+  case PRISM :  // FIXME: not tested!
     switch(NumEntity) {
-    default : Msg::Error("BF_GradNode_2E not ready for PRISM"); 
+    case 1   : s[0] = 0.25 * (1.-2.*u-v) * (1.-w) * (1.-w) ; 
+               s[1] = 0.25 * (-u) * (1.-w) * (1.-w) ; 
+               s[2] = 0.25 * (u-u*u-v*u) * (-2.)*(1.-w) ; break ;
+
+    case 2   : s[0] = 0.25 * (-v) * (1.-w) * (1.-w) ; 
+               s[1] = 0.25 * (1-u-2*v) * (1.-w) * (1.-w) ; 
+               s[2] = 0.25 * (v-u*v-v*v) * (-2.) * (1.-w) ; break ;
+
+    case 3   : s[0] = 0.25 * (-2. + 2.*u + 2.*v) * (1.-w) * (1.+w) ; 
+               s[1] = 0.25 * (-2. + 2.*u + 2.*v) * (1.-w) * (1.+w) ; 
+               s[2] = 0.25 * (1.- 2.*u - 2.*v + u*u + 2.*u*v + v*v) * (-2.*w) ; break ;
+
+    case 4   : s[0] = 0.25 * (1.-w) * v * (1.-w) ; 
+               s[1] = 0.25 * u * (1.-w) * (1.-w) ; 
+               s[2] = 0.25 * u * (-2.) * (1.-w) * v ; break ;
+
+    case 5   : s[0] = 0.25 * 2.*u * (1.-w) * (1.+w) ; 
+               s[1] = 0. ; 
+               s[2] = 0.25 * u*u * (-2.*w) ; break ;
+
+    case 6   : s[0] = 0. ; 
+               s[1] = 0.25 * 2.*v  * (1.-w) * (1.+w) ; 
+               s[2] = 0.25 * v*v  * (-2.*w) ; break ;
+
+    case 7   : s[0] = 0.25 * (1.-2.*u-v) * (1.+w) * (1.+w) ; 
+               s[1] = 0.25 * (-u) * (1.+w) * (1.+w) ; 
+               s[2] = 0.25 * (u-u*u-u*v) * 2.*(1.+w) ; break ;
+
+    case 8   : s[0] = 0.25 * (-v) * (1.+w) * (1.+w) ; 
+               s[1] = 0.25 * (1.-u-2.*v) * (1.+w) * (1.+w) ; 
+               s[2] = 0.25 * (v-u*v-v*v) * 2.*(1.+w) ; break ;
+
+    case 9   : s[0] = 0.25 * (1.+w) * v * (1.+w) ; 
+               s[1] = 0.25 * u * (1.+w) * (1.+w) ; 
+               s[2] = 0.25 * u * 2.*(1.+w) * v ; break ;
+
+    default : WrongNumEntity ;
     }
     break ;
 
@@ -370,7 +424,23 @@ void BF_GradNode_2F(struct Element * Element, int NumEntity,
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg::Error("BF_GradNode_2F not ready for PRISM"); 
+    default : Msg::Error("BF_GradNode_2F not ready for PYRAMID"); 
+      // cannot do this yet in getdp, as dofs should only be
+      // associated with quad-faces: if really necessary we could
+      // implement actual 15 and 18-node prisms
+      /* 
+    case 1   : s[0] = 0.25 * (1.-2.*u-v) * (1.-w) * (1.+w) ; 
+               s[1] = 0.25 * (-u) * (1.-w) * (1.+w); 
+               s[2] = 0.25 * (u-u*u-u*v) * (-2.*w); break ;
+
+    case 3   : s[0] = 0.25 * (-v) * (1.-w) * (1.+w) ;
+               s[1] = 0.25 * (1.-u-2.*v) * (1.-w) * (1.+w) ;
+               s[2] = 0.25 * (v-u*v-v*v) * (-2.*w) ; break;
+
+    case 4   : s[0] = 0.25 * (1.-w) * v * (1.+w) ;
+               s[1] = 0.25 * u * (1.-w) * (1.+w) ;
+               s[2] = 0.25 * u * (-2.*w) * v ; break;
+      */
     }
     break ;
 
