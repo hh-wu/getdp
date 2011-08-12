@@ -207,6 +207,8 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
     _try(EPSGetST(eps, &st));
     _try(STSetType(st, STSINVERT));
     _try(STSetShift(st, shift));
+    //_try(EPSSetTarget(eps, shift));
+    //_try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
   }
 
   // print info
@@ -297,6 +299,8 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
         Msg::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
 #endif
       _try(STSetShift(st, shift));
+      //_try(EPSSetTarget(eps, shift));
+      //_try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
     }
     // use MUMPS by default if available
 #if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
