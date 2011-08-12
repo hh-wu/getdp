@@ -159,8 +159,14 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
     Current.Time = re;
     Current.TimeImag = im;
   }
+
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+  _try(VecDestroy(&xr));
+  _try(VecDestroy(&xi));
+#else
   _try(VecDestroy(xr));
   _try(VecDestroy(xi));
+#endif
 }
 
 static void _linearEVP(struct DofData * DofData_P, int numEigenValues, 
@@ -238,9 +244,11 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
     Msg::Error("SLEPc diverged after %d iterations", its);
   else if(reason == EPS_DIVERGED_BREAKDOWN)
     Msg::Error("SLEPc generic breakdown in method");
+#if !(PETSC_VERSION_RELEASE == 0) // petsc-dev
   else if(reason == EPS_DIVERGED_NONSYMMETRIC)
     Msg::Error("The operator is nonsymmetric");
-  
+#endif
+
   // get number of converged approximate eigenpairs
   PetscInt nconv;
   _try(EPSGetConverged(eps, &nconv));
@@ -252,7 +260,11 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   // print eigenvalues and store eigenvectors in DofData
   _storeEigenVectors(DofData_P, nconv, eps, PETSC_NULL);
   
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+  _try(EPSDestroy(&eps));
+#else
   _try(EPSDestroy(eps));
+#endif
 }
 
 static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues, 
@@ -363,7 +375,11 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   // print eigenvalues and store eigenvectors in DofData
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, qep);
   
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+  _try(QEPDestroy(&qep));
+#else
   _try(QEPDestroy(qep));
+#endif
 
   // restore operators
   LinAlg_ProdMatrixDouble(&DofData_P->M3, -1.0, &DofData_P->M3);

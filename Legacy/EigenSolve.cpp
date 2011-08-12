@@ -7,6 +7,11 @@
 #include "Message.h"
 #include "EigenSolve.h"
 
+#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#define PetscTruth PetscBool
+#define PetscOptionsGetTruth PetscOptionsGetBool
+#endif
+
 void EigenSolve(struct DofData * DofData_P, int NumEigenvalues, 
 		double shift_r, double shift_i)
 {

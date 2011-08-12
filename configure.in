@@ -155,7 +155,7 @@ if test "x${PETSC}" = "xyes" -a "x$enable_slepc" != "xno"; then
     AC_CHECK_FILE(${SLEPC_DIR}/include/slepcqep.h,SLEPC="yes",SLEPC="no")
     if test "x${SLEPC}" = "xyes"; then
       GETDP_LIBS="${GETDP_LIBS} -L${SLEPC_DIR}/${PETSC_ARCH}/lib -lslepc"
-      FLAGS="${FLAGS} -I${SLEPC_DIR}/include"
+      FLAGS="${FLAGS} -I${SLEPC_DIR}/include -I${SLEPC_DIR}/${PETSC_ARCH}/include"
       AC_DEFINE(HAVE_SLEPC)
       BO="${BO} Slepc"
     else
