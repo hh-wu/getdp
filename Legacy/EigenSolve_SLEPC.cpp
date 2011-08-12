@@ -30,6 +30,7 @@
 //   -qep_type qarnoldi -qep_eps_type krylovschur 
 //   -qep_st_ksp_type gmres -qep_st_pc_type ilu
 
+#include <sstream>
 #include <string>
 #include <complex>
 #include "ProData.h"
@@ -41,6 +42,34 @@
 extern struct CurrentData Current ;
 
 static void _try(int ierr){ CHKERRABORT(PETSC_COMM_WORLD, ierr); }
+
+static PetscErrorCode _myMonitor(const char *str, int its, int nconv, PetscScalar *eigr,
+                                 PetscScalar *eigi, PetscReal* errest)
+{
+  if(!its) return 0;
+  std::ostringstream sstream;
+  sstream << "  " << its << " " << str << " nconv=" << nconv << " first unconverged value "
+#if defined(PETSC_USE_COMPLEX)
+          << PetscRealPart(eigr[nconv]) << " + i * (" << PetscImaginaryPart(eigr[nconv]) << ")"
+#else
+          << eigr[nconv] << " + i * (" << eigi[nconv] << ")"
+#endif
+          << " error " << errest[nconv];
+  Msg::Info("%s", sstream.str().c_str());
+  return 0;
+}
+
+static PetscErrorCode _myEpsMonitor(EPS eps, int its, int nconv, PetscScalar *eigr, 
+                                    PetscScalar *eigi, PetscReal* errest, int nest, void *mctx)
+{
+  return _myMonitor("EPS", its, nconv, eigr, eigi, errest);
+}
+
+static PetscErrorCode _myQepMonitor(QEP qep, int its, int nconv, PetscScalar *eigr, 
+                                    PetscScalar *eigi, PetscReal* errest, int nest, void *mctx)
+{
+  return _myMonitor("QEP", its, nconv, eigr, eigi, errest);
+}
 
 static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
                                EPS eps, QEP qep)
@@ -83,10 +112,10 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
     else{
       ore = re;
       oim = im;
-      Msg::Info("EIG %03d w = %s%.16e %s%.16e  %3.6e", 
+      Msg::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e", 
                 i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
       double fre = re / 2. / M_PI, fim = im / 2. / M_PI;
-      Msg::Info("        f = %s%.16e %s%.16e", 
+      Msg::Info("          f = %s%.16e %s%.16e", 
                 (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
     }
     
@@ -150,11 +179,13 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   
   // set some default options
   _try(EPSSetDimensions(eps, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
-  _try(EPSSetTolerances(eps, 1.e-7, 50));
+  _try(EPSSetTolerances(eps, 1.e-6, 100));
   _try(EPSSetType(eps, EPSKRYLOVSCHUR)); 
                   // EPSKRYLOVSCHUR, EPSARNOLDI, EPSARPACK or EPSPOWER
   _try(EPSSetWhichEigenpairs(eps, EPS_SMALLEST_MAGNITUDE));
                              // EPS_SMALLEST_REAL, EPS_LARGEST_MAGNITUDE, ...
+
+  _try(EPSMonitorSet(eps, _myEpsMonitor, PETSC_NULL, PETSC_NULL));
 
   // override these options at runtime, petsc-style
   _try(EPSSetFromOptions(eps));
@@ -164,18 +195,20 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
     _try(EPSSetDimensions(eps, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   
   // apply shift-and-invert transformation
+  if(shift_r || shift_i){
 #if defined(PETSC_USE_COMPLEX)
-  PetscScalar shift = shift_r + PETSC_i * shift_i;
+    PetscScalar shift = shift_r + PETSC_i * shift_i;
 #else
-  PetscScalar shift = shift_r;
-  if(shift_i)
-    Msg::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
+    PetscScalar shift = shift_r;
+    if(shift_i)
+      Msg::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
 #endif
-  ST st;
-  _try(EPSGetST(eps, &st));
-  _try(STSetType(st, STSINVERT));
-  _try(STSetShift(st, shift));
-  
+    ST st;
+    _try(EPSGetST(eps, &st));
+    _try(STSetType(st, STSINVERT));
+    _try(STSetShift(st, shift));
+  }
+
   // print info
   const EPSType type;
   _try(EPSGetType(eps, &type));
@@ -223,12 +256,12 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues, 
                           double shift_r, double shift_i)
 {
-  Msg::Warning("Solving quadratic eigenvalue problem -- THIS HAS NOT BEEN VALIDATED YET");
+  Msg::Info("Solving quadratic eigenvalue problem");
 
   // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
   // SLEPC notations for quadratic EVP: (\lambda^2 M + \lambda C + K) x = 0
   LinAlg_ProdMatrixDouble(&DofData_P->M3, -1.0, &DofData_P->M3);
-  LinAlg_ProdMatrixComplex(&DofData_P->M2, 0.0, 1.0, &DofData_P->M2);
+  LinAlg_ProdMatrixComplex(&DofData_P->M2, 0.0, -1.0, &DofData_P->M2);
   Mat M = DofData_P->M3.M;
   Mat C = DofData_P->M2.M;
   Mat K = DofData_P->M1.M;
@@ -239,37 +272,56 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 
   // set some default options
   _try(QEPSetDimensions(qep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
-  _try(QEPSetTolerances(qep, 1.e-6, 50));
-  _try(QEPSetType(qep, QEPLINEAR)); 
-                  // QEPLINEAR or QEPQARNOLDI
+  _try(QEPSetTolerances(qep, 1.e-6, 100));
+  _try(QEPSetType(qep, QEPLINEAR)); // QEPQARNOLDI
   _try(QEPSetWhichEigenpairs(qep, QEP_SMALLEST_MAGNITUDE));
                              // QEP_SMALLEST_REAL, QEP_LARGEST_MAGNITUDE, ...
 
-  // override these options at runtime, petsc-style
+  // if we linearize we can set additional options
+  const QEPType type;
+  _try(QEPGetType(qep, &type)); 
+  if(!strcmp(type, QEPLINEAR)){
+    EPS eps;
+    _try(QEPLinearGetEPS(qep, &eps));
+    _try(EPSSetType(eps, EPSKRYLOVSCHUR));
+    ST st;
+    _try(EPSGetST(eps, &st));
+    _try(STSetType(st, STSINVERT));
+    // apply shift-and-invert transformation
+    if(shift_r || shift_i){
+#if defined(PETSC_USE_COMPLEX)
+      PetscScalar shift = shift_r + PETSC_i * shift_i;
+#else
+      PetscScalar shift = shift_r;
+      if(shift_i)
+        Msg::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
+#endif
+      _try(STSetShift(st, shift));
+    }
+    // use MUMPS by default if available
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+    _try(QEPLinearSetExplicitMatrix(qep, PETSC_TRUE));
+    Msg::Info("SLEPc forcing explicit construction of matrix");
+    KSP ksp;
+    _try(STGetKSP(st, &ksp));
+    _try(KSPSetType(ksp, "preonly"));
+    PC pc;
+    _try(KSPGetPC(ksp, &pc));
+    _try(PCSetType(pc, PCLU));
+    _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+#endif
+  }
+
+  _try(QEPMonitorSet(qep, _myQepMonitor, PETSC_NULL, PETSC_NULL));
+
+  // override these options at runtime, if necessary
   _try(QEPSetFromOptions(qep));
 
   // force options specified directly as arguments
   if(numEigenValues)
     _try(QEPSetDimensions(qep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
 
-  // apply shift-and-invert transformation
-#if defined(PETSC_USE_COMPLEX)
-  PetscScalar shift = shift_r + PETSC_i * shift_i;
-#else
-  PetscScalar shift = shift_r;
-  if(shift_i)
-    Msg::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
-#endif
-  EPS eps;
-  QEPLinearGetEPS(qep, &eps);
-  ST st;
-  _try(EPSGetST(eps, &st));
-  _try(STSetType(st, STSINVERT));
-  _try(STSetShift(st, shift));
-
   // print info
-  const QEPType type;
-  _try(QEPGetType(qep, &type));
   Msg::Info("SLEPc solution method: %s", type);
   PetscInt nev;
   _try(QEPGetDimensions(qep, &nev, PETSC_NULL, PETSC_NULL));

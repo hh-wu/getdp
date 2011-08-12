@@ -1068,8 +1068,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   if(!Solver->ksp[kspIndex]) {
     _try(KSPCreate(PETSC_COMM_WORLD, &Solver->ksp[kspIndex]));
     _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN));
-    if(Msg::UseSocket())
-      _try(KSPMonitorSet(Solver->ksp[kspIndex], _myKspMonitor, PETSC_NULL, PETSC_NULL));
+    _try(KSPMonitorSet(Solver->ksp[kspIndex], _myKspMonitor, PETSC_NULL, PETSC_NULL));
     PC pc;
     _try(KSPGetPC(Solver->ksp[kspIndex], &pc));
 
