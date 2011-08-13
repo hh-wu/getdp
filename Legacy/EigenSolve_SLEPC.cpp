@@ -199,6 +199,10 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   // force options specified directly as arguments
   if(numEigenValues)
     _try(EPSSetDimensions(eps, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
+
+  ST st;
+  _try(EPSGetST(eps, &st));
+  _try(STSetType(st, STSINVERT));
   
   // apply shift-and-invert transformation
   if(shift_r || shift_i){
@@ -209,13 +213,21 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
     if(shift_i)
       Msg::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
 #endif
-    ST st;
-    _try(EPSGetST(eps, &st));
-    _try(STSetType(st, STSINVERT));
-    _try(STSetShift(st, shift));
-    //_try(EPSSetTarget(eps, shift));
-    //_try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
+    //_try(STSetShift(st, shift));
+    _try(EPSSetTarget(eps, shift));
+    _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
   }
+
+  // use MUMPS by default if available
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+  KSP ksp;
+  _try(STGetKSP(st, &ksp));
+  _try(KSPSetType(ksp, "preonly"));
+  PC pc;
+  _try(KSPGetPC(ksp, &pc));
+  _try(PCSetType(pc, PCLU));
+  _try(PCFactorSetMatSolverPackage(pc, "mumps"));
+#endif
 
   // print info
   const EPSType type;
@@ -310,9 +322,9 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
       if(shift_i)
         Msg::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
 #endif
-      _try(STSetShift(st, shift));
-      //_try(EPSSetTarget(eps, shift));
-      //_try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
+      //_try(STSetShift(st, shift));
+      _try(EPSSetTarget(eps, shift));
+      _try(EPSSetWhichEigenpairs(eps, EPS_TARGET_MAGNITUDE));
     }
     // use MUMPS by default if available
 #if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
@@ -401,10 +413,14 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
   if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
     Msg::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
 
-  if(!DofData_P->Flag_Init[2])
+  if(!DofData_P->Flag_Init[2]){
+    // the shift refers to w^2
     _linearEVP(DofData_P, numEigenValues, shift_r, shift_i);
-  else
+  }
+  else{
+    // the shift refers to w
     _quadraticEVP(DofData_P, numEigenValues, shift_r, shift_i);
+  }
 }
 
 #endif
