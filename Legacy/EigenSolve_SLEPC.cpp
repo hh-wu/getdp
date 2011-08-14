@@ -60,13 +60,15 @@ static PetscErrorCode _myMonitor(const char *str, int its, int nconv, PetscScala
 }
 
 static PetscErrorCode _myEpsMonitor(EPS eps, int its, int nconv, PetscScalar *eigr, 
-                                    PetscScalar *eigi, PetscReal* errest, int nest, void *mctx)
+                                    PetscScalar *eigi, PetscReal* errest, int nest,
+                                    void *mctx)
 {
   return _myMonitor("EPS", its, nconv, eigr, eigi, errest);
 }
 
 static PetscErrorCode _myQepMonitor(QEP qep, int its, int nconv, PetscScalar *eigr, 
-                                    PetscScalar *eigi, PetscReal* errest, int nest, void *mctx)
+                                    PetscScalar *eigi, PetscReal* errest, int nest,
+                                    void *mctx)
 {
   return _myMonitor("QEP", its, nconv, eigr, eigi, errest);
 }
