@@ -270,6 +270,7 @@ struct StringXDefine  PostSubOperation_Format[] = {
   {"ValueOnly"           , FORMAT_VALUE_ONLY }, 
   {"TimeTable"           , FORMAT_TIME_TABLE }, 
   {"RegionTable"         , FORMAT_REGION_TABLE }, 
+  {"RegionValue"         , FORMAT_REGION_VALUE }, 
   {"HarmonicToTimeTable" , FORMAT_TIME_TABLE },   // a supprimer
   {"FrequencyTable"      , FORMAT_FREQUENCY_TABLE }, 
   {"Gmsh"                , FORMAT_GMSH},

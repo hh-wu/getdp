@@ -1235,10 +1235,11 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 	      fprintf(PostStream, "%.16g ", Freq) ;
 	    }
 	    for(j = 0 ; j < Size ; j++)
+              if (Format != FORMAT_REGION_VALUE)
 	      fprintf(PostStream, " %.16g", TmpValues[iRegion].Val[MAX_DIM*k+j]) ;
 	  }
-	if (Flag_NoNewLine)
-	  fprintf(PostStream, "  ") ;
+	if (Flag_NoNewLine || Format == FORMAT_REGION_VALUE)
+	  fprintf(PostStream, " ") ;
 	else
 	  fprintf(PostStream, "\n") ;
       }

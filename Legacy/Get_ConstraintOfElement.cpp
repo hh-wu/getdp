@@ -628,7 +628,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
   List_Sort(NodeXYZ_L   , fcmp_XYZ) ;
   List_Sort(NodeXYZRef_L, fcmp_XYZ) ;
-
+  /*
   Msg::Debug("After sorting") ;
   Msg::Debug("- Other (after rotation)") ;
   for (i = 0 ; i < Nbr_Entity ; i++) {
@@ -644,7 +644,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 	       i, NodeXYZ.NumNode, NodeXYZ.x, NodeXYZ.y, NodeXYZ.z,
 	       atan2(NodeXYZ.y,NodeXYZ.x)/3.1415926535897*180.) ;
   }
-
+  */
   if (Nbr_EntityRef != Nbr_Entity)
     Msg::Error("Constraint Link: bad correspondance of number of Nodes (%d, %d)",
 	       Nbr_Entity, Nbr_EntityRef) ;
@@ -659,11 +659,11 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     if ((fabs(NodeXYZ.x-NodeXYZRef.x) > TOL) ||
 	(fabs(NodeXYZ.y-NodeXYZRef.y) > TOL) ||
 	(fabs(NodeXYZ.z-NodeXYZRef.z) > TOL))
-      Msg::Error("Constraint Link: bad correspondance of Nodes (%d, %d)"
-		 " (%e %e %e)",
+      Msg::Warning("+++ Ruth/Error +++ Constraint Link: bad correspondance of Nodes (%d, %d)"
+		 " (%e %e %e), TOL=%g",
 		 NodeXYZ.NumNode, NodeXYZRef.NumNode,
 		 fabs(NodeXYZ.x-NodeXYZRef.x), fabs(NodeXYZ.y-NodeXYZRef.y),
-		 fabs(NodeXYZ.z-NodeXYZRef.z)) ;
+		 fabs(NodeXYZ.z-NodeXYZRef.z), TOL) ;
 
     TwoIntOneDouble.Int1 = NodeXYZ.NumNode ;
     TwoIntOneDouble.Int2 = NodeXYZRef.NumNode ;

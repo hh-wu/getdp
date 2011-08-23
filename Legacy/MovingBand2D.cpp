@@ -91,7 +91,7 @@ void Contour_MovingBand2D(List_T * InitialList, List_T ** ExtendedList,
   List_Sort(*ExtendedList, fcmp_int32) ;
   *NbrNodes = List_Nbr(*ExtendedList)+1 ;
   *NumNodes = (int *)Malloc(*NbrNodes*sizeof(int)) ;  
-
+  
   ThreeInt = (struct ThreeInt *)List_Pointer(*ExtendedList, 0) ;
   if (ThreeInt->Int3 == 1) {
     (*NumNodes)[0] = (Geo_GetGeoElement(ThreeInt->Int1)->NumNodes)[0];
@@ -176,7 +176,6 @@ void  Init_MovingBand2D (struct Group * Group_P)
   Msg::Debug("periodicity 1/%d, ", MB->Period2);
   if (Different_Sense) Msg::Debug("inversed sense)"); else Msg::Debug("same sense)") ;
 
-
   MB->b1_p1 = (int *)Malloc((MB->NbrNodes1-1)*sizeof(int)) ;  
   MB->b1_p2 = (int *)Malloc((MB->NbrNodes1-1)*sizeof(int)) ;  
   MB->b1_p3 = (int *)Malloc((MB->NbrNodes1-1)*sizeof(int)) ;  
@@ -184,7 +183,7 @@ void  Init_MovingBand2D (struct Group * Group_P)
   MB->b2_p1 = (int *)Malloc((MB->NbrNodes2-1)*sizeof(int)) ;  
   MB->b2_p2 = (int *)Malloc((MB->NbrNodes2-1)*sizeof(int)) ;  
   MB->b2_p3 = (int *)Malloc((MB->NbrNodes2-1)*sizeof(int)) ;  
-  
+
   MB->StartIndexTr = Geo_GetNbrGeoElements() ;
   MB->StartNumTr = Geo_GetGeoElement(0)->Num ;
   for (i=1 ; i<MB->StartIndexTr ; i++) 
@@ -301,7 +300,7 @@ void  Mesh_MovingBand2D (struct Group * Group_P)
   struct GeoData  * GeoData ;
   int i, *n ;
 
-  int * NumNodes1, * NumNodes2;
+  int *NumNodes1, *NumNodes2;
   int *b1_p1, *b1_p2, *b1_p3, *b2_p1, *b2_p2, *b2_p3;
   int NbrGeo, index;
 

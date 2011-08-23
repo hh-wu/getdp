@@ -1174,7 +1174,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   List_T  *Region_L, *Support_L ;
   int      i, iTime, NbrTimeStep ;
   int      Nbr_Region=0, Num_Region, Group_FunctionType ;
-  int      Flag_Summation=0, Type_Evaluation=0;
+  int      Type_Evaluation=0;
   double   u, v, w;
 
   NbrTimeStep = Pos_InitTimeSteps(PostSubOperation_P);
@@ -1249,8 +1249,6 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       if (!Group_P->ExtendedList)  Generate_ExtendedGroup(Group_P) ;
       Region_L = Group_P->ExtendedList ; /* Attention: new Region_L */
       Nbr_Region = List_Nbr(Region_L) ;
-      if (PostSubOperation_P->Comma) /* Provisoire */
-	Flag_Summation = 1;
     }
     else {
       Msg::Error("Function type (%d) not allowed for PrintOnRegion",
@@ -1267,7 +1265,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
     Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
 
-    if (Flag_Summation) {
+    if (PostSubOperation_P->Format == FORMAT_REGION_VALUE) {
       Cal_ZeroValue(&ValueSummed) ;
     }
 
@@ -1305,21 +1303,22 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
       if (PostSubOperation_P->StoreInRegister >= 0)
 	Cal_StoreInRegister(&Value, PostSubOperation_P->StoreInRegister) ;
-      
+
       Format_PostValue(PostSubOperation_P->Format, PostSubOperation_P->Comma,
 		       Group_FunctionType,
 		       Current.Time, i, Current.NumEntity, Nbr_Region,
 		       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 		       PostSubOperation_P->NoNewLine,
 		       &Value) ;
-      if (Flag_Summation) {
+
+      if (PostSubOperation_P->Format == FORMAT_REGION_VALUE) {
 	ValueSummed.Type = Value.Type ;
 	Cal_AddValue(&ValueSummed, &Value, &ValueSummed);
       }
     }
 
-    if (Flag_Summation && PostSubOperation_P->Format == FORMAT_REGION_TABLE) {
-      fprintf(PostStream, "#Sum: %s\n", Print_Value_ToString(&ValueSummed).c_str());
+    if (PostSubOperation_P->Format == FORMAT_REGION_VALUE) {
+        fprintf(PostStream, "%s\n", Print_Value_ToString(&ValueSummed).c_str());
     }
 
   }
