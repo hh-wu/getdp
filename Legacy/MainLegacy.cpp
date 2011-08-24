@@ -74,22 +74,17 @@ void Info(int level, char *arg0)
     break;
   case 2:
     fprintf(stderr, "Version      : %s\n", GETDP_VERSION);
+#if defined(HAVE_PETSC) && defined(PETSC_USE_COMPLEX)
+    fprintf(stderr, "Arithmetic   : Complex\n");
+#else
+    fprintf(stderr, "Arithmetic   : Real\n");
+#endif
     fprintf(stderr, "License      : %s\n", GETDP_SHORT_LICENSE);
     fprintf(stderr, "Build OS     : %s\n", GETDP_OS);
+    fprintf(stderr, "Build options:%s\n", GETDP_CONFIG_OPTIONS);
     fprintf(stderr, "Build date   : %s\n", GETDP_DATE);
     fprintf(stderr, "Build host   : %s\n", GETDP_HOST);
     fprintf(stderr, "Packager     : %s\n", GETDP_PACKAGER);
-#if defined(HAVE_SPARSKIT) && defined(HAVE_ILU_FLOAT)
-    fprintf(stderr, "Solver       : Sparskit (real arithmetic, single precision ILU)\n");
-#elif defined(HAVE_SPARSKIT)
-    fprintf(stderr, "Solver       : Sparskit (real arithmetic)\n");
-#elif defined(HAVE_PETSC) && defined(PETSC_USE_COMPLEX)
-    fprintf(stderr, "Solver       : PETSc (complex arithmetic)\n");
-#elif defined(HAVE_PETSC)
-    fprintf(stderr, "Solver       : PETSc (real arithmetic)\n");
-#else
-    fprintf(stderr, "Solver       : none\n");
-#endif
     fprintf(stderr, "Web site     : http://www.geuz.org/getdp/\n");
     fprintf(stderr, "Mailing list : getdp@geuz.org\n");
     break;
