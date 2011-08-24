@@ -34,7 +34,7 @@ double * Geo_GetNodes_uvw(int Type, int *nbn)
   case QUADRANGLE_2: *nbn = NbrNodes_Quadrangle_2 ;return(*Nodes_Quadrangle_2) ;
   case QUADRANGLE_2_8N: *nbn = NbrNodes_Quadrangle_2_8N ;return(*Nodes_Quadrangle_2_8N);
   default : 
-    Msg::Error("Unknown type of Element in Geo_GetNodes_uvw") ; return(NULL) ;
+    Message::Error("Unknown type of Element in Geo_GetNodes_uvw") ; return(NULL) ;
   }
 }
 
@@ -116,7 +116,7 @@ int *Geo_GetIM_Den(int Type_Element, int * Nbe)
   case QUADRANGLE_2 :*Nbe = NbrEdges_Quadrangle_2; return(*Den_Quadrangle_2) ;
   case QUADRANGLE_2_8N :*Nbe = NbrEdges_Quadrangle_2_8N; return(*Den_Quadrangle_2_8N) ;
   default : 
-    Msg::Error("Unknown incidence matrix for element type %d", Type_Element);
+    Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
   }
 }
@@ -140,7 +140,7 @@ int *Geo_GetIM_Dfe(int Type_Element, int * Nbf)
   case QUADRANGLE_2 :*Nbf = NbrFacets_Quadrangle_2; return(*Dfe_Quadrangle_2) ;
   case QUADRANGLE_2_8N :*Nbf = NbrFacets_Quadrangle_2_8N; return(*Dfe_Quadrangle_2_8N) ;  
   default :
-    Msg::Error("Unknown incidence matrix for element type %d", Type_Element);
+    Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
   }
 }
@@ -164,7 +164,7 @@ int *Geo_GetIM_Dfn(int Type_Element, int * Nbf)
   case QUADRANGLE_2:*Nbf = NbrFacets_Quadrangle_2; return(*Dfn_Quadrangle_2) ;
   case QUADRANGLE_2_8N:*Nbf = NbrFacets_Quadrangle_2_8N; return(*Dfn_Quadrangle_2_8N) ;
   default :
-    Msg::Error("Unknown incidence matrix for element type %d", Type_Element);
+    Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
   }
 }
@@ -210,7 +210,7 @@ int * Geo_GetIM_Den_Xp(int Type_Element, int * Nbe, int * Nbn)
     *Nbe = NbrEdges_Quadrangle_2_8N ; *Nbn = NbrNodes_Quadrangle_2_8N ; 
     return(Den_Quadrangle_2_8N_Xp) ;
   default :
-    Msg::Error("Unknown incidence matrix for element type %d", Type_Element);
+    Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
   }
 }
@@ -256,7 +256,7 @@ int * Geo_GetIM_Dfe_Xp(int Type_Element, int * nbf, int * nbe)
     *nbf = NbrFacets_Quadrangle_2_8N ; *nbe = NbrEdges_Quadrangle_2_8N ; 
     return(Dfe_Quadrangle_2_8N_Xp) ;
   default :
-    Msg::Error("Unknown incidence matrix for element type %d", Type_Element);
+    Message::Error("Unknown incidence matrix for element type %d", Type_Element);
     return(NULL) ;
   }
 }
@@ -345,7 +345,7 @@ int fcmp_E2XE1(const void * a, const void * b)
 
 void Geo_WriteFilePRE(struct GeoData * GeoData_P, List_T * Group_L)
 {
-  if(Msg::GetCommRank()) return;
+  if(Message::GetCommRank()) return;
 
   int  i, Nbr_Elements, j, Index_Group, Nbr_Entities, * Num_Entities ;
   struct Geo_Element  * Geo_Element_P0, * Geo_Element_P ;
@@ -448,7 +448,7 @@ void Geo_WriteEntities2XEntities1(void * a, void * b)
 void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData, 
 		      List_T * Group_L)
 {
-  Msg::Barrier();
+  Message::Barrier();
 
   struct GeoData      * GeoData_P ;
   struct Geo_Element  * Geo_Element_P0, * Geo_Element_P ;
@@ -459,7 +459,7 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
   for(GeoDataIndex = 0 ; GeoDataIndex < NbrGeoData ; GeoDataIndex++){    
     if(!(GeoData_P0 + GeoDataIndex)->Elements){
-      Msg::Warning("No Element in GeoData %d", GeoDataIndex); 
+      Message::Warning("No Element in GeoData %d", GeoDataIndex); 
       return;
     }
   }
@@ -479,7 +479,7 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
       fscanf(File_PRE, "%d", &GeoDataIndex) ;
       if(GeoDataIndex > NbrGeoData-1) 
-	Msg::Error("Unknown GeoData: %d", GeoDataIndex);
+	Message::Error("Unknown GeoData: %d", GeoDataIndex);
 
       GeoData_P = GeoData_P0 + GeoDataIndex ;
       Geo_Element_P0 = (struct Geo_Element*)List_Pointer(GeoData_P->Elements, 0) ;
@@ -501,7 +501,7 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
       fscanf(File_PRE, "%d", &GeoDataIndex) ;
       if(GeoDataIndex > NbrGeoData-1)
-	Msg::Error("Unknown GeoData: %d", GeoDataIndex);
+	Message::Error("Unknown GeoData: %d", GeoDataIndex);
 
       GeoData_P = GeoData_P0 + GeoDataIndex ;
       Geo_Element_P0 = (struct Geo_Element*)List_Pointer(GeoData_P->Elements, 0) ;
@@ -532,7 +532,7 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
     do {
       fgets(String, sizeof(String), File_PRE) ;
-      if (feof(File_PRE)) Msg::Error("Prematured end of file");
+      if (feof(File_PRE)) Message::Error("Prematured end of file");
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */

@@ -398,7 +398,7 @@ void F_CurrentPerfectlyConductingSphere(F_ARG)
 
   /* test position to check if on sphere */
   if(fabs(r - R) > 1.e-3)
-    Msg::Error("Evaluation point not on sphere");
+    Message::Error("Evaluation point not on sphere");
 
   V->Val[0] = 0.;
   V->Val[MAX_DIM] = 0. ;
@@ -960,7 +960,7 @@ void F_AcousticFieldSoftCylinderABC(F_ARG)
     keps.i = 0.4 * pow(k, 1./3.) * pow(kappa, 2./3.);
   }
   else{
-    Msg::Error("Unknown ABC type");
+    Message::Error("Unknown ABC type");
   }
 
   V->Val[0] = 0.;
@@ -1285,7 +1285,7 @@ void F_AcousticFieldHardCylinderABC(F_ARG)
     betaBT = Cdiv(I , coef);
   }
   else{
-    Msg::Error("Unknown ABC type");
+    Message::Error("Unknown ABC type");
   }
 
   V->Val[0] = 0.;

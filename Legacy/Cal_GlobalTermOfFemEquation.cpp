@@ -68,7 +68,7 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
   case DTDT_   : Function_AssembleTerm = Cal_AssembleTerm_DtDtDof ; break ;
   case NEVERDT_: Function_AssembleTerm = Cal_AssembleTerm_NeverDt ; break ;
   case JACNL_  : Function_AssembleTerm = Cal_AssembleTerm_JacNL   ; break ;
-  default      : Msg::Error("Unknown type of operator for Global term")    ; break ;
+  default      : Message::Error("Unknown type of operator for Global term")    ; break ;
   }
 
   QuantityStorageEqu_P = QuantityStorage_P0 +
@@ -92,9 +92,9 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
 
   if (i_WQ < List_Nbr(WholeQuantity_L) ) {
 
-    Msg::Info("MHJacNL term");
+    Message::Info("MHJacNL term");
     if (QuantityStorageEqu_P != QuantityStorageDof_P)
-      Msg::Error("Global term with MHJacNL is not symmtric ?!");
+      Message::Error("Global term with MHJacNL is not symmtric ?!");
 
     QuantityStorage_P = QuantityStorageEqu_P ;
 
@@ -103,7 +103,7 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
 	  EquationTerm_P->Case.GlobalTerm.Term.DofIndexInWholeQuantity != 1 ||
 	  (WholeQuantity_P0 + 2)->Type != WQ_BINARYOPERATOR ||
 	  (WholeQuantity_P0 + 2)->Case.Operator.TypeOperator != OP_TIME)
-	Msg::Error("Not allowed expression in Global term with MHJacNL (case 1)");
+	Message::Error("Not allowed expression in Global term with MHJacNL (case 1)");
       Factor = 1.; 
     }
     else if (List_Nbr(WholeQuantity_L) == 5){
@@ -114,17 +114,17 @@ void  Cal_GlobalTermOfFemEquation(int  Num_Region,
 	  EquationTerm_P->Case.GlobalTerm.Term.DofIndexInWholeQuantity != 3 ||
 	  (WholeQuantity_P0 + 4)->Type != WQ_BINARYOPERATOR ||
 	  (WholeQuantity_P0 + 4)->Case.Operator.TypeOperator != OP_TIME)
-	Msg::Error("Not allowed expression in Global term with MHJacNL (case 2)");
+	Message::Error("Not allowed expression in Global term with MHJacNL (case 2)");
       Factor = WholeQuantity_P0->Case.Constant ;
       /* printf(" Factor = %e \n" , FI->MHJacNL_Factor); */
     }
     else {
-      Msg::Error("Not allowed expression in Global term with MHJacNL (%d terms) ", 
+      Message::Error("Not allowed expression in Global term with MHJacNL (%d terms) ", 
 		 List_Nbr(WholeQuantity_L));
     }
     
     if (EquationTerm_P->Case.GlobalTerm.Term.TypeTimeDerivative != JACNL_)
-      Msg::Error("MHJacNL can only be used with JACNL") ;
+      Message::Error("MHJacNL can only be used with JACNL") ;
     
     Expression_P = (struct Expression *)List_Pointer
       (Problem_S.Expression, (WholeQuantity_P0 + i_WQ)->Case.MHJacNL.Index) ;
@@ -247,7 +247,7 @@ void  Cal_GlobalTermOfFemEquation_old(int  Num_Region,
   case DTDT_   : Function_AssembleTerm = Cal_AssembleTerm_DtDtDof ; break ;
   case NEVERDT_: Function_AssembleTerm = Cal_AssembleTerm_NeverDt ; break ;
   case JACNL_  : Function_AssembleTerm = Cal_AssembleTerm_JacNL   ; break ;
-  default      : Msg::Error("Unknown type of operator for Global term")    ; break ;
+  default      : Message::Error("Unknown type of operator for Global term")    ; break ;
   }
 
   QuantityStorageEqu_P = QuantityStorage_P0 +

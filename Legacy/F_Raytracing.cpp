@@ -13,12 +13,12 @@
 
 void F_CylinderPhase(F_ARG) 
 {
-  Msg::Error("F_CylinderPhase requires the GSL");
+  Message::Error("F_CylinderPhase requires the GSL");
 }
 
 void F_DiamondPhase(F_ARG)
 {
-  Msg::Error("F_DiamondPhase requires the GSL");
+  Message::Error("F_DiamondPhase requires the GSL");
 }
 
 #else
@@ -161,7 +161,7 @@ void F_CylinderPhase(F_ARG)
   FDF.params = &context;
   
   if(!newton(FDF, &tau[0], &tau[1]))
-    Msg::Error("Newton did not converge: %lf, %lf \n", tau[0], tau[1]);
+    Message::Error("Newton did not converge: %lf, %lf \n", tau[0], tau[1]);
   
   /* now we just go on to calculate the phase from this */
 

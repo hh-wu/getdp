@@ -2347,7 +2347,7 @@ OptionalParametersForBasisFunction :
     {
       Flag1 = Flag_MultipleIndex;
       if(Flag_MultipleIndex)
-	Msg::Warning("Old way to define Group, remove \'{}\' to use one Group");
+	Message::Warning("Old way to define Group, remove \'{}\' to use one Group");
       /* Will be the new way to define Group
       if(!Flag_MultipleIndex)
 	vyyerror("Multiple Group needed for multiple Formulation: %s {}", $6);
@@ -2732,7 +2732,7 @@ ConstraintInFSTerm :
       Constraint_Index =
 	List_ISearchSeq(Problem_S.Constraint, $2, fcmp_Constraint_Name);
       if(Constraint_Index < 0)
-        Msg::Warning("Constraint '%s' is not provided", $2);
+        Message::Warning("Constraint '%s' is not provided", $2);
       Free($2);
     }
  ;
@@ -6371,10 +6371,10 @@ Affectation :
 
   | String__Index tDEF tListFromFile '[' CharExpr ']' tEND
     { Constant_S.Name = $1; Constant_S.Type = VAR_LISTOFFLOAT;
-      Msg::Barrier();
+      Message::Barrier();
       FILE *File;
       if(!(File = fopen($5, "r"))){ 
-        Msg::Warning("Could not open file '%s'", $5);
+        Message::Warning("Could not open file '%s'", $5);
 	Constant_S.Value.ListOfFloat = NULL;
       }
       else{
@@ -6390,7 +6390,7 @@ Affectation :
 
   | tPrintf '(' tBIGSTR ')' tEND
     {
-      Msg::Direct($3);
+      Message::Direct($3);
     }
 
   | tPrintf String__Index tEND
@@ -6412,7 +6412,7 @@ Affectation :
 
   | tPrintf '#' tEND
     {
-      Msg::Info("Line number: %d", getdp_yylinenum);
+      Message::Info("Line number: %d", getdp_yylinenum);
     }
 
   | tPrintf '(' tBIGSTR ',' RecursiveListOfFExpr ')' tEND
@@ -6424,13 +6424,13 @@ Affectation :
       else if(i>0)
 	vyyerror("Too many arguments (%d) in Printf", i);
       else
-	Msg::Info(tmpstr);
+	Message::Info(tmpstr);
       List_Delete($5);
     }
 
   | tRead '(' String__Index ')' tEND
     {
-      Msg::Info("? ");
+      Message::Info("? ");
       char tmpstr[256];
       fgets(tmpstr, sizeof(tmpstr), stdin);
       Constant_S.Value.Float = atof(tmpstr);
@@ -6441,7 +6441,7 @@ Affectation :
 
   | tRead '(' String__Index ')' '[' FExpr ']' tEND
     {
-      Msg::Info("[<return>=%g] ? ",$6);
+      Message::Info("[<return>=%g] ? ",$6);
       char tmpstr[256];
       fgets(tmpstr, sizeof(tmpstr), stdin);
 
@@ -6456,20 +6456,20 @@ Affectation :
 
   | tPrintConstants tEND
     {
-      Msg::Info("Constants:");
+      Message::Info("Constants:");
       for (int i=0; i<List_Nbr(ConstantTable_L); i++) {
 	List_Read(ConstantTable_L, i, &Constant_S);
 	switch (Constant_S.Type) {
 	case VAR_FLOAT:
-	  Msg::Info("  (%d/%d): '%s' = %g", i+1, List_Nbr(ConstantTable_L),
+	  Message::Info("  (%d/%d): '%s' = %g", i+1, List_Nbr(ConstantTable_L),
 	      Constant_S.Name, Constant_S.Value.Float);
 	  break;
 	case VAR_CHAR:
-	  Msg::Info("  (%d/%d): '%s' = '%s'", i+1, List_Nbr(ConstantTable_L),
+	  Message::Info("  (%d/%d): '%s' = '%s'", i+1, List_Nbr(ConstantTable_L),
 	      Constant_S.Name, Constant_S.Value.Char);
 	  break;
 	default:
-	  Msg::Info("  (%d/%d): '%s' = ...", i+1, List_Nbr(ConstantTable_L),
+	  Message::Info("  (%d/%d): '%s' = ...", i+1, List_Nbr(ConstantTable_L),
 	      Constant_S.Name);
 	  break;
 	}
@@ -6592,7 +6592,7 @@ FExpr :
 
   | NbrRegions                       { $$ = $1; }
 
-  | FExpr '#' { Msg::Direct("Value (line %ld) --> %.16g", getdp_yylinenum, $1); }
+  | FExpr '#' { Message::Direct("Value (line %ld) --> %.16g", getdp_yylinenum, $1); }
  ;
 
 OneFExpr :
@@ -7216,7 +7216,7 @@ void  Print_Constant()
     Constant_P = (struct Constant*)List_Pointer(ConstantTable_L, i);
     switch(Constant_P->Type){
     case VAR_FLOAT:
-      Msg::Check("%s = %g;\n", Constant_P->Name, Constant_P->Value.Float);
+      Message::Check("%s = %g;\n", Constant_P->Name, Constant_P->Value.Float);
       break;
     case VAR_LISTOFFLOAT:
       sprintf(tmp1, "%g", *(double*)List_Pointer(Constant_P->Value.ListOfFloat,0));
@@ -7224,10 +7224,10 @@ void  Print_Constant()
 	sprintf(tmp2, ",%g", *(double*)List_Pointer(Constant_P->Value.ListOfFloat,j));
 	strcat(tmp1,tmp2);
       }
-      Msg::Check("%s = {%s};\n", Constant_P->Name, tmp1);
+      Message::Check("%s = {%s};\n", Constant_P->Name, tmp1);
       break;
     case VAR_CHAR:
-      Msg::Check("%s = \"%s\";\n", Constant_P->Name, Constant_P->Value.Char);
+      Message::Check("%s = \"%s\";\n", Constant_P->Name, Constant_P->Value.Char);
       break;
     }
   }
@@ -7239,7 +7239,7 @@ void  Print_Constant()
 void yyerror(const char *s) 
 {
   extern char *getdp_yytext;
-  Msg::Error("'%s', line %ld : %s (%s)", getdp_yyname, getdp_yylinenum, s, getdp_yytext);
+  Message::Error("'%s', line %ld : %s (%s)", getdp_yyname, getdp_yylinenum, s, getdp_yytext);
   getdp_yyerrorlevel = 1;
 }
 
@@ -7250,6 +7250,6 @@ void vyyerror(const char *fmt, ...)
   va_start(args, fmt);
   vsprintf(str, fmt, args);
   va_end(args);
-  Msg::Error("'%s', line %ld : %s", getdp_yyname, getdp_yylinenum, str);
+  Message::Error("'%s', line %ld : %s", getdp_yyname, getdp_yylinenum, str);
   getdp_yyerrorlevel = 1;
 }

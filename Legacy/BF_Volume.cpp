@@ -10,7 +10,7 @@
 /*  B F _ V o l u m e                                                       */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumVolume   Msg::Error("Wrong Volume number in 'BF_Volume'")
+#define WrongNumVolume   Message::Error("Wrong Volume number in 'BF_Volume'")
 
 void BF_Volume(struct Element * Element, int NumVolume,
 	       double u, double v, double w,  double *s)
@@ -73,7 +73,7 @@ void BF_Volume(struct Element * Element, int NumVolume,
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_Volume");
+    Message::Error("Unkown type of Element in BF_Volume");
     break ;
   }
 }

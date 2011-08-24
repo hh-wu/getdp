@@ -50,7 +50,7 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
       List_PQuery(IQA->IntegrationCase_P->Case, &ElementSourceType, fcmp_int) ;
 
     if(!Quadrature_P)
-      Msg::Error("Unknown type of Element (%s) for Integration method (%s)",
+      Message::Error("Unknown type of Element (%s) for Integration method (%s)",
 		 Get_StringForDefine(Element_Type, ElementSourceType),
 		 ((struct IntegrationMethod *)
 		  List_Pointer(Problem_S.IntegrationMethod,
@@ -71,7 +71,7 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
 	    &Element->ElementSource->Region, fcmp_int) )  i++ ;
     
     if (i == List_Nbr(IQA->JacobianCase_L))
-      Msg::Error("Undefined Jacobian in Region %d", Element->ElementSource->Region);
+      Message::Error("Undefined Jacobian in Region %d", Element->ElementSource->Region);
     
     Element->ElementSource->JacobianCase =
       (struct JacobianCase*)List_Pointer(IQA->JacobianCase_L, i) ;
@@ -81,7 +81,7 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
        ElementSourceType, &IQA->Type_Dimension) ;
 
     if(QuantityStorage_P->DefineQuantity->IntegralQuantity.Symmetry)
-      Msg::Error("Symmetries of integral kernels not ready with numerical integration");
+      Message::Error("Symmetries of integral kernels not ready with numerical integration");
     break;
 
     /* Analytical Integration (the jacobian method is not defined, since we also
@@ -97,12 +97,12 @@ void Cal_InitIntegralQuantity(struct Element                *Element,
       break ;
     case CWQ_GF_PVEC_DOF :
     case CWQ_EXP_TIME_GF_PVEC_DOF :
-    default : Msg::Error("Unrecognized Integral Quantity to integrate analytically");
+    default : Message::Error("Unrecognized Integral Quantity to integrate analytically");
     }
     break ;
     
   default :
-    Msg::Error("Unknown type of Integration method (%s) for Integral Quantity", 
+    Message::Error("Unknown type of Integration method (%s) for Integral Quantity", 
 	       ((struct IntegrationMethod *)
 		List_Pointer(Problem_S.IntegrationMethod,
 			     QuantityStorage_P->DefineQuantity->IntegralQuantity.
@@ -143,7 +143,7 @@ void Apply_ConstantFactor(struct QuantityStorage * QuantityStorage_P,
   case CWQ_FCT_PVEC_GF_PVEC_DOF :
     Cal_CrossProductValue(Val, vBFxDof, vBFxDof);
     break;
-  default : Msg::Error("Unknown type of canonical Integral Quantity");
+  default : Message::Error("Unknown type of canonical Integral Quantity");
   }
 }
 
@@ -277,7 +277,7 @@ void Cal_AnalyticIntegralQuantity(struct Element         *Element,
     break ;
   case CWQ_GF_PVEC_DOF :
   case CWQ_EXP_TIME_GF_PVEC_DOF :
-    Msg::Error("Vector product of GF_Function and Dof{} not done for analytic integration");
+    Message::Error("Vector product of GF_Function and Dof{} not done for analytic integration");
     break ;
   case CWQ_GF_PSCA_EXP :
   case CWQ_GF_PVEC_EXP :
@@ -291,7 +291,7 @@ void Cal_AnalyticIntegralQuantity(struct Element         *Element,
 			  NULL, 0., 0., 0., &Val0) ;      
     Current.Region = Element->Region ;
     break ;
-  default : Msg::Error("Unknown type of canonical Integral Quantity");
+  default : Message::Error("Unknown type of canonical Integral Quantity");
   }
 
 
@@ -349,7 +349,7 @@ void Cal_AnalyticIntegralQuantity(struct Element         *Element,
     break;
     
   default:
-    Msg::Error("Unknown type of symmetry in Integral Quantity");
+    Message::Error("Unknown type of symmetry in Integral Quantity");
     break;
   }
 }

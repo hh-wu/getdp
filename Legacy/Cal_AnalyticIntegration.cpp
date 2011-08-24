@@ -21,7 +21,7 @@ double Cal_AnalyticIntegration(struct Element * E,
   if ((E->Type != TRIANGLE) ||
       (BFEqu != (void (*)())BF_GradNode) || (BFDof != (void (*)())BF_GradNode) ) {
 
-    Msg::Error("Unknown analytic method for integration") ;
+    Message::Error("Unknown analytic method for integration") ;
     return 0.;
   }
 
@@ -45,7 +45,7 @@ double Cal_AnalyticIntegration(struct Element * E,
 	       (E->x[1]-E->x[2])*(E->x[0]-E->x[1])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     default :
-      Msg::Error("Something wrong in Cal_AnalyticIntegration");
+      Message::Error("Something wrong in Cal_AnalyticIntegration");
       return 0. ;
     }
     
@@ -64,7 +64,7 @@ double Cal_AnalyticIntegration(struct Element * E,
 	       (E->x[2]-E->x[0])*(E->x[0]-E->x[1])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     default :
-      Msg::Error("Something wrong in Cal_AnalyticIntegration");
+      Message::Error("Something wrong in Cal_AnalyticIntegration");
       return(0.) ;
     }
     
@@ -83,12 +83,12 @@ double Cal_AnalyticIntegration(struct Element * E,
 	       (E->x[0]-E->x[1])*(E->x[0]-E->x[1])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     default :
-      Msg::Error("Something wrong in Cal_AnalyticIntegration");
+      Message::Error("Something wrong in Cal_AnalyticIntegration");
       return 0.;
     }
 
   default :
-    Msg::Error("Something wrong in Cal_AnalyticIntegration");
+    Message::Error("Something wrong in Cal_AnalyticIntegration");
     return 0. ;
   }
 

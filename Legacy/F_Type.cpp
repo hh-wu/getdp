@@ -34,7 +34,7 @@ void F_Complex(F_ARG)
   case SCALAR :
     for (k = 0 ; k < Current.NbrHar ; k++) {
       if((A+k)->Type != A->Type) 
-	Msg::Error("Mixed type of arguments in function 'Complex'");
+	Message::Error("Mixed type of arguments in function 'Complex'");
       V->Val[MAX_DIM*k] = (A+k)->Val[0] ;
     }
     break;
@@ -43,7 +43,7 @@ void F_Complex(F_ARG)
   case TENSOR_DIAG :
     for (k = 0 ; k < Current.NbrHar ; k++) {
       if((A+k)->Type != A->Type)
-	Msg::Error("Mixed type of arguments in function 'Complex'");
+	Message::Error("Mixed type of arguments in function 'Complex'");
       V->Val[MAX_DIM*k  ] = (A+k)->Val[0] ; 
       V->Val[MAX_DIM*k+1] = (A+k)->Val[1] ;
       V->Val[MAX_DIM*k+2] = (A+k)->Val[2] ;
@@ -53,7 +53,7 @@ void F_Complex(F_ARG)
   case TENSOR_SYM :
     for (k = 0 ; k < Current.NbrHar ; k++) {
       if((A+k)->Type != A->Type)
-	Msg::Error("Mixed type of arguments in function 'Complex'");
+	Message::Error("Mixed type of arguments in function 'Complex'");
       V->Val[MAX_DIM*k  ] = (A+k)->Val[0] ; 
       V->Val[MAX_DIM*k+1] = (A+k)->Val[1] ;
       V->Val[MAX_DIM*k+2] = (A+k)->Val[2] ;
@@ -66,7 +66,7 @@ void F_Complex(F_ARG)
   case TENSOR :
     for (k = 0 ; k < Current.NbrHar ; k++) {
       if((A+k)->Type != A->Type)
-	Msg::Error("Mixed type of arguments in function 'Complex'");
+	Message::Error("Mixed type of arguments in function 'Complex'");
       V->Val[MAX_DIM*k  ] = (A+k)->Val[0] ; 
       V->Val[MAX_DIM*k+1] = (A+k)->Val[1] ;
       V->Val[MAX_DIM*k+2] = (A+k)->Val[2] ;
@@ -80,7 +80,7 @@ void F_Complex(F_ARG)
     break;
 
   default :
-    Msg::Error("Unknown type of arguments in function 'Complex'");
+    Message::Error("Unknown type of arguments in function 'Complex'");
     break;
   }
 
@@ -157,7 +157,7 @@ void F_Re(F_ARG)
     break;
 
   default :
-    Msg::Error("Unknown type of arguments in function 'Re'");
+    Message::Error("Unknown type of arguments in function 'Re'");
     break;
   }
   
@@ -233,7 +233,7 @@ void  F_Im(F_ARG)
     break;
 
   default :
-    Msg::Error("Unknown type of arguments in function 'Re'");
+    Message::Error("Unknown type of arguments in function 'Re'");
     break;
   }
   
@@ -309,7 +309,7 @@ void F_Conj(F_ARG)
     break;
 
   default :
-    Msg::Error("Unknown type of arguments in function 'Conj'");
+    Message::Error("Unknown type of arguments in function 'Conj'");
     break;
   }
   
@@ -386,7 +386,7 @@ void F_Cart2Pol(F_ARG)
     break;
 
   default :
-    Msg::Error("Unknown type of arguments in function 'Cart2Pol'");
+    Message::Error("Unknown type of arguments in function 'Cart2Pol'");
     break;
   }
   
@@ -402,7 +402,7 @@ void F_Vector(F_ARG)
   int k ;
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR)
-    Msg::Error("Non scalar argument(s) for function 'Vector'");
+    Message::Error("Non scalar argument(s) for function 'Vector'");
 
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] = (A  )->Val[MAX_DIM*k] ;
@@ -423,7 +423,7 @@ void F_Tensor(F_ARG)
   if(  (A)->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR ||
      (A+3)->Type != SCALAR || (A+4)->Type != SCALAR || (A+5)->Type != SCALAR ||
      (A+6)->Type != SCALAR || (A+7)->Type != SCALAR || (A+8)->Type != SCALAR )
-    Msg::Error("Non scalar argument(s) for function 'Tensor'");
+    Message::Error("Non scalar argument(s) for function 'Tensor'");
 
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] = (A  )->Val[MAX_DIM*k] ;
@@ -449,7 +449,7 @@ void F_TensorSym(F_ARG)
 
   if(  (A)->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR ||
      (A+3)->Type != SCALAR || (A+4)->Type != SCALAR || (A+5)->Type != SCALAR )
-    Msg::Error("Non scalar argument(s) for function 'TensorSym'");
+    Message::Error("Non scalar argument(s) for function 'TensorSym'");
 
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] = (A  )->Val[MAX_DIM*k] ;
@@ -471,7 +471,7 @@ void F_TensorDiag(F_ARG)
   int k ;
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR || (A+2)->Type != SCALAR)
-    Msg::Error("Non scalar argument(s) for function 'TensorDiag'");
+    Message::Error("Non scalar argument(s) for function 'TensorDiag'");
 
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] =     A->Val[MAX_DIM*k] ;
@@ -490,7 +490,7 @@ void F_TensorV(F_ARG)
   int k ;
 
   if((A)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR)
-    Msg::Error("Non scalar argument(s) for function 'TensorV'");
+    Message::Error("Non scalar argument(s) for function 'TensorV'");
 
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] = (A  )->Val[MAX_DIM*k  ] ;
@@ -516,7 +516,7 @@ void F_SquDyadicProduct(F_ARG)
   double t11, t12, t13, t22, t23, t33 ;
 
   if (A->Type != VECTOR)
-    Msg::Error("Non vector argument for function 'TensorDyadic'");
+    Message::Error("Non vector argument for function 'TensorDyadic'");
 
   t11 = SQU(A->Val[0]) ;  t22 = SQU(A->Val[1]) ;  t33 = SQU(A->Val[2]) ;
   t12 = A->Val[0] * A->Val[1] ;  t13 = A->Val[0] * A->Val[2] ;
@@ -546,7 +546,7 @@ void F_SquDyadicProduct(F_ARG)
   int k ;								\
 									\
   if(A->Type != VECTOR)							\
-    Msg::Error("Non vector argument for function '" string "'");	\
+    Message::Error("Non vector argument for function '" string "'");	\
 									\
   for (k = 0 ; k < Current.NbrHar ; k++) {				\
     V->Val[MAX_DIM*k  ] = A->Val[MAX_DIM*k+index] ;			\
@@ -580,7 +580,7 @@ void F_CompZ(F_ARG){ get_comp_vector(2, "CompZ") }
       for (k=0; k<Current.NbrHar; k++) V->Val[MAX_DIM*k] = 0.;				\
     break ;										\
   default :										\
-    Msg::Error("Non tensor argument for function '" string "'");			\
+    Message::Error("Non tensor argument for function '" string "'");			\
     break;										\
   }											\
   V->Type = SCALAR ;
@@ -608,7 +608,7 @@ void F_Cart2Sph(F_ARG)
   double theta, phi ;
 
   if((A)->Type != VECTOR)
-     Msg::Error("Vector argument required for Function 'Cart2Sph'");
+     Message::Error("Vector argument required for Function 'Cart2Sph'");
      
   /* Warning! This is the physic's convention. For the math
      convention, switch theta and phi. */
@@ -667,7 +667,7 @@ void F_Cart2Cyl(F_ARG)
   double theta ;
 
   if((A)->Type != VECTOR)
-     Msg::Error("Vector argument required for Function 'Cart2Cyl'");
+     Message::Error("Vector argument required for Function 'Cart2Cyl'");
      
   theta = atan2(A->Val[1] , A->Val[0]) ;   
     

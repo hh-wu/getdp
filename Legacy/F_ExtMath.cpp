@@ -26,7 +26,7 @@ void F_Hypot(F_ARG)
   double  tmp;
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
-    Msg::Error("Non scalar argument(s) for function 'Hypot'");
+    Message::Error("Non scalar argument(s) for function 'Hypot'");
 
   if (Current.NbrHar == 1){ 
     V->Val[0] = sqrt(A->Val[0]*A->Val[0]+(A+1)->Val[0]*(A+1)->Val[0]) ;
@@ -58,7 +58,7 @@ void F_TanhC2(F_ARG)
 void F_Transpose(F_ARG)
 {
   if(A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR)
-    Msg::Error("Wrong type of argument for function 'Transpose'");
+    Message::Error("Wrong type of argument for function 'Transpose'");
 
   Cal_TransposeValue(A,V);
 }
@@ -66,7 +66,7 @@ void F_Transpose(F_ARG)
 void F_Trace(F_ARG)
 {
   if(A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR)
-    Msg::Error("Wrong type of argument for function 'Trace'");
+    Message::Error("Wrong type of argument for function 'Trace'");
 
   Cal_TraceValue(A,V);
 }
@@ -79,7 +79,7 @@ void F_RotateXYZ(F_ARG)
   if((A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR &&
       A->Type != VECTOR) ||
      (A+1)->Type != SCALAR || (A+2)->Type != SCALAR || (A+3)->Type != SCALAR)
-    Msg::Error("Wrong type of argument(s) for function 'Rotate'");
+    Message::Error("Wrong type of argument(s) for function 'Rotate'");
 
   ca = cos((A+1)->Val[0]) ; sa = sin((A+1)->Val[0]) ;
   cb = cos((A+2)->Val[0]) ; sb = sin((A+2)->Val[0]) ;
@@ -135,7 +135,7 @@ void F_Norm(F_ARG)
     break ;
 
   default :
-    Msg::Error("Wrong type of argument for function 'Norm'");
+    Message::Error("Wrong type of argument for function 'Norm'");
     break;
   }
 
@@ -182,7 +182,7 @@ void F_SquNorm(F_ARG)
     break ;
 
   default :
-    Msg::Error("Wrong type of argument for function 'SquNorm'");
+    Message::Error("Wrong type of argument for function 'SquNorm'");
     break;
   }
 
@@ -257,7 +257,7 @@ void F_Unit(F_ARG)
     break ;
 
   default :
-    Msg::Error("Wrong type of argument for function 'Unit'");
+    Message::Error("Wrong type of argument for function 'Unit'");
     break;
   }
 }
@@ -300,7 +300,7 @@ void F_Cos_wt_p (F_ARG)
     V->Val[MAX_DIM] = sin(Fct->Para[1]) ;
   }
   else {
-    Msg::Error("Too many harmonics for function 'Cos_wt_p'") ; 
+    Message::Error("Too many harmonics for function 'Cos_wt_p'") ; 
   }
   V->Type = SCALAR ;
 }
@@ -316,7 +316,7 @@ void F_Sin_wt_p (F_ARG)
     V->Val[MAX_DIM] = -cos(Fct->Para[1]) ;
   }
   else {
-    Msg::Error("Too many harmonics for function 'Sin_wt_p'") ; 
+    Message::Error("Too many harmonics for function 'Sin_wt_p'") ; 
   }
   V->Type = SCALAR ;
 }
@@ -330,8 +330,8 @@ void F_Complex_MH(F_ARG)
   NbrFreq = Fct->NbrParameters ;
   NbrComp = Fct->NbrArguments ;
   if (NbrComp != 2*NbrFreq) 
-    Msg::Error("Number of components does not equal twice the number "
-	      "of frequencies in Complex_MH") ;
+    Message::Error("Number of components does not equal twice the number "
+                   "of frequencies in Complex_MH") ;
 
   R.Type = A->Type ;
   Cal_ZeroValue(&R);
@@ -372,7 +372,7 @@ void F_Complex_MH(F_ARG)
 	      R.Val[MAX_DIM*k+8] += (A+l)->Val[8] ;
 	      break;
 	    default :
-	      Msg::Error("Unknown type of arguments in function 'Complex_MH'");
+	      Message::Error("Unknown type of arguments in function 'Complex_MH'");
 	      break;
 	    }
 	  }
@@ -397,7 +397,7 @@ void F_Period (F_ARG)
     V->Val[0] = fmod(A->Val[0], Fct->Para[0])
       + ((A->Val[0] < 0.)? Fct->Para[0] : 0.) ;
   else
-    Msg::Error("Function 'F_Period' not valid for Complex");
+    Message::Error("Function 'F_Period' not valid for Complex");
   V->Type = SCALAR ;
 }
 

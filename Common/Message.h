@@ -61,6 +61,4 @@ class Message {
   static bool UseSocket(){ return _client ? true : false; }
 };
 
-typedef Message Msg;
-
 #endif

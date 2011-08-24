@@ -99,7 +99,7 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
 			    QuantityStorage_P0, PostSubOperation_P) ;
       break ;
     default :
-      Msg::Error("Unknown Operation type for Print"); 
+      Message::Error("Unknown Operation type for Print"); 
       break;
     }    
     break ;    
@@ -113,7 +113,7 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
     break;
 
   default :
-    Msg::Error("Unknown PostSubOperation type") ;
+    Message::Error("Unknown PostSubOperation type") ;
     break;
   }
 
@@ -177,7 +177,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 		      struct PostSubOperation  *PostSubOperation_P)
 {
   // currently cannot postprocess in parallel!
-  if(Msg::GetCommRank()) return;
+  if(Message::GetCommRank()) return;
 
   struct PostQuantity   *NCPQ_P = NULL, *CPQ_P = NULL ;
   double                 Pulsation ;
@@ -203,15 +203,15 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
     if(!PostSubOperation_P->CatFile) {
       if((PostStream = fopen(FileName, Flag_BIN ? "wb" : "w")))
-	Msg::Direct("          > '%s'", FileName) ;
+	Message::Direct("          > '%s'", FileName) ;
       else
-	Msg::Error("Unable to open file '%s'", FileName) ;
+	Message::Error("Unable to open file '%s'", FileName) ;
     }
     else {
       if((PostStream = fopen(FileName, Flag_BIN ? "ab" : "a")))
-	Msg::Direct("         >> '%s'", FileName) ;
+	Message::Direct("         >> '%s'", FileName) ;
       else
-	Msg::Error("Unable to open file '%s'", FileName) ;
+	Message::Error("Unable to open file '%s'", FileName) ;
     }
   }
   else{
@@ -255,7 +255,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   if(List_Nbr(PostSubOperation_P->Frequency_L)){
     if(List_Nbr(PostSubOperation_P->Frequency_L) > List_Nbr(Current.DofData->Pulsation))
-      Msg::Error("Too many frequencies specified in PostOperation");
+      Message::Error("Too many frequencies specified in PostOperation");
     for(i = 0 ; i < List_Nbr(PostSubOperation_P->Frequency_L) ; i++){
       Pulsation = *((double *)List_Pointer(PostSubOperation_P->Frequency_L, i)) * TWO_PI ;
       List_Write(Current.DofData->Pulsation, i, &Pulsation) ;
@@ -272,7 +272,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     break ;
 
   default :
-    Msg::Error("Unknown Type for Formulation (%s)", Formulation_P->Name) ;
+    Message::Error("Unknown Type for Formulation (%s)", Formulation_P->Name) ;
     break;
 
   }
@@ -283,7 +283,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     fclose(PostStream) ;
     if(PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
        PostSubOperation_P->Format == FORMAT_GMSH)
-      Msg::SendFileOnSocket(FileName);
+      Message::SendFileOnSocket(FileName);
   }
 }
 

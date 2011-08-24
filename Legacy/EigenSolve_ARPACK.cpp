@@ -85,7 +85,7 @@ void EigenPar(const char *filename, struct EigenPar *par)
   strcat(path, filename);
   fp = fopen(path, "r");
   if(fp) {
-    Msg::Info("Loading eigenproblem parameter file '%s'", path);
+    Message::Info("Loading eigenproblem parameter file '%s'", path);
     fscanf(fp, "%lf", &par->prec); 
     fscanf(fp, "%d", &par->reortho);
     fscanf(fp, "%d", &par->size);
@@ -117,12 +117,12 @@ void EigenPar(const char *filename, struct EigenPar *par)
       fclose(fp);
     }
     else{
-      Msg::Error("Unable to open file '%s'", path);
+      Message::Error("Unable to open file '%s'", path);
     }
   }
   
-  Msg::Info("Eigenproblem parameters: prec = %g, reortho = %d, size = %d", 
-	    par->prec, par->reortho, par->size);
+  Message::Info("Eigenproblem parameters: prec = %g, reortho = %d, size = %d", 
+                par->prec, par->reortho, par->size);
 }
 
 /* This routine uses Arpack to solve Generalized Complex Non-Hermitian
@@ -214,11 +214,11 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      way (since, for real, non-symmetric matrices we would get complex
      eigenvectors we could not easily store) */
   if(Current.NbrHar != 2)
-    Msg::Error("EigenSolve requires system defined with \"Type Complex\"");
+    Message::Error("EigenSolve requires system defined with \"Type Complex\"");
 
   /* Sanity checks */
   if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
-    Msg::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
+    Message::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
 
   /* Check if we have a "quadratic" evp (- w^2 M x + i w L x + K x = 0) */
   if(DofData_P->Flag_Init[2])
@@ -285,7 +285,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
 
   /* sanity check */
   if(nev >= n-1){
-    Msg::Warning("NumEigenvalues too large (%d < %d): setting to %d", nev, n-1, n-2);
+    Message::Warning("NumEigenvalues too large (%d < %d): setting to %d", nev, n-1, n-2);
     nev = n-2;
   }
 
@@ -316,11 +316,11 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   
   /* sanity checks */
   if(ncv <= nev){
-    Msg::Warning("Krylov space size too small (%d <= %d), setting to %d", ncv, nev, nev*2);
+    Message::Warning("Krylov space size too small (%d <= %d), setting to %d", ncv, nev, nev*2);
     ncv = nev * 2;
   }
   if(ncv > n){
-    Msg::Warning("Krylov space size too large (%d > %d), setting to %d", ncv, n, n);
+    Message::Warning("Krylov space size too large (%d > %d), setting to %d", ncv, n, n);
     ncv = n;
   }
 
@@ -511,7 +511,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   /* Workspace */
 
   if(bmat != 'I' || iparam[6] != 1)
-    Msg::Error("General and/or shift-invert mode should not be used");
+    Message::Error("General and/or shift-invert mode should not be used");
 
   /* Create temp vectors and matrices and apply shift. Warning: with
      PETSc, the shifting can be very slow if the masks are very
@@ -567,7 +567,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     znaupd_(&ido, &bmat, &n, which, &nev, &tol, resid, &ncv, v, &ldv, iparam,
 	    ipntr, workd, workl, &lworkl, rwork, &info);
     if(ido == 1 || ido == -1){
-      Msg::Info("Arpack iteration %d", k+1);
+      Message::Info("Arpack iteration %d", k+1);
 
       if(!quad_evp){
 	Arpack2GetDP(n, &workd[ipntr[0]-1], &v1);
@@ -603,29 +603,29 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
       break;
     }
     else{
-      Msg::Info("Arpack code = %d (ignored)", info);
+      Message::Info("Arpack code = %d (ignored)", info);
     }
   } while (1);
   
-  Msg::Info("Arpack required %d iterations", k);
+  Message::Info("Arpack required %d iterations", k);
 
   /* Testing for errors */  
   if(info == 0){
     /* OK */
   }
   else if(info == 1){
-    Msg::Warning("Maxmimum number of iteration reached in EigenSolve");
+    Message::Warning("Maxmimum number of iteration reached in EigenSolve");
   }
   else if(info == 2){
-    Msg::Warning("No shifts could be applied during a cycle of the");
-    Msg::Warning("Implicitly restarted Arnoldi iteration. One possibility");
-    Msg::Warning("is to increase the size of NCV relative to NEV.");
+    Message::Warning("No shifts could be applied during a cycle of the");
+    Message::Warning("Implicitly restarted Arnoldi iteration. One possibility");
+    Message::Warning("is to increase the size of NCV relative to NEV.");
   }
   else if(info < 0){
-    Msg::Error("Arpack code = %d", info);
+    Message::Error("Arpack code = %d", info);
   }
   else{
-    Msg::Warning("Arpack code = %d (unknown)", info);
+    Message::Warning("Arpack code = %d (unknown)", info);
   }
 
   /* Call to zneupd for post-processing */  
@@ -635,7 +635,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
 
   /* Test for errors */  
   if(info != 0)
-    Msg::Error("Arpack code = %d (eigenvector post-processing)", info);
+    Message::Error("Arpack code = %d (eigenvector post-processing)", info);
   
   /* Compute the unshifted eigenvalues and print them, and store the
      associated eigenvectors */
@@ -667,14 +667,14 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
       f.im = omega.im / TWO_PI;
     }
 
-    Msg::Info("Eigenvalue %03d: w^2 = %.12e %s %.12e * i", 
-	      k+1, omega2.re, (omega2.im > 0) ? "+" :  "-", 
-	      (omega2.im > 0) ? omega2.im : -omega2.im);
-    Msg::Info("                  w = %.12e %s %.12e * i",
-	      omega.re, (omega.im > 0) ? "+" : "-",
-	      (omega.im > 0) ? omega.im : -omega.im);
-    Msg::Info("                  f = %.12e %s %.12e * i",
-	      f.re, (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
+    Message::Info("Eigenvalue %03d: w^2 = %.12e %s %.12e * i", 
+                  k+1, omega2.re, (omega2.im > 0) ? "+" :  "-", 
+                  (omega2.im > 0) ? omega2.im : -omega2.im);
+    Message::Info("                  w = %.12e %s %.12e * i",
+                  omega.re, (omega.im > 0) ? "+" : "-",
+                  (omega.im > 0) ? omega.im : -omega.im);
+    Message::Info("                  f = %.12e %s %.12e * i",
+                  f.re, (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
     
     if(newsol) {
       /* Create new solution */

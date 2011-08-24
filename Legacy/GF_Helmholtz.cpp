@@ -29,7 +29,7 @@ void GF_Helmholtz(GF_ARG)
   double  r, kr ;
 
   if(Current.NbrHar != 2)
-    Msg::Error("Wrong Number of Harmonics in 'GF_Helmholtz'");
+    Message::Error("Wrong Number of Harmonics in 'GF_Helmholtz'");
 
   V->Type = SCALAR ;
   
@@ -37,7 +37,7 @@ void GF_Helmholtz(GF_ARG)
   case _2D :
     r = sqrt(SQU(Current.x-Current.xs)+
 	     SQU(Current.y-Current.ys) ) ;
-    if(!r) Msg::Error("1/0 in 'GF_Helmholtz'") ;
+    if(!r) Message::Error("1/0 in 'GF_Helmholtz'") ;
     kr = Fct->Para[1]*r;
     
     V->Val[0]       = -y0(kr)/4 ; 
@@ -48,7 +48,7 @@ void GF_Helmholtz(GF_ARG)
     r = sqrt(SQU(Current.x-Current.xs)+
 	     SQU(Current.y-Current.ys)+
 	     SQU(Current.z-Current.zs)) ;
-    if(!r) Msg::Error("1/0 in 'GF_Helmholtz'") ;
+    if(!r) Message::Error("1/0 in 'GF_Helmholtz'") ;
     
     kr = Fct->Para[1]*r;     
     V->Val[0]       =  ONE_OVER_FOUR_PI * cos(kr) / r ; 
@@ -56,7 +56,7 @@ void GF_Helmholtz(GF_ARG)
     break ;
 
   default :
-    Msg::Error("Bad Parameter for 'GF_Helmholtz' (%d)", (int)Fct->Para[0]);
+    Message::Error("Bad Parameter for 'GF_Helmholtz' (%d)", (int)Fct->Para[0]);
     break;
   }
 }
@@ -70,7 +70,7 @@ void GF_HelmholtzThinWire(GF_ARG)
   double  a , r, kr ;
 
   if(Current.NbrHar != 2)
-    Msg::Error("Wrong Number of Harmonics in 'GF_HelmholtzThinWire'");
+    Message::Error("Wrong Number of Harmonics in 'GF_HelmholtzThinWire'");
   
   V->Type = SCALAR ;
   
@@ -79,7 +79,7 @@ void GF_HelmholtzThinWire(GF_ARG)
     a =  Fct->Para[2] ;
     r = sqrt(SQU(Current.x-Current.xs)+
 	     SQU(Current.y-Current.ys)+SQU(a)) ;
-    if(!r) Msg::Error("1/0 in 'GF_HelmholtzThinWire'") ;
+    if(!r) Message::Error("1/0 in 'GF_HelmholtzThinWire'") ;
     kr = Fct->Para[1]*r;
     
     V->Val[0]       = -y0(kr)/4 ; 
@@ -92,7 +92,7 @@ void GF_HelmholtzThinWire(GF_ARG)
     r = sqrt(SQU(Current.x-Current.xs)+
 	     SQU(Current.y-Current.ys)+
 	     SQU(Current.z-Current.zs)+SQU(a)) ;
-    if(!r) Msg::Error("1/0 in 'GF_HelmholtzThinWire'") ;
+    if(!r) Message::Error("1/0 in 'GF_HelmholtzThinWire'") ;
     
     kr = Fct->Para[1]*r;     
     V->Val[0]       =  ONE_OVER_FOUR_PI * cos(kr) / r ; 
@@ -100,7 +100,7 @@ void GF_HelmholtzThinWire(GF_ARG)
     break ;
 
   default :
-    Msg::Error("Bad Parameter for 'GF_HelmholtzThinWire' (%d)", (int)Fct->Para[0]);
+    Message::Error("Bad Parameter for 'GF_HelmholtzThinWire' (%d)", (int)Fct->Para[0]);
     break;
   }
 }
@@ -117,7 +117,7 @@ void GF_GradHelmholtz(GF_ARG)
   double  c1, c2, cr, ci ;
 
   if(Current.NbrHar != 2)
-    Msg::Error("Wrong Number of Harmonics in 'GF_GradHelmholtz'");
+    Message::Error("Wrong Number of Harmonics in 'GF_GradHelmholtz'");
   
   V->Type = VECTOR ;
 
@@ -159,7 +159,7 @@ void GF_GradHelmholtz(GF_ARG)
     break ;
    
   default :
-    Msg::Error("Bad Parameter for 'GF_GradHelmholtz' (%d)", (int)Fct->Para[0]);
+    Message::Error("Bad Parameter for 'GF_GradHelmholtz' (%d)", (int)Fct->Para[0]);
     break;
     
   }
@@ -177,7 +177,7 @@ void GF_NPxGradHelmholtz(GF_ARG)
 
   /* Vectorial product N[] /\ Grad G */ 
   if(Current.NbrHar != 2)
-    Msg::Error("Wrong Number of Harmonics in 'GF_NPxGradHelmholtz'");
+    Message::Error("Wrong Number of Harmonics in 'GF_NPxGradHelmholtz'");
   
   V->Type = VECTOR ;
 
@@ -203,7 +203,7 @@ void GF_NPxGradHelmholtz(GF_ARG)
     break ;
 
   default :
-    Msg::Error("Bad Parameter for 'GF_NPxGradHelmholtz' (%d)", (int)Fct->Para[0]);
+    Message::Error("Bad Parameter for 'GF_NPxGradHelmholtz' (%d)", (int)Fct->Para[0]);
     break;
   }
 }
@@ -218,7 +218,7 @@ void GF_NSxGradHelmholtz(GF_ARG)
   double  nx, ny, nz, n, c1, c2, cr, ci ;
   
   if(Current.NbrHar != 2)
-    Msg::Error("Wrong Number of Harmonics in 'GF_NSxGradHelmholtz'");
+    Message::Error("Wrong Number of Harmonics in 'GF_NSxGradHelmholtz'");
 
   V->Type = SCALAR ;
 
@@ -281,7 +281,7 @@ void GF_NSxGradHelmholtz(GF_ARG)
     break ;
 
   default :
-    Msg::Error("Bad Parameter for 'GF_NSxGradHelmholtz' (%d)", (int)Fct->Para[0]);
+    Message::Error("Bad Parameter for 'GF_NSxGradHelmholtz' (%d)", (int)Fct->Para[0]);
     break;
   }
 

@@ -11,7 +11,7 @@
 
 #if !defined(HAVE_PETSC) && !defined(HAVE_SPARSKIT)
 
-#define err Msg::Error("No solver is compiled in this version of GetDP")
+#define err Message::Error("No solver is compiled in this version of GetDP")
 
 void LinAlg_InitializeSolver(int* argc, char*** argv){}
 void LinAlg_FinalizeSolver(){}

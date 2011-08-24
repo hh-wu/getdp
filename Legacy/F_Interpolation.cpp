@@ -29,7 +29,7 @@ void F_InterpolationLinear(F_ARG)
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg::Error("Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
+    Message::Error("Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     a = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -59,7 +59,7 @@ void F_dInterpolationLinear(F_ARG)
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg::Error("Bad argument for linear Interpolation (%g < %g)", xp, x[0]) ;
+    Message::Error("Bad argument for linear Interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     dyp = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -90,7 +90,7 @@ void F_dInterpolationLinear2(F_ARG)
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg::Error("Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
+    Message::Error("Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     a = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -105,7 +105,7 @@ void F_dInterpolationLinear2(F_ARG)
   if (Current.NbrHar == 1)
     V->Val[0] = yp ;
   else {
-    Msg::Error("Function 'Interpolation' not valid for Complex");
+    Message::Error("Function 'Interpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
 }
@@ -127,7 +127,7 @@ void F_InterpolationAkima(F_ARG)
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg::Error("Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
+    Message::Error("Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     a = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -145,7 +145,7 @@ void F_InterpolationAkima(F_ARG)
   if (Current.NbrHar == 1)
     V->Val[0] = yp ;
   else {
-    Msg::Error("Function 'Interpolation' not valid for Complex");
+    Message::Error("Function 'Interpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
 }
@@ -167,7 +167,7 @@ void F_dInterpolationAkima(F_ARG)
   xp = A->Val[0] ;
 
   if (xp < x[0]) {
-    Msg::Error("Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
+    Message::Error("Bad argument for linear interpolation (%g < %g)", xp, x[0]) ;
   }
   else if (xp > x[N-1]) {
     dyp = (y[N-1] - y[N-2]) / (x[N-1] - x[N-2]) ;
@@ -183,7 +183,7 @@ void F_dInterpolationAkima(F_ARG)
   if (Current.NbrHar == 1)
     V->Val[0] = dyp ;
   else {
-    Msg::Error("Function 'Interpolation' not valid for Complex");
+    Message::Error("Function 'Interpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
 }
@@ -253,7 +253,7 @@ void F_InterpolationBilinear(F_ARG)
   struct FunctionActive  * D;
 
   if( (A+0)->Type != SCALAR || (A+1)->Type != SCALAR)
-    Msg::Error("Two Scalar arguments required!");
+    Message::Error("Two Scalar arguments required!");
 
   if (!Fct->Active)  Fi_InitListMatrix (Fct, A, V) ;
 
@@ -269,7 +269,7 @@ void F_InterpolationBilinear(F_ARG)
   yp = (A+1)->Val[0] ;
 
   bool IsInGrid = Fi_InterpolationBilinear (x, y, M, NL, NC, xp, yp, &zp);
-  if (!IsInGrid) Msg::Error("Extrapolation not allowed (xp=%g ; yp=%g)", xp, yp) ;
+  if (!IsInGrid) Message::Error("Extrapolation not allowed (xp=%g ; yp=%g)", xp, yp) ;
 
   V->Type = SCALAR ;
   V->Val[0] = zp ;
@@ -307,7 +307,7 @@ void Fi_InitListMatrix(F_ARG)
   
   sz = 2 + NL + NC + NL*NC ; // expected size of list matrix
   if (Fct->NbrParameters != sz) 
-    Msg::Error ("Bad size of input data (expected = %d ; found = %d). "
+    Message::Error ("Bad size of input data (expected = %d ; found = %d). "
 		"List with format: x(NbrLines=%d), y(NbrColumns=%d), matrix(NbrLines*NbrColumns=%d)", 
 		sz, Fct->NbrParameters, NL, NC, NL*NC);
 
@@ -441,7 +441,7 @@ void F_ValueFromIndex (F_ARG)
     List_PQuery(D->Case.ValueFromIndex.Table, &Current.NumEntity, fcmp_int);
 
   if (!IntDouble_P)
-    Msg::Error("Unknown Entity Index (%d) in ValueFromIndex Table",
+    Message::Error("Unknown Entity Index (%d) in ValueFromIndex Table",
                Current.NumEntity);
   /*
   printf("==> search %d --> found %g\n", Current.NumEntity, IntDouble_P->Double);
@@ -467,7 +467,7 @@ void F_VectorFromIndex(F_ARG)
       List_PQuery(D->Case.ValueFromIndex.Table, &Current.NumEntity, fcmp_int);
 
     /* 
-       if (!IntVector_P)  Msg::Error("Unknown Entity Index in VectorFromIndex Table");
+       if (!IntVector_P)  Message::Error("Unknown Entity Index in VectorFromIndex Table");
        printf("==> search %d --> found %g\n", Current.NumEntity, IntVector_P->Double);
     */
 

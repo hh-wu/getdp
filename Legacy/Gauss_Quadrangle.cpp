@@ -19,8 +19,8 @@ void Gauss_Quadrangle (int Nbr_Points, int Num,
   case  4 : *u= xq4 [Num] ; *v= yq4 [Num] ; *w= 0. ; *wght= pq4 [Num] ; break ;
   case  7 : *u= xq7 [Num] ; *v= yq7 [Num] ; *w= 0. ; *wght= pq7 [Num] ; break ;
   default : 
-    Msg::Error("Wrong number of Gauss points for Quadrangle");
-    Msg::Error("Valid choices: 3, 4, 7");
+    Message::Error("Wrong number of Gauss points for Quadrangle: "
+                   "valid choices: 3, 4, 7");
     break;
   }
 }
@@ -39,12 +39,12 @@ void GaussLegendre_Quadrangle(int Nbr_Points, int Num,
   nb = (int)sqrt((double)Nbr_Points);
 
   if(nb * nb != Nbr_Points || nb > MAX_LINE_POINTS)
-    Msg::Error("Number of points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
+    Message::Error("Number of points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
 
   if(glq[0] < 0) for(i = 0; i < MAX_LINE_POINTS; i++) glq[i] = 0;
 
   if(!glq[nb - 1]){
-    Msg::Info("Computing GaussLegendre %dX%d for Quadrangle", nb, nb);
+    Message::Info("Computing GaussLegendre %dX%d for Quadrangle", nb, nb);
     glxq[nb - 1] = (double*)Malloc(Nbr_Points * sizeof(double));
     glyq[nb - 1] = (double*)Malloc(Nbr_Points * sizeof(double));
     glpq[nb - 1] = (double*)Malloc(Nbr_Points * sizeof(double));
@@ -73,8 +73,8 @@ void GaussSingularR_Quadrangle(int Nbr_Points, int Num,
   case  3 : *u= xqs3 [Num] ; *v= yqs3 [Num] ; *w= 0. ; *wght= pqs3 [Num] ; break ;
   case  4 : *u= xqs4 [Num] ; *v= yqs4 [Num] ; *w= 0. ; *wght= pqs4 [Num] ; break ;
   default : 
-    Msg::Error("Wrong number of (modified) Gauss Points for Quadrangle");
-    Msg::Error("Valid choices: 1, 3, 4");
+    Message::Error("Wrong number of (modified) Gauss Points for Quadrangle: "
+                   "valid choices: 1, 3, 4");
     break;
   }
 }

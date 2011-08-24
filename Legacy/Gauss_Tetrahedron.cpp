@@ -45,8 +45,8 @@ void Gauss_Tetrahedron(int Nbr_Points, int Num,
     *wght = ptet29[Num] ; break ;
 
   default : 
-    Msg::Error("Wrong number of Gauss Points for Tetrahedron");
-    Msg::Error("Valid choices: 1, 4, 5, 15, 16, 17, 29");
+    Message::Error("Wrong number of Gauss Points for Tetrahedron: "
+                   "valid choices: 1, 4, 5, 15, 16, 17, 29");
     break;
   }
 }
@@ -80,13 +80,13 @@ void  GaussLegendre_Tetrahedron(int Nbr_Points, int Num,
   nb = (int)pow((double)Nbr_Points, 1./3.);
 
   if(nb*nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
-    Msg::Error("Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
+    Message::Error("Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
 
   if(gltet[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) gltet[i] = 0 ;
 
   if(!gltet[nb-1]){
-    Msg::Info("Computing degenerate GaussLegendre %dX%dX%d for Tetrahedron", 
-	      nb, nb, nb);
+    Message::Info("Computing degenerate GaussLegendre %dX%dX%d for Tetrahedron", 
+                  nb, nb, nb);
     glxtet[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
     glytet[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
     glztet[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));

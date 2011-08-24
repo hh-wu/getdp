@@ -14,7 +14,7 @@
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Edge number in 'BF_Edge_2E'")
+#define WrongNumEntity   Message::Error("Wrong Edge number in 'BF_Edge_2E'")
 
 void BF_Edge_2E(struct Element * Element, int NumEntity, 
 		double u, double v, double w,  double s[])
@@ -38,7 +38,7 @@ void BF_Edge_2E(struct Element * Element, int NumEntity,
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_2E not ready for QUADRANGLE");
+    default : Message::Error("BF_Edge_2E not ready for QUADRANGLE");
     }
     break ;
 
@@ -56,24 +56,24 @@ void BF_Edge_2E(struct Element * Element, int NumEntity,
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_2E not ready for HEXAHEDRON");
+    default : Message::Error("BF_Edge_2E not ready for HEXAHEDRON");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_2E not ready for PRISM");
+    default : Message::Error("BF_Edge_2E not ready for PRISM");
     }
     break ;
 
   case PYRAMID :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_2E not ready for PYRAMID");
+    default : Message::Error("BF_Edge_2E not ready for PYRAMID");
     }
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_Edge_2E");
+    Message::Error("Unkown type of Element in BF_Edge_2E");
     break ;
   }
 }
@@ -84,12 +84,12 @@ void BF_Edge_2E(struct Element * Element, int NumEntity,
 /*  Faces  */
 /* ------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Face number in 'BF_Edge_2F'")
+#define WrongNumEntity   Message::Error("Wrong Face number in 'BF_Edge_2F'")
 
 void BF_Edge_2F(struct Element * Element, int NumEntity, 
 		double u, double v, double w,  double s[])
 {
-  Msg::Error("You should never end up here!") ;
+  Message::Error("You should never end up here!") ;
 }
 
 #undef WrongNumEntity
@@ -101,7 +101,7 @@ void BF_Edge_2F(struct Element * Element, int NumEntity,
 void BF_Edge_2V(struct Element * Element, int NumEntity, 
 		double u, double v, double w,  double s[])
 {
-  Msg::Error("You should never end up here!") ;
+  Message::Error("You should never end up here!") ;
 }
 
 /* ------------------------------------------------------------------------ */

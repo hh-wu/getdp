@@ -33,8 +33,8 @@ void Gauss_Hexahedron(int Nbr_Points, int Num,
     *wght = phex77[Num] ; break ;
 
   default : 
-    Msg::Error("Wrong number of Gauss points for Hexahedron");
-    Msg::Error("Valid choices: 6, 14, 34, 77");
+    Message::Error("Wrong number of Gauss points for Hexahedron: "
+                   "valid choices: 6, 14, 34, 77");
     break;
 
   }
@@ -55,12 +55,12 @@ void GaussLegendre_Hexahedron(int Nbr_Points, int Num,
   nb = (int)cbrt((double)Nbr_Points);
   
   if(nb * nb * nb != Nbr_Points || nb > MAX_LINE_POINTS)
-    Msg::Error("Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
+    Message::Error("Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
   
   if(glhex[0] < 0) for(i = 0; i < MAX_LINE_POINTS; i++) glhex[i] = 0 ;
     
   if(!glhex[nb - 1]){
-    Msg::Info("Computing GaussLegendre %dx%dx%d for Hexahedron", nb, nb, nb);
+    Message::Info("Computing GaussLegendre %dx%dx%d for Hexahedron", nb, nb, nb);
     glxhex[nb - 1] = (double*)Malloc(Nbr_Points * sizeof(double));
     glyhex[nb - 1] = (double*)Malloc(Nbr_Points * sizeof(double));
     glzhex[nb - 1] = (double*)Malloc(Nbr_Points * sizeof(double));

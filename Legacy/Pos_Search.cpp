@@ -133,7 +133,7 @@ int PointInElement (struct Element * Element,
   xyz2uvwInAnElement(Element, x, y, z, u, v, w);
 
   if(!PointInRefElement(Element, *u, *v, *w)){
-    /* Msg::Info("Point was in box, but not in actual element"); */
+    /* Message::Info("Point was in box, but not in actual element"); */
     return(0);
   }
 
@@ -236,7 +236,7 @@ void Init_SearchGrid(struct Grid * Grid)
     Grid->Xmax += 1. ; Grid->Ymax += 1. ; Grid->Zmax += 1. ;
   }
 
-  Msg::Info("Initializing rapid search grid...");
+  Message::Info("Initializing rapid search grid...");
 
   Grid->Bricks = List_Create(Grid->Nx * Grid->Ny * Grid->Nz, 10, sizeof(Brick));
   for(i = 0; i < Grid->Nx * Grid->Ny * Grid->Nz ; i++){
@@ -313,7 +313,7 @@ void Init_SearchGrid(struct Grid * Grid)
   }
 #endif
 
-  Msg::Info("...done: %dx%dx%d", Grid->Nx, Grid->Ny, Grid->Nz);
+  Message::Info("...done: %dx%dx%d", Grid->Nx, Grid->Ny, Grid->Nz);
 }
 
 void Free_SearchGrid(struct Grid * Grid)
@@ -390,7 +390,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
   }
   
   if (!(Brick_P = (struct Brick *)List_Pointer(Grid.Bricks, i)))
-    Msg::Error("Brick %d not found in Grid", i) ;
+    Message::Error("Brick %d not found in Grid", i) ;
 
   switch(Dim){
   case _1D  : lowdim = 0 ; highdim = 0 ; break;
@@ -405,7 +405,7 @@ void InWhichElement (struct Grid Grid, List_T *ExcludeRegion_L,
       Element->GeoElement = *(struct Geo_Element**)List_Pointer(Brick_P->p[dim], i) ;
       if (PointInElement(Element, ExcludeRegion_L, x, y, z, u, v, w, tol)) {
 	/*
-	Msg::Info("xyz(%g,%g,%g) -> Selected Element %d uvw(%g,%g,%g) (%g,%g,%g)->(%g,%g,%g)",
+	Message::Info("xyz(%g,%g,%g) -> Selected Element %d uvw(%g,%g,%g) (%g,%g,%g)->(%g,%g,%g)",
 	    x, y, z, Element->Num, *u, *v, *w, 
 	    Element->x[0], Element->y[0], Element->z[0],
 	    Element->x[1], Element->y[1], Element->z[1]);
@@ -449,7 +449,7 @@ void xyz2uvwInAnElement (struct Element *Element,
   else if(Element->Type & POINT)
     ChainDim = _0D;
   else
-    Msg::Error("Unknown type of element in xyz2uvwInAnElement");
+    Message::Error("Unknown type of element in xyz2uvwInAnElement");
   
   if (ChainDim == _1D && Current.GeoData->Dimension == _3D) 
     Type_Jacobian = JACOBIAN_LIN;
@@ -498,16 +498,16 @@ void xyz2uvwInAnElement (struct Element *Element,
       *w = w_new;
     }
     else{
-      Msg::Warning("Zero determinant in 'xyz2uvwInAnElement'") ;
+      Message::Warning("Zero determinant in 'xyz2uvwInAnElement'") ;
       break;
     }
   }
 
   if(iter == NR_MAX_ITER) 
-    Msg::Warning("Maximum number of iterations exceeded in xyz2uvwInAnElement") ;
+    Message::Warning("Maximum number of iterations exceeded in xyz2uvwInAnElement") ;
 
 #if 0
-  Msg::Info("%d iterations in xyz2uvw", iter);
+  Message::Info("%d iterations in xyz2uvw", iter);
 #endif
 
 }

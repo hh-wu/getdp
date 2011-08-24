@@ -78,7 +78,7 @@ double brent(double ax, double bx, double cx,
   while(status == GSL_CONTINUE && iter < MAXITER);
 
   if(status != GSL_SUCCESS)
-    Msg::Error("MIN1D not converged: f(%g) = %g", b, fn1(b, NULL));
+    Message::Error("MIN1D not converged: f(%g) = %g", b, fn1(b, NULL));
 
   *xmin = b;
   gsl_min_fminimizer_free(s);

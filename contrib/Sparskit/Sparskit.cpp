@@ -119,14 +119,14 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   int      TrueNnz=0;
 
   if (!M->N) {
-    Msg::Warning("No equations in linear system");
+    Message::Warning("No equations in linear system");
     return;
   }
   
   for(i=0 ; i<M->N ; i++){
     if(b[i] != 0.) break;
     if(i == M->N-1) {
-      Msg::Warning("Null right hand side in linear system");
+      Message::Warning("Null right hand side in linear system");
       /*
 	for(i=0 ; i<M->N ; i++)  x[i] = 0. ;    
 	return ;
@@ -138,7 +138,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
 
     if(p->Algorithm == LU){
 
-      Msg::Info("Dense LU decomposition");
+      Message::Info("Dense LU decomposition");
       print_matrix_info_DENSE(M->N);
 
       sol = (double*)Malloc(M->N * sizeof(double));
@@ -161,7 +161,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       return ;
     }
 
-    Msg::Info("Dense to sparse matrix conversion") ;
+    Message::Info("Dense to sparse matrix conversion") ;
 
     nnz = M->N * M->N ;
 
@@ -187,9 +187,9 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     }
 
     for (i=0 ; i<nnz ; i++) if (M->F.a[i]) TrueNnz++ ;
-    Msg::Info("Number of nonzeros %d/%d (%.4f)",TrueNnz, nnz, (double)TrueNnz/(double)nnz);
+    Message::Info("Number of nonzeros %d/%d (%.4f)",TrueNnz, nnz, (double)TrueNnz/(double)nnz);
 
-    Msg::Cpu("");
+    Message::Cpu("");
 
   } /* if DENSE */
   else{
@@ -209,17 +209,17 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   ja = (int*) M->S.ai->array; 
 
   if(p->Scaling != NONE){
-    Msg::Info("Scaling system of equations") ;
+    Message::Info("Scaling system of equations") ;
     scale_matrix (p->Scaling, M) ;
     scale_vector (ROW, M, b) ;    
   }
   else{
-    Msg::Info("No scaling of system of equations") ;
+    Message::Info("No scaling of system of equations") ;
   }
 
   for (i=1; i<M->N; i++) {
     if(ia[i]-ia[i-1] <= 0)
-      Msg::Error("Zero row in matrix");
+      Message::Error("Zero row in matrix");
   }
 
   rhs = (double*) Malloc(M->N * sizeof(double));
@@ -239,10 +239,10 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     } 
     switch (p->Renumbering_Technique){ 	
     case NONE:
-      Msg::Info("No renumbering");
+      Message::Info("No renumbering");
       break;	
     case RCMK: 
-      Msg::Info("RCMK algebraic renumbering");	
+      Message::Info("RCMK algebraic renumbering");	
       if(!M->ILU_Exists){
 	M->S.a_rcmk  = (double*) Malloc(nnz * sizeof(double));
 	M->S.ia_rcmk = (int*) Malloc((M->N + 1) * sizeof(int));
@@ -258,11 +258,11 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       Free(w); Free(mask); Free(levels);
       break; 	
     default :
-      Msg::Error("Unknown renumbering technique");
+      Message::Error("Unknown renumbering technique");
       break;
     }
     print_matrix_info_CSR(M->N, ia, ja);
-    Msg::Cpu("");
+    Message::Cpu("");
   }
   
   if(p->Renumbering_Technique == RCMK){
@@ -286,7 +286,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   
 
   if (p->Matrix_Printing == 1 || p->Matrix_Printing == 3) {
-    Msg::Info("Matrix printing");
+    Message::Info("Matrix printing");
     skit_(&M->N, a, ja, ia, &douze, &douze, &ierr); 
     pf = fopen("fort.13","w");
     for (i=0 ; i<M->N ; i++) fprintf(pf, "%d %22.15E\n", i+1, b[i]);
@@ -310,33 +310,33 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     
     switch (p->Preconditioner){
       
-    case ILUT  : Msg::Info("ILUT (%s, fill-in = %d)", ILUSTORAGE, p->Nb_Fill);
+    case ILUT  : Message::Info("ILUT (%s, fill-in = %d)", ILUSTORAGE, p->Nb_Fill);
       nnz_ilu = 2 * (M->N+1) * (p->Nb_Fill+1); break;
       
-    case ILUTP : Msg::Info("ILUTP (%s, fill-in = %d)", ILUSTORAGE, p->Nb_Fill);
+    case ILUTP : Message::Info("ILUTP (%s, fill-in = %d)", ILUSTORAGE, p->Nb_Fill);
       nnz_ilu = 2 * (M->N+1) * (p->Nb_Fill+1); break;
       
-    case ILUD  : Msg::Info("ILUD (%s)", ILUSTORAGE);    
+    case ILUD  : Message::Info("ILUD (%s)", ILUSTORAGE);    
       /* first guess */
       nnz_ilu = List_Nbr(M->S.a); break;
       
-    case ILUDP : Msg::Info("ILUDP (%s)", ILUSTORAGE);
+    case ILUDP : Message::Info("ILUDP (%s)", ILUSTORAGE);
       /* first guess */
       nnz_ilu = List_Nbr(M->S.a); break ;
       
-    case ILUK  : Msg::Info("ILU%d (%s)", p->Nb_Fill, ILUSTORAGE);    
+    case ILUK  : Message::Info("ILU%d (%s)", p->Nb_Fill, ILUSTORAGE);    
       /* exact for nbfill=0, first guess otherwise */
       nnz_ilu = (p->Nb_Fill+1) * List_Nbr(M->S.a) + (M->N+1);
       break;
       
-    case ILU0  : Msg::Info("ILU0 (%s)", ILUSTORAGE);    
+    case ILU0  : Message::Info("ILU0 (%s)", ILUSTORAGE);    
       nnz_ilu = List_Nbr(M->S.a) + (M->N+1); break;
       
-    case MILU0 : Msg::Info("MILU0 (%s)", ILUSTORAGE);    
+    case MILU0 : Message::Info("MILU0 (%s)", ILUSTORAGE);    
       nnz_ilu = List_Nbr(M->S.a) + (M->N+1); break;
       
     case DIAGONAL : 
-      Msg::Info("Diagonal scaling (%s)", ILUSTORAGE);
+      Message::Info("Diagonal scaling (%s)", ILUSTORAGE);
       M->S.alu = (scalar*) Malloc((M->N+1) * sizeof(scalar));
       M->S.jlu = (int*) Malloc((M->N+1) * sizeof(int));
       M->S.ju  = (int*) Malloc((M->N+1) * sizeof(int));
@@ -354,13 +354,13 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       break;
       
     case NONE  : 
-      Msg::Info("No ILU");
+      Message::Info("No ILU");
       end = 1;
       ierr = 0;
       break ;
 
     default :
-      Msg::Error("Unknown ILU method");
+      Message::Error("Unknown ILU method");
       break;
     }
     
@@ -430,25 +430,25 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     case  0 : 
       break;
     case -1 :
-      Msg::Error("Input matrix may be wrong");
+      Message::Error("Input matrix may be wrong");
       break;
     case -2 : /* Matrix L in ILU overflows work array 'al' */
     case -3 : /* Matrix U in ILU overflows work array 'alu' */
       nnz_ilu += nnz_ilu/2 ;
-      Msg::Info("Reallocating ILU (NZ: %d)", nnz_ilu);
+      Message::Info("Reallocating ILU (NZ: %d)", nnz_ilu);
       Free(M->S.alu) ;
       M->S.alu = (scalar*) Malloc(nnz_ilu * sizeof(scalar));
       Free(M->S.jlu) ;
       M->S.jlu = (int*) Malloc(nnz_ilu * sizeof(int));
       goto reallocate ;
     case -4 :
-      Msg::Error("Illegal value of nb_fill in ILU");
+      Message::Error("Illegal value of nb_fill in ILU");
       break;
     case -5 :
-      Msg::Error("Zero row encountered in ILU");
+      Message::Error("Zero row encountered in ILU");
       break;
     default :
-      Msg::Error("Zero pivot on line %d in ILU",ierr);
+      Message::Error("Zero pivot on line %d in ILU",ierr);
       break;
     }
     
@@ -456,11 +456,11 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       print_matrix_info_MSR(M->N, M->S.alu, M->S.jlu);
     
     if(p->Matrix_Printing == 2 || p->Matrix_Printing == 3){
-      Msg::Info("ILU printing");
+      Message::Info("ILU printing");
       psplot_(&M->N, M->S.jlu, M->S.jlu, &trente_et_un, &deux);      
     }      
   
-    Msg::Cpu("");
+    Message::Cpu("");
   
   }
   
@@ -484,29 +484,29 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   fpar[11] = 0.0;
   
   switch (p->Algorithm){      
-  case CG      : Msg::Info("Conjugate Gradient (CG)"); 
+  case CG      : Message::Info("Conjugate Gradient (CG)"); 
                  ipar[4] = 5 * M->N; break;
-  case CGNR    : Msg::Info("CG Normal Residual equation (CGNR)");
+  case CGNR    : Message::Info("CG Normal Residual equation (CGNR)");
                  ipar[4] = 5 * M->N; break;
-  case BCG     : Msg::Info("Bi-Conjugate Gradient (BCG)"); 
+  case BCG     : Message::Info("Bi-Conjugate Gradient (BCG)"); 
                  ipar[4] = 7 * M->N; break;
-  case DBCG    : Msg::Info("BCG with partial pivoting (DBCG)"); 
+  case DBCG    : Message::Info("BCG with partial pivoting (DBCG)"); 
                  ipar[4] = 11 * M->N; break;
-  case BCGSTAB : Msg::Info("BCG stabilized (BCGSTAB)");
+  case BCGSTAB : Message::Info("BCG stabilized (BCGSTAB)");
                  ipar[4] = 8 * M->N; break;
-  case TFQMR   : Msg::Info("Transpose-Free Quasi-Minimum Residual (TFQMR)"); 
+  case TFQMR   : Message::Info("Transpose-Free Quasi-Minimum Residual (TFQMR)"); 
                  ipar[4] = 11 * M->N; break;
-  case FOM     : Msg::Info("Full Orthogonalization Method (FOM)"); 
+  case FOM     : Message::Info("Full Orthogonalization Method (FOM)"); 
                  ipar[4] = (M->N+3) * (ipar[5]+2) + (ipar[5]+1) * ipar[5]/2; break;
-  case GMRES   : Msg::Info("Generalized Minimum RESidual (GMRES)");  
+  case GMRES   : Message::Info("Generalized Minimum RESidual (GMRES)");  
                  ipar[4] = (M->N+3) * (ipar[5]+2) + (ipar[5]+1) * ipar[5]/2; break;
-  case FGMRES  : Msg::Info("Flexible version of Generalized Minimum RESidual (FGMRES)"); 
+  case FGMRES  : Message::Info("Flexible version of Generalized Minimum RESidual (FGMRES)"); 
                  ipar[4] = 2*M->N * (ipar[5]+1) + (ipar[5]+1)*ipar[5]/2 + 3*ipar[5] + 2; break;
-  case DQGMRES : Msg::Info("Direct version of Quasi Generalize Minimum RESidual (DQGMRES)"); 
+  case DQGMRES : Message::Info("Direct version of Quasi Generalize Minimum RESidual (DQGMRES)"); 
                  ipar[4] = M->N + (ipar[5]+1) * (2*M->N+4); break;
-  case PGMRES  : Msg::Info("Alternative Generalized Minimum RESidual (GMRES)");
+  case PGMRES  : Message::Info("Alternative Generalized Minimum RESidual (GMRES)");
                  ipar[4] = (M->N+4) * (ipar[5]+2) + (ipar[5]+1) * ipar[5]/2; break;
-  default      : Msg::Error("Unknown algorithm for sparse matrix solver"); break;
+  default      : Message::Error("Unknown algorithm for sparse matrix solver"); break;
   }
   
   w = (double*) Malloc(ipar[4] * sizeof(double));
@@ -537,7 +537,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     if(!end){
       
       if(ipar[7] != its){
-	if(its) Msg::Info(" %4d  %.7e  %.7e", its, res, res/res1);
+	if(its) Message::Info(" %4d  %.7e  %.7e", its, res, res/res1);
 	its = ipar[7] ;
       }
       
@@ -556,15 +556,15 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       case 0 : 
 	end = 1; break;
       case -1 : 
-	Msg::Warning("Iterative solver has iterated too many times"); end = 1; break;
+	Message::Warning("Iterative solver has iterated too many times"); end = 1; break;
       case -2 : 
-	Msg::Warning("Iterative solver was not given enough work space");
-	Msg::Warning("The work space should at least have %d elements", ipar[4]);
+	Message::Warning("Iterative solver was not given enough work space");
+	Message::Warning("The work space should at least have %d elements", ipar[4]);
 	end = 1; break;
       case -3 : 
-	Msg::Warning("Iterative solver is facing a break-down"); end = 1; break;
+	Message::Warning("Iterative solver is facing a break-down"); end = 1; break;
       default : 
-	Msg::Warning("Iterative solver terminated (code = %d)", ipar[1]); end = 1; break;
+	Message::Warning("Iterative solver terminated (code = %d)", ipar[1]); end = 1; break;
       }
       
     }    
@@ -575,7 +575,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   
   /* Convergence results monitoring */
   
-  Msg::Info(" %4d  %.7e  %.7e", ipar[7], fpar[6], fpar[6]/res1);
+  Message::Info(" %4d  %.7e  %.7e", ipar[7], fpar[6], fpar[6]/res1);
   
   amux_(&M->N, sol, w, a, ja, ia);
   
@@ -586,9 +586,9 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   }      
   
  
-  Msg::Info("%d Iterations / Residual: %g", ipar[7], dnrm2_(&M->N,w,&un));
+  Message::Info("%d Iterations / Residual: %g", ipar[7], dnrm2_(&M->N,w,&un));
   /*
-  Msg::Info("Conv. Rate: %g, |Res|: %g, |Err|: %g", 
+  Message::Info("Conv. Rate: %g, |Res|: %g, |Err|: %g", 
             fpar[7], dnrm2_(&M->N,w,&un), dnrm2_(&M->N,&w[M->N],&un));
   */
   Free(w);
@@ -689,7 +689,7 @@ void init_matrix (int NbLines, Matrix *M, Solver_Params *p){
     M->F.a    = (double*) Malloc (NbLines * NbLines * sizeof(double));
     break;
   default :
-    Msg::Error("Unknown type of matrix storage format: %d", M->T);
+    Message::Error("Unknown type of matrix storage format: %d", M->T);
     break;
   }
 }
@@ -963,7 +963,7 @@ void scale_matrix (int scaling, Matrix *M){
 	  /* printf("  %d %e \n", i, rowscal[i] ); */
 	}
 	else {
-	  Msg::Warning("Diagonal scaling aborted because of zero diagonal element (%d)",i+1) ;
+	  Message::Warning("Diagonal scaling aborted because of zero diagonal element (%d)",i+1) ;
 	  Free (rowscal) ;
 	  return ;
 	}
@@ -988,7 +988,7 @@ void scale_matrix (int scaling, Matrix *M){
 	if (rowscal[i])
 	  rowscal[i] = 1./rowscal[i] ;
 	else {
-	  Msg::Warning("Scaling aborted because of zero row (%d)", i+1) ;
+	  Message::Warning("Scaling aborted because of zero row (%d)", i+1) ;
 	  Free (rowscal) ;
 	  return ;
 	}
@@ -1004,7 +1004,7 @@ void scale_matrix (int scaling, Matrix *M){
 	  /* printf("  %d %e %e \n", i, 1./rowscal[i], 1./colscal[i] ); */
 	}
 	else {
-	  Msg::Warning("Scaling aborted because of zero column (%d)", i+1) ;
+	  Message::Warning("Scaling aborted because of zero column (%d)", i+1) ;
 	  Free (colscal) ;
 	  return ;
 	}
@@ -1014,7 +1014,7 @@ void scale_matrix (int scaling, Matrix *M){
 
     default : 
 
-      Msg::Error("Unknown type of matrix scaling: %d", scaling);
+      Message::Error("Unknown type of matrix scaling: %d", scaling);
       break;
 
     }
@@ -1026,7 +1026,7 @@ void scale_matrix (int scaling, Matrix *M){
     break;
 
   case DENSE :
-    Msg::Warning("Scaling is not implemented for dense matrices") ;
+    Message::Warning("Scaling is not implemented for dense matrices") ;
     break;
   }
 
@@ -1044,7 +1044,7 @@ void scale_vector (int ROW_or_COLUMN, Matrix *M, double *V){
   case 1  : scal =  M->colscal ; break ;
   }
 
-  if (scal == NULL) Msg::Error("scale_vector : no scaling factors available !") ;
+  if (scal == NULL) Message::Error("scale_vector : no scaling factors available !") ;
 
   for (i = 0 ; i < M->N ; i++) V[i] *= scal[i] ; 
 }
@@ -1202,7 +1202,7 @@ void binary_write_matrix (Matrix *M, const char *name, const char *ext){
   char  filename[256];
 
   if(!M->N){
-    Msg::Warning("No elements in matrix");
+    Message::Warning("No elements in matrix");
     return;
   }
 
@@ -1263,7 +1263,7 @@ void formatted_write_matrix (FILE *pfile, Matrix *M, int style){
   double *a;
 
   if(!M->N){
-    Msg::Warning("No element in matrix");
+    Message::Warning("No element in matrix");
     return;
   }
 
@@ -1313,12 +1313,12 @@ void formatted_write_matrix (FILE *pfile, Matrix *M, int style){
       break;
     
     default : 
-      Msg::Error("Unknown print style for formatted matrix output");
+      Message::Error("Unknown print style for formatted matrix output");
     }
     break ;
     
   default :
-    Msg::Error("Unknown matrix format for formatted matrix output");
+    Message::Error("Unknown matrix format for formatted matrix output");
 
   }
 }
@@ -1348,7 +1348,7 @@ void binary_read_matrix (Matrix *M, const char *name , const char *ext){
   pfile = fopen(filename, "rb") ;
 
   if (pfile == NULL) {
-    Msg::Error("Error opening file '%s'", filename);    
+    Message::Error("Error opening file '%s'", filename);    
   }
   
   fscanf(pfile,"%d",&M->T);
@@ -1401,7 +1401,7 @@ void binary_read_vector (int Nb, double **V, const char *name, const char *ext){
   pfile = fopen(filename, "rb") ;
 
   if (pfile == NULL) {
-    Msg::Error("Error opening file %s", filename);
+    Message::Error("Error opening file %s", filename);
   }
 
   init_vector(Nb, V);
@@ -1422,7 +1422,7 @@ void formatted_read_matrix (Matrix *M, const char *name , const char *ext, int s
   pfile = fopen(filename, "r") ;
 
   if (pfile == NULL) {
-    Msg::Error("Error opening file  %s", filename);
+    Message::Error("Error opening file  %s", filename);
   }
   
   fscanf(pfile,"%d",&M->T);
@@ -1466,7 +1466,7 @@ void formatted_read_vector (int Nb, double *V, const char *name, const char *ext
   pfile = fopen(filename, "r") ;
 
   if (pfile == NULL) {
-    Msg::Error("Error opening file %s", filename);
+    Message::Error("Error opening file %s", filename);
   }
 
   for(i=0 ; i<Nb ; i++) fscanf(pfile, "%lf", &V[i]);
@@ -1498,7 +1498,7 @@ void print_matrix_info_CSR (int N, int *jptr, int *ai){
     if (n<m) n = m;
   }
 
-  Msg::Info("N: %d, NZ: %d, BW max/avg: %d/%d, SW max: %d", 
+  Message::Info("N: %d, NZ: %d, BW max/avg: %d/%d, SW max: %d", 
       N, j, l, (int)(j/N), n);
 }
 
@@ -1518,13 +1518,13 @@ void print_matrix_info_MSR (int N, scalar *a, int *jptr){
     if (n<m) n = m;
   }
 
-  Msg::Info("N: %d, NZ: %d, BW max/avg: %d/%d, SW max: %d", 
+  Message::Info("N: %d, NZ: %d, BW max/avg: %d/%d, SW max: %d", 
       N, j, l, (int)(j/N), n);
 
 }
 
 void print_matrix_info_DENSE (int N){
-  Msg::Info("N: %d", N);
+  Message::Info("N: %d", N);
 }
 
 
@@ -1883,14 +1883,14 @@ void init_solver (Solver_Params *p , const char *name){
     fprintf(file,"/*\n");
     Commentaires(file);
     fprintf(file,"*/\n\n");
-    Msg::Info("Parameter file not found");
-    Msg::Info("Enter parameter values:");
+    Message::Info("Parameter file not found");
+    Message::Info("Enter parameter values:");
     for(i=0;i<NbInfosSolver;i++){
       pI = &Tab_Params[i];
       switch(pI->typeinfo){
       case REEL :
       getfloat :
-	if(Msg::UseSocket())
+	if(Message::UseSocket())
 	  strcpy(buff, "\n");
 	else{
 	  printf("%25s (Real)    [<h>=help, <return>=%g]: ",pI->str,pI->defaultfloat);
@@ -1912,7 +1912,7 @@ void init_solver (Solver_Params *p , const char *name){
 	break;
       case ENTIER :
       getint :
-	if(Msg::UseSocket())
+	if(Message::UseSocket())
 	  strcpy(buff, "\n");
 	else{
 	  printf("%25s (Integer) [<h>=help, <return>=%d]: ",pI->str,pI->defaultint);
@@ -1947,7 +1947,7 @@ void init_solver (Solver_Params *p , const char *name){
 	if(buff[0] == '/' && buff[1] == '*'){
 	  while(1){
 	    if(feof(file)){
-	      Msg::Warning("End of comment not detected");
+	      Message::Warning("End of comment not detected");
 	      return;
 	    }
 	    if((getc(file)=='*')&&(getc(file)=='/')){
@@ -1956,7 +1956,7 @@ void init_solver (Solver_Params *p , const char *name){
 	  }
 	}
 	else{
-	  Msg::Warning("Unknown solver parameter '%s'", buff);
+	  Message::Warning("Unknown solver parameter '%s'", buff);
 	  fscanf(file,"%s",buff);
 	}
       }
@@ -1990,19 +1990,19 @@ void init_solver_option (Solver_Params *p , const char *name, const char *value)
       case REEL   : 
 	valf = atof(value);
 	(pI->action)(p,pI->defaultint,valf); 
-	Msg::Info("Overriding parameter '%s': %g", pI->str, valf);
+	Message::Info("Overriding parameter '%s': %g", pI->str, valf);
 	break;
       case ENTIER : 
 	vali = atoi(value);
 	(pI->action)(p,vali,pI->defaultfloat);
-	Msg::Info("Overriding parameter '%s': %d", pI->str, vali);
+	Message::Info("Overriding parameter '%s': %d", pI->str, vali);
 	break;
       }
       return;
     }    
   }
 
-  Msg::Error("Unknown solver parameter '%s'", name);
+  Message::Error("Unknown solver parameter '%s'", name);
 }
 
 
@@ -2107,7 +2107,7 @@ static void sort2(unsigned long n, double arr[], int ai[] , int aj []){
       aj[j M1]=c;
       jstack += 2;
       if (jstack > NSTACK) {
-	Msg::Error("NSTACK too small in sort2");
+	Message::Error("NSTACK too small in sort2");
       }
       if (ir-i+1 >= j-l) {
 	istack[jstack]=ir;

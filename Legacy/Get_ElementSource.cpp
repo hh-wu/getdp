@@ -28,7 +28,7 @@ void Get_InitElementSource(struct Element *Element, int InIndex)
   i_ElementSource = -1 ;
 
   if(InIndex<0){
-    Msg::Error("Missing support (Region Group) in Integral Quantity");
+    Message::Error("Missing support (Region Group) in Integral Quantity");
   }
   else{
     RegionSource_L = ((struct Group*)
@@ -84,8 +84,8 @@ void Get_ElementTrace(struct Element *Element, int InIndex)
   
   if(!(Pair_P = (struct TwoInt*)List_PQuery(Group_P->ExtendedList, 
 					    &Element->Num, fcmp_int)))
-    Msg::Error("No Element connected to Element %d: check Group for Trace", 
-	       Element->Num) ;
+    Message::Error("No Element connected to Element %d: check Group for Trace", 
+                   Element->Num) ;
 
   Element->ElementTrace = &ElementTrace ;
   Element->ElementTrace->GeoElement = Geo_GetGeoElement(Pair_P->Int2) ;
@@ -95,7 +95,7 @@ void Get_ElementTrace(struct Element *Element, int InIndex)
 
   Get_NodesCoordinatesOfElement(Element->ElementTrace) ;
 
-  Msg::Debug("Element %d -> Trace %d", Element->Num, Element->ElementTrace->Num);
+  Message::Debug("Element %d -> Trace %d", Element->Num, Element->ElementTrace->Num);
 }
 
 

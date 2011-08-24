@@ -634,18 +634,20 @@ SHELL'
 ac_subst_files=''
 ac_user_opts='
 enable_option_checking
-with_gsl_prefix
 with_blas_lapack_prefix
-with_petsc_prefix
+with_gmsh_prefix
+with_gsl_prefix
 with_petsc_arch
+with_petsc_prefix
 with_slepc_prefix
+enable_arpack
+enable_fortran
+enable_gmsh
+enable_gsl
 enable_petsc
 enable_slepc
 enable_sparskit
-enable_gsl
-enable_arpack
 enable_zitsol
-enable_fortran
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1280,22 +1282,24 @@ Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
+  --enable-arpack         enable built-in Arpack eigensolver (default=yes)
+  --enable-fortran        enable Fortran subroutines (default=yes)
+  --enable-gmsh           enable remeshing using Gmsh (default=yes)
+  --enable-gsl            use GSL as numerical toolkit (default=yes)
   --enable-petsc          use PETSc linear solvers (default=yes)
   --enable-slepc          use SLEPc eigensolvers (default=yes)
   --enable-sparskit       use Sperskit linear solvers (default=no)
-  --enable-gsl            use GSL as numerical toolkit (default=yes)
-  --enable-arpack         enable built-in Arpack eigensolver (default=yes)
   --enable-zitsol         enable support for ZITSOL (default=no)
-  --enable-fortran        enable Fortran subroutines (default=yes)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-gsl-prefix=PFX   prefix where GSL is installed
   --with-blas-lapack-prefix=PFX
                           prefix where BLAS and LAPACK are installed
-  --with-petsc-prefix=PFX prefix where PETSc is installed
+  --with-gmsh-prefix=PFX  prefix where Gmsh is installed
+  --with-gsl-prefix=PFX   prefix where GSL is installed
   --with-petsc-arch=ARCH  PETSc architecture
+  --with-petsc-prefix=PFX prefix where PETSc is installed
   --with-slepc-prefix=PFX prefix where SLEPc is installed
 
 Some influential environment variables:
@@ -2028,21 +2032,21 @@ ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
 
-# Check whether --with-gsl-prefix was given.
-if test "${with_gsl_prefix+set}" = set; then :
-  withval=$with_gsl_prefix; GSL_PREFIX=$withval
-fi
-
-
 # Check whether --with-blas-lapack-prefix was given.
 if test "${with_blas_lapack_prefix+set}" = set; then :
   withval=$with_blas_lapack_prefix; BLAS_LAPACK_PREFIX=$withval
 fi
 
 
-# Check whether --with-petsc-prefix was given.
-if test "${with_petsc_prefix+set}" = set; then :
-  withval=$with_petsc_prefix; PETSC_DIR=$withval
+# Check whether --with-gmsh-prefix was given.
+if test "${with_gmsh_prefix+set}" = set; then :
+  withval=$with_gmsh_prefix; SLEPC_DIR=$withval
+fi
+
+
+# Check whether --with-gsl-prefix was given.
+if test "${with_gsl_prefix+set}" = set; then :
+  withval=$with_gsl_prefix; GSL_PREFIX=$withval
 fi
 
 
@@ -2052,11 +2056,37 @@ if test "${with_petsc_arch+set}" = set; then :
 fi
 
 
+# Check whether --with-petsc-prefix was given.
+if test "${with_petsc_prefix+set}" = set; then :
+  withval=$with_petsc_prefix; PETSC_DIR=$withval
+fi
+
+
 # Check whether --with-slepc-prefix was given.
 if test "${with_slepc_prefix+set}" = set; then :
   withval=$with_slepc_prefix; SLEPC_DIR=$withval
 fi
 
+
+# Check whether --enable-arpack was given.
+if test "${enable_arpack+set}" = set; then :
+  enableval=$enable_arpack;
+fi
+
+# Check whether --enable-fortran was given.
+if test "${enable_fortran+set}" = set; then :
+  enableval=$enable_fortran;
+fi
+
+# Check whether --enable-gmsh was given.
+if test "${enable_gmsh+set}" = set; then :
+  enableval=$enable_gmsh;
+fi
+
+# Check whether --enable-gsl was given.
+if test "${enable_gsl+set}" = set; then :
+  enableval=$enable_gsl;
+fi
 
 # Check whether --enable-petsc was given.
 if test "${enable_petsc+set}" = set; then :
@@ -2073,24 +2103,9 @@ if test "${enable_sparskit+set}" = set; then :
   enableval=$enable_sparskit;
 fi
 
-# Check whether --enable-gsl was given.
-if test "${enable_gsl+set}" = set; then :
-  enableval=$enable_gsl;
-fi
-
-# Check whether --enable-arpack was given.
-if test "${enable_arpack+set}" = set; then :
-  enableval=$enable_arpack;
-fi
-
 # Check whether --enable-zitsol was given.
 if test "${enable_zitsol+set}" = set; then :
   enableval=$enable_zitsol;
-fi
-
-# Check whether --enable-fortran was given.
-if test "${enable_fortran+set}" = set; then :
-  enableval=$enable_fortran;
 fi
 
 
@@ -4459,6 +4474,60 @@ fi
       BO="${BO} Zitsol"
       GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
       GETDP_LIBS="${GETDP_LIBS} -lGetDPzitsol"
+    fi
+  fi
+fi
+
+if test "x$enable_gmsh" != "xno"; then
+  if test "x${GMSH_PREFIX}" != "x"; then
+    LDFLAGS="-L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib ${LDFLAGS}"
+  fi
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for main in -lGmsh" >&5
+$as_echo_n "checking for main in -lGmsh... " >&6; }
+if ${ac_cv_lib_Gmsh_main+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  ac_check_lib_save_LIBS=$LIBS
+LIBS="-lGmsh  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+
+int
+main ()
+{
+return main ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_cxx_try_link "$LINENO"; then :
+  ac_cv_lib_Gmsh_main=yes
+else
+  ac_cv_lib_Gmsh_main=no
+fi
+rm -f core conftest.err conftest.$ac_objext \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_Gmsh_main" >&5
+$as_echo "$ac_cv_lib_Gmsh_main" >&6; }
+if test "x$ac_cv_lib_Gmsh_main" = xyes; then :
+  GMSH="yes"
+else
+  GMSH="no"
+fi
+
+  if test "x${GMSH}" = "xyes"; then
+    $as_echo "#define HAVE_GMSH 1" >>confdefs.h
+
+    BO="${BO} Gmsh"
+    if test "x${GMSH_PREFIX}" = "x"; then
+      GETDP_LIBS="${GETDP_LIBS} -lGmsh"
+    else
+      GETDP_LIBS="${GETDP_LIBS} -L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib -lGmsh"
+      FLAGS="${FLAGS} -I${GMSH_PREFIX} -I${GMSH_PREFIX}/include"
+      FLAGS="${FLAGS} -I${GMSH_PREFIX}/gmsh -I${GMSH_PREFIX}/include/gmsh"
     fi
   fi
 fi

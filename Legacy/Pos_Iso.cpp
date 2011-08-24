@@ -177,7 +177,7 @@ void Cal_Iso(struct PostElement *PE, List_T *list,
     }
     break ;
   default :
-    Msg::Error("Iso computation not done for this type of element");
+    Message::Error("Iso computation not done for this type of element");
     break ;
   }
 }

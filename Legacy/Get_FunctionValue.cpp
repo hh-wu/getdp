@@ -35,7 +35,7 @@ int Get_ValueFromForm(int Form)
     return(VECTOR) ;
 
   default :
-    Msg::Error("Unknown Form type in 'Get_ValueFromForm'");
+    Message::Error("Unknown Form type in 'Get_ValueFromForm'");
     return(-1) ;
   }
 }
@@ -63,11 +63,11 @@ struct IntegrationCase * Get_IntegrationCase (struct Element * Element,
        List_Pointer(Problem_S.Expression, CriterionIndex),
        NULL, 0., 0., 0., &Criterion) ;
     if(Criterion.Val[0] < 0 || Criterion.Val[0] >= List_Nbr(IntegrationCase_L))
-      Msg::Error("Integration criterion out of range");
+      Message::Error("Integration criterion out of range");
   }
   else {
     if(List_Nbr(IntegrationCase_L) > 1)
-      Msg::Error("Missing integration criterion");
+      Message::Error("Missing integration criterion");
     Criterion.Val[0] = 0;
   }
 
@@ -210,7 +210,7 @@ void  Get_FunctionValue(int Nbr_Function,
     break ;
 
   default :
-    Msg::Error("Unknown operator in 'Get_FunctionValue'");
+    Message::Error("Unknown operator in 'Get_FunctionValue'");
     break;
   }
 }
@@ -283,7 +283,7 @@ void  Get_InitFunctionValue(int Type_Operator,
     break ;
 
   default :
-    Msg::Error("Unknown operator in 'Get_InitFunctionValue'");
+    Message::Error("Unknown operator in 'Get_InitFunctionValue'");
     break;
   }
 }

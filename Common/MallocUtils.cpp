@@ -16,7 +16,7 @@ void *Malloc(size_t size)
     return (NULL);
   ptr = malloc(size);
   if(ptr == NULL)
-    Msg::Fatal("Out of memory (buy some more RAM!)");
+    Message::Fatal("Out of memory (buy some more RAM!)");
   return (ptr);
 }
 
@@ -28,7 +28,7 @@ void *Calloc(size_t num, size_t size)
     return (NULL);
   ptr = calloc(num, size);
   if(ptr == NULL)
-    Msg::Fatal("Out of memory (buy some more RAM!)");
+    Message::Fatal("Out of memory (buy some more RAM!)");
   return (ptr);
 }
 
@@ -38,7 +38,7 @@ void *Realloc(void *ptr, size_t size)
     return (NULL);
   ptr = realloc(ptr, size);
   if(ptr == NULL)
-    Msg::Fatal("Out of memory (buy some more RAM!)");
+    Message::Fatal("Out of memory (buy some more RAM!)");
   return (ptr);
 }
 

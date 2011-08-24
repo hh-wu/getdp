@@ -27,6 +27,7 @@
 #include "SolvingAnalyse.h"
 #include "SolvingOperations.h"
 #include "MallocUtils.h"
+#include "OS.h"
 #include "Message.h"
 
 #define TWO_PI             6.2831853071795865
@@ -83,7 +84,7 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
     if(index >= 0){
       Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, index);
       if(Solution_P->SolutionExist){
-	Msg::Info("Freeing Solution %d", index);
+	Message::Info("Freeing Solution %d", index);
 	LinAlg_DestroyVector(&Solution_P->x);
 
 	if (Solution_P->TimeFunctionValues) Free(Solution_P->TimeFunctionValues) ;
@@ -146,13 +147,13 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
        number. Since GenerateSeparate[] is called outside the time
        loop (i.e. before TimeStep+=1), the List_PQuery may return (in
        an unpredictable way) any of the initial solutions. */
-    Msg::Error("Incompatible time") ;
+    Message::Error("Incompatible time") ;
   }
 
   if(Flag_Separate){
     for(i=0 ; i<List_Nbr(DofData_P->TimeFunctionIndex) ; i++)
       if(*(int*)List_Pointer(DofData_P->TimeFunctionIndex, i) > 0)
-	Msg::Warning("Ignored TimeFunction in Constraint for GenerateSeparate") ;
+	Message::Warning("Ignored TimeFunction in Constraint for GenerateSeparate") ;
     for(i=0 ; i<List_Nbr(Problem_S.Expression) ; i++){
       DofData_P->CurrentSolution->TimeFunctionValues[i] = 1. ;
     }
@@ -177,7 +178,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       for(i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
 	List_Read( DofData_P->OnlyTheseMatrices,i,&iMat);
 	if(iMat){
-	  //Msg::Info("Setting System {A%d,b%d} to zero",iMat,iMat);
+	  //Message::Info("Setting System {A%d,b%d} to zero",iMat,iMat);
 	  switch(iMat){
 	  case 1 :
 	    LinAlg_ZeroMatrix(&Current.DofData->A1) ;
@@ -231,7 +232,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     LinAlg_AssembleMatrix(&DofData_P->A) ;
     LinAlg_AssembleVector(&DofData_P->b) ;
     LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-    if(!i) Msg::Warning("Generated system is of dimension zero");
+    if(!i) Message::Warning("Generated system is of dimension zero");
   
     if(DofData_P->Flag_Only){
       for(i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
@@ -293,7 +294,7 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
   LinAlg_AssembleMatrix(&DofData_P->A) ;
   LinAlg_AssembleVector(&DofData_P->b) ;
   LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-  if(!i) Msg::Warning("ReGenerated system is of dimension zero");
+  if(!i) Message::Warning("ReGenerated system is of dimension zero");
 
 
   if(Flag_Jac){ /* This should in fact only be done if a JacNL term
@@ -311,7 +312,7 @@ void Generate_Residual(gVector *x, gVector *f)
   //int Flag_Jac = 1 ;
   int Flag_Jac = 0 ;
 
-  Msg::Info("Generating Residual = A(x)x-b");
+  Message::Info("Generating Residual = A(x)x-b");
 
   DofData_P  = Current.DofData ;
   DofData_P0 = Current.DofData_P0;
@@ -337,7 +338,7 @@ void Generate_FullJacobian(gVector *x, gMatrix *Jac)
   struct DofData * DofData_P0 ;
   int Flag_Jac = 1 ;
 
-  Msg::Info("Generating Full Jacobian = A(x) + DofData_P->Jac");
+  Message::Info("Generating Full Jacobian = A(x) + DofData_P->Jac");
 
   DofData_P  = Current.DofData ;
   DofData_P0 = Current.DofData_P0;
@@ -371,8 +372,8 @@ void Cal_ThetaCoefficients(double *coef)
 void Cal_ThetaMatrix(int *init, double *coef, 
 		     gMatrix *M1, gMatrix *M2, gMatrix *A)
 {
-  Msg::Info("Generate Theta Iteration Matrix (Theta=%g, DTime=%g)",
-	    Current.Theta, Current.DTime) ;
+  Message::Info("Generate Theta Iteration Matrix (Theta=%g, DTime=%g)",
+                Current.Theta, Current.DTime) ;
 
   LinAlg_ZeroMatrix(A);
 
@@ -426,8 +427,8 @@ void Cal_NewmarkCoefficients(double *coef)
 void Cal_NewmarkMatrix(int *init, double *coef, 
 		       gMatrix *M1, gMatrix *M2, gMatrix *M3, gMatrix *A)
 {
-  Msg::Info("Generate Newmark Iteration Matrix (Beta=%g, Gamma=%g, DTime=%g)",
-	    Current.Beta, Current.Gamma, Current.DTime) ;
+  Message::Info("Generate Newmark Iteration Matrix (Beta=%g, Gamma=%g, DTime=%g)",
+                Current.Beta, Current.Gamma, Current.DTime) ;
 
   LinAlg_ZeroMatrix(A);
 
@@ -507,7 +508,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
   static  double Save_Num, Save_DTime, Save_Theta, Save_Beta, Save_Gamma ;
 
   if (!DofData_P->Solutions)
-    Msg::Error("No initialized solution available for update") ;
+    Message::Error("No initialized solution available for update") ;
 
   i_TimeStep = (int)Current.TimeStep ;
   if (!(Solution_P = (struct Solution*)
@@ -530,14 +531,14 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 
   }
   else if (Solution_P != DofData_P->CurrentSolution) {
-    Msg::Error("Incompatible time") ;
+    Message::Error("Incompatible time") ;
   }
   
   switch (Current.TypeTime) {
   case TIME_THETA :
 
     if(!DofData_P->Flag_Init[1] && !DofData_P->Flag_Init[2])
-      Msg::Error("No system available for Update") ;
+      Message::Error("No system available for Update") ;
 
     if(!Init_Update){
       Init_Update = 1;
@@ -584,7 +585,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
   case TIME_NEWMARK :
 
     if(!DofData_P->Flag_Init[1] && !DofData_P->Flag_Init[2] && !DofData_P->Flag_Init[3])
-      Msg::Error("No system available for Update") ;
+      Message::Error("No system available for Update") ;
 
     if(!Init_Update){
       Init_Update = 1;
@@ -632,11 +633,11 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
     break ;
 
   default :
-    Msg::Error("Wrong type of analysis for update") ;
+    Message::Error("Wrong type of analysis for update") ;
   }
 
   LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-  if(!i) Msg::Error("Generated system is of dimension zero");
+  if(!i) Message::Error("Generated system is of dimension zero");
 
   Free_UnusedSolutions(DofData_P);
 }
@@ -663,7 +664,7 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
     List_Read(DefineSystem_P->FormulationIndex, k, &Index_Formulation) ;
     Formulation_P = (struct Formulation*)
       List_Pointer(Problem_S.Formulation, Index_Formulation) ;
-    Msg::Info("UpdateConstraint: Treatment Formulation '%s'", Formulation_P->Name) ;
+    Message::Info("UpdateConstraint: Treatment Formulation '%s'", Formulation_P->Name) ;
 
     Init_DofDataInDefineQuantity(DefineSystem_P, DofData_P0, Formulation_P) ;
     Treatment_Formulation(Formulation_P) ;
@@ -774,8 +775,8 @@ void Cal_SolutionErrorX(int Nbr, double * xNew, double * x, double * MeanError)
   double errsqr = 0., xmoy = 0., dxmoy = 0., tol ;
 
   if(gSCALAR_SIZE == 2)
-    Msg::Error("FIXME: Cal_SolutionErrorX might return strange results"
-	" in complex arithmetic");
+    Message::Error("FIXME: Cal_SolutionErrorX might return strange results"
+                   " in complex arithmetic");
 
   for (i = 0 ; i < Nbr ; i++) {
     xmoy  += fabs( x[i])/(double)Nbr ;
@@ -826,8 +827,8 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
   double  Save_Time ;
 
   if(gSCALAR_SIZE == 2)
-    Msg::Error("FIXME: Cal_CompareGlobalQuantity might return strange results"
-	" in complex arithmetic");
+    Message::Error("FIXME: Cal_CompareGlobalQuantity might return strange results"
+                   " in complex arithmetic");
 
   /* test */
   v_k  = 1./27.2836 ;  v_ke = 18.518519 ;
@@ -1041,7 +1042,7 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 
 	case CHANGEOFSTATE_CHANGEREFERENCE :
 	  if (Nbr_Region != 1)
-	    Msg::Error("More than 1 Region for ChangeReference not done yet") ;
+	    Message::Error("More than 1 Region for ChangeReference not done yet") ;
 	  for (i = 0 ; i < Nbr_Region ; i++) {
 	    if (fabs(val1[i] - val0[i]) >
 		fabs(ChangeOfState_P->Criterion) *
@@ -1056,7 +1057,7 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 
 	case CHANGEOFSTATE_CHANGEREFERENCE2 :
 	  if (Nbr_Region != 1)
-	    Msg::Error("More than 1 Region for ChangeReference2 not done yet") ;
+	    Message::Error("More than 1 Region for ChangeReference2 not done yet") ;
 	  for (i = 0 ; i < Nbr_Region ; i++) {
 	    *FlagIndex = ChangeOfState_P->FlagIndex ;
 	    if (val1[i] > val0[i])  *FlagIndex *= -1 ;
@@ -1091,22 +1092,22 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
       (Type_Analyse == COMPARE_CONVERGENCE)) {
     if (Flag_First) {
       for (i = 0 ; i < Nbr_Region ; i++) {
-	List_Read(Region_L, i, &Num_Region) ; Msg::Debug(" %10d",Num_Region) ;
+	List_Read(Region_L, i, &Num_Region) ; Message::Debug(" %10d",Num_Region) ;
       }
-      for (i = 0 ; i < Nbr_Region ; i++)  Msg::Debug(" %.8g", val0[i]) ;
+      for (i = 0 ; i < Nbr_Region ; i++)  Message::Debug(" %.8g", val0[i]) ;
     }
-    for (i = 0 ; i < Nbr_Region ; i++)  Msg::Debug(" %.8g", val1[i]) ;
-    Msg::Debug(" t = %.16g, dt = %.16g", Current.Time, Current.DTime) ;
+    for (i = 0 ; i < Nbr_Region ; i++)  Message::Debug(" %.8g", val1[i]) ;
+    Message::Debug(" t = %.16g, dt = %.16g", Current.Time, Current.DTime) ;
     if      (*Type_ChangeOfState == CHANGEOFSTATE_CHANGESIGN)
-      Msg::Debug(" *Sign") ;
+      Message::Debug(" *Sign") ;
     else if (*Type_ChangeOfState == CHANGEOFSTATE_CHANGELEVEL)
-      Msg::Debug(" *Level") ;
+      Message::Debug(" *Level") ;
     else if (*Type_ChangeOfState == CHANGEOFSTATE_CHANGEREFERENCE)
-      Msg::Debug(" *Ref (%g %g)",
+      Message::Debug(" *Ref (%g %g)",
 	  val0[0]-fabs(ChangeOfState_P->Criterion),
 	  val0[0]+fabs(ChangeOfState_P->Criterion)) ;
     else if (*Type_ChangeOfState == CHANGEOFSTATE_CHANGEREFERENCE2)
-      Msg::Debug(" *Ref2 (%g)", val0[0]) ;
+      Message::Debug(" *Ref2 (%g)", val0[0]) ;
   }
 }
 
@@ -1136,8 +1137,8 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
   Flag_TimeLimLo = TIMELO_OLD ;
   Time_LimitLo = Time_Previous ;  DTime_LimitLo = Current.DTime ;
 
-  Msg::Debug("T I M E   %g (TS #%d, DT %g, Theta %g)",
-	     Current.Time, (int)Current.TimeStep, Current.DTime, Current.Theta) ;
+  Message::Debug("T I M E   %g (TS #%d, DT %g, Theta %g)",
+                 Current.Time, (int)Current.TimeStep, Current.DTime, Current.Theta) ;
 
   Current.SubTimeStep = 0 ;
   Treatment_Operation(Resolution_P,
@@ -1198,8 +1199,8 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 	if (Flag_TimeLimLo == TIMELO_NEW) {
 	  /* Recalcul en Time_LimitLo */
 	  /* Attention: a changer... plutot recuperer solution en Time_LimitLo... */
-	  Msg::Debug("==> Re-calculation at Time_LimitLo ... (%.16g)",
-		     Time_LimitLo) ;
+	  Message::Debug("==> Re-calculation at Time_LimitLo ... (%.16g)",
+                         Time_LimitLo) ;
 	  Current.Time  = Time_LimitLo ;  Current.DTime = DTime_LimitLo ;
 	  Current.SubTimeStep++ ;
 
@@ -1235,7 +1236,7 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 	    Expression_P->Case.Constant =
 	    (double)(!((int)Expression_P->Case.Constant)) ;
 	  */
-	  Msg::Debug("===> Flag -> %g", Expression_P->Case.Constant) ;
+	  Message::Debug("===> Flag -> %g", Expression_P->Case.Constant) ;
 	}
 
 	if (Operation_P->Case.IterativeTimeReduction.Flag)
@@ -1246,7 +1247,7 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 	Current.DTime = Time_LimitHi - Time_LimitLo ;
 	Current.SubTimeStep++ ;
 
-	Msg::Debug("==> iterations for TimeHi ...") ;
+	Message::Debug("==> iterations for TimeHi ...") ;
 
 	i = 0 ;
 	do {
@@ -1268,7 +1269,7 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 	  (Operation_P, 999, &Type_ChangeOfState, &FlagIndex, 1) ;
 
 	if (Operation_P->Case.IterativeTimeReduction.Flag) { /* Attention: Test */
-	  Msg::Debug("=====> Theta = %g -> 1.", Current.Theta) ;
+	  Message::Debug("=====> Theta = %g -> 1.", Current.Theta) ;
 	  Flag_NextThetaFixed = 1 ;
 	  Current.Theta = 1. ;
 	  if (Operation_P->Case.IterativeTimeReduction.Flag > 0) {
@@ -1331,7 +1332,7 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 		 Operation_P->Case.ChangeOfCoordinates.GroupIndex) ;
   if (!Group_P->ExtendedList)  Generate_ExtendedGroup(Group_P) ;
   if (Group_P->FunctionType != NODESOF)
-    Msg::Error("ChangeOfCoordinates: Group must be of NodesOf function type") ; 
+    Message::Error("ChangeOfCoordinates: Group must be of NodesOf function type") ; 
 
   Nbr_Node = List_Nbr(Group_P->ExtendedList) ;
 
@@ -1367,7 +1368,7 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 	   NULL, 0., 0., 0., &Value2) ;
 	printf("before x %e  y %e  z %e  ||| after x %e  y %e  z %e\n",
 	       x, y, z, Value.Val[0], Value.Val[1], Value.Val[2]);
-	Msg::Info("  before %e  after %e", Value1.Val[0], Value2.Val[0]) ;
+	Message::Info("  before %e  after %e", Value1.Val[0], Value2.Val[0]) ;
       }
 
       Geo_SetNodesCoordinates(1, &Num_Node,
@@ -1402,16 +1403,16 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
 					  Operation_P->DefineSystemIndex) ;
 
   if( List_Nbr(DS->FormulationIndex) > 1 )
-    Msg::Error("DeformeMesh: Only one formulation must be associated to the system %s", 
-	DS->Name) ;
+    Message::Error("DeformeMesh: Only one formulation must be associated to the system %s", 
+                   DS->Name) ;
   
   FO = (struct Formulation *) List_Pointer(Problem_S.Formulation,
 					   *((int *)List_Pointer(DS->FormulationIndex, 0))) ;
   
   if((i = List_ISearchSeq(FO->DefineQuantity, Operation_P->Case.DeformeMesh.Quantity,
 			  fcmp_DefineQuantity_Name)) < 0)
-    Msg::Error("Unknown Quantity '%s' in Formulation %s",
-	       Operation_P->Case.DeformeMesh.Quantity, FO->Name ) ;
+    Message::Error("Unknown Quantity '%s' in Formulation %s",
+                   Operation_P->Case.DeformeMesh.Quantity, FO->Name ) ;
   DQ_P = (struct DefineQuantity *) List_Pointer(FO->DefineQuantity, i) ;
 
   
@@ -1512,8 +1513,8 @@ void  Init_OperationOnSystem(const char          * Name,
       if ((i = List_ISearchSeq(Resolution2_P->DefineSystem, 
 			       (*DefineSystem_P)->DestinationSystemName,
 			       fcmp_DefineSystem_Name)) < 0)
-	Msg::Error("Unknown DestinationSystem (%s) in System (%s)", 
-	    (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
+	Message::Error("Unknown DestinationSystem (%s) in System (%s)", 
+                       (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
       (*DefineSystem_P)->DestinationSystemIndex = i ;      
       Dof_DefineUnknownDofFromSolveOrInitDof(DofData_P) ;
     }
@@ -1521,15 +1522,15 @@ void  Init_OperationOnSystem(const char          * Name,
       if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
 			       (*DefineSystem_P)->DestinationSystemName,
 			       fcmp_DefineSystem_Name)) < 0)
-	Msg::Error("Unknown DestinationSystem (%s) in System (%s)", 
-	    (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
+	Message::Error("Unknown DestinationSystem (%s) in System (%s)", 
+                       (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
       (*DefineSystem_P)->DestinationSystemIndex = i ;      
     }
   }
   
-  Msg::Info("%s[%s]",
-	    Name?Name:Get_StringForDefine(Operation_Type, Operation_P->Type),
-	    (*DefineSystem_P)->Name) ;
+  Message::Info("%s[%s]",
+                Name?Name:Get_StringForDefine(Operation_Type, Operation_P->Type),
+                (*DefineSystem_P)->Name) ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1550,7 +1551,7 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
 
   if(DofData_P->Flag_InitOnly[0]==1){
     DofData_P->Flag_InitOnly[0] = 2;    
-    Msg::Info("Initializing System {A1,b1}");
+    Message::Info("Initializing System {A1,b1}");
     LinAlg_CreateMatrix(&DofData_P->A1, &DofData_P->Solver,
 			DofData_P->NbrDof, DofData_P->NbrDof) ;
     LinAlg_CreateVector(&DofData_P->b1, &DofData_P->Solver, DofData_P->NbrDof) ;
@@ -1558,7 +1559,7 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
   
   if(DofData_P->Flag_InitOnly[1]==1){
     DofData_P->Flag_InitOnly[1] = 2;    
-    Msg::Info("Initializing System {A2,b2}");
+    Message::Info("Initializing System {A2,b2}");
     LinAlg_CreateMatrix(&DofData_P->A2, &DofData_P->Solver,
 			DofData_P->NbrDof, DofData_P->NbrDof) ;
     LinAlg_CreateVector(&DofData_P->b2, &DofData_P->Solver, DofData_P->NbrDof) ;
@@ -1566,7 +1567,7 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
   
   if(DofData_P->Flag_InitOnly[2]==1){
     DofData_P->Flag_InitOnly[2] = 2;       
-    Msg::Info("Initializing System {A2,b2}");
+    Message::Info("Initializing System {A2,b2}");
     LinAlg_CreateMatrix(&DofData_P->A3, &DofData_P->Solver,
 			DofData_P->NbrDof, DofData_P->NbrDof) ;
     LinAlg_CreateVector(&DofData_P->b3, &DofData_P->Solver, DofData_P->NbrDof) ;
@@ -1663,7 +1664,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_SYSTEMCOMMAND :
-      system(Operation_P->Case.SystemCommand.String);
+      //system(Operation_P->Case.SystemCommand.String);
+      BlockingSystemCall(Operation_P->Case.SystemCommand.String);
       break ;
 
       /*  -->  G e n e r a t e                        */
@@ -1774,7 +1776,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
       if (!Operation_P->Case.SelectCorrection.Iteration) {
 	/* Full solution to be considered again */
-	Msg::Info("  Full solution to be considered again");
+	Message::Info("  Full solution to be considered again");
 	if (DofData_P->CorrectionSolutions.Flag) {
 	  DofData_P->CorrectionSolutions.Flag = 0;
 	  DofData_P->Solutions = DofData_P->CorrectionSolutions.Save_FullSolutions ;
@@ -1782,8 +1784,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	    = DofData_P->CorrectionSolutions.Save_CurrentFullSolution ;
 	}
 	else {
-	  Msg::Error("SelectCorrection: DofData #%d already selected as a full solution",
-	      DofData_P->Num);
+	  Message::Error("SelectCorrection: DofData #%d already selected as a full solution",
+                         DofData_P->Num);
 	}
 
       }
@@ -1818,8 +1820,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  }
 	}
 	else {
-	  Msg::Error("SelectCorrection: DofData #%d already selected as a correction",
-	      DofData_P->Num);
+	  Message::Error("SelectCorrection: DofData #%d already selected as a correction",
+                         DofData_P->Num);
 	}
       }
 
@@ -1858,8 +1860,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  (&DofData_P->CurrentSolution->x,
 	   &DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x, 
 	   0, &MeanError) ;
-	Msg::Info("Mean error: %.3e  (after %d iteration%s)", 
-		  MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
+	Message::Info("Mean error: %.3e  (after %d iteration%s)", 
+                      MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
 
 	Current.RelativeDifference += 
 	  MeanError * Operation_P->Case.AddCorrection.Alpha ;
@@ -1872,8 +1874,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       }
       else {
-	  Msg::Error("AddCorrection: DofData #%d is not selected as a correction",
-	      DofData_P->Num);
+	  Message::Error("AddCorrection: DofData #%d is not selected as a correction",
+                         DofData_P->Num);
       }
 
       break ;
@@ -1914,8 +1916,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
       }
       else {
-	  Msg::Error("InitCorrection: DofData #%d is not selected as a correction",
-	      DofData_P->Num);
+	  Message::Error("InitCorrection: DofData #%d is not selected as a correction",
+                         DofData_P->Num);
       }
 
       break ;
@@ -1995,7 +1997,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       printf("Flag_Jac = %d \n", Flag_Jac) ;
       if(DofData_P->Flag_Init[0] < 2)
-	Msg::Error("Jacobian system not initialized (missing GenerateJac?)");
+	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
       
       if (DofData_P->Flag_Only){
 	if(DofData_P->Flag_InitOnly[0]){
@@ -2040,7 +2042,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(DofData_P->Flag_Init[0] < 2)
-	Msg::Error("Jacobian system not initialized (missing GenerateJac?)");
+	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
       
       if (DofData_P->Flag_Only){
 	if(DofData_P->Flag_InitOnly[0]){
@@ -2076,8 +2078,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       
       Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
       //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
-      Msg::Info("Mean error: %.3e  (after %d iteration%s)", 
-		MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
+      Message::Info("Mean error: %.3e  (after %d iteration%s)", 
+                    MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
 
       Current.RelativeDifference += MeanError ;
      
@@ -2090,10 +2092,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         else {
           RelFactor_Modified = Current.RelaxationFactor /
             (MeanError / Current.RelativeDifferenceOld) ;
-	  Msg::Info("RelFactor modified = %g", RelFactor_Modified) ;
+	  Message::Info("RelFactor modified = %g", RelFactor_Modified) ;
           LinAlg_ProdVectorDouble(&DofData_P->dx, RelFactor_Modified, &DofData_P->dx) ;
           Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
-	  Msg::Info("Mean error: %.3e", MeanError) ;
+	  Message::Info("Mean error: %.3e", MeanError) ;
         }
       }
     
@@ -2114,7 +2116,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(DofData_P->Flag_Init[0] < 2)
-	Msg::Error("Jacobian system not initialized (missing GenerateJac?)");
+	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
 
       LinAlg_AddMatrixMatrix(&DofData_P->Jac, &DofData_P->A, &DofData_P->Jac) ;
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
@@ -2124,7 +2126,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       LinAlg_Solve(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
-      Msg::Cpu("");
+      Message::Cpu("");
       
       /* save CurrentSolution */
       LinAlg_CreateVector(&x_Save, &DofData_P->Solver, DofData_P->NbrDof) ;
@@ -2136,7 +2138,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Error_Prev = 1e99 ;  Frelax_Opt = 1. ;
 
       if (!(NbrSteps_relax = List_Nbr(Operation_P->Case.SolveJac_AdaptRelax.Factor_L)))
-	  Msg::Error("No factors provided for Adaptive Relaxation");
+	  Message::Error("No factors provided for Adaptive Relaxation");
 
       for( istep = 0 ; istep < NbrSteps_relax ; istep++ ){  
 		
@@ -2157,7 +2159,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
 	LinAlg_GetVectorSize(&DofData_P->res, &N);
 	Norm /= (double)N;
-	Msg::Info(" adaptive relaxation : factor = %8f   Norm residual = %10.4e", Frelax, Norm) ;
+	Message::Info(" adaptive relaxation : factor = %8f   Norm residual = %10.4e", Frelax, Norm) ;
 
 	if (Norm < Error_Prev) {
 	  Error_Prev = Norm;
@@ -2166,7 +2168,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       }
 
-      Msg::Info(" => optimal relaxation factor = %f", Frelax_Opt) ;
+      Message::Info(" => optimal relaxation factor = %f", Frelax_Opt) ;
 
       /*  solution = x + Frelax_Opt * dx */
       LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
@@ -2174,8 +2176,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 				       Frelax_Opt, &DofData_P->CurrentSolution->x);
 
       MeanError = Error_Prev ; 
-      Msg::Info("Mean error: %.3e  (after %d iteration%s)", 
-		MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
+      Message::Info("Mean error: %.3e  (after %d iteration%s)", 
+                    MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
 
       Current.RelativeDifference = MeanError;
       Flag_CPU = 1 ;
@@ -2249,7 +2251,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if(Flag_RESTART){
         if (!DofData_P->Solutions)
-          Msg::Error("No solution to restart the computation");
+          Message::Error("No solution to restart the computation");
 
         for(i = 0 ; i < DofData_P->NbrAnyDof ; i++){
           Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
@@ -2372,7 +2374,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	DofData_P->CurrentSolution = (struct Solution*)
 	  List_Pointer(DofData_P->Solutions, i) ;
 	if (!DofData_P->CurrentSolution->SolutionExist)
-	  Msg::Warning("Solution #%d doesn't exist anymore: skipping", i) ;
+	  Message::Warning("Solution #%d doesn't exist anymore: skipping", i) ;
 	else
 	  Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, 
 			   DofData_P->CurrentSolution->Time, 
@@ -2402,7 +2404,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(gSCALAR_SIZE == 2)
-	Msg::Error("FIXME: Generate_MH_Moving will not work in complex arithmetic");
+	Message::Error("FIXME: Generate_MH_Moving will not work in complex arithmetic");
       
       Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
@@ -2414,7 +2416,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	MH_Moving_Matrix[k] = (double *) Malloc(Current.NbrHar*sizeof(double)) ;
 
       if (! (Val_Pulsation = Current.DofData->Val_Pulsation))
-	Msg::Error("Generate_MH_moving can only be used for harmonic problems");
+	Message::Error("Generate_MH_moving can only be used for harmonic problems");
 
       for (k = 0 ; k < Current.NbrHar ; k++)
 	for (l = 0 ; l < Current.NbrHar ; l++) 
@@ -2430,9 +2432,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Operation_P->Case.Generate_MH_Moving.Period ;
 	Current.TimeStep = iTime;
 
-	Msg::Info("Generate_MH_Moving : Step %d/%d (Time = %e  DTime %e)", 
-	    (int)(Current.TimeStep+1), Operation_P->Case.Generate_MH_Moving.NbrStep, 
-	    Current.Time, Current.DTime) ;
+	Message::Info("Generate_MH_Moving : Step %d/%d (Time = %e  DTime %e)", 
+                      (int)(Current.TimeStep+1), Operation_P->Case.Generate_MH_Moving.NbrStep, 
+                      Current.Time, Current.DTime) ;
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.Generate_MH_Moving.Operation, 
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
@@ -2471,7 +2473,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Generate_Group = NULL;
 
-      Msg::Cpu("");
+      Message::Cpu("");
       break ;
 
     case OPERATION_GENERATE_MH_MOVING_S :
@@ -2489,7 +2491,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	MH_Moving_Matrix[k] = (double *) Malloc(Current.NbrHar*sizeof(double)) ;
 
       if (! (Val_Pulsation = Current.DofData->Val_Pulsation))
-	Msg::Error("Generate_MH_moving can only be used for harmonic problems");
+	Message::Error("Generate_MH_moving can only be used for harmonic problems");
 
       for (k = 0 ; k < Current.NbrHar ; k++)
 	for (l = 0 ; l < Current.NbrHar ; l++) 
@@ -2507,7 +2509,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Current.TimeStep = iTime;
 
 	if (!iTime) {
-	  Msg::Info("Generate_MH_Moving_Separate : probing for any degrees of freedom"); 
+	  Message::Info("Generate_MH_Moving_Separate : probing for any degrees of freedom"); 
 	  DofTree_MH_moving = Tree_Create(sizeof(struct Dof), fcmp_Dof) ;	
 
 	  /* probing assembly */
@@ -2524,25 +2526,25 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Tree_Delete(DofTree_MH_moving) ;	
 
 	  NbrDof_MH_moving = List_Nbr(DofList_MH_moving) ;
-	  Msg::Info("Generate_MH_Moving :  NbrDof = %d", NbrDof_MH_moving);
+	  Message::Info("Generate_MH_Moving :  NbrDof = %d", NbrDof_MH_moving);
 
 	  Dof_MH_moving = (struct Dof **)Malloc(NbrDof_MH_moving * sizeof(struct Dof *)) ;
 	  NumDof_MH_moving = (int *)Malloc(NbrDof_MH_moving * sizeof(int)) ;
 
 	  for (i = 0 ; i < NbrDof_MH_moving ; i++) {	  
 	    Dof_P = (struct Dof*)List_Pointer(DofList_MH_moving,i) ;
-	    if (Dof_P->Type != DOF_UNKNOWN) Msg::Error("Dof_MH_moving not of type unknown !?");
+	    if (Dof_P->Type != DOF_UNKNOWN) Message::Error("Dof_MH_moving not of type unknown !?");
 	    NumDof_MH_moving[i] =  Dof_P->Case.Unknown.NumDof; 
 
 	    if(!(Dof_MH_moving[i] = (struct Dof *)List_PQuery(Current.DofData->DofList, 
 							      Dof_P, fcmp_Dof)))
-	      Msg::Error("Troubles") ;
+	      Message::Error("Troubles") ;
 	    for (k = 0 ; k < Current.NbrHar ; k++) { 
 	      (Dof_MH_moving[i]+k)->Case.Unknown.NumDof = i*Current.NbrHar+k+1 ;
 	    }	  
 	  } /* if (!iTime) */
 
-	  Msg::Cpu("");
+	  Message::Cpu("");
 	  LinAlg_CreateSolver(&DofData_P->Solver_MH_moving, "MH_moving.par") ;
 	  LinAlg_CreateMatrix(&DofData_P->A_MH_moving, &DofData_P->Solver_MH_moving,
 			      NbrDof_MH_moving*Current.NbrHar, NbrDof_MH_moving*Current.NbrHar) ;
@@ -2552,9 +2554,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  LinAlg_ZeroVector(&DofData_P->b_MH_moving) ;      
 	}
 
-	Msg::Info("Generate_MH_Moving_Separate : Step %d/%d (Time = %e  DTime %e)", 
-	    (int)(Current.TimeStep+1), Operation_P->Case.Generate_MH_Moving_S.NbrStep,
-	    Current.Time, Current.DTime) ;
+	Message::Info("Generate_MH_Moving_Separate : Step %d/%d (Time = %e  DTime %e)", 
+                      (int)(Current.TimeStep+1), Operation_P->Case.Generate_MH_Moving_S.NbrStep,
+                      Current.Time, Current.DTime) ;
 	
 	Treatment_Operation(Resolution_P, Operation_P->Case.Generate_MH_Moving.Operation, 
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
@@ -2587,7 +2589,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	
       } /*  for iTime */
 
-      Msg::Cpu("Full matrix assembly done");
+      Message::Cpu("Full matrix assembly done");
 
       for (k = 0 ; k < Current.NbrHar ; k++) Free (MH_Moving_Matrix[k]) ;
       Free (MH_Moving_Matrix) ;
@@ -2606,7 +2608,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_ZeroMatrix(&DofData_P->A_MH_moving2) ;
       LinAlg_ZeroVector(&DofData_P->b_MH_moving2) ;      
 
-      Msg::Cpu("");
+      Message::Cpu("");
       
       nnz__=0;
       for (i = 0 ; i < NbrDof_MH_moving ; i++) {
@@ -2627,7 +2629,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      ajj = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+col_old]; 
 #else
 	      aii = ajj = 0.;
-	      Msg::Error("FIXME: Generate_MH_Moving works only with Sparskit");
+	      Message::Error("FIXME: Generate_MH_Moving works only with Sparskit");
 #endif
 	      if(d*d > 1e-12 * aii*ajj  && 
 		 ( (DummyDof[row_new]==0 && DummyDof[col_new] == 0) || (row_new == col_new) ) ){ 
@@ -2643,7 +2645,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Free(DofData_P->A_MH_moving.M.F.a);
 #endif
       Current.DTime = 0.;
-      Msg::Cpu("");
+      Message::Cpu("");
       DofData_P->DummyDof = DummyDof ;
       break;
       
@@ -2651,15 +2653,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("DummyDofs",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
-      Msg::Cpu("");
+      Message::Cpu("");
       Dof_GetDummies(DefineSystem_P, DofData_P);
-      Msg::Cpu("");
+      Message::Cpu("");
       break ;
 
     case OPERATION_ADD_MH_MOVING :
       LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A_MH_moving2,&DofData_P->A) ;
       /* LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b_MH_moving2,&DofData_P->b) ; */
-      Msg::Cpu("");
+      Message::Cpu("");
       break ;
 
       /*  -->  S a v e S o l u t i o n E x t e n d e d M H             */
@@ -2667,15 +2669,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_SAVESOLUTIONEXTENDEDMH :
       if (Current.NbrHar == 1) { 
-	Msg::Warning("ExtendSolutionMH can only to be used with multi-harmonics") ;
+	Message::Warning("ExtendSolutionMH can only to be used with multi-harmonics") ;
 	break ;
       }
       else if (!List_Nbr(DofData_P->Solutions)) { 
-	Msg::Warning("No solution available for ExtendSolutionMH");
+	Message::Warning("No solution available for ExtendSolutionMH");
 	break ;
       }
       else if (List_Nbr(DofData_P->Solutions) > 1) {
-	Msg::Warning("Only last solution will be extended mult-harmonically and saved");
+	Message::Warning("Only last solution will be extended mult-harmonically and saved");
       }
 
       Init_OperationOnSystem("SaveSolutionExtendedMH",
@@ -2689,8 +2691,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 				Current.NbrHar + 
 				2*Operation_P->Case.SaveSolutionExtendedMH.NbrFreq);
 
-      Msg::Direct("          > '%s'  (%d to %d frequencies)", FileName_exMH, 
-	  Current.NbrHar/2, Current.NbrHar/2 + Operation_P->Case.SaveSolutionExtendedMH.NbrFreq) ;
+      Message::Direct("          > '%s'  (%d to %d frequencies)", FileName_exMH, 
+                      Current.NbrHar/2, Current.NbrHar/2 + Operation_P->Case.SaveSolutionExtendedMH.NbrFreq) ;
 
       DofData_P->CurrentSolution = (struct Solution*) 
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
@@ -2702,15 +2704,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_SAVESOLUTIONMHTOTIME :
       if (Current.NbrHar == 1) { 
-	Msg::Warning("SaveSolutionMHtoTime can only to be used with multi-harmonics") ;
+	Message::Warning("SaveSolutionMHtoTime can only to be used with multi-harmonics") ;
 	break ;
       } 
       else if (!List_Nbr(DofData_P->Solutions)) { 
-	Msg::Warning("No solution available for SaveSolutionMHtoTime");
+	Message::Warning("No solution available for SaveSolutionMHtoTime");
 	break ;
       }
       else if (List_Nbr(DofData_P->Solutions) > 1) {
-	Msg::Warning("Only last mult-harmonic solution will be saved for time X");
+	Message::Warning("Only last mult-harmonic solution will be saved for time X");
       }
 
       Init_OperationOnSystem("SaveSolutionMHtoTime",
@@ -2723,8 +2725,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Dof_WriteFileRES_MHtoTime(FileName_exMH, DofData_P, Flag_BIN, 
 				Operation_P->Case.SaveSolutionMHtoTime.Time) ;
 
-      Msg::Direct("      > '%s'  (time = %e)", FileName_exMH, 
-		  Operation_P->Case.SaveSolutionMHtoTime.Time) ;
+      Message::Direct("      > '%s'  (time = %e)", FileName_exMH, 
+                      Operation_P->Case.SaveSolutionMHtoTime.Time) ;
 
       DofData_P->CurrentSolution = (struct Solution*) 
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
@@ -2739,7 +2741,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
       i = 0 ;
       while(Name_ResFile[i]){
-	Msg::Info("Loading Processing data '%s'", Name_ResFile[i]) ;
+	Message::Info("Loading Processing data '%s'", Name_ResFile[i]) ;
 	Dof_OpenFile(DOF_TMP, Name_ResFile[i], "rb");
 	Dof_ReadFileRES(NULL, DofData_P, DofData_P->Num, &Current.Time, &Current.TimeImag,
 			&Current.TimeStep) ;
@@ -2747,7 +2749,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	i++ ;
       }
       if(!List_Nbr(DofData_P->Solutions))
-	Msg::Error("No valid data found for ReadSolution[%s]", DefineSystem_P->Name);
+	Message::Error("No valid data found for ReadSolution[%s]", DefineSystem_P->Name);
 	
       DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;	
@@ -2803,7 +2805,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	DofData2_P = DofData_P0 + DefineSystem_P->DestinationSystemIndex ;
 	
 	if(DofData_P->NbrAnyDof != DofData2_P->NbrAnyDof)
-	  Msg::Error("Dimensions do not match for TransferSolution");
+	  Message::Error("Dimensions do not match for TransferSolution");
 
 	Solution_S.TimeStep = (int)Current.TimeStep ;
 	Solution_S.Time = Current.Time ;
@@ -2827,11 +2829,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 		Dof_P->Type = DOF_UNKNOWN ;
 	      }
 	      else{
-		Msg::Warning("Unknown Dof in TransferSolution") ;
+		Message::Warning("Unknown Dof in TransferSolution") ;
 	      }
 	    }
 	    else{
-	      Msg::Warning("Trying to transfer a non symmetrical Dof");
+	      Message::Warning("Trying to transfer a non symmetrical Dof");
 	    }
 	  }
           // FIXME: required by parallel version
@@ -2888,7 +2890,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Init_HarInDofData(DefineSystem_P, DofData_P) ;
       }
       else
-	Msg::Error("Invalid SetFrequency for real system '%s'", DefineSystem_P->Name) ;
+	Message::Error("Invalid SetFrequency for real system '%s'", DefineSystem_P->Name) ;
       break;
 
       /*  -->  T i m e L o o p T h e t a              */
@@ -2896,9 +2898,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_TIMELOOPTHETA :
       if(!List_Nbr(Current.DofData->Solutions))
-	Msg::Error("Not enough initial solutions for TimeLoopTheta");
+	Message::Error("Not enough initial solutions for TimeLoopTheta");
 
-      Msg::Info("TimeLoopTheta ...") ;
+      Message::Info("TimeLoopTheta ...") ;
 
       /*
 	FilePWM = fopen("PWM", "w+") ;
@@ -2933,7 +2935,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Current.Time += Current.DTime ;
 	Current.TimeStep += 1. ;
 
-	Msg::Info("Theta Time = %.8g s (TimeStep %d)", Current.Time, 
+	Message::Info("Theta Time = %.8g s (TimeStep %d)", Current.Time, 
 		  (int)Current.TimeStep) ;
 
 	Save_Time = Current.Time ;
@@ -2953,9 +2955,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_TIMELOOPNEWMARK :
       if(List_Nbr(Current.DofData->Solutions) < 2)
-	Msg::Error("Not enough initial solutions for TimeLoopNewmark");
+	Message::Error("Not enough initial solutions for TimeLoopNewmark");
 
-      Msg::Info("TimeLoopNewmark ...") ;
+      Message::Info("TimeLoopNewmark ...") ;
 
       Save_TypeTime = Current.TypeTime ;
       Save_DTime    = Current.DTime ;  
@@ -2978,7 +2980,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Current.Time += Current.DTime ;
 	Current.TimeStep += 1. ;
 
-	Msg::Info("Newmark Time = %.8g s (TimeStep %d)", Current.Time, 
+	Message::Info("Newmark Time = %.8g s (TimeStep %d)", Current.Time, 
 		  (int)Current.TimeStep) ;
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopNewmark.Operation, 
@@ -2994,7 +2996,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_ITERATIVELOOP :
-      Msg::Info("IterativeLoop ...") ;
+      Message::Info("IterativeLoop ...") ;
 
       Save_Iteration = Current.Iteration ;
 
@@ -3012,7 +3014,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Flag_IterativeLoop = Operation_P->Case.IterativeLoop.Flag ; /* Attention: Test */
 
-	Msg::Info("Non Linear Iteration %d (Relaxation = %g)", (int)Current.Iteration,
+	Message::Info("Non Linear Iteration %d (Relaxation = %g)", (int)Current.Iteration,
 		  Current.RelaxationFactor) ;
 	
 	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation, 
@@ -3023,7 +3025,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       if (Num_Iteration > Operation_P->Case.IterativeLoop.NbrMaxIteration)
 	Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
-      Msg::Info("Mean Error = %.3e after %d Iterations",
+      Message::Info("Mean Error = %.3e after %d Iterations",
 		Current.RelativeDifference, Num_Iteration) ;
 
       Current.Iteration = Save_Iteration ;
@@ -3034,7 +3036,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------------  */
 
     case OPERATION_ITERATIVETIMEREDUCTION :
-      Msg::Info("IterativeTimeReduction ...") ;
+      Message::Info("IterativeTimeReduction ...") ;
 
       Operation_IterativeTimeReduction
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
@@ -3044,7 +3046,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_TEST :
-      Msg::Info("Test") ;
+      Message::Info("Test") ;
       Get_ValueOfExpressionByIndex(Operation_P->Case.Test.ExpressionIndex,
 				   NULL, 0., 0., 0., &Value) ;
       if(Value.Val[0]){
@@ -3062,10 +3064,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_FOURIERTRANSFORM2 :
-      Msg::Info("FourierTransform") ;
+      Message::Info("FourierTransform") ;
 
       if(gSCALAR_SIZE == 2)
-	Msg::Error("FIXME: FourierTransform2 will not work in complex arithmetic");
+	Message::Error("FIXME: FourierTransform2 will not work in complex arithmetic");
 
       DofData_P  = DofData_P0 + Operation_P->Case.FourierTransform2.DefineSystemIndex[0] ;
       DofData2_P = DofData_P0 + Operation_P->Case.FourierTransform2.DefineSystemIndex[1] ;     
@@ -3076,8 +3078,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       NbrDof2 = List_Nbr(DofData2_P->DofList) ;
 
       if (NbrHar1 != 1 || NbrHar2 < 2 || NbrDof2 != (NbrDof1*NbrHar2))
-	Msg::Error("Uncompatible System definitions for FourierTransform"
-		   " (NbrHar = %d|%d   NbrDof = %d|%d)", NbrHar1, NbrHar2, NbrDof1, NbrDof2) ;
+	Message::Error("Uncompatible System definitions for FourierTransform"
+                       " (NbrHar = %d|%d   NbrDof = %d|%d)", NbrHar1, NbrHar2, NbrDof1, NbrDof2) ;
 
       if(!DofData2_P->Solutions){
 	DofData2_P->Solutions = List_Create(1, 1, sizeof(struct Solution)) ;	
@@ -3089,11 +3091,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if ( (Operation_P->Case.FourierTransform2.Period_sofar + Current.DTime > 
 	    Operation_P->Case.FourierTransform2.Period) && Nbr_Sol ) {
-	Msg::Info("Normalizing and finalizing Fourier Analysis"
-		  " (solution  %d) (Period: %e out of %e)",
-		  Nbr_Sol, Operation_P->Case.FourierTransform2.Period_sofar,
-		  Operation_P->Case.FourierTransform2.Period);
-	for (i=0 ; i<NbrHar2 ; i++) Msg::Info("Har  %d : Scales %e ", i, Scales[i]) ;
+	Message::Info("Normalizing and finalizing Fourier Analysis"
+                      " (solution  %d) (Period: %e out of %e)",
+                      Nbr_Sol, Operation_P->Case.FourierTransform2.Period_sofar,
+                      Operation_P->Case.FourierTransform2.Period);
+	for (i=0 ; i<NbrHar2 ; i++) Message::Info("Har  %d : Scales %e ", i, Scales[i]) ;
 
 	Solution_P = (struct Solution*)List_Pointer(DofData2_P->Solutions, Nbr_Sol-1);
 
@@ -3110,7 +3112,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       
       if (Operation_P->Case.FourierTransform2.Period_sofar == 0) {
-	Msg::Info("Starting new Fourier Analysis : solution %d ", Nbr_Sol);
+	Message::Info("Starting new Fourier Analysis : solution %d ", Nbr_Sol);
 	Solution_S.TimeStep = Nbr_Sol;
 	Solution_S.Time = Nbr_Sol;
 	Solution_S.SolutionExist = 1 ;
@@ -3136,7 +3138,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 					     j*NbrHar2))->Case.Unknown.NumDof - 1 ;
 
 	if (((struct Dof *)List_Pointer(DofData2_P->DofList,j*NbrHar2))->Type != DOF_UNKNOWN)
-	  Msg::Info("Dof not unknown %d", j) ;
+	  Message::Info("Dof not unknown %d", j) ;
 
 	for (k=0 ; k<NbrHar2 ; k+=2) {
 	  d = DofData2_P->Val_Pulsation[k/2] * Current.Time ;
@@ -3149,7 +3151,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       break;
       
     case OPERATION_FOURIERTRANSFORM :
-      Msg::Info("FourierTransform") ;
+      Message::Info("FourierTransform") ;
       
       DofData_P = DofData_P0 + Operation_P->Case.FourierTransform.DefineSystemIndex[0] ;
       DofData2_P = DofData_P0 + Operation_P->Case.FourierTransform.DefineSystemIndex[1] ;     
@@ -3158,7 +3160,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	k = List_Nbr(Operation_P->Case.FourierTransform.Frequency) ;
 
 	if(DofData2_P->NbrDof != gCOMPLEX_INCREMENT * DofData_P->NbrDof)
-	  Msg::Error("Uncompatible System definitions for FourierTransform") ;
+	  Message::Error("Uncompatible System definitions for FourierTransform") ;
 
 	DofData2_P->Solutions = List_Create(k, 1, sizeof(struct Solution)) ;	
 
@@ -3203,12 +3205,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  strcat(FileName, Operation_P->Case.Print.FileOut);
 	}
 	if(!(fp = fopen(FileName, "ab")))
-	  Msg::Error("Unable to open file '%s'", FileName) ;
-	Msg::Info("Print -> '%s'", FileName) ;
+	  Message::Error("Unable to open file '%s'", FileName) ;
+	Message::Info("Print -> '%s'", FileName) ;
       }
       else{
 	fp = stdout ;
-	Msg::Info("Print") ;
+	Message::Info("Print") ;
       }
 
       if(Operation_P->Case.Print.Expression){
@@ -3238,8 +3240,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 		    fprintf(fp, " ") ;
 		  }
 		}
-	        else Msg::Warning("Print of Dof out of TimeStep range [0,%d]",
-				  List_Nbr(DofData_P->Solutions)-1);
+	        else Message::Warning("Print of Dof out of TimeStep range [0,%d]",
+                                      List_Nbr(DofData_P->Solutions)-1);
 	      }
 	    else{
 	      LinAlg_GetScalarInVector(&tmp, &DofData_P->CurrentSolution->x, j) ;
@@ -3252,8 +3254,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	      }
 	    }
 	  }
-	  else Msg::Warning("Wrong number of Dof to Print (%d is out of [0,%d])",
-			    j, DofData_P->NbrDof-1);
+	  else Message::Warning("Wrong number of Dof to Print (%d is out of [0,%d])",
+                                j, DofData_P->NbrDof-1);
 	}
 	fprintf(fp, "\n") ;
       }
@@ -3287,7 +3289,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------ */ 
 	      
     case OPERATION_CHANGEOFCOORDINATES :
-      Msg::Info("ChangeOfCoordinates") ;
+      Message::Info("ChangeOfCoordinates") ;
       /* Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0) ; */
       Operation_ChangeOfCoordinates
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
@@ -3299,14 +3301,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_DEFORMEMESH :
       if (Operation_P->Case.DeformeMesh.Name_MshFile == NULL)
 	Operation_P->Case.DeformeMesh.Name_MshFile = Name_MshFile ;
-      Msg::Info("DeformeMesh[%s, %s, '%s']",
-		((struct DefineSystem *)
-		 List_Pointer(Resolution_P->DefineSystem, Operation_P->DefineSystemIndex))->Name, 
-		Operation_P->Case.DeformeMesh.Quantity, Operation_P->Case.DeformeMesh.Name_MshFile) ;
+      Message::Info("DeformeMesh[%s, %s, '%s']",
+                    ((struct DefineSystem *)
+                     List_Pointer(Resolution_P->DefineSystem, Operation_P->DefineSystemIndex))->Name, 
+                    Operation_P->Case.DeformeMesh.Quantity, Operation_P->Case.DeformeMesh.Name_MshFile) ;
 
       if ((i = List_ISearchSeq(GeoData_L, Operation_P->Case.DeformeMesh.Name_MshFile,
 			       fcmp_GeoData_Name)) < 0)
-	Msg::Error("DeformeMesh: Wrong NameOfMeshFile %s", 
+	Message::Error("DeformeMesh: Wrong NameOfMeshFile %s", 
 		   Operation_P->Case.DeformeMesh.Name_MshFile );
       Operation_P->Case.DeformeMesh.GeoDataIndex = i ;
       
@@ -3318,7 +3320,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------ */ 
 	      
     case OPERATION_POSTOPERATION :
-      Msg::Info("PostOperation") ;
+      Message::Info("PostOperation") ;
 
       Save_Time = Current.Time ;
       Save_TimeImag = Current.TimeImag ;
@@ -3327,7 +3329,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       for(i=0 ; i<List_Nbr(Operation_P->Case.PostOperation.PostOperations); i++){
 	str = *(char**)List_Pointer(Operation_P->Case.PostOperation.PostOperations, i);
 	if((j = List_ISearchSeq(Problem_S.PostOperation, str, fcmp_PostOperation_Name)) < 0){
-	  Msg::Warning("Unknown PostOperation '%s'", str) ;
+	  Message::Warning("Unknown PostOperation '%s'", str) ;
 	}
 	else{
 	  PostOperation_P = (struct PostOperation*)
@@ -3359,11 +3361,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     default :
-      Msg::Warning("Operation: ? ? ?") ;
+      Message::Warning("Operation: ? ? ?") ;
       break ;
     }
 
-    if(Flag_CPU) Msg::Cpu("");
+    if(Flag_CPU) Message::Cpu("");
   }
 }
 

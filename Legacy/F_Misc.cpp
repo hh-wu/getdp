@@ -42,7 +42,7 @@ void F_Rand(F_ARG)
   int     k;
 
   if(A->Type != SCALAR)
-    Msg::Error("Non scalar argument for function 'Rand");
+    Message::Error("Non scalar argument for function 'Rand");
 
   V->Val[0] = A->Val[0] * (double)rand() / (double)RAND_MAX;
 
@@ -64,7 +64,7 @@ void F_Normal(F_ARG)
   int  k ;
 
   if(!Current.Element || Current.Element->Num == NO_ELEMENT)
-    Msg::Error("No element on which to compute 'F_Normal'");
+    Message::Error("No element on which to compute 'F_Normal'");
 
   Geo_CreateNormal(Current.Element->Type, 
 		   Current.Element->x, 
@@ -93,7 +93,7 @@ void F_NormalSource(F_ARG)
   int  k ;
 
   if(!Current.ElementSource || Current.ElementSource->Num == NO_ELEMENT)
-    Msg::Error("No element on which to compute 'F_NormalSource'");
+    Message::Error("No element on which to compute 'F_NormalSource'");
 
   Geo_CreateNormal(Current.ElementSource->Type, 
 		   Current.ElementSource->x, 
@@ -123,7 +123,7 @@ void F_Tangent(F_ARG)
   double  tx, ty, tz, norm ;
 
   if(!Current.Element || Current.Element->Num == NO_ELEMENT)
-    Msg::Error("No element on which to compute 'F_Tangent'");
+    Message::Error("No element on which to compute 'F_Tangent'");
 
   switch (Current.Element->Type) {
    
@@ -138,7 +138,7 @@ void F_Tangent(F_ARG)
     break ;
 
   default :
-    Msg::Error("Function 'Tangent' only valid for Line Elements");
+    Message::Error("Function 'Tangent' only valid for Line Elements");
   }
 
   if (Current.NbrHar != 1) {
@@ -164,7 +164,7 @@ void F_Tangent(F_ARG)
 void F_CompElementNum (F_ARG)
 {
   if(!Current.Element || !Current.ElementSource)
-    Msg::Error("Uninitialized Element in 'F_CompElementNum'");
+    Message::Error("Uninitialized Element in 'F_CompElementNum'");
 
   V->Type = SCALAR ;
   V->Val[0] = (Current.Element->Num == Current.ElementSource->Num) ;
@@ -208,8 +208,8 @@ void F_ElementVol(F_ARG)
     Vol = JacobianVol3D(Current.Element,&Jac) ;
     break;
   default :
-    Msg::Error("F_ElementVol not implemented for %s",
-	Get_StringForDefine(Element_Type, Current.Element->Type));
+    Message::Error("F_ElementVol not implemented for %s",
+                   Get_StringForDefine(Element_Type, Current.Element->Type));
   }
 
   V->Type = SCALAR ;
@@ -284,7 +284,7 @@ void F_SurfaceArea(F_ARG)
 
 	}
 	else {
-	  Msg::Error("Function 'SurfaceArea' only valid for Triangle or Quandrangle Elements");
+	  Message::Error("Function 'SurfaceArea' only valid for Triangle or Quandrangle Elements");
 	}
       }
     }
@@ -381,8 +381,8 @@ void F_GetVolume(F_ARG)
           }
 	}
 	else {
-	  Msg::Error("Function 'GetVolume' only valid for %s",
-                     Get_StringForDefine(Element_Type, Element.Type));
+	  Message::Error("Function 'GetVolume' only valid for %s",
+                         Get_StringForDefine(Element_Type, Element.Type));
 	}
       }
     }
@@ -421,22 +421,22 @@ void F_GetVolume(F_ARG)
 
 void F_TransformTensor(F_ARG)
 {
-  Msg::Error("Tuan's routines are not available with the GSL");
+  Message::Error("Tuan's routines are not available with the GSL");
 }
 
 void F_TransformPerm(F_ARG)
 {
-  Msg::Error("Tuan's routines are not available with the GSL");
+  Message::Error("Tuan's routines are not available with the GSL");
 }
 
 void F_TransformPiezo(F_ARG)
 {
-  Msg::Error("Tuan's routines are not available with the GSL");
+  Message::Error("Tuan's routines are not available with the GSL");
 }
 
 void F_TransformPiezoT(F_ARG)
 {
-  Msg::Error("Tuan's routines are not available with the GSL");
+  Message::Error("Tuan's routines are not available with the GSL");
 }
 
 #else
@@ -635,11 +635,11 @@ void F_TransformTensor(F_ARG)
       ( (A+1)->Type != TENSOR && (A+1)->Type != TENSOR_SYM && (A+1)->Type != TENSOR_DIAG ) ||
       ( (A+2)->Type != TENSOR && (A+2)->Type != TENSOR_SYM && (A+2)->Type != TENSOR_DIAG ) ||
       ( (A+3)->Type != TENSOR && (A+3)->Type != TENSOR_SYM && (A+3)->Type != TENSOR_DIAG ) )
-    Msg::Error("Function 'TransformTensor' requires 4 Tensors on input (NOT %s %s %s %s)",
-               Get_StringForDefine(Field_Type,(A+0)->Type),
-               Get_StringForDefine(Field_Type,(A+1)->Type),
-               Get_StringForDefine(Field_Type,(A+2)->Type),
-               Get_StringForDefine(Field_Type,(A+3)->Type) );
+    Message::Error("Function 'TransformTensor' requires 4 Tensors on input (NOT %s %s %s %s)",
+                   Get_StringForDefine(Field_Type,(A+0)->Type),
+                   Get_StringForDefine(Field_Type,(A+1)->Type),
+                   Get_StringForDefine(Field_Type,(A+2)->Type),
+                   Get_StringForDefine(Field_Type,(A+3)->Type) );
 
   for(i=0;i<N;i++)
     for(j=0;j<N;j++)
@@ -794,8 +794,8 @@ void F_TransformPerm (F_ARG)
   Gamma = Fct->Para[2];
   
   if ( A->Type != TENSOR && A->Type != TENSOR_SYM && A->Type != TENSOR_DIAG )
-    Msg::Error("Wrong type of argument for function 'TransformTensor2' (NOT %s) ",
-	Get_StringForDefine(Field_Type,A->Type));
+    Message::Error("Wrong type of argument for function 'TransformTensor2' (NOT %s) ",
+                   Get_StringForDefine(Field_Type,A->Type));
   
   for(i=0;i<N;i++)
     for(j=0;j<N;j++)
@@ -882,9 +882,9 @@ void F_TransformPiezo(F_ARG)
 
   if( ( (A+0)->Type != TENSOR && (A+0)->Type != TENSOR_SYM && (A+0)->Type != TENSOR_DIAG ) ||
       ( (A+1)->Type != TENSOR && (A+1)->Type != TENSOR_SYM && (A+1)->Type != TENSOR_DIAG ) )
-    Msg::Error("Function 'TransformTensor' requires 2 Tensors on input (NOT %s %s )",
-               Get_StringForDefine(Field_Type,(A+0)->Type),
-               Get_StringForDefine(Field_Type,(A+1)->Type) );
+    Message::Error("Function 'TransformTensor' requires 2 Tensors on input (NOT %s %s )",
+                   Get_StringForDefine(Field_Type,(A+0)->Type),
+                   Get_StringForDefine(Field_Type,(A+1)->Type) );
 
   for(i=0;i<N/2;i++)
     for(j=0;j<N;j++)
@@ -997,9 +997,9 @@ void F_TransformPiezoT (F_ARG)
 
   if( ( (A+0)->Type != TENSOR && (A+0)->Type != TENSOR_SYM && (A+0)->Type != TENSOR_DIAG ) ||
       ( (A+1)->Type != TENSOR && (A+3)->Type != TENSOR_SYM && (A+3)->Type != TENSOR_DIAG ) )
-    Msg::Error("Function 'TransformTensor' requires 2 Tensors on input (NOT %s %s )",
-               Get_StringForDefine(Field_Type,(A+0)->Type),
-               Get_StringForDefine(Field_Type,(A+1)->Type) );
+    Message::Error("Function 'TransformTensor' requires 2 Tensors on input (NOT %s %s )",
+                   Get_StringForDefine(Field_Type,(A+0)->Type),
+                   Get_StringForDefine(Field_Type,(A+1)->Type) );
 
   for(i=0;i<N/2;i++)
     for(j=0;j<N;j++)
@@ -1170,7 +1170,7 @@ void F_VirtualWork (F_ARG)
                 -  2 * DetJac_dx[1] * squF[4])/DetJac ;
     }
     else {
-      Msg::Warning("Zero determinant in 'F_VirtualWork'") ;
+      Message::Warning("Zero determinant in 'F_VirtualWork'") ;
     }
   }
   

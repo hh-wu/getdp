@@ -180,7 +180,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
     switch(PE->Type){
 
     case POINT :
-      Msg::Error("Impossible to divide a Point recursively");
+      Message::Error("Impossible to divide a Point recursively");
       break;
       
     case LINE :
@@ -297,8 +297,8 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
       break ;
 
     default :
-      Msg::Error("Recursive division not implemented for Quadrangles, Hexahedra, "
-		 "Prisms and Pyramids") ;
+      Message::Error("Recursive division not implemented for Quadrangles, Hexahedra, "
+                     "Prisms and Pyramids") ;
     }
     
     for(i = 0 ; i < NbCut ; i++){
@@ -1171,8 +1171,8 @@ void Sort_PostElement_Connectivity(List_T *PostElement_L)
   for(ii = 0 ; ii < NbrPost ; ii++){
     PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
     if(PE->NbrNodes != 2)
-      Msg::Error("Connectivity sorting impossible for %d-noded elements",
-		 PE->NbrNodes) ;
+      Message::Error("Connectivity sorting impossible for %d-noded elements",
+                     PE->NbrNodes) ;
     PE->u[0] = 0. ;
   }
 

@@ -14,7 +14,7 @@
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Edge number in 'BF_Node_2E'")
+#define WrongNumEntity   Message::Error("Wrong Edge number in 'BF_Node_2E'")
 
 void BF_Node_2E(struct Element * Element, int NumEntity, 
 		double u, double v, double w,  double *s)
@@ -93,12 +93,12 @@ void BF_Node_2E(struct Element * Element, int NumEntity,
 
   case PYRAMID :
     switch(NumEntity) {
-    default : Msg::Error("BF_Node_2E not ready for PYRAMID");
+    default : Message::Error("BF_Node_2E not ready for PYRAMID");
     }
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_Node_2E");
+    Message::Error("Unkown type of Element in BF_Node_2E");
     break ;
   }
 }
@@ -110,7 +110,7 @@ void BF_Node_2E(struct Element * Element, int NumEntity,
 /*  Facets  */
 /* -------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Face number in 'BF_Node_2F'")
+#define WrongNumEntity   Message::Error("Wrong Face number in 'BF_Node_2F'")
 
 void BF_Node_2F(struct Element * Element, int NumEntity, 
 		double u, double v, double w,  double *s)
@@ -120,7 +120,7 @@ void BF_Node_2F(struct Element * Element, int NumEntity,
   case LINE :
   case TRIANGLE :
   case TETRAHEDRON :
-    Msg::Error("BF_Node_2F cannot be associated with this type of element");
+    Message::Error("BF_Node_2F cannot be associated with this type of element");
     break;
     
   case QUADRANGLE :
@@ -141,7 +141,7 @@ void BF_Node_2F(struct Element * Element, int NumEntity,
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg::Error("BF_Node_2F not ready for PRISM");
+    default : Message::Error("BF_Node_2F not ready for PRISM");
       // cannot do this yet in getdp, as dofs should only be
       // associated with quad-faces: if really necessary we could
       // implement actual 15 and 18-node prisms
@@ -156,12 +156,12 @@ void BF_Node_2F(struct Element * Element, int NumEntity,
 
   case PYRAMID :
     switch(NumEntity) {
-    default : Msg::Error("BF_Node_2F not ready for PYRAMID");
+    default : Message::Error("BF_Node_2F not ready for PYRAMID");
     }
     break ;
 
   default :
-    Msg::Error("Unkown Element Type in BF_Node_2F");
+    Message::Error("Unkown Element Type in BF_Node_2F");
     break ;
   }
 
@@ -184,7 +184,7 @@ void BF_Node_2V(struct Element * Element, int NumEntity,
   case TETRAHEDRON :
   case PRISM :
   case PYRAMID :
-    Msg::Error("BF_Node_2V cannot be associated with this type of element");
+    Message::Error("BF_Node_2V cannot be associated with this type of element");
     break;
 
   case HEXAHEDRON :
@@ -192,7 +192,7 @@ void BF_Node_2V(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_Node_2V");
+    Message::Error("Unkown type of Element in BF_Node_2V");
     break ;
   }
  
@@ -207,7 +207,7 @@ void BF_Node_2V(struct Element * Element, int NumEntity,
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Edge number in 'BF_GradNode_2E'")
+#define WrongNumEntity   Message::Error("Wrong Edge number in 'BF_GradNode_2E'")
 
 void  BF_GradNode_2E(struct Element * Element, int NumEntity, 
 		     double u, double v, double w,  double s[])
@@ -357,12 +357,12 @@ void  BF_GradNode_2E(struct Element * Element, int NumEntity,
 
   case PYRAMID :
     switch(NumEntity) {
-    default : Msg::Error("BF_GradNode_2E not ready for PYRAMID"); 
+    default : Message::Error("BF_GradNode_2E not ready for PYRAMID"); 
     }
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_GradNode_2E");
+    Message::Error("Unkown type of Element in BF_GradNode_2E");
     break ;
   }
 
@@ -374,7 +374,7 @@ void  BF_GradNode_2E(struct Element * Element, int NumEntity,
 /*  Facets  */
 /* -------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Face number in 'BF_GradNode_2F'")
+#define WrongNumEntity   Message::Error("Wrong Face number in 'BF_GradNode_2F'")
 
 void BF_GradNode_2F(struct Element * Element, int NumEntity, 
 		    double u, double v, double w,  double s[])
@@ -384,7 +384,7 @@ void BF_GradNode_2F(struct Element * Element, int NumEntity,
   case LINE :
   case TRIANGLE :
   case TETRAHEDRON :    
-    Msg::Error("BF_GradNode_2F cannot be associated with this type of element");
+    Message::Error("BF_GradNode_2F cannot be associated with this type of element");
     break;
   
   case QUADRANGLE :
@@ -424,7 +424,7 @@ void BF_GradNode_2F(struct Element * Element, int NumEntity,
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg::Error("BF_GradNode_2F not ready for PYRAMID"); 
+    default : Message::Error("BF_GradNode_2F not ready for PYRAMID"); 
       // cannot do this yet in getdp, as dofs should only be
       // associated with quad-faces: if really necessary we could
       // implement actual 15 and 18-node prisms
@@ -446,12 +446,12 @@ void BF_GradNode_2F(struct Element * Element, int NumEntity,
 
   case PYRAMID :
     switch(NumEntity) {
-    default : Msg::Error("BF_GradNode_2F not ready for PYRAMID"); 
+    default : Message::Error("BF_GradNode_2F not ready for PYRAMID"); 
     }
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_GradNode_2F");
+    Message::Error("Unkown type of Element in BF_GradNode_2F");
     break ;
   }
 
@@ -474,7 +474,7 @@ void BF_GradNode_2V(struct Element * Element, int NumEntity,
   case TETRAHEDRON :
   case PRISM :
   case PYRAMID :
-    Msg::Error("BF_GradNode_2V cannot be associated with this type of element");
+    Message::Error("BF_GradNode_2V cannot be associated with this type of element");
     break;
 
   case HEXAHEDRON :
@@ -484,7 +484,7 @@ void BF_GradNode_2V(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_GradNode_2V");
+    Message::Error("Unkown type of Element in BF_GradNode_2V");
     break ;
   }
 

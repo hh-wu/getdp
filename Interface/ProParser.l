@@ -368,7 +368,7 @@ void cStyleComments()
     while((c = input()) != '*'){ 
       if(c == '\n') getdp_yylinenum++; 
       if(feof(getdp_yyin)) {
-	Msg::Error("End of file in commented region");
+	Message::Error("End of file in commented region");
         exit(1);
       }
     } 
@@ -395,7 +395,7 @@ void parseString(char endchar)
   int i = 0;
   while(c != endchar){ 
     if(feof(getdp_yyin)) { 
-      Msg::Error("End of file in string");
+      Message::Error("End of file in string");
       getdp_yycolnum = 0; 
       break;
     }
@@ -403,7 +403,7 @@ void parseString(char endchar)
       getdp_yycolnum = 0; 
     }
     else if(i >= (int)sizeof(tmp)-1) {
-      Msg::Error("String too long");
+      Message::Error("String too long");
       break;
     }
     else { 
@@ -435,7 +435,7 @@ void skipUntil(const char *skip, const char *until)
       chars[0] = input();
       if(chars[0] == '\n') getdp_yylinenum++; 
       if(feof(getdp_yyin)){
-	Msg::Error("Unexpected end of file");
+	Message::Error("Unexpected end of file");
 	return;
       }
       if(chars[0] == '/'){
@@ -450,7 +450,7 @@ void skipUntil(const char *skip, const char *until)
 
     l = (l_skip > l_until) ? l_skip : l_until;
     if(l >= (int)sizeof(chars)){
-      Msg::Error("Search pattern too long in skip_until");
+      Message::Error("Search pattern too long in skip_until");
       return;
     }
     for(int i = 1; i < l; i++){

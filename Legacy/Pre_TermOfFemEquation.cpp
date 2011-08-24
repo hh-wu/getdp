@@ -558,11 +558,11 @@ void Pre_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 	if (!List_Search(RegionIndex_L, &Num_Region, fcmp_int))
 	  List_Add(RegionIndex_L, &Num_Region) ;
 	else
-	  Msg::Error("2 occurences of Elementary Region #%d in Contraint '%s'",
-		     Num_Region, Constraint_P->Name);
+	  Message::Error("2 occurences of Elementary Region #%d in Contraint '%s'",
+                         Num_Region, Constraint_P->Name);
       }
       else
-	Msg::Error("Not 1 Elementary Region in Group '%s'", Group_P->Name);
+	Message::Error("Not 1 Elementary Region in Group '%s'", Group_P->Name);
     }
   }
   Nbr_EquAndDof = List_Nbr(RegionIndex_L) ;
@@ -603,10 +603,10 @@ void Pre_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
     }
   }
   if (Nbr_GlobalEqu != Nbr_EquAndDof){
-    Msg::Error("Incompatible number of equations with Contraint '%s'",
-	       Constraint_P->Name);
-    Msg::Error("(%d equations obtained while %d branches are defined)",
-	       Nbr_GlobalEqu, Nbr_EquAndDof);
+    Message::Error("Incompatible number of equations with Contraint '%s'",
+                   Constraint_P->Name);
+    Message::Error("(%d equations obtained while %d branches are defined)",
+                   Nbr_GlobalEqu, Nbr_EquAndDof);
   }
   
   List_Delete(RegionIndex_L) ;

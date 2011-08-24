@@ -18,8 +18,8 @@ void Gauss_Pyramid(int Nbr_Points, int Num,
     break ;
 
   default : 
-    Msg::Error("Wrong number of Gauss points for Pyramid");
-    Msg::Error("Valid choice: 8");
+    Message::Error("Wrong number of Gauss points for Pyramid: "
+                   "valid choice: 8");
     break;
   }
 }

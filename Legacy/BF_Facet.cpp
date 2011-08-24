@@ -6,13 +6,13 @@
 #include "ProData.h"
 #include "Message.h"
 
-#define NoFace   Msg::Error("Missing Face Entity in Element %d", Element->Num)
+#define NoFace   Message::Error("Missing Face Entity in Element %d", Element->Num)
 
 /* ------------------------------------------------------------------------ */
 /*  B F _ F a c e t                                                         */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumFacet   Msg::Error("Wrong Facet number in 'BF_Facet'")
+#define WrongNumFacet   Message::Error("Wrong Facet number in 'BF_Facet'")
 
 void BF_Facet(struct Element * Element, int NumFacet, 
 	      double u, double v, double w,  double s[])
@@ -105,7 +105,7 @@ void BF_Facet(struct Element * Element, int NumFacet,
     break ;
 
   default :
-    Msg::Error("Unknown type of Element in BF_Facet");
+    Message::Error("Unknown type of Element in BF_Facet");
     break;
   }
 
@@ -122,7 +122,7 @@ void BF_Facet(struct Element * Element, int NumFacet,
 /*  B F _ D i v F a c e t                                                   */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumFacet   Msg::Error("Wrong Facet number in 'BF_DivFacet'")
+#define WrongNumFacet   Message::Error("Wrong Facet number in 'BF_DivFacet'")
 
 void BF_DivFacet(struct Element * Element, int NumFacet, 
 		 double u, double v, double w,  double *s)
@@ -198,7 +198,7 @@ void BF_DivFacet(struct Element * Element, int NumFacet,
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_DivFacet");
+    Message::Error("Unkown type of Element in BF_DivFacet");
     break ;
   }
 

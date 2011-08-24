@@ -48,7 +48,7 @@ struct Dof * Cal_FemGlobalEquation2(int Index_DefineQuantity, int Num_Region,
     return QuaSto_S.BasisFunction[0].Dof ;
   }
   else {
-    Msg::Error( "Not 1 Dof associated with GlobalQuantity (Region #%d)", Num_Region) ;
+    Message::Error( "Not 1 Dof associated with GlobalQuantity (Region #%d)", Num_Region) ;
     return NULL ;
   }
 }
@@ -100,7 +100,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
       if (!List_Search(RegionIndex_L, &Num_Region, fcmp_int))
 	List_Add(RegionIndex_L, &Num_Region) ;
       else {
-	Msg::Error("2 occurences of Elementary Region #%d in Contraint '%s'",
+	Message::Error("2 occurences of Elementary Region #%d in Contraint '%s'",
 		   Num_Region, Constraint_P->Name);
       }
     }
@@ -149,9 +149,9 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
     }
   }
   if (List_Nbr(DofGlobal_Equ_L) != Nbr_EquAndDof) {
-    Msg::Error("Incompatible number of equations with Contraint '%s'.",
+    Message::Error("Incompatible number of equations with Contraint '%s'.",
 	       Constraint_P->Name);
-    Msg::Error("(%d equations obtained while %d branches are defined)",
+    Message::Error("(%d equations obtained while %d branches are defined)",
 	       List_Nbr(DofGlobal_Equ_L), Nbr_EquAndDof);
   }
 
@@ -206,7 +206,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 	    }
 	  }
 	  /*
-	  Msg::Info("Node: eq.(%d) [%d, %d], dof [%d, %d] : %.16g\n",
+	  Message::Info("Node: eq.(%d) [%d, %d], dof [%d, %d] : %.16g\n",
   	      Num_Equ,
 	      DofGlobal_Equ[Num_Equ].Dof->NumType, DofGlobal_Equ[Num_Equ].Dof->Entity,
 	      DofGlobal_P->Dof->NumType, DofGlobal_P->Dof->Entity,
@@ -245,7 +245,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 	    }
 	  }
 	  /*
-	  Msg::Info("Loop: eq.(%d) [%d, %d], dof [%d, %d] : %.16g\n",
+	  Message::Info("Loop: eq.(%d) [%d, %d], dof [%d, %d] : %.16g\n",
 	      Num_Equ,
 	      DofGlobal_Equ[Num_Equ].Dof->NumType, DofGlobal_Equ[Num_Equ].Dof->Entity,
 	      DofGlobal_P->Dof->NumType, DofGlobal_P->Dof->Entity,
@@ -310,10 +310,10 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
   /* --------------------------------------------------------------- */
 
   if (!(Nbr_EquationTerm = List_Nbr(Formulation_P->Equation)))
-    Msg::Error("No equation in Formulation '%s'", Formulation_P->Name);
+    Message::Error("No equation in Formulation '%s'", Formulation_P->Name);
   
   if (!(Nbr_DefineQuantity = List_Nbr(Formulation_P->DefineQuantity)))
-    Msg::Error("No Quantity in Formulation '%s'", Formulation_P->Name);
+    Message::Error("No Quantity in Formulation '%s'", Formulation_P->Name);
 
   DefineQuantity_P0 = (struct DefineQuantity*)
     List_Pointer(Formulation_P->DefineQuantity, 0) ;
@@ -388,7 +388,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
       break ;
 
     default :
-      Msg::Error("Unknown type of equation term") ;
+      Message::Error("Unknown type of equation term") ;
       break ;
     }
 
@@ -401,7 +401,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
   
   Nbr_Element = Geo_GetNbrGeoElements() ;
 
-  Msg::ResetProgressMeter();
+  Message::ResetProgressMeter();
       
   for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
 
@@ -453,7 +453,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 			&Element.Region, fcmp_int ) ) {
 	*/
 
-	  if(Msg::GetVerbosity() == 10)
+	  if(Message::GetVerbosity() == 10)
 	    printf("==> Element #%d, EquationTerm #%d/%d\n",
 		   Element.Num, i_EquTerm+1, Nbr_EquationTerm) ;
 
@@ -507,7 +507,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 		QuantityStorage_P->NbrElementaryBasisFunction = 0 ;
 		break ;
 	      default :
-		Msg::Error("Bad kind of Quantity in Formulation '%s'",
+		Message::Error("Bad kind of Quantity in Formulation '%s'",
 			   Formulation_P->Name);
 		break;
 	      }
@@ -580,7 +580,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
       
     }  /* for i_EquTerm ... */
 
-    Msg::ProgressMeter(i_Element + 1, Nbr_Element);    
+    Message::ProgressMeter(i_Element + 1, Nbr_Element);    
   }  /* for i_Element ... */
 
 
@@ -643,7 +643,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 		 QuantityStorage_P->FunctionSpace, QuantityStorage_P) ;
 	      break ;
 	    default :
-	      Msg::Error("Bad kind of Quantity in Formulation '%s'",
+	      Message::Error("Bad kind of Quantity in Formulation '%s'",
 			 Formulation_P->Name);
 	      break;
 	    }
@@ -716,7 +716,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
 void  Treatment_GlobalFormulation(struct Formulation * Formulation_P)
 {
-  Msg::Error("You should not be here!") ;
+  Message::Error("You should not be here!") ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -736,7 +736,7 @@ void  Treatment_Formulation(struct Formulation * Formulation_P)
     break ;
 
   default :
-    Msg::Error("Unknown type for Formulation '%s'", Formulation_P->Name) ;
+    Message::Error("Unknown type for Formulation '%s'", Formulation_P->Name) ;
     break ;
   }
 }

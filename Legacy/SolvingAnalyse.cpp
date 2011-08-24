@@ -76,8 +76,8 @@ void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
 
     if(DefineQuantity_P->DofDataIndex >= 0){
       if(DefineQuantity_P->DofDataIndex >= List_Nbr(DefineSystem_P->OriginSystemIndex))
-	Msg::Error("Invalid System index (%d) in discrete Quantity (%s)",
-		   DefineQuantity_P->DofDataIndex, DefineQuantity_P->Name);
+	Message::Error("Invalid System index (%d) in discrete Quantity (%s)",
+                       DefineQuantity_P->DofDataIndex, DefineQuantity_P->Name);
 
       List_Read(DefineSystem_P->OriginSystemIndex, DefineQuantity_P->DofDataIndex, &j) ;
       DefineQuantity_P->DofData = DofData_P0 + j ;
@@ -120,7 +120,7 @@ void Treatment_Preprocessing(int Nbr_DefineSystem,
       List_Read(DefineSystem_P->FormulationIndex, k, &Index_Formulation) ;
       Formulation_P = (struct Formulation*)
         List_Pointer(Problem_S.Formulation, Index_Formulation) ;
-      Msg::Info("Treatment Formulation '%s'", Formulation_P->Name) ;
+      Message::Info("Treatment Formulation '%s'", Formulation_P->Name) ;
 
       Init_DofDataInDefineQuantity(DefineSystem_P, DofData_P0, Formulation_P) ;
       Treatment_Formulation(Formulation_P) ;
@@ -149,14 +149,14 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   int    Nbr_PostSubOperation, i_POP, i ;
 
   if (!List_Nbr(PostProcessing_P->PostQuantity))
-    Msg::Error("No Quantity available for PostProcessing '%s'",
-	       PostProcessing_P->Name) ;
+    Message::Error("No Quantity available for PostProcessing '%s'",
+                   PostProcessing_P->Name) ;
 
   Formulation_P = (struct Formulation *)
     List_Pointer(Problem_S.Formulation, PostProcessing_P->FormulationIndex) ;
 
   if (!List_Nbr(Formulation_P->DefineQuantity))
-    Msg::Error("No discrete Quantity in Formulation '%s'", Formulation_P->Name);
+    Message::Error("No discrete Quantity in Formulation '%s'", Formulation_P->Name);
 
   /* Choice of Current DofData */
   Current.DofData = 0;
@@ -164,8 +164,8 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
     if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
 			     PostProcessing_P->NameOfSystem,
 			     fcmp_DefineSystem_Name)) < 0){
-      Msg::Error("Unknown System name (%s) in PostProcessing (%s)", 
-		 PostProcessing_P->NameOfSystem, PostProcessing_P->Name) ;
+      Message::Error("Unknown System name (%s) in PostProcessing (%s)", 
+                     PostProcessing_P->NameOfSystem, PostProcessing_P->Name) ;
       return;
     }
     Current.DofData = DofData_P0 + i;
@@ -185,12 +185,12 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
       if(Current.DofData) break;
     }
     if(Current.DofData)
-      Msg::Info("NameOfSystem not set in PostProcessing: selected '%s'",
-		(DefineSystem_P0 + Current.DofData->Num)->Name) ;
+      Message::Info("NameOfSystem not set in PostProcessing: selected '%s'",
+                    (DefineSystem_P0 + Current.DofData->Num)->Name) ;
   }
 
   if(!Current.DofData){
-    Msg::Error("PostProcessing not compatible with Resolution");
+    Message::Error("PostProcessing not compatible with Resolution");
     return;
   }
 
@@ -200,14 +200,14 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   Geo_SetCurrentGeoData(Current.GeoData = 
 			GeoData_P0 + Current.DofData->GeoDataIndex) ;
 
-  Msg::Info("Selected PostProcessing '%s'", PostProcessing_P->Name);
-  Msg::Info("Selected Mesh '%s'", Current.GeoData->Name);
+  Message::Info("Selected PostProcessing '%s'", PostProcessing_P->Name);
+  Message::Info("Selected Mesh '%s'", Current.GeoData->Name);
 
   Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);
   
   Nbr_PostSubOperation = List_Nbr(PostOperation_P->PostSubOperation) ;
   for (i_POP = 0 ; i_POP < Nbr_PostSubOperation ; i_POP++) {      
-    Msg::Info("PostOperation %d/%d ", i_POP+1, Nbr_PostSubOperation) ;      
+    Message::Info("PostOperation %d/%d ", i_POP+1, Nbr_PostSubOperation) ;      
     PostSubOperation_P = (struct PostSubOperation*)
       List_Pointer(PostOperation_P->PostSubOperation, i_POP) ;    
     Pos_Formulation(Formulation_P, PostProcessing_P, PostSubOperation_P) ;
@@ -244,16 +244,16 @@ void  Init_HarInDofData(struct DefineSystem * DefineSystem_P,
   }
 
   if (DofData_P->NbrHar > NBR_MAX_HARMONIC)
-    Msg::Error("Too many harmonics to generate system (%d > %d)", 
-	       DofData_P->NbrHar/2, NBR_MAX_HARMONIC/2) ; 
+    Message::Error("Too many harmonics to generate system (%d > %d)", 
+                   DofData_P->NbrHar/2, NBR_MAX_HARMONIC/2) ; 
 
   if (DofData_P->NbrHar > 1) {
     for (j = 0 ; j < DofData_P->NbrHar/2 ; j++)
-      Msg::Info("System '%s' : Complex, Frequency = %.8g Hz",
-		DefineSystem_P->Name, DofData_P->Val_Pulsation[j]/TWO_PI) ;
+      Message::Info("System '%s' : Complex, Frequency = %.8g Hz",
+                    DefineSystem_P->Name, DofData_P->Val_Pulsation[j]/TWO_PI) ;
   }
   else{
-    Msg::Info("System '%s' : Real", DefineSystem_P->Name) ;
+    Message::Info("System '%s' : Real", DefineSystem_P->Name) ;
   }
 }
 
@@ -278,11 +278,11 @@ void  Treatment_Resolution(int ResolutionIndex,
   *Resolution_P = (struct Resolution*)List_Pointer(Problem_S.Resolution,
                                                    ResolutionIndex) ;
 
-  Msg::Info("Selected Resolution '%s'", (*Resolution_P)->Name) ;
+  Message::Info("Selected Resolution '%s'", (*Resolution_P)->Name) ;
   
   *Nbr_DefineSystem = List_Nbr((*Resolution_P)->DefineSystem) ;
   if (!*Nbr_DefineSystem){
-    Msg::Error("No System exists for Resolution '%s'", (*Resolution_P)->Name) ;
+    Message::Error("No System exists for Resolution '%s'", (*Resolution_P)->Name) ;
     return;
   }
   
@@ -385,7 +385,7 @@ void SolvingAnalyse()
       Num_Resolution = List_ISearchSeq(Problem_S.Resolution, Name_Resolution,
                                        fcmp_Resolution_Name) ;
     else
-      Msg::Error("Missing Resolution");
+      Message::Error("Missing Resolution");
   }
   else if (Flag_CAL || Flag_POS) {
     Dof_OpenFile(DOF_PRE, Name_Generic, "r") ;
@@ -396,7 +396,7 @@ void SolvingAnalyse()
 
   if (Num_Resolution < 0 ||
       Num_Resolution + 1 > List_Nbr(Problem_S.Resolution))
-    Msg::Error("Unknown Resolution (%s)", Name_Resolution);
+    Message::Error("Unknown Resolution (%s)", Name_Resolution);
 
   Treatment_Resolution(Num_Resolution, &Nbr_DefineSystem, &Nbr_OtherSystem,
                        &Resolution_P, &DefineSystem_P0, &DofData_P0,
@@ -408,7 +408,7 @@ void SolvingAnalyse()
 
   TreatmentStatus = _PRE ;
 
-  Msg::Direct("P r e - P r o c e s s i n g . . .") ;
+  Message::Direct("P r e - P r o c e s s i n g . . .") ;
 
   if (Flag_PRE) {
     
@@ -421,8 +421,8 @@ void SolvingAnalyse()
 
     for (i = 0 ; i < Nbr_PreResolution ; i++) {
 
-      Msg::Direct("P r e - R e s o l u t i o n  (%d/%d) . . .",
-		  i+1, Nbr_PreResolution) ;
+      Message::Direct("P r e - R e s o l u t i o n  (%d/%d) . . .",
+                      i+1, Nbr_PreResolution) ;
       
       List_Read(PreResolutionIndex_L, i, &PreResolutionInfo_S) ;
       Num_Resolution2 = PreResolutionInfo_S.Index ;
@@ -465,8 +465,8 @@ void SolvingAnalyse()
         DofData_P0 = (struct DofData*)List_Pointer(DofData_L, 0) ;  /* New Value ... */
       }
 
-      Msg::Direct("E n d   P r e - R e s o l u t i o n  (%d/%d)",
-		  i+1, Nbr_PreResolution) ;
+      Message::Direct("E n d   P r e - R e s o l u t i o n  (%d/%d)",
+                      i+1, Nbr_PreResolution) ;
     }
     
     Dof_OpenFile(DOF_PRE, Name_Generic, "w+") ;
@@ -489,7 +489,7 @@ void SolvingAnalyse()
 
   else if (Flag_CAL || Flag_POS) {
     
-    Msg::Info("Loding Pre-Processing data '%s.pre'", Name_Generic) ;
+    Message::Info("Loding Pre-Processing data '%s.pre'", Name_Generic) ;
 
     for(i = 0 ; i < Nbr_DefineSystem ; i++)
       Dof_ReadFilePRE(DofData_P0 + i) ;
@@ -515,8 +515,8 @@ void SolvingAnalyse()
     
   }  
 
-  Msg::Cpu("");
-  Msg::Direct("E n d   P r e - P r o c e s s i n g");
+  Message::Cpu("");
+  Message::Direct("E n d   P r e - P r o c e s s i n g");
 
   /* ---------- */
   /* Processing */
@@ -524,21 +524,21 @@ void SolvingAnalyse()
 
   if (Flag_CAL) {
     TreatmentStatus = _CAL ;
-    Msg::Direct("P r o c e s s i n g . . .") ;
+    Message::Direct("P r o c e s s i n g . . .") ;
 
     Init_DofDataInFunctionSpace(Nbr_DefineSystem, DofData_P0) ;
 
     if(Flag_RESTART) {
       i = 0 ;
       while(Name_ResFile[i]){
-	Msg::Info("Loding Processing data '%s'", Name_ResFile[i]) ;
+	Message::Info("Loding Processing data '%s'", Name_ResFile[i]) ;
 	Dof_OpenFile(DOF_RES, Name_ResFile[i], "rb");
 	Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeImag, 
 			&Current.TimeStep) ;
 	Dof_CloseFile(DOF_RES);
 	i++ ;
       }
-      Msg::Info("Restarting computation (time = %g) s (TimeStep %g)", 
+      Message::Info("Restarting computation (time = %g) s (TimeStep %g)", 
 		Current.Time, Current.TimeStep) ;
     }
     else{
@@ -556,8 +556,8 @@ void SolvingAnalyse()
     Treatment_Operation(Resolution_P, Resolution_P->Operation, 
                         DofData_P0, GeoData_P0, NULL, NULL) ;
 
-    Msg::Cpu("");
-    Msg::Direct("E n d   P r o c e s s i n g");
+    Message::Cpu("");
+    Message::Direct("E n d   P r o c e s s i n g");
   }
 
   /* --------------- */
@@ -567,13 +567,13 @@ void SolvingAnalyse()
   if (Flag_POS) {
     TreatmentStatus = _POS ;
 
-    Msg::Direct("P o s t - P r o c e s s i n g . . .") ;
+    Message::Direct("P o s t - P r o c e s s i n g . . .") ;
 
     i = 0 ;
     while(Name_PostOperation[i]){
       if((Num = List_ISearchSeq(Problem_S.PostOperation, Name_PostOperation[i],
 				fcmp_PostOperation_Name)) < 0)
-	Msg::Error("Unknown PostOperation (%s)", Name_PostOperation[i]) ;
+	Message::Error("Unknown PostOperation (%s)", Name_PostOperation[i]) ;
       PostOperation_P[i] = (struct PostOperation*)
 	List_Pointer(Problem_S.PostOperation, Num) ;
       PostProcessing_P[i] = (struct PostProcessing *)
@@ -585,7 +585,7 @@ void SolvingAnalyse()
     if (!Flag_CAL) {
       i = 0 ;
       while(Name_ResFile[i]){
-	Msg::Info("Loading Processing data '%s'", Name_ResFile[i]) ;
+	Message::Info("Loading Processing data '%s'", Name_ResFile[i]) ;
 	Dof_OpenFile(DOF_RES, Name_ResFile[i], "rb");
 	Dof_ReadFileRES(DofData_L, NULL, -1, &d, &d, &d) ;
 	Dof_CloseFile(DOF_RES) ;
@@ -640,8 +640,8 @@ void SolvingAnalyse()
       i++ ;
     }
 
-    Msg::Cpu("");
-    Msg::Direct("E n d   P o s t - P r o c e s s i n g");
+    Message::Cpu("");
+    Message::Direct("E n d   P o s t - P r o c e s s i n g");
   }
 
   List_Delete(DofData_L) ;

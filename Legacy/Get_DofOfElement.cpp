@@ -440,7 +440,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
     case _POS :
     case _CST :
       if(!FunctionSpace_P->DofData)
-	Msg::Error("Empty DofData in FunctionSpace '%s' (no unknowns?)",
+	Message::Error("Empty DofData in FunctionSpace '%s' (no unknowns?)",
 		   FunctionSpace_P->Name);
 
       CodeExist =
@@ -461,7 +461,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
       break ;
 
     default : 
-      Msg::Error("Unknown TreatmentStatus (%d)", TreatmentStatus);
+      Message::Error("Unknown TreatmentStatus (%d)", TreatmentStatus);
     }
 
     /*  2.  O n e   a s s o c i a t e s   a   b a s i s   f u n c t i o n :  */
@@ -529,7 +529,7 @@ void  Get_DofOfRegion(int  Num_Region,
     case _POS :
     case _CST :
       if(!FunctionSpace_P->DofData)
-	Msg::Error("Empty DofData in FunctionSpace '%s' (no unknowns?)",
+	Message::Error("Empty DofData in FunctionSpace '%s' (no unknowns?)",
 		   FunctionSpace_P->Name);
 
       CodeExist =
@@ -582,7 +582,7 @@ void  Get_PreResolutionForGlobalBasisFunction(int Nbr_Global, int StartingIndex,
 	Element->GlobalBasisFunction[StartingIndex + i]->ResolutionIndex ;
       PreResolutionInfo_S.Type  = PR_GLOBALBASISFUNCTION ;
       List_Add(PreResolutionIndex_L, &PreResolutionInfo_S) ;
-      Msg::Info("  Adding Resolution '%s' for Pre-Resolution (Global BF)", 
+      Message::Info("  Adding Resolution '%s' for Pre-Resolution (Global BF)", 
 		((struct Resolution*)List_Pointer(Problem_S.Resolution,
 						  PreResolutionInfo_S.Index))->Name) ;
     }

@@ -60,7 +60,7 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
     return(! List_Search(Group_P->ExtendedSuppList, &Entity, fcmp_int)) ;
 
   default :
-    Msg::Error("Unknown function type for Group '%s'", Group_P->Name);
+    Message::Error("Unknown function type for Group '%s'", Group_P->Name);
     return(-1) ;
   }
 }
@@ -72,7 +72,7 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
 void Generate_ExtendedGroup(struct Group * Group_P)
 {
 
-  Msg::Info("  Generate ExtendedGroup '%s' (%s)", Group_P->Name,
+  Message::Info("  Generate ExtendedGroup '%s' (%s)", Group_P->Name,
             Get_StringForDefine(FunctionForGroup_Type, Group_P->FunctionType)) ;
 
   switch (Group_P->FunctionType) {
@@ -120,7 +120,7 @@ void Generate_ExtendedGroup(struct Group * Group_P)
     break ;
 
   default :
-    Msg::Error("Unknown function type for Group '%s'", Group_P->Name) ;
+    Message::Error("Unknown function type for Group '%s'", Group_P->Name) ;
     break;
   }
 
@@ -137,7 +137,7 @@ void Generate_ExtendedGroup(struct Group * Group_P)
       List_Read(Group_P->ExtendedList, i, &k2);
       if(abs(k1.Int1) == abs(k2.Int1)){
         Group_P->IsExtendedListMultiValued = true;
-        Msg::Info("  Extended group is multivalued (search will be slow...)");
+        Message::Info("  Extended group is multivalued (search will be slow...)");
         break;
       }
     }
@@ -210,7 +210,7 @@ void Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList)
   Entity_Tr = Tree_Create(sizeof (struct TwoInt), fcmp_int2) ;
 
   Nbr_Element = Geo_GetNbrGeoElements() ; 
-  // Msg::Info("  Add Node :");
+  // Message::Info("  Add Node :");
   for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
     GeoElement = Geo_GetGeoElement(i_Element) ;
 
@@ -224,7 +224,7 @@ void Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList)
 
 	if ( ! Tree_Search(Entity_Tr, &Num_GroupOfNodes) ) {
 	  Tree_Add(Entity_Tr, &Num_GroupOfNodes) ;
-          // Msg::Info(" (%d, %d)", Num_GroupOfNodes.Int1, Num_GroupOfNodes.Int2); 
+          // Message::Info(" (%d, %d)", Num_GroupOfNodes.Int1, Num_GroupOfNodes.Int2); 
 	}
       }
     }
@@ -338,14 +338,14 @@ void Generate_GroupsOfEdges(List_T * InitialList,
     break ;
 
   default :
-    Msg::Error("Bad GroupsOfEdges (supplementary list missing)") ;
+    Message::Error("Bad GroupsOfEdges (supplementary list missing)") ;
   }
 
   *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
   /*
   for (i_Entity = 0 ; i_Entity < List_Nbr(*ExtendedList) ; i_Entity++) {
     List_Read(*ExtendedList, i_Entity, &Num_GroupOfEdges) ;
-    Msg::Info(" (%d, %d)", Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2) ;
+    Message::Info(" (%d, %d)", Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2) ;
   }
   */
 }

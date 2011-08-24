@@ -68,11 +68,11 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
       }
       else {
 	if(Current.Region == NO_REGION)
-	  Msg::Error("Function '%s' undefined in expressions without support",
-		     Expression_P->Name);
+	  Message::Error("Function '%s' undefined in expressions without support",
+                         Expression_P->Name);
 	else
-	  Msg::Error("Function '%s' undefined in Region %d",
-		     Expression_P->Name, Current.Region);
+	  Message::Error("Function '%s' undefined in Region %d",
+                         Expression_P->Name, Current.Region);
       }
     }
     Get_ValueOfExpression
@@ -82,7 +82,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
 
   case UNDEFINED_EXP :
     if(!Flag_WarningUndefined || strcmp(Flag_WarningUndefined, Expression_P->Name)){
-      Msg::Warning("Undefined expression '%s' (assuming zero)", Expression_P->Name) ;
+      Message::Warning("Undefined expression '%s' (assuming zero)", Expression_P->Name) ;
       Flag_WarningUndefined = Expression_P->Name;
     }
     Cal_ZeroValue(Value);
@@ -90,7 +90,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
     break;
 
   default :
-    Msg::Error("Unknown type (%d) of Expression (%s)",
+    Message::Error("Unknown type (%d) of Expression (%s)",
 	       Expression_P->Type, Expression_P->Name) ;  
     break;
   }
@@ -127,8 +127,8 @@ void Cal_SolidAngle(int Source, struct Element *Element,
   int    i, j ;
 
   if(Nbr_Dof != QuantityStorage->NbrElementaryBasisFunction)
-    Msg::Error("Uncompatible Quantity (%s) in SolidAngle computation",
-	       QuantityStorage->DefineQuantity->Name);
+    Message::Error("Uncompatible Quantity (%s) in SolidAngle computation",
+                   QuantityStorage->DefineQuantity->Name);
 
   if(Source){
     Elt = Element->ElementSource ;
@@ -175,13 +175,13 @@ void Cal_SolidAngle(int Source, struct Element *Element,
       Geo_CreateNodesXElements(NumNode, In, &NbrElements, &NumElements) ;
 
       if(NbrElements != 2)
-	Msg::Error("SolidAngle not done for incidence != 2 (%d)", NbrElements);
+	Message::Error("SolidAngle not done for incidence != 2 (%d)", NbrElements);
 
       GeoNode2 = Geo_GetGeoNodeOfNum(NumNode) ;
       GeoElement = Geo_GetGeoElementOfNum(abs(NumElements[0])) ;
 
       if(GeoElement->Type != LINE)
-	Msg::Error("SolidAngle not done for Elements other than LINE");
+	Message::Error("SolidAngle not done for Elements other than LINE");
       
       if(NumElements[0]>0){
 	GeoNode1 = Geo_GetGeoNodeOfNum(GeoElement->NumNodes[0]) ;
@@ -204,7 +204,7 @@ void Cal_SolidAngle(int Source, struct Element *Element,
       
       Stack[i][Index].Val[0] = (Atan >= 0) ? Atan : (Atan+2.*M_PI) ;
 
-      if(Msg::GetVerbosity() == 3){
+      if(Message::GetVerbosity() == 3){
 	printf("Solid angle=%g node=%d, region=%s, elms=", 
 	       Stack[i][Index].Val[0] * 180/M_PI, NumNode, 
 	       ((struct Group*)List_Pointer(Problem_S.Group, In))->Name);
@@ -324,8 +324,8 @@ void Cal_WholeQuantity(struct Element * Element,
   }
   RecursionIndex++;
   if(RecursionIndex < 0 || RecursionIndex >= MAX_RECURSION) 
-    Msg::Error("Recursion problem in Cal_WholeQuantity (%d outside [0,%d])", 
-	       RecursionIndex, MAX_RECURSION);
+    Message::Error("Recursion problem in Cal_WholeQuantity (%d outside [0,%d])", 
+                   RecursionIndex, MAX_RECURSION);
   Stack = StaticStack[RecursionIndex];
 #endif
 
@@ -336,7 +336,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
   for (i_WQ = 0 ; i_WQ < List_Nbr(WholeQuantity_L) ; i_WQ++) {
 
-    if(Index >= MAX_STACK_SIZE) Msg::Error("Stack size exceeded (%d)", MAX_STACK_SIZE);
+    if(Index >= MAX_STACK_SIZE) Message::Error("Stack size exceeded (%d)", MAX_STACK_SIZE);
 
     WholeQuantity_P = WholeQuantity_P0 + i_WQ ;
 
@@ -420,19 +420,19 @@ void Cal_WholeQuantity(struct Element * Element,
 	    if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= ntime){ 
 	      ((Current.DofData_P0+k)->CurrentSolution) -= ntime ;
 	      if (Flag_InfoForTime_ntime != List_Nbr((Current.DofData_P0+k)->Solutions)) {
-		Msg::Debug("Accessing solution from %d time steps ago", ntime);
-		Msg::Debug("  -> System %d/%d: TimeStep = %d, Time = %g + i * %g",
-			  k+1, Current.NbrSystem, 
-			  (Current.DofData_P0+k)->CurrentSolution->TimeStep,
-			  (Current.DofData_P0+k)->CurrentSolution->Time,
-			  (Current.DofData_P0+k)->CurrentSolution->TimeImag);
+		Message::Debug("Accessing solution from %d time steps ago", ntime);
+		Message::Debug("  -> System %d/%d: TimeStep = %d, Time = %g + i * %g",
+                               k+1, Current.NbrSystem, 
+                               (Current.DofData_P0+k)->CurrentSolution->TimeStep,
+                               (Current.DofData_P0+k)->CurrentSolution->Time,
+                               (Current.DofData_P0+k)->CurrentSolution->TimeImag);
 		Flag_InfoForTime_ntime = List_Nbr((Current.DofData_P0+k)->Solutions);
 	      }
 	    }
 	    else {
 	      if (!Flag_WarningMissSolForTime_ntime) {
-		Msg::Warning("Missing solution for time step -%d computation (System #%d/%d)",
-			     ntime, k+1, Current.NbrSystem);
+		Message::Warning("Missing solution for time step -%d computation (System #%d/%d)",
+                                 ntime, k+1, Current.NbrSystem);
 		Flag_WarningMissSolForTime_ntime = 1 ;
 	      }
 	    }
@@ -459,10 +459,10 @@ void Cal_WholeQuantity(struct Element * Element,
 	  
 	} 
 	else
-	  Msg::Error("Explicit (x,y,z,time) evaluation not implemented");
+	  Message::Error("Explicit (x,y,z,time) evaluation not implemented");
       }
       else{
-	Msg::Error("Explicit Dof{} evaluation out of context");
+	Message::Error("Explicit Dof{} evaluation out of context");
       }
       Current.Element = Save_CurrentElement ;
       Current.Region = Save_Region ;
@@ -472,7 +472,7 @@ void Cal_WholeQuantity(struct Element * Element,
       Save_Region = Current.Region ; 
 
       if(!Element->ElementTrace)
-	Msg::Error("Trace must act on discrete quantity (and not in post-processing)");
+	Message::Error("Trace must act on discrete quantity (and not in post-processing)");
 
       Current.Region = Element->ElementTrace->Region ;
       
@@ -665,8 +665,8 @@ void Cal_WholeQuantity(struct Element * Element,
 	  }
 	  else {
 	    if (!Flag_WarningMissSolForDt) {
-	      Msg::Warning("Missing solution for time derivative computation (Sys#%d/%d)",
-			   k, Current.NbrSystem);
+	      Message::Warning("Missing solution for time derivative computation (Sys#%d/%d)",
+                               k, Current.NbrSystem);
 	      Flag_WarningMissSolForDt = 1 ;
 	    }
 	  }
@@ -715,19 +715,19 @@ void Cal_WholeQuantity(struct Element * Element,
 	if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= ntime){ 
 	  ((Current.DofData_P0+k)->CurrentSolution) -= ntime ;
 	  if (Flag_InfoForTime_ntime != List_Nbr((Current.DofData_P0+k)->Solutions)) {
-	    Msg::Info("Accessing solution from %d time steps ago", ntime);
-	    Msg::Info("  -> System %d/%d: TimeStep = %d, Time = %g + i * %g",
-		      k+1, Current.NbrSystem, 
-		      (Current.DofData_P0+k)->CurrentSolution->TimeStep,
-		      (Current.DofData_P0+k)->CurrentSolution->Time,
-		      (Current.DofData_P0+k)->CurrentSolution->TimeImag);
+	    Message::Info("Accessing solution from %d time steps ago", ntime);
+	    Message::Info("  -> System %d/%d: TimeStep = %d, Time = %g + i * %g",
+                          k+1, Current.NbrSystem, 
+                          (Current.DofData_P0+k)->CurrentSolution->TimeStep,
+                          (Current.DofData_P0+k)->CurrentSolution->Time,
+                          (Current.DofData_P0+k)->CurrentSolution->TimeImag);
 	    Flag_InfoForTime_ntime = List_Nbr((Current.DofData_P0+k)->Solutions);
 	  }
 	}
 	else {
 	  if (!Flag_WarningMissSolForTime_ntime) {
-	    Msg::Warning("Missing solution for time step -%d computation (System #%d/%d)",
-			 ntime, k+1, Current.NbrSystem);
+	    Message::Warning("Missing solution for time step -%d computation (System #%d/%d)",
+                             ntime, k+1, Current.NbrSystem);
 	    Flag_WarningMissSolForTime_ntime = 1 ;
 	  }
 	}
@@ -762,7 +762,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_MHTRANSFORM :
       if(Current.NbrHar == 1)
-	Msg::Error("MHTransform can only be used in complex (multi-harmonic) calculations") ;
+	Message::Error("MHTransform can only be used in complex (multi-harmonic) calculations") ;
 
       Cal_WholeQuantity(Element, QuantityStorage_P0, 
 			WholeQuantity_P->Case.MHTransform.WholeQuantity, 
@@ -823,7 +823,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_SAVEVALUE :
       if(WholeQuantity_P->Case.SaveValue.Index > MAX_REGISTER_SIZE-1)
-	Msg::Error("Register Size Exceeded (%d)", MAX_REGISTER_SIZE);
+	Message::Error("Register Size Exceeded (%d)", MAX_REGISTER_SIZE);
       /* if (WholeQuantity_P->Case.SaveValue.Index >= 0) */
       Cal_CopyValue(&Stack[0][Index-1], 
 		    ValueSaved + WholeQuantity_P->Case.SaveValue.Index) ;
@@ -831,7 +831,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_VALUESAVED :
       if(WholeQuantity_P->Case.ValueSaved.Index > MAX_REGISTER_SIZE-1)
-	Msg::Error("Register size exceeded (%d)", MAX_REGISTER_SIZE);
+	Message::Error("Register size exceeded (%d)", MAX_REGISTER_SIZE);
       Cal_CopyValue(ValueSaved + WholeQuantity_P->Case.ValueSaved.Index, 
 		    &Stack[0][Index]) ;
       Multi[Index] = 0 ;
@@ -852,7 +852,7 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
       
     default :
-      Msg::Error("Unknown type of WholeQuantity (%d)", WholeQuantity_P->Type);
+      Message::Error("Unknown type of WholeQuantity (%d)", WholeQuantity_P->Type);
       break;
     }
   }

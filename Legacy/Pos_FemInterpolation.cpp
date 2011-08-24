@@ -77,10 +77,10 @@ void Pos_FemInterpolation(struct Element * Element,
   if(SubType_DefineQuantity != NODOF) {
 
     if(!QuantityStorage_P->FunctionSpace)
-      Msg::Error("No available function space for quantity");
+      Message::Error("No available function space for quantity");
 
     if(!QuantityStorage_P->FunctionSpace->DofData)
-      Msg::Error("No available data to interpolate quantity");
+      Message::Error("No available data to interpolate quantity");
 
     GeoDataNum = QuantityStorage_P->FunctionSpace->DofData->GeoDataIndex;
     UseNewGeo = (GeoDataNum != Current.GeoData->Num) ;
@@ -132,7 +132,7 @@ void Pos_FemInterpolation(struct Element * Element,
 	 Type_Form) ;
     }
     else {
-      Msg::Warning("No element found in mesh for LocalQuantity interpolation");
+      Message::Warning("No element found in mesh for LocalQuantity interpolation");
       Nbr_Dof = 0 ;
       Type_Form = VECTOR ;
     }
@@ -145,7 +145,7 @@ void Pos_FemInterpolation(struct Element * Element,
   else if (Type_DefineQuantity == INTEGRALQUANTITY) {
 
     if(Type_Operator != NOOP){
-      Msg::Error("Operator acting on Integral Quantity");
+      Message::Error("Operator acting on Integral Quantity");
     }
     Type_Form = VECTOR ;
     Get_InitElementSource(TheElement_P,
@@ -355,7 +355,7 @@ void Pos_FemInterpolation(struct Element * Element,
 	break ;
 	
       default :
-	Msg::Error("Unknown Form type in 'Pos_FemInterpolation'");
+	Message::Error("Unknown Form type in 'Pos_FemInterpolation'");
 	break;
       }
       
@@ -410,7 +410,7 @@ void Pos_FemInterpolation(struct Element * Element,
 	  break ;
 	  
 	default :
-	  Msg::Error("Unknown Form type in 'Pos_FemInterpolation'");
+	  Message::Error("Unknown Form type in 'Pos_FemInterpolation'");
 	  break;
 	}
 	
@@ -494,7 +494,7 @@ void Pos_FemInterpolation(struct Element * Element,
 	  break ;
 	  
 	default :
-	  Msg::Error("Unknown Form type in 'Pos_FemInterpolation'");
+	  Message::Error("Unknown Form type in 'Pos_FemInterpolation'");
 	  break;
 	}
 	

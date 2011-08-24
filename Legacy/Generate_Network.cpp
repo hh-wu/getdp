@@ -31,7 +31,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L)
 
   ListInt_L = List_Create(10, 10, sizeof(int)) ;
   Nbr_Branch = List_Nbr(ConstraintPerRegion_L) ;
-  if (!Nbr_Branch) Msg::Error("No branch in Network") ;
+  if (!Nbr_Branch) Message::Error("No branch in Network") ;
 
   for (j = 0 ; j < Nbr_Branch ; j++) {
     CPR = (struct ConstraintPerRegion *)List_Pointer(ConstraintPerRegion_L, j) ;
@@ -96,7 +96,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L)
 	  for (l=0 ; l<Nbr_Branch ; l++){
 	    if      (vk - vi == 0)  MatA[k][l] -= MatA[i][l] ;
 	    else if (vk + vi == 0)  MatA[k][l] += MatA[i][l] ;
-	    else                    Msg::Error("Bad network") ;
+	    else                    Message::Error("Bad network") ;
 	  }
 	}
       }
@@ -104,7 +104,7 @@ struct ConstraintActive * Generate_Network(List_T * ConstraintPerRegion_L)
     else {
       if (j_col2 < Nbr_Branch)
 	Num_col[j_col2++] = j ;  /* Column for the complementary part of the matrix */
-      else  Msg::Error("Bad network") ;
+      else  Message::Error("Bad network") ;
     }
   }
   

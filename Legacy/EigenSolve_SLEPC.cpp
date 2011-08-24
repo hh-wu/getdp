@@ -55,7 +55,7 @@ static PetscErrorCode _myMonitor(const char *str, int its, int nconv, PetscScala
           << eigr[nconv] << " + i * (" << eigi[nconv] << ")"
 #endif
           << " error " << errest[nconv];
-  Msg::Info("%s", sstream.str().c_str());
+  Message::Info("%s", sstream.str().c_str());
   return 0;
 }
 
@@ -80,7 +80,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
   Vec xr, xi;
   _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xr));
   _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xi));
-  Msg::Info("               %-24s%-24s%-12s", "Re", "Im", "Relative error");
+  Message::Info("               %-24s%-24s%-12s", "Re", "Im", "Relative error");
   bool newsol = false;
   for (int i = 0; i < nconv; i++){
     PetscScalar kr, ki;
@@ -100,25 +100,25 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
 #endif
     double ore, oim;
     if(eps){
-      Msg::Info("EIG %03d w^2 = %s%.16e %s%.16e  %3.6e", 
-                i, (re < 0) ? "" : " ", re, (im < 0) ? "" : " ", im, error);
+      Message::Info("EIG %03d w^2 = %s%.16e %s%.16e  %3.6e", 
+                    i, (re < 0) ? "" : " ", re, (im < 0) ? "" : " ", im, error);
       double abs = sqrt(re * re + im * im), arg = atan2(im, re);
       ore = sqrt(abs) * cos(0.5*arg);
       oim = sqrt(abs) * sin(0.5*arg);
       double fre = ore / 2. / M_PI, fim = oim / 2. / M_PI;
-      Msg::Info("          w = %s%.16e %s%.16e", 
-                (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim);
-      Msg::Info("          f = %s%.16e %s%.16e", 
-                (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
+      Message::Info("          w = %s%.16e %s%.16e", 
+                    (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim);
+      Message::Info("          f = %s%.16e %s%.16e", 
+                    (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
     }
     else{
       ore = re;
       oim = im;
-      Msg::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e", 
-                i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
+      Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e", 
+                    i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
       double fre = re / 2. / M_PI, fim = im / 2. / M_PI;
-      Msg::Info("          f = %s%.16e %s%.16e", 
-                (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
+      Message::Info("          f = %s%.16e %s%.16e", 
+                    (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
     }
     
     // create new solution vector if necessary
@@ -174,7 +174,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
 static void _linearEVP(struct DofData * DofData_P, int numEigenValues, 
                        double shift_r, double shift_i)
 {
-  Msg::Info("Solving linear eigenvalue problem");
+  Message::Info("Solving linear eigenvalue problem");
 
   // GetDP notation: -w^2 M3 x (+ iw M2 x) + M1 x = 0
   // SLEPC notation for generalized linear EVP: A x - \lambda B x = 0
@@ -213,7 +213,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 #else
     PetscScalar shift = shift_r;
     if(shift_i)
-      Msg::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
+      Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
 #endif
     //_try(STSetShift(st, shift));
     _try(EPSSetTarget(eps, shift));
@@ -234,17 +234,17 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   // print info
   const EPSType type;
   _try(EPSGetType(eps, &type));
-  Msg::Info("SLEPc solution method: %s", type);
+  Message::Info("SLEPc solution method: %s", type);
   PetscInt nev;
   _try(EPSGetDimensions(eps, &nev, PETSC_NULL, PETSC_NULL));
-  Msg::Info("SLEPc number of requested eigenvalues: %d", nev);
+  Message::Info("SLEPc number of requested eigenvalues: %d", nev);
   PetscReal tol;
   PetscInt maxit;
   _try(EPSGetTolerances(eps, &tol, &maxit));
-  Msg::Info("SLEPc stopping condition: tol=%g, maxit=%d", tol, maxit);
+  Message::Info("SLEPc stopping condition: tol=%g, maxit=%d", tol, maxit);
   
   // solve
-  Msg::Info("SLEPc solving...");
+  Message::Info("SLEPc solving...");
   _try(EPSSolve(eps));
   
   // check convergence
@@ -253,20 +253,20 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   EPSConvergedReason reason;
   _try(EPSGetConvergedReason(eps, &reason));
   if(reason == EPS_CONVERGED_TOL)
-    Msg::Info("SLEPc converged in %d iterations", its);
+    Message::Info("SLEPc converged in %d iterations", its);
   else if(reason == EPS_DIVERGED_ITS)
-    Msg::Error("SLEPc diverged after %d iterations", its);
+    Message::Error("SLEPc diverged after %d iterations", its);
   else if(reason == EPS_DIVERGED_BREAKDOWN)
-    Msg::Error("SLEPc generic breakdown in method");
+    Message::Error("SLEPc generic breakdown in method");
 #if !(PETSC_VERSION_RELEASE == 0) // petsc-dev
   else if(reason == EPS_DIVERGED_NONSYMMETRIC)
-    Msg::Error("The operator is nonsymmetric");
+    Message::Error("The operator is nonsymmetric");
 #endif
 
   // get number of converged approximate eigenpairs
   PetscInt nconv;
   _try(EPSGetConverged(eps, &nconv));
-  Msg::Info("SLEPc number of converged eigenpairs: %d", nconv);
+  Message::Info("SLEPc number of converged eigenpairs: %d", nconv);
   
   // ignore additional eigenvalues if we get more than what we asked
   if(nconv > nev) nconv = nev;
@@ -284,7 +284,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues, 
                           double shift_r, double shift_i)
 {
-  Msg::Info("Solving quadratic eigenvalue problem");
+  Message::Info("Solving quadratic eigenvalue problem");
 
   // GetDP notation: -w^2 M3 x + iw M2 x + M1 x = 0
   // SLEPC notations for quadratic EVP: (\lambda^2 M + \lambda C + K) x = 0
@@ -322,7 +322,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 #else
       PetscScalar shift = shift_r;
       if(shift_i)
-        Msg::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
+        Message::Warning("Imaginary part of shift discarded: use PETSc with complex numbers");
 #endif
       //_try(STSetShift(st, shift));
       _try(EPSSetTarget(eps, shift));
@@ -331,7 +331,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     // use MUMPS by default if available
 #if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
     _try(QEPLinearSetExplicitMatrix(qep, PETSC_TRUE));
-    Msg::Info("SLEPc forcing explicit construction of matrix");
+    Message::Info("SLEPc forcing explicit construction of matrix");
     KSP ksp;
     _try(STGetKSP(st, &ksp));
     _try(KSPSetType(ksp, "preonly"));
@@ -352,14 +352,14 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
     _try(QEPSetDimensions(qep, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
 
   // print info
-  Msg::Info("SLEPc solution method: %s", type);
+  Message::Info("SLEPc solution method: %s", type);
   PetscInt nev;
   _try(QEPGetDimensions(qep, &nev, PETSC_NULL, PETSC_NULL));
-  Msg::Info("SLEPc number of requested eigenvalues: %d", nev);
+  Message::Info("SLEPc number of requested eigenvalues: %d", nev);
   PetscReal tol;
   PetscInt maxit;
   _try(QEPGetTolerances(qep, &tol, &maxit));
-  Msg::Info("SLEPc stopping condition: tol=%g, maxit=%d", tol, maxit);
+  Message::Info("SLEPc stopping condition: tol=%g, maxit=%d", tol, maxit);
 
   // solve
   _try(QEPSolve(qep));
@@ -370,18 +370,18 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   QEPConvergedReason reason;
   _try(QEPGetConvergedReason(qep, &reason));
   if(reason == QEP_CONVERGED_TOL)
-    Msg::Info("SLEPc converged in %d iterations", its);
+    Message::Info("SLEPc converged in %d iterations", its);
   else if(reason == QEP_DIVERGED_ITS)
-    Msg::Error("SLEPc diverged after %d iterations", its);
+    Message::Error("SLEPc diverged after %d iterations", its);
   else if(reason == QEP_DIVERGED_BREAKDOWN)
-    Msg::Error("SLEPc generic breakdown in method");
+    Message::Error("SLEPc generic breakdown in method");
   else if(reason == QEP_CONVERGED_ITERATING)
-    Msg::Error("QEP converged interating");
+    Message::Error("QEP converged interating");
 
   // get number of converged approximate eigenpairs
   PetscInt nconv;
   _try(QEPGetConverged(qep, &nconv));
-  Msg::Info("SLEPc number of converged eigenpairs: %d", nconv);
+  Message::Info("SLEPc number of converged eigenpairs: %d", nconv);
 
   // ignore additional eigenvalues if we get more than what we asked
   if(nconv > nev) nconv = nev;
@@ -407,13 +407,13 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
   // way (since, for real, non-symmetric matrices we would get complex
   // eigenvectors we could not easily store)
   if(Current.NbrHar != 2)
-    Msg::Error("EigenSolve requires system defined with \"Type Complex\"");
+    Message::Error("EigenSolve requires system defined with \"Type Complex\"");
 
   // GenerateSeparate[] creates three matrices M3, M2, M1 such that
   // -w^2 M3 x + iw M2 x + M1 x = b; check Flag_Init[i] to see which
   // operators exist:
   if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
-    Msg::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
+    Message::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
 
   if(!DofData_P->Flag_Init[2]){
     // the shift refers to w^2

@@ -83,7 +83,7 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
       break ;
     case INTEGRALQUANTITY :
       if(EquationTerm_P->Case.LocalTerm.Term.TypeOperatorDof != NOOP){
-	Msg::Error("No operator can act on an Integral Quantity");
+	Message::Error("No operator can act on an Integral Quantity");
       }
       FI->Type_FormDof = VECTOR ; /* we don't know the type a priori */
       FI->IntegralQuantityActive.IntegrationCase_L =
@@ -114,7 +114,7 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   /*  --------------------------------------------  */
   
   if(EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex < 0)
-    Msg::Error("Integration method missing in equation term");
+    Message::Error("Integration method missing in equation term");
 
   FI->IntegrationCase_L = 
     ((struct IntegrationMethod *)
@@ -133,7 +133,7 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   /*  --------------------------------------  */
 
   if(EquationTerm_P->Case.LocalTerm.JacobianMethodIndex < 0)
-    Msg::Error("Jacobian method missing in equation term");
+    Message::Error("Jacobian method missing in equation term");
   
   FI->JacobianCase_L =
     ((struct JacobianMethod *)
@@ -203,7 +203,7 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   case SCALAR  :
     FI->Cal_Productx = (double (*)())Cal_Product1 ; break ;
   default      : 
-    Msg::Error("Unknown type of Form (%d)", FI->Type_FormEqu);
+    Message::Error("Unknown type of Form (%d)", FI->Type_FormEqu);
   }
 
   /*  G e t   F u n c t i o n _ A s s e m b l e T e r m  */
@@ -218,21 +218,21 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   case JACNL_  : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_JacNL  ; break;
   case NEVERDT_: FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NeverDt; break;
   case DTNL_   : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtNL   ; break;
-  default      : Msg::Error("Unknown type of Operator for Galerkin term (%d)", 
-			    EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
+  default      : Message::Error("Unknown type of Operator for Galerkin term (%d)", 
+                                EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
   }
 
 
   if (MH_Moving_Matrix_simple) {
-    /* Msg::Info("AssembleTerm_MH_Moving") ; */
+    /* Message::Info("AssembleTerm_MH_Moving") ; */
     FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_simple ; 
   }
   if (MH_Moving_Matrix_probe) {
-    /* Msg::Info("AssembleTerm_MH_Moving") ; */
+    /* Message::Info("AssembleTerm_MH_Moving") ; */
     FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_probe ; 
   }
   if (MH_Moving_Matrix_separate) {
-    /* Msg::Info("AssembleTerm_MH_Moving") ; */
+    /* Message::Info("AssembleTerm_MH_Moving") ; */
     FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_separate ; 
   }
 
@@ -427,8 +427,8 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   }
 
   if(Nbr_Equ > NBR_MAX_BASISFUNCTIONS)
-    Msg::Fatal("Number of basis functions (%d) exceeds NBR_MAX_BASISFUNCTIONS: "
-               "please recompile after changing Interface/ProData.h", Nbr_Equ);
+    Message::Fatal("Number of basis functions (%d) exceeds NBR_MAX_BASISFUNCTIONS: "
+                   "please recompile after changing Interface/ProData.h", Nbr_Equ);
   
   Get_FunctionValue(Nbr_Equ, (void (**)())xFunctionBFEqu,
 		    EquationTerm_P->Case.LocalTerm.Term.TypeOperatorEqu,
@@ -478,7 +478,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	  ->InitialList, &Element->Region, fcmp_int) )  i++ ;
 
   if (i == FI->NbrJacobianCase)
-    Msg::Error("Undefined Jacobian in Region %d", Element->Region);
+    Message::Error("Undefined Jacobian in Region %d", Element->Region);
 
   Element->JacobianCase = FI->JacobianCase_P0 + i ;
 
@@ -552,7 +552,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
       
       if(!Quadrature_P)
-	Msg::Error
+	Message::Error
 	  ("Unknown type of Element (%s) for Integration method (%s)",
 	   Get_StringForDefine(Element_Type, Element->Type),
 	   ((struct IntegrationMethod *)
@@ -614,7 +614,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 		Cal_CrossProductValue (&CanonicExpression_Equ,&V1,&V2);
 		break;
 	      default :
-		Msg::Error("Unknown operation in Equation");
+		Message::Error("Unknown operation in Equation");
 	      }
 	    }
 	    else if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ == 
@@ -682,7 +682,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	}
       }
       else {
-	Msg::Error("Bad expression for full analytic integration");
+	Message::Error("Bad expression for full analytic integration");
       }
       
       if (FI->SymmetricalMatrix) {
@@ -702,7 +702,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	       FI->Cal_Productx) ;
 	  break;
 	default :
-	  Msg::Error("Exterior analytical integration not implemented");
+	  Message::Error("Exterior analytical integration not implemented");
 	  break;
 	}
       }
@@ -710,7 +710,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       break ; /* case ANALYTIC */
       
     default :
-      Msg::Error
+      Message::Error
 	("Unknown type of Integration method (%s)",
 	 ((struct IntegrationMethod *)
 	  List_Pointer(Problem_S.IntegrationMethod,
@@ -728,7 +728,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	  for (k = 0 ; k < Current.NbrHar ; k++)  
 	    Ek[j][i][k] = Ek[i][j][k] ;
     
-    if(Msg::GetVerbosity() == 10) {
+    if(Message::GetVerbosity() == 10) {
       printf("Galerkin = ") ;
       for (j = 0 ; j < Nbr_Dof ; j++)
 	Print_DofNumber(QuantityStorageDof_P->BasisFunction[j].Dof) ; 

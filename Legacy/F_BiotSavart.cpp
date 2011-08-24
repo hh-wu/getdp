@@ -35,7 +35,7 @@ void F_BiotSavart(F_ARG)
     yys = Current.y-Current.ys ; 
     
     r = SQU(xxs)+SQU(yys) ;
-    if(!r) Msg::Error("1/0 in 'F_BiotSavart'") ;
+    if(!r) Message::Error("1/0 in 'F_BiotSavart'") ;
      
     V->Val[0] = ONE_OVER_TWO_PI * xxs / r ;
     V->Val[1] = ONE_OVER_TWO_PI * yys / r ;
@@ -50,7 +50,7 @@ void F_BiotSavart(F_ARG)
 
     r = sqrt(SQU(xxs)+SQU(yys)+SQU(zzs)) ;
     
-    if(!r) Msg::Error("1/0 in 'F_BiotSavart'") ;
+    if(!r) Message::Error("1/0 in 'F_BiotSavart'") ;
     
     V->Val[0] = ONE_OVER_FOUR_PI * xxs/ CUB(r) ;
     V->Val[1] = ONE_OVER_FOUR_PI * yys/ CUB(r) ;
@@ -58,7 +58,7 @@ void F_BiotSavart(F_ARG)
     V->Val[MAX_DIM] =  V->Val[MAX_DIM + 1 ] = V->Val[MAX_DIM + 2 ] =0. ; 
     break;
   default:
-    Msg::Error("Bad dimension for BiotSavart");  
+    Message::Error("Bad dimension for BiotSavart");  
     break;
   }
 }
@@ -80,7 +80,7 @@ void F_Pocklington(F_ARG)
 
   r = sqrt(SQU(xxs)+SQU(yys)+SQU(zzs)+ a*a ) ;
   
-  if(!r) Msg::Error("1/0 in 'F_Pocklington'") ;
+  if(!r) Message::Error("1/0 in 'F_Pocklington'") ;
     
   kr = k*r ;
   cte = ONE_OVER_FOUR_PI/(r*r*r*r*r);

@@ -16,6 +16,10 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
+#if defined(HAVE_GMSH)
+#include <gmsh/Gmsh.h>
+#endif
+
 int     Flag_PRE = 0, Flag_CAL = 0, Flag_POS = 0, Flag_RESTART = 0;
 int     Flag_XDATA = 0, Flag_BIN = 0, Flag_SPLIT = 0, Flag_GMSH_VERSION = 1;
 double  Flag_ORDER = -1.;
@@ -121,10 +125,10 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       else if (!strcmp(argv[i]+1, "socket")) {
 	i++;
 	if (i<argc && argv[i][0]!='-') { 
-	  Msg::InitializeSocket(argv[i]); i++; 
+	  Message::InitializeSocket(argv[i]); i++; 
 	}
 	else {
-	  Msg::Error("Missing socket name");
+	  Message::Error("Missing socket name");
 	}
       }
 
@@ -136,10 +140,10 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	       !strcmp(argv[i]+1, "v")) {
 	i++;
 	if (i<argc && argv[i][0]!='-') { 
-	  Msg::SetVerbosity(atoi(argv[i])); i++; 
+	  Message::SetVerbosity(atoi(argv[i])); i++; 
 	}
 	else {
-	  Msg::Error("Missing number");
+	  Message::Error("Missing number");
 	}
       } 
 
@@ -162,10 +166,10 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	       !strcmp(argv[i]+1, "p")) {
 	i++;
 	if (i<argc && argv[i][0]!='-') { 
-	  Msg::SetProgressMeterStep(atoi(argv[i])); i++;
+	  Message::SetProgressMeterStep(atoi(argv[i])); i++;
 	}
 	else {
-	  Msg::Error("Missing number");
+	  Message::Error("Missing number");
 	}
       } 
 
@@ -189,7 +193,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	  Flag_ORDER = atof(argv[i]); i++;
 	}
 	else {
-	  Msg::Error("Missing interpolation order");
+	  Message::Error("Missing interpolation order");
 	}
       }
 
@@ -201,7 +205,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
           sargv[(*sargc)++] = argv[i++];
 	}
 	else {
-	  Msg::Error("Missing solver option file name");
+	  Message::Error("Missing solver option file name");
 	}
       }
 
@@ -229,7 +233,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	  while (i<argc && argv[i][0]!='-') { 
 	    Name_PostOperation[j] = argv[i]; i++; j++;
 	    if(j == NBR_MAX_POS)
-	      Msg::Error("Too many PostOperations");
+	      Message::Error("Too many PostOperations");
 	  }
 	  if(!j){
 	    Flag_POS = *lpos = 1;
@@ -249,7 +253,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	  Name_MshFile = argv[i]; i++; 
 	}
 	else {
-	  Msg::Error("Missing file name");
+	  Message::Error("Missing file name");
 	}
       }
 
@@ -261,7 +265,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	  Name_AdaptFile = argv[i]; i++; 
 	}
 	else {
-	  Msg::Error("Missing file name");
+	  Message::Error("Missing file name");
 	}
       }
 
@@ -270,10 +274,10 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	while (i<argc && argv[i][0]!='-') { 
 	  Name_ResFile[j] = argv[i]; i++; j++;
 	  if(j == NBR_MAX_RES)
-	    Msg::Error("Too many '.res' files");
+	    Message::Error("Too many '.res' files");
 	}
 	if(!j)
-	  Msg::Error("Missing file name");
+	  Message::Error("Missing file name");
 	else{
 	  Name_ResFile[j] = NULL;
 	}
@@ -286,7 +290,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	  strcpy(Name_Generic, argv[i]); i++; 
 	}
 	else {
-	  Msg::Error("Missing string");
+	  Message::Error("Missing string");
 	}
       }
 
@@ -315,7 +319,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
   }
   
   if(!strlen(pro))
-    Msg::Error("Missing input file name");
+    Message::Error("Missing input file name");
   else{
     if(!Name_Generic){
       Name_Generic = (char*)Malloc((strlen(pro) + 1) * sizeof(char));
@@ -353,15 +357,15 @@ int MainLegacy(int argc, char *argv[])
     cmdline += argv[i];
   }
 
-  Msg::Init(argc, argv);
+  Message::Init(argc, argv);
 
   char pro[256];
   char **sargv = (char**)Malloc(256 * sizeof(char*));
   int sargc, lres = 0, lpos = 0, check = 0;
   Get_Options(argc, argv, &sargc, sargv, pro, &lres, &lpos, &check);
 
-  Msg::Info("Running '%s' [%d node(s)]", cmdline.c_str(), Msg::GetCommSize());
-  Msg::Info("Started on %s", currtime.c_str());
+  Message::Info("Running '%s' [%d node(s)]", cmdline.c_str(), Message::GetCommSize());
+  Message::Info("Started on %s", currtime.c_str());
 
   if(sargc > 1){
     std::string solveropt("");
@@ -369,7 +373,7 @@ int MainLegacy(int argc, char *argv[])
       if(i > 1) solveropt += " ";
       solveropt += sargv[i];
     }
-    Msg::Debug("Passing unused options to solver: '%s'", solveropt.c_str());
+    Message::Debug("Passing unused options to solver: '%s'", solveropt.c_str());
   }
 
   if(!Name_ResFile[0]){
@@ -386,7 +390,7 @@ int MainLegacy(int argc, char *argv[])
   }
 
   check_gsl();
-  CheckResources();
+  IncreaseStackSize();
 
   LinAlg_InitializeSolver(&sargc, &sargv);
 
@@ -399,7 +403,13 @@ int MainLegacy(int argc, char *argv[])
     choose = 0;
   }
 
-  // Msg::TestSocket();
+  // Message::TestSocket();
+
+#if defined(HAVE_GMSH)
+  GmshInitialize();
+  Message::Info("Hello Gmsh!");
+  GmshFinalize();
+#endif
 
   if(check) 
     Print_ProblemStructure();
@@ -418,10 +428,10 @@ int MainLegacy(int argc, char *argv[])
   time(&now);
   currtime = ctime(&now);
   currtime[currtime.size() - 1] = '\0';
-  Msg::Info("Stopped on %s", currtime.c_str());
+  Message::Info("Stopped on %s", currtime.c_str());
 
-  Msg::Direct("E n d");
-  Msg::FinalizeSocket();
-  Msg::Exit(0);
+  Message::Direct("E n d");
+  Message::FinalizeSocket();
+  Message::Exit(0);
   return 0;
 }

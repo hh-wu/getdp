@@ -20,7 +20,7 @@ double Factorial(double n)
   /* FACTORIAL(n) is the product of all the integers from 1 to n */  
   double F ;
 
-  if ( n < 0 ) Msg::Error("Factorial(n): n must be a positive integer") ;
+  if ( n < 0 ) Message::Error("Factorial(n): n must be a positive integer") ;
   if ( n == 0 ) return 1. ;
   if ( n <= 2 ) return n ;
 
@@ -54,7 +54,7 @@ double Legendre(int l, int m, double x)
   int i, ll;
   
   if ( THEABS(m) > l || fabs(x) > 1.)
-    Msg::Error("Bad arguments for Legendre: P_l^m(x) with -l<=m<=l (int),"
+    Message::Error("Bad arguments for Legendre: P_l^m(x) with -l<=m<=l (int),"
 	       " -1<=x<=1 l = %d m = %d x = %.8g", l, m, x);
  
   Cte = (m > 0) ? 1. : Factorial((double)(l-THEABS(m))) /
@@ -150,7 +150,7 @@ double dLegendre (int l, int m, double x)
   double dpl;
 
   if ( THEABS(m) > l || fabs(x) > 1.)
-    Msg::Error("Bad arguments for dLegendre: -l<=m<=l (integers), -1<=x<=1."
+    Message::Error("Bad arguments for dLegendre: -l<=m<=l (integers), -1<=x<=1."
 	       " Current values: l %d m %d x %.8g", l, m, x) ;
   
   if (fabs(x)==1.) dpl = 0.;
@@ -171,7 +171,7 @@ double dLegendreFinDif (int l, int m, double x)
   double dpl, delta = 1e-6;
 
   if ( THEABS(m) > l || fabs(x) > 1.)
-    Msg::Error("Bad arguments for dLegendreFinDif: -l<=m<=l (integers), "
+    Message::Error("Bad arguments for dLegendreFinDif: -l<=m<=l (integers), "
 	       "-1<=x<=1. Current values: l %d m %d x %.8g", l, m, x );
   
   dpl =  (Legendre (l, m, x+delta) - Legendre (l, m, x-delta))/(2*delta);
@@ -186,7 +186,7 @@ void PrintLegendre(int l, int m, double x, char * FileName)
 
   FILE * file ;
 
-  Msg::Info("Writing Legendre: '%s' ", FileName );
+  Message::Info("Writing Legendre: '%s' ", FileName );
   file = fopen(FileName, "w");
 
   for (i = 1 ; i <= l ; i++ ){

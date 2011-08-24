@@ -108,7 +108,7 @@ void Dof_SetCurrentDofData(struct DofData * DofData_P)
 
 void Dof_OpenFile(int Type, char * Name, const char * Mode) 
 {
-  if(Msg::GetCommRank() && (Mode[0] == 'w' || Mode[0] == 'a')){
+  if(Message::GetCommRank() && (Mode[0] == 'w' || Mode[0] == 'a')){
     switch (Type) {
     case DOF_PRE :  File_PRE = 0 ;  break ;
     case DOF_RES :  File_RES = 0 ;  break ;
@@ -132,7 +132,7 @@ void Dof_OpenFile(int Type, char * Name, const char * Mode)
   strcpy(FileName, Name) ; strcat(FileName, Extension) ;
 
   if (!(File_X = fopen(FileName, Mode)))
-    Msg::Error("Unable to open file '%s'", FileName) ;
+    Message::Error("Unable to open file '%s'", FileName) ;
 
   switch (Type) {
   case DOF_PRE :  File_PRE = File_X ;  break ;
@@ -174,7 +174,7 @@ void Dof_FlushFile(int Type)
 void Dof_WriteFilePRE0(int Num_Resolution, char * Name_Resolution,
 		       int Nbr_DofData)
 {
-  if(Msg::GetCommRank()) return;
+  if(Message::GetCommRank()) return;
 
   fprintf(File_PRE, "$Resolution /* '%s' */\n", Name_Resolution) ;
   fprintf(File_PRE, "%d %d\n", Num_Resolution, Nbr_DofData) ;
@@ -187,7 +187,7 @@ void Dof_WriteFilePRE0(int Num_Resolution, char * Name_Resolution,
 
 void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
 {
-  Msg::Barrier();
+  Message::Barrier();
 
   char  String[256] ;
 
@@ -196,7 +196,7 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
-  if (feof(File_PRE)) Msg::Error("$Resolution field not found in file");
+  if (feof(File_PRE)) Message::Error("$Resolution field not found in file");
 
   if (!strncmp(&String[1], "Resolution", 10)) {
     fscanf(File_PRE, "%d %d", Num_Resolution, Nbr_DofData) ;
@@ -204,7 +204,7 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
 
   do {
     fgets(String, sizeof(String), File_PRE) ;
-    if (feof(File_PRE)) Msg::Error("Prematured end of file");
+    if (feof(File_PRE)) Message::Error("Prematured end of file");
   } while (String[0] != '$') ;
 }
 
@@ -214,7 +214,7 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
 
 void Dof_WriteFilePRE(struct DofData * DofData_P)
 {
-  if(Msg::GetCommRank()) return;
+  if(Message::GetCommRank()) return;
 
   int  i, Nbr_Index ;
   struct Dof  * Dof_P0 ;
@@ -313,7 +313,7 @@ void Dof_WriteDofPRE(void * a, void * b)
 
 void Dof_ReadFilePRE(struct DofData * DofData_P)
 {
-  Msg::Barrier();
+  Message::Barrier();
 
   int         i, Nbr_Index, Int, Dummy ;
   struct Dof  Dof ;
@@ -324,7 +324,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
-  if (feof(File_PRE)) Msg::Error("$DofData field not found in file");
+  if (feof(File_PRE)) Message::Error("$DofData field not found in file");
 
   if (!strncmp(&String[1], "DofData", 7)) {
 
@@ -404,7 +404,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 
   do {
     fgets(String, sizeof(String), File_PRE) ;
-    if (feof(File_PRE)) Msg::Error("Prematured end of file");
+    if (feof(File_PRE)) Message::Error("Prematured end of file");
   } while (String[0] != '$') ;
 
   Dof_InitDofType(DofData_P) ;
@@ -416,7 +416,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 
 void Dof_WriteFileRES0(char * Name_File, int Format)
 {
-  if(Msg::GetCommRank()) return;
+  if(Message::GetCommRank()) return;
 
   Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "wb" : "w")) ;
   fprintf(File_RES, "$ResFormat /* GetDP %s, %s */\n", GETDP_VERSION, 
@@ -433,7 +433,7 @@ void Dof_WriteFileRES0(char * Name_File, int Format)
 void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
 			       int Format, int NbrH)
 {
-  if(Msg::GetCommRank()) return;
+  if(Message::GetCommRank()) return;
 
   gVector x;
   double d;
@@ -468,7 +468,7 @@ void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
 void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P, 
 			       int Format, List_T * Time_L) 
 {
-  if(Msg::GetCommRank()) return;
+  if(Message::GetCommRank()) return;
 
   gVector x;
   double Time, d1, d2, d, *Pulsation;
@@ -521,7 +521,7 @@ void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
 void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 		      double Val_Time, double Val_TimeImag, int Val_TimeStep) 
 {
-  if(Msg::GetCommRank()) return;
+  if(Message::GetCommRank()) return;
 
   Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "ab" : "a")) ;
     
@@ -546,7 +546,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
                                     struct GeoData * GeoData_P0, struct Group *Group_P,
                                     bool saveFixed) 
 {
-  if(Msg::GetCommRank()) return;
+  if(Message::GetCommRank()) return;
 
   char    FileCplx[256] ;
   char    FileRe[256] ;
@@ -561,7 +561,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
   FILE *fpIm = fopen(FileIm, "w");
 
   if(!fp){
-    Msg::Error("Unable to open file '%s'", Name_File) ;
+    Message::Error("Unable to open file '%s'", Name_File) ;
     return;
   }
 
@@ -598,7 +598,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
     }
   }
   else{
-    Msg::Info("Writing solution for all entities in group '%s'", Group_P->Name) ;
+    Message::Info("Writing solution for all entities in group '%s'", Group_P->Name) ;
 
     // force generation of extended list (necessary when using
     // multiple meshes)
@@ -645,7 +645,7 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 		     int Read_DofData, double *Time, double *TimeImag,
 		     double *TimeStep) 
 {
-  Msg::Barrier();
+  Message::Barrier();
 
   int             Num_DofData, Val_TimeStep, Format = 0, Read ;
   double          Val_Time, Val_TimeImag = 0., Version = 0.;
@@ -714,7 +714,7 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
     do {
       fgets(String, sizeof(String), File_RES) ;
       if (feof(File_RES)) 
-	Msg::Warning("Prematured end of file (Time Step %d)", Val_TimeStep);
+	Message::Warning("Prematured end of file (Time Step %d)", Val_TimeStep);
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -769,13 +769,13 @@ void Dof_InitDofType(struct DofData * DofData_P)
 	  Dof_GetDofStruct(DofData_P, Dof_P->NumType-1,
 			   Dof_P->Case.Link.EntityRef, Dof_P->Harmonic) ;
 	if (Dof_P->Case.Link.Dof == NULL)
-	  Msg::Error("Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
-		     Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
+	  Message::Error("Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
+                         Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
       }
       /*
       if (Dof_P->Case.Link.Dof == NULL)
-	Msg::Error("Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
-	           Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
+	Message::Error("Wrong Link Constraint: reference Dof (%d %d %d) does not exist",
+	               Dof_P->NumType, Dof_P->Case.Link.EntityRef, Dof_P->Harmonic);
       */
       break ;
     default :
@@ -856,8 +856,8 @@ void Dof_DefineAssignFixedDof(int D1, int D2, int NbrHar, double *Val,
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
     else if(Dof_P->Type == DOF_UNKNOWN) {
-      if(Msg::GetVerbosity() == 10)
-	Msg::Info("Overriding unknown Dof with fixed Dof");
+      if(Message::GetVerbosity() == 10)
+	Message::Info("Overriding unknown Dof with fixed Dof");
       Dof_P->Type = DOF_FIXED ;
       LinAlg_SetScalar(&Dof_P->Val, &Val[k]) ;
       Dof_P->Case.FixedAssociate.TimeFunctionIndex = Index_TimeFunction + 1 ;
@@ -1222,7 +1222,7 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
     case DOF_LINKCPLX :
       if(NbrHar==1)
-	Msg::Error("LinkCplx only valid for Complex systems") ;
+	Message::Error("LinkCplx only valid for Complex systems") ;
       else{
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef - Val[1] * Dof_P->Case.Link.Coef2 ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef + Val[0] * Dof_P->Case.Link.Coef2 ;
@@ -1231,13 +1231,13 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       break ;
 
     case DOF_FIXED_SOLVE :  case DOF_FIXEDWITHASSOCIATE_SOLVE :
-      Msg::Error("Wrong Constraints: "
-		 "remaining Dof(s) waiting to be fixed by a Resolution");
+      Message::Error("Wrong Constraints: "
+                     "remaining Dof(s) waiting to be fixed by a Resolution");
       break;
 
     case DOF_UNKNOWN_INIT :
-      Msg::Error("Wrong Initial Constraints: "
-		 "remaining Dof(s) with non-fixed initial conditions");
+      Message::Error("Wrong Initial Constraints: "
+                     "remaining Dof(s) with non-fixed initial conditions");
       break;
     }
 
@@ -1255,7 +1255,7 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
   case DOF_LINKCPLX :
     if(NbrHar==1)
-      Msg::Error("LinkCplx only valid for Complex systems") ;
+      Message::Error("LinkCplx only valid for Complex systems") ;
     else{ /* Warning: conjugate! */
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef + Val[1] * Equ_P->Case.Link.Coef2 ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef - Val[0] * Equ_P->Case.Link.Coef2 ;
@@ -1330,7 +1330,7 @@ void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 				    (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Unknown.NumDof-1):-1) ;
 	}
 	else{
-	  Msg::Error("Assemby in vectors with more than one harmonic not yet implemented") ;
+	  Message::Error("Assemby in vectors with more than one harmonic not yet implemented") ;
 	}
       }
       break ;
@@ -1348,7 +1348,7 @@ void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
     case DOF_LINKCPLX :
       if(NbrHar==1)
-	Msg::Error("LinkCplx only valid for Complex systems") ;
+	Message::Error("LinkCplx only valid for Complex systems") ;
       else{
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef - Val[1] * Dof_P->Case.Link.Coef2 ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef + Val[0] * Dof_P->Case.Link.Coef2 ;
@@ -1358,13 +1358,13 @@ void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       break ;
 
     case DOF_FIXED_SOLVE :  case DOF_FIXEDWITHASSOCIATE_SOLVE :
-      Msg::Error("Wrong Constraints: "
-		 "remaining Dof(s) waiting to be fixed by a Resolution");
+      Message::Error("Wrong Constraints: "
+                     "remaining Dof(s) waiting to be fixed by a Resolution");
       break;
 
     case DOF_UNKNOWN_INIT :
-      Msg::Error("Wrong Initial Constraints: "
-		 "remaining Dof(s) with non-fixed initial conditions");
+      Message::Error("Wrong Initial Constraints: "
+                     "remaining Dof(s) with non-fixed initial conditions");
       break;
     }
     break ;
@@ -1382,7 +1382,7 @@ void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 
   case DOF_LINKCPLX :
     if(NbrHar==1)
-      Msg::Error("LinkCplx only valid for Complex systems") ;
+      Message::Error("LinkCplx only valid for Complex systems") ;
     else{ /* Warning: conjugate! */
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef + Val[1] * Equ_P->Case.Link.Coef2 ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef - Val[0] * Equ_P->Case.Link.Coef2 ;
@@ -1448,7 +1448,7 @@ gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P)
 
   case DOF_UNKNOWN :
     if(!DofData_P->CurrentSolution->SolutionExist){
-      Msg::Error("Empty solution in DofData %d", DofData_P->Num);
+      Message::Error("Empty solution in DofData %d", DofData_P->Num);
     }
     LinAlg_GetScalarInVector(&tmp, &DofData_P->CurrentSolution->x, 
 			     Dof_P->Case.Unknown.NumDof-1) ;
@@ -1471,7 +1471,7 @@ gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P)
 
   case DOF_LINKCPLX :
     /* Too soon to treat LinkCplx: we need the real and imaginary parts */
-    Msg::Error("Cannot call Dof_GetDofValue for LinkCplx");
+    Message::Error("Cannot call Dof_GetDofValue for LinkCplx");
     break ;
 
   default :
@@ -1487,7 +1487,7 @@ void Dof_GetRealDofValue(struct DofData * DofData_P, struct Dof * Dof_P, double 
   gScalar tmp ;
 
   if (Dof_P->Type == DOF_LINKCPLX) {
-    Msg::Error("Cannot call Dof_GetRealDofValue for LinkCplx");
+    Message::Error("Cannot call Dof_GetRealDofValue for LinkCplx");
   }
 
   tmp = Dof_GetDofValue(DofData_P, Dof_P) ;
@@ -1679,7 +1679,7 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
   double DummyFrequency, * Val_Pulsation;
 
   if (!(Val_Pulsation = Current.DofData->Val_Pulsation))
-    Msg::Error("Dof_GetDummies can only be used for harmonic problems");
+    Message::Error("Dof_GetDummies can only be used for harmonic problems");
 
   DummyDof = DofData_P->DummyDof = (int *)Malloc(DofData_P->NbrDof*sizeof(int)); 
   for (iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) DummyDof[iDof]=0;
@@ -1719,9 +1719,9 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
 		}
 	      }
 	    }
-	    Msg::Info("Freq %e (%d/%d) Form %d  Quant %d  Basis %d  #dummies %d/%d", 
-		Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2, 
-		i, j, ((struct BasisFunction *)BasisFunction_P)->Num, ii, iit) ;
+	    Message::Info("Freq %e (%d/%d) Form %d  Quant %d  Basis %d  #dummies %d/%d", 
+                          Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2, 
+                          i, j, ((struct BasisFunction *)BasisFunction_P)->Num, ii, iit) ;
 	  }
 	  
 	  for (k = 0 ; k < List_Nbr(FunctionSpace_P->GlobalQuantity) ; k++) {
@@ -1738,9 +1738,9 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
 		}
 	      }
 	    }
-	    Msg::Info("Freq %e (%d/%d) Form %d  Quant %d  Global %d  #dummies %d/%d", 
-                      Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2, 
-                      i, j, ((struct GlobalQuantity *)GlobalQuantity_P)->Num, ii, iit) ;
+	    Message::Info("Freq %e (%d/%d) Form %d  Quant %d  Global %d  #dummies %d/%d", 
+                          Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2, 
+                          i, j, ((struct GlobalQuantity *)GlobalQuantity_P)->Num, ii, iit) ;
 	  }
 	    
 	}   /*  end DummyFrequency in DofData */ 
@@ -1753,10 +1753,10 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
     if(DummyDof[iDof]) i++;
     /*    
     Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, iDof) ;
-    Msg::Info("Dof Num iHar, Entity %d %d %d",
-	iDof, Dof_P->NumType, Dof_P->Harmonic, Dof_P->Entity);
+    Message::Info("Dof Num iHar, Entity %d %d %d",
+	          iDof, Dof_P->NumType, Dof_P->Harmonic, Dof_P->Entity);
     */
   }
 
-  Msg::Info("Total %d Dummies %d", DofData_P->NbrDof,i) ;
+  Message::Info("Total %d Dummies %d", DofData_P->NbrDof,i) ;
 }

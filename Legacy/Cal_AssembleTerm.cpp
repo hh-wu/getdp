@@ -111,7 +111,7 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       switch (Current.TypeTime) {
       case TIME_STATIC :
 	if(!Warning_DtStatic){
-	  Msg::Warning("First order time derivative in static problem (discarded)");
+	  Message::Warning("First order time derivative in static problem (discarded)");
 	  Warning_DtStatic = 1 ;
 	}
 	break;
@@ -165,14 +165,14 @@ void Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[])
   double  tmp[2] ;
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Msg::Error("DtNL not ready for separate assembly");
+    Message::Error("DtNL not ready for separate assembly");
   }
   else {
     if (Current.NbrHar == 1) {
       switch (Current.TypeTime) {
       case TIME_STATIC :
 	if(!Warning_DtStatic){
-	  Msg::Warning("First order time derivative in static problem (discarded)");
+	  Message::Warning("First order time derivative in static problem (discarded)");
 	  Warning_DtStatic = 1 ;
 	}
 	break;
@@ -186,12 +186,12 @@ void Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[])
 			  &Current.DofData->b) ;
 	break ;
       case TIME_NEWMARK :
-	Msg::Error("DtNL not ready for separate assembly with TimeLoopNewmark");
+	Message::Error("DtNL not ready for separate assembly with TimeLoopNewmark");
 	break ;
       }
     }
     else {
-      Msg::Error("DtNL not ready for separate assembly for Complex type");
+      Message::Error("DtNL not ready for separate assembly for Complex type");
       /*
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	tmp[0] = -Val[k+1] * Current.DofData->Val_Pulsation[k/2] ;
@@ -233,13 +233,13 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       switch (Current.TypeTime) {
       case TIME_STATIC :
 	if(!Warning_DtDtStatic){
-	  Msg::Warning("Second order time derivative in static problem (discarded)");
+	  Message::Warning("Second order time derivative in static problem (discarded)");
 	  Warning_DtDtStatic = 1 ;
 	}
 	break;
       case TIME_THETA :
 	if(!Warning_DtDtFirstOrder){
-	  Msg::Warning("Second order time derivative in first order time scheme (discarded)");
+	  Message::Warning("Second order time derivative in first order time scheme (discarded)");
 	  Warning_DtDtFirstOrder = 1 ;
 	}
 	break;
@@ -285,7 +285,7 @@ void Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[])
   int     k ;
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Msg::Error("JacNL not ready for separate assembly");
+    Message::Error("JacNL not ready for separate assembly");
   }
   else{
     if (Current.NbrHar == 1) {
@@ -296,7 +296,7 @@ void Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[])
 			  &Current.DofData->Jac, NULL) ;
 	break ;
       case TIME_NEWMARK :
-	Msg::Error("JacNL not ready for Newmark");
+	Message::Error("JacNL not ready for Newmark");
 	break ;
       }
     }
@@ -317,7 +317,7 @@ void Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
   int     k ;
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Msg::Error("NeverDt not ready for separate assembly");
+    Message::Error("NeverDt not ready for separate assembly");
   }
   else{
     if (Current.NbrHar == 1) {

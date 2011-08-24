@@ -16,7 +16,7 @@
 /*  B F _ N o d e                                                           */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumNode   Msg::Error("Wrong Node number in 'BF_Node'")
+#define WrongNumNode   Message::Error("Wrong Node number in 'BF_Node'")
 
 void BF_Node(struct Element * Element, int NumNode, 
 	     double u, double v, double w,  double *s )
@@ -159,7 +159,7 @@ void BF_Node(struct Element * Element, int NumNode,
     break ;
 
   default :
-    Msg::Error("Unknown type of Element in BF_Node");
+    Message::Error("Unknown type of Element in BF_Node");
     break;
   }
 
@@ -171,7 +171,7 @@ void BF_Node(struct Element * Element, int NumNode,
 /*  B F _ G r a d N o d e                                                   */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumNode   Msg::Error("Wrong Node number in 'BF_GradNode'")
+#define WrongNumNode   Message::Error("Wrong Node number in 'BF_GradNode'")
 
 void BF_GradNode(struct Element * Element, int NumNode, 
 		 double u, double v, double w,  double s[])
@@ -373,7 +373,7 @@ void BF_GradNode(struct Element * Element, int NumNode,
     break ;
 
   default :
-    Msg::Error("Unknown type of Element in BF_GradNode");
+    Message::Error("Unknown type of Element in BF_GradNode");
     break;
   }
 

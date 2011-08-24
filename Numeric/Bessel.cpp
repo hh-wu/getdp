@@ -12,19 +12,19 @@
 static void zbesj_(double*, double*, double*, int*, int*, double*, 
                    double*, int*, int*)
 {
-  Msg::Fatal("Bessel functions require Fortran compiler");
+  Message::Fatal("Bessel functions require Fortran compiler");
 }
 
 static void zbesy_(double*, double*, double*, int*, int*, double*, 
                    double*, int*, double*, double*, int*)
 {
-  Msg::Fatal("Bessel functions require Fortran compiler");
+  Message::Fatal("Bessel functions require Fortran compiler");
 }
 
 static void zbesh_(double*, double*, double*, int*, int*, int*, 
                    double*, double*, int*, int*)
 {
-  Msg::Fatal("Bessel functions require Fortran compiler");
+  Message::Fatal("Bessel functions require Fortran compiler");
 }
 
 #else
@@ -55,24 +55,24 @@ static int BesselError(int ierr, const char *str)
   case 0 :
     return 0;
   case 1 :
-    Msg::Error("Input error in %s", str);
+    Message::Error("Input error in %s", str);
     return BESSEL_ERROR_INPUT;
   case 2 :
     return BESSEL_OVERFLOW;
   case 3 :
     if(!warn){
-      Msg::Info("Half machine accuracy lost in %s (large argument or order)", str);
+      Message::Info("Half machine accuracy lost in %s (large argument or order)", str);
       warn = 1;
     }
     return BESSEL_HALF_ACCURACY;
   case 4 :
-    Msg::Error("Complete loss of significance in %s (argument or order too large)", str);
+    Message::Error("Complete loss of significance in %s (argument or order too large)", str);
     return BESSEL_NO_ACCURACY;
   case 5 :
-    Msg::Error("Failed to converge in %s", str);
+    Message::Error("Failed to converge in %s", str);
     return BESSEL_NO_CONVERGENCE;
   default:
-    Msg::Info("Unknown Bessel status in %s (%d)", str, ierr);
+    Message::Info("Unknown Bessel status in %s (%d)", str, ierr);
     return ierr;
   }
 }

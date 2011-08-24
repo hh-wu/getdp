@@ -112,7 +112,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 	      ->InitialList, &Element->Region, fcmp_int) )  i++ ;
 
       if (i == List_Nbr(JacobianCase_L))
-	Msg::Error("Undefined Jacobian in Region %d", Element->Region) ;
+	Message::Error("Undefined Jacobian in Region %d", Element->Region) ;
 
       Element->JacobianCase = JacobianCase_P0 + i ;
       Get_Jacobian = (double (*)(struct Element*, MATRIX3x3*))
@@ -121,8 +121,8 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
     }
     else {
       if(!Warning_NoJacobian){
-	Msg::Warning("No Jacobian method specification in PostProcessing quantity");
-	Msg::Warning("Using default Jacobian (Vol)");
+	Message::Warning("No Jacobian method specification in PostProcessing quantity: "
+                         "using default Jacobian (Vol)");
 	Warning_NoJacobian = 1 ;
       }
       Get_Jacobian = (double (*)(struct Element*, MATRIX3x3*))
@@ -156,11 +156,11 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
   else if(PostQuantityTerm_P->EvaluationType == INTEGRAL){
 
     if(Element->Num == NO_ELEMENT)
-      Msg::Error("No element in which to integrate");
+      Message::Error("No element in which to integrate");
 
     if(PostQuantityTerm_P->IntegrationMethodIndex < 0)
-      Msg::Error("Missing Integration method in PostProcesssing Quantity '%s'", 
-		 PostQuantity_P->Name);
+      Message::Error("Missing Integration method in PostProcesssing Quantity '%s'", 
+                     PostQuantity_P->Name);
     
     IntegrationCase_L = 
       ((struct IntegrationMethod *)
@@ -178,15 +178,15 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 					    CriterionIndex) ;
     
     if(IntegrationCase_P->Type != GAUSS)
-      Msg::Error("Only numerical integration is available "
-		 "in Integral PostQuantities");
+      Message::Error("Only numerical integration is available "
+                     "in Integral PostQuantities");
     
     Quadrature_P = (struct Quadrature*)
       List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
     
     if(!Quadrature_P)
-      Msg::Error("Unknown type of Element (%s) for Integration method (%s) "
-		 " in PostProcessing Quantity (%s)", 
+      Message::Error("Unknown type of Element (%s) for Integration method (%s) "
+                     " in PostProcessing Quantity (%s)", 
 	  Get_StringForDefine(Element_Type, Element->Type),
 	  ((struct IntegrationMethod *)
 	   List_Pointer(Problem_S.IntegrationMethod,
@@ -210,7 +210,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 			  &Element->Jac, &Element->InvJac) ;	  
       }
       else{
-	Msg::Warning("Zero determinant in 'Cal_PostQuantity'");
+	Message::Warning("Zero determinant in 'Cal_PostQuantity'");
       }
       Current.x = Current.y = Current.z = 0. ;
       if (Type_Quantity == INTEGRALQUANTITY){
@@ -303,7 +303,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 
     Type_Quantity = LOCALQUANTITY ; /* Attention... il faut se comprendre: */
     /* il s'agit de grandeurs locales qui seront integrees */
-    //Msg::ResetProgressMeter();
+    //Message::ResetProgressMeter();
     for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
       Element.GeoElement = Geo_GetGeoElement(i_Element) ;
       Element.Num    = Element.GeoElement->Num ;
@@ -325,7 +325,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 				    PostQuantityTerm_P, &Element, Type_Quantity,
 				    0., 0., 0., Value) ;
       }
-      //Msg::ProgressMeter(i_Element + 1, Nbr_Element, "Accumulate: ");
+      //Message::ProgressMeter(i_Element + 1, Nbr_Element, "Accumulate: ");
     }  /* for i_Element ... */
 
   }  /* if INTEGRAL ... */

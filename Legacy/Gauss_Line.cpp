@@ -45,7 +45,7 @@ void Gauss_Line(int Nbr_Points, int Num,
     if(Nbr_Points <= MAX_LINE_POINTS){
       if(gll[0] < 0) for(i = 0; i < MAX_LINE_POINTS; i++) gll[i] = 0 ;
       if(!gll[Nbr_Points - 1]){
-	Msg::Info("Computing GaussLegendre %d for Line", Nbr_Points);
+	Message::Info("Computing GaussLegendre %d for Line", Nbr_Points);
 	glxl[Nbr_Points - 1] = (double*)Malloc(Nbr_Points * sizeof(double));
 	glpl[Nbr_Points - 1] = (double*)Malloc(Nbr_Points * sizeof(double));
 	GaussLegendre(-1., 1., glxl[Nbr_Points - 1], glpl[Nbr_Points - 1], Nbr_Points);
@@ -54,8 +54,8 @@ void Gauss_Line(int Nbr_Points, int Num,
       *u = glxl[Nbr_Points - 1][Num] ; *v = *w = 0. ; *wght = glpl[Nbr_Points - 1][Num] ;
     }
     else
-      Msg::Error("Maximum number of integration points exceeded (%d > %d)",
-		 Nbr_Points, MAX_LINE_POINTS) ;
+      Message::Error("Maximum number of integration points exceeded (%d > %d)",
+                     Nbr_Points, MAX_LINE_POINTS) ;
     break ;
   }
 }

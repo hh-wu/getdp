@@ -31,7 +31,7 @@ void GF_Laplace(GF_ARG)
 
   case _2D : /* 1/(2*Pi) * ln(1/r) = -1/(4*Pi)*ln(r^2) */
     d = SQU(Current.x - Current.xs) + SQU(Current.y - Current.ys) ;
-    if(!d) Msg::Error("Log(0) in 'GF_Laplace'") ;
+    if(!d) Message::Error("Log(0) in 'GF_Laplace'") ;
     V->Val[0] = - ONE_OVER_FOUR_PI * log(d) ;
     V->Val[MAX_DIM] = 0. ; 
     break;
@@ -39,13 +39,13 @@ void GF_Laplace(GF_ARG)
   case _3D : /* 1/(4*Pi*r) */
     d = SQU(Current.x - Current.xs) + SQU(Current.y - Current.ys) + 
       SQU(Current.z - Current.zs) ;
-    if(!d) Msg::Error("1/0 in 'GF_Laplace'") ;
+    if(!d) Message::Error("1/0 in 'GF_Laplace'") ;
     V->Val[0] = ONE_OVER_FOUR_PI / sqrt(d) ;
     V->Val[MAX_DIM] = 0. ; 
     break;
     
   default :
-    Msg::Error("Bad Parameter for 'GF_Laplace' (%d)", (int)Fct->Para[0]);
+    Message::Error("Bad Parameter for 'GF_Laplace' (%d)", (int)Fct->Para[0]);
     break;
   }
 
@@ -71,7 +71,7 @@ void GF_GradLaplace(GF_ARG)
     xxs = Current.x-Current.xs ; 
     yys = Current.y-Current.ys ; 
     r = SQU(xxs) + SQU(yys) ;
-    if(!r) Msg::Error("1/0 in 'GF_GradLaplace'") ;
+    if(!r) Message::Error("1/0 in 'GF_GradLaplace'") ;
     V->Val[0] = - ONE_OVER_TWO_PI * xxs / r ;
     V->Val[1] = - ONE_OVER_TWO_PI * yys / r ;
     V->Val[2] = 0.0 ;
@@ -83,7 +83,7 @@ void GF_GradLaplace(GF_ARG)
     yys = Current.y-Current.ys ; 
     zzs = Current.z-Current.zs ;
     r = CUB(sqrt(SQU(xxs) + SQU(yys) + SQU(zzs))) ;
-    if(!r) Msg::Error("1/0 in 'GF_GradLaplace'") ;
+    if(!r) Message::Error("1/0 in 'GF_GradLaplace'") ;
     V->Val[0] = - ONE_OVER_FOUR_PI * xxs / r ;
     V->Val[1] = - ONE_OVER_FOUR_PI * yys / r ;
     V->Val[2] = - ONE_OVER_FOUR_PI * zzs / r ;
@@ -91,7 +91,7 @@ void GF_GradLaplace(GF_ARG)
     break ;
     
   default :
-    Msg::Error("Bad Parameter for 'GF_GradLaplace' (%d)", (int)Fct->Para[0]);
+    Message::Error("Bad Parameter for 'GF_GradLaplace' (%d)", (int)Fct->Para[0]);
     break;
   }
 
@@ -154,7 +154,7 @@ void GF_NPxGradLaplace(GF_ARG)
     break ;
 
   default :
-    Msg::Error("Bad Parameter for 'GF_NPxGradLaplace' (%d)", (int)Fct->Para[0]);
+    Message::Error("Bad Parameter for 'GF_NPxGradLaplace' (%d)", (int)Fct->Para[0]);
     break;
   }
 }
@@ -205,7 +205,7 @@ void GF_NSxGradLaplace(GF_ARG)
     V->Val[MAX_DIM] = 0. ;
     break ;      
   default :
-    Msg::Error("Bad Parameter for 'GF_NSxGradLaplace' (%d)", (int)Fct->Para[0]);
+    Message::Error("Bad Parameter for 'GF_NSxGradLaplace' (%d)", (int)Fct->Para[0]);
     break;
   }
 }
@@ -216,5 +216,5 @@ void GF_NSxGradLaplace(GF_ARG)
 
 void GF_ApproximateLaplace(GF_ARG)
 {
-  Msg::Error("The Approximate Integral Kernels can only be Integrated Analytically");
+  Message::Error("The Approximate Integral Kernels can only be Integrated Analytically");
 }

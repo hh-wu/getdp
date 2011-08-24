@@ -204,11 +204,11 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
   if(PostSubOperation_P->Adapt){
     if(PostSubOperation_P->Dimension == _ALL)
-      Msg::Error("You have to specify a Dimension for the adaptation (2 or 3)");
+      Message::Error("You have to specify a Dimension for the adaptation (2 or 3)");
     if(PostSubOperation_P->Target < 0.)
-      Msg::Error("You have to specify a Target for the adaptation (e.g. 0.01)");
+      Message::Error("You have to specify a Target for the adaptation (e.g. 0.01)");
     if(NbrTimeStep > 1)
-      Msg::Error("Adaption not ready with more than one time step"); 
+      Message::Error("Adaption not ready with more than one time step"); 
   }
 
   /* Check if we should decompose all PostElements to simplices */
@@ -239,7 +239,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     
     /* Generate all PostElements */
 
-    Msg::ResetProgressMeter();
+    Message::ResetProgressMeter();
     for(iGeo = 0 ; iGeo < NbrGeo ; iGeo += incGeo) {
       Element.GeoElement = Geo_GetGeoElement(iGeo) ;
       if(List_Search(Region_L, &Element.GeoElement->Region, fcmp_int)){
@@ -248,7 +248,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 			 PostSubOperation_P->EvaluationPoints,
 			 DecomposeInSimplex) ;
       }
-      Msg::ProgressMeter(iGeo + 1, NbrGeo, "Generate: ");
+      Message::ProgressMeter(iGeo + 1, NbrGeo, "Generate: ");
     }
 
     /* Compute the skin */
@@ -256,7 +256,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     if(PostSubOperation_P->Skin){
       PostElement_T = Tree_Create(sizeof(struct PostElement *), fcmp_PostElement);
 
-      Msg::ResetProgressMeter();
+      Message::ResetProgressMeter();
       for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){
 	PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost) ;
 	if(Tree_PQuery(PostElement_T, &PE)){
@@ -265,7 +265,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	}
 	else
 	  Tree_Add(PostElement_T, &PE);
-	Msg::ProgressMeter(iPost + 1, List_Nbr(PostElement_L), "Skin: ");
+	Message::ProgressMeter(iPost + 1, List_Nbr(PostElement_L), "Skin: ");
       }
 
       /* only decompose in simplices (triangles!) now */
@@ -295,7 +295,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   
   /* Loop on GeoElements */
 
-  Msg::ResetProgressMeter();
+  Message::ResetProgressMeter();
   for(iGeo = 0 ; iGeo < NbrGeo ; iGeo += incGeo) {
     
     if(Store){
@@ -394,14 +394,14 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       if(!Store) Destroy_PostElement(PE) ;
 
     }
-    Msg::ProgressMeter(iGeo + 1, NbrGeo, "Compute: ");
+    Message::ProgressMeter(iGeo + 1, NbrGeo, "Compute: ");
   } /* for iGeo */
 
   /* Perform Smoothing */
   
   if(PostSubOperation_P->Smoothing){
 
-    Msg::Info("Smoothing (phase 1)");
+    Message::Info("Smoothing (phase 1)");
 
     xyzv_T = Tree_Create(sizeof(struct xyzv), fcmp_xyzv);
     
@@ -425,7 +425,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       }
     }
 
-    Msg::Info("Smoothing (phase 2)");
+    Message::Info("Smoothing (phase 2)");
 
     for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost) ;
@@ -437,7 +437,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	  Cal_CopyValue(&xyzv_P->v, &PE->Value[iNode]);
 	}
 	else
-	  Msg::Warning("Node (%g,%g,%g) not found", xyzv.x, xyzv.y, xyzv.z);
+	  Message::Warning("Node (%g,%g,%g) not found", xyzv.x, xyzv.y, xyzv.z);
       }
     }
     
@@ -694,7 +694,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
   switch(PostSubOperation_P->SubType) {
 
   case PRINT_ONSECTION_1D :
-    Msg::Error("Print on 1D cuts not done (use Print OnLine instead)");
+    Message::Error("Print on 1D cuts not done (use Print OnLine instead)");
     break;
 
   case PRINT_ONSECTION_2D :
@@ -719,7 +719,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
     
     NbGeoElement = Geo_GetNbrGeoElements() ;
 
-    Msg::ResetProgressMeter();
+    Message::ResetProgressMeter();
     for(iGeo = 0 ; iGeo < NbGeoElement ; iGeo++) {
       Element.GeoElement = Geo_GetGeoElement(iGeo) ;
       Element.Num        = Element.GeoElement->Num ;
@@ -834,13 +834,13 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 	}
 
       }
-      Msg::ProgressMeter(iGeo + 1, NbGeoElement, "Cut: ") ;
+      Message::ProgressMeter(iGeo + 1, NbGeoElement, "Cut: ") ;
     }
     Format_PostFooter(PostSubOperation_P, 0);
     break;
     
   default :
-    Msg::Error("Unknown operation in Print OnSection");
+    Message::Error("Unknown operation in Print OnSection");
     break;
   }
 
@@ -901,7 +901,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 #define LETS_STORE_THE_RESULT								\
  if(!NCPQ_P){										\
    if(CumulativeValues[0].Type != SCALAR)						\
-     Msg::Error("Print OnPlane is not designed for non scalar values with Depth > 1");	\
+     Message::Error("Print OnPlane is not designed for non scalar values with Depth > 1");	\
    else											\
      for (ts = 0 ; ts < NbTimeStep ; ts++)						\
        for(k = 0 ; k < Current.NbrHar ; k++)						\
@@ -916,7 +916,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
      Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,			\
                       NULL, &Element, u, v, w, &PE->Value[0]);				\
      if(PE->Value[0].Type != SCALAR)							\
-       Msg::Error("Print OnPlane is not designed for non scalar values with Depth > 1");\
+       Message::Error("Print OnPlane is not designed for non scalar values with Depth > 1");\
      if(CPQ_P)										\
        Combine_PostQuantity(PSO_P->CombinationType, Order,				\
                             &PE->Value[0], &CumulativeValues[ts]) ;			\
@@ -1002,7 +1002,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
     prodvec(S,N,Normal);
     Length = sqrt(SQU(Normal[0])+SQU(Normal[1])+SQU(Normal[2]));
     if(!Length){
-      Msg::Warning("Bad plane (null normal)"); 
+      Message::Warning("Bad plane (null normal)"); 
       return ;
     }
     Normal[0]/=Length ; Normal[1]/=Length ; Normal[2]/=Length ;
@@ -1180,7 +1180,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
   NbrTimeStep = Pos_InitTimeSteps(PostSubOperation_P);
 
   if (CPQ_P && NCPQ_P)
-    Msg::Error("Only one PostProcessing Quantity allowed in PostOperation") ;
+    Message::Error("Only one PostProcessing Quantity allowed in PostOperation") ;
 
   if (CPQ_P) {
     PQ_P = CPQ_P ;
@@ -1215,7 +1215,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
        ->EvaluationType == LOCAL)
       ) {
     if (Group_FunctionType == REGION)
-      Msg::Error("Print OnRegion not valid for PostProcessing Quantity '%s'",
+      Message::Error("Print OnRegion not valid for PostProcessing Quantity '%s'",
                  NCPQ_P->Name);
     else
       Type_Evaluation = LOCAL;
@@ -1240,7 +1240,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 	  sstream << " " << Num_Region;
 	}
         if(PostStream == stdout || PostStream == stderr)
-          Msg::Direct(sstream.str().c_str());
+          Message::Direct(sstream.str().c_str());
         else
           fprintf(PostStream, "%s\n", sstream.str().c_str()) ;
       }
@@ -1251,7 +1251,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       Nbr_Region = List_Nbr(Region_L) ;
     }
     else {
-      Msg::Error("Function type (%d) not allowed for PrintOnRegion",
+      Message::Error("Function type (%d) not allowed for PrintOnRegion",
                  Group_P->FunctionType) ;
     }
   }
@@ -1346,7 +1346,7 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
   double   X[2], S, x ;
 
   if(CPQ_P)
-    Msg::Error("Cumulative PostProcessing Quantity in PrintWithArgument not done") ;
+    Message::Error("Cumulative PostProcessing Quantity in PrintWithArgument not done") ;
 
   X[0] = PostSubOperation_P->Case.WithArgument.x[0] ;
   X[1] = PostSubOperation_P->Case.WithArgument.x[1] ;
@@ -1457,7 +1457,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
 
   if(!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
 
-  Msg::ResetProgressMeter();
+  Message::ResetProgressMeter();
   for(iGeo = 0 ; iGeo < NbrGeo ; iGeo++) {
    
     GeoElement = Geo_GetGeoElement(iGeo) ;
@@ -1525,13 +1525,13 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
 	break ;
 
       default :
-	Msg::Error("Print function not implemented for this kind of Group");
+	Message::Error("Print function not implemented for this kind of Group");
 	break ;
 
       }
 
     }
-    Msg::ProgressMeter(iGeo + 1, NbrGeo, "Compute: ") ;
+    Message::ProgressMeter(iGeo + 1, NbrGeo, "Compute: ") ;
   }
 
   Destroy_PostElement(SL) ;

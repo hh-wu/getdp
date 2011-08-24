@@ -19,7 +19,7 @@ extern struct CurrentData Current ;
   int     k;								\
 									\
   if(A->Type != SCALAR)							\
-    Msg::Error("Non scalar argument for function '" string "'");	\
+    Message::Error("Non scalar argument for function '" string "'");	\
 									\
   V->Val[0] = func(A->Val[0]) ;						\
   if (Current.NbrHar != 1){						\
@@ -56,7 +56,7 @@ void F_Ceil  (F_ARG) { scalar_real_1_arg (ceil, "Ceil")  }
   int     k;								\
 									\
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)			\
-    Msg::Error("Non scalar argument(s) for function '" string "'");	\
+    Message::Error("Non scalar argument(s) for function '" string "'");	\
 									\
   V->Val[0] = func(A->Val[0], (A+1)->Val[0]) ;				\
   if (Current.NbrHar != 1){						\
@@ -81,7 +81,7 @@ void F_Sign(F_ARG)
   double  x;   
 
   if(A->Type != SCALAR)
-    Msg::Error("Non scalar argument for function 'Sign'");
+    Message::Error("Non scalar argument for function 'Sign'");
   x = A->Val[0];
 
   if(x > 0)
@@ -109,7 +109,7 @@ void F_Jn(F_ARG)
   double  x;   
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
-    Msg::Error("Non scalar argument(s) for function 'Jn'");
+    Message::Error("Non scalar argument(s) for function 'Jn'");
   n = (int)A->Val[0];
   x = (A+1)->Val[0];
 
@@ -129,7 +129,7 @@ void F_Yn(F_ARG)
   double  x;   
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
-    Msg::Error("Non scalar argument(s) for function 'Yn'");
+    Message::Error("Non scalar argument(s) for function 'Yn'");
   n = (int)A->Val[0];
   x = (A+1)->Val[0];
 
@@ -159,7 +159,7 @@ void F_dJn(F_ARG)
   double  x, *jntab;   
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
-    Msg::Error("Non scalar argument(s) for function 'dJn'");
+    Message::Error("Non scalar argument(s) for function 'dJn'");
   n = (int)A->Val[0];
   x = (A+1)->Val[0];
 
@@ -184,7 +184,7 @@ void F_dYn(F_ARG)
   double  x, *yntab;   
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
-    Msg::Error("Non scalar argument(s) for function 'dYn'");
+    Message::Error("Non scalar argument(s) for function 'dYn'");
   n = (int)A->Val[0];
   x = (A+1)->Val[0];
 

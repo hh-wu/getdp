@@ -284,7 +284,7 @@ void Message::InitializeSocket(std::string sockname)
   if(sockname.size()){
     _client = new GmshClient();
     if(_client->Connect(sockname.c_str()) < 0){
-      Msg::Error("Could not connect to socket `%s'", sockname.c_str());
+      Message::Error("Could not connect to socket `%s'", sockname.c_str());
       delete _client;
       _client = 0;
     }

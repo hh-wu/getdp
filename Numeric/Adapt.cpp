@@ -137,7 +137,7 @@ double Adapt (int N,        /* Number of elements */
     }
     contr = fabs(minf);
 
-    Msg::Info("H-Refinement 1, Error %g=>%g, Objective %g, Reduction Factor %g->%g",
+    Message::Info("H-Refinement 1, Error %g=>%g, Objective %g, Reduction Factor %g->%g",
 	      e0, sqrt(obj), -minf, minri, maxri);
     break;
 
@@ -156,7 +156,7 @@ double Adapt (int N,        /* Number of elements */
     }
     contr = sqrt(fabs(minf));
 
-    Msg::Info("H-Refinement 2, Elements %g=>%g, Objective %g, Reduction Factor %g->%g",
+    Message::Info("H-Refinement 2, Elements %g=>%g, Objective %g, Reduction Factor %g->%g",
 	      e0, obj, 100. * sqrt(fabs(minf)), minri, maxri);
     break;
 
@@ -178,7 +178,7 @@ double Adapt (int N,        /* Number of elements */
     }
     contr = fabs(minf);
 
-    Msg::Info("P-Refinement, Error %g=%g=>%g, Objective %g",
+    Message::Info("P-Refinement, Error %g=%g=>%g, Objective %g",
 	      e0, sqrt(obj), sqrt(obj2), minf);
     break;
 
@@ -187,7 +187,7 @@ double Adapt (int N,        /* Number of elements */
     break;
 
   default :
-    Msg::Error("Unknown adaptation method");
+    Message::Error("Unknown adaptation method");
   }
 
   return (contr) ;

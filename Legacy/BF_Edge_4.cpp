@@ -14,7 +14,7 @@
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Edge number in 'BF_Edge_4E'")
+#define WrongNumEntity   Message::Error("Wrong Edge number in 'BF_Edge_4E'")
 
 void BF_Edge_4E(struct Element * Element, int NumEntity, 
 		double u, double v, double w, double s[])
@@ -47,7 +47,7 @@ void BF_Edge_4E(struct Element * Element, int NumEntity,
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_4E not ready for QUADRANGLE");
+    default : Message::Error("BF_Edge_4E not ready for QUADRANGLE");
     }
     break ;
 
@@ -83,24 +83,24 @@ void BF_Edge_4E(struct Element * Element, int NumEntity,
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_4E not ready for HEXAHEDRON");
+    default : Message::Error("BF_Edge_4E not ready for HEXAHEDRON");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_4E not ready for PRISM");
+    default : Message::Error("BF_Edge_4E not ready for PRISM");
     }
     break ;
 
   case PYRAMID :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_4E not ready for PYRAMID");
+    default : Message::Error("BF_Edge_4E not ready for PYRAMID");
     }
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_Edge_4E");
+    Message::Error("Unkown type of Element in BF_Edge_4E");
     break ;
   }
 
@@ -115,7 +115,7 @@ void BF_Edge_4E(struct Element * Element, int NumEntity,
 /*  Facets  */
 /* -------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Face number in 'BF_Edge_4F'")
+#define WrongNumEntity   Message::Error("Wrong Face number in 'BF_Edge_4F'")
 
 void BF_Edge_4F(struct Element * Element, int NumEntity, 
 		double u, double v, double w,  double s[])
@@ -123,7 +123,7 @@ void BF_Edge_4F(struct Element * Element, int NumEntity,
   switch (Element->Type) {
 
   case LINE :
-    Msg::Error("You should never end up here!") ;
+    Message::Error("You should never end up here!") ;
     break;
 
   case TRIANGLE :
@@ -135,7 +135,7 @@ void BF_Edge_4F(struct Element * Element, int NumEntity,
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_4F not ready for QUADRANGLE");
+    default : Message::Error("BF_Edge_4F not ready for QUADRANGLE");
     }
     break ;
 
@@ -163,18 +163,18 @@ void BF_Edge_4F(struct Element * Element, int NumEntity,
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_4F not ready for QUADRANGLE");
+    default : Message::Error("BF_Edge_4F not ready for QUADRANGLE");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_4F not ready for PRISM");
+    default : Message::Error("BF_Edge_4F not ready for PRISM");
     }
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_Edge_4F");
+    Message::Error("Unkown type of Element in BF_Edge_4F");
     break ;
 
   }
@@ -189,7 +189,7 @@ void BF_Edge_4F(struct Element * Element, int NumEntity,
 void BF_Edge_4V(struct Element * Element, int NumEntity, 
 		double u, double v, double w,  double s[])
 {
-  Msg::Error("You should never end up here!") ;
+  Message::Error("You should never end up here!") ;
 }
 
 

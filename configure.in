@@ -9,28 +9,44 @@ dnl Check that this is the getdp source tree
 AC_INIT(Interface/ProParser.y)
 
 dnl Parse '--with' command-line options
-AC_ARG_WITH(gsl-prefix,
-            AC_HELP_STRING([--with-gsl-prefix=PFX],
-                           [prefix where GSL is installed]),
-            [GSL_PREFIX=$withval])
 AC_ARG_WITH(blas-lapack-prefix,
             AC_HELP_STRING([--with-blas-lapack-prefix=PFX],
                            [prefix where BLAS and LAPACK are installed]),
             [BLAS_LAPACK_PREFIX=$withval])
-AC_ARG_WITH(petsc-prefix,
-            AC_HELP_STRING([--with-petsc-prefix=PFX],
-                           [prefix where PETSc is installed]),
-            [PETSC_DIR=$withval])
+AC_ARG_WITH(gmsh-prefix,
+            AC_HELP_STRING([--with-gmsh-prefix=PFX],
+                           [prefix where Gmsh is installed]),
+            [SLEPC_DIR=$withval])
+AC_ARG_WITH(gsl-prefix,
+            AC_HELP_STRING([--with-gsl-prefix=PFX],
+                           [prefix where GSL is installed]),
+            [GSL_PREFIX=$withval])
 AC_ARG_WITH(petsc-arch,
             AC_HELP_STRING([--with-petsc-arch=ARCH],
                            [PETSc architecture]),
             [PETSC_ARCH=$withval])
+AC_ARG_WITH(petsc-prefix,
+            AC_HELP_STRING([--with-petsc-prefix=PFX],
+                           [prefix where PETSc is installed]),
+            [PETSC_DIR=$withval])
 AC_ARG_WITH(slepc-prefix,
             AC_HELP_STRING([--with-slepc-prefix=PFX],
                            [prefix where SLEPc is installed]),
             [SLEPC_DIR=$withval])
 
 dnl Parse '--enable' command line options
+AC_ARG_ENABLE(arpack,
+              AC_HELP_STRING([--enable-arpack],
+                             [enable built-in Arpack eigensolver (default=yes)]))
+AC_ARG_ENABLE(fortran,
+              AC_HELP_STRING([--enable-fortran],
+                             [enable Fortran subroutines (default=yes)]))
+AC_ARG_ENABLE(gmsh,
+              AC_HELP_STRING([--enable-gmsh],
+                             [enable remeshing using Gmsh (default=yes)]))
+AC_ARG_ENABLE(gsl,
+              AC_HELP_STRING([--enable-gsl],
+                             [use GSL as numerical toolkit (default=yes)]))
 AC_ARG_ENABLE(petsc,
               AC_HELP_STRING([--enable-petsc],
                              [use PETSc linear solvers (default=yes)]))
@@ -40,18 +56,9 @@ AC_ARG_ENABLE(slepc,
 AC_ARG_ENABLE(sparskit,
               AC_HELP_STRING([--enable-sparskit],
                              [use Sperskit linear solvers (default=no)]))
-AC_ARG_ENABLE(gsl,
-              AC_HELP_STRING([--enable-gsl],
-                             [use GSL as numerical toolkit (default=yes)]))
-AC_ARG_ENABLE(arpack,
-              AC_HELP_STRING([--enable-arpack],
-                             [enable built-in Arpack eigensolver (default=yes)]))
 AC_ARG_ENABLE(zitsol,
               AC_HELP_STRING([--enable-zitsol],
                              [enable support for ZITSOL (default=no)]))
-AC_ARG_ENABLE(fortran,
-              AC_HELP_STRING([--enable-fortran],
-                             [enable Fortran subroutines (default=yes)]))
 
 dnl Get the operating system and machine names
 UNAME=`uname`
@@ -222,6 +229,25 @@ if test "x$enable_fortran" != "xno"; then
       BO="${BO} Zitsol"
       GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
       GETDP_LIBS="${GETDP_LIBS} -lGetDPzitsol"
+    fi
+  fi
+fi
+
+dnl Check for Gmsh
+if test "x$enable_gmsh" != "xno"; then
+  if test "x${GMSH_PREFIX}" != "x"; then
+    LDFLAGS="-L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib ${LDFLAGS}"
+  fi
+  AC_CHECK_LIB(Gmsh,main,GMSH="yes",GMSH="no")
+  if test "x${GMSH}" = "xyes"; then
+    AC_DEFINE(HAVE_GMSH)
+    BO="${BO} Gmsh"
+    if test "x${GMSH_PREFIX}" = "x"; then
+      GETDP_LIBS="${GETDP_LIBS} -lGmsh"
+    else
+      GETDP_LIBS="${GETDP_LIBS} -L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib -lGmsh"
+      FLAGS="${FLAGS} -I${GMSH_PREFIX} -I${GMSH_PREFIX}/include"
+      FLAGS="${FLAGS} -I${GMSH_PREFIX}/gmsh -I${GMSH_PREFIX}/include/gmsh"
     fi
   fi
 fi

@@ -29,6 +29,6 @@ void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
 #elif defined(HAVE_SLEPC)
   EigenSolve_SLEPC(DofData_P, NumEigenvalues, shift_r, shift_i);
 #else
-  Msg::Error("EigenSolve not available without SLEPC or ARPACK");
+  Message::Error("EigenSolve not available without SLEPC or ARPACK");
 #endif
 }

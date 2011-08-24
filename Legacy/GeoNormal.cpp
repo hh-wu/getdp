@@ -55,7 +55,7 @@ void Geo_CreateNodesXElements(int NumNode, int InIndex,
 
   if(InIndex != RegionIndexForNXE){
     RegionIndexForNXE = InIndex ;
-    Msg::Info("  Generate NodesXElements information for Region '%s'", Group_P->Name);
+    Message::Info("  Generate NodesXElements information for Region '%s'", Group_P->Name);
     if(CurrentGeoData->NodesXElements)
       Tree_Delete(CurrentGeoData->NodesXElements);
     CurrentGeoData->NodesXElements = 
@@ -129,7 +129,7 @@ void Geo_CreateNormal(int Type, double *x, double *y, double *z, double *N)
     break ;
     
   default :
-    Msg::Error("Normal computation not done (yet) for Element Type %d", Type);
+    Message::Error("Normal computation not done (yet) for Element Type %d", Type);
   }
 }
 

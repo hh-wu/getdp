@@ -24,8 +24,8 @@ void Gauss_Triangle(int Nbr_Points, int Num,
   case 13 : *u= xt13[Num] ; *v= yt13[Num] ; *w= 0. ; *wght= pt13[Num] ; break ;
   case 16 : *u= xt16[Num] ; *v= yt16[Num] ; *w= 0. ; *wght= pt16[Num] ; break ;
   default : 
-    Msg::Error("Wrong number of Gauss points for Triangle");
-    Msg::Error("Valid choices: 1, 3, 4, 6, 7, 12, 13, 16");
+    Message::Error("Wrong number of Gauss points for Triangle: "
+                   "valid choices: 1, 3, 4, 6, 7, 12, 13, 16");
     break;
   }
 }
@@ -35,7 +35,7 @@ void Gauss_Triangle(int Nbr_Points, int Num,
 static int glt[MAX_LINE_POINTS] = {-1};
 static double *glxt[MAX_LINE_POINTS], *glyt[MAX_LINE_POINTS], *glpt[MAX_LINE_POINTS];
 
-void quadToTri(double xi,double eta,double *r, double *s, double *J)
+static void quadToTri(double xi,double eta,double *r, double *s, double *J)
 {
   double r1;
 
@@ -54,12 +54,12 @@ void GaussLegendre_Triangle(int Nbr_Points, int Num,
   nb = (int)sqrt((double)Nbr_Points);
 
   if(nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
-    Msg::Error("Number of points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
+    Message::Error("Number of points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
 
   if(glt[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) glt[i] = 0 ;
 
   if(!glt[nb - 1]){
-    Msg::Info("Computing degenerate GaussLegendre %dX%d for Triangle", nb, nb);
+    Message::Info("Computing degenerate GaussLegendre %dX%d for Triangle", nb, nb);
     glxt[nb - 1] = (double*)Malloc(Nbr_Points * sizeof(double));
     glyt[nb - 1] = (double*)Malloc(Nbr_Points * sizeof(double));
     glpt[nb - 1] = (double*)Malloc(Nbr_Points * sizeof(double));
@@ -87,8 +87,8 @@ void GaussSingularR_Triangle(int Nbr_Points, int Num,
   case  3 : *u= xts3 [Num] ; *v= yts3 [Num] ; *w= 0. ; *wght= pts3 [Num] ; break ;
   case  4 : *u= xts4 [Num] ; *v= yts4 [Num] ; *w= 0. ; *wght= pts4 [Num] ; break ;
   default : 
-    Msg::Error("Wrong number of (modified) Gauss points for Triangle");
-    Msg::Error("Valid choices: 1, 3, 4");
+    Message::Error("Wrong number of (modified) Gauss points for Triangle: "
+                   "valid choices: 1, 3, 4");
     break;
   }
 }

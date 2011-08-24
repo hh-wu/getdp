@@ -243,7 +243,7 @@ void minimize_2 ( double (*f) (double, double, void *data),
                   void *data,int niter,
                   double &U, double &V, double &res)
 {
-  Msg::Error("Gmsh must be compiled with GSL support for minimize_2");
+  Message::Error("Gmsh must be compiled with GSL support for minimize_2");
 }
 
 void minimize_3 ( double (*f) (double, double, double, void *data), 
@@ -251,7 +251,7 @@ void minimize_3 ( double (*f) (double, double, double, void *data),
                   void *data,int niter,
                   double &U, double &V, double &W, double &res)
 {
-  Msg::Error("Gmsh must be compiled with GSL support for minimize_3");
+  Message::Error("Gmsh must be compiled with GSL support for minimize_3");
 }
 
 void minimize_N (int N, 
@@ -260,7 +260,7 @@ void minimize_N (int N,
                  void *data,int niter,
                  double *, double &res)
 {
-  Msg::Error("Gmsh must be compiled with GSL support for minimize_N");
+  Message::Error("Gmsh must be compiled with GSL support for minimize_N");
 }
 
 #endif

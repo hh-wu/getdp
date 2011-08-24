@@ -155,17 +155,17 @@ static char Valid[5000];
 
 #define GV(Get_Valid_X)				\
   int i = 0;					\
-  Msg::Direct("Valid Choices are:");		\
+  Message::Direct("Valid Choices are:");		\
   while (V[i].string != NULL){			\
     if(!(i%3)){					\
-      if(i) Msg::Direct("  %s", Valid);		\
+      if(i) Message::Direct("  %s", Valid);		\
       strcpy(Valid, V[i].string);		\
     }						\
     else strcat(Valid, V[i].string);		\
     strcat(Valid, " ");				\
     i++ ;					\
   }						\
-  Msg::Direct("  %s", Valid);			\
+  Message::Direct("  %s", Valid);			\
   return(Valid)
 
 char* Get_Valid_SXD   (struct StringXDefine V[]) { GV("Get_Valid_SXD"); }

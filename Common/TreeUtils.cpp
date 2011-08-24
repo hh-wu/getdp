@@ -9,8 +9,11 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include "GetDPConfig.h"
 #include "MallocUtils.h"
 #include "TreeUtils.h"
+
+#if !defined(HAVE_GMSH)
 
 Tree_T *Tree_Create(int size, int (*fcmp) (const void *a, const void *b))
 {
@@ -110,3 +113,5 @@ List_T *Tree2List(Tree_T * pTree)
   Tree_Action(pTree, TransferList);
   return pListTransfer;
 }
+
+#endif

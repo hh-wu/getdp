@@ -217,7 +217,7 @@ void  BF_Global(struct Element * Element, int NumGlobal,
     s[0] = Value.Val[0] ;  s[1] = Value.Val[1] ;  s[2] = Value.Val[2] ;
     break ;
   default :
-    Msg::Error("Bad type of value for Global BasisFunction") ;
+    Message::Error("Bad type of value for Global BasisFunction") ;
   }
 }
 
@@ -268,6 +268,6 @@ void  BF_dGlobal(struct Element * Element, int NumGlobal,
     s[0] = Value.Val[0] ;  s[1] = Value.Val[1] ;  s[2] = Value.Val[2] ;
     break ;
   default :
-    Msg::Error("Bad type of value for Global BasisFunction") ;
+    Message::Error("Bad type of value for Global BasisFunction") ;
   }
 }

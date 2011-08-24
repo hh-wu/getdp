@@ -50,7 +50,7 @@ void Contour_MovingBand2D(List_T * InitialList, List_T ** ExtendedList,
     GeoElement = Geo_GetGeoElement(i_El) ;
     if (List_Search(InitialList, &GeoElement->Region, fcmp_int)) {
       if (GeoElement->Type != LINE) 
-	Msg::Error("MovingBand2D contour contains no-LINE elements") ;
+	Message::Error("MovingBand2D contour contains no-LINE elements") ;
       ThreeInt1.Int1 = i_El; ThreeInt1.Int2 = 0; ThreeInt1.Int3 = 0;
       Tree_Add(Element_Tr, &ThreeInt1) ;
     }
@@ -85,7 +85,7 @@ void Contour_MovingBand2D(List_T * InitialList, List_T ** ExtendedList,
 	if (ThreeInt->Int3) break;
       }
     }
-    if (!ThreeInt->Int3) Msg::Error("Moving Band contour is not connected !!") ;
+    if (!ThreeInt->Int3) Message::Error("Moving Band contour is not connected !!") ;
   }
 
   List_Sort(*ExtendedList, fcmp_int32) ;
@@ -121,11 +121,11 @@ void  Init_MovingBand2D (struct Group * Group_P)
 
   MB = Group_P->MovingBand2D ;
   if (MB->ExtendedList1) {
-    Msg::Info("Init_MovingBand has already been done ! So nothing to do !?");
+    Message::Info("Init_MovingBand has already been done ! So nothing to do !?");
     return ;
   }
 
-  /* Msg::Info("Init_MovingBand!"); */
+  /* Message::Info("Init_MovingBand!"); */
 
   Contour_MovingBand2D(MB->InitialList1, &MB->ExtendedList1, &MB->NbrNodes1, &MB->NumNodes1);
   Contour_MovingBand2D(MB->InitialList2, &MB->ExtendedList2, &MB->NbrNodes2, &MB->NumNodes2);
@@ -146,8 +146,8 @@ void  Init_MovingBand2D (struct Group * Group_P)
   MB->ntr2 = MB->NbrNodes2-1;
   if (MB->Period2 != 1) {
     if ((MB->NbrNodes2-1)%MB->Period2 !=0)
-      Msg::Warning("Strange periodicity stuff  (%d %d) ! Do you know what you're doing ?", 
-		   MB->NbrNodes2-1, MB->Period2);
+      Message::Warning("Strange periodicity stuff  (%d %d) ! Do you know what you're doing ?", 
+                       MB->NbrNodes2-1, MB->Period2);
     MB->ntr2 = (MB->NbrNodes2-1)/MB->Period2;
   }
 
@@ -158,7 +158,7 @@ void  Init_MovingBand2D (struct Group * Group_P)
   Different_Sense = Different_Sense_MB2D(MB->NbrNodes1, MB->NbrNodes2, MB->ntr1, MB->ntr2, 
   		 MB->Closed1, MB->Closed2, MB->x1, MB->y1, MB->x2, MB->y2); 
   if (Different_Sense) { 
-    Msg::Debug("invertinggggggggggggggggggggggggggggggggggg");
+    Message::Debug("invertinggggggggggggggggggggggggggggggggggg");
     for (i=0 ; i<MB->NbrNodes2/2 ; i++) {
       dummy = MB->NumNodes2[i];
       MB->NumNodes2[i] = MB->NumNodes2[MB->NbrNodes2-1-i];
@@ -166,15 +166,15 @@ void  Init_MovingBand2D (struct Group * Group_P)
     }
   }
 
-  Msg::Debug("Moving Band Contour 1 has %d nodes :", MB->NbrNodes1);
-  for (i=0 ; i<MB->NbrNodes1 ; i++) Msg::Debug(" %d ", MB->NumNodes1[i]);
-  if (MB->Closed1) Msg::Debug("  (closed)\n"); else Msg::Debug("  (open)");
+  Message::Debug("Moving Band Contour 1 has %d nodes :", MB->NbrNodes1);
+  for (i=0 ; i<MB->NbrNodes1 ; i++) Message::Debug(" %d ", MB->NumNodes1[i]);
+  if (MB->Closed1) Message::Debug("  (closed)\n"); else Message::Debug("  (open)");
 
-  Msg::Debug("Moving Band Contour 2 has %d nodes :", MB->NbrNodes2);
-  for (i=0 ; i<MB->NbrNodes2 ; i++) Msg::Debug(" %d ", MB->NumNodes2[i]);
-  if (MB->Closed2) Msg::Debug("  (closed, "); else Msg::Debug("  (open, ");
-  Msg::Debug("periodicity 1/%d, ", MB->Period2);
-  if (Different_Sense) Msg::Debug("inversed sense)"); else Msg::Debug("same sense)") ;
+  Message::Debug("Moving Band Contour 2 has %d nodes :", MB->NbrNodes2);
+  for (i=0 ; i<MB->NbrNodes2 ; i++) Message::Debug(" %d ", MB->NumNodes2[i]);
+  if (MB->Closed2) Message::Debug("  (closed, "); else Message::Debug("  (open, ");
+  Message::Debug("periodicity 1/%d, ", MB->Period2);
+  if (Different_Sense) Message::Debug("inversed sense)"); else Message::Debug("same sense)") ;
 
   MB->b1_p1 = (int *)Malloc((MB->NbrNodes1-1)*sizeof(int)) ;  
   MB->b1_p2 = (int *)Malloc((MB->NbrNodes1-1)*sizeof(int)) ;  
@@ -191,7 +191,7 @@ void  Init_MovingBand2D (struct Group * Group_P)
       MB->StartNumTr = Geo_GetGeoElement(i)->Num ;
   (MB->StartNumTr)++;
 
-  Msg::Debug("StartNumTr %d  StartIndexTr %d", MB->StartNumTr, MB->StartIndexTr);
+  Message::Debug("StartNumTr %d  StartIndexTr %d", MB->StartNumTr, MB->StartIndexTr);
 }
 
 int Different_Sense_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
@@ -288,7 +288,7 @@ void Mesh_MB2D(int nth1, int nth2, int ntr1, int ntr2, int closed1, int closed2,
   }
   if(n1 != ntr1 || n2 != ntr2){
     /*  if(n1 != nth1-1 || n2 != nth2-1){ */
-    Msg::Error("Meshing of 2D moving band failed!!! (%d != %d || %d != %d)", 
+    Message::Error("Meshing of 2D moving band failed!!! (%d != %d || %d != %d)", 
 	       n1, ntr1, n2, ntr2); 
   }
 }  
@@ -356,7 +356,7 @@ void  Mesh_MovingBand2D (struct Group * Group_P)
     /* printf("Tr2 %d : %d %d %d \n",MB->StartNumTr+MB->ntr1+i, n[0], n[1], n[2]); */
   }	
 
-  Msg::Debug("Moving band meshed (area = %e)", MB->Area);
+  Message::Debug("Moving band meshed (area = %e)", MB->Area);
 }
 
 int Delauny_1234_MB (double x1, double y1, double x2, double y2,
@@ -367,9 +367,9 @@ int Delauny_1234_MB (double x1, double y1, double x2, double y2,
   Det1 = (x3-x1)*(y2-y1)-(x2-x1)*(y3-y1); 
   Det2 = (x4-x1)*(y2-y1)-(x2-x1)*(y4-y1); 
   if( !Det1 || !Det2 ) {
-    Msg::Error("colinear points in Delauny_1234 !!!!"
-	       "  x1 %e   y1 %e   x2 %e   y2 %e   x3 %e   y3 %e   x4 %e  y4 %e", 
-	       x1, y1, x2, y2, x3, y3, x4, y4);
+    Message::Error("colinear points in Delauny_1234 !!!!"
+                   "  x1 %e   y1 %e   x2 %e   y2 %e   x3 %e   y3 %e   x4 %e  y4 %e", 
+                   x1, y1, x2, y2, x3, y3, x4, y4);
   }  
   t1 = ( (x3-x1)*(x3-x2)+(y3-y1)*(y3-y2) ) / Det1 ; 
   t2 = ( (x4-x1)*(x4-x2)+(y4-y1)*(y4-y2) ) / Det2 ;

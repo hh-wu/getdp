@@ -30,8 +30,8 @@ void Gauss_Prism(int Nbr_Points, int Num,
     *wght = ppri42[Num] ; break ;
     
   default : 
-    Msg::Error("Wrong number of Gauss points for Prism");
-    Msg::Error("Valid choices: 6, 9, 21, 42");
+    Message::Error("Wrong number of Gauss points for Prism: "
+                   "valid choices: 6, 9, 21, 42");
     break;
 
   }

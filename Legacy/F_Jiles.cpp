@@ -36,7 +36,7 @@ void F_dhdb_Jiles(F_ARG)
 		    double *dHdBxx, double *dHdByy, double *dHdBxy) ;
   
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Msg::Error("Three vector arguments required");
+    Message::Error("Three vector arguments required");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
   // Parameters for the Jiles-Atherton model in D
@@ -68,7 +68,7 @@ void F_dbdh_Jiles(F_ARG)
 		    double *dBdHxx, double *dBdHyy, double *dBdHxy) ;
   
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Msg::Error("Three vector arguments required");
+    Message::Error("Three vector arguments required");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
   // Parameters for the Jiles-Atherton model in D
@@ -101,7 +101,7 @@ void F_h_Jiles(F_ARG)
 		  double *Hx2, double *Hy2) ;
 
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Msg::Error("Three vector arguments required");
+    Message::Error("Three vector arguments required");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
   // Parameters for the Jiles-Atherton model in D
@@ -132,7 +132,7 @@ void F_b_Jiles(F_ARG)
 		  double *Bx2, double *By2) ;
 
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Msg::Error("Three vector arguments required");
+    Message::Error("Three vector arguments required");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
   // Parameters for the Jiles-Atherton model in D
@@ -293,7 +293,7 @@ void Vector_dBdH(double Hx, double Hy, double Bx, double By, double dHx, double 
   double Ms, a, k, c, alpha;    // parameters of J-A model
 
   if (D->Case.Interpolation.NbrPoint != 5) 
-    Msg::Error("Jiles-Atherton parameters missing (List[{Ms, a, k, c}])");
+    Message::Error("Jiles-Atherton parameters missing (List[{Ms, a, k, c}])");
   Ms    = D->Case.Interpolation.x[0] ;
   a     = D->Case.Interpolation.x[1] ;
   k     = D->Case.Interpolation.x[2] ;

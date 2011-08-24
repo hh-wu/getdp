@@ -50,12 +50,12 @@ int Get_FacetFunctionIndex(struct Element * Element, int NumEntity, int NumIndex
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Edge number in 'BF_Edge_3E'")
+#define WrongNumEntity   Message::Error("Wrong Edge number in 'BF_Edge_3E'")
 
 void BF_Edge_3E(struct Element * Element, int NumEntity,
 		double u, double v, double w, double s[])
 {
-  Msg::Error("You should never end up here!") ;
+  Message::Error("You should never end up here!") ;
 }
 
 #undef WrongNumEntity
@@ -64,7 +64,7 @@ void BF_Edge_3E(struct Element * Element, int NumEntity,
 /*  Facets  */
 /* -------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Face number in 'BF_Edge_3F'")
+#define WrongNumEntity   Message::Error("Wrong Face number in 'BF_Edge_3F'")
 
 void BF_Edge_3F(struct Element * Element, int NumEntity, int Index,
 		double u, double v, double w, double s[])
@@ -72,7 +72,7 @@ void BF_Edge_3F(struct Element * Element, int NumEntity, int Index,
   switch (Element->Type) {
 
   case LINE :
-    Msg::Error("You should never end up here!") ;
+    Message::Error("You should never end up here!") ;
     break;
 
   case TRIANGLE :
@@ -90,7 +90,7 @@ void BF_Edge_3F(struct Element * Element, int NumEntity, int Index,
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_3F not ready for QUADRANGLE");
+    default : Message::Error("BF_Edge_3F not ready for QUADRANGLE");
     }
     break ;
 
@@ -130,24 +130,24 @@ void BF_Edge_3F(struct Element * Element, int NumEntity, int Index,
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_3F not ready for HEXAHEDRON");
+    default : Message::Error("BF_Edge_3F not ready for HEXAHEDRON");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_3F not ready for PRISM");
+    default : Message::Error("BF_Edge_3F not ready for PRISM");
     }
     break ;
 
   case PYRAMID :
     switch(NumEntity) {
-    default : Msg::Error("BF_Edge_3F not ready for PYRAMID");
+    default : Message::Error("BF_Edge_3F not ready for PYRAMID");
     }
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_Edge_3F");
+    Message::Error("Unkown type of Element in BF_Edge_3F");
     break ;
 
   }
@@ -180,7 +180,7 @@ void BF_Edge_3F_c(struct Element * Element, int NumEntity,
 void BF_Edge_3V(struct Element * Element, int NumEntity,
 		double u, double v, double w, double s[])
 {
-  Msg::Error("You should never end up here!") ;
+  Message::Error("You should never end up here!") ;
 }
 
 
@@ -192,12 +192,12 @@ void BF_Edge_3V(struct Element * Element, int NumEntity,
 /*  Edges  */
 /* ------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Edge number in 'BF_CurlEdge_3E'")
+#define WrongNumEntity   Message::Error("Wrong Edge number in 'BF_CurlEdge_3E'")
 
 void BF_CurlEdge_3E(struct Element * Element, int NumEntity,
 		    double u, double v, double w, double s[])
 {
-  Msg::Error("You should never end up here!") ;
+  Message::Error("You should never end up here!") ;
 }
 
 #undef WrongNumEntity
@@ -206,7 +206,7 @@ void BF_CurlEdge_3E(struct Element * Element, int NumEntity,
 /*  Facets  */
 /* -------- */
 
-#define WrongNumEntity   Msg::Error("Wrong Face number in 'BF_CurlEdge_3F'")
+#define WrongNumEntity   Message::Error("Wrong Face number in 'BF_CurlEdge_3F'")
 
 void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
 		    double u, double v, double w, double s[])
@@ -214,7 +214,7 @@ void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
   switch (Element->Type) {
 
   case LINE :
-    Msg::Error("You should never end up here!") ;
+    Message::Error("You should never end up here!") ;
     break;
 
   case TRIANGLE :
@@ -232,7 +232,7 @@ void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
 
   case QUADRANGLE :
     switch(NumEntity) {
-    default : Msg::Error("BF_CurlEdge_3F not ready for QUADRANGLE");
+    default : Message::Error("BF_CurlEdge_3F not ready for QUADRANGLE");
     }
     break ;
 
@@ -272,18 +272,18 @@ void BF_CurlEdge_3F(struct Element * Element, int NumEntity, int Index,
 
   case HEXAHEDRON :
     switch(NumEntity) {
-    default : Msg::Error("BF_CurlEdge_3F not ready for HAXAHEDRON");
+    default : Message::Error("BF_CurlEdge_3F not ready for HAXAHEDRON");
     }
     break ;
 
   case PRISM :
     switch(NumEntity) {
-    default : Msg::Error("BF_CurlEdge_3F not ready for PRISM");
+    default : Message::Error("BF_CurlEdge_3F not ready for PRISM");
     }
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_CurlEdge_3F");
+    Message::Error("Unkown type of Element in BF_CurlEdge_3F");
     break ;
 
   }
@@ -316,5 +316,5 @@ void BF_CurlEdge_3F_c(struct Element * Element, int NumEntity,
 void BF_CurlEdge_3V(struct Element * Element, int NumEntity,
 		    double u, double v, double w, double s[])
 {
-  Msg::Error("You should never end up here!") ;
+  Message::Error("You should never end up here!") ;
 }

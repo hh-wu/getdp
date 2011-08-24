@@ -175,7 +175,7 @@ void F_aX21_bY21_cZ21 (F_ARG)
   double  X1, Y1, Z1, X2, Y2, Z2, tmp ;
 
   if(!Current.Element || Current.Element->Num == NO_ELEMENT)
-    Msg::Error("No element on which to perform F_aX21_bY21_cZ21");
+    Message::Error("No element on which to perform F_aX21_bY21_cZ21");
 
   NumNodes = Geo_GetNodesOfEdgeInElement (Current.Element->GeoElement, 
 					  Current.NumEntityInElement) ;

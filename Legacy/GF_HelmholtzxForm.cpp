@@ -147,13 +147,13 @@ void GF_HelmholtzxForm(GF_ARGX)
       break ;
       
     default :
-      Msg::Error("Unknown Element Type (%s) for 'GF_HelmholtzxForm'",
+      Message::Error("Unknown Element Type (%s) for 'GF_HelmholtzxForm'",
 		 Get_StringForDefine(Element_Type, Element->ElementSource->Type));
     }
     break ;
     
   default :
-    Msg::Error("Unknown Dimension (%d) for 'GF_HelmholtzxForm'", 
+    Message::Error("Unknown Dimension (%d) for 'GF_HelmholtzxForm'", 
 	       (int)Fct->Para[0]);
     
   }

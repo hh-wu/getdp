@@ -344,7 +344,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     if((NbrIso = PSO_P->Iso) < 0)
       NbrIso = List_Nbr(PSO_P->Iso_L) ;
     if(NbrIso > NBR_MAX_ISO) 
-      Msg::Error("Too many Iso values");
+      Message::Error("Too many Iso values");
 
     if(PSO_P->Format == FORMAT_GNUPLOT)
       fprintf(PostStream, "# NbIso = %d, Min = %g, Max = %g\n",
@@ -500,7 +500,7 @@ void  Format_Unv(int Num_Element, int NbrNodes, struct Value *Value)
   case TENSOR_DIAG :
   case TENSOR_SYM :
   case TENSOR :
-    Msg::Error("Unv parsed format not done for Tensors");
+    Message::Error("Unv parsed format not done for Tensors");
     break;
   }
 }
@@ -647,7 +647,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
   case TENSOR_DIAG :
   case TENSOR_SYM :
   case TENSOR :
-    Msg::Error("Gmsh parsed format not done for Tensors");
+    Message::Error("Gmsh parsed format not done for Tensors");
     break;
     
   }
@@ -793,7 +793,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
   case TENSOR_DIAG :
   case TENSOR_SYM :
   case TENSOR :
-    Msg::Error("Gmsh format not done for Tensors");
+    Message::Error("Gmsh format not done for Tensors");
     break;
     
   }
@@ -833,7 +833,7 @@ int Get_GmshElementType(int Type)
   case PYRAMID_2 :     return(14) ; 
   case QUADRANGLE_2_8N : return(16) ; 
   default : 
-    Msg::Error("Unknown type of element in Gmsh format") ;
+    Message::Error("Unknown type of element in Gmsh format") ;
     return(-1) ;
   }
 }
@@ -1054,11 +1054,11 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
 
   if(Contour){
     if(PE->Value[0].Type != SCALAR)
-      Msg::Error("Non scalar Element %d in contour creation", Num_Element);
+      Message::Error("Non scalar Element %d in contour creation", Num_Element);
     if(NbTimeStep != 1)
-      Msg::Error("Contour creation not allowed for multiple time steps");
+      Message::Error("Contour creation not allowed for multiple time steps");
     if(Current.NbrHar != 1 && !Warning_FirstHarmonic){
-      Msg::Warning("Contour creation done only for first harmonic (use Re[] or Im[])");
+      Message::Warning("Contour creation done only for first harmonic (use Re[] or Im[])");
       Warning_FirstHarmonic = 1 ;
     }
     if(Store)
@@ -1140,7 +1140,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     Format_Adapt(Dummy) ;
     break ;
   default :
-    Msg::Error("Unknown format in Format_PostElement");
+    Message::Error("Unknown format in Format_PostElement");
   }
 }
 
@@ -1184,7 +1184,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
       }
     }
     if(PostStream == stdout || PostStream == stderr)
-      Msg::Direct(sstream.str().c_str());
+      Message::Direct(sstream.str().c_str());
     else
       fprintf(PostStream, "%s\n", sstream.str().c_str()) ;
   }
@@ -1194,8 +1194,8 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
       Geo_GetNodesCoordinates(1, &numRegion, &x, &y, &z) ;
     else {
       x=y=z=0.;
-      Msg::Warning("Post Format \'Gmsh\' not adapted for global quantities supported"
-		   " by Regions. Zero coordinates are considered.") ;
+      Message::Warning("Post Format \'Gmsh\' not adapted for global quantities supported"
+                       " by Regions. Zero coordinates are considered.") ;
     }
     Format_GmshParsed(Time, 0, 1, NbrHarmonics, HarmonicToTime,
 		      POINT, 1, &x, &y, &z,
@@ -1204,7 +1204,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 
   else if (Format == FORMAT_UNV){
 
-    Msg::Warning("\'UNV\' format not available for Format_PostValue") ;
+    Message::Warning("\'UNV\' format not available for Format_PostValue") ;
 
   }
 
@@ -1222,7 +1222,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 	switch (Format) {
 	case FORMAT_FREQUENCY_TABLE :
 	  if (NbrHarmonics == 1)
-	    Msg::Error("FrequencyTable format not allowed (only one harmonic)") ;
+	    Message::Error("FrequencyTable format not allowed (only one harmonic)") ;
 	  break ;
 	default :
 	  fprintf(PostStream, "%.16g ", Time) ;

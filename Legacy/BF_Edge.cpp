@@ -12,13 +12,13 @@
 
 #define SQU(a)     ((a)*(a)) 
 
-#define NoEdge  Msg::Error("Missing Edge Entity in Element %d", Element->Num)
+#define NoEdge  Message::Error("Missing Edge Entity in Element %d", Element->Num)
 
 /* ------------------------------------------------------------------------ */
 /*  B F _ E d g e                                                           */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumEdge   Msg::Error("Wrong Edge number in 'BF_Edge'")
+#define WrongNumEdge   Message::Error("Wrong Edge number in 'BF_Edge'")
 
 void BF_Edge(struct Element * Element, int NumEdge, 
 	     double u, double v, double w,  double s[])
@@ -176,7 +176,7 @@ void BF_Edge(struct Element * Element, int NumEdge,
     break ;
 
   default :
-    Msg::Error("Unkown type of Element in BF_Edge");
+    Message::Error("Unkown type of Element in BF_Edge");
     break;
   }
 
@@ -193,7 +193,7 @@ void BF_Edge(struct Element * Element, int NumEdge,
 /*  B F _ C u r l E d g e                                                   */
 /* ------------------------------------------------------------------------ */
 
-#define WrongNumEdge   Msg::Error("Wrong Edge number in 'BF_CurlEdge'")
+#define WrongNumEdge   Message::Error("Wrong Edge number in 'BF_CurlEdge'")
 
 void BF_CurlEdge(struct Element * Element, int NumEdge, 
 		 double u, double v, double w,  double s[])
@@ -304,7 +304,7 @@ void BF_CurlEdge(struct Element * Element, int NumEdge,
 
 
   default :
-    Msg::Error("Unkown type of Element in BF_CurlEdge");
+    Message::Error("Unkown type of Element in BF_CurlEdge");
     break;
   }
 
