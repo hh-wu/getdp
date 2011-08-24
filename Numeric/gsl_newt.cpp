@@ -72,7 +72,7 @@ void newt(double x[], int n, int *check,
   gsl_vector *xx = gsl_vector_alloc(n);
 
   if(n > MAX_DIM_NEWT - 1)
-    Message::Fatal("Maximum Newton dimension exceeded\n");
+    Message::Error("Maximum Newton dimension exceeded");
   nrdim = n;
 
   nrfunc = func;
