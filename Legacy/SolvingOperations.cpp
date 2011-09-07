@@ -2936,7 +2936,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Current.TimeStep += 1. ;
 
 	Message::Info("Theta Time = %.8g s (TimeStep %d)", Current.Time, 
-		  (int)Current.TimeStep) ;
+                      (int)Current.TimeStep) ;
 
 	Save_Time = Current.Time ;
 
@@ -3357,6 +3357,63 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       break ;
 
+      /*  -->  T i m e L o o p R u n g e K u t t a  */
+      /*  ----------------------------------------- */ 
+	      
+    case OPERATION_TIMELOOPRUNGEKUTTA :
+      {
+        Init_OperationOnSystem("TimeLoopRungeKutta",
+                               Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;      
+        int numStepRK = List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherC);
+        if(numStepRK != List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherB) ||
+           numStepRK * numStepRK != List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherA))
+          Msg::Error("Incompatible sizes of Butcher Tableaux");
+
+        Current.Time = Operation_P->Case.TimeLoopRungeKutta.Time0 ;
+        gVector xn, rhs;
+        LinAlg_CreateVector(&xn, &DofData_P->Solver, Current.DofData->NbrDof);
+        LinAlg_CreateVector(&rhs, &DofData_P->Solver, Current.DofData->NbrDof);
+        std::vector<gVector> ki(numStepRK);
+        for(int i = 0; i < numStepRK; i++){
+          LinAlg_CreateVector(&ki[i], &DofData_P->Solver, Current.DofData->NbrDof);
+        }
+
+        while (Current.Time <= Operation_P->Case.TimeLoopRungeKutta.TimeMax) {
+          double tn = Current.Time;
+          LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &xn);
+          Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopRungeKutta.DTimeIndex,
+                                       NULL, 0., 0., 0., &Value) ;
+          Current.DTime = Value.Val[0];
+          Current.Time += Current.DTime;
+          Current.TimeStep += 1.;
+          for(int i = 0; i < numStepRK; i++){
+            double ci;
+            List_Read(Operation_P->Case.TimeLoopRungeKutta.ButcherC, i, &ci);
+            Current.Time = tn + ci * Current.DTime;
+            LinAlg_CopyVector(&xn, &DofData_P->CurrentSolution->x);
+            for(int j = 0; j < i; j++){
+              double aij;
+              List_Read(Operation_P->Case.TimeLoopRungeKutta.ButcherA, i * numStepRK + j, &aij);
+              LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &ki[j], aij, 
+                                               &DofData_P->CurrentSolution->x);
+            }
+            Current.TypeAssembly = ASSEMBLY_SEPARATE ;
+            Init_SystemData(DofData_P, Flag_Jac) ;
+            Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 1);
+            LinAlg_ProdMatrixVector(&DofData_P->M1, &DofData_P->CurrentSolution->x, &rhs);
+            LinAlg_AddVectorProdVectorDouble(&DofData_P->b, &rhs, -1., &rhs);
+            LinAlg_ProdVectorDouble(&rhs, Current.DTime, &rhs);
+            LinAlg_Solve(&DofData_P->M2, &rhs, &DofData_P->Solver, &ki[i]) ;
+          }
+          LinAlg_CopyVector(&xn, &DofData_P->CurrentSolution->x);
+          for(int i = 0; i < numStepRK; i++){
+            // FIXME: todo
+          }
+        }
+      }
+      break ;
+        
       /*  -->  O t h e r                              */
       /*  ------------------------------------------  */
 

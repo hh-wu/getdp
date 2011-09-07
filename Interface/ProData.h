@@ -923,6 +923,11 @@ struct Operation {
       List_T  *Operation;
     } TimeLoopNewmark;
     struct {
+      double  Time0, TimeMax;
+      List_T *ButcherA, *ButcherB, *ButcherC;
+      int     DTimeIndex;
+    } TimeLoopRungeKutta;
+    struct {
       double  Criterion;
       int     NbrMaxIteration, RelaxationFactorIndex, Flag;
       List_T  *Operation;
@@ -1088,6 +1093,7 @@ struct ChangeOfState {
 #define OPERATION_TIMELOOPNEWMARK          31
 #define OPERATION_ITERATIVELOOP            32
 #define OPERATION_ITERATIVETIMEREDUCTION   33
+#define OPERATION_TIMELOOPRUNGEKUTTA       34
 
 #define OPERATION_CHANGEOFCOORDINATES      40
 #define OPERATION_CHANGEOFCOORDINATES2    400

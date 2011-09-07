@@ -212,9 +212,8 @@ void vyyerror(const char *fmt, ...);
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
 %token      tAddOppositeFullSolution
 
-%token      tTimeLoopTheta
-%token      tTime0 tTimeMax tTheta
-%token      tTimeLoopNewmark
+%token      tTimeLoopTheta tTimeLoopNewmark tTimeLoopRungeKutta
+%token        tTime0 tTimeMax tTheta
 %token        tBeta tGamma
 %token      tIterativeLoop
 %token      tNbrMaxIteration tRelaxationFactor
@@ -4449,6 +4448,25 @@ OperationTerm :
       Operation_P->Case.TimeLoopNewmark.Beta = $9; 
       Operation_P->Case.TimeLoopNewmark.Gamma = $11; 
       Operation_P->Case.TimeLoopNewmark.Operation = $14;
+    }
+
+  | tTimeLoopRungeKutta '[' String__Index ',' FExpr ',' FExpr ',' Expression ',' 
+                            ListOfFExpr ',' ListOfFExpr ',' ListOfFExpr ']' 
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_TIMELOOPRUNGEKUTTA;
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+			       fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i ;
+      Operation_P->Case.TimeLoopRungeKutta.Time0 = $5; 
+      Operation_P->Case.TimeLoopRungeKutta.TimeMax = $7; 
+      Operation_P->Case.TimeLoopRungeKutta.DTimeIndex = $9; 
+      Operation_P->Case.TimeLoopRungeKutta.ButcherA = $11;
+      Operation_P->Case.TimeLoopRungeKutta.ButcherB = $13;
+      Operation_P->Case.TimeLoopRungeKutta.ButcherC = $15;
     }
 
   | tIterativeLoop  '[' FExpr ',' FExpr ',' Expression ']' 

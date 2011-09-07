@@ -231,6 +231,7 @@ AddOppositeFullSolution      return tAddOppositeFullSolution ;
 Test                         return tIf;
 TimeLoopTheta                return tTimeLoopTheta;
 TimeLoopNewmark              return tTimeLoopNewmark;
+TimeLoopRungeKutta           return tTimeLoopRungeKutta;
 Time0                        return tTime0;
 TimeMax                      return tTimeMax;
 DTime                        return tDTime;
