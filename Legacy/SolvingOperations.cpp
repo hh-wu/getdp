@@ -3378,13 +3378,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         for(int i = 0; i < numStepRK; i++)
           LinAlg_CreateVector(&ki[i], &DofData_P->Solver, Current.DofData->NbrDof);
 
-        while (Current.Time <= Operation_P->Case.TimeLoopRungeKutta.TimeMax) {
+        while (Current.Time < Operation_P->Case.TimeLoopRungeKutta.TimeMax * 0.9999999) {
           double tn = Current.Time;
           LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &xn);
           Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopRungeKutta.DTimeIndex,
                                        NULL, 0., 0., 0., &Value) ;
           Current.DTime = Value.Val[0];
-          Current.Time += Current.DTime;
           Current.TimeStep += 1.;
           for(int i = 0; i < numStepRK; i++){
             double ci;
@@ -3406,6 +3405,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             LinAlg_ProdVectorDouble(&rhs, Current.DTime, &rhs);
             LinAlg_Solve(&DofData_P->M2, &rhs, &DofData_P->Solver, &ki[i]) ;
           }
+          // restore previous time step
+          LinAlg_CopyVector(&xn, &((struct Solution*)
+                                   List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-2))->x) ;
           LinAlg_CopyVector(&xn, &DofData_P->CurrentSolution->x);
           for(int i = 0; i < numStepRK; i++){
             double bi;
@@ -3413,6 +3415,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &ki[i], bi, 
                                              &DofData_P->CurrentSolution->x);
           }
+          Current.Time = tn + Current.DTime;
         }
       }
       break ;

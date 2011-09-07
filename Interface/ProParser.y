@@ -4451,7 +4451,7 @@ OperationTerm :
     }
 
   | tTimeLoopRungeKutta '[' String__Index ',' FExpr ',' FExpr ',' Expression ',' 
-                            ListOfFExpr ',' ListOfFExpr ',' ListOfFExpr ']' 
+                            ListOfFExpr ',' ListOfFExpr ',' ListOfFExpr ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_TIMELOOPRUNGEKUTTA;
