@@ -3368,7 +3368,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         int numStepRK = List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherC);
         if(numStepRK != List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherB) ||
            numStepRK * numStepRK != List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherA))
-          Msg::Error("Incompatible sizes of Butcher Tableaux");
+          Message::Error("Incompatible sizes of Butcher Tableaux");
 
         Current.Time = Operation_P->Case.TimeLoopRungeKutta.Time0 ;
         gVector xn, rhs;
