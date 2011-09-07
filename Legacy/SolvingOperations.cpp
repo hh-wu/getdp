@@ -3375,9 +3375,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         LinAlg_CreateVector(&xn, &DofData_P->Solver, Current.DofData->NbrDof);
         LinAlg_CreateVector(&rhs, &DofData_P->Solver, Current.DofData->NbrDof);
         std::vector<gVector> ki(numStepRK);
-        for(int i = 0; i < numStepRK; i++){
+        for(int i = 0; i < numStepRK; i++)
           LinAlg_CreateVector(&ki[i], &DofData_P->Solver, Current.DofData->NbrDof);
-        }
 
         while (Current.Time <= Operation_P->Case.TimeLoopRungeKutta.TimeMax) {
           double tn = Current.Time;
@@ -3392,6 +3391,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             List_Read(Operation_P->Case.TimeLoopRungeKutta.ButcherC, i, &ci);
             Current.Time = tn + ci * Current.DTime;
             LinAlg_CopyVector(&xn, &DofData_P->CurrentSolution->x);
+            // FIXME: warning, this assumes an explicit RK scheme!
             for(int j = 0; j < i; j++){
               double aij;
               List_Read(Operation_P->Case.TimeLoopRungeKutta.ButcherA, i * numStepRK + j, &aij);
@@ -3408,7 +3408,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           }
           LinAlg_CopyVector(&xn, &DofData_P->CurrentSolution->x);
           for(int i = 0; i < numStepRK; i++){
-            // FIXME: todo
+            double bi;
+            List_Read(Operation_P->Case.TimeLoopRungeKutta.ButcherB, i, &bi);
+            LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &ki[i], bi, 
+                                             &DofData_P->CurrentSolution->x);
           }
         }
       }
