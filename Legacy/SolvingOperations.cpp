@@ -3379,40 +3379,33 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_CreateVector(&ki[i], &DofData_P->Solver, Current.DofData->NbrDof);
 
         while (Current.Time < Operation_P->Case.TimeLoopRungeKutta.TimeMax * 0.9999999) {
-					
           double tn = Current.Time;
           LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &xn);
           Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopRungeKutta.DTimeIndex,
                                        NULL, 0., 0., 0., &Value) ;
           Current.DTime = Value.Val[0];
           Current.TimeStep += 1.;
-					
           for(int i = 0; i < numStepRK; i++){
             double ci;
             List_Read(Operation_P->Case.TimeLoopRungeKutta.ButcherC, i, &ci);
             Current.Time = tn + ci * Current.DTime;
             LinAlg_CopyVector(&xn, &DofData_P->CurrentSolution->x);
             // FIXME: warning, this assumes an explicit RK scheme!
-						
             for(int j = 0; j < i; j++){
               double aij;
               List_Read(Operation_P->Case.TimeLoopRungeKutta.ButcherA, i * numStepRK + j, &aij);
               LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &ki[j], aij, 
                                                &DofData_P->CurrentSolution->x);
             }
-						
             Current.TypeAssembly = ASSEMBLY_SEPARATE ;
             Init_SystemData(DofData_P, Flag_Jac) ;
             Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 1);
-            
-						LinAlg_ProdMatrixVector(&DofData_P->M1, &DofData_P->CurrentSolution->x, &rhs);
+            LinAlg_ProdMatrixVector(&DofData_P->M1, &DofData_P->CurrentSolution->x, &rhs);
             LinAlg_ProdVectorDouble(&rhs, -1., &rhs);
-						LinAlg_AddVectorProdVectorDouble(&rhs, &DofData_P->b, 1., &rhs);
+		  LinAlg_AddVectorProdVectorDouble(&rhs, &DofData_P->b, 1., &rhs);
             LinAlg_ProdVectorDouble(&rhs, Current.DTime, &rhs);
             LinAlg_Solve(&DofData_P->M2, &rhs, &DofData_P->Solver, &ki[i]) ;
-						
           }
-					
           // restore previous time step
           LinAlg_CopyVector(&xn, &((struct Solution*)
                                    List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-2))->x) ;
@@ -3423,9 +3416,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &ki[i], bi, 
                                              &DofData_P->CurrentSolution->x);
           }
-					
+          
           Current.Time = tn + Current.DTime;
-					
         }
       }
       break ;
