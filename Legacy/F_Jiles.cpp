@@ -495,3 +495,190 @@ void F_dhdb_Ducharne(F_ARG)
     V->Val[5] = dHdB[2]  ;
 }
 
+
+ // Functions for Vectorial Incremental Nonconservative Consistent Hysteresis Model - V. Francois
+
+double h_ba (double h, double b_rev, double Ms_rev, double d)
+{
+
+double z=(b_rev)/(MU0+Ms_rev*tanh(h/d)/h);
+
+return(z);
+}
+
+void F_nu_Vinch(F_ARG)
+{
+  /* input : norm(b_rev)=norm(b_tot-sum(\alpha_i)) */
+  /* output : nu */
+  	  
+double b_rev,h,Ms_rev,alpha,chi,nu;
+b_rev=(A)->Val[0];
+Ms_rev=0.15;//0.11;
+alpha=65;
+h=1; // start point for the solution of the implicit equation
+
+if(b_rev==0) // singularity for b=a
+{
+  chi=Ms_rev/alpha/MU0;
+  // terminate the program:
+  //return 0;
+}
+else
+{
+  // Picard iteration to find h
+
+  double TOL=1e-6 ;  
+  while(fabs(h-h_ba(h,b_rev,Ms_rev,alpha))>TOL)
+  {
+    h=h_ba(h,b_rev,Ms_rev,alpha);
+  }
+  chi=Ms_rev*tanh(h/alpha)/h/MU0;
+}
+
+nu=1/MU0/(1+chi);
+
+V->Val[0] = nu; 
+}
+
+
+double fct_omega(double h[], double a[], double a_old[], double chi, double Ms_irrev, double alpha)
+{
+	double g2,g3,Dissip,norm_h,norm_a;
+	double diff[3];
+	double omega;
+
+	norm_h=sqrt(h[0]*h[0]+h[1]*h[1]+h[2]*h[2]);
+	norm_a=sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]);
+
+	for (int n=0; n<3; n++) {
+		diff[n]=a[n]-a_old[n];
+	}
+
+    g2=Ms_irrev*alpha*((norm_a/Ms_irrev)*atanh((norm_a)/Ms_irrev)+0.5*log(fabs(pow(norm_a/Ms_irrev,2)-1)));   
+    g3=-(a[0]*h[0]+a[1]*h[1]+a[2]*h[2]); // =-dot(a,h)
+    Dissip=chi*sqrt(diff[0]*diff[0]+diff[1]*diff[1]+diff[2]*diff[2]); // =chi*norm(a-a_old);
+
+    omega=g2+g3+Dissip;
+
+	return(omega);
+}
+
+
+void fct_d_omega (double h[], double a[], double a_old[], double chi, double Ms_irrev, double alpha, double* domega)
+{
+	//actualisation of the table pointed by domega
+	
+	double dg2_da[3],dg3_da[3],dissip[3],norm_a,norm_diff;
+	double diff[3];
+
+	norm_a=sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]);
+
+
+
+	for (int n=0; n<3; n++) {
+		dg2_da[n]=alpha*atanh((norm_a)/Ms_irrev);
+		dg3_da[n]=-h[n];
+		diff[n]=a[n]-a_old[n];
+	}
+
+	if(norm_a!=0){
+		for (int n=0; n<3; n++) {
+			dg2_da[n]=dg2_da[n]*a[n]/norm_a;
+		}
+	}
+	else {
+    for (int n=0; n<3; n++) {
+      dg2_da[n]=0;
+    }
+  }
+
+  norm_diff=sqrt(diff[0]*diff[0]+diff[1]*diff[1]+diff[2]*diff[2]);
+  
+  if(norm_diff!=0){
+    for (int n=0; n<3; n++) {
+      dissip[n]=chi*diff[n]/norm_diff; // d(chi*norm(a-a_old))/da;
+    }
+  }
+  else {
+    for (int n=0; n<3; n++) {
+		dissip[n]=0;
+    }
+  }
+
+  for (int n=0; n<3; n++) 
+    domega[n]=dg2_da[n]+dg3_da[n]+dissip[n];
+}
+
+
+
+
+void F_Update_a(F_ARG)
+{
+  // input:  h, a, a_old, chi, Ms_irrev, alpha
+  // output: a
+  
+  double a_old[3]={0,0,0};
+  double h[3]={20,0,0};
+  double a[3]={0,0,0};
+  double better_a[3]={0,0,0};
+  double rfactor=0.1;
+  double tol=0.000001; 
+  double* d_omega = new double[3];
+  double omega, better_omega;
+  int i=0;
+  double chi,Ms_irrev,alpha;
+  
+  for (int n=0; n<3; n++) {
+    h[n]=(A)->Val[n];
+    a[n]=(A+1)->Val[n];
+    a_old[n]=(A+2)->Val[n];
+  }
+  chi=(A+3)->Val[0];
+  Ms_irrev=(A+4)->Val[0];
+  alpha=(A+5)->Val[0];
+
+  fct_d_omega(h,a,a_old,chi,Ms_irrev,alpha,d_omega); //updating table pointed by domega
+  omega=fct_omega(h,a,a_old,chi,Ms_irrev,alpha); //updating omega
+
+  while( (fabs(d_omega[0])/(1+fabs(omega))*rfactor>tol || 
+          fabs(d_omega[1])/(1+fabs(omega))*rfactor>tol || 
+          fabs(d_omega[2])/(1+fabs(omega))*rfactor>tol)) //if domega!=0 --> we look for "a" that gives min(omega)
+    {
+      for (int n=0; n<3; n++) { //iteration gradient descent
+        better_a[n]=a[n]-rfactor*d_omega[n];
+      }
+      //  cout << "i :" << i << "\n";
+      better_omega=fct_omega(h,better_a,a_old,chi,Ms_irrev,alpha); //updating omega
+      
+      if(i>2000) {    
+        // std::cout.precision(20);
+        // std::cout << "omega: " << omega << "better_omega: " << better_omega << "omega-tol/10"<< omega-tol/10 << "\n";
+        Message::Info("omega: %.20g, better_omega: %.20g, omega-tol/10: %.20g",
+                      omega, better_omega, omega-tol/10 );
+        Message::Info("Warning: too many iterations to find the minimum of omega. Wrong choice of tol and/or r_factor. iteration: %i", i );
+      }   
+      
+      if( (better_omega < (omega-tol/10) ) && 
+          ( sqrt(better_a[0]*better_a[0]+better_a[1]*better_a[1]+better_a[2]*better_a[2]) < Ms_irrev ) ){ 
+        //Watch out: better_omega < omega otherwise, oscillations between 2 omega identical !   
+        fct_d_omega(h,better_a,a_old,chi,Ms_irrev,alpha,d_omega); //update table pointed by domega
+        omega=better_omega;
+        if(a[0]==a_old[0] && a[1]==a_old[1] && a[2]==a_old[2]) {
+          rfactor=0.1; //reinitialize rfactor which may have become extremely small to the angular starting point
+        }
+        for (int n=0; n<3; n++) {
+          a[n]=better_a[n];
+        }
+      }
+      else {
+        rfactor=rfactor/2;
+      }  
+      i++;    
+  }
+    
+  for (int k=0 ; k<3 ; k++) {
+    V->Val[k]=better_a[k];//(A)->Val[k]; 
+  }
+  
+  delete[] d_omega;
+}

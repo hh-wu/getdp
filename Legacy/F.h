@@ -219,4 +219,9 @@ void  MHTransform(struct Element * Element, struct QuantityStorage * QuantitySto
 void  F_BiotSavart (F_ARG) ;
 void  F_Pocklington (F_ARG) ;
 
+/* Functions for Hysteresis -  V. Francois */
+void  F_nu_Vinch (F_ARG) ;
+void  F_Update_a (F_ARG) ; 
+
+
 #endif

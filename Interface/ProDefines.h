@@ -978,7 +978,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"h_Ducharne"              , (CAST)F_h_Ducharne          ,  -1,   3 },
   {"nu_Ducharne"             , (CAST)F_nu_Ducharne         ,  -1,   3 },
   
-
+  // Functions for Vectorial Incremental Nonconservative Consistent Hysteresis Model - V. Francois
+  {"nu_Vinch"             , (CAST)F_nu_Vinch            ,   0,   1 },	
+  {"Update_a"             , (CAST)F_Update_a            ,   0,   6 },	
 
   // F_MultiHar
 

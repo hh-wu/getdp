@@ -62,7 +62,7 @@ extern struct CurrentData Current ;
 static void _try(int ierr){ CHKERRABORT(PETSC_COMM_WORLD, ierr); }
 static int SolverInitialized = 0;
 
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev or petsc-3.2
 #define PetscTruth PetscBool
 #define PetscOptionsGetTruth PetscOptionsGetBool
 #endif
@@ -137,7 +137,7 @@ static void _fillseq(gVector *V)
   VecScatterEnd(ctx, V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD);
 #endif
 
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2)) ) // petsc-dev or petsc-3.2
   VecScatterDestroy(&ctx);
 #else
   VecScatterDestroy(ctx);
@@ -175,7 +175,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 void LinAlg_DestroySolver(gSolver *Solver)
 {
   for(int i = 0; i < 10; i++){
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2)) ) // petsc-dev or petsc-3.2
     if(Solver->ksp[i]) _try(KSPDestroy(&Solver->ksp[i]));
     if(Solver->snes[i]) _try(SNESDestroy(&Solver->snes[i]));
 #else
@@ -187,7 +187,7 @@ void LinAlg_DestroySolver(gSolver *Solver)
 
 void LinAlg_DestroyVector(gVector *V)
 {
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev or petsc-3.2
   _try(VecDestroy(&V->V));
   if(Message::GetCommSize() > 1)
     _try(VecDestroy(&V->Vseq));
@@ -200,7 +200,7 @@ void LinAlg_DestroyVector(gVector *V)
 
 void LinAlg_DestroyMatrix(gMatrix *M)
 {
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2)) ) // petsc-dev or petsc-3.2
   _try(MatDestroy(&M->M));
 #else
   _try(MatDestroy(M->M));
@@ -336,7 +336,7 @@ void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab,
     _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
     _try(PetscObjectSetName((PetscObject)V->V, varName));
     _try(VecView(V->V, fd));
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev or petsc-3.2
     _try(PetscViewerDestroy(&fd));
 #else
     _try(PetscViewerDestroy(fd));
@@ -353,7 +353,7 @@ void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab,
   _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
   _try(PetscObjectSetName((PetscObject)M->M, varName));
   _try(MatView(M->M, fd));
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev or petsc-3.2
   _try(PetscViewerDestroy(&fd));
 #else
   _try(PetscViewerDestroy(fd));
@@ -1338,7 +1338,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   }
 
   if (matfdcoloring) {
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2)) ) // petsc-dev or petsc-3.2
     _try(MatFDColoringDestroy(&matfdcoloring));
 #else
     _try(MatFDColoringDestroy(matfdcoloring));
