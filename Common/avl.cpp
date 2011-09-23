@@ -33,7 +33,7 @@
 // Modified for Gmsh (C++, 64 bits, ...)
 
 #include <stdio.h>
-#include <inttypes.h>
+#include <stdint.h>
 
 #include "avl.h"
 #include "MallocUtils.h"
