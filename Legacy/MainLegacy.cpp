@@ -127,6 +127,16 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	}
       }
 
+      else if (!strcmp(argv[i]+1, "onelab")) {
+	i++;
+	if (i<argc && argv[i][0]!='-') { 
+	  Message::InitializeOnelab(argv[i]); i++; 
+	}
+	else {
+	  Message::Error("Missing address of onelab server");
+	}
+      }
+
       else if (!strcmp(argv[i]+1, "restart")){ 
 	Flag_CAL = Flag_RESTART = 1; i++;
       } 
@@ -427,6 +437,7 @@ int MainLegacy(int argc, char *argv[])
 
   Message::Direct("E n d");
   Message::FinalizeSocket();
+  Message::FinalizeOnelab();
   Message::Exit(0);
   return 0;
 }

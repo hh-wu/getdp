@@ -8,6 +8,7 @@
 #include "GetDPConfig.h"
 #include "Message.h"
 #include "GmshSocket.h"
+#include "onelab.h"
 #include "OS.h"
 
 #if !defined(WIN32) || defined(__CYGWIN__)
@@ -31,6 +32,7 @@ int Message::_progressMeterStep = 10;
 int Message::_progressMeterCurrent = 0;
 std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
+onelab::remoteNetworkClient* Message::_onelabClient = 0;
 
 void Message::Init(int argc, char **argv)
 {
@@ -63,6 +65,9 @@ void Message::Fatal(const char *fmt, ...)
   if(_client){
     _client->Error(str);
   }
+  else if(_onelabClient){
+    _onelabClient->sendError(str);
+  }
   else{
     if(_commSize > 1) 
       fprintf(stderr, "Fatal   : [On processor %d] %s\n", _commRank, str);
@@ -84,6 +89,9 @@ void Message::Error(const char *fmt, ...)
   if(_client){
     _client->Error(str);
   }
+  else if(_onelabClient){
+    _onelabClient->sendError(str);
+  }
   else{
     if(_commSize > 1) 
       fprintf(stderr, "Error   : [On processor %d] %s\n", _commRank, str);
@@ -93,6 +101,7 @@ void Message::Error(const char *fmt, ...)
   }
 
   FinalizeSocket();
+  FinalizeOnelab();
   exit(1);
 }
 
@@ -107,6 +116,9 @@ void Message::Warning(const char *fmt, ...)
 
   if(_client){
     _client->Warning(str);
+  }
+  else if(_onelabClient){
+    _onelabClient->sendWarning(str);
   }
   else{
     fprintf(stdout, "Warning : %s\n", str);
@@ -126,6 +138,9 @@ void Message::Info(const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
+  else if(_onelabClient){
+    _onelabClient->sendInfo(str);
+  }
   else{
     fprintf(stdout, "Info    : %s\n", str);
     fflush(stdout);
@@ -143,6 +158,9 @@ void Message::Direct(const char *fmt, ...)
 
   if(_client){
     _client->Info(str);
+  }
+  else if(_onelabClient){
+    _onelabClient->sendInfo(str);
   }
   else{
     fprintf(stdout, "%s\n", str);
@@ -162,6 +180,9 @@ void Message::Check(const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
+  else if(_onelabClient){
+    _onelabClient->sendInfo(str);
+  }
   else{
     fprintf(stdout, "%s", str);
     fflush(stdout);
@@ -179,6 +200,9 @@ void Message::Debug(const char *fmt, ...)
 
   if(_client){
     _client->Info(str);
+  }
+  else if(_onelabClient){
+    _onelabClient->sendInfo(str);
   }
   else{
     if(_commSize > 1) 
@@ -211,6 +235,9 @@ void Message::Cpu(const char *fmt, ...)
   if(_client){
     _client->Info(str);
   }
+  else if(_onelabClient){
+    _onelabClient->sendInfo(str);
+  }
   else{
     fprintf(stdout, "Info    : %s\n", str);
     fflush(stdout);
@@ -235,6 +262,9 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
     if(_client){
       _client->Progress(str);
     }
+    else if(_onelabClient){
+      _onelabClient->sendProgress(str);
+    }
     else{
       fprintf(stdout, "%s                      \r", str);
       fflush(stdout);
@@ -246,6 +276,9 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
   if(n > N - 1){
     if(_client){
       _client->Progress("Done!");
+    }
+    else if(_onelabClient){
+      _onelabClient->sendProgress("Done!");
     }
     else{
       fprintf(stdout, "Done!                                              \r");
@@ -269,6 +302,9 @@ void Message::PrintTimers()
 
   if(_client){
     _client->Info((char*)str.c_str());
+  }
+  else if(_onelabClient){
+    _onelabClient->sendInfo(str);
   }
   else{
     if(_commSize > 1) 
@@ -299,6 +335,9 @@ void Message::SendFileOnSocket(std::string filename)
   if(_client){
     _client->MergeFile((char*)filename.c_str());
   }
+  else if(_onelabClient){
+    _onelabClient->sendMergeFileRequest(filename);
+  }
 }
 
 void Message::TestSocket()
@@ -326,6 +365,19 @@ void Message::FinalizeSocket()
     _client->Disconnect();
     delete _client;
     _client = 0;
+  }
+}
+
+void Message::InitializeOnelab(std::string sockname)
+{
+  _onelabClient = new onelab::remoteNetworkClient("getdp", sockname);
+}
+
+void Message::FinalizeOnelab()
+{
+  if(_onelabClient){
+    delete _onelabClient;
+    _onelabClient = 0;
   }
 }
 

@@ -11,6 +11,7 @@
 #include <stdarg.h>
 
 class GmshClient;
+namespace onelab{ class remoteNetworkClient; }
 
 // a class to manage messages
 class Message {
@@ -25,6 +26,8 @@ class Message {
   static std::map<std::string, double> _timers;
   // communication with Gmsh
   static GmshClient *_client;
+  // communication with onelab server
+  static onelab::remoteNetworkClient *_onelabClient;
  public:
   Message() {}
   static void Init(int argc, char **argv);
@@ -59,6 +62,9 @@ class Message {
   static void TestSocket();
   static void FinalizeSocket();
   static bool UseSocket(){ return _client ? true : false; }
+  static void InitializeOnelab(std::string sockname);
+  static void FinalizeOnelab();
+  static bool UseOnelab(){ return _onelabClient ? true : false; }
 };
 
 #endif
