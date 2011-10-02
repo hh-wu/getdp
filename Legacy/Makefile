@@ -239,7 +239,8 @@ SolvingOperations.o: SolvingOperations.cpp ../Common/GetDPConfig.h \
   ../Common/ListUtils.h BF.h Cal_Quantity.h Cal_Value.h \
   Get_DofOfElement.h ExtendedGroup.h MovingBand2D.h Pos_Search.h \
   EigenSolve.h Treatment_Formulation.h SolvingAnalyse.h \
-  SolvingOperations.h ../Common/MallocUtils.h ../Common/Message.h
+  SolvingOperations.h ../Common/MallocUtils.h ../Common/OS.h \
+  ../Common/Message.h
 Treatment_Formulation.o: Treatment_Formulation.cpp ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h GeoData.h \
   ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \

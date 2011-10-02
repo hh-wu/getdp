@@ -12,6 +12,9 @@
 
 class GmshClient;
 namespace onelab{ class remoteNetworkClient; }
+class Constant;
+class Expression;
+class Group;
 
 // a class to manage messages
 class Message {
@@ -64,6 +67,9 @@ class Message {
   static bool UseSocket(){ return _client ? true : false; }
   static void InitializeOnelab(std::string sockname);
   static void FinalizeOnelab();
+  static void ExchangeOnelabParameter(Constant *p);
+  static void ExchangeOnelabParameter(Expression *p);
+  static void ExchangeOnelabParameter(Group *p);
   static bool UseOnelab(){ return _onelabClient ? true : false; }
 };
 

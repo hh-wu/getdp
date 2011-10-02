@@ -8,6 +8,8 @@
 #include "GetDPConfig.h"
 #include "Message.h"
 #include "GmshSocket.h"
+#include "ProData.h" // FIXME for onelab
+#include "ProParser.h" // FIXME for onelab
 #include "onelab.h"
 #include "OS.h"
 
@@ -371,6 +373,44 @@ void Message::FinalizeSocket()
 void Message::InitializeOnelab(std::string sockname)
 {
   _onelabClient = new onelab::remoteNetworkClient("getdp", sockname);
+}
+
+void Message::ExchangeOnelabParameter(Constant *c)
+{
+  if(!_onelabClient) return;
+  extern int Flag_PRE, Flag_CAL, Flag_POS;
+  if(Flag_PRE || Flag_CAL || Flag_POS){ // get value from onelab db
+    if(c->Type == VAR_FLOAT){
+      std::vector<onelab::number> val;
+      _onelabClient->get(val, c->Name);
+      if(val.size())
+        printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
+    }
+    else if(c->Type == VAR_CHAR){
+      std::vector<onelab::string> val;
+      _onelabClient->get(val, c->Name);
+      if(val.size())
+        printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
+    }
+  }
+  else{ // set value in onelab db
+    if(c->Type == VAR_FLOAT){
+      onelab::number o(c->Name, c->Value.Float, "Bla", "Blabla");
+      _onelabClient->set(o);
+    }
+    else if(c->Type == VAR_CHAR){
+      onelab::string o(c->Name, c->Value.Char, "Bla", "Blabla");
+      _onelabClient->set(o);
+    }
+  }
+}
+
+void Message::ExchangeOnelabParameter(Group *group)
+{
+}
+
+void Message::ExchangeOnelabParameter(Expression *function)
+{
 }
 
 void Message::FinalizeOnelab()

@@ -31,8 +31,6 @@
 
 */
 
-
-
 Jacobian {
   { Name JVol ;
     Case { 

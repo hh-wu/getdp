@@ -7,7 +7,7 @@ include ../variables
 
 LIB = ../lib/libGetDPCommon${LIBEXT}
 
-INC = ${DASH}I.
+INC = ${DASH}I. ${DASH}I../Interface
 
 CXXFLAGS = ${OPTIM} ${FLAGS} ${INC} ${SYSTEMINCLUDE}
 
@@ -40,10 +40,13 @@ depend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-ListUtils.o: ListUtils.cpp MallocUtils.h ListUtils.h TreeUtils.h avl.h \
-  Message.h
-TreeUtils.o: TreeUtils.cpp MallocUtils.h TreeUtils.h avl.h ListUtils.h
+ListUtils.o: ListUtils.cpp GetDPConfig.h MallocUtils.h ListUtils.h \
+  TreeUtils.h avl.h Message.h
+TreeUtils.o: TreeUtils.cpp GetDPConfig.h MallocUtils.h TreeUtils.h avl.h \
+  ListUtils.h
 avl.o: avl.cpp avl.h MallocUtils.h
 MallocUtils.o: MallocUtils.cpp MallocUtils.h Message.h
-Message.o: Message.cpp GetDPConfig.h Message.h GmshSocket.h OS.h
+Message.o: Message.cpp GetDPConfig.h Message.h GmshSocket.h \
+  ../Interface/ProData.h GetDPConfig.h ListUtils.h \
+  ../Interface/ProParser.h onelab.h OS.h
 OS.o: OS.cpp Message.h

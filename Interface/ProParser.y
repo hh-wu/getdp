@@ -6501,8 +6501,10 @@ DefineConstants :
   | DefineConstants Comma String__Index
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = 0.;
-      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
+      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
+        Message::ExchangeOnelabParameter(&Constant_S);
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      }
     }
   | DefineConstants Comma String__Index '{' FExpr '}'
     {
@@ -6514,6 +6516,7 @@ DefineConstants :
 	Constant_S.Name = tmpstr ;
 	if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	  Constant_S.Name = strSave(tmpstr);
+          Message::ExchangeOnelabParameter(&Constant_S);
 	  List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
 	}
       }
@@ -6522,14 +6525,18 @@ DefineConstants :
   | DefineConstants Comma String__Index tDEF FExpr
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = $5;
-      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
+      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
+        Message::ExchangeOnelabParameter(&Constant_S);
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      }
     }
   | DefineConstants Comma String__Index tDEF tBIGSTR
     { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $5;
-      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant))
+      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
+        Message::ExchangeOnelabParameter(&Constant_S);
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      }
     }
  ;
 

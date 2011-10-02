@@ -35,9 +35,7 @@ Group {
   Domain_S   = Region[ {/*IndP1, IndP2*/} ] ;
   Domain_M   = Region[ {Mag} ] ;
 
-  Val_Rint = 0.2 ;  
-  Val_Rext = 0.3 ;
-
+  DefineConstant[Val_Rint = 0.2, Val_Rext = 0.3];
 }
 
 
