@@ -383,14 +383,18 @@ void Message::ExchangeOnelabParameter(Constant *c)
     if(c->Type == VAR_FLOAT){
       std::vector<onelab::number> val;
       _onelabClient->get(val, c->Name);
-      if(val.size())
+      if(val.size()){
         printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
+        c->Value.Float = val[0].getValue();
+      }
     }
     else if(c->Type == VAR_CHAR){
       std::vector<onelab::string> val;
       _onelabClient->get(val, c->Name);
-      if(val.size())
+      if(val.size()){
         printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
+        c->Value.Char = strSave((char*)val[0].getValue().c_str());
+      }
     }
   }
   else{ // set value in onelab db
