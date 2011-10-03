@@ -11,7 +11,7 @@
 #include <stdarg.h>
 
 class GmshClient;
-namespace onelab{ class remoteNetworkClient; }
+namespace onelab{ class client; }
 class Constant;
 class Expression;
 class Group;
@@ -30,7 +30,7 @@ class Message {
   // communication with Gmsh
   static GmshClient *_client;
   // communication with onelab server
-  static onelab::remoteNetworkClient *_onelabClient;
+  static onelab::client *_onelabClient;
  public:
   Message() {}
   static void Init(int argc, char **argv);

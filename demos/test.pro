@@ -42,8 +42,11 @@ Group {
 Function {
 
   mu0     = 4.e-7 * Pi ;
-  murCore = 10. ;
+  DefineConstant[ murCore = 10. ];
   murMag  = 1. ;
+  If(murCore == 100)
+    DefineConstant[ Helllooooo = -1 ];
+  EndIf
 
   nu [ Region[{Air, IndP1, IndP2, IndS1, IndS2, AirInf, Gap}] ]  = 1. / mu0 ;
   nu [ Core ]  = 1. / (murCore * mu0) ;
@@ -89,13 +92,13 @@ PostOperation {
 
   { Name phi ; NameOfPostProcessing MagSta_phi;
     Operation {
-      Print[ phi, OnElementsOf Domain, File "phi.pos"] ;
-      Print[ b,   OnElementsOf Domain, File "b_phi.pos", Depth 0 ] ;
-      Print[ h,   OnElementsOf Domain, File "h_phi.pos", Depth 0 ] ;
-      Print[ b,   OnPlane {{-0.1,0,0}{0.1, 0, 0}{-0.1,0.1,0}} {60,30}, File "b_phi_grid.pos" ] ;
-      Print[ b,   OnLine {{-0.07,eps,0}{0.09, eps, 0}} {500}, File "b_phi.cut" , Format Table ] ;
-      Print[ h,   OnLine {{-0.06,eps,0}{-0.06,0.05,0}} {500}, File "h_phi.cut" , Format Table ] ;
-      Print[ phi, OnGrid {$A*Cos[$B]-0.05,$A*Sin[$B],0} { 0:0.05:0.001, 0:Pi:Pi/51, 0}, File "phi_polar.pos" ] ;
+      //Print[ phi, OnElementsOf Domain, File "phi.pos"] ;
+      Print[ b,   OnElementsOf Domain, File "b_phi.pos" ] ;
+      //Print[ h,   OnElementsOf Domain, File "h_phi.pos", Depth 0 ] ;
+      //Print[ b,   OnPlane {{-0.1,0,0}{0.1, 0, 0}{-0.1,0.1,0}} {60,30}, File "b_phi_grid.pos" ] ;
+      //Print[ b,   OnLine {{-0.07,eps,0}{0.09, eps, 0}} {500}, File "b_phi.cut" , Format Table ] ;
+      //Print[ h,   OnLine {{-0.06,eps,0}{-0.06,0.05,0}} {500}, File "h_phi.cut" , Format Table ] ;
+      //Print[ phi, OnGrid {$A*Cos[$B]-0.05,$A*Sin[$B],0} { 0:0.05:0.001, 0:Pi:Pi/51, 0}, File "phi_polar.pos" ] ;
       //Echo [ "Plugin(Triangulate).iView = PostProcessing.NbViews-1;", File >>"phi_polar.pos" ];
       //Echo [ "Plugin(Triangulate).Run;", File >>"phi_polar.pos" ];
     }

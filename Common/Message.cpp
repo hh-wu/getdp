@@ -34,7 +34,7 @@ int Message::_progressMeterStep = 10;
 int Message::_progressMeterCurrent = 0;
 std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
-onelab::remoteNetworkClient* Message::_onelabClient = 0;
+onelab::client* Message::_onelabClient = 0;
 
 void Message::Init(int argc, char **argv)
 {
@@ -373,36 +373,35 @@ void Message::FinalizeSocket()
 void Message::InitializeOnelab(std::string sockname)
 {
   _onelabClient = new onelab::remoteNetworkClient("getdp", sockname);
+  // if sockname is file, just do this!
+  //_onelabClient = new onelab::localClient("getdp", sockname);
+  //_onelabClient->readDatabaseFromFile(sockname);
 }
 
 void Message::ExchangeOnelabParameter(Constant *c)
 {
   if(!_onelabClient) return;
-  extern int Flag_PRE, Flag_CAL, Flag_POS;
-  if(Flag_PRE || Flag_CAL || Flag_POS){ // get value from onelab db
-    if(c->Type == VAR_FLOAT){
-      std::vector<onelab::number> val;
-      _onelabClient->get(val, c->Name);
-      if(val.size()){
-        printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
-        c->Value.Float = val[0].getValue();
-      }
+
+  if(c->Type == VAR_FLOAT){
+    std::vector<onelab::number> val;
+    _onelabClient->get(val, c->Name);
+    if(val.size()){
+      printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
+      c->Value.Float = val[0].getValue();
     }
-    else if(c->Type == VAR_CHAR){
-      std::vector<onelab::string> val;
-      _onelabClient->get(val, c->Name);
-      if(val.size()){
-        printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
-        c->Value.Char = strSave((char*)val[0].getValue().c_str());
-      }
-    }
-  }
-  else{ // set value in onelab db
-    if(c->Type == VAR_FLOAT){
+    else{ // send value to db
       onelab::number o(c->Name, c->Value.Float, "Bla", "Blabla");
       _onelabClient->set(o);
     }
-    else if(c->Type == VAR_CHAR){
+  }
+  else if(c->Type == VAR_CHAR){
+    std::vector<onelab::string> val;
+    _onelabClient->get(val, c->Name);
+    if(val.size()){
+      printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
+      c->Value.Char = strSave((char*)val[0].getValue().c_str());
+    }
+    else{
       onelab::string o(c->Name, c->Value.Char, "Bla", "Blabla");
       _onelabClient->set(o);
     }
