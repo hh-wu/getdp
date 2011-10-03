@@ -378,6 +378,17 @@ void Message::InitializeOnelab(std::string sockname)
   //_onelabClient->readDatabaseFromFile(sockname);
 }
 
+void Message::SendOnelabOption(const std::string &name, 
+                               std::vector<std::string> &options)
+{
+  if(!_onelabClient) return;
+  if(options.empty()) return;
+  onelab::string res(name, options[0], "GetDP resolution name");
+  res.setChoices(options);
+  printf("HEU\n");
+  _onelabClient->set(res);
+}
+
 void Message::ExchangeOnelabParameter(Constant *c)
 {
   if(!_onelabClient) return;

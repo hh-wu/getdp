@@ -8,6 +8,7 @@
 
 #include <map>
 #include <string>
+#include <vector>
 #include <stdarg.h>
 
 class GmshClient;
@@ -60,17 +61,19 @@ class Message {
   static double &Timer(std::string str){ return _timers[str]; }
   static void PrintTimers();
   static void InitializeSocket(std::string sockname);
+  static void FinalizeSocket();
+  static bool UseSocket(){ return _client ? true : false; }
   static void SendFileOnSocket(std::string filename);
   static void SendOptionOnSocket(int num, std::string option);
   static void TestSocket();
-  static void FinalizeSocket();
-  static bool UseSocket(){ return _client ? true : false; }
   static void InitializeOnelab(std::string sockname);
   static void FinalizeOnelab();
+  static bool UseOnelab(){ return _onelabClient ? true : false; }
+  static void SendOnelabOption(const std::string &name, 
+                               std::vector<std::string> &options);
   static void ExchangeOnelabParameter(Constant *p);
   static void ExchangeOnelabParameter(Expression *p);
   static void ExchangeOnelabParameter(Group *p);
-  static bool UseOnelab(){ return _onelabClient ? true : false; }
 };
 
 #endif
