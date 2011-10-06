@@ -7,7 +7,7 @@ c                                                                      c
 c WARNING: the preprocessing is NOT done under AIX with the native C   c
 c          compiler -> you CANNOT use the -DHAVE_ILU_FLOAT option.     c
 c----------------------------------------------------------------------c
-#ifndef SPARSKIT_FLOAT_ILU
+#ifndef HAVE_ILU_FLOAT
 #define scalar real*8
 #else
 #define scalar real*4

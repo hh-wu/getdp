@@ -9,8 +9,8 @@ LIB = ../../lib/libGetDPSparskit${LIBEXT}
 
 INC = ${DASH}I. ${DASH}I../../Common
 
-CFLAGS = ${FLAGS} ${OPTIM} ${INC}
-FFLAGS = ${FLAGS} ${OPTIM} ${INC} -DSPARSKIT_FLOAT_ILU
+CFLAGS = ${FLAGS} ${OPTIM} ${INC} -DHAVE_ILU_FLOAT
+FFLAGS = ${FLAGS} ${OPTIM} ${INC} -DHAVE_ILU_FLOAT
 
 CSRC =  Sparskit.cpp
 
