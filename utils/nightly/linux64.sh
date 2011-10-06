@@ -12,6 +12,14 @@ rm -f ${LOG}
 
 echo "BUILD BEGIN: `date`" > ${LOG}
 
+rm -f ${GETDP}/Makefile*
+rm -rf ${GETDP}/getdp-*
+cd ${GETDP} && svn update >> ${LOG} 2>&1
+cd ${GETDP} && ./configure --with-gsl-prefix=/usr/local --enable-sparskit >> ${LOG} 2>&1
+cd ${GETDP} && make clean >> ${LOG} 2>&1
+cd ${GETDP} && make distrib-unix${EXTRA_VERSION} >> ${LOG} 2>&1
+scp -C ${GETDP}/getdp-*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-Linux64s.tgz
+
 export PETSC_ARCH=linux_real_mumps_seq
 rm -f ${GETDP}/Makefile*
 rm -rf ${GETDP}/getdp-*
