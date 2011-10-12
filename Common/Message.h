@@ -71,7 +71,11 @@ class Message {
   static bool UseOnelab(){ return _onelabClient ? true : false; }
   static void SendOnelabOption(const std::string &name, 
                                std::vector<std::string> &options);
-  static void ExchangeOnelabParameter(Constant *p);
+  static void ExchangeOnelabParameter(Constant *p, 
+                                      std::map<std::string, 
+                                      std::vector<double> > *floatOptions=0,
+                                      std::map<std::string, 
+                                      std::vector<std::string> > *charOptions=0);
   static void ExchangeOnelabParameter(Expression *p);
   static void ExchangeOnelabParameter(Group *p);
 };

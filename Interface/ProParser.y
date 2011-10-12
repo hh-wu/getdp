@@ -89,6 +89,9 @@ static struct PostQuantityTerm           PostQuantityTerm_S;
 static struct PostOperation          PostOperation_S;
 static struct PostSubOperation         PostSubOperation_S;
 
+static std::map<std::string, std::vector<double> > FloatOptions_S;
+static std::map<std::string, std::vector<std::string> > CharOptions_S;
+
 // External lexer functions
 void hack_fsetpos();
 void hack_fsetpos_printf();
@@ -133,7 +136,7 @@ void vyyerror(const char *fmt, ...);
 %type <i>  StrCmp NbrRegions CommaFExprOrNothing
 %type <d>  FExpr OneFExpr
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr RecursiveListOfListOfFExpr
-%type <l>  ParametersForFunction
+%type <l>  ListOfCharExpr RecursiveListOfCharExpr ParametersForFunction
 %type <l>  RecursiveListOfRegion
 %type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion IRegion
 %type <l>  ConstraintCases IntegrationCases QuadratureCases JacobianCases
@@ -6495,6 +6498,52 @@ Affectation :
     }
  ;
 
+FloatParameterOptions :
+  | FloatParameterOptions FloatParameterOption 
+ ;
+
+FloatParameterOption :
+    ',' tSTRING ListOfFExpr
+    {
+      std::string key($2);
+      for(int i = 0; i < List_Nbr($3); i++){
+        double v; 
+        List_Read($3, i, &v);
+        FloatOptions_S[key].push_back(v);
+      }
+      Free($2);
+      List_Delete($3);
+    }
+  | ',' tSTRING tBIGSTR
+    {
+      std::string key($2);
+      std::string val($3);
+      CharOptions_S[key].push_back(val);
+      Free($2);
+      Free($3);
+    }
+ ;
+
+CharParameterOptions :
+  | CharParameterOptions CharParameterOption 
+ ;
+
+CharParameterOption :
+    ',' tSTRING ListOfCharExpr
+    {
+      std::string key($2);
+      for(int i = 0; i < List_Nbr($3); i++){
+        char *s; 
+        List_Read($3, i, &s);
+        std::string val(s);
+        Free(s);
+        CharOptions_S[key].push_back(val);
+      }
+      Free($2);
+      List_Delete($3);
+    }
+ ;
+
 DefineConstants :
 
     /* none */
@@ -6530,11 +6579,33 @@ DefineConstants :
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
       }
     }
+  | DefineConstants Comma String__Index tDEF '{' FExpr
+    { FloatOptions_S.clear(); CharOptions_S.clear(); } 
+    FloatParameterOptions '}'
+    { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
+      Constant_S.Value.Float = $6;
+      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
+        Message::ExchangeOnelabParameter
+          (&Constant_S, &FloatOptions_S, &CharOptions_S);
+	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      }
+    }
   | DefineConstants Comma String__Index tDEF tBIGSTR
     { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $5;
       if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
         Message::ExchangeOnelabParameter(&Constant_S);
+	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
+      }
+    }
+  | DefineConstants Comma String__Index tDEF '{' tBIGSTR
+    { FloatOptions_S.clear(); CharOptions_S.clear(); } 
+    CharParameterOptions '}'
+    { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
+      Constant_S.Value.Char = $6;
+      if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
+        Message::ExchangeOnelabParameter
+          (&Constant_S, &FloatOptions_S, &CharOptions_S);
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
       }
     }
@@ -6938,6 +7009,28 @@ CharExpr :
       strcpy($$, ctime(&date_info));
       $$[strlen($$)-1] = 0;
     }
+ ;
+
+ListOfCharExpr :
+
+    CharExpr
+    { 
+      $$ = List_Create(1,1,sizeof(char*));  
+      List_Add($$, &($1)); 
+    }
+
+  | '{' RecursiveListOfCharExpr '}'
+    { $$ = $2; }
+ ;
+
+RecursiveListOfCharExpr :
+    CharExpr
+    { 
+      $$ = List_Create(20,20,sizeof(char*));
+      List_Add($$, &($1)); 
+    }
+  | RecursiveListOfCharExpr ',' CharExpr
+    { List_Add($$, &($3)); }
  ;
 
 StrCat :

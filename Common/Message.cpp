@@ -385,35 +385,78 @@ void Message::SendOnelabOption(const std::string &name,
   if(options.empty()) return;
   onelab::string res(name, options[0], "GetDP resolution name");
   res.setChoices(options);
-  printf("HEU\n");
   _onelabClient->set(res);
 }
 
-void Message::ExchangeOnelabParameter(Constant *c)
+void Message::ExchangeOnelabParameter(Constant *c,
+                                      std::map<std::string, 
+                                      std::vector<double> > *floatOptions,
+                                      std::map<std::string,
+                                      std::vector<std::string> > *charOptions)
 {
   if(!_onelabClient) return;
 
+  std::string name(c->Name);
+  if(charOptions && charOptions->count("Path"))
+    name = (*charOptions)["Path"][0] + "/" + name;
+
   if(c->Type == VAR_FLOAT){
     std::vector<onelab::number> val;
-    _onelabClient->get(val, c->Name);
-    if(val.size()){
+    _onelabClient->get(val, name);
+    if(val.size()){ // use value from server
       printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
       c->Value.Float = val[0].getValue();
     }
-    else{ // send value to db
-      onelab::number o(c->Name, c->Value.Float, "Bla", "Blabla");
+    else{ // send value to server
+      onelab::number o(name, c->Value.Float);
+      if(floatOptions){
+        if(floatOptions->count("Range")){
+          if((*floatOptions)["Range"].size() == 2){
+            o.setMin((*floatOptions)["Range"][0]);
+            o.setMax((*floatOptions)["Range"][1]);
+          }
+        }
+        else if(floatOptions->count("Min") && floatOptions->count("Max")){
+          o.setMin((*floatOptions)["Min"][0]);
+          o.setMax((*floatOptions)["Max"][0]);
+        }
+        else if(floatOptions->count("Min")){
+          o.setMin((*floatOptions)["Min"][0]);
+          o.setMax(1.e200);
+        }
+        else if(floatOptions->count("Max")){
+          o.setMax((*floatOptions)["Max"][0]);
+          o.setMin(-1.e200);
+        }
+        if(floatOptions->count("Choices"))
+          o.setChoices((*floatOptions)["Choices"]);
+      }
+      if(charOptions){
+        if(charOptions->count("Help"))
+          o.setHelp((*charOptions)["Help"][0]);
+        if(charOptions->count("ShortHelp"))
+          o.setShortHelp((*charOptions)["ShortHelp"][0]);
+      }
       _onelabClient->set(o);
     }
   }
   else if(c->Type == VAR_CHAR){
     std::vector<onelab::string> val;
-    _onelabClient->get(val, c->Name);
+    _onelabClient->get(val, name);
     if(val.size()){
       printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
       c->Value.Char = strSave((char*)val[0].getValue().c_str());
     }
     else{
-      onelab::string o(c->Name, c->Value.Char, "Bla", "Blabla");
+      onelab::string o(name, c->Value.Char, "Bla", "Blabla");
+      if(charOptions){
+        if(charOptions->count("Help"))
+          o.setHelp((*charOptions)["Help"][0]);
+        if(charOptions->count("ShortHelp"))
+          o.setShortHelp((*charOptions)["ShortHelp"][0]);
+        if(floatOptions->count("Choices"))
+          o.setChoices((*charOptions)["Choices"]);
+      }
       _onelabClient->set(o);
     }
   }

@@ -35,14 +35,16 @@ Group {
   Domain_S   = Region[ {/*IndP1, IndP2*/} ] ;
   Domain_M   = Region[ {Mag} ] ;
 
-  DefineConstant[Val_Rint = 0.2, Val_Rext = 0.3];
+  DefineConstant[Val_Rint = {0.2, Min 0, Choices {2, 5, 17, 12}, Path "Geometry", 
+                             ShortHelp "Internal radius of spherical shell"},
+                 Val_Rext = {0.3, Min 0, Path "Geometry", 
+                             ShortHelp "External radius of spherical shell"}];
 }
-
 
 Function {
 
   mu0     = 4.e-7 * Pi ;
-  DefineConstant[ murCore = 10. ];
+  DefineConstant[ murCore = {10., Path "Materials"} ];
   murMag  = 1. ;
   If(murCore == 100)
     DefineConstant[ Helllooooo = -1 ];
