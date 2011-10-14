@@ -378,16 +378,6 @@ void Message::InitializeOnelab(std::string sockname)
   //_onelabClient->readDatabaseFromFile(sockname);
 }
 
-void Message::SendOnelabOption(const std::string &name, 
-                               std::vector<std::string> &options)
-{
-  if(!_onelabClient) return;
-  if(options.empty()) return;
-  onelab::string res(name, options[0], "GetDP resolution name");
-  res.setChoices(options);
-  _onelabClient->set(res);
-}
-
 void Message::ExchangeOnelabParameter(Constant *c,
                                       std::map<std::string, 
                                       std::vector<double> > *floatOptions,
@@ -404,7 +394,6 @@ void Message::ExchangeOnelabParameter(Constant *c,
     std::vector<onelab::number> val;
     _onelabClient->get(val, name);
     if(val.size()){ // use value from server
-      printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
       c->Value.Float = val[0].getValue();
     }
     else{ // send value to server
@@ -428,6 +417,8 @@ void Message::ExchangeOnelabParameter(Constant *c,
           o.setMax((*floatOptions)["Max"][0]);
           o.setMin(-1.e200);
         }
+        if(floatOptions->count("Step"))
+          o.setStep((*floatOptions)["Step"][0]);
         if(floatOptions->count("Choices"))
           o.setChoices((*floatOptions)["Choices"]);
       }
@@ -444,17 +435,16 @@ void Message::ExchangeOnelabParameter(Constant *c,
     std::vector<onelab::string> val;
     _onelabClient->get(val, name);
     if(val.size()){
-      printf("getdp got '%s' from onelab db\n", val[0].toChar().c_str());
       c->Value.Char = strSave((char*)val[0].getValue().c_str());
     }
     else{
-      onelab::string o(name, c->Value.Char, "Bla", "Blabla");
+      onelab::string o(name, c->Value.Char);
       if(charOptions){
         if(charOptions->count("Help"))
           o.setHelp((*charOptions)["Help"][0]);
         if(charOptions->count("ShortHelp"))
           o.setShortHelp((*charOptions)["ShortHelp"][0]);
-        if(floatOptions->count("Choices"))
+        if(charOptions->count("Choices"))
           o.setChoices((*charOptions)["Choices"]);
       }
       _onelabClient->set(o);

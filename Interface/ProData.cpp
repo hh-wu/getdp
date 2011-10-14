@@ -1579,7 +1579,22 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
 	else Message::SendOptionOnSocket(1, RE->Name);
         choices.push_back(RE->Name);
       }
-      Message::SendOnelabOption("GetDP/Resolution", choices);
+
+      if(Message::UseOnelab() && choices.size()){
+        Constant c;
+        c.Name = (char*)"Resolution";
+        c.Type = VAR_CHAR;
+        c.Value.Char = strSave((char*)choices[0].c_str());
+        std::map<std::string, std::vector<std::string> > options;
+        options["Choices"] = choices;
+        options["Path"].push_back("GetDP");
+        Message::ExchangeOnelabParameter(&c, 0, &options);
+        if(choose){
+          *name = c.Value.Char; 
+          return;
+        }
+      }
+
       if(choose){
 	Message::Check("Choice: ");
 	fgets(buff, 128, stdin);
@@ -1617,7 +1632,22 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
 	else Message::SendOptionOnSocket(2, PO->Name);
         choices.push_back(PO->Name);
       }
-      Message::SendOnelabOption("GetDP/Post-processing", choices);
+
+      if(Message::UseOnelab() && choices.size()){
+        Constant c;
+        c.Name = (char*)"Post-Operation";
+        c.Type = VAR_CHAR;
+        c.Value.Char = strSave((char*)choices[0].c_str());
+        std::map<std::string, std::vector<std::string> > options;
+        options["Choices"] = choices;
+        options["Path"].push_back("GetDP");
+        Message::ExchangeOnelabParameter(&c, 0, &options);
+        if(choose){
+          *name = c.Value.Char; 
+          return;
+        }
+      }
+
       if(choose){
 	Message::Check("Choice: ");
 	fgets(buff, 128, stdin);
@@ -1635,4 +1665,3 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
   else
     Message::Warning("No PostOperation available");
 }
-
