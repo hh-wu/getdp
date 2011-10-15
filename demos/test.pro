@@ -35,17 +35,17 @@ Group {
   Domain_S   = Region[ {/*IndP1, IndP2*/} ] ;
   Domain_M   = Region[ {Mag} ] ;
 
-  DefineConstant[Val_Rint = {0.2, Min 0.1, Max 100, Step 0.5, Path "Geometry/1", 
+  DefineConstant[Val_Rint = {0.2, Min 0.1, Max 100, Step 0.5, Path "1Geometry/1", 
                              ShortHelp "Internal shell radius"},
-                 Val_Rext = {0.3, Min 0, Path "Geometry/2", 
+                 Val_Rext = {0.3, Min 0, Path "1Geometry/2", 
                              ShortHelp "External shell radius"}];
 }
 
 Function {
 
   mu0     = 4.e-7 * Pi ;
-  DefineConstant[ murCore = {10., Path "Materials"} ];
-  DefineConstant[ murMag = {1, Path "Materials"} ];
+  DefineConstant[ murCore = {10., Path "2Materials"} ];
+  DefineConstant[ murMag = {1, Path "2Materials"} ];
   If(murCore == 100)
     DefineConstant[ SimplifiedModel = {0, Choices{0, 1}} ];
   EndIf
@@ -58,14 +58,14 @@ Function {
   mu [ Core ]  = murCore * mu0 ;
   mu [ Mag ]   = murMag * mu0 ;
 
-  hc [ Mag ]   = Vector[0., 920000., 0.] ;
+  DefineConstant[ Hc = {920000, ShortHelp "Coercive H field", Path "3Constraints"} ];
+  hc [ Mag ]   = Vector[0., Hc, 0.] ;
 
-  Itot = 4737 ; 
+  Itot = 4737;
   Surf = 0.03*0.002 ;
 
   js [ IndP1 ] = Vector[0, 0, Itot/Surf] ;
   js [ IndP2 ] = Vector[0, 0, -Itot/Surf] ;
-
 }
 
 
