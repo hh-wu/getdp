@@ -372,9 +372,9 @@ void Message::FinalizeSocket()
 
 void Message::InitializeOnelab(std::string sockname)
 {
-  _onelabClient = new onelab::remoteNetworkClient("getdp", sockname);
+  _onelabClient = new onelab::remoteNetworkClient("GetDP", sockname);
   // if sockname is file, just do this!
-  //_onelabClient = new onelab::localClient("getdp", sockname);
+  //_onelabClient = new onelab::localClient("GetDP", sockname);
   //_onelabClient->readDatabaseFromFile(sockname);
 }
 
@@ -387,8 +387,16 @@ void Message::ExchangeOnelabParameter(Constant *c,
   if(!_onelabClient) return;
 
   std::string name(c->Name);
-  if(charOptions && charOptions->count("Path"))
-    name = (*charOptions)["Path"][0] + "/" + name;
+  if(charOptions && charOptions->count("Path")){
+    std::string path = (*charOptions)["Path"][0];
+    // if path ends with a number, assume it's for ordering purposes
+    if(path.size() && path[path.size() - 1] >= '0' && path[path.size() - 1] <= '9')
+      name = path + name;
+    else if(path.size() && path[path.size() - 1] == '/')
+      name = path + name;
+    else
+      name = path + "/" + name;
+  }
 
   if(c->Type == VAR_FLOAT){
     std::vector<onelab::number> val;

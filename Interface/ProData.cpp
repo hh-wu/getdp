@@ -1587,7 +1587,8 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
         c.Value.Char = strSave((char*)choices[0].c_str());
         std::map<std::string, std::vector<std::string> > options;
         options["Choices"] = choices;
-        options["Path"].push_back("GetDP");
+        options["ShortHelp"].push_back("Resolution");
+        options["Path"].push_back("GetDP/1");
         Message::ExchangeOnelabParameter(&c, 0, &options);
         if(choose){
           *name = c.Value.Char; 
@@ -1640,7 +1641,8 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
         c.Value.Char = strSave((char*)choices[0].c_str());
         std::map<std::string, std::vector<std::string> > options;
         options["Choices"] = choices;
-        options["Path"].push_back("GetDP");
+        options["ShortHelp"].push_back("Post-processing");
+        options["Path"].push_back("GetDP/2");
         Message::ExchangeOnelabParameter(&c, 0, &options);
         if(choose){
           *name = c.Value.Char; 
