@@ -6,12 +6,17 @@
 
 e = 5.e-3 ;
 d = 0.02 ;
-
-DefineConstant[ l = {0.14, Path "1Geometry"} ] ;
-
 h = 0.14 ;
-ri = 0.2 ;
-re = 0.3 ;
+
+DefineConstant[ l = {0.14, Min 0.05, Max 0.2, Step 0.01, Path "1Geometry",
+                     ShortHelp "Core size"} ] ;
+DefineConstant[ Val_Rint = {0.2, Min l, Max 50, Step 0.1, Path "1Geometry/1",
+                            ShortHelp "Internal shell radius"}];
+DefineConstant[ Val_Rext = {0.3, Min Val_Rint, Max 50, Step 0.1, Path "1Geometry/2",
+                            ShortHelp "External shell radius"}];
+ri = Val_Rint;
+re = Val_Rext;
+
 ha = 0.03 ;
 
 p0 = d / 5 ;
