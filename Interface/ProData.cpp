@@ -1585,11 +1585,12 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
         c.Name = (char*)"Resolution";
         c.Type = VAR_CHAR;
         c.Value.Char = strSave((char*)choices[0].c_str());
-        std::map<std::string, std::vector<std::string> > options;
-        options["Choices"] = choices;
-        options["ShortHelp"].push_back("Resolution");
-        options["Path"].push_back("GetDP/1");
-        Message::ExchangeOnelabParameter(&c, 0, &options);
+        std::map<std::string, std::vector<double> > floatOptions;
+        std::map<std::string, std::vector<std::string> > charOptions;
+        charOptions["Choices"] = choices;
+        charOptions["ShortHelp"].push_back("Resolution");
+        charOptions["Path"].push_back("GetDP/1");
+        Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
         if(choose){
           *name = c.Value.Char; 
           return;
@@ -1639,11 +1640,12 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
         c.Name = (char*)"Post-Operation";
         c.Type = VAR_CHAR;
         c.Value.Char = strSave((char*)choices[0].c_str());
-        std::map<std::string, std::vector<std::string> > options;
-        options["Choices"] = choices;
-        options["ShortHelp"].push_back("Post-processing");
-        options["Path"].push_back("GetDP/2");
-        Message::ExchangeOnelabParameter(&c, 0, &options);
+        std::map<std::string, std::vector<double> > floatOptions;
+        std::map<std::string, std::vector<std::string> > charOptions;
+        charOptions["Choices"] = choices;
+        charOptions["ShortHelp"].push_back("Post-processing");
+        charOptions["Path"].push_back("GetDP/2");
+        Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
         if(choose){
           *name = c.Value.Char; 
           return;

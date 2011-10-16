@@ -35,9 +35,9 @@ Group {
   Domain_S   = Region[ {/*IndP1, IndP2*/} ] ;
   Domain_M   = Region[ {Mag} ] ;
 
-  DefineConstant[Val_Rint = {0.2, Min 0.1, Max 100, Step 0.5, Path "1Geometry/1", 
+  DefineConstant[Val_Rint = {0.2, Min 0.1, Max 100, Step 0.5, Path "1Geometry/1",
                              ShortHelp "Internal shell radius"},
-                 Val_Rext = {0.3, Min 0, Path "1Geometry/2", 
+                 Val_Rext = {0.3, Min 0, Path "1Geometry/2",
                              ShortHelp "External shell radius"}];
 }
 

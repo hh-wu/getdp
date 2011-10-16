@@ -8,10 +8,10 @@
 #include "GetDPConfig.h"
 #include "Message.h"
 #include "GmshSocket.h"
-#include "ProData.h" // FIXME for onelab
-#include "ProParser.h" // FIXME for onelab
 #include "onelab.h"
 #include "OS.h"
+#include "ProData.h" // for onelab
+#include "ProParser.h" // for onelab
 
 #if !defined(WIN32) || defined(__CYGWIN__)
 #include <sys/time.h>
@@ -380,15 +380,15 @@ void Message::InitializeOnelab(std::string sockname)
 
 void Message::ExchangeOnelabParameter(Constant *c,
                                       std::map<std::string, 
-                                      std::vector<double> > *floatOptions,
+                                      std::vector<double> > &floatOptions,
                                       std::map<std::string,
-                                      std::vector<std::string> > *charOptions)
+                                      std::vector<std::string> > &charOptions)
 {
   if(!_onelabClient) return;
 
   std::string name(c->Name);
-  if(charOptions && charOptions->count("Path")){
-    std::string path = (*charOptions)["Path"][0];
+  if(charOptions.count("Path")){
+    std::string path = charOptions["Path"][0];
     // if path ends with a number, assume it's for ordering purposes
     if(path.size() && path[path.size() - 1] >= '0' && path[path.size() - 1] <= '9')
       name = path + name;
@@ -406,36 +406,22 @@ void Message::ExchangeOnelabParameter(Constant *c,
     }
     else{ // send value to server
       onelab::number o(name, c->Value.Float);
-      if(floatOptions){
-        if(floatOptions->count("Range")){
-          if((*floatOptions)["Range"].size() == 2){
-            o.setMin((*floatOptions)["Range"][0]);
-            o.setMax((*floatOptions)["Range"][1]);
-          }
-        }
-        else if(floatOptions->count("Min") && floatOptions->count("Max")){
-          o.setMin((*floatOptions)["Min"][0]);
-          o.setMax((*floatOptions)["Max"][0]);
-        }
-        else if(floatOptions->count("Min")){
-          o.setMin((*floatOptions)["Min"][0]);
-          o.setMax(1.e200);
-        }
-        else if(floatOptions->count("Max")){
-          o.setMax((*floatOptions)["Max"][0]);
-          o.setMin(-1.e200);
-        }
-        if(floatOptions->count("Step"))
-          o.setStep((*floatOptions)["Step"][0]);
-        if(floatOptions->count("Choices"))
-          o.setChoices((*floatOptions)["Choices"]);
+      if(floatOptions.count("Range") && floatOptions["Range"].size() == 2){
+        o.setMin(floatOptions["Range"][0]); o.setMax(floatOptions["Range"][1]);
       }
-      if(charOptions){
-        if(charOptions->count("Help"))
-          o.setHelp((*charOptions)["Help"][0]);
-        if(charOptions->count("ShortHelp"))
-          o.setShortHelp((*charOptions)["ShortHelp"][0]);
+      else if(floatOptions.count("Min") && floatOptions.count("Max")){
+        o.setMin(floatOptions["Min"][0]); o.setMax(floatOptions["Max"][0]);
       }
+      else if(floatOptions.count("Min")){
+        o.setMin(floatOptions["Min"][0]); o.setMax(1.e200);
+      }
+      else if(floatOptions.count("Max")){
+        o.setMax(floatOptions["Max"][0]); o.setMin(-1.e200);
+      }
+      if(floatOptions.count("Step")) o.setStep(floatOptions["Step"][0]);
+      if(floatOptions.count("Choices")) o.setChoices(floatOptions["Choices"]);
+      if(charOptions.count("Help")) o.setHelp(charOptions["Help"][0]);
+      if(charOptions.count("ShortHelp")) o.setShortHelp(charOptions["ShortHelp"][0]);
       _onelabClient->set(o);
     }
   }
@@ -447,14 +433,9 @@ void Message::ExchangeOnelabParameter(Constant *c,
     }
     else{
       onelab::string o(name, c->Value.Char);
-      if(charOptions){
-        if(charOptions->count("Help"))
-          o.setHelp((*charOptions)["Help"][0]);
-        if(charOptions->count("ShortHelp"))
-          o.setShortHelp((*charOptions)["ShortHelp"][0]);
-        if(charOptions->count("Choices"))
-          o.setChoices((*charOptions)["Choices"]);
-      }
+      if(charOptions.count("Help")) o.setHelp(charOptions["Help"][0]);
+      if(charOptions.count("ShortHelp")) o.setShortHelp(charOptions["ShortHelp"][0]);
+      if(charOptions.count("Choices")) o.setChoices(charOptions["Choices"]);
       _onelabClient->set(o);
     }
   }

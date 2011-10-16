@@ -6550,8 +6550,9 @@ DefineConstants :
   | DefineConstants Comma String__Index
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = 0.;
+      FloatOptions_S.clear(); CharOptions_S.clear();
       if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
-        Message::ExchangeOnelabParameter(&Constant_S);
+        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
       }
     }
@@ -6559,13 +6560,14 @@ DefineConstants :
     {
       Constant_S.Type = VAR_FLOAT ;
       Constant_S.Value.Float = 0. ;
+      FloatOptions_S.clear(); CharOptions_S.clear();
       for (int k = 0 ; k < (int)$5 ; k++) {
 	char tmpstr[256];
 	sprintf(tmpstr, "%s_%d", $3, k+1) ;
 	Constant_S.Name = tmpstr ;
 	if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	  Constant_S.Name = strSave(tmpstr);
-          Message::ExchangeOnelabParameter(&Constant_S);
+          Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	  List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
 	}
       }
@@ -6574,8 +6576,9 @@ DefineConstants :
   | DefineConstants Comma String__Index tDEF FExpr
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = $5;
+      FloatOptions_S.clear(); CharOptions_S.clear();
       if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
-        Message::ExchangeOnelabParameter(&Constant_S);
+        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
       }
     }
@@ -6585,16 +6588,16 @@ DefineConstants :
     { Constant_S.Name = $3; Constant_S.Type = VAR_FLOAT;
       Constant_S.Value.Float = $6;
       if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
-        Message::ExchangeOnelabParameter
-          (&Constant_S, &FloatOptions_S, &CharOptions_S);
+        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
       }
     }
   | DefineConstants Comma String__Index tDEF tBIGSTR
     { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $5;
+      FloatOptions_S.clear(); CharOptions_S.clear();
       if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
-        Message::ExchangeOnelabParameter(&Constant_S);
+        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
       }
     }
@@ -6604,8 +6607,7 @@ DefineConstants :
     { Constant_S.Name = $3; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $6;
       if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
-        Message::ExchangeOnelabParameter
-          (&Constant_S, &FloatOptions_S, &CharOptions_S);
+        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
       }
     }

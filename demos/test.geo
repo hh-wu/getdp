@@ -6,7 +6,9 @@
 
 e = 5.e-3 ;
 d = 0.02 ;
-l = 0.14 ;
+
+DefineConstant[ l = {0.14, Path "1Geometry"} ] ;
+
 h = 0.14 ;
 ri = 0.2 ;
 re = 0.3 ;
