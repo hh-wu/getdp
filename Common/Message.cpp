@@ -377,7 +377,7 @@ void Message::InitializeOnelab(std::string sockname)
   //_onelabClient = new onelab::localClient("GetDP", sockname);
   //_onelabClient->readDatabaseFromFile(sockname);
 
-  // this parameter tells the solver what "compute" does
+  // this parameter tells the server what "compute" does
   onelab::string o("GetDP/9Compute", "-solve -pos");
   o.setShortHelp("Computation mode");
   std::vector<std::string> choices;

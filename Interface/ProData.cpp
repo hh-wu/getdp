@@ -1565,18 +1565,19 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
   struct Resolution *RE;
   int    i, Nbr, ichoice = 0;
   char   buff[128];
+  bool   print = (!choose || (!Message::UseSocket() && !Message::UseOnelab()));
 
   if((Nbr = List_Nbr(Problem_S.Resolution))){
     if(Flag_LRES < 0){
       ichoice = - Flag_LRES;
     }
     else{
-      if(!Message::UseSocket()) Message::Info("Available Resolutions");
+      if(print) Message::Info("Available Resolutions");
       std::vector<std::string> choices;
       for (i = 0; i < Nbr; i++) {
 	RE = (struct Resolution*)List_Pointer(Problem_S.Resolution, i);
-	if(!Message::UseSocket()) Message::Check("(%d) %s\n", i+1, RE->Name);
-	else Message::SendOptionOnSocket(1, RE->Name);
+	if(print) Message::Check("(%d) %s\n", i+1, RE->Name);
+	if(Message::UseSocket()) Message::SendOptionOnSocket(1, RE->Name);
         choices.push_back(RE->Name);
       }
 
@@ -1620,18 +1621,19 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
   struct PostOperation *PO;
   int    i, Nbr, ichoice = 0;
   char   buff[128];
+  bool   print = (!choose || (!Message::UseSocket() && !Message::UseOnelab()));
 
   if((Nbr = List_Nbr(Problem_S.PostOperation))){
     if(Flag_LPOS < 0){
       ichoice = - Flag_LPOS;
     }
     else{
-      if(!Message::UseSocket()) Message::Info("Available PostOperations");
+      if(print) Message::Info("Available PostOperations");
       std::vector<std::string> choices;
       for (i = 0; i < Nbr; i++) {
 	PO = (struct PostOperation*)List_Pointer(Problem_S.PostOperation, i);
-	if(!Message::UseSocket()) Message::Check("(%d) %s\n", i+1, PO->Name);
-	else Message::SendOptionOnSocket(2, PO->Name);
+	if(print) Message::Check("(%d) %s\n", i+1, PO->Name);
+	if(Message::UseSocket()) Message::SendOptionOnSocket(2, PO->Name);
         choices.push_back(PO->Name);
       }
 
