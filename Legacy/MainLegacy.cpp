@@ -389,6 +389,11 @@ int MainLegacy(int argc, char *argv[])
   }
 
   if(!Name_MshFile){
+    Message::GetOnelabString("Gmsh/MshFileName", &Name_MshFile);
+    if(Name_MshFile)
+      Message::Info("Got mesh name from Onelab: '%s'", Name_MshFile);
+  }
+  if(!Name_MshFile){
     Name_MshFile = (char*)Malloc((strlen(Name_Generic)+5)*sizeof(char));
     strcpy(Name_MshFile, Name_Generic);
     strcat(Name_MshFile, ".msh");

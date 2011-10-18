@@ -390,6 +390,19 @@ void Message::InitializeOnelab(std::string sockname)
   _onelabClient->set(o);
 }
 
+void Message::GetOnelabString(std::string name, char **val)
+{
+  if(_onelabClient){
+    std::vector<onelab::string> ps;
+    _onelabClient->get(ps, name);
+    if(ps.size()){
+      *val = strSave((char*)ps[0].getValue().c_str());
+      return;
+    }
+  }
+  *val = 0;
+}
+
 void Message::ExchangeOnelabParameter(Constant *c,
                                       std::map<std::string, std::vector<double> > &fopt,
                                       std::map<std::string, std::vector<std::string> > &copt)

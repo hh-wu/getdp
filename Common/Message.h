@@ -69,6 +69,7 @@ class Message {
   static void InitializeOnelab(std::string sockname);
   static void FinalizeOnelab();
   static bool UseOnelab(){ return _onelabClient ? true : false; }
+  static void GetOnelabString(std::string name, char **val);
   static void ExchangeOnelabParameter(Constant *c, 
                                       std::map<std::string, std::vector<double> > &fopt,
                                       std::map<std::string, std::vector<std::string> > &copt);
