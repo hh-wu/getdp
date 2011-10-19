@@ -449,10 +449,14 @@ namespace onelab{
   protected:
     // the name of the client
     std::string _name;
+    // the id of the client, used to create a unique socket for this client
+    int _id;
   public:
     client(const std::string &name) : _name(name){}
     virtual ~client(){}
     std::string getName(){ return _name; }
+    void setId(int id){ _id = id; }
+    int getId(){ return _id; }
     virtual bool run(const std::string &what){ return false; }
     virtual bool isNetworkClient(){ return false; }
     virtual bool kill(){ return false; }
@@ -505,8 +509,8 @@ namespace onelab{
     }
     bool registerClient(client *c)
     {
-      if(_clients.count(c->getName())) return false;
       _clients[c->getName()] = c;
+      c->setId(_clients.size());
       return true;
     }
     typedef std::map<std::string, client*>::iterator citer;
@@ -567,17 +571,26 @@ namespace onelab{
   private:
     // command line to launch the remote network client
     std::string _commandLine;
+    // command line option to specify socket
+    std::string _socketSwitch;
     // pid of the remote network client
     int _pid;
+    // underlying GmshServer
+    GmshServer *_gmshServer;
   public:
     localNetworkClient(const std::string &name, const std::string &commandLine)
-      : localClient(name), _commandLine(commandLine), _pid(-1) {}
+      : localClient(name), _commandLine(commandLine), _socketSwitch("-onelab"),
+        _pid(-1), _gmshServer(0) {}
     virtual ~localNetworkClient(){}
     virtual bool isNetworkClient(){ return true; }
     const std::string &getCommandLine(){ return _commandLine; }
     void setCommandLine(const std::string &s){ _commandLine = s; }
+    const std::string &getSocketSwitch(){ return _socketSwitch; }
+    void setSocketSwitch(const std::string &s){ _socketSwitch = s; }
     int getPid(){ return _pid; }
     void setPid(int pid){ _pid = pid; }
+    GmshServer *getGmshServer(){ return _gmshServer; }
+    void setServer(GmshServer *server){ _gmshServer = server; }
     virtual bool run(const std::string &what);
     virtual bool kill();
   };
@@ -665,6 +678,7 @@ namespace onelab{
         _gmshClient = 0;
       }
     }
+    GmshClient *getGmshClient(){ return _gmshClient; }
     virtual bool isNetworkClient(){ return true; }
     virtual bool set(number &p, bool value=true){ return _set(p); }
     virtual bool set(string &p, bool value=true){ return _set(p); }
