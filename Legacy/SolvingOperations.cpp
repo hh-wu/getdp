@@ -650,7 +650,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
 			      struct DofData * DofData_P, 
 			      struct DofData * DofData_P0,
-			      int GroupIndex, int Type_Constraint)
+			      int GroupIndex, int Type_Constraint, int Flag_Jac)
 {
   int k,  Nbr_Formulation, Index_Formulation,  Save_TreatmentStatus ;
   struct Formulation    * Formulation_P ;
@@ -672,17 +672,20 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
 
   Dof_InitDofType(DofData_P) ; /* Attention: Init for only one DofData */
 
+  
+#if defined(HAVE_PETSC)
   // Updating the constraints has (most probably) changed the mask of the matrices.
   // Recreating the matrices will lead to much faster assembly (and reduced memory)
   // with petsc-based solvers
-  int m, n;
-  LinAlg_GetMatrixSize(&DofData_P->A, &m, &n);
+  
   LinAlg_DestroyMatrix(&DofData_P->A);
-  LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver, m, n);
-
-  LinAlg_GetMatrixSize(&DofData_P->Jac, &m, &n);
-  LinAlg_DestroyMatrix(&DofData_P->Jac);
-  LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver, m, n);
+  LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver, DofData_P->NbrDof, DofData_P->NbrDof);      
+  
+  if(Flag_Jac){ // Only when JacNL term appears in formulation
+    LinAlg_DestroyMatrix(&DofData_P->Jac);
+    LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver, DofData_P->NbrDof, DofData_P->NbrDof);
+  }  
+#endif
 
   TreatmentStatus = Save_TreatmentStatus ;
 }
@@ -1763,7 +1766,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
       UpdateConstraint_System(DefineSystem_P, DofData_P, DofData_P0, 
 			      Operation_P->Case.UpdateConstraint.GroupIndex,
-			      Operation_P->Case.UpdateConstraint.Type) ;
+			      Operation_P->Case.UpdateConstraint.Type, Flag_Jac) ;
       Flag_CPU = 1 ;
       break ;
 
