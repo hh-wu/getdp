@@ -395,7 +395,7 @@ void Message::GetOnelabString(std::string name, char **val)
   if(_onelabClient){
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
-    if(ps.size()){
+    if(ps.size() && ps[0].getValue().size()){
       *val = strSave((char*)ps[0].getValue().c_str());
       return;
     }
