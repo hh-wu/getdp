@@ -36,7 +36,7 @@ int getdp_yyerrorlevel = 0;
 
 // Static parser variables (accessible only in this file)
 static List_T *ConstantTable_L, *ListDummy_L;
-static List_T *ListOfInt_L, *ListOfTwoInt_L;
+static List_T *ListOfInt_L;
 static List_T *ListOfPointer_L, *ListOfPointer2_L, *ListOfChar_L;
 static List_T *Current_BasisFunction_L, *Current_SubSpace_L, *Current_GlobalQuantity_L;
 static List_T *Current_WholeQuantity_L, *Current_System_L, *Operation_L;
@@ -281,7 +281,6 @@ Stats :
 	ConstantTable_L = List_Create(20, 10, sizeof(struct Constant));
 	ListDummy_L     = List_Create(1, 1, sizeof(int)); /* Do not delete */
 	ListOfInt_L     = List_Create(20, 10, sizeof(int));
-	ListOfTwoInt_L  = List_Create(20, 10, sizeof(struct TwoInt));
 	ListOfPointer_L = List_Create(10, 10, sizeof(void *));
 	ListOfPointer2_L= List_Create(10, 10, sizeof(void *));
 	ListOfChar_L    = List_Create(128, 128, sizeof(char));
@@ -293,7 +292,7 @@ Stats :
     }
     ProblemDefinitions
     { if(--YaccLevel == 0) {
-	List_Delete(ListOfInt_L); List_Delete(ListOfTwoInt_L);  
+	List_Delete(ListOfInt_L);
 	List_Delete(ListOfPointer_L); List_Delete(ListOfPointer2_L); 
 	List_Delete(ListOfChar_L);
 
@@ -7203,10 +7202,10 @@ int  Add_Expression(struct Expression *Expression_P,
 
 /*  L i s t e   I n d e x   d e s   D e f i n e Q u a n t i t y  */
 
-void  Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex)
+void  Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex,
+                                std::vector<std::pair<int, int> > &pairs)
 {
   struct WholeQuantity *WholeQuantity_P;
-  struct TwoInt Pair;
 
   WholeQuantity_P = (List_Nbr(WholeQuantity_L) > 0)?
     (struct WholeQuantity*)List_Pointer(WholeQuantity_L, 0) : NULL;
@@ -7217,38 +7216,41 @@ void  Pro_DefineQuantityIndex_1(List_T *WholeQuantity_L, int TraceGroupIndex)
     case WQ_OPERATORANDQUANTITYEVAL :
     case WQ_SOLIDANGLE :
     case WQ_ORDER :
-      Pair.Int1 = (WholeQuantity_P+i)->Case.OperatorAndQuantity.Index;
-      Pair.Int2 = TraceGroupIndex;
-      List_Insert(ListOfTwoInt_L, &Pair, fcmp_Integer);
+      {
+        std::pair<int, int> p((WholeQuantity_P+i)->Case.OperatorAndQuantity.Index,
+                              TraceGroupIndex);
+        if(std::find(pairs.begin(), pairs.end(), p) == pairs.end())
+          pairs.push_back(p);
+      }
       break;
     case WQ_MHTRANSFORM  :
       Pro_DefineQuantityIndex_1
-	((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity, TraceGroupIndex);
+	((WholeQuantity_P+i)->Case.MHTransform.WholeQuantity, TraceGroupIndex, pairs);
     case WQ_TIMEDERIVATIVE :
       Pro_DefineQuantityIndex_1
-	((WholeQuantity_P+i)->Case.TimeDerivative.WholeQuantity, TraceGroupIndex);
+	((WholeQuantity_P+i)->Case.TimeDerivative.WholeQuantity, TraceGroupIndex, pairs);
       break;
     case WQ_ATANTERIORTIMESTEP :
       Pro_DefineQuantityIndex_1
-	((WholeQuantity_P+i)->Case.AtAnteriorTimeStep.WholeQuantity, TraceGroupIndex);
+	((WholeQuantity_P+i)->Case.AtAnteriorTimeStep.WholeQuantity, TraceGroupIndex, pairs);
       break;
     case WQ_CAST :
       Pro_DefineQuantityIndex_1
-	((WholeQuantity_P+i)->Case.Cast.WholeQuantity, TraceGroupIndex);
+	((WholeQuantity_P+i)->Case.Cast.WholeQuantity, TraceGroupIndex, pairs);
       break;
     case WQ_TRACE :
       Pro_DefineQuantityIndex_1
 	((WholeQuantity_P+i)->Case.Trace.WholeQuantity, 
-	 (WholeQuantity_P+i)->Case.Trace.InIndex);
+	 (WholeQuantity_P+i)->Case.Trace.InIndex, pairs);
       break;
     case WQ_TEST :
       Pro_DefineQuantityIndex_1
-	((WholeQuantity_P+i)->Case.Test.WholeQuantity_True, TraceGroupIndex);
+	((WholeQuantity_P+i)->Case.Test.WholeQuantity_True, TraceGroupIndex, pairs);
       Pro_DefineQuantityIndex_1
-	((WholeQuantity_P+i)->Case.Test.WholeQuantity_False, TraceGroupIndex);
+	((WholeQuantity_P+i)->Case.Test.WholeQuantity_False, TraceGroupIndex, pairs);
       break;
     }
-  List_Sort(ListOfTwoInt_L, fcmp_Integer);
+  std::sort(pairs.begin(), pairs.end());
 }
 
 void  Pro_DefineQuantityIndex(List_T *WholeQuantity_L,
@@ -7256,28 +7258,24 @@ void  Pro_DefineQuantityIndex(List_T *WholeQuantity_L,
 			      int *NbrQuantityIndex, int **QuantityIndexTable, 
 			      int **QuantityTraceGroupIndexTable) 
 {
-  struct TwoInt Pair, *Pair_P;
-
-  List_Reset(ListOfTwoInt_L);
+  std::vector<std::pair<int, int> > pairs;
 
   /* special case for the Equ part (right of the comma) 
      FIXME: change this when we allow a full WholeQuantity expression
      there */
+  Pro_DefineQuantityIndex_1(WholeQuantity_L, -1, pairs);
+
   if(DefineQuantityIndexEqu >= 0){
-    Pair.Int1 = DefineQuantityIndexEqu;
-    Pair.Int2 = -1;
-    List_Add(ListOfTwoInt_L, &Pair);
+    std::pair<int, int> p(DefineQuantityIndexEqu, -1);
+    pairs.push_back(p);
   }
 
-  Pro_DefineQuantityIndex_1(WholeQuantity_L, -1);
-
-  *NbrQuantityIndex = List_Nbr(ListOfTwoInt_L);
-  *QuantityIndexTable = (int *)Malloc(List_Nbr(ListOfTwoInt_L) * sizeof(int));
-  *QuantityTraceGroupIndexTable = (int *)Malloc(List_Nbr(ListOfTwoInt_L) * sizeof(int));
-  for(int i = 0; i < List_Nbr(ListOfTwoInt_L); i++){
-    Pair_P =  (struct TwoInt*)List_Pointer(ListOfTwoInt_L, i);
-    (*QuantityIndexTable)[i] = Pair_P->Int1;
-    (*QuantityTraceGroupIndexTable)[i] = Pair_P->Int2;
+  *NbrQuantityIndex = pairs.size();
+  *QuantityIndexTable = (int *)Malloc(pairs.size() * sizeof(int));
+  *QuantityTraceGroupIndexTable = (int *)Malloc(pairs.size() * sizeof(int));
+  for(unsigned int i = 0; i < pairs.size(); i++){
+    (*QuantityIndexTable)[i] = pairs[i].first;
+    (*QuantityTraceGroupIndexTable)[i] = pairs[i].second;
   }
 }
 
