@@ -16,14 +16,6 @@
 #include "BF.h"
 #include "Message.h"
 
-#if defined(HAVE_GSL)
-#include <gsl/gsl_vector.h>
-#include <gsl/gsl_linalg.h>
-#else
-#include "nrutil.h"
-void dsvdcmp(double **a, int m, int n, double w[], double **v);
-#endif
-
 #define THESIGN(a) ((a)>=0 ? 1 : -1)
 #define SQU(a)     ((a)*(a)) 
 #define HYPOT(a,b) (sqrt((a)*(a)+(b)*(b)))
@@ -798,13 +790,39 @@ double  JacobianVolRectShell3D (struct Element * Element, MATRIX3x3 * Jac)
 /*  J a c o b i a n S u r                                                   */
 /* ------------------------------------------------------------------------ */
 
+void prodve(double a[3], double b[3], double c[3])
+{
+  c[2] = a[0] * b[1] - a[1] * b[0];
+  c[1] = -a[0] * b[2] + a[2] * b[0];
+  c[0] = a[1] * b[2] - a[2] * b[1];
+}
+void prosca(double a[3], double b[3], double *c)
+{
+  *c = a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+}
+double norm3(double a[3])
+{
+  return sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+}
+double norme(double a[3])
+{
+  const double mod = norm3(a);
+  if(mod != 0.0){
+    const double one_over_mod = 1./mod;
+    a[0] *= one_over_mod;
+    a[1] *= one_over_mod;
+    a[2] *= one_over_mod;
+  }
+  return mod;
+}
+
 double  JacobianSur2D (struct Element * Element, MATRIX3x3 * Jac)
 {
   int  i ;
   double DetJac ;
 
   Jac->c11 = 0. ;  Jac->c12 = 0. ;  Jac->c13 = 0. ;
-  Jac->c21 = 0. ;  Jac->c22 = 0. ;  Jac->c23 = 0. ; /*modif: c22=1 !!! faux*/
+  Jac->c21 = 0. ;  Jac->c22 = 0. ;  Jac->c23 = 0. ;
   Jac->c31 = 0. ;  Jac->c32 = 0. ;  Jac->c33 = 1. ;
 
   for ( i = 0 ; i < Element->GeoElement->NbrNodes ; i++ ) {
@@ -814,6 +832,11 @@ double  JacobianSur2D (struct Element * Element, MATRIX3x3 * Jac)
 
   DetJac = HYPOT(Jac->c11, Jac->c12) ;
 
+  // regularize matrix
+  double b[3] = {Jac->c12, -Jac->c11, 0.};
+  norme(b);
+  Jac->c21 = b[0]; Jac->c22 = b[1];
+  
   return(DetJac) ;
 }
 
@@ -822,10 +845,10 @@ double  JacobianSurSphShell2D (struct Element * Element, MATRIX3x3 * Jac)
   MATRIX3x3  Jac1, Jac2 ;
   double     DetJac1, DetJac2 ;
 
-  DetJac1 = JacobianSur2D (Element, &Jac1) ;
+  DetJac1 = JacobianSur2D(Element, &Jac1) ;
   DetJac2 = Transformation(_2D, JACOBIAN_SPH, Element, &Jac2) ;
 
-  Get_ProductMatrix( _3D, &Jac1, &Jac2, Jac) ;
+  Get_ProductMatrix(_3D, &Jac1, &Jac2, Jac) ;
 
   return(DetJac1 * DetJac2) ;
 }
@@ -835,7 +858,7 @@ double  JacobianSurRectShell2D (struct Element * Element, MATRIX3x3 * Jac)
   MATRIX3x3  Jac1, Jac2 ;
   double     DetJac1, DetJac2 ;
 
-  DetJac1 = JacobianSur2D (Element, &Jac1) ;
+  DetJac1 = JacobianSur2D(Element, &Jac1) ;
   DetJac2 = Transformation(_2D, JACOBIAN_RECT, Element, &Jac2) ;
 
   Get_ProductMatrix( _3D, &Jac1, &Jac2, Jac) ;
@@ -881,6 +904,14 @@ double  JacobianSur3D (struct Element * Element, MATRIX3x3 * Jac)
 		 + SQU(Jac->c13 * Jac->c21 - Jac->c11 * Jac->c23)
 		 + SQU(Jac->c12 * Jac->c23 - Jac->c13 * Jac->c22) ) ;
 
+  // regularize matrix
+  double a[3] = {Jac->c11, Jac->c12, Jac->c13};
+  double b[3] = {Jac->c21, Jac->c22, Jac->c23};
+  double c[3];
+  prodve(a, b, c);
+  norme(c);
+  Jac->c31 = c[0]; Jac->c32 = c[1]; Jac->c33 = c[2];
+
   return(DetJac) ;
 }
 
@@ -905,104 +936,29 @@ double  JacobianLin3D (struct Element * Element, MATRIX3x3 * Jac)
 
   DetJac = sqrt(SQU(Jac->c11)+SQU(Jac->c12)+SQU(Jac->c13)) ;
 
+  // regularize matrix
+  double a[3] = {Jac->c11, Jac->c12, Jac->c13};
+  double b[3];
+  if((fabs(a[0]) >= fabs(a[1]) && fabs(a[0]) >= fabs(a[2])) ||
+     (fabs(a[1]) >= fabs(a[0]) && fabs(a[1]) >= fabs(a[2]))) {
+    b[0] = a[1]; b[1] = -a[0]; b[2] = 0.;
+  }
+  else {
+    b[0] = 0.; b[1] = a[2]; b[2] = -a[1];
+  }
+  norme(b);
+  double c[3];
+  prodve(a, b, c);
+  norme(c);
+  Jac->c21 = b[0]; Jac->c22 = b[1]; Jac->c23 = b[2];
+  Jac->c31 = c[0]; Jac->c32 = c[1]; Jac->c33 = c[2];
+
   return(DetJac) ;
 }
 
 /* ------------------------------------------------------------------------ */
 /*  G e t _ I n v e r s e M a t r i x                                       */
 /* ------------------------------------------------------------------------ */
-
-void  Get_InverseSingularMatrix(MATRIX3x3 * Mat, MATRIX3x3 * InvMat)
-{
-  double T[3][3] = {{0.,0.,0.},{0.,0.,0.},{0.,0.,0.}};
-  int i, j, k;
-#if defined(HAVE_GSL)
-  gsl_matrix *M, *V;
-  gsl_vector *W, *TMPVEC;
-  double ww;
-#else
-  double **M, **V, *W;
-#endif
-
-  InvMat->c11 = InvMat->c12 = InvMat->c13 = 0.0;
-  InvMat->c21 = InvMat->c22 = InvMat->c23 = 0.0;
-  InvMat->c31 = InvMat->c32 = InvMat->c33 = 0.0;
-
-#if defined(HAVE_GSL)
-  M = gsl_matrix_alloc(3, 3);
-  V = gsl_matrix_alloc(3, 3);
-  W = gsl_vector_alloc(3);
-  TMPVEC = gsl_vector_alloc(3);
-
-  gsl_matrix_set(M, 0, 0, Mat->c11);
-  gsl_matrix_set(M, 0, 1, Mat->c12);
-  gsl_matrix_set(M, 0, 2, Mat->c13);
-  gsl_matrix_set(M, 1, 0, Mat->c21);
-  gsl_matrix_set(M, 1, 1, Mat->c22);
-  gsl_matrix_set(M, 1, 2, Mat->c23);
-  gsl_matrix_set(M, 2, 0, Mat->c31);
-  gsl_matrix_set(M, 2, 1, Mat->c32);
-  gsl_matrix_set(M, 2, 2, Mat->c33);
-
-  gsl_linalg_SV_decomp(M, V, W, TMPVEC);
-  for(i = 0; i < 3; i++) {
-    for(j = 0; j < 3; j++) {
-      ww = gsl_vector_get(W, i);
-      if(fabs(ww) > 1.e-16) {   /* singular value precision */
-        T[i][j] += gsl_matrix_get(M, j, i) / ww;
-      }
-    }
-  }
-  for(k=0 ; k<3 ; k++){
-    InvMat->c11 += gsl_matrix_get(V, 0, k) * T[k][0] ;
-    InvMat->c12 += gsl_matrix_get(V, 0, k) * T[k][1] ;
-    InvMat->c13 += gsl_matrix_get(V, 0, k) * T[k][2] ;
-    InvMat->c21 += gsl_matrix_get(V, 1, k) * T[k][0] ;
-    InvMat->c22 += gsl_matrix_get(V, 1, k) * T[k][1] ;
-    InvMat->c23 += gsl_matrix_get(V, 1, k) * T[k][2] ;
-    InvMat->c31 += gsl_matrix_get(V, 2, k) * T[k][0] ;
-    InvMat->c32 += gsl_matrix_get(V, 2, k) * T[k][1] ;
-    InvMat->c33 += gsl_matrix_get(V, 2, k) * T[k][2] ;
-  }
-  gsl_matrix_free(M);
-  gsl_matrix_free(V);
-  gsl_vector_free(W);
-  gsl_vector_free(TMPVEC);
-#else
-  M = dmatrix(1,3,1,3);
-  V = dmatrix(1,3,1,3);
-  W = dvector(1,3);
-
-  M[1][1] = Mat->c11 ; M[1][2] = Mat->c12 ; M[1][3] = Mat->c13 ;
-  M[2][1] = Mat->c21 ; M[2][2] = Mat->c22 ; M[2][3] = Mat->c23 ;
-  M[3][1] = Mat->c31 ; M[3][2] = Mat->c32 ; M[3][3] = Mat->c33 ;
-
-  dsvdcmp(M, 3, 3, W, V);
-
-  /* cf. Numerical Recipes in C, p. 62 */
-
-  for(i=1 ; i<=3 ; i++)
-    for(j=1 ; j<=3 ; j++)
-      if(fabs(W[i]) > 1.e-16) /* precision */
-	T[i-1][j-1] += M[j][i] / W[i] ;
-  
-  for(k=1 ; k<=3 ; k++){
-    InvMat->c11 += V[1][k] * T[k-1][0] ;
-    InvMat->c12 += V[1][k] * T[k-1][1] ;
-    InvMat->c13 += V[1][k] * T[k-1][2] ;
-    InvMat->c21 += V[2][k] * T[k-1][0] ;
-    InvMat->c22 += V[2][k] * T[k-1][1] ;
-    InvMat->c23 += V[2][k] * T[k-1][2] ;
-    InvMat->c31 += V[3][k] * T[k-1][0] ;
-    InvMat->c32 += V[3][k] * T[k-1][1] ;
-    InvMat->c33 += V[3][k] * T[k-1][2] ;
-  }
-
-  free_dmatrix(M,1,3,1,3);
-  free_dmatrix(V,1,3,1,3);
-  free_dvector(W,1,3);
-#endif
-}
 
 void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
 			MATRIX3x3 * Mat, MATRIX3x3 * InvMat)
@@ -1026,52 +982,26 @@ void  Get_InverseMatrix(int Type_Dimension, int Type_Element, double DetMat,
     break ;
 
   case _2D :
-    
-    switch(Type_Element){
-
-    case TRIANGLE   : case TRIANGLE_2   : 
-    case QUADRANGLE : case QUADRANGLE_2 : case QUADRANGLE_2_8N :
-      if(!DetMat) Message::Error("Null determinant in 'Get_InverseMatrix'");
-      InvMat->c11 =   Mat->c22 * Mat->c33 / DetMat ;
-      InvMat->c21 = - Mat->c21 * Mat->c33 / DetMat ;
-      InvMat->c12 = - Mat->c12 * Mat->c33 / DetMat ;
-      InvMat->c22 =   Mat->c11 * Mat->c33 / DetMat ;
-      InvMat->c13 = InvMat->c23 = InvMat->c31 = InvMat->c32 = 0. ;
-      InvMat->c33 =   1. / Mat->c33 ;
-      break ;
-
-    default : 
-      Get_InverseSingularMatrix(Mat, InvMat);
-      break;
-
-    }
+    if(!DetMat) Message::Error("Null determinant in 'Get_InverseMatrix'");
+    InvMat->c11 =   Mat->c22 * Mat->c33 / DetMat ;
+    InvMat->c21 = - Mat->c21 * Mat->c33 / DetMat ;
+    InvMat->c12 = - Mat->c12 * Mat->c33 / DetMat ;
+    InvMat->c22 =   Mat->c11 * Mat->c33 / DetMat ;
+    InvMat->c13 = InvMat->c23 = InvMat->c31 = InvMat->c32 = 0. ;
+    InvMat->c33 =   1. / Mat->c33 ;
     break;
 
   case _3D :
-
-    switch(Type_Element){
-
-    case TETRAHEDRON : case TETRAHEDRON_2 : 
-    case HEXAHEDRON  : case HEXAHEDRON_2  : 
-    case PRISM       : case PRISM_2       :
-    case PYRAMID     : case PYRAMID_2     :
-      if(!DetMat) Message::Error("Null determinant in 'Get_InverseMatrix'");
-      InvMat->c11 =  ( Mat->c22 * Mat->c33 - Mat->c23 * Mat->c32 ) / DetMat ;
-      InvMat->c21 = -( Mat->c21 * Mat->c33 - Mat->c23 * Mat->c31 ) / DetMat ;
-      InvMat->c31 =  ( Mat->c21 * Mat->c32 - Mat->c22 * Mat->c31 ) / DetMat ;
-      InvMat->c12 = -( Mat->c12 * Mat->c33 - Mat->c13 * Mat->c32 ) / DetMat ;
-      InvMat->c22 =  ( Mat->c11 * Mat->c33 - Mat->c13 * Mat->c31 ) / DetMat ;
-      InvMat->c32 = -( Mat->c11 * Mat->c32 - Mat->c12 * Mat->c31 ) / DetMat ;
-      InvMat->c13 =  ( Mat->c12 * Mat->c23 - Mat->c13 * Mat->c22 ) / DetMat ;
-      InvMat->c23 = -( Mat->c11 * Mat->c23 - Mat->c13 * Mat->c21 ) / DetMat ;
-      InvMat->c33 =  ( Mat->c11 * Mat->c22 - Mat->c12 * Mat->c21 ) / DetMat ;
-      break;
-
-    default :
-      Get_InverseSingularMatrix(Mat, InvMat);
-      break;
-
-    }
+    if(!DetMat) Message::Error("Null determinant in 'Get_InverseMatrix'");
+    InvMat->c11 =  ( Mat->c22 * Mat->c33 - Mat->c23 * Mat->c32 ) / DetMat ;
+    InvMat->c21 = -( Mat->c21 * Mat->c33 - Mat->c23 * Mat->c31 ) / DetMat ;
+    InvMat->c31 =  ( Mat->c21 * Mat->c32 - Mat->c22 * Mat->c31 ) / DetMat ;
+    InvMat->c12 = -( Mat->c12 * Mat->c33 - Mat->c13 * Mat->c32 ) / DetMat ;
+    InvMat->c22 =  ( Mat->c11 * Mat->c33 - Mat->c13 * Mat->c31 ) / DetMat ;
+    InvMat->c32 = -( Mat->c11 * Mat->c32 - Mat->c12 * Mat->c31 ) / DetMat ;
+    InvMat->c13 =  ( Mat->c12 * Mat->c23 - Mat->c13 * Mat->c22 ) / DetMat ;
+    InvMat->c23 = -( Mat->c11 * Mat->c23 - Mat->c13 * Mat->c21 ) / DetMat ;
+    InvMat->c33 =  ( Mat->c11 * Mat->c22 - Mat->c12 * Mat->c21 ) / DetMat ;
     break;
 
   default :
