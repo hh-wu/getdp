@@ -32,7 +32,7 @@ static void swapBytes(char *array, int size, int n)
   Free(x);
 }
 
-std::string ExtractDoubleQuotedString(const char *str, int len)
+static std::string ExtractDoubleQuotedString(const char *str, int len)
 {
   char *c = strstr((char*)str, "\"");
   if(!c) return "";
@@ -43,7 +43,6 @@ std::string ExtractDoubleQuotedString(const char *str, int len)
   }
   return ret;
 }
-
 
 /* ------------------------------------------------------------------------ */
 /*  G e o _ A d d G e o D a t a                                             */
