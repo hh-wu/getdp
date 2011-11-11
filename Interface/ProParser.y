@@ -9,6 +9,8 @@
 //   Johan Gyselinck
 //
 
+#include <iostream>
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>

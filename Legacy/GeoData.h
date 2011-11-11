@@ -35,6 +35,7 @@ struct GeoData {
   struct Grid Grid;
 
   double  * H, * P ;
+
 } ;
 
 int  Geo_AddGeoData(List_T * GeoData_L,

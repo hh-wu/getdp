@@ -279,7 +279,7 @@ struct StringXDefine  PostSubOperation_Format[] = {
   {"Gnuplot"             , FORMAT_GNUPLOT }, 
   {"Matlab"              , FORMAT_MATLAB }, 
   {"Adaptation"          , FORMAT_ADAPT }, 
-  {NULL                  , FORMAT_GMSH}
+  {NULL                  , FORMAT_GMSH }
 } ;
 
 struct StringXDefine  PostSubOperation_FormatTag[] = {

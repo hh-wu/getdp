@@ -659,7 +659,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     if ((fabs(NodeXYZ.x-NodeXYZRef.x) > TOL) ||
 	(fabs(NodeXYZ.y-NodeXYZRef.y) > TOL) ||
 	(fabs(NodeXYZ.z-NodeXYZRef.z) > TOL))
-      Message::Warning("+++ Ruth/Error +++ Constraint Link: bad correspondance of Nodes (%d, %d)"
+      Message::Error("Constraint Link: bad correspondance of Nodes (%d, %d)"
                        " (%e %e %e), TOL=%g",
                        NodeXYZ.NumNode, NodeXYZRef.NumNode,
                        fabs(NodeXYZ.x-NodeXYZRef.x), fabs(NodeXYZ.y-NodeXYZRef.y),

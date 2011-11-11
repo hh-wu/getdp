@@ -32,6 +32,19 @@ static void swapBytes(char *array, int size, int n)
   Free(x);
 }
 
+std::string ExtractDoubleQuotedString(const char *str, int len)
+{
+  char *c = strstr((char*)str, "\"");
+  if(!c) return "";
+  std::string ret;
+  for(int i = 1; i < len; i++) {
+    if(c[i] == '"' || c[i] == EOF || c[i] == '\n' || c[i] == '\r') break;
+    ret.push_back(c[i]);
+  }
+  return ret;
+}
+
+
 /* ------------------------------------------------------------------------ */
 /*  G e o _ A d d G e o D a t a                                             */
 /* ------------------------------------------------------------------------ */
@@ -315,6 +328,22 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	  swap = 1;
 	  Message::Info("Swapping bytes from binary file");
 	}
+      }
+    }//=====Ruth
+    else if(!strncmp(&String[1], "PhysicalNames", 13)) {
+
+      fgets(String, sizeof(String), File_GEO) ;
+      int numNames;
+      if(sscanf(String, "%d", &numNames) != 1) return ;
+      for(int i = 0; i < numNames; i++) {
+        int dim = -1, num;
+        if(Version > 2.0){
+          if(fscanf(File_GEO, "%d", &dim) != 1) return ;
+        }
+        if(fscanf(File_GEO, "%d", &num) != 1) return ;
+        fgets(String, sizeof(String), File_GEO) ;
+        std::string name = ExtractDoubleQuotedString(String, 256);
+        //if(name.size()) setPhysicalName(name, dim, num);
       }
     }
 
