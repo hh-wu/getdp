@@ -3492,6 +3492,7 @@ LocalTermTerm  :
 	       ((WholeQuantity_P+0)->Type == WQ_EXPRESSION &&
 		 (WholeQuantity_P+1)->Type == WQ_OPERATORANDQUANTITY &&
 		 (WholeQuantity_P+2)->Type == WQ_BINARYOPERATOR)) {
+        // FIXME: should also add the case (BUILTINFUNCTION OPERATORANDQUANTITY BINARYOPERATOR)
 	EquationTerm_S.Case.LocalTerm.Term.CanonicalWholeQuantity_Equ = 
 	  CWQ_EXP_TIME_DOF;
 	EquationTerm_S.Case.LocalTerm.Term.ExpressionIndexForCanonical_Equ = 
