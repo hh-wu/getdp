@@ -8,7 +8,7 @@
 #if defined(HAVE_GSL)
 
 #include "Message.h"
-#include "Numeric.h"
+#include "NumericUtils.h"
 
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_math.h>

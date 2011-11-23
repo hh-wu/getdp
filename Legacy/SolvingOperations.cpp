@@ -30,7 +30,7 @@
 #include "OS.h"
 #include "Message.h"
 #if defined(HAVE_GMSH)
-#include "Gmsh.h"
+#include <gmsh/Gmsh.h>
 #endif
 
 #define TWO_PI             6.2831853071795865

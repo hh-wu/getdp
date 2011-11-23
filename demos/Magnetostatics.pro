@@ -94,6 +94,7 @@ Resolution {
       { Name A ; NameOfFormulation MagSta_phi ; }
     }
     Operation { 
+      GmshRead["b_phi.pos"];
       Generate[A] ;
       //Print[A];
       Solve[A] ; SaveSolution[A] ; 

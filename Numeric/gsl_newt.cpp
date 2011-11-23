@@ -15,7 +15,7 @@
 
 #if defined(HAVE_GSL)
 
-#include "Numeric.h"
+#include "NumericUtils.h"
 
 #include <gsl/gsl_math.h>
 #include <gsl/gsl_errno.h>

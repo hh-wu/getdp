@@ -9,7 +9,7 @@
 
 #include <math.h>
 #include "Adapt.h"
-#include "Numeric.h"
+#include "NumericUtils.h"
 #include "Message.h"
 
 #define SQU(a)     ((a)*(a)) 

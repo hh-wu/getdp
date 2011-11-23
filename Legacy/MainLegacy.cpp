@@ -17,7 +17,7 @@
 #include "Message.h"
 
 #if defined(HAVE_GMSH)
-#include "Gmsh.h"
+#include <gmsh/Gmsh.h>
 #endif
 
 int     Flag_PRE = 0, Flag_CAL = 0, Flag_POS = 0, Flag_RESTART = 0;
