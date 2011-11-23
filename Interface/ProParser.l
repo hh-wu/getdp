@@ -337,7 +337,7 @@ Integral                     return tGalerkin;
 {digit}*"."{digit}+({exp})? |
 {digit}+{exp}                { getdp_yylval.d = atof(yytext); return tFLOAT; }
 
-{string}                     { getdp_yylval.c = strSave((char*)yytext); return tSTRING; }
+{string}                     { getdp_yylval.c = strSave(yytext); return tSTRING; }
 
 .                            return yytext[0];
 
@@ -358,7 +358,7 @@ int getdp_yywrap()
 #define yytext_ptr yytext
 #endif
 
-char *strSave(char *string) 
+char *strSave(const char *string) 
 {
   return ((char *)strcpy((char *)Malloc(strlen(string)+1), string));
 }

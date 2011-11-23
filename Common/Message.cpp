@@ -396,7 +396,7 @@ void Message::GetOnelabString(std::string name, char **val)
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
     if(ps.size() && ps[0].getValue().size()){
-      *val = strSave((char*)ps[0].getValue().c_str());
+      *val = strSave(ps[0].getValue().c_str());
       return;
     }
   }
@@ -452,7 +452,7 @@ void Message::ExchangeOnelabParameter(Constant *c,
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
     if(ps.size()){
-      c->Value.Char = strSave((char*)ps[0].getValue().c_str());
+      c->Value.Char = strSave(ps[0].getValue().c_str());
     }
     else{
       onelab::string o(name, c->Value.Char);

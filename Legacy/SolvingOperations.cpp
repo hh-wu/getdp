@@ -2767,7 +2767,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_GMSHREAD :
 #if defined(HAVE_GMSH)
-      GmshMergeFile(Get_RelativePath() + Operation_P->Case.GmshRead.FileName);
+      GmshMergeFile(Operation_P->Case.GmshRead.FileName);
 #else
       Msg::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
 #endif

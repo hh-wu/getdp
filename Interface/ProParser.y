@@ -4564,7 +4564,8 @@ OperationTerm :
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       Operation_P->Type = OPERATION_GMSHREAD;
-      Operation_P->Case.GmshRead.FileName = $3; 
+      Operation_P->Case.GmshRead.FileName = strSave(Get_AbsolutePath($3).c_str());
+      Free($3);
     }
 
   | tSolveJac_AdaptRelax '[' String__Index ',' ListOfFExpr ',' FExpr ']' tEND

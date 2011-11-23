@@ -1460,9 +1460,9 @@ int fcmp_PostQuantity_Name        (const void *a, const void *b);
 int fcmp_PostOperation_Name       (const void *a, const void *b);
 
 void Init_ProblemStructure();
-void Read_ProblemStructure(char *name);
+void Read_ProblemStructure(const char *fileName);
 void Print_ProblemStructure();
-std::string Get_RelativePath();
+std::string Get_AbsolutePath(const char *fileName);
 
 void Print_ListResolution(int choice, int flag_lres, char **name);
 void Print_ListPostOperation(int choice, int flag_lpos, char **name);

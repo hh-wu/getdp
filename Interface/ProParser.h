@@ -35,7 +35,7 @@ extern int getdp_yyerrorlevel;
 int getdp_yyparse();
 void getdp_yyrestart(FILE*);
 
-char *strSave(char *string);
+char *strSave(const char *string);
 void cStyleComments();
 void cxxStyleComments();
 void parseString(char endchar);

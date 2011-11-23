@@ -136,17 +136,18 @@ void Init_ProblemStructure()
   Problem_S.PostOperation     = NULL ;
 }
 
-std::string Get_RelativePath()
+std::string Get_AbsolutePath(const char *name)
 {
   char AbsPath[2048];
   strcpy(AbsPath, getdp_yyname);
   int i = strlen(getdp_yyname) - 1;
   while(i >= 0 && getdp_yyname[i] != '/' && getdp_yyname[i] != '\\') i--;
   AbsPath[i+1] = '\0';
+  strcat(AbsPath, name);
   return std::string(AbsPath);
 }
 
-void Read_ProblemStructure(char *name)
+void Read_ProblemStructure(const char *name)
 {
   int Last_yylinenum = getdp_yylinenum; 
   std::string Last_yyname = std::string(getdp_yyname);
@@ -1595,7 +1596,7 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
         Constant c;
         c.Name = (char*)"Resolution";
         c.Type = VAR_CHAR;
-        c.Value.Char = strSave((char*)choices[0].c_str());
+        c.Value.Char = strSave(choices[0].c_str());
         std::map<std::string, std::vector<double> > floatOptions;
         std::map<std::string, std::vector<std::string> > charOptions;
         charOptions["Choices"] = choices;
@@ -1651,7 +1652,7 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
         Constant c;
         c.Name = (char*)"Post-Operation";
         c.Type = VAR_CHAR;
-        c.Value.Char = strSave((char*)choices[0].c_str());
+        c.Value.Char = strSave(choices[0].c_str());
         std::map<std::string, std::vector<double> > floatOptions;
         std::map<std::string, std::vector<std::string> > charOptions;
         charOptions["Choices"] = choices;

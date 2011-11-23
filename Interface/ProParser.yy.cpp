@@ -3064,7 +3064,7 @@ YY_RULE_SETUP
 case 273:
 YY_RULE_SETUP
 #line 340 "ProParser.l"
-{ getdp_yylval.c = strSave((char*)getdp_yytext); return tSTRING; }
+{ getdp_yylval.c = strSave(getdp_yytext); return tSTRING; }
 	YY_BREAK
 case 274:
 YY_RULE_SETUP
@@ -4090,7 +4090,7 @@ int getdp_yywrap()
 #define yytext_ptr getdp_yytext
 #endif
 
-char *strSave(char *string) 
+char *strSave(const char *string) 
 {
   return ((char *)strcpy((char *)Malloc(strlen(string)+1), string));
 }
