@@ -847,7 +847,6 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
 
 #if defined(HAVE_LEGACY)
   // F_Math
-
   {"Exp"               , (CAST)F_Exp              ,   0,   1 },
   {"Log"               , (CAST)F_Log              ,   0,   1 },
   {"Log10"             , (CAST)F_Log10            ,   0,   1 },
@@ -873,7 +872,6 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"dYn"               , (CAST)F_dYn              ,   0,   2 },
 
   // F_ExtMath
-
   {"Hypot"             , (CAST)F_Hypot            ,   0,   2 },
   {"TanhC2"            , (CAST)F_TanhC2           ,   0,   1 },
   {"Transpose"         , (CAST)F_Transpose        ,   0,   1 },
@@ -888,9 +886,6 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"F_Sin_wt_p"        , (CAST)F_Sin_wt_p         ,   2,   0 },
   {"F_Period"          , (CAST)F_Period           ,   1,   1 },
   {"Interval"          , (CAST)F_Interval         ,   3,   3 },
-
-  // F_Type
-
   {"Complex"           , (CAST)F_Complex          ,   0,  -2 },
   {"Complex_MH"        , (CAST)F_Complex_MH       ,  -1,  -2 },
   {"Re"                , (CAST)F_Re               ,   0,   1 },
@@ -922,7 +917,6 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"UnitVectorZ"       , (CAST)F_UnitVectorZ      ,   0,   0 },
 
   // F_Coord
-
   {"CoordX"            , (CAST)F_CoordX           ,   0,   0 },
   {"CoordY"            , (CAST)F_CoordY           ,   0,   0 },
   {"CoordZ"            , (CAST)F_CoordZ           ,   0,   0 },
@@ -938,56 +932,46 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"ZS"                , (CAST)F_CoordZS          ,   0,   0 },
   {"XYZS"              , (CAST)F_CoordXYZS        ,   0,   0 },
 
-  // F_Misc
-
-  {"Printf"            , (CAST)F_Printf           ,   0,   1 },
-  {"Rand"              , (CAST)F_Rand             ,   0,   1 },
+  // F_Geometry
   {"Normal"            , (CAST)F_Normal           ,   0,   0 },
   {"NormalSource"      , (CAST)F_NormalSource     ,   0,   0 },
   {"Tangent"           , (CAST)F_Tangent          ,   0,   0 },
-  {"CompElementNum"    , (CAST)F_CompElementNum   ,   0,   0 },
   {"ElementVol"        , (CAST)F_ElementVol       ,   0,   0 },
   {"SurfaceArea"       , (CAST)F_SurfaceArea      ,  -1,   0 },
   {"GetVolume"         , (CAST)F_GetVolume        ,  -1,   0 },
+  {"ProjectPointOnEllipse", (CAST)F_ProjectPointOnEllipse,  2, 1 },
+
+  // F_Misc
+  {"Printf"            , (CAST)F_Printf           ,   0,   1 },
+  {"Rand"              , (CAST)F_Rand             ,   0,   1 },
+  {"CompElementNum"    , (CAST)F_CompElementNum   ,   0,   0 },
+  {"VirtualWork"           , (CAST)F_VirtualWork           ,   0,   1 },
+
+  // F_Interpolation
   {"InterpolationLinear"   , (CAST)F_InterpolationLinear   ,  -2,   1 },
   {"dInterpolationLinear"  , (CAST)F_dInterpolationLinear  ,  -2,   1 },
   {"dInterpolationLinear2" , (CAST)F_dInterpolationLinear2 ,  -2,   1 },
   {"InterpolationAkima"    , (CAST)F_InterpolationAkima    ,  -2,   1 },
   {"dInterpolationAkima"   , (CAST)F_dInterpolationAkima   ,  -2,   1 },
-
   {"InterpolationBilinear"   , (CAST)F_InterpolationBilinear   ,  -1,   2 },
-
   {"ValueFromIndex"        , (CAST)F_ValueFromIndex        ,  -1,   0 },
   {"VectorFromIndex"       , (CAST)F_VectorFromIndex       ,  -1,   0 },
 
-  {"TransformTensor"       , (CAST)F_TransformTensor       ,   4,   4 },
-  {"TransformPerm"         , (CAST)F_TransformPerm         ,   3,   1 },
-  {"TransformPiezo"        , (CAST)F_TransformPiezo        ,   4,   2 },
-  {"TransformPiezoT"       , (CAST)F_TransformPiezoT       ,   4,   2 },
-
-  {"VirtualWork"           , (CAST)F_VirtualWork           ,   0,   1 },
-
-
-  // hysteresis models
+  // F_Jiles
   {"dhdb_Jiles"            , (CAST)F_dhdb_Jiles            ,  -1,   3 },
   {"dbdh_Jiles"            , (CAST)F_dbdh_Jiles            ,  -1,   3 },
   {"h_Jiles"               , (CAST)F_h_Jiles               ,  -1,   3 },
   {"b_Jiles"               , (CAST)F_b_Jiles               ,  -1,   3 },
-
   {"dhdb_Ducharne"           , (CAST)F_dhdb_Ducharne       ,  -1,   3 },
   {"h_Ducharne"              , (CAST)F_h_Ducharne          ,  -1,   3 },
   {"nu_Ducharne"             , (CAST)F_nu_Ducharne         ,  -1,   3 },
-  
-  // Functions for Vectorial Incremental Nonconservative Consistent Hysteresis Model - V. Francois
   {"nu_Vinch"             , (CAST)F_nu_Vinch            ,   0,   1 },	
   {"Update_a"             , (CAST)F_Update_a            ,   0,   6 },	
 
   // F_MultiHar
-
   {"MHToTime"          , (CAST)F_MHToTime         ,   0,   2 },
 
   // F_Analytic
-
   {"JFIE_ZPolAnalyticOnCyl",      (CAST)F_JFIE_ZPolCyl     ,   4,   1 },
   {"RCS_ZPolAnalyticCyl",         (CAST)F_RCS_ZPolCyl      ,   3,   1 }, 
   {"JFIE_TransZPolAnalyticOnCyl", (CAST)F_JFIE_TransZPolCyl,   3,   1 },
@@ -995,36 +979,31 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"RCS_SphTheta",                (CAST)F_RCS_SphTheta,        4,   1 },
   {"JFIE_OnSphCutPhi",            (CAST)F_JFIE_SphPhi,         4,   1 },
   {"RCS_SphPhi",                  (CAST)F_RCS_SphPhi,          4,   1 },
-
   {"CurrentPerfectlyConductingSphere",(CAST)F_CurrentPerfectlyConductingSphere,  3, 1 },
-
   {"AcousticFieldSoftSphere",         (CAST)F_AcousticFieldSoftSphere,  2, 1 },
   {"DrAcousticFieldSoftSphere",       (CAST)F_DrAcousticFieldSoftSphere, 2, 1 },
   {"RCSSoftSphere",                   (CAST)F_RCSSoftSphere,  2, 1 },
-
   {"AcousticFieldHardSphere",         (CAST)F_AcousticFieldHardSphere,  2, 1 },
   {"RCSHardSphere",                   (CAST)F_RCSHardSphere,  2, 1 },
-
   {"AcousticFieldSoftCylinder",       (CAST)F_AcousticFieldSoftCylinder, 2, 1 },
   {"AcousticFieldSoftCylinderABC",    (CAST)F_AcousticFieldSoftCylinderABC, 5, 1 },
   {"DrAcousticFieldSoftCylinder",     (CAST)F_DrAcousticFieldSoftCylinder, 2, 1 },
   {"RCSSoftCylinder",                 (CAST)F_RCSSoftCylinder,  2, 1 },
-
   {"AcousticFieldHardCylinder",       (CAST)F_AcousticFieldHardCylinder, 2, 1 },
   {"AcousticFieldHardCylinderABC",    (CAST)F_AcousticFieldHardCylinderABC, 5, 1 },
   {"DthetaAcousticFieldHardCylinder", (CAST)F_DthetaAcousticFieldHardCylinder, 2, 1 },
   {"RCSHardCylinder",                 (CAST)F_RCSHardCylinder,  2, 1 },
-
   {"OSRC_C0",   (CAST)F_OSRC_C0, 2, 0},
   {"OSRC_Aj",   (CAST)F_OSRC_Aj, 3, 0},
   {"OSRC_Bj",   (CAST)F_OSRC_Bj, 3, 0},
 
-  // F_Geometry
-  {"ProjectPointOnEllipse", (CAST)F_ProjectPointOnEllipse,  2, 1 },
-
   // F_Raytracing: ray tracing functions
   {"CylinderPhase",         (CAST)F_CylinderPhase,  0, 1 },
   {"DiamondPhase",          (CAST)F_DiamondPhase,  0, 1 },
+
+  // F_BiotSavart
+  {"BiotSavart"        , (CAST)F_BiotSavart        ,   1,   0 },
+  {"Pocklington"       , (CAST)F_Pocklington       ,   2,   0 },
 
   // GF_XXX : Green Functions
   {"Laplace"           , (CAST)GF_Laplace          ,   1,   0 },
@@ -1032,19 +1011,11 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"NPxGradLaplace"    , (CAST)GF_NPxGradLaplace   ,   1,   0 },
   {"NSxGradLaplace"    , (CAST)GF_NSxGradLaplace   ,   1,   0 },
   {"ApproximateLaplace", (CAST)GF_ApproximateLaplace,  2,   0 },
-
   {"Helmholtz"         , (CAST)GF_Helmholtz        ,   2,   0 },
   {"HelmholtzThinWire" , (CAST)GF_HelmholtzThinWire,   3,   0 },
   {"GradHelmholtz"     , (CAST)GF_GradHelmholtz    ,   2,   0 },
   {"NPxGradHelmholtz"  , (CAST)GF_NPxGradHelmholtz ,   2,   0 },
   {"NSxGradHelmholtz"  , (CAST)GF_NSxGradHelmholtz ,   2,   0 },
-
-  // Biot Savart law
-  {"BiotSavart"        , (CAST)F_BiotSavart        ,   1,   0 },
-
-  // Pocklintong's integral equation
-  {"Pocklington"       , (CAST)F_Pocklington       ,   2,   0 },
-
 #endif
 
   {NULL                , NULL                      ,   0,   0 } 

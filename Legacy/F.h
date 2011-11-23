@@ -17,7 +17,6 @@
 
 #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
 
-
 /* F_Analytic */
 
 void  F_JFIE_ZPolCyl      (F_ARG) ; 
@@ -48,6 +47,12 @@ void  F_OSRC_Bj(F_ARG);
 /* F_Geometry */
 
 void  F_ProjectPointOnEllipse(F_ARG);  
+void  F_Normal          (F_ARG) ;
+void  F_NormalSource    (F_ARG) ;
+void  F_Tangent         (F_ARG) ;
+void  F_ElementVol      (F_ARG) ;
+void  F_SurfaceArea     (F_ARG) ;
+void  F_GetVolume       (F_ARG) ;
 
 /* F_Raytracing */
 
@@ -95,9 +100,6 @@ void  F_Cos_wt_p        (F_ARG) ;
 void  F_Sin_wt_p        (F_ARG) ;
 void  F_Period          (F_ARG) ;
 void  F_Interval        (F_ARG) ;
-
-/* F_Type */
-
 void  F_Complex         (F_ARG) ;
 void  F_Complex_MH      (F_ARG) ;
 void  F_Re              (F_ARG) ;
@@ -130,13 +132,13 @@ void  F_UnitVectorZ     (F_ARG) ;
 
 /* F_Coord */
 
-/* se basent sur le uvw courant (-> en cal) */
+// se basent sur le uvw courant (-> en cal)
 void  F_CoordX          (F_ARG) ;
 void  F_CoordY          (F_ARG) ;
 void  F_CoordZ          (F_ARG) ;
 void  F_CoordXYZ        (F_ARG) ;
 
-/* se basent sur le xyz courant, i.e. les coord d'un noeud (-> en pre)*/
+// se basent sur le xyz courant, i.e. les coord d'un noeud (-> en pre)
 void  F_aX_bY_cZ        (F_ARG) ;
 void  F_aX21_bY21_cZ21  (F_ARG) ;
 
@@ -149,30 +151,25 @@ void  F_CoordXYZS       (F_ARG) ;
 
 void  F_Printf          (F_ARG) ;
 void  F_Rand            (F_ARG) ;
-void  F_Normal          (F_ARG) ;
-void  F_NormalSource    (F_ARG) ;
-void  F_Tangent         (F_ARG) ;
 void  F_CompElementNum  (F_ARG) ;
-void  F_ElementVol      (F_ARG) ;
-void  F_SurfaceArea     (F_ARG) ;
-void  F_GetVolume       (F_ARG) ;
+void  F_VirtualWork     (F_ARG) ;
+void  F_AssDiag         (F_ARG) ;  /* pour Patrick */
+
+/* F_Interpolation */
+
 void  F_InterpolationLinear   (F_ARG) ;
 void  F_dInterpolationLinear  (F_ARG) ;
 void  F_dInterpolationLinear2 (F_ARG) ;
 void  F_InterpolationAkima    (F_ARG) ;
 void  F_dInterpolationAkima   (F_ARG) ;
-
-
-void F_InterpolationBilinear (F_ARG) ; /* Riccardo */
-
-bool Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC, double xp, double yp, double *zp);/* Riccardo */
-
+void F_InterpolationBilinear (F_ARG) ;
+bool Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC, 
+                               double xp, double yp, double *zp);
 void  Fi_InitListX      (F_ARG) ; // List
 void  Fi_InitListXY     (F_ARG) ; // ListAlt
 void  Fi_InitListXY2    (F_ARG) ;
 void  Fi_InitAkima      (F_ARG) ;
-void  Fi_InitListMatrix (F_ARG) ; /* Riccardo */
-
+void  Fi_InitListMatrix (F_ARG) ;
 void  F_ValueFromIndex (F_ARG) ;
 void  F_VectorFromIndex (F_ARG) ;
 void  Fi_InitValueFromIndex (F_ARG) ;
@@ -183,6 +180,8 @@ void  F_TransformPerm   (F_ARG) ;  /* pour Tuan */
 void  F_TransformPiezo  (F_ARG) ;  /* pour Tuan */
 void  F_TransformPiezoT (F_ARG) ;  /* pour Tuan */
 
+/* F_Jiles */
+
 void  F_dhdb_Jiles      (F_ARG) ;  /* pour Johan */
 void  F_dbdh_Jiles      (F_ARG) ;  /* pour Johan */
 void  F_h_Jiles         (F_ARG) ;  /* pour Johan */
@@ -191,18 +190,17 @@ void  F_b_Jiles         (F_ARG) ;  /* pour Johan */
 void  F_dhdb_Ducharne(F_ARG) ; /* pour Riccardo */
 void  F_h_Ducharne (F_ARG) ; /* pour Riccardo */
 void  F_nu_Ducharne(F_ARG) ; /* pour Riccardo */
-double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL, int NC, double h0, double b0, double b);
+double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL,
+                      int NC, double h0, double b0, double b);
 
-void  F_VirtualWork     (F_ARG) ;  /* pour Patrick */
-void  F_AssDiag         (F_ARG) ;  /* pour Patrick */
-
+void  F_nu_Vinch (F_ARG) ;
+void  F_Update_a (F_ARG) ; 
 
 /* F_MultiHar */
 
 void  F_MHToTime           (F_ARG) ;
 
-/* the following should go somewhere else... */
-
+// the following should go somewhere else
 void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 			   List_T * WholeQuantity_L, int FreqOffSet,
 			   struct Element * Element,
@@ -219,9 +217,7 @@ void  MHTransform(struct Element * Element, struct QuantityStorage * QuantitySto
 void  F_BiotSavart (F_ARG) ;
 void  F_Pocklington (F_ARG) ;
 
-/* Functions for Hysteresis -  V. Francois */
-void  F_nu_Vinch (F_ARG) ;
-void  F_Update_a (F_ARG) ; 
-
+/* F_Gmsh */
+void  F_View (F_ARG) ;
 
 #endif

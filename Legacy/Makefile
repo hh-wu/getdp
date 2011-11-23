@@ -15,7 +15,8 @@ CFLAGS = ${OPTIM} ${FLAGS} ${INC} ${SYSINCLUDE}
 SRC = MainLegacy.cpp \
       F_Analytic.cpp F_BiotSavart.cpp F_Coord.cpp F_ExtMath.cpp \
         F_Geometry.cpp F_Interpolation.cpp F_Jiles.cpp F_Math.cpp \
-        F_Misc.cpp F_MultiHar.cpp F_Raytracing.cpp F_Type.cpp \
+        F_Misc.cpp F_MultiHar.cpp F_Raytracing.cpp \
+        F_Gmsh.cpp \
       BF_Node.cpp BF_NodeXYZ.cpp BF_Node_2.cpp BF_Node_3.cpp \
         BF_Edge.cpp BF_Edge_2.cpp BF_Edge_3.cpp BF_Edge_4.cpp \
         BF_Facet.cpp BF_Volume.cpp BF_Region.cpp \
@@ -126,8 +127,6 @@ F_MultiHar.o: F_MultiHar.cpp ../Interface/ProData.h \
 F_Raytracing.o: F_Raytracing.cpp ../Common/GetDPConfig.h \
   ../Interface/ProData.h ../Common/GetDPConfig.h ../Common/ListUtils.h \
   F.h ../Common/Message.h
-F_Type.o: F_Type.cpp ../Interface/ProData.h ../Common/GetDPConfig.h \
-  ../Common/ListUtils.h F.h ../Common/Message.h
 BF_Node.o: BF_Node.cpp ../Interface/ProData.h ../Common/GetDPConfig.h \
   ../Common/ListUtils.h ../Common/Message.h
 BF_NodeXYZ.o: BF_NodeXYZ.cpp ../Interface/ProData.h \
