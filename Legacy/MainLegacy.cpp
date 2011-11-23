@@ -10,14 +10,14 @@
 #include "GetDPVersion.h"
 #include "ProData.h"
 #include "SolvingAnalyse.h"
-#include "Numeric.h"
+#include "NumericUtils.h"
 #include "LinAlg.h"
 #include "OS.h"
 #include "MallocUtils.h"
 #include "Message.h"
 
 #if defined(HAVE_GMSH)
-#include <gmsh/Gmsh.h>
+#include "Gmsh.h"
 #endif
 
 int     Flag_PRE = 0, Flag_CAL = 0, Flag_POS = 0, Flag_RESTART = 0;
@@ -417,8 +417,8 @@ int MainLegacy(int argc, char *argv[])
 
 #if defined(HAVE_GMSH)
   GmshInitialize();
-  Message::Info("Hello Gmsh!");
-  GmshFinalize();
+  GmshSetOption("General", "Terminal", 1.);
+  Message::Info("Gmsh has been initialized");
 #endif
 
   if(check) 

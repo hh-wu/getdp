@@ -6,6 +6,7 @@
 #ifndef _PRO_DATA_H_
 #define _PRO_DATA_H_
 
+#include <string>
 #include "GetDPConfig.h"
 #include "ListUtils.h"
 
@@ -864,6 +865,9 @@ struct Operation {
       char *String;
     } SystemCommand;
     struct {
+      char *FileName;
+    } GmshRead;
+    struct {
       int     ExpressionIndex;
     } SetTime;
     struct {
@@ -1101,6 +1105,7 @@ struct ChangeOfState {
 #define OPERATION_SYSTEMCOMMAND            50
 
 #define OPERATION_POSTOPERATION            60
+#define OPERATION_GMSHREAD                 61
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
@@ -1457,6 +1462,7 @@ int fcmp_PostOperation_Name       (const void *a, const void *b);
 void Init_ProblemStructure();
 void Read_ProblemStructure(char *name);
 void Print_ProblemStructure();
+std::string Get_RelativePath();
 
 void Print_ListResolution(int choice, int flag_lres, char **name);
 void Print_ListPostOperation(int choice, int flag_lpos, char **name);

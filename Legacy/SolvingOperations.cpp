@@ -29,6 +29,9 @@
 #include "MallocUtils.h"
 #include "OS.h"
 #include "Message.h"
+#if defined(HAVE_GMSH)
+#include "Gmsh.h"
+#endif
 
 #define TWO_PI             6.2831853071795865
 #define SQU(a)     ((a)*(a)) 
@@ -2757,6 +2760,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;	
       DofData_P->CurrentSolution->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
+      break ;
+
+      /*  -->  G m s h R e a d                        */
+      /*  ------------------------------------------  */
+
+    case OPERATION_GMSHREAD :
+#if defined(HAVE_GMSH)
+      GmshMergeFile(Get_RelativePath() + Operation_P->Case.GmshRead.FileName);
+#else
+      Msg::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
+#endif
       break ;
 
       /*  -->  S a v e M e s h                        */

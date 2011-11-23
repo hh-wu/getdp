@@ -83,7 +83,7 @@ depend:
 # DO NOT DELETE THIS LINE
 MainLegacy.o: MainLegacy.cpp ../Common/GetDPConfig.h \
   ../Common/GetDPVersion.h ../Interface/ProData.h ../Common/GetDPConfig.h \
-  ../Common/ListUtils.h SolvingAnalyse.h ../Numeric/Numeric.h LinAlg.h \
+  ../Common/ListUtils.h SolvingAnalyse.h ../Numeric/NumericUtils.h LinAlg.h \
   ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h ../Common/OS.h \
   ../Common/MallocUtils.h ../Common/Message.h
 F_Analytic.o: F_Analytic.cpp ../Interface/ProData.h \
@@ -102,7 +102,7 @@ F_ExtMath.o: F_ExtMath.cpp F.h ../Interface/ProData.h \
   ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h Get_Geometry.h \
   Cal_Value.h ../Common/Message.h
 F_Geometry.o: F_Geometry.cpp ../Interface/ProData.h \
-  ../Common/GetDPConfig.h ../Common/ListUtils.h F.h ../Numeric/Numeric.h \
+  ../Common/GetDPConfig.h ../Common/ListUtils.h F.h ../Numeric/NumericUtils.h \
   ../Common/Message.h
 F_Interpolation.o: F_Interpolation.cpp ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h F.h \

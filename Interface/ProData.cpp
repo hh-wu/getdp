@@ -136,6 +136,16 @@ void Init_ProblemStructure()
   Problem_S.PostOperation     = NULL ;
 }
 
+std::string Get_RelativePath()
+{
+  char AbsPath[2048];
+  strcpy(AbsPath, getdp_yyname);
+  int i = strlen(getdp_yyname) - 1;
+  while(i >= 0 && getdp_yyname[i] != '/' && getdp_yyname[i] != '\\') i--;
+  AbsPath[i+1] = '\0';
+  return std::string(AbsPath);
+}
+
 void Read_ProblemStructure(char *name)
 {
   int Last_yylinenum = getdp_yylinenum; 

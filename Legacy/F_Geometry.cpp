@@ -6,7 +6,7 @@
 #include <math.h>
 #include "ProData.h"
 #include "F.h"
-#include "Numeric.h"
+#include "NumericUtils.h"
 #include "Message.h"
 
 #define SQU(a)     ((a)*(a)) 
