@@ -2,23 +2,14 @@
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
-//
-// Contributor(s):
-//   Tuan Ledinh
-//
 
 #include <math.h>
 #include "GetDPConfig.h"
 #include "ProData.h"
 #include "ProDefine.h"
 #include "F.h"
-#include "Get_Geometry.h"
-#include "Cal_Value.h"
-#include "GeoData.h"
-#include "MallocUtils.h"
 #include "Message.h"
-
-#define SQU(a)     ((a)*(a)) 
+#include "Cal_Value.h"
 
 extern struct CurrentData Current ;
 
