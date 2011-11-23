@@ -2769,7 +2769,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 #if defined(HAVE_GMSH)
       GmshMergeFile(Operation_P->Case.GmshRead.FileName);
 #else
-      Msg::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
+      Message::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
 #endif
       break ;
 
