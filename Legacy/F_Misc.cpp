@@ -16,7 +16,6 @@ extern struct CurrentData Current ;
 
 void F_Printf(F_ARG)
 {
-  V = A ;  /* Attention: ne sert a rien!?! */
   Print_Value(A) ;
   printf("\n") ;
 }
