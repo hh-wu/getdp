@@ -53,7 +53,7 @@ Function {
   nu [ Mag ]   = 1. / (murMag * mu0) ;
 
   mu [ Region[{Air, IndP1, IndP2, IndS1, IndS2, AirInf, Gap}] ]  = mu0 ;
-  mu [ Core ]  = murCore * mu0 ;
+  mu [ Core ]  = murCore * mu0  * View[XYZ[]]{0};
   mu [ Mag ]   = murMag * mu0 ;
 
   DefineConstant[ Hc = {920000, ShortHelp "Coercive H field", Path "3Constraints"} ];

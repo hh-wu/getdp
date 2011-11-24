@@ -3,6 +3,7 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
+#include <stdlib.h>
 #include <math.h>
 #include "GetDPConfig.h"
 #include "ProData.h"

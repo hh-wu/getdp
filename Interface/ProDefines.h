@@ -998,12 +998,15 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"OSRC_Bj",   (CAST)F_OSRC_Bj, 3, 0},
 
   // F_Raytracing: ray tracing functions
-  {"CylinderPhase",         (CAST)F_CylinderPhase,  0, 1 },
-  {"DiamondPhase",          (CAST)F_DiamondPhase,  0, 1 },
+  {"CylinderPhase",      (CAST)F_CylinderPhase, 0, 1 },
+  {"DiamondPhase",       (CAST)F_DiamondPhase,  0, 1 },
 
   // F_BiotSavart
-  {"BiotSavart"        , (CAST)F_BiotSavart        ,   1,   0 },
-  {"Pocklington"       , (CAST)F_Pocklington       ,   2,   0 },
+  {"BiotSavart",         (CAST)F_BiotSavart        ,   1,   0 },
+  {"Pocklington",        (CAST)F_Pocklington       ,   2,   0 },
+
+  // F_Gmsh
+  {"View",               (CAST)F_View              ,  -1,   -1 },
 
   // GF_XXX : Green Functions
   {"Laplace"           , (CAST)GF_Laplace          ,   1,   0 },
