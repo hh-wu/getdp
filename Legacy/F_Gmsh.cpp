@@ -18,11 +18,6 @@ extern struct CurrentData Current ;
 
 void F_View(F_ARG)
 {
-  for (int k = 0; k < Current.NbrHar; k++)
-    for (int j = 0; j < 9; j++)
-      V->Val[MAX_DIM * k + j] = 0. ;
-  V->Type = SCALAR;
-
   if(A->Type != VECTOR){
     Message::Error("View[] expects XYZ coordinates as argument");
     return;
@@ -30,6 +25,11 @@ void F_View(F_ARG)
   double x = A->Val[0];
   double y = A->Val[1];
   double z = A->Val[2];
+
+  for (int k = 0; k < Current.NbrHar; k++)
+    for (int j = 0; j < 9; j++)
+      V->Val[MAX_DIM * k + j] = 0. ;
+  V->Type = SCALAR;
 
   int iview = PView::list.size() - 1; // use last view by default
   if(Fct->NbrParameters) iview = Fct->Para[0];
