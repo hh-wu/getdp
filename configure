@@ -659,20 +659,12 @@ LIBS
 CPPFLAGS
 CXX
 CXXFLAGS
-LDFLAGS
-LIBS
-CPPFLAGS
 CCC
 FC
 FCFLAGS
-LDFLAGS
-LIBS
-CPP
 CPP
 F77
-FFLAGS
-LDFLAGS
-LIBS'
+FFLAGS'
 
 
 # Initialize some variables set by options.
@@ -2040,7 +2032,7 @@ fi
 
 # Check whether --with-gmsh-prefix was given.
 if test "${with_gmsh_prefix+set}" = set; then :
-  withval=$with_gmsh_prefix; SLEPC_DIR=$withval
+  withval=$with_gmsh_prefix; GMSH_PREFIX=$withval
 fi
 
 

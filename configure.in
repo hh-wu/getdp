@@ -16,7 +16,7 @@ AC_ARG_WITH(blas-lapack-prefix,
 AC_ARG_WITH(gmsh-prefix,
             AC_HELP_STRING([--with-gmsh-prefix=PFX],
                            [prefix where Gmsh is installed]),
-            [SLEPC_DIR=$withval])
+            [GMSH_PREFIX=$withval])
 AC_ARG_WITH(gsl-prefix,
             AC_HELP_STRING([--with-gsl-prefix=PFX],
                            [prefix where GSL is installed]),
