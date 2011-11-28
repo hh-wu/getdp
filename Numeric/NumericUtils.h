@@ -3,8 +3,8 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
-#ifndef _NUMERIC_H_
-#define _NUMERIC_H_
+#ifndef _NUMERIC_UTILS_H_
+#define _NUMERIC_UTILS_H_
 
 // Numerical routines implemented using either Numerical Recipes or
 // the GSL
