@@ -189,43 +189,44 @@ void F_dInterpolationAkima(F_ARG)
 }
 
 
-bool Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC, double xp, double yp, double *zp) 
+bool Fi_InterpolationBilinear(double *x, double *y, double *M, int NL, int NC,
+                              double xp, double yp, double *zp) 
 {
-    double a11, a12, a21, a22, x1, y1;
-    int i, j;
-    int maxLinIndex = NL*NC-1;  // max index of data
-
-    // Interpolate point (xp,yp) in a regular grid
-    // x[i] <= xp < x[i+1]
-    // y[j] <= yp < y[j+1]
-    
-    *zp = 0.0 ;
-
-    // When (xp,yp) lays outside the boundaries of the table:
-    // the nearest border is taken 
-    if (xp < x[0]) xp = x[0];
-    else if (xp > x[NL-1]) xp = x[NL-1];
-    for (i=0 ; i<NL-1 ; ++i) if (x[i+1] >= xp  &&  xp >= x[i]) break;
-    i = (i >= NL) ? NL-1 : i;
-
-    if (yp < y[0]) yp = y[0];
-    else if (yp > y[NC-1]) yp = y[NC-1];
-    for (j=0 ; j<NC-1 ; ++j) if (y[j+1] >= yp  &&  yp >= y[j]) break;
-    j = (j >= NC) ? NC-1 : j;
-
-
-    a11 = M[   i  + NL * j    ];
-    a21 = M[(i+1) + NL * j    ];
-    a12 = M[   i  + NL * (j+1)];
-    a22 = M[(i+1) + NL * (j+1)];
-    
-    *zp = 1/((x[i+1]-x[i])*(y[j+1]-y[j])) *
-      ( a11 * ( x[i+1]-xp) * ( y[j+1]-yp) + 
-        a21 * (-x[i  ]+xp) * ( y[j+1]-yp) +
-        a12 * ( x[i+1]-xp) * (-y[j  ]+yp) + 
-        a22 * (-x[i  ]+xp) * (-y[j  ]+yp) );
-    
-    return true ;
+  double a11, a12, a21, a22, x1, y1;
+  int i, j;
+  int maxLinIndex = NL*NC-1;  // max index of data
+  
+  // Interpolate point (xp,yp) in a regular grid
+  // x[i] <= xp < x[i+1]
+  // y[j] <= yp < y[j+1]
+  
+  *zp = 0.0 ;
+  
+  // When (xp,yp) lays outside the boundaries of the table:
+  // the nearest border is taken 
+  if (xp < x[0]) xp = x[0];
+  else if (xp > x[NL-1]) xp = x[NL-1];
+  for (i=0 ; i<NL-1 ; ++i) if (x[i+1] >= xp  &&  xp >= x[i]) break;
+  i = (i >= NL) ? NL-1 : i;
+  
+  if (yp < y[0]) yp = y[0];
+  else if (yp > y[NC-1]) yp = y[NC-1];
+  for (j=0 ; j<NC-1 ; ++j) if (y[j+1] >= yp  &&  yp >= y[j]) break;
+  j = (j >= NC) ? NC-1 : j;
+  
+  
+  a11 = M[   i  + NL * j    ];
+  a21 = M[(i+1) + NL * j    ];
+  a12 = M[   i  + NL * (j+1)];
+  a22 = M[(i+1) + NL * (j+1)];
+  
+  *zp = 1/((x[i+1]-x[i])*(y[j+1]-y[j])) *
+    ( a11 * ( x[i+1]-xp) * ( y[j+1]-yp) + 
+      a21 * (-x[i  ]+xp) * ( y[j+1]-yp) +
+      a12 * ( x[i+1]-xp) * (-y[j  ]+yp) + 
+      a22 * (-x[i  ]+xp) * (-y[j  ]+yp) );
+  
+  return true ;
 }
 
 
@@ -273,9 +274,7 @@ void F_InterpolationBilinear(F_ARG)
 
   V->Type = SCALAR ;
   V->Val[0] = zp ;
-
 }
-
 
 void Fi_InitListMatrix(F_ARG)
 {
@@ -307,9 +306,10 @@ void Fi_InitListMatrix(F_ARG)
   
   sz = 2 + NL + NC + NL*NC ; // expected size of list matrix
   if (Fct->NbrParameters != sz) 
-    Message::Error ("Bad size of input data (expected = %d ; found = %d). "
-		"List with format: x(NbrLines=%d), y(NbrColumns=%d), matrix(NbrLines*NbrColumns=%d)", 
-		sz, Fct->NbrParameters, NL, NC, NL*NC);
+    Message::Error("Bad size of input data (expected = %d ; found = %d). "
+                   "List with format: x(NbrLines=%d), y(NbrColumns=%d), "
+                   "matrix(NbrLines*NbrColumns=%d)", 
+                   sz, Fct->NbrParameters, NL, NC, NL*NC);
 
   // Initialize structure and allocate memory
   D->Case.ListMatrix.NbrLines = NL;
@@ -318,13 +318,11 @@ void Fi_InitListMatrix(F_ARG)
   D->Case.ListMatrix.y = (double *) malloc (sizeof(double)*NC);
   D->Case.ListMatrix.data = (double *) malloc (sizeof(double)*NL*NC);
   
-
   // Assign values
   for (k=0 ; k<NL ; ++k) D->Case.ListMatrix.x[k] = Fct->Para[i++];
   for (k=0 ; k<NC ; ++k) D->Case.ListMatrix.y[k] = Fct->Para[i++];
   for (k=0 ; k<NL*NC ; ++k) D->Case.ListMatrix.data[k] = Fct->Para[i++];
 }
-
 
 void Fi_InitListX(F_ARG)
 {
@@ -340,10 +338,6 @@ void Fi_InitListX(F_ARG)
   for (i = 0 ; i < N ; i++)
     x[i] = Fct->Para[i] ;
 }
-
-
-
-
 
 void Fi_InitListXY(F_ARG)
 {

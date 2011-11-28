@@ -27,6 +27,10 @@
 #include "petsc.h"
 #endif
 
+#if defined(HAVE_GSL)
+#include <gsl/gsl_errno.h>
+#endif
+
 int Message::_commRank = 0;
 int Message::_commSize = 1;
 int Message::_verbosity = 3;
@@ -36,6 +40,14 @@ std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
 onelab::client* Message::_onelabClient = 0;
 
+#if defined(HAVE_GSL)
+static void gslErrorHandler(const char *reason, const char *file, int line,
+                            int gsl_errno)
+{
+  Message::Error("GSL: %s (%s, line %d)", reason, file, line);
+}
+#endif
+
 void Message::Init(int argc, char **argv)
 {
 #if defined(HAVE_PETSC)
@@ -43,6 +55,9 @@ void Message::Init(int argc, char **argv)
   MPI_Comm_rank(MPI_COMM_WORLD, &_commRank);
   MPI_Comm_size(MPI_COMM_WORLD, &_commSize);
   MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
+#endif
+#if defined(HAVE_GSL)
+  gsl_set_error_handler(&gslErrorHandler);
 #endif
 }
 

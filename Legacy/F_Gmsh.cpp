@@ -3,7 +3,6 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 
-#include <math.h>
 #include "GetDPConfig.h"
 #include "ProData.h"
 #include "F.h"
@@ -19,8 +18,13 @@ extern struct CurrentData Current ;
 
 void F_View(F_ARG)
 {
+  for (int k = 0; k < Current.NbrHar; k++)
+    for (int j = 0; j < 9; j++)
+      V->Val[MAX_DIM * k + j] = 0. ;
+  V->Type = SCALAR;
+
   if(A->Type != VECTOR){
-    Message::Error("View expects XYZ coordinates as argument");
+    Message::Error("View[] expects XYZ coordinates as argument");
     return;
   }
   double x = A->Val[0];
@@ -29,11 +33,6 @@ void F_View(F_ARG)
 
   int iview = PView::list.size() - 1; // use last view by default
   if(Fct->NbrParameters) iview = Fct->Para[0];
-
-  for (int k = 0; k < Current.NbrHar; k++)
-    for (int j = 0; j < 9; j++)
-      V->Val[MAX_DIM * k + j] = 0. ;
-  V->Type = SCALAR;
 
   if(iview < 0 || iview >= PView::list.size()){
     Message::Error("View[%d] does not exist", iview);

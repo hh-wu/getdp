@@ -10,7 +10,6 @@
 #include "GetDPVersion.h"
 #include "ProData.h"
 #include "SolvingAnalyse.h"
-#include "NumericUtils.h"
 #include "LinAlg.h"
 #include "OS.h"
 #include "MallocUtils.h"
@@ -18,6 +17,8 @@
 
 #if defined(HAVE_GMSH)
 #include <gmsh/Gmsh.h>
+#include <gmsh/GmshVersion.h>
+#include <gmsh/GmshConfig.h>
 #endif
 
 int     Flag_PRE = 0, Flag_CAL = 0, Flag_POS = 0, Flag_RESTART = 0;
@@ -84,6 +85,10 @@ void Info(int level, char *arg0)
     fprintf(stderr, "Build options:%s\n", GETDP_CONFIG_OPTIONS);
     fprintf(stderr, "Build date   : %s\n", GETDP_DATE);
     fprintf(stderr, "Build host   : %s\n", GETDP_HOST);
+#if defined(HAVE_GMSH)
+    fprintf(stderr, "Gmsh version : %s%s\n", GMSH_VERSION, GMSH_EXTRA_VERSION);
+    fprintf(stderr, "Gmsh options :%s\n", GMSH_CONFIG_OPTIONS);
+#endif
     fprintf(stderr, "Packager     : %s\n", GETDP_PACKAGER);
     fprintf(stderr, "Web site     : http://www.geuz.org/getdp/\n");
     fprintf(stderr, "Mailing list : getdp@geuz.org\n");
@@ -399,10 +404,14 @@ int MainLegacy(int argc, char *argv[])
     strcat(Name_MshFile, ".msh");
   }
 
-  check_gsl();
   IncreaseStackSize();
-
   LinAlg_InitializeSolver(&sargc, &sargv);
+
+#if defined(HAVE_GMSH)
+  Message::Info("Initializing Gmsh");
+  GmshInitialize();
+  GmshSetOption("General", "Terminal", 1.);
+#endif
 
   Init_ProblemStructure();
   Read_ProblemStructure(pro);
@@ -414,12 +423,6 @@ int MainLegacy(int argc, char *argv[])
   }
 
   // Message::TestSocket();
-
-#if defined(HAVE_GMSH)
-  GmshInitialize();
-  GmshSetOption("General", "Terminal", 1.);
-  Message::Info("Gmsh has been initialized");
-#endif
 
   if(check) 
     Print_ProblemStructure();
@@ -441,6 +444,11 @@ int MainLegacy(int argc, char *argv[])
   Message::Info("Stopped on %s", currtime.c_str());
 
   Message::Direct("E n d");
+
+#if defined(HAVE_GMSH)
+  GmshFinalize();
+#endif
+
   Message::FinalizeSocket();
   Message::FinalizeOnelab();
   Message::Exit(0);

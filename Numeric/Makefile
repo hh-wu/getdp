@@ -11,11 +11,10 @@ INC = ${DASH}I. ${DASH}I../Common ${DASH}I../contrib/NR
 
 CFLAGS = ${OPTIM} ${FLAGS} ${INC} ${SYSINCLUDE}
 
-SRC = NumericUtils.cpp \
-      Adapt.cpp \
+SRC = Adapt.cpp \
       Bessel.cpp \
       Legendre.cpp \
-      gsl_brent.cpp gsl_newt.cpp gsl_min.cpp \
+      gsl_brent.cpp
 
 ifneq (${FC},disabled)
 FSRC = BesselLib.f
@@ -50,13 +49,10 @@ depend:
 	rm -f Makefile.new
 
 # DO NOT DELETE THIS LINE
-NumericUtils.o: NumericUtils.cpp ../Common/GetDPConfig.h ../Common/Message.h
 Adapt.o: Adapt.cpp Adapt.h NumericUtils.h ../Common/Message.h
 Bessel.o: Bessel.cpp ../Common/GetDPConfig.h ../Common/Message.h Bessel.h
 Legendre.o: Legendre.cpp ../Common/Message.h
 gsl_brent.o: gsl_brent.cpp ../Common/GetDPConfig.h ../Common/Message.h \
-  NumericUtils.h
-gsl_newt.o: gsl_newt.cpp ../Common/GetDPConfig.h ../Common/Message.h \
   NumericUtils.h
 gsl_min.o: gsl_min.cpp ../Common/GetDPConfig.h ../Common/Message.h \
   NumericUtils.h

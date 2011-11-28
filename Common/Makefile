@@ -46,7 +46,7 @@ TreeUtils.o: TreeUtils.cpp GetDPConfig.h MallocUtils.h TreeUtils.h avl.h \
   ListUtils.h
 avl.o: avl.cpp avl.h MallocUtils.h
 MallocUtils.o: MallocUtils.cpp MallocUtils.h Message.h
-Message.o: Message.cpp GetDPConfig.h Message.h GmshSocket.h \
+Message.o: Message.cpp GetDPConfig.h Message.h GmshSocket.h onelab.h OS.h \
   ../Interface/ProData.h GetDPConfig.h ListUtils.h \
-  ../Interface/ProParser.h onelab.h OS.h
+  ../Interface/ProParser.h
 OS.o: OS.cpp Message.h
