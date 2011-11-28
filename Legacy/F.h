@@ -12,7 +12,7 @@
 /*  Warning: the pointers A and V can be identical. You must                */
 /*           use temporary variables in your computations: you can only     */
 /*           affect to V at the very last time (when you're sure you will   */
-/*           not use A any more).                                           */
+/*           not use A anymore).                                            */
 /* ------------------------------------------------------------------------ */
 
 #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
