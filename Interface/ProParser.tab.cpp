@@ -12708,7 +12708,7 @@ yyreduce:
       Constant_S.Value.Float = 0.;
       FloatOptions_S.clear(); CharOptions_S.clear();
       if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
-        Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+        //Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
       }
     ;}
@@ -12728,7 +12728,7 @@ yyreduce:
 	Constant_S.Name = tmpstr ;
 	if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	  Constant_S.Name = strSave(tmpstr);
-          Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
+          //Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	  List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
 	}
       }
