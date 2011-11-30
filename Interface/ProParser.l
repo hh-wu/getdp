@@ -310,6 +310,7 @@ EigenvalueLegend             return tEigenvalueLegend;
 EvaluationPoints             return tEvaluationPoints;
 Store                        return tStore;
 LastTimeStepOnly             return tLastTimeStepOnly;
+AppendTimeStepToFileName     return tAppendTimeStepToFileName;
 
 If                           return tIf;
 Else                         return tElse;

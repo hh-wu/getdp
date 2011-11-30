@@ -249,7 +249,7 @@ void vyyerror(const char *fmt, ...);
 %token        tFormat tHeader tFooter tSkin tSmoothing
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
-%token        tEvaluationPoints tStore tLastTimeStepOnly
+%token        tEvaluationPoints tStore tLastTimeStepOnly tAppendTimeStepToFileName
 %token        tStr tDate
 
 /* ------------------------------------------------------------------ */
@@ -5896,6 +5896,7 @@ PrintOptions :
       PostSubOperation_S.EvaluationPoints = NULL;
       PostSubOperation_S.StoreInRegister = -1;
       PostSubOperation_S.LastTimeStepOnly = 0;
+      PostSubOperation_S.AppendTimeStepToFileName = 0;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
     }
@@ -6168,6 +6169,10 @@ PrintOption :
   | ',' tLastTimeStepOnly
     {
       PostSubOperation_S.LastTimeStepOnly = 1;
+    }
+  | ',' tAppendTimeStepToFileName
+    {
+      PostSubOperation_S.AppendTimeStepToFileName = 1;
     }
  ;
 

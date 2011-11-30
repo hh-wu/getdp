@@ -1180,7 +1180,7 @@ struct PostSubOperation {
   int    Depth, Skin, Smoothing, Dimension, Comma, HarmonicToTime, CatFile;
   int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex;
   int    ValueIndex;
-  int    ChangeOfCoordinates[3], LastTimeStepOnly; 
+  int    ChangeOfCoordinates[3], LastTimeStepOnly, AppendTimeStepToFileName; 
   int    StoreInRegister;
   int    Legend, FrozenTimeStepList;
   double LegendPosition[3];
