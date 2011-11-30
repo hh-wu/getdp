@@ -388,7 +388,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       fprintf(PostStream, "TIME{");
       for(iTime = 0; iTime < List_Nbr(TimeValue_L); iTime++){
 	if(iTime) fprintf(PostStream, ",");
-	fprintf(PostStream, "%g", *(double*)List_Pointer(TimeValue_L, iTime));
+	fprintf(PostStream, "%.16g", *(double*)List_Pointer(TimeValue_L, iTime));
       }
       fprintf(PostStream, "};\n");
     }
@@ -448,7 +448,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 	fprintf(PostStream, "TIME{");
 	for(iTime = 0; iTime < List_Nbr(TimeValue_L); iTime++){
 	  if(iTime) fprintf(PostStream, ",");
-	  fprintf(PostStream, "%g", *(double*)List_Pointer(TimeValue_L, iTime));
+	  fprintf(PostStream, "%.16g", *(double*)List_Pointer(TimeValue_L, iTime));
 	}
 	fprintf(PostStream, "};\n");
       }
@@ -559,7 +559,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
       }    
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
-	fprintf(PostStream, "%.8g,%.8g,%.8g", x[i], y[i], z[i]);
+	fprintf(PostStream, "%.16g,%.16g,%.16g", x[i], y[i], z[i]);
       }
       fprintf(PostStream, "){");
     }
@@ -569,7 +569,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
 	if(k || TimeStep) fprintf(PostStream, ",");
 	for(i = 0 ; i < NbrNodes ; i++){
 	  if(i) fprintf(PostStream, ",");
-	  fprintf(PostStream, "%.8g", Value[i].Val[MAX_DIM*k]);
+	  fprintf(PostStream, "%.16g", Value[i].Val[MAX_DIM*k]);
 	}
       }
     }
@@ -579,7 +579,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
 	for(i = 0 ; i < NbrNodes ; i++){
 	  if(i) fprintf(PostStream, ",");
 	  F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
-	  fprintf(PostStream, "%.8g", TmpValue.Val[0]);
+	  fprintf(PostStream, "%.16g", TmpValue.Val[0]);
 	}
       }
     }
@@ -608,7 +608,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
       }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
-	fprintf(PostStream, "%.8g,%.8g,%.8g", x[i], y[i], z[i]);
+	fprintf(PostStream, "%.16g,%.16g,%.16g", x[i], y[i], z[i]);
       }
       fprintf(PostStream, "){");
     }
@@ -620,7 +620,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
 	  if(i) fprintf(PostStream, ",");
 	  for(j = 0 ; j < 3 ; j++){
 	    if(j) fprintf(PostStream, ",");
-	    fprintf(PostStream, "%.8g", Value[i].Val[MAX_DIM*k+j]);
+	    fprintf(PostStream, "%.16g", Value[i].Val[MAX_DIM*k+j]);
 	  }
 	}
       }
@@ -633,7 +633,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
 	  F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	  for(j = 0 ; j < 3 ; j++){
 	    if(j) fprintf(PostStream, ",");
-	    fprintf(PostStream, "%.8g", TmpValue.Val[j]);
+	    fprintf(PostStream, "%.16g", TmpValue.Val[j]);
 	  }
 	}
       }
