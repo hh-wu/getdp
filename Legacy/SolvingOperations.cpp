@@ -56,6 +56,8 @@ static int  Init_Update = 0 ; /* provisoire */
 
 struct Group * Generate_Group = NULL;
 
+static int Flag_Break = 0;
+
 // Johan: it would be nice to get rid of these globals
 int Flag_RHS = 0, *DummyDof ;
 double **MH_Moving_Matrix = NULL ; 
@@ -2561,7 +2563,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	}
 
 	Message::Info("Generate_MH_Moving_Separate : Step %d/%d (Time = %e  DTime %e)", 
-                      (int)(Current.TimeStep+1), Operation_P->Case.Generate_MH_Moving_S.NbrStep,
+                      (int)(Current.TimeStep+1), 
+                      Operation_P->Case.Generate_MH_Moving_S.NbrStep,
                       Current.Time, Current.DTime) ;
 	
 	Treatment_Operation(Resolution_P, Operation_P->Case.Generate_MH_Moving.Operation, 
@@ -2698,7 +2701,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 				2*Operation_P->Case.SaveSolutionExtendedMH.NbrFreq);
 
       Message::Direct("          > '%s'  (%d to %d frequencies)", FileName_exMH, 
-                      Current.NbrHar/2, Current.NbrHar/2 + Operation_P->Case.SaveSolutionExtendedMH.NbrFreq) ;
+                      Current.NbrHar/2, Current.NbrHar/2 + 
+                      Operation_P->Case.SaveSolutionExtendedMH.NbrFreq) ;
 
       DofData_P->CurrentSolution = (struct Solution*) 
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
@@ -2961,6 +2965,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
 	Current.Time = Save_Time ;
+
+        if(Flag_Break){ Flag_Break = 0; break; }
       }
 
       Current.TypeTime = Save_TypeTime ;
@@ -3002,7 +3008,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopNewmark.Operation, 
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
-
+        if(Flag_Break){ Flag_Break = 0; break; }
       }
 
       Current.TypeTime = Save_TypeTime ;
@@ -3036,8 +3042,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	
 	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation, 
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
+
 	if (Current.RelativeDifference <= Operation_P->Case.IterativeLoop.Criterion)
 	  break ;
+        if(Flag_Break){ Flag_Break = 0; break; }
+
 	Current.RelativeDifferenceOld = Current.RelativeDifference ; /* Attention: pt */
       }
       if (Num_Iteration > Operation_P->Case.IterativeLoop.NbrMaxIteration)
@@ -3320,8 +3329,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Operation_P->Case.DeformeMesh.Name_MshFile = Name_MshFile ;
       Message::Info("DeformeMesh[%s, %s, '%s']",
                     ((struct DefineSystem *)
-                     List_Pointer(Resolution_P->DefineSystem, Operation_P->DefineSystemIndex))->Name, 
-                    Operation_P->Case.DeformeMesh.Quantity, Operation_P->Case.DeformeMesh.Name_MshFile) ;
+                     List_Pointer(Resolution_P->DefineSystem, 
+                                  Operation_P->DefineSystemIndex))->Name, 
+                    Operation_P->Case.DeformeMesh.Quantity, 
+                    Operation_P->Case.DeformeMesh.Name_MshFile) ;
 
       if ((i = List_ISearchSeq(GeoData_L, Operation_P->Case.DeformeMesh.Name_MshFile,
 			       fcmp_GeoData_Name)) < 0)
@@ -3425,7 +3436,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           }
           // restore previous time step
           LinAlg_CopyVector(&xn, &((struct Solution*)
-                                   List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-2))->x) ;
+                                   List_Pointer(DofData_P->Solutions, 
+                                                List_Nbr(DofData_P->Solutions)-2))->x) ;
           LinAlg_CopyVector(&xn, &DofData_P->CurrentSolution->x);
           for(int i = 0; i < numStepRK; i++){
             double bi;
@@ -3435,8 +3447,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           }
           
           Current.Time = tn + Current.DTime;
+          if(Flag_Break){ Flag_Break = 0; break; }
         }
       }
+      break ;
+
+    case OPERATION_BREAK :
+      Flag_Break = 1;
       break ;
         
       /*  -->  O t h e r                              */

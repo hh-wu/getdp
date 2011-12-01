@@ -388,13 +388,12 @@ void Message::FinalizeSocket()
 void Message::InitializeOnelab(std::string sockname)
 {
   _onelabClient = new onelab::remoteNetworkClient("GetDP", sockname);
-  // if sockname is file, just do this!
+  // if sockname is file, we should load the database from disk
   //_onelabClient = new onelab::localClient("GetDP", sockname);
   //_onelabClient->readDatabaseFromFile(sockname);
 
   // this parameter tells the server what "compute" does
-  onelab::string o("GetDP/9Compute", "-solve -pos");
-  o.setShortHelp("Computation mode");
+  onelab::string o("GetDP/9Compute", "-solve -pos", "Computation mode");
   std::vector<std::string> choices;
   choices.push_back("-pre");
   choices.push_back("-cal");
