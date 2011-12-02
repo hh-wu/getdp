@@ -1594,7 +1594,7 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
 
       if(Message::UseOnelab() && choices.size()){
         Constant c;
-        c.Name = (char*)"Resolution";
+        c.Name = (char*)"ResolutionChoices";
         c.Type = VAR_CHAR;
         c.Value.Char = strSave(choices[0].c_str());
         std::map<std::string, std::vector<double> > floatOptions;
@@ -1650,7 +1650,7 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
 
       if(Message::UseOnelab() && choices.size()){
         Constant c;
-        c.Name = (char*)"Post-Operation";
+        c.Name = (char*)"PostOperationChoices";
         c.Type = VAR_CHAR;
         c.Value.Char = strSave(choices[0].c_str());
         std::map<std::string, std::vector<double> > floatOptions;
