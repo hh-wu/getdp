@@ -478,19 +478,20 @@ void Message::ExchangeOnelabParameter(Expression *function)
 void Message::FinalizeOnelab()
 {
   if(_onelabClient){
-    // this parameter tells the server what "compute" does (we set
-    // this just before finalizing the client, so users can change the
-    // default value in their .pro file)
-    onelab::string o("GetDP/9Compute", "-solve -pos", "Computation mode");
-    std::vector<std::string> choices;
-    choices.push_back("-pre");
-    choices.push_back("-cal");
-    choices.push_back("-pos");
-    choices.push_back("-solve");
-    choices.push_back("-solve -pos");
-    o.setChoices(choices);
-    _onelabClient->set(o);
-
+    // add default computation modes if none exist
+    std::vector<onelab::string> ps;
+    _onelabClient->get(ps, "GetDP/9Compute");
+    if(ps.empty()){
+      onelab::string o("GetDP/9Compute", "-solve -pos", "Computation mode");
+      std::vector<std::string> choices;
+      choices.push_back("-pre");
+      choices.push_back("-cal");
+      choices.push_back("-pos");
+      choices.push_back("-solve");
+      choices.push_back("-solve -pos");
+      o.setChoices(choices);
+      _onelabClient->set(o);
+    }
     delete _onelabClient;
     _onelabClient = 0;
   }
