@@ -250,7 +250,7 @@ void vyyerror(const char *fmt, ...);
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues 
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
 %token        tEvaluationPoints tStore tLastTimeStepOnly tAppendTimeStepToFileName
-%token        tStr tDate
+%token        tSendToServer tStr tDate
 
 /* ------------------------------------------------------------------ */
 /* Operators (with ascending priority): cf. C language                */
@@ -4690,7 +4690,8 @@ OperationTerm :
       Operation_P->Type = OPERATION_SAVEMESH;
     }
 
-  | tGenerate_MH_Moving  '[' String__Index ',' String__Index ',' FExpr ',' FExpr ']' '{' Operation '}'  tEND
+  | tGenerate_MH_Moving  '[' String__Index ',' String__Index ',' FExpr ',' FExpr ']' 
+                         '{' Operation '}'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);    
       int i;
@@ -5897,6 +5898,7 @@ PrintOptions :
       PostSubOperation_S.StoreInRegister = -1;
       PostSubOperation_S.LastTimeStepOnly = 0;
       PostSubOperation_S.AppendTimeStepToFileName = 0;
+      PostSubOperation_S.SendToServer = NULL;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
     }
@@ -6174,6 +6176,10 @@ PrintOption :
     {
       PostSubOperation_S.AppendTimeStepToFileName = 1;
     }
+  | ',' tSendToServer String__Index
+    {
+      PostSubOperation_S.SendToServer = $3;
+    }
  ;
 
 
@@ -6373,7 +6379,7 @@ Affectation :
 
    tDefineConstant '[' DefineConstants ']' tEND
 
-  | String__Index  tDEF ListOfFExpr tEND
+  | String__Index tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1; 
       if(List_Nbr($3) == 1){

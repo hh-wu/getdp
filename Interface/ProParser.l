@@ -311,6 +311,7 @@ EvaluationPoints             return tEvaluationPoints;
 Store                        return tStore;
 LastTimeStepOnly             return tLastTimeStepOnly;
 AppendTimeStepToFileName     return tAppendTimeStepToFileName;
+SendToServer                 return tSendToServer;
 
 If                           return tIf;
 Else                         return tElse;

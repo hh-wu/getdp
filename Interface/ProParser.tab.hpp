@@ -280,21 +280,22 @@
      tStore = 497,
      tLastTimeStepOnly = 498,
      tAppendTimeStepToFileName = 499,
-     tStr = 500,
-     tDate = 501,
-     tDEF = 502,
-     tOR = 503,
-     tAND = 504,
-     tAPPROXEQUAL = 505,
-     tNOTEQUAL = 506,
-     tEQUAL = 507,
-     tGREATERGREATER = 508,
-     tLESSLESS = 509,
-     tGREATEROREQUAL = 510,
-     tLESSOREQUAL = 511,
-     tCROSSPRODUCT = 512,
-     UNARYPREC = 513,
-     tSHOW = 514
+     tSendToServer = 500,
+     tStr = 501,
+     tDate = 502,
+     tDEF = 503,
+     tOR = 504,
+     tAND = 505,
+     tAPPROXEQUAL = 506,
+     tNOTEQUAL = 507,
+     tEQUAL = 508,
+     tGREATERGREATER = 509,
+     tLESSLESS = 510,
+     tGREATEROREQUAL = 511,
+     tLESSOREQUAL = 512,
+     tCROSSPRODUCT = 513,
+     UNARYPREC = 514,
+     tSHOW = 515
    };
 #endif
 
@@ -316,7 +317,7 @@ typedef union YYSTYPE
 
 
 /* Line 1685 of yacc.c  */
-#line 320 "ProParser.tab.hpp"
+#line 321 "ProParser.tab.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

@@ -281,8 +281,10 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   if(PostSubOperation_P->FileOut){
     fclose(PostStream) ;
-    if(PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
-       PostSubOperation_P->Format == FORMAT_GMSH)
+    if((PostSubOperation_P->SendToServer == NULL || 
+        strcmp(PostSubOperation_P->SendToServer, "No")) &&
+       (PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
+        PostSubOperation_P->Format == FORMAT_GMSH))
       Message::SendFileOnSocket(FileName);
   }
 }

@@ -1182,10 +1182,11 @@ struct PostSubOperation {
   int    ValueIndex;
   int    ChangeOfCoordinates[3], LastTimeStepOnly, AppendTimeStepToFileName; 
   int    StoreInRegister;
+  char  *SendToServer;
   int    Legend, FrozenTimeStepList;
   double LegendPosition[3];
   double Target;
-  char    *ValueName;
+  char   *ValueName;
   List_T *HeaderChar_L, *HeaderTag_L;
   List_T *FormatChar_L, *FormatTag_L;
   List_T *FooterChar_L, *FooterTag_L;
