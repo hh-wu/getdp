@@ -486,8 +486,10 @@ void Message::FinalizeOnelab()
     _onelabClient->get(ps, "GetDP/9Compute");
     if(ps.empty()){ // only change value if none exists
       ps.resize(1);
+      ps[0].setName("GetDP/9Compute");
       ps[0].setValue("-solve -pos");
     }
+    ps[0].setShortHelp("Computation mode");
     std::vector<std::string> choices;
     choices.push_back("-pre");
     choices.push_back("-cal");
