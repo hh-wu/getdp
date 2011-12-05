@@ -6176,7 +6176,7 @@ PrintOption :
     {
       PostSubOperation_S.AppendTimeStepToFileName = 1;
     }
-  | ',' tSendToServer String__Index
+  | ',' tSendToServer CharExpr
     {
       PostSubOperation_S.SendToServer = $3;
     }

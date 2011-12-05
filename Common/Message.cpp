@@ -406,6 +406,14 @@ void Message::GetOnelabString(std::string name, char **val)
   *val = 0;
 }
 
+void Message::SetOnelabNumber(std::string name, double val)
+{
+  if(_onelabClient){
+    onelab::number o(name, val);
+    _onelabClient->set(o);
+  }
+}
+
 void Message::ExchangeOnelabParameter(Constant *c,
                                       std::map<std::string, std::vector<double> > &fopt,
                                       std::map<std::string, std::vector<std::string> > &copt,

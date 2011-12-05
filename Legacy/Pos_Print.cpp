@@ -1304,6 +1304,14 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       if (PostSubOperation_P->StoreInRegister >= 0)
 	Cal_StoreInRegister(&Value, PostSubOperation_P->StoreInRegister) ;
 
+      if (PostSubOperation_P->SendToServer &&
+          strcmp(PostSubOperation_P->SendToServer, "No")){
+        if(Value.Type == SCALAR)
+          Message::SetOnelabNumber(PostSubOperation_P->SendToServer, Value.Val[0]);
+        else if(Message::UseOnelab())
+          Message::Warning("Cannot send non-scalar values to server (yet)");
+      }
+
       Format_PostValue(PostSubOperation_P->Format, PostSubOperation_P->Comma,
 		       Group_FunctionType,
 		       Current.Time, i, Current.NumEntity, Nbr_Region,
