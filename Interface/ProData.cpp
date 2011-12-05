@@ -1602,7 +1602,7 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
         charOptions["Choices"] = choices;
         charOptions["ShortHelp"].push_back("Resolution");
         charOptions["Path"].push_back("GetDP/1");
-        Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
+        Message::ExchangeOnelabParameter(&c, floatOptions, charOptions, true);
         if(choose){
           *name = c.Value.Char; 
           return;
@@ -1658,7 +1658,7 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
         charOptions["Choices"] = choices;
         charOptions["ShortHelp"].push_back("Post-processing");
         charOptions["Path"].push_back("GetDP/2");
-        Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
+        Message::ExchangeOnelabParameter(&c, floatOptions, charOptions, true);
         if(choose){
           *name = c.Value.Char; 
           return;

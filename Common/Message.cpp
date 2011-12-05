@@ -408,7 +408,8 @@ void Message::GetOnelabString(std::string name, char **val)
 
 void Message::ExchangeOnelabParameter(Constant *c,
                                       std::map<std::string, std::vector<double> > &fopt,
-                                      std::map<std::string, std::vector<std::string> > &copt)
+                                      std::map<std::string, std::vector<std::string> > &copt,
+                                      bool forceAttributeUpdate)
 {
   if(!_onelabClient) return;
 
@@ -430,7 +431,8 @@ void Message::ExchangeOnelabParameter(Constant *c,
     if(ps.size()){ // use value from server
       c->Value.Float = ps[0].getValue();
     }
-    else{ // send value to server
+    if(ps.empty() || forceAttributeUpdate){
+      // send value and attributes to server
       onelab::number o(name, c->Value.Float);
       if(fopt.count("Range") && fopt["Range"].size() == 2){
         o.setMin(fopt["Range"][0]); o.setMax(fopt["Range"][1]);
@@ -457,7 +459,8 @@ void Message::ExchangeOnelabParameter(Constant *c,
     if(ps.size()){
       c->Value.Char = strSave(ps[0].getValue().c_str());
     }
-    else{
+    if(ps.empty() || forceAttributeUpdate){
+      // send value and attributes to server
       onelab::string o(name, c->Value.Char);
       if(copt.count("Help")) o.setHelp(copt["Help"][0]);
       if(copt.count("ShortHelp")) o.setShortHelp(copt["ShortHelp"][0]);
@@ -478,20 +481,22 @@ void Message::ExchangeOnelabParameter(Expression *function)
 void Message::FinalizeOnelab()
 {
   if(_onelabClient){
-    // add default computation modes if none exist
+    // add default computation modes
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, "GetDP/9Compute");
-    if(ps.empty()){
-      onelab::string o("GetDP/9Compute", "-solve -pos", "Computation mode");
-      std::vector<std::string> choices;
-      choices.push_back("-pre");
-      choices.push_back("-cal");
-      choices.push_back("-pos");
-      choices.push_back("-solve");
-      choices.push_back("-solve -pos");
-      o.setChoices(choices);
-      _onelabClient->set(o);
+    if(ps.empty()){ // only change value if none exists
+      ps.resize(1);
+      ps[0].setValue("-solve -pos");
     }
+    std::vector<std::string> choices;
+    choices.push_back("-pre");
+    choices.push_back("-cal");
+    choices.push_back("-pos");
+    choices.push_back("-solve");
+    choices.push_back("-solve -pos");
+    ps[0].setChoices(choices);
+    _onelabClient->set(ps[0]);
+
     delete _onelabClient;
     _onelabClient = 0;
   }

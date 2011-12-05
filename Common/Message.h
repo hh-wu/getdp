@@ -72,7 +72,8 @@ class Message {
   static void GetOnelabString(std::string name, char **val);
   static void ExchangeOnelabParameter(Constant *c, 
                                       std::map<std::string, std::vector<double> > &fopt,
-                                      std::map<std::string, std::vector<std::string> > &copt);
+                                      std::map<std::string, std::vector<std::string> > &copt,
+                                      bool forceAttributeUpdate=false);
   static void ExchangeOnelabParameter(Expression *p);
   static void ExchangeOnelabParameter(Group *p);
 };
