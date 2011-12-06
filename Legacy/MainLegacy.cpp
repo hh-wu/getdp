@@ -352,6 +352,21 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
   }
 }
 
+#if defined(HAVE_GMSH)
+class GmshMsg : public GmshMessage{
+public:
+  void operator()(std::string level, std::string msg)
+  {
+    if(level == "Fatal" || level == "Error")
+      Message::Error("%s", msg.c_str());
+    else if(level == "Warning")
+      Message::Warning("%s", msg.c_str());
+    else
+      Message::Info("%s", msg.c_str());
+  }
+};
+#endif
+
 int MainLegacy(int argc, char *argv[])
 {
   if(argc < 2) Info(0, argv[0]);
@@ -410,7 +425,8 @@ int MainLegacy(int argc, char *argv[])
 #if defined(HAVE_GMSH)
   Message::Info("Initializing Gmsh");
   GmshInitialize();
-  GmshSetOption("General", "Terminal", 1.);
+  GmshMsg c;
+  GmshSetMessageHandler(&c);
 #endif
 
   Init_ProblemStructure();
