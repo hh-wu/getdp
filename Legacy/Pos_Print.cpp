@@ -4,6 +4,7 @@
 // bugs and problems to <getdp@geuz.org>.
 
 #include <sstream>
+#include <string.h>
 #include <math.h>
 #include "ProData.h"
 #include "GeoData.h"
