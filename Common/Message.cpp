@@ -480,10 +480,12 @@ void Message::ExchangeOnelabParameter(Constant *c,
 
 void Message::ExchangeOnelabParameter(Group *group)
 {
+  // FIXME TODO
 }
 
 void Message::ExchangeOnelabParameter(Expression *function)
 {
+  // FIXME TODO
 }
 
 void Message::FinalizeOnelab()
