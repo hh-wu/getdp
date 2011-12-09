@@ -1302,15 +1302,16 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 			 Support_L, &Element, u, v, w, &Value) ;
       }
 
-      if (PostSubOperation_P->StoreInRegister >= 0)
-	Cal_StoreInRegister(&Value, PostSubOperation_P->StoreInRegister) ;
-
-      if (PostSubOperation_P->SendToServer &&
-          strcmp(PostSubOperation_P->SendToServer, "No")){
-        if(Value.Type == SCALAR)
-          Message::SetOnelabNumber(PostSubOperation_P->SendToServer, Value.Val[0]);
-        else if(Message::UseOnelab())
-          Message::Warning("Cannot send non-scalar values to server (yet)");
+      if (PostSubOperation_P->Format != FORMAT_REGION_VALUE) {
+        if (PostSubOperation_P->StoreInRegister >= 0)
+          Cal_StoreInRegister(&Value, PostSubOperation_P->StoreInRegister) ;
+        if (PostSubOperation_P->SendToServer &&
+            strcmp(PostSubOperation_P->SendToServer, "No")){
+          if(Value.Type == SCALAR)
+            Message::SetOnelabNumber(PostSubOperation_P->SendToServer, Value.Val[0]);
+          else if(Message::UseOnelab())
+            Message::Warning("Cannot send non-scalar values to server (yet)");
+        }
       }
 
       Format_PostValue(PostSubOperation_P->Format, PostSubOperation_P->Comma,
@@ -1323,17 +1324,22 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       if (PostSubOperation_P->Format == FORMAT_REGION_VALUE) {
 	ValueSummed.Type = Value.Type ;
 	Cal_AddValue(&ValueSummed, &Value, &ValueSummed);
-        //****
-        if (PostSubOperation_P->StoreInRegister >= 0)
-          Cal_StoreInRegister(&ValueSummed, PostSubOperation_P->StoreInRegister) ;
-        //****
       }
     }
 
     if (PostSubOperation_P->Format == FORMAT_REGION_VALUE) {
-        fprintf(PostStream, "%s\n", Print_Value_ToString(&ValueSummed).c_str());
+      fprintf(PostStream, "%s\n", Print_Value_ToString(&ValueSummed).c_str());
+      if (PostSubOperation_P->StoreInRegister >= 0)
+        Cal_StoreInRegister(&ValueSummed, PostSubOperation_P->StoreInRegister) ;
+      if (PostSubOperation_P->SendToServer &&
+          strcmp(PostSubOperation_P->SendToServer, "No")){
+        if(Value.Type == SCALAR)
+          Message::SetOnelabNumber(PostSubOperation_P->SendToServer, ValueSummed.Val[0]);
+        else if(Message::UseOnelab())
+          Message::Warning("Cannot send non-scalar values to server (yet)");
+      }
     }
-
+    
   }
 
   Format_PostFooter(PostSubOperation_P, 0);

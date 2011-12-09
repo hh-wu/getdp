@@ -71,6 +71,7 @@ class Message {
   static bool UseOnelab(){ return _onelabClient ? true : false; }
   static void GetOnelabString(std::string name, char **val);
   static void SetOnelabNumber(std::string name, double val);
+  static void AddOnelabStringChoice(std::string name, std::string kind, std::string choice);
   static void ExchangeOnelabParameter(Constant *c, 
                                       std::map<std::string, std::vector<double> > &fopt,
                                       std::map<std::string, std::vector<std::string> > &copt,
