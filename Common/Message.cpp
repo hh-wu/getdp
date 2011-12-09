@@ -394,29 +394,47 @@ void Message::InitializeOnelab(std::string sockname)
   //_onelabClient->readDatabaseFromFile(sockname);
 }
 
+void Message::AddOnelabNumberChoice(std::string name, double val)
+{
+  if(_onelabClient){
+    std::vector<double> choices;
+    std::vector<onelab::number> ps;
+    _onelabClient->get(ps, name);
+    if(ps.size()){
+      choices = ps[0].getChoices();
+    }
+    else{
+      ps.resize(1);
+      ps[0].setName(name);
+    }
+    ps[0].setValue(val);
+    choices.push_back(val);
+    ps[0].setChoices(choices);
+    _onelabClient->set(ps[0]);
+  }
+}
+
 void Message::AddOnelabStringChoice(std::string name, std::string kind,
                                     std::string value)
 {
   if(_onelabClient){
+    std::vector<std::string> choices;
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
     if(ps.size()){
-      std::vector<std::string> choices = ps[0].getChoices();
-      if(std::find(choices.begin(), choices.end(), value) == choices.end()){
+      choices = ps[0].getChoices();
+      if(std::find(choices.begin(), choices.end(), value) == choices.end())
         choices.push_back(value);
-        ps[0].setChoices(choices);
-      }
-      ps[0].setValue(value);
-      _onelabClient->set(ps[0]);
     }
     else{
-      onelab::string p(name, value);
-      p.setKind(kind);
-      std::vector<std::string> choices;
+      ps.resize(1);
+      ps[0].setName(name);
+      ps[0].setKind(kind);
       choices.push_back(value);
-      p.setChoices(choices);
-      _onelabClient->set(p);
     }
+    ps[0].setValue(value);
+    ps[0].setChoices(choices);
+    _onelabClient->set(ps[0]);
   }
 }
 
@@ -431,14 +449,6 @@ void Message::GetOnelabString(std::string name, char **val)
     }
   }
   *val = 0;
-}
-
-void Message::SetOnelabNumber(std::string name, double val)
-{
-  if(_onelabClient){
-    onelab::number o(name, val);
-    _onelabClient->set(o);
-  }
 }
 
 void Message::ExchangeOnelabParameter(Constant *c,

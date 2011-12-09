@@ -1308,7 +1308,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
         if (PostSubOperation_P->SendToServer &&
             strcmp(PostSubOperation_P->SendToServer, "No")){
           if(Value.Type == SCALAR)
-            Message::SetOnelabNumber(PostSubOperation_P->SendToServer, Value.Val[0]);
+            Message::AddOnelabNumberChoice(PostSubOperation_P->SendToServer,
+                                           Value.Val[0]);
           else if(Message::UseOnelab())
             Message::Warning("Cannot send non-scalar values to server (yet)");
         }
@@ -1334,7 +1335,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       if (PostSubOperation_P->SendToServer &&
           strcmp(PostSubOperation_P->SendToServer, "No")){
         if(Value.Type == SCALAR)
-          Message::SetOnelabNumber(PostSubOperation_P->SendToServer, ValueSummed.Val[0]);
+          Message::AddOnelabNumberChoice(PostSubOperation_P->SendToServer,
+                                         ValueSummed.Val[0]);
         else if(Message::UseOnelab())
           Message::Warning("Cannot send non-scalar values to server (yet)");
       }
