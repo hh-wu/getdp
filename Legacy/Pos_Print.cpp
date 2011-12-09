@@ -1323,6 +1323,10 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       if (PostSubOperation_P->Format == FORMAT_REGION_VALUE) {
 	ValueSummed.Type = Value.Type ;
 	Cal_AddValue(&ValueSummed, &Value, &ValueSummed);
+        //****
+        if (PostSubOperation_P->StoreInRegister >= 0)
+          Cal_StoreInRegister(&ValueSummed, PostSubOperation_P->StoreInRegister) ;
+        //****
       }
     }
 

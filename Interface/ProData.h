@@ -1083,6 +1083,7 @@ struct ChangeOfState {
 #define OPERATION_SETCURRENTSYSTEM         70
 
 #define OPERATION_SETTIME                  20
+#define OPERATION_SETTIMESTEP             220
 #define OPERATION_SETFREQUENCY             21
 #define OPERATION_TEST                     22
 #define OPERATION_FOURIERTRANSFORM         23
