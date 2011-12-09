@@ -5,6 +5,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <algorithm>
 #include "GetDPConfig.h"
 #include "Message.h"
 #include "GmshSocket.h"
