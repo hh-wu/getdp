@@ -495,6 +495,9 @@ void Message::ExchangeOnelabParameter(Constant *c,
       if(fopt.count("Choices")) o.setChoices(fopt["Choices"]);
       if(copt.count("Help")) o.setHelp(copt["Help"][0]);
       if(copt.count("ShortHelp")) o.setShortHelp(copt["ShortHelp"][0]);
+      if(copt.count("Loop")) o.setAttribute("Loop", copt["Loop"][0]);
+      if(copt.count("GraphX")) o.setAttribute("GraphX", copt["GraphX"][0]);
+      if(copt.count("GraphY")) o.setAttribute("GraphY", copt["GraphY"][0]);
       _onelabClient->set(o);
     }
   }
