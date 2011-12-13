@@ -141,8 +141,6 @@ Filter                       return tFilter;
 Value                        return tValue;
 TimeFunction                 return tTimeFunction;
 Branch                       return tBranch;
-Loop                         return tLoop;
-Node                         return tNode;
 NameOfResolution             return tNameOfResolution;
 
 Jacobian                     return tJacobian;
@@ -182,7 +180,6 @@ Quantity                     return tQuantity;
 NameOfSpace                  return tNameOfSpace;
 IndexOfSystem                return tIndexOfSystem;
 Symmetry                     return tSymmetry;
-Equation                     return tEquation;
 Galerkin                     return tGalerkin;
 deRham                       return tdeRham;
 
@@ -329,7 +326,6 @@ Help                         return tHelp;
 Check                        return tCheck;
 Cpu                          return tCpu;
 
-EquationTerm                 return tEquation;
 PostQuantity                 return tQuantity;
 Integral                     return tGalerkin;
 

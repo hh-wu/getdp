@@ -176,7 +176,7 @@ void vyyerror(const char *fmt, ...);
 %token  tConstraint
 %token    tRegion tSubRegion tRegionRef tSubRegionRef
 %token    tFilter tCoefficient tValue tTimeFunction
-%token    tBranch tNode tLoop tNameOfResolution
+%token    tBranch tNameOfResolution
 
 %token  tJacobian
 %token      tCase
@@ -200,11 +200,10 @@ void vyyerror(const char *fmt, ...);
 %token    tQuantity
 %token        tNameOfSpace tIndexOfSystem 
 %token        tSymmetry
-%token    tEquation
-%token        tGalerkin tdeRham tGlobalTerm tGlobalEquation
-%token          tDt tDtDof tDtDt tDtDtDof tJacNL tNeverDt tDtNL tAtAnteriorTimeStep
-%token          tIn
-%token          tFull_Matrix
+%token    tGalerkin tdeRham tGlobalTerm tGlobalEquation
+%token        tDt tDtDof tDtDt tDtDtDof tJacNL tNeverDt tDtNL tAtAnteriorTimeStep
+%token        tIn
+%token        tFull_Matrix
 
 %token  tResolution
 %token    tDefineSystem
@@ -2806,8 +2805,11 @@ FormulationTerm :
 
   | tQuantity  '{' DefineQuantities '}'
 
-  | tEquation  '{' Equations '}'
-    { Formulation_S.Equation = $3; }
+  | tSTRING '{' Equations '}'
+    { 
+      Formulation_S.Equation = $3; 
+      Free($1);
+    }
  ;
 
 
@@ -3350,13 +3352,18 @@ GlobalEquationTermTerm :
  ;
 
 GlobalEquationTermTermTerm :
-
-    tNode Quantity_Def  tEND
-    { GlobalEquationTerm_S.DefineQuantityIndexNode = $2.Int2; }
-  | tLoop Quantity_Def  tEND
-    { GlobalEquationTerm_S.DefineQuantityIndexLoop = $2.Int2; }
-  | tEquation Quantity_Def  tEND
-    { GlobalEquationTerm_S.DefineQuantityIndexEqu  = $2.Int2; }
+    tSTRING Quantity_Def tEND
+    { 
+      if(!strcmp($1, "Node"))
+        GlobalEquationTerm_S.DefineQuantityIndexNode = $2.Int2; 
+      else if(!strcmp($1, "Loop"))
+        GlobalEquationTerm_S.DefineQuantityIndexLoop = $2.Int2;
+      else if(!strcmp($1, "Equation"))
+        GlobalEquationTerm_S.DefineQuantityIndexEqu  = $2.Int2;
+      else
+        vyyerror("Unknown global equation term: %s", $1);
+      Free($1);
+    }
   | tIn GroupRHS tEND
   { GlobalEquationTerm_S.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2); }
  ;
@@ -6574,7 +6581,6 @@ DefineConstants :
       Constant_S.Value.Float = 0.;
       FloatOptions_S.clear(); CharOptions_S.clear();
       if(!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)){
-        //Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
       }
     }
@@ -6589,7 +6595,6 @@ DefineConstants :
 	Constant_S.Name = tmpstr ;
 	if (!List_Search(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	  Constant_S.Name = strSave(tmpstr);
-          //Message::ExchangeOnelabParameter(&Constant_S, FloatOptions_S, CharOptions_S);
 	  List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant) ;
 	}
       }
