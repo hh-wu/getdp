@@ -836,7 +836,14 @@ double  JacobianSur2D (struct Element * Element, MATRIX3x3 * Jac)
   double b[3] = {Jac->c12, -Jac->c11, 0.};
   norme(b);
   Jac->c21 = b[0]; Jac->c22 = b[1];
-  
+
+  // make sure DetJac > 0: this is not necessary in theory, but it is
+  // required here because we use DetJac when we invert the matrix
+  double realDetJac = Jac->c11 * Jac->c22 - Jac->c12 * Jac->c21;
+  if(realDetJac < 0.){
+    Jac->c21 = - Jac->c21; Jac->c22 = - Jac->c22;
+  }
+
   return(DetJac) ;
 }
 
@@ -912,6 +919,16 @@ double  JacobianSur3D (struct Element * Element, MATRIX3x3 * Jac)
   norme(c);
   Jac->c31 = c[0]; Jac->c32 = c[1]; Jac->c33 = c[2];
 
+  // make sure DetJac > 0: this is not necessary in theory, but it is
+  // required here because we use DetJac when we invert the matrix
+  double realDetJac = 
+    Jac->c11 * Jac->c22 * Jac->c33 + Jac->c13 * Jac->c21 * Jac->c32 +
+    Jac->c12 * Jac->c23 * Jac->c31 - Jac->c13 * Jac->c22 * Jac->c31 -
+    Jac->c11 * Jac->c23 * Jac->c32 - Jac->c12 * Jac->c21 * Jac->c33;
+  if(realDetJac < 0.){
+    Jac->c31 = - Jac->c31; Jac->c32 = - Jac->c32; Jac->c33 = - Jac->c33;    
+  }
+
   return(DetJac) ;
 }
 
@@ -952,6 +969,16 @@ double  JacobianLin3D (struct Element * Element, MATRIX3x3 * Jac)
   norme(c);
   Jac->c21 = b[0]; Jac->c22 = b[1]; Jac->c23 = b[2];
   Jac->c31 = c[0]; Jac->c32 = c[1]; Jac->c33 = c[2];
+
+  // make sure DetJac > 0: this is not necessary in theory, but it is
+  // required here because we use DetJac when we invert the matrix
+  double realDetJac = 
+    Jac->c11 * Jac->c22 * Jac->c33 + Jac->c13 * Jac->c21 * Jac->c32 +
+    Jac->c12 * Jac->c23 * Jac->c31 - Jac->c13 * Jac->c22 * Jac->c31 -
+    Jac->c11 * Jac->c23 * Jac->c32 - Jac->c12 * Jac->c21 * Jac->c33;
+  if(realDetJac < 0.){
+    Jac->c31 = - Jac->c31; Jac->c32 = - Jac->c32; Jac->c33 = - Jac->c33;    
+  }
 
   return(DetJac) ;
 }
