@@ -74,8 +74,7 @@ class Message {
   static void AddOnelabStringChoice(std::string name, std::string kind, std::string choice);
   static void ExchangeOnelabParameter(Constant *c, 
                                       std::map<std::string, std::vector<double> > &fopt,
-                                      std::map<std::string, std::vector<std::string> > &copt,
-                                      bool forceAttributeUpdate=false);
+                                      std::map<std::string, std::vector<std::string> > &copt);
   static void ExchangeOnelabParameter(Expression *p);
   static void ExchangeOnelabParameter(Group *p);
 };

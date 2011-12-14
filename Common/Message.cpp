@@ -453,8 +453,7 @@ void Message::GetOnelabString(std::string name, char **val)
 
 void Message::ExchangeOnelabParameter(Constant *c,
                                       std::map<std::string, std::vector<double> > &fopt,
-                                      std::map<std::string, std::vector<std::string> > &copt,
-                                      bool forceAttributeUpdate)
+                                      std::map<std::string, std::vector<std::string> > &copt)
 {
   if(!_onelabClient) return;
 
@@ -476,45 +475,49 @@ void Message::ExchangeOnelabParameter(Constant *c,
     if(ps.size()){ // use value from server
       c->Value.Float = ps[0].getValue();
     }
-    if(ps.empty() || forceAttributeUpdate){
-      // send value and attributes to server
-      onelab::number o(name, c->Value.Float);
-      if(fopt.count("Range") && fopt["Range"].size() == 2){
-        o.setMin(fopt["Range"][0]); o.setMax(fopt["Range"][1]);
-      }
-      else if(fopt.count("Min") && fopt.count("Max")){
-        o.setMin(fopt["Min"][0]); o.setMax(fopt["Max"][0]);
-      }
-      else if(fopt.count("Min")){
-        o.setMin(fopt["Min"][0]); o.setMax(onelab::parameter::maxNumber());
-      }
-      else if(fopt.count("Max")){
-        o.setMax(fopt["Max"][0]); o.setMin(-onelab::parameter::maxNumber());
-      }
-      if(fopt.count("Step")) o.setStep(fopt["Step"][0]);
-      if(fopt.count("Choices")) o.setChoices(fopt["Choices"]);
-      if(copt.count("Help")) o.setHelp(copt["Help"][0]);
-      if(copt.count("ShortHelp")) o.setShortHelp(copt["ShortHelp"][0]);
-      if(copt.count("Loop")) o.setAttribute("Loop", copt["Loop"][0]);
-      if(copt.count("GraphX")) o.setAttribute("GraphX", copt["GraphX"][0]);
-      if(copt.count("GraphY")) o.setAttribute("GraphY", copt["GraphY"][0]);
-      _onelabClient->set(o);
+    else{
+      ps.resize(1);
+      ps[0].setName(name);
+      ps[0].setValue(c->Value.Float);
     }
+    // send updated parameter to server
+    if(fopt.count("Range") && fopt["Range"].size() == 2){
+      ps[0].setMin(fopt["Range"][0]); ps[0].setMax(fopt["Range"][1]);
+    }
+    else if(fopt.count("Min") && fopt.count("Max")){
+      ps[0].setMin(fopt["Min"][0]); ps[0].setMax(fopt["Max"][0]);
+    }
+    else if(fopt.count("Min")){
+      ps[0].setMin(fopt["Min"][0]); ps[0].setMax(onelab::parameter::maxNumber());
+    }
+    else if(fopt.count("Max")){
+      ps[0].setMax(fopt["Max"][0]); ps[0].setMin(-onelab::parameter::maxNumber());
+    }
+    if(fopt.count("Step")) ps[0].setStep(fopt["Step"][0]);
+    if(fopt.count("Choices")) ps[0].setChoices(fopt["Choices"]);
+    if(copt.count("Help")) ps[0].setHelp(copt["Help"][0]);
+    if(copt.count("ShortHelp")) ps[0].setShortHelp(copt["ShortHelp"][0]);
+    if(copt.count("Loop")) ps[0].setAttribute("Loop", copt["Loop"][0]);
+    if(copt.count("GraphX")) ps[0].setAttribute("GraphX", copt["GraphX"][0]);
+    if(copt.count("GraphY")) ps[0].setAttribute("GraphY", copt["GraphY"][0]);
+    _onelabClient->set(ps[0]);
   }
   else if(c->Type == VAR_CHAR){
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
-    if(ps.size()){
+    if(ps.size()){ // use value from server
       c->Value.Char = strSave(ps[0].getValue().c_str());
     }
-    if(ps.empty() || forceAttributeUpdate){
-      // send value and attributes to server
-      onelab::string o(name, c->Value.Char);
-      if(copt.count("Help")) o.setHelp(copt["Help"][0]);
-      if(copt.count("ShortHelp")) o.setShortHelp(copt["ShortHelp"][0]);
-      if(copt.count("Choices")) o.setChoices(copt["Choices"]);
-      _onelabClient->set(o);
+    else{
+      ps.resize(1);
+      ps[0].setName(name);
+      ps[0].setValue(c->Value.Char);
     }
+    // send updated parameter to server
+    if(copt.count("Help")) ps[0].setHelp(copt["Help"][0]);
+    if(copt.count("ShortHelp")) ps[0].setShortHelp(copt["ShortHelp"][0]);
+    if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
+    _onelabClient->set(ps[0]);
   }
 }
 
