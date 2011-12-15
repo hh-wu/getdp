@@ -322,10 +322,6 @@ Date                         return tDate;
 
 Flag                         return tFlag;
 
-Help                         return tHelp;
-Check                        return tCheck;
-Cpu                          return tCpu;
-
 PostQuantity                 return tQuantity;
 Integral                     return tGalerkin;
 

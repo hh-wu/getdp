@@ -158,7 +158,7 @@ void vyyerror(const char *fmt, ...);
 %token  tEND tDOTS
 %token  tStrCat tSprintf tPrintf tRead tPrintConstants tStrCmp tNbrRegions
 %token  tFor tEndFor tIf tElse tEndIf
-%token  tFlag tHelp tCpu tCheck
+%token  tFlag
 %token  tInclude
 %token  tConstant tList tListAlt tLinSpace tLogSpace tListFromFile
 %token  tChangeCurrentPosition
