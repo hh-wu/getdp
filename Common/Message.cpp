@@ -498,8 +498,7 @@ void Message::ExchangeOnelabParameter(Constant *c,
     if(copt.count("Help")) ps[0].setHelp(copt["Help"][0]);
     if(copt.count("ShortHelp")) ps[0].setShortHelp(copt["ShortHelp"][0]);
     if(copt.count("Loop")) ps[0].setAttribute("Loop", copt["Loop"][0]);
-    if(copt.count("GraphX")) ps[0].setAttribute("GraphX", copt["GraphX"][0]);
-    if(copt.count("GraphY")) ps[0].setAttribute("GraphY", copt["GraphY"][0]);
+    if(copt.count("Graph")) ps[0].setAttribute("Graph", copt["Graph"][0]);
     _onelabClient->set(ps[0]);
   }
   else if(c->Type == VAR_CHAR){
