@@ -14,7 +14,7 @@ CFLAGS = ${OPTIM} ${FLAGS} ${INC} ${SYSINCLUDE}
 
 SRC = MainLegacy.cpp \
       F_Analytic.cpp F_BiotSavart.cpp F_Coord.cpp F_ExtMath.cpp \
-        F_Geometry.cpp F_Interpolation.cpp F_Jiles.cpp F_Math.cpp \
+        F_Geometry.cpp F_Interpolation.cpp F_Hysteresis.cpp F_Math.cpp \
         F_Misc.cpp F_MultiHar.cpp F_Raytracing.cpp \
         F_Gmsh.cpp \
       BF_Node.cpp BF_NodeXYZ.cpp BF_Node_2.cpp BF_Node_3.cpp \
@@ -111,7 +111,7 @@ F_Geometry.o: F_Geometry.cpp ../Interface/ProData.h \
 F_Interpolation.o: F_Interpolation.cpp ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h F.h \
   ../Common/MallocUtils.h ../Common/Message.h
-F_Jiles.o: F_Jiles.cpp ../Interface/ProData.h ../Common/GetDPConfig.h \
+F_Hysteresis.o: F_Hysteresis.cpp ../Interface/ProData.h ../Common/GetDPConfig.h \
   ../Common/ListUtils.h F.h ../Common/Message.h
 F_Math.o: F_Math.cpp ../Interface/ProData.h ../Common/GetDPConfig.h \
   ../Common/ListUtils.h F.h ../Common/MallocUtils.h ../Common/Message.h

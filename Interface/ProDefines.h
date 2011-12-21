@@ -953,20 +953,20 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"dInterpolationLinear2" , (CAST)F_dInterpolationLinear2 ,  -2,   1 },
   {"InterpolationAkima"    , (CAST)F_InterpolationAkima    ,  -2,   1 },
   {"dInterpolationAkima"   , (CAST)F_dInterpolationAkima   ,  -2,   1 },
-  {"InterpolationBilinear"   , (CAST)F_InterpolationBilinear   ,  -1,   2 },
+  {"InterpolationBilinear" , (CAST)F_InterpolationBilinear ,  -1,   2 },
   {"ValueFromIndex"        , (CAST)F_ValueFromIndex        ,  -1,   0 },
   {"VectorFromIndex"       , (CAST)F_VectorFromIndex       ,  -1,   0 },
 
-  // F_Jiles
+  // F_Hysteresis
   {"dhdb_Jiles"            , (CAST)F_dhdb_Jiles            ,  -1,   3 },
   {"dbdh_Jiles"            , (CAST)F_dbdh_Jiles            ,  -1,   3 },
   {"h_Jiles"               , (CAST)F_h_Jiles               ,  -1,   3 },
   {"b_Jiles"               , (CAST)F_b_Jiles               ,  -1,   3 },
-  {"dhdb_Ducharne"           , (CAST)F_dhdb_Ducharne       ,  -1,   3 },
-  {"h_Ducharne"              , (CAST)F_h_Ducharne          ,  -1,   3 },
-  {"nu_Ducharne"             , (CAST)F_nu_Ducharne         ,  -1,   3 },
-  {"nu_Vinch"             , (CAST)F_nu_Vinch            ,   0,   1 },	
-  {"Update_a"             , (CAST)F_Update_a            ,   0,   6 },	
+  {"dhdb_Ducharne"         , (CAST)F_dhdb_Ducharne         ,  -1,   3 },
+  {"h_Ducharne"            , (CAST)F_h_Ducharne            ,  -1,   3 },
+  {"nu_Ducharne"           , (CAST)F_nu_Ducharne           ,  -1,   3 },
+  {"nu_Vinch"              , (CAST)F_nu_Vinch              ,   0,   1 },	
+  {"Update_a"              , (CAST)F_Update_a              ,   0,   6 },	
 
   // F_MultiHar
   {"MHToTime"          , (CAST)F_MHToTime         ,   0,   2 },

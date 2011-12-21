@@ -180,16 +180,16 @@ void  F_TransformPerm   (F_ARG) ;  /* pour Tuan */
 void  F_TransformPiezo  (F_ARG) ;  /* pour Tuan */
 void  F_TransformPiezoT (F_ARG) ;  /* pour Tuan */
 
-/* F_Jiles */
+/* F_Hysteresis */
 
-void  F_dhdb_Jiles      (F_ARG) ;  /* pour Johan */
-void  F_dbdh_Jiles      (F_ARG) ;  /* pour Johan */
-void  F_h_Jiles         (F_ARG) ;  /* pour Johan */
-void  F_b_Jiles         (F_ARG) ;  /* pour Johan */
+void  F_dhdb_Jiles      (F_ARG) ;
+void  F_dbdh_Jiles      (F_ARG) ;
+void  F_h_Jiles         (F_ARG) ;
+void  F_b_Jiles         (F_ARG) ;
 
-void  F_dhdb_Ducharne(F_ARG) ; /* pour Riccardo */
-void  F_h_Ducharne (F_ARG) ; /* pour Riccardo */
-void  F_nu_Ducharne(F_ARG) ; /* pour Riccardo */
+void  F_dhdb_Ducharne(F_ARG) ;
+void  F_h_Ducharne (F_ARG) ;
+void  F_nu_Ducharne(F_ARG) ;
 double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL,
                       int NC, double h0, double b0, double b);
 
