@@ -186,7 +186,7 @@ fi
 dnl Check for blas and lapack by hand if we don't have PETSc
 if test "x${PETSC}" != "xyes"; then
   if test "x$enable_fortran" != "xno"; then
-    AC_LANG_PUSH(Fortran 77)
+    AC_LANG_PUSH(Fortran)
   fi
   if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
     LDFLAGS="${LDFLAGS} -L${BLAS_LAPACK_PREFIX} -L${BLAS_LAPACK_PREFIX}/lib"
