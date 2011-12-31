@@ -128,6 +128,25 @@ dnl Set default subdirectories
 GETDP_DIRS="Common Numeric Interface Legacy Main"
 GETDP_LIBS="-Llib -lGetDPLegacy -lGetDPInterface -lGetDPLegacy -lGetDPNumeric -lGetDPCommon"
 
+dnl Check for Gmsh
+if test "x$enable_gmsh" != "xno"; then
+  if test "x${GMSH_PREFIX}" != "x"; then
+    LDFLAGS="-L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib ${LDFLAGS}"
+  fi
+  AC_CHECK_LIB(Gmsh,main,GMSH="yes",GMSH="no")
+  if test "x${GMSH}" = "xyes"; then
+    AC_DEFINE(HAVE_GMSH)
+    BO="${BO} Gmsh"
+    if test "x${GMSH_PREFIX}" = "x"; then
+      GETDP_LIBS="${GETDP_LIBS} -lGmsh"
+    else
+      GETDP_LIBS="${GETDP_LIBS} -L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib -lGmsh"
+      FLAGS="${FLAGS} -I${GMSH_PREFIX} -I${GMSH_PREFIX}/include"
+      FLAGS="${FLAGS} -I${GMSH_PREFIX}/gmsh -I${GMSH_PREFIX}/include/gmsh"
+    fi
+  fi
+fi
+
 dnl Check for PETSc
 if test "x$enable_petsc" != "xno" -a "x$enable_sparskit" != "xyes"; then
   if test "x${PETSC_DIR}" = "x"; then
@@ -200,7 +219,7 @@ if test "x${PETSC}" != "xyes"; then
   fi
 fi
 
-dnl Check for Arpack, then link with blas and lapack if necessary
+dnl Check for Arpack
 if test "x$enable_fortran" != "xno"; then
   if test "x$enable_arpack" != "xno" -a "x${LAPACK}" = "xyes"; then
     AC_CHECK_FILE(./contrib/Arpack/znaupd.f, ARPACK="yes", ARPACK="no")
@@ -209,18 +228,22 @@ if test "x$enable_fortran" != "xno"; then
       BO="${BO} Arpack"
       GETDP_DIRS="${GETDP_DIRS} contrib/Arpack"
       GETDP_LIBS="${GETDP_LIBS} -lGetDPArpack"
-      if test "x${SPARSKIT}" = "xyes"; then
-        if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
-          GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -llapack -lblas"
-        else
-          GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
-        fi
-      fi
     fi
   fi
 fi
 
-dnl check for zitsol
+dnl Link with blas and lapack if necessary
+if test "x${SPARSKIT}" = "xyes"; then
+  if test "x${GMSH}" = "xyes" -o "x${ARPACK}" = "xyes"; then
+    if test "x${BLAS_LAPACK_PREFIX}" != "x"; then
+      GETDP_LIBS="${GETDP_LIBS} -L${BLAS_LAPACK_PREFIX} -llapack -lblas"
+    else
+      GETDP_LIBS="${GETDP_LIBS} -llapack -lblas"
+    fi
+  fi
+fi
+
+dnl Check for zitsol
 if test "x$enable_fortran" != "xno"; then
   if test "x$enable_zitsol" = "xyes" -a "x${PETSC}" = "xyes"; then
     AC_CHECK_FILE(./contrib/ZITSOL_1/zarms2.c,ZITSOL="yes",ZITSOL="no")
@@ -229,25 +252,6 @@ if test "x$enable_fortran" != "xno"; then
       BO="${BO} Zitsol"
       GETDP_DIRS="${GETDP_DIRS} contrib/ZITSOL_1"
       GETDP_LIBS="${GETDP_LIBS} -lGetDPzitsol"
-    fi
-  fi
-fi
-
-dnl Check for Gmsh
-if test "x$enable_gmsh" != "xno"; then
-  if test "x${GMSH_PREFIX}" != "x"; then
-    LDFLAGS="-L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib ${LDFLAGS}"
-  fi
-  AC_CHECK_LIB(Gmsh,main,GMSH="yes",GMSH="no")
-  if test "x${GMSH}" = "xyes"; then
-    AC_DEFINE(HAVE_GMSH)
-    BO="${BO} Gmsh"
-    if test "x${GMSH_PREFIX}" = "x"; then
-      GETDP_LIBS="${GETDP_LIBS} -lGmsh"
-    else
-      GETDP_LIBS="${GETDP_LIBS} -L${GMSH_PREFIX} -L${GMSH_PREFIX}/lib -lGmsh"
-      FLAGS="${FLAGS} -I${GMSH_PREFIX} -I${GMSH_PREFIX}/include"
-      FLAGS="${FLAGS} -I${GMSH_PREFIX}/gmsh -I${GMSH_PREFIX}/include/gmsh"
     fi
   fi
 fi
