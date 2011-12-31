@@ -86,7 +86,8 @@ void Info(int level, char *arg0)
     fprintf(stderr, "Build date   : %s\n", GETDP_DATE);
     fprintf(stderr, "Build host   : %s\n", GETDP_HOST);
 #if defined(HAVE_GMSH)
-    fprintf(stderr, "Gmsh version : %s%s\n", GMSH_VERSION, GMSH_EXTRA_VERSION);
+    fprintf(stderr, "Gmsh version : %s%s (%s)\n",
+            GMSH_VERSION, GMSH_EXTRA_VERSION, GMSH_DATE);
     fprintf(stderr, "Gmsh options :%s\n", GMSH_CONFIG_OPTIONS);
 #endif
     fprintf(stderr, "Packager     : %s\n", GETDP_PACKAGER);
