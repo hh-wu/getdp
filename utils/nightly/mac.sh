@@ -57,6 +57,7 @@ export CXX="/usr/bin/g++ -m64"
 export FC="/usr/local/bin/gfortran -m64"
 export PETSC_DIR=${HOME}/src/petsc-3.1-p8
 export SLEPC_DIR=${HOME}/src/slepc-3.1-p4
+export PREFIXES="--with-blas-lapack-prefix=/usr/local --with-gmsh-prefix=/usr/local --with-gsl-prefix=/usr/local"
 
 rm -f ${LOG}
 
