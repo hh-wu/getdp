@@ -69,7 +69,7 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} --enable-sparskit >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-mac${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-MacOSX64r.tgz
+scp -C ${GETDP}/getdp-*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-MacOSX64s.tgz
 
 export PETSC_ARCH=macosx64_real_mumps_seq
 rm -f ${GETDP}/Makefile*
