@@ -69,6 +69,8 @@ void Message::Exit(int level)
   MPI_Initialized(&flag);
   if(flag) MPI_Finalize();
 #endif
+  FinalizeSocket();
+  FinalizeOnelab();
   exit(level);
 }
 
@@ -93,7 +95,8 @@ void Message::Fatal(const char *fmt, ...)
       fprintf(stderr, "Fatal   : %s\n", str);
     fflush(stderr);
   }
-  exit(1);
+
+  Exit(1);
 }
 
 void Message::Error(const char *fmt, ...)
@@ -118,9 +121,7 @@ void Message::Error(const char *fmt, ...)
     fflush(stderr);
   }
 
-  FinalizeSocket();
-  FinalizeOnelab();
-  exit(1);
+  Exit(1);
 }
 
 void Message::Warning(const char *fmt, ...)
@@ -392,6 +393,17 @@ void Message::InitializeOnelab(std::string sockname)
   // if sockname is file, we should load the database from disk
   //_onelabClient = new onelab::localClient("GetDP", sockname);
   //_onelabClient->readDatabaseFromFile(sockname);
+  
+  onelab::string o("GetDP/FileExtension", ".pro");
+  o.setVisible(false);
+  _onelabClient->set(o);
+
+  std::vector<onelab::string> ps;
+  _onelabClient->get(ps, "GetDP/Action");
+  if(ps.size()){
+    Info("Performing OneLab '%s'", ps[0].getValue().c_str());
+    if(ps[0].getValue() == "initialize") Exit(0);
+  }
 }
 
 void Message::AddOnelabNumberChoice(std::string name, double val)

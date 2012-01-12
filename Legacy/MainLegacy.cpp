@@ -439,8 +439,6 @@ int MainLegacy(int argc, char *argv[])
     choose = 0;
   }
 
-  // Message::TestSocket();
-
   if(check) 
     Print_ProblemStructure();
 
@@ -466,8 +464,6 @@ int MainLegacy(int argc, char *argv[])
   GmshFinalize();
 #endif
 
-  Message::FinalizeSocket();
-  Message::FinalizeOnelab();
   Message::Exit(0);
   return 0;
 }

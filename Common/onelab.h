@@ -91,6 +91,19 @@ namespace onelab{
     const std::string &getName() const { return _name; }
     const std::string &getShortHelp() const { return _shortHelp; }
     const std::string &getHelp() const { return _help; }
+    std::string getShortName() const
+    {
+      if(_shortHelp.size()) return _shortHelp;
+      std::string s = _name;
+      // remove path
+      std::string::size_type last = _name.find_last_of('/');
+      if(last != std::string::npos)
+        s = _name.substr(last + 1);
+      // remove starting numbers
+      while(s.size() && s[0] >= '0' && s[0] <= '9')
+        s = s.substr(1);
+      return s;
+    }
     bool getChanged() const { return _changed; }
     bool getVisible() const { return _visible; }
     std::string getAttribute(const std::string &key) const
@@ -312,15 +325,18 @@ namespace onelab{
   // regions will include union, intersection, etc.
   class region : public parameter{
   private:
-    std::string _value; // TODO: change this into std::set<std::string>
-    std::vector<std::string> _choices;
+    std::set<std::string> _value;
+    std::vector<std::set<std::string> > _choices;
+    // optional geometrical dimension 
+    int _dimension;
   public:
-    region(const std::string &name="", const std::string &value="",
+    region(const std::string &name="",
+           const std::set<std::string> &value = std::set<std::string>(),
            const std::string &shortHelp="", const std::string &help="") 
       : parameter(name, shortHelp, help), _value(value) {}
-    void setValue(const std::string &value){ _value = value; }
+    void setValue(const std::set<std::string> &value){ _value = value; }
     std::string getType() const { return "region"; }
-    const std::string &getValue() const { return _value; }
+    const std::set<std::string> &getValue() const { return _value; }
     void update(const region &p)
     {
       addClients(p.getClients());
@@ -334,12 +350,15 @@ namespace onelab{
     }
     std::string toChar() const
     {
+      /*
       std::ostringstream sstream;
       sstream << parameter::toChar() << _value << charSep() 
               << _choices.size() << charSep();
       for(unsigned int i = 0; i < _choices.size(); i++)
         sstream << sanitize(_choices[i]) << charSep();
       return sstream.str();
+      */
+      return "";
     }
   };
 
@@ -494,6 +513,10 @@ namespace onelab{
              const std::string &client=""){ return _get(ps, name, client, _regions); }
     bool get(std::vector<function> &ps, const std::string &name="",
              const std::string &client=""){ return _get(ps, name, client, _functions); }
+    unsigned int getNumParameters()
+    {
+      return _numbers.size() + _strings.size() + _regions.size() + _functions.size();
+    }
     // check if at least one parameter depends on the given client
     bool hasClient(const std::string &client) const
     {
@@ -557,7 +580,7 @@ namespace onelab{
     int getId(){ return _id; }
     void setIndex(int index){ _index = index; }
     int getIndex(){ return _index; }
-    virtual bool run(const std::string &what){ return false; }
+    virtual bool run(){ return false; }
     virtual bool isNetworkClient(){ return false; }
     virtual bool kill(){ return false; }
     virtual void sendInfo(const std::string &msg){ std::cout << msg << std::endl; }
@@ -629,7 +652,8 @@ namespace onelab{
     std::string toChar(const std::string &client="")
     {
       return _parameterSpace.toChar(client); 
-    }
+    }    
+    unsigned int getNumParameters(){ return _parameterSpace.getNumParameters(); }
   };
     
   class localClient : public client{
@@ -689,7 +713,7 @@ namespace onelab{
     void setPid(int pid){ _pid = pid; }
     GmshServer *getGmshServer(){ return _gmshServer; }
     void setGmshServer(GmshServer *server){ _gmshServer = server; }
-    virtual bool run(const std::string &what);
+    virtual bool run();
     virtual bool kill();
   };
 
