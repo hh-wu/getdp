@@ -144,6 +144,7 @@ Branch                       return tBranch;
 NameOfResolution             return tNameOfResolution;
 
 Jacobian                     return tJacobian;
+MetricTensor                 return tMetricTensor;
 Case                         return tCase;
 
 Integration                  return tIntegration;

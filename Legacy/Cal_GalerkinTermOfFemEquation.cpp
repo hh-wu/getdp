@@ -39,7 +39,7 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 				       struct Dof              * DofForNoDof_P)
 {
   struct FemLocalTermActive  * FI ;
-  extern int MH_Moving_Matrix_simple, MH_Moving_Matrix_probe, MH_Moving_Matrix_separate; 
+  extern int MH_Moving_Matrix_simple, MH_Moving_Matrix_probe, MH_Moving_Matrix_separate;
 
   FI = EquationTerm_P->Case.LocalTerm.Active ;
 
@@ -112,17 +112,17 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 
   /*  G e t   I n t e g r a t i o n   M e t h o d   */
   /*  --------------------------------------------  */
-  
+
   if(EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex < 0)
     Message::Error("Integration method missing in equation term");
 
-  FI->IntegrationCase_L = 
+  FI->IntegrationCase_L =
     ((struct IntegrationMethod *)
      List_Pointer(Problem_S.IntegrationMethod,
 		  EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))
     ->IntegrationCase ;
 
-  FI->CriterionIndex = 
+  FI->CriterionIndex =
     ((struct IntegrationMethod *)
      List_Pointer(Problem_S.IntegrationMethod,
 		  EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))
@@ -134,7 +134,7 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 
   if(EquationTerm_P->Case.LocalTerm.JacobianMethodIndex < 0)
     Message::Error("Jacobian method missing in equation term");
-  
+
   FI->JacobianCase_L =
     ((struct JacobianMethod *)
      List_Pointer(Problem_S.JacobianMethod,
@@ -145,19 +145,19 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
     (FI->NbrJacobianCase = List_Nbr(FI->JacobianCase_L)) ?
     (struct JacobianCase*)List_Pointer(FI->JacobianCase_L, 0) : NULL ;
 
-  FI->Flag_ChangeCoord = 
+  FI->Flag_ChangeCoord =
     ( FI->SymmetricalMatrix ||
-      !( 
+      !(
 	( (FI->Type_FormEqu == FORM0 || FI->Type_FormEqu == FORM0P) &&
 	  (FI->Type_FormDof == FORM3 || FI->Type_FormDof == FORM3P) ) ||
 	/*
         ( (FI->Type_FormEqu == FORM1 || FI->Type_FormEqu == FORM1P)  &&
 	  (FI->Type_FormDof == FORM2 || FI->Type_FormDof == FORM2P) ) ||
 	( (FI->Type_FormEqu == FORM2 || FI->Type_FormEqu == FORM2P)  &&
-	  (FI->Type_FormDof == FORM1 || FI->Type_FormDof == FORM1P) ) || 
+	  (FI->Type_FormDof == FORM1 || FI->Type_FormDof == FORM1P) ) ||
 	 */
 	( (FI->Type_FormEqu == FORM3 || FI->Type_FormEqu == FORM3P) &&
-	  (FI->Type_FormDof == FORM0 || FI->Type_FormDof == FORM0P) ) 
+	  (FI->Type_FormDof == FORM0 || FI->Type_FormDof == FORM0P) )
 	)
       )
     ||  /* For operators on VECTOR's (To be extended) */
@@ -172,11 +172,11 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 			(FI->Type_FormEqu == VECTOR || FI->Type_FormDof == VECTOR) ||
 			(EquationTerm_P->Case.LocalTerm.Term.QuantityIndexPost == 1) ) ;
   }
-  
+
   /*  G e t   C h a n g e O f C o o r d i n a t e s   */
   /*  ----------------------------------------------  */
 
-  FI->xChangeOfCoordinatesEqu = 
+  FI->xChangeOfCoordinatesEqu =
     (void (*)())Get_ChangeOfCoordinates(FI->Flag_ChangeCoord, FI->Type_FormEqu) ;
 
   if (!FI->SymmetricalMatrix)
@@ -189,20 +189,20 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 
   /*  G e t   C a l _ P r o d u c t x  */
   /*  -------------------------------- */
-  
+
   switch (FI->Type_FormEqu) {
   case FORM1   : case FORM1S :
   case FORM2   : case FORM2P : case FORM2S :
   case VECTOR  :
     FI->Cal_Productx = (double (*)())Cal_Product123 ; break ;
-  case FORM1P  :  
+  case FORM1P  :
   case VECTORP :
     FI->Cal_Productx = (double (*)())Cal_Product3 ; break ;
-  case FORM0   : 
-  case FORM3   :  case FORM3P :  
+  case FORM0   :
+  case FORM3   :  case FORM3P :
   case SCALAR  :
     FI->Cal_Productx = (double (*)())Cal_Product1 ; break ;
-  default      : 
+  default      :
     Message::Error("Unknown type of Form (%d)", FI->Type_FormEqu);
   }
 
@@ -218,22 +218,22 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   case JACNL_  : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_JacNL  ; break;
   case NEVERDT_: FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NeverDt; break;
   case DTNL_   : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtNL   ; break;
-  default      : Message::Error("Unknown type of Operator for Galerkin term (%d)", 
+  default      : Message::Error("Unknown type of Operator for Galerkin term (%d)",
                                 EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
   }
 
 
   if (MH_Moving_Matrix_simple) {
     /* Message::Info("AssembleTerm_MH_Moving") ; */
-    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_simple ; 
+    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_simple ;
   }
   if (MH_Moving_Matrix_probe) {
     /* Message::Info("AssembleTerm_MH_Moving") ; */
-    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_probe ; 
+    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_probe ;
   }
   if (MH_Moving_Matrix_separate) {
     /* Message::Info("AssembleTerm_MH_Moving") ; */
-    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_separate ; 
+    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_MH_Moving_separate ;
   }
 
   /*  initialisation of MHJacNL-term (nonlinear multi-harmonics) if necessary */
@@ -242,9 +242,71 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   /* Full_Matrix */
   if (EquationTerm_P->Case.LocalTerm.Full_Matrix) {
     FI->Full_Matrix = 1;
-    FI->FirstElements = List_Create(20, 10, sizeof(struct FirstElement)) ;    
+    FI->FirstElements = List_Create(20, 10, sizeof(struct FirstElement)) ;
   }
 }
+
+/* ------------------------------------------------------------------------ */
+/*  C a l _ a p p l y M e t r i c T e n s o r                               */
+/* ------------------------------------------------------------------------ */
+
+void Cal_applyMetricTensor(struct EquationTerm       * EquationTerm_P,
+                           struct FemLocalTermActive * FI,
+                           struct QuantityStorage    * QuantityStorage_P0,
+                           int                         Nbr_Dof,
+                           struct Value                vBFxDof[])
+{
+  int           j;
+  int           mi;
+  struct Value  S;
+  struct Value  detS;
+
+  mi = EquationTerm_P->Case.LocalTerm.ExpressionIndexForMetricTensor;
+  if(mi == -1) return;
+  Get_ValueOfExpression
+    ((struct Expression*)List_Pointer(Problem_S.Expression, mi),
+     QuantityStorage_P0, Current.u, Current.v, Current.w, &S) ;
+
+  if(S.Type == SCALAR) {
+    S.Type = TENSOR_DIAG;
+    S.Val[1] = S.Val[0];
+    S.Val[2] = S.Val[0];
+  }
+  if(S.Type != TENSOR_SYM && S.Type != TENSOR && S.Type != TENSOR_DIAG) return;
+
+  Cal_DetValue(&S, &detS);
+  detS.Val[0] = fabs(detS.Val[0]);
+
+  switch (FI->Type_FormDof) {
+  case FORM1 : case FORM1S : case FORM1P :
+    Cal_InvertValue(&S, &S);
+    Cal_SqrtValue(&detS, &detS);
+    for (j = 0 ; j < Nbr_Dof ; j++) {
+      Cal_ProductValue(&S, &vBFxDof[j], &vBFxDof[j]);
+      Cal_ProductValue(&detS, &vBFxDof[j], &vBFxDof[j]);
+    }
+    break;
+  case FORM2 : case FORM2S : case FORM2P :
+    Cal_InvertValue(&detS, &detS);
+    Cal_SqrtValue(&detS, &detS);
+    for (j = 0 ; j < Nbr_Dof ; j++) {
+      Cal_ProductValue(&S, &vBFxDof[j], &vBFxDof[j]);
+      Cal_ProductValue(&detS, &vBFxDof[j], &vBFxDof[j]);
+    }
+    break;
+  case FORM3 : case FORM3S : case FORM3P :
+  case FORM0 : case FORM0S : case FORM0P :
+    Cal_InvertValue(&detS, &detS);
+    Cal_SqrtValue(&detS, &detS);
+    for (j = 0 ; j < Nbr_Dof ; j++) {
+      Cal_ProductValue(&detS, &vBFxDof[j], &vBFxDof[j]);
+    }
+    break;
+  default:
+    break;
+  }
+}
+
 
 /* ------------------------------------------------------------------------ */
 /*  C a l _ v B F x D o f                                                   */
@@ -254,9 +316,9 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
 		 struct FemLocalTermActive * FI,
 		 struct QuantityStorage    * QuantityStorage_P0,
 		 struct QuantityStorage    * QuantityStorageDof_P,
-		 int                         Nbr_Dof,			   
+		 int                         Nbr_Dof,
 		 void (*xFunctionBFDof[NBR_MAX_BASISFUNCTIONS])
-		 (struct Element * Element, int NumEntity, 
+		 (struct Element * Element, int NumEntity,
 		  double u, double v, double w, double Value[]),
 		 double vBFxEqu[][MAX_DIM],
 		 struct Value vBFxDof[])
@@ -275,12 +337,12 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
       Current.y += Current.Element->y[i] * Current.Element->n[i] ;
       Current.z += Current.Element->z[i] * Current.Element->n[i] ;
     }
-    xyz2uvwInAnElement(E, Current.x, Current.y, Current.z, 
-		       &Current.ut, &Current.vt, &Current.wt) ;	
+    xyz2uvwInAnElement(E, Current.x, Current.y, Current.z,
+		       &Current.ut, &Current.vt, &Current.wt) ;
     u = Current.ut ;
     v = Current.vt ;
     w = Current.wt ;
-  } 
+  }
   else{
     E = Current.Element ;
     u = Current.u ;
@@ -290,13 +352,13 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
 
   /* shape functions, integral quantity or dummy */
 
-  if (!FI->SymmetricalMatrix) {	  
+  if (!FI->SymmetricalMatrix) {
 
     switch (FI->Type_DefineQuantityDof) {
     case LOCALQUANTITY :
       for (j = 0 ; j < Nbr_Dof ; j++) {
 	xFunctionBFDof[j]
-	  (E, 
+	  (E,
 	   QuantityStorageDof_P->BasisFunction[j].NumEntityInElement+1,
 	   u, v, w, vBFuDof[j]) ;
 	((void (*)(struct Element*, double*, double*))
@@ -312,15 +374,15 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
       break ;
     case INTEGRALQUANTITY :
       if (FI->IntegralQuantityActive.IntegrationCase_P->Type == ANALYTIC)
-	Cal_AnalyticIntegralQuantity (Current.Element, 
-				      QuantityStorageDof_P, Nbr_Dof, 
+	Cal_AnalyticIntegralQuantity (Current.Element,
+				      QuantityStorageDof_P, Nbr_Dof,
 				      (void (**)())xFunctionBFDof, vBFxDof) ;
-      
+
       else
-	Cal_NumericalIntegralQuantity (Current.Element, 
-				       &FI->IntegralQuantityActive, 
-				       QuantityStorage_P0, QuantityStorageDof_P, 
-				       FI->Type_DefineQuantityDof, Nbr_Dof, 
+	Cal_NumericalIntegralQuantity (Current.Element,
+				       &FI->IntegralQuantityActive,
+				       QuantityStorage_P0, QuantityStorageDof_P,
+				       FI->Type_DefineQuantityDof, Nbr_Dof,
 				       (void (**)())xFunctionBFDof, vBFxDof) ;
 
 
@@ -331,7 +393,7 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
       /*      QuantityStorageDof_P->BasisFunction[0].Dof = FI->DofForNoDof_P ; */
       break ;
     }
-  }  
+  }
   else {
     for (j = 0 ; j < Nbr_Dof ; j++){
       ((void (*)(struct Element*, double*, double*))
@@ -340,19 +402,19 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
       if(Current.NbrHar > 1) Cal_SetHarmonicValue(&vBFxDof[j]) ;
     }
   }
-  
+
   /* Compute remaining factors in the term */
-  
-  if (EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity == 
+
+  if (EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity ==
       CWQ_DOF) {
   }
-  else if (EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity == 
+  else if (EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity ==
 	   CWQ_EXP_TIME_DOF) {
     Get_ValueOfExpression
       ((struct Expression*)List_Pointer
-       (Problem_S.Expression, 
+       (Problem_S.Expression,
 	EquationTerm_P->Case.LocalTerm.Term.ExpressionIndexForCanonical),
-       QuantityStorage_P0, Current.u, Current.v, Current.w, 
+       QuantityStorage_P0, Current.u, Current.v, Current.w,
        &CoefPhys) ;
     for (j = 0 ; j < Nbr_Dof ; j++)
       Cal_ProductValue(&CoefPhys, &vBFxDof[j], &vBFxDof[j]) ;
@@ -363,7 +425,12 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
        EquationTerm_P->Case.LocalTerm.Term.WholeQuantity,
        Current.u, Current.v, Current.w,
        EquationTerm_P->Case.LocalTerm.Term.DofIndexInWholeQuantity,
-       Nbr_Dof, vBFxDof) ;  
+       Nbr_Dof, vBFxDof) ;
+
+  /* Compute using metric tensor if defined */
+  Cal_applyMetricTensor(EquationTerm_P, FI, QuantityStorage_P0,
+                        Nbr_Dof, vBFxDof);
+
 }
 
 /* ------------------------------------------------------------------------ */
@@ -380,37 +447,46 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   struct Quadrature         * Quadrature_P ;
   struct Value                vBFxDof [NBR_MAX_BASISFUNCTIONS], CoefPhys ;
   struct Value                CanonicExpression_Equ, V1, V2;
+  struct Value                MetricTensor;
 
   int     Nbr_Equ, Nbr_Dof = 0;
   int     i, j, k, Type_Dimension, Nbr_IntPoints, i_IntPoint ;
   int     NextElement ;
-  
+
   double  weight, Factor = 1. ;
   double  vBFuEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double  vBFxEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double  Ek [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_HARMONIC] ;
 
+  MetricTensor.Type = TENSOR_SYM;
+  MetricTensor.Val[0] = 1.;
+  MetricTensor.Val[1] = 0.;
+  MetricTensor.Val[2] = 0.;
+  MetricTensor.Val[3] = 1.;
+  MetricTensor.Val[4] = 0.;
+  MetricTensor.Val[5] = 1.;
+
   void (*xFunctionBFEqu[NBR_MAX_BASISFUNCTIONS])
-    (struct Element * Element, int NumEntity, 
+    (struct Element * Element, int NumEntity,
      double u, double v, double w, double Value[] ) ;
   void (*xFunctionBFDof[NBR_MAX_BASISFUNCTIONS])
-    (struct Element * Element, int NumEntity, 
+    (struct Element * Element, int NumEntity,
      double u, double v, double w, double Value[] ) ;
   double (*Get_Jacobian)(struct Element*, MATRIX3x3*) ;
   void (*Get_IntPoint)(int,int,double*,double*,double*,double*);
-  
-  extern int Flag_RHS;  
- 
+
+  extern int Flag_RHS;
+
   Current.flagAssDiag = 0; /*+++prov*/
 
   FI = EquationTerm_P->Case.LocalTerm.Active ;
 
-  /* treatment of MHJacNL-term in separate routine */ 
-  if (FI->MHJacNL) {  
-    /* if only the RHS of the system is to be calculated 
+  /* treatment of MHJacNL-term in separate routine */
+  if (FI->MHJacNL) {
+    /* if only the RHS of the system is to be calculated
        (in case of adaptive relaxation of the Newton-Raphson scheme)
-       the (expensive and redundant) calculation of this term can be skipped */ 
-    if (!Flag_RHS)  
+       the (expensive and redundant) calculation of this term can be skipped */
+    if (!Flag_RHS)
       Cal_GalerkinTermOfFemEquation_MHJacNL(Element, EquationTerm_P, QuantityStorage_P0) ;
     return;
   }
@@ -429,7 +505,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   if(Nbr_Equ > NBR_MAX_BASISFUNCTIONS)
     Message::Fatal("Number of basis functions (%d) exceeds NBR_MAX_BASISFUNCTIONS: "
                    "please recompile after changing Interface/ProData.h", Nbr_Equ);
-  
+
   Get_FunctionValue(Nbr_Equ, (void (**)())xFunctionBFEqu,
 		    EquationTerm_P->Case.LocalTerm.Term.TypeOperatorEqu,
 		    QuantityStorageEqu_P, &FI->Type_FormEqu) ;
@@ -451,10 +527,10 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       break ;
     case INTEGRALQUANTITY :
       Get_InitElementSource(Element,
-			    QuantityStorageDof_P->DefineQuantity->IntegralQuantity.InIndex) ;  
+			    QuantityStorageDof_P->DefineQuantity->IntegralQuantity.InIndex) ;
       break ;
-    case NODOF : 
-      Nbr_Dof = 1 ;  
+    case NODOF :
+      Nbr_Dof = 1 ;
       break ;
     }
   }
@@ -469,7 +545,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   /*  -------------------------------------------------------------------  */
   /*  G e t   J a c o b i a n   M e t h o d                                */
   /*  -------------------------------------------------------------------  */
-  
+
   i = 0 ;
   while ((i < FI->NbrJacobianCase) &&
 	 ((j = (FI->JacobianCase_P0 + i)->RegionIndex) >= 0) &&
@@ -489,6 +565,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   if (FI->Flag_ChangeCoord)
     Get_NodesCoordinatesOfElement(Element) ;
 
+
   /*  ------------------------------------------------------------------------  */
   /*  ------------------------------------------------------------------------  */
   /*  C o m p u t a t i o n   o f   E l e m e n t a r y   m a t r i x           */
@@ -497,60 +574,60 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 
 
   /* Loop on source elements (> 1 only if integral quantity) */
-  
-  while (1) {  
+
+  while (1) {
 
     if (FI->Type_DefineQuantityDof == INTEGRALQUANTITY) {
 
       NextElement = Get_NextElementSource(Element->ElementSource) ;
-      
+
       if (NextElement) {
 	/* Get DOF of source element */
-      
+
 	Get_DofOfElement(Element->ElementSource,
 			 QuantityStorageDof_P->FunctionSpace,
 			 QuantityStorageDof_P, NULL) ;
-	
+
 	/* Get function value for shape function */
-      
+
 	Get_NodesCoordinatesOfElement(Element->ElementSource) ;
 	Nbr_Dof = QuantityStorageDof_P->NbrElementaryBasisFunction ;
 	Get_FunctionValue
 	  (Nbr_Dof, (void (**)())xFunctionBFDof,
-	   QuantityStorageDof_P->DefineQuantity->IntegralQuantity.TypeOperatorDof, 
+	   QuantityStorageDof_P->DefineQuantity->IntegralQuantity.TypeOperatorDof,
 	   QuantityStorageDof_P, &FI->IntegralQuantityActive.Type_FormDof) ;
-	
+
 	/* Initialize Integral Quantity (integration & jacobian) */
-	
-	Cal_InitIntegralQuantity(Element, &FI->IntegralQuantityActive, 
+
+	Cal_InitIntegralQuantity(Element, &FI->IntegralQuantityActive,
 				   QuantityStorageDof_P);
       }
-      else { 
-	break ;	  
+      else {
+	break ;
       } /* if NextElement */
     } /* if INTEGRALQUANTITY */
-      
-   
+
+
     if (FI->SymmetricalMatrix)
-      for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j <= i      ; j++) 
+      for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j <= i      ; j++)
 	for (k = 0 ; k < Current.NbrHar ; k++)  Ek[i][j][k] = 0. ;
     else
       for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j < Nbr_Dof ; j++)
 	for (k = 0 ; k < Current.NbrHar ; k++)  Ek[i][j][k] = 0. ;
-    
-   
+
+
     switch (IntegrationCase_P->Type) {
-      
+
       /*  -------------------------------------  */
       /*  Q U A D R A T U R E                    */
       /*  -------------------------------------  */
-      
-    case GAUSS :  
+
+    case GAUSS :
     case GAUSSLEGENDRE :
-     
+
       Quadrature_P = (struct Quadrature*)
 	List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
-      
+
       if(!Quadrature_P)
 	Message::Error
 	  ("Unknown type of Element (%s) for Integration method (%s)",
@@ -558,34 +635,34 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	   ((struct IntegrationMethod *)
 	    List_Pointer(Problem_S.IntegrationMethod,
 			 EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))->Name);
-      
+
       Nbr_IntPoints = Quadrature_P->NumberOfPoints ;
       Get_IntPoint  = (void(*)(int,int,double*,double*,double*,double*))
 	Quadrature_P->Function ;
-           
-      
+
+
       for (i_IntPoint = 0 ; i_IntPoint < Nbr_IntPoints ; i_IntPoint++) {
-	
-	Get_IntPoint(Nbr_IntPoints, i_IntPoint, 
+
+	Get_IntPoint(Nbr_IntPoints, i_IntPoint,
 		     &Current.u, &Current.v, &Current.w, &weight) ;
-	
+
 	if (FI->Flag_ChangeCoord) {
 	  Get_BFGeoElement(Element, Current.u, Current.v, Current.w) ;
 
 	  Element->DetJac = Get_Jacobian(Element, &Element->Jac) ;
-	  
+
 	  if (FI->Flag_InvJac)
 	    Get_InverseMatrix(Type_Dimension, Element->Type, Element->DetJac,
 			      &Element->Jac, &Element->InvJac) ;
 	}
-	
+
 	/* Test Functions */
-	
+
 	if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ == CWQ_EXP_TIME_DOF)
 	  Get_ValueOfExpressionByIndex
 	    (EquationTerm_P->Case.LocalTerm.Term.ExpressionIndexForCanonical_Equ,
 	     QuantityStorage_P0, Current.u, Current.v, Current.w, &CanonicExpression_Equ) ;
-	
+
 	for (i = 0 ; i < Nbr_Equ ; i++) {
 	  xFunctionBFEqu[i]
 	    (Element,
@@ -593,8 +670,8 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	     Current.u, Current.v, Current.w, vBFuEqu[i]) ;
 	  ((void (*)(struct Element*, double*, double*))
 	   FI->xChangeOfCoordinatesEqu) (Element, vBFuEqu[i], vBFxEqu[i]) ;
-	  
-	  
+
+
 	  if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ != CWQ_NONE){
 	    V1.Type = Get_ValueFromForm(FI->Type_FormEqu);
 	    V1.Val[0]         = vBFxEqu[i][0] ;
@@ -603,12 +680,12 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	    V1.Val[MAX_DIM]   = 0;
 	    V1.Val[MAX_DIM+1] = 0;
 	    V1.Val[MAX_DIM+2] = 0;
-	    
-	    if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ == 
+
+	    if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ ==
 	       CWQ_EXP_TIME_DOF){
 	      switch(EquationTerm_P->Case.LocalTerm.Term.OperatorTypeForCanonical_Equ){
 	      case OP_TIME :
-		Cal_ProductValue (&CanonicExpression_Equ,&V1,&V2); 
+		Cal_ProductValue (&CanonicExpression_Equ,&V1,&V2);
 		break;
 	      case OP_CROSSPRODUCT :
 		Cal_CrossProductValue (&CanonicExpression_Equ,&V1,&V2);
@@ -617,7 +694,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 		Message::Error("Unknown operation in Equation");
 	      }
 	    }
-	    else if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ == 
+	    else if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ ==
 		    CWQ_FCT_DOF){
 	      ((void(*)(struct Function*, struct Value*, struct Value*))
 	       EquationTerm_P->Case.LocalTerm.Term.BuiltInFunction_Equ)
@@ -628,24 +705,23 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	    vBFxEqu[i][2] = V2.Val[2];
 
 	  }
-	  
+
 	} /* for Nbr_Equ */
-	
-	
+
+
 	/* Shape Functions (+ surrounding expression) */
-	
+
 	Current.Element = Element ;
-	Cal_vBFxDof(EquationTerm_P, FI, 
+	Cal_vBFxDof(EquationTerm_P, FI,
 		    QuantityStorage_P0, QuantityStorageDof_P,
 		    Nbr_Dof, xFunctionBFDof, vBFxEqu, vBFxDof);
 
 	Factor = (FI->Flag_ChangeCoord) ? weight * fabs(Element->DetJac) : weight ;
 
 	/* Product and assembly in elementary submatrix             (k?-1.:1.)*   */
-
 	if (FI->SymmetricalMatrix)
 	  for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j <= i ; j++)
-	    for (k = 0 ; k < Current.NbrHar ; k++)
+            for (k = 0 ; k < Current.NbrHar ; k++)
 	      Ek[i][j][k] += Factor *
 		((double (*)(double*, double*))
 		 FI->Cal_Productx) (vBFxEqu[i], &(vBFxDof[j].Val[MAX_DIM*k])) ;
@@ -654,18 +730,18 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	    for (k = 0 ; k < Current.NbrHar ; k++)
 	      Ek[i][j][k] += Factor *
 		((double (*)(double*, double*))
-		 FI->Cal_Productx) (vBFxEqu[i], &(vBFxDof[j].Val[MAX_DIM*k])) ;
+		 FI->Cal_Productx) (vBFxEqu[i], &(vBFxDof[j].Val[MAX_DIM*k]));
 
-      }  /* for i_IntPoint ... */            
+      }  /* for i_IntPoint ... */
       break ; /* case GAUSS */
-      
-      
+
+
       /*  -------------------------------------  */
       /*  A N A L Y T I C                        */
       /*  -------------------------------------  */
-      
+
     case ANALYTIC :
-      
+
       if (EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity ==
 	  CWQ_DOF) {
 	Factor = 1. ;
@@ -684,7 +760,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       else {
 	Message::Error("Bad expression for full analytic integration");
       }
-      
+
       if (FI->SymmetricalMatrix) {
 	for (i = 0 ; i < Nbr_Equ ; i++)  for (j = 0 ; j <= i ; j++)
 	  Ek[i][j][0] = Factor *
@@ -706,9 +782,9 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	  break;
 	}
       }
-      
+
       break ; /* case ANALYTIC */
-      
+
     default :
       Message::Error
 	("Unknown type of Integration method (%s)",
@@ -716,25 +792,25 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	  List_Pointer(Problem_S.IntegrationMethod,
 		       EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))->Name);
       break;
-      
+
     }
 
     /* Complete elementary matrix if symmetrical */
     /* ----------------------------------------- */
-    
+
     if (FI->SymmetricalMatrix)
-      for (i = 1 ; i < Nbr_Equ ; i++)  
+      for (i = 1 ; i < Nbr_Equ ; i++)
 	for (j = 0 ; j < i ; j++)
-	  for (k = 0 ; k < Current.NbrHar ; k++)  
+	  for (k = 0 ; k < Current.NbrHar ; k++)
 	    Ek[j][i][k] = Ek[i][j][k] ;
-    
+
     if(Message::GetVerbosity() == 10) {
       printf("Galerkin = ") ;
       for (j = 0 ; j < Nbr_Dof ; j++)
-	Print_DofNumber(QuantityStorageDof_P->BasisFunction[j].Dof) ; 
+	Print_DofNumber(QuantityStorageDof_P->BasisFunction[j].Dof) ;
       printf("\n") ;
-      for (i = 0 ; i < Nbr_Equ ; i++) { 
-	Print_DofNumber(QuantityStorageEqu_P->BasisFunction[i].Dof) ; 
+      for (i = 0 ; i < Nbr_Equ ; i++) {
+	Print_DofNumber(QuantityStorageEqu_P->BasisFunction[i].Dof) ;
 	printf("[ ") ;
 	for (j = 0 ; j < Nbr_Dof ; j++) {
 	  printf("(") ;
@@ -744,13 +820,13 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	printf("]\n") ;
       }
     }
-    
+
     /* Assembly in global matrix */
     /* ------------------------- */
     if (!Current.flagAssDiag) /*+++prov*/
-    for (i = 0 ; i < Nbr_Equ ; i++)  
+    for (i = 0 ; i < Nbr_Equ ; i++)
       for (j = 0 ; j < Nbr_Dof ; j++)
-	((void (*)(struct Dof*, struct Dof*, double*)) 
+	((void (*)(struct Dof*, struct Dof*, double*))
 	 FI->Function_AssembleTerm)
 	  (QuantityStorageEqu_P->BasisFunction[i].Dof,
 	   QuantityStorageDof_P->BasisFunction[j].Dof,  Ek[i][j]) ;
@@ -758,7 +834,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
       for (i = 0 ; i < Nbr_Equ ; i++) {
 	/*      for (j = 0 ; j < Nbr_Dof ; j++)*/
 	j = i;
-	((void (*)(struct Dof*, struct Dof*, double*)) 
+	((void (*)(struct Dof*, struct Dof*, double*))
 	 FI->Function_AssembleTerm)
 	  (QuantityStorageEqu_P->BasisFunction[i].Dof,
 	   QuantityStorageDof_P->BasisFunction[j].Dof,  Ek[i][j]) ;
@@ -770,19 +846,19 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	j = i;
 	Ek[i][j][0] = -1.;
 	for (k = 1 ; k < Current.NbrHar ; k++)  Ek[i][j][k] = 0. ;
-	((void (*)(struct Dof*, struct Dof*, double*)) 
+	((void (*)(struct Dof*, struct Dof*, double*))
 	 FI->Function_AssembleTerm)
 	  (QuantityStorageEqu_P->BasisFunction[i].Dof,
 	   QuantityStorageDof_P->BasisFunction[j].Dof,  Ek[i][j]) ;
       }
     }
 
-    
+
     /* Exit while(1) directly if not integral quantity */
 
     if (FI->Type_DefineQuantityDof != INTEGRALQUANTITY)  break ;
 
   }  /* while (1) ... */
-  
+
   Current.flagAssDiag = 0; /*+++prov*/
 }

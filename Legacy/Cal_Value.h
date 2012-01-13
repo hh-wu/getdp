@@ -17,6 +17,7 @@ void  Cal_AddValue            (struct Value *V1, struct Value *V2, struct Value 
 void  Cal_AddValueArray       (struct Value *V1, struct Value *V2, struct Value *R, int Nbr_Values);
 void  Cal_SubstractValue      (struct Value *V1, struct Value *V2, struct Value *R) ;
 void  Cal_ProductValue        (struct Value *V1, struct Value *V2, struct Value *R) ;
+void  Cal_SqrtValue           (struct Value *V1, struct Value *R) ;
 void  Cal_DivideValue         (struct Value *V1, struct Value *V2, struct Value *R) ;
 void  Cal_ModuloValue         (struct Value *V1, struct Value *V2, struct Value *R) ;
 void  Cal_CrossProductValue   (struct Value *V1, struct Value *V2, struct Value *R) ;
@@ -26,7 +27,7 @@ void  Cal_InvertValue         (struct Value *V1, struct Value *R);
 void  Cal_DetValue            (struct Value *V1, struct Value *R);
 void  Cal_TransposeValue      (struct Value *V1, struct Value *R);
 void  Cal_TraceValue          (struct Value *V1, struct Value *R);
- 	 
+
 void  Cal_LessValue           (struct Value *V1, struct Value *V2, struct Value *R) ;
 void  Cal_GreaterValue        (struct Value *V1, struct Value *V2, struct Value *R) ;
 void  Cal_LessOrEqualValue    (struct Value *V1, struct Value *V2, struct Value *R) ;

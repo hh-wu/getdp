@@ -47,7 +47,7 @@
 #if defined(HAVE_MULTIHARMONIC)
 #define NBR_MAX_HARMONIC    40
 #else
-#define NBR_MAX_HARMONIC    2   
+#define NBR_MAX_HARMONIC    2
 #endif
 
 #define MAX_STACK_SIZE      40
@@ -64,7 +64,7 @@ struct TwoInt { int  Int1, Int2; };
 /* ------------------------------------------------------------------------ */
 
 struct Problem {
-  List_T *Group         , *Expression; 
+  List_T *Group         , *Expression;
   List_T *FunctionSpace , *Constraint        , *Formulation;
   List_T *JacobianMethod, *IntegrationMethod;
   List_T *Resolution    , *PostProcessing    , *PostOperation;
@@ -80,7 +80,7 @@ struct Group {
   List_T *InitialList, *InitialSuppList;
   List_T *ExtendedList, *ExtendedSuppList;
   bool    IsExtendedListMultiValued;
-  struct  MovingBand2D *MovingBand2D; 
+  struct  MovingBand2D *MovingBand2D;
 };
 
 struct MovingBand2D {
@@ -357,7 +357,7 @@ struct GlobalBasisFunction {
 #define FORM2P      12
 #define FORM3P      13
 
-#define SCALAR      20 
+#define SCALAR      20
 #define VECTOR      21
 #define TENSOR      22  /* second-rank tensor of order 3 */
 #define TENSOR_SYM  23
@@ -407,7 +407,7 @@ struct ConstraintInFS {
 /* ------------------------------------------------------------------------ */
 
 struct Function {
-  void    (*Fct)(); /* ANSI C++ forbids data member `Function' with 
+  void    (*Fct)(); /* ANSI C++ forbids data member `Function' with
 			same name as enclosing class */
   int     TypeOfValue, NbrArguments, NbrParameters;
   double *Para;
@@ -474,7 +474,7 @@ struct IntegralQuantity {
 struct IntegralQuantityActive {
   int     Type_FormDof, Type_ValueDof;
 
-  List_T  *IntegrationCase_L; 
+  List_T  *IntegrationCase_L;
   struct  IntegrationCase *IntegrationCase_P;
   int     CriterionIndex;
   void    (*Get_IntPoint)();
@@ -487,7 +487,7 @@ struct IntegralQuantityActive {
 };
 
 
-struct FirstElement { 
+struct FirstElement {
   struct Dof *Equ;
   struct Dof *Dof;
   double Value;
@@ -505,10 +505,10 @@ struct DefineQuantity {
   List_T  *DummyFrequency;
 
   /* for multiple DofData vs. one FunctionSpace */
-  int      DofDataIndex; 
+  int      DofDataIndex;
   struct   DofData  *DofData;
 
-  /* for integral quantities */ 
+  /* for integral quantities */
   struct   IntegralQuantity  IntegralQuantity;
 };
 
@@ -559,7 +559,7 @@ struct EquationTerm {
 	int     DofIndexInWholeQuantity;
 	int     CanonicalWholeQuantity, ExpressionIndexForCanonical;
 	struct  Function  FunctionForCanonical;
-	int     CanonicalWholeQuantity_Equ, ExpressionIndexForCanonical_Equ, 
+	int     CanonicalWholeQuantity_Equ, ExpressionIndexForCanonical_Equ,
 	          OperatorTypeForCanonical_Equ;
 	void    (*BuiltInFunction_Equ)();
 
@@ -571,10 +571,12 @@ struct EquationTerm {
 	int     DefineQuantityIndexNoDof, DofInTrace;
       } Term;
 
-      int  InIndex; 
+      int  InIndex;
       int  Full_Matrix;
       int  IntegrationMethodIndex, JacobianMethodIndex;
-    
+
+      int  ExpressionIndexForMetricTensor;
+
       int  MatrixIndex;
       struct FemLocalTermActive  *Active;
     } LocalTerm;
@@ -638,7 +640,7 @@ struct FemLocalTermActive {
 
   int Full_Matrix;
   int NbrEqu, NbrHar, *NumEqu, *NumDof;
-  struct Dof *Equ, *Dof; 
+  struct Dof *Equ, *Dof;
   List_T *FirstElements;
   double **Matrix;
 };
@@ -650,7 +652,7 @@ struct GlobalQuantityStorage {
   int     CodeGlobalQuantity, CodeAssociateBasisFunction;
 
   int     CodeEntity;
-  int     Constraint;  
+  int     Constraint;
   double  Value[NBR_MAX_HARMONIC];
   int     TimeFunctionIndex;
 };
@@ -691,9 +693,9 @@ struct GlobalEquationTerm {
 #define CURLINV    7
 #define DIVINV     8
 
-/* Tous ces operateurs de trace ne servent a RIEN pour le moment 
-   De plus, les 'x' sont ambigus. Il faut penser a definir des 
-   operateurs de trace (T ou T*), qui doivent avoir, outre 
+/* Tous ces operateurs de trace ne servent a RIEN pour le moment
+   De plus, les 'x' sont ambigus. Il faut penser a definir des
+   operateurs de trace (T ou T*), qui doivent avoir, outre
    \Gamma=\partial\Omega, l'info concernant \Omega.
  */
 #define NPx        9
@@ -725,7 +727,7 @@ struct GlobalEquationTerm {
 #define CWQ_GF_PSCA_EXP    7
 #define CWQ_GF_PVEC_DOF    8
 #define CWQ_DOF_PVEC_GF    9
-#define CWQ_GF_PVEC_EXP   10 
+#define CWQ_GF_PVEC_EXP   10
 #define CWQ_EXP_PVEC_GF   11
 
 #define CWQ_EXP_TIME_GF_PSCA_DOF  12
@@ -759,14 +761,14 @@ struct WholeQuantity {
     struct { int  Index; }                                       ShowValue;
     struct { int  Index; }                                       ValueSaved;
     struct { int  TypeOperator; void  (*Function)(); }           Operator; /* binary or unary */
-    struct { List_T *WholeQuantity; 
+    struct { List_T *WholeQuantity;
              int FunctionSpaceIndexForType, NbrHar; }            Cast;
     struct { List_T *WholeQuantity ; }                           ChangeCurrentPosition ;
-    struct { List_T *WholeQuantity ; 
+    struct { List_T *WholeQuantity ;
              int InIndex, DofIndexInWholeQuantity; }             Trace;
-    struct { char *SystemName; int DefineSystemIndex; 
-             int DofNumber; }                                    DofValue; 
-    struct { List_T *WholeQuantity; 
+    struct { char *SystemName; int DefineSystemIndex;
+             int DofNumber; }                                    DofValue;
+    struct { List_T *WholeQuantity;
              int Index, NbrPoints; }                             MHTransform;
     struct { int Index, NbrPoints, FreqOffSet; }                 MHJacNL;
   } Case;
@@ -881,7 +883,7 @@ struct Operation {
     } SetFrequency;
     struct {
       List_T  *Frequency;
-      int     DefineSystemIndex[2]; 
+      int     DefineSystemIndex[2];
     } FourierTransform;
     struct {
       int     DefineSystemIndex[2];
@@ -889,16 +891,16 @@ struct Operation {
       double *Scales;
     } FourierTransform2;
     struct {
-      int     Size; 
+      int     Size;
       List_T  *Save;
-      double  Shift; 
+      double  Shift;
     } Lanczos;
     struct {
-      int     NumEigenvalues; 
-      double  Shift_r, Shift_i; 
+      int     NumEigenvalues;
+      double  Shift_r, Shift_i;
     } EigenSolve;
     struct {
-      int     ExpressionIndex; 
+      int     ExpressionIndex;
     } Evaluate;
     struct {
       int     Iteration ;
@@ -910,7 +912,7 @@ struct Operation {
       double  Alpha ;
     } MultiplySolution ;
     struct {
-      int     Size; 
+      int     Size;
       List_T  *Save;
       double  Shift;
       int     PertFreq;
@@ -948,7 +950,7 @@ struct Operation {
     } Test;
     struct {
       List_T  *DofNumber, *TimeStep, *Expression;
-      char    *FileOut;       
+      char    *FileOut;
     } Print;
     struct {
       int     GroupIndex, ExpressionIndex;
@@ -992,7 +994,7 @@ struct Operation {
       List_T  *Operation;
     } Generate_MH_Moving_S;
     struct {
-      double  dummy; 
+      double  dummy;
     } Add_MH_Moving;
     struct {
       int     GroupIndex;
@@ -1013,8 +1015,8 @@ struct Operation {
     } DeformeMesh;
     // FIXME: Roman
     struct {
-      List_T *SystemIndex, *ExpectationIndex; 
-      List_T *LocalMatrixIndex; 
+      List_T *SystemIndex, *ExpectationIndex;
+      List_T *LocalMatrixIndex;
       List_T *ExpansionCoef;
     } TensorProductSolve;
 
@@ -1134,7 +1136,7 @@ struct PreResolutionInfo {
 
 struct PostProcessing {
   char    *Name;
-  int      FormulationIndex; 
+  int      FormulationIndex;
   List_T  *OriginSystemIndex;
   char    *NameOfSystem;
   List_T  *PostQuantity;
@@ -1156,8 +1158,8 @@ struct PostQuantityTerm {
 };
 
 /* PostQuantityTerm.Type */
-/* LOCALQUANTITY  
-   GLOBALQUANTITY    
+/* LOCALQUANTITY
+   GLOBALQUANTITY
    INTEGRALQUANTITY      */
 
 /* PostQuantityTerm.EvaluationType */
@@ -1175,12 +1177,12 @@ struct PostOperation {
 };
 
 struct PostSubOperation {
-  int    PostQuantityIndex[2], PostQuantitySupport[2];  
+  int    PostQuantityIndex[2], PostQuantitySupport[2];
   int    Type, SubType, CombinationType;
   int    Depth, Skin, Smoothing, Dimension, Comma, HarmonicToTime, CatFile;
   int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex;
   int    ValueIndex;
-  int    ChangeOfCoordinates[3], LastTimeStepOnly, AppendTimeStepToFileName; 
+  int    ChangeOfCoordinates[3], LastTimeStepOnly, AppendTimeStepToFileName;
   int    StoreInRegister;
   char  *SendToServer;
   int    Legend, FrozenTimeStepList;
@@ -1416,7 +1418,7 @@ struct Geo_Node {
 
 struct Geo_Element {
   int  Num ;
-  int  Type, Region ; 
+  int  Type, Region ;
   int  NbrNodes , * NumNodes ;
   int  NbrEdges , * NumEdges ;
   int  NbrFacets, * NumFacets ;
@@ -1430,7 +1432,7 @@ struct Entity2XEntity1 {
 struct EntityXVector {
   int     Num;
   double  Vector[3];
-} ; 
+} ;
 
 struct EntityInTree {
   int  Num, Index ;

@@ -17,7 +17,7 @@
 
 extern struct CurrentData Current ;
 
-#define SQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a))
 
 /* ------------------------------------------------------------------------ */
 /*  O p e r a t o r s   o n   V a l u e s                                   */
@@ -31,10 +31,10 @@ extern struct CurrentData Current ;
 static double  a0;
 static double  a1     [NBR_MAX_HARMONIC * MAX_DIM] ;
 static double  a2     [NBR_MAX_HARMONIC * MAX_DIM] ;
-static double  b1     [NBR_MAX_HARMONIC * MAX_DIM] ; 
+static double  b1     [NBR_MAX_HARMONIC * MAX_DIM] ;
 static double  b2     [NBR_MAX_HARMONIC * MAX_DIM] ;
 static double  b3     [NBR_MAX_HARMONIC * MAX_DIM] ;
-static double  c1     [NBR_MAX_HARMONIC * MAX_DIM] ; 
+static double  c1     [NBR_MAX_HARMONIC * MAX_DIM] ;
 static double  c2     [NBR_MAX_HARMONIC * MAX_DIM] ;
 static double  c3     [NBR_MAX_HARMONIC * MAX_DIM] ;
 static double  tmp[27][NBR_MAX_HARMONIC * MAX_DIM] ;
@@ -68,8 +68,8 @@ void Cal_ComplexInvert(double V1[], double P[])
   P[MAX_DIM] = - V1[MAX_DIM] / Mod2 ;
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 
+/* ------------------------------------------------------------------------
+   R <- V1
    ------------------------------------------------------------------------ */
 
 void Cal_CopyValue(struct Value * V1, struct Value * R)
@@ -116,14 +116,14 @@ void Cal_CopyValue(struct Value * V1, struct Value * R)
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 
+/* ------------------------------------------------------------------------
+   R <- V1
    ------------------------------------------------------------------------ */
 
 void Cal_CopyValueArray(struct Value *V1, struct Value *R, int Nbr_Values)
 {
   int  k, i;
-  
+
   if (V1[0].Type == SCALAR) {
     for (i = 0 ; i < Nbr_Values ; i++){
       R[i].Type = SCALAR ;
@@ -205,7 +205,7 @@ void Cal_AddValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values)
     for (i = 0 ; i < Nbr_Values ; i++){
       for (k = 0 ; k < Current.NbrHar ; k++){
 	R[Current.NbrHar*i+k] += V1[i].Val[MAX_DIM*k  ] ;
-      } 
+      }
     }
   }
   else if (V1[0].Type == VECTOR){
@@ -223,11 +223,11 @@ void Cal_AddValueArray2DoubleArray(struct Value *V1, double *R, int Nbr_Values)
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- 0 
+/* ------------------------------------------------------------------------
+   R <- 0
    ------------------------------------------------------------------------ */
 
-static double VALUE_ZERO [NBR_MAX_HARMONIC * MAX_DIM] = 
+static double VALUE_ZERO [NBR_MAX_HARMONIC * MAX_DIM] =
 {0.,0.,0., 0.,0.,0.,
  0.,0.,0., 0.,0.,0.,
  0.,0.,0., 0.,0.,0.} ;
@@ -237,8 +237,8 @@ void Cal_ZeroValue(struct Value * R)
   memcpy(R->Val, VALUE_ZERO, Current.NbrHar*MAX_DIM*sizeof(double));
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 + V2 
+/* ------------------------------------------------------------------------
+   R <- V1 + V2
    ------------------------------------------------------------------------ */
 
 #define ADD(i)   R->Val[i] = V1->Val[i] + V2->Val[i]
@@ -265,7 +265,7 @@ void Cal_AddValue(struct Value * V1, struct Value * V2, struct Value * R)
   else if ((V1->Type == VECTOR      && V2->Type == VECTOR) ||
 	   (V1->Type == TENSOR_DIAG && V2->Type == TENSOR_DIAG)) {
     if (Current.NbrHar == 1) {
-      ADD(0); ADD(1); ADD(2); 
+      ADD(0); ADD(1); ADD(2);
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k++) {
@@ -307,13 +307,13 @@ void Cal_AddValue(struct Value * V1, struct Value * V2, struct Value * R)
       for(i=0 ; i<9 ; i++){
 	i1 = (V1->Type==TENSOR)?i:TENSOR_SYM_MAP[i];
 	i2 = (V2->Type==TENSOR_SYM)?TENSOR_SYM_MAP[i]:TENSOR_DIAG_MAP[i];
-	A.Val[MAX_DIM*k+i1] = 
+	A.Val[MAX_DIM*k+i1] =
 	  V1->Val[MAX_DIM*k+i1] + ((i2<0)?0.0:V2->Val[MAX_DIM*k+i2]);
       }
     }
     Cal_CopyValue(&A,R);
   }
-  
+
   else if ((V1->Type == TENSOR_SYM  && V2->Type == TENSOR)      ||
 	   (V1->Type == TENSOR_DIAG && V2->Type == TENSOR)      ||
 	   (V1->Type == TENSOR_DIAG && V2->Type == TENSOR_SYM)){
@@ -322,13 +322,13 @@ void Cal_AddValue(struct Value * V1, struct Value * V2, struct Value * R)
       for(i=0 ; i<9 ; i++){
 	i1 = (V1->Type==TENSOR_SYM)?TENSOR_SYM_MAP[i]:TENSOR_DIAG_MAP[i];
 	i2 = (V2->Type==TENSOR)?i:TENSOR_SYM_MAP[i];
-	A.Val[MAX_DIM*k+i2] = 
+	A.Val[MAX_DIM*k+i2] =
 	  ((i1<0)?0.0:V1->Val[MAX_DIM*k+i1]) + V2->Val[MAX_DIM*k+i2];
       }
     }
     Cal_CopyValue(&A,R);
   }
-  
+
   else {
     Message::Error("Addition of different quantities: %s + %s",
                    Get_StringForDefine(Field_Type, V1->Type),
@@ -339,8 +339,8 @@ void Cal_AddValue(struct Value * V1, struct Value * V2, struct Value * R)
 #undef ADD
 #undef CADD
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 + V2 
+/* ------------------------------------------------------------------------
+   R <- V1 + V2
    ------------------------------------------------------------------------ */
 
 #define ADD(i,j)   R[i].Val[j] = V1[i].Val[j] + V2[i].Val[j]
@@ -355,7 +355,7 @@ void  Cal_AddValueArray (struct Value *V1, struct Value *V2, struct Value *R, in
     if (Current.NbrHar == 1)
       for(i = 0 ; i < Nbr_Values; i++){
 	R[i].Type = SCALAR ;
-	ADD(i,0);      
+	ADD(i,0);
       }
     else
       for(i = 0 ; i < Nbr_Values; i++){
@@ -367,12 +367,12 @@ void  Cal_AddValueArray (struct Value *V1, struct Value *V2, struct Value *R, in
   else if ((V1[0].Type == VECTOR      && V2[0].Type == VECTOR) ||
 	   (V1[0].Type == TENSOR_DIAG && V2[0].Type == TENSOR_DIAG)){
     if (Current.NbrHar == 1)
-      for(i = 0 ; i < Nbr_Values; i++){ 
+      for(i = 0 ; i < Nbr_Values; i++){
 	R[i].Type = V1[i].Type;
-	ADD(i,0); ADD(i,1); ADD(i,2); 
+	ADD(i,0); ADD(i,1); ADD(i,2);
       }
     else
-      for(i = 0 ; i < Nbr_Values; i++){ 
+      for(i = 0 ; i < Nbr_Values; i++){
 	R[i].Type = V1[i].Type;
 	for (k = 0 ; k < Current.NbrHar ; k++) {
 	  CADD(i,0); CADD(i,1); CADD(i,2);
@@ -381,12 +381,12 @@ void  Cal_AddValueArray (struct Value *V1, struct Value *V2, struct Value *R, in
   }
   else if (V1[0].Type == TENSOR_SYM && V2[0].Type == TENSOR_SYM){
     if (Current.NbrHar == 1)
-      for(i = 0 ; i < Nbr_Values; i++){ 
+      for(i = 0 ; i < Nbr_Values; i++){
 	R[i].Type = TENSOR_SYM;
 	ADD(i,0); ADD(i,1); ADD(i,2); ADD(i,3); ADD(i,4); ADD(i,5);
       }
     else
-      for(i = 0 ; i < Nbr_Values; i++){ 
+      for(i = 0 ; i < Nbr_Values; i++){
 	R[i].Type = TENSOR_SYM;
 	for (k = 0 ; k < Current.NbrHar ; k++) {
 	  CADD(i,0); CADD(i,1); CADD(i,2); CADD(i,3); CADD(i,4); CADD(i,5);
@@ -416,7 +416,7 @@ void  Cal_AddValueArray (struct Value *V1, struct Value *V2, struct Value *R, in
 	for(ii=0 ; ii<9 ; ii++){
 	  i1 = (V1[0].Type==TENSOR)?ii:TENSOR_SYM_MAP[ii];
 	  i2 = (V2[0].Type==TENSOR_SYM)?TENSOR_SYM_MAP[ii]:TENSOR_DIAG_MAP[ii];
-	  A.Val[MAX_DIM*k+i1] = 
+	  A.Val[MAX_DIM*k+i1] =
 	    V1[i].Val[MAX_DIM*k+i1] + ((i2<0)?0.0:V2[i].Val[MAX_DIM*k+i2]);
 	}
       }
@@ -432,7 +432,7 @@ void  Cal_AddValueArray (struct Value *V1, struct Value *V2, struct Value *R, in
 	for(ii=0 ; ii<9 ; ii++){
 	  i1 = (V1[i].Type==TENSOR_SYM)?TENSOR_SYM_MAP[ii]:TENSOR_DIAG_MAP[ii];
 	  i2 = (V2[i].Type==TENSOR)?ii:TENSOR_SYM_MAP[ii];
-	  A.Val[MAX_DIM*k+i2] = 
+	  A.Val[MAX_DIM*k+i2] =
 	    ((i1<0)?0.0:V1[i].Val[MAX_DIM*k+i1]) + V2[i].Val[MAX_DIM*k+i2];
 	}
       }
@@ -448,7 +448,7 @@ void  Cal_AddValueArray (struct Value *V1, struct Value *V2, struct Value *R, in
 #undef ADD
 #undef CADD
 
-/* ------------------------------------------------------------------------ 
+/* ------------------------------------------------------------------------
    R <- V1 * d ,   where d is a double
    ------------------------------------------------------------------------ */
 
@@ -461,7 +461,7 @@ void Cal_MultValue(struct Value * V1, double d, struct Value * R)
   switch(V1->Type){
   case SCALAR :
     if (Current.NbrHar == 1) {
-      R->Val[0] = V1->Val[0] * d;      
+      R->Val[0] = V1->Val[0] * d;
     }
     else{
       for (k = 0 ; k < Current.NbrHar ; k++) {
@@ -529,14 +529,14 @@ void Cal_MultValue(struct Value * V1, double d, struct Value * R)
 	R->Val[MAX_DIM*k+8] = V1->Val[MAX_DIM*k+8] * d;
       }
     }
-    break;        
+    break;
   default :
     Message::Error("Wrong argument type for 'Cal_MultValue'");
     break;
   }
 }
 
-/* ------------------------------------------------------------------------ 
+/* ------------------------------------------------------------------------
    R <- V1 + V2 * d ,   where d is a double
    ------------------------------------------------------------------------ */
 
@@ -550,7 +550,7 @@ void Cal_AddMultValue(struct Value * V1, struct Value * V2, double d, struct Val
   switch(V2->Type){
   case SCALAR :
     if (Current.NbrHar == 1) {
-      A.Val[0] = V2->Val[0] * d;      
+      A.Val[0] = V2->Val[0] * d;
     }
     else{
       for (k = 0 ; k < Current.NbrHar ; k++) {
@@ -618,7 +618,7 @@ void Cal_AddMultValue(struct Value * V1, struct Value * V2, double d, struct Val
 	A.Val[MAX_DIM*k+8] = V2->Val[MAX_DIM*k+8] * d;
       }
     }
-    break;        
+    break;
   default :
     Message::Error("Wrong argument type for 'Cal_AddMultValue'");
     break;
@@ -626,7 +626,7 @@ void Cal_AddMultValue(struct Value * V1, struct Value * V2, double d, struct Val
   Cal_AddValue(V1,&A,R);
 }
 
-/* ------------------------------------------------------------------------ 
+/* ------------------------------------------------------------------------
    R <- V1 + V2 * d ,   where d is a double
    ------------------------------------------------------------------------ */
 
@@ -639,7 +639,7 @@ void Cal_AddMultValueArray(struct Value * V1, struct Value * V2, double d,
   case SCALAR :
     if (Current.NbrHar == 1) {
       for(i = 0 ; i < Nbr_Values ; i++)
-	V2[i].Val[0] = V2[i].Val[0] * d;      
+	V2[i].Val[0] = V2[i].Val[0] * d;
     }
     else{
       for (k = 0 ; k < Current.NbrHar ; k++) {
@@ -720,7 +720,7 @@ void Cal_AddMultValueArray(struct Value * V1, struct Value * V2, double d,
 	}
       }
     }
-    break;        
+    break;
   default :
     Message::Error("Wrong argument type for 'Cal_AddMultValueArray'");
     break;
@@ -728,7 +728,7 @@ void Cal_AddMultValueArray(struct Value * V1, struct Value * V2, double d,
   Cal_AddValueArray(V1, V2, R,Nbr_Values);
 }
 
-/* ------------------------------------------------------------------------ 
+/* ------------------------------------------------------------------------
    V1 <- V1 * d1 + V2 * d2 ,   where d1, d2 are doubles
    ------------------------------------------------------------------------ */
 
@@ -740,7 +740,7 @@ void Cal_AddMultValue2(struct Value * V1, double d1,
   switch(V1->Type){
   case SCALAR :
     if (Current.NbrHar == 1) {
-      V1->Val[0] = V1->Val[0] * d1 + V2->Val[0] * d2;      
+      V1->Val[0] = V1->Val[0] * d1 + V2->Val[0] * d2;
     }
     else{
       for (k = 0 ; k < Current.NbrHar ; k++) {
@@ -769,8 +769,8 @@ void Cal_AddMultValue2(struct Value * V1, double d1,
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 - V2 
+/* ------------------------------------------------------------------------
+   R <- V1 - V2
    ------------------------------------------------------------------------ */
 
 #define SUB(i)   R->Val[i] = V1->Val[i] - V2->Val[i]
@@ -797,11 +797,11 @@ void Cal_SubstractValue(struct Value * V1, struct Value * V2, struct Value * R)
   else if ((V1->Type == VECTOR      && V2->Type == VECTOR) ||
 	   (V1->Type == TENSOR_DIAG && V2->Type == TENSOR_DIAG)) {
     if (Current.NbrHar == 1) {
-      SUB(0); SUB(1); SUB(2); 
+      SUB(0); SUB(1); SUB(2);
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k++) {
-	CSUB(0); CSUB(1); CSUB(2); 
+	CSUB(0); CSUB(1); CSUB(2);
       }
     }
     R->Type = V1->Type ;
@@ -839,13 +839,13 @@ void Cal_SubstractValue(struct Value * V1, struct Value * V2, struct Value * R)
       for(i=0 ; i<9 ; i++){
 	i1 = (V1->Type==TENSOR)?i:TENSOR_SYM_MAP[i];
 	i2 = (V2->Type==TENSOR_SYM)?TENSOR_SYM_MAP[i]:TENSOR_DIAG_MAP[i];
-	A.Val[MAX_DIM*k+i1] = 
+	A.Val[MAX_DIM*k+i1] =
 	  V1->Val[MAX_DIM*k+i1] - ((i2<0)?0.0:V2->Val[MAX_DIM*k+i2]);
       }
     }
     Cal_CopyValue(&A,R);
   }
-  
+
   else if ((V1->Type == TENSOR_SYM  && V2->Type == TENSOR)      ||
 	   (V1->Type == TENSOR_DIAG && V2->Type == TENSOR)      ||
 	   (V1->Type == TENSOR_DIAG && V2->Type == TENSOR_SYM)){
@@ -854,7 +854,7 @@ void Cal_SubstractValue(struct Value * V1, struct Value * V2, struct Value * R)
       for(i=0 ; i<9 ; i++){
 	i1 = (V1->Type==TENSOR_SYM)?TENSOR_SYM_MAP[i]:TENSOR_DIAG_MAP[i];
 	i2 = (V2->Type==TENSOR)?i:TENSOR_SYM_MAP[i];
-	A.Val[MAX_DIM*k+i2] = 
+	A.Val[MAX_DIM*k+i2] =
 	  ((i1<0)?0.0:V1->Val[MAX_DIM*k+i1]) - V2->Val[MAX_DIM*k+i2];
       }
     }
@@ -871,8 +871,8 @@ void Cal_SubstractValue(struct Value * V1, struct Value * V2, struct Value * R)
 #undef SUB
 #undef CSUB
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 * V2 
+/* ------------------------------------------------------------------------
+   R <- V1 * V2
    ------------------------------------------------------------------------ */
 
 #define CMULT(a,b,c)								\
@@ -884,12 +884,12 @@ void Cal_SubstractValue(struct Value * V1, struct Value * V2, struct Value * R)
 
 #define CPUT3(a,b,c,d)								\
   R->Val[MAX_DIM* k   +d] = tmp[a][0]      +tmp[b][0]      +tmp[c][0] ;		\
-  R->Val[MAX_DIM*(k+1)+d] = tmp[a][MAX_DIM]+tmp[b][MAX_DIM]+tmp[c][MAX_DIM] 
+  R->Val[MAX_DIM*(k+1)+d] = tmp[a][MAX_DIM]+tmp[b][MAX_DIM]+tmp[c][MAX_DIM]
 
 void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
 {
   int k;
-  
+
   if (V1->Type == SCALAR && V2->Type == SCALAR) {
     if (Current.NbrHar == 1) {
       R->Val[0] = V1->Val[0]*V2->Val[0];
@@ -902,7 +902,7 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
     }
     R->Type = SCALAR ;
   }
-  
+
   else if (V1->Type == SCALAR && (V2->Type == VECTOR || V2->Type == TENSOR_DIAG)) {
     if (Current.NbrHar == 1) {
       a0 = V1->Val[0] ;
@@ -913,12 +913,12 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	CMULT(0,0,0); CMULT(0,1,1); CMULT(0,2,2);
-	CPUT(0); CPUT(1); CPUT(2); 
+	CPUT(0); CPUT(1); CPUT(2);
       }
     }
     R->Type = V2->Type ;
   }
-  
+
   else if (V1->Type == SCALAR && V2->Type == TENSOR_SYM) {
     if (Current.NbrHar == 1) {
       a0 = V1->Val[0] ;
@@ -932,12 +932,12 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	CMULT(0,0,0); CMULT(0,1,1); CMULT(0,2,2); CMULT(0,3,3); CMULT(0,4,4); CMULT(0,5,5);
-	CPUT(0); CPUT(1); CPUT(2); CPUT(3); CPUT(4); CPUT(5); 
+	CPUT(0); CPUT(1); CPUT(2); CPUT(3); CPUT(4); CPUT(5);
       }
     }
     R->Type = TENSOR_SYM ;
   }
-  
+
   else if (V1->Type == SCALAR && V2->Type == TENSOR) {
     if (Current.NbrHar == 1) {
       a0 = V1->Val[0] ;
@@ -955,13 +955,13 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	CMULT(0,0,0); CMULT(0,1,1); CMULT(0,2,2); CMULT(0,3,3); CMULT(0,4,4); CMULT(0,5,5);
 	CMULT(0,6,6); CMULT(0,7,7); CMULT(0,8,8);
-	CPUT(0); CPUT(1); CPUT(2); CPUT(3); CPUT(4); CPUT(5); 
+	CPUT(0); CPUT(1); CPUT(2); CPUT(3); CPUT(4); CPUT(5);
 	CPUT(6); CPUT(7); CPUT(8);
       }
     }
     R->Type = TENSOR ;
   }
-  
+
   else if ((V1->Type == VECTOR || V1->Type == TENSOR_DIAG) && V2->Type == SCALAR) {
     if (Current.NbrHar == 1) {
       a0 = V2->Val[0] ;
@@ -972,12 +972,12 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	CMULT(0,0,0); CMULT(1,0,1); CMULT(2,0,2);
-	CPUT(0); CPUT(1); CPUT(2); 
+	CPUT(0); CPUT(1); CPUT(2);
       }
     }
     R->Type = V1->Type ;
   }
-  
+
   else if (V1->Type == TENSOR_SYM && V2->Type == SCALAR) {
     if (Current.NbrHar == 1) {
       a0 = V2->Val[0] ;
@@ -991,7 +991,7 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	CMULT(0,0,0); CMULT(1,0,1); CMULT(2,0,2); CMULT(3,0,3); CMULT(4,0,4); CMULT(5,0,5);
-	CPUT(0); CPUT(1); CPUT(2); CPUT(3); CPUT(4); CPUT(5); 
+	CPUT(0); CPUT(1); CPUT(2); CPUT(3); CPUT(4); CPUT(5);
       }
     }
     R->Type = TENSOR_SYM ;
@@ -1014,41 +1014,41 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	CMULT(0,0,0); CMULT(1,0,1); CMULT(2,0,2); CMULT(3,0,3); CMULT(4,0,4); CMULT(5,0,5);
 	CMULT(6,0,6); CMULT(7,0,7); CMULT(8,0,8);
-	CPUT(0); CPUT(1); CPUT(2); CPUT(3); CPUT(4); CPUT(5); 
-	CPUT(6); CPUT(7); CPUT(8); 
+	CPUT(0); CPUT(1); CPUT(2); CPUT(3); CPUT(4); CPUT(5);
+	CPUT(6); CPUT(7); CPUT(8);
       }
     }
     R->Type = TENSOR ;
   }
-  
+
   /* Scalar Product. See 'Cal_CrossProductValue' for the Vector Product */
-  
+
   else if (V1->Type == VECTOR && V2->Type == VECTOR) {
     if (Current.NbrHar == 1) {
-      R->Val[0] = V1->Val[0] * V2->Val[0] + 
-                  V1->Val[1] * V2->Val[1] + 
+      R->Val[0] = V1->Val[0] * V2->Val[0] +
+                  V1->Val[1] * V2->Val[1] +
 	          V1->Val[2] * V2->Val[2] ;
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
-	CMULT(0,0,0); CMULT(1,1,1); CMULT(2,2,2); 
+	CMULT(0,0,0); CMULT(1,1,1); CMULT(2,2,2);
 	CPUT3(0,1,2,0);
       }
     }
     R->Type = SCALAR ;
   }
- 
+
   else if ( (V1->Type == TENSOR_DIAG && V2->Type == VECTOR) ||
 	    (V2->Type == TENSOR_DIAG && V1->Type == VECTOR) ) { /* WARNING WARNING! */
     if (Current.NbrHar == 1) {
-      R->Val[0] = V1->Val[0]*V2->Val[0];      
-      R->Val[1] = V1->Val[1]*V2->Val[1];      
-      R->Val[2] = V1->Val[2]*V2->Val[2];      
+      R->Val[0] = V1->Val[0]*V2->Val[0];
+      R->Val[1] = V1->Val[1]*V2->Val[1];
+      R->Val[2] = V1->Val[2]*V2->Val[2];
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
-	CMULT(0,0,0); CMULT(1,1,1); CMULT(2,2,2); 
-	CPUT(0); CPUT(1); CPUT(2); 
+	CMULT(0,0,0); CMULT(1,1,1); CMULT(2,2,2);
+	CPUT(0); CPUT(1); CPUT(2);
       }
     }
     R->Type = VECTOR ;
@@ -1097,12 +1097,12 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
     }
     R->Type = VECTOR ;
   }
-  
+
   else if (V1->Type == TENSOR_DIAG && V2->Type == TENSOR_DIAG) {
     if (Current.NbrHar == 1) {
-      R->Val[0] = V1->Val[0]*V2->Val[0];      
-      R->Val[1] = V1->Val[1]*V2->Val[1];      
-      R->Val[2] = V1->Val[2]*V2->Val[2];      
+      R->Val[0] = V1->Val[0]*V2->Val[0];
+      R->Val[1] = V1->Val[1]*V2->Val[1];
+      R->Val[2] = V1->Val[2]*V2->Val[2];
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
@@ -1195,8 +1195,8 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
 #undef CPUT
 #undef CPUT3
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 / V2 
+/* ------------------------------------------------------------------------
+   R <- V1 / V2
    ------------------------------------------------------------------------ */
 
 #define CDIVI(a,b,c) 								\
@@ -1234,7 +1234,7 @@ void Cal_DivideValue(struct Value * V1, struct Value * V2, struct Value * R)
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	CDIVI(0,0,0); CDIVI(1,0,1); CDIVI(2,0,2);
-	CPUT(0); CPUT(1); CPUT(2);	
+	CPUT(0); CPUT(1); CPUT(2);
       }
     }
     R->Type = V1->Type ;
@@ -1274,7 +1274,7 @@ void Cal_DivideValue(struct Value * V1, struct Value * V2, struct Value * R)
     }
     else {
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
-	CDIVI(0,0,0); CDIVI(1,0,1); CDIVI(2,0,2); CDIVI(3,0,3); CDIVI(4,0,4); CDIVI(5,0,5);	
+	CDIVI(0,0,0); CDIVI(1,0,1); CDIVI(2,0,2); CDIVI(3,0,3); CDIVI(4,0,4); CDIVI(5,0,5);
 	CDIVI(6,0,6); CDIVI(7,0,7); CDIVI(8,0,8);
 	CPUT(0); CPUT(1); CPUT(2); CPUT(3); CPUT(4); CPUT(5);
 	CPUT(6); CPUT(7); CPUT(8);
@@ -1283,7 +1283,7 @@ void Cal_DivideValue(struct Value * V1, struct Value * V2, struct Value * R)
     R->Type = TENSOR ;
   }
 
-  else if ( (V1->Type == SCALAR) && 
+  else if ( (V1->Type == SCALAR) &&
 	    (V2->Type == TENSOR || V2->Type == TENSOR_SYM || V2->Type == TENSOR_DIAG) ) {
     Cal_InvertValue(V2,&V3);
     Cal_ProductValue(V1,&V3,R);
@@ -1300,8 +1300,8 @@ void Cal_DivideValue(struct Value * V1, struct Value * V2, struct Value * R)
 #undef CDIVI
 #undef CPUT
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 % V2 
+/* ------------------------------------------------------------------------
+   R <- V1 % V2
    ------------------------------------------------------------------------ */
 
 void Cal_ModuloValue(struct Value * V1, struct Value * V2, struct Value * R)
@@ -1336,8 +1336,8 @@ void Cal_ModuloValue(struct Value * V1, struct Value * V2, struct Value * R)
 
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 X V2 
+/* ------------------------------------------------------------------------
+   R <- V1 X V2
    ------------------------------------------------------------------------ */
 
 void  Cal_CrossProductValue (struct Value * V1, struct Value * V2, struct Value * R)
@@ -1381,8 +1381,26 @@ void  Cal_CrossProductValue (struct Value * V1, struct Value * V2, struct Value 
 
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 ^ V2 
+/* ------------------------------------------------------------------------
+   R <- SQRT(V1)
+   ------------------------------------------------------------------------ */
+
+void Cal_SqrtValue(struct Value *V1, struct Value *R)
+{
+  if( V1->Type == SCALAR ){
+    struct Value P;
+    P.Type = SCALAR;
+    P.Val[0] = 0.5;
+    Cal_PowerValue(V1, &P, R);
+  }
+  else {
+    Message::Error("Square root of non scalar quantity: %s",
+                   Get_StringForDefine(Field_Type, V1->Type));
+  }
+}
+
+/* ------------------------------------------------------------------------
+   R <- V1 ^ V2
    ------------------------------------------------------------------------ */
 
 void Cal_PowerValue(struct Value * V1, struct Value * V2, struct Value * R)
@@ -1401,7 +1419,7 @@ void Cal_PowerValue(struct Value * V1, struct Value * V2, struct Value * R)
       }
       else{
 	for (k = 0 ; k < Current.NbrHar ; k+=2) {
-	  Cal_ComplexProduct(&(V1->Val[MAX_DIM*k]), &(V1->Val[MAX_DIM*k]), a1) ;	  
+	  Cal_ComplexProduct(&(V1->Val[MAX_DIM*k]), &(V1->Val[MAX_DIM*k]), a1) ;
 	  R->Val[MAX_DIM* k   ] = a1[0];
 	  R->Val[MAX_DIM*(k+1)] = a1[MAX_DIM];
 	}
@@ -1413,7 +1431,7 @@ void Cal_PowerValue(struct Value * V1, struct Value * V2, struct Value * R)
       }
       else{
 	for (k = 0 ; k < Current.NbrHar ; k+=2) {
-	  abs = pow(sqrt(SQU(V1->Val[MAX_DIM*k])+SQU(V1->Val[MAX_DIM*(k+1)])), 
+	  abs = pow(sqrt(SQU(V1->Val[MAX_DIM*k])+SQU(V1->Val[MAX_DIM*(k+1)])),
 		    V2->Val[0]) ;
 	  arg = atan2(V1->Val[MAX_DIM*(k+1)], V1->Val[MAX_DIM*k]) ;
 	  R->Val[MAX_DIM* k   ] = abs * cos(V2->Val[0] * arg) ;
@@ -1432,8 +1450,8 @@ void Cal_PowerValue(struct Value * V1, struct Value * V2, struct Value * R)
 
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 < V2 
+/* ------------------------------------------------------------------------
+   R <- V1 < V2
    ------------------------------------------------------------------------ */
 
 void Cal_LessValue(struct Value * V1, struct Value * V2, struct Value * R)
@@ -1449,8 +1467,8 @@ void Cal_LessValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 <= V2 
+/* ------------------------------------------------------------------------
+   R <- V1 <= V2
    ------------------------------------------------------------------------ */
 
 void Cal_LessOrEqualValue(struct Value * V1, struct Value * V2, struct Value * R)
@@ -1466,8 +1484,8 @@ void Cal_LessOrEqualValue(struct Value * V1, struct Value * V2, struct Value * R
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 > V2 
+/* ------------------------------------------------------------------------
+   R <- V1 > V2
    ------------------------------------------------------------------------ */
 
 void Cal_GreaterValue(struct Value * V1, struct Value * V2, struct Value * R)
@@ -1483,8 +1501,8 @@ void Cal_GreaterValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 >= V2 
+/* ------------------------------------------------------------------------
+   R <- V1 >= V2
    ------------------------------------------------------------------------ */
 
 void Cal_GreaterOrEqualValue(struct Value * V1, struct Value * V2, struct Value * R)
@@ -1500,8 +1518,8 @@ void Cal_GreaterOrEqualValue(struct Value * V1, struct Value * V2, struct Value 
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 == V2 
+/* ------------------------------------------------------------------------
+   R <- V1 == V2
    ------------------------------------------------------------------------ */
 
 void Cal_EqualValue(struct Value * V1, struct Value * V2, struct Value * R)
@@ -1578,8 +1596,8 @@ void Cal_EqualValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 != V2 
+/* ------------------------------------------------------------------------
+   R <- V1 != V2
    ------------------------------------------------------------------------ */
 
 void Cal_NotEqualValue(struct Value * V1, struct Value * V2, struct Value * R)
@@ -1656,8 +1674,8 @@ void Cal_NotEqualValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 ~= V2 
+/* ------------------------------------------------------------------------
+   R <- V1 ~= V2
    ------------------------------------------------------------------------ */
 
 void Cal_ApproxEqualValue(struct Value * V1, struct Value * V2, struct Value * R)
@@ -1673,8 +1691,8 @@ void Cal_ApproxEqualValue(struct Value * V1, struct Value * V2, struct Value * R
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 && V2 
+/* ------------------------------------------------------------------------
+   R <- V1 && V2
    ------------------------------------------------------------------------ */
 
 void Cal_AndValue(struct Value * V1, struct Value * V2, struct Value * R)
@@ -1690,8 +1708,8 @@ void Cal_AndValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1 || V2 
+/* ------------------------------------------------------------------------
+   R <- V1 || V2
    ------------------------------------------------------------------------ */
 
 void Cal_OrValue(struct Value * V1, struct Value * V2, struct Value * R)
@@ -1707,8 +1725,8 @@ void Cal_OrValue(struct Value * V1, struct Value * V2, struct Value * R)
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- -R 
+/* ------------------------------------------------------------------------
+   R <- -R
    ------------------------------------------------------------------------ */
 
 void Cal_NegValue(struct Value * R)
@@ -1758,8 +1776,8 @@ void Cal_NegValue(struct Value * R)
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- !R 
+/* ------------------------------------------------------------------------
+   R <- !R
    ------------------------------------------------------------------------ */
 
 void Cal_NotValue(struct Value * R)
@@ -1773,8 +1791,8 @@ void Cal_NotValue(struct Value * R)
   }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1^T 
+/* ------------------------------------------------------------------------
+   R <- V1^T
    ------------------------------------------------------------------------ */
 
 void Cal_TransposeValue(struct Value *V1, struct Value *R)
@@ -1789,14 +1807,15 @@ void Cal_TransposeValue(struct Value *V1, struct Value *R)
     break;
 
   case TENSOR :
-    if(Current.NbrHar==1){      
-      R->Val[0] = V1->Val[0]; 
-      R->Val[4] = V1->Val[4]; 
+    R->Type = TENSOR;
+    if(Current.NbrHar==1){
+      R->Val[0] = V1->Val[0];
+      R->Val[4] = V1->Val[4];
       R->Val[8] = V1->Val[8];
       a1[0] = V1->Val[1];
       a1[1] = V1->Val[2];
       a1[2] = V1->Val[5];
-      R->Val[1] = V1->Val[3]; 
+      R->Val[1] = V1->Val[3];
       R->Val[2] = V1->Val[6];
       R->Val[5] = V1->Val[7];
       R->Val[3] = a1[0];
@@ -1805,13 +1824,13 @@ void Cal_TransposeValue(struct Value *V1, struct Value *R)
     }
     else{
       for(k=0 ; k<Current.NbrHar ; k+=1){
-	R->Val[MAX_DIM*k+0] = V1->Val[MAX_DIM*k+0]; 
-	R->Val[MAX_DIM*k+4] = V1->Val[MAX_DIM*k+4]; 
+	R->Val[MAX_DIM*k+0] = V1->Val[MAX_DIM*k+0];
+	R->Val[MAX_DIM*k+4] = V1->Val[MAX_DIM*k+4];
 	R->Val[MAX_DIM*k+8] = V1->Val[MAX_DIM*k+8];
 	a1[0] = V1->Val[MAX_DIM*k+1];
 	a1[1] = V1->Val[MAX_DIM*k+2];
 	a1[2] = V1->Val[MAX_DIM*k+5];
-	R->Val[MAX_DIM*k+1] = V1->Val[MAX_DIM*k+3]; 
+	R->Val[MAX_DIM*k+1] = V1->Val[MAX_DIM*k+3];
 	R->Val[MAX_DIM*k+2] = V1->Val[MAX_DIM*k+6];
 	R->Val[MAX_DIM*k+5] = V1->Val[MAX_DIM*k+7];
 	R->Val[MAX_DIM*k+3] = a1[0];
@@ -1819,16 +1838,16 @@ void Cal_TransposeValue(struct Value *V1, struct Value *R)
 	R->Val[MAX_DIM*k+7] = a1[2];
       }
     }
-    break;    
-    
+    break;
+
   default:
     Message::Error("Wrong argument in 'Cal_TransposeValue'");
     break;
-  }  
+  }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- Trace(V1) 
+/* ------------------------------------------------------------------------
+   R <- Trace(V1)
    ------------------------------------------------------------------------ */
 
 void Cal_TraceValue(struct Value *V1, struct Value *R)
@@ -1878,15 +1897,15 @@ void Cal_TraceValue(struct Value *V1, struct Value *R)
     }
     R->Type = SCALAR ;
     break;
-    
+
   default:
     Message::Error("Wrong argument type in 'Cal_TraceValue'");
     break;
-  }  
+  }
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- V1^T * V2 * V1  ,  V1 real 
+/* ------------------------------------------------------------------------
+   R <- V1^T * V2 * V1  ,  V1 real
    ------------------------------------------------------------------------ */
 
 #define A0  V1->Val[0]
@@ -1916,7 +1935,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
       A.Val[1]= A3*B0+A4*B1+A5*B2;
       A.Val[2]= A6*B0+A7*B1+A8*B2;
       A.Type = VECTOR;
-      Cal_CopyValue(&A,R); 
+      Cal_CopyValue(&A,R);
 #undef B0
 #undef B1
 #undef B2
@@ -1929,7 +1948,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
       A.Val[1]= A3*B0+A4*B1+A5*B2;
       A.Val[2]= A6*B0+A7*B1+A8*B2;
       A.Type = VECTOR;
-      Cal_CopyValue(&A,R); 
+      Cal_CopyValue(&A,R);
 #undef B0
 #undef B1
 #undef B2
@@ -1951,7 +1970,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
       A.Val[7]= A2*A1*B0+A4*A5*B1+A7*A8*B2;
       A.Val[8]= A2*A2*B0+A5*A5*B1+A8*A8*B2;
       A.Type = TENSOR;
-      Cal_CopyValue(&A,R); 
+      Cal_CopyValue(&A,R);
 #undef B0
 #undef B1
 #undef B2
@@ -1966,7 +1985,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
 #define AFFECT(i)				\
   A.Val[MAX_DIM* k   +i] = t0*B0r+t1*B1r+t2*B2r;	\
   A.Val[MAX_DIM*(k+1)+i] = t0*B0i+t1*B1i+t2*B2i
-      for(k=0 ; k<Current.NbrHar ; k+=2){	
+      for(k=0 ; k<Current.NbrHar ; k+=2){
 	t0=A0*A0; t1=A3*A3; t2=A6*A6; AFFECT(0);
 	t0=A1*A0; t1=A3*A4; t2=A6*A7; AFFECT(1);
 	t0=A2*A0; t1=A3*A5; t2=A6*A8; AFFECT(2);
@@ -1975,10 +1994,10 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
 	t0=A2*A1; t1=A4*A5; t2=A7*A8; AFFECT(5);
 	t0=A2*A0; t1=A3*A5; t2=A6*A8; AFFECT(6);
 	t0=A2*A1; t1=A4*A5; t2=A7*A8; AFFECT(7);
-	t0=A2*A2; t1=A5*A5; t2=A8*A8; AFFECT(8);	
+	t0=A2*A2; t1=A5*A5; t2=A8*A8; AFFECT(8);
       }
       A.Type = TENSOR;
-      Cal_CopyValue(&A,R); 
+      Cal_CopyValue(&A,R);
 #undef B0r
 #undef B1r
 #undef B2r
@@ -1986,7 +2005,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
 #undef B1i
 #undef B2i
 #undef AFFECT
-    }    
+    }
     break;
 
 #define COMPUTE_A										\
@@ -2019,7 +2038,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
   AFFECT(7);											\
   t0=A2*A2; t1=A2*A5; t2=A2*A8; t3=A5*A2; t4=A5*A5; t5=A5*A8; t6=A8*A2; t7=A8*A5; t8=A8*A8; 	\
   AFFECT(8)
-  
+
   case TENSOR_SYM :
     if(Current.NbrHar == 1){
 #define B0  V2->Val[0]
@@ -2033,7 +2052,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
 #define B8  V2->Val[5]
       COMPUTE_A;
       A.Type = TENSOR;
-      Cal_CopyValue(&A,R); 
+      Cal_CopyValue(&A,R);
 #undef B0
 #undef B1
 #undef B2
@@ -2066,11 +2085,11 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
 #define AFFECT(i) 										\
   A.Val[MAX_DIM* k   +i] = t0*B0r+t1*B3r+t2*B6r+t3*B1r+t4*B4r+t5*B7r+t6*B2r+t7*B5r+t8*B8r; 	\
   A.Val[MAX_DIM*(k+1)+i] = t0*B0i+t1*B3i+t2*B6i+t3*B1i+t4*B4i+t5*B7i+t6*B2i+t7*B5i+t8*B8i
-      for(k=0 ; k<Current.NbrHar ; k+=2){	
+      for(k=0 ; k<Current.NbrHar ; k+=2){
 	COMPLEX_COMPUTE_A;
       }
       A.Type = TENSOR;
-      Cal_CopyValue(&A,R); 
+      Cal_CopyValue(&A,R);
 #undef B0r
 #undef B1r
 #undef B2r
@@ -2106,7 +2125,7 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
 #define B8  V2->Val[8]
       COMPUTE_A;
       A.Type = TENSOR;
-      Cal_CopyValue(&A,R); 
+      Cal_CopyValue(&A,R);
 #undef B0
 #undef B1
 #undef B2
@@ -2139,11 +2158,11 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
 #define AFFECT(i) 										\
   A.Val[MAX_DIM* k   +i] = t0*B0r+t1*B3r+t2*B6r+t3*B1r+t4*B4r+t5*B7r+t6*B2r+t7*B5r+t8*B8r; 	\
   A.Val[MAX_DIM*(k+1)+i] = t0*B0i+t1*B3i+t2*B6i+t3*B1i+t4*B4i+t5*B7i+t6*B2i+t7*B5i+t8*B8i
-      for(k=0 ; k<Current.NbrHar ; k+=2){	
+      for(k=0 ; k<Current.NbrHar ; k+=2){
 	COMPLEX_COMPUTE_A;
       }
       A.Type = TENSOR;
-      Cal_CopyValue(&A,R); 
+      Cal_CopyValue(&A,R);
 #undef B0r
 #undef B1r
 #undef B2r
@@ -2168,13 +2187,13 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
 
 #undef COMPUTE_A
 #undef COMPLEX_COMPUTE_A
-    
+
   default :
     Message::Error("Wrong argument type in 'Cal_RotateValue'");
     break;
   }
 }
-      
+
 #undef A0
 #undef A1
 #undef A2
@@ -2185,8 +2204,8 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
 #undef A7
 #undef A8
 
-/* ------------------------------------------------------------------------ 
-   R <- Det(V1) 
+/* ------------------------------------------------------------------------
+   R <- Det(V1)
    ------------------------------------------------------------------------ */
 
 void Cal_DetValue(struct Value *V1, struct Value *R)
@@ -2194,11 +2213,11 @@ void Cal_DetValue(struct Value *V1, struct Value *R)
   int     k;
 
   R->Type = SCALAR;
-  
+
   switch(V1->Type){
 
   case TENSOR_DIAG :
-    if(Current.NbrHar==1){      
+    if(Current.NbrHar==1){
       R->Val[0] = V1->Val[0]*V1->Val[1]*V1->Val[2];
     }
     else{
@@ -2212,7 +2231,7 @@ void Cal_DetValue(struct Value *V1, struct Value *R)
     break;
 
   case TENSOR_SYM :
-    if(Current.NbrHar==1){      
+    if(Current.NbrHar==1){
       R->Val[0] = V1->Val[0]*(V1->Val[3]*V1->Val[5]-V1->Val[4]*V1->Val[4])
 	        - V1->Val[1]*(V1->Val[1]*V1->Val[5]-V1->Val[2]*V1->Val[4])
 	        + V1->Val[2]*(V1->Val[1]*V1->Val[4]-V1->Val[2]*V1->Val[3]);
@@ -2223,7 +2242,7 @@ void Cal_DetValue(struct Value *V1, struct Value *R)
 	Cal_ComplexProduct(&V1->Val[MAX_DIM*k+4], &V1->Val[MAX_DIM*k+4], a2);
 	b1[0] = a1[0] - a2[0] ;  b1[MAX_DIM] = a1[MAX_DIM] - a2[MAX_DIM] ;
 	Cal_ComplexProduct(&V1->Val[MAX_DIM*k+0], b1, c1);
-	
+
 	Cal_ComplexProduct(&V1->Val[MAX_DIM*k+1], &V1->Val[MAX_DIM*k+5], a1);
 	Cal_ComplexProduct(&V1->Val[MAX_DIM*k+2], &V1->Val[MAX_DIM*k+4], a2);
 	b1[0] = a1[0] - a2[0] ;  b1[MAX_DIM] = a1[MAX_DIM] - a2[MAX_DIM] ;
@@ -2236,12 +2255,12 @@ void Cal_DetValue(struct Value *V1, struct Value *R)
 
 	R->Val[MAX_DIM* k   ] = c1[0]      -c2[0]      +c3[0];
 	R->Val[MAX_DIM*(k+1)] = c1[MAX_DIM]-c2[MAX_DIM]+c3[MAX_DIM];
-      }   
+      }
     }
     break;
 
   case TENSOR :
-    if(Current.NbrHar==1){      
+    if(Current.NbrHar==1){
       R->Val[0] = V1->Val[0]*(V1->Val[4]*V1->Val[8]-V1->Val[7]*V1->Val[5])
 	        - V1->Val[1]*(V1->Val[3]*V1->Val[8]-V1->Val[6]*V1->Val[5])
 	        + V1->Val[2]*(V1->Val[3]*V1->Val[7]-V1->Val[6]*V1->Val[4]);
@@ -2267,17 +2286,17 @@ void Cal_DetValue(struct Value *V1, struct Value *R)
 	R->Val[MAX_DIM*(k+1)] = c1[MAX_DIM]-c2[MAX_DIM]+c3[MAX_DIM];
       }
     }
-    break;    
-    
+    break;
+
   default:
     Message::Error("Wrong argument type in 'Cal_DetValue'");
     break;
-  }  
-  
+  }
+
 }
 
-/* ------------------------------------------------------------------------ 
-   R <- 1/V1 
+/* ------------------------------------------------------------------------
+   R <- 1/V1
    ------------------------------------------------------------------------ */
 
 void Cal_InvertValue(struct Value *V1, struct Value *R)
@@ -2290,7 +2309,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
   case SCALAR :
     R->Type = SCALAR;
 
-    if(Current.NbrHar==1){      
+    if(Current.NbrHar==1){
       if(!V1->Val[0]){
 	Message::Error("Division by zero in 'Cal_InvertValue'");
       }
@@ -2306,7 +2325,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
   case TENSOR_DIAG :
     R->Type = TENSOR_DIAG;
 
-    if(Current.NbrHar==1){      
+    if(Current.NbrHar==1){
       if(V1->Val[0] && V1->Val[1] && V1->Val[2]){
 	R->Val[0] = 1./V1->Val[0];
 	R->Val[1] = 1./V1->Val[1];
@@ -2332,7 +2351,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
       Message::Error("Null determinant in 'Cal_InvertValue'");
     }
 
-    if(Current.NbrHar==1){      
+    if(Current.NbrHar==1){
       A.Val[0] =  (V1->Val[3]*V1->Val[5]-V1->Val[4]*V1->Val[4])/Det.Val[0];
       A.Val[1] = -(V1->Val[1]*V1->Val[5]-V1->Val[4]*V1->Val[2])/Det.Val[0];
       A.Val[2] =  (V1->Val[1]*V1->Val[4]-V1->Val[3]*V1->Val[2])/Det.Val[0];
@@ -2366,7 +2385,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
 	ASSIGN1(0); ASSIGN2(1);	ASSIGN1(2);
 	ASSIGN2(3); ASSIGN1(4);	ASSIGN2(5);
 	ASSIGN1(6); ASSIGN2(7);	ASSIGN1(8);
-      }    
+      }
       R->Type = TENSOR;
 #undef PRODSUBDIV
 #undef ASSIGN1
@@ -2381,7 +2400,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
       Message::Error("Null determinant in 'Cal_InvertValue'");
     }
 
-    if(Current.NbrHar==1){      
+    if(Current.NbrHar==1){
       A.Val[0] =  (V1->Val[4]*V1->Val[8]-V1->Val[5]*V1->Val[7])/Det.Val[0];
       A.Val[1] = -(V1->Val[1]*V1->Val[8]-V1->Val[7]*V1->Val[2])/Det.Val[0];
       A.Val[2] =  (V1->Val[1]*V1->Val[5]-V1->Val[4]*V1->Val[2])/Det.Val[0];
@@ -2415,7 +2434,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
 	ASSIGN1(0); ASSIGN2(1);	ASSIGN1(2);
 	ASSIGN2(3); ASSIGN1(4);	ASSIGN2(5);
 	ASSIGN1(6); ASSIGN2(7);	ASSIGN1(8);
-      }    
+      }
       R->Type = TENSOR;
 #undef PRODSUBDIV
 #undef ASSIGN1
@@ -2449,7 +2468,7 @@ std::string Print_Value_ToString(struct Value *A)
       if(k) sstream << ",";
       sstream << A->Val[MAX_DIM*k];
     }
-    if(Current.NbrHar>1) sstream << ")";    
+    if(Current.NbrHar>1) sstream << ")";
     break;
 
   case VECTOR :
@@ -2482,7 +2501,7 @@ std::string Print_Value_ToString(struct Value *A)
 	}
 	for (k = 0 ; k < Current.NbrHar ; k++) {
 	  if(k) sstream << ",";
-	  if(index<0) 
+	  if(index<0)
 	    sstream << "0";
 	  else
 	    sstream << A->Val[MAX_DIM*k+index];
@@ -2497,7 +2516,7 @@ std::string Print_Value_ToString(struct Value *A)
     Message::Error("Unknown type of argument in function 'Printf'");
     break;
   }
-  
+
   std::string ret(sstream.str());
   return ret;
 }
@@ -2508,8 +2527,8 @@ void Print_Value(struct Value *A)
   Message::Direct(" ");
 }
 
-/* ------------------------------------------------------------------------ 
-   Complete harmonics 
+/* ------------------------------------------------------------------------
+   Complete harmonics
    ------------------------------------------------------------------------ */
 
 void Cal_SetHarmonicValue(struct Value *R)
@@ -2532,20 +2551,20 @@ void Cal_SetHarmonicValue(struct Value *R)
       R->Val[MAX_DIM*k  ] = R->Val[0] ;
       R->Val[MAX_DIM*k+1] = R->Val[1] ;
       R->Val[MAX_DIM*k+2] = R->Val[2] ;
-      R->Val[MAX_DIM*(k+1)  ] = 0. ; 
+      R->Val[MAX_DIM*(k+1)  ] = 0. ;
       R->Val[MAX_DIM*(k+1)+1] = 0. ;
       R->Val[MAX_DIM*(k+1)+2] = 0. ;
     }
     break;
-    
+
   default :
     Message::Error("Unknown type of argument in function 'Cal_SetHarmonicValue'");
   }
 
 }
 
-/* ------------------------------------------------------------------------ 
-   Set superfluous harmonics to zero (in case of CASTing) 
+/* ------------------------------------------------------------------------
+   Set superfluous harmonics to zero (in case of CASTing)
    ------------------------------------------------------------------------ */
 
 void Cal_SetZeroHarmonicValue(struct Value *R, int Save_NbrHar)
@@ -2554,20 +2573,20 @@ void Cal_SetZeroHarmonicValue(struct Value *R, int Save_NbrHar)
 
   switch(R->Type) {
   case SCALAR :
-    for (k = Current.NbrHar ; k < Save_NbrHar ; k++) { 
+    for (k = Current.NbrHar ; k < Save_NbrHar ; k++) {
      R->Val[k*MAX_DIM  ] =  0. ;
     }
     break ;
   case VECTOR :
   case TENSOR_DIAG :
-    for (k = Current.NbrHar ; k < Save_NbrHar ; k++) { 
+    for (k = Current.NbrHar ; k < Save_NbrHar ; k++) {
      R->Val[k*MAX_DIM  ] =  0. ;
      R->Val[k*MAX_DIM+1] =  0. ;
      R->Val[k*MAX_DIM+2] =  0. ;
     }
     break ;
   case TENSOR_SYM :
-    for (k = Current.NbrHar ; k < Save_NbrHar ; k++) { 
+    for (k = Current.NbrHar ; k < Save_NbrHar ; k++) {
      R->Val[k*MAX_DIM  ] =  0. ;
      R->Val[k*MAX_DIM+1] =  0. ;
      R->Val[k*MAX_DIM+2] =  0. ;
@@ -2577,7 +2596,7 @@ void Cal_SetZeroHarmonicValue(struct Value *R, int Save_NbrHar)
     }
     break ;
   case TENSOR :
-    for (k = Current.NbrHar ; k < Save_NbrHar ; k++) { 
+    for (k = Current.NbrHar ; k < Save_NbrHar ; k++) {
      R->Val[k*MAX_DIM  ] =  0. ;
      R->Val[k*MAX_DIM+1] =  0. ;
      R->Val[k*MAX_DIM+2] =  0. ;
@@ -2603,7 +2622,7 @@ void Cal_SetZeroHarmonicValue(struct Value *R, int Save_NbrHar)
 
 int NonZeroHar(int NbrComp, double Val[])
 {
-  int iComp, nz, nh; 
+  int iComp, nz, nh;
 
   nh=Current.NbrHar-1;
   while( nh >= 0 ){
@@ -2619,47 +2638,47 @@ int NonZeroHar(int NbrComp, double Val[])
 void Show_Value(struct Value *A)
 {
   int k, nzh;
- 
+
   switch(A->Type){
 
-  case SCALAR : 
+  case SCALAR :
     if((nzh=NonZeroHar(1,A->Val)) == 0){
-      fprintf(stderr, "zero scalar \n") ;     
+      fprintf(stderr, "zero scalar \n") ;
     }
     else if(nzh == 1){
-      fprintf(stderr, "real scalar %e \n", W(0,0) ) ; 
+      fprintf(stderr, "real scalar %e \n", W(0,0) ) ;
     }
     else if (nzh == 2){
       fprintf(stderr, "complex scalar %e +j %e \n", W(0,0), W(1,0) ) ;
     }
     else {
       fprintf(stderr, "multi-freq scalar ");
-      for (k = 0 ; k < Current.NbrHar ; k += 2) 
+      for (k = 0 ; k < Current.NbrHar ; k += 2)
 	fprintf(stderr, " Freq %d : %e + j %e",k/2+1, W(k,0), W(k+1,0) ) ;
       fprintf(stderr, "\n");
-    }    
+    }
     break;
-    
+
   case VECTOR :
     if((nzh=NonZeroHar(3,A->Val)) == 0){
       fprintf(stderr, "zero vector \n") ;
     }
-    else if (nzh == 1){ 
+    else if (nzh == 1){
       fprintf(stderr, "real vector x %e  y %e  z %e \n", W(0,0), W(0,1), W(0,2));
     }
     else if (nzh == 2){
       fprintf(stderr, "complex vector x %e +j %e  y %e +j %e  z %e +j %e \n",
-	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2) );   
+	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2) );
     }
     else{
       fprintf(stderr, "multi-freq vector ");
-      for (k = 0 ; k < Current.NbrHar ; k += 2) 
+      for (k = 0 ; k < Current.NbrHar ; k += 2)
 	fprintf(stderr, " Freq %d :  x %e +j %e  y %e +j %e  z %e +j %e", k/2+1,
-		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2) );   
+		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2) );
       fprintf(stderr, "\n");
     }
     break;
-    
+
   case TENSOR :
     if((nzh=NonZeroHar(9,A->Val)) == 0){
       fprintf(stderr, "zero tensor \n") ;
@@ -2668,7 +2687,7 @@ void Show_Value(struct Value *A)
       fprintf(stderr, "real tensor "
 	      " xx %e  xy %e  xz %e "
 	      " yx %e  yy %e  yz %e "
-	      " zx %e  zy %e  zz %e \n", 
+	      " zx %e  zy %e  zz %e \n",
 	      W(0,0), W(0,1), W(0,2), W(0,3), W(0,4), W(0,5), W(0,6), W(0,7), W(0,8));
     }
     else if (nzh == 2){
@@ -2676,19 +2695,19 @@ void Show_Value(struct Value *A)
 	      " xx %e +j %e  xy %e +j %e  xz %e +j %e "
 	      " yx %e +j %e  yy %e +j %e  yz %e +j %e "
 	      " zx %e +j %e  zy %e +j %e  zz %e +j %e\n",
-	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2), 
-	      W(0,3), W(1,3), W(0,4), W(1,4), W(0,5), W(1,5), 
-	      W(0,6), W(1,6), W(0,7), W(1,7), W(0,8), W(1,8)); 
-    } 
+	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2),
+	      W(0,3), W(1,3), W(0,4), W(1,4), W(0,5), W(1,5),
+	      W(0,6), W(1,6), W(0,7), W(1,7), W(0,8), W(1,8));
+    }
     else {
       fprintf(stderr, "multi-freq tensor ");
-      for (k = 0 ; k < Current.NbrHar ; k += 2) 
+      for (k = 0 ; k < Current.NbrHar ; k += 2)
 	fprintf(stderr, " Freq %d : "
 		" xx %e +j %e  xy %e +j %e  xz %e +j %e "
 	        " yx %e +j %e  yy %e +j %e  yz %e +j %e "
-		" zx %e +j %e  zy %e +j %e  zz %e +j %e", k/2+1, 
-		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2), 
-		W(k,3), W(k+1,3), W(k,4), W(k+1,4), W(k,5), W(k+1,5), 
+		" zx %e +j %e  zy %e +j %e  zz %e +j %e", k/2+1,
+		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2),
+		W(k,3), W(k+1,3), W(k,4), W(k+1,4), W(k,5), W(k+1,5),
 		W(k,6), W(k+1,6), W(k,7), W(k+1,7), W(k,8), W(k+1,8));
       fprintf(stderr, "\n");
     }
@@ -2697,27 +2716,27 @@ void Show_Value(struct Value *A)
   case TENSOR_SYM :
     if((nzh=NonZeroHar(6,A->Val)) == 0){
       fprintf(stderr, "zero sym tensor \n") ;
-    } 
+    }
     else if (nzh == 1){
       fprintf(stderr, "real sym tensor "
 	      " xx %e  xy %e  xz %e "
-	      " yy %e  yz %e  zz %e \n", 
+	      " yy %e  yz %e  zz %e \n",
 	      W(0,0), W(0,1), W(0,2), W(0,3), W(0,4), W(0,5));
-    } 
+    }
     else if (nzh == 2){
       fprintf(stderr, "complex sym tensor "
 	      " xx %e +j %e  xy %e +j %e  xz %e +j %e "
 	      " yy %e +j %e  yz %e +j %e  zz %e +j %e\n",
 	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2),
-	      W(0,3), W(1,3), W(0,4), W(1,4), W(0,5), W(1,5)); 
-    } 
+	      W(0,3), W(1,3), W(0,4), W(1,4), W(0,5), W(1,5));
+    }
     else {
       fprintf(stderr, "multi-freq sym tensor ");
-      for (k = 0 ; k < Current.NbrHar ; k += 2) 
+      for (k = 0 ; k < Current.NbrHar ; k += 2)
 	fprintf(stderr, " Freq %d : "
 		" xx %e +j %e  xy %e +j %e  xz %e +j %e "
 		" yy %e +j %e  yz %e +j %e  zz %e +j %e", k/2+1,
-		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2), 
+		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2),
 		W(k,3), W(k+1,3), W(k,4), W(k+1,4), W(k,5), W(k+1,5));
       fprintf(stderr, "\n");
     }
@@ -2726,24 +2745,24 @@ void Show_Value(struct Value *A)
   case TENSOR_DIAG :
     if((nzh=NonZeroHar(3,A->Val)) == 0){
       fprintf(stderr, "zero sym tensor \n") ;
-    } 
+    }
     else if (nzh == 1){
-      fprintf(stderr, "real diag tensor xx %e  yy %e  zz %e \n", 
+      fprintf(stderr, "real diag tensor xx %e  yy %e  zz %e \n",
 	      W(0,0), W(0,1), W(0,2));
-    } 
+    }
     else if (nzh == 2){
       fprintf(stderr, "complex diag tensor  xx %e +j %e  yy %e +j %e  zz %e +j %e",
-	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2)); 
-    } 
+	      W(0,0), W(1,0), W(0,1), W(1,1), W(0,2), W(1,2));
+    }
     else {
       fprintf(stderr, "multi-freq diag tensor ");
-      for (k = 0 ; k < Current.NbrHar ; k += 2) 
-	fprintf(stderr, " Freq %d :  xx %e +j %e  yy %e +j %e  zz %e +j %e", k/2+1,  
+      for (k = 0 ; k < Current.NbrHar ; k += 2)
+	fprintf(stderr, " Freq %d :  xx %e +j %e  yy %e +j %e  zz %e +j %e", k/2+1,
 		W(k,0), W(k+1,0), W(k,1), W(k+1,1), W(k,2), W(k+1,2));
       fprintf(stderr, "\n");
     }
     break;
-    
+
   default :
     Message::Error("Unknown value type in Show_Value");
   }
