@@ -398,6 +398,10 @@ void Message::InitializeOnelab(std::string sockname)
   o.setVisible(false);
   _onelabClient->set(o);
 
+  onelab::number o2("GetDP/UseCommandLine", 1.);
+  o2.setVisible(false);
+  _onelabClient->set(o2);
+
   std::vector<onelab::string> ps;
   _onelabClient->get(ps, "GetDP/Action");
   if(ps.size()){
@@ -547,13 +551,13 @@ void Message::FinalizeOnelab()
   if(_onelabClient){
     // add default computation modes
     std::vector<onelab::string> ps;
-    _onelabClient->get(ps, "GetDP/9Compute");
+    _onelabClient->get(ps, "GetDP/9ComputeCommand");
     if(ps.empty()){ // only change value if none exists
       ps.resize(1);
-      ps[0].setName("GetDP/9Compute");
+      ps[0].setName("GetDP/9ComputeCommand");
       ps[0].setValue("-solve -pos");
     }
-    ps[0].setShortHelp("Computation mode");
+    ps[0].setShortHelp("Compute command");
     std::vector<std::string> choices;
     choices.push_back("-pre");
     choices.push_back("-cal");
