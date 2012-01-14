@@ -875,7 +875,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Hypot"             , (CAST)F_Hypot            ,   0,   2 },
   {"TanhC2"            , (CAST)F_TanhC2           ,   0,   1 },
   {"Transpose"         , (CAST)F_Transpose        ,   0,   1 },
-  {"Inverse"           , (CAST)F_Inverse          ,   0,   1 },
+  {"Inv"               , (CAST)F_Inv              ,   0,   1 },
   {"Det"               , (CAST)F_Det              ,   0,   1 },
   {"TTrace"            , (CAST)F_Trace            ,   0,   1 },
   {"Rotate"            , (CAST)F_RotateXYZ        ,   0,   4 },

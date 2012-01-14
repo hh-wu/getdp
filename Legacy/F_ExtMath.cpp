@@ -66,7 +66,7 @@ void F_Transpose(F_ARG)
   Cal_TransposeValue(A,V);
 }
 
-void F_Inverse(F_ARG)
+void F_Inv(F_ARG)
 {
   if(A->Type != TENSOR_DIAG && A->Type != TENSOR_SYM && A->Type != TENSOR)
     Message::Error("Wrong type of argument for function 'Inverse'");

@@ -90,7 +90,7 @@ void  F_Hypot           (F_ARG) ;
 void  F_Atan2           (F_ARG) ;
 void  F_TanhC2          (F_ARG) ;
 void  F_Transpose       (F_ARG) ;
-void  F_Inverse         (F_ARG) ;
+void  F_Inv             (F_ARG) ;
 void  F_Det             (F_ARG) ;
 void  F_Trace           (F_ARG) ;
 void  F_RotateXYZ       (F_ARG) ;
