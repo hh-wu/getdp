@@ -1119,10 +1119,10 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
       a1[1] = V1->Val[0]*V2->Val[1] + V1->Val[1]*V2->Val[2] + V1->Val[2]*V2->Val[4];
       a1[2] = V1->Val[0]*V2->Val[2] + V1->Val[1]*V2->Val[4] + V1->Val[2]*V2->Val[5];
       a1[3] = V1->Val[1]*V2->Val[0] + V1->Val[3]*V2->Val[1] + V1->Val[4]*V2->Val[2];
-      a1[4] = V1->Val[1]*V2->Val[1] + V1->Val[3]*V2->Val[2] + V1->Val[4]*V2->Val[4];
+      a1[4] = V1->Val[1]*V2->Val[1] + V1->Val[3]*V2->Val[3] + V1->Val[4]*V2->Val[4];
       a1[5] = V1->Val[1]*V2->Val[2] + V1->Val[3]*V2->Val[4] + V1->Val[4]*V2->Val[5];
       a1[6] = V1->Val[2]*V2->Val[0] + V1->Val[4]*V2->Val[1] + V1->Val[5]*V2->Val[2];
-      a1[7] = V1->Val[2]*V2->Val[1] + V1->Val[4]*V2->Val[2] + V1->Val[5]*V2->Val[4];
+      a1[7] = V1->Val[2]*V2->Val[1] + V1->Val[4]*V2->Val[3] + V1->Val[5]*V2->Val[4];
       a1[8] = V1->Val[2]*V2->Val[2] + V1->Val[4]*V2->Val[4] + V1->Val[5]*V2->Val[5];
       R->Val[0] = a1[0];  R->Val[1] = a1[1];  R->Val[2] = a1[2];
       R->Val[3] = a1[3];  R->Val[4] = a1[4];  R->Val[5] = a1[5];
@@ -1134,10 +1134,10 @@ void Cal_ProductValue(struct Value * V1, struct Value * V2, struct Value * R)
 	CMULT(0,1,3);  CMULT(1,2,4);  CMULT(2,4,5);
 	CMULT(0,2,6);  CMULT(1,4,7);  CMULT(2,5,8);
 	CMULT(1,0,9);  CMULT(3,1,10); CMULT(4,2,11);
-	CMULT(1,1,12); CMULT(3,2,13); CMULT(4,4,14);
+	CMULT(1,1,12); CMULT(3,3,13); CMULT(4,4,14);
 	CMULT(1,2,15); CMULT(3,4,16); CMULT(4,5,17);
 	CMULT(2,0,18); CMULT(4,1,19); CMULT(5,2,20);
-	CMULT(2,1,21); CMULT(4,2,22); CMULT(5,4,23);
+	CMULT(2,1,21); CMULT(4,3,22); CMULT(5,4,23);
 	CMULT(2,2,24); CMULT(4,4,25); CMULT(5,5,26);
 	CPUT3(0,1,2,0);    CPUT3(3,4,5,1);    CPUT3(6,7,8,2);
 	CPUT3(9,10,11,3);  CPUT3(12,13,14,4); CPUT3(15,16,17,5);

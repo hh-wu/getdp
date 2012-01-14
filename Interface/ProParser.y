@@ -3580,14 +3580,9 @@ LocalTermTerm  :
 	vyyerror("Unknown Matrix123: %d", $3);
     }
 
-  | tMetricTensor String__Index '[' ']' tEND
+  | tMetricTensor Expression tEND
     {
-      int i;
-      if((i = List_ISearchSeq(Problem_S.Expression, $2, fcmp_Expression_Name)) < 0)
-	vyyerror("Unknown name of expression for MetricTensor: %s", $2);
-      else
-        EquationTerm_S.Case.LocalTerm.ExpressionIndexForMetricTensor = i;
-      Free($2);
+      EquationTerm_S.Case.LocalTerm.ExpressionIndexForMetricTensor = $2;
     }
  ;
 

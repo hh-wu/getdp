@@ -272,7 +272,11 @@ void Cal_applyMetricTensor(struct EquationTerm       * EquationTerm_P,
     S.Val[1] = S.Val[0];
     S.Val[2] = S.Val[0];
   }
-  if(S.Type != TENSOR_SYM && S.Type != TENSOR && S.Type != TENSOR_DIAG) return;
+  if(S.Type != TENSOR_SYM && S.Type != TENSOR && S.Type != TENSOR_DIAG) {
+    Message::Error("Cannot interpret field type %s as metric tensor",
+                   Get_StringForDefine(Field_Type, S.Type));
+    return;
+  }
 
   Cal_DetValue(&S, &detS);
   detS.Val[0] = fabs(detS.Val[0]);
@@ -303,6 +307,8 @@ void Cal_applyMetricTensor(struct EquationTerm       * EquationTerm_P,
     }
     break;
   default:
+    Message::Error("Cannot use metric tensor with field type %s",
+                   Get_StringForDefine(Field_Type, FI->Type_FormDof));
     break;
   }
 }
@@ -349,6 +355,7 @@ void Cal_vBFxDof(struct EquationTerm       * EquationTerm_P,
     v = Current.v ;
     w = Current.w ;
   }
+
 
   /* shape functions, integral quantity or dummy */
 
@@ -447,7 +454,6 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   struct Quadrature         * Quadrature_P ;
   struct Value                vBFxDof [NBR_MAX_BASISFUNCTIONS], CoefPhys ;
   struct Value                CanonicExpression_Equ, V1, V2;
-  struct Value                MetricTensor;
 
   int     Nbr_Equ, Nbr_Dof = 0;
   int     i, j, k, Type_Dimension, Nbr_IntPoints, i_IntPoint ;
@@ -457,14 +463,6 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   double  vBFuEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double  vBFxEqu [NBR_MAX_BASISFUNCTIONS] [MAX_DIM] ;
   double  Ek [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_BASISFUNCTIONS] [NBR_MAX_HARMONIC] ;
-
-  MetricTensor.Type = TENSOR_SYM;
-  MetricTensor.Val[0] = 1.;
-  MetricTensor.Val[1] = 0.;
-  MetricTensor.Val[2] = 0.;
-  MetricTensor.Val[3] = 1.;
-  MetricTensor.Val[4] = 0.;
-  MetricTensor.Val[5] = 1.;
 
   void (*xFunctionBFEqu[NBR_MAX_BASISFUNCTIONS])
     (struct Element * Element, int NumEntity,
