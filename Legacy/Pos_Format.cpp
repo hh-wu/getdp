@@ -82,13 +82,13 @@ void  Format_PostFormat(int Format)
     }
     break ;
   case FORMAT_GNUPLOT :
-    fprintf(PostStream, "# GetDP %s, %s\n", GETDP_VERSION, 
+    fprintf(PostStream, "# GetDP %s, %s\n", GETDP_VERSION,
 	    Flag_BIN ? "binary" : "ascii") ;
     break ;
   }
 }
 
-void  Format_PostHeader(int Format, int Contour, 
+void  Format_PostHeader(int Format, int Contour,
 			int NbTimeStep, int HarmonicToTime,
 			int Type, int Order,
 			char *Name1, char *Name2)
@@ -98,7 +98,7 @@ void  Format_PostHeader(int Format, int Contour,
   CurrentPartitionNumber = 0;
 
   if(Contour){
-    if(!PostElement_L) 
+    if(!PostElement_L)
       PostElement_L = List_Create(20, 20, sizeof(struct PostElement*));
     else
       List_Reset(PostElement_L);
@@ -178,9 +178,9 @@ void Gmsh_StringStart(int Format, double x, double y, double style)
   if(Flag_BIN){ /* bricolage: should use Format instead */
     List_Add(T2D, &x);
     List_Add(T2D, &y);
-    List_Add(T2D, &style); 
+    List_Add(T2D, &style);
     d = List_Nbr(T2C);
-    List_Add(T2D, &d); 
+    List_Add(T2D, &d);
     NbT2++;
   }
   else{
@@ -192,11 +192,11 @@ void Gmsh_StringAdd(int Format, int first, char *text)
 {
   int i;
   if(Flag_BIN){ /* bricolage: should use Format instead */
-    for(i = 0; i < (int)strlen(text)+1; i++) 
+    for(i = 0; i < (int)strlen(text)+1; i++)
       List_Add(T2C, &text[i]);
   }
   else{
-    if(!first) 
+    if(!first)
       fprintf(PostStream, ",");
     fprintf(PostStream, "\"%s\"", text);
   }
@@ -243,12 +243,12 @@ static void printElementNodeData(struct PostSubOperation *PSO_P, int numTimeStep
             fwrite(&num, sizeof(int), 1, PostStream);
             fwrite(&mult, sizeof(int), 1, PostStream);
             fwrite(&tmp[1 + step * mult * numComp], sizeof(double), mult * numComp,
-                   PostStream);          
+                   PostStream);
           }
           else{
             fprintf(PostStream, "%d %d", num, mult);
             for(int k = 0; k < mult * numComp; k++)
-              fprintf(PostStream, " %.16g", tmp[1 + step * mult * numComp + k]);            
+              fprintf(PostStream, " %.16g", tmp[1 + step * mult * numComp + k]);
             fprintf(PostStream, "\n");
           }
         }
@@ -263,7 +263,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 {
   List_T  * Iso_L[NBR_MAX_ISO] ;
   double    IsoMin = 1.e200, IsoMax = -1.e200, IsoVal = 0.0, freq, valr, vali ;
-  int       NbrIso = 0 ; 
+  int       NbrIso = 0 ;
   int       iPost, iNode, iIso, f, iTime, One=1, i, j, NbTimeStep ;
   char      tmp[1024];
   struct PostElement *PE ;
@@ -271,11 +271,11 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
   if( !(NbTimeStep = List_Nbr(PSO_P->TimeStep_L)) )
     NbTimeStep = List_Nbr(Current.DofData->Solutions);
 
-  if ( (PSO_P->Format == FORMAT_GMSH || PSO_P->Format == FORMAT_GMSH_PARSED) && 
+  if ( (PSO_P->Format == FORMAT_GMSH || PSO_P->Format == FORMAT_GMSH_PARSED) &&
        Flag_GMSH_VERSION != 2 ){
 
     switch(PSO_P->Legend){
-      
+
     case LEGEND_TIME:
       Gmsh_StringStart(PSO_P->Format, PSO_P->LegendPosition[0],
 		       PSO_P->LegendPosition[1], PSO_P->LegendPosition[2]);
@@ -289,25 +289,25 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       }
       Gmsh_StringEnd(PSO_P->Format);
       break;
-      
+
     case LEGEND_FREQUENCY:
       if(Current.NbrHar > 1) {
 	Gmsh_StringStart(PSO_P->Format, PSO_P->LegendPosition[0],
 			 PSO_P->LegendPosition[1], PSO_P->LegendPosition[2]);
 	for (i = 0 ; i < NbTimeStep ; i++) {
 	  Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
-	  for (j = 0 ; j < Current.NbrHar ; j+=2) { 
+	  for (j = 0 ; j < Current.NbrHar ; j+=2) {
 	    freq = 0.5*Current.DofData->Val_Pulsation[j/2]/M_PI ;
 	    sprintf(tmp, "%g Hz (Real Part: COSINUS)", freq);
 	    Gmsh_StringAdd(PSO_P->Format, (!i && !j), tmp);
 	    sprintf(tmp, "%g Hz (Imaginary Part: -SINUS)", freq);
 	    Gmsh_StringAdd(PSO_P->Format, 0, tmp);
-	  } 
+	  }
 	}
 	Gmsh_StringEnd(PSO_P->Format);
       }
       break;
-      
+
     case LEGEND_EIGENVALUES:
       Gmsh_StringStart(PSO_P->Format, PSO_P->LegendPosition[0],
 		       PSO_P->LegendPosition[1], PSO_P->LegendPosition[2]);
@@ -315,13 +315,13 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 	Pos_InitAllSolutions(PSO_P->TimeStep_L, i) ;
 	valr = Current.DofData->CurrentSolution->Time ;
 	vali = Current.DofData->CurrentSolution->TimeImag ;
-	for (j = 0 ; j < Current.NbrHar ; j+=2) { 
-	  sprintf(tmp, "Eigenvalue %d/%d: %g %s i * %g (Real Part)", 
-		  i+1, NbTimeStep, valr, (vali > 0) ? "+" : "-", 
+	for (j = 0 ; j < Current.NbrHar ; j+=2) {
+	  sprintf(tmp, "Eigenvalue %d/%d: %g %s i * %g (Real Part)",
+		  i+1, NbTimeStep, valr, (vali > 0) ? "+" : "-",
 		  (vali > 0) ? vali : -vali);
 	  Gmsh_StringAdd(PSO_P->Format, (!i && !j), tmp);
-	  sprintf(tmp, "Eigenvalue %d/%d: %g %s i * %g (Imaginary Part)", 
-		  i+1, NbTimeStep, valr, (vali > 0) ? "+" : "-", 
+	  sprintf(tmp, "Eigenvalue %d/%d: %g %s i * %g (Imaginary Part)",
+		  i+1, NbTimeStep, valr, (vali > 0) ? "+" : "-",
 		  (vali > 0) ? vali : -vali);
 	  Gmsh_StringAdd(PSO_P->Format, 0, tmp);
 	}
@@ -333,7 +333,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 
   if(PSO_P->Iso){
 
-    for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){ 
+    for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
       for (iNode = 0 ; iNode < PE->NbrNodes ; iNode++ ){
 	IsoMin = std::min(IsoMin, PE->Value[iNode].Val[0]) ;
@@ -343,7 +343,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 
     if((NbrIso = PSO_P->Iso) < 0)
       NbrIso = List_Nbr(PSO_P->Iso_L) ;
-    if(NbrIso > NBR_MAX_ISO) 
+    if(NbrIso > NBR_MAX_ISO)
       Message::Error("Too many Iso values");
 
     if(PSO_P->Format == FORMAT_GNUPLOT)
@@ -353,11 +353,11 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     for(iIso = 0 ; iIso < NbrIso ; iIso++)
       Iso_L[iIso] = List_Create(10, 10, sizeof(struct PostElement*)) ;
 
-    for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){ 
+    for(iPost = 0 ; iPost < List_Nbr(PostElement_L) ; iPost++){
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
       for(iIso = 0 ; iIso < NbrIso ; iIso++){
 	if(PSO_P->Iso > 0){
-	  Cal_Iso(PE, Iso_L[iIso], IsoMin+iIso*(IsoMax-IsoMin)/(double)(NbrIso-1), 
+	  Cal_Iso(PE, Iso_L[iIso], IsoMin+iIso*(IsoMax-IsoMin)/(double)(NbrIso-1),
 		  IsoMin, IsoMax, PSO_P->DecomposeInSimplex) ;
 	}
 	else{
@@ -371,9 +371,9 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
     for(iIso = 0 ; iIso < NbrIso ; iIso++){
       for(iPost = 0 ; iPost < List_Nbr(Iso_L[iIso]) ; iPost++){
 	PE = *(struct PostElement**)List_Pointer(Iso_L[iIso], iPost) ;
-	Format_PostElement(PSO_P, 0, 0, 
-			   Current.Time, 0, 1, 
-			   Current.NbrHar, PSO_P->HarmonicToTime, 
+	Format_PostElement(PSO_P, 0, 0,
+			   Current.Time, 0, 1,
+			   Current.NbrHar, PSO_P->HarmonicToTime,
 			   NULL, PE);
 	Destroy_PostElement(PE) ;
       }
@@ -412,7 +412,7 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       fprintf(PostStream, "%d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d "
 	      "%d %d %d %d %d %d %d %d %d %d %d 0 0\n",
 	      List_Nbr(TimeValue_L),
-	      NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT, 
+	      NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT,
 	      NbSQ, NbVQ, NbTQ, NbSS, NbVS, NbTS, NbSH, NbVH, NbTH,
 	      NbSI, NbVI, NbTI, NbSY, NbVY, NbTY, NbT2, List_Nbr(T2C));
       if(Flag_BIN){
@@ -422,15 +422,15 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
       else{
 	f = LIST_FORMAT_ASCII;
       }
-      List_WriteToFile(TimeValue_L, PostStream, f); 
+      List_WriteToFile(TimeValue_L, PostStream, f);
       List_WriteToFile(SP, PostStream, f); List_WriteToFile(VP, PostStream, f);
-      List_WriteToFile(TP, PostStream, f); 
-      List_WriteToFile(SL, PostStream, f); List_WriteToFile(VL, PostStream, f); 
+      List_WriteToFile(TP, PostStream, f);
+      List_WriteToFile(SL, PostStream, f); List_WriteToFile(VL, PostStream, f);
       List_WriteToFile(TL, PostStream, f);
       List_WriteToFile(ST, PostStream, f); List_WriteToFile(VT, PostStream, f);
-      List_WriteToFile(TT, PostStream, f); 
+      List_WriteToFile(TT, PostStream, f);
       List_WriteToFile(SQ, PostStream, f); List_WriteToFile(VQ, PostStream, f);
-      List_WriteToFile(TQ, PostStream, f); 
+      List_WriteToFile(TQ, PostStream, f);
       List_WriteToFile(SS, PostStream, f); List_WriteToFile(VS, PostStream, f);
       List_WriteToFile(TS1, PostStream, f);
       List_WriteToFile(SH, PostStream, f); List_WriteToFile(VH, PostStream, f);
@@ -471,13 +471,13 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 void  Format_Unv(int Num_Element, int NbrNodes, struct Value *Value)
 {
   int     i;
-  
+
   switch (Value[0].Type) {
-    
+
   case SCALAR :
     //Erste Zeile: Elementnummer, 1:Data present for all nodes, Number
     //of nodes on elements, Number of data values per node
-    fprintf(PostStream, "%10i         1         %i         3\n", 
+    fprintf(PostStream, "%10i         1         %i         3\n",
             Num_Element, NbrNodes);
     for(i = 0 ; i < NbrNodes ; i++){
       //fprintf(PostStream, "%13.5E\n", Value[i].Val[0]);
@@ -489,14 +489,14 @@ void  Format_Unv(int Num_Element, int NbrNodes, struct Value *Value)
   case VECTOR :
     //Erste Zeile: Elementnummer, 1:Data present for all nodes, Number
     //of nodes on elements, Number of data values per node
-    fprintf(PostStream, "%10i         1         %i         3\n", 
+    fprintf(PostStream, "%10i         1         %i         3\n",
             Num_Element, NbrNodes);
     for(i = 0 ; i < NbrNodes ; i++){
-      fprintf(PostStream, "%13.5E%13.5E%13.5E\n", Value[i].Val[0], 
+      fprintf(PostStream, "%13.5E%13.5E%13.5E\n", Value[i].Val[0],
               Value[i].Val[1], Value[i].Val[2]);
     }
     break ;
-    
+
   case TENSOR_DIAG :
   case TENSOR_SYM :
   case TENSOR :
@@ -509,13 +509,15 @@ void  Format_Unv(int Num_Element, int NbrNodes, struct Value *Value)
 /*  F o r m a t _ G m s h P a r s e d                                       */
 /* ------------------------------------------------------------------------ */
 
-void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmonic, 
-			int HarmonicToTime, int Type, int NbrNodes, 
+void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
+			int HarmonicToTime, int Type, int NbrNodes,
 			double *x, double *y, double *z, struct Value *Value)
 {
-  int     i,j,k;
+  int     i,j,k,jj ;
   double  TimeMH ;
   struct Value  TmpValue ;
+  int symIndex[9] = {0, 1, 2, 1, 3, 4, 2, 4, 5} ;
+  int diagIndex[9] = {0, -1, -1, -1, 1, -1, -1, -1, 2} ;
 
   if(Gmsh_StartNewView){
     Gmsh_StartNewView = 0 ;
@@ -536,8 +538,8 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
   }
   else
     for(k = 0 ; k < HarmonicToTime ; k++)
-      List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);	
-  
+      List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);
+
   switch (Value[0].Type) {
 
   case SCALAR :
@@ -556,7 +558,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
       case TRIANGLE_2  : fprintf(PostStream, "ST("); break;
       case QUADRANGLE_2: fprintf(PostStream, "SQ("); break;
       case QUADRANGLE_2_8N: fprintf(PostStream, "SQ("); break;
-      }    
+      }
       for(i = 0 ; i < NbrNodes ; i++){
 	if(i) fprintf(PostStream, ",");
 	fprintf(PostStream, "%.16g,%.16g,%.16g", x[i], y[i], z[i]);
@@ -612,7 +614,7 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
       }
       fprintf(PostStream, "){");
     }
-    
+
     if (HarmonicToTime == 1) {
       for(k = 0 ; k < NbHarmonic ; k++) {
 	if(k || TimeStep) fprintf(PostStream, ",");
@@ -647,21 +649,94 @@ void  Format_GmshParsed(double Time, int TimeStep, int NbTimeStep, int NbHarmoni
   case TENSOR_DIAG :
   case TENSOR_SYM :
   case TENSOR :
-    Message::Error("Gmsh parsed format not done for Tensors");
-    break;
-    
+
+    if(TimeStep == 0){
+      switch(Type){
+      case POINT       : fprintf(PostStream, "TP("); break;
+      case LINE        : fprintf(PostStream, "TL("); break;
+      case TRIANGLE    : fprintf(PostStream, "TT("); break;
+      case QUADRANGLE  : fprintf(PostStream, "TQ("); break;
+      case TETRAHEDRON : fprintf(PostStream, "TS("); break;
+      case HEXAHEDRON  : fprintf(PostStream, "TH("); break;
+      case PRISM       : fprintf(PostStream, "TI("); break;
+      case PYRAMID     : fprintf(PostStream, "TY("); break;
+      case LINE_2      : fprintf(PostStream, "TL("); break;
+      case TRIANGLE_2  : fprintf(PostStream, "TT("); break;
+      case QUADRANGLE_2: fprintf(PostStream, "TQ("); break;
+      case QUADRANGLE_2_8N: fprintf(PostStream, "TQ("); break;
+      }
+      for(i = 0 ; i < NbrNodes ; i++){
+	if(i) fprintf(PostStream, ",");
+	fprintf(PostStream, "%.16g,%.16g,%.16g", x[i], y[i], z[i]);
+      }
+      fprintf(PostStream, "){");
+    }
+
+    if (HarmonicToTime == 1) {
+      for(k = 0 ; k < NbHarmonic ; k++) {
+	if(k || TimeStep) fprintf(PostStream, ",");
+	for(i = 0 ; i < NbrNodes ; i++){
+          if(i) fprintf(PostStream, ",");
+          for(j = 0 ; j < 9 ; j++){
+	    if(j) fprintf(PostStream, ",");
+	    if(Value[0].Type != TENSOR_DIAG) {
+              if(Value[0].Type == TENSOR_SYM) jj = symIndex[j];
+              else jj = j;
+              fprintf(PostStream, "%.16g", Value[i].Val[MAX_DIM*k+jj]);
+            }
+            else {
+              jj = diagIndex[j];
+              if(jj == -1) fprintf(PostStream, "%.16g", 0.);
+              else fprintf(PostStream, "%.16g", Value[i].Val[MAX_DIM*k+jj]);
+            }
+	  }
+	}
+      }
+    }
+    else {
+      for(k = 0 ; k < HarmonicToTime ; k++){
+	if(k || TimeStep) fprintf(PostStream, ",");
+	for(i = 0 ; i < NbrNodes ; i++){
+	  if(i) fprintf(PostStream, ",");
+	  F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+          for(j = 0 ; j < 9 ; j++){
+	    if(j) fprintf(PostStream, ",");
+            if(Value[0].Type != TENSOR_DIAG) {
+              if(Value[0].Type == TENSOR_SYM) jj = symIndex[j];
+              else jj = j;
+              jj = symIndex[j];
+              fprintf(PostStream, "%.16g", TmpValue.Val[jj]);
+            }
+            else {
+              jj = diagIndex[j];
+              if(jj == -1) fprintf(PostStream, "%.16g", 0.);
+              else fprintf(PostStream, "%.16g", TmpValue.Val[jj]);
+            }
+	  }
+        }
+      }
+    }
+
+    if(TimeStep == NbTimeStep-1){
+      fprintf(PostStream, "};\n") ;
+    }
+    break ;
+
   }
+
 }
 
-void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic, 
-		  int HarmonicToTime, int Type, int ElementNum, int NbrNodes, 
-		  double *x, double *y, double *z, struct Value *Value, 
+void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
+		  int HarmonicToTime, int Type, int ElementNum, int NbrNodes,
+		  double *x, double *y, double *z, struct Value *Value,
                   struct PostSubOperation *PSO_P, int Store)
 {
-  int            i,j,k;
+  int            i,j,k,jj ;
   double         TimeMH ;
   struct Value   TmpValue ;
   static List_T *Current_L ;
+  int symIndex[9] = {0, 1, 2, 1, 3, 4, 2, 4, 5} ;
+  int diagIndex[9] = {0, -1, -1, -1, 1, -1, -1, -1, 2} ;
 
   if(Gmsh_StartNewView){
     Gmsh_StartNewView = 0 ;
@@ -737,7 +812,7 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
       }
     else
       for(k = 0 ; k < HarmonicToTime ; k++){
-	List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);	
+	List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);
 	for(i = 0 ; i < NbrNodes ; i++){
 	  F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
 	  List_Add(Current_L, &TmpValue.Val[0]);
@@ -793,14 +868,75 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
   case TENSOR_DIAG :
   case TENSOR_SYM :
   case TENSOR :
-    Message::Error("Gmsh format not done for Tensors");
-    break;
-    
+
+    if(TimeStep == 0){
+      switch(Type){
+      case POINT       : Current_L = TP ; NbTP++ ; break ;
+      case LINE        : Current_L = TL ; NbTL++ ; break ;
+      case TRIANGLE    : Current_L = TT ; NbTT++ ; break ;
+      case QUADRANGLE  : Current_L = TQ ; NbTQ++ ; break ;
+      case TETRAHEDRON : Current_L = TS1 ; NbTS++ ; break ;
+      case HEXAHEDRON  : Current_L = TH ; NbTH++ ; break ;
+      case PRISM       : Current_L = TI ; NbTI++ ; break ;
+      case PYRAMID     : Current_L = TY ; NbTY++ ; break ;
+      case LINE_2      : Current_L = TL ; NbTL++ ; break ;
+      case TRIANGLE_2  : Current_L = TT ; NbTT++ ; break ;
+      case QUADRANGLE_2: Current_L = TQ ; NbTQ++ ; break ;
+      case QUADRANGLE_2_8N: Current_L = TQ ; NbTQ++ ; break ;
+      }
+      if(Flag_GMSH_VERSION != 2){
+        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &x[i]);
+        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &y[i]);
+        for(i = 0 ; i < NbrNodes ; i++) List_Add(Current_L, &z[i]);
+      }
+      else{
+        double tmp = ElementNum;
+        List_Add(Current_L, &tmp);
+      }
+    }
+    if (HarmonicToTime == 1)
+      for(k = 0 ; k < NbHarmonic ; k++){
+	List_Put(TimeValue_L, NbHarmonic*TimeStep+k, &Time);
+	for(i = 0 ; i < NbrNodes ; i++){
+	  for(j = 0 ; j < 9 ; j++){
+            if(Value[0].Type != TENSOR_DIAG) {
+              if(Value[0].Type == TENSOR_SYM) jj = symIndex[j];
+              else jj = j;
+              List_Add(Current_L, &Value[i].Val[MAX_DIM*k+jj]);
+            }
+            else {
+              jj = diagIndex[j];
+              if(jj == -1) List_Add(Current_L, new double(0.));
+              else List_Add(Current_L, &Value[i].Val[MAX_DIM*k+jj]);
+            }
+          }
+        }
+      }
+    else
+      for(k = 0 ; k < HarmonicToTime ; k++){
+	List_Put(TimeValue_L, HarmonicToTime*TimeStep+k, &Time);
+	for(i = 0 ; i < NbrNodes ; i++){
+	  F_MHToTime0(k+i, &Value[i], &TmpValue, k, HarmonicToTime, &TimeMH) ;
+	  for(j = 0 ; j < 9 ; j++) {
+            if(Value[0].Type != TENSOR_DIAG) {
+              if(Value[0].Type == TENSOR_SYM) jj = symIndex[j];
+              else jj = j;
+              List_Add(Current_L, &TmpValue.Val[jj]);
+            }
+            else {
+              jj = diagIndex[j];
+              if(jj == -1) List_Add(Current_L, new double(0.));
+              else List_Add(Current_L, &TmpValue.Val[jj]);
+            }
+          }
+	}
+      }
+
   }
 
   // reduce memory requirements by automatically partitioning large
   // output views into chunks not larger than 1Gb
-  if(Flag_GMSH_VERSION == 2 && TimeStep == NbTimeStep - 1 && 
+  if(Flag_GMSH_VERSION == 2 && TimeStep == NbTimeStep - 1 &&
      List_Nbr(Current_L) > 1024 * 1024 * 1024 / sizeof(double)){
     Format_PostFooter(PSO_P, Store);
     CurrentPartitionNumber++;
@@ -816,30 +952,30 @@ void  Format_Gmsh(double Time, int TimeStep, int NbTimeStep, int NbHarmonic,
 int Get_GmshElementType(int Type)
 {
   switch(Type){
-  case POINT :         return(15) ; 
-  case LINE :	       return(1)  ; 
-  case TRIANGLE :      return(2)  ; 
-  case QUADRANGLE :    return(3)  ; 
-  case TETRAHEDRON :   return(4)  ;    
-  case HEXAHEDRON :    return(5)  ; 
-  case PRISM :	       return(6)  ; 
-  case PYRAMID :       return(7)  ; 
-  case LINE_2 :	       return(8)  ; 
-  case TRIANGLE_2 :    return(9)  ; 
-  case QUADRANGLE_2 :  return(10) ; 
-  case TETRAHEDRON_2 : return(11) ;      
-  case HEXAHEDRON_2 :  return(12) ; 
-  case PRISM_2 :       return(13) ; 
-  case PYRAMID_2 :     return(14) ; 
-  case QUADRANGLE_2_8N : return(16) ; 
-  default : 
+  case POINT :         return(15) ;
+  case LINE :	       return(1)  ;
+  case TRIANGLE :      return(2)  ;
+  case QUADRANGLE :    return(3)  ;
+  case TETRAHEDRON :   return(4)  ;
+  case HEXAHEDRON :    return(5)  ;
+  case PRISM :	       return(6)  ;
+  case PYRAMID :       return(7)  ;
+  case LINE_2 :	       return(8)  ;
+  case TRIANGLE_2 :    return(9)  ;
+  case QUADRANGLE_2 :  return(10) ;
+  case TETRAHEDRON_2 : return(11) ;
+  case HEXAHEDRON_2 :  return(12) ;
+  case PRISM_2 :       return(13) ;
+  case PYRAMID_2 :     return(14) ;
+  case QUADRANGLE_2_8N : return(16) ;
+  default :
     Message::Error("Unknown type of element in Gmsh format") ;
     return(-1) ;
   }
 }
 
 void Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
-		    int NbrHarmonics, int HarmonicToTime, 
+		    int NbrHarmonics, int HarmonicToTime,
 		    int ElementType, int NumElement, int NbrNodes,
 		    double *x, double *y, double *z, double *Dummy,
 		    struct Value *Value)
@@ -870,7 +1006,7 @@ void Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
   if(TimeStep == NbrTimeSteps-1){
 
     for(i = 0 ; i <= NbrNodes ; i++){ /* New line for each node, closed loop for tri/qua */
-      
+
       if(i != NbrNodes)
 	i2 = i ;
       else{
@@ -898,7 +1034,7 @@ void Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	if (HarmonicToTime == 1) {
 	  for(k = 0 ; k < NbrHarmonics ; k++) {
 	    for(j = 0 ; j < Size ; j++){
-	      fprintf(PostStream, " %.16g", 
+	      fprintf(PostStream, " %.16g",
 		      TmpValues[ t*NbrNodes*NbrHarmonics*Size
 			       + i2*NbrHarmonics*Size
 			       + k*Size
@@ -928,7 +1064,7 @@ void Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 	fprintf(PostStream, " ");
 
       } /* for t */
-      fprintf(PostStream, "\n");      
+      fprintf(PostStream, "\n");
 
     } /* for i */
     if(NbrNodes > 1) fprintf(PostStream, "\n");
@@ -943,7 +1079,7 @@ void Format_Gnuplot(int Format, double Time, int TimeStep, int NbrTimeSteps,
 
 void  Format_Tabular(struct PostSubOperation *PSO_P,
                      int Format, double Time, int TimeStep, int NbrTimeSteps,
-		     int NbrHarmonics, int HarmonicToTime, 
+		     int NbrHarmonics, int HarmonicToTime,
 		     int ElementType, int NumElement, int NbrNodes,
 		     double *x, double *y, double *z, double *Dummy,
 		     struct Value *Value)
@@ -972,7 +1108,7 @@ void  Format_Tabular(struct PostSubOperation *PSO_P,
         for(i=0 ; i<NbrNodes ; i++)
           fprintf(PostStream, "%.16g %.16g %.16g  ", x[i], y[i], z[i]);
       if(Format != FORMAT_SIMPLE_SPACE_TABLE && Format != FORMAT_VALUE_ONLY){
-        if(Dummy) 
+        if(Dummy)
           fprintf(PostStream, "%.16g %.16g %.16g  ", Dummy[0], Dummy[1],  Dummy[2]);
         else
           fprintf(PostStream, "0 0 0  ");
@@ -1028,7 +1164,7 @@ void  Format_Tabular(struct PostSubOperation *PSO_P,
 void  Format_Adapt(double * Dummy)
 {
   if(Dummy[4]) fprintf(PostStream, "%d\n", (int)Dummy[4]) ;
-  fprintf(PostStream, "%d %g %g %g\n", 
+  fprintf(PostStream, "%d %g %g %g\n",
 	  (int)Dummy[0], Dummy[1], Dummy[2], Dummy[3]);
 }
 
@@ -1036,8 +1172,8 @@ void  Format_Adapt(double * Dummy)
 /*  F o r m a t _ P o s t E l e m e n t                                     */
 /* ------------------------------------------------------------------------ */
 
-void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store, 
-			 double Time, int TimeStep, int NbTimeStep, 
+void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
+			 double Time, int TimeStep, int NbTimeStep,
 			 int NbrHarmonics, int HarmonicToTime, double *Dummy,
 			 struct PostElement * PE)
 {
@@ -1076,11 +1212,11 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
       Current.y = PE->y[i];
       Current.z = PE->z[i];
       for(j = 0; j<9 ; j++) Current.Val[j] = PE->Value[i].Val[j];
-      Get_ValueOfExpressionByIndex(PSO_P->ChangeOfCoordinates[0], NULL, 0., 0., 0., &Value) ; 
+      Get_ValueOfExpressionByIndex(PSO_P->ChangeOfCoordinates[0], NULL, 0., 0., 0., &Value) ;
       PE->x[i] = Value.Val[0];
-      Get_ValueOfExpressionByIndex(PSO_P->ChangeOfCoordinates[1], NULL, 0., 0., 0., &Value) ; 
+      Get_ValueOfExpressionByIndex(PSO_P->ChangeOfCoordinates[1], NULL, 0., 0., 0., &Value) ;
       PE->y[i] = Value.Val[0];
-      Get_ValueOfExpressionByIndex(PSO_P->ChangeOfCoordinates[2], NULL, 0., 0., 0., &Value) ; 
+      Get_ValueOfExpressionByIndex(PSO_P->ChangeOfCoordinates[2], NULL, 0., 0., 0., &Value) ;
       PE->z[i] = Value.Val[0];
     }
   }
@@ -1093,8 +1229,8 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
       for(k=0 ; k<Current.NbrHar ; k++){
 	for(j = 0; j<9 ; j++) Current.Val[j] = PE->Value[i].Val[MAX_DIM*k+j];
 	for(l=0 ; l<List_Nbr(PSO_P->ChangeOfValues) ; l++){
-	  Get_ValueOfExpressionByIndex(*(int*)List_Pointer(PSO_P->ChangeOfValues, l), 
-				       NULL, 0., 0., 0., &Value) ; 
+	  Get_ValueOfExpressionByIndex(*(int*)List_Pointer(PSO_P->ChangeOfValues, l),
+				       NULL, 0., 0., 0., &Value) ;
 	  PE->Value[i].Val[MAX_DIM*k+l] = Value.Val[0];
 	}
       }
@@ -1104,7 +1240,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   switch(PSO_P->Format){
   case FORMAT_GMSH_PARSED :
     Format_GmshParsed(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-		      PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
+		      PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z,
 		      PE->Value) ;
     break ;
   case FORMAT_UNV :
@@ -1113,18 +1249,18 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   case FORMAT_GMSH :
     if(Flag_GMSH_VERSION == 2 || Flag_BIN){ /* bricolage */
       Format_Gmsh(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-		  PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, 
+		  PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z,
 		  PE->Value, PSO_P, Store) ;
     }
     else{
       Format_GmshParsed(Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-			PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z, 
+			PE->Type, PE->NbrNodes, PE->x, PE->y, PE->z,
 			PE->Value) ;
     }
     break ;
   case FORMAT_GNUPLOT :
     Format_Gnuplot(PSO_P->Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
+		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy,
 		   PE->Value) ;
     break ;
   case FORMAT_SPACE_TABLE :
@@ -1133,7 +1269,7 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
   case FORMAT_VALUE_ONLY :
     Format_Tabular(PSO_P,
                    PSO_P->Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, 
+		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy,
 		   PE->Value) ;
     break ;
   case FORMAT_ADAPT:
@@ -1246,7 +1382,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
       else {
 	for(k = 0 ; k < HarmonicToTime ; k++) {
 	  for (iRegion = 0 ; iRegion < NbrRegion ; iRegion++) {
-	    F_MHToTime0(k+iRegion, &TmpValues[iRegion], &TmpValue, 
+	    F_MHToTime0(k+iRegion, &TmpValues[iRegion], &TmpValue,
 			k, HarmonicToTime, &TimeMH) ;
 	    if (iRegion == 0)  fprintf(PostStream, "%.16g ", TimeMH) ;
 	    for(j = 0 ; j < Size ; j++)
@@ -1266,7 +1402,7 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 /* ------------------------------------------------------------------------ */
 
 void  Format_OO1(int Format, double Time, int TimeStep, int NbrTimeSteps,
-		 int NbrHarmonics, int HarmonicToTime, 
+		 int NbrHarmonics, int HarmonicToTime,
 		 int ElementType, int NumElement, int NbrNodes,
 		 double *x, double *y, double *z, double *Dummy,
 		 struct Value *Value)
@@ -1289,7 +1425,7 @@ void  Format_OO1(int Format, double Time, int TimeStep, int NbrTimeSteps,
       fprintf(PostStream, "%d %d ", Get_GmshElementType(ElementType), NumElement);
       for(i=0 ; i<NbrNodes ; i++)
 	fprintf(PostStream, " %.16g %.16g %.16g ", x[i], y[i], z[i]);
-      if(Dummy) 
+      if(Dummy)
 	fprintf(PostStream, " %.16g %.16g %.16g ", Dummy[0], Dummy[1],  Dummy[2]);
       else
 	fprintf(PostStream, " 0 0 0 ");
