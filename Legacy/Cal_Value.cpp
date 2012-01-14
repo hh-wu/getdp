@@ -2211,10 +2211,12 @@ void Cal_RotateValue(struct Value *V1, struct Value *V2, struct Value *R)
 void Cal_DetValue(struct Value *V1, struct Value *R)
 {
   int     k;
+  int     V1Type;
 
+  V1Type = V1->Type;
   R->Type = SCALAR;
 
-  switch(V1->Type){
+  switch(V1Type){
 
   case TENSOR_DIAG :
     if(Current.NbrHar==1){

@@ -19,8 +19,8 @@
 
 /* F_Analytic */
 
-void  F_JFIE_ZPolCyl      (F_ARG) ; 
-void  F_RCS_ZPolCyl       (F_ARG) ; 
+void  F_JFIE_ZPolCyl      (F_ARG) ;
+void  F_RCS_ZPolCyl       (F_ARG) ;
 void  F_JFIE_TransZPolCyl (F_ARG) ;
 void  F_JFIE_SphTheta     (F_ARG) ;
 void  F_RCS_SphTheta      (F_ARG) ;
@@ -46,7 +46,7 @@ void  F_OSRC_Bj(F_ARG);
 
 /* F_Geometry */
 
-void  F_ProjectPointOnEllipse(F_ARG);  
+void  F_ProjectPointOnEllipse(F_ARG);
 void  F_Normal          (F_ARG) ;
 void  F_NormalSource    (F_ARG) ;
 void  F_Tangent         (F_ARG) ;
@@ -56,7 +56,7 @@ void  F_GetVolume       (F_ARG) ;
 
 /* F_Raytracing */
 
-void  F_CylinderPhase(F_ARG);  
+void  F_CylinderPhase(F_ARG);
 void  F_DiamondPhase(F_ARG);
 
 /* F_Math */
@@ -90,6 +90,8 @@ void  F_Hypot           (F_ARG) ;
 void  F_Atan2           (F_ARG) ;
 void  F_TanhC2          (F_ARG) ;
 void  F_Transpose       (F_ARG) ;
+void  F_Inverse         (F_ARG) ;
+void  F_Det             (F_ARG) ;
 void  F_Trace           (F_ARG) ;
 void  F_RotateXYZ       (F_ARG) ;
 void  F_Norm            (F_ARG) ;
@@ -163,7 +165,7 @@ void  F_dInterpolationLinear2 (F_ARG) ;
 void  F_InterpolationAkima    (F_ARG) ;
 void  F_dInterpolationAkima   (F_ARG) ;
 void F_InterpolationBilinear (F_ARG) ;
-bool Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC, 
+bool Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC,
                                double xp, double yp, double *zp);
 void  Fi_InitListX      (F_ARG) ; // List
 void  Fi_InitListXY     (F_ARG) ; // ListAlt
@@ -194,7 +196,7 @@ double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL,
                       int NC, double h0, double b0, double b);
 
 void  F_nu_Vinch (F_ARG) ;
-void  F_Update_a (F_ARG) ; 
+void  F_Update_a (F_ARG) ;
 
 /* F_MultiHar */
 
@@ -207,7 +209,7 @@ void  Fi_MHTimeIntegration(int TypePsi, int NbrTimePoint,
 			   struct QuantityStorage * QuantityStorage_P0,
 			   double u, double v, double w,
 			   struct Value *ValueOut) ;
-void  F_MHToTime0 (int init, struct Value * A, struct Value * V, 
+void  F_MHToTime0 (int init, struct Value * A, struct Value * V,
 		   int iTime, int NbrTimePoint, double * TimeMH) ;/* OJO!!! int *init */
 void  MHTransform(struct Element * Element, struct QuantityStorage * QuantityStorage_P0,
 		  double u, double v, double w, struct Value *MH_Value,
