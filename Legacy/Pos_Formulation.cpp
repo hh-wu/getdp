@@ -128,7 +128,7 @@ int Pos_InitTimeSteps(struct PostSubOperation *PostSubOperation_P)
 {
   int iTime, NbTimeStep;
 
-  if(PostSubOperation_P->LastTimeStepOnly){
+  if(PostSubOperation_P->LastTimeStepOnly || PostSubOperation_P->AppendTimeStepToFileName){
     iTime = List_Nbr(Current.DofData->Solutions) - 1;
     List_Reset(PostSubOperation_P->TimeStep_L);
     List_Add(PostSubOperation_P->TimeStep_L, &iTime);
