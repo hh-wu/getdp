@@ -1108,6 +1108,7 @@ struct ChangeOfState {
 
 #define OPERATION_POSTOPERATION            60
 #define OPERATION_GMSHREAD                 61
+#define OPERATION_GMSHCLEARALL             62
 
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0

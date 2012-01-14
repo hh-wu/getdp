@@ -31,6 +31,7 @@
 #include "Message.h"
 #if defined(HAVE_GMSH)
 #include <gmsh/Gmsh.h>
+#include <gmsh/PView.h>
 #endif
 
 #define TWO_PI             6.2831853071795865
@@ -2772,6 +2773,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GMSHREAD :
 #if defined(HAVE_GMSH)
       GmshMergeFile(Operation_P->Case.GmshRead.FileName);
+#else
+      Message::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
+#endif
+      break ;
+
+    case OPERATION_GMSHCLEARALL :
+#if defined(HAVE_GMSH)
+      while(PView::list.size()) delete PView::list[0];
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
 #endif

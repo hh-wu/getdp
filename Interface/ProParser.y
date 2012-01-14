@@ -225,7 +225,8 @@ void vyyerror(const char *fmt, ...);
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
 %token      tDivisionCoefficient tChangeOfState
-%token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand tGmshRead
+%token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand 
+%token        tGmshRead tGmshClearAll
 %token      tGenerateOnly
 %token      tGenerateOnlyJac
 %token      tSolveJac_AdaptRelax  tTensorProductSolve
@@ -4581,6 +4582,13 @@ OperationTerm :
       Operation_P->Type = OPERATION_GMSHREAD;
       Operation_P->Case.GmshRead.FileName = strSave(Get_AbsolutePath($3).c_str());
       Free($3);
+    }
+
+  | tGmshClearAll tEND
+    {
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_GMSHCLEARALL;
     }
 
   | tSolveJac_AdaptRelax '[' String__Index ',' ListOfFExpr ',' FExpr ']' tEND
