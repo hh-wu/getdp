@@ -61,11 +61,11 @@ void Info(int level, char *arg0)
 	    "Output options:\n"
 	    "  -bin                      create binary output files\n"
 	    "  -v2                       create mesh-based Gmsh output files when possible\n"
-	    "  -socket string            communicate through socket\n"
 	    "Other options:\n"
 	    "  -check                    interactive check of problem structure\n"
 	    "  -v num                    set verbosity level (default: 4)\n"
 	    "  -p num                    set progress indicator update (default: 10)\n"
+	    "  -onelab name address      communicate with OneLab server through socket\n"
 	    "  -version                  show version number\n"
 	    "  -info                     show detailed version information\n"
 	    "  -help                     show this message\n", arg0);
