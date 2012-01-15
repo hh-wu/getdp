@@ -30,92 +30,92 @@ int fcmp_Integer(const void *a, const void *b)
   return(*(int*)a - *(int*)b );
 }
 
-int fcmp_Constant (const void *a, const void *b) 
+int fcmp_Constant (const void *a, const void *b)
 {
   return ( strcmp(((struct Constant *)a)->Name, ((struct Constant *)b)->Name));
 }
 
-int fcmp_Expression_Name(const void *a, const void *b) 
+int fcmp_Expression_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct Expression *)b)->Name ) );
 }
 
-int fcmp_Group_Name(const void *a, const void *b) 
+int fcmp_Group_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct Group *)b)->Name ) );
 }
 
-int fcmp_Constraint_Name(const void *a, const void *b) 
+int fcmp_Constraint_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct Constraint *)b)->Name ) );
 }
 
-int fcmp_JacobianMethod_Name(const void *a, const void *b) 
+int fcmp_JacobianMethod_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct JacobianMethod *)b)->Name ) );
 }
 
-int fcmp_IntegrationMethod_Name(const void *a, const void *b) 
+int fcmp_IntegrationMethod_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct IntegrationMethod *)b)->Name ) );
 }
 
-int fcmp_BasisFunction_Name(const void *a, const void *b) 
+int fcmp_BasisFunction_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct BasisFunction *)b)->Name ) );
 }
 
-int fcmp_FunctionSpace_Name(const void *a, const void *b) 
+int fcmp_FunctionSpace_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct FunctionSpace *)b)->Name ) );
 }
 
-int fcmp_BasisFunction_NameOfCoef(const void *a, const void *b) 
+int fcmp_BasisFunction_NameOfCoef(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct BasisFunction *)b)->NameOfCoef ) );
 }
 
-int fcmp_SubSpace_Name(const void *a, const void *b) 
+int fcmp_SubSpace_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct SubSpace *)b)->Name ) );
 }
 
-int fcmp_GlobalQuantity_Name(const void *a, const void *b) 
+int fcmp_GlobalQuantity_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct GlobalQuantity *)b)->Name ) );
 }
 
-int fcmp_Formulation_Name(const void *a, const void *b) 
+int fcmp_Formulation_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct Formulation *)b)->Name ) );
 }
 
-int fcmp_DefineQuantity_Name(const void *a, const void *b) 
+int fcmp_DefineQuantity_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct DefineQuantity *)b)->Name ) );
 }
 
-int fcmp_DefineSystem_Name(const void *a, const void *b) 
+int fcmp_DefineSystem_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct DefineSystem *)b)->Name ) );
 }
 
-int fcmp_Resolution_Name(const void *a, const void *b) 
+int fcmp_Resolution_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct Resolution *)b)->Name ) );
 }
 
-int fcmp_PostProcessing_Name(const void *a, const void *b) 
+int fcmp_PostProcessing_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct PostProcessing *)b)->Name ) );
 }
 
-int fcmp_PostQuantity_Name(const void *a, const void *b) 
+int fcmp_PostQuantity_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct PostQuantity *)b)->Name ) );
 }
 
-int fcmp_PostOperation_Name(const void *a, const void *b) 
+int fcmp_PostOperation_Name(const void *a, const void *b)
 {
   return ( strcmp((char *)a, ((struct PostOperation *)b)->Name ) );
 }
@@ -123,16 +123,16 @@ int fcmp_PostOperation_Name(const void *a, const void *b)
 // I/O routines
 
 void Init_ProblemStructure()
-{ 
-  Problem_S.Expression        = NULL ;  
+{
+  Problem_S.Expression        = NULL ;
   Problem_S.Group             = NULL ;
   Problem_S.Constraint        = NULL ;
-  Problem_S.JacobianMethod    = NULL ;  
+  Problem_S.JacobianMethod    = NULL ;
   Problem_S.IntegrationMethod = NULL ;
-  Problem_S.FunctionSpace     = NULL ;  
+  Problem_S.FunctionSpace     = NULL ;
   Problem_S.Formulation       = NULL ;
-  Problem_S.Resolution        = NULL ;  
-  Problem_S.PostProcessing    = NULL ;  
+  Problem_S.Resolution        = NULL ;
+  Problem_S.PostProcessing    = NULL ;
   Problem_S.PostOperation     = NULL ;
 }
 
@@ -149,9 +149,9 @@ std::string Get_AbsolutePath(const char *name)
 
 void Read_ProblemStructure(const char *name)
 {
-  int Last_yylinenum = getdp_yylinenum; 
+  int Last_yylinenum = getdp_yylinenum;
   std::string Last_yyname = std::string(getdp_yyname);
-  int Last_ErrorLevel = getdp_yyerrorlevel; 
+  int Last_ErrorLevel = getdp_yyerrorlevel;
   int Last_yyincludenum = getdp_yyincludenum;
 
   char AbsPath[2048];
@@ -166,34 +166,34 @@ void Read_ProblemStructure(const char *name)
   // opening the file in text mode messes up the loops (they use
   // fsetpos/fgetpos) on Windows without Cygwin; not sure why, but
   // opening the file in binary mode fixes the problem
-  if(!(getdp_yyin = fopen(AbsPath, "rb"))) 
+  if(!(getdp_yyin = fopen(AbsPath, "rb")))
     Message::Error("Unable to open file '%s'", AbsPath);
 
-  getdp_yyerrorlevel = 0;  getdp_yylinenum = 1; getdp_yyincludenum=0; 
+  getdp_yyerrorlevel = 0;  getdp_yylinenum = 1; getdp_yyincludenum=0;
   strcpy(getdp_yyname, AbsPath);
 
   getdp_yyrestart(getdp_yyin); getdp_yyparse(); fclose(getdp_yyin);
 
   if(getdp_yyerrorlevel) exit(1);
-  
+
   while(getdp_yyincludenum > 0){
-    Read_ProblemStructure(getdp_yyincludename);    
+    Read_ProblemStructure(getdp_yyincludename);
     getdp_yyin = fopen(getdp_yyname, "rb"); // same comment as above
     getdp_yyrestart(getdp_yyin);
     for(i = 0; i < getdp_yylinenum; i++) fgets(AbsPath, 2048, getdp_yyin);
     getdp_yylinenum++;
-    getdp_yyparse(); 
+    getdp_yyparse();
     fclose(getdp_yyin);
     if(getdp_yyerrorlevel) exit(1);
   }
 
   getdp_yylinenum = Last_yylinenum;
   strcpy(getdp_yyname, Last_yyname.c_str());
-  getdp_yyerrorlevel = Last_ErrorLevel; 
+  getdp_yyerrorlevel = Last_ErrorLevel;
   getdp_yyincludenum = Last_yyincludenum;
 }
 
-char *Get_ExpressionName(int Index) 
+char *Get_ExpressionName(int Index)
 {
   return(((struct Expression *)List_Pointer(Problem_S.Expression, Index))->Name);
 }
@@ -259,7 +259,7 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
                                             (WQ+k)->Case.Expression.Index))->Name);
       break;
 
-    case WQ_BUILTINFUNCTION : 
+    case WQ_BUILTINFUNCTION :
     case WQ_EXTERNBUILTINFUNCTION :
 #if defined(HAVE_LEGACY)
       Message::Check(" %s", Get_StringForFunction2Nbr(F_Function,
@@ -283,15 +283,15 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
     case WQ_TIMEDERIVATIVE :
       Message::Check(" Dt[");
       Print_WholeQuantity((WQ+k)->Case.TimeDerivative.WholeQuantity, DQ_L);
-      Message::Check(" ]"); 
+      Message::Check(" ]");
       break;
 
     case WQ_TRACE :
       Message::Check(" Trace[");
       Print_WholeQuantity((WQ+k)->Case.Trace.WholeQuantity, DQ_L);
       Message::Check(" , %s ]", ((struct Group*)
-                                 List_Pointer(Problem_S.Group, 
-                                              (WQ+k)->Case.Trace.InIndex))->Name); 
+                                 List_Pointer(Problem_S.Group,
+                                              (WQ+k)->Case.Trace.InIndex))->Name);
       break;
 
     case WQ_CAST :
@@ -301,13 +301,13 @@ void Print_WholeQuantity(List_T *WholeQuantity, List_T *DQ_L)
                         List_Pointer(Problem_S.FunctionSpace,
                                      (WQ+k)->Case.Cast.FunctionSpaceIndexForType))->Name);
       else
-	Message::Check(" <Real>[");	
+	Message::Check(" <Real>[");
       Print_WholeQuantity((WQ+k)->Case.Cast.WholeQuantity, DQ_L);
       Message::Check(" ]");
       break;
 
     case WQ_CURRENTVALUE :
-      Message::Check(" $%s", 
+      Message::Check(" $%s",
                      Get_StringForPointer(Current_Value,
                                           (void *)((WQ+k)->Case.CurrentValue.Value)));
       break;
@@ -356,7 +356,7 @@ void Print_Group()
 
     GR = (struct Group*)List_Pointer(Problem_S.Group, i);
 
-    Message::Check("  %s = %s [", GR->Name, 
+    Message::Check("  %s = %s [", GR->Name,
                    Get_StringForDefine(FunctionForGroup_Type, GR->FunctionType));
 
     if (GR->InitialList != NULL) {
@@ -410,7 +410,7 @@ void Print_Group()
 void Print_Expression()
 {
   int    i, Nbr, j;
-  struct Expression *EX;  
+  struct Expression *EX;
   struct ExpressionPerRegion *EXPR;
 
   Nbr = List_Nbr(Problem_S.Expression);
@@ -423,7 +423,7 @@ void Print_Expression()
 
     switch (EX->Type) {
     case CONSTANT :
-      Message::Check("  %s = %.10g;\n", EX->Name, EX->Case.Constant);  
+      Message::Check("  %s = %.10g;\n", EX->Name, EX->Case.Constant);
       break;
 
     case WHOLEQUANTITY :
@@ -450,7 +450,7 @@ void Print_Expression()
       break;
 
     default :
-      Message::Check("???;\n");  
+      Message::Check("???;\n");
       break;
     }
   }
@@ -492,7 +492,7 @@ void Print_Network(struct MultiConstraintPerRegion *MCPR_P)
 void Print_Constraint()
 {
   int    i, Nbr, j, Nbrj, k, Nbrk;
-  struct Constraint *CO; 
+  struct Constraint *CO;
   struct ConstraintPerRegion *CPR;
   struct MultiConstraintPerRegion MCPR_S;
 
@@ -557,7 +557,7 @@ void Print_Constraint()
 	  Message::Check(" NameOfResolution %s;", CPR->Case.Solve.ResolutionName);
 	  break;
 	}
-	  
+
 	if (CPR->TimeFunctionIndex >= 0)
 	  Message::Check(" TimeFunction Exp[%s];",
                          Get_ExpressionName(CPR->TimeFunctionIndex));
@@ -577,7 +577,7 @@ void Print_Constraint()
 void Print_Jacobian()
 {
   int    i, Nbr, j, Nbrj, k;
-  struct JacobianMethod *JM; 
+  struct JacobianMethod *JM;
   struct JacobianCase *JC;
 
   Nbr = List_Nbr(Problem_S.JacobianMethod);
@@ -621,7 +621,7 @@ void Print_Jacobian()
 void Print_Integration()
 {
   int    i, j, k, Nbrm, Nbrc, Nbrq;
-  struct IntegrationMethod *IM;  
+  struct IntegrationMethod *IM;
   struct IntegrationCase *IC;
   struct Quadrature *Q;
 
@@ -635,7 +635,7 @@ void Print_Integration()
     IM = (struct IntegrationMethod*)List_Pointer(Problem_S.IntegrationMethod, i);
     Message::Check("  { Name %s; \n", IM->Name);
     if(IM->CriterionIndex>=0)
-      Message::Check("    Criterion Exp[%s]; \n", 
+      Message::Check("    Criterion Exp[%s]; \n",
                      Get_ExpressionName(IM->CriterionIndex));
 
     Nbrc = List_Nbr(IM->IntegrationCase);
@@ -653,13 +653,13 @@ void Print_Integration()
 	Nbrq = List_Nbr(IC->Case);
 	for (k = 0; k < Nbrq; k++) {
 	  Q = (struct Quadrature*)List_Pointer(IC->Case, k);
-	  Message::Check("            { GeoElement %s; NumberOfPoints %d; }\n", 
+	  Message::Check("            { GeoElement %s; NumberOfPoints %d; }\n",
                          Get_StringForDefine(Element_Type, Q->ElementType),
                          Q->NumberOfPoints);
 	}
-	Message::Check("         }\n"); 
+	Message::Check("         }\n");
 	Message::Check("       }\n");  break;
-	
+
       default :
 	Message::Check(" }\n");  break;
       }
@@ -674,7 +674,7 @@ void Print_Integration()
 void Print_FunctionSpace()
 {
   struct FunctionSpace *FS;
-  struct BasisFunction *BF; 
+  struct BasisFunction *BF;
   struct SubSpace *SS;
   struct GlobalQuantity *GQ;
   struct ConstraintInFS *CO;
@@ -688,7 +688,7 @@ void Print_FunctionSpace()
 
   for (i0=0; i0<Nbr0; i0++) {
 
-    Message::Check(" /* Num : %d */\n", i0);  
+    Message::Check(" /* Num : %d */\n", i0);
     FS = (struct FunctionSpace*)List_Pointer(Problem_S.FunctionSpace, i0);
     BF_L = FS->BasisFunction;  SS_L = FS->SubSpace;
     GQ_L = FS->GlobalQuantity;  CO_L = FS->Constraint;
@@ -714,7 +714,7 @@ void Print_FunctionSpace()
 	  for (j=0; j<Nbrj; j++)
 	    Message::Check(" %s",
                            ((struct Expression *)
-                            List_Pointer(Problem_S.Expression, 
+                            List_Pointer(Problem_S.Expression,
                                          *((int *)List_Pointer(BF->SubFunction, j))))->Name);
 	  Message::Check(" };\n");
 	}
@@ -725,12 +725,12 @@ void Print_FunctionSpace()
 	  for (j=0; j<Nbrj; j++)
 	    Message::Check(" %s",
                            ((struct Expression *)
-                            List_Pointer(Problem_S.Expression, 
+                            List_Pointer(Problem_S.Expression,
                                          *((int *)List_Pointer(BF->SubdFunction, j))))->Name);
 	  Message::Check(" };\n");
 	}
 
-	Message::Check("      Support %s;", 
+	Message::Check("      Support %s;",
                        (BF->SupportIndex >=0)?
                        ((struct Group *)List_Pointer(Problem_S.Group, BF->SupportIndex))
                        ->Name : "?");
@@ -738,7 +738,7 @@ void Print_FunctionSpace()
                        (BF->EntityIndex >=0)?
                        ((struct Group *)List_Pointer(Problem_S.Group, BF->EntityIndex))
                        ->Name : "?");
-	
+
 	BF += 1;
       }
       Message::Check("    }\n");
@@ -769,10 +769,10 @@ void Print_FunctionSpace()
       GQ = (struct GlobalQuantity*)List_Pointer(GQ_L, 0);
       for (i=0; i<Nbr; i++) {
 	Message::Check("    /* GlobalNum : %d */\n", GQ->Num);
-	Message::Check("      Name %s; Type %s;", 
+	Message::Check("      Name %s; Type %s;",
                        GQ->Name,
                        Get_StringForDefine(GlobalQuantity_Type, GQ->Type));
-	Message::Check(" NameOfCoef %s;\n", 
+	Message::Check(" NameOfCoef %s;\n",
                        ((struct BasisFunction *)
                         List_Pointer(BF_L, GQ->ReferenceIndex))->NameOfCoef);
 	GQ += 1;
@@ -797,7 +797,7 @@ void Print_FunctionSpace()
 	Message::Check(" // Entity %s;\n",
                        ((struct Group *)List_Pointer(Problem_S.Group, CO->EntityIndex))
                        ->Name );
-	
+
 	switch(CO->ConstraintPerRegion->Type) {
 	case ASSIGN :
 	case INIT :
@@ -814,8 +814,8 @@ void Print_FunctionSpace()
 	if (CO->ConstraintPerRegion->TimeFunctionIndex >= 0)
 	  Message::Check(" TimeFunction Exp[%s];",
                          Get_ExpressionName(CO->ConstraintPerRegion->TimeFunctionIndex));
-	
-	Message::Check("\n");	
+
+	Message::Check("\n");
 	CO += 1;
       }
       Message::Check("    }\n");
@@ -886,11 +886,11 @@ void Print_Formulation()
 	Message::Check("\n");
 	Message::Check("        Integration %s;\n",
                        ((struct IntegrationMethod *)
-                        List_Pointer(Problem_S.IntegrationMethod, 
+                        List_Pointer(Problem_S.IntegrationMethod,
                                      DQ->IntegralQuantity.IntegrationMethodIndex))->Name);
 	Message::Check("        Jacobian %s;",
                        ((struct JacobianMethod *)
-                        List_Pointer(Problem_S.JacobianMethod, 
+                        List_Pointer(Problem_S.JacobianMethod,
                                      DQ->IntegralQuantity.JacobianMethodIndex))->Name);
       }
       Message::Check(" }\n");
@@ -910,11 +910,11 @@ void Print_Formulation()
                         List_Pointer(Problem_S.Group, FE->Case.LocalTerm.InIndex))->Name );
 	Message::Check("                 Jacobian %s; \n",
                        ((struct JacobianMethod *)
-                        List_Pointer(Problem_S.JacobianMethod, 
+                        List_Pointer(Problem_S.JacobianMethod,
                                      FE->Case.LocalTerm.JacobianMethodIndex))->Name );
 	Message::Check("                 Integration %s; }\n",
                        ((struct IntegrationMethod *)
-                        List_Pointer(Problem_S.IntegrationMethod, 
+                        List_Pointer(Problem_S.IntegrationMethod,
                                      FE->Case.LocalTerm.IntegrationMethodIndex))->Name );
 
 	Message::Check("      /* Inventaire des DQ (%d) [%d] :",
@@ -938,7 +938,7 @@ void Print_Formulation()
 	Message::Check("                 In %s;\n",
                        ((struct Group *)
                         List_Pointer(Problem_S.Group, FE->Case.GlobalTerm.InIndex))->Name );
-	
+
 	Message::Check("      /* Inventaire des DQ (%d) [%d,%d] :",
                        FE->Case.GlobalTerm.Term.NbrQuantityIndex,
                        FE->Case.GlobalTerm.Term.DefineQuantityIndexDof,
@@ -949,12 +949,12 @@ void Print_Formulation()
                           List_Pointer
                           (DQ_L, FE->Case.GlobalTerm.Term.QuantityIndexTable[k]))->Name);
 	Message::Check(" */\n");
-	
+
 	Message::Check("      /* WholeQuantity (%d) :",
                        List_Nbr(FE->Case.GlobalTerm.Term.WholeQuantity));
 	Print_WholeQuantity(FE->Case.GlobalTerm.Term.WholeQuantity, DQ_L);
 	Message::Check(" */\n");
-	
+
       }
       else if (FE->Type == GLOBALEQUATION) {
 	Message::Check("      GlobalEquation { Type %s; UsingConstraint %s;\n",
@@ -1030,7 +1030,7 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
                       List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
                      Get_ExpressionName(OPE->Case.Update.ExpressionIndex));
       break;
-    
+
     case OPERATION_SELECTCORRECTION :
       for (i=0 ; i<2*NbrBlk ; i++) Message::Check(" ");
       Message::Check("      SelectCorrection [ %s, %d ] ;\n",
@@ -1090,7 +1090,7 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
     case OPERATION_ITERATIVELOOP :
       for (i=0; i<2*NbrBlk; i++) Message::Check(" ");
       Message::Check("      IterativeLoop [ %d, %.10g, Exp[%s] ] {\n",
-                     OPE->Case.IterativeLoop.NbrMaxIteration, 
+                     OPE->Case.IterativeLoop.NbrMaxIteration,
                      OPE->Case.IterativeLoop.Criterion,
                      Get_ExpressionName(OPE->Case.IterativeLoop.RelaxationFactorIndex));
       Print_Operation(RE, OPE->Case.IterativeLoop.Operation);
@@ -1195,7 +1195,7 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
     case OPERATION_DEFORMEMESH :
       Message::Check("      DeformeMesh [%s, %s,  '%s']; \n",
                      ((struct DefineSystem *)
-                      List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name, 
+                      List_Pointer(RE->DefineSystem, OPE->DefineSystemIndex))->Name,
                      OPE->Case.DeformeMesh.Quantity,
                      OPE->Case.DeformeMesh.Name_MshFile);
       break;
@@ -1227,7 +1227,7 @@ void Print_Resolution()
 {
   struct Resolution *RE;
   struct DefineSystem *DS;
-  List_T *DS_L;  
+  List_T *DS_L;
   int    i, Nbr, j, Nbrj, k;
 
   Nbr = List_Nbr(Problem_S.Resolution);
@@ -1293,13 +1293,13 @@ void Print_Resolution()
     Message::Check("    }\n");
     Message::Check("  }\n");
   }
-  Message::Check("\n"); 
+  Message::Check("\n");
   Message::Check("}\n");
 }
 
 void Print_PostProcessing()
 {
-  struct PostProcessing   *PP;  
+  struct PostProcessing   *PP;
   struct PostQuantity     *PQ;
   struct PostQuantityTerm *PQT;
   int   i, Nbr, j, Nbrj, k, Nbrk;
@@ -1320,7 +1320,7 @@ void Print_PostProcessing()
 
     if(PP->NameOfSystem)
       Message::Check("NameOfSystem %s;", PP->NameOfSystem);
-    
+
     Nbrj = List_Nbr(PP->PostQuantity);
     if (Nbrj > 0) {
       Message::Check("    Quantity {\n");
@@ -1331,8 +1331,8 @@ void Print_PostProcessing()
 	Nbrk = List_Nbr(PQ->PostQuantityTerm);
 	for (k = 0; k < Nbrk; k++) {
 	  PQT = (struct PostQuantityTerm*)List_Pointer(PQ->PostQuantityTerm, k);
-	  Message::Check("          { %s { ['", 
-                         Get_StringForDefine(PostQuantityTerm_EvaluationType, 
+	  Message::Check("          { %s { ['",
+                         Get_StringForDefine(PostQuantityTerm_EvaluationType,
                                              PQT->EvaluationType));
 	  Print_WholeQuantity
 	    (PQT->WholeQuantity,
@@ -1343,19 +1343,19 @@ void Print_PostProcessing()
                          Get_StringForDefine(DefineQuantity_Type, PQT->Type));
 
 	  if(PQT->InIndex > 0)
-	    Message::Check("                    In %s;\n", 
+	    Message::Check("                    In %s;\n",
                            ((struct Group *)List_Pointer(Problem_S.Group, PQT->InIndex))->Name);
 	  if(PQT->IntegrationMethodIndex > 0)
-	    Message::Check("                    Integration %s;\n", 
-                           ((struct IntegrationMethod *) 
-                            List_Pointer(Problem_S.IntegrationMethod, 
+	    Message::Check("                    Integration %s;\n",
+                           ((struct IntegrationMethod *)
+                            List_Pointer(Problem_S.IntegrationMethod,
                                          PQT->IntegrationMethodIndex))->Name);
 	  if(PQT->JacobianMethodIndex > 0)
-	    Message::Check("                    Jacobian %s;\n", 
+	    Message::Check("                    Jacobian %s;\n",
                            ((struct JacobianMethod *)
-                            List_Pointer(Problem_S.JacobianMethod, 
+                            List_Pointer(Problem_S.JacobianMethod,
                                          PQT->JacobianMethodIndex))->Name);
-	  
+
 	}
 	Message::Check("          } } }\n");  Message::Check("      }\n");
       }
@@ -1369,7 +1369,7 @@ void Print_PostProcessing()
 
 void Print_PostOperation()
 {
-  struct PostProcessing   *PP;  
+  struct PostProcessing   *PP;
   struct PostOperation    *PO;
   struct PostSubOperation *PSO;
   int   i, Nbr, k, Nbrk;
@@ -1381,7 +1381,7 @@ void Print_PostOperation()
 
   for (i = 0; i < Nbr; i++) {
     PO = (struct PostOperation*)List_Pointer(Problem_S.PostOperation, i);
-    PP = (struct PostProcessing*)List_Pointer(Problem_S.PostProcessing, 
+    PP = (struct PostProcessing*)List_Pointer(Problem_S.PostProcessing,
 					      PO->PostProcessingIndex);
 
     Message::Check("  { Name %s; NameOfPostProcessing %s;\n", PO->Name, PP->Name);
@@ -1401,7 +1401,7 @@ void Print_PostOperation()
                           List_Pointer(Problem_S.Group, PSO->PostQuantitySupport[0]))->Name);
 	if(PSO->PostQuantityIndex[1] >= 0) {
 	  Message::Check(" %s %s",
-                         Get_StringForDefine(PostSubOperation_CombinationType, 
+                         Get_StringForDefine(PostSubOperation_CombinationType,
                                              PSO->CombinationType),
                          ((struct PostQuantity *)
                           List_Pointer(PP->PostQuantity, PSO->PostQuantityIndex[1]))->Name);
@@ -1462,25 +1462,25 @@ void Print_PostOperation()
       default : /* POP_EXPRESSION, POP_GROUP, etc. */
 	break;
       }
-      
+
       if(PSO->Depth != 1)
 	Message::Check(", Depth %d", PSO->Depth);
-      
+
       if(PSO->Skin)
 	Message::Check(", Skin");
 
       if(PSO->NoNewLine)
 	Message::Check(", NoNewLine");
-      
+
       if(PSO->Smoothing)
 	Message::Check(", Smoothing %d", PSO->Smoothing);
 
       if(PSO->Dimension != _ALL)
 	Message::Check(", Dimension %d", PSO->Dimension);
-  
+
       if(PSO->HarmonicToTime > 1)
 	Message::Check(", HarmonicToTime %d", PSO->HarmonicToTime);
-  
+
       if(PSO->Sort)
 	Message::Check(", Sort %s",
                        Get_StringForDefine(PostSubOperation_SortType, PSO->Adapt));
@@ -1496,9 +1496,9 @@ void Print_PostOperation()
 	if(PSO->Iso < 0){
 	  Message::Check(", Iso {");
 	  for(i=0; i<List_Nbr(PSO->Iso_L); i++){
-	    if(i!=List_Nbr(PSO->Iso_L)-1) 
+	    if(i!=List_Nbr(PSO->Iso_L)-1)
 	      Message::Check("%g,", *(double*)List_Pointer(PSO->Iso_L,i));
-	    else 
+	    else
 	      Message::Check("%g}", *(double*)List_Pointer(PSO->Iso_L,i));
 	  }
 	}
@@ -1506,14 +1506,14 @@ void Print_PostOperation()
 	  Message::Check(", Iso %d", PSO->Iso);
 	}
       }
-      
+
       /* todo: time steps, frequencies, values, changeofcoord, ... */
-      
+
       Message::Check(", Format %s",
                      Get_StringForDefine(PostSubOperation_Format, PSO->Format));
 
       if(PSO->FileOut){
-	Message::Check(", File %s\"%s\"", 
+	Message::Check(", File %s\"%s\"",
                        (PSO->CatFile==2)?">> ":(PSO->CatFile==1)?"> ":"", PSO->FileOut);
       }
 
@@ -1522,7 +1522,7 @@ void Print_PostOperation()
     Message::Check("    }\n ");
     Message::Check(" }\n");
   }
-  Message::Check("\n"); 
+  Message::Check("\n");
   Message::Check("}\n");
 }
 
@@ -1555,12 +1555,12 @@ void  Print_ProblemStructure()
 
   while (1) {
     Message::Info("Checking");
-    Message::Check("(1) Group                (2) Function\n"); 
+    Message::Check("(1) Group                (2) Function\n");
     Message::Check("(3) Constraint           (4) Jacobian\n");
     Message::Check("(5) Integration          (6) FunctionSpace\n");
     Message::Check("(7) Formulation          (8) Resolution\n");
     Message::Check("(9) PostProcessing      (10) PostOperation\n");
-    Message::Check("(0) Quit\n"); 
+    Message::Check("(0) Quit\n");
     Message::Check("Choice: ");
     fgets(buff, 128, stdin);
     ichoice = atoi(buff);
@@ -1601,10 +1601,10 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
         std::map<std::string, std::vector<std::string> > charOptions;
         charOptions["Choices"] = choices;
         charOptions["ShortHelp"].push_back("Resolution");
-        charOptions["Path"].push_back("GetDP/1");
+        charOptions["Path"].push_back(Message::GetOnelabClientName() + "/1");
         Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
         if(choose){
-          *name = c.Value.Char; 
+          *name = c.Value.Char;
           return;
         }
       }
@@ -1617,7 +1617,7 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
     }
     if(ichoice > 0 && ichoice < Nbr+1){
       RE = (struct Resolution*)List_Pointer(Problem_S.Resolution, ichoice-1);
-      *name = RE->Name; 
+      *name = RE->Name;
       return;
     }
     else if(choose)
@@ -1657,10 +1657,10 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
         std::map<std::string, std::vector<std::string> > charOptions;
         charOptions["Choices"] = choices;
         charOptions["ShortHelp"].push_back("Post-processing");
-        charOptions["Path"].push_back("GetDP/2");
+        charOptions["Path"].push_back(Message::GetOnelabClientName() + "/2");
         Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
         if(choose){
-          *name = c.Value.Char; 
+          *name = c.Value.Char;
           return;
         }
       }

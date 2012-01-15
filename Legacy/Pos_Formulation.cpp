@@ -28,8 +28,8 @@ FILE *PostStream = stdout;
 /* ------------------------------------------------------------------------ */
 
 void  Pos_FemFormulation(struct Formulation       *Formulation_P,
-			 struct PostQuantity      *NCPQ_P, 
-			 struct PostQuantity      *CPQ_P, 
+			 struct PostQuantity      *NCPQ_P,
+			 struct PostQuantity      *CPQ_P,
 			 int                       Order,
 			 struct PostSubOperation  *PostSubOperation_P)
 {
@@ -39,16 +39,16 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
 
   List_T   *QuantityStorage_L ;
   int       i ;
-  
+
   Get_InitDofOfElement(&Element) ;
 
   DefineQuantity_P0 = (struct DefineQuantity*)
     List_Pointer(Formulation_P->DefineQuantity, 0) ;
-  QuantityStorage_L = List_Create(List_Nbr(Formulation_P->DefineQuantity),  1, 
+  QuantityStorage_L = List_Create(List_Nbr(Formulation_P->DefineQuantity),  1,
 				  sizeof (struct QuantityStorage) ) ;
 
   for(i = 0 ; i < List_Nbr(Formulation_P->DefineQuantity) ; i++) {
-    
+
     QuantityStorage.DefineQuantity = DefineQuantity_P0 + i ;
 
     if(QuantityStorage.DefineQuantity->Type == INTEGRALQUANTITY &&
@@ -56,12 +56,12 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
       QuantityStorage.TypeQuantity = VECTOR ; /* on ne sait pas... */
     }
     else{
-      QuantityStorage.TypeQuantity = 
+      QuantityStorage.TypeQuantity =
 	((struct FunctionSpace *)
 	 List_Pointer(Problem_S.FunctionSpace,
 		      (DefineQuantity_P0+i)->FunctionSpaceIndex))->Type ;
     }
-    
+
     QuantityStorage.NumLastElementForFunctionSpace = 0 ;
     List_Add(QuantityStorage_L, &QuantityStorage) ;
   }
@@ -73,13 +73,13 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
   case POP_PRINT :
     switch (PostSubOperation_P->SubType) {
     case PRINT_ONREGION :
-      Pos_PrintOnRegion(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
-			QuantityStorage_P0, PostSubOperation_P) ; 
+      Pos_PrintOnRegion(NCPQ_P, CPQ_P, Order, DefineQuantity_P0,
+			QuantityStorage_P0, PostSubOperation_P) ;
       break ;
     case PRINT_ONELEMENTSOF :
     case PRINT_ONGRID   :
-      Pos_PrintOnElementsOf(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
-			    QuantityStorage_P0, PostSubOperation_P) ; 
+      Pos_PrintOnElementsOf(NCPQ_P, CPQ_P, Order, DefineQuantity_P0,
+			    QuantityStorage_P0, PostSubOperation_P) ;
       break ;
     case PRINT_ONSECTION_1D :
     case PRINT_ONSECTION_2D :
@@ -91,18 +91,18 @@ void  Pos_FemFormulation(struct Formulation       *Formulation_P,
     case PRINT_ONGRID_2D    :
     case PRINT_ONGRID_3D    :
     case PRINT_ONGRID_PARAM :
-      Pos_PrintOnGrid(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
-		      QuantityStorage_P0, PostSubOperation_P) ; 
+      Pos_PrintOnGrid(NCPQ_P, CPQ_P, Order, DefineQuantity_P0,
+		      QuantityStorage_P0, PostSubOperation_P) ;
       break ;
     case PRINT_WITHARGUMENT :
-      Pos_PrintWithArgument(NCPQ_P, CPQ_P, Order, DefineQuantity_P0, 
+      Pos_PrintWithArgument(NCPQ_P, CPQ_P, Order, DefineQuantity_P0,
 			    QuantityStorage_P0, PostSubOperation_P) ;
       break ;
     default :
-      Message::Error("Unknown Operation type for Print"); 
+      Message::Error("Unknown Operation type for Print");
       break;
-    }    
-    break ;    
+    }
+    break ;
 
   case POP_EXPRESSION :
     Pos_PrintExpression(PostSubOperation_P);
@@ -143,7 +143,7 @@ int Pos_InitTimeSteps(struct PostSubOperation *PostSubOperation_P)
     for(iTime = 0 ; iTime < NbTimeStep ; iTime++)
       List_Add(PostSubOperation_P->TimeStep_L, &iTime);
   }
-  
+
   return NbTimeStep;
 }
 
@@ -185,7 +185,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   char                   FileName[256], AddExt[100];
 
   if(PostSubOperation_P->FileOut){
-    if(PostSubOperation_P->FileOut[0] == '/' || 
+    if(PostSubOperation_P->FileOut[0] == '/' ||
        PostSubOperation_P->FileOut[0] == '\\'){
       strcpy(FileName, PostSubOperation_P->FileOut);
     }
@@ -230,23 +230,23 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 
   if(PostSubOperation_P->PostQuantityIndex[0] >= 0) {
     if(PostSubOperation_P->PostQuantitySupport[0] < 0) { /* Noncumulative */
-      NCPQ_P = 
-	(struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
+      NCPQ_P =
+	(struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity,
 					     PostSubOperation_P->PostQuantityIndex[0]) ;
-      CPQ_P = 
+      CPQ_P =
 	(PostSubOperation_P->PostQuantityIndex[1] >= 0) ?
-	(struct PostQuantity *)List_Pointer(PostProcessing_P->PostQuantity, 
+	(struct PostQuantity *)List_Pointer(PostProcessing_P->PostQuantity,
 					    PostSubOperation_P->PostQuantityIndex[1]) :
 	NULL ;
       Order = 1 ;
     }
     else {
-      CPQ_P = 
-	(struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity, 
+      CPQ_P =
+	(struct PostQuantity *) List_Pointer(PostProcessing_P->PostQuantity,
 					     PostSubOperation_P->PostQuantityIndex[0]) ;
-      NCPQ_P = 
+      NCPQ_P =
 	(PostSubOperation_P->PostQuantityIndex[1] >= 0) ?
-	(struct PostQuantity *)List_Pointer(PostProcessing_P->PostQuantity, 
+	(struct PostQuantity *)List_Pointer(PostProcessing_P->PostQuantity,
 					    PostSubOperation_P->PostQuantityIndex[1]) :
 	NULL ;
       Order = 0 ;
@@ -282,16 +282,17 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   if(PostSubOperation_P->FileOut){
     fclose(PostStream) ;
 
-    if(PostSubOperation_P->SendToServer == NULL || 
+    if(PostSubOperation_P->SendToServer == NULL ||
        strcmp(PostSubOperation_P->SendToServer, "No")){
-      if(!PostSubOperation_P->CatFile && 
-         (PostSubOperation_P->Format == FORMAT_GMSH_PARSED || 
+      if(!PostSubOperation_P->CatFile &&
+         (PostSubOperation_P->Format == FORMAT_GMSH_PARSED ||
           PostSubOperation_P->Format == FORMAT_GMSH)){
         // send merge request
         Message::SendFileOnSocket(FileName);
       }
       // Add link to file
-      Message::AddOnelabStringChoice("GetDP/9Output files", "file", FileName);
+      Message::AddOnelabStringChoice(Message::GetOnelabClientName() + "/9Output files",
+                                     "file", FileName);
     }
 
   }

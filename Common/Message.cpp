@@ -89,7 +89,7 @@ void Message::Fatal(const char *fmt, ...)
     _onelabClient->sendError(str);
   }
   else{
-    if(_commSize > 1) 
+    if(_commSize > 1)
       fprintf(stderr, "Fatal   : [On processor %d] %s\n", _commRank, str);
     else
       fprintf(stderr, "Fatal   : %s\n", str);
@@ -114,7 +114,7 @@ void Message::Error(const char *fmt, ...)
     _onelabClient->sendError(str);
   }
   else{
-    if(_commSize > 1) 
+    if(_commSize > 1)
       fprintf(stderr, "Error   : [On processor %d] %s\n", _commRank, str);
     else
       fprintf(stderr, "Error   : %s\n", str);
@@ -224,7 +224,7 @@ void Message::Debug(const char *fmt, ...)
     _onelabClient->sendInfo(str);
   }
   else{
-    if(_commSize > 1) 
+    if(_commSize > 1)
       fprintf(stdout, "Debug   : [On processor %d] %s\n", _commRank, str);
     else
       fprintf(stdout, "Debug   : %s\n", str);
@@ -310,7 +310,7 @@ void Message::PrintTimers()
 {
   // do a single stdio call!
   std::string str;
-  for(std::map<std::string, double>::iterator it = _timers.begin(); 
+  for(std::map<std::string, double>::iterator it = _timers.begin();
       it != _timers.end(); it++){
     if(it != _timers.begin()) str += ", ";
     char tmp[256];
@@ -326,7 +326,7 @@ void Message::PrintTimers()
     _onelabClient->sendInfo(str);
   }
   else{
-    if(_commSize > 1) 
+    if(_commSize > 1)
       fprintf(stdout, "Timers  : [On processor %d] %s\n", _commRank, str.c_str());
     else
       fprintf(stdout, "Timers  : %s\n", str.c_str());
@@ -387,23 +387,23 @@ void Message::FinalizeSocket()
   }
 }
 
-void Message::InitializeOnelab(std::string sockname)
+void Message::InitializeOnelab(std::string name, std::string sockname)
 {
-  _onelabClient = new onelab::remoteNetworkClient("GetDP", sockname);
+  _onelabClient = new onelab::remoteNetworkClient(name, sockname);
   // if sockname is file, we should load the database from disk
-  //_onelabClient = new onelab::localClient("GetDP", sockname);
+  //_onelabClient = new onelab::localClient(name, sockname);
   //_onelabClient->readDatabaseFromFile(sockname);
-  
-  onelab::string o("GetDP/FileExtension", ".pro");
+
+  onelab::string o(name + "/FileExtension", ".pro");
   o.setVisible(false);
   _onelabClient->set(o);
 
-  onelab::number o2("GetDP/UseCommandLine", 1.);
+  onelab::number o2(name + "/UseCommandLine", 1.);
   o2.setVisible(false);
   _onelabClient->set(o2);
 
   std::vector<onelab::string> ps;
-  _onelabClient->get(ps, "GetDP/Action");
+  _onelabClient->get(ps, name + "/Action");
   if(ps.size()){
     Info("Performing OneLab '%s'", ps[0].getValue().c_str());
     if(ps[0].getValue() == "initialize") Exit(0);
@@ -465,6 +465,12 @@ void Message::GetOnelabString(std::string name, char **val)
     }
   }
   *val = 0;
+}
+
+std::string Message::GetOnelabClientName()
+{
+  if(_onelabClient) return _onelabClient->getName();
+  return "";
 }
 
 void Message::ExchangeOnelabParameter(Constant *c,
@@ -550,11 +556,12 @@ void Message::FinalizeOnelab()
 {
   if(_onelabClient){
     // add default computation modes
+    std::string name = _onelabClient->getName();
     std::vector<onelab::string> ps;
-    _onelabClient->get(ps, "GetDP/9ComputeCommand");
+    _onelabClient->get(ps, name + "/9ComputeCommand");
     if(ps.empty()){ // only change value if none exists
       ps.resize(1);
-      ps[0].setName("GetDP/9ComputeCommand");
+      ps[0].setName(name + "/9ComputeCommand");
       ps[0].setValue("-solve -pos");
     }
     ps[0].setShortHelp("Compute command");

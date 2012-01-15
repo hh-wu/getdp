@@ -66,13 +66,14 @@ class Message {
   static void SendFileOnSocket(std::string filename);
   static void SendOptionOnSocket(int num, std::string option);
   static void TestSocket();
-  static void InitializeOnelab(std::string sockname);
+  static void InitializeOnelab(std::string name, std::string sockname);
   static void FinalizeOnelab();
   static bool UseOnelab(){ return _onelabClient ? true : false; }
+  static std::string GetOnelabClientName();
   static void GetOnelabString(std::string name, char **val);
   static void AddOnelabNumberChoice(std::string name, double val);
   static void AddOnelabStringChoice(std::string name, std::string kind, std::string choice);
-  static void ExchangeOnelabParameter(Constant *c, 
+  static void ExchangeOnelabParameter(Constant *c,
                                       std::map<std::string, std::vector<double> > &fopt,
                                       std::map<std::string, std::vector<std::string> > &copt);
   static void ExchangeOnelabParameter(Expression *p);

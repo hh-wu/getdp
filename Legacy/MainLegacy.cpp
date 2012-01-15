@@ -33,7 +33,7 @@ void Info(int level, char *arg0)
 {
   switch(level){
   case 0 :
-    fprintf(stderr, 
+    fprintf(stderr,
 	    "GetDP, a General environment for the treatment of Discrete Problems\n"
 	    "Copyright (C) 1997-2011 P. Dular, C. Geuzaine\n"
 	    "Usage: %s [file] [options]\n"
@@ -102,31 +102,31 @@ void Info(int level, char *arg0)
 /*  G e t _ O p t i o n s                                                   */
 /* ------------------------------------------------------------------------ */
 
-void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro, 
+void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 		 int *lres, int *lpos, int *check)
 {
   int  i, j, Flag_NameProblem = 0;
 
-  strcpy(pro, "");  
+  strcpy(pro, "");
 
   i = *sargc = 1;
 
   while (i < argc) {
-    
+
     if (argv[i][0] == '-') {
-      
-      if      (!strcmp(argv[i]+1, "cal"))    { Flag_CAL     = 1; i++; } 
-      else if (!strcmp(argv[i]+1, "check"))  { *check       = 1; i++; } 
-      else if (!strcmp(argv[i]+1, "xdata"))  { Flag_XDATA   = 1; i++; } 
-      else if (!strcmp(argv[i]+1, "bin"))    { Flag_BIN     = 1; i++; } 
-      else if (!strcmp(argv[i]+1, "v2"))     { Flag_GMSH_VERSION = 2; i++; } 
-      else if (!strcmp(argv[i]+1, "ascii"))  { Flag_BIN     = 0; i++; } 
-      else if (!strcmp(argv[i]+1, "split"))  { Flag_SPLIT   = 1; i++; } 
+
+      if      (!strcmp(argv[i]+1, "cal"))    { Flag_CAL     = 1; i++; }
+      else if (!strcmp(argv[i]+1, "check"))  { *check       = 1; i++; }
+      else if (!strcmp(argv[i]+1, "xdata"))  { Flag_XDATA   = 1; i++; }
+      else if (!strcmp(argv[i]+1, "bin"))    { Flag_BIN     = 1; i++; }
+      else if (!strcmp(argv[i]+1, "v2"))     { Flag_GMSH_VERSION = 2; i++; }
+      else if (!strcmp(argv[i]+1, "ascii"))  { Flag_BIN     = 0; i++; }
+      else if (!strcmp(argv[i]+1, "split"))  { Flag_SPLIT   = 1; i++; }
 
       else if (!strcmp(argv[i]+1, "socket")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') { 
-	  Message::InitializeSocket(argv[i]); i++; 
+	if (i<argc && argv[i][0]!='-') {
+	  Message::InitializeSocket(argv[i]); i++;
 	}
 	else {
 	  Message::Error("Missing socket name");
@@ -134,41 +134,42 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       }
 
       else if (!strcmp(argv[i]+1, "onelab")) {
-	i++;
-	if (i<argc && argv[i][0]!='-') { 
-	  Message::InitializeOnelab(argv[i]); i++; 
+        i++;
+	if (i + 1 < argc && argv[i][0] != '-' && argv[i + 1][0] != '-') {
+	  Message::InitializeOnelab(argv[i], argv[i + 1]);
+          i += 2;
 	}
 	else {
-	  Message::Error("Missing address of onelab server");
+	  Message::Error("Missing client name and/or address of OneLab server");
 	}
       }
 
-      else if (!strcmp(argv[i]+1, "restart")){ 
+      else if (!strcmp(argv[i]+1, "restart")){
 	Flag_CAL = Flag_RESTART = 1; i++;
-      } 
+      }
 
       else if (!strcmp(argv[i]+1, "verbose") ||
 	       !strcmp(argv[i]+1, "v")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') { 
-	  Message::SetVerbosity(atoi(argv[i])); i++; 
+	if (i<argc && argv[i][0]!='-') {
+	  Message::SetVerbosity(atoi(argv[i])); i++;
 	}
 	else {
 	  Message::Error("Missing number");
 	}
-      } 
+      }
 
       else if (!strcmp(argv[i]+1, "help")  || !strcmp(argv[i]+1, "h") ||
 	       !strcmp(argv[i]+1, "-help") || !strcmp(argv[i]+1, "-h")) {
 	Info(0, argv[0]);
       }
 
-      else if (!strcmp(argv[i]+1, "version") || 
+      else if (!strcmp(argv[i]+1, "version") ||
 	       !strcmp(argv[i]+1, "-version")) {
 	Info(1, argv[0]);
       }
 
-      else if (!strcmp(argv[i]+1, "info") || 
+      else if (!strcmp(argv[i]+1, "info") ||
                !strcmp(argv[i]+1, "-info")) {
         Info(2, argv[0]);
       }
@@ -176,21 +177,21 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       else if (!strcmp(argv[i]+1, "progress") ||
 	       !strcmp(argv[i]+1, "p")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') { 
+	if (i<argc && argv[i][0]!='-') {
 	  Message::SetProgressMeterStep(atoi(argv[i])); i++;
 	}
 	else {
 	  Message::Error("Missing number");
 	}
-      } 
+      }
 
       else if (!strcmp(argv[i]+1, "pre")) {
 	i++;
 	if (i<argc && argv[i][0]=='#') {
 	  Flag_PRE = 1; *lres = -atoi(argv[i]+1); i++;
 	}
-	else if (i<argc && argv[i][0]!='-') { 
-	  Flag_PRE = 1; Name_Resolution = argv[i]; i++; 
+	else if (i<argc && argv[i][0]!='-') {
+	  Flag_PRE = 1; Name_Resolution = argv[i]; i++;
 	}
 	else {
 	  Flag_PRE = *lres = 1;
@@ -200,7 +201,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       else if (!strcmp(argv[i]+1, "order") ||
 	       !strcmp(argv[i]+1, "ord")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') { 
+	if (i<argc && argv[i][0]!='-') {
 	  Flag_ORDER = atof(argv[i]); i++;
 	}
 	else {
@@ -212,7 +213,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
         // fix when calling getdp from gmsh (since the GUI forces us
         // to put the -solver option before the .pro file!)
 	sargv[(*sargc)++] = argv[i++];
-	if (i<argc && argv[i][0]!='-') { 
+	if (i<argc && argv[i][0]!='-') {
           sargv[(*sargc)++] = argv[i++];
 	}
 	else {
@@ -227,9 +228,9 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	  Flag_PRE = Flag_CAL = 1; *lres = -atoi(argv[i]+1); i++;
 	}
 	else if (i<argc && argv[i][0]!='-') {
-	  Flag_PRE = Flag_CAL = 1; Name_Resolution = argv[i]; i++; 
+	  Flag_PRE = Flag_CAL = 1; Name_Resolution = argv[i]; i++;
 	}
-	else { 
+	else {
 	  Flag_PRE = Flag_CAL = *lres = 1;
 	}
       }
@@ -241,7 +242,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	  Flag_POS = 1; *lpos = -atoi(argv[i]+1); i++;
 	} /* Only one numbered (#) PostOperation allowed */
 	else {
-	  while (i<argc && argv[i][0]!='-') { 
+	  while (i<argc && argv[i][0]!='-') {
 	    Name_PostOperation[j] = argv[i]; i++; j++;
 	    if(j == NBR_MAX_POS)
 	      Message::Error("Too many PostOperations");
@@ -260,8 +261,8 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	       !strcmp(argv[i]+1, "msh") ||
 	       !strcmp(argv[i]+1, "m")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') { 
-	  Name_MshFile = argv[i]; i++; 
+	if (i<argc && argv[i][0]!='-') {
+	  Name_MshFile = argv[i]; i++;
 	}
 	else {
 	  Message::Error("Missing file name");
@@ -272,8 +273,8 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	       !strcmp(argv[i]+1, "adap") ||
 	       !strcmp(argv[i]+1, "ada")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') { 
-	  Name_AdaptFile = argv[i]; i++; 
+	if (i<argc && argv[i][0]!='-') {
+	  Name_AdaptFile = argv[i]; i++;
 	}
 	else {
 	  Message::Error("Missing file name");
@@ -282,7 +283,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 
       else if (!strcmp(argv[i]+1, "res")) {
 	i++; j = 0;
-	while (i<argc && argv[i][0]!='-') { 
+	while (i<argc && argv[i][0]!='-') {
 	  Name_ResFile[j] = argv[i]; i++; j++;
 	  if(j == NBR_MAX_RES)
 	    Message::Error("Too many '.res' files");
@@ -296,28 +297,28 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 
       else if (!strcmp(argv[i]+1, "name")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') { 
+	if (i<argc && argv[i][0]!='-') {
 	  Name_Generic = (char*)Malloc((strlen(argv[i]) + 1) * sizeof(char));
-	  strcpy(Name_Generic, argv[i]); i++; 
+	  strcpy(Name_Generic, argv[i]); i++;
 	}
 	else {
 	  Message::Error("Missing string");
 	}
       }
 
-      else if (!strcmp(argv[i]+1, "petscinfo") || 
+      else if (!strcmp(argv[i]+1, "petscinfo") ||
 	       !strcmp(argv[i]+1, "-petscinfo")) {
 	sargv[(*sargc)++] = (char*)"-info";
 	i++;
       }
 
       else {
-	sargv[(*sargc)++] = argv[i++]; 
+	sargv[(*sargc)++] = argv[i++];
       }
-      
+
     }
     else{
-      if (!Flag_NameProblem) { 
+      if (!Flag_NameProblem) {
 	Flag_NameProblem = 1;
 	sargv[0] = argv[i];
 	strcpy(pro, argv[i++]);
@@ -326,9 +327,9 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	sargv[(*sargc)++] = argv[i++];
       }
     }
-    
+
   }
-  
+
   if(!strlen(pro))
     Message::Error("Missing input file name");
   else{
@@ -439,13 +440,13 @@ int MainLegacy(int argc, char *argv[])
     choose = 0;
   }
 
-  if(check) 
+  if(check)
     Print_ProblemStructure();
 
   if(lres)
     Print_ListResolution(choose, lres, &Name_Resolution);
 
-  if(lpos) 
+  if(lpos)
     Print_ListPostOperation(choose, lpos, &Name_PostOperation[0]);
 
   if(Flag_PRE || Flag_CAL || Flag_POS)
