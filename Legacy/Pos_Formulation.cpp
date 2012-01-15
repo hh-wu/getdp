@@ -6,11 +6,19 @@
 #include <string.h>
 #include "ProData.h"
 #include "DofData.h"
+#include "GeoData.h"
 #include "Get_DofOfElement.h"
 #include "Pos_Print.h"
 #include "Pos_Format.h"
 #include "ListUtils.h"
 #include "Message.h"
+#if defined(HAVE_GMSH)
+#include <gmsh/Gmsh.h>
+#include <gmsh/MVertex.h>
+#include <gmsh/GModel.h>
+#include <gmsh/PView.h>
+#include <gmsh/PViewData.h>
+#endif
 
 #define TWO_PI             6.2831853071795865
 
@@ -182,7 +190,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   struct PostQuantity   *NCPQ_P = NULL, *CPQ_P = NULL ;
   double                 Pulsation ;
   int                    i, Order = 0 ;
-  char                   FileName[256], AddExt[100];
+  char                   FileName[256], AddExt[100] ;
 
   if(PostSubOperation_P->FileOut){
     if(PostSubOperation_P->FileOut[0] == '/' ||
@@ -293,6 +301,50 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       // Add link to file
       Message::AddOnelabStringChoice(Message::GetOnelabClientName() + "/9Output files",
                                      "file", FileName);
+    }
+
+    if(PostSubOperation_P->NewCoordinates){
+
+#if defined(HAVE_GMSH)
+
+      GmshMergeFile(std::string(FileName));
+      int iview = PView::list.size() - 1;
+      PViewData *data = PView::list[iview]->getData();
+
+      GModel* m = new GModel();
+      m->readMSH(std::string(Current.GeoData->Name));
+
+      std::vector<GEntity*> entities;
+      m->getEntities(entities);
+      std::map<MVertex*, std::vector<double>, MVertexLessThanNum> newcoords;
+      for(unsigned int i = 0; i < entities.size(); i++) {
+        for(unsigned int j = 0; j < entities[i]->mesh_vertices.size(); j++) {
+          MVertex* v = entities[i]->mesh_vertices[j];
+          std::vector<double> xyz(3);
+          if(!data->searchVector(v->x(), v->y(), v->z(), &xyz[0]))
+            Message::Error("Did not find new coordinate vectors from file %s",
+                           FileName);
+          newcoords[v] = xyz;
+        }
+      }
+
+      for(std::map<MVertex*, std::vector<double>, MVertexLessThanNum>::iterator
+            it = newcoords.begin(); it != newcoords.end(); it++) {
+        it->first->x() = it->second[0];
+        it->first->y() = it->second[1];
+        it->first->z() = it->second[2];
+      }
+      m->writeMSH(std::string(FileName) + ".msh");
+      Message::Info("Wrote new coordinates in file %s",
+                    (std::string(FileName) + ".msh").c_str());
+      delete m;
+      delete PView::list[iview];
+      PView::list.pop_back();
+
+#else
+    Message::Error("You need to compile GetDP with Gmsh support to use 'NewCoordinates'");
+#endif
+
     }
 
   }

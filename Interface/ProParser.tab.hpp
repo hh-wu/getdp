@@ -1,9 +1,10 @@
-/* A Bison parser, made by GNU Bison 2.4.3.  */
+
+/* A Bison parser, made by GNU Bison 2.4.1.  */
 
 /* Skeleton interface for Bison's Yacc-like parsers in C
    
-      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006,
-   2009, 2010 Free Software Foundation, Inc.
+      Copyright (C) 1984, 1989, 1990, 2000, 2001, 2002, 2003, 2004, 2005, 2006
+   Free Software Foundation, Inc.
    
    This program is free software: you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -279,19 +280,20 @@
      tSendToServer = 496,
      tStr = 497,
      tDate = 498,
-     tDEF = 499,
-     tOR = 500,
-     tAND = 501,
-     tAPPROXEQUAL = 502,
-     tNOTEQUAL = 503,
-     tEQUAL = 504,
-     tGREATERGREATER = 505,
-     tLESSLESS = 506,
-     tGREATEROREQUAL = 507,
-     tLESSOREQUAL = 508,
-     tCROSSPRODUCT = 509,
-     UNARYPREC = 510,
-     tSHOW = 511
+     tNewCoordinates = 499,
+     tDEF = 500,
+     tOR = 501,
+     tAND = 502,
+     tAPPROXEQUAL = 503,
+     tNOTEQUAL = 504,
+     tEQUAL = 505,
+     tGREATERGREATER = 506,
+     tLESSLESS = 507,
+     tGREATEROREQUAL = 508,
+     tLESSOREQUAL = 509,
+     tCROSSPRODUCT = 510,
+     UNARYPREC = 511,
+     tSHOW = 512
    };
 #endif
 
@@ -301,7 +303,7 @@
 typedef union YYSTYPE
 {
 
-/* Line 1685 of yacc.c  */
+/* Line 1676 of yacc.c  */
 #line 121 "ProParser.y"
 
   char    *c;
@@ -312,8 +314,8 @@ typedef union YYSTYPE
 
 
 
-/* Line 1685 of yacc.c  */
-#line 317 "ProParser.tab.hpp"
+/* Line 1676 of yacc.c  */
+#line 319 "ProParser.tab.hpp"
 } YYSTYPE;
 # define YYSTYPE_IS_TRIVIAL 1
 # define yystype YYSTYPE /* obsolescent; will be withdrawn */

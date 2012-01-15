@@ -1182,6 +1182,7 @@ struct PostSubOperation {
   int    Type, SubType, CombinationType;
   int    Depth, Skin, Smoothing, Dimension, Comma, HarmonicToTime, CatFile;
   int    Format, Adapt, Sort, Iso, NoNewLine, DecomposeInSimplex;
+  int    NewCoordinates;
   int    ValueIndex;
   int    ChangeOfCoordinates[3], LastTimeStepOnly, AppendTimeStepToFileName;
   int    StoreInRegister;

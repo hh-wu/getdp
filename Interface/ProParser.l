@@ -311,6 +311,7 @@ Store                        return tStore;
 LastTimeStepOnly             return tLastTimeStepOnly;
 AppendTimeStepToFileName     return tAppendTimeStepToFileName;
 SendToServer                 return tSendToServer;
+NewCoordinates               return tNewCoordinates;
 
 If                           return tIf;
 Else                         return tElse;

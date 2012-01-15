@@ -225,7 +225,7 @@ void vyyerror(const char *fmt, ...);
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
 %token      tDivisionCoefficient tChangeOfState
-%token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand 
+%token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand
 %token        tGmshRead tGmshClearAll
 %token      tGenerateOnly
 %token      tGenerateOnlyJac
@@ -253,6 +253,7 @@ void vyyerror(const char *fmt, ...);
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
 %token        tEvaluationPoints tStore tLastTimeStepOnly tAppendTimeStepToFileName
 %token        tSendToServer tStr tDate
+%token        tNewCoordinates
 
 /* ------------------------------------------------------------------ */
 /* Operators (with ascending priority): cf. C language                */
@@ -5909,6 +5910,7 @@ PrintOptions :
       PostSubOperation_S.Sort = 0;
       PostSubOperation_S.NoNewLine = 0;
       PostSubOperation_S.DecomposeInSimplex = 0;
+      PostSubOperation_S.NewCoordinates = 0;
       PostSubOperation_S.ChangeOfCoordinates[0] = -1;
       PostSubOperation_S.ChangeOfCoordinates[1] = -1;
       PostSubOperation_S.ChangeOfCoordinates[2] = -1;
@@ -6202,6 +6204,10 @@ PrintOption :
   | ',' tSendToServer CharExpr
     {
       PostSubOperation_S.SendToServer = $3;
+    }
+  | ',' tNewCoordinates
+    {
+      PostSubOperation_S.NewCoordinates = 1;
     }
  ;
 
