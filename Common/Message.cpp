@@ -32,6 +32,10 @@
 #include <gsl/gsl_errno.h>
 #endif
 
+#if defined(HAVE_GMSH)
+#include <gmsh/GmshConfig.h>
+#endif
+
 int Message::_commRank = 0;
 int Message::_commSize = 1;
 int Message::_verbosity = 3;
@@ -40,7 +44,9 @@ int Message::_progressMeterCurrent = 0;
 std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
 onelab::client* Message::_onelabClient = 0;
+#if !defined(HAVE_ONELAB)
 onelab::server *onelab::server::_server = 0;
+#endif
 
 #if defined(HAVE_GSL)
 static void gslErrorHandler(const char *reason, const char *file, int line,
