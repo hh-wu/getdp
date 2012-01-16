@@ -220,6 +220,10 @@ void  F_BiotSavart (F_ARG) ;
 void  F_Pocklington (F_ARG) ;
 
 /* F_Gmsh */
-void  F_View (F_ARG) ;
+void  F_Field(F_ARG) ;
+void  F_ScalarField(F_ARG) ;
+void  F_VectorField(F_ARG) ;
+void  F_TensorField(F_ARG) ;
+
 
 #endif
