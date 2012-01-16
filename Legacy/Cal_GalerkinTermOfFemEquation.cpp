@@ -279,12 +279,11 @@ void Cal_applyMetricTensor(struct EquationTerm       * EquationTerm_P,
   }
 
   Cal_DetValue(&S, &detS);
-  detS.Val[0] = fabs(detS.Val[0]);
+  detS.Val[0] = sqrt(fabs(detS.Val[0]));
 
   switch (FI->Type_FormDof) {
   case FORM1 : case FORM1S : case FORM1P :
     Cal_InvertValue(&S, &S);
-    Cal_SqrtValue(&detS, &detS);
     for (j = 0 ; j < Nbr_Dof ; j++) {
       Cal_ProductValue(&S, &vBFxDof[j], &vBFxDof[j]);
       Cal_ProductValue(&detS, &vBFxDof[j], &vBFxDof[j]);
@@ -292,16 +291,18 @@ void Cal_applyMetricTensor(struct EquationTerm       * EquationTerm_P,
     break;
   case FORM2 : case FORM2S : case FORM2P :
     Cal_InvertValue(&detS, &detS);
-    Cal_SqrtValue(&detS, &detS);
     for (j = 0 ; j < Nbr_Dof ; j++) {
       Cal_ProductValue(&S, &vBFxDof[j], &vBFxDof[j]);
       Cal_ProductValue(&detS, &vBFxDof[j], &vBFxDof[j]);
     }
     break;
   case FORM3 : case FORM3S : case FORM3P :
-  case FORM0 : case FORM0S : case FORM0P :
     Cal_InvertValue(&detS, &detS);
-    Cal_SqrtValue(&detS, &detS);
+    for (j = 0 ; j < Nbr_Dof ; j++) {
+      Cal_ProductValue(&detS, &vBFxDof[j], &vBFxDof[j]);
+    }
+    break;
+  case FORM0 : case FORM0S : case FORM0P :
     for (j = 0 ; j < Nbr_Dof ; j++) {
       Cal_ProductValue(&detS, &vBFxDof[j], &vBFxDof[j]);
     }

@@ -5911,6 +5911,7 @@ PrintOptions :
       PostSubOperation_S.NoNewLine = 0;
       PostSubOperation_S.DecomposeInSimplex = 0;
       PostSubOperation_S.NewCoordinates = 0;
+      PostSubOperation_S.NewCoordinatesFile = NULL;
       PostSubOperation_S.ChangeOfCoordinates[0] = -1;
       PostSubOperation_S.ChangeOfCoordinates[1] = -1;
       PostSubOperation_S.ChangeOfCoordinates[2] = -1;
@@ -6205,9 +6206,10 @@ PrintOption :
     {
       PostSubOperation_S.SendToServer = $3;
     }
-  | ',' tNewCoordinates
+  | ',' tNewCoordinates CharExpr
     {
       PostSubOperation_S.NewCoordinates = 1;
+      PostSubOperation_S.NewCoordinatesFile = $3;
     }
  ;
 
