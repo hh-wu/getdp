@@ -349,7 +349,7 @@ void Generate_GroupsOfEdges(List_T * InitialList,
             Num_Node = GeoElement->NumNodes[abs(Num_Nodes[1])-1] ;
             Key2_P = (struct TwoInt*)List_PQuery(ExtendedAuxList, &Num_Node, fcmp_int) ;
             if (Key1_P && Key2_P) {
-              Num_GroupOfEdges.Int1 = - GeoElement->NumEdges[i_Entity] ;
+              Num_GroupOfEdges.Int1 = GeoElement->NumEdges[i_Entity] ;
               Num_GroupOfEdges.Int2 = GeoElement->Region ;
               if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
                 Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
