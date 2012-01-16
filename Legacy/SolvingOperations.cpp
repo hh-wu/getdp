@@ -35,7 +35,7 @@
 #endif
 
 #define TWO_PI             6.2831853071795865
-#define SQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a))
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
@@ -61,7 +61,7 @@ static int Flag_Break = 0;
 
 // Johan: it would be nice to get rid of these globals
 int Flag_RHS = 0, *DummyDof ;
-double **MH_Moving_Matrix = NULL ; 
+double **MH_Moving_Matrix = NULL ;
 int MH_Moving_Matrix_simple = 0 ;
 int MH_Moving_Matrix_probe = 0 ;
 int MH_Moving_Matrix_separate = 0;
@@ -107,8 +107,8 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
 /* ------------------------------------------------------------------------ */
 
 void  Generate_System(struct DefineSystem * DefineSystem_P,
-		      struct DofData * DofData_P, 
-		      struct DofData * DofData_P0, 
+		      struct DofData * DofData_P,
+		      struct DofData * DofData_P0,
 		      int Flag_Jac, int Flag_Separate)
 {
   int    i, Nbr_Formulation, Index_Formulation, i_TimeStep, iMat ;
@@ -124,7 +124,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     DofData_P->Solutions = List_Create(20, 20, sizeof(struct Solution)) ;
 
   i_TimeStep = (int)Current.TimeStep ;
-  
+
   if (!(Solution_P = (struct Solution*)
 	List_PQuery(DofData_P->Solutions, &i_TimeStep, fcmp_int))) {
     Solution_S.TimeStep = (int)Current.TimeStep ;
@@ -194,7 +194,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 	    LinAlg_ZeroMatrix(&Current.DofData->A2) ;
 	    LinAlg_ZeroVector(&Current.DofData->b2) ;
 	    break;
-	  case 3 : 
+	  case 3 :
 	    LinAlg_ZeroMatrix(&Current.DofData->A3) ;
 	    LinAlg_ZeroVector(&Current.DofData->b3) ;
 	    break;
@@ -205,7 +205,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 
   }
 
-  if(Flag_Jac) 
+  if(Flag_Jac)
     LinAlg_ZeroMatrix(&Current.DofData->Jac) ;
 
   Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
@@ -239,7 +239,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     LinAlg_AssembleVector(&DofData_P->b) ;
     LinAlg_GetVectorSize(&DofData_P->b, &i) ;
     if(!i) Message::Warning("Generated system is of dimension zero");
-  
+
     if(DofData_P->Flag_Only){
       for(i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
 	List_Read( DofData_P->OnlyTheseMatrices,i,&iMat);
@@ -274,7 +274,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 /* ------------------------------------------------------------------------ */
 
 void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
-			struct DofData * DofData_P, 
+			struct DofData * DofData_P,
 			struct DofData * DofData_P0, int Flag_Jac=0)
 {
   int    i, Nbr_Formulation, Index_Formulation ;
@@ -282,8 +282,8 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
 
   LinAlg_ZeroMatrix(&Current.DofData->A) ;
   LinAlg_ZeroVector(&Current.DofData->b) ;
- 
-  if(Flag_Jac) 
+
+  if(Flag_Jac)
     LinAlg_ZeroMatrix(&Current.DofData->Jac) ;
 
   Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
@@ -296,7 +296,7 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
     Init_DofDataInDefineQuantity(DefineSystem_P, DofData_P0, Formulation_P);
     Treatment_Formulation(Formulation_P) ;
   }
-  
+
   LinAlg_AssembleMatrix(&DofData_P->A) ;
   LinAlg_AssembleVector(&DofData_P->b) ;
   LinAlg_GetVectorSize(&DofData_P->b, &i) ;
@@ -325,7 +325,7 @@ void Generate_Residual(gVector *x, gVector *f)
   DefineSystem_P = Current.DefineSystem_P ;
 
   LinAlg_CopyVector(x, &DofData_P->dx);
-  LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
+  LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
                                  -1., &DofData_P->CurrentSolution->x);
 
   //Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
@@ -349,11 +349,11 @@ void Generate_FullJacobian(gVector *x, gMatrix *Jac)
   DofData_P  = Current.DofData ;
   DofData_P0 = Current.DofData_P0;
   DefineSystem_P = Current.DefineSystem_P ;
-  
+
   LinAlg_CopyVector(x, &DofData_P->dx);
-  LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
+  LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
                          &DofData_P->CurrentSolution->x) ;
-  
+
   //Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
   ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac) ;
 
@@ -375,7 +375,7 @@ void Cal_ThetaCoefficients(double *coef)
   coef[3] = 1.-Current.Theta ;
 }
 
-void Cal_ThetaMatrix(int *init, double *coef, 
+void Cal_ThetaMatrix(int *init, double *coef,
 		     gMatrix *M1, gMatrix *M2, gMatrix *A)
 {
   Message::Info("Generate Theta Iteration Matrix (Theta=%g, DTime=%g)",
@@ -389,7 +389,7 @@ void Cal_ThetaMatrix(int *init, double *coef,
 }
 
 void Cal_ThetaRHS(int *init, double *coef,
-		  gMatrix *M1, gMatrix *M2, gVector *m1, gVector *m2, 
+		  gMatrix *M1, gMatrix *M2, gVector *m1, gVector *m2,
 		  gVector *tmp, gVector *b)
 {
   double tfval, val ;
@@ -410,7 +410,7 @@ void Cal_ThetaRHS(int *init, double *coef,
   tfval = Current.DofData->CurrentSolution->ExplicitTimeFunctionValue ;
   if(init[2] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
   if(init[1] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
-  
+
   /*   + [ c2 * m2 + c3 * m1 ] * TimeFct(n-1)      */
   tfval = (Current.DofData->CurrentSolution-1)->ExplicitTimeFunctionValue ;
   if(init[2] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
@@ -430,7 +430,7 @@ void Cal_NewmarkCoefficients(double *coef)
   coef[8] = 0.5-Current.Gamma+Current.Beta ;
 }
 
-void Cal_NewmarkMatrix(int *init, double *coef, 
+void Cal_NewmarkMatrix(int *init, double *coef,
 		       gMatrix *M1, gMatrix *M2, gMatrix *M3, gMatrix *A)
 {
   Message::Info("Generate Newmark Iteration Matrix (Beta=%g, Gamma=%g, DTime=%g)",
@@ -445,8 +445,8 @@ void Cal_NewmarkMatrix(int *init, double *coef,
 }
 
 void Cal_NewmarkRHS(int *init, double *coef,
-		    gMatrix *M1, gMatrix *M2, gMatrix *M3,  
-		    gVector *m1, gVector *m2, gVector *m3, 
+		    gMatrix *M1, gMatrix *M2, gMatrix *M3,
+		    gVector *m1, gVector *m2, gVector *m3,
 		    gVector *tmp, gVector *b)
 {
   double tfval, val ;
@@ -480,19 +480,19 @@ void Cal_NewmarkRHS(int *init, double *coef,
     LinAlg_ProdMatrixVector(M1, &(Current.DofData->CurrentSolution-2)->x, tmp);
     LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[8], b) ;
   }
-  
+
   /*   + [ c0 * m3 + c1 * m2 + c2 * m1 ] * TimeFct(n)      */
   tfval = Current.DofData->CurrentSolution->ExplicitTimeFunctionValue ;
   if(init[3] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
   if(init[2] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
   if(init[1] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
-  
+
   /*   + [ c3 * m3 + c4 * m2 + c5 * m1 ] * TimeFct(n-1)      */
   tfval = (Current.DofData->CurrentSolution-1)->ExplicitTimeFunctionValue ;
   if(init[3] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
   if(init[2] && (val=coef[4]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
   if(init[1] && (val=coef[5]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
-  
+
   /*   + [ c6 * m3 + c7 * m2 + c8 * m1 ] * TimeFct(n-2)    */
   tfval = (Current.DofData->CurrentSolution-2)->ExplicitTimeFunctionValue ;
   if(init[3] && (val=coef[6]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
@@ -501,7 +501,7 @@ void Cal_NewmarkRHS(int *init, double *coef,
 }
 
 void  Update_System(struct DefineSystem * DefineSystem_P,
-		    struct DofData * DofData_P, 
+		    struct DofData * DofData_P,
 		    struct DofData * DofData_P0,
 		    int TimeFunctionIndex)
 {
@@ -527,7 +527,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 
     Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
     Solution_S.ExplicitTimeFunctionValue = Value.Val[0] ;
-    
+
     Solution_S.SolutionExist = 1 ;
     LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof) ;
     LinAlg_ZeroVector(&Solution_S.x) ;
@@ -539,7 +539,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
   else if (Solution_P != DofData_P->CurrentSolution) {
     Message::Error("Incompatible time") ;
   }
-  
+
   switch (Current.TypeTime) {
   case TIME_THETA :
 
@@ -563,10 +563,10 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 
       Save_Num   = DofData_P->Num ;
       Save_DTime = Current.DTime ;
-      Save_Theta = Current.Theta ; 
+      Save_Theta = Current.Theta ;
 
       Cal_ThetaCoefficients(coef) ;
-      Cal_ThetaMatrix(DofData_P->Flag_Init, coef,  
+      Cal_ThetaMatrix(DofData_P->Flag_Init, coef,
 		      &DofData_P->M1, &DofData_P->M2, &DofData_P->A) ;
       LinAlg_AssembleMatrix(&DofData_P->A) ;
     }
@@ -575,15 +575,15 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
        Current.Theta != Save_Theta){
       Save_Num   = DofData_P->Num ;
       Save_DTime = Current.DTime ;
-      Save_Theta = Current.Theta ; 
+      Save_Theta = Current.Theta ;
       Cal_ThetaCoefficients(coef) ;
-      Cal_ThetaMatrix(DofData_P->Flag_Init, coef, 
+      Cal_ThetaMatrix(DofData_P->Flag_Init, coef,
 		      &DofData_P->M1, &DofData_P->M2, &DofData_P->A) ;
       LinAlg_AssembleMatrix(&DofData_P->A) ;
     }
 
-    Cal_ThetaRHS(DofData_P->Flag_Init, coef, 
-		 &DofData_P->M1, &DofData_P->M2, &DofData_P->m1, &DofData_P->m2, 
+    Cal_ThetaRHS(DofData_P->Flag_Init, coef,
+		 &DofData_P->M1, &DofData_P->M2, &DofData_P->m1, &DofData_P->m2,
 		 &TmpVect, &DofData_P->b);
     LinAlg_AssembleVector(&DofData_P->b) ;
     break ;
@@ -611,29 +611,29 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 
       Save_Num   = DofData_P->Num ;
       Save_DTime = Current.DTime ;
-      Save_Beta  = Current.Beta ; 
+      Save_Beta  = Current.Beta ;
       Save_Gamma = Current.Gamma ;
       Cal_NewmarkCoefficients(coef) ;
-      Cal_NewmarkMatrix(DofData_P->Flag_Init, coef,  
+      Cal_NewmarkMatrix(DofData_P->Flag_Init, coef,
 			&DofData_P->M1, &DofData_P->M2, &DofData_P->M3, &DofData_P->A) ;
       LinAlg_AssembleMatrix(&DofData_P->A) ;
     }
 
-    if(Save_Num != DofData_P->Num || Current.DTime != Save_DTime || 
+    if(Save_Num != DofData_P->Num || Current.DTime != Save_DTime ||
        Current.Beta != Save_Beta  ||  Current.Gamma != Save_Gamma){
       Save_Num   = DofData_P->Num ;
       Save_DTime = Current.DTime ;
-      Save_Beta  = Current.Beta ; 
+      Save_Beta  = Current.Beta ;
       Save_Gamma = Current.Gamma ;
       Cal_NewmarkCoefficients(coef) ;
-      Cal_NewmarkMatrix(DofData_P->Flag_Init, coef, 
+      Cal_NewmarkMatrix(DofData_P->Flag_Init, coef,
 			&DofData_P->M1, &DofData_P->M2, &DofData_P->M3, &DofData_P->A) ;
       LinAlg_AssembleMatrix(&DofData_P->A) ;
     }
 
     Cal_NewmarkRHS(DofData_P->Flag_Init, coef,
 		   &DofData_P->M1, &DofData_P->M2, &DofData_P->M3,
-		   &DofData_P->m1, &DofData_P->m2, &DofData_P->m3, 
+		   &DofData_P->m1, &DofData_P->m2, &DofData_P->m3,
 		   &TmpVect, &DofData_P->b);
     LinAlg_AssembleVector(&DofData_P->b) ;
     break ;
@@ -654,7 +654,7 @@ void  Update_System(struct DefineSystem * DefineSystem_P,
 /*! Update constraints, i.e. new preprocessing of _CST type */
 
 void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
-			      struct DofData * DofData_P, 
+			      struct DofData * DofData_P,
 			      struct DofData * DofData_P0,
 			      int GroupIndex, int Type_Constraint, int Flag_Jac)
 {
@@ -678,19 +678,19 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
 
   Dof_InitDofType(DofData_P) ; /* Attention: Init for only one DofData */
 
-  
+
 #if defined(HAVE_PETSC)
   // Updating the constraints has (most probably) changed the mask of the matrices.
   // Recreating the matrices will lead to much faster assembly (and reduced memory)
   // with petsc-based solvers
-  
+
   LinAlg_DestroyMatrix(&DofData_P->A);
-  LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver, DofData_P->NbrDof, DofData_P->NbrDof);      
-  
+  LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver, DofData_P->NbrDof, DofData_P->NbrDof);
+
   if(Flag_Jac){ // Only when JacNL term appears in formulation
     LinAlg_DestroyMatrix(&DofData_P->Jac);
     LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver, DofData_P->NbrDof, DofData_P->NbrDof);
-  }  
+  }
 #endif
 
   TreatmentStatus = Save_TreatmentStatus ;
@@ -714,8 +714,8 @@ void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
 
   if (gSCALAR_SIZE == 1)
     for (i=0 ; i<n ; i++) {
-      LinAlg_GetAbsDoubleInVector(&valx, x, i) ; 
-      LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ; 
+      LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
+      LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ;
       xmoy += valx ;
       if(diff) dxmoy += (valdx-valx) ;
       else     dxmoy += valdx ;
@@ -767,7 +767,7 @@ void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
     *MeanError = errsqr/(double)n ;
   }
   else{
-    if (dxmoy > 1.e-30) 
+    if (dxmoy > 1.e-30)
       *MeanError = 1. ;
     else
       *MeanError = 0. ;
@@ -1095,7 +1095,7 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
   }  /* for i_COS ... */
 
   /* Attention: d e b u g  (fprintf)*/
-  
+
   if ((Type_Analyse == COMPARE_CHANGE &&
        (*Type_ChangeOfState != CHANGEOFSTATE_NOCHANGE || !Flag_First)) ||
       (Type_Analyse == COMPARE_CONVERGENCE)) {
@@ -1125,9 +1125,9 @@ void  Cal_CompareGlobalQuantity(struct Operation * Operation_P,
 /* ------------------------------------------------------------------------ */
 
 void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
-				       struct Operation   * Operation_P, 
+				       struct Operation   * Operation_P,
 				       struct DofData     * DofData_P0,
-				       struct GeoData     * GeoData_P0) 
+				       struct GeoData     * GeoData_P0)
 {
   int     Num_Iteration, i ;
   int     Type_ChangeOfState, Flag_TimeLimLo, Type_LimitHi, FlagIndex ;
@@ -1327,7 +1327,7 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 /* ------------------------------------------------------------------------ */
 
 void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
-				    struct Operation   * Operation_P, 
+				    struct Operation   * Operation_P,
 				    struct DofData     * DofData_P0,
 				    struct GeoData     * GeoData_P0)
 {
@@ -1337,11 +1337,11 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
   struct Group  * Group_P ;
 
   Group_P = (struct Group *)
-    List_Pointer(Problem_S.Group, 
+    List_Pointer(Problem_S.Group,
 		 Operation_P->Case.ChangeOfCoordinates.GroupIndex) ;
   if (!Group_P->ExtendedList)  Generate_ExtendedGroup(Group_P) ;
   if (Group_P->FunctionType != NODESOF)
-    Message::Error("ChangeOfCoordinates: Group must be of NodesOf function type") ; 
+    Message::Error("ChangeOfCoordinates: Group must be of NodesOf function type") ;
 
   Nbr_Node = List_Nbr(Group_P->ExtendedList) ;
 
@@ -1354,7 +1354,7 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
       Geo_GetNodesCoordinates(1, &Num_Node, &Current.x, &Current.y, &Current.z) ;
 
       if (Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 >= 0 &&
-	  Num_Node == Operation_P->Case.ChangeOfCoordinates.NumNode) { 
+	  Num_Node == Operation_P->Case.ChangeOfCoordinates.NumNode) {
 	x = Current.x ;
 	y = Current.y ;
 	z = Current.z ;
@@ -1395,7 +1395,7 @@ void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
 /* ------------------------------------------------------------------------ */
 
 void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
-                            struct Operation   * Operation_P, 
+                            struct Operation   * Operation_P,
                             struct DofData     * DofData_P0,
                             struct GeoData     * GeoData_P0)
 {
@@ -1407,34 +1407,34 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
   struct DefineQuantity  * DQ_P ;
   struct FunctionSpace   * FunctionSpace_P ;
   struct DofData     * DofData_P ;
-  
-  DS = (struct DefineSystem*)List_Pointer(Resolution_P->DefineSystem, 
+
+  DS = (struct DefineSystem*)List_Pointer(Resolution_P->DefineSystem,
 					  Operation_P->DefineSystemIndex) ;
 
   if( List_Nbr(DS->FormulationIndex) > 1 )
-    Message::Error("DeformeMesh: Only one formulation must be associated to the system %s", 
+    Message::Error("DeformeMesh: Only one formulation must be associated to the system %s",
                    DS->Name) ;
-  
+
   FO = (struct Formulation *) List_Pointer(Problem_S.Formulation,
 					   *((int *)List_Pointer(DS->FormulationIndex, 0))) ;
-  
+
   if((i = List_ISearchSeq(FO->DefineQuantity, Operation_P->Case.DeformeMesh.Quantity,
 			  fcmp_DefineQuantity_Name)) < 0)
     Message::Error("Unknown Quantity '%s' in Formulation %s",
                    Operation_P->Case.DeformeMesh.Quantity, FO->Name ) ;
   DQ_P = (struct DefineQuantity *) List_Pointer(FO->DefineQuantity, i) ;
 
-  
+
   DofData_P = DofData_P0 + Operation_P->DefineSystemIndex ;
 
   FunctionSpace_P = (struct FunctionSpace*)List_Pointer(Problem_S.FunctionSpace,
                                                         DQ_P->FunctionSpaceIndex) ;
- 
+
   for(i = 0 ; i < List_Nbr(FunctionSpace_P->BasisFunction); i++){
     if( (void(*)())((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,
 							i))->Function == (void(*)())BF_NodeX )
       NumBF_X = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction, i))->Num;
-    
+
     if( (void(*)())((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction,
 							i))->Function == (void(*)())BF_NodeY )
       NumBF_Y = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction, i))->Num;
@@ -1443,7 +1443,7 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
 							i))->Function == (void(*)())BF_NodeZ )
       NumBF_Z = ((struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction, i))->Num;
   }
-  
+
 
   for(i = 0 ; i < List_Nbr(FunctionSpace_P->DofData->DofList) ; i++){
     if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->NumType == NumBF_X ||
@@ -1453,19 +1453,19 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
       Dof_GetRealDofValue
 	(FunctionSpace_P->DofData,
 	 ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i )) , &Value) ;
-    
+
       Num_Node = ((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i ))->Entity ;
 
       /* Reference mesh */
-      Geo_SetCurrentGeoData(Current.GeoData = 
+      Geo_SetCurrentGeoData(Current.GeoData =
 			    GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex) ;
       Geo_GetNodesCoordinates(1, &Num_Node, &un_x, &un_y, &un_z) ;
-      
-      /* Mesh associated to the electromechanical system */      
-      if( GeoData_P0 + DofData_P->GeoDataIndex != 
+
+      /* Mesh associated to the electromechanical system */
+      if( GeoData_P0 + DofData_P->GeoDataIndex !=
 	  GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex )
 	Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + DofData_P->GeoDataIndex) ;
-      
+
       if (((struct Dof*)List_Pointer(FunctionSpace_P->DofData->DofList, i))->NumType == NumBF_X){
 	un_x +=  Operation_P->Case.DeformeMesh.Factor * Value ;
 	Geo_SetNodesCoordinatesX(1, &Num_Node, &un_x) ;
@@ -1480,9 +1480,9 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
 	un_z +=  Operation_P->Case.DeformeMesh.Factor * Value ;
 	Geo_SetNodesCoordinatesZ(1, &Num_Node, &un_z) ;
       }
-      
+
     }
-    
+
   }
 
   Current.GeoData = GeoData_P0 + Operation_P->Case.DeformeMesh.GeoDataIndex;
@@ -1500,7 +1500,7 @@ void  Init_OperationOnSystem(const char          * Name,
 			     struct DofData      * DofData_P0,
 			     struct GeoData      * GeoData_P0,
 			     struct DefineSystem ** DefineSystem_P,
-			     struct DofData      ** DofData_P,  
+			     struct DofData      ** DofData_P,
 			     struct Resolution   * Resolution2_P)
 {
   int i ;
@@ -1515,28 +1515,28 @@ void  Init_OperationOnSystem(const char          * Name,
 
   Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0 + (*DofData_P)->GeoDataIndex) ;
 
-  if((*DefineSystem_P)->DestinationSystemName && 
+  if((*DefineSystem_P)->DestinationSystemName &&
      (*DefineSystem_P)->DestinationSystemIndex == -1){
 
     if(Resolution2_P){ /* pre-resolution */
-      if ((i = List_ISearchSeq(Resolution2_P->DefineSystem, 
+      if ((i = List_ISearchSeq(Resolution2_P->DefineSystem,
 			       (*DefineSystem_P)->DestinationSystemName,
 			       fcmp_DefineSystem_Name)) < 0)
-	Message::Error("Unknown DestinationSystem (%s) in System (%s)", 
+	Message::Error("Unknown DestinationSystem (%s) in System (%s)",
                        (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
-      (*DefineSystem_P)->DestinationSystemIndex = i ;      
+      (*DefineSystem_P)->DestinationSystemIndex = i ;
       Dof_DefineUnknownDofFromSolveOrInitDof(DofData_P) ;
     }
     else { /* a changer !!! */
-      if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
+      if ((i = List_ISearchSeq(Resolution_P->DefineSystem,
 			       (*DefineSystem_P)->DestinationSystemName,
 			       fcmp_DefineSystem_Name)) < 0)
-	Message::Error("Unknown DestinationSystem (%s) in System (%s)", 
+	Message::Error("Unknown DestinationSystem (%s) in System (%s)",
                        (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
-      (*DefineSystem_P)->DestinationSystemIndex = i ;      
+      (*DefineSystem_P)->DestinationSystemIndex = i ;
     }
   }
-  
+
   Message::Info("%s[%s]",
                 Name?Name:Get_StringForDefine(Operation_Type, Operation_P->Type),
                 (*DefineSystem_P)->Name) ;
@@ -1559,23 +1559,23 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
   /* GenerateOnly: Taking advantage of the invariant parts of the matrix in every time-step */
 
   if(DofData_P->Flag_InitOnly[0]==1){
-    DofData_P->Flag_InitOnly[0] = 2;    
+    DofData_P->Flag_InitOnly[0] = 2;
     Message::Info("Initializing System {A1,b1}");
     LinAlg_CreateMatrix(&DofData_P->A1, &DofData_P->Solver,
 			DofData_P->NbrDof, DofData_P->NbrDof) ;
     LinAlg_CreateVector(&DofData_P->b1, &DofData_P->Solver, DofData_P->NbrDof) ;
   }
-  
+
   if(DofData_P->Flag_InitOnly[1]==1){
-    DofData_P->Flag_InitOnly[1] = 2;    
+    DofData_P->Flag_InitOnly[1] = 2;
     Message::Info("Initializing System {A2,b2}");
     LinAlg_CreateMatrix(&DofData_P->A2, &DofData_P->Solver,
 			DofData_P->NbrDof, DofData_P->NbrDof) ;
     LinAlg_CreateVector(&DofData_P->b2, &DofData_P->Solver, DofData_P->NbrDof) ;
   }
-  
+
   if(DofData_P->Flag_InitOnly[2]==1){
-    DofData_P->Flag_InitOnly[2] = 2;       
+    DofData_P->Flag_InitOnly[2] = 2;
     Message::Info("Initializing System {A2,b2}");
     LinAlg_CreateMatrix(&DofData_P->A3, &DofData_P->Solver,
 			DofData_P->NbrDof, DofData_P->NbrDof) ;
@@ -1596,7 +1596,7 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
 /* ------------------------------------------------------------------------ */
 
 void  Treatment_Operation(struct Resolution  * Resolution_P,
-                          List_T             * Operation_L, 
+                          List_T             * Operation_L,
                           struct DofData     * DofData_P0,
                           struct GeoData     * GeoData_P0,
                           struct Resolution  * Resolution2_P,
@@ -1609,6 +1609,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   int     Save_TypeTime ;
   double  Save_Time, Save_TimeImag, Save_DTime, Save_TimeStep ;
   double  Save_Iteration ;
+  Element *Save_Element = 0;
   double  MeanError, RelFactor_Modified ;
   char    *str;
   char    ResName[256], ResNum[256] ;
@@ -1638,10 +1639,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   int istep;
 
   int Nbr_Formulation, Index_Formulation ;
-  struct Formulation * Formulation_P ; 
+  struct Formulation * Formulation_P ;
 
   int iTime ;
-  double *Val_Pulsation ; 
+  double *Val_Pulsation ;
   double hop[NBR_MAX_HARMONIC][NBR_MAX_HARMONIC] ;
   double DCfactor ;
 
@@ -1656,15 +1657,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
   List_T  * DofList_MH_moving ;
   static int NbrDof_MH_moving;
-  static int *NumDof_MH_moving ; 
-  static struct Dof ** Dof_MH_moving ; 
+  static int *NumDof_MH_moving ;
+  static struct Dof ** Dof_MH_moving ;
 
   Nbr_Operation = List_Nbr(Operation_L) ;
 
   for (i_Operation = 0 ; i_Operation < Nbr_Operation ; i_Operation++) {
     Operation_P = (struct Operation*)List_Pointer(Operation_L, i_Operation) ;
 
-    Flag_CPU = 0 ;  
+    Flag_CPU = 0 ;
     Flag_Jac = 0 ;
 
     switch (Operation_P->Type) {
@@ -1680,18 +1681,18 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  -->  G e n e r a t e                        */
       /*  ------------------------------------------  */
 
-    case OPERATION_GENERATEJAC :  Flag_Jac  = 1 ;   
+    case OPERATION_GENERATEJAC :  Flag_Jac  = 1 ;
     case OPERATION_GENERATE :
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       Current.TypeAssembly = ASSEMBLY_AGGREGATE ;
-      
+
       Init_SystemData(DofData_P, Flag_Jac) ;
 
-      if (Operation_P->Case.Generate.GroupIndex >= 0) 
-	Generate_Group = (struct Group *) List_Pointer(Problem_S.Group, 
+      if (Operation_P->Case.Generate.GroupIndex >= 0)
+	Generate_Group = (struct Group *) List_Pointer(Problem_S.Group,
 						       Operation_P->Case.Generate.GroupIndex) ;
       Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
 
@@ -1708,8 +1709,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
-      if (Operation_P->Case.Generate.GroupIndex >= 0) 
-	Generate_Group = (struct Group *) List_Pointer(Problem_S.Group, 
+      if (Operation_P->Case.Generate.GroupIndex >= 0)
+	Generate_Group = (struct Group *) List_Pointer(Problem_S.Group,
 						       Operation_P->Case.Generate.GroupIndex) ;
       Current.TypeAssembly = ASSEMBLY_SEPARATE ;
       Init_Update = 0 ; /* modif... ! */
@@ -1731,9 +1732,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(DofData_P->Flag_Only < 2) DofData_P->Flag_Only += 1 ;
-      
+
       DofData_P->OnlyTheseMatrices = Operation_P->Case.GenerateOnly.MatrixIndex_L ;
-      
+
       if (DofData_P->Flag_Only <= 2)
 	for (i = 0 ; i < List_Nbr(DofData_P->OnlyTheseMatrices); i++){
 	  List_Read( DofData_P->OnlyTheseMatrices, i, &iMat);
@@ -1745,7 +1746,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	}
 
       Current.TypeAssembly = ASSEMBLY_AGGREGATE ;
-      
+
       Init_SystemData(DofData_P, Flag_Jac) ;
       Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
       Flag_CPU = 1 ;
@@ -1758,7 +1759,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("Update",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
-      Update_System(DefineSystem_P, DofData_P, DofData_P0, 
+      Update_System(DefineSystem_P, DofData_P, DofData_P0,
 		    Operation_P->Case.Update.ExpressionIndex) ;
       Flag_CPU = 1 ;
       break ;
@@ -1770,7 +1771,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("UpdateConstraint",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
-      UpdateConstraint_System(DefineSystem_P, DofData_P, DofData_P0, 
+      UpdateConstraint_System(DefineSystem_P, DofData_P, DofData_P0,
 			      Operation_P->Case.UpdateConstraint.GroupIndex,
 			      Operation_P->Case.UpdateConstraint.Type, Flag_Jac) ;
       Flag_CPU = 1 ;
@@ -1808,7 +1809,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	  /* last correction solutions */
 	  if ((i = List_Nbr(DofData_P->CorrectionSolutions.AllSolutions)-1) >= 0) {
-	    List_Read(DofData_P->CorrectionSolutions.AllSolutions, i, 
+	    List_Read(DofData_P->CorrectionSolutions.AllSolutions, i,
 		      &DofData_P->Solutions);
 	  }
 	  else {
@@ -1867,17 +1868,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Cal_SolutionError
 	  (&DofData_P->CurrentSolution->x,
-	   &DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x, 
+	   &DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x,
 	   0, &MeanError) ;
-	Message::Info("Mean error: %.3e  (after %d iteration%s)", 
+	Message::Info("Mean error: %.3e  (after %d iteration%s)",
                       MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
 
-	Current.RelativeDifference += 
+	Current.RelativeDifference +=
 	  MeanError * Operation_P->Case.AddCorrection.Alpha ;
 
 	LinAlg_AddVectorVector
 	  (&DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x,
-	   &DofData_P->CurrentSolution->x, 
+	   &DofData_P->CurrentSolution->x,
 	   &DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x) ;
 
 
@@ -1978,7 +1979,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	}
 	if(DofData_P->Flag_InitOnly[2]){
 	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;	
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;
 	}
 
 	LinAlg_AssembleMatrix(&DofData_P->A) ;
@@ -1991,51 +1992,51 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       else
 	LinAlg_SolveAgain(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
                           &DofData_P->CurrentSolution->x, Operation_P->Case.Solve.SolverIndex) ;
-      
+
       Flag_CPU = 1 ;
       break ;
-      
+
     // Using PETSC nonlinear solvers - SNES, nonlinear loop internal to PETSC
     // Jacobian furnished or not (finite differences)...
-    case OPERATION_SOLVENL : 
+    case OPERATION_SOLVENL :
       /*  Solve nonlinear system: A(x) x = b(x)  */
       Init_OperationOnSystem("SolveNL",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                             &DefineSystem_P, &DofData_P, Resolution2_P) ;      
+                             &DefineSystem_P, &DofData_P, Resolution2_P) ;
       //Flag_Jac = 1;
 
       printf("Flag_Jac = %d \n", Flag_Jac) ;
       if(DofData_P->Flag_Init[0] < 2)
 	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
-      
+
       if (DofData_P->Flag_Only){
 	if(DofData_P->Flag_InitOnly[0]){
 	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A1, &DofData_P->A);
 	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b1, &DofData_P->b) ;
 	}
-        
+
 	if(DofData_P->Flag_InitOnly[1]){
 	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A2, &DofData_P->A) ;
 	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b2, &DofData_P->b) ;
 	}
 	if(DofData_P->Flag_InitOnly[2]){
 	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;	
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;
 	}
-        
+
 	LinAlg_AssembleMatrix(&DofData_P->A) ;
 	LinAlg_AssembleVector(&DofData_P->b) ;
       }
-      
+
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
       LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;// res = b(xn)-A(xn)*xn
-      
+
       if(Flag_Jac)
         LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ; // Jacobian
 
       LinAlg_SolveNL(&DofData_P->A, &DofData_P->b, &DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx,
-                     Operation_P->Case.Solve.SolverIndex) ; 
-      
+                     Operation_P->Case.Solve.SolverIndex) ;
+
       Flag_CPU = 1 ;
       break ;
 
@@ -2052,7 +2053,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if(DofData_P->Flag_Init[0] < 2)
 	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
-      
+
       if (DofData_P->Flag_Only){
 	if(DofData_P->Flag_InitOnly[0]){
 	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A1, &DofData_P->A);
@@ -2065,7 +2066,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	}
 	if(DofData_P->Flag_InitOnly[2]){
 	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;	
+	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;
 	}
 	LinAlg_AssembleMatrix(&DofData_P->A) ;
 	LinAlg_AssembleVector(&DofData_P->b) ;
@@ -2074,7 +2075,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       // Store sum in A (not in Jac) for performance reasons (the
       // sparsity pattern of Jac is a subset of the sparsity pattern
       // of A)
-      
+
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
       LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ;
       LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;// res = b(xn)-A(xn)*xn
@@ -2084,18 +2085,18 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         LinAlg_Solve(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
       else
         LinAlg_SolveAgain(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
-      
+
       Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
       //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
-      Message::Info("Mean error: %.3e  (after %d iteration%s)", 
+      Message::Info("Mean error: %.3e  (after %d iteration%s)",
                     MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
 
       Current.RelativeDifference += MeanError ;
-     
+
       if (!Flag_IterativeLoop) {
         LinAlg_ProdVectorDouble(&DofData_P->dx, Current.RelaxationFactor, &DofData_P->dx) ;
       }
-      else {  // Attention: phase test ... Technique bricolee ... provisoire 
+      else {  // Attention: phase test ... Technique bricolee ... provisoire
         if (Current.Iteration == 1. || MeanError < Current.RelativeDifferenceOld)
           LinAlg_ProdVectorDouble(&DofData_P->dx, Current.RelaxationFactor, &DofData_P->dx) ;
         else {
@@ -2107,10 +2108,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Message::Info("Mean error: %.3e", MeanError) ;
         }
       }
-    
-      LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
+
+      LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
 			     &DofData_P->CurrentSolution->x) ;
-      
+
       Flag_CPU = 1 ;
       break ;
 
@@ -2136,12 +2137,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       LinAlg_Solve(&DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
       Message::Cpu("");
-      
+
       /* save CurrentSolution */
       LinAlg_CreateVector(&x_Save, &DofData_P->Solver, DofData_P->NbrDof) ;
       LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &x_Save);
 
-      Flag_RHS = 1;  
+      Flag_RHS = 1;
       /* MHJacNL-terms don't contribute to the RHS and residu, and are thus disregarded */
 
       Error_Prev = 1e99 ;  Frelax_Opt = 1. ;
@@ -2149,13 +2150,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if (!(NbrSteps_relax = List_Nbr(Operation_P->Case.SolveJac_AdaptRelax.Factor_L)))
 	  Message::Error("No factors provided for Adaptive Relaxation");
 
-      for( istep = 0 ; istep < NbrSteps_relax ; istep++ ){  
-		
+      for( istep = 0 ; istep < NbrSteps_relax ; istep++ ){
+
 	List_Read(Operation_P->Case.SolveJac_AdaptRelax.Factor_L, istep, &Frelax);
 
 	/* new trial solution = x + Frelax * dx */
 	LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
-	LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
+	LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
 					 Frelax, &DofData_P->CurrentSolution->x);
 	/* LinAlg_PrintVector(stdout, &DofData_P->CurrentSolution->x); */
 
@@ -2181,11 +2182,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       /*  solution = x + Frelax_Opt * dx */
       LinAlg_CopyVector(&x_Save, &DofData_P->CurrentSolution->x);
-      LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx, 
+      LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
 				       Frelax_Opt, &DofData_P->CurrentSolution->x);
 
-      MeanError = Error_Prev ; 
-      Message::Info("Mean error: %.3e  (after %d iteration%s)", 
+      MeanError = Error_Prev ;
+      Message::Info("Mean error: %.3e  (after %d iteration%s)",
                     MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
 
       Current.RelativeDifference = MeanError;
@@ -2201,7 +2202,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("EigenSolve",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
-      EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues, 
+      EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
 		 Operation_P->Case.EigenSolve.Shift_r,
 		 Operation_P->Case.EigenSolve.Shift_i) ;
       Flag_CPU = 1 ;
@@ -2214,7 +2215,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("EigenSolveJac",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
-      EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues, 
+      EigenSolve(DofData_P, Operation_P->Case.EigenSolve.NumEigenvalues,
 		 Operation_P->Case.EigenSolve.Shift_r,
 		 Operation_P->Case.EigenSolve.Shift_i) ;
       /* Insert intelligent convergence test here :-) */
@@ -2233,7 +2234,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Perturbation(DofData_P,
 		   DofData_P0+Operation_P->Case.Perturbation.DefineSystemIndex2,
 		   DofData_P0+Operation_P->Case.Perturbation.DefineSystemIndex3,
-		   Operation_P->Case.Perturbation.Size, 
+		   Operation_P->Case.Perturbation.Size,
 	           Operation_P->Case.Perturbation.Save,
 		   Operation_P->Case.Perturbation.Shift,
 		   Operation_P->Case.Perturbation.PertFreq) ;
@@ -2270,7 +2271,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	for(i = 0; i < List_Nbr(DofData_P->Solutions); i++){
 	  Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, i);
 	  Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
-	  /* The last solution is the current one */	  
+	  /* The last solution is the current one */
 	  if(i == List_Nbr(DofData_P->Solutions) - 1)
 	    DofData_P->CurrentSolution = Solution_P;
 	}
@@ -2279,7 +2280,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       else{
         if (!DofData_P->Solutions)
           DofData_P->Solutions = List_Create( 20, 20, sizeof(struct Solution)) ;
-        
+
 	Solution_S.TimeStep = (int)Current.TimeStep ;
         Solution_S.Time = Current.Time ;
         Solution_S.TimeImag = Current.TimeImag ;
@@ -2289,7 +2290,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof) ;
 
 	/* The last solution, if any, initializes the current one.
-	   Otherwise a null solution is used. 
+	   Otherwise a null solution is used.
 	   a revoir qd les conditions initiales multiples seront mieux traitees */
 	if (List_Nbr(DofData_P->Solutions)) {
 	  LinAlg_CopyVector(&((struct Solution *)
@@ -2311,7 +2312,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	}
         // FIXME: required by parallel version
         LinAlg_AssembleVector(&Solution_S.x) ;
-	
+
 	List_Add(DofData_P->Solutions, &Solution_S) ;
 
 	DofData_P->CurrentSolution = (struct Solution*)
@@ -2375,7 +2376,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
       strcpy(ResName, Name_Generic) ;
       strcat(ResName, ".res") ;
-      if(RES0 < 0){	
+      if(RES0 < 0){
 	Dof_WriteFileRES0(ResName, Flag_BIN) ;
 	RES0 = 1 ;
       }
@@ -2385,8 +2386,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	if (!DofData_P->CurrentSolution->SolutionExist)
 	  Message::Warning("Solution #%d doesn't exist anymore: skipping", i) ;
 	else
-	  Dof_WriteFileRES(ResName, DofData_P, Flag_BIN, 
-			   DofData_P->CurrentSolution->Time, 
+	  Dof_WriteFileRES(ResName, DofData_P, Flag_BIN,
+			   DofData_P->CurrentSolution->Time,
 			   DofData_P->CurrentSolution->TimeImag, i) ;
       }
       break ;
@@ -2396,13 +2397,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_INIT_MOVINGBAND2D :
       Init_MovingBand2D( (struct Group *)
-			 List_Pointer(Problem_S.Group, 
+			 List_Pointer(Problem_S.Group,
 				      Operation_P->Case.Init_MovingBand2D.GroupIndex)) ;
       break ;
 
     case OPERATION_MESH_MOVINGBAND2D :
       Mesh_MovingBand2D( (struct Group *)
-			 List_Pointer(Problem_S.Group, 
+			 List_Pointer(Problem_S.Group,
 				      Operation_P->Case.Mesh_MovingBand2D.GroupIndex)) ;
       break ;
 
@@ -2414,10 +2415,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if(gSCALAR_SIZE == 2)
 	Message::Error("FIXME: Generate_MH_Moving will not work in complex arithmetic");
-      
+
       Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
-      Generate_Group = (struct Group *) 
+      Generate_Group = (struct Group *)
 	List_Pointer(Problem_S.Group, Operation_P->Case.Generate_MH_Moving.GroupIndex) ;
 
       MH_Moving_Matrix = (double **) Malloc(Current.NbrHar*sizeof(double *)) ;
@@ -2428,48 +2429,48 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Message::Error("Generate_MH_moving can only be used for harmonic problems");
 
       for (k = 0 ; k < Current.NbrHar ; k++)
-	for (l = 0 ; l < Current.NbrHar ; l++) 
+	for (l = 0 ; l < Current.NbrHar ; l++)
 	  hop[k][l] = 0.;
 
       MH_Moving_Matrix_simple = 1;
-      
+
       for (iTime = 0 ; iTime < Operation_P->Case.Generate_MH_Moving.NbrStep ; iTime++) {
-      
-	Current.Time = (double)iTime/(double)Operation_P->Case.Generate_MH_Moving.NbrStep * 
+
+	Current.Time = (double)iTime/(double)Operation_P->Case.Generate_MH_Moving.NbrStep *
 	  Operation_P->Case.Generate_MH_Moving.Period ;
-	Current.DTime = 1./(double)Operation_P->Case.Generate_MH_Moving.NbrStep * 
+	Current.DTime = 1./(double)Operation_P->Case.Generate_MH_Moving.NbrStep *
 	  Operation_P->Case.Generate_MH_Moving.Period ;
 	Current.TimeStep = iTime;
 
-	Message::Info("Generate_MH_Moving : Step %d/%d (Time = %e  DTime %e)", 
-                      (int)(Current.TimeStep+1), Operation_P->Case.Generate_MH_Moving.NbrStep, 
+	Message::Info("Generate_MH_Moving : Step %d/%d (Time = %e  DTime %e)",
+                      (int)(Current.TimeStep+1), Operation_P->Case.Generate_MH_Moving.NbrStep,
                       Current.Time, Current.DTime) ;
 
-	Treatment_Operation(Resolution_P, Operation_P->Case.Generate_MH_Moving.Operation, 
+	Treatment_Operation(Resolution_P, Operation_P->Case.Generate_MH_Moving.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
 	for (k = 0 ; k < Current.NbrHar ; k++)
 	  for (l = 0 ; l < Current.NbrHar ; l++) {
-	    if (Val_Pulsation[k/2]) DCfactor = 2. ; else DCfactor = 1. ; 
-	    MH_Moving_Matrix[k][l] = DCfactor / 
+	    if (Val_Pulsation[k/2]) DCfactor = 2. ; else DCfactor = 1. ;
+	    MH_Moving_Matrix[k][l] = DCfactor /
 	      (double)Operation_P->Case.Generate_MH_Moving.NbrStep *
 	      ( fmod(k,2) ? -sin(Val_Pulsation[k/2]*Current.Time) :
 		cos(Val_Pulsation[k/2]*Current.Time) ) *
-	      ( fmod(l,2) ? -sin(Val_Pulsation[l/2]*Current.Time) : 
+	      ( fmod(l,2) ? -sin(Val_Pulsation[l/2]*Current.Time) :
 		cos(Val_Pulsation[l/2]*Current.Time) ) ;
 	    hop[k][l] += MH_Moving_Matrix[k][l] ;
 	  }
 
 	for (k = 0 ; k < Current.NbrHar/2 ; k++)
 	  if (!Val_Pulsation[k]) MH_Moving_Matrix[2*k+1][2*k+1] = 1. ;
-	
+
 	for (i = 0 ; i < Nbr_Formulation ; i++) {
 	  List_Read(DefineSystem_P->FormulationIndex, i, &Index_Formulation) ;
 	  Formulation_P = (struct Formulation*)
 	    List_Pointer(Problem_S.Formulation, Index_Formulation) ;
 	  Treatment_Formulation(Formulation_P) ;
 	}
-	
+
       }
 
       Current.TimeStep = 0;
@@ -2477,7 +2478,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       for (k = 0 ; k < Current.NbrHar ; k++) Free (MH_Moving_Matrix[k]) ;
       Free (MH_Moving_Matrix) ;
-      MH_Moving_Matrix = NULL ; 
+      MH_Moving_Matrix = NULL ;
       MH_Moving_Matrix_simple = 0 ;
 
       Generate_Group = NULL;
@@ -2503,23 +2504,23 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Message::Error("Generate_MH_moving can only be used for harmonic problems");
 
       for (k = 0 ; k < Current.NbrHar ; k++)
-	for (l = 0 ; l < Current.NbrHar ; l++) 
+	for (l = 0 ; l < Current.NbrHar ; l++)
 	  hop[k][l] = 0.;
 
       DummyDof = DofData_P->DummyDof ;
       DofData_P->DummyDof = NULL ;
-      
+
       for (iTime = 0 ; iTime < Operation_P->Case.Generate_MH_Moving_S.NbrStep ; iTime++) {
-      
-	Current.Time = (double)iTime/(double)Operation_P->Case.Generate_MH_Moving_S.NbrStep * 
+
+	Current.Time = (double)iTime/(double)Operation_P->Case.Generate_MH_Moving_S.NbrStep *
 	  Operation_P->Case.Generate_MH_Moving_S.Period ;
-	Current.DTime = 1./(double)Operation_P->Case.Generate_MH_Moving_S.NbrStep * 
+	Current.DTime = 1./(double)Operation_P->Case.Generate_MH_Moving_S.NbrStep *
 	  Operation_P->Case.Generate_MH_Moving_S.Period ;
 	Current.TimeStep = iTime;
 
 	if (!iTime) {
-	  Message::Info("Generate_MH_Moving_Separate : probing for any degrees of freedom"); 
-	  DofTree_MH_moving = Tree_Create(sizeof(struct Dof), fcmp_Dof) ;	
+	  Message::Info("Generate_MH_Moving_Separate : probing for any degrees of freedom");
+	  DofTree_MH_moving = Tree_Create(sizeof(struct Dof), fcmp_Dof) ;
 
 	  /* probing assembly */
 	  MH_Moving_Matrix_probe = 1;
@@ -2531,8 +2532,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  }
 	  MH_Moving_Matrix_probe = 0;
 
-	  DofList_MH_moving = Tree2List(DofTree_MH_moving) ;	
-	  Tree_Delete(DofTree_MH_moving) ;	
+	  DofList_MH_moving = Tree2List(DofTree_MH_moving) ;
+	  Tree_Delete(DofTree_MH_moving) ;
 
 	  NbrDof_MH_moving = List_Nbr(DofList_MH_moving) ;
 	  Message::Info("Generate_MH_Moving :  NbrDof = %d", NbrDof_MH_moving);
@@ -2540,54 +2541,54 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Dof_MH_moving = (struct Dof **)Malloc(NbrDof_MH_moving * sizeof(struct Dof *)) ;
 	  NumDof_MH_moving = (int *)Malloc(NbrDof_MH_moving * sizeof(int)) ;
 
-	  for (i = 0 ; i < NbrDof_MH_moving ; i++) {	  
+	  for (i = 0 ; i < NbrDof_MH_moving ; i++) {
 	    Dof_P = (struct Dof*)List_Pointer(DofList_MH_moving,i) ;
 	    if (Dof_P->Type != DOF_UNKNOWN) Message::Error("Dof_MH_moving not of type unknown !?");
-	    NumDof_MH_moving[i] =  Dof_P->Case.Unknown.NumDof; 
+	    NumDof_MH_moving[i] =  Dof_P->Case.Unknown.NumDof;
 
-	    if(!(Dof_MH_moving[i] = (struct Dof *)List_PQuery(Current.DofData->DofList, 
+	    if(!(Dof_MH_moving[i] = (struct Dof *)List_PQuery(Current.DofData->DofList,
 							      Dof_P, fcmp_Dof)))
 	      Message::Error("Troubles") ;
-	    for (k = 0 ; k < Current.NbrHar ; k++) { 
+	    for (k = 0 ; k < Current.NbrHar ; k++) {
 	      (Dof_MH_moving[i]+k)->Case.Unknown.NumDof = i*Current.NbrHar+k+1 ;
-	    }	  
+	    }
 	  } /* if (!iTime) */
 
 	  Message::Cpu("");
 	  LinAlg_CreateSolver(&DofData_P->Solver_MH_moving, "MH_moving.par") ;
 	  LinAlg_CreateMatrix(&DofData_P->A_MH_moving, &DofData_P->Solver_MH_moving,
 			      NbrDof_MH_moving*Current.NbrHar, NbrDof_MH_moving*Current.NbrHar) ;
-	  LinAlg_CreateVector(&DofData_P->b_MH_moving, &DofData_P->Solver_MH_moving, 
+	  LinAlg_CreateVector(&DofData_P->b_MH_moving, &DofData_P->Solver_MH_moving,
 			      NbrDof_MH_moving*Current.NbrHar) ;
 	  LinAlg_ZeroMatrix(&DofData_P->A_MH_moving) ;
-	  LinAlg_ZeroVector(&DofData_P->b_MH_moving) ;      
+	  LinAlg_ZeroVector(&DofData_P->b_MH_moving) ;
 	}
 
-	Message::Info("Generate_MH_Moving_Separate : Step %d/%d (Time = %e  DTime %e)", 
-                      (int)(Current.TimeStep+1), 
+	Message::Info("Generate_MH_Moving_Separate : Step %d/%d (Time = %e  DTime %e)",
+                      (int)(Current.TimeStep+1),
                       Operation_P->Case.Generate_MH_Moving_S.NbrStep,
                       Current.Time, Current.DTime) ;
-	
-	Treatment_Operation(Resolution_P, Operation_P->Case.Generate_MH_Moving.Operation, 
+
+	Treatment_Operation(Resolution_P, Operation_P->Case.Generate_MH_Moving.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
-	
+
 	for (k = 0 ; k < Current.NbrHar ; k++)
 	  for (l = 0 ; l < Current.NbrHar ; l++) {
-	    if (Val_Pulsation[k/2]) DCfactor = 2. ; else DCfactor = 1. ; 
-	    MH_Moving_Matrix[k][l] = DCfactor / 
+	    if (Val_Pulsation[k/2]) DCfactor = 2. ; else DCfactor = 1. ;
+	    MH_Moving_Matrix[k][l] = DCfactor /
 	      (double)Operation_P->Case.Generate_MH_Moving.NbrStep *
-	      ( fmod(k,2) ? -sin(Val_Pulsation[k/2]*Current.Time) : 
+	      ( fmod(k,2) ? -sin(Val_Pulsation[k/2]*Current.Time) :
 		cos(Val_Pulsation[k/2]*Current.Time) ) *
-	      ( fmod(l,2) ? -sin(Val_Pulsation[l/2]*Current.Time) : 
+	      ( fmod(l,2) ? -sin(Val_Pulsation[l/2]*Current.Time) :
 		cos(Val_Pulsation[l/2]*Current.Time) ) ;
 	    hop[k][l] += MH_Moving_Matrix[k][l] ;
 	  }
-	
+
 	for (k = 0 ; k < Current.NbrHar/2 ; k++)
 	  if (!Val_Pulsation[k]) MH_Moving_Matrix[2*k+1][2*k+1] = 1. ;
-	
+
 	/* separate assembly */
-	MH_Moving_Matrix_separate = 1 ;	
+	MH_Moving_Matrix_separate = 1 ;
 	for (i = 0 ; i < Nbr_Formulation ; i++) {
 	  List_Read(DefineSystem_P->FormulationIndex, i, &Index_Formulation) ;
 	  Formulation_P = (struct Formulation*)
@@ -2595,54 +2596,54 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Treatment_Formulation(Formulation_P) ;
 	}
 	MH_Moving_Matrix_separate = 0 ;
-	
-	
+
+
       } /*  for iTime */
 
       Message::Cpu("Full matrix assembly done");
 
       for (k = 0 ; k < Current.NbrHar ; k++) Free (MH_Moving_Matrix[k]) ;
       Free (MH_Moving_Matrix) ;
-      MH_Moving_Matrix = NULL ; 
-      
+      MH_Moving_Matrix = NULL ;
+
       Generate_Group = NULL;
-      
-      for (i = 0 ; i < NbrDof_MH_moving ; i++) {	  
-	for (k = 0 ; k < Current.NbrHar ; k++)	
+
+      for (i = 0 ; i < NbrDof_MH_moving ; i++) {
+	for (k = 0 ; k < Current.NbrHar ; k++)
 	  (Dof_MH_moving[i]+k)->Case.Unknown.NumDof = NumDof_MH_moving[i] + k ;
       }
-      
+
       LinAlg_CreateMatrix(&DofData_P->A_MH_moving2, &DofData_P->Solver,
 			  DofData_P->NbrDof, DofData_P->NbrDof) ;
       LinAlg_CreateVector(&DofData_P->b_MH_moving2, &DofData_P->Solver, Current.DofData->NbrDof) ;
       LinAlg_ZeroMatrix(&DofData_P->A_MH_moving2) ;
-      LinAlg_ZeroVector(&DofData_P->b_MH_moving2) ;      
+      LinAlg_ZeroVector(&DofData_P->b_MH_moving2) ;
 
       Message::Cpu("");
-      
+
       nnz__=0;
       for (i = 0 ; i < NbrDof_MH_moving ; i++) {
-	for (k = 0 ; k < Current.NbrHar ; k++) {	  
+	for (k = 0 ; k < Current.NbrHar ; k++) {
 	  row_old = Current.NbrHar*i+k ;
 	  row_new = NumDof_MH_moving[i]+k-1 ;
 	  LinAlg_GetDoubleInVector(&d, &DofData_P->b_MH_moving,  row_old) ;
 	  LinAlg_SetDoubleInVector( d, &DofData_P->b_MH_moving2, row_new) ;
 	  for (j = 0 ; j < NbrDof_MH_moving ; j++) {
-	    for (l = 0 ; l < Current.NbrHar ; l++) {	  
+	    for (l = 0 ; l < Current.NbrHar ; l++) {
 	      col_old = Current.NbrHar*j+l ;
 	      col_new = NumDof_MH_moving[j]+l-1 ;
-	      
+
 	      /* LinAlg_GetDoubleInMatrix(&d, &DofData_P->A_MH_moving, i, j) ; */
 #if defined(HAVE_SPARSKIT)
-	      d = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+row_old]; 
-	      aii = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*row_old+row_old]; 
-	      ajj = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+col_old]; 
+	      d = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+row_old];
+	      aii = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*row_old+row_old];
+	      ajj = DofData_P->A_MH_moving.M.F.a[NbrDof_MH_moving*Current.NbrHar*col_old+col_old];
 #else
 	      aii = ajj = 0.;
 	      Message::Error("FIXME: Generate_MH_Moving works only with Sparskit");
 #endif
-	      if(d*d > 1e-12 * aii*ajj  && 
-		 ( (DummyDof[row_new]==0 && DummyDof[col_new] == 0) || (row_new == col_new) ) ){ 
+	      if(d*d > 1e-12 * aii*ajj  &&
+		 ( (DummyDof[row_new]==0 && DummyDof[col_new] == 0) || (row_new == col_new) ) ){
 		LinAlg_AddDoubleInMatrix(d, &DofData_P->A_MH_moving2, col_new, row_new) ;
 		nnz__++;
 	      }
@@ -2658,8 +2659,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Message::Cpu("");
       DofData_P->DummyDof = DummyDof ;
       break;
-      
-    case OPERATION_DUMMYDOFS :    
+
+    case OPERATION_DUMMYDOFS :
       Init_OperationOnSystem("DummyDofs",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
@@ -2678,11 +2679,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  -----------------------------------------------------------  */
 
     case OPERATION_SAVESOLUTIONEXTENDEDMH :
-      if (Current.NbrHar == 1) { 
+      if (Current.NbrHar == 1) {
 	Message::Warning("ExtendSolutionMH can only to be used with multi-harmonics") ;
 	break ;
       }
-      else if (!List_Nbr(DofData_P->Solutions)) { 
+      else if (!List_Nbr(DofData_P->Solutions)) {
 	Message::Warning("No solution available for ExtendSolutionMH");
 	break ;
       }
@@ -2696,16 +2697,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       strcpy(FileName_exMH, Name_Generic) ;
       strcat(FileName_exMH, Operation_P->Case.SaveSolutionExtendedMH.ResFile) ;
       strcat(FileName_exMH, ".res") ;
-      Dof_WriteFileRES0(FileName_exMH, Flag_BIN) ;      
-      Dof_WriteFileRES_ExtendMH(FileName_exMH, DofData_P, Flag_BIN,  
-				Current.NbrHar + 
+      Dof_WriteFileRES0(FileName_exMH, Flag_BIN) ;
+      Dof_WriteFileRES_ExtendMH(FileName_exMH, DofData_P, Flag_BIN,
+				Current.NbrHar +
 				2*Operation_P->Case.SaveSolutionExtendedMH.NbrFreq);
 
-      Message::Direct("          > '%s'  (%d to %d frequencies)", FileName_exMH, 
-                      Current.NbrHar/2, Current.NbrHar/2 + 
+      Message::Direct("          > '%s'  (%d to %d frequencies)", FileName_exMH,
+                      Current.NbrHar/2, Current.NbrHar/2 +
                       Operation_P->Case.SaveSolutionExtendedMH.NbrFreq) ;
 
-      DofData_P->CurrentSolution = (struct Solution*) 
+      DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
 
       break ;
@@ -2714,11 +2715,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  -----------------------------------------------------------  */
 
     case OPERATION_SAVESOLUTIONMHTOTIME :
-      if (Current.NbrHar == 1) { 
+      if (Current.NbrHar == 1) {
 	Message::Warning("SaveSolutionMHtoTime can only to be used with multi-harmonics") ;
 	break ;
-      } 
-      else if (!List_Nbr(DofData_P->Solutions)) { 
+      }
+      else if (!List_Nbr(DofData_P->Solutions)) {
 	Message::Warning("No solution available for SaveSolutionMHtoTime");
 	break ;
       }
@@ -2732,14 +2733,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       strcpy(FileName_exMH, Name_Generic) ;
       strcat(FileName_exMH, Operation_P->Case.SaveSolutionMHtoTime.ResFile) ;
       strcat(FileName_exMH, ".res") ;
-      Dof_WriteFileRES0(FileName_exMH, Flag_BIN) ;      
-      Dof_WriteFileRES_MHtoTime(FileName_exMH, DofData_P, Flag_BIN, 
+      Dof_WriteFileRES0(FileName_exMH, Flag_BIN) ;
+      Dof_WriteFileRES_MHtoTime(FileName_exMH, DofData_P, Flag_BIN,
 				Operation_P->Case.SaveSolutionMHtoTime.Time) ;
 
-      Message::Direct("      > '%s'  (time = %e)", FileName_exMH, 
+      Message::Direct("      > '%s'  (time = %e)", FileName_exMH,
                       Operation_P->Case.SaveSolutionMHtoTime.Time) ;
 
-      DofData_P->CurrentSolution = (struct Solution*) 
+      DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
       break ;
 
@@ -2761,9 +2762,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       if(!List_Nbr(DofData_P->Solutions))
 	Message::Error("No valid data found for ReadSolution[%s]", DefineSystem_P->Name);
-	
+
       DofData_P->CurrentSolution = (struct Solution*)
-	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;	
+	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
       DofData_P->CurrentSolution->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
       break ;
 
@@ -2794,7 +2795,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
-      if(Operation_P->Case.SaveMesh.FileName[0] == '/' || 
+      if(Operation_P->Case.SaveMesh.FileName[0] == '/' ||
 	 Operation_P->Case.SaveMesh.FileName[0] == '\\'){
 	strcpy(FileName,Operation_P->Case.SaveMesh.FileName);
       } else {
@@ -2806,11 +2807,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Get_ValueOfExpressionByIndex(Operation_P->Case.SaveMesh.ExprIndex,
 				     NULL, 0., 0., 0., &Value) ;
 	sprintf(FileName, FileName, Value.Val[0]);
-      } 
+      }
 
-      Geo_SaveMesh(Current.GeoData, 
+      Geo_SaveMesh(Current.GeoData,
 		   ((struct Group*)
-		    List_Pointer(Problem_S.Group, 
+		    List_Pointer(Problem_S.Group,
 				 Operation_P->Case.SaveMesh.GroupIndex))->InitialList,
 		   FileName) ;
       break ;
@@ -2822,18 +2823,18 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("TransferSolution",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
-      
+
       if(Resolution2_P){ /* pre-resolution */
 	DofData2_P = DofData2_P0 + DefineSystem_P->DestinationSystemIndex ;
 	Dof_TransferDof(DofData_P, &DofData2_P);
       }
-      else{ 
-	/* a changer!!! Il faut se mettre d'accord sur ce que doit faire 
-	   Dof_TransferDof. Ceci sert a transferer la derniere solution d'un 
-	   DofData dans un autre (ds la meme resolution), base sur le meme 
+      else{
+	/* a changer!!! Il faut se mettre d'accord sur ce que doit faire
+	   Dof_TransferDof. Ceci sert a transferer la derniere solution d'un
+	   DofData dans un autre (ds la meme resolution), base sur le meme
 	   espace fonctionnel. */
 	DofData2_P = DofData_P0 + DefineSystem_P->DestinationSystemIndex ;
-	
+
 	if(DofData_P->NbrAnyDof != DofData2_P->NbrAnyDof)
 	  Message::Error("Dimensions do not match for TransferSolution");
 
@@ -2846,7 +2847,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_ZeroVector(&Solution_S.x) ;
 
 	if (List_Nbr(DofData_P->Solutions)) {
-	  
+
 	  Solution_P = (struct Solution *)List_Pointer(DofData_P->Solutions,
 						       List_Nbr(DofData_P->Solutions)-1) ;
 	  for(i=0 ; i<DofData_P->NbrAnyDof ; i++){
@@ -2872,7 +2873,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  if (!DofData2_P->Solutions)
 	    DofData2_P->Solutions = List_Create( 20, 20, sizeof(struct Solution)) ;
 
-	  List_Add(DofData2_P->Solutions, &Solution_S) ;      
+	  List_Add(DofData2_P->Solutions, &Solution_S) ;
 	  DofData2_P->CurrentSolution = (struct Solution*)
 	    List_Pointer(DofData2_P->Solutions, List_Nbr(DofData2_P->Solutions)-1) ;
 	}
@@ -2937,7 +2938,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       */
 
       Save_TypeTime  = Current.TypeTime ;
-      Save_DTime     = Current.DTime ;  
+      Save_DTime     = Current.DTime ;
       Flag_NextThetaFixed = 0 ; /* Attention: Test */
 
       Current.TypeTime = TIME_THETA ;
@@ -2965,12 +2966,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Current.Time += Current.DTime ;
 	Current.TimeStep += 1. ;
 
-	Message::Info("Theta Time = %.8g s (TimeStep %d)", Current.Time, 
+	Message::Info("Theta Time = %.8g s (TimeStep %d)", Current.Time,
                       (int)Current.TimeStep) ;
 
 	Save_Time = Current.Time ;
 
-	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopTheta.Operation, 
+	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopTheta.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
 	Current.Time = Save_Time ;
@@ -2979,7 +2980,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
 
       Current.TypeTime = Save_TypeTime ;
-      Current.DTime = Save_DTime ;  
+      Current.DTime = Save_DTime ;
       break ;
 
       /*  -->  T i m e L o o p N e w m a r k          */
@@ -2992,7 +2993,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Message::Info("TimeLoopNewmark ...") ;
 
       Save_TypeTime = Current.TypeTime ;
-      Save_DTime    = Current.DTime ;  
+      Save_DTime    = Current.DTime ;
 
       Current.Beta = Operation_P->Case.TimeLoopNewmark.Beta ;
       Current.Gamma = Operation_P->Case.TimeLoopNewmark.Gamma ;
@@ -3008,20 +3009,20 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopNewmark.DTimeIndex,
 				     NULL, 0., 0., 0., &Value) ;
-        Current.DTime = Value.Val[0] ;	
+        Current.DTime = Value.Val[0] ;
 	Current.Time += Current.DTime ;
 	Current.TimeStep += 1. ;
 
-	Message::Info("Newmark Time = %.8g s (TimeStep %d)", Current.Time, 
+	Message::Info("Newmark Time = %.8g s (TimeStep %d)", Current.Time,
 		  (int)Current.TimeStep) ;
 
-	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopNewmark.Operation, 
+	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopNewmark.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
         if(Flag_Break){ Flag_Break = 0; break; }
       }
 
       Current.TypeTime = Save_TypeTime ;
-      Current.DTime = Save_DTime ;  
+      Current.DTime = Save_DTime ;
       break ;
 
       /*  -->  I t e r a t i v e L o o p              */
@@ -3035,7 +3036,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       for (Num_Iteration = 1 ;
 	   Num_Iteration <= Operation_P->Case.IterativeLoop.NbrMaxIteration ;
 	   Num_Iteration++) {
-  
+
 	Current.Iteration = (double)Num_Iteration ;
 	Current.RelativeDifference = 0. ;
 
@@ -3048,8 +3049,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Message::Info("Non Linear Iteration %d (Relaxation = %g)", (int)Current.Iteration,
 		  Current.RelaxationFactor) ;
-	
-	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation, 
+
+	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
 	if (Current.RelativeDifference <= Operation_P->Case.IterativeLoop.Criterion)
@@ -3085,12 +3086,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Get_ValueOfExpressionByIndex(Operation_P->Case.Test.ExpressionIndex,
 				   NULL, 0., 0., 0., &Value) ;
       if(Value.Val[0]){
-	Treatment_Operation(Resolution_P, Operation_P->Case.Test.Operation_True, 
+	Treatment_Operation(Resolution_P, Operation_P->Case.Test.Operation_True,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
       }
       else{
 	if(Operation_P->Case.Test.Operation_False)
-	  Treatment_Operation(Resolution_P, Operation_P->Case.Test.Operation_False, 
+	  Treatment_Operation(Resolution_P, Operation_P->Case.Test.Operation_False,
 			      DofData_P0, GeoData_P0, NULL, NULL) ;
       }
       break ;
@@ -3105,8 +3106,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Message::Error("FIXME: FourierTransform2 will not work in complex arithmetic");
 
       DofData_P  = DofData_P0 + Operation_P->Case.FourierTransform2.DefineSystemIndex[0] ;
-      DofData2_P = DofData_P0 + Operation_P->Case.FourierTransform2.DefineSystemIndex[1] ;     
-      
+      DofData2_P = DofData_P0 + Operation_P->Case.FourierTransform2.DefineSystemIndex[1] ;
+
       NbrHar1 = DofData_P->NbrHar ;
       NbrDof1 = List_Nbr(DofData_P->DofList) ;
       NbrHar2 = DofData2_P->NbrHar ;
@@ -3117,14 +3118,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                        " (NbrHar = %d|%d   NbrDof = %d|%d)", NbrHar1, NbrHar2, NbrDof1, NbrDof2) ;
 
       if(!DofData2_P->Solutions){
-	DofData2_P->Solutions = List_Create(1, 1, sizeof(struct Solution)) ;	
+	DofData2_P->Solutions = List_Create(1, 1, sizeof(struct Solution)) ;
 	Operation_P->Case.FourierTransform2.Scales = (double *)Malloc(NbrHar2*sizeof(double)) ;
       }
 
       Nbr_Sol = List_Nbr(DofData2_P->Solutions) ;
       Scales = Operation_P->Case.FourierTransform2.Scales ;
 
-      if ( (Operation_P->Case.FourierTransform2.Period_sofar + Current.DTime > 
+      if ( (Operation_P->Case.FourierTransform2.Period_sofar + Current.DTime >
 	    Operation_P->Case.FourierTransform2.Period) && Nbr_Sol ) {
 	Message::Info("Normalizing and finalizing Fourier Analysis"
                       " (solution  %d) (Period: %e out of %e)",
@@ -3145,7 +3146,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Operation_P->Case.FourierTransform2.Period_sofar = 0 ;
 	break;
       }
-      
+
       if (Operation_P->Case.FourierTransform2.Period_sofar == 0) {
 	Message::Info("Starting new Fourier Analysis : solution %d ", Nbr_Sol);
 	Solution_S.TimeStep = Nbr_Sol;
@@ -3155,12 +3156,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	LinAlg_ZeroVector(&Solution_S.x) ;
 	List_Add(DofData2_P->Solutions, &Solution_S) ;
 	Nbr_Sol++ ;
-	for (k=0 ; k<NbrHar2 ; k++) Scales[k] = 0 ;  
+	for (k=0 ; k<NbrHar2 ; k++) Scales[k] = 0 ;
       }
 
       DofData2_P->CurrentSolution = Solution_P =
 	(struct Solution*)List_Pointer(DofData2_P->Solutions, Nbr_Sol-1) ;
-      
+
       for (k=0 ; k<NbrHar2 ; k+=2) {
 	d = DofData2_P->Val_Pulsation[k/2] * Current.Time ;
 	Scales[k  ] +=  cos(d) * cos(d) * Current.DTime ;
@@ -3184,20 +3185,20 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Operation_P->Case.FourierTransform2.Period_sofar += Current.DTime ;
       break;
-      
+
     case OPERATION_FOURIERTRANSFORM :
       Message::Info("FourierTransform") ;
-      
+
       DofData_P = DofData_P0 + Operation_P->Case.FourierTransform.DefineSystemIndex[0] ;
-      DofData2_P = DofData_P0 + Operation_P->Case.FourierTransform.DefineSystemIndex[1] ;     
-      
+      DofData2_P = DofData_P0 + Operation_P->Case.FourierTransform.DefineSystemIndex[1] ;
+
       if(!DofData2_P->Solutions){
 	k = List_Nbr(Operation_P->Case.FourierTransform.Frequency) ;
 
 	if(DofData2_P->NbrDof != gCOMPLEX_INCREMENT * DofData_P->NbrDof)
 	  Message::Error("Uncompatible System definitions for FourierTransform") ;
 
-	DofData2_P->Solutions = List_Create(k, 1, sizeof(struct Solution)) ;	
+	DofData2_P->Solutions = List_Create(k, 1, sizeof(struct Solution)) ;
 
 	for(i=0 ; i<k ; i++){
 	  List_Read(Operation_P->Case.FourierTransform.Frequency, i, &d) ;
@@ -3213,12 +3214,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  (struct Solution*)List_Pointer(DofData2_P->Solutions, k/2) ;
       }
 
-      for(i=0 ; i<List_Nbr(DofData2_P->Solutions) ; i++){	
+      for(i=0 ; i<List_Nbr(DofData2_P->Solutions) ; i++){
 	Solution_P = (struct Solution*)List_Pointer(DofData2_P->Solutions, i);
 	d = Solution_P->Time * Current.Time ;
 	for(j=0,k=0 ; j<DofData_P->NbrDof ; j++,k+=gCOMPLEX_INCREMENT){
 	  LinAlg_GetDoubleInVector(&d2, &DofData_P->CurrentSolution->x, j);
-	  LinAlg_AddComplexInVector( d2 * cos(d) * Current.DTime, 
+	  LinAlg_AddComplexInVector( d2 * cos(d) * Current.DTime,
 				     -d2 * sin(d) * Current.DTime,
 				     &Solution_P->x, k, k+1) ;
 	}
@@ -3228,10 +3229,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  -->  P r i n t / W r i t e                  */
       /*  ------------------------------------------  */
 
-    case OPERATION_WRITE : Flag_Binary = 1 ;  
-    case OPERATION_PRINT : 
+    case OPERATION_WRITE : Flag_Binary = 1 ;
+    case OPERATION_PRINT :
       if(Operation_P->Case.Print.FileOut){
-	if(Operation_P->Case.Print.FileOut[0] == '/' || 
+	if(Operation_P->Case.Print.FileOut[0] == '/' ||
 	   Operation_P->Case.Print.FileOut[0] == '\\'){
 	  strcpy(FileName, Operation_P->Case.Print.FileOut);
 	}
@@ -3313,7 +3314,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
 
       fflush(fp);
-      if(Operation_P->Case.Print.FileOut){ 
+      if(Operation_P->Case.Print.FileOut){
 	fclose(fp);
 	fp = stdout ;
       }
@@ -3321,8 +3322,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       break;
 
       /*  -->  C h a n g e O f C o o r d i n a t e s */
-      /*  ------------------------------------------ */ 
-	      
+      /*  ------------------------------------------ */
+
     case OPERATION_CHANGEOFCOORDINATES :
       Message::Info("ChangeOfCoordinates") ;
       /* Geo_SetCurrentGeoData(Current.GeoData = GeoData_P0) ; */
@@ -3331,37 +3332,38 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       break ;
 
       /*  -->  D e f o r m e M e s h                 */
-      /*  ------------------------------------------ */ 
+      /*  ------------------------------------------ */
 
     case OPERATION_DEFORMEMESH :
       if (Operation_P->Case.DeformeMesh.Name_MshFile == NULL)
 	Operation_P->Case.DeformeMesh.Name_MshFile = Name_MshFile ;
       Message::Info("DeformeMesh[%s, %s, '%s']",
                     ((struct DefineSystem *)
-                     List_Pointer(Resolution_P->DefineSystem, 
-                                  Operation_P->DefineSystemIndex))->Name, 
-                    Operation_P->Case.DeformeMesh.Quantity, 
+                     List_Pointer(Resolution_P->DefineSystem,
+                                  Operation_P->DefineSystemIndex))->Name,
+                    Operation_P->Case.DeformeMesh.Quantity,
                     Operation_P->Case.DeformeMesh.Name_MshFile) ;
 
       if ((i = List_ISearchSeq(GeoData_L, Operation_P->Case.DeformeMesh.Name_MshFile,
 			       fcmp_GeoData_Name)) < 0)
-	Message::Error("DeformeMesh: Wrong NameOfMeshFile %s", 
+	Message::Error("DeformeMesh: Wrong NameOfMeshFile %s",
 		   Operation_P->Case.DeformeMesh.Name_MshFile );
       Operation_P->Case.DeformeMesh.GeoDataIndex = i ;
-      
+
       Operation_DeformeMesh
 	(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
       break;
 
-      /*  -->  P o s t O p e r a t i o n */ 
-      /*  ------------------------------ */ 
-	      
+      /*  -->  P o s t O p e r a t i o n */
+      /*  ------------------------------ */
+
     case OPERATION_POSTOPERATION :
       Message::Info("PostOperation") ;
 
       Save_Time = Current.Time ;
       Save_TimeImag = Current.TimeImag ;
       Save_TimeStep = Current.TimeStep ;
+      Save_Element = Current.Element;
 
       for(i=0 ; i<List_Nbr(Operation_P->Case.PostOperation.PostOperations); i++){
 	str = *(char**)List_Pointer(Operation_P->Case.PostOperation.PostOperations, i);
@@ -3374,7 +3376,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  PostProcessing_P = (struct PostProcessing *)
 	    List_Pointer(Problem_S.PostProcessing, PostOperation_P->PostProcessingIndex) ;
 	  Treatment_PostOperation
-	    (Resolution_P, DofData_P0, 
+	    (Resolution_P, DofData_P0,
   	     (struct DefineSystem *)List_Pointer(Resolution_P->DefineSystem, 0),
 	     GeoData_P0, PostProcessing_P, PostOperation_P) ;
 	}
@@ -3392,16 +3394,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  (Current.DofData_P0+k)->CurrentSolution = (struct Solution*)
 	    List_Pointer((Current.DofData_P0+k)->Solutions, i);
       }
+      Current.Element = Save_Element;
       break ;
 
       /*  -->  T i m e L o o p R u n g e K u t t a  */
-      /*  ----------------------------------------- */ 
-	      
+      /*  ----------------------------------------- */
+
     case OPERATION_TIMELOOPRUNGEKUTTA :
       {
         Init_OperationOnSystem("TimeLoopRungeKutta",
                                Resolution_P, Operation_P, DofData_P0, GeoData_P0,
-                               &DefineSystem_P, &DofData_P, Resolution2_P) ;      
+                               &DefineSystem_P, &DofData_P, Resolution2_P) ;
         int numStepRK = List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherC);
         if(numStepRK != List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherB) ||
            numStepRK * numStepRK != List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherA))
@@ -3431,7 +3434,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             for(int j = 0; j < i; j++){
               double aij;
               List_Read(Operation_P->Case.TimeLoopRungeKutta.ButcherA, i * numStepRK + j, &aij);
-              LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &ki[j], aij, 
+              LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &ki[j], aij,
                                                &DofData_P->CurrentSolution->x);
             }
             Current.TypeAssembly = ASSEMBLY_SEPARATE ;
@@ -3445,16 +3448,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           }
           // restore previous time step
           LinAlg_CopyVector(&xn, &((struct Solution*)
-                                   List_Pointer(DofData_P->Solutions, 
+                                   List_Pointer(DofData_P->Solutions,
                                                 List_Nbr(DofData_P->Solutions)-2))->x) ;
           LinAlg_CopyVector(&xn, &DofData_P->CurrentSolution->x);
           for(int i = 0; i < numStepRK; i++){
             double bi;
             List_Read(Operation_P->Case.TimeLoopRungeKutta.ButcherB, i, &bi);
-            LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &ki[i], bi, 
+            LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &ki[i], bi,
                                              &DofData_P->CurrentSolution->x);
           }
-          
+
           Current.Time = tn + Current.DTime;
           if(Flag_Break){ Flag_Break = 0; break; }
         }
@@ -3464,7 +3467,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_BREAK :
       Flag_Break = 1;
       break ;
-        
+
       /*  -->  O t h e r                              */
       /*  ------------------------------------------  */
 
