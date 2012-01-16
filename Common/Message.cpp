@@ -40,6 +40,7 @@ int Message::_progressMeterCurrent = 0;
 std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
 onelab::client* Message::_onelabClient = 0;
+onelab::server *onelab::server::_server = 0;
 
 #if defined(HAVE_GSL)
 static void gslErrorHandler(const char *reason, const char *file, int line,
@@ -389,24 +390,35 @@ void Message::FinalizeSocket()
 
 void Message::InitializeOnelab(std::string name, std::string sockname)
 {
-  _onelabClient = new onelab::remoteNetworkClient(name, sockname);
-  // if sockname is file, we should load the database from disk
-  //_onelabClient = new onelab::localClient(name, sockname);
-  //_onelabClient->readDatabaseFromFile(sockname);
-
-  onelab::string o(name + "/FileExtension", ".pro");
-  o.setVisible(false);
-  _onelabClient->set(o);
-
-  onelab::number o2(name + "/UseCommandLine", 1.);
-  o2.setVisible(false);
-  _onelabClient->set(o2);
-
-  std::vector<onelab::string> ps;
-  _onelabClient->get(ps, name + "/Action");
-  if(ps.size()){
-    Info("Performing OneLab '%s'", ps[0].getValue().c_str());
-    if(ps[0].getValue() == "initialize") Exit(0);
+  if(sockname.size()){
+    // getdp is called by a distant onelab server
+    onelab::remoteNetworkClient *c = new onelab::remoteNetworkClient(name, sockname);
+    if(!c->getGmshClient()){
+      Error("Could not connect to OneLab server");
+      delete c;
+    }
+    else{
+      _onelabClient = c;
+      onelab::string o(name + "/FileExtension", ".pro");
+      o.setVisible(false);
+      _onelabClient->set(o);
+      onelab::number o2(name + "/UseCommandLine", 1.);
+      o2.setVisible(false);
+      _onelabClient->set(o2);
+      std::vector<onelab::string> ps;
+      _onelabClient->get(ps, name + "/Action");
+      if(ps.size()){
+        Info("Performing OneLab '%s'", ps[0].getValue().c_str());
+        if(ps[0].getValue() == "initialize") Exit(0);
+      }
+    }
+  }
+  else{
+    // getdp is called without onelab server, but with the name of a onelab
+    // database file
+    _onelabClient = new onelab::localClient("GetDP");
+    Error("Reading OneLab db from file not implemented yet!");
+    //_onelabClient->readDatabaseFromFile(name);
   }
 }
 
