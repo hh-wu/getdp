@@ -6425,26 +6425,52 @@ Affectation :
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
     }
 
+  | String__Index '+' tDEF ListOfFExpr tEND
+    {
+      Constant_S.Name = $1;
+      Constant *c = (Constant*)List_PQuery(ConstantTable_L, &Constant_S, fcmp_Constant);
+      if(c){
+        if(c->Type == VAR_FLOAT && List_Nbr($4) == 1){
+          double d;
+          List_Read($4, 0, &d);
+          c->Value.Float += d;
+        }
+        else if(c->Type == VAR_LISTOFFLOAT){
+          for(int i = 0; i < List_Nbr($4); i++)
+            List_Add(c->Value.ListOfFloat, List_Pointer($4, i));
+        }
+        else
+          vyyerror("Cannot append list to float");
+      }
+      else
+	vyyerror("Unknown Constant: %s", $1);
+      List_Delete($4);
+    }
+
   | String__Index tDEF tBIGSTR tEND
-    { Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
+    {
+      Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $3;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
     }
 
   | String__Index tDEF tStr '[' CharExpr ']' tEND
-    { Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
+    {
+      Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $5;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
     }
 
   | String__Index tDEF StrCat tEND
-    { Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
+    {
+      Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
       Constant_S.Value.Char = $3;
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
     }
 
   | String__Index tDEF tListFromFile '[' CharExpr ']' tEND
-    { Constant_S.Name = $1; Constant_S.Type = VAR_LISTOFFLOAT;
+    {
+      Constant_S.Name = $1; Constant_S.Type = VAR_LISTOFFLOAT;
       Message::Barrier();
       FILE *File;
       if(!(File = fopen($5, "r"))){
@@ -6531,20 +6557,35 @@ Affectation :
   | tPrintConstants tEND
     {
       Message::Info("Constants:");
-      for (int i=0; i<List_Nbr(ConstantTable_L); i++) {
+      for (int i = 0; i < List_Nbr(ConstantTable_L); i++) {
 	List_Read(ConstantTable_L, i, &Constant_S);
 	switch (Constant_S.Type) {
 	case VAR_FLOAT:
 	  Message::Info("  (%d/%d): '%s' = %g", i+1, List_Nbr(ConstantTable_L),
-	      Constant_S.Name, Constant_S.Value.Float);
+                        Constant_S.Name, Constant_S.Value.Float);
 	  break;
 	case VAR_CHAR:
 	  Message::Info("  (%d/%d): '%s' = '%s'", i+1, List_Nbr(ConstantTable_L),
-	      Constant_S.Name, Constant_S.Value.Char);
+                        Constant_S.Name, Constant_S.Value.Char);
 	  break;
-	default:
-	  Message::Info("  (%d/%d): '%s' = ...", i+1, List_Nbr(ConstantTable_L),
-	      Constant_S.Name);
+	case VAR_LISTOFFLOAT:
+          {
+            std::string str;
+            char tmp[256];
+            for(int j = 0; j < List_Nbr(Constant_S.Value.ListOfFloat); j++){
+              double d;
+              List_Read(Constant_S.Value.ListOfFloat, j, &d);
+              sprintf(tmp, "%g", d);
+              if(j) str += ", ";
+              str += tmp;
+            }
+            Message::Info("  (%d/%d): '%s' = {%s}", i+1, List_Nbr(ConstantTable_L),
+                          Constant_S.Name, str.c_str());
+          }
+          break;
+        default:
+	  Message::Info("  (%d/%d): '%s' = ?", i+1, List_Nbr(ConstantTable_L),
+                        Constant_S.Name);
 	  break;
 	}
       }
@@ -6773,6 +6814,9 @@ ListOfFExpr :
 
     /* none */
     { $$ = NULL; }
+
+  | '{' '}'
+    { $$ = List_Create(1,1,sizeof(double)); }
 
   | FExpr
     {

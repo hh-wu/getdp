@@ -31,44 +31,55 @@ void F_Field(F_ARG)
       V->Val[MAX_DIM * k + j] = 0. ;
   V->Type = SCALAR;
 
-  int iview = PView::list.size() - 1; // use last view by default
-  if(Fct->NbrParameters) iview = Fct->Para[0];
-
-  if(iview < 0 || iview >= PView::list.size()){
-    Message::Error("View[%d] does not exist", iview);
-    return;
-  }
-
-  PViewData *data = PView::list[iview]->getData();
-
-  std::vector<double> val(9 * data->getNumTimeSteps());
-  if(data->searchScalar(x, y, z, &val[0])){
-    V->Val[0] = val[0];
-    if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1)
-      V->Val[MAX_DIM] = val[1];
-    V->Type = SCALAR;
-  }
-  else if(data->searchVector(x, y, z, &val[0])){
-    for(int j = 0; j < 3; j++)
-      V->Val[j] = val[j];
-    if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
-      for(int j = 0; j < 3; j++)
-        V->Val[MAX_DIM + j] = val[3 + j];
-    }
-    V->Type = VECTOR;
-  }
-  else if(data->searchTensor(x, y, z, &val[0])){
-    for(int j = 0; j < 9; j++)
-      V->Val[j] = val[j];
-    if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
-      for(int j = 0; j < 9; j++)
-        V->Val[MAX_DIM + j] = val[9 + j];
-    }
-    V->Type = TENSOR;
+  std::vector<int> iview;
+  if(!Fct->NbrParameters){
+    // use last view by default
+    iview.push_back(PView::list.size() - 1);
   }
   else{
-    Message::Error("Did not find data in View[%d] at point (%g,%g,%g)",
-                   iview, x, y, z);
+    for(int i = 0; i < Fct->NbrParameters; i++)
+      iview.push_back(Fct->Para[i]);
+  }
+
+  // add the values from all specified views
+  for(unsigned int i = 0; i < iview.size(); i++){
+
+    if(iview[i] < 0 || iview[i] >= PView::list.size()){
+      Message::Error("View[%d] does not exist", iview[i]);
+      return;
+    }
+
+    PViewData *data = PView::list[iview[i]]->getData();
+
+    std::vector<double> val(9 * data->getNumTimeSteps());
+    if(data->searchScalar(x, y, z, &val[0])){
+      V->Val[0] += val[0];
+      if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1)
+        V->Val[MAX_DIM] += val[1];
+      V->Type = SCALAR;
+    }
+    else if(data->searchVector(x, y, z, &val[0])){
+      for(int j = 0; j < 3; j++)
+        V->Val[j] += val[j];
+      if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
+      for(int j = 0; j < 3; j++)
+        V->Val[MAX_DIM + j] += val[3 + j];
+      }
+      V->Type = VECTOR;
+    }
+    else if(data->searchTensor(x, y, z, &val[0])){
+      for(int j = 0; j < 9; j++)
+        V->Val[j] = val[j];
+      if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
+        for(int j = 0; j < 9; j++)
+          V->Val[MAX_DIM + j] += val[9 + j];
+      }
+      V->Type = TENSOR;
+    }
+    else{
+      Message::Error("Did not find data in View[%d] at point (%g,%g,%g)",
+                     iview[i], x, y, z);
+    }
   }
 }
 
@@ -88,45 +99,56 @@ static void F_X_Field(F_ARG, int type)
       V->Val[MAX_DIM * k + j] = 0. ;
   V->Type = type;
 
-  int iview = PView::list.size() - 1; // use last view by default
-  if(Fct->NbrParameters) iview = Fct->Para[0];
-
-  if(iview < 0 || iview >= PView::list.size()){
-    Message::Error("View[%d] does not exist", iview);
-    return;
+  std::vector<int> iview;
+  if(!Fct->NbrParameters){
+    // use last view by default
+    iview.push_back(PView::list.size() - 1);
+  }
+  else{
+    for(int i = 0; i < Fct->NbrParameters; i++)
+      iview.push_back(Fct->Para[i]);
   }
 
-  PViewData *data = PView::list[iview]->getData();
+  // add the values from all specified views
+  for(unsigned int i = 0; i < iview.size(); i++){
 
-  std::vector<double> val(numComp * data->getNumTimeSteps());
-  switch(type){
-  case SCALAR :
-    if(data->searchScalar(x, y, z, &val[0])){
-      V->Val[0] = val[0];
-      if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1)
-        V->Val[MAX_DIM] = val[1];
+    if(iview[i] < 0 || iview[i] >= PView::list.size()){
+      Message::Error("View[%d] does not exist", iview[i]);
+      return;
     }
-    break;
-  case VECTOR :
-    if(data->searchVector(x, y, z, &val[0])){
-      for(int j = 0; j < 3; j++)
-        V->Val[j] = val[j];
-      if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
+
+    PViewData *data = PView::list[iview[i]]->getData();
+
+    std::vector<double> val(numComp * data->getNumTimeSteps());
+    switch(type){
+    case SCALAR :
+      if(data->searchScalar(x, y, z, &val[0])){
+        V->Val[0] += val[0];
+        if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1)
+          V->Val[MAX_DIM] += val[1];
+      }
+      break;
+    case VECTOR :
+      if(data->searchVector(x, y, z, &val[0])){
         for(int j = 0; j < 3; j++)
-          V->Val[MAX_DIM + j] = val[3 + j];
+          V->Val[j] += val[j];
+        if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
+          for(int j = 0; j < 3; j++)
+            V->Val[MAX_DIM + j] += val[3 + j];
+        }
       }
-    }
-    break;
-  case TENSOR :
-    if(data->searchTensor(x, y, z, &val[0])){
-      for(int j = 0; j < 9; j++)
-        V->Val[j] = val[j];
-      if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
+      break;
+    case TENSOR :
+      if(data->searchTensor(x, y, z, &val[0])){
         for(int j = 0; j < 9; j++)
-          V->Val[MAX_DIM + j] = val[9 + j];
+          V->Val[j] += val[j];
+        if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
+          for(int j = 0; j < 9; j++)
+            V->Val[MAX_DIM + j] += val[9 + j];
+        }
       }
+      break;
     }
-    break;
   }
 }
 

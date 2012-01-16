@@ -1,22 +1,22 @@
 /* --------------------------------------------------------------------------
-    This is a sample GetDP problem definition file                           
+    This is a sample GetDP problem definition file
 
     This file includes the file 'Magnetostatics.pro'
 
     (C) 1998 P. Dular, C. Geuzaine
    -------------------------------------------------------------------------- */
 
-/* 
+/*
    To solve the problem
    with scalar potential, type 'getdp test -pre MagSta_phi -cal -pos phi'
    with vector potential, type 'getdp test -pre MagSta_a -cal -pos a'
 */
 
 Group {
-  
-  /* The numbers correspond to physical regions defined in 'test.geo' (the input 
+
+  /* The numbers correspond to physical regions defined in 'test.geo' (the input
      to the GMSH meshing tool) */
-  
+
   Air     = Region[ 102 ];
   AirInf  = Region[ 101 ];
   Core    = Region[ 106 ];
@@ -65,7 +65,6 @@ Function {
   js [ IndP1 ] = Vector[0, 0, Itot/Surf] ;
   js [ IndP2 ] = Vector[0, 0, -Itot/Surf] ;
 }
-
 
 Constraint {
 
