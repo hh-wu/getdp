@@ -209,7 +209,7 @@ void Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList)
 
   Entity_Tr = Tree_Create(sizeof (struct TwoInt), fcmp_int2) ;
 
-  Nbr_Element = Geo_GetNbrGeoElements() ; 
+  Nbr_Element = Geo_GetNbrGeoElements() ;
   // Message::Info("  Add Node :");
   for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
     GeoElement = Geo_GetGeoElement(i_Element) ;
@@ -224,7 +224,7 @@ void Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList)
 
 	if ( ! Tree_Search(Entity_Tr, &Num_GroupOfNodes) ) {
 	  Tree_Add(Entity_Tr, &Num_GroupOfNodes) ;
-          // Message::Info(" (%d, %d)", Num_GroupOfNodes.Int1, Num_GroupOfNodes.Int2); 
+          // Message::Info(" (%d, %d)", Num_GroupOfNodes.Int1, Num_GroupOfNodes.Int2);
 	}
       }
     }
@@ -306,36 +306,60 @@ void Generate_GroupsOfEdges(List_T * InitialList,
 	    if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
 	      Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
 	  }
-
 	  else {
 	    if (Key1_P && Key2_P && Key1_P->Int2 != Key2_P->Int2) {
-
 	      Num_GroupOfEdges.Int1 = - GeoElement->NumEdges[i_Entity] ;
 	      Num_GroupOfEdges.Int2 = Key1_P->Int2 ;
-	      if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
-		{
+	      if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) ){
 		Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
-		fprintf(stderr, "ADD 1 <========= %d %d %d\n", GeoElement->NumNodes[abs(Num_Nodes[0])-1], Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2);
-		}
-
+		fprintf(stderr, "ADD 1 <========= %d %d %d\n",
+                        GeoElement->NumNodes[abs(Num_Nodes[0])-1],
+                        Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2);
+              }
 	      Num_GroupOfEdges.Int1 = GeoElement->NumEdges[i_Entity] ;
 	      Num_GroupOfEdges.Int2 = Key2_P->Int2 ;
-	      if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
-		{
+	      if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) ){
 		Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
-		fprintf(stderr, "ADD 2 <========= %d %d %d \n", GeoElement->NumNodes[abs(Num_Nodes[1])-1], Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2);
-		}
-
+		fprintf(stderr, "ADD 2 <========= %d %d %d \n",
+                        GeoElement->NumNodes[abs(Num_Nodes[1])-1],
+                        Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2);
+              }
 	    }
 	  }
 	  */
-
 	}
       }
 
       List_Delete(ExtendedAuxList) ;
     }
     break ;
+
+  case SUPPLIST_NONE :
+    if (List_Nbr(InitialList)) {
+      Generate_GroupsOfNodes(InitialList, &ExtendedAuxList) ;
+      Nbr_Element = Geo_GetNbrGeoElements() ;
+      for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
+        GeoElement = Geo_GetGeoElement(i_Element) ;
+        if (List_Search(InitialList, &GeoElement->Region, fcmp_int) ) {
+          if (GeoElement->NbrEdges == 0) Geo_CreateEdgesOfElement(GeoElement) ;
+          for (i_Entity = 0 ; i_Entity < GeoElement->NbrEdges ; i_Entity++) {
+            Num_Nodes = Geo_GetNodesOfEdgeInElement(GeoElement, i_Entity) ;
+            Num_Node = GeoElement->NumNodes[abs(Num_Nodes[0])-1] ;
+            Key1_P = (struct TwoInt*)List_PQuery(ExtendedAuxList, &Num_Node, fcmp_int) ;
+            Num_Node = GeoElement->NumNodes[abs(Num_Nodes[1])-1] ;
+            Key2_P = (struct TwoInt*)List_PQuery(ExtendedAuxList, &Num_Node, fcmp_int) ;
+            if (Key1_P && Key2_P) {
+              Num_GroupOfEdges.Int1 = - GeoElement->NumEdges[i_Entity] ;
+              Num_GroupOfEdges.Int2 = GeoElement->Region ;
+              if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
+                Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
+            }
+          }
+        }
+      }
+      List_Delete(ExtendedAuxList) ;
+    }
+    break;
 
   default :
     Message::Error("Bad GroupsOfEdges (supplementary list missing)") ;
@@ -402,23 +426,23 @@ void  Generate_Elements(List_T * InitialList,
       if (List_Search(InitialSuppList, &GeoElement->Region, fcmp_int))
 	List_Add(ExtendedSuppList, &i_Element);
     }
-    
+
     for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
       GeoElement = Geo_GetGeoElement(i_Element) ;
 
       if (List_Search(InitialList, &GeoElement->Region, fcmp_int)){
 	for(i_Element2 = 0 ; i_Element2 < List_Nbr(ExtendedSuppList) ; i_Element2++){
 	  GeoElement2 = Geo_GetGeoElement(*(int*)List_Pointer(ExtendedSuppList, i_Element2)) ;
-	  
+
 	  k = 0 ;
 	  for(i_Node2 = 0 ; i_Node2 < GeoElement2->NbrNodes ; i_Node2++){
 	    for(i_Node = 0 ; i_Node < GeoElement->NbrNodes ; i_Node++){
-	      if(GeoElement2->NumNodes[i_Node2] == GeoElement->NumNodes[i_Node]) k++;	      
+	      if(GeoElement2->NumNodes[i_Node2] == GeoElement->NumNodes[i_Node]) k++;
 	    }
 	  }
 	  if(k == GeoElement2->NbrNodes){
 	    Pair.Int1 = GeoElement2->Num ; /* Number of the the element on the boundary */
-	    Pair.Int2 = i_Element ; /* Index of the element connected to all the nodes of 
+	    Pair.Int2 = i_Element ; /* Index of the element connected to all the nodes of
 				       the element on the boundary */
 	    Tree_Add(Entity_Tr, &Pair);
 	  }
