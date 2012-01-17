@@ -7089,7 +7089,8 @@ CharExpr :
     { $$ = $1; }
 
   | String__Index
-    { Constant_S.Name = $1;
+    {
+      Constant_S.Name = $1;
       if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	vyyerror("Unknown Constant: %s", $1);  $$ = NULL;
       }

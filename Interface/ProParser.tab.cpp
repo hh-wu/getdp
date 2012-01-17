@@ -1298,8 +1298,8 @@ static const yytype_uint16 yyrline[] =
     6825,  6826,  6827,  6828,  6829,  6830,  6831,  6832,  6851,  6853,
     6856,  6862,  6865,  6872,  6878,  6881,  6884,  6896,  6901,  6909,
     6916,  6927,  6944,  6967,  6983,  7022,  7030,  7042,  7051,  7066,
-    7069,  7076,  7082,  7088,  7091,  7106,  7111,  7116,  7136,  7148,
-    7154,  7159,  7164,  7169,  7182,  7194
+    7069,  7076,  7082,  7088,  7091,  7107,  7112,  7117,  7137,  7149,
+    7155,  7160,  7165,  7170,  7183,  7195
 };
 #endif
 
@@ -13853,7 +13853,8 @@ yyreduce:
 
 /* Line 1464 of yacc.c  */
 #line 7092 "ProParser.y"
-    { Constant_S.Name = (yyvsp[(1) - (1)].c);
+    {
+      Constant_S.Name = (yyvsp[(1) - (1)].c);
       if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	vyyerror("Unknown Constant: %s", (yyvsp[(1) - (1)].c));  (yyval.c) = NULL;
       }
@@ -13871,7 +13872,7 @@ yyreduce:
   case 765:
 
 /* Line 1464 of yacc.c  */
-#line 7107 "ProParser.y"
+#line 7108 "ProParser.y"
     {
       (yyval.c) = (yyvsp[(1) - (1)].c);
     ;}
@@ -13880,7 +13881,7 @@ yyreduce:
   case 766:
 
 /* Line 1464 of yacc.c  */
-#line 7112 "ProParser.y"
+#line 7113 "ProParser.y"
     {
       (yyval.c) = (yyvsp[(3) - (4)].c);
     ;}
@@ -13889,7 +13890,7 @@ yyreduce:
   case 767:
 
 /* Line 1464 of yacc.c  */
-#line 7117 "ProParser.y"
+#line 7118 "ProParser.y"
     {
       char tmpstr[256];
       int i = Print_ListOfDouble((yyvsp[(3) - (6)].c),(yyvsp[(5) - (6)].l),tmpstr);
@@ -13913,7 +13914,7 @@ yyreduce:
   case 768:
 
 /* Line 1464 of yacc.c  */
-#line 7137 "ProParser.y"
+#line 7138 "ProParser.y"
     {
       time_t date_info;
       time(&date_info);
@@ -13926,7 +13927,7 @@ yyreduce:
   case 769:
 
 /* Line 1464 of yacc.c  */
-#line 7149 "ProParser.y"
+#line 7150 "ProParser.y"
     {
       (yyval.l) = List_Create(1,1,sizeof(char*));
       List_Add((yyval.l), &((yyvsp[(1) - (1)].c)));
@@ -13936,14 +13937,14 @@ yyreduce:
   case 770:
 
 /* Line 1464 of yacc.c  */
-#line 7155 "ProParser.y"
+#line 7156 "ProParser.y"
     { (yyval.l) = (yyvsp[(2) - (3)].l); ;}
     break;
 
   case 771:
 
 /* Line 1464 of yacc.c  */
-#line 7160 "ProParser.y"
+#line 7161 "ProParser.y"
     {
       (yyval.l) = List_Create(20,20,sizeof(char*));
       List_Add((yyval.l), &((yyvsp[(1) - (1)].c)));
@@ -13953,14 +13954,14 @@ yyreduce:
   case 772:
 
 /* Line 1464 of yacc.c  */
-#line 7165 "ProParser.y"
+#line 7166 "ProParser.y"
     { List_Add((yyval.l), &((yyvsp[(3) - (3)].c))); ;}
     break;
 
   case 773:
 
 /* Line 1464 of yacc.c  */
-#line 7170 "ProParser.y"
+#line 7171 "ProParser.y"
     {
       if((yyvsp[(3) - (6)].c) != NULL && (yyvsp[(5) - (6)].c) != NULL) {
 	(yyval.c) = (char *)Malloc((strlen((yyvsp[(3) - (6)].c))+strlen((yyvsp[(5) - (6)].c))+1)*sizeof(char));
@@ -13975,7 +13976,7 @@ yyreduce:
   case 774:
 
 /* Line 1464 of yacc.c  */
-#line 7183 "ProParser.y"
+#line 7184 "ProParser.y"
     {
       if ((yyvsp[(3) - (6)].c) != NULL && (yyvsp[(5) - (6)].c) != NULL) {
 	(yyval.i) = strcmp((yyvsp[(3) - (6)].c), (yyvsp[(5) - (6)].c));
@@ -13989,7 +13990,7 @@ yyreduce:
   case 775:
 
 /* Line 1464 of yacc.c  */
-#line 7195 "ProParser.y"
+#line 7196 "ProParser.y"
     {
       int i;
       if ( (i = List_ISearchSeq(Problem_S.Group, (yyvsp[(3) - (4)].c), fcmp_Group_Name)) >= 0 ) {
@@ -14005,7 +14006,7 @@ yyreduce:
 
 
 /* Line 1464 of yacc.c  */
-#line 14009 "ProParser.tab.cpp"
+#line 14010 "ProParser.tab.cpp"
       default: break;
     }
   YY_SYMBOL_PRINT ("-> $$ =", yyr1[yyn], &yyval, &yyloc);
@@ -14217,7 +14218,7 @@ yyreturn:
 
 
 /* Line 1684 of yacc.c  */
-#line 7207 "ProParser.y"
+#line 7208 "ProParser.y"
 
 
 // This is a hack... Bison redefines 'const' if !__cplusplus and !__STDC__
