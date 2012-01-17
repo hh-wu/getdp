@@ -154,7 +154,7 @@ static void F_X_Field(F_ARG, int type)
 
 #else
 
-void F_View(F_ARG)
+void F_Field(F_ARG)
 {
   Message::Error("You need to compile GetDP with Gmsh support to use 'View'");
   V->Val[0] = 0. ;
