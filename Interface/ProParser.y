@@ -6447,6 +6447,41 @@ Affectation :
       List_Delete($4);
     }
 
+  | String__Index '-' tDEF ListOfFExpr tEND
+    {
+      Constant_S.Name = $1;
+      Constant *c = (Constant*)List_PQuery(ConstantTable_L, &Constant_S, fcmp_Constant);
+      if(c){
+        if(c->Type == VAR_FLOAT && List_Nbr($4) == 1){
+          double d;
+          List_Read($4, 0, &d);
+          c->Value.Float -= d;
+        }
+        else if(c->Type == VAR_LISTOFFLOAT){
+          std::vector<double> tmp;
+          for(int i = 0; i < List_Nbr(c->Value.ListOfFloat); i++){
+            double d;
+            List_Read(c->Value.ListOfFloat, i, &d);
+            tmp.push_back(d);
+          }
+          for(int i = 0; i < List_Nbr($4); i++){
+            double d;
+            List_Read($4, i, &d);
+            std::vector<double>::iterator it = std::find(tmp.begin(), tmp.end(), d);
+            if(it != tmp.end()) tmp.erase(it);
+          }
+          List_Reset(c->Value.ListOfFloat);
+          for(unsigned int i = 0; i < tmp.size(); i++)
+            List_Add(c->Value.ListOfFloat, &tmp[i]);
+        }
+        else
+          vyyerror("Cannot append list to float");
+      }
+      else
+	vyyerror("Unknown Constant: %s", $1);
+      List_Delete($4);
+    }
+
   | String__Index tDEF tBIGSTR tEND
     {
       Constant_S.Name = $1; Constant_S.Type = VAR_CHAR;
