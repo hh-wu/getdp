@@ -16,7 +16,7 @@ SRC = MainLegacy.cpp \
       F_Analytic.cpp F_BiotSavart.cpp F_Coord.cpp F_ExtMath.cpp \
         F_Geometry.cpp F_Interpolation.cpp F_Hysteresis.cpp F_Math.cpp \
         F_Misc.cpp F_MultiHar.cpp F_Raytracing.cpp \
-        F_Gmsh.cpp \
+        F_Gmsh.cpp F_DiffGeom.cpp \
       BF_Node.cpp BF_NodeXYZ.cpp BF_Node_2.cpp BF_Node_3.cpp \
         BF_Edge.cpp BF_Edge_2.cpp BF_Edge_3.cpp BF_Edge_4.cpp \
         BF_Facet.cpp BF_Volume.cpp BF_Region.cpp \
@@ -129,6 +129,8 @@ F_Raytracing.o: F_Raytracing.cpp ../Common/GetDPConfig.h \
   ../Interface/ProData.h ../Common/GetDPConfig.h ../Common/ListUtils.h \
   F.h ../Common/Message.h
 F_Gmsh.o: F_Gmsh.cpp ../Common/GetDPConfig.h ../Interface/ProData.h \
+  ../Common/GetDPConfig.h ../Common/ListUtils.h F.h ../Common/Message.h
+F_DiffGeom.o: F_DiffGeom.cpp ../Common/GetDPConfig.h ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h F.h ../Common/Message.h
 BF_Node.o: BF_Node.cpp ../Interface/ProData.h ../Common/GetDPConfig.h \
   ../Common/ListUtils.h ../Common/Message.h

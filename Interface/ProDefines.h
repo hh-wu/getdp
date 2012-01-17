@@ -1014,6 +1014,20 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"VectorField",        (CAST)F_VectorField       ,   -1,   -1 },
   {"TensorField",        (CAST)F_TensorField       ,   -1,   -1 },
 
+  // F_DiffGeom
+  {"Hodge",              (CAST)F_Hodge             ,    1,   2 },
+  {"Sharp",              (CAST)F_Sharp             ,    1,   2 },
+  {"Flat",               (CAST)F_Flat              ,    1,   2 },
+  {"InnerProduct",       (CAST)F_InnerProduct      ,    1,   3 },
+  {"WedgeProduct",       (CAST)F_WedgeProduct      ,    2,   2 },
+  {"InteriorProduct",    (CAST)F_InteriorProduct   ,    1,   2 },
+  {"TensorProduct",      (CAST)F_TensorProduct     ,    0,   2 },
+  {"PullBack",           (CAST)F_PullBack          ,    1,   2 },
+  {"PullBackMetric",     (CAST)F_PullBackMetric    ,    0,   2 },
+  {"PushForward",        (CAST)F_PushForward       ,    1,   2 },
+  {"InvPullBack",        (CAST)F_InvPullBack       ,    1,   2 },
+  {"InvPushForward",     (CAST)F_InvPushForward    ,    1,   2 },
+
   // GF_XXX : Green Functions
   {"Laplace"           , (CAST)GF_Laplace          ,   1,   0 },
   {"GradLaplace"       , (CAST)GF_GradLaplace      ,   1,   0 },

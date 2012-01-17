@@ -225,5 +225,18 @@ void  F_ScalarField(F_ARG) ;
 void  F_VectorField(F_ARG) ;
 void  F_TensorField(F_ARG) ;
 
+/* F_DiffGeom */
+void  F_Hodge(F_ARG) ;
+void  F_InnerProduct(F_ARG) ;
+void  F_Sharp(F_ARG) ;
+void  F_Flat(F_ARG) ;
+void  F_WedgeProduct(F_ARG) ;
+void  F_TensorProduct(F_ARG) ;
+void  F_InteriorProduct(F_ARG) ;
+void  F_PullBack(F_ARG) ;
+void  F_PullBackMetric(F_ARG) ;
+void  F_PushForward(F_ARG) ;
+void  F_InvPullBack(F_ARG) ;
+void  F_InvPushForward(F_ARG) ;
 
 #endif
