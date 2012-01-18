@@ -43,6 +43,7 @@ struct StringXDefine  FunctionForGroup_Type[] = {
   {"GroupsOfNodesOf"          , GROUPSOFNODESOF},
   {"GroupsOfEdgesOnNodesOf"   , GROUPSOFEDGESONNODESOF},
   {"GroupsOfEdgesOf"          , GROUPSOFEDGESOF},
+  {"GroupsOfFacetsOf"         , GROUPSOFFACETSOF},
   {"EdgesOfTreeIn"            , EDGESOFTREEIN},
   {"FacetsOfTreeIn"           , FACETSOFTREEIN},
   {"DualNodesOf"              , DUALNODESOF},
@@ -630,6 +631,10 @@ struct StringX3Function2Nbr  BF_Function[] = {
 
   {"BF_DivFacet", (CAST)BF_DivFacet, (CAST)BF_Zero, (CAST)BF_Facet, 0., ALL },
 
+  {"BF_GroupOfFacets", (CAST)BF_GroupOfFacets, (CAST)BF_DivGroupOfFacets, (CAST)BF_Zero, 0.5, ALL },
+
+  {"BF_DivGroupOfFacets", (CAST)BF_DivGroupOfFacets, (CAST)BF_Zero, (CAST)BF_GroupOfFacets, 0., ALL },
+
   // Current along wire
   {"BF_Wire",    (CAST)BF_Wire, (CAST)BF_DivWire, (CAST)BF_Zero, 1., LIN },
   {"BF_DivWire", (CAST)BF_DivWire, (CAST)BF_Zero, (CAST)BF_Wire, 0., LIN },
@@ -689,7 +694,6 @@ struct StringX3Function2Nbr  BF_Function[] = {
                                     (CAST)BF_Zero, (CAST)BF_PerpendicularFacet_4F,   1., ALL },
   {"BF_DivPerpendicularFacet_4V",   (CAST)BF_DivPerpendicularFacet_4V,
                                     (CAST)BF_Zero, (CAST)BF_PerpendicularFacet_4V,   1., ALL },
-
 
   // L^2 basis Functions
 
@@ -811,7 +815,6 @@ struct StringX3Function2Nbr  BF_Function[] = {
   {"BF_GroupOfNodesX_D12" , (CAST)BF_GroupOfNodesX_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
   {"BF_GroupOfNodesY_D12" , (CAST)BF_GroupOfNodesY_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
   {"BF_GroupOfNodesZ_D12" , (CAST)BF_GroupOfNodesZ_D12 , (CAST)BF_Zero , (CAST)BF_Zero , 0. , ALL },
-
 
   // Special basis Functions
 

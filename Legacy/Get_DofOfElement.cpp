@@ -58,7 +58,7 @@ void  Get_DofOfElement(struct Element          * Element,
   /* Get the SubSpace */
 
   Nbr_BasisFunctionAll = List_Nbr(FunctionSpace_P->BasisFunction) ;
-  BasisFunction_P0 = (Nbr_BasisFunctionAll) ? 
+  BasisFunction_P0 = (Nbr_BasisFunctionAll) ?
     (struct BasisFunction*)List_Pointer(FunctionSpace_P->BasisFunction, 0) : NULL ;
 
   if (!BasisFunctionIndex_L) {
@@ -68,12 +68,12 @@ void  Get_DofOfElement(struct Element          * Element,
   else {
     Flag_SubSpace = 1 ;
     Nbr_BasisFunction = List_Nbr(BasisFunctionIndex_L) ;
-    BasisFunctionIndex_P0 = (Nbr_BasisFunction) ? 
+    BasisFunctionIndex_P0 = (Nbr_BasisFunction) ?
       (int*)List_Pointer(BasisFunctionIndex_L, 0) : NULL ;
   }
 
   /* Set the DofData if explicitely specified */
-  
+
   switch (TreatmentStatus) {
   case _CAL :  case _POS :
     if(QuantityStorage_P->DefineQuantity->DofData)
@@ -97,7 +97,7 @@ void  Get_DofOfElement(struct Element          * Element,
 	   the interpolation order is lower or equal to the maximum order allowed
 	   the element is in the support of the BasisFunction */
 
-    if ( ( BasisFunction_P->ElementType & Current.Element->Type ) 
+    if ( ( BasisFunction_P->ElementType & Current.Element->Type )
 	 &&
 	 ( Flag_ORDER < 0. || BasisFunction_P->Order <= Flag_ORDER )
 	 &&
@@ -179,6 +179,19 @@ void  Get_DofOfElement(struct Element          * Element,
 	   StartingIndex,  i_BFunction, GROUPSOFEDGESOF, NULL) ;
 	break ;
 
+      case GROUPSOFFACETSOF :
+	if (Element->GeoElement->NbrFacets == 0)
+	  Geo_CreateFacetsOfElement(Element->GeoElement) ;
+	Get_GroupsOfElementaryEntitiesOfElement
+	  (Element, &StartingIndex,
+	   Element->GeoElement->NbrFacets, Element->GeoElement->NumFacets,
+	   BasisFunction_P) ;
+	Get_CodesOfElement
+	  (FunctionSpace_P, QuantityStorage_P,
+	   Element->NbrGroupsOfEntities, Element->NumGroupsOfEntities,
+	   StartingIndex,  i_BFunction, GROUPSOFFACETSOF, NULL) ;
+	break ;
+
       case REGION :
 	Get_RegionForElement(Element, &StartingIndex, BasisFunction_P) ;
 	Get_CodesOfElement
@@ -234,7 +247,7 @@ void  Get_GroupsOfElementaryEntitiesOfElement
     while(1){
       if(!GroupEntity_P->IsExtendedListMultiValued){ // fast search
         Key.Int1 = Num_Entity;
-        Key_P = (struct TwoInt*)List_PQuery(GroupEntity_P->ExtendedList, 
+        Key_P = (struct TwoInt*)List_PQuery(GroupEntity_P->ExtendedList,
                                             &Key, fcmp_absint);
         if(!Key_P) break;
       }
@@ -427,7 +440,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
   struct Dof  * Dof_P = NULL;
 
   /*  1.  F o r   e a c h   e n t i t y   t o   w h i c h   a   b a s i s
-          f u n c t i o n   c o u l d   b e   a s s o c i a t e d : 
+          f u n c t i o n   c o u l d   b e   a s s o c i a t e d :
           (Node, Edge, Facet, Volume, GroupOfNodes, Region, ...)  */
 
   for (i_Entity = StartingIndex ; i_Entity < Nbr_Entity ; i_Entity++) {
@@ -460,7 +473,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 	Check_IsEntityInExtendedGroup(GroupEntity_P, abs(Num_Entity[i_Entity]), 0) ;
       break ;
 
-    default : 
+    default :
       Message::Error("Unknown TreatmentStatus (%d)", TreatmentStatus);
     }
 
@@ -468,7 +481,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 
     if (CodeExist) {
 
-      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Dof 
+      QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Dof
 	= Dof_P ;
       QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].NumEntityInElement
 	= i_Entity ;
@@ -486,9 +499,9 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 				       i_BFunction, TypeConstraint) ;
 
       Nbr_ElementaryBF++ ;
-      
+
     }  /* if CodeExist ... */
-    
+
   }  /* for i_Entity ... */
 }
 
@@ -582,7 +595,7 @@ void  Get_PreResolutionForGlobalBasisFunction(int Nbr_Global, int StartingIndex,
 	Element->GlobalBasisFunction[StartingIndex + i]->ResolutionIndex ;
       PreResolutionInfo_S.Type  = PR_GLOBALBASISFUNCTION ;
       List_Add(PreResolutionIndex_L, &PreResolutionInfo_S) ;
-      Message::Info("  Adding Resolution '%s' for Pre-Resolution (Global BF)", 
+      Message::Info("  Adding Resolution '%s' for Pre-Resolution (Global BF)",
 		((struct Resolution*)List_Pointer(Problem_S.Resolution,
 						  PreResolutionInfo_S.Index))->Name) ;
     }

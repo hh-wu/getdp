@@ -10,9 +10,9 @@
 
 #define ARGS 					\
   struct Element * Element, int NumGroup, 	\
-  double u, double v, double w,  double *s 
+  double u, double v, double w,  double *s
 
-void BF_SubFunction(struct Element * Element, int NumExpression, 
+void BF_SubFunction(struct Element * Element, int NumExpression,
 		    int Dim, double s[]);
 
 /* ------------------------------------------------------------------------ */
@@ -193,36 +193,78 @@ void BF_CurlGroupOfEdges_4V(ARGS){ BF("BF_CurlGroupOfEdges_4V",BF_CurlEdge_4V) ;
 #undef BF
 
 /* ------------------------------------------------------------------------ */
+/*  B F _ G r o u p O f F a c e t s                                         */
+/* ------------------------------------------------------------------------ */
+
+#define BF(BF_GroupOfFacets_X,BF_Facet_X)					\
+  int            i, Num ;							\
+  double         val[3] ;							\
+										\
+  s[0] = s[1] = s[2] = 0. ;							\
+  for (i = 0; i < Element->NbrEntitiesInGroups[NumGroup-1]; i++) {		\
+    (BF_Facet_X)								\
+      (Element, abs(Num = Element->NumEntitiesInGroups[NumGroup-1][i]),		\
+       u, v, w, val) ;								\
+    if (Num > 0) { s[0] += val[0] ;  s[1] += val[1] ;  s[2] += val[2] ; }	\
+    else         { s[0] -= val[0] ;  s[1] -= val[1] ;  s[2] -= val[2] ; }	\
+  }
+
+
+void BF_GroupOfFacets  (ARGS){ BF("BF_GroupOfFacets",BF_Facet) ; }
+
+#undef BF
+
+/* ------------------------------------------------------------------------ */
+/*  B F _ D i v G r o u p O f F a c e t s                                   */
+/* ------------------------------------------------------------------------ */
+
+#define BF(BF_DivGroupOfFacets_X,BF_DivFacet_X)					\
+  int            i, Num ;							\
+  double         val ;	        						\
+										\
+  *s = 0. ;		                					\
+  for (i = 0; i < Element->NbrEntitiesInGroups[NumGroup-1]; i++) {		\
+    (BF_DivFacet_X)								\
+       (Element, abs(Num = Element->NumEntitiesInGroups[NumGroup-1][i]),	\
+	u, v, w, &val) ;							\
+    if (Num > 0) { *s += val ; }                                         	\
+    else         { *s -= val ; }                                            	\
+  }
+
+void BF_DivGroupOfFacets(ARGS){ BF("BF_DivGroupOfFacets",BF_DivFacet) ; }
+
+#undef BF
+
+/* ------------------------------------------------------------------------ */
 /*  B F _ G r o u p O f N o d e s X ,  Y ,  Z                               */
 /* ------------------------------------------------------------------------ */
 
-void BF_GroupOfNodesX(struct Element * Element, int NumGroup, 
+void BF_GroupOfNodesX(struct Element * Element, int NumGroup,
 		      double u, double v, double w, double s[])
 {
   s[1] = s[2] = 0. ;
   BF_GroupOfNodes(Element, NumGroup, u, v, w, &s[0]) ;
 }
 
-void BF_GroupOfNodesY(struct Element * Element, int NumGroup, 
+void BF_GroupOfNodesY(struct Element * Element, int NumGroup,
 		      double u, double v, double w, double s[])
 {
   s[0] = s[2] = 0. ;
   BF_GroupOfNodes(Element, NumGroup, u, v, w, &s[1]) ;
 }
 
-void BF_GroupOfNodesZ(struct Element * Element, int NumGroup, 
+void BF_GroupOfNodesZ(struct Element * Element, int NumGroup,
 		      double u, double v, double w, double s[])
 {
   s[0] = s[1] = 0. ;
   BF_GroupOfNodes(Element, NumGroup, u, v, w, &s[2]) ;
 }
 
-
 /* ------------------------------------------------------------------------ */
 /*  B F _ G r o u p O f N o d e X ,  Y ,  Z _ D . . .                       */
 /* ------------------------------------------------------------------------ */
 
-void BF_GroupOfNodesX_D12(struct Element * Element, int NumNode, 
+void BF_GroupOfNodesX_D12(struct Element * Element, int NumNode,
 			  double u, double v, double w,  double s[])
 {
   double su[3] ;
@@ -234,7 +276,7 @@ void BF_GroupOfNodesX_D12(struct Element * Element, int NumNode,
   s[1] = 0. ;
 }
 
-void BF_GroupOfNodesY_D12(struct Element * Element, int NumNode, 
+void BF_GroupOfNodesY_D12(struct Element * Element, int NumNode,
 			   double u, double v, double w, double s[])
 {
   double su[3] ;
@@ -246,7 +288,7 @@ void BF_GroupOfNodesY_D12(struct Element * Element, int NumNode,
   s[0] = 0. ;
 }
 
-void BF_GroupOfNodesZ_D12(struct Element * Element, int NumNode, 
+void BF_GroupOfNodesZ_D12(struct Element * Element, int NumNode,
 			  double u, double v, double w, double s[])
 {
 
@@ -255,7 +297,7 @@ void BF_GroupOfNodesZ_D12(struct Element * Element, int NumNode,
 
 /* ------------------------------------------------------------------------ */
 
-void BF_GroupOfNodesX_D1(struct Element * Element, int NumNode, 
+void BF_GroupOfNodesX_D1(struct Element * Element, int NumNode,
 			 double u, double v, double w, double s[])
 {
   double su[3] ;
@@ -266,7 +308,7 @@ void BF_GroupOfNodesX_D1(struct Element * Element, int NumNode,
   s[1] = s[2] = 0;
 }
 
-void BF_GroupOfNodesY_D1(struct Element * Element, int NumNode, 
+void BF_GroupOfNodesY_D1(struct Element * Element, int NumNode,
 			 double u, double v, double w, double s[])
 {
   double su[3] ;
@@ -277,7 +319,7 @@ void BF_GroupOfNodesY_D1(struct Element * Element, int NumNode,
   s[0] = s[2] = 0;
 }
 
-void BF_GroupOfNodesZ_D1(struct Element * Element, int NumNode, 
+void BF_GroupOfNodesZ_D1(struct Element * Element, int NumNode,
 			 double u, double v, double w, double s[])
 {
   double su[3] ;
@@ -290,7 +332,7 @@ void BF_GroupOfNodesZ_D1(struct Element * Element, int NumNode,
 
 /* ------------------------------------------------------------------------ */
 
-void BF_GroupOfNodesX_D2(struct Element * Element, int NumNode, 
+void BF_GroupOfNodesX_D2(struct Element * Element, int NumNode,
 			 double u, double v, double w, double s[])
 {
   double su[3] ;
@@ -301,7 +343,7 @@ void BF_GroupOfNodesX_D2(struct Element * Element, int NumNode,
   s[0] = s[1] ; s[1] = 0 ;
 }
 
-void BF_GroupOfNodesY_D2(struct Element * Element, int NumNode, 
+void BF_GroupOfNodesY_D2(struct Element * Element, int NumNode,
 			 double u, double v, double w, double s[])
 {
   double su[3] ;
@@ -312,7 +354,7 @@ void BF_GroupOfNodesY_D2(struct Element * Element, int NumNode,
   s[1] = s[2] ; s[2] = 0 ;
 }
 
-void BF_GroupOfNodesZ_D2(struct Element * Element, int NumNode, 
+void BF_GroupOfNodesZ_D2(struct Element * Element, int NumNode,
 			 double u, double v, double w, double s[])
 {
   double su[3] ;
@@ -320,6 +362,6 @@ void BF_GroupOfNodesZ_D2(struct Element * Element, int NumNode,
   BF_GradGroupOfNodes(Element, NumNode, u, v, w, su) ;
   ChangeOfCoord_Form1(Element, su, s) ;
 
-  s[2] = s[0] ; 
+  s[2] = s[0] ;
   s[0] = 0 ;
 }

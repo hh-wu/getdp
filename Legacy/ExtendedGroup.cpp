@@ -50,7 +50,8 @@ int Check_IsEntityInExtendedGroup(struct Group * Group_P, int Entity, int Flag)
     if (!Group_P->ExtendedList) Generate_ExtendedGroup(Group_P) ;
     return( List_Search(Group_P->ExtendedList, &Entity, fcmp_int) ) ;
 
-  case GROUPSOFNODESOF :  case GROUPSOFEDGESOF :  case REGION :  case GLOBAL :
+  case GROUPSOFNODESOF :  case GROUPSOFEDGESOF : case GROUPSOFFACETSOF :
+  case REGION :  case GLOBAL :
     return( (Flag)? List_Search(Group_P->InitialList, &Entity, fcmp_int) : 1 ) ;
 
   case GROUPSOFEDGESONNODESOF :
@@ -107,6 +108,10 @@ void Generate_ExtendedGroup(struct Group * Group_P)
 			   &Group_P->ExtendedList) ;
     break ;
 
+  case GROUPSOFFACETSOF :
+    Generate_GroupsOfFacets(Group_P->InitialList, &Group_P->ExtendedList) ;
+    break ;
+
   case EDGESOFTREEIN :
     Geo_GenerateEdgesOfTree(Group_P->InitialList, Group_P->InitialSuppList,
 			    &Group_P->ExtendedList) ;
@@ -128,7 +133,8 @@ void Generate_ExtendedGroup(struct Group * Group_P)
   // first keys (in absolute value): this allows to dramatically
   // speed-up Get_DofOfElement() for large global basis functions
   if(List_Nbr(Group_P->ExtendedList) && (Group_P->FunctionType == GROUPSOFNODESOF ||
-                                         Group_P->FunctionType == GROUPSOFEDGESOF)) {
+                                         Group_P->FunctionType == GROUPSOFEDGESOF ||
+                                         Group_P->FunctionType == GROUPSOFFACETSOF)) {
     Group_P->IsExtendedListMultiValued = false;
     List_Sort(Group_P->ExtendedList, fcmp_absint);
     TwoInt k1, k2;
@@ -335,6 +341,7 @@ void Generate_GroupsOfEdges(List_T * InitialList,
     break ;
 
   case SUPPLIST_NONE :
+  default :
     if (List_Nbr(InitialList)) {
       Generate_GroupsOfNodes(InitialList, &ExtendedAuxList) ;
       Nbr_Element = Geo_GetNbrGeoElements() ;
@@ -361,8 +368,6 @@ void Generate_GroupsOfEdges(List_T * InitialList,
     }
     break;
 
-  default :
-    Message::Error("Bad GroupsOfEdges (supplementary list missing)") ;
   }
 
   *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
@@ -370,6 +375,64 @@ void Generate_GroupsOfEdges(List_T * InitialList,
   for (i_Entity = 0 ; i_Entity < List_Nbr(*ExtendedList) ; i_Entity++) {
     List_Read(*ExtendedList, i_Entity, &Num_GroupOfEdges) ;
     Message::Info(" (%d, %d)", Num_GroupOfEdges.Int1, Num_GroupOfEdges.Int2) ;
+  }
+  */
+}
+
+/* ------------------------------------------------------------------------ */
+/*  G e n e r a t e _ G r o u p s O f F a c e s                             */
+/* ------------------------------------------------------------------------ */
+
+void Generate_GroupsOfFacets(List_T * InitialList,
+                             List_T ** ExtendedList)
+{
+  Tree_T  * Entity_Tr ;
+  struct Geo_Element  * GeoElement ;
+  int     Nbr_Element, i_Element,  i_Entity, Num_Element ;
+  int     * Num_Nodes, Num_Node ;
+  struct TwoInt  Num_GroupOfFacets ;
+  List_T  * ExtendedAuxList ;
+
+  Entity_Tr = Tree_Create(sizeof (struct TwoInt), fcmp_absint2) ;
+
+  if (List_Nbr(InitialList)) {
+    Generate_GroupsOfNodes(InitialList, &ExtendedAuxList) ;
+    Nbr_Element = Geo_GetNbrGeoElements() ;
+    for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
+      GeoElement = Geo_GetGeoElement(i_Element) ;
+      if (List_Search(InitialList, &GeoElement->Region, fcmp_int) ) {
+        if (GeoElement->NbrEdges == 0)  Geo_CreateEdgesOfElement(GeoElement) ;
+        if (GeoElement->NbrFacets == 0) Geo_CreateFacetsOfElement(GeoElement) ;
+        for (i_Entity = 0 ; i_Entity < GeoElement->NbrFacets ; i_Entity++) {
+          Num_Nodes = Geo_GetNodesOfFacetInElement(GeoElement, i_Entity) ;
+          bool found = true;
+          int i = 0;
+          while(Num_Nodes[i]){
+            Num_Node = GeoElement->NumNodes[abs(Num_Nodes[i])-1] ;
+            if(!List_PQuery(ExtendedAuxList, &Num_Node, fcmp_int)){
+              found = false;
+              break;
+            }
+            i++;
+          }
+          if(found){
+            Num_GroupOfFacets.Int1 = GeoElement->NumFacets[i_Entity] ;
+            Num_GroupOfFacets.Int2 = GeoElement->Region ;
+            if ( ! Tree_Search(Entity_Tr, &Num_GroupOfFacets) )
+              Tree_Add(Entity_Tr, &Num_GroupOfFacets) ;
+          }
+        }
+      }
+    }
+    List_Delete(ExtendedAuxList) ;
+  }
+
+  *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
+
+  /*
+  for (i_Entity = 0 ; i_Entity < List_Nbr(*ExtendedList) ; i_Entity++) {
+    List_Read(*ExtendedList, i_Entity, &Num_GroupOfFacets) ;
+    Message::Info(" (%d, %d)", Num_GroupOfFacets.Int1, Num_GroupOfFacets.Int2) ;
   }
   */
 }
