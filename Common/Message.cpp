@@ -485,6 +485,16 @@ void Message::GetOnelabString(std::string name, char **val)
   *val = 0;
 }
 
+std::string Message::GetOnelabAction()
+{
+  if(_onelabClient){
+    std::vector<onelab::string> ps;
+    _onelabClient->get(ps, _onelabClient->getName() + "/Action");
+    if(ps.size()) return ps[0].getValue();
+  }
+  return "";
+}
+
 std::string Message::GetOnelabClientName()
 {
   if(_onelabClient) return _onelabClient->getName();

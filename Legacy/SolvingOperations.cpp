@@ -2978,6 +2978,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Current.Time = Save_Time ;
 
+        if(Message::GetOnelabAction() == "stop") Flag_Break = 1;
         if(Flag_Break){ Flag_Break = 0; break; }
       }
 
@@ -3022,6 +3023,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopNewmark.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
+
+        if(Message::GetOnelabAction() == "stop") Flag_Break = 1;
         if(Flag_Break){ Flag_Break = 0; break; }
       }
 
@@ -3059,6 +3062,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	if (Current.RelativeDifference <= Operation_P->Case.IterativeLoop.Criterion)
 	  break ;
+
+        if(Message::GetOnelabAction() == "stop") Flag_Break = 1;
         if(Flag_Break){ Flag_Break = 0; break; }
 
 	Current.RelativeDifferenceOld = Current.RelativeDifference ; /* Attention: pt */
@@ -3463,6 +3468,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           }
 
           Current.Time = tn + Current.DTime;
+
+          if(Message::GetOnelabAction() == "stop") Flag_Break = 1;
           if(Flag_Break){ Flag_Break = 0; break; }
         }
       }
