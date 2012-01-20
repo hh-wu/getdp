@@ -2968,6 +2968,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Message::Info("Theta Time = %.8g s (TimeStep %d)", Current.Time,
                       (int)Current.TimeStep) ;
+        Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
+                                       Current.Time);
 
 	Save_Time = Current.Time ;
 
@@ -3015,6 +3017,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Message::Info("Newmark Time = %.8g s (TimeStep %d)", Current.Time,
 		  (int)Current.TimeStep) ;
+        Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
+                                       Current.Time);
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopNewmark.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
@@ -3062,7 +3066,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if (Num_Iteration > Operation_P->Case.IterativeLoop.NbrMaxIteration)
 	Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
       Message::Info("Mean Error = %.3e after %d Iterations",
-		Current.RelativeDifference, Num_Iteration) ;
+                    Current.RelativeDifference, Num_Iteration) ;
 
       Current.Iteration = Save_Iteration ;
 
