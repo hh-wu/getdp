@@ -1668,6 +1668,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     Flag_CPU = 0 ;
     Flag_Jac = 0 ;
 
+    if(Message::GetOnelabAction() == "stop") break;
+
     switch (Operation_P->Type) {
 
       /*  -->  S y s t e m C o m m a n d              */
@@ -2151,6 +2153,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Message::Error("No factors provided for Adaptive Relaxation");
 
       for( istep = 0 ; istep < NbrSteps_relax ; istep++ ){
+
+        if(Message::GetOnelabAction() == "stop") break;
 
 	List_Read(Operation_P->Case.SolveJac_AdaptRelax.Factor_L, istep, &Frelax);
 
@@ -2951,6 +2955,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       while (Current.Time < Operation_P->Case.TimeLoopTheta.TimeMax * 0.999999) {
 
+        if(Message::GetOnelabAction() == "stop") break;
+
 	if (!Flag_NextThetaFixed) { /* Attention: Test */
 	  Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.ThetaIndex,
 				       NULL, 0., 0., 0., &Value) ;
@@ -2978,7 +2984,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Current.Time = Save_Time ;
 
-        if(Message::GetOnelabAction() == "stop") Flag_Break = 1;
         if(Flag_Break){ Flag_Break = 0; break; }
       }
 
@@ -3010,6 +3015,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       while (Current.Time < Operation_P->Case.TimeLoopNewmark.TimeMax * 0.999999) {
 
+        if(Message::GetOnelabAction() == "stop") break;
+
 	Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopNewmark.DTimeIndex,
 				     NULL, 0., 0., 0., &Value) ;
         Current.DTime = Value.Val[0] ;
@@ -3024,7 +3031,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Treatment_Operation(Resolution_P, Operation_P->Case.TimeLoopNewmark.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
 
-        if(Message::GetOnelabAction() == "stop") Flag_Break = 1;
         if(Flag_Break){ Flag_Break = 0; break; }
       }
 
@@ -3043,6 +3049,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       for (Num_Iteration = 1 ;
 	   Num_Iteration <= Operation_P->Case.IterativeLoop.NbrMaxIteration ;
 	   Num_Iteration++) {
+
+        if(Message::GetOnelabAction() == "stop") break;
 
 	Current.Iteration = (double)Num_Iteration ;
 	Current.RelativeDifference = 0. ;
@@ -3063,7 +3071,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	if (Current.RelativeDifference <= Operation_P->Case.IterativeLoop.Criterion)
 	  break ;
 
-        if(Message::GetOnelabAction() == "stop") Flag_Break = 1;
         if(Flag_Break){ Flag_Break = 0; break; }
 
 	Current.RelativeDifferenceOld = Current.RelativeDifference ; /* Attention: pt */
@@ -3428,6 +3435,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           LinAlg_CreateVector(&ki[i], &DofData_P->Solver, Current.DofData->NbrDof);
 
         while (Current.Time < Operation_P->Case.TimeLoopRungeKutta.TimeMax * 0.9999999) {
+
+          if(Message::GetOnelabAction() == "stop") break;
+
           double tn = Current.Time;
           LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &xn);
           Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopRungeKutta.DTimeIndex,
@@ -3469,7 +3479,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
           Current.Time = tn + Current.DTime;
 
-          if(Message::GetOnelabAction() == "stop") Flag_Break = 1;
           if(Flag_Break){ Flag_Break = 0; break; }
         }
       }
@@ -3490,5 +3499,3 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     if(Flag_CPU) Message::Cpu("");
   }
 }
-
-
