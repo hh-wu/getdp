@@ -586,22 +586,26 @@ void Message::FinalizeOnelab()
     // add default computation modes
     std::string name = _onelabClient->getName();
     std::vector<onelab::string> ps;
-    _onelabClient->get(ps, name + "/9ComputeCommand");
-    if(ps.empty()){ // only change value if none exists
-      ps.resize(1);
-      ps[0].setName(name + "/9ComputeCommand");
-      ps[0].setValue("-solve -pos");
+    _onelabClient->get(ps, name + "/Action");
+    if(ps.size()){
+      if(ps[0].getValue() != "initialize"){
+        _onelabClient->get(ps, name + "/9ComputeCommand");
+        if(ps.empty()){ // only change value if none exists
+          ps.resize(1);
+          ps[0].setName(name + "/9ComputeCommand");
+          ps[0].setValue("-solve -pos");
+        }
+        ps[0].setShortHelp("Compute command");
+        std::vector<std::string> choices;
+        choices.push_back("-pre");
+        choices.push_back("-cal");
+        choices.push_back("-pos");
+        choices.push_back("-solve");
+        choices.push_back("-solve -pos");
+        ps[0].setChoices(choices);
+        _onelabClient->set(ps[0]);
+      }
     }
-    ps[0].setShortHelp("Compute command");
-    std::vector<std::string> choices;
-    choices.push_back("-pre");
-    choices.push_back("-cal");
-    choices.push_back("-pos");
-    choices.push_back("-solve");
-    choices.push_back("-solve -pos");
-    ps[0].setChoices(choices);
-    _onelabClient->set(ps[0]);
-
     delete _onelabClient;
     _onelabClient = 0;
   }
