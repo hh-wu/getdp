@@ -44,7 +44,7 @@ int Message::_progressMeterCurrent = 0;
 std::map<std::string, double> Message::_timers;
 GmshClient* Message::_client = 0;
 onelab::client* Message::_onelabClient = 0;
-#if !defined(HAVE_ONELAB)
+#if !defined(HAVE_ONELAB) // if Gmsh is compiled without onelab
 onelab::server *onelab::server::_server = 0;
 #endif
 
@@ -445,6 +445,11 @@ void Message::AddOnelabNumberChoice(std::string name, double val)
     choices.push_back(val);
     ps[0].setChoices(choices);
     _onelabClient->set(ps[0]);
+
+    // ask Gmsh to refresh
+    onelab::string o("Gmsh/Action", "refresh");
+    o.setVisible(false);
+    _onelabClient->set(o);
   }
 }
 
