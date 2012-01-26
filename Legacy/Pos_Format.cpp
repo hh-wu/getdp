@@ -220,15 +220,14 @@ static void printElementNodeData(struct PostSubOperation *PSO_P, int numTimeStep
   int step = 0;
   for (int ts = 0; ts < numTimeStep; ts++) {
     Pos_InitAllSolutions(PSO_P->TimeStep_L, ts);
-    double time = Current.DofData->CurrentSolution->Time;
     for(int har = 0; har < Current.NbrHar; har++){
       fprintf(PostStream, "$ElementNodeData\n");
       fprintf(PostStream, "1\n");
       fprintf(PostStream, "\"%s\"\n", CurrentName);
       fprintf(PostStream, "1\n");
-      fprintf(PostStream, "%.16g\n", time);
+      fprintf(PostStream, "%.16g\n", Current.Time);
       fprintf(PostStream, "4\n");
-      fprintf(PostStream, "%d\n", step);
+      fprintf(PostStream, "%d\n", (int)Current.TimeStep);
       fprintf(PostStream, "%d\n", numComp);
       fprintf(PostStream, "%d\n", N);
       fprintf(PostStream, "%d\n", CurrentPartitionNumber);
