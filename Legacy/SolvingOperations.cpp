@@ -1874,6 +1874,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	   0, &MeanError) ;
 	Message::Info("Mean error: %.3e  (after %d iteration%s)",
                       MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
+        Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
+                                       MeanError);
 
 	Current.RelativeDifference +=
 	  MeanError * Operation_P->Case.AddCorrection.Alpha ;
@@ -2092,6 +2094,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
       Message::Info("Mean error: %.3e  (after %d iteration%s)",
                     MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
+                                     MeanError);
 
       Current.RelativeDifference += MeanError ;
 
@@ -2192,6 +2196,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       MeanError = Error_Prev ;
       Message::Info("Mean error: %.3e  (after %d iteration%s)",
                     MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
+                                     MeanError);
 
       Current.RelativeDifference = MeanError;
       Flag_CPU = 1 ;
@@ -3077,8 +3083,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       if (Num_Iteration > Operation_P->Case.IterativeLoop.NbrMaxIteration)
 	Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
-      Message::Info("Mean Error = %.3e after %d Iterations",
+      Message::Info("Mean Error: %.3e (after %d iterations)",
                     Current.RelativeDifference, Num_Iteration) ;
+      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
+                                     MeanError);
 
       Current.Iteration = Save_Iteration ;
 
