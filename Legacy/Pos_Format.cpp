@@ -73,6 +73,28 @@ void  Format_PostFormat(int Format)
         fprintf(PostStream, "\n");
       }
       fprintf(PostStream, "$EndMeshFormat\n") ;
+      bool saveMesh = true; // maybe this should be optional
+      if(saveMesh){
+        fprintf(PostStream, "$Nodes\n%d\n", List_Nbr(Current.GeoData->Nodes));
+        for (int i = 0 ; i < List_Nbr(Current.GeoData->Nodes) ; i++) {
+          struct Geo_Node Geo_Node ;
+          List_Read(Current.GeoData->Nodes, i, &Geo_Node) ;
+          fprintf(PostStream, "%d %.16g %.16g %.16g\n",
+                  Geo_Node.Num, Geo_Node.x, Geo_Node.y, Geo_Node.z) ;
+        }
+        fprintf(PostStream, "$EndNodes\n$Elements\n%d\n", List_Nbr(Current.GeoData->Elements));
+        for (int i = 0 ; i < List_Nbr(Current.GeoData->Elements) ; i++) {
+          struct Geo_Element  Geo_Element ;
+          List_Read(Current.GeoData->Elements, i, &Geo_Element) ;
+          int Type = Geo_GetElementTypeInv(FORMAT_GMSH, Geo_Element.Type) ;
+          fprintf(PostStream, "%d %d 2 %d %d ",
+                  Geo_Element.Num, Type, Geo_Element.Region, Geo_Element.ElementaryRegion) ;
+          for (int j = 0 ; j < Geo_Element.NbrNodes ; j++)
+            fprintf(PostStream, "%d ", Geo_Element.NumNodes[j]) ;
+          fprintf(PostStream, "\n") ;
+        }
+        fprintf(PostStream, "$EndElements\n");
+      }
     }
     else if(Flag_BIN){/* bricolage */
       fprintf(PostStream, "$PostFormat /* Gmsh 1.2, %s */\n",

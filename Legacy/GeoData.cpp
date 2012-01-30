@@ -446,16 +446,18 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	  if(Version == 1.0){
 	    fscanf(File_GEO, "%d %d %d %d %d",
 		   &Geo_Element.Num, &Type, &Geo_Element.Region,
-		   &iDummy, &Geo_Element.NbrNodes) ;
+		   &Geo_Element.ElementaryRegion, &Geo_Element.NbrNodes) ;
 	    Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
 	  }
 	  else{
 	    fscanf(File_GEO, "%d %d %d", &Geo_Element.Num, &Type, &NbTags);
-	    Geo_Element.Region = 1;
+	    Geo_Element.Region = Geo_Element.ElementaryRegion = 1;
 	    for(j = 0; j < NbTags; j++){
 	      fscanf(File_GEO, "%d", &iDummy);
 	      if(j == 0)
 		Geo_Element.Region = iDummy;
+              else if(j == 1)
+                Geo_Element.ElementaryRegion = iDummy;
 	      /* ignore any other tags for now */
 	    }
 	    Geo_Element.Type = Geo_GetElementType(FORMAT_GMSH, Type) ;
@@ -486,6 +488,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 	    if(swap) swapBytes((char*)data, sizeof(int), n);
 	    Geo_Element.Num = data[0];
 	    Geo_Element.Region = (numTags > 0) ? data[1] : 0;
+	    Geo_Element.ElementaryRegion = (numTags > 1) ? data[2] : 0;
 	    Geo_Element.NumNodes = (int *)Malloc(Geo_Element.NbrNodes * sizeof(int)) ;
 	    for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
 	      Geo_Element.NumNodes[j] = data[numTags + 1 + j] ;

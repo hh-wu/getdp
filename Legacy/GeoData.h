@@ -52,6 +52,9 @@ void  Geo_ReadFileAdapt(struct GeoData * GeoData_P) ;
 
 void  Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileName) ;
 
+int Geo_GetElementType(int Format, int Type);
+int Geo_GetElementTypeInv(int Format, int Type);
+
 int  Geo_GetNbrGeoElements(void) ;
 struct Geo_Element  * Geo_GetGeoElement(int Index_Element) ;
 int Geo_GetGeoElementIndex(struct Geo_Element * GeoElement) ;
@@ -118,7 +121,7 @@ void  Geo_WriteEntities2XEntities1(void * a, void * b) ;
 
 void  Geo_AddGroupForPRE(int Num) ;
 
-void  Geo_CreateNodesXElements(int NumNode, int InIndex, 
+void  Geo_CreateNodesXElements(int NumNode, int InIndex,
 			       int *NbrElements, int **NumElements) ;
 
 void  Geo_CreateNormal(int Type, double *x, double *y, double *z, double *N) ;
