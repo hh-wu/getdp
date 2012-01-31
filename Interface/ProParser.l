@@ -38,7 +38,7 @@ string     {alpha}({alpha}|{digit})*
 [\n]                         { getdp_yycolnum = 0; getdp_yylinenum++; }
 <<EOF>>                      { getdp_yyincludenum = 0; return(0); }
 
-";"                          return tEND; 
+";"                          return tEND;
 "/*"                         cStyleComments();
 "//"                         cxxStyleComments();
 "\""                         { parseString('\"'); return tBIGSTR; }
@@ -106,7 +106,7 @@ Asin                         return tAsin;
 Cos                          return tCos;
 ACos                         return tAcos;
 Acos                         return tAcos;
-Tan                          return tTan; 
+Tan                          return tTan;
 Atan                         return tAtan;
 Atan2                        return tAtan2;
 Sinh                         return tSinh;
@@ -310,6 +310,7 @@ EvaluationPoints             return tEvaluationPoints;
 Store                        return tStore;
 LastTimeStepOnly             return tLastTimeStepOnly;
 AppendTimeStepToFileName     return tAppendTimeStepToFileName;
+OverrideTimeStepValue        return tOverrideTimeStepValue;
 SendToServer                 return tSendToServer;
 NewCoordinates               return tNewCoordinates;
 
@@ -355,22 +356,22 @@ int getdp_yywrap()
 #define yytext_ptr yytext
 #endif
 
-char *strSave(const char *string) 
+char *strSave(const char *string)
 {
   return ((char *)strcpy((char *)Malloc(strlen(string)+1), string));
 }
 
-void cStyleComments() 
+void cStyleComments()
 {
   int c;
   while(1) {
-    while((c = input()) != '*'){ 
-      if(c == '\n') getdp_yylinenum++; 
+    while((c = input()) != '*'){
+      if(c == '\n') getdp_yylinenum++;
       if(feof(getdp_yyin)) {
 	Message::Error("End of file in commented region");
         exit(1);
       }
-    } 
+    }
     if((c = input()) == '/') return;
     unput(c);
   }
@@ -379,36 +380,36 @@ void cStyleComments()
 void cxxStyleComments()
 {
   int c;
-  while(1){ 	 
-    c = input(); 	 
-    if(c == '\n' || feof(getdp_yyin)) break; 	 
+  while(1){
+    c = input();
+    if(c == '\n' || feof(getdp_yyin)) break;
   }
-  getdp_yylinenum++; 
+  getdp_yylinenum++;
 }
 
 void parseString(char endchar)
 {
   char tmp[2048];
 
-  int c = input();  
+  int c = input();
   int i = 0;
-  while(c != endchar){ 
-    if(feof(getdp_yyin)) { 
+  while(c != endchar){
+    if(feof(getdp_yyin)) {
       Message::Error("End of file in string");
-      getdp_yycolnum = 0; 
+      getdp_yycolnum = 0;
       break;
     }
-    else if(c == '\n') { 
-      getdp_yycolnum = 0; 
+    else if(c == '\n') {
+      getdp_yycolnum = 0;
     }
     else if(i >= (int)sizeof(tmp)-1) {
       Message::Error("String too long");
       break;
     }
-    else { 
-      tmp[i++] = c; 
+    else {
+      tmp[i++] = c;
     }
-    c = input(); 
+    c = input();
   }
   tmp[i] = '\0';
   getdp_yylval.c = strSave(tmp);
@@ -432,7 +433,7 @@ void skipUntil(const char *skip, const char *until)
   while(1){
     while (1){
       chars[0] = input();
-      if(chars[0] == '\n') getdp_yylinenum++; 
+      if(chars[0] == '\n') getdp_yylinenum++;
       if(feof(getdp_yyin)){
 	Message::Error("Unexpected end of file");
 	return;
@@ -454,7 +455,7 @@ void skipUntil(const char *skip, const char *until)
     }
     for(int i = 1; i < l; i++){
       chars[i] = input();
-      if(chars[i] == '\n') getdp_yylinenum++; 
+      if(chars[i] == '\n') getdp_yylinenum++;
       if(feof(getdp_yyin)){
 	l = i;
 	break;
@@ -503,7 +504,7 @@ void hack_fsetpos_printf()
   printf("++++++ c: %d %d %d /%s/\n", (int)c, (int)c2, (int)c3, chars);
 }
 
-void hack_fsetpos() 
+void hack_fsetpos()
 {
   input();
 }
