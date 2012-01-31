@@ -234,7 +234,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   if(PostSubOperation_P->CatFile == 2)  fprintf(PostStream, "\n\n") ;
   /*  two blanks lines for -index in gnuplot  */
 
-  Format_PostFormat(PostSubOperation_P->Format) ;
+  Format_PostFormat(PostSubOperation_P->Format, PostSubOperation_P->NoMesh) ;
 
   if(PostSubOperation_P->PostQuantityIndex[0] >= 0) {
     if(PostSubOperation_P->PostQuantitySupport[0] < 0) { /* Noncumulative */

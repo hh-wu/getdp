@@ -9,16 +9,16 @@
 #include "ProData.h"
 #include "ListUtils.h"
 
-void  Format_PostFormat(int Format) ;
+void  Format_PostFormat(int Format, int NoMesh) ;
 
-void  Format_PostHeader(int Format, int Contour, 
+void  Format_PostHeader(int Format, int Contour,
 			int NbTimeStep, int HarmonicToTime,
 			int Type, int Order, char *Name1, char *Name2) ;
 
 void  Format_PostFooter(struct PostSubOperation * PSO_P, int Store) ;
 
 void  Format_PostElement(struct PostSubOperation * PSO_P, int Contour, int Store,
-			 double Time, int TimeStep, int NbTimeStep, 
+			 double Time, int TimeStep, int NbTimeStep,
 			 int NbrHarmonics, int HarmonicToTime,
 			 double *Dummy, struct PostElement *PE);
 

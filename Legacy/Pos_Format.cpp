@@ -60,7 +60,7 @@ static int     CurrentPartitionNumber = 0;
 /*  F o r m a t _ P o s t F o r m a t / H e a d e r / F o o t e r           */
 /* ------------------------------------------------------------------------ */
 
-void  Format_PostFormat(int Format)
+void  Format_PostFormat(int Format, int NoMesh)
 {
   switch(Format){
   case FORMAT_GMSH :
@@ -73,25 +73,42 @@ void  Format_PostFormat(int Format)
         fprintf(PostStream, "\n");
       }
       fprintf(PostStream, "$EndMeshFormat\n") ;
-      bool saveMesh = true; // maybe this should be optional
-      if(saveMesh){
+      if(!NoMesh){
         fprintf(PostStream, "$Nodes\n%d\n", List_Nbr(Current.GeoData->Nodes));
         for (int i = 0 ; i < List_Nbr(Current.GeoData->Nodes) ; i++) {
           struct Geo_Node Geo_Node ;
           List_Read(Current.GeoData->Nodes, i, &Geo_Node) ;
-          fprintf(PostStream, "%d %.16g %.16g %.16g\n",
-                  Geo_Node.Num, Geo_Node.x, Geo_Node.y, Geo_Node.z) ;
+          if(Flag_BIN){
+            fwrite(&Geo_Node.Num, sizeof(int), 1, PostStream);
+            double data[3] = {Geo_Node.x, Geo_Node.y, Geo_Node.z};
+            fwrite(data, sizeof(double), 3, PostStream);
+          }
+          else{
+            fprintf(PostStream, "%d %.16g %.16g %.16g\n",
+                    Geo_Node.Num, Geo_Node.x, Geo_Node.y, Geo_Node.z) ;
+          }
         }
         fprintf(PostStream, "$EndNodes\n$Elements\n%d\n", List_Nbr(Current.GeoData->Elements));
         for (int i = 0 ; i < List_Nbr(Current.GeoData->Elements) ; i++) {
           struct Geo_Element  Geo_Element ;
           List_Read(Current.GeoData->Elements, i, &Geo_Element) ;
           int Type = Geo_GetElementTypeInv(FORMAT_GMSH, Geo_Element.Type) ;
-          fprintf(PostStream, "%d %d 2 %d %d ",
-                  Geo_Element.Num, Type, Geo_Element.Region, Geo_Element.ElementaryRegion) ;
-          for (int j = 0 ; j < Geo_Element.NbrNodes ; j++)
-            fprintf(PostStream, "%d ", Geo_Element.NumNodes[j]) ;
-          fprintf(PostStream, "\n") ;
+          if(Flag_BIN){
+            int blob[6] = {Type, 1, 2, Geo_Element.Num, Geo_Element.Region,
+                           Geo_Element.ElementaryRegion};
+            fwrite(blob, sizeof(int), 6, PostStream);
+            std::vector<int> verts(Geo_Element.NbrNodes);
+            for (int j = 0 ; j < Geo_Element.NbrNodes ; j++)
+              verts[j] = Geo_Element.NumNodes[j] ;
+            fwrite(&verts[0], sizeof(int), Geo_Element.NbrNodes, PostStream);
+          }
+          else{
+            fprintf(PostStream, "%d %d 2 %d %d ",
+                    Geo_Element.Num, Type, Geo_Element.Region, Geo_Element.ElementaryRegion) ;
+            for (int j = 0 ; j < Geo_Element.NbrNodes ; j++)
+              fprintf(PostStream, "%d ", Geo_Element.NumNodes[j]) ;
+            fprintf(PostStream, "\n") ;
+          }
         }
         fprintf(PostStream, "$EndElements\n");
       }

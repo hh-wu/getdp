@@ -252,7 +252,7 @@ void vyyerror(const char *fmt, ...);
 %token        tTarget tSort tIso tNoNewLine tDecomposeInSimplex tChangeOfValues
 %token        tTimeLegend tFrequencyLegend tEigenvalueLegend
 %token        tEvaluationPoints tStore tLastTimeStepOnly tAppendTimeStepToFileName
-%token        tOverrideTimeStepValue tSendToServer tStr tDate
+%token        tOverrideTimeStepValue tNoMesh tSendToServer tStr tDate
 %token        tNewCoordinates
 
 /* ------------------------------------------------------------------ */
@@ -5925,6 +5925,7 @@ PrintOptions :
       PostSubOperation_S.LastTimeStepOnly = 0;
       PostSubOperation_S.AppendTimeStepToFileName = 0;
       PostSubOperation_S.OverrideTimeStepValue = -1;
+      PostSubOperation_S.NoMesh = 0;
       PostSubOperation_S.SendToServer = NULL;
       PostSubOperation_S.ValueIndex = 0;
       PostSubOperation_S.ValueName = NULL;
@@ -6206,6 +6207,10 @@ PrintOption :
   | ',' tOverrideTimeStepValue FExpr
     {
       PostSubOperation_S.OverrideTimeStepValue = $3;
+    }
+  | ',' tNoMesh
+    {
+      PostSubOperation_S.NoMesh = 1;
     }
   | ',' tSendToServer CharExpr
     {
