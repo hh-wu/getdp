@@ -267,7 +267,8 @@ static void printElementNodeData(struct PostSubOperation *PSO_P, int numTimeStep
       fprintf(PostStream, "%.16g\n", Current.Time);
       fprintf(PostStream, "4\n");
       fprintf(PostStream, "%d\n", (PSO_P->OverrideTimeStepValue >= 0) ?
-              PSO_P->OverrideTimeStepValue : (int)Current.TimeStep);
+              PSO_P->OverrideTimeStepValue : (Current.NbrHar ? step :
+                                              (int)Current.TimeStep));
       fprintf(PostStream, "%d\n", numComp);
       fprintf(PostStream, "%d\n", N);
       fprintf(PostStream, "%d\n", CurrentPartitionNumber);
