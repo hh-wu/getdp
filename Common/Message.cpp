@@ -554,6 +554,7 @@ void Message::ExchangeOnelabParameter(Constant *c,
     if(copt.count("ShortHelp")) ps[0].setShortHelp(copt["ShortHelp"][0]);
     if(copt.count("Loop")) ps[0].setAttribute("Loop", copt["Loop"][0]);
     if(copt.count("Graph")) ps[0].setAttribute("Graph", copt["Graph"][0]);
+    if(copt.count("Highlight")) ps[0].setAttribute("Highlight", copt["Highlight"][0]);
     _onelabClient->set(ps[0]);
   }
   else if(c->Type == VAR_CHAR){
@@ -571,6 +572,7 @@ void Message::ExchangeOnelabParameter(Constant *c,
     if(copt.count("Help")) ps[0].setHelp(copt["Help"][0]);
     if(copt.count("ShortHelp")) ps[0].setShortHelp(copt["ShortHelp"][0]);
     if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
+    if(copt.count("Highlight")) ps[0].setAttribute("Highlight", copt["Highlight"][0]);
     _onelabClient->set(ps[0]);
   }
 }
