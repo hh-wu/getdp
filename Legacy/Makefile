@@ -53,6 +53,7 @@ SRC = MainLegacy.cpp \
               Cal_AssembleTerm.cpp \
               Cal_PostQuantity.cpp \
         MovingBand2D.cpp \
+        IterativeLinearSolver.cpp \
         EigenSolve.cpp EigenSolve_ARPACK.cpp EigenSolve_SLEPC.cpp \
       Pos_FemInterpolation.cpp \
       Pos_Formulation.cpp \

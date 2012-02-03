@@ -945,6 +945,13 @@ struct Operation {
       List_T  *Operation, *OperationEnd;
     } IterativeTimeReduction;
     struct {
+      char   *Type;
+      double Tolerance;
+      int    MaxIter;
+      List_T *FieldIndices;
+      List_T *Operations_Ax, *Operations_Mx;
+    } IterativeLinearSolver;
+    struct {
       int     ExpressionIndex;
       List_T  *Operation_True, *Operation_False;
     } Test;
@@ -1100,6 +1107,7 @@ struct ChangeOfState {
 #define OPERATION_ITERATIVELOOP            32
 #define OPERATION_ITERATIVETIMEREDUCTION   33
 #define OPERATION_TIMELOOPRUNGEKUTTA       34
+#define OPERATION_ITERATIVELINEARSOLVER    35
 
 #define OPERATION_CHANGEOFCOORDINATES      40
 #define OPERATION_CHANGEOFCOORDINATES2    400

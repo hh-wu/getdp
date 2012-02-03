@@ -221,7 +221,7 @@ void vyyerror(const char *fmt, ...);
 %token      tTimeLoopTheta tTimeLoopNewmark tTimeLoopRungeKutta
 %token        tTime0 tTimeMax tTheta
 %token        tBeta tGamma
-%token      tIterativeLoop
+%token      tIterativeLoop tIterativeLinearSolver
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
 %token      tDivisionCoefficient tChangeOfState
@@ -4515,6 +4515,20 @@ OperationTerm :
       Operation_P->Case.IterativeLoop.RelaxationFactorIndex = $7;
       Operation_P->Case.IterativeLoop.Flag = (int)$9;
       Operation_P->Case.IterativeLoop.Operation = $12;
+    }
+
+  | tIterativeLinearSolver '[' CharExpr ',' FExpr ',' FExpr ',' ListOfFExpr ']'
+                           '{' Operation '}'
+    { List_Pop(Operation_L);
+      Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_ITERATIVELINEARSOLVER;
+      Operation_P->Case.IterativeLinearSolver.Type = $3;
+      Operation_P->Case.IterativeLinearSolver.Tolerance = $5;
+      Operation_P->Case.IterativeLinearSolver.MaxIter = (int)$7;
+      Operation_P->Case.IterativeLinearSolver.FieldIndices = $9;
+      Operation_P->Case.IterativeLinearSolver.Operations_Ax = $12;
+      Operation_P->Case.IterativeLinearSolver.Operations_Mx = 0;
     }
 
   | tPrint

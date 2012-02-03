@@ -43,10 +43,7 @@ Function {
 
   mu0     = 4.e-7 * Pi ;
   DefineConstant[ murCore = {10., Path "Parameters/Materials"} ];
-  DefineConstant[ murMag = {1, Path "Parameters/Materials"} ];
-  If(murCore == 100)
-    DefineConstant[ SimplifiedModel = {0, Choices{0, 1}} ];
-  EndIf
+  murMag = 1;
 
   nu [ Region[{Air, IndP1, IndP2, IndS1, IndS2, AirInf, Gap}] ]  = 1. / mu0 ;
   nu [ Core ]  = 1. / (murCore * mu0) ;

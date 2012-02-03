@@ -1,6 +1,6 @@
 /* --------------------------------------------------------------------------
-    This is a sample GetDP problem definition file                           
-    for simple two-dimensionnal Magnetostatic problems                              
+    This is a sample GetDP problem definition file
+    for simple two-dimensionnal Magnetostatic problems
 
     (C) 1998 P. Dular, C. Geuzaine
    -------------------------------------------------------------------------- */
@@ -11,21 +11,21 @@
   Groups :
   --------
     Domain         Whole magnetic domain
-    Domain_S       Inductor regions 
-    Domain_M       Permanent magnet regions 
+    Domain_S       Inductor regions
+    Domain_M       Permanent magnet regions
     Domain_Inf     Nonconducting regions with
                    Spherical Shell Transformation
                    (Parameters : Val_Rint, Val_Rext)
-		 
-  Functions :	 
-  -----------	 
+
+  Functions :
+  -----------
     mu[]           Magnetic permeability
     nu[]           Magnetic reluctivity
     hc[]           Coercitive magnetic field
     js[]           Source current density
-    
-  Constraint :	 
-  ----------	 
+
+  Constraint :
+  ----------
     phi            Fixed magnetic scalar potential
     a              Fixed magnetic vector potential (2D)
 
@@ -33,7 +33,7 @@
 
 Jacobian {
   { Name JVol ;
-    Case { 
+    Case {
       { Region Domain_Inf ; Jacobian VolSphShell{Val_Rint, Val_Rext} ; }
       { Region All ;        Jacobian Vol ; }
     }
@@ -43,9 +43,9 @@ Jacobian {
 
 Integration {
   { Name I1 ;
-    Case { 
+    Case {
       { Type Gauss ;
-        Case { 
+        Case {
 	  { GeoElement Triangle    ; NumberOfPoints  4 ; }
 	  { GeoElement Quadrangle  ; NumberOfPoints  4 ; }
 	}
@@ -56,7 +56,7 @@ Integration {
 
 
 /* --------------------------------------------------------------------------
-   MagSta_phi : Magnetic scalar potential phi formulation 
+   MagSta_phi : Magnetic scalar potential phi formulation
    -------------------------------------------------------------------------- */
 
 FunctionSpace {
@@ -74,14 +74,14 @@ FunctionSpace {
 
 Formulation {
   { Name MagSta_phi ; Type FemEquation ;
-    Quantity { 
+    Quantity {
       { Name phi ; Type Local ; NameOfSpace Hgrad_phi ; }
     }
     Equation {
-      Galerkin { [ - mu[] * Dof{d phi} , {d phi} ] ;  
+      Galerkin { [ - mu[] * Dof{d phi} , {d phi} ] ;
                  In Domain ; Jacobian JVol ; Integration I1 ; }
 
-      Galerkin { [ - mu[] * hc[] , {d phi} ] ;  
+      Galerkin { [ - mu[] * hc[] , {d phi} ] ;
                  In Domain_M ; Jacobian JVol ; Integration I1 ; }
     }
   }
@@ -93,8 +93,8 @@ Resolution {
     System {
       { Name A ; NameOfFormulation MagSta_phi ; }
     }
-    Operation { 
-      Generate[A] ; Solve[A] ; SaveSolution[A] ; 
+    Operation {
+      Generate[A] ; Solve[A] ; SaveSolution[A] ;
     }
   }
 }
@@ -103,7 +103,7 @@ Resolution {
 PostProcessing {
   { Name MagSta_phi ; NameOfFormulation MagSta_phi ;
     Quantity {
-      { Name b   ; Value { Local { [ - mu[] * {d phi} ] ; In Domain ; Jacobian JVol ; } 
+      { Name b   ; Value { Local { [ - mu[] * {d phi} ] ; In Domain ; Jacobian JVol ; }
                            Local { [ - mu[] * hc[] ]    ; In Domain_M ; Jacobian JVol ; } } }
       { Name h   ; Value { Local { [ - {d phi} ]        ; In Domain ; Jacobian JVol ; } } }
       { Name phi ; Value { Local { [ {phi} ]            ; In Domain ; Jacobian JVol ; } } }
@@ -112,8 +112,8 @@ PostProcessing {
 }
 
 
-/* -------------------------------------------------------------------------- 
-   MagSta_a : Magnetic vector potential a formulation (2D) 
+/* --------------------------------------------------------------------------
+   MagSta_a : Magnetic vector potential a formulation (2D)
    -------------------------------------------------------------------------- */
 
 FunctionSpace {
@@ -137,13 +137,13 @@ Formulation {
       { Name a  ; Type Local ; NameOfSpace Hcurl_a ; }
     }
     Equation {
-      Galerkin { [ nu[] * Dof{d a} , {d a} ] ; 
+      Galerkin { [ nu[] * Dof{d a} , {d a} ] ;
                  In Domain ; Jacobian JVol ; Integration I1 ; }
 
-      Galerkin { [ hc[] , {d a} ] ; 
+      Galerkin { [ hc[] , {d a} ] ;
                  In Domain_M ; Jacobian JVol ; Integration I1 ; }
 
-      Galerkin { [ -js[] , {a} ] ; 
+      Galerkin { [ -js[] , {a} ] ;
                  In Domain_S ; Jacobian JVol ; Integration I1 ; }
     }
   }
@@ -155,7 +155,7 @@ Resolution {
     System {
       { Name A ; NameOfFormulation MagSta_a ; }
     }
-    Operation { 
+    Operation {
       Generate[A] ; Solve[A] ; SaveSolution[A] ;
     }
   }
@@ -168,7 +168,7 @@ PostProcessing {
       { Name a ; Value { Local { [ CompZ[{a}] ]   ; In Domain ; Jacobian JVol ; } } }
       { Name b ; Value { Local { [ {d a} ]        ; In Domain ; Jacobian JVol ; } } }
       { Name a ; Value { Local { [ {a} ]          ; In Domain ; Jacobian JVol ; } } }
-      { Name h ; Value { Local { [ nu[] * {d a} ] ; In Domain ; Jacobian JVol ; } 
+      { Name h ; Value { Local { [ nu[] * {d a} ] ; In Domain ; Jacobian JVol ; }
                          Local { [ hc[] ]         ; In Domain_M ; Jacobian JVol ; } } }
     }
   }
