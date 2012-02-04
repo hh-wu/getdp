@@ -397,11 +397,6 @@ void Message::FinalizeSocket()
 void Message::InitializeOnelab(std::string name, std::string sockname)
 {
   if(sockname.size()){
-#if defined(WIN32)
-    // hide console window (to disable the console window completely, you must
-    // add -mwindows to the linker when compiling getdp)
-    ShowWindow(GetConsoleWindow(), SW_HIDE);
-#endif
     // getdp is called by a distant onelab server
     onelab::remoteNetworkClient *c = new onelab::remoteNetworkClient(name, sockname);
     if(!c->getGmshClient()){
