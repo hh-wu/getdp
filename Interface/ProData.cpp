@@ -1627,7 +1627,15 @@ void Print_ListResolution(int choose, int Flag_LRES, char **name)
     Message::Warning("No Resolution available");
 }
 
-void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
+static std::string removeWhiteSpace(const std::string &s)
+{
+  std::string::size_type beg = s.find_first_not_of(' ');
+  std::string::size_type end = s.find_last_not_of(' ');
+  if(beg == std::string::npos || end == std::string::npos) return "";
+  return s.substr(beg, end + 1 - beg);
+}
+
+void Print_ListPostOperation(int choose, int Flag_LPOS, char *name[NBR_MAX_POS])
 {
   struct PostOperation *PO;
   int    i, Nbr, ichoice = 0;
@@ -1660,7 +1668,18 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
         charOptions["Path"].push_back(Message::GetOnelabClientName() + "/2");
         Message::ExchangeOnelabParameter(&c, floatOptions, charOptions);
         if(choose){
-          *name = c.Value.Char;
+          std::string str(c.Value.Char);
+          int i = 0;
+          std::string::size_type first = 0;
+          while(1){
+            std::string::size_type last = str.find_first_of(",", first);
+            std::string next = str.substr(first, last - first);
+            name[i++] = strSave(removeWhiteSpace(next).c_str());
+            if(last == std::string::npos) break;
+            first = last + 1;
+            if(i == NBR_MAX_POS - 1) break;
+          }
+          name[i] = NULL;
           return;
         }
       }
@@ -1673,7 +1692,8 @@ void Print_ListPostOperation(int choose, int Flag_LPOS, char **name)
     }
     if(ichoice > 0 && ichoice < Nbr+1){
       PO = (struct PostOperation*)List_Pointer(Problem_S.PostOperation, ichoice-1);
-      *name = PO->Name;
+      name[0] = PO->Name;
+      name[1] = NULL;
       return;
     }
     else if(choose)

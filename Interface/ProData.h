@@ -1480,6 +1480,6 @@ void Print_ProblemStructure();
 std::string Get_AbsolutePath(const char *fileName);
 
 void Print_ListResolution(int choice, int flag_lres, char **name);
-void Print_ListPostOperation(int choice, int flag_lpos, char **name);
+void Print_ListPostOperation(int choice, int flag_lpos, char *name[NBR_MAX_POS]);
 
 #endif

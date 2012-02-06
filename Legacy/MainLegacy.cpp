@@ -451,7 +451,7 @@ int MainLegacy(int argc, char *argv[])
     Print_ListResolution(choose, lres, &Name_Resolution);
 
   if(lpos)
-    Print_ListPostOperation(choose, lpos, &Name_PostOperation[0]);
+    Print_ListPostOperation(choose, lpos, Name_PostOperation);
 
   if(Flag_PRE || Flag_CAL || Flag_POS)
     SolvingAnalyse();
