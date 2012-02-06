@@ -53,7 +53,7 @@ Function {
   mu [ Core ]  = murCore * mu0;
   mu [ Mag ]   = murMag * mu0 ;
 
-  DefineConstant[ Hc = {920000, ShortHelp "Coercive H field", Path "Parameters/Sources"} ];
+  DefineConstant[ Hc = {920000, Label "Coercive H field", Path "Parameters/Sources"} ];
   hc [ Mag ]   = Vector[0., Hc, 0.] ;
 
   Itot = 4737;

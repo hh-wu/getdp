@@ -550,8 +550,10 @@ void Message::ExchangeOnelabParameter(Constant *c,
     }
     if(fopt.count("Step")) ps[0].setStep(fopt["Step"][0]);
     if(fopt.count("Choices")) ps[0].setChoices(fopt["Choices"]);
+    if(fopt.count("Visible")) ps[0].setVisible(fopt["Visible"][0] ? true : false);
     if(copt.count("Help")) ps[0].setHelp(copt["Help"][0]);
-    if(copt.count("ShortHelp")) ps[0].setShortHelp(copt["ShortHelp"][0]);
+    if(copt.count("Label")) ps[0].setLabel(copt["Label"][0]);
+    if(copt.count("ShortHelp")) ps[0].setLabel(copt["ShortHelp"][0]);
     if(copt.count("Loop")) ps[0].setAttribute("Loop", copt["Loop"][0]);
     if(copt.count("Graph")) ps[0].setAttribute("Graph", copt["Graph"][0]);
     if(copt.count("Highlight")) ps[0].setAttribute("Highlight", copt["Highlight"][0]);
@@ -569,8 +571,10 @@ void Message::ExchangeOnelabParameter(Constant *c,
       ps[0].setValue(c->Value.Char);
     }
     // send updated parameter to server
+    if(fopt.count("Visible")) ps[0].setVisible(fopt["Visible"][0] ? true : false);
     if(copt.count("Help")) ps[0].setHelp(copt["Help"][0]);
-    if(copt.count("ShortHelp")) ps[0].setShortHelp(copt["ShortHelp"][0]);
+    if(copt.count("Label")) ps[0].setLabel(copt["Label"][0]);
+    if(copt.count("ShortHelp")) ps[0].setLabel(copt["ShortHelp"][0]);
     if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
     if(copt.count("Highlight")) ps[0].setAttribute("Highlight", copt["Highlight"][0]);
     _onelabClient->set(ps[0]);
@@ -602,7 +606,7 @@ void Message::FinalizeOnelab()
           ps[0].setName(name + "/9ComputeCommand");
           ps[0].setValue("-solve -pos");
         }
-        ps[0].setShortHelp("Compute command");
+        ps[0].setLabel("Compute command");
         std::vector<std::string> choices;
         choices.push_back("-pre");
         choices.push_back("-cal");
