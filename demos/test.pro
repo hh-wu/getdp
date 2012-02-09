@@ -42,7 +42,7 @@ Group {
 Function {
 
   mu0     = 4.e-7 * Pi ;
-  DefineConstant[ murCore = {10., Path "Parameters/Materials"} ];
+  DefineConstant[ murCore = {10., Path "Parameters/Materials", Min 1, Max 1000, Step 10} ];
   murMag = 1;
 
   nu [ Region[{Air, IndP1, IndP2, IndS1, IndS2, AirInf, Gap}] ]  = 1. / mu0 ;

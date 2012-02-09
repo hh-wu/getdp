@@ -527,8 +527,16 @@ void Message::ExchangeOnelabParameter(Constant *c,
   if(c->Type == VAR_FLOAT){
     std::vector<onelab::number> ps;
     _onelabClient->get(ps, name);
+    bool noRange = true, noChoices = true, noLoop = true, noGraph = true;
     if(ps.size()){ // use value from server
       c->Value.Float = ps[0].getValue();
+      // keep track of these attributes, which can be changed server-side
+      if(ps[0].getMin() != -onelab::parameter::maxNumber() ||
+         ps[0].getMax() != onelab::parameter::maxNumber() ||
+         ps[0].getStep() != 0.) noRange = false;
+      if(ps[0].getChoices().size()) noChoices = false;
+      if(ps[0].getAttribute("Loop").size()) noLoop = false;
+      if(ps[0].getAttribute("Graph").size()) noGraph = false;
     }
     else{
       ps.resize(1);
@@ -536,26 +544,26 @@ void Message::ExchangeOnelabParameter(Constant *c,
       ps[0].setValue(c->Value.Float);
     }
     // send updated parameter to server
-    if(fopt.count("Range") && fopt["Range"].size() == 2){
+    if(noRange && fopt.count("Range") && fopt["Range"].size() == 2){
       ps[0].setMin(fopt["Range"][0]); ps[0].setMax(fopt["Range"][1]);
     }
-    else if(fopt.count("Min") && fopt.count("Max")){
+    else if(noRange && fopt.count("Min") && fopt.count("Max")){
       ps[0].setMin(fopt["Min"][0]); ps[0].setMax(fopt["Max"][0]);
     }
-    else if(fopt.count("Min")){
+    else if(noRange && fopt.count("Min")){
       ps[0].setMin(fopt["Min"][0]); ps[0].setMax(onelab::parameter::maxNumber());
     }
-    else if(fopt.count("Max")){
+    else if(noRange && fopt.count("Max")){
       ps[0].setMax(fopt["Max"][0]); ps[0].setMin(-onelab::parameter::maxNumber());
     }
-    if(fopt.count("Step")) ps[0].setStep(fopt["Step"][0]);
-    if(fopt.count("Choices")) ps[0].setChoices(fopt["Choices"]);
+    if(noRange && fopt.count("Step")) ps[0].setStep(fopt["Step"][0]);
+    if(noChoices && fopt.count("Choices")) ps[0].setChoices(fopt["Choices"]);
     if(fopt.count("Visible")) ps[0].setVisible(fopt["Visible"][0] ? true : false);
     if(copt.count("Help")) ps[0].setHelp(copt["Help"][0]);
     if(copt.count("Label")) ps[0].setLabel(copt["Label"][0]);
     if(copt.count("ShortHelp")) ps[0].setLabel(copt["ShortHelp"][0]);
-    if(copt.count("Loop")) ps[0].setAttribute("Loop", copt["Loop"][0]);
-    if(copt.count("Graph")) ps[0].setAttribute("Graph", copt["Graph"][0]);
+    if(noLoop && copt.count("Loop")) ps[0].setAttribute("Loop", copt["Loop"][0]);
+    if(noGraph && copt.count("Graph")) ps[0].setAttribute("Graph", copt["Graph"][0]);
     if(copt.count("Highlight")) ps[0].setAttribute("Highlight", copt["Highlight"][0]);
     _onelabClient->set(ps[0]);
   }
