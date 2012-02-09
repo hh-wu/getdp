@@ -1195,6 +1195,9 @@ void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int 
   _solve(A, B, Solver, X, 0, solverIndex);
 }
 
+extern void Generate_Residual (gVector *x, gVector *f) ;
+extern void Generate_FullJacobian (gVector *x, gMatrix *Jac) ;
+
 static PetscErrorCode _NLFormFunction(SNES snes, Vec x, Vec f, void *mctx)
 {
   /*
@@ -1260,7 +1263,6 @@ static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC,
   return 0;
 }
 
-
 static PetscErrorCode _NLFormInitialGuess(Vec x, PetscScalar val)
 {
   // FormInitialGuess - Computes initial guess
@@ -1275,7 +1277,6 @@ static PetscErrorCode _mySnesMonitor(SNES snes, PetscInt it, PetscReal rnorm, vo
   Message::Info("%3ld SNES Residual norm %14.12e", (long)it, rnorm);
   return 0;
 }
-
 
 // SNES - PETSC nonlinear solvers
 static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *Solver,

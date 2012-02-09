@@ -98,5 +98,7 @@ void LinAlg_AssembleMatrix(gMatrix *M){ err; }
 void LinAlg_AssembleVector(gVector *V){ err; }
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex){ err; }
 void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex){ err; }
+void LinAlg_SolveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *Solver,
+                    gVector *X, int solverIndex){ err; }
 
 #endif

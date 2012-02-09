@@ -29,7 +29,7 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv)
 {
   int i=1, argc, iopt=0;
   char **argv;
- 
+
   argc = *sargc ;
   argv = *sargv ;
   SolverOptions[0] = NULL;
@@ -45,11 +45,11 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv)
       }
       else{
 	i++ ;
-	if (i<argc && argv[i][0]!='-') { 
+	if (i<argc && argv[i][0]!='-') {
 	  SolverOptions[iopt++] = argv[i-1]+1;
 	  SolverOptions[iopt++] = argv[i];
 	  SolverOptions[iopt] = NULL;
-	  i++ ; 
+	  i++ ;
 	}
 	else {
 	  Message::Error("Missing number");
@@ -57,7 +57,7 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv)
       }
     }
     else
-      Message::Info("Unknown option: '%s'", argv[i++]) ; 
+      Message::Info("Unknown option: '%s'", argv[i++]) ;
   }
 }
 
@@ -91,7 +91,7 @@ void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
     // default file name -> always relative
     strcat(FileName, Name_DefaultSolverFile);
   }
-  
+
   Message::Info("Loading parameter file '%s'", FileName);
 
   init_solver(&Solver->Params, FileName) ;
@@ -126,7 +126,7 @@ void LinAlg_DestroyVector(gVector *V)
 
 void LinAlg_DestroyMatrix(gMatrix *M)
 {
-  Message::Warning("'LinAlg_DestroyMatrix' not yet implemented");  
+  Message::Warning("'LinAlg_DestroyMatrix' not yet implemented");
 }
 
 void LinAlg_CopyScalar(gScalar *S1, gScalar *S2)
@@ -141,7 +141,7 @@ void LinAlg_CopyVector(gVector *V1, gVector *V2)
 
 void LinAlg_CopyMatrix(gMatrix *M1, gMatrix *M2)
 {
-  Message::Error("'LinAlg_CopyMatrix' not yet implemented");  
+  Message::Error("'LinAlg_CopyMatrix' not yet implemented");
 }
 
 void LinAlg_ZeroScalar(gScalar *S)
@@ -168,7 +168,7 @@ void LinAlg_ScanScalar(FILE *file, gScalar *S)
   fscanf(file, "%lf", &S->s) ;
 }
 
-void LinAlg_ScanVector(FILE *file, gVector *V) 
+void LinAlg_ScanVector(FILE *file, gVector *V)
 {
   int i ;
 
@@ -285,7 +285,7 @@ void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j)
 
 void LinAlg_GetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 {
-  Message::Error("'LinAlg_GetScalarInMatrix' not yet implemented");  
+  Message::Error("'LinAlg_GetScalarInMatrix' not yet implemented");
 }
 
 void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j)
@@ -295,7 +295,7 @@ void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j)
 
 void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j, int k, int l)
 {
-  Message::Error("'LinAlg_GetScalarInMatrix' not yet implemented");  
+  Message::Error("'LinAlg_GetScalarInMatrix' not yet implemented");
 }
 
 void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1)
@@ -333,17 +333,17 @@ void LinAlg_SetComplexInVector(double d1, double d2, gVector *V, int i, int j)
 
 void LinAlg_SetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 {
-  Message::Error("'LinAlg_SetScalarInMatrix' not yet implemented");  
+  Message::Error("'LinAlg_SetScalarInMatrix' not yet implemented");
 }
 
 void LinAlg_SetDoubleInMatrix(double d, gMatrix *M, int i, int j)
 {
-  Message::Error("'LinAlg_SetScalarInMatrix' not yet implemented");  
+  Message::Error("'LinAlg_SetScalarInMatrix' not yet implemented");
 }
 
 void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l)
 {
-  Message::Error("'LinAlg_SetScalarInMatrix' not yet implemented");  
+  Message::Error("'LinAlg_SetScalarInMatrix' not yet implemented");
 }
 
 void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
@@ -365,7 +365,7 @@ void LinAlg_AddScalarInVector(gScalar *S, gVector *V, int i)
 {
   int * DummyDof;
 
-  if ((DummyDof = Current.DofData->DummyDof)) 
+  if ((DummyDof = Current.DofData->DummyDof))
     if (DummyDof[i] == 1) return ;
 
   V->V[i] += S->s ;
@@ -388,7 +388,7 @@ void LinAlg_AddComplexInVector(double d1, double d2, gVector *V, int i, int j)
 
   iok=jok=1;
 
-  if ((DummyDof = Current.DofData->DummyDof)) { 
+  if ((DummyDof = Current.DofData->DummyDof)) {
     if (DummyDof[i] == 1) iok=0;
     if (DummyDof[j] == 1) jok=0;
   }
@@ -410,7 +410,7 @@ void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j)
   int * DummyDof;
 
   if ((DummyDof = Current.DofData->DummyDof))
-    if ( (DummyDof[i] == 1 || DummyDof[j] == 1) && (i != j) ) 
+    if ( (DummyDof[i] == 1 || DummyDof[j] == 1) && (i != j) )
       return ;
 
   add_matrix_double(&M->M, i+1, j+1, d) ;
@@ -467,17 +467,17 @@ void LinAlg_SubScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
 
 void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3)
 {
-  if(V3 == V1) 
+  if(V3 == V1)
     sub_vector_vector_1(V1->N, V1->V, V2->V) ;
-  else if (V3 == V2) 
+  else if (V3 == V2)
     sub_vector_vector_2(V1->N, V1->V, V2->V) ;
   else
-    Message::Error("Wrong arguments in 'LinAlg_SubVectorVector'");  
+    Message::Error("Wrong arguments in 'LinAlg_SubVectorVector'");
 }
 
 void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 {
-  Message::Error("'LinAlg_SubMatrixMatrix' not yet implemented");  
+  Message::Error("'LinAlg_SubMatrixMatrix' not yet implemented");
 }
 
 void LinAlg_ProdScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
@@ -498,7 +498,7 @@ void LinAlg_ProdScalarComplex(gScalar *S, double d1, double d2, double *d3, doub
 
 void LinAlg_ProdVectorScalar(gVector *V1, gScalar *S, gVector *V2)
 {
-  Message::Error("'LinAlg_ProdVectorScalar' not yet implemented");  
+  Message::Error("'LinAlg_ProdVectorScalar' not yet implemented");
 }
 
 void LinAlg_ProdVectorDouble(gVector *V1, double d, gVector *V2)
@@ -589,7 +589,8 @@ void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int 
   Solver->Params.Re_Use_LU = tmp;
 }
 
-void LinAlg_SolveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *Solver, gVector *X, int solverIndex)
+void LinAlg_SolveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *Solver,
+                    gVector *X, int solverIndex)
 {
   Message::Error("'LinAlg_SolveNL' not yet implemented for Sparskit");
 }
