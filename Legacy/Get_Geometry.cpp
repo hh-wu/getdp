@@ -883,7 +883,6 @@ double  JacobianSurAxi2D (struct Element * Element, MATRIX3x3 * Jac)
   Jac->c33 = 0. ;
   for (i = 0 ; i < Element->GeoElement->NbrNodes ; i++)
     Jac->c33 += Element->x[i] * Element->n[i] ;
-
   return(DetJac * Jac->c33) ;
 }
 

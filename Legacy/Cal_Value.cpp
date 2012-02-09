@@ -2464,8 +2464,8 @@ std::string Print_Value_ToString(struct Value *A)
 
   switch(A->Type){
 
-  case SCALAR :
-    if(Current.NbrHar>1) sstream << "(";
+  case SCALAR ://***Ruth: Provisional: incompatibility with gnuplot
+    //if(Current.NbrHar>1) sstream << "(";
     for (k = 0 ; k < Current.NbrHar ; k++) {
       if(k) sstream << ",";
       sstream << A->Val[MAX_DIM*k];
@@ -2473,18 +2473,18 @@ std::string Print_Value_ToString(struct Value *A)
     if(Current.NbrHar>1) sstream << ")";
     break;
 
-  case VECTOR :
-    sstream << "[";
+  case VECTOR ://***Ruth
+    //sstream << "[";
     for (i = 0 ; i < 3 ; i++) {
       if(i) sstream << " ";
-      if(Current.NbrHar>1) sstream << "(";
+      //if(Current.NbrHar>1) sstream << "(";
       for (k = 0 ; k < Current.NbrHar ; k++) {
 	if(k) sstream << ",";
 	sstream << A->Val[MAX_DIM*k+i];
       }
-      if(Current.NbrHar>1) sstream << ")";
+      //if(Current.NbrHar>1) sstream << ")";
     }
-    sstream << "]";
+    //sstream << "]";
     break;
 
   case TENSOR_DIAG :

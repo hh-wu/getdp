@@ -84,7 +84,8 @@ struct Group {
 };
 
 struct MovingBand2D {
-  List_T *InitialList1, *ExtendedList1, *InitialList2, *ExtendedList2;
+  List_T *InitialList1,  *InitialList2;
+  List_T *ExtendedList1, *ExtendedList2;
   int NbrNodes1, *NumNodes1, NbrNodes2, *NumNodes2;
   double *x1, *y1, *z1, *x2, *y2, *z2, Area;
   int  Period2, ntr1, ntr2, Closed1, Closed2;
@@ -1323,7 +1324,7 @@ struct CurrentData {
 
   int     flagAssDiag;
 
-  /* All values below must be of double type */
+  /* All values below must be double */
 
   double  x, y, z;
   double  u, v, w;

@@ -310,59 +310,6 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
 
 }
 
-void Generate_Residual(gVector *x, gVector *f)
-{
-  struct DefineSystem * DefineSystem_P ;
-  struct DofData * DofData_P ;
-  struct DofData * DofData_P0 ;
-  //int Flag_Jac = 1 ;
-  int Flag_Jac = 0 ;
-
-  Message::Info("Generating Residual = A(x)x-b");
-
-  DofData_P  = Current.DofData ;
-  DofData_P0 = Current.DofData_P0;
-  DefineSystem_P = Current.DefineSystem_P ;
-
-  LinAlg_CopyVector(x, &DofData_P->dx);
-  LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
-                                 -1., &DofData_P->CurrentSolution->x);
-
-  //Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
-  ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac) ;
-
-  LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, f) ;
-  LinAlg_SubVectorVector(&DofData_P->b, f, f) ; //f = b(xn)-A(xn)*xn
-
-  LinAlg_AssembleVector(f) ;
-}
-
-void Generate_FullJacobian(gVector *x, gMatrix *Jac)
-{
-  struct DefineSystem * DefineSystem_P ;
-  struct DofData * DofData_P ;
-  struct DofData * DofData_P0 ;
-  int Flag_Jac = 1 ;
-
-  Message::Info("Generating Full Jacobian = A(x) + DofData_P->Jac");
-
-  DofData_P  = Current.DofData ;
-  DofData_P0 = Current.DofData_P0;
-  DefineSystem_P = Current.DefineSystem_P ;
-
-  LinAlg_CopyVector(x, &DofData_P->dx);
-  LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
-                         &DofData_P->CurrentSolution->x) ;
-
-  //Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
-  ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac) ;
-
-  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ;
-
-  Jac = &DofData_P->A ;
-  LinAlg_AssembleMatrix(Jac) ;
-}
-
 /* ------------------------------------------------------------------------ */
 /*  U p d a t e _ S y s t e m                                               */
 /* ------------------------------------------------------------------------ */
@@ -1490,6 +1437,9 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
   Init_SearchGrid(&Current.GeoData->Grid) ;
 }
 
+
+
+
 /* ------------------------------------------------------------------------ */
 /*  I n i t _ O p e r a t i o n O n S y s t e m                             */
 /* ------------------------------------------------------------------------ */
@@ -1660,6 +1610,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   static int *NumDof_MH_moving ;
   static struct Dof ** Dof_MH_moving ;
 
+
+  //+++
+  struct Group *Group_P ;
+  //+++
+
+
   Nbr_Operation = List_Nbr(Operation_L) ;
 
   for (i_Operation = 0 ; i_Operation < Nbr_Operation ; i_Operation++) {
@@ -1683,7 +1639,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  -->  G e n e r a t e                        */
       /*  ------------------------------------------  */
 
-    case OPERATION_GENERATEJAC :  Flag_Jac  = 1 ;
+    case OPERATION_GENERATEJAC :  Flag_Jac = 1 ;
     case OPERATION_GENERATE :
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
@@ -1692,7 +1648,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Current.TypeAssembly = ASSEMBLY_AGGREGATE ;
 
       Init_SystemData(DofData_P, Flag_Jac) ;
-
       if (Operation_P->Case.Generate.GroupIndex >= 0)
 	Generate_Group = (struct Group *) List_Pointer(Problem_S.Group,
 						       Operation_P->Case.Generate.GroupIndex) ;
@@ -2004,43 +1959,28 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     // Jacobian furnished or not (finite differences)...
     case OPERATION_SOLVENL :
       /*  Solve nonlinear system: A(x) x = b(x)  */
-      Init_OperationOnSystem("SolveNL",
+      Init_OperationOnSystem("Using SNES: SolveNL",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
-      //Flag_Jac = 1;
 
-      printf("Flag_Jac = %d \n", Flag_Jac) ;
-      if(DofData_P->Flag_Init[0] < 2)
-	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
+      if(DofData_P->Flag_Init[0] < 2){
+	Message::Info("Initializing Jacobian system: no JacNL term");
+        LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
+                            DofData_P->NbrDof, DofData_P->NbrDof) ;
+        LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
+        LinAlg_CreateVector(&DofData_P->dx, &DofData_P->Solver, DofData_P->NbrDof) ;
 
-      if (DofData_P->Flag_Only){
-	if(DofData_P->Flag_InitOnly[0]){
-	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A1, &DofData_P->A);
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b1, &DofData_P->b) ;
-	}
+        LinAlg_ZeroMatrix(&DofData_P->Jac) ;
+        LinAlg_ZeroVector(&DofData_P->res) ;
+        LinAlg_ZeroVector(&DofData_P->dx) ;
 
-	if(DofData_P->Flag_InitOnly[1]){
-	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A2, &DofData_P->A) ;
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b2, &DofData_P->b) ;
-	}
-	if(DofData_P->Flag_InitOnly[2]){
-	  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->A3, &DofData_P->A) ;
-	  LinAlg_AddVectorVector(&DofData_P->b, &DofData_P->b3, &DofData_P->b) ;
-	}
-
-	LinAlg_AssembleMatrix(&DofData_P->A) ;
-	LinAlg_AssembleVector(&DofData_P->b) ;
+        LinAlg_AssembleMatrix(&DofData_P->Jac) ;
+        LinAlg_AssembleVector(&DofData_P->res) ;
+        LinAlg_AssembleVector(&DofData_P->dx) ;
       }
-
-      LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
-      LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;// res = b(xn)-A(xn)*xn
-
-      if(Flag_Jac)
-        LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ; // Jacobian
 
       LinAlg_SolveNL(&DofData_P->A, &DofData_P->b, &DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx,
                      Operation_P->Case.Solve.SolverIndex) ;
-
       Flag_CPU = 1 ;
       break ;
 
@@ -2406,12 +2346,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_INIT_MOVINGBAND2D :
+      Message::Info("Init_MovingBand2D") ;
       Init_MovingBand2D( (struct Group *)
 			 List_Pointer(Problem_S.Group,
 				      Operation_P->Case.Init_MovingBand2D.GroupIndex)) ;
       break ;
 
     case OPERATION_MESH_MOVINGBAND2D :
+      Message::Info("====> Mesh_MovingBand2D") ;
       Mesh_MovingBand2D( (struct Group *)
 			 List_Pointer(Problem_S.Group,
 				      Operation_P->Case.Mesh_MovingBand2D.GroupIndex)) ;
@@ -3389,7 +3331,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_POSTOPERATION :
       Message::Info("PostOperation") ;
-
       Save_Time = Current.Time ;
       Save_TimeImag = Current.TimeImag ;
       Save_TimeStep = Current.TimeStep ;
@@ -3512,4 +3453,56 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     if(Flag_CPU) Message::Cpu("");
   }
+}
+
+void Generate_Residual(gVector *x, gVector *f)
+{
+  struct DefineSystem * DefineSystem_P ;
+  struct DofData * DofData_P ;
+  struct DofData * DofData_P0 ;
+
+  int Flag_Jac = 1 ;
+
+  if(Message::GetVerbosity() == 10)
+    Message::Info("Generating Residual = b(xn)-A(xn)*xn");
+
+  DofData_P  = Current.DofData ;
+  DofData_P0 = Current.DofData_P0;
+  DefineSystem_P = Current.DefineSystem_P ;
+
+  LinAlg_CopyVector(x, &DofData_P->dx);
+  LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
+                                   -1., &DofData_P->CurrentSolution->x); // new trial solution
+
+  ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac) ;   // calculate residual with new solution
+
+  LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ; // calculate residual with new solution
+  LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ; //res = b(xn)-A(xn)*xn
+
+  if(Message::GetVerbosity() == 10){
+    Message::Info("dx"); LinAlg_PrintVector(stdout, &DofData_P->dx) ;
+    Message::Info("A"); LinAlg_PrintMatrix(stdout, &DofData_P->A) ;
+  }
+
+  *f = DofData_P->res ;
+  LinAlg_AssembleVector(f) ;
+}
+
+void Generate_FullJacobian(gVector *x, gMatrix *Jac)
+{
+  struct DofData * DofData_P ;
+  int Flag_Jac = 1 ;
+
+  Message::Debug("Generating Full Jacobian = A(x) + DofData_P->Jac");
+
+  DofData_P  = Current.DofData ;
+
+  LinAlg_CopyVector(x, &DofData_P->dx);
+  LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
+                         &DofData_P->CurrentSolution->x); // updating solution solution
+
+  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->Jac) ;
+
+  *Jac = DofData_P->Jac ;
+  LinAlg_AssembleMatrix(Jac) ;
 }

@@ -33,7 +33,7 @@ extern struct CurrentData Current ;
 #if defined(HAVE_PETSC)
 
 // Options for PETSc can be provided on the command line, or in the file
-// ~/.petscrc. 
+// ~/.petscrc.
 //
 // By default we try to use the MUMPS or UMFPACK direct solver (if
 // available, with PETSc 3). Otherwise we use a GMRES iterative solver
@@ -101,7 +101,7 @@ void LinAlg_FinalizeSolver()
 
 void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
 {
-  for(int i = 0; i < 10; i++){ 
+  for(int i = 0; i < 10; i++){
     Solver->ksp[i] = NULL;
     Solver->snes[i] = NULL;
   }
@@ -129,7 +129,7 @@ static void _fillseq(gVector *V)
   // sequential vector on each processor
   VecScatter ctx;
   VecScatterCreateToAll(V->V, &ctx, &V->Vseq);
-#if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 3) 
+#if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 3)
   VecScatterBegin(V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD, ctx);
   VecScatterEnd(V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD, ctx);
 #else
@@ -151,7 +151,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
   PetscOptionsGetInt(PETSC_NULL, "-petsc_prealloc", &prealloc, &set);
 
   // prealloc cannot be bigger than the number of rows!
-  prealloc = (n < prealloc) ? n : prealloc; 
+  prealloc = (n < prealloc) ? n : prealloc;
   std::vector<PetscInt> nnz(n, prealloc);
 
   // preallocate non local equations as full lines (this is not
@@ -162,7 +162,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
     nnz[Current.DofData->NonLocalEquations[i] - 1] = n;
 
   if(Message::GetCommSize() > 1) // FIXME: alloc full lines...
-    _try(MatCreateMPIAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m, 
+    _try(MatCreateMPIAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m,
                          prealloc, PETSC_NULL, prealloc, PETSC_NULL, &M->M));
   else
     _try(MatCreateSeqAIJ(PETSC_COMM_WORLD, n, m, 0, &nnz[0], &M->M));
@@ -258,7 +258,7 @@ void LinAlg_ScanVector(FILE *file, gVector *V)
 {
   if(Message::GetCommSize() > 1)
     Message::Error("ScanVector not implemented in parallel");
-  PetscInt n;  
+  PetscInt n;
   _try(VecGetSize(V->V, &n));
   for(PetscInt i = 0; i < n; i++){
     double a, b;
@@ -276,7 +276,7 @@ void LinAlg_ScanVector(FILE *file, gVector *V)
 
 void LinAlg_ScanMatrix(FILE *file, gMatrix *M)
 {
-  Message::Error("ScanMatrix not yet implemented");  
+  Message::Error("ScanMatrix not yet implemented");
 }
 
 void LinAlg_ReadScalar(FILE *file, gScalar *S)
@@ -299,7 +299,7 @@ void LinAlg_ReadVector(FILE *file, gVector *V)
 
 void LinAlg_ReadMatrix(FILE *file, gMatrix *M)
 {
-  Message::Error("ReadMatrix not yet implemented");  
+  Message::Error("ReadMatrix not yet implemented");
 }
 
 void LinAlg_PrintScalar(FILE *file, gScalar *S)
@@ -342,22 +342,41 @@ void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab,
     _try(PetscViewerDestroy(fd));
 #endif
   }
-} 
+}
 
 void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab,
                         const char* fileName, const char* varName)
 {
-  if(!matlab) Message::Error("Non-matlab output not available for this matrix");
-  PetscViewer fd;
-  _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, fileName, &fd));
-  _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
-  _try(PetscObjectSetName((PetscObject)M->M, varName));
-  _try(MatView(M->M, fd));
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev or petsc-3.2
-  _try(PetscViewerDestroy(&fd));
+  if(!matlab){
+    PetscInt n, m;
+    _try(MatGetSize(M->M, &n, &m));
+    for(int i = 0; i < n; i++){
+      PetscInt ncols;
+      const PetscInt *cols;
+      const PetscScalar *vals;
+      _try(MatGetRow(M->M, i, &ncols, &cols, &vals));
+      for(int j = 0; j < m; j++){
+#if defined(PETSC_USE_COMPLEX)
+        fprintf(file, "[%d, %d] %.16g %.16g\n", i, j, real(vals[j]), imag(vals[j]) );
 #else
-  _try(PetscViewerDestroy(fd));
+        fprintf(file, "[%d, %d] %.16g\n", i, j, vals[j]);
 #endif
+      }
+      _try(MatRestoreRow(M->M, i, &ncols, &cols, &vals));
+    }
+  }
+  else{
+    PetscViewer fd;
+    _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, fileName, &fd));
+    _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
+      _try(PetscObjectSetName((PetscObject)M->M, varName));
+      _try(MatView(M->M, fd));
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev or petsc-3.2
+      _try(PetscViewerDestroy(&fd));
+#else
+      _try(PetscViewerDestroy(fd));
+#endif
+    }
 }
 
 void LinAlg_WriteScalar(FILE *file, gScalar *S)
@@ -379,7 +398,7 @@ void LinAlg_WriteVector(FILE *file, gVector *V)
 
 void LinAlg_WriteMatrix(FILE *file, gMatrix *M)
 {
-  Message::Error("WriteMatrix not yet implemented");  
+  Message::Error("WriteMatrix not yet implemented");
 }
 
 void LinAlg_GetVectorSize(gVector *V, int *i)
@@ -448,7 +467,7 @@ void LinAlg_GetComplexInScalar(double *d1, double *d2, gScalar *S)
   *d1 = real(S->s);
   *d2 = imag(S->s);
 #else
-  Message::Error("'LinAlg_GetComplexInScalar' not available with this Solver");  
+  Message::Error("'LinAlg_GetComplexInScalar' not available with this Solver");
 #endif
 }
 
@@ -504,22 +523,40 @@ void LinAlg_GetComplexInVector(double *d1, double *d2, gVector *V, int i, int j)
 
 void LinAlg_GetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 {
-  Message::Error("GetScalarInMatrix not yet implemented");  
+  if(!_isInLocalRange(M, i)) return;
+  PetscInt ti = i, tj = j;
+  _try(MatGetValues(M->M, 1, &ti, 1, &tj, &S->s));
 }
 
 void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j)
 {
-  Message::Error("GetDoubleInMatrix not yet implemented");  
+  if(!_isInLocalRange(M, i)) return;
+  PetscInt ti = i, tj = j;
+  _try(MatGetValues(M->M, 1, &ti, 1, &tj, (PetscScalar*)d));
 }
 
 void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j, int k, int l)
 {
-  Message::Error("GetComplexInMatrix not yet implemented");  
+  PetscScalar tmp;
+#if defined(PETSC_USE_COMPLEX)
+  PetscInt ti = i, tj = j;
+  if(_isInLocalRange(M, i)){
+    _try(MatGetValues(M->M, 1, &ti, 1, &tj, &tmp));
+    *d1 = real(tmp) ;
+    *d2 = imag(tmp) ;
+  }
+#else
+  PetscInt ti = i, tj = j, tk = k, tl = l;
+  if(_isInLocalRange(M, i))
+    _try(MatGetValues(M->M, 1, &ti, 1, &tj, (PetscScalar*)d1));
+  if(_isInLocalRange(M, k))
+    _try(MatGetValues(M->M, 1, &tk, 1, &tj, (PetscScalar*)d2));
+#endif
 }
 
 void LinAlg_GetColumnInMatrix(gMatrix *M, int col, gVector *V1)
 {
-  Message::Error("GetColumnInMatrix not yet implemented");  
+  Message::Error("GetColumnInMatrix not yet implemented");
 }
 
 void LinAlg_SetScalar(gScalar *S, double *d)
@@ -585,12 +622,40 @@ void LinAlg_SetScalarInMatrix(gScalar *S, gMatrix *M, int i, int j)
 
 void LinAlg_SetDoubleInMatrix(double d, gMatrix *M, int i, int j)
 {
-  Message::Error("SetDoubleInMatrix not yet implemented");  
+  if(!_isInLocalRange(M, i)) return;
+  PetscInt ti = i, tj = j;
+  _try(MatSetValues(M->M, 1, &ti, 1, &tj, (PetscScalar*)&d, INSERT_VALUES));
 }
 
 void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l)
 {
-  Message::Error("SetComplexInMatrix not yet implemented");  
+  PetscScalar tmp;
+#if defined(PETSC_USE_COMPLEX)
+  PetscInt ti = i, tj = j;
+  if(_isInLocalRange(M, i)){
+    tmp = d1 + PETSC_i * d2;
+    _try(MatSetValues(M->M, 1, &ti, 1, &tj, &tmp, INSERT_VALUES));
+  }
+#else
+  PetscInt ti = i, tj = j, tk = k, tl = l;
+  if(d1){
+    tmp = d1;
+    if(_isInLocalRange(M, i))
+      _try(MatSetValues(M->M, 1, &ti, 1, &tj, &tmp, INSERT_VALUES));
+    if(_isInLocalRange(M, k))
+      _try(MatSetValues(M->M, 1, &tk, 1, &tl, &tmp, INSERT_VALUES));
+  }
+  if(d2){
+    if(_isInLocalRange(M, i)){
+      tmp = -d2;
+      _try(MatSetValues(M->M, 1, &ti, 1, &tl, &tmp, INSERT_VALUES));
+    }
+    if(_isInLocalRange(M, k)){
+      tmp = d2;
+      _try(MatSetValues(M->M, 1, &tk, 1, &tj, &tmp, INSERT_VALUES));
+    }
+  }
+#endif
 }
 
 void LinAlg_AddScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
@@ -700,7 +765,7 @@ void LinAlg_AddVectorVector(gVector *V1, gVector *V2, gVector *V3)
     _fillseq(V2);
   }
   else
-    Message::Error("Wrong arguments in 'LinAlg_AddVectorVector'");  
+    Message::Error("Wrong arguments in 'LinAlg_AddVectorVector'");
 }
 
 void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVector *V3)
@@ -715,7 +780,7 @@ void LinAlg_AddVectorProdVectorDouble(gVector *V1, gVector *V2, double d, gVecto
     _fillseq(V2);
   }
   else
-    Message::Error("Wrong arguments in 'LinAlg_AddVectorProdVectorDouble'");  
+    Message::Error("Wrong arguments in 'LinAlg_AddVectorProdVectorDouble'");
 }
 
 void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
@@ -726,7 +791,7 @@ void LinAlg_AddMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
   else if(M3 == M2)
     _try(MatAXPY(M2->M, tmp, M1->M, DIFFERENT_NONZERO_PATTERN));
   else
-    Message::Error("Wrong arguments in 'LinAlg_AddMatrixMatrix'");  
+    Message::Error("Wrong arguments in 'LinAlg_AddMatrixMatrix'");
 }
 
 void LinAlg_AddMatrixProdMatrixDouble(gMatrix *M1, gMatrix *M2, double d, gMatrix *M3)
@@ -761,7 +826,7 @@ void LinAlg_SubVectorVector(gVector *V1, gVector *V2, gVector *V3)
     _fillseq(V2);
   }
   else
-    Message::Error("Wrong arguments in 'LinAlg_SubVectorVector'");  
+    Message::Error("Wrong arguments in 'LinAlg_SubVectorVector'");
 }
 
 void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
@@ -773,7 +838,7 @@ void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
   else if(M3 == M2)
     _try(MatAYPX(M2->M, tmp, M1->M, DIFFERENT_NONZERO_PATTERN)); // M2->M = M1->M - M2->M
   else
-    Message::Error("Wrong arguments in 'LinAlg_SubMatrixMatrix'");  
+    Message::Error("Wrong arguments in 'LinAlg_SubMatrixMatrix'");
 }
 
 void LinAlg_ProdScalarScalar(gScalar *S1, gScalar *S2, gScalar *S3)
@@ -803,7 +868,7 @@ void LinAlg_ProdScalarComplex(gScalar *S, double d1, double d2, double *d3, doub
 }
 
 void LinAlg_ProdVectorScalar(gVector *V1, gScalar *S, gVector *V2)
-{ 
+{
   if(V2 == V1){
     _try(VecScale(V1->V, S->s));
     _fillseq(V1);
@@ -922,7 +987,7 @@ void LinAlg_AssembleVector(gVector *V)
 #if defined(HAVE_ZITSOL)
 
 extern "C" {
-  int getdp_zitsol(int n, int nnz, int *row, int *col, double *valr, double *vali, 
+  int getdp_zitsol(int n, int nnz, int *row, int *col, double *valr, double *vali,
 		   double *rhsr, double *rhsi, double *solr, double *soli,
 		   int precond, int lfil, double tol0, double tol, int im, int maxits);
 }
@@ -1010,7 +1075,7 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
     Message::Error("Did not converge in %d iterations", maxits);
   else
     Message::Info("Converged in %d iterations", its);
-  
+
   for(PetscInt i = 0; i < n; i++){
     PetscScalar d;
 #if defined(PETSC_USE_COMPLEX)
@@ -1020,7 +1085,7 @@ static void _zitsol(gMatrix *A, gVector *B, gVector *X)
 #endif
     _try(VecSetValues(X->V, 1, &i, &d, INSERT_VALUES));
   }
-  
+
   Free(row); Free(col);
   Free(valr); Free(vali);
   Free(rhsr); Free(rhsi);
@@ -1035,7 +1100,7 @@ static PetscErrorCode _myKspMonitor(KSP ksp, PetscInt it, PetscReal rnorm, void 
   return 0;
 }
 
-static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, 
+static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
                    int precond, int kspIndex)
 {
 #if defined(HAVE_ZITSOL)
@@ -1073,7 +1138,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     _try(KSPGetPC(Solver->ksp[kspIndex], &pc));
 
     // set some default options
-    _try(KSPSetTolerances(Solver->ksp[kspIndex], 1.e-12, PETSC_DEFAULT, PETSC_DEFAULT, 
+    _try(KSPSetTolerances(Solver->ksp[kspIndex], 1.e-12, PETSC_DEFAULT, PETSC_DEFAULT,
                           PETSC_DEFAULT));
 #if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS) // use MUMPS by default if available
     _try(PCSetType(pc, PCLU));
@@ -1112,7 +1177,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 
   if(view)
     _try(KSPView(Solver->ksp[kspIndex], PETSC_VIEWER_STDOUT_WORLD));
-  
+
   if(!Message::GetCommRank()){
     PetscInt its;
     _try(KSPGetIterationNumber(Solver->ksp[kspIndex], &its));
@@ -1130,35 +1195,35 @@ void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int 
   _solve(A, B, Solver, X, 0, solverIndex);
 }
 
-
-// ======================================================================================
-
 static PetscErrorCode _NLFormFunction(SNES snes, Vec x, Vec f, void *mctx)
 {
   /*
     snes - the SNES context
     x 	 - input vector (solution at each NL iteration)
     f    - vector to store function value (residual)
-    mctx - [optional] user-defined Jacobian context 
+    mctx - [optional] user-defined Jacobian context
   */
 
-  PetscScalar *tmpf ;
-  _try(VecGetArray(f, &tmpf));
-
   gVector gx, gf ;
-
   gx.V = x ;
   gf.V = f ;
 
-  Generate_Residual(&gx, &gf);
+  Generate_Residual(&gx, &gf) ;
 
-  _try(VecGetArray(gf.V, &tmpf)) ;
-  _try(VecRestoreArray(f, &tmpf));
+  PetscScalar *ff ;
+  _try(VecGetArray(gf.V, &ff)) ;
+
+  PetscInt n;
+  _try(VecGetSize(f, &n)) ;
+  for(PetscInt i = 0; i < n; i++)
+    _try(VecSetValues(f, 1, &i, &ff[i], INSERT_VALUES));
+
+  _try(VecGetArray(f, &ff));
 
   return 0;
 }
 
-static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC, 
+static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC,
                                       MatStructure *flag, void *mctx)
 {
   /*
@@ -1166,27 +1231,27 @@ static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC,
     x 	 - input vector
     J    - Jacobian matrix
     PC 	 - preconditioner matrix, usually the same as Jac
-    flag - flag indicating information about the preconditioner matrix structure 
-           (same as flag in KSPSetOperators()), one of 
+    flag - flag indicating information about the preconditioner matrix structure
+           (same as flag in KSPSetOperators()), one of
            SAME_NONZERO_PATTERN,DIFFERENT_NONZERO_PATTERN,SAME_PRECONDITIONER
-    mctx - [optional] user-defined Jacobian context 
+    mctx - [optional] user-defined Jacobian context
   */
 
   gVector gx ;
   gx.V = x ;
 
-  gMatrix gJ ;  
-  gJ.M = *J ;  
+  gMatrix gJ ;
+  gJ.M = *J ;
 
   Generate_FullJacobian(&gx, &gJ);
-  
-  *J = gJ.M;
+
+  *J = gJ.M ;
   *flag = DIFFERENT_NONZERO_PATTERN ;
 
   Message::Barrier();
   _try(MatAssemblyBegin(*J, MAT_FINAL_ASSEMBLY));
   _try(MatAssemblyEnd(*J, MAT_FINAL_ASSEMBLY));
- 
+
   if (*PC != *J){
     _try(MatAssemblyBegin(*PC, MAT_FINAL_ASSEMBLY));
     _try(MatAssemblyEnd(*PC, MAT_FINAL_ASSEMBLY));
@@ -1199,7 +1264,7 @@ static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC,
 static PetscErrorCode _NLFormInitialGuess(Vec x, PetscScalar val)
 {
   // FormInitialGuess - Computes initial guess
- 
+
   VecSet(x,val);
 
   return 0;
@@ -1211,8 +1276,9 @@ static PetscErrorCode _mySnesMonitor(SNES snes, PetscInt it, PetscReal rnorm, vo
   return 0;
 }
 
-// Testing SNES - PETSC nonlinear solvers
-static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *Solver, 
+
+// SNES - PETSC nonlinear solvers
+static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *Solver,
                      gVector *X, int precond, int solverIndex)
 {
   if(solverIndex < 0 || solverIndex > 9){
@@ -1221,33 +1287,22 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   }
 
   PetscInt n, m;
-  _try(MatGetSize(A->M, &n, &m));
-  if(!n){
-    Message::Warning("Zero-size system: skipping solve!");
-    return;
-  }
   _try(MatGetSize(J->M, &n, &m));
   if(!n){
     Message::Warning("Zero-size jacobian: skipping solve!");
     return;
   }
-  _try(VecGetSize(B->V, &n)); Message::Info("size of RHS = %d", n);
-  _try(VecGetSize(R->V, &n)); Message::Info("size of residual = %d", n);
 
   bool view = (!Solver->snes[solverIndex] && Message::GetVerbosity() > 2);
 
   if(view && !Message::GetCommRank())
     Message::Info("N: %ld", (long)n);
- 
+
   if(solverIndex != 0)
     Message::Info("Using nonlinear solver index %d", solverIndex);
 
   PetscTruth flag_fd, fd_jacobian = PETSC_FALSE, snes_fd = PETSC_FALSE ;
   MatStructure  flag_matstructure ;
-
-  // for FD jacobian (with a bit of help ;-))
-  ISColoring iscoloring; 
-  MatFDColoring matfdcoloring = 0 ; 
 
   // Setting nonlinear solver defaults
   if(!Solver->snes[solverIndex]) {
@@ -1259,94 +1314,33 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
 
     // override default options with those from database (if any)
     _try(SNESSetFromOptions(Solver->snes[solverIndex]));
-  
-  PetscOptionsGetTruth(PETSC_NULL,"-fd_jacobian",&fd_jacobian,0);
-  PetscOptionsGetTruth(PETSC_NULL,"-snes_fd",&snes_fd,0);
-  if (fd_jacobian || snes_fd) {
-    /*
-    printf("Finite Difference Jacobian with Coloring \n");
-    _try(MatGetColoring(J->M, MATCOLORING_SL, &iscoloring)) ;
-    _try(MatFDColoringCreate(J->M, iscoloring, &matfdcoloring));
-    _try(ISColoringDestroy(iscoloring));
-    _try(MatFDColoringSetFunction(matfdcoloring, (PetscErrorCode (*)(void))_NLFormFunction, PETSC_NULL));
-    _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M, SNESDefaultComputeJacobianColor,matfdcoloring));
-    */
-    printf("Finite Difference Jacobian \n");
-    _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M, SNESDefaultComputeJacobian,PETSC_NULL));
-  }
-  else {
-    printf("Jacobian computed by GetDP \n");
-    _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M, _NLFormJacobian, PETSC_NULL));
-  }  
-}
-  
 
-
-  /*
- // Setting linear solver defaults == > KSP and PC to be used by the nonlinear solver 
-  if(!Solver->ksp[solverIndex]) {
-    _try(KSPCreate(PETSC_COMM_WORLD, &Solver->ksp[solverIndex]));
-    _try(KSPSetOperators(Solver->ksp[solverIndex], J->M, J->M, DIFFERENT_NONZERO_PATTERN));
-    PC pc;
-    _try(KSPGetPC(Solver->ksp[solverIndex], &pc));
-    
-    // set some default options
-    _try(KSPSetTolerances(Solver->ksp[solverIndex], 1.e-12, PETSC_DEFAULT, PETSC_DEFAULT, 
-                          PETSC_DEFAULT));
-#if defined(PETSC_HAVE_MUMPS) // use MUMPS by default if available
-    _try(PCSetType(pc, PCLU));
-    _try(PCFactorSetMatSolverPackage(pc, "mumps"));
-    _try(KSPSetType(Solver->ksp[solverIndex], "preonly"));
-#elif defined(PETSC_HAVE_UMFPACK) // otherwise use UMFPACK if available
-    _try(PCSetType(pc, PCLU));
-    _try(PCFactorSetMatSolverPackage(pc, "umfpack"));
-    _try(KSPSetType(Solver->ksp[solverIndex], "preonly"));
-#else // otherwise use ILU(6) + GMRES
-    _try(PCSetType(pc, PCILU));
-#endif    
-    // override the default options with the ones from the option
-    // database (if any)
-    _try(KSPSetFromOptions(Solver->ksp[solverIndex]));
+    PetscOptionsGetTruth(PETSC_NULL,"-fd_jacobian",&fd_jacobian,0);
+    PetscOptionsGetTruth(PETSC_NULL,"-snes_fd",&snes_fd,0);
+    if (fd_jacobian || snes_fd) {
+      Message::Error("Finite Difference Jacobian not yet implemented");
+      _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M, SNESDefaultComputeJacobian,PETSC_NULL));
+    }
+    else {
+      Message::Info("Jacobian computed by GetDP");
+      _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M, _NLFormJacobian, PETSC_NULL));
+    }
+    _try(SNESSetFunction(Solver->snes[solverIndex], R->V, _NLFormFunction, PETSC_NULL)); // R(x) = A(x)*x-b
   }
-  else if(precond){
-    _try(KSPSetOperators(Solver->ksp[solverIndex], J->M, J->M, DIFFERENT_NONZERO_PATTERN));
-  }
-  
-  _try(SNESGetKSP(Solver->snes[solverIndex], &Solver->ksp[solverIndex]));
-  */
-  
-  _try(SNESSetFunction(Solver->snes[solverIndex], R->V, _NLFormFunction, PETSC_NULL)); // R(x) = A(x)*x-b
 
-  _try(SNESComputeJacobian(Solver->snes[solverIndex], X->V, &J->M, &J->M, &flag_matstructure));
-  //_try(MatAssemblyBegin(J->M, MAT_FINAL_ASSEMBLY));
-  //_try(MatAssemblyEnd(J->M, MAT_FINAL_ASSEMBLY));
-  
-  //_try(_NLFormInitialGuess(X->V,.5));
-  
   _try(SNESSolve(Solver->snes[solverIndex], PETSC_NULL, X->V));
-  
+
   // copy result on all procs
   _fillseq(X);
-  
+
   if(view)
     _try(SNESView(Solver->snes[solverIndex], PETSC_VIEWER_STDOUT_WORLD));
-  
+
   if(!Message::GetCommRank()){
     PetscInt its;
     _try(SNESGetIterationNumber(Solver->snes[solverIndex], &its));
     Message::Info("Number of Newton iterations %d", its);
   }
-
-  if (matfdcoloring) {
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2)) ) // petsc-dev or petsc-3.2
-    _try(MatFDColoringDestroy(&matfdcoloring));
-#else
-    _try(MatFDColoringDestroy(matfdcoloring));
-#endif
-  }
-
-
-
 }
 
 void LinAlg_SolveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R,

@@ -33,7 +33,7 @@ typedef struct { Solver_Params Params ; } gSolver ;
   #error "GetDP requires PETSc version 2.3 or higher"
 #else
   #include "petscksp.h"
-  #include "petscsnes.h"  
+  #include "petscsnes.h"
 #endif
 #if defined(PETSC_USE_COMPLEX)
   #define gSCALAR_SIZE 2
@@ -88,7 +88,7 @@ void LinAlg_ReadMatrix(FILE *file, gMatrix *M);
 void LinAlg_PrintScalar(FILE *file, gScalar *S);
 void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab=false,
                         const char* fileName="vector.m", const char* varName="Vec_0");
-void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab=false, 
+void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab=false,
                         const char* fileName="matrix.m", const char* varName="Mat_0");
 
 void LinAlg_WriteScalar(FILE *file, gScalar *S);
@@ -159,7 +159,8 @@ void LinAlg_AssembleVector(gVector *V);
 
 void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex=0);
 void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex=0);
-//void LinAlg_SolveNL(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, gVector *R, gMatrix *Jac, int solverIndex=0);
+
+
 void LinAlg_SolveNL(gMatrix *A, gVector *B, gMatrix *Jac, gVector *R, gSolver *Solver, gVector *X, int solverIndex=0);
 
 void Generate_Residual (gVector *x, gVector *f) ;
