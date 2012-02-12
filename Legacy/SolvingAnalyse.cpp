@@ -90,7 +90,7 @@ void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
 /* ------------------------------------------------------------------------ */
 /*  T r e a t m e n t _ P r e p r o c e s s i n g                           */
 /* ------------------------------------------------------------------------ */
-/*! For each DefineSystem: 
+/*! For each DefineSystem:
       For each Formulation: Definition of Dof's in associated DofData */
 
 void Treatment_Preprocessing(int Nbr_DefineSystem,
@@ -108,12 +108,12 @@ void Treatment_Preprocessing(int Nbr_DefineSystem,
     DefineSystem_P = DefineSystem_P0 + i ;
     DofData_P = DofData_P0 + i ;
     Dof_SetCurrentDofData(Current.DofData = DofData_P) ;
-    
-    Geo_SetCurrentGeoData(Current.GeoData = 
+
+    Geo_SetCurrentGeoData(Current.GeoData =
 			  GeoData_P0 + DofData_P->GeoDataIndex) ;
-    
+
     Current.NbrHar = Current.DofData->NbrHar ;
-    
+
     Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
     for (k = 0 ; k < Nbr_Formulation ; k++) {
@@ -125,7 +125,7 @@ void Treatment_Preprocessing(int Nbr_DefineSystem,
       Init_DofDataInDefineQuantity(DefineSystem_P, DofData_P0, Formulation_P) ;
       Treatment_Formulation(Formulation_P) ;
     }
-    
+
     Dof_NumberUnknownDof() ;
   }
 }
@@ -161,10 +161,10 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   /* Choice of Current DofData */
   Current.DofData = 0;
   if(PostProcessing_P->NameOfSystem){
-    if ((i = List_ISearchSeq(Resolution_P->DefineSystem, 
+    if ((i = List_ISearchSeq(Resolution_P->DefineSystem,
 			     PostProcessing_P->NameOfSystem,
 			     fcmp_DefineSystem_Name)) < 0){
-      Message::Error("Unknown System name (%s) in PostProcessing (%s)", 
+      Message::Error("Unknown System name (%s) in PostProcessing (%s)",
                      PostProcessing_P->NameOfSystem, PostProcessing_P->Name) ;
       return;
     }
@@ -176,7 +176,7 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   }
   else{
     for(i = 0 ; i < List_Nbr(Formulation_P->DefineQuantity) ; i++){
-      Current.DofData = 
+      Current.DofData =
 	((struct FunctionSpace *)
 	 List_Pointer(Problem_S.FunctionSpace,
 		      ((struct DefineQuantity *)
@@ -197,19 +197,19 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
   DefineSystem_P = DefineSystem_P0 + Current.DofData->Num ;
   Current.NbrHar = Current.DofData->NbrHar ;
 
-  Geo_SetCurrentGeoData(Current.GeoData = 
+  Geo_SetCurrentGeoData(Current.GeoData =
 			GeoData_P0 + Current.DofData->GeoDataIndex) ;
 
   Message::Info("Selected PostProcessing '%s'", PostProcessing_P->Name);
   Message::Info("Selected Mesh '%s'", Current.GeoData->Name);
 
   Init_DofDataInDefineQuantity(DefineSystem_P,DofData_P0,Formulation_P);
-  
+
   Nbr_PostSubOperation = List_Nbr(PostOperation_P->PostSubOperation) ;
-  for (i_POP = 0 ; i_POP < Nbr_PostSubOperation ; i_POP++) {      
-    Message::Info("PostOperation %d/%d ", i_POP+1, Nbr_PostSubOperation) ;      
+  for (i_POP = 0 ; i_POP < Nbr_PostSubOperation ; i_POP++) {
+    Message::Info("PostOperation %d/%d ", i_POP+1, Nbr_PostSubOperation) ;
     PostSubOperation_P = (struct PostSubOperation*)
-      List_Pointer(PostOperation_P->PostSubOperation, i_POP) ;    
+      List_Pointer(PostOperation_P->PostSubOperation, i_POP) ;
     Pos_Formulation(Formulation_P, PostProcessing_P, PostSubOperation_P) ;
   }
 
@@ -244,8 +244,8 @@ void  Init_HarInDofData(struct DefineSystem * DefineSystem_P,
   }
 
   if (DofData_P->NbrHar > NBR_MAX_HARMONIC)
-    Message::Error("Too many harmonics to generate system (%d > %d)", 
-                   DofData_P->NbrHar/2, NBR_MAX_HARMONIC/2) ; 
+    Message::Error("Too many harmonics to generate system (%d > %d)",
+                   DofData_P->NbrHar/2, NBR_MAX_HARMONIC/2) ;
 
   if (DofData_P->NbrHar > 1) {
     for (j = 0 ; j < DofData_P->NbrHar/2 ; j++)
@@ -279,13 +279,13 @@ void  Treatment_Resolution(int ResolutionIndex,
                                                    ResolutionIndex) ;
 
   Message::Info("Selected Resolution '%s'", (*Resolution_P)->Name) ;
-  
+
   *Nbr_DefineSystem = List_Nbr((*Resolution_P)->DefineSystem) ;
   if (!*Nbr_DefineSystem){
     Message::Error("No System exists for Resolution '%s'", (*Resolution_P)->Name) ;
     return;
   }
-  
+
   if (*Nbr_OtherSystem)  *Nbr_OtherSystem -= *Nbr_DefineSystem ;
 
   *DofData_L = List_Create(*Nbr_DefineSystem + *Nbr_OtherSystem, 6,
@@ -309,7 +309,7 @@ void  Treatment_Resolution(int ResolutionIndex,
     Dof_InitDofData(&DofData_S, i + *Nbr_DefineSystem, -1, -1, NULL) ;
     List_Add(*DofData_L, &DofData_S) ;
   }
-  
+
   *DofData_P0 = (struct DofData*)List_Pointer(*DofData_L, 0) ;
   *GeoData_P0 = (struct GeoData*)List_Pointer(GeoData_L, 0) ;
 }
@@ -340,7 +340,7 @@ double  * Get_TimeFunctionValues(struct DofData * DofData_P)
     else
       Values[Index] = 1. ;
   }
-  
+
   return(Values) ;
 }
 
@@ -411,7 +411,7 @@ void SolvingAnalyse()
   Message::Direct("P r e - P r o c e s s i n g . . .") ;
 
   if (Flag_PRE) {
-    
+
     PreResolutionIndex_L = List_Create(10, 10, sizeof(struct PreResolutionInfo)) ;
 
     Treatment_Preprocessing(Nbr_DefineSystem, DofData_P0,
@@ -423,7 +423,7 @@ void SolvingAnalyse()
 
       Message::Direct("P r e - R e s o l u t i o n  (%d/%d) . . .",
                       i+1, Nbr_PreResolution) ;
-      
+
       List_Read(PreResolutionIndex_L, i, &PreResolutionInfo_S) ;
       Num_Resolution2 = PreResolutionInfo_S.Index ;
 
@@ -441,7 +441,7 @@ void SolvingAnalyse()
 
       Init_DofDataInFunctionSpace(Nbr_DefineSystem2, DofData2_P0) ;
 
-      Current.TypeTime = TIME_STATIC  ; 
+      Current.TypeTime = TIME_STATIC  ;
       Current.Time = 0. ; Current.TimeImag = 0. ; Current.TimeStep = 0. ;
       Current.Iteration = 0 ;
       Current.RelativeDifference = 0. ; Current.RelaxationFactor = 1. ;
@@ -451,9 +451,9 @@ void SolvingAnalyse()
       Current.NbrSystem  = Nbr_DefineSystem2 ;  /* Attention: init for Dt[] */
       Current.DofData_P0 = DofData2_P0 ;
 
-      Treatment_Operation(Resolution2_P, Resolution2_P->Operation, 
+      Treatment_Operation(Resolution2_P, Resolution2_P->Operation,
                           DofData2_P0, GeoData_P0, Resolution_P, DofData_P0) ;
-      
+
       if (PreResolutionInfo_S.Type == PR_GLOBALBASISFUNCTION) {
         for (j = 0 ; j < Nbr_DefineSystem2 ; j++) {
           DofData_P = DofData2_P0 + j ;
@@ -468,7 +468,7 @@ void SolvingAnalyse()
       Message::Direct("E n d   P r e - R e s o l u t i o n  (%d/%d)",
                       i+1, Nbr_PreResolution) ;
     }
-    
+
     Dof_OpenFile(DOF_PRE, Name_Generic, "w+") ;
     Dof_WriteFilePRE0(Num_Resolution, Resolution_P->Name, Nbr_DefineSystem) ;
 
@@ -485,10 +485,10 @@ void SolvingAnalyse()
       for (i = 0 ; i < Nbr_DefineSystem ; i++)
         Dof_TransferDofTreeToList(DofData_P0 + i) ;
 
-  }  
+  }
 
   else if (Flag_CAL || Flag_POS) {
-    
+
     Message::Info("Loding Pre-Processing data '%s.pre'", Name_Generic) ;
 
     for(i = 0 ; i < Nbr_DefineSystem ; i++)
@@ -508,15 +508,17 @@ void SolvingAnalyse()
     Nbr_DefineSystem = List_Nbr(DofData_L) ;  /* New Value ... */
 
     Nbr_GeoData = List_Nbr(GeoData_L) ;
-    
+
     Geo_ReadFilePRE(GeoData_P0, Nbr_GeoData, Problem_S.Group) ;
 
     Dof_CloseFile(DOF_PRE) ;
-    
-  }  
+
+  }
 
   Message::Cpu("");
   Message::Direct("E n d   P r e - P r o c e s s i n g");
+
+  if(Message::GetOnelabAction() == "stop") return;
 
   /* ---------- */
   /* Processing */
@@ -533,32 +535,34 @@ void SolvingAnalyse()
       while(Name_ResFile[i]){
 	Message::Info("Loding Processing data '%s'", Name_ResFile[i]) ;
 	Dof_OpenFile(DOF_RES, Name_ResFile[i], "rb");
-	Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeImag, 
+	Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeImag,
 			&Current.TimeStep) ;
 	Dof_CloseFile(DOF_RES);
 	i++ ;
       }
-      Message::Info("Restarting computation (time = %g) s (TimeStep %g)", 
+      Message::Info("Restarting computation (time = %g) s (TimeStep %g)",
 		Current.Time, Current.TimeStep) ;
     }
     else{
       Current.Time = Current.TimeImag = Current.TimeStep = 0. ;
     }
 
-    Current.NbrHar = 1 ; /* Bug : peut ne pas etre initialise si -cal sans 
+    Current.NbrHar = 1 ; /* Bug : peut ne pas etre initialise si -cal sans
 			    -pre et evaluation d'expression sans init de systeme avant */
     Current.TypeTime = TIME_STATIC ;
-    Current.RelativeDifference = 0. ; 
+    Current.RelativeDifference = 0. ;
     Current.RelaxationFactor = 1. ;
     Current.NbrSystem  = Nbr_DefineSystem ;  /* Attention: init for Dt[] */
     Current.DofData_P0 = DofData_P0 ;
 
-    Treatment_Operation(Resolution_P, Resolution_P->Operation, 
+    Treatment_Operation(Resolution_P, Resolution_P->Operation,
                         DofData_P0, GeoData_P0, NULL, NULL) ;
 
     Message::Cpu("");
     Message::Direct("E n d   P r o c e s s i n g");
   }
+
+  if(Message::GetOnelabAction() == "stop") return;
 
   /* --------------- */
   /* Post-processing */
@@ -610,7 +614,7 @@ void SolvingAnalyse()
                                   function de base globale... a reorganiser */
         if (DofData_P->Solutions == NULL)
           DofData_P->Solutions = List_Create( 1, 1, sizeof(struct Solution)) ;
-        Solution_S.Time = 0. ;  
+        Solution_S.Time = 0. ;
 	Solution_S.SolutionExist = 0 ;
         List_Add(DofData_P->Solutions, &Solution_S) ;
         Nbr_Solution = 1 ;
@@ -629,10 +633,10 @@ void SolvingAnalyse()
       /* La solution courante est la 1ere. A mieux gerer ? */
     }
     Init_DofDataInFunctionSpace(Nbr_DefineSystem, DofData_P0) ;
-    
+
     Current.NbrSystem  = Nbr_DefineSystem ;  /* Attention: init for Dt[] */
     Current.DofData_P0 = DofData_P0 ;
-    
+
     i = 0 ;
     while(PostProcessing_P[i]){
       Treatment_PostOperation(Resolution_P, DofData_P0, DefineSystem_P0, GeoData_P0,

@@ -180,7 +180,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 
     if (!MCPR_P->Active)
       MCPR_P->Active = Generate_Network(MCPR_P->ConstraintPerRegion) ;
-    
+
     for (i_Node = 0 ; i_Node < MCPR_P->Active->Case.Network.NbrNode ; i_Node++) {
       for (j_Branch = 0 ;
 	   j_Branch < MCPR_P->Active->Case.Network.NbrBranch ; j_Branch++) {
@@ -259,7 +259,7 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 
       Num_Equ++ ;
     }  /* for i_Loop ... */
-    
+
   }  /* for i_MCPR ... */
 
   List_Delete(DofGlobal_Equ_L) ;
@@ -301,7 +301,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
   gMatrix  A ;
   gVector  b ;
-  
+
   int Flag_Only ;
 
   /* --------------------------------------------------------------- */
@@ -311,18 +311,18 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
   if (!(Nbr_EquationTerm = List_Nbr(Formulation_P->Equation)))
     Message::Error("No equation in Formulation '%s'", Formulation_P->Name);
-  
+
   if (!(Nbr_DefineQuantity = List_Nbr(Formulation_P->DefineQuantity)))
     Message::Error("No Quantity in Formulation '%s'", Formulation_P->Name);
 
   DefineQuantity_P0 = (struct DefineQuantity*)
     List_Pointer(Formulation_P->DefineQuantity, 0) ;
 
-  QuantityStorage_L = List_Create(Nbr_DefineQuantity,  1, 
+  QuantityStorage_L = List_Create(Nbr_DefineQuantity,  1,
 				  sizeof (struct QuantityStorage) ) ;
 
-  QuantityStorage_S.NumLastElementForFunctionSpace = 
-    QuantityStorage_S.NumLastElementForDofDefinition = 
+  QuantityStorage_S.NumLastElementForFunctionSpace =
+    QuantityStorage_S.NumLastElementForDofDefinition =
       QuantityStorage_S.NumLastElementForEquDefinition = 0 ;
 
   for (i = 0 ; i < Nbr_DefineQuantity ; i++) {
@@ -330,7 +330,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
     if(QuantityStorage_S.DefineQuantity->Type == INTEGRALQUANTITY &&
        QuantityStorage_S.DefineQuantity->IntegralQuantity.DefineQuantityIndexDof < 0){
-      QuantityStorage_S.FunctionSpace = NULL ; 
+      QuantityStorage_S.FunctionSpace = NULL ;
       QuantityStorage_S.TypeQuantity = VECTOR ; /* to change */
     }
     else{
@@ -355,11 +355,11 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
   EquationTerm_P0 = (struct EquationTerm*)List_Pointer(Formulation_P->Equation, 0) ;
   FemLocalTermActive_L = List_Create(Nbr_EquationTerm,  1,
 				     sizeof (struct FemLocalTermActive) ) ;
-  
+
   for (i_EquTerm = 0 ; i_EquTerm < Nbr_EquationTerm ; i_EquTerm++) {
     List_Add(FemLocalTermActive_L, &FemLocalTermActive_S) ;
     EquationTerm_P = EquationTerm_P0 + i_EquTerm ;
-    
+
     switch(EquationTerm_P->Type){
 
     case GALERKIN :
@@ -392,23 +392,23 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
       break ;
     }
 
-  }  
+  }
 
   /* ---------------------------------------------------------- */
   /* 2.  Loop on geometrical elements :                         */
   /*     Treatment of eventual GALERKIN terms                   */
   /*  --------------------------------------------------------- */
-  
+
   Nbr_Element = Geo_GetNbrGeoElements() ;
 
   Message::ResetProgressMeter();
-      
+
   for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
 
     if (Generate_Group) {
       Element.Region = Geo_GetGeoElement(i_Element)->Region ;
-      while (i_Element < Nbr_Element && 
-	     !List_Search(Generate_Group->InitialList, 
+      while (i_Element < Nbr_Element &&
+	     !List_Search(Generate_Group->InitialList,
 			  &Element.Region, fcmp_int) ) {
 	i_Element++ ;
 	if (i_Element < Nbr_Element) Element.Region = Geo_GetGeoElement(i_Element)->Region ;
@@ -424,10 +424,10 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
     /* ---------------------------- */
     /* 2.1.  Loop on equation terms */
     /* ---------------------------- */
-    
+
     for (i_EquTerm = 0 ; i_EquTerm < Nbr_EquationTerm ; i_EquTerm++) {
       EquationTerm_P = EquationTerm_P0 + i_EquTerm ;
-      
+
       if (EquationTerm_P->Type == GALERKIN) {
 
 	/* if the element is in the support of integration of the term */
@@ -449,7 +449,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	if (List_Search(((struct Group *)
 			 List_Pointer(Problem_S.Group,
 				      EquationTerm_P->Case.
-				      LocalTerm.InIndex))->InitialList, 
+				      LocalTerm.InIndex))->InitialList,
 			&Element.Region, fcmp_int ) ) {
 	*/
 
@@ -476,11 +476,11 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	    /* Only one analysis for each function space */
 
 	    /*
-	     * Attention : l'operateur de trace ne fonctionne que si le champ 
+	     * Attention : l'operateur de trace ne fonctionne que si le champ
 	     * dont on prend la trace n'intervient qu'une seule fois dans le terme.
-	     * du a - manque de generalite du code au niveau de la gestion des 
+	     * du a - manque de generalite du code au niveau de la gestion des
 	     *        espaces fonctionnels des fcts tests  pour 'Trace de Dof'
-	     *      - et Christophe fatigué 
+	     *      - et Christophe fatigué
 	     */
 
 	    if (QuantityStorage_P->NumLastElementForFunctionSpace != Element.Num ||
@@ -508,12 +508,12 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 		break ;
 	      default :
 		Message::Error("Bad kind of Quantity in Formulation '%s'",
-			   Formulation_P->Name);
+                               Formulation_P->Name);
 		break;
 	      }
 	    }
 	  }  /* for i = 0, 1 ... */
-	  
+
 	  /* -------------------------------------- */
 	  /* 2.1.2.  Treatment of the equation term */
 	  /* -------------------------------------- */
@@ -523,9 +523,9 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	    Pre_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
 	    break ;
 	  case _CAL :
-	    Flag_Only = 0 ; 	    
-	    
-	    if (Current.DofData->Flag_Only){	      
+	    Flag_Only = 0 ;
+
+	    if (Current.DofData->Flag_Only){
 	      A = Current.DofData->A ;
 	      b = Current.DofData->b ;
 
@@ -545,42 +545,42 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 		  Current.DofData->A = Current.DofData->A2 ;
 		  Current.DofData->b = Current.DofData->b2 ;
 		  break;
-		case 3 : 
+		case 3 :
 		  Current.DofData->A = Current.DofData->A3 ;
 		  Current.DofData->b = Current.DofData->b3 ;
 		  break;
-		}		
+		}
 	      }
 	    }/* Only the matrices that vary are recalculated */
 
 	    if (!Current.DofData->Flag_Only || (Current.DofData->Flag_Only && Flag_Only) ){
-	      QuantityStorage_P = QuantityStorage_P0 + 
+	      QuantityStorage_P = QuantityStorage_P0 +
 		EquationTerm_P->Case.LocalTerm.Term.DefineQuantityIndexEqu ;
 
 	      if(EquationTerm_P->Type == GALERKIN)
-		Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
-	      
+                Cal_GalerkinTermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
+
 	      if (Current.DofData->Flag_Only && Flag_Only){
 		Current.DofData->A = A ;
 		Current.DofData->b = b ;
 	      }
-	      
+
 	    }/* Flag_Only */
 	    break ;
 
 	    case _CST :
 	      Cst_TermOfFemEquation(&Element, EquationTerm_P, QuantityStorage_P0) ;
 	      break ;
-	    	        
-	  } 
-	
+
+	  }
+
 	}/* if Support ... */
-	
+
       } /* if GALERKIN ... */
-      
+
     }  /* for i_EquTerm ... */
 
-    Message::ProgressMeter(i_Element + 1, Nbr_Element);    
+    Message::ProgressMeter(i_Element + 1, Nbr_Element);
   }  /* for i_Element ... */
 
 
@@ -600,42 +600,42 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
     if (EquationTerm_P->Type == GLOBALTERM) {
 
-      InitialListInIndex_L = 
+      InitialListInIndex_L =
 	((struct Group *)List_Pointer(Problem_S.Group,
 				      EquationTerm_P->Case.GlobalTerm.InIndex))
 	->InitialList ;
       List_Sort(InitialListInIndex_L, fcmp_int) ;
       Nbr_Region = List_Nbr(InitialListInIndex_L) ;
-      
+
       /* ---------------------------------------------- */
       /* 3.1.  Loop on Regions belonging to the support */
       /* ---------------------------------------------- */
-      
+
       for (i_Region = 0 ; i_Region < Nbr_Region ; i_Region++) {
 	List_Read(InitialListInIndex_L, i_Region, &Num_Region) ;
 	Current.Region = Num_Region ;
-	
+
 	/* ---------------------------------------------------------------- */
 	/* 3.1.1.   Loop on Quantities (test functions and shape functions) */
 	/* ---------------------------------------------------------------- */
-	
+
 	for (i = 0 ; i < EquationTerm_P->Case.GlobalTerm.Term.NbrQuantityIndex ; i++) {
-	  
+
 	  Index_DefineQuantity =
 	    EquationTerm_P->Case.GlobalTerm.Term.QuantityIndexTable[i] ;
 	  DefineQuantity_P  = DefineQuantity_P0  + Index_DefineQuantity ;
 	  QuantityStorage_P = QuantityStorage_P0 + Index_DefineQuantity ;
-	  
+
 	  GlobalQuantity_P = (struct GlobalQuantity*)
 	    List_Pointer(QuantityStorage_P->FunctionSpace->GlobalQuantity,
 			 *(int*)List_Pointer(DefineQuantity_P->IndexInFunctionSpace, 0)) ;
-	  
+
 	  /* Only one Function space analysis */
 	  /* -------------------------------- */
-	  
+
 	  if (QuantityStorage_P->NumLastElementForFunctionSpace != Num_Region) {
 	    QuantityStorage_P->NumLastElementForFunctionSpace = Num_Region ;
-	    
+
 	    switch (DefineQuantity_P->Type) {
 	    case GLOBALQUANTITY :
 	      Get_DofOfRegion
@@ -649,7 +649,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	    }
 	  }
 	}  /* for i = 0, 1 ... */
-	
+
 	/* ------------------------------ */
 	/* 3.1.2.  Treatment of the term  */
 	/* ------------------------------ */
@@ -669,9 +669,9 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 				      QuantityStorage_P0) ;
 	  break ;
 	}
-	
+
       }
-      
+
     }  /* if GLOBALTERM ... */
   }  /* for i_EquTerm ... */
 
@@ -701,7 +701,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
     }  /* if GLOBALEQUATION ... */
   }  /* for i_EquTerm ... */
-    
+
 
   /* -------------------------- */
   /* 5.   End of FEM treatment  */
