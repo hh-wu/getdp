@@ -15,8 +15,8 @@ void Generate_ElementaryEntities(List_T * InitialList, List_T ** ExtendedList,
 				 int Type_Entity) ;
 void Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList) ;
 void Generate_GroupsOfEdges(List_T * InitialList, int Type_SuppList,
-			    List_T * InitialSuppList, List_T ** ExtendedList, int * MultiValuedGroup) ;
-void Generate_GroupsOfFacets(List_T * InitialList, List_T ** ExtendedList, int * MultiValuedGroup) ;
+			    List_T * InitialSuppList, List_T ** ExtendedList) ;
+void Generate_GroupsOfFacets(List_T * InitialList, List_T ** ExtendedList) ;
 void Generate_Elements(List_T * InitialList, int Type_SuppList,
 		       List_T * InitialSuppList, List_T ** ExtendedList) ;
 

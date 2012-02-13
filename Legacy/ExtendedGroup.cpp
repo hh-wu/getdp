@@ -76,8 +76,6 @@ void Generate_ExtendedGroup(struct Group * Group_P)
   Message::Info("  Generate ExtendedGroup '%s' (%s)", Group_P->Name,
             Get_StringForDefine(FunctionForGroup_Type, Group_P->FunctionType)) ;
 
-  int MultiValuedGroup = 0;
-
   switch (Group_P->FunctionType) {
 
   case NODESOF :  case EDGESOF :  case FACETSOF :  case VOLUMESOF :
@@ -107,12 +105,11 @@ void Generate_ExtendedGroup(struct Group * Group_P)
   case GROUPSOFEDGESOF :
     Generate_GroupsOfEdges(Group_P->InitialList,
 			   Group_P->SuppListType, Group_P->InitialSuppList,
-			   &Group_P->ExtendedList,
-                           &MultiValuedGroup) ;
+			   &Group_P->ExtendedList) ;
     break ;
 
   case GROUPSOFFACETSOF :
-    Generate_GroupsOfFacets(Group_P->InitialList, &Group_P->ExtendedList, &MultiValuedGroup) ;
+    Generate_GroupsOfFacets(Group_P->InitialList, &Group_P->ExtendedList) ;
     break ;
 
   case EDGESOFTREEIN :
@@ -138,22 +135,18 @@ void Generate_ExtendedGroup(struct Group * Group_P)
   if(List_Nbr(Group_P->ExtendedList) && (Group_P->FunctionType == GROUPSOFNODESOF ||
                                          Group_P->FunctionType == GROUPSOFEDGESOF ||
                                          Group_P->FunctionType == GROUPSOFFACETSOF)) {
-    if(MultiValuedGroup) Group_P->IsExtendedListMultiValued = true;
-    else {
-      Group_P->IsExtendedListMultiValued = false;
-      List_Sort(Group_P->ExtendedList, fcmp_absint);
-      TwoInt k1, k2;
-      List_Read(Group_P->ExtendedList, 0, &k1);
-      for(int i = 1; i < List_Nbr(Group_P->ExtendedList); i++){
-        List_Read(Group_P->ExtendedList, i, &k2);
-        if(abs(k1.Int1) == abs(k2.Int1)){
-          Group_P->IsExtendedListMultiValued = true;
-          break;
-        }
+    Group_P->IsExtendedListMultiValued = false;
+    List_Sort(Group_P->ExtendedList, fcmp_absint);
+    TwoInt k1, k2;
+    List_Read(Group_P->ExtendedList, 0, &k1);
+    for(int i = 1; i < List_Nbr(Group_P->ExtendedList); i++){
+      List_Read(Group_P->ExtendedList, i, &k2);
+      if(abs(k1.Int1) == abs(k2.Int1)){
+        Group_P->IsExtendedListMultiValued = true;
+        Message::Info("  Extended group is multivalued (search will be slow...)");
+        break;
       }
     }
-    if(Group_P->IsExtendedListMultiValued)
-    Message::Info("  Extended group is multivalued (search will be slow...)");
   }
 }
 
@@ -242,7 +235,8 @@ void Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList)
     }
   }
 
-  *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
+  *ExtendedList = Tree2List(Entity_Tr) ;
+  Tree_Delete(Entity_Tr) ;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -251,8 +245,7 @@ void Generate_GroupsOfNodes(List_T * InitialList, List_T ** ExtendedList)
 
 void Generate_GroupsOfEdges(List_T * InitialList,
 			    int Type_SuppList, List_T * InitialSuppList,
-			    List_T ** ExtendedList,
-                            int * MultiValuedGroup)
+			    List_T ** ExtendedList)
 {
   Tree_T  * Entity_Tr ;
   struct Geo_Element  * GeoElement ;
@@ -261,8 +254,7 @@ void Generate_GroupsOfEdges(List_T * InitialList,
   struct TwoInt  Num_GroupOfEdges, * Key1_P, * Key2_P ;
   List_T  * ExtendedAuxList ;
   struct Group  * GroupForSupport_P ;
-
-  *MultiValuedGroup = 0;
+  int MultiValuedGroup = 0;
 
   switch (Type_SuppList) {
 
@@ -345,13 +337,13 @@ void Generate_GroupsOfEdges(List_T * InitialList,
 
       List_Delete(ExtendedAuxList) ;
     }
-    *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
+    *ExtendedList = Tree2List(Entity_Tr) ;
+    Tree_Delete(Entity_Tr) ;
     break ;
 
   case SUPPLIST_NONE :
-    *MultiValuedGroup = 1;
   default :
-    List_Delete(*ExtendedList);
+    MultiValuedGroup = 1;
     *ExtendedList = List_Create(10,10,sizeof (struct TwoInt)) ;
     if (List_Nbr(InitialList)) {
       Generate_GroupsOfNodes(InitialList, &ExtendedAuxList) ;
@@ -359,8 +351,11 @@ void Generate_GroupsOfEdges(List_T * InitialList,
       for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
         GeoElement = Geo_GetGeoElement(i_Element) ;
         if (List_Search(InitialList, &GeoElement->Region, fcmp_int) ) {
+          // when generating edges of line elements, we assume that we want to
+          // keep any multiple copy that might arise, with its sign; this is
+          // required by the cohomology solver
           if(GeoElement->Type != LINE && GeoElement->Type != LINE_2)
-            *MultiValuedGroup = 0;
+            MultiValuedGroup = 0;
           if (GeoElement->NbrEdges == 0) Geo_CreateEdgesOfElement(GeoElement) ;
           for (i_Entity = 0 ; i_Entity < GeoElement->NbrEdges ; i_Entity++) {
             Num_Nodes = Geo_GetNodesOfEdgeInElement(GeoElement, i_Entity) ;
@@ -378,15 +373,17 @@ void Generate_GroupsOfEdges(List_T * InitialList,
       }
       List_Delete(ExtendedAuxList) ;
     }
-    if(!*MultiValuedGroup) {
+    // prune list if we are not in the "forced" multivalued case
+    if(!MultiValuedGroup) {
       Entity_Tr = Tree_Create(sizeof (struct TwoInt), fcmp_absint2) ;
-      for (i_Entity = 0 ; i_Entity < List_Nbr(*ExtendedList) ; i_Entity++) {
+      for (i_Entity = 0; i_Entity < List_Nbr(*ExtendedList); i_Entity++) {
         List_Read(*ExtendedList, i_Entity, &Num_GroupOfEdges) ;
-        if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
+        if (!Tree_Search(Entity_Tr, &Num_GroupOfEdges))
           Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
       }
       List_Delete(*ExtendedList) ;
-      *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
+      *ExtendedList = Tree2List(Entity_Tr);
+      Tree_Delete(Entity_Tr) ;
     }
     break;
 
@@ -405,8 +402,7 @@ void Generate_GroupsOfEdges(List_T * InitialList,
 /* ------------------------------------------------------------------------ */
 
 void Generate_GroupsOfFacets(List_T * InitialList,
-                             List_T ** ExtendedList,
-                             int * MultiValuedGroup)
+                             List_T ** ExtendedList)
 {
   Tree_T  * Entity_Tr ;
   struct Geo_Element  * GeoElement ;
@@ -415,9 +411,8 @@ void Generate_GroupsOfFacets(List_T * InitialList,
   struct TwoInt  Num_GroupOfFacets ;
   List_T  * ExtendedAuxList ;
 
-  *MultiValuedGroup = 1;
+  int MultiValuedGroup = 1;
 
-  List_Delete(*ExtendedList);
   *ExtendedList = List_Create(10,10,sizeof (struct TwoInt)) ;
 
   if (List_Nbr(InitialList)) {
@@ -426,12 +421,15 @@ void Generate_GroupsOfFacets(List_T * InitialList,
     for (i_Element = 0 ; i_Element < Nbr_Element ; i_Element++) {
       GeoElement = Geo_GetGeoElement(i_Element) ;
       if (List_Search(InitialList, &GeoElement->Region, fcmp_int) ) {
+        // when generating facets of surface elements, we assume that we want to
+        // keep any multiple copy that might arise, with its sign; this is
+        // required by the cohomology solver
         if(GeoElement->Type != TRIANGLE &&
            GeoElement->Type != TRIANGLE_2 &&
            GeoElement->Type != QUADRANGLE &&
            GeoElement->Type != QUADRANGLE_2 &&
            GeoElement->Type != QUADRANGLE_2_8N)
-          *MultiValuedGroup = 0;
+          MultiValuedGroup = 0;
         if (GeoElement->NbrEdges == 0)  Geo_CreateEdgesOfElement(GeoElement) ;
         if (GeoElement->NbrFacets == 0) Geo_CreateFacetsOfElement(GeoElement) ;
         for (i_Entity = 0 ; i_Entity < GeoElement->NbrFacets ; i_Entity++) {
@@ -457,15 +455,17 @@ void Generate_GroupsOfFacets(List_T * InitialList,
     List_Delete(ExtendedAuxList) ;
   }
 
-  if(!*MultiValuedGroup) {
+  // prune list if we are not in the "forced" multivalued case
+  if(!MultiValuedGroup) {
     Entity_Tr = Tree_Create(sizeof (struct TwoInt), fcmp_absint2) ;
-    for (i_Entity = 0 ; i_Entity < List_Nbr(*ExtendedList) ; i_Entity++) {
+    for(i_Entity = 0; i_Entity < List_Nbr(*ExtendedList); i_Entity++) {
       List_Read(*ExtendedList, i_Entity, &Num_GroupOfFacets) ;
-      if ( ! Tree_Search(Entity_Tr, &Num_GroupOfFacets) )
+      if(!Tree_Search(Entity_Tr, &Num_GroupOfFacets))
         Tree_Add(Entity_Tr, &Num_GroupOfFacets) ;
     }
     List_Delete(*ExtendedList) ;
-    *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
+    *ExtendedList = Tree2List(Entity_Tr) ;
+    Tree_Delete(Entity_Tr) ;
   }
 
   /*
@@ -567,5 +567,6 @@ void  Generate_Elements(List_T * InitialList,
 
   }
 
-  *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
+  *ExtendedList = Tree2List(Entity_Tr) ;
+  Tree_Delete(Entity_Tr) ;
 }
