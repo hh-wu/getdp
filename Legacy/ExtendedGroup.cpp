@@ -137,15 +137,17 @@ void Generate_ExtendedGroup(struct Group * Group_P)
                                          Group_P->FunctionType == GROUPSOFFACETSOF)) {
     Group_P->IsExtendedListMultiValued = false;
     List_Sort(Group_P->ExtendedList, fcmp_absint);
-    TwoInt k1, k2;
+    TwoInt k1, k2, k3;
     List_Read(Group_P->ExtendedList, 0, &k1);
+    k3 = k1;
     for(int i = 1; i < List_Nbr(Group_P->ExtendedList); i++){
       List_Read(Group_P->ExtendedList, i, &k2);
-      if(abs(k1.Int1) == abs(k2.Int1)){
+      if(abs(k1.Int1) == abs(k2.Int1) || abs(k3.Int1) == abs(k2.Int1) ){
         Group_P->IsExtendedListMultiValued = true;
         Message::Info("  Extended group is multivalued (search will be slow...)");
         break;
       }
+      k3 = k2;
     }
   }
 }
