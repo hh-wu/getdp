@@ -384,7 +384,6 @@ void Generate_GroupsOfEdges(List_T * InitialList,
         List_Read(*ExtendedList, i_Entity, &Num_GroupOfEdges) ;
         if ( ! Tree_Search(Entity_Tr, &Num_GroupOfEdges) )
           Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
-        Tree_Add(Entity_Tr, &Num_GroupOfEdges) ;
       }
       List_Delete(*ExtendedList) ;
       *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
@@ -464,7 +463,6 @@ void Generate_GroupsOfFacets(List_T * InitialList,
       List_Read(*ExtendedList, i_Entity, &Num_GroupOfFacets) ;
       if ( ! Tree_Search(Entity_Tr, &Num_GroupOfFacets) )
         Tree_Add(Entity_Tr, &Num_GroupOfFacets) ;
-      Tree_Add(Entity_Tr, &Num_GroupOfFacets) ;
     }
     List_Delete(*ExtendedList) ;
     *ExtendedList = Tree2List(Entity_Tr) ;  Tree_Delete(Entity_Tr) ;
