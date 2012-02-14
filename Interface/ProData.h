@@ -935,6 +935,10 @@ struct Operation {
       int     DTimeIndex;
     } TimeLoopRungeKutta;
     struct {
+      double  Time0, TimeMax, DTimeMin, DTimeMax, MaxOrder;
+      List_T  *DefineSystemIndices, *Operation, *OperationEnd;
+    } TimeLoopAdaptive;
+    struct {
       double  Criterion;
       int     NbrMaxIteration, RelaxationFactorIndex, Flag;
       List_T  *Operation;
@@ -1032,7 +1036,6 @@ struct Operation {
 
 };
 
-
 struct ChangeOfState {
   int     Type;
   int     QuantityIndex, InIndex, FormulationIndex;
@@ -1040,7 +1043,6 @@ struct ChangeOfState {
   double  *ActiveList[2];
   int     ExpressionIndex, ExpressionIndex2, FlagIndex;
 };
-
 
 /* Operation.Type */
 #define OPERATION_NONE                      0
@@ -1058,7 +1060,6 @@ struct ChangeOfState {
 #define OPERATION_GENERATESEPARATE          5
 #define OPERATION_UPDATE                    6
 #define OPERATION_UPDATECONSTRAINT          7
-#define OPERATION_UPDATETRANSLATION       104
 #define OPERATION_LANCZOS                   8
 #define OPERATION_PERTURBATION              9
 #define OPERATION_EIGENSOLVE               16
@@ -1083,12 +1084,10 @@ struct ChangeOfState {
 #define OPERATION_ADD_MH_MOVING          9992
 #define OPERATION_DUMMYDOFS              9993
 
-
 #define OPERATION_SAVEMESH                333
 #define OPERATION_DEFORMEMESH             334
 #define OPERATION_READSOLUTION             12
 #define OPERATION_TRANSFERSOLUTION         13
-#define OPERATION_TRANSFERINITSOLUTION     14
 #define OPERATION_INITSOLUTION             15
 #define OPERATION_SETCURRENTSYSTEM         70
 
@@ -1109,6 +1108,7 @@ struct ChangeOfState {
 #define OPERATION_ITERATIVETIMEREDUCTION   33
 #define OPERATION_TIMELOOPRUNGEKUTTA       34
 #define OPERATION_ITERATIVELINEARSOLVER    35
+#define OPERATION_TIMELOOPADAPTIVE         36
 
 #define OPERATION_CHANGEOFCOORDINATES      40
 #define OPERATION_CHANGEOFCOORDINATES2    400

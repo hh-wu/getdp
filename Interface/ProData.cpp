@@ -1015,7 +1015,6 @@ void Print_Operation(struct Resolution *RE, List_T *Operation_L)
     case OPERATION_SAVESOLUTIONS :
     case OPERATION_READSOLUTION :
     case OPERATION_TRANSFERSOLUTION :
-    case OPERATION_TRANSFERINITSOLUTION :
       for (i=0; i<2*NbrBlk; i++) Message::Check(" ");
       Message::Check("      %s [%s];\n",
                      Get_StringForDefine(Operation_Type, OPE->Type),

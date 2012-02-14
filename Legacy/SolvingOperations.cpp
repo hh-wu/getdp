@@ -59,6 +59,9 @@ struct Group * Generate_Group = NULL;
 
 static int Flag_Break = 0;
 
+// For adaptive time stepper (ugly, I know...)
+int Flag_IterativeLoopConverged = 1;
+
 // Johan: it would be nice to get rid of these globals
 int Flag_RHS = 0, *DummyDof ;
 double **MH_Moving_Matrix = NULL ;
@@ -154,6 +157,12 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
        loop (i.e. before TimeStep+=1), the List_PQuery may return (in
        an unpredictable way) any of the initial solutions. */
     Message::Error("Incompatible time") ;
+  }
+  else{
+    // fix time values if we recompute the same step (with different time)
+    Solution_P->Time = Current.Time ;
+    Solution_P->TimeImag = Current.TimeImag ;
+    Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
   }
 
   if(Flag_Separate){
@@ -3023,15 +3032,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Current.RelativeDifferenceOld = Current.RelativeDifference ; /* Attention: pt */
       }
-      if (Num_Iteration > Operation_P->Case.IterativeLoop.NbrMaxIteration)
+      if (Num_Iteration > Operation_P->Case.IterativeLoop.NbrMaxIteration){
 	Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
+        Flag_IterativeLoopConverged = 0;
+      }
+
       Message::Info("Mean Error: %.3e (after %d iterations)",
                     Current.RelativeDifference, Num_Iteration) ;
       Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
                                      MeanError);
 
       Current.Iteration = Save_Iteration ;
-
       break ;
 
     case OPERATION_ITERATIVELINEARSOLVER :
@@ -3277,10 +3288,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           // use matlab format if available
           DefineSystem_P = (struct DefineSystem*)
             List_Pointer(Resolution_P->DefineSystem, Operation_P->DefineSystemIndex) ;
-          std::string name(DefineSystem_P->Name), file("file_"), mat("mat_"), vec("vec_");
-	  LinAlg_PrintMatrix(fp, &DofData_P->A, true, (file + mat + name + ".m").c_str(),
+          std::string path(Name_Path), name(DefineSystem_P->Name), file("file_"), mat("mat_"), vec("vec_");
+	  LinAlg_PrintMatrix(fp, &DofData_P->A, true, (path + file + mat + name + ".m").c_str(),
                              (mat + name).c_str()) ;
-	  LinAlg_PrintVector(fp, &DofData_P->b, true, (file + vec + name + ".m").c_str(),
+	  LinAlg_PrintVector(fp, &DofData_P->b, true, (path + file + vec + name + ".m").c_str(),
                              (vec + name).c_str()) ;
 	}
       }
@@ -3367,6 +3378,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       }
       Current.Element = Save_Element;
       break ;
+
+      /*  -->  T i m e L o o p A d a p t i v e  */
+      /*  ------------------------------------- */
+
+    case OPERATION_TIMELOOPADAPTIVE :
+      Message::Info("TimeLoopAdaptve ...") ;
+      Operation_TimeLoopAdaptive(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
+      break;
 
       /*  -->  T i m e L o o p R u n g e K u t t a  */
       /*  ----------------------------------------- */

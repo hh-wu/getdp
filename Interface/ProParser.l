@@ -230,6 +230,7 @@ Test                         return tIf;
 TimeLoopTheta                return tTimeLoopTheta;
 TimeLoopNewmark              return tTimeLoopNewmark;
 TimeLoopRungeKutta           return tTimeLoopRungeKutta;
+TimeLoopAdaptive             return tTimeLoopAdaptive;
 Time0                        return tTime0;
 TimeMax                      return tTimeMax;
 DTime                        return tDTime;

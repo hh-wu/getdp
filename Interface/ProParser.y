@@ -218,7 +218,7 @@ void vyyerror(const char *fmt, ...);
 %token      tEvaluate tSelectCorrection tAddCorrection tMultiplySolution
 %token      tAddOppositeFullSolution
 
-%token      tTimeLoopTheta tTimeLoopNewmark tTimeLoopRungeKutta
+%token      tTimeLoopTheta tTimeLoopNewmark tTimeLoopRungeKutta tTimeLoopAdaptive
 %token        tTime0 tTimeMax tTheta
 %token        tBeta tGamma
 %token      tIterativeLoop tIterativeLinearSolver
@@ -4491,6 +4491,34 @@ OperationTerm :
       Operation_P->Case.TimeLoopRungeKutta.ButcherC = $15;
     }
 
+  | tTimeLoopAdaptive '[' '{' RecursiveListOfString__Index '}' ','
+                          FExpr ',' FExpr ',' FExpr ',' FExpr ',' FExpr ']'
+                      '{' Operation '}' '{' Operation '}'
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      Operation_P->Type = OPERATION_TIMELOOPADAPTIVE;
+      Operation_P->Case.TimeLoopAdaptive.DefineSystemIndices =
+        List_Create(4, 4, sizeof(int));
+      for(int j = 0; j < List_Nbr($4); j++){
+	char *sys;
+	List_Read($4, j, &sys);
+	int i;
+	if((i = List_ISearchSeq(Resolution_S.DefineSystem, sys,
+				fcmp_DefineSystem_Name)) < 0)
+	  vyyerror("Unknown System: %s", sys);
+	Free(sys);
+	List_Add(Operation_P->Case.TimeLoopAdaptive.DefineSystemIndices, &i);
+      }
+      List_Delete($4);
+      Operation_P->Case.TimeLoopAdaptive.Time0 = $7;
+      Operation_P->Case.TimeLoopAdaptive.TimeMax = $9;
+      Operation_P->Case.TimeLoopAdaptive.DTimeMin = $11;
+      Operation_P->Case.TimeLoopAdaptive.DTimeMax = $13;
+      Operation_P->Case.TimeLoopAdaptive.MaxOrder = $15;
+      Operation_P->Case.TimeLoopAdaptive.Operation = $18;
+      Operation_P->Case.TimeLoopAdaptive.OperationEnd = $21;
+    }
+
   | tIterativeLoop  '[' FExpr ',' FExpr ',' Expression ']'
                      '{' Operation '}'
     { List_Pop(Operation_L);
@@ -4880,7 +4908,7 @@ OperationTerm :
 	Free(sys);
 	List_Add(Operation_P->Case.TensorProductSolve.SystemIndex, &i);
       }
-      Free($4);
+      List_Delete($4);
       Operation_P->Case.TensorProductSolve.ExpectationIndex = List_Create(4, 4, sizeof(int));
       for(int j = 0; j < List_Nbr($8); j++){
 	char *sys;
@@ -4892,7 +4920,7 @@ OperationTerm :
 	Free(sys);
 	List_Add(Operation_P->Case.TensorProductSolve.ExpectationIndex, &i);
       }
-      Free($8);
+      List_Delete($8);
       Operation_P->Case.TensorProductSolve.LocalMatrixIndex = $11;
       Operation_P->Case.TensorProductSolve.ExpansionCoef = $14;
       Operation_P->Type = OPERATION_TENSORPRODUCTSOLVE;

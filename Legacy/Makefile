@@ -35,6 +35,8 @@ SRC = MainLegacy.cpp \
       DofData.cpp \
         LinAlg.cpp LinAlg_PETSC.cpp LinAlg_SPARSKIT.cpp \
       SolvingAnalyse.cpp SolvingOperations.cpp \
+        Operation_TimeLoopAdaptive.cpp \
+        IterativeLinearSolver.cpp \
         Treatment_Formulation.cpp \
             Get_DofOfElement.cpp \
             Get_ConstraintOfElement.cpp \
@@ -53,7 +55,6 @@ SRC = MainLegacy.cpp \
               Cal_AssembleTerm.cpp \
               Cal_PostQuantity.cpp \
         MovingBand2D.cpp \
-        IterativeLinearSolver.cpp \
         EigenSolve.cpp EigenSolve_ARPACK.cpp EigenSolve_SLEPC.cpp \
       Pos_FemInterpolation.cpp \
       Pos_Formulation.cpp \
