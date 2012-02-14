@@ -7,15 +7,15 @@
 #include "Message.h"
 #include "EigenSolve.h"
 
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev
 #define PetscTruth PetscBool
 #define PetscOptionsGetTruth PetscOptionsGetBool
 #endif
 
-void EigenSolve(struct DofData * DofData_P, int NumEigenvalues, 
+void EigenSolve(struct DofData * DofData_P, int NumEigenvalues,
 		double shift_r, double shift_i)
 {
-#if defined(HAVE_ARPACK) && defined(HAVE_SLEPC) 
+#if defined(HAVE_ARPACK) && defined(HAVE_SLEPC)
   // if both Arpack and SLEPC are available, use Arpack by default
   // (set "-slepc" on the command line to force SLEPC)
   PetscTruth slepc = PETSC_FALSE, set;

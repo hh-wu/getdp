@@ -27,7 +27,7 @@
 //   -qep_st_pc_factor_mat_solver_package mumps
 //
 // To solve the quadratic evp directly using arnoldi iter:
-//   -qep_type qarnoldi -qep_eps_type krylovschur 
+//   -qep_type qarnoldi -qep_eps_type krylovschur
 //   -qep_st_ksp_type gmres -qep_st_pc_type ilu
 
 #include <sstream>
@@ -59,14 +59,14 @@ static PetscErrorCode _myMonitor(const char *str, int its, int nconv, PetscScala
   return 0;
 }
 
-static PetscErrorCode _myEpsMonitor(EPS eps, int its, int nconv, PetscScalar *eigr, 
+static PetscErrorCode _myEpsMonitor(EPS eps, int its, int nconv, PetscScalar *eigr,
                                     PetscScalar *eigi, PetscReal* errest, int nest,
                                     void *mctx)
 {
   return _myMonitor("EPS", its, nconv, eigr, eigi, errest);
 }
 
-static PetscErrorCode _myQepMonitor(QEP qep, int its, int nconv, PetscScalar *eigr, 
+static PetscErrorCode _myQepMonitor(QEP qep, int its, int nconv, PetscScalar *eigr,
                                     PetscScalar *eigi, PetscReal* errest, int nest,
                                     void *mctx)
 {
@@ -100,27 +100,27 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
 #endif
     double ore, oim;
     if(eps){
-      Message::Info("EIG %03d w^2 = %s%.16e %s%.16e  %3.6e", 
+      Message::Info("EIG %03d w^2 = %s%.16e %s%.16e  %3.6e",
                     i, (re < 0) ? "" : " ", re, (im < 0) ? "" : " ", im, error);
       double abs = sqrt(re * re + im * im), arg = atan2(im, re);
       ore = sqrt(abs) * cos(0.5*arg);
       oim = sqrt(abs) * sin(0.5*arg);
       double fre = ore / 2. / M_PI, fim = oim / 2. / M_PI;
-      Message::Info("          w = %s%.16e %s%.16e", 
+      Message::Info("          w = %s%.16e %s%.16e",
                     (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim);
-      Message::Info("          f = %s%.16e %s%.16e", 
+      Message::Info("          f = %s%.16e %s%.16e",
                     (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
     }
     else{
       ore = re;
       oim = im;
-      Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e", 
+      Message::Info("EIG %03d   w = %s%.16e %s%.16e  %3.6e",
                     i, (ore < 0) ? "" : " ", ore, (oim < 0) ? "" : " ", oim, error);
       double fre = re / 2. / M_PI, fim = im / 2. / M_PI;
-      Message::Info("          f = %s%.16e %s%.16e", 
+      Message::Info("          f = %s%.16e %s%.16e",
                     (fre < 0) ? "" : " ", fre, (fim < 0) ? "" : " ", fim);
     }
-    
+
     // create new solution vector if necessary
     if(newsol) {
       struct Solution Solution_S;
@@ -128,14 +128,14 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
       List_Add(DofData_P->Solutions, &Solution_S);
       DofData_P->CurrentSolution = (struct Solution*)
         List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
-    } 
+    }
     newsol = true;
     DofData_P->CurrentSolution->Time = ore;
     DofData_P->CurrentSolution->TimeImag = oim;
     DofData_P->CurrentSolution->TimeStep = (int)Current.TimeStep;
     DofData_P->CurrentSolution->TimeFunctionValues = NULL;
     DofData_P->CurrentSolution->SolutionExist = 1;
-    
+
     // store eigenvector
     PetscScalar *tmpr, *tmpi;
     _try(VecGetArray(xr, &tmpr));
@@ -152,7 +152,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
       LinAlg_SetComplexInVector(var_r, var_i, &DofData_P->CurrentSolution->x, l, l+1);
     }
     LinAlg_AssembleVector(&DofData_P->CurrentSolution->x);
-    
+
     // increment the global timestep counter so that a future
     // GenerateSystem knows which solutions exist
     Current.TimeStep += 1.;
@@ -162,7 +162,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
     Current.TimeImag = im;
   }
 
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev
   _try(VecDestroy(&xr));
   _try(VecDestroy(&xi));
 #else
@@ -171,7 +171,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
 #endif
 }
 
-static void _linearEVP(struct DofData * DofData_P, int numEigenValues, 
+static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
                        double shift_r, double shift_i)
 {
   Message::Info("Solving linear eigenvalue problem");
@@ -184,11 +184,11 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   _try(EPSCreate(PETSC_COMM_WORLD, &eps));
   _try(EPSSetOperators(eps, A, B));
   _try(EPSSetProblemType(eps, EPS_GNHEP));
-  
+
   // set some default options
   _try(EPSSetDimensions(eps, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
   _try(EPSSetTolerances(eps, 1.e-6, 100));
-  _try(EPSSetType(eps, EPSKRYLOVSCHUR)); 
+  _try(EPSSetType(eps, EPSKRYLOVSCHUR));
                   // EPSKRYLOVSCHUR, EPSARNOLDI, EPSARPACK or EPSPOWER
   _try(EPSSetWhichEigenpairs(eps, EPS_SMALLEST_MAGNITUDE));
                              // EPS_SMALLEST_REAL, EPS_LARGEST_MAGNITUDE, ...
@@ -197,7 +197,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
 
   // override these options at runtime, petsc-style
   _try(EPSSetFromOptions(eps));
-  
+
   // force options specified directly as arguments
   if(numEigenValues)
     _try(EPSSetDimensions(eps, numEigenValues, PETSC_DECIDE, PETSC_DECIDE));
@@ -205,7 +205,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   ST st;
   _try(EPSGetST(eps, &st));
   _try(STSetType(st, STSINVERT));
-  
+
   // apply shift-and-invert transformation
   if(shift_r || shift_i){
 #if defined(PETSC_USE_COMPLEX)
@@ -242,11 +242,11 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   PetscInt maxit;
   _try(EPSGetTolerances(eps, &tol, &maxit));
   Message::Info("SLEPc stopping condition: tol=%g, maxit=%d", tol, maxit);
-  
+
   // solve
   Message::Info("SLEPc solving...");
   _try(EPSSolve(eps));
-  
+
   // check convergence
   int its;
   _try(EPSGetIterationNumber(eps, &its));
@@ -258,7 +258,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("SLEPc diverged after %d iterations", its);
   else if(reason == EPS_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
-#if !(PETSC_VERSION_RELEASE == 0) // petsc-dev
+#if !(PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev
   else if(reason == EPS_DIVERGED_NONSYMMETRIC)
     Message::Error("The operator is nonsymmetric");
 #endif
@@ -267,21 +267,21 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   PetscInt nconv;
   _try(EPSGetConverged(eps, &nconv));
   Message::Info("SLEPc number of converged eigenpairs: %d", nconv);
-  
+
   // ignore additional eigenvalues if we get more than what we asked
   if(nconv > nev) nconv = nev;
-  
+
   // print eigenvalues and store eigenvectors in DofData
   _storeEigenVectors(DofData_P, nconv, eps, PETSC_NULL);
-  
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev
   _try(EPSDestroy(&eps));
 #else
   _try(EPSDestroy(eps));
 #endif
 }
 
-static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues, 
+static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
                           double shift_r, double shift_i)
 {
   Message::Info("Solving quadratic eigenvalue problem");
@@ -307,7 +307,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 
   // if we linearize we can set additional options
   const QEPType type;
-  _try(QEPGetType(qep, &type)); 
+  _try(QEPGetType(qep, &type));
   if(!strcmp(type, QEPLINEAR)){
     EPS eps;
     _try(QEPLinearGetEPS(qep, &eps));
@@ -388,8 +388,8 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
 
   // print eigenvalues and store eigenvectors in DofData
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, qep);
-  
-#if (PETSC_VERSION_RELEASE == 0) // petsc-dev
+
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev
   _try(QEPDestroy(&qep));
 #else
   _try(QEPDestroy(qep));
@@ -400,7 +400,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   LinAlg_ProdMatrixComplex(&DofData_P->M2, 0.0, -1.0, &DofData_P->M2);
 }
 
-void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues, 
+void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
                       double shift_r, double shift_i)
 {
   // bail out if we are not in harmonic regime: it's much easier this
