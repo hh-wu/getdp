@@ -143,6 +143,7 @@ void Generate_ExtendedGroup(struct Group * Group_P)
       List_Read(Group_P->ExtendedList, i, &k);
       std::pair<std::set<int>::iterator, bool> ret = s.insert(abs(k.Int1));
       if(ret.second){
+        Group_P->IsExtendedListMultiValued = true;
         Message::Info("  Extended group is multivalued (search will be slow...)");
         break;
       }
