@@ -186,12 +186,13 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     }
   }
   else{
-    LinAlg_ZeroMatrix(&Current.DofData->A) ;
+    if(!Current.DofData->Flag_RHS)
+      LinAlg_ZeroMatrix(&Current.DofData->A) ;
     LinAlg_ZeroVector(&Current.DofData->b) ;
 
     if(DofData_P->Flag_Only){
       for(i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
-	List_Read( DofData_P->OnlyTheseMatrices,i,&iMat);
+	List_Read(DofData_P->OnlyTheseMatrices, i, &iMat);
 	if(iMat){
 	  //Message::Info("Setting System {A%d,b%d} to zero",iMat,iMat);
 	  switch(iMat){
@@ -251,7 +252,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 
     if(DofData_P->Flag_Only){
       for(i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
-	List_Read( DofData_P->OnlyTheseMatrices,i,&iMat);
+	List_Read(DofData_P->OnlyTheseMatrices, i, &iMat);
 	switch(iMat){
 	case 1 :
 	  LinAlg_AssembleMatrix(&Current.DofData->A1) ;
@@ -1649,10 +1650,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_GENERATEJAC :  Flag_Jac = 1 ;
+    case OPERATION_GENERATERHS :
     case OPERATION_GENERATE :
       Init_OperationOnSystem(Get_StringForDefine(Operation_Type, Operation_P->Type),
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
 			     &DefineSystem_P, &DofData_P, Resolution2_P) ;
+
+      if(Operation_P->Type == OPERATION_GENERATERHS) DofData_P->Flag_RHS = 1;
 
       Current.TypeAssembly = ASSEMBLY_AGGREGATE ;
 
@@ -1664,6 +1668,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if (Operation_P->Case.Generate.GroupIndex >= 0) Generate_Group = NULL ;
 
+      DofData_P->Flag_RHS = 0;
       Flag_CPU = 1 ;
       break ;
 
@@ -1988,7 +1993,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         LinAlg_AssembleVector(&DofData_P->dx) ;
       }
 
-      LinAlg_SolveNL(&DofData_P->A, &DofData_P->b, &DofData_P->Jac, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx,
+      LinAlg_SolveNL(&DofData_P->A, &DofData_P->b, &DofData_P->Jac, &DofData_P->res,
+                     &DofData_P->Solver, &DofData_P->dx,
                      Operation_P->Case.Solve.SolverIndex) ;
       Flag_CPU = 1 ;
       break ;

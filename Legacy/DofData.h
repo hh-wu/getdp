@@ -37,7 +37,7 @@ struct Dof {
      with PETSc) is not allowed in a union); Val holds the init value
      for Type==Unknown, and the assigned value for
      Type==FixedAssociate. Val is not used for Type==Link */
-  gScalar   Val ; 
+  gScalar   Val ;
 
   union {
     struct {
@@ -91,7 +91,7 @@ struct DofData {
   int       NbrAnyDof, NbrDof ;
   Tree_T  * DofTree ;
   List_T  * DofList ;
-  
+
   int     * DummyDof ;
 
   char    * SolverDataFileName ;
@@ -106,6 +106,7 @@ struct DofData {
     List_T  * AllSolutions ;
   } CorrectionSolutions ;
 
+  int       Flag_RHS ; // only assemble RHS
   int       Flag_Init[4] ;
   int       Flag_Only ;
   int       Flag_InitOnly[3] ;
@@ -153,14 +154,14 @@ void  Dof_ReadFilePRE(struct DofData * DofData_P) ;
 
 void  Dof_WriteFileRES0(char * Name_File, int Format) ;
 void  Dof_ReadFileRES0(void) ;
-void  Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format, 
+void  Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 		       double Val_Time, double Val_TimeImag, int Val_TimeStep) ;
-void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P, 
+void  Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 		      int Read_DofData, double *Time, double *TimeImag,
 		      double *TimeStep) ;
 void  Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P, int Format,
 				int NbrH);
-void  Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P, 
+void  Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
 				int Format, List_T * Time_L);
 void  Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P,
                                      struct GeoData * GeoData_P0, struct Group * Group_P,
@@ -200,7 +201,7 @@ void  Dof_TransferDof(struct DofData * DofData1_P, struct DofData ** DofData2_P)
 struct  Dof * Dof_GetDofStruct(struct DofData * DofData_P, int D1, int D2, int D3) ;
 gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P) ;
 void    Dof_GetRealDofValue(struct DofData * DofData_P, struct Dof * Dof_P, double *d) ;
-void    Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P, 
+void    Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P,
 			       double *d1, double *d2) ;
 
 void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofData_P) ;

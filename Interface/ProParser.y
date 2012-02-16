@@ -233,7 +233,7 @@ void vyyerror(const char *fmt, ...);
 %token      tSaveSolutionExtendedMH tSaveSolutionMHtoTime tSaveSolutionWithEntityNum
 %token      tInit_MovingBand2D tMesh_MovingBand2D
 %token      tGenerate_MH_Moving tGenerate_MH_Moving_Separate tAdd_MH_Moving
-%token      tGenerateGroup tGenerateJacGroup
+%token      tGenerateGroup tGenerateJacGroup tGenerateRHSGroup
 %token      tSaveMesh
 %token      tDeformeMesh
 %token      tDummyFrequency
@@ -4036,8 +4036,9 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i;
 
       if(Operation_P->Type == OPERATION_GENERATE ||
-	  Operation_P->Type == OPERATION_GENERATEJAC ||
-	  Operation_P->Type == OPERATION_GENERATESEPARATE)
+         Operation_P->Type == OPERATION_GENERATERHS ||
+         Operation_P->Type == OPERATION_GENERATEJAC ||
+         Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
 
       if(Operation_P->Type == OPERATION_SOLVE ||
@@ -4097,8 +4098,9 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i;
 
       if(Operation_P->Type == OPERATION_GENERATE ||
-	  Operation_P->Type == OPERATION_GENERATEJAC ||
-	  Operation_P->Type == OPERATION_GENERATESEPARATE)
+         Operation_P->Type == OPERATION_GENERATERHS ||
+         Operation_P->Type == OPERATION_GENERATEJAC ||
+         Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
 
       if(Operation_P->Type == OPERATION_SOLVE ||
@@ -4861,7 +4863,7 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
-			       fcmp_DefineSystem_Name)) < 0)
+                              fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
@@ -4877,7 +4879,7 @@ OperationTerm :
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
       if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
-			       fcmp_DefineSystem_Name)) < 0)
+                              fcmp_DefineSystem_Name)) < 0)
 	vyyerror("Unknown System: %s", $3);
       Free($3);
       Operation_P->DefineSystemIndex = i;
@@ -4885,6 +4887,22 @@ OperationTerm :
 	vyyerror("Unknown Group: %s", $5);
       Free($5);
       Operation_P->Type = OPERATION_GENERATEJAC;
+      Operation_P->Case.Generate.GroupIndex = i;
+    }
+
+  | tGenerateRHSGroup  '[' String__Index ',' String__Index ']'  tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3,
+                              fcmp_DefineSystem_Name)) < 0)
+	vyyerror("Unknown System: %s", $3);
+      Free($3);
+      Operation_P->DefineSystemIndex = i;
+      if((i = List_ISearchSeq(Problem_S.Group, $5, fcmp_Group_Name)) < 0)
+	vyyerror("Unknown Group: %s", $5);
+      Free($5);
+      Operation_P->Type = OPERATION_GENERATERHS;
       Operation_P->Case.Generate.GroupIndex = i;
     }
 

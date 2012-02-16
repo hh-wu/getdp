@@ -68,6 +68,7 @@ void Dof_InitDofData(struct DofData * DofData_P, int Num,
   DofData_P->DofList = NULL ;
 
   DofData_P->SolverDataFileName = Name_SolverDataFile ;
+  DofData_P->Flag_RHS = 0 ;
   DofData_P->Flag_Init[0] = 0 ;
   DofData_P->Flag_Init[1] = 0 ;
   DofData_P->Flag_Init[2] = 0 ;
@@ -106,7 +107,7 @@ void Dof_SetCurrentDofData(struct DofData * DofData_P)
 /*  D o f _ O p e n F i l e                                                 */
 /* ------------------------------------------------------------------------ */
 
-void Dof_OpenFile(int Type, char * Name, const char * Mode) 
+void Dof_OpenFile(int Type, char * Name, const char * Mode)
 {
   if(Message::GetCommRank() && (Mode[0] == 'w' || Mode[0] == 'a')){
     switch (Type) {
@@ -117,7 +118,7 @@ void Dof_OpenFile(int Type, char * Name, const char * Mode)
     }
     return;
   }
-  
+
   const char  * Extension;
   char    FileName[256] ;
   FILE  * File_X ;
@@ -191,8 +192,8 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
 
   char  String[256] ;
 
-  do { 
-    fgets(String, sizeof(String), File_PRE) ; 
+  do {
+    fgets(String, sizeof(String), File_PRE) ;
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
@@ -275,7 +276,7 @@ void Dof_WriteDofPRE(void * a, void * b)
 
   switch (Dof_P->Type) {
   case DOF_UNKNOWN :
-    fprintf(File_PRE, "%d %d\n", Dof_P->Case.Unknown.NumDof, 
+    fprintf(File_PRE, "%d %d\n", Dof_P->Case.Unknown.NumDof,
             Dof_P->Case.Unknown.NonLocal ? -1 : 1) ;
     break ;
   case DOF_FIXEDWITHASSOCIATE :
@@ -301,7 +302,7 @@ void Dof_WriteDofPRE(void * a, void * b)
     break ;
   case DOF_LINKCPLX :
     fprintf(File_PRE, "%.16g %.16g %d\n",
-	    Dof_P->Case.Link.Coef, Dof_P->Case.Link.Coef2, 
+	    Dof_P->Case.Link.Coef, Dof_P->Case.Link.Coef2,
 	    Dof_P->Case.Link.EntityRef) ;
     break ;
   }
@@ -319,8 +320,8 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
   struct Dof  Dof ;
   char        String[256] ;
 
-  do { 
-    fgets(String, sizeof(String), File_PRE) ; 
+  do {
+    fgets(String, sizeof(String), File_PRE) ;
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
@@ -363,7 +364,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 	fscanf(File_PRE, "%d", &Dof.Case.Unknown.NumDof) ;
 	fscanf(File_PRE, "%d", &Dummy) ;
         Dof.Case.Unknown.NonLocal = (Dummy < 0) ? true : false;
-        if(Dummy < 0) 
+        if(Dummy < 0)
           DofData_P->NonLocalEquations.push_back(Dof.Case.Unknown.NumDof);
 	break ;
       case DOF_FIXEDWITHASSOCIATE :
@@ -383,7 +384,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 	LinAlg_ScanScalar(File_PRE, &Dof.Val) ;
 	fscanf(File_PRE, "%d", &Dummy) ;
         Dof.Case.Unknown.NonLocal = (Dummy < 0) ? true : false;
-        if(Dummy < 0) 
+        if(Dummy < 0)
           DofData_P->NonLocalEquations.push_back(Dof.Case.Unknown.NumDof);
 	break ;
       case DOF_LINK :
@@ -419,7 +420,7 @@ void Dof_WriteFileRES0(char * Name_File, int Format)
   if(Message::GetCommRank()) return;
 
   Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "wb" : "w")) ;
-  fprintf(File_RES, "$ResFormat /* GetDP %s, %s */\n", GETDP_VERSION, 
+  fprintf(File_RES, "$ResFormat /* GetDP %s, %s */\n", GETDP_VERSION,
 	  Format ? "binary" : "ascii") ;
   fprintf(File_RES, "1.1 %d\n", Format) ;
   fprintf(File_RES, "$EndResFormat\n") ;
@@ -454,7 +455,7 @@ void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
     LinAlg_SetDoubleInVector(d, &x, inew);
   }
 
-  Format ? 
+  Format ?
     LinAlg_WriteVector(File_RES,&x) :
     LinAlg_PrintVector(File_RES,&x) ;
 
@@ -465,8 +466,8 @@ void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
   LinAlg_DestroyVector(&x) ;
 }
 
-void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P, 
-			       int Format, List_T * Time_L) 
+void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
+			       int Format, List_T * Time_L)
 {
   if(Message::GetCommRank()) return;
 
@@ -484,27 +485,27 @@ void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
     fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num) ;
     fprintf(File_RES, "%d %e 0 %d \n", DofData_P->Num,Time,iT) ;
 
-    Pulsation = DofData_P->Val_Pulsation ; 
-    
+    Pulsation = DofData_P->Val_Pulsation ;
+
     LinAlg_CreateVector(&x, &DofData_P->Solver, DofData_P->NbrDof/Current.NbrHar) ;
-    
+
     LinAlg_ZeroVector(&x) ;
-    
+
     for (i=0 ; i<DofData_P->NbrDof/Current.NbrHar ; i++) {
       d = 0;
       for (k=0 ; k<Current.NbrHar/2 ; k++) {
-	j = i * Current.NbrHar + 2*k ; 
+	j = i * Current.NbrHar + 2*k ;
 	LinAlg_GetDoubleInVector(&d1, &DofData_P->CurrentSolution->x, j) ;
 	LinAlg_GetDoubleInVector(&d2, &DofData_P->CurrentSolution->x, j+1) ;
-	d += d1 * cos(Pulsation[k]*Time) - d2 * sin(Pulsation[k]*Time) ; 
+	d += d1 * cos(Pulsation[k]*Time) - d2 * sin(Pulsation[k]*Time) ;
       }
       LinAlg_SetDoubleInVector(d, &x, i) ;
     }
-    
-    Format ? 
+
+    Format ?
       LinAlg_WriteVector(File_RES,&x) :
       LinAlg_PrintVector(File_RES,&x) ;
-    
+
     fprintf(File_RES, "$EndSolution\n") ;
   }
 
@@ -519,17 +520,17 @@ void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
 /* ------------------------------------------------------------------------ */
 
 void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
-		      double Val_Time, double Val_TimeImag, int Val_TimeStep) 
+		      double Val_Time, double Val_TimeImag, int Val_TimeStep)
 {
   if(Message::GetCommRank()) return;
 
   Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "ab" : "a")) ;
-    
+
   fprintf(File_RES, "$Solution  /* DofData #%d */\n", DofData_P->Num) ;
-  fprintf(File_RES, "%d %.16g %.16g %d\n", DofData_P->Num, Val_Time, 
+  fprintf(File_RES, "%d %.16g %.16g %d\n", DofData_P->Num, Val_Time,
           Val_TimeImag, Val_TimeStep) ;
 
-  Format ? 
+  Format ?
     LinAlg_WriteVector(File_RES, &DofData_P->CurrentSolution->x) :
     LinAlg_PrintVector(File_RES, &DofData_P->CurrentSolution->x) ;
 
@@ -544,7 +545,7 @@ void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 
 void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P,
                                     struct GeoData * GeoData_P0, struct Group *Group_P,
-                                    bool saveFixed) 
+                                    bool saveFixed)
 {
   if(Message::GetCommRank()) return;
 
@@ -577,7 +578,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
       dof = (Dof*)List_Pointer(DofData_P->DofList, i);
     if(dof->Type == DOF_UNKNOWN){
       gScalar s;
-      LinAlg_GetScalarInVector(&s, &DofData_P->CurrentSolution->x, 
+      LinAlg_GetScalarInVector(&s, &DofData_P->CurrentSolution->x,
                                dof->Case.Unknown.NumDof - 1);
       unknowns[dof->Entity] = s.s;
     }
@@ -631,7 +632,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
   }
 
   if(l) List_Delete(l);
-  
+
   fclose(fp);
   fclose(fpRe);
   fclose(fpIm);
@@ -643,7 +644,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
 
 void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 		     int Read_DofData, double *Time, double *TimeImag,
-		     double *TimeStep) 
+		     double *TimeStep)
 {
   Message::Barrier();
 
@@ -655,10 +656,10 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 
   while (1) {
 
-    do { 
-      fgets(String, sizeof(String), File_RES) ; 
+    do {
+      fgets(String, sizeof(String), File_RES) ;
       if (feof(File_RES))  break ;
-    } while (String[0] != '$') ;  
+    } while (String[0] != '$') ;
 
     if (feof(File_RES))  break ;
 
@@ -676,18 +677,18 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 	 follows can be binary, and the first character could be
 	 e.g. 0x0d, which would cause fscanf to eat-up one character
 	 too much, leading to an offset in fread */
-      fgets(String, sizeof(String), File_RES) ; 
+      fgets(String, sizeof(String), File_RES) ;
       if(Version <= 1.0)
 	sscanf(String, "%d %lf %d", &Num_DofData, &Val_Time, &Val_TimeStep) ;
       else
-	sscanf(String, "%d %lf %lf %d", &Num_DofData, &Val_Time, &Val_TimeImag, 
+	sscanf(String, "%d %lf %lf %d", &Num_DofData, &Val_Time, &Val_TimeImag,
 	       &Val_TimeStep) ;
 
       if (Read_DofData < 0){
 	Read = 1 ; DofData_P = (struct DofData*)List_Pointer(DofData_L, Num_DofData) ;
       }
       else if (Num_DofData == Read_DofData) {
-	Read = 1 ; DofData_P = Read_DofData_P ; 
+	Read = 1 ; DofData_P = Read_DofData_P ;
       }
       else {
 	Read = 0 ;
@@ -701,7 +702,7 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 	Solution_S.TimeFunctionValues = NULL ;
 
 	LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof) ;
-	Format ? 
+	Format ?
 	  LinAlg_ReadVector(File_RES, &Solution_S.x) :
 	  LinAlg_ScanVector(File_RES, &Solution_S.x) ;
 
@@ -713,7 +714,7 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 
     do {
       fgets(String, sizeof(String), File_RES) ;
-      if (feof(File_RES)) 
+      if (feof(File_RES))
 	Message::Warning("Prematured end of file (Time Step %d)", Val_TimeStep);
     } while (String[0] != '$') ;
 
@@ -728,7 +729,7 @@ void Dof_ReadFileRES(List_T * DofData_L, struct DofData * Read_DofData_P,
 /*  D o f _ T r a n s f e r D o f T r e e T o L i s t                       */
 /* ------------------------------------------------------------------------ */
 
-void Dof_TransferDofTreeToList(struct DofData * DofData_P) 
+void Dof_TransferDofTreeToList(struct DofData * DofData_P)
 {
   if (DofData_P->DofTree) {
     DofData_P->DofList = Tree2List(DofData_P->DofTree) ;
@@ -744,7 +745,7 @@ void Dof_TransferDofTreeToList(struct DofData * DofData_P)
 /*  D o f _ I n i t D o f T y p e                                           */
 /* ------------------------------------------------------------------------ */
 
-void Dof_InitDofType(struct DofData * DofData_P) 
+void Dof_InitDofType(struct DofData * DofData_P)
 {
   struct Dof  * Dof_P, * Dof_P0 ;
   int  i ;
@@ -838,14 +839,14 @@ void Dof_AddPulsation(struct DofData * DofData_P, double Val_Pulsation)
 /*  D o f _ D e f i n e A s s i g n F i x e d D o f                         */
 /* ------------------------------------------------------------------------ */
 
-void Dof_DefineAssignFixedDof(int D1, int D2, int NbrHar, double *Val, 
+void Dof_DefineAssignFixedDof(int D1, int D2, int NbrHar, double *Val,
 			      int Index_TimeFunction)
 {
   struct Dof  Dof, * Dof_P ;
   int         k ;
 
-  Dof.NumType = D1 ;  Dof.Entity = D2 ;  
-  
+  Dof.NumType = D1 ;  Dof.Entity = D2 ;
+
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
     if (!(Dof_P = (struct Dof *)Tree_PQuery(CurrentDofData->DofTree, &Dof))) {
@@ -874,15 +875,15 @@ void Dof_DefineAssignSolveDof(int D1, int D2, int NbrHar, int Index_TimeFunction
 {
   struct Dof  Dof ;
   int         k ;
-  
-  Dof.NumType = D1 ;  Dof.Entity = D2 ;  
+
+  Dof.NumType = D1 ;  Dof.Entity = D2 ;
 
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
       Dof.Type = DOF_FIXED_SOLVE ;
       Dof.Case.FixedAssociate.TimeFunctionIndex = Index_TimeFunction + 1 ;
-      Dof_AddTimeFunctionIndex(Index_TimeFunction + 1) ; 
+      Dof_AddTimeFunctionIndex(Index_TimeFunction + 1) ;
       Tree_Add(CurrentDofData->DofTree, &Dof) ;
     }
   }
@@ -920,7 +921,7 @@ void Dof_DefineInitSolveDof(int D1, int D2, int NbrHar)
   struct Dof  Dof ;
   int         k ;
 
-  Dof.NumType = D1 ;  Dof.Entity = D2 ; 
+  Dof.NumType = D1 ;  Dof.Entity = D2 ;
 
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
@@ -942,8 +943,8 @@ void Dof_DefineLinkDof(int D1, int D2, int NbrHar, double Value[], int D2_Link)
   struct Dof  Dof ;
   int         k ;
 
-  Dof.NumType = D1 ;  Dof.Entity = D2 ;  
-  
+  Dof.NumType = D1 ;  Dof.Entity = D2 ;
+
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
@@ -961,8 +962,8 @@ void Dof_DefineLinkCplxDof(int D1, int D2, int NbrHar, double Value[], int D2_Li
   struct Dof  Dof ;
   int         k ;
 
-  Dof.NumType = D1 ;  Dof.Entity = D2 ;  
-  
+  Dof.NumType = D1 ;  Dof.Entity = D2 ;
+
   for(k=0 ; k<NbrHar ; k+=gSCALAR_SIZE){
     Dof.Harmonic = k ;
     if (!Tree_PQuery(CurrentDofData->DofTree, &Dof)) {
@@ -1002,7 +1003,7 @@ void Dof_DefineUnknownDof(int D1, int D2, int NbrHar, bool NonLocal)
 void NumberUnknownDof (void *a, void *b)
 {
   struct Dof * Dof_P ;
-  
+
   Dof_P = (struct Dof *)a ;
 
   if(Dof_P->Type == DOF_UNKNOWN){
@@ -1078,8 +1079,8 @@ void Dof_GetDof_Four(struct DofData * DofData_P, struct DofData * DofData2_P)
 
     Dof_P = (struct Dof *) List_Pointer(DofData2_P->DofList, i) ;
 
-    printf("i %d, dof %d \n", i/NbrHar2, List_ISearch(DofData_P->DofList, Dof_P, fcmp_Dof)) ; 
-	  
+    printf("i %d, dof %d \n", i/NbrHar2, List_ISearch(DofData_P->DofList, Dof_P, fcmp_Dof)) ;
+
   }
 }
 
@@ -1096,7 +1097,7 @@ struct Dof *Dof_GetDofStruct(struct DofData * DofData_P, int D1, int D2, int D3)
   struct Dof  Dof ;
 
   Dof.NumType = D1 ;  Dof.Entity = D2 ;  Dof.Harmonic = D3 ;
-  
+
   return (struct Dof *)List_PQuery(DofData_P->DofList, &Dof, fcmp_Dof);
 }
 
@@ -1142,7 +1143,7 @@ void Dof_UpdateLinkDof(struct Dof *Dof_P, int NbrHar, double Value[], int D2_Lin
 /*  D o f _ A s s e m b l e I n M a t                                       */
 /* ------------------------------------------------------------------------ */
 
-void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar, 
+void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 		       double * Val, gMatrix * Mat, gVector * Vec)
 {
   gScalar tmp, tmp2 ;
@@ -1153,11 +1154,12 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
   case DOF_FIXEDWITHASSOCIATE :
 
     switch (Dof_P->Type) {
-      
+
     case DOF_UNKNOWN :
+      if(Current.DofData->Flag_RHS) break;
       if(NbrHar==1){
         LinAlg_AddDoubleInMatrix
-          (Val[0], Mat, 
+          (Val[0], Mat,
            Equ_P->Case.Unknown.NumDof-1, Dof_P->Case.Unknown.NumDof-1) ;
       }
       else
@@ -1174,7 +1176,7 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	if(NbrHar==1){
 	  if(Val[0]){
 	    LinAlg_ProdScalarDouble
-	      (&Dof_P->Val, 
+	      (&Dof_P->Val,
 	       CurrentDofData->CurrentSolution->
 	       TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex],
 	       &tmp);
@@ -1184,7 +1186,7 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	}
 	else{
 	  LinAlg_ProdScalarDouble
-	    (&Dof_P->Val, 
+	    (&Dof_P->Val,
 	     CurrentDofData->CurrentSolution->
 	     TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex],
 	     &tmp);
@@ -1194,7 +1196,7 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	  else{
 	    LinAlg_GetDoubleInScalar(&d1, &tmp);
 	    LinAlg_ProdScalarDouble
-	      (&(Dof_P+1)->Val, 
+	      (&(Dof_P+1)->Val,
 	       CurrentDofData->CurrentSolution->
 	       TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex],
 	       &tmp2);
@@ -1270,7 +1272,7 @@ void Dof_AssembleInMat(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 /*  D o f _ A s s e m b l e I n V e c                                       */
 /* ------------------------------------------------------------------------ */
 
-void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar, 
+void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 		       double * Val, struct Solution * OtherSolution,
 		       gVector * Vec0, gVector * Vec)
 {
@@ -1285,7 +1287,7 @@ void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
     switch (Dof_P->Type) {
 
     case DOF_UNKNOWN :
-      if(NbrHar==1){	
+      if(NbrHar==1){
 	if(Val[0]){
 	  LinAlg_GetDoubleInVector(&a, Vec0, Dof_P->Case.Unknown.NumDof-1) ;
 	  a *= Val[0] ;
@@ -1294,24 +1296,24 @@ void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       }
       else{
 	LinAlg_GetComplexInVector(&a, &b, Vec0,
-				  Dof_P->Case.Unknown.NumDof-1, 
+				  Dof_P->Case.Unknown.NumDof-1,
 				  (gSCALAR_SIZE==1)?((Dof_P+1)->Case.Unknown.NumDof-1):-1) ;
-	c = a * Val[0] - b * Val[1] ; 
+	c = a * Val[0] - b * Val[1] ;
 	d = a * Val[1] + b * Val[0] ;
 	LinAlg_AddComplexInVector(c, d, Vec,
-				  Equ_P->Case.Unknown.NumDof-1, 
+				  Equ_P->Case.Unknown.NumDof-1,
 				  (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Unknown.NumDof-1):-1) ;
       }
       break ;
 
     case DOF_FIXED :
     case DOF_FIXEDWITHASSOCIATE :
-      if(NbrHar==1){	
+      if(NbrHar==1){
 	if(Val[0]){
 	  LinAlg_ProdScalarDouble
-	    (&Dof_P->Val, 
+	    (&Dof_P->Val,
 	     Val[0] * OtherSolution->
-	     TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex], 
+	     TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex],
 	     &tmp) ;
 	  LinAlg_AddScalarInVector(&tmp, Vec, Equ_P->Case.Unknown.NumDof-1) ;
 	}
@@ -1319,14 +1321,14 @@ void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       else{
 	if(gSCALAR_SIZE == 2){
 	  LinAlg_ProdScalarComplex
-	    (&Dof_P->Val, 
+	    (&Dof_P->Val,
 	     Val[0] * OtherSolution->
-	     TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex], 
+	     TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex],
 	     Val[1] * OtherSolution->
-	     TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex], 
+	     TimeFunctionValues[Dof_P->Case.FixedAssociate.TimeFunctionIndex],
 	     &a, &b) ;
 	  LinAlg_AddComplexInVector(a, b, Vec,
-				    Equ_P->Case.Unknown.NumDof-1, 
+				    Equ_P->Case.Unknown.NumDof-1,
 				    (gSCALAR_SIZE==1)?((Equ_P+1)->Case.Unknown.NumDof-1):-1) ;
 	}
 	else{
@@ -1342,7 +1344,7 @@ void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef ;
       }
-      Dof_AssembleInVec(Equ_P, Dof_P->Case.Link.Dof, NbrHar, 
+      Dof_AssembleInVec(Equ_P, Dof_P->Case.Link.Dof, NbrHar,
 			valtmp, OtherSolution, Vec0, Vec) ;
       break ;
 
@@ -1353,7 +1355,7 @@ void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
 	valtmp[0] = Val[0] * Dof_P->Case.Link.Coef - Val[1] * Dof_P->Case.Link.Coef2 ;
 	valtmp[1] = Val[1] * Dof_P->Case.Link.Coef + Val[0] * Dof_P->Case.Link.Coef2 ;
       }
-      Dof_AssembleInVec(Equ_P, Dof_P->Case.Link.Dof, NbrHar, 
+      Dof_AssembleInVec(Equ_P, Dof_P->Case.Link.Dof, NbrHar,
 			valtmp, OtherSolution, Vec0, Vec) ;
       break ;
 
@@ -1376,7 +1378,7 @@ void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef ;
     }
-    Dof_AssembleInVec(Equ_P->Case.Link.Dof, Dof_P, NbrHar, 
+    Dof_AssembleInVec(Equ_P->Case.Link.Dof, Dof_P, NbrHar,
 		      valtmp, OtherSolution, Vec0, Vec) ;
     break ;
 
@@ -1387,7 +1389,7 @@ void Dof_AssembleInVec(struct Dof * Equ_P, struct Dof * Dof_P, int NbrHar,
       valtmp[0] = Val[0] * Equ_P->Case.Link.Coef + Val[1] * Equ_P->Case.Link.Coef2 ;
       valtmp[1] = Val[1] * Equ_P->Case.Link.Coef - Val[0] * Equ_P->Case.Link.Coef2 ;
     }
-    Dof_AssembleInVec(Equ_P->Case.Link.Dof, Dof_P, NbrHar, 
+    Dof_AssembleInVec(Equ_P->Case.Link.Dof, Dof_P, NbrHar,
 		      valtmp, OtherSolution, Vec0, Vec) ;
     break ;
 
@@ -1417,8 +1419,8 @@ void Dof_TransferSolutionToConstraint(struct DofData * DofData_P)
 
     case DOF_UNKNOWN :
       Dof_P->Type = DOF_FIXED ;
-      LinAlg_GetScalarInVector(&Dof_P->Val, 
-			       &DofData_P->CurrentSolution->x, 
+      LinAlg_GetScalarInVector(&Dof_P->Val,
+			       &DofData_P->CurrentSolution->x,
 			       Dof_P->Case.Unknown.NumDof-1) ;
       Dof_P->Case.FixedAssociate.TimeFunctionIndex = 0 ;
       break ;
@@ -1450,13 +1452,13 @@ gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P)
     if(!DofData_P->CurrentSolution->SolutionExist){
       Message::Error("Empty solution in DofData %d", DofData_P->Num);
     }
-    LinAlg_GetScalarInVector(&tmp, &DofData_P->CurrentSolution->x, 
+    LinAlg_GetScalarInVector(&tmp, &DofData_P->CurrentSolution->x,
 			     Dof_P->Case.Unknown.NumDof-1) ;
     break ;
 
   case DOF_FIXED :
   case DOF_FIXEDWITHASSOCIATE :
-    LinAlg_ProdScalarDouble(&Dof_P->Val, 
+    LinAlg_ProdScalarDouble(&Dof_P->Val,
 			    ((Dof_P->Case.FixedAssociate.TimeFunctionIndex)?
 			     DofData_P->CurrentSolution->TimeFunctionValues
 			     [Dof_P->Case.FixedAssociate.TimeFunctionIndex] :
@@ -1494,7 +1496,7 @@ void Dof_GetRealDofValue(struct DofData * DofData_P, struct Dof * Dof_P, double 
   LinAlg_GetDoubleInScalar(d, &tmp) ;
 }
 
-void Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P, 
+void Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P,
 			    double *d1, double *d2)
 {
   gScalar tmp1, tmp2 ;
@@ -1525,12 +1527,12 @@ void Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P,
 	Dof_GetComplexDofValue(DofData_P, Dof_P->Case.Link.Dof, d1, d2);
       }
       else{
-	tmp1 = Dof_GetDofValue(DofData_P, Dof_P->Case.Link.Dof) ; 
+	tmp1 = Dof_GetDofValue(DofData_P, Dof_P->Case.Link.Dof) ;
 	LinAlg_GetComplexInScalar(d1, d2, &tmp1) ;
       }
     }
     else{
-      tmp1 = Dof_GetDofValue(DofData_P, Dof_P) ; 
+      tmp1 = Dof_GetDofValue(DofData_P, Dof_P) ;
       LinAlg_GetComplexInScalar(d1, d2, &tmp1) ;
     }
   }
@@ -1539,7 +1541,7 @@ void Dof_GetComplexDofValue(struct DofData * DofData_P, struct Dof * Dof_P,
     valtmp[0] = Dof_P->Case.Link.Coef*(*d1) - Dof_P->Case.Link.Coef2*(*d2) ;
     valtmp[1] = Dof_P->Case.Link.Coef*(*d2) + Dof_P->Case.Link.Coef2*(*d1) ;
     *d1 = valtmp[0] ;
-    *d2 = valtmp[1] ; 
+    *d2 = valtmp[1] ;
   }
 }
 
@@ -1575,7 +1577,7 @@ void Dof_DefineUnknownDofFromSolveOrInitDof(struct DofData ** DofData_P)
 /*  D o f _ T r a n s f e r D o f                                           */
 /* ------------------------------------------------------------------------ */
 
-void Dof_TransferDof(struct DofData  * DofData_P1, 
+void Dof_TransferDof(struct DofData  * DofData_P1,
 		     struct DofData ** DofData_P2)
 {
   int              i, Nbr_AnyDof ;
@@ -1637,25 +1639,25 @@ void Dof_InitDofForNoDof(struct Dof * DofForNoDof, int NbrHar)
 void Print_DofNumber(struct Dof *Dof_P)
 {
   switch(Dof_P->Type){
-  case DOF_UNKNOWN : 
-    printf("%d(%d) ", Dof_P->Case.Unknown.NumDof, Dof_P->Entity) ; 
+  case DOF_UNKNOWN :
+    printf("%d(%d) ", Dof_P->Case.Unknown.NumDof, Dof_P->Entity) ;
     break ;
-  case DOF_FIXED   : 
-    printf("Fixed(%d) ", Dof_P->Entity) ; 
+  case DOF_FIXED   :
+    printf("Fixed(%d) ", Dof_P->Entity) ;
     break ;
-  case DOF_FIXEDWITHASSOCIATE : 
-    printf("Assoc-%d ", Dof_P->Case.FixedAssociate.NumDof) ; 
+  case DOF_FIXEDWITHASSOCIATE :
+    printf("Assoc-%d ", Dof_P->Case.FixedAssociate.NumDof) ;
     break ;
-  case DOF_LINK : 
+  case DOF_LINK :
     printf("Link-");
     Print_DofNumber(Dof_P->Case.Link.Dof);
     break ;
-  case DOF_LINKCPLX : 
+  case DOF_LINKCPLX :
     printf("LinkCplx-");
     Print_DofNumber(Dof_P->Case.Link.Dof);
     break ;
-  default : 
-    printf(" ? ") ; 
+  default :
+    printf(" ? ") ;
     break ;
   }
 }
@@ -1666,7 +1668,7 @@ void Print_DofNumber(struct Dof *Dof_P)
 
 void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofData_P)
 {
-  struct Formulation      * Formulation_P ; 
+  struct Formulation      * Formulation_P ;
   struct DefineQuantity   * DefineQuantity_P ;
   struct FunctionSpace    * FunctionSpace_P ;
   struct BasisFunction    * BasisFunction_P ;
@@ -1681,7 +1683,7 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
   if (!(Val_Pulsation = Current.DofData->Val_Pulsation))
     Message::Error("Dof_GetDummies can only be used for harmonic problems");
 
-  DummyDof = DofData_P->DummyDof = (int *)Malloc(DofData_P->NbrDof*sizeof(int)); 
+  DummyDof = DofData_P->DummyDof = (int *)Malloc(DofData_P->NbrDof*sizeof(int));
   for (iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) DummyDof[iDof]=0;
 
   Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
@@ -1697,53 +1699,53 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
 	DummyFrequency = *(double *)List_Pointer(DefineQuantity_P->DummyFrequency, l) ;
 
 	iHar=-1;
-	for (k = 0 ; k < Current.NbrHar/2 ; k++)      
+	for (k = 0 ; k < Current.NbrHar/2 ; k++)
 	  if (fabs (Val_Pulsation[k]-TWO_PI*DummyFrequency) <= 1e-10 * Val_Pulsation[k]) {
 	    iHar = 2*k; break;
 	  }
 	if(iHar>=0) {
 	  FunctionSpace_P = (struct FunctionSpace*)
 	    List_Pointer(Problem_S.FunctionSpace, DefineQuantity_P->FunctionSpaceIndex) ;
-	  
+
 	  for (k = 0 ; k < List_Nbr(FunctionSpace_P->BasisFunction) ; k++) {
 	    BasisFunction_P = (struct BasisFunction *)
 	      List_Pointer(FunctionSpace_P->BasisFunction, k) ;
 	    iNum = ((struct BasisFunction *)BasisFunction_P)->Num;
 	    ii=iit=0;
-	    for (iDof = 0 ; iDof < List_Nbr(DofData_P->DofList) ; iDof++) { 
+	    for (iDof = 0 ; iDof < List_Nbr(DofData_P->DofList) ; iDof++) {
 	      Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, iDof) ;
 	      if (Dof_P->Type == DOF_UNKNOWN && Dof_P->NumType == iNum) {
 		iit++;
-		if (Dof_P->Harmonic == iHar || Dof_P->Harmonic == iHar+1) { 
+		if (Dof_P->Harmonic == iHar || Dof_P->Harmonic == iHar+1) {
 		  DummyDof[Dof_P->Case.Unknown.NumDof-1]=1; ii++;
 		}
 	      }
 	    }
-	    Message::Info("Freq %e (%d/%d) Form %d  Quant %d  Basis %d  #dummies %d/%d", 
-                          Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2, 
+	    Message::Info("Freq %e (%d/%d) Form %d  Quant %d  Basis %d  #dummies %d/%d",
+                          Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2,
                           i, j, ((struct BasisFunction *)BasisFunction_P)->Num, ii, iit) ;
 	  }
-	  
+
 	  for (k = 0 ; k < List_Nbr(FunctionSpace_P->GlobalQuantity) ; k++) {
 	    GlobalQuantity_P = (struct GlobalQuantity *)
 	      List_Pointer(FunctionSpace_P->GlobalQuantity, k) ;
 	    iNum = ((struct GlobalQuantity *)GlobalQuantity_P)->Num;
-	    ii=iit=0;    
-	    for (iDof = 0 ; iDof < List_Nbr(DofData_P->DofList) ; iDof++) { 
+	    ii=iit=0;
+	    for (iDof = 0 ; iDof < List_Nbr(DofData_P->DofList) ; iDof++) {
 	      Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, iDof) ;
 	      if (Dof_P->Type == DOF_UNKNOWN && Dof_P->NumType == iNum) {
 		iit++;
-		if (Dof_P->Harmonic == iHar || Dof_P->Harmonic == iHar+1) {  
+		if (Dof_P->Harmonic == iHar || Dof_P->Harmonic == iHar+1) {
 		  DummyDof[Dof_P->Case.Unknown.NumDof-1]=1; ii++;
 		}
 	      }
 	    }
-	    Message::Info("Freq %e (%d/%d) Form %d  Quant %d  Global %d  #dummies %d/%d", 
-                          Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2, 
+	    Message::Info("Freq %e (%d/%d) Form %d  Quant %d  Global %d  #dummies %d/%d",
+                          Val_Pulsation[iHar/2]/TWO_PI, iHar/2, Current.NbrHar/2,
                           i, j, ((struct GlobalQuantity *)GlobalQuantity_P)->Num, ii, iit) ;
 	  }
-	    
-	}   /*  end DummyFrequency in DofData */ 
+
+	}   /*  end DummyFrequency in DofData */
       }   /* end DummyFrequency in Quantity */
     }   /* end Quantity */
   }   /* end Formulation */
@@ -1751,7 +1753,7 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
   i=0;
   for (iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) {
     if(DummyDof[iDof]) i++;
-    /*    
+    /*
     Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, iDof) ;
     Message::Info("Dof Num iHar, Entity %d %d %d",
 	          iDof, Dof_P->NumType, Dof_P->Harmonic, Dof_P->Entity);

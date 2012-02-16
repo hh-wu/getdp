@@ -263,6 +263,7 @@ Generate_MH_Moving_Separate  return tGenerate_MH_Moving_Separate;
 Add_MH_Moving                return tAdd_MH_Moving;
 GenerateGroup                return tGenerateGroup;
 GenerateJacGroup             return tGenerateJacGroup;
+GenerateRHSGroup             return tGenerateRHSGroup;
 
 PostProcessing               return tPostProcessing;
 NameOfSystem                 return tNameOfSystem;

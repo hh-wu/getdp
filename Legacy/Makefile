@@ -86,9 +86,9 @@ depend:
 # DO NOT DELETE THIS LINE
 MainLegacy.o: MainLegacy.cpp ../Common/GetDPConfig.h \
   ../Common/GetDPVersion.h ../Interface/ProData.h ../Common/GetDPConfig.h \
-  ../Common/ListUtils.h SolvingAnalyse.h ../Numeric/NumericUtils.h \
-  LinAlg.h ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
-  ../Common/OS.h ../Common/MallocUtils.h ../Common/Message.h
+  ../Common/ListUtils.h SolvingAnalyse.h LinAlg.h \
+  ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h ../Common/OS.h \
+  ../Common/MallocUtils.h ../Common/Message.h
 F_Analytic.o: F_Analytic.cpp ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h F.h ../Numeric/Legendre.h \
   ../Numeric/Bessel.h ../Common/MallocUtils.h ../Common/Message.h
@@ -113,8 +113,8 @@ F_Geometry.o: F_Geometry.cpp ../Interface/ProData.h \
 F_Interpolation.o: F_Interpolation.cpp ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h F.h \
   ../Common/MallocUtils.h ../Common/Message.h
-F_Hysteresis.o: F_Hysteresis.cpp ../Interface/ProData.h ../Common/GetDPConfig.h \
-  ../Common/ListUtils.h F.h ../Common/Message.h
+F_Hysteresis.o: F_Hysteresis.cpp ../Interface/ProData.h \
+  ../Common/GetDPConfig.h ../Common/ListUtils.h F.h ../Common/Message.h
 F_Math.o: F_Math.cpp ../Interface/ProData.h ../Common/GetDPConfig.h \
   ../Common/ListUtils.h F.h ../Common/MallocUtils.h ../Common/Message.h
 F_Misc.o: F_Misc.cpp ../Common/GetDPConfig.h ../Interface/ProData.h \
@@ -132,8 +132,9 @@ F_Raytracing.o: F_Raytracing.cpp ../Common/GetDPConfig.h \
   F.h ../Common/Message.h
 F_Gmsh.o: F_Gmsh.cpp ../Common/GetDPConfig.h ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h F.h ../Common/Message.h
-F_DiffGeom.o: F_DiffGeom.cpp ../Common/GetDPConfig.h ../Interface/ProData.h \
-  ../Common/GetDPConfig.h ../Common/ListUtils.h F.h ../Common/Message.h
+F_DiffGeom.o: F_DiffGeom.cpp ../Common/GetDPConfig.h \
+  ../Interface/ProData.h ../Common/GetDPConfig.h ../Common/ListUtils.h \
+  F.h Cal_Value.h ../Common/Message.h
 BF_Node.o: BF_Node.cpp ../Interface/ProData.h ../Common/GetDPConfig.h \
   ../Common/ListUtils.h ../Common/Message.h
 BF_NodeXYZ.o: BF_NodeXYZ.cpp ../Interface/ProData.h \
@@ -247,6 +248,14 @@ SolvingOperations.o: SolvingOperations.cpp ../Common/GetDPConfig.h \
   EigenSolve.h Treatment_Formulation.h SolvingAnalyse.h \
   SolvingOperations.h ../Common/MallocUtils.h ../Common/OS.h \
   ../Common/Message.h
+Operation_TimeLoopAdaptive.o: Operation_TimeLoopAdaptive.cpp \
+  ../Interface/ProData.h ../Common/GetDPConfig.h ../Common/ListUtils.h \
+  DofData.h ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h LinAlg.h ../Common/GetDPConfig.h \
+  ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
+  SolvingOperations.h
+IterativeLinearSolver.o: IterativeLinearSolver.cpp ../Interface/ProData.h \
+  ../Common/GetDPConfig.h ../Common/ListUtils.h SolvingOperations.h
 Treatment_Formulation.o: Treatment_Formulation.cpp ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h GeoData.h \
   ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
@@ -372,8 +381,8 @@ Pos_Formulation.o: Pos_Formulation.cpp ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h DofData.h \
   ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
   ../Common/ListUtils.h LinAlg.h ../Common/GetDPConfig.h \
-  ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h Get_DofOfElement.h \
-  Pos_Print.h Pos_Format.h ../Common/Message.h
+  ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h GeoData.h \
+  Get_DofOfElement.h Pos_Print.h Pos_Format.h ../Common/Message.h
 Pos_Print.o: Pos_Print.cpp ../Interface/ProData.h ../Common/GetDPConfig.h \
   ../Common/ListUtils.h GeoData.h ../Common/ListUtils.h \
   ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h \

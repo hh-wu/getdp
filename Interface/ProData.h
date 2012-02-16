@@ -1052,6 +1052,7 @@ struct ChangeOfState {
 #define OPERATION_SOLVEAGAIN              223
 #define OPERATION_SOLVENL                 233
 #define OPERATION_GENERATEJAC               3
+#define OPERATION_GENERATERHS             100
 #define OPERATION_GENERATEONLY            101
 #define OPERATION_GENERATEONLYJAC         103
 #define OPERATION_SOLVEJAC                  4
