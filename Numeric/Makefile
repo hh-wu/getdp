@@ -54,5 +54,3 @@ Bessel.o: Bessel.cpp ../Common/GetDPConfig.h ../Common/Message.h Bessel.h
 Legendre.o: Legendre.cpp ../Common/Message.h
 gsl_brent.o: gsl_brent.cpp ../Common/GetDPConfig.h ../Common/Message.h \
   NumericUtils.h
-gsl_min.o: gsl_min.cpp ../Common/GetDPConfig.h ../Common/Message.h \
-  NumericUtils.h
