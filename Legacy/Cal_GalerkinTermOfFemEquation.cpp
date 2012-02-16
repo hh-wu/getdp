@@ -493,6 +493,29 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
   QuantityStorageEqu_P = FI->QuantityStorageEqu_P ;
   QuantityStorageDof_P = FI->QuantityStorageDof_P ;
 
+  /* skip computation completely if term does not contribute to RHS. This is OK,
+     but the speed-up is not the best, due to the time-consuming--but
+     necessary-- initializations that still need to be done before arriving at
+     this point in the assembly process. For best performance use
+     GenerateRHSGroup instead of GenerateRHS, and include any RHS-contributions
+     (elements containing fixed dofs or non-dof expressions) in the given
+     groups  */
+  if(Current.DofData->Flag_RHS){
+    if(FI->Type_DefineQuantityDof == LOCALQUANTITY){
+      bool skip = true;
+      int Nbr_Dof = FI->SymmetricalMatrix ? QuantityStorageEqu_P->NbrElementaryBasisFunction :
+        QuantityStorageDof_P->NbrElementaryBasisFunction;
+      for (int j = 0 ; j < Nbr_Dof ; j++){
+        Dof *Dof_P = QuantityStorageDof_P->BasisFunction[j].Dof;
+        if(Dof_P->Type != DOF_UNKNOWN){
+          skip = false;
+          break;
+        }
+      }
+      if(skip) return;
+    }
+  }
+
   /*  ----------------------------------------------------------------------  */
   /*  G e t   F u n c t i o n V a l u e  f o r  t e s t  f u n c t i o n s    */
   /*  ----------------------------------------------------------------------  */
