@@ -156,7 +156,21 @@ Resolution {
       { Name A ; NameOfFormulation MagSta_a ; }
     }
     Operation {
-      Generate[A] ; Solve[A] ; SaveSolution[A] ;
+      //IterativeLinearSolver["GMRES", 1e-6, 100, {1,2,3}]{
+      /*
+      InitSolution[A];
+      TimeLoopAdaptive[{A}, 0, 1, 0.1, 0.3, 2]
+      {
+        Generate[A] ; Solve[A] ;
+      }
+      {
+        SaveSolution[A] ;
+      }
+      */
+
+      Generate[A] ; Solve[A] ; //SaveSolution[A];
+      GenerateRHSGroup[A, Domain_M] ; Solve[A] ; SaveSolution[A];
+
     }
   }
 }

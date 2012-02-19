@@ -88,7 +88,7 @@ PostOperation {
 
   { Name phi ; NameOfPostProcessing MagSta_phi;
     Operation {
-      //Print[ phi, OnElementsOf Domain, File "phi.pos"] ;
+      //Print[ phi, OnElementsOf Domain, File "phi.pos" ] ;
       Print[ b,   OnElementsOf Domain, File "b_phi.pos" ] ;
       //Print[ h,   OnElementsOf Domain, File "h_phi.pos", Depth 0 ] ;
       //Print[ b,   OnPlane {{-0.1,0,0}{0.1, 0, 0}{-0.1,0.1,0}} {60,30}, File "b_phi_grid.pos" ] ;
