@@ -4,6 +4,8 @@
 // bugs and problems to <getdp@geuz.org>.
 
 #include <sstream>
+#include <map>
+#include <vector>
 #include <string.h>
 #include <math.h>
 #include "GetDPVersion.h"
@@ -32,13 +34,11 @@ extern int    Flag_BIN, Flag_GMSH_VERSION;
 
 extern FILE   *PostStream ;
 
-/* bricolage: en attendant de trouver une meilleure solution pour les
-   sorties ascii en format Gmsh (au niveau allocation memoire), je
-   laisse la sortie GmshParsed par defaut. */
-
 static List_T *PostElement_L = NULL ;
 static List_T *TimeValue_L = NULL ;
 
+// global static lists for new-style Gmsh output (cannot be saved incrementally
+// for each element)
 static int     Gmsh_StartNewView = 0 ;
 static int     NbSP, NbVP, NbTP, NbSL, NbVL, NbTL, NbST, NbVT, NbTT;
 static int     NbSQ, NbVQ, NbTQ, NbSS, NbVS, NbTS, NbSH, NbVH, NbTH;
@@ -55,6 +55,11 @@ static List_T *SY = NULL, *VY = NULL, *TY = NULL;
 static List_T *T2D = NULL, *T2C = NULL;
 static char    CurrentName[256] = "";
 static int     CurrentPartitionNumber = 0;
+
+// global static map for node table output (cannot be saved incrementally for
+// each element)
+static int NodeTable_StartNew = 0;
+static std::map<int, std::vector<double> > NodeTable;
 
 /* ------------------------------------------------------------------------ */
 /*  F o r m a t _ P o s t F o r m a t / H e a d e r / F o o t e r           */
@@ -177,6 +182,9 @@ void  Format_PostHeader(int Format, int Contour,
   case FORMAT_GNUPLOT :
     fprintf(PostStream, "# PostData '%s'\n", name);
     fprintf(PostStream, "# Type Num  X Y Z  N1 N2 N3  Values  <Values>...\n");
+    break ;
+  case FORMAT_NODE_TABLE :
+    NodeTable_StartNew = 1 ;
     break ;
   case FORMAT_ADAPT :
     fprintf(PostStream, "$Adapt /* %s */\n", name) ;
@@ -501,6 +509,16 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
   case FORMAT_UNV :
     fprintf(PostStream, "    -1\n");
     break ;
+  case FORMAT_NODE_TABLE :
+    fprintf(PostStream, "%d\n", NodeTable.size());
+    for(std::map<int, std::vector<double> >::iterator it = NodeTable.begin();
+        it != NodeTable.end(); it++){
+      fprintf(PostStream, "%d", it->first);
+      for(unsigned int i = 0; i < it->second.size(); i++)
+        fprintf(PostStream, " %.16g", it->second[i]);
+      fprintf(PostStream, "\n");
+    }
+    break;
   }
 }
 
@@ -1209,6 +1227,41 @@ void  Format_Adapt(double * Dummy)
 }
 
 /* ------------------------------------------------------------------------ */
+/*  F o r m a t _ N o d e T a b l e                                         */
+/* ------------------------------------------------------------------------ */
+
+void  Format_NodeTable(int TimeStep, int NbTimeStep, int NbrHarmonics,
+                       struct PostElement *PE)
+{
+  if(NodeTable_StartNew){
+    NodeTable_StartNew = 0 ;
+    NodeTable.clear();
+  }
+  for(int i = 0 ; i < PE->NbrNodes ; i++){
+    int n = PE->NumNodes[i];
+    int Size = 0;
+    switch(PE->Value->Type){
+    case SCALAR      : Size = 1 ; break ;
+    case VECTOR      : Size = 3 ; break ;
+    case TENSOR_DIAG : Size = 3 ; break ;
+    case TENSOR_SYM  : Size = 6 ; break ;
+    case TENSOR      : Size = 9 ; break ;
+    }
+    if(n > 0 && Size){ // we have data on an actual node
+      NodeTable[n].resize(NbTimeStep * NbrHarmonics * Size, 0.);
+      for(int k = 0 ; k < NbrHarmonics ; k++){
+        for(int j = 0 ; j < Size ; j++){
+          double val = PE->Value->Val[MAX_DIM * k + j];
+          int idx = NbrHarmonics * Size * TimeStep + k * Size + j;
+          NodeTable[n][idx] = val;
+        }
+      }
+    }
+  }
+
+}
+
+/* ------------------------------------------------------------------------ */
 /*  F o r m a t _ P o s t E l e m e n t                                     */
 /* ------------------------------------------------------------------------ */
 
@@ -1312,6 +1365,9 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
 		   PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy,
 		   PE->Value) ;
     break ;
+  case FORMAT_NODE_TABLE :
+    Format_NodeTable(TimeStep, NbTimeStep, NbrHarmonics, PE);
+    break;
   case FORMAT_ADAPT:
     Format_Adapt(Dummy) ;
     break ;
