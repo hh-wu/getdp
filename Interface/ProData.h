@@ -1283,6 +1283,7 @@ struct PostSubOperation {
 #define FORMAT_REGION_TABLE          16
 #define FORMAT_REGION_VALUE          17
 #define FORMAT_UNV                   18
+#define FORMAT_NODE_TABLE            19
 
 /* PostSubOperation.Sort */
 #define SORT_BY_POSITION      1
