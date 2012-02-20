@@ -46,9 +46,9 @@
 #define NORM2_SCALING   4
 
 #if defined(HAVE_ILU_FLOAT)
-#define scalar float
+#define sscalar float
 #else
-#define scalar double
+#define sscalar double
 #endif
 
 typedef struct {
@@ -64,7 +64,7 @@ typedef struct {
   int     *permr, *permp, *rpermr;
 
   /* ILU decomposition */
-  scalar  *alu;
+  sscalar *alu;
   int     *jlu, *ju;
 }Sparse_Matrix;
 
@@ -76,7 +76,7 @@ typedef struct {
 typedef struct{
   int T, N, changed, ILU_Exists, notranspose, scaled;
   double  *rowscal, *colscal;
-  Sparse_Matrix   S; 
+  Sparse_Matrix   S;
   Dense_Matrix    F;
 }Matrix;
 
@@ -158,7 +158,7 @@ void print_vector(double *v, int N);
 void print_vector_int(int *v, int N);
 
 void print_matrix_info_CSR(int N, int *jptr, int *ai);
-void print_matrix_info_MSR(int N, scalar *a, int *jptr);
+void print_matrix_info_MSR(int N, sscalar *a, int *jptr);
 void print_matrix_info_DENSE(int N);
 
 void csr_format(Sparse_Matrix *M, int N);

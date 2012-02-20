@@ -19,16 +19,16 @@
 #define sortcol_    sortcol
 #define skit_       skit
 #define psplot_     psplot
-#define cg_         cg       
-#define cgnr_       cgnr     
-#define bcg_        bcg      
-#define dbcg_       dbcg     
-#define bcgstab_    bcgstab  
-#define tfqmr_      tfqmr    
-#define fom_        fom      
-#define gmres_      gmres    
-#define fgmres_     fgmres   
-#define dqgmres_    dqgmres  
+#define cg_         cg
+#define cgnr_       cgnr
+#define bcg_        bcg
+#define dbcg_       dbcg
+#define bcgstab_    bcgstab
+#define tfqmr_      tfqmr
+#define fom_        fom
+#define gmres_      gmres
+#define fgmres_     fgmres
+#define dqgmres_    dqgmres
 #define amux_       amux
 #define atmux_      atmux
 #define lusol_      lusol
@@ -50,22 +50,22 @@
 
 extern "C" {
   void  ilut_     (int*,double*,int*,int*,int*,double*,
-		   scalar*,int*,int*,int*,double*,int*,int*);
+		   sscalar*,int*,int*,int*,double*,int*,int*);
   void  ilutp_    (int*,double*,int*,int*,int*,double*,
-		   double*,int*,scalar*,int*,
+		   double*,int*,sscalar*,int*,
 		   int*,int*,double*,int*,int*,int*);
   void  ilud_     (int*,double*,int*,int*,double*,
-		   double*,scalar*,int*,
+		   double*,sscalar*,int*,
 		   int*,int*,double*,int*,int*);
   void  iludp_    (int*,double*,int*,int*,double*,
 		   double*,double*,
-		   int*,scalar*,int*,int*,int*,
+		   int*,sscalar*,int*,int*,int*,
 		   double*,int*,int*,int*);
   void  iluk_     (int*,double*,int*,int*,int*,
-		   scalar*,int*,int*,
+		   sscalar*,int*,int*,
 		   int*,int*,double*,int*,int*);
-  void  ilu0_     (int*,double*,int*,int*,scalar*,int*,int*,int*,int*);
-  void  milu0_    (int*,double*,int*,int*,scalar*,int*,int*,int*,int*);
+  void  ilu0_     (int*,double*,int*,int*,sscalar*,int*,int*,int*,int*);
+  void  milu0_    (int*,double*,int*,int*,sscalar*,int*,int*,int*,int*);
   void  cmkreord_ (int*,double*,int*,int*,double*,int*,int*,int*,
 		   int*,int*,int*,int*,int*,int*);
   void  sortcol_  (int*,double*,int*,int*,int*,double*);
@@ -83,8 +83,8 @@ extern "C" {
   void  dqgmres_  (int*,double*,double*,int*,double*,double*);
   void  amux_     (int*,double*,double*,double*,int*,int*);
   void  atmux_    (int*,double*,double*,double*,int*,int*);
-  void  lusol_    (int*,double*,double*,scalar*,int*,int*);
-  void  lutsol_   (int*,double*,double*,scalar*,int*,int*);
+  void  lusol_    (int*,double*,double*,sscalar*,int*,int*);
+  void  lutsol_   (int*,double*,double*,sscalar*,int*,int*);
   void  csrcoo_   (int*,int*,int*,double*,int*,int*,int*,double*,int*,int*,int*);
   void  ma28ad_   (int*,int*,double*,int*,int*,int*,int*,double*,int*,int*,double*,int*);
   void  ma28cd_   (int*,double*,int*,int*,int*,double*,double*,int*);
@@ -93,7 +93,7 @@ extern "C" {
 		   double*,double*,double*);
   void  pgmres_   (int*,int*,double*,double*,double*,double*,
 		   int*,int*,double*,int*,int*,
-		   scalar*,int*,int*,int*);
+		   sscalar*,int*,int*,int*);
   void getdia_    (int*,int*,int*,double*,int*,int*,int*,double*,int*,int*);
   void diamua_    (int*,int*,double*,int*,int*,double*,double*,int*,int*);
   void amudia_    (int*,int*,double*,int*,int*,double*,double*,int*,int*);
@@ -122,13 +122,13 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     Message::Warning("No equations in linear system");
     return;
   }
-  
+
   for(i=0 ; i<M->N ; i++){
     if(b[i] != 0.) break;
     if(i == M->N-1) {
       Message::Warning("Null right hand side in linear system");
       /*
-	for(i=0 ; i<M->N ; i++)  x[i] = 0. ;    
+	for(i=0 ; i<M->N ; i++)  x[i] = 0. ;
 	return ;
       */
     }
@@ -144,16 +144,16 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       sol = (double*)Malloc(M->N * sizeof(double));
       w   = (double*)Malloc(M->N * sizeof(double));
       dx  = (double*)Malloc(M->N * sizeof(double));
-      
+
       ipar[1] = p->Re_Use_LU;
       ipar[2] = p->Iterative_Improvement;
       ipar[3] = p->Matrix_Printing;
       ipar[4] = p->Nb_Iter_Max;
-      
+
       fpar[1] = p->Stopping_Test;
-      
+
       flu_(&ipar[1], &fpar[1], M->F.a, M->F.lu, &M->N, &M->N, b, x, dx, sol, w);
-    
+
       Free(sol);
       Free(w);
       Free(dx);
@@ -172,7 +172,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     M->S.jptr = List_Create(M->N+1, M->N, sizeof(int));
     M->S.ai   = List_Create(nnz, M->N, sizeof(int));
 
-    for(i=1 ; i<=nnz ; i+=M->N){ 
+    for(i=1 ; i<=nnz ; i+=M->N){
       List_Add(M->S.jptr, &i) ;
       for(j=1 ; j<=M->N ; j++){
 	List_Add(M->S.ai, &j) ;
@@ -194,7 +194,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   } /* if DENSE */
   else{
 
-    nnz = List_Nbr(M->S.a);    
+    nnz = List_Nbr(M->S.a);
     if(M->changed){
       do_permute = 1 ;
       csr_format (&M->S, M->N);
@@ -206,12 +206,12 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
 
   a  = (double*) M->S.a->array;
   ia = (int*) M->S.jptr->array;
-  ja = (int*) M->S.ai->array; 
+  ja = (int*) M->S.ai->array;
 
   if(p->Scaling != NONE){
     Message::Info("Scaling system of equations") ;
     scale_matrix (p->Scaling, M) ;
-    scale_vector (ROW, M, b) ;    
+    scale_vector (ROW, M, b) ;
   }
   else{
     Message::Info("No scaling of system of equations") ;
@@ -224,9 +224,9 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
 
   rhs = (double*) Malloc(M->N * sizeof(double));
   sol = (double*) Calloc(M->N, sizeof(double));
-  
+
   /* Renumbering */
-  
+
   if (!M->ILU_Exists){
     M->S.permr  = (int*) Malloc(M->N * sizeof(int));
     M->S.rpermr = (int*) Malloc(M->N * sizeof(int));
@@ -236,27 +236,27 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   if(do_permute || !M->ILU_Exists){
     for(i=0 ; i<M->N ; i++) {
       M->S.permr[i] = M->S.rpermr[i] = M->S.permp[i+M->N] = i+1;
-    } 
-    switch (p->Renumbering_Technique){ 	
+    }
+    switch (p->Renumbering_Technique){
     case NONE:
       Message::Info("No renumbering");
-      break;	
-    case RCMK: 
-      Message::Info("RCMK algebraic renumbering");	
+      break;
+    case RCMK:
+      Message::Info("RCMK algebraic renumbering");
       if(!M->ILU_Exists){
 	M->S.a_rcmk  = (double*) Malloc(nnz * sizeof(double));
 	M->S.ia_rcmk = (int*) Malloc((M->N + 1) * sizeof(int));
 	M->S.ja_rcmk = (int*) Malloc(nnz * sizeof(int));
       }
       mask    = (int*) Malloc(nnz * sizeof(int));
-      levels  = (int*) Malloc((M->N + 1) * sizeof(int));      
+      levels  = (int*) Malloc((M->N + 1) * sizeof(int));
       i = j = k = 1;
-      cmkreord_(&M->N, a, ja, ia, M->S.a_rcmk, M->S.ja_rcmk, M->S.ia_rcmk, 
-		&i, M->S.permr, mask, &j, &k, M->S.rpermr, levels);      
-      w = (double*) Malloc(nnz * sizeof(double));      
-      sortcol_(&M->N, M->S.a_rcmk, M->S.ja_rcmk, M->S.ia_rcmk, mask, w);      
+      cmkreord_(&M->N, a, ja, ia, M->S.a_rcmk, M->S.ja_rcmk, M->S.ia_rcmk,
+		&i, M->S.permr, mask, &j, &k, M->S.rpermr, levels);
+      w = (double*) Malloc(nnz * sizeof(double));
+      sortcol_(&M->N, M->S.a_rcmk, M->S.ja_rcmk, M->S.ia_rcmk, mask, w);
       Free(w); Free(mask); Free(levels);
-      break; 	
+      break;
     default :
       Message::Error("Unknown renumbering technique");
       break;
@@ -264,86 +264,86 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     print_matrix_info_CSR(M->N, ia, ja);
     Message::Cpu("");
   }
-  
+
   if(p->Renumbering_Technique == RCMK){
-    if (p->Re_Use_ILU && !M->ILU_Exists && !do_permute){ 
+    if (p->Re_Use_ILU && !M->ILU_Exists && !do_permute){
       /*
       This is incorrect if M is to be changed during the process, and
-      we still want to keep the same precond. 
+      we still want to keep the same precond.
 
       Free(M->S.a->array) ;
       Free(M->S.jptr->array) ;
       Free(M->S.ai->array) ;
       M->S.a->array =  (char*)M->S.a_rcmk;
       M->S.jptr->array = (char*)M->S.ia_rcmk;
-      M->S.ai->array = (char*)M->S.ja_rcmk; 
+      M->S.ai->array = (char*)M->S.ja_rcmk;
       */
     }
     a = M->S.a_rcmk;
     ia = M->S.ia_rcmk;
     ja = M->S.ja_rcmk;
   }
-  
+
 
   if (p->Matrix_Printing == 1 || p->Matrix_Printing == 3) {
     Message::Info("Matrix printing");
-    skit_(&M->N, a, ja, ia, &douze, &douze, &ierr); 
+    skit_(&M->N, a, ja, ia, &douze, &douze, &ierr);
     pf = fopen("fort.13","w");
     for (i=0 ; i<M->N ; i++) fprintf(pf, "%d %22.15E\n", i+1, b[i]);
     fclose(pf);
     psplot_(&M->N, ja, ia, &trente, &zero);
   }
-  
+
   /* Incomplete factorizations */
-  
+
   if (!M->ILU_Exists) {
-    
+
     if (p->Re_Use_ILU) M->ILU_Exists = 1;
-    
+
 #if defined(HAVE_ILU_FLOAT)
 #define ILUSTORAGE "Float"
 #else
 #define ILUSTORAGE "Double"
 #endif
-  
+
     end = 0 ;
-    
+
     switch (p->Preconditioner){
-      
+
     case ILUT  : Message::Info("ILUT (%s, fill-in = %d)", ILUSTORAGE, p->Nb_Fill);
       nnz_ilu = 2 * (M->N+1) * (p->Nb_Fill+1); break;
-      
+
     case ILUTP : Message::Info("ILUTP (%s, fill-in = %d)", ILUSTORAGE, p->Nb_Fill);
       nnz_ilu = 2 * (M->N+1) * (p->Nb_Fill+1); break;
-      
-    case ILUD  : Message::Info("ILUD (%s)", ILUSTORAGE);    
+
+    case ILUD  : Message::Info("ILUD (%s)", ILUSTORAGE);
       /* first guess */
       nnz_ilu = List_Nbr(M->S.a); break;
-      
+
     case ILUDP : Message::Info("ILUDP (%s)", ILUSTORAGE);
       /* first guess */
       nnz_ilu = List_Nbr(M->S.a); break ;
-      
-    case ILUK  : Message::Info("ILU%d (%s)", p->Nb_Fill, ILUSTORAGE);    
+
+    case ILUK  : Message::Info("ILU%d (%s)", p->Nb_Fill, ILUSTORAGE);
       /* exact for nbfill=0, first guess otherwise */
       nnz_ilu = (p->Nb_Fill+1) * List_Nbr(M->S.a) + (M->N+1);
       break;
-      
-    case ILU0  : Message::Info("ILU0 (%s)", ILUSTORAGE);    
+
+    case ILU0  : Message::Info("ILU0 (%s)", ILUSTORAGE);
       nnz_ilu = List_Nbr(M->S.a) + (M->N+1); break;
-      
-    case MILU0 : Message::Info("MILU0 (%s)", ILUSTORAGE);    
+
+    case MILU0 : Message::Info("MILU0 (%s)", ILUSTORAGE);
       nnz_ilu = List_Nbr(M->S.a) + (M->N+1); break;
-      
-    case DIAGONAL : 
+
+    case DIAGONAL :
       Message::Info("Diagonal scaling (%s)", ILUSTORAGE);
-      M->S.alu = (scalar*) Malloc((M->N+1) * sizeof(scalar));
+      M->S.alu = (sscalar*) Malloc((M->N+1) * sizeof(sscalar));
       M->S.jlu = (int*) Malloc((M->N+1) * sizeof(int));
       M->S.ju  = (int*) Malloc((M->N+1) * sizeof(int));
-      
+
       for (i=0 ; i<M->N ; i++) {
 	M->S.alu[i] = 1.0 ;
-	M->S.jlu[i] = M->N+2 ;  
+	M->S.jlu[i] = M->N+2 ;
 	M->S.ju[i]  = M->N+2 ;
       }
       M->S.alu[M->N] = 0.0 ;
@@ -352,8 +352,8 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       end = 1;
       ierr = 0;
       break;
-      
-    case NONE  : 
+
+    case NONE  :
       Message::Info("No ILU");
       end = 1;
       ierr = 0;
@@ -363,71 +363,71 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       Message::Error("Unknown ILU method");
       break;
     }
-    
+
     if(!end){
-      M->S.alu = (scalar*) Malloc(nnz_ilu * sizeof(scalar));
+      M->S.alu = (sscalar*) Malloc(nnz_ilu * sizeof(sscalar));
       M->S.jlu = (int*) Malloc(nnz_ilu * sizeof(int));
       M->S.ju  = (int*) Malloc((M->N+1) * sizeof(int));
     }
 
     reallocate :
-    
+
     switch(p->Preconditioner){
     case ILUT :
       w  = (double*) Malloc((M->N+1) * sizeof(double));
-      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
+      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));
       ilut_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance,
-	    M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, w, jw, &ierr);    
+	    M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, w, jw, &ierr);
       Free(w); Free(jw); break;
-      
+
     case ILUTP :
       w  = (double*) Malloc((M->N+1) * sizeof(double));
-      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-      ilutp_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance, 
-	     &p->Permutation_Tolerance, &M->N, M->S.alu, M->S.jlu, 
-	     M->S.ju, &nnz_ilu, w, jw, M->S.permp, &ierr);    
+      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));
+      ilutp_(&M->N, a, ja, ia, &p->Nb_Fill, &p->Dropping_Tolerance,
+	     &p->Permutation_Tolerance, &M->N, M->S.alu, M->S.jlu,
+	     M->S.ju, &nnz_ilu, w, jw, M->S.permp, &ierr);
       Free(jw); Free(w); break;
-      
+
     case ILUD :
       w  = (double*) Malloc((M->N+1) * sizeof(double));
-      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-      ilud_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
-	    &p->Dropping_Tolerance, M->S.alu, M->S.jlu, 
-	    M->S.ju, &nnz_ilu, w, jw, &ierr);    
+      jw = (int*) Malloc(2 * (M->N+1) * sizeof(int));
+      ilud_(&M->N, a, ja, ia, &p->Diagonal_Compensation,
+	    &p->Dropping_Tolerance, M->S.alu, M->S.jlu,
+	    M->S.ju, &nnz_ilu, w, jw, &ierr);
       Free(w); Free(jw); break;
-      
+
     case ILUDP :
       w     = (double*) Malloc((M->N+1) * sizeof(double));
-      jw    = (int*) Malloc(2 * (M->N+1) * sizeof(int));    
-      iludp_(&M->N, a, ja, ia, &p->Diagonal_Compensation, 
-	     &p->Dropping_Tolerance, &p->Permutation_Tolerance, 
-	     &M->N, M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu, 
-	     w, jw, M->S.permp, &ierr);    
+      jw    = (int*) Malloc(2 * (M->N+1) * sizeof(int));
+      iludp_(&M->N, a, ja, ia, &p->Diagonal_Compensation,
+	     &p->Dropping_Tolerance, &p->Permutation_Tolerance,
+	     &M->N, M->S.alu, M->S.jlu, M->S.ju, &nnz_ilu,
+	     w, jw, M->S.permp, &ierr);
       Free(jw); Free(w); break;
-      
-    case ILUK :    
+
+    case ILUK :
       levels = (int*) Malloc(nnz_ilu * sizeof(int));
       w      = (double*) Malloc((M->N+1) * sizeof(double));
       jw     = (int*) Malloc(3 * (M->N+1) * sizeof(int));
-      iluk_(&M->N, a, ja, ia, &p->Nb_Fill, 
-	    M->S.alu, M->S.jlu, M->S.ju, 
-	    levels, &nnz_ilu, w, jw, &ierr);    
+      iluk_(&M->N, a, ja, ia, &p->Nb_Fill,
+	    M->S.alu, M->S.jlu, M->S.ju,
+	    levels, &nnz_ilu, w, jw, &ierr);
       Free(levels); Free(w); Free(jw); break;
-      
+
     case ILU0 :
-      jw = (int*) Malloc((M->N+1) * sizeof(int));    
-      ilu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
+      jw = (int*) Malloc((M->N+1) * sizeof(int));
+      ilu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);
       Free(jw); break;
-      
+
     case MILU0 :
-      jw = (int*) Malloc((M->N+1) * sizeof(int));    
-      milu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);    
-      Free(jw); break;      
-      
+      jw = (int*) Malloc((M->N+1) * sizeof(int));
+      milu0_(&M->N, a, ja, ia, M->S.alu, M->S.jlu, M->S.ju, jw, &ierr);
+      Free(jw); break;
+
     }
-    
+
     switch (ierr){
-    case  0 : 
+    case  0 :
       break;
     case -1 :
       Message::Error("Input matrix may be wrong");
@@ -437,7 +437,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       nnz_ilu += nnz_ilu/2 ;
       Message::Info("Reallocating ILU (NZ: %d)", nnz_ilu);
       Free(M->S.alu) ;
-      M->S.alu = (scalar*) Malloc(nnz_ilu * sizeof(scalar));
+      M->S.alu = (sscalar*) Malloc(nnz_ilu * sizeof(sscalar));
       Free(M->S.jlu) ;
       M->S.jlu = (int*) Malloc(nnz_ilu * sizeof(int));
       goto reallocate ;
@@ -451,64 +451,64 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       Message::Error("Zero pivot on line %d in ILU",ierr);
       break;
     }
-    
+
     if(p->Preconditioner != NONE)
       print_matrix_info_MSR(M->N, M->S.alu, M->S.jlu);
-    
+
     if(p->Matrix_Printing == 2 || p->Matrix_Printing == 3){
       Message::Info("ILU printing");
-      psplot_(&M->N, M->S.jlu, M->S.jlu, &trente_et_un, &deux);      
-    }      
-  
+      psplot_(&M->N, M->S.jlu, M->S.jlu, &trente_et_un, &deux);
+    }
+
     Message::Cpu("");
-  
+
   }
-  
-  /* RHS reordering */    
-  
+
+  /* RHS reordering */
+
   for(i=0;i<M->N;i++){
     rhs[i] = b[M->S.rpermr[i] - 1];
   }
-    
+
   /* Iterations */
-  
+
   ipar[1] = 0;
   ipar[2] = (p->Preconditioner == NONE) ? 0 : p->Preconditioner_Position;
   ipar[3] = 1;
   ipar[4] = 0;
   ipar[5] = p->Krylov_Size;
   ipar[6] = p->Nb_Iter_Max;
-  
+
   fpar[1] = p->Stopping_Test;
   fpar[2] = 0.0;
   fpar[11] = 0.0;
-  
-  switch (p->Algorithm){      
-  case CG      : Message::Info("Conjugate Gradient (CG)"); 
+
+  switch (p->Algorithm){
+  case CG      : Message::Info("Conjugate Gradient (CG)");
                  ipar[4] = 5 * M->N; break;
   case CGNR    : Message::Info("CG Normal Residual equation (CGNR)");
                  ipar[4] = 5 * M->N; break;
-  case BCG     : Message::Info("Bi-Conjugate Gradient (BCG)"); 
+  case BCG     : Message::Info("Bi-Conjugate Gradient (BCG)");
                  ipar[4] = 7 * M->N; break;
-  case DBCG    : Message::Info("BCG with partial pivoting (DBCG)"); 
+  case DBCG    : Message::Info("BCG with partial pivoting (DBCG)");
                  ipar[4] = 11 * M->N; break;
   case BCGSTAB : Message::Info("BCG stabilized (BCGSTAB)");
                  ipar[4] = 8 * M->N; break;
-  case TFQMR   : Message::Info("Transpose-Free Quasi-Minimum Residual (TFQMR)"); 
+  case TFQMR   : Message::Info("Transpose-Free Quasi-Minimum Residual (TFQMR)");
                  ipar[4] = 11 * M->N; break;
-  case FOM     : Message::Info("Full Orthogonalization Method (FOM)"); 
+  case FOM     : Message::Info("Full Orthogonalization Method (FOM)");
                  ipar[4] = (M->N+3) * (ipar[5]+2) + (ipar[5]+1) * ipar[5]/2; break;
-  case GMRES   : Message::Info("Generalized Minimum RESidual (GMRES)");  
+  case GMRES   : Message::Info("Generalized Minimum RESidual (GMRES)");
                  ipar[4] = (M->N+3) * (ipar[5]+2) + (ipar[5]+1) * ipar[5]/2; break;
-  case FGMRES  : Message::Info("Flexible version of Generalized Minimum RESidual (FGMRES)"); 
+  case FGMRES  : Message::Info("Flexible version of Generalized Minimum RESidual (FGMRES)");
                  ipar[4] = 2*M->N * (ipar[5]+1) + (ipar[5]+1)*ipar[5]/2 + 3*ipar[5] + 2; break;
-  case DQGMRES : Message::Info("Direct version of Quasi Generalize Minimum RESidual (DQGMRES)"); 
+  case DQGMRES : Message::Info("Direct version of Quasi Generalize Minimum RESidual (DQGMRES)");
                  ipar[4] = M->N + (ipar[5]+1) * (2*M->N+4); break;
   case PGMRES  : Message::Info("Alternative Generalized Minimum RESidual (GMRES)");
                  ipar[4] = (M->N+4) * (ipar[5]+2) + (ipar[5]+1) * ipar[5]/2; break;
   default      : Message::Error("Unknown algorithm for sparse matrix solver"); break;
   }
-  
+
   w = (double*) Malloc(ipar[4] * sizeof(double));
 
   its = 0;
@@ -518,7 +518,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
   while(1){
 
     switch(p->Algorithm){
-    case CG      : cg_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;      
+    case CG      : cg_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;
     case CGNR    : cgnr_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;
     case BCG     : bcg_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;
     case DBCG    : dbcg_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;
@@ -526,86 +526,86 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
     case TFQMR   : tfqmr_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;
     case FOM     : fom_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;
     case GMRES   : gmres_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;
-    case FGMRES  : fgmres_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;      
+    case FGMRES  : fgmres_(&M->N, rhs, sol, &ipar[1], &fpar[1], w); break;
     case DQGMRES : dqgmres_(&M->N, rhs, sol, &ipar[1], &fpar[1], w);	break;
     case PGMRES  : pgmres_ (&M->N, &p->Krylov_Size, rhs, sol, w, &p->Stopping_Test,
-			    &p->Nb_Iter_Max, &six, a, ja, ia, 
-			    M->S.alu, M->S.jlu, M->S.ju, &ierr); 
+			    &p->Nb_Iter_Max, &six, a, ja, ia,
+			    M->S.alu, M->S.jlu, M->S.ju, &ierr);
                    end = 1; break;
     }
-    
+
     if(!end){
-      
+
       if(ipar[7] != its){
 	if(its) Message::Info(" %4d  %.7e  %.7e", its, res, res/res1);
 	its = ipar[7] ;
       }
-      
+
       res = fpar[5];
       if(its==1) res1 = fpar[5] ;
-       
+
       switch(ipar[1]){
-      case 1 : 
+      case 1 :
 	amux_(&M->N, &w[ipar[8]-1], &w[ipar[9]-1], a, ja, ia); break;
-      case 2 : 
+      case 2 :
 	atmux_(&M->N, &w[ipar[8]-1], &w[ipar[9]-1], a, ja, ia); break;
-      case 3 : case 5 : 
+      case 3 : case 5 :
 	lusol_(&M->N, &w[ipar[8]-1], &w[ipar[9]-1], M->S.alu, M->S.jlu, M->S.ju); break;
-      case 4 : case 6 : 
+      case 4 : case 6 :
 	lutsol_(&M->N, &w[ipar[8]-1], &w[ipar[9]-1], M->S.alu, M->S.jlu, M->S.ju); break;
-      case 0 : 
+      case 0 :
 	end = 1; break;
-      case -1 : 
+      case -1 :
 	Message::Warning("Iterative solver has iterated too many times"); end = 1; break;
-      case -2 : 
+      case -2 :
 	Message::Warning("Iterative solver was not given enough work space");
 	Message::Warning("The work space should at least have %d elements", ipar[4]);
 	end = 1; break;
-      case -3 : 
+      case -3 :
 	Message::Warning("Iterative solver is facing a break-down"); end = 1; break;
-      default : 
+      default :
 	Message::Warning("Iterative solver terminated (code = %d)", ipar[1]); end = 1; break;
       }
-      
-    }    
+
+    }
     if(end) break;
-    
+
   }
 
-  
+
   /* Convergence results monitoring */
-  
+
   Message::Info(" %4d  %.7e  %.7e", ipar[7], fpar[6], fpar[6]/res1);
-  
+
   amux_(&M->N, sol, w, a, ja, ia);
-  
- 
+
+
   for(i=0 ; i<M->N ; i++){
     w[M->N+i] = sol[i] - 1.0 ;
     w[i] -= rhs[i] ;
-  }      
-  
- 
+  }
+
+
   Message::Info("%d Iterations / Residual: %g", ipar[7], dnrm2_(&M->N,w,&un));
   /*
-  Message::Info("Conv. Rate: %g, |Res|: %g, |Err|: %g", 
+  Message::Info("Conv. Rate: %g, |Res|: %g, |Err|: %g",
             fpar[7], dnrm2_(&M->N,w,&un), dnrm2_(&M->N,&w[M->N],&un));
   */
   Free(w);
 
   /* Inverse renumbering */
-  
+
   for (i=0;i<M->N;i++) {
     j = M->S.permr[i] - 1;
-    k = M->S.permp[j+M->N] - 1;        
+    k = M->S.permp[j+M->N] - 1;
     x[i] = sol[k];
   }
 
   /* Free memory */
-  
+
   Free(rhs);
   Free(sol);
-  
+
   if (!M->ILU_Exists){
     if(p->Preconditioner != NONE) {
       Free(M->S.alu);
@@ -619,7 +619,7 @@ void solve_matrix (Matrix *M, Solver_Params *p, double *b, double *x){
       Free(M->S.a_rcmk);
       Free(M->S.ia_rcmk);
       Free(M->S.ja_rcmk);
-    }          
+    }
   }
 
   if(M->T == DENSE){
@@ -662,7 +662,7 @@ void print_parametres (Solver_Params *p){
 void init_matrix (int NbLines, Matrix *M, Solver_Params *p){
   int i, j=0;
 
-  M->T = p->Matrix_Format;  
+  M->T = p->Matrix_Format;
   M->N = NbLines;
   M->changed = 1 ;
   M->ILU_Exists = 0;
@@ -673,13 +673,13 @@ void init_matrix (int NbLines, Matrix *M, Solver_Params *p){
     M->S.a    = List_Create (NbLines, NbLines, sizeof(double));
     M->S.ai   = List_Create (NbLines, NbLines, sizeof(int));
     M->S.ptr  = List_Create (NbLines, NbLines, sizeof(int));
-    M->S.jptr = List_Create (NbLines+1, NbLines, sizeof(int)); 
+    M->S.jptr = List_Create (NbLines+1, NbLines, sizeof(int));
     /* '+1' indispensable: csr_format ecrit 'nnz+1' dans jptr[NbLine] */
     for(i=0; i<NbLines; i++) List_Add (M->S.jptr, &j);
     break;
   case DENSE :
     M->F.LU_Exist = 0;
-    /* Tous les algos iteratifs sont programmes pour resoudre 
+    /* Tous les algos iteratifs sont programmes pour resoudre
        A^T x = b... C'est tres con, mais bon. L'algo LU est le seul
        qui demande la vraie matrice en entree... */
     if(M->T == DENSE && p->Algorithm == LU){
@@ -696,7 +696,7 @@ void init_matrix (int NbLines, Matrix *M, Solver_Params *p){
 
 
 void init_vector (int Nb, double **V){
-  *V = (double*) Malloc (Nb * sizeof(double)); 
+  *V = (double*) Malloc (Nb * sizeof(double));
 }
 
 
@@ -719,7 +719,7 @@ void zero_matrix (Matrix *M){
     break;
   case DENSE :
     for(i=0; i<(M->N)*(M->N); i++) M->F.a[i] = 0.0;
-    break;    
+    break;
   }
 }
 
@@ -737,14 +737,14 @@ void zero_matrix2 (Matrix *M){
     for (i=0; i<M->N; i++) {
       iptr = jptr[i];
       while (iptr>0) {
-	a[iptr-1]= 0. ; 
+	a[iptr-1]= 0. ;
 	iptr = ptr[iptr-1];
       }
     }
     break;
   case DENSE :
     for(i=0; i<(M->N)*(M->N); i++) M->F.a[i] = 0.0;
-    break;    
+    break;
   }
 }
 
@@ -794,10 +794,10 @@ void add_matrix_double (Matrix *M, int ic, int il, double val){
     ptr = (int*) M->S.ptr->array;
     ai  = (int*) M->S.ai->array;
     a   = (double*) M->S.a->array;
-    
+
     iptr = pp[il];
     iptr2 = iptr-1;
-    
+
     while(iptr>0){
       iptr2 = iptr-1;
       jptr = ai[iptr2];
@@ -811,14 +811,14 @@ void add_matrix_double (Matrix *M, int ic, int il, double val){
     List_Add (M->S.a, &val);
     List_Add (M->S.ai, &ic);
     List_Add (M->S.ptr, &zero);
-    
+
     /* Les pointeurs ont pu etre modifies
        s'il y a eu une reallocation dans List_Add */
-    
+
     ptr = (int*) M->S.ptr->array;
     ai  = (int*) M->S.ai->array;
     a   = (double*) M->S.a->array;
-    
+
     n = List_Nbr(M->S.a);
     if(!pp[il]) pp[il] = n;
     else ptr[iptr2] = n;
@@ -850,7 +850,7 @@ void add_matrix_matrix (Matrix *M, Matrix *N){
     for (i=0; i<N->N; i++) {
       iptr = jptr[i];
       while (iptr>0) {
-	add_matrix_double (M, ai[iptr-1], i+1, a[iptr-1]); 
+	add_matrix_double (M, ai[iptr-1], i+1, a[iptr-1]);
 	/* add_matrix_double transpose, donc pour additionner,
 	   il faut transposer une seconde fois */
 	iptr = ptr[iptr-1];
@@ -861,7 +861,7 @@ void add_matrix_matrix (Matrix *M, Matrix *N){
   case DENSE :
     for(i=0; i<(M->N)*(M->N); i++) M->F.a[i] += N->F.a[i];
     break;
-    
+
   }
 }
 
@@ -880,7 +880,7 @@ void add_matrix_prod_matrix_double (Matrix *M, Matrix *N, double d){
     for (i=0; i<N->N; i++) {
       iptr = jptr[i];
       while (iptr>0) {
-	add_matrix_double (M, ai[iptr-1], i+1, d*a[iptr-1]); 
+	add_matrix_double (M, ai[iptr-1], i+1, d*a[iptr-1]);
 	/* add_matrix_double transpose, donc pour additionner,
 	   il faut transposer une seconde fois */
 	iptr = ptr[iptr-1];
@@ -891,7 +891,7 @@ void add_matrix_prod_matrix_double (Matrix *M, Matrix *N, double d){
   case DENSE :
     for(i=0; i<(M->N)*(M->N); i++) M->F.a[i] += d*N->F.a[i];
     break;
-    
+
   }
 }
 
@@ -972,7 +972,7 @@ void scale_matrix (int scaling, Matrix *M){
       diamua_ (&M->N, &job1, a, ai, jptr, rowscal, a, ai, jptr) ;
       amudia_ (&M->N, &job1, a, ai, jptr, colscal, a, ai, jptr) ;
       break ;
-      
+
     case MAX_SCALING   :  case NORM1_SCALING :  case NORM2_SCALING :
 
       switch (scaling) {
@@ -982,7 +982,7 @@ void scale_matrix (int scaling, Matrix *M){
       }
 
       rowscal = (double*)Malloc(M->N * sizeof(double));
-      rnrms_ (&M->N, &norm, a, ai, jptr, rowscal); 
+      rnrms_ (&M->N, &norm, a, ai, jptr, rowscal);
       for (i = 0 ; i < M->N ; i++){
 	/* printf("  %d %e \n", i, rowscal[i] ); */
 	if (rowscal[i])
@@ -994,9 +994,9 @@ void scale_matrix (int scaling, Matrix *M){
 	}
       }
       diamua_ (&M->N, &job1, a, ai, jptr, rowscal, a, ai, jptr) ;
-      
+
       colscal = (double*)Malloc(M->N * sizeof(double));
-      cnrms_ (&M->N, &norm, a, ai, jptr, colscal); 
+      cnrms_ (&M->N, &norm, a, ai, jptr, colscal);
       for (i = 0 ; i < M->N ; i++){
 	if (colscal[i]){
 	  colscal[i] = 1./colscal[i] ;
@@ -1012,17 +1012,17 @@ void scale_matrix (int scaling, Matrix *M){
       amudia_ (&M->N, &job1, a, ai, jptr, colscal, a, ai, jptr) ;
       break;
 
-    default : 
+    default :
 
       Message::Error("Unknown type of matrix scaling: %d", scaling);
       break;
 
     }
-   
-    M->scaled = 1 ; 
+
+    M->scaled = 1 ;
     M->rowscal = rowscal ;
     M->colscal = colscal ;
-   
+
     break;
 
   case DENSE :
@@ -1038,7 +1038,7 @@ void scale_vector (int ROW_or_COLUMN, Matrix *M, double *V){
   int i;
 
   if (!M->scaled) return ;
-  
+
   switch (ROW_or_COLUMN) {
   case 0  : scal =  M->rowscal ; break ;
   case 1  : scal =  M->colscal ; break ;
@@ -1046,7 +1046,7 @@ void scale_vector (int ROW_or_COLUMN, Matrix *M, double *V){
 
   if (scal == NULL) Message::Error("scale_vector : no scaling factors available !") ;
 
-  for (i = 0 ; i < M->N ; i++) V[i] *= scal[i] ; 
+  for (i = 0 ; i < M->N ; i++) V[i] *= scal[i] ;
 }
 
 
@@ -1057,7 +1057,7 @@ void prod_matrix_vector (Matrix *M, double *V , double *res ){
 
   switch (M->T) {
   case SPARSE :
-    /* csr_format transpose! 
+    /* csr_format transpose!
        donc la matrice arrivant dans cette routine doit
        bel et bien etre la transposee !!! */
     if(M->changed){
@@ -1095,7 +1095,7 @@ void prod_matrix_vector (Matrix *M, double *V , double *res ){
 }
 
 
-void prod_matrix_double (Matrix *M, double v){  
+void prod_matrix_double (Matrix *M, double v){
   /* M*v -> M */
   int i;
   double *a;
@@ -1108,7 +1108,7 @@ void prod_matrix_double (Matrix *M, double v){
     }
     break;
   case DENSE :
-    for(i=0; i<(M->N)*(M->N); i++) M->F.a[i] *= v;    
+    for(i=0; i<(M->N)*(M->N); i++) M->F.a[i] *= v;
     break;
   }
 
@@ -1176,7 +1176,7 @@ void norm2_vector(int Nb, double *U, double *norm){
 void norminf_vector(int Nb, double *U, double *norm){
   int i;
   *norm = 0.;
-  for(i=0; i<Nb; i++) 
+  for(i=0; i<Nb; i++)
     if(fabs(U[i]) > *norm) *norm = fabs(U[i]);
 }
 
@@ -1196,7 +1196,7 @@ void identity_matrix (Matrix *M){
 /* ------------------------------------------------------------------------ */
 
 void binary_write_matrix (Matrix *M, const char *name, const char *ext){
-  
+
   int   Nb;
   FILE *pfile;
   char  filename[256];
@@ -1218,13 +1218,13 @@ void binary_write_matrix (Matrix *M, const char *name, const char *ext){
 
     fprintf(pfile,"%d %d\n", M->N, Nb);
 
-    fprintf(pfile,"%d %d %d %d %d\n", M->S.ptr->nmax, M->S.ptr->size, 
+    fprintf(pfile,"%d %d %d %d %d\n", M->S.ptr->nmax, M->S.ptr->size,
 	    M->S.ptr->incr, M->S.ptr->n, M->S.ptr->isorder);
-    fprintf(pfile,"%d %d %d %d %d\n", M->S.ai->nmax, M->S.ai->size, 
+    fprintf(pfile,"%d %d %d %d %d\n", M->S.ai->nmax, M->S.ai->size,
 	    M->S.ai->incr, M->S.ai->n, M->S.ai->isorder);
-    fprintf(pfile,"%d %d %d %d %d\n", M->S.jptr->nmax, M->S.jptr->size, 
+    fprintf(pfile,"%d %d %d %d %d\n", M->S.jptr->nmax, M->S.jptr->size,
 	    M->S.jptr->incr, M->S.jptr->n, M->S.jptr->isorder);
-    fprintf(pfile,"%d %d %d %d %d\n", M->S.a->nmax, M->S.a->size, 
+    fprintf(pfile,"%d %d %d %d %d\n", M->S.a->nmax, M->S.a->size,
 	    M->S.a->incr, M->S.a->n, M->S.a->isorder);
 
     fwrite(M->S.ptr->array, sizeof(int), Nb, pfile);
@@ -1257,7 +1257,7 @@ void binary_write_vector (int Nb, double *V, const char *name, const char *ext){
 }
 
 
-void formatted_write_matrix (FILE *pfile, Matrix *M, int style){  
+void formatted_write_matrix (FILE *pfile, Matrix *M, int style){
   int *ptr,*ai,i,j,*jptr, *ia, *ja, *ir, nnz, ierr;
   int  un=1;
   double *a;
@@ -1281,11 +1281,11 @@ void formatted_write_matrix (FILE *pfile, Matrix *M, int style){
     break;
 
   case SPARSE :
-    
+
     switch(style){
-      
-    case ELAP : 
-      fprintf(pfile,"%d\n",M->T); 
+
+    case ELAP :
+      fprintf(pfile,"%d\n",M->T);
       a = (double*)M->S.a->array;
       ai = (int*)M->S.ai->array;
       ptr = (int*)M->S.ptr->array;
@@ -1298,25 +1298,25 @@ void formatted_write_matrix (FILE *pfile, Matrix *M, int style){
       for(i=0;i<List_Nbr(M->S.a);i++)
 	fprintf(pfile,"%d %d %.16g \n",ai[i],ptr[i],a[i]);
       break;
-    
+
     case KUL :
       csr_format(&M->S, M->N);
       a  = (double*) M->S.a->array;
       ia = (int*) M->S.jptr->array;
-      ja = (int*) M->S.ptr->array; 
+      ja = (int*) M->S.ptr->array;
       nnz = List_Nbr(M->S.a);
       ir = (int*) Malloc(nnz * sizeof(int));
-      csrcoo_(&M->N, &un, &nnz, a, ja, ia, &nnz, a, ir, ja, &ierr);      
+      csrcoo_(&M->N, &un, &nnz, a, ja, ia, &nnz, a, ir, ja, &ierr);
       for(i=0 ; i<nnz ; i++)
 	fprintf(pfile,"%d  %d  %.16g\n", ir[i], ja[i], a[i]);
       restore_format(&M->S);
       break;
-    
-    default : 
+
+    default :
       Message::Error("Unknown print style for formatted matrix output");
     }
     break ;
-    
+
   default :
     Message::Error("Unknown matrix format for formatted matrix output");
 
@@ -1338,19 +1338,19 @@ void formatted_write_vector (FILE *pfile, int Nb, double *V, int style){
 
 
 void binary_read_matrix (Matrix *M, const char *name , const char *ext){
-  
+
   int   Nb;
   FILE *pfile;
   char  filename[256];
-  
+
   strcpy(filename, name);
   strcat(filename, ext);
   pfile = fopen(filename, "rb") ;
 
   if (pfile == NULL) {
-    Message::Error("Error opening file '%s'", filename);    
+    Message::Error("Error opening file '%s'", filename);
   }
-  
+
   fscanf(pfile,"%d",&M->T);
   M->ILU_Exists  = 0;
 
@@ -1363,13 +1363,13 @@ void binary_read_matrix (Matrix *M, const char *name , const char *ext){
     M->S.jptr = List_Create (M->N, 1, sizeof(int));
     M->S.a    = List_Create (Nb, 1, sizeof(double));
 
-    fscanf(pfile,"%d %d %d %d %d\n", &M->S.ptr->nmax, &M->S.ptr->size, 
+    fscanf(pfile,"%d %d %d %d %d\n", &M->S.ptr->nmax, &M->S.ptr->size,
 	   &M->S.ptr->incr, &M->S.ptr->n, &M->S.ptr->isorder);
-    fscanf(pfile,"%d %d %d %d %d\n", &M->S.ai->nmax, &M->S.ai->size, 
+    fscanf(pfile,"%d %d %d %d %d\n", &M->S.ai->nmax, &M->S.ai->size,
 	   &M->S.ai->incr, &M->S.ai->n, &M->S.ai->isorder);
-    fscanf(pfile,"%d %d %d %d %d\n", &M->S.jptr->nmax, &M->S.jptr->size, 
+    fscanf(pfile,"%d %d %d %d %d\n", &M->S.jptr->nmax, &M->S.jptr->size,
 	   &M->S.jptr->incr, &M->S.jptr->n, &M->S.jptr->isorder);
-    fscanf(pfile,"%d %d %d %d %d\n", &M->S.a->nmax, &M->S.a->size, 
+    fscanf(pfile,"%d %d %d %d %d\n", &M->S.a->nmax, &M->S.a->size,
 	   &M->S.a->incr, &M->S.a->n, &M->S.a->isorder);
 
     fread(M->S.ptr->array, sizeof(int), Nb, pfile);
@@ -1377,7 +1377,7 @@ void binary_read_matrix (Matrix *M, const char *name , const char *ext){
     fread(M->S.jptr->array, sizeof(int), M->N, pfile);
     fread(M->S.a->array, sizeof(double), Nb, pfile);
     break;
-    
+
   case DENSE :
     fscanf(pfile,"%d\n", &M->N);
     M->F.LU_Exist = 0;
@@ -1411,12 +1411,12 @@ void binary_read_vector (int Nb, double **V, const char *name, const char *ext){
 }
 
 
-void formatted_read_matrix (Matrix *M, const char *name , const char *ext, int style){  
+void formatted_read_matrix (Matrix *M, const char *name , const char *ext, int style){
   int i,nnz,inb,inb2;
   double nb;
   FILE *pfile;
   char filename[256];
-  
+
   strcpy(filename, name);
   strcat(filename, ext);
   pfile = fopen(filename, "r") ;
@@ -1424,7 +1424,7 @@ void formatted_read_matrix (Matrix *M, const char *name , const char *ext, int s
   if (pfile == NULL) {
     Message::Error("Error opening file  %s", filename);
   }
-  
+
   fscanf(pfile,"%d",&M->T);
   switch (M->T) {
   case SPARSE :
@@ -1441,9 +1441,9 @@ void formatted_read_matrix (Matrix *M, const char *name , const char *ext, int s
       List_Add(M->S.ptr,&inb2);
       List_Add(M->S.a,&nb);
     }
-    
+
     break;
-    
+
   case DENSE :
     fscanf(pfile,"%d",&M->N);
     for(i=0;i<(M->N)*(M->N);i++){
@@ -1479,7 +1479,7 @@ void formatted_read_vector (int Nb, double *V, const char *name, const char *ext
 /* ------------------------------------------------------------------------ */
 
 int maximum (int a, int b) {
-  if (a>b) 
+  if (a>b)
     return(a);
   else
     return(b);
@@ -1488,27 +1488,27 @@ int maximum (int a, int b) {
 
 void print_matrix_info_CSR (int N, int *jptr, int *ai){
   int i, j, k, l, m, n;
-  
+
   l = n = 0;
   j = jptr[N]-1 ;
   for (i=0; i<N; i++) {
-    k = jptr[i+1] - jptr[i];	  
+    k = jptr[i+1] - jptr[i];
     m = ai[jptr[i+1]-2] - ai[jptr[i]-1] + 1;
     if (l<k) l = k;
     if (n<m) n = m;
   }
 
-  Message::Info("N: %d, NZ: %d, BW max/avg: %d/%d, SW max: %d", 
+  Message::Info("N: %d, NZ: %d, BW max/avg: %d/%d, SW max: %d",
       N, j, l, (int)(j/N), n);
 }
 
-void print_matrix_info_MSR (int N, scalar *a, int *jptr){
+void print_matrix_info_MSR (int N, sscalar *a, int *jptr){
   int i, j, k, l, m, n;
 
   l = n = 0;
   j = jptr[N]-2;
   for (i=0; i<N; i++) {
-    k = jptr[i+1] - jptr[i] + (a[i]?1:0) ; 
+    k = jptr[i+1] - jptr[i] + (a[i]?1:0) ;
     if((jptr[i+1] - jptr[i]) == 0)
       m = (a[i]?1:0);
     else
@@ -1518,7 +1518,7 @@ void print_matrix_info_MSR (int N, scalar *a, int *jptr){
     if (n<m) n = m;
   }
 
-  Message::Info("N: %d, NZ: %d, BW max/avg: %d/%d, SW max: %d", 
+  Message::Info("N: %d, NZ: %d, BW max/avg: %d/%d, SW max: %d",
       N, j, l, (int)(j/N), n);
 
 }
@@ -1540,7 +1540,7 @@ void get_column_in_matrix (Matrix *M, int col, double *V){
 
   switch (M->T) {
   case SPARSE :
-    /* csr_format transpose! 
+    /* csr_format transpose!
        donc la matrice arrivant dans cette routine doit
        bel et bien etre la transposee !!! */
     if(M->changed){
@@ -1555,16 +1555,16 @@ void get_column_in_matrix (Matrix *M, int col, double *V){
     for(i=0; i<M->N; i++){  /* lignes */
       found=0;
       for(k=jptr[i]-1;k<jptr[i+1]-1;k++){ /*colonne */
-         if(ai[k]-1==col) { 
-	   V[i]=a[k]; found=1; break; 
+         if(ai[k]-1==col) {
+	   V[i]=a[k]; found=1; break;
 	 }
-	 else if (ai[k]-1 > col) { 
-	   break; 
+	 else if (ai[k]-1 > col) {
+	   break;
 	 }
        }
-      if (!found) V[i]=0; 
-    printf(" V[%d] = %g \n",i, V[i]); 
-    } 
+      if (!found) V[i]=0;
+    printf(" V[%d] = %g \n",i, V[i]);
+    }
     break;
   case DENSE :
     if(M->notranspose){
@@ -1589,7 +1589,7 @@ void get_element_in_matrix (Matrix *M, int row, int col, double *V){
 
   switch (M->T) {
   case SPARSE :
-    /* csr_format transpose! 
+    /* csr_format transpose!
        donc la matrice arrivant dans cette routine doit
        bel et bien etre la transposee !!! */
     if(M->changed){
@@ -1604,16 +1604,16 @@ void get_element_in_matrix (Matrix *M, int row, int col, double *V){
     for(i=0; i<M->N; i++){  /* lignes */
       found=0;
       for(k=jptr[i]-1;k<jptr[i+1]-1;k++){ /*colonne */
-         if(ai[k]-1==col) { 
-	   V[i]=a[k]; found=1; break; 
+         if(ai[k]-1==col) {
+	   V[i]=a[k]; found=1; break;
 	 }
-	 else if (ai[k]-1 > col) { 
-	   break; 
+	 else if (ai[k]-1 > col) {
+	   break;
 	 }
        }
-      if (!found) V[i]=0; 
-    printf(" V[%d] = %g \n",i, V[i]); 
-    } 
+      if (!found) V[i]=0;
+    printf(" V[%d] = %g \n",i, V[i]);
+    }
     break;
   case DENSE :
     if(M->notranspose){
@@ -1633,7 +1633,7 @@ void get_element_in_matrix (Matrix *M, int row, int col, double *V){
 /*  S o l v e r   p a r a m e t e r s                                       */
 /* ------------------------------------------------------------------------ */
 
-static char comALGORITHM[] = 
+static char comALGORITHM[] =
 "\n%s (Integer): \n\
     - 1  CG       Conjugate Gradient                    \n\
     - 2  CGNR     CG (Normal Residual equation)         \n\
@@ -1649,7 +1649,7 @@ static char comALGORITHM[] =
     - 12 PGMRES   Alternative version of GMRES          \n\
     - default : %d\n";
 
-static char comPRECONDITIONER[] = 
+static char comPRECONDITIONER[] =
 "\n%s (Integer): \n\
     - 0  NONE     No Factorization\n\
     - 1  ILUT     Incomplete LU factorization with dual truncation strategy \n\
@@ -1662,7 +1662,7 @@ static char comPRECONDITIONER[] =
     - 8  DIAGONAL                                                           \n\
     - default : %d \n";
 
-static char comPRECONDITIONER_POSITION[] = 
+static char comPRECONDITIONER_POSITION[] =
 "\n%s (Integer): \n\
     - 0  No Preconditioner \n\
     - 1  Left Preconditioner \n\
@@ -1670,37 +1670,37 @@ static char comPRECONDITIONER_POSITION[] =
     - 3  Both Left and Right Preconditioner \n\
     - default : %d \n";
 
-static char comRENUMBERING_TECHNIQUE[] = 
+static char comRENUMBERING_TECHNIQUE[] =
 "\n%s (Integer): \n\
     - 0  No renumbering \n\
     - 1  Reverse Cuthill-Mc Kee \n\
     - default : %d \n";
 
-static char comNB_ITER_MAX[] = 
+static char comNB_ITER_MAX[] =
 "\n%s (Integer): Maximum number of iterations \n\
     - default : %d \n";
 
-static char comMATRIX_FORMAT[] = 
+static char comMATRIX_FORMAT[] =
 "\n%s (Integer): \n\
     - 1  Sparse \n\
     - 2  Full \n\
     - default : %d\n";
 
-static char comMATRIX_PRINTING[] = 
+static char comMATRIX_PRINTING[] =
 "\n%s (Integer): Disk write ('fort.*') \n\
     - 1  matrix (csr) \n\
     - 2  preconditioner (msr) \n\
     - 3  both \n\
     - default : %d\n";
 
-static char comMATRIX_STORAGE[] = 
+static char comMATRIX_STORAGE[] =
 "\n%s (Integer): Disk Write or Read in internal format \n\
     - 0  none \n\
     - 1  write matrix (sparse) \n\
     - 2  read matrix (sparse) \n\
     - default : %d\n";
 
-static char comNB_FILL[] = 
+static char comNB_FILL[] =
 "\n%s (Integer): \n\
     - ILUT/ILUTP : maximum number of elements per line \n\
       of L and U (except diagonal element) \n\
@@ -1708,23 +1708,23 @@ static char comNB_FILL[] =
       is dropped. \n\
     - default : %d\n";
 
-static char comKRYLOV_SIZE[] = 
+static char comKRYLOV_SIZE[] =
 "\n%s (Integer): Krylov subspace size \n\
     - default : %d\n";
 
-static char comSTOPPING_TEST[] = 
+static char comSTOPPING_TEST[] =
 "\n%s (Real): Target relative residual \n\
     - default : %g \n";
 
-static char comIC_ACCELERATION[] = 
+static char comIC_ACCELERATION[] =
 "\n%s (Real): IC accelerator\n\
     - default : %g \n";
 
-static char comITERATIVE_IMPROVEMENT[] =  
+static char comITERATIVE_IMPROVEMENT[] =
 "\n%s (Integer): Iterative improvement of the solution obtained by a LU \n\
     - default : %d\n";
 
-static char comDROPPING_TOLERANCE[] = 
+static char comDROPPING_TOLERANCE[] =
 "\n%s (Real): \n\
     - ILUT/ILUTP/ILUK: a(i,j) is dropped if \n\
       abs(a(i,j)) < DROPPING_TOLERANCE * abs(diagonal element in U). \n\
@@ -1733,7 +1733,7 @@ static char comDROPPING_TOLERANCE[] =
       Weighted norm = 1-norm / number of nonzero elements on the line. \n\
     - default : %g\n";
 
-static char comPERMUTATION_TOLERANCE[] = 
+static char comPERMUTATION_TOLERANCE[] =
 "\n%s (Real): Tolerance for column permutation in ILUTP/ILUDP. \n\
     At stage i, columns i and j are permuted if \n\
     abs(a(i,j))*PERMUTATION_TOLERANCE > abs(a(i,i)). \n\
@@ -1741,26 +1741,26 @@ static char comPERMUTATION_TOLERANCE[] =
     - 0.001 -> 0.1  classical \n\
     - default : %g\n";
 
-static char comRE_USE_LU[] =  
+static char comRE_USE_LU[] =
 "\n%s (Integer): Reuse LU decomposition\n\
     - 0  no \n\
     - 1  yes \n\
     - default : %d\n";
 
-static char comRE_USE_ILU[] =  
+static char comRE_USE_ILU[] =
 "\n%s (Integer): Reuse ILU decomposition (and renumbering if any)\n\
     - 0  no \n\
     - 1  yes \n\
     - default : %d\n";
 
-static char comDIAGONAL_COMPENSATION[] = 
+static char comDIAGONAL_COMPENSATION[] =
 "\n%s (Real): ILUD/ILUDP: the term 'DIAGONAL_COMPENSATION * (sum \n\
     of all dropped elements of the line)' is added to the diagonal element in U \n\
     - 0  ~ ILU with threshold \n\
       1  ~ MILU with threshold. \n\
     - default : %g\n";
 
-static char comSCALING[] = 
+static char comSCALING[] =
 "\n%s (Integer): Scale system \n\
     - 0  no \n\
     - 1  on basis of diagonal elements  (no loss of possible symmetry) \n\
@@ -1817,7 +1817,7 @@ int compInfoSolver(const void *a, const void *b){
   return(strcmp(((InfoSolver*)a)->str, ((InfoSolver*)b)->str));
 }
 
-static InfoSolver Tab_Params[] = 
+static InfoSolver Tab_Params[] =
 {
   {"Matrix_Format",           ENTIER, 1,     0.,    comMATRIX_FORMAT,           actMATRIX_FORMAT},
   {"Matrix_Printing",         ENTIER, 0,     0.,    comMATRIX_PRINTING,         actMATRIX_PRINTING},
@@ -1828,8 +1828,8 @@ static InfoSolver Tab_Params[] =
   {"Preconditioner_Position", ENTIER, 2,     0.,    comPRECONDITIONER_POSITION, actPRECONDITIONER_POSITION},
   {"Nb_Fill",                 ENTIER, 20,    0.,    comNB_FILL,                 actNB_FILL},
   {"Permutation_Tolerance",   REEL,   0,     5.e-2, comPERMUTATION_TOLERANCE,   actPERMUTATION_TOLERANCE},
-  {"Dropping_Tolerance",      REEL,   0,     0.,    comDROPPING_TOLERANCE,      actDROPPING_TOLERANCE},    
-  {"Diagonal_Compensation",   REEL,   0,     0.,    comDIAGONAL_COMPENSATION,   actDIAGONAL_COMPENSATION},    
+  {"Dropping_Tolerance",      REEL,   0,     0.,    comDROPPING_TOLERANCE,      actDROPPING_TOLERANCE},
+  {"Diagonal_Compensation",   REEL,   0,     0.,    comDIAGONAL_COMPENSATION,   actDIAGONAL_COMPENSATION},
   {"Re_Use_ILU",              ENTIER, 0,     0.,    comRE_USE_ILU,              actRE_USE_ILU},
   {"Algorithm",               ENTIER, 8,     0.,    comALGORITHM,               actALGORITHM},
   {"Krylov_Size",             ENTIER, 40,    0.,    comKRYLOV_SIZE,             actKRYLOV_SIZE},
@@ -1933,7 +1933,7 @@ void init_solver (Solver_Params *p , const char *name){
 	}
 	break;
       }
-    }    
+    }
     fclose(file);
   }
   else {
@@ -1942,7 +1942,7 @@ void init_solver (Solver_Params *p , const char *name){
     while (!feof(file)){
       fscanf(file,"%s",buff);
       I.str = buff;
-      if(!(pI = (InfoSolver*)bsearch(&I,Tab_Params, NbInfosSolver, 
+      if(!(pI = (InfoSolver*)bsearch(&I,Tab_Params, NbInfosSolver,
 				     sizeof(InfoSolver),compInfoSolver))){
 	if(buff[0] == '/' && buff[1] == '*'){
 	  while(1){
@@ -1987,19 +1987,19 @@ void init_solver_option (Solver_Params *p , const char *name, const char *value)
 
     if(!strcmp(pI->str, name)){
       switch(pI->typeinfo){
-      case REEL   : 
+      case REEL   :
 	valf = atof(value);
-	(pI->action)(p,pI->defaultint,valf); 
+	(pI->action)(p,pI->defaultint,valf);
 	Message::Info("Overriding parameter '%s': %g", pI->str, valf);
 	break;
-      case ENTIER : 
+      case ENTIER :
 	vali = atoi(value);
 	(pI->action)(p,vali,pI->defaultfloat);
 	Message::Info("Overriding parameter '%s': %d", pI->str, vali);
 	break;
       }
       return;
-    }    
+    }
   }
 
   Message::Error("Unknown solver parameter '%s'", name);
@@ -2020,7 +2020,7 @@ static int cmpij(int ai,int aj,int bi,int bj){
 
 static int *alloc_ivec(long nl, long nh){
   int *v;
-  
+
   v=(int *)Malloc((size_t) ((nh-nl+1+1)*sizeof(int)));
   return v-nl+1;
 }
@@ -2040,7 +2040,7 @@ static void sort2(unsigned long n, double arr[], int ai[] , int aj []){
   int *istack,jstack=0,tempi;
   double a,temp;
   int    b,c;
-    
+
   istack=alloc_ivec(1,NSTACK);
   for (;;) {
     if (ir-l < M) {
@@ -2065,7 +2065,7 @@ static void sort2(unsigned long n, double arr[], int ai[] , int aj []){
       ir=istack[jstack];
       l=istack[jstack-1];
       jstack -= 2;
-    } 
+    }
     else {
       k=(l+ir) >> 1;
       SWAP(arr[k M1],arr[l+1 M1])
@@ -2113,7 +2113,7 @@ static void sort2(unsigned long n, double arr[], int ai[] , int aj []){
 	istack[jstack]=ir;
 	istack[jstack-1]=i;
 	ir=j-1;
-      } 
+      }
       else {
 	istack[jstack]=j-1;
 	istack[jstack-1]=l;
@@ -2139,7 +2139,7 @@ static void deblign ( int nz , int *ptr , int *jptr , int *ai){
     if (ai[i-1] < ai[i]) {
       jptr[ilign++]=i+1;
       ai[i-1] = 0;
-    }    
+    }
     else{
       ai[i-1] = i+1;
     }
@@ -2169,13 +2169,13 @@ void csr_format (Sparse_Matrix *MM, int N){
   sort2(List_Nbr(MM->a),a,ai,ptr);
   deblign(List_Nbr(MM->a),ptr,jptr,ai);
   jptr[N]=List_Nbr(MM->a)+1;
-} 
+}
 
 
-void restore_format (Sparse_Matrix *MM){    
+void restore_format (Sparse_Matrix *MM){
   char *temp;
 
   temp  = MM->ptr->array;
   MM->ptr->array = MM->ai->array;
   MM->ai->array = temp;
-} 
+}
