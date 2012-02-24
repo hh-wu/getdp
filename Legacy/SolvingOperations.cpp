@@ -1536,7 +1536,7 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
 
   if(DofData_P->Flag_InitOnly[2]==1){
     DofData_P->Flag_InitOnly[2] = 2;
-    Message::Info("Initializing System {A2,b2}");
+    Message::Info("Initializing System {A3,b3}");
     LinAlg_CreateMatrix(&DofData_P->A3, &DofData_P->Solver,
 			DofData_P->NbrDof, DofData_P->NbrDof) ;
     LinAlg_CreateVector(&DofData_P->b3, &DofData_P->Solver, DofData_P->NbrDof) ;
