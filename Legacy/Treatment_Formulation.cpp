@@ -285,7 +285,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
   struct DefineQuantity    * DefineQuantity_P0 , * DefineQuantity_P ;
 
   List_T                   * FemLocalTermActive_L ;
-  struct FemLocalTermActive* FemLocalTermActive_S ;
+  struct FemLocalTermActive  FemLocalTermActive_S ;
   List_T                   * QuantityStorage_L ;
 
   struct Group * GroupIn_P ;
