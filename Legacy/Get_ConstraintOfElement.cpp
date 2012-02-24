@@ -42,22 +42,22 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 
   Constraint_L = FunctionSpace_P->Constraint ;
   Nbr_Constraint = List_Nbr(Constraint_L) ;
-  
+
   for (i_Constraint = 0 ;
        i_Constraint < Nbr_Constraint &&
 	 ! QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint ;
        i_Constraint++) {
-    
+
     Constraint_P =
       (struct ConstraintInFS*)List_Pointer(Constraint_L, i_Constraint) ;
     ConstraintPerRegion_P = Constraint_P->ConstraintPerRegion ;
 
     switch(ConstraintPerRegion_P->Type) {
-	
+
     case ASSIGN :                case INIT :
     case ASSIGNFROMRESOLUTION :  case INITFROMRESOLUTION :
     case CST_LINK : case CST_LINKCPLX :
-	
+
       switch(Constraint_P->QuantityType) {
 
       case LOCALQUANTITY :
@@ -74,7 +74,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		ConstraintPerRegion_P->Type == INIT) {
 
 	      switch (TypeConstraint) {
-	      case NODESOF :  
+	      case NODESOF :
 	      case GROUPSOFEDGESONNODESOF :
 		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
 		Geo_GetNodesCoordinates( 1, &Current.NumEntity,
@@ -88,7 +88,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		break ;
 	      case EDGESOF :
 		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
-		Current.NumEntityInElement = i_Entity ;  
+		Current.NumEntityInElement = i_Entity ;
 		break ;
 	      }
 
@@ -122,21 +122,21 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	  }
 	}
 	break ; /* LOCALQUANTITY */
-	
+
       case GLOBALQUANTITY :
-	
+
 	GlobalQuantity_P = (struct GlobalQuantity*)
 	  List_Pointer(FunctionSpace_P->GlobalQuantity,
 		       Constraint_P->ReferenceIndex) ;
 	if ((GlobalQuantity_P->Type == ALIASOF) &&
 	    (GlobalQuantity_P->ReferenceIndex == i_BFunction)) {
-    
+
 	  GroupEntity_Pr = (struct Group*)
 	    List_Pointer(Problem_S.Group, Constraint_P->EntityIndex) ;
-	  
+
 	  if (List_Search(GroupEntity_Pr->InitialList,
 			  &Num_Entity[i_Entity], fcmp_int)) {
-	    
+
 	    QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint =
 	      ConstraintPerRegion_P->Type ;
 
@@ -174,7 +174,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		 TimeFunctionIndex) ;
 	    }
 	  }
-	}		
+	}
 	break ; /* GLOBALQUANTITY */
 
       default :
@@ -182,7 +182,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	break;
 
       }
-      
+
       break ;  /* ASSIGN || INIT || ASSIGNFROMRESOLUTION || INITFROMRESOLUTION */
 
     default :
@@ -190,14 +190,14 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
       break;
 
     }
-    
+
   }  /* for i_Constraint ... */
 
   /* Constraints due to P-refinement */
   if(Current.GeoData->P) {
     Index_GeoElement = Geo_GetGeoElementIndex(Current.Element->GeoElement) ;
     if (Current.GeoData->P[Index_GeoElement+1] >= 0 &&
-	Current.GeoData->P[Index_GeoElement+1] < 
+	Current.GeoData->P[Index_GeoElement+1] <
 	QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Order){
       QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Constraint = ASSIGN ;
       for (k = 0 ; k < Current.NbrHar ; k++)
@@ -233,7 +233,7 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
       Get_ValueOfExpression
 	((struct Expression *)
 	 List_Pointer(Problem_S.Expression,
-		      Constraint_P->ConstraintPerRegion->TimeFunctionIndex),	 
+		      Constraint_P->ConstraintPerRegion->TimeFunctionIndex),
 	 NULL, 0., 0., 0., &Val_TimeFunction) ;
 
       Cal_ProductValue(&Val_Modulus, &Val_TimeFunction,  &Val_Modulus) ;
@@ -246,7 +246,7 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
     // Set this to zero to avoid having an uninitialized imaginary
     // part if you use a complex arithmetic solver (on a real matrix)
     // -- cf. LinAlg_SetScalar() calls in DofData.cpp
-    Value[1] = 0. ; 
+    Value[1] = 0. ;
   }
 }
 
@@ -269,19 +269,19 @@ void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
 
   Constraint_L = FunctionSpace_P->Constraint ;
   Nbr_Constraint = List_Nbr(Constraint_L) ;
-  
+
   for (i_Constraint = 0 ;
        i_Constraint < Nbr_Constraint &&
 	 ! QuantityStorage_P->BasisFunction[0].Constraint ; i_Constraint++) {
-    
+
     Constraint_P =
       (struct ConstraintInFS*)List_Pointer(Constraint_L, i_Constraint) ;
     ConstraintPerRegion_P = Constraint_P->ConstraintPerRegion ;
-    
+
     if (Constraint_P->QuantityType == GLOBALQUANTITY) {
 
       switch(ConstraintPerRegion_P->Type) {
-	
+
       case ASSIGN :                case INIT :
       case ASSIGNFROMRESOLUTION :  case INITFROMRESOLUTION :
       case CST_LINK : case CST_LINKCPLX :
@@ -291,12 +291,12 @@ void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
 		       Constraint_P->ReferenceIndex) ;
 
 	if (GlobalQuantity_Pr == GlobalQuantity_P) {
-	  
+
 	  GroupEntity_Pr = (struct Group*)
 	    List_Pointer(Problem_S.Group, Constraint_P->EntityIndex) ;
-	  
-	  if (/*(GroupEntity_Pr->FunctionType == 
-		((struct Group *)List_Pointer(Problem_S.Group, 
+
+	  if (/*(GroupEntity_Pr->FunctionType ==
+		((struct Group *)List_Pointer(Problem_S.Group,
 		BasisFunction_P->EntityIndex))
 		->FunctionType)  && */
 	      List_Search
@@ -354,14 +354,14 @@ void  Get_PreResolutionForConstraint(struct ConstraintInFS * Constraint_P,
   *Index_TimeFunction = Constraint_P->ConstraintPerRegion->TimeFunctionIndex ;
 
   if (Constraint_P->Active.ResolutionIndex < 0)
-    if ((Constraint_P->Active.ResolutionIndex = 
+    if ((Constraint_P->Active.ResolutionIndex =
 	 List_ISearchSeq(Problem_S.Resolution,
 			 Constraint_P->ConstraintPerRegion->
 			 Case.Solve.ResolutionName, fcmp_Resolution_Name)) < 0) {
       Message::Error("Unknown ResolutionName '%s' in Constraint",
                      Constraint_P->ConstraintPerRegion->Case.Solve.ResolutionName) ;
     }
-  if(List_ISearchSeq(PreResolutionIndex_L, &Constraint_P->Active.ResolutionIndex, 
+  if(List_ISearchSeq(PreResolutionIndex_L, &Constraint_P->Active.ResolutionIndex,
 		     fcmp_int) < 0) {
     PreResolutionInfo_S.Index = Constraint_P->Active.ResolutionIndex ;
     PreResolutionInfo_S.Type  = PR_CONSTRAINT ;
@@ -475,10 +475,12 @@ void  Generate_Link(struct ConstraintInFS * Constraint_P, int Flag_New)
 		 Constraint_P->ConstraintPerRegion->Case.Link.SubRegionRefIndex) :
     NULL ;
 
-  if (Group_P->FunctionType == REGION)
+  if (Group_P->FunctionType == REGION){
     Nbr_Entity = List_Nbr(Group_P->InitialList) ;
-  else
+  }
+  else{
     Nbr_Entity = List_Nbr(Group_P->ExtendedList) ;
+  }
 
   if (Nbr_Entity) {
     if (Flag_New)
@@ -684,7 +686,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 
     List_Add(Couples_L, &TwoIntOneDouble) ;
 
-    Message::Debug("%d %d : coef %e %e", NodeXYZ.NumNode, NodeXYZRef.NumNode, 
+    Message::Debug("%d %d : coef %e %e", NodeXYZ.NumNode, NodeXYZRef.NumNode,
                    TwoIntOneDouble.Double, TwoIntOneDouble.Double2) ;
   }
 
@@ -887,7 +889,7 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
     List_Read(EdgeNNRef_L, i, &EdgeNNRef) ;
 
     Message::Debug("Final : %d: a%d, n%d - n%d (%.16g + %.16g i) / a%d, n%d - n%d",
-                   i, 
+                   i,
                    EdgeNN.NumEdge, EdgeNN.Node1, EdgeNN.Node2, EdgeNN.Coef, EdgeNN.Coef2,
                    EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
 
@@ -970,7 +972,7 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
 			  struct Group * Group_P,
 			  struct Group * RegionRef_P, struct Group * SubRegionRef_P,
 			 List_T * Couples_L)
-{ 
+{
   int  Nbr_Entity, Nbr_EntityRef ;
 
   List_T  * ExtendedListNodes_L ;
@@ -1044,8 +1046,8 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
 
   /*  if (Nbr_Entity != List_Nbr(EdgeNN_L))  Message::Error("Constraint Link: strange...") ; */
   if (Nbr_Entity != List_Nbr(ExtendedList_L))  Message::Error("Constraint Link: strange...") ;
-    
-  Message::Debug("(ajout) Image %d: f%d, n%d - n%d - n%d", i, FacetNNN.NumFacet, 
+
+  Message::Debug("(ajout) Image %d: f%d, n%d - n%d - n%d", i, FacetNNN.NumFacet,
                  FacetNNN.Node1, FacetNNN.Node2, FacetNNN.Node3) ;
 
 
@@ -1101,8 +1103,8 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
       FacetNNN.Node2 = TwoIntOneDouble2_P->Int2 ;
       FacetNNN.Node3 = TwoIntOneDouble3_P->Int2 ;
 
-      if ( (fabs(TwoIntOneDouble_P->Double  - TwoIntOneDouble2_P->Double) > 1.e-18) || 
-	   (fabs(TwoIntOneDouble2_P->Double - TwoIntOneDouble3_P->Double) > 1.e-18) || 
+      if ( (fabs(TwoIntOneDouble_P->Double  - TwoIntOneDouble2_P->Double) > 1.e-18) ||
+	   (fabs(TwoIntOneDouble2_P->Double - TwoIntOneDouble3_P->Double) > 1.e-18) ||
            (fabs(TwoIntOneDouble3_P->Double - TwoIntOneDouble_P->Double ) > 1.e-18)  )
 	Message::Error("5-Constraint Link: Bad Coefficient for Facets") ;
 
@@ -1172,7 +1174,7 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
     }
   }
   Nbr_EntityRef = List_Nbr(FacetNNNRef_L) ;
-  
+
   if (Nbr_EntityRef != Nbr_Entity)
     Message::Error("6-Constraint Link: bad correspondance of number of facets (%d, %d)",
                    Nbr_Entity, Nbr_EntityRef) ;
@@ -1185,10 +1187,10 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
     List_Read(FacetNNNRef_L, i, &FacetNNNRef) ;
 
     Message::Debug("Final : %d: a%d, n%d - n%d - n%d (%.16g + %.16g i) / a%d, n%d - n%d - n%d",
-                   i, 
+                   i,
                    FacetNNN.NumFacet, FacetNNN.Node1, FacetNNN.Node2, FacetNNN.Node3, FacetNNN.Coef, FacetNNN.Coef2,
                    FacetNNNRef.NumFacet, FacetNNNRef.Node1, FacetNNNRef.Node2, FacetNNNRef.Node3) ;
-    
+
     if (FacetNNN.Node1 != FacetNNNRef.Node1 ||
 	FacetNNN.Node2 != FacetNNNRef.Node2 ||
 	FacetNNN.Node3 != FacetNNNRef.Node3 )
@@ -1232,7 +1234,7 @@ void  Generate_ElementaryEntities_FacetNNN
   struct Geo_Element  * GeoElement ;
   int     Nbr_Element, i_Element ;
   int     Nbr_Entity = 0, i_Entity, * Num_Entities = NULL;
-  
+
   struct FacetNNN FacetNNN ;
   int * Num_Nodes ;
 
