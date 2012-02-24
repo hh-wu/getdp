@@ -1240,7 +1240,7 @@ void  Format_NodeTable(int TimeStep, int NbTimeStep, int NbrHarmonics,
   for(int i = 0 ; i < PE->NbrNodes ; i++){
     int n = PE->NumNodes[i];
     int Size = 0;
-    switch(PE->Value->Type){
+    switch(PE->Value[0].Type){
     case SCALAR      : Size = 1 ; break ;
     case VECTOR      : Size = 3 ; break ;
     case TENSOR_DIAG : Size = 3 ; break ;
@@ -1251,7 +1251,7 @@ void  Format_NodeTable(int TimeStep, int NbTimeStep, int NbrHarmonics,
       NodeTable[n].resize(NbTimeStep * NbrHarmonics * Size, 0.);
       for(int k = 0 ; k < NbrHarmonics ; k++){
         for(int j = 0 ; j < Size ; j++){
-          double val = PE->Value->Val[MAX_DIM * k + j];
+          double val = PE->Value[i].Val[MAX_DIM * k + j];
           int idx = NbrHarmonics * Size * TimeStep + k * Size + j;
           NodeTable[n][idx] = val;
         }
