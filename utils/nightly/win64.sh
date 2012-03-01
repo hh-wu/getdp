@@ -14,37 +14,37 @@ export PREFIXES="--with-blas-lapack-prefix=/usr/local --with-gmsh-prefix=/usr/lo
 
 rm -f ${LOG}
 
-# echo "BUILD BEGIN: `date`" > ${LOG}
+echo "BUILD BEGIN: `date`" > ${LOG}
 
-# rm -f ${GETDP}/Makefile*
-# rm -rf ${GETDP}/getdp-*
-# cd ${GETDP} && svn update >> ${LOG} 2>&1
-# cd ${GETDP} && ./configure ${PREFIXES} --enable-sparskit >> ${LOG} 2>&1
-# cd ${GETDP} && make clean >> ${LOG} 2>&1
-# cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
-# scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win64s.zip
+rm -f ${GETDP}/Makefile*
+rm -rf ${GETDP}/getdp-*
+cd ${GETDP} && svn update >> ${LOG} 2>&1
+cd ${GETDP} && ./configure ${PREFIXES} --enable-sparskit >> ${LOG} 2>&1
+cd ${GETDP} && make clean >> ${LOG} 2>&1
+cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
+scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win64s.zip
 
-# export PETSC_ARCH=win64_real_mumps_seq
-# rm -f ${GETDP}/Makefile*
-# rm -rf ${GETDP}/getdp-*
-# cd ${GETDP} && svn update >> ${LOG} 2>&1
-# cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
-# cd ${GETDP} && make clean >> ${LOG} 2>&1
-# cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
-# scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win64r.zip
+export PETSC_ARCH=win64_real_mumps_seq
+rm -f ${GETDP}/Makefile*
+rm -rf ${GETDP}/getdp-*
+cd ${GETDP} && svn update >> ${LOG} 2>&1
+cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
+cd ${GETDP} && make clean >> ${LOG} 2>&1
+cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
+scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win64r.zip
 
-# export PETSC_ARCH=win64_complex_mumps_seq
-# rm -f ${GETDP}/Makefile*
-# rm -rf ${GETDP}/getdp-*
-# cd ${GETDP} && svn update >> ${LOG} 2>&1
-# cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
-# cd ${GETDP} && make clean >> ${LOG} 2>&1
-# cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
-# scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win64c.zip
+export PETSC_ARCH=win64_complex_mumps_seq
+rm -f ${GETDP}/Makefile*
+rm -rf ${GETDP}/getdp-*
+cd ${GETDP} && svn update >> ${LOG} 2>&1
+cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
+cd ${GETDP} && make clean >> ${LOG} 2>&1
+cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
+scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win64c.zip
 
-# echo "BUILD END: `date`" >> ${LOG}
+echo "BUILD END: `date`" >> ${LOG}
 
-# scp -C ${LOG} ${WEB_BIN}/
+scp -C ${LOG} ${WEB_BIN}/
 
 ### special versions for Peter
 LOG=${GETDP}/nightly64_NX.log
