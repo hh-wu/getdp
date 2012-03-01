@@ -45,3 +45,20 @@ scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win64c.zip
 echo "BUILD END: `date`" >> ${LOG}
 
 scp -C ${LOG} ${WEB_BIN}/
+
+### special versions for Peter
+LOG=${GETDP}/nightly64_peter.log
+EXTRA_VERSION={$1}_NX
+WEB_BIN=geuzaine@geuz.org:/home/www/geuz.org/getdp/bin_nx
+rm -f ${LOG}
+echo "BUILD BEGIN: `date`" > ${LOG}
+export PETSC_ARCH=win64_complex_mumps_seq
+rm -f ${GETDP}/Makefile*
+rm -rf ${GETDP}/getdp-*
+cd ${GETDP} && svn update >> ${LOG} 2>&1
+cd ${GETDP} && ./configure ${PREFIXES} --enable-nx >> ${LOG} 2>&1
+cd ${GETDP} && make clean >> ${LOG} 2>&1
+cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
+scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win64c.zip
+echo "BUILD END: `date`" >> ${LOG}
+scp -C ${LOG} ${WEB_BIN}/
