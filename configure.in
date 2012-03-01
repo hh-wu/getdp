@@ -264,6 +264,7 @@ if test "x$enable_nx" = "xyes"; then
   AC_CHECK_FILE(./contrib/NX/Unv_Format.cpp,NX="yes",NX="no")
   if test "x${NX}" = "xyes"; then
     AC_DEFINE(HAVE_NX)
+    BO="${BO} NX"
     AC_MSG_WARN([Building non-free version of GetDP with code (C) 2012 Dr. Binde Ingenieure.])
     GETDP_DIRS="${GETDP_DIRS} contrib/NX"
     GETDP_LIBS="${GETDP_LIBS} -lGetDPNX"

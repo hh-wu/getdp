@@ -4310,6 +4310,7 @@ fi
   if test "x${NX}" = "xyes"; then
     $as_echo "#define HAVE_NX 1" >>confdefs.h
 
+    BO="${BO} NX"
     { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Building non-free version of GetDP with code (C) 2012 Dr. Binde Ingenieure." >&5
 $as_echo "$as_me: WARNING: Building non-free version of GetDP with code (C) 2012 Dr. Binde Ingenieure." >&2;}
     GETDP_DIRS="${GETDP_DIRS} contrib/NX"
