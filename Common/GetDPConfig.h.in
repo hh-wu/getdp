@@ -12,6 +12,7 @@
 #undef HAVE_LEGACY
 #undef HAVE_NO_FORTRAN
 #undef HAVE_NO_SOCKLEN_T
+#undef HAVE_NX
 #undef HAVE_PETSC
 #undef HAVE_SLEPC
 #undef HAVE_SPARSKIT

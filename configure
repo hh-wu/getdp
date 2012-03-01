@@ -645,6 +645,7 @@ enable_petsc
 enable_slepc
 enable_sparskit
 enable_zitsol
+enable_nx
 '
       ac_precious_vars='build_alias
 host_alias
@@ -1283,6 +1284,7 @@ Optional Features:
   --enable-slepc          use SLEPc eigensolvers (default=yes)
   --enable-sparskit       use Sperskit linear solvers (default=no)
   --enable-zitsol         enable support for ZITSOL (default=no)
+  --enable-nx             enable support for NX components (default=no)
 
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
@@ -2059,6 +2061,11 @@ fi
 # Check whether --enable-zitsol was given.
 if test "${enable_zitsol+set}" = set; then :
   enableval=$enable_zitsol;
+fi
+
+# Check whether --enable-nx was given.
+if test "${enable_nx+set}" = set; then :
+  enableval=$enable_nx;
 fi
 
 
@@ -4278,6 +4285,38 @@ fi
   fi
 fi
 
+if test "x$enable_nx" = "xyes"; then
+  { $as_echo "$as_me:${as_lineno-$LINENO}: checking for ./contrib/NX/Unv_Format.cpp" >&5
+$as_echo_n "checking for ./contrib/NX/Unv_Format.cpp... " >&6; }
+if ${ac_cv_file___contrib_NX_Unv_Format_cpp+:} false; then :
+  $as_echo_n "(cached) " >&6
+else
+  test "$cross_compiling" = yes &&
+  as_fn_error $? "cannot check for file existence when cross compiling" "$LINENO" 5
+if test -r "./contrib/NX/Unv_Format.cpp"; then
+  ac_cv_file___contrib_NX_Unv_Format_cpp=yes
+else
+  ac_cv_file___contrib_NX_Unv_Format_cpp=no
+fi
+fi
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_file___contrib_NX_Unv_Format_cpp" >&5
+$as_echo "$ac_cv_file___contrib_NX_Unv_Format_cpp" >&6; }
+if test "x$ac_cv_file___contrib_NX_Unv_Format_cpp" = xyes; then :
+  NX="yes"
+else
+  NX="no"
+fi
+
+  if test "x${NX}" = "xyes"; then
+    $as_echo "#define HAVE_NX 1" >>confdefs.h
+
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Building non-free version of GetDP with code (C) 2012 Dr. Binde Ingenieure." >&5
+$as_echo "$as_me: WARNING: Building non-free version of GetDP with code (C) 2012 Dr. Binde Ingenieure." >&2;}
+    GETDP_DIRS="${GETDP_DIRS} contrib/NX"
+    GETDP_LIBS="${GETDP_LIBS} -lGetDPNX"
+  fi
+fi
+
 if test "x$enable_gsl" != "xno"; then
   if test "x${GSL_PREFIX}" != "x"; then
     LDFLAGS="-L${GSL_PREFIX} -L${GSL_PREFIX}/lib ${LDFLAGS}"
@@ -4392,14 +4431,10 @@ else
 fi
 
   if test "x${NR}" = "xyes"; then
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: You are building a non-free version of GetDP, using code copyright" >&5
-$as_echo "$as_me: WARNING: You are building a non-free version of GetDP, using code copyright" >&2;}
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: (C) 1986-92 Numerical Recipes Software J!0." >&5
-$as_echo "$as_me: WARNING: (C) 1986-92 Numerical Recipes Software J!0." >&2;}
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: To use the GSL instead, run configure again with the --enable-gsl" >&5
-$as_echo "$as_me: WARNING: To use the GSL instead, run configure again with the --enable-gsl" >&2;}
-    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: option." >&5
-$as_echo "$as_me: WARNING: option." >&2;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: Building non-free version of GetDP, with code (C) 1986-92 Numerical Recipes Software." >&5
+$as_echo "$as_me: WARNING: Building non-free version of GetDP, with code (C) 1986-92 Numerical Recipes Software." >&2;}
+    { $as_echo "$as_me:${as_lineno-$LINENO}: WARNING: To use the GSL instead, run configure again with the --enable-gsl option." >&5
+$as_echo "$as_me: WARNING: To use the GSL instead, run configure again with the --enable-gsl option." >&2;}
     GETDP_DIRS="${GETDP_DIRS} contrib/NR"
     GETDP_LIBS="${GETDP_LIBS} -lGetDPNR"
   else

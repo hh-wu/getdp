@@ -165,13 +165,15 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
   NbrGeo = Geo_GetNbrGeoElements() ;
 
+	//Peter: Always in Format_PostHeader I included: "PostSubOperation_P->SubType, Current.Time, Current.TimeStep,"
   Format_PostHeader(PostSubOperation_P->Format, 
+				PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
 		    PostSubOperation_P->Iso, NbrTimeStep,
 		    PostSubOperation_P->HarmonicToTime, 
 		    PostSubOperation_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
 		    CPQ_P?CPQ_P->Name:NULL);
-  
+	
   /* Get the region */
   
   Region_L = ((struct Group *)
@@ -678,6 +680,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
     e[iCut].Value = (struct Value*) Malloc(NbTimeStep*sizeof(struct Value)) ;    
     
   Format_PostHeader(PostSubOperation_P->Format, 
+				PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
 		    PostSubOperation_P->Iso, NbTimeStep, 
 		    PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, Order,
@@ -955,7 +958,9 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 
   Init_SearchGrid(&Current.GeoData->Grid) ;
 
-  Format_PostHeader(PSO_P->Format, PSO_P->Iso, 
+  Format_PostHeader(PSO_P->Format, 
+				NULL, Current.Time, Current.TimeStep,
+				PSO_P->Iso, 
 		    NbTimeStep, PSO_P->HarmonicToTime,
 		    PSO_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
@@ -1194,7 +1199,9 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     PQ_P = NCPQ_P ;  Support_L = NULL ;
   }
 
-  Format_PostHeader(PostSubOperation_P->Format, PostSubOperation_P->Iso, 
+  Format_PostHeader(PostSubOperation_P->Format, 
+				PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
+				PostSubOperation_P->Iso, 
 		    NbrTimeStep, PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
@@ -1329,7 +1336,9 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     }
 
     if (PostSubOperation_P->Format == FORMAT_REGION_VALUE) {
-      fprintf(PostStream, "%s\n", Print_Value_ToString(&ValueSummed).c_str());
+			//Peter: Small change in next line
+			//fprintf(PostStream, "%s\n", Print_Value_ToString(&ValueSummed).c_str());
+      fprintf(PostStream, "%s", Print_Value_ToString(&ValueSummed).c_str());
       if (PostSubOperation_P->StoreInRegister >= 0)
         Cal_StoreInRegister(&ValueSummed, PostSubOperation_P->StoreInRegister) ;
       if (PostSubOperation_P->SendToServer &&
@@ -1427,18 +1436,22 @@ void  Pos_PrintExpression(struct PostSubOperation *PostSubOperation_P)
 
   for(iTime = 0; iTime < NbrTimeStep; iTime++){
     Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
+		//Peter: I enabled NoNewLine for this output type too:
     if(expr >= 0){
       Get_ValueOfExpressionByIndex(expr, NULL, 0., 0., 0., &Value) ; 
       if(str) fprintf(PostStream, "%s", str);
-      fprintf(PostStream, "%s\n", Print_Value_ToString(&Value).c_str());
+      fprintf(PostStream, "%s", Print_Value_ToString(&Value).c_str());
     }      
     else if(str2){
       if(str) fprintf(PostStream, "%s", str);
-      fprintf(PostStream, "%s\n", str2);
+      fprintf(PostStream, "%s", str2);
     }
     else if(str){
-      fprintf(PostStream, "%s\n", str);
+			fprintf(PostStream, "%s", str);
     }
+		if(PostSubOperation_P->NoNewLine) 
+			 fprintf(PostStream, " ") ;
+		else fprintf(PostStream, "\n") ;
   }
 }
 
@@ -1460,6 +1473,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
   NbrGeo = Geo_GetNbrGeoElements() ;
 
   Format_PostHeader(PostSubOperation_P->Format, 
+				PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
 		    PostSubOperation_P->Iso, 1,
 		    PostSubOperation_P->HarmonicToTime, 
 		    PostSubOperation_P->CombinationType, 0,
