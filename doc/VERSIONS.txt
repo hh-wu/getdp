@@ -1,93 +1,87 @@
-2.2.0: fixed old bug with surface/line jacobians; new solver interface based on
-ONELAB.
+2.2.0: fixed longstanding error for Sur/Lin transformation of 2 forms; new
+solver interface based on ONELAB.
 
-2.1.0: parallel resolution using PETSc solvers; new Gmsh2 output
-format; new experimental SLEPc-based eigensolvers; various bug and
-performance fixes (missing face basis functions, slow PETSc assembly
-with global quantities, ...)
+2.1.0: parallel resolution using PETSc solvers; new Gmsh2 output format; new
+experimental SLEPc-based eigensolvers; various bug and performance fixes
+(missing face basis functions, slow PETSc assembly with global quantities, ...)
 
-2.0.0: general code cleanup (separated interface from legacy code;
-removed various undocumented, unstable and otherwise experimental
-features; moved to C++); updated input file formats; default solvers
-are now based on PETSc; small bug fixes (binary .res read, Newmark
--restart).
+2.0.0: general code cleanup (separated interface from legacy code; removed
+various undocumented, unstable and otherwise experimental features; moved to
+C++); updated input file formats; default solvers are now based on PETSc; small
+bug fixes (binary .res read, Newmark -restart).
 
-1.2: Windows versions do not depend on Cygwin anymore; major parser
-cleanup (loops & co).
+1.2: Windows versions do not depend on Cygwin anymore; major parser cleanup
+(loops & co).
 
-1.1: New eigensolver based on Arpack (EigenSolve); generalized old
-Lanczos solver to work with GSL+lapack; reworked PETSc interface,
-which now requires PETSc 2.3; documented many previously undocumented
-features (loops, conditionals, strings, link constraints, etc.);
-various improvements and bug fixes.
+1.1: New eigensolver based on Arpack (EigenSolve); generalized old Lanczos
+solver to work with GSL+lapack; reworked PETSc interface, which now requires
+PETSc 2.3; documented many previously undocumented features (loops,
+conditionals, strings, link constraints, etc.); various improvements and bug
+fixes.
 
-1.0: New license (GNU GPL); added support for latest Gmsh mesh file
-format; more code cleanups.
+1.0: New license (GNU GPL); added support for latest Gmsh mesh file format; more
+code cleanups.
 
-0.91: Merged moving band and multi-harmonic code; new loops and
-conditionals in the parser; removed old readline code (just use GNU
-readline if available); upgraded to latest Gmsh post-processing
-format; various small enhancements and bug fixes.
+0.91: Merged moving band and multi-harmonic code; new loops and conditionals in
+the parser; removed old readline code (just use GNU readline if available);
+upgraded to latest Gmsh post-processing format; various small enhancements and
+bug fixes.
 
 0.89: Code cleanup.
 
 0.88: Integrated FMM code.
 
 0.87: Fixed major performance problem on Windows (matrix assembly and
-post-processing can be up to 3-4 times faster with 0.87 compared to
-0.86, bringing performance much closer to Unix versions); fixed stack
-overflow on Mac OS X; Re-introduced face basis functions mistakenly
-removed in 0.86; fixed post-processing bug with pyramidal basis
-functions; new build system based on autoconf.
+post-processing can be up to 3-4 times faster with 0.87 compared to 0.86,
+bringing performance much closer to Unix versions); fixed stack overflow on Mac
+OS X; Re-introduced face basis functions mistakenly removed in 0.86; fixed
+post-processing bug with pyramidal basis functions; new build system based on
+autoconf.
 
 0.86: Updated Gmsh output format; many small bug fixes.
 
-0.85: Upgraded communication interface with Gmsh; new ChangeOfValues
-option in PostOperation; many internal changes.
+0.85: Upgraded communication interface with Gmsh; new ChangeOfValues option in
+PostOperation; many internal changes.
 
 0.84: New ChangeOfCoordinate option in PostOperation; fixed crash in
-InterpolationAkima; improved interactive postprocessing (-ipos);
-changed syntax of parametric OnGrid ($S, $T -> $A, $B, $C); corrected
-Skin for non simplicial meshes; fixed floating point exception in
-diagonal matrix scaling; many other small fixes and cleanups.
+InterpolationAkima; improved interactive postprocessing (-ipos); changed syntax
+of parametric OnGrid ($S, $T -> $A, $B, $C); corrected Skin for non simplicial
+meshes; fixed floating point exception in diagonal matrix scaling; many other
+small fixes and cleanups.
 
-0.83: Fixed bugs in SaveSolutions[] and InitSolution[]; fixed
-corrupted binary post-processing files in the harmonic case for the
-Gmsh format; output files are now created relatively to the input file
-directory; made solver options available on the command line; added
-optional matrix scaling and changed default parameter file name to
-'solver.par' (Warning: please check the scaling definition in your old
-SOLVER.PAR files); generalized syntax for lists (start:[incr]end ->
-start:end:incr); updated reference guide; added a new short
-presentation on the web site; OnCut -> OnSection; new functional
-syntax for resolution operations (e.g. Generate X -> Generate[X]);
-many other small fixes and cleanups.
+0.83: Fixed bugs in SaveSolutions[] and InitSolution[]; fixed corrupted binary
+post-processing files in the harmonic case for the Gmsh format; output files are
+now created relatively to the input file directory; made solver options
+available on the command line; added optional matrix scaling and changed default
+parameter file name to 'solver.par' (Warning: please check the scaling
+definition in your old SOLVER.PAR files); generalized syntax for lists
+(start:[incr]end -> start:end:incr); updated reference guide; added a new short
+presentation on the web site; OnCut -> OnSection; new functional syntax for
+resolution operations (e.g. Generate X -> Generate[X]); many other small fixes
+and cleanups.
 
-0.82: Added communication socket for interactive use with Gmsh;
-corrected (again) memory problem (leak + seg. fault) in time stepping
-schemes; corrected bug in Update[].
+0.82: Added communication socket for interactive use with Gmsh; corrected
+(again) memory problem (leak + seg. fault) in time stepping schemes; corrected
+bug in Update[].
 
-0.81: Generalization of transformation jacobians (spherical and
-rectangular, with optional parameters); changed handling of missing
-command line arguments; enhanced Print OnCut; fixed memory leak for
-time domain analysis of coupled problems; -name option; fixed
-seg. fault in ILUK.
+0.81: Generalization of transformation jacobians (spherical and rectangular,
+with optional parameters); changed handling of missing command line arguments;
+enhanced Print OnCut; fixed memory leak for time domain analysis of coupled
+problems; -name option; fixed seg. fault in ILUK.
 
 0.80: Fixed computation of time derivatives on first time step (in
-post-processing); added tolerance in transformation jacobians; fixed
-parsing of DOS files (carriage return problems); automatic memory
-reallocation in ILUD/ILUK.
+post-processing); added tolerance in transformation jacobians; fixed parsing of
+DOS files (carriage return problems); automatic memory reallocation in
+ILUD/ILUK.
 
-0.79: Various bug fixes (mainly for the post-processing of intergal
-quantities); automatic treatment of degenerated cases in
-axisymmetrical problems.
+0.79: Various bug fixes (mainly for the post-processing of intergal quantities);
+automatic treatment of degenerated cases in axisymmetrical problems.
 
 0.78: Various bug fixes.
 
-0.77: Changed syntax for PostOperations (Plot suppressed in favour of
-Print; Plot OnRegion becomes Print OnElementsOf); changed table
-oriented post-processing formats; new binary formats; new error
-diagnostics.
+0.77: Changed syntax for PostOperations (Plot suppressed in favour of Print;
+Plot OnRegion becomes Print OnElementsOf); changed table oriented
+post-processing formats; new binary formats; new error diagnostics.
 
 0.76: Reorganized high order shape functions; optimization of the
 post-processing (faster and less bloated); lots of internal cleanups.
@@ -96,13 +90,11 @@ post-processing (faster and less bloated); lots of internal cleanups.
 
 0.73: Eigen value problems (Lanczos); minor corrections.
 
-0.7: constraint syntax; fourier transform; unary minus correction;
-complex integral quantity correction; separate iteration matrix
-generation.
+0.7: constraint syntax; fourier transform; unary minus correction; complex
+integral quantity correction; separate iteration matrix generation.
 
-0.6: Second order time derivatives; Newton nonlinear scheme; Newmark
-time stepping scheme; global quantity syntax; interactive
-post-processing; tensors; integral quantities; post-processing
-facilities.
+0.6: Second order time derivatives; Newton nonlinear scheme; Newmark time
+stepping scheme; global quantity syntax; interactive post-processing; tensors;
+integral quantities; post-processing facilities.
 
 0.3: First distributed version.

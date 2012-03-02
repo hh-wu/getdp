@@ -24,7 +24,7 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
-#define SQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a))
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
@@ -36,22 +36,22 @@ extern FILE   *PostStream ;
 /*
   Print OnElementsOf
   ------------------
-  expl: plot on elements, belonging to the current mesh, where 
+  expl: plot on elements, belonging to the current mesh, where
         the solution was computed during the processing stage
   args: list of groups of region type
-  
-  Print OnSection 
+
+  Print OnSection
   ---------------
-  expl: plot an a 'real' cut of the mesh, i.e. computation on the 
+  expl: plot an a 'real' cut of the mesh, i.e. computation on the
         intersections of the mesh with a cutting entity (plane, line)
   args: 2 (not done) or 3 points, specifying the cutting line or the cutting plane
-  
+
   Print OnGrid
   ------------
   expl: reinterpolate the solution on a grid
   args: - a list of groups of region type (belonging to a mesh, where the
 	  solution will be reinterpolated)
-        - 3 expressions (using $S and $T) and 2 intervals for the parametric 
+        - 3 expressions (using $S and $T) and 2 intervals for the parametric
 	  grid definition
 
   Print OnPoint, OnLine, OnPlane, OnBox
@@ -73,7 +73,7 @@ extern FILE   *PostStream ;
 
 struct CutEdge {
   int     nbc ;
-  double  x[2],y[2],z[2] ;  
+  double  x[2],y[2],z[2] ;
   double  xc,yc,zc ;
   double  uc,vc,wc ;
   struct  Value  *Value ;
@@ -86,7 +86,7 @@ struct xyzv{
   int nboccurences;
 };
 
-static int fcmp_xyzv(const void * a, const void * b) 
+static int fcmp_xyzv(const void * a, const void * b)
 {
   struct xyzv *p1, *p2;
   double TOL = Current.GeoData->CharacteristicLength * 1.e-8;
@@ -110,7 +110,7 @@ static void Cut_SkinPostElement(void *a, void *b)
 
   PE = *(struct PostElement**)a ;
 
-  Cut_PostElement(PE, Geo_GetGeoElement(PE->Index), SkinPostElement_L, 
+  Cut_PostElement(PE, Geo_GetGeoElement(PE->Index), SkinPostElement_L,
 		  PE->Index, SkinDepth, 0, 1) ;
 }
 
@@ -158,26 +158,25 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   int       Store = 0, DecomposeInSimplex = 0, Depth ;
 
   /* Select the TimeSteps */
-  
+
   NbrTimeStep = Pos_InitTimeSteps(PostSubOperation_P);
-  
+
   /* Print the header */
 
   NbrGeo = Geo_GetNbrGeoElements() ;
 
-	//Peter: Always in Format_PostHeader I included: "PostSubOperation_P->SubType, Current.Time, Current.TimeStep,"
-  Format_PostHeader(PostSubOperation_P->Format, 
-				PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
+  Format_PostHeader(PostSubOperation_P->Format,
+                    PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
 		    PostSubOperation_P->Iso, NbrTimeStep,
-		    PostSubOperation_P->HarmonicToTime, 
+		    PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
 		    CPQ_P?CPQ_P->Name:NULL);
-	
+
   /* Get the region */
-  
+
   Region_L = ((struct Group *)
-	      List_Pointer(Problem_S.Group, 
+	      List_Pointer(Problem_S.Group,
 			   PostSubOperation_P->Case.OnRegion.RegionIndex))->InitialList ;
   Get_InitDofOfElement(&Element) ;
 
@@ -211,7 +210,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     if(PostSubOperation_P->Target < 0.)
       Message::Error("You have to specify a Target for the adaptation (e.g. 0.01)");
     if(NbrTimeStep > 1)
-      Message::Error("Adaption not ready with more than one time step"); 
+      Message::Error("Adaption not ready with more than one time step");
   }
 
   /* Check if we should decompose all PostElements to simplices */
@@ -220,26 +219,26 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     DecomposeInSimplex = 1 ;
 
   /* Check for de-refinement */
-  
+
   if(PostSubOperation_P->Depth < 0)
     incGeo = - PostSubOperation_P->Depth ;
   else
     incGeo = 1 ;
-  
+
   /* Create the list of PostElements */
 
   PostElement_L = List_Create(Store ? NbrGeo/10 : 10, Store ? NbrGeo/10 : 10,
 			      sizeof(struct PostElement *)) ;
 
   if(Store){
-    
+
     /* If we have a Skin, we will divide after the skin extraction */
 
     if(PostSubOperation_P->Skin && PostSubOperation_P->Depth > 1)
       Depth = 1;
     else
       Depth = PostSubOperation_P->Depth;
-    
+
     /* Generate all PostElements */
 
     Message::ResetProgressMeter();
@@ -295,12 +294,12 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
     }
 
   } /* if Store */
-  
+
   /* Loop on GeoElements */
 
   Message::ResetProgressMeter();
   for(iGeo = 0 ; iGeo < NbrGeo ; iGeo += incGeo) {
-    
+
     if(Store){
       if(iGeo) break ;
     }
@@ -315,10 +314,10 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       }
     }
 
-    NbrPost = List_Nbr(PostElement_L) ;  
+    NbrPost = List_Nbr(PostElement_L) ;
 
     /* Loop on PostElements */
-    
+
     for(iPost = 0 ; iPost < NbrPost ; iPost++) {
 
       PE = *(struct PostElement **)List_Pointer(PostElement_L, iPost) ;
@@ -329,7 +328,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	    Cal_CopyValue(&CumulativeValues[iTime], &PE->Value[iNode]);
 	  if(!Store)
 	    Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
-			       Current.Time, iTime, NbrTimeStep, 
+			       Current.Time, iTime, NbrTimeStep,
 			       Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 			       NULL, PE);
 	}
@@ -340,12 +339,12 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	  for (iTime = 0 ; iTime < NbrTimeStep ; iTime++) {
 	    Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
 	    for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++){
-	      InWhichElement(Current.GeoData->Grid, Region_L, &Element, 
-			     PostSubOperation_P->Dimension, 
+	      InWhichElement(Current.GeoData->Grid, Region_L, &Element,
+			     PostSubOperation_P->Dimension,
 			     PE->x[iNode], PE->y[iNode], PE->z[iNode],
 			     &PE->u[iNode], &PE->v[iNode], &PE->w[iNode]) ;
 	      Current.Region = Element.Region ;
-	      Current.x = PE->x[iNode] ; 
+	      Current.x = PE->x[iNode] ;
 	      Current.y = PE->y[iNode] ;
 	      Current.z = PE->z[iNode] ;
 	      Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,
@@ -357,7 +356,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	    }
 	    if(!Store)
 	      Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
-				 Current.Time, iTime, NbrTimeStep, 
+				 Current.Time, iTime, NbrTimeStep,
 				 Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 				 NULL, PE);
 	  }
@@ -383,7 +382,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	    if(CPQ_P)
 	      Combine_PostQuantity(PostSubOperation_P->CombinationType, Order,
 				   &PE->Value[iNode], &CumulativeValues[iTime]) ;
-	    }      
+	    }
 
 	    if(!Store)
 	      Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
@@ -393,7 +392,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	  }
 	}
       }
-      
+
       if(!Store) Destroy_PostElement(PE) ;
 
     }
@@ -401,14 +400,14 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   } /* for iGeo */
 
   /* Perform Smoothing */
-  
+
   if(PostSubOperation_P->Smoothing){
 
     Message::Info("Smoothing (phase 1)");
 
     xyzv_T = Tree_Create(sizeof(struct xyzv), fcmp_xyzv);
-    
-    for (iPost = 0 ; iPost < NbrPost ; iPost++){ 
+
+    for (iPost = 0 ; iPost < NbrPost ; iPost++){
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost) ;
       for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++) {
 	xyzv.x = PE->x[iNode];
@@ -430,7 +429,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
     Message::Info("Smoothing (phase 2)");
 
-    for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
+    for(iPost = 0 ; iPost < NbrPost ; iPost++){
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost) ;
       for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++) {
 	xyzv.x = PE->x[iNode];
@@ -443,7 +442,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	  Message::Warning("Node (%g,%g,%g) not found", xyzv.x, xyzv.y, xyzv.z);
       }
     }
-    
+
     Tree_Delete(xyzv_T);
 
   } /* if Smoothing */
@@ -457,7 +456,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
     if(!Current.GeoData->P)
       Current.GeoData->P = (double*)Malloc((NbrGeo+2)*sizeof(double)) ;
-    
+
     Error = (double*)Malloc((NbrGeo+1)*sizeof(double)) ;
 
     /* All elements are perfect... */
@@ -467,14 +466,14 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       Element.Type = Element.GeoElement->Type ;
       Element.Region = Element.GeoElement->Region ;
       Get_NodesCoordinatesOfElement(&Element) ;
-    
+
       Current.GeoData->H[iGeo+1] = Cal_MaxEdgeLength(&Element) ;
       Current.GeoData->P[iGeo+1] = 1. ;
       Error[iGeo+1] = PostSubOperation_P->Target ;
     }
 
     /* ...except those we want to optimize */
-    for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
+    for(iPost = 0 ; iPost < NbrPost ; iPost++){
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
       Error[PE->Index+1] = 0. ;
       for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++)
@@ -482,9 +481,9 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       Error[PE->Index+1] /= (double)PE->NbrNodes ;
     }
 
-    Adapt (NbrGeo, PostSubOperation_P->Adapt, 
+    Adapt (NbrGeo, PostSubOperation_P->Adapt,
 	   PostSubOperation_P->Dimension, Error,
-	   Current.GeoData->H, Current.GeoData->P, 
+	   Current.GeoData->H, Current.GeoData->P,
 	   PostSubOperation_P->Target);
 
     /* Clean up the interpolation orders to fit to what's available */
@@ -506,7 +505,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   if(Store){
 
     /* Sort the elements */
-    
+
     switch(PostSubOperation_P->Sort){
     case SORT_BY_POSITION : List_Sort(PostElement_L, fcmp_PostElement) ; break ;
     case SORT_BY_CONNECTIVITY : Sort_PostElement_Connectivity(PostElement_L) ; break ;
@@ -514,7 +513,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 
     Dummy[0] = Dummy[1] = Dummy[2] = Dummy[3] = Dummy[4] = 0. ;
 
-    for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
+    for(iPost = 0 ; iPost < NbrPost ; iPost++){
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
 
       /* Get the values from adaption */
@@ -526,7 +525,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	Dummy[2] = Current.GeoData->H[PE->Index+1] ;
 	Dummy[3] = Current.GeoData->P[PE->Index+1] ;
 	Dummy[4] = iPost ? 0 : NbrPost ;
-	
+
 	for(iNode = 0 ; iNode < PE->NbrNodes ; iNode++){
 	  PE->Value[iNode].Type = SCALAR ;
 	  if(PostSubOperation_P->Adapt == H1 ||
@@ -548,7 +547,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       }
 
       Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 1,
-			 Current.Time, 0, 1, 
+			 Current.Time, 0, 1,
 			 Current.NbrHar, PostSubOperation_P->HarmonicToTime,
 			 Dummy, PE);
     }
@@ -557,7 +556,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   Format_PostFooter(PostSubOperation_P, Store);
 
   if(Store)
-    for(iPost = 0 ; iPost < NbrPost ; iPost++){ 
+    for(iPost = 0 ; iPost < NbrPost ; iPost++){
       PE = *(struct PostElement**)List_Pointer(PostElement_L, iPost);
       Destroy_PostElement(PE) ;
     }
@@ -572,7 +571,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 /*  P o s _ P r i n t O n S e c t i o n                                     */
 /* ------------------------------------------------------------------------ */
 
-double Plane(double a, double b, double c, double d, 
+double Plane(double a, double b, double c, double d,
 	     double x, double y, double z)
 {
   return (a*x+b*y+c*z+d);
@@ -587,12 +586,12 @@ int fcmp_Angle (const void *a, const void *b)
 
   q = (struct CutEdge*)a;
   w = (struct CutEdge*)b;
-  
+
   x1 = q->xc*DIRX[0] + q->yc*DIRX[1] + q->zc*DIRX[2];
   y1 = q->xc*DIRY[0] + q->yc*DIRY[1] + q->zc*DIRY[2];
   x2 = w->xc*DIRX[0] + w->yc*DIRX[1] + w->zc*DIRX[2];
   y2 = w->xc*DIRY[0] + w->yc*DIRY[1] + w->zc*DIRY[2];
-  
+
   ang1 = atan2(y1-YCP,x1-XCP);
   ang2 = atan2(y2-YCP,x2-XCP);
 
@@ -652,7 +651,7 @@ void normvec(double *a)
   }										\
   for(iPost = 0 ; iPost < List_Nbr(PE_L) ; iPost++)				\
      Destroy_PostElement(*(struct PostElement **)List_Pointer(PE_L, iPost));
-  
+
 
 void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 			 struct PostQuantity     *CPQ_P,
@@ -677,11 +676,11 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
   PE_L = List_Create(10, 10, sizeof(struct PostElement *)) ;
 
   for(iCut = 0 ; iCut < NBR_MAX_CUT ; iCut++)
-    e[iCut].Value = (struct Value*) Malloc(NbTimeStep*sizeof(struct Value)) ;    
-    
-  Format_PostHeader(PostSubOperation_P->Format, 
-				PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
-		    PostSubOperation_P->Iso, NbTimeStep, 
+    e[iCut].Value = (struct Value*) Malloc(NbTimeStep*sizeof(struct Value)) ;
+
+  Format_PostHeader(PostSubOperation_P->Format,
+                    PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
+		    PostSubOperation_P->Iso, NbTimeStep,
 		    PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
@@ -702,9 +701,9 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
     break;
 
   case PRINT_ONSECTION_2D :
-    
+
     /* Ax+By+Cz+D=0  from  (x0,y0,z0),(x1,y1,z1),(x2,y2,z2) */
-    
+
     x[0] = PostSubOperation_P->Case.OnSection.x[0] ;
     y[0] = PostSubOperation_P->Case.OnSection.y[0] ;
     z[0] = PostSubOperation_P->Case.OnSection.z[0] ;
@@ -720,7 +719,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
     D = -A*x[0]-B*y[0]-C*z[0] ;
 
     /* Cut each element */
-    
+
     NbGeoElement = Geo_GetNbrGeoElements() ;
 
     Message::ResetProgressMeter();
@@ -730,13 +729,13 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
       Element.Type       = Element.GeoElement->Type ;
       Current.Region = Element.Region = Element.GeoElement->Region ;
 
-      if((PostSubOperation_P->Dimension == _ALL && 
+      if((PostSubOperation_P->Dimension == _ALL &&
 	  (Element.GeoElement->Type != POINT)) ||
-	 (PostSubOperation_P->Dimension == _3D && 
+	 (PostSubOperation_P->Dimension == _3D &&
 	  (Element.GeoElement->Type & (TETRAHEDRON|HEXAHEDRON|PRISM|PYRAMID))) ||
-	 (PostSubOperation_P->Dimension == _2D && 
+	 (PostSubOperation_P->Dimension == _2D &&
 	  (Element.GeoElement->Type & (TRIANGLE|QUADRANGLE))) ||
-	 (PostSubOperation_P->Dimension == _1D && 
+	 (PostSubOperation_P->Dimension == _1D &&
 	  (Element.GeoElement->Type & LINE))){
 
 	Get_NodesCoordinatesOfElement(&Element) ;
@@ -745,7 +744,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 	  Geo_CreateEdgesOfElement(Element.GeoElement) ;
 
 	NbCut = 0;
-	
+
 	for(iEdge = 0 ; iEdge < Element.GeoElement->NbrEdges ; iEdge++){
 	  NumNodes = Geo_GetNodesOfEdgeInElement(Element.GeoElement, iEdge) ;
 	  e[NbCut].x[0] = Element.x[abs(NumNodes[0])-1] ;
@@ -756,37 +755,37 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 	  e[NbCut].z[1] = Element.z[abs(NumNodes[1])-1] ;
 	  d1 = Plane(A,B,C,D,e[NbCut].x[0],e[NbCut].y[0],e[NbCut].z[0]);
 	  d2 = Plane(A,B,C,D,e[NbCut].x[1],e[NbCut].y[1],e[NbCut].z[1]);
-	  
+
 	  if(d1*d2 <= 0) {
-	    if(d1*d2 < 0.) u = -d2/(d1-d2) ;	    
+	    if(d1*d2 < 0.) u = -d2/(d1-d2) ;
 	    else if(d1 == 0.) u = 1. ;
 	    else u = 0. ;
 	    e[NbCut].xc = u*e[NbCut].x[0] + (1.-u)*e[NbCut].x[1];
 	    e[NbCut].yc = u*e[NbCut].y[0] + (1.-u)*e[NbCut].y[1];
-	    e[NbCut].zc = u*e[NbCut].z[0] + (1.-u)*e[NbCut].z[1];	  
+	    e[NbCut].zc = u*e[NbCut].z[0] + (1.-u)*e[NbCut].z[1];
 
 	    if(NCPQ_P)
-	      xyz2uvwInAnElement(&Element, e[NbCut].xc, e[NbCut].yc, e[NbCut].zc, 
-				 &e[NbCut].uc, &e[NbCut].vc, &e[NbCut].wc);	  
+	      xyz2uvwInAnElement(&Element, e[NbCut].xc, e[NbCut].yc, e[NbCut].zc,
+				 &e[NbCut].uc, &e[NbCut].vc, &e[NbCut].wc);
 	    NbCut++;
 	  }
 	}
-	
+
 	if(NbCut > 3){
 	  xcg = ycg = zcg = 0.;
 	  for(iCut = 0 ; iCut < NbCut ; iCut++){
 	    xcg += e[iCut].xc; ycg += e[iCut].yc; zcg += e[iCut].zc;
 	  }
 	  xcg /= (double)NbCut; ycg /= (double)NbCut; zcg /= (double)NbCut;
-	  DIRZ[0] = A; DIRY[0] = xcg-e[0].xc; 
-	  DIRZ[1] = B; DIRY[1] = ycg-e[0].yc; 
+	  DIRZ[0] = A; DIRY[0] = xcg-e[0].xc;
+	  DIRZ[1] = B; DIRY[1] = ycg-e[0].yc;
 	  DIRZ[2] = C; DIRY[2] = zcg-e[0].zc;
 	  normvec(DIRZ); normvec(DIRY); prodvec(DIRY,DIRZ,DIRX); normvec(DIRX);
 	  XCP = xcg*DIRX[0] + ycg*DIRX[1] + zcg*DIRX[2];
-	  YCP = xcg*DIRY[0] + ycg*DIRY[1] + zcg*DIRY[2];	
+	  YCP = xcg*DIRY[0] + ycg*DIRY[1] + zcg*DIRY[2];
 	  qsort(e,NbCut,sizeof(struct CutEdge), fcmp_Angle);
 	}
-	
+
 	if(NbCut > 2){
 	  iCut = 2;
 	  while(iCut < NbCut){
@@ -813,13 +812,13 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 	    iCut++;
 	  }
 	}
-	
+
 	if(NbCut == 2){
 	  if(PostSubOperation_P->Depth > 0){
 	    PE = Create_PostElement(iGeo, LINE, 2, 1) ;
-	    PE->x[0] = e[0].xc; PE->x[1] = e[1].xc; 
-	    PE->y[0] = e[0].yc; PE->y[1] = e[1].yc; 
-	    PE->z[0] = e[0].zc; PE->z[1] = e[1].zc; 
+	    PE->x[0] = e[0].xc; PE->x[1] = e[1].xc;
+	    PE->y[0] = e[0].yc; PE->y[1] = e[1].yc;
+	    PE->z[0] = e[0].zc; PE->z[1] = e[1].zc;
 	    PE->u[0] = e[0].uc; PE->u[1] = e[1].uc;
 	    PE->v[0] = e[0].vc; PE->v[1] = e[1].vc;
 	    PE->w[0] = e[0].wc; PE->w[1] = e[1].wc;
@@ -827,9 +826,9 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 	  }
 	  else{
 	    PE = Create_PostElement(iGeo, POINT, 1, 0) ;
-	    PE->x[0] = (e[0].xc + e[1].xc) / 2. ; 
-	    PE->y[0] = (e[0].yc + e[1].yc) / 2. ; 
-	    PE->z[0] = (e[0].zc + e[1].zc) / 2. ; 
+	    PE->x[0] = (e[0].xc + e[1].xc) / 2. ;
+	    PE->y[0] = (e[0].yc + e[1].yc) / 2. ;
+	    PE->z[0] = (e[0].zc + e[1].zc) / 2. ;
 	    PE->u[0] = (e[0].uc + e[1].uc) / 2. ;
 	    PE->v[0] = (e[0].vc + e[1].vc) / 2. ;
 	    PE->w[0] = (e[0].wc + e[1].wc) / 2. ;
@@ -842,7 +841,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
     }
     Format_PostFooter(PostSubOperation_P, 0);
     break;
-    
+
   default :
     Message::Error("Unknown operation in Print OnSection");
     break;
@@ -958,9 +957,9 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 
   Init_SearchGrid(&Current.GeoData->Grid) ;
 
-  Format_PostHeader(PSO_P->Format, 
-				NULL, Current.Time, Current.TimeStep,
-				PSO_P->Iso, 
+  Format_PostHeader(PSO_P->Format,
+                    PSO_P->SubType, Current.Time, Current.TimeStep,
+                    PSO_P->Iso,
 		    NbTimeStep, PSO_P->HarmonicToTime,
 		    PSO_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
@@ -980,7 +979,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 
   case PRINT_ONGRID_1D :
     X[0] = PSO_P->Case.OnGrid.x[0] ; X[1] = PSO_P->Case.OnGrid.x[1] ;
-    Y[0] = PSO_P->Case.OnGrid.y[0] ; Y[1] = PSO_P->Case.OnGrid.y[1] ; 
+    Y[0] = PSO_P->Case.OnGrid.y[0] ; Y[1] = PSO_P->Case.OnGrid.y[1] ;
     Z[0] = PSO_P->Case.OnGrid.z[0] ; Z[1] = PSO_P->Case.OnGrid.z[1] ;
     N[0] = PSO_P->Case.OnGrid.n[0] ;
     Normal[1] = Normal[2] = 0.0 ;
@@ -999,16 +998,16 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
     X[0] = PSO_P->Case.OnGrid.x[0] ; X[1] = PSO_P->Case.OnGrid.x[1] ;
     Y[0] = PSO_P->Case.OnGrid.y[0] ; Y[1] = PSO_P->Case.OnGrid.y[1] ;
     Z[0] = PSO_P->Case.OnGrid.z[0] ; Z[1] = PSO_P->Case.OnGrid.z[1] ;
-    X[2] = PSO_P->Case.OnGrid.x[2] ; 
-    Y[2] = PSO_P->Case.OnGrid.y[2] ; 
-    Z[2] = PSO_P->Case.OnGrid.z[2] ; 
+    X[2] = PSO_P->Case.OnGrid.x[2] ;
+    Y[2] = PSO_P->Case.OnGrid.y[2] ;
+    Z[2] = PSO_P->Case.OnGrid.z[2] ;
 
     S[0] = X[1]-X[0]; S[1] = Y[1]-Y[0]; S[2] = Z[1]-Z[0];
     N[0] = X[2]-X[0]; N[1] = Y[2]-Y[0]; N[2] = Z[2]-Z[0];
     prodvec(S,N,Normal);
     Length = sqrt(SQU(Normal[0])+SQU(Normal[1])+SQU(Normal[2]));
     if(!Length){
-      Message::Warning("Bad plane (null normal)"); 
+      Message::Warning("Bad plane (null normal)");
       return ;
     }
     Normal[0]/=Length ; Normal[1]/=Length ; Normal[2]/=Length ;
@@ -1018,14 +1017,14 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
     if(PSO_P->Depth > 1)
       Array = (float*)
 	Malloc(NbTimeStep*Current.NbrHar*(int)((N[0]+1)*(N[1]+1))*sizeof(float)) ;
-    
+
     for (i1 = 0 ; i1 <= N[0] ; i1++) {
       S[0] = (double)i1 / (double)(N[0] ? N[0] : 1) ;
       for (i2 = 0 ; i2 <= N[1] ; i2++) {
 	S[1] = (double)i2 / (double)(N[1] ? N[1] : 1) ;
 	Current.x = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[1] ;
 	Current.y = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[1] ;
-	Current.z = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[1] ;	  
+	Current.z = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[1] ;
 	if(PSO_P->Depth > 1){
 	  LETS_STORE_THE_RESULT ;
 	}
@@ -1047,13 +1046,13 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	  S[3] = (double)(i2+1) / (double)(N[1] ? N[1] : 1) ;
 	  PE2->x[0] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[1] ;
 	  PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[1] ;
-	  PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[1] ;	  
+	  PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[1] ;
 	  PE2->x[1] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[1] ;
 	  PE2->y[1] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[1] ;
-	  PE2->z[1] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[1] ;	  
+	  PE2->z[1] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[1] ;
 	  PE2->x[2] = X[0] + (X[1] - X[0]) * S[0] + (X[2] - X[0]) * S[3] ;
 	  PE2->y[2] = Y[0] + (Y[1] - Y[0]) * S[0] + (Y[2] - Y[0]) * S[3] ;
-	  PE2->z[2] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[3] ;	  
+	  PE2->z[2] = Z[0] + (Z[1] - Z[0]) * S[0] + (Z[2] - Z[0]) * S[3] ;
 	  for (ts = 0 ; ts < NbTimeStep ; ts++){
 	    for(k = 0 ; k < Current.NbrHar ; k++){
 	      PE2->Value[0].Val[MAX_DIM*k] = ARRAY(i1,i2,k,ts) ;
@@ -1062,12 +1061,12 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	    }
 	    Format_PostElement(PSO_P, PSO_P->Iso, 0,
 			       Current.Time, ts, NbTimeStep,
-			       Current.NbrHar, PSO_P->HarmonicToTime, 
+			       Current.NbrHar, PSO_P->HarmonicToTime,
 			       Normal, PE2);
 	  }
 	  PE2->x[0] = X[0] + (X[1] - X[0]) * S[2] + (X[2] - X[0]) * S[3] ;
 	  PE2->y[0] = Y[0] + (Y[1] - Y[0]) * S[2] + (Y[2] - Y[0]) * S[3] ;
-	  PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[3] ;	  
+	  PE2->z[0] = Z[0] + (Z[1] - Z[0]) * S[2] + (Z[2] - Z[0]) * S[3] ;
 	  tmp[0] = PE2->x[1]; PE2->x[1] = PE2->x[2]; PE2->x[2] = tmp[0];
 	  tmp[1] = PE2->y[1]; PE2->y[1] = PE2->y[2]; PE2->y[2] = tmp[1];
 	  tmp[2] = PE2->z[1]; PE2->z[1] = PE2->z[2]; PE2->z[2] = tmp[2];
@@ -1079,7 +1078,7 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	    }
 	    Format_PostElement(PSO_P, PSO_P->Iso, 0,
 			       Current.Time, ts, NbTimeStep,
-			       Current.NbrHar, PSO_P->HarmonicToTime, 
+			       Current.NbrHar, PSO_P->HarmonicToTime,
 			       Normal, PE2);
 	  }
 	}
@@ -1090,13 +1089,13 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
     break;
 
   case PRINT_ONGRID_3D :
-    X[0] = PSO_P->Case.OnGrid.x[0] ; X[1] = PSO_P->Case.OnGrid.x[1] ; 
+    X[0] = PSO_P->Case.OnGrid.x[0] ; X[1] = PSO_P->Case.OnGrid.x[1] ;
     Y[0] = PSO_P->Case.OnGrid.y[0] ; Y[1] = PSO_P->Case.OnGrid.y[1] ;
     Z[0] = PSO_P->Case.OnGrid.z[0] ; Z[1] = PSO_P->Case.OnGrid.z[1] ;
     X[2] = PSO_P->Case.OnGrid.x[2] ; X[3] = PSO_P->Case.OnGrid.x[3] ;
     Y[2] = PSO_P->Case.OnGrid.y[2] ; Y[3] = PSO_P->Case.OnGrid.y[3] ;
     Z[2] = PSO_P->Case.OnGrid.z[2] ; Z[3] = PSO_P->Case.OnGrid.z[3] ;
-    N[0] = PSO_P->Case.OnGrid.n[0] ; 
+    N[0] = PSO_P->Case.OnGrid.n[0] ;
     N[1] = PSO_P->Case.OnGrid.n[1] ;
     N[2] = PSO_P->Case.OnGrid.n[2] ;
     Normal[0] = Normal[1] = Normal[2] = 0.0 ;
@@ -1126,23 +1125,23 @@ void  Pos_PrintOnGrid(struct PostQuantity     *NCPQ_P,
 	for (i3 = 0 ; i3 < List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[2]) ; i3++) {
 	  List_Read(PSO_P->Case.OnParamGrid.ParameterValue[2], i3, &Current.c) ;
 	  Get_ValueOfExpressionByIndex(PSO_P->Case.OnParamGrid.ExpressionIndex[0],
-				       NULL, 0., 0., 0., &Value) ; 
+				       NULL, 0., 0., 0., &Value) ;
 	  Current.x = Value.Val[0];
 	  Get_ValueOfExpressionByIndex(PSO_P->Case.OnParamGrid.ExpressionIndex[1],
-				       NULL, 0., 0., 0., &Value) ; 
+				       NULL, 0., 0., 0., &Value) ;
 	  Current.y = Value.Val[0];
 	  Get_ValueOfExpressionByIndex(PSO_P->Case.OnParamGrid.ExpressionIndex[2],
-				       NULL, 0., 0., 0., &Value) ; 
+				       NULL, 0., 0., 0., &Value) ;
 	  Current.z = Value.Val[0];
 	  Normal[0] = Current.a ;
 	  Normal[1] = Current.b ;
 	  Normal[2] = Current.c ;
 	  LETS_PRINT_THE_RESULT ;
 	}
-	if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[2])>1 && !Flag_BIN) 
+	if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[2])>1 && !Flag_BIN)
 	  fprintf(PostStream, "\n");
       }
-      if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1])>1 && !Flag_BIN) 
+      if(List_Nbr(PSO_P->Case.OnParamGrid.ParameterValue[1])>1 && !Flag_BIN)
 	fprintf(PostStream, "\n\n");
       /*  two blanks lines for -index in gnuplot  */
     }
@@ -1192,16 +1191,16 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     PQ_P = CPQ_P ;
     Support_L = /* for e.g. PQ[ Support ] ... */
       ((struct Group *)
-       List_Pointer(Problem_S.Group, 
+       List_Pointer(Problem_S.Group,
 		    PostSubOperation_P->PostQuantitySupport[Order]))->InitialList ;
   }
   else {
     PQ_P = NCPQ_P ;  Support_L = NULL ;
   }
 
-  Format_PostHeader(PostSubOperation_P->Format, 
-				PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
-				PostSubOperation_P->Iso, 
+  Format_PostHeader(PostSubOperation_P->Format,
+                    PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
+                    PostSubOperation_P->Iso,
 		    NbrTimeStep, PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, Order,
 		    NCPQ_P?NCPQ_P->Name:NULL,
@@ -1209,7 +1208,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
   Group_P = (PostSubOperation_P->Case.OnRegion.RegionIndex < 0)?  NULL :
     (struct Group *)
-     List_Pointer(Problem_S.Group, 
+     List_Pointer(Problem_S.Group,
 		  PostSubOperation_P->Case.OnRegion.RegionIndex);
   Region_L =  Group_P?  Group_P->InitialList : NULL ;
   Group_FunctionType = Group_P? Group_P->FunctionType : REGION;
@@ -1294,7 +1293,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
       Current.x = Current.y = Current.z = 0. ;
 
       if (Type_Evaluation == GLOBAL) {
-	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0, 
+	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0,
 			 Support_L, &Element, 0., 0., 0., &Value) ;
       }
       else {
@@ -1305,7 +1304,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 		       PostSubOperation_P->Dimension,
 		       Current.x, Current.y, Current.z, &u, &v, &w) ;
 
-	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0, 
+	Cal_PostQuantity(PQ_P, DefineQuantity_P0, QuantityStorage_P0,
 			 Support_L, &Element, u, v, w, &Value) ;
       }
 
@@ -1336,8 +1335,6 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     }
 
     if (PostSubOperation_P->Format == FORMAT_REGION_VALUE) {
-			//Peter: Small change in next line
-			//fprintf(PostStream, "%s\n", Print_Value_ToString(&ValueSummed).c_str());
       fprintf(PostStream, "%s", Print_Value_ToString(&ValueSummed).c_str());
       if (PostSubOperation_P->StoreInRegister >= 0)
         Cal_StoreInRegister(&ValueSummed, PostSubOperation_P->StoreInRegister) ;
@@ -1350,7 +1347,7 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
           Message::Warning("Cannot send non-scalar values to server (yet)");
       }
     }
-    
+
   }
 
   Format_PostFooter(PostSubOperation_P, 0);
@@ -1408,7 +1405,7 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
       Current.Region = Element.Region = Num_Region ;
       Current.x = Current.y = Current.z = 0. ;
 
-      Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0, 
+      Cal_PostQuantity(NCPQ_P, DefineQuantity_P0, QuantityStorage_P0,
 		       NULL, &Element, 0., 0., 0., &Value) ;
 
       Format_PostValue(PostSubOperation_P->Format, PostSubOperation_P->Comma,
@@ -1436,22 +1433,21 @@ void  Pos_PrintExpression(struct PostSubOperation *PostSubOperation_P)
 
   for(iTime = 0; iTime < NbrTimeStep; iTime++){
     Pos_InitAllSolutions(PostSubOperation_P->TimeStep_L, iTime) ;
-		//Peter: I enabled NoNewLine for this output type too:
     if(expr >= 0){
-      Get_ValueOfExpressionByIndex(expr, NULL, 0., 0., 0., &Value) ; 
+      Get_ValueOfExpressionByIndex(expr, NULL, 0., 0., 0., &Value) ;
       if(str) fprintf(PostStream, "%s", str);
       fprintf(PostStream, "%s", Print_Value_ToString(&Value).c_str());
-    }      
+    }
     else if(str2){
       if(str) fprintf(PostStream, "%s", str);
       fprintf(PostStream, "%s", str2);
     }
     else if(str){
-			fprintf(PostStream, "%s", str);
+      fprintf(PostStream, "%s", str);
     }
-		if(PostSubOperation_P->NoNewLine) 
-			 fprintf(PostStream, " ") ;
-		else fprintf(PostStream, "\n") ;
+    if(PostSubOperation_P->NoNewLine)
+      fprintf(PostStream, " ") ;
+    else fprintf(PostStream, "\n") ;
   }
 }
 
@@ -1472,18 +1468,18 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
 
   NbrGeo = Geo_GetNbrGeoElements() ;
 
-  Format_PostHeader(PostSubOperation_P->Format, 
-				PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
+  Format_PostHeader(PostSubOperation_P->Format,
+                    PostSubOperation_P->SubType, Current.Time, Current.TimeStep,
 		    PostSubOperation_P->Iso, 1,
-		    PostSubOperation_P->HarmonicToTime, 
+		    PostSubOperation_P->HarmonicToTime,
 		    PostSubOperation_P->CombinationType, 0,
 		    NULL, NULL);
-  
+
   Region_L = ((struct Group *)
-	      List_Pointer(Problem_S.Group, 
+	      List_Pointer(Problem_S.Group,
 			   PostSubOperation_P->Case.Group.GroupIndex))->InitialList ;
   Group_P = (struct Group *)
-    List_Pointer(Problem_S.Group, 
+    List_Pointer(Problem_S.Group,
 		 PostSubOperation_P->Case.Group.ExtendedGroupIndex);
 
   SL = Create_PostElement(0, LINE, 2, 1) ;
@@ -1494,7 +1490,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
 
   Message::ResetProgressMeter();
   for(iGeo = 0 ; iGeo < NbrGeo ; iGeo++) {
-   
+
     GeoElement = Geo_GetGeoElement(iGeo) ;
     if(List_Search(Region_L, &GeoElement->Region, fcmp_int)){
 
@@ -1515,7 +1511,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
 	    SL->Value[0].Type = SL->Value[1].Type = SCALAR ;
 	    SL->Value[0].Val[0] = SL->Value[1].Val[0] = GeoElement->NumEdges[i];
 	    Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
-			       0, 0, 1, 1, 1, 
+			       0, 0, 1, 1, 1,
 			       NULL, SL);
 	  }
 	}
@@ -1537,7 +1533,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
               ST->Value[0].Type = ST->Value[1].Type = ST->Value[2].Type = SCALAR ;
               ST->Value[0].Val[0] = ST->Value[1].Val[0] = ST->Value[2].Val[0] = GeoElement->NumFacets[i];
               Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
-                                 0, 0, 1, 1, 1, 
+                                 0, 0, 1, 1, 1,
                                  NULL, ST);
             }
             else{ // we have a quad
@@ -1549,10 +1545,10 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
               SQ->y[2] = y[abs(NumNodes[2])-1]; SQ->y[3] = y[abs(NumNodes[3])-1];
               SQ->z[2] = z[abs(NumNodes[2])-1]; SQ->z[3] = z[abs(NumNodes[3])-1];
               SQ->Value[0].Type = SQ->Value[1].Type = SQ->Value[2].Type = SQ->Value[3].Type = SCALAR ;
-              SQ->Value[0].Val[0] = SQ->Value[1].Val[0] = SQ->Value[2].Val[0] = 
+              SQ->Value[0].Val[0] = SQ->Value[1].Val[0] = SQ->Value[2].Val[0] =
                 SQ->Value[3].Val[0] = GeoElement->NumFacets[i];
               Format_PostElement(PostSubOperation_P, PostSubOperation_P->Iso, 0,
-                                 0, 0, 1, 1, 1, 
+                                 0, 0, 1, 1, 1,
                                  NULL, SQ);
             }
           }
