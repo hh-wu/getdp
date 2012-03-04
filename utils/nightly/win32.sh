@@ -59,7 +59,7 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} --enable-nx >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-NX-Win64r.zip
+scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-NX-Win32r.zip
 
 export PETSC_ARCH=win32_complex_mumps_seq
 rm -f ${GETDP}/Makefile*
@@ -68,7 +68,7 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} --enable-nx >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-NX-Win64c.zip
+scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-NX-Win32c.zip
 
 echo "BUILD END: `date`" >> ${LOG}
 scp -C ${LOG} ${WEB_BIN}/
