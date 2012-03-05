@@ -1407,6 +1407,8 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
 	  if (NbrHarmonics == 1)
 	    Message::Error("FrequencyTable format not allowed (only one harmonic)") ;
 	  break ;
+        case FORMAT_VALUE_ONLY :
+          break;
 	default :
 	  fprintf(PostStream, "%.16g ", Time) ;
 	  break ;
