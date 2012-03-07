@@ -353,7 +353,7 @@ int Delauny_1234_MB (double x1, double y1, double x2, double y2,
   double Det2 = (x4-x1)*(y2-y1)-(x2-x1)*(y4-y1);
   if( !Det1 || !Det2 ) {
     Message::Error("Colinear points in Delauny_1234 !!!!"
-                   "Det1 %g Det2 %g \n"
+                   "Det1 %g Det2 %g"
                    "     x1 %e y1 %e x2 %e y2 %e x3 %e y3 %e x4 %e y4 %e",
                    Det1, Det2, x1, y1, x2, y2, x3, y3, x4, y4);
   }

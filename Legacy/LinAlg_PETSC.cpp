@@ -77,7 +77,7 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
   SolverInitialized = 1;
 
   // get additional petsc options from specified file (useful e.g. on
-  // Windows where we don't know where to search for ~/.petsrc)
+  // Windows where we don't know where to search for ~/.petscrc)
   for(int i = 0; i < *argc - 1; i++){
     if (!strcmp((*argv)[i], "-solver")){
 #if (PETSC_VERSION_MAJOR == 2)
