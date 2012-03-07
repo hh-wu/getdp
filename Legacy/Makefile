@@ -36,7 +36,7 @@ SRC = MainLegacy.cpp \
         LinAlg.cpp LinAlg_PETSC.cpp LinAlg_SPARSKIT.cpp \
       SolvingAnalyse.cpp SolvingOperations.cpp \
         Operation_TimeLoopAdaptive.cpp \
-        IterativeLinearSolver.cpp \
+        Operation_IterativeLinearSolver.cpp \
         Treatment_Formulation.cpp \
             Get_DofOfElement.cpp \
             Get_ConstraintOfElement.cpp \
