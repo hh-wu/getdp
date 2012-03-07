@@ -953,6 +953,7 @@ struct Operation {
       char   *Type;
       double Tolerance;
       int    MaxIter;
+      int    Restart;
       List_T *FieldIndices;
       List_T *Operations_Ax, *Operations_Mx;
     } IterativeLinearSolver;
