@@ -1,3 +1,10 @@
+// GetDP - Copyright (C) 1997-2012 P. Dular, C. Geuzaine
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <getdp@geuz.org>.
+//
+// Contributed by Betrand Thierry
+
 #include <stdio.h>
 #include "GetDPConfig.h"
 #include "ProData.h"
