@@ -9,6 +9,7 @@
 #include "GetDPConfig.h"
 #include "ProData.h"
 #include "SolvingOperations.h"
+#include "Message.h"
 
 #if defined(HAVE_PETSC) && defined(HAVE_GMSH)
 
