@@ -11,6 +11,7 @@
 #include "ProData.h"
 #include "F.h"
 #include "Message.h"
+#include <iostream>
 
 #define SQU(a)     ((a)*(a)) 
 #define MU0 1.25663706144e-6
@@ -498,135 +499,234 @@ void F_dhdb_Ducharne(F_ARG)
 
  // Functions for Vectorial Incremental Nonconservative Consistent Hysteresis Model - V. Francois
 
-double h_ba (double h, double b_rev, double Ms_rev, double d)
-{
-
-double z=(b_rev)/(MU0+Ms_rev*tanh(h/d)/h);
-
-return(z);
+double h_ba (double h, double b_rev, double Ms_rev, double d){
+  double z=(b_rev)/(MU0+Ms_rev*tanh(h/d)/h);
+  return(z);
 }
 
-void F_nu_Vinch(F_ARG)
-{
+void F_nu_Vinch(F_ARG){
   /* input : norm(b_rev)=norm(b_tot-sum(\alpha_i)) */
   /* output : nu */
   	  
-double b_rev,h,Ms_rev,alpha,chi,nu;
-b_rev=(A)->Val[0];
-Ms_rev=0.15;//0.11;
-alpha=65;
-h=1; // start point for the solution of the implicit equation
+  double b_rev,h,Ms_rev,alpha,chi_mag,nu;
+  b_rev=(A)->Val[0];
+  Ms_rev=0.15;//0.11;
+  alpha=65;
+  h=1; // start point for the solution of the implicit equation
 
-if(b_rev==0) // singularity for b=a
-{
-  chi=Ms_rev/alpha/MU0;
-  // terminate the program:
-  //return 0;
-}
-else
-{
-  // Picard iteration to find h
-
-  double TOL=1e-6 ;  
-  while(fabs(h-h_ba(h,b_rev,Ms_rev,alpha))>TOL)
-  {
-    h=h_ba(h,b_rev,Ms_rev,alpha);
-  }
-  chi=Ms_rev*tanh(h/alpha)/h/MU0;
-}
-
-nu=1/MU0/(1+chi);
-
-V->Val[0] = nu; 
-}
-
-
-double fct_omega(double h[], double a[], double a_old[], double chi, double Ms_irrev, double alpha)
-{
-	double g2,g3,Dissip,norm_h,norm_a;
-	double diff[3];
-	double omega;
-
-	norm_h=sqrt(h[0]*h[0]+h[1]*h[1]+h[2]*h[2]);
-	norm_a=sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]);
-
-	for (int n=0; n<3; n++) {
-		diff[n]=a[n]-a_old[n];
-	}
-
-    g2=Ms_irrev*alpha*((norm_a/Ms_irrev)*atanh((norm_a)/Ms_irrev)+0.5*log(fabs(pow(norm_a/Ms_irrev,2)-1)));   
-    g3=-(a[0]*h[0]+a[1]*h[1]+a[2]*h[2]); // =-dot(a,h)
-    Dissip=chi*sqrt(diff[0]*diff[0]+diff[1]*diff[1]+diff[2]*diff[2]); // =chi*norm(a-a_old);
-
-    omega=g2+g3+Dissip;
-
-	return(omega);
-}
-
-
-void fct_d_omega (double h[], double a[], double a_old[], double chi, double Ms_irrev, double alpha, double* domega)
-{
-	//actualisation of the table pointed by domega
-	
-	double dg2_da[3],dg3_da[3],dissip[3],norm_a,norm_diff;
-	double diff[3];
-
-	norm_a=sqrt(a[0]*a[0]+a[1]*a[1]+a[2]*a[2]);
-
-
-
-	for (int n=0; n<3; n++) {
-		dg2_da[n]=alpha*atanh((norm_a)/Ms_irrev);
-		dg3_da[n]=-h[n];
-		diff[n]=a[n]-a_old[n];
-	}
-
-	if(norm_a!=0){
-		for (int n=0; n<3; n++) {
-			dg2_da[n]=dg2_da[n]*a[n]/norm_a;
-		}
-	}
-	else {
-    for (int n=0; n<3; n++) {
-      dg2_da[n]=0;
+  if(b_rev==0) // singularity for b=a
+    chi_mag=Ms_rev/alpha/MU0;
+  else { // Picard iteration to find h
+    double TOL=1e-6 ;  
+    while( fabs(h-h_ba(h,b_rev,Ms_rev,alpha)) > TOL ){
+      h=h_ba(h,b_rev,Ms_rev,alpha); //is convergence assured?
     }
+    chi_mag=Ms_rev*tanh(h/alpha)/h/MU0;
   }
+  nu=1/MU0/(1+chi_mag);
+  V->Val[0] = nu; 
+}
 
-  norm_diff=sqrt(diff[0]*diff[0]+diff[1]*diff[1]+diff[2]*diff[2]);
-  
-  if(norm_diff!=0){
+double norm(const double v[]){
+  return sqrt(v[0]*v[0]+v[1]*v[1]+v[2]*v[2]);
+}
+
+bool limiter(const double max, double v[]){
+  double mod = norm(v);
+  if(mod >= max){
+    for (int n=0; n<3; n++)
+      v[n]*=max/mod;
+    return true;
+  }
+  return false;
+}
+
+// pour info
+// #define F_ARG   struct Function * Fct, struct Value * A, struct Value * V
+// http://www.gnu.org/software/gsl/manual/html_node/Multimin-Examples.html
+
+// #include <gsl/gsl_errno.h>
+// #include <gsl/gsl_math.h>
+#include <gsl/gsl_multimin.h>
+
+double omega_f(const gsl_vector *v, void *params){
+  double J[3],dJ[3];
+  struct Value *A = (struct Value *) params;
+  double chi=(A+3)->Val[0];
+  double Js=(A+4)->Val[0];
+  double alpha=(A+5)->Val[0];
+
+  for (int i=0; i<3; i++) J[i] = gsl_vector_get(v, i);
+  limiter(0.9999*Js,J) ;
+  double norm_J = norm(J);
+  for (int i=0; i<3; i++)  dJ[i] = J[i]-(A+2)->Val[i]; // J-Jp 
+
+  double temp=norm_J/Js;
+  double val = Js*alpha*(temp*atanh(temp)+0.5*log(1-SQU(temp))); // u(J)
+  val -= J[0]*(A)->Val[0] + J[1]*(A)->Val[1] + J[2]*(A)->Val[2]; // -J.h
+  val += chi*norm(dJ); // chi | J-Jp |
+  return(val);
+}
+
+void omega_df (const gsl_vector *v, void *params, gsl_vector *df){
+  double J[3],dJ[3],grad[3];
+  struct Value *A = (struct Value *) params;
+  double chi=(A+3)->Val[0];
+  double Js=(A+4)->Val[0];
+  double alpha=(A+5)->Val[0];
+
+  for (int i=0; i<3; i++) J[i] = gsl_vector_get(v, i);
+  limiter(0.9999*Js,J);
+  double norm_J = norm(J);
+  for (int i=0; i<3; i++)  dJ[i] = J[i]-(A+2)->Val[i]; // J-Jp 
+  double norm_dJ = norm(dJ); 
+
+  for (int i=0; i<3; i++) {
+    grad[i]=0;
+    if (norm_J) grad[i] += alpha*atanh(norm_J/Js)*J[i]/norm_J;
+    grad[i] -= (A)->Val[i];
+    if (norm_dJ) grad[i] += chi*dJ[i]/norm_dJ;
+  }   
+  for (int i=0; i<3; i++) gsl_vector_set(df, i, grad[i]);
+}
+
+void omega_fdf (const gsl_vector *x, void *params, double *f, gsl_vector *df) {
+  *f = omega_f(x, params); 
+  omega_df(x, params, df);
+}
+
+
+void F_Update_a(F_ARG) {
+  size_t iter = 0;
+  int status;
+  double omegap;
+  gsl_vector *grad;
+  grad = gsl_vector_alloc (3);
+
+  const gsl_multimin_fdfminimizer_type *T;
+  gsl_multimin_fdfminimizer *s;
+  gsl_vector *x;
+  gsl_multimin_function_fdf my_func;
+     
+  my_func.n = 3;
+  my_func.f = omega_f;
+  my_func.df = omega_df;
+  my_func.fdf = omega_fdf;
+  my_func.params = A;
+
+  x = gsl_vector_alloc (3);
+  for (int i=0; i<3; i++) gsl_vector_set(x, i, (A+2)->Val[i]);
+     
+  // http://www.gnu.org/software/gsl/manual/html_node/Multimin-Algorithms-with-Derivatives.html
+
+  T = gsl_multimin_fdfminimizer_conjugate_fr;
+  s = gsl_multimin_fdfminimizer_alloc (T, 3);
+
+  gsl_multimin_fdfminimizer_set (s, &my_func, x, 0.01, 1e-4);
+     
+  do {
+    iter++;
+    omegap = s->f;
+    status = gsl_multimin_fdfminimizer_iterate (s);
+    if (status) break;
+    //status = gsl_multimin_test_gradient (s->gradient, 1e-3);
+     
+    // if (status == GSL_SUCCESS)
+    //   printf ("Minimum found at:\n");
+    // printf ("%5d % .5e % .5e % .5e % .5e\n", iter,
+    // 	    gsl_vector_get (s->x, 0), 
+    // 	    gsl_vector_get (s->x, 1), 
+    // 	    gsl_vector_get (s->x, 2), 
+    // 	    s->f);
+
+    // omega_df(s->x, A, grad);
+    // printf("F_Update: %2d % .5e % .5e % .5e % .5e % .5e\n", (int)iter, 
+    // 	   (A)->Val[1], gsl_vector_get(s->x,1), (A+2)->Val[1], omega_f(s->x,A), gsl_vector_get(grad, 1));
+  }
+  while( (fabs(s->f-omegap)>1e-2) && iter < 100);
+  //while (status == GSL_CONTINUE && iter < 100);
+
+  if(iter==99)
+    printf("F_Update Error: %3d % .5e % .5e % .5e % .5e\n", 
+  	   (int)iter, (A)->Val[1], gsl_vector_get(s->x,1), (A+2)->Val[1], omega_f(s->x,A));
+
+  for (int i=0 ; i<3 ; i++) V->Val[i] = gsl_vector_get (s->x, i); //(A)->Val[k]; 
+
+  gsl_multimin_fdfminimizer_free (s);
+  gsl_vector_free (x);
+}
+
+/*
+double fct_omega(double h[], double a[], double a_old[], double chi, double Js, double alpha){
+  double g2,g3,Dissip,norm_h,norm_a,norm_diff;
+  double diff[3];
+  double omega;
+
+  norm_h = norm(h); // magnetic field h
+  norm_a = norm(a); // magnetisation J assumed to be < Js
+  for (int n=0; n<3; n++) { // J-Jp
+    diff[n] = a[n]-a_old[n];
+  }
+  norm_diff = norm(diff);
+
+  g2=Js*alpha*((norm_a/Js)*atanh((norm_a)/Js)+0.5*log(fabs(pow(norm_a/Js,2)-1))); // u(J)
+  g3=-(a[0]*h[0]+a[1]*h[1]+a[2]*h[2]); // -J.h
+  Dissip=chi*norm_diff; // chi | J-Jp |
+  omega=g2+g3+Dissip;
+  return(omega);
+}
+
+void fct_d_omega (double h[], double a[], double a_old[], double chi, double Js, double alpha, double* domega){
+  double dg2_da[3],dg3_da[3],dissip[3],norm_a,norm_diff;
+  double diff[3];
+
+  norm_a = norm(a);
+  for (int n=0; n<3; n++) {
+    dg2_da[n]=alpha*atanh((norm_a)/Js);
+    dg3_da[n]=-h[n];
+    diff[n]=a[n]-a_old[n];
+  }
+  norm_diff = norm(diff);
+
+  if(norm_a!=0){
     for (int n=0; n<3; n++) {
-      dissip[n]=chi*diff[n]/norm_diff; // d(chi*norm(a-a_old))/da;
+      dg2_da[n]=dg2_da[n]*a[n]/norm_a;
     }
   }
   else {
     for (int n=0; n<3; n++) {
-		dissip[n]=0;
+      dg2_da[n]=0;
     }
   }
-
-  for (int n=0; n<3; n++) 
+  
+  if(norm_diff!=0){
+    for (int n=0; n<3; n++) {
+      dissip[n]=chi*diff[n]/norm_diff;
+    }
+  }
+  else {
+    for (int n=0; n<3; n++) {
+      dissip[n]=0;
+    }
+  }
+  for (int n=0; n<3; n++) {
     domega[n]=dg2_da[n]+dg3_da[n]+dissip[n];
+  }
 }
 
-
-
-
-void F_Update_a(F_ARG)
-{
-  // input:  h, a, a_old, chi, Ms_irrev, alpha
+void F_Update_a(F_ARG) {
+  // input:  h, a, a_old, chi, Js, alpha
   // output: a
   
   double a_old[3]={0,0,0};
-  double h[3]={20,0,0};
+  double h[3]={0,0,0};
   double a[3]={0,0,0};
   double better_a[3]={0,0,0};
   double rfactor=0.1;
-  double tol=0.000001; 
+  double tol=1e-6; 
   double* d_omega = new double[3];
   double omega, better_omega;
-  int i=0;
-  double chi,Ms_irrev,alpha;
+  double chi,Js,alpha;
   
   for (int n=0; n<3; n++) {
     h[n]=(A)->Val[n];
@@ -634,51 +734,56 @@ void F_Update_a(F_ARG)
     a_old[n]=(A+2)->Val[n];
   }
   chi=(A+3)->Val[0];
-  Ms_irrev=(A+4)->Val[0];
+  Js=(A+4)->Val[0];
   alpha=(A+5)->Val[0];
 
-  fct_d_omega(h,a,a_old,chi,Ms_irrev,alpha,d_omega); //updating table pointed by domega
-  omega=fct_omega(h,a,a_old,chi,Ms_irrev,alpha); //updating omega
+  limiter(0.99*Js,a);
+  limiter(0.99*Js,a_old);
 
-  while( (fabs(d_omega[0])/(1+fabs(omega))*rfactor>tol || 
-          fabs(d_omega[1])/(1+fabs(omega))*rfactor>tol || 
-          fabs(d_omega[2])/(1+fabs(omega))*rfactor>tol)) //if domega!=0 --> we look for "a" that gives min(omega)
-    {
-      for (int n=0; n<3; n++) { //iteration gradient descent
-        better_a[n]=a[n]-rfactor*d_omega[n];
+  fct_d_omega(h,a,a_old,chi,Js,alpha,d_omega); 
+  omega=fct_omega(h,a,a_old,chi,Js,alpha); 
+  better_omega=1e200;
+
+  int count=0;
+  // while( (fabs(d_omega[0])/(1+fabs(omega))*rfactor>tol || 
+  //         fabs(d_omega[1])/(1+fabs(omega))*rfactor>tol || 
+  //         fabs(d_omega[2])/(1+fabs(omega))*rfactor>tol)) {
+    //if domega!=0 --> we look for "a" that gives min(omega)
+
+  while((fabs(omega-better_omega) > tol) && (count<100) ){
+
+    for (int n=0; n<3; n++) { //iteration gradient descent
+      better_a[n] = a[n]-rfactor*d_omega[n];
+    }
+    limiter(0.99*Js,better_a);
+
+    better_omega = fct_omega(h,better_a,a_old,chi,Js,alpha); //updating omega
+
+    if( (better_omega < (omega-tol/10) ) && 
+	( sqrt(better_a[0]*better_a[0]+better_a[1]*better_a[1]+better_a[2]*better_a[2]) < Js ) ){ 
+      //Watch out: better_omega < omega otherwise, oscillations between 2 omega identical !   
+      fct_d_omega(h,better_a,a_old,chi,Js,alpha,d_omega); //update table pointed by domega
+      omega=better_omega; 
+      // if(a[0]==a_old[0] && a[1]==a_old[1] && a[2]==a_old[2]) {
+      // 	rfactor=0.1; 
+      // 	//reinitialize rfactor which may have become extremely small to the angular starting point
+      // }
+      for (int n=0; n<3; n++) {
+	a[n]=better_a[n];
       }
-      //  cout << "i :" << i << "\n";
-      better_omega=fct_omega(h,better_a,a_old,chi,Ms_irrev,alpha); //updating omega
-      
-      if(i>2000) {    
-        // std::cout.precision(20);
-        // std::cout << "omega: " << omega << "better_omega: " << better_omega << "omega-tol/10"<< omega-tol/10 << "\n";
-        Message::Info("omega: %.20g, better_omega: %.20g, omega-tol/10: %.20g",
-                      omega, better_omega, omega-tol/10 );
-        Message::Info("Warning: too many iterations to find the minimum of omega. Wrong choice of tol and/or r_factor. iteration: %i", i );
-      }   
-      
-      if( (better_omega < (omega-tol/10) ) && 
-          ( sqrt(better_a[0]*better_a[0]+better_a[1]*better_a[1]+better_a[2]*better_a[2]) < Ms_irrev ) ){ 
-        //Watch out: better_omega < omega otherwise, oscillations between 2 omega identical !   
-        fct_d_omega(h,better_a,a_old,chi,Ms_irrev,alpha,d_omega); //update table pointed by domega
-        omega=better_omega;
-        if(a[0]==a_old[0] && a[1]==a_old[1] && a[2]==a_old[2]) {
-          rfactor=0.1; //reinitialize rfactor which may have become extremely small to the angular starting point
-        }
-        for (int n=0; n<3; n++) {
-          a[n]=better_a[n];
-        }
-      }
-      else {
-        rfactor=rfactor/2;
-      }  
-      i++;    
+    }
+    else {
+      rfactor=rfactor/2;
+    }
+    Message::Info("%3d % .2e % .2e % .2e % .2e % .2e",
+		  count,rfactor,norm(a),norm(d_omega),omega,better_omega);
+    count++;    
   }
-    
   for (int k=0 ; k<3 ; k++) {
     V->Val[k]=better_a[k];//(A)->Val[k]; 
   }
-  
+  //Message::Info("%3d % .2e % .2e", count,omega,d_omega[1]);
+
   delete[] d_omega;
 }
+*/
