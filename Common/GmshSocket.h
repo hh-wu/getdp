@@ -385,10 +385,12 @@ class GmshServer : public GmshSocket{
       }
     }
 
+    char cmd[1024];
     if(command && strlen(command)){
       // we assume that the command line always ends with the socket name
-      std::string cmd(command);
-      cmd += " " + _sockname;
+      //std::string cmd(command);
+      //cmd += " " + _sockname;
+      sprintf(cmd,command,_sockname.c_str());
       NonBlockingSystemCall(cmd.c_str()); // start the solver
     }
     else{
