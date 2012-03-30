@@ -391,7 +391,8 @@ class GmshServer : public GmshSocket{
       //std::string cmd(command);
       //cmd += " " + _sockname;
       sprintf(cmd,command,_sockname.c_str());
-      NonBlockingSystemCall(cmd.c_str()); // start the solver
+      //NonBlockingSystemCall(cmd.c_str()); // start the solver
+      NonBlockingSystemCall(cmd); // start the solver
     }
     else{
       timeout = 0.; // no command launched: don't set a timeout
