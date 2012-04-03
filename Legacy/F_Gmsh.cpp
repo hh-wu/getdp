@@ -83,7 +83,7 @@ void F_Field(F_ARG)
   }
 }
 
-static void F_X_Field(F_ARG, int type)
+static void F_X_Field(F_ARG, int type, bool complex)
 {
   if(A->Type != VECTOR){
     Message::Error("View[] expects XYZ coordinates as argument");
@@ -93,6 +93,22 @@ static void F_X_Field(F_ARG, int type)
   double y = A->Val[1];
   double z = A->Val[2];
   int numComp = (type == SCALAR) ? 1 : (type == VECTOR) ? 3 : 9;
+
+  int NbrArg = Fct->NbrArguments ;
+  int TimeStep = 0;
+  if(NbrArg == 2){
+    if((A+1)->Type != SCALAR){
+      Message::Error("Expected scalar second argument");
+      return;
+    }
+    TimeStep = (int)(A+1)->Val[0];
+  }
+
+  // Complex{Scalar,Vector,Tensor}Field assume that the Gmsh view contains real
+  // and imaginary parts for each step
+  if(complex) TimeStep *= 2;
+
+  printf("using step = %d\n", TimeStep);
 
   for (int k = 0; k < Current.NbrHar; k++)
     for (int j = 0; j < numComp; j++)
@@ -119,32 +135,37 @@ static void F_X_Field(F_ARG, int type)
 
     PViewData *data = PView::list[iview[i]]->getData();
 
+    if(TimeStep < 0 || TimeStep >= data->getNumTimeSteps()){
+      Message::Error("Invalid step %d in View[%d]", TimeStep, iview[i]);
+      continue;
+    }
+
     std::vector<double> val(numComp * data->getNumTimeSteps());
     switch(type){
     case SCALAR :
       if(data->searchScalar(x, y, z, &val[0])){
-        V->Val[0] += val[0];
-        if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1)
-          V->Val[MAX_DIM] += val[1];
+        V->Val[0] += val[TimeStep];
+        if(complex && Current.NbrHar == 2 && data->getNumTimeSteps() > TimeStep + 1)
+          V->Val[MAX_DIM] += val[TimeStep + 1];
       }
       break;
     case VECTOR :
       if(data->searchVector(x, y, z, &val[0])){
         for(int j = 0; j < 3; j++)
-          V->Val[j] += val[j];
-        if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
+          V->Val[j] += val[3 * TimeStep + j];
+        if(complex && Current.NbrHar == 2 && data->getNumTimeSteps() > TimeStep + 1){
           for(int j = 0; j < 3; j++)
-            V->Val[MAX_DIM + j] += val[3 + j];
+            V->Val[MAX_DIM + j] += val[3 * (TimeStep + 1) + j];
         }
       }
       break;
     case TENSOR :
       if(data->searchTensor(x, y, z, &val[0])){
         for(int j = 0; j < 9; j++)
-          V->Val[j] += val[j];
+          V->Val[j] += val[9 * TimeStep + j];
         if(Current.NbrHar == 2 && data->getNumTimeSteps() > 1){
           for(int j = 0; j < 9; j++)
-            V->Val[MAX_DIM + j] += val[9 + j];
+            V->Val[MAX_DIM + j] += val[9 * (TimeStep + 1) + j];
         }
       }
       break;
@@ -161,7 +182,7 @@ void F_Field(F_ARG)
   V->Type = SCALAR ;
 }
 
-static void F_X_Field(F_ARG, int type)
+static void F_X_Field(F_ARG, int type, bool complex)
 {
   Message::Error("You need to compile GetDP with Gmsh support to use 'Field'");
   V->Val[0] = 0. ;
@@ -170,6 +191,9 @@ static void F_X_Field(F_ARG, int type)
 
 #endif
 
-void F_ScalarField(F_ARG){ F_X_Field(Fct, A, V, SCALAR); }
-void F_VectorField(F_ARG){ F_X_Field(Fct, A, V, VECTOR); }
-void F_TensorField(F_ARG){ F_X_Field(Fct, A, V, TENSOR); }
+void F_ScalarField(F_ARG){ F_X_Field(Fct, A, V, SCALAR, false); }
+void F_VectorField(F_ARG){ F_X_Field(Fct, A, V, VECTOR, false); }
+void F_TensorField(F_ARG){ F_X_Field(Fct, A, V, TENSOR, false); }
+void F_ComplexScalarField(F_ARG){ F_X_Field(Fct, A, V, SCALAR, true); }
+void F_ComplexVectorField(F_ARG){ F_X_Field(Fct, A, V, VECTOR, true); }
+void F_ComplexTensorField(F_ARG){ F_X_Field(Fct, A, V, TENSOR, true); }

@@ -224,6 +224,9 @@ void  F_Field(F_ARG) ;
 void  F_ScalarField(F_ARG) ;
 void  F_VectorField(F_ARG) ;
 void  F_TensorField(F_ARG) ;
+void  F_ComplexScalarField(F_ARG) ;
+void  F_ComplexVectorField(F_ARG) ;
+void  F_ComplexTensorField(F_ARG) ;
 
 /* F_DiffGeom */
 void  F_Hodge(F_ARG) ;

@@ -1011,11 +1011,13 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Pocklington",        (CAST)F_Pocklington       ,   2,   0 },
 
   // F_Gmsh
-  {"View",               (CAST)F_Field             ,   -1,   -1 }, // deprecated
   {"Field",              (CAST)F_Field             ,   -1,   -1 },
   {"ScalarField",        (CAST)F_ScalarField       ,   -1,   -1 },
   {"VectorField",        (CAST)F_VectorField       ,   -1,   -1 },
   {"TensorField",        (CAST)F_TensorField       ,   -1,   -1 },
+  {"ComplexScalarField", (CAST)F_ComplexScalarField,   -1,   -1 },
+  {"ComplexVectorField", (CAST)F_ComplexVectorField,   -1,   -1 },
+  {"ComplexTensorField", (CAST)F_ComplexTensorField,   -1,   -1 },
 
   // F_DiffGeom
   {"Hodge",              (CAST)F_Hodge             ,    1,   2 },
