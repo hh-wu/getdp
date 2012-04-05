@@ -108,7 +108,7 @@ static void F_X_Field(F_ARG, int type, bool complex)
   // and imaginary parts for each step
   if(complex) TimeStep *= 2;
 
-  printf("using step = %d\n", TimeStep);
+  Message::Info("Using step = %d\n", TimeStep);
 
   for (int k = 0; k < Current.NbrHar; k++)
     for (int j = 0; j < numComp; j++)
