@@ -2,23 +2,23 @@ Include "magnet.txt";
 
 DefineConstant[ h = {0.14, Min 0.1, Max 0.2, Step 0.01,
                      Path "Parameters/Geometry",
-                     Label "Core height"} ] ;
+                     Label "Core height (m)"} ] ;
 
 DefineConstant[ l = {0.14, Min 0.05, Max 0.2, Step 0.01,
                      Path "Parameters/Geometry",
-                     Label "Core width"} ] ;
+                     Label "Core width (m)"} ] ;
 
 DefineConstant[ d = {0.03, Min 0.01, Max 0.05, Step 0.002,
                      Path "Parameters/Geometry",
-                     Label "Core tickness"} ] ;
+                     Label "Core tickness (m)"} ] ;
 
 DefineConstant[ e = {5e-3, Min 5e-4, Max d, Step 1e-3,
                      Path "Parameters/Geometry",
-                     Label "Air gap"} ] ;
+                     Label "Air gap (m)"} ] ;
 
 DefineConstant[ ha = {0.03, Min 0.01, Max 0.1, Step 0.01,
                      Path "Parameters/Geometry",
-                     Label "Magnet height"} ] ;
+                     Label "Magnet height (m)"} ] ;
 
 lc0 = d / 5 ;
 lc1 = e / 2 ;
@@ -72,13 +72,13 @@ Circle(24) = {33, 1, 31};
 
 Line Loop(25) = {21, 22, 8, -24, -23, 1};
 Plane Surface(26) = {25};
-Line Loop(27) = {22, -7, -13, -12, -11, -10, -9, -2, 21};
+Line Loop(27) = - {22, -7, -13, -12, -11, -10, -9, -2, 21};
 Plane Surface(28) = {27};
-Line Loop(29) = {11, 12, -20, 15, 16, 17, 19, 10};
+Line Loop(29) = - {11, 12, -20, 15, 16, 17, 19, 10};
 Plane Surface(30) = {29};
 Line Loop(31) = {19, -9, 3, -18};
 Plane Surface(32) = {31};
-Line Loop(33) = {20, 13, -6, 14};
+Line Loop(33) = - {20, 13, -6, 14};
 Plane Surface(34) = {33};
 Line Loop(35) = {15, 16, 17, 18, 4, 5, 14};
 Plane Surface(36) = {35};
