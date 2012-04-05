@@ -4,5 +4,4 @@
 # bugs and problems to <getdp@geuz.org>.
 
 clean:
-	rm -f *.pre *.res *.pos *.cut
-
+	rm -f *.pre *.res *.pos *.cut b_*.txt

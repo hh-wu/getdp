@@ -1,11 +1,3 @@
-/* --------------------------------------------------------------------------
-    This is a sample GetDP problem definition file
-    for simple two-dimensionnal Magnetostatic problems
-
-    (C) 1998 P. Dular, C. Geuzaine
-   -------------------------------------------------------------------------- */
-
-
 /* Input
 
   Groups :
@@ -31,11 +23,19 @@
 
 */
 
+Group {
+  DefineGroup[ Domain_M, Domain_S, Domain_Inf ];
+}
+
+Function{
+  DefineFunction[ mu, nu, hc, js ];
+}
+
 Jacobian {
   { Name JVol ;
     Case {
       { Region Domain_Inf ; Jacobian VolSphShell{Val_Rint, Val_Rext} ; }
-      { Region All ;        Jacobian Vol ; }
+      { Region All ; Jacobian Vol ; }
     }
   }
 }
@@ -46,8 +46,8 @@ Integration {
     Case {
       { Type Gauss ;
         Case {
-	  { GeoElement Triangle    ; NumberOfPoints  4 ; }
-	  { GeoElement Quadrangle  ; NumberOfPoints  4 ; }
+	  { GeoElement Triangle ; NumberOfPoints 4 ; }
+	  { GeoElement Quadrangle  ; NumberOfPoints 4 ; }
 	}
       }
     }
@@ -173,5 +173,3 @@ PostProcessing {
     }
   }
 }
-
-
