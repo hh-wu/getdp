@@ -37,18 +37,22 @@ Discrete Problems</h1>
   <a href="#Licensing">Licensing</a> |
   <a href="#Links">Links</a>
 </center>
+</p>
 
 <h2><a name="Description"></a>Description</h2>
 
+<p>
 GetDP is a general finite element solver using mixed elements to
 discretize <a href="http://en.wikipedia.org/wiki/De_Rham_cohomology">de
 Rham-type complexes</a> in one, two and three dimensions.  The main
 feature of GetDP is the closeness between the input data defining
 discrete problems (written by the user in ASCII data files) and the
 symbolic mathematical expressions of these problems. 
-<p>For example, to solve the Poisson equation <code>div(a grad(v)) =
-f</code> on a domain <code>D</code>, an input file
-("<code>.pro</code>" file) would contain something like this:
+</p>
+<p>
+For example, to solve the Poisson equation <code>div(a grad(v)) = f</code> on a
+domain <code>D</code>, an input file ("<code>.pro</code>" file) would contain
+something like this:
 <font size="-1">
 <pre>
   FunctionSpace {
@@ -73,10 +77,12 @@ f</code> on a domain <code>D</code>, an input file
 </font>
 i.e., a direct transcription of the discrete function space and weak
 form of the problem. 
+</p>
 <p>
 See GetDP's reference manual for a more
-thorough <a href="/getdp/doc/texinfo/getdp.html#Overview">overview of
-GetDP's capabilities</a>.
+thorough <a href="/getdp/doc/texinfo/getdp.html#Overview">overview of GetDP's
+capabilities</a>.
+</p>
 
 <h2><a name="Download"></a>Download</h2>
 
@@ -86,7 +92,7 @@ License (GPL)</a>:
 
 <ul>
   <li>
-    <span style="border: 1px dotted; padding: 3px;">
+    <p class="highlight">
       <strong>Current stable release</strong>: Windows 
       <a href="/getdp/bin/Windows/getdp-2.1.1-Win32c.zip"><strong>32 bit</strong></a> /
       <a href="/getdp/bin/Windows/getdp-2.1.1-Win64c.zip"><strong>64 bit</strong></a> 
@@ -98,19 +104,17 @@ License (GPL)</a>:
       <a href="/getdp/bin/MacOSX/getdp-2.1.1-MacOSX64c.tgz"><strong>64 bit</strong></a>
       (10.5) and
       <a href="/getdp/src/getdp-2.1.1-source.tgz"><strong>source code</strong></a>
-    </span>
+    </p>
     <p>
-
-<em>The binary versions are compiled
-with <a href="http://www.mcs.anl.gov/petsc/">PETSc</a>, with support
-for sequential direct sparse linear solvers
-using <a href="http://graal.ens-lyon.fr/MUMPS">MUMPS</a>. For large
-problems you should consider compiling the parallel (MPI) version of
-GetDP: check
-the <a href="https://geuz.org/trac/getdp/wiki/PETScCompile">wiki</a>
-(login: getdp, password: getdp) for sample build instructions.</em>
-<p>
-
+      <em>The binary versions are compiled
+        with <a href="http://www.mcs.anl.gov/petsc/">PETSc</a>, with support for
+        sequential direct sparse linear solvers
+        using <a href="http://graal.ens-lyon.fr/MUMPS">MUMPS</a>. For large
+        problems you should consider compiling the parallel (MPI) version of
+        GetDP: check
+        the <a href="https://geuz.org/trac/getdp/wiki/PETScCompile">wiki</a>
+        (login: getdp, password: getdp) for sample build instructions.</em>
+    </p>
   <li>Development version:
     <ul><li>automated nightly builds: 
         Windows <a href="/getdp/bin/Windows/getdp-svn-Win32c.zip">32 bit</a>
@@ -140,17 +144,20 @@ articles, reports, etc.).
 
 <h2><a name="Authors"></a>Authors and credits</h2>
 
+<p>
 GetDP is developed by Patrick Dular and Christophe Geuzaine (both with
 the <a href="http://www.ulg.ac.be">University of
 Li&egrave;ge</a>). The <a href="doc/CREDITS.txt">CREDITS</a> file has
 more information.
+</p>
 <p>
 Please use the public mailing
-list <a href="mailto:getdp@geuz.org">getdp@geuz.org</a> to send
-questions or ask for help. If you think you have found a bug in the
-program, you can file a report directly
+list <a href="mailto:getdp@geuz.org">getdp@geuz.org</a> to send questions or ask
+for help. If you think you have found a bug in the program, you can file a
+report directly
 <a href="https://geuz.org/trac/getdp/newticket">here</a> (username:
 getdp, password: getdp).
+</p>
 
 <h2><a name="Documentation"></a>Documentation</h2>
 
@@ -180,7 +187,6 @@ getdp, password: getdp).
 </ul>
 
 <p>
-
 <form method="get" action="http://www.geuz.org/search/search-geuz.cgi">
 <input size="30" name="q" value="">&nbsp;
 <input type="submit" value="Search!">&nbsp;
@@ -191,13 +197,16 @@ getdp, password: getdp).
   <option value="/pipermail/getdp">GetDP mailing list archives
 </select>
 </form>
+</p>
 
 <h2><a name="Licensing"></a>Licensing</h2>
 
+<p>
 GetDP is copyright (C) 1997-2011 by P. Dular and C. Geuzaine and is
 distributed under the terms of
 the <a href="http://www.gnu.org/copyleft/gpl.html">GNU General Public
 License (GPL)</a>.
+</p>
 <p>
 In short, this means that everyone is free to use GetDP and to
 redistribute it on a free basis. GetDP is not in the public domain; it
@@ -211,6 +220,7 @@ closed-source software, or want to sell a modified closed-source
 version of GetDP, you will need to obtain a different
 license. Please <a href="/">contact us directly</a> for more
 information.
+</p>
 
 <h2><a name="Links"></a>Links</h2>
 
@@ -234,9 +244,11 @@ information.
 <input type="image" src="/images/donation.gif" name="submit" 
        alt="Make a donation with PayPal">
 </form>
+</p>
 
 <p>
 Back to <a href="/">geuz.org</a>
+</p>
 
 </body>
 </html>
