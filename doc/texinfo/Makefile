@@ -7,7 +7,7 @@ pdf:
 	texi2pdf getdp.texi 
 
 html:
-	makeinfo --html --no-split getdp.texi
+	makeinfo --html --css-ref=http://geuz.org/geuz.css --no-split getdp.texi
 
 info:
 	makeinfo --split-size 1000000 getdp.texi
