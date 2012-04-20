@@ -57,6 +57,8 @@ namespace onelab{
     bool _changed;
     // should the parameter be visible in the interface?
     bool _visible;
+    // sould the paramete be "read-only" (not settable by the user)
+    bool _readOnly;
   protected:
     // optional additional attributes
     std::map<std::string, std::string> _attributes;
@@ -64,13 +66,13 @@ namespace onelab{
     parameter(const std::string &name="", const std::string &label="",
               const std::string &help="")
       : _name(name), _label(label), _help(help), _changed(true),
-        _visible(true) {}
+        _visible(true), _readOnly(false) {}
     void setName(const std::string &name){ _name = name; }
     void setLabel(const std::string &label){ _label = label; }
-    void setShortHelp(const std::string &label){ _label = label; } // deprecated
     void setHelp(const std::string &help){ _help = help; }
     void setChanged(bool changed){ _changed = changed; }
     void setVisible(bool visible){ _visible = visible; }
+    void setReadOnly(bool readOnly){ _readOnly = readOnly; }
     void setAttribute(const std::string &key, const std::string &value)
     {
       _attributes[key] = value;
@@ -92,7 +94,6 @@ namespace onelab{
     virtual std::string getType() const = 0;
     const std::string &getName() const { return _name; }
     const std::string &getLabel() const { return _label; }
-    const std::string &getShortHelp() const { return _label; } // deprecated
     const std::string &getHelp() const { return _help; }
     std::string getShortName() const
     {
@@ -109,6 +110,7 @@ namespace onelab{
     }
     bool getChanged() const { return _changed; }
     bool getVisible() const { return _visible; }
+    bool getReadOnly() const { return _readOnly; }
     std::string getAttribute(const std::string &key) const
     {
       std::map<std::string, std::string>::const_iterator it = _attributes.find(key);
@@ -122,7 +124,7 @@ namespace onelab{
     const std::set<std::string> &getClients() const { return _clients; }
     static char charSep() { return '\0'; }
     static double maxNumber() { return 1e200; }
-    static std::string version() { return "1.0"; }
+    static std::string version() { return "1.01"; }
     static std::string getNextToken(const std::string &msg,
                                     std::string::size_type &first,
                                     char separator=charSep())
@@ -157,6 +159,7 @@ namespace onelab{
               << sanitize(getLabel()) << charSep()
               << sanitize(getHelp()) << charSep()
               << (getVisible() ? 1 : 0) << charSep()
+              << (getReadOnly() ? 1 : 0) << charSep()
               << _attributes.size() << charSep();
       for(std::map<std::string, std::string>::const_iterator it = _attributes.begin();
           it != _attributes.end(); it++)
@@ -177,6 +180,7 @@ namespace onelab{
       setLabel(getNextToken(msg, pos));
       setHelp(getNextToken(msg, pos));
       setVisible(atoi(getNextToken(msg, pos).c_str()));
+      setReadOnly(atoi(getNextToken(msg, pos).c_str()));
       int numAttributes = atoi(getNextToken(msg, pos).c_str());
       for(int i = 0; i < numAttributes; i++){
         std::string key(getNextToken(msg, pos));
@@ -236,6 +240,7 @@ namespace onelab{
       setLabel(p.getLabel());
       setHelp(p.getHelp());
       setVisible(p.getVisible());
+      setReadOnly(p.getReadOnly());
       setAttributes(p.getAttributes());
       if(p.getValue() != getValue()){
         setValue(p.getValue());
@@ -298,6 +303,7 @@ namespace onelab{
       setLabel(p.getLabel());
       setHelp(p.getHelp());
       setVisible(p.getVisible());
+      setReadOnly(p.getReadOnly());
       setAttributes(p.getAttributes());
       if(p.getValue() != getValue()){
         setValue(p.getValue());
@@ -338,17 +344,33 @@ namespace onelab{
   class region : public parameter{
   private:
     std::set<std::string> _value;
-    std::vector<std::set<std::string> > _choices;
     // optional geometrical dimension
     int _dimension;
+    std::vector<std::set<std::string> > _choices;
   public:
     region(const std::string &name="",
            const std::set<std::string> &value = std::set<std::string>(),
            const std::string &label="", const std::string &help="")
       : parameter(name, label, help), _value(value) {}
+    region(const std::string &name, const std::string &value,
+           const std::string &label="", const std::string &help="")
+      : parameter(name, label, help)
+    {
+      if(value.size()) _value.insert(value);
+    }
     void setValue(const std::set<std::string> &value){ _value = value; }
+    void setDimension(int dim){ _dimension = dim; }
+    void setChoices(const std::vector<std::set<std::string> > &choices)
+    {
+      _choices = choices;
+    }
     std::string getType() const { return "region"; }
     const std::set<std::string> &getValue() const { return _value; }
+    int getDimension() const { return _dimension; }
+    const std::vector<std::set<std::string> > &getChoices() const
+    {
+      return _choices;
+    }
     void update(const region &p)
     {
       addClients(p.getClients());
@@ -359,18 +381,41 @@ namespace onelab{
         setValue(p.getValue());
         setChanged(true);
       }
+      setDimension(p.getDimension());
+      setChoices(p.getChoices());
     }
     std::string toChar() const
     {
-      /*
       std::ostringstream sstream;
-      sstream << parameter::toChar() << _value << charSep()
-              << _choices.size() << charSep();
-      for(unsigned int i = 0; i < _choices.size(); i++)
-        sstream << sanitize(_choices[i]) << charSep();
+      sstream << parameter::toChar() << _value.size() << charSep();
+      for(std::set<std::string>::const_iterator it = _value.begin();
+          it != _value.end(); it++)
+        sstream << sanitize(*it) << charSep();
+      sstream << _dimension << charSep();
+      sstream << _choices.size() << charSep();
+      for(unsigned int i = 0; i < _choices.size(); i++){
+        sstream << _choices[i].size() << charSep();
+        for(std::set<std::string>::const_iterator it = _choices[i].begin();
+            it != _choices[i].end(); it++)
+          sstream << sanitize(*it) << charSep();
+      }
       return sstream.str();
-      */
-      return "";
+    }
+    std::string::size_type fromChar(const std::string &msg)
+    {
+      std::string::size_type pos = parameter::fromChar(msg);
+      if(!pos) return 0;
+      int n = atoi(getNextToken(msg, pos).c_str());
+      for(int i = 0; i < n; i++)
+        _value.insert(getNextToken(msg, pos));
+      setDimension(atoi(getNextToken(msg, pos).c_str()));
+      _choices.resize(atoi(getNextToken(msg, pos).c_str()));
+      for(unsigned int i = 0; i < _choices.size(); i++){
+        n = atoi(getNextToken(msg, pos).c_str());
+        for(int i = 0; i < n; i++)
+          _choices[i].insert(getNextToken(msg, pos));
+      }
+      return pos;
     }
   };
 
@@ -379,34 +424,32 @@ namespace onelab{
   // strings, defined on onelab regions.
   class function : public parameter{
   private:
-    std::string _value;
-    std::map<std::string, std::string> _pieceWiseValues;
-    std::vector<std::string> _choices;
+    std::map<std::string, std::string> _value;
+    std::vector<std::map<std::string, std::string> > _choices;
   public:
-    function(const std::string &name="", const std::string &value="",
+    function(const std::string &name="") : parameter(name, "", "") {}
+    function(const std::string &name, const std::map<std::string, std::string> &value,
              const std::string &label="", const std::string &help="")
       : parameter(name, label, help), _value(value) {}
-    void setValue(const std::string &value, const std::string &region="")
+    void setValue(const std::map<std::string, std::string> &value)
     {
-      if(region.empty())
-        _value = value;
-      else
-        _pieceWiseValues[region] = value;
+      _value = value;
+    }
+    void setChoices(const std::vector<std::map<std::string, std::string> > &choices)
+    {
+      _choices = choices;
     }
     std::string getType() const { return "function"; }
-    const std::string getValue(const std::string &region="") const
+    const std::map<std::string, std::string> &getValue() const { return _value; }
+    const std::string getValue(const std::string &region) const
     {
-      if(region.size()){
-        std::map<std::string, std::string>::const_iterator it =
-          _pieceWiseValues.find(region);
-        if(it != _pieceWiseValues.end()) return it->second;
-        return "";
-      }
-      else return _value;
+      std::map<std::string, std::string>::const_iterator it = _value.find(region);
+      if(it != _value.end()) return it->second;
+      return "";
     }
-    const std::map<std::string, std::string> &getPieceWiseValues() const
+    const std::vector<std::map<std::string, std::string> > &getChoices() const
     {
-      return _pieceWiseValues;
+      return _choices;
     }
     void update(const function &p)
     {
@@ -418,20 +461,11 @@ namespace onelab{
         setValue(p.getValue());
         setChanged(true);
       }
+      setChoices(p.getChoices());
     }
     std::string toChar() const
     {
-      std::ostringstream sstream;
-      sstream << parameter::toChar() << sanitize(_value) << charSep()
-              << _pieceWiseValues.size() << charSep();
-      for(std::map<std::string, std::string>::const_iterator it =
-            _pieceWiseValues.begin(); it != _pieceWiseValues.end(); it++)
-        sstream << sanitize(it->first) << charSep()
-                << sanitize(it->second) << charSep();
-      sstream << _choices.size() << charSep();
-      for(unsigned int i = 0; i < _choices.size(); i++)
-        sstream << sanitize(_choices[i]) << charSep();
-      return sstream.str();
+      return "";
     }
   };
 
@@ -556,6 +590,7 @@ namespace onelab{
       for(std::set<parameter*>::iterator it = ps.begin(); it != ps.end(); it++)
         if(client.empty() || (*it)->hasClient(client))
           (*it)->setChanged(changed);
+      return true;
     }
     // serialize the parameter space (optinally only serialize those parameters
     // that depend on the given client)
@@ -700,13 +735,13 @@ namespace onelab{
 
   class localNetworkClient : public localClient{
   private:
-    // path to the executable of the remote network client
+    // executable of the client (including filesystem path, if necessary)
     std::string _executable;
-    // command to login to the remote host (if necessary)
+    // command to login to a remote host (if necessary)
     std::string _remoteLogin;
     // command line option to specify socket
     std::string _socketSwitch;
-    // pid of the remote network client
+    // pid of the remote network client while it is running (-1 otherwise)
     int _pid;
     // underlying GmshServer
     GmshServer *_gmshServer;
