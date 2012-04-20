@@ -950,7 +950,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Printf"            , (CAST)F_Printf           ,   0,   1 },
   {"Rand"              , (CAST)F_Rand             ,   0,   1 },
   {"CompElementNum"    , (CAST)F_CompElementNum   ,   0,   0 },
-  {"VirtualWork"           , (CAST)F_VirtualWork           ,   0,   1 },
+  {"VirtualWork"       , (CAST)F_VirtualWork      ,   0,   1 },
 
   // F_Interpolation
   {"InterpolationLinear"   , (CAST)F_InterpolationLinear   ,  -2,   1 },
@@ -970,8 +970,9 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"dhdb_Ducharne"         , (CAST)F_dhdb_Ducharne         ,  -1,   3 },
   {"h_Ducharne"            , (CAST)F_h_Ducharne            ,  -1,   3 },
   {"nu_Ducharne"           , (CAST)F_nu_Ducharne           ,  -1,   3 },
-  {"nu_Vinch"              , (CAST)F_nu_Vinch              ,   0,   1 },
-  {"Update_a"              , (CAST)F_Update_a              ,   0,   6 },
+  {"nu_Vinch"              , (CAST)F_nu_Vinch              ,  -1,   3 },
+  {"Update_Jk"             , (CAST)F_Update_Jk             ,  -1,   6 },
+  {"Update_Jk_sd"          , (CAST)F_Update_Jk_sd          ,  -1,   6 },
 
   // F_MultiHar
   {"MHToTime"          , (CAST)F_MHToTime         ,   0,   2 },

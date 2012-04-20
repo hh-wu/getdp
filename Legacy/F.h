@@ -196,7 +196,8 @@ double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL,
                       int NC, double h0, double b0, double b);
 
 void  F_nu_Vinch (F_ARG) ;
-void  F_Update_a (F_ARG) ;
+void  F_Update_Jk (F_ARG) ;
+void  F_Update_Jk_sd (F_ARG) ;
 
 /* F_MultiHar */
 
