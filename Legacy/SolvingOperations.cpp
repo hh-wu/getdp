@@ -1631,6 +1631,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   for (i_Operation = 0 ; i_Operation < Nbr_Operation ; i_Operation++) {
     Operation_P = (struct Operation*)List_Pointer(Operation_L, i_Operation) ;
 
+    if(Message::GetCommSize() > 1 && Operation_P->Rank >= 0 &&
+       Message::GetCommRank() != (Operation_P->Rank % Message::GetCommSize()))
+      continue;
+
     Flag_CPU = 0 ;
     Flag_Jac = 0 ;
 
@@ -1961,10 +1965,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if(!Flag_SolveAgain)
 	LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
-		     &DofData_P->CurrentSolution->x, Operation_P->Case.Solve.SolverIndex) ;
+		     &DofData_P->CurrentSolution->x,
+                     (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 : Operation_P->Rank) ;
       else
 	LinAlg_SolveAgain(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
-                          &DofData_P->CurrentSolution->x, Operation_P->Case.Solve.SolverIndex) ;
+                          &DofData_P->CurrentSolution->x,
+                          (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 : Operation_P->Rank) ;
 
       Flag_CPU = 1 ;
       break ;
@@ -1995,7 +2001,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       LinAlg_SolveNL(&DofData_P->A, &DofData_P->b, &DofData_P->Jac, &DofData_P->res,
                      &DofData_P->Solver, &DofData_P->dx,
-                     Operation_P->Case.Solve.SolverIndex) ;
+                     (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 : Operation_P->Rank) ;
       Flag_CPU = 1 ;
       break ;
 

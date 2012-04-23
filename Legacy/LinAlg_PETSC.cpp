@@ -59,7 +59,11 @@ extern struct CurrentData Current ;
 // e.g if the matrix changed a bit, but you want to keep the same
 // factorization using "SolveAgain").
 
-static void _try(int ierr){ CHKERRABORT(PETSC_COMM_WORLD, ierr); }
+// debugging:
+static MPI_Comm MyComm = PETSC_COMM_WORLD;
+//static MPI_Comm MyComm = PETSC_COMM_SELF;
+
+static void _try(int ierr){ CHKERRABORT(MyComm, ierr); }
 static int SolverInitialized = 0;
 
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev or petsc-3.2
@@ -83,7 +87,7 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
 #if (PETSC_VERSION_MAJOR == 2)
       PetscOptionsInsertFile((*argv)[i+1]);
 #else
-      PetscOptionsInsertFile(PETSC_COMM_WORLD, (*argv)[i+1], PETSC_FALSE);
+      PetscOptionsInsertFile(MyComm, (*argv)[i+1], PETSC_FALSE);
 #endif
     }
   }
@@ -109,7 +113,7 @@ void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
 
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
 {
-  _try(VecCreate(PETSC_COMM_WORLD, &V->V));
+  _try(VecCreate(MyComm, &V->V));
   _try(VecSetSizes(V->V, PETSC_DECIDE, n));
 
   // override the default options with the ones from the option
@@ -162,10 +166,10 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
     nnz[Current.DofData->NonLocalEquations[i] - 1] = n;
 
   if(Message::GetCommSize() > 1) // FIXME: alloc full lines...
-    _try(MatCreateMPIAIJ(PETSC_COMM_WORLD, PETSC_DECIDE, PETSC_DECIDE, n, m,
+    _try(MatCreateMPIAIJ(MyComm, PETSC_DECIDE, PETSC_DECIDE, n, m,
                          prealloc, PETSC_NULL, prealloc, PETSC_NULL, &M->M));
   else
-    _try(MatCreateSeqAIJ(PETSC_COMM_WORLD, n, m, 0, &nnz[0], &M->M));
+    _try(MatCreateSeqAIJ(PETSC_COMM_SELF, n, m, 0, &nnz[0], &M->M));
 
   // override the default options with the ones from the option
   // database (if any)
@@ -332,7 +336,7 @@ void LinAlg_PrintVector(FILE *file, gVector *V, bool matlab,
   }
   else{
     PetscViewer fd;
-    _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, fileName, &fd));
+    _try(PetscViewerASCIIOpen(MyComm, fileName, &fd));
     _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
     _try(PetscObjectSetName((PetscObject)V->V, varName));
     _try(VecView(V->V, fd));
@@ -367,7 +371,7 @@ void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab,
   }
   else{
     PetscViewer fd;
-    _try(PetscViewerASCIIOpen(PETSC_COMM_WORLD, fileName, &fd));
+    _try(PetscViewerASCIIOpen(MyComm, fileName, &fd));
     _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
       _try(PetscObjectSetName((PetscObject)M->M, varName));
       _try(MatView(M->M, fd));
@@ -1131,7 +1135,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     Message::Info("Using solver index %d", kspIndex);
 
   if(!Solver->ksp[kspIndex]) {
-    _try(KSPCreate(PETSC_COMM_WORLD, &Solver->ksp[kspIndex]));
+    _try(KSPCreate(MyComm, &Solver->ksp[kspIndex]));
     _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN));
     _try(KSPMonitorSet(Solver->ksp[kspIndex], _myKspMonitor, PETSC_NULL, PETSC_NULL));
     PC pc;
@@ -1307,7 +1311,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
 
   // Setting nonlinear solver defaults
   if(!Solver->snes[solverIndex]) {
-    _try(SNESCreate(PETSC_COMM_WORLD, &Solver->snes[solverIndex]));
+    _try(SNESCreate(MyComm, &Solver->snes[solverIndex]));
     if(Message::UseSocket())
       _try(SNESMonitorSet(Solver->snes[solverIndex], _mySnesMonitor, PETSC_NULL, PETSC_NULL));
     _try(SNESSetTolerances(Solver->snes[solverIndex], 1.e-12, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT,

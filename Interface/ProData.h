@@ -858,7 +858,7 @@ struct DefineSystem {
 #define VAL_COMPLEX  2
 
 struct Operation {
-  int  Type, DefineSystemIndex;
+  int  Type, DefineSystemIndex, Rank;
 
   union {
     struct {
@@ -1012,9 +1012,6 @@ struct Operation {
     struct {
       int     GroupIndex;
     } Generate;
-    struct {
-      int     SolverIndex;
-    } Solve;
     struct {
       int     GroupIndex;
       char    *FileName;

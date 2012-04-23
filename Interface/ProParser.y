@@ -3996,6 +3996,7 @@ Operation :
       $$ = List_Create(6, 6, sizeof (struct Operation));
       Operation_S.Type = OPERATION_NONE;
       Operation_S.DefineSystemIndex = -1;
+      Operation_S.Rank = -1;
       List_Add(Operation_L, &Operation_S);
     }
 
@@ -4040,11 +4041,6 @@ OperationTerm :
          Operation_P->Type == OPERATION_GENERATEJAC ||
          Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
-
-      if(Operation_P->Type == OPERATION_SOLVE ||
-         Operation_P->Type == OPERATION_SOLVEAGAIN ||
-         Operation_P->Type == OPERATION_SOLVENL)
-        Operation_P->Case.Solve.SolverIndex = 0;
     }
 
   | tSetTime Expression tEND
@@ -4103,10 +4099,7 @@ OperationTerm :
          Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
 
-      if(Operation_P->Type == OPERATION_SOLVE ||
-         Operation_P->Type == OPERATION_SOLVEAGAIN ||
-         Operation_P->Type == OPERATION_SOLVENL)
-        Operation_P->Case.Solve.SolverIndex = $4;
+      Operation_P->Rank = $4;
     }
 
   | tSetTime '[' Expression ']' tEND

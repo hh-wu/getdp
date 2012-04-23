@@ -14,7 +14,7 @@ DefineConstant[ d = {0.03, Min 0.01, Max 0.05, Step 0.002,
 
 DefineConstant[ e = {5e-3, Min 5e-4, Max d, Step 1e-3,
                      Path "Parameters/Geometry",
-                     Label "Air gap (m)"} ] ;
+                     Label "Air gap (m)", Highlight "LightYellow"} ] ;
 
 DefineConstant[ ha = {0.03, Min 0.01, Max 0.1, Step 0.01,
                      Path "Parameters/Geometry",
