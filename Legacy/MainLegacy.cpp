@@ -425,15 +425,15 @@ int MainLegacy(int argc, char *argv[])
     strcat(Name_MshFile, ".msh");
   }
 
-  IncreaseStackSize();
-  LinAlg_InitializeSolver(&sargc, &sargv);
-
 #if defined(HAVE_GMSH)
   Message::Info("Initializing Gmsh");
   GmshInitialize();
   GmshMsg c;
   GmshSetMessageHandler(&c);
 #endif
+
+  IncreaseStackSize();
+  LinAlg_InitializeSolver(&sargc, &sargv);
 
   Init_ProblemStructure();
   Read_ProblemStructure(pro);

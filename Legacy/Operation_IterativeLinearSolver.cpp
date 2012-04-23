@@ -3,7 +3,7 @@
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
 //
-// Contributed by Betrand Thierry
+// Contributed by Bertrand Thierry
 
 #include <stdio.h>
 #include "GetDPConfig.h"
@@ -20,6 +20,7 @@
 
 /* Matrix Free structure (Matrix Shell)*/
 typedef struct{
+  int					flag_operation; // MatMultFieldMat(A,X,Y) gives AX (flag_operation =0) or (I-A)X (flag_operation =1)
   std::vector<PetscInt>	FieldIndices;
   std::vector<PetscInt>	FieldSizes;
   struct Resolution  		*Resolution_P;
@@ -28,7 +29,8 @@ typedef struct{
   struct GeoData     		*GeoData_P0;
 } FieldMat;
 
-
+PetscErrorCode Orthonormalizer(Vec *X, int SizeX);
+PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter);
 PetscErrorCode MatMultFieldMat(Mat A, Vec X, Vec Y);
 PetscErrorCode STD_vector_to_PETSc_Vec(std::vector<std::vector<std::vector<double> > > std_vec,
                                        Vec petsc_vec);
@@ -37,6 +39,7 @@ PetscErrorCode PETSc_Vec_to_STD_Vec(Vec petsc_vec,
                                     std::vector<std::vector<std::vector<double> > > *std_vec);
 PetscErrorCode CreateFieldMat(FieldMat **shell);
 PetscErrorCode SetFieldMat(FieldMat **shell,
+						   int flag_operation,
                            std::vector<PetscInt> FieldIndices,
                            std::vector<PetscInt> FieldSizes,
                            struct Resolution  	*Resolution_P,
@@ -62,7 +65,8 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   Vec B, X;// right hand side and Solution
   PetscInt n, n_loc, loc_size; // number of unknowns (globally and locally)
   PC pc;
-
+  int flag_operation = 1; //for the matmult product
+  
   KSPConvergedReason reason;
   PetscInt its;
 
@@ -90,6 +94,9 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   }
   printf("Number of Fields\t: %d\n", nb_field);
 
+  //flag_operation if jacobi
+  if(!strcmp(ksp_choice, "jacobi")){flag_operation = 0;}
+
   /*---------------------------------------------
     Initialization
     Reading the existing .pos file in order to
@@ -106,6 +113,10 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     printf("Local size of View %d: %d\n", cpt_view, loc_size);
   }
   printf("Total system size: %d\n", n);
+#if !defined(PETSC_USE_COMPLEX)
+  n *= 2;
+  printf("PETSc Real arithmetic -> system size is doubled: n=%d\n", n);	
+#endif
 
   //Petsc Vec of unknown
   ierr = VecCreate(PETSC_COMM_WORLD, &X);CHKERRQ(ierr);
@@ -118,7 +129,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   //context of the shell matrix
   ierr = VecGetLocalSize(B,&n_loc);CHKERRQ(ierr);
   ierr = CreateFieldMat(&ctx);
-  ierr = SetFieldMat(&ctx, indices_field, sizes_field, Resolution_P, Operation_P, DofData_P0, GeoData_P0);
+  ierr = SetFieldMat(&ctx, flag_operation, indices_field, sizes_field, Resolution_P, Operation_P, DofData_P0, GeoData_P0);
   //Shell matrix containg the indices of the unknown field (on which the iterative solver works)
   ierr = MatCreateShell(PETSC_COMM_WORLD, n_loc, n_loc, n, n, ctx, &A);
   ierr = MatShellSetContext(A, ctx);CHKERRQ(ierr);
@@ -127,7 +138,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   /*---------------------------------------------
     Creation of the iterative solver + solving
     ---------------------------------------------*/
-
+  if(strcmp(ksp_choice,"jacobi")){
   // creation of the ksp (iterative solver)
   ierr = KSPCreate(PETSC_COMM_WORLD,&ksp);CHKERRQ(ierr);
   ierr = KSPSetOperators(ksp,A,A,DIFFERENT_NONZERO_PATTERN);CHKERRQ(ierr);
@@ -141,6 +152,27 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   // below is only for ksp = gmres (other ksp does not take this into account)
   if(Restart>0){
     ierr = KSPGMRESSetRestart(ksp, Restart);
+//	ksp->restart = 20;
+  }
+  if(!strcmp(ksp_choice,"dgmres")){
+		int nb_truc = 10;
+		printf("Initial Deflation of %d vectors\n", nb_truc);
+		Vec truc[nb_truc];
+		for(int pouet =0; pouet <nb_truc; pouet++){
+			ierr = VecDuplicate(X,&truc[pouet]);
+			ierr = VecSet(truc[pouet], 2.);
+			for (int ilocal = pouet+1; ilocal <n; ilocal++){
+	        	ierr = VecSetValue(truc[pouet], ilocal, 0., INSERT_VALUES);}
+			ierr = VecAssemblyBegin(truc[pouet]);
+			ierr = VecAssemblyEnd(truc[pouet]);
+			VecView(truc[pouet],PETSC_VIEWER_STDOUT_SELF);
+			}
+		ierr = Orthonormalizer(truc, nb_truc);
+		for(int pouet =0; pouet <nb_truc; pouet++){
+			VecView(truc[pouet],PETSC_VIEWER_STDOUT_SELF);
+			}
+		
+	  	KSPDGMRESSetInitialDeflationData(ksp, truc, nb_truc);
   }
   //set ksp
   ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
@@ -148,6 +180,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   //Solve
   ierr = KSPSolve(ksp,B,X);CHKERRQ(ierr);
   ierr = KSPView(ksp,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
+  }
 
 
   /*
@@ -164,6 +197,11 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
        printf("Converge with %d iterations\n", (int)its);
      }
   */
+  
+  /*Jacobi Method (hand-made)*/
+  else if(!strcmp(ksp_choice,"jacobi")){
+  	ierr = Jacobi_Solver(A, X, B, Tol, MaxIter);
+  }
 
   /*----------------------
     computing solution
@@ -203,14 +241,15 @@ PetscErrorCode MatMultFieldMat(Mat A, Vec X, Vec Y)
   std::vector<PetscInt>	field_indices, field_sizes;
   FieldMat *ctx;
   int nb_field;
-
+  int flag_operation;
   PetscFunctionBegin;
 
   ierr = MatShellGetContext(A, (void**)&ctx);
   field_indices = ctx->FieldIndices;
   field_sizes = ctx->FieldSizes;
   nb_field = (int)field_indices.size();
-
+  flag_operation = ctx->flag_operation;
+  
   //convert X to a std vector
   ierr = PETSc_Vec_to_STD_Vec(X, field_sizes, &std_vec);
   // Update PViews
@@ -233,7 +272,8 @@ PetscErrorCode MatMultFieldMat(Mat A, Vec X, Vec Y)
   ierr = STD_vector_to_PETSc_Vec(std_vec, Y);
 
   //Set Y = X - Y
-  ierr = VecAYPX(Y, -1.,X);
+  if(flag_operation == 1)
+  	{ierr = VecAYPX(Y, -1.,X);}
 
   PetscFunctionReturn(0);
 }
@@ -253,7 +293,12 @@ PetscErrorCode STD_vector_to_PETSc_Vec(std::vector<std::vector<std::vector<doubl
     int nb_element = (int)std_vec[cpt_view][0].size();
     for (int j = 0; j < nb_element; j++){
       // The line below can surely be improved !!!
-      ierr = VecSetValue(petsc_vec, cpt, std_vec[cpt_view][0][j] + PETSC_i*std_vec[cpt_view][1][j], INSERT_VALUES);
+	  #if defined(PETSC_USE_COMPLEX)
+        ierr = VecSetValue(petsc_vec, cpt, std_vec[cpt_view][0][j] + PETSC_i*std_vec[cpt_view][1][j], INSERT_VALUES);
+      #else
+        ierr = VecSetValue(petsc_vec, 2*cpt, std_vec[cpt_view][0][j], INSERT_VALUES);      	
+      	ierr = VecSetValue(petsc_vec, 2*cpt+1, std_vec[cpt_view][1][j], INSERT_VALUES);      	
+      #endif
       cpt++;
     }
   }
@@ -289,10 +334,18 @@ PetscErrorCode PETSc_Vec_to_STD_Vec(Vec petsc_vec,
     nb_element = (int)FieldSizes[cpt_view];
     for (int j = 0; j<nb_element; j++) {
       // FOLLOWING LINE TO IMPROVED ??
-      ierr = VecGetValues(petsc_vec, 1, &cpt, &val);
-      (*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
-      (*std_vec)[cpt_view][1][j] = (double)PetscImaginaryPart(val);
-      cpt++;
+	  #if defined(PETSC_USE_COMPLEX)
+        ierr = VecGetValues(petsc_vec, 1, &cpt, &val);
+    	(*std_vec)[cpt_view][0][j] = (double)PetscRealPart(val);
+        (*std_vec)[cpt_view][1][j] = (double)PetscImaginaryPart(val);
+	  #else
+        ierr = VecGetValues(petsc_vec, 1, &cpt, &val);
+        (*std_vec)[cpt_view][0][j] = (double)(val);
+        cpt++;
+        ierr = VecGetValues(petsc_vec, 1, &cpt, &val);
+        (*std_vec)[cpt_view][1][j] = (double)(val);
+	  #endif
+	  cpt++;
     }
   }
   PetscFunctionReturn(0);
@@ -313,11 +366,11 @@ PetscErrorCode CreateFieldMat(FieldMat **shell)
   ierr = PetscNew(FieldMat,&newctx);CHKERRQ(ierr);
   newctx->FieldIndices = vec_indice;
   newctx->FieldSizes = vec_size;
+  newctx->flag_operation = 1;
   newctx->Resolution_P = NULL;
   newctx->Operation_P = NULL;
   newctx->DofData_P0 = NULL;
   newctx->GeoData_P0 = NULL;
-
   *shell = newctx;
   PetscFunctionReturn(0);
 }
@@ -326,6 +379,7 @@ PetscErrorCode CreateFieldMat(FieldMat **shell)
    Set data to the shell matrix contex
 */
 PetscErrorCode SetFieldMat(FieldMat **shell,
+						   int flag_operation,
                            std::vector<PetscInt> FieldIndices,
                            std::vector<PetscInt> FieldSizes,
                            struct Resolution *Resolution_P,
@@ -336,6 +390,7 @@ PetscErrorCode SetFieldMat(FieldMat **shell,
   PetscErrorCode	ierr;
 
   PetscFunctionBegin;
+  (*shell)->flag_operation = flag_operation;
   (*shell)->FieldIndices = FieldIndices;
   (*shell)->FieldSizes = FieldSizes;
   (*shell)->Resolution_P = Resolution_P;
@@ -344,6 +399,65 @@ PetscErrorCode SetFieldMat(FieldMat **shell,
   (*shell)->GeoData_P0 = GeoData_P0;
   PetscFunctionReturn(0);
 }
+
+/* ----- JACOBI METHOD ----- */
+PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter)
+{
+  PetscErrorCode	ierr;
+  Vec				X_old, W;
+  double residu;
+  
+  PetscFunctionBegin;
+  ierr = VecSet(X, 0.);
+  ierr = VecDuplicate(X, &X_old);CHKERRQ(ierr);
+  ierr = VecDuplicate(X, &W);CHKERRQ(ierr);
+  
+  ierr = VecCopy(X, W);
+  
+	for (int j=1; j < MaxIter; j++)
+	{
+		ierr = VecCopy(X, X_old);
+		ierr = MatMultFieldMat(A, X_old, X);
+		ierr = VecAYPX(X, 1.,B); // X = X + B
+		//convergence test
+		
+		ierr = VecWAXPY(W, -1.,X_old, X); //W = X-X_old 
+		ierr = VecNorm(W, NORM_2, &residu);
+		printf("jacobi iteration %d residu %g\n", j, residu);
+		if(residu < Tol){
+			break;
+		}
+	}
+	
+  PetscFunctionReturn(0);
+}
+
+/*----- Orthonormalizer (modified gram-schmidt algormith) --------
+----Used to orthonormalize initial deflated data (with DGMRES)----*/
+PetscErrorCode Orthonormalizer(Vec *X, int SizeX)
+{
+  PetscErrorCode	ierr;
+  PetscScalar		alpha;
+  PetscReal			modul;
+  PetscFunctionBegin;
+  
+  /* modified Gram-Schmidt */
+  // normalize first vector
+  ierr = VecNormalize(X[0], &modul);
+  for (int j = 1; j<SizeX; j++) {
+  	for (int i=0; i<j; i++) {
+        ierr = VecDot (X[j], X[i], &alpha);	CHKERRQ (ierr);
+        ierr = VecAXPY (X[j], -alpha, X[i]); CHKERRQ (ierr);
+    }
+  	ierr = VecNormalize(X[j], &modul);
+  }
+	
+  PetscFunctionReturn(0);
+}
+
+
+
+
 
 #else
 
