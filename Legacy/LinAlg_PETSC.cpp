@@ -59,10 +59,7 @@ extern struct CurrentData Current ;
 // e.g if the matrix changed a bit, but you want to keep the same
 // factorization using "SolveAgain").
 
-// debugging:
-static MPI_Comm MyComm = PETSC_COMM_WORLD;
-//static MPI_Comm MyComm = PETSC_COMM_SELF;
-
+static MPI_Comm MyComm = MPI_COMM_WORLD;
 static void _try(int ierr){ CHKERRABORT(MyComm, ierr); }
 static int SolverInitialized = 0;
 
@@ -75,6 +72,8 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
 {
   // This function detects if MPI is initialized
   PetscInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
+  MyComm = PETSC_COMM_WORLD;
+  //MyComm = PETSC_COMM_SELF;
 #if defined(HAVE_SLEPC)
   SlepcInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
 #endif
