@@ -66,7 +66,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   PetscInt n, n_loc, loc_size; // number of unknowns (globally and locally)
   PC pc;
   int flag_operation = 1; //for the matmult product
-  
+
   KSPConvergedReason reason;
   PetscInt its;
 
@@ -115,7 +115,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   printf("Total system size: %d\n", n);
 #if !defined(PETSC_USE_COMPLEX)
   n *= 2;
-  printf("PETSc Real arithmetic -> system size is doubled: n=%d\n", n);	
+  printf("PETSc Real arithmetic -> system size is doubled: n=%d\n", n);
 #endif
 
   //Petsc Vec of unknown
@@ -171,8 +171,9 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 		for(int pouet =0; pouet <nb_truc; pouet++){
 			VecView(truc[pouet],PETSC_VIEWER_STDOUT_SELF);
 			}
-		
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2)))
 	  	KSPDGMRESSetInitialDeflationData(ksp, truc, nb_truc);
+#endif
   }
   //set ksp
   ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
@@ -197,7 +198,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
        printf("Converge with %d iterations\n", (int)its);
      }
   */
-  
+
   /*Jacobi Method (hand-made)*/
   else if(!strcmp(ksp_choice,"jacobi")){
   	ierr = Jacobi_Solver(A, X, B, Tol, MaxIter);
@@ -249,7 +250,7 @@ PetscErrorCode MatMultFieldMat(Mat A, Vec X, Vec Y)
   field_sizes = ctx->FieldSizes;
   nb_field = (int)field_indices.size();
   flag_operation = ctx->flag_operation;
-  
+
   //convert X to a std vector
   ierr = PETSc_Vec_to_STD_Vec(X, field_sizes, &std_vec);
   // Update PViews
@@ -296,8 +297,8 @@ PetscErrorCode STD_vector_to_PETSc_Vec(std::vector<std::vector<std::vector<doubl
 	  #if defined(PETSC_USE_COMPLEX)
         ierr = VecSetValue(petsc_vec, cpt, std_vec[cpt_view][0][j] + PETSC_i*std_vec[cpt_view][1][j], INSERT_VALUES);
       #else
-        ierr = VecSetValue(petsc_vec, 2*cpt, std_vec[cpt_view][0][j], INSERT_VALUES);      	
-      	ierr = VecSetValue(petsc_vec, 2*cpt+1, std_vec[cpt_view][1][j], INSERT_VALUES);      	
+        ierr = VecSetValue(petsc_vec, 2*cpt, std_vec[cpt_view][0][j], INSERT_VALUES);
+      	ierr = VecSetValue(petsc_vec, 2*cpt+1, std_vec[cpt_view][1][j], INSERT_VALUES);
       #endif
       cpt++;
     }
@@ -406,29 +407,29 @@ PetscErrorCode Jacobi_Solver(Mat A, Vec X, Vec B, double Tol, int MaxIter)
   PetscErrorCode	ierr;
   Vec				X_old, W;
   double residu;
-  
+
   PetscFunctionBegin;
   ierr = VecSet(X, 0.);
   ierr = VecDuplicate(X, &X_old);CHKERRQ(ierr);
   ierr = VecDuplicate(X, &W);CHKERRQ(ierr);
-  
+
   ierr = VecCopy(X, W);
-  
+
 	for (int j=1; j < MaxIter; j++)
 	{
 		ierr = VecCopy(X, X_old);
 		ierr = MatMultFieldMat(A, X_old, X);
 		ierr = VecAYPX(X, 1.,B); // X = X + B
 		//convergence test
-		
-		ierr = VecWAXPY(W, -1.,X_old, X); //W = X-X_old 
+
+		ierr = VecWAXPY(W, -1.,X_old, X); //W = X-X_old
 		ierr = VecNorm(W, NORM_2, &residu);
 		printf("jacobi iteration %d residu %g\n", j, residu);
 		if(residu < Tol){
 			break;
 		}
 	}
-	
+
   PetscFunctionReturn(0);
 }
 
@@ -440,7 +441,7 @@ PetscErrorCode Orthonormalizer(Vec *X, int SizeX)
   PetscScalar		alpha;
   PetscReal			modul;
   PetscFunctionBegin;
-  
+
   /* modified Gram-Schmidt */
   // normalize first vector
   ierr = VecNormalize(X[0], &modul);
@@ -451,7 +452,7 @@ PetscErrorCode Orthonormalizer(Vec *X, int SizeX)
     }
   	ierr = VecNormalize(X[j], &modul);
   }
-	
+
   PetscFunctionReturn(0);
 }
 

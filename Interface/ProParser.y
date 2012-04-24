@@ -4010,9 +4010,9 @@ Operation :
  ;
 
 CommaFExprOrNothing :
-    { $$ = 0; }
+    { $$ = -1; }
   | ',' FExpr
-  { $$ = (int)$2; }
+    { $$ = (int)$2; }
  ;
 
 OperationTerm :
@@ -4099,7 +4099,7 @@ OperationTerm :
          Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
 
-      Operation_P->Rank = $4;
+      if($4 >= 0) Operation_P->Rank = $4;
     }
 
   | tSetTime '[' Expression ']' tEND
@@ -4669,7 +4669,7 @@ OperationTerm :
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex =
         Num_Group(&Group_S, (char*)"OP_SaveSolutionWithEntityNum", $5);
-      Operation_P->Case.SaveSolutionWithEntityNum.SaveFixed = $6;
+      Operation_P->Case.SaveSolutionWithEntityNum.SaveFixed = ($6 >= 0) ? $6 : 0;
     }
 
   | tSaveSolutionExtendedMH '[' String__Index ',' FExpr ',' CharExpr ']' tEND

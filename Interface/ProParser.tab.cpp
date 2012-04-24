@@ -9603,7 +9603,7 @@ yyreduce:
 
 /* Line 1464 of yacc.c  */
 #line 4013 "ProParser.y"
-    { (yyval.i) = 0; ;}
+    { (yyval.i) = -1; ;}
     break;
 
   case 395:
@@ -9718,7 +9718,7 @@ yyreduce:
          Operation_P->Type == OPERATION_GENERATESEPARATE)
 	Operation_P->Case.Generate.GroupIndex = -1;
 
-      Operation_P->Rank = (yyvsp[(4) - (6)].i);
+      if((yyvsp[(4) - (6)].i) >= 0) Operation_P->Rank = (yyvsp[(4) - (6)].i);
     ;}
     break;
 
@@ -10437,7 +10437,7 @@ yyreduce:
       Operation_P->DefineSystemIndex = i;
       Operation_P->Case.SaveSolutionWithEntityNum.GroupIndex =
         Num_Group(&Group_S, (char*)"OP_SaveSolutionWithEntityNum", (yyvsp[(5) - (8)].i));
-      Operation_P->Case.SaveSolutionWithEntityNum.SaveFixed = (yyvsp[(6) - (8)].i);
+      Operation_P->Case.SaveSolutionWithEntityNum.SaveFixed = ((yyvsp[(6) - (8)].i) >= 0) ? (yyvsp[(6) - (8)].i) : 0;
     ;}
     break;
 
