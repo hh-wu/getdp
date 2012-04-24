@@ -3484,6 +3484,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     if(Flag_CPU) Message::Cpu("");
   }
+
+  Message::Barrier();
 }
 
 void Generate_Residual(gVector *x, gVector *f)
