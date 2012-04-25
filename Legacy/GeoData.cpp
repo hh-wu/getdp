@@ -239,7 +239,7 @@ void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileN
   struct Geo_Node   * Geo_Node_P ;
   struct Geo_Element  Geo_Element ;
   struct GeoData GeoData ;
-  int i, j, Type, iDummy=0;
+  int i, j, Type;
   int  fcmp_int(const void * a, const void * b);
 
   GeoData.Nodes    = List_Create(1000, 1000, sizeof(struct Geo_Node)) ;
@@ -276,7 +276,7 @@ void Geo_SaveMesh(struct GeoData * GeoData_P, List_T * InitialList, char * FileN
     Type = Geo_GetElementTypeInv(FORMAT_GMSH, Geo_Element.Type) ;
     fprintf(file, "%d %d %d %d %d ",
 	    Geo_Element.Num, Type, Geo_Element.Region,
-	    iDummy, Geo_Element.NbrNodes) ;
+	    Geo_Element.Region, Geo_Element.NbrNodes) ;
     for (j = 0 ; j < Geo_Element.NbrNodes ; j++)
       fprintf(file, "%d ", Geo_Element.NumNodes[j]) ;
     fprintf(file, "\n") ;
