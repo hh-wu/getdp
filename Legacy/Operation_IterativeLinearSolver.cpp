@@ -79,10 +79,17 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   Restart = Operation_P->Case.IterativeLinearSolver.Restart;
   ksp_choice = Operation_P->Case.IterativeLinearSolver.Type;
   //Print informations
-  printf("Iterative solver\t: %s\n", ksp_choice);
-  printf("Tolerance\t\t: %g\n", Tol);
-  printf("Max. numb. of iterations: %i\n", MaxIter);
-  printf("Restart\t\t\t: %i (no restart if <= 0)\n", Restart);
+//  ierr = PetscSequentialPhaseBegin(PETSC_COMM_WORLD, 1);CHKERRQ(ierr);
+  if(Message::GetCommSize() >1){
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "Number of Processus\t: %d\n", Message::GetCommSize());CHKERRQ(ierr);  	
+  	}
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "Iterative solver\t: %s\n", ksp_choice);CHKERRQ(ierr);
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "Tolerance\t\t: %g\n", Tol);CHKERRQ(ierr);
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "Max. numb. of iterations: %i\n", MaxIter);CHKERRQ(ierr);
+  if(Restart >0){ierr = PetscPrintf(PETSC_COMM_WORLD, "Restart\t\t\t: %i\n", Restart);CHKERRQ(ierr);}
+  else{ierr = PetscPrintf(PETSC_COMM_WORLD, "Restart\t\t\t: No Restart\n");CHKERRQ(ierr);}
+
+//  ierr = PetscSequentialPhaseEnd(PETSC_COMM_WORLD, 1);CHKERRQ(ierr);
 
   // Field numbers (unknown)
   nb_field = List_Nbr(Operation_P->Case.IterativeLinearSolver.FieldIndices);
@@ -92,7 +99,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     List_Read(Operation_P->Case.IterativeLinearSolver.FieldIndices, j, &d);
     indices_field[j] = (int)d;
   }
-  printf("Number of Fields\t: %d\n", nb_field);
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "Number of Fields\t: %d\n", nb_field);
 
   //flag_operation if jacobi
   if(!strcmp(ksp_choice, "jacobi")){flag_operation = 0;}
@@ -110,12 +117,12 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     loc_size = (int)B_std[indices_field[cpt_view]][0].size();
     sizes_field.push_back(loc_size); // how many compononents ?
     n += loc_size;
-    printf("Local size of View %d: %d\n", cpt_view, loc_size);
+    ierr = PetscPrintf(PETSC_COMM_WORLD, "Local size of View %d: %d\n", cpt_view, loc_size);
   }
-  printf("Total system size: %d\n", n);
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "Total system size: %d\n", n);
 #if !defined(PETSC_USE_COMPLEX)
   n *= 2;
-  printf("PETSc Real arithmetic -> system size is doubled: n=%d\n", n);
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "PETSc REAL arithmetic -> system size is doubled: n=%d\n", n);
 #endif
 
   //Petsc Vec of unknown
@@ -128,6 +135,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 
   //context of the shell matrix
   ierr = VecGetLocalSize(B,&n_loc);CHKERRQ(ierr);
+  
   ierr = CreateFieldMat(&ctx);
   ierr = SetFieldMat(&ctx, flag_operation, indices_field, sizes_field, Resolution_P, Operation_P, DofData_P0, GeoData_P0);
   //Shell matrix containg the indices of the unknown field (on which the iterative solver works)
@@ -138,70 +146,89 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   /*---------------------------------------------
     Creation of the iterative solver + solving
     ---------------------------------------------*/
-  if(strcmp(ksp_choice,"jacobi")){
-  // creation of the ksp (iterative solver)
-  ierr = KSPCreate(PETSC_COMM_WORLD,&ksp);CHKERRQ(ierr);
-  ierr = KSPSetOperators(ksp,A,A,DIFFERENT_NONZERO_PATTERN);CHKERRQ(ierr);
-  //tol etc.
-  ierr = KSPSetTolerances(ksp, Tol, PETSC_DEFAULT, PETSC_DEFAULT, MaxIter); CHKERRQ(ierr);
-  ierr = KSPSetType(ksp, ksp_choice); CHKERRQ(ierr);
-
-  //Preconditioning !
-  ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
-  ierr = PCSetType(pc,PCNONE);CHKERRQ(ierr);
-  // below is only for ksp = gmres (other ksp does not take this into account)
-  if(Restart>0){
-    ierr = KSPGMRESSetRestart(ksp, Restart);
-//	ksp->restart = 20;
-  }
-  if(!strcmp(ksp_choice,"dgmres")){
-		int nb_truc = 10;
-		printf("Initial Deflation of %d vectors\n", nb_truc);
-		Vec truc[nb_truc];
-		for(int pouet =0; pouet <nb_truc; pouet++){
-			ierr = VecDuplicate(X,&truc[pouet]);
-			ierr = VecSet(truc[pouet], 2.);
-			for (int ilocal = pouet+1; ilocal <n; ilocal++){
-	        	ierr = VecSetValue(truc[pouet], ilocal, 0., INSERT_VALUES);}
-			ierr = VecAssemblyBegin(truc[pouet]);
-			ierr = VecAssemblyEnd(truc[pouet]);
-			VecView(truc[pouet],PETSC_VIEWER_STDOUT_SELF);
-			}
-		ierr = Orthonormalizer(truc, nb_truc);
-		for(int pouet =0; pouet <nb_truc; pouet++){
-			VecView(truc[pouet],PETSC_VIEWER_STDOUT_SELF);
-			}
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2)))
-	  	KSPDGMRESSetInitialDeflationData(ksp, truc, nb_truc);
-#endif
-  }
-  //set ksp
-  ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
-
-  //Solve
-  ierr = KSPSolve(ksp,B,X);CHKERRQ(ierr);
-  ierr = KSPView(ksp,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
-  }
-
-
-  /*
-     ierr = KSPGetConvergedReason(ksp,&reason);
-     if (reason==KSP_DIVERGED_INDEFINITE_PC) {
-       printf("\nDivergence because of indefinite preconditioner;\n");
-       printf("Run the executable again but with '-pc_factor_shift_type POSITIVE_DEFINITE' option.\n");
-     }
-     else if (reason<0) {
-       printf("\nOther kind of divergence: this should not happen.\n");
-     }
-     else {
-       ierr = KSPGetIterationNumber(ksp,&its);
-       printf("Converge with %d iterations\n", (int)its);
-     }
-  */
-
-  /*Jacobi Method (hand-made)*/
-  else if(!strcmp(ksp_choice,"jacobi")){
+      /*Jacobi Method (hand-made)*/
+  if(!strcmp(ksp_choice,"jacobi")){
   	ierr = Jacobi_Solver(A, X, B, Tol, MaxIter);
+  }/*else if(!strcmp(ksp_choice, "test")){
+		Vec Z1;
+		Vec Z2;
+		PetscInt n_z1;
+//		if(Message::GetCommRank() == 0){
+		PetscInt nt = 4 + Message::GetCommRank();
+	  	ierr = VecCreate(PETSC_COMM_SELF, &Z1);CHKERRQ(ierr);
+	  	ierr = VecSetSizes(Z1,PETSC_DECIDE, nt); CHKERRQ(ierr);
+	  	ierr = VecSetFromOptions(Z1); CHKERRQ(ierr);
+	  	ierr = VecGetLocalSize(Z1,&n_z1);CHKERRQ(ierr);
+		printf("PROCESSUS %d : nt %d et size z =  %d\n",Message::GetCommRank(), nt,n_z1);CHKERRQ(ierr);
+		ierr = VecSet(Z1, (1. + Message::GetCommRank()));CHKERRQ(ierr);
+		ierr = VecView(Z1, PETSC_VIEWER_STDOUT_SELF);CHKERRQ(ierr);
+//		}
+		ierr = PetscBarrier((PetscObject)X);
+		printf("Proc %d en attente\n", Message::GetCommRank());
+		ierr = PetscBarrier((PetscObject)X);
+		ierr = VecView(Z1, PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
+		ierr = PetscBarrier((PetscObject)X);
+	//matrices
+		PetscInt n_M1 = 3 ;//+ Message::GetCommRank();
+		Mat M1, M2;
+		PetscInt n_M1_x, n_M1_y;
+//		if(Message::GetCommRank() == 1){	
+		ierr = MatCreate(PETSC_COMM_WORLD, &M1);CHKERRQ(ierr);
+		ierr = MatSetSizes(M1, PETSC_DECIDE, PETSC_DECIDE, n_M1, n_M1);CHKERRQ(ierr);
+		ierr = MatSetFromOptions(M1);CHKERRQ(ierr);
+		ierr = MatSetValues(M1, 1, 1, 1., INSERT_VALUES );CHKERRQ(ierr);
+		ierr = MatAssemblyBegin(M1,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+		ierr = MatAssemblyEnd(M1,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
+		ierr = MatGetLocalSize(M1, &n_M1_x, &n_M1_y);CHKERRQ(ierr);
+	//	ierr = PetscBarrier((PetscObject)X);
+//		if(Message::GetCommRank() == 1){	
+			ierr = MatView(M1, PETSC_VIEWER_STDOUT_SELF);CHKERRQ(ierr);
+//		}
+//		ierr = PetscBarrier((PetscObject)X);
+//		printf("PROCESSUS %d a une matrice de taille %d x %d\n", Message::GetCommRank(), n_M1_x, n_M1_y);
+  		PetscFunctionReturn(0);  
+  }*/else{
+  	// creation of the ksp (iterative solver, not jacobi)
+  	ierr = KSPCreate(PETSC_COMM_WORLD,&ksp);CHKERRQ(ierr);
+  	ierr = KSPSetOperators(ksp,A,A,DIFFERENT_NONZERO_PATTERN);CHKERRQ(ierr);
+  	//tol etc.
+  	ierr = KSPSetTolerances(ksp, Tol, PETSC_DEFAULT, PETSC_DEFAULT, MaxIter); CHKERRQ(ierr);
+  	ierr = KSPSetType(ksp, ksp_choice); CHKERRQ(ierr);
+
+  	//Preconditioning !
+  	ierr = KSPGetPC(ksp,&pc);CHKERRQ(ierr);
+  	ierr = PCSetType(pc,PCNONE);CHKERRQ(ierr);
+  	// below is only for ksp = gmres (other ksp does not take this into account)
+  	if(Restart>0){
+    	ierr = KSPGMRESSetRestart(ksp, Restart);
+  	}
+  	if(!strcmp(ksp_choice,"dgmres")){
+/*			int nb_truc = 10;
+			printf("Initial Deflation of %d vectors\n", nb_truc);
+			Vec truc[nb_truc];
+			for(int pouet =0; pouet <nb_truc; pouet++){
+				ierr = VecDuplicate(X,&truc[pouet]);
+				ierr = VecSet(truc[pouet], 2.);
+				for (int ilocal = pouet+1; ilocal <n; ilocal++){
+	        		ierr = VecSetValue(truc[pouet], ilocal, 0., INSERT_VALUES);}
+				ierr = VecAssemblyBegin(truc[pouet]);
+				ierr = VecAssemblyEnd(truc[pouet]);
+				VecView(truc[pouet],PETSC_VIEWER_STDOUT_SELF);
+			}
+			ierr = Orthonormalizer(truc, nb_truc);
+			for(int pouet =0; pouet <nb_truc; pouet++){
+				VecView(truc[pouet],PETSC_VIEWER_STDOUT_SELF);
+			}
+		#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2)))
+	  		KSPDGMRESSetInitialDeflationData(ksp, truc, nb_truc);
+		#endif*/
+  		}
+  	//set ksp
+  	ierr = KSPSetFromOptions(ksp);CHKERRQ(ierr);
+
+  	//Solve
+  	ierr = KSPSolve(ksp,B,X);CHKERRQ(ierr);
+  	ierr = KSPView(ksp,PETSC_VIEWER_STDOUT_WORLD);CHKERRQ(ierr);
   }
 
   /*----------------------
