@@ -61,7 +61,15 @@ void LinAlg_InitializeSolver(int* sargc, char*** sargv)
   }
 }
 
-void LinAlg_FinalizeSolver(void)
+void LinAlg_FinalizeSolver()
+{
+}
+
+void LinAlg_SetCommSelf()
+{
+}
+
+void LinAlg_SetCommWorld()
 {
 }
 

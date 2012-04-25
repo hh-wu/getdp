@@ -60,6 +60,8 @@ typedef struct { int dummy; }   gSolver ;
 
 void LinAlg_InitializeSolver(int* argc, char*** argv);
 void LinAlg_FinalizeSolver(void);
+void LinAlg_SetCommSelf();
+void LinAlg_SetCommWorld();
 
 void LinAlg_CreateSolver(gSolver *Solver, const char * SolverDataFileName);
 void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n);

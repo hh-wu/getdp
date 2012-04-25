@@ -73,7 +73,6 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
   // This function detects if MPI is initialized
   PetscInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
   MyComm = PETSC_COMM_WORLD;
-  //MyComm = PETSC_COMM_SELF;
 #if defined(HAVE_SLEPC)
   SlepcInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
 #endif
@@ -100,6 +99,16 @@ void LinAlg_FinalizeSolver()
 #endif
     PetscFinalize();
   }
+}
+
+void LinAlg_SetCommSelf()
+{
+  MyComm = PETSC_COMM_SELF;
+}
+
+void LinAlg_SetCommWorld()
+{
+  MyComm = PETSC_COMM_WORLD;
 }
 
 void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
