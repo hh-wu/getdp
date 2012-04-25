@@ -333,8 +333,7 @@ double  * Get_TimeFunctionValues(struct DofData * DofData_P)
   for (i = 0 ; i < Nbr_TimeFunction ; i++) {
     List_Read(DofData_P->TimeFunctionIndex, i, &Index) ;
     if ((DofData_P->NbrHar == 1) && (Index > 0)) {
-      Get_ValueOfExpressionByIndex(Index - 1,
-				   NULL, 0., 0., 0., &Val_Expression) ;
+      Get_ValueOfExpressionByIndex(Index - 1, NULL, 0., 0., 0., &Val_Expression) ;
       Values[Index] = Val_Expression.Val[0] ;
     }
     else

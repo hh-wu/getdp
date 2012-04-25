@@ -107,6 +107,7 @@ int  Add_Group_2(struct Group *Group_P, char *Name, int Flag_Add,
 		 int Flag_Plus, int Num_Index1, int Num_Index2);
 int  Num_Group(struct Group *Group_P, char *Name, int Num_Group);
 int  Add_Expression(struct Expression *Expression_P, char *Name, int Flag_Plus);
+bool Is_ExpressionPieceWiseDefined(int index);
 void Pro_DefineQuantityIndex(List_T *WholeQuantity_L,int DefineQuantityIndexEqu,
 			     int *NbrQuantityIndex, int **QuantityIndexTable,
 			     int **QuantityTraceGroupIndexTable);
@@ -231,7 +232,7 @@ void vyyerror(const char *fmt, ...);
 %token      tGenerateOnlyJac
 %token      tSolveJac_AdaptRelax  tTensorProductSolve
 %token      tSaveSolutionExtendedMH tSaveSolutionMHtoTime tSaveSolutionWithEntityNum
-%token      tInit_MovingBand2D tMesh_MovingBand2D
+%token      tInitMovingBand2D tMeshMovingBand2D
 %token      tGenerate_MH_Moving tGenerate_MH_Moving_Separate tAdd_MH_Moving
 %token      tGenerateGroup tGenerateJacGroup tGenerateRHSGroup
 %token      tSaveMesh
@@ -389,28 +390,32 @@ Group :
 
 MovingBand2DGroup :
 
-    String__Index '[' FExpr ']' tDEF tMovingBand2D
+    String__Index '[' IRegion ']' tDEF tMovingBand2D
     {
       Group_S.InitialList = List_Create(1, 1, sizeof(int));
-      int i = (int)$3;
+      int i = 0;
+      if(List_Nbr($3) == 1)
+	List_Read($3, 0, &i);
+      else
+	vyyerror("Only one elementary region allowed in moving band definition");
       List_Add(Group_S.InitialList, &i);
       Group_S.Type         = MOVINGBAND2D;
       Group_S.FunctionType = REGION;
       Group_S.InitialSuppList = NULL;
       Group_S.SuppListType = SUPPLIST_NONE;
-    }
-    '[' '#' ListOfRegion
-    {
       Group_S.MovingBand2D = (struct MovingBand2D *)Malloc(sizeof(struct MovingBand2D));
-      Group_S.MovingBand2D->InitialList1 = $10;
-      Group_S.MovingBand2D->ExtendedList1 = NULL;
-      Group_S.MovingBand2D->PhysNum = (int)$3;
+      Group_S.MovingBand2D->PhysNum = i;
     }
-    ',' '#' ListOfRegion ',' FExpr ']' tEND
+    '[' ListOfRegion
     {
-      Group_S.MovingBand2D->InitialList2 = $14;
+      Group_S.MovingBand2D->InitialList1 = $9;
+      Group_S.MovingBand2D->ExtendedList1 = NULL;
+    }
+    ',' ListOfRegion ',' FExpr ']' tEND
+    {
+      Group_S.MovingBand2D->InitialList2 = $12;
       Add_Group(&Group_S, $1, 0, 0);
-      Group_S.MovingBand2D->Period2 = (int)$16;
+      Group_S.MovingBand2D->Period2 = (int)$14;
     }
  ;
 
@@ -1996,6 +2001,8 @@ ConstraintCaseTerm :
   | tTimeFunction Expression tEND
     {
       ConstraintPerRegion_S.TimeFunctionIndex = $2;
+      if(Is_ExpressionPieceWiseDefined($2))
+        Message::Error("TimeFunction should not be piece-wise defined!");
     }
 
   | tValue Expression tEND
@@ -4596,7 +4603,7 @@ OperationTerm :
       Operation_P->Case.ChangeOfCoordinates.ExpressionIndex2 = $9;
     }
 
-  | tPostOperation '[' String__Index ']' tEND
+  | tPostOperation '[' String__Index CommaFExprOrNothing ']' tEND
     {
       Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -4604,6 +4611,8 @@ OperationTerm :
       Operation_P->Case.PostOperation.PostOperations =
 	List_Create(1,1,sizeof(char*));
       List_Add(Operation_P->Case.PostOperation.PostOperations, &$3);
+
+      if($4 >= 0) Operation_P->Rank = $4;
     }
 
   | tSystemCommand '[' CharExpr ']' tEND
@@ -4700,7 +4709,7 @@ OperationTerm :
       Operation_P->Case.SaveSolutionMHtoTime.ResFile = $7;
     }
 
-  | tInit_MovingBand2D  '{' String__Index '}' tEND
+  | tInitMovingBand2D  '[' String__Index ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4711,7 +4720,7 @@ OperationTerm :
       Free($3);
     }
 
-  | tMesh_MovingBand2D  '{' String__Index '}' tEND
+  | tMeshMovingBand2D  '[' String__Index ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4722,7 +4731,7 @@ OperationTerm :
       Free($3);
     }
 
-  | tSaveMesh  '{' String__Index ',' GroupRHS ',' CharExpr ',' Expression '}' tEND
+  | tSaveMesh  '[' String__Index ',' GroupRHS ',' CharExpr ',' Expression ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4737,7 +4746,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_SAVEMESH;
     }
 
-  | tSaveMesh  '{' String__Index ',' GroupRHS ',' CharExpr '}' tEND
+  | tSaveMesh  '[' String__Index ',' GroupRHS ',' CharExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4804,7 +4813,7 @@ OperationTerm :
       Operation_P->Case.Add_MH_Moving.dummy = $5;
     }
 
-  | tDeformeMesh  '{' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr ',' FExpr '}' tEND
+  | tDeformeMesh  '[' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr ',' FExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4820,7 +4829,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
-  | tDeformeMesh  '{' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr '}' tEND
+  | tDeformeMesh  '[' tSTRING ',' tSTRING ',' tNameOfMesh CharExpr ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4836,7 +4845,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
-  | tDeformeMesh  '{' tSTRING ',' tSTRING '}' tEND
+  | tDeformeMesh  '[' tSTRING ',' tSTRING ']' tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4852,7 +4861,7 @@ OperationTerm :
       Operation_P->Type = OPERATION_DEFORMEMESH;
     }
 
-  | tGenerateGroup  '[' String__Index ',' String__Index ']'  tEND
+  | tGenerateGroup  '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4866,9 +4875,10 @@ OperationTerm :
       Free($5);
       Operation_P->Type = OPERATION_GENERATE;
       Operation_P->Case.Generate.GroupIndex = i;
+      if($6 >= 0) Operation_P->Rank = $6;
     }
 
-  | tGenerateJacGroup  '[' String__Index ',' String__Index ']'  tEND
+  | tGenerateJacGroup  '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4882,9 +4892,10 @@ OperationTerm :
       Free($5);
       Operation_P->Type = OPERATION_GENERATEJAC;
       Operation_P->Case.Generate.GroupIndex = i;
+      if($6 >= 0) Operation_P->Rank = $6;
     }
 
-  | tGenerateRHSGroup  '[' String__Index ',' String__Index ']'  tEND
+  | tGenerateRHSGroup  '[' String__Index ',' String__Index CommaFExprOrNothing ']'  tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       int i;
@@ -4898,6 +4909,7 @@ OperationTerm :
       Free($5);
       Operation_P->Type = OPERATION_GENERATERHS;
       Operation_P->Case.Generate.GroupIndex = i;
+      if($6 >= 0) Operation_P->Rank = $6;
     }
 
     // FIXME: Roman
@@ -7394,6 +7406,21 @@ int  Add_Expression(struct Expression *Expression_P,
   else  List_Write(Problem_S.Expression, i, Expression_P);
 
   return i;
+}
+
+bool Is_ExpressionPieceWiseDefined(int index)
+{
+  struct Expression *e = (struct Expression *)List_Pointer(Problem_S.Expression, index);
+  if(e->Type == PIECEWISEFUNCTION)
+    return true;
+  else if(e->Type == WHOLEQUANTITY){
+    for(int i = 0; i < List_Nbr(Expression_P->Case.WholeQuantity); i++){
+      struct WholeQuantity *w = (struct WholeQuantity *)List_Pointer(Expression_P->Case.WholeQuantity, i);
+      if(w->Type == WQ_EXPRESSION)
+        return Is_ExpressionPieceWiseDefined(w->Case.Expression.Index);
+    }
+  }
+  return false;
 }
 
 /*  L i s t e   I n d e x   d e s   D e f i n e Q u a n t i t y  */

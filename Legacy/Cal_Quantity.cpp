@@ -26,8 +26,8 @@ extern int TreatmentStatus ;
 /*  G e t _ V a l u e O f E x p r e s s i o n                               */
 /* ------------------------------------------------------------------------ */
 
-void  Get_ValueOfExpression(struct Expression * Expression_P, 
-			    struct QuantityStorage * QuantityStorage_P0, 
+void  Get_ValueOfExpression(struct Expression * Expression_P,
+			    struct QuantityStorage * QuantityStorage_P0,
 			    double u, double v, double w,
 			    struct Value * Value)
 {
@@ -51,7 +51,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
     break ;
 
   case WHOLEQUANTITY :
-    Cal_WholeQuantity(Current.Element, QuantityStorage_P0, 
+    Cal_WholeQuantity(Current.Element, QuantityStorage_P0,
 		      Expression_P->Case.WholeQuantity,
 		      u,v,w, -1, 0, Value) ;
     break ;
@@ -76,7 +76,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
       }
     }
     Get_ValueOfExpression
-      (Expression_P->Case.PieceWiseFunction.ExpressionForLastRegion, 
+      (Expression_P->Case.PieceWiseFunction.ExpressionForLastRegion,
        QuantityStorage_P0, u, v, w, Value) ;
     break ;
 
@@ -91,7 +91,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
 
   default :
     Message::Error("Unknown type (%d) of Expression (%s)",
-	       Expression_P->Type, Expression_P->Name) ;  
+                   Expression_P->Type, Expression_P->Name) ;
     break;
   }
 }
@@ -101,7 +101,7 @@ void  Get_ValueOfExpression(struct Expression * Expression_P,
 /* ------------------------------------------------------------------------ */
 
 void  Get_ValueOfExpressionByIndex(int Index_Expression,
-				   struct QuantityStorage * QuantityStorage_P0, 
+				   struct QuantityStorage * QuantityStorage_P0,
 				   double u, double v, double w,
 				   struct Value * Value) {
   Get_ValueOfExpression
@@ -152,7 +152,7 @@ void Cal_SolidAngle(int Source, struct Element *Element,
     Stack[i][Index].Type = SCALAR ;
 
     TypEnt = ((struct Group*)
-	      List_Pointer(Problem_S.Group, 
+	      List_Pointer(Problem_S.Group,
 			   QuantityStorage->BasisFunction[i].
 			   BasisFunction->EntityIndex))->FunctionType ;
 
@@ -182,7 +182,7 @@ void Cal_SolidAngle(int Source, struct Element *Element,
 
       if(GeoElement->Type != LINE)
 	Message::Error("SolidAngle not done for Elements other than LINE");
-      
+
       if(NumElements[0]>0){
 	GeoNode1 = Geo_GetGeoNodeOfNum(GeoElement->NumNodes[0]) ;
 	GeoElement = Geo_GetGeoElementOfNum(abs(NumElements[1])) ;
@@ -195,18 +195,18 @@ void Cal_SolidAngle(int Source, struct Element *Element,
 	GeoNode1 = Geo_GetGeoNodeOfNum(GeoElement->NumNodes[0]) ;
       }
 
-      Y = (GeoNode1->y - GeoNode2->y) * (GeoNode3->x - GeoNode2->x) - 
+      Y = (GeoNode1->y - GeoNode2->y) * (GeoNode3->x - GeoNode2->x) -
 	  (GeoNode1->x - GeoNode2->x) * (GeoNode3->y - GeoNode2->y) ;
       X = (GeoNode1->x - GeoNode2->x) * (GeoNode3->x - GeoNode2->x) +
 	  (GeoNode1->y - GeoNode2->y) * (GeoNode3->y - GeoNode2->y) ;
 
       Atan = atan2(Y,X) ;
-      
+
       Stack[i][Index].Val[0] = (Atan >= 0) ? Atan : (Atan+2.*M_PI) ;
 
       if(Message::GetVerbosity() == 3){
-	printf("Solid angle=%g node=%d, region=%s, elms=", 
-	       Stack[i][Index].Val[0] * 180/M_PI, NumNode, 
+	printf("Solid angle=%g node=%d, region=%s, elms=",
+	       Stack[i][Index].Val[0] * 180/M_PI, NumNode,
 	       ((struct Group*)List_Pointer(Problem_S.Group, In))->Name);
 	for(j=0 ; j<NbrElements ; j++) printf("%d ", NumElements[j]);
 	printf("\n");
@@ -217,7 +217,7 @@ void Cal_SolidAngle(int Source, struct Element *Element,
   }
 
   if (Elt->NumLastElementForSolidAngle != Elt->Num) {
-    Elt->NumLastElementForSolidAngle = Elt->Num ;    
+    Elt->NumLastElementForSolidAngle = Elt->Num ;
     for(i=0 ; i<Nbr_Dof ; i++) Elt->angle[i] = Stack[i][Index].Val[0] ;
   }
 }
@@ -233,7 +233,7 @@ void Cal_SolidAngle(int Source, struct Element *Element,
 #define CASTF2V   void(*)(struct Function*, struct Value*, struct Value*)
 
 /* There can be at max one "Dof{op qty}" per WholeQuantity, but as
-   many {op qty} as you want. 
+   many {op qty} as you want.
 
    Note that Stack[8][MAX_STACK_SIZE] should actually be
    Stack[NBR_MAX_BASISFUNCTION][MAX_STACK_SIZE]. But this tends to
@@ -245,13 +245,13 @@ void Cal_SolidAngle(int Source, struct Element *Element,
    stacks), where a Value could be multiple. But this requires to
    change the way we deal with function arguments. */
 
-static struct Value ValueSaved[MAX_REGISTER_SIZE] ;  
+static struct Value ValueSaved[MAX_REGISTER_SIZE] ;
 
 void Cal_WholeQuantity(struct Element * Element,
 		       struct QuantityStorage * QuantityStorage_P0,
 		       List_T * WholeQuantity_L,
-		       double u, double v, double w, 
-		       int DofIndexInWholeQuantity, 
+		       double u, double v, double w,
+		       int DofIndexInWholeQuantity,
 		       int Nbr_Dof, struct Value DofValue[]) {
 
   static int Flag_WarningMissSolForDt = 0 ;
@@ -275,7 +275,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
   /* Use a single global (static) stack for all quantity evaluations.
 
-     Stack size 
+     Stack size
        = MAX_RECURSION * MAX_STACK_SIZE * 8 * sizeof(struct Value)
        = 50 * 40 * 8 * (MAX_DIM * NBR_MAX_HARMONIC * sizeof(double))
        = 50 * 40 * 8 * (9 * 2 * 8)
@@ -323,8 +323,8 @@ void Cal_WholeQuantity(struct Element * Element,
     first = 0;
   }
   RecursionIndex++;
-  if(RecursionIndex < 0 || RecursionIndex >= MAX_RECURSION) 
-    Message::Error("Recursion problem in Cal_WholeQuantity (%d outside [0,%d])", 
+  if(RecursionIndex < 0 || RecursionIndex >= MAX_RECURSION)
+    Message::Error("Recursion problem in Cal_WholeQuantity (%d outside [0,%d])",
                    RecursionIndex, MAX_RECURSION);
   Stack = StaticStack[RecursionIndex];
 #endif
@@ -343,7 +343,7 @@ void Cal_WholeQuantity(struct Element * Element,
     switch (WholeQuantity_P->Type) {
 
     case WQ_OPERATORANDQUANTITY : /* {op qty}  Dof{op qty}  BF{op qty} */
-      Save_Region = Current.Region ; 
+      Save_Region = Current.Region ;
       Save_CurrentElement = Current.Element ;
       if (i_WQ != DofIndexInWholeQuantity){ /* Attention!!! || TreatmentStatus == _POS){  */
 	Pos_FemInterpolation
@@ -358,7 +358,7 @@ void Cal_WholeQuantity(struct Element * Element,
       else {
 	DofIndex = Index ;
       }
-      Index++ ;  
+      Index++ ;
       Current.Element = Save_CurrentElement ;
       Current.Region = Save_Region ;
       break ;
@@ -372,13 +372,13 @@ void Cal_WholeQuantity(struct Element * Element,
       }
       Stack[0][Index].Type = SCALAR ;
       Multi[Index] = 0 ;
-      Index++ ;  
+      Index++ ;
       break ;
 
-    case WQ_OPERATORANDQUANTITYEVAL : 
+    case WQ_OPERATORANDQUANTITYEVAL :
       Save_Region = Current.Region ;
       Save_CurrentElement = Current.Element ;
-      /* {op qty}[x,y,z], {op qty}[x,y,z,dimension] 
+      /* {op qty}[x,y,z], {op qty}[x,y,z,dimension]
 	 or {op qty}[Vector[x,y,x],dimension]
 	 or {op qty}[ntime] */
       if (i_WQ != DofIndexInWholeQuantity || TreatmentStatus == _POS){
@@ -389,7 +389,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	    X = Stack[0][Index  ].Val[0] ;
 	    Y = Stack[0][Index+1].Val[0] ;
 	    Z = Stack[0][Index+2].Val[0] ;
-	    if(j == 4) 
+	    if(j == 4)
 	      Type_Dimension = (int)Stack[0][Index+3].Val[0] ;
 	    else
 	      Type_Dimension = -1 ;
@@ -410,19 +410,19 @@ void Cal_WholeQuantity(struct Element * Element,
 	     u, v, w, X, Y, Z, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
 	  Multi[Index] = 0 ;
 	  Index++ ;
-	} 
-	else if (j == 1) { 
+	}
+	else if (j == 1) {
 	  Index -= j ;
 	  ntime = (int)Stack[0][Index].Val[0] ;
 
 	  for (k = 0 ; k < Current.NbrSystem ; k++){
 	    Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
-	    if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= ntime){ 
+	    if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= ntime){
 	      ((Current.DofData_P0+k)->CurrentSolution) -= ntime ;
 	      if (Flag_InfoForTime_ntime != List_Nbr((Current.DofData_P0+k)->Solutions)) {
 		Message::Debug("Accessing solution from %d time steps ago", ntime);
 		Message::Debug("  -> System %d/%d: TimeStep = %d, Time = %g + i * %g",
-                               k+1, Current.NbrSystem, 
+                               k+1, Current.NbrSystem,
                                (Current.DofData_P0+k)->CurrentSolution->TimeStep,
                                (Current.DofData_P0+k)->CurrentSolution->Time,
                                (Current.DofData_P0+k)->CurrentSolution->TimeImag);
@@ -445,19 +445,19 @@ void Cal_WholeQuantity(struct Element * Element,
 	     WholeQuantity_P->Case.OperatorAndQuantity.TypeQuantity,
 	     WholeQuantity_P->Case.OperatorAndQuantity.TypeOperator, -1, 0,
 	     u, v, w, 0, 0, 0, Stack[0][Index].Val, &Stack[0][Index].Type, 1) ;
-	  
+
 	  Multi[Index] = 0 ;
 	  Index++ ;
 
 	  for (k = 0 ; k < Current.NbrSystem ; k++){
 	    Solution_PN = (struct Solution*)
-	      List_Pointer((Current.DofData_P0+k)->Solutions, 
+	      List_Pointer((Current.DofData_P0+k)->Solutions,
 			   List_Nbr((Current.DofData_P0+k)->Solutions)-1);
 	    if((Solution_PN - (Current.DofData_P0+k)->CurrentSolution) >= ntime)
 	      ((Current.DofData_P0+k)->CurrentSolution) += ntime ;
 	  }
-	  
-	} 
+
+	}
 	else
 	  Message::Error("Explicit (x,y,z,time) evaluation not implemented");
       }
@@ -469,17 +469,17 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
 
     case WQ_TRACE : /* Trace[WholeQuantity, Group] */
-      Save_Region = Current.Region ; 
+      Save_Region = Current.Region ;
 
       if(!Element->ElementTrace)
 	Message::Error("Trace must act on discrete quantity (and not in post-processing)");
 
       Current.Region = Element->ElementTrace->Region ;
-      
+
       if(WholeQuantity_P->Case.Trace.DofIndexInWholeQuantity >= 0){
 	Cal_WholeQuantity(Element->ElementTrace, QuantityStorage_P0,
 			  WholeQuantity_P->Case.Trace.WholeQuantity,
-			  Current.ut, Current.vt, Current.wt, 
+			  Current.ut, Current.vt, Current.wt,
 			  WholeQuantity_P->Case.Trace.DofIndexInWholeQuantity,
 			  Nbr_Dof, DofValue) ;
 	DofIndexInWholeQuantity = DofIndex = Index ;
@@ -491,11 +491,11 @@ void Cal_WholeQuantity(struct Element * Element,
 	  Current.y += Element->y[j] * Element->n[j] ;
 	  Current.z += Element->z[j] * Element->n[j] ;
 	}
-	xyz2uvwInAnElement(Element->ElementTrace, Current.x, Current.y, Current.z, 
-			   &Current.ut, &Current.vt, &Current.wt) ;	
+	xyz2uvwInAnElement(Element->ElementTrace, Current.x, Current.y, Current.z,
+			   &Current.ut, &Current.vt, &Current.wt) ;
 	Cal_WholeQuantity(Element->ElementTrace, QuantityStorage_P0,
 			  WholeQuantity_P->Case.Trace.WholeQuantity,
-			  Current.ut, Current.vt, Current.wt, 
+			  Current.ut, Current.vt, Current.wt,
 			  -1, 0, &Stack[0][Index]) ;
       }
 
@@ -506,7 +506,7 @@ void Cal_WholeQuantity(struct Element * Element,
 
     case WQ_SOLIDANGLE : /* SolidAngle[{qty}] */
       Cal_SolidAngle(0, Element, QuantityStorage_P0 +
-		     WholeQuantity_P->Case.OperatorAndQuantity.Index, 
+		     WholeQuantity_P->Case.OperatorAndQuantity.Index,
 		     Nbr_Dof, Index, (struct Value **)Stack);
       Multi[Index] = 1 ;
       Index++ ;
@@ -553,7 +553,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	    ((CAST3V)WholeQuantity_P->Case.Operator.Function)
 	      (&DofValue[j], &Stack[0][Index-1], &DofValue[j]) ;
       }
-      Index-- ;  
+      Index-- ;
       break ;
 
     case WQ_UNARYOPERATOR : /* + - ! */
@@ -562,7 +562,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	  ((CAST1V)WholeQuantity_P->Case.Operator.Function)(&DofValue[j]) ;
       else if(Multi[Index-1])
 	for(j=0 ; j<Nbr_Dof ; j++)
-	  ((CAST1V)WholeQuantity_P->Case.Operator.Function)(&Stack[j][Index-1]) ;	
+	  ((CAST1V)WholeQuantity_P->Case.Operator.Function)(&Stack[j][Index-1]) ;
       else
 	((CAST1V)WholeQuantity_P->Case.Operator.Function)(&Stack[0][Index-1]) ;
       break ;
@@ -581,7 +581,7 @@ void Cal_WholeQuantity(struct Element * Element,
       Index -= WholeQuantity_P->Case.Expression.NbrArguments ;
       Get_ValueOfExpression
 	((struct Expression*)List_Pointer
-	 (Problem_S.Expression, WholeQuantity_P->Case.Expression.Index), 
+	 (Problem_S.Expression, WholeQuantity_P->Case.Expression.Index),
 	 QuantityStorage_P0, u, v, w, &Stack[0][Index]) ;
       Multi[Index] = 0 ;
       Index++ ;
@@ -605,7 +605,7 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
 
     case WQ_EXTERNBUILTINFUNCTION :
-      ((CASTF2V)WholeQuantity_P->Case.Function.Fct) 
+      ((CASTF2V)WholeQuantity_P->Case.Function.Fct)
 	(&WholeQuantity_P->Case.Function, DofValue, &Stack[0][Index]) ;
       Multi[Index] = 0 ;
       Index++ ;
@@ -623,7 +623,7 @@ void Cal_WholeQuantity(struct Element * Element,
       }
       Stack[0][Index].Type = SCALAR ;
       Multi[Index] = 0 ;
-      Index++ ;  
+      Index++ ;
       break ;
 
     case WQ_CURRENTVALUE :
@@ -638,7 +638,7 @@ void Cal_WholeQuantity(struct Element * Element,
       }
       Stack[0][Index].Type = SCALAR ;
       Multi[Index] = 0 ;
-      Index++ ;  
+      Index++ ;
       break ;
 
     case WQ_ARGUMENT :
@@ -653,7 +653,7 @@ void Cal_WholeQuantity(struct Element * Element,
 	Cal_WholeQuantity(Element, QuantityStorage_P0,
 			  WholeQuantity_P->Case.TimeDerivative.WholeQuantity,
 			  u, v, w, -1, 0, &Stack[0][Index]) ;
-	
+
 	for (k = 0 ; k < Current.NbrSystem ; k++){
 	  (Current.DofData_P0+k)->Save_CurrentSolution =
 	   (Current.DofData_P0+k)->CurrentSolution;
@@ -704,20 +704,20 @@ void Cal_WholeQuantity(struct Element * Element,
 	Cal_ProductValue(&Stack[0][Index], &Stack[0][Index+1], &Stack[0][Index]) ;
       }
       Multi[Index] = 0 ;
-      Index++ ;  
+      Index++ ;
       break ;
 
     case WQ_ATANTERIORTIMESTEP :
       ntime = WholeQuantity_P->Case.AtAnteriorTimeStep.TimeStep ;
-      
+
       for (k = 0 ; k < Current.NbrSystem ; k++){
 	Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
-	if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= ntime){ 
+	if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= ntime){
 	  ((Current.DofData_P0+k)->CurrentSolution) -= ntime ;
 	  if (Flag_InfoForTime_ntime != List_Nbr((Current.DofData_P0+k)->Solutions)) {
 	    Message::Info("Accessing solution from %d time steps ago", ntime);
 	    Message::Info("  -> System %d/%d: TimeStep = %d, Time = %g + i * %g",
-                          k+1, Current.NbrSystem, 
+                          k+1, Current.NbrSystem,
                           (Current.DofData_P0+k)->CurrentSolution->TimeStep,
                           (Current.DofData_P0+k)->CurrentSolution->Time,
                           (Current.DofData_P0+k)->CurrentSolution->TimeImag);
@@ -732,62 +732,62 @@ void Cal_WholeQuantity(struct Element * Element,
 	  }
 	}
       }
-      
+
       Save_TimeStep = Current.TimeStep ;
       Save_Time = Current.Time ;
       Save_TimeImag = Current.TimeImag ;
       Current.TimeStep = Current.DofData->CurrentSolution->TimeStep ;
       Current.Time = Current.DofData->CurrentSolution->Time ;
       Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
-      
+
       Cal_WholeQuantity(Element, QuantityStorage_P0,
 			WholeQuantity_P->Case.AtAnteriorTimeStep.WholeQuantity,
 			u, v, w, -1, 0, &Stack[0][Index]) ;
-      
+
       Current.TimeStep = Save_TimeStep ;
       Current.Time = Save_Time ;
       Current.TimeImag = Save_TimeImag ;
 
       for (k = 0 ; k < Current.NbrSystem ; k++){
 	Solution_PN = (struct Solution*)
-	  List_Pointer((Current.DofData_P0+k)->Solutions, 
+	  List_Pointer((Current.DofData_P0+k)->Solutions,
 		       List_Nbr((Current.DofData_P0+k)->Solutions)-1);
 	if((Solution_PN - (Current.DofData_P0+k)->CurrentSolution) >= ntime)
 	  ((Current.DofData_P0+k)->CurrentSolution) += ntime ;
       }
 
       Multi[Index] = 0 ;
-      Index++ ;  
+      Index++ ;
       break ;
 
     case WQ_MHTRANSFORM :
       if(Current.NbrHar == 1)
 	Message::Error("MHTransform can only be used in complex (multi-harmonic) calculations") ;
 
-      Cal_WholeQuantity(Element, QuantityStorage_P0, 
-			WholeQuantity_P->Case.MHTransform.WholeQuantity, 
-			u, v, w, -1, 0, &Stack[0][Index]) ; 
+      Cal_WholeQuantity(Element, QuantityStorage_P0,
+			WholeQuantity_P->Case.MHTransform.WholeQuantity,
+			u, v, w, -1, 0, &Stack[0][Index]) ;
 
       MHTransform(Element, QuantityStorage_P0, u, v, w, &Stack[0][Index],
-		  (struct Expression *)List_Pointer(Problem_S.Expression, 
+		  (struct Expression *)List_Pointer(Problem_S.Expression,
 						    WholeQuantity_P->Case.MHTransform.Index),
 		  WholeQuantity_P->Case.MHTransform.NbrPoints) ;
       Multi[Index] = 0 ;
-      Index++ ;  
+      Index++ ;
       break ;
 
-    case WQ_CAST : 
+    case WQ_CAST :
       /* This should be changed... */
       Save_NbrHar = Current.NbrHar ;
       Save_DofData = Current.DofData ;
-         
+
       if (!WholeQuantity_P->Case.Cast.NbrHar){
-	Current.DofData = 	
+	Current.DofData =
 	  ((struct FunctionSpace *)
 	   List_Pointer(Problem_S.FunctionSpace,
 			WholeQuantity_P->Case.Cast.FunctionSpaceIndexForType))
 	  ->DofData ;
-	
+
 	Current.NbrHar = Current.DofData->NbrHar ;
       }
       else{
@@ -797,17 +797,17 @@ void Cal_WholeQuantity(struct Element * Element,
       Cal_WholeQuantity(Element, QuantityStorage_P0,
 			WholeQuantity_P->Case.Cast.WholeQuantity,
 			u, v, w, -1, 0, &Stack[0][Index]) ;
-      
+
       if (Current.NbrHar < Save_NbrHar)  /* ne plus a completer ...?? */
       	Cal_SetZeroHarmonicValue(&Stack[0][Index], Save_NbrHar) ;
-      
+
       Current.NbrHar = Save_NbrHar ;
       Current.DofData = Save_DofData ;
       Multi[Index] = 0 ;
       Index++ ;
       break ;
 
-    case WQ_CHANGECURRENTPOSITION : 
+    case WQ_CHANGECURRENTPOSITION :
       Save_x = Current.x ; Save_y = Current.y ; Save_z = Current.z ;
 
       Current.x = Stack[0][Index-1].Val[0] ;
@@ -817,7 +817,7 @@ void Cal_WholeQuantity(struct Element * Element,
       Cal_WholeQuantity(Element, QuantityStorage_P0,
 			WholeQuantity_P->Case.ChangeCurrentPosition.WholeQuantity,
 			u, v, w, -1, 0, &Stack[0][Index-1]) ;
-      
+
       Current.x = Save_x ; Current.y = Save_y ; Current.z = Save_z ;
       break ;
 
@@ -825,17 +825,17 @@ void Cal_WholeQuantity(struct Element * Element,
       if(WholeQuantity_P->Case.SaveValue.Index > MAX_REGISTER_SIZE-1)
 	Message::Error("Register Size Exceeded (%d)", MAX_REGISTER_SIZE);
       /* if (WholeQuantity_P->Case.SaveValue.Index >= 0) */
-      Cal_CopyValue(&Stack[0][Index-1], 
+      Cal_CopyValue(&Stack[0][Index-1],
 		    ValueSaved + WholeQuantity_P->Case.SaveValue.Index) ;
       break ;
 
     case WQ_VALUESAVED :
       if(WholeQuantity_P->Case.ValueSaved.Index > MAX_REGISTER_SIZE-1)
 	Message::Error("Register size exceeded (%d)", MAX_REGISTER_SIZE);
-      Cal_CopyValue(ValueSaved + WholeQuantity_P->Case.ValueSaved.Index, 
+      Cal_CopyValue(ValueSaved + WholeQuantity_P->Case.ValueSaved.Index,
 		    &Stack[0][Index]) ;
       Multi[Index] = 0 ;
-      Index++ ;  
+      Index++ ;
       break ;
 
     case WQ_SHOWVALUE :
@@ -844,13 +844,13 @@ void Cal_WholeQuantity(struct Element * Element,
 	  fprintf(stderr, "##%d Dof %d ", WholeQuantity_P->Case.ShowValue.Index, j+1);
 	  Show_Value(&DofValue[j]);
 	}
-      } 
+      }
       else {
 	fprintf(stderr, "##%d ", WholeQuantity_P->Case.ShowValue.Index);
 	Show_Value(&Stack[0][Index-1]);
       }
       break ;
-      
+
     default :
       Message::Error("Unknown type of WholeQuantity (%d)", WholeQuantity_P->Type);
       break;

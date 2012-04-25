@@ -220,8 +220,8 @@
      tSaveSolutionExtendedMH = 437,
      tSaveSolutionMHtoTime = 438,
      tSaveSolutionWithEntityNum = 439,
-     tInit_MovingBand2D = 440,
-     tMesh_MovingBand2D = 441,
+     tInitMovingBand2D = 440,
+     tMeshMovingBand2D = 441,
      tGenerate_MH_Moving = 442,
      tGenerate_MH_Moving_Separate = 443,
      tAdd_MH_Moving = 444,
@@ -308,7 +308,7 @@ typedef union YYSTYPE
 {
 
 /* Line 1685 of yacc.c  */
-#line 121 "ProParser.y"
+#line 122 "ProParser.y"
 
   char    *c;
   int     i;
