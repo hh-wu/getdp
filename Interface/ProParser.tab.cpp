@@ -7225,7 +7225,7 @@ yyreduce:
     {
       ConstraintPerRegion_S.TimeFunctionIndex = (yyvsp[(2) - (3)].i);
       if(Is_ExpressionPieceWiseDefined((yyvsp[(2) - (3)].i)))
-        Message::Error("TimeFunction should not be piece-wise defined!");
+        vyyerror("TimeFunction should never be piece-wise defined");
     ;}
     break;
 
@@ -14620,8 +14620,8 @@ bool Is_ExpressionPieceWiseDefined(int index)
   if(e->Type == PIECEWISEFUNCTION)
     return true;
   else if(e->Type == WHOLEQUANTITY){
-    for(int i = 0; i < List_Nbr(Expression_P->Case.WholeQuantity); i++){
-      struct WholeQuantity *w = (struct WholeQuantity *)List_Pointer(Expression_P->Case.WholeQuantity, i);
+    for(int i = 0; i < List_Nbr(e->Case.WholeQuantity); i++){
+      struct WholeQuantity *w = (struct WholeQuantity *)List_Pointer(e->Case.WholeQuantity, i);
       if(w->Type == WQ_EXPRESSION)
         return Is_ExpressionPieceWiseDefined(w->Case.Expression.Index);
     }
