@@ -136,12 +136,12 @@ void vyyerror(const char *fmt, ...);
 %type <i>  Expression DefineDimension MultipleIndex Index
 %type <i>  ArgumentsForFunction RecursiveListOfQuantity
 %type <i>  PostQuantitySupport
+%type <l>  IRegion RecursiveListOfRegion
 %type <i>  StrCmp NbrRegions CommaFExprOrNothing
 %type <d>  FExpr OneFExpr
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr RecursiveListOfListOfFExpr
 %type <l>  ListOfCharExpr RecursiveListOfCharExpr ParametersForFunction
-%type <l>  RecursiveListOfRegion
-%type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion IRegion
+%type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion
 %type <l>  ConstraintCases IntegrationCases QuadratureCases JacobianCases
 %type <l>  BasisFunctions SubSpaces GlobalQuantities ConstraintInFSs
 %type <l>  ListOfBasisFunction RecursiveListOfBasisFunction
@@ -339,8 +339,7 @@ ProblemDefinition :
 
   | SeparatePostOperation
 
-  | Loop
-  /* contains For, EndFor, If, EndIf, Affectation */
+  | Loop // contains For, EndFor, If, EndIf, Affectation
 
   | tInclude CharExpr
     {
@@ -369,54 +368,46 @@ Group :
   | tSTRING Index tDEF ReducedGroupRHS tEND
     { Add_Group(&Group_S, $1, 2, $2); }
 
-/* FIXME: for compatibility with 'String__Index' syntax (19/01/2004)
-  | String__Index DefineDimension tDEF
-*/
   | tSTRING DefineDimension tDEF ReducedGroupRHS tEND
     {
       vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Add_Group(&Group_S, $1, 0, 0);
     }
 
-  | tDefineGroup '[' DefineGroups ']' tEND
+  | String__Index tDEF tMovingBand2D '[' IRegion
+    {
+      int j = 0;
+      if(List_Nbr($5) == 1)
+        List_Read($5, 0, &j);
+      else
+        vyyerror("Single region number expected for moving band definition");
+      Group_S.InitialList = List_Create(1, 1, sizeof(int));
+      List_Add(Group_S.InitialList, &j);
+      Group_S.Type = MOVINGBAND2D;
+      Group_S.FunctionType = REGION;
+      Group_S.InitialSuppList = NULL;
+      Group_S.SuppListType = SUPPLIST_NONE;
+      Group_S.MovingBand2D = (struct MovingBand2D *)Malloc(sizeof(struct MovingBand2D));
+      Group_S.MovingBand2D->PhysNum = j;
+    }
+    ',' ListOfRegion
+    {
+      Group_S.MovingBand2D->InitialList1 = $8;
+      Group_S.MovingBand2D->ExtendedList1 = NULL;
+    }
+    ',' ListOfRegion ',' FExpr ']' tEND
+    {
+      Group_S.MovingBand2D->InitialList2 = $11;
+      Group_S.MovingBand2D->Period2 = (int)$13;
+      Add_Group(&Group_S, $1, 0, 0);
+    }
 
-  | MovingBand2DGroup
+  | tDefineGroup '[' DefineGroups ']' tEND
 
   | String__Index '+' tDEF ReducedGroupRHS tEND
     { Add_Group_2(&Group_S, $1, 1, 0, 0, 0); }
 
   | Loop
- ;
-
-MovingBand2DGroup :
-
-    String__Index '[' IRegion ']' tDEF tMovingBand2D
-    {
-      Group_S.InitialList = List_Create(1, 1, sizeof(int));
-      int i = 0;
-      if(List_Nbr($3) == 1)
-	List_Read($3, 0, &i);
-      else
-	vyyerror("Only one elementary region allowed in moving band definition");
-      List_Add(Group_S.InitialList, &i);
-      Group_S.Type         = MOVINGBAND2D;
-      Group_S.FunctionType = REGION;
-      Group_S.InitialSuppList = NULL;
-      Group_S.SuppListType = SUPPLIST_NONE;
-      Group_S.MovingBand2D = (struct MovingBand2D *)Malloc(sizeof(struct MovingBand2D));
-      Group_S.MovingBand2D->PhysNum = i;
-    }
-    '[' ListOfRegion
-    {
-      Group_S.MovingBand2D->InitialList1 = $9;
-      Group_S.MovingBand2D->ExtendedList1 = NULL;
-    }
-    ',' ListOfRegion ',' FExpr ']' tEND
-    {
-      Group_S.MovingBand2D->InitialList2 = $12;
-      Add_Group(&Group_S, $1, 0, 0);
-      Group_S.MovingBand2D->Period2 = (int)$14;
-    }
  ;
 
 ReducedGroupRHS :
@@ -564,7 +555,6 @@ SuppListTypeForGroup :
 
 
 ListOfRegion :
-
     IRegion
     {
       $$ = List_Create(((List_Nbr($1) > 0)? List_Nbr($1) : 1), 5, sizeof(int));
@@ -576,10 +566,9 @@ ListOfRegion :
     { $$ = $2; }
  ;
 
-
 RecursiveListOfRegion :
 
-    /* none */
+    // none
     {
       $$ = List_Create(5, 5, sizeof(int));
     }
@@ -607,77 +596,11 @@ IRegion :
       List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &($1));
     }
 
-  /* Add (.) to avoid conflicts */
-  | '(' FExpr ')'
-    {
-      int i = (int)$2;
-      List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
-    }
-
-  | '@' RecursiveListOfFExpr '@'
-    {
-      List_Reset(ListOfInt_L);
-
-      for(int i = 0; i < List_Nbr($2); i++) {
-	double d;
-	List_Read($2, i, &d);
-	int j = (int)d;
-	List_Add(ListOfInt_L, &j);
-      }
-      $$ = ListOfInt_L;
-    }
-
-  | tINT tDOTS FExpr
-    {
-      List_Reset(ListOfInt_L);
-      for(int j = $1; ($1 < $3) ? (j <= $3) : (j >= $3); ($1 < $3) ? j++ : j--)
-	List_Add(ListOfInt_L, &j);
-      $$ = ListOfInt_L;
-    }
-
-  /* Add (.) to avoid conflicts */
-  | '(' FExpr ')' tDOTS FExpr
-    {
-      List_Reset(ListOfInt_L);
-      for(int j = (int)$2; ($2 < $5) ? (j <= $5) : (j >= $5); ($2 < $5) ? j++ : j--)
-	List_Add(ListOfInt_L, &j);
-      $$ = ListOfInt_L;
-    }
-
-  | tINT tDOTS FExpr tDOTS FExpr
-    {
-      List_Reset(ListOfInt_L);
-      if(!(int)$5 || ($1<(int)$3 && (int)$5<0) || ($1>(int)$3 && (int)$5>0)){
-	vyyerror("Wrong increment in '%d : %d : %d'", $1, (int)$3, (int)$5);
-	List_Add(ListOfInt_L, &($1));
-      }
-      else
-	for(int j = $1; ((int)$5 > 0) ? (j <= $3) : (j >= $3); j += (int)$5)
-	  List_Add(ListOfInt_L, &j);
-      $$ = ListOfInt_L;
-    }
-
-  /* Add (.) to avoid conflicts */
-  | '(' FExpr ')' tDOTS FExpr tDOTS FExpr
-    {
-      List_Reset(ListOfInt_L);
-      if(!(int)$7 || ((int)$2 < (int)$5 && (int)$7 < 0) ||
-	 ((int)$2 > (int)$5 && (int)$7 > 0)){
-	vyyerror("Wrong increment in '%d : %d : %d'", (int)$2, (int)$5, (int)$7);
-	int i = (int)$2; List_Add(ListOfInt_L, &i);
-      }
-      else
-	for(int j = (int)$2; ((int)$7 > 0) ? (j <= (int)$5) :
-	      (j >= (int)$5); j += (int)$7)
-	  List_Add(ListOfInt_L, &j);
-      $$ = ListOfInt_L;
-    }
-
   | String__Index
     {
       int i;
       if((i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) < 0) {
-	/* Si ce n'est pas un nom de groupe, est-ce un nom de constante ? : */
+	// Si ce n'est pas un nom de groupe, est-ce un nom de constante ? :
 	Constant_S.Name = $1;
 	if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant)) {
 	  vyyerror("Unknown Constant: %s", $1);
@@ -704,10 +627,46 @@ IRegion :
 	    List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
 	  }
       }
-      else   /* Si c'est un nom de groupe : */
+      else // Si c'est un nom de groupe :
 	$$ = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
       Free($1);
     }
+
+  // (.) used to access all the FExpr syntax
+  | '(' FExpr ')'
+    {
+      int i = (int)$2;
+      List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &i);
+    }
+
+  // (.) used to access all the FExpr syntax
+  | '(' MultiFExpr ')'
+    {
+      List_Reset(ListOfInt_L);
+
+      for(int i = 0; i < List_Nbr($2); i++) {
+	double d;
+	List_Read($2, i, &d);
+	int j = (int)d;
+	List_Add(ListOfInt_L, &j);
+      }
+      $$ = ListOfInt_L;
+    }
+
+  // deprecated: for backward compatibility only (for Ruth :-)
+  | '@' MultiFExpr '@'
+    {
+      List_Reset(ListOfInt_L);
+
+      for(int i = 0; i < List_Nbr($2); i++) {
+	double d;
+	List_Read($2, i, &d);
+	int j = (int)d;
+	List_Add(ListOfInt_L, &j);
+      }
+      $$ = ListOfInt_L;
+    }
+
  ;
 
 
@@ -2719,21 +2678,6 @@ ConstraintInFSTerm :
       Free($2);
     }
 
-/* Attention: doit disparaitre
-  | tEntity FunctionForGroup tNameOfConstraint tSTRING tEND
-    {
-      if(!Nbr_Index) {
-	Type_Function = $2;
-	Type_SuppList = SUPPLIST_NONE;
-	Constraint_Index =
-	  List_ISearchSeq(Problem_S.Constraint, $4, fcmp_Constraint_Name);
-      }
-      else {
-	vyyerror("New syntax for Constraint needed in multiple FunctionSpace");
-      }
-      Free($4);
-    }
-*/
   | tEntityType FunctionForGroup tEND
     { Type_Function = $2; }
 
@@ -3618,15 +3562,6 @@ GlobalTerm :
 
 
 GlobalTermTerm :
-/*
-    TermOperator
-    {
-      EquationTerm_S.Case.GlobalTerm.TypeTimeDerivative  = Type_TermOperator;
-    }
-
-    '{' Quantity_Def  ']' tEND
-    { EquationTerm_S.Case.GlobalTerm.DefineQuantityIndex = $2.Int2; }
-*/
     tIn GroupRHS tEND
     {
       EquationTerm_S.Case.GlobalTerm.InIndex = Num_Group(&Group_S, (char*)"FO_In", $2);
@@ -6708,6 +6643,7 @@ FloatParameterOptions :
  ;
 
 FloatParameterOption :
+
     ',' tSTRING ListOfFExpr
     {
       std::string key($2);
@@ -6719,6 +6655,7 @@ FloatParameterOption :
       Free($2);
       List_Delete($3);
     }
+
   | ',' tSTRING tBIGSTR
     {
       std::string key($2);
@@ -6969,6 +6906,7 @@ RecursiveListOfFExpr :
  ;
 
 RecursiveListOfListOfFExpr :
+
     ListOfFExpr
     {
       $$ = List_Create(2, 1, sizeof(List_T*));
@@ -7233,6 +7171,7 @@ ListOfCharExpr :
  ;
 
 RecursiveListOfCharExpr :
+
     CharExpr
     {
       $$ = List_Create(20,20,sizeof(char*));
@@ -7243,6 +7182,7 @@ RecursiveListOfCharExpr :
  ;
 
 StrCat :
+
     tStrCat '[' CharExpr ',' CharExpr ']'
     {
       if($3 != NULL && $5 != NULL) {
@@ -7256,6 +7196,7 @@ StrCat :
  ;
 
 StrCmp :
+
     tStrCmp '[' CharExpr ',' CharExpr ']'
     {
       if ($3 != NULL && $5 != NULL) {
@@ -7268,6 +7209,7 @@ StrCmp :
   ;
 
 NbrRegions :
+
     tNbrRegions '[' String__Index ']'
     {
       int i;
