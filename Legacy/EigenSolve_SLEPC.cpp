@@ -41,6 +41,8 @@
 
 extern struct CurrentData Current ;
 
+extern void _fillseq(Vec &V, Vec &Vseq); // from LinAlg_PETsc.cpp
+
 static void _try(int ierr){ CHKERRABORT(PETSC_COMM_WORLD, ierr); }
 
 static PetscErrorCode _myMonitor(const char *str, int its, int nconv, PetscScalar *eigr,
@@ -77,9 +79,21 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
                                EPS eps, QEP qep)
 {
   if (nconv <= 0) return;
+
+  // temporary (parallel) vectors to store real and imaginary part of eigenvectors
   Vec xr, xi;
   _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xr));
   _try(MatGetVecs(DofData_P->M1.M, PETSC_NULL, &xi));
+
+  // temporary sequential vectors to transfer eigenvectors to getdp
+  Vec xr_seq, xi_seq;
+  if(Message::GetCommSize() > 1){
+    PetscInt n;
+    _try(VecGetSize(xr, &n));
+    _try(VecCreateSeq(PETSC_COMM_SELF, n, &xr_seq));
+    _try(VecCreateSeq(PETSC_COMM_SELF, n, &xi_seq));
+  }
+
   Message::Info("               %-24s%-24s%-12s", "Re", "Im", "Relative error");
   bool newsol = false;
   for (int i = 0; i < nconv; i++){
@@ -138,8 +152,17 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
 
     // store eigenvector
     PetscScalar *tmpr, *tmpi;
-    _try(VecGetArray(xr, &tmpr));
-    _try(VecGetArray(xi, &tmpi));
+    if(Message::GetCommSize() == 1){
+      _try(VecGetArray(xr, &tmpr));
+      _try(VecGetArray(xi, &tmpi));
+    }
+    else{
+      _fillseq(xr, xr_seq);
+      _fillseq(xi, xi_seq);
+      _try(VecGetArray(xr_seq, &tmpr));
+      _try(VecGetArray(xi_seq, &tmpi));
+    }
+
     for(int l = 0; l < DofData_P->NbrDof; l += gCOMPLEX_INCREMENT){
       int j = l / gCOMPLEX_INCREMENT;
 #if defined(PETSC_USE_COMPLEX)
@@ -151,6 +174,16 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
 #endif
       LinAlg_SetComplexInVector(var_r, var_i, &DofData_P->CurrentSolution->x, l, l+1);
     }
+
+    if(Message::GetCommSize() == 1){
+      _try(VecRestoreArray(xr, &tmpr));
+      _try(VecRestoreArray(xi, &tmpi));
+    }
+    else{
+      _try(VecRestoreArray(xr_seq, &tmpr));
+      _try(VecRestoreArray(xi_seq, &tmpi));
+    }
+
     LinAlg_AssembleVector(&DofData_P->CurrentSolution->x);
 
     // increment the global timestep counter so that a future
@@ -165,9 +198,17 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev
   _try(VecDestroy(&xr));
   _try(VecDestroy(&xi));
+  if(Message::GetCommSize() > 1){
+    _try(VecDestroy(&xr_seq));
+    _try(VecDestroy(&xi_seq));
+  }
 #else
   _try(VecDestroy(xr));
   _try(VecDestroy(xi));
+  if(Message::GetCommSize() > 1){
+    _try(VecDestroy(xr_seq));
+    _try(VecDestroy(xi_seq));
+  }
 #endif
 }
 

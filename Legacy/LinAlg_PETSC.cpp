@@ -134,19 +134,18 @@ void LinAlg_CreateVector(gVector *V, gSolver *Solver, int n)
     _try(VecCreateSeq(PETSC_COMM_SELF, n, &V->Vseq));
 }
 
-static void _fillseq(gVector *V)
+void _fillseq(Vec &V, Vec &Vseq)
 {
-  if(Message::GetCommSize() == 1) return;
-  // collect all the values from the parallel petsc vector into a
-  // sequential vector on each processor
+  // collect all the values from the parallel petsc vector into a sequential
+  // vector on each processor
   VecScatter ctx;
-  VecScatterCreateToAll(V->V, &ctx, &V->Vseq);
+  VecScatterCreateToAll(V, &ctx, &Vseq);
 #if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR < 3)
-  VecScatterBegin(V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD, ctx);
-  VecScatterEnd(V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD, ctx);
+  VecScatterBegin(V, Vseq, INSERT_VALUES, SCATTER_FORWARD, ctx);
+  VecScatterEnd(V, Vseq, INSERT_VALUES, SCATTER_FORWARD, ctx);
 #else
-  VecScatterBegin(ctx, V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD);
-  VecScatterEnd(ctx, V->V, V->Vseq, INSERT_VALUES, SCATTER_FORWARD);
+  VecScatterBegin(ctx, V, Vseq, INSERT_VALUES, SCATTER_FORWARD);
+  VecScatterEnd(ctx, V, Vseq, INSERT_VALUES, SCATTER_FORWARD);
 #endif
 
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2)) ) // petsc-dev or petsc-3.2
@@ -154,6 +153,12 @@ static void _fillseq(gVector *V)
 #else
   VecScatterDestroy(ctx);
 #endif
+}
+
+static void _fillseq(gVector *V)
+{
+  if(Message::GetCommSize() == 1) return;
+  _fillseq(V->V, V->Vseq);
 }
 
 void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
