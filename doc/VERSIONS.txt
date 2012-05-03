@@ -1,5 +1,6 @@
 2.2.0: fixed longstanding error for Sur/Lin transformation of 2 forms; new
-solver interface based on ONELAB.
+solver interface based on ONELAB; parallel SLEPC eigensolvers; cleaned up syntax
+for groups.
 
 2.1.0: parallel resolution using PETSc solvers; new Gmsh2 output format; new
 experimental SLEPc-based eigensolvers; various bug and performance fixes

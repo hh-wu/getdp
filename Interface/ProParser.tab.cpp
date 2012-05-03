@@ -7483,14 +7483,14 @@ yyreduce:
 /* Line 1464 of yacc.c  */
 #line 2229 "ProParser.y"
     {
-      Get_3Function2NbrForString
+      Get_3Function3NbrForString
 	(BF_Function, (yyvsp[(2) - (4)].c), &FlagError,
 	 &BasisFunction_S.Function, &BasisFunction_S.dFunction,
 	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Order,
-	 &BasisFunction_S.ElementType);
+	 &BasisFunction_S.ElementType, &BasisFunction_S.Orient);
       if(FlagError){
 	vyyerror("Unknown Function for BasisFunction: %s", (yyvsp[(2) - (4)].c));
-	Get_Valid_SX3F2N(BF_Function);
+	Get_Valid_SX3F3N(BF_Function);
       }
       Free((yyvsp[(2) - (4)].c));
     ;}
@@ -7502,22 +7502,22 @@ yyreduce:
 #line 2243 "ProParser.y"
     {
       void  (*FunctionDummy)();
-      int i;
+      int i, j;
       double d;
-      Get_3Function2NbrForString
+      Get_3Function3NbrForString
 	(BF_Function, (yyvsp[(3) - (7)].c), &FlagError,
-	 &BasisFunction_S.dFunction, &FunctionDummy, &FunctionDummy, &d, &i);
+	 &BasisFunction_S.dFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
       if(FlagError){
 	vyyerror("Unknown dFunction (1) for BasisFunction: %s", (yyvsp[(3) - (7)].c));
-	Get_Valid_SX3F2N(BF_Function);
+	Get_Valid_SX3F3N(BF_Function);
       }
       Free((yyvsp[(3) - (7)].c));
-      Get_3Function2NbrForString
+      Get_3Function3NbrForString
 	(BF_Function, (yyvsp[(5) - (7)].c), &FlagError,
-	 &BasisFunction_S.dInvFunction, &FunctionDummy, &FunctionDummy, &d, &i);
+	 &BasisFunction_S.dInvFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
       if(FlagError){
 	vyyerror("Unknown dFunction (2) for BasisFunction: %s", (yyvsp[(5) - (7)].c));
-	Get_Valid_SX3F2N(BF_Function);
+	Get_Valid_SX3F3N(BF_Function);
       }
       Free((yyvsp[(5) - (7)].c));
     ;}

@@ -22,6 +22,7 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
 void  Get_PreResolutionForConstraint(struct ConstraintInFS * Constraint_P,
 				     int * Index_TimeFunction) ;
 void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
-			    int Num_Entity, int * CodeEntity_Link, double Value[]) ;
+			    int Num_Entity, int * CodeEntity_Link,
+                            int Orient, double Value[]) ;
 
 #endif

@@ -706,7 +706,7 @@ void Print_FunctionSpace()
 #if defined(HAVE_LEGACY)
 	Message::Check("      Name %s; NameOfCoef %s; Function %s;\n",
                        BF->Name, BF->NameOfCoef,
-                       Get_StringFor3Function2Nbr(BF_Function, BF->Function));
+                       Get_StringFor3Function3Nbr(BF_Function, BF->Function));
 #endif
 	if (BF->SubFunction) {
 	  Message::Check("      SubFunction {");

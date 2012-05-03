@@ -9,43 +9,44 @@
 #include "ProData.h"
 
 struct StringXDefine {
-  const char *string; 
+  const char *string;
   int define;
 };
 
 struct StringXDefine1Nbr {
-  const char *string; 
+  const char *string;
   int define, Nbr1;
 };
 
 struct StringXPointer {
-  const char *string; 
+  const char *string;
   void *Pointer;
 };
 
-struct StringX3Function2Nbr {
+struct StringX3Function3Nbr {
   const char *string;
-  void (*Function1)(); 
-  void (*Function2)(); 
+  void (*Function1)();
+  void (*Function2)();
   void (*Function3)();
   double Nbr1;
   int Nbr2;
+  int Nbr3;
 };
 
 struct DefineXFunction {
-  int  define;  
+  int  define;
   void (*Function)();
 };
 
 struct StringXFunction2Nbr {
-  const char *string;  
-  void (*Function)();  
+  const char *string;
+  void (*Function)();
   int   Nbr1, Nbr2;
 };
 
 struct FunctionXFunction {
-  void (*Function1)(); 
-  void (*Function2)(); 
+  void (*Function1)();
+  void (*Function2)();
 };
 
 extern struct StringXDefine  Mesh_Format[];
@@ -78,7 +79,7 @@ extern struct DefineXFunction  FunctionForGauss[];
 extern struct DefineXFunction  FunctionForGaussLegendre[];
 extern struct DefineXFunction  FunctionForSingularGauss[];
 
-extern struct StringX3Function2Nbr BF_Function[];
+extern struct StringX3Function3Nbr BF_Function[];
 extern struct StringXFunction2Nbr  F_Function[];
 extern struct FunctionXFunction    GF_Function[];
 
@@ -94,29 +95,29 @@ const char *Get_StringForPointer(struct StringXPointer SXF[], void *Pointer);
 void Get_PointerForString(struct StringXPointer SXF[], const char *string,
 			  int *FlagError, void **Pointer);
 
-const char *Get_StringFor3Function2Nbr(struct StringX3Function2Nbr SXF[], 
+const char *Get_StringFor3Function3Nbr(struct StringX3Function3Nbr SXF[],
 				       void (*Function1)());
-void Get_3Function2NbrForString(struct StringX3Function2Nbr SXF[], const char *string,
-				int *FlagError, void (**Function1)(), 
+void Get_3Function3NbrForString(struct StringX3Function3Nbr SXF[], const char *string,
+				int *FlagError, void (**Function1)(),
 				void (**Function2)(), void (**Function3)(),
-				double *Nbr1, int *Nbr2);
+				double *Nbr1, int *Nbr2, int *Nbr3);
 
 void Get_FunctionForDefine(struct DefineXFunction DXF[], int define,
 			   int *FlagError, void (**Function)());
 
 void Get_Function2NbrForString(struct StringXFunction2Nbr SXF[], const char *string,
-			       int *FlagError, void (**Function)(), 
+			       int *FlagError, void (**Function)(),
 			       int *Nbr1, int *Nbr2);
 
 void  Get_FunctionForFunction(struct FunctionXFunction  FXF[], void (*Function1)(),
-			      int *FlagError, void (**Function2)() );	     
+			      int *FlagError, void (**Function2)() );
 
 const char *Get_StringForFunction2Nbr(struct StringXFunction2Nbr SXF[], void (*Function)());
 
 char *Get_Valid_SXD(struct StringXDefine V[]);
 char *Get_Valid_SXD1N(struct StringXDefine1Nbr V[]);
 char *Get_Valid_SXP(struct StringXPointer V[]);
-char *Get_Valid_SX3F2N(struct StringX3Function2Nbr V[]);
+char *Get_Valid_SX3F3N(struct StringX3Function3Nbr V[]);
 char *Get_Valid_SXF2N(struct StringXFunction2Nbr V[]);
 
 #endif

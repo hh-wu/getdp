@@ -333,6 +333,7 @@ struct BasisFunction {
   int     SupportIndex, EntityIndex;
   double  Order;
   int     ElementType;
+  int     Orient;
 };
 
 struct GlobalBasisFunction {

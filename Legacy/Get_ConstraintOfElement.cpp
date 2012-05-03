@@ -105,6 +105,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		 abs(Num_Entity[i_Entity]),
 		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		 CodeEntity_Link,
+                 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Orient,
 		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value) ;
 	      if (abs(Num_Entity[i_Entity]) ==
 		  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
@@ -159,6 +160,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 		 abs(Num_Entity[i_Entity]),
 		 &QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
 		 CodeEntity_Link,
+                 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].BasisFunction->Orient,
 		 QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].Value) ;
 	      if (abs(Num_Entity[i_Entity]) ==
 		  QuantityStorage_P->BasisFunction[Nbr_ElementaryBF].
@@ -317,6 +319,7 @@ void  Treatment_ConstraintForRegion(struct GlobalQuantity   * GlobalQuantity_P,
 		(Constraint_P,
 		 QuantityStorage_P->BasisFunction[0].CodeEntity,
 		 &QuantityStorage_P->BasisFunction[0].CodeEntity_Link,
+                 QuantityStorage_P->BasisFunction[0].BasisFunction->Orient,
 		 QuantityStorage_P->BasisFunction[0].Value) ;
 	      if (QuantityStorage_P->BasisFunction[0].CodeEntity ==
 		  QuantityStorage_P->BasisFunction[0].CodeEntity_Link)
@@ -381,7 +384,7 @@ struct TwoIntOneDouble { int  Int1, Int2 ; double Double, Double2 ; } ;
 
 void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
 			    int Num_Entity,
-			    int * CodeEntity_Link, double Value[])
+			    int * CodeEntity_Link, int Orient, double Value[])
 {
 
   struct TwoIntOneDouble  * TwoIntOneDouble_P ;
@@ -409,9 +412,9 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
   if (TwoIntOneDouble_P) {
     *CodeEntity_Link = abs(TwoIntOneDouble_P->Int2) ;
     Value[0] = TwoIntOneDouble_P->Double ;
-    if (TwoIntOneDouble_P->Int1 < 0)  Value[0] *= -1. ;
+    if (Orient && TwoIntOneDouble_P->Int1 < 0)  Value[0] *= -1. ;
     Value[1] = TwoIntOneDouble_P->Double2 ;  /* LinkCplx */
-    if (TwoIntOneDouble_P->Int1 < 0)  Value[1] *= -1. ;
+    if (Orient && TwoIntOneDouble_P->Int1 < 0)  Value[1] *= -1. ;
   }
 }
 

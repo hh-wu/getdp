@@ -2227,14 +2227,14 @@ BasisFunctionTerm :
 
   | tFunction tSTRING OptionalParametersForBasisFunction tEND
     {
-      Get_3Function2NbrForString
+      Get_3Function3NbrForString
 	(BF_Function, $2, &FlagError,
 	 &BasisFunction_S.Function, &BasisFunction_S.dFunction,
 	 &BasisFunction_S.dInvFunction, &BasisFunction_S.Order,
-	 &BasisFunction_S.ElementType);
+	 &BasisFunction_S.ElementType, &BasisFunction_S.Orient);
       if(FlagError){
 	vyyerror("Unknown Function for BasisFunction: %s", $2);
-	Get_Valid_SX3F2N(BF_Function);
+	Get_Valid_SX3F3N(BF_Function);
       }
       Free($2);
     }
@@ -2242,22 +2242,22 @@ BasisFunctionTerm :
   | tdFunction '{' tSTRING Comma tSTRING '}' tEND
     {
       void  (*FunctionDummy)();
-      int i;
+      int i, j;
       double d;
-      Get_3Function2NbrForString
+      Get_3Function3NbrForString
 	(BF_Function, $3, &FlagError,
-	 &BasisFunction_S.dFunction, &FunctionDummy, &FunctionDummy, &d, &i);
+	 &BasisFunction_S.dFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
       if(FlagError){
 	vyyerror("Unknown dFunction (1) for BasisFunction: %s", $3);
-	Get_Valid_SX3F2N(BF_Function);
+	Get_Valid_SX3F3N(BF_Function);
       }
       Free($3);
-      Get_3Function2NbrForString
+      Get_3Function3NbrForString
 	(BF_Function, $5, &FlagError,
-	 &BasisFunction_S.dInvFunction, &FunctionDummy, &FunctionDummy, &d, &i);
+	 &BasisFunction_S.dInvFunction, &FunctionDummy, &FunctionDummy, &d, &i, &j);
       if(FlagError){
 	vyyerror("Unknown dFunction (2) for BasisFunction: %s", $5);
-	Get_Valid_SX3F2N(BF_Function);
+	Get_Valid_SX3F3N(BF_Function);
       }
       Free($5);
     }
