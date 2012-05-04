@@ -354,7 +354,7 @@ int fcmp_E2XE1(const void * a, const void * b)
 
 void Geo_WriteFilePRE(struct GeoData * GeoData_P, List_T * Group_L)
 {
-  if(Message::GetCommRank()) return;
+  if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
   int  i, Nbr_Elements, j, Index_Group, Nbr_Entities, * Num_Entities ;
   struct Geo_Element  * Geo_Element_P0, * Geo_Element_P ;

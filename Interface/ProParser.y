@@ -225,6 +225,7 @@ void vyyerror(const char *fmt, ...);
 %token      tIterativeLoop tIterativeLinearSolver
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
+%token		tSetCommSelf tSetCommWorld tBarrier
 %token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand
 %token        tGmshRead tGmshClearAll
@@ -4051,6 +4052,27 @@ OperationTerm :
       Operation_P->Case.SetTime.ExpressionIndex = $3;
     }
 
+  | tSetCommSelf tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+	  Operation_P->Type = OPERATION_SETCOMMSELF;
+	  Operation_P->Rank = -1;
+    }
+
+  | tSetCommWorld tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+	  Operation_P->Type = OPERATION_SETCOMMWORLD;
+	  Operation_P->Rank = -1;
+    }
+
+  | tBarrier tEND
+    { Operation_P = (struct Operation*)
+	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+	  Operation_P->Type = OPERATION_BARRIER;
+	  Operation_P->Rank = -1;
+    }
+
   | tBreak tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
@@ -4493,6 +4515,7 @@ OperationTerm :
       Operation_P->Case.IterativeLinearSolver.MaxIter = (int)$7;
       Operation_P->Case.IterativeLinearSolver.Restart = (int)$9;
       Operation_P->Case.IterativeLinearSolver.FieldIndices = $11;
+//      Operation_P->Case.IterativeLinearSolver.DeflationIndices = $13;
       Operation_P->Case.IterativeLinearSolver.Operations_Ax = $14;
       Operation_P->Case.IterativeLinearSolver.Operations_Mx = 0;
     }

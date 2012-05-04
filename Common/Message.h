@@ -32,6 +32,8 @@ class Message {
   static GmshClient *_client;
   // communication with onelab server
   static onelab::client *_onelabClient;
+  //parallelization
+  static int _isCommWorld;
  public:
   Message() {}
   static void Init(int argc, char **argv);
@@ -41,6 +43,8 @@ class Message {
   static void SetCommRank(int val){ _commRank = val; }
   static void SetCommSize(int val){ _commSize = val; }
   static void Barrier();
+  static int GetIsCommWorld(){return _isCommWorld; }
+  static void SetIsCommWorld(int val){ _isCommWorld = val; }
   static int GetNumThreads();
   static int GetMaxThreads();
   static int GetThreadNum();

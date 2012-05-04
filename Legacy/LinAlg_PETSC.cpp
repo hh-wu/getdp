@@ -59,7 +59,9 @@ extern struct CurrentData Current ;
 // e.g if the matrix changed a bit, but you want to keep the same
 // factorization using "SolveAgain").
 
-static MPI_Comm MyComm = MPI_COMM_WORLD;
+static MPI_Comm MyComm = MPI_COMM_SELF;
+static PetscViewer MyPetscViewer;
+
 static void _try(int ierr){ CHKERRABORT(MyComm, ierr); }
 static int SolverInitialized = 0;
 
@@ -72,7 +74,8 @@ void LinAlg_InitializeSolver(int* argc, char*** argv)
 {
   // This function detects if MPI is initialized
   PetscInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
-  MyComm = PETSC_COMM_WORLD;
+	MyPetscViewer = PETSC_VIEWER_STDOUT_SELF;
+	MyComm = PETSC_COMM_WORLD;
 #if defined(HAVE_SLEPC)
   SlepcInitialize(argc, argv, PETSC_NULL, PETSC_NULL);
 #endif
@@ -104,11 +107,13 @@ void LinAlg_FinalizeSolver()
 void LinAlg_SetCommSelf()
 {
   MyComm = PETSC_COMM_SELF;
+  Message::SetIsCommWorld(0);
 }
 
 void LinAlg_SetCommWorld()
 {
   MyComm = PETSC_COMM_WORLD;
+  Message::SetIsCommWorld(1);
 }
 
 void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
@@ -1141,7 +1146,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
 
   bool view = (!Solver->ksp[kspIndex] && Message::GetVerbosity() > 2);
 
-  if(view && !Message::GetCommRank())
+  if(view && (!Message::GetCommRank() || !Message::GetIsCommWorld()))
     Message::Info("N: %ld", (long)i);
 
   if(kspIndex != 0)
@@ -1193,9 +1198,9 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   _fillseq(X);
 
   if(view)
-    _try(KSPView(Solver->ksp[kspIndex], PETSC_VIEWER_STDOUT_WORLD));
+    _try(KSPView(Solver->ksp[kspIndex], MyPetscViewer));
 
-  if(!Message::GetCommRank()){
+  if(!Message::GetCommRank() || !Message::GetIsCommWorld()){
     PetscInt its;
     _try(KSPGetIterationNumber(Solver->ksp[kspIndex], &its));
     Message::Info("%d iterations", its);
@@ -1313,7 +1318,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
 
   bool view = (!Solver->snes[solverIndex] && Message::GetVerbosity() > 2);
 
-  if(view && !Message::GetCommRank())
+  if(view && (!Message::GetCommRank() || !Message::GetIsCommWorld()))
     Message::Info("N: %ld", (long)n);
 
   if(solverIndex != 0)
@@ -1352,9 +1357,9 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   _fillseq(X);
 
   if(view)
-    _try(SNESView(Solver->snes[solverIndex], PETSC_VIEWER_STDOUT_WORLD));
+    _try(SNESView(Solver->snes[solverIndex], MyPetscViewer));
 
-  if(!Message::GetCommRank()){
+  if(!Message::GetCommRank() || !Message::GetIsCommWorld()){
     PetscInt its;
     _try(SNESGetIterationNumber(Solver->snes[solverIndex], &its));
     Message::Info("Number of Newton iterations %d", its);

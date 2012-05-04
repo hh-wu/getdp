@@ -1633,7 +1633,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     if(Message::GetCommSize() > 1 && Operation_P->Rank >= 0 &&
        Message::GetCommRank() != (Operation_P->Rank % Message::GetCommSize()))
-      continue;
+      		continue;
 
     Flag_CPU = 0 ;
     Flag_Jac = 0 ;
@@ -1973,6 +1973,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                           (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 : Operation_P->Rank) ;
 
       Flag_CPU = 1 ;
+
+
       break ;
 
     // Using PETSC nonlinear solvers - SNES, nonlinear loop internal to PETSC
@@ -2747,6 +2749,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GMSHREAD :
 #if defined(HAVE_GMSH)
       GmshMergeFile(Operation_P->Case.GmshRead.FileName);
+      Operation_P->Rank = -1;
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
 #endif
@@ -2755,6 +2758,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_GMSHCLEARALL :
 #if defined(HAVE_GMSH)
       while(PView::list.size()) delete PView::list[0];
+      Operation_P->Rank = -1;
 #else
       Message::Error("You need to compile GetDP with Gmsh support to use 'GmshRead'");
 #endif
@@ -3473,6 +3477,22 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_BREAK :
       Flag_Break = 1;
       break ;
+      
+      /*  -->  P a r a l l e l   C o m p u t i n g	  */
+      /*  ------------------------------------------  */
+
+    case OPERATION_SETCOMMSELF :
+      LinAlg_SetCommSelf();
+      break ;
+
+    case OPERATION_SETCOMMWORLD :
+      LinAlg_SetCommWorld();
+      break ;
+
+    case OPERATION_BARRIER :
+      MPI_Barrier(PETSC_COMM_WORLD);
+      break ;
+
 
       /*  -->  O t h e r                              */
       /*  ------------------------------------------  */

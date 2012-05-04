@@ -185,7 +185,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
 		      struct PostSubOperation  *PostSubOperation_P)
 {
   // currently cannot postprocess in parallel!
-  if(Message::GetCommRank()) return;
+  if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
   struct PostQuantity   *NCPQ_P = NULL, *CPQ_P = NULL ;
   double                 Pulsation ;

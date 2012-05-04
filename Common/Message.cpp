@@ -36,6 +36,7 @@
 #include <gmsh/GmshConfig.h>
 #endif
 
+int Message::_isCommWorld = 1; // is the Communicator set to WORLD (=1) or SELF (!=1)
 int Message::_commRank = 0;
 int Message::_commSize = 1;
 int Message::_verbosity = 3;
@@ -633,7 +634,11 @@ void Message::FinalizeOnelab()
 void Message::Barrier()
 {
 #if defined(HAVE_PETSC)
-  MPI_Barrier(PETSC_COMM_WORLD);
+	if(_isCommWorld) {
+		MPI_Barrier(PETSC_COMM_WORLD);
+	}else{
+		MPI_Barrier(PETSC_COMM_SELF);
+	}
 #endif
 }
 

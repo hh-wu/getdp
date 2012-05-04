@@ -956,6 +956,7 @@ struct Operation {
       int    MaxIter;
       int    Restart;
       List_T *FieldIndices;
+//      List_T *DeflationIndices;
       List_T *Operations_Ax, *Operations_Mx;
     } IterativeLinearSolver;
     struct {
@@ -1119,6 +1120,10 @@ struct ChangeOfState {
 #define OPERATION_GMSHREAD                 61
 #define OPERATION_GMSHCLEARALL             62
 
+#define OPERATION_SETCOMMSELF              63
+#define OPERATION_SETCOMMWORLD             64
+#define OPERATION_BARRIER                  65
+
 /* ChangeOfState.Type */
 #define CHANGEOFSTATE_NOCHANGE              0
 #define CHANGEOFSTATE_CHANGESIGN            1
@@ -1150,6 +1155,7 @@ struct PostProcessing {
   List_T  *OriginSystemIndex;
   char    *NameOfSystem;
   List_T  *PostQuantity;
+  int	   Rank;
 };
 
 struct PostQuantity {
@@ -1184,6 +1190,7 @@ struct PostOperation {
   char    *Name, *AppendString;
   int      PostProcessingIndex, Format;
   List_T  *PostSubOperation;
+  int Rank;
 };
 
 struct PostSubOperation {

@@ -109,7 +109,7 @@ void Dof_SetCurrentDofData(struct DofData * DofData_P)
 
 void Dof_OpenFile(int Type, char * Name, const char * Mode)
 {
-  if(Message::GetCommRank() && (Mode[0] == 'w' || Mode[0] == 'a')){
+  if((Message::GetIsCommWorld() && Message::GetCommRank()) && (Mode[0] == 'w' || Mode[0] == 'a')){
     switch (Type) {
     case DOF_PRE :  File_PRE = 0 ;  break ;
     case DOF_RES :  File_RES = 0 ;  break ;
@@ -175,7 +175,7 @@ void Dof_FlushFile(int Type)
 void Dof_WriteFilePRE0(int Num_Resolution, char * Name_Resolution,
 		       int Nbr_DofData)
 {
-  if(Message::GetCommRank()) return;
+  if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
   fprintf(File_PRE, "$Resolution /* '%s' */\n", Name_Resolution) ;
   fprintf(File_PRE, "%d %d\n", Num_Resolution, Nbr_DofData) ;
@@ -215,7 +215,7 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
 
 void Dof_WriteFilePRE(struct DofData * DofData_P)
 {
-  if(Message::GetCommRank()) return;
+  if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
   int  i, Nbr_Index ;
   struct Dof  * Dof_P0 ;
@@ -417,7 +417,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 
 void Dof_WriteFileRES0(char * Name_File, int Format)
 {
-  if(Message::GetCommRank()) return;
+  if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
   Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "wb" : "w")) ;
   fprintf(File_RES, "$ResFormat /* GetDP %s, %s */\n", GETDP_VERSION,
@@ -434,7 +434,7 @@ void Dof_WriteFileRES0(char * Name_File, int Format)
 void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
 			       int Format, int NbrH)
 {
-  if(Message::GetCommRank()) return;
+  if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
   gVector x;
   double d;
@@ -469,7 +469,7 @@ void Dof_WriteFileRES_ExtendMH(char * Name_File, struct DofData * DofData_P,
 void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
 			       int Format, List_T * Time_L)
 {
-  if(Message::GetCommRank()) return;
+  if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
   gVector x;
   double Time, d1, d2, d, *Pulsation;
@@ -522,7 +522,7 @@ void Dof_WriteFileRES_MHtoTime(char * Name_File, struct DofData * DofData_P,
 void Dof_WriteFileRES(char * Name_File, struct DofData * DofData_P, int Format,
 		      double Val_Time, double Val_TimeImag, int Val_TimeStep)
 {
-  if(Message::GetCommRank()) return;
+  if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
   Dof_OpenFile(DOF_RES, Name_File, (char*)(Format ? "ab" : "a")) ;
 
@@ -547,7 +547,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
                                     struct GeoData * GeoData_P0, struct Group *Group_P,
                                     bool saveFixed)
 {
-  if(Message::GetCommRank()) return;
+  if(Message::GetIsCommWorld() && Message::GetCommRank()) return;
 
   char    FileCplx[256] ;
   char    FileRe[256] ;
