@@ -634,11 +634,12 @@ void Message::FinalizeOnelab()
 void Message::Barrier()
 {
 #if defined(HAVE_PETSC)
-	if(_isCommWorld) {
-		MPI_Barrier(PETSC_COMM_WORLD);
-	}else{
-		MPI_Barrier(PETSC_COMM_SELF);
-	}
+  if(_isCommWorld) {
+    MPI_Barrier(PETSC_COMM_WORLD);
+  }
+  else{
+    MPI_Barrier(PETSC_COMM_SELF);
+  }
 #endif
 }
 
