@@ -116,6 +116,11 @@ int  Print_ListOfDouble(char *format, List_T *list, char *buffer);
 void yyerror(const char *s);
 void vyyerror(const char *fmt, ...);
 
+struct doubleXstring{
+  double d;
+  char *s;
+};
+
 %}
 
 /* ------------------------------------------------------------------ */
@@ -136,11 +141,11 @@ void vyyerror(const char *fmt, ...);
 %type <i>  Expression DefineDimension MultipleIndex Index
 %type <i>  ArgumentsForFunction RecursiveListOfQuantity
 %type <i>  PostQuantitySupport
-%type <l>  IRegion RecursiveListOfRegion
+%type <l>  IRegion RecursiveListOfRegion Enumeration
 %type <i>  StrCmp NbrRegions CommaFExprOrNothing
 %type <d>  FExpr OneFExpr
 %type <l>  MultiFExpr ListOfFExpr RecursiveListOfFExpr RecursiveListOfListOfFExpr
-%type <l>  ListOfCharExpr RecursiveListOfCharExpr ParametersForFunction
+%type <l>  RecursiveListOfCharExpr ParametersForFunction
 %type <l>  ListOfRegion ListOfRegionOrAll SuppListOfRegion
 %type <l>  ConstraintCases IntegrationCases QuadratureCases JacobianCases
 %type <l>  BasisFunctions SubSpaces GlobalQuantities ConstraintInFSs
@@ -6661,6 +6666,20 @@ Affectation :
     }
  ;
 
+Enumeration :
+    FExpr tDEF CharExpr
+    {
+      $$ = List_Create(20,20,sizeof(doubleXstring));
+      doubleXstring v = {$1, $3};
+      List_Add($$, &v);
+    }
+  | Enumeration ',' FExpr tDEF CharExpr
+    {
+      doubleXstring v = {$3, $5};
+      List_Add($$, &v);
+    }
+  ;
+
 FloatParameterOptions :
   | FloatParameterOptions FloatParameterOption
  ;
@@ -6679,6 +6698,21 @@ FloatParameterOption :
       List_Delete($3);
     }
 
+  | ',' tSTRING '{' Enumeration '}'
+    {
+      std::string key($2);
+      for(int i = 0; i < List_Nbr($4); i++){
+        doubleXstring v;
+        List_Read($4, i, &v);
+        FloatOptions_S[key].push_back(v.d);
+        CharOptions_S[key].push_back(v.s);
+      }
+      Free($2);
+      for(int i = 0; i < List_Nbr($4); i++)
+        Free(((doubleXstring*)List_Pointer($4, i))->s);
+      List_Delete($4);
+    }
+
   | ',' tSTRING tBIGSTR
     {
       std::string key($2);
@@ -6694,18 +6728,36 @@ CharParameterOptions :
  ;
 
 CharParameterOption :
-    ',' tSTRING ListOfCharExpr
+
+    ',' tSTRING FExpr
     {
       std::string key($2);
-      for(int i = 0; i < List_Nbr($3); i++){
+      double val = $3;
+      FloatOptions_S[key].push_back(val);
+      Free($2);
+    }
+
+  | ',' tSTRING tBIGSTR
+    {
+      std::string key($2);
+      std::string val($3);
+      CharOptions_S[key].push_back(val);
+      Free($2);
+      Free($3);
+    }
+
+  | ',' tSTRING '{' RecursiveListOfCharExpr '}'
+    {
+      std::string key($2);
+      for(int i = 0; i < List_Nbr($4); i++){
         char *s;
-        List_Read($3, i, &s);
+        List_Read($4, i, &s);
         std::string val(s);
         Free(s);
         CharOptions_S[key].push_back(val);
       }
       Free($2);
-      List_Delete($3);
+      List_Delete($4);
     }
  ;
 
@@ -7179,18 +7231,6 @@ CharExpr :
       strcpy($$, ctime(&date_info));
       $$[strlen($$)-1] = 0;
     }
- ;
-
-ListOfCharExpr :
-
-    CharExpr
-    {
-      $$ = List_Create(1,1,sizeof(char*));
-      List_Add($$, &($1));
-    }
-
-  | '{' RecursiveListOfCharExpr '}'
-    { $$ = $2; }
  ;
 
 RecursiveListOfCharExpr :
