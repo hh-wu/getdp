@@ -44,7 +44,7 @@ static List_T *Current_BasisFunction_L, *Current_SubSpace_L, *Current_GlobalQuan
 static List_T *Current_WholeQuantity_L, *Current_System_L, *Operation_L;
 static List_T *ListOfFormulation, *ListOfBasisFunction, *ListOfEntityIndex;
 static int Num_BasisFunction = 1, YaccLevel = 0;
-static int Nbr_Index, Flag_MultipleIndex, Flag1, FlagError;
+static int FlagError;
 static int Type_TermOperator, Type_Function, Type_SuppList;
 static int Quantity_TypeOperator, Quantity_Index;
 static int Current_DofIndexInWholeQuantity, Last_DofIndexInWholeQuantity;
@@ -136,9 +136,9 @@ struct doubleXstring{
 %token <d> tFLOAT
 %token <c> tSTRING tBIGSTR
 
-%type <i>  GroupRHS GroupRHS_MultipleIndex ReducedGroupRHS
+%type <i>  GroupRHS ReducedGroupRHS
 %type <i>  FunctionForGroup SuppListTypeForGroup
-%type <i>  Expression DefineDimension MultipleIndex Index
+%type <i>  Expression
 %type <i>  ArgumentsForFunction RecursiveListOfQuantity
 %type <i>  PostQuantitySupport
 %type <l>  IRegion RecursiveListOfRegion Enumeration
@@ -371,15 +371,6 @@ Group :
     String__Index tDEF ReducedGroupRHS tEND
     { Add_Group(&Group_S, $1, 0, 0); }
 
-  | tSTRING Index tDEF ReducedGroupRHS tEND
-    { Add_Group(&Group_S, $1, 2, $2); }
-
-  | tSTRING DefineDimension tDEF ReducedGroupRHS tEND
-    {
-      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
-      Add_Group(&Group_S, $1, 0, 0);
-    }
-
   | String__Index tDEF tMovingBand2D '[' IRegion
     {
       int j = 0;
@@ -465,38 +456,6 @@ GroupRHS :
       }
       Free($1);
     }
- ;
-
-GroupRHS_MultipleIndex :
-
-    String__Index MultipleIndex
-    {
-      int i;
-      if(!Flag_MultipleIndex) {
-	if((i = List_ISearchSeq(Problem_S.Group, $1, fcmp_Group_Name)) >= 0)
-	  List_Read(Problem_S.Group, i, &Group_S); $$ = i;
-      }
-      else {
-	List_Reset(ListOfInt_L);  /* For list of multiple region */
-
-	for(int k = 0; k < Nbr_Index; k++) {
-	  char tmpstr[256];
-	  sprintf(tmpstr, "%s_%d", $1, k+1);
-	  if((i = List_ISearchSeq(Problem_S.Group, tmpstr,
-				    fcmp_Group_Name)) < 0) {
-	    $$ = -2; vyyerror("Unknown Group: %s {%d}", $1, k+1);
-	  }
-	  else {
-	    if(k == 0) {
-	      List_Read(Problem_S.Group, i, &Group_S); $$ = i;
-	    }
-	  }
-	  List_Add(ListOfInt_L, &i);
-	}
-      }
-      Free($1);
-    }
-
  ;
 
 FunctionForGroup :
@@ -743,24 +702,6 @@ DefineGroups :
 
 
 Comma : /* none */ | ',' ;
-
-
-DefineDimension :
-
-    '{' '#' FExpr '}'
-    { $$ = (int)$3; }
- ;
-
-MultipleIndex :
-
-    /* none */ { Flag_MultipleIndex = 0; }
-  | '{' '}'    { Flag_MultipleIndex = 1; }
- ;
-
-
-Index :
-    '{' FExpr '}'    { $$ = (int)$2; }
- ;
 
 
 /* ------------------------------------------------------------------------ */
@@ -1871,14 +1812,6 @@ ConstraintTerm :
       Constraint_S.Name = $2;
     }
 
-  | tName tSTRING DefineDimension tEND
-    {
-      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
-      Check_NameOfStructNotExist("Constraint", Problem_S.Constraint, $2,
-				 fcmp_Constraint_Name);
-      Constraint_S.Name = $2;
-    }
-
   | tType tSTRING tEND
     { Constraint_S.Type = Get_DefineForString(Constraint_Type, $2, &FlagError);
       if(FlagError){
@@ -2131,14 +2064,6 @@ FunctionSpaceTerm :
       FunctionSpace_S.Name = $2;
     }
 
-  | tName tSTRING DefineDimension tEND
-    {
-      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
-      Check_NameOfStructNotExist("FunctionSpace", Problem_S.FunctionSpace,
-				 $2, fcmp_FunctionSpace_Name);
-      FunctionSpace_S.Name = $2;
-    }
-
   | tType tSTRING tEND
     { FunctionSpace_S.Type = Get_DefineForString(Field_Type, $2, &FlagError);
       if(FlagError){
@@ -2226,11 +2151,6 @@ BasisFunctionTerm :
 				 $2, fcmp_BasisFunction_NameOfCoef);
       BasisFunction_S.NameOfCoef = $2; BasisFunction_S.Dimension = 1; }
 
-  | tNameOfCoef tSTRING DefineDimension tEND
-    { Check_NameOfStructNotExist("NameOfCoef", Current_BasisFunction_L,
-				 $2, fcmp_BasisFunction_NameOfCoef);
-      BasisFunction_S.NameOfCoef = $2; BasisFunction_S.Dimension = $3; }
-
   | tFunction tSTRING OptionalParametersForBasisFunction tEND
     {
       Get_3Function3NbrForString
@@ -2317,53 +2237,26 @@ OptionalParametersForBasisFunction :
     /* none */
 
   | '{' tQuantity tSTRING tEND
-    tFormulation tSTRING DefineDimension tEND
+        tFormulation tSTRING '{' FExpr '}' tEND
+        tGroup GroupRHS tEND
+        tResolution tSTRING '{' FExpr '}' tEND '}'
     {
-      Nbr_Index = $7;
-    }
-    tGroup GroupRHS_MultipleIndex tEND
-    {
-      Flag1 = Flag_MultipleIndex;
-      if(Flag_MultipleIndex)
-	Message::Warning("Old way to define Group, remove \'{}\' to use one Group");
-      /* Will be the new way to define Group
-      if(!Flag_MultipleIndex)
-	vyyerror("Multiple Group needed for multiple Formulation: %s {}", $6);
-      */
-    }
-    tResolution tSTRING MultipleIndex tEND '}'
-    {
-      if(!Flag_MultipleIndex)
-	vyyerror("Multiple Resolution needed for multiple Formulation: %s {}", $6);
+      int dim = $8;
+      if(dim != $17)
+        vyyerror("Number of formulations different from number of resolutions");
+      if(List_Nbr(Group_S.InitialList) != dim)
+        vyyerror("Group sould have %d single regions", dim);
 
       BasisFunction_S.GlobalBasisFunction =
-	List_Create($7, 1, sizeof(struct GlobalBasisFunction));
+	List_Create(dim, 1, sizeof(struct GlobalBasisFunction));
 
-      for(int k = 0; k < $7; k++) {
-
-	if(!Flag1) { /* New way: only one group with all the single regions is given */
-	  int i;
-	  List_Read(Group_S.InitialList, k, &i);
-	  GlobalBasisFunction_S.EntityIndex = i;
-	}
-	else { /* Old way */
-	  int i;
-	  List_Read(ListOfInt_L, k, &i);
-	  List_Read(Problem_S.Group, i, &Group_S);
-	  if(List_Nbr(Group_S.InitialList) == 1) {
-	    List_Read(Group_S.InitialList, 0, &i);
-	    GlobalBasisFunction_S.EntityIndex = i;
-	  }
-	  else if(List_Nbr(Group_S.InitialList) == 0) {
-	    GlobalBasisFunction_S.EntityIndex = -1;
-	  }
-	  else
-	    vyyerror("Only one Region needed in Group: %s", Group_S.Name);
-	}
+      for(int k = 0; k < dim; k++) {
+        int i;
+        List_Read(Group_S.InitialList, k, &i);
+        GlobalBasisFunction_S.EntityIndex = i;
 
 	char tmpstr[256];
 	sprintf(tmpstr, "%s_%d", $6, k+1);
-	int i;
 	if((i = List_ISearchSeq(Problem_S.Formulation, tmpstr,
 				 fcmp_Formulation_Name)) >= 0) {
 	  GlobalBasisFunction_S.FormulationIndex = i;
@@ -2378,14 +2271,14 @@ OptionalParametersForBasisFunction :
 	  }
 	}
 	else
-	  vyyerror("Unknown Formulation: %s {%d}", $6, k+1);
+	  vyyerror("Unknown Formulation: %s", tmpstr);
 
 	sprintf(tmpstr, "%s_%d", $15, k+1);
 	if((i = List_ISearchSeq(Problem_S.Resolution, tmpstr,
-				 fcmp_Resolution_Name)) >= 0)
+                                fcmp_Resolution_Name)) >= 0)
 	  GlobalBasisFunction_S.ResolutionIndex = i;
 	else
-	  vyyerror("Unknown Resolution: %s {%d}", $15, k+1);
+	  vyyerror("Unknown Resolution: %s", tmpstr);
 
 	GlobalBasisFunction_S.QuantityStorage = NULL;
 	List_Add(BasisFunction_S.GlobalBasisFunction, &GlobalBasisFunction_S);
@@ -2741,14 +2634,6 @@ FormulationTerm :
 
     tName String__Index tEND
     {
-      Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
-				 $2, fcmp_Formulation_Name);
-      Formulation_S.Name = $2;
-    }
-
-  | tName tSTRING DefineDimension tEND
-    {
-      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Formulation", Problem_S.Formulation,
 				 $2, fcmp_Formulation_Name);
       Formulation_S.Name = $2;
@@ -3747,14 +3632,6 @@ ResolutionTerm :
 
     tName String__Index tEND
     {
-      Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
-				 $2, fcmp_Resolution_Name);
-      Resolution_S.Name = $2;
-    }
-
-  | tName tSTRING DefineDimension tEND
-    {
-      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("Resolution", Problem_S.Resolution,
 				 $2, fcmp_Resolution_Name);
       Resolution_S.Name = $2;
@@ -5317,14 +5194,6 @@ PostProcessing :
 PostProcessingTerm :
     tName String__Index tEND
     {
-      Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
-				 $2, fcmp_PostProcessing_Name);
-      PostProcessing_S.Name = $2;
-    }
-
-  | tName tSTRING DefineDimension tEND
-    {
-      vyyerror("Multi-fields {#.} are not used anymore. Use Loops For ... EndFor");
       Check_NameOfStructNotExist("PostProcessing", Problem_S.PostProcessing,
 				 $2, fcmp_PostProcessing_Name);
       PostProcessing_S.Name = $2;
