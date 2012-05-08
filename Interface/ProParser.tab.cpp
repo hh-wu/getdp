@@ -9514,8 +9514,8 @@ yyreduce:
 #line 3938 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-	  Operation_P->Type = OPERATION_SETCOMMSELF;
-	  Operation_P->Rank = -1;
+      Operation_P->Type = OPERATION_SETCOMMSELF;
+      Operation_P->Rank = -1;
     ;}
     break;
 
@@ -9525,8 +9525,8 @@ yyreduce:
 #line 3945 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-	  Operation_P->Type = OPERATION_SETCOMMWORLD;
-	  Operation_P->Rank = -1;
+      Operation_P->Type = OPERATION_SETCOMMWORLD;
+      Operation_P->Rank = -1;
     ;}
     break;
 
@@ -9536,8 +9536,8 @@ yyreduce:
 #line 3952 "ProParser.y"
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-	  Operation_P->Type = OPERATION_BARRIER;
-	  Operation_P->Rank = -1;
+      Operation_P->Type = OPERATION_BARRIER;
+      Operation_P->Rank = -1;
     ;}
     break;
 

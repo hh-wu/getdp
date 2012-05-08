@@ -230,7 +230,7 @@ struct doubleXstring{
 %token      tIterativeLoop tIterativeLinearSolver
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
-%token		tSetCommSelf tSetCommWorld tBarrier
+%token        tSetCommSelf tSetCommWorld tBarrier
 %token      tDivisionCoefficient tChangeOfState
 %token      tChangeOfCoordinates tChangeOfCoordinates2 tSystemCommand
 %token        tGmshRead tGmshClearAll
@@ -3937,22 +3937,22 @@ OperationTerm :
   | tSetCommSelf tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-	  Operation_P->Type = OPERATION_SETCOMMSELF;
-	  Operation_P->Rank = -1;
+      Operation_P->Type = OPERATION_SETCOMMSELF;
+      Operation_P->Rank = -1;
     }
 
   | tSetCommWorld tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-	  Operation_P->Type = OPERATION_SETCOMMWORLD;
-	  Operation_P->Rank = -1;
+      Operation_P->Type = OPERATION_SETCOMMWORLD;
+      Operation_P->Rank = -1;
     }
 
   | tBarrier tEND
     { Operation_P = (struct Operation*)
 	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
-	  Operation_P->Type = OPERATION_BARRIER;
-	  Operation_P->Rank = -1;
+      Operation_P->Type = OPERATION_BARRIER;
+      Operation_P->Rank = -1;
     }
 
   | tBreak tEND
