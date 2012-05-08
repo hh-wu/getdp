@@ -3490,7 +3490,9 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       break ;
 
     case OPERATION_BARRIER :
+#if defined(HAVE_PETSC)
       MPI_Barrier(PETSC_COMM_WORLD);
+#endif
       break ;
 
 
