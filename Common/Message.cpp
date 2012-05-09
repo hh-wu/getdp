@@ -412,6 +412,9 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
       onelab::number o2(name + "/UseCommandLine", 1.);
       o2.setVisible(false);
       _onelabClient->set(o2);
+      onelab::number o3(name + "/GuessModelName", 1.);
+      o3.setVisible(false);
+      _onelabClient->set(o3);
       std::vector<onelab::string> ps;
       _onelabClient->get(ps, name + "/Action");
       if(ps.size()){
