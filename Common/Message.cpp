@@ -566,6 +566,7 @@ void Message::ExchangeOnelabParameter(Constant *c,
       if(copt.count("Choices")) ps[0].setChoiceLabels(copt["Choices"]);
     }
     if(fopt.count("Visible")) ps[0].setVisible(fopt["Visible"][0] ? true : false);
+    if(fopt.count("ReadOnly")) ps[0].setReadOnly(fopt["ReadOnly"][0] ? true : false);
     if(copt.count("Help")) ps[0].setHelp(copt["Help"][0]);
     if(copt.count("Label")) ps[0].setLabel(copt["Label"][0]);
     if(copt.count("ShortHelp")) ps[0].setLabel(copt["ShortHelp"][0]);
@@ -587,6 +588,7 @@ void Message::ExchangeOnelabParameter(Constant *c,
     }
     // send updated parameter to server
     if(fopt.count("Visible")) ps[0].setVisible(fopt["Visible"][0] ? true : false);
+    if(fopt.count("ReadOnly")) ps[0].setReadOnly(fopt["ReadOnly"][0] ? true : false);
     if(copt.count("Help")) ps[0].setHelp(copt["Help"][0]);
     if(copt.count("Label")) ps[0].setLabel(copt["Label"][0]);
     if(copt.count("ShortHelp")) ps[0].setLabel(copt["ShortHelp"][0]);
