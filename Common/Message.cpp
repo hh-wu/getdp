@@ -406,6 +406,8 @@ void Message::InitializeOnelab(std::string name, std::string sockname)
     }
     else{
       _onelabClient = c;
+      // send configuration options (we send them even if Action != initialize),
+      // so that they are also sent e.g. when the database is reset
       onelab::string o(name + "/FileExtension", ".pro");
       o.setVisible(false);
       _onelabClient->set(o);

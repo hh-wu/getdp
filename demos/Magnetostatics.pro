@@ -24,10 +24,11 @@
 */
 
 Group {
-  DefineGroup[ Domain_M, Domain_S, Domain_Inf ];
+  DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain ];
 }
 
 Function{
+  DefineConstant[ Val_Rint, Val_Rext ];
   DefineFunction[ mu, nu, hc, js ];
 }
 
