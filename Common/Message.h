@@ -78,11 +78,11 @@ class Message {
   static std::string GetOnelabAction();
   static void AddOnelabNumberChoice(std::string name, double val);
   static void AddOnelabStringChoice(std::string name, std::string kind, std::string choice);
-  static void ExchangeOnelabParameter(Constant *c,
-                                      std::map<std::string, std::vector<double> > &fopt,
-                                      std::map<std::string, std::vector<std::string> > &copt);
-  static void ExchangeOnelabParameter(Expression *p);
-  static void ExchangeOnelabParameter(Group *p);
+  typedef std::map<std::string, std::vector<double> > fmap;
+  typedef std::map<std::string, std::vector<std::string> > cmap;
+  static void ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt);
+  static void ExchangeOnelabParameter(Group *p, fmap &fopt, cmap &copt);
+  static void ExchangeOnelabParameter(Expression *p, fmap &fopt, cmap &copt);
 };
 
 #endif

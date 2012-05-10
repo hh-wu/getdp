@@ -512,13 +512,9 @@ std::string Message::GetOnelabClientName()
   return "";
 }
 
-void Message::ExchangeOnelabParameter(Constant *c,
-                                      std::map<std::string, std::vector<double> > &fopt,
-                                      std::map<std::string, std::vector<std::string> > &copt)
+static std::string _getParameterName(char *Name, Message::cmap &copt)
 {
-  if(!_onelabClient) return;
-
-  std::string name(c->Name);
+  std::string name(Name);
   if(copt.count("Path")){
     std::string path = copt["Path"][0];
     // if path ends with a number, assume it's for ordering purposes
@@ -529,6 +525,24 @@ void Message::ExchangeOnelabParameter(Constant *c,
     else
       name = path + "/" + name;
   }
+  return name;
+}
+
+static void _setStandardOptions(onelab::parameter *p, Message::fmap &fopt, Message::cmap &copt)
+{
+  if(copt.count("Label")) p->setLabel(copt["Label"][0]);
+  if(copt.count("ShortHelp")) p->setLabel(copt["ShortHelp"][0]);
+  if(copt.count("Help")) p->setHelp(copt["Help"][0]);
+  if(fopt.count("Visible")) p->setVisible(fopt["Visible"][0] ? true : false);
+  if(fopt.count("ReadOnly")) p->setReadOnly(fopt["ReadOnly"][0] ? true : false);
+  if(copt.count("Highlight")) p->setAttribute("Highlight", copt["Highlight"][0]);
+}
+
+void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
+{
+  if(!_onelabClient) return;
+
+  std::string name = _getParameterName(c->Name, copt);
 
   if(c->Type == VAR_FLOAT){
     std::vector<onelab::number> ps;
@@ -567,14 +581,9 @@ void Message::ExchangeOnelabParameter(Constant *c,
       ps[0].setChoices(fopt["Choices"]);
       if(copt.count("Choices")) ps[0].setChoiceLabels(copt["Choices"]);
     }
-    if(fopt.count("Visible")) ps[0].setVisible(fopt["Visible"][0] ? true : false);
-    if(fopt.count("ReadOnly")) ps[0].setReadOnly(fopt["ReadOnly"][0] ? true : false);
-    if(copt.count("Help")) ps[0].setHelp(copt["Help"][0]);
-    if(copt.count("Label")) ps[0].setLabel(copt["Label"][0]);
-    if(copt.count("ShortHelp")) ps[0].setLabel(copt["ShortHelp"][0]);
     if(noLoop && copt.count("Loop")) ps[0].setAttribute("Loop", copt["Loop"][0]);
     if(noGraph && copt.count("Graph")) ps[0].setAttribute("Graph", copt["Graph"][0]);
-    if(copt.count("Highlight")) ps[0].setAttribute("Highlight", copt["Highlight"][0]);
+    _setStandardOptions(&ps[0], fopt, copt);
     _onelabClient->set(ps[0]);
   }
   else if(c->Type == VAR_CHAR){
@@ -589,25 +598,55 @@ void Message::ExchangeOnelabParameter(Constant *c,
       ps[0].setValue(c->Value.Char);
     }
     // send updated parameter to server
-    if(fopt.count("Visible")) ps[0].setVisible(fopt["Visible"][0] ? true : false);
-    if(fopt.count("ReadOnly")) ps[0].setReadOnly(fopt["ReadOnly"][0] ? true : false);
-    if(copt.count("Help")) ps[0].setHelp(copt["Help"][0]);
-    if(copt.count("Label")) ps[0].setLabel(copt["Label"][0]);
-    if(copt.count("ShortHelp")) ps[0].setLabel(copt["ShortHelp"][0]);
     if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
-    if(copt.count("Highlight")) ps[0].setAttribute("Highlight", copt["Highlight"][0]);
+    _setStandardOptions(&ps[0], fopt, copt);
     _onelabClient->set(ps[0]);
   }
 }
 
-void Message::ExchangeOnelabParameter(Group *group)
+extern void Fill_GroupInitialListFromString(List_T *list, const char *str);
+
+void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
 {
-  // FIXME TODO
+  if(!_onelabClient) return;
+
+  std::string name = _getParameterName(g->Name, copt);
+
+  std::vector<onelab::region> ps;
+  _onelabClient->get(ps, name);
+  if(ps.size()){ // use value from server
+    std::set<std::string> val(ps[0].getValue());
+    for(std::set<std::string>::iterator it = val.begin(); it != val.end(); it++){
+      printf("filling group with server val %s\n", it->c_str());
+      Fill_GroupInitialListFromString(g->InitialList, it->c_str());
+    }
+  }
+  else{
+    ps.resize(1);
+    ps[0].setName(name);
+    if(copt.count("Strings")){
+      std::set<std::string> val;
+      std::vector<std::string> vec(copt["Strings"]);
+      for(unsigned int i = 0; i < vec.size(); i++){
+        val.insert(vec[i]);
+        printf("SETTING val from strings %s\n", vec[i].c_str());
+      }
+      ps[0].setValue(val);
+    }
+  }
+  // send updated parameter to server
+  //if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
+  _setStandardOptions(&ps[0], fopt, copt);
+  _onelabClient->set(ps[0]);
 }
 
-void Message::ExchangeOnelabParameter(Expression *function)
+void Message::ExchangeOnelabParameter(Expression *e, fmap &fopt, cmap &copt)
 {
-  // FIXME TODO
+  if(!_onelabClient) return;
+
+  std::string name = _getParameterName(e->Name, copt);
+
+  printf("exchanging function %s with OneLab!\n", name.c_str());
 }
 
 void Message::FinalizeOnelab()
