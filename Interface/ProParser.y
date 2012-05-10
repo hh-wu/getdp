@@ -712,40 +712,6 @@ DefineGroups :
       }
       Free($3) ;
     }
-
-  // FIXME: this is not consistent with the philosophy of DefineGroup
-  | DefineGroups Comma String__Index tDEF '{' '}'
-    {
-      int i;
-      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
-	Free($3) ;
-      }
-      Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
-      Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
-      Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-      i = Add_Group(&Group_S, $3, false, 0, 0) ;
-    }
-
-  // FIXME: this is not consistent with the philosophy of DefineGroup
-  | DefineGroups Comma String__Index '{' FExpr '}' tDEF '{' '}'
-    {
-      for (int k = 0 ; k < (int)$5 ; k++) {
-	char tmpstr[256];
-	sprintf(tmpstr, "%s_%d", $3, k+1) ;
-	/*
-	if ( (i = List_ISearchSeq(Problem_S.Group, tmpstr,
-				  fcmp_Group_Name)) < 0 ) {
-	*/
-	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
-	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
-	  Add_Group(&Group_S, $3, false, 2, k+1) ;
-	  /*
-	}
-	  */
-      }
-      Free($3) ;
-    }
   ;
 
 
