@@ -633,16 +633,34 @@ IRegion :
 
  ;
 
-RecursiveListOfString :
-    tSTRING
+ListOfStringsForCharOptions :
+
+  /* none */
+
+  | tSTRING
     {
       CharOptions_S["Strings"].push_back($1);
       Free($1);
     }
-  | RecursiveListOfString ',' tSTRING
+
+  | tINT
+    {
+      char tmp[128];
+      sprintf(tmp, "%d", $1);
+      CharOptions_S["Strings"].push_back(tmp);
+    }
+
+  | ListOfStringsForCharOptions ',' tSTRING
     {
       CharOptions_S["Strings"].push_back($3);
       Free($3);
+    }
+
+  | ListOfStringsForCharOptions ',' tINT
+    {
+      char tmp[128];
+      sprintf(tmp, "%d", $3);
+      CharOptions_S["Strings"].push_back(tmp);
     }
  ;
 
@@ -654,11 +672,8 @@ DefineGroups :
     {
       int i;
       if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0 ) {
-        Group_S.Name = $3; // will be overwritten in Add_Group
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
-        FloatOptions_S.clear(); CharOptions_S.clear();
-        Message::ExchangeOnelabParameter(&Group_S, FloatOptions_S, CharOptions_S);
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	i = Add_Group(&Group_S, $3, false, 0, 0) ;
       }
@@ -667,7 +682,7 @@ DefineGroups :
 
   | DefineGroups Comma String__Index tDEF '{'
     { FloatOptions_S.clear(); CharOptions_S.clear(); }
-    '{' RecursiveListOfString '}' CharParameterOptions '}'
+    '{' ListOfStringsForCharOptions '}' CharParameterOptions '}'
     {
       int i;
       if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0 ) {
