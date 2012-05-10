@@ -437,6 +437,7 @@ int MainLegacy(int argc, char *argv[])
 
   Init_ProblemStructure();
   Read_ProblemStructure(pro);
+  Finalize_ProblemStructure();
 
   int choose = 1;
   if (!Flag_PRE && !Flag_CAL && !Flag_POS && !check){

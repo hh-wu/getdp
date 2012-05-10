@@ -1485,6 +1485,7 @@ int fcmp_PostOperation_Name       (const void *a, const void *b);
 
 void Init_ProblemStructure();
 void Read_ProblemStructure(const char *fileName);
+void Finalize_ProblemStructure();
 void Print_ProblemStructure();
 std::string Get_AbsolutePath(const char *fileName);
 

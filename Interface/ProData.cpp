@@ -193,6 +193,11 @@ void Read_ProblemStructure(const char *name)
   getdp_yyincludenum = Last_yyincludenum;
 }
 
+void Finalize_ProblemStructure()
+{
+  // Here we should parse any ONELAB-defined functions (+ their context)
+}
+
 char *Get_ExpressionName(int Index)
 {
   return(((struct Expression *)List_Pointer(Problem_S.Expression, Index))->Name);
@@ -1554,16 +1559,14 @@ void  Print_ProblemStructure()
 
   while (1) {
     Message::Info("Checking");
-    Message::Check("(1) Group                (2) Function\n");
-    Message::Check("(3) Constraint           (4) Jacobian\n");
-    Message::Check("(5) Integration          (6) FunctionSpace\n");
-    Message::Check("(7) Formulation          (8) Resolution\n");
-    Message::Check("(9) PostProcessing      (10) PostOperation\n");
-    Message::Check("(0) Quit\n");
+    Message::Check("(1) Constants        (2) Groups          (3) Functions\n");
+    Message::Check("(4) Constraints      (5) Jacobians       (6) Integrations\n");
+    Message::Check("(7) FunctionSpaces   (8) Formulations    (9) Resolution\n");
+    Message::Check("(10) PostProcessings (11) PostOperations (other) Quit\n");
     Message::Check("Choice: ");
     fgets(buff, 128, stdin);
     ichoice = atoi(buff);
-    if(Print_Object(ichoice ? ichoice : -1)){
+    if(Print_Object(ichoice ? ichoice - 1 : -1)){
       Message::Check("E n d C h e c k i n g\n");
       return;
     }

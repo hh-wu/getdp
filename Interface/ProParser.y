@@ -102,9 +102,8 @@ int  getdp_yylex();
 // Forward function declarations
 void Check_NameOfStructNotExist(const char *Struct, List_T *List_L, void *data,
 				int (*fcmp)(const void *a, const void *b));
-int  Add_Group(struct Group *Group_P, char *Name, int Flag_Plus, int Num_Index);
-int  Add_Group_2(struct Group *Group_P, char *Name, int Flag_Add,
-		 int Flag_Plus, int Num_Index1, int Num_Index2);
+int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
+               int Flag_Plus, int Num_Index);
 int  Num_Group(struct Group *Group_P, char *Name, int Num_Group);
 int  Add_Expression(struct Expression *Expression_P, char *Name, int Flag_Plus);
 bool Is_ExpressionPieceWiseDefined(int index);
@@ -369,7 +368,10 @@ Groups :
 Group :
 
     String__Index tDEF ReducedGroupRHS tEND
-    { Add_Group(&Group_S, $1, 0, 0); }
+    { Add_Group(&Group_S, $1, false, 0, 0); }
+
+  | String__Index '+' tDEF ReducedGroupRHS tEND
+    { Add_Group(&Group_S, $1, true, 0, 0); }
 
   | String__Index tDEF tMovingBand2D '[' IRegion
     {
@@ -396,13 +398,10 @@ Group :
     {
       Group_S.MovingBand2D->InitialList2 = $11;
       Group_S.MovingBand2D->Period2 = (int)$13;
-      Add_Group(&Group_S, $1, 0, 0);
+      Add_Group(&Group_S, $1, false, 0, 0);
     }
 
   | tDefineGroup '[' DefineGroups ']' tEND
-
-  | String__Index '+' tDEF ReducedGroupRHS tEND
-    { Add_Group_2(&Group_S, $1, 1, 0, 0, 0); }
 
   | Loop
  ;
@@ -634,32 +633,52 @@ IRegion :
 
  ;
 
+RecursiveListOfString :
+    tSTRING
+    {
+      CharOptions_S["Strings"].push_back($1);
+      Free($1);
+    }
+  | RecursiveListOfString ',' tSTRING
+    {
+      CharOptions_S["Strings"].push_back($3);
+      Free($3);
+    }
+ ;
 
 DefineGroups :
 
     /* none */
 
   | DefineGroups Comma String__Index
-    { int i;
+    {
+      int i;
       if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0 ) {
+        Group_S.Name = $3; // will be overwritten in Add_Group
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
+        FloatOptions_S.clear(); CharOptions_S.clear();
+        Message::ExchangeOnelabParameter(&Group_S, FloatOptions_S, CharOptions_S);
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-	i = Add_Group(&Group_S, $3, 0, 0) ;
+	i = Add_Group(&Group_S, $3, false, 0, 0) ;
       }
       else  Free($3) ;
     }
 
-  | DefineGroups Comma String__Index tDEF '{' '}'
+  | DefineGroups Comma String__Index tDEF '{'
+    { FloatOptions_S.clear(); CharOptions_S.clear(); }
+    '{' RecursiveListOfString '}' CharParameterOptions '}'
     {
       int i;
-      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
-	Free($3) ;
+      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) < 0 ) {
+        Group_S.Name = $3; // will be overwritten in Add_Group
+	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
+	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
+        Message::ExchangeOnelabParameter(&Group_S, FloatOptions_S, CharOptions_S);
+	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
+	i = Add_Group(&Group_S, $3, false, 0, 0) ;
       }
-      Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
-      Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
-      Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
-      i = Add_Group(&Group_S, $3, 0, 0) ;
+      else  Free($3) ;
     }
 
   | DefineGroups Comma String__Index '{' FExpr '}'
@@ -673,12 +692,26 @@ DefineGroups :
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
-	  Add_Group(&Group_S, $3, 2, k+1) ;
+	  Add_Group(&Group_S, $3, false, 2, k+1) ;
 	}
       }
       Free($3) ;
     }
 
+  // FIXME: this is not consistent with the philosophy of DefineGroup
+  | DefineGroups Comma String__Index tDEF '{' '}'
+    {
+      int i;
+      if ( (i = List_ISearchSeq(Problem_S.Group, $3, fcmp_Group_Name)) >= 0 ) {
+	Free($3) ;
+      }
+      Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
+      Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
+      Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
+      i = Add_Group(&Group_S, $3, false, 0, 0) ;
+    }
+
+  // FIXME: this is not consistent with the philosophy of DefineGroup
   | DefineGroups Comma String__Index '{' FExpr '}' tDEF '{' '}'
     {
       for (int k = 0 ; k < (int)$5 ; k++) {
@@ -691,7 +724,7 @@ DefineGroups :
 	  Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	  Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	  Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
-	  Add_Group(&Group_S, $3, 2, k+1) ;
+	  Add_Group(&Group_S, $3, false, 2, k+1) ;
 	  /*
 	}
 	  */
@@ -2523,7 +2556,8 @@ ConstraintInFSs :
 	       List_Pointer(Problem_S.Group,
 			    ConstraintPerRegion_P->SubRegionIndex))
 	      ->InitialList : NULL;
-	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity", 1, 0);
+	    ConstraintInFS_S.EntityIndex = Add_Group(&Group_S, (char*)"CO_Entity",
+                                                     false, 1, 0);
 	    ConstraintInFS_S.ConstraintPerRegion = ConstraintPerRegion_P;
 
 	    List_Add($$ = $1, &ConstraintInFS_S);
@@ -7164,7 +7198,8 @@ NbrRegions :
 
 /*  A d d _ G r o u p   &   C o .  */
 
-int  Add_Group(struct Group *Group_P, char *Name, int Flag_Plus, int Num_Index)
+int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
+               int Flag_Plus, int Num_Index)
 {
   if(!Problem_S.Group)
     Problem_S.Group = List_Create(50, 50, sizeof (struct Group));
@@ -7190,57 +7225,77 @@ int  Add_Group(struct Group *Group_P, char *Name, int Flag_Plus, int Num_Index)
     Group_P->IsExtendedListMultiValued = true;
     List_Add(Problem_S.Group, Group_P);
   }
-  else  List_Write(Problem_S.Group, i, Group_P);
-
-  return i;
-
-}
-
-int  Add_Group_2(struct Group *Group_P, char *Name, int Flag_Add,
-		 int Flag_Plus, int Num_Index1, int Num_Index2)
-{
-  List_T *InitialList;
-
-  if(!Problem_S.Group)
-    Problem_S.Group = List_Create(50, 50, sizeof (struct Group));
-
-  char tmpstr[256];
-  if(Flag_Plus == 0)
-    sprintf(tmpstr, "%s", Name);
-  else if(Flag_Plus == 1)
-    sprintf(tmpstr, "%s_%d", Name, Num_Index1);
-  else if(Flag_Plus == 2)
-    sprintf(tmpstr, "%s_%d_%d", Name, Num_Index1,Num_Index2);
-
-  Group_P->Name = strSave(tmpstr);
-
-  int  i;
-  if((i = List_ISearchSeq(Problem_S.Group, Group_P->Name, fcmp_Group_Name)) < 0) {
-    i = Group_P->Num = List_Nbr(Problem_S.Group);
-    Group_P->ExtendedList = NULL;  Group_P->ExtendedSuppList = NULL;
-    Group_P->IsExtendedListMultiValued = true;
-    List_Add(Problem_S.Group, Group_P);
-  }
   else if(Flag_Add) {
-    InitialList = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
+    List_T *InitialList = ((struct Group *)List_Pointer(Problem_S.Group, i))->InitialList;
     for(int j = 0; j < List_Nbr(Group_P->InitialList); j++) {
       List_Add(InitialList, (int *)List_Pointer(Group_P->InitialList, j));
     }
   }
-  else List_Write(Problem_S.Group, i, Group_P);
+  else  List_Write(Problem_S.Group, i, Group_P);
 
   return i;
 }
 
 int  Num_Group(struct Group *Group_P, char *Name, int Num_Group)
 {
-  if      (Num_Group >= 0)   /* OK */;
-  else if(Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, 1, 0);
+  if     (Num_Group >= 0)   /* OK */;
+  else if(Num_Group == -1)  Num_Group = Add_Group(Group_P, Name, false, 1, 0);
   else                      vyyerror("Bad Group right hand side");
 
   return Num_Group;
 }
 
+void Fill_GroupInitialListFromString(List_T *list, const char *str)
+{
+  bool found = false;
+
+  // try to find a group with name "str"
+  for(int i = 0; i < List_Nbr(Problem_S.Group); i++){
+    struct Group *Group_P = (struct Group*)List_Pointer(Problem_S.Group, i);
+    if(!strcmp(str, Group_P->Name)){
+      List_Copy(Group_P->InitialList, list);
+      found = true;
+      break;
+    }
+  }
+
+  // try to find a constant with name "str"
+  for(int i = 0; i < List_Nbr(ConstantTable_L); i++){
+    struct Constant *Constant_P = (struct Constant*)List_Pointer(ConstantTable_L, i);
+    if(!strcmp(str, Constant_P->Name)){
+      switch(Constant_P->Type){
+      case VAR_FLOAT:
+        {
+          int num = (int)Constant_P->Value.Float;
+          List_Add(list, &num);
+          found = true;
+        }
+      break;
+    case VAR_LISTOFFLOAT:
+      for(int j = 0; j < List_Nbr(Constant_P->Value.ListOfFloat); j++){
+        double d;
+        List_Read(Constant_P->Value.ListOfFloat, j, &d);
+        int num = (int)d;
+        List_Add(list, &num);
+      }
+      found = true;
+      break;
+      }
+    }
+    if(found) break;
+  }
+
+  // if not, try to convert "str" to an integer
+  if(!found){
+    int num = atoi(str);
+    if(num > 0){
+      List_Add(list, &num);
+      found = true;
+    }
+  }
+
+  if(!found) Message::Error("Unknown Group '%s'", str);
+}
 
 /*  A d d _ E x p r e s s i o n   */
 
@@ -7262,14 +7317,6 @@ int  Add_Expression(struct Expression *Expression_P,
   default :
     Expression_P->Name = Name ;
   }
-  /*
-  if(Flag_Plus) {
-    char tmpstr[256];
-    sprintf(tmpstr, "_%s_%d", Name, List_Nbr(Problem_S.Expression));
-    Expression_P->Name = strSave(tmpstr);
-  }
-  else  Expression_P->Name = Name;
-  */
 
   int  i;
   if((i = List_ISearchSeq
@@ -7393,27 +7440,27 @@ int Print_ListOfDouble(char *format, List_T *list, char *buffer)
   char tmp1[256], tmp2[256];
 
   int j = 0;
-  while(format[j]!='%') j++;
+  while(format[j] != '%') j++;
   strncpy(buffer, format, j);
-  buffer[j]='\0';
-  for(int i = 0; i<List_Nbr(list); i++){
+  buffer[j] = '\0';
+  for(int i = 0; i < List_Nbr(list); i++){
     int k = j;
     j++;
-    if(j<(int)strlen(format)){
-      if(format[j]=='%'){
+    if(j < (int)strlen(format)){
+      if(format[j] == '%'){
 	strcat(buffer, "%");
 	j++;
       }
-      while(format[j]!='%' && j<(int)strlen(format)) j++;
+      while(format[j] != '%' && j < (int)strlen(format)) j++;
       if(k != j){
 	strncpy(tmp1, &(format[k]),j-k);
-	tmp1[j-k]='\0';
+	tmp1[j-k] = '\0';
 	sprintf(tmp2, tmp1, *(double*)List_Pointer(list,i));
 	strcat(buffer, tmp2);
       }
     }
     else{
-      return List_Nbr(list)-i;
+      return List_Nbr(list) - i;
       break;
     }
   }
