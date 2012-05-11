@@ -615,11 +615,10 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
   std::vector<onelab::region> ps;
   _onelabClient->get(ps, name);
   if(ps.size()){ // use value from server
+    List_Reset(g->InitialList);
     std::set<std::string> val(ps[0].getValue());
-    for(std::set<std::string>::iterator it = val.begin(); it != val.end(); it++){
-      printf("filling group with server val %s\n", it->c_str());
+    for(std::set<std::string>::iterator it = val.begin(); it != val.end(); it++)
       Fill_GroupInitialListFromString(g->InitialList, it->c_str());
-    }
   }
   else{
     ps.resize(1);
@@ -627,15 +626,12 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
     if(copt.count("Strings")){
       std::set<std::string> val;
       std::vector<std::string> vec(copt["Strings"]);
-      for(unsigned int i = 0; i < vec.size(); i++){
+      for(unsigned int i = 0; i < vec.size(); i++)
         val.insert(vec[i]);
-        printf("SETTING val from strings %s\n", vec[i].c_str());
-      }
       ps[0].setValue(val);
     }
   }
   // send updated parameter to server
-  //if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
   _setStandardOptions(&ps[0], fopt, copt);
   _onelabClient->set(ps[0]);
 }

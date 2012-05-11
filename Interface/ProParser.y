@@ -105,6 +105,7 @@ void Check_NameOfStructNotExist(const char *Struct, List_T *List_L, void *data,
 int  Add_Group(struct Group *Group_P, char *Name, bool Flag_Add,
                int Flag_Plus, int Num_Index);
 int  Num_Group(struct Group *Group_P, char *Name, int Num_Group);
+void Fill_GroupInitialListFromString(List_T *list, const char *str);
 int  Add_Expression(struct Expression *Expression_P, char *Name, int Flag_Plus);
 bool Is_ExpressionPieceWiseDefined(int index);
 void Pro_DefineQuantityIndex(List_T *WholeQuantity_L,int DefineQuantityIndexEqu,
@@ -689,6 +690,11 @@ DefineGroups :
         Group_S.Name = $3; // will be overwritten in Add_Group
 	Group_S.Type = REGIONLIST ; Group_S.FunctionType = REGION ;
 	Group_S.InitialList = List_Create( 5, 5, sizeof(int)) ;
+        if(CharOptions_S.count("Strings")){
+          std::vector<std::string> vec(CharOptions_S["Strings"]);
+          for(unsigned int i = 0; i < vec.size(); i++)
+            Fill_GroupInitialListFromString(Group_S.InitialList, vec[i].c_str());
+        }
         Message::ExchangeOnelabParameter(&Group_S, FloatOptions_S, CharOptions_S);
 	Group_S.SuppListType = SUPPLIST_NONE ; Group_S.InitialSuppList = NULL ;
 	i = Add_Group(&Group_S, $3, false, 0, 0) ;
@@ -7275,7 +7281,7 @@ void Fill_GroupInitialListFromString(List_T *list, const char *str)
     }
   }
 
-  if(!found) Message::Error("Unknown Group '%s'", str);
+  if(!found) vyyerror("Unknown Group '%s'", str);
 }
 
 /*  A d d _ E x p r e s s i o n   */
