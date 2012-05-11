@@ -41,7 +41,15 @@ void F_InterpolationLinear(F_ARG)
     yp =  y[up] + ( xp - x[up] ) * a ;
   }
 
-  V->Val[0] = yp ;
+  if (Current.NbrHar == 1)
+    V->Val[0] = yp ;
+  else if (Current.NbrHar == 2) {
+    V->Val[0] = yp ;
+    V->Val[1] = 0. ;
+  }
+  else {
+    Message::Error("Function 'Interpolation' not valid for Complex");
+  }
   V->Type = SCALAR ;
 }
 
@@ -69,7 +77,15 @@ void F_dInterpolationLinear(F_ARG)
     dyp = (y[up] - y[lo]) / (x[up] - x[lo]) ;
   }
 
-  V->Val[0] = dyp ;
+  if (Current.NbrHar == 1)
+    V->Val[0] = dyp ;
+  else if (Current.NbrHar == 2) {
+    V->Val[0] = dyp ;
+    V->Val[1] = 0. ;
+  }
+  else {
+    Message::Error("Function 'dInterpolation' not valid for Complex");
+  }
   V->Type = SCALAR ;
 }
 
@@ -104,8 +120,12 @@ void F_dInterpolationLinear2(F_ARG)
 
   if (Current.NbrHar == 1)
     V->Val[0] = yp ;
+  else if (Current.NbrHar == 2) {
+    V->Val[0] = yp ;
+    V->Val[1] = 0. ;
+  }
   else {
-    Message::Error("Function 'Interpolation' not valid for Complex");
+    Message::Error("Function 'dInterpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
 }
@@ -144,6 +164,10 @@ void F_InterpolationAkima(F_ARG)
 
   if (Current.NbrHar == 1)
     V->Val[0] = yp ;
+  else if (Current.NbrHar == 2) {
+    V->Val[0] = yp ;
+    V->Val[1] = 0. ;
+  }
   else {
     Message::Error("Function 'Interpolation' not valid for Complex");
   }
@@ -182,8 +206,12 @@ void F_dInterpolationAkima(F_ARG)
 
   if (Current.NbrHar == 1)
     V->Val[0] = dyp ;
+  else if (Current.NbrHar == 2) {
+    V->Val[0] = dyp ;
+    V->Val[1] = 0. ;
+  }
   else {
-    Message::Error("Function 'Interpolation' not valid for Complex");
+    Message::Error("Function 'dInterpolation' not valid for Complex");
   }
   V->Type = SCALAR ;
 }
