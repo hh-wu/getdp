@@ -77,14 +77,21 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	      case NODESOF :
 	      case GROUPSOFEDGESONNODESOF :
 		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
-		Geo_GetNodesCoordinates( 1, &Current.NumEntity,
-					 &Current.x, &Current.y, &Current.z) ;
-		/* This is necessary if we want CoordXYZ[] functions
-		   to work in prepro for nodal contraints */
-		uvw = Geo_GetNodes_uvw(Current.Element->Type, &dummy) ;
-		Current.u = uvw[3 * i_Entity] ;
-		Current.v = uvw[3 * i_Entity + 1] ;
-		Current.w = uvw[3 * i_Entity + 2] ;
+		Geo_GetNodesCoordinates(1, &Current.NumEntity,
+                                        &Current.x, &Current.y, &Current.z) ;
+                /* We used to do the follwoing to get the correct u,v,w
+                   coordinates so we can use CoordXYZ[] functions in
+                   preprocessing for nodal constraints:
+
+                   uvw = Geo_GetNodes_uvw(Current.Element->Type, &dummy) ;
+                   Current.u = uvw[3 * i_Entity] ;
+                   Current.v = uvw[3 * i_Entity + 1] ;
+                   Current.w = uvw[3 * i_Entity + 2] ;
+
+                   This is not necessary anymore: we now set Current.Element=0
+                   in Get_{Value,Link}ForConstraint, and thus use
+                   Current.{x,y,z} directly in CoordXYZ[].
+                */
 		break ;
 	      case EDGESOF :
 		Current.NumEntity = abs(Num_Entity[i_Entity]) ;
@@ -151,10 +158,8 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 	    }
 	    else if (ConstraintPerRegion_P->Type == CST_LINK ||
 		     ConstraintPerRegion_P->Type == CST_LINKCPLX) {
-	      /*
-	      Message::Error("CST_LINK for GlobalQuantity not done yet") ;
-	      */
-	      /* to be validated */
+	      // Message::Error("CST_LINK for GlobalQuantity not done yet") ;
+	      // FIXME: to be validated
 	      Get_LinkForConstraint
 		(Constraint_P,
 		 abs(Num_Entity[i_Entity]),
@@ -219,8 +224,11 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
   int  k ;
   struct Value  Val_Modulus, Val_TimeFunction ;
 
-  /* Attention: u,v,w et x,y,z == 0 ! */
-  /* Il faudra changer ca. Pour le moment, on repose sur Current.x|y|z  */
+  // Warning: Current.{u,v,w} are not defined, so we cannot interpolate
+  // expressions in the reference element. We thus set Current.Element=0 and
+  // rely on Current.{x,y,z}.
+  struct Element *old = Current.Element;
+  Current.Element = 0;
 
   Get_ValueOfExpression
     ((struct Expression *)
@@ -250,6 +258,8 @@ void  Get_ValueForConstraint(struct ConstraintInFS * Constraint_P, double Value[
     // -- cf. LinAlg_SetScalar() calls in DofData.cpp
     Value[1] = 0. ;
   }
+
+  Current.Element = old;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -386,6 +396,11 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
 			    int Num_Entity,
 			    int * CodeEntity_Link, int Orient, double Value[])
 {
+  // Warning: Current.{u,v,w} are not defined, so we cannot interpolate
+  // expressions in the reference element. We thus set Current.Element=0 and
+  // rely on Current.{x,y,z}.
+  struct Element *old = Current.Element;
+  Current.Element = 0;
 
   struct TwoIntOneDouble  * TwoIntOneDouble_P ;
   List_T * Couples_L ;
@@ -411,6 +426,8 @@ void  Get_LinkForConstraint(struct ConstraintInFS * Constraint_P,
     Value[1] = TwoIntOneDouble_P->Double2 ;  /* LinkCplx */
     if (Orient && TwoIntOneDouble_P->Int1 < 0)  Value[1] *= -1. ;
   }
+
+  Current.Element = old;
 }
 
 /* Data... */
@@ -534,7 +551,7 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
 			 List_T * Couples_L)
 {
   int  Nbr_Entity, i, Nbr_EntityRef, Flag_Filter ;
-  double TOL = Current.GeoData->CharacteristicLength * 1.e-8;
+  double TOL = Current.GeoData->CharacteristicLength * 1.e-4;
   struct TwoIntOneDouble  TwoIntOneDouble ;
   struct NodeXYZ  NodeXYZ, NodeXYZRef ;
   List_T  * NodeXYZ_L, * NodeXYZRef_L ;
