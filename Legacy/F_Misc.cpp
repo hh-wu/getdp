@@ -54,15 +54,18 @@ void F_VirtualWork (F_ARG)
   double DetJac_dx[3], squF[6] ;
   double s[3] = {0.,0.,0.};
 
+  if(!Current.Element || !Current.ElementSource)
+    Message::Error("Uninitialized Element in 'F_VirtualWork'");
+
   Current.flagAssDiag = 1; /*+++prov*/
 
   int numNode = Current.NumEntity;
 
   int i = 0 ;
-  while (i < Current.Element->GeoElement->NbrNodes && 
+  while (i < Current.Element->GeoElement->NbrNodes &&
          Current.Element->GeoElement->NumNodes[i] != numNode)  i++;
 
-  if (i < Current.Element->GeoElement->NbrNodes ) {    
+  if (i < Current.Element->GeoElement->NbrNodes ) {
 
     for(int j = 0; j < 3; j++) {
       squF[j]   = A->Val[j] * A->Val[j] ;
@@ -72,32 +75,32 @@ void F_VirtualWork (F_ARG)
     //Get_BFGeoElement(Current.Element, Current.u, Current.v, Current.w);
     DetJac  = Current.Element->DetJac ;
     Jac     = Current.Element->Jac ;
-    
-    DetJac_dx[0] = 
+
+    DetJac_dx[0] =
       Current.Element->dndu[i][0] * ( Jac.c22 * Jac.c33 - Jac.c23 * Jac.c32 )
       - Current.Element->dndu[i][1] * ( Jac.c12 * Jac.c33 - Jac.c13 * Jac.c32 )
       + Current.Element->dndu[i][2] * ( Jac.c12 * Jac.c23 - Jac.c22 * Jac.c13 );
-    
-    DetJac_dx[1] = 
+
+    DetJac_dx[1] =
       - Current.Element->dndu[i][0] * ( Jac.c21 * Jac.c33 - Jac.c23 * Jac.c31 )
       + Current.Element->dndu[i][1] * ( Jac.c11 * Jac.c33 - Jac.c13 * Jac.c31 )
       - Current.Element->dndu[i][2] * ( Jac.c11 * Jac.c23 - Jac.c13 * Jac.c21 );
-    
-    DetJac_dx[2] = 
+
+    DetJac_dx[2] =
       Current.Element->dndu[i][0] * ( Jac.c21 * Jac.c32 - Jac.c22 * Jac.c31 )
       - Current.Element->dndu[i][1] * ( Jac.c11 * Jac.c32 - Jac.c12 * Jac.c31 )
       + Current.Element->dndu[i][2] * ( Jac.c11 * Jac.c22 - Jac.c12 * Jac.c21 );
-    
+
     if(DetJac != 0){
       s[0] = ( DetJac_dx[0] * ( - squF[0] + squF[1] + squF[2] )
                -  2 * DetJac_dx[1] * squF[3]
                -  2 * DetJac_dx[2] * squF[5])/DetJac ;
-      
+
       s[1] = ( DetJac_dx[1] * ( squF[0] - squF[1] + squF[2] )
                -  2 * DetJac_dx[0] * squF[3]
                -  2 * DetJac_dx[2] * squF[4])/DetJac ;
-      
-      s[2] =  ( DetJac_dx[2] * ( squF[0] + squF[1] - squF[2] ) 
+
+      s[2] =  ( DetJac_dx[2] * ( squF[0] + squF[1] - squF[2] )
                 -  2 * DetJac_dx[0] * squF[5]
                 -  2 * DetJac_dx[1] * squF[4])/DetJac ;
     }
@@ -105,7 +108,7 @@ void F_VirtualWork (F_ARG)
       Message::Warning("Zero determinant in 'F_VirtualWork'") ;
     }
   }
-  
+
   V->Type = VECTOR ;
   V->Val[0] = s[0] ;
   V->Val[1] = s[1] ;

@@ -13,7 +13,7 @@
 #include "MallocUtils.h"
 #include "Message.h"
 
-#define SQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a))
 
 extern struct CurrentData Current ;
 
@@ -24,10 +24,10 @@ void F_Normal(F_ARG)
   if(!Current.Element || Current.Element->Num == NO_ELEMENT)
     Message::Error("No element on which to compute 'F_Normal'");
 
-  Geo_CreateNormal(Current.Element->Type, 
-		   Current.Element->x, 
-		   Current.Element->y, 
-		   Current.Element->z, 
+  Geo_CreateNormal(Current.Element->Type,
+		   Current.Element->x,
+		   Current.Element->y,
+		   Current.Element->z,
 		   V->Val);
 
   if (Current.NbrHar != 1) {
@@ -53,10 +53,10 @@ void F_NormalSource(F_ARG)
   if(!Current.ElementSource || Current.ElementSource->Num == NO_ELEMENT)
     Message::Error("No element on which to compute 'F_NormalSource'");
 
-  Geo_CreateNormal(Current.ElementSource->Type, 
-		   Current.ElementSource->x, 
-		   Current.ElementSource->y, 
-		   Current.ElementSource->z, 
+  Geo_CreateNormal(Current.ElementSource->Type,
+		   Current.ElementSource->x,
+		   Current.ElementSource->y,
+		   Current.ElementSource->z,
 		   V->Val);
 
   if (Current.NbrHar != 1) {
@@ -84,12 +84,12 @@ void F_Tangent(F_ARG)
     Message::Error("No element on which to compute 'F_Tangent'");
 
   switch (Current.Element->Type) {
-   
+
   case LINE :
     tx = Current.Element->x[1] - Current.Element->x[0] ;
     ty = Current.Element->y[1] - Current.Element->y[0] ;
     tz = Current.Element->z[1] - Current.Element->z[0] ;
-    norm = sqrt(SQU(tx)+SQU(ty)+SQU(tz)) ;      
+    norm = sqrt(SQU(tx)+SQU(ty)+SQU(tz)) ;
     V->Val[0] = tx/norm ;
     V->Val[1] = ty/norm ;
     V->Val[2] = tz/norm ;
@@ -120,6 +120,9 @@ void F_ElementVol(F_ARG)
   int k;
   double Vol = 0.;
   MATRIX3x3 Jac;
+
+  if(!Current.Element || Current.Element->Num == NO_ELEMENT)
+    Message::Error("No element on which to compute 'F_ElementVol'");
 
   /* It would be more efficient to compute the volumes directly from
      the node coordinates, but I'm lazy... */
@@ -156,7 +159,7 @@ void F_ElementVol(F_ARG)
   V->Type = SCALAR ;
   V->Val[0] = fabs(Vol);
 
-  for (k = 2 ; k < Current.NbrHar ; k += 2) 
+  for (k = 2 ; k < Current.NbrHar ; k += 2)
     V->Val[MAX_DIM* k] = V->Val[0] ;
 }
 
@@ -194,7 +197,7 @@ void F_SurfaceArea(F_ARG)
     Nbr_Element = Geo_GetNbrGeoElements() ;
     for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
       Element.GeoElement = Geo_GetGeoElement(i_Element) ;
-      if ((InitialList_L && 
+      if ((InitialList_L &&
 	   List_Search(InitialList_L, &(Element.GeoElement->Region), fcmp_int)) ||
 	  (!InitialList_L && Element.GeoElement->Region == Current.Region)) {
 	Element.Num    = Element.GeoElement->Num ;
@@ -233,7 +236,7 @@ void F_SurfaceArea(F_ARG)
   V->Val[0] = Fct->Active->Case.SurfaceArea.Value ;
   V->Val[MAX_DIM] = 0;
 
-  for (k = 2 ; k < Current.NbrHar ; k += 2) { 
+  for (k = 2 ; k < Current.NbrHar ; k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0 ;
   }
@@ -246,7 +249,7 @@ void F_GetVolume(F_ARG)
 
   int     Index_Region, Nbr_Element, i_Element ;
   double  Val_Volume ;
-  double  c11, c21, c31, c12, c22, c32, c13, c23, c33 ; 
+  double  c11, c21, c31, c12, c22, c32, c13, c23, c33 ;
   double  DetJac ;
   int     i, k ;
 
@@ -274,38 +277,38 @@ void F_GetVolume(F_ARG)
     Nbr_Element = Geo_GetNbrGeoElements() ;
     for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
       Element.GeoElement = Geo_GetGeoElement(i_Element) ;
-      if ((InitialList_L && 
+      if ((InitialList_L &&
 	   List_Search(InitialList_L, &(Element.GeoElement->Region), fcmp_int)) ||
 	  (!InitialList_L && Element.GeoElement->Region == Current.Region)) {
 	Element.Num    = Element.GeoElement->Num ;
 	Element.Type   = Element.GeoElement->Type ;
 
-	if (Element.Type == TETRAHEDRON || 
+	if (Element.Type == TETRAHEDRON ||
             Element.Type == HEXAHEDRON ||
             Element.Type == PRISM) {
-          
+
 	  Get_NodesCoordinatesOfElement(&Element) ;
 	  Get_BFGeoElement(&Element, 0., 0., 0.) ;
-          
+
 	  c11 = c21 = c31 = c12 = c22 = c32 = c13 = c23 = c33 = 0;
 	  for ( i = 0 ; i < Element.GeoElement->NbrNodes ; i++ ) {
             c11 += Element.x[i] * Element.dndu[i][0] ;
             c21 += Element.x[i] * Element.dndu[i][1] ;
             c31 += Element.x[i] * Element.dndu[i][2] ;
-            
+
             c12 += Element.y[i] * Element.dndu[i][0] ;
             c22 += Element.y[i] * Element.dndu[i][1] ;
             c32 += Element.y[i] * Element.dndu[i][2] ;
-            
+
             c13 += Element.z[i] * Element.dndu[i][0] ;
             c23 += Element.z[i] * Element.dndu[i][1] ;
             c33 += Element.z[i] * Element.dndu[i][2] ;
 	  }
-          
+
           DetJac = c11 * c22 * c33 + c13 * c21 * c32
             + c12 * c23 * c31 - c13 * c22 * c31
             - c11 * c23 * c32 - c12 * c21 * c33 ;
-          
+
           switch(Element.Type){
           case TETRAHEDRON:
             Val_Volume += 1./6. * fabs(DetJac);
@@ -331,7 +334,7 @@ void F_GetVolume(F_ARG)
   V->Val[0] = Fct->Active->Case.GetVolume.Value ;
   V->Val[MAX_DIM] = 0;
 
-  for (k = 2 ; k < Current.NbrHar ; k += 2) { 
+  for (k = 2 ; k < Current.NbrHar ; k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0 ;
   }
@@ -370,12 +373,12 @@ void F_ProjectPointOnEllipse(F_ARG)
   }
 
   brent(t1, t2, t3, dist_ellipse, tol, &t);
-  
+
   x = ELLIPSE_PARAMETERS[0] * cos(t);
   y = ELLIPSE_PARAMETERS[1] * sin(t);
 
   /* printf("SL(%g,%g,0,%g,%g,0){1,1};\n", A->Val[0], A->Val[1], x, y); */
-   
+
   for (k = 0 ; k < Current.NbrHar ; k++) {
     V->Val[MAX_DIM*k  ] = 0. ;
     V->Val[MAX_DIM*k+1] = 0. ;
