@@ -76,17 +76,17 @@ void F_Fmod  (F_ARG) { scalar_real_2_arg (fmod, "Fmod")     }
 /* ------------------------------------------------------------------------ */
 
 void F_Sign(F_ARG)
-{ 
+{
   int     k;
-  double  x;   
+  double  x;
 
   if(A->Type != SCALAR)
     Message::Error("Non scalar argument for function 'Sign'");
   x = A->Val[0];
 
-  if(x > 0)
+  if(x >= 0.)
     V->Val[0] = 1.;
-  else if(x < 0)
+  else if(x < 0.)
     V->Val[0] = -1.;
   else
     V->Val[0] = 0.;
@@ -104,9 +104,9 @@ void F_Sign(F_ARG)
 /* ------------------------------------------------------------------------ */
 
 void F_Jn(F_ARG)
-{ 
+{
   int     k, n;
-  double  x;   
+  double  x;
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
     Message::Error("Non scalar argument(s) for function 'Jn'");
@@ -124,9 +124,9 @@ void F_Jn(F_ARG)
 }
 
 void F_Yn(F_ARG)
-{ 
+{
   int     k, n;
-  double  x;   
+  double  x;
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
     Message::Error("Non scalar argument(s) for function 'Yn'");
@@ -156,7 +156,7 @@ double dBessel(double *tab, int n, double x)
 void F_dJn(F_ARG)
 {
   int     k, n;
-  double  x, *jntab;   
+  double  x, *jntab;
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
     Message::Error("Non scalar argument(s) for function 'dJn'");
@@ -179,9 +179,9 @@ void F_dJn(F_ARG)
 }
 
 void F_dYn(F_ARG)
-{ 
+{
   int     k, n;
-  double  x, *yntab;   
+  double  x, *yntab;
 
   if(A->Type != SCALAR || (A+1)->Type != SCALAR)
     Message::Error("Non scalar argument(s) for function 'dYn'");
