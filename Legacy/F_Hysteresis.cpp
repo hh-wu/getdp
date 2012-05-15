@@ -27,326 +27,339 @@
 
 void F_dhdb_Jiles(F_ARG)
 {
-  // input : h,b,dh
+  // input : h, b ,dh
+  // dhdb_Jiles[{h}, {d a}, {h}-{h}[1] ]{List[hyst_FeSi]}
+  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};==> struct FunctionActive *D
 
-  double Hx, Hy, Bx, By, dHx, dHy, dHdBxx, dHdByy, dHdBxy;
+  double H[3], B[3], dH[3], dHdB[6] ;
   struct FunctionActive  * D ;
 
-  void Vector_dHdB (double Hx, double Hy, double Bx, double By, double dHx, double dHy,
-                    struct FunctionActive *D,
-		    double *dHdBxx, double *dHdByy, double *dHdBxy) ;
+  void Vector_dHdB (double H[3], double B[3], double dH[3], struct FunctionActive *D, double dHdB[6]) ;
 
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
     Message::Error("Three vector arguments required");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  // Parameters for the Jiles-Atherton model in D
-  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c, alpha}]}
-  //  Ms = 2.1/mu0 (T), a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist
   D = Fct->Active ;
 
-  Hx  = (A+0)->Val[0] ;  Hy = (A+0)->Val[1] ;
-  Bx  = (A+1)->Val[0] ;  By = (A+1)->Val[1] ;
-  dHx = (A+2)->Val[0] ; dHy = (A+2)->Val[1] ;
+  for (int k=0 ; k<3 ; k++){
+    H[k]  = (A+0)->Val[k] ;
+    B[k]  = (A+1)->Val[k] ;
+    dH[k] = (A+2)->Val[k] ;
+  }
 
-  Vector_dHdB (Hx, Hy, Bx, By, dHx, dHy, D, &dHdBxx, &dHdByy, &dHdBxy) ;
+  Vector_dHdB (H, B, dH, D, dHdB) ;
 
-  V->Type = TENSOR_SYM ;
-
-  V->Val[0] = dHdBxx ; V->Val[1] = dHdBxy ; V->Val[3] = dHdByy ;
-  V->Val[2] = 0 ; V->Val[4] = 0 ; V->Val[5] = 0 ;
+  V->Type = TENSOR_SYM ;// xx, xy, xz, yy, yz, zz
+  for (int k=0 ; k<6 ; k++)  V->Val[k] = dHdB[k] ;
 }
 
 void F_dbdh_Jiles(F_ARG)
 {
   // input : h, b, dh
+  // dbdh_Jiles[{h}, {d a}, {h}-{h}[1] ]{List[hyst_FeSi]}
+  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};==> struct FunctionActive *D
 
-  double Hx, Hy, Bx, By, dHx, dHy, dBdHxx, dBdHyy, dBdHxy;
+  double H[3], B[3], dH[3], dBdH[6] ;
   struct FunctionActive *D;
 
-  void Vector_dBdH (double Hx, double Hy, double Bx, double By, double dHx, double dHy,
-                    struct FunctionActive *D,
-		    double *dBdHxx, double *dBdHyy, double *dBdHxy) ;
+ void Vector_dBdH (double H[3], double B[3], double dH[3],
+                    struct FunctionActive *D, double dBdH[6]) ;
 
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Message::Error("Three vector arguments required");
+    Message::Error("dbdh_Jiles requires three vector: {h} at t_i, {b} at t_i and ({h}-{h}[1]), i.e {h} at t_i - {h} at t_{i-1}");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  // Parameters for the Jiles-Atherton model in D
-  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c, alpha}]}
-  //  Ms = 2.1/mu0 (T), a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist
-
   D = Fct->Active ;
 
-  Hx  = (A+0)->Val[0] ;  Hy = (A+0)->Val[1] ;
-  Bx  = (A+1)->Val[0] ;  By = (A+1)->Val[1] ;
-  dHx = (A+2)->Val[0] ; dHy = (A+2)->Val[1] ;
+  for (int k=0 ; k<3 ; k++){
+    H[k]  = (A+0)->Val[k] ;
+    B[k]  = (A+1)->Val[k] ;
+    dH[k] = (A+2)->Val[k] ;
+  }
 
-  Vector_dBdH (Hx, Hy, Bx, By, dHx, dHy, D, &dBdHxx, &dBdHyy, &dBdHxy) ;
+  Vector_dBdH (H, B, dH, D, dBdH) ;
 
   V->Type = TENSOR_SYM ;
-
-  V->Val[0] = dBdHxx ; V->Val[1] = dBdHxy ; V->Val[3] = dBdHyy ;
-  V->Val[2] = 0 ; V->Val[4] = 0 ; V->Val[5] = 0 ;
+  for (int k=0 ; k<6 ; k++)  V->Val[k] = dBdH[k] ;
 }
 
 void F_h_Jiles(F_ARG)
 {
   // input : h1, b1, b2
-  double Hx1, Hy1, Bx1, By1, Bx2, By2, Hx2, Hy2;
+  // h_Jiles[ {h}[1], {b}[1], {b} ]{List[hyst_FeSi]}
+  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};
+
+  double Hone[3], Bone[3], Btwo[3], Htwo[3] ;
   struct FunctionActive *D;
 
-  void Vector_H2 (double Hx1, double Hy1,
-		  double Bx1, double By1, double Bx2, double By2, int n,
-                  struct FunctionActive *D,
-		  double *Hx2, double *Hy2) ;
+  void Vector_H2 (double Hone[3], double Bone[3], double Btwo[3], int n,
+                  struct FunctionActive *D, double Htwo[3]) ;
 
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Message::Error("Three vector arguments required");
+    Message::Error("h_Jiles requires three vector arguments: {h} at t_{i-1}, {b} at t_{i-1} and {b} at t_i");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  // Parameters for the Jiles-Atherton model in D
-  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c alpha}]}
-  // Ms = 2.1/mu0 (T), a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist
   D = Fct->Active ;
 
+  for (int k=0 ; k<3 ; k++) {
+    Hone[k] = (A+0)->Val[k] ;
+    Bone[k] = (A+1)->Val[k] ;
+    Btwo[k] = (A+2)->Val[k] ;
+  }
 
-  Hx1 = (A+0)->Val[0] ; Hy1 = (A+0)->Val[1] ;
-  Bx1 = (A+1)->Val[0] ; By1 = (A+1)->Val[1] ;
-  Bx2 = (A+2)->Val[0] ; By2 = (A+2)->Val[1] ;
-
-  Vector_H2 (Hx1, Hy1, Bx1, By1, Bx2, By2, 10, D, &Hx2, &Hy2) ;
+  Vector_H2 (Hone, Bone, Btwo, 10, D, Htwo) ;
 
   V->Type = VECTOR ;
-  V->Val[0] = Hx2 ; V->Val[1] = Hy2 ; V->Val[2] = 0 ;
+  for (int k=0 ; k<3 ; k++)  V->Val[k] = Htwo[k] ;
 }
 
 void F_b_Jiles(F_ARG)
 {
   // input : b1, h1, h2
-  double Hx1, Hy1, Bx1, By1, Bx2, By2, Hx2, Hy2;
+  // b_Jiles[ {b}[1], {h}[1], {h} ]{List[hyst_FeSi]}
+  // Material parameters: e.g. hyst_FeSi = { Msat, a, k, c, alpha};
+
+  double Bone[3], Hone[3], Btwo[3], Htwo[3] ;
   struct FunctionActive  * D ;
 
-  void Vector_B2 (double Bx1, double By1,
-		  double Hx1, double Hy1, double Hx2, double Hy2, int n,
-                  struct FunctionActive *D,
-		  double *Bx2, double *By2) ;
+  void Vector_B2 (double Bone[3], double Hone[3], double Htwo[3], int n,
+                  struct FunctionActive *D, double Btwo[3]) ;
 
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Message::Error("Three vector arguments required");
+    Message::Error("b_Jiles requires three vector arguments: {b} at t_{i-1}, {h} at t_{i-1} and {h} at t_i");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
-  // Parameters for the Jiles-Atherton model in D
-  // dhdb_Jiles(h, b, h-h[1]){List[{Ms a k c alpha}]}
-  //  Ms = 2.1/mu0 (T), a = 50 (A/m), k = 82 (A/m), c = 0.01, alpha = k/Ms ; // Bergqvist
   D = Fct->Active ;
 
-  Bx1 = (A+0)->Val[0] ; By1 = (A+0)->Val[1] ;
-  Hx1 = (A+1)->Val[0] ; Hy1 = (A+1)->Val[1] ;
-  Hx2 = (A+2)->Val[0] ; Hy2 = (A+2)->Val[1] ;
-
-  Vector_B2 (Bx1, By1, Hx1, Hy1, Hx2, Hy2, 10, D, &Bx2, &By2) ;
+  for (int k; k<3 ; k++){
+    Bone[k] = (A+0)->Val[k] ;
+    Hone[k] = (A+1)->Val[k] ;
+    Htwo[k] = (A+2)->Val[k] ;
+  }
+  Vector_B2 (Bone, Hone, Htwo, 10, D, Btwo) ;
 
   V->Type = VECTOR ;
-  V->Val[0] = Bx2 ; V->Val[1] = By2 ; V->Val[2] = 0 ;
+  for (int k; k<3 ; k++) V->Val[k] = Btwo[k] ;
 }
 
 double F_Man (double He, double Ms, double a)
 {
+  // Anhysteretic magnetisation
   if (fabs(He) < 0.01*a) return Ms*He/(3.*a) ;
   else return Ms*(cosh(He/a)/sinh(He/a)-a/He) ;
 }
 
 double F_dMandHe (double He, double Ms, double a)
 {
+  // Derivative of the magnetisation Man with respect to the effective field He
   if (fabs(He) < 0.01*a) return Ms/(3.*a) ;
   else return Ms/a*(1-SQU(cosh(He/a)/sinh(He/a))+SQU(a/He)) ;
 }
 
-void FV_Man (double Hex, double Hey, double Ms, double a, double *Manx, double *Many)
+void FV_Man (double He[3], double Ms, double a, double Man[3])
 {
-  double He, Man;
-
-  He = sqrt(Hex*Hex+Hey*Hey) ;
-  Man = F_Man(He,Ms,a) ;
-  if ( !He ) {
-    *Manx = *Many = 0 ;
-  } else {
-    *Manx = Man * Hex/He ;
-    *Many = Man * Hey/He ;
+  double nHe = sqrt(He[0]*He[0]+He[1]*He[1]+He[2]*He[2]) ;
+  if ( !nHe ) {
+    Man[0] = Man[1] = Man[2]= 0. ;
   }
-
-}
-
-void FV_dMandHe(double Hex, double Hey, double Ms, double a, double *dMandHexx,
-		double *dMandHeyy, double *dMandHexy)
-{
-  double He, Man, dMandHe;
-
-  He = sqrt(Hex*Hex+Hey*Hey) ;
-  Man = F_Man(He,Ms,a) ;
-  dMandHe = F_dMandHe(He,Ms,a) ;
-
-  if ( !He ) {
-    *dMandHexx = *dMandHeyy = dMandHe ;
-    *dMandHexy = 0 ;
-  } else {
-    *dMandHexx = Man/He + (dMandHe - Man/He)*Hex*Hex/(He*He) ;
-    *dMandHeyy = Man/He + (dMandHe - Man/He)*Hey*Hey/(He*He) ;
-    *dMandHexy =          (dMandHe - Man/He)*Hex*Hey/(He*He) ;
+  else {
+    double auxMan = F_Man(nHe, Ms, a) ;
+    Man[0] = auxMan * He[0]/nHe ;
+    Man[1] = auxMan * He[1]/nHe ;
+    Man[2] = auxMan * He[2]/nHe ;
   }
 }
 
-void FV_dMidHe(double Hex, double Hey, double Manx, double Many,
-	       double Mix, double Miy, double dHx, double dHy, double k,
-	       double *dMidHexx, double *dMidHeyy, double *dMidHexy)
+void FV_dMandHe(double He[3], double Ms, double a, double dMandHe[6])
 {
-  double dM, kdM;
+  double nHe = sqrt(He[0]*He[0]+He[1]*He[1]+He[2]*He[2]) ;
+  double Man = F_Man(nHe, Ms, a) ;
+  double ndMandHe = F_dMandHe(nHe,Ms,a) ;
 
-  dM = sqrt( (Manx-Mix)*(Manx-Mix) + (Many-Miy)*(Many-Miy) ) ;
-
-  if ( !dM || (Manx-Mix)*dHx + (Many-Miy)*dHy < 0 ) {
-    *dMidHexx = *dMidHeyy = *dMidHexy = 0 ;
-  } else {
-    kdM = k * dM;
-    *dMidHexx = (Manx-Mix)*(Manx-Mix) / kdM ;
-    *dMidHeyy = (Many-Miy)*(Many-Miy) / kdM ;
-    *dMidHexy = (Manx-Mix)*(Many-Miy) / kdM ;
+  if ( !nHe ) {
+    dMandHe[0] = dMandHe[3] = dMandHe[5] = ndMandHe ;
+    dMandHe[1] = dMandHe[2] = dMandHe[4] = 0 ;
   }
-
+  else {
+    dMandHe[0] = Man/nHe + (ndMandHe - Man/nHe)*He[0]*He[0]/(nHe*nHe) ;
+    dMandHe[3] = Man/nHe + (ndMandHe - Man/nHe)*He[1]*He[1]/(nHe*nHe) ;
+    dMandHe[5] = Man/nHe + (ndMandHe - Man/nHe)*He[2]*He[2]/(nHe*nHe) ;
+    dMandHe[1] =           (ndMandHe - Man/nHe)*He[0]*He[1]/(nHe*nHe) ;
+    dMandHe[2] =           (ndMandHe - Man/nHe)*He[0]*He[2]/(nHe*nHe) ;
+    dMandHe[4] =           (ndMandHe - Man/nHe)*He[1]*He[2]/(nHe*nHe) ;
+  }
 }
 
-void Vector_H2(double Hx1, double Hy1,
-	       double Bx1, double By1, double Bx2, double By2, int n,
-               struct FunctionActive *D,
-	       double *Hx2, double *Hy2)
+void FV_dMidHe(double He[3], double Man[3],
+	       double Mi[3], double dH[3], double k,
+	       double dMidHe[6])
 {
-  int i ;
-  double Hx, Hy, dHx=0., dHy=0., Bx, By, dBx, dBy ;
-  double dHdBxx, dHdByy, dHdBxy ;
-  void Vector_dHdB (double Hx, double Hy, double Bx, double By, double dHx, double dHy,
-                    struct FunctionActive *D,
-		    double *dHdBxx, double *dHdByy, double *dHdBxy) ;
-  Hx = Hx1 ;
-  Hy = Hy1 ;
-  dBx = (Bx2 - Bx1)/(double)n ;
-  dBy = (By2 - By1)/(double)n ;
+  double dM = sqrt( (Man[0]-Mi[0])*(Man[0]-Mi[0]) + (Man[1]-Mi[1])*(Man[1]-Mi[1]) + (Man[2]-Mi[2])*(Man[2]-Mi[2]) ) ;
 
-  for (i=0 ; i<n ; i++) {
-    Bx = (double)(n-i)/(double)n * Bx1 + (double)i/(double)n * Bx2 ;
-    By = (double)(n-i)/(double)n * By1 + (double)i/(double)n * By2 ;
+  if ( !dM || (Man[0]-Mi[0])*dH[0] + (Man[1]-Mi[1])*dH[1] + (Man[2]-Mi[2])*dH[2] < 0 ) {
+    dMidHe[0] = dMidHe[3] = dMidHe[5] = dMidHe[1] = dMidHe[2] =  dMidHe[4] = 0 ;
+  } else {
+    double kdM = k * dM;
+    dMidHe[0] = (Man[0]-Mi[0])*(Man[0]-Mi[0]) / kdM ;
+    dMidHe[3] = (Man[1]-Mi[1])*(Man[1]-Mi[1]) / kdM ;
+    dMidHe[5] = (Man[2]-Mi[2])*(Man[2]-Mi[2]) / kdM ;
+    dMidHe[1] = (Man[0]-Mi[0])*(Man[1]-Mi[1]) / kdM ;
+    dMidHe[2] = (Man[0]-Mi[0])*(Man[2]-Mi[2]) / kdM ;
+    dMidHe[4] = (Man[1]-Mi[1])*(Man[2]-Mi[2]) / kdM ;
+  }
+}
 
+void Vector_H2 (double Hone[3], double Bone[3], double Btwo[3], int n,
+                  struct FunctionActive *D, double Htwo[3])
+{
+  double H[3], dH[3], B[3], dB[3] ;
+  double dHdB[6] ;
+  void Vector_dHdB (double H[3], double B[3], double dH[3],
+                    struct FunctionActive *D, double dHdB[6]) ;
+
+  for (int k=0 ; k<3 ; k++) {
+    H[k]  = Hone[k];
+    dB[k] = (Btwo[k] - Bone[k])/(double)n ;
+  }
+
+  for (int i=0 ; i<n ; i++) {
+    for (int k=0 ; k<3 ; k++)
+      B[k] = (double)(n-i)/(double)n * Bone[k] + (double)i/(double)n * Btwo[k] ;
     if (!i) {
-      dHx = dBx ;
-      dHy = dBy ;
-      Vector_dHdB (Hx, Hy, Bx, By, dHx, dHy, D, &dHdBxx, &dHdByy, &dHdBxy) ;
-      dHx = dHdBxx * dBx + dHdBxy * dBy ;
-      dHy = dHdBxy * dBx + dHdByy * dBy ;
+      for (int k=0; k<3; k++) dH[k] = dB[k] ;
+      Vector_dHdB (H, B, dH, D, dHdB) ;
+
+      dH[0] = dHdB[0] * dB[0] + dHdB[1] * dB[1] + dHdB[2] * dB[2] ;
+      dH[1] = dHdB[1] * dB[0] + dHdB[3] * dB[1] + dHdB[4] * dB[2] ;
+      dH[2] = dHdB[2] * dB[0] + dHdB[4] * dB[1] + dHdB[5] * dB[2] ;
     }
+    Vector_dHdB (H, B, dH, D, dHdB) ;
+    dH[0] = dHdB[0] * dB[0] + dHdB[1] * dB[1] + dHdB[2] * dB[2] ;
+    dH[1] = dHdB[1] * dB[0] + dHdB[3] * dB[1] + dHdB[4] * dB[2] ;
+    dH[2] = dHdB[2] * dB[0] + dHdB[4] * dB[1] + dHdB[5] * dB[2] ;
 
-    Vector_dHdB (Hx, Hy, Bx, By, dHx, dHy, D, &dHdBxx, &dHdByy, &dHdBxy) ;
-    dHx = dHdBxx * dBx + dHdBxy * dBy ;
-    dHy = dHdBxy * dBx + dHdByy * dBy ;
-    Hx += dHx ;
-    Hy += dHy ;
+    for (int k=0 ; k<3 ; k++)  H[k] += dH[k] ;
   }
-  *Hx2 = Hx ;
-  *Hy2 = Hy ;
+
+  for (int k=0 ; k<3 ; k++) Htwo[k] = H[k] ;
 }
 
-void Vector_B2(double Bx1, double By1,
-	       double Hx1, double Hy1, double Hx2, double Hy2, int n,
-               struct FunctionActive *D,
-	       double *Bx2, double *By2)
+void Vector_B2(double Bone[3], double Hone[3], double Htwo[3], int n,
+               struct FunctionActive *D, double Btwo[3])
 {
-  int i ;
-  double Hx, Hy, dHx, dHy, Bx, By ;
-  double dBdHxx, dBdHyy, dBdHxy ;
-  void Vector_dBdH (double Hx, double Hy, double Bx, double By, double dHx, double dHy,
-                    struct FunctionActive *D,
-		    double *dBdHxx, double *dBdHyy, double *dBdHxy) ;
-  Bx = Bx1;
-  By = By1;
-  dHx = (Hx2 - Hx1)/(double)n ;
-  dHy = (Hy2 - Hy1)/(double)n ;
-  for (i=0 ; i<n ; i++) {
-    Hx = (double)(n-i)/(double)n * Hx1 + (double)i/(double)n * Hx2 ;
-    Hy = (double)(n-i)/(double)n * Hy1 + (double)i/(double)n * Hy2 ;
-    Vector_dBdH (Hx, Hy, Bx, By, dHx, dHy, D, &dBdHxx, &dBdHyy, &dBdHxy) ;
-    Bx += dBdHxx * dHx + dBdHxy * dHy ;
-    By += dBdHxy * dHx + dBdHyy * dHy ;
-  }
-  *Bx2 = Bx;
-  *By2 = By;
+  double H[3], dH[3], B[3] ;
+  double dBdH[6] ;
+  void Vector_dBdH (double H[3], double B[3], double dH[3],
+                    struct FunctionActive *D, double dBdH[3]) ;
 
+  for (int k=0 ; k<3 ; k++) {
+    B[k]  = Bone[k];
+    dH[k] = (Htwo[k] - Hone[k])/(double)n ;
+  }
+
+  for (int i=0 ; i<n ; i++) {
+    for (int k=0 ; k<3 ; k++)
+      H[k] = (double)(n-i)/(double)n * Hone[k] + (double)i/(double)n * Htwo[k] ;
+
+    Vector_dBdH (H, B, dH, D, dBdH) ;
+
+    B[0] += dBdH[0] * dH[0] + dBdH[1] * dH[1] + dBdH[2] * dH[2] ;
+    B[1] += dBdH[1] * dH[0] + dBdH[3] * dH[1] + dBdH[4] * dH[2] ;
+    B[2] += dBdH[2] * dH[0] + dBdH[4] * dH[1] + dBdH[5] * dH[2] ;
+  }
+
+  for (int k=0 ; k<3 ; k++) Btwo[k] = B[k] ;
 }
 
-void Vector_dBdH(double Hx, double Hy, double Bx, double By, double dHx, double dHy,
-                 struct FunctionActive *D,
-		 double *dBdHxx, double *dBdHyy, double *dBdHxy)
+void Vector_dBdH(double H[3], double B[3], double dH[3],
+                 struct FunctionActive *D, double dBdH[6])
 {
-  double Mx, My, Hex, Hey ;
-  double Manx, Many, Mix, Miy ;
-  double dMandHexx, dMandHeyy, dMandHexy ;
-  double dMidHexx, dMidHeyy, dMidHexy ;
-  double dMdHxx, dMdHyy, dMdHxy ;
-  double dxx, dyy, dxy, dd, exx, eyy, exy, fxx, fyy, fxy ;
-  double Ms, a, k, c, alpha;    // parameters of J-A model
+  double M[3], He[3], Man[3], Mi[3] ;
+  double dMandHe[6], dMidHe[6], dMdH[6] ;
+  double d[6], e[6], f[6] ;
 
   if (D->Case.Interpolation.NbrPoint != 5)
-    Message::Error("Jiles-Atherton parameters missing (List[{Ms, a, k, c}])");
-  Ms    = D->Case.Interpolation.x[0] ;
-  a     = D->Case.Interpolation.x[1] ;
-  k     = D->Case.Interpolation.x[2] ;
-  c     = D->Case.Interpolation.x[3] ;
-  alpha = D->Case.Interpolation.x[4] ;
+    Message::Error("Jiles-Atherton parameters missing: {List[{Ms, a, k, c, alpha}]}");
+  double Ms    = D->Case.Interpolation.x[0] ;
+  double a     = D->Case.Interpolation.x[1] ;
+  double kk    = D->Case.Interpolation.x[2] ;
+  double c     = D->Case.Interpolation.x[3] ;
+  double alpha = D->Case.Interpolation.x[4] ;
 
+  for (int i=0 ; i<3 ; i++){
+    M[i]  = B[i]/MU0 - H[i] ; // Magnetisation
+    He[i] = H[i] + alpha * M[i] ; // Effective field
+  }
 
-  Mx = Bx/MU0 - Hx ;
-  My = By/MU0 - Hy ;
-  Hex = Hx + alpha * Mx ;
-  Hey = Hy + alpha * My ;
+  FV_Man (He, Ms, a, Man) ;
 
-  FV_Man (Hex, Hey, Ms, a, &Manx, &Many) ;
+  for (int i=0 ; i<3 ; i++)
+    Mi[i] = (M[i]-c*Man[i]) / (1-c) ; // Irreversible magnetisation
 
-  Mix = (Mx - c*Manx) / (1-c) ;
-  Miy = (My - c*Many) / (1-c) ;
+  FV_dMandHe(He, Ms, a, dMandHe) ;
+  FV_dMidHe(He, Man, Mi, dH, kk, dMidHe) ;
 
-  FV_dMandHe (Hex, Hey, Ms, a, &dMandHexx, &dMandHeyy, &dMandHexy) ;
-  FV_dMidHe (Hex, Hey, Manx, Many, Mix, Miy, dHx, dHy, k, &dMidHexx, &dMidHeyy, &dMidHexy) ;
+  d[0] = 1 - alpha*c*dMandHe[0] - alpha*(1-c)*dMidHe[0] ; // xx
+  d[3] = 1 - alpha*c*dMandHe[3] - alpha*(1-c)*dMidHe[3] ; // yy
+  d[5] = 1 - alpha*c*dMandHe[5] - alpha*(1-c)*dMidHe[5] ; // zz
+  d[1] =   - alpha*c*dMandHe[1] - alpha*(1-c)*dMidHe[1] ; // xy
+  d[2] =   - alpha*c*dMandHe[2] - alpha*(1-c)*dMidHe[2] ; // xz
+  d[4] =   - alpha*c*dMandHe[4] - alpha*(1-c)*dMidHe[4] ; // zz
 
-  dxx = 1 - alpha*c*dMandHexx - alpha*(1-c)*dMidHexx ;
-  dyy = 1 - alpha*c*dMandHeyy - alpha*(1-c)*dMidHeyy ;
-  dxy =   - alpha*c*dMandHexy - alpha*(1-c)*dMidHexy ;
-  dd = dxx*dyy - dxy*dxy ;
-  exx =  dyy/dd ;
-  eyy =  dxx/dd ;
-  exy = -dxy/dd ;
-  fxx = c*dMandHexx + (1-c)*dMidHexx ;
-  fyy = c*dMandHeyy + (1-c)*dMidHeyy ;
-  fxy = c*dMandHexy + (1-c)*dMidHexy ;
+  double dd = d[0] * (d[3] *d[5] - d[4] *d[4])
+            - d[1] * (d[1] *d[5] - d[4] *d[2])
+            + d[2] * (d[1] *d[4] - d[3] *d[2]);
 
-  dMdHxx = exx*fxx + exy*fxy ;
-  dMdHyy = eyy*fyy + exy*fxy ;
-  dMdHxy = exx*fxy + exy*fyy ;
+  e[0] =  (d[3]*d[5]-d[4]*d[4])/dd ;
+  e[1] = -(d[1]*d[5]-d[2]*d[4])/dd ;
+  e[2] =  (d[1]*d[4]-d[2]*d[3])/dd ;
+  e[3] =  (d[0]*d[5]-d[2]*d[2])/dd ;
+  e[4] = -(d[0]*d[4]-d[1]*d[2])/dd ;
+  e[5] =  (d[0]*d[3]-d[1]*d[1])/dd ;
 
-  *dBdHxx =  MU0 * (1.0 + dMdHxx) ; //From the formulas, it is 1, but there was a 100, why?
-  *dBdHyy =  MU0 * (1.0 + dMdHyy) ; //it does not modify greatly the result
-  *dBdHxy =  MU0 * dMdHxy ;
+  for (int i=0 ; i<6 ; i++)
+    f[i] = c*dMandHe[i] + (1-c)*dMidHe[i] ;
+
+  dMdH[0] = e[0]*f[0]+e[1]*f[1]+e[2]*f[2] ;
+  dMdH[1] = e[0]*f[1]+e[1]*f[3]+e[2]*f[4] ;
+  dMdH[2] = e[0]*f[2]+e[1]*f[4]+e[2]*f[5] ;
+  dMdH[3] = e[1]*f[1]+e[3]*f[3]+e[4]*f[4] ;
+  dMdH[4] = e[1]*f[2]+e[3]*f[4]+e[4]*f[5] ;
+  dMdH[5] = e[2]*f[2]+e[4]*f[4]+e[5]*f[5] ;
+
+  dBdH[0] =  MU0 * (100.0 + dMdH[0]) ; // 100 for better convergence, forcing a bit of slope in NR iterations
+  dBdH[3] =  MU0 * (100.0 + dMdH[3]) ;
+  dBdH[5] =  MU0 * (100.0 + dMdH[5]) ;
+  dBdH[1] =  MU0 * dMdH[1] ;
+  dBdH[2] =  MU0 * dMdH[2] ;
+  dBdH[4] =  MU0 * dMdH[4] ;
 }
 
-void Vector_dHdB(double Hx, double Hy, double Bx, double By, double dHx, double dHy,
+void Vector_dHdB(double H[3], double B[3], double dH[3],
                  struct FunctionActive *D,
-		 double *dHdBxx, double *dHdByy, double *dHdBxy)
+		 double dHdB[6])
 {
-  double dBdHxx, dBdHyy, dBdHxy, det;
+  double dBdH[6] ;
 
-  Vector_dBdH (Hx, Hy, Bx, By, dHx, dHy, D, &dBdHxx, &dBdHyy, &dBdHxy) ;
-  det = dBdHxx * dBdHyy - dBdHxy * dBdHxy ;
-  *dHdBxx =   dBdHyy / det ;
-  *dHdByy =   dBdHxx / det ;
-  *dHdBxy =  -dBdHxy / det ;
+  // Inverting the matrix representation of the db/dh we get dh/db
+  Vector_dBdH (H, B, dH, D, dBdH) ;
+
+  double det =  dBdH[0] * (dBdH[3] *dBdH[5] - dBdH[4] *dBdH[4])
+              - dBdH[1] * (dBdH[1] *dBdH[5] - dBdH[4] *dBdH[2])
+              + dBdH[2] * (dBdH[1] *dBdH[4] - dBdH[3] *dBdH[2]);
+  if (!det)
+    Message::Error("Null determinant of db/dh!");
+
+  dHdB[0] =  (dBdH[3]*dBdH[5]-dBdH[4]*dBdH[4])/det ;
+  dHdB[1] = -(dBdH[1]*dBdH[5]-dBdH[2]*dBdH[4])/det ;
+  dHdB[2] =  (dBdH[1]*dBdH[4]-dBdH[2]*dBdH[3])/det ;
+  dHdB[3] =  (dBdH[0]*dBdH[5]-dBdH[2]*dBdH[2])/det ;
+  dHdB[4] = -(dBdH[0]*dBdH[4]-dBdH[1]*dBdH[2])/det ;
+  dHdB[5] =  (dBdH[0]*dBdH[3]-dBdH[1]*dBdH[1])/det ;
 }
+
+
 
 /* ------------------------------------------------------------------------ */
 /*
@@ -499,38 +512,53 @@ void F_dhdb_Ducharne(F_ARG)
 
 // Functions for Vectorial Incremental Nonconservative Consistent Hysteresis Model - V. Francois
 
-double h_ba (double h, double b_rev, double Ms_rev, double d){
-  double z = b_rev / (MU0 + Ms_rev * tanh(h/d)/h);
-  return(z);
+double get_h_from_b (double h, double b_reversible, double Js0, double alpha){
+  // Input : h =  current magnetic field
+  //         b_reversible = b_tot-sum(\Js_k)
+  //         Js0 = magnetic polarisation at saturation
+  //         alpha = characteristic magnetic field inversely proportional to the slope of the curve at origin
+  // Parametric saturation curve : h_rev = alpha * atanh (J/Js)
+  //                               J = Js tanh(h_rev/alpha)
+  // return( b_reversible / (MU0 + Js0 * tanh(h/alpha)/h));
+
+  return( 1/MU0*b_reversible - 1/MU0 * Js0 * tanh(h/alpha) );
+
 }
 
+//-----------------------------
 void F_nu_Vinch(F_ARG)
 {
   // input  :
-  // (A+0)->Val[0] = norm of the reversible inductance    -- norm(b_rev) = norm(b_tot-sum(\alpha_i))
-  // (A+1)->Val[0] = magnetisation of the reversible case -- Ms_rev
-  // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the slope at origin -- alpha
+  // (A+0)->Val[0] = norm of the reversible inductance    -- norm(b_rev) = norm(b_tot-sum(\Js_k))
+  // (A+1)->Val[0] = magnetic polarisation at saturation (reversible case) -- Js0
+  // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the slope of the curve at origin -- alpha
   // output : nu
 
-  double chi_mag, nu;
+  double chi_mag ;
   double b_rev  = (A+0)->Val[0];
-  double Ms_rev = (A+1)->Val[0];
+  double Js0    = (A+1)->Val[0];
   double alpha  = (A+2)->Val[0];
-  double h = 1 ; // start point for the solution of the implicit equation
 
-  if(b_rev == 0) // singularity for b=a
-    chi_mag = Ms_rev/alpha/MU0;
+  double h = 1 ; // start point for the solution of the implicit equation
+  double TOL = 1e-12 ;
+  const int MAX_ITER = 1000 ;
+  int iter = 0 ;
+
+  if(!b_rev) // singularity
+    chi_mag = Js0/alpha/MU0 ;
   else { // Picard iteration to find h
-    double TOL = 1e-12 ;
-    while( fabs( h-h_ba(h, b_rev, Ms_rev, alpha) ) > TOL ){
-      h = h_ba(h, b_rev, Ms_rev, alpha); //is convergence assured?
+    double newh = get_h_from_b(h, b_rev, Js0, alpha) ;
+    while( fabs(newh - h) > TOL && iter < MAX_ITER){
+      newh = get_h_from_b(h, b_rev, Js0, alpha) ;
+      h = newh;
+      iter++;
     }
-    chi_mag = Ms_rev*tanh(h/alpha)/h/MU0;
+    if (iter>=MAX_ITER) Message::Warning("No convergence in nu_Vinch!!!!!!");
+    chi_mag = Js0*tanh(h/alpha)/h/MU0;
   }
-  nu = 1/MU0/(1+chi_mag) ;
 
   V->Type = SCALAR;
-  V->Val[0] = nu;
+  V->Val[0] = 1/MU0/(1+chi_mag); // reluctivity value
 }
 
 double norm(double a[3])
@@ -558,8 +586,137 @@ void F_Update_Jk(F_ARG)
   Message::Error("F_Update_Jk requires the GSL");
 }
 #else
+
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_multimin.h>
 
+//-------------------------------
+// Newton for updating nu_vinch
+//-------------------------------
+struct h_vinch_context
+{
+  double b_rev, Js0, alpha;
+};
+
+static int h_vinch(const gsl_vector *hh, void *param, gsl_vector *h_vinch)
+{
+  struct h_vinch_context * c = (struct h_vinch_context *)param;
+  double h = gsl_vector_get(hh, 0);
+  double b_rev  = c->b_rev;
+  double Js0    = c->Js0;
+  double alpha  = c->alpha ;
+
+  // Input : h =  current magnetic field
+  //         b_reversible = b_tot-sum(\Js_k)
+  //         Js0 = saturation magnetisation
+  //         alpha = characteristic magnetic field inversely proportional to the slope of the curve at origin
+  // Parametric saturation curve : h_rev = alpha * atanh (J/Js)
+  //                               J = Js tanh(h_rev/alpha)
+
+  double h_rev = b_rev/(MU0 + Js0*tanh(h/alpha)/h) ;
+
+  gsl_vector_set(h_vinch, 0, h_rev);
+
+  return GSL_SUCCESS;
+}
+
+static int dh_vinch(const gsl_vector *hh, void *param, gsl_matrix *j)
+{
+  struct h_vinch_context *c = (struct h_vinch_context *)param;
+  double h = gsl_vector_get(hh, 0);
+  double b_rev  = c->b_rev;
+  double Js0    = c->Js0;
+  double alpha  = c->alpha ;
+
+  //double nom   = -b_rev * Js0 *(1/(alpha*h*SQU(cosh(h/alpha))) + tanh(h/alpha) * (-1/SQU(h))) ;
+  //double denom = SQU( MU0 + Js0*tanh(h/alpha)/h ) ;
+  double nom = b_rev * (MU0*h + Js0*tanh(h/alpha)) - b_rev*h *(MU0 + Js0/(alpha * SQU(cosh(h/alpha)))) ;
+  double denom = SQU( MU0 *h + Js0*tanh(h/alpha) ) ;
+
+  double jac = (denom!=0) ? nom/denom : nom ;
+
+  gsl_matrix_set(j, 0, 0, jac);
+
+  return GSL_SUCCESS;
+}
+
+static int hdh(const gsl_vector *hh, void *param, gsl_vector *hv, gsl_matrix *j)
+{
+  h_vinch(hh, param, hv);
+  dh_vinch(hh, param, j);
+  return GSL_SUCCESS;
+}
+
+static int get_h_from_b_newton(gsl_multiroot_function_fdf HDH, double *h)
+{
+  const int MAX_ITER = 25;
+  const gsl_multiroot_fdfsolver_type* TYPE = gsl_multiroot_fdfsolver_gnewton;
+
+  int iter = 0, status;
+
+  gsl_multiroot_fdfsolver* solver = gsl_multiroot_fdfsolver_alloc(TYPE, 1);
+
+  /* vector h contains */
+  gsl_vector *X = gsl_vector_alloc(1);
+  gsl_vector_set(X, 0, *h);
+  gsl_multiroot_fdfsolver_set(solver, &HDH, X);
+
+  do {
+    iter++;
+    status = gsl_multiroot_fdfsolver_iterate(solver);
+
+    *h = gsl_vector_get(solver->x, 0);
+
+    //printf("iter %d h_rev %.16g\n", iter ,h[0]);
+    status = gsl_multiroot_test_residual(solver->f, 1.e-12);
+  } while(status == GSL_CONTINUE && iter < MAX_ITER);
+
+  gsl_multiroot_fdfsolver_free(solver);
+  gsl_vector_free(X);
+
+  if(status == GSL_SUCCESS)
+    return 1;
+  else
+    return 0;
+}
+
+//-----------------------------
+void F_nu_Vinch_nr(F_ARG)
+{
+  // input  :
+  // (A+0)->Val[0] = norm of the reversible inductance    -- norm(b_rev) = norm(b_tot-sum(\Js_k))
+  // (A+1)->Val[0] = saturation magnetisation of the reversible case -- Js_0
+  // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the slope of the curve at origin -- alpha
+  // output : nu
+
+  double chi_mag ;
+  double b_rev  = (A+0)->Val[0];
+  double Js0    = (A+1)->Val[0];
+  double alpha  = (A+2)->Val[0];
+
+  struct h_vinch_context context = {b_rev, Js0, alpha} ;
+  gsl_multiroot_function_fdf HDH;
+
+  HDH.f = &h_vinch;
+  HDH.df = &dh_vinch;
+  HDH.fdf = &hdh;
+  HDH.n = 1;
+  HDH.params = &context;
+
+  double h[1] = {1} ; // start point for the solution of the implicit equation
+
+  if(!b_rev) // singularity
+    chi_mag = Js0/alpha/MU0 ;
+  else { // Newton iteration to find h
+    if(!get_h_from_b_newton(HDH, &h[0]))
+      Message::Error("Newton did not converge: h = %lf \n", h[0]);
+    chi_mag = Js0*tanh(h[0]/alpha)/h[0]/MU0;
+  }
+
+  V->Type = SCALAR;
+  V->Val[0] = 1/MU0/(1+chi_mag); // reluctivity
+}
 
 struct omega_f_context
 {
@@ -632,8 +789,8 @@ void F_Update_Jk(F_ARG)
   double TOL = 1e-4;
   double omegap;
 
-  //double J[3] = { (A+2)->Val[0], (A+2)->Val[1], (A+2)->Val[2] }; //********Ruth A+2-> A+1
-  double J[3] = { (A+1)->Val[0], (A+1)->Val[1], (A+1)->Val[2] }; //********Ruth A+2-> A+1
+  double J[3] = { (A+2)->Val[0], (A+2)->Val[1], (A+2)->Val[2] }; //********Ruth A+2-> A+1
+  //double J[3] = { (A+1)->Val[0], (A+1)->Val[1], (A+1)->Val[2] }; //********Ruth A+2-> A+1
 
   struct omega_f_context context ;
   context.h[0]  = (A+0)->Val[0]; context.h[1]  = (A+0)->Val[1]; context.h[2]  = (A+0)->Val[2];
@@ -682,8 +839,10 @@ void F_Update_Jk(F_ARG)
 
 #endif
 
+//===================================================
+// V. Francois original implementation with steppest descent
+//===================================================
 
-// V. Francois implementation with steppest descent
 double fct_omega(double h[3], double Jk[3], double Jkp[3], double chi, double Js, double alpha)
 {
   double diff[3];
@@ -692,7 +851,7 @@ double fct_omega(double h[3], double Jk[3], double Jkp[3], double chi, double Js
   for (int n=0; n<3; n++)
     diff[n] = Jk[n]-Jkp[n]; // J-Jp
 
-  double g2     = alpha*Js *( nJk/Js*atanh(nJk/Js) + 0.5*log(1-SQU(nJk/Js)) ); // magnetic energy u(J)
+  double g2     = alpha*Js *( nJk/Js*atanh(nJk/Js) + 0.5*log(fabs(SQU(nJk/Js)-1)) ); // magnetic energy u(J)
   double g3     = Jk[0] * h[0] + Jk[1] * h[1] + Jk[2] * h[2]; // -J.h
   double Dissip = chi * norm(diff) ; // chi | J-Jp |
 
@@ -704,18 +863,16 @@ void fct_d_omega (double h[3], double Jk[3], double Jkp[3], double chi, double J
 
   d_omega[0] = d_omega[1] = d_omega[2] = 0.;
   double dJk[3];
-
   for (int n=0; n<3; n++) dJk[n] = Jk[n]-Jkp[n];
 
-  double nJk = norm(Jk);
+  double nJk  = norm(Jk);
   double ndJk = norm(dJk);
 
-  for (int n=0; n<3; n++) {
-    if(nJk != 0.0) d_omega[n] += alpha * atanh(nJk/Js) * Jk[n]/nJk;
+  for (int n = 0; n < 3; n++) {
+    if(nJk) d_omega[n] += alpha * atanh(nJk/Js) * Jk[n]/nJk;
     d_omega[n] -= h[n];
-    if(ndJk!= 0.0) d_omega[n] += chi * dJk[n]/ndJk ;
+    if(ndJk) d_omega[n] += chi * dJk[n]/ndJk ;
   }
-
 }
 
 void F_Update_Jk_sd(F_ARG) {
@@ -733,57 +890,59 @@ void F_Update_Jk_sd(F_ARG) {
   // output: updated Jk
 
   double h[3], Jk[3], Jkp[3] ;
-  double chi, Js, alpha;
+  double min_Jk[3] = {0,0,0};
+  double sdfactor  = 0.1; //suitable value of tol for most applications
+  double TOL = 1e-6;
+  double d_omega[3]= {0,0,0} ;
 
   for (int n=0; n<3; n++) {
     h[n]   = (A+0)->Val[n];
     Jk[n]  = (A+1)->Val[n];
     Jkp[n] = (A+2)->Val[n];
   }
+  double chi  =(A+3)->Val[0];
+  double Js   =(A+4)->Val[0];
+  double alpha=(A+5)->Val[0];
 
-  chi  =(A+3)->Val[0];
-  Js   =(A+4)->Val[0];
-  alpha=(A+5)->Val[0];
+  //limiter(0.9999*Js, Jk ) ; // why do I need this ?
+  //limiter(0.9999*Js, Jkp);  // ????????
 
-  double min_Jk[3] = {0,0,0};
-  double sdfactor  = 0.1; //suitable value of tol for most applications
-  double TOL = 1e-6;
-  double *d_omega = new double[3];
-
-  limiter(0.9999*Js, Jk ) ; // why do I need this ?
-  limiter(0.9999*Js, Jkp);  // ????????
-
-  double omega = fct_omega(h, Jk, Jkp, chi, Js, alpha);
-  fct_d_omega(h, Jk, Jkp, chi, Js, alpha, d_omega);
+  fct_d_omega(h, Jk, Jkp, chi, Js, alpha, d_omega) ;     // updating the derivative of omega
+  double omega = fct_omega(h, Jk, Jkp, chi, Js, alpha) ; // updating omega
 
   double min_omega = 1e+22 ;
 
   int iter = 0 ;
   const int MAX_ITER = 100;
+  while( (fabs(d_omega[0])/(1+fabs(omega))*sdfactor >TOL ||
+          fabs(d_omega[1])/(1+fabs(omega))*sdfactor >TOL ||
+          fabs(d_omega[2])/(1+fabs(omega))*sdfactor >TOL ))
+    {
+      for (int n = 0; n < 3; n++)
+        min_Jk[n] = Jk[n] - sdfactor * d_omega[n] ; // gradient descent algorithm
 
-  do {
-    iter++ ;
+      //limiter(0.9999*Js, min_Jk);
+      min_omega = fct_omega(h, min_Jk, Jkp, chi, Js, alpha); //updating omega
+      if (iter>MAX_ITER)
+        Message::Warning("Too many iterations to find the minimum of omega: min_omega %g, omega-TOL/10 %g", min_omega, omega-TOL/10);
 
-    for (int n=0; n<3; n++) min_Jk[n] = Jk[n] - sdfactor * d_omega[n] ; // gradient descent algorithm
+      if( min_omega < omega-TOL/10 && norm(min_Jk) < Js ){
+        fct_d_omega(h, min_Jk, Jkp, chi, Js, alpha, d_omega); //update the derivative d_omega
+        omega = min_omega;
+        if(Jk[0]==Jkp[0] && Jk[1]==Jkp[1] && Jk[2]==Jkp[2])
+          sdfactor=0.1; // re-initialize rfactor which may have become very small due to an angulous starting point
 
-    limiter(0.9999*Js, min_Jk);
+        for (int n=0; n<3; n++) Jk[n] = min_Jk[n];
+      }
+      else sdfactor = sdfactor/2 ;
 
-    min_omega = fct_omega(h, min_Jk, Jkp, chi, Js, alpha); //updating omega
-
-    if( min_omega < omega && norm(min_Jk) < Js ){
-      fct_d_omega(h, min_Jk, Jkp, chi, Js, alpha, d_omega); //update table pointed by domega
-      omega = min_omega;
-      for (int n=0; n<3; n++) Jk[n] = min_Jk[n];
+      iter++ ;
     }
-    else sdfactor = sdfactor/2 ;
-  } while( fabs(omega-min_omega) > TOL && iter< MAX_ITER );
 
+  Message::Debug("iter %d omega %.6e d_omega %.6e %.6e %.6e", iter, omega, d_omega[0], d_omega[1], d_omega[2]);
   V->Type = VECTOR ;
   for (int n=0 ; n<3 ; n++) V->Val[n] = min_Jk[n];
 
-  Message::Debug("iter %d omega %.6e d_omega %.6e %.6e %.6e", iter, omega, d_omega[0], d_omega[1], d_omega[2]);
-
-  delete[] d_omega;
 }
 
 

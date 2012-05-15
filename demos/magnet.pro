@@ -72,6 +72,7 @@ PostOperation {
     Operation {
       Print[ a, OnElementsOf Domain, File "a.pos"] ;
       Print[ b, OnElementsOf Domain, File "b_a.pos" ] ;
+      Print[ h, OnElementsOf Domain, File "h_a.pos" ] ;
       Print[ b, OnLine {{-0.07,eps,0}{0.09,eps,0}} {500}, File "b_a.txt" , Format Table ] ;
     }
   }
