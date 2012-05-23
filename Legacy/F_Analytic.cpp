@@ -364,19 +364,13 @@ void F_RCS_SphPhi(F_ARG)
   V->Type = SCALAR ;
 }
 
-/*
-  Escat near field: donne par Monk pp. 258-259
-  E_inf: Monk, p. 260
-*/
-
-/* Scattering by perfectly conducting sphere of radius R, under plane wave
+/* Scattering by a perfectly conducting sphere of radius a, under plane wave
    incidence pol*e^{ik \alpha\dot\r}, with alpha = (0,0,-1) and pol =
-   (1,0,0). Returns the electric field anywhere outside the sphere (From
-   Balanis, Advanced Engineering Electromagnetics, sec 11.8, p. 660) */
+   (1,0,0). Returns the scattered electric field anywhere outside the sphere
+   (From Balanis, Advanced Engineering Electromagnetics, sec 11.8, p. 660) */
 
 void F_ElectricFieldPerfectlyConductingSphere(F_ARG)
 {
-  /*
   double x = A->Val[0];
   double y = A->Val[1];
   double z = A->Val[2];
@@ -384,36 +378,147 @@ void F_ElectricFieldPerfectlyConductingSphere(F_ARG)
   double theta = atan2(sqrt(x * x + y * y), z);
   double phi = atan2(y, x);
 
+  // warning: approximation
+  if (theta == 0. ) theta += 1e-6;
+  if (theta == M_PI || theta == -M_PI) theta -= 1e-6;
+
   double k = Fct->Para[0] ;
-  double R = Fct->Para[1] ;
-  double Z0 = Fct->Para[2] ; // impedance of vacuum = sqrt(mu_0/eps_0) \approx 120*pi
-  double kR = k * R;
+  double a = Fct->Para[1] ;
+  double kr = k * r;
+  double ka = k * a;
 
   int ns = (int)k + 10;
 
-  std::vector<std::complex<double> > hn(ns + 1);
-  for (int n = 1 ; n <= ns ; n++)
-    hn[n] = std::complex<double>(AltSpherical_j_n(n, kR),
-                                 - AltSpherical_y_n(n, kR));
+  std::vector<std::complex<double> > Hnkr(ns + 1), Hnka(ns + 1);
+  for (int n = 1 ; n <= ns ; n++){
+    Hnkr[n] = std::complex<double>(AltSpherical_j_n(n, kr), -AltSpherical_y_n(n, kr));
+    Hnka[n] = std::complex<double>(AltSpherical_j_n(n, ka), -AltSpherical_y_n(n, ka));
+  }
   double ctheta = cos(theta);
   double stheta = sin(theta);
 
   std::complex<double> Er(0.), Etheta(0.), Ephi(0.), I(0, 1.);
 
   for (int n = 1 ; n < ns ; n++){
-    std::complex<double> an = std::pow(I, -n) * (2 * n + 1) / (n * (n + 1));
+    std::complex<double> an = std::pow(I, -n) * (2. * n + 1.) / (n * (n + 1.));
 
-    std::complex<double> Hn = hn[n];
-    std::complex<double> dHn = - hn[n + 1] + (n + 1) * hn[n] / kR;
+    // PS: the following is correct (Hn(z) = z hn(z) is not a standard spherical
+    // bessel function!)
+    std::complex<double> dHnka = - Hnka[n + 1] + (n + 1.) * Hnka[n] / ka;
+    std::complex<double> bn = -an * dHnka.real() / dHnka;
+    std::complex<double> cn = -an * Hnka[n].real() / Hnka[n];
 
-    std::complex<double> bn = -an * dHn.real() / dHn;
-    std::complex<double> cn = -an * Hn.real() / Hn;
+    std::complex<double> dHnkr = - Hnkr[n + 1] + (n + 1.) * Hnkr[n] / kr;
+    std::complex<double> d2Hnkr = ((n + 0.5) * (n + 0.5) / (kr * kr) - 1.) * Hnkr[n];
 
     double Pn0 = Legendre(n, 0, ctheta);
     double Pn1 = Legendre(n, 1, ctheta);
     double dPn1 = (n + 1) * n * Pn0 / stheta - (ctheta / (ctheta * ctheta - 1.)) * Pn1;
 
-    Er += bn * (
+    Er += bn * (d2Hnkr + Hnkr[n]) * Pn1;
+    Etheta += I * bn * dHnkr * stheta * dPn1 - cn * Hnkr[n] * Pn1 / stheta;
+    Ephi += I * bn * dHnkr * Pn1 / stheta - cn * Hnkr[n] * stheta * dPn1;
+  }
+
+  Er *= - I * cos(phi);
+  Etheta *= 1. / kr * cos(phi);
+  Ephi *= 1. / kr * sin(phi);
+
+  // r, theta, phi components
+  std::complex<double> rtp[3] = {Er, Etheta, Ephi};
+
+  double mat[3][3];
+  // r basis vector
+  mat[0][0] = sin(theta) * cos(phi) ;
+  mat[0][1] = sin(theta) * sin(phi) ;
+  mat[0][2] = cos(theta)  ;
+  // theta basis vector
+  mat[1][0] = cos(theta) * cos(phi) ;
+  mat[1][1] = cos(theta) * sin(phi) ;
+  mat[1][2] = - sin(theta) ;
+  // phi basis vector
+  mat[2][0] = - sin(phi) ;
+  mat[2][1] = cos(phi);
+  mat[2][2] = 0.;
+
+  // x, y, z components
+  std::complex<double> xyz[3] = {0., 0., 0.};
+  for(int i = 0; i < 3; i++)
+    for(int j = 0; j < 3; j++)
+      xyz[i] = xyz[i] + mat[j][i] * rtp[j];
+
+  V->Val[0] = xyz[0].real();
+  V->Val[1] = xyz[1].real();
+  V->Val[2] = xyz[2].real();
+  V->Val[MAX_DIM] = xyz[0].imag();
+  V->Val[MAX_DIM+1] = xyz[1].imag();
+  V->Val[MAX_DIM+2] = xyz[2].imag();
+
+  V->Type = VECTOR ;
+}
+
+/* Scattering by a perfectly conducting sphere of radius R, under plane wave
+   incidence pol*e^{ik \alpha\dot\r}, with alpha = (0,0,-1) and pol =
+   (1,0,0). Returns surface current (From Harrington, Time-harmonic
+   electromagnetic fields, p. 294) */
+
+void F_CurrentPerfectlyConductingSphere(F_ARG)
+{
+  cplx I = {0., 1.}, tmp, *hn, coef1, coef2, an, jtheta, jphi, rtp[3], xyz[3];
+  double k, R, r, kR, theta, phi, Z0, ctheta, stheta, Pn0, Pn1, dPn1, mat[3][3], x, y, z ;
+  int n, ns, i, j ;
+
+  x = A->Val[0];
+  y = A->Val[1];
+  z = A->Val[2];
+  r = sqrt(x*x+y*y+z*z);
+  theta = atan2(sqrt(x*x+y*y), z);
+  phi = atan2(y,x);
+
+  // warning: approximation
+  if (theta == 0. ) theta += 1e-6;
+  if (theta == M_PI || theta == -M_PI) theta -= 1e-6;
+
+  k = Fct->Para[0] ;
+  R = Fct->Para[1] ;
+  Z0 = Fct->Para[2] ; // impedance of vacuum = sqrt(mu_0/eps_0) \approx 120*pi
+  kR = k * R;
+
+  // test position to check if on sphere
+  if(fabs(r - R) > 1.e-3) Message::Error("Evaluation point not on sphere");
+
+  V->Val[0] = 0.;
+  V->Val[MAX_DIM] = 0. ;
+
+  ns = (int)k + 10;
+
+  hn = (cplx*)Malloc((ns + 1)*sizeof(cplx));
+
+  for (n = 0 ; n < ns + 1 ; n++){
+    hn[n].r = AltSpherical_j_n(n, kR);
+    hn[n].i = - AltSpherical_y_n(n, kR);
+  }
+
+  ctheta = cos(theta);
+  stheta = sin(theta);
+
+  jtheta.r = 0;
+  jtheta.i = 0;
+  jphi.r = 0;
+  jphi.i = 0;
+
+  for (n = 1 ; n < ns ; n++){
+    // 1 / \hat{H}_n^2 (ka)
+    coef1 = Cdivr( 1.0 , hn[n] );
+    // 1 / \hat{H}_n^2' (ka)
+    coef2 = Cdivr( 1.0 , Csub( Cprodr( (double)(n+1) / kR , hn[n]) , hn[n+1] ) );
+
+    Pn0 = Legendre(n, 0, ctheta);
+    Pn1 = Legendre(n, 1, ctheta);
+
+    dPn1 = (n+1)*n* Pn0/stheta - (ctheta/(ctheta*ctheta-1))* Pn1;
+    an = Cprodr( (2.*n+1.) / (double)(n * (n+1.)) , Cpow(I, -n) );
+
     tmp = Cprod( an , Csum( Cprodr( stheta * dPn1 , coef2 ) ,
 			    Cprodr( Pn1 / stheta , Cprod( I ,  coef1 )) ) );
     jtheta = Csum( jtheta, tmp );
@@ -466,131 +571,12 @@ void F_ElectricFieldPerfectlyConductingSphere(F_ARG)
   V->Val[MAX_DIM+2] = xyz[2].i;
 
   V->Type = VECTOR ;
-  */
-}
-
-/* Scattering by perfectly conducting sphere of radius R, under plane wave
-   incidence pol*e^{ik \alpha\dot\r}, with alpha = (0,0,-1) and pol =
-   (1,0,0). Returns surface current (From Harrington, Time-harmonic
-   electromagnetic fields, p. 294) */
-
-void F_CurrentPerfectlyConductingSphere(F_ARG)
-{
-  cplx I = {0., 1.}, tmp, *hn, coef1, coef2, an, jtheta, jphi, rtp[3], xyz[3];
-  double k, R, r, kR, theta, phi, Z0, ctheta, stheta, Pn0, Pn1, dPn1, mat[3][3], x, y, z ;
-  int n, ns, i, j ;
-
-  x = A->Val[0];
-  y = A->Val[1];
-  z = A->Val[2];
-  r = sqrt(x*x+y*y+z*z);
-  theta = atan2(sqrt(x*x+y*y), z);
-  phi = atan2(y,x);
-
-  // warning: approximation
-  if (theta == 0. ) theta += 1e-6;
-  if (theta == M_PI || theta == -M_PI) theta -= 1e-6;
-
-  k = Fct->Para[0] ;
-  R = Fct->Para[1] ;
-  Z0 = Fct->Para[2] ; // impedance of vacuum = sqrt(mu_0/eps_0) \approx 120*pi
-  kR = k * R;
-
-  /* test position to check if on sphere */
-  if(fabs(r - R) > 1.e-3)
-    Message::Error("Evaluation point not on sphere");
-
-  V->Val[0] = 0.;
-  V->Val[MAX_DIM] = 0. ;
-
-  ns = (int)k + 10;
-
-  hn = (cplx*)Malloc((ns + 1)*sizeof(cplx));
-
-  for (n = 0 ; n < ns + 1 ; n++){
-    hn[n].r = AltSpherical_j_n(n, kR);
-    hn[n].i = - AltSpherical_y_n(n, kR);
-  }
-
-  ctheta = cos(theta);
-  stheta = sin(theta);
-
-  jtheta.r = 0;
-  jtheta.i = 0;
-  jphi.r = 0;
-  jphi.i = 0;
-
-  for (n = 1 ; n < ns ; n++){
-    /* 1 / \hat{H}_n^2 (ka) */
-    coef1 = Cdivr( 1.0 , hn[n] );
-    /* 1 / \hat{H}_n^2' (ka) */
-    coef2 = Cdivr( 1.0 , Csub( Cprodr( (double)(n+1) / kR , hn[n]) , hn[n+1] ) );
-
-    Pn0 = Legendre(n, 0, ctheta);
-    Pn1 = Legendre(n, 1, ctheta);
-
-    dPn1 = (n+1)*n* Pn0/stheta - (ctheta/(ctheta*ctheta-1))* Pn1;
-    an = Cprodr( (2.*n+1.) / (double)(n * (n+1.)) , Cpow(I, -n) );
-
-    tmp = Cprod( an , Csum( Cprodr( stheta * dPn1 , coef2 ) ,
-			    Cprodr( Pn1 / stheta , Cprod( I ,  coef1 )) ) );
-    jtheta = Csum( jtheta, tmp );
-
-    tmp = Cprod( an , Csub( Cprodr( Pn1 / stheta , coef2 ) ,
-			    Cprodr( dPn1 * stheta , Cdiv(coef1 , I)) ) );
-    jphi = Csum( jphi, tmp );
-  }
-
-  Free(hn);
-
-  tmp = Cprodr( cos(phi)/(kR*Z0), I);
-  jtheta = Cprod( jtheta, tmp );
-
-  tmp = Cprodr( sin(phi)/(kR*Z0), I );
-  jphi = Cprod( jphi, tmp );
-
-  /* r, theta, phi components */
-  rtp[0].r = 0;
-  rtp[0].i = 0;
-  rtp[1] = jtheta;
-  rtp[2] = jphi;
-
-  /* r basis vector */
-  mat[0][0] = sin(theta) * cos(phi) ;
-  mat[0][1] = sin(theta) * sin(phi) ;
-  mat[0][2] = cos(theta)  ;
-  /* theta basis vector */
-  mat[1][0] = cos(theta) * cos(phi) ;
-  mat[1][1] = cos(theta) * sin(phi) ;
-  mat[1][2] = - sin(theta) ;
-  /* phi basis vector */
-  mat[2][0] = - sin(phi) ;
-  mat[2][1] = cos(phi);
-  mat[2][2] = 0.;
-
-  /* x, y, z components */
-  for(i = 0; i < 3; i++){
-    xyz[i].r = 0;
-    xyz[i].i = 0;
-    for(j = 0; j < 3; j++)
-      xyz[i] = Csum( xyz[i] , Cprodr(mat[j][i] , rtp[j]) );
-  }
-
-  V->Val[0] = xyz[0].r;
-  V->Val[1] = xyz[1].r;
-  V->Val[2] = xyz[2].r;
-  V->Val[MAX_DIM] = xyz[0].i;
-  V->Val[MAX_DIM+1] = xyz[1].i;
-  V->Val[MAX_DIM+2] = xyz[2].i;
-
-  V->Type = VECTOR ;
 }
 
 
-/* Scattering by acoustically soft sphere (exterior Dirichlet problem)
-   of radius R, under plane wave incidence e^{ikx}. Returns scattered
-   field outside. (Colton and Kress, Inverse Acoustic..., p 51,
-   eq. 3.29) */
+/* Scattering by an acoustically soft sphere (exterior Dirichlet problem) of
+   radius R, under plane wave incidence e^{ikx}. Returns scattered field
+   outside. (Colton and Kress, Inverse Acoustic..., p 51, eq. 3.29) */
 
 void  F_AcousticFieldSoftSphere(F_ARG)
 {
@@ -599,7 +585,7 @@ void  F_AcousticFieldSoftSphere(F_ARG)
   int n, ns ;
 
   r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
-  theta = acos(A->Val[0] / r); /* angle between position vector and (1,0,0) */
+  theta = acos(A->Val[0] / r); // angle between position vector and (1,0,0)
 
   k = Fct->Para[0] ;
   R = Fct->Para[1] ;
@@ -637,9 +623,9 @@ cplx Dhn_Spherical(cplx *hntab, int n, double x)
   return Csub( Cprodr( (double)n/x, hntab[n] ) , hntab[n+1] );
 }
 
-/* Scattering by acoustically soft sphere (exterior Dirichlet problem)
-   of radius R, under plane wave incidence e^{ikx}. Returns radial
-   derivative of scattered field outside */
+/* Scattering by an acoustically soft sphere (exterior Dirichlet problem) of
+   radius R, under plane wave incidence e^{ikx}. Returns radial derivative of
+   scattered field outside */
 
 void  F_DrAcousticFieldSoftSphere(F_ARG)
 {
@@ -648,7 +634,7 @@ void  F_DrAcousticFieldSoftSphere(F_ARG)
   int n, ns ;
 
   r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
-  theta = acos(A->Val[0] / r); /* angle between position vector and (1,0,0) */
+  theta = acos(A->Val[0] / r); // angle between position vector and (1,0,0)
 
   k = Fct->Para[0] ;
   R = Fct->Para[1] ;
@@ -691,9 +677,9 @@ void  F_DrAcousticFieldSoftSphere(F_ARG)
   V->Type = SCALAR ;
 }
 
-/* Scattering by acoustically soft sphere (exterior Dirichlet problem)
-   of radius R, under plane wave incidence e^{ikx}. Returns RCS.
-   (Colton and Kress, Inverse Acoustic..., p 52, eq. 3.30) */
+/* Scattering by an acoustically soft sphere (exterior Dirichlet problem) of
+   radius R, under plane wave incidence e^{ikx}. Returns RCS.  (Colton and
+   Kress, Inverse Acoustic..., p 52, eq. 3.30) */
 
 void  F_RCSSoftSphere(F_ARG)
 {
@@ -702,7 +688,7 @@ void  F_RCSSoftSphere(F_ARG)
   int n, ns ;
 
   r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
-  theta = acos(A->Val[0] / r); /* angle between position vector and (1,0,0) */
+  theta = acos(A->Val[0] / r); // angle between position vector and (1,0,0)
 
   k = Fct->Para[0] ;
   R = Fct->Para[1] ;
@@ -736,9 +722,9 @@ void  F_RCSSoftSphere(F_ARG)
   V->Type = SCALAR ;
 }
 
-/* Scattering by acoustically hard sphere (exterior Neumann problem)
-   of radius R, under plane wave incidence e^{ikx}. Returns scattered
-   field outside */
+/* Scattering by an acoustically hard sphere (exterior Neumann problem) of
+   radius R, under plane wave incidence e^{ikx}. Returns scattered field
+   outside */
 
 void  F_AcousticFieldHardSphere(F_ARG)
 {
@@ -747,7 +733,7 @@ void  F_AcousticFieldHardSphere(F_ARG)
   int n, ns ;
 
   r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
-  theta = acos(A->Val[0] / r); /* angle between position vector and (1,0,0) */
+  theta = acos(A->Val[0] / r); // angle between position vector and (1,0,0)
 
   k = Fct->Para[0] ;
   R = Fct->Para[1] ;
@@ -788,8 +774,8 @@ void  F_AcousticFieldHardSphere(F_ARG)
   V->Type = SCALAR ;
 }
 
-/* Scattering by acoustically hard sphere (exterior Dirichlet problem)
-   of radius R, under plane wave incidence e^{ikx}. Returns RCS */
+/* Scattering by an acoustically hard sphere (exterior Dirichlet problem) of
+   radius R, under plane wave incidence e^{ikx}. Returns RCS */
 
 void  F_RCSHardSphere(F_ARG)
 {
@@ -798,7 +784,7 @@ void  F_RCSHardSphere(F_ARG)
   int n, ns ;
 
   r = sqrt(A->Val[0]*A->Val[0] + A->Val[1]*A->Val[1] + A->Val[2]*A->Val[2]) ;
-  theta = acos(A->Val[0] / r); /* angle between position vector and (1,0,0) */
+  theta = acos(A->Val[0] / r); // angle between position vector and (1,0,0)
 
   k = Fct->Para[0] ;
   R = Fct->Para[1] ;
