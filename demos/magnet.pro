@@ -14,13 +14,14 @@ Group {
   Core    = Region[ CORE ];
   AirGap  = Region[ AIR_GAP ];
   Magnet  = Region[ MAGNET ];
-  Dirichlet_a   = Region[ LINE_INF ] ;
-  Dirichlet_phi = Region[ {LINE_X, LINE_INF} ] ;
 
   // These are the generic group names that are used in "Magnetostatics.pro"
-  Domain     = Region[ {Air, AirInf, Core, Magnet, AirGap} ] ;
+  Domain_S = Region[ {} ] ;
   Domain_Inf = Region[ AirInf ] ;
   Domain_M   = Region[ Magnet ] ;
+  Domain_Mag = Region[ {Air, Core, AirGap} ] ;
+  Dirichlet_a_0   = Region[ LINE_INF ] ;
+  Dirichlet_phi_0 = Region[ {LINE_X, LINE_INF} ] ;
 }
 
 Function {
@@ -41,19 +42,6 @@ Function {
   DefineConstant[ Hc = {920000, Label "Magnet coercive field (A/m)",
                         Path "Parameters/Materials"} ];
   hc [ Magnet ] = Vector[0., Hc, 0.] ;
-}
-
-Constraint {
-  { Name a ;
-    Case {
-      { Region Dirichlet_a ; Value 0. ; }
-    }
-  }
-  { Name phi ;
-    Case {
-      { Region Dirichlet_phi ; Value 0. ; }
-    }
-  }
 }
 
 Include "Magnetostatics.pro"

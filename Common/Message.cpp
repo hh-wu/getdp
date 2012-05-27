@@ -548,8 +548,11 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     std::vector<onelab::number> ps;
     _onelabClient->get(ps, name);
     bool noRange = true, noChoices = true, noLoop = true, noGraph = true;
-    if(ps.size()){ // use value from server
-      c->Value.Float = ps[0].getValue();
+    if(ps.size()){
+      if(ps[0].getReadOnly())
+        ps[0].setValue(c->Value.Float); // use value from getdp (so it is updated if necessary)
+      else
+        c->Value.Float = ps[0].getValue(); // use value from server
       // keep track of these attributes, which can be changed server-side
       if(ps[0].getMin() != -onelab::parameter::maxNumber() ||
          ps[0].getMax() != onelab::parameter::maxNumber() ||
@@ -589,8 +592,11 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
   else if(c->Type == VAR_CHAR){
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
-    if(ps.size()){ // use value from server
-      c->Value.Char = strSave(ps[0].getValue().c_str());
+    if(ps.size()){
+      if(ps[0].getReadOnly())
+        ps[0].setValue(c->Value.Char); // use value from getdp (so it is updated if necessary)
+      else
+        c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server
     }
     else{
       ps.resize(1);
@@ -614,7 +620,8 @@ void Message::ExchangeOnelabParameter(Group *g, fmap &fopt, cmap &copt)
 
   std::vector<onelab::region> ps;
   _onelabClient->get(ps, name);
-  if(ps.size()){ // use value from server
+  if(ps.size()){
+    // use value from server (FIXME: deal with ReadOnly)
     List_Reset(g->InitialList);
     std::set<std::string> val(ps[0].getValue());
     for(std::set<std::string>::iterator it = val.begin(); it != val.end(); it++)

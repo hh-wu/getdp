@@ -24,7 +24,15 @@
 */
 
 Group {
-  DefineGroup[ Domain_M, Domain_S, Domain_Inf, Domain ];
+  DefineGroup[ Domain_M = {{}, Label "Magnets", Path "Regions"},
+               Domain_S = {{}, Label "Current source", Path "Regions"},
+               Domain_Inf = {{}, Label "Infinite domain (spherical)", Path "Regions"},
+               Domain_Mag = {{}, Label "Magnetic materials", Path "Regions"},
+               Dirichlet_phi_0 = {{}, Label "H.t = 0", Path "Regions"},
+               Dirichlet_a_0 = {{}, Label "B.n = 0", Path "Regions"} ];
+
+  DefineGroup[ Domain = {{Domain_Mag, Domain_M, Domain_S, Domain_Inf},
+                         Label "Computational domain", Path "Regions", Visible 0} ];
 }
 
 Function{
@@ -59,6 +67,14 @@ Integration {
 /* --------------------------------------------------------------------------
    MagSta_phi : Magnetic scalar potential phi formulation
    -------------------------------------------------------------------------- */
+
+Constraint {
+  { Name phi ;
+    Case {
+      { Region Dirichlet_phi_0 ; Value 0. ; }
+    }
+  }
+}
 
 FunctionSpace {
   { Name Hgrad_phi ; Type Form0 ;
@@ -112,10 +128,27 @@ PostProcessing {
   }
 }
 
+PostOperation {
+  { Name MagSta_phi ; NameOfPostProcessing MagSta_phi;
+    Operation {
+      Print[ b, OnElementsOf Domain, File "MagSta_phi_b.pos" ] ;
+      Print[ h, OnElementsOf Domain, File "MagSta_phi_h.pos" ] ;
+      Print[ phi, OnElementsOf Domain, File "MagSta_phi_phi.pos" ] ;
+    }
+  }
+}
 
 /* --------------------------------------------------------------------------
    MagSta_a : Magnetic vector potential a formulation (2D)
    -------------------------------------------------------------------------- */
+
+Constraint {
+  { Name a ;
+    Case {
+      { Region Dirichlet_a_0 ; Value 0. ; }
+    }
+  }
+}
 
 FunctionSpace {
 
