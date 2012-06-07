@@ -1,32 +1,8 @@
-/* Input
-
-  Groups :
-  --------
-    Domain         Whole magnetic domain
-    Domain_S       Inductor regions
-    Domain_M       Permanent magnet regions
-    Domain_Inf     Nonconducting regions with
-                   Spherical Shell Transformation
-                   (Parameters : Val_Rint, Val_Rext)
-
-  Functions :
-  -----------
-    mu[]           Magnetic permeability
-    nu[]           Magnetic reluctivity
-    hc[]           Coercitive magnetic field
-    js[]           Source current density
-
-  Constraint :
-  ----------
-    phi            Fixed magnetic scalar potential
-    a              Fixed magnetic vector potential (2D)
-
-*/
-
 Group {
-  DefineGroup[ Domain_M = {{}, Label "Magnets", Path "Regions"},
-               Domain_S = {{}, Label "Current source", Path "Regions"},
-               Domain_Inf = {{}, Label "Infinite domain (spherical)", Path "Regions"},
+  // Input groups:
+  DefineGroup[ Domain_M = {{}, Label "Permanent magnets", Path "Regions"},
+               Domain_S = {{}, Label "Inductor with imposed js", Path "Regions"},
+               Domain_Inf = {{}, Label "Infinite domain (spherical shell)", Path "Regions"},
                Domain_Mag = {{}, Label "Magnetic materials", Path "Regions"},
                Dirichlet_phi_0 = {{}, Label "H.t = 0", Path "Regions"},
                Dirichlet_a_0 = {{}, Label "B.n = 0", Path "Regions"} ];
@@ -36,8 +12,16 @@ Group {
 }
 
 Function{
-  DefineConstant[ Val_Rint, Val_Rext ];
-  DefineFunction[ mu, nu, hc, js ];
+  // Input constants:
+  DefineConstant[ Val_Rint, Val_Rext // interior/exterior radius of Domain_Inf
+                  ];
+
+  // Input functions:
+  DefineFunction[ mu, // magnetic permeability
+                  nu, // magnetic reluctivity
+                  hc, // coercive magnetic field
+                  js // source current density
+                  ];
 }
 
 Jacobian {

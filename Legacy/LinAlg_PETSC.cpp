@@ -388,17 +388,28 @@ void LinAlg_PrintMatrix(FILE *file, gMatrix *M, bool matlab,
     }
   }
   else{
+    // ASCII
     PetscViewer fd;
     _try(PetscViewerASCIIOpen(MyComm, fileName, &fd));
     _try(PetscViewerSetFormat(fd, PETSC_VIEWER_ASCII_MATLAB));
-      _try(PetscObjectSetName((PetscObject)M->M, varName));
-      _try(MatView(M->M, fd));
+    _try(PetscObjectSetName((PetscObject)M->M, varName));
+    _try(MatView(M->M, fd));
+
+    // Binary
+    PetscViewer fd2;
+    std::string tmp(fileName);
+    _try(PetscViewerBinaryOpen(MyComm, (tmp + ".bin").c_str(), FILE_MODE_WRITE, &fd2));
+    _try(PetscViewerSetFormat(fd2, PETSC_VIEWER_DEFAULT));
+    _try(MatView(M->M, fd2));
+
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev or petsc-3.2
-      _try(PetscViewerDestroy(&fd));
+    _try(PetscViewerDestroy(&fd));
+    _try(PetscViewerDestroy(&fd2));
 #else
-      _try(PetscViewerDestroy(fd));
+    _try(PetscViewerDestroy(fd));
+    _try(PetscViewerDestroy(fd2));
 #endif
-    }
+  }
 }
 
 void LinAlg_WriteScalar(FILE *file, gScalar *S)
