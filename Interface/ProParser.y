@@ -561,6 +561,14 @@ IRegion :
       List_Reset(ListOfInt_L); List_Add($$ = ListOfInt_L, &($1));
     }
 
+  | tINT tDOTS tINT
+    {
+      List_Reset($$ = ListOfInt_L);
+      for(int j = $1; ($1 < $3) ? (j <= $3) : (j >= $3);
+	  ($1 < $3) ? (j += 1) : (j -= 1))
+	List_Add(ListOfInt_L, &j);
+    }
+
   | String__Index
     {
       int i;
