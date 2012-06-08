@@ -569,6 +569,18 @@ IRegion :
 	List_Add(ListOfInt_L, &j);
     }
 
+  | tINT tDOTS tINT tDOTS tINT
+    {
+      List_Reset($$ = ListOfInt_L);
+      if(!$5 || ($1 < $3 && $5 < 0) || ($1 > $3 && $5 > 0)){
+	vyyerror("Wrong increment in '%d : %d : %d'", $1, $3, $5);
+	List_Add(ListOfInt_L, &($1));
+      }
+      else
+	for(int j = $1; ($5 > 0) ? (j <= $3) : (j >= $3); j += $5)
+	  List_Add($$, &j);
+    }
+
   | String__Index
     {
       int i;
