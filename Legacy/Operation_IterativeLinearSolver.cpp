@@ -80,7 +80,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   ksp_choice = Operation_P->Case.IterativeLinearSolver.Type;
   //Print informations
   if(Message::GetCommSize() >1){
-  ierr = PetscPrintf(PETSC_COMM_WORLD, "Number of Processus\t: %d\n", Message::GetCommSize());CHKERRQ(ierr);  	
+  ierr = PetscPrintf(PETSC_COMM_WORLD, "Number of Processus\t: %d\n", Message::GetCommSize());CHKERRQ(ierr);
   	}
   ierr = PetscPrintf(PETSC_COMM_WORLD, "Iterative solver\t: %s\n", ksp_choice);CHKERRQ(ierr);
   ierr = PetscPrintf(PETSC_COMM_WORLD, "Tolerance\t\t: %g\n", Tol);CHKERRQ(ierr);
@@ -132,7 +132,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   STD_vector_to_PETSc_Vec(B_std, B);
   //context of the shell matrix
   ierr = VecGetLocalSize(B,&n_loc);CHKERRQ(ierr);
-  
+
   ierr = CreateFieldMat(&ctx);
   ierr = SetFieldMat(&ctx, flag_operation, indices_field, sizes_field, Resolution_P, Operation_P, DofData_P0, GeoData_P0);
   //Shell matrix containg the indices of the unknown field (on which the iterative solver works)
@@ -178,7 +178,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   		  	}
   		  }
   		  //copying vectors
-		  for(int cpt_deflation = 0; cpt_deflation < nb_deflation; cpt_deflation ++){		  
+		  for(int cpt_deflation = 0; cpt_deflation < nb_deflation; cpt_deflation ++){
 			  //construct each deflation vectors
   			  std::vector<std::vector<std::vector<double> > > VecTemp; // right hand side (std version)
 			  VecTemp.resize(nb_field);
@@ -191,7 +191,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 		  }
 		  ierr = Orthonormalizer(DeflationVec, nb_deflation); CHKERRQ(ierr);
 		  ierr = KSPDGMRESSetInitialDeflationData(ksp, DeflationVec, nb_deflation); CHKERRQ(ierr);
-		  ierr = PetscPrintf(PETSC_COMM_WORLD, "DGMRES: %d vectors successfully added to the invariant subspace !\n", nb_deflation); CHKERRQ(ierr);		  
+		  ierr = PetscPrintf(PETSC_COMM_WORLD, "DGMRES: %d vectors successfully added to the invariant subspace !\n", nb_deflation); CHKERRQ(ierr);
 		*/
 		}
   	//set ksp
@@ -217,7 +217,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     cleaning
     -------------*/
 
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev or petsc-3.2
+#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   ierr = VecDestroy(&X);CHKERRQ(ierr);
   ierr = VecDestroy(&B);CHKERRQ(ierr);
   ierr = MatDestroy(&A);CHKERRQ(ierr);

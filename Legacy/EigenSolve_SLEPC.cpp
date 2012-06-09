@@ -195,7 +195,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
     Current.TimeImag = im;
   }
 
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(VecDestroy(&xr));
   _try(VecDestroy(&xi));
   if(Message::GetCommSize() > 1){
@@ -299,7 +299,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
     Message::Error("SLEPc diverged after %d iterations", its);
   else if(reason == EPS_DIVERGED_BREAKDOWN)
     Message::Error("SLEPc generic breakdown in method");
-#if !(PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev
+#if !(PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   else if(reason == EPS_DIVERGED_NONSYMMETRIC)
     Message::Error("The operator is nonsymmetric");
 #endif
@@ -315,7 +315,7 @@ static void _linearEVP(struct DofData * DofData_P, int numEigenValues,
   // print eigenvalues and store eigenvectors in DofData
   _storeEigenVectors(DofData_P, nconv, eps, PETSC_NULL);
 
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(EPSDestroy(&eps));
 #else
   _try(EPSDestroy(eps));
@@ -430,7 +430,7 @@ static void _quadraticEVP(struct DofData * DofData_P, int numEigenValues,
   // print eigenvalues and store eigenvectors in DofData
   _storeEigenVectors(DofData_P, nconv, PETSC_NULL, qep);
 
-#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 2))) // petsc-dev
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(QEPDestroy(&qep));
 #else
   _try(QEPDestroy(qep));
