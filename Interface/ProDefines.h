@@ -941,6 +941,7 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"Normal"            , (CAST)F_Normal           ,   0,   0 },
   {"NormalSource"      , (CAST)F_NormalSource     ,   0,   0 },
   {"Tangent"           , (CAST)F_Tangent          ,   0,   0 },
+  {"TangentSource"     , (CAST)F_TangentSource    ,   0,   0 },
   {"ElementVol"        , (CAST)F_ElementVol       ,   0,   0 },
   {"SurfaceArea"       , (CAST)F_SurfaceArea      ,  -1,   0 },
   {"GetVolume"         , (CAST)F_GetVolume        ,  -1,   0 },

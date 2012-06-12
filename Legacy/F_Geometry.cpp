@@ -115,6 +115,46 @@ void F_Tangent(F_ARG)
   V->Type = VECTOR ;
 }
 
+void F_TangentSource(F_ARG)
+{
+  int  k ;
+  double  tx, ty, tz, norm ;
+
+  if(!Current.ElementSource || Current.ElementSource->Num == NO_ELEMENT)
+    Message::Error("No element on which to compute 'F_TangentSource'");
+
+  switch (Current.ElementSource->Type) {
+   
+  case LINE :
+    tx = Current.ElementSource->x[1] - Current.ElementSource->x[0] ;
+    ty = Current.ElementSource->y[1] - Current.ElementSource->y[0] ;
+    tz = Current.ElementSource->z[1] - Current.ElementSource->z[0] ;
+    norm = sqrt(SQU(tx)+SQU(ty)+SQU(tz)) ;      
+    V->Val[0] = tx/norm ;
+    V->Val[1] = ty/norm ;
+    V->Val[2] = tz/norm ;
+    break ;
+
+  default :
+    Message::Error("Function 'TangentSource' only valid for Line Elements");
+  }
+
+  if (Current.NbrHar != 1) {
+    V->Val[MAX_DIM] = 0. ;
+    V->Val[MAX_DIM+1] = 0. ;
+    V->Val[MAX_DIM+2] = 0. ;
+    for (k = 2 ; k < Current.NbrHar ; k += 2) {
+      V->Val[MAX_DIM* k   ] = V->Val[0] ;
+      V->Val[MAX_DIM* k +1] = V->Val[1] ;
+      V->Val[MAX_DIM* k +2] = V->Val[2] ;
+      V->Val[MAX_DIM*(k+1)  ] = 0. ;
+      V->Val[MAX_DIM*(k+1)+1] = 0. ;
+      V->Val[MAX_DIM*(k+1)+2] = 0. ;
+    }
+  }
+  V->Type = VECTOR ;
+}
+
 void F_ElementVol(F_ARG)
 {
   int k;

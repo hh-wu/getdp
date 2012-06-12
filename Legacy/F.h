@@ -51,6 +51,7 @@ void  F_ProjectPointOnEllipse(F_ARG);
 void  F_Normal          (F_ARG) ;
 void  F_NormalSource    (F_ARG) ;
 void  F_Tangent         (F_ARG) ;
+void  F_TangentSource   (F_ARG) ;
 void  F_ElementVol      (F_ARG) ;
 void  F_SurfaceArea     (F_ARG) ;
 void  F_GetVolume       (F_ARG) ;
