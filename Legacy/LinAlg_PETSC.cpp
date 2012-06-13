@@ -184,8 +184,13 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
     nnz[Current.DofData->NonLocalEquations[i] - 1] = n;
 
   if(Message::GetCommSize() > 1) // FIXME: alloc full lines...
-    _try(MatCreateMPIAIJ(MyComm, PETSC_DECIDE, PETSC_DECIDE, n, m,
+#if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 3))
+    _try(MatCreateAIJ(MyComm, PETSC_DECIDE, PETSC_DECIDE, n, m,
+                      prealloc, PETSC_NULL, prealloc, PETSC_NULL, &M->M));
+#else
+ _try(MatCreateMPIAIJ(MyComm, PETSC_DECIDE, PETSC_DECIDE, n, m,
                          prealloc, PETSC_NULL, prealloc, PETSC_NULL, &M->M));
+#endif
   else
     _try(MatCreateSeqAIJ(PETSC_COMM_SELF, n, m, 0, &nnz[0], &M->M));
 
