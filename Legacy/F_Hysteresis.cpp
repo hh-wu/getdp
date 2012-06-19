@@ -394,129 +394,129 @@ void Vector_dHdB(double H[3], double B[3], double dH[3],
 */
 /* ------------------------------------------------------------------------ */
 
-double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL, int NC, double h0, double b0, double b)
+double Fi_h_Ducharne (double *hi, double *bi, double *M, int NL, int NC,
+                      double h0, double b0, double b)
 {
-    double db, dh, dHdB, s;
-    int i, N = 200 ; // fixed number of steps for numerical integration
-    double max_b=bi[NC-1], min_b=bi[0] ;
-    double max_h=hi[NC-1], min_h=hi[0] ;
+  double db, dh, dHdB, s;
+  int i, N = 200 ; // fixed number of steps for numerical integration
 
-    db = (b - b0)/N ;
-    s = (b - b0 < 0) ? -1. : 1. ;
-    for (i=0 ; i < N ; ++i) {
-      bool IsInGrid = Fi_InterpolationBilinear(hi, bi, M, NL, NC, s*h0, s*b0, &dHdB);
-      if (!IsInGrid) dHdB = MU0 ;
-      dh = dHdB * db;
-      h0 += dh;
-      b0 += db;
-    }
-    return h0 ;
+  db = (b - b0)/N ;
+  s = (b - b0 < 0) ? -1. : 1. ;
+  for (i=0 ; i < N ; ++i) {
+    bool IsInGrid = Fi_InterpolationBilinear(hi, bi, M, NL, NC, s*h0, s*b0, &dHdB);
+    if (!IsInGrid) dHdB = MU0 ;
+    dh = dHdB * db;
+    h0 += dh;
+    b0 += db;
+  }
+  return h0 ;
 }
 
 void F_h_Ducharne(F_ARG)
 {
-    int    NL, NC, i;
-    double b0, h0, b, h, *bi, *hi, *M;
-    struct FunctionActive  * D;
+  int    NL, NC, i;
+  double b0, h0, b, h, *bi, *hi, *M;
+  struct FunctionActive  * D;
 
-    if (!Fct->Active)  Fi_InitListMatrix (Fct, A, V) ;
+  if (!Fct->Active)  Fi_InitListMatrix (Fct, A, V) ;
 
-    D = Fct->Active ;
-    NL = D->Case.ListMatrix.NbrLines ;
-    NC = D->Case.ListMatrix.NbrColumns ;
+  D = Fct->Active ;
+  NL = D->Case.ListMatrix.NbrLines ;
+  NC = D->Case.ListMatrix.NbrColumns ;
 
-    hi = D->Case.ListMatrix.x ;
-    bi = D->Case.ListMatrix.y ;
-    M =  D->Case.ListMatrix.data ;
+  hi = D->Case.ListMatrix.x ;
+  bi = D->Case.ListMatrix.y ;
+  M =  D->Case.ListMatrix.data ;
 
+  for (i=0 ; i<3 ; ++i) {
+    // (h0,b0) = state of the model, and b
+    h0 = (A+0)->Val[i] ;
+    b0 = (A+1)->Val[i] ;
+    b  = (A+2)->Val[i] ;
 
-    for (i=0 ; i<3 ; ++i) {
-        // (h0,b0) = state of the model, and b
-        h0 = (A+0)->Val[i] ;
-        b0 = (A+1)->Val[i] ;
-        b  = (A+2)->Val[i] ;
+    // Compute the magnetic field
+    h = Fi_h_Ducharne (hi, bi, M, NL, NC, h0, b0, b);
+    V->Val[i] = h;
+  }
 
-        // Compute the magnetic field
-        h = Fi_h_Ducharne (hi, bi, M, NL, NC, h0, b0, b);
-        V->Val[i] = h;
-    }
-
-    V->Type = VECTOR ;
+  V->Type = VECTOR ;
 }
 
 void F_nu_Ducharne(F_ARG)
 {
-    int    NL, NC, i;
-    double b0, h0, b[3], h[3], *bi, *hi, *M;
-    struct FunctionActive  * D;
+  int    NL, NC, i;
+  double b0, h0, b[3], h[3], *bi, *hi, *M;
+  struct FunctionActive  * D;
 
-    if (!Fct->Active) Fi_InitListMatrix (Fct, A, V) ;
+  if (!Fct->Active) Fi_InitListMatrix (Fct, A, V) ;
 
-    D = Fct->Active ;
-    NL = D->Case.ListMatrix.NbrLines ;
-    NC = D->Case.ListMatrix.NbrColumns ;
+  D = Fct->Active ;
+  NL = D->Case.ListMatrix.NbrLines ;
+  NC = D->Case.ListMatrix.NbrColumns ;
 
-    hi = D->Case.ListMatrix.x ;
-    bi = D->Case.ListMatrix.y ;
-    M  = D->Case.ListMatrix.data ;
+  hi = D->Case.ListMatrix.x ;
+  bi = D->Case.ListMatrix.y ;
+  M  = D->Case.ListMatrix.data ;
 
-    for (i=0 ; i<3 ; ++i) {
-        // Get (h0,b0) = state of the model, and b
-        h0 = (A+0)->Val[i] ;
-        b0 = (A+1)->Val[i] ;
-        b[i] = (A+2)->Val[i] ;
+  for (i=0 ; i<3 ; ++i) {
+    // Get (h0,b0) = state of the model, and b
+    h0 = (A+0)->Val[i] ;
+    b0 = (A+1)->Val[i] ;
+    b[i] = (A+2)->Val[i] ;
 
-        // Compute h
-        h[i] = Fi_h_Ducharne (hi, bi, M, NL, NC, h0, b0, b[i]);
-    }
+    // Compute h
+    h[i] = Fi_h_Ducharne (hi, bi, M, NL, NC, h0, b0, b[i]);
+  }
 
-    V->Type = TENSOR_SYM ;
-    V->Val[0] = (b[0] == 0) ? 1/(1e4*MU0) : h[0]/b[0]  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0 ;
-    V->Val[3] = (b[1] == 0) ? 1/(1e4*MU0) : h[1]/b[1]  ;  V->Val[4] = 0 ;
-    V->Val[5] = (b[2] == 0) ? 1/(1e4*MU0) : h[2]/b[2]  ;
+  V->Type = TENSOR_SYM ;
+  V->Val[0] = (b[0] == 0) ? 1/(1e4*MU0) : h[0]/b[0]  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0 ;
+  V->Val[3] = (b[1] == 0) ? 1/(1e4*MU0) : h[1]/b[1]  ;  V->Val[4] = 0 ;
+  V->Val[5] = (b[2] == 0) ? 1/(1e4*MU0) : h[2]/b[2]  ;
 }
 
 void F_dhdb_Ducharne(F_ARG)
 {
-    int    NL, NC, i;
-    double b0, h0, b[3], h[3], *bi, *hi, *M, dHdB[3], s;
-    struct FunctionActive  * D;
+  int    NL, NC, i;
+  double b0, h0, b[3], *bi, *hi, *M, dHdB[3], s;
+  struct FunctionActive  * D;
 
-    if (!Fct->Active)  Fi_InitListMatrix (Fct, A, V) ;
+  if (!Fct->Active)  Fi_InitListMatrix (Fct, A, V) ;
 
-    D = Fct->Active ;
-    NL = D->Case.ListMatrix.NbrLines ;
-    NC = D->Case.ListMatrix.NbrColumns ;
+  D = Fct->Active ;
+  NL = D->Case.ListMatrix.NbrLines ;
+  NC = D->Case.ListMatrix.NbrColumns ;
 
-    hi = D->Case.ListMatrix.x ;
-    bi = D->Case.ListMatrix.y ;
-    M  = D->Case.ListMatrix.data ;
+  hi = D->Case.ListMatrix.x ;
+  bi = D->Case.ListMatrix.y ;
+  M  = D->Case.ListMatrix.data ;
 
-    for (i=0 ; i<3 ; ++i) {
-        // Get (h0,b0) = state of the model, and b
-        h0 = (A+0)->Val[i] ;
-        b0 = (A+1)->Val[i] ;
-        b[i] = (A+2)->Val[i] ;
-        s = (b[i] - b0 < 0) ? -1 : +1;
+  for (i=0 ; i<3 ; ++i) {
+    // Get (h0,b0) = state of the model, and b
+    h0 = (A+0)->Val[i] ;
+    b0 = (A+1)->Val[i] ;
+    b[i] = (A+2)->Val[i] ;
+    s = (b[i] - b0 < 0) ? -1 : +1;
 
-        bool IsInGrid = Fi_InterpolationBilinear (hi, bi, M, NL, NC, s*h0, s*b0, &(dHdB[i]));
-        if (!IsInGrid) dHdB[i] = MU0 ;
-    }
+    bool IsInGrid = Fi_InterpolationBilinear (hi, bi, M, NL, NC, s*h0, s*b0, &(dHdB[i]));
+    if (!IsInGrid) dHdB[i] = MU0 ;
+  }
 
-    V->Type = TENSOR_SYM ;
-    V->Val[0] = dHdB[0]  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0 ;
-    V->Val[3] = dHdB[1]  ;  V->Val[4] = 0 ;
-    V->Val[5] = dHdB[2]  ;
+  V->Type = TENSOR_SYM ;
+  V->Val[0] = dHdB[0]  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0 ;
+  V->Val[3] = dHdB[1]  ;  V->Val[4] = 0 ;
+  V->Val[5] = dHdB[2]  ;
 }
 
+// Functions for Vectorial Incremental Nonconservative Consistent Hysteresis
+// Model
 
-// Functions for Vectorial Incremental Nonconservative Consistent Hysteresis Model - V. Francois
-
-double get_h_from_b (double h, double b_reversible, double Js0, double alpha){
+double get_h_from_b (double h, double b_reversible, double Js0, double alpha)
+{
   // Input : h =  current magnetic field
   //         b_reversible = b_tot-sum(\Js_k)
   //         Js0 = magnetic polarisation at saturation
-  //         alpha = characteristic magnetic field inversely proportional to the slope of the curve at origin
+  //         alpha = characteristic magnetic field inversely proportional to the
+  //                 slope of the curve at origin
   // Parametric saturation curve : h_rev = alpha * atanh (J/Js)
   //                               J = Js tanh(h_rev/alpha)
   // return( b_reversible / (MU0 + Js0 * tanh(h/alpha)/h));
@@ -525,13 +525,15 @@ double get_h_from_b (double h, double b_reversible, double Js0, double alpha){
 
 }
 
-//-----------------------------
 void F_nu_Vinch(F_ARG)
 {
   // input  :
-  // (A+0)->Val[0] = norm of the reversible inductance    -- norm(b_rev) = norm(b_tot-sum(\Js_k))
-  // (A+1)->Val[0] = magnetic polarisation at saturation (reversible case) -- Js0
-  // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the slope of the curve at origin -- alpha
+  // (A+0)->Val[0] = norm of the reversible inductance
+  //      -- norm(b_rev) = norm(b_tot-sum(\Js_k))
+  // (A+1)->Val[0] = magnetic polarisation at saturation (reversible case)
+  //      -- Js0
+  // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the
+  //      slope of the curve at origin -- alpha
   // output : nu
 
   double chi_mag ;
@@ -566,7 +568,8 @@ double norm(double a[3])
   return sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
 }
 
-bool limiter(const double max, double v[3]){
+bool limiter(const double max, double v[3])
+{
   double mod = norm(v);
   if(mod >= max){
     for (int n=0; n<3; n++)
@@ -591,9 +594,7 @@ void F_Update_Jk(F_ARG)
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_multimin.h>
 
-//-------------------------------
 // Newton for updating nu_vinch
-//-------------------------------
 struct h_vinch_context
 {
   double b_rev, Js0, alpha;
@@ -610,7 +611,8 @@ static int h_vinch(const gsl_vector *hh, void *param, gsl_vector *h_vinch)
   // Input : h =  current magnetic field
   //         b_reversible = b_tot-sum(\Js_k)
   //         Js0 = saturation magnetisation
-  //         alpha = characteristic magnetic field inversely proportional to the slope of the curve at origin
+  //         alpha = characteristic magnetic field inversely proportional to the
+  //                 slope of the curve at origin
   // Parametric saturation curve : h_rev = alpha * atanh (J/Js)
   //                               J = Js tanh(h_rev/alpha)
 
@@ -681,13 +683,15 @@ static int get_h_from_b_newton(gsl_multiroot_function_fdf HDH, double *h)
     return 0;
 }
 
-//-----------------------------
 void F_nu_Vinch_nr(F_ARG)
 {
   // input  :
-  // (A+0)->Val[0] = norm of the reversible inductance    -- norm(b_rev) = norm(b_tot-sum(\Js_k))
-  // (A+1)->Val[0] = saturation magnetisation of the reversible case -- Js_0
-  // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the slope of the curve at origin -- alpha
+  // (A+0)->Val[0] = norm of the reversible inductance
+  //       -- norm(b_rev) = norm(b_tot-sum(\Js_k))
+  // (A+1)->Val[0] = saturation magnetisation of the reversible case
+  //       -- Js_0
+  // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the
+  //       slope of the curve at origin -- alpha
   // output : nu
 
   double chi_mag ;
@@ -846,7 +850,6 @@ void F_Update_Jk(F_ARG)
 double fct_omega(double h[3], double Jk[3], double Jkp[3], double chi, double Js, double alpha)
 {
   double diff[3];
-  double nh  = norm(h);  // norm of magnetic field h
   double nJk = norm(Jk); // magnetisation Jk assumed to be < the saturation magnetisation Js
   for (int n=0; n<3; n++)
     diff[n] = Jk[n]-Jkp[n]; // J-Jp
@@ -944,5 +947,3 @@ void F_Update_Jk_sd(F_ARG) {
   for (int n=0 ; n<3 ; n++) V->Val[n] = min_Jk[n];
 
 }
-
-

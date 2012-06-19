@@ -67,9 +67,6 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   PC pc;
   int flag_operation = 1; //for the matmult product
 
-  KSPConvergedReason reason;
-  PetscInt its;
-
   /*---------------------------------------------
     Reading data fromd GetDP
     ---------------------------------------------*/
@@ -208,7 +205,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
     //we reuse B_std to avoid the creation of a new std::vector ...
   ierr = PETSc_Vec_to_STD_Vec(X, sizes_field, &B_std); CHKERRQ(ierr);
   //update views
-  for (int cpt_view = 0; cpt_view<indices_field.size(); cpt_view++){
+  for (unsigned int cpt_view = 0; cpt_view<indices_field.size(); cpt_view++){
     PView *view = PView::list[indices_field[cpt_view]];
     view->getData()->fromVector(B_std[cpt_view]);
   }
@@ -229,6 +226,7 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
   ierr = KSPDestroy(ksp);CHKERRQ(ierr);
 #endif
 
+  return 0;
 }
 
 /*-------- MatMultFieldMat ------
@@ -252,7 +250,7 @@ PetscErrorCode MatMultFieldMat(Mat A, Vec X, Vec Y)
   //convert X to a std vector
   ierr = PETSc_Vec_to_STD_Vec(X, field_sizes, &std_vec);CHKERRQ(ierr);
   // Update PViews
-  for (int cpt_view = 0; cpt_view<field_indices.size(); cpt_view++){
+  for (unsigned int cpt_view = 0; cpt_view<field_indices.size(); cpt_view++){
     PView *view = PView::list[field_indices[cpt_view]];
     view->getData()->fromVector(std_vec[cpt_view]);
   }
@@ -384,8 +382,6 @@ PetscErrorCode SetFieldMat(FieldMat **shell,
                            struct DofData *DofData_P0,
                            struct GeoData *GeoData_P0)
 {
-  PetscErrorCode	ierr;
-
   (*shell)->flag_operation = flag_operation;
   (*shell)->FieldIndices = FieldIndices;
   (*shell)->FieldSizes = FieldSizes;

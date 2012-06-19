@@ -407,7 +407,7 @@ void Generate_GroupsOfFacets(List_T * InitialList,
 {
   Tree_T  * Entity_Tr ;
   struct Geo_Element  * GeoElement ;
-  int     Nbr_Element, i_Element,  i_Entity, Num_Element ;
+  int     Nbr_Element, i_Element,  i_Entity ;
   int     * Num_Nodes, Num_Node ;
   struct TwoInt  Num_GroupOfFacets ;
   List_T  * ExtendedAuxList ;

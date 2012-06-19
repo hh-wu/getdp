@@ -379,7 +379,7 @@ void F_ElectricFieldPerfectlyConductingSphere(F_ARG)
   double phi = atan2(y, x);
 
   // warning: approximation
-  if (theta == 0. ) theta += 1e-6;
+  if (theta == 0.) theta += 1e-6;
   if (theta == M_PI || theta == -M_PI) theta -= 1e-6;
 
   double k = Fct->Para[0] ;

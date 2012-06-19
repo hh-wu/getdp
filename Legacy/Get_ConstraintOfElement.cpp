@@ -30,8 +30,7 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
 				     int Num_Entity[], int i_Entity,
 				     int i_BFunction, int TypeConstraint)
 {
-  int                    Nbr_Constraint, i_Constraint, k, Index_GeoElement, dummy ;
-  double                *uvw;
+  int                    Nbr_Constraint, i_Constraint, k, Index_GeoElement ;
   List_T                      * Constraint_L ;
   struct ConstraintInFS       * Constraint_P ;
   struct ConstraintPerRegion  * ConstraintPerRegion_P ;
@@ -82,8 +81,8 @@ void  Treatment_ConstraintForElement(struct FunctionSpace    * FunctionSpace_P,
                 /* We used to do the follwoing to get the correct u,v,w
                    coordinates so we can use CoordXYZ[] functions in
                    preprocessing for nodal constraints:
-
-                   uvw = Geo_GetNodes_uvw(Current.Element->Type, &dummy) ;
+                   int dummy;
+                   double *uvw = Geo_GetNodes_uvw(Current.Element->Type, &dummy) ;
                    Current.u = uvw[3 * i_Entity] ;
                    Current.v = uvw[3 * i_Entity + 1] ;
                    Current.w = uvw[3 * i_Entity + 2] ;
@@ -950,7 +949,8 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
   struct TwoIntOneDouble *TwoIntOneDouble3_P, TwoIntOneDouble ;
 
   List_T  * ExtendedList_L ;
-  int  Save_Num1, Save_Num2, Save_Num3, Flag_Filter ;
+  // int  Save_Num1, Save_Num2, Save_Num3;
+  int Flag_Filter ;
 
   /* Couples of nodes */
 

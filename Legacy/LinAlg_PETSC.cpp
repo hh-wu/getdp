@@ -1340,8 +1340,7 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   if(solverIndex != 0)
     Message::Info("Using nonlinear solver index %d", solverIndex);
 
-  PetscTruth flag_fd, fd_jacobian = PETSC_FALSE, snes_fd = PETSC_FALSE ;
-  MatStructure  flag_matstructure ;
+  PetscTruth fd_jacobian = PETSC_FALSE, snes_fd = PETSC_FALSE ;
 
   // Setting nonlinear solver defaults
   if(!Solver->snes[solverIndex]) {

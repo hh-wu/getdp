@@ -1620,12 +1620,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   static int *NumDof_MH_moving ;
   static struct Dof ** Dof_MH_moving ;
 
-
-  //+++
-  struct Group *Group_P ;
-  //+++
-
-
   Nbr_Operation = List_Nbr(Operation_L) ;
 
   for (i_Operation = 0 ; i_Operation < Nbr_Operation ; i_Operation++) {
@@ -3548,7 +3542,6 @@ void Generate_Residual(gVector *x, gVector *f)
 void Generate_FullJacobian(gVector *x, gMatrix *Jac)
 {
   struct DofData * DofData_P ;
-  int Flag_Jac = 1 ;
 
   Message::Debug("Generating Full Jacobian = A(x) + DofData_P->Jac");
 

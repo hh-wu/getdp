@@ -333,7 +333,6 @@ void  F_PullBackMetric(F_ARG)
 {
   struct Value *S;
   struct Value *J;
-  struct Value  detJ;
 
   J = A+1;
   S = A;

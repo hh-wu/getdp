@@ -98,7 +98,7 @@ void F_dInterpolationLinear2(F_ARG)
   if (!Fct->Active) {
     Fi_InitListXY (Fct, A, V) ;
     Fi_InitListXY2 (Fct, A, V) ;
-  }    
+  }
 
   D = Fct->Active ;  N = D->Case.Interpolation.NbrPoint ;
   x = D->Case.Interpolation.xc ;  y = D->Case.Interpolation.yc ;
@@ -198,7 +198,7 @@ void F_dInterpolationAkima(F_ARG)
   }
   else {
     up = 0 ;  while (x[++up] < xp) ;  lo = up - 1 ;
-    a = xp - x[lo] ; a2 = a*a ; 
+    a = xp - x[lo] ; a2 = a*a ;
     dyp = D->Case.Interpolation.bi[lo]
       + D->Case.Interpolation.ci[lo] * 2. * a
       + D->Case.Interpolation.di[lo] * 3. * a2 ;
@@ -218,53 +218,52 @@ void F_dInterpolationAkima(F_ARG)
 
 
 bool Fi_InterpolationBilinear(double *x, double *y, double *M, int NL, int NC,
-                              double xp, double yp, double *zp) 
+                              double xp, double yp, double *zp)
 {
-  double a11, a12, a21, a22, x1, y1;
+  double a11, a12, a21, a22;
   int i, j;
-  int maxLinIndex = NL*NC-1;  // max index of data
-  
+
   // Interpolate point (xp,yp) in a regular grid
   // x[i] <= xp < x[i+1]
   // y[j] <= yp < y[j+1]
-  
+
   *zp = 0.0 ;
-  
+
   // When (xp,yp) lays outside the boundaries of the table:
-  // the nearest border is taken 
+  // the nearest border is taken
   if (xp < x[0]) xp = x[0];
   else if (xp > x[NL-1]) xp = x[NL-1];
   for (i=0 ; i<NL-1 ; ++i) if (x[i+1] >= xp  &&  xp >= x[i]) break;
   i = (i >= NL) ? NL-1 : i;
-  
+
   if (yp < y[0]) yp = y[0];
   else if (yp > y[NC-1]) yp = y[NC-1];
   for (j=0 ; j<NC-1 ; ++j) if (y[j+1] >= yp  &&  yp >= y[j]) break;
   j = (j >= NC) ? NC-1 : j;
-  
-  
+
+
   a11 = M[   i  + NL * j    ];
   a21 = M[(i+1) + NL * j    ];
   a12 = M[   i  + NL * (j+1)];
   a22 = M[(i+1) + NL * (j+1)];
-  
+
   *zp = 1/((x[i+1]-x[i])*(y[j+1]-y[j])) *
-    ( a11 * ( x[i+1]-xp) * ( y[j+1]-yp) + 
+    ( a11 * ( x[i+1]-xp) * ( y[j+1]-yp) +
       a21 * (-x[i  ]+xp) * ( y[j+1]-yp) +
-      a12 * ( x[i+1]-xp) * (-y[j  ]+yp) + 
+      a12 * ( x[i+1]-xp) * (-y[j  ]+yp) +
       a22 * (-x[i  ]+xp) * (-y[j  ]+yp) );
-  
+
   return true ;
 }
 
 
 void F_InterpolationBilinear(F_ARG)
 {
-/*  
+/*
     It performs a bilinear interpolation at point (xp,yp) based
     on a two-dimensional table (sorted grid).
-    
-    Input parameters: 
+
+    Input parameters:
     NL  Number of lines
     NC  Number of columns
     x   values (ascending order) linked to the NL lines of the table
@@ -273,11 +272,11 @@ void F_InterpolationBilinear(F_ARG)
 
     xp  x coordinate of interpolation point
     yp  y coordinate of interpolation point
-    
+
     R. Scorretti
 */
 
-  int     NL, NC, err ;
+  int     NL, NC;
   double  xp, yp, zp = 0., *x, *y, *M;
   struct FunctionActive  * D;
 
@@ -286,11 +285,11 @@ void F_InterpolationBilinear(F_ARG)
 
   if (!Fct->Active)  Fi_InitListMatrix (Fct, A, V) ;
 
-  D = Fct->Active ;  
-  NL = D->Case.ListMatrix.NbrLines ;  
+  D = Fct->Active ;
+  NL = D->Case.ListMatrix.NbrLines ;
   NC = D->Case.ListMatrix.NbrColumns ;
-  
-  x = D->Case.ListMatrix.x ;  
+
+  x = D->Case.ListMatrix.x ;
   y = D->Case.ListMatrix.y ;
   M = D->Case.ListMatrix.data ;
 
@@ -307,19 +306,18 @@ void F_InterpolationBilinear(F_ARG)
 void Fi_InitListMatrix(F_ARG)
 {
   int     i=0, k, NL, NC, sz ;
-  double  *x, *y ;
   struct FunctionActive  * D ;
 
   /*
-    The original table structure:   
+    The original table structure:
           |  y(1)         y(2)         ...     y(NC)
     ------+--------------------------------------------
     x(1)  |  data(1)    data(NL+1)     ...      .
     x(2)  |  data(2)    data(NL+2)              .
-    .     .             .              .  
+    .     .             .              .
     .     .             .
     x(NL) |  data(NL)   data(2*NL)  ...     data(NL*NC)
-  
+
     is furnished with the following format:
     [ NL, NC, x(1..NL), y(1..NC), data(1..NL*NC) ]
 
@@ -331,12 +329,12 @@ void Fi_InitListMatrix(F_ARG)
 
   NL = Fct->Para[i++];
   NC = Fct->Para[i++];
-  
+
   sz = 2 + NL + NC + NL*NC ; // expected size of list matrix
-  if (Fct->NbrParameters != sz) 
+  if (Fct->NbrParameters != sz)
     Message::Error("Bad size of input data (expected = %d ; found = %d). "
                    "List with format: x(NbrLines=%d), y(NbrColumns=%d), "
-                   "matrix(NbrLines*NbrColumns=%d)", 
+                   "matrix(NbrLines*NbrColumns=%d)",
                    sz, Fct->NbrParameters, NL, NC, NL*NC);
 
   // Initialize structure and allocate memory
@@ -345,7 +343,7 @@ void Fi_InitListMatrix(F_ARG)
   D->Case.ListMatrix.x = (double *) malloc (sizeof(double)*NL);
   D->Case.ListMatrix.y = (double *) malloc (sizeof(double)*NC);
   D->Case.ListMatrix.data = (double *) malloc (sizeof(double)*NL*NC);
-  
+
   // Assign values
   for (k=0 ; k<NL ; ++k) D->Case.ListMatrix.x[k] = Fct->Para[i++];
   for (k=0 ; k<NC ; ++k) D->Case.ListMatrix.y[k] = Fct->Para[i++];
@@ -480,7 +478,7 @@ void F_VectorFromIndex(F_ARG)
   if (!Fct->Active)  Fi_InitVectorFromIndex (Fct, A, V) ;
 
   D = Fct->Active ;
-  
+
   /* printf("%d \n", List_Nbr(D->Case.ValueFromIndex.Table)); */
 
   if (List_Nbr(D->Case.ValueFromIndex.Table)){
@@ -488,7 +486,7 @@ void F_VectorFromIndex(F_ARG)
     IntVector_P = (struct IntVector *)
       List_PQuery(D->Case.ValueFromIndex.Table, &Current.NumEntity, fcmp_int);
 
-    /* 
+    /*
        if (!IntVector_P)  Message::Error("Unknown Entity Index in VectorFromIndex Table");
        printf("==> search %d --> found %g\n", Current.NumEntity, IntVector_P->Double);
     */
@@ -497,15 +495,15 @@ void F_VectorFromIndex(F_ARG)
     V->Val[1] = IntVector_P->Double[1] ;
     V->Val[2] = IntVector_P->Double[2] ;
     V->Type = VECTOR;
-  }    
+  }
   else{
     V->Val[0] = 0.;
     V->Val[1] = 0.;
     V->Val[2] = 0.;
-    V->Type = VECTOR; 
+    V->Type = VECTOR;
     /* WARNING, "Table empty: Uninitialized data or Unknown Entity
        Index in VectorFromIndex Table  */
-  }    
+  }
 }
 
 void Fi_InitValueFromIndex(F_ARG)
@@ -515,7 +513,7 @@ void Fi_InitValueFromIndex(F_ARG)
   struct FunctionActive  * D ;
 
   N = (int)Fct->Para[0];
-  
+
   D = Fct->Active =
     (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
 
@@ -537,12 +535,12 @@ void Fi_InitVectorFromIndex(F_ARG)
   if ((Fct->NbrParameters)){
 
     N = (int)Fct->Para[0];
-      
+
     D = Fct->Active =
       (struct FunctionActive *)Malloc(sizeof(struct FunctionActive)) ;
 
     D->Case.ValueFromIndex.Table = List_Create(N, 1, sizeof(struct IntVector[3]));
-    
+
     for (i = 0 ; i < N ; i++) {
       IntVector_s.Int = (int)(Fct->Para[i*4+1]+0.1);
       IntVector_s.Double[0] = Fct->Para[i*4+2];

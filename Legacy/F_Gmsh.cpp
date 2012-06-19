@@ -44,7 +44,7 @@ void F_Field(F_ARG)
   // add the values from all specified views
   for(unsigned int i = 0; i < iview.size(); i++){
 
-    if(iview[i] < 0 || iview[i] >= PView::list.size()){
+    if(iview[i] < 0 || iview[i] >= (int)PView::list.size()){
       Message::Error("View[%d] does not exist", iview[i]);
       return;
     }
@@ -126,7 +126,7 @@ static void F_X_Field(F_ARG, int type, bool complex)
   // add the values from all specified views
   for(unsigned int i = 0; i < iview.size(); i++){
 
-    if(iview[i] < 0 || iview[i] >= PView::list.size()){
+    if(iview[i] < 0 || iview[i] >= (int)PView::list.size()){
       Message::Error("View[%d] does not exist", iview[i]);
       return;
     }
