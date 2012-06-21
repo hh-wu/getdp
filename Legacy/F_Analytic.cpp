@@ -367,7 +367,11 @@ void F_RCS_SphPhi(F_ARG)
 /* Scattering by a perfectly conducting sphere of radius a, under plane wave
    incidence pol*e^{ik \alpha\dot\r}, with alpha = (0,0,-1) and pol =
    (1,0,0). Returns the scattered electric field anywhere outside the sphere
-   (From Balanis, Advanced Engineering Electromagnetics, sec 11.8, p. 660) */
+   (From Balanis, Advanced Engineering Electromagnetics, sec 11.8, p. 660) 
+
+   Warning This is probably wring :-)
+
+	*/
 
 void F_ElectricFieldPerfectlyConductingSphere(F_ARG)
 {
