@@ -549,10 +549,7 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     _onelabClient->get(ps, name);
     bool noRange = true, noChoices = true, noLoop = true, noGraph = true;
     if(ps.size()){
-      if(ps[0].getReadOnly())
-        ps[0].setValue(c->Value.Float); // use value from getdp (so it is updated if necessary)
-      else
-        c->Value.Float = ps[0].getValue(); // use value from server
+      c->Value.Float = ps[0].getValue(); // use value from server
       // keep track of these attributes, which can be changed server-side
       if(ps[0].getMin() != -onelab::parameter::maxNumber() ||
          ps[0].getMax() != onelab::parameter::maxNumber() ||
@@ -587,16 +584,16 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     if(noLoop && copt.count("Loop")) ps[0].setAttribute("Loop", copt["Loop"][0]);
     if(noGraph && copt.count("Graph")) ps[0].setAttribute("Graph", copt["Graph"][0]);
     _setStandardOptions(&ps[0], fopt, copt);
+    // If the parameter is set "read-only" here, the local value is used instead
+    // of that from the server
+    if(ps[0].getReadOnly()) ps[0].setValue(c->Value.Float);
     _onelabClient->set(ps[0]);
   }
   else if(c->Type == VAR_CHAR){
     std::vector<onelab::string> ps;
     _onelabClient->get(ps, name);
     if(ps.size()){
-      if(ps[0].getReadOnly())
-        ps[0].setValue(c->Value.Char); // use value from getdp (so it is updated if necessary)
-      else
-        c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server
+      c->Value.Char = strSave(ps[0].getValue().c_str()); // use value from server
     }
     else{
       ps.resize(1);
@@ -606,6 +603,9 @@ void Message::ExchangeOnelabParameter(Constant *c, fmap &fopt, cmap &copt)
     // send updated parameter to server
     if(copt.count("Choices")) ps[0].setChoices(copt["Choices"]);
     _setStandardOptions(&ps[0], fopt, copt);
+    // If the parameter is set "read-only" here, the local value is used instead
+    // of that from the server
+    if(ps[0].getReadOnly()) ps[0].setValue(c->Value.Char);
     _onelabClient->set(ps[0]);
   }
 }
