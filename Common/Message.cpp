@@ -297,11 +297,11 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
 
   double percent = 100. * (double)n/(double)N;
 
+  sprintf(str2, "%s(%d %%)", str, _progressMeterCurrent);
+
   if(percent >= _progressMeterCurrent){
     if(_client){
-      sprintf(str2, "(%d %%)", _progressMeterCurrent);
-      strcat(str, str2);
-      _client->Progress(str);
+      _client->Progress(str2);
     }
     else if(_onelabClient){
       onelab::number o(_onelabClient->getName() + "/Progress", n);
@@ -313,7 +313,7 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
       _onelabClient->set(o);
     }
     else{
-      fprintf(stdout, "%s(%d %%)                     \r", str, _progressMeterCurrent);
+      fprintf(stdout, "%s                     \r", str2);
       fflush(stdout);
     }
     while(_progressMeterCurrent < percent)
