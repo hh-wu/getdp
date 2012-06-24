@@ -250,7 +250,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 			 PostSubOperation_P->EvaluationPoints,
 			 DecomposeInSimplex) ;
       }
-      Message::ProgressMeter(iGeo + 1, NbrGeo, "Generate: ");
+      Message::ProgressMeter(iGeo + 1, NbrGeo, "Post-processing (Generate)");
     }
 
     /* Compute the skin */
@@ -267,7 +267,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
 	}
 	else
 	  Tree_Add(PostElement_T, &PE);
-	Message::ProgressMeter(iPost + 1, List_Nbr(PostElement_L), "Skin: ");
+	Message::ProgressMeter(iPost + 1, List_Nbr(PostElement_L), "Post-processing (Skin)");
       }
 
       /* only decompose in simplices (triangles!) now */
@@ -396,7 +396,7 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
       if(!Store) Destroy_PostElement(PE) ;
 
     }
-    Message::ProgressMeter(iGeo + 1, NbrGeo, "Compute: ");
+    Message::ProgressMeter(iGeo + 1, NbrGeo, "Post-processing (Compute)");
   } /* for iGeo */
 
   /* Perform Smoothing */
@@ -837,7 +837,7 @@ void  Pos_PrintOnSection(struct PostQuantity     *NCPQ_P,
 	}
 
       }
-      Message::ProgressMeter(iGeo + 1, NbGeoElement, "Cut: ") ;
+      Message::ProgressMeter(iGeo + 1, NbGeoElement, "Post-processing (Cut)") ;
     }
     Format_PostFooter(PostSubOperation_P, 0);
     break;
@@ -1563,7 +1563,7 @@ void  Pos_PrintGroup(struct PostSubOperation *PostSubOperation_P)
       }
 
     }
-    Message::ProgressMeter(iGeo + 1, NbrGeo, "Compute: ") ;
+    Message::ProgressMeter(iGeo + 1, NbrGeo, "Post-processing (Compute)") ;
   }
 
   Destroy_PostElement(SL) ;

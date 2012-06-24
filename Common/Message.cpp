@@ -282,18 +282,38 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
   va_end(args);
   if(strlen(fmt)) strcat(str, " ");
 
+  if(N <= 0){
+    if(_onelabClient){
+      onelab::number o(_onelabClient->getName() + "/Progress", n);
+      o.setLabel(std::string("GetDP ") + str);
+      o.setMin(0);
+      o.setMax(N);
+      o.setVisible(false);
+      o.setReadOnly(true);
+      _onelabClient->set(o);
+    }
+    return;
+  }
+
   double percent = 100. * (double)n/(double)N;
+
   if(percent >= _progressMeterCurrent){
-    sprintf(str2, "(%d %%)", _progressMeterCurrent);
-    strcat(str, str2);
     if(_client){
+      sprintf(str2, "(%d %%)", _progressMeterCurrent);
+      strcat(str, str2);
       _client->Progress(str);
     }
     else if(_onelabClient){
-      _onelabClient->sendProgress(str);
+      onelab::number o(_onelabClient->getName() + "/Progress", n);
+      o.setLabel(std::string("GetDP ") + str);
+      o.setMin(0);
+      o.setMax(N);
+      o.setVisible(false);
+      o.setReadOnly(true);
+      _onelabClient->set(o);
     }
     else{
-      fprintf(stdout, "%s                      \r", str);
+      fprintf(stdout, "%s(%d %%)                     \r", str, _progressMeterCurrent);
       fflush(stdout);
     }
     while(_progressMeterCurrent < percent)
@@ -305,7 +325,13 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
       _client->Progress("Done!");
     }
     else if(_onelabClient){
-      _onelabClient->sendProgress("Done!");
+      onelab::number o(_onelabClient->getName() + "/Progress", 0);
+      o.setLabel(std::string("GetDP ") + str);
+      o.setMin(0);
+      o.setMax(N);
+      o.setVisible(false);
+      o.setReadOnly(true);
+      _onelabClient->set(o);
     }
     else{
       fprintf(stdout, "Done!                                              \r");

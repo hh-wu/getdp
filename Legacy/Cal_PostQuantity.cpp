@@ -26,13 +26,13 @@ extern struct CurrentData Current ;
 
 static int Warning_NoJacobian = 0 ;
 
-void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P, 
+void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 				 struct DefineQuantity  *DefineQuantity_P0,
 				 struct QuantityStorage *QuantityStorage_P0,
 				 struct PostQuantityTerm  *PostQuantityTerm_P,
-				 struct Element         *Element, 
+				 struct Element         *Element,
 				 int    Type_Quantity,
-				 double u, double v, double w, 
+				 double u, double v, double w,
 				 struct Value *Value)
 {
   struct FunctionSpace     *FunctionSpace_P ;
@@ -60,13 +60,13 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
     Index_DefineQuantity = PostQuantityTerm_P->QuantityIndexTable[i] ;
     DefineQuantity_P     = DefineQuantity_P0  + Index_DefineQuantity ;
     QuantityStorage_P    = QuantityStorage_P0 + Index_DefineQuantity ;
-	
+
     if (QuantityStorage_P->NumLastElementForFunctionSpace != Element->Num) {
 
       QuantityStorage_P->NumLastElementForFunctionSpace = Element->Num ;
 
       if (Type_Quantity != INTEGRALQUANTITY){
-	QuantityStorage_P->FunctionSpace = FunctionSpace_P = 
+	QuantityStorage_P->FunctionSpace = FunctionSpace_P =
 	  (struct FunctionSpace*)
 	  List_Pointer(Problem_S.FunctionSpace,
 		       DefineQuantity_P->FunctionSpaceIndex) ;
@@ -86,7 +86,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 	  QuantityStorage_P    = QuantityStorage_P0 + Index_DefineQuantity ;
 	  QuantityStorage_P->FunctionSpace = (struct FunctionSpace*)
 	    List_Pointer(Problem_S.FunctionSpace,
-			 DefineQuantity_P->FunctionSpaceIndex) ;	    
+			 DefineQuantity_P->FunctionSpaceIndex) ;
 	}
       }
 
@@ -96,10 +96,10 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
   /* get the jacobian */
 
   if (Element->Num != NO_ELEMENT) {
-    if (PostQuantityTerm_P->JacobianMethodIndex >= 0) {	  
-      JacobianCase_L = 
+    if (PostQuantityTerm_P->JacobianMethodIndex >= 0) {
+      JacobianCase_L =
 	((struct JacobianMethod *)
-	 List_Pointer(Problem_S.JacobianMethod, 
+	 List_Pointer(Problem_S.JacobianMethod,
 		      PostQuantityTerm_P->JacobianMethodIndex))
 	->JacobianCase ;
       JacobianCase_P0 = (struct JacobianCase*)List_Pointer(JacobianCase_L, 0);
@@ -141,7 +141,7 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
       Element->DetJac = Get_Jacobian(Element, &Element->Jac) ;
       if (Element->DetJac != 0.)
 	Get_InverseMatrix(Type_Dimension, Element->Type, Element->DetJac,
-			  &Element->Jac, &Element->InvJac) ;	  
+			  &Element->Jac, &Element->InvJac) ;
     }
 
     Cal_WholeQuantity
@@ -159,55 +159,55 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
       Message::Error("No element in which to integrate");
 
     if(PostQuantityTerm_P->IntegrationMethodIndex < 0)
-      Message::Error("Missing Integration method in PostProcesssing Quantity '%s'", 
+      Message::Error("Missing Integration method in PostProcesssing Quantity '%s'",
                      PostQuantity_P->Name);
-    
-    IntegrationCase_L = 
+
+    IntegrationCase_L =
       ((struct IntegrationMethod *)
-       List_Pointer(Problem_S.IntegrationMethod, 
+       List_Pointer(Problem_S.IntegrationMethod,
 		    PostQuantityTerm_P->IntegrationMethodIndex))->IntegrationCase ;
-    
-    CriterionIndex = 
+
+    CriterionIndex =
       ((struct IntegrationMethod *)
-       List_Pointer(Problem_S.IntegrationMethod, 
+       List_Pointer(Problem_S.IntegrationMethod,
 		    PostQuantityTerm_P->IntegrationMethodIndex))
       ->CriterionIndex ;
-    
-    IntegrationCase_P = Get_IntegrationCase(Element, 
+
+    IntegrationCase_P = Get_IntegrationCase(Element,
 					    IntegrationCase_L,
 					    CriterionIndex) ;
-    
+
     if(IntegrationCase_P->Type != GAUSS)
       Message::Error("Only numerical integration is available "
                      "in Integral PostQuantities");
-    
+
     Quadrature_P = (struct Quadrature*)
       List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
-    
+
     if(!Quadrature_P)
       Message::Error("Unknown type of Element (%s) for Integration method (%s) "
-                     " in PostProcessing Quantity (%s)", 
+                     " in PostProcessing Quantity (%s)",
 	  Get_StringForDefine(Element_Type, Element->Type),
 	  ((struct IntegrationMethod *)
 	   List_Pointer(Problem_S.IntegrationMethod,
 			PostQuantityTerm_P->IntegrationMethodIndex))->Name,
 	  PostQuantity_P->Name);
-    
+
     Cal_ZeroValue(&TermValue);
-    
+
     Nbr_IntPoints = Quadrature_P->NumberOfPoints ;
     Get_IntPoint = (void (*) (int,int,double*,double*,double*,double*))
       Quadrature_P->Function ;
-    
+
     for (i_IntPoint = 0 ; i_IntPoint < Nbr_IntPoints ; i_IntPoint++) {
-      
+
       Get_IntPoint(Nbr_IntPoints, i_IntPoint, &ui, &vi, &wi, &weight) ;
-      
+
       Get_BFGeoElement (Element, ui, vi, wi) ;
       Element->DetJac = Get_Jacobian(Element, &Element->Jac) ;
       if (Element->DetJac != 0.){
 	Get_InverseMatrix(Type_Dimension, Element->Type, Element->DetJac,
-			  &Element->Jac, &Element->InvJac) ;	  
+			  &Element->Jac, &Element->InvJac) ;
       }
       else{
 	Message::Warning("Zero determinant in 'Cal_PostQuantity'");
@@ -220,14 +220,14 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 	  Current.z += Element->z[i] * Element->n[i] ;
 	}
       }
-      
+
       Cal_WholeQuantity
 	(Current.Element = Element,
 	 QuantityStorage_P0, PostQuantityTerm_P->WholeQuantity,
 	 Current.u = ui, Current.v = vi, Current.w = wi, -1, -1, &tmpValue) ;
-      
+
       Factor = weight * fabs(Element->DetJac) ;
-      
+
       TermValue.Type = tmpValue.Type ;
       Cal_AddMultValue(&TermValue,&tmpValue,Factor,&TermValue);
     }
@@ -245,7 +245,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 			struct DefineQuantity  *DefineQuantity_P0,
 			struct QuantityStorage *QuantityStorage_P0,
 			struct PostQuantityTerm  *PostQuantityTerm_P,
-			struct Element         *ElementEmpty, 
+			struct Element         *ElementEmpty,
 			List_T  *InRegion_L, List_T  *Support_L,
 			struct Value *Value, int Type_InRegion)
 {
@@ -264,7 +264,7 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
   if (PostQuantityTerm_P->EvaluationType == LOCAL &&
       List_Search(InRegion_L, &Current.Region, fcmp_int)) {
 
-    for (k = 0 ; k < PostQuantityTerm_P->NbrQuantityIndex ; k++) {	  
+    for (k = 0 ; k < PostQuantityTerm_P->NbrQuantityIndex ; k++) {
       Index_DefineQuantity = PostQuantityTerm_P->QuantityIndexTable[k] ;
       DefineQuantity_P     = DefineQuantity_P0  + Index_DefineQuantity ;
       QuantityStorage_P    = QuantityStorage_P0 + Index_DefineQuantity ;
@@ -303,7 +303,6 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 
     Type_Quantity = LOCALQUANTITY ; /* Attention... il faut se comprendre: */
     /* il s'agit de grandeurs locales qui seront integrees */
-    //Message::ResetProgressMeter();
     for (i_Element = 0 ; i_Element < Nbr_Element; i_Element++) {
       Element.GeoElement = Geo_GetGeoElement(i_Element) ;
       Element.Num    = Element.GeoElement->Num ;
@@ -311,21 +310,20 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
       Current.Region = Element.Region = Element.GeoElement->Region ;
 
       /* Filter: only elements in both InRegion_L and Support_L are considered */
-      if ((!InRegion_L || 
+      if ((!InRegion_L ||
 	   (List_Search(InRegion_L, (Type_InRegion==ELEMENTSOF ?
 				     &Element.Num  : &Element.Region), fcmp_int))) &&
 	  (!Support_L || List_Search(Support_L, &Element.Region, fcmp_int))) {
-	
+
 	Get_NodesCoordinatesOfElement(&Element) ;
 	Current.x = Element.x[0];
 	Current.y = Element.y[0];
-	Current.z = Element.z[0]; 
+	Current.z = Element.z[0];
 	Pos_LocalOrIntegralQuantity(PostQuantity_P,
 				    DefineQuantity_P0, QuantityStorage_P0,
 				    PostQuantityTerm_P, &Element, Type_Quantity,
 				    0., 0., 0., Value) ;
       }
-      //Message::ProgressMeter(i_Element + 1, Nbr_Element, "Accumulate: ");
     }  /* for i_Element ... */
 
   }  /* if INTEGRAL ... */
@@ -336,12 +334,12 @@ void Pos_GlobalQuantity(struct PostQuantity    *PostQuantity_P,
 /*  C a l _ P o s t Q u a n t i t y                                         */
 /* ------------------------------------------------------------------------ */
 
-void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P, 
+void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 		      struct DefineQuantity  *DefineQuantity_P0,
 		      struct QuantityStorage *QuantityStorage_P0,
 		      List_T *Support_L,
-		      struct Element *Element, 
-		      double u, double v, double w, 
+		      struct Element *Element,
+		      double u, double v, double w,
 		      struct Value *Value)
 {
   struct PostQuantityTerm  PostQuantityTerm ;
@@ -354,25 +352,25 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
   /* (default type and value returned if Type_Quantity == -1) */
 
   Cal_ZeroValue(Value);
-  Value->Type = SCALAR; 
+  Value->Type = SCALAR;
 
   /* Loop on PostQuantity Terms */
   /* ... with sum of results if common supports (In ...) */
 
   for (i_PQT = 0 ; i_PQT < List_Nbr(PostQuantity_P->PostQuantityTerm) ; i_PQT++) {
-    
+
     List_Read(PostQuantity_P->PostQuantityTerm, i_PQT, &PostQuantityTerm) ;
-    
+
     /*
     InRegion_L = (PostQuantityTerm.InIndex < 0)?  NULL :
-      ((struct Group *)List_Pointer(Problem_S.Group, 
+      ((struct Group *)List_Pointer(Problem_S.Group,
 				    PostQuantityTerm.InIndex))->InitialList ;
     */
 
     Group_P = (PostQuantityTerm.InIndex < 0)?  NULL :
-      (struct Group *)List_Pointer(Problem_S.Group, 
+      (struct Group *)List_Pointer(Problem_S.Group,
 				   PostQuantityTerm.InIndex);
-    InRegion_L = Group_P ?  Group_P->InitialList : NULL ; 
+    InRegion_L = Group_P ?  Group_P->InitialList : NULL ;
 
     Type_InRegion = Group_P ?  Group_P->FunctionType : REGION;
 
@@ -388,8 +386,8 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
     if (InRegion_L) {
       if (Element->Num != NO_ELEMENT) {
 	/* not correct for ElementsOf (i.e. ELEMENTLIST)
-	if (!List_Search(InRegion_L, &Element->Region, fcmp_int)) { 
-	  Type_Quantity = -1 ; 
+	if (!List_Search(InRegion_L, &Element->Region, fcmp_int)) {
+	  Type_Quantity = -1 ;
 	}
 	*/
 	if (!((Group_P->Type != ELEMENTLIST  &&
@@ -398,12 +396,12 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 	      (Group_P->Type == ELEMENTLIST  &&
 	       Check_IsEntityInExtendedGroup(Group_P, Element->Num, 0))
 	      )) {
-	  Type_Quantity = -1 ; 
+	  Type_Quantity = -1 ;
 	}
       }
       else {
 	if (Type_Quantity == GLOBALQUANTITY) {
-	  
+
 	  /* Plus de test ici... vu que le OnRegion de la PostOperation n'a rien
 	     a voir avec le support d'une integration ...
 	  if (!List_Search(InRegion_L, &Current.Region, fcmp_int)) {
@@ -442,7 +440,7 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 			 DefineQuantity_P0, QuantityStorage_P0,
 			 &PostQuantityTerm, Element, InRegion_L, Support_L, Value, Type_InRegion) ;
     }
-   
+
   }  /* for i_PQT ... */
 
 }
@@ -453,8 +451,8 @@ void Cal_PostQuantity(struct PostQuantity    *PostQuantity_P,
 
 void Cal_PostCumulativeQuantity(List_T                 *Region_L,
 				int                    SupportIndex,
-				List_T                 *TimeStep_L, 
-				struct PostQuantity    *PostQuantity_P, 
+				List_T                 *TimeStep_L,
+				struct PostQuantity    *PostQuantity_P,
 				struct DefineQuantity  *DefineQuantity_P0,
 				struct QuantityStorage *QuantityStorage_P0,
 				struct Value          **Values)
@@ -483,13 +481,13 @@ void Cal_PostCumulativeQuantity(List_T                 *Region_L,
 /*  C o m b i n e _ P o s t Q u a n t i t y                                 */
 /* ------------------------------------------------------------------------ */
 
-void Combine_PostQuantity(int Type, int Order, 
+void Combine_PostQuantity(int Type, int Order,
 			  struct Value *V1, struct Value *V2)
 {
   switch(Type){
   case MULTIPLICATION : Cal_ProductValue(V1, V2, V1) ; break ;
   case ADDITION :       Cal_AddValue(V1, V2, V1) ; break ;
   case DIVISION :       Cal_DivideValue(Order?V1:V2, Order?V2:V1, V1) ; break;
-  case SOUSTRACTION :   Cal_SubstractValue(Order?V1:V2, Order?V2:V1, V1) ; break;	
+  case SOUSTRACTION :   Cal_SubstractValue(Order?V1:V2, Order?V2:V1, V1) ; break;
   }
 }

@@ -580,7 +580,8 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
     }  /* for i_EquTerm ... */
 
-    Message::ProgressMeter(i_Element + 1, Nbr_Element);
+    Message::ProgressMeter(i_Element + 1, Nbr_Element, (TreatmentStatus == _PRE) ?
+                           "Pre-processing" : "Processing (Generate)");
   }  /* for i_Element ... */
 
 

@@ -408,6 +408,7 @@ void SolvingAnalyse()
   TreatmentStatus = _PRE ;
 
   Message::Direct("P r e - P r o c e s s i n g . . .") ;
+  Message::ProgressMeter(0, 0, "Pre-processing");
 
   if (Flag_PRE) {
 
@@ -488,7 +489,7 @@ void SolvingAnalyse()
 
   else if (Flag_CAL || Flag_POS) {
 
-    Message::Info("Loding Pre-Processing data '%s.pre'", Name_Generic) ;
+    Message::Info("Loading Pre-Processing data '%s.pre'", Name_Generic) ;
 
     for(i = 0 ; i < Nbr_DefineSystem ; i++)
       Dof_ReadFilePRE(DofData_P0 + i) ;
@@ -526,13 +527,14 @@ void SolvingAnalyse()
   if (Flag_CAL) {
     TreatmentStatus = _CAL ;
     Message::Direct("P r o c e s s i n g . . .") ;
+    Message::ProgressMeter(0, 0, "Processing");
 
     Init_DofDataInFunctionSpace(Nbr_DefineSystem, DofData_P0) ;
 
     if(Flag_RESTART) {
       i = 0 ;
       while(Name_ResFile[i]){
-	Message::Info("Loding Processing data '%s'", Name_ResFile[i]) ;
+	Message::Info("Loading Processing data '%s'", Name_ResFile[i]) ;
 	Dof_OpenFile(DOF_RES, Name_ResFile[i], "rb");
 	Dof_ReadFileRES(DofData_L, NULL, -1, &Current.Time, &Current.TimeImag,
 			&Current.TimeStep) ;
@@ -571,6 +573,7 @@ void SolvingAnalyse()
     TreatmentStatus = _POS ;
 
     Message::Direct("P o s t - P r o c e s s i n g . . .") ;
+    Message::ProgressMeter(0, 0, "Post-processing");
 
     i = 0 ;
     while(Name_PostOperation[i]){

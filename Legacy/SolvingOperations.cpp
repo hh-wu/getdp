@@ -1497,9 +1497,9 @@ void  Init_OperationOnSystem(const char          * Name,
     }
   }
 
-  Message::Info("%s[%s]",
-                Name?Name:Get_StringForDefine(Operation_Type, Operation_P->Type),
-                (*DefineSystem_P)->Name) ;
+  const char *str = Name ? Name : Get_StringForDefine(Operation_Type, Operation_P->Type);
+  Message::Info("%s[%s]", str, (*DefineSystem_P)->Name) ;
+  Message::ProgressMeter(0, 0, "Processing (%s)", str);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1855,8 +1855,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       }
       else {
-	  Message::Error("AddCorrection: DofData #%d is not selected as a correction",
-                         DofData_P->Num);
+        Message::Error("AddCorrection: DofData #%d is not selected as a correction",
+                       DofData_P->Num);
       }
 
       break ;
@@ -1897,8 +1897,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
       }
       else {
-	  Message::Error("InitCorrection: DofData #%d is not selected as a correction",
-                         DofData_P->Num);
+        Message::Error("InitCorrection: DofData #%d is not selected as a correction",
+                       DofData_P->Num);
       }
 
       break ;
