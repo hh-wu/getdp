@@ -54,7 +54,7 @@ void F_VirtualWork (F_ARG)
   double DetJac_dx[3], squF[6] ;
   double s[3] = {0.,0.,0.};
 
-  if(!Current.Element || !Current.ElementSource)
+  if(!Current.Element)
     Message::Error("Uninitialized Element in 'F_VirtualWork'");
 
   Current.flagAssDiag = 1; /*+++prov*/
