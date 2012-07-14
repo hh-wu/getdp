@@ -1974,7 +1974,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
       if(!Flag_IterativeLoopN){
-        Message::Info("Non Linear Iteration %3ld: Residual 2-norm %14.12e",
+        Message::Info("%3ld Nonlinear Residual norm %14.12e",
                       (int)Current.Iteration, MeanError);
         Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
                                        MeanError);

@@ -1173,10 +1173,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     return;
   }
 
-  bool view = (!Solver->ksp[kspIndex] && Message::GetVerbosity() > 4);
-
-  if(view && (!Message::GetCommRank() || !Message::GetIsCommWorld()))
-    Message::Info("N: %ld", (long)i);
+  int view = (!Solver->ksp[kspIndex] && Message::GetVerbosity() > 2);
 
   if(kspIndex != 0)
     Message::Info("Using solver index %d", kspIndex);
@@ -1216,6 +1213,20 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     // override the default options with the ones from the option
     // database (if any)
     _try(KSPSetFromOptions(Solver->ksp[kspIndex]));
+
+    if(view && (!Message::GetCommRank() || !Message::GetIsCommWorld())){
+      const KSPType ksptype;
+      _try(KSPGetType(Solver->ksp[kspIndex], &ksptype));
+      const PCType pctype;
+      _try(PCGetType(pc, &pctype));
+#if (PETSC_VERSION_MAJOR > 2)
+      const MatSolverPackage stype;
+      _try(PCFactorGetMatSolverPackage(pc, &stype));
+#else
+      const char *stype = "";
+#endif
+      Message::Info("N: %ld - %s %s %s", (long)i, ksptype, pctype, stype);
+    }
   }
   else if(precond){
     _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN));
@@ -1226,7 +1237,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   // copy result on all procs
   _fillseq(X);
 
-  if(view)
+  if(view && Message::GetVerbosity() > 4)
     _try(KSPView(Solver->ksp[kspIndex], MyPetscViewer));
 
   if(!Message::GetCommRank() || !Message::GetIsCommWorld()){
