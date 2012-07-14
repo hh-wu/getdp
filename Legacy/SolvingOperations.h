@@ -7,6 +7,12 @@
 #define _SOLVING_OPERATIONS_H_
 
 #include "ProData.h"
+#include "LinAlg.h"
+
+void  ReGenerate_System(struct DefineSystem *DefineSystem_P,
+                        struct DofData      *DofData_P,
+                        struct DofData      *DofData_P0,
+                        int                 Flag_Jac);
 
 void  Treatment_Operation(struct Resolution  * Resolution_P,
                           List_T             * Operation_L,
@@ -23,5 +29,20 @@ int Operation_IterativeLinearSolver(struct Resolution  *Resolution_P,
 void Operation_TimeLoopAdaptive(struct Resolution  *Resolution_P,
                                 struct Operation   *Operation_P,
                                 struct DofData     *DofData_P0,
-                                struct GeoData     *GeoData_P0) ;
+                                struct GeoData     *GeoData_P0,
+                                int                *Flag_Break) ;
+
+void Operation_IterativeLoopN(struct Resolution  *Resolution_P,
+                              struct Operation   *Operation_P,
+                              struct DofData     *DofData_P0,
+                              struct GeoData     *GeoData_P0,
+                              int                *Flag_Break) ;
+
+void Cal_SolutionErrorRatio(gVector *dx,
+                            gVector *x,
+                            double reltol,
+                            double abstol,
+                            int NormType,
+                            double *ErrorRatio) ;
+
 #endif

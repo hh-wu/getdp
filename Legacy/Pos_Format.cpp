@@ -601,7 +601,7 @@ static void Gmsh_PrintElement(double Time, int TimeStep, int NbTimeStep, int NbH
   // reduce memory requirements by automatically partitioning large
   // output views into chunks not larger than 1Gb
   if(Flag_GMSH_VERSION == 2 && TimeStep == NbTimeStep - 1 &&
-     List_Nbr(Current_L) > 1024 * 1024 * 1024 / sizeof(double)){
+     List_Nbr(Current_L) > (int)(1024 * 1024 * 1024 / sizeof(double))){
     Format_PostFooter(PSO_P, Store);
     CurrentPartitionNumber++;
     Gmsh_StartNewView = 1;

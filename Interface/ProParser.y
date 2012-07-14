@@ -85,6 +85,8 @@ static struct Resolution             Resolution_S;
 static struct DefineSystem             DefineSystem_S;
 static struct Operation                Operation_S, *Operation_P;
 static struct ChangeOfState            ChangeOfState_S;
+static struct TimeLoopAdaptiveSystem   TimeLoopAdaptiveSystem_S;
+static struct IterativeLoopSystem      IterativeLoopSystem_S;
 static struct PostProcessing         PostProcessing_S, InteractivePostProcessing_S;
 static struct PostQuantity             PostQuantity_S;
 static struct PostQuantityTerm           PostQuantityTerm_S;
@@ -159,6 +161,7 @@ struct doubleXstring{
 %type <c>  NameForFunction CharExpr StrCat StringIndex String__Index
 %type <l>  RecursiveListOfString__Index
 %type <t>  Quantity_Def
+%type <l>  TimeLoopAdaptiveSystems IterativeLoopSystems
 
 /* ------------------------------------------------------------------ */
 %token  tEND tDOTS
@@ -227,7 +230,7 @@ struct doubleXstring{
 %token      tTimeLoopTheta tTimeLoopNewmark tTimeLoopRungeKutta tTimeLoopAdaptive
 %token        tTime0 tTimeMax tTheta
 %token        tBeta tGamma
-%token      tIterativeLoop tIterativeLinearSolver
+%token      tIterativeLoop tIterativeLoopN tIterativeLinearSolver
 %token      tNbrMaxIteration tRelaxationFactor
 %token      tIterativeTimeReduction
 %token        tSetCommSelf tSetCommWorld tBarrier
@@ -4373,34 +4376,44 @@ OperationTerm :
       Operation_P->Case.TimeLoopRungeKutta.ButcherC = $15;
     }
 
-  | tTimeLoopAdaptive '[' '{' RecursiveListOfString__Index '}' ','
-                          FExpr ',' FExpr ',' FExpr ',' FExpr ',' FExpr ']'
-                      '{' Operation '}' '{' Operation '}'
-    { Operation_P = (struct Operation*)
-	List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+  | tTimeLoopAdaptive '[' FExpr ',' FExpr ',' FExpr ',' FExpr ',' FExpr ',' CharExpr ',' 
+                      ListOfFExpr ',' tDefineSystem '{' TimeLoopAdaptiveSystems '}' ']' 
+                      '{' Operation '}' '{' Operation '}' 
+    {
+      List_Pop(Operation_L);
+      List_Pop(Operation_L);
+      Operation_P = (struct Operation*) 
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      if (!List_Nbr($19))
+        vyyerror("No system tolerances specified for TimeLoopAdaptive");
       Operation_P->Type = OPERATION_TIMELOOPADAPTIVE;
-      Operation_P->Case.TimeLoopAdaptive.DefineSystemIndices =
-        List_Create(4, 4, sizeof(int));
-      for(int j = 0; j < List_Nbr($4); j++){
-	char *sys;
-	List_Read($4, j, &sys);
-	int i;
-	if((i = List_ISearchSeq(Resolution_S.DefineSystem, sys,
-				fcmp_DefineSystem_Name)) < 0)
-	  vyyerror("Unknown System: %s", sys);
-	Free(sys);
-	List_Add(Operation_P->Case.TimeLoopAdaptive.DefineSystemIndices, &i);
-      }
-      List_Delete($4);
-      Operation_P->Case.TimeLoopAdaptive.Time0 = $7;
-      Operation_P->Case.TimeLoopAdaptive.TimeMax = $9;
-      Operation_P->Case.TimeLoopAdaptive.DTimeMin = $11;
-      Operation_P->Case.TimeLoopAdaptive.DTimeMax = $13;
-      Operation_P->Case.TimeLoopAdaptive.MaxOrder = $15;
-      Operation_P->Case.TimeLoopAdaptive.Operation = $18;
-      Operation_P->Case.TimeLoopAdaptive.OperationEnd = $21;
+      Operation_P->Case.TimeLoopAdaptive.Time0 = $3;
+      Operation_P->Case.TimeLoopAdaptive.TimeMax = $5;
+      Operation_P->Case.TimeLoopAdaptive.DTimeInit = $7;
+      Operation_P->Case.TimeLoopAdaptive.DTimeMin = $9;
+      Operation_P->Case.TimeLoopAdaptive.DTimeMax = $11;
+      Operation_P->Case.TimeLoopAdaptive.Scheme = $13;
+      Operation_P->Case.TimeLoopAdaptive.Breakpoints = $15;
+      Operation_P->Case.TimeLoopAdaptive.TimeLoopAdaptiveSystems = $19;
+      Operation_P->Case.TimeLoopAdaptive.Operation = $23;
+      Operation_P->Case.TimeLoopAdaptive.OperationEnd = $26;
     }
 
+  | tIterativeLoopN '[' FExpr ',' Expression ','  
+                    tDefineSystem '{' IterativeLoopSystems '}' ']'
+                    '{' Operation '}'
+    { List_Pop(Operation_L);
+      Operation_P = (struct Operation*)
+        List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
+      if (!List_Nbr($9))
+        vyyerror("No system tolerances specified for IterativeLoopN");
+      Operation_P->Type = OPERATION_ITERATIVELOOPN;
+      Operation_P->Case.IterativeLoop.NbrMaxIteration = (int)$3;
+      Operation_P->Case.IterativeLoop.RelaxationFactorIndex = $5;
+      Operation_P->Case.IterativeLoop.IterativeLoopSystems = $9;
+      Operation_P->Case.IterativeLoop.Operation = $13;
+    }
+  
   | tIterativeLoop  '[' FExpr ',' FExpr ',' Expression ']'
                      '{' Operation '}'
     { List_Pop(Operation_L);
@@ -4426,7 +4439,7 @@ OperationTerm :
       Operation_P->Case.IterativeLoop.Flag = (int)$9;
       Operation_P->Case.IterativeLoop.Operation = $12;
     }
-
+  
   | tIterativeLinearSolver '[' CharExpr ',' FExpr ',' FExpr ',' FExpr ',' ListOfFExpr ']'
                            '{' Operation '}'
     { List_Pop(Operation_L);
@@ -4895,6 +4908,63 @@ PrintOperationOption :
     }
 
 ;
+
+TimeLoopAdaptiveSystems :
+    /* none */
+    {
+      $$ = List_Create(4, 4, sizeof(struct TimeLoopAdaptiveSystem));
+    }
+
+  | TimeLoopAdaptiveSystems '{' String__Index ',' FExpr ',' FExpr  ',' tSTRING '}'
+    {
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3, fcmp_DefineSystem_Name)) < 0)
+        vyyerror("Unknown System: %s", $3);
+      TimeLoopAdaptiveSystem_S.SystemIndex = i;
+      TimeLoopAdaptiveSystem_S.SystemLTEreltol = $5;
+      TimeLoopAdaptiveSystem_S.SystemLTEabstol = $7;
+      TimeLoopAdaptiveSystem_S.NormType = Get_DefineForString(ErrorNorm_Type, $9, &FlagError);
+      if(FlagError){
+        vyyerror("Unknown error norm type of TimeLoopAdaptive system: %s", $3);
+        Get_Valid_SXD(ChangeOfState_Type);
+      }
+      TimeLoopAdaptiveSystem_S.NormTypeString = $9;     
+      List_Add($$ = $1, &TimeLoopAdaptiveSystem_S);
+      Free($3);
+    }
+ ;
+ 
+ IterativeLoopSystems :
+     /* none */
+    {
+      $$ = List_Create(4, 4, sizeof(struct IterativeLoopSystem));
+    }
+
+  | IterativeLoopSystems '{' String__Index ',' FExpr ',' FExpr  ',' tSTRING  tSTRING '}'
+    {
+      int i;
+      if((i = List_ISearchSeq(Resolution_S.DefineSystem, $3, fcmp_DefineSystem_Name)) < 0)
+        vyyerror("Unknown System: %s", $3);
+      IterativeLoopSystem_S.SystemIndex = i;
+      IterativeLoopSystem_S.SystemILreltol = $5;
+      IterativeLoopSystem_S.SystemILabstol = $7;     
+      IterativeLoopSystem_S.NormOf = Get_DefineForString(NormOf_Type, $9, &FlagError);
+      if(FlagError){
+        vyyerror("Unknown object for error norm of IterativeLoop system: %s", $3);
+        Get_Valid_SXD(ChangeOfState_Type);
+      } 
+      IterativeLoopSystem_S.NormOfString = $9;
+      IterativeLoopSystem_S.NormType = Get_DefineForString(ErrorNorm_Type, $10, &FlagError);
+      if(FlagError){
+        vyyerror("Unknown error norm type of IterativeLoop system: %s", $3);
+        Get_Valid_SXD(ChangeOfState_Type);
+      }   
+      IterativeLoopSystem_S.NormTypeString = $10;  
+      List_Add($$ = $1, &IterativeLoopSystem_S);
+      Free($3);
+    }
+ ;
+ 
 
 /* ------ the following should disapear with the new syntax ------------- */
 
@@ -7178,7 +7248,7 @@ StrCmp :
 	$$ = strcmp($3, $5);
       }
       else {
-	vyyerror("Undefined argument for StrCat function") ;  $$ = 1 ;
+	vyyerror("Undefined argument for StrCmp function") ;  $$ = 1 ;
       }
     }
   ;

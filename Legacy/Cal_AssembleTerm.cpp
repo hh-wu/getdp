@@ -73,6 +73,10 @@ void Cal_AssembleTerm_NoDt(struct Dof * Equ, struct Dof * Dof, double Val[])
 			  &(Current.DofData->CurrentSolution-2)->x, 
 			  &Current.DofData->b) ;
 	break ;
+      case TIME_GEAR :
+        Dof_AssembleInMat(Equ, Dof, Current.NbrHar, Val,
+                          &Current.DofData->A, &Current.DofData->b) ;
+        break ;
       }
     }
     else {
@@ -139,6 +143,18 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 			  &(Current.DofData->CurrentSolution-2)->x, 
 			  &Current.DofData->b) ;
 	break ;
+      case TIME_GEAR :
+        tmp[0] = Val[0]/(Current.bCorrCoeff*Current.DTime);
+        Dof_AssembleInMat(Equ,  Dof, Current.NbrHar, tmp,
+                          &Current.DofData->A, &Current.DofData->b) ;
+        for (int i=0; i<Current.CorrOrder; i++) {
+          tmp[0] = Val[0]*Current.aCorrCoeff[i]/(Current.bCorrCoeff*Current.DTime);
+          Dof_AssembleInVec(Equ,  Dof, Current.NbrHar, tmp,
+                            Current.DofData->CurrentSolution-1,
+                            &(Current.DofData->CurrentSolution-1-i)->x,
+                            &Current.DofData->b) ;
+        }
+        break ;
       }
     }
     else {
@@ -188,6 +204,9 @@ void Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[])
       case TIME_NEWMARK :
 	Message::Error("DtNL not ready for separate assembly with TimeLoopNewmark");
 	break ;
+      case TIME_GEAR :
+        Message::Error("DtNL not ready for separate assembly with Gear's method");
+        break ;
       }
     }
     else {
@@ -243,6 +262,9 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 	  Warning_DtDtFirstOrder = 1 ;
 	}
 	break;
+      case TIME_GEAR :
+        Message::Error("Second order time derivative not implemented for Gear's method");
+        break ;
       case TIME_NEWMARK :
 	tmp[0] = Val[0]/SQU(Current.DTime) ;
 	Dof_AssembleInMat(Equ, Dof, Current.NbrHar, tmp,
@@ -298,6 +320,9 @@ void Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[])
       case TIME_NEWMARK :
 	Message::Error("JacNL not ready for Newmark");
 	break ;
+      case TIME_GEAR :
+        Message::Error("JacNL not ready for Gear's method");
+        break ;
       }
     }
     else {
@@ -325,6 +350,7 @@ void Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
       case TIME_STATIC :
       case TIME_THETA :
       case TIME_NEWMARK :
+      case TIME_GEAR :
 	Dof_AssembleInMat(Equ, Dof, Current.NbrHar, &Val[0],
 			  &Current.DofData->A, &Current.DofData->b) ;
 	break ;

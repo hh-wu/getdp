@@ -1,3 +1,6 @@
+2.2.1: cleaned up nonlinear convergence tests and integreted experimental
+adaptive time loop code; small bug fixes.
+
 2.2.0: new solver interface based on ONELAB; parallel SLEPC eigensolvers;
 cleaned up syntax for groups; new Field[] functions to interpolate
 post-processing datasets from Gmsh; fixed bug in Sur/Lin transformation of 2

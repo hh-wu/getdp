@@ -28,6 +28,7 @@
 #define TIME_STATIC   1
 #define TIME_THETA    2
 #define TIME_NEWMARK  3
+#define TIME_GEAR     4
 
 #define ASSEMBLY_AGGREGATE  1
 #define ASSEMBLY_SEPARATE   2
@@ -936,12 +937,16 @@ struct Operation {
       int     DTimeIndex;
     } TimeLoopRungeKutta;
     struct {
-      double  Time0, TimeMax, DTimeMin, DTimeMax, MaxOrder;
-      List_T  *DefineSystemIndices, *Operation, *OperationEnd;
+      double  Time0, TimeMax, DTimeInit, DTimeMin, DTimeMax;
+      char    *Scheme;
+      List_T  *Breakpoints;
+      List_T  *TimeLoopAdaptiveSystems;
+      List_T  *Operation, *OperationEnd;
     } TimeLoopAdaptive;
     struct {
       double  Criterion;
       int     NbrMaxIteration, RelaxationFactorIndex, Flag;
+      List_T  *IterativeLoopSystems;
       List_T  *Operation;
     } IterativeLoop;
     struct {
@@ -1044,6 +1049,24 @@ struct ChangeOfState {
   int     ExpressionIndex, ExpressionIndex2, FlagIndex;
 };
 
+struct TimeLoopAdaptiveSystem {
+  int     SystemIndex;
+  double  SystemLTEreltol;
+  double  SystemLTEabstol;
+  int     NormType;
+  char    *NormTypeString;
+};
+
+struct IterativeLoopSystem {
+  int     SystemIndex;
+  double  SystemILreltol;
+  double  SystemILabstol;
+  int     NormType;
+  char    *NormTypeString;
+  int     NormOf;
+  char    *NormOfString;
+};
+
 /* Operation.Type */
 #define OPERATION_NONE                      0
 
@@ -1110,6 +1133,7 @@ struct ChangeOfState {
 #define OPERATION_TIMELOOPRUNGEKUTTA       34
 #define OPERATION_ITERATIVELINEARSOLVER    35
 #define OPERATION_TIMELOOPADAPTIVE         36
+#define OPERATION_ITERATIVELOOPN           37
 
 #define OPERATION_CHANGEOFCOORDINATES      40
 #define OPERATION_CHANGEOFCOORDINATES2    400
@@ -1130,6 +1154,19 @@ struct ChangeOfState {
 #define CHANGEOFSTATE_CHANGELEVEL           2
 #define CHANGEOFSTATE_CHANGEREFERENCE       3
 #define CHANGEOFSTATE_CHANGEREFERENCE2      4
+
+/* TimeLoopAdaptiveSystem.NormType */
+#define LINFNORM              1
+#define L1NORM                2
+#define MEANL1NORM            3
+#define L2NORM                4
+#define MEANL2NORM            5
+
+/* IterativeLoopSystem.NormOf */
+#define SOLUTION              1
+#define RESIDUAL              2
+#define RECALCRESIDUAL        3
+
 
 /* ------------------------------------------------------------------------ */
 /*  P r e R e s o l u t i o n I n f o                                       */
@@ -1332,7 +1369,7 @@ struct CurrentData {
 
   int     flagAssDiag;
 
-  /* All values below must be double */
+  // All values below must be double
 
   double  x, y, z;
   double  u, v, w;
@@ -1346,9 +1383,15 @@ struct CurrentData {
 
   double  Val[NBR_MAX_HARMONIC * MAX_DIM];
 
+  // For TimeLoopTheta and TimeLoopNewmark
   double  Time, TimeImag, TimeStep, DTime;
   double  Theta, Beta, Gamma;
 
+  // For TimeLoopAdaptive
+  double  PredOrder, CorrOrder;
+  double  aPredCoeff[7], aCorrCoeff[6], bCorrCoeff, PredErrorConst, CorrErrorConst;
+
+  // For IterativeLoop
   double  Iteration, RelativeDifference, RelativeDifferenceOld;
   double  RelaxationFactor;
 };

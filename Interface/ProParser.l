@@ -239,6 +239,7 @@ Theta                        return tTheta;
 Beta                         return tBeta;
 Gamma                        return tGamma;
 IterativeLoop                return tIterativeLoop;
+IterativeLoopN               return tIterativeLoopN;
 IterativeLinearSolver        return tIterativeLinearSolver;
 NbrMaxIteration              return tNbrMaxIteration;
 RelaxationFactor             return tRelaxationFactor;

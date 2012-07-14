@@ -225,6 +225,22 @@ struct StringXDefine  ChangeOfState_Type[] = {
   {NULL                , CHANGEOFSTATE_CHANGESIGN}
 } ;
 
+struct StringXDefine  ErrorNorm_Type[] = {
+  {"LinfNorm"   , LINFNORM},
+  {"L1Norm"     , L1NORM},
+  {"MeanL1Norm" , MEANL1NORM},
+  {"L2Norm"     , L2NORM},
+  {"MeanL2Norm" , MEANL2NORM},
+  {NULL         , LINFNORM}
+} ;
+
+struct StringXDefine  NormOf_Type[] = {
+  {"Solution"       , SOLUTION},
+  {"Residual"       , RESIDUAL},
+  {"RecalcResidual" , RECALCRESIDUAL},
+  {NULL             , SOLUTION}
+} ;
+
 struct StringXPointer  Current_Value[] = {
 #if defined(HAVE_LEGACY)
   {"Time"     , &Current.Time},       {"DTime"    , &Current.DTime},

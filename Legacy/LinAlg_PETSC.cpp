@@ -29,6 +29,8 @@
 #include "ProData.h"
 #include "DofData.h"
 extern struct CurrentData Current ;
+extern int Flag_TimeLoopAdaptive;
+extern int Flag_TimeLoopAdaptive_PETSc_Error;
 
 #if defined(HAVE_PETSC)
 
@@ -62,7 +64,18 @@ extern struct CurrentData Current ;
 static MPI_Comm MyComm = MPI_COMM_SELF;
 static PetscViewer MyPetscViewer;
 
-static void _try(int ierr){ CHKERRABORT(MyComm, ierr); }
+static void _try(int ierr)
+{
+  if (!Flag_TimeLoopAdaptive) {
+    CHKERRABORT(MyComm, ierr);
+  }
+  else {
+    CHKERRCONTINUE(ierr);
+    if (PetscUnlikely(ierr))
+      Flag_TimeLoopAdaptive_PETSc_Error = ierr;
+  }
+}
+
 static int SolverInitialized = 0;
 
 #if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
@@ -1160,7 +1173,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     return;
   }
 
-  bool view = (!Solver->ksp[kspIndex] && Message::GetVerbosity() > 2);
+  bool view = (!Solver->ksp[kspIndex] && Message::GetVerbosity() > 4);
 
   if(view && (!Message::GetCommRank() || !Message::GetIsCommWorld()))
     Message::Info("N: %ld", (long)i);
@@ -1219,7 +1232,7 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   if(!Message::GetCommRank() || !Message::GetIsCommWorld()){
     PetscInt its;
     _try(KSPGetIterationNumber(Solver->ksp[kspIndex], &its));
-    Message::Info("%d iterations", its);
+    if(its > 1) Message::Info("%d iterations", its);
   }
 }
 

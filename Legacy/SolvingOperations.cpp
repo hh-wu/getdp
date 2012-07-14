@@ -34,7 +34,7 @@
 #include <gmsh/PView.h>
 #endif
 
-#define TWO_PI             6.2831853071795865
+#define TWO_PI     6.2831853071795865
 #define SQU(a)     ((a)*(a))
 
 extern struct Problem Problem_S ;
@@ -61,6 +61,9 @@ static int Flag_Break = 0;
 
 // For adaptive time stepper (ugly, I know...)
 int Flag_IterativeLoopConverged = 1;
+int Flag_TimeLoopAdaptive = 0;
+int Flag_IterativeLoopN = 0;
+int Flag_TimeLoopAdaptive_PETSc_Error;
 
 // Johan: it would be nice to get rid of these globals
 int Flag_RHS = 0, *DummyDof ;
@@ -84,9 +87,12 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
   /* We store 1 solution too much (to allow for an imbricated iterative loop) */
 
   if(!Flag_POS){
-    if(Current.TypeTime == TIME_THETA)
+    switch (Current.TypeTime) {
+    case TIME_THETA :
       index = List_Nbr(DofData_P->Solutions)-4 ; /* johan */
-    else if(Current.TypeTime == TIME_NEWMARK){
+    case TIME_GEAR :
+      index = List_Nbr(DofData_P->Solutions)-8 ; // With -8 we store 6 past solutions
+    case TIME_NEWMARK :
       index = List_Nbr(DofData_P->Solutions)-4 ;
     }
 
@@ -162,6 +168,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     // fix time values if we recompute the same step (with different time)
     Solution_P->Time = Current.Time ;
     Solution_P->TimeImag = Current.TimeImag ;
+    if (Solution_P->TimeFunctionValues) Free(Solution_P->TimeFunctionValues) ;
     Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
   }
 
@@ -651,84 +658,6 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
 #endif
 
   TreatmentStatus = Save_TreatmentStatus ;
-}
-
-/* ------------------------------------------------------------------------ */
-/*  C a l _ S o l u t i o n E r r o r                                       */
-/* ------------------------------------------------------------------------ */
-
-void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
-{
-  // FIXME: this is really weird: we use a sort of relative 1-norm in
-  // the real case, and a relatve 2-norm in complex arithmetic...
-
-  // FIXME: couldn't we just check ||dx^(n)||_2 / ||dx^(0)||_2 ?
-
-  int     i, n;
-  double  valx, valdx, valxi = 0., valdxi = 0.,errsqr = 0., xmoy = 0., dxmoy = 0., tol, nvalx, nvaldx ;
-
-  LinAlg_GetVectorSize(dx, &n);
-
-  if (gSCALAR_SIZE == 1)
-    for (i=0 ; i<n ; i++) {
-      LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
-      LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ;
-      xmoy += valx ;
-      if(diff) dxmoy += (valdx-valx) ;
-      else     dxmoy += valdx ;
-    }
-  if (gSCALAR_SIZE == 2)
-    for (i=0 ; i<n ; i++) {
-      LinAlg_GetComplexInVector(&valx, &valxi, x, i, i+1);
-      LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, i+1);
-      xmoy += sqrt(valx*valx+valxi*valxi) ;
-      if(diff) dxmoy += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi)) ;
-      else     dxmoy += sqrt(valdx*valdx + valdxi*valdxi) ;
-    }
-
-  xmoy  /= (double)n ;
-  dxmoy /= (double)n ;
-
-  if (xmoy > 1.e-30) {
-    tol = xmoy*1.e-10 ;
-    if (gSCALAR_SIZE == 1)
-      for (i=0 ; i<n ; i++){
-        LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
-        LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ;
-        if(diff){
-          if (valx > tol) errsqr += fabs(valdx-valx)/valx ;
-          else 	        errsqr += fabs(valdx-valx) ;
-        }
-        else{
-          if (valx > tol) errsqr += valdx/valx ;
-          else 	        errsqr += valdx ;
-        }
-      }
-
-    if (gSCALAR_SIZE == 2)
-      for (i=0 ; i<n ; i++) {
-        LinAlg_GetComplexInVector(&valx, &valxi, x, i, i+1);
-        LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, i+1);
-        nvalx = sqrt(valx*valx+valxi*valxi) ;
-        nvaldx = sqrt(valdx*valdx+valdxi*valdxi) ;
-        if(diff){
-          if (nvalx > tol) errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi))/nvalx ;
-          else 	        errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi));
-        }
-        else{
-          if (nvalx > tol) errsqr += nvaldx/nvalx ;
-          else 	        errsqr += nvaldx ;
-        }
-      }
-
-    *MeanError = errsqr/(double)n ;
-  }
-  else{
-    if (dxmoy > 1.e-30)
-      *MeanError = 1. ;
-    else
-      *MeanError = 0. ;
-  }
 }
 
 /* ------------------------------------------------------------------------ */
@@ -1667,7 +1596,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if (Operation_P->Case.Generate.GroupIndex >= 0) Generate_Group = NULL ;
 
       DofData_P->Flag_RHS = 0;
-      Flag_CPU = 1 ;
+      if(!Flag_Jac) Flag_CPU = 1 ;
       break ;
 
       /*  -->  G e n e r a t e S e p a r a t e        */
@@ -1718,7 +1647,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Init_SystemData(DofData_P, Flag_Jac) ;
       Generate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac, 0) ;
-      Flag_CPU = 1 ;
+      if(!Flag_Jac) Flag_CPU = 1 ;
       break;
 
       /*  -->  U p d a t e                            */
@@ -1835,10 +1764,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			 List_Nbr(DofData_P->CorrectionSolutions.Save_FullSolutions)-1) ;
 	}
 
-	Cal_SolutionError
-	  (&DofData_P->CurrentSolution->x,
-	   &DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x,
-	   0, &MeanError) ;
+        LinAlg_VectorNorm2(&DofData_P->CurrentSolution->x, &MeanError);
 	Message::Info("Mean error: %.3e  (after %d iteration%s)",
                       MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
         Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
@@ -1967,8 +1893,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                           (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 : Operation_P->Rank) ;
 
       Flag_CPU = 1 ;
-
-
       break ;
 
     // Using PETSC nonlinear solvers - SNES, nonlinear loop internal to PETSC
@@ -2007,6 +1931,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_SOLVEJACAGAIN : Flag_SolveAgain = 1 ;
     case OPERATION_SOLVEJAC :
       /*  SolveJac : J(xn) dx = b(xn) - A(xn) xn ;  x = xn + dx  */
+
       Flag_Jac = 1 ;
       Init_OperationOnSystem(Flag_SolveAgain ? "SolveJacAgain" : "SolveJac",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
@@ -2047,12 +1972,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       else
         LinAlg_SolveAgain(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
-      Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
-      //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
-      Message::Info("Mean error: %.3e  (after %d iteration%s)",
-                    MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
-      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
-                                     MeanError);
+      LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
+      if(!Flag_IterativeLoopN){
+        Message::Info("Non Linear Iteration %3ld: Residual 2-norm %14.12e",
+                      (int)Current.Iteration, MeanError);
+        Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
+                                       MeanError);
+      }
 
       Current.RelativeDifference += MeanError ;
 
@@ -2067,7 +1993,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             (MeanError / Current.RelativeDifferenceOld) ;
 	  Message::Info("RelFactor modified = %g", RelFactor_Modified) ;
           LinAlg_ProdVectorDouble(&DofData_P->dx, RelFactor_Modified, &DofData_P->dx) ;
-          Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
+          LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
 	  Message::Info("Mean error: %.3e", MeanError) ;
         }
       }
@@ -3025,12 +2951,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Get_ValueOfExpressionByIndex
 	  (Operation_P->Case.IterativeLoop.RelaxationFactorIndex,
 	   NULL, 0., 0., 0., &Value) ;
-	Current.RelaxationFactor = Value.Val[0] ;
+        if(Current.RelaxationFactor != Value.Val[0]){
+           Message::Info("Non Linear Iteration Relaxation %g", (int)Current.Iteration,
+                         Current.RelaxationFactor) ;
+           Current.RelaxationFactor = Value.Val[0] ;
+        }
 
 	Flag_IterativeLoop = Operation_P->Case.IterativeLoop.Flag ; /* Attention: Test */
-
-	Message::Info("Non Linear Iteration %d (Relaxation = %g)", (int)Current.Iteration,
-		  Current.RelaxationFactor) ;
 
 	Treatment_Operation(Resolution_P, Operation_P->Case.IterativeLoop.Operation,
 			    DofData_P0, GeoData_P0, NULL, NULL) ;
@@ -3042,15 +2969,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	Current.RelativeDifferenceOld = Current.RelativeDifference ; /* Attention: pt */
       }
+
       if (Num_Iteration > Operation_P->Case.IterativeLoop.NbrMaxIteration){
 	Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
         Flag_IterativeLoopConverged = 0;
+        Message::Info("IterativeLoop did not converge (%d iterations, residual %g)",
+                      Num_Iteration, Current.RelativeDifference);
       }
-
-      Message::Info("Mean Error: %.3e (after %d iterations)",
-                    Current.RelativeDifference, Num_Iteration) ;
-      Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
-                                     MeanError);
+      else
+        Message::Info("IterativeLoop converged (%d iteration%s, residual %g)",
+                      Num_Iteration, Num_Iteration > 1 ? "s" : "", Current.RelativeDifference);
 
       Current.Iteration = Save_Iteration ;
       break ;
@@ -3396,7 +3324,15 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_TIMELOOPADAPTIVE :
       Message::Info("TimeLoopAdaptve ...") ;
-      Operation_TimeLoopAdaptive(Resolution_P, Operation_P, DofData_P0, GeoData_P0) ;
+      Operation_TimeLoopAdaptive(Resolution_P, Operation_P, DofData_P0, GeoData_P0, &Flag_Break) ;
+      break;
+
+      /*  -->  I t e r a t i v e L o o p N            */
+      /*  ------------------------------------------  */
+
+    case OPERATION_ITERATIVELOOPN :
+      Message::Info("IterativeLoopN ...") ;
+      Operation_IterativeLoopN(Resolution_P, Operation_P, DofData_P0, GeoData_P0, &Flag_Break) ;
       break;
 
       /*  -->  T i m e L o o p R u n g e K u t t a  */

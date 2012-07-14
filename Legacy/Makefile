@@ -35,7 +35,9 @@ SRC = MainLegacy.cpp \
       DofData.cpp \
         LinAlg.cpp LinAlg_PETSC.cpp LinAlg_SPARSKIT.cpp \
       SolvingAnalyse.cpp SolvingOperations.cpp \
-        Operation_TimeLoopAdaptive.cpp \
+        Cal_SolutionErrorRatio.cpp \
+		Operation_TimeLoopAdaptive.cpp \
+		Operation_IterativeLoopN.cpp \
         Operation_IterativeLinearSolver.cpp \
         Treatment_Formulation.cpp \
             Get_DofOfElement.cpp \
@@ -248,14 +250,30 @@ SolvingOperations.o: SolvingOperations.cpp ../Common/GetDPConfig.h \
   EigenSolve.h Treatment_Formulation.h SolvingAnalyse.h \
   SolvingOperations.h ../Common/MallocUtils.h ../Common/OS.h \
   ../Common/Message.h
+Cal_SolutionErrorRatio.o: Cal_SolutionErrorRatio.cpp \
+  ../Interface/ProData.h ../Common/GetDPConfig.h ../Common/ListUtils.h \
+  DofData.h ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h LinAlg.h ../Common/GetDPConfig.h \
+  ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
+  SolvingOperations.h ../Common/Message.h
 Operation_TimeLoopAdaptive.o: Operation_TimeLoopAdaptive.cpp \
   ../Interface/ProData.h ../Common/GetDPConfig.h ../Common/ListUtils.h \
   DofData.h ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
   ../Common/ListUtils.h LinAlg.h ../Common/GetDPConfig.h \
   ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
-  SolvingOperations.h
-IterativeLinearSolver.o: IterativeLinearSolver.cpp ../Interface/ProData.h \
-  ../Common/GetDPConfig.h ../Common/ListUtils.h SolvingOperations.h
+  SolvingOperations.h SolvingAnalyse.h ../Common/Message.h \
+  ../Numeric/Legendre.h
+Operation_IterativeLoopN.o: Operation_IterativeLoopN.cpp \
+  ../Interface/ProData.h ../Common/GetDPConfig.h ../Common/ListUtils.h \
+  DofData.h ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h LinAlg.h ../Common/GetDPConfig.h \
+  ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
+  SolvingOperations.h SolvingAnalyse.h ../Common/Message.h Cal_Quantity.h
+Operation_IterativeLinearSolver.o: Operation_IterativeLinearSolver.cpp \
+  ../Common/GetDPConfig.h ../Interface/ProData.h ../Common/GetDPConfig.h \
+  ../Common/ListUtils.h SolvingOperations.h LinAlg.h \
+  ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
+  ../Common/Message.h
 Treatment_Formulation.o: Treatment_Formulation.cpp ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h GeoData.h \
   ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
