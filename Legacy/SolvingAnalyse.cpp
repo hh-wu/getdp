@@ -652,5 +652,3 @@ void SolvingAnalyse()
 
   List_Delete(DofData_L) ;
 }
-
-
