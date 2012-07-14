@@ -38,6 +38,11 @@ void Operation_IterativeLoopN(struct Resolution  *Resolution_P,
                               struct GeoData     *GeoData_P0,
                               int                *Flag_Break) ;
 
+void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
+				       struct Operation   * Operation_P,
+				       struct DofData     * DofData_P0,
+				       struct GeoData     * GeoData_P0);
+
 void Cal_SolutionErrorRatio(gVector *dx,
                             gVector *x,
                             double reltol,

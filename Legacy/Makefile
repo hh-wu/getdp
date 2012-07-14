@@ -36,9 +36,10 @@ SRC = MainLegacy.cpp \
         LinAlg.cpp LinAlg_PETSC.cpp LinAlg_SPARSKIT.cpp \
       SolvingAnalyse.cpp SolvingOperations.cpp \
         Cal_SolutionErrorRatio.cpp \
-		Operation_TimeLoopAdaptive.cpp \
-		Operation_IterativeLoopN.cpp \
+	Operation_TimeLoopAdaptive.cpp \
+	Operation_IterativeLoopN.cpp \
         Operation_IterativeLinearSolver.cpp \
+	Operation_IterativeTimeReduction.cpp \
         Treatment_Formulation.cpp \
             Get_DofOfElement.cpp \
             Get_ConstraintOfElement.cpp \
@@ -245,11 +246,10 @@ SolvingOperations.o: SolvingOperations.cpp ../Common/GetDPConfig.h \
   ../Interface/ProDefine.h ../Interface/ProData.h GeoData.h \
   ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
   ../Common/ListUtils.h DofData.h LinAlg.h ../contrib/Sparskit/Sparskit.h \
-  ../Common/ListUtils.h BF.h Cal_Quantity.h Cal_Value.h \
-  Get_DofOfElement.h ExtendedGroup.h MovingBand2D.h Pos_Search.h \
-  EigenSolve.h Treatment_Formulation.h SolvingAnalyse.h \
-  SolvingOperations.h ../Common/MallocUtils.h ../Common/OS.h \
-  ../Common/Message.h
+  ../Common/ListUtils.h BF.h Cal_Quantity.h Cal_Value.h ExtendedGroup.h \
+  MovingBand2D.h Pos_Search.h EigenSolve.h Treatment_Formulation.h \
+  SolvingAnalyse.h SolvingOperations.h ../Common/MallocUtils.h \
+  ../Common/OS.h ../Common/Message.h
 Cal_SolutionErrorRatio.o: Cal_SolutionErrorRatio.cpp \
   ../Interface/ProData.h ../Common/GetDPConfig.h ../Common/ListUtils.h \
   DofData.h ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
@@ -274,6 +274,13 @@ Operation_IterativeLinearSolver.o: Operation_IterativeLinearSolver.cpp \
   ../Common/ListUtils.h SolvingOperations.h LinAlg.h \
   ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
   ../Common/Message.h
+Operation_IterativeTimeReduction.o: Operation_IterativeTimeReduction.cpp \
+  ../Interface/ProData.h ../Common/GetDPConfig.h ../Common/ListUtils.h \
+  DofData.h ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h LinAlg.h ../Common/GetDPConfig.h \
+  ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
+  SolvingOperations.h ../Common/Message.h ../Common/MallocUtils.h \
+  Cal_Quantity.h Get_DofOfElement.h
 Treatment_Formulation.o: Treatment_Formulation.cpp ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h GeoData.h \
   ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \

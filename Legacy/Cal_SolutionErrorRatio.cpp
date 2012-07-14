@@ -6,7 +6,6 @@
 // Contributor(s):
 //   Michael Asam
 
-
 #include <stdio.h>
 #include <limits>
 #include <math.h>
@@ -14,7 +13,6 @@
 #include "DofData.h"
 #include "SolvingOperations.h"
 #include "Message.h"
-
 
 void Cal_SolutionErrorRatio(gVector *dx, gVector *x,
                             double reltol, double abstol,
