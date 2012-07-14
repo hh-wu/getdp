@@ -1481,6 +1481,82 @@ void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
 }
 
 /* ------------------------------------------------------------------------ */
+/*  C a l _ S o l u t i o n E r r o r                                       */
+/* ------------------------------------------------------------------------ */
+
+void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
+{
+  // FIXME: this is a really bad implementation: it should be replaced with
+  // Cal_SolutionErrorRatio()
+
+  int     i, n;
+  double  valx, valdx, valxi = 0., valdxi = 0.,errsqr = 0., xmoy = 0., dxmoy = 0., tol, nvalx, nvaldx ;
+
+  LinAlg_GetVectorSize(dx, &n);
+
+  if (gSCALAR_SIZE == 1)
+    for (i=0 ; i<n ; i++) {
+      LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
+      LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ;
+      xmoy += valx ;
+      if(diff) dxmoy += (valdx-valx) ;
+      else     dxmoy += valdx ;
+    }
+  if (gSCALAR_SIZE == 2)
+    for (i=0 ; i<n ; i++) {
+      LinAlg_GetComplexInVector(&valx, &valxi, x, i, i+1);
+      LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, i+1);
+      xmoy += sqrt(valx*valx+valxi*valxi) ;
+      if(diff) dxmoy += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi)) ;
+      else     dxmoy += sqrt(valdx*valdx + valdxi*valdxi) ;
+    }
+
+  xmoy  /= (double)n ;
+  dxmoy /= (double)n ;
+
+  if (xmoy > 1.e-30) {
+    tol = xmoy*1.e-10 ;
+    if (gSCALAR_SIZE == 1)
+      for (i=0 ; i<n ; i++){
+        LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
+        LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ;
+        if(diff){
+          if (valx > tol) errsqr += fabs(valdx-valx)/valx ;
+          else 	        errsqr += fabs(valdx-valx) ;
+        }
+        else{
+          if (valx > tol) errsqr += valdx/valx ;
+          else 	        errsqr += valdx ;
+        }
+      }
+
+    if (gSCALAR_SIZE == 2)
+      for (i=0 ; i<n ; i++) {
+        LinAlg_GetComplexInVector(&valx, &valxi, x, i, i+1);
+        LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, i+1);
+        nvalx = sqrt(valx*valx+valxi*valxi) ;
+        nvaldx = sqrt(valdx*valdx+valdxi*valdxi) ;
+        if(diff){
+          if (nvalx > tol) errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi))/nvalx ;
+          else 	        errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi));
+        }
+        else{
+          if (nvalx > tol) errsqr += nvaldx/nvalx ;
+          else 	        errsqr += nvaldx ;
+        }
+      }
+
+    *MeanError = errsqr/(double)n ;
+  }
+  else{
+    if (dxmoy > 1.e-30)
+      *MeanError = 1. ;
+    else
+      *MeanError = 0. ;
+  }
+}
+
+/* ------------------------------------------------------------------------ */
 /*  T r e a t m e n t _ O p e r a t i o n                                   */
 /* ------------------------------------------------------------------------ */
 
@@ -1764,7 +1840,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			 List_Nbr(DofData_P->CorrectionSolutions.Save_FullSolutions)-1) ;
 	}
 
-        LinAlg_VectorNorm2(&DofData_P->CurrentSolution->x, &MeanError);
+        Cal_SolutionError
+          (&DofData_P->CurrentSolution->x,
+           &DofData_P->CorrectionSolutions.Save_CurrentFullSolution->x,
+           0, &MeanError) ;
+        //LinAlg_VectorNorm2(&DofData_P->CurrentSolution->x, &MeanError);
 	Message::Info("Mean error: %.3e  (after %d iteration%s)",
                       MeanError, (int)Current.Iteration, ((int)Current.Iteration==1)?"":"s") ;
         Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Residual",
@@ -1972,7 +2052,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       else
         LinAlg_SolveAgain(&DofData_P->A, &DofData_P->res, &DofData_P->Solver, &DofData_P->dx) ;
 
-      LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
+      Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
+      //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
       if(!Flag_IterativeLoopN){
         Message::Info("%3ld Nonlinear Residual norm %14.12e",
                       (int)Current.Iteration, MeanError);
@@ -1993,7 +2074,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
             (MeanError / Current.RelativeDifferenceOld) ;
 	  Message::Info("RelFactor modified = %g", RelFactor_Modified) ;
           LinAlg_ProdVectorDouble(&DofData_P->dx, RelFactor_Modified, &DofData_P->dx) ;
-          LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
+          Cal_SolutionError(&DofData_P->dx, &DofData_P->CurrentSolution->x, 0, &MeanError) ;
+          //LinAlg_VectorNorm2(&DofData_P->dx, &MeanError);
 	  Message::Info("Mean error: %.3e", MeanError) ;
         }
       }
