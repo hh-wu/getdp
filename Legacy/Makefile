@@ -40,23 +40,24 @@ SRC = MainLegacy.cpp \
 	Operation_IterativeLoopN.cpp \
         Operation_IterativeLinearSolver.cpp \
 	Operation_IterativeTimeReduction.cpp \
+	Operation_Update.cpp \
         Treatment_Formulation.cpp \
-            Get_DofOfElement.cpp \
-            Get_ConstraintOfElement.cpp \
-              Get_FunctionValue.cpp \
-              Get_Geometry.cpp \
-              Get_ElementSource.cpp \
-            ExtendedGroup.cpp \
-            Pre_TermOfFemEquation.cpp \
-              Generate_Network.cpp \
-            Cal_GalerkinTermOfFemEquation.cpp \
-            Cal_GlobalTermOfFemEquation.cpp \
-              Cal_IntegralQuantity.cpp \
-              Cal_AnalyticIntegration.cpp \
-              Cal_Quantity.cpp \
-              Cal_Value.cpp \
-              Cal_AssembleTerm.cpp \
-              Cal_PostQuantity.cpp \
+          Get_DofOfElement.cpp \
+          Get_ConstraintOfElement.cpp \
+            Get_FunctionValue.cpp \
+            Get_Geometry.cpp \
+            Get_ElementSource.cpp \
+          ExtendedGroup.cpp \
+          Pre_TermOfFemEquation.cpp \
+            Generate_Network.cpp \
+          Cal_GalerkinTermOfFemEquation.cpp \
+          Cal_GlobalTermOfFemEquation.cpp \
+            Cal_IntegralQuantity.cpp \
+            Cal_AnalyticIntegration.cpp \
+            Cal_Quantity.cpp \
+            Cal_Value.cpp \
+            Cal_AssembleTerm.cpp \
+            Cal_PostQuantity.cpp \
         MovingBand2D.cpp \
         EigenSolve.cpp EigenSolve_ARPACK.cpp EigenSolve_SLEPC.cpp \
       Pos_FemInterpolation.cpp \
@@ -257,9 +258,9 @@ Cal_SolutionErrorRatio.o: Cal_SolutionErrorRatio.cpp \
   ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
   SolvingOperations.h ../Common/Message.h
 Operation_TimeLoopAdaptive.o: Operation_TimeLoopAdaptive.cpp \
-  ../Interface/ProData.h ../Common/GetDPConfig.h ../Common/ListUtils.h \
-  DofData.h ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
-  ../Common/ListUtils.h LinAlg.h ../Common/GetDPConfig.h \
+  ../Common/GetDPConfig.h ../Interface/ProData.h ../Common/GetDPConfig.h \
+  ../Common/ListUtils.h DofData.h ../Common/ListUtils.h \
+  ../Common/TreeUtils.h ../Common/avl.h ../Common/ListUtils.h LinAlg.h \
   ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
   SolvingOperations.h SolvingAnalyse.h ../Common/Message.h \
   ../Numeric/Legendre.h
@@ -281,6 +282,12 @@ Operation_IterativeTimeReduction.o: Operation_IterativeTimeReduction.cpp \
   ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h \
   SolvingOperations.h ../Common/Message.h ../Common/MallocUtils.h \
   Cal_Quantity.h Get_DofOfElement.h
+Operation_Update.o: Operation_Update.cpp ../Interface/ProData.h \
+  ../Common/GetDPConfig.h ../Common/ListUtils.h DofData.h \
+  ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \
+  ../Common/ListUtils.h LinAlg.h ../Common/GetDPConfig.h \
+  ../contrib/Sparskit/Sparskit.h ../Common/ListUtils.h SolvingAnalyse.h \
+  SolvingOperations.h Cal_Quantity.h ../Common/Message.h
 Treatment_Formulation.o: Treatment_Formulation.cpp ../Interface/ProData.h \
   ../Common/GetDPConfig.h ../Common/ListUtils.h GeoData.h \
   ../Common/ListUtils.h ../Common/TreeUtils.h ../Common/avl.h \

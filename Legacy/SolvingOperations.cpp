@@ -34,7 +34,6 @@
 #endif
 
 #define TWO_PI     6.2831853071795865
-#define SQU(a)     ((a)*(a))
 
 extern struct Problem Problem_S ;
 extern struct CurrentData Current ;
@@ -51,7 +50,6 @@ extern char  *Name_MshFile, *Name_ResFile[NBR_MAX_RES] ;
 extern List_T *GeoData_L ;
 
 static int  Flag_IterativeLoop = 0 ;  /* Attention: phase de test */
-static int  Init_Update = 0 ; /* provisoire */
 
 struct Group * Generate_Group = NULL;
 
@@ -65,6 +63,9 @@ int Flag_TimeLoopAdaptive_PETSc_Error;
 
 // For IterativeTimeReduction (ugly also...)
 int  Flag_NextThetaFixed = 0 ;
+
+// For Update
+int  Init_Update = 0 ;
 
 // For Johan's multi-harmonic stiff (even uglier :-)
 int Flag_RHS = 0, *DummyDof ;
@@ -83,12 +84,12 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
   struct Solution * Solution_P ;
   int index = -1;
 
-  /* We store 1 solution too much (to allow for an imbricated iterative loop) */
+  // We store 1 solution too much (to allow for an imbricated iterative loop)
 
   if(!Flag_POS){
     switch (Current.TypeTime) {
     case TIME_THETA :
-      index = List_Nbr(DofData_P->Solutions)-4 ; /* johan */
+      index = List_Nbr(DofData_P->Solutions)-4 ;
     case TIME_GEAR :
       index = List_Nbr(DofData_P->Solutions)-8 ; // With -8 we store 6 past solutions
     case TIME_NEWMARK :
@@ -200,7 +201,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
       for(i = 0 ; i < List_Nbr( DofData_P->OnlyTheseMatrices ); i++){
 	List_Read(DofData_P->OnlyTheseMatrices, i, &iMat);
 	if(iMat){
-	  //Message::Info("Setting System {A%d,b%d} to zero",iMat,iMat);
+	  // Message::Info("Setting System {A%d,b%d} to zero",iMat,iMat);
 	  switch(iMat){
 	  case 1 :
 	    LinAlg_ZeroMatrix(&Current.DofData->A1) ;
@@ -326,301 +327,69 @@ void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
 
 }
 
-/* ------------------------------------------------------------------------ */
-/*  U p d a t e _ S y s t e m                                               */
-/* ------------------------------------------------------------------------ */
-
-void Cal_ThetaCoefficients(double *coef)
+void Generate_Residual(gVector *x, gVector *f)
 {
-  coef[0] = 1./Current.DTime ;
-  coef[1] = Current.Theta ;
-  coef[2] = -1./Current.DTime ;
-  coef[3] = 1.-Current.Theta ;
+  struct DefineSystem * DefineSystem_P ;
+  struct DofData * DofData_P ;
+  struct DofData * DofData_P0 ;
+
+  int Flag_Jac = 1 ;
+
+  if(Message::GetVerbosity() == 10)
+    Message::Info("Generating Residual = b(xn)-A(xn)*xn");
+
+  DofData_P  = Current.DofData ;
+  DofData_P0 = Current.DofData_P0;
+  DefineSystem_P = Current.DefineSystem_P ;
+
+  // new trial solution
+  LinAlg_CopyVector(x, &DofData_P->dx);
+  LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
+                                   -1., &DofData_P->CurrentSolution->x);
+  // calculate residual with new solution
+  ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac) ;
+  // calculate residual with new solution
+  LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
+  // res = b(xn)-A(xn)*xn
+  LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
+
+  if(Message::GetVerbosity() == 10){
+    Message::Info("dx"); LinAlg_PrintVector(stdout, &DofData_P->dx) ;
+    Message::Info("A"); LinAlg_PrintMatrix(stdout, &DofData_P->A) ;
+  }
+
+  *f = DofData_P->res ;
+  LinAlg_AssembleVector(f) ;
 }
 
-void Cal_ThetaMatrix(int *init, double *coef,
-		     gMatrix *M1, gMatrix *M2, gMatrix *A)
+void Generate_FullJacobian(gVector *x, gMatrix *Jac)
 {
-  Message::Info("Generate Theta Iteration Matrix (Theta=%g, DTime=%g)",
-                Current.Theta, Current.DTime) ;
+  struct DofData * DofData_P ;
 
-  LinAlg_ZeroMatrix(A);
+  Message::Debug("Generating Full Jacobian = A(x) + DofData_P->Jac");
 
-  /* A = c0 * M2 + c1 * M1 */
-  if(init[2] && coef[0]) LinAlg_AddMatrixProdMatrixDouble(A, M2, coef[0], A) ;
-  if(init[1] && coef[1]) LinAlg_AddMatrixProdMatrixDouble(A, M1, coef[1], A) ;
-}
+  DofData_P  = Current.DofData ;
 
-void Cal_ThetaRHS(int *init, double *coef,
-		  gMatrix *M1, gMatrix *M2, gVector *m1, gVector *m2,
-		  gVector *tmp, gVector *b)
-{
-  double tfval, val ;
+  LinAlg_CopyVector(x, &DofData_P->dx);
+  LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
+                         &DofData_P->CurrentSolution->x); // updating solution solution
 
-  LinAlg_ZeroVector(b) ;
+  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->Jac) ;
 
-  /* b = [-c2 * M2 - c3 * M1 ] * x(n-1) */
-  if(init[2] && coef[2]){
-    LinAlg_ProdMatrixVector(M2, &(Current.DofData->CurrentSolution-1)->x, tmp);
-    LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[2], b) ;
-  }
-  if(init[1] && coef[3]){
-    LinAlg_ProdMatrixVector(M1, &(Current.DofData->CurrentSolution-1)->x, tmp);
-    LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[3], b) ;
-  }
-
-  /*   + [ c0 * m2 + c1 * m1 ] * TimeFct(n)      */
-  tfval = Current.DofData->CurrentSolution->ExplicitTimeFunctionValue ;
-  if(init[2] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
-  if(init[1] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
-
-  /*   + [ c2 * m2 + c3 * m1 ] * TimeFct(n-1)      */
-  tfval = (Current.DofData->CurrentSolution-1)->ExplicitTimeFunctionValue ;
-  if(init[2] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
-  if(init[1] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
-}
-
-void Cal_NewmarkCoefficients(double *coef)
-{
-  coef[0] = 1./SQU(Current.DTime) ;
-  coef[1] = Current.Gamma/Current.DTime ;
-  coef[2] = Current.Beta ;
-  coef[3] = -2./SQU(Current.DTime) ;
-  coef[4] = (1.-2.*Current.Gamma)/Current.DTime ;
-  coef[5] = 0.5+Current.Gamma-2.*Current.Beta ;
-  coef[6] = 1./SQU(Current.DTime) ;
-  coef[7] = (Current.Gamma-1.)/Current.DTime ;
-  coef[8] = 0.5-Current.Gamma+Current.Beta ;
-}
-
-void Cal_NewmarkMatrix(int *init, double *coef,
-		       gMatrix *M1, gMatrix *M2, gMatrix *M3, gMatrix *A)
-{
-  Message::Info("Generate Newmark Iteration Matrix (Beta=%g, Gamma=%g, DTime=%g)",
-                Current.Beta, Current.Gamma, Current.DTime) ;
-
-  LinAlg_ZeroMatrix(A);
-
-  /* A = c0 * M3 + c1 * M2 + c2 * M3 */
-  if(init[3] && coef[0]) LinAlg_AddMatrixProdMatrixDouble(A, M3, coef[0], A);
-  if(init[2] && coef[1]) LinAlg_AddMatrixProdMatrixDouble(A, M2, coef[1], A) ;
-  if(init[1] && coef[2]) LinAlg_AddMatrixProdMatrixDouble(A, M1, coef[2], A) ;
-}
-
-void Cal_NewmarkRHS(int *init, double *coef,
-		    gMatrix *M1, gMatrix *M2, gMatrix *M3,
-		    gVector *m1, gVector *m2, gVector *m3,
-		    gVector *tmp, gVector *b)
-{
-  double tfval, val ;
-
-  LinAlg_ZeroVector(b) ;
-
-  /* b = [-c3 * M3 - c4 * M2 - c5 * M1] * x(n-1) */
-  if(init[3] && coef[3]){
-    LinAlg_ProdMatrixVector(M3, &(Current.DofData->CurrentSolution-1)->x, tmp);
-    LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[3], b) ;
-  }
-  if(init[2] && coef[4]){
-    LinAlg_ProdMatrixVector(M2, &(Current.DofData->CurrentSolution-1)->x, tmp);
-    LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[4], b) ;
-  }
-  if(init[1] && coef[5]){
-    LinAlg_ProdMatrixVector(M1, &(Current.DofData->CurrentSolution-1)->x, tmp);
-    LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[5], b) ;
-  }
-
-  /*   + [-c6 * M3 - c7 * M2 - c8 * M1] * x(n-2) */
-  if(init[3] && coef[6]){
-    LinAlg_ProdMatrixVector(M3, &(Current.DofData->CurrentSolution-2)->x, tmp);
-    LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[6], b) ;
-  }
-  if(init[2] && coef[7]){
-    LinAlg_ProdMatrixVector(M2, &(Current.DofData->CurrentSolution-2)->x, tmp);
-    LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[7], b) ;
-  }
-  if(init[1] && coef[8]){
-    LinAlg_ProdMatrixVector(M1, &(Current.DofData->CurrentSolution-2)->x, tmp);
-    LinAlg_AddVectorProdVectorDouble(b, tmp, -coef[8], b) ;
-  }
-
-  /*   + [ c0 * m3 + c1 * m2 + c2 * m1 ] * TimeFct(n)      */
-  tfval = Current.DofData->CurrentSolution->ExplicitTimeFunctionValue ;
-  if(init[3] && (val=coef[0]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
-  if(init[2] && (val=coef[1]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
-  if(init[1] && (val=coef[2]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
-
-  /*   + [ c3 * m3 + c4 * m2 + c5 * m1 ] * TimeFct(n-1)      */
-  tfval = (Current.DofData->CurrentSolution-1)->ExplicitTimeFunctionValue ;
-  if(init[3] && (val=coef[3]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
-  if(init[2] && (val=coef[4]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
-  if(init[1] && (val=coef[5]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
-
-  /*   + [ c6 * m3 + c7 * m2 + c8 * m1 ] * TimeFct(n-2)    */
-  tfval = (Current.DofData->CurrentSolution-2)->ExplicitTimeFunctionValue ;
-  if(init[3] && (val=coef[6]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m3, val, b) ;
-  if(init[2] && (val=coef[7]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m2, val, b) ;
-  if(init[1] && (val=coef[8]*tfval)) LinAlg_AddVectorProdVectorDouble(b, m1, val, b) ;
-}
-
-void  Update_System(struct DefineSystem * DefineSystem_P,
-		    struct DofData * DofData_P,
-		    struct DofData * DofData_P0,
-		    int TimeFunctionIndex)
-{
-  int     i, i_TimeStep ;
-  struct  Solution  * Solution_P, Solution_S ;
-  struct  Value Value ;
-
-  static  gVector TmpVect ;
-  static  double coef[9] ;
-  static  double Save_Num, Save_DTime, Save_Theta, Save_Beta, Save_Gamma ;
-
-  if (!DofData_P->Solutions)
-    Message::Error("No initialized solution available for update") ;
-
-  i_TimeStep = (int)Current.TimeStep ;
-  if (!(Solution_P = (struct Solution*)
-	List_PQuery(DofData_P->Solutions, &i_TimeStep, fcmp_int))) {
-
-    Solution_S.TimeStep = (int)Current.TimeStep ;
-    Solution_S.Time = Current.Time ;
-    Solution_S.TimeImag = Current.TimeImag ;
-    Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P);
-
-    Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
-    Solution_S.ExplicitTimeFunctionValue = Value.Val[0] ;
-
-    Solution_S.SolutionExist = 1 ;
-    LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof) ;
-    LinAlg_ZeroVector(&Solution_S.x) ;
-    List_Add(DofData_P->Solutions, &Solution_S) ;
-    DofData_P->CurrentSolution = (struct Solution*)
-      List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
-
-  }
-  else if (Solution_P != DofData_P->CurrentSolution) {
-    Message::Error("Incompatible time") ;
-  }
-
-  switch (Current.TypeTime) {
-  case TIME_THETA :
-
-    if(!DofData_P->Flag_Init[1] && !DofData_P->Flag_Init[2])
-      Message::Error("No system available for Update") ;
-
-    if(!Init_Update){
-      Init_Update = 1;
-
-      /* bidouillage provisoire : a revoir qd les conditions initiales multiples
-         seront mieux traitees */
-      Current.Time -= Current.DTime ;
-      Current.TimeStep -= 1. ;
-      Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
-      (DofData_P->CurrentSolution-1)->ExplicitTimeFunctionValue = Value.Val[0] ;
-      Current.Time += Current.DTime ;
-      Current.TimeStep += 1. ;
-      /* */
-
-      LinAlg_CreateVector(&TmpVect, &DofData_P->Solver, DofData_P->NbrDof) ;
-
-      Save_Num   = DofData_P->Num ;
-      Save_DTime = Current.DTime ;
-      Save_Theta = Current.Theta ;
-
-      Cal_ThetaCoefficients(coef) ;
-      Cal_ThetaMatrix(DofData_P->Flag_Init, coef,
-		      &DofData_P->M1, &DofData_P->M2, &DofData_P->A) ;
-      LinAlg_AssembleMatrix(&DofData_P->A) ;
-    }
-
-    if(Save_Num != DofData_P->Num || Current.DTime != Save_DTime ||
-       Current.Theta != Save_Theta){
-      Save_Num   = DofData_P->Num ;
-      Save_DTime = Current.DTime ;
-      Save_Theta = Current.Theta ;
-      Cal_ThetaCoefficients(coef) ;
-      Cal_ThetaMatrix(DofData_P->Flag_Init, coef,
-		      &DofData_P->M1, &DofData_P->M2, &DofData_P->A) ;
-      LinAlg_AssembleMatrix(&DofData_P->A) ;
-    }
-
-    Cal_ThetaRHS(DofData_P->Flag_Init, coef,
-		 &DofData_P->M1, &DofData_P->M2, &DofData_P->m1, &DofData_P->m2,
-		 &TmpVect, &DofData_P->b);
-    LinAlg_AssembleVector(&DofData_P->b) ;
-    break ;
-
-  case TIME_NEWMARK :
-
-    if(!DofData_P->Flag_Init[1] && !DofData_P->Flag_Init[2] && !DofData_P->Flag_Init[3])
-      Message::Error("No system available for Update") ;
-
-    if(!Init_Update){
-      Init_Update = 1;
-
-      /* bidouillage provisoire : a revoir qd les conditions initiales multiples
-         seront mieux traitees */
-      Current.Time -= Current.DTime ;
-      Current.TimeStep -= 1. ;
-      Get_ValueOfExpressionByIndex(TimeFunctionIndex, NULL, 0., 0., 0., &Value) ;
-      (DofData_P->CurrentSolution-1)->ExplicitTimeFunctionValue = Value.Val[0] ;
-      (DofData_P->CurrentSolution-2)->ExplicitTimeFunctionValue = Value.Val[0] ;
-      Current.Time += Current.DTime ;
-      Current.TimeStep += 1. ;
-      /* */
-
-      LinAlg_CreateVector(&TmpVect, &DofData_P->Solver, DofData_P->NbrDof) ;
-
-      Save_Num   = DofData_P->Num ;
-      Save_DTime = Current.DTime ;
-      Save_Beta  = Current.Beta ;
-      Save_Gamma = Current.Gamma ;
-      Cal_NewmarkCoefficients(coef) ;
-      Cal_NewmarkMatrix(DofData_P->Flag_Init, coef,
-			&DofData_P->M1, &DofData_P->M2, &DofData_P->M3, &DofData_P->A) ;
-      LinAlg_AssembleMatrix(&DofData_P->A) ;
-    }
-
-    if(Save_Num != DofData_P->Num || Current.DTime != Save_DTime ||
-       Current.Beta != Save_Beta  ||  Current.Gamma != Save_Gamma){
-      Save_Num   = DofData_P->Num ;
-      Save_DTime = Current.DTime ;
-      Save_Beta  = Current.Beta ;
-      Save_Gamma = Current.Gamma ;
-      Cal_NewmarkCoefficients(coef) ;
-      Cal_NewmarkMatrix(DofData_P->Flag_Init, coef,
-			&DofData_P->M1, &DofData_P->M2, &DofData_P->M3, &DofData_P->A) ;
-      LinAlg_AssembleMatrix(&DofData_P->A) ;
-    }
-
-    Cal_NewmarkRHS(DofData_P->Flag_Init, coef,
-		   &DofData_P->M1, &DofData_P->M2, &DofData_P->M3,
-		   &DofData_P->m1, &DofData_P->m2, &DofData_P->m3,
-		   &TmpVect, &DofData_P->b);
-    LinAlg_AssembleVector(&DofData_P->b) ;
-    break ;
-
-  default :
-    Message::Error("Wrong type of analysis for update") ;
-  }
-
-  LinAlg_GetVectorSize(&DofData_P->b, &i) ;
-  if(!i) Message::Error("Generated system is of dimension zero");
-
-  Free_UnusedSolutions(DofData_P);
+  *Jac = DofData_P->Jac ;
+  LinAlg_AssembleMatrix(Jac) ;
 }
 
 /* ------------------------------------------------------------------------ */
 /*  U p d a t e _ C o n s t r a i n t S y s t e m                           */
 /* ------------------------------------------------------------------------ */
-/*! Update constraints, i.e. new preprocessing of _CST type */
 
 void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
 			      struct DofData * DofData_P,
 			      struct DofData * DofData_P0,
 			      int GroupIndex, int Type_Constraint, int Flag_Jac)
 {
+  // Update constraints, i.e. new preprocessing of _CST type
   int k,  Nbr_Formulation, Index_Formulation,  Save_TreatmentStatus ;
   struct Formulation    * Formulation_P ;
 
@@ -648,11 +417,13 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
   // with petsc-based solvers
 
   LinAlg_DestroyMatrix(&DofData_P->A);
-  LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver, DofData_P->NbrDof, DofData_P->NbrDof);
+  LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver,
+                      DofData_P->NbrDof, DofData_P->NbrDof);
 
   if(Flag_Jac){ // Only when JacNL term appears in formulation
     LinAlg_DestroyMatrix(&DofData_P->Jac);
-    LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver, DofData_P->NbrDof, DofData_P->NbrDof);
+    LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
+                        DofData_P->NbrDof, DofData_P->NbrDof);
   }
 #endif
 
@@ -828,9 +599,6 @@ void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
   Init_SearchGrid(&Current.GeoData->Grid) ;
 }
 
-
-
-
 /* ------------------------------------------------------------------------ */
 /*  I n i t _ O p e r a t i o n O n S y s t e m                             */
 /* ------------------------------------------------------------------------ */
@@ -941,8 +709,9 @@ void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
   // FIXME: this is a really bad implementation: it should be replaced with
   // Cal_SolutionErrorRatio()
 
-  int     i, n;
-  double  valx, valdx, valxi = 0., valdxi = 0.,errsqr = 0., xmoy = 0., dxmoy = 0., tol, nvalx, nvaldx ;
+  int    i, n;
+  double valx, valdx, valxi = 0., valdxi = 0.,errsqr = 0., xmoy = 0., dxmoy = 0.;
+  double tol, nvalx, nvaldx ;
 
   LinAlg_GetVectorSize(dx, &n);
 
@@ -989,8 +758,10 @@ void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
         nvalx = sqrt(valx*valx+valxi*valxi) ;
         nvaldx = sqrt(valdx*valdx+valdxi*valdxi) ;
         if(diff){
-          if (nvalx > tol) errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi))/nvalx ;
-          else 	        errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi));
+          if (nvalx > tol)
+            errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi))/nvalx ;
+          else
+            errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi));
         }
         else{
           if (nvalx > tol) errsqr += nvaldx/nvalx ;
@@ -1185,8 +956,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       Init_OperationOnSystem("Update",
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
-      Update_System(DefineSystem_P, DofData_P, DofData_P0,
-		    Operation_P->Case.Update.ExpressionIndex) ;
+      Operation_Update(DefineSystem_P, DofData_P, DofData_P0,
+                       Operation_P->Case.Update.ExpressionIndex) ;
       Flag_CPU = 1 ;
       break ;
 
@@ -2972,53 +2743,3 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
   Message::Barrier();
 }
 
-void Generate_Residual(gVector *x, gVector *f)
-{
-  struct DefineSystem * DefineSystem_P ;
-  struct DofData * DofData_P ;
-  struct DofData * DofData_P0 ;
-
-  int Flag_Jac = 1 ;
-
-  if(Message::GetVerbosity() == 10)
-    Message::Info("Generating Residual = b(xn)-A(xn)*xn");
-
-  DofData_P  = Current.DofData ;
-  DofData_P0 = Current.DofData_P0;
-  DefineSystem_P = Current.DefineSystem_P ;
-
-  LinAlg_CopyVector(x, &DofData_P->dx);
-  LinAlg_AddVectorProdVectorDouble(&DofData_P->CurrentSolution->x, &DofData_P->dx,
-                                   -1., &DofData_P->CurrentSolution->x); // new trial solution
-
-  ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0, Flag_Jac) ; // calculate residual with new solution
-
-  LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ; // calculate residual with new solution
-  LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ; //res = b(xn)-A(xn)*xn
-
-  if(Message::GetVerbosity() == 10){
-    Message::Info("dx"); LinAlg_PrintVector(stdout, &DofData_P->dx) ;
-    Message::Info("A"); LinAlg_PrintMatrix(stdout, &DofData_P->A) ;
-  }
-
-  *f = DofData_P->res ;
-  LinAlg_AssembleVector(f) ;
-}
-
-void Generate_FullJacobian(gVector *x, gMatrix *Jac)
-{
-  struct DofData * DofData_P ;
-
-  Message::Debug("Generating Full Jacobian = A(x) + DofData_P->Jac");
-
-  DofData_P  = Current.DofData ;
-
-  LinAlg_CopyVector(x, &DofData_P->dx);
-  LinAlg_AddVectorVector(&DofData_P->CurrentSolution->x, &DofData_P->dx,
-                         &DofData_P->CurrentSolution->x); // updating solution solution
-
-  LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->Jac) ;
-
-  *Jac = DofData_P->Jac ;
-  LinAlg_AssembleMatrix(Jac) ;
-}

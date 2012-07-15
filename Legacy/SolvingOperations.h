@@ -43,11 +43,18 @@ void  Operation_IterativeTimeReduction(struct Resolution  * Resolution_P,
 				       struct DofData     * DofData_P0,
 				       struct GeoData     * GeoData_P0);
 
+void Operation_Update(struct DefineSystem * DefineSystem_P,
+                      struct DofData * DofData_P,
+                      struct DofData * DofData_P0,
+                      int TimeFunctionIndex);
+
 void Cal_SolutionErrorRatio(gVector *dx,
                             gVector *x,
                             double reltol,
                             double abstol,
                             int NormType,
                             double *ErrorRatio) ;
+
+void Free_UnusedSolutions(struct DofData * DofData_P);
 
 #endif
