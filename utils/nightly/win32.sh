@@ -22,7 +22,15 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} --enable-sparskit >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win32s.zip
+FILE=`ls ${GETDP}/getdp-*.zip`
+if [ -f ${FILE} ]; then
+  if [[ ${EXTRA_VERSION} == "-svn" ]]; then
+    scp -C ${FILE} ${WEB_BIN}/getdp-svn-Win32s.zip
+  else
+    NAME=`basename ${FILE} .zip`
+    scp -C ${FILE} ${WEB_BIN}/${NAME}32s.zip
+  fi
+fi
 
 export PETSC_ARCH=win32_real_mumps_seq
 rm -f ${GETDP}/Makefile*
@@ -31,7 +39,15 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win32r.zip
+FILE=`ls ${GETDP}/getdp-*.zip`
+if [ -f ${FILE} ]; then
+  if [[ ${EXTRA_VERSION} == "-svn" ]]; then
+    scp -C ${FILE} ${WEB_BIN}/getdp-svn-Win32r.zip
+  else
+    NAME=`basename ${FILE} .zip`
+    scp -C ${FILE} ${WEB_BIN}/${NAME}32r.zip
+  fi
+fi
 
 export PETSC_ARCH=win32_complex_mumps_seq
 rm -f ${GETDP}/Makefile*
@@ -40,7 +56,15 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-win${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.zip ${WEB_BIN}/getdp${EXTRA_VERSION}-Win32c.zip
+FILE=`ls ${GETDP}/getdp-*.zip`
+if [ -f ${FILE} ]; then
+  if [[ ${EXTRA_VERSION} == "-svn" ]]; then
+    scp -C ${FILE} ${WEB_BIN}/getdp-svn-Win32c.zip
+  else
+    NAME=`basename ${FILE} .zip`
+    scp -C ${FILE} ${WEB_BIN}/${NAME}32c.zip
+  fi
+fi
 
 echo "BUILD END: `date`" >> ${LOG}
 
