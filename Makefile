@@ -149,8 +149,8 @@ package-win:
 	rm -f getdp-${GETDP_VERSION}/*/*.cut
 	rm -f getdp-${GETDP_VERSION}/*/*~
 	cd utils/misc && ./unix2dos.bash ../../getdp-${GETDP_VERSION}/demos/*
-	cd getdp-${GETDP_VERSION} && zip -r getdp-${GETDP_VERSION}-Windows.zip *
-	mv getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-Windows.zip .
+	cd getdp-${GETDP_VERSION} && zip -r getdp-${GETDP_VERSION}-Win.zip *
+	mv getdp-${GETDP_VERSION}/getdp-${GETDP_VERSION}-Win.zip .
 
 package-mac: package-unix
 	mv getdp-${GETDP_VERSION}-${UNAME}.tgz getdp-${GETDP_VERSION}-MacOSX.tgz
