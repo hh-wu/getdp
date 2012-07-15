@@ -1,4 +1,4 @@
-2.2.1: cleaned up nonlinear convergence tests and integreted experimental
+2.2.1: cleaned up nonlinear convergence tests and integrated experimental
 adaptive time loop code; small bug fixes.
 
 2.2.0: new solver interface based on ONELAB; parallel SLEPC eigensolvers;
