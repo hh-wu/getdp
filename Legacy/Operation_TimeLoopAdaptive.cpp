@@ -33,9 +33,9 @@ extern int Flag_RESTART;
 
 #if !defined(HAVE_GSL)
 void CalcIntegrationCoefficients(Resolution  *Resolution_P,
-                              DofData     *DofData_P0,
-                              List_T      *TimeLoopAdaptiveSystems,
-                              int         Order)
+                                 DofData     *DofData_P0,
+                                 List_T      *TimeLoopAdaptiveSystems,
+                                 int         Order)
 {
   Message::Error("TimeLoopAdaptive requires the GSL");
 }
@@ -44,9 +44,9 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
 #include <gsl/gsl_linalg.h>
 
 void CalcIntegrationCoefficients(Resolution  *Resolution_P,
-                              DofData     *DofData_P0,
-                              List_T      *TimeLoopAdaptiveSystems,
-                              int         Order)
+                                 DofData     *DofData_P0,
+                                 List_T      *TimeLoopAdaptiveSystems,
+                                 int         Order)
 {
   DefineSystem           *System_P;
   DofData                *DofData_P;

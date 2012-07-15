@@ -27,9 +27,9 @@ extern int    Flag_TimeLoopAdaptive_PETSc_Error;
 /* ------------------------------------------------------------------------ */
 
 double CalcMaxErrorRatio(Resolution  *Resolution_P,
-                        DofData     *DofData_P0,
-                        List_T      *ILsystems,
-                        List_T      *xPrevious_L)
+                         DofData     *DofData_P0,
+                         List_T      *ILsystems,
+                         List_T      *xPrevious_L)
 {
   DofData      *DofData_P;
   DefineSystem *DefineSystem_P;
