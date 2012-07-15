@@ -100,3 +100,82 @@ void Cal_SolutionErrorRatio(gVector *dx, gVector *x,
   delete [] ErrorRatioVec;
 }
 
+/* ------------------------------------------------------------------------ */
+/*  C a l _ S o l u t i o n E r r o r                                       */
+/* ------------------------------------------------------------------------ */
+
+void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError)
+{
+  // This is not a very good implementation: it should be replaced with
+  // Cal_SolutionErrorRatio above
+
+  int    i, n;
+  double valx, valdx, valxi = 0., valdxi = 0.,errsqr = 0., xmoy = 0., dxmoy = 0.;
+  double tol, nvalx, nvaldx ;
+
+  LinAlg_GetVectorSize(dx, &n);
+
+  if (gSCALAR_SIZE == 1)
+    for (i=0 ; i<n ; i++) {
+      LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
+      LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ;
+      xmoy += valx ;
+      if(diff) dxmoy += (valdx-valx) ;
+      else     dxmoy += valdx ;
+    }
+  if (gSCALAR_SIZE == 2)
+    for (i=0 ; i<n ; i++) {
+      LinAlg_GetComplexInVector(&valx, &valxi, x, i, i+1);
+      LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, i+1);
+      xmoy += sqrt(valx*valx+valxi*valxi) ;
+      if(diff) dxmoy += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi)) ;
+      else     dxmoy += sqrt(valdx*valdx + valdxi*valdxi) ;
+    }
+
+  xmoy  /= (double)n ;
+  dxmoy /= (double)n ;
+
+  if (xmoy > 1.e-30) {
+    tol = xmoy*1.e-10 ;
+    if (gSCALAR_SIZE == 1)
+      for (i=0 ; i<n ; i++){
+        LinAlg_GetAbsDoubleInVector(&valx, x, i) ;
+        LinAlg_GetAbsDoubleInVector(&valdx, dx, i) ;
+        if(diff){
+          if (valx > tol) errsqr += fabs(valdx-valx)/valx ;
+          else 	        errsqr += fabs(valdx-valx) ;
+        }
+        else{
+          if (valx > tol) errsqr += valdx/valx ;
+          else 	        errsqr += valdx ;
+        }
+      }
+
+    if (gSCALAR_SIZE == 2)
+      for (i=0 ; i<n ; i++) {
+        LinAlg_GetComplexInVector(&valx, &valxi, x, i, i+1);
+        LinAlg_GetComplexInVector(&valdx, &valdxi, dx, i, i+1);
+        nvalx = sqrt(valx*valx+valxi*valxi) ;
+        nvaldx = sqrt(valdx*valdx+valdxi*valdxi) ;
+        if(diff){
+          if (nvalx > tol)
+            errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi))/nvalx ;
+          else
+            errsqr += sqrt((valdx-valx)*(valdx-valx)+(valdxi-valxi)*(valdxi-valxi));
+        }
+        else{
+          if (nvalx > tol) errsqr += nvaldx/nvalx ;
+          else 	        errsqr += nvaldx ;
+        }
+      }
+
+    *MeanError = errsqr/(double)n ;
+  }
+  else{
+    if (dxmoy > 1.e-30)
+      *MeanError = 1. ;
+    else
+      *MeanError = 0. ;
+  }
+}
+

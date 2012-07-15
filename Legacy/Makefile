@@ -41,6 +41,7 @@ SRC = MainLegacy.cpp \
         Operation_IterativeLinearSolver.cpp \
 	Operation_IterativeTimeReduction.cpp \
 	Operation_Update.cpp \
+	Operation_ChangeOfCoordinates.cpp \
         Treatment_Formulation.cpp \
           Get_DofOfElement.cpp \
           Get_ConstraintOfElement.cpp \

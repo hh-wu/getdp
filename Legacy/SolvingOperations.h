@@ -48,12 +48,24 @@ void Operation_Update(struct DefineSystem * DefineSystem_P,
                       struct DofData * DofData_P0,
                       int TimeFunctionIndex);
 
+void  Operation_ChangeOfCoordinates(struct Resolution  * Resolution_P,
+				    struct Operation   * Operation_P,
+				    struct DofData     * DofData_P0,
+				    struct GeoData     * GeoData_P0);
+
+void  Operation_DeformeMesh(struct Resolution  * Resolution_P,
+                            struct Operation   * Operation_P,
+                            struct DofData     * DofData_P0,
+                            struct GeoData     * GeoData_P0);
+
 void Cal_SolutionErrorRatio(gVector *dx,
                             gVector *x,
                             double reltol,
                             double abstol,
                             int NormType,
                             double *ErrorRatio) ;
+
+void Cal_SolutionError(gVector *dx, gVector *x, int diff, double *MeanError);
 
 void Free_UnusedSolutions(struct DofData * DofData_P);
 
