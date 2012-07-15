@@ -1,49 +1,42 @@
-             GetDP is copyright (C) 1997-2011
+                 GetDP is copyright (C) 1997-2011
 
-                      Patrick Dular
-              <patrick.dular at ulg.ac.be>
+                          Patrick Dular
+                  <patrick.dular at ulg.ac.be>
 
-                           and 
+                               and 
 
-                   Christophe Geuzaine 
-                 <cgeuzaine at ulg.ac.be> 
+                       Christophe Geuzaine 
+                     <cgeuzaine at ulg.ac.be> 
 
-Major code contributions to GetDP have been provided by Johan
-Gyselinck and Ruth Sabariego.
+Major code contributions to GetDP have been provided by Johan Gyselinck and Ruth
+Sabariego. Other code contributors include: Michael Asam, David Colignon, Tuan
+Ledinh, Patrick Lefevre, Andre Nicolet, Jean-Francois Remacle, Timo Tarhasaari,
+Christophe Trophime and Marc Ume. See the source code for more details.
 
-Other code contributors include: David Colignon, Tuan Ledinh, Patrick
-Lefevre, Andre Nicolet, Jean-Francois Remacle, Timo Tarhasaari,
-Christophe Trophime and Marc Ume. See the source code for more
-details.
+The AVL tree code (DataStr/avl.*) is copyright (C) 1988-1993, 1995 The Regents
+of the University of California. Permission to use, copy, modify, and distribute
+this software and its documentation for any purpose and without fee is hereby
+granted, provided that the above copyright notice appear in all copies and that
+both that copyright notice and this permission notice appear in supporting
+documentation, and that the name of the University of California not be used in
+advertising or publicity pertaining to distribution of the software without
+specific, written prior permission.  The University of California makes no
+representations about the suitability of this software for any purpose.  It is
+provided "as is" without express or implied warranty.
 
-The AVL tree code (DataStr/avl.*) is copyright (C) 1988-1993, 1995 The
-Regents of the University of California. Permission to use, copy,
-modify, and distribute this software and its documentation for any
-purpose and without fee is hereby granted, provided that the above
-copyright notice appear in all copies and that both that copyright
-notice and this permission notice appear in supporting documentation,
-and that the name of the University of California not be used in
-advertising or publicity pertaining to distribution of the software
-without specific, written prior permission.  The University of
-California makes no representations about the suitability of this
-software for any purpose.  It is provided "as is" without express or
-implied warranty.
+The Arpack code (in the Arpack subdirectory) was written by Danny Sorensen,
+Richard Lehoucq, Chao Yang and Kristi Maschhoff from the Dept. of Computational
+& Applied Mathematics at Rice University, Houston, Texas, USA. See
+http://www.caam.rice.edu/software/ARPACK/ for more info.
 
-The Arpack code (in the Arpack subdirectory) was written by Danny
-Sorensen, Richard Lehoucq, Chao Yang and Kristi Maschhoff from the
-Dept. of Computational & Applied Mathematics at Rice University,
-Houston, Texas, USA. See http://www.caam.rice.edu/software/ARPACK/ for
-more info.
+This version of GetDP may contain code (in the Sparskit subdirectory) copyright
+(C) 1990 Yousef Saad: check the configuration options.
 
-This version of GetDP may contain code (in the Sparskit subdirectory)
-copyright (C) 1990 Yousef Saad: check the configuration options.
-
-Thanks to the following folks who have contributed by providing fresh
-ideas on theoretical or programming topics, who have sent patches,
-requests for changes or improvements, or who gave us access to exotic
-machines for testing GetDP: Olivier Adam, Alejandro Angulo, Geoffrey
-Deliege, Mark Evans, Philippe Geuzaine, Eric Godard, Sebastien
-Guenneau, Francois Henrotte, Daniel Kedzierski, Samuel Kvasnica,
-Benoit Meys, Uwe Pahner, Georgia Psoni, Robert Struijs, Ahmed Rassili,
-Thierry Scordilis, Herve Tortel, Jose Geraldo A. Brito Neto, Matthias
-Fenner, Daryl Van Vorst, Guillaume Dem\'esy.
+Thanks to the following folks who have contributed by providing fresh ideas on
+theoretical or programming topics, who have sent patches, requests for changes
+or improvements, or who gave us access to exotic machines for testing GetDP:
+Olivier Adam, Alejandro Angulo, Geoffrey Deliege, Mark Evans, Philippe Geuzaine,
+Eric Godard, Sebastien Guenneau, Francois Henrotte, Daniel Kedzierski, Samuel
+Kvasnica, Benoit Meys, Uwe Pahner, Georgia Psoni, Robert Struijs, Ahmed Rassili,
+Thierry Scordilis, Herve Tortel, Jose Geraldo A. Brito Neto, Matthias Fenner,
+Daryl Van Vorst, Guillaume Dem\'esy.
