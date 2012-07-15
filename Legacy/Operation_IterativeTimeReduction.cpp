@@ -4,6 +4,8 @@
 // bugs and problems to <getdp@geuz.org>.
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include "ProData.h"
 #include "DofData.h"
 #include "SolvingOperations.h"
