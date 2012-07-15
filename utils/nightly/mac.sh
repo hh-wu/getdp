@@ -39,7 +39,15 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-mac${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-MacOSX32r.tgz
+FILE=`ls ${GETDP}/getdp-*.tgz`
+if [ -f ${FILE} ]; then
+  if [[ ${EXTRA_VERSION} == "-svn" ]]; then
+    scp -C ${FILE} ${WEB_BIN}/getdp-svn-MacOSX32r.tgz
+  else
+    NAME=`basename ${FILE} .tgz`
+    scp -C ${FILE} ${WEB_BIN}/${NAME}32r.tgz
+  fi
+fi
 
 export PETSC_ARCH=macosx_complex_mumps_seq
 rm -f ${GETDP}/Makefile*
@@ -48,7 +56,15 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-mac${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-MacOSX32c.tgz
+FILE=`ls ${GETDP}/getdp-*.tgz`
+if [ -f ${FILE} ]; then
+  if [[ ${EXTRA_VERSION} == "-svn" ]]; then
+    scp -C ${FILE} ${WEB_BIN}/getdp-svn-MacOSX32c.tgz
+  else
+    NAME=`basename ${FILE} .tgz`
+    scp -C ${FILE} ${WEB_BIN}/${NAME}32c.tgz
+  fi
+fi
 
 echo "BUILD END: `date`" >> ${LOG}
 
@@ -77,7 +93,15 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} --enable-sparskit >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-mac${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-MacOSX64s.tgz
+FILE=`ls ${GETDP}/getdp-*.tgz`
+if [ -f ${FILE} ]; then
+  if [[ ${EXTRA_VERSION} == "-svn" ]]; then
+    scp -C ${FILE} ${WEB_BIN}/getdp-svn-MacOSX64s.tgz
+  else
+    NAME=`basename ${FILE} .tgz`
+    scp -C ${FILE} ${WEB_BIN}/${NAME}64s.tgz
+  fi
+fi
 
 export PETSC_ARCH=macosx64_real_mumps_seq
 rm -f ${GETDP}/Makefile*
@@ -86,7 +110,15 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-mac${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-MacOSX64r.tgz
+FILE=`ls ${GETDP}/getdp-*.tgz`
+if [ -f ${FILE} ]; then
+  if [[ ${EXTRA_VERSION} == "-svn" ]]; then
+    scp -C ${FILE} ${WEB_BIN}/getdp-svn-MacOSX64r.tgz
+  else
+    NAME=`basename ${FILE} .tgz`
+    scp -C ${FILE} ${WEB_BIN}/${NAME}64r.tgz
+  fi
+fi
 
 export PETSC_ARCH=macosx64_complex_mumps_seq
 rm -f ${GETDP}/Makefile*
@@ -95,7 +127,15 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-mac${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-MacOSX64c.tgz
+FILE=`ls ${GETDP}/getdp-*.tgz`
+if [ -f ${FILE} ]; then
+  if [[ ${EXTRA_VERSION} == "-svn" ]]; then
+    scp -C ${FILE} ${WEB_BIN}/getdp-svn-MacOSX64c.tgz
+  else
+    NAME=`basename ${FILE} .tgz`
+    scp -C ${FILE} ${WEB_BIN}/${NAME}64c.tgz
+  fi
+fi
 
 echo "BUILD END: `date`" >> ${LOG}
 
