@@ -19,7 +19,15 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} --enable-sparskit >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-unix${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-Linux64s.tgz
+FILE=`ls ${GETDP}/getdp-*.tgz`
+if [ -f ${FILE} ]; then
+  if [[ ${EXTRA_VERSION} == "-svn" ]]; then
+    scp -C ${FILE} ${WEB_BIN}/getdp-svn-Linux64s.tgz
+  else
+    NAME=`basename ${FILE} .tgz`
+    scp -C ${FILE} ${WEB_BIN}/${NAME}64s.tgz
+  fi
+fi
 
 export PETSC_ARCH=linux_real_mumps_seq
 rm -f ${GETDP}/Makefile*
@@ -28,7 +36,15 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-unix${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-Linux64r.tgz
+FILE=`ls ${GETDP}/getdp-*.tgz`
+if [ -f ${FILE} ]; then
+  if [[ ${EXTRA_VERSION} == "-svn" ]]; then
+    scp -C ${FILE} ${WEB_BIN}/getdp-svn-Linux64r.tgz
+  else
+    NAME=`basename ${FILE} .tgz`
+    scp -C ${FILE} ${WEB_BIN}/${NAME}64r.tgz
+  fi
+fi
 
 export PETSC_ARCH=linux_complex_mumps_seq
 rm -f ${GETDP}/Makefile*
@@ -37,7 +53,15 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 cd ${GETDP} && ./configure ${PREFIXES} >> ${LOG} 2>&1
 cd ${GETDP} && make clean >> ${LOG} 2>&1
 cd ${GETDP} && make distrib-unix${EXTRA_VERSION} >> ${LOG} 2>&1
-scp -C ${GETDP}/getdp-*.tgz ${WEB_BIN}/getdp${EXTRA_VERSION}-Linux64c.tgz
+FILE=`ls ${GETDP}/getdp-*.tgz`
+if [ -f ${FILE} ]; then
+  if [[ ${EXTRA_VERSION} == "-svn" ]]; then
+    scp -C ${FILE} ${WEB_BIN}/getdp-svn-Linux64c.tgz
+  else
+    NAME=`basename ${FILE} .tgz`
+    scp -C ${FILE} ${WEB_BIN}/${NAME}64c.tgz
+  fi
+fi
 
 echo "BUILD END: `date`" >> ${LOG}
 
