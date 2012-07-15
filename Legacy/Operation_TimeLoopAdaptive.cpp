@@ -6,11 +6,16 @@
 // Contributor(s):
 //   Michael Asam
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "GetDPConfig.h"
+
+#if defined(HAVE_GSL)
+#include <gsl/gsl_linalg.h>
+#endif
+
 #include "ProData.h"
 #include "DofData.h"
 #include "SolvingOperations.h"
@@ -24,14 +29,12 @@ extern int Flag_TimeLoopAdaptive;
 extern int Flag_TimeLoopAdaptive_PETSc_Error;
 extern int Flag_RESTART;
 
-
-
-
 /* ------------------------------------------------------------------------ */
 /*  C a l c I n t e g r a t i o n C o e f f i c i e n t s                   */
 /* ------------------------------------------------------------------------ */
 
 #if !defined(HAVE_GSL)
+
 void CalcIntegrationCoefficients(Resolution  *Resolution_P,
                                  DofData     *DofData_P0,
                                  List_T      *TimeLoopAdaptiveSystems,
@@ -39,9 +42,8 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
 {
   Message::Error("TimeLoopAdaptive requires the GSL");
 }
-#else
 
-#include <gsl/gsl_linalg.h>
+#else
 
 void CalcIntegrationCoefficients(Resolution  *Resolution_P,
                                  DofData     *DofData_P0,
@@ -299,16 +301,15 @@ void Predictor(Resolution  *Resolution_P,
 }
 
 
-
 /* ------------------------------------------------------------------------ */
 /*  C a l M a x L T E r a t i o                                             */
 /* ------------------------------------------------------------------------ */
 
 double CalcMaxLTEratio(Resolution  *Resolution_P,
-                      DofData     *DofData_P0,
-                      List_T      *TimeLoopAdaptiveSystems,
-                      int         Order,
-                      List_T      *xPredicted_L)
+		       DofData     *DofData_P0,
+		       List_T      *TimeLoopAdaptiveSystems,
+		       int         Order,
+		       List_T      *xPredicted_L)
 {
   DefineSystem           *DefineSystem_P;
   DofData                *DofData_P;
@@ -373,7 +374,6 @@ double CalcMaxLTEratio(Resolution  *Resolution_P,
 }
 
 
-
 /* ------------------------------------------------------------------------ */
 /*  O p e r a t i o n _ T i m e L o o p A d a p t i v e                     */
 /* ------------------------------------------------------------------------ */
@@ -429,18 +429,18 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   }
   else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_4") ||
            !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_4")) {
-  TypeTime = TIME_GEAR;
-  MaxOrder = 4;
+    TypeTime = TIME_GEAR;
+    MaxOrder = 4;
   }
   else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_5") ||
            !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_5")) {
-  TypeTime = TIME_GEAR;
-  MaxOrder = 5;
+    TypeTime = TIME_GEAR;
+    MaxOrder = 5;
   }
   else if (!strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "Gear_6") ||
            !strcmp(Operation_P->Case.TimeLoopAdaptive.Scheme, "BDF_6")) {
-  TypeTime = TIME_GEAR;
-  MaxOrder = 6;
+    TypeTime = TIME_GEAR;
+    MaxOrder = 6;
   }
   else
     Message::Error("Unknown integration scheme: %s",
@@ -457,7 +457,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   for(int i = 0; i < List_Nbr(TLAsystems); i++){
     List_Read(TLAsystems, i, &TLAsystem);
     DefineSystem *System_P = (DefineSystem*)List_Pointer(Resolution_P->DefineSystem,
-                                                    TLAsystem.SystemIndex);
+							 TLAsystem.SystemIndex);
     DofData_P = DofData_P0 + TLAsystem.SystemIndex;
     NbrSolutions = List_Nbr(DofData_P->Solutions);
 
