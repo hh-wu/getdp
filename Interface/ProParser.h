@@ -40,5 +40,6 @@ void cStyleComments();
 void cxxStyleComments();
 void parseString(char endchar);
 void skipUntil(const char *skip, const char *until);
+void Print_Constants();
 
 #endif

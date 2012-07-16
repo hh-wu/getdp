@@ -82,12 +82,23 @@ void Message::Exit(int level)
   exit(level);
 }
 
+static int myvsnprintf(char *str, size_t size, const char *fmt, va_list ap)
+{
+  // vsnprintf is not available everywhere
+  if(strlen(fmt) > size - 1){ // just copy the format
+    strncpy(str, fmt, size - 1);
+    str[size - 1] = '\0';
+    return size;
+  }
+  return vsprintf(str, fmt, ap);
+}
+
 void Message::Fatal(const char *fmt, ...)
 {
   char str[1024];
   va_list args;
   va_start(args, fmt);
-  vsprintf(str, fmt, args);
+  myvsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
   if(_client){
@@ -112,7 +123,7 @@ void Message::Error(const char *fmt, ...)
   char str[1024];
   va_list args;
   va_start(args, fmt);
-  vsprintf(str, fmt, args);
+  myvsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
   if(_client){
@@ -138,7 +149,7 @@ void Message::Warning(const char *fmt, ...)
   char str[1024];
   va_list args;
   va_start(args, fmt);
-  vsprintf(str, fmt, args);
+  myvsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
   if(_client){
@@ -159,7 +170,7 @@ void Message::Info(const char *fmt, ...)
   char str[1024];
   va_list args;
   va_start(args, fmt);
-  vsprintf(str, fmt, args);
+  myvsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
   if(_client){
@@ -180,7 +191,7 @@ void Message::Direct(const char *fmt, ...)
   va_list args;
   va_start(args, fmt);
   char str[1024];
-  vsprintf(str, fmt, args);
+  myvsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
   if(_client){
@@ -198,10 +209,10 @@ void Message::Direct(const char *fmt, ...)
 void Message::Check(const char *fmt, ...)
 {
   if(_commRank) return;
-  char str[1024];
+  char str[5000];
   va_list args;
   va_start(args, fmt);
-  vsprintf(str, fmt, args);
+  myvsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
   if(_client){
@@ -222,7 +233,7 @@ void Message::Debug(const char *fmt, ...)
   va_list args;
   va_start(args, fmt);
   char str[1024];
-  vsprintf(str, fmt, args);
+  myvsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
   if(_client){
@@ -250,7 +261,7 @@ void Message::Cpu(const char *fmt, ...)
   char str[1024], str2[256];
   va_list args;
   va_start(args, fmt);
-  vsprintf(str, fmt, args);
+  myvsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
   if(strlen(fmt)) strcat(str, " ");
   if(mem)
@@ -278,7 +289,7 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
   char str[1024], str2[256];
   va_list args;
   va_start(args, fmt);
-  vsprintf(str, fmt, args);
+  myvsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
   if(strlen(fmt)) strcat(str, " ");
 

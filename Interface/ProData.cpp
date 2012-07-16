@@ -1530,13 +1530,10 @@ void Print_PostOperation()
   Message::Check("}\n");
 }
 
-void Print_Constant(); // defined in the parser since it uses the
-		       // parser's static list of constants
-
 int Print_Object(int ichoice)
 {
   switch (ichoice) {
-  case  0 : Print_Constant      ();  break;
+  case  0 : Print_Constants     ();  break;
   case  1 : Print_Group         ();  break;
   case  2 : Print_Expression    ();  break;
   case  3 : Print_Constraint    ();  break;

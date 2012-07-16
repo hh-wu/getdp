@@ -1024,12 +1024,22 @@ List of constant expressions are defined as:
   @var{expression-cst} |
   @var{expression-cst} : @var{expression-cst} |
   @var{expression-cst} : @var{expression-cst} : @var{expression-cst} |
-  @var{constant-id} @{@} |
-  @var{constant-id} @{ @var{expression-cst-list} @} |
+  @var{constant-id} @(@) |
+  @var{constant-id} @( @var{expression-cst-list} @) |
   List[ @var{constant-id} ] |
   ListAlt[ @var{constant-id}, @var{constant-id} ] |
   LinSpace[ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} ] |
-  LogSpace[ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} ]
+  LogSpace[ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} ] |
+  - @var{expression-cst-list-item} |
+  @var{expression-cst} * @var{expression-cst-list-item} |
+  @var{expression-cst-list-item} * @var{expression-cst} |
+  @var{expression-cst} / @var{expression-cst-list-item} |
+  @var{expression-cst-list-item} / @var{expression-cst} |
+  @var{expression-cst-list-item} ^ @var{expression-cst} |
+  @var{expression-cst-list-item} + @var{expression-cst-list-item} |
+  @var{expression-cst-list-item} - @var{expression-cst-list-item} |
+  @var{expression-cst-list-item} * @var{expression-cst-list-item} |
+  @var{expression-cst-list-item} / @var{expression-cst-list-item}
 @end example
 
 The second case in this last definition permits to create a list containing
@@ -1046,8 +1056,9 @@ fourth. The seventh case permits to create alternate lists: the arguments of
 dimension. The result is an alternate list of these constants: first
 constant of argument 1, first constant of argument 2, second constant of
 argument 1, etc. These kinds of lists of constants are for example often
-used for function parameters (@pxref{Functions}). The last two cases permit
-to create linear and logarithmic lists of numbers, respectively.
+used for function parameters (@pxref{Functions}). The next two cases permit
+to create linear and logarithmic lists of numbers, respectively. The
+remaining cases permit to apply arithmetic operators item-wise in lists.
 
 Contrary to a general @var{expression} which is evaluated at runtime (thanks
 to an internal stack mechanism), an @var{expression-cst} is completely
@@ -1058,8 +1069,12 @@ for the definition of constants is:
 
 @example
 @var{affectation}:
-  DefineConstant [ @var{constant-id} < = @var{expression-cst} > 
-                   @var{string-id} < = "@var{string}" > <,@dots{}> ]; |
+  DefineConstant [ @var{constant-id} < = @var{expression-cst} > <,@dots{}> ]; |
+  DefineConstant [ @var{constant-id} = @{ @var{expression-cst} 
+                             <, @var{string} @var{string} > @} <,@dots{}> ]; |
+  DefineConstant [ @var{string-id} < = @var{string-def} >  <,@dots{}> ]; |
+  DefineConstant [ @var{string-id} = @{ @var{string-def} 
+                             <, @var{string} @var{string} > @} <,@dots{}> ]; |
   @var{constant-id} = @var{constant-def}; |
   @var{string-id} = @var{string-def}; |
   Printf("@var{string}"); |
@@ -1073,6 +1088,7 @@ for the definition of constants is:
 @example
 @var{constant-id}:
   @var{string} |
+  @var{string} ( @var{expression-cst-list} ) |
   @var{string} ~ @{ @var{expression-cst} @}
 
 @var{constant-def}:

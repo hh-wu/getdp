@@ -158,7 +158,7 @@ struct doubleXstring{
 %type <l>  ListOfFormulation RecursiveListOfFormulation
 %type <l>  ListOfSystem RecursiveListOfSystem
 %type <l>  PostQuantities SubPostQuantities PostSubOperations
-%type <c>  NameForFunction CharExpr StrCat StringIndex String__Index
+%type <c>  NameForMathFunction NameForFunction CharExpr StrCat StringIndex String__Index
 %type <l>  RecursiveListOfString__Index
 %type <t>  Quantity_Def
 %type <l>  TimeLoopAdaptiveSystems IterativeLoopSystems
@@ -1175,7 +1175,7 @@ WholeQuantity_Single :
       /* Expression */
 
       int l;
-      if((l = List_ISearchSeq(Problem_S.Expression, $1,fcmp_Expression_Name)) >= 0) {
+      if((l = List_ISearchSeq(Problem_S.Expression, $1, fcmp_Expression_Name)) >= 0) {
 	WholeQuantity_S.Type = WQ_EXPRESSION;
 	WholeQuantity_S.Case.Expression.Index = l;
 	WholeQuantity_S.Case.Expression.NbrArguments = $2;
@@ -4376,13 +4376,13 @@ OperationTerm :
       Operation_P->Case.TimeLoopRungeKutta.ButcherC = $15;
     }
 
-  | tTimeLoopAdaptive '[' FExpr ',' FExpr ',' FExpr ',' FExpr ',' FExpr ',' CharExpr ',' 
-                      ListOfFExpr ',' tDefineSystem '{' TimeLoopAdaptiveSystems '}' ']' 
-                      '{' Operation '}' '{' Operation '}' 
+  | tTimeLoopAdaptive '[' FExpr ',' FExpr ',' FExpr ',' FExpr ',' FExpr ',' CharExpr ','
+                      ListOfFExpr ',' tDefineSystem '{' TimeLoopAdaptiveSystems '}' ']'
+                      '{' Operation '}' '{' Operation '}'
     {
       List_Pop(Operation_L);
       List_Pop(Operation_L);
-      Operation_P = (struct Operation*) 
+      Operation_P = (struct Operation*)
         List_Pointer(Operation_L, List_Nbr(Operation_L)-1);
       if (!List_Nbr($19))
         vyyerror("No system tolerances specified for TimeLoopAdaptive");
@@ -4399,7 +4399,7 @@ OperationTerm :
       Operation_P->Case.TimeLoopAdaptive.OperationEnd = $26;
     }
 
-  | tIterativeLoopN '[' FExpr ',' Expression ','  
+  | tIterativeLoopN '[' FExpr ',' Expression ','
                     tDefineSystem '{' IterativeLoopSystems '}' ']'
                     '{' Operation '}'
     { List_Pop(Operation_L);
@@ -4413,7 +4413,7 @@ OperationTerm :
       Operation_P->Case.IterativeLoop.IterativeLoopSystems = $9;
       Operation_P->Case.IterativeLoop.Operation = $13;
     }
-  
+
   | tIterativeLoop  '[' FExpr ',' FExpr ',' Expression ']'
                      '{' Operation '}'
     { List_Pop(Operation_L);
@@ -4439,7 +4439,7 @@ OperationTerm :
       Operation_P->Case.IterativeLoop.Flag = (int)$9;
       Operation_P->Case.IterativeLoop.Operation = $12;
     }
-  
+
   | tIterativeLinearSolver '[' CharExpr ',' FExpr ',' FExpr ',' FExpr ',' ListOfFExpr ']'
                            '{' Operation '}'
     { List_Pop(Operation_L);
@@ -4928,12 +4928,12 @@ TimeLoopAdaptiveSystems :
         vyyerror("Unknown error norm type of TimeLoopAdaptive system: %s", $3);
         Get_Valid_SXD(ChangeOfState_Type);
       }
-      TimeLoopAdaptiveSystem_S.NormTypeString = $9;     
+      TimeLoopAdaptiveSystem_S.NormTypeString = $9;
       List_Add($$ = $1, &TimeLoopAdaptiveSystem_S);
       Free($3);
     }
  ;
- 
+
  IterativeLoopSystems :
      /* none */
     {
@@ -4947,24 +4947,24 @@ TimeLoopAdaptiveSystems :
         vyyerror("Unknown System: %s", $3);
       IterativeLoopSystem_S.SystemIndex = i;
       IterativeLoopSystem_S.SystemILreltol = $5;
-      IterativeLoopSystem_S.SystemILabstol = $7;     
+      IterativeLoopSystem_S.SystemILabstol = $7;
       IterativeLoopSystem_S.NormOf = Get_DefineForString(NormOf_Type, $9, &FlagError);
       if(FlagError){
         vyyerror("Unknown object for error norm of IterativeLoop system: %s", $3);
         Get_Valid_SXD(ChangeOfState_Type);
-      } 
+      }
       IterativeLoopSystem_S.NormOfString = $9;
       IterativeLoopSystem_S.NormType = Get_DefineForString(ErrorNorm_Type, $10, &FlagError);
       if(FlagError){
         vyyerror("Unknown error norm type of IterativeLoop system: %s", $3);
         Get_Valid_SXD(ChangeOfState_Type);
-      }   
-      IterativeLoopSystem_S.NormTypeString = $10;  
+      }
+      IterativeLoopSystem_S.NormTypeString = $10;
       List_Add($$ = $1, &IterativeLoopSystem_S);
       Free($3);
     }
  ;
- 
+
 
 /* ------ the following should disapear with the new syntax ------------- */
 
@@ -6444,6 +6444,34 @@ Affectation :
       List_Replace(ConstantTable_L, &Constant_S, fcmp_Constant);
     }
 
+  | String__Index '(' RecursiveListOfFExpr ')' tDEF ListOfFExpr tEND
+    {
+      Constant_S.Name = $1;
+      Constant *c = (Constant*)List_PQuery(ConstantTable_L, &Constant_S, fcmp_Constant);
+      if(c && (c->Type == VAR_LISTOFFLOAT)){
+        if(List_Nbr($3) == List_Nbr($6)){
+          for(int i = 0; i < List_Nbr($3); i++){
+            double d;
+            List_Read($3, i, &d);
+            int idx = (int)d;
+            if(idx >= 0 && idx < List_Nbr(c->Value.ListOfFloat)){
+              double *pd = (double*)List_Pointer(c->Value.ListOfFloat, idx);
+              double d2 = *(double*)List_Pointer($6, i);
+              *pd = d2;
+            }
+            else
+              vyyerror("Index %d out of range", idx);
+          }
+        }
+        else
+          vyyerror("Bad list sizes for affectation %d != %d", List_Nbr($3), List_Nbr($6));
+      }
+      else
+	vyyerror("Unknown list Constant: %s", $1);
+      List_Delete($3);
+      List_Delete($6);
+    }
+
   | String__Index '+' tDEF ListOfFExpr tEND
     {
       Constant_S.Name = $1;
@@ -6610,39 +6638,7 @@ Affectation :
 
   | tPrintConstants tEND
     {
-      Message::Info("Constants:");
-      for (int i = 0; i < List_Nbr(ConstantTable_L); i++) {
-	List_Read(ConstantTable_L, i, &Constant_S);
-	switch (Constant_S.Type) {
-	case VAR_FLOAT:
-	  Message::Info("  (%d/%d): '%s' = %g", i+1, List_Nbr(ConstantTable_L),
-                        Constant_S.Name, Constant_S.Value.Float);
-	  break;
-	case VAR_CHAR:
-	  Message::Info("  (%d/%d): '%s' = '%s'", i+1, List_Nbr(ConstantTable_L),
-                        Constant_S.Name, Constant_S.Value.Char);
-	  break;
-	case VAR_LISTOFFLOAT:
-          {
-            std::string str;
-            char tmp[256];
-            for(int j = 0; j < List_Nbr(Constant_S.Value.ListOfFloat); j++){
-              double d;
-              List_Read(Constant_S.Value.ListOfFloat, j, &d);
-              sprintf(tmp, "%g", d);
-              if(j) str += ", ";
-              str += tmp;
-            }
-            Message::Info("  (%d/%d): '%s' = {%s}", i+1, List_Nbr(ConstantTable_L),
-                          Constant_S.Name, str.c_str());
-          }
-          break;
-        default:
-	  Message::Info("  (%d/%d): '%s' = ?", i+1, List_Nbr(ConstantTable_L),
-                        Constant_S.Name);
-	  break;
-	}
-      }
+      Print_Constants();
     }
  ;
 
@@ -6811,7 +6807,7 @@ DefineConstants :
 /* Ce bricolage affreux (?) est necessaire pour permettre la meme
    syntaxe dans les expressions constantes et dans les whole_expressions */
 
-NameForFunction :
+NameForMathFunction :
     tExp     { $$ = (char*)"Exp";    }
   | tLog     { $$ = (char*)"Log";    }
   | tLog10   { $$ = (char*)"Log10";  }
@@ -6834,7 +6830,11 @@ NameForFunction :
   | tModulo  { $$ = (char*)"Modulo"; }
   | tHypot   { $$ = (char*)"Hypot";  }
   | tRand    { $$ = (char*)"Rand";   }
-  | String__Index  { $$ = $1;        }
+ ;
+
+NameForFunction :
+    NameForMathFunction { $$ = $1; }
+  | String__Index       { $$ = $1; }
  ;
 
 FExpr :
@@ -6969,6 +6969,7 @@ RecursiveListOfListOfFExpr :
       $$ = List_Create(2, 1, sizeof(List_T*));
       List_Add($$, &($1));
     }
+
   | RecursiveListOfListOfFExpr ',' ListOfFExpr
     {
       List_Add($$, &($3));
@@ -6977,15 +6978,131 @@ RecursiveListOfListOfFExpr :
 
 MultiFExpr :
 
-    FExpr tDOTS FExpr
-    { $$ = List_Create(20,20,sizeof(double));
+    '-' MultiFExpr %prec UNARYPREC
+    {
+      $$ = $2;
+      for(int i = 0; i < List_Nbr($$); i++){
+	double *pd = (double*)List_Pointer($$, i);
+	*pd *= -1.0;
+      }
+    }
+
+  | FExpr '*' MultiFExpr
+    {
+      $$ = $3;
+      for(int i = 0; i < List_Nbr($$); i++){
+	double *pd = (double*)List_Pointer($$, i);
+	*pd *= $1;
+      }
+    }
+
+  | MultiFExpr '*' FExpr
+    {
+      $$ = $1;
+      for(int i = 0; i < List_Nbr($$); i++){
+	double *pd = (double*)List_Pointer($$, i);
+	*pd *= $3;
+      }
+    }
+
+  | FExpr '/' MultiFExpr
+    {
+      $$ = $3;
+      for(int i = 0; i < List_Nbr($$); i++){
+	double *pd = (double*)List_Pointer($$, i);
+	if(*pd) *pd = $1 / *pd;
+      }
+    }
+
+  | MultiFExpr '/' FExpr
+    {
+      $$ = $1;
+      for(int i = 0; i < List_Nbr($$); i++){
+	double *pd = (double*)List_Pointer($$, i);
+	if($3) *pd /= $3;
+      }
+    }
+
+  | MultiFExpr '^' FExpr
+    {
+      $$ = $1;
+      for(int i = 0; i < List_Nbr($$); i++){
+	double *pd = (double*)List_Pointer($$, i);
+	*pd = pow(*pd, $3);
+      }
+    }
+
+  | MultiFExpr '+' MultiFExpr
+    {
+      $$ = $1;
+      if(List_Nbr($$) == List_Nbr($3)){
+        for(int i = 0; i < List_Nbr($$); i++){
+          double *pd = (double*)List_Pointer($$, i);
+          double d = *(double*)List_Pointer($3, i);
+          *pd += d;
+        }
+      }
+      else
+        vyyerror("Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
+      List_Delete($3);
+    }
+
+  | MultiFExpr '-' MultiFExpr
+    {
+      $$ = $1;
+      if(List_Nbr($$) == List_Nbr($3)){
+        for(int i = 0; i < List_Nbr($$); i++){
+          double *pd = (double*)List_Pointer($$, i);
+          double d = *(double*)List_Pointer($3, i);
+          *pd -= d;
+        }
+      }
+      else
+        vyyerror("Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
+      List_Delete($3);
+    }
+
+  | MultiFExpr '*' MultiFExpr
+    {
+      $$ = $1;
+      if(List_Nbr($$) == List_Nbr($3)){
+        for(int i = 0; i < List_Nbr($$); i++){
+          double *pd = (double*)List_Pointer($$, i);
+          double d = *(double*)List_Pointer($3, i);
+          *pd *= d;
+        }
+      }
+      else
+        vyyerror("Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
+      List_Delete($3);
+    }
+
+  | MultiFExpr '/' MultiFExpr
+    {
+      $$ = $1;
+      if(List_Nbr($$) == List_Nbr($3)){
+        for(int i = 0; i < List_Nbr($$); i++){
+          double *pd = (double*)List_Pointer($$, i);
+          double d = *(double*)List_Pointer($3, i);
+          if(d) *pd /= d;
+        }
+      }
+      else
+        vyyerror("Wrong list sizes %d != %d", List_Nbr($$), List_Nbr($3));
+      List_Delete($3);
+    }
+
+  | FExpr tDOTS FExpr
+    {
+      $$ = List_Create(20,20,sizeof(double));
       for(double d = $1; ($1 < $3) ? (d <= $3) : (d >= $3);
 	  ($1 < $3) ? (d += 1.) : (d -= 1.))
 	List_Add($$, &d);
     }
 
   | FExpr tDOTS FExpr tDOTS FExpr
-    { $$ = List_Create(20,20,sizeof(double));
+    {
+      $$ = List_Create(20,20,sizeof(double));
       if(!$5 || ($1<$3 && $5<0) || ($1>$3 && $5>0)){
 	vyyerror("Wrong increment in '%g : %g : %g'", $1, $3, $5);
 	List_Add($$, &($1));
@@ -6995,8 +7112,9 @@ MultiFExpr :
 	  List_Add($$, &d);
     }
 
-  | tSTRING '{' '}'
-    { $$ = List_Create(20,20,sizeof(double));
+  | tSTRING '(' ')'
+    {
+      $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
       if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
 	vyyerror("Unknown Constant: %s", $1);
@@ -7012,8 +7130,28 @@ MultiFExpr :
 	  }
     }
 
-  | tSTRING '{' RecursiveListOfFExpr '}'
-    { $$ = List_Create(20,20,sizeof(double));
+  // deprecated: same as tSTRING '(' ')'
+  | tSTRING '{' '}'
+    {
+      $$ = List_Create(20,20,sizeof(double));
+      Constant_S.Name = $1;
+      if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
+	vyyerror("Unknown Constant: %s", $1);
+      else
+	if(Constant_S.Type != VAR_LISTOFFLOAT)
+	  /* vyyerror("Multi value Constant needed: %s", $1); */
+	  List_Add($$, &Constant_S.Value.Float);
+	else
+	  for(int i = 0; i < List_Nbr(Constant_S.Value.ListOfFloat); i++) {
+	    double d;
+	    List_Read(Constant_S.Value.ListOfFloat, i, &d);
+	    List_Add($$, &d);
+	  }
+    }
+
+  | tSTRING '(' RecursiveListOfFExpr ')'
+    {
+      $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $1;
       if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
 	vyyerror("Unknown Constant: %s", $1);
@@ -7022,9 +7160,10 @@ MultiFExpr :
 	  vyyerror("Multi value Constant needed: %s", $1);
 	else
 	  for(int i = 0; i < List_Nbr($3); i++) {
-	    if(i < List_Nbr(Constant_S.Value.ListOfFloat)){
+            int j = (int)(*(double*)List_Pointer($3, i));
+	    if(j >= 0 && j < List_Nbr(Constant_S.Value.ListOfFloat)){
 	      double d;
-	      List_Read(Constant_S.Value.ListOfFloat, i, &d);
+	      List_Read(Constant_S.Value.ListOfFloat, j, &d);
 	      List_Add($$, &d);
 	    }
 	    else{
@@ -7034,9 +7173,10 @@ MultiFExpr :
 	  }
     }
 
-  /* This a synonym for tSTRING '{' '}' */
+  // same as tSTRING '(' ')'
   | tList '[' tSTRING ']'
-    { $$ = List_Create(20,20,sizeof(double));
+    {
+      $$ = List_Create(20,20,sizeof(double));
       Constant_S.Name = $3;
       if(!List_Query(ConstantTable_L, &Constant_S, fcmp_Constant))
 	vyyerror("Unknown Constant: %s", $3);
@@ -7052,7 +7192,8 @@ MultiFExpr :
     }
 
   | tListAlt '[' tSTRING ',' tSTRING ']'
-    { $$ = List_Create(20,20,sizeof(double));
+    {
+      $$ = List_Create(20,20,sizeof(double));
       Constant1_S.Name = $3; Constant2_S.Name = $5;
       if(!List_Query(ConstantTable_L, &Constant1_S, fcmp_Constant)) {
 	vyyerror("Unknown Constant: %s", $3);
@@ -7091,7 +7232,8 @@ MultiFExpr :
     }
 
   | tLinSpace '[' FExpr ',' FExpr ',' FExpr ']'
-    { $$ = List_Create(20,20,sizeof(double));
+    {
+      $$ = List_Create(20,20,sizeof(double));
       for(int i = 0; i < (int)$7; i++) {
 	double d = $3 + ($5-$3)*(double)i/($7-1);
 	List_Add($$, &d);
@@ -7099,7 +7241,8 @@ MultiFExpr :
     }
 
   | tLogSpace '[' FExpr ',' FExpr ',' FExpr ']'
-    { $$ = List_Create(20,20,sizeof(double));
+    {
+      $$ = List_Create(20,20,sizeof(double));
       for(int i = 0; i < (int)$7; i++) {
 	double d = pow(10,$3 + ($5-$3)*(double)i/($7-1));
 	List_Add($$, &d);
@@ -7548,10 +7691,11 @@ int Print_ListOfDouble(char *format, List_T *list, char *buffer)
   return 0;
 }
 
-void  Print_Constant()
+void  Print_Constants()
 {
-  char tmp1[1000], tmp2[100];
   struct Constant *Constant_P;
+
+  Message::Check("Constants:\n");
 
   for(int i = 0; i < List_Nbr(ConstantTable_L); i++){
     Constant_P = (struct Constant*)List_Pointer(ConstantTable_L, i);
@@ -7560,12 +7704,20 @@ void  Print_Constant()
       Message::Check("%s = %g;\n", Constant_P->Name, Constant_P->Value.Float);
       break;
     case VAR_LISTOFFLOAT:
-      sprintf(tmp1, "%g", *(double*)List_Pointer(Constant_P->Value.ListOfFloat,0));
-      for(int j = 1; j < List_Nbr(Constant_P->Value.ListOfFloat); j++){
-	sprintf(tmp2, ",%g", *(double*)List_Pointer(Constant_P->Value.ListOfFloat,j));
-	strcat(tmp1,tmp2);
+      {
+        std::string str(Constant_P->Name);
+        str += " = {";
+        for(int j = 0; j < List_Nbr(Constant_P->Value.ListOfFloat); j++){
+          if(j) str += ",";
+          double d;
+          List_Read(Constant_P->Value.ListOfFloat, j, &d);
+          char tmp[32];
+          sprintf(tmp, "%g", d);
+          str += tmp;
+        }
+        str += "};\n";
+        Message::Check(str.c_str());
       }
-      Message::Check("%s = {%s};\n", Constant_P->Name, tmp1);
       break;
     case VAR_CHAR:
       Message::Check("%s = \"%s\";\n", Constant_P->Name, Constant_P->Value.Char);

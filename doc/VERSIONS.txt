@@ -1,10 +1,13 @@
+2.2.2: improved list handling.
+
 2.2.1: cleaned up nonlinear convergence tests and integrated experimental
 adaptive time loop code; small bug fixes.
 
 2.2.0: new solver interface based on ONELAB; parallel SLEPC eigensolvers;
-cleaned up syntax for groups; new Field[] functions to interpolate
-post-processing datasets from Gmsh; fixed bug in Sur/Lin transformation of 2
-forms; fixed bug for periodic constraints on high-order edge elements.
+cleaned up syntax for groups, moving band and global basis functions; new
+Field[] functions to interpolate post-processing datasets from Gmsh; fixed bug
+in Sur/Lin transformation of 2 forms; fixed bug for periodic constraints on
+high-order edge elements.
 
 2.1.0: parallel resolution using PETSc solvers; new Gmsh2 output format; new
 experimental SLEPc-based eigensolvers; various bug and performance fixes
