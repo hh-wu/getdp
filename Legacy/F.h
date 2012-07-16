@@ -166,9 +166,9 @@ void  F_dInterpolationLinear  (F_ARG) ;
 void  F_dInterpolationLinear2 (F_ARG) ;
 void  F_InterpolationAkima    (F_ARG) ;
 void  F_dInterpolationAkima   (F_ARG) ;
-void F_InterpolationBilinear (F_ARG) ;
-bool Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC,
-                               double xp, double yp, double *zp);
+void  F_InterpolationBilinear (F_ARG) ;
+bool  Fi_InterpolationBilinear (double *x, double *y, double *M, int NL, int NC,
+                                double xp, double yp, double *zp);
 void  Fi_InitListX      (F_ARG) ; // List
 void  Fi_InitListXY     (F_ARG) ; // ListAlt
 void  Fi_InitListXY2    (F_ARG) ;

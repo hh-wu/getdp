@@ -132,6 +132,7 @@ void F_dInterpolationLinear2(F_ARG)
 
 void F_InterpolationAkima(F_ARG)
 {
+  // Third order interpolation with slope control
   int     N, up, lo ;
   double  xp, yp = 0., *x, *y, a, a2, a3 ;
   struct FunctionActive  * D ;
