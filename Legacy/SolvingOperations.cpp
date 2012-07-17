@@ -107,6 +107,54 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
   }
 }
 
+/* ------------------------------------------------------------------------ */
+/*  I n i t _ S y s t e m D a t a                                           */
+/* ------------------------------------------------------------------------ */
+
+void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
+{
+  if (DofData_P->Flag_Init[0] < 1) {
+    DofData_P->Flag_Init[0] = 1 ;
+    LinAlg_CreateSolver(&DofData_P->Solver, DofData_P->SolverDataFileName) ;
+    LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver,
+			DofData_P->NbrDof, DofData_P->NbrDof) ;
+    LinAlg_CreateVector(&DofData_P->b, &DofData_P->Solver, DofData_P->NbrDof) ;
+  }
+
+  /* GenerateOnly: Taking advantage of the invariant parts of the matrix in every time-step */
+
+  if(DofData_P->Flag_InitOnly[0]==1){
+    DofData_P->Flag_InitOnly[0] = 2;
+    Message::Info("Initializing System {A1,b1}");
+    LinAlg_CreateMatrix(&DofData_P->A1, &DofData_P->Solver,
+			DofData_P->NbrDof, DofData_P->NbrDof) ;
+    LinAlg_CreateVector(&DofData_P->b1, &DofData_P->Solver, DofData_P->NbrDof) ;
+  }
+
+  if(DofData_P->Flag_InitOnly[1]==1){
+    DofData_P->Flag_InitOnly[1] = 2;
+    Message::Info("Initializing System {A2,b2}");
+    LinAlg_CreateMatrix(&DofData_P->A2, &DofData_P->Solver,
+			DofData_P->NbrDof, DofData_P->NbrDof) ;
+    LinAlg_CreateVector(&DofData_P->b2, &DofData_P->Solver, DofData_P->NbrDof) ;
+  }
+
+  if(DofData_P->Flag_InitOnly[2]==1){
+    DofData_P->Flag_InitOnly[2] = 2;
+    Message::Info("Initializing System {A3,b3}");
+    LinAlg_CreateMatrix(&DofData_P->A3, &DofData_P->Solver,
+			DofData_P->NbrDof, DofData_P->NbrDof) ;
+    LinAlg_CreateVector(&DofData_P->b3, &DofData_P->Solver, DofData_P->NbrDof) ;
+  }
+
+  if (DofData_P->Flag_Init[0] < 2 && Flag_Jac) {
+    DofData_P->Flag_Init[0] = 2 ;
+    LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
+			DofData_P->NbrDof, DofData_P->NbrDof) ;
+    LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
+    LinAlg_CreateVector(&DofData_P->dx, &DofData_P->Solver, DofData_P->NbrDof) ;
+  }
+}
 
 /* ------------------------------------------------------------------------ */
 /*  G e n e r a t e _ S y s t e m                                           */
@@ -282,10 +330,6 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
 
   Free_UnusedSolutions(DofData_P);
 }
-
-/* ------------------------------------------------------------------------ */
-/*  R e G e n e r a t e _ S y s t e m                                       */
-/* ------------------------------------------------------------------------ */
 
 void  ReGenerate_System(struct DefineSystem * DefineSystem_P,
 			struct DofData * DofData_P,
@@ -481,55 +525,6 @@ void  Init_OperationOnSystem(const char          * Name,
 }
 
 /* ------------------------------------------------------------------------ */
-/*  I n i t _ S y s t e m D a t a                                           */
-/* ------------------------------------------------------------------------ */
-
-void  Init_SystemData(struct DofData * DofData_P, int Flag_Jac)
-{
-  if (DofData_P->Flag_Init[0] < 1) {
-    DofData_P->Flag_Init[0] = 1 ;
-    LinAlg_CreateSolver(&DofData_P->Solver, DofData_P->SolverDataFileName) ;
-    LinAlg_CreateMatrix(&DofData_P->A, &DofData_P->Solver,
-			DofData_P->NbrDof, DofData_P->NbrDof) ;
-    LinAlg_CreateVector(&DofData_P->b, &DofData_P->Solver, DofData_P->NbrDof) ;
-  }
-
-  /* GenerateOnly: Taking advantage of the invariant parts of the matrix in every time-step */
-
-  if(DofData_P->Flag_InitOnly[0]==1){
-    DofData_P->Flag_InitOnly[0] = 2;
-    Message::Info("Initializing System {A1,b1}");
-    LinAlg_CreateMatrix(&DofData_P->A1, &DofData_P->Solver,
-			DofData_P->NbrDof, DofData_P->NbrDof) ;
-    LinAlg_CreateVector(&DofData_P->b1, &DofData_P->Solver, DofData_P->NbrDof) ;
-  }
-
-  if(DofData_P->Flag_InitOnly[1]==1){
-    DofData_P->Flag_InitOnly[1] = 2;
-    Message::Info("Initializing System {A2,b2}");
-    LinAlg_CreateMatrix(&DofData_P->A2, &DofData_P->Solver,
-			DofData_P->NbrDof, DofData_P->NbrDof) ;
-    LinAlg_CreateVector(&DofData_P->b2, &DofData_P->Solver, DofData_P->NbrDof) ;
-  }
-
-  if(DofData_P->Flag_InitOnly[2]==1){
-    DofData_P->Flag_InitOnly[2] = 2;
-    Message::Info("Initializing System {A3,b3}");
-    LinAlg_CreateMatrix(&DofData_P->A3, &DofData_P->Solver,
-			DofData_P->NbrDof, DofData_P->NbrDof) ;
-    LinAlg_CreateVector(&DofData_P->b3, &DofData_P->Solver, DofData_P->NbrDof) ;
-  }
-
-  if (DofData_P->Flag_Init[0] < 2 && Flag_Jac) {
-    DofData_P->Flag_Init[0] = 2 ;
-    LinAlg_CreateMatrix(&DofData_P->Jac, &DofData_P->Solver,
-			DofData_P->NbrDof, DofData_P->NbrDof) ;
-    LinAlg_CreateVector(&DofData_P->res, &DofData_P->Solver, DofData_P->NbrDof) ;
-    LinAlg_CreateVector(&DofData_P->dx, &DofData_P->Solver, DofData_P->NbrDof) ;
-  }
-}
-
-/* ------------------------------------------------------------------------ */
 /*  T r e a t m e n t _ O p e r a t i o n                                   */
 /* ------------------------------------------------------------------------ */
 
@@ -618,7 +613,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_SYSTEMCOMMAND :
-      //system(Operation_P->Case.SystemCommand.String);
       BlockingSystemCall(Operation_P->Case.SystemCommand.String);
       break ;
 
@@ -939,11 +933,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if(!Flag_SolveAgain)
 	LinAlg_Solve(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
 		     &DofData_P->CurrentSolution->x,
-                     (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 : Operation_P->Rank) ;
+                     (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 :
+                     Operation_P->Rank) ;
       else
 	LinAlg_SolveAgain(&DofData_P->A, &DofData_P->b, &DofData_P->Solver,
                           &DofData_P->CurrentSolution->x,
-                          (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 : Operation_P->Rank) ;
+                          (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 :
+                          Operation_P->Rank) ;
 
       Flag_CPU = 1 ;
       break ;
@@ -974,7 +970,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       LinAlg_SolveNL(&DofData_P->A, &DofData_P->b, &DofData_P->Jac, &DofData_P->res,
                      &DofData_P->Solver, &DofData_P->dx,
-                     (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 : Operation_P->Rank) ;
+                     (Message::GetCommSize() > 1 || Operation_P->Rank < 0) ? 0 :
+                     Operation_P->Rank) ;
       Flag_CPU = 1 ;
       break ;
 
@@ -1017,7 +1014,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
       LinAlg_AddMatrixMatrix(&DofData_P->A, &DofData_P->Jac, &DofData_P->A) ;
-      LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;// res = b(xn)-A(xn)*xn
+      // res = b(xn)-A(xn)*xn
+      LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
       LinAlg_DummyVector(&DofData_P->res) ;
 
       if(!Flag_SolveAgain)
@@ -1108,14 +1106,16 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	/* calculate residual with trial solution */
 	ReGenerate_System(DefineSystem_P, DofData_P, DofData_P0) ;
-	LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
+	LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x,
+                                &DofData_P->res) ;
 	LinAlg_SubVectorVector(&DofData_P->b, &DofData_P->res, &DofData_P->res) ;
 
 	/* check whether norm of residual is smaller than previous ones */
 	LinAlg_VectorNorm2(&DofData_P->res, &Norm);
 	LinAlg_GetVectorSize(&DofData_P->res, &N);
 	Norm /= (double)N;
-	Message::Info(" adaptive relaxation : factor = %8f   Norm residual = %10.4e", Frelax, Norm) ;
+	Message::Info(" adaptive relaxation : factor = %8f   Norm residual = %10.4e",
+                      Frelax, Norm) ;
 
 	if (Norm < Error_Prev) {
 	  Error_Prev = Norm;
@@ -1507,7 +1507,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Message::Cpu("");
 	  LinAlg_CreateSolver(&DofData_P->Solver_MH_moving, "MH_moving.par") ;
 	  LinAlg_CreateMatrix(&DofData_P->A_MH_moving, &DofData_P->Solver_MH_moving,
-			      NbrDof_MH_moving*Current.NbrHar, NbrDof_MH_moving*Current.NbrHar) ;
+			      NbrDof_MH_moving*Current.NbrHar,
+                              NbrDof_MH_moving*Current.NbrHar) ;
 	  LinAlg_CreateVector(&DofData_P->b_MH_moving, &DofData_P->Solver_MH_moving,
 			      NbrDof_MH_moving*Current.NbrHar) ;
 	  LinAlg_ZeroMatrix(&DofData_P->A_MH_moving) ;
@@ -1565,7 +1566,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       LinAlg_CreateMatrix(&DofData_P->A_MH_moving2, &DofData_P->Solver,
 			  DofData_P->NbrDof, DofData_P->NbrDof) ;
-      LinAlg_CreateVector(&DofData_P->b_MH_moving2, &DofData_P->Solver, Current.DofData->NbrDof) ;
+      LinAlg_CreateVector(&DofData_P->b_MH_moving2, &DofData_P->Solver,
+                          Current.DofData->NbrDof) ;
       LinAlg_ZeroMatrix(&DofData_P->A_MH_moving2) ;
       LinAlg_ZeroVector(&DofData_P->b_MH_moving2) ;
 
@@ -2087,7 +2089,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       if (NbrHar1 != 1 || NbrHar2 < 2 || NbrDof2 != (NbrDof1*NbrHar2))
 	Message::Error("Uncompatible System definitions for FourierTransform"
-                       " (NbrHar = %d|%d   NbrDof = %d|%d)", NbrHar1, NbrHar2, NbrDof1, NbrDof2) ;
+                       " (NbrHar = %d|%d   NbrDof = %d|%d)",
+                       NbrHar1, NbrHar2, NbrDof1, NbrDof2) ;
 
       if(!DofData2_P->Solutions){
 	DofData2_P->Solutions = List_Create(1, 1, sizeof(struct Solution)) ;
@@ -2280,9 +2283,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
           std::string path(Name_Path), file("file_"), mat("mat_"), vec("vec_");
           std::string name(Operation_P->Case.Print.FileOut ? Operation_P->Case.Print.FileOut :
                            DefineSystem_P->Name);
-	  LinAlg_PrintMatrix(fp, &DofData_P->A, true, (path + file + mat + name + ".m").c_str(),
+	  LinAlg_PrintMatrix(fp, &DofData_P->A, true,
+                             (path + file + mat + name + ".m").c_str(),
                              (mat + name).c_str()) ;
-	  LinAlg_PrintVector(fp, &DofData_P->b, true, (path + file + vec + name + ".m").c_str(),
+	  LinAlg_PrintVector(fp, &DofData_P->b, true,
+                             (path + file + vec + name + ".m").c_str(),
                              (vec + name).c_str()) ;
 	}
       }
@@ -2375,7 +2380,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_TIMELOOPADAPTIVE :
       Message::Info("TimeLoopAdaptve ...") ;
-      Operation_TimeLoopAdaptive(Resolution_P, Operation_P, DofData_P0, GeoData_P0, &Flag_Break) ;
+      Operation_TimeLoopAdaptive(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                                 &Flag_Break) ;
       break;
 
       /*  -->  I t e r a t i v e L o o p N            */
@@ -2383,7 +2389,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     case OPERATION_ITERATIVELOOPN :
       Message::Info("IterativeLoopN ...") ;
-      Operation_IterativeLoopN(Resolution_P, Operation_P, DofData_P0, GeoData_P0, &Flag_Break) ;
+      Operation_IterativeLoopN(Resolution_P, Operation_P, DofData_P0, GeoData_P0,
+                               &Flag_Break) ;
       break;
 
       /*  -->  T i m e L o o p R u n g e K u t t a  */
