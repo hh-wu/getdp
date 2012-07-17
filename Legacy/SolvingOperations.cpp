@@ -1918,7 +1918,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Current.Time += Current.DTime ;
 	Current.TimeStep += 1. ;
 
-	Message::Direct("Theta Time = %.8g s (TimeStep %d)", Current.Time,
+	Message::Info(1, "Theta Time = %.8g s (TimeStep %d)", Current.Time,
                       (int)Current.TimeStep) ;
         Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
                                        Current.Time);
@@ -2026,12 +2026,13 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if (Num_Iteration > Operation_P->Case.IterativeLoop.NbrMaxIteration){
 	Num_Iteration = Operation_P->Case.IterativeLoop.NbrMaxIteration ;
         Flag_IterativeLoopConverged = 0;
-	Message::Direct("IterativeLoop did not converge (%d iterations, residual %g)",
-		       Num_Iteration, Current.RelativeDifference);
+	Message::Info(1, "IterativeLoop did not converge (%d iterations, residual %g)",
+                      Num_Iteration, Current.RelativeDifference);
       }
       else{
-	Message::Direct("IterativeLoop converged (%d iteration%s, residual %g)",
-		       Num_Iteration, Num_Iteration > 1 ? "s" : "", Current.RelativeDifference);
+	Message::Info(1, "IterativeLoop converged (%d iteration%s, residual %g)",
+                      Num_Iteration, Num_Iteration > 1 ? "s" : "",
+                      Current.RelativeDifference);
       }
       Current.Iteration = Save_Iteration ;
       break ;

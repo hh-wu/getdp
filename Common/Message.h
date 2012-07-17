@@ -54,6 +54,7 @@ class Message {
   static void Error(const char *fmt, ...);
   static void Warning(const char *fmt, ...);
   static void Info(const char *fmt, ...);
+  static void Info(int verbosity, const char *fmt, ...);
   static void Direct(const char *fmt, ...);
   static void Check(const char *fmt, ...);
   static void Debug(const char *fmt, ...);

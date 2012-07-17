@@ -164,6 +164,27 @@ void Message::Warning(const char *fmt, ...)
   }
 }
 
+void Message::Info(int verbosity, const char *fmt, ...)
+{
+  if(_commRank || _verbosity < verbosity) return;
+  char str[1024];
+  va_list args;
+  va_start(args, fmt);
+  myvsnprintf(str, sizeof(str), fmt, args);
+  va_end(args);
+
+  if(_client){
+    _client->Info(str);
+  }
+  else if(_onelabClient){
+    _onelabClient->sendInfo(str);
+  }
+  else{
+    fprintf(stdout, "Info    : %s\n", str);
+    fflush(stdout);
+  }
+}
+
 void Message::Info(const char *fmt, ...)
 {
   if(_commRank || _verbosity < 2) return;
