@@ -210,16 +210,17 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   /*  -------------------------------------------------  */
 
   switch (EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative) {
-  case NODT_   : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NoDt   ; break;
-  case DT_     : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_Dt     ; break;
-  case DTDOF_  : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDof  ; break;
-  case DTDT_   : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDt   ; break;
-  case DTDTDOF_: FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDtDof; break;
-  case JACNL_  : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_JacNL  ; break;
-  case NEVERDT_: FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NeverDt; break;
-  case DTNL_   : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtNL   ; break;
-  default      : Message::Error("Unknown type of Operator for Galerkin term (%d)",
-                                EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
+  case NODT_        : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NoDt   ; break;
+  case DT_          : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_Dt     ; break;
+  case DTDOF_       : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDof  ; break;
+  case DTDT_        : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDt   ; break;
+  case DTDTDOF_     : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDtDof; break;
+  case JACNL_       : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_JacNL  ; break;
+  case DTDOFJACNL_  : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDofJacNL; break;
+  case NEVERDT_     : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NeverDt; break;
+  case DTNL_        : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtNL   ; break;
+  default           : Message::Error("Unknown type of Operator for Galerkin term (%d)",
+                                     EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
   }
 
 

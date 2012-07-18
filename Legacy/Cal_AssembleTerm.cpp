@@ -205,7 +205,7 @@ void Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[])
 	Message::Error("DtNL not ready for separate assembly with TimeLoopNewmark");
 	break ;
       case TIME_GEAR :
-        Message::Error("DtNL not ready for separate assembly with Gear's method");
+        Message::Error("DtNL not ready for Gear's method");
         break ;
       }
     }
@@ -314,15 +314,16 @@ void Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[])
       switch (Current.TypeTime) {
       case TIME_STATIC :
       case TIME_THETA :
+        Dof_AssembleInMat(Equ, Dof, Current.NbrHar, &Val[0],
+                          &Current.DofData->Jac, NULL) ;
+        break ;
+      case TIME_GEAR :
 	Dof_AssembleInMat(Equ, Dof, Current.NbrHar, &Val[0], 
 			  &Current.DofData->Jac, NULL) ;
 	break ;
       case TIME_NEWMARK :
 	Message::Error("JacNL not ready for Newmark");
 	break ;
-      case TIME_GEAR :
-        Message::Error("JacNL not ready for Gear's method");
-        break ;
       }
     }
     else {
@@ -330,6 +331,43 @@ void Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[])
 	Dof_AssembleInMat(Equ+k, Dof+k, Current.NbrHar, &Val[k], 
 			  &Current.DofData->Jac, NULL) ;
     }
+  }
+}
+
+void Cal_AssembleTerm_DtDofJacNL(struct Dof * Equ, struct Dof * Dof, double Val[])
+{
+  double  tmp[2] ;
+
+  if(Current.TypeAssembly == ASSEMBLY_SEPARATE)
+    Message::Error("DtDofJacNL not ready for separate assembly");
+  else {
+    if (Current.NbrHar == 1) {
+      switch (Current.TypeTime) {
+      case TIME_STATIC :
+        if(!Warning_DtStatic){
+          Message::Warning("First order time derivative in static problem (discarded)");
+          Warning_DtStatic = 1 ;
+        }
+        break;
+      case TIME_THETA :
+        if ( fabs(Current.Theta - 1.0) > 1e-3 )
+          Message::Error("Theta method not ready for nonlinear problems when Theta != 1.0");
+        tmp[0] = Val[0]/Current.DTime;
+        Dof_AssembleInMat(Equ, Dof, Current.NbrHar, tmp,
+                          &Current.DofData->Jac, NULL);
+        break ;
+      case TIME_NEWMARK :
+        Message::Error("DtDofJacNL not ready for Newmark");
+        break ;
+      case TIME_GEAR :
+        tmp[0] = Val[0] / (Current.bCorrCoeff * Current.DTime);
+        Dof_AssembleInMat(Equ, Dof, Current.NbrHar, tmp,
+                          &Current.DofData->Jac, NULL);
+        break ;
+      }
+    }
+    else
+      Message::Error("DtDofJacNL not ready for multi-harmonic");
   }
 }
 

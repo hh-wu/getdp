@@ -120,6 +120,22 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
 
   // Calculation of predictor integration constants
   // ----------------------------------------------
+  
+  /* The new solution is predicted by extrapolating the past solutions
+   * by a polynom of order "PredOrder". The polynom coefficients
+   * are calculated by solving a matrix equation A*coeff=b for the
+   * exactness constraints.
+   * E.g. for PredOder=3 we have:
+   *
+   *  _                                        _     _   _     _         _
+   * | 1        1          1          1         |   | a_0 |   | 1         |
+   * | (t_n)^1  (t_n-1)^1  (t_n-2)^1  (t_n-3)^1 |   | a_1 |   | (t_n+1)^1 |
+   * | (t_n)^2  (t_n-1)^2  (t_n-2)^2  (t_n-3)^2 | * | a_2 | = | (t_n+1)^2 |
+   * | (t_n)^3  (t_n-1)^3  (t_n-2)^3  (t_n-3)^3 |   | a_3 |   | (t_n+1)^3 |
+   * |_                                        _|   |_   _|   |_         _|
+   *
+   */
+  
   if (Current.PredOrder == 0)
     Current.aPredCoeff[0] = 1.0;
   else {
@@ -149,6 +165,22 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
 
   // Calculation of corrector integration constants
   // ----------------------------------------------
+  
+  /*
+   * The coefficients for the Gear method (BDF) are also
+   * calculated by solving a matrix equation A*coeff=b for the
+   * exactness constraints.
+   * E.g. for CorrOder=3 we have:
+   *
+   *  _                                                        _     _    _     _         _
+   * | 1        1          1          0                         |   | a_0  |   | 1         |
+   * | (t_n)^1  (t_n-1)^1  (t_n-2)^1  1*(t_n+1 - t_n)           |   | a_1  |   | (t_n+1)^1 |
+   * | (t_n)^2  (t_n-1)^2  (t_n-2)^2  2*(t_n+1 - t_n)*(t_n+1)^1 | * | a_2  | = | (t_n+1)^2 |
+   * | (t_n)^3  (t_n-1)^3  (t_n-2)^3  3*(t_n+1 - t_n)*(t_n+1)^2 |   | b_-1 |   | (t_n+1)^3 |
+   * |_                                                        _|   |_    _|   |_         _|
+   *
+   */
+  
   if (Current.TypeTime == TIME_GEAR) {
 
     for (int c=0; c < Current.CorrOrder; c++) {

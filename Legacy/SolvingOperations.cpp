@@ -87,10 +87,13 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
     switch (Current.TypeTime) {
     case TIME_THETA :
       index = List_Nbr(DofData_P->Solutions)-4 ;
+	  break;
     case TIME_GEAR :
       index = List_Nbr(DofData_P->Solutions)-8 ; // With -8 we store 6 past solutions
+	  break;
     case TIME_NEWMARK :
       index = List_Nbr(DofData_P->Solutions)-4 ;
+	  break;
     }
 
     if(index >= 0){
@@ -470,6 +473,8 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
 
   TreatmentStatus = Save_TreatmentStatus ;
 }
+
+
 
 
 /* ------------------------------------------------------------------------ */
@@ -2500,4 +2505,5 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
   Message::Barrier();
 }
+
 

@@ -649,7 +649,51 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
 
     case WQ_TIMEDERIVATIVE :
-      if (Current.NbrHar == 1) {
+      if (Current.TypeTime == TIME_GEAR) {
+        Cal_WholeQuantity(Element, QuantityStorage_P0,
+                          WholeQuantity_P->Case.TimeDerivative.WholeQuantity,
+                          u, v, w, -1, 0, &Stack[0][Index]);
+
+        for (k = 0 ; k < Current.NbrSystem ; k++)
+          (Current.DofData_P0+k)->Save_CurrentSolution = (Current.DofData_P0+k)->CurrentSolution;
+        Save_TimeStep = Current.TimeStep ;
+        Save_Time = Current.Time ;
+        Save_TimeImag = Current.TimeImag ;
+
+        for (int n = 0; n < Current.CorrOrder; n++) {
+
+          for (k = 0 ; k < Current.NbrSystem ; k++){
+            Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
+            if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= n+1)
+              ((Current.DofData_P0+k)->CurrentSolution) -= 1 ;
+            else
+              Message::Error("Too few solutions for Dt with Gears method");
+          }
+
+          Current.TimeStep = Current.DofData->CurrentSolution->TimeStep ;
+          Current.Time = Current.DofData->CurrentSolution->Time ;
+          Current.TimeImag = Current.DofData->CurrentSolution->TimeImag ;
+
+          Cal_WholeQuantity(Element, QuantityStorage_P0,
+                            WholeQuantity_P->Case.TimeDerivative.WholeQuantity,
+                            u, v, w, -1, 0, &Stack[0][Index+1]);
+          Cal_AddMultValue(&Stack[0][Index], &Stack[0][Index+1],
+                           -Current.aCorrCoeff[n], &Stack[0][Index]);
+
+        }
+
+        Cal_MultValue(&Stack[0][Index], 1./(Current.bCorrCoeff*Current.DTime), &Stack[0][Index]);
+
+        for (k = 0 ; k < Current.NbrSystem ; k++)
+          (Current.DofData_P0+k)->CurrentSolution =
+              (Current.DofData_P0+k)->Save_CurrentSolution;
+        Current.TimeStep = Save_TimeStep ;
+        Current.Time = Save_Time ;
+        Current.TimeImag = Save_TimeImag ;
+
+
+      }
+      else if (Current.NbrHar == 1) {
 	Cal_WholeQuantity(Element, QuantityStorage_P0,
 			  WholeQuantity_P->Case.TimeDerivative.WholeQuantity,
 			  u, v, w, -1, 0, &Stack[0][Index]) ;

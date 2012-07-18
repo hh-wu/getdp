@@ -190,6 +190,7 @@ DtDof                        return tDtDof;
 DtDt                         return tDtDt;
 DtDtDof                      return tDtDtDof;
 JacNL                        return tJacNL;
+DtDofJacNL                   return tDtDofJacNL;
 NeverDt                      return tNeverDt;
 DtNL                         return tDtNL;
 AtAnteriorTimeStep           return tAtAnteriorTimeStep;
