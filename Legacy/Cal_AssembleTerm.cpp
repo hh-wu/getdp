@@ -10,6 +10,7 @@
 #include "ProData.h"
 #include "DofData.h"
 #include "Message.h"
+#include <math.h>
 
 #define SQU(a)     ((a)*(a)) 
 
