@@ -510,64 +510,50 @@ void F_dhdb_Ducharne(F_ARG)
 // Functions for Vectorial Incremental Nonconservative Consistent Hysteresis
 // Model
 
-double get_h_from_b (double h, double b_reversible, double Js0, double alpha)
-{
-  // Input : h =  current magnetic field
-  //         b_reversible = b_tot-sum(\Js_k) = \mu0 h - J^0
-  //         Js0 = magnetic polarisation of the reversible part of J 
-  //               (i.e. of J^0)
-  //         alpha = characteristic magnetic field inversely proportional to the
-  //                 slope of the curve at origin
-  // Parametric saturation curve : h_rev = alpha * atanh (J/Js)
-  //                               J = Js tanh(h_rev/alpha)
-  return( b_reversible / (MU0 + Js0 * tanh(h/alpha)/h));
-  //return( 1/MU0*b_reversible - 1/MU0 * Js0 * tanh(h/alpha) );
-}
 
-void F_nu_Vinch_pc(F_ARG)
+void F_nu_Vinch(F_ARG)
 {
   // input  :
   // (A+0)->Val[0] = norm of the reversible inductance
-  //      -- norm(b_rev) = norm(b_tot-sum(\Js_k))
-  // (A+1)->Val[0] = magnetic polarisation at saturation (reversible case)
-  //      -- Js0
+  //       -- norm(b_rev) = norm(b_tot-sum(\Js_k))
+  // (A+1)->Val[0] = saturation magnetisation of the reversible case
+  //       -- Js_0
   // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the
-  //      slope of the curve at origin -- alpha
+  //       slope of the curve at origin -- alpha
   // output : nu
 
   double chi_mag ;
-  double b_rev  = (A+0)->Val[0]; // b_rev := \mu_0 h + J^0
+  double b_rev  = (A+0)->Val[0];
   double Js0    = (A+1)->Val[0];
   double alpha  = (A+2)->Val[0];
+  double h=0;
 
-  double h = 1 ; // start point for the solution of the implicit equation
-  double TOL = 1e-8 ;
-  const int MAX_ITER = 100 ;
-  int iter = 1 ;
-
-  if(!b_rev) 
+  if(!b_rev) // singularity
     chi_mag = Js0/alpha/MU0 ;
-  else { // Picard iteration to find h
-    double hprec;
+  else { // Newton iteration to find h
+    double TOL=1e-7;
+    double r, drdh, dh;
+    int MAX_ITER=50, iter=1;
     do {
-      hprec = h;
-      h = get_h_from_b(h, b_rev, Js0, alpha) ;
-
+      r    = MU0 * h + Js0 * tanh(h/alpha) - b_rev ;
+      drdh = MU0     + Js0/alpha/SQU(cosh(h/alpha)) ;
+      dh   = -r/drdh ;
+      h   += dh ;
       iter++;
-    }  while( (fabs(h-hprec) > TOL) && (iter < MAX_ITER) );
-    Message::Info("%d %g %f Picard iterations in Nu_Vinch", iter, fabs(h-hprec), h);
-    if (iter >= MAX_ITER) 
-      Message::Warning("No convergence in nu_Vinch!!!!!!");
+    }  while( (fabs(dh) > TOL) && (iter < MAX_ITER) );
+    //Message::Info("%d %.2f %.2f NR iterations in Nu_Vinch", iter, b_rev, h);
+
+    if(iter>=MAX_ITER)
+      Message::Error("Newton did not converge: h = %lf \n", h);
     chi_mag = Js0*tanh(h/alpha)/h/MU0;
   }
-
   V->Type = SCALAR;
-  V->Val[0] = 1/MU0/(1+chi_mag); // reluctivity value
+  V->Val[0] = 1/MU0/(1+chi_mag); // reluctivity
 }
 
 double norm(double a[3])
 {
-  return sqrt(a[0] * a[0] + a[1] * a[1] + a[2] * a[2]);
+  return sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
 }
 
 bool limiter(const double max, double v[3])
@@ -575,7 +561,7 @@ bool limiter(const double max, double v[3])
   double mod = norm(v);
   if(mod >= max){
     for (int n=0; n<3; n++)
-      v[n]*=max/mod;
+      v[n] *= max/mod;
     return true;
   }
   return false;
@@ -596,133 +582,6 @@ void F_Update_Jk(F_ARG)
 #include <gsl/gsl_multiroots.h>
 #include <gsl/gsl_multimin.h>
 
-// Newton for updating nu_vinch
-struct h_vinch_context
-{
-  double b_rev, Js0, alpha;
-};
-
-static int h_vinch(const gsl_vector *hh, void *param, gsl_vector *h_vinch)
-{
-  struct h_vinch_context * c = (struct h_vinch_context *)param;
-  double h = gsl_vector_get(hh, 0);
-  double b_rev  = c->b_rev;
-  double Js0    = c->Js0;
-  double alpha  = c->alpha ;
-
-  // Input : h =  current magnetic field
-  //         b_reversible = b_tot-sum(\Js_k)
-  //         Js0 = saturation magnetisation
-  //         alpha = characteristic magnetic field inversely proportional to the
-  //                 slope of the curve at origin
-  // Parametric saturation curve : h_rev = alpha * atanh (J/Js)
-  //                               J = Js tanh(h_rev/alpha)
-
-  double h_rev = b_rev/(MU0 + Js0*tanh(h/alpha)/h) ;
-
-  gsl_vector_set(h_vinch, 0, h_rev);
-
-  return GSL_SUCCESS;
-}
-
-static int dh_vinch(const gsl_vector *hh, void *param, gsl_matrix *j)
-{
-  struct h_vinch_context *c = (struct h_vinch_context *)param;
-  double h = gsl_vector_get(hh, 0);
-  double b_rev  = c->b_rev;
-  double Js0    = c->Js0;
-  double alpha  = c->alpha ;
-
-  //double nom   = -b_rev * Js0 *(1/(alpha*h*SQU(cosh(h/alpha))) + tanh(h/alpha) * (-1/SQU(h))) ;
-  //double denom = SQU( MU0 + Js0*tanh(h/alpha)/h ) ;
-  double nom = b_rev * (MU0*h + Js0*tanh(h/alpha)) - b_rev*h *(MU0 + Js0/(alpha * SQU(cosh(h/alpha)))) ;
-  double denom = SQU( MU0 *h + Js0*tanh(h/alpha) ) ;
-
-  double jac = (denom!=0) ? nom/denom : nom ;
-
-  gsl_matrix_set(j, 0, 0, jac);
-
-  return GSL_SUCCESS;
-}
-
-static int hdh(const gsl_vector *hh, void *param, gsl_vector *hv, gsl_matrix *j)
-{
-  h_vinch(hh, param, hv);
-  dh_vinch(hh, param, j);
-  return GSL_SUCCESS;
-}
-
-static int get_h_from_b_newton(gsl_multiroot_function_fdf HDH, double *h)
-{
-  const int MAX_ITER = 25;
-  const gsl_multiroot_fdfsolver_type* TYPE = gsl_multiroot_fdfsolver_gnewton;
-
-  int iter = 0, status;
-
-  gsl_multiroot_fdfsolver* solver = gsl_multiroot_fdfsolver_alloc(TYPE, 1);
-
-  /* vector h contains */
-  gsl_vector *X = gsl_vector_alloc(1);
-  gsl_vector_set(X, 0, *h);
-  gsl_multiroot_fdfsolver_set(solver, &HDH, X);
-
-  do {
-    iter++;
-    status = gsl_multiroot_fdfsolver_iterate(solver);
-
-    *h = gsl_vector_get(solver->x, 0);
-    printf("iter %d h_rev %.16g\n", iter ,h[0]);
-    status = gsl_multiroot_test_residual(solver->f, 1.e-12);
-  } while(status == GSL_CONTINUE && iter < MAX_ITER);
-
-  gsl_multiroot_fdfsolver_free(solver);
-  gsl_vector_free(X);
-
-  if(status == GSL_SUCCESS)
-    return 1;
-  else
-    return 0;
-}
-
-void F_nu_Vinch(F_ARG)
-{
-  // input  :
-  // (A+0)->Val[0] = norm of the reversible inductance
-  //       -- norm(b_rev) = norm(b_tot-sum(\Js_k))
-  // (A+1)->Val[0] = saturation magnetisation of the reversible case
-  //       -- Js_0
-  // (A+2)->Val[0] = characteristic magnetic field inversely proportional to the
-  //       slope of the curve at origin -- alpha
-  // output : nu
-
-  double chi_mag ;
-  double b_rev  = (A+0)->Val[0];
-  double Js0    = (A+1)->Val[0];
-  double alpha  = (A+2)->Val[0];
-  double h=0;
-
-  if(!b_rev) // singularity
-    chi_mag = Js0/alpha/MU0 ; 
-  else { // Newton iteration to find h
-    double TOL=1e-7;
-    double r,drdh,dh;
-    int MAX_ITER=50, iter=1;
-    do {
-      r = MU0*h+Js0*tanh(h/alpha)-b_rev;
-      drdh=MU0+Js0/alpha/SQU(cosh(h/alpha));
-      dh = -r/drdh ;
-      h+=dh;
-      iter++;
-    }  while( (fabs(dh) > TOL) && (iter < MAX_ITER) );
-    //Message::Info("%d %.2f %.2f NR iterations in Nu_Vinch", iter, b_rev, h);
-
-    if(iter>=MAX_ITER)
-      Message::Error("Newton did not converge: h = %lf \n", h);
-    chi_mag = Js0*tanh(h/alpha)/h/MU0;
-  }
-  V->Type = SCALAR;
-  V->Val[0] = 1/MU0/(1+chi_mag); // reluctivity
-}
 
 struct omega_f_context
 {
@@ -734,21 +593,22 @@ double omega_f(const gsl_vector *v, void *params)
 {
   double J[3], dJ[3] ;
   struct omega_f_context * p = (struct omega_f_context *)params;
-  double h[3]  =  {p->h[0],  p->h[1],  p->h[2]};
-  double Jp[3]  = {p->Jp[0], p->Jp[1], p->Jp[2]};
+  double h[3]  = { p->h[0] , p->h[1] , p->h[2]  };
+  double Jp[3] = { p->Jp[0], p->Jp[1], p->Jp[2] };
   double chi   = p->chi;
   double Js    = p->Js;
   double alpha = p->alpha;
 
   for (int i=0; i<3; i++) J[i] = gsl_vector_get(v, i);
-  limiter(0.9999*Js, J); // ??? Jk is assumed to be smaller than Js
+  limiter(0.9999*Js, J) ;
 
   double nJ = norm(J);
   for (int i=0; i<3; i++) dJ[i] = J[i]-Jp[i]; // J-Jp
 
-  double val = Js*alpha*( nJ/Js*atanh(nJ/Js) + 0.5*log(1-SQU(nJ/Js)) ); // u(J)
-  val -= J[0]*h[0] + J[1]*h[1] + J[2]*h[2]; // -J.h
-  val += chi * norm(dJ); // chi | J-Jp |
+  double val =
+    Js*alpha*( nJ/Js*atanh(nJ/Js) + 0.5*log(1-SQU(nJ/Js)) ) // u(J)
+    - (J[0]*h[0] + J[1]*h[1] + J[2]*h[2]) // -J.h
+    + chi * norm(dJ); // chi | J-Jp |
 
   return(val);
 }
@@ -757,7 +617,7 @@ void omega_df (const gsl_vector *v, void *params, gsl_vector *df)
 {
   double J[3], dJ[3] ;
   struct omega_f_context * p = (struct omega_f_context *)params;
-  double h[3]  = {p->h[0], p->h[1], p->h[2]};
+  double h[3]  = {p->h[0] , p->h[1] , p->h[2] };
   double Jp[3] = {p->Jp[0], p->Jp[1], p->Jp[2]};
   double chi   = p->chi;
   double Js    = p->Js;
@@ -766,18 +626,18 @@ void omega_df (const gsl_vector *v, void *params, gsl_vector *df)
   double grad[3] = {0.,0.,0.};
 
   for (int i=0; i<3; i++) J[i] = gsl_vector_get(v, i);
-  limiter(0.9999*Js, J); // ??? Jk is assumed to be smaller than Js
+  limiter(0.9999*Js, J);
+
   double nJ = norm(J);
   for (int i=0; i<3; i++)  dJ[i] = J[i]-Jp[i]; // J-Jp
   double ndJ = norm(dJ);
 
   for (int i=0; i<3; i++) {
-    if (nJ) grad[i] += alpha*atanh(nJ/Js)*J[i]/nJ;
+    if (nJ)  grad[i] += alpha*atanh(nJ/Js)*J[i]/nJ;
     grad[i] -= h[i];
     if (ndJ) grad[i] += chi*dJ[i]/ndJ;
+    gsl_vector_set(df, i, grad[i]);
   }
-
-  for (int i=0; i<3; i++) gsl_vector_set(df, i, grad[i]);
 
 }
 
@@ -796,14 +656,14 @@ void F_Update_Jk(F_ARG)
   double omegap;
 
   struct omega_f_context context ;
-  context.h[0]  = (A+0)->Val[0]; 
-  context.h[1]  = (A+0)->Val[1]; 
+  context.h[0]  = (A+0)->Val[0];
+  context.h[1]  = (A+0)->Val[1];
   context.h[2]  = (A+0)->Val[2];
 
-  double J[3] = { (A+1)->Val[0], (A+1)->Val[1], (A+1)->Val[2] }; 
+  double J[3] = { (A+1)->Val[0], (A+1)->Val[1], (A+1)->Val[2] };
 
-  context.Jp[0] = (A+2)->Val[0]; 
-  context.Jp[1] = (A+2)->Val[1]; 
+  context.Jp[0] = (A+2)->Val[0];
+  context.Jp[1] = (A+2)->Val[1];
   context.Jp[2] = (A+2)->Val[2];
 
   context.chi   = (A+3)->Val[0];
@@ -811,8 +671,9 @@ void F_Update_Jk(F_ARG)
   context.alpha = (A+5)->Val[0];
  //http://www.gnu.org/software/gsl/manual/html_node/Multimin-Algorithms-with-Derivatives.html
 
-  const gsl_multimin_fdfminimizer_type *TYPE 
+  const gsl_multimin_fdfminimizer_type *TYPE
     = gsl_multimin_fdfminimizer_conjugate_fr;
+
   //const gsl_multimin_fdfminimizer_type *TYPE = gsl_multimin_fdfminimizer_conjugate_pr;
   //const gsl_multimin_fdfminimizer_type *TYPE = gsl_multimin_fdfminimizer_vector_bfgs2;
   //const gsl_multimin_fdfminimizer_type *TYPE = gsl_multimin_fdfminimizer_vector_bfgs;
@@ -821,8 +682,8 @@ void F_Update_Jk(F_ARG)
   gsl_multimin_function_fdf my_func;
 
   my_func.n      = 3;
-  my_func.f      = omega_f;
-  my_func.df     = omega_df;
+  my_func.f      = omega_f  ;
+  my_func.df     = omega_df ;
   my_func.fdf    = omega_fdf;
   my_func.params = &context;
 
@@ -838,11 +699,15 @@ void F_Update_Jk(F_ARG)
     omegap = solver->f;
     status = gsl_multimin_fdfminimizer_iterate (solver);
     if (status) break; // check if solver is stuck
-  }  while( fabs(solver->f-omegap)>TOL*10 && iter < MAX_ITER);
+  }  while( fabs(solver->f-omegap)>1e-2 && iter < MAX_ITER);
+
 
   V->Type = VECTOR ;
   for (int i=0 ; i<3 ; i++)
-    V->Val[i] = gsl_vector_get (solver->x, i);
+    J[i] = gsl_vector_get (solver->x, i) ;
+  limiter(0.9999*(A+4)->Val[0], J) ;// +++ added - To FH: does this make sense???
+
+  for (int i=0 ; i<3 ; i++) V->Val[i] = J[i];
 
   gsl_multimin_fdfminimizer_free (solver);
   gsl_vector_free (x);
@@ -914,8 +779,8 @@ void F_Update_Jk_sd(F_ARG) {
   double Js   =(A+4)->Val[0];
   double alpha=(A+5)->Val[0];
 
-  //limiter(0.9999*Js, Jk ) ; // why do I need this ?
-  //limiter(0.9999*Js, Jkp);  // ????????
+  limiter(0.9999*Js, Jk ) ; // why do I need this ?
+  limiter(0.9999*Js, Jkp);  // ????????
 
   fct_d_omega(h, Jk, Jkp, chi, Js, alpha, d_omega) ;     // updating the derivative of omega
   double omega = fct_omega(h, Jk, Jkp, chi, Js, alpha) ; // updating omega
@@ -931,7 +796,7 @@ void F_Update_Jk_sd(F_ARG) {
       for (int n = 0; n < 3; n++)
         min_Jk[n] = Jk[n] - sdfactor * d_omega[n] ; // gradient descent algorithm
 
-      //limiter(0.9999*Js, min_Jk);
+      limiter(0.9999*Js, min_Jk);
       min_omega = fct_omega(h, min_Jk, Jkp, chi, Js, alpha); //updating omega
       if (iter>MAX_ITER)
         Message::Warning("Too many iterations to find the minimum of omega: min_omega %g, omega-TOL/10 %g", min_omega, omega-TOL/10);
