@@ -513,19 +513,18 @@ void F_dhdb_Ducharne(F_ARG)
 double get_h_from_b (double h, double b_reversible, double Js0, double alpha)
 {
   // Input : h =  current magnetic field
-  //         b_reversible = b_tot-sum(\Js_k)
-  //         Js0 = magnetic polarisation at saturation
+  //         b_reversible = b_tot-sum(\Js_k) = \mu0 h - J^0
+  //         Js0 = magnetic polarisation of the reversible part of J 
+  //               (i.e. of J^0)
   //         alpha = characteristic magnetic field inversely proportional to the
   //                 slope of the curve at origin
   // Parametric saturation curve : h_rev = alpha * atanh (J/Js)
   //                               J = Js tanh(h_rev/alpha)
-  // return( b_reversible / (MU0 + Js0 * tanh(h/alpha)/h));
-
-  return( 1/MU0*b_reversible - 1/MU0 * Js0 * tanh(h/alpha) );
-
+  return( b_reversible / (MU0 + Js0 * tanh(h/alpha)/h));
+  //return( 1/MU0*b_reversible - 1/MU0 * Js0 * tanh(h/alpha) );
 }
 
-void F_nu_Vinch(F_ARG)
+void F_nu_Vinch_pc(F_ARG)
 {
   // input  :
   // (A+0)->Val[0] = norm of the reversible inductance
@@ -537,25 +536,28 @@ void F_nu_Vinch(F_ARG)
   // output : nu
 
   double chi_mag ;
-  double b_rev  = (A+0)->Val[0];
+  double b_rev  = (A+0)->Val[0]; // b_rev := \mu_0 h + J^0
   double Js0    = (A+1)->Val[0];
   double alpha  = (A+2)->Val[0];
 
   double h = 1 ; // start point for the solution of the implicit equation
-  double TOL = 1e-12 ;
-  const int MAX_ITER = 1000 ;
-  int iter = 0 ;
+  double TOL = 1e-8 ;
+  const int MAX_ITER = 100 ;
+  int iter = 1 ;
 
-  if(!b_rev) // singularity
+  if(!b_rev) 
     chi_mag = Js0/alpha/MU0 ;
   else { // Picard iteration to find h
-    double newh = get_h_from_b(h, b_rev, Js0, alpha) ;
-    while( fabs(newh - h) > TOL && iter < MAX_ITER){
-      newh = get_h_from_b(h, b_rev, Js0, alpha) ;
-      h = newh;
+    double hprec;
+    do {
+      hprec = h;
+      h = get_h_from_b(h, b_rev, Js0, alpha) ;
+
       iter++;
-    }
-    if (iter>=MAX_ITER) Message::Warning("No convergence in nu_Vinch!!!!!!");
+    }  while( (fabs(h-hprec) > TOL) && (iter < MAX_ITER) );
+    Message::Info("%d %g %f Picard iterations in Nu_Vinch", iter, fabs(h-hprec), h);
+    if (iter >= MAX_ITER) 
+      Message::Warning("No convergence in nu_Vinch!!!!!!");
     chi_mag = Js0*tanh(h/alpha)/h/MU0;
   }
 
@@ -669,8 +671,7 @@ static int get_h_from_b_newton(gsl_multiroot_function_fdf HDH, double *h)
     status = gsl_multiroot_fdfsolver_iterate(solver);
 
     *h = gsl_vector_get(solver->x, 0);
-
-    //printf("iter %d h_rev %.16g\n", iter ,h[0]);
+    printf("iter %d h_rev %.16g\n", iter ,h[0]);
     status = gsl_multiroot_test_residual(solver->f, 1.e-12);
   } while(status == GSL_CONTINUE && iter < MAX_ITER);
 
@@ -683,7 +684,7 @@ static int get_h_from_b_newton(gsl_multiroot_function_fdf HDH, double *h)
     return 0;
 }
 
-void F_nu_Vinch_nr(F_ARG)
+void F_nu_Vinch(F_ARG)
 {
   // input  :
   // (A+0)->Val[0] = norm of the reversible inductance
@@ -698,26 +699,27 @@ void F_nu_Vinch_nr(F_ARG)
   double b_rev  = (A+0)->Val[0];
   double Js0    = (A+1)->Val[0];
   double alpha  = (A+2)->Val[0];
-
-  struct h_vinch_context context = {b_rev, Js0, alpha} ;
-  gsl_multiroot_function_fdf HDH;
-
-  HDH.f = &h_vinch;
-  HDH.df = &dh_vinch;
-  HDH.fdf = &hdh;
-  HDH.n = 1;
-  HDH.params = &context;
-
-  double h[1] = {1} ; // start point for the solution of the implicit equation
+  double h=0;
 
   if(!b_rev) // singularity
-    chi_mag = Js0/alpha/MU0 ;
+    chi_mag = Js0/alpha/MU0 ; 
   else { // Newton iteration to find h
-    if(!get_h_from_b_newton(HDH, &h[0]))
-      Message::Error("Newton did not converge: h = %lf \n", h[0]);
-    chi_mag = Js0*tanh(h[0]/alpha)/h[0]/MU0;
-  }
+    double TOL=1e-7;
+    double r,drdh,dh;
+    int MAX_ITER=50, iter=1;
+    do {
+      r = MU0*h+Js0*tanh(h/alpha)-b_rev;
+      drdh=MU0+Js0/alpha/SQU(cosh(h/alpha));
+      dh = -r/drdh ;
+      h+=dh;
+      iter++;
+    }  while( (fabs(dh) > TOL) && (iter < MAX_ITER) );
+    //Message::Info("%d %.2f %.2f NR iterations in Nu_Vinch", iter, b_rev, h);
 
+    if(iter>=MAX_ITER)
+      Message::Error("Newton did not converge: h = %lf \n", h);
+    chi_mag = Js0*tanh(h/alpha)/h/MU0;
+  }
   V->Type = SCALAR;
   V->Val[0] = 1/MU0/(1+chi_mag); // reluctivity
 }
@@ -789,22 +791,28 @@ void F_Update_Jk(F_ARG)
 {
   const int MAX_ITER = 100;
   int iter = 0, status;
-  double step_size = 0.01; //0.01
+  double step_size = 0.01;
   double TOL = 1e-4;
   double omegap;
 
-  double J[3] = { (A+2)->Val[0], (A+2)->Val[1], (A+2)->Val[2] }; //********Ruth A+2-> A+1
-  //double J[3] = { (A+1)->Val[0], (A+1)->Val[1], (A+1)->Val[2] }; //********Ruth A+2-> A+1
-
   struct omega_f_context context ;
-  context.h[0]  = (A+0)->Val[0]; context.h[1]  = (A+0)->Val[1]; context.h[2]  = (A+0)->Val[2];
-  context.Jp[0] = (A+2)->Val[0]; context.Jp[1] = (A+2)->Val[1]; context.Jp[2] = (A+2)->Val[2];
+  context.h[0]  = (A+0)->Val[0]; 
+  context.h[1]  = (A+0)->Val[1]; 
+  context.h[2]  = (A+0)->Val[2];
+
+  double J[3] = { (A+1)->Val[0], (A+1)->Val[1], (A+1)->Val[2] }; 
+
+  context.Jp[0] = (A+2)->Val[0]; 
+  context.Jp[1] = (A+2)->Val[1]; 
+  context.Jp[2] = (A+2)->Val[2];
+
   context.chi   = (A+3)->Val[0];
   context.Js    = (A+4)->Val[0];
   context.alpha = (A+5)->Val[0];
+ //http://www.gnu.org/software/gsl/manual/html_node/Multimin-Algorithms-with-Derivatives.html
 
-  // http://www.gnu.org/software/gsl/manual/html_node/Multimin-Algorithms-with-Derivatives.html
-  const gsl_multimin_fdfminimizer_type *TYPE = gsl_multimin_fdfminimizer_conjugate_fr;
+  const gsl_multimin_fdfminimizer_type *TYPE 
+    = gsl_multimin_fdfminimizer_conjugate_fr;
   //const gsl_multimin_fdfminimizer_type *TYPE = gsl_multimin_fdfminimizer_conjugate_pr;
   //const gsl_multimin_fdfminimizer_type *TYPE = gsl_multimin_fdfminimizer_vector_bfgs2;
   //const gsl_multimin_fdfminimizer_type *TYPE = gsl_multimin_fdfminimizer_vector_bfgs;
@@ -832,7 +840,6 @@ void F_Update_Jk(F_ARG)
     if (status) break; // check if solver is stuck
   }  while( fabs(solver->f-omegap)>TOL*10 && iter < MAX_ITER);
 
-
   V->Type = VECTOR ;
   for (int i=0 ; i<3 ; i++)
     V->Val[i] = gsl_vector_get (solver->x, i);
@@ -844,7 +851,7 @@ void F_Update_Jk(F_ARG)
 #endif
 
 //===================================================
-// V. Francois original implementation with steppest descent
+// V. Francois original implementation with steepest descent
 //===================================================
 
 double fct_omega(double h[3], double Jk[3], double Jkp[3], double chi, double Js, double alpha)
