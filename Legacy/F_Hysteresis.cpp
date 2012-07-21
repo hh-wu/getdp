@@ -510,6 +510,10 @@ void F_dhdb_Ducharne(F_ARG)
 // Functions for Vectorial Incremental Nonconservative Consistent Hysteresis
 // Model
 
+double norm(double a[3])
+{
+  return sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
+}
 
 void F_nu_Vinch(F_ARG)
 {
@@ -522,39 +526,45 @@ void F_nu_Vinch(F_ARG)
   //       slope of the curve at origin -- alpha
   // output : nu
 
-  double chi_mag ;
-  double b_rev  = (A+0)->Val[0];
+  double vb_rev[3]  = {(A+0)->Val[0], (A+0)->Val[1], (A+0)->Val[2]};
+  double b_rev  = norm(vb_rev);
+  //double b_rev  = (A+0)->Val[1]; // I am taking just the Y-component, so I keep track of the sign..
   double Js0    = (A+1)->Val[0];
   double alpha  = (A+2)->Val[0];
-  double h=0;
+  double h = 0.;
+  double  chi_mag ;
 
-  if(!b_rev) // singularity
+  if(!b_rev)
     chi_mag = Js0/alpha/MU0 ;
   else { // Newton iteration to find h
     double TOL=1e-7;
     double r, drdh, dh;
-    int MAX_ITER=50, iter=1;
+    int MAX_ITER=50, iter=0;
     do {
+      iter++;
       r    = MU0 * h + Js0 * tanh(h/alpha) - b_rev ;
       drdh = MU0     + Js0/alpha/SQU(cosh(h/alpha)) ;
       dh   = -r/drdh ;
       h   += dh ;
-      iter++;
     }  while( (fabs(dh) > TOL) && (iter < MAX_ITER) );
     //Message::Info("%d %.2f %.2f NR iterations in Nu_Vinch", iter, b_rev, h);
 
     if(iter>=MAX_ITER)
       Message::Error("Newton did not converge: h = %lf \n", h);
-    chi_mag = Js0*tanh(h/alpha)/h/MU0;
+    chi_mag = Js0/MU0* ((fabs(h)<1e-4) ? 1/alpha : tanh(h/alpha)/h ) ;
   }
-  V->Type = SCALAR;
-  V->Val[0] = 1/MU0/(1+chi_mag); // reluctivity
+
+  //printf("chi_mag %.3f h %.3f nu_vinch %.3f \n", chi_mag, h, 1/MU0/(1+chi_mag) );
+  //V->Type = SCALAR;
+  //V->Val[0] = 1/MU0/(1+chi_mag); // reluctivity
+
+  V->Type = TENSOR_SYM ; // For extension to vectorial case ... Now it does not make any difference, of course.
+  V->Val[0] = 1/MU0/(1+chi_mag)  ;  V->Val[1] = 0.0  ;  V->Val[2] = 0 ;
+  V->Val[3] = 1/MU0/(1+chi_mag)  ;  V->Val[4] = 0 ;
+  V->Val[5] = 1/MU0/(1+chi_mag)  ;
 }
 
-double norm(double a[3])
-{
-  return sqrt(a[0]*a[0] + a[1]*a[1] + a[2]*a[2]);
-}
+
 
 bool limiter(const double max, double v[3])
 {
@@ -688,8 +698,7 @@ void F_Update_Jk(F_ARG)
   my_func.params = &context;
 
   gsl_vector* x = gsl_vector_alloc (3);
-
-  for (int i=0; i<3; i++) gsl_vector_set(x, i, J[i]) ;
+  for (int i=0; i<3; i++) gsl_vector_set(x, i, J[i]) ; // initial value for the minimizer
 
   gsl_multimin_fdfminimizer *solver = gsl_multimin_fdfminimizer_alloc(TYPE, 3);
   gsl_multimin_fdfminimizer_set (solver, &my_func, x, step_size, TOL);
@@ -701,8 +710,11 @@ void F_Update_Jk(F_ARG)
     if (status) break; // check if solver is stuck
   }  while( fabs(solver->f-omegap)>1e-2 && iter < MAX_ITER);
 
-
+  /*
   V->Type = VECTOR ;
+  for (int i=0 ; i<3 ; i++)
+    V->Val[i] = gsl_vector_get (solver->x, i) ;
+  */
   for (int i=0 ; i<3 ; i++)
     J[i] = gsl_vector_get (solver->x, i) ;
   limiter(0.9999*(A+4)->Val[0], J) ;// +++ added - To FH: does this make sense???
