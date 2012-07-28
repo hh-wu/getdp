@@ -6523,7 +6523,7 @@ Affectation :
             List_Add(c->Value.ListOfFloat, &tmp[i]);
         }
         else
-          vyyerror("Cannot append list to float");
+          vyyerror("Cannot erase list from float");
       }
       else
 	vyyerror("Unknown Constant: %s", $1);

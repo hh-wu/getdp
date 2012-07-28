@@ -428,11 +428,11 @@ void Print_Expression()
 
     switch (EX->Type) {
     case CONSTANT :
-      Message::Check("  %s = %.10g;\n", EX->Name, EX->Case.Constant);
+      Message::Check("  %s[] = %.10g;\n", EX->Name, EX->Case.Constant);
       break;
 
     case WHOLEQUANTITY :
-      Message::Check("  %s = ", EX->Name);
+      Message::Check("  %s[] = ", EX->Name);
       Print_WholeQuantity(EX->Case.WholeQuantity, NULL);
       Message::Check(";\n");
       break;
@@ -442,7 +442,7 @@ void Print_Expression()
 	   j < List_Nbr(EX->Case.PieceWiseFunction.ExpressionPerRegion); j++) {
 	EXPR = (struct ExpressionPerRegion*)
 	  List_Pointer(EX->Case.PieceWiseFunction.ExpressionPerRegion, j);
-	Message::Check("  %s [%d] = Exp[%s];\n",
+	Message::Check("  %s[%d] = Exp[%s];\n",
                        EX->Name, EXPR->RegionIndex,
                        Get_ExpressionName(EXPR->ExpressionIndex));
       }
