@@ -424,7 +424,7 @@ void BF_GradNode_2F(struct Element * Element, int NumEntity,
 
   case PRISM :
     switch(NumEntity) {
-    default : Message::Error("BF_GradNode_2F not ready for PYRAMID"); 
+    default : Message::Error("BF_GradNode_2F not ready for PRISM");
       // cannot do this yet in getdp, as dofs should only be
       // associated with quad-faces: if really necessary we could
       // implement actual 15 and 18-node prisms
@@ -451,7 +451,7 @@ void BF_GradNode_2F(struct Element * Element, int NumEntity,
     break ;
 
   default :
-    Message::Error("Unkown type of Element in BF_GradNode_2F");
+    Message::Error("Unknown type of Element in BF_GradNode_2F");
     break ;
   }
 
