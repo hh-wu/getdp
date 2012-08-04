@@ -3,6 +3,7 @@
 EXTRA_VERSION=$1
 GETDP=${HOME}/src/getdp
 WEB_BIN=geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/Windows
+CMAKE=cmake
 
 export PETSC_DIR=${HOME}/src/petsc-3.1-p8
 export SLEPC_DIR=${HOME}/src/slepc-3.1-p6
@@ -23,7 +24,7 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 mkdir ${GETDP}/bin
 cd ${GETDP}/bin &&\
   ${CMAKE} -DGETDP_EXTRA_VERSION:string="${EXTRA_VERSION}"\
-           -DCMAKE_PREFIX_PATH:path="/usr/local"\
+           -DCMAKE_PREFIX_PATH:path="/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw"\
            -DENABLE_PETSC=0 -DENABLE_SPARSKIT=1\
   ${GETDP} >> ${LOG} 2>&1
 cd ${GETDP}/bin && make html >> ${LOG} 2>&1
@@ -44,7 +45,7 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 mkdir ${GETDP}/bin
 cd ${GETDP}/bin &&\
   ${CMAKE} -DGETDP_EXTRA_VERSION:string="${EXTRA_VERSION}"\
-           -DCMAKE_PREFIX_PATH:path="/usr/local"\
+           -DCMAKE_PREFIX_PATH:path="/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw"\
            -DENABLE_PETSC=1 -DENABLE_SPARSKIT=0\
   ${GETDP} >> ${LOG} 2>&1
 cd ${GETDP}/bin && make html >> ${LOG} 2>&1
@@ -65,7 +66,7 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 mkdir ${GETDP}/bin
 cd ${GETDP}/bin &&\
   ${CMAKE} -DGETDP_EXTRA_VERSION:string="${EXTRA_VERSION}"\
-           -DCMAKE_PREFIX_PATH:path="/usr/local"\
+           -DCMAKE_PREFIX_PATH:path="/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw"\
            -DENABLE_PETSC=1 -DENABLE_SPARSKIT=0\
   ${GETDP} >> ${LOG} 2>&1
 cd ${GETDP}/bin && make html >> ${LOG} 2>&1
@@ -100,7 +101,7 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 mkdir ${GETDP}/bin
 cd ${GETDP}/bin &&\
   ${CMAKE} -DGETDP_EXTRA_VERSION:string="${EXTRA_VERSION}"\
-           -DCMAKE_PREFIX_PATH:path="/usr/local"\
+           -DCMAKE_PREFIX_PATH:path="/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw"\
            -DENABLE_PETSC=1 -DENABLE_SPARSKIT=0\
            -DENABLE_NX=1\
   ${GETDP} >> ${LOG} 2>&1
@@ -114,7 +115,7 @@ cd ${GETDP} && svn update >> ${LOG} 2>&1
 mkdir ${GETDP}/bin
 cd ${GETDP}/bin &&\
   ${CMAKE} -DGETDP_EXTRA_VERSION:string="${EXTRA_VERSION}"\
-           -DCMAKE_PREFIX_PATH:path="/usr/local"\
+           -DCMAKE_PREFIX_PATH:path="/usr/local;/usr/x86_64-w64-mingw32/sys-root/mingw"\
            -DENABLE_PETSC=1 -DENABLE_SPARSKIT=0\
            -DENABLE_NX=1\
   ${GETDP} >> ${LOG} 2>&1

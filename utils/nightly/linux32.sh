@@ -3,6 +3,7 @@
 EXTRA_VERSION=$1
 GETDP=${HOME}/src/getdp
 WEB_BIN=geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/Linux
+CMAKE=/usr/local/bin/cmake
 
 export PETSC_DIR=${HOME}/src/petsc-3.1-p8
 export SLEPC_DIR=${HOME}/src/slepc-3.1-p6
