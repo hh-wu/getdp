@@ -1,4 +1,4 @@
-                 GetDP is copyright (C) 1997-2011
+                 GetDP is copyright (C) 1997-2012
 
                           Patrick Dular
                   <patrick.dular at ulg.ac.be>
@@ -24,13 +24,13 @@ specific, written prior permission.  The University of California makes no
 representations about the suitability of this software for any purpose.  It is
 provided "as is" without express or implied warranty.
 
-The Arpack code (in the Arpack subdirectory) was written by Danny Sorensen,
-Richard Lehoucq, Chao Yang and Kristi Maschhoff from the Dept. of Computational
-& Applied Mathematics at Rice University, Houston, Texas, USA. See
-http://www.caam.rice.edu/software/ARPACK/ for more info.
+This version of GetDP may contain code (in the contrib/Arpack subdirectory)
+written by Danny Sorensen, Richard Lehoucq, Chao Yang and Kristi Maschhoff from
+the Dept. of Computational & Applied Mathematics at Rice University, Houston,
+Texas, USA. See http://www.caam.rice.edu/software/ARPACK/ for more info.
 
-This version of GetDP may contain code (in the Sparskit subdirectory) copyright
-(C) 1990 Yousef Saad: check the configuration options.
+This version of GetDP may contain code (in the contrib/Sparskit subdirectory)
+copyright (C) 1990 Yousef Saad: check the configuration options.
 
 Thanks to the following folks who have contributed by providing fresh ideas on
 theoretical or programming topics, who have sent patches, requests for changes

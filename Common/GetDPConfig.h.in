@@ -1,4 +1,4 @@
-// GetDP - Copyright (C) 1997-2008 P. Dular, C. Geuzaine
+// GetDP - Copyright (C) 1997-2012 P. Dular, C. Geuzaine
 //
 // See the LICENSE.txt file for license information. Please report all
 // bugs and problems to <getdp@geuz.org>.
@@ -6,18 +6,24 @@
 #ifndef _GETDP_CONFIG_H_
 #define _GETDP_CONFIG_H_
 
-#undef HAVE_ARPACK
-#undef HAVE_GMSH
-#undef HAVE_GSL
-#undef HAVE_LEGACY
-#undef HAVE_NO_FORTRAN
-#undef HAVE_NO_SOCKLEN_T
-#undef HAVE_NX
-#undef HAVE_PETSC
-#undef HAVE_SLEPC
-#undef HAVE_SPARSKIT
-#undef HAVE_ZITSOL
+#cmakedefine HAVE_ARPACK
+#cmakedefine HAVE_GMSH
+#cmakedefine HAVE_GSL
+#cmakedefine HAVE_LEGACY
+#cmakedefine HAVE_MPI
+#cmakedefine HAVE_NO_FORTRAN
+#cmakedefine HAVE_NO_INTPTR_T
+#cmakedefine HAVE_NO_SOCKLEN_T
+#cmakedefine HAVE_NO_STDINT_H
+#cmakedefine HAVE_NO_VSNPRINTF
+#cmakedefine HAVE_NX
+#cmakedefine HAVE_PETSC
+#cmakedefine HAVE_SLEPC
+#cmakedefine HAVE_SPARSKIT
+#cmakedefine HAVE_ZITSOL
 
-#define GETDP_CONFIG_OPTIONS ""
+#define GETDP_CONFIG_OPTIONS "${GETDP_CONFIG_OPTIONS}"
+
+${GETDP_CONFIG_PRAGMAS}
 
 #endif

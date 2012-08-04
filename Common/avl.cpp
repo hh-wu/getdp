@@ -15,26 +15,30 @@
  * that the above copyright notice appear in all copies and that both that
  * copyright notice and this permission notice appear in supporting
  * documentation, and that the name of the University of California not
- * be used in advertising or publicity pertaining to distribution of 
+ * be used in advertising or publicity pertaining to distribution of
  * the software without specific, written prior permission.  The University
  * of California makes no representations about the suitability of this
  * software for any purpose.  It is provided "as is" without express or
  * implied warranty.
  *
- * THE UNIVERSITY OF CALIFORNIA DISCLAIMS ALL WARRANTIES WITH REGARD TO 
- * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND 
+ * THE UNIVERSITY OF CALIFORNIA DISCLAIMS ALL WARRANTIES WITH REGARD TO
+ * THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND
  * FITNESS, IN NO EVENT SHALL THE UNIVERSITY OF CALIFORNIA BE LIABLE FOR
  * ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER
  * RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF
- * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN 
+ * CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
 // Modified for Gmsh (C++, 64 bits, ...)
 
-#include <stdio.h>
+#include "GetDPConfig.h"
+#if !defined(HAVE_NO_STDINT_H)
 #include <stdint.h>
-
+#elif defined(HAVE_NO_INTPTR_T)
+typedef unsigned long intptr_t;
+#endif
+#include <stdio.h>
 #include "avl.h"
 #include "MallocUtils.h"
 
@@ -60,7 +64,7 @@ static avl_node *find_rightmost(avl_node **node_p);
 static void do_rebalance(avl_node ***stack_nodep, int stack_n);
 static void rotate_left(avl_node **node_p);
 static void rotate_right(avl_node **node_p);
-static void free_entry(avl_node *node, void (*key_free)(void *key), 
+static void free_entry(avl_node *node, void (*key_free)(void *key),
                        void (*value_free)(void *value));
 static avl_node *new_node(void *key, void *value);
 static int do_check_tree(avl_node *node, int (*compar)(const void *key1, const void *key2),
@@ -130,7 +134,7 @@ int avl_delete(avl_tree *tree, void **key_p, void **value_p)
     void *key = *key_p;
     int (*compare)(const void*, const void*) = tree->compar, diff;
     avl_node **stack_nodep[32];
-    
+
     node_p = &tree->root;
 
     /* Walk down the tree saving the path; return if not found */
@@ -316,11 +320,11 @@ int avl_extremum(avl_tree *tree, int side, void **value_p)
     node = tree->root;
     if (node == NIL(avl_node)) return 0;
 
-    if (side == AVL_MOST_LEFT) 
+    if (side == AVL_MOST_LEFT)
       while (node->left != NIL(avl_node)) node = node->left;
     else
       while (node->right != NIL(avl_node)) node = node->right;
-    
+
     if (value_p != NIL(void *)) {
       *value_p = node->value;
       return 1;
@@ -338,7 +342,7 @@ static void free_entry(avl_node *node, void (*key_free)(void *key), void (*value
         FREE(node);
     }
 }
-    
+
 void avl_free_table(avl_tree *tree, void (*key_free)(void *key), void (*value_free)(void *value))
 {
     free_entry(tree->root, key_free, value_free);
@@ -373,11 +377,11 @@ int avl_check_tree(avl_tree *tree)
     return error;
 }
 
-static int do_check_tree(avl_node *node, 
+static int do_check_tree(avl_node *node,
                          int (*compar)(const void *key1, const void *key2), int *error)
 {
     int l_height, r_height, comp_height, bal;
-    
+
     if (node == NIL(avl_node)) {
         return -1;
     }
@@ -387,7 +391,7 @@ static int do_check_tree(avl_node *node,
 
     comp_height = XRNMAX(l_height, r_height) + 1;
     bal = r_height - l_height;
-    
+
     if (comp_height != node->height) {
         (void) printf("Bad height for %p: computed=%d stored=%d\n",
                       (void*)node, comp_height, node->height);
@@ -395,21 +399,21 @@ static int do_check_tree(avl_node *node,
     }
 
     if (bal > 1 || bal < -1) {
-        (void) printf("Out of balance at node %p, balance = %d\n", 
+        (void) printf("Out of balance at node %p, balance = %d\n",
                       (void*)node, bal);
         ++*error;
     }
 
-    if (node->left != NIL(avl_node) && 
+    if (node->left != NIL(avl_node) &&
                     (*compar)(node->left->key, node->key) > 0) {
-        (void) printf("Bad ordering between %p and %p", 
+        (void) printf("Bad ordering between %p and %p",
                       (void*)node, (void*)node->left);
         ++*error;
     }
-    
-    if (node->right != NIL(avl_node) && 
+
+    if (node->right != NIL(avl_node) &&
                     (*compar)(node->key, node->right->key) > 0) {
-        (void) printf("Bad ordering between %p and %p", 
+        (void) printf("Bad ordering between %p and %p",
                       (void*)node, (void*)node->right);
         ++*error;
     }

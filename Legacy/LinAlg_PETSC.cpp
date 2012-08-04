@@ -1325,15 +1325,6 @@ static PetscErrorCode _NLFormJacobian(SNES snes, Vec x, Mat *J, Mat *PC,
   return 0;
 }
 
-static PetscErrorCode _NLFormInitialGuess(Vec x, PetscScalar val)
-{
-  // FormInitialGuess - Computes initial guess
-
-  VecSet(x,val);
-
-  return 0;
-}
-
 static PetscErrorCode _mySnesMonitor(SNES snes, PetscInt it, PetscReal rnorm, void *mctx)
 {
   Message::Info("%3ld SNES Residual norm %14.12e", (long)it, rnorm);

@@ -83,7 +83,7 @@ void LinAlg_CreateSolver(gSolver *Solver, const char *SolverDataFileName)
   if(SolverDataFileName){
     // name in .pro file
     if(SolverDataFileName[0] == '/' || SolverDataFileName[0] == '\\'){
-      // -> absolute if it starts with / or \
+      // -> absolute if it starts with '/' or '\'
       strcpy(FileName, SolverDataFileName);
     }
     else{

@@ -190,7 +190,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   struct PostQuantity   *NCPQ_P = NULL, *CPQ_P = NULL ;
   double                 Pulsation ;
   int                    i, Order = 0 ;
-  char                   FileName[256], AddExt[100], NewCoordsFileName[256] ;
+  char                   FileName[256], AddExt[100] ;
 
   if(PostSubOperation_P->FileOut){
     if(PostSubOperation_P->FileOut[0] == '/' ||
@@ -323,7 +323,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
           MVertex* v = entities[i]->mesh_vertices[j];
           std::vector<double> xyz(3);
           if(!data->searchVector(v->x(), v->y(), v->z(), &xyz[0]))
-            Message::Error("Did not find new coordinate Vector at point (%g,%g,%g) from file %s", v->x(), v->y(), v->z(), FileName);
+            Message::Error("Did not find new coordinate Vector at point (%g,%g,%g) from file %s",
+                           v->x(), v->y(), v->z(), FileName);
           newcoords[v] = xyz;
         }
       }
@@ -335,6 +336,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
         it->first->z() = it->second[2];
       }
 
+      char NewCoordsFileName[256];
       if(PostSubOperation_P->NewCoordinatesFile[0] == '/' ||
          PostSubOperation_P->NewCoordinatesFile[0] == '\\'){
         strcpy(NewCoordsFileName, PostSubOperation_P->NewCoordinatesFile);
@@ -345,8 +347,7 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
       }
 
       m->writeMSH(NewCoordsFileName);
-      Message::Info("Wrote new coordinates in file %s",
-                    NewCoordsFileName);
+      Message::Info("Wrote new coordinates in file %s", NewCoordsFileName);
       delete m;
       delete PView::list[iview];
       PView::list.pop_back();

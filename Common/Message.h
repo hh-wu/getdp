@@ -13,9 +13,9 @@
 
 class GmshClient;
 namespace onelab{ class client; }
-class Constant;
-class Expression;
-class Group;
+struct Constant;
+struct Expression;
+struct Group;
 
 // a class to manage messages
 class Message {

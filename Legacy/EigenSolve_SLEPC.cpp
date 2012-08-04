@@ -164,7 +164,6 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
     }
 
     for(int l = 0; l < DofData_P->NbrDof; l += gCOMPLEX_INCREMENT){
-      int j = l / gCOMPLEX_INCREMENT;
 #if defined(PETSC_USE_COMPLEX)
       double var_r = (double)PetscRealPart(tmpr[l]);
       double var_i = (double)PetscImaginaryPart(tmpr[l]);

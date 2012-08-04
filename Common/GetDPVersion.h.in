@@ -1,0 +1,20 @@
+// GetDP - Copyright (C) 1997-2012 P. Dular, C. Geuzaine
+//
+// See the LICENSE.txt file for license information. Please report all
+// bugs and problems to <getdp@geuz.org>.
+
+#ifndef _GETDP_VERSION_H_
+#define _GETDP_VERSION_H_
+
+#define GETDP_MAJOR_VERSION ${GETDP_MAJOR_VERSION}
+#define GETDP_MINOR_VERSION ${GETDP_MINOR_VERSION}
+#define GETDP_PATCH_VERSION ${GETDP_PATCH_VERSION}
+#define GETDP_EXTRA_VERSION "${GETDP_EXTRA_VERSION}"
+#define GETDP_VERSION       "${GETDP_VERSION}"
+#define GETDP_DATE          "${GETDP_DATE}"
+#define GETDP_HOST          "${GETDP_HOST}"
+#define GETDP_PACKAGER      "${GETDP_PACKAGER}"
+#define GETDP_OS            "${GETDP_OS}"
+#define GETDP_SHORT_LICENSE "${GETDP_SHORT_LICENSE}"
+
+#endif

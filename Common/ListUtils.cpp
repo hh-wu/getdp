@@ -7,13 +7,17 @@
 //   Marc Ume
 //
 
+#include "GetDPConfig.h"
+#if !defined(HAVE_NO_STDINT_H)
+#include <stdint.h>
+#elif defined(HAVE_NO_INTPTR_T)
+typedef unsigned long intptr_t;
+#endif
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <sys/types.h>
-#include <stdint.h>
-#include "GetDPConfig.h"
 #include "MallocUtils.h"
 #include "ListUtils.h"
 #include "TreeUtils.h"
@@ -258,7 +262,7 @@ void List_Copy(List_T * a, List_T * b)
 
 List_T *ListOfDouble2ListOfInt(List_T *dList)
 {
-  int n = List_Nbr(dList); 
+  int n = List_Nbr(dList);
   List_T *iList = List_Create(n, n, sizeof(int));
   for(int i = 0; i < n; i++){
     double d;
@@ -278,10 +282,7 @@ static int safe_fwrite(const void *ptr, size_t size, size_t nmemb, FILE * stream
   size_t result = fwrite(ptr, size, nmemb, stream);
 
   if(result < nmemb) {
-    if(result >= 0)     /* Partial write */
-      Message::Error("Disk full");
-    else
-      Message::Error(strerror(errno));
+    Message::Error(strerror(errno));
     if(fflush(stream) < 0)
       Message::Error("EOF reached");
     if(fclose(stream) < 0)
@@ -344,10 +345,10 @@ int List_Suppress(List_T *liste, void *data,
 {
   char *ptr;
   int len;
-  
+
   ptr = (char*)List_PQuery(liste,data,fcmp) ;
   if (ptr == NULL) return(0);
-  
+
   liste->n--;
   len = liste->n - (((intptr_t)ptr - (intptr_t)liste->array) / liste->size);
   if (len > 0) memmove(ptr, ptr + liste->size, len * liste->size);
@@ -440,8 +441,8 @@ int List_LQuery(List_T *liste, void *data,
 		 int (*fcmp)(const void *a, const void *b), int first)
 {
   char *ptr;
-  
-  if (first == 1) { 
+
+  if (first == 1) {
     ptr = (char *) lolofind(data,liste->array,liste->n,liste->size,fcmp);
   }
   else {

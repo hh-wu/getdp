@@ -1,0 +1,763 @@
+# GetDP - Copyright (C) 1997-2012 P. Dular, C. Geuzaine
+#
+# See the LICENSE.txt file for license information. Please report all
+# bugs and problems to <getdp@geuz.org>.
+
+cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+
+# if CMAKE_BUILD_TYPE is specified use it; otherwise set the default
+# build type to "RelWithDebInfo" ("-O2 -g" with gcc) prior to calling
+# project()
+if(DEFINED CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose build type")
+else(DEFINED CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose build type")
+endif(DEFINED CMAKE_BUILD_TYPE)
+
+option(ENABLE_ARPACK "Enable Arpack eigensolvers" ON)
+option(ENABLE_BLAS_LAPACK "Use BLAS and Lapack for linear algebra" ON)
+option(ENABLE_FORTRAN "Enable Fortran components" ON)
+option(ENABLE_GMSH "Enable Gmsh functions" ON)
+option(ENABLE_GSL "Enable GSL functions" ON)
+option(ENABLE_LEGACY "Use legacy assembler" ON)
+option(ENABLE_MPI "Enable MPI parallelization" OFF)
+option(ENABLE_NX "Enable NX extensions" OFF)
+option(ENABLE_PETSC "Enable PETSc linear algebra solvers" ON)
+option(ENABLE_SLEPC "Enable SLEPc eigensolvers" ON)
+option(ENABLE_SPARSKIT "Enable Sparskit linear algebra solvers" OFF)
+option(ENABLE_ZITSOL "Enable Zitsol linear algebra solvers" OFF)
+
+if(ENABLE_FORTRAN)
+  project(getdp CXX C Fortran)
+else(ENABLE_FORTRAN)
+  project(getdp CXX C)
+endif(ENABLE_FORTRAN)
+
+set(GETDP_MAJOR_VERSION 2)
+set(GETDP_MINOR_VERSION 2)
+set(GETDP_PATCH_VERSION 2)
+set(GETDP_EXTRA_VERSION "" CACHE STRING "GetDP extra version string")
+
+set(GETDP_VERSION "${GETDP_MAJOR_VERSION}.${GETDP_MINOR_VERSION}")
+set(GETDP_VERSION "${GETDP_VERSION}.${GETDP_PATCH_VERSION}${GETDP_EXTRA_VERSION}")
+set(GETDP_SHORT_LICENSE "GNU General Public License")
+
+set(GETDP_API
+  ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h 
+  ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h
+  Interface/ProData.h
+)
+
+execute_process(COMMAND date "+%Y%m%d" OUTPUT_VARIABLE DATE 
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND hostname OUTPUT_VARIABLE HOSTNAME 
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+execute_process(COMMAND whoami OUTPUT_VARIABLE PACKAGER 
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if(NOT DATE)
+  set(DATE "unknown")
+endif(NOT DATE)
+set(GETDP_DATE "${DATE}")
+
+if(NOT HOSTNAME)
+  set(HOSTNAME "unknown")
+endif(NOT HOSTNAME)
+set(GETDP_HOST "${HOSTNAME}")
+
+if(NOT PACKAGER)
+  set(PACKAGER "unknown")
+endif(NOT PACKAGER)
+set(GETDP_PACKAGER "${PACKAGER}")
+
+if(APPLE)
+  set(GETDP_OS "MacOSX")
+elseif(CYGWIN)
+  set(GETDP_OS "Windows")
+else(APPLE)
+  set(GETDP_OS "${CMAKE_SYSTEM_NAME}")
+endif(APPLE)
+
+include(CheckTypeSize)
+include(CheckFunctionExists)
+include(CheckIncludeFile)
+include(CheckCXXCompilerFlag)
+
+if(MSVC)
+  if(ENABLE_MSVC_STATIC_RUNTIME)
+    foreach(VAR
+            CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
+            CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO
+            CMAKE_C_FLAGS CMAKE_C_FLAGS_DEBUG CMAKE_C_FLAGS_RELEASE
+            CMAKE_C_FLAGS_MINSIZEREL CMAKE_C_FLAGS_RELWITHDEBINFO)
+      if(${VAR} MATCHES "/MD")
+        string(REGEX REPLACE "/MD" "/MT" ${VAR} "${${VAR}}")
+      endif(${VAR} MATCHES "/MD")
+    endforeach(VAR)
+  endif(ENABLE_MSVC_STATIC_RUNTIME)
+endif(MSVC)
+
+macro(append_getdp_src DIRNAME FILES)
+  foreach(FILE ${FILES})
+    list(APPEND LIST ${DIRNAME}/${FILE})
+  endforeach(FILE)
+  set(GETDP_SRC ${GETDP_SRC};${LIST} PARENT_SCOPE)
+  set(GETDP_DIRS ${GETDP_DIRS};${DIRNAME} PARENT_SCOPE)
+endmacro(append_getdp_src)
+
+macro(find_all_libraries VARNAME LISTNAME PATH SUFFIX)
+  set(${VARNAME})
+  list(LENGTH ${LISTNAME} NUM_LIST)
+  foreach(LIB ${${LISTNAME}})
+    find_library(FOUND_LIB ${LIB} PATHS ${PATH} PATH_SUFFIXES ${SUFFIX})
+    if(FOUND_LIB)
+      list(APPEND ${VARNAME} ${FOUND_LIB})
+    endif(FOUND_LIB)
+    set(FOUND_LIB FOUND_LIB-NOTFOUND CACHE INTERNAL "")
+    # unset(FOUND_LIB CACHE) # cleaner, but only available in cmake >= 2.6.4
+  endforeach(LIB)
+  list(LENGTH ${VARNAME} NUM_FOUND_LIBRARIES)
+  if(NUM_FOUND_LIBRARIES LESS NUM_LIST)
+    set(${VARNAME})
+  endif(NUM_FOUND_LIBRARIES LESS NUM_LIST)
+endmacro(find_all_libraries)
+
+macro(set_config_option VARNAME STRING)
+  set(${VARNAME} TRUE)
+  list(APPEND CONFIG_OPTIONS ${STRING})
+  message(STATUS "Found " ${STRING})
+endmacro(set_config_option)
+
+# check if the machine is 64 bits (this is more reliable than using
+# CMAKE_SIZEOF_VOID_P, which does not seem to work e.g. on some Suse
+# machines)
+check_type_size("void*" SIZEOF_VOID_P)
+if(SIZEOF_VOID_P EQUAL 8)
+  set_config_option(HAVE_64BIT_SIZE_T "Have64BitSizeT")
+endif(SIZEOF_VOID_P EQUAL 8)
+
+if(ENABLE_BLAS_LAPACK)
+  if(MSVC)
+    # on Windows with Visual C++ try really hard to find blas/lapack
+    # *without* requiring a Fortran compiler: 1) try to find the Intel
+    # MKL libs using the standard search path; if not found 2) try to
+    # get the reference blas/lapack libs (useful for users with no
+    # Fortran compiler and no MKL license, who can just download our
+    # precompiled "getdp-dep" package)
+    if(HAVE_64BIT_SIZE_T)
+      set(MKL_PATH em64t/lib)
+    else(HAVE_64BIT_SIZE_T)
+      set(MKL_PATH ia32/lib)
+    endif(HAVE_64BIT_SIZE_T)
+    set(MKL_LIBS_REQUIRED libguide40 mkl_intel_c mkl_intel_thread mkl_core)
+    find_all_libraries(LAPACK_LIBRARIES MKL_LIBS_REQUIRED "" ${MKL_PATH})
+    if(LAPACK_LIBRARIES)
+      set_config_option(HAVE_BLAS "Blas(IntelMKL)")
+      set_config_option(HAVE_LAPACK "Lapack(IntelMKL)")
+    else(LAPACK_LIBRARIES)
+      set(REFLAPACK_LIBS_REQUIRED lapack blas g2c gcc)
+      find_all_libraries(LAPACK_LIBRARIES REFLAPACK_LIBS_REQUIRED "" "")
+      if(LAPACK_LIBRARIES)
+        set_config_option(HAVE_BLAS "Blas(Ref)")
+        set_config_option(HAVE_LAPACK "Lapack(Ref)")
+      endif(LAPACK_LIBRARIES)
+    endif(LAPACK_LIBRARIES)
+  elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    # on Linux try to find the Intel MKL without a Fortran compiler
+    if(HAVE_64BIT_SIZE_T)
+      set(MKL_PATH lib/em64t)
+    else(HAVE_64BIT_SIZE_T)
+      set(MKL_PATH lib/32)
+    endif(HAVE_64BIT_SIZE_T)
+    set(MKL_LIBS_REQUIRED mkl_gf_lp64 iomp5 mkl_gnu_thread mkl_core guide pthread)
+    find_all_libraries(LAPACK_LIBRARIES MKL_LIBS_REQUIRED "" ${MKL_PATH})
+    if(NOT LAPACK_LIBRARIES)
+      #match lapack 9.0 on 64bit
+      set(MKL_LIBS_REQUIRED mkl_lapack mkl_em64t guide)
+      find_all_libraries(LAPACK_LIBRARIES MKL_LIBS_REQUIRED "" ${MKL_PATH})
+    endif(NOT LAPACK_LIBRARIES)
+    if(LAPACK_LIBRARIES)
+      set_config_option(HAVE_BLAS "Blas(IntelMKL)")
+      set_config_option(HAVE_LAPACK "Lapack(IntelMKL)")
+    else(LAPACK_LIBRARIES)
+      # on Linux also try to find ATLAS without a Fortran compiler,
+      # because cmake ships with a buggy FindBLAS e.g. on Ubuntu Lucid
+      # Lynx
+      set(ATLAS_LIBS_REQUIRED lapack f77blas cblas atlas)
+      find_all_libraries(LAPACK_LIBRARIES ATLAS_LIBS_REQUIRED "" "")
+      if(LAPACK_LIBRARIES)
+        set_config_option(HAVE_BLAS "Blas(ATLAS)")
+        set_config_option(HAVE_LAPACK "Lapack(ATLAS)")
+      endif(LAPACK_LIBRARIES)
+    endif(LAPACK_LIBRARIES)
+  elseif(${CMAKE_SYSTEM_NAME} MATCHES "SunOS")
+    # on SunOS we know blas and lapack are available in sunperf
+    set(LAPACK_FLAGS -library=sunperf)
+    set_config_option(HAVE_BLAS "Blas(SubPerf)")
+    set_config_option(HAVE_LAPACK "Lapack(SunPerf)")
+  elseif(APPLE)
+    # on Mac we also know that blas and lapack are available
+    set(LAPACK_LIBRARIES "-framework vecLib")
+    set_config_option(HAVE_BLAS "Blas(VecLib)")
+    set_config_option(HAVE_LAPACK "Lapack(VecLib)")
+  endif(MSVC)
+  if(NOT HAVE_BLAS OR NOT HAVE_LAPACK)
+    # if we haven't found blas and lapack without using the standard
+    # cmake tests, do it (this requires a working Fortran compiler)
+    enable_language(Fortran)
+    find_package(BLAS)
+    if(BLAS_FOUND)
+      set_config_option(HAVE_BLAS "Blas")
+      find_package(LAPACK)
+      if(LAPACK_FOUND)
+        set_config_option(HAVE_LAPACK "Lapack")
+      else(LAPACK_FOUND)
+        set(LAPACK_LIBRARIES ${BLAS_LIBRARIES})
+      endif(LAPACK_FOUND)
+      if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+        if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
+          list(APPEND LAPACK_LIBRARIES gfortran)
+        elseif(CMAKE_Fortran_COMPILER MATCHES "f95")
+          list(APPEND LAPACK_LIBRARIES gfortran)
+        elseif(CMAKE_Fortran_COMPILER MATCHES "g77")
+          list(APPEND LAPACK_LIBRARIES g2c)
+        endif(CMAKE_Fortran_COMPILER MATCHES "gfortran")
+      endif(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+    endif(BLAS_FOUND)
+  endif(NOT HAVE_BLAS OR NOT HAVE_LAPACK)
+endif(ENABLE_BLAS_LAPACK)
+
+add_subdirectory(Common)
+add_subdirectory(Interface)
+add_subdirectory(Numeric)
+
+if(ENABLE_LEGACY)
+  add_subdirectory(Legacy)
+  set_config_option(HAVE_LEGACY "Legacy")
+endif(ENABLE_LEGACY)
+
+if(ENABLE_MPI)
+   find_package(MPI)
+   if(MPI_FOUND)
+     set_config_option(HAVE_MPI "MPI")
+     list(APPEND EXTERNAL_INCLUDES ${MPI_INCLUDE_DIR})
+     list(APPEND EXTERNAL_LIBRARIES ${MPI_LIBRARIES})
+     include(CMakeForceCompiler)
+     cmake_force_cxx_compiler(${MPI_COMPILER} "MPI C++ Compiler")
+   endif(MPI_FOUND)
+endif(ENABLE_MPI)
+
+if(ENABLE_PETSC)
+  set(ENV_PETSC_DIR $ENV{PETSC_DIR})
+  set(ENV_PETSC_ARCH $ENV{PETSC_ARCH})
+  if(EXISTS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/conf/petscvariables)
+    # old-style PETSc installations (using PETSC_DIR and PETSC_ARCH)
+    set_config_option(HAVE_PETSC "PETSc")
+    file(STRINGS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/conf/petscvariables 
+         PETSC_VARIABLES NEWLINE_CONSUME)
+    # find include directories
+    list(APPEND EXTERNAL_INCLUDES ${ENV_PETSC_DIR}/include)
+    list(APPEND EXTERNAL_INCLUDES ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/include)
+    string(REGEX MATCH "PACKAGES_INCLUDES = [^\n\r]*" PETSC_PACKAGES_INCLUDES
+           ${PETSC_VARIABLES})
+    if(PETSC_PACKAGES_INCLUDES)
+      string(REPLACE "PACKAGES_INCLUDES = " "" PETSC_PACKAGES_INCLUDES
+             ${PETSC_PACKAGES_INCLUDES})
+      if(PETSC_PACKAGES_INCLUDES)
+        string(REPLACE "-I" "" PETSC_PACKAGES_INCLUDES ${PETSC_PACKAGES_INCLUDES})
+        string(REPLACE " " ";" PETSC_PACKAGES_INCLUDES ${PETSC_PACKAGES_INCLUDES})
+        foreach(VAR ${PETSC_PACKAGES_INCLUDES})
+          list(APPEND EXTERNAL_INCLUDES ${VAR})
+        endforeach(VAR)
+      endif(PETSC_PACKAGES_INCLUDES)
+    endif(PETSC_PACKAGES_INCLUDES)
+    # find libraries (<= 3.0)
+    set(PETSC_LIBS_REQUIRED petscksp petscdm petscmat petscvec petsc)
+    find_all_libraries(PETSC_LIBS PETSC_LIBS_REQUIRED 
+                       ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib "")
+    # petsc 3.1 creates only one library (libpetsc)
+    if(NOT PETSC_LIBS)
+      find_library(PETSC_LIBS petsc PATHS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/lib)
+    endif(NOT PETSC_LIBS)
+    # find slepc (needs to be linked in before petsc)
+    if(ENABLE_SLEPC)
+      set(ENV_SLEPC_DIR $ENV{SLEPC_DIR})
+      find_library(SLEPC_LIB slepc PATHS ${ENV_SLEPC_DIR}/${ENV_PETSC_ARCH}/lib)
+      if(SLEPC_LIB)
+        find_path(SLEPC_INC "slepc.h" PATHS ${ENV_SLEPC_DIR} PATH_SUFFIXES include 
+                  ${ENV_PETSC_ARCH}/include include/slepc)
+        if(SLEPC_INC)
+          set_config_option(HAVE_SLEPC "SLEPc")
+          list(APPEND EXTERNAL_LIBRARIES ${SLEPC_LIB})
+          list(APPEND EXTERNAL_INCLUDES ${SLEPC_INC}) 
+          find_path(SLEPC_INC2 "slepcconf.h" PATHS ${ENV_SLEPC_DIR} 
+                    PATH_SUFFIXES ${ENV_PETSC_ARCH}/include)
+          if(SLEPC_INC2)
+            list(APPEND EXTERNAL_INCLUDES ${SLEPC_INC2}) 
+          endif(SLEPC_INC2)
+        endif(SLEPC_INC)
+      endif(SLEPC_LIB)
+      if(NOT HAVE_SLEPC AND NOT ENV_SLEPC_DIR)
+         message("WARNING: Export SLEPC_DIR before calling cmake")
+      endif(NOT HAVE_SLEPC AND NOT ENV_SLEPC_DIR)
+    endif(ENABLE_SLEPC)
+    list(APPEND EXTERNAL_LIBRARIES ${PETSC_LIBS})
+    # find additional libraries to link with
+    string(REGEX MATCH "PACKAGES_LIBS = [^\n\r]*" PLIBS ${PETSC_VARIABLES})
+    if(PLIBS)
+      string(REPLACE "PACKAGES_LIBS = " "" PLIBS ${PLIBS})
+      string(STRIP ${PLIBS} PLIBS)
+      list(APPEND EXTERNAL_LIBRARIES "${PLIBS}")
+    endif(PLIBS)
+    string(REGEX MATCH "PETSC_EXTERNAL_LIB_BASIC = [^\n\r]*" PLIBS_BASIC ${PETSC_VARIABLES})
+    if(PLIBS_BASIC)
+      string(REPLACE "PETSC_EXTERNAL_LIB_BASIC = " "" PLIBS_BASIC ${PLIBS_BASIC})
+      string(STRIP ${PLIBS_BASIC} PLIBS_BASIC)
+      list(APPEND EXTERNAL_LIBRARIES "${PLIBS_BASIC}")
+    endif(PLIBS_BASIC)
+    string(REGEX MATCH "PCC_LINKER_LIBS = [^\n\r]*" LLIBS ${PETSC_VARIABLES})
+    if(LLIBS)
+      string(REPLACE "PCC_LINKER_LIBS = " "" LLIBS ${LLIBS})
+      string(STRIP ${LLIBS} LLIBS)
+      list(APPEND EXTERNAL_LIBRARIES "${LLIBS}")
+    endif(LLIBS)
+  else(EXISTS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/conf/petscvariables)
+    # new-style PETSc installations (in standard system directories)
+    find_library(PETSC_LIBS petsc)
+    find_path(PETSC_INC "petsc.h" PATH_SUFFIXES include/petsc)
+    if(PETSC_LIBS AND PETSC_INC)
+      set_config_option(HAVE_PETSC "PETSc")
+      if(ENABLE_SLEPC)
+        find_library(SLEPC_LIB slepc)
+        find_path(SLEPC_INC "slepc.h" PATH_SUFFIXES include/slepc)
+        if(SLEPC_LIB AND SLEPC_INC)
+          set_config_option(HAVE_SLEPC "SLEPc")
+          list(APPEND EXTERNAL_LIBRARIES ${SLEPC_LIB})
+          list(APPEND EXTERNAL_INCLUDES ${SLEPC_INC}) 
+        endif(SLEPC_LIB AND SLEPC_INC)
+      endif(ENABLE_SLEPC)
+      list(APPEND EXTERNAL_LIBRARIES ${PETSC_LIBS})
+      list(APPEND EXTERNAL_INCLUDES ${PETSC_INC}) 
+    endif(PETSC_LIBS AND PETSC_INC)
+  endif(EXISTS ${ENV_PETSC_DIR}/${ENV_PETSC_ARCH}/conf/petscvariables)
+  if(NOT HAVE_PETSC AND NOT ENV_PETSC_DIR)
+     message("WARNING: Export PETSC_DIR before calling cmake")
+  endif(NOT HAVE_PETSC AND NOT ENV_PETSC_DIR)
+  if(NOT HAVE_PETSC AND NOT ENV_PETSC_ARCH)
+     message("WARNING: Export PETSC_ARCH before calling cmake")
+  endif(NOT HAVE_PETSC AND NOT ENV_PETSC_ARCH)
+endif(ENABLE_PETSC)
+
+if(ENABLE_FORTRAN)
+  if(ENABLE_SPARSKIT AND NOT HAVE_PETSC)
+    add_subdirectory(contrib/Sparskit)
+    include_directories(contrib/Sparskit)
+    set_config_option(HAVE_SPARSKIT "Sparskit")
+    add_definitions(-DHAVE_ILU_FLOAT)
+  endif(ENABLE_SPARSKIT AND NOT HAVE_PETSC)
+
+  if(ENABLE_ZITSOL AND HAVE_PETSC AND 
+     EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/ZITSOL_1/getdp.c)
+    message("WARNING: Using experimental Zitsol code from Y. Saad.")
+    add_subdirectory(contrib/ZITSOL_1)
+    set_config_option(HAVE_ZITSOL "Zitsol")
+  endif(ENABLE_ZITSOL AND HAVE_PETSC AND 
+        EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/ZITSOL_1/getdp.c)
+
+  if(ENABLE_ARPACK AND (HAVE_LAPACK OR HAVE_PETSC))
+    add_subdirectory(contrib/Arpack)
+    set_config_option(HAVE_ARPACK "Arpack")
+  endif(ENABLE_ARPACK AND (HAVE_LAPACK OR HAVE_PETSC))
+else(ENABLE_FORTRAN)
+  set_config_option(HAVE_NO_FORTRAN "NoFortran")
+endif(ENABLE_FORTRAN)
+
+if(ENABLE_NX AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NX/Unv_Format.cpp)
+  message("WARNING: Building non-free version of GetDP with code (C) 2012 "
+          "Dr. Binde Ingenieure.")
+  add_subdirectory(contrib/NX)
+  set_config_option(HAVE_NX "NX")
+endif(ENABLE_NX AND EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NX/Unv_Format.cpp)
+
+if(ENABLE_GMSH)
+  find_library(GMSH_LIB Gmsh PATH_SUFFIXES lib)
+  find_path(GMSH_INC "Gmsh.h" PATH_SUFFIXES include gmsh include/gmsh)
+  if(GMSH_LIB AND GMSH_INC)
+    list(APPEND EXTERNAL_LIBRARIES ${GMSH_LIB})
+    list(APPEND EXTERNAL_INCLUDES ${GMSH_INC})
+    set_config_option(HAVE_GMSH "Gmsh")
+  endif(GMSH_LIB AND GMSH_INC)
+endif(ENABLE_GMSH)
+
+if(ENABLE_GSL)
+  find_library(GSL_LIB gsl PATH_SUFFIXES lib)
+  find_library(GSLCBLAS_LIB gslcblas PATH_SUFFIXES lib)
+  find_path(GSL_INC "gsl_min.h" PATH_SUFFIXES include gsl include/gsl)
+  if(GSL_LIB AND GSLCBLAS_LIB AND GSL_INC)
+    list(APPEND EXTERNAL_LIBRARIES ${GSL_LIB} ${GSLCBLAS_LIB})
+    list(APPEND EXTERNAL_INCLUDES ${GSL_INC})
+    set_config_option(HAVE_GSL "Gsl")
+  endif(GSL_LIB AND GSLCBLAS_LIB AND GSL_INC)
+endif(ENABLE_GSL)
+
+if(NOT HAVE_GSL)
+  if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NR/newt.cpp)
+    message("WARNING: Building non-free version of GetDP, with code (C) 1986-92 "
+            "Numerical Recipes Software.")
+    add_subdirectory(contrib/NR)
+  else(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NR/newt.cpp)
+    message(SEND_ERROR "Cannot compile GetDP without GSL or NR")
+  endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NR/newt.cpp)
+endif(NOT HAVE_GSL)
+
+check_function_exists(vsnprintf HAVE_VSNPRINTF)
+if(NOT HAVE_VSNPRINTF)
+  set_config_option(HAVE_NO_VSNPRINTF "NoVsnprintf")
+endif(NOT HAVE_VSNPRINTF)
+
+check_include_file(sys/socket.h HAVE_SYS_SOCKET_H)
+if(HAVE_SYS_SOCKET_H)
+  set(CMAKE_EXTRA_INCLUDE_FILES sys/socket.h)
+endif(HAVE_SYS_SOCKET_H)
+check_type_size(socklen_t SOCKLEN_T_SIZE)
+set(CMAKE_EXTRA_INCLUDE_FILES)
+if(NOT SOCKLEN_T_SIZE)
+  set_config_option(HAVE_NO_SOCKLEN_T "NoSocklenT")
+endif(NOT SOCKLEN_T_SIZE)
+
+check_include_file(stdint.h HAVE_STDINT_H)
+if(HAVE_STDINT_H)
+  set(CMAKE_EXTRA_INCLUDE_FILES stdint.h)
+else(HAVE_STDINT_H)
+  set_config_option(HAVE_NO_STDINT_H "NoStdintH")
+endif(HAVE_STDINT_H)
+check_type_size(intptr_t INTPTR_T_SIZE)
+set(CMAKE_EXTRA_INCLUDE_FILES)
+if(NOT INTPTR_T_SIZE)
+  set_config_option(HAVE_NO_INTPTR_T "NoIntptrT")
+endif(NOT INTPTR_T_SIZE)
+
+if(MSVC)
+  add_definitions(-D_USE_MATH_DEFINES -DNOMINMAX 
+                  -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE)
+  set(GETDP_SRC ${GETDP_SRC};Fltk/Win32Icon.rc)
+endif(MSVC)
+
+if(WIN32 OR CYGWIN)
+  list(APPEND EXTERNAL_LIBRARIES wsock32 ws2_32)
+endif(WIN32 OR CYGWIN)
+
+# disable compile optimization on some known problematic files
+check_cxx_compiler_flag("-O0" NOOPT)
+if(NOOPT)
+  file(GLOB_RECURSE NON_OPTIMIZED_SRC contrib/NR/*.cpp)
+  set_source_files_properties(${NON_OPTIMIZED_SRC} COMPILE_FLAGS "-O0")
+endif(NOOPT)
+
+# force full warnings to encourage everybody to write clean(er) code
+check_cxx_compiler_flag("-Wall" WALL)
+if(WALL)
+  file(GLOB_RECURSE WALL_SRC Common/*.cpp Interface/*.cpp Legacy/*.cpp
+       Main/*.cpp Numeric/*.cpp)
+  set_source_files_properties(${WALL_SRC} COMPILE_FLAGS "-Wall")
+endif(WALL)
+
+list(SORT CONFIG_OPTIONS)
+set(GETDP_CONFIG_OPTIONS "")
+foreach(OPT ${CONFIG_OPTIONS})
+  set(GETDP_CONFIG_OPTIONS "${GETDP_CONFIG_OPTIONS} ${OPT}")
+endforeach(OPT)
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Common/GetDPConfig.h.in 
+               ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Common/GetDPVersion.h.in
+               ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h)
+
+# process cmake environment variables so we can append them to the -I
+# include commands. This is not recommended (we should only use the
+# cache variables) but it is very convenient: otherwise we have to
+# remember providing the -D... options to cmake for each new build.
+set(ENV_CMAKE_PREFIX_PATH $ENV{CMAKE_PREFIX_PATH})
+set(ENV_CMAKE_INCLUDE_PATH $ENV{CMAKE_INCLUDE_PATH})
+if(UNIX)
+  if(ENV_CMAKE_PREFIX_PATH)
+    string(REPLACE ":" ";" ENV_CMAKE_PREFIX_PATH ${ENV_CMAKE_PREFIX_PATH})
+  endif(ENV_CMAKE_PREFIX_PATH)
+  if(ENV_CMAKE_INCLUDE_PATH)
+    string(REPLACE ":" ";" ENV_CMAKE_INCLUDE_PATH ${ENV_CMAKE_INCLUDE_PATH})
+  endif(ENV_CMAKE_INCLUDE_PATH)
+endif(UNIX)
+list(APPEND EXTERNAL_INCLUDES ${CMAKE_INCLUDE_PATH} ${ENV_CMAKE_INCLUDE_PATH})
+list(APPEND EXTERNAL_INCLUDES ${CMAKE_PREFIX_PATH} ${ENV_CMAKE_PREFIX_PATH})
+foreach(DIR ${CMAKE_PREFIX_PATH} ${ENV_CMAKE_PREFIX_PATH})
+  list(APPEND EXTERNAL_INCLUDES ${DIR}/include)
+endforeach(DIR)
+
+if(EXTERNAL_INCLUDES)
+  list(REMOVE_DUPLICATES EXTERNAL_INCLUDES)
+endif(EXTERNAL_INCLUDES)
+
+set(LINK_LIBRARIES ${EXTERNAL_LIBRARIES} ${LAPACK_LIBRARIES})
+
+# we could specify include dirs more selectively, but this is simpler
+include_directories(Common Interface Legacy Numeric ${EXTERNAL_INCLUDES} 
+                    ${CMAKE_CURRENT_BINARY_DIR}/Common)
+
+# set this for external codes that might include this CMakeList file
+set(GETDP_EXTERNAL_INCLUDE_DIRS ${EXTERNAL_INCLUDES} CACHE 
+    STRING "External include directories" FORCE)
+set(GETDP_EXTERNAL_LIBRARIES ${EXTERNAL_LIBRARIES} CACHE 
+    STRING "External libraries" FORCE)
+
+# group sources for easier navigation in IDEs
+foreach(DIR ${GETDP_DIRS})
+  string(REGEX REPLACE "\\+" "\\\\+" DIR ${DIR})
+  source_group(${DIR} REGULAR_EXPRESSION ${DIR}/.*)
+endforeach(DIR)
+
+# static library target: we don't build it by default (we could then
+# create the getdp target by linking with it) because doing so slows
+# down the compile/link development a lot: running ranlib+ar on a
+# large static lib every time we recompile is frustratingly
+# slow. Instead, we build the getdp target directly from the object
+# files. This is much faster but has one side effect: when we actually
+# want to build the lib we need to recompile everything (the first
+# time--it's a separate target)
+add_library(lib STATIC EXCLUDE_FROM_ALL ${GETDP_SRC})
+set_target_properties(lib PROPERTIES OUTPUT_NAME GetDP)
+if(MSVC)
+  set_target_properties(lib PROPERTIES DEBUG_POSTFIX d) 
+  if(ENABLE_MSVC_STATIC_RUNTIME)
+    set_target_properties(lib PROPERTIES LINK_FLAGS_RELEASE "/nodefaultlib:LIBCMT")
+  endif(ENABLE_MSVC_STATIC_RUNTIME)
+endif(MSVC)
+
+# shared library target: we don't build it by default either
+add_library(shared SHARED EXCLUDE_FROM_ALL ${GETDP_SRC})
+set_target_properties(shared PROPERTIES OUTPUT_NAME GetDP)
+if(HAVE_LAPACK AND LAPACK_FLAGS)
+  set_target_properties(shared PROPERTIES LINK_FLAGS ${LAPACK_FLAGS})
+endif(HAVE_LAPACK AND LAPACK_FLAGS)
+if(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)
+  message("WARNING: By enabling ENABLE_MSVC_STATIC_RUNTIME, shared library wont link. "
+          "Change in msvc /MT flag to /MD in the shared project properties")
+endif(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)		  
+target_link_libraries(shared ${LINK_LIBRARIES})
+
+# binary targets
+add_executable(getdp Main/Main.cpp ${GETDP_SRC})
+target_link_libraries(getdp ${LINK_LIBRARIES})
+
+add_executable(getdp_dynamic EXCLUDE_FROM_ALL Main/Main.cpp)
+target_link_libraries(getdp_dynamic shared)
+
+# force static linking of system libraries with cygwin/mingw
+if(WIN32 AND NOT MSVC OR CYGWIN)
+  set_target_properties(getdp PROPERTIES LINK_FLAGS "-static")
+  # remove stupid -Wl,-Bdynamic flags
+  set(CMAKE_EXE_LINK_DYNAMIC_C_FLAGS)
+  set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
+endif(WIN32 AND NOT MSVC OR CYGWIN)
+
+find_program(BISON bison)
+find_program(FLEX flex)
+if(BISON AND FLEX)
+  add_custom_target(parser 
+                    COMMAND ${BISON} -p getdp_yy --output ProParser.tab.cpp -d ProParser.y
+                    COMMAND ${FLEX} -P getdp_yy -o ProParser.yy.cpp ProParser.l
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Interface)
+endif(BISON AND FLEX)
+
+if(UNIX)
+  # cannot use cmake's file search functions here (they would only
+  # find files existing at configuration time)
+  add_custom_target(purge 
+                    COMMAND rm -f `find . -name *~ -o -name *~~`
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  add_custom_target(etags 
+                    COMMAND etags `find . -name *.cpp -o -name *.h -o -name *.y`
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+endif(UNIX)
+
+set(WELCOME_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/WELCOME.txt)
+set(LICENSE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/LICENSE.txt)
+set(CREDITS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/CREDITS.txt)
+file(GLOB DEMO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/demos/?*.*)
+set(TEX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/texinfo)
+file(GLOB TEX_SRC ${TEX_DIR}/*.texi)
+set(TEX_OBJ ${TEX_DIR}/getdp.aux ${TEX_DIR}/getdp.cp ${TEX_DIR}/getdp.cps
+    ${TEX_DIR}/getdp.fn ${TEX_DIR}/getdp.html ${TEX_DIR}/getdp.info ${TEX_DIR}/getdp.ky 
+    ${TEX_DIR}/getdp.log ${TEX_DIR}/getdp.pdf ${TEX_DIR}/getdp.pg ${TEX_DIR}/getdp.toc 
+    ${TEX_DIR}/getdp.tp ${TEX_DIR}/getdp.tps ${TEX_DIR}/getdp.txt ${TEX_DIR}/getdp.vr)
+
+macro(unix2dos VARNAME)
+  file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unix2dos)
+  set(UNIX2DOS_FILES)
+  foreach(FILE ${${VARNAME}})
+    file(READ ${FILE} F0)
+    get_filename_component(N ${FILE} NAME)
+    if(CYGWIN)
+      string(REGEX REPLACE "\n" "\r\n" F1 "${F0}")
+      file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/unix2dos/${N} "${F1}")
+    else(CYGWIN) # if not in cygwin, cmake adds '\r's automatically
+      file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/unix2dos/${N} "${F0}")
+    endif(CYGWIN)
+    list(APPEND UNIX2DOS_FILES ${CMAKE_CURRENT_BINARY_DIR}/unix2dos/${N})
+  endforeach(FILE)
+  set(${VARNAME} ${UNIX2DOS_FILES})
+endmacro(unix2dos)
+
+if(WIN32 OR CYGWIN)
+  set(GETDP_BIN .)
+  set(GETDP_DOC .)
+  set(GETDP_MAN .)
+  if(CYGWIN)
+    unix2dos(GETDP_API)
+    unix2dos(WELCOME_FILE)
+    unix2dos(LICENSE_FILE)
+    unix2dos(CREDITS_FILE)
+    unix2dos(DEMO_FILES)
+  endif(CYGWIN)
+else(WIN32 OR CYGWIN)
+  set(GETDP_BIN bin)
+  set(GETDP_DOC share/doc/getdp)
+  set(GETDP_MAN share/man/man1)
+endif(WIN32 OR CYGWIN)
+
+# mark targets as optional so we can install them separately if needed
+# (e.g. "make lib" or "make shared" followed by "make install/fast")
+install(TARGETS getdp DESTINATION ${GETDP_BIN} OPTIONAL)
+install(TARGETS lib shared DESTINATION lib OPTIONAL)
+install(FILES ${GETDP_API} DESTINATION include/getdp)
+install(FILES ${WELCOME_FILE} DESTINATION ${GETDP_DOC} RENAME README.txt)
+install(FILES ${LICENSE_FILE} DESTINATION ${GETDP_DOC})
+install(FILES ${CREDITS_FILE} DESTINATION ${GETDP_DOC})
+install(FILES ${DEMO_FILES} DESTINATION ${GETDP_DOC}/demos)
+if(UNIX AND NOT CYGWIN)
+  install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/getdp.1 DESTINATION ${GETDP_MAN})
+endif(UNIX AND NOT CYGWIN)
+
+find_program(MAKEINFO makeinfo)
+if(MAKEINFO)
+  add_custom_command(OUTPUT ${TEX_DIR}/getdp.info DEPENDS ${TEX_SRC} 
+                     COMMAND ${MAKEINFO} --split-size 1000000
+                     ARGS ${TEX_DIR}/getdp.texi WORKING_DIRECTORY ${TEX_DIR})
+  add_custom_target(info DEPENDS ${TEX_DIR}/getdp.info)
+  add_custom_command(OUTPUT ${TEX_DIR}/getdp.txt DEPENDS ${TEX_SRC} 
+                     COMMAND ${MAKEINFO} --plaintext -o getdp.txt
+                     ARGS ${TEX_DIR}/getdp.texi WORKING_DIRECTORY ${TEX_DIR})
+  add_custom_target(txt DEPENDS ${TEX_DIR}/getdp.txt)
+  add_custom_command(OUTPUT ${TEX_DIR}/getdp.html DEPENDS ${TEX_SRC} 
+                     COMMAND ${MAKEINFO} --html --css-ref=http://geuz.org/geuz.css --no-split
+                     ARGS ${TEX_DIR}/getdp.texi WORKING_DIRECTORY ${TEX_DIR})
+  add_custom_target(html DEPENDS ${TEX_DIR}/getdp.html)
+  install(FILES ${TEX_DIR}/getdp.html DESTINATION ${GETDP_DOC} OPTIONAL)
+endif(MAKEINFO)
+
+find_program(TEXI2PDF texi2pdf)
+if(TEXI2PDF)
+  add_custom_command(OUTPUT ${TEX_DIR}/getdp.pdf DEPENDS ${TEX_SRC} 
+                     COMMAND ${TEXI2PDF} ARGS ${TEX_DIR}/getdp.texi 
+                     WORKING_DIRECTORY ${TEX_DIR})
+  add_custom_target(pdf DEPENDS ${TEX_DIR}/getdp.pdf)
+  install(FILES ${TEX_DIR}/getdp.pdf DESTINATION ${GETDP_DOC} OPTIONAL)
+endif(TEXI2PDF)
+
+if(MAKEINFO AND TEXI2PDF)
+  add_custom_target(doc COMMAND ${CMAKE_COMMAND} -E tar zcf 
+                    ${CMAKE_CURRENT_BINARY_DIR}/getdp-${GETDP_VERSION}-doc.tgz
+                    doc/CREDITS.txt doc/LICENSE.txt doc/VERSIONS.txt
+                    doc/getdp.1 doc/texinfo/getdp.html doc/texinfo/getdp.info 
+                    doc/texinfo/getdp.pdf doc/texinfo/getdp.txt
+                    COMMAND ${CMAKE_COMMAND} -E remove ${TEX_OBJ}
+                    DEPENDS ${TEX_DIR}/getdp.info ${TEX_DIR}/getdp.txt 
+                    ${TEX_DIR}/getdp.html ${TEX_DIR}/getdp.pdf
+                    WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+endif(MAKEINFO AND TEXI2PDF)
+
+if(MAKEINFO OR TEXI2PDF)
+  add_custom_target(clean_doc COMMAND ${CMAKE_COMMAND} -E remove ${TEX_OBJ})
+endif(MAKEINFO OR TEXI2PDF)
+
+if(APPLE)
+  file(READ ${CMAKE_CURRENT_SOURCE_DIR}/utils/misc/getdp_framework.plist F0)
+  string(REPLACE GETDP_VERSION "${GETDP_VERSION}" F1 "${F0}")
+  file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/Info_framework.plist "${F1}")
+  get_target_property(LIBNAME lib LOCATION)
+  add_custom_target(framework DEPENDS lib
+    COMMAND ${CMAKE_COMMAND} -E remove_directory GetDP.framework
+    COMMAND ${CMAKE_COMMAND} -E make_directory GetDP.framework/Versions/A/Headers
+    COMMAND ${CMAKE_COMMAND} -E make_directory GetDP.framework/Versions/A/Resources
+    COMMAND ${CMAKE_COMMAND} -E copy ${LIBNAME} GetDP.framework/Versions/A/GetDP
+    COMMAND ${CMAKE_COMMAND} -E copy Info_framework.plist 
+                                     GetDP.framework/Versions/A/Resources/Info.plist
+    COMMAND ${CMAKE_COMMAND} -E create_symlink A GetDP.framework/Versions/Current
+    COMMAND ${CMAKE_COMMAND} -E create_symlink Versions/Current/GetDP 
+                                               GetDP.framework/GetDP
+    COMMAND ${CMAKE_COMMAND} -E create_symlink Versions/Current/Headers
+                                               GetDP.framework/Headers
+    COMMAND ${CMAKE_COMMAND} -E create_symlink Versions/Current/Resources
+                                               GetDP.framework/Resources 
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+  foreach(FILE ${GETDP_API})
+    add_custom_command(TARGET framework POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy
+        ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/GetDP.framework/Versions/A/Headers/
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+  endforeach(FILE)
+endif(APPLE)
+
+set(CPACK_PACKAGE_VENDOR "Patrick Dular and Christophe Geuzaine")
+set(CPACK_PACKAGE_VERSION_MAJOR ${GETDP_MAJOR_VERSION})
+set(CPACK_PACKAGE_VERSION_MINOR ${GETDP_MINOR_VERSION})
+set(CPACK_PACKAGE_VERSION_PATCH ${GETDP_PATCH_VERSION})
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${WELCOME_FILE})
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY 
+    "General Environment for the Treatment of Discrete Problems")
+set(CPACK_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-${GETDP_OS})
+set(CPACK_PACKAGE_INSTALL_DIRECTORY "GetDP")
+set(CPACK_RESOURCE_FILE_LICENSE ${LICENSE_FILE})
+set(CPACK_RESOURCE_FILE_README ${WELCOME_FILE})
+set(CPACK_RESOURCE_FILE_WELCOME ${WELCOME_FILE})
+set(CPACK_PACKAGE_EXECUTABLE "getdp;GetDP")
+set(CPACK_STRIP_FILES TRUE)
+set(CPACK_SOURCE_PACKAGE_FILE_NAME getdp-${GETDP_VERSION}-source)
+set(CPACK_SOURCE_GENERATOR TGZ)
+set(CPACK_SOURCE_IGNORE_FILES "${CMAKE_CURRENT_BINARY_DIR}" "/CVS/" "/.svn" "~$" 
+    "DS_Store$" "GetDPConfig.h$" "GetDPVersion.h$" "/benchmarks/" "/tmp/" 
+    "/bin/" "/lib/" "/nightly/" "GPATH" "GRTAGS" "GSYMS" "GTAGS" "/HTML/" 
+    "/contrib/NR/" "/contrib/NX/" "/contrib/ZITSOL_1/")
+
+if(UNIX)
+  # make sure we remove previous installs before doing the next one
+  # (on Mac for example "make package; make package_source" would lead
+  # to huge file lists getting generated due to the 'Applications'
+  # symlink in the bundle)
+  set(CPACK_INSTALL_COMMANDS "rm -rf ${CMAKE_CURRENT_BINARY_DIR}/_CPack_Packages")
+endif(UNIX)
+
+if(WIN32 OR CYGWIN)
+  set(CPACK_GENERATOR ZIP)
+else(WIN32 OR CYGWIN)
+  set(CPACK_GENERATOR TGZ)
+endif(WIN32 OR CYGWIN)
+
+include(CPack)
+
+message("")
+message("GetDP ${GETDP_VERSION} has been configured for ${GETDP_OS} with the "
+        "following options:" ${GETDP_CONFIG_OPTIONS})
+message("")
+message("C compiler: " ${CMAKE_C_COMPILER})
+message("C++ compiler: " ${CMAKE_CXX_COMPILER})
+if(NOT CMAKE_BUILD_TYPE)
+  message("C compiler flags: " ${CMAKE_C_FLAGS})
+  message("C++ compiler flags: " ${CMAKE_CXX_FLAGS})
+else(NOT CMAKE_BUILD_TYPE)
+  message("Build type: " ${CMAKE_BUILD_TYPE})
+endif(NOT CMAKE_BUILD_TYPE)
+message("Install prefix: " ${CMAKE_INSTALL_PREFIX})
+message("")
+message("Run 'ccmake ${CMAKE_CURRENT_SOURCE_DIR}' to fine-tune the configuration.")
+message("")
+
+mark_as_advanced(BISON FLEX GETDP_EXTRA_VERSION MAKEINFO TEXI2PDF SLEPC_INC2)

@@ -1024,8 +1024,8 @@ List of constant expressions are defined as:
   @var{expression-cst} |
   @var{expression-cst} : @var{expression-cst} |
   @var{expression-cst} : @var{expression-cst} : @var{expression-cst} |
-  @var{constant-id} @(@) |
-  @var{constant-id} @( @var{expression-cst-list} @) |
+  @var{constant-id} () |
+  @var{constant-id} ( @var{expression-cst-list} ) |
   List[ @var{constant-id} ] |
   ListAlt[ @var{constant-id}, @var{constant-id} ] |
   LinSpace[ @var{expression-cst}, @var{expression-cst}, @var{expression-cst} ] |

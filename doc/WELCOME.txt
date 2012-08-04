@@ -1,0 +1,8 @@
+This is GetDP, a General Environment for the Treatment of Discrete Problems.
+
+GetDP is distributed under the terms of the GNU General Public License. See the
+LICENSE.txt and CREDITS.txt files for more information.
+
+The demos/ directory contains a simple example. For more examples see the
+reference manual (http://geuz.org/getdp/doc/texinfo/) and the OneLab web site
+(http://onelab.info).

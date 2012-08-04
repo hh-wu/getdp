@@ -1008,7 +1008,7 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
 
   if (Nbr_Entity != List_Nbr(ExtendedList_L))  Message::Error("Constraint Link: strange...") ;
 
-  Message::Debug("(ajout) Image %d: f%d, n%d - n%d - n%d", i, FacetNNN.NumFacet,
+  Message::Debug("(ajout) Image: f%d, n%d - n%d - n%d", FacetNNN.NumFacet,
                  FacetNNN.Node1, FacetNNN.Node2, FacetNNN.Node3) ;
 
 

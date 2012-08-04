@@ -127,12 +127,13 @@ void F_b_Jiles(F_ARG)
                   struct FunctionActive *D, double Btwo[3]) ;
 
   if( (A+0)->Type != VECTOR || (A+1)->Type != VECTOR || (A+2)->Type != VECTOR )
-    Message::Error("b_Jiles requires three vector arguments: {b} at t_{i-1}, {h} at t_{i-1} and {h} at t_i");
+    Message::Error("b_Jiles requires three vector arguments: {b} at t_{i-1}, "
+                   "{h} at t_{i-1} and {h} at t_i");
 
   if (!Fct->Active)  Fi_InitListX (Fct, A, V) ;
   D = Fct->Active ;
 
-  for (int k; k<3 ; k++){
+  for (int k = 0; k < 3 ; k++){
     Bone[k] = (A+0)->Val[k] ;
     Hone[k] = (A+1)->Val[k] ;
     Htwo[k] = (A+2)->Val[k] ;
@@ -140,7 +141,7 @@ void F_b_Jiles(F_ARG)
   Vector_B2 (Bone, Hone, Htwo, 10, D, Btwo) ;
 
   V->Type = VECTOR ;
-  for (int k; k<3 ; k++) V->Val[k] = Btwo[k] ;
+  for (int k = 0; k < 3 ; k++) V->Val[k] = Btwo[k] ;
 }
 
 double F_Man (double He, double Ms, double a)
