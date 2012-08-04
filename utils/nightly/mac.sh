@@ -88,7 +88,7 @@ scp -C ${LOG} ${WEB_BIN}/
 #################################################
 
 export CC="/usr/bin/gcc -m64"
-export CXX="/usr/bin/g++ -m64"
+export CXX="/usr/bin/g++ -m64 -L/usr/local/lib"
 export FC="/usr/local/bin/gfortran -m64"
 
 LOG=${GETDP}/nightly64.log
