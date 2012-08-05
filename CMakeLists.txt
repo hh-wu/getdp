@@ -441,7 +441,6 @@ endif(NOT INTPTR_T_SIZE)
 if(MSVC)
   add_definitions(-D_USE_MATH_DEFINES -DNOMINMAX 
                   -D_CRT_SECURE_NO_DEPRECATE -D_SCL_SECURE_NO_DEPRECATE)
-  set(GETDP_SRC ${GETDP_SRC};Fltk/Win32Icon.rc)
 endif(MSVC)
 
 if(WIN32 OR CYGWIN)
