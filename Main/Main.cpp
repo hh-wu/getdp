@@ -7,5 +7,6 @@
 
 int main(int argc, char **argv)
 {
-  return MainLegacy(argc, argv);
+  //for(int i = 0; i < 1000; i++)
+  MainLegacy(argc, argv);
 }

@@ -11,6 +11,7 @@
 #include "GetDPConfig.h"
 #include "GetDPVersion.h"
 #include "ProData.h"
+#include "ProParser.h"
 #include "SolvingAnalyse.h"
 #include "LinAlg.h"
 #include "OS.h"
@@ -197,7 +198,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	  Flag_PRE = 1; *lres = -atoi(argv[i]+1); i++;
 	}
 	else if (i<argc && argv[i][0]!='-') {
-	  Flag_PRE = 1; Name_Resolution = argv[i]; i++;
+	  Flag_PRE = 1; Name_Resolution = strSave(argv[i]); i++;
 	}
 	else {
 	  Flag_PRE = *lres = 1;
@@ -234,7 +235,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	  Flag_PRE = Flag_CAL = 1; *lres = -atoi(argv[i]+1); i++;
 	}
 	else if (i<argc && argv[i][0]!='-') {
-	  Flag_PRE = Flag_CAL = 1; Name_Resolution = argv[i]; i++;
+	  Flag_PRE = Flag_CAL = 1; Name_Resolution = strSave(argv[i]); i++;
 	}
 	else {
 	  Flag_PRE = Flag_CAL = *lres = 1;
@@ -249,7 +250,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	} /* Only one numbered (#) PostOperation allowed */
 	else {
 	  while (i<argc && argv[i][0]!='-') {
-	    Name_PostOperation[j] = argv[i]; i++; j++;
+	    Name_PostOperation[j] = strSave(argv[i]); i++; j++;
 	    if(j == NBR_MAX_POS){
 	      Message::Error("Too many PostOperations");
               break;
@@ -270,7 +271,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	       !strcmp(argv[i]+1, "m")) {
 	i++;
 	if (i<argc && argv[i][0]!='-') {
-	  Name_MshFile = argv[i]; i++;
+	  Name_MshFile = strSave(argv[i]); i++;
 	}
 	else {
 	  Message::Error("Missing file name");
@@ -282,7 +283,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	       !strcmp(argv[i]+1, "ada")) {
 	i++;
 	if (i<argc && argv[i][0]!='-') {
-	  Name_AdaptFile = argv[i]; i++;
+	  Name_AdaptFile = strSave(argv[i]); i++;
 	}
 	else {
 	  Message::Error("Missing file name");
@@ -292,7 +293,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       else if (!strcmp(argv[i]+1, "res")) {
 	i++; j = 0;
 	while (i<argc && argv[i][0]!='-') {
-	  Name_ResFile[j] = argv[i]; i++; j++;
+	  Name_ResFile[j] = strSave(argv[i]); i++; j++;
 	  if(j == NBR_MAX_RES){
 	    Message::Error("Too many '.res' files");
             break;
@@ -414,7 +415,7 @@ int MainLegacy(int argc, char *argv[])
     cmdline += argv[i];
   }
 
-  Message::Init(argc, argv);
+  Message::Initialize(argc, argv);
 
   char pro[256];
   char **sargv = (char**)Malloc(256 * sizeof(char*));
@@ -498,7 +499,8 @@ int MainLegacy(int argc, char *argv[])
 
   Free_GlobalVariables();
   Free(sargv);
-  Message::Exit(0);
+
+  Message::Finalize();
   return 0;
 }
 

@@ -36,7 +36,8 @@ class Message {
   static onelab::client *_onelabClient;
  public:
   Message() {}
-  static void Init(int argc, char **argv);
+  static void Initialize(int argc, char **argv);
+  static void Finalize();
   static void Exit(int level);
   static int GetCommRank(){ return _commRank; }
   static int GetCommSize(){ return _commSize; }

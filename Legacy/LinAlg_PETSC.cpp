@@ -114,6 +114,7 @@ void LinAlg_FinalizeSolver()
     SlepcFinalize();
 #endif
     PetscFinalize();
+    SolverInitialized = 0;
   }
 }
 

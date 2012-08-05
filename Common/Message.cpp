@@ -74,7 +74,7 @@ static void gslErrorHandler(const char *reason, const char *file, int line,
 }
 #endif
 
-void Message::Init(int argc, char **argv)
+void Message::Initialize(int argc, char **argv)
 {
   _errorCount = 0;
 #if defined(HAVE_PETSC)
@@ -88,7 +88,7 @@ void Message::Init(int argc, char **argv)
 #endif
 }
 
-void Message::Exit(int level)
+void Message::Finalize()
 {
 #if defined(HAVE_PETSC)
   int flag;
@@ -97,6 +97,11 @@ void Message::Exit(int level)
 #endif
   FinalizeSocket();
   FinalizeOnelab();
+}
+
+void Message::Exit(int level)
+{
+  Finalize();
   exit(level);
 }
 
