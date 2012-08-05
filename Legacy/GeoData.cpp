@@ -7,6 +7,7 @@
 #include <math.h>
 #include "GeoData.h"
 #include "ProData.h"
+#include "Pos_Search.h"
 #include "MallocUtils.h"
 #include "Message.h"
 
@@ -121,8 +122,16 @@ void Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name)
 void Geo_FreeGeoData(struct GeoData * GeoData_P)
 {
   Message::Debug("Freeing GeoData %d", GeoData_P->Num);
-
-  // TODO!
+  if(GeoData_P->Nodes) List_Delete(GeoData_P->Nodes);
+  if(GeoData_P->Elements) List_Delete(GeoData_P->Elements);
+  if(GeoData_P->EdgesXNodes) Tree_Delete(GeoData_P->EdgesXNodes);
+  if(GeoData_P->FacetsXEdges) Tree_Delete(GeoData_P->FacetsXEdges);
+  if(GeoData_P->NodesXElements) Tree_Delete(GeoData_P->NodesXElements);
+  if(GeoData_P->Normals) Tree_Delete(GeoData_P->Normals);
+  if(GeoData_P->GroupForPRE) List_Delete(GeoData_P->GroupForPRE);
+  Free_SearchGrid(&GeoData_P->Grid);
+  if(GeoData_P->H) Free(GeoData_P->H);
+  if(GeoData_P->P) Free(GeoData_P->P);
 }
 
 /* ------------------------------------------------------------------------ */
@@ -180,7 +189,7 @@ int Geo_GetElementType(int Format, int Type)
     case 14 : return(PYRAMID_2) ;
     case 16 : return(QUADRANGLE_2_8N) ;
     default : Message::Error("Unkown type of Element in Gmsh format (%d)",
-			 FORMAT_GMSH) ; return(-1) ;
+                             FORMAT_GMSH) ; return(-1) ;
     }
     break ;
   default :
@@ -432,7 +441,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
     else if (!strncmp(&String[1], "ParametricNodes", 15)) {
 
       Message::Error("Cannot read parametric nodes: please save mesh file with standard "
-                 "nodes instead!");
+                     "nodes instead!");
 
     }
 
@@ -516,7 +525,7 @@ void Geo_ReadFile(struct GeoData * GeoData_P)
 
     do {
       fgets(String, sizeof(String), File_GEO) ;
-      if (feof(File_GEO)) Message::Error("Prematured end of file");
+      if (feof(File_GEO)){ Message::Error("Prematured end of file"); return; }
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -555,8 +564,10 @@ void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
       for (i = 0 ; i < Nbr ; i++) {
 	fscanf(File_GEO, "%d %lf %lf %lf", &Geo_Element.Num, &E, &H, &P) ;
 	if(!(Geo_Element_P = (struct Geo_Element *)
-	     List_PQuery(GeoData_P->Elements, &Geo_Element, fcmp_Elm)))
+	     List_PQuery(GeoData_P->Elements, &Geo_Element, fcmp_Elm))){
 	  Message::Error("Element %d not found in database", Geo_Element.Num) ;
+          break;
+        }
 	Index_GeoElement = Geo_GetGeoElementIndex(Geo_Element_P) ;
 	GeoData_P->H[Index_GeoElement+1] = H ;
 	GeoData_P->P[Index_GeoElement+1] = P ;
@@ -566,7 +577,7 @@ void Geo_ReadFileAdapt(struct GeoData * GeoData_P)
 
     do {
       fgets(String, sizeof(String), File_GEO) ;
-      if (feof(File_GEO)) Message::Error("Prematured end of file");
+      if (feof(File_GEO)){ Message::Error("Prematured end of file"); break; }
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */
@@ -679,8 +690,10 @@ void Geo_GetNodesCoordinates(int Nbr_Node, int * Num_Node,
     Geo_Node.Num = abs(Num_Node[i]) ;
 
     if(!(Geo_Node_P = (struct Geo_Node*)
-	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
+	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod))){
       Message::Error("Node %d does not exist", Geo_Node.Num) ;
+      break;
+    }
 
     x[i] = Geo_Node_P->x ;  y[i] = Geo_Node_P->y ;  z[i] = Geo_Node_P->z ;
   }
@@ -700,8 +713,10 @@ void Geo_SetNodesCoordinates(int Nbr_Node, int * Num_Node,
     Geo_Node.Num = abs(Num_Node[i]) ;
 
     if(!(Geo_Node_P = (struct Geo_Node*)
-	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
+	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod))){
       Message::Error("Node %d does not exist", Geo_Node.Num) ;
+      break;
+    }
 
     Geo_Node_P->x = x[i] ;  Geo_Node_P->y = y[i] ;  Geo_Node_P->z = z[i] ;
   }
@@ -717,8 +732,10 @@ void Geo_SetNodesCoordinatesX(int Nbr_Node, int * Num_Node,
     Geo_Node.Num = abs(Num_Node[i]) ;
 
     if(!(Geo_Node_P = (struct Geo_Node*)
-	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
+	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod))){
       Message::Error("Node %d does not exist", Geo_Node.Num) ;
+      break;
+    }
 
     Geo_Node_P->x = x[i] ;
   }
@@ -734,8 +751,10 @@ void Geo_SetNodesCoordinatesY(int Nbr_Node, int * Num_Node,
     Geo_Node.Num = abs(Num_Node[i]) ;
 
     if(!(Geo_Node_P = (struct Geo_Node*)
-	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
+	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod))){
       Message::Error("Node %d does not exist", Geo_Node.Num) ;
+      break;
+    }
 
     Geo_Node_P->y = y[i] ;
   }
@@ -751,8 +770,10 @@ void Geo_SetNodesCoordinatesZ(int Nbr_Node, int * Num_Node,
     Geo_Node.Num = abs(Num_Node[i]) ;
 
     if(!(Geo_Node_P = (struct Geo_Node*)
-	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod)))
+	 List_PQuery(CurrentGeoData->Nodes, &Geo_Node, fcmp_Nod))){
       Message::Error("Node %d does not exist", Geo_Node.Num) ;
+      break;
+    }
 
     Geo_Node_P->z = z[i] ;
   }

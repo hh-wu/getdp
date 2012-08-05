@@ -474,9 +474,6 @@ void  UpdateConstraint_System(struct DefineSystem * DefineSystem_P,
   TreatmentStatus = Save_TreatmentStatus ;
 }
 
-
-
-
 /* ------------------------------------------------------------------------ */
 /*  I n i t _ O p e r a t i o n O n S y s t e m                             */
 /* ------------------------------------------------------------------------ */
@@ -508,18 +505,22 @@ void  Init_OperationOnSystem(const char          * Name,
     if(Resolution2_P){ /* pre-resolution */
       if ((i = List_ISearchSeq(Resolution2_P->DefineSystem,
 			       (*DefineSystem_P)->DestinationSystemName,
-			       fcmp_DefineSystem_Name)) < 0)
+			       fcmp_DefineSystem_Name)) < 0){
 	Message::Error("Unknown DestinationSystem (%s) in System (%s)",
                        (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
+        return;
+      }
       (*DefineSystem_P)->DestinationSystemIndex = i ;
       Dof_DefineUnknownDofFromSolveOrInitDof(DofData_P) ;
     }
     else { /* a changer !!! */
       if ((i = List_ISearchSeq(Resolution_P->DefineSystem,
 			       (*DefineSystem_P)->DestinationSystemName,
-			       fcmp_DefineSystem_Name)) < 0)
+			       fcmp_DefineSystem_Name)) < 0){
 	Message::Error("Unknown DestinationSystem (%s) in System (%s)",
                        (*DefineSystem_P)->DestinationSystemName, (*DefineSystem_P)->Name) ;
+        return;
+      }
       (*DefineSystem_P)->DestinationSystemIndex = i ;
     }
   }
@@ -605,12 +606,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
     if(Message::GetCommSize() > 1 && Operation_P->Rank >= 0 &&
        Message::GetCommRank() != (Operation_P->Rank % Message::GetCommSize()))
-      		continue;
+      continue;
 
     Flag_CPU = 0 ;
     Flag_Jac = 0 ;
 
-    if(Message::GetOnelabAction() == "stop") break;
+    if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
     switch (Operation_P->Type) {
 
@@ -743,7 +744,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Message::Error("SelectCorrection: DofData #%d already selected as a full solution",
                          DofData_P->Num);
 	}
-
       }
       else {
 	/* Last correction to be considered */
@@ -992,8 +992,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
-      if(DofData_P->Flag_Init[0] < 2)
+      if(DofData_P->Flag_Init[0] < 2){
 	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
+        break;
+      }
 
       if (DofData_P->Flag_Only){
 	if(DofData_P->Flag_InitOnly[0]){
@@ -1072,8 +1074,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
-      if(DofData_P->Flag_Init[0] < 2)
+      if(DofData_P->Flag_Init[0] < 2){
 	Message::Error("Jacobian system not initialized (missing GenerateJac?)");
+        break;
+      }
 
       LinAlg_AddMatrixMatrix(&DofData_P->Jac, &DofData_P->A, &DofData_P->Jac) ;
       LinAlg_ProdMatrixVector(&DofData_P->A, &DofData_P->CurrentSolution->x, &DofData_P->res) ;
@@ -1094,12 +1098,14 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       Error_Prev = 1e99 ;  Frelax_Opt = 1. ;
 
-      if (!(NbrSteps_relax = List_Nbr(Operation_P->Case.SolveJac_AdaptRelax.Factor_L)))
-	  Message::Error("No factors provided for Adaptive Relaxation");
+      if (!(NbrSteps_relax = List_Nbr(Operation_P->Case.SolveJac_AdaptRelax.Factor_L))){
+        Message::Error("No factors provided for Adaptive Relaxation");
+        break;
+      }
 
       for( istep = 0 ; istep < NbrSteps_relax ; istep++ ){
 
-        if(Message::GetOnelabAction() == "stop") break;
+        if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
 	List_Read(Operation_P->Case.SolveJac_AdaptRelax.Factor_L, istep, &Frelax);
 
@@ -1213,8 +1219,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
       if(Flag_RESTART){
-        if (!DofData_P->Solutions)
+        if (!DofData_P->Solutions){
           Message::Error("No solution to restart the computation");
+          break;
+        }
 
         for(i = 0 ; i < DofData_P->NbrAnyDof ; i++){
           Dof_P = (struct Dof *)List_Pointer(DofData_P->DofList, i) ;
@@ -1368,8 +1376,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 			     Resolution_P, Operation_P, DofData_P0, GeoData_P0,
                              &DefineSystem_P, &DofData_P, Resolution2_P) ;
 
-      if(gSCALAR_SIZE == 2)
+      if(gSCALAR_SIZE == 2){
 	Message::Error("FIXME: Generate_MH_Moving will not work in complex arithmetic");
+        break;
+      }
 
       Nbr_Formulation = List_Nbr(DefineSystem_P->FormulationIndex) ;
 
@@ -1380,8 +1390,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       for (k = 0 ; k < Current.NbrHar ; k++)
 	MH_Moving_Matrix[k] = (double *) Malloc(Current.NbrHar*sizeof(double)) ;
 
-      if (! (Val_Pulsation = Current.DofData->Val_Pulsation))
+      if (! (Val_Pulsation = Current.DofData->Val_Pulsation)){
 	Message::Error("Generate_MH_moving can only be used for harmonic problems");
+        break;
+      }
 
       for (k = 0 ; k < Current.NbrHar ; k++)
 	for (l = 0 ; l < Current.NbrHar ; l++)
@@ -1455,8 +1467,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       for (k = 0 ; k < Current.NbrHar ; k++)
 	MH_Moving_Matrix[k] = (double *) Malloc(Current.NbrHar*sizeof(double)) ;
 
-      if (! (Val_Pulsation = Current.DofData->Val_Pulsation))
+      if (! (Val_Pulsation = Current.DofData->Val_Pulsation)){
 	Message::Error("Generate_MH_moving can only be used for harmonic problems");
+        break;
+      }
 
       for (k = 0 ; k < Current.NbrHar ; k++)
 	for (l = 0 ; l < Current.NbrHar ; l++)
@@ -1498,12 +1512,17 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	  for (i = 0 ; i < NbrDof_MH_moving ; i++) {
 	    Dof_P = (struct Dof*)List_Pointer(DofList_MH_moving,i) ;
-	    if (Dof_P->Type != DOF_UNKNOWN) Message::Error("Dof_MH_moving not of type unknown !?");
+	    if (Dof_P->Type != DOF_UNKNOWN){
+              Message::Error("Dof_MH_moving not of type unknown !?");
+              break;
+            }
 	    NumDof_MH_moving[i] =  Dof_P->Case.Unknown.NumDof;
 
 	    if(!(Dof_MH_moving[i] = (struct Dof *)List_PQuery(Current.DofData->DofList,
-							      Dof_P, fcmp_Dof)))
+							      Dof_P, fcmp_Dof))){
 	      Message::Error("Troubles") ;
+              break;
+            }
 	    for (k = 0 ; k < Current.NbrHar ; k++) {
 	      (Dof_MH_moving[i]+k)->Case.Unknown.NumDof = i*Current.NbrHar+k+1 ;
 	    }
@@ -1598,6 +1617,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 #else
 	      aii = ajj = 0.;
 	      Message::Error("FIXME: Generate_MH_Moving works only with Sparskit");
+              break;
 #endif
 	      if(d*d > 1e-12 * aii*ajj  &&
 		 ( (DummyDof[row_new]==0 && DummyDof[col_new] == 0) || (row_new == col_new) ) ){
@@ -1717,8 +1737,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Dof_CloseFile(DOF_TMP);
 	i++ ;
       }
-      if(!List_Nbr(DofData_P->Solutions))
+      if(!List_Nbr(DofData_P->Solutions)){
 	Message::Error("No valid data found for ReadSolution[%s]", DefineSystem_P->Name);
+        break;
+      }
 
       DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
@@ -1794,8 +1816,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	   espace fonctionnel. */
 	DofData2_P = DofData_P0 + DefineSystem_P->DestinationSystemIndex ;
 
-	if(DofData_P->NbrAnyDof != DofData2_P->NbrAnyDof)
+	if(DofData_P->NbrAnyDof != DofData2_P->NbrAnyDof){
 	  Message::Error("Dimensions do not match for TransferSolution");
+          break;
+        }
 
 	Solution_S.TimeStep = (int)Current.TimeStep ;
 	Solution_S.Time = Current.Time ;
@@ -1887,8 +1911,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_TIMELOOPTHETA :
-      if(!List_Nbr(Current.DofData->Solutions))
+      if(!List_Nbr(Current.DofData->Solutions)){
 	Message::Error("Not enough initial solutions for TimeLoopTheta");
+        break;
+      }
 
       Message::Info("TimeLoopTheta ...") ;
 
@@ -1906,7 +1932,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       while (Current.Time < Operation_P->Case.TimeLoopTheta.TimeMax * 0.999999) {
 
-        if(Message::GetOnelabAction() == "stop") break;
+        if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
 	if (!Flag_NextThetaFixed) { /* Attention: Test */
 	  Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopTheta.ThetaIndex,
@@ -1946,8 +1972,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       /*  ------------------------------------------  */
 
     case OPERATION_TIMELOOPNEWMARK :
-      if(List_Nbr(Current.DofData->Solutions) < 2)
+      if(List_Nbr(Current.DofData->Solutions) < 2){
 	Message::Error("Not enough initial solutions for TimeLoopNewmark");
+        break;
+      }
 
       Message::Info("TimeLoopNewmark ...") ;
 
@@ -1966,7 +1994,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       while (Current.Time < Operation_P->Case.TimeLoopNewmark.TimeMax * 0.999999) {
 
-        if(Message::GetOnelabAction() == "stop") break;
+        if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
 	Get_ValueOfExpressionByIndex(Operation_P->Case.TimeLoopNewmark.DTimeIndex,
 				     NULL, 0., 0., 0., &Value) ;
@@ -2001,7 +2029,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	   Num_Iteration <= Operation_P->Case.IterativeLoop.NbrMaxIteration ;
 	   Num_Iteration++) {
 
-        if(Message::GetOnelabAction() == "stop") break;
+        if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
 	Current.Iteration = (double)Num_Iteration ;
 	Current.RelativeDifference = 0. ;
@@ -2082,8 +2110,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
     case OPERATION_FOURIERTRANSFORM2 :
       Message::Info("FourierTransform") ;
 
-      if(gSCALAR_SIZE == 2)
+      if(gSCALAR_SIZE == 2){
 	Message::Error("FIXME: FourierTransform2 will not work in complex arithmetic");
+        break;
+      }
 
       DofData_P  = DofData_P0 + Operation_P->Case.FourierTransform2.DefineSystemIndex[0] ;
       DofData2_P = DofData_P0 + Operation_P->Case.FourierTransform2.DefineSystemIndex[1] ;
@@ -2093,11 +2123,12 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       NbrHar2 = DofData2_P->NbrHar ;
       NbrDof2 = List_Nbr(DofData2_P->DofList) ;
 
-      if (NbrHar1 != 1 || NbrHar2 < 2 || NbrDof2 != (NbrDof1*NbrHar2))
+      if (NbrHar1 != 1 || NbrHar2 < 2 || NbrDof2 != (NbrDof1*NbrHar2)){
 	Message::Error("Uncompatible System definitions for FourierTransform"
                        " (NbrHar = %d|%d   NbrDof = %d|%d)",
                        NbrHar1, NbrHar2, NbrDof1, NbrDof2) ;
-
+        break;
+      }
       if(!DofData2_P->Solutions){
 	DofData2_P->Solutions = List_Create(1, 1, sizeof(struct Solution)) ;
 	Operation_P->Case.FourierTransform2.Scales = (double *)Malloc(NbrHar2*sizeof(double)) ;
@@ -2176,9 +2207,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
       if(!DofData2_P->Solutions){
 	k = List_Nbr(Operation_P->Case.FourierTransform.Frequency) ;
 
-	if(DofData2_P->NbrDof != gCOMPLEX_INCREMENT * DofData_P->NbrDof)
+	if(DofData2_P->NbrDof != gCOMPLEX_INCREMENT * DofData_P->NbrDof){
 	  Message::Error("Uncompatible System definitions for FourierTransform") ;
-
+          break;
+        }
 	DofData2_P->Solutions = List_Create(k, 1, sizeof(struct Solution)) ;
 
 	for(i=0 ; i<k ; i++){
@@ -2221,8 +2253,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  strcpy(FileName, Name_Path);
 	  strcat(FileName, Operation_P->Case.Print.FileOut);
 	}
-	if(!(fp = fopen(FileName, "ab")))
+	if(!(fp = fopen(FileName, "ab"))){
 	  Message::Error("Unable to open file '%s'", FileName) ;
+          break;
+        }
 	Message::Info("Print -> '%s'", FileName) ;
       }
       else{
@@ -2330,9 +2364,11 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                     Operation_P->Case.DeformeMesh.Name_MshFile) ;
 
       if ((i = List_ISearchSeq(GeoData_L, Operation_P->Case.DeformeMesh.Name_MshFile,
-			       fcmp_GeoData_Name)) < 0)
+			       fcmp_GeoData_Name)) < 0){
 	Message::Error("DeformeMesh: Wrong NameOfMeshFile %s",
-		   Operation_P->Case.DeformeMesh.Name_MshFile );
+                       Operation_P->Case.DeformeMesh.Name_MshFile);
+        break;
+      }
       Operation_P->Case.DeformeMesh.GeoDataIndex = i ;
 
       Operation_DeformeMesh
@@ -2409,9 +2445,10 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
                                &DefineSystem_P, &DofData_P, Resolution2_P) ;
         int numStepRK = List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherC);
         if(numStepRK != List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherB) ||
-           numStepRK * numStepRK != List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherA))
+           numStepRK * numStepRK != List_Nbr(Operation_P->Case.TimeLoopRungeKutta.ButcherA)){
           Message::Error("Incompatible sizes of Butcher Tableaux");
-
+          break;
+        }
         Current.Time = Operation_P->Case.TimeLoopRungeKutta.Time0 ;
         gVector xn, rhs;
         LinAlg_CreateVector(&xn, &DofData_P->Solver, Current.DofData->NbrDof);
@@ -2422,7 +2459,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
         while (Current.Time < Operation_P->Case.TimeLoopRungeKutta.TimeMax * 0.9999999) {
 
-          if(Message::GetOnelabAction() == "stop") break;
+          if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
           double tn = Current.Time;
           LinAlg_CopyVector(&DofData_P->CurrentSolution->x, &xn);

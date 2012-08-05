@@ -4,6 +4,8 @@
 // bugs and problems to <getdp@geuz.org>.
 
 #include <sstream>
+#include <vector>
+#include <string>
 #include <string.h>
 #include <time.h>
 #include "GetDPConfig.h"
@@ -248,8 +250,10 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	else {
 	  while (i<argc && argv[i][0]!='-') {
 	    Name_PostOperation[j] = argv[i]; i++; j++;
-	    if(j == NBR_MAX_POS)
+	    if(j == NBR_MAX_POS){
 	      Message::Error("Too many PostOperations");
+              break;
+            }
 	  }
 	  if(!j){
 	    Flag_POS = *lpos = 1;
@@ -289,8 +293,10 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	i++; j = 0;
 	while (i<argc && argv[i][0]!='-') {
 	  Name_ResFile[j] = argv[i]; i++; j++;
-	  if(j == NBR_MAX_RES)
+	  if(j == NBR_MAX_RES){
 	    Message::Error("Too many '.res' files");
+            break;
+          }
 	}
 	if(!j)
 	  Message::Error("Missing file name");
@@ -363,7 +369,9 @@ class GmshMsg : public GmshMessage{
 public:
   void operator()(std::string level, std::string msg)
   {
-    if(level == "Fatal" || level == "Error")
+    if(level == "Fatal")
+      Message::Fatal("%s", msg.c_str());
+    else if(level == "Error")
       Message::Error("%s", msg.c_str());
     else if(level == "Warning")
       Message::Warning("%s", msg.c_str());
@@ -494,3 +502,10 @@ int MainLegacy(int argc, char *argv[])
   return 0;
 }
 
+int GetDP(std::vector<std::string> &args)
+{
+  int argc = args.size();
+  std::vector<char*> argv(argc + 1, (char*)0);
+  for(int i = 0; i < argc; i++) argv[i] = (char*)args[i].c_str();
+  return MainLegacy(argc, &argv[0]);
+}

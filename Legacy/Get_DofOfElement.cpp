@@ -452,9 +452,11 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
     case _CAL :
     case _POS :
     case _CST :
-      if(!FunctionSpace_P->DofData)
+      if(!FunctionSpace_P->DofData){
 	Message::Error("Empty DofData in FunctionSpace '%s' (no unknowns?)",
-		   FunctionSpace_P->Name);
+                       FunctionSpace_P->Name);
+        return;
+      }
 
       CodeExist =
 	((Dof_P =
@@ -475,6 +477,7 @@ void  Get_CodesOfElement(struct FunctionSpace    * FunctionSpace_P,
 
     default :
       Message::Error("Unknown TreatmentStatus (%d)", TreatmentStatus);
+      return;
     }
 
     /*  2.  O n e   a s s o c i a t e s   a   b a s i s   f u n c t i o n :  */
@@ -541,9 +544,11 @@ void  Get_DofOfRegion(int  Num_Region,
     case _CAL :
     case _POS :
     case _CST :
-      if(!FunctionSpace_P->DofData)
+      if(!FunctionSpace_P->DofData){
 	Message::Error("Empty DofData in FunctionSpace '%s' (no unknowns?)",
 		   FunctionSpace_P->Name);
+        return;
+      }
 
       CodeExist =
 	((Dof_P = Dof_GetDofStruct(FunctionSpace_P->DofData,

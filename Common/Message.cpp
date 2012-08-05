@@ -36,9 +36,10 @@
 #include <gmsh/GmshConfig.h>
 #endif
 
-int Message::_isCommWorld = 1; // is the Communicator set to WORLD (=1) or SELF (!=1)
 int Message::_commRank = 0;
 int Message::_commSize = 1;
+int Message::_isCommWorld = 1; // is the communicator set to WORLD (==1) or SELF (!=1)
+int Message::_errorCount = 0;
 int Message::_verbosity = 3;
 int Message::_progressMeterStep = 10;
 int Message::_progressMeterCurrent = 0;
@@ -75,6 +76,7 @@ static void gslErrorHandler(const char *reason, const char *file, int line,
 
 void Message::Init(int argc, char **argv)
 {
+  _errorCount = 0;
 #if defined(HAVE_PETSC)
   MPI_Init(&argc, &argv);
   MPI_Comm_rank(MPI_COMM_WORLD, &_commRank);
@@ -100,6 +102,8 @@ void Message::Exit(int level)
 
 void Message::Fatal(const char *fmt, ...)
 {
+  _errorCount++;
+
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -123,8 +127,46 @@ void Message::Fatal(const char *fmt, ...)
   Exit(1);
 }
 
+static int streamIsFile(FILE* stream)
+{
+  // the given stream is definately not interactive if it is a regular file
+  struct stat stream_stat;
+  if(fstat(fileno(stream), &stream_stat) == 0){
+    if(stream_stat.st_mode & S_IFREG) return 1;
+  }
+  return 0;
+}
+
+static int streamIsVT100(FILE* stream)
+{
+  // if running inside emacs the terminal is not VT100
+  const char* emacs = getenv("EMACS");
+  if(emacs && *emacs == 't') return 0;
+
+  // list of known terminal names (from cmake)
+  static const char* names[] =
+    {"Eterm", "ansi", "color-xterm", "con132x25", "con132x30", "con132x43",
+     "con132x60", "con80x25",  "con80x28", "con80x30", "con80x43", "con80x50",
+     "con80x60",  "cons25", "console", "cygwin", "dtterm", "eterm-color", "gnome",
+     "gnome-256color", "konsole", "konsole-256color", "kterm", "linux", "msys",
+     "linux-c", "mach-color", "mlterm", "putty", "rxvt", "rxvt-256color",
+     "rxvt-cygwin", "rxvt-cygwin-native", "rxvt-unicode", "rxvt-unicode-256color",
+     "screen", "screen-256color", "screen-256color-bce", "screen-bce", "screen-w",
+     "screen.linux", "vt100", "xterm", "xterm-16color", "xterm-256color",
+     "xterm-88color", "xterm-color", "xterm-debian", 0};
+  const char** t = 0;
+  const char* term = getenv("TERM");
+  if(term){
+    for(t = names; *t && strcmp(term, *t) != 0; ++t) {}
+  }
+  if(!(t && *t)) return 0;
+  return 1;
+}
+
 void Message::Error(const char *fmt, ...)
 {
+  _errorCount++;
+
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -138,14 +180,19 @@ void Message::Error(const char *fmt, ...)
     _onelabClient->sendError(str);
   }
   else{
+    const char *c0 = "", *c1 = "";
+    if(!streamIsFile(stderr) && streamIsVT100(stderr)){
+      c0 = "\33[31m"; c1 = "\33[0m";  // red
+    }
     if(_commSize > 1)
-      fprintf(stderr, "Error   : [On processor %d] %s\n", _commRank, str);
+      fprintf(stderr, "%sError   : [On processor %d] %s%s\n", c0, _commRank, str, c1);
     else
-      fprintf(stderr, "Error   : %s\n", str);
+      fprintf(stderr, "%sError   : %s%s\n", c0, str, c1);
     fflush(stderr);
   }
 
-  Exit(1);
+  // Error() should NOT lead to exit; use Fatal() for that
+  // Exit(1);
 }
 
 void Message::Warning(const char *fmt, ...)
@@ -164,7 +211,11 @@ void Message::Warning(const char *fmt, ...)
     _onelabClient->sendWarning(str);
   }
   else{
-    fprintf(stdout, "Warning : %s\n", str);
+    const char *c0 = "", *c1 = "";
+    if(!streamIsFile(stderr) && streamIsVT100(stderr)){
+      c0 = "\33[35m"; c1 = "\33[0m";  // magenta
+    }
+    fprintf(stdout, "%sWarning : %s%s\n", c0, str, c1);
     fflush(stdout);
   }
 }

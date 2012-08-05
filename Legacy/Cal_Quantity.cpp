@@ -126,9 +126,11 @@ void Cal_SolidAngle(int Source, struct Element *Element,
   int    In, TypEnt, NumNode, NbrElements, *NumElements ;
   int    i, j ;
 
-  if(Nbr_Dof != QuantityStorage->NbrElementaryBasisFunction)
+  if(Nbr_Dof != QuantityStorage->NbrElementaryBasisFunction){
     Message::Error("Uncompatible Quantity (%s) in SolidAngle computation",
                    QuantityStorage->DefineQuantity->Name);
+    return;
+  }
 
   if(Source){
     Elt = Element->ElementSource ;
@@ -174,14 +176,18 @@ void Cal_SolidAngle(int Source, struct Element *Element,
 
       Geo_CreateNodesXElements(NumNode, In, &NbrElements, &NumElements) ;
 
-      if(NbrElements != 2)
+      if(NbrElements != 2){
 	Message::Error("SolidAngle not done for incidence != 2 (%d)", NbrElements);
+        return;
+      }
 
       GeoNode2 = Geo_GetGeoNodeOfNum(NumNode) ;
       GeoElement = Geo_GetGeoElementOfNum(abs(NumElements[0])) ;
 
-      if(GeoElement->Type != LINE)
+      if(GeoElement->Type != LINE){
 	Message::Error("SolidAngle not done for Elements other than LINE");
+        return;
+      }
 
       if(NumElements[0]>0){
 	GeoNode1 = Geo_GetGeoNodeOfNum(GeoElement->NumNodes[0]) ;
@@ -323,9 +329,11 @@ void Cal_WholeQuantity(struct Element * Element,
     first = 0;
   }
   RecursionIndex++;
-  if(RecursionIndex < 0 || RecursionIndex >= MAX_RECURSION)
+  if(RecursionIndex < 0 || RecursionIndex >= MAX_RECURSION){
     Message::Error("Recursion problem in Cal_WholeQuantity (%d outside [0,%d])",
                    RecursionIndex, MAX_RECURSION);
+    return;
+  }
   Stack = StaticStack[RecursionIndex];
 #endif
 
@@ -336,7 +344,10 @@ void Cal_WholeQuantity(struct Element * Element,
 
   for (i_WQ = 0 ; i_WQ < List_Nbr(WholeQuantity_L) ; i_WQ++) {
 
-    if(Index >= MAX_STACK_SIZE) Message::Error("Stack size exceeded (%d)", MAX_STACK_SIZE);
+    if(Index >= MAX_STACK_SIZE){
+      Message::Error("Stack size exceeded (%d)", MAX_STACK_SIZE);
+      return;
+    }
 
     WholeQuantity_P = WholeQuantity_P0 + i_WQ ;
 
@@ -471,8 +482,10 @@ void Cal_WholeQuantity(struct Element * Element,
     case WQ_TRACE : /* Trace[WholeQuantity, Group] */
       Save_Region = Current.Region ;
 
-      if(!Element->ElementTrace)
+      if(!Element->ElementTrace){
 	Message::Error("Trace must act on discrete quantity (and not in post-processing)");
+        break;
+      }
 
       Current.Region = Element->ElementTrace->Region ;
 
@@ -666,8 +679,10 @@ void Cal_WholeQuantity(struct Element * Element,
             Solution_P0 = (struct Solution*)List_Pointer((Current.DofData_P0+k)->Solutions, 0);
             if(((Current.DofData_P0+k)->CurrentSolution - Solution_P0) >= n+1)
               ((Current.DofData_P0+k)->CurrentSolution) -= 1 ;
-            else
+            else{
               Message::Error("Too few solutions for Dt with Gears method");
+              break;
+            }
           }
 
           Current.TimeStep = Current.DofData->CurrentSolution->TimeStep ;
@@ -805,8 +820,10 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
 
     case WQ_MHTRANSFORM :
-      if(Current.NbrHar == 1)
+      if(Current.NbrHar == 1){
 	Message::Error("MHTransform can only be used in complex (multi-harmonic) calculations") ;
+        break;
+      }
 
       Cal_WholeQuantity(Element, QuantityStorage_P0,
 			WholeQuantity_P->Case.MHTransform.WholeQuantity,
@@ -866,16 +883,20 @@ void Cal_WholeQuantity(struct Element * Element,
       break ;
 
     case WQ_SAVEVALUE :
-      if(WholeQuantity_P->Case.SaveValue.Index > MAX_REGISTER_SIZE-1)
+      if(WholeQuantity_P->Case.SaveValue.Index > MAX_REGISTER_SIZE-1){
 	Message::Error("Register Size Exceeded (%d)", MAX_REGISTER_SIZE);
+        break;
+      }
       /* if (WholeQuantity_P->Case.SaveValue.Index >= 0) */
       Cal_CopyValue(&Stack[0][Index-1],
 		    ValueSaved + WholeQuantity_P->Case.SaveValue.Index) ;
       break ;
 
     case WQ_VALUESAVED :
-      if(WholeQuantity_P->Case.ValueSaved.Index > MAX_REGISTER_SIZE-1)
+      if(WholeQuantity_P->Case.ValueSaved.Index > MAX_REGISTER_SIZE-1){
 	Message::Error("Register size exceeded (%d)", MAX_REGISTER_SIZE);
+        break;
+      }
       Cal_CopyValue(ValueSaved + WholeQuantity_P->Case.ValueSaved.Index,
 		    &Stack[0][Index]) ;
       Multi[Index] = 0 ;

@@ -75,10 +75,11 @@ void  Init_DofDataInDefineQuantity(struct DefineSystem *DefineSystem_P,
       List_Pointer(Formulation_P->DefineQuantity, i);
 
     if(DefineQuantity_P->DofDataIndex >= 0){
-      if(DefineQuantity_P->DofDataIndex >= List_Nbr(DefineSystem_P->OriginSystemIndex))
+      if(DefineQuantity_P->DofDataIndex >= List_Nbr(DefineSystem_P->OriginSystemIndex)){
 	Message::Error("Invalid System index (%d) in discrete Quantity (%s)",
                        DefineQuantity_P->DofDataIndex, DefineQuantity_P->Name);
-
+        break;
+      }
       List_Read(DefineSystem_P->OriginSystemIndex, DefineQuantity_P->DofDataIndex, &j) ;
       DefineQuantity_P->DofData = DofData_P0 + j ;
     }
@@ -148,15 +149,19 @@ void  Treatment_PostOperation(struct Resolution     * Resolution_P,
 
   int    Nbr_PostSubOperation, i_POP, i ;
 
-  if (!List_Nbr(PostProcessing_P->PostQuantity))
+  if (!List_Nbr(PostProcessing_P->PostQuantity)){
     Message::Error("No Quantity available for PostProcessing '%s'",
                    PostProcessing_P->Name) ;
+    return;
+  }
 
   Formulation_P = (struct Formulation *)
     List_Pointer(Problem_S.Formulation, PostProcessing_P->FormulationIndex) ;
 
-  if (!List_Nbr(Formulation_P->DefineQuantity))
+  if (!List_Nbr(Formulation_P->DefineQuantity)){
     Message::Error("No discrete Quantity in Formulation '%s'", Formulation_P->Name);
+    return;
+  }
 
   /* Choice of Current DofData */
   Current.DofData = 0;
@@ -243,9 +248,11 @@ void  Init_HarInDofData(struct DefineSystem * DefineSystem_P,
     DofData_P->Val_Pulsation = (double*)List_Pointer(DofData_P->Pulsation, 0) ;
   }
 
-  if (DofData_P->NbrHar > NBR_MAX_HARMONIC)
+  if (DofData_P->NbrHar > NBR_MAX_HARMONIC){
     Message::Error("Too many harmonics to generate system (%d > %d)",
                    DofData_P->NbrHar/2, NBR_MAX_HARMONIC/2) ;
+    return;
+  }
 
   if (DofData_P->NbrHar > 1) {
     for (j = 0 ; j < DofData_P->NbrHar/2 ; j++)
@@ -383,8 +390,10 @@ void SolvingAnalyse()
     if (Name_Resolution)
       Num_Resolution = List_ISearchSeq(Problem_S.Resolution, Name_Resolution,
                                        fcmp_Resolution_Name) ;
-    else
+    else{
       Message::Error("Missing Resolution");
+      return;
+    }
   }
   else if (Flag_CAL || Flag_POS) {
     Dof_OpenFile(DOF_PRE, Name_Generic, "r") ;
@@ -394,12 +403,16 @@ void SolvingAnalyse()
 
 
   if (Num_Resolution < 0 ||
-      Num_Resolution + 1 > List_Nbr(Problem_S.Resolution))
+      Num_Resolution + 1 > List_Nbr(Problem_S.Resolution)){
     Message::Error("Unknown Resolution (%s)", Name_Resolution);
+    return;
+  }
 
   Treatment_Resolution(Num_Resolution, &Nbr_DefineSystem, &Nbr_OtherSystem,
                        &Resolution_P, &DefineSystem_P0, &DofData_P0,
 		       &DofData_L, GeoData_L, &GeoData_P0) ;
+
+  if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) goto end;
 
   /* -------------- */
   /* Pre-processing */
@@ -518,7 +531,7 @@ void SolvingAnalyse()
   Message::Cpu("");
   Message::Direct("E n d   P r e - P r o c e s s i n g");
 
-  if(Message::GetOnelabAction() == "stop") return;
+  if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) goto end;
 
   /* ---------- */
   /* Processing */
@@ -563,7 +576,7 @@ void SolvingAnalyse()
     Message::Direct("E n d   P r o c e s s i n g");
   }
 
-  if(Message::GetOnelabAction() == "stop") return;
+  if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) goto end;
 
   /* --------------- */
   /* Post-processing */
@@ -578,8 +591,10 @@ void SolvingAnalyse()
     i = 0 ;
     while(Name_PostOperation[i]){
       if((Num = List_ISearchSeq(Problem_S.PostOperation, Name_PostOperation[i],
-				fcmp_PostOperation_Name)) < 0)
+				fcmp_PostOperation_Name)) < 0){
 	Message::Error("Unknown PostOperation (%s)", Name_PostOperation[i]) ;
+        return;
+      }
       PostOperation_P[i] = (struct PostOperation*)
 	List_Pointer(Problem_S.PostOperation, Num) ;
       PostProcessing_P[i] = (struct PostProcessing *)
@@ -650,6 +665,7 @@ void SolvingAnalyse()
     Message::Direct("E n d   P o s t - P r o c e s s i n g");
   }
 
+ end:
   for(int i = 0; i < List_Nbr(DofData_L); i++)
     Dof_FreeDofData((DofData*)List_Pointer(DofData_L, i));
   List_Delete(DofData_L) ;

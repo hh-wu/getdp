@@ -487,8 +487,10 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
     if (!strncmp(&String[1], "ElementsXEdges", 14)) {
 
       fscanf(File_PRE, "%d", &GeoDataIndex) ;
-      if(GeoDataIndex > NbrGeoData-1)
+      if(GeoDataIndex > NbrGeoData-1){
 	Message::Error("Unknown GeoData: %d", GeoDataIndex);
+        return;
+      }
 
       GeoData_P = GeoData_P0 + GeoDataIndex ;
       Geo_Element_P0 = (struct Geo_Element*)List_Pointer(GeoData_P->Elements, 0) ;
@@ -509,8 +511,10 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
     else if (!strncmp(&String[1], "ElementsXFacets", 15)) {
 
       fscanf(File_PRE, "%d", &GeoDataIndex) ;
-      if(GeoDataIndex > NbrGeoData-1)
+      if(GeoDataIndex > NbrGeoData-1){
 	Message::Error("Unknown GeoData: %d", GeoDataIndex);
+        return;
+      }
 
       GeoData_P = GeoData_P0 + GeoDataIndex ;
       Geo_Element_P0 = (struct Geo_Element*)List_Pointer(GeoData_P->Elements, 0) ;
@@ -541,7 +545,7 @@ void Geo_ReadFilePRE(struct GeoData * GeoData_P0, int NbrGeoData,
 
     do {
       fgets(String, sizeof(String), File_PRE) ;
-      if (feof(File_PRE)) Message::Error("Prematured end of file");
+      if (feof(File_PRE)){ Message::Error("Prematured end of file"); return; }
     } while (String[0] != '$') ;
 
   }   /* while 1 ... */

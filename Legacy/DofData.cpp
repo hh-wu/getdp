@@ -98,7 +98,80 @@ void Dof_FreeDofData(struct DofData * DofData_P)
 {
   Message::Debug("Freeing DofData %d", DofData_P->Num);
 
-  // TODO!
+  if(DofData_P->FunctionSpaceIndex)
+    List_Delete(DofData_P->FunctionSpaceIndex);
+
+  if(DofData_P->TimeFunctionIndex)
+    List_Delete(DofData_P->TimeFunctionIndex);
+
+  if(DofData_P->Pulsation)
+    List_Delete(DofData_P->Pulsation);
+
+  if(DofData_P->DofTree)
+    Tree_Delete(DofData_P->DofTree);
+
+  if(DofData_P->DofList)
+    List_Delete(DofData_P->DofList);
+
+  Free(DofData_P->DummyDof);
+
+  if(DofData_P->Solutions){
+    for(int i = 0; i < List_Nbr(DofData_P->Solutions); i++){
+      Solution *Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, i);
+      if(Solution_P->SolutionExist){
+	LinAlg_DestroyVector(&Solution_P->x);
+	if (Solution_P->TimeFunctionValues) Free(Solution_P->TimeFunctionValues) ;
+      }
+    }
+    List_Delete(DofData_P->Solutions);
+  }
+
+  if(DofData_P->OnlyTheseMatrices)
+    List_Delete(DofData_P->OnlyTheseMatrices);
+
+  if(DofData_P->Flag_Init[0] == 1 || DofData_P->Flag_Init[0] == 2){
+    LinAlg_DestroyMatrix(&DofData_P->A);
+    LinAlg_DestroyVector(&DofData_P->b);
+    LinAlg_DestroySolver(&DofData_P->Solver);
+  }
+
+  if(DofData_P->Flag_Init[0] == 2){
+    LinAlg_DestroyMatrix(&DofData_P->Jac);
+    LinAlg_DestroyVector(&DofData_P->res);
+    LinAlg_DestroyVector(&DofData_P->dx);
+  }
+
+  if(DofData_P->Flag_Init[1] == 1){
+    LinAlg_DestroyMatrix(&DofData_P->M1);
+    LinAlg_DestroyVector(&DofData_P->m1);
+  }
+
+  if(DofData_P->Flag_Init[2] == 1){
+    LinAlg_DestroyMatrix(&DofData_P->M2);
+    LinAlg_DestroyVector(&DofData_P->m2);
+  }
+
+  if(DofData_P->Flag_Init[3] == 1){
+    LinAlg_DestroyMatrix(&DofData_P->M3);
+    LinAlg_DestroyVector(&DofData_P->m3);
+  }
+
+  if(DofData_P->Flag_Only){
+    if(DofData_P->Flag_InitOnly[0] == 1){
+      LinAlg_DestroyMatrix(&DofData_P->A1);
+      LinAlg_DestroyVector(&DofData_P->b1);
+    }
+    if(DofData_P->Flag_InitOnly[1] == 1){
+      LinAlg_DestroyMatrix(&DofData_P->A2);
+      LinAlg_DestroyVector(&DofData_P->b2);
+    }
+    if(DofData_P->Flag_InitOnly[2] == 1){
+      LinAlg_DestroyMatrix(&DofData_P->A3);
+      LinAlg_DestroyVector(&DofData_P->b3);
+    }
+  }
+
+  // TODO: handle _MH data and CorrectionSolutions
 }
 
 /* ------------------------------------------------------------------------ */
@@ -209,7 +282,7 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
-  if (feof(File_PRE)) Message::Error("$Resolution field not found in file");
+  if (feof(File_PRE)){ Message::Error("$Resolution field not found in file"); return; }
 
   if (!strncmp(&String[1], "Resolution", 10)) {
     fscanf(File_PRE, "%d %d", Num_Resolution, Nbr_DofData) ;
@@ -217,7 +290,7 @@ void Dof_ReadFilePRE0(int * Num_Resolution, int * Nbr_DofData)
 
   do {
     fgets(String, sizeof(String), File_PRE) ;
-    if (feof(File_PRE)) Message::Error("Prematured end of file");
+    if (feof(File_PRE)){ Message::Error("Prematured end of file"); return; }
   } while (String[0] != '$') ;
 }
 
@@ -337,7 +410,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
     if (feof(File_PRE))  break ;
   } while (String[0] != '$') ;
 
-  if (feof(File_PRE)) Message::Error("$DofData field not found in file");
+  if (feof(File_PRE)){ Message::Error("$DofData field not found in file"); return; }
 
   if (!strncmp(&String[1], "DofData", 7)) {
 
@@ -417,7 +490,7 @@ void Dof_ReadFilePRE(struct DofData * DofData_P)
 
   do {
     fgets(String, sizeof(String), File_PRE) ;
-    if (feof(File_PRE)) Message::Error("Prematured end of file");
+    if (feof(File_PRE)){ Message::Error("Prematured end of file"); return; }
   } while (String[0] != '$') ;
 
   Dof_InitDofType(DofData_P) ;
@@ -1461,11 +1534,11 @@ gScalar Dof_GetDofValue(struct DofData * DofData_P, struct Dof * Dof_P)
   switch (Dof_P->Type) {
 
   case DOF_UNKNOWN :
-    if(!DofData_P->CurrentSolution->SolutionExist){
+    if(!DofData_P->CurrentSolution->SolutionExist)
       Message::Error("Empty solution in DofData %d", DofData_P->Num);
-    }
-    LinAlg_GetScalarInVector(&tmp, &DofData_P->CurrentSolution->x,
-			     Dof_P->Case.Unknown.NumDof-1) ;
+    else
+      LinAlg_GetScalarInVector(&tmp, &DofData_P->CurrentSolution->x,
+                               Dof_P->Case.Unknown.NumDof-1) ;
     break ;
 
   case DOF_FIXED :
@@ -1502,6 +1575,7 @@ void Dof_GetRealDofValue(struct DofData * DofData_P, struct Dof * Dof_P, double 
 
   if (Dof_P->Type == DOF_LINKCPLX) {
     Message::Error("Cannot call Dof_GetRealDofValue for LinkCplx");
+    return;
   }
 
   tmp = Dof_GetDofValue(DofData_P, Dof_P) ;
@@ -1692,8 +1766,10 @@ void Dof_GetDummies(struct DefineSystem * DefineSystem_P, struct DofData * DofDa
   int * DummyDof;
   double DummyFrequency, * Val_Pulsation;
 
-  if (!(Val_Pulsation = Current.DofData->Val_Pulsation))
+  if (!(Val_Pulsation = Current.DofData->Val_Pulsation)){
     Message::Error("Dof_GetDummies can only be used for harmonic problems");
+    return;
+  }
 
   DummyDof = DofData_P->DummyDof = (int *)Malloc(DofData_P->NbrDof*sizeof(int));
   for (iDof = 0 ; iDof < DofData_P->NbrDof ; iDof++) DummyDof[iDof]=0;

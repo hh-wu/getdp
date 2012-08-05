@@ -23,7 +23,7 @@ void Gauss_Triangle(int Nbr_Points, int Num,
   case 12 : *u= xt12[Num] ; *v= yt12[Num] ; *w= 0. ; *wght= pt12[Num] ; break ;
   case 13 : *u= xt13[Num] ; *v= yt13[Num] ; *w= 0. ; *wght= pt13[Num] ; break ;
   case 16 : *u= xt16[Num] ; *v= yt16[Num] ; *w= 0. ; *wght= pt16[Num] ; break ;
-  default : 
+  default :
     Message::Error("Wrong number of Gauss points for Triangle: "
                    "valid choices: 1, 3, 4, 6, 7, 12, 13, 16");
     break;
@@ -42,7 +42,7 @@ static void quadToTri(double xi,double eta,double *r, double *s, double *J)
   *r = 0.5e0 * (1.0e0 + xi);
   r1 = 1.0e0 - (*r);
   *s = 0.5e0 * (1.0e0 + eta) * r1;
-  *J = 0.25e0 * r1;  
+  *J = 0.25e0 * r1;
 }
 
 void GaussLegendre_Triangle(int Nbr_Points, int Num,
@@ -53,8 +53,10 @@ void GaussLegendre_Triangle(int Nbr_Points, int Num,
 
   nb = (int)sqrt((double)Nbr_Points);
 
-  if(nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
+  if(nb*nb != Nbr_Points || nb > MAX_LINE_POINTS){
     Message::Error("Number of points should be n^2 with n in [1,%d]", MAX_LINE_POINTS) ;
+    return;
+  }
 
   if(glt[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) glt[i] = 0 ;
 
@@ -86,7 +88,7 @@ void GaussSingularR_Triangle(int Nbr_Points, int Num,
   case  1 : *u= xts1 [Num] ; *v= yts1 [Num] ; *w= 0. ; *wght= pts1 [Num] ; break ;
   case  3 : *u= xts3 [Num] ; *v= yts3 [Num] ; *w= 0. ; *wght= pts3 [Num] ; break ;
   case  4 : *u= xts4 [Num] ; *v= yts4 [Num] ; *w= 0. ; *wght= pts4 [Num] ; break ;
-  default : 
+  default :
     Message::Error("Wrong number of (modified) Gauss points for Triangle: "
                    "valid choices: 1, 3, 4");
     break;

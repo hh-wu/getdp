@@ -315,7 +315,7 @@ void List_WriteToFile(List_T * liste, FILE * file, int format)
         fputc(*((char *)&liste->array[i * liste->size]), file);
     else
       Message::Error("Bad type of data to write list to file (size = %d)",
-          liste->size);
+                     liste->size);
     break;
   case LIST_FORMAT_BINARY:
     safe_fwrite(liste->array, liste->size, n, file);

@@ -101,7 +101,8 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
 	List_Add(RegionIndex_L, &Num_Region) ;
       else {
 	Message::Error("2 occurences of Elementary Region #%d in Contraint '%s'",
-		   Num_Region, Constraint_P->Name);
+                       Num_Region, Constraint_P->Name);
+        return;
       }
     }
   }
@@ -149,10 +150,10 @@ void  Cal_FemGlobalEquation(struct EquationTerm    * EquationTerm_P,
     }
   }
   if (List_Nbr(DofGlobal_Equ_L) != Nbr_EquAndDof) {
-    Message::Error("Incompatible number of equations with Contraint '%s'.",
-	       Constraint_P->Name);
-    Message::Error("(%d equations obtained while %d branches are defined)",
-	       List_Nbr(DofGlobal_Equ_L), Nbr_EquAndDof);
+    Message::Error("Incompatible number of equations with Contraint '%s' "
+                   "(%d equations obtained while %d branches are defined)",
+                   Constraint_P->Name, List_Nbr(DofGlobal_Equ_L), Nbr_EquAndDof);
+    return;
   }
 
   DofGlobal_Equ     = (struct DofGlobal*)List_Pointer(DofGlobal_Equ_L    , 0) ;
@@ -309,11 +310,15 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
   /*     DefineQuantity                                              */
   /* --------------------------------------------------------------- */
 
-  if (!(Nbr_EquationTerm = List_Nbr(Formulation_P->Equation)))
+  if (!(Nbr_EquationTerm = List_Nbr(Formulation_P->Equation))){
     Message::Error("No equation in Formulation '%s'", Formulation_P->Name);
+    return;
+  }
 
-  if (!(Nbr_DefineQuantity = List_Nbr(Formulation_P->DefineQuantity)))
+  if (!(Nbr_DefineQuantity = List_Nbr(Formulation_P->DefineQuantity))){
     Message::Error("No Quantity in Formulation '%s'", Formulation_P->Name);
+    return;
+  }
 
   DefineQuantity_P0 = (struct DefineQuantity*)
     List_Pointer(Formulation_P->DefineQuantity, 0) ;
@@ -582,6 +587,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 
     Message::ProgressMeter(i_Element + 1, Nbr_Element, (TreatmentStatus == _PRE) ?
                            "Pre-processing" : "Processing (Generate)");
+    if(Message::GetErrorCount()) break;
   }  /* for i_Element ... */
 
 
@@ -645,7 +651,7 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
 	      break ;
 	    default :
 	      Message::Error("Bad kind of Quantity in Formulation '%s'",
-			 Formulation_P->Name);
+                             Formulation_P->Name);
 	      break;
 	    }
 	  }

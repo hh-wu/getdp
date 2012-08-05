@@ -113,52 +113,57 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   /*  G e t   I n t e g r a t i o n   M e t h o d   */
   /*  --------------------------------------------  */
 
-  if(EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex < 0)
+  if(EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex < 0){
     Message::Error("Integration method missing in equation term");
+    FI->IntegrationCase_L = 0;
+  }
+  else{
+    FI->IntegrationCase_L =
+      ((struct IntegrationMethod *)
+       List_Pointer(Problem_S.IntegrationMethod,
+                    EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))
+      ->IntegrationCase ;
 
-  FI->IntegrationCase_L =
-    ((struct IntegrationMethod *)
-     List_Pointer(Problem_S.IntegrationMethod,
-		  EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))
-    ->IntegrationCase ;
-
-  FI->CriterionIndex =
-    ((struct IntegrationMethod *)
-     List_Pointer(Problem_S.IntegrationMethod,
-		  EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))
-    ->CriterionIndex ;
-
+    FI->CriterionIndex =
+      ((struct IntegrationMethod *)
+       List_Pointer(Problem_S.IntegrationMethod,
+                    EquationTerm_P->Case.LocalTerm.IntegrationMethodIndex))
+      ->CriterionIndex ;
+  }
 
   /*  G e t   J a c o b i a n   M e t h o d   */
   /*  --------------------------------------  */
 
-  if(EquationTerm_P->Case.LocalTerm.JacobianMethodIndex < 0)
+  if(EquationTerm_P->Case.LocalTerm.JacobianMethodIndex < 0){
     Message::Error("Jacobian method missing in equation term");
+    FI->JacobianCase_L = 0;
+  }
+  else{
+    FI->JacobianCase_L =
+      ((struct JacobianMethod *)
+       List_Pointer(Problem_S.JacobianMethod,
+                    EquationTerm_P->Case.LocalTerm.JacobianMethodIndex))
+      ->JacobianCase ;
 
-  FI->JacobianCase_L =
-    ((struct JacobianMethod *)
-     List_Pointer(Problem_S.JacobianMethod,
-		  EquationTerm_P->Case.LocalTerm.JacobianMethodIndex))
-    ->JacobianCase ;
-
-  FI->JacobianCase_P0 =
-    (FI->NbrJacobianCase = List_Nbr(FI->JacobianCase_L)) ?
-    (struct JacobianCase*)List_Pointer(FI->JacobianCase_L, 0) : NULL ;
+    FI->JacobianCase_P0 =
+      (FI->NbrJacobianCase = List_Nbr(FI->JacobianCase_L)) ?
+      (struct JacobianCase*)List_Pointer(FI->JacobianCase_L, 0) : NULL ;
+  }
 
   FI->Flag_ChangeCoord =
     ( FI->SymmetricalMatrix ||
       !(
-	( (FI->Type_FormEqu == FORM0 || FI->Type_FormEqu == FORM0P) &&
-	  (FI->Type_FormDof == FORM3 || FI->Type_FormDof == FORM3P) ) ||
-	/*
-        ( (FI->Type_FormEqu == FORM1 || FI->Type_FormEqu == FORM1P)  &&
-	  (FI->Type_FormDof == FORM2 || FI->Type_FormDof == FORM2P) ) ||
-	( (FI->Type_FormEqu == FORM2 || FI->Type_FormEqu == FORM2P)  &&
-	  (FI->Type_FormDof == FORM1 || FI->Type_FormDof == FORM1P) ) ||
-	 */
-	( (FI->Type_FormEqu == FORM3 || FI->Type_FormEqu == FORM3P) &&
-	  (FI->Type_FormDof == FORM0 || FI->Type_FormDof == FORM0P) )
-	)
+        ( (FI->Type_FormEqu == FORM0 || FI->Type_FormEqu == FORM0P) &&
+          (FI->Type_FormDof == FORM3 || FI->Type_FormDof == FORM3P) ) ||
+        /*
+          ( (FI->Type_FormEqu == FORM1 || FI->Type_FormEqu == FORM1P)  &&
+          (FI->Type_FormDof == FORM2 || FI->Type_FormDof == FORM2P) ) ||
+          ( (FI->Type_FormEqu == FORM2 || FI->Type_FormEqu == FORM2P)  &&
+          (FI->Type_FormDof == FORM1 || FI->Type_FormDof == FORM1P) ) ||
+        */
+        ( (FI->Type_FormEqu == FORM3 || FI->Type_FormEqu == FORM3P) &&
+          (FI->Type_FormDof == FORM0 || FI->Type_FormDof == FORM0P) )
+        )
       )
     ||  /* For operators on VECTOR's (To be extended) */
     (FI->Type_FormEqu == VECTOR || FI->Type_FormDof == VECTOR)
@@ -167,10 +172,10 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
 
   if (FI->Flag_ChangeCoord){
     FI->Flag_InvJac = ( (FI->Type_FormEqu == FORM1) ||
-			(!FI->SymmetricalMatrix && (FI->Type_FormDof == FORM1)) ||
+                        (!FI->SymmetricalMatrix && (FI->Type_FormDof == FORM1)) ||
                         /* For operators on VECTOR's (To be extended) */
-			(FI->Type_FormEqu == VECTOR || FI->Type_FormDof == VECTOR) ||
-			(EquationTerm_P->Case.LocalTerm.Term.QuantityIndexPost == 1) ) ;
+                        (FI->Type_FormEqu == VECTOR || FI->Type_FormDof == VECTOR) ||
+                        (EquationTerm_P->Case.LocalTerm.Term.QuantityIndexPost == 1) ) ;
   }
 
   /*  G e t   C h a n g e O f C o o r d i n a t e s   */
@@ -204,6 +209,7 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
     FI->Cal_Productx = (double (*)())Cal_Product1 ; break ;
   default      :
     Message::Error("Unknown type of Form (%d)", FI->Type_FormEqu);
+    FI->Cal_Productx = (double (*)())Cal_Product123 ; break ;
   }
 
   /*  G e t   F u n c t i o n _ A s s e m b l e T e r m  */
@@ -219,8 +225,10 @@ void Cal_InitGalerkinTermOfFemEquation(struct EquationTerm     * EquationTerm_P,
   case DTDOFJACNL_  : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtDofJacNL; break;
   case NEVERDT_     : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NeverDt; break;
   case DTNL_        : FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_DtNL   ; break;
-  default           : Message::Error("Unknown type of Operator for Galerkin term (%d)",
-                                     EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
+  default           :
+    Message::Error("Unknown type of Operator for Galerkin term (%d)",
+                   EquationTerm_P->Case.LocalTerm.Term.TypeTimeDerivative);
+    FI->Function_AssembleTerm = (void (*)())Cal_AssembleTerm_NoDt   ; break;
   }
 
 
@@ -576,8 +584,10 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 	 (((struct Group *)List_Pointer(Problem_S.Group, j))
 	  ->InitialList, &Element->Region, fcmp_int) )  i++ ;
 
-  if (i == FI->NbrJacobianCase)
+  if (i == FI->NbrJacobianCase){
     Message::Error("Undefined Jacobian in Region %d", Element->Region);
+    return;
+  }
 
   Element->JacobianCase = FI->JacobianCase_P0 + i ;
 
@@ -715,6 +725,7 @@ void  Cal_GalerkinTermOfFemEquation(struct Element          * Element,
 		break;
 	      default :
 		Message::Error("Unknown operation in Equation");
+                break;
 	      }
 	    }
 	    else if(EquationTerm_P->Case.LocalTerm.Term.CanonicalWholeQuantity_Equ ==

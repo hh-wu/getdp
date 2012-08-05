@@ -45,6 +45,7 @@ set(GETDP_SHORT_LICENSE "GNU General Public License")
 set(GETDP_API
   ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h 
   ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h
+  Legacy/GetDP.h
   Interface/ProData.h
 )
 

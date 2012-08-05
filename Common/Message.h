@@ -21,7 +21,9 @@ struct Group;
 class Message {
  private:
   // current cpu number and total number of cpus
-  static int _commRank, _commSize;
+  static int _commRank, _commSize, _isCommWorld;
+  // error count
+  static int _errorCount;
   // verbosity level
   static int _verbosity;
   // step (in %) of the progress meter and current progress %
@@ -32,8 +34,6 @@ class Message {
   static GmshClient *_client;
   // communication with onelab server
   static onelab::client *_onelabClient;
-  //parallelization
-  static int _isCommWorld;
  public:
   Message() {}
   static void Init(int argc, char **argv);
@@ -52,6 +52,8 @@ class Message {
   static int GetVerbosity(){ return _verbosity; }
   static void Fatal(const char *fmt, ...);
   static void Error(const char *fmt, ...);
+  static void ResetErrorCounter(){ _errorCount = 0; }
+  static int GetErrorCount(){ return _errorCount; }
   static void Warning(const char *fmt, ...);
   static void Info(const char *fmt, ...);
   static void Info(int verbosity, const char *fmt, ...);

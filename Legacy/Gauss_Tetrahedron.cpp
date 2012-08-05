@@ -16,35 +16,35 @@ void Gauss_Tetrahedron(int Nbr_Points, int Num,
 {
   switch (Nbr_Points) {
 
-  case  1 : 
+  case  1 :
     *u = xtet1 [Num] ; *v = ytet1 [Num] ; *w = ztet1 [Num] ;
     *wght = ptet1 [Num] ; break ;
 
-  case  4 : 
+  case  4 :
     *u = xtet4 [Num] ; *v = ytet4 [Num] ; *w = ztet4 [Num] ;
     *wght = ptet4 [Num] ; break ;
 
-  case  5 : 
+  case  5 :
     *u = xtet5 [Num] ; *v = ytet5 [Num] ; *w = ztet5 [Num] ;
     *wght = ptet5 [Num] ; break ;
 
-  case 15 : 
+  case 15 :
     *u = xtet15[Num] ; *v = ytet15[Num] ; *w = ztet15[Num] ;
     *wght = ptet15[Num] ; break ;
 
-  case 16 : 
+  case 16 :
     *u = xtet16[Num] ; *v = ytet16[Num] ; *w = ztet16[Num] ;
     *wght = ptet16[Num] ; break ;
 
-  case 17 : 
+  case 17 :
     *u = xtet17[Num] ; *v = ytet17[Num] ; *w = ztet17[Num] ;
     *wght = ptet17[Num] ; break ;
 
-  case 29 : 
+  case 29 :
     *u = xtet29[Num] ; *v = ytet29[Num] ; *w = ztet29[Num] ;
     *wght = ptet29[Num] ; break ;
 
-  default : 
+  default :
     Message::Error("Wrong number of Gauss Points for Tetrahedron: "
                    "valid choices: 1, 4, 5, 15, 16, 17, 29");
     break;
@@ -79,13 +79,15 @@ void  GaussLegendre_Tetrahedron(int Nbr_Points, int Num,
 
   nb = (int)pow((double)Nbr_Points, 1./3.);
 
-  if(nb*nb*nb != Nbr_Points || nb > MAX_LINE_POINTS)
+  if(nb*nb*nb != Nbr_Points || nb > MAX_LINE_POINTS){
     Message::Error("Number of points should be n^3 with n in [1,%d]", MAX_LINE_POINTS) ;
+    return;
+  }
 
   if(gltet[0] < 0) for(i=0 ; i < MAX_LINE_POINTS ; i++) gltet[i] = 0 ;
 
   if(!gltet[nb-1]){
-    Message::Info("Computing degenerate GaussLegendre %dX%dX%d for Tetrahedron", 
+    Message::Info("Computing degenerate GaussLegendre %dX%dX%d for Tetrahedron",
                   nb, nb, nb);
     glxtet[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
     glytet[nb-1] = (double*)Malloc(Nbr_Points*sizeof(double));
@@ -97,7 +99,7 @@ void  GaussLegendre_Tetrahedron(int Nbr_Points, int Num,
 	Gauss_Line(nb, j, &pt2, &dum, &dum, &wt2);
 	for(k=0; k < nb; k++) {
 	  Gauss_Line(nb, k, &pt3, &dum, &dum, &wt3);
-	  hexToTet(pt1, pt2, pt3, &glxtet[nb-1][index], &glytet[nb-1][index], 
+	  hexToTet(pt1, pt2, pt3, &glxtet[nb-1][index], &glytet[nb-1][index],
 		   &glztet[nb-1][index], &dJ);
 	  glptet[nb-1][index++] = dJ*wt1*wt2*wt3;
 	}

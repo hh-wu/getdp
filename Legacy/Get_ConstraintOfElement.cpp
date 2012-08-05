@@ -621,9 +621,11 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
   List_Sort(NodeXYZ_L   , fcmp_XYZ) ;
   List_Sort(NodeXYZRef_L, fcmp_XYZ) ;
 
-  if (Nbr_EntityRef != Nbr_Entity)
+  if (Nbr_EntityRef != Nbr_Entity){
     Message::Error("Constraint Link: bad correspondance of number of Nodes (%d, %d)",
                    Nbr_Entity, Nbr_EntityRef) ;
+    return;
+  }
 
   Message::Debug("==> List of link for nodes") ;
 
@@ -634,12 +636,14 @@ void  Generate_LinkNodes(struct ConstraintInFS * Constraint_P,
     /* Attention: tolerance !!! */
     if ((fabs(NodeXYZ.x-NodeXYZRef.x) > TOL) ||
 	(fabs(NodeXYZ.y-NodeXYZRef.y) > TOL) ||
-	(fabs(NodeXYZ.z-NodeXYZRef.z) > TOL))
+	(fabs(NodeXYZ.z-NodeXYZRef.z) > TOL)){
       Message::Error("Constraint Link: bad correspondance of Nodes (%d, %d)"
                        " (%e %e %e), TOL=%g",
                        NodeXYZ.NumNode, NodeXYZRef.NumNode,
                        fabs(NodeXYZ.x-NodeXYZRef.x), fabs(NodeXYZ.y-NodeXYZRef.y),
                        fabs(NodeXYZ.z-NodeXYZRef.z), TOL) ;
+      return;
+    }
 
     TwoIntOneDouble.Int1 = NodeXYZ.NumNode ;
     TwoIntOneDouble.Int2 = NodeXYZRef.NumNode ;
@@ -752,7 +756,10 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
 
   EdgeNN_L = List_Create(Nbr_Entity, 1, sizeof(struct EdgeNN)) ;
 
-  if (Nbr_Entity != List_Nbr(ExtendedList_L))  Message::Error("Constraint Link: strange...") ;
+  if (Nbr_Entity != List_Nbr(ExtendedList_L)){
+    Message::Error("Constraint Link: strange...") ;
+    return;
+  }
 
   for (i = 0 ; i < Nbr_Entity ; i++) {
     List_Read(ExtendedList_L, i, &EdgeNN) ;
@@ -789,8 +796,10 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
       EdgeNN.Node1 = TwoIntOneDouble_P->Int2 ;
       EdgeNN.Node2 = TwoIntOneDouble2_P->Int2 ;
 
-      if (fabs(TwoIntOneDouble_P->Double - TwoIntOneDouble2_P->Double) > 1.e-18)
+      if (fabs(TwoIntOneDouble_P->Double - TwoIntOneDouble2_P->Double) > 1.e-18){
 	Message::Error("Constraint Link: Bad Coefficient for Edges") ;
+        return;
+      }
 
       EdgeNN.Coef = TwoIntOneDouble_P->Double ;
       EdgeNN.Coef2 = TwoIntOneDouble_P->Double2 ; /* LinkCplx */
@@ -840,9 +849,11 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
   }
   Nbr_EntityRef = List_Nbr(EdgeNNRef_L) ;
 
-  if (Nbr_EntityRef != Nbr_Entity)
+  if (Nbr_EntityRef != Nbr_Entity){
     Message::Error("Constraint Link: bad correspondance of number of Edges (%d, %d)",
                    Nbr_Entity, Nbr_EntityRef) ;
+    return;
+  }
 
   List_Sort(EdgeNN_L   , fcmp_NN) ;
   List_Sort(EdgeNNRef_L, fcmp_NN) ;
@@ -857,9 +868,11 @@ void  Generate_LinkEdges(struct ConstraintInFS * Constraint_P,
                    EdgeNNRef.NumEdge, EdgeNNRef.Node1, EdgeNNRef.Node2) ;
 
     if (EdgeNN.Node1 != EdgeNNRef.Node1 ||
-	EdgeNN.Node2 != EdgeNNRef.Node2)
+	EdgeNN.Node2 != EdgeNNRef.Node2){
       Message::Error("Constraint Link: bad correspondance of Edges (%d, %d)",
                      EdgeNN.NumEdge, EdgeNNRef.NumEdge) ;
+      return;
+    }
 
     TwoIntOneDouble.Int1 = EdgeNN.NumEdge ;
     TwoIntOneDouble.Int2 = EdgeNNRef.NumEdge ;
@@ -1006,7 +1019,10 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
 
   FacetNNN_L = List_Create(Nbr_Entity, 1, sizeof(struct FacetNNN)) ;
 
-  if (Nbr_Entity != List_Nbr(ExtendedList_L))  Message::Error("Constraint Link: strange...") ;
+  if (Nbr_Entity != List_Nbr(ExtendedList_L)){
+    Message::Error("Constraint Link: strange...") ;
+    return;
+  }
 
   Message::Debug("(ajout) Image: f%d, n%d - n%d - n%d", FacetNNN.NumFacet,
                  FacetNNN.Node1, FacetNNN.Node2, FacetNNN.Node3) ;
@@ -1138,9 +1154,11 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
   }
   Nbr_EntityRef = List_Nbr(FacetNNNRef_L) ;
 
-  if (Nbr_EntityRef != Nbr_Entity)
+  if (Nbr_EntityRef != Nbr_Entity){
     Message::Error("6-Constraint Link: bad correspondance of number of facets (%d, %d)",
                    Nbr_Entity, Nbr_EntityRef) ;
+    return;
+  }
 
   List_Sort(FacetNNN_L   , fcmp_NNN) ;
   List_Sort(FacetNNNRef_L, fcmp_NNN) ;
@@ -1157,9 +1175,11 @@ void  Generate_LinkFacets(struct ConstraintInFS * Constraint_P,
 
     if (FacetNNN.Node1 != FacetNNNRef.Node1 ||
 	FacetNNN.Node2 != FacetNNNRef.Node2 ||
-	FacetNNN.Node3 != FacetNNNRef.Node3 )
+	FacetNNN.Node3 != FacetNNNRef.Node3 ){
       Message::Error("7-Constraint Link: bad correspondance of facets (%d, %d)",
                      FacetNNN.NumFacet, FacetNNNRef.NumFacet) ;
+      return;
+    }
 
     TwoIntOneDouble.Int1 = FacetNNN.NumFacet ;
     TwoIntOneDouble.Int2 = FacetNNNRef.NumFacet ;
@@ -1240,8 +1260,10 @@ void  Generate_LinkRegions(struct ConstraintInFS * Constraint_P,
   struct TwoIntOneDouble  TwoIntOneDouble ;
   struct Value  Value ;
 
-  if (List_Nbr(Region_L) > 1 || List_Nbr(RegionRef_L) > 1)
+  if (List_Nbr(Region_L) > 1 || List_Nbr(RegionRef_L) > 1){
     Message::Error("More than one region for link type constraint") ;
+    return;
+  }
 
   List_Read(Region_L, 0, &TwoIntOneDouble.Int1) ;
   List_Read(RegionRef_L, 0, &TwoIntOneDouble.Int2) ;

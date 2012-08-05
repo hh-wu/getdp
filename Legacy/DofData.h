@@ -110,25 +110,30 @@ struct DofData {
   int       Flag_Init[4] ;
   int       Flag_Only ;
   int       Flag_InitOnly[3] ;
-  List_T   *OnlyTheseMatrices ; /* For recalculating only the matrices
-				   that are required */
 
-  /* Flag_Init[0] == 1 || 2 */
-  gMatrix   A, A_MH_moving, A_MH_moving2 ;
-  gVector   b, b_MH_moving, b_MH_moving2 ;
-  gSolver   Solver, Solver_MH_moving ;
+  // For recalculating only the matrices that are required
+  List_T   *OnlyTheseMatrices ;
 
-  /* Flag_Init[0] == 2 */
+  // Flag_Init[0] == 1 || Flag_Init[0] == 2
+  gMatrix   A;
+  gVector   b;
+  gSolver   Solver;
+
+  // Flag_Init[0] == 2
   gMatrix   Jac ;
   gVector   res, dx ;
 
-  /* Flag_Init[1,2,3] == 1 */
+  // Flag_Init[1,2,3] == 1
   gMatrix   M1, M2, M3 ;
   gVector   m1, m2, m3 ;
 
-  /* Flag_Only and Flag_InitOnly[0,1,2] */
+  // Flag_Only and Flag_InitOnly[0,1,2]
   gMatrix   A1, A2, A3 ;
   gVector   b1, b2, b3 ;
+
+  gMatrix   A_MH_moving, A_MH_moving2 ;
+  gVector   b_MH_moving, b_MH_moving2 ;
+  gSolver   Solver_MH_moving ;
 
   std::vector<int> NonLocalEquations;
 } ;

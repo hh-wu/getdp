@@ -19,7 +19,7 @@
 #include "DofData.h"
 #include "MallocUtils.h"
 
-#define SQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a))
 #define TWO_PI     6.2831853071795865
 
 extern struct CurrentData Current ;
@@ -43,12 +43,12 @@ extern "C" {
 		      int *ncv, complex_16 v[], int *ldv, int iparam[],
 		      int ipntr[], complex_16 workd[], complex_16 workl[], int *lworkl,
 		      double rwork[], int *info);
-  extern void zneupd_(unsigned int *rvec, char *howmny, unsigned int select[], 
+  extern void zneupd_(unsigned int *rvec, char *howmny, unsigned int select[],
 		      complex_16 d[], complex_16 z[], int *ldz, complex_16 *sigma,
-		      complex_16 workev[], char *bmat, int *n, char *which, 
-		      int *nev, double *tol, complex_16 resid[], int *ncv, 
-		      complex_16 v[], int *ldv, int iparam[], int ipntr[], 
-		      complex_16 workd[], complex_16 workl[], int *lworkl, 
+		      complex_16 workev[], char *bmat, int *n, char *which,
+		      int *nev, double *tol, complex_16 resid[], int *ncv,
+		      complex_16 v[], int *ldv, int iparam[], int ipntr[],
+		      complex_16 workd[], complex_16 workl[], int *lworkl,
 		      double rwork[], int *info);
 }
 
@@ -86,7 +86,7 @@ void EigenPar(const char *filename, struct EigenPar *par)
   fp = fopen(path, "r");
   if(fp) {
     Message::Info("Loading eigenproblem parameter file '%s'", path);
-    fscanf(fp, "%lf", &par->prec); 
+    fscanf(fp, "%lf", &par->prec);
     fscanf(fp, "%d", &par->reortho);
     fscanf(fp, "%d", &par->size);
     fclose(fp);
@@ -120,8 +120,8 @@ void EigenPar(const char *filename, struct EigenPar *par)
       Message::Error("Unable to open file '%s'", path);
     }
   }
-  
-  Message::Info("Eigenproblem parameters: prec = %g, reortho = %d, size = %d", 
+
+  Message::Info("Eigenproblem parameters: prec = %g, reortho = %d, size = %d",
                 par->prec, par->reortho, par->size);
 }
 
@@ -188,7 +188,7 @@ static void GetDP2ArpackMerge(gVector *in1, gVector *in2, complex_16 *out)
   }
 }
 
-void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues, 
+void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
                        double shift_r, double shift_i)
 {
   struct EigenPar eigenpar;
@@ -213,27 +213,31 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   /* Bail out if we are not in harmonic regime: it's much easier this
      way (since, for real, non-symmetric matrices we would get complex
      eigenvectors we could not easily store) */
-  if(Current.NbrHar != 2)
+  if(Current.NbrHar != 2){
     Message::Error("EigenSolve requires system defined with \"Type Complex\"");
+    return;
+  }
 
   /* Sanity checks */
-  if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
+  if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3]){
     Message::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
+    return;
+  }
 
   /* Check if we have a "quadratic" evp (- w^2 M x + i w L x + K x = 0) */
   if(DofData_P->Flag_Init[2])
     quad_evp = 1;
-  
+
   /* Get eigenproblem parameters */
   EigenPar("eigen.par", &eigenpar);
 
   n = DofData_P->NbrDof / gCOMPLEX_INCREMENT; /* size of the system */
-  
+
   if(quad_evp)
     n *= 2;
 
   ido = 0;
-  /* Reverse communication flag.  IDO must be zero on the first 
+  /* Reverse communication flag.  IDO must be zero on the first
      call to znaupd.  IDO will be set internally to
      indicate the type of operation to be performed.  Control is
      then given back to the calling routine which has the
@@ -256,12 +260,12 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      IDO =  2: compute  Y = M * X  where
                IPNTR(1) is the pointer into WORKD for X,
                IPNTR(2) is the pointer into WORKD for Y.
-     IDO =  3: compute and return the shifts in the first 
+     IDO =  3: compute and return the shifts in the first
                NP locations of WORKL.
      IDO = 99: done
      -------------------------------------------------------------
-     After the initialization phase, when the routine is used in 
-     the "shift-and-invert" mode, the vector M * X is already 
+     After the initialization phase, when the routine is used in
+     the "shift-and-invert" mode, the vector M * X is already
      available and does not need to be recomputed in forming OP*X. */
 
   bmat = 'I';
@@ -269,7 +273,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      semi-inner product for the operator OP.
      BMAT = 'I' -> standard eigenvalue problem A*x = lambda*x
      BMAT = 'G' -> generalized eigenvalue problem A*x = lambda*M*x */
-  
+
   which = (char*)"LM";
   /* Which eigenvalues we want:
      SM = smallest magnitude ( magnitude = absolute value )
@@ -278,7 +282,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      LR = largest real part
      SI = smallest imaginary part
      LI = largest imaginary part */
-  
+
   nev = NumEigenvalues;
   /* Number of eigenvalues of OP to be computed. 0 < NEV < N-1.
      Therefore, you'll be able to compute AT MOST n-2 eigenvalues! */
@@ -290,30 +294,30 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   }
 
   tol = eigenpar.prec; /* 1.e-4; */
-  /* Stopping criteria: the relative accuracy of the Ritz value 
+  /* Stopping criteria: the relative accuracy of the Ritz value
      is considered acceptable if BOUNDS(I) .LE. TOL*ABS(RITZ(I))
      where ABS(RITZ(I)) is the magnitude when RITZ(I) is complex.
      DEFAULT = dlamch('EPS')  (machine precision as computed
            by the LAPACK auxiliary subroutine dlamch). */
-  
+
   resid = (complex_16*)Malloc(n * sizeof(complex_16));
-  /* On INPUT: 
+  /* On INPUT:
      If INFO .EQ. 0, a random initial residual vector is used.
      If INFO .NE. 0, RESID contains the initial residual vector,
                      possibly from a previous run.
      On OUTPUT:
      RESID contains the final residual vector. */
-  
+
   ncv = eigenpar.size; /* Rule of thumb: NumEigenvalues * 2; */
   /* Number of columns of the matrix V. NCV must satisfy the two
      inequalities 1 <= NCV-NEV and NCV <= N.
-     This will indicate how many Arnoldi vectors are generated 
-     at each iteration.  After the startup phase in which NEV 
-     Arnoldi vectors are generated, the algorithm generates 
-     approximately NCV-NEV Arnoldi vectors at each subsequent update 
-     iteration. Most of the cost in generating each Arnoldi vector is 
+     This will indicate how many Arnoldi vectors are generated
+     at each iteration.  After the startup phase in which NEV
+     Arnoldi vectors are generated, the algorithm generates
+     approximately NCV-NEV Arnoldi vectors at each subsequent update
+     iteration. Most of the cost in generating each Arnoldi vector is
      in the matrix-vector operation OP*x. */
-  
+
   /* sanity checks */
   if(ncv <= nev){
     Message::Warning("Krylov space size too small (%d <= %d), setting to %d", ncv, nev, nev*2);
@@ -327,11 +331,11 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
   v = (complex_16*)Malloc(n * ncv * sizeof(complex_16));
   /* At the end of calculations, here will be stored the Arnoldi basis
      vectors */
-  
+
   ldv = n;
   /* Leading dimension of "v". In our case, the number of lines of
      "v". */
-  
+
   iparam[0] = 1;
   iparam[1] = 0;
   iparam[2] = 10000;
@@ -348,23 +352,23 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      the components of the unwanted eigenvector.
      -------------------------------------------------------------
      ISHIFT = 0: the shifts are to be provided by the user via
-                 reverse communication.  The NCV eigenvalues of 
+                 reverse communication.  The NCV eigenvalues of
                  the Hessenberg matrix H are returned in the part
                  of WORKL array corresponding to RITZ.
      ISHIFT = 1: exact shifts with respect to the current
-                 Hessenberg matrix H.  This is equivalent to 
-                 restarting the iteration from the beginning 
+                 Hessenberg matrix H.  This is equivalent to
+                 restarting the iteration from the beginning
                  after updating the starting vector with a linear
-                 combination of Ritz vectors associated with the 
+                 combination of Ritz vectors associated with the
                  "wanted" eigenvalues.
      ISHIFT = 2: other choice of internal shift to be defined.
      -------------------------------------------------------------
 
-     IPARAM(2) = No longer referenced 
+     IPARAM(2) = No longer referenced
 
      IPARAM(3) = MXITER
-     On INPUT:  maximum number of Arnoldi update iterations allowed. 
-     On OUTPUT: actual number of Arnoldi update iterations taken. 
+     On INPUT:  maximum number of Arnoldi update iterations allowed.
+     On OUTPUT: actual number of Arnoldi update iterations taken.
 
      IPARAM(4) = NB: blocksize to be used in the recurrence.
      The code currently works only for NB = 1.
@@ -374,11 +378,11 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      the convergence criterion.
 
      IPARAM(6) = IUPD
-     No longer referenced. Implicit restarting is ALWAYS used.  
+     No longer referenced. Implicit restarting is ALWAYS used.
 
      IPARAM(7) = MODE
      On INPUT determines what type of eigenproblem is being solved.
-     Must be 1,2,3; See under \Description of znaupd for the 
+     Must be 1,2,3; See under \Description of znaupd for the
      four modes available.
 
      IPARAM(8) = NP
@@ -390,14 +394,14 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      OUTPUT: NUMOP  = total number of OP*x operations,
              NUMOPB = total number of B*x operations if BMAT='G',
              NUMREO = total number of steps of re-orthogonalization. */
-  
+
   ipntr[0] = 0;
   /* Pointer to mark the starting locations in the WORKD and WORKL
      arrays for matrices/vectors used by the Arnoldi iteration.
      -------------------------------------------------------------
      IPNTR(1): pointer to the current operand vector X in WORKD.
      IPNTR(2): pointer to the current result vector Y in WORKD.
-     IPNTR(3): pointer to the vector B * X in WORKD when used in 
+     IPNTR(3): pointer to the vector B * X in WORKD when used in
                the shift-and-invert mode.
      IPNTR(4): pointer to the next available location in WORKL
                that is untouched by the program.
@@ -410,7 +414,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
 
      Note: IPNTR(9:13) is only referenced by zneupd. See Remark 2 below.
 
-     IPNTR(9): pointer to the NCV RITZ values of the 
+     IPNTR(9): pointer to the NCV RITZ values of the
                original system.
      IPNTR(10): Not Used
      IPNTR(11): pointer to the NCV corresponding error bounds.
@@ -419,15 +423,15 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      IPNTR(13): pointer to the NCV by NCV matrix of eigenvectors
                 of the upper Hessenberg matrix H. Only referenced by
                 zneupd if RVEC = .TRUE. See Remark 2 below. */
- 
+
   workd = (complex_16*)Malloc(3 * n * sizeof(complex_16));
   /* Distributed array to be used in the basic Arnoldi iteration
-     for reverse communication.  The user should not use WORKD 
+     for reverse communication.  The user should not use WORKD
      as temporary workspace during the iteration !!!!!!!!!!
      See Data Distribution Note below. */
-  
+
   lworkl = 3*ncv*ncv + 5*ncv;
-  /* Dimension of the "workl" vector (see below). On must have: 
+  /* Dimension of the "workl" vector (see below). On must have:
      lworkl >= 3*ncv*ncv + 5*ncv */
 
   workl = (complex_16*)Malloc(lworkl * sizeof(complex_16));
@@ -436,7 +440,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
 
   rwork = (double*)Malloc(ncv * sizeof(double));
   /* Used as workspace */
-  
+
   info = 0;
   /* If INFO .EQ. 0, a randomly initial residual vector is used.
      If INFO .NE. 0, RESID contains the initial residual vector,
@@ -444,18 +448,18 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
      Error flag on output.
      =  0: Normal exit.
      =  1: Maximum number of iterations taken.
-           All possible eigenvalues of OP has been found. IPARAM(5)  
+           All possible eigenvalues of OP has been found. IPARAM(5)
            returns the number of wanted converged Ritz values.
      =  2: No longer an informational error. Deprecated starting
            with release 2 of ARPACK.
-     =  3: No shifts could be applied during a cycle of the 
-           Implicitly restarted Arnoldi iteration. One possibility 
-           is to increase the size of NCV relative to NEV. 
+     =  3: No shifts could be applied during a cycle of the
+           Implicitly restarted Arnoldi iteration. One possibility
+           is to increase the size of NCV relative to NEV.
            See remark 4 below.
      = -1: N must be positive.
      = -2: NEV must be positive.
      = -3: NCV-NEV >= 1 and less than or equal to N.
-     = -4: The maximum number of Arnoldi update iteration 
+     = -4: The maximum number of Arnoldi update iteration
            must be greater than zero.
      = -5: WHICH must be one of 'LM', 'SM', 'LR', 'SR', 'LI', 'SI'
      = -6: BMAT must be one of 'I' or 'G'.
@@ -473,45 +477,47 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
 
   rvec = 1; /* .true. */
   /* If we want Ritz vectors to be computed as well. */
-  
+
   howmny = 'A';
   /* What do we want: Ritz or Schur vectors? For Schur, choose: howmny
      = 'P' */
-  
+
   select = (unsigned int*)Malloc(ncv * sizeof(unsigned int));
   /* Internal workspace */
-  
+
   d = (complex_16*)Malloc(nev * sizeof(complex_16));
   /* Vector containing the "nev" eigenvalues computed.
      VERY IMPORTANT: on line 69 of zneupd.f they say it should be nev+1;
      this is wrong, for see line 283 where it is declared as d(nev) */
-  
+
   z = (complex_16*)Malloc(n * nev * sizeof(complex_16));
-  /* On exit, if RVEC = .TRUE. and HOWMNY = 'A', then the columns of 
-     Z represents approximate eigenvectors (Ritz vectors) corresponding 
+  /* On exit, if RVEC = .TRUE. and HOWMNY = 'A', then the columns of
+     Z represents approximate eigenvectors (Ritz vectors) corresponding
      to the NCONV=IPARAM(5) Ritz values for eigensystem
      A*z = lambda*B*z.
 
      If RVEC = .FALSE. or HOWMNY = 'P', then Z is NOT REFERENCED.
 
-     NOTE: If if RVEC = .TRUE. and a Schur basis is not required, 
-     the array Z may be set equal to first NEV+1 columns of the Arnoldi 
-     basis array V computed by ZNAUPD.  In this case the Arnoldi basis 
+     NOTE: If if RVEC = .TRUE. and a Schur basis is not required,
+     the array Z may be set equal to first NEV+1 columns of the Arnoldi
+     basis array V computed by ZNAUPD.  In this case the Arnoldi basis
      will be destroyed and overwritten with the eigenvector basis. */
-  
+
   ldz = n;
   /* Leading dimension of "z". In our case, the number of lines of "z". */
-  
+
   sigma.re = 0.;
   sigma.im = 0.;
   /* The shift. Not used in this case: we deal with the shift "by
      hand". */
-  
+
   workev = (complex_16*)Malloc(2 * ncv * sizeof(complex_16));
   /* Workspace */
 
-  if(bmat != 'I' || iparam[6] != 1)
+  if(bmat != 'I' || iparam[6] != 1){
     Message::Error("General and/or shift-invert mode should not be used");
+    return;
+  }
 
   /* Create temp vectors and matrices and apply shift. Warning: with
      PETSc, the shifting can be very slow if the masks are very
@@ -530,7 +536,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
        x = 0), or, in matrix form:
 
        | L   M |  |x|          |-K   0 |  |x|
-       | I   0 |  |y|  iw =    | 0   I |  |y| , or 
+       | I   0 |  |y|  iw =    | 0   I |  |y| , or
 
           |x|            |x|
        A  |y|  iw =   B  |y|.
@@ -606,10 +612,10 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
       Message::Info("Arpack code = %d (ignored)", info);
     }
   } while (1);
-  
+
   Message::Info("Arpack required %d iterations", k);
 
-  /* Testing for errors */  
+  /* Testing for errors */
   if(info == 0){
     /* OK */
   }
@@ -628,15 +634,15 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     Message::Warning("Arpack code = %d (unknown)", info);
   }
 
-  /* Call to zneupd for post-processing */  
-  zneupd_(&rvec, &howmny, select, d, z, &ldz, &sigma, workev, &bmat, &n, which, 
+  /* Call to zneupd for post-processing */
+  zneupd_(&rvec, &howmny, select, d, z, &ldz, &sigma, workev, &bmat, &n, which,
 	  &nev, &tol, resid, &ncv, v, &ldv, iparam, ipntr, workd, workl, &lworkl,
 	  rwork, &info);
 
-  /* Test for errors */  
+  /* Test for errors */
   if(info != 0)
     Message::Error("Arpack code = %d (eigenvector post-processing)", info);
-  
+
   /* Compute the unshifted eigenvalues and print them, and store the
      associated eigenvectors */
   newsol = 0;
@@ -667,24 +673,24 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
       f.im = omega.im / TWO_PI;
     }
 
-    Message::Info("Eigenvalue %03d: w^2 = %.12e %s %.12e * i", 
-                  k+1, omega2.re, (omega2.im > 0) ? "+" :  "-", 
+    Message::Info("Eigenvalue %03d: w^2 = %.12e %s %.12e * i",
+                  k+1, omega2.re, (omega2.im > 0) ? "+" :  "-",
                   (omega2.im > 0) ? omega2.im : -omega2.im);
     Message::Info("                  w = %.12e %s %.12e * i",
                   omega.re, (omega.im > 0) ? "+" : "-",
                   (omega.im > 0) ? omega.im : -omega.im);
     Message::Info("                  f = %.12e %s %.12e * i",
                   f.re, (f.im > 0) ? "+" : "-", (f.im > 0) ? f.im : -f.im);
-    
+
     if(newsol) {
       /* Create new solution */
       LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof);
       List_Add(DofData_P->Solutions, &Solution_S);
       DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1);
-    } 
+    }
     newsol = 1;
-    
+
     DofData_P->CurrentSolution->Time = omega.re;
     DofData_P->CurrentSolution->TimeImag = omega.im;
     DofData_P->CurrentSolution->TimeStep = (int)Current.TimeStep;
@@ -692,7 +698,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     DofData_P->CurrentSolution->SolutionExist = 1;
     for(l = 0; l < DofData_P->NbrDof; l+=gCOMPLEX_INCREMENT){
       j = l / gCOMPLEX_INCREMENT;
-      LinAlg_SetComplexInVector(z[k*n+j].re, z[k*n+j].im, 
+      LinAlg_SetComplexInVector(z[k*n+j].re, z[k*n+j].im,
 				&DofData_P->CurrentSolution->x, l, l+1);
     }
     LinAlg_AssembleVector(&DofData_P->CurrentSolution->x);
@@ -701,7 +707,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
        element is 1 */
     tmp = 0.;
     for(l = 0; l < DofData_P->NbrDof; l+=gCOMPLEX_INCREMENT){
-      LinAlg_GetComplexInVector(&d1, &d2, 
+      LinAlg_GetComplexInVector(&d1, &d2,
 				&DofData_P->CurrentSolution->x, l, l+1);
       abs = sqrt(SQU(d1) + SQU(d2));
       if(abs > tmp) tmp = abs;
@@ -709,7 +715,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     if(tmp > 1.e-16)
       LinAlg_ProdVectorDouble(&DofData_P->CurrentSolution->x, 1./tmp,
 			      &DofData_P->CurrentSolution->x);
-    
+
     /* Increment the global timestep counter so that a future
        GenerateSystem knows which solutions exist */
     Current.TimeStep += 1.;
@@ -718,7 +724,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     Current.Time = omega.re;
     Current.TimeImag = omega.im;
   }
-  
+
   /* Deallocate */
   if(!quad_evp){
     LinAlg_DestroyVector(&v1);

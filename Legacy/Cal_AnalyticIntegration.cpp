@@ -27,59 +27,59 @@ double Cal_AnalyticIntegration(struct Element * E,
 
   DetJ = (E->x[2] - E->x[0]) * (E->y[1] - E->y[0]) -
          (E->x[1] - E->x[0]) * (E->y[2] - E->y[0]) ;
-  
+
   switch (i) {
 
   case 0 :
     switch (j) {
     case 0 :
-      return( ((E->y[2]-E->y[1])*(E->y[2]-E->y[1]) + 
+      return( ((E->y[2]-E->y[1])*(E->y[2]-E->y[1]) +
 	       (E->x[1]-E->x[2])*(E->x[1]-E->x[2])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     case 1 :
-      return( ((E->y[2]-E->y[1])*(E->y[0]-E->y[2]) + 
+      return( ((E->y[2]-E->y[1])*(E->y[0]-E->y[2]) +
 	       (E->x[1]-E->x[2])*(E->x[2]-E->x[0])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     case 2 :
-      return( ((E->y[2]-E->y[1])*(E->y[1]-E->y[0]) + 
+      return( ((E->y[2]-E->y[1])*(E->y[1]-E->y[0]) +
 	       (E->x[1]-E->x[2])*(E->x[0]-E->x[1])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     default :
       Message::Error("Something wrong in Cal_AnalyticIntegration");
       return 0. ;
     }
-    
+
   case 1 :
     switch (j) {
     case 0 :
-      return( ((E->y[2]-E->y[1])*(E->y[0]-E->y[2]) + 
+      return( ((E->y[2]-E->y[1])*(E->y[0]-E->y[2]) +
 	       (E->x[1]-E->x[2])*(E->x[2]-E->x[0])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     case 1 :
-      return( ((E->y[0]-E->y[2])*(E->y[0]-E->y[2]) + 
+      return( ((E->y[0]-E->y[2])*(E->y[0]-E->y[2]) +
 	       (E->x[2]-E->x[0])*(E->x[2]-E->x[0])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     case 2 :
-      return( ((E->y[0]-E->y[2])*(E->y[1]-E->y[0]) + 
+      return( ((E->y[0]-E->y[2])*(E->y[1]-E->y[0]) +
 	       (E->x[2]-E->x[0])*(E->x[0]-E->x[1])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     default :
       Message::Error("Something wrong in Cal_AnalyticIntegration");
-      return(0.) ;
+      return 0. ;
     }
-    
+
   case 2 :
     switch (j) {
     case 0 :
-      return( ((E->y[2]-E->y[1])*(E->y[1]-E->y[0]) + 
+      return( ((E->y[2]-E->y[1])*(E->y[1]-E->y[0]) +
 	       (E->x[1]-E->x[2])*(E->x[0]-E->x[1])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     case 1 :
-      return( ((E->y[0]-E->y[2])*(E->y[1]-E->y[0]) + 
+      return( ((E->y[0]-E->y[2])*(E->y[1]-E->y[0]) +
 	       (E->x[2]-E->x[0])*(E->x[0]-E->x[1])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     case 2 :
-      return( ((E->y[1]-E->y[0])*(E->y[1]-E->y[0]) + 
+      return( ((E->y[1]-E->y[0])*(E->y[1]-E->y[0]) +
 	       (E->x[0]-E->x[1])*(E->x[0]-E->x[1])) * fabs(DetJ)
 	      / (2. * DetJ * DetJ) ) ;
     default :

@@ -111,8 +111,10 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 	     (((struct Group *)List_Pointer(Problem_S.Group, j))
 	      ->InitialList, &Element->Region, fcmp_int) )  i++ ;
 
-      if (i == List_Nbr(JacobianCase_L))
+      if (i == List_Nbr(JacobianCase_L)){
 	Message::Error("Undefined Jacobian in Region %d", Element->Region) ;
+        return;
+      }
 
       Element->JacobianCase = JacobianCase_P0 + i ;
       Get_Jacobian = (double (*)(struct Element*, MATRIX3x3*))
@@ -155,12 +157,16 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 
   else if(PostQuantityTerm_P->EvaluationType == INTEGRAL){
 
-    if(Element->Num == NO_ELEMENT)
+    if(Element->Num == NO_ELEMENT){
       Message::Error("No element in which to integrate");
+      return;
+    }
 
-    if(PostQuantityTerm_P->IntegrationMethodIndex < 0)
+    if(PostQuantityTerm_P->IntegrationMethodIndex < 0){
       Message::Error("Missing Integration method in PostProcesssing Quantity '%s'",
                      PostQuantity_P->Name);
+      return;
+    }
 
     IntegrationCase_L =
       ((struct IntegrationMethod *)
@@ -177,21 +183,25 @@ void Pos_LocalOrIntegralQuantity(struct PostQuantity    *PostQuantity_P,
 					    IntegrationCase_L,
 					    CriterionIndex) ;
 
-    if(IntegrationCase_P->Type != GAUSS)
+    if(IntegrationCase_P->Type != GAUSS){
       Message::Error("Only numerical integration is available "
                      "in Integral PostQuantities");
+      return;
+    }
 
     Quadrature_P = (struct Quadrature*)
       List_PQuery(IntegrationCase_P->Case, &Element->Type, fcmp_int);
 
-    if(!Quadrature_P)
+    if(!Quadrature_P){
       Message::Error("Unknown type of Element (%s) for Integration method (%s) "
                      " in PostProcessing Quantity (%s)",
-	  Get_StringForDefine(Element_Type, Element->Type),
-	  ((struct IntegrationMethod *)
-	   List_Pointer(Problem_S.IntegrationMethod,
-			PostQuantityTerm_P->IntegrationMethodIndex))->Name,
-	  PostQuantity_P->Name);
+                     Get_StringForDefine(Element_Type, Element->Type),
+                     ((struct IntegrationMethod *)
+                      List_Pointer(Problem_S.IntegrationMethod,
+                                   PostQuantityTerm_P->IntegrationMethodIndex))->Name,
+                     PostQuantity_P->Name);
+      return;
+    }
 
     Cal_ZeroValue(&TermValue);
 

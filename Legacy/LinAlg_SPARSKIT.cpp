@@ -124,7 +124,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 
 void LinAlg_DestroySolver(gSolver *Solver)
 {
-  Message::Warning("'LinAlg_DestroySolver' not yet implemented");
+  Message::Debug("'LinAlg_DestroySolver' not yet implemented");
 }
 
 void LinAlg_DestroyVector(gVector *V)
@@ -134,7 +134,7 @@ void LinAlg_DestroyVector(gVector *V)
 
 void LinAlg_DestroyMatrix(gMatrix *M)
 {
-  Message::Warning("'LinAlg_DestroyMatrix' not yet implemented");
+  Message::Debug("'LinAlg_DestroyMatrix' not yet implemented");
 }
 
 void LinAlg_CopyScalar(gScalar *S1, gScalar *S2)

@@ -12,7 +12,7 @@
 #include "NumericUtils.h"
 #include "Message.h"
 
-#define SQU(a)     ((a)*(a)) 
+#define SQU(a)     ((a)*(a))
 
 static int     NN ;
 static double  MINH , *ERR , *HH , *PP , E0, DIM ;
@@ -78,10 +78,10 @@ double min1d (int method, double (*funct)(double), double *xmin){
   double xx, fx, fb, fa, bx, ax, tol = 1.e-4;
 
   switch(method){
-  case H1: 
+  case H1:
   case P1: ax=1.e-12; xx=1.e2; break;
   default: ax=1.e-15; xx=1.e-12; break;
-  }    
+  }
   mnbrak(&ax,&xx,&bx,&fa,&fx,&fb,funct);
 
   return ( brent(ax,xx,bx,funct,tol,xmin) );
@@ -109,9 +109,9 @@ double Adapt (int N,        /* Number of elements */
   PP  = p;
   E0  = e0;
   DIM = (double)dim;
-  
+
   for(i = 1 ; i <= N ; i++){
-    if(i == 1) 
+    if(i == 1)
       errmin = errmax = err[i];
     else{
       errmin = std::min(errmin, err[i]);
@@ -131,14 +131,14 @@ double Adapt (int N,        /* Number of elements */
       if(err[i] == 0.0) ri = .5;
       minri = std::min(minri, ri);
       maxri = std::max(maxri, ri);
-      obj += SQU(err[i]) * pow(ri, -2.*p[i]) ; 
+      obj += SQU(err[i]) * pow(ri, -2.*p[i]) ;
       h[i] = sqrt(2.) * h[i]/ri;
       p[i] = ri;
     }
     contr = fabs(minf);
 
     Message::Info("H-Refinement 1, Error %g=>%g, Objective %g, Reduction Factor %g->%g",
-	      e0, sqrt(obj), -minf, minri, maxri);
+                  e0, sqrt(obj), -minf, minri, maxri);
     break;
 
   case H2 :
@@ -150,7 +150,7 @@ double Adapt (int N,        /* Number of elements */
       if(i == 1) minri = maxri = ri;
       minri = std::min(minri, ri);
       maxri = std::max(maxri, ri);
-      obj += pow(ri,DIM) ; 
+      obj += pow(ri,DIM) ;
       h[i] = h[i]/ri;
       p[i] = p[i];
     }
@@ -172,14 +172,14 @@ double Adapt (int N,        /* Number of elements */
       pi = p[i] - .5 * qi;
       pivrai = std::min(std::max(1., (double)(int)(pi+.99)), (double)maxdeg);
       obj2 += pow(h[i]/MINH, 2.*(p[i]-pivrai)) * SQU(err[i]);
-      obj += SQU(err[i]) * pow(h[i]/MINH, qi); 
+      obj += SQU(err[i]) * pow(h[i]/MINH, qi);
       h[i] = h[i];
       p[i] = pi;
     }
     contr = fabs(minf);
 
     Message::Info("P-Refinement, Error %g=%g=>%g, Objective %g",
-	      e0, sqrt(obj), sqrt(obj2), minf);
+                  e0, sqrt(obj), sqrt(obj2), minf);
     break;
 
   case P2 :

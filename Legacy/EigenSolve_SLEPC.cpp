@@ -446,14 +446,18 @@ void EigenSolve_SLEPC(struct DofData * DofData_P, int numEigenValues,
   // bail out if we are not in harmonic regime: it's much easier this
   // way (since, for real, non-symmetric matrices we would get complex
   // eigenvectors we could not easily store)
-  if(Current.NbrHar != 2)
+  if(Current.NbrHar != 2){
     Message::Error("EigenSolve requires system defined with \"Type Complex\"");
+    return;
+  }
 
   // GenerateSeparate[] creates three matrices M3, M2, M1 such that
   // -w^2 M3 x + iw M2 x + M1 x = b; check Flag_Init[i] to see which
   // operators exist:
-  if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3])
+  if(!DofData_P->Flag_Init[1] || !DofData_P->Flag_Init[3]){
     Message::Error("No System available for EigenSolve: check 'DtDt' and 'GenerateSeparate'");
+    return;
+  }
 
   if(!DofData_P->Flag_Init[2]){
     // the shift refers to w^2

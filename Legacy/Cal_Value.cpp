@@ -53,7 +53,7 @@ void Cal_ComplexDivision(double V1[], double V2[], double P[])
   double Mod2 ;
 
   Mod2       = SQU(V2[0]) + SQU(V2[MAX_DIM]) ;
-  if(!Mod2) Message::Error("Division by zero in 'Cal_ComplexDivision'");
+  if(!Mod2){ Message::Error("Division by zero in 'Cal_ComplexDivision'"); return; }
   P[0]       = (  V1[0] * V2[0]       + V1[MAX_DIM] * V2[MAX_DIM]) / Mod2 ;
   P[MAX_DIM] = (- V1[0] * V2[MAX_DIM] + V1[MAX_DIM] * V2[0])       / Mod2 ;
 }
@@ -63,7 +63,7 @@ void Cal_ComplexInvert(double V1[], double P[])
   double Mod2 ;
 
   Mod2       = SQU(V1[0]) + SQU(V1[MAX_DIM]) ;
-  if(!Mod2) Message::Error("Division by zero in 'Cal_ComplexInvert'");
+  if(!Mod2){ Message::Error("Division by zero in 'Cal_ComplexInvert'"); return; }
   P[0]       =   V1[0]       / Mod2 ;
   P[MAX_DIM] = - V1[MAX_DIM] / Mod2 ;
 }
@@ -621,7 +621,7 @@ void Cal_AddMultValue(struct Value * V1, struct Value * V2, double d, struct Val
     break;
   default :
     Message::Error("Wrong argument type for 'Cal_AddMultValue'");
-    break;
+    return;
   }
   Cal_AddValue(V1,&A,R);
 }
@@ -723,7 +723,7 @@ void Cal_AddMultValueArray(struct Value * V1, struct Value * V2, double d,
     break;
   default :
     Message::Error("Wrong argument type for 'Cal_AddMultValueArray'");
-    break;
+    return;
   }
   Cal_AddValueArray(V1, V2, R,Nbr_Values);
 }
@@ -2314,6 +2314,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
     if(Current.NbrHar==1){
       if(!V1->Val[0]){
 	Message::Error("Division by zero in 'Cal_InvertValue'");
+        return;
       }
       R->Val[0] = 1./V1->Val[0];
     }
@@ -2335,6 +2336,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
       }
       else{
 	Message::Error("Null determinant in 'Cal_InvertValue'");
+        return;
       }
     }
     else{
@@ -2351,6 +2353,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
 
     if(!Det.Val[0]){
       Message::Error("Null determinant in 'Cal_InvertValue'");
+      return;
     }
 
     if(Current.NbrHar==1){
@@ -2400,6 +2403,7 @@ void Cal_InvertValue(struct Value *V1, struct Value *R)
 
     if(!Det.Val[0]){
       Message::Error("Null determinant in 'Cal_InvertValue'");
+      return;
     }
 
     if(Current.NbrHar==1){

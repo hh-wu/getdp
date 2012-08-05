@@ -162,7 +162,7 @@ void Operation_IterativeLoopN(Resolution  *Resolution_P,
 
     Flag_IterativeLoopN = 1;
 
-    if(Message::GetOnelabAction() == "stop") break;
+    if(Message::GetOnelabAction() == "stop" || Message::GetErrorCount()) break;
 
     Current.Iteration = (double)Num_Iteration;
     Get_ValueOfExpressionByIndex(RelaxationFactorIndex, NULL, 0., 0., 0., &Value);

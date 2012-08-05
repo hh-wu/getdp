@@ -234,8 +234,10 @@ void Read_ProblemStructure(const char *name)
   // opening the file in text mode messes up the loops (they use
   // fsetpos/fgetpos) on Windows without Cygwin; not sure why, but
   // opening the file in binary mode fixes the problem
-  if(!(getdp_yyin = fopen(AbsPath, "rb")))
+  if(!(getdp_yyin = fopen(AbsPath, "rb"))){
     Message::Error("Unable to open file '%s'", AbsPath);
+    return;
+  }
 
   getdp_yyerrorlevel = 0;  getdp_yylinenum = 1; getdp_yyincludenum=0;
   strcpy(getdp_yyname, AbsPath);

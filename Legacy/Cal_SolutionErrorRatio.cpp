@@ -55,47 +55,48 @@ void Cal_SolutionErrorRatio(gVector *dx, gVector *x,
     Message::Warning("No valid solution found (NaN or Inf)!");
     *ErrorRatio = std::numeric_limits<double>::quiet_NaN();
   }
-  else
+  else{
     // Calculating the norm of the error ratio vector
     switch (NormType){
-      case LINFNORM:
-        for (int i = 0; i < xLength; i++) {
-          if (ErrorRatioVec[i] > *ErrorRatio)
-            *ErrorRatio = ErrorRatioVec[i];
-        }
-        break;
+    case LINFNORM:
+      for (int i = 0; i < xLength; i++) {
+        if (ErrorRatioVec[i] > *ErrorRatio)
+          *ErrorRatio = ErrorRatioVec[i];
+      }
+      break;
 
-      case L1NORM:
-        for (int i = 0; i < xLength; i++) {
-          *ErrorRatio += ErrorRatioVec[i];
-        }
-        break;
+    case L1NORM:
+      for (int i = 0; i < xLength; i++) {
+        *ErrorRatio += ErrorRatioVec[i];
+      }
+      break;
 
-      case MEANL1NORM:
-        for (int i = 0; i < xLength; i++) {
-          *ErrorRatio += ErrorRatioVec[i];
-        }
-        *ErrorRatio /= xLength;
-        break;
+    case MEANL1NORM:
+      for (int i = 0; i < xLength; i++) {
+        *ErrorRatio += ErrorRatioVec[i];
+      }
+      *ErrorRatio /= xLength;
+      break;
 
-      case L2NORM:
-        for (int i = 0; i < xLength; i++) {
-          *ErrorRatio += ErrorRatioVec[i] * ErrorRatioVec[i];
-        }
-        *ErrorRatio = sqrt(*ErrorRatio);
-        break;
+    case L2NORM:
+      for (int i = 0; i < xLength; i++) {
+        *ErrorRatio += ErrorRatioVec[i] * ErrorRatioVec[i];
+      }
+      *ErrorRatio = sqrt(*ErrorRatio);
+      break;
 
-      case MEANL2NORM:
-        for (int i = 0; i < xLength; i++) {
-          *ErrorRatio += ErrorRatioVec[i] * ErrorRatioVec[i];
-        }
-        *ErrorRatio = sqrt(*ErrorRatio / xLength);
-        break;
+    case MEANL2NORM:
+      for (int i = 0; i < xLength; i++) {
+        *ErrorRatio += ErrorRatioVec[i] * ErrorRatioVec[i];
+      }
+      *ErrorRatio = sqrt(*ErrorRatio / xLength);
+      break;
 
-      default:
-        Message::Error("Wrong error norm in Cal_SolutionErrorRatio");
-        break;
+    default:
+      Message::Error("Wrong error norm in Cal_SolutionErrorRatio");
+      break;
     }
+  }
 
   delete [] ErrorRatioVec;
 }
