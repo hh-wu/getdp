@@ -667,6 +667,7 @@ void init_matrix (int NbLines, Matrix *M, Solver_Params *p){
   M->changed = 1 ;
   M->ILU_Exists = 0;
   M->notranspose = 0 ;
+  M->scaled = 0 ;
 
   switch (M->T) {
   case SPARSE :
@@ -682,10 +683,12 @@ void init_matrix (int NbLines, Matrix *M, Solver_Params *p){
     /* Tous les algos iteratifs sont programmes pour resoudre
        A^T x = b... C'est tres con, mais bon. L'algo LU est le seul
        qui demande la vraie matrice en entree... */
-    if(M->T == DENSE && p->Algorithm == LU){
+    if(p->Algorithm == LU){
       M->F.lu   = (double*) Malloc (NbLines * NbLines * sizeof(double));
       M->notranspose = 1 ;
     }
+    else
+      M->F.lu = NULL;
     M->F.a    = (double*) Malloc (NbLines * NbLines * sizeof(double));
     break;
   default :
@@ -699,6 +702,30 @@ void init_vector (int Nb, double **V){
   *V = (double*) Malloc (Nb * sizeof(double));
 }
 
+/* ------------------------------------------------------------------------ */
+/*  f r e e                                                                 */
+/* ------------------------------------------------------------------------ */
+
+void free_matrix (Matrix *M){
+
+  if(M->scaled){
+    free(M->rowscal) ;
+    free(M->colscal) ;
+  }
+
+  switch (M->T) {
+  case SPARSE :
+    List_Delete (M->S.a);
+    List_Delete (M->S.ai);
+    List_Delete (M->S.ptr);
+    List_Delete (M->S.jptr);
+    break;
+  case DENSE :
+    free(M->F.a);
+    if(M->F.lu) free(M->F.lu);
+    break;
+  }
+}
 
 /* ------------------------------------------------------------------------ */
 /*  z e r o                                                                 */
@@ -1948,6 +1975,7 @@ void init_solver (Solver_Params *p , const char *name){
 	  while(1){
 	    if(feof(file)){
 	      Message::Warning("End of comment not detected");
+              fclose(file);
 	      return;
 	    }
 	    if((getc(file)=='*')&&(getc(file)=='/')){
@@ -1974,6 +2002,7 @@ void init_solver (Solver_Params *p , const char *name){
       }
     }
   }
+  fclose(file);
 }
 
 

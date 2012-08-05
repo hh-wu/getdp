@@ -108,6 +108,8 @@ void init_solver_option(Solver_Params *p, const char *name, const char *value);
 void init_matrix(int Nb, Matrix *M, Solver_Params *p);
 void init_vector(int Nb, double **V);
 
+void free_matrix(Matrix *M);
+
 void zero_matrix(Matrix *M);
 void zero_matrix2(Matrix *M);
 void zero_vector(int Nb, double *V);

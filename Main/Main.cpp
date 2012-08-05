@@ -4,9 +4,16 @@
 // bugs and problems to <getdp@geuz.org>.
 
 #include "MainLegacy.h"
+#include <stdio.h>
 
 int main(int argc, char **argv)
 {
-  //for(int i = 0; i < 1000; i++)
+#if 1
   MainLegacy(argc, argv);
+#else // debug memory leaks
+  for(int i = 0; i < 100; i++){
+    printf("solving problem %d\n", i);
+    MainLegacy(argc, argv);
+  }
+#endif
 }

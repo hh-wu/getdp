@@ -134,7 +134,7 @@ void LinAlg_DestroyVector(gVector *V)
 
 void LinAlg_DestroyMatrix(gMatrix *M)
 {
-  Message::Debug("'LinAlg_DestroyMatrix' not yet implemented");
+  free_matrix(&M->M) ;
 }
 
 void LinAlg_CopyScalar(gScalar *S1, gScalar *S2)
