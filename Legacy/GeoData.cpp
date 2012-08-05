@@ -115,6 +115,17 @@ void Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name)
 }
 
 /* ------------------------------------------------------------------------ */
+/*  G e o _ F r e e G e o D a t a                                           */
+/* ------------------------------------------------------------------------ */
+
+void Geo_FreeGeoData(struct GeoData * GeoData_P)
+{
+  Message::Debug("Freeing GeoData %d", GeoData_P->Num);
+
+  // TODO!
+}
+
+/* ------------------------------------------------------------------------ */
 /*  G e o _ S e t C u r r e n t G e o D a t a B a s e                       */
 /* ------------------------------------------------------------------------ */
 

@@ -87,13 +87,13 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
     switch (Current.TypeTime) {
     case TIME_THETA :
       index = List_Nbr(DofData_P->Solutions)-4 ;
-	  break;
+      break;
     case TIME_GEAR :
       index = List_Nbr(DofData_P->Solutions)-8 ; // With -8 we store 6 past solutions
-	  break;
+      break;
     case TIME_NEWMARK :
       index = List_Nbr(DofData_P->Solutions)-4 ;
-	  break;
+      break;
     }
 
     if(index >= 0){

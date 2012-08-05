@@ -373,6 +373,24 @@ public:
 };
 #endif
 
+void Free_GlobalVariables()
+{
+  Free(Name_Generic); Name_Generic = 0;
+  Free(Name_Path); Name_Path = 0;
+  Free(Name_Resolution); Name_Resolution = 0;
+  int i = 0;
+  while(Name_PostOperation[i]){
+    Free(Name_PostOperation[i]); Name_PostOperation[i] = 0; i++;
+  }
+  Free(Name_MshFile); Name_MshFile = 0;
+  i = 0;
+  while(Name_ResFile[i]){
+    Free(Name_ResFile[i]); Name_ResFile[i] = 0; i++;
+  }
+  Free(Name_AdaptFile); Name_AdaptFile = 0;
+  Free_ProblemStructure();
+}
+
 int MainLegacy(int argc, char *argv[])
 {
   if(argc < 2) Info(0, argv[0]);
@@ -470,6 +488,9 @@ int MainLegacy(int argc, char *argv[])
   GmshFinalize();
 #endif
 
+  Free_GlobalVariables();
+  Free(sargv);
   Message::Exit(0);
   return 0;
 }
+

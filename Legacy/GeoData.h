@@ -42,6 +42,7 @@ int  Geo_AddGeoData(List_T * GeoData_L,
 		    char * Name_MshFile, char * Name_DefaultMshFile,
 		    char * Name_AdaptFile, char * Name_DefaultAdaptFile) ;
 void  Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name) ;
+void  Geo_FreeGeoData(struct GeoData * GeoData_P) ;
 
 void  Geo_SetCurrentGeoData(struct GeoData * GeoData_P) ;
 

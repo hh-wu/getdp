@@ -11,6 +11,7 @@
 #include "ProDefine.h"
 #include "ProParser.h"
 #include "Message.h"
+#include "MallocUtils.h"
 #if defined(HAVE_LEGACY)
 #include "Generate_Network.h"
 #endif
@@ -124,16 +125,83 @@ int fcmp_PostOperation_Name(const void *a, const void *b)
 
 void Init_ProblemStructure()
 {
-  Problem_S.Expression        = NULL ;
   Problem_S.Group             = NULL ;
+  Problem_S.Expression        = NULL ;
+  Problem_S.FunctionSpace     = NULL ;
   Problem_S.Constraint        = NULL ;
+  Problem_S.Formulation       = NULL ;
   Problem_S.JacobianMethod    = NULL ;
   Problem_S.IntegrationMethod = NULL ;
-  Problem_S.FunctionSpace     = NULL ;
-  Problem_S.Formulation       = NULL ;
   Problem_S.Resolution        = NULL ;
   Problem_S.PostProcessing    = NULL ;
   Problem_S.PostOperation     = NULL ;
+}
+
+// TODO !
+void Free_Group(struct Group* a){}
+void Free_Expression(struct Expression* a){}
+void Free_FunctinSpace(struct FunctionSpace* a){}
+void Free_Constraint(struct Constraint* a){}
+void Free_Formulation(struct Formuation* a){}
+void Free_JacobianMethod(struct JacobianMethod* a){}
+void Free_IntegrationMethod(struct IntegrationMethod* a){}
+void Free_Resolution(struct Resolution* a){}
+void Free_PostProcessing(struct PostProcessing* a){}
+void Free_PostOperation(struct PostOperation* a){}
+
+void Free_ProblemStructure()
+{
+  if(Problem_S.Group){
+    for(int i = 0; i < List_Nbr(Problem_S.Group); i++)
+      Free_Group((Group*)List_Pointer(Problem_S.Group, i));
+    List_Delete(Problem_S.Group);
+  }
+  if(Problem_S.Expression){
+    for(int i = 0; i < List_Nbr(Problem_S.Expression); i++)
+      Free_Expression((Expression*)List_Pointer(Problem_S.Expression, i));
+    List_Delete(Problem_S.Expression);
+  }
+  if(Problem_S.FunctionSpace){
+    for(int i = 0; i < List_Nbr(Problem_S.FunctionSpace); i++)
+      Free_FunctinSpace((FunctionSpace*)List_Pointer(Problem_S.FunctionSpace, i));
+    List_Delete(Problem_S.FunctionSpace);
+  }
+  if(Problem_S.Constraint){
+    for(int i = 0; i < List_Nbr(Problem_S.Constraint); i++)
+      Free_Constraint((Constraint*)List_Pointer(Problem_S.Constraint, i));
+    List_Delete(Problem_S.Constraint);
+  }
+  if(Problem_S.Formulation){
+    for(int i = 0; i < List_Nbr(Problem_S.Formulation); i++)
+      Free_Formulation((Formuation*)List_Pointer(Problem_S.Formulation, i));
+    List_Delete(Problem_S.Formulation);
+  }
+  if(Problem_S.JacobianMethod){
+    for(int i = 0; i < List_Nbr(Problem_S.JacobianMethod); i++)
+      Free_JacobianMethod((JacobianMethod*)List_Pointer(Problem_S.JacobianMethod, i));
+    List_Delete(Problem_S.JacobianMethod);
+  }
+  if(Problem_S.IntegrationMethod){
+    for(int i = 0; i < List_Nbr(Problem_S.IntegrationMethod); i++)
+      Free_IntegrationMethod((IntegrationMethod*)List_Pointer(Problem_S.IntegrationMethod, i));
+    List_Delete(Problem_S.IntegrationMethod);
+  }
+  if(Problem_S.Resolution){
+    for(int i = 0; i < List_Nbr(Problem_S.Resolution); i++)
+      Free_Resolution((Resolution*)List_Pointer(Problem_S.Resolution, i));
+    List_Delete(Problem_S.Resolution);
+  }
+  if(Problem_S.PostProcessing){
+    for(int i = 0; i < List_Nbr(Problem_S.PostProcessing); i++)
+      Free_PostProcessing((PostProcessing*)List_Pointer(Problem_S.PostProcessing, i));
+    List_Delete(Problem_S.PostProcessing);
+  }
+  if(Problem_S.PostOperation){
+    for(int i = 0; i < List_Nbr(Problem_S.PostOperation); i++)
+      Free_PostOperation((PostOperation*)List_Pointer(Problem_S.PostOperation, i));
+    List_Delete(Problem_S.PostOperation);
+  }
+  Init_ProblemStructure();
 }
 
 std::string Get_AbsolutePath(const char *name)

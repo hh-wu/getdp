@@ -139,6 +139,7 @@ int   fcmp_Dof(const void * a, const void * b) ;
 void  Dof_InitDofData(struct DofData * DofData_P, int Num,
 		      int ResolutionIndex, int SystemIndex,
 		      char * Name_SolverDataFile) ;
+void  Dof_FreeDofData(struct DofData * DofData_P) ;
 
 void  Dof_SetCurrentDofData(struct DofData * DofData_P) ;
 

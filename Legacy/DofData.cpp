@@ -91,6 +91,17 @@ void Dof_InitDofData(struct DofData * DofData_P, int Num,
 }
 
 /* ------------------------------------------------------------------------ */
+/*  D o f _ F r e e D o f D a t a                                           */
+/* ------------------------------------------------------------------------ */
+
+void Dof_FreeDofData(struct DofData * DofData_P)
+{
+  Message::Debug("Freeing DofData %d", DofData_P->Num);
+
+  // TODO!
+}
+
+/* ------------------------------------------------------------------------ */
 /*  D o f _ S e t C u r r e n t D o f D a t a                               */
 /* ------------------------------------------------------------------------ */
 
@@ -109,7 +120,8 @@ void Dof_SetCurrentDofData(struct DofData * DofData_P)
 
 void Dof_OpenFile(int Type, char * Name, const char * Mode)
 {
-  if((Message::GetIsCommWorld() && Message::GetCommRank()) && (Mode[0] == 'w' || Mode[0] == 'a')){
+  if((Message::GetIsCommWorld() && Message::GetCommRank()) &&
+     (Mode[0] == 'w' || Mode[0] == 'a')){
     switch (Type) {
     case DOF_PRE :  File_PRE = 0 ;  break ;
     case DOF_RES :  File_RES = 0 ;  break ;

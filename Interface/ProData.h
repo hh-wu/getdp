@@ -1531,6 +1531,8 @@ void Init_ProblemStructure();
 void Read_ProblemStructure(const char *fileName);
 void Finalize_ProblemStructure();
 void Print_ProblemStructure();
+void Free_ProblemStructure();
+
 std::string Get_AbsolutePath(const char *fileName);
 
 void Print_ListResolution(int choice, int flag_lres, char **name);
