@@ -249,7 +249,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	  Flag_POS = 1; *lpos = -atoi(argv[i]+1); i++;
 	} /* Only one numbered (#) PostOperation allowed */
 	else {
-	  while (i<argc && argv[i][0]!='-') {
+	  while (i < argc && argv[i][0] != '-') {
 	    Name_PostOperation[j] = strSave(argv[i]); i++; j++;
 	    if(j == NBR_MAX_POS){
 	      Message::Error("Too many PostOperations");
@@ -292,7 +292,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 
       else if (!strcmp(argv[i]+1, "res")) {
 	i++; j = 0;
-	while (i<argc && argv[i][0]!='-') {
+	while (i < argc && argv[i][0] != '-') {
 	  Name_ResFile[j] = strSave(argv[i]); i++; j++;
 	  if(j == NBR_MAX_RES){
 	    Message::Error("Too many '.res' files");
