@@ -345,7 +345,9 @@ if(ENABLE_FORTRAN)
     add_subdirectory(contrib/Sparskit)
     include_directories(contrib/Sparskit)
     set_config_option(HAVE_SPARSKIT "Sparskit")
-    add_definitions(-DHAVE_ILU_FLOAT)
+    file(GLOB_RECURSE SPARSKIT_SRC contrib/Sparskit/*.cpp contrib/Sparskit/*.f
+         contrib/Sparskit/*.F)
+    set_source_files_properties(${SPARSKIT_SRC} COMPILE_FLAGS "-DHAVE_ILU_FLOAT")
   endif(ENABLE_SPARSKIT AND NOT HAVE_PETSC)
 
   if(ENABLE_ZITSOL AND HAVE_PETSC AND 
