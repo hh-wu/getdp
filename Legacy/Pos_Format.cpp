@@ -1083,8 +1083,10 @@ void Format_PostFooter(struct PostSubOperation *PSO_P, int Store)
 
     if((NbrIso = PSO_P->Iso) < 0)
       NbrIso = List_Nbr(PSO_P->Iso_L) ;
-    if(NbrIso > NBR_MAX_ISO)
+    if(NbrIso > NBR_MAX_ISO){
       Message::Error("Too many Iso values");
+      NbrIso = NBR_MAX_ISO;
+    }
 
     if(PSO_P->Format == FORMAT_GNUPLOT)
       fprintf(PostStream, "# NbIso = %d, Min = %g, Max = %g\n",
@@ -1235,10 +1237,14 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     Num_Element = 0 ;
 
   if(Contour){
-    if(PE->Value[0].Type != SCALAR)
+    if(PE->Value[0].Type != SCALAR){
       Message::Error("Non scalar Element %d in contour creation", Num_Element);
-    if(NbTimeStep != 1)
+      return;
+    }
+    if(NbTimeStep != 1){
       Message::Error("Contour creation not allowed for multiple time steps");
+      return;
+    }
     if(Current.NbrHar != 1 && !Warning_FirstHarmonic){
       Message::Warning("Contour creation done only for first harmonic (use Re[] or Im[])");
       Warning_FirstHarmonic = 1 ;
@@ -1305,18 +1311,17 @@ void  Format_PostElement(struct PostSubOperation *PSO_P, int Contour, int Store,
     }
     break ;
   case FORMAT_GNUPLOT :
-    Gnuplot_PrintElement(PSO_P->Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-                         PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy,
-                         PE->Value) ;
+    Gnuplot_PrintElement(PSO_P->Format, Time, TimeStep, NbTimeStep, NbrHarmonics,
+                         HarmonicToTime, PE->Type, Num_Element, PE->NbrNodes,
+                         PE->x, PE->y, PE->z, Dummy, PE->Value) ;
     break ;
   case FORMAT_SPACE_TABLE :
   case FORMAT_TIME_TABLE :
   case FORMAT_SIMPLE_SPACE_TABLE :
   case FORMAT_VALUE_ONLY :
-    Tabular_PrintElement(PSO_P,
-                         PSO_P->Format, Time, TimeStep, NbTimeStep, NbrHarmonics, HarmonicToTime,
-                         PE->Type, Num_Element, PE->NbrNodes, PE->x, PE->y, PE->z, Dummy,
-                         PE->Value) ;
+    Tabular_PrintElement(PSO_P, PSO_P->Format, Time, TimeStep, NbTimeStep,
+                         NbrHarmonics, HarmonicToTime, PE->Type, Num_Element,
+                         PE->NbrNodes, PE->x, PE->y, PE->z, Dummy, PE->Value) ;
     break ;
   case FORMAT_NODE_TABLE :
     NodeTable_PrintElement(TimeStep, NbTimeStep, NbrHarmonics, PE);
@@ -1404,8 +1409,10 @@ void Format_PostValue(int Format, int Flag_Comma, int Group_FunctionType,
       if (HarmonicToTime == 1) {
 	switch (Format) {
 	case FORMAT_FREQUENCY_TABLE :
-	  if (NbrHarmonics == 1)
+	  if (NbrHarmonics == 1){
 	    Message::Error("FrequencyTable format not allowed (only one harmonic)") ;
+            return;
+          }
 	  break ;
         case FORMAT_VALUE_ONLY :
           break;

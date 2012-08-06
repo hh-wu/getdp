@@ -205,12 +205,18 @@ void  Pos_PrintOnElementsOf(struct PostQuantity     *NCPQ_P,
   /* Check if everything is OK for Adaption */
 
   if(PostSubOperation_P->Adapt){
-    if(PostSubOperation_P->Dimension == _ALL)
+    if(PostSubOperation_P->Dimension == _ALL){
       Message::Error("You have to specify a Dimension for the adaptation (2 or 3)");
-    if(PostSubOperation_P->Target < 0.)
+      return;
+    }
+    if(PostSubOperation_P->Target < 0.){
       Message::Error("You have to specify a Target for the adaptation (e.g. 0.01)");
-    if(NbrTimeStep > 1)
+      return;
+    }
+    if(NbrTimeStep > 1){
       Message::Error("Adaption not ready with more than one time step");
+      return;
+    }
   }
 
   /* Check if we should decompose all PostElements to simplices */
@@ -1188,8 +1194,10 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
 
   NbrTimeStep = Pos_InitTimeSteps(PostSubOperation_P);
 
-  if (CPQ_P && NCPQ_P)
+  if (CPQ_P && NCPQ_P){
     Message::Error("Only one PostProcessing Quantity allowed in PostOperation") ;
+    return;
+  }
 
   if (CPQ_P) {
     PQ_P = CPQ_P ;
@@ -1225,9 +1233,11 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
        ((struct PostQuantityTerm *)List_Pointer(NCPQ_P->PostQuantityTerm, 0))
        ->EvaluationType == LOCAL)
       ) {
-    if (Group_FunctionType == REGION)
+    if (Group_FunctionType == REGION){
       Message::Error("Print OnRegion not valid for PostProcessing Quantity '%s'",
-                 NCPQ_P->Name);
+                     NCPQ_P->Name);
+      return;
+    }
     else
       Type_Evaluation = LOCAL;
   }
@@ -1264,7 +1274,8 @@ void  Pos_PrintOnRegion(struct PostQuantity      *NCPQ_P,
     }
     else {
       Message::Error("Function type (%d) not allowed for PrintOnRegion",
-                 Group_P->FunctionType) ;
+                     Group_P->FunctionType) ;
+      return;
     }
   }
   else
@@ -1377,8 +1388,10 @@ void  Pos_PrintWithArgument(struct PostQuantity      *NCPQ_P,
   int      i, N, Num_Region ;
   double   X[2], S, x ;
 
-  if(CPQ_P)
+  if(CPQ_P){
     Message::Error("Cumulative PostProcessing Quantity in PrintWithArgument not done") ;
+    return;
+  }
 
   X[0] = PostSubOperation_P->Case.WithArgument.x[0] ;
   X[1] = PostSubOperation_P->Case.WithArgument.x[1] ;

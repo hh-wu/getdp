@@ -32,17 +32,17 @@ void Alloc_PostElement(struct PostElement * PostElement)
   PostElement->x = &PostElement->u[3*PostElement->NbrNodes] ;
   PostElement->y = &PostElement->u[4*PostElement->NbrNodes] ;
   PostElement->z = &PostElement->u[5*PostElement->NbrNodes] ;
-  PostElement->Value = (struct Value *) 
+  PostElement->Value = (struct Value *)
     Malloc(PostElement->NbrNodes * sizeof(struct Value)) ;
 }
 
-struct PostElement * Create_PostElement(int Index, int Type, 
+struct PostElement * Create_PostElement(int Index, int Type,
 					int NbrNodes, int Depth)
 {
   struct PostElement * PostElement ;
 
   PostElement = (struct PostElement *) Malloc(sizeof(struct PostElement)) ;
-  PostElement->Index = Index ; 
+  PostElement->Index = Index ;
   PostElement->Type = Type ;
   PostElement->Depth = Depth ;
   PostElement->NbrNodes = NbrNodes ;
@@ -68,7 +68,7 @@ struct PostElement * NodeCopy_PostElement(struct PostElement *PostElement)
   int i ;
 
   Copy = (struct PostElement *) Malloc(sizeof(struct PostElement)) ;
-  Copy->Index = PostElement->Index ; 
+  Copy->Index = PostElement->Index ;
   Copy->Type = PostElement->Type ;
   Copy->Depth = PostElement->Depth ;
   Copy->NbrNodes = PostElement->NbrNodes ;
@@ -94,7 +94,7 @@ struct PostElement * PartialCopy_PostElement(struct PostElement *PostElement)
   int i ;
 
   Copy = (struct PostElement *) Malloc(sizeof(struct PostElement)) ;
-  Copy->Index = PostElement->Index ; 
+  Copy->Index = PostElement->Index ;
   Copy->Type = PostElement->Type ;
   Copy->Depth = PostElement->Depth ;
   Copy->NbrNodes = PostElement->NbrNodes ;
@@ -127,10 +127,10 @@ int fcmp_PostElement(const void *a, const void *b)
 
   PE1 = *(struct PostElement**)a; PE2 = *(struct PostElement**)b;
 
-  if(PE1->NbrNodes != PE2->NbrNodes) 
+  if(PE1->NbrNodes != PE2->NbrNodes)
     return PE1->NbrNodes - PE2->NbrNodes;
 
-  s1 = s2 = 0.0 ;  
+  s1 = s2 = 0.0 ;
   for(i=0;i<PE1->NbrNodes;i++){ s1 += PE1->x[i]; s2 += PE2->x[i]; }
   if(s1-s2 > TOL) return 1; else if(s1-s2 < -TOL) return -1;
 
@@ -143,19 +143,19 @@ int fcmp_PostElement(const void *a, const void *b)
   if(s1-s2 > TOL) return 1; else if(s1-s2 < -TOL) return -1;
 
   return 0;
-}  
+}
 
 int fcmp_PostElement_v0(const void *a, const void *b)
 {
-  return (int)( (*(struct PostElement**)a)->v[0] - 
+  return (int)( (*(struct PostElement**)a)->v[0] -
 		(*(struct PostElement**)b)->v[0] ) ;
-}  
+}
 
 int fcmp_PostElement_absu0(const void *a, const void *b)
 {
-  return (int)( fabs((*(struct PostElement**)b)->u[0]) - 
+  return (int)( fabs((*(struct PostElement**)b)->u[0]) -
 		fabs((*(struct PostElement**)a)->u[0]) ) ;
-}  
+}
 
 /* ------------------------------------------------------------------------ */
 /*  C u t _ P o s t E l e m e n t                                           */
@@ -166,8 +166,8 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 		     int DecomposeInSimplex)
 {
   struct  Element      E ;
-  struct  PostElement  * C[8] ;  
-  
+  struct  PostElement  * C[8] ;
+
   double  u01, u02, u03, u12, u13, u23 ;
   double  v01, v02, v03, v12, v13, v23 ;
   double  w01, w02, w03, w12, w13, w23 ;
@@ -182,33 +182,33 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
     case POINT :
       Message::Error("Impossible to divide a Point recursively");
       break;
-      
+
     case LINE :
     case LINE_2 :
       u01 = .5 * (PE->u[0] + PE->u[1]);
       v01 = .5 * (PE->v[0] + PE->v[1]);
       w01 = .5 * (PE->w[0] + PE->w[1]);
-      
+
       C[0] = Create_PostElement(Index, LINE, 2, PE->Depth) ;
       C[0]->u[0] = PE->u[0] ; C[0]->v[0] = PE->v[0] ; C[0]->w[0] = PE->w[0] ;
       C[0]->u[1] = u01      ; C[0]->v[1] = v01      ; C[0]->w[1] = w01      ;
-      
+
       C[1] = PE ;
       C[1]->u[0] = u01      ; C[1]->v[0] = v01      ; C[1]->w[0] = w01      ;
-      
+
       NbCut = 2 ;
       break;
-      
+
     case TRIANGLE :
     case TRIANGLE_2 :
-      u01 = .5 * (PE->u[0] + PE->u[1]); u02 = .5 * (PE->u[0] + PE->u[2]); 
-      v01 = .5 * (PE->v[0] + PE->v[1]);	v02 = .5 * (PE->v[0] + PE->v[2]); 
-      w01 = .5 * (PE->w[0] + PE->w[1]);	w02 = .5 * (PE->w[0] + PE->w[2]); 
+      u01 = .5 * (PE->u[0] + PE->u[1]); u02 = .5 * (PE->u[0] + PE->u[2]);
+      v01 = .5 * (PE->v[0] + PE->v[1]);	v02 = .5 * (PE->v[0] + PE->v[2]);
+      w01 = .5 * (PE->w[0] + PE->w[1]);	w02 = .5 * (PE->w[0] + PE->w[2]);
 
       u12 = .5 * (PE->u[1] + PE->u[2]);
       v12 = .5 * (PE->v[1] + PE->v[2]);
       w12 = .5 * (PE->w[1] + PE->w[2]);
-           
+
       C[0] = Create_PostElement(Index, TRIANGLE, 3, PE->Depth) ;
       C[0]->u[0] = PE->u[0] ; C[0]->v[0] = PE->v[0] ; C[0]->w[0] = PE->w[0] ;
       C[0]->u[1] = u01      ; C[0]->v[1] = v01      ; C[0]->w[1] = w01      ;
@@ -218,7 +218,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
       C[1]->u[0] = u01      ; C[1]->v[0] = v01      ; C[1]->w[0] = w01      ;
       C[1]->u[1] = PE->u[1] ; C[1]->v[1] = PE->v[1] ; C[1]->w[1] = PE->w[1] ;
       C[1]->u[2] = u12      ; C[1]->v[2] = v12      ; C[1]->w[2] = w12      ;
-      
+
       C[2] = Create_PostElement(Index, TRIANGLE, 3, PE->Depth) ;
       C[2]->u[0] = u02      ; C[2]->v[0] = v02      ; C[2]->w[0] = w02      ;
       C[2]->u[1] = u12      ; C[2]->v[1] = v12      ; C[2]->w[1] = w12      ;
@@ -228,19 +228,19 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
       C[3]->u[0] = u01      ; C[3]->v[0] = v01      ; C[3]->w[0] = w01      ;
       C[3]->u[1] = u12      ; C[3]->v[1] = v12      ; C[3]->w[1] = w12      ;
       C[3]->u[2] = u02      ; C[3]->v[2] = v02      ; C[3]->w[2] = w02      ;
-      
+
       NbCut = 4 ;
       break;
 
     case TETRAHEDRON :
-      u01 = .5 * (PE->u[0] + PE->u[1]); u02 = .5 * (PE->u[0] + PE->u[2]); 
-      v01 = .5 * (PE->v[0] + PE->v[1]);	v02 = .5 * (PE->v[0] + PE->v[2]); 
-      w01 = .5 * (PE->w[0] + PE->w[1]);	w02 = .5 * (PE->w[0] + PE->w[2]); 
+      u01 = .5 * (PE->u[0] + PE->u[1]); u02 = .5 * (PE->u[0] + PE->u[2]);
+      v01 = .5 * (PE->v[0] + PE->v[1]);	v02 = .5 * (PE->v[0] + PE->v[2]);
+      w01 = .5 * (PE->w[0] + PE->w[1]);	w02 = .5 * (PE->w[0] + PE->w[2]);
 
-      u03 = .5 * (PE->u[0] + PE->u[3]); u12 = .5 * (PE->u[1] + PE->u[2]); 
-      v03 = .5 * (PE->v[0] + PE->v[3]); v12 = .5 * (PE->v[1] + PE->v[2]); 
-      w03 = .5 * (PE->w[0] + PE->w[3]); w12 = .5 * (PE->w[1] + PE->w[2]); 
-    
+      u03 = .5 * (PE->u[0] + PE->u[3]); u12 = .5 * (PE->u[1] + PE->u[2]);
+      v03 = .5 * (PE->v[0] + PE->v[3]); v12 = .5 * (PE->v[1] + PE->v[2]);
+      w03 = .5 * (PE->w[0] + PE->w[3]); w12 = .5 * (PE->w[1] + PE->w[2]);
+
       u13 = .5 * (PE->u[1] + PE->u[3]); u23 = .5 * (PE->u[2] + PE->u[3]);
       v13 = .5 * (PE->v[1] + PE->v[3]);	v23 = .5 * (PE->v[2] + PE->v[3]);
       w13 = .5 * (PE->w[1] + PE->w[3]);	w23 = .5 * (PE->w[2] + PE->w[3]);
@@ -299,10 +299,11 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
     default :
       Message::Error("Recursive division not implemented for Quadrangles, Hexahedra, "
                      "Prisms and Pyramids") ;
+      break;
     }
-    
+
     for(i = 0 ; i < NbCut ; i++){
-      C[i]->Depth ++ ; 
+      C[i]->Depth ++ ;
       for(j = 0 ; j < C[i]->NbrNodes ; j++) C[i]->NumNodes[j] = -1 ;
       Cut_PostElement(C[i], GE, PE_L, Index, Depth, Skin, DecomposeInSimplex);
     }
@@ -318,26 +319,26 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
     Get_NodesCoordinatesOfElement(&E) ;
 
     for(i = 0 ; i < PE->NbrNodes ; i++){
-      if( Skin == 0 && PE->Depth == 1 && 
-	  ( DecomposeInSimplex == 0 || E.GeoElement->Type == LINE || 
+      if( Skin == 0 && PE->Depth == 1 &&
+	  ( DecomposeInSimplex == 0 || E.GeoElement->Type == LINE ||
 	    E.GeoElement->Type == TRIANGLE || E.GeoElement->Type == TETRAHEDRON ) ){
-	PE->x[i] = E.x[i] ; 
-	PE->y[i] = E.y[i] ; 
+	PE->x[i] = E.x[i] ;
+	PE->y[i] = E.y[i] ;
 	PE->z[i] = E.z[i] ;
       }
       else{
 	Get_BFGeoElement(&E, PE->u[i], PE->v[i], PE->w[i]) ;
-	
+
 	PE->x[i] = PE->y[i] = PE->z[i] = 0. ;
 	for (j = 0 ; j < E.GeoElement->NbrNodes ; j++) {
 	  PE->x[i] += E.x[j] * E.n[j] ;
 	  PE->y[i] += E.y[j] * E.n[j] ;
 	  PE->z[i] += E.z[j] * E.n[j] ;
 	}
-      }      
+      }
 
     }
-    
+
     List_Add(PE_L, &PE);
   }
 }
@@ -349,7 +350,7 @@ void Cut_PostElement(struct PostElement * PE, struct Geo_Element * GE,
 #define POS_CUT_FILL  Cut_PostElement(PE, GE, PE_L, Index, Depth, 0, DecomposeInSimplex)
 #define POS_CUT_SKIN  Cut_PostElement(PE, GE, PE_L, Index, Depth, 1, DecomposeInSimplex)
 
-void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L, 
+void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 		      int Index, int Depth, int Skin, List_T * EvaluationPoints_L,
 		      int DecomposeInSimplex)
 {
@@ -358,8 +359,8 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 
   if(!Depth){
 
-    PE = Create_PostElement(Index, POINT, 1, 0) ; 
-    switch(GE->Type){      
+    PE = Create_PostElement(Index, POINT, 1, 0) ;
+    switch(GE->Type){
     case POINT       : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
     case LINE        :
     case LINE_2      : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 0.   ; break ;
@@ -373,7 +374,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
     case PRISM       : PE->u[0] = 1./3.; PE->v[0] = 1./3.; PE->w[0] = 0.   ; break ;
     case PYRAMID     : PE->u[0] = 0.   ; PE->v[0] = 0.   ; PE->w[0] = 1./3.; break ;
     }
-    POS_CUT_FILL ;     
+    POS_CUT_FILL ;
 
   }
   else{
@@ -381,26 +382,26 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
     if(!Skin){
 
       switch(GE->Type){
-      
-      case POINT :    
+
+      case POINT :
 	PE = Create_PostElement(Index, POINT, 1, 1) ; /* node 1 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
-	POS_CUT_FILL ; 
+	POS_CUT_FILL ;
 	break ;
 
-      case LINE :    
-      case LINE_2 :    
+      case LINE :
+      case LINE_2 :
 	PE = Create_PostElement(Index, LINE, 2, 1) ; /* nodes 1 2 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->NumNodes[1] = GE->NumNodes[1] ;
 	PE->u[0] =-1. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
 	PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
-	POS_CUT_FILL ; 
+	POS_CUT_FILL ;
 	break ;
-      
-      case TRIANGLE :    
-      case TRIANGLE_2 :    
+
+      case TRIANGLE :
+      case TRIANGLE_2 :
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 2 3 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->NumNodes[1] = GE->NumNodes[1] ;
@@ -408,10 +409,10 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
 	PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
 	PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
-	POS_CUT_FILL ; 
+	POS_CUT_FILL ;
 	break ;
-	
-      case QUADRANGLE :    
+
+      case QUADRANGLE :
       case QUADRANGLE_2 :
       case QUADRANGLE_2_8N:
 	if(DecomposeInSimplex){
@@ -428,9 +429,9 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[0] = GE->NumNodes[1] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
 	  PE->NumNodes[2] = GE->NumNodes[3] ;
-	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 0. ; 	      
-	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ; 	     
+	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
+	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
+	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
 	  POS_CUT_FILL;
 	}
 	else{
@@ -454,10 +455,10 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	      List_Read(EvaluationPoints_L, i_EP*3+2, &PE->w[i_EP]);
 	    }
 	  }
-	  POS_CUT_FILL ; 
+	  POS_CUT_FILL ;
 	}
 	break ;
-	
+
       case TETRAHEDRON :
 	PE = Create_PostElement(Index, TETRAHEDRON, 4, 1) ; /* nodes 1 2 3 4 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
@@ -465,12 +466,12 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	PE->NumNodes[2] = GE->NumNodes[2] ;
 	PE->NumNodes[3] = GE->NumNodes[3] ;
 	PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
-	PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ; 	      
-	PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 0. ; 	     
-	PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
+	PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
+	PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+	PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
 	POS_CUT_FILL;
 	break ;
-	
+
       case HEXAHEDRON :
 	if(DecomposeInSimplex){
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 2 3 6 */
@@ -479,64 +480,64 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[2] = GE->NumNodes[2] ;
 	  PE->NumNodes[3] = GE->NumNodes[5] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] =-1. ; 	      
-	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ; 	     
-	  PE->u[3] = 1. ; PE->v[3] =-1. ; PE->w[3] = 1. ; 	     
+	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
+	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+	  PE->u[3] = 1. ; PE->v[3] =-1. ; PE->w[3] = 1. ;
 	  POS_CUT_FILL;
-	
-	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 3 6 7 */    
+
+	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 3 6 7 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
 	  PE->NumNodes[2] = GE->NumNodes[5] ;
 	  PE->NumNodes[3] = GE->NumNodes[6] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ; 	      
-	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ; 	     
-	  PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ; 	     
+	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ;
+	  PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
 	  POS_CUT_FILL;
-	
+
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 5 6 7 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[4] ;
 	  PE->NumNodes[2] = GE->NumNodes[5] ;
 	  PE->NumNodes[3] = GE->NumNodes[6] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 1. ; 	      
-	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ; 	     
-	  PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ; 	     
+	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
+	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ;
+	  PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
 	  POS_CUT_FILL;
-	  
+
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 3 4 7 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
 	  PE->NumNodes[2] = GE->NumNodes[3] ;
 	  PE->NumNodes[3] = GE->NumNodes[6] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ; 	      
-	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] =-1. ; 	     
-	  PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ; 	     
+	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+	  PE->u[3] = 1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
 	  POS_CUT_FILL;
-	
+
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 5 7 8 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[4] ;
 	  PE->NumNodes[2] = GE->NumNodes[6] ;
 	  PE->NumNodes[3] = GE->NumNodes[7] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 1. ; 	      
-	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ; 	     
-	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 1. ; 	     
+	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
+	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
+	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
 	  POS_CUT_FILL;
-	  
+
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 4 7 8 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
 	  PE->NumNodes[2] = GE->NumNodes[6] ;
 	  PE->NumNodes[3] = GE->NumNodes[7] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] =-1. ; 	      
+	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
-	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 1. ; 	     
+	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
 	  POS_CUT_FILL;
 	}
 	else{
@@ -550,17 +551,17 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[6] = GE->NumNodes[6] ;
 	  PE->NumNodes[7] = GE->NumNodes[7] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] =-1. ; 	      
+	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
-	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] =-1. ; 	     
+	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] =-1. ;
 	  PE->u[4] =-1. ; PE->v[4] =-1. ; PE->w[4] = 1. ;
-	  PE->u[5] = 1. ; PE->v[5] =-1. ; PE->w[5] = 1. ; 	      
+	  PE->u[5] = 1. ; PE->v[5] =-1. ; PE->w[5] = 1. ;
 	  PE->u[6] = 1. ; PE->v[6] = 1. ; PE->w[6] = 1. ;
-	  PE->u[7] =-1. ; PE->v[7] = 1. ; PE->w[7] = 1. ; 	     
+	  PE->u[7] =-1. ; PE->v[7] = 1. ; PE->w[7] = 1. ;
 	  POS_CUT_FILL;
 	}
 	break ;
-	
+
       case PRISM :
 	if(DecomposeInSimplex){
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 2 3 5 */
@@ -569,22 +570,22 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[2] = GE->NumNodes[2] ;
 	  PE->NumNodes[3] = GE->NumNodes[4] ;
 	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] =-1. ; 	      
-	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] =-1. ; 	     
-	  PE->u[3] = 1. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
+	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] =-1. ;
+	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
+	  PE->u[3] = 1. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
 	  POS_CUT_FILL;
-	  
+
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 3 5 6 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
 	  PE->NumNodes[2] = GE->NumNodes[4] ;
 	  PE->NumNodes[3] = GE->NumNodes[5] ;
 	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
-	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] =-1. ; 	      
-	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ; 	     
-	  PE->u[3] = 0. ; PE->v[3] = 1. ; PE->w[3] = 1. ; 	     
+	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+	  PE->u[3] = 0. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
 	  POS_CUT_FILL;
-	  
+
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 4 5 6 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
@@ -592,8 +593,8 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[3] = GE->NumNodes[5] ;
 	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
 	  PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 1. ;
-	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ; 	     
-	  PE->u[3] = 0. ; PE->v[3] = 1. ; PE->w[3] = 1. ; 	     
+	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
+	  PE->u[3] = 0. ; PE->v[3] = 1. ; PE->w[3] = 1. ;
 	  POS_CUT_FILL;
 	}
 	else{
@@ -605,15 +606,15 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[4] = GE->NumNodes[4] ;
 	  PE->NumNodes[5] = GE->NumNodes[5] ;
 	  PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] =-1. ;
-	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] =-1. ; 	      
+	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] =-1. ;
 	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
-	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
+	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
 	  PE->u[4] = 1. ; PE->v[4] = 0. ; PE->w[4] = 1. ;
-	  PE->u[5] = 0. ; PE->v[5] = 1. ; PE->w[5] = 1. ; 	      
+	  PE->u[5] = 0. ; PE->v[5] = 1. ; PE->w[5] = 1. ;
 	  POS_CUT_FILL;
 	}
 	break ;
-	
+
       case PYRAMID :
 	if(DecomposeInSimplex){
 	  PE = Create_PostElement(Index, TETRAHEDRON, 4, 1); /* nodes 1 2 4 5 */
@@ -622,9 +623,9 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[2] = GE->NumNodes[3] ;
 	  PE->NumNodes[3] = GE->NumNodes[4] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;   	     
-	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	
+	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
+	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
 
 	  POS_CUT_FILL;
 
@@ -635,9 +636,9 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[3] = GE->NumNodes[4] ;
 
 	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
-	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
-	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ; 	     
-	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ; 	     
+	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
+	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
+	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
 
 	  POS_CUT_FILL;
 	}
@@ -650,9 +651,9 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[4] = GE->NumNodes[4] ;
 
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ; 	      
+	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
-	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 0. ; 	     
+	  PE->u[3] =-1. ; PE->v[3] = 1. ; PE->w[3] = 0. ;
 	  PE->u[4] = 0. ; PE->v[4] = 0. ; PE->w[4] = 1. ;
 
 	  POS_CUT_FILL;
@@ -662,100 +663,100 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
       }
     }
     else { /* Skin: facets oriented with normals pointing outwards */
-      
+
       switch(GE->Type){
-	
-      case TRIANGLE :    
+
+      case TRIANGLE :
 	PE = Create_PostElement(Index, LINE, 2, 1) ; /* nodes 1 2 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->NumNodes[1] = GE->NumNodes[1] ;
 	PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
 	PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
-	POS_CUT_SKIN ; 
-	
+	POS_CUT_SKIN ;
+
 	PE = Create_PostElement(Index, LINE, 2, 1) ; /* nodes 2 3 */
 	PE->NumNodes[0] = GE->NumNodes[1] ;
 	PE->NumNodes[1] = GE->NumNodes[2] ;
 	PE->u[0] = 1. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
 	PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
-	POS_CUT_SKIN ; 
-	
+	POS_CUT_SKIN ;
+
 	PE = Create_PostElement(Index, LINE, 2, 1) ; /* nodes 3 1 */
 	PE->NumNodes[0] = GE->NumNodes[2] ;
 	PE->NumNodes[1] = GE->NumNodes[0] ;
 	PE->u[0] = 0. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
 	PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
-	POS_CUT_SKIN ; 
+	POS_CUT_SKIN ;
 	break ;
-	
-      case QUADRANGLE :    
+
+      case QUADRANGLE :
 	PE = Create_PostElement(Index, LINE, 2, 1) ; /* nodes 1 2 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->NumNodes[1] = GE->NumNodes[1] ;
 	PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
-	POS_CUT_SKIN ; 
-	
+	POS_CUT_SKIN ;
+
 	PE = Create_PostElement(Index, LINE, 2, 1) ; /* nodes 2 3 */
 	PE->NumNodes[0] = GE->NumNodes[1] ;
 	PE->NumNodes[1] = GE->NumNodes[2] ;
 	PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 0. ;
 	PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
-	POS_CUT_SKIN ; 
-	
+	POS_CUT_SKIN ;
+
 	PE = Create_PostElement(Index, LINE, 2, 1) ; /* nodes 3 4 */
 	PE->NumNodes[0] = GE->NumNodes[2] ;
 	PE->NumNodes[1] = GE->NumNodes[3] ;
 	PE->u[0] = 1. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
 	PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
-	POS_CUT_SKIN ; 
-	
+	POS_CUT_SKIN ;
+
 	PE = Create_PostElement(Index, LINE, 2, 1) ; /* nodes 4 1 */
 	PE->NumNodes[0] = GE->NumNodes[3] ;
 	PE->NumNodes[1] = GE->NumNodes[0] ;
 	PE->u[0] =-1. ; PE->v[0] = 1. ; PE->w[0] = 0. ;
 	PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 0. ;
-	POS_CUT_SKIN ; 
+	POS_CUT_SKIN ;
 	break ;
-	
+
       case TETRAHEDRON :
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 2 4 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->NumNodes[1] = GE->NumNodes[1] ;
 	PE->NumNodes[2] = GE->NumNodes[3] ;
 	PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
-	PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ; 	      
-	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ; 	     
+	PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 0. ;
+	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	POS_CUT_SKIN;
-	
+
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 3 2 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->NumNodes[1] = GE->NumNodes[2] ;
 	PE->NumNodes[2] = GE->NumNodes[1] ;
 	PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
-	PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
+	PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
 	PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 0. ;
 	POS_CUT_SKIN;
-	
+
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 4 3 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
 	PE->NumNodes[1] = GE->NumNodes[3] ;
 	PE->NumNodes[2] = GE->NumNodes[2] ;
 	PE->u[0] = 0. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
-	PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 1. ; 	      
+	PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 1. ;
 	PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
 	POS_CUT_SKIN;
-	
+
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 2 3 4 */
 	PE->NumNodes[0] = GE->NumNodes[1] ;
 	PE->NumNodes[1] = GE->NumNodes[2] ;
 	PE->NumNodes[2] = GE->NumNodes[3] ;
 	PE->u[0] = 1. ; PE->v[0] = 0. ; PE->w[0] = 0. ;
-	PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 0. ; 	      
+	PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
 	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	POS_CUT_SKIN;
 	break ;
-	
+
       case HEXAHEDRON :
 	if(DecomposeInSimplex){
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 4 2 */
@@ -764,36 +765,36 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->NumNodes[2] = GE->NumNodes[1] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
 	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
-	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] =-1. ; 	      
+	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] =-1. ;
 	  POS_CUT_SKIN;
-	
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 2 4 3 */
 	  PE->NumNodes[0] = GE->NumNodes[1] ;
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
 	  PE->NumNodes[2] = GE->NumNodes[2] ;
-	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] =-1. ; 	      
-	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] =-1. ; 	     
-	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ; 	      
+	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] =-1. ;
+	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
+	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
 	  POS_CUT_SKIN;
-	
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 5 6 8 */
 	  PE->NumNodes[0] = GE->NumNodes[4] ;
 	  PE->NumNodes[1] = GE->NumNodes[5] ;
 	  PE->NumNodes[2] = GE->NumNodes[7] ;
 	  PE->u[0] =-1. ; PE->v[0] =-1. ; PE->w[0] = 1. ;
-	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 1. ; 	      
+	  PE->u[1] = 1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
 	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
-	  
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 6 7 8 */
 	  PE->NumNodes[0] = GE->NumNodes[5] ;
 	  PE->NumNodes[1] = GE->NumNodes[6] ;
 	  PE->NumNodes[2] = GE->NumNodes[7] ;
-	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 1. ; 	      
-	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 1. ; 	      
-	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 1. ; 	     
+	  PE->u[0] = 1. ; PE->v[0] =-1. ; PE->w[0] = 1. ;
+	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 1. ;
+	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
-	
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 5 4 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[4] ;
@@ -802,7 +803,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] = 1. ;
 	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
 	  POS_CUT_SKIN;
-	  
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 5 8 4 */
 	  PE->NumNodes[0] = GE->NumNodes[4] ;
 	  PE->NumNodes[1] = GE->NumNodes[7] ;
@@ -811,7 +812,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] = 1. ;
 	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
 	  POS_CUT_SKIN;
-	  
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 2 3 6 */
 	  PE->NumNodes[0] = GE->NumNodes[1] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
@@ -820,7 +821,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
-	  
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 6 3 7 */
 	  PE->NumNodes[0] = GE->NumNodes[5] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
@@ -829,7 +830,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
-	
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 5 1 6 */
 	  PE->NumNodes[0] = GE->NumNodes[4] ;
 	  PE->NumNodes[1] = GE->NumNodes[0] ;
@@ -838,7 +839,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
-	
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 6 1 2 */
 	  PE->NumNodes[0] = GE->NumNodes[5] ;
 	  PE->NumNodes[1] = GE->NumNodes[0] ;
@@ -847,7 +848,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] =-1. ; PE->v[1] =-1. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] =-1. ;
 	  POS_CUT_SKIN;
-	  
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 8 7 4 */
 	  PE->NumNodes[0] = GE->NumNodes[7] ;
 	  PE->NumNodes[1] = GE->NumNodes[6] ;
@@ -856,7 +857,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] = 1. ; PE->v[1] = 1. ; PE->w[1] = 1. ;
 	  PE->u[2] =-1. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
 	  POS_CUT_SKIN;
-	
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 7 3 4 */
 	  PE->NumNodes[0] = GE->NumNodes[6] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
@@ -944,7 +945,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
 	PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] =-1. ;
 	POS_CUT_SKIN;
-	
+
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 4 5 6 */
 	PE->NumNodes[0] = GE->NumNodes[3] ;
 	PE->NumNodes[1] = GE->NumNodes[4] ;
@@ -953,7 +954,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 1. ;
 	PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
 	POS_CUT_SKIN;
-	
+
 	if(DecomposeInSimplex){
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 2 5 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
@@ -963,7 +964,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
-	
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 5 4 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[4] ;
@@ -972,7 +973,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] = 1. ; PE->v[1] = 0. ; PE->w[1] = 1. ;
 	  PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
-	  
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 6 3 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[5] ;
@@ -981,7 +982,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 1. ;
 	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] =-1. ;
 	  POS_CUT_SKIN;
-	  
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 4 6 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
@@ -990,7 +991,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] = 0. ; PE->v[1] = 0. ; PE->w[1] = 1. ;
 	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
-	
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 2 3 5 */
 	  PE->NumNodes[0] = GE->NumNodes[1] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
@@ -999,13 +1000,13 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] =-1. ;
 	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
-	
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 3 6 5 */
 	  PE->NumNodes[0] = GE->NumNodes[2] ;
 	  PE->NumNodes[1] = GE->NumNodes[5] ;
 	  PE->NumNodes[2] = GE->NumNodes[4] ;
 	  PE->u[0] = 0. ; PE->v[0] = 1. ; PE->w[0] =-1. ;
-	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 1. ;      
+	  PE->u[1] = 0. ; PE->v[1] = 1. ; PE->w[1] = 1. ;
 	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	  POS_CUT_SKIN;
 	}
@@ -1020,7 +1021,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[2] = 1. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 	  PE->u[3] = 0. ; PE->v[3] = 0. ; PE->w[3] = 1. ;
 	  POS_CUT_SKIN;
-	  
+
 	  PE = Create_PostElement(Index, QUADRANGLE, 4, 1) ; /* nodes 1 4 6 3 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
@@ -1031,7 +1032,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[2] = 0. ; PE->v[2] = 1. ; PE->w[2] = 1. ;
 	  PE->u[3] = 0. ; PE->v[3] = 1. ; PE->w[3] =-1. ;
 	  POS_CUT_SKIN;
-	  
+
 	  PE = Create_PostElement(Index, QUADRANGLE, 4, 1) ; /* nodes 2 3 6 5 */
 	  PE->NumNodes[0] = GE->NumNodes[1] ;
 	  PE->NumNodes[1] = GE->NumNodes[2] ;
@@ -1044,7 +1045,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  POS_CUT_SKIN;
 	}
 	break ;
-	
+
       case PYRAMID :
 	PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 2 5 */
 	PE->NumNodes[0] = GE->NumNodes[0] ;
@@ -1089,7 +1090,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	PE->u[2] = 0. ; PE->v[2] = 0. ; PE->w[2] = 1. ;
 
 	POS_CUT_SKIN;
-	
+
 	if(DecomposeInSimplex){
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 3 2 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
@@ -1101,7 +1102,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[2] = 1. ; PE->v[2] =-1. ; PE->w[2] = 0. ;
 
 	  POS_CUT_SKIN;
-	  
+
 	  PE = Create_PostElement(Index, TRIANGLE, 3, 1) ; /* nodes 1 4 3 */
 	  PE->NumNodes[0] = GE->NumNodes[0] ;
 	  PE->NumNodes[1] = GE->NumNodes[3] ;
@@ -1111,7 +1112,7 @@ void Fill_PostElement(struct Geo_Element * GE, List_T * PE_L,
 	  PE->u[1] =-1. ; PE->v[1] = 1. ; PE->w[1] = 0. ;
 	  PE->u[2] = 1. ; PE->v[2] = 1. ; PE->w[2] = 0. ;
 
-	  POS_CUT_SKIN;	
+	  POS_CUT_SKIN;
 	}
 	else{
 	  PE = Create_PostElement(Index, QUADRANGLE, 4, 1) ; /* nodes 1 4 3 2 */
@@ -1161,18 +1162,20 @@ void Sort_PostElement_Connectivity(List_T *PostElement_L)
 
   NbrPost = List_Nbr(PostElement_L) ;
 
-  /* 
+  /*
      u[0] = 1 if the element is in the ordered list, with natural orientation
-           -1 if the element is in the ordered list, but with opposite orientation 
+           -1 if the element is in the ordered list, but with opposite orientation
             0 if the element is not in the list
      v[0] = relative index (to the first element) in the ordered list
   */
 
   for(ii = 0 ; ii < NbrPost ; ii++){
     PE = *(struct PostElement**)List_Pointer(PostElement_L, ii);
-    if(PE->NbrNodes != 2)
+    if(PE->NbrNodes != 2){
       Message::Error("Connectivity sorting impossible for %d-noded elements",
                      PE->NbrNodes) ;
+      return;
+    }
     PE->u[0] = 0. ;
   }
 

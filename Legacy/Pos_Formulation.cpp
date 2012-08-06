@@ -212,14 +212,18 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
     if(!PostSubOperation_P->CatFile) {
       if((PostStream = fopen(FileName, Flag_BIN ? "wb" : "w")))
 	Message::Direct("          > '%s'", FileName) ;
-      else
+      else{
 	Message::Error("Unable to open file '%s'", FileName) ;
+        PostStream = stdout ;
+      }
     }
     else {
       if((PostStream = fopen(FileName, Flag_BIN ? "ab" : "a")))
 	Message::Direct("         >> '%s'", FileName) ;
-      else
+      else{
 	Message::Error("Unable to open file '%s'", FileName) ;
+        PostStream = stdout ;
+      }
     }
   }
   else{
@@ -264,9 +268,11 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
   if(List_Nbr(PostSubOperation_P->Frequency_L)){
     if(List_Nbr(PostSubOperation_P->Frequency_L) > List_Nbr(Current.DofData->Pulsation))
       Message::Error("Too many frequencies specified in PostOperation");
-    for(i = 0 ; i < List_Nbr(PostSubOperation_P->Frequency_L) ; i++){
-      Pulsation = *((double *)List_Pointer(PostSubOperation_P->Frequency_L, i)) * TWO_PI ;
-      List_Write(Current.DofData->Pulsation, i, &Pulsation) ;
+    else{
+      for(i = 0 ; i < List_Nbr(PostSubOperation_P->Frequency_L) ; i++){
+        Pulsation = *((double *)List_Pointer(PostSubOperation_P->Frequency_L, i)) * TWO_PI ;
+        List_Write(Current.DofData->Pulsation, i, &Pulsation) ;
+      }
     }
   }
 
@@ -323,8 +329,8 @@ void  Pos_Formulation(struct Formulation       *Formulation_P,
           MVertex* v = entities[i]->mesh_vertices[j];
           std::vector<double> xyz(3);
           if(!data->searchVector(v->x(), v->y(), v->z(), &xyz[0]))
-            Message::Error("Did not find new coordinate Vector at point (%g,%g,%g) from file %s",
-                           v->x(), v->y(), v->z(), FileName);
+            Message::Error("Did not find new coordinate Vector at point (%g,%g,%g) "
+                           "from file %s", v->x(), v->y(), v->z(), FileName);
           newcoords[v] = xyz;
         }
       }
