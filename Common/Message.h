@@ -57,8 +57,9 @@ class Message {
   static int GetErrorCount(){ return _errorCount; }
   static void Warning(const char *fmt, ...);
   static void Info(const char *fmt, ...);
-  static void Info(int verbosity, const char *fmt, ...);
+  static void Info(int level, const char *fmt, ...);
   static void Direct(const char *fmt, ...);
+  static void Direct(int level, const char *fmt, ...);
   static void Check(const char *fmt, ...);
   static void Debug(const char *fmt, ...);
   static void Cpu(const char *fmt, ...);

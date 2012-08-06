@@ -230,30 +230,21 @@ void Message::Warning(const char *fmt, ...)
   }
 }
 
-void Message::Info(int verbosity, const char *fmt, ...)
+void Message::Info(const char *fmt, ...)
 {
-  if(_commRank || _verbosity < verbosity) return;
+  if(_commRank || _verbosity < 2) return;
   char str[1024];
   va_list args;
   va_start(args, fmt);
   vsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
 
-  if(_client){
-    _client->Info(str);
-  }
-  else if(_onelabClient){
-    _onelabClient->sendInfo(str);
-  }
-  else{
-    fprintf(stdout, "Info    : %s\n", str);
-    fflush(stdout);
-  }
+  Info(2, str);
 }
 
-void Message::Info(const char *fmt, ...)
+void Message::Info(int level, const char *fmt, ...)
 {
-  if(_commRank || _verbosity < 2) return;
+  if(_commRank || _verbosity < level) return;
   char str[1024];
   va_list args;
   va_start(args, fmt);
@@ -275,6 +266,18 @@ void Message::Info(const char *fmt, ...)
 void Message::Direct(const char *fmt, ...)
 {
   if(_commRank || _verbosity < 1) return;
+  va_list args;
+  va_start(args, fmt);
+  char str[1024];
+  vsnprintf(str, sizeof(str), fmt, args);
+  va_end(args);
+
+  Direct(1, str);
+}
+
+void Message::Direct(int level, const char *fmt, ...)
+{
+  if(_commRank || _verbosity < level) return;
   va_list args;
   va_start(args, fmt);
   char str[1024];
