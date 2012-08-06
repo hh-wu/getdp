@@ -356,10 +356,12 @@ if(ENABLE_FORTRAN)
   endif(ENABLE_ZITSOL AND HAVE_PETSC AND 
         EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/ZITSOL_1/getdp.c)
 
-  if(ENABLE_ARPACK AND (HAVE_LAPACK OR HAVE_PETSC))
-    add_subdirectory(contrib/Arpack)
-    set_config_option(HAVE_ARPACK "Arpack")
-  endif(ENABLE_ARPACK AND (HAVE_LAPACK OR HAVE_PETSC))
+  if(ENABLE_ARPACK)
+    if(HAVE_LAPACK OR HAVE_PETSC)
+      add_subdirectory(contrib/Arpack)
+      set_config_option(HAVE_ARPACK "Arpack")
+    endif(HAVE_LAPACK OR HAVE_PETSC)
+  endif(ENABLE_ARPACK)
 
   if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
     if(CMAKE_Fortran_COMPILER MATCHES "gfortran")
