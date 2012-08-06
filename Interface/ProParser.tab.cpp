@@ -13038,13 +13038,13 @@ yyreduce:
 	vyyerror("Unknown Constant: %s", (yyvsp[(2) - (3)].c));
       else
 	if(Constant_S.Type != VAR_LISTOFFLOAT)
-	  printf("%s: %g\n", (yyvsp[(2) - (3)].c), Constant_S.Value.Float);
+          Message::Direct("%s: %g", (yyvsp[(2) - (3)].c), Constant_S.Value.Float);
 	else
-	  printf("%s: Dimension %d\n", (yyvsp[(2) - (3)].c), List_Nbr(Constant_S.Value.ListOfFloat));
+          Message::Direct("%s: Dimension %d", (yyvsp[(2) - (3)].c), List_Nbr(Constant_S.Value.ListOfFloat));
 	  for(int i = 0; i < List_Nbr(Constant_S.Value.ListOfFloat); i++) {
 	    double d;
 	    List_Read(Constant_S.Value.ListOfFloat, i, &d);
-	    printf(" (%d) %g\n", i, d);
+            Message::Direct(" (%d) %g", i, d);
 	  }
     ;}
     break;
@@ -13054,7 +13054,7 @@ yyreduce:
 /* Line 1464 of yacc.c  */
 #line 6597 "ProParser.y"
     {
-      Message::Info("Line number: %d", getdp_yylinenum);
+      Message::Direct("Line number: %d", getdp_yylinenum);
     ;}
     break;
 
@@ -13064,13 +13064,13 @@ yyreduce:
 #line 6602 "ProParser.y"
     {
       char tmpstr[256];
-      int i = Print_ListOfDouble((yyvsp[(3) - (7)].c),(yyvsp[(5) - (7)].l),tmpstr);
-      if(i<0)
+      int i = Print_ListOfDouble((yyvsp[(3) - (7)].c), (yyvsp[(5) - (7)].l), tmpstr);
+      if(i < 0)
 	vyyerror("Too few arguments in Printf");
-      else if(i>0)
+      else if(i > 0)
 	vyyerror("Too many arguments (%d) in Printf", i);
       else
-	Message::Info(tmpstr);
+	Message::Direct(tmpstr);
       List_Delete((yyvsp[(5) - (7)].l));
     ;}
     break;

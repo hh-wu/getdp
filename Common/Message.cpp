@@ -105,33 +105,6 @@ void Message::Exit(int level)
   exit(level);
 }
 
-void Message::Fatal(const char *fmt, ...)
-{
-  _errorCount++;
-
-  char str[1024];
-  va_list args;
-  va_start(args, fmt);
-  vsnprintf(str, sizeof(str), fmt, args);
-  va_end(args);
-
-  if(_client){
-    _client->Error(str);
-  }
-  else if(_onelabClient){
-    _onelabClient->sendError(str);
-  }
-  else{
-    if(_commSize > 1)
-      fprintf(stderr, "Fatal   : [On processor %d] %s\n", _commRank, str);
-    else
-      fprintf(stderr, "Fatal   : %s\n", str);
-    fflush(stderr);
-  }
-
-  Exit(1);
-}
-
 static int streamIsFile(FILE* stream)
 {
   // the given stream is definately not interactive if it is a regular file
@@ -168,6 +141,37 @@ static int streamIsVT100(FILE* stream)
   return 1;
 }
 
+void Message::Fatal(const char *fmt, ...)
+{
+  _errorCount++;
+
+  char str[1024];
+  va_list args;
+  va_start(args, fmt);
+  vsnprintf(str, sizeof(str), fmt, args);
+  va_end(args);
+
+  if(_client){
+    _client->Error(str);
+  }
+  else if(_onelabClient){
+    _onelabClient->sendError(str);
+  }
+  else{
+    const char *c0 = "", *c1 = "";
+    if(!streamIsFile(stderr) && streamIsVT100(stderr)){
+      c0 = "\33[31m"; c1 = "\33[0m";  // red
+    }
+    if(_commSize > 1)
+      fprintf(stderr, "%sFatal   : [On processor %d] %s%s\n", c0, _commRank, str, c1);
+    else
+      fprintf(stderr, "%sFatal   : %s%s\n", c0, str, c1);
+    fflush(stderr);
+  }
+
+  Exit(1);
+}
+
 void Message::Error(const char *fmt, ...)
 {
   _errorCount++;
@@ -196,7 +200,7 @@ void Message::Error(const char *fmt, ...)
     fflush(stderr);
   }
 
-  // Error() should NOT lead to exit; use Fatal() for that
+  // Error() should not exit; use Fatal() for that
   // Exit(1);
 }
 
@@ -283,7 +287,11 @@ void Message::Direct(const char *fmt, ...)
     _onelabClient->sendInfo(str);
   }
   else{
-    fprintf(stdout, "%s\n", str);
+    const char *c0 = "", *c1 = "";
+    if(!streamIsFile(stderr) && streamIsVT100(stderr)){
+      c0 = "\33[34m"; c1 = "\33[0m";  // blue
+    }
+    fprintf(stdout, "%s%s%s\n", c0, str, c1);
     fflush(stdout);
   }
 }
