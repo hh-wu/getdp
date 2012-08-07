@@ -122,13 +122,13 @@ void Geo_InitGeoData(struct GeoData * GeoData_P, int Num, char * Name)
 void Geo_FreeGeoData(struct GeoData * GeoData_P)
 {
   Message::Debug("Freeing GeoData %d", GeoData_P->Num);
-  if(GeoData_P->Nodes) List_Delete(GeoData_P->Nodes);
+  List_Delete(GeoData_P->Nodes);
   if(GeoData_P->Elements){
     for(int i = 0; i < List_Nbr(GeoData_P->Elements); i++){
       Geo_Element *e = (Geo_Element*)List_Pointer(GeoData_P->Elements, i);
       Free(e->NumNodes);
-      if(e->NumEdges) Free(e->NumEdges);
-      if(e->NumFacets) Free(e->NumFacets);
+      Free(e->NumEdges);
+      Free(e->NumFacets);
     }
     List_Delete(GeoData_P->Elements);
   }
@@ -144,11 +144,11 @@ void Geo_FreeGeoData(struct GeoData * GeoData_P)
     Tree_Action(GeoData_P->NodesXElements, free_E2XE1);
     Tree_Delete(GeoData_P->NodesXElements);
   }
-  if(GeoData_P->Normals) Tree_Delete(GeoData_P->Normals);
-  if(GeoData_P->GroupForPRE) List_Delete(GeoData_P->GroupForPRE);
+  Tree_Delete(GeoData_P->Normals);
+  List_Delete(GeoData_P->GroupForPRE);
   Free_SearchGrid(&GeoData_P->Grid);
-  if(GeoData_P->H) Free(GeoData_P->H);
-  if(GeoData_P->P) Free(GeoData_P->P);
+  Free(GeoData_P->H);
+  Free(GeoData_P->P);
 }
 
 /* ------------------------------------------------------------------------ */

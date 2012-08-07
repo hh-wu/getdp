@@ -98,21 +98,11 @@ void Dof_FreeDofData(struct DofData * DofData_P)
 {
   Message::Debug("Freeing DofData %d", DofData_P->Num);
 
-  if(DofData_P->FunctionSpaceIndex)
-    List_Delete(DofData_P->FunctionSpaceIndex);
-
-  if(DofData_P->TimeFunctionIndex)
-    List_Delete(DofData_P->TimeFunctionIndex);
-
-  if(DofData_P->Pulsation)
-    List_Delete(DofData_P->Pulsation);
-
-  if(DofData_P->DofTree)
-    Tree_Delete(DofData_P->DofTree);
-
-  if(DofData_P->DofList)
-    List_Delete(DofData_P->DofList);
-
+  List_Delete(DofData_P->FunctionSpaceIndex);
+  List_Delete(DofData_P->TimeFunctionIndex);
+  List_Delete(DofData_P->Pulsation);
+  Tree_Delete(DofData_P->DofTree);
+  List_Delete(DofData_P->DofList);
   Free(DofData_P->DummyDof);
 
   if(DofData_P->Solutions){
@@ -128,8 +118,7 @@ void Dof_FreeDofData(struct DofData * DofData_P)
     List_Delete(DofData_P->Solutions);
   }
 
-  if(DofData_P->OnlyTheseMatrices)
-    List_Delete(DofData_P->OnlyTheseMatrices);
+  List_Delete(DofData_P->OnlyTheseMatrices);
 
   if(DofData_P->Flag_Init[0] == 1 || DofData_P->Flag_Init[0] == 2){
     LinAlg_DestroyMatrix(&DofData_P->A);
@@ -690,7 +679,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
 
     // force generation of extended list (necessary when using
     // multiple meshes)
-    if(Group_P->ExtendedList) List_Delete(Group_P->ExtendedList);
+    List_Delete(Group_P->ExtendedList);
     Generate_ExtendedGroup(Group_P) ;
 
     fprintf(fpRe, "%d\n", List_Nbr(Group_P->ExtendedList));//Needed for ListFromFile
@@ -718,7 +707,7 @@ void Dof_WriteFileRES_WithEntityNum(char * Name_File, struct DofData * DofData_P
     }
   }
 
-  if(l) List_Delete(l);
+  List_Delete(l);
 
   fclose(fp);
   fclose(fpRe);
