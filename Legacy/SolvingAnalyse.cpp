@@ -643,6 +643,7 @@ void SolvingAnalyse()
 	  Current.Time = Solution_P->Time ;
 	  Current.TimeImag = Solution_P->TimeImag ;
 	  Current.TimeStep = 0.;
+          Free(Solution_P->TimeFunctionValues);
 	  Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
 	}
       }

@@ -120,7 +120,7 @@ void Dof_FreeDofData(struct DofData * DofData_P)
       Solution *Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, i);
       if(Solution_P->SolutionExist){
 	LinAlg_DestroyVector(&Solution_P->x);
-	if (Solution_P->TimeFunctionValues) Free(Solution_P->TimeFunctionValues) ;
+	Free(Solution_P->TimeFunctionValues) ;
         Solution_P->TimeFunctionValues = NULL;
         Solution_P->SolutionExist = 0;
       }

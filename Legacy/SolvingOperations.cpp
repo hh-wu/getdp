@@ -101,9 +101,7 @@ void Free_UnusedSolutions(struct DofData * DofData_P)
       if(Solution_P->SolutionExist){
 	Message::Info("Freeing Solution %d", index);
 	LinAlg_DestroyVector(&Solution_P->x);
-
-	if (Solution_P->TimeFunctionValues) Free(Solution_P->TimeFunctionValues) ;
-
+	Free(Solution_P->TimeFunctionValues) ;
 	Solution_P->SolutionExist = 0 ;
       }
     }
@@ -216,7 +214,7 @@ void  Generate_System(struct DefineSystem * DefineSystem_P,
     // fix time values if we recompute the same step (with different time)
     Solution_P->Time = Current.Time ;
     Solution_P->TimeImag = Current.TimeImag ;
-    if (Solution_P->TimeFunctionValues) Free(Solution_P->TimeFunctionValues) ;
+    Free(Solution_P->TimeFunctionValues) ;
     Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
   }
 
@@ -1231,6 +1229,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
 	for(i = 0; i < List_Nbr(DofData_P->Solutions); i++){
 	  Solution_P = (struct Solution*)List_Pointer(DofData_P->Solutions, i);
+          Free(Solution_P->TimeFunctionValues);
 	  Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
 	  /* The last solution is the current one */
 	  if(i == List_Nbr(DofData_P->Solutions) - 1)
@@ -1743,6 +1742,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
       DofData_P->CurrentSolution = (struct Solution*)
 	List_Pointer(DofData_P->Solutions, List_Nbr(DofData_P->Solutions)-1) ;
+      Free(DofData_P->CurrentSolution->TimeFunctionValues);
       DofData_P->CurrentSolution->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
       break ;
 

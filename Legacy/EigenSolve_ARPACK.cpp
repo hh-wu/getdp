@@ -684,6 +684,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
 
     if(newsol) {
       /* Create new solution */
+      Solution_S.TimeFunctionValues = NULL;
       LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof);
       List_Add(DofData_P->Solutions, &Solution_S);
       DofData_P->CurrentSolution = (struct Solution*)
@@ -694,6 +695,7 @@ void EigenSolve_ARPACK(struct DofData * DofData_P, int NumEigenvalues,
     DofData_P->CurrentSolution->Time = omega.re;
     DofData_P->CurrentSolution->TimeImag = omega.im;
     DofData_P->CurrentSolution->TimeStep = (int)Current.TimeStep;
+    Free(DofData_P->CurrentSolution->TimeFunctionValues);
     DofData_P->CurrentSolution->TimeFunctionValues = NULL;
     DofData_P->CurrentSolution->SolutionExist = 1;
     for(l = 0; l < DofData_P->NbrDof; l+=gCOMPLEX_INCREMENT){

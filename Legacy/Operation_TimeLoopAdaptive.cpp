@@ -21,6 +21,7 @@
 #include "SolvingOperations.h"
 #include "SolvingAnalyse.h"
 #include "Message.h"
+#include "MallocUtils.h"
 #include "Legendre.h"
 
 extern struct CurrentData Current;
@@ -120,7 +121,7 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
 
   // Calculation of predictor integration constants
   // ----------------------------------------------
-  
+
   /* The new solution is predicted by extrapolating the past solutions
    * by a polynom of order "PredOrder". The polynom coefficients
    * are calculated by solving a matrix equation A*coeff=b for the
@@ -135,7 +136,7 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
    * |_                                        _|   |_   _|   |_         _|
    *
    */
-  
+
   if (Current.PredOrder == 0)
     Current.aPredCoeff[0] = 1.0;
   else {
@@ -165,7 +166,7 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
 
   // Calculation of corrector integration constants
   // ----------------------------------------------
-  
+
   /*
    * The coefficients for the Gear method (BDF) are also
    * calculated by solving a matrix equation A*coeff=b for the
@@ -180,7 +181,7 @@ void CalcIntegrationCoefficients(Resolution  *Resolution_P,
    * |_                                                        _|   |_    _|   |_         _|
    *
    */
-  
+
   if (Current.TypeTime == TIME_GEAR) {
 
     for (int c=0; c < Current.CorrOrder; c++) {
@@ -309,7 +310,7 @@ void Predictor(Resolution  *Resolution_P,
       // fix time values if we recompute the same step (with different time)
       Solution_P->Time = Current.Time ;
       Solution_P->TimeImag = Current.TimeImag ;
-      free(Solution_P->TimeFunctionValues);
+      Free(Solution_P->TimeFunctionValues);
       Solution_P->TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
     }
 

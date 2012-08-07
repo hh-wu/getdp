@@ -36,6 +36,7 @@
 #include "ProData.h"
 #include "DofData.h"
 #include "Message.h"
+#include "MallocUtils.h"
 #include <slepceps.h>
 #include <slepcqep.h>
 
@@ -138,6 +139,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
     // create new solution vector if necessary
     if(newsol) {
       struct Solution Solution_S;
+      Solution_S.TimeFunctionValues = NULL;
       LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof);
       List_Add(DofData_P->Solutions, &Solution_S);
       DofData_P->CurrentSolution = (struct Solution*)
@@ -147,6 +149,7 @@ static void _storeEigenVectors(struct DofData *DofData_P, int nconv,
     DofData_P->CurrentSolution->Time = ore;
     DofData_P->CurrentSolution->TimeImag = oim;
     DofData_P->CurrentSolution->TimeStep = (int)Current.TimeStep;
+    Free(DofData_P->CurrentSolution->TimeFunctionValues);
     DofData_P->CurrentSolution->TimeFunctionValues = NULL;
     DofData_P->CurrentSolution->SolutionExist = 1;
 
