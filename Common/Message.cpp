@@ -380,37 +380,36 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
 {
   if(_commRank || _verbosity < 2) return;
 
-  char str[1024];
-  va_list args;
-  va_start(args, fmt);
-  vsnprintf(str, sizeof(str), fmt, args);
-  va_end(args);
-
-  if(N <= 0){
-    if(_onelabClient){
-      onelab::number o(_onelabClient->getName() + "/Progress", n);
-      o.setLabel(std::string("GetDP ") + str);
-      o.setMin(0);
-      o.setMax(N);
-      o.setVisible(false);
-      o.setReadOnly(true);
-      _onelabClient->set(o);
-    }
-    return;
-  }
-
   double percent = 100. * (double)n/(double)N;
 
-  if(percent >= _progressMeterCurrent){
+  if(N <= 0 || percent >= _progressMeterCurrent || n > N - 1){
 
-    char str2[1024];
-    sprintf(str2, "[%3d%%] %s", _progressMeterCurrent, str);
+    char str[1024], str2[1024];
+    va_list args;
+    va_start(args, fmt);
+    vsnprintf(str, sizeof(str), fmt, args);
+    va_end(args);
+    sprintf(str2, "%3d%%    : %s", _progressMeterCurrent, str);
+
+    if(N <= 0){
+      if(_onelabClient){
+        onelab::number o(_onelabClient->getName() + "/Progress", n);
+        o.setLabel(std::string("GetDP ") + str);
+        o.setMin(0);
+        o.setMax(N);
+        o.setVisible(false);
+        o.setReadOnly(true);
+        _onelabClient->set(o);
+      }
+      return;
+    }
 
     if(_client){
       _client->Progress(str2);
     }
     else if(_onelabClient){
-      onelab::number o(_onelabClient->getName() + "/Progress", n);
+      onelab::number o(_onelabClient->getName() + "/Progress",
+                       (n > N - 1) ? 0 : n);
       o.setLabel(std::string("GetDP ") + str);
       o.setMin(0);
       o.setMax(N);
@@ -424,25 +423,6 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
     }
     while(_progressMeterCurrent < percent)
       _progressMeterCurrent += _progressMeterStep;
-  }
-
-  if(n > N - 1){
-    if(_client){
-      _client->Progress("Done!");
-    }
-    else if(_onelabClient){
-      onelab::number o(_onelabClient->getName() + "/Progress", 0);
-      o.setLabel(std::string("GetDP ") + str);
-      o.setMin(0);
-      o.setMax(N);
-      o.setVisible(false);
-      o.setReadOnly(true);
-      _onelabClient->set(o);
-    }
-    else{
-      fprintf(stdout, "Done!                                              \r");
-      fflush(stdout);
-    }
   }
 }
 
