@@ -380,12 +380,11 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
 {
   if(_commRank || _verbosity < 2) return;
 
-  char str[1024], str2[256];
+  char str[1024];
   va_list args;
   va_start(args, fmt);
   vsnprintf(str, sizeof(str), fmt, args);
   va_end(args);
-  if(strlen(fmt)) strcat(str, " ");
 
   if(N <= 0){
     if(_onelabClient){
@@ -402,9 +401,11 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
 
   double percent = 100. * (double)n/(double)N;
 
-  sprintf(str2, "%s(%d %%)", str, _progressMeterCurrent);
-
   if(percent >= _progressMeterCurrent){
+
+    char str2[1024];
+    sprintf(str2, "[%3d%%] %s", _progressMeterCurrent, str);
+
     if(_client){
       _client->Progress(str2);
     }
