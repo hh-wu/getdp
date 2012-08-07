@@ -292,7 +292,7 @@ void Message::Direct(int level, const char *fmt, ...)
   }
   else{
     const char *c0 = "", *c1 = "";
-    if(!streamIsFile(stdout) && streamIsVT100(stdout)){
+    if(level == 1 && !streamIsFile(stdout) && streamIsVT100(stdout)){
       c0 = "\33[34m"; c1 = "\33[0m";  // blue
     }
     fprintf(stdout, "%s%s%s\n", c0, str, c1);
