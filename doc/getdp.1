@@ -1,5 +1,4 @@
-.\" $Id: getdp.1,v 1.33 2008-07-10 10:21:48 geuzaine Exp $
-.TH GetDP 1 "July 10 2008" "GetDP 2" "GetDP Manual Pages"
+.TH GetDP 1 "7 July 2012" "GetDP 2" "GetDP Manual Pages"
 .UC 4
 .\" ********************************************************************
 .SH NAME
@@ -25,8 +24,7 @@ should refer to the info documentation for this (e.g. with \fBinfo
 getdp\fP). Up-to-date versions of the manual in various formats are
 available at \fIhttp://www.geuz.org/getdp/\fP.
 .\" ********************************************************************
-.SH OPTIONS
-Command line arguments:
+.SH PROCESSING OPTIONS
 .TP 4
 .B file
 is an ASCII file containing the problem definition, i.e., the
@@ -69,6 +67,12 @@ reads the mesh database from \fIfilename\fP rather than reading it
 from the default problem file name with the \fI.msh\fP extension
 appended.
 .TP 4
+.B \-restart
+resumes time loop processing from where it stopped.
+.TP 4
+.B \-solve \fIresolution-id\fP
+same as \-pre \fIresolution-id\fP \-cal.
+.TP 4
 .B \-split
 saves processing results in separate files (one for each timestep).
 .TP 4
@@ -83,29 +87,46 @@ of mesh, pre-processing and processing files.
 .B \-adapt \fIfilename\fP(s)
 reads adaptation constraints from \fIfilename(s)\fP.
 .TP 4
-.B \-degree \fIfloat\fP
-specifies maximum interpolation degree.
+.B \-order \fIfloat\fP
+specifies maximum interpolation order.
+.\" ********************************************************************
+.SH LINEAR SOLVER OPTIONS
 .TP 4
-.B \-socket \fIstring\fP
-communicates through socket \fIstring\fP.
+.B \-solver \fIfilename\fP
+specifies solver parameter file.
+.TP 4
+.B [PETSc options]
+PETSc options (if GetDP was compiled with PETSc support).
+.\" ********************************************************************
+.SH LINEAR SOLVER OPTIONS
+.TP 4
+.B \-bin
+creates binary output files.
+.B \-v2
+creates mesh-based Gmsh output files when possible
+.\" ********************************************************************
+.SH OTHER OPTIONS
 .TP 4
 .B \-check
 lets you check the problem structure interactively.
 .TP 4
 .B \-v \fIint\fP
 sets the verbosity level. A value of 0 means that no information will
-be displayed during the processing. Higher values increase the amount of
-information displayed during processing.
+be displayed during processing. Higher values increase the amount of
+information displayed.
 .TP 4
 .B \-p \fIint\fP
 sets the progress update rate. This controls the refreshment rate of
 the counter indicating the progress of the current computation.
 .TP 4
-.B \-info
-displays the version information.
+.B \-onelab \fIname\fP \fIaddress\fP
+communicates with OneLab server through socket.
 .TP 4
 .B \-version
 displays the version number.
+.TP 4
+.B \-info
+displays detailed version information.
 .TP 4
 .B \-help
 displays a message listing basic usage and available options.

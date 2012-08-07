@@ -1,4 +1,4 @@
-2.3.0: moved build system from autoconf to cmake.
+2.3.0: moved build system from autoconf to cmake; general code cleanup.
 
 2.2.2: improved list handling.
 
