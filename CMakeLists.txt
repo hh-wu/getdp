@@ -673,8 +673,8 @@ if(MAKEINFO AND TEXI2PDF)
   add_custom_target(doc COMMAND ${CMAKE_COMMAND} -E tar zcf 
                     ${CMAKE_CURRENT_BINARY_DIR}/getdp-${GETDP_VERSION}-doc.tgz
                     doc/CREDITS.txt doc/LICENSE.txt doc/VERSIONS.txt
-                    doc/getdp.1 doc/texinfo/getdp.html doc/texinfo/getdp.info 
-                    doc/texinfo/getdp.pdf doc/texinfo/getdp.txt
+                    doc/getdp.1 doc/getdp.bib doc/texinfo/getdp.html
+                    doc/texinfo/getdp.info doc/texinfo/getdp.pdf doc/texinfo/getdp.txt
                     COMMAND ${CMAKE_COMMAND} -E remove ${TEX_OBJ}
                     DEPENDS ${TEX_DIR}/getdp.info ${TEX_DIR}/getdp.txt 
                     ${TEX_DIR}/getdp.html ${TEX_DIR}/getdp.pdf
