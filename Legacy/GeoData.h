@@ -113,6 +113,7 @@ int  fcmp_GeoData_Name(const void * a, const void * b) ;
 int  fcmp_Elm(const void * a, const void * b) ;
 int  fcmp_Nod(const void * a, const void * b) ;
 int  fcmp_E2XE1(const void * a, const void * b) ;
+void free_E2XE1(void * a, void * b) ;
 int  fcmp_EXVector(const void * a, const void * b) ;
 
 void  Geo_WriteFilePRE(struct GeoData * GeoData_P, List_T * Group_L) ;

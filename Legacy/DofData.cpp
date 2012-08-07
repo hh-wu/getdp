@@ -121,6 +121,7 @@ void Dof_FreeDofData(struct DofData * DofData_P)
       if(Solution_P->SolutionExist){
 	LinAlg_DestroyVector(&Solution_P->x);
 	if (Solution_P->TimeFunctionValues) Free(Solution_P->TimeFunctionValues) ;
+        Solution_P->SolutionExist = 0;
       }
     }
     List_Delete(DofData_P->Solutions);
@@ -171,7 +172,7 @@ void Dof_FreeDofData(struct DofData * DofData_P)
     }
   }
 
-  // TODO: handle _MH data and CorrectionSolutions
+  // TODO: handle MH data and CorrectionSolutions
 }
 
 /* ------------------------------------------------------------------------ */
