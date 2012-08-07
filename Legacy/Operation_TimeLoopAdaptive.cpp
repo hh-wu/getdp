@@ -417,9 +417,9 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
                                 GeoData     *GeoData_P0,
                                 int         *Flag_Break)
 {
-  int    TypeTime, MaxOrder, Order;
-  int    Try, BreakpointNum, NbrSolutions;
-  double Save_Time, Save_DTime, Save_Theta, maxLTEratio, nextBreakpoint;
+  int    TypeTime=0, MaxOrder=0, Order=0;
+  int    Try, BreakpointNum, NbrSolutions=0;
+  double Save_Time, Save_DTime, Save_Theta, maxLTEratio=0, nextBreakpoint;
   double Save_TimeStep;
   bool   TimeStepAccepted, DTimeMinAtLastStep, BreakpointListCreated;
   bool   BreakpointAtThisStep, BreakpointAtNextStep;
@@ -427,7 +427,7 @@ void Operation_TimeLoopAdaptive(Resolution  *Resolution_P,
   double s, DTimeMaxScal;
   List_T *Breakpoints, *TLAsystems, *xPredicted_L;
   TimeLoopAdaptiveSystem TLAsystem;
-  DofData *DofData_P;
+  DofData *DofData_P=NULL;
 
 
   // Some constants influencing the time stepping
