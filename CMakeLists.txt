@@ -593,7 +593,8 @@ file(GLOB TEX_SRC ${TEX_DIR}/*.texi)
 set(TEX_OBJ ${TEX_DIR}/getdp.aux ${TEX_DIR}/getdp.cp ${TEX_DIR}/getdp.cps
     ${TEX_DIR}/getdp.fn ${TEX_DIR}/getdp.html ${TEX_DIR}/getdp.info ${TEX_DIR}/getdp.ky 
     ${TEX_DIR}/getdp.log ${TEX_DIR}/getdp.pdf ${TEX_DIR}/getdp.pg ${TEX_DIR}/getdp.toc 
-    ${TEX_DIR}/getdp.tp ${TEX_DIR}/getdp.tps ${TEX_DIR}/getdp.txt ${TEX_DIR}/getdp.vr)
+    ${TEX_DIR}/getdp.tp ${TEX_DIR}/getdp.tps ${TEX_DIR}/getdp.txt ${TEX_DIR}/getdp.vr
+    ${TEX_DIR}/getdp.vrs)
 
 macro(unix2dos VARNAME)
   file(MAKE_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/unix2dos)

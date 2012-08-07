@@ -709,20 +709,20 @@ void init_vector (int Nb, double **V){
 void free_matrix (Matrix *M){
 
   if(M->scaled){
-    free(M->rowscal) ;
-    free(M->colscal) ;
+    Free(M->rowscal) ;
+    Free(M->colscal) ;
   }
 
   switch (M->T) {
   case SPARSE :
-    List_Delete (M->S.a);
-    List_Delete (M->S.ai);
-    List_Delete (M->S.ptr);
-    List_Delete (M->S.jptr);
+    List_Delete(M->S.a);
+    List_Delete(M->S.ai);
+    List_Delete(M->S.ptr);
+    List_Delete(M->S.jptr);
     break;
   case DENSE :
-    free(M->F.a);
-    if(M->F.lu) free(M->F.lu);
+    Free(M->F.a);
+    Free(M->F.lu);
     break;
   }
 }
