@@ -300,8 +300,8 @@ void  Treatment_FemFormulation(struct Formulation * Formulation_P)
   extern struct Group * Generate_Group ;
   extern double ** MH_Moving_Matrix ;
 
-  gMatrix  A ;
-  gVector  b ;
+  gMatrix  A = Current.DofData->A ;
+  gVector  b = Current.DofData->b ;
 
   int Flag_Only ;
 
