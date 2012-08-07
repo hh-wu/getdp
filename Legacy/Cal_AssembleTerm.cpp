@@ -169,11 +169,9 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
   }
 }
 
-/* Attention ! !  Faux en non lineaire ! !  */
-
 void Cal_AssembleTerm_Dt(struct Dof * Equ, struct Dof * Dof, double Val[])
 {
-  Cal_AssembleTerm_DtDof(Equ, Dof, Val) ;
+  Message::Error("Dt not implemented. Please use Dt in a separate function.");
 }
 
 /* En preparation ... */
@@ -296,7 +294,7 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 
 void Cal_AssembleTerm_DtDt(struct Dof * Equ, struct Dof * Dof, double Val[])
 {
-  Cal_AssembleTerm_DtDtDof(Equ, Dof, Val);
+  Message::Error("DtDt not implemented");
 }
 
 /* ------------------------------------------------------------------------ */
