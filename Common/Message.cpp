@@ -418,7 +418,8 @@ void Message::ProgressMeter(int n, int N, const char *fmt, ...)
       _onelabClient->set(o);
     }
     else{
-      fprintf(stdout, "%s                     \r", str2);
+      fprintf(stdout, "%s                                          \r",
+              (n > N - 1) ? "" : str2);
       fflush(stdout);
     }
     while(_progressMeterCurrent < percent)
