@@ -1246,7 +1246,6 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
         Solution_S.Time = Current.Time ;
         Solution_S.TimeImag = Current.TimeImag ;
         Solution_S.TimeFunctionValues = Get_TimeFunctionValues(DofData_P) ;
-
 	Solution_S.SolutionExist = 1 ;
         LinAlg_CreateVector(&Solution_S.x, &DofData_P->Solver, DofData_P->NbrDof) ;
 
@@ -2163,6 +2162,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Message::Info("Starting new Fourier Analysis : solution %d ", Nbr_Sol);
 	Solution_S.TimeStep = Nbr_Sol;
 	Solution_S.Time = Nbr_Sol;
+        Solution_S.TimeFunctionValues = NULL;
 	Solution_S.SolutionExist = 1 ;
 	LinAlg_CreateVector(&Solution_S.x, &DofData2_P->Solver, DofData2_P->NbrDof) ;
 	LinAlg_ZeroVector(&Solution_S.x) ;
@@ -2218,6 +2218,7 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	  Solution_S.TimeStep = i ;
 	  Solution_S.Time = TWO_PI * d;
 	  Solution_S.TimeImag = 0.;
+          Solution_S.TimeFunctionValues = NULL;
 	  Solution_S.SolutionExist = 1 ;
 	  LinAlg_CreateVector(&Solution_S.x, &DofData2_P->Solver, DofData2_P->NbrDof) ;
 	  LinAlg_ZeroVector(&Solution_S.x) ;

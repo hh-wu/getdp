@@ -392,7 +392,7 @@ void SolvingAnalyse()
                                        fcmp_Resolution_Name) ;
     else{
       Message::Error("Missing Resolution");
-      return;
+      goto end;
     }
   }
   else if (Flag_CAL || Flag_POS) {
@@ -405,7 +405,7 @@ void SolvingAnalyse()
   if (Num_Resolution < 0 ||
       Num_Resolution + 1 > List_Nbr(Problem_S.Resolution)){
     Message::Error("Unknown Resolution (%s)", Name_Resolution);
-    return;
+    goto end;
   }
 
   Treatment_Resolution(Num_Resolution, &Nbr_DefineSystem, &Nbr_OtherSystem,
@@ -593,7 +593,7 @@ void SolvingAnalyse()
       if((Num = List_ISearchSeq(Problem_S.PostOperation, Name_PostOperation[i],
 				fcmp_PostOperation_Name)) < 0){
 	Message::Error("Unknown PostOperation (%s)", Name_PostOperation[i]) ;
-        return;
+        goto end;
       }
       PostOperation_P[i] = (struct PostOperation*)
 	List_Pointer(Problem_S.PostOperation, Num) ;
@@ -633,6 +633,7 @@ void SolvingAnalyse()
           DofData_P->Solutions = List_Create( 1, 1, sizeof(struct Solution)) ;
         Solution_S.Time = 0. ;
 	Solution_S.SolutionExist = 0 ;
+	Solution_S.TimeFunctionValues = NULL ;
         List_Add(DofData_P->Solutions, &Solution_S) ;
         Nbr_Solution = 1 ;
       }
