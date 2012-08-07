@@ -960,7 +960,7 @@ void F_SquDyadicProduct(F_ARG)
   if (Current.NbrHar > 1) {
     V->Val[MAX_DIM  ] = V->Val[MAX_DIM+1] = V->Val[MAX_DIM+2] =
       V->Val[MAX_DIM+3] = V->Val[MAX_DIM+4] = V->Val[MAX_DIM+5] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k++) {
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k++) {
       V->Val[MAX_DIM*k  ] = V->Val[MAX_DIM*k+1] = V->Val[MAX_DIM*k+2] =
 	V->Val[MAX_DIM*k+3] = V->Val[MAX_DIM*k+4] = V->Val[MAX_DIM*k+5] = 0. ;
     }

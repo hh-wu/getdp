@@ -2545,7 +2545,7 @@ void Cal_SetHarmonicValue(struct Value *R)
 
   case SCALAR :
     R->Val[MAX_DIM] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2) {
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
       R->Val[MAX_DIM*k    ] = R->Val[0] ;
       R->Val[MAX_DIM*(k+1)] = 0. ;
     }
@@ -2553,7 +2553,7 @@ void Cal_SetHarmonicValue(struct Value *R)
 
   case VECTOR :
     R->Val[MAX_DIM] = R->Val[MAX_DIM+1] = R->Val[MAX_DIM+2] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2) {
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
       R->Val[MAX_DIM*k  ] = R->Val[0] ;
       R->Val[MAX_DIM*k+1] = R->Val[1] ;
       R->Val[MAX_DIM*k+2] = R->Val[2] ;

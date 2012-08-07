@@ -31,7 +31,7 @@ void F_Rand(F_ARG)
 
   if (Current.NbrHar != 1){
     V->Val[MAX_DIM] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2)
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
   }
 
@@ -125,7 +125,7 @@ void F_AssDiag(F_ARG)
 
   if (Current.NbrHar != 1){
     V->Val[MAX_DIM] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2)
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
   }
 

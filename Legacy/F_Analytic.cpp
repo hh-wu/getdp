@@ -1014,7 +1014,7 @@ cplx DHn(cplx *Hnkrtab, int n, double x)
 void F_AcousticFieldSoftCylinderABC(F_ARG)
 {
   cplx I = {0.,1.}, tmp, alpha1, alpha2, delta, am, bm, lambda, coef;
-  cplx H1nkR0, *H1nkR1tab, *H2nkR1tab, H1nkr, alphaBT, betaBT, keps;
+  cplx H1nkR0, *H1nkR1tab, *H2nkR1tab, H1nkr, alphaBT, betaBT, keps = {0., 0.};
 
   double k, R0, R1, r, kr, kR0, kR1, theta, cost, sint, kappa ;
   int n, ns, ABCtype, SingleMode ;

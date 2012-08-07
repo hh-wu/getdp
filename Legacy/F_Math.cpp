@@ -24,7 +24,7 @@ extern struct CurrentData Current ;
   V->Val[0] = func(A->Val[0]) ;						\
   if (Current.NbrHar != 1){						\
     V->Val[MAX_DIM] = 0. ;						\
-    for (k = 2 ; k < Current.NbrHar ; k += 2)				\
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) \
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;			\
   }									\
   V->Type = SCALAR;
@@ -61,7 +61,7 @@ void F_Ceil  (F_ARG) { scalar_real_1_arg (ceil, "Ceil")  }
   V->Val[0] = func(A->Val[0], (A+1)->Val[0]) ;				\
   if (Current.NbrHar != 1){						\
     V->Val[MAX_DIM] = 0. ;						\
-    for (k = 2 ; k < Current.NbrHar ; k += 2)				\
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) \
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;			\
   }									\
   V->Type = SCALAR;
@@ -93,7 +93,7 @@ void F_Sign(F_ARG)
 
   if (Current.NbrHar != 1){
     V->Val[MAX_DIM] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2)
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
   }
   V->Type = SCALAR;
@@ -117,7 +117,7 @@ void F_Jn(F_ARG)
 
   if (Current.NbrHar != 1){
     V->Val[MAX_DIM] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2)
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
   }
   V->Type = SCALAR;
@@ -137,7 +137,7 @@ void F_Yn(F_ARG)
 
   if (Current.NbrHar != 1){
     V->Val[MAX_DIM] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2)
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
   }
   V->Type = SCALAR;
@@ -172,7 +172,7 @@ void F_dJn(F_ARG)
 
   if (Current.NbrHar != 1){
     V->Val[MAX_DIM] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2)
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
   }
   V->Type = SCALAR;
@@ -197,7 +197,7 @@ void F_dYn(F_ARG)
 
   if (Current.NbrHar != 1){
     V->Val[MAX_DIM] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2)
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
       V->Val[MAX_DIM*k] = V->Val[MAX_DIM*(k+1)] = 0. ;
   }
   V->Type = SCALAR;
