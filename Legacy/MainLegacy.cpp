@@ -422,7 +422,9 @@ int MainLegacy(int argc, char *argv[])
   int sargc, lres = 0, lpos = 0, check = 0;
   Get_Options(argc, argv, &sargc, sargv, pro, &lres, &lpos, &check);
 
-  Message::Info("Running '%s' [%d node(s)]", cmdline.c_str(), Message::GetCommSize());
+  Message::Info("Running '%s' [GetDP %s, %d node%s]", cmdline.c_str(),
+                GETDP_VERSION, Message::GetCommSize(),
+                Message::GetCommSize() > 1 ? "s" : "");
   Message::Info("Started on %s", currtime.c_str());
 
   if(sargc > 1){
@@ -490,8 +492,6 @@ int MainLegacy(int argc, char *argv[])
   currtime = ctime(&now);
   currtime[currtime.size() - 1] = '\0';
   Message::Info("Stopped on %s", currtime.c_str());
-
-  Message::Direct("E n d");
 
 #if defined(HAVE_GMSH)
   GmshFinalize();

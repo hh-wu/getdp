@@ -161,7 +161,7 @@ void Message::Fatal(const char *fmt, ...)
   else{
     const char *c0 = "", *c1 = "";
     if(!streamIsFile(stderr) && streamIsVT100(stderr)){
-      c0 = "\33[31m"; c1 = "\33[0m";  // red
+      c0 = "\33[1m\33[31m"; c1 = "\33[0m";  // bold red
     }
     if(_commSize > 1)
       fprintf(stderr, "%sFatal   : [On processor %d] %s%s\n", c0, _commRank, str, c1);
@@ -192,7 +192,7 @@ void Message::Error(const char *fmt, ...)
   else{
     const char *c0 = "", *c1 = "";
     if(!streamIsFile(stderr) && streamIsVT100(stderr)){
-      c0 = "\33[31m"; c1 = "\33[0m";  // red
+      c0 = "\33[1m\33[31m"; c1 = "\33[0m";  // bold red
     }
     if(_commSize > 1)
       fprintf(stderr, "%sError   : [On processor %d] %s%s\n", c0, _commRank, str, c1);
