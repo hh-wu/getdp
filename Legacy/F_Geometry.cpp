@@ -34,7 +34,7 @@ void F_Normal(F_ARG)
     V->Val[MAX_DIM] = 0. ;
     V->Val[MAX_DIM+1] = 0. ;
     V->Val[MAX_DIM+2] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2) {
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
       V->Val[MAX_DIM* k   ] = V->Val[0] ;
       V->Val[MAX_DIM* k +1] = V->Val[1] ;
       V->Val[MAX_DIM* k +2] = V->Val[2] ;
@@ -63,7 +63,7 @@ void F_NormalSource(F_ARG)
     V->Val[MAX_DIM] = 0. ;
     V->Val[MAX_DIM+1] = 0. ;
     V->Val[MAX_DIM+2] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2) {
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
       V->Val[MAX_DIM* k   ] = V->Val[0] ;
       V->Val[MAX_DIM* k +1] = V->Val[1] ;
       V->Val[MAX_DIM* k +2] = V->Val[2] ;
@@ -103,7 +103,7 @@ void F_Tangent(F_ARG)
     V->Val[MAX_DIM] = 0. ;
     V->Val[MAX_DIM+1] = 0. ;
     V->Val[MAX_DIM+2] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2) {
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
       V->Val[MAX_DIM* k   ] = V->Val[0] ;
       V->Val[MAX_DIM* k +1] = V->Val[1] ;
       V->Val[MAX_DIM* k +2] = V->Val[2] ;
@@ -143,7 +143,7 @@ void F_TangentSource(F_ARG)
     V->Val[MAX_DIM] = 0. ;
     V->Val[MAX_DIM+1] = 0. ;
     V->Val[MAX_DIM+2] = 0. ;
-    for (k = 2 ; k < Current.NbrHar ; k += 2) {
+    for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
       V->Val[MAX_DIM* k   ] = V->Val[0] ;
       V->Val[MAX_DIM* k +1] = V->Val[1] ;
       V->Val[MAX_DIM* k +2] = V->Val[2] ;
@@ -199,7 +199,7 @@ void F_ElementVol(F_ARG)
   V->Type = SCALAR ;
   V->Val[0] = fabs(Vol);
 
-  for (k = 2 ; k < Current.NbrHar ; k += 2)
+  for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2)
     V->Val[MAX_DIM* k] = V->Val[0] ;
 }
 
@@ -276,7 +276,7 @@ void F_SurfaceArea(F_ARG)
   V->Val[0] = Fct->Active->Case.SurfaceArea.Value ;
   V->Val[MAX_DIM] = 0;
 
-  for (k = 2 ; k < Current.NbrHar ; k += 2) {
+  for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0 ;
   }
@@ -374,7 +374,7 @@ void F_GetVolume(F_ARG)
   V->Val[0] = Fct->Active->Case.GetVolume.Value ;
   V->Val[MAX_DIM] = 0;
 
-  for (k = 2 ; k < Current.NbrHar ; k += 2) {
+  for (k = 2 ; k < std::min(NBR_MAX_HARMONIC, Current.NbrHar) ; k += 2) {
     V->Val[MAX_DIM* k] = V->Val[0] ;
     V->Val[MAX_DIM* (k+1)] = 0 ;
   }
