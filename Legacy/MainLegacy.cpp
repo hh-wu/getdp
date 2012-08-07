@@ -128,7 +128,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 
       else if (!strcmp(argv[i]+1, "socket")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') {
+	if (i < argc && argv[i][0] != '-') {
 	  Message::InitializeSocket(argv[i]); i++;
 	}
 	else {
@@ -158,7 +158,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       else if (!strcmp(argv[i]+1, "verbose") ||
 	       !strcmp(argv[i]+1, "v")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') {
+	if (i < argc && argv[i][0] != '-') {
 	  Message::SetVerbosity(atoi(argv[i])); i++;
 	}
 	else {
@@ -184,7 +184,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       else if (!strcmp(argv[i]+1, "progress") ||
 	       !strcmp(argv[i]+1, "p")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') {
+	if (i < argc && argv[i][0] != '-') {
 	  Message::SetProgressMeterStep(atoi(argv[i])); i++;
 	}
 	else {
@@ -194,10 +194,10 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 
       else if (!strcmp(argv[i]+1, "pre")) {
 	i++;
-	if (i<argc && argv[i][0]=='#') {
+	if (i < argc && argv[i][0] == '#') {
 	  Flag_PRE = 1; *lres = -atoi(argv[i]+1); i++;
 	}
-	else if (i<argc && argv[i][0]!='-') {
+	else if (i < argc && argv[i][0] != '-') {
 	  Flag_PRE = 1; Name_Resolution = strSave(argv[i]); i++;
 	}
 	else {
@@ -208,7 +208,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       else if (!strcmp(argv[i]+1, "order") ||
 	       !strcmp(argv[i]+1, "ord")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') {
+	if (i < argc && argv[i][0] != '-') {
 	  Flag_ORDER = atof(argv[i]); i++;
 	}
 	else {
@@ -220,7 +220,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
         // fix when calling getdp from gmsh (since the GUI forces us
         // to put the -solver option before the .pro file!)
 	sargv[(*sargc)++] = argv[i++];
-	if (i<argc && argv[i][0]!='-') {
+	if (i < argc && argv[i][0] != '-') {
           sargv[(*sargc)++] = argv[i++];
 	}
 	else {
@@ -231,10 +231,10 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       else if (!strcmp(argv[i]+1, "solve") ||
 	       !strcmp(argv[i]+1, "sol")) {
 	i++;
-	if (i<argc && argv[i][0]=='#') {
+	if (i < argc && argv[i][0] == '#') {
 	  Flag_PRE = Flag_CAL = 1; *lres = -atoi(argv[i]+1); i++;
 	}
-	else if (i<argc && argv[i][0]!='-') {
+	else if (i < argc && argv[i][0] != '-') {
 	  Flag_PRE = Flag_CAL = 1; Name_Resolution = strSave(argv[i]); i++;
 	}
 	else {
@@ -245,7 +245,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
       else if (!strcmp(argv[i]+1, "post") ||
 	       !strcmp(argv[i]+1, "pos")) {
 	i++; j = 0;
-	if (i<argc && argv[i][0]=='#') {
+	if (i < argc && argv[i][0] == '#') {
 	  Flag_POS = 1; *lpos = -atoi(argv[i]+1); i++;
 	} /* Only one numbered (#) PostOperation allowed */
 	else {
@@ -270,7 +270,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	       !strcmp(argv[i]+1, "msh") ||
 	       !strcmp(argv[i]+1, "m")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') {
+	if (i < argc && argv[i][0] != '-') {
 	  Name_MshFile = strSave(argv[i]); i++;
 	}
 	else {
@@ -282,7 +282,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 	       !strcmp(argv[i]+1, "adap") ||
 	       !strcmp(argv[i]+1, "ada")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') {
+	if (i < argc && argv[i][0] != '-') {
 	  Name_AdaptFile = strSave(argv[i]); i++;
 	}
 	else {
@@ -308,7 +308,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 
       else if (!strcmp(argv[i]+1, "name")) {
 	i++;
-	if (i<argc && argv[i][0]!='-') {
+	if (i < argc && argv[i][0] != '-') {
 	  Name_Generic = (char*)Malloc((strlen(argv[i]) + 1) * sizeof(char));
 	  strcpy(Name_Generic, argv[i]); i++;
 	}
