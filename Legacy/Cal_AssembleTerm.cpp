@@ -116,7 +116,7 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       switch (Current.TypeTime) {
       case TIME_STATIC :
 	if(!Warning_DtStatic){
-	  Message::Warning("First order time derivative in static problem (discarded)");
+	  Message::Warning("Discarded DtDof term in static analysis");
 	  Warning_DtStatic = 1 ;
 	}
 	break;
@@ -172,7 +172,7 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 void Cal_AssembleTerm_Dt(struct Dof * Equ, struct Dof * Dof, double Val[])
 {
   if(!Warning_Dt){
-    Message::Warning("Dt is not implemented: using DtDof instead");
+    Message::Warning("Dt not implemented, using DtDof instead");
     Warning_Dt = 1 ;
   }
   Cal_AssembleTerm_DtDof(Equ, Dof, Val);
@@ -184,14 +184,14 @@ void Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[])
   double  tmp[2] ;
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Message::Error("DtNL not ready for separate assembly");
+    Message::Error("DtNL not implemented for separate assembly");
   }
   else {
     if (Current.NbrHar == 1) {
       switch (Current.TypeTime) {
       case TIME_STATIC :
 	if(!Warning_DtStatic){
-	  Message::Warning("First order time derivative in static problem (discarded)");
+	  Message::Warning("Discarded DtDof term in static analysis");
 	  Warning_DtStatic = 1 ;
 	}
 	break;
@@ -205,15 +205,15 @@ void Cal_AssembleTerm_DtNL(struct Dof * Equ, struct Dof * Dof, double Val[])
 			  &Current.DofData->b) ;
 	break ;
       case TIME_NEWMARK :
-	Message::Error("DtNL not ready for separate assembly with TimeLoopNewmark");
+	Message::Error("DtNL not implemented for separate assembly with Newmark scheme");
 	return ;
       case TIME_GEAR :
-        Message::Error("DtNL not ready for Gear's method");
+        Message::Error("DtNL not implemented for Gear's method");
         return ;
       }
     }
     else {
-      Message::Error("DtNL not ready for separate assembly for Complex type");
+      Message::Error("DtNL not implemented for separate assembly in harmonic analysis");
       /*
       for (k = 0 ; k < Current.NbrHar ; k += 2) {
 	tmp[0] = -Val[k+1] * Current.DofData->Val_Pulsation[k/2] ;
@@ -255,18 +255,18 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
       switch (Current.TypeTime) {
       case TIME_STATIC :
 	if(!Warning_DtDtStatic){
-	  Message::Warning("Second order time derivative in static problem (discarded)");
+	  Message::Warning("Discarded DtDtDof term in static analysis");
 	  Warning_DtDtStatic = 1 ;
 	}
 	break;
       case TIME_THETA :
 	if(!Warning_DtDtFirstOrder){
-	  Message::Warning("Second order time derivative in first order time scheme (discarded)");
+	  Message::Warning("Discarded DtDtDof term in Theta time scheme");
 	  Warning_DtDtFirstOrder = 1 ;
 	}
 	break;
       case TIME_GEAR :
-        Message::Error("Second order time derivative not implemented for Gear's method");
+        Message::Error("DtDtDof not implemented for Gear's method");
         return ;
       case TIME_NEWMARK :
 	tmp[0] = Val[0]/SQU(Current.DTime) ;
@@ -299,7 +299,7 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 void Cal_AssembleTerm_DtDt(struct Dof * Equ, struct Dof * Dof, double Val[])
 {
   if(!Warning_DtDt){
-    Message::Warning("DtDt is not implemented: using DtDtDof instead");
+    Message::Warning("DtDt not implemented, using DtDtDof instead");
     Warning_DtDt = 1 ;
   }
   Cal_AssembleTerm_DtDtDof(Equ, Dof, Val);
@@ -314,7 +314,7 @@ void Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[])
   int     k ;
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Message::Error("JacNL not ready for separate assembly");
+    Message::Error("JacNL not implemented for separate assembly");
   }
   else{
     if (Current.NbrHar == 1) {
@@ -329,7 +329,7 @@ void Cal_AssembleTerm_JacNL(struct Dof * Equ, struct Dof * Dof, double Val[])
 			  &Current.DofData->Jac, NULL) ;
 	break ;
       case TIME_NEWMARK :
-	Message::Error("JacNL not ready for Newmark");
+	Message::Error("JacNL not implemented for Newmark's method");
 	return ;
       }
     }
@@ -346,19 +346,20 @@ void Cal_AssembleTerm_DtDofJacNL(struct Dof * Equ, struct Dof * Dof, double Val[
   double  tmp[2] ;
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE)
-    Message::Error("DtDofJacNL not ready for separate assembly");
+    Message::Error("DtDofJacNL not implemented for separate assembly");
   else {
     if (Current.NbrHar == 1) {
       switch (Current.TypeTime) {
       case TIME_STATIC :
         if(!Warning_DtStatic){
-          Message::Warning("First order time derivative in static problem (discarded)");
+	  Message::Warning("Discarded DtDof term in static analysis");
           Warning_DtStatic = 1 ;
         }
         break;
       case TIME_THETA :
         if ( fabs(Current.Theta - 1.0) > 1e-3 ){
-          Message::Error("Theta method not ready for nonlinear problems when Theta != 1.0");
+          Message::Error("Theta method not implemented for nonlinear problems when "
+                         "Theta != 1.0");
           return;
         }
         tmp[0] = Val[0]/Current.DTime;
@@ -366,7 +367,7 @@ void Cal_AssembleTerm_DtDofJacNL(struct Dof * Equ, struct Dof * Dof, double Val[
                           &Current.DofData->Jac, NULL);
         break ;
       case TIME_NEWMARK :
-        Message::Error("DtDofJacNL not ready for Newmark");
+        Message::Error("DtDofJacNL not implemented for Newmark scheme");
         return ;
       case TIME_GEAR :
         tmp[0] = Val[0] / (Current.bCorrCoeff * Current.DTime);
@@ -376,7 +377,7 @@ void Cal_AssembleTerm_DtDofJacNL(struct Dof * Equ, struct Dof * Dof, double Val[
       }
     }
     else
-      Message::Error("DtDofJacNL not ready for multi-harmonic");
+      Message::Error("DtDofJacNL not implemented for multi-harmonic analysis");
   }
 }
 
@@ -389,7 +390,7 @@ void Cal_AssembleTerm_NeverDt(struct Dof * Equ, struct Dof * Dof, double Val[])
   int     k ;
 
   if(Current.TypeAssembly == ASSEMBLY_SEPARATE){
-    Message::Error("NeverDt not ready for separate assembly");
+    Message::Error("NeverDt not implemented for separate assembly");
   }
   else{
     if (Current.NbrHar == 1) {
