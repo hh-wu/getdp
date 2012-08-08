@@ -4,7 +4,7 @@
    with vector potential, type 'getdp test -solve MagSta_a -pos a'
 */
 
-Include "magnet.txt";
+Include "magnet_data.pro";
 
 Group {
   // AIR, AIR_INF, etc. are variables defined in core.txt, and correspond to the

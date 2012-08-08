@@ -594,7 +594,14 @@ endif(UNIX)
 set(WELCOME_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/WELCOME.txt)
 set(LICENSE_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/LICENSE.txt)
 set(CREDITS_FILE ${CMAKE_CURRENT_SOURCE_DIR}/doc/CREDITS.txt)
-file(GLOB DEMO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/demos/?*.*)
+file(GLOB DEMO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pro
+                     ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.geo
+                     ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.msh)
+file(GLOB DEMO_FILES_TMP ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pre
+                         ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.res
+                         ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.txt
+                         ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.pos
+                         ${CMAKE_CURRENT_SOURCE_DIR}/demos/*.par)
 set(TEX_DIR ${CMAKE_CURRENT_SOURCE_DIR}/doc/texinfo)
 file(GLOB TEX_SRC ${TEX_DIR}/*.texi)
 set(TEX_OBJ ${TEX_DIR}/getdp.aux ${TEX_DIR}/getdp.cp ${TEX_DIR}/getdp.cps
@@ -649,6 +656,8 @@ install(FILES ${DEMO_FILES} DESTINATION ${GETDP_DOC}/demos)
 if(UNIX AND NOT CYGWIN)
   install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/doc/getdp.1 DESTINATION ${GETDP_MAN})
 endif(UNIX AND NOT CYGWIN)
+
+add_custom_target(clean_demos COMMAND ${CMAKE_COMMAND} -E remove ${DEMO_FILES_TMP})
 
 find_program(MAKEINFO makeinfo)
 if(MAKEINFO)

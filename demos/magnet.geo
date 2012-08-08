@@ -1,4 +1,4 @@
-Include "magnet.txt";
+Include "magnet_data.pro";
 
 DefineConstant[ h = {0.14, Min 0.1, Max 0.2, Step 0.01,
                      Path "Parameters/Geometry",
