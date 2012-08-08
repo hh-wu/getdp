@@ -302,12 +302,13 @@ void LinAlg_ScanVector(FILE *file, gVector *V)
   PetscInt n;
   _try(VecGetSize(V->V, &n));
   for(PetscInt i = 0; i < n; i++){
-    double a, b;
     PetscScalar tmp;
 #if defined(PETSC_USE_COMPLEX)
+    double a, b;
     fscanf(file, "%lf %lf", &a, &b);
     tmp = a + PETSC_i * b;
 #else
+    double a;
     fscanf(file, "%lf", &a);
     tmp = a;
 #endif
@@ -589,8 +590,8 @@ void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j)
 
 void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j, int k, int l)
 {
-  PetscScalar tmp;
 #if defined(PETSC_USE_COMPLEX)
+  PetscScalar tmp;
   PetscInt ti = i, tj = j;
   if(_isInLocalRange(M, i)){
     _try(MatGetValues(M->M, 1, &ti, 1, &tj, &tmp));
@@ -602,7 +603,7 @@ void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j,
   if(_isInLocalRange(M, i))
     _try(MatGetValues(M->M, 1, &ti, 1, &tj, (PetscScalar*)d1));
   if(_isInLocalRange(M, k))
-    _try(MatGetValues(M->M, 1, &tk, 1, &tj, (PetscScalar*)d2));
+    _try(MatGetValues(M->M, 1, &tk, 1, &tl, (PetscScalar*)d2));
 #endif
 }
 
