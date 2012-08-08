@@ -16,8 +16,8 @@
 
 extern struct CurrentData Current ;
 
-static int Warning_DtStatic = 0 ;
-static int Warning_DtDtStatic = 0, Warning_DtDtFirstOrder = 0 ;
+static int Warning_Dt = 0, Warning_DtStatic = 0 ;
+static int Warning_DtDt = 0, Warning_DtDtStatic = 0, Warning_DtDtFirstOrder = 0 ;
 
 /* ------------------------------------------------------------------------ */
 /*  No Time Derivative                                                      */
@@ -171,10 +171,9 @@ void Cal_AssembleTerm_DtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 
 void Cal_AssembleTerm_Dt(struct Dof * Equ, struct Dof * Dof, double Val[])
 {
-  static bool first = true;
-  if(first){
-    Message::Warning("Dt not implemented: please use DtDof or the Dt[] function");
-    first = false;
+  if(!Warning_Dt){
+    Message::Warning("Dt is not implemented: using DtDof instead");
+    Warning_Dt = 1 ;
   }
   Cal_AssembleTerm_DtDof(Equ, Dof, Val);
 }
@@ -299,10 +298,9 @@ void Cal_AssembleTerm_DtDtDof(struct Dof * Equ, struct Dof * Dof, double Val[])
 
 void Cal_AssembleTerm_DtDt(struct Dof * Equ, struct Dof * Dof, double Val[])
 {
-  static bool first = true;
-  if(first){
-    Message::Warning("DtDt not implemented: please use DtDtDof");
-    first = false;
+  if(!Warning_DtDt){
+    Message::Warning("DtDt is not implemented: using DtDtDof instead");
+    Warning_DtDt = 1 ;
   }
   Cal_AssembleTerm_DtDtDof(Equ, Dof, Val);
 }
