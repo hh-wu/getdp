@@ -216,7 +216,7 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
 void LinAlg_DestroySolver(gSolver *Solver)
 {
   for(int i = 0; i < 10; i++){
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)) )
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
     if(Solver->ksp[i]) _try(KSPDestroy(&Solver->ksp[i]));
     if(Solver->snes[i]) _try(SNESDestroy(&Solver->snes[i]));
 #else
@@ -228,7 +228,7 @@ void LinAlg_DestroySolver(gSolver *Solver)
 
 void LinAlg_DestroyVector(gVector *V)
 {
-#if (PETSC_VERSION_RELEASE == 0  || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
+#if (PETSC_VERSION_RELEASE == 0 || ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR >= 2)))
   _try(VecDestroy(&V->V));
   if(Message::GetCommSize() > 1)
     _try(VecDestroy(&V->Vseq));
@@ -588,7 +588,8 @@ void LinAlg_GetDoubleInMatrix(double *d, gMatrix *M, int i, int j)
   _try(MatGetValues(M->M, 1, &ti, 1, &tj, (PetscScalar*)d));
 }
 
-void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M, int i, int j, int k, int l)
+void LinAlg_GetComplexInMatrix(double *d1, double *d2, gMatrix *M,
+                               int i, int j, int k, int l)
 {
 #if defined(PETSC_USE_COMPLEX)
   PetscScalar tmp;
@@ -680,7 +681,8 @@ void LinAlg_SetDoubleInMatrix(double d, gMatrix *M, int i, int j)
   _try(MatSetValues(M->M, 1, &ti, 1, &tj, (PetscScalar*)&d, INSERT_VALUES));
 }
 
-void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l)
+void LinAlg_SetComplexInMatrix(double d1, double d2, gMatrix *M,
+                               int i, int j, int k, int l)
 {
   PetscScalar tmp;
 #if defined(PETSC_USE_COMPLEX)
@@ -775,7 +777,8 @@ void LinAlg_AddDoubleInMatrix(double d, gMatrix *M, int i, int j)
   _try(MatSetValues(M->M, 1, &ti, 1, &tj, &tmp, ADD_VALUES));
 }
 
-void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M, int i, int j, int k, int l)
+void LinAlg_AddComplexInMatrix(double d1, double d2, gMatrix *M,
+                               int i, int j, int k, int l)
 {
   PetscScalar tmp;
 #if defined(PETSC_USE_COMPLEX)
@@ -886,10 +889,10 @@ void LinAlg_SubMatrixMatrix(gMatrix *M1, gMatrix *M2, gMatrix *M3)
 {
 
   PetscScalar tmp = -1.0;
-  if(M3 == M1)
-    _try(MatAXPY(M1->M, tmp, M2->M, DIFFERENT_NONZERO_PATTERN)); // M1->M = M1->M - M2->M
-  else if(M3 == M2)
-    _try(MatAYPX(M2->M, tmp, M1->M, DIFFERENT_NONZERO_PATTERN)); // M2->M = M1->M - M2->M
+  if(M3 == M1) // M1->M = M1->M - M2->M
+    _try(MatAXPY(M1->M, tmp, M2->M, DIFFERENT_NONZERO_PATTERN));
+  else if(M3 == M2) // M2->M = M1->M - M2->M
+    _try(MatAYPX(M2->M, tmp, M1->M, DIFFERENT_NONZERO_PATTERN));
   else
     Message::Error("Wrong arguments in 'LinAlg_SubMatrixMatrix'");
 }
@@ -1190,15 +1193,18 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     // set some default options
     _try(KSPSetTolerances(Solver->ksp[kspIndex], 1.e-12, PETSC_DEFAULT, PETSC_DEFAULT,
                           PETSC_DEFAULT));
-#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS) // use MUMPS by default if available
+#if (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_MUMPS)
+    // use MUMPS by default if available
     _try(PCSetType(pc, PCLU));
     _try(PCFactorSetMatSolverPackage(pc, "mumps"));
     _try(KSPSetType(Solver->ksp[kspIndex], "preonly"));
-#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_UMFPACK) // otherwise use UMFPACK if available
+#elif (PETSC_VERSION_MAJOR > 2) && defined(PETSC_HAVE_UMFPACK)
+    // otherwise use UMFPACK if available
     _try(PCSetType(pc, PCLU));
     _try(PCFactorSetMatSolverPackage(pc, "umfpack"));
     _try(KSPSetType(Solver->ksp[kspIndex], "preonly"));
-#else // otherwise use ILU(6) + GMRES
+#else
+    // otherwise use ILU(6) + GMRES
     _try(PCSetType(pc, PCILU));
 #if (PETSC_VERSION_MAJOR == 2) && (PETSC_VERSION_MINOR == 3) && (PETSC_VERSION_SUBMINOR == 0)
     _try(PCILUSetMatOrdering(pc, MATORDERING_RCM));
@@ -1231,7 +1237,8 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
     }
   }
   else if(precond){
-    _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M, DIFFERENT_NONZERO_PATTERN));
+    _try(KSPSetOperators(Solver->ksp[kspIndex], A->M, A->M,
+                         DIFFERENT_NONZERO_PATTERN));
   }
 
   _try(KSPSolve(Solver->ksp[kspIndex], B->V, X->V));
@@ -1249,12 +1256,14 @@ static void _solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
   }
 }
 
-void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
+void LinAlg_Solve(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
+                  int solverIndex)
 {
   _solve(A, B, Solver, X, 1, solverIndex);
 }
 
-void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X, int solverIndex)
+void LinAlg_SolveAgain(gMatrix *A, gVector *B, gSolver *Solver, gVector *X,
+                       int solverIndex)
 {
   _solve(A, B, Solver, X, 0, solverIndex);
 }
@@ -1363,8 +1372,10 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
   if(!Solver->snes[solverIndex]) {
     _try(SNESCreate(MyComm, &Solver->snes[solverIndex]));
     if(Message::UseSocket())
-      _try(SNESMonitorSet(Solver->snes[solverIndex], _mySnesMonitor, PETSC_NULL, PETSC_NULL));
-    _try(SNESSetTolerances(Solver->snes[solverIndex], 1.e-12, PETSC_DEFAULT, PETSC_DEFAULT, PETSC_DEFAULT,
+      _try(SNESMonitorSet(Solver->snes[solverIndex], _mySnesMonitor,
+                          PETSC_NULL, PETSC_NULL));
+    _try(SNESSetTolerances(Solver->snes[solverIndex], 1.e-12, PETSC_DEFAULT,
+                           PETSC_DEFAULT, PETSC_DEFAULT,
                            PETSC_DEFAULT));
 
     // override default options with those from database (if any)
@@ -1374,13 +1385,16 @@ static void _solveNL(gMatrix *A, gVector *B, gMatrix *J, gVector *R, gSolver *So
     PetscOptionsGetTruth(PETSC_NULL,"-snes_fd",&snes_fd,0);
     if (fd_jacobian || snes_fd) {
       Message::Error("Finite Difference Jacobian not yet implemented");
-      _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M, SNESDefaultComputeJacobian,PETSC_NULL));
+      _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M,
+                           SNESDefaultComputeJacobian, PETSC_NULL));
     }
     else {
       Message::Info("Jacobian computed by GetDP");
-      _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M, _NLFormJacobian, PETSC_NULL));
+      _try(SNESSetJacobian(Solver->snes[solverIndex], J->M, J->M, _NLFormJacobian,
+                           PETSC_NULL));
     }
-    _try(SNESSetFunction(Solver->snes[solverIndex], R->V, _NLFormFunction, PETSC_NULL)); // R(x) = A(x)*x-b
+    _try(SNESSetFunction(Solver->snes[solverIndex], R->V, _NLFormFunction,
+                         PETSC_NULL)); // R(x) = A(x)*x-b
   }
 
   _try(SNESSolve(Solver->snes[solverIndex], PETSC_NULL, X->V));
