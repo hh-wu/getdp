@@ -2543,5 +2543,3 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 
   Message::Barrier();
 }
-
-

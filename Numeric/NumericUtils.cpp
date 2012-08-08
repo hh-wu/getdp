@@ -4,11 +4,27 @@
 // bugs and problems to <getdp@geuz.org>.
 
 #include "GetDPConfig.h"
+#include "Message.h"
+
+#if !defined(HAVE_GSL) && !defined(HAVE_NR)
+
+double brent(double ax, double bx, double cx,
+             double (*f) (double), double tol, double *xmin)
+{
+  Message::Error("Minimization routines require GSL or NR");
+  return 0;
+}
+
+void mnbrak(double *ax, double *bx, double *cx,
+            double *fa_dummy, double *fb_dummy, double *fc_dummy,
+            double (*func) (double))
+{
+  Message::Error("Minimization routines require GSL or NR");
+}
+
+#endif
 
 #if defined(HAVE_GSL)
-
-#include "Message.h"
-#include "NumericUtils.h"
 
 #include <gsl/gsl_errno.h>
 #include <gsl/gsl_math.h>
@@ -67,7 +83,7 @@ double brent(double ax, double bx, double cx,
     iter++;
     status = gsl_min_fminimizer_iterate(s);
     if(status)
-      break;    // solver problem    
+      break;    // solver problem
     b = gsl_min_fminimizer_minimum(s);
     // this is deprecated: we should use gsl_min_fminimizer_x_minimum(s) instead
     a = gsl_min_fminimizer_x_lower(s);
@@ -97,8 +113,8 @@ double brent(double ax, double bx, double cx,
 #define MYTINY_  1.0e-20
 #define SIGN(a,b)((b) >= 0.0 ? fabs(a) : -fabs(a))
 
-void mnbrak(double *ax, double *bx, double *cx, 
-            double *fa_dummy, double *fb_dummy, double *fc_dummy, 
+void mnbrak(double *ax, double *bx, double *cx,
+            double *fa_dummy, double *fb_dummy, double *fc_dummy,
             double (*func) (double))
 {
   double ulim, u, r, q;
@@ -122,7 +138,7 @@ void mnbrak(double *ax, double *bx, double *cx,
   while(f_b > f_c) {
     r = (*bx - *ax) * (f_b - f_c);
     q = (*bx - *cx) * (f_b - f_a);
-    u = (*bx) - ((*bx - *cx) * q - (*bx - *ax) * r) / 
+    u = (*bx) - ((*bx - *cx) * q - (*bx - *ax) * r) /
       (2.0 * SIGN(std::max(fabs(q - r), MYTINY_), q - r));
     ulim = *bx + MYLIMIT_ * (*cx - *bx);
 

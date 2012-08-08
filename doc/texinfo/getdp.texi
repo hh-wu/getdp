@@ -2420,7 +2420,7 @@ Formulation @{
   Local | Global | Integral
 
 @var{term-op-type}:
-  Dt | DtDt | JacNL | @var{etc}
+  DtDof | DtDtDof | JacNL | @var{etc}
 @end example
 
 @noindent Note:
@@ -3816,24 +3816,27 @@ Integral quantity obtained by the integration of a
 @ftable @code
 
 @item Dt
-Time derivative applied to the whole term of the equation.
+Time derivative applied to the whole term of the equation. (Not
+implemented yet.)
 
 @item DtDof
 Time derivative applied only to the @code{Dof@{@}} term of the equation.
 
 @item DtDt
-Time derivative of 2nd order applied to the whole term of the equation.
+Time derivative of 2nd order applied to the whole term of the
+equation. (Not implemented yet.)
 
 @item DtDtDof
 Time derivative of 2nd order applied only to the @code{Dof@{@}} term of the 
 equation.
 
 @item JacNL
-Jacobian term to be assembled in the Jacobian matrix for nonlinear analysis.
+Nonlinear par of the Jacobian matrix (tangent stiffness matrix) to be
+assembled for nonlinear analysis.
 
 @item NeverDt
-No time scheme applied to the term 
-(e.g., Theta is always 1 even if a theta scheme is applied).
+No time scheme applied to the term (e.g., Theta is always 1 even if a
+theta scheme is applied).
 
 @end ftable
 

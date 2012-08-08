@@ -4,10 +4,10 @@
 # bugs and problems to <getdp@geuz.org>.
 
 set(SRC
+  NumericUtils.cpp
   Adapt.cpp
-    Bessel.cpp
-    Legendre.cpp
-    gsl_brent.cpp
+  Legendre.cpp
+  Bessel.cpp
 )
 
 if(ENABLE_FORTRAN)

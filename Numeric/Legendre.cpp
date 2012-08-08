@@ -195,7 +195,7 @@ void PrintLegendre(int l, int m, double x, char * FileName)
 
   FILE * file ;
 
-  Message::Info("Writing Legendre: '%s' ", FileName );
+  Message::Info("Writing Legendre: '%s'", FileName);
   file = fopen(FileName, "w");
 
   for (i = 1 ; i <= l ; i++ ){
