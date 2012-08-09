@@ -108,11 +108,9 @@ void Info(int level, char *arg0)
 void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 		 int *lres, int *lpos, int *check)
 {
-  int  i, j, Flag_NameProblem = 0;
-
   strcpy(pro, "");
 
-  i = *sargc = 1;
+  int i = *sargc = 1, j = 0;
 
   while (i < argc) {
 
@@ -329,8 +327,7 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 
     }
     else{
-      if (!Flag_NameProblem) {
-	Flag_NameProblem = 1;
+      if (!strlen(pro)) {
 	sargv[0] = argv[i];
 	strcpy(pro, argv[i++]);
       }
@@ -341,8 +338,12 @@ void Get_Options(int argc, char *argv[], int *sargc, char **sargv, char *pro,
 
   }
 
-  if(!strlen(pro))
+  if(!strlen(pro)){
     Message::Error("Missing input file name");
+    Name_Generic = (char*)Malloc(sizeof(char));
+    strcpy(Name_Generic, "");
+    *sargc = 0;
+  }
   else{
     if(!Name_Generic){
       Name_Generic = (char*)Malloc((strlen(pro) + 1) * sizeof(char));
