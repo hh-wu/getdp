@@ -244,7 +244,7 @@ void Read_ProblemStructure(const char *name)
 
   getdp_yyrestart(getdp_yyin); getdp_yyparse(); fclose(getdp_yyin);
 
-  if(getdp_yyerrorlevel) exit(1);
+  if(getdp_yyerrorlevel) return;
 
   while(getdp_yyincludenum > 0){
     Read_ProblemStructure(getdp_yyincludename);
@@ -254,7 +254,7 @@ void Read_ProblemStructure(const char *name)
     getdp_yylinenum++;
     getdp_yyparse();
     fclose(getdp_yyin);
-    if(getdp_yyerrorlevel) exit(1);
+    if(getdp_yyerrorlevel) return;
   }
 
   getdp_yylinenum = Last_yylinenum;
@@ -266,6 +266,7 @@ void Read_ProblemStructure(const char *name)
 void Finalize_ProblemStructure()
 {
   // Here we should parse any ONELAB-defined functions (+ their context)
+
 }
 
 char *Get_ExpressionName(int Index)
