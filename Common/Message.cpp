@@ -455,6 +455,14 @@ void Message::PrintTimers()
   }
 }
 
+void Message::PrintErrorCounter(const char *title)
+{
+  if(!_errorCount || _commRank || _verbosity < 1) return;
+
+  Error("%s encountered %d error%s - check the log for details",
+        title, _errorCount, (_errorCount > 1) ? "s" : "");
+}
+
 void Message::InitializeSocket(std::string sockname)
 {
   if(sockname.size()){

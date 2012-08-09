@@ -23,7 +23,7 @@ class Message {
   // current cpu number and total number of cpus
   static int _commRank, _commSize, _isCommWorld;
   // error count
-  static int _errorCount;
+  static int _warningCount, _errorCount;
   // verbosity level
   static int _verbosity;
   // step (in %) of the progress meter and current progress %
@@ -67,6 +67,7 @@ class Message {
   static void ProgressMeter(int n, int N){ ProgressMeter(n, N, ""); }
   static void SetProgressMeterStep(int step){ _progressMeterStep = (step > 0) ? step : 1; }
   static void ResetProgressMeter(){ if(!_commRank) _progressMeterCurrent = 0; }
+  static void PrintErrorCounter(const char *title);
   static double &Timer(std::string str){ return _timers[str]; }
   static void PrintTimers();
   static void InitializeSocket(std::string sockname);

@@ -488,6 +488,8 @@ int MainLegacy(int argc, char *argv[])
 
   LinAlg_FinalizeSolver();
 
+  Message::PrintErrorCounter("Run");
+
   time(&now);
   currtime = ctime(&now);
   currtime[currtime.size() - 1] = '\0';
