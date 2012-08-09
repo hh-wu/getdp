@@ -33,7 +33,6 @@ Jacobian {
   }
 }
 
-
 Integration {
   { Name I1 ;
     Case {
@@ -72,7 +71,6 @@ FunctionSpace {
   }
 }
 
-
 Formulation {
   { Name MagSta_phi ; Type FemEquation ;
     Quantity {
@@ -88,7 +86,6 @@ Formulation {
   }
 }
 
-
 Resolution {
   { Name MagSta_phi ;
     System {
@@ -99,7 +96,6 @@ Resolution {
     }
   }
 }
-
 
 PostProcessing {
   { Name MagSta_phi ; NameOfFormulation MagSta_phi ;
@@ -148,7 +144,6 @@ FunctionSpace {
 
 }
 
-
 Formulation {
   { Name MagSta_a ; Type FemEquation ;
     Quantity {
@@ -167,7 +162,6 @@ Formulation {
   }
 }
 
-
 Resolution {
   { Name MagSta_a ;
     System {
@@ -179,7 +173,6 @@ Resolution {
   }
 }
 
-
 PostProcessing {
   { Name MagSta_a ; NameOfFormulation MagSta_a ;
     Quantity {
@@ -188,6 +181,16 @@ PostProcessing {
       { Name a ; Value { Local { [ {a} ]          ; In Domain ; Jacobian JVol ; } } }
       { Name h ; Value { Local { [ nu[] * {d a} ] ; In Domain ; Jacobian JVol ; }
                          Local { [ hc[] ]         ; In Domain_M ; Jacobian JVol ; } } }
+    }
+  }
+}
+
+PostOperation {
+  { Name MagSta_a ; NameOfPostProcessing MagSta_a;
+    Operation {
+      Print[ b, OnElementsOf Domain, File "MagSta_a_b.pos" ] ;
+      Print[ h, OnElementsOf Domain, File "MagSta_a_h.pos" ] ;
+      Print[ a, OnElementsOf Domain, File "MagSta_a_a.pos" ] ;
     }
   }
 }
