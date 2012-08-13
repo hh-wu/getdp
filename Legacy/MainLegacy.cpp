@@ -423,6 +423,11 @@ int MainLegacy(int argc, char *argv[])
   int sargc, lres = 0, lpos = 0, check = 0;
   Get_Options(argc, argv, &sargc, sargv, pro, &lres, &lpos, &check);
 
+  if(Message::GetErrorCount()){
+    Message::Finalize();
+    return Message::GetErrorCount();
+  }
+
   Message::Info("Running '%s' [GetDP %s, %d node%s]", cmdline.c_str(),
                 GETDP_VERSION, Message::GetCommSize(),
                 Message::GetCommSize() > 1 ? "s" : "");
@@ -504,7 +509,7 @@ int MainLegacy(int argc, char *argv[])
   Free(sargv);
 
   Message::Finalize();
-  return 0;
+  return Message::GetErrorCount();
 }
 
 int GetDP(std::vector<std::string> &args)
