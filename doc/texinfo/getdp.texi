@@ -3831,8 +3831,12 @@ Time derivative of 2nd order applied only to the @code{Dof@{@}} term of the
 equation.
 
 @item JacNL
-Nonlinear par of the Jacobian matrix (tangent stiffness matrix) to be
+Nonlinear part of the Jacobian matrix (tangent stiffness matrix) to be
 assembled for nonlinear analysis.
+
+@item DtDofJacNL
+Nonlinear part of the Jacobian matrix for the first order time
+derivative (tangent mass matrix) to be assembled for nonlinear analysis.
 
 @item NeverDt
 No time scheme applied to the term (e.g., Theta is always 1 even if a
@@ -4044,6 +4048,31 @@ Euler, 0.5 for Crank-Nicholson).
 Time loop of a Newmark scheme. The parameters are: the initial time, the end
 time, the time step, the beta and the gamma parameter.
 
+@item TimeLoopAdaptive
+@code{[@var{expression-cst},@var{expression-cst},@var{expression-cst},@var{expression-cst},
+@var{expression-cst},@var{integration-method},<@var{expression-cst-list}>,
+System @{ @{@var{system-id},@var{expression-cst},@var{expression-cst},@var{norm-type}@} ... @} ]}@*
+@code{@{ @var{resolution-op} @}}@*
+@code{@{ @var{resolution-op} @}}
+
+Time loop with variable time steps. The step size is adjusted according the local 
+truncation error (LTE) of the specified systems via a predictor-corrector method.@*
+The parameters are: start time, end time, initial time step, min. time step, 
+max. time step, integration method, list of breakpoints (time points to be hit), 
+system for LTE assessment, relative LTE tolerance, absolute LTE tolerance, 
+norm-type for LTE calculation.@*
+Possible choices for @var{integration-method} are: @code{Euler, Trapezoidal, Gear_2, 
+Gear_3, Gear_4, Gear_5, Gear_6}.
+The Gear methods correspond to backward differentiation formulas of 
+order 2..6.@*
+Possible choices for @var{norm-type}: @code{L1Norm, MeanL1Norm, L2Norm, 
+MeanL2Norm, LinfNorm}.@*
+@code{MeanL1Norm} and @code{MeanL2Norm} correspond to @code{L1Norm} and
+@code{L2Norm} divided by the number of degrees of freedom, respectively.@*
+The first @var{resolution-op} is executed every timestep. The second one is 
+only executed if the actual time step is accepted (LTE is in the specified range).
+E.g. @code{SaveSolution[]} is usually placed in the 2nd @var{resolution-op}.
+
 @item IterativeLoop
 @code{[@var{expression-cst},@var{expression},@var{expression-cst}<,@var{expression-cst}>]}
 @{ @var{resolution-op} @}
@@ -4052,6 +4081,29 @@ Iterative loop for nonlinear analysis. The parameters are: the maximum
 number of iterations (if no convergence), the relaxation factor (multiplies
 the iterative correction @var{dx}) and the relative error to achieve. The
 optional parameter is a flag for testing purposes.
+
+@item IterativeLoopN
+@code{[@var{expression-cst},@var{expression}, 
+System @{ @{@var{system-id},@var{expression-cst},@var{expression-cst},
+@var{assessed-object},@var{norm-type}@} ... @} ]}@* 
+@{ @var{resolution-op} @}
+
+Similar to @code{IterativeLoop[]} but allows to specify in detail the
+tolerances and the type of norm to be calculated for convergence assessment.@*
+The parameters are: the maximum number of iterations (if no convergence),
+the relaxation factor (multiplies the iterative correction @var{dx}),
+system for convergence assessment, relative tolerance, absolute tolerance,
+assessed object, norm-type for error calculation.@*
+Possible choices for @var{assessed-object}: @code{Solution, Residual,
+RecalcResidual}. @code{Residual} assesses the residual from the last iteration
+whereas @code{RecalcResidual} calculates the residual once again after each
+iteration. This means that with @code{Residual} usually one extra iteration is
+performed, but @code{RecalcResidual} causes higher computational effort per 
+iteration.@*
+Possible choices for @var{norm-type}: @code{L1Norm, MeanL1Norm, L2Norm, 
+MeanL2Norm, LinfNorm}.@*
+@code{MeanL1Norm} and @code{MeanL2Norm} correspond to @code{L1Norm} and
+@code{L2Norm} divided by the number of degrees of freedom, respectively.
 
 @item PostOperation
 @code{[@var{post-operation-id}]}
