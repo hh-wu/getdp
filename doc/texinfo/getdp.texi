@@ -3991,7 +3991,7 @@ If @var{expression} is true (nonzero), perform the operations in the first
 
 @item Break
 
-Not implemented yet.
+Aborts an iterative loop or a time loop.
 
 @item Print
 @code{[ @{ @var{expression-list} @}, < File @var{expression-char} > ]}
