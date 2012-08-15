@@ -764,6 +764,13 @@ endif(WIN32 OR CYGWIN)
 
 include(CPack)
 
+include(CTest)
+# we will need some common testing framwork to make actual tests
+file(GLOB_RECURSE TESTFILES demos/*.pro)
+foreach(TESTFILE ${TESTFILES})
+  add_test(${TESTFILE} getdp ${TESTFILE})
+endforeach()
+
 message("")
 message("GetDP ${GETDP_VERSION} has been configured for ${GETDP_OS} with the "
         "following options:" ${GETDP_CONFIG_OPTIONS})
