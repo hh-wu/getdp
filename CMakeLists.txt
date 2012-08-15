@@ -15,8 +15,8 @@ else(DEFINED CMAKE_BUILD_TYPE)
 endif(DEFINED CMAKE_BUILD_TYPE)
 
 # this variable controls the default value of the "ENABLE_XXX" options which are
-# normally set to ON (useful if you want to configure a minimal version of Gmsh:
-# e.g. "cmake -DDEFAULT=0 -DENABLE_POST=1 -DENABLE_PARSER=1")
+# normally set to ON (useful if you want to configure a minimal version of GetDP:
+# e.g. "cmake -DDEFAULT=0 -DENABLE_PETSC=1")
 set(DEFAULT ON CACHE INTERNAL "Default value for enabled-by-default options")
 
 option(ENABLE_ARPACK "Enable Arpack eigensolvers" ${DEFAULT})
@@ -52,7 +52,6 @@ set(GETDP_API
   ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPConfig.h 
   ${CMAKE_CURRENT_BINARY_DIR}/Common/GetDPVersion.h
   Legacy/GetDP.h
-  Interface/ProData.h
 )
 
 execute_process(COMMAND date "+%Y%m%d" OUTPUT_VARIABLE DATE 
