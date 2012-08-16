@@ -1,0 +1,4 @@
+#
+# this will launch a new build every night at 1h31
+#
+31 1 * * * ctest -S ${HOME}/src/getdp/utils/nightly/getdp_linux64_nightly.ctest

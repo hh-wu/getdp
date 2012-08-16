@@ -1,0 +1,112 @@
+# GetDP - Copyright (C) 1997-2012 P. Dular, C. Geuzaine
+#
+# See the LICENSE.txt file for license information. Please report all
+# bugs and problems to <getdp@geuz.org>.
+
+set(CTEST_SITE "ace25 (OSX 10.5)")
+set(CTEST_CMAKE_COMMAND "cmake")
+
+set(WEB_BIN "geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/MacOSX")
+
+set(WITH_TEST TRUE)      # run the tests?
+set(WITH_COVERAGE FALSE) # check code coverage?
+set(WITH_MEMCHECK FALSE) # check memory with valgrind?
+
+#################################################################################
+set(CTEST_BUILD_NAME "MacOSX32-PETScComplex")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "${OPT} -DCMAKE_PREFIX_PATH=/usr/local")
+set(OPT "${OPT} -DCMAKE_C_COMPILER=/usr/bin/gcc")
+set(OPT "${OPT} -DCMAKE_CXX_COMPILER=/usr/bin/g++")
+set(OPT "${OPT} -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran")
+set(OPT "${OPT} -DENABLE_SPARSKIT=0")
+set(OPT "${OPT} -DENABLE_PETSC=1")
+set(OPT "${OPT} -DPETSC_ARCH=macosx_complex_mumps_seq")
+set(OPT "${OPT} -DPETSC_DIR=$ENV{HOME}/src/petsc-3.1-p8")
+set(OPT "${OPT} -DSLEPC_DIR=$ENV{HOME}/src/slepc-3.1-p4")
+set(CTEST_BUILD_OPTIONS ${OPT})
+include(getdp.ctest)
+upload_package(${WEB_BIN} MacOSX 32c .tar.gz .tgz)
+
+#################################################################################
+set(CTEST_BUILD_NAME "MacOSX32-PETScReal")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "${OPT} -DCMAKE_PREFIX_PATH=/usr/local")
+set(OPT "${OPT} -DCMAKE_C_COMPILER=/usr/bin/gcc")
+set(OPT "${OPT} -DCMAKE_CXX_COMPILER=/usr/bin/g++")
+set(OPT "${OPT} -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran")
+set(OPT "${OPT} -DENABLE_SPARSKIT=0")
+set(OPT "${OPT} -DENABLE_PETSC=1")
+set(OPT "${OPT} -DPETSC_ARCH=macosx_real_mumps_seq")
+set(OPT "${OPT} -DPETSC_DIR=$ENV{HOME}/src/petsc-3.1-p8")
+set(OPT "${OPT} -DSLEPC_DIR=$ENV{HOME}/src/slepc-3.1-p4")
+set(CTEST_BUILD_OPTIONS ${OPT})
+include(getdp.ctest)
+upload_package(${WEB_BIN} MacOSX 32r .tar.gz .tgz)
+
+#################################################################################
+set(CTEST_BUILD_NAME "MacOSX32-Sparskit")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "${OPT} -DCMAKE_PREFIX_PATH=/usr/local")
+set(OPT "${OPT} -DCMAKE_C_COMPILER=/usr/bin/gcc")
+set(OPT "${OPT} -DCMAKE_CXX_COMPILER=/usr/bin/g++")
+set(OPT "${OPT} -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran")
+set(OPT "${OPT} -DENABLE_SPARSKIT=1")
+set(OPT "${OPT} -DENABLE_PETSC=0")
+set(CTEST_BUILD_OPTIONS ${OPT})
+include(getdp.ctest)
+upload_package(${WEB_BIN} MacOSX 32s .tar.gz .tgz)
+
+#################################################################################
+set(CTEST_BUILD_NAME "MacOSX64-PETScComplex")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "${OPT} -DCMAKE_PREFIX_PATH=/usr/local")
+set(OPT "${OPT} -DCMAKE_C_COMPILER=/usr/bin/gcc")
+set(OPT "${OPT} -DCMAKE_CXX_COMPILER=/usr/bin/g++")
+set(OPT "${OPT} -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran")
+set(OPT "${OPT} -DCMAKE_C_FLAGS=-m64")
+set(OPT "${OPT} -DCMAKE_CXX_FLAGS=-m64 -L/usr/local/lib")
+set(OPT "${OPT} -DCMAKE_Fortran_FLAGS=-m64")
+set(OPT "${OPT} -DENABLE_SPARSKIT=0")
+set(OPT "${OPT} -DENABLE_PETSC=1")
+set(OPT "${OPT} -DPETSC_ARCH=macosx64_complex_mumps_seq")
+set(OPT "${OPT} -DPETSC_DIR=$ENV{HOME}/src/petsc-3.1-p8")
+set(OPT "${OPT} -DSLEPC_DIR=$ENV{HOME}/src/slepc-3.1-p4")
+set(CTEST_BUILD_OPTIONS ${OPT})
+include(getdp.ctest)
+upload_package(${WEB_BIN} MacOSX 64c .tar.gz .tgz)
+
+#################################################################################
+set(CTEST_BUILD_NAME "MacOSX64-PETScReal")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "${OPT} -DCMAKE_PREFIX_PATH=/usr/local")
+set(OPT "${OPT} -DCMAKE_C_COMPILER=/usr/bin/gcc")
+set(OPT "${OPT} -DCMAKE_CXX_COMPILER=/usr/bin/g++")
+set(OPT "${OPT} -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran")
+set(OPT "${OPT} -DCMAKE_C_FLAGS=-m64")
+set(OPT "${OPT} -DCMAKE_CXX_FLAGS=-m64 -L/usr/local/lib")
+set(OPT "${OPT} -DCMAKE_Fortran_FLAGS=-m64")
+set(OPT "${OPT} -DENABLE_SPARSKIT=0")
+set(OPT "${OPT} -DENABLE_PETSC=1")
+set(OPT "${OPT} -DPETSC_ARCH=macosx64_real_mumps_seq")
+set(OPT "${OPT} -DPETSC_DIR=$ENV{HOME}/src/petsc-3.1-p8")
+set(OPT "${OPT} -DSLEPC_DIR=$ENV{HOME}/src/slepc-3.1-p4")
+set(CTEST_BUILD_OPTIONS ${OPT})
+include(getdp.ctest)
+upload_package(${WEB_BIN} MacOSX 64r .tar.gz .tgz)
+
+#################################################################################
+set(CTEST_BUILD_NAME "MacOSX64-Sparskit")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "${OPT} -DCMAKE_PREFIX_PATH=/usr/local")
+set(OPT "${OPT} -DCMAKE_C_COMPILER=/usr/bin/gcc")
+set(OPT "${OPT} -DCMAKE_CXX_COMPILER=/usr/bin/g++")
+set(OPT "${OPT} -DCMAKE_Fortran_COMPILER=/usr/local/bin/gfortran")
+set(OPT "${OPT} -DCMAKE_C_FLAGS=-m64")
+set(OPT "${OPT} -DCMAKE_CXX_FLAGS=-m64 -L/usr/local/lib")
+set(OPT "${OPT} -DCMAKE_Fortran_FLAGS=-m64")
+set(OPT "${OPT} -DENABLE_SPARSKIT=1")
+set(OPT "${OPT} -DENABLE_PETSC=0")
+set(CTEST_BUILD_OPTIONS ${OPT})
+include(getdp.ctest)
+upload_package(${WEB_BIN} MacOSX 64s .tar.gz .tgz)

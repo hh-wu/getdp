@@ -1,0 +1,49 @@
+# GetDP - Copyright (C) 1997-2012 P. Dular, C. Geuzaine
+#
+# See the LICENSE.txt file for license information. Please report all
+# bugs and problems to <getdp@geuz.org>.
+
+set(CTEST_SITE "ace25 (Debian 32 bits)")
+set(CTEST_CMAKE_COMMAND "/usr/local/bin/cmake")
+
+set(WEB_BIN "geuzaine@geuz.org:/home/www/geuz.org/getdp/bin/Linux")
+
+set(WITH_TEST TRUE)      # run the tests?
+set(WITH_COVERAGE FALSE) # check code coverage?
+set(WITH_MEMCHECK FALSE) # check memory with valgrind?
+
+#################################################################################
+set(CTEST_BUILD_NAME "Linux32-PETScComplex")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "${OPT} -DCMAKE_PREFIX_PATH=/usr/local")
+set(OPT "${OPT} -DENABLE_SPARSKIT=0")
+set(OPT "${OPT} -DENABLE_PETSC=1")
+set(OPT "${OPT} -DPETSC_ARCH=linux_complex_mumps_seq")
+set(OPT "${OPT} -DPETSC_DIR=$ENV{HOME}/src/petsc-3.1-p8")
+set(OPT "${OPT} -DSLEPC_DIR=$ENV{HOME}/src/slepc-3.1-p6")
+set(CTEST_BUILD_OPTIONS ${OPT})
+include(getdp.ctest)
+upload_package(${WEB_BIN} Linux 32c .tar.gz .tgz)
+
+#################################################################################
+set(CTEST_BUILD_NAME "Linux32-PETScReal")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "${OPT} -DCMAKE_PREFIX_PATH=/usr/local")
+set(OPT "${OPT} -DENABLE_SPARSKIT=0")
+set(OPT "${OPT} -DENABLE_PETSC=1")
+set(OPT "${OPT} -DPETSC_ARCH=linux_real_mumps_seq")
+set(OPT "${OPT} -DPETSC_DIR=$ENV{HOME}/src/petsc-3.1-p8")
+set(OPT "${OPT} -DSLEPC_DIR=$ENV{HOME}/src/slepc-3.1-p6")
+set(CTEST_BUILD_OPTIONS ${OPT})
+include(getdp.ctest)
+upload_package(${WEB_BIN} Linux 32r .tar.gz .tgz)
+
+#################################################################################
+set(CTEST_BUILD_NAME "Linux32-Sparskit")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "${OPT} -DCMAKE_PREFIX_PATH=/usr/local")
+set(OPT "${OPT} -DENABLE_SPARSKIT=1")
+set(OPT "${OPT} -DENABLE_PETSC=0")
+set(CTEST_BUILD_OPTIONS ${OPT})
+include(getdp.ctest)
+upload_package(${WEB_BIN} Linux 32s .tar.gz .tgz)
