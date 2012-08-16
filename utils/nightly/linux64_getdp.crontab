@@ -1,4 +1,0 @@
-#
-# this will launch a new build every night at 1h31
-#
-31 1 * * * ${HOME}/src/getdp/utils/nightly/linux64.sh -svn
