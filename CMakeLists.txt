@@ -3,7 +3,7 @@
 # See the LICENSE.txt file for license information. Please report all
 # bugs and problems to <getdp@geuz.org>.
 
-cmake_minimum_required(VERSION 2.6 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
 
 # if CMAKE_BUILD_TYPE is specified use it; otherwise set the default
 # build type to "RelWithDebInfo" ("-O2 -g" with gcc) prior to calling
@@ -119,8 +119,7 @@ macro(find_all_libraries VARNAME LISTNAME PATH SUFFIX)
     if(FOUND_LIB)
       list(APPEND ${VARNAME} ${FOUND_LIB})
     endif(FOUND_LIB)
-    set(FOUND_LIB FOUND_LIB-NOTFOUND CACHE INTERNAL "")
-    # unset(FOUND_LIB CACHE) # cleaner, but only available in cmake >= 2.6.4
+    unset(FOUND_LIB CACHE)
   endforeach(LIB)
   list(LENGTH ${VARNAME} NUM_FOUND_LIBRARIES)
   if(NUM_FOUND_LIBRARIES LESS NUM_LIST)
