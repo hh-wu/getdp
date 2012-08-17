@@ -21,6 +21,8 @@ set(DEFAULT ON CACHE INTERNAL "Default value for enabled-by-default options")
 
 option(ENABLE_ARPACK "Enable Arpack eigensolvers" ${DEFAULT})
 option(ENABLE_BLAS_LAPACK "Enable BLAS and Lapack functions" ${DEFAULT})
+option(ENABLE_BUILD_LIB "Build static GetDP library" OFF)
+option(ENABLE_BUILD_SHARED "Build shared GetDP library" OFF)
 option(ENABLE_FORTRAN "Enable Fortran components" ${DEFAULT})
 option(ENABLE_GMSH "Enable Gmsh functions" ${DEFAULT})
 option(ENABLE_GSL "Enable GSL functions" ${DEFAULT})
@@ -359,7 +361,7 @@ if(ENABLE_FORTRAN)
 
   if(ENABLE_ZITSOL AND HAVE_PETSC)
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/ZITSOL_1/getdp.c)
-      message("WARNING: Using experimental Zitsol code from Y. Saad.")
+      message(STATUS "Warning: Using experimental Zitsol code from Y. Saad.")
       add_subdirectory(contrib/ZITSOL_1)
       set_config_option(HAVE_ZITSOL "Zitsol")
     endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/ZITSOL_1/getdp.c)
@@ -387,8 +389,8 @@ endif(ENABLE_FORTRAN)
 
 if(ENABLE_NX)
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NX/Unv_Format.cpp)
-    message("WARNING: Building non-free version of GetDP with code (C) 2012 "
-            "Dr. Binde Ingenieure.")
+    message(STATUS "Warning: Building non-free version of GetDP with code "
+            "(C) 2012 Dr. Binde Ingenieure.")
     add_subdirectory(contrib/NX)
     set_config_option(HAVE_NX "NX")
   endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NX/Unv_Format.cpp)
@@ -417,8 +419,8 @@ endif(ENABLE_GSL)
 
 if(ENABLE_NR AND NOT HAVE_GSL)
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NR/newt.cpp)
-    message("WARNING: Building non-free version of GetDP, with code (C) 1986-92 "
-            "Numerical Recipes Software.")
+    message(STATUS "Warning: Building non-free version of GetDP, with code "
+            "(C) 1986-92 Numerical Recipes Software.")
     add_subdirectory(contrib/NR)
     set_config_option(HAVE_NR "NR")
   endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NR/newt.cpp)
@@ -528,41 +530,35 @@ foreach(DIR ${GETDP_DIRS})
   source_group(${DIR} REGULAR_EXPRESSION ${DIR}/.*)
 endforeach(DIR)
 
-# static library target: we don't build it by default (we could then
-# create the getdp target by linking with it) because doing so slows
-# down the compile/link development a lot: running ranlib+ar on a
-# large static lib every time we recompile is frustratingly
-# slow. Instead, we build the getdp target directly from the object
-# files. This is much faster but has one side effect: when we actually
-# want to build the lib we need to recompile everything (the first
-# time--it's a separate target)
-add_library(lib STATIC EXCLUDE_FROM_ALL ${GETDP_SRC})
-set_target_properties(lib PROPERTIES OUTPUT_NAME GetDP)
-if(MSVC)
-  set_target_properties(lib PROPERTIES DEBUG_POSTFIX d) 
-  if(ENABLE_MSVC_STATIC_RUNTIME)
-    set_target_properties(lib PROPERTIES LINK_FLAGS_RELEASE "/nodefaultlib:LIBCMT")
-  endif(ENABLE_MSVC_STATIC_RUNTIME)
-endif(MSVC)
+# static library target
+if(ENABLE_BUILD_LIB)
+  add_library(lib STATIC ${GETDP_SRC})
+  set_target_properties(lib PROPERTIES OUTPUT_NAME GetDP)
+  if(MSVC)
+    set_target_properties(lib PROPERTIES DEBUG_POSTFIX d) 
+    if(ENABLE_MSVC_STATIC_RUNTIME)
+      set_target_properties(lib PROPERTIES LINK_FLAGS_RELEASE "/nodefaultlib:LIBCMT")
+    endif(ENABLE_MSVC_STATIC_RUNTIME)
+  endif(MSVC)
+endif(ENABLE_BUILD_LIB)
 
-# shared library target: we don't build it by default either
-add_library(shared SHARED EXCLUDE_FROM_ALL ${GETDP_SRC})
-set_target_properties(shared PROPERTIES OUTPUT_NAME GetDP)
-if(HAVE_LAPACK AND LAPACK_FLAGS)
-  set_target_properties(shared PROPERTIES LINK_FLAGS ${LAPACK_FLAGS})
-endif(HAVE_LAPACK AND LAPACK_FLAGS)
-if(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)
-  message("WARNING: By enabling ENABLE_MSVC_STATIC_RUNTIME, shared library wont link. "
-          "Change in msvc /MT flag to /MD in the shared project properties")
-endif(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)		  
-target_link_libraries(shared ${LINK_LIBRARIES})
+# shared library target
+if(ENABLE_BUILD_SHARED)
+  add_library(shared SHARED ${GETDP_SRC})
+  set_target_properties(shared PROPERTIES OUTPUT_NAME GetDP)
+  if(HAVE_LAPACK AND LAPACK_FLAGS)
+    set_target_properties(shared PROPERTIES LINK_FLAGS ${LAPACK_FLAGS})
+  endif(HAVE_LAPACK AND LAPACK_FLAGS)
+  if(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)
+    message(STATUS "Warning: By enabling ENABLE_MSVC_STATIC_RUNTIME, shared library "
+            "won't link. In MSVC change /MT to /MD in the shared project properties")
+  endif(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)		  
+  target_link_libraries(shared ${LINK_LIBRARIES})
+endif(ENABLE_BUILD_SHARED)
 
-# binary targets
+# static binary target
 add_executable(getdp Main/Main.cpp ${GETDP_SRC})
 target_link_libraries(getdp ${LINK_LIBRARIES})
-
-add_executable(getdp_dynamic EXCLUDE_FROM_ALL Main/Main.cpp)
-target_link_libraries(getdp_dynamic shared)
 
 # force static linking of system libraries with cygwin/mingw
 if(WIN32 AND NOT MSVC OR CYGWIN)
@@ -572,6 +568,11 @@ if(WIN32 AND NOT MSVC OR CYGWIN)
   set(CMAKE_EXE_LINK_DYNAMIC_CXX_FLAGS)
 endif(WIN32 AND NOT MSVC OR CYGWIN)
 
+# dynamic binary target
+add_executable(getdp_dynamic EXCLUDE_FROM_ALL Main/Main.cpp)
+target_link_libraries(getdp_dynamic shared)
+
+# parser target
 find_program(BISON bison)
 find_program(FLEX flex)
 if(BISON AND FLEX)
@@ -581,6 +582,7 @@ if(BISON AND FLEX)
                     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/Interface)
 endif(BISON AND FLEX)
 
+# miscellaneaous targets
 if(UNIX)
   # cannot use cmake's file search functions here (they would only
   # find files existing at configuration time)
@@ -648,7 +650,9 @@ endif(WIN32 OR CYGWIN)
 # mark targets as optional so we can install them separately if needed
 # (e.g. "make lib" or "make shared" followed by "make install/fast")
 install(TARGETS getdp DESTINATION ${GETDP_BIN} OPTIONAL)
-install(TARGETS lib shared DESTINATION lib OPTIONAL)
+if(ENABLE_BUILD_LIB)
+  install(TARGETS lib shared DESTINATION lib OPTIONAL)
+endif(ENABLE_BUILD_LIB)
 install(FILES ${GETDP_API} DESTINATION include/getdp)
 install(FILES ${WELCOME_FILE} DESTINATION ${GETDP_DOC} RENAME README.txt)
 install(FILES ${LICENSE_FILE} DESTINATION ${GETDP_DOC})
@@ -702,7 +706,7 @@ if(MAKEINFO OR TEXI2PDF)
   add_custom_target(clean_doc COMMAND ${CMAKE_COMMAND} -E remove ${TEX_OBJ})
 endif(MAKEINFO OR TEXI2PDF)
 
-if(APPLE)
+if(APPLE AND ENABLE_BUILD_LIB)
   file(READ ${CMAKE_CURRENT_SOURCE_DIR}/utils/misc/getdp_framework.plist F0)
   string(REPLACE GETDP_VERSION "${GETDP_VERSION}" F1 "${F0}")
   file(WRITE ${CMAKE_CURRENT_BINARY_DIR}/Info_framework.plist "${F1}")
@@ -727,7 +731,7 @@ if(APPLE)
         ${FILE} ${CMAKE_CURRENT_BINARY_DIR}/GetDP.framework/Versions/A/Headers/
         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   endforeach(FILE)
-endif(APPLE)
+endif(APPLE AND ENABLE_BUILD_LIB)
 
 set(CPACK_PACKAGE_VENDOR "Patrick Dular and Christophe Geuzaine")
 set(CPACK_PACKAGE_VERSION_MAJOR ${GETDP_MAJOR_VERSION})
@@ -773,23 +777,20 @@ foreach(TESTFILE ${TESTFILES})
   add_test(${TESTFILE} getdp ${TESTFILE})
 endforeach()
 
-message("")
-message("GetDP ${GETDP_VERSION} has been configured for ${GETDP_OS} with the "
-        "following options:" ${GETDP_CONFIG_OPTIONS})
-message("")
-message("C compiler: " ${CMAKE_C_COMPILER})
-message("C++ compiler: " ${CMAKE_CXX_COMPILER})
-message("Fortran compiler: " ${CMAKE_Fortran_COMPILER})
-if(NOT CMAKE_BUILD_TYPE)
-  message("C compiler flags: " ${CMAKE_C_FLAGS})
-  message("C++ compiler flags: " ${CMAKE_CXX_FLAGS})
-  message("Fortran compiler flags: " ${CMAKE_Fortran_FLAGS})
-else(NOT CMAKE_BUILD_TYPE)
-  message("Build type: " ${CMAKE_BUILD_TYPE})
-endif(NOT CMAKE_BUILD_TYPE)
-message("Install prefix: " ${CMAKE_INSTALL_PREFIX})
-message("")
-message("Run 'ccmake ${CMAKE_CURRENT_SOURCE_DIR}' to fine-tune the configuration.")
-message("")
+message(STATUS "")
+message(STATUS "GetDP ${GETDP_VERSION} has been configured for ${GETDP_OS}:")
+message(STATUS "")
+message(STATUS " * Build options:" ${GETDP_CONFIG_OPTIONS})
+message(STATUS " * Build type: " ${CMAKE_BUILD_TYPE})
+message(STATUS " * C compiler: " ${CMAKE_C_COMPILER})
+message(STATUS " * C++ compiler: " ${CMAKE_CXX_COMPILER})
+message(STATUS " * Fortran compiler: " ${CMAKE_Fortran_COMPILER})
+if(ENV_PETSC_ARCH)
+  message(STATUS " * PETSc arch: " ${ENV_PETSC_ARCH})
+endif(ENV_PETSC_ARCH)
+message(STATUS " * Install prefix: " ${CMAKE_INSTALL_PREFIX})
+message(STATUS "")
+message(STATUS "Run 'ccmake ${CMAKE_CURRENT_SOURCE_DIR}' to fine-tune the configuration.")
+message(STATUS "")
 
 mark_as_advanced(BISON FLEX GETDP_EXTRA_VERSION MAKEINFO TEXI2PDF SLEPC_INC2)
