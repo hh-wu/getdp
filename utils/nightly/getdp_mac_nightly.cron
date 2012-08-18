@@ -1,4 +1,4 @@
 #
 # this will launch a new build every night at 0h31
 #
-31 0 * * * cd ${HOME}/src/getdp/utils/nightly && /usr/local/bin/ctest -S getdp_mac_nightly.ctest
+31 0 * * * cd ${HOME}/src/getdp/utils/nightly && /usr/local/bin/ctest -S getdp_mac_nightly.ctest -VV > ${HOME}/src/getdp/nightly.log 2>&1
