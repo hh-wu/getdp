@@ -387,6 +387,10 @@ else(ENABLE_FORTRAN)
   set_config_option(HAVE_NO_FORTRAN "NoFortran")
 endif(ENABLE_FORTRAN)
 
+if(NOT HAVE_PETSC AND NOT HAVE_SPARSKIT)
+  message(STATUS "Warning: building without PETSc and without Sparskit")
+endif(NOT HAVE_PETSC AND NOT HAVE_SPARSKIT)
+
 if(ENABLE_NX)
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NX/Unv_Format.cpp)
     message(STATUS "Warning: Building non-free version of GetDP with code "
