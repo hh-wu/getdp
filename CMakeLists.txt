@@ -361,7 +361,6 @@ if(ENABLE_FORTRAN)
 
   if(ENABLE_ZITSOL AND HAVE_PETSC)
     if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/ZITSOL_1/getdp.c)
-      message(STATUS "Warning: Using experimental Zitsol code from Y. Saad.")
       add_subdirectory(contrib/ZITSOL_1)
       set_config_option(HAVE_ZITSOL "Zitsol")
     endif(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/ZITSOL_1/getdp.c)
@@ -393,7 +392,7 @@ endif(NOT HAVE_PETSC AND NOT HAVE_SPARSKIT)
 
 if(ENABLE_NX)
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NX/Unv_Format.cpp)
-    message(STATUS "Warning: Building non-free version of GetDP with code "
+    message(STATUS "Note: Building non-free version of GetDP with code "
             "(C) 2012 Dr. Binde Ingenieure.")
     add_subdirectory(contrib/NX)
     set_config_option(HAVE_NX "NX")
@@ -423,7 +422,7 @@ endif(ENABLE_GSL)
 
 if(ENABLE_NR AND NOT HAVE_GSL)
   if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/contrib/NR/newt.cpp)
-    message(STATUS "Warning: Building non-free version of GetDP, with code "
+    message(STATUS "Note: Building non-free version of GetDP, with code "
             "(C) 1986-92 Numerical Recipes Software.")
     add_subdirectory(contrib/NR)
     set_config_option(HAVE_NR "NR")
@@ -554,7 +553,7 @@ if(ENABLE_BUILD_SHARED)
     set_target_properties(shared PROPERTIES LINK_FLAGS ${LAPACK_FLAGS})
   endif(HAVE_LAPACK AND LAPACK_FLAGS)
   if(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)
-    message(STATUS "Warning: By enabling ENABLE_MSVC_STATIC_RUNTIME, shared library "
+    message(STATUS "Note: By enabling ENABLE_MSVC_STATIC_RUNTIME, shared library "
             "won't link. In MSVC change /MT to /MD in the shared project properties")
   endif(MSVC AND ENABLE_MSVC_STATIC_RUNTIME)		  
   target_link_libraries(shared ${LINK_LIBRARIES})
