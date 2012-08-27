@@ -62,7 +62,7 @@ set(WEB_BIN "geuzaine@geuz.org:/home/www/geuz.org/getdp/bin_nx")
 
 #################################################################################
 set(CTEST_BUILD_NAME "Win32-PETScComplex-NX")
-set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}-NX")
 set(OPT "${OPT} -DCMAKE_PREFIX_PATH:path=/usr/local;/usr/i686-w64-mingw32/sys-root/mingw")
 set(OPT "${OPT} -DCMAKE_C_COMPILER=/usr/bin/i686-w64-mingw32-gcc.exe")
 set(OPT "${OPT} -DCMAKE_CXX_COMPILER=/usr/bin/i686-w64-mingw32-g++.exe")
@@ -79,7 +79,7 @@ upload_package(${WEB_BIN} Win 32c .zip .zip)
 
 #################################################################################
 set(CTEST_BUILD_NAME "Win32-PETScReal-NX")
-set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}")
+set(OPT "-DGETDP_EXTRA_VERSION=${EXTRA_VERSION}-NX")
 set(OPT "${OPT} -DCMAKE_PREFIX_PATH:path=/usr/local;/usr/i686-w64-mingw32/sys-root/mingw")
 set(OPT "${OPT} -DCMAKE_C_COMPILER=/usr/bin/i686-w64-mingw32-gcc.exe")
 set(OPT "${OPT} -DCMAKE_CXX_COMPILER=/usr/bin/i686-w64-mingw32-g++.exe")
