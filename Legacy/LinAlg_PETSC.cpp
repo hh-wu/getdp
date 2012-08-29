@@ -66,14 +66,14 @@ static PetscViewer MyPetscViewer;
 
 static void _try(int ierr)
 {
-  if (!Flag_TimeLoopAdaptive) {
-    CHKERRABORT(MyComm, ierr);
-  }
-  else {
+  // if (!Flag_TimeLoopAdaptive) {
+  //  CHKERRABORT(MyComm, ierr);
+  //}
+  //else {
     CHKERRCONTINUE(ierr);
     if (PetscUnlikely(ierr))
       Flag_TimeLoopAdaptive_PETSc_Error = ierr;
-  }
+    //}
 }
 
 static int SolverInitialized = 0;
@@ -202,11 +202,18 @@ void LinAlg_CreateMatrix(gMatrix *M, gSolver *Solver, int n, int m)
     _try(MatCreateAIJ(MyComm, PETSC_DECIDE, PETSC_DECIDE, n, m,
                       prealloc, PETSC_NULL, prealloc, PETSC_NULL, &M->M));
 #else
- _try(MatCreateMPIAIJ(MyComm, PETSC_DECIDE, PETSC_DECIDE, n, m,
-                         prealloc, PETSC_NULL, prealloc, PETSC_NULL, &M->M));
+  _try(MatCreateMPIAIJ(MyComm, PETSC_DECIDE, PETSC_DECIDE, n, m,
+                       prealloc, PETSC_NULL, prealloc, PETSC_NULL, &M->M));
 #endif
   else
     _try(MatCreateSeqAIJ(PETSC_COMM_SELF, n, m, 0, &nnz[0], &M->M));
+
+#if ((PETSC_VERSION_MAJOR == 3) && (PETSC_VERSION_MINOR == 3))
+  // Preallocation routines automatically set now MAT_NEW_NONZERO_ALLOCATION_ERR,
+  // what causes a problem when the mask of the matrix changes (e.g. moving band)
+  // We must disable the error generation and allow new allocation (if needed)
+  _try(MatSetOption(M->M,MAT_NEW_NONZERO_ALLOCATION_ERR,PETSC_FALSE));
+#endif
 
   // override the default options with the ones from the option
   // database (if any)
