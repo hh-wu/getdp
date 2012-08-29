@@ -2001,8 +2001,8 @@ void  Treatment_Operation(struct Resolution  * Resolution_P,
 	Current.Time += Current.DTime ;
 	Current.TimeStep += 1. ;
 
-	Message::Info("Newmark Time = %.8g s (TimeStep %d)", Current.Time,
-		  (int)Current.TimeStep) ;
+	Message::Info(1, "Newmark Time = %.8g s (TimeStep %d)", Current.Time,
+                      (int)Current.TimeStep) ;
         Message::AddOnelabNumberChoice(Message::GetOnelabClientName() + "/Time",
                                        Current.Time);
 
