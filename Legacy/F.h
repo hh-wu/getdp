@@ -19,6 +19,7 @@
 
 /* F_Analytic */
 
+// using +iwt convention
 void  F_JFIE_ZPolCyl      (F_ARG) ;
 void  F_RCS_ZPolCyl       (F_ARG) ;
 void  F_JFIE_TransZPolCyl (F_ARG) ;
@@ -26,8 +27,14 @@ void  F_JFIE_SphTheta     (F_ARG) ;
 void  F_RCS_SphTheta      (F_ARG) ;
 void  F_JFIE_SphPhi       (F_ARG) ;
 void  F_RCS_SphPhi        (F_ARG) ;
-void  F_ElectricFieldPerfectlyConductingSphere(F_ARG);
 void  F_CurrentPerfectlyConductingSphere(F_ARG);
+
+// using -iwt convention
+void  F_ElectricFieldPerfectlyConductingSphereMwt(F_ARG);
+void  F_ElectricFieldDielectricSphereMwt(F_ARG);
+void  F_ExactOsrcSolutionPerfectlyConductingSphereMwt(F_ARG);
+void  F_CurrentPerfectlyConductingSphereMwt(F_ARG);
+
 void  F_AcousticFieldSoftSphere(F_ARG) ;
 void  F_DrAcousticFieldSoftSphere(F_ARG) ;
 void  F_RCSSoftSphere(F_ARG) ;
@@ -41,6 +48,7 @@ void  F_AcousticFieldHardCylinder(F_ARG) ;
 void  F_AcousticFieldHardCylinderABC(F_ARG) ;
 void  F_DthetaAcousticFieldHardCylinder(F_ARG) ;
 void  F_RCSHardCylinder(F_ARG) ;
+
 void  F_OSRC_C0(F_ARG);
 void  F_OSRC_Aj(F_ARG);
 void  F_OSRC_Bj(F_ARG);

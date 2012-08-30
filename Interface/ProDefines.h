@@ -1002,9 +1002,13 @@ struct StringXFunction2Nbr  F_Function[] = {    /* #Par #Arg */
   {"RCS_SphTheta",                (CAST)F_RCS_SphTheta,        4,   1 },
   {"JFIE_OnSphCutPhi",            (CAST)F_JFIE_SphPhi,         4,   1 },
   {"RCS_SphPhi",                  (CAST)F_RCS_SphPhi,          4,   1 },
-  {"ElectricFieldPerfectlyConductingSphere",
-                               (CAST)F_ElectricFieldPerfectlyConductingSphere,  2, 1 },
   {"CurrentPerfectlyConductingSphere",(CAST)F_CurrentPerfectlyConductingSphere,  3, 1 },
+
+  {"ElectricFieldPerfectlyConductingSphereMwt", (CAST)F_ElectricFieldPerfectlyConductingSphereMwt,  2, 1 },
+  {"ElectricFieldDielectricSphereMwt", (CAST)F_ElectricFieldDielectricSphereMwt,  2, 1 },
+  {"ExactOsrcSolutionPerfectlyConductingSphereMwt", (CAST)F_ExactOsrcSolutionPerfectlyConductingSphereMwt,  3, 1 },
+  {"CurrentPerfectlyConductingSphereMwt",(CAST)F_CurrentPerfectlyConductingSphereMwt,  3, 1 },
+
   {"AcousticFieldSoftSphere",         (CAST)F_AcousticFieldSoftSphere,  2, 1 },
   {"DrAcousticFieldSoftSphere",       (CAST)F_DrAcousticFieldSoftSphere, 2, 1 },
   {"RCSSoftSphere",                   (CAST)F_RCSSoftSphere,  2, 1 },
