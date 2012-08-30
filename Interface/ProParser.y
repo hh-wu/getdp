@@ -2186,10 +2186,10 @@ BasisFunction :
 
 BasisFunctionTerm :
 
-    tName tSTRING tEND
+    tName String__Index tEND
     { BasisFunction_S.Name = $2; }
 
-  | tNameOfCoef tSTRING tEND
+  | tNameOfCoef String__Index tEND
     { Check_NameOfStructNotExist("NameOfCoef", Current_BasisFunction_L,
 				 $2, fcmp_BasisFunction_NameOfCoef);
       BasisFunction_S.NameOfCoef = $2; BasisFunction_S.Dimension = 1; }
@@ -2518,7 +2518,7 @@ GlobalQuantityTerm :
       Free($2);
     }
 
-  | tNameOfCoef tSTRING tEND
+  | tNameOfCoef String__Index tEND
     {
       int i;
       if((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, $2,
@@ -2601,7 +2601,7 @@ ConstraintInFS :
 
 ConstraintInFSTerm :
 
-    tNameOfCoef tSTRING tEND
+    tNameOfCoef String__Index tEND
     {
       int i;
       if((i = List_ISearchSeq(FunctionSpace_S.BasisFunction, $2,
